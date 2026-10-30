@@ -34,7 +34,7 @@ export default async function DistrictsPage() {
         districts={SIDO_GROUPS.flatMap((g) => g.districts.map((d) => ({ ...d, sido: g.sido })))}
         activeCodes={[...watchMap.keys()]}
       />
-      {/* RE-B4(2026-10-30): 서울·경기·인천 묶음. 경기·인천은 국토부 실거래 자료(전월세 비교는 서울만) */}
+      {/* RE-B4(2026-10-30): 서울·경기·인천 묶음. 경기·인천은 국토부 실거래·전월세 자료 */}
       {SIDO_GROUPS.map((g) => {
         const picked = g.districts.filter((d) => watchMap.has(d.sgg_cd)).length;
         return (
@@ -43,7 +43,7 @@ export default async function DistrictsPage() {
               {g.sido}{" "}
               <small className="text-sm font-normal text-mx-muted">
                 {g.districts.length}곳{picked ? ` · ${picked}곳 선택` : ""}
-                {g.sido === "서울" ? "" : " · 국토부 실거래 자료(전월세 비교는 서울만)"}
+                {g.sido === "서울" ? "" : " · 국토부 실거래 자료"}
               </small>
             </summary>
             {/* 경기는 구가 여러 개인 시(수원·성남·안양·부천·안산·고양·용인)를 시 이름으로 묶고, 나머지 시·군은 한 묶음(2026-10-30) */}

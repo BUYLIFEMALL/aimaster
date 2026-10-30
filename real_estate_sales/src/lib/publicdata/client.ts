@@ -1,5 +1,5 @@
 import "server-only";
-import { MOLIT_TRADE_URL, molitMonths, molitRows } from "./molit";
+import { MOLIT_RENT_URL, MOLIT_TRADE_URL, molitMonths, molitRentRows, molitRows, type RentComparable } from "./molit";
 import { LEGAL_DONG } from "./legalDong";
 
 // 서울 열린데이터광장 / 공공데이터포털 / VWorld 공공 API 클라이언트.
@@ -109,6 +109,24 @@ export async function fetchMolitTrades(params: {
     }
   }
   return molitRows(jsons, sggNm, LEGAL_DONG);
+}
+
+/** 국토부 아파트 전월세(공공데이터 15126474) — 지역 전체를 최근 3달 받는다. 수집 한 번에 지역당 한 번만 부른다 */
+export async function fetchMolitRents(params: { keys?: PublicDataKeys; sggCd: string; now?: Date }): Promise<RentComparable[]> {
+  const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
+  const jsons: unknown[] = [];
+  for (const ymd of molitMonths(params.now, 3)) {
+    const qs = new URLSearchParams({ serviceKey: key, LAWD_CD: params.sggCd, DEAL_YMD: ymd, numOfRows: "1000", pageNo: "1", _type: "json" });
+    const res = await fetch(`${MOLIT_RENT_URL}?${qs.toString()}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`국토부 전월세 API 요청 실패 (${res.status})`);
+    const text = await res.text();
+    try {
+      jsons.push(JSON.parse(text));
+    } catch {
+      throw new Error(`국토부 전월세 API 응답을 읽지 못했습니다: ${text.slice(0, 80)}`);
+    }
+  }
+  return molitRentRows(jsons);
 }
 
 export interface BuildingRegisterItem {

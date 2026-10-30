@@ -25,9 +25,9 @@ export function splitJibun(jibun: string): { mountain: boolean; bun: string; ji:
 export const MOLIT_TRADE_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";
 
 /** 조회할 달 「yyyymm」 — 이번 달과 지난달(한국 시간). 실거래는 계약 후 30일 안에 신고돼 지난달 거래가 늦게 들어온다 */
-export function molitMonths(now: Date = new Date()): string[] {
+export function molitMonths(now: Date = new Date(), count = 2): string[] {
   const kst = new Date(now.getTime() + 9 * 3600 * 1000);
-  return [0, 1].map((i) => {
+  return Array.from({ length: count }, (_, i) => i).map((i) => {
     const d = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth() - i, 1));
     return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
   });
@@ -80,4 +80,87 @@ export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongT
 export function molitRows(jsons: unknown[], sggNm: string, dongTable: DongTable = {}): SeoulRtmsRow[] {
   const rows = jsons.flatMap((j) => molitItems(j)).map((it) => molitItemToRow(it, sggNm, dongTable)).filter((r): r is SeoulRtmsRow => !!r);
   return rows.sort((a, b) => b.CTRT_DAY.localeCompare(a.CTRT_DAY));
+}
+
+// 2026-10-31: 공시가·전월세를 같은 면적으로 맞춘다. 첫 줄만 쓰면 다른 세대 값이 들어갔다(경희궁의 아침 3단지: 거래 37.5㎡인데 필지에는 123㎡ 이상뿐).
+export const MOLIT_RENT_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent";
+const AREA_TOLERANCE_M2 = 2; // 이보다 면적 차이가 크면 다른 평형으로 보고 쓰지 않는다
+
+const num = (v: unknown) => {
+  const s = str(v).replace(/[,\s]/g, "");
+  if (!s) return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+};
+
+/** 공시가 줄들에서 면적이 가장 가까운 세대의 공시가(원). 같은 층이 있으면 그 층, 없으면 중간값. 맞는 면적이 없으면 null */
+export function pickAssessedPrice(
+  rows: { prvuseAr?: string; floorNm?: string; pblntfPc?: string }[],
+  area: unknown,
+  floor: unknown,
+): number | null {
+  const target = num(area);
+  if (!target) return null;
+  const valid = rows
+    .map((r) => ({ area: num(r.prvuseAr), floor: str(r.floorNm), price: num(r.pblntfPc) }))
+    .filter((r): r is { area: number; floor: string; price: number } => !!r.area && !!r.price);
+  if (valid.length === 0) return null;
+  const nearest = Math.min(...valid.map((r) => Math.abs(r.area - target)));
+  if (nearest > AREA_TOLERANCE_M2) return null;
+  const sameArea = valid.filter((r) => Math.abs(r.area - target) === nearest);
+  const sameFloor = sameArea.filter((r) => r.floor === str(floor));
+  const pool = (sameFloor.length ? sameFloor : sameArea).map((r) => r.price).sort((a, b) => a - b);
+  return pool[Math.floor((pool.length - 1) / 2)];
+}
+
+export interface RentComparable {
+  name: string;
+  dong: string;
+  area: number | null;
+  day: string; // yyyymmdd
+  deposit: number | null; // 만 원
+  rent: number | null; // 만 원
+}
+
+/** 국토부 전월세 응답들 → 비교용 줄 */
+export function molitRentRows(jsons: unknown[]): RentComparable[] {
+  return jsons
+    .flatMap((j) => molitItems(j))
+    .map((it) => ({
+      name: str(it.aptNm),
+      dong: str(it.umdNm),
+      area: num(it.excluUseAr),
+      day: `${str(it.dealYear)}${str(it.dealMonth).padStart(2, "0")}${str(it.dealDay).padStart(2, "0")}`,
+      deposit: num(it.deposit),
+      rent: num(it.monthlyRent),
+    }))
+    .filter((r) => r.name && r.deposit);
+}
+
+/** 서울 열린데이터 전월세 줄 → 비교용 줄. 면적 칸(RENT_AREA)이 없으면 이름만으로 맞춘다 */
+export function seoulRentToComparables(rows: { BLDG_NM?: string; RENT_AREA?: string; CTRT_DAY?: string; GRFE?: string; RTFE?: string }[]): RentComparable[] {
+  return rows.map((r) => ({
+    name: str(r.BLDG_NM),
+    dong: "",
+    area: num(r.RENT_AREA),
+    day: str(r.CTRT_DAY),
+    deposit: num(r.GRFE),
+    rent: num(r.RTFE),
+  }));
+}
+
+const nameKey = (s: string) => s.replace(/\s+/g, "");
+
+/** 같은 단지(같은 동)·같은 면적에서 최근 전세, 전세가 없으면 최근 월세 */
+export function pickRentComparable(rows: RentComparable[], name: string, dong: string, area: unknown): RentComparable | null {
+  const target = num(area);
+  const matched = rows.filter(
+    (r) =>
+      r.deposit !== null &&
+      nameKey(r.name) === nameKey(name) &&
+      (!r.dong || !dong || r.dong === dong) &&
+      (r.area === null || target === null || Math.abs(r.area - target) <= AREA_TOLERANCE_M2),
+  );
+  const latest = (list: RentComparable[]) => [...list].sort((a, b) => b.day.localeCompare(a.day))[0] ?? null;
+  return latest(matched.filter((r) => !r.rent)) ?? latest(matched);
 }

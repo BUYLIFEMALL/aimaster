@@ -4,6 +4,7 @@ import {
   buildDedupKey,
   buildPnu,
   fetchApartAssessedPrice,
+  fetchMolitRents,
   fetchBuildingRegister,
   fetchLandPrice,
   fetchLandUsePlan,
@@ -13,6 +14,7 @@ import {
   type PublicDataKeys,
 } from "@/lib/publicdata/client";
 import { isSeoulDistrict } from "@/lib/publicdata/districts";
+import { pickAssessedPrice, pickRentComparable, seoulRentToComparables, type RentComparable } from "@/lib/publicdata/molit";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { ensureListingAnalysis } from "@/lib/actions/analysis";
@@ -53,6 +55,7 @@ export async function collectDistrict(
   }
 
   let newCount = 0;
+  let molitRents: Promise<RentComparable[]> | undefined;
 
   for (let i = 0; i < validTrades.length; i++) {
     if (newCount >= MAX_NEW_LISTINGS_PER_DISTRICT) break;
@@ -70,9 +73,9 @@ export async function collectDistrict(
         bun: row.MNO,
         ji: row.SNO,
       }),
-      fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, keys }),
-      // 전월세 비교 자료는 서울 열린데이터에만 있다 — 경기·인천은 1차에서 빈칸(RE-B4 2차 과제)
-      seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }) : Promise.resolve([]),
+      fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, numOfRows: 1000, keys }),
+      // 서울은 단지별 열린데이터, 경기·인천은 국토부 지역 자료(지역당 한 번만 받아 재사용)
+      seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }).then(seoulRentToComparables) : (molitRents ??= fetchMolitRents({ sggCd, keys })),
     ]);
 
     let exclusiveArea: number | null = null;
@@ -87,7 +90,7 @@ export async function collectDistrict(
 
     let officialPrice: number | null = null;
     if (priceResult.status === "fulfilled") {
-      if (priceResult.value[0]?.pblntfPc) officialPrice = Number(priceResult.value[0].pblntfPc);
+      officialPrice = pickAssessedPrice(priceResult.value, row.ARCH_AREA, row.FLR);
     } else {
       console.error("VWorld 공시가격 조회 실패:", priceResult.reason);
     }
@@ -95,11 +98,9 @@ export async function collectDistrict(
     let prevDeposit: number | null = null;
     let prevRent: number | null = null;
     if (rentResult.status === "fulfilled") {
-      const latest = rentResult.value[0];
-      if (latest) {
-        prevDeposit = Number(latest.GRFE) || null;
-        prevRent = Number(latest.RTFE) || null;
-      }
+      const picked = pickRentComparable(rentResult.value, row.BLDG_NM, seoul ? "" : row.STDG_NM, row.ARCH_AREA);
+      prevDeposit = picked?.deposit ?? null;
+      prevRent = picked?.rent || null;
     } else {
       console.error("전월세 비교 조회 실패:", rentResult.reason);
     }

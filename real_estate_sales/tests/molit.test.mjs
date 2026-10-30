@@ -93,3 +93,37 @@ test("실제 응답 모양(2026-10): umdCd·bonbun 없이 동 이름·지번만 
   assert.equal(legalDongCode(LEGAL_DONG, "41591", "남양읍 없는리"), LEGAL_DONG["41591"]["남양읍"]);
   assert.equal(legalDongCode(LEGAL_DONG, "99999", "풍동"), "");
 });
+
+test("공시가: 면적이 가까운 세대, 같은 층 우선, 면적이 다르면 비움(2026-10-31)", async () => {
+  const { pickAssessedPrice } = await import("../src/lib/publicdata/molit.ts");
+  const rows = [
+    { prvuseAr: "149", floorNm: "6", pblntfPc: "1400000000" },
+    { prvuseAr: "84.97", floorNm: "3", pblntfPc: "500000000" },
+    { prvuseAr: "84.97", floorNm: "10", pblntfPc: "600000000" },
+    { prvuseAr: "84.97", floorNm: "20", pblntfPc: "700000000" },
+  ];
+  assert.equal(pickAssessedPrice(rows, "84.9", "10"), 600000000);
+  assert.equal(pickAssessedPrice(rows, "84.9", "99"), 600000000); // 같은 층 없으면 중간값
+  assert.equal(pickAssessedPrice(rows, "37.5", "14"), null); // 경희궁의 아침 3단지 사례
+  assert.equal(pickAssessedPrice(rows, "", "3"), null);
+  assert.equal(pickAssessedPrice([], "84", "3"), null);
+});
+
+test("전월세: 응답 변환, 같은 단지·동·면적의 최근 전세 우선, 없으면 월세", async () => {
+  const { molitRentRows, pickRentComparable, seoulRentToComparables } = await import("../src/lib/publicdata/molit.ts");
+  const it = (o) => ({ aptNm: "백송 마을", umdNm: "백석동", excluUseAr: "84.97", dealYear: "2026", dealMonth: "9", dealDay: "3", deposit: "30,000", monthlyRent: "0", ...o });
+  const rows = molitRentRows([
+    { response: { body: { items: { item: [it({}), it({ dealMonth: "10", deposit: "5,000", monthlyRent: "80" }), it({ deposit: "" }), it({ umdNm: "풍동", dealMonth: "10", deposit: "1" }), it({ excluUseAr: "59", dealMonth: "10", deposit: "2" })] } } } },
+    { response: { body: { items: "" } } },
+  ]);
+  assert.equal(rows.length, 4);
+  assert.equal(rows[0].day, "20260903");
+  const picked = pickRentComparable(rows, "백송마을", "백석동", "84.9");
+  assert.equal(picked.deposit, 30000); // 더 최근 월세보다 전세 우선
+  assert.equal(picked.rent, 0);
+  const monthly = pickRentComparable(rows.filter((r) => r.rent), "백송마을", "백석동", "84.9");
+  assert.equal(monthly.rent, 80);
+  assert.equal(pickRentComparable(rows, "다른단지", "백석동", "84.9"), null);
+  const seoul = seoulRentToComparables([{ BLDG_NM: "A", CTRT_DAY: "20261001", GRFE: "20000", RTFE: "0" }]);
+  assert.equal(pickRentComparable(seoul, "A", "", "84").deposit, 20000); // 면적 칸 없으면 이름만
+});
