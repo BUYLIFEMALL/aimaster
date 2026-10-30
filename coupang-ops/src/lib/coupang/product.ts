@@ -42,6 +42,10 @@ export interface CoupangOption {
   /** 구매옵션(카테고리 메타 이름 그대로) */
   attributes: { type: string; value: string }[];
   sku?: string;
+  /** 표준상품 코드(GTIN, 숫자 8·12·13·14자리). 없으면 emptyBarcode로 보낸다 */
+  barcode?: string;
+  /** 모델번호·품번(MPN) */
+  modelNo?: string;
 }
 
 export interface CoupangDraft {
@@ -67,6 +71,11 @@ export function kstDateTime(d: Date): string {
   return k.toISOString().slice(0, 19);
 }
 
+/** 브랜드가 없는 상품에 보내는 값·바코드 없는 사유(명세 「상품 생성」 2026-10-31 확인) */
+export const GENERIC_BRAND = "GENERIC";
+export const EMPTY_BARCODE_REASON = "바코드 없는 상품";
+export const cleanBarcode = (v?: string) => (v ?? "").replace(/[\s-]/g, "");
+
 const isInt = (n: unknown, min = 0) => Number.isInteger(n) && (n as number) >= min;
 const imageOk = (u: string) => /^https:\/\/[^\s:/]+(?::443)?\//.test(u) && u.length <= MAX_VENDOR_PATH;
 
@@ -79,6 +88,8 @@ export function checkDraft(draft: CoupangDraft, defaults: CoupangDefaults | null
   const name = draft.name.trim();
   if (!name) p.push("상품명이 비어 있습니다.");
   else if (name.length > 100) p.push(`상품명은 100자까지입니다(지금 ${name.length}자).`);
+  const brand = draft.brand?.trim() ?? "";
+  if (brand && !/^[\p{L}\p{N}]+$/u.test(brand)) p.push("브랜드는 띄어쓰기와 특수문자 없이 넣어 주세요(쿠팡 규칙).");
 
   const opts = draft.options;
   if (!opts.length) p.push("옵션(판매 단위)이 하나도 없습니다.");
@@ -95,6 +106,9 @@ export function checkDraft(draft: CoupangDraft, defaults: CoupangDefaults | null
     if (!isInt(o.originalPrice, 10)) p.push(`${label}: 정가를 10원 이상 정수로 넣어 주세요.`);
     else if (isInt(o.salePrice, 10) && o.originalPrice < o.salePrice) p.push(`${label}: 정가가 판매가보다 낮습니다.`);
     if (!isInt(o.stock, 0) || o.stock > 99999) p.push(`${label}: 재고는 0~99,999 사이 정수로 넣어 주세요.`);
+    const barcode = cleanBarcode(o.barcode);
+    if (barcode && !/^(\d{8}|\d{12,14})$/.test(barcode)) p.push(`${label}: 바코드는 숫자 8·12·13·14자리로 넣어 주세요.`);
+    if (!barcode && !o.modelNo?.trim()) p.push(`${label}: 바코드나 모델번호(품번) 중 하나를 넣어 주세요.`);
     o.attributes.forEach((a) => {
       if (!a.type.trim() || !a.value.trim()) p.push(`${label}: 구매옵션 이름·값이 비어 있습니다.`);
     });
@@ -148,7 +162,7 @@ export function buildCreateBody(draft: CoupangDraft, d: CoupangDefaults) {
     vendorId: draft.vendorId,
     saleStartedAt: kstDateTime(now),
     saleEndedAt: SALE_END_AT,
-    ...(draft.brand?.trim() ? { brand: draft.brand.trim() } : {}),
+    brand: draft.brand?.trim() || GENERIC_BRAND,
     ...(draft.manufacturer?.trim() ? { manufacture: draft.manufacturer.trim() } : {}),
     deliveryMethod: d.deliveryMethod,
     deliveryCompanyCode: d.deliveryCompanyCode,
@@ -183,6 +197,8 @@ export function buildCreateBody(draft: CoupangDraft, d: CoupangDefaults) {
       overseasPurchased: "NOT_OVERSEAS_PURCHASED",
       pccNeeded: "false",
       ...(o.sku ? { externalVendorSku: o.sku } : {}),
+      ...(cleanBarcode(o.barcode) ? { barcode: cleanBarcode(o.barcode) } : { emptyBarcode: true, emptyBarcodeReason: EMPTY_BARCODE_REASON }),
+      ...(o.modelNo?.trim() ? { modelNo: o.modelNo.trim() } : {}),
       images,
       attributes: o.attributes.map((a) => ({ attributeTypeName: a.type.trim(), attributeValueName: a.value.trim() })),
       contents,

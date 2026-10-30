@@ -12,7 +12,7 @@
 | `displayProductName` | (선택) 노출 상품명 100자 | 상품명 |
 | `vendorId` | 업체코드 | 회원 키 |
 | `saleStartedAt` / `saleEndedAt` | `yyyy-MM-dd'T'HH:mm:ss` | 지금 / `2099-01-01T23:59:59`(원문 예시값) |
-| `brand`·`manufacture` | (선택) | 상품 입력 |
+| `brand`·`manufacture` | 브랜드는 띄어쓰기·특수문자 없이, 없으면 `GENERIC`(2026-10-31 명세 `/ko/api/products/product-creation` 확인) | 상품 입력 |
 | `deliveryMethod` | `SEQUENCIAL`(일반)·`COLD_FRESH`·`MAKE_ORDER`·`AGENT_BUY`·`VENDOR_DIRECT` | 기본값 화면 |
 | `deliveryCompanyCode` | 택배사 코드 | C1-5 |
 | `deliveryChargeType` | `FREE`·`NOT_FREE`·`CHARGE_RECEIVED`·`CONDITIONAL_FREE` | 기본값 |
@@ -46,7 +46,7 @@
 | `attributes[]` | 구매옵션 `attributeTypeName`·`attributeValueName`(·`exposed`) — 카테고리 메타 이름과 같아야 함 |
 | `contents[]` | `contentsType`(`IMAGE`·`IMAGE_NO_SPACE`·`TEXT`·`IMAGE_TEXT`·`TEXT_IMAGE`·`IMAGE_IMAGE`·`TEXT_TEXT`·`TITLE`·`HTML`) + `contentDetails[]`(`content`, `detailType` `IMAGE`/`TEXT`) |
 | `notices[]` | `noticeCategoryName`·`noticeCategoryDetailName`·`content` — 카테고리 메타의 고시 항목과 정확히 같아야 함(원문 예시에 「상세페이지 참조」 사용, 허용 여부 명시 없음) |
-| 선택 | `externalVendorSku`(판매자 코드 → `AIM-…`), `barcode`/`emptyBarcode`/`emptyBarcodeReason`, `modelNo`, `searchTags[]`, `certifications[]`, `offerCondition`(`NEW` 기본, 생성 뒤 변경 불가) |
+| 선택 | `externalVendorSku`(판매자 코드 → `AIM-…`), `barcode`/`emptyBarcode`/`emptyBarcodeReason`(100자), `modelNo`(명세 표기는 선택이나 신규 키 판매자 정책상 필요 — 코드는 옵션마다 바코드나 모델번호 중 하나를 요구), `searchTags[]`, `certifications[]`, `offerCondition`(`NEW` 기본, 생성 뒤 변경 불가) |
 
 ## 이미지 규격과 주소
 - JPG·PNG, 3MB 이하, 정사각형, 500×500~5000×5000px.

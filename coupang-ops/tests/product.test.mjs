@@ -27,13 +27,34 @@ const draft = () => ({
   categoryCode: 56137,
   name: "노트북 백팩",
   options: [
-    { name: "블랙", originalPrice: 39000, salePrice: 29000, stock: 99, attributes: [{ type: "색상", value: "블랙" }] },
-    { name: "그레이", originalPrice: 39000, salePrice: 29000, stock: 99, attributes: [{ type: "색상", value: "그레이" }] },
+    { name: "블랙", originalPrice: 39000, salePrice: 29000, stock: 99, modelNo: "BK-01", attributes: [{ type: "색상", value: "블랙" }] },
+    { name: "그레이", originalPrice: 39000, salePrice: 29000, stock: 99, barcode: "880-1234567890", attributes: [{ type: "색상", value: "그레이" }] },
   ],
   notices: [{ category: "가방", detail: "종류", content: "상세페이지 참조" }],
   images: { representation: img("a"), extras: [img("b")], contents: [img("c"), img("d")] },
   requested: false,
   now: new Date(Date.UTC(2026, 9, 28, 15, 30, 0)),
+});
+
+test("바코드·품번: 둘 다 없으면 막고, 형식이 틀리면 막고, 본문은 명세대로", () => {
+  const none = draft();
+  delete none.options[0].modelNo;
+  assert.ok(checkDraft(none, defaults).some((x) => x.includes("바코드나 모델번호")));
+  const bad = draft();
+  bad.options[1].barcode = "123";
+  assert.ok(checkDraft(bad, defaults).some((x) => x.includes("숫자 8·12·13·14자리")));
+  const [a, b] = buildCreateBody(draft(), defaults).items;
+  assert.equal(a.modelNo, "BK-01");
+  assert.equal(a.emptyBarcode, true);
+  assert.ok(a.emptyBarcodeReason);
+  assert.equal(b.barcode, "8801234567890");
+  assert.equal(b.emptyBarcode, undefined);
+});
+
+test("브랜드: 비우면 GENERIC, 띄어쓰기·특수문자는 막음", () => {
+  assert.equal(buildCreateBody(draft(), defaults).brand, "GENERIC");
+  assert.equal(buildCreateBody({ ...draft(), brand: "스위스톤" }, defaults).brand, "스위스톤");
+  assert.ok(checkDraft({ ...draft(), brand: "Swiss Tone" }, defaults).some((x) => x.includes("브랜드")));
 });
 
 test("정상 초안은 문제 없음", () => {

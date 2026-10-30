@@ -138,7 +138,7 @@ export function ProductForm(props: {
         <label className="block"><span className={label}>쿠팡 상품명(100자까지)</span>
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} className={input} /></label>
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block"><span className={label}>브랜드(없으면 비움)</span><input value={brand} onChange={(e) => setBrand(e.target.value)} className={input} /></label>
+          <label className="block"><span className={label}>브랜드(띄어쓰기·특수문자 없이, 없으면 비움 → GENERIC으로 보냄)</span><input value={brand} onChange={(e) => setBrand(e.target.value)} className={input} /></label>
           <label className="block"><span className={label}>제조사(없으면 비움)</span><input value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} className={input} /></label>
         </div>
         <div className="flex flex-wrap items-end gap-2">
@@ -176,10 +176,11 @@ export function ProductForm(props: {
             <button type="button" onClick={buildRows} disabled={comboCount > MAX_COMBOS} className="rounded-lg border border-rose-300 px-3 py-2 text-sm font-bold text-rose-800 hover:bg-rose-50 disabled:opacity-50">🧮 옵션 표 만들기</button>
             <span className="text-xs text-slate-500">{axes.length ? `조합 ${comboCount}개${comboCount > MAX_COMBOS ? ` — ${MAX_COMBOS}개를 넘어 만들 수 없습니다` : ""}` : cat.meta.singleAllowed ? "값이 없으면 옵션 없는 상품 1줄" : ""}</span>
           </div>
+          {rows.length > 0 && <p className="text-xs text-slate-500">옵션마다 바코드나 모델번호(품번) 중 하나를 넣어 주세요. 바코드가 없으면 비워 두면 「바코드 없음」으로 보냅니다.</p>}
           {rows.length > 0 && (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-sm">
-                <thead><tr className="text-left text-xs text-slate-500"><th className="py-1 pr-2">옵션명</th><th className="py-1 pr-2">정가</th><th className="py-1 pr-2">판매가</th><th className="py-1 pr-2">재고</th></tr></thead>
+              <table className="w-full min-w-[860px] text-sm">
+                <thead><tr className="text-left text-xs text-slate-500"><th className="py-1 pr-2">옵션명</th><th className="py-1 pr-2">정가</th><th className="py-1 pr-2">판매가</th><th className="py-1 pr-2">재고</th><th className="py-1 pr-2">바코드</th><th className="py-1 pr-2">모델번호(품번)</th></tr></thead>
                 <tbody>
                   {rows.map((r) => (
                     <tr key={r.key} className="border-t border-slate-100">
@@ -187,6 +188,8 @@ export function ProductForm(props: {
                       <td className="py-1 pr-2"><input inputMode="numeric" value={r.originalPrice || ""} onChange={(e) => setRow(r.key, { originalPrice: num(e.target.value) })} className={input} /></td>
                       <td className="py-1 pr-2"><input inputMode="numeric" value={r.salePrice || ""} onChange={(e) => setRow(r.key, { salePrice: num(e.target.value) })} className={input} /></td>
                       <td className="py-1 pr-2"><input inputMode="numeric" value={String(r.stock)} onChange={(e) => setRow(r.key, { stock: num(e.target.value) })} className={input} /></td>
+                      <td className="py-1 pr-2"><input inputMode="numeric" value={r.barcode ?? ""} onChange={(e) => setRow(r.key, { barcode: e.target.value })} className={input} /></td>
+                      <td className="py-1 pr-2"><input value={r.modelNo ?? ""} onChange={(e) => setRow(r.key, { modelNo: e.target.value })} className={input} /></td>
                     </tr>
                   ))}
                 </tbody>
