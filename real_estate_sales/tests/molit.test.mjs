@@ -129,3 +129,23 @@ test("전월세: 응답 변환, 같은 단지·동·면적의 최근 전세 우�
   const seoul = seoulRentToComparables([{ BLDG_NM: "A", CTRT_DAY: "20261001", GRFE: "20000", RTFE: "0" }]);
   assert.equal(pickRentComparable(seoul, "A", "", "84").deposit, 20000); // 면적 칸 없으면 이름만
 });
+
+test("전국 지역: 시·도 16곳, 코드 겹침 없음, 전국 법정동 자료와 같음, 리 코드표(2026-10-31)", async () => {
+  const fs2 = await import("node:fs");
+  const { ALL_DISTRICTS, SIDO_GROUPS, sidoOf, isSeoulDistrict } = await import("../src/lib/publicdata/districts.ts");
+  const { LEGAL_DONG } = await import("../src/lib/publicdata/legalDong.ts");
+  assert.equal(SIDO_GROUPS.length, 16);
+  const codes = ALL_DISTRICTS.map((d) => d.sgg_cd);
+  assert.equal(new Set(codes).size, codes.length);
+  const file = new URL("../../realty-listing-alert/public/regions.json", import.meta.url);
+  if (fs2.existsSync(file)) {
+    const off = JSON.parse(fs2.readFileSync(file, "utf8")).flatMap((s) => s.g.map((g) => g.c));
+    assert.deepEqual(off.filter((c) => !codes.includes(c)), []);
+    assert.deepEqual(codes.filter((c) => !off.includes(c)), []);
+  }
+  assert.equal(sidoOf("26350"), "부산");
+  assert.equal(isSeoulDistrict("26350"), false);
+  for (const c of codes) if (!isSeoulDistrict(c)) assert.ok(LEGAL_DONG[c], c);
+  assert.equal(LEGAL_DONG["41591"]["남양읍 남양리"], "25621");
+  assert.equal(LEGAL_DONG["11680"], undefined);
+});

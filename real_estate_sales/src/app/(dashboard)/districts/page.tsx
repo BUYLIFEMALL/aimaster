@@ -26,7 +26,7 @@ export default async function DistrictsPage() {
       <PageHero
         badge="📍 STEP 1 · 관심 지역"
         title="관심 지역 설정"
-        description="관심 있는 서울·경기·인천 지역(구·시·군)을 고르면, 그 지역에 새 실거래가 신고될 때마다 알려 드려요. 여러 개 고를 수 있어요."
+        description="관심 있는 전국 지역(구·시·군)을 고르면, 그 지역에 새 실거래가 신고될 때마다 알려 드려요. 여러 개 고를 수 있어요."
         tip={`지금 ${watchMap.size}개 지역 선택됨 · 「지금 조회하기」나 예약 조회로 실거래를 가져옵니다.`}
       />
       <div className="mb-6" />
@@ -34,7 +34,7 @@ export default async function DistrictsPage() {
         districts={SIDO_GROUPS.flatMap((g) => g.districts.map((d) => ({ ...d, sido: g.sido })))}
         activeCodes={[...watchMap.keys()]}
       />
-      {/* RE-B4(2026-10-30): 서울·경기·인천 묶음. 경기·인천은 국토부 실거래·전월세 자료 */}
+      {/* 시·도별 묶음(2026-10-31 전국). 서울 밖은 국토부 실거래·전월세 자료 */}
       {SIDO_GROUPS.map((g) => {
         const picked = g.districts.filter((d) => watchMap.has(d.sgg_cd)).length;
         return (
@@ -47,9 +47,9 @@ export default async function DistrictsPage() {
               </small>
             </summary>
             {/* 경기는 구가 여러 개인 시(수원·성남·안양·부천·안산·고양·용인)를 시 이름으로 묶고, 나머지 시·군은 한 묶음(2026-10-30) */}
-            {(g.sido === "경기" ? groupByCity(g.districts) : [{ city: null, items: [...g.districts] }]).map((cg) => (
+            {groupByCity(g.districts).map((cg, _, all) => (
               <div key={cg.city ?? "rest"} className="mt-3">
-                {g.sido === "경기" && (
+                {all.length > 1 && (
                   <p className="mb-1 text-xs font-semibold text-mx-muted">{cg.city ?? "그 밖의 시·군"}</p>
                 )}
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
