@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 ✅ [역할: 미지정] Claude Code(윈도우, 보조 계정) · 세션 `claude-win-20261029-statusbar` — 블로그 8개 기능 비교·병합/기능 추가/배포 키트 대기 목록
+- 주인님 방향: 「프로그램이 많으니까 기능 합칠건 합쳐서 완성형태로 최종 확장」 → 병합(M) 먼저, 새 기능(F)은 기준 프로그램(에이전트·SEO·키워드·티스토리)에만.
+- 정리 문서: [`docs/HANDOFF_20261030_BLOG_COMPARISON_AND_BACKLOG.md`](HANDOFF_20261030_BLOG_COMPARISON_AND_BACKLOG.md), 대기 표: [`docs/BLOG_CONSOLIDATION_TASKS.md`](BLOG_CONSOLIDATION_TASKS.md) 「2026-10-30 등록 대기 목록」(BLK-K1~K7·M1~M6·F1~F11).
+- 블로그 키트는 아직 없음(키트 4개는 Threads·인스타). 수업용 키트 대상은 주인님 결정 대기(추천 에이전트). 코드·DB·배포 변경 없음, 비용 없음.
+
 ## 2026-10-30 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — 실거래 v1.24·v1.25 + 매물 알림 v1.38 (경기 후속 3가지)
 - **v1.24 실거래**: 경기·인천 전용면적 빈칸 → 국토부 전용면적 사용(`de7ec2b30`) + 기존 20줄 운영 DB 채움(주인님 승인, 남은 빈 줄 0).
 - **v1.25 실거래**: 실거래 목록 `?district=`·`?q=` 거르기(0건이면 이름 앞 두 글자로 재검색), 경기 감시 지역 시 이름 묶기(`1d8cd99c5`).
