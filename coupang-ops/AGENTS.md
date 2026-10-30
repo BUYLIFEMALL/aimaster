@@ -87,3 +87,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **C2-1 내 쿠팡 상품** `/my-products`(메뉴 🗂): 상품 목록 페이징 조회(`vendorId` 필수, 50개씩·「더 보기」 `nextToken`, 상태·상품명 20자 필터) — **실제 확인: 첫 쪽 50개(2024년 등록 식품, 모두 승인완료)**.
 - **C2-2~C2-4 옵션 관리**(목록의 「옵션 관리」 → `components/ItemsPanel.tsx`, `lib/actions/items.ts`, `lib/coupang/items.ts`): 옵션별 현재값 `GET vendor-items/{id}/inventories`(재고·판매가·판매 중) · 가격 `PUT …/prices/{가격}`(10원 단위, 현재가 −50%~+100%, `forceSalePriceUpdate` 안 씀) · 재고 `PUT …/quantities/{n}`(0~99,999) · 판매 `PUT …/sales/stop|resume`. 서버가 보내기 직전 **쿠팡에서 현재값을 다시 읽어 검사**(화면 값 안 믿음), 화면은 「네, 쿠팡에 적용」 확인 한 번 더, 쓰기 재시도 없음. **실제 읽기 확인**: 「진미 진미춘장(5Kg)」 옵션ID 89322515520 · 27,070원 · 재고 9,999 · 판매 중지(판매정지 기간 영향으로 보임). 경로의 옵션ID = `vendorItemId`로 동작 확인. **쓰기(가격·재고·판매 재개)는 실제 상품이 바뀌므로 주인님 승인 뒤 1건만 시험 — 아직 안 함.**
 - 시험 32개 통과(상태 3·목록 2·옵션 4 추가).
+
+## 2026-10-30 (이어서) — C3-1 발주서 조회(로컬, 미배포)
+- `lib/coupang/orders.ts`(경로 `/v2/providers/openapi/apis/api/v5/vendors/{vendorId}/ordersheets`, 일단위 페이징 — 명세 developers.coupang.com/ko/api/shipments/po-list-query-paging-by-day): 날짜는 `yyyy-mm-dd%2B09:00` 그대로 서명(URLSearchParams로 만들면 콜론까지 바뀌므로 직접 조립), 기간 최대 31일(시작·종료일 포함), 한 쪽 최대 50건, status 필수(결제완료·상품준비중·배송지시·배송중·배송완료·업체 직접 배송). 가격은 `{units}` 객체(숫자도 읽음). 발주 가능 수량 = shippingCount − (holdCountForCancel + cancelCount).
+- 개인정보: 주문자·수취인은 화면에만 보이고 저장하지 않는다. 실전화번호(`ordererNumber`/`receiverNumber`)는 읽지 않고 안심번호만 보여 준다(시험으로 확인).
+- `lib/actions/orders.ts` `listOrderSheetsAction`(본인 키, 읽기만) · `components/OrderSheets.tsx` · `/orders` · 메뉴 「🚚 주문(발주서)」.
+- 실제 확인(크롬): 결제완료 최근 7일, 배송완료 9-30~10-30 모두 쿠팡이 오류 없이 빈 목록을 돌려줌(판매정지 기간 영향으로 주문 없음). 날짜 형식이 틀리면 서버 검사가 먼저 막는 것도 확인. **실제 주문 데이터로 화면 모양 확인은 주문이 생긴 뒤.**
+- 남은 일: 서버 쪽 조회 간격 제한(Fixie 사용량 보호, 배포 전) → C3-2 상품준비중 처리(실제 주문 상태가 바뀌므로 1건 시험 때 승인).
+- 시험 35개 통과(발주서 3개 추가), tsc 오류 0.
