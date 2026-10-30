@@ -17,8 +17,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `real_estate_sales` | 경기·인천 실거래의 「전용」 칸이 비던 문제 — 건축물대장에서 못 찾으면 국토부 자료의 전용면적을 씀(v1.23 실물 확인 중 발견, 고양시 일산동구 20건 모두 「-㎡」) | `de7ec2b30` | 2026-10-30 · [역할: realty] Claude Code(윈도우) `claude-win-realty-docs` | `docs/REAL_ESTATE_CONSOLIDATION_TASKS.md` RE-B4 | 버전 +0.01 |
-| `realty-listing-alert` | 「📝 글로 쓰기」 키워드에서 쉼표 든 단지 이름(「백송풍림,삼호」)이 둘로 쪼개지던 문제 → 쉼표를 「·」로 | `1b56317f6` | 2026-10-29 · [역할: realty] Claude Code(윈도우) `claude-win-realty-docs` | `realty-listing-alert/docs/IMPROVEMENTS.md` 미배포 대기 | 버전 +0.01 |
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
 | `blog-neighbor-care` | 기존15묶음+검토완료 받은신청 반복수락/공용예약커서·복구(16묶음) | `8ffa45a9f`·`1a62398ea`·`6a307bbfc`·`7b6e4556e`·`4ebbb2f92`·`c34015232`·`620ca322a`·`ccf22b76c`·`f20ada675`·`b056ca71a`·`ab26e4627`·`20c3eced4`·`7afd15d6a`·`c9cb569c2`·`ed1c6bd86`·`4ee7dc674` | 2026-10-30 · [역할: blog] Codex `codex-win-20261026-blog-check` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 최신절 | SQL9(cursor/engagement/extension/context/messages/extension_schedule/incoming_accept/post_targets/accept_schedule) 미적용·승인전실행금지. 웹/manifest/ZIP/DB 묶음동기화. 자동RSS/AI초안 구현 및 실AI/Edge/Naver/운영Cron검수 잔여. 공개v1.03ZIP 보존 |
 | `seller-label-docs` | 공용 흐름 띠 사본에 「🛒 마켓 등록」 단계 추가(`shop-flow` 사본만, 동작 변화는 띠 단계 하나) | `48b67dd5c` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow 줄 | 각 프로그램 다음 배포 때 함께(버전 +0.01) |
@@ -57,6 +55,9 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `realty-listing-alert` | v1.38 · 2026-10-30 ([역할: realty], 승인 빌드 1회) | 감시 대상 「📈 실거래 보기」(`904385b89`) · 글로 쓰기 키워드 쉼표 수정(`1b56317f6`) |
+| `real_estate_sales` | v1.25 · 2026-10-30 ([역할: realty], 승인 빌드 1회) | 실거래 목록 `?district=`·`?q=` 거르기·경기 시 이름 묶기(`1d8cd99c5`) |
+| `real_estate_sales` | v1.24 · 2026-10-30 ([역할: realty], 승인 빌드 1회) | 경기·인천 전용면적 빈칸 수정(`de7ec2b30`) + 기존 20줄 DB 채움 |
 | `real_estate_sales` | v1.23 · 2026-10-30 ([역할: realty], 승인 빌드 1회) | RE-B4 경기·인천 확장(`9ab5d5ba3`) · RE-B5 `zod` ^4.6.7(`8f86de0ec`) |
 | `realty-listing-alert` | v1.37 · 2026-10-29 ([역할: realty], 승인 빌드 1회) | (대기 항목 없음) 추가개선 5·6·7 — 주간 동향 글로 쓰기·블로그/티스토리 고르기·「최근 6개월 매매 신고 없음 (n일째)」 (`f8156bd12`) |
 | `blog-neighbor-care` | v1.03 · 2026-10-29 · Codex `codex-win-20261026-blog-check` · dpl_FM3zxNjsfHPYB4GrTe2q7LLRXZBu | 좌측메뉴표준/모바일계정·진단·정리5종·중단/반복설정·비공개실행인증/최소결과·확장가시성/진행범위(소스a93fc9ecd까지),SQL재적용없음 |

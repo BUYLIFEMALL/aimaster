@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — 실거래 v1.24·v1.25 + 매물 알림 v1.38 (경기 후속 3가지)
+- **v1.24 실거래**: 경기·인천 전용면적 빈칸 → 국토부 전용면적 사용(`de7ec2b30`) + 기존 20줄 운영 DB 채움(주인님 승인, 남은 빈 줄 0).
+- **v1.25 실거래**: 실거래 목록 `?district=`·`?q=` 거르기(0건이면 이름 앞 두 글자로 재검색), 경기 감시 지역 시 이름 묶기(`1d8cd99c5`).
+- **v1.38 매물 알림**: 감시 대상마다 「📈 실거래 보기 ↗」(지역=시군구 코드, 단지=이름, `904385b89`) + 글로 쓰기 키워드 쉼표 수정. DB·확장·ZIP v1.38 `check-extension-release` OK. (배포 도우미가 작업 중 표의 옛 세션 이름 줄 때문에 한 번 멈춰, `--owner claude-win-20261024-realty`로 배포 — 그 사이 몇 분간 DB v1.38·사이트 v1.37로 어긋났다가 해소.)
+- **크롬 확인(시험 계정)**: 전용면적 표시, 거르기·재검색 문구, 매물 알림 → 실거래 목록(고양시 일산동구 20건), 경기 시 묶음.
+- **남은 일**: 화성시 일반구 코드 확인 · 경기·인천 전월세 비교(2차) · 공시가 「-」(서울도 같음). https://real-estate-sales.buylife.xyz/districts · https://realty-listing-alert.buylife.xyz/targets
+
 ## 2026-10-30 Codex(윈도우) [역할: blog] — 받은 신청 반복 수락 로컬 완료 / 미배포
 
 확인: [공식 운영](https://blog-neighbor-care.buylife.xyz/neighbors) · [Vercel 보조](https://blog-neighbor-care.vercel.app/neighbors) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 정적 팝업](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/accept-schedule-20261030/popup.html) · [영구 자산](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/accept-schedule-20261030). 운영에는 이번 변경이 아직 없으며 로컬 HTML은 서버 연결 없는 정적 보존본이다. 실제 Edge 캡처 없음.
