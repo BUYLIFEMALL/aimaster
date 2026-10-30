@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 수강생용 상태바 키트 `Claude_Code_Statusbar_Kit_v1.01`
+- 주인님 요청: 쓰시는 상태바처럼 수강생이 사용량을 볼 수 있는 스크립트·프롬프트. 원본 `scripts/claude-statusbar-kit/`, 산출물 `D:/PDS/Claude_Code_Statusbar_Kit_v1.01.zip`. 운영자 경로·Orca 연동을 뺐고, 구독 값이 없으면 세션 예상 비용 표시.
+- 확인: 실제 상태바 입력값으로 기존 스크립트와 출력 동일, 임시 설정 폴더에서 설치·재설치·제거·복원·깨진 설정 차단, 설치 cmd 실행. 못 한 것: 실제 Claude Code 화면(주인님 설정 미변경), 맥, API 키 계정, 크레딧 표시 실데이터.
+
 ## 2026-10-30 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 수강생 배포 키트 최종본 `Blog_Content_Kit_v1.03`
 - 리허설(주인님 실사용, v1.02): 마법사 8단계 통과 → https://buylife-bog-dev.vercel.app 가입·Gemini 키·글 생성·복사/붙여넣기 확인. Supabase `Blog_dev`(buylifemall1 조직).
 - 리허설에서 찾아 v1.03에 반영(`f40272124`): 화면 이름·버전·발행 문구·옛 모델명 정리(독립 모드만), 복사 때 이미지 설명 줄 제외, 마법사 Vercel 팀 확인(유료 팀 경고, 개인은 선택 화면), `RemoteException` 숨김, 메일 코드·플러그인 질문 안내, 티스토리 이미지 안내.
