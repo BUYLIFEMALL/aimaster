@@ -16,7 +16,7 @@
 |---|---|---|---|
 | `realty-listing-alert` | 남은 시험 | 월세 `B2`·20건 넘는 단지 2페이지·예약 연속 회차 · 차단 화면 실물(나오면) · 카톡 「○○ 매물 보기」 버튼. (RLS·봇 가져오기는 v1.27 두 계정 시험 통과 — 추가 계정 필요 없음) | 백로그 |
 | `realty-listing-alert` | 쉼표 든 단지 이름 키워드 쪼개짐 수정 — 미배포 대기(`1b56317f6`) | 다음 배포 때 함께 | `docs/PENDING_DEPLOYS.md` |
-| `real_estate_sales` | RE-B4 경기·인천 확장(플랜 없음) · RE-B5 → `zod` high 1건(lint 경고 5건은 해소) | 플랜 보고 → 주인님 순서 결정 | `docs/REAL_ESTATE_CONSOLIDATION_TASKS.md` |
+| `real_estate_sales` | RE-B4 경기·인천 확장 코드 완료(`9ab5d5ba3`) · RE-B5 `zod` 수정(`8f86de0ec`) — 둘 다 미배포 | **주인님: 공공데이터포털 15126469 활용신청(운영자 키)** → v1.23 배포 1회 → 크롬 실물 확인 | `docs/REAL_ESTATE_CONSOLIDATION_TASKS.md` |
 | (새 프로그램) 건물·상가·토지 매물 알림 | ⏸ 보류(주인님 「건물 작업은 이후에」) — 플랜·인수인계 작성 완료 [`HANDOFF_20261025_BUILDING_LISTING_ALERT.md`](../analysis-naver-realty-collector-20261024/HANDOFF_20261025_BUILDING_LISTING_ALERT.md) | 주인님 재개 지시 → 이름 확정 → 사전 검증 페이지로 읽기 방식·네이버 이용 조건 점검 | 2026-10-25 주인님 결정: 「기존 아파트 프로그램은 이대로 계속 개발 업그레이드하고, 별도의 프로그램으로 건물/상가/토지 순으로 개발해 보고, 나중에 가능하다면 하나로 합치는 방식으로 개발 난이도를 낮추어 진행」 |
 
 ## 최근 완료 (최근 10개)

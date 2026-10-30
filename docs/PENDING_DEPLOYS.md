@@ -18,6 +18,7 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `real_estate_sales` | RE-B5 `zod` 4.4.3 → `^4.6.7`(보안 경고 high 1건 해소, 로그인 글자 검사에만 써서 악용 경로 없음) | `8f86de0ec` | 2026-10-30 · [역할: realty] Claude Code(윈도우) `claude-win-realty-docs` | `real_estate_sales/docs/IMPROVEMENTS.md` #11 | 버전 +0.01 |
+| `real_estate_sales` | RE-B4 경기·인천 확장(국토부 실거래 API) — **운영자 키 15126469 활용신청 뒤 배포**(승인 전 배포하면 경기·인천 예약 수집이 403으로 실패) | `9ab5d5ba3` | 2026-10-30 · [역할: realty] Claude Code(윈도우) `claude-win-realty-docs` | `docs/REAL_ESTATE_CONSOLIDATION_TASKS.md` RE-B4 | v1.23(위 RE-B5와 함께) |
 | `realty-listing-alert` | 「📝 글로 쓰기」 키워드에서 쉼표 든 단지 이름(「백송풍림,삼호」)이 둘로 쪼개지던 문제 → 쉼표를 「·」로 | `1b56317f6` | 2026-10-29 · [역할: realty] Claude Code(윈도우) `claude-win-realty-docs` | `realty-listing-alert/docs/IMPROVEMENTS.md` 미배포 대기 | 버전 +0.01 |
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
 | `blog-neighbor-care` | 기존9묶음+관계/원댓글/답방읽기+AI 신청/댓글/대댓글 문장 생성+정독시간(12묶음) | `8ffa45a9f`·`1a62398ea`·`6a307bbfc`·`7b6e4556e`·`4ebbb2f92`·`c34015232`·`620ca322a`·`ccf22b76c`·`f20ada675`·`b056ca71a`·`ab26e4627`·`20c3eced4` | 2026-10-30 · [역할: blog] Codex `codex-win-20261026-blog-check` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 최신절 | SQL5(cursor/engagement/extension/context/messages) 미적용·승인전실행금지. v1.04 웹/manifest/ZIP/DB 동기화. 실AI/Edge/Naver·확장주기 연결/받은신청수락·운영Cron 잔여. 공개v1.03ZIP 보존 |

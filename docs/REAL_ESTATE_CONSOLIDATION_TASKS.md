@@ -41,7 +41,7 @@
 | RE-B1 | 실거래 목록 페이지 나눔(현재 50건) | `src/app/(dashboard)/listings/page.tsx` `.limit(50)`, `IMPROVEMENTS.md` #3 | ✅ 코드 완료(`ae0e35ce5`) · v1.21 배포 완료(2026-10-26) |
 | RE-B2 | 상세 열람 시 「안 본 새 실거래」 줄이기(`new → seen`) | `IMPROVEMENTS.md` #5 | ✅ 코드 완료(DB 변경 없이 new→notified, `ae0e35ce5`) · v1.21 배포 완료(2026-10-26) |
 | RE-B3 | 브이월드 등록 도메인 새 주소로 | `src/lib/publicdata/client.ts` 18행 기본값 `n8n.buylife.xyz`, `IMPROVEMENTS.md` #7 | ✅ v1.22 배포(2026-10-26, 주인님 브이월드 도메인 변경 + 환경변수 교체) · 다음 새 실거래 때 공시가 확인 |
-| RE-B4 | 서울 외 지역(국토부 실거래 API) | `IMPROVEMENTS.md` #6 | 기존 과제 — 플랜·코드 없음(2026-10-29 확인). 참고: 국토부 아파트 매매 실거래 API는 이미 `realty-listing-alert` 확장이 경기(고양 41285) 비교에 쓰고 있음 |
+| RE-B4 | 서울 외 지역(국토부 실거래 API) | `IMPROVEMENTS.md` #6 | ✅ 코드 완료(2026-10-30, `9ab5d5ba3`, 플랜 `real_estate_sales/docs/PLAN_20261030_RE_B4_GYEONGGI_INCHEON.md`) — 경기 44·인천 10곳, 국토부 응답을 서울 줄 모양으로 변환, 감시 지역 화면 시·도 묶음, 전월세 비교는 서울만. **배포 보류: 실거래 운영자 공공데이터 키가 국토부 실거래 API(15126469)에 승인 안 됨(403, 10-30 확인) → 주인님 활용신청 뒤 v1.23 배포·실물 확인** |
 | RE-B5 | 개발용 lint 도구 사슬 보안 경고 정리 | `IMPROVEMENTS.md` #11 | ✅ 코드 완료(2026-10-30) — `zod` 4.4.3 → `^4.6.7`, `npm audit` 0건. `zod`는 로그인 글자 검사에만 써서 악용 경로 없음 → **미배포 대기**(다음 배포 때 버전 +0.01) |
 
 ## 대기 중인 미배포 변경
