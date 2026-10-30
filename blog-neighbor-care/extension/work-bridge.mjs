@@ -1,4 +1,5 @@
 import {operateVisibleNaverWork} from './work-dom.mjs';
+const jobIdOf=r=>r.job?.id;
 export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused=async()=>false,readingClock={now:()=>performance.now(),sleep:ms=>new Promise(resolve=>setTimeout(resolve,ms))}){
  let busy=false,epoch=0,active=null,last='연결 전 · 웹에서 확장 실행 허용 필요';
  const emit=message=>{last=message;try{void Promise.resolve(browser.runtime?.sendMessage?.({type:'work_progress',message,deviceId:active?.deviceId})).catch(()=>{});}catch{}};
@@ -32,10 +33,10 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
    browser.tabs.onActivated?.addListener(changedTab);browser.tabs.onUpdated?.addListener(changedUrl);
    detach=()=>{browser.tabs.onActivated?.removeListener(changedTab);browser.tabs.onUpdated?.removeListener(changedUrl);};
    await current(binding,target,version);
-   let r=await post(options.scheduled===true?'scheduled_offer':'offer',{request_id:crypto.randomUUID(),url:target.url});
+   let r=await post(options.traversal===true?'traversal_offer':options.scheduled===true?'scheduled_offer':'offer',{request_id:crypto.randomUUID(),url:target.url});
    if(r.phase==='idle'){last=options.scheduled===true?`반복 대기 · ${r.reason??'현재 화면의 승인 작업 없음'}${r.nextDueAt?` · 다음 확인 ${r.nextDueAt}`:''}`:'현재 화면에 검토 완료된 실행 대상이 없습니다.';return {...state(),phase:'idle',reason:r.reason,nextDueAt:r.nextDueAt};}
    if(r.phase!=='inspect'||!r.job||typeof r.nonce!=='string'||!r.profile||r.job.actor_id!==binding.blogId)throw Error('실행 준비 결과를 확인하지 못했습니다.');
-   active={id:r.id,deviceId:binding.deviceId};await browser.storage.session.set({workRun:active});
+   active={id:r.id,deviceId:binding.deviceId};await browser.storage.session.set({workRun:active});if(options.jobId&&jobIdOf(r)!==options.jobId)throw Error('예정된 작업이 변경됐습니다.');
    emit('진행 중 · 웹에서 승인된 작업을 받아 현재 계정·대상을 확인합니다.');
    const job=r.job,profile=r.profile;let frame,expectedArticle;
    const script=async(operation,permit)=>{

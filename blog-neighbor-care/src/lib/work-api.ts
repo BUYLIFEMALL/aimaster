@@ -12,6 +12,7 @@ const object = (v: unknown): v is Record<string, unknown> => v !== null && typeo
 const text = (v: unknown) => typeof v === 'string' && v.length <= 4000;
 const limits: Record<string, number> = { request_cap: 20, like_cap: 100, comment_cap: 30 };
 const operations: Record<string, string[]> = {
+  review_approve:['id','expected_body'],save_execution:['request_cap','like_cap','comment_cap','enabled','expected_revision','confirmed'],
   accept_devices:[],grant_accept:['device_id','read','execute','confirmed'],revoke_accept:['device_id'],accept_list:[],draft_accept:['id','confirmed'],approve_accept:['id','confirmed'],
   settings: [], list: [], request_status: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
   engagement_list: [], engagement_review:['id'], draft_reply: ['id','body'], draft_return_visit: ['id','body'],
@@ -22,6 +23,8 @@ const operations: Record<string, string[]> = {
 };
 function valid(operation: string, p: Record<string, unknown>) {
   if (Object.keys(p).some(key => !operations[operation].includes(key))) return false;
+  if(operation==='review_approve')return uuid(p.id)&&text(p.expected_body);
+  if(operation==='save_execution')return p.confirmed===true&&typeof p.enabled==='boolean'&&Number.isSafeInteger(p.expected_revision)&&Number(p.expected_revision)>0&&Object.entries(limits).every(([k,max])=>Number.isInteger(p[k])&&Number(p[k])>=0&&Number(p[k])<=max);
   if(operation==='grant_accept')return uuid(p.device_id)&&p.confirmed===true&&typeof p.read==='boolean'&&typeof p.execute==='boolean';
   if(operation==='revoke_accept')return uuid(p.device_id);
   if(operation==='draft_accept'||operation==='approve_accept')return uuid(p.id)&&p.confirmed===true;

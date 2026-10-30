@@ -14,6 +14,7 @@
   "host_permissions": [
     "https://blog-neighbor-care.buylife.xyz/*"
   ],
+  "optional_host_permissions": ["https://blog.naver.com/*"],
   "background": {
     "service_worker": "background.mjs",
     "type": "module"

@@ -14,7 +14,7 @@ function fixture(){
   }}};
  const post=async(op,p)=>{
   calls.push(op);if(state.lose===op)throw Error('response lost');if(state.change&&op==='inspect')state.change();
-  if(op==='offer')return {id,phase:'inspect',nonce:'a'.repeat(64),job,profile:{v:1,reviewed:true,reference:'synthetic'}};
+  if(['offer','scheduled_offer','traversal_offer'].includes(op))return {id,phase:'inspect',nonce:'a'.repeat(64),job,profile:{v:1,reviewed:true,reference:'synthetic'}};
   if(op==='inspect')return {id,phase:'reading',readDurationMs:Math.max(30000,Math.ceil(state.characters/500)*5000),nonce:'b'.repeat(64)};
   if(op==='reading')return {id,phase:'recheck',nonce:'e'.repeat(64)};
   if(op==='recheck')return {id,phase:'apply',nonce:'c'.repeat(64),permit:{generation:1,deviceId:device,validUntil:new Date(Date.now()+20000).toISOString()}};
@@ -47,3 +47,5 @@ test('WW05 status is read-only and a lost final response never repeats applicati
   const long=fixture();long.state.characters=10000;await long.bridge.start();assert.equal(long.state.time,100000);
   for(const mutate of [f=>f.state.focused=false,f=>f.state.url='https://blog.naver.com/neighbor/456',f=>f.state.articleHash='f'.repeat(64),f=>f.state.actor='other']){const g=fixture();g.state.onSleep=()=>mutate(g);await assert.rejects(g.bridge.start());assert.equal(g.state.applies,0);assert.equal(g.calls.includes('reading'),false);}
  });
+
+test('WW07 a different approved job cannot replace the server-selected traversal target',async()=>{const f=fixture();await assert.rejects(f.bridge.start({scheduled:true,traversal:true,jobId:'99999999-9999-4999-8999-999999999999'}));assert.equal(f.state.applies,0);assert.equal(f.calls.includes('inspect'),false);});

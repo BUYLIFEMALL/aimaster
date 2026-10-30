@@ -20,6 +20,7 @@
     "test:schedule-database": "node --import tsx tests/schedule-database.mjs",
     "test:engagement-database": "node --import tsx tests/engagement-database.mjs",
     "test:extension-execution-database": "node --import tsx tests/extension-execution-database.mjs",
+    "test:post-targets-database": "node --import tsx tests/post-targets-database.mjs",
     "test:incoming-accept-database": "node --import tsx tests/incoming-accept-database.mjs",
     "test:extension-schedule-database": "node --import tsx tests/extension-schedule-database.mjs",
     "test:messages-database": "node --import tsx tests/messages-database.mjs",
@@ -28,6 +29,7 @@
   "dependencies": {
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.117.3",
+    "linkedom": "^0.18.12",
     "next": "16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -38,7 +40,6 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.2.3",
     "archiver": "7.0.1",
-    "linkedom": "0.18.12",
     "tsx": "4.23.15",
     "typescript": "5.9.3"
   }

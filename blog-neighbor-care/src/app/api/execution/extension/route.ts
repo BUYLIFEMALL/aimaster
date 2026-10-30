@@ -11,5 +11,5 @@ export const POST=createExtensionExecutionHandler({
    const kinds=Object.entries(refs).filter(([,ref])=>!!ref?.trim()).map(([kind])=>kind);return kinds.length?{profile,kinds}:null;
   }catch{return null;}
  },
- rpc:async(user,device,operation,payload)=>{const {data,error}=await createAdminClient().rpc('bnc_extension_execute',{p_user_id:user,p_device_id:device,p_operation:operation,p_payload:payload});return {data,error};},
+ rpc:async(user,device,operation,payload)=>{const {data,error}=await createAdminClient().rpc(['next','traversal_offer'].includes(operation)?'bnc_post_dispatch':'bnc_extension_execute',{p_user_id:user,p_device_id:device,p_operation:operation==='traversal_offer'?'offer':operation,p_payload:payload});return {data,error};},
 });

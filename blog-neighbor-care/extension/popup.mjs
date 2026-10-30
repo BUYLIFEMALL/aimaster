@@ -3,7 +3,7 @@ let draft = null, busy = false, currentDeviceId=null, currentProgress=null;
 const stageTitles={checking:'진행 중 · 계정 확인',starting:'진행 중 · 요청 준비',reserving:'진행 중 · 읽기 준비',reading:'진행 중 · 목록 읽기',sending:'진행 중 · 서버 전송',received:'진행 중 · 수신 확인',ready:'수신 완료 · 아직 저장 전',confirmed:'프로그램 저장 완료',failed:'읽기 중단 · 사유 확인',stopping:'읽기 중단 처리 중',paused:'진행 결과 확인 필요'};
 function applyButtons(){
   const active=currentProgress?.state==='running';
-  document.querySelectorAll('button').forEach(b=>{b.disabled=['workStop','contextCancel','scheduleStop','acceptStop','acceptCancel'].includes(b.id)?false:b.id==='neighborStop'?!active:busy||active;});
+  document.querySelectorAll('button').forEach(b=>{b.disabled=['workStop','contextCancel','scheduleStop','acceptStop','acceptCancel','traversalStop'].includes(b.id)?false:b.id==='neighborStop'?!active:busy||active;});
   $('contextRead').disabled=busy||active||!$('contextPreview').hidden;$('contextKind').disabled=busy||active||!$('contextPreview').hidden;
   $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
@@ -95,6 +95,7 @@ chrome.runtime.onMessage?.addListener((message,sender,respond)=>{
   if(message?.type==='neighbor_progress'&&currentDeviceId&&message.progress?.deviceId===currentDeviceId)renderNeighborProgress(message.progress);
   if(message?.type==='work_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('workMessage').textContent=message.message;
   if(message?.type==='schedule_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('scheduleMessage').textContent=message.message;
+  if(message?.type==='traversal_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('traversalMessage').textContent=message.message;
   return false;
 });
 $('workStart').addEventListener('click',()=>run(async()=>{if(!$('workConfirm').checked)throw Error('현재 탭 실행 동의를 확인해 주세요.');$('workMessage').textContent='진행 중 · 웹의 실행 허용과 승인 작업을 확인합니다.';const r=await send({type:'work_start',confirmed:true});$('workMessage').textContent=r.message;$('workConfirm').checked=false;}));
@@ -119,4 +120,7 @@ $('acceptStart').addEventListener('click',()=>run(async()=>{if(!$('acceptExecute
 $('acceptCheck').addEventListener('click',()=>run(async()=>{if(!$('acceptReadConsent').checked)throw Error('현재 신청 상태 읽기 동의를 확인해 주세요.');$('acceptReadConsent').checked=false;$('acceptMessage').textContent=(await send({type:'accept_check',confirmed:true})).message;}));
 $('acceptStatus').addEventListener('click',()=>run(async()=>{$('acceptMessage').textContent=(await send({type:'accept_status'})).message;}));
 $('acceptStop').addEventListener('click',async()=>{try{$('acceptMessage').textContent=(await send({type:'accept_stop'})).message;}catch{$('acceptMessage').textContent='중단 응답 미확인 · 다시 수락하지 말고 웹 기록부터 확인하세요.';}});
-run(status);
+$('traversalStart').addEventListener('click',async()=>{if(busy||!$('traversalConsent').checked){showStatus('대상 글 순회 동의를 확인해 주세요.');return;}try{if(!await chrome.permissions.request({origins:['https://blog.naver.com/*']}))throw Error('대상 글 접근이 허용되지 않았습니다.');await run(async()=>{$('traversalConsent').checked=false;$('traversalMessage').textContent=(await send({type:'traversal_start',confirmed:true})).message;});}catch(e){$('traversalMessage').textContent=e.message;}});
+$('traversalStatus').addEventListener('click',()=>run(async()=>{$('traversalMessage').textContent=(await send({type:'traversal_status'})).message;}));
+$('traversalStop').addEventListener('click',async()=>{try{$('traversalMessage').textContent=(await send({type:'traversal_stop'})).message;}catch{$('traversalMessage').textContent='중단 응답 미확인 · 웹 기록부터 확인하세요.';}});
+run(async()=>{await status();if(currentDeviceId){for(const [type,id] of [['traversal_status','traversalMessage'],['schedule_status','scheduleMessage'],['accept_status','acceptMessage']]){try{$(id).textContent=(await send({type})).message;}catch{$(id).textContent='상태 미확인 · 이전 결과를 확인하세요.';}}}});

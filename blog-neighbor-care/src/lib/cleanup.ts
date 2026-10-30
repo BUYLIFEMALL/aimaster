@@ -11,6 +11,7 @@ const steps = [
   { name: 'context', rpc: 'bnc_extension_context_cleanup', count: 'expiredContextRecordsRemoved' },
   { name: 'extension', rpc: 'bnc_extension_execution_cleanup', count: 'expiredExtensionRecordsRemoved' },
   { name: 'accept', rpc: 'bnc_accept_cleanup', count: 'expiredAcceptRecordsRemoved' },
+  { name: 'posts', rpc: 'bnc_post_cleanup', count: 'expiredPostTargetsRemoved' },
 ] as const;
 type CleanupRpc = (name: string, args: { p_user_id: null; p_operation: 'cleanup'; p_payload: Record<string, never> }) =>
   PromiseLike<{ data: unknown; error: unknown }>;

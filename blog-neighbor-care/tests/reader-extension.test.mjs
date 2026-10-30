@@ -34,10 +34,10 @@ test('프레임결과는같은글하나만선택·다른본문혼합거절', () 
   assert.throws(() => chooseSnapshot([{ result: { ok: true, snapshot } }, { result: { ok: true, snapshot: { ...snapshot, body: '다른내용' } } }], URL));
   assert.throws(() => chooseSnapshot([{ result: { ok: true, snapshot } }], 'https://blog.naver.com/other/123'));
 });
-test('확장은명시반복용알람만추가·네이버상시권한/PC권한없음', () => {
+test('확장은필수네이버상시권한/PC권한없음·순회용선택권한분리', () => {
   const manifest = JSON.parse(readFileSync(new globalThis.URL('../extension/manifest.json', import.meta.url)));
   assert.deepEqual(manifest.permissions.sort(), ['activeTab', 'alarms', 'scripting', 'storage'].sort());
-  assert.deepEqual(manifest.host_permissions, [`${SITE}/*`]); assert.equal(manifest.manifest_version, 3);
+  assert.deepEqual(manifest.host_permissions, [`${SITE}/*`]); assert.equal(manifest.manifest_version, 3);assert.deepEqual(manifest.optional_host_permissions,['https://blog.naver.com/*']);
   for (const url of ['http://blog.naver.com/a/1', 'https://blog.naver.com.evil.test/a/1', 'javascript:alert(1)']) assert.equal(parsePost(url), null);
 });
 function setup({ tabUrl = URL, failOp, submitLost = false } = {}) {

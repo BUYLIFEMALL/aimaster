@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-30",
+  "scope": "provided/RSS article planning, explicit AI handoff, exact-body draft review, member execution settings and approved post traversal",
+  "status": "local only; unpublished; SQL unapplied",
+  "unitTests": 299,
+  "typecheck": "pass",
+  "databaseTests": 9,
+  "databaseSqlCalls": 141,
+  "cleanupDatabaseTests": 11,
+  "pendingBundles": 15,
+  "unappliedMigrations": 8,
+  "newTables": 2,
+  "sourceCoverage": "provided/publisher feed only; never assume feed excerpt is full text",
+  "rssActualFetches": 0,
+  "paidAiCalls": 0,
+  "operatingSearchCalls": 0,
+  "deployments": 0,
+  "remoteBuilds": 0,
+  "pushes": 0,
+  "operatingSqlWrites": 0,
+  "actualEdgeVerified": false,
+  "screenshots": 0,
+  "optionalPermission": "https://blog.naver.com/*; explicit popup consent required",
+  "browserWindowCreation": false,
+  "ownedNewTabOnly": true,
+  "remaining": [
+    "automatic RSS monitoring and consent/budget-bound AI draft preparation",
+    "periodic acceptance integration",
+    "actual DOM/Edge/Naver and AI quality verification",
+    "batch SQL8/release and operating expiry checks"
+  ],
+  "sources": [
+    "https://help.naver.com/service/5593/contents/24722?lang=ko&osType=COMMONOS",
+    "https://help.naver.com/notice/noticeView.help?lang=ko&noticeNo=27243&page=1&serviceNo=5593"
+  ],
+  "archive": "D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/post-targets-20261030"
+}

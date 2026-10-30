@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-30T04:42:30.702Z",
+  "migration": "20261030143000_bnc_post_targets.sql",
+  "tests": [
+    "PTDB01 private planning data and RPC cannot be reached by member/anon roles",
+    "PTDB02 only owned enabled neighbors can import; metadata import stores no article body or action",
+    "PTDB03 repeat import never overwrites or extends; provided full body registers inherited AI source",
+    "PTDB04 full article flows into existing message preparation without refreshing original lifetime",
+    "PTDB05 feed rate reservation is shared per member/neighbor and does not create work or refresh source expiry",
+    "PTDB06 target discovery obeys durable due time and flags; disabling during reading rolls back claim/cursor atomically",
+    "PTDB07 dedicated new-tab traversal -> API -> durable cursor -> one recorded action, with no feed/AI calls",
+    "PTDB08 expired planning metadata is removed without enabling execution or changing directory choices",
+    "PTDB09 member execution settings and general draft review reject stale revisions and changed bodies"
+  ],
+  "passed": 9,
+  "sqlCalls": 141,
+  "isolated": true,
+  "operatingApplied": false,
+  "actualPlatformActions": 0,
+  "aiCalls": 0,
+  "actualFeedFetches": 0
+}

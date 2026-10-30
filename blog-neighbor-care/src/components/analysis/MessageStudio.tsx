@@ -1,25 +1,27 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import type {PreparedPost} from './PostPlanner';
 import {ModelPicker} from './ModelPicker';
 import {selectionForProvider} from '../../lib/analysis/modelSelection';
 type Lists={materials:{id:string;title:string;blog_id:string;post_id:string}[];profiles:{id:string;revision:number;topics:string[]}[];accounts:{id:string;external_id:string}[];candidates:{id:string;profile_job_id:string;profile_revision:number;selection:string[]}[];replies:{id:string;neighbor_id:string;own_post_id:string;comment_id:string}[];jobs:{id:string;kind:string;state:string}[]};
 type Result={id:string;kind:string;state:string;neighborId:string;postId:string;parentCommentId?:string;profileStale?:boolean;draftJobId?:string;result?:{text:string;summary:string;emotion:string;aiLikeScore:number;details:{sourceId:string;quote:string}[]}};
-export function MessageStudio(){
+export function MessageStudio({preparedPost=null}:{preparedPost?:PreparedPost|null}={}){
  const [lists,setLists]=useState<Lists|null>(null),[kind,setKind]=useState('comment'),[profileId,setProfile]=useState(''),[accountId,setAccount]=useState(''),[candidate,setCandidate]=useState(''),[sourceId,setSource]=useState('');
  const [model,setModel]=useState(()=>selectionForProvider('anthropic')),[url,setUrl]=useState(''),[title,setTitle]=useState(''),[body,setBody]=useState(''),[original,setOriginal]=useState(''),[facts,setFacts]=useState('');
  const [rights,setRights]=useState(false),[consent,setConsent]=useState(false),[confirmed,setConfirmed]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[result,setResult]=useState<Result|null>(null),[edited,setEdited]=useState('');
- const lock=useRef(false),alive=useRef(true);useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+ const selectionEpoch=useRef(0),lock=useRef(false),alive=useRef(true);useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+ useEffect(()=>{if(!preparedPost)return;selectionEpoch.current++;setKind('comment');setAccount(preparedPost.accountId);setUrl(preparedPost.url);setTitle(preparedPost.title);setBody(preparedPost.body);setRights(false);setConsent(false);setConfirmed(false);setResult(null);setMessage('글 자료를 불러왔습니다. 프로필·모델·사용 권한과 AI 전송 동의를 확인하세요.');},[preparedPost]);
  async function run(operation:string,payload:Record<string,unknown>={}){
-  if(lock.current)return;lock.current=true;setBusy(true);setMessage(operation==='generate'?'AI 문장을 생성하고 있습니다. 이 화면에서 결과를 확인하세요.':'처리 중…');
+  if(lock.current)return;const version=selectionEpoch.current;lock.current=true;setBusy(true);setMessage(operation==='generate'?'AI 문장을 생성하고 있습니다. 이 화면에서 결과를 확인하세요.':'처리 중…');
   try{
    const r=await fetch('/api/messages',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({operation,payload})});const v=await r.json();
-   if(!r.ok)throw Error(v.error||'결과를 확인하지 못했습니다.');if(!alive.current)return;
+   if(!r.ok)throw Error(v.error||'결과를 확인하지 못했습니다.');if(!alive.current||version!==selectionEpoch.current)return;
    if(operation==='list')setLists(v.data);
    else if(operation==='material'){setUrl(v.data.url);setTitle(v.data.title);setBody(v.data.body);setRights(false);setConsent(false);setMessage('저장된 내 글을 불러왔습니다. 사용 권한과 AI 전송 동의를 다시 확인하세요.');return;}
    else if(operation==='adopt'){setConfirmed(false);setResult(null);setMessage('문장을 초안으로 저장했습니다. 작업 기록에서 대상과 내용을 확인하세요.');return;}
    else{setResult(v.data);setEdited(v.data.result?.text??'');setConfirmed(false);}
    setMessage(operation==='list'?'저장된 선택 항목과 생성 기록을 조회했습니다.':v.data.state==='succeeded'?'생성 완료. 근거·대상·문장을 확인하고 초안으로 저장하세요.':`현재 상태: ${v.data.state}. 자동으로 재생성하지 않습니다.`);
-  }catch(e){if(alive.current)setMessage(`${e instanceof Error?e.message:'응답을 확인하지 못했습니다.'} 응답이 끊겼다면 생성 기록 조회로 먼저 확인하세요.`);}
+  }catch(e){if(alive.current&&version===selectionEpoch.current)setMessage(`${e instanceof Error?e.message:'응답을 확인하지 못했습니다.'} 응답이 끊겼다면 생성 기록 조회로 먼저 확인하세요.`);}
   finally{lock.current=false;if(alive.current)setBusy(false);}
  }
  function generate(){

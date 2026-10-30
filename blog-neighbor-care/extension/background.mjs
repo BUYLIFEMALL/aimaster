@@ -2,6 +2,7 @@ import { parsePost, inspectVisiblePost, chooseSnapshot } from './extractor.mjs';
 import {createNeighborImporter} from './neighbor-importer.mjs';
 import {parseNeighborPage} from './neighbor-extractor.mjs';
 import {createWorkBridge} from './work-bridge.mjs';
+import {createTargetTraversal} from './target-traversal.mjs';
 import {createAcceptBridge} from './accept-bridge.mjs';
 import {operateIncomingRequests} from './accept-dom.mjs';
 import {createExtensionSchedule} from './schedule-bridge.mjs';
@@ -31,6 +32,7 @@ export function createReaderController(browser, fetcher = fetch) {
   const acceptWho=async()=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post('whoami',{},token)).data;};
   const acceptReader=createContextReader(browser,acceptWho,(op,p)=>acceptPost(({offer:'offer_read',status:'status_read'})[op]??op,op==='offer'?{request_id:p.request_id,url:p.url}:p),windowId=>popupFocused(windowId),operateIncomingRequests);
   const acceptance=createAcceptBridge(browser,acceptWho,acceptPost,windowId=>popupFocused(windowId));
+  const traversal=createTargetTraversal(browser,acceptWho,work,async(op,p)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post(op,p,token,'/api/execution/extension')).data;},Date.now,undefined,windowId=>popupFocused(windowId));
   const publishProgress=async progress=>{
     const {token}=await browser.storage.local.get('token');
     if(!token||token!==importToken||!progress.deviceId)return;
@@ -58,7 +60,8 @@ export function createReaderController(browser, fetcher = fetch) {
     try { web = sender.id === browser.runtime.id && new URL(sender.tab?.url).origin === SITE; } catch { /* not the program tab */ }
     if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
     const { token } = await browser.storage.local.get('token');
-    if(['connect','disconnect','read','neighbors_read','work_start','schedule_start','context_preview'].includes(message.type)){await acceptReader.cancel();await acceptance.stop();}
+    if(['connect','disconnect','read','neighbors_read','work_start','work_stop','schedule_start','context_preview','accept_preview','accept_start','accept_check'].includes(message.type)){await traversal.stop();await acceptReader.cancel();await acceptance.stop();}
+    if(['traversal_start','traversal_stop','traversal_status'].includes(message.type)){if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');if(message.type==='traversal_status')return traversal.status();if(message.type==='traversal_stop')return traversal.stop();if(message.confirmed!==true||neighbors.isRunning())throw Error('대상 글 순회 동의를 확인하세요.');await schedule.stop();await work.stop();await contexts.cancel();await acceptReader.cancel();await acceptance.stop();return traversal.start(true);}
     if(['accept_preview','accept_confirm','accept_cancel','accept_start','accept_stop','accept_status','accept_check'].includes(message.type)){
       if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
       if(message.type==='accept_status')return acceptance.status();
@@ -177,14 +180,14 @@ export function createReaderController(browser, fetcher = fetch) {
     }
     throw new Error('지원하지 않는 작업입니다.');
   };
-  handle.onAlarm=alarm=>schedule.alarm(alarm.name);return handle;
+  handle.onAlarm=async alarm=>{await schedule.alarm(alarm.name);await traversal.alarm(alarm.name);};return handle;
 }
 
 if (globalThis.chrome?.runtime?.onMessage) {
   const handle = createReaderController(chrome);
   chrome.alarms?.onAlarm?.addListener(alarm=>{void handle.onAlarm(alarm).catch(()=>{});});
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if(['neighbor_progress','neighbor_focus_probe','work_progress','schedule_progress'].includes(message?.type))return false;
+    if(['neighbor_progress','neighbor_focus_probe','work_progress','schedule_progress','traversal_progress'].includes(message?.type))return false;
     handle(message, sender).then(data => sendResponse({ ok: true, data }), error => sendResponse({ ok: false,
       error: error?.message || '결과를 확인하지 못했습니다. 자동 재전송하지 않습니다.' }));
     return true;
