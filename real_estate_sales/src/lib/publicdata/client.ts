@@ -1,5 +1,6 @@
 import "server-only";
 import { MOLIT_TRADE_URL, molitMonths, molitRows } from "./molit";
+import { LEGAL_DONG } from "./legalDong";
 
 // 서울 열린데이터광장 / 공공데이터포털 / VWorld 공공 API 클라이언트.
 // Phase 0 스파이크로 확인됨: Vercel 서울 리전(icn1, vercel.json의 regions 설정)에서
@@ -107,7 +108,7 @@ export async function fetchMolitTrades(params: {
       throw new Error(`국토부 실거래가 API 응답을 읽지 못했습니다: ${text.slice(0, 80)}`);
     }
   }
-  return molitRows(jsons, sggNm);
+  return molitRows(jsons, sggNm, LEGAL_DONG);
 }
 
 export interface BuildingRegisterItem {
@@ -185,9 +186,12 @@ export async function fetchApartAssessedPrice(params: {
   if (!res.ok) throw new Error(`VWorld 공시가격 API 요청 실패 (${res.status})`);
   const data = await res.json();
   const result = data?.apartHousingPrices;
-  if (result?.resultCode && result.resultCode !== "0" && Array.isArray(result?.field) === false) {
-    // resultCode가 있고 field 배열이 없으면 에러 응답 (예: INCORRECT_KEY)
-    if (!result.field) return [];
+  // 2026-10-30: 10-27 수집분부터 공시가가 전부 비어(v1.22 도메인 변경 직후) 원인을 보려고, 오류 응답이면 내용을 던진다
+  // — 수집 쪽(collect.ts)은 Promise.allSettled라 공시가만 비고 나머지는 그대로 저장되며, 로그에 「VWorld 공시가격 조회 실패: …」로 남는다.
+  const errCode = result?.resultCode && result.resultCode !== "0" && !Array.isArray(result?.field) ? result.resultCode : data?.response?.status === "ERROR" ? data?.response?.error?.code : "";
+  if (errCode) {
+    const msg = result?.resultMsg || data?.response?.error?.text || "";
+    throw new Error(`VWorld 공시가격 오류 ${errCode}${msg ? ` — ${msg}` : ""} (도메인 ${params.keys?.vworldDomain ? "회원" : "운영"} 설정)`);
   }
   return result?.field ?? [];
 }

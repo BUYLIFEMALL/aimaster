@@ -4,6 +4,24 @@
 // 순수 함수만 둔다(시험용, server-only 아님).
 import type { SeoulRtmsRow } from "./client";
 
+/** 시·군·구 → { 동 이름: 법정동 코드 뒤 5자리 } (legalDong.ts의 LEGAL_DONG을 부르는 쪽에서 넘김 — 시험·서버 둘 다 import 확장자 문제 없이 쓰려고) */
+export type DongTable = Record<string, Record<string, string>>;
+
+/** 동 이름 → 법정동 코드 뒤 5자리. 「남양읍 남양리」처럼 리까지 오면 공식 표에 리가 없어 읍·면 코드로 대신(그 필지 조회는 비어도 무해) */
+export function legalDongCode(dongTable: DongTable, sggCd: string, umdNm: string): string {
+  const table = dongTable[sggCd];
+  if (!table) return "";
+  const name = umdNm.trim();
+  return table[name] ?? table[name.split(/\s+/)[0]] ?? "";
+}
+
+/** 지번 「1286」「25-9」「산12-1」 → { 산 여부, 본번, 부번 } (2026-10-30 실측: 국토부 응답에 bonbun·bubun 칸이 없고 jibun만 옴) */
+export function splitJibun(jibun: string): { mountain: boolean; bun: string; ji: string } {
+  const m = jibun.trim().match(/^(산\s*)?(\d+)(?:-(\d+))?$/);
+  if (!m) return { mountain: false, bun: "", ji: "" };
+  return { mountain: !!m[1], bun: String(Number(m[2])), ji: String(Number(m[3] ?? 0)) };
+}
+
 export const MOLIT_TRADE_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";
 
 /** 조회할 달 「yyyymm」 — 이번 달과 지난달(한국 시간). 실거래는 계약 후 30일 안에 신고돼 지난달 거래가 늦게 들어온다 */
@@ -26,7 +44,7 @@ export function molitItems(json: unknown): Record<string, unknown>[] {
 const str = (v: unknown) => (v === null || v === undefined ? "" : String(v).trim());
 
 /** 국토부 한 줄 → 서울 줄 모양. 해제(취소)된 거래·금액/면적 없는 줄은 null */
-export function molitItemToRow(it: Record<string, unknown>, sggNm: string): SeoulRtmsRow | null {
+export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongTable: DongTable = {}): SeoulRtmsRow | null {
   if (str(it.cdealType)) return null; // 해제 신고된 거래(「O」)는 버림
   const amount = str(it.dealAmount).replace(/[,\s]/g, "");
   const area = str(it.excluUseAr);
@@ -34,16 +52,21 @@ export function molitItemToRow(it: Record<string, unknown>, sggNm: string): Seou
   const m = str(it.dealMonth).padStart(2, "0");
   const d = str(it.dealDay).padStart(2, "0");
   if (!amount || !Number(amount) || !area || !Number(area) || y.length !== 4) return null;
+  const sggCd = str(it.sggCd);
+  const umdNm = str(it.umdNm);
+  // 응답에 umdCd·bonbun·bubun·landCd가 있으면 쓰고, 없으면(2026-10 실제 응답) 동 이름·지번에서 만든다
+  const jb = splitJibun(str(it.jibun));
+  const mountain = str(it.landCd) ? str(it.landCd) === "2" : jb.mountain;
   return {
     RCPT_YR: y,
-    CGG_CD: str(it.sggCd),
+    CGG_CD: sggCd,
     CGG_NM: sggNm,
-    STDG_CD: str(it.umdCd),
-    STDG_NM: str(it.umdNm),
-    LOTNO_SE: str(it.landCd) === "2" ? "2" : "1", // 1=대지, 2=산
-    LOTNO_SE_NM: str(it.landCd) === "2" ? "산" : "대지",
-    MNO: str(it.bonbun).replace(/^0+(?=\d)/, ""),
-    SNO: str(it.bubun).replace(/^0+(?=\d)/, ""),
+    STDG_CD: str(it.umdCd) || legalDongCode(dongTable, sggCd, umdNm),
+    STDG_NM: umdNm,
+    LOTNO_SE: mountain ? "2" : "1", // 1=대지, 2=산
+    LOTNO_SE_NM: mountain ? "산" : "대지",
+    MNO: str(it.bonbun).replace(/^0+(?=\d)/, "") || jb.bun,
+    SNO: str(it.bubun).replace(/^0+(?=\d)/, "") || jb.ji,
     BLDG_NM: str(it.aptNm),
     CTRT_DAY: `${y}${m}${d}`,
     THING_AMT: amount, // 만 원(서울 자료와 같은 단위)
@@ -54,7 +77,7 @@ export function molitItemToRow(it: Record<string, unknown>, sggNm: string): Seou
 }
 
 /** 응답들 → 서울 줄 모양 목록(계약일 최신순) */
-export function molitRows(jsons: unknown[], sggNm: string): SeoulRtmsRow[] {
-  const rows = jsons.flatMap((j) => molitItems(j)).map((it) => molitItemToRow(it, sggNm)).filter((r): r is SeoulRtmsRow => !!r);
+export function molitRows(jsons: unknown[], sggNm: string, dongTable: DongTable = {}): SeoulRtmsRow[] {
+  const rows = jsons.flatMap((j) => molitItems(j)).map((it) => molitItemToRow(it, sggNm, dongTable)).filter((r): r is SeoulRtmsRow => !!r);
   return rows.sort((a, b) => b.CTRT_DAY.localeCompare(a.CTRT_DAY));
 }

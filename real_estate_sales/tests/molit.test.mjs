@@ -73,3 +73,21 @@ test("경기·인천 코드가 국토부 전국 법정동 자료와 같음(realt
   assert.deepEqual(mine.filter((c) => !off.has(c)), []);
   assert.deepEqual([...off].filter((c) => !mine.includes(c)), []);
 });
+
+test("실제 응답 모양(2026-10): umdCd·bonbun 없이 동 이름·지번만 → 공식 표로 동 코드, 지번 나누기", async () => {
+  const { LEGAL_DONG } = await import("../src/lib/publicdata/legalDong.ts");
+  const { splitJibun, legalDongCode } = await import("../src/lib/publicdata/molit.ts");
+  const real = { sggCd: "41285", umdNm: "풍동", jibun: "1286", aptNm: "숲속마을2단지", dealYear: "2026", dealMonth: "10", dealDay: "28", dealAmount: "43,000", excluUseAr: "75.82", floor: "7", buildYear: "2006", cdealType: "" };
+  const row = molitItemToRow(real, "고양시 일산동구", LEGAL_DONG);
+  assert.equal(row.STDG_CD, LEGAL_DONG["41285"]["풍동"]);
+  assert.match(row.STDG_CD, /^\d{5}$/);
+  assert.equal(row.MNO, "1286");
+  assert.equal(row.SNO, "0");
+  assert.equal(row.LOTNO_SE, "1");
+  assert.deepEqual(splitJibun("25-9"), { mountain: false, bun: "25", ji: "9" });
+  assert.deepEqual(splitJibun("산12-1"), { mountain: true, bun: "12", ji: "1" });
+  assert.deepEqual(splitJibun(""), { mountain: false, bun: "", ji: "" });
+  // 읍·면은 리가 표에 없어 읍 코드로
+  assert.equal(legalDongCode(LEGAL_DONG, "41591", "남양읍 남양리"), LEGAL_DONG["41591"]["남양읍"]);
+  assert.equal(legalDongCode(LEGAL_DONG, "99999", "풍동"), "");
+});
