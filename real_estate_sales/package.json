@@ -12,7 +12,8 @@
     "test:runtime": "node tests/runtime.mjs",
     "test:fixtures": "node tests/fixtures.mjs",
     "build:verify": "node tests/local.mjs build",
-    "test:access": "node --test tests/accessBatch.test.mjs"
+    "test:access": "node --test tests/accessBatch.test.mjs",
+    "test:molit": "node --test tests/molit.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

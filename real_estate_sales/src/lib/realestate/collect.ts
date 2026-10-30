@@ -9,8 +9,10 @@ import {
   fetchLandUsePlan,
   fetchSeoulRentComparables,
   fetchSeoulTrades,
+  fetchMolitTrades,
   type PublicDataKeys,
 } from "@/lib/publicdata/client";
+import { isSeoulDistrict } from "@/lib/publicdata/districts";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { ensureListingAnalysis } from "@/lib/actions/analysis";
@@ -32,7 +34,11 @@ export async function collectDistrict(
   year: number,
   keys?: PublicDataKeys, // 회원 본인 공공데이터 키(없으면 운영자 공용 키)
 ): Promise<{ newCount: number }> {
-  const trades = await fetchSeoulTrades({ sggCd, year, numOfRows: 200, keys });
+  // RE-B4(2026-10-30): 서울은 서울 열린데이터, 경기·인천은 국토부 실거래 API(같은 줄 모양으로 바꿔 받음)
+  const seoul = isSeoulDistrict(sggCd);
+  const trades = seoul
+    ? await fetchSeoulTrades({ sggCd, year, numOfRows: 200, keys })
+    : await fetchMolitTrades({ sggCd, sggNm, numOfRows: 200, keys });
   const validTrades = trades.filter((row) => row.CTRT_DAY && row.BLDG_NM);
 
   // 최대 200건을 매번 한 건씩 존재 여부 조회하던 것을, 한 번의 IN 쿼리로 일괄 확인하도록 변경.
@@ -65,7 +71,8 @@ export async function collectDistrict(
         ji: row.SNO,
       }),
       fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, keys }),
-      fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }),
+      // 전월세 비교 자료는 서울 열린데이터에만 있다 — 경기·인천은 1차에서 빈칸(RE-B4 2차 과제)
+      seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }) : Promise.resolve([]),
     ]);
 
     let exclusiveArea: number | null = null;

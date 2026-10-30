@@ -1,4 +1,5 @@
 import "server-only";
+import { MOLIT_TRADE_URL, molitMonths, molitRows } from "./molit";
 
 // 서울 열린데이터광장 / 공공데이터포털 / VWorld 공공 API 클라이언트.
 // Phase 0 스파이크로 확인됨: Vercel 서울 리전(icn1, vercel.json의 regions 설정)에서
@@ -78,6 +79,35 @@ export async function fetchSeoulTrades(params: {
     }
     return normalized as unknown as SeoulRtmsRow;
   });
+}
+
+// RE-B4(2026-10-30): 서울 밖(경기·인천) 아파트 매매 실거래 — 국토부 API로 이번 달·지난달을 받아 서울 줄 모양으로 바꾼다(molit.ts).
+// 키: 회원 본인 data_go_kr_service_key → 없으면 운영자 공용 DATA_GO_KR_SERVICE_KEY(공공데이터포털 15126469 활용신청이 돼 있어야 함).
+export async function fetchMolitTrades(params: {
+  keys?: PublicDataKeys;
+  sggCd: string;
+  sggNm: string;
+  numOfRows?: number;
+  now?: Date;
+}): Promise<SeoulRtmsRow[]> {
+  const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
+  const { sggCd, sggNm, numOfRows = 200, now } = params;
+  const jsons: unknown[] = [];
+  for (const ymd of molitMonths(now)) {
+    const qs = new URLSearchParams({ serviceKey: key, LAWD_CD: sggCd, DEAL_YMD: ymd, numOfRows: String(numOfRows), pageNo: "1", _type: "json" });
+    const res = await fetch(`${MOLIT_TRADE_URL}?${qs.toString()}`, { cache: "no-store" });
+    if (res.status === 401 || res.status === 403) {
+      throw new Error(`국토부 실거래가 API 사용 승인이 필요합니다 (${res.status}) — 공공데이터포털 「국토교통부_아파트 매매 실거래가 자료」(15126469) 활용신청`);
+    }
+    if (!res.ok) throw new Error(`국토부 실거래가 API 요청 실패 (${res.status})`);
+    const text = await res.text();
+    try {
+      jsons.push(JSON.parse(text));
+    } catch {
+      throw new Error(`국토부 실거래가 API 응답을 읽지 못했습니다: ${text.slice(0, 80)}`);
+    }
+  }
+  return molitRows(jsons, sggNm);
 }
 
 export interface BuildingRegisterItem {

@@ -8,7 +8,7 @@ import { formatWon } from "@/lib/format";
 
 const PIPELINE = [
   { icon: "🔑", title: "본인 키 등록", desc: "OpenAI·Perplexity + 텔레그램 봇", href: "/settings" },
-  { icon: "📍", title: "관심 지역", desc: "서울 자치구 여러 개 선택", href: "/districts" },
+  { icon: "📍", title: "관심 지역", desc: "서울·경기·인천 지역 여러 개 선택", href: "/districts" },
   { icon: "⚡", title: "조회·예약", desc: "지금 조회하기 또는 주기 예약", href: "/districts" },
   { icon: "🏢", title: "실거래·AI 분석", desc: "투자 매력도·저평가지수 확인", href: "/listings" },
 ];
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
       <PageHero
         badge="🏠 대시보드"
         title="관심 지역 실거래를 자동으로, 투자 판단은 AI와 함께"
-        description="서울 관심 자치구에 새 실거래가 신고되면 자동으로 모아 알려 드리고, 회원님 본인 AI 키로 투자 매력도·저평가지수·1년 상승예측을 분석해 드립니다."
+        description="서울·경기·인천 관심 지역에 새 실거래가 신고되면 자동으로 모아 알려 드리고, 회원님 본인 AI 키로 투자 매력도·저평가지수·1년 상승예측을 분석해 드립니다."
         tip="실거래가는 현재 매물 호가가 아니라 신고까지 마친 실제 거래예요. 계약 후 최대 30일 뒤에 공개됩니다."
       >
         <Link href="/listings" className="mx-btn-primary">
@@ -85,7 +85,7 @@ export default async function DashboardPage() {
       </PageHero>
 
       <KpiGrid>
-        <KpiCard icon="📍" label="관심 지역" value={districtsRes.count ?? 0} hint="서울 자치구" />
+        <KpiCard icon="📍" label="관심 지역" value={districtsRes.count ?? 0} hint="서울·경기·인천" />
         <KpiCard icon="🆕" label="새 실거래" value={newRes.count ?? 0} hint="아직 열어 보거나 알림 받기 전" tone="amber" />
         <KpiCard icon="📅" label="최근 7일 수집" value={weekRes.count ?? 0} tone="green" />
         <KpiCard icon="🤖" label="AI 분석 완료" value={analysesRes.count ?? 0} tone="muted" />

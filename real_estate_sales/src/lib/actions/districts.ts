@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { SEOUL_DISTRICTS } from "@/lib/publicdata/districts";
+import { findDistrict } from "@/lib/publicdata/districts";
 
 // 로그인 여부뿐 아니라 이 프로그램(real-estate-sales) 구독/이용 권한까지 확인한다.
 // 페이지 레이아웃의 requireProgramAccess() 가드는 Server Action을 직접 호출하는
@@ -13,7 +13,7 @@ export async function toggleDistrictAction(formData: FormData) {
   const sggCd = String(formData.get("sggCd"));
   const nextActive = formData.get("nextActive") === "true";
 
-  const district = SEOUL_DISTRICTS.find((d) => d.sgg_cd === sggCd);
+  const district = findDistrict(sggCd);
   if (!district) return;
 
   const supabase = await createClient();
@@ -53,7 +53,7 @@ export async function updateMonitoringSettingsAction(formData: FormData) {
   const activeHourStartRaw = formData.get("activeHourStart");
   const activeHourEndRaw = formData.get("activeHourEnd");
 
-  const district = SEOUL_DISTRICTS.find((d) => d.sgg_cd === sggCd);
+  const district = findDistrict(sggCd);
   if (!district) return;
   if (!VALID_INTERVALS.includes(intervalMinutes)) return;
 
