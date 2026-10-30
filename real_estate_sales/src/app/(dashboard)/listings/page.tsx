@@ -68,10 +68,12 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
         price: l.price_amount,
         official: l.official_price,
         type: l.property_type ?? "아파트",
+        deal: l.deal_type ?? "매매",
+        rent: l.monthly_rent,
       },
     ];
   });
-  const prices = rows.map((r) => r.price ?? 0).filter((p) => p > 0);
+  const prices = rows.filter((r) => r.deal === "매매").map((r) => r.price ?? 0).filter((p) => p > 0); // 평균·최고는 매매만
   const avg = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : null;
 
   return (
@@ -85,8 +87,8 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
 
       <KpiGrid>
         <KpiCard icon="🏢" label="전체 실거래" value={total} />
-        <KpiCard icon="📊" label="평균 거래가" value={formatWon(avg)} tone="green" />
-        <KpiCard icon="🏆" label="최고 거래가" value={formatWon(prices.length ? Math.max(...prices) : null)} tone="amber" />
+        <KpiCard icon="📊" label="평균 매매가" value={formatWon(avg)} tone="green" />
+        <KpiCard icon="🏆" label="최고 매매가" value={formatWon(prices.length ? Math.max(...prices) : null)} tone="amber" />
         <KpiCard icon="🤖" label="AI 분석 완료" value={rows.filter((r) => r.status === "analyzed").length} tone="muted" />
       </KpiGrid>
 

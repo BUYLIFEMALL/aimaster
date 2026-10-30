@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { formatWon, isUnusualPriceRatio, priceToOfficialPct } from "@/lib/format";
+import { formatDealPrice, formatWon, isUnusualPriceRatio, priceToOfficialPct } from "@/lib/format";
 import { exportListingsCsvAction } from "@/lib/actions/export";
 
 export interface ListingRow {
@@ -18,6 +18,8 @@ export interface ListingRow {
   price: number | null; // 만원
   official: number | null; // 원
   type: string; // 아파트/빌라/오피스텔
+  deal: string; // 매매/전세/월세
+  rent: number | null; // 월세(만원)
 }
 
 type Sort = "recent" | "price" | "area" | "ratio";
@@ -34,6 +36,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
   const [query, setQuery] = useState("");
   const [sgg, setSgg] = useState("all");
   const [type, setType] = useState("all");
+  const [deal, setDeal] = useState("all");
   const [sort, setSort] = useState<Sort>("recent");
   const [view, setView] = useState<View>("table");
   const [exporting, startExport] = useTransition();
@@ -56,13 +59,13 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = rows.filter((r) => (sgg === "all" || r.sgg === sgg) && (type === "all" || r.type === type) && (!q || `${r.name} ${r.dong}`.toLowerCase().includes(q)));
+    const list = rows.filter((r) => (sgg === "all" || r.sgg === sgg) && (type === "all" || r.type === type) && (deal === "all" || r.deal === deal) && (!q || `${r.name} ${r.dong}`.toLowerCase().includes(q)));
     const ratio = (r: ListingRow) => priceToOfficialPct(r.price, r.official) ?? -1;
     if (sort === "price") return [...list].sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
     if (sort === "area") return [...list].sort((a, b) => (b.area ?? 0) - (a.area ?? 0));
     if (sort === "ratio") return [...list].sort((a, b) => ratio(b) - ratio(a));
     return list;
-  }, [rows, query, sgg, sort, type]);
+  }, [rows, query, sgg, sort, type, deal]);
 
   return (
     <div className="mx-card p-4">
@@ -86,6 +89,12 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
               ))}
             </select>
           )}
+          <select value={deal} onChange={(e) => setDeal(e.target.value)} aria-label="거래 종류" className="rounded-lg border border-mx-border bg-dark-100 px-3 py-2 text-sm text-mx-text">
+            <option value="all">모든 거래</option>
+            <option value="매매">매매</option>
+            <option value="전세">전세</option>
+            <option value="월세">월세</option>
+          </select>
           <select value={type} onChange={(e) => setType(e.target.value)} aria-label="건물 유형" className="rounded-lg border border-mx-border bg-dark-100 px-3 py-2 text-sm text-mx-text">
             <option value="all">모든 유형</option>
             <option value="아파트">아파트</option>
@@ -149,8 +158,8 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                     <td className="whitespace-nowrap text-mx-muted">{r.type}</td>
                     <td className="text-right tabular-nums">{r.area ?? "-"}㎡</td>
                     <td className="text-right tabular-nums">{r.floor ?? "-"}</td>
-                    <td className="text-right font-bold tabular-nums text-mx-link">{formatWon(r.price)}</td>
-                    <td className="text-right tabular-nums text-mx-muted">{r.official ? formatWon(r.official / 10000) : r.type === "오피스텔" ? "대상 아님" : "-"}</td>
+                    <td className="text-right font-bold tabular-nums text-mx-link">{formatDealPrice(r.deal, r.price, r.rent)}</td>
+                    <td className="text-right tabular-nums text-mx-muted">{r.official ? formatWon(r.official / 10000) : r.deal !== "매매" ? "-" : r.type === "오피스텔" ? "대상 아님" : "-"}</td>
                     <td className="text-right tabular-nums" title={isUnusualPriceRatio(pct) ? "특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : undefined}>
                       {pct !== null ? `${isUnusualPriceRatio(pct) ? "⚠️ " : ""}${pct}%` : "-"}
                     </td>
@@ -177,7 +186,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                   <span className={st.chip}>{st.label}</span>
                 </div>
                 <p className="mt-1 truncate font-bold text-mx-text">{r.name}</p>
-                <p className="mt-1 text-2xl font-black tabular-nums text-mx-link">{formatWon(r.price)}</p>
+                <p className="mt-1 text-2xl font-black tabular-nums text-mx-link">{formatDealPrice(r.deal, r.price, r.rent)}</p>
                 <p className="mt-1 text-xs text-mx-muted">
                   {r.type} · 전용 {r.area ?? "-"}㎡ · {r.floor ?? "-"}층 · {r.contractDate ?? "-"}
                   {pct !== null && ` · 공시가 대비 ${pct}%${isUnusualPriceRatio(pct) ? " ⚠️ 특수 거래일 수 있어요" : ""}`}

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { PageHero } from "@/components/ui/PageHero";
 import { KpiCard, KpiGrid } from "@/components/ui/KpiCard";
-import { formatWon } from "@/lib/format";
+import { formatDealPrice, formatWon } from "@/lib/format";
 
 const PIPELINE = [
   { icon: "🔑", title: "본인 키 등록", desc: "OpenAI·Perplexity + 텔레그램 봇", href: "/settings" },
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
                     </td>
                     <td className="text-mx-muted">{listing.contract_date ?? "-"}</td>
                     <td className="text-right tabular-nums">{listing.exclusive_area ?? "-"}㎡</td>
-                    <td className="text-right font-bold tabular-nums text-mx-link">{formatWon(listing.price_amount)}</td>
+                    <td className="text-right font-bold tabular-nums text-mx-link">{formatDealPrice(listing.deal_type, listing.price_amount, listing.monthly_rent)}</td>
                   </tr>
                 ))}
               </tbody>

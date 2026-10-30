@@ -40,6 +40,9 @@ export async function runListingAnalysis(
   if (!listing) {
     return { error: "매물 정보를 찾을 수 없습니다." };
   }
+  if ((listing.deal_type ?? "매매") !== "매매") {
+    return { error: "AI 투자 분석은 매매 거래만 할 수 있어요." };
+  }
 
   const [openaiKey, perplexityKey] = await Promise.all([
     resolveApiKey(supabase, userId, "openai"),

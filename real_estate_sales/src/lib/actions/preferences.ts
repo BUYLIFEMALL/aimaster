@@ -1,6 +1,6 @@
 "use server";
 
-import { normalizePropertyTypes } from "@/lib/publicdata/molit";
+import { normalizeDealTypes, normalizePropertyTypes } from "@/lib/publicdata/molit";
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -66,7 +66,7 @@ export async function savePropertyTypesAction(
   const types = normalizePropertyTypes(formData.getAll("propertyTypes"));
   const supabase = await createClient();
   const { error } = await supabase.from("real_estate_user_preferences").upsert(
-    { user_id: user.id, property_types: types, updated_at: new Date().toISOString() },
+    { user_id: user.id, property_types: types, deal_types: normalizeDealTypes(formData.getAll("dealTypes")), updated_at: new Date().toISOString() },
     { onConflict: "user_id" },
   );
   if (error) return { error: error.message };

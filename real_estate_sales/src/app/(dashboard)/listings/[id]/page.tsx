@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ReanalyzeButton } from "@/components/listings/ReanalyzeButton";
 import Link from "next/link";
 import { KpiCard } from "@/components/ui/KpiCard";
-import { formatWon, isUnusualPriceRatio, priceToOfficialPct } from "@/lib/format";
+import { formatDealPrice, formatWon, isUnusualPriceRatio, priceToOfficialPct } from "@/lib/format";
 
 export default async function ListingDetailPage({
   params,
@@ -57,6 +57,7 @@ export default async function ListingDetailPage({
     (apiKeys ?? []).some((k) => k.provider === "perplexity");
 
   const latest = analyses?.[0];
+  const isSale = (listing.deal_type ?? "매매") === "매매";
   const ratio = priceToOfficialPct(listing.price_amount, listing.official_price);
   const perM2 =
     listing.price_amount && listing.exclusive_area ? Math.round(listing.price_amount / listing.exclusive_area) : null;
@@ -105,7 +106,7 @@ export default async function ListingDetailPage({
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard icon="💰" label="거래가" value={formatWon(listing.price_amount)} />
+        <KpiCard icon="💰" label={isSale ? "거래가" : listing.deal_type ?? "거래"} value={formatDealPrice(listing.deal_type, listing.price_amount, listing.monthly_rent)} />
         <KpiCard
           icon="🏛️"
           label="공시가격"
@@ -113,11 +114,11 @@ export default async function ListingDetailPage({
           hint={!listing.official_price && listing.property_type === "오피스텔" ? "오피스텔은 공동주택 공시가 대상이 아니에요" : undefined}
           tone="muted"
         />
-        <KpiCard icon="📐" label="공시가 대비" value={ratio !== null ? `${ratio}%` : "-"} hint={isUnusualPriceRatio(ratio) ? "⚠️ 특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : "거래가 ÷ 공시가격"} tone="amber" />
+        <KpiCard icon="📐" label="공시가 대비" value={isSale && ratio !== null ? `${ratio}%` : "-"} hint={isUnusualPriceRatio(ratio) ? "⚠️ 특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : "거래가 ÷ 공시가격"} tone="amber" />
         <KpiCard
           icon="📏"
           label="㎡당 거래가"
-          value={perM2 ? `${perM2.toLocaleString("ko-KR")}만원` : "-"}
+          value={isSale && perM2 ? `${perM2.toLocaleString("ko-KR")}만원` : "-"}
           hint={listing.exclusive_area ? `전용 ${listing.exclusive_area}㎡ 기준` : undefined}
           tone="green"
         />
@@ -143,6 +144,9 @@ export default async function ListingDetailPage({
         </div>
       )}
 
+      {!isSale ? (
+        <div className="mx-card text-sm text-mx-muted">전세·월세 거래는 AI 투자 분석 대상이 아니에요. 공시가격과 ㎡당 거래가도 매매 거래에만 보여요.</div>
+      ) : (
       <div className="mx-card border-l-4 border-l-mx-accent">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="mx-section-title mb-0">🤖 AI 투자 분석</h2>
@@ -186,6 +190,7 @@ export default async function ListingDetailPage({
           </div>
         )}
       </div>
+      )}
 
       {analyses && analyses.length > 1 && (
         <div className="mx-card">

@@ -2903,6 +2903,7 @@ export type Database = {
           pnu: string | null
           prev_deposit: number | null
           prev_rent: number | null
+          monthly_rent: number | null
           property_type: string | null
           price_amount: number | null
           raw_data: Json | null
@@ -2928,6 +2929,7 @@ export type Database = {
           pnu?: string | null
           prev_deposit?: number | null
           prev_rent?: number | null
+          monthly_rent?: number | null
           property_type?: string | null
           price_amount?: number | null
           raw_data?: Json | null
@@ -2953,6 +2955,7 @@ export type Database = {
           pnu?: string | null
           prev_deposit?: number | null
           prev_rent?: number | null
+          monthly_rent?: number | null
           property_type?: string | null
           price_amount?: number | null
           raw_data?: Json | null
@@ -2998,6 +3001,7 @@ export type Database = {
         Row: {
           auto_analyze_on_notify: boolean
           preferred_model: string | null
+          deal_types: string[] | null
           property_types: string[] | null
           updated_at: string
           user_id: string
@@ -3005,6 +3009,7 @@ export type Database = {
         Insert: {
           auto_analyze_on_notify?: boolean
           preferred_model?: string | null
+          deal_types?: string[] | null
           property_types?: string[] | null
           updated_at?: string
           user_id: string
@@ -3012,6 +3017,7 @@ export type Database = {
         Update: {
           auto_analyze_on_notify?: boolean
           preferred_model?: string | null
+          deal_types?: string[] | null
           property_types?: string[] | null
           updated_at?: string
           user_id?: string

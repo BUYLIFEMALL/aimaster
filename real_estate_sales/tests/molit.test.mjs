@@ -177,3 +177,24 @@ test("전남광주 필지 번호: 브이월드 조회만 옛 코드, 다른 지�
   assert.equal(vworldPnu("1221012200100010000"), "2911012200100010000");
   assert.equal(vworldPnu("4159125621100010000"), "4159125621100010000");
 });
+
+test("전월세 거래: 표 값 변환, 기본은 매매만, 금액 표기(2026-10-31)", async () => {
+  const { rentToListing, normalizeDealTypes } = await import("../src/lib/publicdata/molit.ts");
+  const { formatDealPrice } = await import("../src/lib/format.ts");
+  const base = { name: "밤가시마을7", dong: "풍동", area: 59.88, floor: "2", buildYear: 1996, day: "20260922", deposit: 25000, rent: 0 };
+  const jeonse = rentToListing(base, "빌라", "41285", "고양시 일산동구");
+  assert.equal(jeonse.deal_type, "전세");
+  assert.equal(jeonse.price_amount, 25000);
+  assert.equal(jeonse.monthly_rent, null);
+  assert.equal(jeonse.contract_date, "2026-09-22");
+  assert.equal(jeonse.property_type, "빌라");
+  const wolse = rentToListing({ ...base, deposit: 5000, rent: 80 }, "빌라", "41285", "x");
+  assert.equal(wolse.deal_type, "월세");
+  assert.equal(wolse.monthly_rent, 80);
+  assert.notEqual(jeonse.dedup_key, wolse.dedup_key);
+  assert.deepEqual(normalizeDealTypes(null), ["매매"]);
+  assert.deepEqual(normalizeDealTypes(["전세", "x"]), ["전세"]);
+  assert.equal(formatDealPrice("매매", 32000, null), "3.2억");
+  assert.equal(formatDealPrice("전세", 32000, null), "전세 3.2억");
+  assert.equal(formatDealPrice("월세", 5000, 80), "월세 0.5억/80만");
+});

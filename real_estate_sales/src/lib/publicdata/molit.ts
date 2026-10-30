@@ -140,6 +140,8 @@ export interface RentComparable {
   name: string;
   dong: string;
   area: number | null;
+  floor?: string;
+  buildYear?: number | null;
   day: string; // yyyymmdd
   deposit: number | null; // 만 원
   rent: number | null; // 만 원
@@ -153,6 +155,8 @@ export function molitRentRows(jsons: unknown[]): RentComparable[] {
       name: str(it.aptNm) || str(it.mhouseNm) || str(it.offiNm),
       dong: str(it.umdNm),
       area: num(it.excluUseAr),
+      floor: str(it.floor),
+      buildYear: num(it.buildYear),
       day: `${str(it.dealYear)}${str(it.dealMonth).padStart(2, "0")}${str(it.dealDay).padStart(2, "0")}`,
       deposit: num(it.deposit),
       rent: num(it.monthlyRent),
@@ -199,4 +203,36 @@ const OLD_SGG: Record<string, string> = {
 export function vworldPnu(pnu: string): string {
   const old = OLD_SGG[pnu.slice(0, 5)];
   return old ? old + pnu.slice(5) : pnu;
+}
+
+// 2026-10-31 v1.33: 전월세 거래도 목록·알림 대상. 알림 폭주와 AI 비용을 막으려고 기본은 매매만, 회원이 설정에서 켠다.
+export const DEAL_TYPES = ["매매", "전세", "월세"] as const;
+export type DealType = (typeof DEAL_TYPES)[number];
+
+/** 회원이 받을 거래 종류: 비어 있거나 잘못된 값이면 매매만 */
+export function normalizeDealTypes(v: unknown): DealType[] {
+  const list = Array.isArray(v) ? DEAL_TYPES.filter((t) => v.includes(t)) : [];
+  return list.length ? list : ["매매"];
+}
+
+/** 국토부 전월세 한 줄 → 표에 넣을 값. 보증금은 price_amount, 월세가 0이면 전세 */
+export function rentToListing(r: RentComparable, type: PropertyType, sggCd: string, sggNm: string) {
+  const dealType: DealType = r.rent ? "월세" : "전세";
+  return {
+    dedup_key: ["RENT", sggCd, type, r.day, r.dong, r.name, r.area, r.deposit, r.rent ?? 0, r.floor ?? ""].join("-"),
+    sgg_cd: sggCd,
+    sgg_nm: sggNm,
+    stdg_nm: r.dong,
+    bldg_nm: r.name,
+    property_type: type,
+    deal_type: dealType,
+    floor: r.floor || null,
+    contract_date: /^\d{8}$/.test(r.day) ? `${r.day.slice(0, 4)}-${r.day.slice(4, 6)}-${r.day.slice(6, 8)}` : null,
+    building_area: r.area,
+    exclusive_area: r.area,
+    price_amount: r.deposit,
+    monthly_rent: r.rent || null,
+    building_year: r.buildYear ?? null,
+    data_provided_at: new Date().toISOString().slice(0, 10),
+  };
 }

@@ -14,10 +14,11 @@ import {
   type PublicDataKeys,
 } from "@/lib/publicdata/client";
 import { isSeoulDistrict } from "@/lib/publicdata/districts";
-import { normalizePropertyTypes, pickAssessedPrice, pickRentComparable, PROPERTY_TYPES, propertyTypeOf, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
+import { normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { ensureListingAnalysis } from "@/lib/actions/analysis";
+import { formatDealPrice } from "@/lib/format";
 
 // 실거래 수집 → AI 분석 → 텔레그램 발송의 핵심 로직. cron 기반 예약 조회
 // (api/collect/dispatch)와 사용자가 직접 누르는 수동 "지금 조회하기"
@@ -28,6 +29,19 @@ export const MAX_MATCHES_PER_RUN = 20; // 사용자 한 명에게 한 번에 몰
 export const MATCH_CANDIDATE_WINDOW = 100; // "아직 못 받은 실거래" 확인 시 뒤져볼 최근 후보 수
 
 type AdminClient = ReturnType<typeof createAdminClient>;
+
+const MAX_NEW_RENTS_PER_DISTRICT = 20; // 전월세는 줄마다 외부 조회가 없어 시간 부담이 작다
+
+/** 이미 저장된 중복 키. 키가 많으면 주소 길이 한도에 걸리므로 나눠서 묻는다 */
+async function findExistingKeys(supabase: AdminClient, keys: string[]): Promise<Set<string>> {
+  const found = new Set<string>();
+  for (let i = 0; i < keys.length; i += 100) {
+    const { data, error } = await supabase.from("real_estate_listings").select("dedup_key").in("dedup_key", keys.slice(i, i + 100));
+    if (error) throw new Error(`중복 확인 실패: ${error.message}`);
+    for (const row of data ?? []) found.add(row.dedup_key);
+  }
+  return found;
+}
 
 export async function collectDistrict(
   supabase: AdminClient,
@@ -46,17 +60,15 @@ export async function collectDistrict(
 
   // 최대 200건을 매번 한 건씩 존재 여부 조회하던 것을, 한 번의 IN 쿼리로 일괄 확인하도록 변경.
   const dedupKeys = validTrades.map((row) => buildDedupKey(row));
-  const existingSet = new Set<string>();
-  if (dedupKeys.length > 0) {
-    const { data: existingRows } = await supabase
-      .from("real_estate_listings")
-      .select("dedup_key")
-      .in("dedup_key", dedupKeys);
-    for (const r of existingRows ?? []) existingSet.add(r.dedup_key);
-  }
+  const existingSet = await findExistingKeys(supabase, dedupKeys);
 
   let newCount = 0;
   const molitRents = new Map<PropertyType, Promise<RentComparable[]>>();
+  const rentsOf = (type: PropertyType) => {
+    let p = molitRents.get(type);
+    if (!p) molitRents.set(type, (p = fetchMolitRents({ sggCd, type, keys })));
+    return p;
+  };
 
   for (let i = 0; i < validTrades.length; i++) {
     if (newCount >= MAX_NEW_LISTINGS_PER_DISTRICT) break;
@@ -78,11 +90,7 @@ export async function collectDistrict(
       // 오피스텔은 공동주택 공시가 대상이 아니다(서울 421줄 중 4줄만 값 있음, 2026-10-31)
       propertyType === "오피스텔" ? Promise.resolve([]) : fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, numOfRows: 1000, keys }),
       // 서울은 단지별 열린데이터, 경기·인천은 국토부 지역 자료(지역당 한 번만 받아 재사용)
-      seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }).then(seoulRentToComparables) : (() => {
-        let p = molitRents.get(propertyType);
-        if (!p) molitRents.set(propertyType, (p = fetchMolitRents({ sggCd, type: propertyType, keys })));
-        return p;
-      })(),
+      seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }).then(seoulRentToComparables) : rentsOf(propertyType),
     ]);
 
     let exclusiveArea: number | null = null;
@@ -142,6 +150,29 @@ export async function collectDistrict(
     newCount += 1;
   }
 
+  // 전월세 거래: 서울 포함 전 지역 국토부 자료. 한 유형이 실패해도 나머지는 저장한다
+  const rentBatches = await Promise.allSettled(
+    PROPERTY_TYPES.map(async (type) => (await rentsOf(type)).map((x) => rentToListing(x, type, sggCd, sggNm))),
+  );
+  const rentRows = rentBatches
+    .flatMap((b) => {
+      if (b.status === "fulfilled") return b.value;
+      console.error(`${sggNm} 전월세 조회 실패:`, b.reason);
+      return [];
+    })
+    .sort((a, b) => String(b.contract_date).localeCompare(String(a.contract_date)))
+    .slice(0, 300);
+  const existingRents = await findExistingKeys(supabase, rentRows.map((x) => x.dedup_key));
+  const seen = new Set<string>();
+  const newRents = rentRows
+    .filter((x) => !existingRents.has(x.dedup_key) && !seen.has(x.dedup_key) && seen.add(x.dedup_key))
+    .slice(0, MAX_NEW_RENTS_PER_DISTRICT);
+  if (newRents.length) {
+    const { error } = await supabase.from("real_estate_listings").upsert(newRents, { onConflict: "dedup_key", ignoreDuplicates: true });
+    if (error) console.error("전월세 저장 실패:", error.message);
+    else newCount += newRents.length;
+  }
+
   return { newCount };
 }
 
@@ -155,18 +186,21 @@ export async function findUnmatchedListingIds(
 ): Promise<string[]> {
   const { data: pref } = await supabase
     .from("real_estate_user_preferences")
-    .select("property_types")
+    .select("property_types, deal_types")
     .eq("user_id", userId)
     .maybeSingle();
   const types = normalizePropertyTypes(pref?.property_types);
 
-  let listingQuery = supabase.from("real_estate_listings").select("id").eq("sgg_cd", sggCd);
+  const deals = normalizeDealTypes(pref?.deal_types);
+
+  let listingQuery = supabase.from("real_estate_listings").select("id, deal_type").eq("sgg_cd", sggCd).in("deal_type", deals);
   if (types.length < PROPERTY_TYPES.length) listingQuery = listingQuery.in("property_type", types);
   const { data: listings } = await listingQuery
     .order("collected_at", { ascending: false })
     .limit(MATCH_CANDIDATE_WINDOW);
 
-  const candidateIds = (listings ?? []).map((l) => l.id);
+  // 매매를 먼저: 건수가 많은 전월세가 상한을 다 채우지 않게 한다
+  const candidateIds = [...(listings ?? [])].sort((a, b) => Number(a.deal_type !== "매매") - Number(b.deal_type !== "매매")).map((l) => l.id);
   if (candidateIds.length === 0) return [];
 
   const { data: matched } = await supabase
@@ -237,13 +271,17 @@ export async function notifyUserForListings(
       const priceEok = listing.price_amount
         ? (listing.price_amount / 10000).toFixed(1)
         : "-";
-      let message = `🏠 새 실거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층\n거래금액 ${priceEok}억`;
+      const isSale = (listing.deal_type ?? "매매") === "매매";
+      let message = isSale
+        ? `🏠 새 실거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층\n거래금액 ${priceEok}억`
+        : `🏠 새 ${listing.deal_type} 거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층\n${formatDealPrice(listing.deal_type, listing.price_amount, listing.monthly_rent)}`;
 
       // 텔레그램으로 알리기 전에, 이 사용자의 등록 키/선호 모델로 AI 투자 분석까지
       // 미리 돌려서 결과를 같이 전달한다 (이미 분석돼 있으면 재호출하지 않음).
       // 2026-10-17 v1.14: 회원이 설정에서 "알림에 AI 분석 포함"을 끄면 새로 분석하지 않고(유료 호출 없음), 이미 있는 결과만 붙인다.
       try {
-        if (autoAnalyze) await ensureListingAnalysis(supabase, userId, listingId);
+        // 전월세는 AI 투자 분석 대상이 아니다(회원 키 요금 방지)
+        if (autoAnalyze && isSale) await ensureListingAnalysis(supabase, userId, listingId);
         const { data: analysis } = await supabase
           .from("real_estate_analyses")
           .select("investment_score, undervaluation_index, predicted_growth_pct, rationale")

@@ -17,16 +17,16 @@ export async function exportListingsCsvAction(): Promise<{ csv?: string; count?:
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("real_estate_user_matches")
-    .select("status, created_at, listing:real_estate_listings(bldg_nm, sgg_nm, stdg_nm, contract_date, exclusive_area, floor, price_amount, official_price, building_year, property_type)")
+    .select("status, created_at, listing:real_estate_listings(bldg_nm, sgg_nm, stdg_nm, contract_date, exclusive_area, floor, price_amount, official_price, building_year, property_type, deal_type, monthly_rent)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(MAX_ROWS);
   if (error) return { error: `내보내기에 실패했어요: ${error.message}` };
-  const head = ["단지명", "자치구", "법정동", "계약일", "전용면적(㎡)", "층", "거래금액(만 원)", "공시가격(원)", "건축년도", "상태", "수집일", "유형"];
+  const head = ["단지명", "자치구", "법정동", "계약일", "전용면적(㎡)", "층", "거래금액(만 원)", "공시가격(원)", "건축년도", "상태", "수집일", "유형", "거래 종류", "월세(만 원)"];
   const rows = (data ?? []).flatMap((m) => {
     const l = (Array.isArray(m.listing) ? m.listing[0] : m.listing) as Record<string, unknown> | null;
     if (!l) return [];
-    return [[l.bldg_nm, l.sgg_nm, l.stdg_nm, l.contract_date, l.exclusive_area, l.floor, l.price_amount, l.official_price, l.building_year, STATUS[m.status] ?? m.status, String(m.created_at ?? "").slice(0, 10), l.property_type]];
+    return [[l.bldg_nm, l.sgg_nm, l.stdg_nm, l.contract_date, l.exclusive_area, l.floor, l.price_amount, l.official_price, l.building_year, STATUS[m.status] ?? m.status, String(m.created_at ?? "").slice(0, 10), l.property_type, l.deal_type, l.monthly_rent]];
   });
   const csv = "﻿" + [head, ...rows].map((r) => r.map(cell).join(",")).join("\r\n") + "\r\n";
   return { csv, count: rows.length };
