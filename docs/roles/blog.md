@@ -157,7 +157,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-10-30 · 받은신청수락c9cb569c2/단위286/새DB9·188SQL/정리11/타입·14묶음미배포/SQL7
+- 마지막 갱신: 2026-10-30 · ed1c6bd86 새글준비/정확문장승인/새탭순회·단위299/격리DB9·141SQL/정리11/타입·15묶음미배포/SQL8
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
