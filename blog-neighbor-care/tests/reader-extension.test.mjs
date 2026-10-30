@@ -84,7 +84,7 @@ test('페이지나사이트메시지로읽기/전송/토큰조회못함', async 
 });
 test('실행 연결은 확장 팝업 동의로만 시작하며 웹 메시지나 연결 상태 조회로 실행하지 않음',async()=>{
  const s=setup(),web={id:s.browser.runtime.id,tab:{url:`${SITE}/reader`}};
- for(const type of ['work_start','work_stop','work_status'])await assert.rejects(s.handle({type,confirmed:true},web));
+ for(const type of ['work_start','work_stop','work_status','context_preview','context_confirm','context_cancel'])await assert.rejects(s.handle({type,confirmed:true},web));
  await assert.rejects(s.run({type:'work_start'}));assert.equal((await s.run({type:'work_status'})).connected,false);
  assert.equal((await s.run({type:'work_stop'})).connected,false);assert.equal(s.executed(),0);assert.deepEqual(s.calls.map(x=>x.operation),['status']);
 });

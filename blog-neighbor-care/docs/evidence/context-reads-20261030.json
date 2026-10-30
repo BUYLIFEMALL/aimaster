@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-30T01:04:08.670Z",
+  "migration": "20261030094500_bnc_extension_context_reads.sql",
+  "tests": [
+    "CRDB01 read consent is separate from execution consent; no permission or missing request receipt blocks offer",
+    "CRDB02 relationship preview and second confirmation update saved status with no claims/counters and write gate off",
+    "CRDB03 incoming comments preview stores no raw metadata; confirmed IDs create inbox and rereading preserves its original deadline",
+    "CRDB04 confirmed neighbor post supplies the existing inbox and return-visit draft without mutating source identity/deadline",
+    "CRDB05 changed second observation cannot overwrite relationship; unknown/partial snapshots cannot fabricate empty results",
+    "CRDB06 complete zero-count view is explicitly scoped to current post, and captcha stops execution without saving metadata",
+    "CRDB07 member direct writes/RPC denied, cross-device metadata absent, duplicate nonce and wrong profile rejected",
+    "CRDB08 receipt deletion or device/account relinking during preview invalidates confirmation; cancellation remains possible",
+    "CRDB09 read-only consent cannot execute an approved action, and cleanup expires read metadata without deleting drafts"
+  ],
+  "passed": 9,
+  "sqlCalls": 163,
+  "isolated": true,
+  "network": "none",
+  "hostPorts": 0,
+  "operatingApplied": false,
+  "actualPlatformActions": 0
+}

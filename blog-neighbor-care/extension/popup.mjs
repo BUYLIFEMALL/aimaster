@@ -3,7 +3,8 @@ let draft = null, busy = false, currentDeviceId=null, currentProgress=null;
 const stageTitles={checking:'진행 중 · 계정 확인',starting:'진행 중 · 요청 준비',reserving:'진행 중 · 읽기 준비',reading:'진행 중 · 목록 읽기',sending:'진행 중 · 서버 전송',received:'진행 중 · 수신 확인',ready:'수신 완료 · 아직 저장 전',confirmed:'프로그램 저장 완료',failed:'읽기 중단 · 사유 확인',stopping:'읽기 중단 처리 중',paused:'진행 결과 확인 필요'};
 function applyButtons(){
   const active=currentProgress?.state==='running';
-  document.querySelectorAll('button').forEach(b=>{b.disabled=b.id==='workStop'?false:b.id==='neighborStop'?!active:busy||active;});
+  document.querySelectorAll('button').forEach(b=>{b.disabled=['workStop','contextCancel'].includes(b.id)?false:b.id==='neighborStop'?!active:busy||active;});
+  $('contextRead').disabled=busy||active||!$('contextPreview').hidden;$('contextKind').disabled=busy||active||!$('contextPreview').hidden;
   $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
 function showStatus(text,state='idle'){
@@ -29,7 +30,7 @@ async function run(work,kind='general') {
   if (busy) return; busy = true;applyButtons();
   try { await work(); } catch (e) {
     const message=e.message||'결과를 확인하지 못했습니다. 결과 확인 버튼을 눌러 주세요.';
-    if(kind==='neighbors')renderNeighborProgress({...currentProgress,stage:'failed',state:'stopped',message});else showStatus(message,'error');
+    if(kind==='context'){$('contextPreview').hidden=true;$('contextMessage').textContent=message;}else if(kind==='neighbors')renderNeighborProgress({...currentProgress,stage:'failed',state:'stopped',message});else showStatus(message,'error');
   }
   finally { busy = false;applyButtons(); }
 }
@@ -98,4 +99,13 @@ chrome.runtime.onMessage?.addListener((message,sender,respond)=>{
 $('workStart').addEventListener('click',()=>run(async()=>{if(!$('workConfirm').checked)throw Error('현재 탭 실행 동의를 확인해 주세요.');$('workMessage').textContent='진행 중 · 웹의 실행 허용과 승인 작업을 확인합니다.';const r=await send({type:'work_start',confirmed:true});$('workMessage').textContent=r.message;$('workConfirm').checked=false;}));
 $('workStatus').addEventListener('click',()=>run(async()=>{$('workMessage').textContent=(await send({type:'work_status'})).message;}));
 $('workStop').addEventListener('click',async()=>{try{$('workMessage').textContent=(await send({type:'work_stop'})).message;}catch{$('workMessage').textContent='중단 응답 미확인 · 작업 기록에서 결과 확인';}});
+$('contextRead').addEventListener('click',()=>run(async()=>{
+ if(!$('contextConsent').checked)throw Error('현재 화면 읽기 동의를 확인해 주세요.');$('contextMessage').textContent='현재 계정·화면 확인 후 읽는 중…';$('contextPreview').hidden=true;
+ const r=await send({type:'context_preview',kind:$('contextKind').value,confirmed:true}),v=r.snapshot;
+ const labels={pending:'신청 대기',mutual:'서로이웃 수락',removed:'관계 해제'};
+ $('contextText').textContent=r.kind==='relationship'?`${v.neighborId}: ${labels[v.relationship]||'미확인'}`:r.kind==='incoming'?`내 글 ${v.ownPostId} · 이 화면의 원댓글 ${v.count}개\n`+v.comments.map(c=>`${c.neighborId} · ${c.commentId} · ${c.alreadyReplied?'이미 답글 있음':'답글 대상'}`).join('\n'):`답방 글: ${v.neighborId}/${v.postId}\n연결할 내 글 ${r.source?.ownPostId} · 원댓글 ${r.source?.commentId}`;
+ $('contextPreview').hidden=false;$('contextConsent').checked=false;$('contextMessage').textContent='미리보기 완료 · 내용을 확인하면 같은 화면을 다시 읽고 저장합니다.';
+},'context'));
+$('contextConfirm').addEventListener('click',()=>run(async()=>{ $('contextPreview').hidden=true;const r=await send({type:'context_confirm'});$('contextMessage').textContent=r.kind==='incoming'?`완료 · 현재 글 원댓글 ${r.observedCount}개 확인 / 새 저장 ${r.savedCount}건 / 기존 유지 ${r.existingCount}건. 이미 답글이 있는 항목은 새 대상으로 저장하지 않았습니다.`:`완료 · 웹 반영 ${r.savedCount}건. 등록·공감·댓글은 실행하지 않았습니다.`;},'context'));
+$('contextCancel').addEventListener('click',async()=>{$('contextPreview').hidden=true;try{await send({type:'context_cancel'});$('contextMessage').textContent='읽기 미리보기를 취소했습니다. 기존 저장 자료는 유지됩니다.';}catch{$('contextMessage').textContent='취소 응답 미확인 · 웹에서 이전 결과를 확인해 주세요.';}applyButtons();});
 run(status);
