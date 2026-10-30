@@ -4,6 +4,9 @@
 > 플랜: [`docs/PLAN_20261028_COUPANG_OPS.md`](docs/PLAN_20261028_COUPANG_OPS.md)(API 103개 목록 §10, 고정 IP 비용 §11·§12, 확정 §13·§14, 제한·제재 §15) · 기능 대기 목록: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
 > **📘 최신 인수인계(2026-10-29, 가장 먼저 읽기)**: [`docs/IMPROVEMENT_HANDOFF_20261029.md`](docs/IMPROVEMENT_HANDOFF_20261029.md) — 판매 재개·상품 등록 화면·짧은 이미지 주소·반품비 규칙·남은 일(등록 실행 → 최종 배포).
 > 이전 인수인계(2026-10-28): [`docs/IMPROVEMENT_HANDOFF_20261028.md`](docs/IMPROVEMENT_HANDOFF_20261028.md) — 판매정지로 쿠팡 API가 막혀 멈춘 상태·운영 DB 적용 내용·코드 지도·함정·다음 첫 단계.
+> **📘 쿠팡 API 공식 사이트 먼저(2026-10-30 주인님 지시: 「여기 쿠팡 api전용 싸이트가 있으니 자세히 읽어보고 기능 구현하도록 해」「앞으로도 여기 관련 내용 확인하고 구현하도록 해」)**: 쿠팡 기능을 만들거나 고치기 전에 **https://developers.coupang.com/ko/api?market=KR** 목록에서 해당 API의 상세 페이지(`/ko/api/<묶음>/<이름>?market=KR`)를 읽고 경로·메서드·요청 본문·응답 필드·적용 상태·오류를 코드와 대조한 뒤 구현한다. 코드 주석에 상세 페이지 이름과 확인 날짜를 남긴다. 기억이나 다른 프로그램 코드로 추측하지 않는다.
+>   - 10-30 기존 작업 검토 결과: 코드가 부르는 경로 12개·메서드가 공식 목록과 모두 일치. 옵션 재고(`amountInStock`·`salePrice`·`onSale`)·가격 변경(`forceSalePriceUpdate` 기본 false 유지)·상태변경이력(`status`·`comment`·`createdBy`·`createdAt`)·카테고리 추천(`productName`, `autoCategorizationPredictionResultType`·`predictedCategoryId`) 응답 필드도 명세와 같음 — 고칠 곳 없음. 남은 확인: 송장 수정 본문 형식(명세 표의 타입 표기 차이, AGENTS 10-30 C3-3 항목).
+>   - 기능 확장 기획: [`docs/PLAN_20261030_COUPANG_API_AUTOMATION.md`](docs/PLAN_20261030_COUPANG_API_AUTOMATION.md)(관점 6가지·추천 순서·하지 않을 것).
 > 담당 역할: `ecommerce-image`(Claude Code 윈도우 `claude-win-sdp`). 마켓 등록기 공통 레퍼런스: [`../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md`](../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md).
 
 ## 1. 사용 목적·대상
