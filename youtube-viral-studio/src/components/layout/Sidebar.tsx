@@ -41,26 +41,34 @@ const diagnose: { href: string; label: string; icon: LucideIcon }[] = [
 ];
 
 const utility: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/guide", label: "황금 법칙 브리프", icon: BookOpen },
-  { href: "/settings", label: "보안 키 금고", icon: KeyRound },
+  { href: "/settings", label: "🔑 API키등록·플랫폼연동", icon: KeyRound },
+  { href: "/guide", label: "📖 연동 & 사용 매뉴얼", icon: BookOpen },
 ];
 
 function Brand() {
   return (
-    <Link href="/dashboard" className="flex items-center gap-2.5">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#FBBF24] to-[#D97706] text-[#0F172A] shadow-md shadow-amber-500/20">
-        <span className="text-lg">👑</span>
-      </div>
-      <div className="min-w-0">
-        <p className="text-[13px] font-black leading-tight tracking-tight text-[#FBBF24]">골든 엠파이어 레이더</p>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-bold text-slate-300">인텔리전스 콘솔</span>
-          <span className="rounded bg-amber-500/20 px-1 py-0.2 text-[10px] font-extrabold text-[#FBBF24] border border-amber-500/30">
-            {APP_VERSION}
-          </span>
+    <div className="select-none">
+      <Link href="/dashboard" className="flex items-center gap-2.5 group">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#FBBF24] to-[#D97706] text-[#0F172A] shadow-md shadow-amber-500/20 transition-transform group-hover:scale-105">
+          <span className="text-lg">👑</span>
         </div>
-      </div>
-    </Link>
+        <div className="min-w-0">
+          <p className="text-[13px] font-black leading-tight tracking-tight text-[#FBBF24]">골든 엠파이어 레이더</p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="text-[11px] font-bold text-slate-300">인텔리전스 콘솔</span>
+            <span className="rounded bg-amber-500/20 px-1 py-0.2 text-[10px] font-extrabold text-[#FBBF24] border border-amber-500/30">
+              {APP_VERSION}
+            </span>
+          </div>
+        </div>
+      </Link>
+      <a
+        href="https://www.buylife.xyz/programs"
+        className="mt-2.5 block text-[11px] text-slate-400 hover:text-amber-400 transition-colors"
+      >
+        ← 다른 프로그램 보기
+      </a>
+    </div>
   );
 }
 
