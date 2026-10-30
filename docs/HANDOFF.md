@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.03 이미지 규격·반려 처리
+- 첫 반려 원인: 추가 이미지 780×12996·780×13495, 대표 492×492. 실측 검사, 긴 이미지 제외, 대표 이미지 전송 시 확대(공개 주소 1000×1000 확인), 반려 건 삭제 후 재전송, 사유 표시 추가. 빌드 1회.
+- 재시험: 16433502859 삭제 → 16433545652 저장, 약 70초 뒤 「임시저장」. 시험 48개·tsc·빌드 통과. 승인 요청은 안 보냄(쿠팡 승인 심사 미확인). 상세 `coupang-ops/AGENTS.md`. https://coupang-ops.buylife.xyz/products
+
 ## 2026-10-31 ⚠ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` 첫 「저장만」 시험
 - 주인님 승인 1건 실행: 쿠팡 응답 성공(상품번호 16433502859, 바코드 없음+품번 수락). 그러나 조회 상태가 승인 요청 없이 「승인반려」이고 사유가 앱에 안 나옴. 코드 변경 없음.
 - 다음 첫 단계: 주인님이 WING에서 사유 확인 → 사유에 맞춰 수정. 고칠 후보 3건은 `coupang-ops/AGENTS.md` 2026-10-31. https://coupang-ops.buylife.xyz/products
