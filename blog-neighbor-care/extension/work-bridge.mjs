@@ -20,9 +20,9 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
   const result=await post('status',{});
   const labels={succeeded:'확장 확인 결과 저장 완료',uncertain:'결과 불확실 · 재등록 금지',skipped:'중단됨',failed_no_effect:'미실행 확인'};
   last=result.phase==='idle'?'진행 중인 확장 작업 없음':result.phase==='done'?`작업 기록: ${labels[result.state]??'중단/완료 확인 필요'}`:'이전 작업 결과 확인 필요 · 자동으로 다시 등록하지 않습니다.';
-  return state();
+  return {...state(),phase:result.phase,resultState:result.state};
  }
- async function start(){
+ async function start(options={}){
   if(busy)throw Error('이미 현재 탭 작업을 처리하고 있습니다.');busy=true;const version=epoch;let detach=()=>{};
   try{
    const binding=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});
@@ -32,8 +32,8 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
    browser.tabs.onActivated?.addListener(changedTab);browser.tabs.onUpdated?.addListener(changedUrl);
    detach=()=>{browser.tabs.onActivated?.removeListener(changedTab);browser.tabs.onUpdated?.removeListener(changedUrl);};
    await current(binding,target,version);
-   let r=await post('offer',{request_id:crypto.randomUUID(),url:target.url});
-   if(r.phase==='idle'){last='현재 화면에 검토 완료된 실행 대상이 없습니다.';return state();}
+   let r=await post(options.scheduled===true?'scheduled_offer':'offer',{request_id:crypto.randomUUID(),url:target.url});
+   if(r.phase==='idle'){last=options.scheduled===true?`반복 대기 · ${r.reason??'현재 화면의 승인 작업 없음'}${r.nextDueAt?` · 다음 확인 ${r.nextDueAt}`:''}`:'현재 화면에 검토 완료된 실행 대상이 없습니다.';return {...state(),phase:'idle',reason:r.reason,nextDueAt:r.nextDueAt};}
    if(r.phase!=='inspect'||!r.job||typeof r.nonce!=='string'||!r.profile||r.job.actor_id!==binding.blogId)throw Error('실행 준비 결과를 확인하지 못했습니다.');
    active={id:r.id,deviceId:binding.deviceId};await browser.storage.session.set({workRun:active});
    emit('진행 중 · 웹에서 승인된 작업을 받아 현재 계정·대상을 확인합니다.');
@@ -80,7 +80,7 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
    const result=await post('effect',{id:active.id,nonce:r.nonce,effect,attempted_at});
    if(result.phase!=='done'||result.state!=='succeeded')throw Error('웹 결과 저장 미확인');
    await browser.storage.session.remove('workRun');active=null;last='완료 · 확장 확인 결과를 웹 작업 기록에 저장했습니다.';
-   return state();
+   return {...state(),phase:'done',resultState:'succeeded',nextDueAt:result.nextDueAt};
   }catch(e){await stop();last=`${e?.message||'결과 미확인'} 자동으로 다시 등록하지 않습니다. 웹 작업 기록을 확인하세요.`;throw Error(last);}
   finally{detach();busy=false;}
  }

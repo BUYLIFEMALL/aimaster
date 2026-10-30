@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-30T03:02:07.701Z",
+  "migration": "20261030120000_bnc_extension_schedule.sql",
+  "tests": [
+    "ESDB01 read-only token and member roles cannot initialize or mutate a schedule",
+    "ESDB02 initialization schedules from now; repeated wakeups before due create no run or reservation",
+    "ESDB03 server reading gate commits before cursor acquisition; success settles cursor/result together exactly once",
+    "ESDB04 preference/account/device changes cannot reuse a prepared scheduled run; cancellation before claim does not consume quota",
+    "ESDB05 stopping after arm pauses cursor, disables execution and never retries the uncertain work",
+    "ESDB06 expired running lease pauses even without another ready job; outside KST window does not read or claim",
+    "ESDB07 extension alarm -> work bridge -> HTTP handler -> real cursor and evidence completes one approved action"
+  ],
+  "passed": 7,
+  "sqlCalls": 142,
+  "isolated": true,
+  "operatingApplied": false,
+  "actualPlatformActions": 0,
+  "scope": "current bound foreground tab only; approved jobs only; no scanning or automatic AI"
+}

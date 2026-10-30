@@ -2,6 +2,7 @@ import { parsePost, inspectVisiblePost, chooseSnapshot } from './extractor.mjs';
 import {createNeighborImporter} from './neighbor-importer.mjs';
 import {parseNeighborPage} from './neighbor-extractor.mjs';
 import {createWorkBridge} from './work-bridge.mjs';
+import {createExtensionSchedule} from './schedule-bridge.mjs';
 import {createContextReader} from './context-bridge.mjs';
 
 export const SITE = 'https://blog-neighbor-care.buylife.xyz';
@@ -23,6 +24,7 @@ export function createReaderController(browser, fetcher = fetch) {
     const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');
     return (await post('whoami',{},token)).data;
   },async(operation,payload)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post(operation,payload,token,'/api/execution/extension')).data;},Date.now,windowId=>popupFocused(windowId));
+  const schedule=createExtensionSchedule(browser,async()=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post('whoami',{},token)).data;},work,Date.now,windowId=>popupFocused(windowId));
   const publishProgress=async progress=>{
     const {token}=await browser.storage.local.get('token');
     if(!token||token!==importToken||!progress.deviceId)return;
@@ -43,37 +45,45 @@ export function createReaderController(browser, fetcher = fetch) {
     const {token}=await browser.storage.local.get('token');if(!token||token!==importToken)throw Error('연결 계정이 변경됐습니다.');
     return (await post('whoami',{},token)).data;
   },undefined,undefined,publishProgress,popupFocused);
-  return async function handle(message, sender) {
+  const handle=async function(message, sender) {
     await ready;
     const popup = sender.id === browser.runtime.id && sender.url === browser.runtime.getURL('popup.html');
     let web = false;
     try { web = sender.id === browser.runtime.id && new URL(sender.tab?.url).origin === SITE; } catch { /* not the program tab */ }
     if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
     const { token } = await browser.storage.local.get('token');
+    if(['schedule_start','schedule_stop','schedule_status'].includes(message.type)){
+      if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
+      if(message.type==='schedule_status')return schedule.status();
+      if(message.type==='schedule_stop')return schedule.stop();
+      if(neighbors.isRunning()||message.confirmed!==true)throw Error('반복 동의와 현재 작업 상태를 확인해 주세요.');
+      await contexts.cancel();return schedule.start(true);
+    }
     if(['context_preview','context_confirm','context_cancel'].includes(message.type)){
       if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
       if(message.type==='context_cancel')return contexts.cancel(true);
       if(message.type==='context_confirm')return contexts.confirm();
       if(message.confirmed!==true||neighbors.isRunning())throw Error('현재 화면 읽기 동의를 확인해 주세요.');
-      await work.stop();return contexts.preview(message.kind);
+      await schedule.stop();await work.stop();return contexts.preview(message.kind);
     }
     if(['work_start','work_stop','work_status'].includes(message.type)){
       if(!popup)throw Error('확장 화면에서 실행해 주세요.');
-      if(message.type==='work_stop')return await work.stop();
+      if(message.type==='work_stop'){await schedule.stop();return await work.stop();}
       if(message.type==='work_status')return await work.status();
       if(!token||message.confirmed!==true||neighbors.isRunning())throw Error('회원 연결·현재 탭 실행 동의를 확인해 주세요.');
-      await contexts.cancel();
+      await schedule.stop();await contexts.cancel();
       return work.start();
     }
     if(typeof message.type==='string'&&message.type.startsWith('neighbors_')){
       if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
       if(message.type==='neighbors_read')importToken=token;
-      if(message.type==='neighbors_read')await work.stop();
+      if(message.type==='neighbors_read'){await schedule.stop();await work.stop();}
       if(message.type==='neighbors_read')await contexts.cancel();
       if(!importToken)importToken=token;
       return neighbors(message);
     }
     if (message.type === 'connect') {
+      await schedule.stop();
       await contexts.cancel();
       await work.stop();
       if (typeof message.code !== 'string' || !/^[a-f0-9]{32}$/.test(message.code)) throw new Error('프로그램에서 발급한 연결 번호를 확인해 주세요.');
@@ -108,6 +118,7 @@ export function createReaderController(browser, fetcher = fetch) {
     }
     if (!token) throw new Error('먼저 프로그램에서 이 회원 계정과 연결해 주세요.');
     if (message.type === 'disconnect') {
+      await schedule.stop();
       await contexts.cancel();
       await work.stop();
       let remoteRevoked = false;
@@ -117,7 +128,7 @@ export function createReaderController(browser, fetcher = fetch) {
       await browser.storage.session.remove('neighborProgress');
       return { connected: false, remoteRevoked };
     }
-    if(message.type==='read'){await work.stop();await contexts.cancel();}
+    if(message.type==='read'){await schedule.stop();await work.stop();await contexts.cancel();}
     const identity = await post('whoami', {}, token);
     const { pending } = await browser.storage.session.get('pending');
     if (message.type === 'receipt') {
@@ -148,12 +159,14 @@ export function createReaderController(browser, fetcher = fetch) {
     }
     throw new Error('지원하지 않는 작업입니다.');
   };
+  handle.onAlarm=alarm=>schedule.alarm(alarm.name);return handle;
 }
 
 if (globalThis.chrome?.runtime?.onMessage) {
   const handle = createReaderController(chrome);
+  chrome.alarms?.onAlarm?.addListener(alarm=>{void handle.onAlarm(alarm).catch(()=>{});});
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if(['neighbor_progress','neighbor_focus_probe','work_progress'].includes(message?.type))return false;
+    if(['neighbor_progress','neighbor_focus_probe','work_progress','schedule_progress'].includes(message?.type))return false;
     handle(message, sender).then(data => sendResponse({ ok: true, data }), error => sendResponse({ ok: false,
       error: error?.message || '결과를 확인하지 못했습니다. 자동 재전송하지 않습니다.' }));
     return true;

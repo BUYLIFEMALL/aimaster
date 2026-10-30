@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-30",
+  "status": "local implementation only; unpublished; SQL unapplied",
+  "architecture": "web + extension; no PC installer",
+  "scope": "explicitly bound current foreground tab; existing approved work only",
+  "unitTests": 280,
+  "databaseTests": 7,
+  "databaseSqlCalls": 142,
+  "cleanupDatabaseTests": 11,
+  "typecheck": "pass",
+  "consent": "separate popup checkbox; existing web device/action permission required",
+  "limits": {
+    "hours": 8,
+    "wakeups": 960,
+    "successfulActions": 120
+  },
+  "alarmsPermissionAdded": true,
+  "naverPersistentHostPermissionAdded": false,
+  "serverOwnsNextDueAndLease": true,
+  "noAutomaticResumeOrAmbiguousRetry": true,
+  "unappliedMigrations": 6,
+  "pendingBundles": 13,
+  "actualNaverOrEdgeTest": false,
+  "screenshots": 0,
+  "operatingWrites": 0,
+  "paidAiCalls": 0,
+  "remoteBuilds": 0,
+  "deployments": 0,
+  "archive": "D:\\Antigravity\\Design\\릴레이_데스크_네이버_그린\\blog-neighbor-care\\schedule-connection-20261030",
+  "remaining": [
+    "automatic target discovery/navigation and integration",
+    "incoming neighbor-request acceptance",
+    "actual Edge/Naver, AI quality and operating cleanup verification",
+    "batch SQL6 and release sync"
+  ]
+}

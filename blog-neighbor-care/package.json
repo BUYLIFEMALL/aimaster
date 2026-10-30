@@ -20,6 +20,7 @@
     "test:schedule-database": "node --import tsx tests/schedule-database.mjs",
     "test:engagement-database": "node --import tsx tests/engagement-database.mjs",
     "test:extension-execution-database": "node --import tsx tests/extension-execution-database.mjs",
+    "test:extension-schedule-database": "node --import tsx tests/extension-schedule-database.mjs",
     "test:messages-database": "node --import tsx tests/messages-database.mjs",
     "test:context-read-database": "node --import tsx tests/context-read-database.mjs"
   },

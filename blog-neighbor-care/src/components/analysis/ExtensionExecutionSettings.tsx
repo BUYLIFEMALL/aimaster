@@ -24,7 +24,7 @@ export function ExtensionExecutionSettings(){
   finally{clearTimeout(timer);lock.current=false;if(alive.current)setBusy(false);}
  }
  return <section className="panel"><h2>웹·확장 실행 연결</h2><p>웹 프로그램과 확장 프로그램으로 동작합니다. 연결된 기기마다 실행할 동작을 선택해 허용하세요. 본인 글 읽기 연결만으로 이웃 신청·공감·댓글 권한이 생기지 않습니다.</p>
-  <button className="primary" disabled={busy} onClick={()=>run('extension_devices')}>연결된 확장 조회</button><p role="status">{message}</p>
+  <p>반복 실행은 웹 주기·시간대를 저장한 뒤 확장의 현재 탭 반복 시작에서 별도로 동의합니다. 허용 저장만으로 반복이 켜지지 않습니다.</p><button className="primary" disabled={busy} onClick={()=>run('extension_devices')}>연결된 확장 조회</button><p role="status">{message}</p>
   {devices?.length===0&&<p>현재 연결된 확장이 없습니다. 내 글 연결에서 먼저 연결해 주세요.</p>}
   {!!devices?.length&&<><label>연결된 확장<select value={selected} disabled={busy} onChange={e=>{setSelected(e.target.value);setConsent(false);setKinds([]);setReads([]);}}>{devices.map(d=><option key={d.id} value={d.id}>{d.blog_id} · 기기 {d.id.slice(0,8)}</option>)}</select></label>
    <p>조회한 실행 허용: {authorized&&device.kinds?.length?device.kinds.map(k=>actions[k as keyof typeof actions]??k).join(' · '):'허용 안 됨'}{authorized&&` · 기한 ${new Date(device.permission_expires_at!).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}`}</p>

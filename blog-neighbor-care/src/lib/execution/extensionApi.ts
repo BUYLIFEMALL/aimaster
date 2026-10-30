@@ -29,7 +29,7 @@ export function createExtensionExecutionHandler(d:Dependencies){return async(req
   const op=v.operation,p=v.payload;let payload:Obj={};
   if(op==='status'){if(!keys(p,[]))throw Error('input');}
   else if(op==='stop'){if(!keys(p,['id'])||!uuid(p.id))throw Error('input');payload={id:p.id};}
-  else if(op==='offer'){
+  else if(op==='offer'||op==='scheduled_offer'){
    if(!keys(p,['request_id','url'])||!uuid(p.request_id)||typeof p.url!=='string'||p.url.length>2048)throw Error('input');
    const u=new URL(p.url);if(u.protocol!=='https:'||u.hostname!=='blog.naver.com'||u.port||u.username||u.password||u.hash)throw Error('input');
    const m=/^\/([a-z0-9_-]{1,50})\/(\d{1,30})\/?$/.exec(u.pathname);
