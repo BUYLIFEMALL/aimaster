@@ -1,0 +1,2 @@
+-- realty-listing-alert v1.38: 감시 대상 「📈 실거래 보기」(실거래 목록 ?district=·?q=), 글로 쓰기 키워드 쉼표 수정 (운영 DB esgxyikcnnvmlhygjkth)
+update public.programs set version = 'v1.38', extension_version = 'v1.38', extension_download_url = 'https://realty-listing-alert.buylife.xyz/downloads/realty-listing-alert-extension-latest.zip', updated_at = now() where slug = 'realty-listing-alert' returning slug, version, extension_version;
