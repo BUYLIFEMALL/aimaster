@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 수강생 배포 키트 최종본 `Blog_Content_Kit_v1.03`
+- 리허설(주인님 실사용, v1.02): 마법사 8단계 통과 → https://buylife-bog-dev.vercel.app 가입·Gemini 키·글 생성·복사/붙여넣기 확인. Supabase `Blog_dev`(buylifemall1 조직).
+- 리허설에서 찾아 v1.03에 반영(`f40272124`): 화면 이름·버전·발행 문구·옛 모델명 정리(독립 모드만), 복사 때 이미지 설명 줄 제외, 마법사 Vercel 팀 확인(유료 팀 경고, 개인은 선택 화면), `RemoteException` 숨김, 메일 코드·플러그인 질문 안내, 티스토리 이미지 안내.
+- 산출물: `D:PDSBlog_Content_Kit_v1.03.zip`(137개 파일·434KB, 비밀값·DB 대조 통과). 압축 사본 더미 값 빌드 통과, `/guide`·`/auth` 응답에 새 이름·v1.03 확인.
+- **못 한 것**: v1.03 마법사 전체 재실행(Vercel 빌드 비용), 팀 선택 뒤 실제 프로젝트 생성·`0)` 선택 화면, 맥 실행, 로그인 뒤 대시보드 화면 눈 확인, 글감 수집 실행 결과 미확인. 티스토리 검토 안내가 얼마나 지속되는지 미확인.
+- **미배포**: `ai-auto-blog` 운영에는 복사 시 이미지 설명 제외가 다음 운영 배포 때 함께 나간다(문구는 독립 모드에서만 바뀜). 리허설 프로젝트 `buylife-bog-dev`가 팀 `buylife`에 있음 — 삭제 여부 주인님 결정 대기(요청함). 시험 실패 6건은 v1.84 카테고리 전환 뒤 옛 기대값(기존, `ai-auto-blog/docs/IMPROVEMENTS.md`).
+
 ## 2026-10-30 ✅ [역할: 미지정] Claude Code(윈도우, 보조 계정) · 세션 `claude-win-20261029-statusbar` — 수업용 배포 키트 `Blog_Content_Kit_v1.01`(ai-auto-blog, 확장 제외)
 - 주인님 지시: 「블로그 포스팅 자동화에 자동 포스팅을 뺀 콘텐츠 만들기까지만」「확장 프로그램은 제외」「데이터 수집·콘텐츠 생성·운영 관리까지」「수강생은 복사해서 붙여넣기까지만」「내 값은 빼고 빈 값으로, 본인 값만 넣으면 바로 실행」.
 - 코드(`ai-auto-blog`, 운영 동작 변화 없음·**미배포**): `lib/deployment.ts` 독립 모드 스위치 — 로그인만으로 사용·자체 가입(`app/auth/actions.ts` `signup`)·AIMaster 링크/매뉴얼 팝업 숨김·확장 화면/API를 `proxy.ts`에서 차단·`vercel.app`→운영 주소 이동 끔·운영 전용 표(`profiles`·`programs`·`usage_logs`) 조회 생략·확장 ZIP 빌드 생략·독립 모드 기본 AI Gemini. `KIT/` 6종. 공용 `scripts/make_lecture_kit.py` `exclude`가 하위 경로도 받게(기존 키트 영향 없음).
