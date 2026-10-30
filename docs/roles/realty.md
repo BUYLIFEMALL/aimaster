@@ -4,7 +4,7 @@
 - 맡은 폴더: `realty-listing-alert/`(v1.36 운영, 2026-10-26 정식 공개, 이름 「부동산 실시간 매물 알림」) · 부동산 카테고리 프로그램(`real_estate_sales/` 등은 배정 시)
 - 카테고리: 부동산
 - 주력 업무: 새 프로그램 「AI 부동산 매물 알림 자동화」(`realty-listing-alert`) 구현 — 인수인계 [`HANDOFF_20261024_REALTY_LISTING_ALERT.md`](../analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md) 기준
-- 마지막 갱신: 2026-10-31 실거래 v1.29 배포(공시가 면적 맞추기·경기 전월세) · 그 전: 매물 알림 v1.39·실거래 v1.27 배포(세션 `claude-win-realty-docs`)
+- 마지막 갱신: 2026-10-31 실거래 v1.30 배포 · 그 전: v1.29 배포(공시가 면적 맞추기·경기 전월세) · 그 전: 매물 알림 v1.39·실거래 v1.27 배포(세션 `claude-win-realty-docs`)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
