@@ -128,6 +128,7 @@ export async function collectDistrict(
       stdg_nm: row.STDG_NM,
       bldg_nm: row.BLDG_NM,
       property_type: propertyType,
+      deal_type: "매매",
       floor: row.FLR,
       contract_date: normalizeDate(row.CTRT_DAY, year),
       building_area: toNumberOrNull(row.ARCH_AREA),
