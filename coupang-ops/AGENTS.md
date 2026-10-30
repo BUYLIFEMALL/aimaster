@@ -114,3 +114,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 2026-10-31 — 공개 전환(DB만, 빌드 없음)
 - 주인님 결정: 비공개 예외 코드를 만들지 않고 AIMaster 기본 사용 정책을 따른다 → `programs.is_active` true. 시험 계정 `buylifemall@naver.com` 사용기간 2026-11-14까지(`grant_source` 비어 있음, 관리자 화면 부여와 같음). VIP 자동 부여 145명도 사용 가능.
 - ⚠ 쿠팡 쓰기(상품 저장·옵션 변경·주문 처리)는 공개 시점까지 실제 시험 0회. 다른 쿠팡 계정 키는 시험 계정 `/connect`에 주인님이 직접 등록.
+
+## 2026-10-31 — v1.02 바코드·품번(운영 배포)
+- 명세 `/ko/api/products/product-creation`(10-31 확인): `items[].barcode`·`emptyBarcode`·`emptyBarcodeReason`(100자)·`modelNo`, `brand`는 띄어쓰기·특수문자 없이, 없으면 `GENERIC`. 명세 표에는 필수 표기가 없지만 신규 키 판매자 정책 때문에 `checkDraft`가 옵션마다 바코드나 모델번호 중 하나를 요구한다(기존 판매자도 동일 적용, 결정 사항).
+- 화면: 옵션 표에 두 칸 추가. 시험 43개·tsc 0·빌드 통과. 크롬(시험 계정): 비우면 막힘, 품번 넣으면 검사 통과. 쿠팡 쓰기 0회 — **`emptyBarcode` 본문이 실제로 받아들여지는지는 첫 「저장만」에서 확인**.
+- 시험 계정 기본값 저장: 출고지 22577646, 반품지 1002133369, 발송비 4,000원, 반품비 편도 5,000원. 반품지 이름이 화면에 「-」로 보여 `returnChargeName` 값 확인 필요.
