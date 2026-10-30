@@ -1,6 +1,6 @@
 # 전국 확장 + 빌라·오피스텔 + 건물 유형 필터 개발 플랜 (2026-10-31, [역할: realty])
 
-상태: 승인 완료(2026-10-31, 전국 포함). 전국 지역·코드표는 코드 반영, 미배포. 나머지는 활용신청 대기. 대상 `real_estate_sales`, 운영 DB `esgxyikcnnvmlhygjkth`. 근거: `REVIEW_20261031_DATA_SCOPE.md`.
+상태: v1.31 배포 완료(2026-10-31). 연립다세대 매매(RHTrade)는 키 등록 대기. 대상 `real_estate_sales`, 운영 DB `esgxyikcnnvmlhygjkth`. 근거: `REVIEW_20261031_DATA_SCOPE.md`.
 
 ## 문제
 서울은 아파트·빌라·오피스텔이 섞여 들어오고 구분이 없다. 경기·인천은 아파트뿐이다. 회원은 유형을 고를 수 없다.
