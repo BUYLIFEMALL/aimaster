@@ -60,3 +60,10 @@
 
 ## 2026-10-25 v1.19 — 「🔔 이 단지 새 매물 알림 받기」 버튼 ([역할: realty] Claude Code 윈도우)
 - 실거래 상세 → `https://realty-listing-alert.buylife.xyz/targets?name=&region=`(매물 알림 감시 대상 미리 채우기). 미배포였던 공용 사본(`solapi-client`·`telegram-bot-client` `linkButton`)·30일 정리 회원별 기록 함께 배포. DB v1.19. 배포 `real-estate-sales-4k3sn3n8x`.
+
+## 2026-10-30 v1.23 — RE-B4 경기·인천 확장 + RE-B5 `zod` ([역할: realty] Claude Code 윈도우 · 세션 `claude-win-realty-docs`)
+- 경기 44·인천 10곳(`lib/publicdata/districts.ts` `GYEONGGI_DISTRICTS`·`INCHEON_DISTRICTS`·`SIDO_GROUPS`·`findDistrict`). 서울 밖은 국토부 아파트 매매 실거래가 API(15126469)로 이번 달·지난달 조회(`fetchMolitTrades`) → 서울 줄 모양으로 변환(`lib/publicdata/molit.ts`, 해제 거래 버림) → 중복 키·PNU·건축물대장·공시가격·AI 분석·알림은 그대로. 전월세 비교는 서울만(2차). 감시 지역 화면 서울/경기/인천 묶음. 시험 `npm run test:molit` 5개. 플랜 `docs/PLAN_20261030_RE_B4_GYEONGGI_INCHEON.md`.
+- `zod` ^4.6.7(GHSA-mrhx-c7xc-m3w5, 로그인 글자 검사에만 써서 악용 경로 없음) → `npm audit` 0건.
+- 실물(크롬, 시험 계정): 「고양시 일산동구」 선택 → 「지금 조회하기」 → 새 실거래 20건 저장·실거래 내역에 표시(단지·동·계약일·층·거래가). **발견**: 경기 줄 「전용」이 모두 비어 있음(건축물대장에서 못 찾음) → 국토부 전용면적으로 채우기(`de7ec2b30`, 미배포).
+- ⚠ `vercel env pull`은 민감 변수를 실제 값 대신 `[sensitive]`로 준다 — 이 값으로 공공 API를 부르면 403이 나와 「키 승인 안 됨」으로 잘못 판단하기 쉽다(10-30 실제로 착오, `docs/ERROR_LESSONS.md`).
+- 남은 것: 화성시 일반구 코드 확인(지금 41590), 경기·인천 전월세 비교(2차), 공시가 「-」(서울도 같음, RE-B3 후속 확인).
