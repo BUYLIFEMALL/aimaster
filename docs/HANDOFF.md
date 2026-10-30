@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 [역할: blog] 읽기 연결·AI 신청/댓글/대댓글 생성 로컬 완료 / 구현 우선 계속
+
+확인 링크: [운영 v1.03](https://blog-neighbor-care.buylife.xyz) · [프로덕션 보조](https://blog-neighbor-care.vercel.app) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [정적 화면](/D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030/messages.html) · 영구 자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030`. 정적 화면은 초기 UI 보관본이며 운영 반영·실제 Edge 캡처가 아니다.
+
+- 사용자 「구현부터 하고 검수 진행해」 후속, 웹+확장 전용 유지. `b056ca71a`: 발신 신청 관계/원댓글 ID·작성자·이미답변 메타데이터/답방 글의 미리보기→명시확인→같은 frame 재확인 저장. 댓글 내용·본문 자동 수집 없음. 동의는 실행 권한과 분리, 계정/기기/nonce/DOM profile/완전성·작업 영수증 검사. 확장 보고와 독립적인 네이버 서버 검증을 구분.
+- 원래 명세와 대조해 AI 문장 생성 누락 발견, `ab26e4627`로 API/서비스 전용 DB/기존 UI/매뉴얼/정리 연결. 분석과 별도 플랫폼·모델 선택, 회원 본인 키만 사용, 권한/AI 전송 동의. 제공 본문 전문(최대2만자·임의절삭 없음) 사용, 기존 내 글 재사용. 신청은 선택된 평가의 동일 대상 글3~5개, 대댓글은 정확한 본인 글/원댓글/작성자 고정. 인용/개인사실/상투문구·유사중복 검사 및 모델 자체 점수7이상 차단. 자체 점수는 독립 품질 검수가 아님.
+- 생성 결과의 대상·글·원댓글·근거/문장을 회원이 확인·수정 후 저장→미승인 draft만 생성. 자동 승인/등록 없음. 입력해시/요청ID/1회 선점으로 공급자 중복 호출 방지, 불확정 자동 재시도 없음. 프로필 변경/계정 재연결/원본 만료 후 선점·채택 차단, 파생 수명 원본 기한 상속. 키/공급자 원문 오류는 로그/응답에 노출하지 않음.
+- 단위272/타입, 읽기 격리DB9·163SQL, 메시지 격리DB8, 정리DB11 통과. 모의 AI·합성 DOM/격리 PostgreSQL이며 실제 AI/네이버 성공 아님. 영구 자산에 초기 정적 HTML/컴포넌트·팝업·읽기코드·스펙JSON 보존. 실제 캡처0.
+- SQL5 **미적용**: `20261029044735_bnc_schedule_cursor.sql` → `20261029140000_bnc_engagement_inbox.sql` → `20261030001500_bnc_extension_execution.sql` → `20261030094500_bnc_extension_context_reads.sql` → `20261030101500_bnc_message_generation.sql`. 기존 적용 네SQL 재실행 금지. 정리는 메시지 포함9종 독립 실패격리. 운영 적용 승인 전 실행 금지.
+- 후속11묶음 미배포 대기. 운영/공개ZIP/manifest/DB v1.03 유지. 다음 실제 배포에서 v1.04 일괄 동기화. AI/검색/빌드/배포/푸시/운영SQL변경0·비용0. 기존668992b9는 프로필1회 승인 대기이며 문장 생성 승인으로 확대하지 않음. fe166de3 재가져오기 요청 유지, 추가 사용자 요청0.
+- **다음 구현:** 최소30초·분량비례 정독 제어→웹 예약커서/확장 주기 실행→받은 이웃 신청 수락 동작. 발신 신청 상태 읽기를 받은 신청 수락으로 대체하지 않음. 이후 실제 허용수단/DOM profile·회원 Edge/Naver·AI 품질·재가져오기·반복복구·정시만료 검수. 전체3~9 완료 처리 금지. PC host/Native 설치는 잔여에서 제외.
+
+
 > [역할: design] **2026-10-30 ✅ shorts-onestop-studio 대시보드 뷰파인더 덱 헤더 겹침 및 폰 목업 CSS 레이아웃 깨짐 현상 완전 해결 (Vercel 배포 완료)** — 사용자 캡처 피드백(헤더 텍스트 겹침 및 스마트폰 목업 이미지 팽창·텍스트 탈락) 분석: Tailwind 미설치 환경에서 Tailwind 유틸리티 클래스 누락으로 발생한 문제를 순수 바닐라 CSS 규칙(.shorts-mockup-deck, .shorts-phone-device 260×462 고정 9:16 프레임, .shorts-phone-bg, .shorts-phone-notch, .shorts-phone-top, .shorts-phone-caption, .shorts-phone-actions, .shorts-phone-bottom)으로 전면 전환하고, 좌우 카드 헤더를 독립 분리하여 완전 해결. 빌드·테스트 통과 및 Vercel 프로덕션 재배포(dpl_5zUon2zosagXjiFKM9vJVobwW66B) 완료.
 
 > [역할: blog] 2026-10-30 사용자 「웹프로그램과 확장 프로그램이면 되」를 구조 기준으로 확정했다. `f20ada675`: Native Messaging 권한/PC host 실행 스크립트/stdio peer/Native 전용 시험 제거, URL 대상 판별·DOM driver는 재사용. 웹 Member 인증으로 기기/동작을 따로 동의하고, 기존 읽기 토큰은 자동 실행 권한으로 승격하지 않는다. 전용 extension API가 bearer로 회원·기기 확인 후 서버 설정/동작별 근거/승인 작업/계정/전역게이트/기기별 동의를 매 단계 확인한다. DB run은 inspect→recheck→effect→done·단계별1회nonce해시/기한·DOM profile해시를 보존하고, 서버가 한도예약/arm/결과증거/일카운터를 처리한다. 확장은 동일 현재탭·창/본인팝업·기기/단일frame·원댓글/관계/중복·기한을 재확인하고 클릭 전 시도표식을 먼저 저장한다. 웹 메시지로 시작/동의/결과 위조 불가, cookie는 extension API 인증에 사용하지 않는다. 확장 관찰은 extension-report 출처이며 독립 네이버 서버 검증으로 표현하지 않는다. 승인허가응답 유실은 클릭0/uncertain, 최종응답 유실은 성공기록 보존/재클릭0. 진행/완료/확인필요 표시·상태조회·중단/설정 UI·매뉴얼·정리7종을 연결했다. 단위259/타입, 격리DB8(115SQL, HTTP handler→확장→실SQL저장/재조회 포함)·정리11 통과. 실제 네이버/Edge 회원 흐름·실DOM profile은 미검수, 웹이 반복시각을 관리하고 확장이 호출하는 주기 연결은 미구현 잔여. PC 설치/상주클라이언트/Nativehost 등록은 앞으로의 작업이 아니다. 새 migration20261030001500_bnc_extension_execution(권한/run2표·서비스전용RPC3) 추가로 cursor→engagement→extension SQL3개 모두 운영 미적용/승인 전 실행 금지. Native 설계는 같은9번째 대기묶음에서 교체하며 총후속9묶음 미배포·버전/공개ZIP v1.03 유지, 운영SQL/AI/검색API/원격빌드·배포/푸시0·추가비용0. 기존668992b9/fe166de3 요청만 유지·신규 관리자 조작요청0.
