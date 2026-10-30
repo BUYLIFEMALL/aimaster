@@ -110,3 +110,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - 신청인 이름·전화·회수지 주소는 읽지 않음(시험으로 확인). 크롬: 출고중지 요청 9-30~10-30 조회 정상(0건). 시험 41개·tsc 0.
 - 10-30 **플랜 A 묶음**(주인님 채팅 승인): A1 `lib/actions/today.ts` `todaySummaryAction`(발주서 ACCEPT·INSTRUCT, 반품 RU·UC 미처리 = `blockedOrderIds` 크기, 4번 동시 조회, `TODAY_READ_GAP_SECONDS` 30) + `components/TodayBoard.tsx`(대시보드 `/home`, 링크 `/orders?status=`·`/returns?view=` — 두 페이지가 `searchParams`로 시작 상태를 받고, 주문 화면은 이때 기간을 31일로) · A4·A2 `acknowledgeOrdersAction(ids, {from,to})`가 성공 뒤 INSTRUCT 목록(최대 3쪽)을 `preparing`으로 돌려줌 → `OrderSheets`가 처리 전 「우편번호 주소 수취인」과 비교해 바뀐 배송번호를 빨갛게 표시하고 바로 상품준비중 목록으로 전환(송장 입력 이어서). 다시 읽기 실패는 처리 결과에 영향 없음(예전 안내 문구로 대체). 크롬: 「오늘 할 일」 실제 조회(4건 모두 0)·카드 누르면 상태·31일 기간 맞게 열림 확인. 처리 뒤 전환·주소 비교는 주문이 생긴 뒤 확인. 시험 41개·tsc 0.
   - 함정: 크롬 화면 캡처가 30초 시간 초과로 실패하는 일이 있음 → `find`로 칸 값을 읽어 확인.
+
+## 2026-10-31 — 공개 전환(DB만, 빌드 없음)
+- 주인님 결정: 비공개 예외 코드를 만들지 않고 AIMaster 기본 사용 정책을 따른다 → `programs.is_active` true. 시험 계정 `buylifemall@naver.com` 사용기간 2026-11-14까지(`grant_source` 비어 있음, 관리자 화면 부여와 같음). VIP 자동 부여 145명도 사용 가능.
+- ⚠ 쿠팡 쓰기(상품 저장·옵션 변경·주문 처리)는 공개 시점까지 실제 시험 0회. 다른 쿠팡 계정 키는 시험 계정 `/connect`에 주인님이 직접 등록.
