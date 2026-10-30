@@ -1,0 +1,12 @@
+Claude Code 하단 상태바를 아래 형식으로 설정해 줘.
+
+Opus 5.5·medium | 5h 97% (3h 40m) | weekly 99% (6d 22h 40m) | context 53%
+
+요구사항:
+1. Claude Code가 상태바 명령의 stdin으로 넘겨주는 JSON을 읽는 Node.js 스크립트를 ~/.claude/statusline-kit.js 로 만든다.
+2. 값은 model.display_name, effort, rate_limits.five_hour, rate_limits.seven_day, context_window를 쓴다. 정확한 칸 이름은 공식 문서(https://code.claude.com/docs/en/statusline)를 먼저 확인한다.
+3. 모든 %는 쓴 양이 아니라 남은 양으로 표시한다(100 - used_percentage).
+4. 시간은 resets_at까지 남은 시간을 3h 40m 또는 6d 22h 40m 형식으로 표시한다.
+5. 한도 값이 아직 없으면 그 칸은 숨긴다. 한도 값이 없고 cost.total_cost_usd가 있으면 session $0.12 형식으로 표시한다.
+6. ~/.claude/settings.json은 먼저 백업하고, statusLine 항목만 바꾸고 다른 설정은 그대로 둔다.
+7. 샘플 JSON을 넣어 출력을 시험한 뒤, 어떤 파일을 바꿨는지와 되돌리는 방법을 쉬운 한글로 알려 준다.
