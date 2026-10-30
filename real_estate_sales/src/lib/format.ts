@@ -19,7 +19,10 @@ export function formatWon(amountManwon: number | null | undefined): string {
 /** 거래 종류에 맞춘 금액 표기: 매매 「3.2억」, 전세 「전세 3.2억」, 월세 「5,000만/80만」 */
 export function formatDealPrice(deal: string | null | undefined, price: number | null | undefined, rent: number | null | undefined): string {
   if (deal === "전세") return `전세 ${formatWon(price)}`;
-  if (deal === "월세") return `월세 ${formatWon(price)}/${(rent ?? 0).toLocaleString("ko-KR")}만`;
+  if (deal === "월세") {
+    const deposit = price && price < 10000 ? `${price.toLocaleString("ko-KR")}만` : formatWon(price); // 1억 미만은 만 원 단위(「0.01억」 방지)
+    return `월세 ${deposit}/${(rent ?? 0).toLocaleString("ko-KR")}만`;
+  }
   return formatWon(price);
 }
 

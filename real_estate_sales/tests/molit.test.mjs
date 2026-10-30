@@ -196,5 +196,6 @@ test("전월세 거래: 표 값 변환, 기본은 매매만, 금액 표기(2026-
   assert.deepEqual(normalizeDealTypes(["전세", "x"]), ["전세"]);
   assert.equal(formatDealPrice("매매", 32000, null), "3.2억");
   assert.equal(formatDealPrice("전세", 32000, null), "전세 3.2억");
-  assert.equal(formatDealPrice("월세", 5000, 80), "월세 0.5억/80만");
+  assert.equal(formatDealPrice("월세", 5000, 80), "월세 5,000만/80만");
+  assert.equal(formatDealPrice("월세", 20000, 80), "월세 2억/80만");
 });
