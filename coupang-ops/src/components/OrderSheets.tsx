@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { acknowledgeOrdersAction, listOrderSheetsAction, submitInvoicesAction } from "@/lib/actions/orders";
 import { ACK_MAX, INVOICE_UPDATE_STATUSES, INVOICE_UPLOAD_STATUS, ORDER_STATUSES, orderStatusLabel, parseInvoicePaste, type AckResult, type OrderSheet } from "@/lib/coupang/orders";
 import { COMMON_COURIERS } from "@/lib/coupang/defaults";
+import { cancelOrderAction } from "@/lib/actions/returns";
+import { CANCEL_REASONS } from "@/lib/coupang/returns";
 
 const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-rose-500 focus:outline-none";
 /** 한국 시간 기준 오늘에서 n일 전 날짜(yyyy-mm-dd) */
@@ -23,6 +25,7 @@ export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean;
   const [asking, setAsking] = useState<"" | "ack" | "invoice">(""); // 쿠팡에 보내기 전 한 번 더 묻는 단계
   const [inv, setInv] = useState<Record<number, { courier: string; invoice: string }>>({}); // 배송번호별 송장 입력
   const [paste, setPaste] = useState("");
+  const [cancelling, setCancelling] = useState<{ box: number; reason: string } | null>(null); // 판매자 취소 확인 단계
   const [ackNote, setAckNote] = useState("");
   const [ackResults, setAckResults] = useState<AckResult[]>([]);
 
@@ -80,6 +83,20 @@ export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean;
       else
         setOrders(orders.map((o) => (done.has(o.shipmentBoxId) ? { ...o, invoiceNumber: inv[o.shipmentBoxId].invoice.replace(/[\s-]/g, ""), deliveryCompanyName: COMMON_COURIERS.find((c) => c.code === courierOf(o.shipmentBoxId))?.name ?? courierOf(o.shipmentBoxId) } : o)));
       setInv((cur) => Object.fromEntries(Object.entries(cur).filter(([k]) => !done.has(Number(k)))));
+    });
+
+  // 판매자 주문 취소(배송 묶음 하나씩). 결제완료 = 즉시 취소, 상품준비중 = 출고중지. 판매자 점수가 낮아진다(명세)
+  const canCancel = shownStatus === "ACCEPT" || shownStatus === "INSTRUCT";
+  const cancelOrder = () =>
+    cancelling &&
+    start(async () => {
+      const o = orders.find((x) => x.shipmentBoxId === cancelling.box);
+      const reason = cancelling.reason;
+      setCancelling(null);
+      if (!o) return;
+      const r = await cancelOrderAction(o.orderId, reason, o.items.map((it) => ({ vendorItemId: it.vendorItemId, count: it.qty })));
+      setAckNote(r.ok ? `✅ 주문번호 ${o.orderId}: ${r.message}` : `❌ 주문번호 ${o.orderId}: ${r.error}`);
+      if (r.ok) setOrders(orders.filter((x) => x.shipmentBoxId !== o.shipmentBoxId));
     });
 
   const toggle = (id: number) => setPicked(picked.includes(id) ? picked.filter((x) => x !== id) : picked.length >= ACK_MAX ? picked : [...picked, id]);
@@ -190,6 +207,25 @@ export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean;
               {o.shippingPrice > 0 && ` · 배송비 ${o.shippingPrice.toLocaleString()}원`}
             </p>
             {o.message && <p className="text-xs text-slate-500">💬 {o.message}</p>}
+            {canCancel && (
+              <div className="mt-2">
+                {cancelling?.box === o.shipmentBoxId ? (
+                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-rose-300 bg-rose-50 px-2 py-1.5 text-[12px] text-rose-900">
+                    <select aria-label={`주문번호 ${o.orderId} 취소 사유`} value={cancelling.reason} onChange={(e) => setCancelling({ box: o.shipmentBoxId, reason: e.target.value })} className="rounded border border-slate-300 bg-white px-2 py-1 text-[12px]">
+                      <option value="">취소 사유 고르기</option>
+                      {CANCEL_REASONS.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+                    </select>
+                    <span>{shownStatus === "ACCEPT" ? "결제완료 주문은 바로 취소됩니다." : "상품준비중 주문은 출고중지로 취소됩니다."} 판매자 취소는 판매자 점수(주문이행)를 낮춥니다.</span>
+                    <button type="button" disabled={pending || !cancelling.reason} onClick={cancelOrder} className="rounded border border-rose-600 bg-rose-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">{pending ? "취소하는 중…" : "네, 쿠팡에서 취소"}</button>
+                    <button type="button" disabled={pending} onClick={() => setCancelling(null)} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">닫기</button>
+                  </div>
+                ) : (
+                  <button type="button" disabled={pending} onClick={() => setCancelling({ box: o.shipmentBoxId, reason: "" })} className="rounded border border-slate-300 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-600 hover:border-rose-300 hover:text-rose-700">
+                    주문 취소…
+                  </button>
+                )}
+              </div>
+            )}
             {invoiceMode && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <select aria-label={`배송번호 ${o.shipmentBoxId} 택배사`} value={courierOf(o.shipmentBoxId)} onChange={(e) => setInvoice(o.shipmentBoxId, { courier: e.target.value })} className="rounded border border-slate-300 bg-white px-2 py-1 text-[12px]">

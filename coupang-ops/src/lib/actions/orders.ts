@@ -4,6 +4,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
 import { takeReadSlot } from "@/lib/readGap";
+import { unresolvedStopOrders } from "@/lib/coupang/returnGuard";
 import { ORDER_READ_GAP_SECONDS } from "@/lib/readGapRule";
 import { ackIds, ackPath, checkOrderRange, invoiceBody, invoicePath, normalizeAckResult, normalizeOrderSheets, ordersPath, ordersQuery, type AckResult, type InvoiceEntry, type OrderSheet } from "@/lib/coupang/orders";
 
@@ -59,6 +60,17 @@ export async function submitInvoicesAction(mode: "upload" | "update", entries: I
   const m = mode === "update" ? "update" : "upload";
   const built = invoiceBody(keys.vendorId, Array.isArray(entries) ? entries : []);
   if ("errors" in built) return { ok: false, error: built.errors.slice(0, 5).join(" / ") };
+  if (m === "upload") {
+    // 송장 전 안전 점검: 출고중지요청·반품접수가 걸린 주문은 보내지 않는다(보내면 왕복 배송비 판매자 부담 — 명세)
+    let blocked: Set<number>;
+    try {
+      blocked = await unresolvedStopOrders(keys);
+    } catch (e) {
+      return { ok: false, error: `출고중지 요청을 확인하지 못해 송장 등록을 멈췄습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
+    }
+    const hit = entries.filter((x) => blocked.has(Number(x.orderId))).map((x) => x.orderId);
+    if (hit.length) return { ok: false, error: `출고중지 요청·반품 접수가 들어온 주문이 있어 멈췄습니다(주문번호 ${hit.join(", ")}). 「↩ 출고중지·취소」에서 먼저 처리하고, 나머지만 다시 등록해 주세요.` };
+  }
   try {
     const r = await wingRequest(keys, "POST", invoicePath(keys.vendorId, m), { body: built.body });
     return { ok: true, ...normalizeAckResult(r.data, built.ids, m === "upload" ? "송장을 등록했습니다(배송지시로 바뀜)." : "송장을 고쳤습니다.") };
