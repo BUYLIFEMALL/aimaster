@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 Codex(윈도우) [역할: blog] — 받은 신청 반복 수락 로컬 완료 / 미배포
+
+확인: [공식 운영](https://blog-neighbor-care.buylife.xyz/neighbors) · [Vercel 보조](https://blog-neighbor-care.vercel.app/neighbors) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 정적 팝업](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/accept-schedule-20261030/popup.html) · [영구 자산](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/accept-schedule-20261030). 운영에는 이번 변경이 아직 없으며 로컬 HTML은 서버 연결 없는 정적 보존본이다. 실제 Edge 캡처 없음.
+
+> [역할: blog] **검토 완료 받은 신청의 반복 수락 로컬 완료(2026-10-30)** — `4ee7dc674`: 확장 별도 동의→현재 본인 관리 탭 유지→웹 주기·KST 시간대/기존 공용 예약커서→검토 완료 신청1건 재확인·수락·결과 기록→다음 주기. 일반 소통과 동시 선점 차단·신청 공용 일일상한·최대8시간/확인960회/수락120회, 불확정/기한초과 OFF·예약보존·읽기 증명 후 명시적 대기 복구. 응답 유실 후 배정 조회/중단과 설정 변경 후 ready 대상 재검토도 보완. 새 신청 수집/승인·AI 생성·다른 관리 페이지 이동은 자동화하지 않음. 단위303/신규 격리DB9·243SQL/정리DB11/타입 통과, 실제 DOM/Edge/Naver 미검수. 후속16묶음 미배포·SQL9 미적용(신규 `20261030150000_bnc_accept_schedule.sql`, 새 표0/컬럼5). 웹+확장 전용·새 권한/창0·운영/ZIP v1.03 보존·유료AI/실RSS/검색API/운영업무SQL/원격빌드/배포/푸시0. **남은 구현: 자동 RSS 감시·동의/예산 기반 AI 자동 초안 준비**. 그룹3~9 실제/운영 검수는 미완료 유지. [근거](https://www.buylife.xyz/admin/dev-docs/requests): `blog-neighbor-care/docs/evidence/accept-schedule-20261030.json`.
+
+수락 전용 루프는 기존 현재탭 루프 컴포넌트를 재사용하고 기기/탭/알람/저장소 키를 분리한다. 시작만으로 수락하지 않는다. 일반 글 순회·현재탭 반복과 서로 중단하고, 서버의 같은 회원 설정 잠금→주기설정/예약커서→수락작업 순서로 직렬화한다. scheduled_offer만 새로 허용한 확장 API는 승인·기기허가 변경을 프록시하지 않는다. 받은 신청의 기존 명시적 웹 검토 승인/실행 권한·실제 DOM profile이 여전히 필요하다.
+
+검수: 단위303, 신규 네트워크 none/호스트 포트0 PostgreSQL9·243SQL(실알람→HTTP→예약커서→가상1회클릭→성공저장→다음주기 포함), 정리DB11, 타입 통과. 동시2작업자1회선점/공용일일상한/시간대/revision/허가철회/미확정·기한초과/읽기 재확인·OFF 유지 복구/배정 응답유실/ready 재검토/중단 후1회모드 복귀를 확인했다. 실제 Edge·네이버 동작이나 새 RSS/유료AI 호출은 없었다. 공개 ZIP SHA256 398a10d2d387e2071d1e32bc4b55aab3d7845186a54246f36c071fddedd5a7c6 유지.
+
+SQL 적용 순서: 기존8개 뒤 `20261030150000_bnc_accept_schedule.sql`(새 표0, 커서1+수락작업4컬럼, invoker wrapper/공용선점 가드). CLI migration new로 생성 후 로컬 시각으로 생성된 20261030045450 이름을 선행 SQL 뒤로 정렬했다. 운영 적용은 하지 않았다. SQL9·후속16묶음을 함께 배포할 때 웹/manifest/ZIP/DB 버전을 동기화하며, 기존 적용 완료4SQL은 재실행하지 않는다.
+
+다음 구현은 자동 RSS 감시·동의/예산 기반 AI 초안 준비다. 이후 실제 DOM profile/Edge·재가져오기 설정보존·AI 성공/품질·후보 전체흐름·소통/반복복구·SQL9/묶음배포·Cron 만료삭제 검수. 기존668992b9/fe166de3 요청만 유지하고 새 사용자 조작 요청0. 프로젝트 전체 완료 아님.
+
 ## 2026-10-30 Codex(윈도우) [역할: blog] — 새글 준비·승인·전용탭 순회 로컬 완료 / 미배포
 
 확인: [공식 운영](https://blog-neighbor-care.buylife.xyz/neighbors) · [Vercel 보조](https://blog-neighbor-care.vercel.app/neighbors) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 정적 화면](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/post-targets-20261030/workspace.html) · [영구 자산](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/post-targets-20261030)。 운영에는 이번 변경이 아직 없다. 로컬 HTML은 서버 연결 없는 초기 정적 보존본이며 실브라우저 캡처는 아니다.
