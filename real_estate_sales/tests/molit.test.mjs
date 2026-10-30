@@ -44,7 +44,7 @@ test("지역 목록: 코드 겹침 없음, 서울/경기/인천 구분", () => {
   const codes = ALL_DISTRICTS.map((d) => d.sgg_cd);
   assert.equal(new Set(codes).size, codes.length);
   assert.ok(codes.every((c) => /^\d{5}$/.test(c)));
-  assert.equal(codes.length, 25 + 47 + 11);
+  assert.equal(codes.length, 256); // 2026-10-31 전국
   assert.equal(isSeoulDistrict("11680"), true);
   assert.equal(isSeoulDistrict("41285"), false);
   assert.equal(sidoOf("28237"), "인천");
