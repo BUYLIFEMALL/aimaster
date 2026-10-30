@@ -2,6 +2,7 @@
 
 - 원문: https://developers.coupang.com/hc/ko/articles/360033877853 (옛 주소 developers.coupangcorp.com → 302)
 - `POST /v2/providers/seller_api/apis/api/v1/marketplace/seller-products` (호스트 `api-gateway.coupang.com`, 서명은 `src/lib/coupang/sign.ts`)
+- 이미지 실제 크기 검사: `src/lib/coupang/imageRules.ts`(v1.03).
 - 이 문서는 요약이다. 원문 예시 JSON·오류 코드 표는 원문에서 확인한다. 코드 기준: `src/lib/coupang/product.ts`.
 
 ## 최상위 필수 필드

@@ -27,6 +27,15 @@ test("반려면 가장 최근 반려 사유를 붙인다", () => {
   assert.match(s.message, /반려 사유: 대표 이미지를 내려받지 못함/);
 });
 
+test("반려 사유가 안 보일 때 이력 조회 실패와 사유 없음을 구분한다", () => {
+  const rejected = { data: { statusName: "승인반려" } };
+  assert.match(summarizeStatus(rejected, [], "HTTP 403").message, /변경 이력을 읽지 못했습니다\(HTTP 403\)/);
+  assert.match(summarizeStatus(rejected, []).message, /이력에 사유가 없습니다\(이력 0건\)/);
+  // 이력의 상태 이름이 달라도 내용이 있으면 보여 준다
+  const other = normalizeHistory({ data: [{ status: "반려", comment: "이미지 규격 위반", createdAt: "2026-10-31T02:49:00" }] });
+  assert.match(summarizeStatus(rejected, other).message, /반려 사유: 이미지 규격 위반/);
+});
+
 test("상품 조회가 비어도 이력으로 상태를 읽고, 이상한 응답은 빈 목록", () => {
   assert.deepEqual(normalizeHistory(null), []);
   const s = summarizeStatus(null, normalizeHistory({ data: [{ status: "승인완료", createdAt: "2026-10-02T10:00:00" }] }));

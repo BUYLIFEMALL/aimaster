@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { checkProductDraftAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
+import { checkProductDraftAction, deleteJobProductAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
 
 const JOB_LABEL: Record<string, string> = { sending: "⏳ 보내는 중", saved: "✅ 쿠팡에 저장됨", requested: "📨 승인 요청", approved: "🟢 승인", rejected: "⛔ 반려", failed: "❌ 실패", unknown: "❓ 확인 필요" };
 import type { CategoryMeta } from "@/lib/coupang/category";
 import type { CoupangOption } from "@/lib/coupang/product";
+import { DELETED_PREFIX } from "@/lib/coupang/status";
 
 const MAX_COMBOS = 200;
 const DEFAULT_STOCK = 100;
@@ -56,6 +57,21 @@ export function ProductForm(props: {
       if (!r.ok) setRefreshError(r.error);
       setJobs(await listJobsAction(props.productId));
     } finally {
+      setRefreshing(null);
+    }
+  };
+
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const deleteJob = async (jobId: string) => {
+    setRefreshing(jobId);
+    setRefreshError("");
+    try {
+      const r = await deleteJobProductAction(jobId);
+      if (!r.ok) setRefreshError(r.error);
+      else setSent(null);
+      setJobs(await listJobsAction(props.productId));
+    } finally {
+      setConfirmDelete(null);
       setRefreshing(null);
     }
   };
@@ -238,14 +254,9 @@ export function ProductForm(props: {
           {check && (
             <div className="space-y-2 text-[13px]">
               <p className="text-slate-600">이미지: 대표 {check.images.main ? "1장" : "없음"} · 추가 {check.images.extras}장 · 상세 {check.images.contents}장 (보낼 때 쿠팡이 받아 갈 짧은 주소로 바뀝니다)</p>
-              {check.problems.length === 0 && check.warnings.length === 0 ? (
-                <p className="rounded-lg bg-teal-50 px-3 py-2 text-teal-900">✅ 검사 통과 — 보낼 준비가 됐습니다.</p>
-              ) : (
-                <>
-                  {check.problems.length > 0 && <ul className="list-disc space-y-0.5 rounded-lg bg-rose-50 py-2 pl-7 pr-3 text-rose-900">{check.problems.map((p) => <li key={p}>{p}</li>)}</ul>}
-                  {check.warnings.length > 0 && <ul className="list-disc space-y-0.5 rounded-lg bg-amber-50 py-2 pl-7 pr-3 text-amber-900">{check.warnings.map((w) => <li key={w}>{w}</li>)}</ul>}
-                </>
-              )}
+              {check.problems.length === 0 && <p className="rounded-lg bg-teal-50 px-3 py-2 text-teal-900">✅ 검사 통과 — 보낼 준비가 됐습니다.{check.warnings.length > 0 ? " 아래 안내를 확인해 주세요." : ""}</p>}
+              {check.problems.length > 0 && <ul className="list-disc space-y-0.5 rounded-lg bg-rose-50 py-2 pl-7 pr-3 text-rose-900">{check.problems.map((p) => <li key={p}>{p}</li>)}</ul>}
+              {check.warnings.length > 0 && <ul className="list-disc space-y-0.5 rounded-lg bg-amber-50 py-2 pl-7 pr-3 text-amber-900">{check.warnings.map((w) => <li key={w}>{w}</li>)}</ul>}
             </div>
           )}
         </section>
@@ -254,7 +265,7 @@ export function ProductForm(props: {
       {cat && (
         <section className="slw-card space-y-3 p-5">
           <h2 className="text-base font-extrabold text-slate-900">5. 쿠팡에 저장만 보내기</h2>
-          <p className="text-sm text-slate-600">쿠팡 WING에 상품을 <b>저장만</b> 합니다(승인 요청 전 단계 — 판매되지 않음). WING에서 확인한 뒤 승인 요청을 하면 됩니다. 같은 상품은 한 번만 보낼 수 있습니다.</p>
+          <p className="text-sm text-slate-600">쿠팡 WING에 상품을 <b>저장만</b> 합니다(승인 요청은 보내지 않음). 쿠팡이 저장 직후 자동 점검해 바로 <b>「승인반려」</b>로 바꿀 수 있으니, 잠시 뒤 「쿠팡 상태 확인」으로 결과를 봐 주세요. 같은 상품은 한 번만 보낼 수 있고, 반려된 건은 쿠팡에서 지운 뒤 다시 보냅니다.</p>
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input type="checkbox" checked={confirmSend} onChange={(e) => setConfirmSend(e.target.checked)} disabled={!checkPassed} />
             위 내용을 확인했습니다{!checkPassed ? " (먼저 「검사하기」를 통과해 주세요)" : ""}
@@ -268,15 +279,15 @@ export function ProductForm(props: {
               {sent.problems?.length ? <ul className="mt-1 list-disc pl-5">{sent.problems.map((p) => <li key={p}>{p}</li>)}</ul> : null}
             </div>
           )}
-          {sent?.ok && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">✅ 쿠팡에 저장됐습니다{sent.sellerProductId ? ` — 상품번호 ${sent.sellerProductId}` : ""}. WING 「상품 관리」에서 확인하고 승인 요청을 해 주세요.</p>}
+          {sent?.ok && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">✅ 쿠팡에 저장됐습니다{sent.sellerProductId ? ` — 상품번호 ${sent.sellerProductId}` : ""}. 잠시 뒤 아래 「쿠팡 상태 확인」으로 쿠팡 점검 결과를 확인해 주세요.</p>}
           {jobs.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-bold text-slate-700">이 상품의 쿠팡 등록 기록</p>
               <ul className="space-y-1 text-[13px] text-slate-700">
                 {jobs.map((j) => (
                   <li key={j.id} className="rounded-lg border border-slate-100 px-3 py-1.5">
-                    {JOB_LABEL[j.status] ?? j.status} · {new Date(j.created_at).toLocaleString("ko-KR")} · 옵션 {j.item_count}개{j.seller_product_id ? ` · 상품번호 ${j.seller_product_id}` : ""}{j.message ? ` · ${j.message}` : ""}
-                    {j.seller_product_id ? (
+                    {j.message?.startsWith(DELETED_PREFIX) ? "🗑 삭제됨" : JOB_LABEL[j.status] ?? j.status} · {new Date(j.created_at).toLocaleString("ko-KR")} · 옵션 {j.item_count}개{j.seller_product_id ? ` · 상품번호 ${j.seller_product_id}` : ""}{j.message ? ` · ${j.message}` : ""}
+                    {j.seller_product_id && !j.message?.startsWith(DELETED_PREFIX) ? (
                       <button
                         type="button"
                         disabled={refreshing === j.id}
@@ -284,6 +295,16 @@ export function ProductForm(props: {
                         className="ml-2 rounded border border-rose-300 bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-800 hover:bg-rose-100 disabled:opacity-50"
                       >
                         {refreshing === j.id ? "확인 중…" : "쿠팡 상태 확인"}
+                      </button>
+                    ) : null}
+                    {j.seller_product_id && (j.status === "rejected" || j.status === "saved") && !j.message?.startsWith(DELETED_PREFIX) ? (
+                      <button
+                        type="button"
+                        disabled={refreshing === j.id}
+                        onClick={() => (confirmDelete === j.id ? deleteJob(j.id) : setConfirmDelete(j.id))}
+                        className="ml-2 rounded border border-slate-300 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      >
+                        {confirmDelete === j.id ? "네, 쿠팡에서 삭제" : "쿠팡에서 삭제"}
                       </button>
                     ) : null}
                   </li>
