@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-30",
+  "scope": "minimum reading time before like/comment/reply",
+  "status": "local only; unpublished; no operating SQL applied",
+  "unitTests": 274,
+  "extensionDatabaseChecks": 9,
+  "extensionDatabaseSqlCalls": 140,
+  "typecheck": "pass",
+  "formula": "max(30,ceil(articleUnicodeCharacters/500)*5) seconds",
+  "articleCharactersLimit": 100000,
+  "bodyTransmission": false,
+  "actualHumanComprehensionVerified": false,
+  "foregroundSamplingMilliseconds": 1000,
+  "tabAndUrlEventsInvalidateRun": true,
+  "serverElapsedGate": true,
+  "reservationBeforeWait": false,
+  "actualNaverVerification": false,
+  "paidCalls": 0,
+  "deployments": 0,
+  "newMigrationFiles": 0,
+  "unappliedMigrationFiles": 5
+}

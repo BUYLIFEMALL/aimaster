@@ -39,7 +39,7 @@ try{
  const grant=a=>JSON.parse(sql(`select bnc_extension_permission_dispatch(${q(a.user)},'grant',${payload({device_id:a.device,confirmed:true,kinds:['request','like','comment','reply']})});`,'service_role'));
  const job=a=>dispatch(a,'approve',{id:dispatch(a,'create',{account_id:a.account,neighbor_id:'fixture-neighbor',post_id:'123',kind:'like'}).id});
  const offer=(a,id=randomUUID())=>({id,target_kind:'post',owner:'fixture-neighbor',post_id:'123',kinds:['like'],next_hash:'b'.repeat(64)});
- const observation=a=>({accountId:a.account,actorId:a.actor,neighborId:'fixture-neighbor',postId:'123',checkedAt:new Date().toISOString(),restriction:'none',relationship:'mutual',liked:false,duplicate:false});
+ const observation=a=>({articleHash:'d'.repeat(64),articleCharacters:1000,accountId:a.account,actorId:a.actor,neighborId:'fixture-neighbor',postId:'123',checkedAt:new Date().toISOString(),restriction:'none',relationship:'mutual',liked:false,duplicate:false});
  await check('EXDB01 existing read-only device cannot offer an approved job without separate web consent',()=>{
   const a=fixture();job(a);assert.throws(()=>exec(a,'offer',offer(a)),/BNC_EXTENSION_NOT_READY/);assert.equal(sql(`select count(*) from bnc_extension_runs where user_id=${q(a.user)};`),'0');
   grant(a);assert.equal(exec(a,'offer',offer(a)).phase,'inspect');
@@ -58,7 +58,12 @@ try{
   assert.throws(()=>exec(b,'inspect',{id:r.id,nonce_hash:'b'.repeat(64),observation:observation(a),next_hash:'c'.repeat(64),kinds:['like']}),/BNC_NOT_FOUND/);
   assert.throws(()=>exec(a,'inspect',{id:r.id,nonce_hash:'x'.repeat(64),observation:observation(a),next_hash:'c'.repeat(64),kinds:['like']}),/BNC_STALE_RUN/);
   assert.throws(()=>exec(a,'inspect',{id:r.id,nonce_hash:'b'.repeat(64),observation:{...observation(a),actorId:'other'},next_hash:'c'.repeat(64),kinds:['like']}),/BNC_EXTENSION_OBSERVATION/);
-  const p={id:r.id,nonce_hash:'b'.repeat(64),observation:observation(a),next_hash:'c'.repeat(64),kinds:['like']};assert.equal(exec(a,'inspect',p).phase,'recheck');
+  const p={id:r.id,nonce_hash:'b'.repeat(64),observation:observation(a),next_hash:'c'.repeat(64),kinds:['like']};assert.equal(exec(a,'inspect',p).phase,'reading');
+  assert.throws(()=>exec(a,'reading',{...p,nonce_hash:'c'.repeat(64)}),/BNC_READING_REQUIRED/);
+  assert.equal(sql(`select count(*) from bnc_daily where user_id=${q(a.user)};`),'0');
+  sql(`update bnc_extension_runs set read_not_before=clock_timestamp()-interval '1 second' where id=${q(r.id)};`);
+  assert.throws(()=>exec(a,'reading',{...p,nonce_hash:'c'.repeat(64),observation:{...observation(a),articleHash:'e'.repeat(64)}}),/BNC_READING_REQUIRED/);
+  assert.equal(exec(a,'reading',{...p,nonce_hash:'c'.repeat(64)}).phase,'recheck');
   assert.throws(()=>exec(a,'recheck',{...p,nonce_hash:'c'.repeat(64),profile_hash:'e'.repeat(64)}),/BNC_STALE_RUN/);
   assert.throws(()=>exec(a,'inspect',p),/BNC_STALE_RUN/);assert.throws(()=>exec(a,'offer',offer(a)),/BNC_RUN_REVIEW_REQUIRED/);
   assert.doesNotMatch(JSON.stringify(exec(a,'status')),/nonce|permit|body|profile/);
@@ -67,7 +72,7 @@ try{
   const a=fixture(),j=job(a);grant(a);let applies=0;const session={};const calls=[];
   const token='e'.repeat(64),handler=createExtensionExecutionHandler({authorize:async h=>h===createHash('sha256').update(token).digest('hex')?{allowed:true,userId:a.user,deviceId:a.device}:{allowed:false,status:401},
    profile:()=>({profile:{v:1,reviewed:true,reference:'synthetic-only'},kinds:['like']}),rpc:async(user,device,op,p)=>{assert.equal(user,a.user);assert.equal(device,a.device);try{return {data:exec(a,op,p),error:null};}catch{return {data:null,error:{message:'private db error'}};}}});
-  const post=async(op,p)=>{calls.push(op);const response=await handler(new Request('https://fixture.test/api/execution/extension',{method:'POST',headers:{authorization:`Bearer ${token}`,'content-type':'application/json'},body:JSON.stringify({operation:op,payload:p})}));const v=await response.json();if(!response.ok)throw Error(v.error);if((mode==='lost-apply'&&op==='recheck')||(mode==='lost-result'&&op==='effect'))throw Error('response lost');return v.data;};
+  const post=async(op,p)=>{calls.push(op);if(op==='reading')sql(`update bnc_extension_runs set read_not_before=clock_timestamp()-interval '1 second' where id=${q(p.id)};`);const response=await handler(new Request('https://fixture.test/api/execution/extension',{method:'POST',headers:{authorization:`Bearer ${token}`,'content-type':'application/json'},body:JSON.stringify({operation:op,payload:p})}));const v=await response.json();if(!response.ok)throw Error(v.error);if((mode==='lost-apply'&&op==='recheck')||(mode==='lost-result'&&op==='effect'))throw Error('response lost');return v.data;};
   const browser={storage:{session:{get:async k=>({[k]:session[k]}),set:async v=>Object.assign(session,v),remove:async k=>{delete session[k];}}},
    tabs:{query:async()=>[{id:7,windowId:8,url:'https://blog.naver.com/fixture-neighbor/123'}]},windows:{get:async()=>({focused:true,state:'normal'})},scripting:{executeScript:async options=>{
     const c=options.args[0];assert.equal(options.world,'ISOLATED');let result;
@@ -76,12 +81,12 @@ try{
     if(c.operation==='apply'){assert.ok(session.workAttempts[`${a.device}:${j.id}:1`]);applies++;result=true;}
     if(c.operation==='verify')result={...o,state:'liked'};return [{frameId:1,result}];
    }}};
-  const bridge=createWorkBridge(browser,async()=>({deviceId:a.device,blogId:a.actor}),post);
+  let elapsed=0;const bridge=createWorkBridge(browser,async()=>({deviceId:a.device,blogId:a.actor}),post,Date.now,async()=>false,{now:()=>elapsed,sleep:async ms=>{elapsed+=ms;}});
   let result;try{result=await bridge.start();}catch{result=null;}
   return {a,j,applies,calls,result,bridge,session};
  }
  await check('EXDB04 web API -> server nonce stages -> extension -> SQL evidence/result works without any native host',async()=>{
-  const f=await flow();assert.match(f.result.message,/완료/);assert.equal(f.applies,1);assert.deepEqual(f.calls,['offer','inspect','recheck','effect']);
+  const f=await flow();assert.match(f.result.message,/완료/);assert.equal(f.applies,1);assert.deepEqual(f.calls,['offer','inspect','reading','recheck','effect']);
   assert.equal(sql(`select state from bnc_jobs where id=${q(f.j.id)};`),'succeeded');assert.equal(sql(`select count(*) from bnc_execution_evidence where job_id=${q(f.j.id)};`),'1');assert.equal(sql(`select succeeded from bnc_daily where user_id=${q(f.a.user)};`),'1');
  });
  await check('EXDB05 a lost registration permission never clicks or automatically reissues the armed job',async()=>{
@@ -96,7 +101,7 @@ try{
   const a=fixture();job(a);grant(a);const r=exec(a,'offer',offer(a));exec(a,'inspect',{id:r.id,nonce_hash:'b'.repeat(64),observation:observation(a),next_hash:'c'.repeat(64),kinds:['like']});
   sql(`select bnc_extension_permission_dispatch(${q(a.user)},'revoke',${payload({device_id:a.device})});`,'service_role');
   assert.throws(()=>exec(a,'recheck',{id:r.id,nonce_hash:'c'.repeat(64),observation:observation(a),next_hash:'d'.repeat(64),kinds:['like']}),/BNC_EXTENSION_NOT_READY/);
-  assert.equal(exec(a,'stop',{id:r.id}).phase,'done');assert.equal(sql(`select reserved from bnc_daily where user_id=${q(a.user)};`),'0');
+  assert.equal(exec(a,'stop',{id:r.id}).phase,'done');assert.equal(sql(`select coalesce(sum(reserved),0) from bnc_daily where user_id=${q(a.user)};`),'0');
  });
  await check('EXDB08 cleanup expires consent/run metadata without deleting approved jobs or enabling execution',()=>{
   const a=fixture();const j=job(a);grant(a);const r=exec(a,'offer',offer(a));
@@ -105,6 +110,15 @@ try{
   const v=JSON.parse(sql("select bnc_extension_execution_cleanup(null,'cleanup','{}');",'service_role'));assert.equal(v.expiredExtensionRecordsRemoved,2);
   assert.equal(sql(`select state from bnc_jobs where id=${q(j.id)};`),'ready');assert.equal(sql(`select count(*) from bnc_daily where user_id=${q(a.user)};`),'0');
   assert.throws(()=>sql("select bnc_extension_execution_cleanup(null,'cleanup','{}');",'authenticated'),/permission denied/);
+ });
+ await check('EXDB09 complete article metadata is mandatory and length controls server wait before any reservation',()=>{
+  const a=fixture();job(a);grant(a);const r=exec(a,'offer',offer(a));const p={id:r.id,nonce_hash:'b'.repeat(64),next_hash:'c'.repeat(64),kinds:['like'],observation:observation(a)};
+  assert.throws(()=>exec(a,'inspect',{...p,observation:{...observation(a),articleHash:null}}),/BNC_READING_REQUIRED/);
+  assert.throws(()=>exec(a,'inspect',{...p,observation:{...observation(a),articleCharacters:100001}}),/BNC_READING_REQUIRED/);
+  assert.equal(exec(a,'inspect',{...p,observation:{...observation(a),articleCharacters:10000}}).readDurationMs,100000);
+  assert.equal(sql(`select count(*) from bnc_daily where user_id=${q(a.user)};`),'0');
+  assert.throws(()=>exec(a,'recheck',{...p,nonce_hash:'c'.repeat(64)}),/BNC_STALE_RUN/);
+  assert.equal(exec(a,'stop',{id:r.id}).phase,'done');assert.equal(sql(`select count(*) from bnc_daily where user_id=${q(a.user)};`),'0');
  });
  const evidence={date:new Date().toISOString(),migration,tests,passed:tests.length,sqlCalls,isolated:true,network:'none',hostPorts:0,operatingApplied:false,actualPlatformActions:0,desktopInstaller:false,nativeMessaging:false};
  writeFileSync(new URL('../docs/evidence/web-extension-20261030.json',import.meta.url),JSON.stringify(evidence,null,2)+'\n');console.log(JSON.stringify({passed:tests.length,sqlCalls,operatingApplied:false}));

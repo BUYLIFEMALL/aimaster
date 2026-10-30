@@ -11,7 +11,8 @@ create table public.bnc_extension_runs (
  id uuid primary key,user_id uuid not null references auth.users(id) on delete cascade,
  device_id uuid not null references public.bnc_reader_devices(id) on delete cascade,
  job_id uuid not null references public.bnc_jobs(id) on delete cascade,
- phase text not null check(phase in ('inspect','recheck','effect','done')),
+ phase text not null check(phase in ('inspect','reading','recheck','effect','done')),
+ article_hash text check(article_hash is null or article_hash ~ '^[a-f0-9]{64}$'),article_characters integer check(article_characters between 1 and 100000),read_not_before timestamptz,
  generation bigint not null default 0,nonce_hash text not null check(nonce_hash ~ '^[a-f0-9]{64}$'),
  profile_hash text not null check(profile_hash ~ '^[a-f0-9]{64}$'),
  created_at timestamptz not null default clock_timestamp(),valid_until timestamptz not null,expires_at timestamptz not null
@@ -105,15 +106,24 @@ begin
   return jsonb_build_object('id',r.id,'phase','inspect','job',to_jsonb(j));
  end if;
  if r.phase='done' or r.valid_until<=t or r.nonce_hash is distinct from p_payload->>'nonce_hash' or r.profile_hash is distinct from p_payload->>'profile_hash' or r.phase<>p_operation then raise exception 'BNC_STALE_RUN';end if;
- if p_operation in ('inspect','recheck') then
+ if p_operation in ('inspect','reading','recheck') then
   v:=p_payload->'observation';obs:=(v->>'checkedAt')::timestamptz;relation:=v->>'relationship';
   if v->>'accountId' is distinct from j.account_id::text or v->>'actorId' is distinct from j.actor_id or v->>'neighborId' is distinct from j.neighbor_id or v->>'postId' is distinct from j.post_id
    or v->>'restriction' is distinct from 'none' or obs is null or obs>t+interval '1 second' or obs<=t-interval '30 seconds'
    or (j.kind='request' and coalesce(relation,'') not in ('none','removed')) or(j.kind<>'request' and relation is distinct from 'mutual')
    or (j.kind='like' and v->'liked' is distinct from 'false'::jsonb) or(j.kind in ('comment','reply') and v->'duplicate' is distinct from 'false'::jsonb)
    or(j.kind='reply' and (v->>'postOwnerId' is distinct from j.actor_id or v->>'parentAuthorId' is distinct from j.neighbor_id or v->>'parentCommentId' is distinct from j.parent_comment_id)) then raise exception 'BNC_EXTENSION_OBSERVATION';end if;
+  if j.kind<>'request' then
+   if coalesce(v->>'articleHash','') !~ '^[a-f0-9]{64}$' or coalesce(v->>'articleCharacters','') !~ '^[0-9]{1,6}$' or (v->>'articleCharacters')::integer not between 1 and 100000 then raise exception 'BNC_READING_REQUIRED';end if;
+   if p_operation='inspect' then
+    n:=greatest(30,ceil((v->>'articleCharacters')::numeric/500)::integer*5);
+    update public.bnc_extension_runs set phase='reading',article_hash=v->>'articleHash',article_characters=(v->>'articleCharacters')::integer,read_not_before=t+make_interval(secs=>n),valid_until=t+make_interval(secs=>n+30),nonce_hash=p_payload->>'next_hash' where id=r.id;
+    return jsonb_build_object('id',r.id,'phase','reading','readDurationMs',n*1000);
+   end if;
+   if r.article_hash is distinct from v->>'articleHash' or r.article_characters is distinct from (v->>'articleCharacters')::integer or r.read_not_before is null or r.read_not_before>t then raise exception 'BNC_READING_REQUIRED';end if;
+  elsif p_operation='reading' then raise exception 'BNC_INVALID_OPERATION';end if;
   perform public.bnc_dispatch(p_user_id,'observe',jsonb_build_object('id',j.id,'relationship',case relation when 'none' then 'unknown' else relation end,'liked',v->'liked'));
-  if p_operation='inspect' then
+  if p_operation in ('inspect','reading') then
    z:=public.bnc_dispatch(p_user_id,'claim',jsonb_build_object('id',j.id,'device_id',d.id));gen:=(z->>'generation')::bigint;
    update public.bnc_extension_runs set phase='recheck',generation=gen,nonce_hash=p_payload->>'next_hash',valid_until=t+interval '30 seconds' where id=r.id;
    return jsonb_build_object('id',r.id,'phase','recheck');

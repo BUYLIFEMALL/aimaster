@@ -9,7 +9,7 @@ const keys=(v:Obj,allowed:string[])=>Object.keys(v).every(k=>allowed.includes(k)
 const hash=(s:string)=>createHash('sha256').update(s).digest('hex');
 const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{'cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 function observation(v:unknown,effect=false){
- if(!object(v)||!keys(v,['accountId','actorId','neighborId','postId','checkedAt','restriction','relationship','liked','duplicate','postOwnerId','parentCommentId','parentAuthorId',...(effect?['state','effectId','bodyHash']:[])])||
+ if(!object(v)||!keys(v,['accountId','actorId','neighborId','postId','checkedAt','restriction','relationship','liked','duplicate','postOwnerId','parentCommentId','parentAuthorId','articleHash','articleCharacters',...(effect?['state','effectId','bodyHash']:[])])||
   !uuid(v.accountId)||typeof v.actorId!=='string'||typeof v.neighborId!=='string'||typeof v.postId!=='string'||!Number.isSafeInteger(v.checkedAt)||Number(v.checkedAt)<0)throw Error('input');
  return {...v,checkedAt:new Date(Number(v.checkedAt)).toISOString()};
 }
@@ -37,7 +37,7 @@ export function createExtensionExecutionHandler(d:Dependencies){return async(req
    else if(m&&!u.search)payload={id:p.request_id,target_kind:'post',owner:m[1],post_id:m[2]};
    else if(u.pathname==='/PostView.naver'&&u.searchParams.getAll('blogId').length===1&&u.searchParams.getAll('logNo').length===1)payload={id:p.request_id,target_kind:'post',owner:u.searchParams.get('blogId'),post_id:u.searchParams.get('logNo')};else throw Error('input');
    if(!/^[a-z0-9_-]{1,50}$/.test(String(payload.owner))||(payload.target_kind==='post'&&!/^\d{1,30}$/.test(String(payload.post_id))))throw Error('input');
-  }else if(['inspect','recheck','effect'].includes(op)){
+  }else if(['inspect','reading','recheck','effect'].includes(op)){
    if(!keys(p,['id','nonce',...(op==='effect'?['effect','attempted_at']:['observation'])])||!uuid(p.id)||typeof p.nonce!=='string'||!/^[a-f0-9]{64}$/.test(p.nonce))throw Error('input');
    payload={id:p.id,nonce_hash:hash(p.nonce)};
    if(op==='effect'){
@@ -49,7 +49,7 @@ export function createExtensionExecutionHandler(d:Dependencies){return async(req
   const r=await d.rpc(a.userId,a.deviceId,op,payload);
   if(r.error)return reply({error:'실행 상태가 바뀌었거나 준비되지 않았습니다. 자동으로 다시 등록하지 말고 작업 기록을 확인해 주세요.'},409);
   if(!object(r.data))throw Error('unavailable');const data={...r.data};
-  if(['inspect','recheck','apply'].includes(String(data.phase))){data.nonce=nonce;if(config)data.profile=config.profile;}
+  if(['inspect','reading','recheck','apply'].includes(String(data.phase))){data.nonce=nonce;if(config)data.profile=config.profile;}
   if(object(data.job)){
    const safe:Obj={};for(const k of ['id','user_id','account_id','actor_id','neighbor_id','post_id','kind','body','expires_at','parent_comment_id'])if(k in data.job)safe[k]=data.job[k];data.job=safe;
   }

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-30T01:04:08.670Z",
+  "date": "2026-10-30T01:32:42.981Z",
   "migration": "20261030094500_bnc_extension_context_reads.sql",
   "tests": [
     "CRDB01 read consent is separate from execution consent; no permission or missing request receipt blocks offer",

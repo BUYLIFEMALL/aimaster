@@ -2,7 +2,7 @@
 // profile is supplied by the web server, never by page messages/member forms.
 // There is deliberately no guessed default profile for live Naver markup.
 export async function operateVisibleNaverWork(command) {
- const {operation,job,permit,profile:p}=command||{};
+ const {operation,job,permit,profile:p,expectedArticle}=command||{};
  const fail=()=>{throw Error('현재 네이버 계정·화면·대상을 확인하지 못했습니다.');};
  if(!['inspect','assert','apply','verify'].includes(operation)||!p||p.v!==1||p.reviewed!==true||typeof p.reference!=='string'||!p.reference.trim()||p.reference.length>500||!p.selectors||
   !job||!['request','like','comment','reply'].includes(job.kind)||typeof job.body!=='string'||job.body.length>4000||
@@ -72,7 +72,16 @@ export async function operateVisibleNaverWork(command) {
   Date.parse(permit.validUntil)>Date.now()&&Date.parse(permit.validUntil)<=Date.now()+30000&&Date.parse(job.expires_at)>Date.now();
  let s;
  try{s=snapshot();}catch(error){if(operation==='inspect')return {unavailable:true};throw error;}
- if(operation==='inspect')return safe(s);
+ let article={};
+ try{
+  if(job.kind!=='request'&&s.restriction==='none'){
+   if(typeof p.articleCompleteText!=='string'||text(one('articleComplete'))!==p.articleCompleteText)fail();
+   const full=text(one('articleBody')),characters=[...full].length;if(characters<1||characters>100000)fail();
+   article={articleHash:await hash(full),articleCharacters:characters};
+   if(expectedArticle&&(expectedArticle.articleHash!==article.articleHash||expectedArticle.articleCharacters!==characters))fail();
+  }
+ }catch(error){if(operation==='inspect')return {unavailable:true};throw error;}
+ if(operation==='inspect')return {...safe(s),...article};
  if(operation==='assert')return usable(s)&&Date.parse(job.expires_at)>Date.now();
  if(operation==='verify'){
   // Allow a bounded UI settlement window, never another click/registration.

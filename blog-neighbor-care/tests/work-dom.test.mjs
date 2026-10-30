@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseHTML} from 'linkedom';
 import {operateVisibleNaverWork} from '../extension/work-dom.mjs';
-const profile={v:1,reviewed:true,reference:'SYNTHETIC-DOM-ONLY-NOT-LIVE-NAVER',selectors:{ownerLink:'.account-owner',captcha:'.captcha',login:'.login-required',platformRestriction:'.restricted',relationship:'.relation',
+const profile={v:1,reviewed:true,reference:'SYNTHETIC-DOM-ONLY-NOT-LIVE-NAVER',articleCompleteText:'전문 표시',selectors:{articleBody:'.article',articleComplete:'.article-complete',ownerLink:'.account-owner',captcha:'.captcha',login:'.login-required',platformRestriction:'.restricted',relationship:'.relation',
  likeControl:'.like',commentList:'.comments',commentsComplete:'.complete',commentRow:'.comment',commentAuthor:':scope > .author',commentText:':scope > .text',commentInput:'textarea',commentSubmit:'.submit',requestText:'.request-text',requestSubmit:'.request-submit',requestMutual:'.mutual-mode'},
  relationshipMap:{'서로이웃':'mutual','이웃추가':'none','신청중':'pending'},completeText:'전체 표시 확인',commentIdAttribute:'data-comment-id',parentIdAttribute:'data-parent-id',submitText:{request:'신청',comment:'등록',reply:'등록'}};
 const job={id:'fixture',account_id:'fixture-account',actor_id:'own-blog',neighbor_id:'neighbor',post_id:'123',kind:'comment',body:'fixture sentence',expires_at:new Date(Date.now()+60000).toISOString()};
 async function fixture(kind,fn){
- const {window,document}=parseHTML('<html><body><a class="account-owner" href="https://blog.naver.com/own-blog">내블로그</a><span class="relation">서로이웃</span><button class="like" aria-pressed="false">공감</button><span class="complete">전체 표시 확인</span><div class="comments"><div class="comment" data-comment-id="parent-1"><a class="author" href="https://blog.naver.com/neighbor">이웃</a><span class="text">original comment</span><textarea></textarea><button class="submit">등록</button></div></div><textarea></textarea><button class="submit">등록</button><textarea class="request-text"></textarea><button class="request-submit">신청</button></body></html>');
+ const {window,document}=parseHTML('<html><body><main class="article">본문 전체를 확인하는 합성 자료입니다.</main><span class="article-complete">전문 표시</span><a class="account-owner" href="https://blog.naver.com/own-blog">내블로그</a><span class="relation">서로이웃</span><button class="like" aria-pressed="false">공감</button><span class="complete">전체 표시 확인</span><div class="comments"><div class="comment" data-comment-id="parent-1"><a class="author" href="https://blog.naver.com/neighbor">이웃</a><span class="text">original comment</span><textarea></textarea><button class="submit">등록</button></div></div><textarea></textarea><button class="submit">등록</button><textarea class="request-text"></textarea><button class="request-submit">신청</button></body></html>');
  Object.defineProperty(document,'visibilityState',{value:'visible',configurable:true});window.HTMLElement.prototype.getClientRects=()=>[{}];
  const globals={document,location:new URL(`https://blog.naver.com/${kind==='reply'?'own-blog':'neighbor'}/123`),HTMLTextAreaElement:window.HTMLTextAreaElement,HTMLInputElement:window.HTMLInputElement,Event:window.Event},old=new Map();
  for(const [k,v]of Object.entries(globals)){old.set(k,Object.getOwnPropertyDescriptor(globalThis,k));Object.defineProperty(globalThis,k,{value:v,configurable:true,writable:true});}
@@ -53,4 +53,9 @@ test('WD07 top-level comment is verified by exact author, text and effect id',()
 }));
 test('WD08 unsupported frames return no evidence so all-frame inspection can select a single valid frame',()=>fixture('like',async({call})=>{
  globalThis.location=new URL('https://blog.naver.com/neighbor');assert.deepEqual(await call('inspect'),{unavailable:true});await assert.rejects(call('apply'));
+}));
+
+test('WD09 article metadata never returns body; missing completeness or changed content blocks registration',()=>fixture('like',async({document,call})=>{
+ const first=await call('inspect');assert.match(first.articleHash,/^[a-f0-9]{64}$/);assert.equal(first.articleCharacters,[...document.querySelector('.article').textContent].length);assert.equal(Object.hasOwn(first,'body'),false);
+ const expectedArticle={articleHash:first.articleHash,articleCharacters:first.articleCharacters};document.querySelector('.article').textContent+=' 바뀐 내용';await assert.rejects(call('apply',{expectedArticle}));document.querySelector('.article-complete').remove();assert.equal((await call('inspect')).unavailable,true);
 }));

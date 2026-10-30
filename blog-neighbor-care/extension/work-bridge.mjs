@@ -1,5 +1,5 @@
 import {operateVisibleNaverWork} from './work-dom.mjs';
-export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused=async()=>false){
+export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused=async()=>false,readingClock={now:()=>performance.now(),sleep:ms=>new Promise(resolve=>setTimeout(resolve,ms))}){
  let busy=false,epoch=0,active=null,last='연결 전 · 웹에서 확장 실행 허용 필요';
  const emit=message=>{last=message;try{void Promise.resolve(browser.runtime?.sendMessage?.({type:'work_progress',message,deviceId:active?.deviceId})).catch(()=>{});}catch{}};
  const state=()=>({connected:busy&&!!active,message:last});
@@ -23,20 +23,24 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
   return state();
  }
  async function start(){
-  if(busy)throw Error('이미 현재 탭 작업을 처리하고 있습니다.');busy=true;const version=epoch;
+  if(busy)throw Error('이미 현재 탭 작업을 처리하고 있습니다.');busy=true;const version=epoch;let detach=()=>{};
   try{
    const binding=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});
    if(tabs.length!==1||!Number.isInteger(tabs[0].id))throw Error('네이버 글 또는 준비된 신청 화면을 열어 주세요.');const target={id:tabs[0].id,windowId:tabs[0].windowId,url:tabs[0].url};
+   const changedTab=info=>{if(info.windowId===target.windowId&&info.tabId!==target.id)epoch++;};
+   const changedUrl=(id,change)=>{if(id===target.id&&change.url&&change.url!==target.url)epoch++;};
+   browser.tabs.onActivated?.addListener(changedTab);browser.tabs.onUpdated?.addListener(changedUrl);
+   detach=()=>{browser.tabs.onActivated?.removeListener(changedTab);browser.tabs.onUpdated?.removeListener(changedUrl);};
    await current(binding,target,version);
    let r=await post('offer',{request_id:crypto.randomUUID(),url:target.url});
    if(r.phase==='idle'){last='현재 화면에 검토 완료된 실행 대상이 없습니다.';return state();}
    if(r.phase!=='inspect'||!r.job||typeof r.nonce!=='string'||!r.profile||r.job.actor_id!==binding.blogId)throw Error('실행 준비 결과를 확인하지 못했습니다.');
    active={id:r.id,deviceId:binding.deviceId};await browser.storage.session.set({workRun:active});
    emit('진행 중 · 웹에서 승인된 작업을 받아 현재 계정·대상을 확인합니다.');
-   const job=r.job,profile=r.profile;let frame;
+   const job=r.job,profile=r.profile;let frame,expectedArticle;
    const script=async(operation,permit)=>{
     await current(binding,target,version);
-    const results=await browser.scripting.executeScript({target:operation==='inspect'?{tabId:target.id,allFrames:true}:{tabId:target.id,frameIds:[frame]},world:'ISOLATED',func:operateVisibleNaverWork,args:[{operation,job,profile,permit}]});
+    const results=await browser.scripting.executeScript({target:operation==='inspect'?{tabId:target.id,allFrames:true}:{tabId:target.id,frameIds:[frame]},world:'ISOLATED',func:operateVisibleNaverWork,args:[{operation,job,profile,permit,expectedArticle}]});
     await current(binding,target,version);
     if(operation==='inspect'){
      const matches=results.filter(x=>x.result?.accountId===job.account_id&&x.result?.actorId===job.actor_id&&x.result?.neighborId===job.neighbor_id&&x.result?.postId===job.post_id);
@@ -44,8 +48,24 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
     }
     if(results.length!==1||results[0].frameId!==frame||results[0].error)throw Error('화면 결과 미확인');return results[0].result;
    };
-   let v=await script('inspect');emit('진행 중 · 계정·대상 확인 후 실행 한도를 확인합니다.');
-   r=await post('inspect',{id:active.id,nonce:r.nonce,observation:v});if(r.phase!=='recheck'||typeof r.nonce!=='string')throw Error('실행 준비 미확인');
+   let v=await script('inspect');if(job.kind!=='request'){
+    if(typeof v.articleHash!=='string'||!(/^[a-f0-9]{64}$/.test(v.articleHash))||!Number.isSafeInteger(v.articleCharacters)||v.articleCharacters<1||v.articleCharacters>100000)throw Error('본문 전체를 확인하지 못했습니다.');
+    expectedArticle={articleHash:v.articleHash,articleCharacters:v.articleCharacters};
+   }emit('진행 중 · 계정·대상 확인 후 실행 한도를 확인합니다.');
+   r=await post('inspect',{id:active.id,nonce:r.nonce,observation:v});
+   if(job.kind!=='request'){
+    const duration=r.readDurationMs;
+    if(r.phase!=='reading'||typeof r.nonce!=='string'||!Number.isSafeInteger(duration)||duration!==Math.max(30000,Math.ceil(expectedArticle.articleCharacters/500)*5000))throw Error('정독 대기 조건을 확인하지 못했습니다.');
+    const started=readingClock.now();let lastElapsed=0;
+    while(lastElapsed<duration){
+     emit(`정독 대기 중 · ${Math.ceil((duration-lastElapsed)/1000)}초 남음 · 같은 글과 Edge 탭을 유지하세요.`);
+     await readingClock.sleep(Math.min(1000,duration-lastElapsed));await current(binding,target,version);v=await script('inspect');
+     if(v.articleHash!==expectedArticle.articleHash||v.articleCharacters!==expectedArticle.articleCharacters||v.restriction!=='none')throw Error('정독 중 본문·계정·화면이 변경됐습니다.');
+     const elapsed=readingClock.now()-started;if(!Number.isFinite(elapsed)||elapsed<lastElapsed||elapsed>duration+30000)throw Error('정독 시간을 확인하지 못했습니다.');lastElapsed=elapsed;
+    }
+    r=await post('reading',{id:active.id,nonce:r.nonce,observation:v});
+   }
+   if(r.phase!=='recheck'||typeof r.nonce!=='string')throw Error('실행 준비 미확인');
    v=await script('inspect');r=await post('recheck',{id:active.id,nonce:r.nonce,observation:v});
    emit('진행 중 · 등록 허가와 현재 화면을 마지막으로 확인합니다.');
    if(r.phase!=='apply'||typeof r.nonce!=='string'||r.permit?.deviceId!==binding.deviceId||!Number.isSafeInteger(r.permit.generation)||Date.parse(r.permit.validUntil)<=now())throw Error('등록 허가 미확인');
@@ -62,7 +82,7 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
    await browser.storage.session.remove('workRun');active=null;last='완료 · 확장 확인 결과를 웹 작업 기록에 저장했습니다.';
    return state();
   }catch(e){await stop();last=`${e?.message||'결과 미확인'} 자동으로 다시 등록하지 않습니다. 웹 작업 기록을 확인하세요.`;throw Error(last);}
-  finally{busy=false;}
+  finally{detach();busy=false;}
  }
  return {start,stop,status};
 }

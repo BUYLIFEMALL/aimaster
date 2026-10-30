@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-29T15:19:00.331Z",
+  "date": "2026-10-30T01:32:03.300Z",
   "migration": "20261030001500_bnc_extension_execution.sql",
   "tests": [
     "EXDB01 existing read-only device cannot offer an approved job without separate web consent",
@@ -9,21 +9,16 @@
     "EXDB05 a lost registration permission never clicks or automatically reissues the armed job",
     "EXDB06 lost final response preserves committed success and does not repeat the click",
     "EXDB07 revoking device execution consent blocks the next stage; stopping unarmed work releases its reservation",
-    "EXDB08 cleanup expires consent/run metadata without deleting approved jobs or enabling execution"
+    "EXDB08 cleanup expires consent/run metadata without deleting approved jobs or enabling execution",
+    "EXDB09 complete article metadata is mandatory and length controls server wait before any reservation"
   ],
-  "passed": 8,
-  "sqlCalls": 115,
+  "passed": 9,
+  "sqlCalls": 140,
   "isolated": true,
   "network": "none",
   "hostPorts": 0,
   "operatingApplied": false,
   "actualPlatformActions": 0,
   "desktopInstaller": false,
-  "nativeMessaging": false,
-  "unitTestsPassed": 259,
-  "typecheck": "passed",
-  "cleanupDatabaseTests": 11,
-  "unitScope": "web API authorization, consent, active tab/popup, stage/nonce/profile ownership, DOM fixtures; actual Naver not tested",
-  "nativeSourceRemoved": true,
-  "profileLiveVerified": false
+  "nativeMessaging": false
 }
