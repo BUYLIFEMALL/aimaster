@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ⚠ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` 첫 「저장만」 시험
+- 주인님 승인 1건 실행: 쿠팡 응답 성공(상품번호 16433502859, 바코드 없음+품번 수락). 그러나 조회 상태가 승인 요청 없이 「승인반려」이고 사유가 앱에 안 나옴. 코드 변경 없음.
+- 다음 첫 단계: 주인님이 WING에서 사유 확인 → 사유에 맞춰 수정. 고칠 후보 3건은 `coupang-ops/AGENTS.md` 2026-10-31. https://coupang-ops.buylife.xyz/products
+
 ## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` 공개 전환·v1.02
 - 주인님 결정으로 예외 코드 없이 기본 정책 적용: `is_active` true(VIP 자동 부여 145명도 사용 가능), 시험 계정 14일 권한(11-14까지). 다른 쿠팡 계정 키는 시험 계정에 주인님이 등록, 연결 시험·상품 목록 조회 성공.
 - v1.02 배포: 바코드·품번 칸, 브랜드 GENERIC(빌드 1회). 시험 43개·tsc·빌드 통과, 크롬 검사 동작 확인. 쿠팡 쓰기 실제 시험 0회.
