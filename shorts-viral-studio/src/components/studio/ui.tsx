@@ -8,6 +8,7 @@ import {
   DEFAULT_AI_MODELS,
   PROVIDER_ICONS,
   PROVIDER_SHORT_LABELS,
+  type AIModelProvider,
 } from "@/lib/ai/models";
 import { useStudio } from "@/components/studio/StudioProvider";
 
@@ -23,19 +24,19 @@ export function StepHeader({
   return (
     <div className="mb-6">
       <div className="flex items-center gap-3">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-600 text-sm font-bold text-white shadow-sm shadow-rose-900/40">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-sm font-black text-white shadow-md shadow-red-500/30">
           {step}
         </span>
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#f0f6fc]">{title}</h1>
+        <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900">{title}</h1>
       </div>
-      <p className="mt-2 text-sm text-[#8b949e]">{desc}</p>
+      <p className="mt-2 text-sm font-medium text-slate-500">{desc}</p>
     </div>
   );
 }
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-[#30363d] bg-[#161b22] p-5 shadow-sm md:p-6 text-[#c9d1d9] ${className}`}>
+    <div className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6 text-slate-800 ${className}`}>
       {children}
     </div>
   );
@@ -59,7 +60,7 @@ export function PrimaryButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-rose-700 active:bg-rose-800 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm shadow-rose-950/50 ${className}`}
+      className={`btn-3d-yt-red px-5 py-2.5 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
     >
       {children}
     </button>
@@ -82,7 +83,7 @@ export function GhostButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-xl border border-[#30363d] bg-[#21262d] px-4 py-2.5 text-sm font-semibold text-[#c9d1d9] transition-colors hover:bg-[#30363d] hover:text-[#f0f6fc] active:bg-[#373e47] disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
+      className={`btn-3d-slate px-4 py-2.5 text-sm font-bold text-slate-700 transition-all disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
     >
       {children}
     </button>
@@ -93,10 +94,10 @@ export function LoadingCard({ title, desc }: { title: string; desc: string }) {
   return (
     <Card>
       <div className="flex items-center gap-3">
-        <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#30363d] border-t-rose-500" />
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-red-600" />
         <div>
-          <div className="text-sm font-bold text-[#f0f6fc]">{title}</div>
-          <div className="mt-0.5 text-xs text-[#8b949e]">{desc}</div>
+          <div className="text-sm font-bold text-slate-900">{title}</div>
+          <div className="mt-0.5 text-xs text-slate-500">{desc}</div>
         </div>
       </div>
     </Card>
@@ -106,116 +107,215 @@ export function LoadingCard({ title, desc }: { title: string; desc: string }) {
 export function ErrorBanner({ message }: { message: string | null }) {
   if (!message) return null;
   return (
-    <div className="rounded-xl border border-rose-900/60 bg-rose-950/40 p-3 text-sm font-medium text-rose-300">
+    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
       {message}
     </div>
   );
 }
 
-export function NeedPrevious({ message, href, label }: { message: string; href: string; label: string }) {
+export function SuccessBanner({ message }: { message: string | null }) {
+  if (!message) return null;
   return (
-    <Card>
-      <p className="text-sm text-[#8b949e]">{message}</p>
-      <Link
-        href={href}
-        className="mt-3 inline-block rounded-xl border border-[#30363d] bg-[#21262d] px-4 py-2 text-sm font-bold text-[#f0f6fc] hover:bg-[#30363d]"
-      >
-        {label}
-      </Link>
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
+      {message}
+    </div>
+  );
+}
+
+export function EmptyState({
+  icon = "🔎",
+  title,
+  desc,
+  action,
+}: {
+  icon?: string;
+  title: string;
+  desc: string;
+  action?: ReactNode;
+}) {
+  return (
+    <Card className="text-center py-10">
+      <div className="text-4xl">{icon}</div>
+      <div className="mt-3 text-base font-bold text-slate-900">{title}</div>
+      <div className="mt-1 text-sm text-slate-500">{desc}</div>
+      {action && <div className="mt-4">{action}</div>}
     </Card>
   );
 }
 
-/** AI 엔진·모델 선택 (GPT / Claude / Gemini) */
-export function ModelPicker({ hint }: { hint?: string }) {
-  const { model, setModel } = useStudio();
-  const options = AI_MODEL_OPTIONS.filter((m) => m.provider === model.provider);
-
+export function Badge({
+  variant = "default",
+  children,
+}: {
+  variant?: "default" | "success" | "warning" | "danger" | "brand";
+  children: ReactNode;
+}) {
+  const styles: Record<string, string> = {
+    default: "bg-slate-100 text-slate-700 border-slate-200",
+    success: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    warning: "bg-amber-50 text-amber-700 border-amber-200",
+    danger: "bg-red-50 text-red-700 border-red-200",
+    brand: "bg-red-50 text-red-600 border-red-200 font-black",
+  };
   return (
-    <Card className="bg-[#161b22] border-[#30363d]">
-      <div className="mb-2 text-xs font-bold text-[#c9d1d9]">
-        🤖 AI 엔진 · {AI_MODEL_OPTIONS.find((m) => m.value === model.model)?.shortLabel ?? model.model}
-      </div>
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="flex gap-1.5">
-          {AI_PROVIDERS.map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setModel({ provider: p, model: DEFAULT_AI_MODELS[p] })}
-              className={`rounded-lg px-3 py-2 text-xs font-bold transition-colors ${
-                model.provider === p
-                  ? "bg-rose-600 text-white shadow-sm shadow-rose-900/40"
-                  : "border border-[#30363d] bg-[#21262d] text-[#8b949e] hover:bg-[#30363d] hover:text-[#f0f6fc]"
-              }`}
-            >
-              {PROVIDER_ICONS[p]} {PROVIDER_SHORT_LABELS[p]}
-            </button>
-          ))}
-        </div>
-        <select
-          value={model.model}
-          onChange={(e) => setModel({ provider: model.provider, model: e.target.value })}
-          className="min-w-0 flex-1 rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-xs text-[#f0f6fc] focus:border-rose-500 focus:outline-none"
-        >
-          {options.map((m) => (
-            <option key={m.value} value={m.value} className="bg-[#161b22] text-[#f0f6fc]">
-              {m.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      {hint && <p className="mt-2 text-[11px] leading-relaxed text-[#8b949e]">{hint}</p>}
-    </Card>
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+        styles[variant] ?? styles.default
+      }`}
+    >
+      {children}
+    </span>
   );
 }
 
 export function SaveStatus() {
   const { saveState, saveError } = useStudio();
-  if (saveState === "idle") return null;
-  if (saveState === "saving") return <span className="text-xs text-[#8b949e]">저장 중…</span>;
-  if (saveState === "saved") return <span className="text-xs text-emerald-400 font-semibold">✓ 프로젝트에 저장됨</span>;
-  return <span className="text-xs text-rose-400 font-semibold">저장 실패: {saveError}</span>;
+  if (saveState === "saving") {
+    return <span className="text-xs font-bold text-red-600">저장 중…</span>;
+  }
+  if (saveState === "error") {
+    return <span className="text-xs font-bold text-red-600" title={saveError ?? ""}>저장 실패</span>;
+  }
+  if (saveState === "saved") {
+    return <span className="text-xs font-medium text-slate-400">저장됨</span>;
+  }
+  return null;
 }
 
-export function copyToClipboard(text: string): Promise<void> {
-  return navigator.clipboard.writeText(text);
-}
-
-/** 프롬프트 박스 + 복사 버튼 (프롬프트 화면·보관함 공통) */
-export function CopyBox({ label, text, tone }: { label: string; text: string; tone: "dark" | "green" | "rose" }) {
-  const [copied, setCopied] = useState(false);
-  const badge =
-    tone === "dark"
-      ? "bg-[#21262d] text-[#f0f6fc] border border-[#30363d]"
-      : tone === "green"
-      ? "bg-emerald-600 text-white"
-      : "bg-rose-600 text-white";
+export function NeedPrevious({
+  message,
+  href,
+  label,
+}: {
+  message: string;
+  href: string;
+  label: string;
+}) {
   return (
-    <div>
-      <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className={`rounded px-2 py-0.5 text-[11px] font-extrabold ${badge}`}>{label}</span>
-        <button
-          type="button"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(text);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 1500);
-            } catch {
-              // 클립보드 권한이 없으면 직접 선택해서 복사하도록 둡니다.
-            }
-          }}
-          className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-            copied ? "border-emerald-500 text-emerald-400 bg-emerald-950/30" : "border-[#30363d] bg-[#21262d] text-[#8b949e] hover:bg-[#30363d] hover:text-[#f0f6fc]"
-          }`}
-        >
-          {copied ? "복사됨!" : "복사"}
-        </button>
+    <Card className="text-center py-8">
+      <p className="text-sm text-slate-600 font-medium">{message}</p>
+      <div className="mt-4">
+        <Link href={href} className="btn-3d-yt-red px-4 py-2 text-xs font-bold text-white">
+          {label}
+        </Link>
       </div>
-      <div className="whitespace-pre-wrap break-words rounded-lg border border-[#30363d] bg-[#0d1117] p-3 font-mono text-xs leading-relaxed text-[#c9d1d9]">
+    </Card>
+  );
+}
+
+export function CopyBox({
+  text,
+  label,
+  tone,
+}: {
+  text: string;
+  label?: string;
+  tone?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  }
+
+  return (
+    <div className="relative rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-2xs">
+      <div className="flex items-center justify-between mb-1">
+        {label && <div className="text-[11px] font-bold text-slate-500">{label}</div>}
+        {tone && <div className="text-[10px] font-semibold text-slate-400">{tone}</div>}
+      </div>
+      <div className="text-xs text-slate-800 leading-relaxed font-mono whitespace-pre-wrap break-all pr-14">
         {text}
       </div>
+      <button
+        type="button"
+        onClick={handleCopy}
+        className="absolute top-2.5 right-2.5 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-600 hover:bg-slate-100 shadow-2xs"
+      >
+        {copied ? "✓ 복사됨" : "복사"}
+      </button>
     </div>
   );
+}
+
+export function ModelPicker({ hint }: { hint?: string }) {
+  const { model, setModel } = useStudio();
+  const [open, setOpen] = useState(false);
+
+  const currentProvider = model.provider as AIModelProvider;
+  const filteredModels = AI_MODEL_OPTIONS.filter((m) => m.provider === currentProvider);
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+          <span className="text-sm">{PROVIDER_ICONS[currentProvider]}</span>
+          <span>분석 엔진:</span>
+          <span className="rounded-md bg-white border border-slate-200 px-2 py-0.5 font-black text-red-600 shadow-xs">
+            {PROVIDER_SHORT_LABELS[currentProvider]} · {model.model}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="text-xs font-bold text-slate-500 hover:text-red-600"
+        >
+          {open ? "닫기 ▲" : "엔진 변경 ▼"}
+        </button>
+      </div>
+
+      {hint && !open && (
+        <p className="mt-2 text-[11px] text-slate-500 font-medium leading-relaxed">{hint}</p>
+      )}
+
+      {open && (
+        <div className="mt-3 space-y-2.5 border-t border-slate-200 pt-3">
+          <div className="grid grid-cols-3 gap-2">
+            {AI_PROVIDERS.map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setModel({ provider: p, model: DEFAULT_AI_MODELS[p] })}
+                className={`rounded-xl border px-3 py-2 text-xs font-bold transition-all ${
+                  currentProvider === p
+                    ? "border-red-500 bg-white text-red-600 shadow-sm ring-1 ring-red-500"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                <div>{PROVIDER_ICONS[p]}</div>
+                <div className="mt-1">{PROVIDER_SHORT_LABELS[p]}</div>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {filteredModels.map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => setModel({ provider: currentProvider, model: m.value })}
+                className={`rounded-md border px-2.5 py-1 text-[11px] font-semibold transition-all ${
+                  model.model === m.value
+                    ? "border-red-400 bg-red-50 text-red-700 font-bold"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {m.shortLabel || m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function EngineSelector() {
+  return <ModelPicker />;
 }

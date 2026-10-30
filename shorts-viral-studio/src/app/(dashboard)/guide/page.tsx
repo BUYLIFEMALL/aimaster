@@ -28,6 +28,10 @@ const FAQS: FaqItem[] = [
     a: "쇼츠는 시청자가 1~2초만 지루해도 바로 스와이프해 버립니다. 씬 하나당 나레이션이 2문장 이상 길어지면 템포가 늘어지고 이탈률이 급증합니다. 본 시스템은 씬당 1문장 호흡을 코드로 검증 및 자동 압축하여 시청 지속 시간(Retention)을 극대화합니다.",
   },
   {
+    q: "대본을 완성한 후 영상은 어떻게 만드나요?",
+    a: "완성된 대본은 버튼 하나로 **shorts-onestop-studio (AI 쇼츠 원스톱 제작 스튜디오)**로 바로 전송됩니다! 씬별 자막, 음성 합성(TTS), 배경 음악, 세로형 씬 렌더링까지 원스톱으로 이어져 10분 만에 최종 MP4 영상이 완성됩니다.",
+  },
+  {
     q: "생성된 프로젝트와 데이터는 어디에 보관되나요?",
     a: "모든 프로젝트 데이터는 사용자 본인의 계정 고유 저장소에 안전하게 암호화되어 저장됩니다. 유튜브 개발자 정책 및 데이터 프라이버시 원칙에 따라 생성일 기준 30일 동안 보관되며 이후 자동 삭제됩니다. 필요하신 결과물은 [대본 복사] 또는 [.md 파일 내보내기]로 언제든 영구 보관하실 수 있습니다.",
   },
@@ -39,30 +43,29 @@ export default function GuidePage() {
   return (
     <div className="space-y-8 pb-12">
       {/* 1. 히어로 배너 */}
-      <div className="relative overflow-hidden rounded-3xl border border-[#30363d] bg-gradient-to-br from-[#161b22] via-[#1c2128] to-[#0d1117] p-6 md:p-8 shadow-xl">
-        <div className="absolute -right-8 -top-8 h-48 w-48 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl border border-red-200 bg-gradient-to-br from-red-50 via-white to-rose-50 p-6 md:p-8 shadow-sm">
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/15 px-3 py-1 text-xs font-bold text-rose-300">
-                <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white px-3 py-1 text-xs font-black text-red-600 shadow-xs">
+                <span className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />
                 공식 매뉴얼 {APP_VERSION}
               </span>
-              <span className="rounded-full border border-[#30363d] bg-[#21262d] px-2.5 py-0.5 text-xs font-medium text-[#8b949e]">
-                플로우 위저드 템플릿
+              <span className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-600">
+                24. 유튜브 쇼츠 크리에이터 레드 & 화이트 스튜디오 스타일
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#f0f6fc]">
-              쇼츠 떡상 분석·대본 자동화 완벽 가이드 🎬
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">
+              쇼츠 떡상 분석 및 대본 자동화 완벽 가이드북 🎬
             </h1>
-            <p className="text-sm md:text-base leading-relaxed text-[#8b949e]">
+            <p className="text-sm md:text-base leading-relaxed text-slate-600 font-medium">
               알고리즘의 선택을 받는 떡상 쇼츠를 데이터로 해체하고, 검증된 성공 공식을 내 채널 맞춤 소재·대본·멀티모달 프롬프트로 10분 만에 재탄생시킵니다.
             </p>
           </div>
           <div className="flex shrink-0 gap-3">
             <Link
               href="/search"
-              className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-rose-950/60 transition-all hover:bg-rose-700 active:scale-95"
+              className="btn-3d-yt-red px-5 py-3 text-sm font-bold text-white shadow-md"
             >
               <span>🚀 떡상 쇼츠 검색 시작</span>
             </Link>
@@ -72,12 +75,12 @@ export default function GuidePage() {
 
       {/* 2. 6단계 올인원 제작 파이프라인 */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
           <div>
-            <h2 className="text-lg md:text-xl font-bold tracking-tight text-[#f0f6fc]">
+            <h2 className="text-lg md:text-xl font-black tracking-tight text-slate-900">
               🔥 6단계 올인원 떡상 제작 파이프라인
             </h2>
-            <p className="text-xs md:text-sm text-[#8b949e]">
+            <p className="text-xs md:text-sm text-slate-500 font-medium">
               검색부터 영상·BGM 생성 프롬프트 조립까지 원스톱 흐름으로 완성됩니다.
             </p>
           </div>
@@ -85,242 +88,212 @@ export default function GuidePage() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* STEP 1 */}
-          <Card className="flex flex-col justify-between hover:border-rose-500/40 transition-colors">
+          <Card className="flex flex-col justify-between hover:border-red-300 transition-all shadow-2xs">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600 text-xs font-bold text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">
                   01
                 </span>
                 <span className="text-xl">🔎</span>
               </div>
-              <h3 className="text-base font-bold text-[#f0f6fc] mb-1.5">쇼츠 떡상 검색</h3>
-              <p className="text-xs text-[#8b949e] leading-relaxed">
+              <h3 className="text-base font-black text-slate-900 mb-1.5">쇼츠 떡상 검색</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
                 키워드나 벤치마킹 채널을 입력하여 조회수÷구독자 비율 3배~10배 이상의 실제 떡상 쇼츠 영상을 선별합니다.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#30363d] text-[11px] text-rose-400 font-medium">
-              💡 최대 3개 영상 동시 비교 분석 지원
+            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
+              핵심: V/S Ratio 10배 이상 초대박 발굴
             </div>
           </Card>
 
           {/* STEP 2 */}
-          <Card className="flex flex-col justify-between hover:border-rose-500/40 transition-colors">
+          <Card className="flex flex-col justify-between hover:border-red-300 transition-all shadow-2xs">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600 text-xs font-bold text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">
                   02
                 </span>
                 <span className="text-xl">🧬</span>
               </div>
-              <h3 className="text-base font-bold text-[#f0f6fc] mb-1.5">11대 바이럴 메커니즘 분석</h3>
-              <p className="text-xs text-[#8b949e] leading-relaxed">
-                Gemini 비디오 직접 분석을 통해 3초 훅, 컷 전환 주기, 카메라 무빙, 시각 무드, 댓글 반응을 심층 해체합니다.
+              <h3 className="text-base font-black text-slate-900 mb-1.5">바이럴 메커니즘 분석</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Gemini 영상 직접 분석(컷 전환·소리·자막)으로 시청자 뇌리에 박힌 11대 성공 공식을 정밀 해체합니다.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#30363d] text-[11px] text-emerald-400 font-medium">
-              ⚡ Gemini 비디오 직접 시청 분석 지원
+            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
+              핵심: 첫 3초 시선 락인 & 호기심 갭
             </div>
           </Card>
 
           {/* STEP 3 */}
-          <Card className="flex flex-col justify-between hover:border-rose-500/40 transition-colors">
+          <Card className="flex flex-col justify-between hover:border-red-300 transition-all shadow-2xs">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600 text-xs font-bold text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">
                   03
                 </span>
                 <span className="text-xl">💡</span>
               </div>
-              <h3 className="text-base font-bold text-[#f0f6fc] mb-1.5">맞춤 소재 6종 AI 발굴</h3>
-              <p className="text-xs text-[#8b949e] leading-relaxed">
-                터진 영상의 후킹 공식을 바탕으로 내 채널과 타겟 시청자층이 열광할 새로운 떡상 소재 6가지를 즉시 제안받습니다.
+              <h3 className="text-base font-black text-slate-900 mb-1.5">소재 6종 발굴</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                검증된 Content DNA를 이식하여 잠재 점수와 예상 완청률이 높은 6가지 신규 기획 아이디어를 제안합니다.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#30363d] text-[11px] text-amber-400 font-medium">
-              🎯 훅 포인트 & 바이럴 타겟 자동 설계
+            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
+              핵심: 1초 킬러 훅 & 완청 전략
             </div>
           </Card>
 
           {/* STEP 4 */}
-          <Card className="flex flex-col justify-between hover:border-rose-500/40 transition-colors">
+          <Card className="flex flex-col justify-between hover:border-red-300 transition-all shadow-2xs">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600 text-xs font-bold text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">
                   04
                 </span>
                 <span className="text-xl">🎯</span>
               </div>
-              <h3 className="text-base font-bold text-[#f0f6fc] mb-1.5">전략 확인 & 주제 확정</h3>
-              <p className="text-xs text-[#8b949e] leading-relaxed">
-                선택한 소재의 벤치마킹 타겟과 성공 전략을 점검하고, 사용자 맞춤 요구사항을 추가하여 제작 방향을 확정합니다.
+              <h3 className="text-base font-black text-slate-900 mb-1.5">주제 확정 & 피드백</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                채택한 소재의 전개 로드맵을 확인하고, 내 채널의 타깃 시청자와 톤앤매너 피드백을 반영해 기획을 고도화합니다.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#30363d] text-[11px] text-indigo-400 font-medium">
-              ✍️ 사용자 자유 프롬프트 피드백 결합
+            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
+              핵심: 맞춤 스토리라인 로드맵 수립
             </div>
           </Card>
 
           {/* STEP 5 */}
-          <Card className="flex flex-col justify-between hover:border-rose-500/40 transition-colors">
+          <Card className="flex flex-col justify-between hover:border-red-300 transition-all shadow-2xs">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600 text-xs font-bold text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">
                   05
                 </span>
                 <span className="text-xl">📝</span>
               </div>
-              <h3 className="text-base font-bold text-[#f0f6fc] mb-1.5">씬별 1문장 대본 자동화</h3>
-              <p className="text-xs text-[#8b949e] leading-relaxed">
-                시청 지속 시간을 극대화하는 씬별 1문장 나레이션과 화면 연출 지시문(효과음, 텍스트 자막, 앵글)을 완성합니다.
+              <h3 className="text-base font-black text-slate-900 mb-1.5">씬별 1문장 대본 생성</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                씬마다 단 1개의 명확한 나레이션 문장으로 시청 지속 시간을 끌어올리며, 연출 지시문·자막·효과음을 함께 작성합니다.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#30363d] text-[11px] text-rose-400 font-medium">
-              ⏱️ 30초~60초 최적 호흡 코드 보정
+            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
+              핵심: 씬당 1문장 원칙 & 무한루프 엔딩
             </div>
           </Card>
 
           {/* STEP 6 */}
-          <Card className="flex flex-col justify-between hover:border-rose-500/40 transition-colors">
+          <Card className="flex flex-col justify-between hover:border-red-300 transition-all shadow-2xs">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600 text-xs font-bold text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">
                   06
                 </span>
                 <span className="text-xl">🎨</span>
               </div>
-              <h3 className="text-base font-bold text-[#f0f6fc] mb-1.5">멀티모달 생성 프롬프트</h3>
-              <p className="text-xs text-[#8b949e] leading-relaxed">
-                Midjourney / DALL-E 이미지 프롬프트, Runway / Kling 비디오 무빙 프롬프트, Suno BGM 무드 프롬프트를 원클릭 복사합니다.
+              <h3 className="text-base font-black text-slate-900 mb-1.5">올인원 프롬프트 조립</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Midjourney 이미지 생성, Runway 비디오 모션, Suno BGM 생성 프롬프트를 씬별로 완벽 조립해 보관함에 저장합니다.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#30363d] text-[11px] text-cyan-400 font-medium">
-              📁 프롬프트 보관함 영구 저장 연동
+            <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
+              핵심: 멀티모달 AI 제작 프롬프트 완성
             </div>
           </Card>
         </div>
       </div>
 
-      {/* 3. API 키 연동 안내 */}
-      <Card className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🔑</span>
-          <h2 className="text-base md:text-lg font-bold text-[#f0f6fc]">
-            필수 API 키 등록 및 준비 안내
-          </h2>
-        </div>
-        <p className="text-xs md:text-sm text-[#8b949e]">
-          본 프로그램은 회원의 개인정보 보호와 독립적인 할당량 확보를 위해 **회원 본인의 API 키**를 직접 등록하여 사용합니다.
-        </p>
-
-        <div className="grid gap-4 md:grid-cols-2 pt-2">
-          <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="font-bold text-sm text-[#f0f6fc]">1. YouTube Data API v3 (필수)</div>
-              <span className="rounded bg-rose-500/20 text-rose-300 px-2 py-0.5 text-[11px] font-bold">검색 필수</span>
+      {/* 3. Do's & Don'ts */}
+      <div className="space-y-4">
+        <h2 className="text-lg md:text-xl font-black tracking-tight text-slate-900 border-b border-slate-200 pb-2">
+          ⚖️ 쇼츠 떡상 Do's & Don'ts (실전 핵심 법칙)
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-2xs">
+            <div className="flex items-center gap-2 text-base font-black text-emerald-800 mb-3">
+              <span>✅</span>
+              <span>반드시 지켜야 할 성공 법칙 (DO)</span>
             </div>
-            <p className="text-xs text-[#8b949e] leading-relaxed">
-              Google Cloud Console에서 프로젝트 생성 후 <code>YouTube Data API v3</code>를 사용 설정하고 API 키를 발급받아 등록합니다. 매일 10,000 유닛이 무료로 제공됩니다.
-            </p>
-            <a
-              href="https://console.cloud.google.com/apis/library/youtube.googleapis.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-xs text-rose-400 hover:underline pt-1"
-            >
-              → 구글 클라우드 콘솔 바로가기
-            </a>
+            <ul className="space-y-2.5 text-xs text-emerald-900 leading-relaxed font-medium">
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-emerald-700">1.</span>
+                <span><strong>첫 3초 킬러 훅:</strong> 시청자가 스와이프하기 전 궁금증을 폭발시키는 질문이나 파격적인 시각 연출을 배치합니다.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-emerald-700">2.</span>
+                <span><strong>씬당 1문장 원칙:</strong> 씬당 나레이션을 한 문장으로 제한해 호흡을 빠르게 유지하고 시각적 변화를 자주 줍니다.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-emerald-700">3.</span>
+                <span><strong>무한루프 엔딩:</strong> 영상의 마지막 문장이 첫 씬의 나레이션과 자연스럽게 이어지도록 설계해 재시청률 120%를 달성합니다.</span>
+              </li>
+            </ul>
           </div>
 
-          <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="font-bold text-sm text-[#f0f6fc]">2. AI 모델 키 (1종 이상 필수)</div>
-              <span className="rounded bg-emerald-500/20 text-emerald-300 px-2 py-0.5 text-[11px] font-bold">영상 분석 권장</span>
+          <div className="rounded-2xl border border-red-200 bg-red-50/50 p-5 shadow-2xs">
+            <div className="flex items-center gap-2 text-base font-black text-red-800 mb-3">
+              <span>❌</span>
+              <span>절대 피해야 할 실패 요인 (DON'T)</span>
             </div>
-            <p className="text-xs text-[#8b949e] leading-relaxed">
-              <strong>Google Gemini</strong>(비디오 직접 분석 지원 권장), <strong>OpenAI</strong>, <strong>Anthropic Claude</strong> 중 하나 이상의 API 키를 등록합니다.
-            </p>
-            <Link
-              href="/settings"
-              className="inline-block text-xs text-emerald-400 hover:underline pt-1"
-            >
-              → 설정 페이지에서 API 키 등록하기
-            </Link>
+            <ul className="space-y-2.5 text-xs text-red-900 leading-relaxed font-medium">
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-red-600">1.</span>
+                <span><strong>지루한 인사말 시작:</strong> "안녕하세요 여러분 오늘은..." 같은 상투적인 도입부는 시청자를 1초 만에 이탈시킵니다.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-red-600">2.</span>
+                <span><strong>한 씬에 설명 과적:</strong> 나레이션이 2문장 이상 길어지면 시청 지속 시간이 급격히 떨어집니다.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-red-600">3.</span>
+                <span><strong>구독 구걸 엔딩:</strong> "구독과 좋아요 부탁드립니다"로 끝내면 알고리즘 평가가 종료되고 시청자가 바로 이탈합니다.</span>
+              </li>
+            </ul>
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* 4. 11대 바이럴 메커니즘 소개 */}
-      <Card className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">📊</span>
-          <h2 className="text-base md:text-lg font-bold text-[#f0f6fc]">
-            쇼츠 알고리즘을 뚫는 11대 바이럴 메커니즘
-          </h2>
-        </div>
-        <p className="text-xs md:text-sm text-[#8b949e]">
-          본 자동화 시스템이 분석 및 대본 생성에 적용하는 11가지 핵심 성공 법칙입니다:
-        </p>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 pt-1">
-          {[
-            { num: "01", name: "3초 시각적 훅", icon: "⚡" },
-            { num: "02", name: "도파민 유발 전개", icon: "🧠" },
-            { num: "03", name: "빠른 호흡 컷전환", icon: "✂️" },
-            { num: "04", name: "패턴 인터럽트", icon: "💥" },
-            { num: "05", name: "감정 이입 서사", icon: "❤️" },
-            { num: "06", name: "정보성 반전", icon: "🔄" },
-            { num: "07", name: "무한 루프 구조", icon: "🔁" },
-            { num: "08", name: "공감 섀도잉", icon: "👥" },
-            { num: "09", name: "사운드 비트 일치", icon: "🎵" },
-            { num: "10", name: "대비 자막 배치", icon: "🔤" },
-            { num: "11", name: "댓글 트리거 유도", icon: "💬" },
-          ].map((item) => (
-            <div
-              key={item.num}
-              className="flex items-center gap-2 rounded-xl border border-[#30363d] bg-[#0d1117] p-2.5"
-            >
-              <span className="text-sm">{item.icon}</span>
-              <div className="min-w-0">
-                <div className="text-[10px] text-rose-400 font-bold">{item.num}</div>
-                <div className="text-xs font-semibold text-[#f0f6fc] truncate">{item.name}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* 5. FAQ 아코디언 */}
-      <Card className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">💬</span>
-          <h2 className="text-base md:text-lg font-bold text-[#f0f6fc]">자주 묻는 질문 (FAQ)</h2>
-        </div>
-        <div className="space-y-2 pt-1">
-          {FAQS.map((faq, idx) => {
-            const isOpen = openFaq === idx;
+      {/* 4. FAQ 아코디언 */}
+      <div className="space-y-4">
+        <h2 className="text-lg md:text-xl font-black tracking-tight text-slate-900 border-b border-slate-200 pb-2">
+          ❓ 자주 묻는 질문 (FAQ)
+        </h2>
+        <div className="space-y-3">
+          {FAQS.map((faq, i) => {
+            const isOpen = openFaq === i;
             return (
               <div
-                key={idx}
-                className="rounded-xl border border-[#30363d] bg-[#0d1117] transition-colors overflow-hidden"
+                key={i}
+                className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs transition-all hover:border-slate-300"
               >
                 <button
                   type="button"
-                  onClick={() => setOpenFaq(isOpen ? null : idx)}
-                  className="flex w-full items-center justify-between p-4 text-left font-bold text-xs md:text-sm text-[#f0f6fc] hover:text-rose-300"
+                  onClick={() => setOpenFaq(isOpen ? null : i)}
+                  className="flex w-full items-center justify-between gap-3 text-left font-bold text-slate-900"
                 >
-                  <span>{faq.q}</span>
-                  <span className="text-sm text-[#8b949e]">{isOpen ? "▲" : "▼"}</span>
+                  <span className="text-sm">Q. {faq.q}</span>
+                  <span className="text-slate-400 text-xs font-bold">{isOpen ? "▲" : "▼"}</span>
                 </button>
                 {isOpen && (
-                  <div className="border-t border-[#30363d] p-4 text-xs md:text-sm leading-relaxed text-[#8b949e] bg-[#161b22]/50">
+                  <p className="mt-3 text-xs leading-relaxed text-slate-600 border-t border-slate-100 pt-3">
                     {faq.a}
-                  </div>
+                  </p>
                 )}
               </div>
             );
           })}
         </div>
-      </Card>
+      </div>
+
+      {/* 하단 바로가기 CTA */}
+      <div className="flex justify-center pt-4">
+        <Link
+          href="/search"
+          className="btn-3d-yt-red px-8 py-3.5 text-base font-bold text-white shadow-lg"
+        >
+          🚀 떡상 쇼츠 검색 및 대본 제작 시작하기
+        </Link>
+      </div>
     </div>
   );
 }

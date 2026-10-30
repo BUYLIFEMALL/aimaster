@@ -6,9 +6,9 @@
 |---|---|
 | slug | `shorts-viral-studio` (카테고리: 쇼츠, 최소 등급: 일반, 배지: new, **유료 기본 요금제 1·2·3개월**) |
 | 라이브 URL | https://shorts-viral-studio.buylife.xyz (자체 Vercel 프로젝트 `shorts-viral-studio`, 팀 `buylife`) |
-| 현재 버전 | **v1.15** (2026-10-22 생성된 대본 → AI 썸네일·SEO 자동화, 아래 v1.15 절) |
-| 적용 디자인 템플릿 | **플로우 위저드 스타일 (다크 차콜 변형)** (`#0d1117` 차콜 배경 + `#161b22` 서피스 + `#30363d` 보더 + `#ef4444` 쇼츠 레드 포인트) |
-| 스택 | Next.js 16.2.11 (Turbopack) · React 19 · Tailwind CSS v4 · Supabase(공용 DB) · Playwright (Edge 검수) |
+| 현재 버전 | **v2.0** (2026-10-30 상용 SaaS급 2차 전면 리뉴얼 — 24번 유튜브 쇼츠 크리에이터 레드 & 화이트 스튜디오 스타일 확정) |
+| 적용 디자인 템플릿 | **24. 유튜브 쇼츠 크리에이터 레드 & 화이트 스튜디오 스타일** (`#ffffff` 클린 화이트 + `#f8fafc` 슬레이트 + `#ff0000` 유튜브 레드 + 3D 엠보싱 버튼 + 9:16 모바일 뷰파인더 덱) |
+| 스택 | Next.js 16.4.2 (Turbopack) · React 19 · Tailwind CSS v4 · Supabase(공용 DB) · Playwright (웨일/엣지 검수) |
 | 출처 | 유튜버 튜토리얼 소스("남다른AI Shorts 분석기")를 바탕으로 회원별 보안 격리 및 6단계 올인원 파이프라인으로 전면 재설계 |
 
 ---
