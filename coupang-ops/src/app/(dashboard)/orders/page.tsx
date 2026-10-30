@@ -12,7 +12,7 @@ export default async function OrdersPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader emoji="🚚" title="주문(발주서)" description="쿠팡에 들어온 주문을 상태·기간별로 불러옵니다. 지금은 읽기만 하고, 상품준비중 처리·송장 등록은 다음 단계에서 붙습니다." />
+      <PageHeader emoji="🚚" title="주문(발주서)" description="쿠팡에 들어온 주문을 상태·기간별로 불러옵니다. 결제완료 주문은 골라서 「상품준비중」으로 바꿀 수 있고, 송장 등록은 다음 단계에서 붙습니다." />
       <Notice tone="tip">💡 쿠팡은 한 번에 31일까지 조회할 수 있고, 50건씩 불러옵니다. 주문자·수취인 정보는 화면에만 보이고 우리 서버에 저장하지 않습니다(전화번호는 안심번호만 보입니다).</Notice>
       <OrderSheets keysSaved={!!keys} />
     </div>

@@ -37,3 +37,19 @@ test("발주서 응답을 정리한다(가격 객체·발주 가능 수량·실�
   assert.equal(money(27070), 27070);
   assert.deepEqual(normalizeOrderSheets(null), { orders: [], nextToken: "" });
 });
+
+test("상품준비중 처리: 번호 정리와 건별 결과", async () => {
+  const { ackIds, ackPath, normalizeAckResult } = await import("../src/lib/coupang/orders.ts");
+  assert.equal(ackPath("A001"), "/v2/providers/openapi/apis/api/v4/vendors/A001/ordersheets/acknowledgement");
+  assert.deepEqual(ackIds([3, "3", 0, -1, 5]), { ids: [3, 5] });
+  assert.match(ackIds([]).error, /골라/);
+  assert.match(ackIds(Array.from({ length: 51 }, (_, i) => i + 1)).error, /50건/);
+  const r = normalizeAckResult({ code: 200, data: { responseCode: 1, responseList: [
+    { shipmentBoxId: 3, succeed: true, resultCode: "OK" },
+    { shipmentBoxId: 5, succeed: false, resultCode: "NOT_FOUND_SHIPMENT_BOX", resultMessage: "배송상태를 변경할 수 없습니다.", retryRequired: true },
+  ] } }, [3, 5, 7]);
+  assert.deepEqual(r.results.map((x) => x.ok), [true, false, false]);
+  assert.equal(r.results[1].retryable, true);
+  assert.match(r.results[2].message, /다시 불러와/);
+  assert.equal(r.summary, "3건 중 1건을 상품준비중으로 바꿨습니다.");
+});

@@ -109,3 +109,35 @@ export function normalizeOrderSheets(raw: unknown): { orders: OrderSheet[]; next
 }
 
 export const orderStatusLabel = (v: string) => ORDER_STATUSES.find((x) => x.value === v)?.label ?? v;
+
+// ── C3-2 상품준비중 처리 ─────────────────────────────────────────────
+// PATCH /v2/providers/openapi/apis/api/v4/vendors/{vendorId}/ordersheets/acknowledgement  body { vendorId, shipmentBoxIds(최대 50) }
+// 명세: developers.coupang.com/ko/api/shipments/changing-the-status-to-product-in-preparation (2026-10-30 확인)
+// 결제완료 주문에만 적용되고(아니면 쿠팡이 건별 실패로 돌려줌), 결과는 건별 succeed. 처리 뒤 고객이 배송지를 바꿨을 수 있어 다시 조회해 확인한다.
+
+export const ackPath = (vendorId: string) => `/v2/providers/openapi/apis/api/v4/vendors/${encodeURIComponent(vendorId)}/ordersheets/acknowledgement`;
+export const ACK_MAX = 50;
+
+/** 보낼 묶음배송번호 정리(중복·0 제거). 문제가 있으면 error */
+export function ackIds(ids: unknown[]): { ids: number[] } | { error: string } {
+  const clean = [...new Set(ids.map((v) => Number(v)).filter((n) => Number.isInteger(n) && n > 0))];
+  if (clean.length === 0) return { error: "상품준비중으로 바꿀 주문을 골라 주세요." };
+  if (clean.length > ACK_MAX) return { error: `한 번에 ${ACK_MAX}건까지만 처리할 수 있습니다.` };
+  return { ids: clean };
+}
+
+export type AckResult = { shipmentBoxId: number; ok: boolean; message: string; retryable: boolean };
+
+export function normalizeAckResult(raw: unknown, sent: number[]): { results: AckResult[]; summary: string } {
+  const data = ((raw ?? {}) as { data?: Record<string, unknown> }).data ?? {};
+  const list = Array.isArray(data.responseList) ? (data.responseList as Record<string, unknown>[]) : [];
+  const byId = new Map(list.map((r) => [Number(r.shipmentBoxId), r]));
+  const results = sent.map((id) => {
+    const r = byId.get(id);
+    if (!r) return { shipmentBoxId: id, ok: false, message: "쿠팡 응답에 이 주문 결과가 없습니다. 발주서를 다시 불러와 상태를 확인해 주세요.", retryable: false };
+    const ok = r.succeed === true;
+    return { shipmentBoxId: id, ok, message: ok ? "상품준비중으로 바꿨습니다." : s(r.resultMessage) || s(r.resultCode) || "쿠팡이 처리하지 않았습니다.", retryable: !ok && r.retryRequired === true };
+  });
+  const okCount = results.filter((r) => r.ok).length;
+  return { results, summary: `${results.length}건 중 ${okCount}건을 상품준비중으로 바꿨습니다.` };
+}
