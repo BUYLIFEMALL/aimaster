@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 [역할: blog] 현재 탭 확장 반복→웹 예약커서 로컬 연결 완료 / 7afd15d6a
+
+[운영 v1.03](https://blog-neighbor-care.buylife.xyz) · [프로덕션 보조](https://blog-neighbor-care.vercel.app) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [팝업 정적 보관](/D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/schedule-connection-20261030/popup.html) · 영구 자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/schedule-connection-20261030`.
+
+- 별도 popup 동의→현재 탭/기기/블로그 고정→확장 alarm→기존 웹 주기/KST시간대·서버 cursor→정독 후에만 begin/claim→1회 실행/증거→finish/다음시각 연결. 첫 시작/주기 변경은 현재부터 새 주기이며 놓친 실행을 몰아서 하지 않음. 다음 시각이 멀면 alarm을 해당 시각으로 조정. 최대8시간·확인960회·등록120회, 계정/탭/URL 변경·재시작·불확정은 자동 재개 없음. 중단 뒤 늦게 온 응답이 다시 켜지 못하도록 epoch/직렬 저장 검사.
+- 범위: **지정한 현재 탭의 기존 검토완료 작업만**. 다른 글 탐색/이동·새글 공급·AI 자동초안 생성은 별도 미구현으로8번 잔여에 명시. 받은 신청 수락도 미구현. 전체 자동소통 완료 아님.
+- 새 `20261030120000_bnc_extension_schedule.sql`은 기존 실행함수를 service-only core로 두고 wrapper에서 cursor/기기/계정·정책/실행동의/설정 revision을 검사. 읽기용 기기만으로 cursor 초기화 불가. reading 시간·본문 검사와 cursor 선점은 한 트랜잭션, 실패 시 전체 rollback. 결과와 finish도 단일 트랜잭션, lease 만료/arm후 중단은 paused/실행OFF. 늦게 온 성공/중복 stop은 재선점하지 않음. 신규표0/신규서비스RPC(core)1+기존RPC교체, 기존 RLS/직접쓰기 차단 유지.
+- `alarms` 권한만 추가, Naver 상시 host/PC host 권한 없음. 공개 ZIP은 재생성하지 않았으며 SHA256 398a10d2d387e2071d1e32bc4b55aab3d7845186a54246f36c071fddedd5a7c6 동일. v1.03 운영/manifest/package/DB 유지, 후속13묶음 미배포/SQL6 미적용(cursor→engagement→extension→context→messages→extension_schedule). 실제 배포 시 v1.04/ZIP/DB 동기화·Edge 재로드 검수.
+- 단위280/타입·신규 격리DB7·142SQL·정리DB11 통과. 모의 alarm→실HTTP handler→격리 cursor/증거 저장→재확인 시 추가적용0 검수. 실제 Edge/네이버는 미검수, 화면은 정적 보관이며 캡처0. 유료AI/검색/원격빌드/배포/푸시/운영업무SQL변경0·비용0. 사용자 추가 요청0·기존668992b9/fe166de3 유지.
+- 다음: 받은 이웃 신청 수락 구현→대상 글 순회/새글·AI초안 연결→실제 허용 DOM profile/Edge/Naver·AI품질·운영 만료 검수. `npm run test:extension-schedule-database`로 로컬 재검수 가능. 다른 세션의 미커밋 서버 handoff/thumbnail은 수정하지 않음.
+
+
 ## 2026-10-30 [역할: blog] 정독 시간 제어 로컬 구현/검수 완료 — 20c3eced4
 
 [공식 운영 v1.03](https://blog-neighbor-care.buylife.xyz) · [프로덕션 보조](https://blog-neighbor-care.vercel.app) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [정적 보관 화면](/D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030/messages.html) · 영구 자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030`.
