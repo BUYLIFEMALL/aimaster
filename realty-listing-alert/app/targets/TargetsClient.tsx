@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { addTargetAction, deleteTargetAction, toggleTargetAction, updateTargetAction, type TargetActionState } from "@/lib/actions/targets";
 import { MAX_TARGETS, TRADE_TYPES, parseComplexNo } from "@/lib/targets";
+import { buildTradeListLink } from "@/lib/tradeLink";
 import RegionPicker from "./RegionPicker";
 
 export type TargetRow = {
@@ -57,6 +58,7 @@ function TargetItem({ target }: { target: TargetRow }) {
   const [pending, startTransition] = useTransition();
   const isRegion = target.target_type === "region";
   const name = isRegion ? `🏙 ${target.region_name ?? target.cortar_no}` : target.complex_name || `단지 ${target.complex_no}`;
+  const tradeHref = buildTradeListLink(target);
   return (
     <li className={`ra-item ${target.enabled ? "" : "off"}`}>
       <div className="ra-item-head">
@@ -66,6 +68,12 @@ function TargetItem({ target }: { target: TargetRow }) {
             <small className="ra-region-note">이 동에서 매물 많은 단지 {target.region_max_complexes}곳을 살펴봐요</small>
           ) : (
             <a href={`https://new.land.naver.com/complexes/${target.complex_no}`} target="_blank" rel="noreferrer">네이버 부동산에서 보기 ↗</a>
+          )}
+          {tradeHref && (
+            <>
+              {" "}
+              <a href={tradeHref} target="_blank" rel="noreferrer" title="부동산 실거래 투자분석에서 이 지역·단지의 실거래를 봐요(그 지역이 관심 지역에 있어야 보여요)">📈 실거래 보기 ↗</a>
+            </>
           )}
         </div>
         <div className="ra-item-actions">
