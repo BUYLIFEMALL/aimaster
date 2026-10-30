@@ -78,6 +78,10 @@ export default async function DistrictsPage() {
               기본 방식이에요.
             </p>
             <QueryNowButton />
+            <p className="mt-3 text-xs text-mx-muted">
+              ℹ️ 한 번 조회할 때 지역마다 새 실거래를 최대 20건까지 가져와요. 거래가 많은 지역은 나머지를 다음 조회 때 이어서 가져오니,
+              한 번에 다 보이지 않아도 정상이에요. 거래가 아주 많으면 오래된 거래 일부는 빠질 수 있어요.
+            </p>
           </div>
 
           <div className="mx-card mt-8">
