@@ -58,3 +58,7 @@
 - 무료 검사188개·tsc·로컬빌드 통과 → 팀 빌드0 확인 뒤 한 곳씩 배포 → READY/공식alias·HTTP 버전·인증 응답·DB/확장/라이브ZIP v1.83 OK. 최근15분 운영 오류 기록0.
 - Vercel 빌드1회(인수인계 앱별1회 승인), AI/이미지/영상 생성0. 운영 ref esgxyikcnnvmlhygjkth의 programs 해당1행만 이전버전/예상다운로드URL 조건으로 갱신했고 배포 도우미의 ops집계 갱신 포함. 회원원고/키/연결/권한/스키마 변경0, 실제 입력/발행/예약0.
 - [세 앱 공통 근거](../../docs/analysis-blog-consolidation-20261020/evidence/blog-security-batch-20261026.json)·[이 앱 검사](../../docs/analysis-blog-consolidation-20261020/evidence/ai-auto-blog-security-tests-20261026.json). 실제 회원 화면/확장 설치본 검수는 별도입니다.
+
+## 2026-10-30 배포 키트 작업 중 발견 (Claude Code 윈도우, 세션 `claude-win-20261029-statusbar`)
+- **시험 기대값 낡음(미처리)**: `npm run test:security` 6개(categories POST/PATCH/DELETE·GET canManage·관리자 이름 바꾸기·관리자 조회 실패)와 `npm run test:shorts` 1개(analyze 저장)가 실패 — v1.84(10-28) 카테고리 회원별 전환으로 「관리자만 수정·공용 카테고리」 기대가 맞지 않게 됨. 코드 결함이 아니라 시험 기대값을 회원 본인 소유 규칙으로 고쳐야 함(기대값만 수정, 시험 삭제 금지). 우선순위 중간.
+- **독립 모드(배포 키트) 스위치 추가**: `lib/deployment.ts` — 자세한 내용은 `AGENTS.md` 맨 위와 `KIT/README.md`.
