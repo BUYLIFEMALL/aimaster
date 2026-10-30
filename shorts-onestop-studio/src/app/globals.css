@@ -186,3 +186,247 @@ h1,h2,h3,p{margin:0}h1{font-size:25px;line-height:1.35;font-weight:750;letter-sp
 /* ── 발행 계획 일정 줄(v1.08): 좁은 화면에서는 버튼을 아래 줄로 ── */
 .plan-actions{flex-shrink:0}
 @media(max-width:767px){.plan-row{flex-wrap:wrap}.plan-row>label{flex:1 1 100%!important}.plan-actions{width:100%;justify-content:flex-end;flex-wrap:wrap}}
+
+/* ── 실시간 9:16 유튜브 쇼츠 스마트폰 뷰파인더 목업 ── */
+.shorts-mockup-deck {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+}
+.shorts-phone-device {
+  position: relative;
+  width: 260px;
+  height: 462px;
+  background: #000000;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 7px solid #0f172a;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+  user-select: none;
+}
+.shorts-phone-notch {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 12px;
+  background: #0f172a;
+  border-radius: 999px;
+  z-index: 20;
+}
+.shorts-phone-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  z-index: 1;
+  display: block;
+}
+.shorts-phone-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.05) 35%, rgba(0, 0, 0, 0.85) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+.shorts-phone-top {
+  position: absolute;
+  top: 18px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  color: #ffffff;
+}
+.shorts-phone-logo {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+.shorts-phone-play-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 14px;
+  background: #ff0000;
+  border-radius: 4px;
+  font-size: 8px;
+  color: #ffffff;
+}
+.shorts-phone-time {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  font-size: 9.5px;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.9);
+}
+.shorts-phone-caption {
+  position: absolute;
+  top: 45%;
+  left: 12px;
+  right: 12px;
+  transform: translateY(-50%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+.shorts-phone-hook-tag {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: #facc15;
+  color: #020617;
+  font-weight: 900;
+  font-size: 11px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.shorts-phone-narration {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.shorts-phone-actions {
+  position: absolute;
+  right: 8px;
+  bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+.shorts-phone-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #ffffff;
+}
+.shorts-phone-action-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.shorts-phone-action-count {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.shorts-phone-disc {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  overflow: hidden;
+  animation: spin 4s linear infinite;
+}
+.shorts-phone-disc img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.shorts-phone-bottom {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 10;
+  color: #ffffff;
+}
+.shorts-phone-creator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.shorts-phone-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ff0000;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8.5px;
+  font-weight: 900;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.shorts-phone-author {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.shorts-phone-sub-btn {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #ff0000;
+  color: #ffffff;
+  font-size: 8.5px;
+  font-weight: 800;
+  border: 0;
+  cursor: pointer;
+}
+.shorts-phone-tags {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.shorts-phone-progress-bg {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.shorts-phone-progress-fill {
+  width: 32%;
+  height: 100%;
+  background: #ff0000;
+}

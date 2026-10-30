@@ -47,8 +47,8 @@ export function DashboardView() {
       )}
       <div className="grid-side" style={{ marginTop: 20 }}>
         {/* 좌측 메인 작업 영역: 최근 대본 목록 */}
-        <section className="card stack">
-          <div className="row" style={{ justifyContent: "space-between" }}>
+        <section className="card stack" style={{ minWidth: 0 }}>
+          <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
             <h2>🕘 최근 제작 대본</h2>
             <a className="link-button" href="/library">전체 보관함 보기 →</a>
           </div>
@@ -77,7 +77,14 @@ export function DashboardView() {
         </section>
 
         {/* 우측 상시 실시간 쇼츠 폰 뷰파인더 목업 덱 */}
-        <aside className="card" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "20px 14px", background: "var(--surface)" }}>
+        <aside className="card stack" style={{ minWidth: 0, padding: "20px 16px" }}>
+          <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+            <h2 style={{ fontSize: 13, display: "flex", alignItems: "center", gap: 6, margin: 0 }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ff0000", display: "inline-block", boxShadow: "0 0 6px #ff0000" }}></span>
+              쇼츠 뷰파인더
+            </h2>
+            <span className="badge brand" style={{ fontWeight: 800 }}>LIVE (9:16)</span>
+          </div>
           <ShortsPhoneMockup
             title={projects?.[0]?.title || "2026 직장인 연봉 2배 AI 도구"}
             narration={projects?.[0]?.data?.intro?.narration || "아직도 엑셀 수작업 하세요? 이번 달 연봉 앞자리가 바뀌는 AI 실무 툴 5가지!"}
