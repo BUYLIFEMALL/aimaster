@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 Codex(윈도우) [역할: blog] — 새글 준비·승인·전용탭 순회 로컬 완료 / 미배포
+
+확인: [공식 운영](https://blog-neighbor-care.buylife.xyz/neighbors) · [Vercel 보조](https://blog-neighbor-care.vercel.app/neighbors) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [로컬 정적 화면](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/post-targets-20261030/workspace.html) · [영구 자산](D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/post-targets-20261030)。 운영에는 이번 변경이 아직 없다. 로컬 HTML은 서버 연결 없는 초기 정적 보존본이며 실브라우저 캡처는 아니다.
+
+> [역할: blog] **새글 자료 준비·검토 초안 승인·대상 글 순회 로컬 완료(2026-10-30)** — `ed1c6bd86`: 제공 RSS/XML 미리보기·대상 선택/권한·전문 확인→최초 수명 보존 저장→기존 AI 문장 화면 전달(자동 호출 없음), 표시한 문장 그대로 검토 승인·회원 실행 설정, 기존 Edge 창의 전용 새 탭에서 승인된 공감/댓글/대댓글만 주기 순회. 실행 전 대상 설정 재확인·정독·한도·결과 기록을 재사용하며 불확정/탭·계정 변경 시 중단. 선택적 blog.naver.com 접근 권한은 회원 클릭으로만 요청, 새 창/PC 프로그램 없음. 단위299/새 격리DB9·141SQL/정리DB11/타입 통과. **자동 RSS 감시·동의/예산 기반 AI 자동 준비·받은 신청 수락의 주기 편입은 아직 미구현**, 실제 DOM/Edge/Naver/AI 품질·운영 검수도 남음. 후속15묶음 미배포/SQL8 미적용(신규 `20261030143000_bnc_post_targets.sql`, 2표), 운영/공개ZIP v1.03 보존. 유료AI·실RSS·검색API·운영업무SQL·원격빌드·배포·푸시0. 상세 근거: `blog-neighbor-care/docs/evidence/post-targets-20261030.json`.
+
+일반 초안에 실제 검토 승인 UI와 회원 실행 설정 UI가 없던 공백을 이번에 찾아 보완했다. 검토 버튼은 표시된 본문과 서버 본문이 같아야 승인하며, 설정은 revision 비교 및 운영 게이트를 우회하지 않는다. 메타데이터→전문 추가는 최초 생성/만료시각을 유지하고 변경 불가 전문을 기존 AI 소스와 동일 해시로 연결한다. RSS 15분 제한은 회원+이웃 단위로 계정 간 공유한다. 피드 발췌는 전문으로 간주하지 않는다.
+
+신규 SQL은 기존7개 뒤에 `20261030143000_bnc_post_targets.sql`을 적용한다(운영 미적용). 신규2표/RLS·서비스전용RPC·삭제정리·대상 OFF 전환 시 선점 차단 포함. linkedom은 런타임 의존성으로 이동했다. 실제 Edge/Naver를 조작하거나 읽지 않았고 DB 검사는 격리 자료다. 공식 RSS 주소 근거는 [네이버 도움말](https://help.naver.com/service/5593/contents/24722?lang=ko&osType=COMMONOS)과 [HTTPS 공지](https://help.naver.com/notice/noticeView.help?lang=ko&noticeNo=27243&page=1&serviceNo=5593)이며 AI 이용 권한을 뜻하지 않는다.
+
+다음 구현: 자동 RSS 감시/동의·예산 기반 AI 준비, 받은 신청 수락 주기 편입. 그 뒤 실제 DOM profile/Edge/Naver·4번 유료AI 승인/품질·3번 실제 재수신 설정유지·5번 후보 전체경로·SQL8/묶음배포·운영 Cron/만료 최종 검수. 그룹3~9는 미완료 유지, 기존 요청668992b9/fe166de3만 유지·새 요청0.
+
 ## 2026-10-30 [역할: blog] 받은 서로이웃 신청 수락·불확정 재확인 로컬 완료 — c9cb569c2
 
 [운영 v1.03](https://blog-neighbor-care.buylife.xyz) · [프로덕션 보조](https://blog-neighbor-care.vercel.app) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [정적 웹 화면](/D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/incoming-accept-20261030/incoming.html) · 영구 자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/incoming-accept-20261030`(팝업 HTML/소스/스펙JSON 포함). 정적 초기화면이며 실제 Edge 캡처/운영 반영 아님.
