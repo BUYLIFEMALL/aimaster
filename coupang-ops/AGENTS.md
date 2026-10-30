@@ -119,3 +119,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 명세 `/ko/api/products/product-creation`(10-31 확인): `items[].barcode`·`emptyBarcode`·`emptyBarcodeReason`(100자)·`modelNo`, `brand`는 띄어쓰기·특수문자 없이, 없으면 `GENERIC`. 명세 표에는 필수 표기가 없지만 신규 키 판매자 정책 때문에 `checkDraft`가 옵션마다 바코드나 모델번호 중 하나를 요구한다(기존 판매자도 동일 적용, 결정 사항).
 - 화면: 옵션 표에 두 칸 추가. 시험 43개·tsc 0·빌드 통과. 크롬(시험 계정): 비우면 막힘, 품번 넣으면 검사 통과. 쿠팡 쓰기 0회 — **`emptyBarcode` 본문이 실제로 받아들여지는지는 첫 「저장만」에서 확인**.
 - 시험 계정 기본값 저장: 출고지 22577646, 반품지 1002133369, 발송비 4,000원, 반품비 편도 5,000원. 반품지 이름이 화면에 「-」로 보여 `returnChargeName` 값 확인 필요.
+
+## 2026-10-31 — 첫 「저장만」 실제 시험(주인님 승인 1건, 코드 변경 없음)
+- 대상: 시험 계정(다른 판매자 키) · 스위스톤 백팩 · 카테고리 #69805 · 블랙/FREE 1개 · 정가 99,000원·판매가 56,000원·재고 100 · 품번 ST4D18 · 바코드 없음 · `requested: false`. 기록 `coupang_ops_jobs` 704c833c.
+- 결과: 쿠팡 생성 응답 `SUCCESS`, 상품번호 **16433502859** → **`emptyBarcode` + `modelNo` 본문을 쿠팡이 받아들임**. 재전송 없음.
+- ⚠ 그런데 약 50초 뒤와 약 2분 30초 뒤 조회 모두 상태 **「승인반려」**(승인 요청을 안 보냈는데 나옴). 화면 안내 「임시저장으로 남는다」와 다르다. 사유는 앱에 안 나와 **WING에서 확인 필요**. 이미지 받기 실패·콘텐츠 자동 심사·`returnChargeName` 등은 모두 추정일 뿐 미확인.
+- 코드 대조: `/ko/api/products/query-a-history-of-product-status-updates`(버전 2609170000)와 경로·`status`·`comment` 칸 이름은 일치. 원인 구분을 막는 곳: `refreshJobStatusAction`의 이력 조회 `.catch(() => [])`(실패와 빈 사유를 구분 못 함), 원본 이력을 저장하지 않음.
+- 고칠 후보(미착수, 다음 배포에 함께): 첫째, 이력 조회 실패를 화면에 표시하고 사유 없는 이력의 원문을 기록. 둘째, `sendProductAction`이 `rejected` 기록도 재전송을 막으므로(`neq failed`) 반려 뒤 고쳐 보내는 길이 없음 — 수정 API(`상품 수정 (승인필요)`) 또는 삭제 후 재등록 중 사유를 본 뒤 결정. 셋째, 화면 문구 「저장만 → 판매되지 않음·WING에서 승인 요청」을 실제 동작에 맞게 정정.
+- 판매 여부: 반려 상태라 판매되지 않는 것으로 판단하나, WING 화면 확인 전. 다른 판매자 계정 WING에 기록이 남아 있음(삭제 안 함).
