@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import extensionManifest from '../../extension/manifest.json'
+// 확장 버전 = 프로그램 버전(prebuild가 manifest를 APP_VERSION에 맞춘다). 확장 폴더가 없는 배포판(KIT)도 빌드되게 manifest를 직접 불러오지 않는다(2026-10-30).
+import { APP_VERSION } from '@/utils/version'
 import {
   createExtensionToken,
   listExtensionTokens,
@@ -13,7 +14,7 @@ import { ExtensionConnectButton } from './ExtensionConnectButton'
 
 // 설정 화면의 "🧩 네이버 블로그 입력 확장 프로그램" 박스 — 다운로드·설치 안내 + 연동 토큰 발급/폐기(2026-10-01).
 // naver-blog-seo-studio의 ExtensionDownloadCard·ExtensionTokenManager를 BLOG 화면 스타일로 옮겼다.
-const EXTENSION_VERSION = extensionManifest.version_name ?? `v${extensionManifest.version}`
+const EXTENSION_VERSION = APP_VERSION
 const EXTENSION_ARCHIVE = `/downloads/ai-auto-blog-extension-latest.zip`
 // 설치·업데이트 상태 안내: 2026-10-23부터 이 브라우저의 확장(web-bridge.js)에 실제 버전을 물어 표시한다(기준 구현 naver-blog-seo-studio).
 const DOWNLOAD_MARKER_KEY = 'ai-auto-blog-extension-downloaded'

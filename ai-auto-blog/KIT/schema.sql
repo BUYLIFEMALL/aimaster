@@ -173,3 +173,6 @@ create table if not exists public.newsblur_accounts (
 alter table public.newsblur_accounts enable row level security;
 drop policy if exists newsblur_accounts_owner on public.newsblur_accounts;
 create policy newsblur_accounts_owner on public.newsblur_accounts for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- 권한 보강(Supabase 새 프로젝트 화면의 「Automatically expose new tables」를 꺼도 동작하게, 2026-10-30)
+grant select, insert, update, delete on public.user_api_keys, public.newsblur_accounts to authenticated;
