@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — `real_estate_sales` v1.23 경기·인천 확장(RE-B4) + `zod` 보안(RE-B5)
+- **한 일**: 경기 44·인천 10곳 추가. 서울 밖은 국토부 아파트 매매 실거래가 API(15126469)로 이번 달·지난달 조회 → 서울 자료 모양으로 변환(`src/lib/publicdata/molit.ts`) → 중복 확인·공시가·건축물대장·AI 분석·알림 그대로. 감시 지역 화면 서울/경기/인천 묶음, 전월세 비교는 서울만. `zod` ^4.6.7(`npm audit` 0건). 플랜 `real_estate_sales/docs/PLAN_20261030_RE_B4_GYEONGGI_INCHEON.md`.
+- **검수**: `test:molit` 5·`test:access` 3·tsc·린트·빌드 통과, 배포 Ready(`real-estate-sales-pfu7m132x`), DB v1.23. 크롬(시험 계정, 텔레그램 미연결이라 AI 분석 안 돔): 고양시 일산동구 선택 → 「지금 조회하기」 → 실거래 20건 저장·실거래 내역 표시 확인.
+- **발견·수정(미배포)**: 경기 줄 「전용」이 모두 빈칸 → 국토부 전용면적으로 채우기(`de7ec2b30`).
+- **착오 기록**: `vercel env pull`의 민감 변수 `[sensitive]` 자리 표시로 API를 불러 403 → 「활용신청 필요」로 잘못 요청함에 올림 → 주인님 화면에서 10-25 승인 확인, 요청 반려 처리. `docs/ERROR_LESSONS.md` 2026-10-30.
+- **남은 일**: 전용면적 수정 배포(다음 배포 때) · 화성시 일반구 코드 확인(지금 41590) · 경기·인천 전월세 비교(2차) · 공시가 「-」(서울도 같음).
+- 커밋: `9ab5d5ba3`(기능) · `8f86de0ec`(zod) · v1.23 버전 커밋 · `de7ec2b30`(전용면적, 미배포). https://real-estate-sales.buylife.xyz/districts
+
 ## 2026-10-30 [역할: blog] 현재 탭 확장 반복→웹 예약커서 로컬 연결 완료 / 7afd15d6a
 
 [운영 v1.03](https://blog-neighbor-care.buylife.xyz) · [프로덕션 보조](https://blog-neighbor-care.vercel.app) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [팝업 정적 보관](/D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/schedule-connection-20261030/popup.html) · 영구 자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/schedule-connection-20261030`.
