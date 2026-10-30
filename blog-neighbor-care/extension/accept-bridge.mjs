@@ -1,0 +1,24 @@
+import {operateIncomingRequests} from './accept-dom.mjs';
+export function createAcceptBridge(browser,identity,post,popupFocused=async()=>false,now=Date.now){
+ let busy=false,epoch=0,active=null;
+ async function stop(){epoch++;const saved=(await browser.storage.session.get('acceptRun')).acceptRun,r=active??saved;if(!r)return {state:'idle',message:'진행 중인 수락 작업 없음'};const v=await post('stop',{id:r.id});await browser.storage.session.remove('acceptRun');active=null;return {...v,message:v.state==='uncertain'?'결과 불확실 · 웹에서 확인 필요':'수락 실행 중단·완료 상태 확인'};}
+ async function status(){const r=await post('status_work',{});return {...r,message:r.state==='succeeded'?'완료 · 수락 확인 결과를 웹에 저장했습니다.':r.state==='uncertain'?'결과 불확실 · 다시 수락하지 말고 웹에서 확인하세요.':`수락 상태: ${r.state}`};}
+ async function start(checkOnly=false){
+  if(busy)throw Error('이미 수락 작업을 처리하고 있습니다.');busy=true;const version=epoch;let detach=()=>{};
+  try{
+   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});if(tabs.length!==1)throw Error('본인 받은 신청 관리 화면을 열어 주세요.');const tab=tabs[0];
+   const current=async()=>{const who2=await identity(),[t,...rest]=await browser.tabs.query({active:true,currentWindow:true}),w=await browser.windows.get(tab.windowId);if(version!==epoch||who2.deviceId!==who.deviceId||who2.blogId!==who.blogId||rest.length||t?.id!==tab.id||t?.url!==tab.url||t?.windowId!==tab.windowId||w.state==='minimized'||(!w.focused&&!await popupFocused(tab.windowId)))throw Error('현재 계정·신청 화면·Edge 창을 유지해 주세요.');};
+   const moved=info=>{if(info.windowId===tab.windowId&&info.tabId!==tab.id)epoch++;},updated=(id,change)=>{if(id===tab.id&&change.url&&change.url!==tab.url)epoch++;};browser.tabs.onActivated?.addListener(moved);browser.tabs.onUpdated?.addListener(updated);detach=()=>{browser.tabs.onActivated?.removeListener(moved);browser.tabs.onUpdated?.removeListener(updated);};
+   await current();let r=await post(checkOnly?'offer_check':'offer_work',{request_id:crypto.randomUUID(),url:tab.url});if(r.phase==='idle')return {message:checkOnly?'확인할 불확정 수락 작업이 없습니다.':'현재 계정의 검토 완료 수락 작업이 없습니다.'};
+   if(r.phase!==(checkOnly?'check':'inspect')||r.job?.actorId!==who.blogId||!r.nonce)throw Error('수락 대상 확인 실패');const job=r.job,profile=r.profile;active={id:r.id,deviceId:who.deviceId};await browser.storage.session.set({acceptRun:active});let frame;
+   const inspect=async(operation,validUntil)=>{await current();const results=await browser.scripting.executeScript({target:frame===undefined?{tabId:tab.id,allFrames:true}:{tabId:tab.id,frameIds:[frame]},world:'ISOLATED',func:operateIncomingRequests,args:[{operation,job,profile,validUntil}]});await current();if(frame===undefined){const matches=results.filter(x=>x.result?.accountId===job.accountId&&x.result?.actorId===job.actorId&&x.result?.requestId===job.requestId&&x.result?.neighborId===job.neighborId);if(matches.length!==1||!Number.isInteger(matches[0].frameId))throw Error('수락 화면을 하나로 확인하지 못했습니다.');frame=matches[0].frameId;return matches[0].result;}if(results.length!==1||results[0].frameId!==frame)throw Error('수락 화면 변경');return results[0].result;};
+   if(checkOnly){const checked=await post('reconcile',{id:active.id,nonce:r.nonce,snapshot:await inspect('inspect')});await browser.storage.session.remove('acceptRun');active=null;return {...checked,message:checked.state==='succeeded'?'확인 완료 · 현재 서로이웃 상태를 결과에 저장했습니다. 자동 실행은 꺼져 있습니다.':'현재 신청 대기 상태만으로 이전 결과를 확정할 수 없습니다. 다시 수락하지 않습니다.'};}
+   r=await post('inspect',{id:active.id,nonce:r.nonce,snapshot:await inspect('inspect')});if(r.phase!=='recheck'||!r.nonce)throw Error('수락 준비 실패');
+   r=await post('arm',{id:active.id,nonce:r.nonce,snapshot:await inspect('inspect')});if(r.phase!=='apply'||!r.nonce||Date.parse(r.validUntil)<=now())throw Error('수락 허가 실패');
+   await current();const {acceptAttempts={}}=await browser.storage.session.get('acceptAttempts'),attempts=Object.fromEntries(Object.entries(acceptAttempts).filter(([,deadline])=>deadline>now()));if(Object.hasOwn(attempts,job.id)||Object.keys(attempts).length>=1000)throw Error('이미 시도한 수락 작업입니다.');attempts[job.id]=Date.parse(job.expiresAt);await browser.storage.session.set({acceptAttempts:attempts});
+   const attempted_at=now();if(await inspect('apply',r.validUntil)!==true)throw Error('수락 시도 결과 미확인');const effect=await inspect('verify');
+   const result=await post('effect',{id:active.id,nonce:r.nonce,snapshot:effect,attempted_at});if(result.state!=='succeeded')throw Error('수락 결과 저장 미확인');await browser.storage.session.remove('acceptRun');active=null;return {state:'succeeded',message:'완료 · 수락 확인 결과를 웹에 저장했습니다.'};
+  }catch(e){try{await stop();}catch{}throw Error(`${e?.message??'수락 결과 미확인'} 자동으로 다시 수락하지 않습니다. 웹 기록을 확인하세요.`);}finally{detach();busy=false;}
+ }
+ return {start:()=>start(false),check:()=>start(true),stop,status};
+}

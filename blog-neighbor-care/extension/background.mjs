@@ -2,6 +2,8 @@ import { parsePost, inspectVisiblePost, chooseSnapshot } from './extractor.mjs';
 import {createNeighborImporter} from './neighbor-importer.mjs';
 import {parseNeighborPage} from './neighbor-extractor.mjs';
 import {createWorkBridge} from './work-bridge.mjs';
+import {createAcceptBridge} from './accept-bridge.mjs';
+import {operateIncomingRequests} from './accept-dom.mjs';
 import {createExtensionSchedule} from './schedule-bridge.mjs';
 import {createContextReader} from './context-bridge.mjs';
 
@@ -25,6 +27,10 @@ export function createReaderController(browser, fetcher = fetch) {
     return (await post('whoami',{},token)).data;
   },async(operation,payload)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post(operation,payload,token,'/api/execution/extension')).data;},Date.now,windowId=>popupFocused(windowId));
   const schedule=createExtensionSchedule(browser,async()=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post('whoami',{},token)).data;},work,Date.now,windowId=>popupFocused(windowId));
+  const acceptPost=async(operation,payload)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post(operation,payload,token,'/api/neighbors/requests/extension')).data;};
+  const acceptWho=async()=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post('whoami',{},token)).data;};
+  const acceptReader=createContextReader(browser,acceptWho,(op,p)=>acceptPost(({offer:'offer_read',status:'status_read'})[op]??op,op==='offer'?{request_id:p.request_id,url:p.url}:p),windowId=>popupFocused(windowId),operateIncomingRequests);
+  const acceptance=createAcceptBridge(browser,acceptWho,acceptPost,windowId=>popupFocused(windowId));
   const publishProgress=async progress=>{
     const {token}=await browser.storage.local.get('token');
     if(!token||token!==importToken||!progress.deviceId)return;
@@ -52,6 +58,18 @@ export function createReaderController(browser, fetcher = fetch) {
     try { web = sender.id === browser.runtime.id && new URL(sender.tab?.url).origin === SITE; } catch { /* not the program tab */ }
     if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
     const { token } = await browser.storage.local.get('token');
+    if(['connect','disconnect','read','neighbors_read','work_start','schedule_start','context_preview'].includes(message.type)){await acceptReader.cancel();await acceptance.stop();}
+    if(['accept_preview','accept_confirm','accept_cancel','accept_start','accept_stop','accept_status','accept_check'].includes(message.type)){
+      if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
+      if(message.type==='accept_status')return acceptance.status();
+      if(message.type==='accept_stop')return acceptance.stop();
+      if(message.type==='accept_cancel')return acceptReader.cancel(true);
+      if(message.type==='accept_confirm')return acceptReader.confirm();
+      if(message.confirmed!==true||neighbors.isRunning())throw Error('신청 읽기·수락 동의와 현재 작업을 확인해 주세요.');
+      await schedule.stop();await work.stop();await contexts.cancel();
+      if(message.type==='accept_preview'){await acceptance.stop();return acceptReader.preview('requests');}
+      await acceptReader.cancel();if(message.type==='accept_check')return acceptance.check();return acceptance.start();
+    }
     if(['schedule_start','schedule_stop','schedule_status'].includes(message.type)){
       if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
       if(message.type==='schedule_status')return schedule.status();

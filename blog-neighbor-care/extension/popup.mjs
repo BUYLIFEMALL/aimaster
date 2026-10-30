@@ -3,7 +3,7 @@ let draft = null, busy = false, currentDeviceId=null, currentProgress=null;
 const stageTitles={checking:'진행 중 · 계정 확인',starting:'진행 중 · 요청 준비',reserving:'진행 중 · 읽기 준비',reading:'진행 중 · 목록 읽기',sending:'진행 중 · 서버 전송',received:'진행 중 · 수신 확인',ready:'수신 완료 · 아직 저장 전',confirmed:'프로그램 저장 완료',failed:'읽기 중단 · 사유 확인',stopping:'읽기 중단 처리 중',paused:'진행 결과 확인 필요'};
 function applyButtons(){
   const active=currentProgress?.state==='running';
-  document.querySelectorAll('button').forEach(b=>{b.disabled=['workStop','contextCancel','scheduleStop'].includes(b.id)?false:b.id==='neighborStop'?!active:busy||active;});
+  document.querySelectorAll('button').forEach(b=>{b.disabled=['workStop','contextCancel','scheduleStop','acceptStop','acceptCancel'].includes(b.id)?false:b.id==='neighborStop'?!active:busy||active;});
   $('contextRead').disabled=busy||active||!$('contextPreview').hidden;$('contextKind').disabled=busy||active||!$('contextPreview').hidden;
   $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
@@ -112,4 +112,11 @@ $('contextCancel').addEventListener('click',async()=>{$('contextPreview').hidden
 $('scheduleStart').addEventListener('click',()=>run(async()=>{if(!$('scheduleConfirm').checked)throw Error('현재 탭 반복 실행 동의를 확인해 주세요.');$('scheduleMessage').textContent=(await send({type:'schedule_start',confirmed:true})).message;$('scheduleConfirm').checked=false;}));
 $('scheduleStatus').addEventListener('click',()=>run(async()=>{$('scheduleMessage').textContent=(await send({type:'schedule_status'})).message;}));
 $('scheduleStop').addEventListener('click',async()=>{try{$('scheduleMessage').textContent=(await send({type:'schedule_stop'})).message;}catch{$('scheduleMessage').textContent='중단 응답 미확인 · 웹 작업 기록부터 확인해 주세요.';}});
+$('acceptRead').addEventListener('click',()=>run(async()=>{if(!$('acceptReadConsent').checked)throw Error('받은 신청 읽기 동의를 확인해 주세요.');const r=await send({type:'accept_preview',confirmed:true});$('acceptText').textContent=`현재 페이지 신청 ${r.snapshot.count}건\n`+r.snapshot.requests.map(v=>`${v.neighborId} · ${v.requestId}`).join('\n');$('acceptPreview').hidden=false;$('acceptReadConsent').checked=false;$('acceptMessage').textContent='미리보기 완료 · 저장해도 수락하지 않습니다.';}));
+$('acceptSave').addEventListener('click',()=>run(async()=>{$('acceptPreview').hidden=true;const r=await send({type:'accept_confirm'});$('acceptMessage').textContent=`저장 완료 · 확인 ${r.observedCount}건 / 새 저장 ${r.savedCount}건. 웹에서 수락 대상을 검토하세요.`;}));
+$('acceptCancel').addEventListener('click',async()=>{$('acceptPreview').hidden=true;try{await send({type:'accept_cancel'});$('acceptMessage').textContent='미리보기 취소';}catch{$('acceptMessage').textContent='취소 응답 미확인 · 이전 결과를 확인하세요.';}});
+$('acceptStart').addEventListener('click',()=>run(async()=>{if(!$('acceptExecuteConsent').checked)throw Error('실제 수락 동의를 확인해 주세요.');$('acceptExecuteConsent').checked=false;$('acceptMessage').textContent='수락 준비 중 · 계정과 신청을 다시 확인합니다.';$('acceptMessage').textContent=(await send({type:'accept_start',confirmed:true})).message;}));
+$('acceptCheck').addEventListener('click',()=>run(async()=>{if(!$('acceptReadConsent').checked)throw Error('현재 신청 상태 읽기 동의를 확인해 주세요.');$('acceptReadConsent').checked=false;$('acceptMessage').textContent=(await send({type:'accept_check',confirmed:true})).message;}));
+$('acceptStatus').addEventListener('click',()=>run(async()=>{$('acceptMessage').textContent=(await send({type:'accept_status'})).message;}));
+$('acceptStop').addEventListener('click',async()=>{try{$('acceptMessage').textContent=(await send({type:'accept_stop'})).message;}catch{$('acceptMessage').textContent='중단 응답 미확인 · 다시 수락하지 말고 웹 기록부터 확인하세요.';}});
 run(status);

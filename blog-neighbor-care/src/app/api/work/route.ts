@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 export const POST = createWorkHandler({
   authorize: authorizeMember,
   execute: async (userId, operation, payload) => {
+    if(['accept_devices','grant_accept','revoke_accept','accept_list','draft_accept','approve_accept'].includes(operation)){const map:Record<string,string>={accept_devices:'devices',grant_accept:'grant',revoke_accept:'revoke',accept_list:'list',draft_accept:'draft',approve_accept:'approve'};const {data,error}=await createAdminClient().rpc('bnc_accept_dispatch',{p_user_id:userId,p_device_id:null,p_operation:map[operation],p_payload:payload});return {data,error};}
     if(['extension_devices','grant_extension','revoke_extension'].includes(operation)){
       const {data,error}=await createAdminClient().rpc('bnc_extension_permission_dispatch',{p_user_id:userId,p_operation:operation==='extension_devices'?'list':operation==='grant_extension'?'grant':'revoke',p_payload:payload});return {data,error};
     }

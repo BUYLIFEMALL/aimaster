@@ -1,5 +1,5 @@
 import {readVisibleNeighborContext} from './context-reader.mjs';
-export function createContextReader(browser,identity,post,popupFocused=async()=>false){
+export function createContextReader(browser,identity,post,popupFocused=async()=>false,readerFunction=readVisibleNeighborContext){
  let pending=null,busy=false,epoch=0;
  const current=async p=>{
   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});
@@ -8,7 +8,7 @@ export function createContextReader(browser,identity,post,popupFocused=async()=>
  };
  const inspect=async p=>{
   await current(p);
-  const results=await browser.scripting.executeScript({target:p.frame===null?{tabId:p.tab.id,allFrames:true}:{tabId:p.tab.id,frameIds:[p.frame]},world:'ISOLATED',func:readVisibleNeighborContext,args:[{scope:p.scope,profile:p.profile}]});
+  const results=await browser.scripting.executeScript({target:p.frame===null?{tabId:p.tab.id,allFrames:true}:{tabId:p.tab.id,frameIds:[p.frame]},world:'ISOLATED',func:readerFunction,args:[{scope:p.scope,profile:p.profile}]});
   await current(p);const matches=results.filter(x=>x.result?.accountId===p.scope.accountId&&x.result?.actorId===p.scope.actorId);
   if(matches.length!==1||!Number.isInteger(matches[0].frameId))throw Error('읽기 화면을 하나로 확인하지 못했습니다.');
   p.frame=matches[0].frameId;return matches[0].result;

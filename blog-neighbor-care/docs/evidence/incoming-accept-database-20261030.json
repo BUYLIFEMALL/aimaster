@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-30T03:59:03.447Z",
+  "migration": "20261030133000_bnc_incoming_accept.sql",
+  "tests": [
+    "ACDB01 service-only tables/RPC; separate read permission does not authorize acceptance or create jobs",
+    "ACDB02 rereading preserves source identity/expiry; changed preview and cross-account device are rejected",
+    "ACDB03 explicit draft/approval -> two fresh checks -> single success updates shared budget and mutual relationship",
+    "ACDB04 outgoing requests and accepts share cap; wrong request/profile cannot reserve",
+    "ACDB05 arm uncertainty stops all execution, retains shared reservation and blocks outgoing extension work",
+    "ACDB06 revocation before arm releases only unarmed reservation; captcha reading disables automatic work",
+    "ACDB07 source expiry removes derived drafts without extending identity or deleting member directories",
+    "ACDB08 metadata confirmation and acceptance run through real API/SQL; a lost committed result never repeats a click",
+    "ACDB09 read-only reconciliation never re-clicks or refunds pending uncertainty; mutual proof settles without enabling work"
+  ],
+  "passed": 9,
+  "sqlCalls": 188,
+  "isolated": true,
+  "operatingApplied": false,
+  "actualPlatformActions": 0
+}

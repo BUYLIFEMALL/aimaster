@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-30T03:06:52.121Z",
+  "checkedAt": "2026-10-30T03:58:01.830Z",
   "database": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
   "tests": [
     "CDB11 execution evidence cleanup is independently callable before other datasets",
@@ -17,8 +17,8 @@
   "passed": 11,
   "network": "none",
   "hostPorts": 0,
-  "actualSqlCalls": 160,
-  "cleanupRpcCalls": 27,
+  "actualSqlCalls": 164,
+  "cleanupRpcCalls": 30,
   "fixtureMembers": 2,
   "operatingDatabaseChanged": false,
   "realAiCalls": 0,

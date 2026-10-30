@@ -12,6 +12,7 @@ const object = (v: unknown): v is Record<string, unknown> => v !== null && typeo
 const text = (v: unknown) => typeof v === 'string' && v.length <= 4000;
 const limits: Record<string, number> = { request_cap: 20, like_cap: 100, comment_cap: 30 };
 const operations: Record<string, string[]> = {
+  accept_devices:[],grant_accept:['device_id','read','execute','confirmed'],revoke_accept:['device_id'],accept_list:[],draft_accept:['id','confirmed'],approve_accept:['id','confirmed'],
   settings: [], list: [], request_status: [], configure: ['request_cap', 'like_cap', 'comment_cap', 'enabled', 'mode'],
   engagement_list: [], engagement_review:['id'], draft_reply: ['id','body'], draft_return_visit: ['id','body'],
   extension_devices:[],grant_extension:['device_id','confirmed','kinds','reads'],revoke_extension:['device_id'],
@@ -21,6 +22,9 @@ const operations: Record<string, string[]> = {
 };
 function valid(operation: string, p: Record<string, unknown>) {
   if (Object.keys(p).some(key => !operations[operation].includes(key))) return false;
+  if(operation==='grant_accept')return uuid(p.device_id)&&p.confirmed===true&&typeof p.read==='boolean'&&typeof p.execute==='boolean';
+  if(operation==='revoke_accept')return uuid(p.device_id);
+  if(operation==='draft_accept'||operation==='approve_accept')return uuid(p.id)&&p.confirmed===true;
   if(operation==='grant_extension'){
    const reads=p.reads??[];return uuid(p.device_id)&&p.confirmed===true&&Array.isArray(p.kinds)&&p.kinds.length<=4&&new Set(p.kinds).size===p.kinds.length&&p.kinds.every(k=>['request','like','comment','reply'].includes(k))&&Array.isArray(reads)&&reads.length<=3&&new Set(reads).size===reads.length&&reads.every(k=>['relationship','incoming','return_post'].includes(k))&&p.kinds.length+reads.length>0;
   }
