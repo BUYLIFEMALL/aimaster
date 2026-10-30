@@ -41,6 +41,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `ai-auto-blog/` + `labs/kit-blog` | [역할: 미지정] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261029-statusbar` | 2026-10-30 | 수업용 배포 키트 `Blog_Content_Kit`(자동 포스팅 뺀 콘텐츠 제작 전용·독립 모드·KIT/·Lab 리허설, Supabase BUYLIFE-DEV `kit-blog` ref phbxvmjielzmvkbvkqvy). 운영 동작 변경 없음 |
 | `shorts-viral-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-shorts-viral-v2` | 2026-10-30 | 쇼츠 떡상 분석 및 대본 자동화 v2.0 리뉴얼 — 4대 화면 3시안(12뷰) 쇼케이스 및 라이트박스 팝업 제작 중 |
 | `blog-neighbor-care/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` | 2026-10-30 | 4ee7dc674 받은신청 반복수락/공용cursor/불확정복구 로컬완료(303/DB9·243SQL/정리11/타입). 다음 자동RSS·동의/예산기반AI초안 구현. 실제 DOM/Edge/Naver/운영검수 잔여. 웹+확장·16묶음미배포/SQL9미적용·운영v1.03·비용0. |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` (이전 codex-win-20261025-blog) | 2026-10-29 | 현황정리: 실제Edge설치/본인블로그연결/네이버로그인확인·7eba5ff7완료. 설치2.21→2.22업데이트·현재Edge/옛8연결식별·해제/실입력미완료, 토큰해제0·발행0. 제품소스수정없음. |
