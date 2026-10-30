@@ -12,8 +12,8 @@ const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86
 
 type Ask = { kind: "stop" | "shipped"; receiptId: number; label: string };
 
-export function ReturnRequests({ keysSaved, defaultCourier }: { keysSaved: boolean; defaultCourier: string }) {
-  const [view, setView] = useState("RU");
+export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: { keysSaved: boolean; defaultCourier: string; initialView?: string }) {
+  const [view, setView] = useState(RETURN_VIEWS.some((v) => v.value === initialView) ? initialView : "RU");
   const [from, setFrom] = useState(kstDay(30));
   const [to, setTo] = useState(kstDay(0));
   const [rows, setRows] = useState<ReturnRequest[]>([]);

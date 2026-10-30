@@ -2,6 +2,8 @@
 
 /** 발주서 첫 쪽 조회 간격(초). 「더 보기」(다음 쪽)는 막지 않는다. */
 export const ORDER_READ_GAP_SECONDS = 10;
+/** 「오늘 할 일」 요약 간격(초) — 한 번에 쿠팡 읽기 4번이라 더 길게 */
+export const TODAY_READ_GAP_SECONDS = 30;
 
 /** 마지막 조회 시각(ISO)과 지금을 비교해 남은 초(올림), 기다릴 필요 없으면 0 */
 export function gapLeftSeconds(lastIso: string | undefined, nowMs: number, gapSeconds: number): number {

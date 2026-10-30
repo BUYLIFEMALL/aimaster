@@ -11,9 +11,9 @@ const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm foc
 /** 한국 시간 기준 오늘에서 n일 전 날짜(yyyy-mm-dd) */
 const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10);
 
-export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean; defaultCourier: string }) {
-  const [status, setStatus] = useState("ACCEPT");
-  const [from, setFrom] = useState(kstDay(6));
+export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: { keysSaved: boolean; defaultCourier: string; initialStatus?: string }) {
+  const [status, setStatus] = useState(ORDER_STATUSES.some((s) => s.value === initialStatus) ? initialStatus : "ACCEPT");
+  const [from, setFrom] = useState(kstDay(initialStatus ? 30 : 6)); // 「오늘 할 일」에서 넘어오면 그 숫자와 같은 31일
   const [to, setTo] = useState(kstDay(0));
   const [orders, setOrders] = useState<OrderSheet[]>([]);
   const [next, setNext] = useState("");
@@ -25,6 +25,7 @@ export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean;
   const [asking, setAsking] = useState<"" | "ack" | "invoice">(""); // 쿠팡에 보내기 전 한 번 더 묻는 단계
   const [inv, setInv] = useState<Record<number, { courier: string; invoice: string }>>({}); // 배송번호별 송장 입력
   const [paste, setPaste] = useState("");
+  const [moved, setMoved] = useState<number[]>([]); // A4: 상품준비중 처리 뒤 배송지가 바뀐 배송번호
   const [cancelling, setCancelling] = useState<{ box: number; reason: string } | null>(null); // 판매자 취소 확인 단계
   const [ackNote, setAckNote] = useState("");
   const [ackResults, setAckResults] = useState<AckResult[]>([]);
@@ -41,6 +42,7 @@ export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean;
       if (!more) {
         setPicked([]);
         setInv({});
+        setMoved([]);
         setAckResults([]);
         setAckNote("");
       }
@@ -105,13 +107,25 @@ export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean;
   const acknowledge = () =>
     start(async () => {
       setAsking("");
-      const r = await acknowledgeOrdersAction(picked);
+      const r = await acknowledgeOrdersAction(picked, { from, to });
       if (!r.ok) return setAckNote(`❌ ${r.error}`);
       setAckResults(r.results);
-      setAckNote(`✅ ${r.summary} 처리 뒤 고객이 배송지를 바꿨을 수 있으니 「상품준비중」으로 다시 불러와 주소를 확인해 주세요.`);
       const done = new Set(r.results.filter((x) => x.ok).map((x) => x.shipmentBoxId));
-      setOrders(orders.filter((o) => !done.has(o.shipmentBoxId)));
       setPicked([]);
+      if (!r.preparing) {
+        setAckNote(`✅ ${r.summary} 처리 뒤 고객이 배송지를 바꿨을 수 있으니 「상품준비중」으로 다시 불러와 주소를 확인해 주세요.`);
+        setOrders(orders.filter((o) => !done.has(o.shipmentBoxId)));
+        return;
+      }
+      // A2: 바로 상품준비중 목록으로 넘어가 송장을 넣는다. A4: 처리 전 주소와 다르면 표시
+      const before = new Map(orders.map((o) => [o.shipmentBoxId, `${o.postCode} ${o.address} ${o.receiverName}`]));
+      const changed = r.preparing.filter((o) => before.has(o.shipmentBoxId) && before.get(o.shipmentBoxId) !== `${o.postCode} ${o.address} ${o.receiverName}`).map((o) => o.shipmentBoxId);
+      setOrders(r.preparing);
+      setNext("");
+      setStatus("INSTRUCT");
+      setShownStatus("INSTRUCT");
+      setMoved(changed);
+      setAckNote(`✅ ${r.summary} 이어서 송장을 넣을 수 있게 「상품준비중」 목록으로 넘어왔습니다.${changed.length ? ` ⚠ 배송지가 바뀐 주문 ${changed.length}건이 있습니다(빨간 표시).` : " 배송지가 바뀐 주문은 없습니다."}`);
     });
 
   return (
@@ -185,7 +199,7 @@ export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean;
       )}
       <ul className="space-y-2">
         {orders.map((o) => (
-          <li key={o.shipmentBoxId} className="rounded-lg border border-slate-200 p-3 text-[13px]">
+          <li key={o.shipmentBoxId} className={`rounded-lg border p-3 text-[13px] ${moved.includes(o.shipmentBoxId) ? "border-rose-400 bg-rose-50" : "border-slate-200"}`}>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               {canAck && <input type="checkbox" aria-label={`배송번호 ${o.shipmentBoxId} 고르기`} checked={picked.includes(o.shipmentBoxId)} onChange={() => toggle(o.shipmentBoxId)} className="h-4 w-4 accent-rose-700" />}
               <span className="rounded bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800">{orderStatusLabel(o.status)}</span>
@@ -203,6 +217,7 @@ export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean;
               ))}
             </ul>
             <p className="mt-2 text-xs text-slate-600">
+              {moved.includes(o.shipmentBoxId) && <b className="text-rose-700">⚠ 배송지 바뀜 — 아래 주소로 보내세요 · </b>}
               📦 {o.receiverName} · {o.receiverSafeNumber} · ({o.postCode}) {o.address}
               {o.shippingPrice > 0 && ` · 배송비 ${o.shippingPrice.toLocaleString()}원`}
             </p>

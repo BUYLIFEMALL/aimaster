@@ -30,10 +30,10 @@ export async function listOrderSheetsAction(opt: { from: string; to: string; sta
   }
 }
 
-export type AckActionResult = { ok: true; results: AckResult[]; summary: string } | { ok: false; error: string };
+export type AckActionResult = { ok: true; results: AckResult[]; summary: string; preparing?: OrderSheet[] } | { ok: false; error: string };
 
 /** C3-2 결제완료 → 상품준비중(실제 주문 상태가 바뀜 — 화면에서 확인을 한 번 더 받은 뒤 호출, 다시 보내지 않음) */
-export async function acknowledgeOrdersAction(shipmentBoxIds: number[]): Promise<AckActionResult> {
+export async function acknowledgeOrdersAction(shipmentBoxIds: number[], range?: { from: string; to: string }): Promise<AckActionResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
@@ -41,7 +41,24 @@ export async function acknowledgeOrdersAction(shipmentBoxIds: number[]): Promise
   if ("error" in picked) return { ok: false, error: picked.error };
   try {
     const r = await wingRequest(keys, "PATCH", ackPath(keys.vendorId), { body: { vendorId: keys.vendorId, shipmentBoxIds: picked.ids } });
-    return { ok: true, ...normalizeAckResult(r.data, picked.ids) };
+    const done = normalizeAckResult(r.data, picked.ids);
+    // A4: 처리 뒤 고객이 배송지를 바꿨을 수 있다(명세) → 상품준비중 목록을 다시 읽어 화면이 비교·이어서 송장 입력(A2)
+    let preparing: OrderSheet[] | undefined;
+    if (range && !checkOrderRange(range.from, range.to) && done.results.some((x) => x.ok)) {
+      try {
+        preparing = [];
+        let token = "";
+        for (let page = 0; page < 3; page++) {
+          const l = normalizeOrderSheets((await wingRequest(keys, "GET", ordersPath(keys.vendorId), { query: ordersQuery({ from: range.from, to: range.to, status: "INSTRUCT", nextToken: token || undefined }) })).data);
+          preparing.push(...l.orders);
+          if (!l.nextToken) break;
+          token = l.nextToken;
+        }
+      } catch {
+        preparing = undefined; // 다시 읽기 실패는 처리 결과에 영향 없음 — 화면이 안내
+      }
+    }
+    return { ok: true, ...done, preparing };
   } catch (e) {
     const status = e instanceof WingApiError ? e.status : 0;
     if (status === 0 || status >= 500) {

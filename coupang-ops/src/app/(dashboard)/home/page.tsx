@@ -2,11 +2,15 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { ROADMAP, TOOLS } from "@/lib/tools";
+import { getWingKeys } from "@/lib/data";
+import { TodayBoard } from "@/components/TodayBoard";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export default async function HomePage() {
-  await requireProgramAccess();
+  const user = await requireProgramAccess();
+  const keys = await getWingKeys(user.id);
 
   return (
     <div className="space-y-5">
@@ -16,6 +20,8 @@ export default async function HomePage() {
         🧭 <b>시작 순서</b>: 1. WING에서 Open API 키 발급(연동 방식 「자체개발」, 허용 IP 등록) → 2. 이 프로그램에 키 등록 → 3. 연결 시험 → 4. 상품 등록.
         키 발급 방법은 <Link href="/guide" className="font-bold text-rose-700 underline">📖 연동 &amp; 사용 매뉴얼</Link>에 있습니다.
       </Notice>
+
+      <TodayBoard keysSaved={!!keys} />
 
       {TOOLS.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-3">
