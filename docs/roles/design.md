@@ -11,7 +11,8 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| 전체 프로그램 | 9대 기능 유사군 순차 리뉴얼 (블로그/유튜브/SNS/음악/이커머스/이미지/수집/생산성/CRM) | 2026-10-25 | Group 2 대표 유튜브 `shots` v1.44, `shorts-onestop-studio` v2.0 및 `shorts-viral-studio` v2.0 완료, 다음 대상 대기 중 |
+| `youtube-viral-studio` | 4대 화면 3시안(12뷰) 제작 완료 및 쇼케이스 호스팅 (`http://localhost:3800/showcase.html`), 1440px 팝업 검증 및 24/29/30번 템플릿 자산화 | 2026-10-30 | 주인님 3대 시안 선택·승인 대기 중 |
+| 전체 프로그램 | 9대 기능 유사군 순차 리뉴얼 (블로그/유튜브/SNS/음악/이커머스/이미지/수집/생산성/CRM) | 2026-10-25 | Group 2 대표 유튜브 `shots` v1.44, `shorts-onestop-studio` v2.0 및 `shorts-viral-studio` v2.0 완료, `youtube-viral-studio` 시안 작업 중 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
