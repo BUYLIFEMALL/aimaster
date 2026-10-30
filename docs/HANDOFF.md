@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 ✅ [역할: 미지정] Claude Code(윈도우, 보조 계정) · 세션 `claude-win-20261029-statusbar` — 수업용 배포 키트 `Blog_Content_Kit_v1.01`(ai-auto-blog, 확장 제외)
+- 주인님 지시: 「블로그 포스팅 자동화에 자동 포스팅을 뺀 콘텐츠 만들기까지만」「확장 프로그램은 제외」「데이터 수집·콘텐츠 생성·운영 관리까지」「수강생은 복사해서 붙여넣기까지만」「내 값은 빼고 빈 값으로, 본인 값만 넣으면 바로 실행」.
+- 코드(`ai-auto-blog`, 운영 동작 변화 없음·**미배포**): `lib/deployment.ts` 독립 모드 스위치 — 로그인만으로 사용·자체 가입(`app/auth/actions.ts` `signup`)·AIMaster 링크/매뉴얼 팝업 숨김·확장 화면/API를 `proxy.ts`에서 차단·`vercel.app`→운영 주소 이동 끔·운영 전용 표(`profiles`·`programs`·`usage_logs`) 조회 생략·확장 ZIP 빌드 생략·독립 모드 기본 AI Gemini. `KIT/` 6종. 공용 `scripts/make_lecture_kit.py` `exclude`가 하위 경로도 받게(기존 키트 영향 없음).
+- 산출물: `D:PDSBlog_Content_Kit_v1.01.zip`(137개 파일·430KB, 비밀값 검사·DB 대조 통과). 로컬 독립 모드 `npm run build` 통과. 리허설용 Supabase `BUYLIFE-DEV`/`kit-blog`(ref `phbxvmjielzmvkbvkqvy`, 서울, 무료, 주인님 요청으로 생성).
+- 남은 일: 마법사 설치 리허설(수강생처럼 설치→가입→Gemini 키→글감→글+이미지→복사) — 리허설 Vercel 배포 위치·비용 주인님 확인 후. 기존 시험 7개 실패(security 6·shorts 1)는 v1.84 카테고리 회원별 전환 이후 옛 기대값으로 이번 변경과 무관 — `ai-auto-blog/docs/IMPROVEMENTS.md` 기록.
+
 ## 2026-10-30 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — 실거래 v1.26: 화성·인천 지역 코드, 경기 필지 번호, 공시가 원인 확인
 - **화성·인천**: 국토부 법정동 자료(`realty-listing-alert/public/regions.json`)와 경기·인천 58곳 대조 → 화성시 만세·효행·병점·동탄구(41591~41597), 인천 제물포·영종·서해·검단구로 교체(옛 41590은 0건이었음). 대조 시험 추가. 시험 계정의 옛 41590 감시 줄은 끔.
 - **필지 번호**: 국토부 응답에 동 코드·본번·부번이 없어(`umdNm`·`jibun`만) 경기 필지 번호가 비었음 → 동 이름→법정동 코드 표(`src/lib/publicdata/legalDong.ts`, 903개) + 지번 나누기. 크롬(시험 계정) 「화성시 동탄구」 조회 → 20줄 모두 19자리 필지 번호·전용면적 확인. 읍·면은 리 코드가 없어 읍 코드로(그 필지 공시가는 빔).

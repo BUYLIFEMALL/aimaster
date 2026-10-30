@@ -189,6 +189,7 @@
 | `ALLA_AI_Kit` | **v1.03** | 2026-10-23 | 주인님 지시로 배포판 이름 변경 `Threads_AI_Planner_Kit` → **`ALLA_AI_Kit`**(번호 이어감), 독립 모드 화면 이름 「ALLA AI」(`APP_NAME`, `NEXT_PUBLIC_APP_NAME`로 변경 가능). 기능은 v1.02와 같음. 65개 파일·비밀값·DB 대조 통과, 풀어서 독립 모드 build·start → 탭 제목 「ALLA AI」 확인 | `kit.json` `shortName`은 그대로(이전 설치본 업데이트 모드 유지). 압축 안 폴더는 `threads-easy-planner` |
 | `ALLA_AI_Kit` | **v1.04** | 2026-10-23 | 원본 코드 동기화 — 이미지 기능 스위치 `IMAGE_FEATURE = IS_STANDALONE`(주인님 지시: 운영은 숨기고 배포판만 유지), 프로그램 v1.49. 배포판 동작은 v1.03과 같음. 65개 파일·비밀값·DB 대조 통과 | 운영(AIMaster)은 v1.49에서 이미지 칸 없음 확인 |
 | `ALLA_AI_Kit` | **v1.05 (최종본)** | 2026-10-23 | 다른 계정 설치용 최종본 — `schema.sql`을 Lab DB에서 임시 스키마로 실행·되돌리기 검증(오류 0), 마법사 `resultSteps`로 설치결과 다음 단계를 이 프로그램에 맞춤, 풀어서 독립 모드 build·start 확인. 65개 파일·비밀값·DB 대조 통과 | 실제 수강생 계정 마법사 리허설만 남음 |
+| `Blog_Content_Kit` | **v1.01** | 2026-10-30 | 블로그 포스팅 자동화(`ai-auto-blog` v1.84 코드 기준) **콘텐츠 만들기 전용** 첫 배포판 — 주인님 지시 「자동 포스팅 기능을 뺀 버전」「확장 프로그램은 제외」「수강생은 완성된 콘텐츠를 복사해서 붙여넣기 할 수 있는 단계까지만」. 독립 모드 스위치(`lib/deployment.ts`: 로그인만으로 사용·자체 가입·AIMaster 링크/매뉴얼 팝업 숨김·확장 화면/API 차단·Gemini 기본), `KIT/` 6종(빈 값 env), 포장 `exclude` 하위 경로 지원(`public/downloads` 확장 ZIP 제외). 137개 파일·비밀값·DB 대조 통과, 로컬 독립 모드 빌드 통과 | 리허설용 Supabase `BUYLIFE-DEV`/`kit-blog`(ref `phbxvmjielzmvkbvkqvy`, 무료) — 마법사 설치 리허설 대기 |
 
 | 프로그램 | 키트 방식 | 최신 포장 | 리허설 | 메모 |
 |---|---|---|---|---|
@@ -196,6 +197,7 @@
 | `insta_auto_poster` (INSTA 포스팅 자동화) | `KIT/` 표준(static DB 파일) | `SNS_Auto_Posting_Kit_v1.08` | ✅ 2026-10-20 윈도우 마법사 설치(v1.01)→업데이트(v1.06)·사이트 독립 모드 확인(Meta 연결·게시는 미시험, `REHEARSAL_LOG.md` 2차) | 2026-10-19 예약 방식 적용(v1.25): `KIT/schema.sql`·`upgrade-20261019-cronjob.sql`·`enable-vercel-cron.*`·README 6장 — v1.01에 반영됨 |
 | `threads-affiliate-poster` (쓰레드 쇼핑제휴) | **`KIT/` 표준(2026-10-19 clone-kit에서 통합)**, DB 파일 자동 생성(generate) | 시험 포장만(배포 전) | ⚪ 없음 | 설치 스크립트로 운영자 이름·이메일·Fixie까지 자동 등록. 리허설 후 PDS 반영 |
 | `threads-easy-planner` (Threads AI 기획 자동화 · 배포판 이름 ALLA AI) | `KIT/` 표준(static DB 파일) | `ALLA_AI_Kit_v1.05` | ⚪ 대기(로컬 독립 모드 빌드·서버 확인만) | 콜백·예약 없음, `authRedirectPath` `/auth/confirm`. 프롬프트 문서는 `scripts/build-kit-prompts.py`로 코드에서 다시 뽑음 |
+| `ai-auto-blog` (블로그 포스팅 자동화 · 배포판 이름 블로그 콘텐츠 자동화) | `KIT/` 표준(static DB 파일), **확장 제외** | `Blog_Content_Kit_v1.01` | ⚪ 대기(로컬 독립 모드 빌드·포장 점검만, 마법사 설치 리허설 전) | 예약 없음·하루 1번 30일 정리 cron(무료). `checkTable`=`newsblur_accounts`(DB 파일 맨 끝). 기존 시험 7개 실패는 v1.84 카테고리 회원별 전환 때부터의 옛 기대값(이번 변경 무관) |
 
 ## 9. 관련 문서
 - 예약 기능: [`SCHEDULER_POLICY.md`](SCHEDULER_POLICY.md) · Lab 규칙: [`AIMASTER_DEV_LAB_GUIDELINES.md`](AIMASTER_DEV_LAB_GUIDELINES.md) · 리허설 기록: [`sns-kit-manual/REHEARSAL_LOG.md`](sns-kit-manual/REHEARSAL_LOG.md) · 오류 교훈: [`ERROR_LESSONS.md`](ERROR_LESSONS.md) · 최상위 규칙: [`TOP_RULE_PERSONAL_ACCOUNT_API.md`](TOP_RULE_PERSONAL_ACCOUNT_API.md)
