@@ -128,7 +128,8 @@ export function ackIds(ids: unknown[]): { ids: number[] } | { error: string } {
 
 export type AckResult = { shipmentBoxId: number; ok: boolean; message: string; retryable: boolean };
 
-export function normalizeAckResult(raw: unknown, sent: number[]): { results: AckResult[]; summary: string } {
+/** 묶음배송번호별 결과(상품준비중·송장 업로드·송장 수정 응답이 같은 모양) */
+export function normalizeAckResult(raw: unknown, sent: number[], done = "상품준비중으로 바꿨습니다."): { results: AckResult[]; summary: string } {
   const data = ((raw ?? {}) as { data?: Record<string, unknown> }).data ?? {};
   const list = Array.isArray(data.responseList) ? (data.responseList as Record<string, unknown>[]) : [];
   const byId = new Map(list.map((r) => [Number(r.shipmentBoxId), r]));
@@ -136,8 +137,67 @@ export function normalizeAckResult(raw: unknown, sent: number[]): { results: Ack
     const r = byId.get(id);
     if (!r) return { shipmentBoxId: id, ok: false, message: "쿠팡 응답에 이 주문 결과가 없습니다. 발주서를 다시 불러와 상태를 확인해 주세요.", retryable: false };
     const ok = r.succeed === true;
-    return { shipmentBoxId: id, ok, message: ok ? "상품준비중으로 바꿨습니다." : s(r.resultMessage) || s(r.resultCode) || "쿠팡이 처리하지 않았습니다.", retryable: !ok && r.retryRequired === true };
+    return { shipmentBoxId: id, ok, message: ok ? done : s(r.resultMessage) || s(r.resultCode) || "쿠팡이 처리하지 않았습니다.", retryable: !ok && r.retryRequired === true };
   });
   const okCount = results.filter((r) => r.ok).length;
-  return { results, summary: `${results.length}건 중 ${okCount}건을 상품준비중으로 바꿨습니다.` };
+  return { results, summary: `${results.length}건 중 ${okCount}건을 처리했습니다(${done.replace(/.$/, "")}).` };
+}
+
+// ── C3-3 송장 등록·수정 ─────────────────────────────────────────────
+// 등록 POST …/vendors/{vendorId}/orders/invoices        — 상품준비중 주문만, 성공하면 배송지시로 바뀜
+// 수정 POST …/vendors/{vendorId}/orders/updateInvoices  — 배송지시·배송중·배송완료·업체직송 상태만
+// 명세: developers.coupang.com/ko/api/shipments/uploading-waybills · updating-waybills (2026-10-30 확인)
+// 분리배송은 다루지 않는다(splitShipping false — 한 배송 묶음 = 송장 하나, 묶음 안 옵션 모두 같은 송장으로 보냄. 빠지면 쿠팡이 NOT_FOUND_VENDOR_ITEM).
+
+export const invoicePath = (vendorId: string, mode: "upload" | "update") =>
+  `/v2/providers/openapi/apis/api/v4/vendors/${encodeURIComponent(vendorId)}/orders/${mode === "upload" ? "invoices" : "updateInvoices"}`;
+/** 송장을 새로 올릴 수 있는 상태 / 고칠 수 있는 상태 */
+export const INVOICE_UPLOAD_STATUS = "INSTRUCT";
+export const INVOICE_UPDATE_STATUSES = ["DEPARTURE", "DELIVERING", "FINAL_DELIVERY", "NONE_TRACKING"];
+
+/** 송장번호 정리: 공백·하이픈 제거. CJ대한통운·업체직송은 숫자만(쿠팡 오류 사례), 그 밖은 영문·숫자 6~30자 */
+export function cleanInvoice(courier: string, raw: string): { invoice: string } | { error: string } {
+  const invoice = String(raw ?? "").replace(/[\s-]/g, "");
+  if (!invoice) return { error: "송장번호를 넣어 주세요." };
+  if ((courier === "CJGLS" || courier === "DIRECT") && !/^\d+$/.test(invoice)) return { error: "이 택배사 송장번호는 숫자만 넣어 주세요." };
+  if (!/^[0-9A-Za-z]{6,30}$/.test(invoice)) return { error: "송장번호는 영문·숫자 6~30자로 넣어 주세요." };
+  return { invoice };
+}
+
+export type InvoiceEntry = { shipmentBoxId: number; orderId: number; courier: string; invoice: string; vendorItemIds: number[] };
+
+/** 화면에서 받은 입력을 검사해 쿠팡 요청 본문으로 만든다(번호마다 문제가 있으면 errors) */
+export function invoiceBody(vendorId: string, entries: InvoiceEntry[]): { body: Record<string, unknown>; ids: number[] } | { errors: string[] } {
+  const errors: string[] = [];
+  if (entries.length === 0) errors.push("송장을 넣은 주문이 없습니다.");
+  if (entries.length > ACK_MAX) errors.push(`한 번에 ${ACK_MAX}건까지만 처리할 수 있습니다.`);
+  const seen = new Set<number>();
+  const dtos: Record<string, unknown>[] = [];
+  for (const e of entries) {
+    const box = Number(e.shipmentBoxId);
+    const label = `배송번호 ${box || "?"}`;
+    if (!Number.isInteger(box) || box <= 0 || !Number(e.orderId)) { errors.push(`${label}: 주문 정보가 없습니다.`); continue; }
+    if (seen.has(box)) { errors.push(`${label}: 같은 주문이 두 번 들어 있습니다.`); continue; }
+    seen.add(box);
+    const courier = String(e.courier ?? "").trim().toUpperCase();
+    if (!/^[A-Z0-9_]{2,30}$/.test(courier)) { errors.push(`${label}: 택배사를 골라 주세요.`); continue; }
+    const inv = cleanInvoice(courier, e.invoice);
+    if ("error" in inv) { errors.push(`${label}: ${inv.error}`); continue; }
+    const items = [...new Set((e.vendorItemIds ?? []).map(Number).filter((n) => Number.isInteger(n) && n > 0))];
+    if (items.length === 0) { errors.push(`${label}: 옵션 정보가 없습니다.`); continue; }
+    for (const vendorItemId of items) {
+      dtos.push({ shipmentBoxId: box, orderId: Number(e.orderId), vendorItemId, deliveryCompanyCode: courier, invoiceNumber: inv.invoice, splitShipping: false, preSplitShipped: false, estimatedShippingDate: "" });
+    }
+  }
+  if (errors.length) return { errors };
+  return { body: { vendorId, orderSheetInvoiceApplyDtos: dtos }, ids: [...seen] };
+}
+
+/** 엑셀에서 붙여 넣은 「주문번호(또는 배송번호) 송장번호」 줄을 읽는다. 탭·쉼표·공백 구분, 숫자가 아닌 머리글 줄은 건너뜀 */
+export function parseInvoicePaste(text: string): { key: number; invoice: string }[] {
+  return String(text ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.split(/[\t,;]+|\s{2,}|\s/).map((x) => x.trim()).filter(Boolean))
+    .filter((cols) => cols.length >= 2 && /^\d+$/.test(cols[0].replace(/-/g, "")))
+    .map((cols) => ({ key: Number(cols[0].replace(/-/g, "")), invoice: cols[cols.length - 1] }));
 }

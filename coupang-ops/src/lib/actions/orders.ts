@@ -5,7 +5,7 @@ import { getWingKeys } from "@/lib/data";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
 import { takeReadSlot } from "@/lib/readGap";
 import { ORDER_READ_GAP_SECONDS } from "@/lib/readGapRule";
-import { ackIds, ackPath, checkOrderRange, normalizeAckResult, normalizeOrderSheets, ordersPath, ordersQuery, type AckResult, type OrderSheet } from "@/lib/coupang/orders";
+import { ackIds, ackPath, checkOrderRange, invoiceBody, invoicePath, normalizeAckResult, normalizeOrderSheets, ordersPath, ordersQuery, type AckResult, type InvoiceEntry, type OrderSheet } from "@/lib/coupang/orders";
 
 export type OrdersResult = { ok: true; orders: OrderSheet[]; nextToken: string } | { ok: false; error: string };
 
@@ -48,5 +48,25 @@ export async function acknowledgeOrdersAction(shipmentBoxIds: number[]): Promise
       return { ok: false, error: "쿠팡 응답을 받지 못했습니다. 이미 처리됐을 수 있으니 「상품준비중」 상태로 발주서를 다시 불러와 확인한 뒤, 빠진 주문만 다시 처리해 주세요." };
     }
     return { ok: false, error: `상품준비중으로 바꾸지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
+  }
+}
+
+/** C3-3 송장 등록(상품준비중 → 배송지시) / 수정(배송지시 이후). 실제 주문이 바뀜 — 화면 확인 뒤 호출, 다시 보내지 않음 */
+export async function submitInvoicesAction(mode: "upload" | "update", entries: InvoiceEntry[]): Promise<AckActionResult> {
+  const user = await requireProgramAccess();
+  const keys = await getWingKeys(user.id);
+  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  const m = mode === "update" ? "update" : "upload";
+  const built = invoiceBody(keys.vendorId, Array.isArray(entries) ? entries : []);
+  if ("errors" in built) return { ok: false, error: built.errors.slice(0, 5).join(" / ") };
+  try {
+    const r = await wingRequest(keys, "POST", invoicePath(keys.vendorId, m), { body: built.body });
+    return { ok: true, ...normalizeAckResult(r.data, built.ids, m === "upload" ? "송장을 등록했습니다(배송지시로 바뀜)." : "송장을 고쳤습니다.") };
+  } catch (e) {
+    const status = e instanceof WingApiError ? e.status : 0;
+    if (status === 0 || status >= 500) {
+      return { ok: false, error: "쿠팡 응답을 받지 못했습니다. 이미 처리됐을 수 있으니 발주서를 다시 불러와 송장이 들어갔는지 확인한 뒤, 빠진 주문만 다시 처리해 주세요." };
+    }
+    return { ok: false, error: `송장을 ${m === "upload" ? "등록" : "수정"}하지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
   }
 }

@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { acknowledgeOrdersAction, listOrderSheetsAction } from "@/lib/actions/orders";
-import { ACK_MAX, ORDER_STATUSES, orderStatusLabel, type AckResult, type OrderSheet } from "@/lib/coupang/orders";
+import { acknowledgeOrdersAction, listOrderSheetsAction, submitInvoicesAction } from "@/lib/actions/orders";
+import { ACK_MAX, INVOICE_UPDATE_STATUSES, INVOICE_UPLOAD_STATUS, ORDER_STATUSES, orderStatusLabel, parseInvoicePaste, type AckResult, type OrderSheet } from "@/lib/coupang/orders";
+import { COMMON_COURIERS } from "@/lib/coupang/defaults";
 
 const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-rose-500 focus:outline-none";
 /** 한국 시간 기준 오늘에서 n일 전 날짜(yyyy-mm-dd) */
 const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10);
 
-export function OrderSheets({ keysSaved }: { keysSaved: boolean }) {
+export function OrderSheets({ keysSaved, defaultCourier }: { keysSaved: boolean; defaultCourier: string }) {
   const [status, setStatus] = useState("ACCEPT");
   const [from, setFrom] = useState(kstDay(6));
   const [to, setTo] = useState(kstDay(0));
@@ -19,7 +20,9 @@ export function OrderSheets({ keysSaved }: { keysSaved: boolean }) {
   const [pending, start] = useTransition();
   const [shownStatus, setShownStatus] = useState(""); // 지금 목록을 불러온 상태(결제완료일 때만 상품준비중 처리)
   const [picked, setPicked] = useState<number[]>([]);
-  const [asking, setAsking] = useState(false);
+  const [asking, setAsking] = useState<"" | "ack" | "invoice">(""); // 쿠팡에 보내기 전 한 번 더 묻는 단계
+  const [inv, setInv] = useState<Record<number, { courier: string; invoice: string }>>({}); // 배송번호별 송장 입력
+  const [paste, setPaste] = useState("");
   const [ackNote, setAckNote] = useState("");
   const [ackResults, setAckResults] = useState<AckResult[]>([]);
 
@@ -34,18 +37,57 @@ export function OrderSheets({ keysSaved }: { keysSaved: boolean }) {
       setShownStatus(status);
       if (!more) {
         setPicked([]);
+        setInv({});
         setAckResults([]);
         setAckNote("");
       }
     });
 
   const canAck = shownStatus === "ACCEPT";
+  const invoiceMode: "" | "upload" | "update" = shownStatus === INVOICE_UPLOAD_STATUS ? "upload" : INVOICE_UPDATE_STATUSES.includes(shownStatus) ? "update" : "";
+  const courierOf = (id: number) => inv[id]?.courier ?? defaultCourier;
+  const setInvoice = (id: number, patch: Partial<{ courier: string; invoice: string }>) =>
+    setInv((cur) => ({ ...cur, [id]: { courier: cur[id]?.courier ?? defaultCourier, invoice: cur[id]?.invoice ?? "", ...patch } }));
+  const filled = orders.filter((o) => (inv[o.shipmentBoxId]?.invoice ?? "").trim());
+
+  // 엑셀에서 복사한 「주문번호(또는 배송번호) 송장번호」를 불러온 목록에 채운다
+  const applyPaste = () => {
+    const rows = parseInvoicePaste(paste);
+    let hit = 0;
+    const nextInv = { ...inv };
+    for (const row of rows) {
+      const o = orders.find((x) => x.orderId === row.key || x.shipmentBoxId === row.key);
+      if (!o) continue;
+      nextInv[o.shipmentBoxId] = { courier: nextInv[o.shipmentBoxId]?.courier ?? defaultCourier, invoice: row.invoice };
+      hit++;
+    }
+    setInv(nextInv);
+    setAckNote(`📋 붙여 넣은 ${rows.length}줄 중 ${hit}건을 목록의 주문에 채웠습니다.${rows.length > hit ? " 나머지는 지금 목록에 없는 주문번호입니다." : ""}`);
+  };
+
+  // 송장 등록(상품준비중 → 배송지시) / 수정. 확인을 한 번 더 받고, 실패해도 다시 보내지 않는다
+  const sendInvoices = () =>
+    invoiceMode &&
+    start(async () => {
+      setAsking("");
+      const entries = filled.map((o) => ({ shipmentBoxId: o.shipmentBoxId, orderId: o.orderId, courier: courierOf(o.shipmentBoxId), invoice: inv[o.shipmentBoxId].invoice, vendorItemIds: o.items.map((it) => it.vendorItemId) }));
+      const r = await submitInvoicesAction(invoiceMode, entries);
+      if (!r.ok) return setAckNote(`❌ ${r.error}`);
+      setAckResults(r.results);
+      setAckNote(`✅ ${r.summary}`);
+      const done = new Set(r.results.filter((x) => x.ok).map((x) => x.shipmentBoxId));
+      if (invoiceMode === "upload") setOrders(orders.filter((o) => !done.has(o.shipmentBoxId)));
+      else
+        setOrders(orders.map((o) => (done.has(o.shipmentBoxId) ? { ...o, invoiceNumber: inv[o.shipmentBoxId].invoice.replace(/[\s-]/g, ""), deliveryCompanyName: COMMON_COURIERS.find((c) => c.code === courierOf(o.shipmentBoxId))?.name ?? courierOf(o.shipmentBoxId) } : o)));
+      setInv((cur) => Object.fromEntries(Object.entries(cur).filter(([k]) => !done.has(Number(k)))));
+    });
+
   const toggle = (id: number) => setPicked(picked.includes(id) ? picked.filter((x) => x !== id) : picked.length >= ACK_MAX ? picked : [...picked, id]);
 
   // 결제완료 → 상품준비중. 실제 주문 상태가 바뀌므로 확인을 한 번 더 받고, 실패해도 다시 보내지 않는다
   const acknowledge = () =>
     start(async () => {
-      setAsking(false);
+      setAsking("");
       const r = await acknowledgeOrdersAction(picked);
       if (!r.ok) return setAckNote(`❌ ${r.error}`);
       setAckResults(r.results);
@@ -84,14 +126,38 @@ export function OrderSheets({ keysSaved }: { keysSaved: boolean }) {
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
           <span>보낼 준비를 시작할 주문을 고르세요(한 번에 {ACK_MAX}건까지). 처리하면 쿠팡 주문 상태가 「상품준비중」으로 바뀝니다.</span>
           <button type="button" onClick={() => setPicked(picked.length ? [] : orders.slice(0, ACK_MAX).map((o) => o.shipmentBoxId))} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">{picked.length ? "선택 해제" : "모두 고르기"}</button>
-          <button type="button" disabled={pending || picked.length === 0} onClick={() => setAsking(true)} className="rounded border border-rose-600 bg-rose-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">선택한 {picked.length}건 상품준비중으로</button>
+          <button type="button" disabled={pending || picked.length === 0} onClick={() => setAsking("ack")} className="rounded border border-rose-600 bg-rose-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">선택한 {picked.length}건 상품준비중으로</button>
         </div>
       )}
-      {asking && (
+      {invoiceMode && orders.length > 0 && (
+        <div className="space-y-2 rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-[12px] text-teal-900">
+          <p>
+            {invoiceMode === "upload" ? "주문마다 택배사·송장번호를 넣고 등록하면 쿠팡 주문이 「배송지시」로 바뀝니다." : "잘못 넣은 송장만 새 번호로 고칩니다(고치면 배송지시로 다시 바뀌고, 이후 택배 추적에 따라 바뀝니다)."} 한 배송 묶음에 송장 하나로 보냅니다(분리배송은 WING에서).
+            {!defaultCourier && " 「⚙ 배송·반품 기본값」에 택배사를 저장해 두면 자동으로 골라집니다."}
+          </p>
+          <details>
+            <summary className="cursor-pointer font-bold">📋 엑셀에서 한 번에 붙여넣기</summary>
+            <p className="mt-1 text-[11px]">엑셀에서 「주문번호(또는 배송번호)」와 「송장번호」 두 칸을 함께 복사해 붙여 넣으세요. 머리글 줄은 건너뜁니다.</p>
+            <textarea value={paste} onChange={(e) => setPaste(e.target.value)} rows={4} placeholder={"2000123456\t123456789012\n2000123457\t123456789013"} className="mt-1 w-full rounded border border-slate-300 bg-white p-2 font-mono text-[12px]" />
+            <button type="button" disabled={!paste.trim()} onClick={applyPaste} className="mt-1 rounded border border-teal-600 bg-white px-2 py-1 text-[11px] font-bold text-teal-800 disabled:opacity-50">목록에 채우기</button>
+          </details>
+          <button type="button" disabled={pending || filled.length === 0 || filled.length > ACK_MAX} onClick={() => setAsking("invoice")} className="rounded border border-rose-600 bg-rose-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">
+            송장 넣은 {filled.length}건 {invoiceMode === "upload" ? "등록" : "수정"}{filled.length > ACK_MAX ? ` (한 번에 ${ACK_MAX}건까지)` : ""}
+          </button>
+        </div>
+      )}
+      {asking === "invoice" && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-[12px] text-rose-900">
+          <span className="font-bold">주문 {filled.length}건의 송장을 쿠팡에 {invoiceMode === "upload" ? "등록할까요? 등록하면 「배송지시」로 바뀌고, 잘못된 송장으로 생긴 배송비는 판매자 부담입니다." : "고칠까요?"}</span>
+          <button type="button" disabled={pending} onClick={sendInvoices} className="rounded border border-rose-600 bg-rose-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">{pending ? "보내는 중…" : "네, 쿠팡에 적용"}</button>
+          <button type="button" disabled={pending} onClick={() => setAsking("")} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">취소</button>
+        </div>
+      )}
+      {asking === "ack" && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-[12px] text-rose-900">
           <span className="font-bold">주문 {picked.length}건을 쿠팡에서 「상품준비중」으로 바꿀까요? 되돌릴 수 없습니다.</span>
           <button type="button" disabled={pending} onClick={acknowledge} className="rounded border border-rose-600 bg-rose-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">{pending ? "바꾸는 중…" : "네, 쿠팡에 적용"}</button>
-          <button type="button" disabled={pending} onClick={() => setAsking(false)} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">취소</button>
+          <button type="button" disabled={pending} onClick={() => setAsking("")} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">취소</button>
         </div>
       )}
       {ackNote && <p className="text-[12px] text-slate-800">{ackNote}</p>}
@@ -124,6 +190,16 @@ export function OrderSheets({ keysSaved }: { keysSaved: boolean }) {
               {o.shippingPrice > 0 && ` · 배송비 ${o.shippingPrice.toLocaleString()}원`}
             </p>
             {o.message && <p className="text-xs text-slate-500">💬 {o.message}</p>}
+            {invoiceMode && (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <select aria-label={`배송번호 ${o.shipmentBoxId} 택배사`} value={courierOf(o.shipmentBoxId)} onChange={(e) => setInvoice(o.shipmentBoxId, { courier: e.target.value })} className="rounded border border-slate-300 bg-white px-2 py-1 text-[12px]">
+                  {!courierOf(o.shipmentBoxId) && <option value="">택배사 고르기</option>}
+                  {COMMON_COURIERS.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+                  {courierOf(o.shipmentBoxId) && !COMMON_COURIERS.some((c) => c.code === courierOf(o.shipmentBoxId)) && <option value={courierOf(o.shipmentBoxId)}>{courierOf(o.shipmentBoxId)}</option>}
+                </select>
+                <input aria-label={`배송번호 ${o.shipmentBoxId} 송장번호`} placeholder={invoiceMode === "upload" ? "송장번호" : "새 송장번호"} value={inv[o.shipmentBoxId]?.invoice ?? ""} onChange={(e) => setInvoice(o.shipmentBoxId, { invoice: e.target.value })} className="w-44 rounded border border-slate-300 bg-white px-2 py-1 text-[12px]" />
+              </div>
+            )}
           </li>
         ))}
       </ul>

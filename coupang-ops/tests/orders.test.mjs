@@ -51,5 +51,31 @@ test("상품준비중 처리: 번호 정리와 건별 결과", async () => {
   assert.deepEqual(r.results.map((x) => x.ok), [true, false, false]);
   assert.equal(r.results[1].retryable, true);
   assert.match(r.results[2].message, /다시 불러와/);
-  assert.equal(r.summary, "3건 중 1건을 상품준비중으로 바꿨습니다.");
+  assert.equal(r.summary, "3건 중 1건을 처리했습니다(상품준비중으로 바꿨습니다).");
+});
+
+test("송장: 번호 정리·요청 본문·붙여넣기", async () => {
+  const { cleanInvoice, invoiceBody, invoicePath, parseInvoicePaste } = await import("../src/lib/coupang/orders.ts");
+  assert.equal(invoicePath("A001", "upload"), "/v2/providers/openapi/apis/api/v4/vendors/A001/orders/invoices");
+  assert.equal(invoicePath("A001", "update"), "/v2/providers/openapi/apis/api/v4/vendors/A001/orders/updateInvoices");
+  assert.deepEqual(cleanInvoice("CJGLS", " 1234-5678-9012 "), { invoice: "123456789012" });
+  assert.match(cleanInvoice("CJGLS", "AB123456").error, /숫자만/);
+  assert.deepEqual(cleanInvoice("HANJIN", "AB123456"), { invoice: "AB123456" });
+  assert.match(cleanInvoice("HANJIN", "12").error, /6~30/);
+
+  const ok = invoiceBody("A001", [{ shipmentBoxId: 11, orderId: 22, courier: "cjgls", invoice: "123456789012", vendorItemIds: [1, 2, 2] }]);
+  assert.deepEqual(ok.ids, [11]);
+  assert.equal(ok.body.orderSheetInvoiceApplyDtos.length, 2); // 묶음 안 옵션마다 한 줄
+  assert.deepEqual(ok.body.orderSheetInvoiceApplyDtos[0], { shipmentBoxId: 11, orderId: 22, vendorItemId: 1, deliveryCompanyCode: "CJGLS", invoiceNumber: "123456789012", splitShipping: false, preSplitShipped: false, estimatedShippingDate: "" });
+  const bad = invoiceBody("A001", [
+    { shipmentBoxId: 11, orderId: 22, courier: "CJGLS", invoice: "x1", vendorItemIds: [1] },
+    { shipmentBoxId: 12, orderId: 23, courier: "", invoice: "123456", vendorItemIds: [1] },
+  ]);
+  assert.equal(bad.errors.length, 2);
+  assert.match(invoiceBody("A001", []).errors[0], /없습니다/);
+
+  assert.deepEqual(parseInvoicePaste("주문번호\t송장번호\n2000123\t123456789012\n2000124, 9876-5432-1000\n\n잘못된 줄"), [
+    { key: 2000123, invoice: "123456789012" },
+    { key: 2000124, invoice: "9876-5432-1000" },
+  ]);
 });
