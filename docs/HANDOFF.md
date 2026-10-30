@@ -10,7 +10,8 @@
 - 불확정은 자동 재수락/예약환불 없음. 별도 읽기 전용 offer_check/reconcile에서 현재 동일 요청/작성자가 mutual로 명확히 확인되면 기존 예약을 결과로 정리하며 실행OFF 유지. pending 관찰은 미실행 근거가 아니므로 uncertain/예약 유지. proof는 extension-report/reconciled 표시이며 독립 Naver서버 검증 아님. 응답 유실 후 재클릭0 격리 검수.
 - 단위286/타입·신규 격리DB9·188SQL·정리DB11 통과. UI 확인2단계/가상 nativeDOM/확장→실HTTP→격리SQL 저장·승인·결과/읽기재확인/직접queue차단 검수. 실제 Naver/Edge/수락 UI 검수는 미완료. 영구 보관 초기화면/팝업/코드/스펙JSON, 캡처0.
 - 후속14묶음 미배포/SQL7 미적용 순서: cursor→engagement→extension→context→messages→extension_schedule→incoming_accept. cleanup은 수락 포함10종 독립 실패격리. 운영 적용 승인 전 실행 금지. 실제 다음 배포에서 v1.04/manifest/ZIP/DB 동기화. 운영/공개 ZIP v1.03 불변(SHA256 398a10d2d387e2071d1e32bc4b55aab3d7845186a54246f36c071fddedd5a7c6). AI/검색/원격빌드/배포/푸시/운영업무SQL변경0·비용0.
-- 다음은 대상 글 순회·새글 자료 공급/AI초안 연계 구현 후 실 DOM profile/Edge/Naver·AI품질·반복복구·운영 만료 검수. 기존668992b9/fe166de3 유지·새 사용자 요청0. 다른 세션의 서버 handoff/thumbnail 미커밋은 수정하지 않음. 현재6번은 로컬 완료 범위만 체크, 전체3~9 완료 금지.
+- 수락은 현재 명시적1건 실행 경로이며 현재 탭 반복 실행기에 자동 편입되지 않는다. 해당 주기 연결은8번 구현 잔여다.
+- 다음은 대상 글 순회·새글 자료 공급/AI초안 및 수락 주기 연계 구현 후 실 DOM profile/Edge/Naver·AI품질·반복복구·운영 만료 검수. 기존668992b9/fe166de3 유지·새 사용자 요청0. 다른 세션의 서버 handoff/thumbnail 미커밋은 수정하지 않음. 현재6번은 로컬 완료 범위만 체크, 전체3~9 완료 금지.
 
 
 ## 2026-10-30 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — `coupang-ops` 3단계 주문·송장 코드 완료 + 공식 API 검토·자동화 플랜 (로컬·미배포)
