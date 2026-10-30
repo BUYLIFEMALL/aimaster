@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 [역할: blog] 정독 시간 제어 로컬 구현/검수 완료 — 20c3eced4
+
+[공식 운영 v1.03](https://blog-neighbor-care.buylife.xyz) · [프로덕션 보조](https://blog-neighbor-care.vercel.app) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [정적 보관 화면](/D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030/messages.html) · 영구 자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030`.
+
+공감/댓글/대댓글 등록 전에 articleBody/articleComplete 및 articleCompleteText가 설정된 검수 DOM profile로 전문 해시·Unicode 문자 수만 확인한다(본문 전송0·10만자 초과는 절삭 없이 차단). 서버 reading 단계에서 max(30,ceil(문자수/500)*5)초를 정하고, 최초 관찰→대기→같은 본문/계정/탭 재확인 뒤에만 기존 claim/한도 예약과 recheck/arm 허가를 진행한다. 시간·nonce·프로필/본문 해시·문자 수가 다르면 차단한다. 확장은 monotonic clock/1초 간격 활성창·탭/본문 확인, 탭 전환/URL 변경 이벤트 시 해당 실행을 무효화한다. 남은 시간을 팝업에 표시하며, 중단·불확정 시 자동 재등록하지 않는다. 이 체류 시간은 실제 사람의 이해도·내용 정독을 증명하지 않는다.
+
+단위274/타입·확장 격리DB9·140SQL·읽기 격리DB9·163SQL·정리DB11 통과. DB 테스트의 시간 이동은 격리 fixture에서만 하며 운영 시간 우회 없음. 기존 미적용 20261030001500 migration 보완, 새 파일 추가 없음(누적SQL5). 공개 ZIP/운영 v1.03 유지·후속12묶음 미배포. 영구 보관에 work bridge/DOM와 reading-time JSON 추가. 실제 Edge/Naver 동작 미검수, AI/검색/빌드/배포/푸시/업무SQL변경0·비용0. 다음 웹 예약커서/확장 주기 호출 및 받은 신청 수락 구현 후 실제/운영 검수. 이번 사용자 요청0, 기존 요청 유지.
+
+
 ## 2026-10-30 [역할: blog] 읽기 연결·AI 신청/댓글/대댓글 생성 로컬 완료 / 구현 우선 계속
 
 확인 링크: [운영 v1.03](https://blog-neighbor-care.buylife.xyz) · [프로덕션 보조](https://blog-neighbor-care.vercel.app) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [정적 화면](/D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030/messages.html) · 영구 자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030`. 정적 화면은 초기 UI 보관본이며 운영 반영·실제 Edge 캡처가 아니다.
