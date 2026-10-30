@@ -13,6 +13,9 @@
 - v1.02 배포: 바코드·품번 칸, 브랜드 GENERIC(빌드 1회). 시험 43개·tsc·빌드 통과, 크롬 검사 동작 확인. 쿠팡 쓰기 실제 시험 0회.
 - 다음 첫 단계: 주인님 승인 뒤 「저장만」 1건 → 옵션 변경 1건 시험. 상세 `coupang-ops/AGENTS.md`. https://coupang-ops.buylife.xyz
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — 실거래 v1.33: 전월세 거래
+- 상세 `real_estate_sales/AGENTS.md`. 운영 DB 칸 추가·기본값 지정. 미배포: 표기 수정·`deal_type` 명시.
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — 실거래 v1.31: 전국·빌라·오피스텔·유형 필터
 - v1.32 추가 배포: 주인님이 `DATA_GO_KR_SERVICE_KEY` 교체, 20건 안내 문구.
 - 상세 `real_estate_sales/AGENTS.md`. 운영 DB에 칸 2개 추가(SQL 편집기, ref esgxyikcnnvmlhygjkth). 남은 일: 연립 매매 403 해소 확인, 공용 키 확인.
