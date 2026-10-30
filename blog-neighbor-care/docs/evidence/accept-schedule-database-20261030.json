@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-30T05:03:58.708Z",
+  "migration": "20261030150000_bnc_accept_schedule.sql",
+  "tests": [
+    "ASDB01 service-only RPCs; schedule initializes and waits without reserving or accepting",
+    "ASDB02 due acceptance leases common cursor once; ordinary claims/second accept cannot overlap",
+    "ASDB03 shared due window/revision/permission gates are rechecked before acceptance",
+    "ASDB04 armed uncertainty pauses shared cursor, retains budget and requires read-only proof then explicit recovery",
+    "ASDB05 timed-out lease never repeats and ordinary work cannot finish the acceptance lease",
+    "ASDB06 extension alarm -> API -> actual cursor -> one reported acceptance; next wake never duplicates",
+    "ASDB07 concurrent workers acquire once; daily cap and paused cursor cannot be bypassed manually",
+    "ASDB08 lost scheduled offer response can be stopped by server-owned status without a second offer or click",
+    "ASDB09 settings changes require explicit re-review; cancelled scheduled jobs can later use one-shot mode"
+  ],
+  "passed": 9,
+  "sqlCalls": 243,
+  "isolated": true,
+  "operatingApplied": false,
+  "actualPlatformActions": 0
+}

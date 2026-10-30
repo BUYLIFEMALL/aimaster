@@ -22,6 +22,7 @@
     "test:extension-execution-database": "node --import tsx tests/extension-execution-database.mjs",
     "test:post-targets-database": "node --import tsx tests/post-targets-database.mjs",
     "test:incoming-accept-database": "node --import tsx tests/incoming-accept-database.mjs",
+    "test:accept-schedule-database": "node --import tsx tests/accept-schedule-database.mjs",
     "test:extension-schedule-database": "node --import tsx tests/extension-schedule-database.mjs",
     "test:messages-database": "node --import tsx tests/messages-database.mjs",
     "test:context-read-database": "node --import tsx tests/context-read-database.mjs"

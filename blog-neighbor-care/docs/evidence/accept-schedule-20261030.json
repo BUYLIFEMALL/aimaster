@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-30",
+  "scope": "explicit current-page approved incoming invitation schedule using shared owner cursor",
+  "status": "local only; unpublished; SQL unapplied",
+  "unitTests": 303,
+  "typecheck": "pass",
+  "databaseTests": 9,
+  "databaseSqlCalls": 243,
+  "cleanupDatabaseTests": 11,
+  "pendingBundles": 16,
+  "unappliedMigrations": 9,
+  "newTables": 0,
+  "columnsAdded": 5,
+  "sharedCursor": true,
+  "actualPlatformActions": 0,
+  "paidAiCalls": 0,
+  "rssActualFetches": 0,
+  "operatingSqlWrites": 0,
+  "deployments": 0,
+  "remoteBuilds": 0,
+  "pushes": 0,
+  "actualEdgeVerified": false,
+  "screenshots": 0,
+  "permissionChanges": 0,
+  "browserWindowCreation": false,
+  "limits": {
+    "sessionHours": 8,
+    "wakeups": 960,
+    "successes": 120,
+    "requestDailyCapShared": true
+  },
+  "remaining": [
+    "automatic RSS monitoring and explicit-consent/budget AI draft preparation",
+    "actual DOM/Edge/Naver/AI quality verification",
+    "batch SQL9/release and operating expiry checks"
+  ],
+  "publishedZipSha256": "398a10d2d387e2071d1e32bc4b55aab3d7845186a54246f36c071fddedd5a7c6",
+  "archive": "D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/accept-schedule-20261030"
+}

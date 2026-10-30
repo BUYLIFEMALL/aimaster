@@ -26,7 +26,7 @@ export function createAcceptHandler(d:D){return async(req:Request)=>{
   if(!passive&&!config)return reply({error:'신청 화면 검수와 읽기·수락 준비가 필요합니다.'},409);
   if(['status_read','status_work'].includes(op)){if(!keys(p,[]))return bad();}
   else if(['cancel','stop'].includes(op)){if(!keys(p,['id'])||!uuid(p.id))return bad();payload={id:p.id};}
-  else if(['offer_read','offer_work','offer_check'].includes(op)){
+  else if(['offer_read','offer_work','offer_check','scheduled_offer'].includes(op)){
    if(!keys(p,['request_id','url'])||!uuid(p.request_id)||typeof p.url!=='string'||p.url.length>2048)return bad();const u=new URL(p.url);
    if(u.protocol!=='https:'||u.hostname!=='admin.blog.naver.com'||u.port||u.username||u.password||u.hash)return bad();
    const m=/^\/([a-z0-9_-]{1,50})\/?$/.exec(u.pathname);let owner;

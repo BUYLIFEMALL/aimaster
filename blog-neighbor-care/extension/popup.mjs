@@ -95,6 +95,7 @@ chrome.runtime.onMessage?.addListener((message,sender,respond)=>{
   if(message?.type==='neighbor_progress'&&currentDeviceId&&message.progress?.deviceId===currentDeviceId)renderNeighborProgress(message.progress);
   if(message?.type==='work_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('workMessage').textContent=message.message;
   if(message?.type==='schedule_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('scheduleMessage').textContent=message.message;
+  if(message?.type==='accept_schedule_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('acceptScheduleMessage').textContent=message.message;
   if(message?.type==='traversal_progress'&&currentDeviceId&&message.deviceId===currentDeviceId&&typeof message.message==='string'&&message.message.length<=300)$('traversalMessage').textContent=message.message;
   return false;
 });
@@ -123,4 +124,7 @@ $('acceptStop').addEventListener('click',async()=>{try{$('acceptMessage').textCo
 $('traversalStart').addEventListener('click',async()=>{if(busy||!$('traversalConsent').checked){showStatus('대상 글 순회 동의를 확인해 주세요.');return;}try{if(!await chrome.permissions.request({origins:['https://blog.naver.com/*']}))throw Error('대상 글 접근이 허용되지 않았습니다.');await run(async()=>{$('traversalConsent').checked=false;$('traversalMessage').textContent=(await send({type:'traversal_start',confirmed:true})).message;});}catch(e){$('traversalMessage').textContent=e.message;}});
 $('traversalStatus').addEventListener('click',()=>run(async()=>{$('traversalMessage').textContent=(await send({type:'traversal_status'})).message;}));
 $('traversalStop').addEventListener('click',async()=>{try{$('traversalMessage').textContent=(await send({type:'traversal_stop'})).message;}catch{$('traversalMessage').textContent='중단 응답 미확인 · 웹 기록부터 확인하세요.';}});
-run(async()=>{await status();if(currentDeviceId){for(const [type,id] of [['traversal_status','traversalMessage'],['schedule_status','scheduleMessage'],['accept_status','acceptMessage']]){try{$(id).textContent=(await send({type})).message;}catch{$(id).textContent='상태 미확인 · 이전 결과를 확인하세요.';}}}});
+$('acceptScheduleStart').addEventListener('click',()=>run(async()=>{if(!$('acceptScheduleConsent').checked)throw Error('반복 수락 동의를 확인해 주세요.');$('acceptScheduleConsent').checked=false;$('acceptScheduleMessage').textContent=(await send({type:'accept_schedule_start',confirmed:true})).message;}));
+$('acceptScheduleStatus').addEventListener('click',()=>run(async()=>{$('acceptScheduleMessage').textContent=(await send({type:'accept_schedule_status'})).message;}));
+$('acceptScheduleStop').addEventListener('click',async()=>{try{$('acceptScheduleMessage').textContent=(await send({type:'accept_schedule_stop'})).message;}catch{$('acceptScheduleMessage').textContent='중단 응답 미확인 · 웹에서 결과를 먼저 확인하세요.';}});
+run(async()=>{await status();if(currentDeviceId){for(const [type,id] of [['traversal_status','traversalMessage'],['schedule_status','scheduleMessage'],['accept_status','acceptMessage'],['accept_schedule_status','acceptScheduleMessage']]){try{$(id).textContent=(await send({type})).message;}catch{$(id).textContent='상태 미확인 · 이전 결과를 확인하세요.';}}}});
