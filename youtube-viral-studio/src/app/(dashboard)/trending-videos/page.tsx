@@ -52,22 +52,22 @@ export default function TrendingVideosPage() {
   return (
     <div className="space-y-6">
       {/* 안내 알림 */}
-      <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-500 shadow-xs">
-        조건을 정한 뒤 <b>영상 조회</b> 버튼을 눌러 실행해 주세요. 회원님 본인의 YouTube API 할당량을 사용하며, 대본 분석은 별도로 AI 사용료가 발생할 수 있습니다.
+      <div className="rounded-xl border border-amber-500/20 bg-[#131B2A] p-3 text-xs text-slate-300 shadow-sm">
+        조건을 정한 뒤 <b className="font-bold text-[#FBBF24]">실시간 VPH 스캔</b> 버튼을 눌러 실행해 주세요. 회원님 본인의 YouTube API 할당량을 사용하며, 대본 분석은 별도로 AI 사용료가 발생할 수 있습니다.
       </div>
 
       {/* 상단 헤더 & 컨트롤 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-amber-500/30 bg-[#131B2A] p-6 shadow-lg shadow-black/40">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-[#EA3323]">
-              <Flame className="h-5 w-5 fill-[#EA3323]" />
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0B0F17] border border-amber-500/30 text-[#FBBF24]">
+              <Flame className="h-5 w-5 fill-amber-400 text-amber-400" />
             </span>
-            <h1 className="text-xl font-black tracking-tight text-slate-900 md:text-2xl">
-              실시간 급상승 동영상 피드 (VPH 랭킹)
+            <h1 className="text-xl font-black tracking-tight text-slate-100 md:text-2xl">
+              실시간 급상승 VPH 매트릭스 피드
             </h1>
           </div>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-400">
             누적 조회수와 업로드 경과 시간으로 산출한 시간당 평균 VPH 순위입니다. 최근 1시간 증가량이나 추천 유입을 직관적으로 비교합니다.
           </p>
         </div>
@@ -75,25 +75,25 @@ export default function TrendingVideosPage() {
         <button
           onClick={() => fetchTrending()}
           disabled={loading}
-          className="btn-3d-red shrink-0"
+          className="btn-3d-gold shrink-0"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          <span>실시간 영상 조회</span>
+          <span>실시간 VPH 스캔</span>
         </button>
       </div>
 
       {/* API 키 미등록 경고 배너 */}
       {needApiKey && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-amber-500/40 bg-amber-950/30 p-5">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-[#FBBF24] border border-amber-500/30">
               <Key className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-amber-900">
+              <h3 className="text-sm font-bold text-[#FBBF24]">
                 본인의 YouTube Data API v3 키를 먼저 등록해 주세요
               </h3>
-              <p className="mt-0.5 text-xs text-amber-700 leading-relaxed">
+              <p className="mt-0.5 text-xs text-amber-200/80 leading-relaxed">
                 AIMaster의 최상위 불문 원칙에 따라 모든 회원은 본인의 Google Cloud 콘솔에서 무료 발급받은 API 키를 직접 연동하여 사용합니다.
               </p>
             </div>
@@ -102,20 +102,20 @@ export default function TrendingVideosPage() {
             href="/settings"
             className="btn-create-key shrink-0"
           >
-            <span>API 키 등록하러 가기 →</span>
+            <span>보안 키 금고에서 등록 →</span>
           </Link>
         </div>
       )}
 
-      {/* 2번안 탭 필터 바 */}
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xs">
+      {/* 2번안 골든 엠파이어 탭 필터 바 */}
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-amber-500/25 bg-[#131B2A] p-2 shadow-sm">
         <button
           disabled={loading}
           onClick={() => { setActiveTab("shorts"); setVideos([]); setError(null); }}
           className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "shorts"
-              ? "bg-[#EA3323] text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              ? "bg-[#FBBF24] text-[#0F172A] font-black shadow-md shadow-amber-500/20"
+              : "text-slate-400 hover:bg-[#0B0F17] hover:text-[#FBBF24]"
           }`}
         >
           <span>⚡</span>
@@ -126,8 +126,8 @@ export default function TrendingVideosPage() {
           onClick={() => { setActiveTab("long"); setVideos([]); setError(null); }}
           className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "long"
-              ? "bg-slate-900 text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              ? "bg-[#FBBF24] text-[#0F172A] font-black shadow-md shadow-amber-500/20"
+              : "text-slate-400 hover:bg-[#0B0F17] hover:text-[#FBBF24]"
           }`}
         >
           <span>📺</span>
@@ -138,12 +138,12 @@ export default function TrendingVideosPage() {
           onClick={() => { setActiveTab("all"); setVideos([]); setError(null); }}
           className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "all"
-              ? "bg-slate-900 text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              ? "bg-[#FBBF24] text-[#0F172A] font-black shadow-md shadow-amber-500/20"
+              : "text-slate-400 hover:bg-[#0B0F17] hover:text-[#FBBF24]"
           }`}
         >
-          <span>🔥</span>
-          <span>전체 랭킹</span>
+          <span>👑</span>
+          <span>전체 통합 랭킹</span>
         </button>
       </div>
 

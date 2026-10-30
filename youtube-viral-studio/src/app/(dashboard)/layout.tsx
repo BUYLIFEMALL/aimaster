@@ -14,12 +14,12 @@ export default async function DashboardLayout({
   const user = await requireProgramAccess();
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 antialiased md:flex-row">
+    <div className="flex min-h-screen flex-col bg-[#0B0F17] font-sans text-slate-100 antialiased md:flex-row">
       <Sidebar userEmail={user.email} />
       <FavoritesProvider key={user.id} userId={user.id}><main className="flex-1 min-w-0 overflow-y-auto">
         <div className="mx-auto max-w-7xl p-4 md:p-8">
           <div className="mb-4">
-            <ProgramNoticeBanner programSlug="youtube-viral-studio" tone="light" />
+            <ProgramNoticeBanner programSlug="youtube-viral-studio" tone="dark" />
           </div>
           <FavoritesNotice />
           {children}

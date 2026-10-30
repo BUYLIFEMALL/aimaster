@@ -141,80 +141,80 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
       </div>
 
       {/* 정보 영역 */}
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-4 bg-[#131B2A]">
         {/* 채널명 */}
-        <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
-          <span className="truncate font-semibold text-slate-700">{video.channelTitle}</span>
+        <div className="mb-1 flex items-center justify-between text-xs text-slate-400">
+          <span className="truncate font-semibold text-slate-300">{video.channelTitle}</span>
           {typeof video.channelSubscriberCount === "number" && video.channelSubscriberCount > 0 && (
-            <span className="shrink-0 text-[11px] text-slate-400">
+            <span className="shrink-0 text-[11px] text-slate-500">
               구독자 {formatNumber(video.channelSubscriberCount)}
             </span>
           )}
         </div>
 
         {/* 영상 제목 */}
-        <h3 className="mb-3 line-clamp-2 text-sm font-bold leading-snug text-slate-900 transition-colors group-hover:text-[#EA3323]">
+        <h3 className="mb-3 line-clamp-2 text-sm font-bold leading-snug text-slate-100 transition-colors group-hover:text-[#FBBF24]">
           {video.title}
         </h3>
 
         {/* 핵심 바이럴 지표 박스 */}
-        <div className="mb-3 mt-auto grid grid-cols-3 gap-1 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 text-center">
+        <div className="mb-3 mt-auto grid grid-cols-3 gap-1 rounded-xl border border-slate-800 bg-[#0B0F17] p-2.5 text-center">
           <div>
-            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-500">
-              <Eye className="h-3 w-3 text-slate-400" />
+            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-400">
+              <Eye className="h-3 w-3 text-slate-500" />
               <span>조회수</span>
             </div>
-            <div className="text-xs font-black text-slate-800">
+            <div className="text-xs font-black text-slate-100">
               {formatNumber(video.viewCount)}
             </div>
           </div>
-          <div className="border-x border-slate-200">
-            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-500">
-              <TrendingUp className="h-3 w-3 text-slate-400" />
+          <div className="border-x border-slate-800">
+            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-400">
+              <TrendingUp className="h-3 w-3 text-slate-500" />
               <span>구독대비</span>
             </div>
-            <div className="text-xs font-black text-[#EA3323]">
+            <div className="text-xs font-black text-[#FBBF24]">
               {video.vsRatio > 0 ? `${video.vsRatio}배` : "-"}
             </div>
           </div>
           <div>
-            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-500">
-              <Flame className="h-3 w-3 text-slate-400" />
+            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-400">
+              <Flame className="h-3 w-3 text-slate-500" />
               <span>평균/h</span>
             </div>
-            <div className="text-xs font-black text-slate-800">
+            <div className="text-xs font-black text-slate-100">
               {video.vph > 0 ? formatNumber(video.vph) : "-"}
             </div>
           </div>
         </div>
 
         {/* 액션 버튼 */}
-        <div className="space-y-2 border-t border-slate-100 pt-3">
+        <div className="space-y-2 border-t border-slate-800/80 pt-3">
           <button
             onClick={handleAnalyzeScript}
             disabled={analyzing}
-            className="btn-3d-red w-full py-2.5 text-xs"
+            className="btn-3d-gold w-full py-2.5 text-xs text-slate-950 font-black"
           >
             {analyzing ? (
               <>
-                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-900 border-t-transparent" />
                 <span>대본 11대 심리 AI 분석 중...</span>
               </>
             ) : (
               <>
-                <Sparkles className="h-3.5 w-3.5 fill-white" />
-                <span>✨ AI 떡상 대본 공식 분석</span>
+                <Sparkles className="h-3.5 w-3.5 fill-slate-900 text-slate-900" />
+                <span>👑 AI 황금 대본 공식 분석</span>
               </>
             )}
           </button>
 
           {analyzeError && (
-            <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-2 text-[11px] leading-relaxed text-red-700">
+            <p role="alert" className="rounded-lg border border-red-900/50 bg-red-950/40 p-2 text-[11px] leading-relaxed text-red-300">
               {analyzeError.message}
               {analyzeError.needKey && (
                 <>
                   {" "}
-                  <Link href="/settings" className="font-bold text-blue-600 underline">
+                  <Link href="/settings" className="font-bold text-amber-400 underline">
                     API 키 등록하러 가기 →
                   </Link>
                 </>
@@ -227,7 +227,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
               href={youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white py-2 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:bg-slate-50 hover:text-slate-900"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 py-2 text-xs font-bold text-slate-200 shadow-xs transition-colors hover:bg-slate-700 hover:text-white"
             >
               <span>유튜브 보기</span>
               <ExternalLink className="h-3 w-3 text-slate-400" />
@@ -235,7 +235,7 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
 
             <Link
               href={`/source-finder?url=${encodeURIComponent(youtubeUrl)}`}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-xs transition-colors hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 bg-slate-800/80 text-slate-400 shadow-xs transition-colors hover:border-amber-500/50 hover:bg-amber-950/40 hover:text-amber-300"
               title="쇼츠 원본(롱폼) 추적"
             >
               <Link2 className="h-3.5 w-3.5" />
@@ -245,14 +245,14 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
               onClick={handleBookmarkToggle}
               className={`flex h-8 w-8 items-center justify-center rounded-lg border shadow-xs transition-colors ${
                 bookmarked
-                  ? "border-amber-300 bg-amber-50 text-amber-600"
-                  : "border-slate-200 bg-white text-slate-400 hover:border-amber-200 hover:bg-amber-50/50 hover:text-amber-500"
+                  ? "border-amber-500/50 bg-amber-500/20 text-[#FBBF24]"
+                  : "border-slate-700 bg-slate-800/80 text-slate-400 hover:border-amber-500/40 hover:bg-amber-950/40 hover:text-amber-300"
               }`}
               disabled={bookmarkBusy}
               aria-pressed={bookmarked}
-              title={bookmarked ? "즐겨찾기 해제" : "즐겨찾기 보관"}
+              title={bookmarked ? "즐겨찾기 보관 해제" : "즐겨찾기 보관"}
             >
-              <Bookmark className={`h-3.5 w-3.5 ${bookmarked ? "fill-amber-500" : ""}`} />
+              <Bookmark className={`h-3.5 w-3.5 ${bookmarked ? "fill-amber-400" : ""}`} />
             </button>
           </div>
         </div>
