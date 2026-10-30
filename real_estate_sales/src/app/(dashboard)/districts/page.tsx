@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ALL_DISTRICTS, SIDO_GROUPS } from "@/lib/publicdata/districts";
+import { ALL_DISTRICTS, SIDO_GROUPS, groupByCity } from "@/lib/publicdata/districts";
 import { DistrictToggle } from "@/components/districts/DistrictToggle";
 import { MonitoringSettings } from "@/components/districts/MonitoringSettings";
 import { QueryNowButton } from "@/components/districts/QueryNowButton";
@@ -41,16 +41,24 @@ export default async function DistrictsPage() {
                 {g.sido === "서울" ? "" : " · 국토부 실거래 자료(전월세 비교는 서울만)"}
               </small>
             </summary>
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
-              {g.districts.map((d) => (
-                <DistrictToggle
-                  key={d.sgg_cd}
-                  sggCd={d.sgg_cd}
-                  sggNm={d.sgg_nm}
-                  isActive={watchMap.has(d.sgg_cd)}
-                />
-              ))}
-            </div>
+            {/* 경기는 구가 여러 개인 시(수원·성남·안양·부천·안산·고양·용인)를 시 이름으로 묶고, 나머지 시·군은 한 묶음(2026-10-30) */}
+            {(g.sido === "경기" ? groupByCity(g.districts) : [{ city: null, items: [...g.districts] }]).map((cg) => (
+              <div key={cg.city ?? "rest"} className="mt-3">
+                {g.sido === "경기" && (
+                  <p className="mb-1 text-xs font-semibold text-mx-muted">{cg.city ?? "그 밖의 시·군"}</p>
+                )}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
+                  {cg.items.map((d) => (
+                    <DistrictToggle
+                      key={d.sgg_cd}
+                      sggCd={d.sgg_cd}
+                      sggNm={d.sgg_nm}
+                      isActive={watchMap.has(d.sgg_cd)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
           </details>
         );
       })}

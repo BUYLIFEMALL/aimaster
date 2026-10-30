@@ -111,6 +111,21 @@ export function sidoOf(sggCd: string): Sido | null {
   return SIDO_GROUPS.find((g) => g.districts.some((d) => d.sgg_cd === sggCd))?.sido ?? null;
 }
 
+/** 감시 지역 화면용(2026-10-30): 「수원시 장안구」처럼 구가 여러 개인 시는 시 이름으로 묶고, 나머지 시·군은 한 묶음(city = null) */
+export function groupByCity<T extends { sgg_nm: string }>(districts: readonly T[]) {
+  const cityOf = (d: T) => (d.sgg_nm.includes(" ") ? d.sgg_nm.split(" ")[0] : null);
+  const groups: { city: string | null; items: T[] }[] = [];
+  for (const d of districts) {
+    const city = cityOf(d);
+    const multi = city !== null && districts.filter((x) => cityOf(x) === city).length > 1;
+    const key = multi ? city : null;
+    let g = groups.find((x) => x.city === key);
+    if (!g) groups.push((g = { city: key, items: [] }));
+    g.items.push(d);
+  }
+  return [...groups.filter((g) => g.city !== null), ...groups.filter((g) => g.city === null)];
+}
+
 export function districtNameOf(sggCd: string): string {
   return findDistrict(sggCd)?.sgg_nm ?? sggCd;
 }

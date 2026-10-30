@@ -51,3 +51,13 @@ test("지역 목록: 코드 겹침 없음, 서울/경기/인천 구분", () => {
   assert.equal(findDistrict("41285")?.sgg_nm, "고양시 일산동구");
   assert.equal(findDistrict("99999"), null);
 });
+
+test("경기 시 이름 묶기: 구가 여러 개인 시 7곳 + 나머지 한 묶음(맨 뒤)", async () => {
+  const { GYEONGGI_DISTRICTS, groupByCity } = await import("../src/lib/publicdata/districts.ts");
+  const groups = groupByCity(GYEONGGI_DISTRICTS);
+  assert.deepEqual(groups.filter((g) => g.city).map((g) => `${g.city}${g.items.length}`), ["수원시4", "성남시3", "안양시2", "부천시3", "안산시2", "고양시3", "용인시3"]);
+  const rest = groups.at(-1);
+  assert.equal(rest.city, null);
+  assert.equal(rest.items.length, 44 - 20);
+  assert.ok(rest.items.some((d) => d.sgg_nm === "화성시"));
+});
