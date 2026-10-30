@@ -1,20 +1,15 @@
 "use client";
 
 import { useFavorites } from "@/components/favorites/FavoritesProvider";
-import { PlaylistReference } from './PlaylistReference';
+import { PlaylistReference } from "./PlaylistReference";
 import Link from "next/link";
-import {
-  formatNumber,
-  formatVPH,
-  formatRelativeTime,
-} from "@/lib/youtube/metrics";
+import { formatNumber } from "@/lib/youtube/metrics";
 import type { YouTubeVideoItem } from "@/lib/youtube/types";
 import {
   ExternalLink,
   Flame,
   TrendingUp,
   Eye,
-  Users,
   Bookmark,
   Sparkles,
   Link2,
@@ -38,7 +33,6 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<ScriptAnalysisResult | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  // v1.23 대본 분석 오류는 브라우저 경고창 대신 카드 안 안내로(흐름이 끊기지 않게)
   const [analyzeError, setAnalyzeError] = useState<{ message: string; needKey?: boolean } | null>(null);
 
   const handleAnalyzeScript = async () => {
@@ -73,13 +67,13 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
   const getBadgeStyle = (badge: string) => {
     switch (badge) {
       case "SUPER_VIRAL":
-        return "bg-yt-red text-white font-bold";
+        return { backgroundColor: "rgb(255, 0, 0)", color: "#FFFFFF" };
       case "VIRAL":
-        return "bg-yt-warn text-black font-bold";
+        return { backgroundColor: "rgb(249, 171, 0)", color: "#000000" };
       case "RISING":
-        return "bg-yt-success text-white font-semibold";
+        return { backgroundColor: "rgb(43, 166, 64)", color: "#FFFFFF" };
       default:
-        return "bg-black/70 text-white font-medium";
+        return { backgroundColor: "rgba(0, 0, 0, 0.7)", color: "#FFFFFF" };
     }
   };
 
@@ -106,142 +100,122 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
   const youtubeUrl = `https://www.youtube.com/watch?v=${video.id}`;
 
   return (
-    <div className="bg-yt-surface rounded-xl border border-yt-border overflow-hidden hover:border-yt-muted hover:bg-yt-raised transition-all flex flex-col group">
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-red-200 hover:shadow-xl">
       {/* 썸네일 영역 */}
-      <div className="relative aspect-video bg-yt-raised overflow-hidden">
+      <div className="relative aspect-video w-full overflow-hidden bg-slate-900">
         {video.thumbnailUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={video.thumbnailUrl}
             alt={video.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-yt-muted">
+          <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
             썸네일 없음
           </div>
         )}
 
-        {/* 떡상 뱃지 */}
-        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-          <span className={`text-xs px-2 py-0.5 rounded-full ${getBadgeStyle(video.viralBadge)}`}>
+        {/* 떡상 뱃지 & VPH 오버레이 */}
+        <div className="absolute left-2.5 top-2.5 flex items-center gap-1.5">
+          <span
+            style={getBadgeStyle(video.viralBadge)}
+            className="rounded-md px-2 py-0.5 text-[11px] font-bold shadow-xs"
+          >
             {getBadgeLabel(video.viralBadge)}
           </span>
-          {video.viralScore > 0 && (
-            <span className="text-[11px] font-bold px-1.5 py-0.5 rounded bg-black/70 text-white backdrop-blur-xs">
-              {video.viralScore}점
+          {video.vph > 0 && (
+            <span className="rounded-md bg-slate-900/85 px-2 py-0.5 text-[11px] font-bold text-red-400 backdrop-blur-xs">
+              ⚡ {formatNumber(video.vph)}/h
             </span>
           )}
         </div>
 
-        {/* VPH (시간당 속도) 뱃지 */}
-        {video.vph > 0 && (
-          <div className="absolute top-2.5 right-2.5 bg-yt-red backdrop-blur-xs text-white text-xs font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
-            <Flame className="w-3.5 h-3.5 fill-white" />
-            <span>{formatVPH(video.vph)}</span>
+        {/* 구독자 대비 배수 오버레이 */}
+        {video.vsRatio > 0 && (
+          <div className="absolute bottom-2.5 right-2.5 rounded-md bg-slate-950/85 px-2 py-0.5 text-[11px] font-black text-amber-400 backdrop-blur-xs shadow-xs">
+            {video.vsRatio}배
           </div>
         )}
-
-        {/* 재생 시간 / 상대 시간 */}
-        <div className="absolute bottom-2 right-2 flex items-center gap-1.5">
-          <span className="bg-black/75 backdrop-blur-xs text-white text-[11px] px-1.5 py-0.5 rounded font-mono">
-            {formatRelativeTime(video.publishedAt)}
-          </span>
-        </div>
       </div>
 
-      {/* 본문 정보 */}
-      <div className="p-4 flex-1 flex flex-col">
-        {/* 채널 정보 */}
-        <div className="flex items-center gap-2 mb-2">
-          {video.channelThumbnailUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지
-            <img
-              src={video.channelThumbnailUrl}
-              alt={video.channelTitle}
-              className="w-5 h-5 rounded-full object-cover"
-            />
+      {/* 정보 영역 */}
+      <div className="flex flex-1 flex-col p-4">
+        {/* 채널명 */}
+        <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
+          <span className="truncate font-semibold text-slate-700">{video.channelTitle}</span>
+          {typeof video.channelSubscriberCount === "number" && video.channelSubscriberCount > 0 && (
+            <span className="shrink-0 text-[11px] text-slate-400">
+              구독자 {formatNumber(video.channelSubscriberCount)}
+            </span>
           )}
-          <span className="text-xs font-medium text-yt-muted truncate flex-1" title={video.channelTitle}>
-            {video.channelTitle}
-          </span>
-          <div className="flex items-center gap-1 text-[11px] text-yt-muted font-medium">
-            <Users className="w-3 h-3 text-yt-muted" />
-            <span>{formatNumber(video.channelSubscriberCount)}명</span>
-          </div>
         </div>
 
         {/* 영상 제목 */}
-        <a
-          href={youtubeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm font-semibold text-yt-text line-clamp-2 hover:text-yt-danger transition-colors mb-3 leading-snug"
-          title={video.title}
-        >
+        <h3 className="mb-3 line-clamp-2 text-sm font-bold leading-snug text-slate-900 transition-colors group-hover:text-[#EA3323]">
           {video.title}
-        </a>
+        </h3>
 
         {/* 핵심 바이럴 지표 박스 */}
-        <div className="grid grid-cols-3 gap-1.5 py-2.5 px-3 bg-yt-raised rounded-lg border border-yt-border text-center mb-3 mt-auto">
+        <div className="mb-3 mt-auto grid grid-cols-3 gap-1 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 text-center">
           <div>
-            <div className="text-[10px] text-yt-muted mb-0.5 flex items-center justify-center gap-0.5">
-              <Eye className="w-3 h-3 text-yt-muted" />
+            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-500">
+              <Eye className="h-3 w-3 text-slate-400" />
               <span>조회수</span>
             </div>
-            <div className="text-xs font-bold text-yt-text">
+            <div className="text-xs font-black text-slate-800">
               {formatNumber(video.viewCount)}
             </div>
           </div>
-          <div className="border-x border-yt-border">
-            <div className="text-[10px] text-yt-muted mb-0.5 flex items-center justify-center gap-0.5">
-              <TrendingUp className="w-3 h-3 text-yt-muted" />
+          <div className="border-x border-slate-200">
+            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-500">
+              <TrendingUp className="h-3 w-3 text-slate-400" />
               <span>구독대비</span>
             </div>
-            <div className="text-xs font-bold text-yt-danger">
+            <div className="text-xs font-black text-[#EA3323]">
               {video.vsRatio > 0 ? `${video.vsRatio}배` : "-"}
             </div>
           </div>
           <div>
-            <div className="text-[10px] text-yt-muted mb-0.5 flex items-center justify-center gap-0.5">
-              <Flame className="w-3 h-3 text-yt-muted" />
+            <div className="mb-0.5 flex items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-500">
+              <Flame className="h-3 w-3 text-slate-400" />
               <span>평균/h</span>
             </div>
-            <div className="text-xs font-bold text-yt-text">
+            <div className="text-xs font-black text-slate-800">
               {video.vph > 0 ? formatNumber(video.vph) : "-"}
             </div>
           </div>
         </div>
 
         {/* 액션 버튼 */}
-        <div className="space-y-1.5 pt-2 border-t border-yt-border">
-          {/* AI 떡상 분석 실행 버튼 */}
+        <div className="space-y-2 border-t border-slate-100 pt-3">
           <button
             onClick={handleAnalyzeScript}
             disabled={analyzing}
-            className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 rounded-lg transition-all shadow-xs disabled:opacity-50"
+            className="btn-3d-red w-full py-2.5 text-xs"
           >
             {analyzing ? (
               <>
-                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>대본 3단 구조 AI 분석 중...</span>
+                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>대본 11대 심리 AI 분석 중...</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-3.5 h-3.5 fill-white" />
-                <span>✨ AI 떡상 대본 분석</span>
+                <Sparkles className="h-3.5 w-3.5 fill-white" />
+                <span>✨ AI 떡상 대본 공식 분석</span>
               </>
             )}
           </button>
+
           {analyzeError && (
-            <p role="alert" className="rounded-md border border-yt-red/40 bg-yt-red/10 px-2 py-1.5 text-[11px] leading-relaxed text-red-200">
+            <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-2 text-[11px] leading-relaxed text-red-700">
               {analyzeError.message}
               {analyzeError.needKey && (
                 <>
                   {" "}
-                  <Link href="/settings" className="font-bold text-yt-link underline">
-                    API키등록·플랫폼연동으로 가기 →
+                  <Link href="/settings" className="font-bold text-blue-600 underline">
+                    API 키 등록하러 가기 →
                   </Link>
                 </>
               )}
@@ -253,39 +227,42 @@ export function VideoCard({ video, onBookmark, isBookmarked: initialBookmarked =
               href={youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-2 text-xs font-medium text-yt-text bg-yt-surface hover:bg-yt-hover border border-yt-border rounded-md transition-colors"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white py-2 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:bg-slate-50 hover:text-slate-900"
             >
               <span>유튜브 보기</span>
-              <ExternalLink className="w-3.5 h-3.5 text-yt-muted" />
+              <ExternalLink className="h-3 w-3 text-slate-400" />
             </a>
 
             <Link
               href={`/source-finder?url=${encodeURIComponent(youtubeUrl)}`}
-              className="p-1.5 text-yt-muted hover:text-yt-violet hover:bg-yt-violet/20 border border-yt-border rounded-md transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-xs transition-colors hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
               title="쇼츠 원본(롱폼) 추적"
             >
-              <Link2 className="w-4 h-4" />
+              <Link2 className="h-3.5 w-3.5" />
             </Link>
 
             <button
               onClick={handleBookmarkToggle}
-              className={`p-1.5 border rounded-md transition-colors ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg border shadow-xs transition-colors ${
                 bookmarked
-                  ? "bg-yt-warn/10 text-yt-warn border-yt-warn/40"
-                  : "text-yt-muted hover:text-yt-warn hover:bg-yt-warn/20 border-yt-border"
+                  ? "border-amber-300 bg-amber-50 text-amber-600"
+                  : "border-slate-200 bg-white text-slate-400 hover:border-amber-200 hover:bg-amber-50/50 hover:text-amber-500"
               }`}
               disabled={bookmarkBusy}
               aria-pressed={bookmarked}
               title={bookmarked ? "즐겨찾기 해제" : "즐겨찾기 보관"}
             >
-              <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-amber-500" : ""}`} />
+              <Bookmark className={`h-3.5 w-3.5 ${bookmarked ? "fill-amber-500" : ""}`} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* AI 대본 분석 모달 */}
-      <div className="px-4 pb-3"><PlaylistReference id={video.id} title={video.title} /></div>
+      {/* 플레이리스트 연계 */}
+      <div className="px-4 pb-3">
+        <PlaylistReference id={video.id} title={video.title} />
+      </div>
+
       <ScriptAnalysisModal
         analysis={analysisResult}
         isOpen={modalOpen}

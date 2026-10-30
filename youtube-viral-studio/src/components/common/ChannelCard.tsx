@@ -39,108 +39,110 @@ export function ChannelCard({ channel, onBookmark, isBookmarked: initialBookmark
     : `https://www.youtube.com/channel/${channel.id}`;
 
   return (
-    <div className="bg-yt-surface rounded-xl border border-yt-border p-5 shadow-xs hover:shadow-md hover:border-yt-muted transition-all flex flex-col justify-between group">
+    <div className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg">
       <div>
-        {/* 상단 프로필 및 지표 */}
-        <div className="flex items-start gap-3.5 mb-4">
-          {/* eslint-disable-next-line @next/next/no-img-element -- 외부 유튜브 썸네일(i.ytimg.com 등): next/image로 바꾸면 이미지 최적화 비용·원격 주소 설정이 필요해 원본 <img> 유지 */}
-          <img
-            src={channel.thumbnailUrl || "/default-avatar.png"}
-            alt={channel.title}
-            className="w-14 h-14 rounded-full object-cover border border-yt-border shrink-0 group-hover:scale-105 transition-transform"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <a
-                href={channelUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-base font-bold text-yt-text hover:text-yt-danger transition-colors truncate"
-                title={channel.title}
-              >
-                {channel.title}
-              </a>
-            </div>
-            {channel.customUrl && (
-              <p className="text-xs text-yt-muted font-mono mb-1 truncate">
-                {channel.customUrl}
-              </p>
+        {/* 채널 헤더 */}
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            {channel.thumbnailUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={channel.thumbnailUrl}
+                alt={channel.title}
+                className="h-12 w-12 rounded-full border border-slate-200 object-cover shadow-xs shrink-0"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
+                CH
+              </div>
             )}
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-yt-warn/10 text-yt-warn border border-yt-warn/40">
-                <Sparkles className="w-3 h-3 fill-amber-500" />
-                <span>떡상지수 {channel.viralIndex == null ? "계산값 없음" : `${channel.viralIndex}점`}</span>
-              </span>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h3 className="truncate text-sm font-black text-slate-900 group-hover:text-[#EA3323] transition-colors">
+                  {channel.title}
+                </h3>
+                {(channel.viralIndex ?? 0) > 0 && (
+                  <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-800">
+                    <Sparkles className="h-3 w-3 fill-amber-500 text-amber-600" />
+                    황금 {channel.viralIndex}점
+                  </span>
+                )}
+              </div>
+              <p className="truncate text-[11px] font-medium text-slate-400">
+                {channel.customUrl ? `@${channel.customUrl.replace(/^@/, '')}` : channel.id}
+              </p>
             </div>
           </div>
 
           <button
             onClick={handleBookmarkToggle}
-            className={`p-2 border rounded-lg transition-colors shrink-0 ${
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border shadow-xs transition-colors ${
               bookmarked
-                ? "bg-yt-warn/10 text-yt-warn border-yt-warn/40"
-                : "text-yt-muted hover:text-yt-warn hover:bg-yt-warn/20 border-yt-border"
+                ? "border-amber-300 bg-amber-50 text-amber-600"
+                : "border-slate-200 bg-white text-slate-400 hover:border-amber-200 hover:bg-amber-50/50 hover:text-amber-500"
             }`}
             disabled={bookmarkBusy}
             aria-pressed={bookmarked}
             title={bookmarked ? "채널 즐겨찾기 해제" : "채널 즐겨찾기"}
           >
-            <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-amber-500" : ""}`} />
+            <Bookmark className={`h-3.5 w-3.5 ${bookmarked ? "fill-amber-500" : ""}`} />
           </button>
         </div>
 
         {/* 채널 소개 */}
         {channel.description && (
-          <p className="text-xs text-yt-muted line-clamp-2 mb-4 leading-relaxed bg-yt-raised p-2.5 rounded-lg border border-yt-border">
+          <p className="mb-3 line-clamp-2 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5 text-[11px] leading-relaxed text-slate-600">
             {channel.description}
           </p>
         )}
 
-        {/* 4분할 핵심 지표 */}
-        <div className="grid grid-cols-2 gap-2 p-3 bg-yt-raised rounded-xl border border-yt-border mb-4">
+        {/* 4분할 핵심 지표 박스 */}
+        <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl border border-slate-200 bg-slate-50/80 p-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-yt-link/10 text-yt-link">
-              <Users className="w-4 h-4" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
+              <Users className="h-3.5 w-3.5" />
             </div>
             <div>
-              <div className="text-[10px] text-yt-muted">구독자수</div>
-              <div className="text-xs font-bold text-yt-text">
+              <div className="text-[10px] font-semibold text-slate-500">구독자수</div>
+              <div className="text-xs font-black text-slate-800">
                 {formatNumber(channel.subscriberCount)}명
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-yt-success/10 text-yt-success">
-              <TrendingUp className="w-4 h-4" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+              <TrendingUp className="h-3.5 w-3.5" />
             </div>
             <div>
-              <div className="text-[10px] text-yt-muted">평균 조회수</div>
-              <div className="text-xs font-bold text-yt-success">
+              <div className="text-[10px] font-semibold text-slate-500">평균 조회수</div>
+              <div className="text-xs font-black text-emerald-700">
                 {formatNumber(channel.averageViews)}회
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-yt-violet/15 text-yt-violet">
-              <Video className="w-4 h-4" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
+              <Video className="h-3.5 w-3.5" />
             </div>
             <div>
-              <div className="text-[10px] text-yt-muted">동영상 수</div>
-              <div className="text-xs font-bold text-yt-text">
+              <div className="text-[10px] font-semibold text-slate-500">영상 수</div>
+              <div className="text-xs font-black text-slate-800">
                 {channel.videoCount}개
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-yt-red/10 text-yt-danger">
-              <Eye className="w-4 h-4" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-100 text-[#EA3323]">
+              <Eye className="h-3.5 w-3.5" />
             </div>
             <div>
-              <div className="text-[10px] text-yt-muted">총 조회수</div>
-              <div className="text-xs font-bold text-yt-text">
+              <div className="text-[10px] font-semibold text-slate-500">총 조회수</div>
+              <div className="text-xs font-black text-slate-800">
                 {formatNumber(channel.viewCount)}회
               </div>
             </div>
@@ -149,20 +151,20 @@ export function ChannelCard({ channel, onBookmark, isBookmarked: initialBookmark
       </div>
 
       {/* 하단 버튼 */}
-      <div className="flex items-center gap-2 pt-2 border-t border-yt-border">
+      <div className="flex items-center gap-2 border-t border-slate-100 pt-3">
         <a
           href={channelUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-medium text-yt-text bg-yt-surface hover:bg-yt-hover border border-yt-border rounded-lg transition-colors"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white py-2 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:bg-slate-50 hover:text-slate-900"
         >
-          <span>유튜브 채널 방문</span>
-          <ExternalLink className="w-3.5 h-3.5 text-yt-muted" />
+          <span>채널 방문</span>
+          <ExternalLink className="h-3 w-3 text-slate-400" />
         </a>
 
         <Link
           href={`/viral-shorts?keyword=${encodeURIComponent(channel.title)}`}
-          className="py-2 px-3 text-xs font-medium text-yt-danger bg-yt-red/10 hover:bg-yt-red/20 border border-yt-red/40 rounded-lg transition-colors whitespace-nowrap"
+          className="btn-3d-red py-2 px-3 text-xs whitespace-nowrap"
         >
           <span>이 채널 쇼츠 찾기</span>
         </Link>

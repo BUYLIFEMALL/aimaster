@@ -49,124 +49,132 @@ export default function TrendingVideosPage() {
     }
   };
 
-
   return (
     <div className="space-y-6">
-      <p className="rounded-xl border border-yt-border bg-yt-surface p-3 text-sm text-yt-muted">조건을 정한 뒤 검색·조회 버튼을 눌러 실행해주세요. 회원님 본인의 YouTube API 할당량을 사용하며, 대본 분석은 별도로 AI 사용료가 발생할 수 있습니다.</p>
-      {/* 상단 타이틀 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-yt-surface p-6 rounded-2xl border border-yt-border shadow-xs">
+      {/* 안내 알림 */}
+      <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-500 shadow-xs">
+        조건을 정한 뒤 <b>영상 조회</b> 버튼을 눌러 실행해 주세요. 회원님 본인의 YouTube API 할당량을 사용하며, 대본 분석은 별도로 AI 사용료가 발생할 수 있습니다.
+      </div>
+
+      {/* 상단 헤더 & 컨트롤 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-yt-red/10 text-yt-danger rounded-lg">
-              <Flame className="w-5 h-5 fill-red-600" />
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-[#EA3323]">
+              <Flame className="h-5 w-5 fill-[#EA3323]" />
             </span>
-            <h1 className="text-2xl font-bold tracking-tight text-yt-text">
-              실시간 터진 영상 (VPH 랭킹)
+            <h1 className="text-xl font-black tracking-tight text-slate-900 md:text-2xl">
+              실시간 급상승 동영상 피드 (VPH 랭킹)
             </h1>
           </div>
-          <p className="text-sm text-yt-muted mt-1">
-            현재 조회한 누적 조회수와 업로드 후 경과 시간으로 계산한 평균 VPH 랭킹입니다. 최근 1시간 증가량이나 추천 유입을 직접 측정한 값은 아닙니다.
+          <p className="mt-1 text-xs text-slate-500">
+            누적 조회수와 업로드 경과 시간으로 산출한 시간당 평균 VPH 순위입니다. 최근 1시간 증가량이나 추천 유입을 직관적으로 비교합니다.
           </p>
         </div>
 
         <button
           onClick={() => fetchTrending()}
           disabled={loading}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-yt-surface hover:bg-yt-hover text-yt-text border border-yt-border rounded-lg transition-colors shadow-xs"
+          className="btn-3d-red shrink-0"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span>영상 조회</span>
+          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          <span>실시간 영상 조회</span>
         </button>
       </div>
 
       {/* API 키 미등록 경고 배너 */}
       {needApiKey && (
-        <div className="p-5 rounded-2xl bg-yt-warn/10 border border-yt-warn/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-yt-warn/10 text-yt-warn rounded-xl shrink-0">
-              <Key className="w-5 h-5" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
+              <Key className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-yt-warn">
-                본인의 YouTube Data API v3 키를 먼저 등록해주세요
+              <h3 className="text-sm font-bold text-amber-900">
+                본인의 YouTube Data API v3 키를 먼저 등록해 주세요
               </h3>
-              <p className="text-xs text-yt-warn mt-0.5 leading-relaxed">
-                AIMaster의 최상위 불변 원칙에 따라 모든 회원은 본인의 Google Cloud 콘솔에서 무료 발급받은 API 키를 직접 연동하여 사용합니다.
+              <p className="mt-0.5 text-xs text-amber-700 leading-relaxed">
+                AIMaster의 최상위 불문 원칙에 따라 모든 회원은 본인의 Google Cloud 콘솔에서 무료 발급받은 API 키를 직접 연동하여 사용합니다.
               </p>
             </div>
           </div>
           <Link
             href="/settings"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors shrink-0 shadow-xs"
+            className="btn-create-key shrink-0"
           >
-            <span>API 키 등록하러 가기</span>
-            <span>&rarr;</span>
+            <span>API 키 등록하러 가기 →</span>
           </Link>
         </div>
       )}
 
-      {/* 탭 네비게이션 */}
-      <div className="flex items-center gap-2 p-1.5 bg-yt-raised rounded-xl w-fit">
+      {/* 2번안 탭 필터 바 */}
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xs">
         <button
-          disabled={loading} onClick={() => { setActiveTab("shorts"); setVideos([]); setError(null); }}
-          className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+          disabled={loading}
+          onClick={() => { setActiveTab("shorts"); setVideos([]); setError(null); }}
+          className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "shorts"
-              ? "bg-yt-surface text-yt-danger shadow-xs"
-              : "text-yt-muted hover:text-yt-text"
+              ? "bg-[#EA3323] text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
           }`}
         >
-          ⚡ 실시간 쇼츠 급상승
+          <span>⚡</span>
+          <span>실시간 쇼츠 9:16</span>
         </button>
         <button
-          disabled={loading} onClick={() => { setActiveTab("long"); setVideos([]); setError(null); }}
-          className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+          disabled={loading}
+          onClick={() => { setActiveTab("long"); setVideos([]); setError(null); }}
+          className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "long"
-              ? "bg-yt-surface text-yt-text shadow-xs"
-              : "text-yt-muted hover:text-yt-text"
+              ? "bg-slate-900 text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
           }`}
         >
-          📺 일반 롱폼 급상승
+          <span>📺</span>
+          <span>일반 롱폼 16:9</span>
         </button>
         <button
-          disabled={loading} onClick={() => { setActiveTab("all"); setVideos([]); setError(null); }}
-          className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+          disabled={loading}
+          onClick={() => { setActiveTab("all"); setVideos([]); setError(null); }}
+          className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "all"
-              ? "bg-yt-surface text-yt-text shadow-xs"
-              : "text-yt-muted hover:text-yt-text"
+              ? "bg-slate-900 text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
           }`}
         >
-          전체 급상승
+          <span>🔥</span>
+          <span>전체 랭킹</span>
         </button>
       </div>
 
       {/* 에러 메시지 */}
       {error && !needApiKey && (
-        <div className="p-4 rounded-xl bg-yt-red/10 border border-yt-red/40 text-yt-danger text-sm flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
+          <AlertCircle className="h-5 w-5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* 로딩 상태 */}
+      {/* 로딩 스켈레톤 */}
       {loading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="bg-yt-surface rounded-xl border border-yt-border overflow-hidden shadow-xs animate-pulse"
+              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs animate-pulse"
             >
-              <div className="aspect-video bg-yt-raised" />
-              <div className="p-4 space-y-3">
-                <div className="h-4 bg-yt-raised rounded w-3/4" />
-                <div className="h-3 bg-yt-raised rounded w-1/2" />
-                <div className="h-10 bg-yt-raised rounded-lg" />
+              <div className="aspect-video bg-slate-200" />
+              <div className="space-y-3 p-4">
+                <div className="h-4 w-3/4 rounded bg-slate-200" />
+                <div className="h-3 w-1/2 rounded bg-slate-200" />
+                <div className="h-10 rounded-xl bg-slate-200" />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* 결과 그리드 */}
+      {/* 2번안 비주얼 썸네일 카드 3열 피드 그리드 */}
       {!loading && videos.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos.map((video) => (
@@ -177,9 +185,9 @@ export default function TrendingVideosPage() {
 
       {/* 빈 결과 */}
       {!loading && videos.length === 0 && !error && (
-        <div className="bg-yt-surface rounded-2xl border border-dashed border-yt-border p-12 text-center">
-          <p className="text-sm font-semibold text-yt-muted">
-            조회된 실시간 급상승 영상이 없습니다.
+        <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-xs">
+          <p className="text-sm font-semibold text-slate-500">
+            위의 <b>실시간 영상 조회</b> 버튼을 누르면 핫 트렌드 피드가 나타납니다.
           </p>
         </div>
       )}

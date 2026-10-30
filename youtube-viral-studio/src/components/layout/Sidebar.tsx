@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { APP_VERSION, APP_NAME } from "@/lib/version";
+import { APP_VERSION, APP_NAME_LINE1, APP_NAME_LINE2 } from "@/lib/version";
 import {
   LayoutDashboard,
   Flame,
@@ -18,6 +18,7 @@ import {
   LogOut,
   Menu,
   X,
+  PlaySquare,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,51 +26,43 @@ interface SidebarProps {
   userEmail?: string;
 }
 
-// 공식 표준 작업 흐름 (1 -> 2 -> 3 -> 4 -> 5). 대시보드는 흐름 밖(맨 위), 설정·매뉴얼은 유틸리티.
-const flow: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/viral-shorts", label: "떡상 쇼츠 발굴", icon: Flame },
-  { href: "/golden-channels", label: "황금·공략 채널 발굴", icon: Sparkles },
-  { href: "/trending-videos", label: "실시간 터진 영상", icon: TrendingUp },
-  { href: "/source-finder", label: "쇼츠 원본 찾기", icon: Link2 },
-  { href: "/favorites", label: "즐겨찾기 보관함", icon: Bookmark },
+// 공식 트렌드 워크플로우
+const flow: { href: string; label: string; icon: LucideIcon; step?: string }[] = [
+  { href: "/dashboard", label: "실시간 대시보드", icon: LayoutDashboard },
+  { href: "/trending-videos", label: "급상승 동영상 피드", icon: TrendingUp, step: "1" },
+  { href: "/golden-channels", label: "황금·공략 채널 발굴", icon: Sparkles, step: "2" },
+  { href: "/viral-shorts", label: "떡상 쇼츠 발굴", icon: Flame, step: "3" },
+  { href: "/source-finder", label: "쇼츠 원본 찾기", icon: Link2, step: "4" },
+  { href: "/favorites", label: "보관함·즐겨찾기", icon: Bookmark, step: "5" },
 ];
 
-// 2026-10-20 병합 C: YOUTUBE CHANNEL CONSULTANT에서 옮겨 온 진단 화면(공략 채널은 위 「황금·공략 채널 발굴」로 하나)
 const diagnose: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/channel-analysis", label: "채널 분석", icon: BarChart3 },
-  { href: "/keyword-analysis", label: "키워드 분석", icon: Search },
+  { href: "/channel-analysis", label: "채널 심층 분석", icon: BarChart3 },
+  { href: "/keyword-analysis", label: "키워드 점유율 분석", icon: Search },
 ];
 
 const utility: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/settings", label: "API키등록·플랫폼연동", icon: KeyRound },
-  { href: "/guide", label: "연동 & 사용 매뉴얼", icon: BookOpen },
+  { href: "/guide", label: "실전 가이드북", icon: BookOpen },
+  { href: "/settings", label: "API 키 설정", icon: KeyRound },
 ];
-
-function YoutubeLogo({ className = "w-8 h-8" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"
-        fill="#FF0000"
-      />
-      <path d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#FFFFFF" />
-    </svg>
-  );
-}
 
 function Brand() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2.5">
-      <YoutubeLogo />
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#FF1A1A] to-[#EA3323] text-white shadow-md shadow-red-500/20">
+        <PlaySquare size={20} className="fill-white text-[#EA3323]" />
+      </div>
       <div className="min-w-0">
-        <p className="line-clamp-2 break-words text-[13px] font-bold leading-snug tracking-tight text-yt-text">{APP_NAME}</p>
-        <p className="text-[11px] text-yt-muted">Studio · {APP_VERSION}</p>
+        <p className="text-[13px] font-black leading-tight tracking-tight text-[#0F172A]">{APP_NAME_LINE1}</p>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] font-bold text-[#DC2626]">{APP_NAME_LINE2}</span>
+          <span className="rounded bg-red-100 px-1 py-0.2 text-[10px] font-extrabold text-red-600">{APP_VERSION}</span>
+        </div>
       </div>
     </Link>
   );
 }
 
-// 유튜브 스튜디오 왼쪽 메뉴처럼: 선택 항목은 왼쪽 빨간 막대 + 밝은 배경.
 function NavItem({
   href,
   label,
@@ -81,57 +74,88 @@ function NavItem({
   label: string;
   icon: LucideIcon;
   active: boolean;
-  step?: number;
+  step?: string;
 }) {
   return (
     <Link
       href={href}
-      className={`relative flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors ${
-        active ? "bg-yt-raised font-bold text-yt-text" : "text-yt-muted hover:bg-yt-hover hover:text-yt-text"
+      className={`group flex min-h-[40px] items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition-all ${
+        active
+          ? "border-l-4 border-[#EA3323] bg-red-50/80 font-bold text-[#DC2626] shadow-sm shadow-red-500/5"
+          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-semibold"
       }`}
     >
-      {active && <span className="absolute bottom-2 left-0 top-2 w-1 rounded-full bg-yt-red" />}
-      <Icon size={17} className={active ? "text-yt-red" : ""} />
-      <span className="min-w-0 flex-1 truncate">{label}</span>
-      {step && <span className="text-[10px] font-bold text-yt-muted">STEP {step}</span>}
+      <Icon
+        size={17}
+        className={`shrink-0 transition-colors ${
+          active ? "text-[#EA3323]" : "text-slate-400 group-hover:text-slate-600"
+        }`}
+      />
+      <span className="flex-1 truncate">{label}</span>
+      {step && (
+        <span
+          className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+            active ? "bg-red-200 text-red-700" : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
+          }`}
+        >
+          {step}
+        </span>
+      )}
     </Link>
   );
 }
 
-function NavContent({ pathname, userEmail }: { pathname: string | null; userEmail?: string }) {
+function NavContent({ pathname, userEmail }: { pathname: string; userEmail?: string }) {
   return (
     <>
-      {/* 계정은 메뉴 바로 아래에 붙인다(SIDEBAR_LAYOUT_STANDARD). 메뉴가 길면 메뉴만 스크롤 */}
-      <div className="md:min-h-0 md:overflow-y-auto">
-        <NavItem href="/dashboard" label="대시보드" icon={LayoutDashboard} active={pathname === "/dashboard"} />
-        <div className="mt-2 flex flex-col gap-0.5 border-t border-yt-border pt-2">
-          <p className="px-3 pb-1 text-[11px] font-bold text-yt-muted">🔥 트렌드 발굴</p>
-          {flow.map((item, i) => (
-            <NavItem key={item.href} {...item} step={i + 1} active={pathname === item.href} />
-          ))}
-        </div>
-        {/* 2026-10-20 병합 C: YOUTUBE CHANNEL CONSULTANT 화면 */}
-        <div className="mt-2 flex flex-col gap-0.5 border-t border-yt-border pt-2">
-          <p className="px-3 pb-1 text-[11px] font-bold text-yt-muted">📊 채널·키워드 진단</p>
+      <div className="flex flex-1 flex-col gap-1 overflow-y-auto pr-1">
+        <p className="px-3 pb-1 pt-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">🔥 트렌드 발굴 피드</p>
+        {flow.map((item) => (
+          <NavItem key={item.href} {...item} active={pathname === item.href} />
+        ))}
+
+        <div className="mt-2 flex flex-col gap-1 border-t border-slate-200 pt-2">
+          <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">📊 채널·키워드 진단</p>
           {diagnose.map((item) => (
             <NavItem key={item.href} {...item} active={pathname === item.href} />
           ))}
         </div>
-        <div className="mt-2 flex flex-col gap-0.5 border-t border-yt-border pt-2">
+
+        <div className="mt-2 flex flex-col gap-1 border-t border-slate-200 pt-2">
+          <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">⚙️ 시스템</p>
           {utility.map((item) => (
             <NavItem key={item.href} {...item} active={pathname === item.href} />
           ))}
         </div>
+
+        {/* 원스톱 파이프라인 직결 배너 */}
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50/70 p-3">
+          <div className="flex items-center gap-1.5 text-[11px] font-black text-red-700">
+            <span>🎬</span>
+            <span>원스톱 영상 파이프라인 직결</span>
+          </div>
+          <p className="mt-1 text-[10px] leading-relaxed text-slate-600">
+            발굴한 떡상 공식을 9:16 쇼츠 원스톱 영상 제작실로 전달합니다.
+          </p>
+          <a
+            href="https://shorts-onestop-studio.buylife.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-3d-red mt-2.5 flex w-full items-center justify-center py-1.5 text-[11px]"
+          >
+            원스톱 영상 스튜디오 ➔
+          </a>
+        </div>
       </div>
 
-      <div className="mt-2 shrink-0 border-t border-yt-border pt-2">
-        <p className="truncate px-3 py-1.5 text-xs text-yt-muted" title={userEmail}>
+      <div className="mt-2 shrink-0 border-t border-slate-200 pt-2">
+        <p className="truncate px-3 py-1.5 text-xs text-slate-500" title={userEmail}>
           {userEmail || "로그인 계정"}
         </p>
         <form action="/api/auth/logout" method="POST">
           <button
             type="submit"
-            className="flex min-h-[44px] w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-yt-muted transition-colors hover:bg-yt-hover hover:text-yt-text"
+            className="flex min-h-[40px] w-full items-center gap-2.5 rounded-xl px-3 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
           >
             <LogOut size={16} />
             <span>로그아웃</span>
@@ -146,27 +170,28 @@ export function Sidebar({ userEmail }: SidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // 휴대폰에서 메뉴를 누르고 다른 화면으로 이동하면 펼친 메뉴를 닫는다.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- 휴대폰에서 다른 화면으로 이동하면 펼친 메뉴를 닫는 의도된 동작
     setOpen(false);
   }, [pathname]);
 
   return (
     <>
-      {/* 데스크톱(768px 이상): 좌측 고정 메뉴 */}
-      <aside className="hidden h-screen w-60 shrink-0 select-none flex-col border-r border-yt-border bg-yt-bg p-3 md:sticky md:top-0 md:flex">
-        <div className="mb-3 border-b border-yt-border px-2 pb-3 pt-1">
+      {/* 데스크탑(768px 이상): 좌측 고정 메뉴 */}
+      <aside className="hidden h-screen w-64 shrink-0 select-none flex-col border-r border-slate-200 bg-white p-3.5 md:sticky md:top-0 md:flex">
+        <div className="mb-3 border-b border-slate-100 px-2 pb-3 pt-1">
           <Brand />
-          <a className="mt-2.5 block text-xs text-yt-muted transition-colors hover:text-yt-text" href="https://www.buylife.xyz/programs">
+          <a
+            className="mt-2.5 block text-[11px] font-medium text-slate-400 transition-colors hover:text-slate-700"
+            href="https://www.buylife.xyz/programs"
+          >
             ← 다른 프로그램 보기
           </a>
         </div>
         <NavContent pathname={pathname} userEmail={userEmail} />
       </aside>
 
-      {/* 휴대폰(767px 이하): 위쪽 바 + 접는 메뉴(☰) — 항목·순서는 데스크톱과 같다 */}
-      <header className="sticky top-0 z-40 border-b border-yt-border bg-yt-bg md:hidden">
+      {/* 모바일(767px 이하): 위쪽 바 + 모바일 드로어 */}
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white md:hidden">
         <div className="flex items-center justify-between px-4 py-2.5">
           <Brand />
           <button
@@ -174,14 +199,14 @@ export function Sidebar({ userEmail }: SidebarProps) {
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-yt-text hover:bg-yt-hover"
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-slate-100"
           >
-            {open ? <X size={22} /> : <Menu size={22} />}
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
         {open && (
-          <div className="max-h-[calc(100dvh-64px)] overflow-y-auto border-t border-yt-border px-3 pb-4 pt-3">
-            <a className="mb-2 block px-3 text-xs text-yt-muted hover:text-yt-text" href="https://www.buylife.xyz/programs">
+          <div className="max-h-[calc(100dvh-60px)] overflow-y-auto border-t border-slate-200 bg-white px-3.5 pb-4 pt-3">
+            <a className="mb-2 block px-3 text-xs text-slate-400 hover:text-slate-700" href="https://www.buylife.xyz/programs">
               ← 다른 프로그램 보기
             </a>
             <NavContent pathname={pathname} userEmail={userEmail} />
