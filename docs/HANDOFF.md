@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 배포 키트 생성 절차 지침화
+- 주인님 지시: 키트 제작 과정·내용·주의사항을 생성 지침과 인수인계 파일로 남기기(앞으로 수업에서 기존 프로그램을 키트로 배포). `docs/DISTRIBUTION_KIT_GUIDE.md` §12 신설, 함정 6건·현황·개선 대기 추가. 인수인계 [`docs/HANDOFF_20261031_DISTRIBUTION_KIT_PROCESS.md`](HANDOFF_20261031_DISTRIBUTION_KIT_PROCESS.md).
+- 미해결: 수강생 세팅 42703은 원인 추정 단계, 재실행 결과 대기. 코드·배포 변경 없음.
+
 ## 2026-10-30 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 수강생용 상태바 키트 `Claude_Code_Statusbar_Kit_v1.01`
 - 주인님 요청: 쓰시는 상태바처럼 수강생이 사용량을 볼 수 있는 스크립트·프롬프트. 원본 `scripts/claude-statusbar-kit/`, 산출물 `D:/PDS/Claude_Code_Statusbar_Kit_v1.01.zip`. 운영자 경로·Orca 연동을 뺐고, 구독 값이 없으면 세션 예상 비용 표시.
 - 확인: 실제 상태바 입력값으로 기존 스크립트와 출력 동일, 임시 설정 폴더에서 설치·재설치·제거·복원·깨진 설정 차단, 설치 cmd 실행. 못 한 것: 실제 Claude Code 화면(주인님 설정 미변경), 맥, API 키 계정, 크레딧 표시 실데이터.
