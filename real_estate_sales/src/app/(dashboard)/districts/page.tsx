@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ALL_DISTRICTS, SIDO_GROUPS, groupByCity } from "@/lib/publicdata/districts";
+import { DistrictSearch } from "@/components/districts/DistrictSearch";
 import { DistrictToggle } from "@/components/districts/DistrictToggle";
 import { MonitoringSettings } from "@/components/districts/MonitoringSettings";
 import { QueryNowButton } from "@/components/districts/QueryNowButton";
@@ -29,6 +30,10 @@ export default async function DistrictsPage() {
         tip={`지금 ${watchMap.size}개 지역 선택됨 · 「지금 조회하기」나 예약 조회로 실거래를 가져옵니다.`}
       />
       <div className="mb-6" />
+      <DistrictSearch
+        districts={SIDO_GROUPS.flatMap((g) => g.districts.map((d) => ({ ...d, sido: g.sido })))}
+        activeCodes={[...watchMap.keys()]}
+      />
       {/* RE-B4(2026-10-30): 서울·경기·인천 묶음. 경기·인천은 국토부 실거래 자료(전월세 비교는 서울만) */}
       {SIDO_GROUPS.map((g) => {
         const picked = g.districts.filter((d) => watchMap.has(d.sgg_cd)).length;

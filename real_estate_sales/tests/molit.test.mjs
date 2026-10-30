@@ -88,6 +88,8 @@ test("실제 응답 모양(2026-10): umdCd·bonbun 없이 동 이름·지번만 
   assert.deepEqual(splitJibun("산12-1"), { mountain: true, bun: "12", ji: "1" });
   assert.deepEqual(splitJibun(""), { mountain: false, bun: "", ji: "" });
   // 읍·면은 리가 표에 없어 읍 코드로
-  assert.equal(legalDongCode(LEGAL_DONG, "41591", "남양읍 남양리"), LEGAL_DONG["41591"]["남양읍"]);
+  assert.equal(legalDongCode(LEGAL_DONG, "41591", "남양읍 남양리"), "25621");
+  assert.equal(legalDongCode(LEGAL_DONG, "41591", "남양읍  신남리"), "25622");
+  assert.equal(legalDongCode(LEGAL_DONG, "41591", "남양읍 없는리"), LEGAL_DONG["41591"]["남양읍"]);
   assert.equal(legalDongCode(LEGAL_DONG, "99999", "풍동"), "");
 });

@@ -7,12 +7,12 @@ import type { SeoulRtmsRow } from "./client";
 /** 시·군·구 → { 동 이름: 법정동 코드 뒤 5자리 } (legalDong.ts의 LEGAL_DONG을 부르는 쪽에서 넘김 — 시험·서버 둘 다 import 확장자 문제 없이 쓰려고) */
 export type DongTable = Record<string, Record<string, string>>;
 
-/** 동 이름 → 법정동 코드 뒤 5자리. 「남양읍 남양리」처럼 리까지 오면 공식 표에 리가 없어 읍·면 코드로 대신(그 필지 조회는 비어도 무해) */
+/** 동 이름 → 법정동 코드 뒤 5자리. 「남양읍 남양리」는 리 코드로(2026-10-31 표에 리 추가), 표에 없는 리는 읍·면 코드로 대신(그 필지 조회는 비어도 무해) */
 export function legalDongCode(dongTable: DongTable, sggCd: string, umdNm: string): string {
   const table = dongTable[sggCd];
   if (!table) return "";
-  const name = umdNm.trim();
-  return table[name] ?? table[name.split(/\s+/)[0]] ?? "";
+  const name = umdNm.trim().replace(/\s+/g, " ");
+  return table[name] ?? table[name.split(" ")[0]] ?? "";
 }
 
 /** 지번 「1286」「25-9」「산12-1」 → { 산 여부, 본번, 부번 } (2026-10-30 실측: 국토부 응답에 bonbun·bubun 칸이 없고 jibun만 옴) */
