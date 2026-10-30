@@ -21,3 +21,8 @@ export function priceToOfficialPct(priceManwon: number | null, officialWon: numb
   if (!priceManwon || !officialWon) return null;
   return Math.round((priceManwon / (officialWon / 10000)) * 100);
 }
+
+/** 공시가 대비가 이 범위를 벗어나면 특수 거래(지분·재개발 기대·신고 오류 등)일 수 있어 안내한다 */
+export function isUnusualPriceRatio(pct: number | null): boolean {
+  return pct !== null && (pct < 100 || pct > 400);
+}

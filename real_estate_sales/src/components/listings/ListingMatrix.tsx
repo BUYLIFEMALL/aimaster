@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { formatWon, priceToOfficialPct } from "@/lib/format";
+import { formatWon, isUnusualPriceRatio, priceToOfficialPct } from "@/lib/format";
 import { exportListingsCsvAction } from "@/lib/actions/export";
 
 export interface ListingRow {
@@ -141,7 +141,9 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                     <td className="text-right tabular-nums">{r.floor ?? "-"}</td>
                     <td className="text-right font-bold tabular-nums text-mx-link">{formatWon(r.price)}</td>
                     <td className="text-right tabular-nums text-mx-muted">{r.official ? formatWon(r.official / 10000) : "-"}</td>
-                    <td className="text-right tabular-nums">{pct !== null ? `${pct}%` : "-"}</td>
+                    <td className="text-right tabular-nums" title={isUnusualPriceRatio(pct) ? "특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : undefined}>
+                      {pct !== null ? `${isUnusualPriceRatio(pct) ? "⚠️ " : ""}${pct}%` : "-"}
+                    </td>
                     <td>
                       <span className={st.chip}>{st.label}</span>
                     </td>
@@ -168,7 +170,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                 <p className="mt-1 text-2xl font-black tabular-nums text-mx-link">{formatWon(r.price)}</p>
                 <p className="mt-1 text-xs text-mx-muted">
                   전용 {r.area ?? "-"}㎡ · {r.floor ?? "-"}층 · {r.contractDate ?? "-"}
-                  {pct !== null && ` · 공시가 대비 ${pct}%`}
+                  {pct !== null && ` · 공시가 대비 ${pct}%${isUnusualPriceRatio(pct) ? " ⚠️ 특수 거래일 수 있어요" : ""}`}
                 </p>
               </Link>
             );

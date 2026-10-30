@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ReanalyzeButton } from "@/components/listings/ReanalyzeButton";
 import Link from "next/link";
 import { KpiCard } from "@/components/ui/KpiCard";
-import { formatWon, priceToOfficialPct } from "@/lib/format";
+import { formatWon, isUnusualPriceRatio, priceToOfficialPct } from "@/lib/format";
 
 export default async function ListingDetailPage({
   params,
@@ -112,12 +112,12 @@ export default async function ListingDetailPage({
           value={formatWon(listing.official_price ? listing.official_price / 10000 : null)}
           tone="muted"
         />
-        <KpiCard icon="📐" label="공시가 대비" value={ratio !== null ? `${ratio}%` : "-"} hint="거래가 ÷ 공시가격" tone="amber" />
+        <KpiCard icon="📐" label="공시가 대비" value={ratio !== null ? `${ratio}%` : "-"} hint={isUnusualPriceRatio(ratio) ? "⚠️ 특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : "거래가 ÷ 공시가격"} tone="amber" />
         <KpiCard
           icon="📏"
           label="㎡당 거래가"
           value={perM2 ? `${perM2.toLocaleString("ko-KR")}만원` : "-"}
-          hint={listing.building_area ? `건물면적 ${listing.building_area}㎡` : undefined}
+          hint={listing.exclusive_area ? `전용 ${listing.exclusive_area}㎡ 기준` : undefined}
           tone="green"
         />
       </div>

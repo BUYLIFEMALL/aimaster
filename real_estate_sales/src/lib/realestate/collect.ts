@@ -86,7 +86,8 @@ export async function collectDistrict(
       console.error("건축물대장 조회 실패:", buildingResult.reason);
     }
     // RE-B4(2026-10-30 실물): 경기·인천은 건축물대장에서 전용면적을 못 찾는 경우가 많다 — 국토부 자료의 전용면적(ARCH_AREA ← excluUseAr)을 쓴다
-    if (exclusiveArea === null && !seoul) exclusiveArea = toNumberOrNull(row.ARCH_AREA);
+    // 2026-10-31: 건축물대장 첫 줄은 다른 세대 면적일 수 있어(수정빌리지 28.53㎡, 신고 59.82㎡) 거래 신고 면적을 우선한다
+    exclusiveArea = toNumberOrNull(row.ARCH_AREA) ?? exclusiveArea;
 
     let officialPrice: number | null = null;
     if (priceResult.status === "fulfilled") {

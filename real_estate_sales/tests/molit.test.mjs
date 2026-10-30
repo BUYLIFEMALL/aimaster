@@ -105,6 +105,8 @@ test("공시가: 면적이 가까운 세대, 같은 층 우선, 면적이 다르
   assert.equal(pickAssessedPrice(rows, "84.9", "10"), 600000000);
   assert.equal(pickAssessedPrice(rows, "84.9", "99"), 600000000); // 같은 층 없으면 중간값
   assert.equal(pickAssessedPrice(rows, "37.5", "14"), null); // 경희궁의 아침 3단지 사례
+  assert.equal(pickAssessedPrice([{ prvuseAr: "20.63", floorNm: "11", pblntfPc: "300000000" }], "22.08", "11"), null); // 소형은 1㎡까지만
+  assert.equal(pickAssessedPrice([{ prvuseAr: "150", floorNm: "1", pblntfPc: "900000000" }], "147", "1"), 900000000); // 큰 평형은 3%
   assert.equal(pickAssessedPrice(rows, "", "3"), null);
   assert.equal(pickAssessedPrice([], "84", "3"), null);
 });

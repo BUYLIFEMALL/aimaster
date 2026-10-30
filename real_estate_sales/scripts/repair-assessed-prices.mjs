@@ -24,13 +24,13 @@ const headers = { apikey: secret, Authorization: `Bearer ${secret}` };
 
 let rows = [];
 for (let offset = 0; ; offset += 1000) {
-  const res = await fetch(`${base}/rest/v1/real_estate_listings?select=id,sgg_cd,stdg_nm,bldg_nm,floor,building_area,pnu,official_price,collected_at&order=id&limit=1000&offset=${offset}`, { headers });
+  const res = await fetch(`${base}/rest/v1/real_estate_listings?select=id,sgg_cd,stdg_nm,bldg_nm,floor,building_area,exclusive_area,pnu,official_price,collected_at&order=id&limit=1000&offset=${offset}`, { headers });
   const page = await res.json();
   if (!Array.isArray(page)) throw new Error(JSON.stringify(page));
   rows = rows.concat(page);
   if (page.length < 1000) break;
 }
-writeFileSync(backup, JSON.stringify(rows.map(({ id, pnu, official_price }) => ({ id, pnu, official_price }))));
+writeFileSync(backup, JSON.stringify(rows.map(({ id, pnu, official_price, exclusive_area }) => ({ id, pnu, official_price, exclusive_area }))));
 console.log(`전체 ${rows.length}줄, 백업 저장`);
 
 // 같은 단지의 정상 필지 번호 표
@@ -60,17 +60,18 @@ function lookup(pnu, year) {
   return cache.get(k);
 }
 
-const stat = { 그대로: 0, 값변경: 0, 비움: 0, 새로채움: 0, 조회결과없음: 0, 오류: 0, 필지고침: 0, 필지못고침: 0, 저장실패: 0 };
+const stat = { 면적고침: 0, 그대로: 0, 값변경: 0, 비움: 0, 새로채움: 0, 조회결과없음: 0, 오류: 0, 필지고침: 0, 필지못고침: 0, 저장실패: 0 };
 const samples = [];
 let next = 0;
 async function worker() {
   while (next < targets.length) {
     const r = targets[next++];
-    const pnu = fixedPnu(r);
-    if (!pnu) { stat.필지못고침++; continue; }
     const patch = {};
-    if (pnu !== r.pnu) { patch.pnu = pnu; stat.필지고침++; }
-    try {
+    if (r.building_area !== null && Number(r.exclusive_area) !== Number(r.building_area)) { patch.exclusive_area = r.building_area; stat.면적고침++; }
+    const pnu = fixedPnu(r);
+    if (!pnu) stat.필지못고침++;
+    if (pnu && pnu !== r.pnu) { patch.pnu = pnu; stat.필지고침++; }
+    if (pnu) try {
       const found = await lookup(pnu, new Date(r.collected_at).getFullYear() - 1);
       if (found.length === 0) stat.조회결과없음++;
       else {

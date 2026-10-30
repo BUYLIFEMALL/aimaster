@@ -84,7 +84,8 @@ export function molitRows(jsons: unknown[], sggNm: string, dongTable: DongTable 
 
 // 2026-10-31: 공시가·전월세를 같은 면적으로 맞춘다. 첫 줄만 쓰면 다른 세대 값이 들어갔다(경희궁의 아침 3단지: 거래 37.5㎡인데 필지에는 123㎡ 이상뿐).
 export const MOLIT_RENT_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent";
-const AREA_TOLERANCE_M2 = 2; // 이보다 면적 차이가 크면 다른 평형으로 보고 쓰지 않는다
+// 이보다 면적 차이가 크면 다른 평형으로 보고 쓰지 않는다. 2㎡ 고정은 소형에 넓어(22.08㎡가 20.63㎡로 맞춰짐) 면적의 3%, 최소 1㎡로 바꿈(2026-10-31)
+const areaTolerance = (area: number) => Math.max(1, area * 0.03);
 
 const num = (v: unknown) => {
   const s = str(v).replace(/[,\s]/g, "");
@@ -106,7 +107,7 @@ export function pickAssessedPrice(
     .filter((r): r is { area: number; floor: string; price: number } => !!r.area && !!r.price);
   if (valid.length === 0) return null;
   const nearest = Math.min(...valid.map((r) => Math.abs(r.area - target)));
-  if (nearest > AREA_TOLERANCE_M2) return null;
+  if (nearest > areaTolerance(target)) return null;
   const sameArea = valid.filter((r) => Math.abs(r.area - target) === nearest);
   const sameFloor = sameArea.filter((r) => r.floor === str(floor));
   const pool = (sameFloor.length ? sameFloor : sameArea).map((r) => r.price).sort((a, b) => a - b);
@@ -159,7 +160,7 @@ export function pickRentComparable(rows: RentComparable[], name: string, dong: s
       r.deposit !== null &&
       nameKey(r.name) === nameKey(name) &&
       (!r.dong || !dong || r.dong === dong) &&
-      (r.area === null || target === null || Math.abs(r.area - target) <= AREA_TOLERANCE_M2),
+      (r.area === null || target === null || Math.abs(r.area - target) <= areaTolerance(target)),
   );
   const latest = (list: RentComparable[]) => [...list].sort((a, b) => b.day.localeCompare(a.day))[0] ?? null;
   return latest(matched.filter((r) => !r.rent)) ?? latest(matched);
