@@ -55,6 +55,7 @@ import {
 } from '@/blog/utils/ai/contentModels'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 import NaverCategoryPicker from '@/blog/components/NaverCategoryPicker'
+import { EXTENSION_ENABLED } from '@/lib/deployment'
 import type { NaverCategory } from '@/blog/utils/naverCategory'
 
 interface CategoryOption {
@@ -673,6 +674,7 @@ function AiFormPageInner() {
             </div>
 
             {/* ★ 최우선 블로그 지침: 네이버 스마트에디터 포스팅 방식 선택 (회원 직접 선택) */}
+            {EXTENSION_ENABLED && (
             <div className="bg-emerald-50/80 p-5 rounded-2xl border border-emerald-200 space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-black text-emerald-950 flex items-center gap-1.5 uppercase">
@@ -751,6 +753,7 @@ function AiFormPageInner() {
                 </label>
               </div>
             </div>
+            )}
             <p className="text-xs font-medium text-slate-500 leading-relaxed">
               주제와 옵션을 지정하고 [AI 글 생성 시작] 버튼을 누르면, <strong>AI 본문 텍스트와 1~5장의 고화질 이미지가 사이사이에 자동 배치</strong>된 완성본 포스트가 즉시 데이터베이스에 등록됩니다.
             </p>
@@ -1100,7 +1103,7 @@ function AiFormPageInner() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500">
-                  본문 사이사이에 이미지가 자동 배치된 완성본 포스트입니다. 원고 복사 또는 네이버 입력기로 바로 전송할 수 있습니다.
+                  본문 사이사이에 이미지가 자동 배치된 완성본 포스트입니다. {EXTENSION_ENABLED ? '원고 복사 또는 네이버 입력기로 바로 전송할 수 있습니다.' : '「원고 전체 복사」로 내 블로그 글쓰기 화면에 붙여 넣으세요.'}
                 </p>
               </div>
 
@@ -1144,7 +1147,7 @@ function AiFormPageInner() {
                   <Copy className="w-3.5 h-3.5" />
                   <span>{copied ? '복사 완료!' : '📋 원고 전체 복사'}</span>
                 </button>
-                <button
+                {EXTENSION_ENABLED && <button
                   type="button"
                   onClick={handleSendToExtension}
                   disabled={handoffLoading}
@@ -1152,7 +1155,7 @@ function AiFormPageInner() {
                 >
                   {handoffLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   <span>🧩 네이버 입력기 전송</span>
-                </button>
+                </button>}
                 {savedPostId && (
                   <a
                     href={savedPostUrl || `/posts/${savedPostId}`}
@@ -1187,9 +1190,11 @@ function AiFormPageInner() {
             </div>
 
             {/* 네이버 카테고리 선택(확장이 내 네이버 카테고리 목록을 읽어 준다) */}
+            {EXTENSION_ENABLED && (
             <div className="p-3 bg-white rounded-2xl border border-slate-200">
               <NaverCategoryPicker value={naverCategory} onChange={setNaverCategory} disabled={handoffLoading} />
             </div>
+            )}
 
             {/* 네이버 스마트에디터 확장 전송 알림 바 */}
             {handoffStatus && (

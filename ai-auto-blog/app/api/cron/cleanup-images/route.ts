@@ -3,6 +3,7 @@ import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { POST_IMAGES_BUCKET } from '@/blog/utils/imageStorage'
 import { RETENTION_DAYS, retentionCutoff } from '@/blog/utils/imageRetention'
 import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from '@/blog/utils/cleanupUsageLog'
+import { IS_STANDALONE } from '@/lib/deployment'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -105,7 +106,8 @@ export async function GET(request: NextRequest) {
       removedCandidates = expiredCandidates ?? 0
       for (const row of candidateRows ?? []) addCleanupCount(counts, row.user_id, 'ideas')
     }
-    await logCleanupUsage(supabase, 'ai-auto-blog', counts)
+    // 관리자 「30일 자동 정리」 기록은 AIMaster 운영에만 있다(독립 운영에는 usage_logs·programs 표가 없음).
+    if (!IS_STANDALONE) await logCleanupUsage(supabase, 'ai-auto-blog', counts)
   }
 
   console.log(

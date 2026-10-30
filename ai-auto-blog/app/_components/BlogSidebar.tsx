@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { APP_VERSION } from "@/utils/version";
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
+import { EXTENSION_ENABLED, MAIN_SITE_URL } from "@/lib/deployment";
 
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
@@ -76,12 +76,14 @@ export default function BlogSidebar() {
             </span>
           </div>
           <p className="mt-1 text-xs text-slate-500 font-medium">플로우 위저드 블로그 퍼블리싱</p>
-          <a
-            href={`${MAIN_SITE_URL}/dashboard`}
-            className="mt-2 inline-flex items-center text-xs text-slate-400 hover:text-slate-700 transition-colors"
-          >
-            ← 다른 프로그램 보기
-          </a>
+          {MAIN_SITE_URL && (
+            <a
+              href={`${MAIN_SITE_URL}/dashboard`}
+              className="mt-2 inline-flex items-center text-xs text-slate-400 hover:text-slate-700 transition-colors"
+            >
+              ← 다른 프로그램 보기
+            </a>
+          )}
         </div>
 
         {/* 네비게이션 */}
@@ -158,7 +160,7 @@ export default function BlogSidebar() {
           </div>
 
           {/* 좌측 사이드바 3D 에메랄드 확장 다운로드 버튼 (2026-10-25 주인님 지시) */}
-          <a
+          {EXTENSION_ENABLED && <a
             className="nav-download"
             href="/downloads/ai-auto-blog-extension-latest.zip"
             download
@@ -166,7 +168,7 @@ export default function BlogSidebar() {
             title="네이버 블로그 자동 포스팅 크롬 확장 프로그램 최신버전 다운로드"
           >
             ⬇ 확장 프로그램 받기 ({APP_VERSION})
-          </a>
+          </a>}
 
           {UTILITY_ITEMS.map((item) => {
             const isActive = pathname === item.href;

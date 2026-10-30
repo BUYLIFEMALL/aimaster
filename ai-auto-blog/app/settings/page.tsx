@@ -11,6 +11,7 @@ import { ApiKeyRow } from './ApiKeyRow'
 import { GuideLinkButton } from '@/blog/components/settings/GuideLinkButton'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 import { ExtensionSettings } from '@/blog/components/settings/ExtensionSettings'
+import { EXTENSION_ENABLED, IS_STANDALONE } from '@/lib/deployment'
 
 // 본문 생성은 OpenAI·Claude·Gemini 중 고른 플랫폼의 키, 이미지 생성은 Gemini 키, 글감 수집은 Perplexity 키를 쓴다(2026-10-01).
 // user_api_keys는 AIMaster 전체가 공유하는 테이블이라 여기서 등록한 키는 다른 프로그램에서도 그대로 쓰인다.
@@ -72,8 +73,8 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="mb-2 text-2xl font-bold text-zinc-900">API 키 설정</h1>
       <p className="mb-6 text-sm text-zinc-600">
-        AI 글·이미지 생성은 여기 등록한 본인 API 키로만 동작합니다. 이 키는
-        AIMaster 계정에 연결되어 threads 등 다른 프로그램에서도 동일하게 사용됩니다.
+        AI 글·이미지 생성은 여기 등록한 본인 API 키로만 동작합니다.
+        {IS_STANDALONE ? ' 키는 내 Supabase에 내 계정 것으로만 저장됩니다.' : ' 이 키는 AIMaster 계정에 연결되어 threads 등 다른 프로그램에서도 동일하게 사용됩니다.'}
       </p>
 
       <div className="space-y-6">
@@ -98,7 +99,7 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <ExtensionSettings />
+        {EXTENSION_ENABLED && <ExtensionSettings />}
 
         <ImageStorageNotice />
 
@@ -110,6 +111,11 @@ export default function SettingsPage() {
               수 있습니다.
             </p>
           </div>
+          {IS_STANDALONE && (
+            <p className="text-xs text-zinc-600">
+              키 발급 방법은 설치 폴더의 <strong>KIT/PLATFORMS.md</strong>에 화면 순서대로 정리되어 있습니다.
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
             {GUIDE_LINKS.map((guide) => (
               <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />

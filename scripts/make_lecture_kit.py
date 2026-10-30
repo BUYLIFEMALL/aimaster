@@ -126,11 +126,17 @@ def copy_program(program, kit, dst_root, kit_version=""):
     src = os.path.join(ROOT, program)
     dst = os.path.join(dst_root, program)
     skip_top = ALWAYS_SKIP_TOP | set(kit.get("exclude", []))
+    # exclude 에 "public/downloads" 처럼 하위 경로도 쓸 수 있다(2026-10-30, 확장 ZIP을 빼는 블로그 키트용). 최상위 이름은 예전과 같다.
+    skip_paths = {e.strip("/").replace("\\", "/") for e in kit.get("exclude", []) if "/" in e.strip("/")}
+
+    def rel_path(rel, name):
+        return name if rel == "." else (rel.replace(os.sep, "/") + "/" + name)
+
     for cur, dirs, files in os.walk(src):
         rel = os.path.relpath(cur, src)
-        dirs[:] = [d for d in dirs if d not in ALWAYS_SKIP_DIRS and not (rel == "." and d in skip_top)]
+        dirs[:] = [d for d in dirs if d not in ALWAYS_SKIP_DIRS and not (rel == "." and d in skip_top) and rel_path(rel, d) not in skip_paths]
         for f in files:
-            if (rel == "." and f in skip_top) or skip_file(f):
+            if (rel == "." and f in skip_top) or rel_path(rel, f) in skip_paths or skip_file(f):
                 continue
             target = os.path.join(dst, rel, f)
             os.makedirs(os.path.dirname(target), exist_ok=True)

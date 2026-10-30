@@ -1,0 +1,43 @@
+{
+  "title": "블로그 콘텐츠 자동화",
+  "shortName": "blog-content",
+  "description": "블로그 글감 수집·AI 글+이미지 생성·게시글 관리(보관함)·복사해서 붙여넣기 — 자동 포스팅(확장 프로그램) 없음",
+  "authRedirectPath": "/auth/confirm",
+  "checkTable": "newsblur_accounts",
+  "nextStep": "내 사이트에 가입하고 AI 키 1개(Gemini 권장)를 저장하면 바로 씁니다(자세한 내용은 KIT 폴더 README.md 5장).",
+  "exclude": [
+    "scripts/check-blog-anon-access.mjs",
+    "scripts/check-security-lint.cjs",
+    "scripts/make-extension-icons.mjs",
+    "scripts/migrate-base64-images.mjs",
+    "extension",
+    "public/downloads",
+    "tests",
+    "design",
+    "README.md",
+    ".env.example",
+    "프롬프트_로그인,회원가입 인증.txt",
+    "프롬프트_블로그메인페이지.txt",
+    "프롬프트_프로젝트 분석 및 구현.txt"
+  ],
+  "overrides": {
+    ".env.example": "KIT/env.example",
+    "vercel.json": "KIT/vercel.json"
+  },
+  "schemaCheckIgnore": [
+    "profiles",
+    "programs",
+    "subscriptions",
+    "user_program_access",
+    "usage_logs",
+    "personal_access_tokens"
+  ],
+  "schema": {
+    "mode": "static"
+  },
+  "extraEnv": [],
+  "resultSteps": [
+    "2) 좌측 [🔑 API키등록·플랫폼연동]에서 AI 키 1개 저장(Gemini 키 하나면 글과 이미지를 모두 만듭니다)",
+    "3) 좌측 [🔍 게시글 주제 수집]에서 글감 모으기 → [✍️ AI 글쓰기]에서 글+이미지 생성 → [게시글 관리]에서 글을 열어 [본문 복사하기] → 내 블로그 글쓰기 화면에 Ctrl+V (자동 포스팅·플랫폼 앱·예약 설정은 필요 없음)"
+  ]
+}

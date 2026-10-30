@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { createClient } from '@/blog/utils/supabase/server'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { checkProgramAccess } from '@/lib/access/checkProgramAccess'
+import { IS_STANDALONE } from '@/lib/deployment'
 
 // 이 앱(blog)은 AIMaster와 같은 Supabase 프로젝트를 공유한다.
 // 로그인 여부만으로는 부족하고, AIMaster의 programs/subscriptions/user_program_access
@@ -32,6 +33,9 @@ export async function requireProgramAccess() {
     const currentPath = (await headers()).get('x-pathname') ?? '/'
     redirect(`/auth?redirect=${encodeURIComponent(currentPath)}`)
   }
+
+  // 독립 운영(수강생 설치 키트)은 로그인한 본인이면 바로 사용한다(등급·구독·핸드폰 판정 없음, lib/deployment.ts).
+  if (IS_STANDALONE) return user!
 
   // 판정 규칙(2026-09-29 베타테스트 정책)은 lib/access/checkProgramAccess.ts(루트 같은 파일의 사본 — 규칙이 바뀌면 둘 다 고칠 것)에 둔다.
   const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user!.id, THIS_PROGRAM_SLUG)
@@ -72,6 +76,8 @@ export async function checkProgramAccessApi(): Promise<
   if (!user) {
     return { allowed: false, error: '로그인이 필요합니다.', status: 401 }
   }
+
+  if (IS_STANDALONE) return { allowed: true, user }
 
   const access = await checkProgramAccess(createAdminClient() as unknown as SupabaseLike, user.id, THIS_PROGRAM_SLUG)
   if (access.reason === 'phone_required') {

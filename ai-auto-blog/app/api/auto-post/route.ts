@@ -7,6 +7,7 @@ import { generateSeoPost, AutoPostOptions } from '@/blog/utils/news/generator'
 import { mdLiteToHtml, estimateReadingMinutes } from '@/blog/utils/markdown'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { resolveApiKey } from '@/blog/utils/apiKeys'
+import { IS_STANDALONE } from '@/lib/deployment'
 import {
   CONTENT_PROVIDER_LABELS,
   DEFAULT_CONTENT_PROVIDER,
@@ -88,11 +89,14 @@ async function savePostToDatabase({
   if (ownAuthor) {
     authorId = ownAuthor.id
   } else {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('name, email')
-      .eq('id', userId)
-      .maybeSingle()
+    // 독립 운영(수강생 설치 키트)에는 AIMaster 회원 정보 표(profiles)가 없다 — 작성자 이름은 '회원'으로 둔다.
+    const { data: profile } = IS_STANDALONE
+      ? { data: null as { name: string | null; email: string | null } | null }
+      : await supabase
+          .from('profiles')
+          .select('name, email')
+          .eq('id', userId)
+          .maybeSingle()
     const displayName = profile?.name || profile?.email?.split('@')[0] || '회원'
 
     const { data: createdAuthor, error: authorError } = await supabase

@@ -9,7 +9,7 @@ import { stripImageGenerationSchema, removeImagePromptSection } from '@/blog/uti
 import NaverCategoryPicker from '@/blog/components/NaverCategoryPicker'
 import type { NaverCategory } from '@/blog/utils/naverCategory'
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+import { EXTENSION_ENABLED, MAIN_SITE_URL } from '@/lib/deployment'
 
 /* ------------------------------------------------------------------ */
 /*  HTML5 Canvas Image Compression Helper                              */
@@ -313,12 +313,14 @@ export default function PostDetailPage() {
           <Link href={getBlogBasePath() || '/'} className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">블로그 포스팅 자동화</Link>
 
           <div className="flex items-center gap-3 flex-shrink-0">
+            {MAIN_SITE_URL && (
             <a
               href={`${MAIN_SITE_URL}/programs`}
               className="text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors hidden sm:inline"
             >
               ← 다른 프로그램 보기
             </a>
+            )}
             <Link href={getBlogBasePath() || '/'} className="p-2 text-zinc-500 hover:text-zinc-900 transition-colors" aria-label="검색">
               <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -489,7 +491,7 @@ export default function PostDetailPage() {
                 >
                   {compressing ? '⏳ 이미지 750KB 압축 중...' : copied ? '✓ 본문 & 이미지 복사 완료! (Ctrl+V로 붙여넣으세요)' : '📋 본문 복사하기'}
                 </button>
-                <button
+                {EXTENSION_ENABLED && <button
                   disabled={handoffState === 'sending'}
                   onClick={async () => {
                     setHandoffState('sending')
@@ -511,7 +513,7 @@ export default function PostDetailPage() {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-all cursor-pointer shadow-sm disabled:opacity-60"
                 >
                   {handoffState === 'sending' ? '⏳ 보내는 중...' : handoffState === 'sent' ? '✓ 네이버 입력기로 보냄' : '🧩 네이버 입력기로 보내기'}
-                </button>
+                </button>}
                 <Link
                   href={`${getBlogBasePath()}/posts/${post.id}/edit`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 text-xs font-semibold rounded-lg border border-slate-200 transition-all cursor-pointer no-underline shadow-sm"
@@ -540,9 +542,11 @@ export default function PostDetailPage() {
                   🗑️ 삭제
                 </button>
               </div>
+              {EXTENSION_ENABLED && (
               <div className="w-full border-t border-zinc-100 pt-3">
                 <NaverCategoryPicker value={naverCategory} onChange={setNaverCategory} disabled={handoffState === 'sending'} />
               </div>
+              )}
             </div>
 
             {/* Category tags */}

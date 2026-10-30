@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+import { MAIN_SITE_URL } from '@/lib/deployment'
 
 interface InfoPageProps {
   title: string
@@ -16,9 +16,11 @@ export default function InfoPage({ title, children }: InfoPageProps) {
             블로그 포스팅 자동화
           </Link>
           <div className="flex items-center gap-4">
+            {MAIN_SITE_URL && (
             <a href={`${MAIN_SITE_URL}/programs`} className="text-sm font-medium text-zinc-500 hover:text-zinc-900 no-underline transition-colors">
               ← 다른 프로그램 보기
             </a>
+            )}
             <Link href="/" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 no-underline transition-colors">
               홈으로
             </Link>

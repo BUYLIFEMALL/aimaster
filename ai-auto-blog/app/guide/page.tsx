@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { APP_VERSION } from "@/utils/version";
+import { EXTENSION_ENABLED } from "@/lib/deployment";
 
 interface FaqItem {
   q: string;
@@ -10,7 +11,7 @@ interface FaqItem {
   category: string;
 }
 
-const FAQ_LIST: FaqItem[] = [
+const ALL_FAQ: FaqItem[] = [
   {
     q: "AI 글쓰기에 사용할 수 있는 AI 모델은 어떤 것이 있나요?",
     a: "Google Gemini 2.5 Flash, OpenAI GPT-4o, Anthropic Claude 3.5 Sonnet을 자유롭게 선택하여 본문을 생성할 수 있습니다. 이미지는 Google Gemini의 고화질 이미지 엔진인 NanoBanana 2K, 4K, Pro 모델이 자동으로 연동되어 섹션별 맞춤 삽화를 생성합니다.",
@@ -37,6 +38,9 @@ const FAQ_LIST: FaqItem[] = [
     category: "트러블슈팅",
   },
 ];
+
+// 독립 운영(콘텐츠 만들기 전용 배포판)은 확장 프로그램이 없으므로 확장 질문을 뺀다.
+const FAQ_LIST: FaqItem[] = EXTENSION_ENABLED ? ALL_FAQ : ALL_FAQ.filter((item) => item.category !== "확장 프로그램");
 
 export default function GuidePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -92,7 +96,7 @@ export default function GuidePage() {
       </section>
 
       {/* 럭셔리 크롬 확장 프로그램 3D 엠보싱 퀵 다운로드 카드 (2026-10-25 주인님 지시) */}
-      <section className="card-download-banner">
+      {EXTENSION_ENABLED && <section className="card-download-banner">
         <div className="download-banner-inner">
           <div className="download-banner-text">
             <span className="download-tag">🚀 Chrome Extension</span>
@@ -121,7 +125,7 @@ export default function GuidePage() {
             </Link>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* =================== 1. 4단계 프로세스 파이프라인 =================== */}
       <section className="mb-12">
@@ -205,14 +209,16 @@ export default function GuidePage() {
               </span>
               <span className="text-xl">🚀</span>
             </div>
-            <h3 className="text-sm font-bold text-slate-900 mb-1.5">블로그 발행 & 확장 연동</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-1.5">{EXTENSION_ENABLED ? "블로그 발행 & 확장 연동" : "보관함 운영 & 블로그에 붙여넣기"}</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              크롬 확장 프로그램을 통해 네이버 블로그 스마트에디터 ONE 또는 티스토리 에디터로 이미지와 서식을 1초 만에 원클릭 자동 입력합니다.
+              {EXTENSION_ENABLED
+                ? "크롬 확장 프로그램을 통해 네이버 블로그 스마트에디터 ONE 또는 티스토리 에디터로 이미지와 서식을 1초 만에 원클릭 자동 입력합니다."
+                : "만든 글은 게시글 관리(보관함)에서 고치고 정리합니다. 「본문 복사하기」를 누른 뒤 내 블로그 글쓰기 화면에 Ctrl+V로 붙여 넣으면 이미지까지 함께 들어갑니다."}
             </p>
             <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
               <span>권장 메뉴:</span>
-              <Link href="/settings" className="underline hover:text-emerald-800">
-                확장 프로그램 연동
+              <Link href={EXTENSION_ENABLED ? "/settings" : "/"} className="underline hover:text-emerald-800">
+                {EXTENSION_ENABLED ? "확장 프로그램 연동" : "게시글 관리"}
               </Link>
             </div>
           </div>

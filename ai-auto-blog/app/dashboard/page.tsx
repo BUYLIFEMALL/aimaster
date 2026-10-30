@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { createClient } from '@/blog/utils/supabase/client'
 import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import { splitIntoSentenceParagraphs } from '@/blog/utils/formatProgramDescription'
+import { IS_STANDALONE } from '@/lib/deployment'
 
 interface RecentPost {
   id: number
@@ -71,7 +72,8 @@ export default function DashboardPage() {
         supabase.from('blog_categories').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         // 대시보드 상단 설명 박스 — AIMaster 루트의 프로그램 소개(메인 페이지
         // programs.description/short_desc)를 그대로 가져와 보여준다(2026-09-13 요청).
-        supabase.from('programs').select('description, short_desc').eq('slug', 'ai-auto-blog').maybeSingle(),
+        // 독립 운영에는 AIMaster 프로그램 표가 없어 읽지 않는다.
+        IS_STANDALONE ? Promise.resolve({ data: null as { description: string | null; short_desc: string | null } | null }) : supabase.from('programs').select('description, short_desc').eq('slug', 'ai-auto-blog').maybeSingle(),
       ])
 
       setRecentPosts(postsRes.data ?? [])

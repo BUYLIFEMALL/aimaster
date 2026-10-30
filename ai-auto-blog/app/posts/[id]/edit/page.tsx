@@ -22,7 +22,7 @@ import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, splitImagePromptSection, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 import RichTextEditor from '@/blog/components/RichTextEditor'
 
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+import { MAIN_SITE_URL } from '@/lib/deployment'
 
 interface Category {
   id: number
@@ -312,12 +312,14 @@ export default function PostEditPage() {
               <SquarePen size={18} className="text-neutral-700" />
               <h1 className="text-lg font-bold text-neutral-900">스마트 에디터 (수정 페이지)</h1>
             </div>
+            {MAIN_SITE_URL && (
             <a
               href={`${MAIN_SITE_URL}/programs`}
               className="text-neutral-500 hover:text-neutral-900 text-xs font-medium transition-colors no-underline hidden sm:inline"
             >
               ← 다른 프로그램 보기
             </a>
+            )}
           </div>
           <button
             onClick={handleSubmit}

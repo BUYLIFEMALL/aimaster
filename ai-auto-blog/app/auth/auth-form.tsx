@@ -3,9 +3,8 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { login } from './actions'
-
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? 'https://buylife.xyz'
+import { login, signup } from './actions'
+import { IS_STANDALONE, MAIN_SITE_URL } from '@/lib/deployment'
 
 export default function AuthForm() {
   const searchParams = useSearchParams()
@@ -23,9 +22,12 @@ export default function AuthForm() {
     const formData = new FormData(event.currentTarget)
     
     startTransition(async () => {
-      const result = await login(formData)
+      const result = mode === 'signup' ? await signup(formData) : await login(formData)
       if (result?.error) {
         setError(result.error)
+      }
+      if (result && 'notice' in result && result.notice) {
+        setSuccessMsg(result.notice)
       }
     })
   }
@@ -38,7 +40,7 @@ export default function AuthForm() {
           블로그 포스팅 자동화
         </Link>
         <p className="text-sm font-medium text-zinc-500">
-          AIMaster 계정(이메일·비밀번호)으로 로그인하세요.
+          {IS_STANDALONE ? '이메일·비밀번호로 가입하거나 로그인하세요.' : 'AIMaster 계정(이메일·비밀번호)으로 로그인하세요.'}
         </p>
       </div>
 
@@ -93,7 +95,7 @@ export default function AuthForm() {
         )}
 
         {/* 회원가입은 AIMaster에서만 받는다 — 모든 AI 프로그램은 AIMaster 계정/구독 권한을 공유한다. */}
-        {mode === 'signup' ? (
+        {mode === 'signup' && !IS_STANDALONE ? (
           <div className="space-y-4 text-center">
             <p className="text-sm text-zinc-600">
               이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다.

@@ -9,6 +9,7 @@ import CategoryManagementModal from './CategoryManagementModal'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 import { retentionDaysLeft } from '@/blog/utils/imageRetention'
 import { APP_VERSION } from '@/utils/version'
+import { EXTENSION_ENABLED } from '@/lib/deployment'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -260,7 +261,7 @@ export default function HomePage() {
             주제·키워드 입력만으로 완성하는 SEO 최적화 블로그
           </h1>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mb-6 leading-relaxed">
-            멀티 AI(GPT-4o / Claude 3.5 Sonnet / Gemini 2.5 Flash) 기반 본문 작성, 나노바나나 고화질 삽화 자동 생성, Tiptap 리치 에디터 검수 및 크롬 확장 프로그램 연동까지 원스톱으로 지원합니다.
+            멀티 AI(GPT-4o / Claude 3.5 Sonnet / Gemini 2.5 Flash) 기반 본문 작성, 나노바나나 고화질 삽화 자동 생성, Tiptap 리치 에디터 검수{EXTENSION_ENABLED ? ' 및 크롬 확장 프로그램 연동' : ', 복사해서 내 블로그에 붙여넣기'}까지 원스톱으로 지원합니다.
           </p>
 
           {/* 퀵 액션 버튼 & 검색 폼 */}
@@ -377,8 +378,8 @@ export default function HomePage() {
           </div>
           <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/60">
             <div className="text-[10px] font-black text-emerald-600 uppercase">STEP 4</div>
-            <div className="text-xs font-bold text-slate-900 mt-0.5">🚀 블로그 발행·연동</div>
-            <div className="text-[11px] text-slate-500 mt-0.5">크롬 확장 프로그램 & 웹 발행</div>
+            <div className="text-xs font-bold text-slate-900 mt-0.5">{EXTENSION_ENABLED ? '🚀 블로그 발행·연동' : '📋 복사해서 붙여넣기'}</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">{EXTENSION_ENABLED ? '크롬 확장 프로그램 & 웹 발행' : '본문 복사 → 내 블로그에 Ctrl+V'}</div>
           </div>
         </div>
       </section>

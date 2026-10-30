@@ -12,6 +12,12 @@ const extensionRoot = path.join(projectRoot, 'extension')
 const manifestPath = path.join(extensionRoot, 'manifest.json')
 const downloadsRoot = path.join(projectRoot, 'public', 'downloads')
 
+// 독립 운영 배포판(수강생 설치 키트, 콘텐츠 만들기 전용)은 확장을 빼고 포장한다 — 확장 폴더가 없거나 독립 모드면 건너뛴다(2026-10-30).
+if ((process.env.NEXT_PUBLIC_STANDALONE_MODE ?? '').replace(/^﻿/, '').trim() === 'true' || !fs.existsSync(manifestPath)) {
+  console.log('확장 압축 건너뜀: 콘텐츠 만들기 전용 배포판(확장 없음)')
+  process.exit(0)
+}
+
 // 1) 프로그램 버전 읽기 → manifest 동기화
 const versionSource = fs.readFileSync(path.join(projectRoot, 'utils', 'version.ts'), 'utf8')
 const appVersion = versionSource.match(/APP_VERSION\s*=\s*["'](v(\d+)\.(\d{2}))["']/)

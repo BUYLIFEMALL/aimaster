@@ -1,3 +1,4 @@
+import { IS_STANDALONE } from '@/lib/deployment'
 // 본문(추론·글쓰기) 생성 모델과 이미지 생성 모델 레지스트리 — 서버/클라이언트 공용 상수.
 // 기준 문서: docs/AI_MODEL_INTEGRATION_STANDARD.md (모델 ID 추측 금지, Preview는 표시하고 기본값 금지,
 // 설명에는 용도만 적고 가격·속도·성능을 단정하지 않는다, 본문 모델과 이미지 모델은 따로 관리).
@@ -64,7 +65,8 @@ export function contentModelLabel(model: ContentModelOption) {
 }
 
 /** 처음 화면을 열면 OpenAI GPT-4.1이 선택된다(2026-10-01 주인님 지시). 회원이 고른 값은 브라우저에 기억돼 다음에도 그대로 쓴다. */
-export const DEFAULT_CONTENT_PROVIDER: ContentProvider = 'openai'
+// 독립 운영(수강생 설치 키트)은 Gemini 키 하나로 글과 이미지를 모두 만들 수 있게 Gemini를 기본으로 한다(2026-10-30).
+export const DEFAULT_CONTENT_PROVIDER: ContentProvider = IS_STANDALONE ? 'gemini' : 'openai'
 
 /** 플랫폼을 바꾸면 그 플랫폼의 이 모델로 즉시 바뀐다(Preview 모델은 기본값으로 쓰지 않는다). */
 const DEFAULT_MODEL_BY_PROVIDER: Record<ContentProvider, string> = {
