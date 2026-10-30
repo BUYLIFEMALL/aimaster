@@ -58,6 +58,7 @@ SQL 적용 순서: 기존8개 뒤 `20261030150000_bnc_accept_schedule.sql`(새 �
 - **검수**: 시험 41개·tsc 0. 크롬에서 발주서(결제완료·상품준비중·배송완료)·출고중지 요청 실제 조회 정상(모두 0건), 조회 간격 차단 확인. **쓰기 실제 시험은 주문이 들어온 뒤**(주인님 결정).
 - **남은 일**: 플랜 A 묶음(A1 오늘 할 일·A4 배송지 재확인·A2 한 흐름, 채팅 승인) → 1단계 최종 배포(비용 승인) · 옵션 쓰기 시험(승인 대기).
 - 커밋: `a4d1eba96`·`1d51314aa`·`f64557049`·`00ccc835c`·`7c124f6d4`·`511c52080`. 로컬 http://localhost:3078/orders · /returns
+- **(같은 날 이어서) 플랜 A 묶음·첫 운영 배포**: A1 「오늘 할 일」·A2·A4(`4039074b2`) 뒤 **v1.01 첫 운영 배포 완료** — https://coupang-ops.buylife.xyz (Vercel `coupang-ops`, 비공개 유지, DB 버전 v1.01 일치). `FIXIE_URL`은 주인님이 직접 등록(처음엔 안내문 자리 표시 글자가 그대로 저장돼 다시 등록). 첫 빌드는 `vercel.json`에 `framework` 없어 `No Output Directory named "public"` 실패 → `vercel.json` 추가(`` `framework: nextjs` ``) 후 주인님 추가 승인으로 재배포 Ready. 운영 확인: `/login` 200, 로그인 전 `/home`·`/orders`·`/returns`는 로그인 화면으로 307. **크롬의 buylife.xyz 계정이 관리자가 아니라 운영 화면 안쪽은 아직 못 봄**(주인님 확인 요청). 빌드 2회.
 
 ## 2026-10-30 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — `real_estate_sales` v1.23 경기·인천 확장(RE-B4) + `zod` 보안(RE-B5)
 - **한 일**: 경기 44·인천 10곳 추가. 서울 밖은 국토부 아파트 매매 실거래가 API(15126469)로 이번 달·지난달 조회 → 서울 자료 모양으로 변환(`src/lib/publicdata/molit.ts`) → 중복 확인·공시가·건축물대장·AI 분석·알림 그대로. 감시 지역 화면 서울/경기/인천 묶음, 전월세 비교는 서울만. `zod` ^4.6.7(`npm audit` 0건). 플랜 `real_estate_sales/docs/PLAN_20261030_RE_B4_GYEONGGI_INCHEON.md`.

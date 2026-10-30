@@ -42,7 +42,6 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `shorts-viral-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-shorts-viral-v2` | 2026-10-30 | 쇼츠 떡상 분석 및 대본 자동화 v2.0 리뉴얼 — 4대 화면 3시안(12뷰) 쇼케이스 및 라이트박스 팝업 제작 중 |
-| `coupang-ops/` | [역할: ecommerce-image] Claude Code(윈도우, 크롬) · 세션 `claude-win-sdp` | 2026-10-29 | 쿠팡 판매 재개 → 실키 연결 시험·출고지/반품지·카테고리 확인(로컬, 배포 없음) |
 | `blog-neighbor-care/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` | 2026-10-30 | 4ee7dc674 받은신청 반복수락/공용cursor/불확정복구 로컬완료(303/DB9·243SQL/정리11/타입). 다음 자동RSS·동의/예산기반AI초안 구현. 실제 DOM/Edge/Naver/운영검수 잔여. 웹+확장·16묶음미배포/SQL9미적용·운영v1.03·비용0. |
 | `naver-blog-agent/` | [역할: blog] Codex(윈도우, 엣지) · 세션 `codex-win-20261026-blog-check` (이전 codex-win-20261025-blog) | 2026-10-29 | 현황정리: 실제Edge설치/본인블로그연결/네이버로그인확인·7eba5ff7완료. 설치2.21→2.22업데이트·현재Edge/옛8연결식별·해제/실입력미완료, 토큰해제0·발행0. 제품소스수정없음. |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |

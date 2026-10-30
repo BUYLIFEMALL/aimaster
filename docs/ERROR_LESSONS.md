@@ -494,6 +494,7 @@
 - 다음부터: 「확인 → 외부 호출 → 상태 변경」 순서의 결제·게시·발송 코드는 확인 단계를 조건부 수정(선점)으로 만든다. 선점 표시를 쓰는 칸을 다른 화면이 어떤 조건으로 읽는지 먼저 확인한다.
 
 ## 2026-10-21 — `vercel project add`로 만든 새 프로젝트는 프레임워크가 비어 첫 배포가 `No Output Directory named "public"`로 실패 + 새 도메인은 인증서가 퍼지는 몇 분 동안 간헐적 SSL 실패 (comment-inbox v1.01, Claude Code 윈도우)
+- **재발(2026-10-30, `coupang-ops` 첫 배포, Claude Code 윈도우)**: 전날 다른 세션이 만든 프로젝트를 그대로 배포해 같은 오류로 빌드 1회 낭비. **새 프로젝트 첫 배포 전에는 그 폴더에 `vercel.json`(`"framework": "nextjs"`)이 있는지 먼저 본다** — 없으면 만들고 커밋한 뒤 배포.
 - 증상: `vercel project add <이름>` → `vercel link` → `vercel deploy --prod`가 빌드는 끝났는데 `[STATIC_BUILD_NO_OUT_DIR]`로 오류. 도메인 추가 직후 curl이 `000`(schannel handshake 실패)과 정상 응답을 번갈아 냄.
 - 원인: CLI로 만든 프로젝트는 프레임워크 프리셋이 「Other」라 Next.js 결과물 위치를 모름. 새 도메인 인증서는 엣지 서버마다 퍼지는 데 몇 분 걸림.
 - 해결: 프로그램 폴더 `vercel.json`에 `"framework": "nextjs"` 추가 후 재배포(`comment-inbox/vercel.json`). 인증서는 기다리면 해결(기존 주소와 같은 횟수 반복 호출로 안정 확인).
