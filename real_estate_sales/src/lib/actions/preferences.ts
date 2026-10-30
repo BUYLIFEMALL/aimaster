@@ -1,5 +1,6 @@
 "use server";
 
+import { normalizePropertyTypes } from "@/lib/publicdata/molit";
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -53,6 +54,22 @@ export async function saveAutoAnalyzeAction(
     return { error: error.message };
   }
 
+  revalidatePath("/settings");
+  return { success: true };
+}
+/** 2026-10-31 v1.31: 목록·알림에 받을 건물 유형. 하나도 안 고르면 전체 */
+export async function savePropertyTypesAction(
+  _prevState: PreferencesActionState,
+  formData: FormData,
+): Promise<PreferencesActionState> {
+  const user = await requireProgramAccess();
+  const types = normalizePropertyTypes(formData.getAll("propertyTypes"));
+  const supabase = await createClient();
+  const { error } = await supabase.from("real_estate_user_preferences").upsert(
+    { user_id: user.id, property_types: types, updated_at: new Date().toISOString() },
+    { onConflict: "user_id" },
+  );
+  if (error) return { error: error.message };
   revalidatePath("/settings");
   return { success: true };
 }

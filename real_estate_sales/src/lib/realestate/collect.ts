@@ -14,7 +14,7 @@ import {
   type PublicDataKeys,
 } from "@/lib/publicdata/client";
 import { isSeoulDistrict } from "@/lib/publicdata/districts";
-import { pickAssessedPrice, pickRentComparable, seoulRentToComparables, type RentComparable } from "@/lib/publicdata/molit";
+import { normalizePropertyTypes, pickAssessedPrice, pickRentComparable, PROPERTY_TYPES, propertyTypeOf, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { ensureListingAnalysis } from "@/lib/actions/analysis";
@@ -41,7 +41,8 @@ export async function collectDistrict(
   const trades = seoul
     ? await fetchSeoulTrades({ sggCd, year, numOfRows: 200, keys })
     : await fetchMolitTrades({ sggCd, sggNm, numOfRows: 200, keys });
-  const validTrades = trades.filter((row) => row.CTRT_DAY && row.BLDG_NM);
+  // 세 유형(아파트·빌라·오피스텔)만 받는다. 상가·건물·토지는 별도 프로그램
+  const validTrades = trades.filter((row) => row.CTRT_DAY && row.BLDG_NM && propertyTypeOf(row.BLDG_USG));
 
   // 최대 200건을 매번 한 건씩 존재 여부 조회하던 것을, 한 번의 IN 쿼리로 일괄 확인하도록 변경.
   const dedupKeys = validTrades.map((row) => buildDedupKey(row));
@@ -55,13 +56,14 @@ export async function collectDistrict(
   }
 
   let newCount = 0;
-  let molitRents: Promise<RentComparable[]> | undefined;
+  const molitRents = new Map<PropertyType, Promise<RentComparable[]>>();
 
   for (let i = 0; i < validTrades.length; i++) {
     if (newCount >= MAX_NEW_LISTINGS_PER_DISTRICT) break;
 
     const row = validTrades[i];
     const dedupKey = dedupKeys[i];
+    const propertyType = propertyTypeOf(row.BLDG_USG) as PropertyType;
     if (existingSet.has(dedupKey)) continue;
 
     // 신규 실거래 → 건축물대장/공시가격/전월세 3종을 병렬로 조회 (하나 실패해도 나머지는 반영).
@@ -73,9 +75,14 @@ export async function collectDistrict(
         bun: row.MNO,
         ji: row.SNO,
       }),
-      fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, numOfRows: 1000, keys }),
+      // 오피스텔은 공동주택 공시가 대상이 아니다(서울 421줄 중 4줄만 값 있음, 2026-10-31)
+      propertyType === "오피스텔" ? Promise.resolve([]) : fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, numOfRows: 1000, keys }),
       // 서울은 단지별 열린데이터, 경기·인천은 국토부 지역 자료(지역당 한 번만 받아 재사용)
-      seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }).then(seoulRentToComparables) : (molitRents ??= fetchMolitRents({ sggCd, keys })),
+      seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }).then(seoulRentToComparables) : (() => {
+        let p = molitRents.get(propertyType);
+        if (!p) molitRents.set(propertyType, (p = fetchMolitRents({ sggCd, type: propertyType, keys })));
+        return p;
+      })(),
     ]);
 
     let exclusiveArea: number | null = null;
@@ -112,6 +119,7 @@ export async function collectDistrict(
       sgg_nm: sggNm,
       stdg_nm: row.STDG_NM,
       bldg_nm: row.BLDG_NM,
+      property_type: propertyType,
       floor: row.FLR,
       contract_date: normalizeDate(row.CTRT_DAY, year),
       building_area: toNumberOrNull(row.ARCH_AREA),
@@ -145,10 +153,16 @@ export async function findUnmatchedListingIds(
   userId: string,
   sggCd: string,
 ): Promise<string[]> {
-  const { data: listings } = await supabase
-    .from("real_estate_listings")
-    .select("id")
-    .eq("sgg_cd", sggCd)
+  const { data: pref } = await supabase
+    .from("real_estate_user_preferences")
+    .select("property_types")
+    .eq("user_id", userId)
+    .maybeSingle();
+  const types = normalizePropertyTypes(pref?.property_types);
+
+  let listingQuery = supabase.from("real_estate_listings").select("id").eq("sgg_cd", sggCd);
+  if (types.length < PROPERTY_TYPES.length) listingQuery = listingQuery.in("property_type", types);
+  const { data: listings } = await listingQuery
     .order("collected_at", { ascending: false })
     .limit(MATCH_CANDIDATE_WINDOW);
 

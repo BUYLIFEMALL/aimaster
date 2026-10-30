@@ -67,6 +67,7 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
         floor: l.floor,
         price: l.price_amount,
         official: l.official_price,
+        type: l.property_type ?? "아파트",
       },
     ];
   });

@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { ModelPreferenceForm } from "@/components/settings/ModelPreferenceForm";
 import { AutoAnalyzeForm } from "@/components/settings/AutoAnalyzeForm";
+import { PropertyTypesForm } from "@/components/settings/PropertyTypesForm";
+import { normalizePropertyTypes } from "@/lib/publicdata/molit";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
@@ -46,7 +48,7 @@ export default async function SettingsPage() {
     supabase.from("user_api_keys").select("provider, api_key").eq("user_id", user.id),
     supabase
       .from("real_estate_user_preferences")
-      .select("preferred_model, auto_analyze_on_notify")
+      .select("preferred_model, auto_analyze_on_notify, property_types")
       .eq("user_id", user.id)
       .maybeSingle(),
     supabase
@@ -126,6 +128,11 @@ export default async function SettingsPage() {
       <section>
         <h2 className="mb-3 text-lg font-medium text-mx-text">예약 조회 알림의 AI 분석</h2>
         <AutoAnalyzeForm enabled={preference?.auto_analyze_on_notify ?? true} />
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-medium text-mx-text">받을 건물 유형</h2>
+        <PropertyTypesForm selected={normalizePropertyTypes(preference?.property_types)} />
       </section>
 
       <section>

@@ -4,6 +4,29 @@
 // 순수 함수만 둔다(시험용, server-only 아님).
 import type { SeoulRtmsRow } from "./client";
 
+// 2026-10-31: 주거 세 유형. 국토부는 유형마다 서비스가 따로다(응답의 이름 칸: 아파트 aptNm, 연립 mhouseNm, 오피스텔 offiNm)
+export const PROPERTY_TYPES = ["아파트", "빌라", "오피스텔"] as const;
+export type PropertyType = (typeof PROPERTY_TYPES)[number];
+export const MOLIT_SERVICE: Record<PropertyType, { trade: string; rent: string }> = {
+  아파트: { trade: "AptTrade", rent: "AptRent" },
+  빌라: { trade: "RHTrade", rent: "RHRent" },
+  오피스텔: { trade: "OffiTrade", rent: "OffiRent" },
+};
+export const molitUrl = (service: string) => `https://apis.data.go.kr/1613000/RTMSDataSvc${service}/getRTMSDataSvc${service}`;
+
+/** 서울 자료의 건물 용도 → 유형. 세 유형 밖이면 null */
+export function propertyTypeOf(usage: unknown): PropertyType | null {
+  const u = String(usage ?? "").trim();
+  if (u === "아파트" || u === "오피스텔" || u === "빌라") return u;
+  return u === "연립다세대" ? "빌라" : null;
+}
+
+/** 회원이 받을 유형: 비어 있거나 잘못된 값이면 전체 */
+export function normalizePropertyTypes(v: unknown): PropertyType[] {
+  const list = Array.isArray(v) ? PROPERTY_TYPES.filter((t) => v.includes(t)) : [];
+  return list.length ? list : [...PROPERTY_TYPES];
+}
+
 /** 시·군·구 → { 동 이름: 법정동 코드 뒤 5자리 } (legalDong.ts의 LEGAL_DONG을 부르는 쪽에서 넘김 — 시험·서버 둘 다 import 확장자 문제 없이 쓰려고) */
 export type DongTable = Record<string, Record<string, string>>;
 
@@ -22,7 +45,6 @@ export function splitJibun(jibun: string): { mountain: boolean; bun: string; ji:
   return { mountain: !!m[1], bun: String(Number(m[2])), ji: String(Number(m[3] ?? 0)) };
 }
 
-export const MOLIT_TRADE_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";
 
 /** 조회할 달 「yyyymm」 — 이번 달과 지난달(한국 시간). 실거래는 계약 후 30일 안에 신고돼 지난달 거래가 늦게 들어온다 */
 export function molitMonths(now: Date = new Date(), count = 2): string[] {
@@ -44,7 +66,7 @@ export function molitItems(json: unknown): Record<string, unknown>[] {
 const str = (v: unknown) => (v === null || v === undefined ? "" : String(v).trim());
 
 /** 국토부 한 줄 → 서울 줄 모양. 해제(취소)된 거래·금액/면적 없는 줄은 null */
-export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongTable: DongTable = {}): SeoulRtmsRow | null {
+export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongTable: DongTable = {}, type?: PropertyType): SeoulRtmsRow | null {
   if (str(it.cdealType)) return null; // 해제 신고된 거래(「O」)는 버림
   const amount = str(it.dealAmount).replace(/[,\s]/g, "");
   const area = str(it.excluUseAr);
@@ -67,7 +89,8 @@ export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongT
     LOTNO_SE_NM: mountain ? "산" : "대지",
     MNO: str(it.bonbun).replace(/^0+(?=\d)/, "") || jb.bun,
     SNO: str(it.bubun).replace(/^0+(?=\d)/, "") || jb.ji,
-    BLDG_NM: str(it.aptNm),
+    BLDG_NM: str(it.aptNm) || str(it.mhouseNm) || str(it.offiNm),
+    ...(type ? { BLDG_USG: type } : {}),
     CTRT_DAY: `${y}${m}${d}`,
     THING_AMT: amount, // 만 원(서울 자료와 같은 단위)
     ARCH_AREA: area, // 전용면적 ㎡
@@ -77,13 +100,12 @@ export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongT
 }
 
 /** 응답들 → 서울 줄 모양 목록(계약일 최신순) */
-export function molitRows(jsons: unknown[], sggNm: string, dongTable: DongTable = {}): SeoulRtmsRow[] {
-  const rows = jsons.flatMap((j) => molitItems(j)).map((it) => molitItemToRow(it, sggNm, dongTable)).filter((r): r is SeoulRtmsRow => !!r);
+export function molitRows(jsons: unknown[], sggNm: string, dongTable: DongTable = {}, type?: PropertyType): SeoulRtmsRow[] {
+  const rows = jsons.flatMap((j) => molitItems(j)).map((it) => molitItemToRow(it, sggNm, dongTable, type)).filter((r): r is SeoulRtmsRow => !!r);
   return rows.sort((a, b) => b.CTRT_DAY.localeCompare(a.CTRT_DAY));
 }
 
 // 2026-10-31: 공시가·전월세를 같은 면적으로 맞춘다. 첫 줄만 쓰면 다른 세대 값이 들어갔다(경희궁의 아침 3단지: 거래 37.5㎡인데 필지에는 123㎡ 이상뿐).
-export const MOLIT_RENT_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent";
 // 이보다 면적 차이가 크면 다른 평형으로 보고 쓰지 않는다. 2㎡ 고정은 소형에 넓어(22.08㎡가 20.63㎡로 맞춰짐) 면적의 3%, 최소 1㎡로 바꿈(2026-10-31)
 const areaTolerance = (area: number) => Math.max(1, area * 0.03);
 
@@ -128,7 +150,7 @@ export function molitRentRows(jsons: unknown[]): RentComparable[] {
   return jsons
     .flatMap((j) => molitItems(j))
     .map((it) => ({
-      name: str(it.aptNm),
+      name: str(it.aptNm) || str(it.mhouseNm) || str(it.offiNm),
       dong: str(it.umdNm),
       area: num(it.excluUseAr),
       day: `${str(it.dealYear)}${str(it.dealMonth).padStart(2, "0")}${str(it.dealDay).padStart(2, "0")}`,
@@ -164,4 +186,17 @@ export function pickRentComparable(rows: RentComparable[], name: string, dong: s
   );
   const latest = (list: RentComparable[]) => [...list].sort((a, b) => b.day.localeCompare(a.day))[0] ?? null;
   return latest(matched.filter((r) => !r.rent)) ?? latest(matched);
+}
+
+// 전남광주통합특별시(코드 12): 국토부 실거래는 새 코드로 주지만, 브이월드 공시가·토지 자료는 2025년 기준이라 옛 코드(광주 29, 전남 46)로 저장돼 있다(2026-10-31 실측).
+const OLD_SGG: Record<string, string> = {
+  "12110": "46110", "12130": "46130", "12150": "46150", "12170": "46170", "12190": "46230",
+  "12210": "29110", "12240": "29140", "12270": "29155", "12300": "29170", "12330": "29200",
+  "12710": "46710", "12720": "46720", "12730": "46730", "12740": "46770", "12750": "46780", "12760": "46790", "12770": "46800", "12780": "46810", "12790": "46820",
+  "12800": "46830", "12810": "46840", "12820": "46860", "12830": "46870", "12840": "46880", "12850": "46890", "12860": "46900", "12870": "46910",
+};
+/** 브이월드 조회용 필지 번호: 새 시·군·구 코드를 옛 코드로 바꾼다. 저장하는 값은 바꾸지 않는다 */
+export function vworldPnu(pnu: string): string {
+  const old = OLD_SGG[pnu.slice(0, 5)];
+  return old ? old + pnu.slice(5) : pnu;
 }

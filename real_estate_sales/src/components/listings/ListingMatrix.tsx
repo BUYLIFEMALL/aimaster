@@ -17,6 +17,7 @@ export interface ListingRow {
   floor: string | null;
   price: number | null; // 만원
   official: number | null; // 원
+  type: string; // 아파트/빌라/오피스텔
 }
 
 type Sort = "recent" | "price" | "area" | "ratio";
@@ -32,6 +33,7 @@ const STATUS: Record<string, { label: string; chip: string }> = {
 export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
   const [query, setQuery] = useState("");
   const [sgg, setSgg] = useState("all");
+  const [type, setType] = useState("all");
   const [sort, setSort] = useState<Sort>("recent");
   const [view, setView] = useState<View>("table");
   const [exporting, startExport] = useTransition();
@@ -54,13 +56,13 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = rows.filter((r) => (sgg === "all" || r.sgg === sgg) && (!q || `${r.name} ${r.dong}`.toLowerCase().includes(q)));
+    const list = rows.filter((r) => (sgg === "all" || r.sgg === sgg) && (type === "all" || r.type === type) && (!q || `${r.name} ${r.dong}`.toLowerCase().includes(q)));
     const ratio = (r: ListingRow) => priceToOfficialPct(r.price, r.official) ?? -1;
     if (sort === "price") return [...list].sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
     if (sort === "area") return [...list].sort((a, b) => (b.area ?? 0) - (a.area ?? 0));
     if (sort === "ratio") return [...list].sort((a, b) => ratio(b) - ratio(a));
     return list;
-  }, [rows, query, sgg, sort]);
+  }, [rows, query, sgg, sort, type]);
 
   return (
     <div className="mx-card p-4">
@@ -84,6 +86,12 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
               ))}
             </select>
           )}
+          <select value={type} onChange={(e) => setType(e.target.value)} aria-label="건물 유형" className="rounded-lg border border-mx-border bg-dark-100 px-3 py-2 text-sm text-mx-text">
+            <option value="all">모든 유형</option>
+            <option value="아파트">아파트</option>
+            <option value="빌라">빌라</option>
+            <option value="오피스텔">오피스텔</option>
+          </select>
           <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="정렬" className="mx-input min-h-[40px] w-auto py-2 text-sm">
             <option value="recent">최근 수집순</option>
             <option value="price">거래가 높은순</option>
@@ -114,6 +122,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                 <th>단지</th>
                 <th>지역</th>
                 <th>계약일</th>
+                <th>유형</th>
                 <th className="text-right">전용</th>
                 <th className="text-right">층</th>
                 <th className="text-right">거래가</th>
@@ -137,10 +146,11 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                       {r.sgg} {r.dong}
                     </td>
                     <td className="whitespace-nowrap text-mx-muted">{r.contractDate ?? "-"}</td>
+                    <td className="whitespace-nowrap text-mx-muted">{r.type}</td>
                     <td className="text-right tabular-nums">{r.area ?? "-"}㎡</td>
                     <td className="text-right tabular-nums">{r.floor ?? "-"}</td>
                     <td className="text-right font-bold tabular-nums text-mx-link">{formatWon(r.price)}</td>
-                    <td className="text-right tabular-nums text-mx-muted">{r.official ? formatWon(r.official / 10000) : "-"}</td>
+                    <td className="text-right tabular-nums text-mx-muted">{r.official ? formatWon(r.official / 10000) : r.type === "오피스텔" ? "대상 아님" : "-"}</td>
                     <td className="text-right tabular-nums" title={isUnusualPriceRatio(pct) ? "특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : undefined}>
                       {pct !== null ? `${isUnusualPriceRatio(pct) ? "⚠️ " : ""}${pct}%` : "-"}
                     </td>
@@ -169,7 +179,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                 <p className="mt-1 truncate font-bold text-mx-text">{r.name}</p>
                 <p className="mt-1 text-2xl font-black tabular-nums text-mx-link">{formatWon(r.price)}</p>
                 <p className="mt-1 text-xs text-mx-muted">
-                  전용 {r.area ?? "-"}㎡ · {r.floor ?? "-"}층 · {r.contractDate ?? "-"}
+                  {r.type} · 전용 {r.area ?? "-"}㎡ · {r.floor ?? "-"}층 · {r.contractDate ?? "-"}
                   {pct !== null && ` · 공시가 대비 ${pct}%${isUnusualPriceRatio(pct) ? " ⚠️ 특수 거래일 수 있어요" : ""}`}
                 </p>
               </Link>

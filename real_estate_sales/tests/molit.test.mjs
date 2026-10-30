@@ -149,3 +149,31 @@ test("전국 지역: 시·도 16곳, 코드 겹침 없음, 전국 법정동 자�
   assert.equal(LEGAL_DONG["41591"]["남양읍 남양리"], "25621");
   assert.equal(LEGAL_DONG["11680"], undefined);
 });
+
+test("유형: 빌라·오피스텔 응답 변환(실제 칸 이름), 서울 용도 변환, 받을 유형(2026-10-31)", async () => {
+  const { molitItemToRow, molitRentRows, propertyTypeOf, normalizePropertyTypes } = await import("../src/lib/publicdata/molit.ts");
+  const base = { sggCd: 41285, umdNm: "풍동", jibun: 751, dealYear: 2026, dealMonth: 9, dealDay: 30, dealAmount: "13,000", excluUseAr: 46.83, floor: 8, buildYear: 2002, cdealType: " " };
+  const off = molitItemToRow({ ...base, offiNm: "삼성라끄빌" }, "고양시 일산동구", {}, "오피스텔");
+  assert.equal(off.BLDG_NM, "삼성라끄빌");
+  assert.equal(off.BLDG_USG, "오피스텔");
+  assert.equal(off.CGG_CD, "41285");
+  assert.equal(off.MNO, "751");
+  assert.equal(molitItemToRow({ ...base, mhouseNm: "밤가시마을7" }, "x", {}, "빌라").BLDG_NM, "밤가시마을7");
+  const rent = molitRentRows([{ response: { body: { items: { item: { mhouseNm: "밤가시마을7", umdNm: "풍동", excluUseAr: 59.88, dealYear: 2026, dealMonth: 9, dealDay: 22, deposit: "25,000", monthlyRent: 0 } } } } }]);
+  assert.equal(rent[0].name, "밤가시마을7");
+  assert.equal(rent[0].deposit, 25000);
+  assert.equal(rent[0].rent, 0);
+  assert.equal(propertyTypeOf("연립다세대"), "빌라");
+  assert.equal(propertyTypeOf("아파트"), "아파트");
+  assert.equal(propertyTypeOf("단독다가구"), null);
+  assert.deepEqual(normalizePropertyTypes(null), ["아파트", "빌라", "오피스텔"]);
+  assert.deepEqual(normalizePropertyTypes(["빌라", "엉뚱"]), ["빌라"]);
+  assert.deepEqual(normalizePropertyTypes([]), ["아파트", "빌라", "오피스텔"]);
+});
+
+test("전남광주 필지 번호: 브이월드 조회만 옛 코드, 다른 지역은 그대로", async () => {
+  const { vworldPnu } = await import("../src/lib/publicdata/molit.ts");
+  assert.equal(vworldPnu("1271025025100010000"), "4671025025100010000");
+  assert.equal(vworldPnu("1221012200100010000"), "2911012200100010000");
+  assert.equal(vworldPnu("4159125621100010000"), "4159125621100010000");
+});

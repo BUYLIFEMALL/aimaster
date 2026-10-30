@@ -2,9 +2,9 @@ import {createRoot} from 'react-dom/client';
 import {ListingMatrix} from '@/components/listings/ListingMatrix';
 import Detail from '@/app/(dashboard)/listings/[id]/page';
 const rows=[
-  {matchId:'m1',status:'new',id:'a',name:'합성 강남',sgg:'강남구',dong:'역삼동',contractDate:'2026-10-15',area:84,floor:'12',price:120000,official:600000000},
-  {matchId:'m2',status:'notified',id:'b',name:'합성 마포',sgg:'마포구',dong:'공덕동',contractDate:'2026-10-14',area:59,floor:'3',price:80000,official:500000000},
-  {matchId:'m3',status:'analyzed',id:'c',name:'합성 강남 대형',sgg:'강남구',dong:'대치동',contractDate:'2026-10-13',area:120,floor:'20',price:160000,official:1000000000},
+  {matchId:'m1',type:'아파트',status:'new',id:'a',name:'합성 강남',sgg:'강남구',dong:'역삼동',contractDate:'2026-10-15',area:84,floor:'12',price:120000,official:600000000},
+  {matchId:'m2',type:'아파트',status:'notified',id:'b',name:'합성 마포',sgg:'마포구',dong:'공덕동',contractDate:'2026-10-14',area:59,floor:'3',price:80000,official:500000000},
+  {matchId:'m3',type:'아파트',status:'analyzed',id:'c',name:'합성 강남 대형',sgg:'강남구',dong:'대치동',contractDate:'2026-10-13',area:120,floor:'20',price:160000,official:1000000000},
 ];
 async function main(){
   window.fixture.data={
