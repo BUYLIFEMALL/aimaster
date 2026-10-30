@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 
 const steps = [
+  { name: 'messages', rpc: 'bnc_message_dispatch', count: 'expiredMessagesRemoved' },
   { name: 'reader', rpc: 'bnc_reader_dispatch', count: 'expiredRequestsRemoved' },
   { name: 'analysis', rpc: 'bnc_analysis_dispatch', count: 'expiredJobsRemoved' },
   { name: 'neighbors', rpc: 'bnc_neighbor_import_dispatch', count: 'expiredImportsRemoved' },

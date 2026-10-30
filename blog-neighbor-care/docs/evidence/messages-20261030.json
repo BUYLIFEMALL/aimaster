@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-30",
+  "role": "blog",
+  "scope": "web-and-extension-only; context reads and AI text generation",
+  "readCommit": "b056ca71a",
+  "status": "local implementation and tests; unpublished; SQL unapplied",
+  "unitTests": 272,
+  "messageDatabaseChecks": 8,
+  "contextDatabaseChecks": 9,
+  "contextSqlAssertions": 163,
+  "cleanupDatabaseChecks": 11,
+  "typecheck": "pass",
+  "paidAiCalls": 0,
+  "searchCalls": 0,
+  "remoteBuilds": 0,
+  "deployments": 0,
+  "operatingSqlWrites": 0,
+  "actualNaverVerification": false,
+  "screenshots": 0,
+  "archive": "D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/reads-messages-20261030",
+  "remaining": [
+    "minimum detailed-reading time control",
+    "web scheduler cursor to extension periodic execution",
+    "review actual Naver DOM profile and permitted means",
+    "actual AI and Edge/Naver registration/recovery tests",
+    "batch SQL5/release/version and ZIP synchronization"
+  ]
+}
