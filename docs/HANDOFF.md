@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-30 [역할: blog] 받은 서로이웃 신청 수락·불확정 재확인 로컬 완료 — c9cb569c2
+
+[운영 v1.03](https://blog-neighbor-care.buylife.xyz) · [프로덕션 보조](https://blog-neighbor-care.vercel.app) · [관리자 결과함](https://www.buylife.xyz/admin/dev-docs/requests) · [정적 웹 화면](/D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/incoming-accept-20261030/incoming.html) · 영구 자산 `D:/Antigravity/Design/릴레이_데스크_네이버_그린/blog-neighbor-care/incoming-accept-20261030`(팝업 HTML/소스/스펙JSON 포함). 정적 초기화면이며 실제 Edge 캡처/운영 반영 아님.
+
+- 받은 신청 수락을 발신 신청 관계 읽기와 별도로 구현. 전용 기기별 읽기/실행 동의→현재 관리 페이지의 신청 ID/작성자/대기 상태 미리보기→같은 frame 재확인 저장→웹 초안/명시 승인→현재 계정/요청 재관찰/허가→단1회 클릭→명시적 동일 신청/작성자의 서로이웃 상태 확인→웹 결과. 신청 문구/본문 수집0, 현재 페이지만 지원(전체 페이지 자동순회 아님).
+- /api/neighbors/requests/extension은 기존 회원/reader기기 인증을 재사용하지만 수락 전용 권한을 추가 검사. 상태/중단 외에는 BNC_EXTENSION_DOM_PROFILE에 검수된 incomingRequestPath/네이티브 selector·완전성/상태map/수락문구가 필요. 실제 경로 추정/기본 selector 없음. BNC_ACCEPT_READ_ENABLED + BNC_ACCEPT_READ_POLICY_REFERENCE와 BNC_ACCEPT_POLICY_REFERENCE를 분리, 기본 동작OFF. 합성 FixtureInvitations 경로/selector는 운영에 복사하지 않음.
+- 신규SQL `20261030133000_bnc_incoming_accept.sql`: accept_permissions/accept_reads/incoming_requests/accept_jobs 4표·RLS/회원직접접근 차단·서비스RPC. nonce/profile·원본/계정/요청 고정·최초 미리보기의30일 수명 상속. 신청과 수락은 bnc_daily request 예산을 합산하며 공용 설정행 잠금으로 경합 방지. 수락 불확정이 있으면 기존 작업도 DB trigger로 claim/arm 차단(내부 호출 포함). 만료 정리는 설정행 SKIP LOCKED·회원100명/각1000건씩 제한, 디렉터리/기존 일일카운터는 보존.
+- 불확정은 자동 재수락/예약환불 없음. 별도 읽기 전용 offer_check/reconcile에서 현재 동일 요청/작성자가 mutual로 명확히 확인되면 기존 예약을 결과로 정리하며 실행OFF 유지. pending 관찰은 미실행 근거가 아니므로 uncertain/예약 유지. proof는 extension-report/reconciled 표시이며 독립 Naver서버 검증 아님. 응답 유실 후 재클릭0 격리 검수.
+- 단위286/타입·신규 격리DB9·188SQL·정리DB11 통과. UI 확인2단계/가상 nativeDOM/확장→실HTTP→격리SQL 저장·승인·결과/읽기재확인/직접queue차단 검수. 실제 Naver/Edge/수락 UI 검수는 미완료. 영구 보관 초기화면/팝업/코드/스펙JSON, 캡처0.
+- 후속14묶음 미배포/SQL7 미적용 순서: cursor→engagement→extension→context→messages→extension_schedule→incoming_accept. cleanup은 수락 포함10종 독립 실패격리. 운영 적용 승인 전 실행 금지. 실제 다음 배포에서 v1.04/manifest/ZIP/DB 동기화. 운영/공개 ZIP v1.03 불변(SHA256 398a10d2d387e2071d1e32bc4b55aab3d7845186a54246f36c071fddedd5a7c6). AI/검색/원격빌드/배포/푸시/운영업무SQL변경0·비용0.
+- 다음은 대상 글 순회·새글 자료 공급/AI초안 연계 구현 후 실 DOM profile/Edge/Naver·AI품질·반복복구·운영 만료 검수. 기존668992b9/fe166de3 유지·새 사용자 요청0. 다른 세션의 서버 handoff/thumbnail 미커밋은 수정하지 않음. 현재6번은 로컬 완료 범위만 체크, 전체3~9 완료 금지.
+
+
 ## 2026-10-30 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — `coupang-ops` 3단계 주문·송장 코드 완료 + 공식 API 검토·자동화 플랜 (로컬·미배포)
 - **한 일**: C3-1 발주서 조회(`/orders`, v5 일단위 31일·50건, 주문자 정보 저장 안 함·안심번호만) + 서버 조회 간격 10초(공용 `usage_logs`, 새 표 없음) · C3-2 상품준비중(최대 50건) · C3-3 송장 등록·수정(택배사 기본값, 엑셀 두 칸 붙여넣기) · C3-4 「↩ 출고중지·취소」(`/returns`, 출고중지 완료·이미출고, 처리 직전 단건 재확인) + 발주서 「주문 취소…」 + **송장 등록 전 출고중지 요청 자동 확인**. 모든 쓰기는 확인 단계·재시도 없음·시간 초과 시 재조회 안내.
 - **검토**: 주인님 지시로 쿠팡 공식 사이트(developers.coupang.com/ko/api, 103개) 기준 기존 코드 대조 — 경로 12개·메서드·응답 필드 모두 일치. 이후 쿠팡 작업은 상세 명세 먼저(`coupang-ops/AGENTS.md` 맨 위). 자동화 플랜 `coupang-ops/docs/PLAN_20261030_COUPANG_API_AUTOMATION.md`(관점 6가지·추천 순서).
