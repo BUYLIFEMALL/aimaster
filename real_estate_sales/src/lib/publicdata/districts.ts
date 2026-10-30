@@ -29,7 +29,8 @@ export const SEOUL_DISTRICTS = [
 
 // RE-B4(2026-10-30): 경기·인천. 서울 밖은 서울 열린데이터에 실거래가 없어 국토부 실거래 API(LAWD_CD = 이 5자리)로 받는다.
 // 일반구가 있는 시는 구 단위 코드(국토부 신고 단위). 부천시는 2024-01 일반구 부활(원미·소사·오정).
-// ⚠ 화성시는 2026-02 일반구 신설 예정이 있었으나 새 코드를 확인하지 못해 시 전체 코드(41590)로 둔다 — 국토부 키 승인 뒤 실제 조회로 확인할 것.
+// 2026-10-30 국토교통부 전국 법정동 자료(realty-listing-alert/public/regions.json)와 전부 대조: 화성시는 만세·효행·병점·동탄구(41591~41597, 옛 41590은 0건),
+// 인천은 제물포구(28125)·영종구(28155)·서해구(28275)·검단구(28290)로 개편(옛 중구 28110·동구 28140·서구 28260 없음). 행정구역이 또 바뀌면 그 파일과 다시 대조한다.
 export const GYEONGGI_DISTRICTS = [
   { sgg_cd: "41111", sgg_nm: "수원시 장안구" },
   { sgg_cd: "41113", sgg_nm: "수원시 권선구" },
@@ -67,7 +68,10 @@ export const GYEONGGI_DISTRICTS = [
   { sgg_cd: "41500", sgg_nm: "이천시" },
   { sgg_cd: "41550", sgg_nm: "안성시" },
   { sgg_cd: "41570", sgg_nm: "김포시" },
-  { sgg_cd: "41590", sgg_nm: "화성시" },
+  { sgg_cd: "41591", sgg_nm: "화성시 만세구" },
+  { sgg_cd: "41593", sgg_nm: "화성시 효행구" },
+  { sgg_cd: "41595", sgg_nm: "화성시 병점구" },
+  { sgg_cd: "41597", sgg_nm: "화성시 동탄구" },
   { sgg_cd: "41610", sgg_nm: "광주시" },
   { sgg_cd: "41630", sgg_nm: "양주시" },
   { sgg_cd: "41650", sgg_nm: "포천시" },
@@ -78,14 +82,15 @@ export const GYEONGGI_DISTRICTS = [
 ] as const;
 
 export const INCHEON_DISTRICTS = [
-  { sgg_cd: "28110", sgg_nm: "인천 중구" },
-  { sgg_cd: "28140", sgg_nm: "인천 동구" },
+  { sgg_cd: "28125", sgg_nm: "제물포구" },
+  { sgg_cd: "28155", sgg_nm: "영종구" },
   { sgg_cd: "28177", sgg_nm: "미추홀구" },
   { sgg_cd: "28185", sgg_nm: "연수구" },
   { sgg_cd: "28200", sgg_nm: "남동구" },
   { sgg_cd: "28237", sgg_nm: "부평구" },
   { sgg_cd: "28245", sgg_nm: "계양구" },
-  { sgg_cd: "28260", sgg_nm: "인천 서구" },
+  { sgg_cd: "28275", sgg_nm: "서해구" },
+  { sgg_cd: "28290", sgg_nm: "검단구" },
   { sgg_cd: "28710", sgg_nm: "강화군" },
   { sgg_cd: "28720", sgg_nm: "옹진군" },
 ] as const;

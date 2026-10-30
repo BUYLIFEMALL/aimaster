@@ -44,7 +44,7 @@ test("지역 목록: 코드 겹침 없음, 서울/경기/인천 구분", () => {
   const codes = ALL_DISTRICTS.map((d) => d.sgg_cd);
   assert.equal(new Set(codes).size, codes.length);
   assert.ok(codes.every((c) => /^\d{5}$/.test(c)));
-  assert.equal(codes.length, 25 + 44 + 10);
+  assert.equal(codes.length, 25 + 47 + 11);
   assert.equal(isSeoulDistrict("11680"), true);
   assert.equal(isSeoulDistrict("41285"), false);
   assert.equal(sidoOf("28237"), "인천");
@@ -52,12 +52,24 @@ test("지역 목록: 코드 겹침 없음, 서울/경기/인천 구분", () => {
   assert.equal(findDistrict("99999"), null);
 });
 
-test("경기 시 이름 묶기: 구가 여러 개인 시 7곳 + 나머지 한 묶음(맨 뒤)", async () => {
+test("경기 시 이름 묶기: 구가 여러 개인 시 8곳 + 나머지 한 묶음(맨 뒤)", async () => {
   const { GYEONGGI_DISTRICTS, groupByCity } = await import("../src/lib/publicdata/districts.ts");
   const groups = groupByCity(GYEONGGI_DISTRICTS);
-  assert.deepEqual(groups.filter((g) => g.city).map((g) => `${g.city}${g.items.length}`), ["수원시4", "성남시3", "안양시2", "부천시3", "안산시2", "고양시3", "용인시3"]);
+  assert.deepEqual(groups.filter((g) => g.city).map((g) => `${g.city}${g.items.length}`), ["수원시4", "성남시3", "안양시2", "부천시3", "안산시2", "고양시3", "용인시3", "화성시4"]);
   const rest = groups.at(-1);
   assert.equal(rest.city, null);
-  assert.equal(rest.items.length, 44 - 20);
-  assert.ok(rest.items.some((d) => d.sgg_nm === "화성시"));
+  assert.equal(rest.items.length, 47 - 24);
+  assert.ok(rest.items.some((d) => d.sgg_nm === "김포시"));
+});
+
+test("경기·인천 코드가 국토부 전국 법정동 자료와 같음(realty-listing-alert/public/regions.json)", async () => {
+  const fs = await import("node:fs");
+  const { GYEONGGI_DISTRICTS, INCHEON_DISTRICTS } = await import("../src/lib/publicdata/districts.ts");
+  const file = new URL("../../realty-listing-alert/public/regions.json", import.meta.url);
+  if (!fs.existsSync(file)) return; // 다른 프로그램 폴더가 없으면 건너뜀
+  const r = JSON.parse(fs.readFileSync(file, "utf8"));
+  const off = new Set(r.filter((x) => x.c === "41" || x.c === "28").flatMap((x) => x.g.map((g) => g.c)));
+  const mine = [...GYEONGGI_DISTRICTS, ...INCHEON_DISTRICTS].map((d) => d.sgg_cd);
+  assert.deepEqual(mine.filter((c) => !off.has(c)), []);
+  assert.deepEqual([...off].filter((c) => !mine.includes(c)), []);
 });
