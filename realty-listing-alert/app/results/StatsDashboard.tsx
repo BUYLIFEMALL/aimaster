@@ -8,6 +8,7 @@ import { askExtension } from "@/lib/extensionBridge";
 import PriceChange, { TradeGap } from "./PriceChange";
 import { findRepeatDrops } from "@/lib/repeatDrops";
 import { buildBlogDraftLink, buildWeeklyDraftLink, DRAFT_TARGETS, isDraftTarget, noTradeDays, type DraftTarget } from "@/lib/blogDraft";
+import { buildTradeListLink } from "@/lib/tradeLink";
 
 const DRAFT_TARGET_KEY = "ra-draft-target"; // v1.37: 「📝 글로 쓰기」 갈 곳(이 브라우저에만 기억)
 
@@ -204,9 +205,18 @@ export default function StatsDashboard({ email }: { email: string }) {
                 {latest.complexes.map((c) => {
                   const s = c.trades["매매"], j = c.trades["전세"], m = c.trades["월세"];
                   const ratio = s?.perM2 && j?.perM2 ? Math.round((j.perM2 / s.perM2) * 100) : null;
+                  const tradeHref = buildTradeListLink({ target_type: "complex", cortar_no: null, complex_name: c.name });
                   return (
                     <tr key={c.name}>
-                      <td>{c.name}</td>
+                      <td>
+                        {c.name}
+                        {tradeHref && (
+                          <>
+                            {" "}
+                            <a className="ra-nowrap" href={tradeHref} target="_blank" rel="noreferrer" title="부동산 실거래 투자분석에서 이 단지의 실거래를 봐요(그 지역이 관심 지역에 있어야 보여요)">📈 실거래 ↗</a>
+                          </>
+                        )}
+                      </td>
                       <td>{c.total}건</td>
                       <td>{s ? `${won(s.avg)} (${s.n})` : "—"}</td>
                       <td>{s?.perM2 ? won(Math.round(s.perM2 * PYEONG)) : "—"}</td>
