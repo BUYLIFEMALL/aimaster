@@ -3,6 +3,7 @@ import { createClient } from '@/blog/utils/supabase/server'
 import { Suspense } from 'react'
 import AuthForm from './auth-form'
 import { signout } from './actions'
+import { APP_TITLE } from '@/lib/deployment'
 
 export default async function AuthPage() {
   const supabase = await createClient()
@@ -18,7 +19,7 @@ export default async function AuthPage() {
           {/* 블로그 포스팅 자동화 인증 완료 로고 헤더 */}
           <div className="flex flex-col items-center mb-8 text-center">
             <Link href="/" className="text-2xl font-black text-indigo-600 tracking-tight no-underline">
-              블로그 포스팅 자동화
+              {APP_TITLE}
             </Link>
             <p className="text-sm font-medium text-zinc-500">
               로그인되었습니다.

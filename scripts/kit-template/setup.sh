@@ -262,15 +262,39 @@ ok "설치·빌드 완료"
 # ⑧ Vercel 배포
 step 8 "인터넷에 올리기(Vercel 배포)"
 PROJECT=$(env_get VERCEL_PROJECT_NAME)
-say "  브라우저가 열리면 본인 Vercel 계정으로 로그인하세요(처음이면 무료 Hobby로 가입, 이미 로그인돼 있으면 넘어갑니다)."
+say "  브라우저가 열리면 본인 Vercel 계정으로 로그인하세요(처음이면 무료 Hobby로 가입, 이미 로그인돼 있으면 넘어갑니다). 메일로 받은 코드를 입력하라는 창(Reauthenticate)이 뜨면 본인 확인 절차이니 메일의 코드를 넣으세요."
 npx --yes vercel@latest login
-npx --yes vercel@latest link --yes --project "$PROJECT" || { warn "Vercel 프로젝트 연결 실패. 6단계 이름을 바꾸려면 .kit-progress 파일을 지우고 다시 실행하세요."; pause_exit 1; }
+# 원치 않는 팀(유료 포함)에 프로젝트가 만들어지지 않게 설치 위치를 확인한다(2026-10-30 리허설). 개인 계정은 --scope 로 지정할 수 없어 Vercel 선택 화면으로 넘긴다.
+VERCEL_SCOPE=""; VERCEL_ASK=""
+if [ ! -f "$PROGRAM_DIR/.vercel/project.json" ]; then
+  TEAMS=$(npx --yes vercel@latest teams ls --format json 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const t=JSON.parse(s.slice(s.indexOf("{"))).teams||[];console.log(t.map(x=>x.slug+" "+x.plan).join("\n"))}catch{}})')
+  COUNT=$(printf "%s" "$TEAMS" | grep -c . || true)
+  if [ "$COUNT" = "1" ] && [ "$(printf "%s" "$TEAMS" | cut -d' ' -f2)" = "hobby" ]; then VERCEL_SCOPE=$(printf "%s" "$TEAMS" | cut -d' ' -f1)
+  elif [ "$COUNT" -ge 1 ]; then
+    say "  이 Vercel 계정에 팀이 있습니다. 내 사이트를 어디에 올릴지 고르세요."
+    echo "    0) 개인 계정 또는 다른 곳 — 다음 화면에서 직접 고르기"
+    DEFAULT_PICK=0; N=0
+    while read -r SLUG PLAN; do N=$((N + 1))
+      if [ "$PLAN" = "hobby" ]; then echo "    $N) $SLUG (무료)"; [ "$DEFAULT_PICK" = "0" ] && DEFAULT_PICK=$N
+      else echo "    $N) $SLUG (유료 팀 — 빌드 비용이 이 팀에 청구될 수 있음)"; fi
+    done <<TEAMS_EOF
+$TEAMS
+TEAMS_EOF
+    while :; do PICK=$(ask "번호를 입력하세요" "$DEFAULT_PICK"); case "$PICK" in ''|*[!0-9]*) ;; *) [ "$PICK" -le "$COUNT" ] && break ;; esac; done
+    if [ "$PICK" = "0" ]; then VERCEL_ASK=1; else VERCEL_SCOPE=$(printf "%s\n" "$TEAMS" | sed -n "${PICK}p" | cut -d' ' -f1); fi
+  fi
+fi
+if [ -n "$VERCEL_ASK" ]; then say "  영어 질문이 나옵니다: Set up → Enter, Which scope → 화살표로 개인 계정 선택 후 Enter, Link to existing → n, 이름 → Enter"; LINK_ARGS=(link --project "$PROJECT")
+elif [ -n "$VERCEL_SCOPE" ]; then LINK_ARGS=(link --yes --project "$PROJECT" --scope "$VERCEL_SCOPE")
+else LINK_ARGS=(link --yes --project "$PROJECT"); fi
+npx --yes vercel@latest "${LINK_ARGS[@]}" || { warn "Vercel 프로젝트 연결 실패. 6단계 이름을 바꾸려면 .kit-progress 파일을 지우고 다시 실행하세요."; pause_exit 1; }
 # 폴더가 GitHub 저장소 안이면 Vercel이 그 저장소를 자동 연결해 엉뚱한 코드가 배포될 수 있다(2026-10-19 리허설) → 연결 해제
 npx --yes vercel@latest git disconnect --yes >/dev/null 2>&1 || true
 push_env() { local v; v=$(env_get "$1"); [ -n "$v" ] || return 0; printf "%s" "$v" | npx --yes vercel@latest env add "$1" production --force >/dev/null 2>&1; ok "환경변수 $1"; }
 for k in NEXT_PUBLIC_STANDALONE_MODE NEXT_PUBLIC_SITE_URL NEXT_PUBLIC_BRAND_NAME NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY CRON_SECRET; do push_env "$k"; done
 i=0; while [ "$i" -lt "$EXTRA_COUNT" ]; do push_env "$(kit x "k.extraEnv[$i].name")"; i=$((i+1)); done
 
+say "  「Install Vercel Plugin for coding agents?」가 나오면 답하지 않아도 30초 뒤 넘어갑니다(n 입력도 됩니다)."
 deploy() { local log; log=$(npx --yes vercel@latest deploy --prod --yes 2>&1); printf "%s\n" "$log" | sed 's/^/  /' >&2; printf "%s" "$log"; }
 LOG=$(deploy)
 # 실제 사이트 주소 자동 확인: 이번 배포의 별칭(alias) 중 가장 짧은 *.vercel.app

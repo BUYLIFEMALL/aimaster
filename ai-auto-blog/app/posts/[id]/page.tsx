@@ -9,7 +9,7 @@ import { stripImageGenerationSchema, removeImagePromptSection } from '@/blog/uti
 import NaverCategoryPicker from '@/blog/components/NaverCategoryPicker'
 import type { NaverCategory } from '@/blog/utils/naverCategory'
 
-import { EXTENSION_ENABLED, MAIN_SITE_URL } from '@/lib/deployment'
+import { APP_TITLE, EXTENSION_ENABLED, MAIN_SITE_URL } from '@/lib/deployment'
 
 /* ------------------------------------------------------------------ */
 /*  HTML5 Canvas Image Compression Helper                              */
@@ -310,7 +310,7 @@ export default function PostDetailPage() {
       {/* =================== HEADER =================== */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 h-[60px] flex items-center justify-between gap-4">
-          <Link href={getBlogBasePath() || '/'} className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">블로그 포스팅 자동화</Link>
+          <Link href={getBlogBasePath() || '/'} className="text-xl font-black text-indigo-600 hover:text-indigo-500 no-underline transition-colors">{APP_TITLE}</Link>
 
           <div className="flex items-center gap-3 flex-shrink-0">
             {MAIN_SITE_URL && (
@@ -429,6 +429,11 @@ export default function PostDetailPage() {
                       
                       // 1. 인라인 자바스크립트(onclick=...) 정제
                       rawContent = rawContent.replace(/onclick="[^"]*"/gi, '')
+
+                      // 사이트 화면용 이미지 설명("📷 … (클릭하여 고화질 확대)")은 내 블로그에 붙여 넣으면 동작하지 않으므로 뺀다(편집기로 저장한 글은 <p>로 남는다)
+                      rawContent = rawContent
+                        .replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/gi, '')
+                        .replace(/<p[^>]*>\s*📷[^<]*클릭하여 고화질 확대\)\s*<\/p>/g, '')
 
                       // 2. Base64 이미지 바이너리 추출 및 HTML5 Canvas 스마트 압축 (4MB -> 250KB)
                       const dataUrlMatches: string[] = []

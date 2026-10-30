@@ -3,7 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { APP_VERSION } from "@/utils/version";
-import { EXTENSION_ENABLED } from "@/lib/deployment";
+import { APP_TITLE, EXTENSION_ENABLED, IS_STANDALONE } from "@/lib/deployment";
+
+// 독립 배포판은 모델 목록이 바뀌어도 설명이 틀리지 않게 회사 이름으로 적는다(실제 목록은 글쓰기 화면)
+const MODELS = IS_STANDALONE
+  ? { gemini: "Google Gemini", openai: "OpenAI GPT", claude: "Anthropic Claude", summary: "OpenAI, Claude, Gemini" }
+  : { gemini: "Google Gemini 2.5 Flash", openai: "OpenAI GPT-4o", claude: "Anthropic Claude 3.5 Sonnet", summary: "GPT-4o, Claude 3.5, Gemini 2.5" };
 
 interface FaqItem {
   q: string;
@@ -14,7 +19,7 @@ interface FaqItem {
 const ALL_FAQ: FaqItem[] = [
   {
     q: "AI 글쓰기에 사용할 수 있는 AI 모델은 어떤 것이 있나요?",
-    a: "Google Gemini 2.5 Flash, OpenAI GPT-4o, Anthropic Claude 3.5 Sonnet을 자유롭게 선택하여 본문을 생성할 수 있습니다. 이미지는 Google Gemini의 고화질 이미지 엔진인 NanoBanana 2K, 4K, Pro 모델이 자동으로 연동되어 섹션별 맞춤 삽화를 생성합니다.",
+    a: MODELS.gemini + ", " + MODELS.openai + ", " + MODELS.claude + "을 자유롭게 선택하여 본문을 생성할 수 있습니다. 이미지는 Google Gemini의 고화질 이미지 엔진인 NanoBanana 2K, 4K, Pro 모델이 자동으로 연동되어 섹션별 맞춤 삽화를 생성합니다.",
     category: "AI 모델",
   },
   {
@@ -72,7 +77,7 @@ export default function GuidePage() {
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">
-            블로그 포스팅 자동화 마스터 가이드
+            {APP_TITLE} 마스터 가이드
           </h1>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mb-6 leading-relaxed">
             최신 트렌드 글감 발굴부터 멀티 AI 본문 작성, 나노바나나 고화질 삽화 자동 삽입, Tiptap 리치 에디터 검수 및 크롬 확장 프로그램 연동까지 블로그 자동화의 모든 과정을 완벽히 마스터하세요.
@@ -171,7 +176,7 @@ export default function GuidePage() {
             </div>
             <h3 className="text-sm font-bold text-slate-900 mb-1.5">AI 본문 & 나노바나나 삽화</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              GPT-4o, Claude 3.5, Gemini 2.5 중 원하는 모델로 서론-본론-결론의 전문 본문을 구성하고, 나노바나나가 섹션별 2K/4K 고화질 삽화를 생성합니다.
+              {MODELS.summary} 중 원하는 모델로 서론-본론-결론의 전문 본문을 구성하고, 나노바나나가 섹션별 2K/4K 고화질 삽화를 생성합니다.
             </p>
             <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-semibold text-indigo-600">
               <span>권장 메뉴:</span>
@@ -250,21 +255,21 @@ export default function GuidePage() {
             <tbody className="divide-y divide-slate-100 text-slate-700">
               <tr className="hover:bg-slate-50/50">
                 <td className="p-4 font-bold text-blue-600 bg-blue-50/30">본문 생성 (기본)</td>
-                <td className="p-4 font-black text-slate-900">Google Gemini 2.5 Flash</td>
+                <td className="p-4 font-black text-slate-900">{MODELS.gemini}</td>
                 <td className="p-4">초고속 생성 속도, 최신 웹 지식 반영, 자연스러운 한국어 문체</td>
                 <td className="p-4">IT/테크, 최신 트렌드, 정보성 리뷰</td>
                 <td className="p-4 font-semibold text-slate-500">Gemini API 키</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
                 <td className="p-4 font-bold text-indigo-600 bg-indigo-50/30">본문 생성 (프리미엄)</td>
-                <td className="p-4 font-black text-slate-900">OpenAI GPT-4o</td>
+                <td className="p-4 font-black text-slate-900">{MODELS.openai}</td>
                 <td className="p-4">치밀한 논리 전개, 전문적인 문단 구조, 감성 카피라이팅</td>
                 <td className="p-4">전문 비즈니스, 재테크, 심층 칼럼</td>
                 <td className="p-4 font-semibold text-slate-500">OpenAI API 키</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
                 <td className="p-4 font-bold text-violet-600 bg-violet-50/30">본문 생성 (전문가)</td>
-                <td className="p-4 font-black text-slate-900">Anthropic Claude 3.5 Sonnet</td>
+                <td className="p-4 font-black text-slate-900">{MODELS.claude}</td>
                 <td className="p-4">정교한 뉘앙스 표현, 장문 서사 구성, 뛰어난 가독성</td>
                 <td className="p-4">브랜드 스토리텔링, 에세이, 가이드북</td>
                 <td className="p-4 font-semibold text-slate-500">Anthropic API 키</td>
@@ -362,7 +367,7 @@ export default function GuidePage() {
             <span>❓ 자주 묻는 질문 (FAQ)</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            블로그 포스팅 자동화 이용 중 가장 많이 문의하시는 질문과 답변입니다.
+            {APP_TITLE} 이용 중 가장 많이 문의하시는 질문과 답변입니다.
           </p>
         </div>
 

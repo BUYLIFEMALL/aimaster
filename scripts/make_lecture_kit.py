@@ -103,7 +103,7 @@ def build_schema(program, kit, dst):
 
 def app_version(prog_dir):
     """프로그램 화면 버전(lib/version.ts 또는 src/lib/version.ts 의 APP_VERSION)."""
-    for rel in ("lib/version.ts", "src/lib/version.ts"):
+    for rel in ("lib/version.ts", "src/lib/version.ts", "utils/version.ts"):
         f = os.path.join(prog_dir, rel)
         if os.path.exists(f):
             m = re.search(r"APP_VERSION\s*=\s*[\"'](v\d+\.\d{2})[\"']", io.open(f, encoding="utf-8").read())
@@ -119,6 +119,13 @@ def stamp_versions(dst, kit_version):
     if kit_version:
         data["kitVersion"] = kit_version
     data["appVersion"] = app_version(dst)
+    # kit.json "showKitVersion": true — 화면 버전을 운영 번호 대신 배포판 번호로 표시(압축 안 사본만 바꾼다, 2026-10-30 블로그 키트)
+    if kit_version and data.get("showKitVersion"):
+        for rel in ("lib/version.ts", "src/lib/version.ts", "utils/version.ts"):
+            f = os.path.join(dst, rel)
+            if os.path.exists(f):
+                text = io.open(f, encoding="utf-8").read()
+                io.open(f, "w", encoding="utf-8", newline="\n").write(re.sub(r"(APP_VERSION\s*=\s*[\"'])v\d+\.\d{2}", lambda m: m.group(1) + kit_version, text))
     io.open(path, "w", encoding="utf-8", newline="\n").write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
 
 

@@ -3,11 +3,12 @@
 import { useState, useTransition } from 'react'
 import { saveApiKeyAction, deleteApiKeyAction, type SaveApiKeyState } from './actions'
 import type { ApiKeyProvider } from '@/utils/apiKeys'
+import { IS_STANDALONE } from '@/lib/deployment'
 
 const PLATFORM_LINKS: Record<string, { icon: string; name: string; createUrl: string; signupUrl: string; note: string }> = {
   openai: {
     icon: '🤖',
-    name: 'OpenAI (GPT-4o)',
+    name: IS_STANDALONE ? 'OpenAI' : 'OpenAI (GPT-4o)',
     createUrl: 'https://platform.openai.com/api-keys',
     signupUrl: 'https://platform.openai.com/signup',
     note: '고품질 블로그 원고 및 본문 작성에 사용됩니다.',

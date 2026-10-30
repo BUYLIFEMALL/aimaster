@@ -299,9 +299,37 @@ Ok "설치·빌드 완료"
 # ⑧ Vercel 배포
 Step 8 "인터넷에 올리기(Vercel 배포)"
 $project = EnvGet "VERCEL_PROJECT_NAME"
-Say "  브라우저가 열리면 본인 Vercel 계정으로 로그인하세요(처음이면 무료 Hobby로 가입, 이미 로그인돼 있으면 넘어갑니다)."
+Say "  브라우저가 열리면 본인 Vercel 계정으로 로그인하세요(처음이면 무료 Hobby로 가입, 이미 로그인돼 있으면 넘어갑니다). 메일로 받은 코드를 입력하라는 창(Reauthenticate)이 뜨면 본인 확인 절차이니 메일의 코드를 넣으세요."
 Native { npx --yes vercel@latest login }
-Native { npx --yes vercel@latest link --yes --project $project }
+# 원치 않는 팀(유료 포함)에 프로젝트가 만들어지지 않게 설치 위치를 확인한다(2026-10-30 리허설: --yes 가 팀을 묻지 않고 유료 팀에 생성).
+# Vercel은 개인 계정을 --scope 로 지정할 수 없어(You cannot set your Personal Account as the scope) 개인은 Vercel 선택 화면으로 넘긴다.
+function Get-VercelTeams {
+  $raw = Native { npx --yes vercel@latest teams ls --format json 2>$null }
+  $text = ($raw | ForEach-Object { "$_" }) -join "`n"
+  $i = $text.IndexOf("{"); if ($i -lt 0) { return @() }
+  try { return @(($text.Substring($i) | ConvertFrom-Json).teams) } catch { return @() }
+}
+$vercelScope = ""; $vercelAsk = $false
+if (-not (Test-Path -LiteralPath (Join-Path $ProgramDir ".vercel\project.json"))) {
+  $teams = @(Get-VercelTeams)
+  if ($teams.Count -eq 1 -and $teams[0].plan -eq "hobby") { $vercelScope = $teams[0].slug }
+  elseif ($teams.Count -ge 1) {
+    Say "  이 Vercel 계정에 팀이 있습니다. 내 사이트를 어디에 올릴지 고르세요."
+    Write-Host "    0) 개인 계정 또는 다른 곳 — 다음 화면에서 직접 고르기"
+    for ($n = 0; $n -lt $teams.Count; $n++) {
+      $mark = if ($teams[$n].plan -eq "hobby") { "무료" } else { "유료 팀 — 빌드 비용이 이 팀에 청구될 수 있음" }
+      Write-Host "    $($n + 1)) $($teams[$n].slug) ($mark)"
+    }
+    $defaultPick = "0"; for ($n = $teams.Count - 1; $n -ge 0; $n--) { if ($teams[$n].plan -eq "hobby") { $defaultPick = "$($n + 1)" } }
+    do { $pick = Ask "번호를 입력하세요" $defaultPick } until ($pick -match '^\d+$' -and [int]$pick -le $teams.Count)
+    if ([int]$pick -eq 0) { $vercelAsk = $true } else { $vercelScope = $teams[[int]$pick - 1].slug }
+  }
+}
+if ($vercelAsk) {
+  Say "  영어 질문이 나옵니다: Set up → Enter, Which scope → 화살표로 개인 계정 선택 후 Enter, Link to existing → n, 이름 → Enter"
+  Native { npx --yes vercel@latest link --project $project }
+} elseif ($vercelScope) { Native { npx --yes vercel@latest link --yes --project $project --scope $vercelScope } }
+else { Native { npx --yes vercel@latest link --yes --project $project } }
 if ($LASTEXITCODE -ne 0) { Warn "Vercel 프로젝트 연결 실패. 6단계 이름을 바꾸려면 .kit-progress 파일을 지우고 다시 실행하세요."; Read-Host "  Enter" | Out-Null; exit 1 }
 # 폴더가 GitHub 저장소 안이면 Vercel이 그 저장소를 자동 연결해 엉뚱한 코드가 배포될 수 있다(2026-10-19 리허설) → 연결 해제
 Native { npx --yes vercel@latest git disconnect --yes *> $null }
@@ -321,7 +349,9 @@ $envNames = @("NEXT_PUBLIC_STANDALONE_MODE","NEXT_PUBLIC_SITE_URL","NEXT_PUBLIC_
 if ($KitInfo.extraEnv) { $envNames += @($KitInfo.extraEnv | ForEach-Object { $_.name }) }
 foreach ($k in $envNames) { Push-Env $k }
 
-function Deploy { $out = Native { npx --yes vercel@latest deploy --prod --yes 2>&1 | ForEach-Object { "$_" } }; $out | ForEach-Object { Write-Host "  $_" }; return ($out -join "`n") }
+# PowerShell 5.1은 stderr의 빈 줄을 이 이름으로 보여 준다 — 오류가 아니므로 숨긴다(2026-10-30 리허설)
+Say "  「Install Vercel Plugin for coding agents?」가 나오면 답하지 않아도 30초 뒤 넘어갑니다(n 입력도 됩니다)."
+function Deploy { $out = Native { npx --yes vercel@latest deploy --prod --yes 2>&1 | ForEach-Object { "$_" } | Where-Object { $_ -ne "System.Management.Automation.RemoteException" } }; $out | ForEach-Object { Write-Host "  $_" }; return ($out -join "`n") }
 $log = Deploy
 # 실제 사이트 주소 자동 확인: 이번 배포의 별칭(alias) 중 가장 짧은 *.vercel.app
 $deployUrl = ([regex]::Matches($log, "https://[a-z0-9.-]+\.vercel\.app") | ForEach-Object { $_.Value } | Select-Object -Last 1)

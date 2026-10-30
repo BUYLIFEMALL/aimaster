@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { APP_VERSION } from "@/utils/version";
 
-import { EXTENSION_ENABLED, MAIN_SITE_URL } from "@/lib/deployment";
+import { APP_TITLE, EXTENSION_ENABLED, IS_STANDALONE, MAIN_SITE_URL } from "@/lib/deployment";
 
 const OVERVIEW_ITEM = { href: "/dashboard", icon: "🏠", label: "대시보드" };
 
@@ -30,7 +30,7 @@ const FLOW_STEPS = [
     href: "/",
     icon: "📝",
     label: "게시글 관리",
-    description: "작성된 게시글 검수 및 블로그 발행",
+    description: IS_STANDALONE ? "작성된 글 검수 및 복사" : "작성된 게시글 검수 및 블로그 발행",
   },
 ];
 
@@ -69,13 +69,13 @@ export default function BlogSidebar() {
         <div className="mb-4 md:mb-6 px-2">
           <div className="flex items-center justify-between">
             <Link href="/" onClick={closeMobile} className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 break-keep">
-              <span>✍️ 블로그 포스팅 자동화</span>
+              <span>✍️ {APP_TITLE}</span>
             </Link>
             <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
               {APP_VERSION}
             </span>
           </div>
-          <p className="mt-1 text-xs text-slate-500 font-medium">플로우 위저드 블로그 퍼블리싱</p>
+          <p className="mt-1 text-xs text-slate-500 font-medium">{IS_STANDALONE ? "글감 수집부터 복사까지" : "플로우 위저드 블로그 퍼블리싱"}</p>
           {MAIN_SITE_URL && (
             <a
               href={`${MAIN_SITE_URL}/dashboard`}
@@ -105,7 +105,7 @@ export default function BlogSidebar() {
           {/* 3단계 파이프라인 스텝퍼 */}
           <div className="relative flex flex-col py-1">
             <div className="px-2 pb-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              발행 파이프라인
+              {IS_STANDALONE ? "콘텐츠 제작 순서" : "발행 파이프라인"}
             </div>
             {FLOW_STEPS.map((item, idx) => {
               const isActive = pathname === item.href;
@@ -215,7 +215,7 @@ export default function BlogSidebar() {
       <header className="flex h-14 w-full items-center justify-between border-b border-slate-200 bg-white px-4 md:hidden sticky top-0 z-40">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-base">✍️</span>
-          <span className="text-sm font-bold text-slate-900">블로그 포스팅 자동화</span>
+          <span className="text-sm font-bold text-slate-900">{APP_TITLE}</span>
           <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">
             {APP_VERSION}
           </span>

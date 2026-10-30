@@ -1,6 +1,7 @@
 {
   "title": "블로그 콘텐츠 자동화",
   "shortName": "blog-content",
+  "showKitVersion": true,
   "description": "블로그 글감 수집·AI 글+이미지 생성·게시글 관리(보관함)·복사해서 붙여넣기 — 자동 포스팅(확장 프로그램) 없음",
   "authRedirectPath": "/auth/confirm",
   "checkTable": "newsblur_accounts",

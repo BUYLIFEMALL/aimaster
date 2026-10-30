@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
+import { APP_TITLE } from '@/lib/deployment'
 import { useSearchParams } from 'next/navigation'
 import { login, signup } from './actions'
 import { IS_STANDALONE, MAIN_SITE_URL } from '@/lib/deployment'
@@ -37,7 +38,7 @@ export default function AuthForm() {
       {/* 블로그 포스팅 자동화 로고 영역 */}
       <div className="flex flex-col items-center mb-8 text-center">
         <Link href="/" className="text-3xl font-extrabold tracking-tight text-[#005acc] mb-1 font-sans no-underline">
-          블로그 포스팅 자동화
+          {APP_TITLE}
         </Link>
         <p className="text-sm font-medium text-zinc-500">
           {IS_STANDALONE ? '이메일·비밀번호로 가입하거나 로그인하세요.' : 'AIMaster 계정(이메일·비밀번호)으로 로그인하세요.'}

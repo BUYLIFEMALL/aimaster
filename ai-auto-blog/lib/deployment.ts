@@ -11,6 +11,9 @@ export const IS_STANDALONE = (process.env.NEXT_PUBLIC_STANDALONE_MODE ?? "").rep
 /** 크롬 확장 자동 포스팅 사용 여부 — 독립 운영(콘텐츠 만들기 전용 배포판)에서는 끈다. */
 export const EXTENSION_ENABLED = !IS_STANDALONE;
 
+/** 프로그램 화면 이름 — 콘텐츠 만들기 전용 배포판은 자동 포스팅이 없어 이름을 구분한다. */
+export const APP_TITLE = IS_STANDALONE ? "블로그 콘텐츠 자동화" : "블로그 포스팅 자동화";
+
 /** 독립 운영 사이트 주소(끝 / 없이). 예: https://my-blog.vercel.app */
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim().replace(/\/$/, "");
 

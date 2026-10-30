@@ -9,7 +9,7 @@ import CategoryManagementModal from './CategoryManagementModal'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 import { retentionDaysLeft } from '@/blog/utils/imageRetention'
 import { APP_VERSION } from '@/utils/version'
-import { EXTENSION_ENABLED } from '@/lib/deployment'
+import { EXTENSION_ENABLED, IS_STANDALONE } from '@/lib/deployment'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -235,7 +235,7 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-600 text-white shadow-sm shadow-blue-500/20">
-                <span>✍️ BLOG PUBLISHING STUDIO</span>
+                <span>{IS_STANDALONE ? '✍️ BLOG CONTENT STUDIO' : '✍️ BLOG PUBLISHING STUDIO'}</span>
               </span>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-white/80 text-blue-700 border border-blue-200 shadow-xs">
                 {APP_VERSION}
@@ -261,7 +261,7 @@ export default function HomePage() {
             주제·키워드 입력만으로 완성하는 SEO 최적화 블로그
           </h1>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mb-6 leading-relaxed">
-            멀티 AI(GPT-4o / Claude 3.5 Sonnet / Gemini 2.5 Flash) 기반 본문 작성, 나노바나나 고화질 삽화 자동 생성, Tiptap 리치 에디터 검수{EXTENSION_ENABLED ? ' 및 크롬 확장 프로그램 연동' : ', 복사해서 내 블로그에 붙여넣기'}까지 원스톱으로 지원합니다.
+            {IS_STANDALONE ? '멀티 AI(Gemini / OpenAI / Claude)' : '멀티 AI(GPT-4o / Claude 3.5 Sonnet / Gemini 2.5 Flash)'} 기반 본문 작성, 나노바나나 고화질 삽화 자동 생성, Tiptap 리치 에디터 검수{EXTENSION_ENABLED ? ' 및 크롬 확장 프로그램 연동' : ', 복사해서 내 블로그에 붙여넣기'}까지 원스톱으로 지원합니다.
           </p>
 
           {/* 퀵 액션 버튼 & 검색 폼 */}
@@ -324,7 +324,7 @@ export default function HomePage() {
           <div className="text-2xl font-black text-slate-900">
             {loading ? "..." : `${totalCount}건`}
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">회원 본인 소유의 전체 발행 글감</p>
+          <p className="text-[11px] text-slate-500 mt-1">회원 본인 소유의 전체 {IS_STANDALONE ? '게시글' : '발행 글감'}</p>
         </div>
 
         <div className="stat-card p-5">
@@ -354,7 +354,7 @@ export default function HomePage() {
       <section className="mb-8 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
         <div className="flex items-center justify-between mb-3 px-1">
           <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-            <span>⚡ 4단계 블로그 자동 발행 파이프라인</span>
+            <span>{IS_STANDALONE ? '⚡ 4단계 블로그 콘텐츠 제작 순서' : '⚡ 4단계 블로그 자동 발행 파이프라인'}</span>
           </span>
           <Link href="/guide" className="text-xs font-bold text-blue-600 hover:text-blue-800">
             매뉴얼 상세 보기 →
@@ -451,7 +451,7 @@ export default function HomePage() {
         ) : posts.length === 0 ? (
           <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl space-y-3">
             <p className="text-base font-bold text-slate-900">아직 작성한 게시글이 없습니다.</p>
-            <p className="text-xs text-slate-400">새로운 AI 자동 포스트를 작성해 보세요!</p>
+            <p className="text-xs text-slate-400">{IS_STANDALONE ? 'AI 글쓰기에서 첫 글을 만들어 보세요!' : '새로운 AI 자동 포스트를 작성해 보세요!'}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
