@@ -180,7 +180,7 @@ export async function locateDong(cortarNo, log = async () => {}) {
     if (page && (page.blocked || !/land\.naver\.com$/.test(page.host))) blocked = true;
     else {
       const url = `https://new.land.naver.com/api/regions/list?cortarNo=${cortarNo.slice(0, 5)}00000`;
-      result = await evalInPage(tabId, `fetch(${JSON.stringify(url)}, { credentials: "include", headers: ${JSON.stringify(auth ? { authorization: auth } : {})} }).then(async (x) => ({ status: x.status, body: x.ok ? await x.json().catch(() => null) : null })).catch(() => ({ status: 0, body: null }))`);
+      result = await evalInPage(tabId, `fetch(${JSON.stringify(url)}, { credentials: "include", signal: AbortSignal.timeout(15000), headers: ${JSON.stringify(auth ? { authorization: auth } : {})} }).then(async (x) => ({ status: x.status, body: x.ok ? await x.json().catch(() => null) : null })).catch(() => ({ status: 0, body: null }))`);
       if (isBlockedStatus(result?.status)) blocked = true;
     }
   } catch (e) {

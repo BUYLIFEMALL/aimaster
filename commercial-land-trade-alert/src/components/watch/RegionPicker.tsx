@@ -6,6 +6,9 @@ import { startTransition, useActionState, useEffect, useMemo, useState } from "r
 import { addRegionTargetAction, type WatchState } from "@/lib/actions/watchTargets";
 import { askExtension } from "@/lib/extensionBridge";
 
+// 옛 확장은 지역 요청을 모른 채 무시해 화면이 멈춰 보이므로 먼저 버전을 확인한다
+const MIN_EXTENSION = 1.11;
+
 type Sido = { c: string; n: string; g: { c: string; n: string; d: [string, string][] }[] };
 
 const KINDS: [string, string][] = [["SG", "상가"], ["GM", "건물"], ["TJ", "토지"]];
@@ -37,6 +40,17 @@ export function RegionPicker({ email, disabled }: { email: string; disabled: boo
     if (!dong || !kinds.length) return;
     setLocateError("");
     setLocating(true);
+    const ping = await askExtension<{ ok?: boolean; version?: string; connected?: boolean }>("ping", 2000);
+    if (!ping?.ok) {
+      setLocating(false);
+      setLocateError("확장이 응답하지 않습니다. 확장을 설치하고 chrome://extensions에서 ↻ 새로고침한 뒤 이 화면도 새로고침해 주세요.");
+      return;
+    }
+    if ((Number.parseFloat(String(ping.version ?? "").replace("v", "")) || 0) < MIN_EXTENSION) {
+      setLocating(false);
+      setLocateError(`확장이 옛 버전(${ping.version || "알 수 없음"})입니다. chrome://extensions에서 ↻ 새로고침한 뒤 이 화면도 새로고침해 주세요.`);
+      return;
+    }
     const r = await askExtension<{ ok?: boolean; lat?: number; lon?: number; error?: string }>("locateDong", 60000, { email, cortarNo: dong });
     setLocating(false);
     if (!r?.ok || r.lat == null || r.lon == null) {
