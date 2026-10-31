@@ -310,7 +310,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           schedule: s.settingsCache?.schedule || null,
           targetCount: s.settingsCache?.targets?.length ?? null,
           latestVersion: s.settingsCache?.latestVersion || null,
-          recent: (Array.isArray(s.log) ? s.log : []).slice(-6),
+          recent: (Array.isArray(s.log) ? s.log : []).slice(-30),
         });
       }
       if (msg.type === "stats") {
