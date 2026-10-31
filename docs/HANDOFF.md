@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.17 알림 기능(운영 배포)
+- 한 일: 품절 임박 자동 알림, 출고중지·미답변 수시 알림(회원이 시각 선택, 기본 오전 9시·오후 6시), 고정 IP 미등록 안내 정리, 카카오 웹 도메인 안내. DB 구조 변경 없음.
+- 빌드 1회(승인), 시험 131개·빌드 통과. 크롬에서 켜기·끄기 확인, 틀린 토큰 401, 쿠팡 쓰기 0회.
+- 못 한 것: 수시 알림 실제 실행·발송, 품절 줄이 든 요약. 켜기 직후 제목 갱신 지연은 대기 목록.
+- 결정: 예약 가격은 쓰기 시험 뒤, 로켓그로스·알림톡은 만들지 않음. 연동업체 신청은 보류.
+- 다음 첫 단계: 켜 둔 계정에서 실제 알림 확인, 상품 수정 쓰기 시험 승인 요청. 상세 `coupang-ops/AGENTS.md` 맨 아래.
+- https://coupang-ops.buylife.xyz/alerts
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — 상가 v1.17·부동산 v1.41 AI 분석 버튼
 - 두 프로그램 수집 결과에 GPT·Claude·Gemini 분석 버튼, 세부 모델은 설정에서. 상가는 설정 표 버튼 통일, 부동산은 Claude 5.5 갱신. 남은 일: OpenAI·Gemini 실제 호출 확인.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/results · https://realty-listing-alert.buylife.xyz/results
