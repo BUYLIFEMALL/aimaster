@@ -20,6 +20,29 @@ export async function saveWingKeysAction(_prev: unknown, formData: FormData): Pr
   return { ok: true };
 }
 
+const AI_KEY_PROVIDERS = ["anthropic", "openai", "gemini"];
+
+export async function saveAiKeyAction(provider: string, apiKey: string): Promise<{ ok?: boolean; error?: string }> {
+  const user = await requireProgramAccess();
+  const key = String(apiKey ?? "").trim();
+  if (!AI_KEY_PROVIDERS.includes(provider) || !key) return { error: "API 키를 넣어 주세요." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("user_api_keys").upsert({ user_id: user.id, provider, api_key: key }, { onConflict: "user_id,provider" });
+  if (error) return { error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  revalidatePath("/connect");
+  return { ok: true };
+}
+
+export async function deleteAiKeyAction(provider: string): Promise<{ ok?: boolean; error?: string }> {
+  const user = await requireProgramAccess();
+  if (!AI_KEY_PROVIDERS.includes(provider)) return { error: "알 수 없는 키입니다." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("user_api_keys").delete().eq("user_id", user.id).eq("provider", provider);
+  if (error) return { error: "삭제하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  revalidatePath("/connect");
+  return { ok: true };
+}
+
 export async function deleteWingKeysAction(): Promise<{ ok?: boolean; error?: string }> {
   const user = await requireProgramAccess();
   const supabase = await createClient();

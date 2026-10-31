@@ -35,6 +35,13 @@ export async function getWingKeyStatus(userId: string): Promise<{ saved: boolean
   };
 }
 
+/** 화면 표시용 AI 키 상태(끝 4자리만). 다른 프로그램에서 등록한 키도 그대로 보인다 */
+export async function getAiKeyStatus(userId: string): Promise<Partial<Record<"anthropic" | "openai" | "gemini", string>>> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("user_api_keys").select("provider, api_key").eq("user_id", userId).in("provider", ["anthropic", "openai", "gemini"]);
+  return Object.fromEntries((data ?? []).map((r: { provider: string; api_key: string }) => [r.provider, maskKey(r.api_key)]));
+}
+
 /** 배송·반품 기본값(없으면 null) */
 export async function getCoupangDefaults(userId: string) {
   const supabase = await createClient();

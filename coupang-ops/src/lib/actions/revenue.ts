@@ -9,7 +9,7 @@ import { callBudgetBlock } from "@/lib/coupang/usage";
 import { takeReadSlot } from "@/lib/readGap";
 
 export type RevenueResult = { ok: true; lines: RevenueLine[]; shipping: RevenueOrderShipping[]; nextToken: string } | { ok: false; error: string };
-const NO_KEYS = "먼저 「쿠팡 연결」에서 키를 등록해 주세요.";
+const NO_KEYS = "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요.";
 const wingMsg = (e: unknown) => (e instanceof WingApiError ? e.message : "연결 오류");
 
 /** 매출내역 한 쪽(읽기 1회). 결과는 저장하지 않는다 */

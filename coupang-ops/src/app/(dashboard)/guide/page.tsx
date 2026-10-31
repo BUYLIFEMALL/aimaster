@@ -77,7 +77,7 @@ export default async function GuidePage() {
       <section className="slw-card space-y-3 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">STEP 3·4. 키 등록과 연결 시험</h2>
         <p className="text-sm leading-relaxed text-slate-700">
-          왼쪽 메뉴 「판매자정보 → 쿠팡 연결」에서 업체코드·Access Key·Secret Key와 <b>WING 로그인 ID</b>(상품 등록에 필요)를 넣고 「연결 시험」을 눌러 주세요.
+          왼쪽 메뉴 「판매자정보 → API키등록·플랫폼연동」에서 업체코드·Access Key·Secret Key와 <b>WING 로그인 ID</b>(상품 등록에 필요)를 넣고 「연결 시험」을 눌러 주세요.
         </p>
         <Notice tone="warn">
           🔒 키 값은 채팅·메신저·캡처로 다른 사람에게 보내지 마세요. 노출됐다면 WING에서 <b>「재발급」</b>으로 바꾸면 이전 키는 쓸 수 없게 됩니다.
@@ -93,7 +93,7 @@ export default async function GuidePage() {
         </details>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">AI 추천은 무엇을 채우나요?</summary>
-          <p className="mt-2 leading-relaxed text-slate-700">상품 등록 3단계에서 본인 Claude 키로 검색어와 검색 속성을 추천받습니다. 이미 넣은 값은 덮어쓰지 않고, 쿠팡 목록에 없는 값은 버립니다. 사용량은 회원 키에 청구되며, 보내기 전에 직접 확인해 주세요. 등록 기록은 30일 뒤 자동으로 지워집니다.</p>
+          <p className="mt-2 leading-relaxed text-slate-700">상품 등록 3단계에서 고른 AI의 본인 키로 검색어와 검색 속성을 추천받습니다. 이미 넣은 값은 덮어쓰지 않고, 쿠팡 목록에 없는 값은 버립니다. 사용량은 회원 키에 청구되며, 보내기 전에 직접 확인해 주세요. 등록 기록은 30일 뒤 자동으로 지워집니다.</p>
         </details>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">상품을 고치면 바로 반영되나요?</summary>
@@ -113,7 +113,7 @@ export default async function GuidePage() {
         </details>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">AI가 문의에 자동으로 답변하나요?</summary>
-          <p className="mt-2 leading-relaxed text-slate-700">아니요. AI는 초안만 만들고, 회원이 고쳐서 확인을 눌러야 등록됩니다. 메인 사이트 「API키생성|플랫폼연동」에 본인 Claude 키를 등록해야 쓸 수 있고 사용량은 회원 키에 청구됩니다. 고객 연락처와 번호는 가린 뒤 AI에 보내며, 고객센터 미답변 건은 24시간이 지나면 쿠팡이 처리하므로 그 전에 답해 주세요.</p>
+          <p className="mt-2 leading-relaxed text-slate-700">아니요. AI는 초안만 만들고, 회원이 고쳐서 확인을 눌러야 등록됩니다. 「API키등록·플랫폼연동」에 쓰실 AI(Claude·GPT·Gemini)의 본인 키를 등록하면 화면에서 플랫폼과 모델을 고를 수 있고, 사용량은 회원 키에 청구됩니다. 고객 연락처와 번호는 가린 뒤 AI에 보내며, 고객센터 미답변 건은 24시간이 지나면 쿠팡이 처리하므로 그 전에 답해 주세요.</p>
         </details>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">「품절 예방」은 자동으로 재고를 채우나요?</summary>

@@ -83,7 +83,7 @@ const imageOk = (u: string) => /^https:\/\/[^\s:/]+(?::443)?\//.test(u) && u.len
 export function checkDraft(draft: CoupangDraft, defaults: CoupangDefaults | null): string[] {
   const p: string[] = [];
   if (!defaults) p.push("출고지·반품지·배송비 기본값을 먼저 넣어 주세요.");
-  if (!draft.vendorId || !draft.wingUserId) p.push("쿠팡 연결에서 키를 먼저 등록해 주세요.");
+  if (!draft.vendorId || !draft.wingUserId) p.push("API키등록·플랫폼연동에서 키를 먼저 등록해 주세요.");
   if (!draft.categoryCode) p.push("카테고리를 골라 주세요.");
   const name = draft.name.trim();
   if (!name) p.push("상품명이 비어 있습니다.");

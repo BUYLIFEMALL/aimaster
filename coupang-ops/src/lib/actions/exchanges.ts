@@ -12,7 +12,7 @@ import { takeReadSlot } from "@/lib/readGap";
 export type ExchangeList = { ok: true; rows: ExchangeRow[]; nextToken: string } | { ok: false; error: string };
 export type ExchangeDone = { ok: true; message: string; row: ExchangeRow | null } | { ok: false; error: string };
 
-const NO_KEYS = "먼저 「쿠팡 연결」에서 키를 등록해 주세요.";
+const NO_KEYS = "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요.";
 const wingMsg = (e: unknown) => (e instanceof WingApiError ? e.message : "연결 오류");
 const writeFail = (e: unknown, what: string): ExchangeDone => {
   const status = e instanceof WingApiError ? e.status : 0;

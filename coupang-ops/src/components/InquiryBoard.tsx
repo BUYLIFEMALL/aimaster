@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { AiModelSelect, useAiModel } from "@/components/AiModelSelect";
 import { confirmInquiryAction, draftReplyAction, listInquiriesAction, sendReplyAction } from "@/lib/actions/inquiries";
 import { checkReply, type InquiryRow } from "@/lib/coupang/inquiry";
 
-const KEY_PAGE = "https://www.buylife.xyz/api-settings";
+const KEY_PAGE = "/connect";
 const smallBtn = "rounded border px-2.5 py-1 text-[12px] font-bold disabled:opacity-50";
 const keyOf = (r: InquiryRow) => `${r.kind}:${r.id}`;
 const whenText = (at: string) => {
@@ -14,6 +15,7 @@ const whenText = (at: string) => {
 
 function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: string) => void }) {
   const [facts, setFacts] = useState("");
+  const [model, setModel] = useAiModel();
   const [text, setText] = useState("");
   const [needs, setNeeds] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -28,7 +30,7 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
       setError("");
       setNeedKey(false);
       setAsking(false);
-      const r = await draftReplyAction({ question: row.question, itemName: row.itemName, sellerFacts: facts });
+      const r = await draftReplyAction({ question: row.question, itemName: row.itemName, sellerFacts: facts, model });
       if (!r.ok) {
         setNeedKey(!!r.needKey);
         return setError(r.error);
@@ -78,6 +80,7 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
         </div>
       ) : (
         <>
+          <AiModelSelect model={model} onChange={setModel} />
           <label className="block text-[12px] font-bold text-slate-700">
             초안에 쓸 사실(선택)
             <input value={facts} onChange={(e) => setFacts(e.target.value)} placeholder="예: 11월 5일 입고 예정, 출고는 평일 오후 2시 마감" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[13px] font-normal focus:border-blue-500 focus:outline-none" />
@@ -86,7 +89,7 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
             <button type="button" disabled={pending} onClick={draft} className={`${smallBtn} border-blue-300 bg-white text-blue-800`}>
               {pending && !asking ? "만드는 중…" : text ? "✨ 초안 다시 만들기" : "✨ AI 답변 초안"}
             </button>
-            <span className="text-[11px] text-slate-500">회원 본인 Claude 키로 1회 호출합니다. 쿠팡 호출은 없습니다.</span>
+            <span className="text-[11px] text-slate-500">고른 AI의 회원 본인 키로 1회 호출합니다. 쿠팡 호출은 없습니다.</span>
           </div>
           <textarea
             aria-label="답변 내용"
@@ -161,7 +164,7 @@ export function InquiryBoard({ keysSaved }: { keysSaved: boolean }) {
           {pending ? "불러오는 중…" : rows ? "다시 불러오기" : "문의 불러오기"}
         </button>
       </div>
-      {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
+      {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
       {note && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">{note}</p>}
       {failed.map((f) => <p key={f} className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">⚠ 일부를 읽지 못했습니다 — {f}</p>)}

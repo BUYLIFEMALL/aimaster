@@ -43,7 +43,7 @@ export function TodayBoard({ keysSaved }: { keysSaved: boolean }) {
           {pending ? "세는 중…" : data ? "다시 세기" : "오늘 할 일 불러오기"}
         </button>
       </div>
-      {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
+      {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
       {data && (
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

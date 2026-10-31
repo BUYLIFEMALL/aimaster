@@ -14,7 +14,7 @@ export type OrdersResult = { ok: true; orders: OrderSheet[]; nextToken: string }
 export async function listOrderSheetsAction(opt: { from: string; to: string; status: string; nextToken?: string }): Promise<OrdersResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   const problem = checkOrderRange(opt.from, opt.to);
   if (problem) return { ok: false, error: problem };
   if (!opt.nextToken) {
@@ -36,7 +36,7 @@ export type AckActionResult = { ok: true; results: AckResult[]; summary: string;
 export async function acknowledgeOrdersAction(shipmentBoxIds: number[], range?: { from: string; to: string }): Promise<AckActionResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   const picked = ackIds(Array.isArray(shipmentBoxIds) ? shipmentBoxIds : []);
   if ("error" in picked) return { ok: false, error: picked.error };
   try {
@@ -73,7 +73,7 @@ export async function acknowledgeOrdersAction(shipmentBoxIds: number[], range?: 
 export async function submitInvoicesAction(mode: "upload" | "update", entries: InvoiceEntry[]): Promise<AckActionResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   const m = mode === "update" ? "update" : "upload";
   const built = invoiceBody(keys.vendorId, Array.isArray(entries) ? entries : []);
   if ("errors" in built) return { ok: false, error: built.errors.slice(0, 5).join(" / ") };

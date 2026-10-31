@@ -55,7 +55,7 @@ export function ExchangeRequests({ keysSaved, defaultCourier }: { keysSaved: boo
           {pending && !ask ? "불러오는 중…" : rows ? "다시 불러오기" : "교환 요청 불러오기"}
         </button>
       </div>
-      {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
+      {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
       {note && <p className="text-[12px] text-slate-800">{note}</p>}
       {rows?.length === 0 && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">✅ 최근 7일 교환 요청이 없습니다.</p>}

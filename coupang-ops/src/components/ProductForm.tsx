@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { AiModelSelect, useAiModel } from "@/components/AiModelSelect";
 import { suggestProductInfoAction } from "@/lib/actions/suggest";
 import { checkProductDraftAction, deleteJobProductAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, requestApprovalAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
 
@@ -46,6 +47,7 @@ export function ProductForm(props: {
   const [notice, setNotice] = useState<string>("");
   const [tags, setTags] = useState("");
   const [suggestNote, setSuggestNote] = useState("");
+  const [aiModel, setAiModel] = useAiModel();
   const [lastForm, setLastForm] = useState<{ brand: string; manufacturer: string; code: string } | null>(null);
   useEffect(() => {
     try {
@@ -161,7 +163,7 @@ export function ProductForm(props: {
     if (!cat) return;
     setSuggestNote("");
     start(async () => {
-      const r = await suggestProductInfoAction({ name, category: cat.name, attrs: searchAttrs.map((a) => ({ name: a.name, values: a.values })) });
+      const r = await suggestProductInfoAction({ name, category: cat.name, attrs: searchAttrs.map((a) => ({ name: a.name, values: a.values })), model: aiModel });
       if (!r.ok) return setSuggestNote(`❌ ${r.error}`);
       // 회원이 이미 넣은 값은 덮어쓰지 않는다
       setSearchVals((old) => ({ ...r.attributes, ...Object.fromEntries(Object.entries(old).filter(([, v]) => v)) }));
@@ -190,7 +192,7 @@ export function ProductForm(props: {
     <div className="space-y-5">
       {(!props.keysSaved || !props.defaultsSaved) && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[13px] text-amber-900">
-          ⚠ {!props.keysSaved ? "「쿠팡 연결」에서 키를 먼저 등록해 주세요. " : ""}{!props.defaultsSaved ? "「배송·반품 기본값」을 먼저 저장해 주세요." : ""}
+          ⚠ {!props.keysSaved ? "「API키등록·플랫폼연동」에서 키를 먼저 등록해 주세요. " : ""}{!props.defaultsSaved ? "「배송·반품 기본값」을 먼저 저장해 주세요." : ""}
         </div>
       )}
 
@@ -293,8 +295,9 @@ export function ProductForm(props: {
           )}
           <label className="block"><span className={label}>검색 태그(쉼표로 나눔, 20개까지)</span>
             <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="예: 노트북가방, 출장백팩" className={input} /></label>
+          <AiModelSelect model={aiModel} onChange={setAiModel} />
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" disabled={pending || !name.trim()} onClick={runSuggest} className="rounded-lg border border-blue-300 px-3 py-2 text-sm font-bold text-blue-800 hover:bg-blue-50 disabled:opacity-50">🤖 AI로 검색어·속성 추천받기(내 Claude 키)</button>
+            <button type="button" disabled={pending || !name.trim()} onClick={runSuggest} className="rounded-lg border border-blue-300 px-3 py-2 text-sm font-bold text-blue-800 hover:bg-blue-50 disabled:opacity-50">🤖 AI로 검색어·속성 추천받기(내 키)</button>
             {suggestNote && <span className="text-[12px] text-slate-700">{suggestNote}</span>}
           </div>
         </section>

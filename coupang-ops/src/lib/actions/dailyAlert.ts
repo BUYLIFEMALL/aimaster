@@ -95,7 +95,7 @@ export async function enableDailyAlertAction(hourInput: number, channelsInput: A
   const channels = cleanChannels(channelsInput);
   if (!channels.length) return { ok: false, error: "받을 곳을 하나 이상 골라 주세요." };
   const [keys, key, targets] = await Promise.all([getWingKeys(user.id), cronKey(user.id), loadTargets(user.id)]);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   for (const c of channels) {
     const problem = channelProblem(c, targets);
     if (problem) return { ok: false, error: `${CHANNEL_LABEL[c]}: ${problem}` };

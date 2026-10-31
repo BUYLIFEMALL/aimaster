@@ -119,7 +119,7 @@ export const CANCEL_REASONS: { code: string; label: string }[] = [
 export function cancelBody(opt: { vendorId: string; userId: string; orderId: number; reason: string; items: { vendorItemId: number; count: number }[] }): Record<string, unknown> | { error: string } {
   if (!Number.isInteger(opt.orderId) || opt.orderId <= 0) return { error: "주문번호가 없습니다." };
   if (!CANCEL_REASONS.some((r) => r.code === opt.reason)) return { error: "취소 사유를 골라 주세요." };
-  if (!opt.userId) return { error: "「쿠팡 연결」에 WING 아이디가 없습니다." };
+  if (!opt.userId) return { error: "「API키등록·플랫폼연동」에 WING 아이디가 없습니다." };
   const items = opt.items.filter((it) => Number.isInteger(it.vendorItemId) && it.vendorItemId > 0 && Number.isInteger(it.count) && it.count > 0);
   if (items.length === 0) return { error: "취소할 수 있는 수량이 없습니다(이미 취소·환불 진행 중일 수 있습니다)." };
   return {

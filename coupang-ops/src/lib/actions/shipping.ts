@@ -9,7 +9,7 @@ import { callBudgetBlock } from "@/lib/coupang/usage";
 import { takeReadSlot } from "@/lib/readGap";
 
 export type StaleResult = { ok: true; rows: StaleShipment[]; more: boolean } | { ok: false; error: string };
-const NO_KEYS = "먼저 「쿠팡 연결」에서 키를 등록해 주세요.";
+const NO_KEYS = "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요.";
 const wingMsg = (e: unknown) => (e instanceof WingApiError ? e.message : "연결 오류");
 const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10);
 

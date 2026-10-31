@@ -82,7 +82,7 @@ export function CouponBoard({ keysSaved }: { keysSaved: boolean }) {
           </label>
           <button type="button" disabled={!keysSaved || pending} onClick={load} className={primary}>{pending ? "불러오는 중…" : "계약·쿠폰 불러오기"}</button>
         </div>
-        {!keysSaved && <p className="text-xs text-amber-800">먼저 「쿠팡 연결」에서 키를 저장해 주세요.</p>}
+        {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
         {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
         {contracts && coupons.length === 0 && <p className="text-sm text-slate-600">이 상태의 쿠폰이 없습니다.</p>}
         {coupons.length > 0 && (

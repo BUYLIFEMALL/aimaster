@@ -6,7 +6,7 @@ import { wingRequest, WingApiError } from "@/lib/coupang/client";
 import { checkDownloadCoupon, checkLongUndelivery, DL_CREATE_PATH, DL_EXPIRE_PATH, DL_ITEMS_PATH, DL_STATUS_PATH, dlCreateBody, dlExpireBody, dlItemsBody, dlResult, dlStatus, longUndeliveryPath, type DlDraft } from "@/lib/coupang/downloadCoupon";
 
 type Done = { ok: true; message: string; couponId?: number; transactionId?: string } | { ok: false; error: string };
-const NO_KEYS: Done = { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+const NO_KEYS: Done = { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
 const wingMsg = (e: unknown) => (e instanceof WingApiError ? e.message : "응답을 받지 못했습니다. 이미 처리됐을 수 있으니 다시 보내기 전에 WING에서 확인해 주세요.");
 
 async function keysOf() {

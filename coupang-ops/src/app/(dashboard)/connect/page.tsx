@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
-import { getWingKeyStatus } from "@/lib/data";
+import { getAiKeyStatus, getWingKeyStatus } from "@/lib/data";
+import { AiKeyForm } from "@/components/AiKeyForm";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { CopyBox } from "@/components/CopyBox";
 import { WingKeyForm } from "@/components/WingKeyForm";
@@ -13,11 +14,11 @@ export const dynamic = "force-dynamic";
 
 export default async function ConnectPage() {
   const user = await requireProgramAccess();
-  const status = await getWingKeyStatus(user.id);
+  const [status, aiKeys] = await Promise.all([getWingKeyStatus(user.id), getAiKeyStatus(user.id)]);
 
   return (
     <div className="space-y-5">
-      <PageHeader emoji="🔑" title="쿠팡 연결" description="쿠팡 WING에서 발급받은 내 Open API 키를 한 번 등록합니다." />
+      <PageHeader emoji="🔑" title="API키등록·플랫폼연동" description="쿠팡 WING 키와 AI 키를 한 번 등록합니다. 내 계정에만 저장됩니다." />
 
       <section className="slw-card space-y-3 p-5">
         <h2 className="text-base font-extrabold text-slate-900">1. WING 허용 IP 확인</h2>
@@ -61,6 +62,12 @@ export default async function ConnectPage() {
         <h2 className="text-base font-extrabold text-slate-900">4. 카테고리 확인</h2>
         <p className="text-sm text-slate-600">상품명을 넣으면 쿠팡이 추천하는 카테고리와 그 카테고리의 필수 속성·고시 상품군을 읽어 옵니다. 쿠팡에 아무것도 만들거나 바꾸지 않습니다.</p>
         <CategoryCheck saved={status.saved} />
+      </section>
+
+      <section className="slw-card space-y-3 p-5">
+        <h2 className="text-base font-extrabold text-slate-900">5. AI 키(문의 초안·상품 추천)</h2>
+        <p className="text-sm text-slate-600">쓰실 AI의 키만 넣으면 됩니다. 문의 초안과 상품 추천 화면에서 플랫폼과 모델을 고를 수 있고, 사용량은 내 키에 청구됩니다. 다른 프로그램에 등록한 키는 그대로 씁니다.</p>
+        <AiKeyForm shown={aiKeys} />
       </section>
     </div>
   );

@@ -6,12 +6,13 @@ import { wingRequest, WingApiError } from "@/lib/coupang/client";
 import { callBudgetBlock } from "@/lib/coupang/usage";
 import { centerConfirmPath, centerListPath, centerQuery, centerReplyPath, checkReply, inquiryRange, INQUIRY_READ_GAP_SECONDS, normalizeCenter, normalizeOnline, onlineListPath, onlineQuery, onlineReplyPath, redactInquiry, sortInquiries, type InquiryRow } from "@/lib/coupang/inquiry";
 import { takeReadSlot } from "@/lib/readGap";
+import { missingKeyMessage, providerOfModel } from "@/lib/ai/models";
 import { createClient } from "@/lib/supabase/server";
 
 export type InquiryList = { ok: true; rows: InquiryRow[]; failed: string[]; from: string; to: string } | { ok: false; error: string };
 type Done = { ok: true } | { ok: false; error: string };
 
-const NO_KEYS = "먼저 「쿠팡 연결」에서 키를 등록해 주세요.";
+const NO_KEYS = "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요.";
 const wingMsg = (e: unknown) => (e instanceof WingApiError ? e.message : "연결 오류");
 /** 쓰기 실패 안내. 응답을 못 받았으면 이미 처리됐을 수 있어 다시 보내지 말라고 알린다 */
 const writeFail = (e: unknown, what: string): Done =>
@@ -47,17 +48,20 @@ export async function listInquiriesAction(): Promise<InquiryList> {
 export type DraftReply = { ok: true; reply: string; needsCheck: string[] } | { ok: false; error: string; needKey?: boolean };
 
 /** AI 답변 초안 — 회원 본인 Claude 키만 쓴다(운영자 키 폴백 없음). 저장·등록하지 않고 화면으로만 돌려준다 */
-export async function draftReplyAction(input: { question: string; itemName: string; sellerFacts: string }): Promise<DraftReply> {
+export async function draftReplyAction(input: { question: string; itemName: string; sellerFacts: string; model: string }): Promise<DraftReply> {
   const user = await requireProgramAccess();
   const supabase = await createClient();
-  const { data: key } = await supabase.from("user_api_keys").select("api_key").eq("user_id", user.id).eq("provider", "anthropic").maybeSingle();
+  const provider = providerOfModel(input.model);
+  if (!provider) return { ok: false, error: "AI 모델을 다시 골라 주세요." };
+  const { data: key } = await supabase.from("user_api_keys").select("api_key").eq("user_id", user.id).eq("provider", provider).maybeSingle();
   const apiKey = String(key?.api_key ?? "").trim();
-  if (!apiKey) return { ok: false, needKey: true, error: "Claude(Anthropic) API 키가 없습니다. 메인 사이트 「API키생성|플랫폼연동」에서 본인 키를 등록해 주세요." };
+  if (!apiKey) return { ok: false, needKey: true, error: missingKeyMessage(provider) };
+  const ai = { provider, model: String(input.model), apiKey };
   const question = redactInquiry(String(input.question ?? "")).slice(0, 3000);
   if (!question) return { ok: false, error: "문의 내용이 비어 있습니다." };
   try {
-    const { draftInquiryReply } = await import("@/lib/ai/claude");
-    const r = await draftInquiryReply(apiKey, { question, itemName: String(input.itemName ?? "").slice(0, 200), sellerFacts: redactInquiry(String(input.sellerFacts ?? "")).slice(0, 1500) });
+    const { draftInquiryReply } = await import("@/lib/ai/llm");
+    const r = await draftInquiryReply(ai, { question, itemName: String(input.itemName ?? "").slice(0, 200), sellerFacts: redactInquiry(String(input.sellerFacts ?? "")).slice(0, 1500) });
     return { ok: true, reply: r.reply, needsCheck: r.needsCheck };
   } catch (e) {
     console.error("[coupang-ops] draft", (e as Error).name);

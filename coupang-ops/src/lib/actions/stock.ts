@@ -26,7 +26,7 @@ async function eachLimited<T>(list: T[], work: (item: T) => Promise<void>): Prom
 export async function scanStockAction(nextToken?: string): Promise<StockScan> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   const blocked = await callBudgetBlock(user.id);
   if (blocked) return { ok: false, error: blocked };
   if (!nextToken) {

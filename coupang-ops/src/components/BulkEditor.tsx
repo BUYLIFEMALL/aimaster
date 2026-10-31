@@ -75,7 +75,7 @@ export function BulkEditor({ keysSaved }: { keysSaved: boolean }) {
           <button type="button" disabled={!keysSaved || pending} onClick={() => scan(false)} className={primary}>{pending && !asking ? "불러오는 중…" : scanned ? "처음부터 다시 불러오기" : "옵션 불러오기(상품 20개)"}</button>
           {next && <button type="button" disabled={pending} onClick={() => scan(true)} className={line}>다음 20개</button>}
         </div>
-        {!keysSaved && <p className="text-xs text-amber-800">먼저 「쿠팡 연결」에서 키를 저장해 주세요.</p>}
+        {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
         {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
 
         {scanned && (

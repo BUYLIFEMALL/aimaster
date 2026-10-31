@@ -7,7 +7,7 @@ import { productPath } from "@/lib/coupang/status";
 import { autoOptionPath, autoOptionResult, buildEditBody, buildPartialBody, checkDelivery, checkOriginalPrice, checkProductFields, EDIT_PATH, NOT_EDITABLE, NOT_PARTIAL, normalizeEditView, originalPricePath, partialPath, type DeliveryFields, type EditView, type ProductFields } from "@/lib/coupang/productEdit";
 
 type Done = { ok: true; message: string } | { ok: false; error: string };
-const NO_KEYS = { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." } as const;
+const NO_KEYS = { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." } as const;
 
 async function keysOf() {
   const user = await requireProgramAccess();

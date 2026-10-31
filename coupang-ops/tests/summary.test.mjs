@@ -3,6 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { cleanChannels, cleanHour, cleanupBefore, kstDate, summaryHtml, summaryMessage } from "../src/lib/coupang/summary.ts";
 import { cleanSuggestion } from "../src/lib/coupang/suggest.ts";
+import { AI_MODEL_OPTIONS, AI_PROVIDERS, DEFAULT_AI_MODELS, missingKeyMessage, providerOfModel } from "../src/lib/ai/models.ts";
 
 const NOW = Date.parse("2026-10-31T23:30:00+09:00");
 const counts = { accept: { count: 2, more: false }, instruct: { count: 50, more: true }, stopRequests: { count: 1, more: false }, returnsReceived: { count: 0, more: false }, inquiries: { count: 0, more: false }, exchanges: { error: "x" }, from: "a", to: "b" };
@@ -15,6 +16,15 @@ test("요약은 건수만 담고 급한 건을 표시한다", () => {
   assert.match(m, /상품준비중 50\+건/);
   assert.match(m, /교환 확인 실패/);
   assert.match(m, /직접 확인/);
+});
+
+test("AI 모델 선택", () => {
+  assert.equal(providerOfModel("claude-opus-5-5"), "anthropic");
+  assert.equal(providerOfModel("gpt-4.1"), "openai");
+  assert.equal(providerOfModel("gemini-3.7-flash"), "gemini");
+  assert.equal(providerOfModel("없는모델"), null);
+  for (const p of AI_PROVIDERS) assert.ok(AI_MODEL_OPTIONS.some((o) => o.provider === p && o.value === DEFAULT_AI_MODELS[p]));
+  assert.match(missingKeyMessage("gemini"), /Gemini/);
 });
 
 test("받을 곳과 메일 본문", () => {

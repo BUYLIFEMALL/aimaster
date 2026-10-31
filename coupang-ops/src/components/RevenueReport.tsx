@@ -140,7 +140,7 @@ export function RevenueReport({ keysSaved }: { keysSaved: boolean }) {
           {next && <button type="button" disabled={pending} onClick={() => load(true)} className="rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-800 disabled:opacity-50">다음 50건</button>}
         </div>
         <p className="text-[11px] text-slate-500">기준일은 매출인식일(구매확정 또는 배송완료 + 7일)이라 최근 주문은 아직 없을 수 있습니다. 어제까지, 한 번에 30일까지 조회됩니다.</p>
-        {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
+        {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
         {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
         {note && <p className="text-[12px] text-amber-800">⚠ {note}</p>}
         {lines?.length === 0 && <p className="rounded-lg bg-slate-50 px-3 py-2 text-[13px] text-slate-700">이 기간에 인식된 매출이 없습니다.</p>}

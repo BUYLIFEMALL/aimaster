@@ -7,7 +7,7 @@ import { budgetPath, checkCoupon, contractsPath, COUPON_READ_GAP_SECONDS, coupon
 import { takeReadSlot } from "@/lib/readGap";
 
 type Fail = { ok: false; error: string };
-const NO_KEYS: Fail = { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+const NO_KEYS: Fail = { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
 const fail = (e: unknown, what: string): Fail => ({ ok: false, error: `${what}: ${e instanceof WingApiError ? e.message : "연결 오류 — WING에서 확인해 주세요."}` });
 
 async function ctx() {

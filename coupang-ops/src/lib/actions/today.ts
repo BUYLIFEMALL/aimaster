@@ -16,7 +16,7 @@ export type TodayResult = ({ ok: true } & TodayCounts) | { ok: false; error: str
 export async function todaySummaryAction(): Promise<TodayResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   const blocked = await callBudgetBlock(user.id);
   if (blocked) return { ok: false, error: blocked };
   const wait = await takeReadSlot(user.id, "coupang_today_read", TODAY_READ_GAP_SECONDS);

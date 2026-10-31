@@ -83,7 +83,7 @@ export function DailyAlertPanel({ status }: { status: AlertStatus }) {
         <h2 className="text-base font-extrabold text-slate-900">{ok(status.enabled)} 3. 아침 요약 {status.enabled ? `켜짐 · 매일 ${status.hour}시` : "꺼짐"}</h2>
         <p className="text-[13px] text-slate-600">출고중지 요청, 미답변 문의, 결제완료, 상품준비중, 반품 접수, 교환 건수를 고른 곳으로 보냅니다. 건수만 보내고 고객 정보는 보내지 않으며, 쿠팡에는 읽기만 합니다.</p>
         <p className="text-[12px] text-amber-800">⚠ 한 번에 쿠팡을 {SUMMARY_CALLS_PER_DAY}번 읽습니다(한 달 약 {SUMMARY_CALLS_PER_DAY * 30}회). 호출 상한에 닿으면 그날 요약은 쉬고 알려 드립니다.</p>
-        {!status.wingKeysSaved && <p className="text-xs text-amber-800">먼저 「쿠팡 연결」에서 키를 저장해 주세요.</p>}
+        {!status.wingKeysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
         <div className="flex flex-wrap gap-3 text-sm font-bold text-slate-700">
           {ALERT_CHANNELS.map((c) => (
             <label key={c} className={`flex items-center gap-1.5 ${status.ready[c] ? "" : "text-slate-400"}`}>

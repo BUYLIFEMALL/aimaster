@@ -27,7 +27,7 @@ import {
 export type ReturnsResult = { ok: true; requests: ReturnRequest[]; nextToken: string } | { ok: false; error: string };
 export type Done = { ok: true; message: string } | { ok: false; error: string };
 
-const NO_KEYS = "먼저 「쿠팡 연결」에서 키를 등록해 주세요.";
+const NO_KEYS = "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요.";
 const wingMsg = (e: unknown) => (e instanceof WingApiError ? e.message : "연결 오류");
 /** 쓰기 요청이 시간 초과·서버 오류로 끝나면 이미 처리됐을 수 있다 — 다시 보내지 않고 확인을 안내 */
 const writeFail = (e: unknown, what: string): Done => {

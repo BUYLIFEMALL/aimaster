@@ -130,7 +130,7 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
 
   return (
     <section className="slw-card space-y-4 p-5">
-      {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
+      {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
       <div className="flex flex-wrap items-end gap-2">
         <label className="text-xs font-bold text-slate-700">
           주문 상태

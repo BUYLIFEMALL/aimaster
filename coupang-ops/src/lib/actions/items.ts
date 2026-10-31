@@ -23,7 +23,7 @@ const fail = (e: unknown, what: string): Done => ({ ok: false, error: `${what}: 
 /** 옵션 목록 + 옵션별 현재 재고·판매가·판매 상태(읽기만) */
 export async function loadItemsAction(sellerProductId: number): Promise<ItemsResult> {
   const keys = await keysOrError();
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   try {
     const p = normalizeProductItems((await wingRequest(keys, "GET", productPath(Number(sellerProductId)))).data);
     const items = await Promise.all(
@@ -46,7 +46,7 @@ async function currentInventory(keys: NonNullable<Awaited<ReturnType<typeof getW
 
 export async function updatePriceAction(vendorItemId: number, price: number): Promise<Done> {
   const keys = await keysOrError();
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   try {
     const cur = await currentInventory(keys, vendorItemId);
     if (!cur) return { ok: false, error: "옵션의 지금 판매가를 읽지 못해 바꾸지 않았습니다." };
@@ -61,7 +61,7 @@ export async function updatePriceAction(vendorItemId: number, price: number): Pr
 
 export async function updateQuantityAction(vendorItemId: number, quantity: number): Promise<Done> {
   const keys = await keysOrError();
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   try {
     const cur = await currentInventory(keys, vendorItemId);
     if (!cur) return { ok: false, error: "옵션의 지금 재고를 읽지 못해 바꾸지 않았습니다." };
@@ -76,7 +76,7 @@ export async function updateQuantityAction(vendorItemId: number, quantity: numbe
 
 export async function setSaleAction(vendorItemId: number, on: boolean): Promise<Done> {
   const keys = await keysOrError();
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   try {
     const cur = await currentInventory(keys, vendorItemId);
     if (cur && cur.onSale === on) return { ok: false, error: on ? "이미 판매 중입니다." : "이미 판매 중지 상태입니다." };

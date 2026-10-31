@@ -18,7 +18,7 @@ export type CategoryLoad = { ok: true; code: number; name: string; meta: Categor
 export async function loadCategoryAction(input: { name: string; code?: number | null }): Promise<CategoryLoad> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   let code = Number(input.code) || 0;
   let name = "";
   try {
@@ -109,7 +109,7 @@ export async function sendProductAction(productId: string, input: DraftInput): P
   const user = await requireProgramAccess();
   if (process.env.VERCEL !== "1") return { ok: false, error: "쿠팡은 공개 인터넷 주소에 있는 이미지만 받아 갑니다. 배포된 주소(coupang-ops.buylife.xyz)에서 보내 주세요. 로컬에서는 「검사하기」까지만 됩니다." };
   const [keys, defaults, shop] = await Promise.all([getWingKeys(user.id), getCoupangDefaults(user.id), getShopProduct(user.id, productId)]);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   if (!defaults) return { ok: false, error: "먼저 「배송·반품 기본값」을 저장해 주세요." };
   if (!shop) return { ok: false, error: "상세페이지 상품을 찾지 못했습니다." };
   if (!input.categoryCode) return { ok: false, error: "카테고리를 골라 주세요." };
@@ -172,7 +172,7 @@ export async function listJobsAction(productId: string): Promise<JobRow[]> {
 export async function refreshJobStatusAction(jobId: string): Promise<{ ok: true; statusName: string; message: string } | { ok: false; error: string }> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   const admin = createAdminClient();
   const { data: job } = await admin.from("coupang_ops_jobs").select("id,seller_product_id").eq("id", jobId).eq("user_id", user.id).maybeSingle();
   if (!job?.seller_product_id) return { ok: false, error: "쿠팡 상품번호가 있는 기록만 상태를 확인할 수 있습니다." };
@@ -198,7 +198,7 @@ export async function refreshJobStatusAction(jobId: string): Promise<{ ok: true;
 export async function requestApprovalAction(jobId: string): Promise<{ ok: true; message: string } | { ok: false; error: string }> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   const admin = createAdminClient();
   const { data: job } = await admin.from("coupang_ops_jobs").select("id,seller_product_id").eq("id", jobId).eq("user_id", user.id).maybeSingle();
   if (!job?.seller_product_id) return { ok: false, error: "쿠팡 상품번호가 있는 기록만 승인 요청할 수 있습니다." };
@@ -220,7 +220,7 @@ export async function requestApprovalAction(jobId: string): Promise<{ ok: true; 
 export async function deleteJobProductAction(jobId: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
   const admin = createAdminClient();
   const { data: job } = await admin.from("coupang_ops_jobs").select("id,seller_product_id").eq("id", jobId).eq("user_id", user.id).maybeSingle();
   if (!job?.seller_product_id) return { ok: false, error: "쿠팡 상품번호가 있는 기록만 지울 수 있습니다." };

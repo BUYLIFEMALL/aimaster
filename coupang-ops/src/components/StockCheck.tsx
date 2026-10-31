@@ -97,7 +97,7 @@ export function StockCheck({ keysSaved }: { keysSaved: boolean }) {
         </button>
         {next && <button type="button" disabled={pending} onClick={() => scan(true)} className="rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-800 disabled:opacity-50">다음 {STOCK_PAGE_SIZE}개 점검</button>}
       </div>
-      {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
+      {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
 
       {scanned && (
