@@ -71,6 +71,7 @@ const MODULES = [
       "kakao_auto_poster/src/lib/solapi/client.ts",
       "trending-product-finder/lib/solapi/client.ts",
       "real_estate_sales/src/lib/solapi/client.ts",
+      "coupang-ops/src/lib/solapi/client.ts",
     ],
   },
   {
@@ -413,7 +414,7 @@ const MODULES = [
     // 테스트 기준 naver-blog-seo-studio/tests/openaiRequestParams.test.mjs — 폴더 구조가 달라 사본 테스트는 경로만 다른 자체 파일
     id: "openai-request-params",
     source: "naver-blog-seo-studio/lib/ai/openaiRequestParams.ts",
-    copies: ["insta_auto_poster/src/lib/cardnews/ai/openaiRequestParams.ts", "threads-affiliate-poster/src/lib/ai/openaiRequestParams.ts", "style-dna-analyzer/src/lib/ai/openaiRequestParams.ts", "naver-blog-allinone/src/lib/blog/openaiRequestParams.ts", "naver-blog-agent/src/lib/ai/openaiRequestParams.ts", "ai-auto-blog/utils/ai/openaiRequestParams.ts", "tistory-auto-blog/utils/ai/openaiRequestParams.ts", "threads-content-ops/lib/openaiRequestParams.ts", "blog-neighbor-care/src/lib/analysis/openaiRequestParams.ts"],
+    copies: ["insta_auto_poster/src/lib/cardnews/ai/openaiRequestParams.ts", "threads-affiliate-poster/src/lib/ai/openaiRequestParams.ts", "style-dna-analyzer/src/lib/ai/openaiRequestParams.ts", "naver-blog-allinone/src/lib/blog/openaiRequestParams.ts", "naver-blog-agent/src/lib/ai/openaiRequestParams.ts", "ai-auto-blog/utils/ai/openaiRequestParams.ts", "tistory-auto-blog/utils/ai/openaiRequestParams.ts", "threads-content-ops/lib/openaiRequestParams.ts", "blog-neighbor-care/src/lib/analysis/openaiRequestParams.ts", "coupang-ops/src/lib/ai/openaiRequestParams.ts"],
   },
   {
     // 회원 연동 정보 공용 저장 — 한 번 연결한 플랫폼 계정(member_platform_accounts)을 모든 프로그램이 함께 사용. 2026-10-20, docs/MEMBER_INTEGRATIONS.md
