@@ -136,7 +136,7 @@ export default function AudioUploader({
           }`}
         >
           <Music size={13} />
-          <span>음악 · Suno v5</span>
+          <span>음악 · Suno v6</span>
         </button>
       </div>
 
@@ -237,7 +237,7 @@ export default function AudioUploader({
             type="text"
             value={specialRequest}
             onChange={(e) => setSpecialRequest(e.target.value)}
-            placeholder="예: 화자 B의 반대 의견을 중점 분석해줘, Suno v5 역설계 프롬프트와 코드 진행에 집중해줘"
+            placeholder="예: 화자 B의 반대 의견을 중점 분석해줘, Suno v6 역설계 프롬프트와 코드 진행에 집중해줘"
             className="w-full px-3.5 py-2.5 bg-[#060911] border border-[#1a2333] rounded-xl focus:outline-hidden focus:border-[#00f0ff] text-xs text-slate-200 placeholder-slate-600 transition"
           />
         </div>

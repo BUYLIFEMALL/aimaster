@@ -153,7 +153,7 @@ export default function Sidebar({
               }`}
             >
               <Music size={14} className={selectedMode === "music" ? "text-[#00f0ff]" : "text-slate-400"} />
-              <span className="flex-1 text-left">음악 분석 · Suno v5</span>
+              <span className="flex-1 text-left">음악 분석 · Suno v6</span>
             </button>
           </div>
         </div>
@@ -194,7 +194,7 @@ export default function Sidebar({
               <span>나노 단위 오디오 해체</span>
             </div>
             <p className="text-[10.5px] text-slate-400 leading-relaxed">
-              고주파 포렌식부터 화자별 점유율, 회의록 및 Suno v5 역설계까지 원클릭 제공합니다.
+              고주파 포렌식부터 화자별 점유율, 회의록 및 Suno v6 역설계까지 원클릭 제공합니다.
             </p>
           </div>
         </div>

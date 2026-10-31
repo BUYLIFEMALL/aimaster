@@ -132,7 +132,7 @@ export default function ApiKeyModal({ isOpen, onClose, onKeySaved }: ApiKeyModal
               </a>
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px]">
-              • Gemini 2.5 Flash 멀티모달 오디오 분석을 위해 회원 본인의 API 키가 필요합니다.
+              • Gemini 멀티모달 오디오 분석을 위해 회원 본인의 API 키가 필요합니다.
               <br />
               • 개인 키는 브라우저 및 안전한 Supabase DB에 보관되며 회원 본인의 오디오 분석에만 사용됩니다.
             </p>

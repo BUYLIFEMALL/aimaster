@@ -1,6 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { SpeechAnalysisResult, MusicAnalysisResult } from "./types";
 
+export const GEMINI_MODEL = "gemini-3.8-flash";
+
 function koreaNowRule(now = new Date()): string {
   const [year, month] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(now).split("-").map(Number);
   return `[기준 시점: 한국 시간으로 지금은 ${year}년 ${month}월입니다. 계절·시기 표현은 현재 월에 맞추고, 연도·계절은 불필요하게 덧붙이지 마세요.]`;
@@ -262,7 +264,7 @@ export async function detectAudioType(
 ): Promise<"speech" | "music"> {
   const ai = new GoogleGenAI({ apiKey });
   const resp = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: GEMINI_MODEL,
     contents: {
       parts: [
         { fileData: { fileUri, mimeType } },
@@ -302,7 +304,7 @@ ${koreaNowRule()}
 5. 모든 답변은 반드시 한국어로 작성하십시오.`;
 
   const resp = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: GEMINI_MODEL,
     contents: {
       parts: [
         { fileData: { fileUri, mimeType } },
@@ -329,13 +331,15 @@ export async function analyzeMusic(
   const currentYear = new Date().getFullYear();
   const ai = new GoogleGenAI({ apiKey });
 
-  const prompt = `당신은 음악 분석 마스터, 음향 포렌식 전문가, 그리고 Suno AI v5 프롬프트 엔지니어입니다.
+  const prompt = `당신은 음악 분석 마스터, 음향 포렌식 전문가, 그리고 Suno AI v6 프롬프트 엔지니어입니다.
 오디오를 나노 단위로 해체하여 다음 분석을 수행하십시오.
 기준 연도: ${currentYear}년
 ${koreaNowRule()}
 
-1. **Suno AI Prompt (v5 God Tier):** 
-   - 구조화된 메타 태그([Genre:...], [Mood:...], [Instruments:...], [Tempo:...], [Structure:...])와 서술형 에세이 방식으로 역설계된 프롬프트 작성 (영어).
+1. **Suno AI Prompt (v6):**
+   - Suno v6의 스타일 입력칸에 그대로 붙여 넣을 수 있는 영어 문단 하나로 역설계된 프롬프트를 작성하십시오.
+   - 장르, 보컬(들릴 때만 성별·음색·창법), 주요 악기, 곡 구조의 흐름, 분위기, 템포, 사운드 질감을 음악 용어로 구체적으로 묘사하십시오.
+   - 가사는 넣지 말고, 특정 아티스트명과 곡명도 쓰지 마십시오.
 
 2. **Forensic Analysis (위변조 및 품질 분석):**
    - '뻥튀기' 음원(Upscaled) 여부 판단: 고주파수 절단면(Cut-off) 확인.
@@ -361,13 +365,18 @@ ${koreaNowRule()}
 6. **Stylistic Analysis:**
    - 보컬/악기/편곡 스타일 심층 분석.
 
+**정확성 규칙:**
+- 실제로 들리는 소리만 근거로 쓰고, 들리지 않는 보컬·악기를 추측으로 적지 마십시오.
+- 보컬이 없으면 'lyricTranscription'에 "(가사 없음 - 연주곡)"이라고만 쓰고 가사를 지어내지 마십시오.
+- BPM·샘플레이트·채널·압축 품질처럼 확실하지 않은 값은 추정임을 밝히고, 근거 없이 고음질이나 무손실로 판정하지 마십시오.
+
 **모든 분석 내용은(Suno Prompt 및 가사 섹션 헤더 제외) 한국어로 작성하십시오.**
 
 사용자 컨텍스트: ${context || "음악 음원 분석"}
 특별 요청: ${specialRequest || "기본 심층 분석"}`;
 
   const resp = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: GEMINI_MODEL,
     contents: {
       parts: [
         { fileData: { fileUri, mimeType } },

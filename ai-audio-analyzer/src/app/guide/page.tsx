@@ -12,14 +12,14 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     q: "음성 대화와 음악을 자동으로 어떻게 구분하나요?",
-    a: "기본 설정인 '스마트 자동 판별' 모드에서는 Gemini 2.5 Flash 멀티모달 오디오 모델이 업로드된 음원의 주파수 특성, 화자의 음성 패턴, 악기 배음 및 리듬 요소를 종합 청취하여 대화/회의인지 음악/연주곡인지 3초 이내에 자동 판별하고 최적화된 리포트를 생성합니다.",
+    a: "기본 설정인 '스마트 자동 판별' 모드에서는 Gemini 멀티모달 오디오 모델이 업로드된 음원의 주파수 특성, 화자의 음성 패턴, 악기 배음 및 리듬 요소를 종합 청취하여 대화/회의인지 음악/연주곡인지 3초 이내에 자동 판별하고 최적화된 리포트를 생성합니다.",
   },
   {
     q: "회의록 마크다운과 인터뷰 결과 보고서는 어떤 형식으로 저장되나요?",
     a: "화자 분리(Speaker Diarization) 및 발언 점유율, 타임라인별 초 단위 전사 기록, 핵심 질문(Key Questions), 그리고 후속 실행 과제(Action Items)가 구조화된 마크다운 문서로 자동 작성되며, 상단의 [원클릭 복사] 버튼을 눌러 노션, 슬랙, 옵시디언 등에 즉시 붙여넣을 수 있습니다.",
   },
   {
-    q: "Suno AI v5 역설계 프롬프트(God Tier)는 어떤 기능인가요?",
+    q: "Suno AI v6 역설계 프롬프트는 어떤 기능인가요?",
     a: "업로드한 상용 음악이나 데모곡의 장르, 악기 편성(BPM, Key, Drums, Bass), 무드, 가창 스타일을 AI가 역분석하여, Suno Create 콘솔에 그대로 복사·붙여넣을 수 있는 최적의 프롬프트와 [Intro] -> [Verse] -> [Chorus] 구조화 메타태그를 원클릭으로 추출해 주는 전문 기능입니다.",
   },
   {
@@ -42,7 +42,7 @@ const SPEECH_FEATURES = [
 ];
 
 const MUSIC_FEATURES = [
-  { title: "Suno v5 God Tier 역설계", desc: "장르, 템포, 악기, 분위기를 Suno 전용 프롬프트 및 메타태그로 복원", icon: "✨" },
+  { title: "Suno v6 역설계", desc: "장르, 템포, 악기, 분위기를 Suno 전용 프롬프트 및 메타태그로 복원", icon: "✨" },
   { title: "음향 포렌식 위변조 감별", desc: "고주파 절단면 감지로 MP3 업스케일링 뻥튀기 여부 및 원본 품질 진단", icon: "🔬" },
   { title: "4대 스템 청각 묘사", desc: "Vocals, Bass, Drums, Others의 주파수 대역과 믹싱 이펙트 상세 해설", icon: "🎛️" },
   { title: "조성·박자·코드 진행 채보", desc: "Key, Scale, BPM 및 마디별 코드 진행(Chord Progression) 데이터 제공", icon: "🎼" },
@@ -76,14 +76,14 @@ export default function GuidePage() {
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#00f0ff]/30 bg-[#00f0ff]/10 px-3.5 py-1 text-xs font-semibold text-[#00f0ff]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
-                  v1.10 비주얼 가이드북 & 인텔리전스 매뉴얼
+                  비주얼 가이드북 & 인텔리전스 매뉴얼
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                   🎧 AI Audio 분석 스튜디오 완벽 가이드
                 </h1>
                 <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
-                  Gemini 2.5 Flash 멀티모달 오디오 AI 엔진을 통한 초정밀 사운드 해체 및 분석.
-                  화자 분리 회의록 자동화부터 Suno v5 음악 역설계, 고주파 음향 포렌식까지 모든 기능을 마스터하세요.
+                  Gemini 멀티모달 오디오 AI 엔진을 통한 초정밀 사운드 해체 및 분석.
+                  화자 분리 회의록 자동화부터 Suno v6 음악 역설계, 고주파 음향 포렌식까지 모든 기능을 마스터하세요.
                 </p>
               </div>
               <Link
@@ -122,7 +122,7 @@ export default function GuidePage() {
                 {
                   step: "STEP 03",
                   title: "멀티모달 딥 해체",
-                  desc: "화자 분리, 4대 스템 분석, 포렌식 품질 감정, Suno v5 역설계 프롬프트를 추출합니다.",
+                  desc: "화자 분리, 4대 스템 분석, 포렌식 품질 감정, Suno v6 역설계 프롬프트를 추출합니다.",
                   icon: "🔬",
                   badge: "Deep Decoding",
                 },
@@ -207,11 +207,11 @@ export default function GuidePage() {
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-white">음악 랩 (Music Lab)</h3>
-                      <p className="text-[11px] text-purple-400 font-mono">Suno v5 역설계 · 포렌식 · 스템</p>
+                      <p className="text-[11px] text-purple-400 font-mono">Suno v6 역설계 · 포렌식 · 스템</p>
                     </div>
                   </div>
                   <span className="rounded bg-[#7000ff]/10 px-2 py-0.5 text-[10px] font-bold text-purple-400 border border-[#7000ff]/30">
-                    Suno God Tier
+                    Suno v6
                   </span>
                 </div>
 

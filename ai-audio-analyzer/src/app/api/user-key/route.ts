@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserGeminiApiKey, saveUserGeminiApiKey } from "@/lib/apiKeys";
 import { GoogleGenAI } from "@google/genai";
+import { GEMINI_MODEL } from "@/lib/gemini";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -40,11 +41,11 @@ export async function POST(req: NextRequest) {
 
     const trimmed = apiKey.trim();
 
-    // 키 유효성 테스트 (gemini-2.5-flash ping)
+    // 키 유효성 테스트 (분석과 같은 모델로 ping)
     try {
       const ai = new GoogleGenAI({ apiKey: trimmed });
       const resp = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: GEMINI_MODEL,
         contents: "Hello, reply with OK.",
       });
       if (!resp.text) throw new Error("응답이 비어있습니다.");

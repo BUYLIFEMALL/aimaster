@@ -94,7 +94,7 @@ export default function MusicReportView({ data, onReset }: MusicReportViewProps)
         </div>
       </div>
 
-      {/* 2. 🔥 Suno AI v5 Reverse Prompt (하이라이트 카드) */}
+      {/* 2. 🔥 Suno AI v6 Reverse Prompt (하이라이트 카드) */}
       <div className="bg-gradient-to-br from-[#0c1324] via-[#090d18] to-[#120f29] text-white rounded-3xl p-6 shadow-2xl border border-[#00f0ff]/40 space-y-4 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#00f0ff]/5 rounded-full blur-3xl pointer-events-none" />
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
@@ -104,13 +104,13 @@ export default function MusicReportView({ data, onReset }: MusicReportViewProps)
             </div>
             <div>
               <h3 className="text-base font-extrabold tracking-tight flex items-center gap-2">
-                <span className="text-white">Suno AI v5 역설계 프롬프트</span>
+                <span className="text-white">Suno AI v6 역설계 프롬프트</span>
                 <span className="text-[10px] font-bold bg-[#00f0ff] text-[#060911] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
                   REVERSE PROMPT
                 </span>
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                업로드 음원을 초정밀 분석하여 Suno AI v5 등 생성 모델에서 동일한 악기·편곡·질감을 재현하는 마스터 프롬프트입니다.
+                업로드 음원을 초정밀 분석하여 Suno AI v6 등 생성 모델에서 동일한 악기·편곡·질감을 재현하는 마스터 프롬프트입니다.
               </p>
             </div>
           </div>

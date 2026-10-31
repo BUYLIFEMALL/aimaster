@@ -43,7 +43,7 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
               소리의 숨겨진 통찰을 발견하는 AI Audio 랩
             </h3>
             <p className="text-slate-600 leading-relaxed text-xs">
-              Google Gemini 2.5 Flash 멀티모달 오디오 AI를 탑재하여, 회의/인터뷰 음성의 맥락부터 음악의 화성학 및 음향 포렌식까지 나노 단위로 해체 분석합니다.
+              Google Gemini 멀티모달 오디오 AI를 탑재하여, 회의/인터뷰 음성의 맥락부터 음악의 화성학 및 음향 포렌식까지 나노 단위로 해체 분석합니다.
             </p>
           </div>
 
@@ -100,16 +100,16 @@ export default function GuideModal({ isOpen, onClose }: GuideModalProps) {
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-indigo-700 font-bold text-xs uppercase tracking-wider">
               <Music size={15} />
-              <span>2. 음악 분석 & Suno v5 역설계 (Music Lab)</span>
+              <span>2. 음악 분석 & Suno v6 역설계 (Music Lab)</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
                 <div className="font-bold text-slate-800 mb-1 flex items-center gap-1.5">
                   <Zap size={13} className="text-amber-500" />
-                  <span>Suno AI v5 Reverse Prompt</span>
+                  <span>Suno AI v6 Reverse Prompt</span>
                 </div>
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  음원의 장르, 악기, 분위기, 템포를 역설계하여 Suno v5에서 똑같은 느낌을 재현할 수 있는 God-Tier 프롬프트를 자동 생성합니다.
+                  음원의 장르, 악기, 분위기, 템포를 역설계하여 Suno v6에서 똑같은 느낌을 재현할 수 있는 프롬프트를 자동 생성합니다.
                 </p>
               </div>
 

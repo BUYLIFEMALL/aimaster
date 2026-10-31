@@ -190,7 +190,7 @@ export default function AudioAnalyzerApp({ initialUserEmail }: AudioAnalyzerAppP
                   ? "스마트 자동 감지 (Auto)"
                   : selectedMode === "speech"
                   ? "음성 인텔리전스 (Speech)"
-                  : "음악 분석 · Suno v5 (Music)"}
+                  : "음악 분석 · Suno v6 (Music)"}
               </strong>
             </span>
           </div>
@@ -240,13 +240,13 @@ export default function AudioAnalyzerApp({ initialUserEmail }: AudioAnalyzerAppP
                     <div className="space-y-2">
                       <div className="inline-flex items-center gap-2 rounded-full border border-[#00f0ff]/30 bg-[#00f0ff]/10 px-3 py-0.5 text-xs font-semibold text-[#00f0ff]">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
-                        v1.10 Cyber Neon Audio Intelligence Console
+                        Cyber Neon Audio Intelligence Console
                       </div>
                       <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                        🎙️ Gemini 2.5 Flash 멀티모달 오디오 인텔리전스
+                        🎙️ Gemini 멀티모달 오디오 인텔리전스
                       </h2>
                       <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-                        음성 대화 회의록부터 Suno v5 음악 역설계, 고주파 위변조 포렌식까지.
+                        음성 대화 회의록부터 Suno v6 음악 역설계, 고주파 위변조 포렌식까지.
                         WAV, MP3 음원을 드래그앤드롭하여 사운드를 초정밀 해체하세요.
                       </p>
                     </div>
@@ -296,8 +296,8 @@ export default function AudioAnalyzerApp({ initialUserEmail }: AudioAnalyzerAppP
                       ✨
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Suno v5 역설계 & 음향 포렌식</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">God Tier 프롬프트, 4대 스템, 뻥튀기 감정</p>
+                      <p className="text-xs font-bold text-white">Suno v6 역설계 & 음향 포렌식</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Suno 프롬프트, 4대 스템, 뻥튀기 감정</p>
                     </div>
                   </div>
                 </div>
