@@ -1,7 +1,8 @@
 // 아침 요약·정리 규칙·AI 추천 정리(외부 호출 없음)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cleanChannels, cleanHour, cleanupBefore, kstDate, summaryMessage } from "../src/lib/coupang/summary.ts";
+import { cleanChannels, cleanHour, cleanupBefore, kstDate, summaryMessage, urgentMessage, urgentRunKey } from "../src/lib/coupang/summary.ts";
+import { cleanUrgent, normalizePrefs } from "../src/lib/coupang/prefs.ts";
 import { cleanSuggestion } from "../src/lib/coupang/suggest.ts";
 import { AI_MODEL_OPTIONS, AI_PROVIDERS, DEFAULT_AI_MODELS, missingKeyMessage, providerOfModel } from "../src/lib/ai/models.ts";
 
@@ -52,4 +53,27 @@ test("S1 아침 요약에 키 만료 안내", () => {
   const empty = { accept: { count: 0 }, instruct: { count: 0 }, stopRequests: { count: 0 }, returnsReceived: { count: 0 }, inquiries: { count: 0 }, exchanges: { count: 0 } };
   assert.match(summaryMessage(empty, Date.now(), "키 만료 예정"), /🔑 키 만료 예정/);
   assert.doesNotMatch(summaryMessage(empty, Date.now()), /🔑/);
+});
+
+test("수시 알림은 늘어난 항목만 보낸다", () => {
+  const m = urgentMessage({ stop: 1, inquiries: 2 }, { stop: 3, inquiries: 2 });
+  assert.match(m, /출고중지 요청 3건\(새로 2건\)/);
+  assert.doesNotMatch(m, /미답변/);
+  assert.equal(urgentMessage({ stop: 3, inquiries: 2 }, { stop: 3, inquiries: 1 }), "");
+});
+
+test("수시 알림은 못 읽은 항목을 비교하지 않고, 처음이면 0에서 비교한다", () => {
+  assert.equal(urgentMessage({ stop: 1, inquiries: 1 }, { stop: null, inquiries: null }), "");
+  assert.match(urgentMessage({ stop: null, inquiries: null }, { stop: 1, inquiries: 0 }), /새로 1건/);
+  assert.equal(urgentMessage({ stop: null, inquiries: null }, { stop: 0, inquiries: 0 }), "");
+});
+
+test("수시 알림 시간 표시는 한국 시간 기준 시간 단위다", () => {
+  assert.equal(urgentRunKey(NOW), "2026-10-31T23");
+});
+
+test("수시 알림 설정을 정리하고 기본은 꺼짐이다", () => {
+  assert.equal(normalizePrefs({}).urgent.enabled, false);
+  const u = cleanUrgent({ enabled: true, hours: [10, 99, "x"], channels: ["telegram", "bad"], stop: -1, inquiries: 2 });
+  assert.deepEqual([u.hours, u.channels, u.stop, u.inquiries], [[10], ["telegram"], null, 2]);
 });

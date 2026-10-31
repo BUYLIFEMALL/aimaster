@@ -4,6 +4,7 @@ import "server-only";
 // 예약 글처럼 1분 확인이 필요 없어 하루 1번이며, 쿠팡 호출을 아끼려고 시각도 회원이 고른다.
 const API = "https://api.cron-job.org";
 const TITLE = "AIMaster 쿠팡 아침 요약";
+const URGENT_TITLE = "AIMaster 쿠팡 수시 알림";
 
 async function call<T>(apiKey: string, method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${API}${path}`, {
@@ -25,15 +26,18 @@ async function call<T>(apiKey: string, method: string, path: string, body?: unkn
 
 const findJob = async (apiKey: string, url: string) => (await call<{ jobs?: { jobId: number; url: string }[] }>(apiKey, "GET", "/jobs")).jobs?.find((j) => j.url === url) ?? null;
 
-export async function upsertDailyJob(apiKey: string, url: string, token: string, hour: number): Promise<void> {
+export const upsertDailyJob = (apiKey: string, url: string, token: string, hour: number) => upsertJob(apiKey, url, token, [hour], TITLE);
+export const upsertUrgentJob = (apiKey: string, url: string, token: string, hours: number[]) => upsertJob(apiKey, url, token, hours, URGENT_TITLE);
+
+async function upsertJob(apiKey: string, url: string, token: string, hours: number[], title: string): Promise<void> {
   const job = {
     url,
     enabled: true,
-    title: TITLE,
+    title,
     saveResponses: false,
     requestMethod: 0,
     requestTimeout: 30,
-    schedule: { timezone: "Asia/Seoul", expiresAt: 0, hours: [hour], mdays: [-1], minutes: [0], months: [-1], wdays: [-1] },
+    schedule: { timezone: "Asia/Seoul", expiresAt: 0, hours, mdays: [-1], minutes: [0], months: [-1], wdays: [-1] },
     extendedData: { headers: { Authorization: `Bearer ${token}` } },
   };
   const found = await findJob(apiKey, url);

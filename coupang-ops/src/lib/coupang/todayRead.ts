@@ -11,6 +11,37 @@ import type { Count, TodayCounts } from "@/lib/coupang/summary";
 const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10);
 const wingMsg = (e: unknown) => (e instanceof WingApiError ? e.message : "연결 오류");
 
+/** R10 수시 알림: 출고중지 요청과 미답변 문의만 읽는다(쿠팡 읽기 3번부터) */
+export async function readUrgentCounts(keys: WingKeys & { userId?: string }): Promise<{ stop: Count; inquiries: Count }> {
+  const from = kstDay(30);
+  const to = kstDay(0);
+  const stop = async (): Promise<Count> => {
+    try {
+      const r = await readPages(async (nextToken) => {
+        const p = normalizeReturns((await wingRequest(keys, "GET", returnsPath(keys.vendorId), { query: returnsQuery({ from, to, view: "RU", nextToken }) })).data);
+        return { items: p.requests, nextToken: p.nextToken };
+      });
+      return { count: blockedOrderIds(r.items).size, more: !!r.nextToken };
+    } catch (e) {
+      return { error: wingMsg(e) };
+    }
+  };
+  const inquiries = async (): Promise<Count> => {
+    try {
+      const range = inquiryRange(Date.now());
+      const [a, b] = await Promise.all([
+        wingRequest(keys, "GET", onlineListPath(keys.vendorId), { query: onlineQuery(keys.vendorId, range) }).then((r) => normalizeOnline(r.data).total),
+        wingRequest(keys, "GET", centerListPath(keys.vendorId), { query: centerQuery("NO_ANSWER", range) }).then((r) => normalizeCenter(r.data, "NO_ANSWER").total),
+      ]);
+      return { count: a + b, more: false };
+    } catch (e) {
+      return { error: wingMsg(e) };
+    }
+  };
+  const [s, i] = await Promise.all([stop(), inquiries()]);
+  return { stop: s, inquiries: i };
+}
+
 export async function readTodayCounts(keys: WingKeys & { userId?: string }): Promise<TodayCounts> {
   const from = kstDay(30);
   const to = kstDay(0);

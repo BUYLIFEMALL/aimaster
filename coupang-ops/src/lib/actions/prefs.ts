@@ -16,7 +16,8 @@ export async function savePrefsAction(patch: Partial<Prefs>): Promise<{ ok: true
   const user = await requireProgramAccess();
   const supabase = await createClient();
   const { data } = await supabase.from("coupang_ops_prefs").select("data").eq("user_id", user.id).maybeSingle();
-  const prefs = normalizePrefs({ ...normalizePrefs(data?.data), ...patch });
+  const current = normalizePrefs(data?.data);
+  const prefs = normalizePrefs({ ...current, ...patch, urgent: current.urgent }); // 수시 알림 토큰·상태는 서버 동작만 바꾼다
   const { error } = await supabase.from("coupang_ops_prefs").upsert({ user_id: user.id, data: prefs, updated_at: new Date().toISOString() });
   return error ? { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." } : { ok: true, prefs };
 }

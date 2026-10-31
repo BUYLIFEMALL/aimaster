@@ -21,6 +21,21 @@ export const cleanHour = (v: unknown) => {
   return Number.isInteger(n) && n >= 0 && n <= 23 ? n : DEFAULT_ALERT_HOUR;
 };
 
+// R10 수시 알림: 건수가 늘었을 때만 보낸다
+export const URGENT_PATH = "/api/cron/coupang-urgent";
+export const URGENT_CALLS_PER_RUN = 3; // 출고중지 1 + 문의 2
+export const URGENT_HOUR_SETS = { 3: [10, 14, 18], 6: [9, 11, 13, 15, 17, 19] } as const;
+export const urgentRunKey = (nowMs = Date.now()) => new Date(nowMs + 9 * 3_600_000).toISOString().slice(0, 13);
+type UrgentCounts = { stop: number | null; inquiries: number | null };
+
+/** 이전보다 늘어난 항목만 담는다. 못 읽은 항목(null)은 비교하지 않는다. 처음 확인이면 0에서 늘어난 것으로 본다 */
+export function urgentMessage(prev: UrgentCounts, now: UrgentCounts): string {
+  const lines: string[] = [];
+  if (now.stop !== null && now.stop > (prev.stop ?? 0)) lines.push(`🚨 출고중지 요청 ${now.stop}건(새로 ${now.stop - (prev.stop ?? 0)}건)`);
+  if (now.inquiries !== null && now.inquiries > (prev.inquiries ?? 0)) lines.push(`💬 미답변 문의 ${now.inquiries}건(새로 ${now.inquiries - (prev.inquiries ?? 0)}건)`);
+  return lines.length ? ["🛒 쿠팡 새 요청", ...lines, `처리하기: ${SITE_ORIGIN}/home`].join("\n") : "";
+}
+
 const shown = (c: Count) => ("error" in c ? "확인 실패" : `${c.count}${c.more ? "+" : ""}건`);
 const urgent = (c: Count) => ("error" in c ? false : c.count > 0);
 

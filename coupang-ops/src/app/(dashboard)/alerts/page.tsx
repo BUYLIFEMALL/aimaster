@@ -2,17 +2,20 @@ import { requireProgramAccess } from "@/lib/access";
 import { alertStatus } from "@/lib/actions/dailyAlert";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { DailyAlertPanel } from "@/components/DailyAlertPanel";
+import { UrgentAlertPanel } from "@/components/UrgentAlertPanel";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export default async function AlertsPage() {
   const user = await requireProgramAccess();
+  const status = await alertStatus(user.id);
   return (
     <div className="space-y-5">
       <PageHeader emoji="🔔" title="아침 요약 알림" description="매일 정한 시각에 처리할 건수를 텔레그램·이메일·카카오톡으로 받습니다." />
       <Notice tone="tip">내 텔레그램 봇, 내 메일 계정, 내 카카오 앱, 내 cron-job.org 계정으로 돌아갑니다. 알림은 읽기만 하며, 주문·재고·가격을 자동으로 바꾸지 않습니다.</Notice>
-      <DailyAlertPanel status={await alertStatus(user.id)} />
+      <DailyAlertPanel status={status} />
+      <UrgentAlertPanel status={status} />
     </div>
   );
 }

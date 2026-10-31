@@ -6,10 +6,10 @@ import { revalidatePath } from "next/cache";
 import { isClientSecret, isRestApiKey, kakaoAuthorizeUrl, makeState, STATE_COOKIE } from "@/lib/kakao/oauth";
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
-import { stopDailyJob, upsertDailyJob } from "@/lib/alerts/cronJob";
+import { stopDailyJob, upsertDailyJob, upsertUrgentJob } from "@/lib/alerts/cronJob";
 import { channelProblem, deliver, loadTargets } from "@/lib/alerts/deliver";
-import { normalizePrefs } from "@/lib/coupang/prefs";
-import { ALERT_CHANNELS, CHANNEL_LABEL, cleanChannels, cleanHour, SITE_ORIGIN, SUMMARY_PATH, TOKEN_PREFIX, type AlertChannel } from "@/lib/coupang/summary";
+import { cleanUrgent, normalizePrefs, type Urgent } from "@/lib/coupang/prefs";
+import { ALERT_CHANNELS, CHANNEL_LABEL, cleanChannels, cleanHour, SITE_ORIGIN, SUMMARY_PATH, TOKEN_PREFIX, URGENT_HOUR_SETS, URGENT_PATH, type AlertChannel } from "@/lib/coupang/summary";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { findChatIdFromUpdates, sendTelegramMessage } from "@/lib/telegram/client";
@@ -156,15 +156,66 @@ export async function disableDailyAlertAction(): Promise<Done> {
   }
 }
 
-export type AlertStatus = { resendKeySaved: boolean; emailTo: string; enabled: boolean; hour: number; channels: AlertChannel[]; ready: Record<AlertChannel, boolean>; lastRunDate: string; lastResult: string; telegram: string; kakaoOk: boolean; kakaoHasKey: boolean; kakaoNickname: string; kakaoMessage: string; cronKeySaved: boolean; wingKeysSaved: boolean };
+const URGENT_URL = `${SITE_ORIGIN}${URGENT_PATH}`;
+
+async function saveUrgent(userId: string, patch: Partial<Urgent>) {
+  const admin = createAdminClient();
+  const { data } = await admin.from("coupang_ops_prefs").select("data").eq("user_id", userId).maybeSingle();
+  const prefs = normalizePrefs(data?.data);
+  return admin.from("coupang_ops_prefs").upsert({ user_id: userId, data: { ...prefs, urgent: { ...prefs.urgent, ...patch } }, updated_at: new Date().toISOString() });
+}
+
+/** R10 켜기: 회원 전용 토큰을 새로 만들어 회원 cron-job.org 작업에 넣는다. 작업을 못 만들면 켜지 않는다 */
+export async function enableUrgentAlertAction(times: number, channelsInput: AlertChannel[]): Promise<Done> {
+  const user = await requireProgramAccess();
+  const hours = URGENT_HOUR_SETS[times === 6 ? 6 : 3];
+  const channels = cleanChannels(channelsInput);
+  if (!channels.length) return { ok: false, error: "받을 곳을 하나 이상 골라 주세요." };
+  const [keys, key, targets] = await Promise.all([getWingKeys(user.id), cronKey(user.id), loadTargets(user.id)]);
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
+  for (const c of channels) {
+    const problem = channelProblem(c, targets);
+    if (problem) return { ok: false, error: `${CHANNEL_LABEL[c]}: ${problem}` };
+  }
+  if (!key) return { ok: false, error: "먼저 cron-job.org API 키를 저장해 주세요." };
+  const token = `${TOKEN_PREFIX}_${randomBytes(32).toString("hex")}`;
+  try {
+    await upsertUrgentJob(key, URGENT_URL, token, [...hours]);
+  } catch (e) {
+    return { ok: false, error: msg(e, "cron-job.org 작업을 만들지 못했습니다.") };
+  }
+  const { error } = await saveUrgent(user.id, { enabled: true, tokenHash: createHash("sha256").update(token).digest("hex"), hours: [...hours], channels });
+  if (error) return { ok: false, error: "설정을 저장하지 못했습니다. 다시 눌러 주세요." };
+  revalidatePath("/alerts");
+  return { ok: true, message: `하루 ${hours.length}번(${hours.join("·")}시) 확인합니다. 새 건이 있을 때만 보냅니다.` };
+}
+
+export async function disableUrgentAlertAction(): Promise<Done> {
+  const user = await requireProgramAccess();
+  const key = await cronKey(user.id);
+  // 작업을 못 꺼도 서버가 요청을 거절하도록 먼저 끈다
+  await saveUrgent(user.id, { enabled: false, tokenHash: "" });
+  revalidatePath("/alerts");
+  try {
+    if (key) await stopDailyJob(key, URGENT_URL);
+    return { ok: true, message: "껐습니다." };
+  } catch (e) {
+    return { ok: true, message: `껐습니다. 다만 cron-job.org 작업은 직접 꺼 주세요(${msg(e, "연결 오류")}).` };
+  }
+}
+
+export type AlertStatus = { resendKeySaved: boolean; emailTo: string; enabled: boolean; hour: number; channels: AlertChannel[]; ready: Record<AlertChannel, boolean>; lastRunDate: string; lastResult: string; telegram: string; kakaoOk: boolean; kakaoHasKey: boolean; kakaoNickname: string; kakaoMessage: string; cronKeySaved: boolean; wingKeysSaved: boolean; urgent: { enabled: boolean; hours: number[]; channels: AlertChannel[]; lastResult: string } };
 
 export async function alertStatus(userId: string): Promise<AlertStatus> {
-  const [row, t, key, keys] = await Promise.all([
+  const [row, t, key, keys, prefRow] = await Promise.all([
+
     createAdminClient().from("coupang_ops_alerts").select("enabled,hour,channels,last_run_date,last_result").eq("user_id", userId).maybeSingle().then((r) => r.data),
     loadTargets(userId),
     cronKey(userId),
     getWingKeys(userId),
+    createAdminClient().from("coupang_ops_prefs").select("data").eq("user_id", userId).maybeSingle().then((r) => r.data),
   ]);
+  const u = cleanUrgent((prefRow?.data as { urgent?: unknown } | null)?.urgent);
   const ready = Object.fromEntries(ALERT_CHANNELS.map((c) => [c, !channelProblem(c, t)])) as Record<AlertChannel, boolean>;
-  return { resendKeySaved: !!t.resendKey, emailTo: t.email, enabled: !!row?.enabled, hour: row?.hour ?? 8, channels: row ? cleanChannels(row.channels) : ["telegram"], ready, lastRunDate: row?.last_run_date ?? "", lastResult: row?.last_result ?? "", telegram: t.telegram ? t.telegram.bot_username || "연결됨" : "", kakaoOk: t.kakao.ok, kakaoHasKey: t.kakaoKey, kakaoNickname: t.kakao.ok ? t.kakao.nickname ?? "" : "", kakaoMessage: t.kakao.ok ? "" : t.kakao.message, cronKeySaved: !!key, wingKeysSaved: !!keys };
+  return { resendKeySaved: !!t.resendKey, emailTo: t.email, enabled: !!row?.enabled, hour: row?.hour ?? 8, channels: row ? cleanChannels(row.channels) : ["telegram"], ready, lastRunDate: row?.last_run_date ?? "", lastResult: row?.last_result ?? "", telegram: t.telegram ? t.telegram.bot_username || "연결됨" : "", kakaoOk: t.kakao.ok, kakaoHasKey: t.kakaoKey, kakaoNickname: t.kakao.ok ? t.kakao.nickname ?? "" : "", kakaoMessage: t.kakao.ok ? "" : t.kakao.message, cronKeySaved: !!key, wingKeysSaved: !!keys, urgent: { enabled: u.enabled, hours: u.hours, channels: u.channels, lastResult: u.lastResult } };
 }
