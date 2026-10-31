@@ -6,11 +6,11 @@ import { APP_VERSION } from "@/lib/version";
 
 // 모든 화면이 함께 쓰는 사이드바(기준: naver-blog-seo-studio StudioSidebar). 메뉴 순서는 인수인계 §3-5.
 const FLOW = [
-  { id: "targets", step: 1, icon: "🎯", label: "감시 대상", desc: "단지 추가·조건 (최대 10개)", href: "/targets" },
-  { id: "schedule", step: 2, icon: "⏰", label: "예약 설정", desc: "켜기/끄기·수집 간격·시간대", href: "/schedule" },
-  { id: "delivery", step: 3, icon: "📨", label: "받는 방법", desc: "텔레그램·이메일·카카오톡", href: "/delivery" },
+  // 2026-10-31 주인님 지시: 감시와 예약을 한 메뉴로. 상가·건물·토지 매물 알림과 이름·순서를 같게 둔다.
+  { id: "targets", step: 1, icon: "🎯", label: "매물 감시(예약 설정)", desc: "단지 추가·조건·수집 간격", href: "/targets" },
+  { id: "delivery", step: 2, icon: "📨", label: "받는 방법", desc: "텔레그램·이메일·카카오톡", href: "/delivery" },
   // 2026-10-25 주인님 「좌측에 메뉴는 보여야 할꺼 아냐」 — 수집 결과를 메뉴에서 바로
-  { id: "results", step: 4, icon: "📄", label: "수집 결과", desc: "통계·추이·매물 표", href: "/results" },
+  { id: "results", step: 3, icon: "📄", label: "수집 결과", desc: "통계·추이·매물 표", href: "/results" },
 ];
 
 export function StudioSidebar({

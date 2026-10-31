@@ -34,7 +34,7 @@ export default async function DeliveryPage() {
       <main className="main">
         <div className="topline">
           <div>
-            <div className="eyebrow">Step 3 · 받는 방법</div>
+            <div className="eyebrow">Step 2 · 받는 방법</div>
             <h1>📨 알림을 어디로 받을까요?</h1>
             <p className="lede">받을 곳을 켜고, 언제·무엇을 받을지 고르세요. 연결·키 등록은 「🔑 API키등록·플랫폼연동」에서 해요. 매물 정보는 확장이 회원님 PC에서 바로 보내고, 이 사이트를 거치지 않습니다.</p>
           </div>

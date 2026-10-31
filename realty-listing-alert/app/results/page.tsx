@@ -26,7 +26,7 @@ export default async function ResultsPage() {
       <main className="main">
         <div className="topline">
           <div>
-            <div className="eyebrow">Step 4 · 수집 결과</div>
+            <div className="eyebrow">Step 3 · 수집 결과</div>
             <h1>📄 최근 수집 결과</h1>
             <p className="lede">위에는 통계·추이를, 아래에는 확장이 마지막으로 살펴본 매물 표를 보여 드려요. 매물 정보와 통계 기록은 회원님 PC 안에서만 오가요.</p>
           </div>

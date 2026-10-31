@@ -51,7 +51,7 @@ export default async function DashboardPage() {
   // 「내 설정」 카드 — 실제 저장값 + 확장 상태 보고(3단계).
   const cards = [
     { icon: "🎯", title: "감시 대상", value: `${total} / ${MAX_TARGETS}`, href: "/targets", note: total ? `${active}개 감시 중` : "단지를 추가하세요" },
-    { icon: "⏰", title: "예약", value: settings?.schedule_enabled ? "켜짐" : "꺼짐", href: "/schedule", note: settings?.schedule_enabled ? `${intervalLabel}마다${hours}` : "간격·시간대를 정하고 켜 주세요" },
+    { icon: "⏰", title: "예약", value: settings?.schedule_enabled ? "켜짐" : "꺼짐", href: "/targets#schedule", note: settings?.schedule_enabled ? `${intervalLabel}마다${hours}` : "간격·시간대를 정하고 켜 주세요" },
     { icon: "📨", title: "받는 방법", value: hasChannel ? "연결됨" : "미연결", href: "/delivery", note: hasChannel ? [telegram ? "텔레그램" : "", settings?.notify_kakao ? "카톡" : "", settings?.notify_email ? "이메일" : ""].filter(Boolean).join(" · ") : "텔레그램·이메일·카톡 중 하나를 연결하세요" },
     {
       icon: "🖥",
