@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — 상가 v1.17·부동산 v1.41 AI 분석 버튼
+- 두 프로그램 수집 결과에 GPT·Claude·Gemini 분석 버튼, 세부 모델은 설정에서. 상가는 설정 표 버튼 통일, 부동산은 Claude 5.5 갱신. 남은 일: OpenAI·Gemini 실제 호출 확인.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/results · https://realty-listing-alert.buylife.xyz/results
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.16 설정 화면 서버 오류 수정
 - v1.15에서 "use client" 파일의 stepBadge()를 서버 화면에서 호출해 /settings가 열리지 않음(빌드는 통과). 스타일을 setupStyles.ts로 분리.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/settings
