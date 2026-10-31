@@ -14,6 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
+| 부동산 카테고리 | 플랜 작업 대기 RQ-0~RQ-D5(주소 리포트·임장, 뉴스 레이더, 중개사무소 고객관리 등) | 주인님 결정 5건(플랜 §9), 구현 승인 아님 | [작업표](../REAL_ESTATE_CONSOLIDATION_TASKS.md) · [플랜](../analysis-realty-roadmap-20261031/PLAN.md) |
 | `realty-listing-alert` | 남은 시험 | 월세 `B2`·20건 넘는 단지 2페이지·예약 연속 회차 · 차단 화면 실물(나오면) · 카톡 「○○ 매물 보기」 버튼. (RLS·봇 가져오기는 v1.27 두 계정 시험 통과 — 추가 계정 필요 없음) | 백로그 |
 | `commercial-land-trade-alert` | 네이버 매물 읽기 + 시세 대비 분석 | 주인님 플랜 승인 | `commercial-land-trade-alert/docs/PLAN_20261031_NAVER_LISTINGS.md` |
 | `realty-listing-alert` | 「신고 없음 n일째」 확인 | 이틀째 수집 뒤 | 인수인계 §4 |
