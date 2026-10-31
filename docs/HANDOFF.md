@@ -1,5 +1,7 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+> [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
+
 ## 2026-11-01 ⚠️ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — 30일 삭제 예외 1단계 적용, 회원 권한 보안 문제 발견
 - 한 일: 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 `profiles.retention_exempt`·보호 트리거·예약 삭제 함수 6개·직접 삭제 작업 3개 적용(`supabase/migrations/0052_retention_exempt_accounts.sql`). 두 계정만 지정. 되돌리는 시험으로 예외 자료 유지·일반 회원 자료 삭제·회원 수정 차단 확인.
 - 못 한 것: Vercel 정리 라우트(프로그램 다음 배포 때), 조회 숨김 RLS(미변경 — 일부 프로그램은 자료가 남아도 30일 뒤 화면에 안 보임).
