@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
-import { ROADMAP, TOOLS } from "@/lib/tools";
+import { TOOLS } from "@/lib/tools";
 import { getWingKeys } from "@/lib/data";
 import { TodayBoard } from "@/components/TodayBoard";
 import { RejectedBoard, type RejectedJob } from "@/components/RejectedBoard";
@@ -49,20 +49,6 @@ export default async function HomePage() {
           ))}
         </div>
       )}
-
-      <section className="slw-card p-5">
-        <h2 className="text-base font-extrabold text-slate-900">🛠 기능 출시 순서</h2>
-        <p className="mt-1 text-xs text-slate-600">기능을 하나씩 만들어 순서대로 엽니다. 지금은 1단계를 만드는 중입니다.</p>
-        <ol className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {ROADMAP.map((r, i) => (
-            <li key={r.stage} className={`rounded-xl border p-3 ${i === 0 ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white"}`}>
-              <p className="text-[11px] font-black text-blue-700">{r.stage}{i === 0 ? " · 만드는 중" : " · 예정"}</p>
-              <p className="mt-0.5 font-extrabold text-slate-900">{r.emoji} {r.title}</p>
-              <p className="mt-1 text-xs leading-relaxed text-slate-600">{r.items}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import Link from "next/link";
+import { suggestProductInfoAction } from "@/lib/actions/suggest";
 import { checkProductDraftAction, deleteJobProductAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, requestApprovalAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
 
 const JOB_LABEL: Record<string, string> = { sending: "⏳ 보내는 중", saved: "✅ 쿠팡에 저장됨", requested: "📨 승인 요청", approved: "🟢 승인", rejected: "⛔ 반려", failed: "❌ 실패", unknown: "❓ 확인 필요" };
@@ -8,6 +10,7 @@ import type { CategoryMeta } from "@/lib/coupang/category";
 import type { CoupangOption } from "@/lib/coupang/product";
 import { DELETED_PREFIX } from "@/lib/coupang/status";
 
+const LAST_FORM_KEY = "coupang-ops:last-form";
 const MAX_COMBOS = 200;
 const DEFAULT_STOCK = 100;
 const input = "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm";
@@ -23,6 +26,7 @@ const splitValues = (s: string) => [...new Set(s.split(/[,\n]/).map((x) => x.tri
 
 export function ProductForm(props: {
   productId: string;
+  nextProductId: string | null;
   initialName: string;
   originalPrice: number;
   salePrice: number;
@@ -41,6 +45,14 @@ export function ProductForm(props: {
   const [searchVals, setSearchVals] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<string>("");
   const [tags, setTags] = useState("");
+  const [suggestNote, setSuggestNote] = useState("");
+  const [lastForm, setLastForm] = useState<{ brand: string; manufacturer: string; code: string } | null>(null);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LAST_FORM_KEY);
+      if (saved) setLastForm(JSON.parse(saved));
+    } catch {}
+  }, []);
   const [check, setCheck] = useState<DraftCheck | null>(null);
   const [pending, start] = useTransition();
   const [confirmSend, setConfirmSend] = useState(false);
@@ -145,9 +157,28 @@ export function ProductForm(props: {
     });
   }
 
+  function runSuggest() {
+    if (!cat) return;
+    setSuggestNote("");
+    start(async () => {
+      const r = await suggestProductInfoAction({ name, category: cat.name, attrs: searchAttrs.map((a) => ({ name: a.name, values: a.values })) });
+      if (!r.ok) return setSuggestNote(`❌ ${r.error}`);
+      // 회원이 이미 넣은 값은 덮어쓰지 않는다
+      setSearchVals((old) => ({ ...r.attributes, ...Object.fromEntries(Object.entries(old).filter(([, v]) => v)) }));
+      setTags((old) => old.trim() || r.tags.join(", "));
+      setSuggestNote(`✅ 빈 칸만 채웠습니다(검색어 ${r.tags.length}개, 속성 ${Object.keys(r.attributes).length}개). AI 추천이니 보내기 전에 확인해 주세요.`);
+    });
+  }
+
   function runSend() {
     start(async () => {
-      setSent(await sendProductAction(props.productId, draftInput()));
+      const result = await sendProductAction(props.productId, draftInput());
+      setSent(result);
+      if (result.ok && cat) {
+        try {
+          localStorage.setItem(LAST_FORM_KEY, JSON.stringify({ brand, manufacturer, code: String(cat.code) }));
+        } catch {}
+      }
       setConfirmSend(false);
       setJobs(await listJobsAction(props.productId));
     });
@@ -179,6 +210,11 @@ export function ProductForm(props: {
           <input value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ""))} placeholder="예: 69579" className="w-28 rounded-lg border border-slate-300 px-2 py-2 text-sm" />
           <button type="button" disabled={pending || !codeInput} onClick={() => loadCategory(Number(codeInput))} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50">이 번호로</button>
         </div>
+        {lastForm && (
+          <button type="button" onClick={() => { setBrand(lastForm.brand); setManufacturer(lastForm.manufacturer); setCodeInput(lastForm.code); }} className="text-xs font-bold text-blue-700 underline">
+            직전 상품의 브랜드·제조사·카테고리 번호 불러오기
+          </button>
+        )}
         {props.shopCategory && <p className="text-xs text-slate-500">상세페이지에 적힌 분류: {props.shopCategory}</p>}
         {catError && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {catError}</p>}
         {cat && (
@@ -257,6 +293,10 @@ export function ProductForm(props: {
           )}
           <label className="block"><span className={label}>검색 태그(쉼표로 나눔, 20개까지)</span>
             <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="예: 노트북가방, 출장백팩" className={input} /></label>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" disabled={pending || !name.trim()} onClick={runSuggest} className="rounded-lg border border-blue-300 px-3 py-2 text-sm font-bold text-blue-800 hover:bg-blue-50 disabled:opacity-50">🤖 AI로 검색어·속성 추천받기(내 Claude 키)</button>
+            {suggestNote && <span className="text-[12px] text-slate-700">{suggestNote}</span>}
+          </div>
         </section>
       )}
 
@@ -294,6 +334,7 @@ export function ProductForm(props: {
             </div>
           )}
           {sent?.ok && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">✅ 쿠팡에 저장됐습니다{sent.sellerProductId ? ` — 상품번호 ${sent.sellerProductId}` : ""}. 잠시 뒤 아래 「쿠팡 상태 확인」으로 쿠팡 점검 결과를 확인해 주세요.</p>}
+          {sent?.ok && props.nextProductId && <Link href={`/products/${props.nextProductId}`} className="inline-block rounded-lg border border-blue-300 px-4 py-2 text-sm font-bold text-blue-800 hover:bg-blue-50">다음 상품 등록하기 →</Link>}
           {jobs.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-bold text-slate-700">이 상품의 쿠팡 등록 기록</p>

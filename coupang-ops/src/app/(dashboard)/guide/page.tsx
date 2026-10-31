@@ -88,6 +88,14 @@ export default async function GuidePage() {
       <section className="slw-card space-y-2 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">❓ 자주 묻는 질문</h2>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">아침 요약 알림은 어떻게 켜나요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">「판매자정보 → 아침 요약 알림」에서 본인 텔레그램 봇을 연결하고 무료 cron-job.org API 키를 넣은 뒤 시각을 골라 켭니다. 건수만 보내고 고객 정보는 보내지 않으며, 쿠팡에는 읽기만 합니다. 한 번에 쿠팡을 7번 읽으므로 호출 상한에 닿으면 그날은 쉬고 알려 드립니다.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">AI 추천은 무엇을 채우나요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">상품 등록 3단계에서 본인 Claude 키로 검색어와 검색 속성을 추천받습니다. 이미 넣은 값은 덮어쓰지 않고, 쿠팡 목록에 없는 값은 버립니다. 사용량은 회원 키에 청구되며, 보내기 전에 직접 확인해 주세요. 등록 기록은 30일 뒤 자동으로 지워집니다.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">상품을 고치면 바로 반영되나요?</summary>
           <p className="mt-2 leading-relaxed text-slate-700">「내 쿠팡 상품 → 상품 수정」에서 배송·반품 값은 승인 없이 바로 바뀝니다. 상품명·브랜드·검색어는 승인된 상품이면 쿠팡 재승인 뒤 반영됩니다. 가격·재고·판매 상태는 「옵션 관리」나 「일괄 가격·재고」에서 바꾸고, 이미지와 옵션 구성은 WING에서 고쳐 주세요.</p>
         </details>

@@ -1,4 +1,5 @@
 import "server-only";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { WING_FIELDS, WING_KEYS, maskKey, type WingField, type WingKeys } from "@/lib/coupang/keys";
 import { normalizeDefaults } from "@/lib/coupang/defaults";
@@ -14,6 +15,14 @@ export async function getWingKeys(userId: string): Promise<(WingKeys & { userId:
   const byProvider = new Map((data ?? []).map((r: { provider: string; api_key: string }) => [r.provider, r.api_key]));
   const keys = Object.fromEntries(WING_FIELDS.map((f) => [f, byProvider.get(WING_KEYS[f]) ?? ""])) as WingKeys;
   return WING_FIELDS.every((f) => keys[f]) ? { ...keys, userId } : null; // userId는 호출 수 기록용
+}
+
+/** 예약 실행용(로그인 세션 없음): 회원 토큰으로 확인된 그 회원의 키만 서버 키로 읽는다 */
+export async function getWingKeysForJob(userId: string): Promise<(WingKeys & { userId: string }) | null> {
+  const { data } = await createAdminClient().from("user_api_keys").select("provider, api_key").eq("user_id", userId).in("provider", Object.values(WING_KEYS));
+  const byProvider = new Map((data ?? []).map((r: { provider: string; api_key: string }) => [r.provider, r.api_key]));
+  const keys = Object.fromEntries(WING_FIELDS.map((f) => [f, byProvider.get(WING_KEYS[f]) ?? ""])) as WingKeys;
+  return WING_FIELDS.every((f) => keys[f]) ? { ...keys, userId } : null;
 }
 
 /** 화면 표시용: 저장 여부와 가린 값(업체코드·WING ID는 그대로, 키 두 개는 끝 4자리) */

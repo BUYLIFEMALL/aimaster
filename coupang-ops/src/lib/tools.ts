@@ -21,6 +21,7 @@ export const MENU_GROUPS: { title: string; emoji: string }[] = [
 export const TOOLS: ToolItem[] = [
   { href: "/connect", emoji: "🔑", label: "쿠팡 연결", short: "Open API 키 등록", description: "WING에서 발급받은 업체코드·Access Key·Secret Key·WING ID를 한 번 등록합니다.", group: "판매자정보" },
   { href: "/defaults", emoji: "⚙", label: "배송·반품 기본값", short: "출고지·반품지·배송비", description: "출고지·반품지·택배사·배송비를 한 번 넣어 두면 모든 상품에 함께 쓰입니다.", group: "판매자정보" },
+  { href: "/alerts", emoji: "🔔", label: "아침 요약 알림", short: "텔레그램 건수 알림", description: "매일 정한 시각에 출고중지·미답변 문의 등 처리할 건수를 내 텔레그램으로 받습니다.", group: "판매자정보" },
   { href: "/products", emoji: "📦", label: "상품 등록", short: "상세페이지 상품 → 쿠팡", description: "상세페이지 상품을 골라 카테고리 추천·옵션·검사까지 한 화면에서 준비합니다.", group: "상품관리" },
   { href: "/my-products", emoji: "🗂", label: "내 쿠팡 상품", short: "목록·옵션·상품 수정", description: "쿠팡에 등록된 내 상품을 불러와 승인 상태를 보고, 옵션과 상품 정보를 고칩니다.", group: "상품관리" },
   { href: "/stock", emoji: "📉", label: "품절 예방", short: "재고 점검·채우기", description: "승인된 상품의 옵션 재고를 20개씩 점검해 품절·부족 옵션을 모아 보고 재고를 채웁니다.", group: "상품관리" },
@@ -33,11 +34,3 @@ export const TOOLS: ToolItem[] = [
   { href: "/coupons", emoji: "🎟", label: "즉시할인 쿠폰", short: "계약·예산·쿠폰 관리", description: "쿠폰 계약과 예산을 확인하고 즉시할인 쿠폰을 만들어 옵션에 적용합니다.", group: "프로모션" },
 ];
 
-/** 출시 순서(docs/IMPROVEMENT_BACKLOG.md 단계). 대시보드 「기능 출시 순서」에 보여 준다. */
-export const ROADMAP: { stage: string; emoji: string; title: string; items: string }[] = [
-  { stage: "1단계", emoji: "📦", title: "쿠팡 연결 + 상품 등록", items: "키 등록·연결 시험, 출고지·반품지, 카테고리 추천, 옵션·이미지, 저장/승인 요청" },
-  { stage: "2단계", emoji: "🗂", title: "상품 관리", items: "내 상품 목록, 가격·재고 변경, 판매 중지·재개, 연속 등록" },
-  { stage: "3단계", emoji: "🚚", title: "주문·송장", items: "발주서 조회, 상품준비중, 송장 등록, 취소 처리" },
-  { stage: "4단계", emoji: "💬", title: "반품·교환·문의", items: "반품·교환 처리, 문의 조회, AI 답변 초안" },
-  { stage: "5단계", emoji: "📊", title: "정산·마케팅", items: "정산 리포트, 쿠폰, 로켓그로스" },
-];

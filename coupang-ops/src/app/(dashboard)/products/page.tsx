@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { listShopProducts, productName } from "@/lib/shop";
+import { registeredProductIds } from "@/lib/registered";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
   const user = await requireProgramAccess();
-  const { rows, error } = await listShopProducts(user.id);
+  const [{ rows, error }, registered] = await Promise.all([listShopProducts(user.id), registeredProductIds(user.id)]);
 
   return (
     <div className="space-y-5">
@@ -23,7 +24,7 @@ export default async function ProductsPage() {
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((p) => (
           <Link key={p.id} href={`/products/${p.id}`} className="slw-card block p-4 transition hover:border-blue-300">
-            <p className="font-bold text-slate-900">{productName(p)}</p>
+            <p className="font-bold text-slate-900">{registered.has(p.id) && <span className="mr-1.5 rounded bg-teal-50 px-1.5 py-0.5 text-[11px] font-bold text-teal-800">쿠팡 등록함</span>}{productName(p)}</p>
             <p className="mt-1 text-xs text-slate-500">
               {p.reviewed_at ? "✅ 검토 완료" : "검토 전"} · {p.sale_price ? `${p.sale_price.toLocaleString()}원` : p.price ? `${p.price.toLocaleString()}원` : "가격 없음"}
               {p.category ? ` · ${p.category}` : ""} · {new Date(p.updated_at).toLocaleDateString("ko-KR")}

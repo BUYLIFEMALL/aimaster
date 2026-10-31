@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { getCoupangDefaults, getWingKeyStatus } from "@/lib/data";
-import { getShopProduct, productName } from "@/lib/shop";
+import { getShopProduct, listShopProducts, productName } from "@/lib/shop";
+import { nextProductId, registeredProductIds } from "@/lib/registered";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProductForm } from "@/components/ProductForm";
 
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function ProductRegisterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireProgramAccess();
-  const [shop, defaults, keys] = await Promise.all([getShopProduct(user.id, id), getCoupangDefaults(user.id), getWingKeyStatus(user.id)]);
+  const [shop, defaults, keys, list, registered] = await Promise.all([getShopProduct(user.id, id), getCoupangDefaults(user.id), getWingKeyStatus(user.id), listShopProducts(user.id), registeredProductIds(user.id)]);
   if (!shop) notFound();
   const p = shop.product;
   const sale = p.sale_price || p.price || 0;
@@ -30,7 +31,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
           ))}
         </div>
       )}
-      <ProductForm productId={id} initialName={productName(p)} originalPrice={original} salePrice={sale} shopCategory={p.category} keysSaved={keys.saved} defaultsSaved={Boolean(defaults)} />
+      <ProductForm nextProductId={nextProductId(list.rows.map((r) => r.id), id, registered)} productId={id} initialName={productName(p)} originalPrice={original} salePrice={sale} shopCategory={p.category} keysSaved={keys.saved} defaultsSaved={Boolean(defaults)} />
     </div>
   );
 }
