@@ -36,6 +36,7 @@ export function AiKeyForm({ shown, models }: { shown: Partial<Record<AIModelProv
           </select>
           {!shown[p] && <span aria-hidden className="hidden sm:block" />}
           {shown[p] && <button type="button" disabled={pending} onClick={() => run(() => deleteAiKeyAction(p), p, "삭제했습니다.")} className="w-full rounded-lg border border-slate-300 bg-white px-1 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-50">삭제</button>}
+          <p className="text-[11px] leading-snug text-slate-500 sm:col-span-2 sm:col-start-4">이 플랫폼을 고르면 고객 문의 답변 초안과 상품 등록의 검색어·속성 추천에 이 모델을 씁니다.</p>
           {note.at === p && <p role="status" className="col-span-full text-[12px] font-bold text-slate-800">{note.text}</p>}
         </div>
       ))}

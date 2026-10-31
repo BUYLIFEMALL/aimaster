@@ -142,7 +142,7 @@ export default async function ConnectPage() {
           <h2 className="text-base font-extrabold text-slate-900">4. AI 모델 키 (Claude · Gemini · OpenAI)</h2>
         </div>
         <p className="text-sm text-slate-600 leading-relaxed">
-          상품 추천·옵션 매칭·고객 문의 자동 응답 초안 작성에 사용할 AI 모델 키를 설정합니다. AIMaster 다른 프로그램에 등록된 키를 그대로 공유하여 사용하실 수 있습니다.
+          고객 문의 답변 초안과 상품 등록의 검색어·속성 추천에 쓸 AI 키와 모델을 설정합니다. 사용량은 내 키에 청구됩니다. AIMaster 다른 프로그램에 등록된 키를 그대로 공유하여 사용하실 수 있습니다.
         </p>
         <AiKeyForm shown={aiKeys} models={aiModels} />
       </section>
