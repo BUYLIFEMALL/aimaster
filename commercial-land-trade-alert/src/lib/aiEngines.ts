@@ -36,3 +36,15 @@ export const AI_ENGINES: { id: AiProvider; name: string; icon: string; role: str
 
 export const toAiProvider = (v: unknown): AiProvider => (v === "openai" || v === "gemini" ? v : "claude");
 export const aiEngine = (id: AiProvider) => AI_ENGINES.find((e) => e.id === id)!;
+
+/** 고른 모델. 저장값이 목록에 없으면 그 엔진의 기본 추천 */
+export const aiModelOf = (id: AiProvider, models: Record<string, string> | undefined) => {
+  const list = aiEngine(id).models;
+  return list.some((m) => m.value === models?.[id]) ? models![id] : list[0].value;
+};
+
+/** 화면 표시용 짧은 이름. 「Claude Opus 5.5」 */
+export const aiModelName = (id: AiProvider, model: string | null | undefined) => {
+  const m = aiEngine(id).models.find((x) => x.value === model) ?? aiEngine(id).models[0];
+  return m.label.replace(/^\S+\s/, "").replace(/\s*\(.*$/, "");
+};

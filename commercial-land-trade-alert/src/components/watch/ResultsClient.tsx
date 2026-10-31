@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AI_ENGINES, aiModelName, aiModelOf, toAiProvider, type AiProvider } from "@/lib/aiEngines";
 import { askExtension } from "@/lib/extensionBridge";
 import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
@@ -55,12 +56,30 @@ export function ResultsClient({ email }: { email: string }) {
   const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState("all");
   const [sort, setSort] = useState("score");
-  const [ai, setAi] = useState<{ busy?: boolean; text?: string; count?: number; error?: string }>({});
+  const [ai, setAi] = useState<{ busy?: boolean; text?: string; count?: number; used?: string; error?: string }>({});
+  const [aiChoice, setAiChoice] = useState<{ provider: AiProvider; models: Record<string, string> }>({ provider: "claude", models: {} });
+
+  useEffect(() => {
+    let alive = true;
+    void askExtension<{ ok?: boolean; provider?: string; models?: Record<string, string> }>("aiChoice", 2000, { email }).then((r) => {
+      if (alive && r?.ok) setAiChoice({ provider: toAiProvider(r.provider), models: r.models ?? {} });
+    });
+    return () => { alive = false; };
+  }, [email]);
+
+  async function pickAi(value: string) {
+    const [id, model] = value.split("|");
+    const provider = toAiProvider(id);
+    const next = { provider, models: { ...aiChoice.models, [provider]: model } };
+    setAiChoice(next);
+    const r = await askExtension<{ ok?: boolean; error?: string }>("aiChoice", 2000, { email, set: next });
+    if (!r?.ok) setAi({ error: r?.error || "선택을 저장하지 못했습니다. 확장을 새로고침한 뒤 이 화면도 새로고침해 주세요." });
+  }
 
   async function runAi() {
     setAi({ busy: true });
-    const r = await askExtension<{ ok?: boolean; text?: string; count?: number; error?: string }>("aiSummary", 180000, { email });
-    setAi(r?.ok ? { text: r.text, count: r.count } : { error: r?.error || "응답이 없습니다. 확장을 새로고침한 뒤 다시 눌러 주세요." });
+    const r = await askExtension<{ ok?: boolean; text?: string; count?: number; provider?: string; model?: string | null; error?: string }>("aiSummary", 180000, { email });
+    setAi(r?.ok ? { text: r.text, count: r.count, used: aiModelName(toAiProvider(r.provider), r.model) } : { error: r?.error || "응답이 없습니다. 확장을 새로고침한 뒤 다시 눌러 주세요." });
   }
 
   useEffect(() => {
@@ -137,18 +156,31 @@ export function ResultsClient({ email }: { email: string }) {
       </div>
       <div className="mx-card mt-3 p-4">
         <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={`${aiChoice.provider}|${aiModelOf(aiChoice.provider, aiChoice.models)}`}
+            onChange={(e) => pickAi(e.target.value)}
+            disabled={ai.busy}
+            aria-label="AI 요약에 쓸 플랫폼과 모델"
+            className="mx-input min-h-[44px] w-full py-2 text-sm md:w-72"
+          >
+            {AI_ENGINES.map((e) => (
+              <optgroup key={e.id} label={e.name}>
+                {e.models.map((m) => <option key={m.value} value={`${e.id}|${m.value}`}>{m.label}</option>)}
+              </optgroup>
+            ))}
+          </select>
           <button type="button" onClick={runAi} disabled={ai.busy} className="mx-btn-primary">
             {ai.busy ? "요약 중입니다..." : "🤖 AI 요약 보기"}
           </button>
           <p className="min-w-60 flex-1 text-xs text-mx-muted">
-            API키등록·플랫폼연동에서 고른 AI(OpenAI·Claude·Gemini)에 회원님 본인 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 고른 모델 기준으로 본인 키에 청구됩니다.
+            왼쪽에서 고른 AI에 회원님 본인 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 고른 모델 기준으로 본인 키에 청구됩니다.
           </p>
         </div>
         {ai.error && <p className="mt-3 text-sm text-red-600">{ai.error}</p>}
         {ai.text && (
           <div className="mt-3 border-t border-mx-border pt-3">
             <AiText text={ai.text} />
-            <p className="mt-2 text-xs text-mx-muted">{ai.count}건 기준 AI 요약입니다. 사실과 다를 수 있으니 투자 판단은 직접 확인 후 해 주세요.</p>
+            <p className="mt-2 text-xs text-mx-muted">{ai.used}로 만든 {ai.count}건 기준 AI 요약입니다. 사실과 다를 수 있으니 투자 판단은 직접 확인 후 해 주세요.</p>
           </div>
         )}
       </div>

@@ -338,7 +338,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         const { aiChoice } = await get("aiChoice");
         const { provider, models } = normalizeChoice(aiChoice);
         const { apiKey } = await api(`/api/extension/ai-key?provider=${provider}`); // 저장하지 않고 이번 호출에만 쓴다
-        return reply({ ok: true, count: input.count, text: await summarize({ provider, model: models[provider], apiKey }, input) });
+        return reply({ ok: true, count: input.count, provider, model: models[provider] || null, text: await summarize({ provider, model: models[provider], apiKey }, input) });
       }
       if (msg.type === "refreshSettings") { await loadSettings(); return reply({ ok: true }); }
       reply({ ok: false, error: "알 수 없는 요청" });
