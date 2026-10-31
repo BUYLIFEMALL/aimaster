@@ -31,7 +31,7 @@ export async function callModel(
       contents: [{ role: "user", parts: [{ text: user }] }],
       generationConfig: {
         responseMimeType: "application/json",
-        maxOutputTokens: 8192,
+        maxOutputTokens: 16000,
       },
     };
   } else if (provider === "anthropic") {
@@ -40,7 +40,7 @@ export async function callModel(
     headers["anthropic-version"] = "2023-06-01";
     body = {
       model,
-      max_tokens: 8192,
+      max_tokens: 16000,
       system,
       messages: [{ role: "user", content: user }],
     };
@@ -54,7 +54,7 @@ export async function callModel(
         { role: "user", content: user },
       ],
       response_format: { type: "json_object" },
-      max_completion_tokens: 8192,
+      max_completion_tokens: 16000,
     };
   }
   const response = await send(url, {

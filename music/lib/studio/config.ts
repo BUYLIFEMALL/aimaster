@@ -1,16 +1,23 @@
-export const PROVIDERS = ["gemini", "openai", "anthropic"] as const;
+export const PROVIDERS = ["openai", "anthropic", "gemini"] as const;
 export type Provider = (typeof PROVIDERS)[number];
 export const MODELS = [
-  { provider: "gemini", id: "gemini-3.8-flash", name: "Gemini 3.8 Flash" },
+  { provider: "openai", id: "gpt-6.1-sol", name: "GPT-6.1 Sol (고품질)" },
+  { provider: "openai", id: "gpt-6-astra", name: "GPT-6 Astra (최고 품질)" },
+  { provider: "openai", id: "gpt-6.1-terra", name: "GPT-6.1 Terra (빠름)" },
+  { provider: "openai", id: "gpt-6-luna", name: "GPT-6 Luna (저렴)" },
+  { provider: "openai", id: "gpt-4.1", name: "GPT-4.1 (이전 모델)" },
+  { provider: "openai", id: "gpt-4.1-mini", name: "GPT-4.1 mini (이전 모델)" },
+  { provider: "anthropic", id: "claude-sonnet-5-5", name: "Claude Sonnet 5.5 (고품질)" },
+  { provider: "anthropic", id: "claude-opus-5-5", name: "Claude Opus 5.5 (더 높은 품질)" },
+  { provider: "anthropic", id: "claude-fable-5-1", name: "Claude Fable 5.1 (최고 품질)" },
+  { provider: "anthropic", id: "claude-haiku-5-5", name: "Claude Haiku 5.5 (빠름·저렴)" },
+  { provider: "gemini", id: "gemini-3.8-flash", name: "Gemini 3.8 Flash (빠름)" },
+  { provider: "gemini", id: "gemini-4-argon", name: "Gemini 4 Argon (최고 품질)" },
   {
     provider: "gemini",
     id: "gemini-3.5-flash-lite",
-    name: "Gemini 3.5 Flash-Lite",
+    name: "Gemini 3.5 Flash-Lite (저렴)",
   },
-  { provider: "openai", id: "gpt-4.1", name: "GPT-4.1" },
-  { provider: "openai", id: "gpt-4.1-mini", name: "GPT-4.1 mini" },
-  { provider: "anthropic", id: "claude-sonnet-5-5", name: "Claude Sonnet 5.5" },
-  { provider: "anthropic", id: "claude-haiku-5-5", name: "Claude Haiku 5.5" },
 ] as const;
 export function isProvider(v: unknown): v is Provider {
   return PROVIDERS.some((p) => p === v);
@@ -219,7 +226,7 @@ export const DEFAULT_BRIEF: Brief = {
   exclude: "",
   arc: ARCS[0],
   count: 6,
-  model: MODELS[0].id,
+  model: "gemini-3.8-flash",
   provider: "gemini",
 };
 export const EMPTY_DRAFT: Draft = {
