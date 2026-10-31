@@ -31,6 +31,6 @@ export const TOOLS: ToolItem[] = [
   { href: "/exchanges", emoji: "🔄", label: "교환", short: "입고 확인·교환 송장", description: "교환 요청을 확인하고 입고 확인, 교환 송장 등록, 거부를 처리합니다.", group: "주문/배송" },
   { href: "/inquiries", emoji: "💬", label: "고객 문의", short: "문의·AI 답변 초안", description: "상품 문의와 고객센터 이관 문의를 모아 보고, AI 초안을 확인해 답변합니다.", group: "문의" },
   { href: "/revenue", emoji: "📊", label: "매출·정산", short: "실제 수수료·순이익", description: "쿠팡 실제 정산 값으로 옵션별 수수료와 순이익을 계산하고 지급 내역을 확인합니다.", group: "정산" },
-  { href: "/coupons", emoji: "🎟", label: "즉시할인 쿠폰", short: "계약·예산·쿠폰 관리", description: "쿠폰 계약과 예산을 확인하고 즉시할인 쿠폰을 만들어 옵션에 적용합니다.", group: "프로모션" },
+  { href: "/coupons", emoji: "🎟", label: "쿠폰", short: "즉시할인·다운로드", description: "쿠폰 계약과 예산을 확인하고 즉시할인·다운로드 쿠폰을 만들어 옵션에 적용합니다.", group: "프로모션" },
 ];
 

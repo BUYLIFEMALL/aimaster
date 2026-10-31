@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { DownloadCouponPanel } from "@/components/DownloadCouponPanel";
 import { addCouponItemsAction, couponRequestAction, createCouponAction, expireCouponAction, loadBudgetAction, loadCouponsAction } from "@/lib/actions/coupons";
 import { checkCoupon, COUPON_STATUSES, COUPON_TYPES, MAX_COUPON_ITEMS, parseVendorItemIds, type Contract, type Coupon, type RequestState } from "@/lib/coupang/coupons";
 
@@ -134,6 +135,8 @@ export function CouponBoard({ keysSaved }: { keysSaved: boolean }) {
           )}
         </section>
       )}
+
+      {contracts && contracts.length > 0 && <DownloadCouponPanel contracts={contracts} />}
 
       {ask && (
         <div className="sticky bottom-3 flex flex-wrap items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] text-amber-900 shadow">
