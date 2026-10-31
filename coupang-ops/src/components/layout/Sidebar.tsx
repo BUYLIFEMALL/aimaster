@@ -10,7 +10,7 @@ import { MENU_GROUPS, TOOLS } from "@/lib/tools";
 // 좌측 메뉴(docs/SIDEBAR_LAYOUT_STANDARD.md): 계정·로그아웃은 마지막 메뉴 바로 아래에 붙인다.
 function BackLink() {
   return (
-    <a className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-blue-800" href={`${MAIN_SITE}/programs`}>
+    <a className="inline-flex items-center gap-1 text-[13px] text-slate-600 hover:text-blue-800" href={`${MAIN_SITE}/programs`}>
       <span>← 다른 프로그램 보기</span>
       <ExternalLink size={11} />
     </a>
@@ -30,19 +30,19 @@ function BrandName({ onNavigate }: { onNavigate?: () => void }) {
 function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: () => void }) {
   const pathname = usePathname();
   const item = (href: string) =>
-    `flex items-center gap-2 rounded-md py-2 pl-9 pr-3 text-[13px] transition-colors ${
+    `flex items-center gap-2 rounded-md py-2 pl-9 pr-3 text-sm transition-colors ${
       pathname === href || pathname.startsWith(`${href}/`) ? "font-bold text-blue-700" : "font-medium text-slate-700 hover:bg-slate-50"
     }`;
 
   return (
     <nav className="min-h-0 overflow-y-auto p-2" aria-label="프로그램 메뉴">
-      <Link href="/home" onClick={onNavigate} className={`mb-1 flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-extrabold hover:bg-slate-50 ${pathname === "/home" ? "text-blue-700" : "text-slate-900"}`}>
+      <Link href="/home" onClick={onNavigate} className={`mb-1 flex items-center gap-2.5 rounded-md px-3 py-2 text-[15px] font-extrabold hover:bg-slate-50 ${pathname === "/home" ? "text-blue-700" : "text-slate-900"}`}>
         <span aria-hidden>🏠</span>
         <span>대시보드</span>
       </Link>
       {MENU_GROUPS.map((g) => (
         <div key={g.title} className="mb-1">
-          <p className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-extrabold text-slate-900">
+          <p className="flex items-center gap-2.5 px-3 py-2 text-[15px] font-extrabold text-slate-900">
             <span aria-hidden>{g.emoji}</span>
             <span>{g.title}</span>
           </p>
@@ -61,11 +61,11 @@ function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: (
       </Link>
 
       <div className="mt-2 border-t border-slate-200 pt-2">
-        <p className="truncate px-3 font-mono text-[11px] text-slate-600" title={userEmail}>
+        <p className="truncate px-3 font-mono text-xs text-slate-600" title={userEmail}>
           {userEmail || "회원 로그인"}
         </p>
         <form action="/api/auth/logout" method="POST">
-          <button type="submit" className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-700">
+          <button type="submit" className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-700">
             <LogOut size={14} />
             <span>로그아웃</span>
           </button>
