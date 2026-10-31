@@ -15,6 +15,8 @@
 
 ## 대기 중
 
+- `commercial-land-trade-alert` — 메뉴 「매물 감시(예약 설정)」으로 합침(2026-10-31, [역할: realty], 커밋 0bdd69ce0, 다음 배포 때. 버전·ZIP·DB 함께)
+- `realty-listing-alert` — 메뉴 「매물 감시(예약 설정)」으로 합침(2026-10-31, [역할: realty], 커밋 5a437d16d, 다음 배포 때. 버전·ZIP·DB 함께)
 - `realty-listing-alert` — 알림 문구를 텔레그램/이메일/카카오톡으로 통일(웹·확장, 2026-10-31, [역할: realty], 다음 배포 때. 확장 ZIP 재생성 필요)
 
 
