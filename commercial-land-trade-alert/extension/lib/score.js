@@ -41,6 +41,24 @@ export function marketGap(item, market) {
 
 export const gapText = (g) => (g ? `${g.pct > 0 ? "+" : ""}${g.pct}%(${g.scope}${g.floorName ? `·${g.floorName}` : ""} ${g.count}건)` : "");
 
+/**
+ * 추정 수익률(%). 같은 화면 월세 매물의 ㎡당 월세·보증금 중간값으로 이 매매 매물의 임대료를 어림한다.
+ * 연 임대료 ÷ (매매가 - 보증금). 대출·세금·공실은 뺐고, 비슷한 월세 매물이 5건 미만이면 null. 토지는 계산하지 않는다.
+ */
+export function estimateYield(item, items) {
+  if (item.tradeType !== "A1" || !item.price || !item.area || item.kind === "TJ") return null;
+  const floor = item.kind === "SG" ? listingFloor(item.floor) : null;
+  if (item.kind === "SG" && !floor) return null;
+  const near = items.filter((x) => x.kind === item.kind && x.rent > 0 && x.area >= item.area / 2 && x.area <= item.area * 2 && (item.kind !== "SG" || listingFloor(x.floor) === floor));
+  if (near.length < MIN_SAMPLES) return null;
+  const rent = median(near.map((x) => x.rent / x.area)) * item.area;
+  const deposit = median(near.map((x) => (x.price || 0) / x.area)) * item.area;
+  if (item.price <= deposit) return null;
+  return { pct: Math.round(((rent * 12) / (item.price - deposit)) * 1000) / 10, count: near.length };
+}
+
+export const yieldText = (y) => (y ? `${y.pct}%(월세 ${y.count}건)` : "");
+
 /** @returns {{score:number, reasons:string[], candidate:boolean}} */
 export function scoreListing({ gap, drops = 0, ageDays = 0 }) {
   let score = 0;

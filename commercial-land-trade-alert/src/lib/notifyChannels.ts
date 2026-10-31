@@ -54,4 +54,5 @@ export async function getKakaoState(db: Db, userId: string, withToken = true): P
 }
 
 export const hasKakaoKey = async (db: Db, userId: string) => !!(await memberKey(db, userId, "kakao_rest_api_key"));
+export const getAnthropicKey = (db: Db, userId: string) => memberKey(db, userId, "anthropic");
 export const getResendKey = (db: Db, userId: string) => memberKey(db, userId, "resend_api_key");

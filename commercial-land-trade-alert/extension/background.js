@@ -5,7 +5,8 @@ import { isWatchableUrl, matchesTarget, normalizeArticle } from "./lib/listing.j
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
-import { daysSince, gapText, marketGap, scoreListing } from "./lib/score.js";
+import { daysSince, estimateYield, gapText, marketGap, scoreListing, yieldText } from "./lib/score.js";
+import { buildAiInput, summarize } from "./lib/ai.js";
 import { ALERT_PREFIX, buildKakaoText, buildMailHtml, buildMailSubject, buildSummary, kakaoLinkFor, sendDocument, sendKakaoMemo, sendMessage, sendResendMail } from "./lib/notify.js";
 
 const WEB = "https://commercial-land-trade-alert.buylife.xyz";
@@ -133,7 +134,7 @@ async function runCollection(trigger) {
         const saved = cmp.state.items[it.no];
         const gap = marketGap(it, market);
         const s = scoreListing({ gap, drops: saved?.drops || 0, ageDays: daysSince(saved?.firstSeen) });
-        Object.assign(it, { gapText: gapText(gap), gapPct: gap?.pct ?? null, score: s.score, reasons: s.reasons, candidate: s.candidate });
+        Object.assign(it, { gapText: gapText(gap), gapPct: gap?.pct ?? null, score: s.score, reasons: s.reasons, candidate: s.candidate, yieldText: yieldText(estimateYield(it, items)) });
       }
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));
       for (const it of items) {
@@ -278,6 +279,14 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           latestVersion: s.settingsCache?.latestVersion || null,
           recent: (Array.isArray(s.log) ? s.log : []).slice(-6),
         });
+      }
+      if (msg.type === "aiSummary") {
+        const { lastResult } = await get("lastResult");
+        if (!lastResult?.table?.length) return reply({ ok: false, error: "먼저 「지금 수집」을 해 주세요." });
+        const input = buildAiInput(lastResult.columns, lastResult.table);
+        if (!input.count) return reply({ ok: false, error: "요약할 후보나 변동 매물이 없습니다." });
+        const { apiKey } = await api("/api/extension/ai-key"); // 저장하지 않고 이번 호출에만 쓴다
+        return reply({ ok: true, count: input.count, text: await summarize(apiKey, input) });
       }
       if (msg.type === "refreshSettings") { await loadSettings(); return reply({ ok: true }); }
       reply({ ok: false, error: "알 수 없는 요청" });

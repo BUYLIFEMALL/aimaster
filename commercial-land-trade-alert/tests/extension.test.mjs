@@ -162,3 +162,33 @@ test("실거래 시세 요약", async () => {
   const land = [1, 2, 3, 4, 5].map((n) => row({ kind: "land", building_type: null, category: "대", price_per_pyeong: n * 10 }));
   assert.equal(summarizeMarket([...land, row({ kind: "land", building_type: null, category: "도로", price_per_pyeong: 1 })], "역삼동").TJ.median, 30);
 });
+
+test("추정 수익률", async () => {
+  const { estimateYield, yieldText } = await import("../extension/lib/score.js");
+  const sale = item({ kind: "SG", tradeType: "A1", price: 100000, area: 100, floor: "1/5", rent: null });
+  const rents = [1, 2, 3, 4, 5].map(() => item({ kind: "SG", tradeType: "B2", price: 10000, rent: 500, area: 100, floor: "1/9" }));
+  const y = estimateYield(sale, [sale, ...rents]);
+  assert.equal(y.pct, 6.7);
+  assert.equal(yieldText(y), "6.7%(월세 5건)");
+  assert.equal(estimateYield(sale, [sale, ...rents.slice(1)]), null, "5건 미만");
+  assert.equal(estimateYield({ ...sale, floor: "B1/5" }, [sale, ...rents]), null, "다른 층");
+  assert.equal(estimateYield({ ...sale, floor: "고/5" }, [sale, ...rents]), null, "층 모름");
+  assert.equal(estimateYield({ ...sale, kind: "TJ" }, rents), null, "토지 제외");
+  assert.equal(estimateYield({ ...sale, price: 5000 }, rents), null, "보증금보다 싼 값");
+});
+
+test("AI 요약 자료와 응답 읽기", async () => {
+  const { buildAiInput, readStream } = await import("../extension/lib/ai.js");
+  const cols = ["유형", "가격", "후보 점수", "변동", "추정 수익률", "중개사 상호", "네이버 매물 주소"];
+  const rows = Array.from({ length: 40 }, (_, i) => ["상가", `${i}억`, i, "", "", "비밀중개", "https://x"]);
+  const input = buildAiInput(cols, [...rows, ["상가", "제외", "", "", "", "", ""]]);
+  assert.equal(input.count, 30);
+  assert.ok(input.text.split("\n")[1].includes("39억"), "점수 높은 순");
+  assert.ok(!input.text.includes("비밀중개") && !input.text.includes("https://x"), "중개사·링크 제외");
+  assert.ok(!input.text.includes("제외"));
+  const sse = (lines) => new Response(lines.map((l) => `data: ${JSON.stringify(l)}\n\n`).join("")).body;
+  const delta = (t) => ({ type: "content_block_delta", delta: { type: "text_delta", text: t } });
+  assert.equal(await readStream(sse([delta("가"), delta("나"), { type: "message_delta", delta: { stop_reason: "end_turn" } }])), "가나");
+  await assert.rejects(readStream(sse([{ type: "message_delta", delta: { stop_reason: "refusal" } }])));
+  await assert.rejects(readStream(sse([])));
+});

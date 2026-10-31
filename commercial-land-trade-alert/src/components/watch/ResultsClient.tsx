@@ -6,8 +6,10 @@ import { askExtension } from "@/lib/extensionBridge";
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
 type Result = { at: string; columns: string[]; table: (string | number)[][]; perTarget: { name: string; total: number; complete: boolean }[] };
 
-const SHOW = ["감시 화면", "유형", "거래 종류", "가격", "시세 대비", "후보 점수", "근거", "변동", "이전 가격", "면적 기준", "면적(㎡)", "층"];
+const SHOW = ["감시 화면", "유형", "거래 종류", "가격", "시세 대비", "추정 수익률", "후보 점수", "근거", "변동", "이전 가격", "면적 기준", "면적(㎡)", "층"];
 const LINK = "네이버 매물 주소";
+
+const yieldOf = (v: unknown) => Number.parseFloat(String(v ?? "")) || 0;
 
 const pctOf = (v: unknown) => {
   const m = /^([+-]?\d+)%/.exec(String(v ?? ""));
@@ -18,6 +20,13 @@ export function ResultsClient({ email }: { email: string }) {
   const [res, setRes] = useState<Result | null | undefined>(undefined);
   const [view, setView] = useState("all");
   const [sort, setSort] = useState("score");
+  const [ai, setAi] = useState<{ busy?: boolean; text?: string; count?: number; error?: string }>({});
+
+  async function runAi() {
+    setAi({ busy: true });
+    const r = await askExtension<{ ok?: boolean; text?: string; count?: number; error?: string }>("aiSummary", 180000, { email });
+    setAi(r?.ok ? { text: r.text, count: r.count } : { error: r?.error || "응답이 없습니다. 확장을 새로고침한 뒤 다시 눌러 주세요." });
+  }
 
   useEffect(() => {
     let alive = true;
@@ -39,6 +48,7 @@ export function ResultsClient({ email }: { email: string }) {
       return true;
     });
     return [...list].sort((a, b) => {
+      if (sort === "yield") return yieldOf(b[at("추정 수익률")]) - yieldOf(a[at("추정 수익률")]);
       if (sort === "gap") return (pctOf(a[at("시세 대비")]) ?? 9999) - (pctOf(b[at("시세 대비")]) ?? 9999);
       return Number(b[at("후보 점수")] || 0) - Number(a[at("후보 점수")] || 0);
     });
@@ -68,7 +78,25 @@ export function ResultsClient({ email }: { email: string }) {
         <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬" className="mx-input min-h-[40px] w-auto py-2 text-sm">
           <option value="score">후보 점수 높은순</option>
           <option value="gap">시세 대비 낮은순</option>
+          <option value="yield">추정 수익률 높은순</option>
         </select>
+      </div>
+      <div className="mx-card mt-3 p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={runAi} disabled={ai.busy} className="mx-btn-primary">
+            {ai.busy ? "요약 중입니다..." : "🤖 AI 요약 보기"}
+          </button>
+          <p className="min-w-60 flex-1 text-xs text-mx-muted">
+            회원님 본인 Claude 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 Anthropic에 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 1회 약 100원 안팎이 본인 키에 청구됩니다.
+          </p>
+        </div>
+        {ai.error && <p className="mt-3 text-sm text-red-600">{ai.error}</p>}
+        {ai.text && (
+          <div className="mt-3 border-t border-mx-border pt-3">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed">{ai.text}</p>
+            <p className="mt-2 text-xs text-mx-muted">{ai.count}건 기준 AI 요약입니다. 사실과 다를 수 있으니 투자 판단은 직접 확인 후 해 주세요.</p>
+          </div>
+        )}
       </div>
       <div className="mx-card mt-3 overflow-x-auto p-0">
         <table className="mx-table min-w-[1100px]">
