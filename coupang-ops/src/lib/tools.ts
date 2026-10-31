@@ -21,7 +21,7 @@ export const MENU_GROUPS: { title: string; emoji: string }[] = [
 export const TOOLS: ToolItem[] = [
   { href: "/connect", emoji: "🔑", label: "쿠팡 연결", short: "Open API 키 등록", description: "WING에서 발급받은 업체코드·Access Key·Secret Key·WING ID를 한 번 등록합니다.", group: "판매자정보" },
   { href: "/defaults", emoji: "⚙", label: "배송·반품 기본값", short: "출고지·반품지·배송비", description: "출고지·반품지·택배사·배송비를 한 번 넣어 두면 모든 상품에 함께 쓰입니다.", group: "판매자정보" },
-  { href: "/alerts", emoji: "🔔", label: "아침 요약 알림", short: "텔레그램 건수 알림", description: "매일 정한 시각에 출고중지·미답변 문의 등 처리할 건수를 내 텔레그램으로 받습니다.", group: "판매자정보" },
+  { href: "/alerts", emoji: "🔔", label: "아침 요약 알림", short: "텔레그램·이메일·카카오톡", description: "매일 정한 시각에 출고중지·미답변 문의 등 처리할 건수를 텔레그램·이메일·카카오톡으로 받습니다.", group: "판매자정보" },
   { href: "/products", emoji: "📦", label: "상품 등록", short: "상세페이지 상품 → 쿠팡", description: "상세페이지 상품을 골라 카테고리 추천·옵션·검사까지 한 화면에서 준비합니다.", group: "상품관리" },
   { href: "/my-products", emoji: "🗂", label: "내 쿠팡 상품", short: "목록·옵션·상품 수정", description: "쿠팡에 등록된 내 상품을 불러와 승인 상태를 보고, 옵션과 상품 정보를 고칩니다.", group: "상품관리" },
   { href: "/stock", emoji: "📉", label: "품절 예방", short: "재고 점검·채우기", description: "승인된 상품의 옵션 재고를 20개씩 점검해 품절·부족 옵션을 모아 보고 재고를 채웁니다.", group: "상품관리" },

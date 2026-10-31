@@ -1,7 +1,7 @@
 // 아침 요약·정리 규칙·AI 추천 정리(외부 호출 없음)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cleanHour, cleanupBefore, kstDate, summaryMessage } from "../src/lib/coupang/summary.ts";
+import { cleanChannels, cleanHour, cleanupBefore, kstDate, summaryHtml, summaryMessage } from "../src/lib/coupang/summary.ts";
 import { cleanSuggestion } from "../src/lib/coupang/suggest.ts";
 
 const NOW = Date.parse("2026-10-31T23:30:00+09:00");
@@ -15,6 +15,12 @@ test("요약은 건수만 담고 급한 건을 표시한다", () => {
   assert.match(m, /상품준비중 50\+건/);
   assert.match(m, /교환 확인 실패/);
   assert.match(m, /직접 확인/);
+});
+
+test("받을 곳과 메일 본문", () => {
+  assert.deepEqual(cleanChannels(["kakao", "x", "telegram"]), ["telegram", "kakao"]);
+  assert.deepEqual(cleanChannels(null), []);
+  assert.equal(summaryHtml("<b>\n둘").includes("&lt;b&gt;<br>둘"), true);
 });
 
 test("시각·날짜·정리 기준", () => {

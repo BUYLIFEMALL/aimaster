@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { stopDailyJob, upsertDailyJob } from "@/lib/alerts/cronJob";
-import { cleanHour, SITE_ORIGIN, SUMMARY_PATH, TOKEN_PREFIX } from "@/lib/coupang/summary";
+import { channelProblem, deliver, loadTargets } from "@/lib/alerts/deliver";
+import { ALERT_CHANNELS, CHANNEL_LABEL, cleanChannels, cleanHour, SITE_ORIGIN, SUMMARY_PATH, TOKEN_PREFIX, type AlertChannel } from "@/lib/coupang/summary";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { findChatIdFromUpdates, sendTelegramMessage } from "@/lib/telegram/client";
@@ -20,14 +21,6 @@ async function cronKey(userId: string): Promise<string> {
   const supabase = await createClient();
   const { data } = await supabase.from("user_api_keys").select("api_key").eq("user_id", userId).eq("provider", CRON_PROVIDER).maybeSingle();
   return String(data?.api_key ?? "").trim();
-}
-
-/** 회원의 텔레그램 연결. 이 프로그램 연결을 먼저 쓰고, 없으면 회원이 다른 프로그램에서 연결한 본인 봇을 재사용한다 */
-async function telegramLink(userId: string) {
-  const supabase = await createClient();
-  const { data } = await supabase.from("user_telegram_links").select("program_slug,bot_token,chat_id,bot_username").eq("user_id", userId);
-  const rows = (data ?? []) as { program_slug: string; bot_token: string; chat_id: string; bot_username: string | null }[];
-  return rows.find((r) => r.program_slug === SLUG) ?? rows[0] ?? null;
 }
 
 export async function connectTelegramAction(botToken: string): Promise<Done> {
@@ -48,16 +41,40 @@ export async function connectTelegramAction(botToken: string): Promise<Done> {
   }
 }
 
-export async function testTelegramAction(): Promise<Done> {
+/** 고른 곳으로 시험 메시지 1건. 카카오톡은 회원 SOLAPI 요금이 든다 */
+export async function testChannelAction(channel: AlertChannel): Promise<Done> {
   const user = await requireProgramAccess();
-  const link = await telegramLink(user.id);
-  if (!link) return { ok: false, error: "먼저 텔레그램을 연결해 주세요." };
-  try {
-    await sendTelegramMessage({ botToken: link.bot_token, chatId: link.chat_id, text: "🛒 AI 쿠팡 운영 자동화 시험 메시지입니다." });
-    return { ok: true, message: "시험 메시지를 보냈습니다." };
-  } catch (e) {
-    return { ok: false, error: msg(e, "보내지 못했습니다.") };
-  }
+  const [c] = cleanChannels([channel]);
+  if (!c) return { ok: false, error: "받을 곳을 골라 주세요." };
+  const targets = await loadTargets(user.id);
+  const problem = channelProblem(c, targets);
+  if (problem) return { ok: false, error: problem };
+  const result = await deliver([c], targets, "[쿠팡 운영] 시험 메시지", "🛒 AI 쿠팡 운영 자동화 시험 메시지입니다.");
+  return result.endsWith("보냄") ? { ok: true, message: result } : { ok: false, error: `${result}: 계정 정보를 확인해 주세요.` };
+}
+
+export async function saveSmtpAction(input: { host: string; port: number; user: string; password: string; fromName: string }): Promise<Done> {
+  const user = await requireProgramAccess();
+  const host = String(input.host ?? "").trim();
+  const smtpUser = String(input.user ?? "").trim();
+  const password = String(input.password ?? "").trim();
+  if (!host || !smtpUser || !password) return { ok: false, error: "SMTP 주소·로그인 계정·앱 비밀번호를 넣어 주세요." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("user_smtp_accounts").insert({ user_id: user.id, label: "쿠팡 운영 알림", smtp_host: host, smtp_port: Number(input.port) || 587, smtp_user: smtpUser, smtp_password: password, from_name: String(input.fromName ?? "").trim() || null });
+  if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  revalidatePath("/alerts");
+  return { ok: true, message: "저장했습니다. 다른 프로그램에서도 같은 계정을 씁니다." };
+}
+
+export async function saveSolapiAction(input: { apiKey: string; apiSecret: string; senderPhone: string; pfId: string }): Promise<Done> {
+  const user = await requireProgramAccess();
+  const row = { api_key: String(input.apiKey ?? "").trim(), api_secret: String(input.apiSecret ?? "").trim(), sender_phone: String(input.senderPhone ?? "").replace(/\D/g, ""), kakao_pf_id: String(input.pfId ?? "").trim() };
+  if (!row.api_key || !row.api_secret || !row.sender_phone || !row.kakao_pf_id) return { ok: false, error: "API Key·Secret·발신번호·카카오 채널 ID를 모두 넣어 주세요." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("user_solapi_accounts").upsert({ user_id: user.id, ...row }, { onConflict: "user_id" });
+  if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  revalidatePath("/alerts");
+  return { ok: true, message: "저장했습니다. 다른 프로그램에서도 같은 계정을 씁니다." };
 }
 
 export async function saveCronKeyAction(apiKey: string): Promise<Done> {
@@ -72,12 +89,17 @@ export async function saveCronKeyAction(apiKey: string): Promise<Done> {
 }
 
 /** 켜기: 회원 전용 토큰을 새로 만들어 회원 cron-job.org 작업에 넣는다. 작업을 못 만들면 켜지 않는다 */
-export async function enableDailyAlertAction(hourInput: number): Promise<Done> {
+export async function enableDailyAlertAction(hourInput: number, channelsInput: AlertChannel[]): Promise<Done> {
   const user = await requireProgramAccess();
   const hour = cleanHour(hourInput);
-  const [keys, key, link] = await Promise.all([getWingKeys(user.id), cronKey(user.id), telegramLink(user.id)]);
+  const channels = cleanChannels(channelsInput);
+  if (!channels.length) return { ok: false, error: "받을 곳을 하나 이상 골라 주세요." };
+  const [keys, key, targets] = await Promise.all([getWingKeys(user.id), cronKey(user.id), loadTargets(user.id)]);
   if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
-  if (!link) return { ok: false, error: "먼저 텔레그램을 연결해 주세요." };
+  for (const c of channels) {
+    const problem = channelProblem(c, targets);
+    if (problem) return { ok: false, error: `${CHANNEL_LABEL[c]}: ${problem}` };
+  }
   if (!key) return { ok: false, error: "먼저 cron-job.org API 키를 저장해 주세요." };
   const token = `${TOKEN_PREFIX}_${randomBytes(32).toString("hex")}`;
   const token_hash = createHash("sha256").update(token).digest("hex");
@@ -86,7 +108,7 @@ export async function enableDailyAlertAction(hourInput: number): Promise<Done> {
   } catch (e) {
     return { ok: false, error: msg(e, "cron-job.org 작업을 만들지 못했습니다.") };
   }
-  const { error } = await createAdminClient().from("coupang_ops_alerts").upsert({ user_id: user.id, enabled: true, hour, token_hash, updated_at: new Date().toISOString() });
+  const { error } = await createAdminClient().from("coupang_ops_alerts").upsert({ user_id: user.id, enabled: true, hour, channels, token_hash, updated_at: new Date().toISOString() });
   if (error) return { ok: false, error: "설정을 저장하지 못했습니다. 다시 눌러 주세요." };
   revalidatePath("/alerts");
   return { ok: true, message: `매일 ${hour}시에 요약을 보냅니다.` };
@@ -106,14 +128,15 @@ export async function disableDailyAlertAction(): Promise<Done> {
   }
 }
 
-export type AlertStatus = { enabled: boolean; hour: number; lastRunDate: string; lastResult: string; telegram: string; cronKeySaved: boolean; wingKeysSaved: boolean };
+export type AlertStatus = { enabled: boolean; hour: number; channels: AlertChannel[]; ready: Record<AlertChannel, boolean>; lastRunDate: string; lastResult: string; telegram: string; smtpUser: string; email: string; phoneMasked: string; cronKeySaved: boolean; wingKeysSaved: boolean };
 
 export async function alertStatus(userId: string): Promise<AlertStatus> {
-  const [row, link, key, keys] = await Promise.all([
-    createAdminClient().from("coupang_ops_alerts").select("enabled,hour,last_run_date,last_result").eq("user_id", userId).maybeSingle().then((r) => r.data),
-    telegramLink(userId),
+  const [row, t, key, keys] = await Promise.all([
+    createAdminClient().from("coupang_ops_alerts").select("enabled,hour,channels,last_run_date,last_result").eq("user_id", userId).maybeSingle().then((r) => r.data),
+    loadTargets(userId),
     cronKey(userId),
     getWingKeys(userId),
   ]);
-  return { enabled: !!row?.enabled, hour: row?.hour ?? 8, lastRunDate: row?.last_run_date ?? "", lastResult: row?.last_result ?? "", telegram: link ? link.bot_username || "연결됨" : "", cronKeySaved: !!key, wingKeysSaved: !!keys };
+  const ready = Object.fromEntries(ALERT_CHANNELS.map((c) => [c, !channelProblem(c, t)])) as Record<AlertChannel, boolean>;
+  return { enabled: !!row?.enabled, hour: row?.hour ?? 8, channels: row ? cleanChannels(row.channels) : ["telegram"], ready, lastRunDate: row?.last_run_date ?? "", lastResult: row?.last_result ?? "", telegram: t.telegram ? t.telegram.bot_username || "연결됨" : "", smtpUser: t.smtp?.smtp_user ?? "", email: t.email, phoneMasked: t.phone ? `끝자리 ${t.phone.replace(/\D/g, "").slice(-4)}` : "", cronKeySaved: !!key, wingKeysSaved: !!keys };
 }

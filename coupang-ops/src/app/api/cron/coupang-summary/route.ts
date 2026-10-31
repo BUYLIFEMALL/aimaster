@@ -2,11 +2,11 @@ import { createHash } from "crypto";
 import { after, NextRequest, NextResponse } from "next/server";
 import { getWingKeysForJob } from "@/lib/data";
 import { readTodayCounts } from "@/lib/coupang/todayRead";
-import { kstDate, summaryMessage } from "@/lib/coupang/summary";
+import { deliver, loadTargets } from "@/lib/alerts/deliver";
+import { cleanChannels, kstDate, summaryMessage } from "@/lib/coupang/summary";
 import { callBudgetBlock } from "@/lib/coupang/usage";
 import { checkProgramAccess } from "@/lib/programAccess";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendTelegramMessage } from "@/lib/telegram/client";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,11 +17,11 @@ export const maxDuration = 120;
 async function run(userId: string) {
   const admin = createAdminClient();
   const finish = (last_result: string) => admin.from("coupang_ops_alerts").update({ last_result: last_result.slice(0, 300), updated_at: new Date().toISOString() }).eq("user_id", userId);
-  const { data: links } = await admin.from("user_telegram_links").select("program_slug,bot_token,chat_id").eq("user_id", userId);
-  const rows = (links ?? []) as { program_slug: string; bot_token: string; chat_id: string }[];
-  const link = rows.find((r) => r.program_slug === "coupang-ops") ?? rows[0];
-  if (!link) return finish("텔레그램 연결이 없어 보내지 못했습니다.");
-  const notify = (text: string) => sendTelegramMessage({ botToken: link.bot_token, chatId: link.chat_id, text });
+  const { data: row } = await admin.from("coupang_ops_alerts").select("channels").eq("user_id", userId).maybeSingle();
+  const channels = cleanChannels(row?.channels);
+  const targets = await loadTargets(userId);
+  const subject = "[쿠팡 운영] 아침 요약";
+  const notify = (text: string) => deliver(channels, targets, subject, text);
   try {
     const access = await checkProgramAccess(admin as Parameters<typeof checkProgramAccess>[0], userId, "coupang-ops");
     if (!access.allowed) return finish("이용 권한이 없어 건너뛰었습니다.");
@@ -29,14 +29,12 @@ async function run(userId: string) {
     if (!keys) return finish("쿠팡 키가 없어 건너뛰었습니다.");
     const blocked = await callBudgetBlock(userId);
     if (blocked) {
-      await notify(`🛒 쿠팡 아침 요약을 오늘은 쉽니다. ${blocked}`);
-      return finish(blocked);
+      return finish(`${blocked} / ${await notify(`🛒 쿠팡 아침 요약을 오늘은 쉽니다. ${blocked}`)}`);
     }
-    await notify(summaryMessage(await readTodayCounts(keys)));
-    return finish("보냈습니다.");
+    return finish(await notify(summaryMessage(await readTodayCounts(keys))));
   } catch (e) {
     console.error("[coupang-summary]", (e as Error).name);
-    return finish("보내지 못했습니다. 텔레그램 연결을 확인해 주세요.");
+    return finish("보내지 못했습니다. 받을 곳 연결을 확인해 주세요.");
   }
 }
 

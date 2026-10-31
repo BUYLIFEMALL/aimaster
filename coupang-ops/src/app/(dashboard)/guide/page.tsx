@@ -89,7 +89,7 @@ export default async function GuidePage() {
         <h2 className="text-lg font-extrabold text-slate-900">❓ 자주 묻는 질문</h2>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">아침 요약 알림은 어떻게 켜나요?</summary>
-          <p className="mt-2 leading-relaxed text-slate-700">「판매자정보 → 아침 요약 알림」에서 본인 텔레그램 봇을 연결하고 무료 cron-job.org API 키를 넣은 뒤 시각을 골라 켭니다. 건수만 보내고 고객 정보는 보내지 않으며, 쿠팡에는 읽기만 합니다. 한 번에 쿠팡을 7번 읽으므로 호출 상한에 닿으면 그날은 쉬고 알려 드립니다.</p>
+          <p className="mt-2 leading-relaxed text-slate-700">「판매자정보 → 아침 요약 알림」에서 텔레그램 봇, 메일 SMTP, SOLAPI 카카오톡 중 받을 곳을 연결하고 무료 cron-job.org API 키를 넣은 뒤 시각을 골라 켭니다. 카카오톡은 내 카카오 채널을 친구로 추가해야 받을 수 있고 요금은 내 SOLAPI에 청구됩니다. 건수만 보내고 고객 정보는 보내지 않으며, 쿠팡에는 읽기만 합니다. 한 번에 쿠팡을 7번 읽으므로 호출 상한에 닿으면 그날은 쉬고 알려 드립니다.</p>
         </details>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">AI 추천은 무엇을 채우나요?</summary>
