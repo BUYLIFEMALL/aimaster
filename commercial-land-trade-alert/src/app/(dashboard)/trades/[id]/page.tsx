@@ -80,7 +80,7 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
             {diff !== null && (
               <>
                 {" "}
-                이 거래는 중간값보다 <b>{Math.abs(diff)}% {diff >= 0 ? "높습니다" : "낮습니다"}</b>.
+                이 거래는 중간값과 <b>{diff === 0 ? "비슷합니다" : `${Math.abs(diff)}% ${diff > 0 ? "높습니다" : "낮습니다"}`}</b>.
               </>
             )}
           </p>
