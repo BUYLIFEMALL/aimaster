@@ -165,7 +165,7 @@ export default function SettingsPage() {
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-100">API 키 연동 및 보안 콘솔</h1>
             <p className="mt-0.5 text-xs text-slate-400">
-              이 프로그램은 회원님 본인의 Google Gemini API 키로만 동작합니다. 키는 회원님 본인 계정에만 암호화되어 격리 보관됩니다.
+              이 프로그램은 회원님 본인의 Google Gemini API 키로만 동작합니다. 키는 회원님 본인 계정에만 연결해 보관합니다.
             </p>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default function SettingsPage() {
         provider="gemini"
         title="Google Gemini API 키"
         required
-        description="가사·스토리보드 기획(Gemini 2.5), 장면 비주얼(나노바나나), 시네마틱 영상(Gemini Omni Flash) 생성 엔진에 모두 사용됩니다."
+        description="가사·스토리보드 기획(Gemini), 장면 비주얼(나노바나나), 시네마틱 영상(Gemini Omni Flash) 생성 엔진에 모두 사용됩니다."
         placeholder="AIzaSy... 로 시작하는 본인 Gemini API 키 입력"
         {...common}
       />
@@ -202,7 +202,7 @@ export default function SettingsPage() {
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
           <span className="leading-relaxed">
             Google Gemini 영상 생성 기능은 결제가 연결된(Pay-as-you-go) Google Cloud 프로젝트 키에서만 실행 가능합니다.
-            영상 생성 길이에 따라 초당 약 $0.05가 회원님 계정에 직접 청구되며, 장면 제작 화면에서 예상 비용을 사전에 확인하실 수 있습니다.
+            영상 생성 길이에 따라 초당 약 $0.10이 회원님 계정에 직접 청구되며, 장면 제작 화면에서 예상 비용을 사전에 확인하실 수 있습니다.
           </span>
         </p>
       </div>

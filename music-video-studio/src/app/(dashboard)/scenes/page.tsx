@@ -296,7 +296,7 @@ export default function ScenesPage() {
           </div>
           <p className="mt-1 leading-relaxed text-amber-200/90">
             영상 1개당 약 ${perSceneCost(true).usd} (약 {perSceneCost(true).krw.toLocaleString()}원), 전체 {scenes.length}개 장면 일괄 렌더링 시 약 ${totalCost.usd} (약 {totalCost.krw.toLocaleString()}원).
-            회원님 본인 Gemini API 계정으로만 청구되며, 이미지만 생성할 경우 무료/저비용으로 기획안을 확인할 수 있습니다.
+            회원님 본인 Gemini API 계정으로만 청구됩니다. 장면 이미지도 장당 비용이 들며 위 금액에는 포함되지 않습니다. 이미지만 먼저 만들면 영상 비용 없이 기획안을 확인할 수 있습니다.
           </p>
           {keepStyle && scenes.length - imageCount > 0 && (
             <p className="mt-1 leading-relaxed text-amber-200/90">

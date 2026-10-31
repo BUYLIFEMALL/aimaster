@@ -214,14 +214,14 @@ export function FinalRender() {
       <div>
         <h2 className="flex items-center gap-2 text-base font-extrabold text-white"><Film className="h-5 w-5 text-cyan-300" aria-hidden="true" /> 🎬 최종 뮤직비디오 만들기</h2>
         <p className="mt-1 text-xs leading-relaxed text-slate-400">
-          장면 영상(없으면 장면 이미지)에 이 뮤직비디오의 곡과 가사 자막을 얹어 MP4 한 편으로 만듭니다. 내 PC 브라우저에서 만들어 비용이 들지 않습니다.
+          장면 영상(없으면 장면 이미지)에 이 뮤직비디오의 곡과 가사 자막을 얹어 MP4 한 편으로 만듭니다. 합치는 작업은 내 PC 브라우저에서 해 추가 비용이 없습니다(앞 단계의 이미지·영상 생성 비용은 별도입니다).
           곡에 시간 가사가 있으면 그 장면의 가사가 나오는 시각에 장면을 바꾸고, 없으면 곡 길이를 장면 수로 고르게 나눕니다. 곡의 박자를 찾으면 전환을 박자에 맞춥니다. 장면보다 짧은 영상은 반복 재생합니다.
         </p>
       </div>
 
       <div className="grid gap-2 text-xs text-slate-300 sm:grid-cols-3">
         <p>장면 <b className="text-white">{usable.length}</b>/{scenes.length}개 (영상 {videoCount} · 이미지 {usable.length - videoCount})</p>
-        <p>곡 {song ? (songSrc ? <b className="text-white">{song.title} · {songSec ? `${Math.round(songSec)}초` : "길이 확인 중"}</b> : songNote ? <span className="text-amber-200">{songNote}</span> : "불러오는 중…") : <span className="text-amber-200">없음 — 3단계에서 곡을 고르면 곡 길이에 맞춰집니다(지금은 장면마다 {FALLBACK_SCENE_S}초)</span>}</p>
+        <p>곡 {song ? (songSrc ? <b className="text-white">{song.title} · {songSec ? `${Math.round(songSec)}초` : "길이 확인 중"}</b> : songNote ? <span className="text-amber-200">{songNote}</span> : "불러오는 중…") : <span className="text-amber-200">없음 — 1단계에서 곡을 고르면 곡 길이에 맞춰집니다(지금은 장면마다 {FALLBACK_SCENE_S}초)</span>}</p>
         <p>완성 길이 <b className="text-white">{Math.round(totalFrames / FPS)}초</b> · {width}×{height}{songSec ? <> · 장면 길이 <b className={timed ? "text-emerald-300" : "text-white"}>{timed ? "가사 시각에 맞춤" : "고르게 나눔"}</b></> : null}</p>
         {songSrc && (
           <p className="sm:col-span-3">
@@ -268,7 +268,7 @@ export function FinalRender() {
           </>
         ) : (
           <button type="button" className={BTN_PRIMARY} disabled={usable.length === 0} onClick={() => void start()}>
-            <Film className="h-4 w-4" aria-hidden="true" /> <span>최종 뮤직비디오 만들기 (무료)</span>
+            <Film className="h-4 w-4" aria-hidden="true" /> <span>최종 뮤직비디오 만들기 (추가 비용 없음)</span>
           </button>
         )}
       </div>
