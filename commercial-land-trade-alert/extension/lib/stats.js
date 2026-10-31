@@ -4,6 +4,7 @@ import { EVENT_LABEL } from "./compare.js";
 
 const PYEONG = 3.3058;
 const MIN_YIELD = 5; // 표본이 적으면 대표값으로 보이지 않게 비운다
+const YIELD_DOUBT = 15; // 이보다 높은 추정값은 확인 표시만 붙이는 값이라 대표값 계산에서 뺀다(score.js와 같은 기준)
 const STATUS = Object.fromEntries(["new", "priceDown", "priceUp", "gone"].map((k) => [EVENT_LABEL[k], k]));
 const avg = (xs) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : null);
 const median = (xs) => {
@@ -47,7 +48,7 @@ export function summarizeTable(columns, table, at, sggByWatch = {}) {
     const rent = of("월세");
     const salePrices = sale.map((x) => x.price).filter(Number.isFinite);
     const gaps = sale.map((x) => x.gap).filter(Number.isFinite);
-    const ylds = sale.map((x) => x.yld).filter(Number.isFinite);
+    const ylds = sale.map((x) => x.yld).filter((y) => Number.isFinite(y) && y <= YIELD_DOUBT);
     const trades = {};
     if (sale.length) trades["매매"] = { n: sale.length, avg: avg(salePrices), med: median(salePrices), perPyeong: median(sale.filter((x) => x.price && x.area).map((x) => (x.price / x.area) * PYEONG)), gapAvg: avg(gaps), gapMed: median(gaps), gapN: gaps.length, yieldMed: ylds.length >= MIN_YIELD ? median(ylds.map((y) => y * 10)) / 10 : null, yieldN: ylds.length };
     if (rent.length) trades["월세"] = { n: rent.length, avg: avg(rent.map((x) => x.price).filter(Number.isFinite)), rentAvg: avg(rent.map((x) => x.rent).filter(Number.isFinite)) };

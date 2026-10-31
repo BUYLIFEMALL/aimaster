@@ -292,3 +292,25 @@ test("AI 엔진 3가지 요청과 선택값 검사", async () => {
   assert.match(readJsonText("gemini", { candidates: [{ content: { parts: [{ text: "요약" }] }, finishReason: "MAX_TOKENS" }] }), /길이 제한/);
   assert.throws(() => readJsonText("gemini", {}), /비어/);
 });
+
+test("토지 자료 확인 기록과 글쓰기 주제", async () => {
+  const { landFieldNote } = await import("../extension/lib/listing.js");
+  assert.equal(landFieldNote([{ realEstateTypeCode: "SG" }]), "");
+  const note = landFieldNote([{ realEstateTypeCode: "TJ", articleName: "임야", tagList: ["대지"], realtorName: "가나" }]);
+  assert.match(note, /임야/);
+  assert.match(note, /대지/);
+  assert.doesNotMatch(note, /가나/);
+  const { buildDraft } = await import("../src/lib/blogDraft.ts");
+  const d = buildDraft({ area: "역삼동", kind: "상가", total: 3, events: { new: 2, priceDown: 0 }, saleAvg: 105000, saleN: 3, gapMed: 45 }, new Date("2026-10-31T00:00:00+09:00"));
+  assert.match(d.topic, /2026년 10월 역삼동 상가 매물 시세 — 매매 호가 평균 10억 5,000만 원, 실거래 대비 \+45%, 새 매물 2건/);
+  assert.equal(d.keywords[0], "역삼동 상가");
+});
+
+test("확인이 필요한 수익률은 대표값에서 뺀다", async () => {
+  const { summarizeTable } = await import("../extension/lib/stats.js");
+  const { COLUMNS } = await import("../extension/lib/sheet.js");
+  const row = (y) => COLUMNS.map((c) => ({ "감시 화면": "가", "유형": "상가", "거래 종류": "매매", "가격": "10억", "면적(㎡)": 100, "추정 수익률": y })[c] ?? "");
+  const five = ["3%(월세 5건)", "4%(월세 5건)", "5%(월세 5건)", "6%(월세 5건)", "7%(월세 5건)"].map(row);
+  assert.equal(summarizeTable(COLUMNS, [...five, row("28.5%(월세 5건) · 확인 필요")], "2026-10-31T00:00:00Z").groups[0].trades["매매"].yieldMed, 5);
+  assert.equal(summarizeTable(COLUMNS, [...five.slice(0, 4), row("28.5%(월세 5건) · 확인 필요")], "2026-10-31T00:00:00Z").groups[0].trades["매매"].yieldMed, null);
+});

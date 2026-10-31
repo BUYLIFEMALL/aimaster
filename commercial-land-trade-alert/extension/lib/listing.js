@@ -119,3 +119,13 @@ export function countByKindTrade(items) {
   }
   return [...counts].map(([k, n]) => `${k} ${n}`).join(" · ");
 }
+
+/** 지목을 어느 칸에서 얻을 수 있는지 확인하는 기록. 칸 이름과 이름·태그만 남기고 값 전체나 중개사는 남기지 않는다 */
+export function landFieldNote(articles) {
+  const land = (articles || []).filter((a) => a?.realEstateTypeCode === "TJ");
+  if (!land.length) return "";
+  const keys = [...new Set(land.flatMap((a) => Object.keys(a)))].sort().join(",");
+  const names = [...new Set(land.map((a) => stripPhoneNumbers(String(a.articleName || ""))))].slice(0, 5).join("/");
+  const tags = [...new Set(land.flatMap((a) => (Array.isArray(a.tagList) ? a.tagList : [])).map((x) => stripPhoneNumbers(String(x))))].slice(0, 12).join("/");
+  return `토지 자료 확인: 이름[${names}] 태그[${tags}] 칸[${keys}]`;
+}

@@ -4,7 +4,9 @@
 // 요약 기록은 확장에만 있고, 같은 계정일 때 이 화면에만 건넨다. 그래프는 한 그래프에 선 하나다.
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { buildDraftLink, DRAFT_TARGETS, isDraftTarget, type DraftTarget } from "@/lib/blogDraft";
 import { askExtension } from "@/lib/extensionBridge";
+import { EventLog, type EventRow } from "./EventLog";
 
 type SaleStat = { n: number; avg: number | null; med: number | null; perPyeong: number | null; gapMed?: number | null; gapN: number; yieldMed?: number | null; yieldN: number };
 type RentStat = { n: number; avg: number | null; rentAvg: number | null };
@@ -21,6 +23,7 @@ export function shortWatch(watch: string) {
 }
 const label = (g: { watch: string; kind: string }) => `${shortWatch(g.watch)} · ${g.kind}`;
 
+const DRAFT_KEY = "clta-draft-target"; // 글 쓸 곳(이 브라우저에만 기억)
 const RANGES: [number, string][] = [[30, "1개월"], [90, "3개월"], [180, "6개월"], [365, "1년"]];
 
 function won(v: number | null | undefined) {
@@ -106,16 +109,35 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
   const [picked, setPicked] = useState("");
   const [trade, setTrade] = useState<Trade>("매매");
   const [range, setRange] = useState(90);
+  const [events, setEvents] = useState<EventRow[]>([]);
+  const [draftTarget, setDraftTarget] = useState<DraftTarget>("blog");
 
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; history?: Snap[]; weeklyReport?: Weekly | null }>("stats", 3000, { email }).then((r) => {
+    void askExtension<{ ok?: boolean; history?: Snap[]; weeklyReport?: Weekly | null; events?: EventRow[] }>("stats", 3000, { email }).then((r) => {
       if (!alive) return;
       setHistory(r?.ok ? r.history ?? [] : null);
       setWeekly(r?.ok && r.weeklyReport?.text ? r.weeklyReport : null);
+      setEvents(r?.ok && Array.isArray(r.events) ? r.events : []);
+      try {
+        const v = window.localStorage.getItem(DRAFT_KEY);
+        if (isDraftTarget(v)) setDraftTarget(v);
+      } catch {
+        // 저장소를 못 쓰면 기본값(블로그)
+      }
     });
     return () => { alive = false; };
   }, [email]);
+
+  const pickDraft = (v: string) => {
+    if (!isDraftTarget(v)) return;
+    setDraftTarget(v);
+    try {
+      window.localStorage.setItem(DRAFT_KEY, v);
+    } catch {
+      // 기억 못 해도 이번 화면에서는 적용
+    }
+  };
 
   const latest = history?.length ? history[history.length - 1] : null;
   const prev = history && history.length > 1 ? history[history.length - 2] : null;
@@ -172,10 +194,17 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
         <LineChart title={`${selectedLabel} · ${trade === "월세" ? "평균 월세" : "매매 평균 가격"}`} points={pricePoints} fmt={won} />
       </div>
 
-      <h3 className="mt-5 text-base font-bold">🏢 감시 화면 비교 (이번 회차)</h3>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-base font-bold">🏢 감시 화면 비교 (이번 회차)</h3>
+        <label className="flex items-center gap-2 text-sm">📝 글 쓸 곳
+          <select value={draftTarget} onChange={(e) => pickDraft(e.target.value)} className="mx-input min-h-[40px] w-auto py-2 text-sm">
+            {(Object.keys(DRAFT_TARGETS) as DraftTarget[]).map((k) => <option key={k} value={k}>{DRAFT_TARGETS[k].label}</option>)}
+          </select>
+        </label>
+      </div>
       <div className="mt-2 overflow-x-auto rounded-2xl border border-mx-border">
         <table className="mx-table [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
-          <thead><tr><th>감시 화면 · 유형</th><th>매물</th><th>매매 평균</th><th>매매 평당가(중간값)</th><th>실거래 대비(중간값)</th><th>월세 평균</th><th>추정 수익률(중간값)</th></tr></thead>
+          <thead><tr><th>감시 화면 · 유형</th><th>매물</th><th>매매 평균</th><th>매매 평당가(중간값)</th><th>실거래 대비(중간값)</th><th>월세 평균</th><th>추정 수익률(중간값)</th><th>글쓰기</th></tr></thead>
           <tbody>
             {latest.groups.map((g) => {
               const s = g.trades["매매"], m = g.trades["월세"];
@@ -189,13 +218,25 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
                   <td><Gap s={s} /></td>
                   <td>{m ? `${won(m.avg)} / 월 ${won(m.rentAvg)} (${m.n})` : "—"}</td>
                   <td>{s?.yieldMed != null ? `${s.yieldMed}% (${s.yieldN}건)` : "—"}</td>
+                  <td>
+                    <a
+                      href={buildDraftLink({ area: shortWatch(g.watch), kind: g.kind, total: g.total, events: g.events, saleAvg: s?.avg ?? null, saleN: s?.n ?? 0, gapMed: s?.gapMed ?? null }, draftTarget)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`이 지역 시세 요약을 주제로 글쓰기 화면을 엽니다(${DRAFT_TARGETS[draftTarget].label})`}
+                      className="text-mx-link underline"
+                    >
+                      📝 글로 쓰기 ↗
+                    </a>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-xs text-mx-muted">금액은 호가 기준이며 (괄호)는 매물 수입니다. 평당가와 실거래 대비는 극단값에 덜 흔들리도록 중간값으로 보여 드립니다. 추정 수익률은 호가로 어림한 값이며 5건 이상일 때만 표시합니다. 토지는 지목이 달라 비교가 어려워 실거래 대비를 표시하지 않습니다.</p>
+      <p className="mt-2 text-xs text-mx-muted">금액은 호가 기준이며 (괄호)는 매물 수입니다. 평당가와 실거래 대비는 극단값에 덜 흔들리도록 중간값으로 보여 드립니다. 추정 수익률은 호가로 어림한 값이며, 15%를 넘어 확인이 필요한 값을 뺀 5건 이상일 때만 표시합니다. 토지는 지목이 달라 비교가 어려워 실거래 대비를 표시하지 않습니다.</p>
+      <EventLog events={events} lastAt={latest.at} short={shortWatch} />
     </section>
   );
 }
