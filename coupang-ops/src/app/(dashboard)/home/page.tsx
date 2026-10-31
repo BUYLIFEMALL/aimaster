@@ -4,6 +4,8 @@ import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { ROADMAP, TOOLS } from "@/lib/tools";
 import { getWingKeys } from "@/lib/data";
 import { TodayBoard } from "@/components/TodayBoard";
+import { RejectedBoard, type RejectedJob } from "@/components/RejectedBoard";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -11,6 +13,7 @@ export const fetchCache = "force-no-store";
 export default async function HomePage() {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
+  const { data: rejected } = await createAdminClient().from("coupang_ops_jobs").select("id,product_id,product_name,seller_product_id,message").eq("user_id", user.id).eq("status", "rejected").order("created_at", { ascending: false }).limit(10);
 
   return (
     <div className="space-y-5">
@@ -22,6 +25,8 @@ export default async function HomePage() {
       </Notice>
 
       <TodayBoard keysSaved={!!keys} />
+
+      <RejectedBoard jobs={(rejected ?? []) as RejectedJob[]} keysSaved={!!keys} />
 
       {TOOLS.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-3">

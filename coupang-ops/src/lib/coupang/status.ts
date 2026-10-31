@@ -41,6 +41,14 @@ export type StatusSummary = { statusName: string; jobStatus: JobStatus | null; m
 
 /** 쿠팡에서 지운 기록의 문구 머리말 — 기록 표 상태에 「삭제」가 없어 문구로 구분한다(이 기록은 다시 보내기를 막지 않는다) */
 export const DELETED_PREFIX = "쿠팡에서 삭제함";
+
+/** B3 「등록 상태 다시 확인」 대상 — 결과를 아직 모르는 기록. 1건당 쿠팡 2회라 최근 5건만 */
+export const RECHECK_STATUSES = ["saved", "requested"];
+export const RECHECK_LIMIT = 5;
+export const RECHECK_GAP_SECONDS = 30;
+
+/** 반려 기록의 사유 문구. 비어 있으면 어디서 확인할지 안내한다 */
+export const rejectReasonText = (message: string | null | undefined) => (message ?? "").trim() || "사유가 아직 기록되지 않았습니다. 상품을 열어 「쿠팡 상태 확인」을 눌러 주세요.";
 /** 삭제를 허용하는 쿠팡 상태(판매 중인 상품을 지우지 않도록 이 둘만) */
 export const DELETABLE_STATUS = ["승인반려", "임시저장"];
 

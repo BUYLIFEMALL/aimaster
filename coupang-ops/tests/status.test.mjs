@@ -1,7 +1,14 @@
 // 등록 현황·승인 상태 정리(외부 호출 없음)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { historyPath, jobStatusOf, normalizeHistory, summarizeStatus } from "../src/lib/coupang/status.ts";
+import { historyPath, jobStatusOf, normalizeHistory, RECHECK_STATUSES, rejectReasonText, summarizeStatus } from "../src/lib/coupang/status.ts";
+
+test("반려 칸 문구와 다시 확인 대상", () => {
+  assert.equal(rejectReasonText("승인반려 — 반려 사유: 이미지 규격 위반"), "승인반려 — 반려 사유: 이미지 규격 위반");
+  assert.match(rejectReasonText(""), /쿠팡 상태 확인/);
+  assert.match(rejectReasonText(null), /쿠팡 상태 확인/);
+  assert.deepEqual(RECHECK_STATUSES, ["saved", "requested"]);
+});
 
 test("쿠팡 상태 이름을 기록 상태로 바꾼다", () => {
   assert.equal(jobStatusOf("임시저장"), "saved");
