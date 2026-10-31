@@ -13,8 +13,8 @@ test("경로와 조건을 명세대로 만든다", () => {
   assert.match(centerQuery("NO_ANSWER", r), /pageSize=30/);
 });
 
-test("조회 기간은 한국 날짜 기준 7일이다", () => {
-  assert.deepEqual(inquiryRange(Date.parse("2026-10-31T15:30:00Z")), { from: "2026-10-25", to: "2026-11-01" });
+test("조회 기간은 한국 날짜 기준 오늘 포함 7일이다", () => {
+  assert.deepEqual(inquiryRange(Date.parse("2026-10-31T15:30:00Z")), { from: "2026-10-26", to: "2026-11-01" });
 });
 
 test("고객 정보를 가린다", () => {

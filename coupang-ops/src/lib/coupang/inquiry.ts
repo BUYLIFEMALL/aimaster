@@ -18,10 +18,10 @@ const CENTER_PAGE = 30;
 const DAY_MS = 86_400_000;
 const KST_MS = 9 * 3_600_000;
 
-/** 한국 날짜 기준 최근 7일(명세: 종료일 − 시작일 ≤ 7일) */
+/** 한국 날짜 기준 오늘 포함 7일. 명세는 「종료일 − 시작일 ≤ 7일」이지만 차이 7일은 실제로 400이 난다(2026-10-31 운영 확인) */
 export function inquiryRange(nowMs: number): { from: string; to: string } {
   const day = (ms: number) => new Date(ms + KST_MS).toISOString().slice(0, 10);
-  return { from: day(nowMs - 7 * DAY_MS), to: day(nowMs) };
+  return { from: day(nowMs - 6 * DAY_MS), to: day(nowMs) };
 }
 export const onlineQuery = (vendorId: string, r: { from: string; to: string }) =>
   new URLSearchParams({ vendorId, answeredType: "NOANSWER", inquiryStartAt: r.from, inquiryEndAt: r.to, pageNum: "1", pageSize: String(ONLINE_PAGE) }).toString();
