@@ -88,6 +88,10 @@ export default async function GuidePage() {
       <section className="slw-card space-y-2 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">❓ 자주 묻는 질문</h2>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">「품절 예방」은 자동으로 재고를 채우나요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">아니요. 버튼을 누를 때 상품 20개씩 점검해 품절·부족 옵션을 보여 주고, 재고는 회원이 수량을 넣고 확인을 누른 옵션만 바뀝니다. 판매 중지 옵션은 재고를 채워도 저절로 재개되지 않으니 「내 쿠팡 상품」의 「옵션 관리」에서 재개해 주세요.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">쿠팡 API를 쓰면 제재를 받지 않나요?</summary>
           <p className="mt-2 leading-relaxed text-slate-700">쿠팡이 판매자에게 공식으로 제공하는 연동 방식이라 사용 자체로 제재받지 않습니다. 다만 같은 옵션값 중복, 승인 뒤 가격 −50%~+100% 범위 같은 상품 규칙은 지켜야 합니다.</p>
         </details>

@@ -16,8 +16,8 @@ export const LIST_STATUSES: { value: string; label: string }[] = [
 
 export const MAX_PER_PAGE = 50; // 쿠팡 최대 100 — 화면 한 번에 50건
 
-export function listQuery(vendorId: string, opt: { nextToken?: string; status?: string; name?: string } = {}): string {
-  const q = new URLSearchParams({ vendorId, maxPerPage: String(MAX_PER_PAGE) });
+export function listQuery(vendorId: string, opt: { nextToken?: string; status?: string; name?: string; maxPerPage?: number } = {}): string {
+  const q = new URLSearchParams({ vendorId, maxPerPage: String(opt.maxPerPage ?? MAX_PER_PAGE) });
   if (opt.nextToken) q.set("nextToken", opt.nextToken);
   if (opt.status && LIST_STATUSES.some((s) => s.value === opt.status)) q.set("status", opt.status);
   const name = (opt.name ?? "").trim().slice(0, 20); // 쿠팡: 상품명 검색 20자 이하
