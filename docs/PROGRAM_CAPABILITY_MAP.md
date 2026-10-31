@@ -1,3 +1,4 @@
+| 94 | 상가·건물·토지 실거래 알림 | `commercial-land-trade-alert` | 부동산 | v1.01 | 준비중(2026-10-31) | 상가·건물·토지 실거래를 지역·조건으로 모아 보고 새 거래를 텔레그램으로 받음. 직접 수집 없음 |
 # 프로그램 비교표 — 개발 목록·기능·차별점·장점·단점·활용 용도·재사용 부품 (모든 CLI 공통 지침)
 
 > [역할: blog] **검토 완료 받은 신청의 반복 수락 로컬 완료(2026-10-30)** — `4ee7dc674`: 확장 별도 동의→현재 본인 관리 탭 유지→웹 주기·KST 시간대/기존 공용 예약커서→검토 완료 신청1건 재확인·수락·결과 기록→다음 주기. 일반 소통과 동시 선점 차단·신청 공용 일일상한·최대8시간/확인960회/수락120회, 불확정/기한초과 OFF·예약보존·읽기 증명 후 명시적 대기 복구. 응답 유실 후 배정 조회/중단과 설정 변경 후 ready 대상 재검토도 보완. 새 신청 수집/승인·AI 생성·다른 관리 페이지 이동은 자동화하지 않음. 단위303/신규 격리DB9·243SQL/정리DB11/타입 통과, 실제 DOM/Edge/Naver 미검수. 후속16묶음 미배포·SQL9 미적용(신규 `20261030150000_bnc_accept_schedule.sql`, 새 표0/컬럼5). 웹+확장 전용·새 권한/창0·운영/ZIP v1.03 보존·유료AI/실RSS/검색API/운영업무SQL/원격빌드/배포/푸시0. **남은 구현: 자동 RSS 감시·동의/예산 기반 AI 자동 초안 준비**. 그룹3~9 실제/운영 검수는 미완료 유지. [근거](https://www.buylife.xyz/admin/dev-docs/requests): `blog-neighbor-care/docs/evidence/accept-schedule-20261030.json`.
@@ -669,6 +670,13 @@
 - **활용 용도**: 내 집 마련 실수요자 · 여러 단지를 비교하는 투자자 · 관심 단지를 챙기는 1인 중개 실무자
 - **단점·한계**: 회원 PC·크롬이 켜져 있어야 수집 · 네이버 화면 구조 변경에 취약(수집 규칙 파일로 대응 예정) · 비공식 주소 사용
 - 문서: [`realty-listing-alert/AGENTS.md`](../realty-listing-alert/AGENTS.md) · 인수인계 [`HANDOFF_20261024_REALTY_LISTING_ALERT.md`](analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md)
+
+#### 상가·건물·토지 실거래 알림 (`commercial-land-trade-alert`, 2026-10-31 신규)
+- 주소·폴더: https://commercial-land-trade-alert.buylife.xyz · `commercial-land-trade-alert/` · v1.01 (준비중)
+- **차별점**: 아파트가 아닌 상가·건물·토지. 회원은 지역·조건만 고르고 서버가 국토부 자료를 지역당 하루 1회 수집.
+- **가져온 것**: `real-estate-sales`의 지역 목록·로그인·메뉴·지역 찾기·봇 연결·429 재시도. **보강**: 고유 번호 없는 자료의 순번 키, 취소 갱신, 지분 제외, 토지 호출 한도 세기, 지역별 수집 상태 표시.
+- **단점·한계**: 토지·일반 건물 지번 가림으로 공시지가 불가, 임대료·호가 없음, 12개월 비교가 차는 데 시간 필요.
+- 문서: [`AGENTS.md`](../commercial-land-trade-alert/AGENTS.md)
 
 #### 부동산 실거래 투자분석 자동화 (`real-estate-sales`)
 - 주소·폴더: https://real-estate-sales.buylife.xyz · `real_estate_sales/` · v1.33 (스마트 매트릭스 다크 슬레이트, 배포 대기)

@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-31 `vercel env pull`이 민감 변수를 `[SENSITIVE]` 글자로 내려 줌(`commercial-land-trade-alert`)
+- 증상: 새 프로그램 첫 배포에서 `Invalid supabaseUrl`.
+- 원인: 다른 프로젝트 환경변수를 pull해 복사했는데 민감 변수는 실제 값이 아니라 `[SENSITIVE]` 글자라 그대로 등록됨. 처음엔 줄바꿈 때문이라고 잘못 추정.
+- 해결: 루트 `.env.local`과 키 파일에서 다시 등록(값 출력 없음).
+- 다음부터: 환경변수를 pull로 복사하지 않고 `scripts/add-*-vercel-env.mjs` 방식을 쓰며, 등록 직후 형식을 검증한다. 추측 전에 값의 형태부터 본다.
+
 ## 2026-10-30 배포 키트 — 빠진 폴더 빌드 실패·원치 않는 Vercel 팀 생성(`Blog_Content_Kit`)
 - 증상: 수강생 환경 빌드 실패(`extension/manifest.json` 없음), 마법사가 묻지 않고 유료 팀 `buylife`에 프로젝트 생성.
 - 원인: 개발 PC에는 뺀 폴더가 있어 빌드가 통과함. `vercel link --yes`는 기본 팀을 그대로 씀. 개인 계정은 `--scope` 불가.
