@@ -131,7 +131,7 @@ export default function SettingsPage() {
         setMessage({ type: "error", text: data.error || "API 키 등록에 실패했습니다." });
         return;
       }
-      setMessage({ type: "success", text: "API 키가 안전하게 암호화되어 저장되었습니다." });
+      setMessage({ type: "success", text: "API 키를 저장했습니다." });
       fetchKeys();
     } catch {
       setMessage({ type: "error", text: "오류가 발생했습니다. 잠시 뒤 다시 시도해주세요." });
