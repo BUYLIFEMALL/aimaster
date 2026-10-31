@@ -23,6 +23,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `commercial-land-trade-alert` | 설정 표 버튼 통일(카카오 끊기, 공용 키 삭제 경고, 다른 프로그램 봇 안내) | `2ac07f6a6` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
 | `blog-neighbor-care` | 기존15묶음+검토완료 받은신청 반복수락/공용예약커서·복구(16묶음) | `8ffa45a9f`·`1a62398ea`·`6a307bbfc`·`7b6e4556e`·`4ebbb2f92`·`c34015232`·`620ca322a`·`ccf22b76c`·`f20ada675`·`b056ca71a`·`ab26e4627`·`20c3eced4`·`7afd15d6a`·`c9cb569c2`·`ed1c6bd86`·`4ee7dc674` | 2026-10-30 · [역할: blog] Codex `codex-win-20261026-blog-check` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 최신절 | SQL9(cursor/engagement/extension/context/messages/extension_schedule/incoming_accept/post_targets/accept_schedule) 미적용·승인전실행금지. 웹/manifest/ZIP/DB 묶음동기화. 자동RSS/AI초안 구현 및 실AI/Edge/Naver/운영Cron검수 잔여. 공개v1.03ZIP 보존 |
 | `shop-detail-page` | 마켓 등록에 쿠팡 칸 추가(2026-10-31 `claude-win-sdp`, tsc 통과, 쿠팡 v1.05 연계) |
