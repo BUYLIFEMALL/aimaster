@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — `ai-mastering-studio` AI 제안 모델 추가(미배포)
+- 한 일: AI 제안 모델 추가(Gemini 3.8 Flash·3.5 Flash-Lite·4 Argon, GPT-6 Luna·6.1 Terra·6.1 Sol·6 Astra, Claude Opus 5.5·Fable 5.1), 플랫폼별 묶음, 기본값 3.8 Flash. 호환: Gemini 생각 끄기는 2.5에만, Claude 출력 한도 16000. 커밋 `a7746f979`.
+- 확인: 시험 22개·`tsc` 통과, 시험 계정 키로 모델 조회 15개 200. 실제 생성 호출과 화면은 미확인.
+- 다음 첫 단계: 주인님 승인 후 새 모델 9개 각 1회 호출, 통과 모델만 남겨 v1.15 배포.
+- 링크: https://ai-mastering-studio.buylife.xyz/studio
+
 ## 2026-10-31 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — `ai-audio-analyzer` v1.14 Gemini 모델·Suno v6
 - 모델: `gemini-2.5-flash` 4곳 → `gemini-3.8-flash`(상수 `GEMINI_MODEL` 한 곳). 키 확인도 같은 모델.
 - 지시문: Suno v6 스타일 칸에 붙여 넣는 영어 문단으로 변경, 가사·아티스트명 금지, 정확성 규칙 추가. 화면의 모델 번호·「v1.10」·「God Tier」 제거, Suno 표기 v6.

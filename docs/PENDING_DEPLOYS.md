@@ -23,6 +23,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-mastering-studio` | AI 제안 모델 추가(Gemini 3.8 Flash·3.5 Flash-Lite·4 Argon, GPT-6 Luna·6.1 Terra·6.1 Sol·6 Astra, Claude Opus 5.5·Fable 5.1), 플랫폼별 묶음, 기본값 3.8 Flash. 호환: Gemini 생각 끄기는 2.5에만, Claude 출력 한도 16000 | `a7746f979` | 2026-10-31 · [역할: music] Claude Code(윈도우) | `ai-mastering-studio/docs/IMPROVEMENTS.md` | 버전 +0.01, 새 모델 실제 호출 확인 |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
 | `commercial-land-trade-alert` | 글로 쓰기, 변동 기록 표, 수익률 대표값 보정, 토지 자료 확인 기록 | `b67c85bc7` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
