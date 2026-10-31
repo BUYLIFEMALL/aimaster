@@ -1,6 +1,24 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.06 수익률·AI 요약
+
+### 2026-10-31 infinite-loop-video (v1.10) 38. 프로 크리에이터 슬레이트 NLE 랩 스타일 전면 리뉴얼 완료
+- **프로그램**: 무한루프 영상자동화 (`infinite-loop-video`, v1.10)
+- **채택 스타일**: 38. 프로 크리에이터 슬레이트 NLE 랩 스타일 (스튜디오 클린 화이트 & 슬레이트 그레이 + 앰버 골드 & 코발트 블루)
+- **개편 내역**:
+  1. 기존 칠흑 같은 다크 차콜(#0b0d12)의 침침함을 전면 탈피하고 밝고 전문적인 NLE 비디오 편집실 감성으로 전면 개편.
+  2. 3D 엠보싱 버튼(`.btn-3d-amber`, `.btn-3d-blue`) 전면 탑재 (5px 입체 그림자, 4px 눌림 모션).
+  3. `Sidebar.tsx`를 `docs/SIDEBAR_LAYOUT_STANDARD.md` 6대 표준 규격에 100% 일치하도록 업그레이드 (Step 1~4 파이프라인, 3D 확장 다운로드 링크, 설정/API 탭 추가).
+  4. `/settings` 설정/API 페이지 신설 (Claude API 연동, 유튜브 쇼츠/인스타/틱톡 플랫폼 연동, GPU 하드웨어 가속 설정).
+  5. `/guide` 가이드북 개편 (4단계 파이프라인, 시청지속률 200% 팁, 추천/주의 영상 가이드, FAQ).
+  6. 19개 단위 테스트 통과 및 Vercel 프로덕션 배포 완료 (`https://infinite-loop-video.vercel.app`), DB 버전 v1.10 동기화 완료.
+- **5대 링크**:
+  1. 공식 운영: https://infinite-loop-video.buylife.xyz/studio
+  2. Vercel 배포: https://infinite-loop-video.vercel.app/studio
+  3. 관리자 dev-docs: https://www.buylife.xyz/admin/dev-docs/requests
+  4. 쇼케이스 뷰어: http://localhost:3800/showcase.html
+  5. 영구 자산 경로: D:\Antigravity\Design\38_프로_크리에이터_슬레이트_NLE_랩_스타일
+
 - 추정 수익률(같은 화면 월세 매물 5건 이상, 회원 PC 계산), AI 요약(버튼 클릭 시 회원 본인 `anthropic` 키로 확장이 Anthropic 직접 호출, 서버 미경유, 재시도 없음, 중개사·링크 제외). 커밋 `2f2ad6be7`, 시험 31개·tsc·빌드 통과. **실제 AI 호출은 미시험**(환경에 키 없음), 주인님 버튼 시험 대기.
 - 전국: 지역 표에 전국 시군구가 있고 수집·감시 코드에 지역 제한 없음. 실제 수집은 서울 강남구·경기 1곳만이라 지방 수집은 미확인. 매물 알림은 부산 사상구 삼락동 감시 등록 확인(주인님 시험 중).
 - 링크: https://commercial-land-trade-alert.buylife.xyz/results

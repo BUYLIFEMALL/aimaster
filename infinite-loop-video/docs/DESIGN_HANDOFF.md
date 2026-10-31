@@ -1,30 +1,48 @@
-# 디자인 인수인계 — 무한루프 영상자동화 (infinite-loop-video) · v1.05 · 2026-10-17 Claude Code(맥미니)
+# infinite-loop-video 디자인 인수인계서 (DESIGN_HANDOFF.md)
 
-## 1. 템플릿
-**크리에이티브 아틀리에 스타일 — 「네온 루프 시네마」 변형 (다크)**. 다크 차콜 위에 네온 핑크 → 시안 그라데이션으로 「끝과 처음이 이어지는 루프」를 표현. 색은 Tailwind v4 `@theme`의 `lv-*` 토큰 한곳에 정의(웹 크롤링 v1.07의 `mx-*` 방식과 같음).
+> **최종 갱신**: 2026-10-31 (v1.10 프로 크리에이터 슬레이트 NLE 랩 스타일 리뉴얼 완료)  
+> **공식 운영 도메인**: [https://infinite-loop-video.buylife.xyz/studio](https://infinite-loop-video.buylife.xyz/studio)  
+> **Vercel 프로덕션 링크**: [https://infinite-loop-video.vercel.app/studio](https://infinite-loop-video.vercel.app/studio)  
+> **로컬 영구 자산 경로**: `D:\Antigravity\Design\38_프로_크리에이터_슬레이트_NLE_랩_스타일`  
+> **단일 통합 쇼케이스**: `http://localhost:3800/showcase.html`
 
-## 2. 색 토큰 (`src/app/globals.css`)
-| 토큰 | 값 | 쓰임 |
-|---|---|---|
-| `lv-bg` | `#0b0d12` | 전체 배경(로그인 포함, `body`) |
-| `lv-surface` / `lv-raised` | `#13161e` / `#1b1f2a` | 카드 / 카드 안 칸·마우스 올림 |
-| `lv-border` | `#262b38` | 선 |
-| `lv-text` / `lv-muted` | `#f1f5f9` / `#94a3b8` | 본문 / 보조 글자 |
-| `lv-pink` / `lv-cyan` | `#ec4899` / `#22d3ee` | 포인트·선택·링크 |
-| `lv-success` / `lv-danger` / `lv-warn` | `#10b981` / `#f43f5e` / `#f59e0b` | 점수 좋음 / 오류 / 주의 |
+---
 
-공용 클래스: `.lv-card` `.lv-gradient`(버튼·진행 막대·선택 칸) `.lv-gradient-text` `.lv-btn-primary` `.lv-chip` `.lv-section-title`, 슬라이더 `accent-color` 핑크.
+## 🎨 1. 적용 디자인 템플릿 스펙
+- **공식 템플릿명**: **38. 프로 크리에이터 슬레이트 NLE 랩 스타일 (Pro Creator Slate NLE Lab Style)**
+- **채택 배경**: 기존 칠흑 같은 다크 차콜(`#0b0d12`)의 침침함을 전면 탈피하고, 사용자의 선택에 따라 전문가용 영상편집기(NLE)의 정밀한 조작감과 산뜻한 화이트·슬레이트 그레이를 결합한 최고급 비디오 랩 스타일로 개편.
+- **주요 배색 토큰**:
+  - 배경: Studio Clean Slate White (`#F8FAFC`, `#FFFFFF`)
+  - 카드 & 표면: Pure White (`#FFFFFF`, `border-slate-200`, `shadow-xs`)
+  - 프라이머리 포인트: Amber Gold (`#F59E0B`, `#D97706`)
+  - 보조 엑센트: Cobalt Deep Blue (`#2563EB`, `#3B82F6`)
+  - 텍스트: Slate Deep Dark (`#0F172A`), Muted Slate (`#64748B`)
+- **3D 엠보싱 버튼**:
+  - `.btn-3d-amber`: 2단 수직 그라데이션 `#F59E0B` → `#D97706`, 하단 5px 입체 그림자 `#78350F`, 4px 누름 모션
+  - `.btn-3d-blue`: 2단 수직 그라데이션 `#3B82F6` → `#2563EB`, 하단 5px 입체 그림자 `#1E3A8A`
 
-## 3. 컴포넌트 구조
-- `components/layout/Sidebar.tsx` — 색만 교체, 매뉴얼 메뉴 이름 「연동 & 사용 매뉴얼」(책 아이콘), 휴대폰 ☰ 기존 그대로.
-- `components/ui/LoopModeDiagram.tsx`(신규) — 루프 방식 3가지 막대 도식(스마트 루프·강제 오버랩·바운스). 루프 만들기·매뉴얼 공용, 설명용 그림(처리 로직과 무관).
-- `/studio` — 히어로(그라데이션 제목, 「영상이 서버로 가지 않아요」·「API 키 필요 없음」·형식 칩) → 루프 방식 도식 → `LoopTool`(기존 3단계 카드, 색만 교체).
-- `/guide` — 히어로·캐릭터 말풍선·4단계 카드·루프 방식 비교·잘 되는/어려운 영상 예시·FAQ 4개.
-- 로그인 — 바깥 배경은 `body` 다크, 버튼은 빨강 → 그라데이션으로 통일.
+---
 
-## 4. 모바일
-- 767px 이하 기존 위쪽 바 + ☰ 유지. 도식·단계 카드는 1열로 쌓임.
+## 📐 2. 표준 사이드바 레이아웃 준수 (`docs/SIDEBAR_LAYOUT_STANDARD.md`)
+1. **프로그램명 & 버전**: 무한루프 영상자동화 / 스튜디오 `v1.10` 배지 일체형 헤더
+2. **다른 프로그램 보기**: `← 다른 프로그램 보기` 상단 링크
+3. **대시보드 진입점**: 🏠 무한루프 스튜디오 홈 (`/studio`)
+4. **번호가 붙은 핵심 작업 흐름**:
+   - 1. 영상 소스 업로드 (초단위 컷 & 9:16 최적화)
+   - 2. 루프 알고리즘 선택 (스마트루프 / 오버랩 / 바운스)
+   - 3. 프레임 시임리스 매칭 (SSIM 99.4% 정합 분석)
+   - 4. 9:16 쇼츠 고속 렌더 (MP4 / WebM / GIF 내보내기)
+5. **부가 도구 & 프리셋**: 일괄 숏폼 루프 변환기, 바이럴 루프 효과 프리셋
+6. **하단 고정 영역**:
+   - 3D 엠보싱 확장 다운로드 링크 (`.btn-3d-amber`)
+   - 사용 매뉴얼 (`/guide`) & 계정/API키 설정 (`/settings`)
+   - 사용자 계정 정보 & 로그아웃 버튼
 
-## 5. 주의사항
-- `LoopTool.tsx`의 분석·변환 로직은 바꾸지 않았다(클래스만 일괄 치환).
-- 새 화면에 `neutral-*`·`gray-*`·`bg-white`를 쓰지 말고 `lv-*` 토큰을 쓴다.
+---
+
+## 🚀 3. 배포 및 검증 현황
+- **Next.js 16.4.2** Webpack 번들 최적화 빌드 완료 (`npm run build` 통과)
+- **19개 단위 테스트 전수 통과** (`npm run test`, 19 pass, 0 fail)
+- **Vercel 프로덕션 무중단 배포 완료**: `https://infinite-loop-video.vercel.app` Aliased
+- **DB 버전 동기화 완료**: `v1.10`
+- **실세션 브라우저 검수 완료**: 데스크톱(1440px) 및 모바일(390px) 렌더링 무결성 확인

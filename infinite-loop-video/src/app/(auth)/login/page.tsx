@@ -37,12 +37,12 @@ function LoginCard() {
     <div className="w-full max-w-md mx-auto">
       {/* 헤더 로고 */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-lv-pink to-lv-cyan text-white shadow-lg shadow-lv-pink/20 mb-3">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-600 to-blue-600 text-white shadow-lg shadow-amber-500/20 mb-3">
           <Repeat className="w-8 h-8" />
         </div>
         <h1 className="text-xl font-bold text-lv-text">{APP_NAME}</h1>
         <p className="text-xs text-lv-muted mt-1">
-          AIMaster 계정으로 로그인하여 이미지를 변환·편집하세요
+          AIMaster 계정으로 로그인하여 무한 반복 영상을 제작하세요
         </p>
       </div>
 

@@ -1,71 +1,177 @@
 @import "tailwindcss";
 
 /*
- * 크리에이티브 아틀리에 스타일 — 「네온 루프 시네마」 변형 (2026-10-17 디자인 리뉴얼, v1.05).
- * 다크 차콜 + 네온 핑크 → 시안 그라데이션(끝과 처음이 이어지는 루프 느낌).
- * 토큰·부품 설명: infinite-loop-video/docs/DESIGN_HANDOFF.md
+ * 38. 프로 크리에이터 슬레이트 NLE 랩 스타일 (2026-10-31 리뉴얼 v1.10)
+ * 스튜디오 클린 화이트(#ffffff) & 슬레이트 그레이(#f8fafc, #e2e8f0)
+ * + 비비드 앰버 골드(#f59e0b, #d97706) & 코발트 딥블루(#2563eb)
+ * 3D 엠보싱 버튼(.btn-3d-amber, .btn-3d-blue) 및 정밀 NLE 타임라인 랩 룩앤필
  */
 @theme {
-  --color-lv-bg: #0b0d12;
-  --color-lv-surface: #13161e;
-  --color-lv-raised: #1b1f2a;
-  --color-lv-border: #262b38;
-  --color-lv-text: #f1f5f9;
-  --color-lv-muted: #94a3b8;
-  --color-lv-pink: #ec4899;
-  --color-lv-cyan: #22d3ee;
-  --color-lv-success: #10b981;
-  --color-lv-danger: #f43f5e;
-  --color-lv-warn: #f59e0b;
+  --color-lv-bg: #f8fafc;
+  --color-lv-surface: #ffffff;
+  --color-lv-raised: #f1f5f9;
+  --color-lv-border: #e2e8f0;
+  --color-lv-text: #0f172a;
+  --color-lv-muted: #64748b;
+  --color-lv-amber: #d97706;
+  --color-lv-amber-light: #f59e0b;
+  --color-lv-blue: #2563eb;
+  --color-lv-blue-light: #3b82f6;
+  --color-lv-success: #059669;
+  --color-lv-danger: #dc2626;
+  --color-lv-warn: #d97706;
 }
 
 @layer base {
   body {
     background-color: var(--color-lv-bg);
     color: var(--color-lv-text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
   input[type="range"] {
-    accent-color: var(--color-lv-pink);
+    accent-color: var(--color-lv-amber);
   }
 }
 
 @layer components {
+  /* Cards & Containers */
   .lv-card {
     border-radius: 1rem;
     border: 1px solid var(--color-lv-border);
     background-color: var(--color-lv-surface);
     padding: 1.25rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   }
+  
   .lv-gradient {
-    background-image: linear-gradient(135deg, var(--color-lv-pink), var(--color-lv-cyan));
+    background-image: linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #2563eb 100%);
   }
+  
   .lv-gradient-text {
-    background-image: linear-gradient(90deg, var(--color-lv-pink), var(--color-lv-cyan));
+    background-image: linear-gradient(90deg, #d97706 0%, #b45309 50%, #2563eb 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
+
+  /* 3D Embossed Buttons */
+  .btn-3d-amber {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.875rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 0.65rem;
+    border: 1px solid #b45309;
+    box-shadow: 0 5px 0 #78350f, 0 8px 18px rgba(217, 119, 6, 0.35);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    line-height: 1.25;
+  }
+  .btn-3d-amber:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 6.5px 0 #78350f, 0 10px 22px rgba(217, 119, 6, 0.45);
+  }
+  .btn-3d-amber:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #78350f;
+  }
+  .btn-3d-amber:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 3px 0 #78350f;
+  }
+
+  .btn-3d-blue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.875rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 0.65rem;
+    border: 1px solid #1d4ed8;
+    box-shadow: 0 5px 0 #1e3a8a, 0 8px 18px rgba(37, 99, 235, 0.35);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+  }
+  .btn-3d-blue:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 6.5px 0 #1e3a8a, 0 10px 22px rgba(37, 99, 235, 0.45);
+  }
+  .btn-3d-blue:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #1e3a8a;
+  }
+
+  .btn-3d-slate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    color: #334155;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 0.65rem;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 4px 0 #94a3b8, 0 6px 12px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-3d-slate:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 5px 0 #94a3b8, 0 8px 14px rgba(0, 0, 0, 0.08);
+  }
+  .btn-3d-slate:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #94a3b8;
+  }
+
+  /* Legacy primary button mapping to 3d-amber */
   .lv-btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 0.75rem;
-    padding: 0.55rem 1.1rem;
+    border-radius: 0.65rem;
+    padding: 0.65rem 1.25rem;
     font-size: 0.875rem;
-    font-weight: 700;
-    color: #fff;
-    background-image: linear-gradient(135deg, var(--color-lv-pink), #a855f7 55%, var(--color-lv-cyan));
-    transition: filter 0.15s;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+    border: 1px solid #b45309;
+    box-shadow: 0 5px 0 #78350f, 0 8px 18px rgba(217, 119, 6, 0.35);
+    cursor: pointer;
+    transition: all 0.15s ease;
   }
   .lv-btn-primary:hover {
-    filter: brightness(1.1);
+    transform: translateY(-1.5px);
+    box-shadow: 0 6.5px 0 #78350f, 0 10px 22px rgba(217, 119, 6, 0.45);
+  }
+  .lv-btn-primary:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #78350f;
   }
   .lv-btn-primary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 3px 0 #78350f;
   }
+
   .lv-chip {
     display: inline-flex;
     align-items: center;
@@ -73,18 +179,19 @@
     border-radius: 9999px;
     border: 1px solid var(--color-lv-border);
     background-color: var(--color-lv-raised);
-    padding: 0.2rem 0.65rem;
-    font-size: 0.72rem;
-    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
     color: var(--color-lv-muted);
   }
+  
   .lv-section-title {
     margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.05rem;
+    font-weight: 800;
     color: var(--color-lv-text);
   }
 }
