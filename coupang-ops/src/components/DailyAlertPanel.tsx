@@ -34,7 +34,7 @@ export function DailyAlertPanel({ status }: { status: AlertStatus }) {
         <h2 className="text-base font-extrabold text-slate-900">{ok(!!status.telegram)} 1. 텔레그램 연결 {status.telegram && <span className="text-sm font-bold text-teal-700">({status.telegram})</span>}</h2>
         <p className="text-[13px] text-slate-600">텔레그램 BotFather에서 본인 봇을 만들고, 그 봇에게 아무 메시지나 보낸 뒤 토큰을 넣어 주세요. 다른 프로그램에서 연결한 봇이 있으면 그대로 씁니다.</p>
         <div className="flex flex-wrap gap-2">
-          <input type="password" autoComplete="off" aria-label="텔레그램 봇 토큰" placeholder="봇 토큰" value={botToken} onChange={(e) => setBotToken(e.target.value)} className={`${field} min-w-0 flex-1`} />
+          <input type="password" autoComplete="off" aria-label="텔레그램 봇 토큰" placeholder={status.telegram ? "저장됨 — 바꿀 때만 입력" : "봇 토큰"} value={botToken} onChange={(e) => setBotToken(e.target.value)} className={`${field} min-w-0 flex-1`} />
           <button type="button" disabled={pending || !botToken.trim()} onClick={() => run(() => connectTelegramAction(botToken), () => setBotToken(""))} className={line}>연결</button>
           <button type="button" disabled={pending || !status.telegram} onClick={() => run(() => testChannelAction("telegram"))} className={line}>시험 메시지</button>
         </div>
