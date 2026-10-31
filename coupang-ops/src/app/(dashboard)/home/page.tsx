@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
-import { getCoupangDefaults, getKeyExpiry, getWingKeys } from "@/lib/data";
+import { getCoupangDefaults, getKeyExpiry, getProxyStatus, getWingKeys } from "@/lib/data";
 import { TodayBoard } from "@/components/TodayBoard";
 import { RejectedBoard, type RejectedJob } from "@/components/RejectedBoard";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -15,7 +15,7 @@ export const fetchCache = "force-no-store";
 
 export default async function HomePage() {
   const user = await requireProgramAccess();
-  const [keys, defaults] = await Promise.all([getWingKeys(user.id), getCoupangDefaults(user.id)]);
+  const [keys, defaults, proxy] = await Promise.all([getWingKeys(user.id), getCoupangDefaults(user.id), getProxyStatus(user.id)]);
   const calls = await monthlyCalls(user.id).catch(() => null);
   const apiWarnings = await recentWingWarnings(user.id).catch(() => []);
   const keyNotice = keys ? keyExpiryNotice(await getKeyExpiry(user.id).catch(() => ""), Date.now()) : null;
@@ -69,7 +69,7 @@ export default async function HomePage() {
         </Notice>
       )}
 
-      <TodayBoard keysSaved={!!keys} defaultCourier={defaults?.deliveryCompanyCode ?? ""} />
+      <TodayBoard keysSaved={!!keys} proxySaved={!!proxy} defaultCourier={defaults?.deliveryCompanyCode ?? ""} />
 
       {/* WING API 호출 현황 및 알림 */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-[12px] text-slate-500">

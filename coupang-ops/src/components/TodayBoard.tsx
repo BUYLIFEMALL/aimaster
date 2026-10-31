@@ -15,7 +15,7 @@ const zero = (c: Count) => !("error" in c) && c.count === 0;
 const sum = (...list: Count[]) => (list.some((c) => "error" in c) ? "확인 실패" : `${list.reduce((n, c) => n + ("error" in c ? 0 : c.count), 0)}${list.some((c) => !("error" in c) && c.more) ? "+" : ""}건`);
 
 /** 오늘 할 일: 위 카드 숫자도 모두 「불러오기」로 쿠팡에서 읽은 값이다(고정 숫자 금지) */
-export function TodayBoard({ keysSaved, defaultCourier }: { keysSaved: boolean; defaultCourier: string }) {
+export function TodayBoard({ keysSaved, proxySaved, defaultCourier }: { keysSaved: boolean; proxySaved: boolean; defaultCourier: string }) {
   const [open, setOpen] = useState("");
   const [data, setData] = useState<Extract<TodayResult, { ok: true }> | null>(null);
   const [error, setError] = useState("");
@@ -76,8 +76,8 @@ export function TodayBoard({ keysSaved, defaultCourier }: { keysSaved: boolean; 
             <span className="text-[12px] font-bold">쿠팡 키</span>
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600"><CheckCircle2 size={14} /></span>
           </div>
-          <p className="text-2xl font-black text-slate-900 tracking-tight">{keysSaved ? "등록됨" : "미등록"}</p>
-          <p className="mt-1 text-[11px] text-slate-500">{keysSaved ? "연결 확인은 「API키등록·플랫폼연동」에서" : "WING 키 등록 필요"}</p>
+          <p className="text-2xl font-black text-slate-900 tracking-tight">{!keysSaved ? "미등록" : proxySaved ? "준비됨" : "고정 IP 필요"}</p>
+          <p className="mt-1 text-[11px] text-slate-500">{!keysSaved ? "WING 키 등록 필요" : proxySaved ? "연결 확인은 「API키등록·플랫폼연동」에서" : "「API키등록·플랫폼연동」에서 Fixie 등록"}</p>
         </div>
       </div>
 

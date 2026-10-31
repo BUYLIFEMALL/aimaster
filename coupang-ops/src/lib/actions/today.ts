@@ -1,7 +1,7 @@
 "use server";
 
 import { requireProgramAccess } from "@/lib/access";
-import { getWingKeys } from "@/lib/data";
+import { getProxyStatus, getWingKeys } from "@/lib/data";
 import { takeReadSlot } from "@/lib/readGap";
 import { TODAY_READ_GAP_SECONDS } from "@/lib/readGapRule";
 import { readTodayCounts } from "@/lib/coupang/todayRead";
@@ -16,6 +16,8 @@ export async function todaySummaryAction(): Promise<TodayResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
+  // 고정 IP가 없으면 쿠팡을 부를 수 없어 칸마다 같은 실패가 반복되므로 먼저 한 번만 안내한다
+  if (!(await getProxyStatus(user.id))) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 내 고정 IP(Fixie)를 등록해 주세요." };
   const wait = await takeReadSlot(user.id, "coupang_today_read", TODAY_READ_GAP_SECONDS);
   if (wait > 0) return { ok: false, error: `조금 전에 불러왔습니다. ${wait}초 뒤에 다시 눌러 주세요.` };
   return { ok: true, ...(await readTodayCounts(keys)) };

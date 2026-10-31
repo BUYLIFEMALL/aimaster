@@ -22,6 +22,7 @@ export type SetupRow = {
   detail: ReactNode;
   openLabel?: string;
   defaultOpen?: boolean;
+  quiet?: boolean;
 };
 
 export function SetupTable({ rows, head = ["항목", "상태", "연결 정보"] }: { rows: SetupRow[]; head?: [string, string, string] }) {
@@ -52,7 +53,7 @@ function SetupLine({ row, open, toggle }: { row: SetupRow; open: boolean; toggle
         <td className="truncate px-2 py-2.5 text-[12.5px] text-slate-700">{row.info}</td>
         <td className="px-3 py-2.5">
           <span className="flex items-center justify-end gap-1.5">
-            <button type="button" className={row.on ? edit : save} onClick={toggle}>{open ? "닫기 ▲" : row.openLabel ?? (row.on ? "수정" : "연결하기")}</button>
+            <button type="button" className={row.on || row.quiet ? edit : save} onClick={toggle}>{open ? "닫기 ▲" : row.openLabel ?? (row.on ? "수정" : "연결하기")}</button>
             {row.quick}
             {row.issue && <a className="btn-create-key" href={row.issue.href} target="_blank" rel="noopener noreferrer">{row.issue.label ?? "발급"} ↗</a>}
           </span>
