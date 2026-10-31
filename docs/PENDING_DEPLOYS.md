@@ -68,6 +68,7 @@
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |
 | `real_estate_sales` | v1.33 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 전월세 거래 목록·알림 |
 | `real_estate_sales` | v1.32 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 공공데이터포털 공용 키 교체 적용, 지역당 20건 안내 문구 |
+| `commercial-land-trade-alert` | v1.12 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 실거래 메뉴 맞춤 |
 | `commercial-land-trade-alert` | v1.11 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 지역으로 매물 감시 추가 |
 | `realty-listing-alert` | v1.40 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 메뉴 합침, 알림 문구 통일 |
 | `commercial-land-trade-alert` | v1.10 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 메뉴 합침 |

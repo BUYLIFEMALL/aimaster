@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.12 실거래 메뉴 맞춤
+- 실거래 지역 설정·실거래 내역·실거래 조건 순서로 정리, 실거래 내역에 요약 카드 4개와 표·카드 전환. 실거래 조건은 상가 전용. 실제 화면은 주인님 확인 대기.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/trades
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.11 지역으로 매물 감시 추가
 - 매물 감시 화면을 매물 알림과 같은 구성으로. 동 중심 좌표는 확장이 네이버 `/api/regions/list`에서 받음(이 API는 실제 호출 미확인, 주인님 시험 대기, 실패 시 팝업 기록에 진단). 등록 시 실거래 수집도 켬. 실거래 지역·실거래 조건으로 이름 구분.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/watch
