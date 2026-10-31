@@ -12,7 +12,7 @@ import { imageSrc } from "@/lib/imageSrc";
 import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
 import { applySectionSequence } from "@/lib/sectionOrder";
 import { MarketRegisterPanel } from "@/components/products/MarketRegisterPanel";
-import { MARKETS, pickMarketResult, type MarketResult } from "@/lib/markets";
+import { MARKETS, pickCoupangResult, pickMarketResult, type MarketResult } from "@/lib/markets";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +65,18 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
   // 마켓 등록 결과(회원 본인 작업 기록만, RLS). 표가 없거나 읽기 실패면 결과 없이 보여 준다.
   const marketResults: MarketResult[] = [];
   for (const market of MARKETS) {
+    if (market.jobsTable === "coupang_ops_jobs") {
+      // 생성 타입에 없는 표라 행 모양을 직접 적는다
+      const { data: coupangJobs } = await (supabase.from("coupang_ops_jobs" as never) as unknown as { select: (c: string) => { eq: (k: string, v: string) => { in: (k: string, v: string[]) => { order: (k: string, o: { ascending: boolean }) => { limit: (n: number) => Promise<{ data: { status: string; seller_product_id: number | null; updated_at: string }[] | null }> } } } } })
+        .select("status, seller_product_id, updated_at")
+        .eq("product_id", product.id)
+        .in("status", ["saved", "requested", "approved", "rejected"])
+        .order("updated_at", { ascending: false })
+        .limit(1);
+      const coupang = pickCoupangResult(coupangJobs ?? []);
+      if (coupang) marketResults.push(coupang);
+      continue;
+    }
     const { data: jobs } = await supabase
       .from(market.jobsTable)
       .select("status, market_product_no, updated_at")

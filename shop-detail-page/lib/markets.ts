@@ -9,7 +9,7 @@ export interface MarketTarget {
   /** 그 상품이 골라진 등록 화면 */
   registerUrl: (productId: string) => string;
   /** 회원 본인 등록 작업 기록 표(같은 공용 DB, RLS 본인 행만) */
-  jobsTable: "smartstore_register_jobs";
+  jobsTable: "smartstore_register_jobs" | "coupang_ops_jobs";
 }
 
 export const MARKETS: MarketTarget[] = [
@@ -21,11 +21,35 @@ export const MARKETS: MarketTarget[] = [
       `https://smartstore-register.buylife.xyz/products/${encodeURIComponent(productId)}?flow=shop`,
     jobsTable: "smartstore_register_jobs",
   },
+  {
+    id: "coupang",
+    name: "쿠팡",
+    emoji: "🔴",
+    registerUrl: (productId) => `https://coupang-ops.buylife.xyz/products/${encodeURIComponent(productId)}`,
+    jobsTable: "coupang_ops_jobs",
+  },
 ];
+
+/** 쿠팡 기록 상태 → 화면 결과. 쿠팡에서 지운 기록은 failed라 여기 오지 않는다 */
+export function pickCoupangResult(
+  jobs: { status: string; seller_product_id: number | null; updated_at: string }[],
+): MarketResult | null {
+  const job = jobs[0];
+  const status = ({ approved: "registered", saved: "temp_saved", requested: "requested", rejected: "rejected" } as const)[job?.status as "approved"];
+  if (!status) return null;
+  return { marketId: "coupang", status, marketProductNo: job.seller_product_id ? String(job.seller_product_id) : null, at: job.updated_at };
+}
+
+export const MARKET_STATUS_LABEL: Record<MarketResult["status"], { text: string; cls: string }> = {
+  registered: { text: "등록됨", cls: "bg-emerald-50 text-emerald-700" },
+  temp_saved: { text: "임시저장됨", cls: "bg-amber-50 text-amber-700" },
+  requested: { text: "승인 심사 중", cls: "bg-sky-50 text-sky-700" },
+  rejected: { text: "반려됨", cls: "bg-rose-50 text-rose-700" },
+};
 
 export interface MarketResult {
   marketId: string;
-  status: "registered" | "temp_saved";
+  status: "registered" | "temp_saved" | "requested" | "rejected";
   marketProductNo: string | null;
   at: string;
 }

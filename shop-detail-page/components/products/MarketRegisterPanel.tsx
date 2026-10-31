@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { setProductReviewedAction } from "@/lib/actions/products";
-import { MARKETS, type MarketResult } from "@/lib/markets";
+import { MARKET_STATUS_LABEL, MARKETS, type MarketResult } from "@/lib/markets";
 
 // 이커머스 한 흐름 4·5단계: 회원 최종 검토 → 마켓 자동 등록 화면으로 이동, 등록 결과 표시.
 export function MarketRegisterPanel({
@@ -68,13 +68,9 @@ export function MarketRegisterPanel({
                 </span>
                 {result && (
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      result.status === "registered"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-amber-50 text-amber-700"
-                    }`}
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${MARKET_STATUS_LABEL[result.status].cls}`}
                   >
-                    {result.status === "registered" ? "등록됨" : "임시저장됨"}
+                    {MARKET_STATUS_LABEL[result.status].text}
                   </span>
                 )}
               </div>
