@@ -61,13 +61,21 @@ export function ModelBar() {
         <label className="block text-xs font-medium text-slate-400">
           텍스트 생성 모델 (제목·프롬프트·가사·설명)
           <select value={textModel} onChange={(e) => setTextModel(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131b2e] px-2.5 py-2 text-sm text-slate-100 focus:border-cyan-500 focus:outline-none">
-            {TEXT_MODELS.map((m) => <option key={m.id} value={m.id} className="bg-[#131b2e] text-slate-100">{m.label}</option>)}
+            {(Object.keys(PROVIDER_LABELS) as Provider[]).map((p) => (
+              <optgroup key={p} label={PROVIDER_LABELS[p]} className="bg-[#131b2e] text-slate-400">
+                {TEXT_MODELS.filter((m) => m.provider === p).map((m) => <option key={m.id} value={m.id} className="bg-[#131b2e] text-slate-100">{m.label}</option>)}
+              </optgroup>
+            ))}
           </select>
         </label>
         <label className="block text-xs font-medium text-slate-400">
           이미지 생성 모델 (썸네일)
           <select value={imageModel} onChange={(e) => setImageModel(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131b2e] px-2.5 py-2 text-sm text-slate-100 focus:border-cyan-500 focus:outline-none">
-            {IMAGE_MODELS.map((m) => <option key={m.id} value={m.id} className="bg-[#131b2e] text-slate-100">{m.label}</option>)}
+            {(["openai", "gemini"] as const).map((p) => (
+              <optgroup key={p} label={PROVIDER_LABELS[p]} className="bg-[#131b2e] text-slate-400">
+                {IMAGE_MODELS.filter((m) => m.provider === p).map((m) => <option key={m.id} value={m.id} className="bg-[#131b2e] text-slate-100">{m.label}</option>)}
+              </optgroup>
+            ))}
           </select>
         </label>
       </div>

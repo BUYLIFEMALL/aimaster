@@ -5,28 +5,44 @@
 export type Provider = "gemini" | "openai" | "anthropic";
 
 export const PROVIDER_LABELS: Record<Provider, string> = {
-  gemini: "Google Gemini",
   openai: "OpenAI",
   anthropic: "Anthropic Claude",
+  gemini: "Google Gemini",
 };
 
 export interface TextModel { id: string; provider: Provider; label: string; inPer1M: number; outPer1M: number }
 export const TEXT_MODELS: TextModel[] = [
-  { id: "gemini-2.5-flash", provider: "gemini", label: "Gemini 2.5 Flash (빠름·기본)", inPer1M: 0.3, outPer1M: 2.5 },
-  { id: "gemini-2.5-flash-lite", provider: "gemini", label: "Gemini 2.5 Flash-Lite (가장 저렴)", inPer1M: 0.1, outPer1M: 0.4 },
-  { id: "gpt-4o-mini", provider: "openai", label: "OpenAI GPT-4o mini (저렴)", inPer1M: 0.15, outPer1M: 0.6 },
-  { id: "gpt-4o", provider: "openai", label: "OpenAI GPT-4o", inPer1M: 2.5, outPer1M: 10 },
-  { id: "claude-haiku-5-5", provider: "anthropic", label: "Claude Haiku 5.5 (빠름)", inPer1M: 1, outPer1M: 5 },
-  { id: "claude-sonnet-5-5", provider: "anthropic", label: "Claude Sonnet 5.5 (고품질)", inPer1M: 3, outPer1M: 15 },
+  { id: "gpt-6.1-sol", provider: "openai", label: "GPT-6.1 Sol (고품질)", inPer1M: 2, outPer1M: 10 },
+  { id: "gpt-6-astra", provider: "openai", label: "GPT-6 Astra (최고 품질)", inPer1M: 10, outPer1M: 50 },
+  { id: "gpt-6.1-terra", provider: "openai", label: "GPT-6.1 Terra (빠름)", inPer1M: 1, outPer1M: 5 },
+  { id: "gpt-6-luna", provider: "openai", label: "GPT-6 Luna (저렴)", inPer1M: 0.1, outPer1M: 0.5 },
+  { id: "gpt-4o-mini", provider: "openai", label: "GPT-4o mini (이전 모델)", inPer1M: 0.15, outPer1M: 0.6 },
+  { id: "gpt-4o", provider: "openai", label: "GPT-4o (이전 모델)", inPer1M: 2.5, outPer1M: 10 },
+  { id: "claude-sonnet-5-5", provider: "anthropic", label: "Claude Sonnet 5.5 (고품질)", inPer1M: 2, outPer1M: 10 },
+  { id: "claude-opus-5-5", provider: "anthropic", label: "Claude Opus 5.5 (더 높은 품질)", inPer1M: 4, outPer1M: 20 },
+  { id: "claude-fable-5-1", provider: "anthropic", label: "Claude Fable 5.1 (최고 품질)", inPer1M: 10, outPer1M: 50 },
+  { id: "claude-haiku-5-5", provider: "anthropic", label: "Claude Haiku 5.5 (빠름·저렴)", inPer1M: 0.1, outPer1M: 0.5 },
+  { id: "gemini-3.8-flash", provider: "gemini", label: "Gemini 3.8 Flash (빠름·기본)", inPer1M: 0.75, outPer1M: 3.75 },
+  { id: "gemini-4-argon", provider: "gemini", label: "Gemini 4 Argon (최고 품질)", inPer1M: 2, outPer1M: 10 },
+  { id: "gemini-3.5-flash-lite", provider: "gemini", label: "Gemini 3.5 Flash-Lite (저렴)", inPer1M: 0.3, outPer1M: 2.5 },
+  { id: "gemini-2.5-flash", provider: "gemini", label: "Gemini 2.5 Flash (이전 모델)", inPer1M: 0.3, outPer1M: 2.5 },
+  { id: "gemini-2.5-flash-lite", provider: "gemini", label: "Gemini 2.5 Flash-Lite (이전 모델)", inPer1M: 0.1, outPer1M: 0.4 },
 ];
-export const DEFAULT_TEXT_MODEL = "gemini-2.5-flash";
+export const DEFAULT_TEXT_MODEL = "gemini-3.8-flash";
 
 export interface ImageModel { id: string; provider: "gemini" | "openai"; label: string; perImage: number }
 // Claude는 이미지를 만들지 못하므로 이미지 모델은 Gemini·OpenAI만 제공한다.
 export const IMAGE_MODELS: ImageModel[] = [
+  // OpenAI 장당 금액은 공식 표가 토큰 단가만 제공해 1536x1024 medium 기준으로 추정한 값이다.
+  { id: "gpt-image-2.5-sunburst", provider: "openai", label: "GPT Image 2.5 Sunburst (본인 OpenAI 키)", perImage: 0.04 },
+  { id: "gpt-image-2.5-flare", provider: "openai", label: "GPT Image 2.5 Flare (본인 OpenAI 키)", perImage: 0.04 },
+  { id: "gpt-image-2", provider: "openai", label: "GPT Image 2 (본인 OpenAI 키)", perImage: 0.04 },
+  { id: "gpt-image-1.5", provider: "openai", label: "GPT Image 1.5 (본인 OpenAI 키)", perImage: 0.04 },
+  { id: "gpt-image-1-mini", provider: "openai", label: "GPT Image 1 mini (저렴 · 본인 OpenAI 키)", perImage: 0.01 },
+  { id: "gpt-image-1", provider: "openai", label: "GPT Image 1 (이전 모델 · 본인 OpenAI 키)", perImage: 0.04 },
   { id: "gemini-3.1-flash-lite-image", provider: "gemini", label: "나노 바나나 (Gemini Flash Image · 빠름)", perImage: 0.039 },
+  { id: "gemini-nano-banana-2.1", provider: "gemini", label: "나노 바나나 2.1 (Gemini · 최신)", perImage: 0.0336 },
   { id: "gemini-3-pro-image", provider: "gemini", label: "나노 바나나 프로 (고화질 · 본인 Google 결제 연결 필요)", perImage: 0.134 },
-  { id: "gpt-image-1", provider: "openai", label: "OpenAI gpt-image-1 (본인 OpenAI 키)", perImage: 0.04 },
 ];
 export const DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-lite-image";
 
