@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { AiModelSelect, useAiModel } from "@/components/AiModelSelect";
 import { confirmInquiryAction, draftReplyAction, listInquiriesAction, sendReplyAction } from "@/lib/actions/inquiries";
 import { loadPrefsAction, savePrefsAction } from "@/lib/actions/prefs";
-import { checkReply, type InquiryRow } from "@/lib/coupang/inquiry";
+import { centerDeadline, checkReply, type InquiryRow } from "@/lib/coupang/inquiry";
 import { upsertNamed, type ReplyTemplate } from "@/lib/coupang/prefs";
 
 const KEY_PAGE = "/connect";
@@ -19,6 +19,8 @@ const BULK_DRAFT_MAX = 20;
 
 function InquiryCard({ row, onDone, templates, onSaveTemplate, draftTick, index }: { row: InquiryRow; onDone: (message: string) => void; templates: ReplyTemplate[]; onSaveTemplate: (t: ReplyTemplate) => void; draftTick: number; index: number }) {
   const [templateTitle, setTemplateTitle] = useState("");
+  const [nowMs] = useState(() => Date.now()); // 불러온 시점 기준
+  const deadline = row.kind === "center" && !row.needsConfirm ? centerDeadline(row.at, nowMs) : null;
   const [facts, setFacts] = useState("");
   const [model, setModel] = useAiModel();
   const [text, setText] = useState("");
@@ -78,6 +80,7 @@ function InquiryCard({ row, onDone, templates, onSaveTemplate, draftTick, index 
           {row.needsConfirm ? "고객센터 미확인" : row.kind === "center" ? "고객센터 미답변" : "상품 문의"}
         </span>
         <span>{whenText(row.at)}</span>
+        {deadline && <span className={`rounded-full px-2 py-0.5 font-bold ${deadline.level === "ok" ? "bg-slate-100 text-slate-700" : "bg-rose-50 text-rose-800"}`}>{deadline.text}</span>}
         {row.sellerProductId && <span>상품번호 {row.sellerProductId}</span>}
         {row.itemName && <span className="font-bold text-slate-700">{row.itemName}</span>}
       </div>

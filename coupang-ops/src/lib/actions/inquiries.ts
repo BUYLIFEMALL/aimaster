@@ -39,7 +39,7 @@ export async function listInquiriesAction(): Promise<InquiryList> {
     read("고객센터 미답변", async () => normalizeCenter((await wingRequest(keys, "GET", centerListPath(keys.vendorId), { query: centerQuery("NO_ANSWER", range) })).data, "NO_ANSWER").rows),
     read("고객센터 미확인", async () => normalizeCenter((await wingRequest(keys, "GET", centerListPath(keys.vendorId), { query: centerQuery("TRANSFER", range) })).data, "TRANSFER").rows),
   ]);
-  return { ok: true, rows: [...sortInquiries(center), ...sortInquiries(transfer), ...sortInquiries(online)], failed, from: range.from, to: range.to };
+  return { ok: true, rows: [...sortInquiries(center).reverse(), ...sortInquiries(transfer), ...sortInquiries(online)], failed, from: range.from, to: range.to };
 }
 
 export type DraftReply = { ok: true; reply: string; needsCheck: string[] } | { ok: false; error: string; needKey?: boolean };

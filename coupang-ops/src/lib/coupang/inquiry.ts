@@ -97,6 +97,18 @@ export function normalizeCenter(raw: unknown, status: "NO_ANSWER" | "TRANSFER"):
 
 export const sortInquiries = (rows: InquiryRow[]) => [...rows].sort((a, b) => b.at.localeCompare(a.at));
 
+export const CENTER_REPLY_HOURS = 24;
+/** S2 고객센터 미답변 답변 기한(이관 시각 + 24시간, 명세상 지나면 API로 답할 수 없음). 시간대가 없는 값은 한국 시각으로 본다 */
+export function centerDeadline(at: string, nowMs: number): { level: "ok" | "soon" | "over"; text: string } | null {
+  const ms = Date.parse(/(Z|[+-]\d{2}:?\d{2})$/.test(at) ? at : `${at}+09:00`);
+  if (Number.isNaN(ms)) return null;
+  const left = ms + CENTER_REPLY_HOURS * 3_600_000 - nowMs;
+  if (left <= 0) return { level: "over", text: "⛔ 답변 기한 지남" };
+  const minutes = Math.ceil(left / 60_000);
+  const hours = Math.floor(minutes / 60);
+  return { level: left <= 6 * 3_600_000 ? "soon" : "ok", text: `⏰ 약 ${hours ? `${hours}시간 ` : ""}${minutes % 60}분 남음` };
+}
+
 /** 보내기 전 답변 검사. 빈 문자열이면 보냄 */
 export function checkReply(text: string): string {
   const n = text.trim().length;

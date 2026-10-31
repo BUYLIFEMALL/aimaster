@@ -54,3 +54,15 @@ test("답변 길이를 검사한다", () => {
   assert.equal(checkReply("확인했습니다"), "");
   assert.match(checkReply("가".repeat(1001)), /1,000자/);
 });
+
+test("S2 고객센터 답변 기한", async () => {
+  const { centerDeadline } = await import("../src/lib/coupang/inquiry.ts");
+  const at = "2026-10-30T10:00:00+09:00";
+  const t = Date.parse(at);
+  assert.equal(centerDeadline(at, t + 3_600_000).text, "⏰ 약 23시간 0분 남음");
+  assert.equal(centerDeadline(at, t + 3_600_000).level, "ok");
+  assert.equal(centerDeadline(at, t + 20 * 3_600_000).level, "soon");
+  assert.equal(centerDeadline(at, t + 24 * 3_600_000).level, "over");
+  assert.equal(centerDeadline("2026-10-30T10:00:00", t + 3_600_000).text, "⏰ 약 23시간 0분 남음");
+  assert.equal(centerDeadline("", t), null);
+});
