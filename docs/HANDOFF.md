@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.05 묶음 1
+- 호출 수 집계·상한·승인 요청·브랜드 검사. 상세 `coupang-ops/AGENTS.md` 맨 아래. 시험 60개·tsc·빌드 통과, 빌드 1회. 미배포: `shop-detail-page` 쿠팡 칸. 다음은 묶음 2 범위 플랜.
+- 링크: https://coupang-ops.buylife.xyz/home
+
 ## 2026-10-31 📝 [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` 완성·확장 플랜(승인 대기, 코드 변경 없음)
 - 문서: `coupang-ops/docs/PLAN_20261031_COUPANG_COMPLETION_AND_EXPANSION.md`. 공식 API 104개 대조, 지금 약 23개 사용. 호출 수 계측이 없어 묶음 1을 먼저 제안. 다음 첫 단계는 승인 뒤 묶음 1 범위 확정.
 
