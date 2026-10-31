@@ -77,6 +77,9 @@
 
 ---
 
+## 🔑 3-1. 연동 화면 표 구조 (v1.16)
+기준 `realty-listing-alert/app/settings`. 칸마다 번호·필수/선택 알약 + 제목 + 표(항목 120px · 상태 90px · 연결 정보 · 버튼 230px, 최소 폭 720px, 좁으면 표만 가로 스크롤). 등록 뱃지는 초록, 미등록은 회색, 발급 버튼은 오렌지 `.btn-create-key`, 삭제는 장미색. 입력은 줄 아래에 펼친다. AI 키만 2행 카드 목록(`AiKeyForm`). 컴포넌트: `src/components/SetupTable.tsx`.
+
 ## 🧪 4. 검증 내역
 - **Next.js Turbopack Production Build**: 성공 (`Compiled successfully in 10.2s`)
 - **Unit Test**: 112개 전체 테스트 PASS (`tests/*.test.mjs`)

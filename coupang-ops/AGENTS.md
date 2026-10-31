@@ -36,7 +36,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 단점: 회원이 Fixie 가입과 WING IP 등록을 해야 한다. 쓰기 기능 대부분이 실제 건 시험 전이다. 이미지·옵션 구성 수정은 WING에서 해야 한다.
 
 ## 4. 버전·이력
-운영 v1.15(2026-10-31). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
+운영 v1.16(2026-10-31). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
 
 ## 5. 남은 일
 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) · [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md). 배포 절차와 주의는 맨 아래 v1.12 항목.
@@ -245,3 +245,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## 2026-10-31 — v1.15 연동 칸 통합(운영 배포)
 - 주인님 지시로 텔레그램·이메일·카카오톡·cron-job.org 키 칸을 `/connect` 5~8번(`AlertKeysPanel`)으로 옮겼다. `/alerts`(`DailyAlertPanel`)는 켜기·끄기, 받을 곳, 시각만 둔다. 새 연동값은 `/connect`에 모은다.
+
+## 2026-10-31 — v1.16 연동 화면 부동산 구조·카카오 나에게 보내기·Resend·매뉴얼(운영 배포)
+- 주인님 지시 「이렇게 바꿔」「여기 참고해서 작업해」: `/connect`를 `realty-listing-alert/app/settings` 구조로 다시 짰다. 「1 필수 쿠팡 연결」「2 선택 아침 요약 받을 곳」「3 선택 AI 모델 키」 + 맨 아래 연동 매뉴얼. 공용 코드가 아니라 `src/components/SetupTable.tsx`로 옮겨 Tailwind로 맞췄다. 입력은 줄의 「수정」을 눌러 그 줄 아래에 펼친다. 끊기 기능은 없어서 만들지 않았다.
+- 메일은 회원 본인 Resend(`lib/alerts/resend.ts`), 카카오는 회원 본인 앱의 나에게 보내기(`lib/kakao/oauth.ts`·`memo.ts`, `api/kakao/callback`, 공용 사본 `lib/memberIntegrations.ts`)로 바꿨다. SMTP·SOLAPI 코드와 패키지는 지웠다. 카카오 메시지는 200자에서 잘린다.
+- 플랫폼 키 발급 버튼 9곳, 매뉴얼 8개 연결. 운영 DB `platform_guides`에 Fixie·Resend·쿠팡 WING 매뉴얼 3건 추가(`supabase/migrations/20261031_platform_guides_fixie_resend_wing.sql`, 기존 공개 매뉴얼 표라 스키마 변경 없음).
+- 왼쪽 메뉴는 표준의 단순 목록이 아니라 WING식 묶음이다(v1.10 주인님 지시 「쿠팡 셀러 콘솔 스타일」이라 예외로 유지).
+- 확인(시험 계정, 크롬): v1.16 표시, 표 7줄, 발급 버튼 9개, 매뉴얼 버튼 8개, 카카오 줄 펼침·Redirect URI 복사 칸, 가로 넘침 없음. 매뉴얼 3건 공개 주소 200. 시험 122개·tsc·빌드 통과. 쿠팡 쓰기 0회, 비밀값 입력 0회.
+- 미확인: 카카오·Resend 실제 발송, 카카오 새 연결(주인님이 Redirect URI 추가 필요, 이 계정은 다른 프로그램 연결을 재사용해 「연결됨」), 모델 저장, 매뉴얼 팝업 창, 767px 이하 표 가로 스크롤, 30일 정리 실제 삭제.
