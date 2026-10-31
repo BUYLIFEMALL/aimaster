@@ -62,11 +62,11 @@ export function cleanAiText(s, max = AI_MAX_CHARS) {
 // 호출 함수는 길이를 자르지 않고 돌려주고(주간 리포트는 400자), 부르는 쪽이 cleanAiText로 자른다
 const clip = (t) => String(t || "");
 
-async function callGemini(apiKey, prompt, model) {
+async function callGemini(apiKey, prompt, model, maxTokens = 900) {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model || GEMINI_MODEL}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 900 } }),
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: maxTokens } }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Gemini ${res.status} ${j?.error?.message || ""}`.trim());
@@ -80,8 +80,8 @@ export function pickOpenAiModel(ids) {
   return sorted(/nano/)[0] || sorted(/mini/)[0] || null;
 }
 
-async function callOpenAI(apiKey, prompt, chosen) {
-  if (chosen) return callOpenAIModel(apiKey, prompt, chosen);
+async function callOpenAI(apiKey, prompt, chosen, maxTokens) {
+  if (chosen) return callOpenAIModel(apiKey, prompt, chosen, maxTokens);
   const list = await fetch("https://api.openai.com/v1/models", { headers: { authorization: `Bearer ${apiKey}` } });
   const lj = await list.json().catch(() => ({}));
   if (!list.ok) throw new Error(`OpenAI ${list.status} ${lj?.error?.message || ""}`.trim());
@@ -90,11 +90,11 @@ async function callOpenAI(apiKey, prompt, chosen) {
   return callOpenAIModel(apiKey, prompt, model);
 }
 
-async function callOpenAIModel(apiKey, prompt, model) {
+async function callOpenAIModel(apiKey, prompt, model, maxTokens = 1200) {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], max_completion_tokens: 1200 }),
+    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], max_completion_tokens: maxTokens }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`OpenAI ${res.status} ${j?.error?.message || ""}`.trim());
@@ -102,11 +102,11 @@ async function callOpenAIModel(apiKey, prompt, model) {
 }
 
 // 확장(회원 PC)에서 바로 부르므로 Anthropic의 브라우저 직접 호출 머리글이 필요하다 — 키는 회원 본인 것
-async function callClaude(apiKey, prompt, model) {
+async function callClaude(apiKey, prompt, model, maxTokens = 2000) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-    body: JSON.stringify({ model: model || CLAUDE_MODEL, max_tokens: 2000, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model: model || CLAUDE_MODEL, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Claude ${res.status} ${j?.error?.message || ""}`.trim());
@@ -122,4 +122,25 @@ export async function makeAiSummary(ai, history, { buildPrompt = buildAiPrompt, 
   const text = cleanAiText(raw, max);
   if (!text) throw new Error("AI가 빈 답을 돌려줬어요");
   return text;
+}
+
+export function buildAnalysisPrompt(input, year = new Date().getFullYear()) {
+  return [
+    `[기준 연도 엄수: 현재 연도는 ${year}년입니다. 모든 연도 표기는 ${year}년 기준으로 쓰고 과거 연도로 퇴행하지 마세요.]`,
+    "너는 부동산 매물 분석 도우미야. 아래는 회원이 감시하는 아파트 단지들의 최근 7일 네이버 매물 통계야. 가격은 이미 한국어 금액으로 적혀 있으니 그대로 옮겨 쓰고 단위를 바꾸거나 다시 계산하지 마.",
+    "쉬운 한국어 존댓말로 아래 순서로 짧게 써. 줄을 나눠 쓰고 표는 쓰지 마.\n1. 전체 흐름: 2~3문장\n2. 먼저 볼 단지: 최대 5곳, 숫자와 이유를 한 줄씩\n3. 수치를 의심할 곳: 값이 튀어 확인이 필요한 곳\n4. 확인할 것: 3가지",
+    "핵심 단어와 숫자는 **굵게** 표시해. 매수를 권하거나 수익을 단정하지 말고, 자료에 없는 사실을 지어내지 마. 「목록에서_내려감」은 광고를 내린 것일 수도 있으니 「거래됐다」고 단정하지 마. 기록이 1~2회뿐이면 아직 기록이 적다고 밝혀.",
+    JSON.stringify(input),
+  ].join("\n");
+}
+
+/** 분석 버튼: ai = { provider, apiKey, model }. 회원이 누를 때만 부르고 재시도하지 않는다 */
+export async function makeAiAnalysis(ai, history) {
+  const input = buildAiInput(history);
+  if (!input) throw new Error("통계 기록이 아직 없어요. 먼저 수집해 주세요.");
+  const prompt = buildAnalysisPrompt(input);
+  const max = 4000;
+  const raw = ai.provider === "openai" ? await callOpenAI(ai.apiKey, prompt, ai.model, max) : ai.provider === "claude" ? await callClaude(ai.apiKey, prompt, ai.model, max) : await callGemini(ai.apiKey, prompt, ai.model, max);
+  if (!String(raw).trim()) throw new Error("AI가 빈 답을 돌려줬어요");
+  return raw;
 }

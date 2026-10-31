@@ -433,7 +433,7 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
       <div className="ra-card-head">
         <h2 className="card-title"><span className="ra-step opt">③ 선택</span>🤖 AI 시세 요약 엔진 <small className="ra-engine-sub">OpenAI / Claude / Gemini · 선택</small></h2>
       </div>
-      <p className="card-caption">엔진 이름을 누르면 그 줄이 요약에 쓰여요(색이 바뀐 줄). 모델은 고르면 바로 저장되고, 키는 「수정」으로 바꿔요.</p>
+      <p className="card-caption">엔진 이름을 누르면 그 줄이 하루 1번 자동 요약에 쓰여요(색이 바뀐 줄). 수집 결과의 분석 버튼은 각 줄에서 고른 모델을 써요. 모델은 고르면 바로 저장되고, 키는 「수정」으로 바꿔요.</p>
       <div className="ra-aitbl-wrap">
         <table className="ra-aitbl">
           <tbody>

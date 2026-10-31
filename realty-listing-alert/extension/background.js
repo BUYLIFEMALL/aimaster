@@ -11,7 +11,7 @@ import { buildKakaoText, buildMailHtml, buildMailSubject, kakaoButtonFor, kakaoL
 import { pickEvents, pushEvents, pushHistory, summarizeTable } from "./lib/stats.js";
 import { compareToTrades, gapText } from "./lib/tradeCompare.js";
 import { findBargains } from "./lib/bargain.js";
-import { makeAiSummary } from "./lib/aiSummary.js";
+import { makeAiAnalysis, makeAiSummary } from "./lib/aiSummary.js";
 import { findStale } from "./lib/stale.js";
 import { WEEKLY_AI_MAX, WEEKLY_URL, buildWeeklyPrompt, buildWeeklyReport, shouldSendWeekly } from "./lib/weekly.js";
 
@@ -594,6 +594,12 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           // 팝업 「최근 기록」은 쉬운 줄만(2026-10-26 주인님 — 「단지·지역 … 진단:」 개발용 줄이 중요한 줄을 밀어냄). 기록 자체는 그대로 남는다.
           recent: (s.log || []).filter((l) => !/(단지|지역) \S+ 진단:/.test(String(l))).slice(-6),
         });
+      }
+      if (msg.type === "aiAnalyze") {
+        // 키는 저장하지 않고 이번 호출에만 쓴다. 보내는 것은 통계 숫자뿐
+        const ai = await api(`/api/extension/ai-key?provider=${encodeURIComponent(msg.provider || "")}`);
+        const { history = [] } = await get("history");
+        return reply({ ok: true, provider: ai.provider, model: ai.model, text: await makeAiAnalysis(ai, history) });
       }
       if (msg.type === "refreshSettings") {
         const s = await loadSettings();

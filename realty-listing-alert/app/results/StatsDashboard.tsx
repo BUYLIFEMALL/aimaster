@@ -4,7 +4,8 @@
 // 요약 기록은 확장(chrome.storage.local 「history」, extension/lib/stats.js)에만 있다 — 같은 계정일 때 이 화면에만 건넨다(§0, 서버 미보관).
 // 그래프는 한 그래프에 선 하나(축 하나): 매물 수와 평균 가격을 따로 그린다. 같은 숫자는 표로도 보인다.
 import type { AiProvider } from "@/lib/aiProviders";
-import { aiModelShortName, resolveAiModel } from "@/lib/aiModels";
+import { AI_ENGINES, aiModelShortName, resolveAiModel } from "@/lib/aiModels";
+import { toAiProvider } from "@/lib/aiProviders";
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 import PriceChange, { TradeGap } from "./PriceChange";
@@ -40,6 +41,8 @@ const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "nu
 const day = (iso: string) => new Date(iso).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });
 const signed = (n: number) => (n > 0 ? `▲ ${n.toLocaleString("ko-KR")}` : n < 0 ? `▼ ${(-n).toLocaleString("ko-KR")}` : "변동 없음");
 
+const MIN_ANALYSIS_EXTENSION = 1.41;
+
 export default function StatsDashboard({ email }: { email: string }) {
   const [history, setHistory] = useState<Snap[] | null | undefined>(undefined); // undefined = 묻는 중, null = 확장 없음·다른 계정
   const [events, setEvents] = useState<EventRow[]>([]);
@@ -47,6 +50,7 @@ export default function StatsDashboard({ email }: { email: string }) {
   const [weekly, setWeekly] = useState<{ text: string; at: string; from: string; to: string } | null>(null); // 📅 지난 주간 리포트(D)
   const [stale, setStale] = useState<StaleRow[]>([]); // ⏳ 오래 안 팔린 매물(C-2)
   const [ai, setAi] = useState<{ text: string; at: string; provider?: AiProvider; model?: string | null } | null>(null); // 🤖 AI 시세 요약(v1.22) — 확장이 하루 1번 만든 것
+  const [analysis, setAnalysis] = useState<{ busy?: AiProvider; text?: string; used?: string; error?: string }>({});
   const [complex, setComplex] = useState("");
   const [trade, setTrade] = useState<Trade>("매매");
   const [evType, setEvType] = useState<EvType | "all">("all");
@@ -85,6 +89,21 @@ export default function StatsDashboard({ email }: { email: string }) {
     });
     return () => { alive = false; };
   }, [email]);
+
+  // 분석 버튼: 누른 AI로 바로 분석한다. 세부 모델은 「API키등록·플랫폼연동」에서 고른 값
+  const runAnalysis = async (provider: AiProvider) => {
+    setAnalysis({ busy: provider });
+    // 옛 확장은 이 요청을 몰라 응답이 없으므로 먼저 버전을 확인한다
+    const ping = await askExtension<{ version?: string }>("ping", 2000);
+    if ((Number.parseFloat(String(ping?.version ?? "").replace("v", "")) || 0) < MIN_ANALYSIS_EXTENSION) {
+      setAnalysis({ error: "확장을 새 버전으로 바꿔 주세요. chrome://extensions에서 ↻ 새로고침한 뒤 이 화면도 새로고침해 주세요." });
+      return;
+    }
+    const r = await askExtension<{ ok?: boolean; provider?: string; model?: string; text?: string; error?: string }>("aiAnalyze", 180000, { email, provider });
+    if (!r?.ok || !r.text) { setAnalysis({ error: r?.error || "응답이 없어요. 확장을 새로고침한 뒤 다시 눌러 주세요." }); return; }
+    const p = toAiProvider(r.provider);
+    setAnalysis({ text: r.text, used: aiModelShortName(p, resolveAiModel(p, r.model)) });
+  };
 
   // 요약 카드를 누르면 그 종류의 이번 회차 변동만 「변동 기록」에서 보여 준다
   const openEvents = (t: EvType | "all") => {
@@ -156,6 +175,26 @@ export default function StatsDashboard({ email }: { email: string }) {
             </details>
           )}
           {ai && <div className="ra-ai-summary"><strong>🤖 AI 한 줄 요약</strong><p>{ai.text}</p><small>{when(ai.at)} 작성{ai.provider && ai.model ? ` · ${aiModelShortName(ai.provider, resolveAiModel(ai.provider, ai.model))}` : ""} · 통계 숫자만 보고 쓴 참고용이에요(투자 판단 근거가 아니에요)</small></div>}
+          <div className="ra-ai-summary">
+            <strong>🤖 AI 분석</strong>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {AI_ENGINES.map((e) => (
+                <button key={e.id} type="button" className="ra-btn-save" disabled={!!analysis.busy} onClick={() => runAnalysis(e.id)}>
+                  {analysis.busy === e.id ? "분석 중이에요..." : `${e.icon} ${e.label} 분석`}
+                </button>
+              ))}
+            </div>
+            <small>누른 AI에 회원님 본인 키로 통계 숫자만 보내요(단지 이름·매물 수·평균가·변동 건수). 중개사와 매물 목록은 보내지 않고 우리 서버도 거치지 않아요. 요금은 본인 키에 청구되고, 세부 모델은 「API키등록·플랫폼연동」에서 골라요.</small>
+            {analysis.error && <p role="alert" style={{ color: "#e11d48" }}>{analysis.error}</p>}
+            {analysis.text && (
+              <>
+                <div style={{ display: "grid", gap: 4 }}>
+                  {analysis.text.split("\n").map((line, i) => line.trim() ? <p key={i}>{line.split(/\*\*(.+?)\*\*/g).map((part, j) => (j % 2 ? <strong key={j} style={{ color: "inherit" }}>{part}</strong> : part.replace(/^#{1,6}\s+/, "")))}</p> : null)}
+                </div>
+                <small>{analysis.used}로 만든 AI 분석이에요. 사실과 다를 수 있으니 투자 판단은 직접 확인 후 해 주세요.</small>
+              </>
+            )}
+          </div>
           <div className="ra-stat-tiles">
             <div className="ra-stat"><small>지금 매물</small><strong>{tiles.total.toLocaleString("ko-KR")}건</strong><span>{tiles.delta === null ? "직전 회차 없음" : `직전보다 ${signed(tiles.delta)}`}</span></div>
             <button type="button" className="ra-stat link" onClick={() => openEvents("new")}><small>🆕 새 매물</small><strong>{tiles.fresh.toLocaleString("ko-KR")}건</strong><span>이번 회차 · 눌러서 보기 →</span></button>

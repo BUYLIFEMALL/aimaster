@@ -1,7 +1,7 @@
 // 🤖 AI 시세 요약(2026-10-25, v1.22) — 보내는 숫자 만들기·프롬프트·저렴한 모델 고르기 시험(실제 AI 호출 없음)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildAiInput, buildAiPrompt, cleanAiText, pickOpenAiModel, wonText } from "../extension/lib/aiSummary.js";
+import { buildAiInput, buildAiPrompt, buildAnalysisPrompt, cleanAiText, pickOpenAiModel, wonText } from "../extension/lib/aiSummary.js";
 
 const snap = (at: string, total: number, avg: number, ev = { new: 0, priceDown: 0, priceUp: 0, gone: 0 }) => ({
   at,
@@ -73,4 +73,11 @@ test("금액 한국어 표기: 단위를 AI가 헷갈리지 않게", () => {
 test("AI 글 정리: 제목 #·굵은 글씨 지우기, 사라짐을 거래로 단정하지 않게 지시", () => {
   assert.equal(cleanAiText("# 📊 주간 현황\n**일산** 매물이 늘었어요."), "📊 주간 현황 일산 매물이 늘었어요.");
   assert.match(buildAiPrompt({ a: 1 }, 2026), /단정하지 마/);
+});
+
+test("분석 프롬프트: 연도와 네 단락 순서, 통계 입력을 담는다", () => {
+  const p = buildAnalysisPrompt({ 단지들: [{ 단지: "가나" }] }, 2026);
+  assert.match(p, /2026년/);
+  assert.match(p, /1\. 전체 흐름[\s\S]*4\. 확인할 것/);
+  assert.match(p, /가나/);
 });
