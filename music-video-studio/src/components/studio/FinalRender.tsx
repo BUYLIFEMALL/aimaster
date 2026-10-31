@@ -214,8 +214,8 @@ export function FinalRender() {
       <div>
         <h2 className="flex items-center gap-2 text-base font-extrabold text-white"><Film className="h-5 w-5 text-cyan-300" aria-hidden="true" /> 🎬 최종 뮤직비디오 만들기</h2>
         <p className="mt-1 text-xs leading-relaxed text-slate-400">
-          장면 영상(없으면 장면 이미지)에 이 뮤직비디오의 곡과 가사 자막을 얹어 MP4 한 편으로 만듭니다. 합치는 작업은 내 PC 브라우저에서 해 추가 비용이 없습니다(앞 단계의 이미지·영상 생성 비용은 별도입니다).
-          곡에 시간 가사가 있으면 그 장면의 가사가 나오는 시각에 장면을 바꾸고, 없으면 곡 길이를 장면 수로 고르게 나눕니다. 곡의 박자를 찾으면 전환을 박자에 맞춥니다. 장면보다 짧은 영상은 반복 재생합니다.
+          <b className="text-slate-200">최종 뮤직비디오는 내 PC 브라우저에서 무료로 만들어집니다.</b><br />
+          장면 영상(없으면 이미지)에 곡과 가사 자막을 입혀 MP4 한 편으로 완성하고, 장면 전환은 가사와 박자에 자동으로 맞춥니다.
         </p>
       </div>
 
