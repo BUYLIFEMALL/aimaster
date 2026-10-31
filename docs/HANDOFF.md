@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.11 지역으로 매물 감시 추가
+- 매물 감시 화면을 매물 알림과 같은 구성으로. 동 중심 좌표는 확장이 네이버 `/api/regions/list`에서 받음(이 API는 실제 호출 미확인, 주인님 시험 대기, 실패 시 팝업 기록에 진단). 등록 시 실거래 수집도 켬. 실거래 지역·실거래 조건으로 이름 구분.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/watch
+
 ## 2026-10-31 ⏳ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.12 코드 완료(미배포)
 - 한 일: 이메일·카카오 알림, AI 3종 선택, 반복 작업 8개(발주서·송장 파일, 복사 등록, 템플릿, 엑셀 일괄, 원가 저장, 오늘 할 일 안에서 처리), 회수 송장·철회 이력·출고지/반품지·옵션 단위 자동생성옵션·쿠폰 적용 옵션.
 - 커밋: `533bdded5`·`6e656fd51`·`00523fa9b`·`6754b148e`·`78cfc78c5`. 시험 107개·tsc·로컬 build 통과, 화면 확인·쿠팡 쓰기 0회.
