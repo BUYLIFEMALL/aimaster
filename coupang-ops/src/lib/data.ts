@@ -57,6 +57,13 @@ export async function getKeyExpiry(userId: string, asJob = false): Promise<strin
   return normalizePrefs(data?.data).wingKeyExpiry;
 }
 
+/** 플랫폼별로 고른 AI 모델 */
+export async function getAiModels(userId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("coupang_ops_prefs").select("data").eq("user_id", userId).maybeSingle();
+  return normalizePrefs(data?.data).aiModels;
+}
+
 /** 배송·반품 기본값(없으면 null) */
 export async function getCoupangDefaults(userId: string) {
   const supabase = await createClient();

@@ -57,3 +57,9 @@ test("S1 키 만료 안내", async () => {
   assert.equal(normalizePrefs({ wingKeyExpiry: "abc" }).wingKeyExpiry, "");
   assert.equal(normalizePrefs({ wingKeyExpiry: "2027-04-30" }).wingKeyExpiry, "2027-04-30");
 });
+
+test("플랫폼별 AI 모델 저장값 검사", async () => {
+  const { cleanAiModels } = await import("../src/lib/coupang/prefs.ts");
+  assert.deepEqual(cleanAiModels({ anthropic: "claude-haiku-5-5", openai: "claude-opus-5-5", gemini: "없는모델", etc: "x" }), { anthropic: "claude-haiku-5-5" });
+  assert.deepEqual(cleanAiModels(null), {});
+});

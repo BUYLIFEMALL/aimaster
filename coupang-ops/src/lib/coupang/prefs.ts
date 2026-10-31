@@ -1,7 +1,9 @@
+import { AI_MODEL_OPTIONS, type AIModelProvider } from "../ai/models.ts";
+
 // 회원 설정 정리(R3·R5·R7). 외부 호출 없음(tests/prefs.test.mjs). 저장 전에 크기를 제한한다.
 export type ReplyTemplate = { title: string; text: string };
 export type ListingTemplate = { name: string; brand: string; manufacturer: string; code: string; tags: string; searchVals: Record<string, string>; axisText: Record<string, string> };
-export type Prefs = { replyTemplates: ReplyTemplate[]; listingTemplates: ListingTemplate[]; unitCosts: Record<string, string>; targetMargin: string; wingKeyExpiry: string };
+export type Prefs = { replyTemplates: ReplyTemplate[]; listingTemplates: ListingTemplate[]; unitCosts: Record<string, string>; targetMargin: string; wingKeyExpiry: string; aiModels: Partial<Record<AIModelProvider, string>> };
 
 const MAX_REPLY = 30;
 const MAX_LISTING = 20;
@@ -37,6 +39,14 @@ export function keyExpiryNotice(expiry: string, nowMs: number): KeyNotice | null
   return { level: days <= 7 ? "urgent" : "soon", days, text: `쿠팡 WING 키가 ${days === 0 ? "오늘" : `${days}일 뒤`}(${expiry}) 만료될 예정입니다. 만료되면 모든 쿠팡 기능과 아침 요약이 멈추니 WING에서 재발급해 새 키를 등록해 주세요.` };
 }
 
+/** 플랫폼별로 고른 모델. 목록에 있고 그 플랫폼의 모델인 값만 남긴다 */
+export function cleanAiModels(raw: unknown): Partial<Record<AIModelProvider, string>> {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const out: Partial<Record<AIModelProvider, string>> = {};
+  for (const o of AI_MODEL_OPTIONS) if (r[o.provider] === o.value) out[o.provider] = o.value;
+  return out;
+}
+
 export function normalizePrefs(raw: unknown): Prefs {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   return {
@@ -48,6 +58,7 @@ export function normalizePrefs(raw: unknown): Prefs {
     unitCosts: strMap(r.unitCosts, MAX_COSTS, 12),
     targetMargin: text(r.targetMargin, 6),
     wingKeyExpiry: isDate(r.wingKeyExpiry) ? String(r.wingKeyExpiry) : "",
+    aiModels: cleanAiModels(r.aiModels),
   };
 }
 
