@@ -18,8 +18,8 @@ export default async function WatchPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <PageHero
-        badge="🎯 STEP 1 · 감시 대상"
-        title="감시 대상"
+        badge="🎯 STEP 1 · 매물 감시(예약 설정)"
+        title="매물 감시(예약 설정)"
         description="네이버 지도에서 지역과 필터를 맞춘 화면을 저장하면, 내 PC의 크롬 확장이 그 화면을 살펴보고 새 매물과 가격 변동을 텔레그램/이메일/카카오톡으로 알려 드립니다. 매물은 우리 서버에 저장하지 않습니다."
         tip={`${rows.length}/${MAX_TARGETS}곳 감시 중 · 크롬이 켜져 있어야 예약 수집이 돌아요.`}
       />

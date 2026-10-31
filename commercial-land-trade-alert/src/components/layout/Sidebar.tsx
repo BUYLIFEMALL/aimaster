@@ -7,15 +7,14 @@ import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
 import { BrandMark } from "@/components/ui/BrandMark";
 
-// 메뉴 이름과 앞 4칸 순서는 「부동산 실시간 매물 알림」과 같게 둔다(2026-10-31 주인님 지시). 뒤 3칸은 이 프로그램의 실거래 기능이다.
+// 메뉴 이름과 앞 3칸 순서는 「부동산 실시간 매물 알림」과 같게 둔다(2026-10-31 주인님 지시). 뒤 3칸은 이 프로그램의 실거래 기능이다.
 const FLOW_STEPS = [
-  { step: 1, href: "/watch", icon: "🎯", label: "감시 대상", description: "네이버 화면·조건 (최대 10개)" },
-  { step: 2, href: "/watch#schedule", icon: "⏰", label: "예약 설정", description: "켜기/끄기·수집 간격·시간대" },
-  { step: 3, href: "/settings", icon: "📨", label: "받는 방법", description: "텔레그램·이메일·카카오톡" },
-  { step: 4, href: "/results", icon: "📑", label: "수집 결과", description: "통계·추이·매물 표" },
-  { step: 5, href: "/districts", icon: "📍", label: "관심 지역", description: "전국 시·군·구 고르기" },
-  { step: 6, href: "/conditions", icon: "🧾", label: "거래 조건", description: "용도·지목·금액·면적" },
-  { step: 7, href: "/trades", icon: "🏢", label: "실거래 목록", description: "거르기·비교·CSV" },
+  { step: 1, href: "/watch", icon: "🎯", label: "매물 감시(예약 설정)", description: "네이버 화면·조건·수집 간격" },
+  { step: 2, href: "/settings", icon: "📨", label: "받는 방법", description: "텔레그램·이메일·카카오톡" },
+  { step: 3, href: "/results", icon: "📑", label: "수집 결과", description: "통계·추이·매물 표" },
+  { step: 4, href: "/districts", icon: "📍", label: "관심 지역", description: "전국 시·군·구 고르기" },
+  { step: 5, href: "/conditions", icon: "🧾", label: "거래 조건", description: "용도·지목·금액·면적" },
+  { step: 6, href: "/trades", icon: "🏢", label: "실거래 목록", description: "거르기·비교·CSV" },
 ];
 
 
@@ -44,7 +43,7 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
             const isActive = pathname?.startsWith(item.href);
             return (
               <div key={item.href}>
-              {item.step === 5 && <p className="mx-2 mb-2 mt-2 border-t border-mx-border pt-3 text-[11px] font-bold text-mx-muted">실거래</p>}
+              {item.step === 4 && <p className="mx-2 mb-2 mt-2 border-t border-mx-border pt-3 text-[11px] font-bold text-mx-muted">실거래</p>}
               <Link href={item.href} className={`flex items-center gap-3 rounded-xl px-2 py-2 ${isActive ? "bg-[#e8f8ef]" : "hover:bg-[#f4f6f9]"}`}>
                 <div className="flex flex-col items-center">
                   <span
