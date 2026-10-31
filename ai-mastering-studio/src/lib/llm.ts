@@ -31,7 +31,11 @@ async function callGemini(apiKey: string, model: string, p: Prompt) {
   const res = await ai.models.generateContent({
     model,
     contents: { parts: [{ text: p.user }] },
-    config: { systemInstruction: p.system, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } },
+    config: {
+      systemInstruction: p.system,
+      responseMimeType: "application/json",
+      ...(model.startsWith("gemini-2.5") ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+    },
   });
   return (res.text ?? "").trim();
 }
@@ -51,7 +55,7 @@ async function callClaude(apiKey: string, model: string, p: Prompt) {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model, max_tokens: 2000, system: p.system, messages: [{ role: "user", content: p.user }] }),
+    body: JSON.stringify({ model, max_tokens: 16000, system: p.system, messages: [{ role: "user", content: p.user }] }),
   });
   const d = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`${r.status} ${d?.error?.type ?? ""} ${d?.error?.message ?? ""}`);

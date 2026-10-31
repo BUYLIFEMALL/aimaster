@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AudioWaveform, Download, Loader2, Sparkles, Trash2, Upload, Wand2, X, SlidersHorizontal, Cpu, Layers, BookOpen, KeyRound } from "lucide-react";
 import JSZip from "jszip";
 import { DEFAULT_PARAMS, PRESETS, clampParams, type MasteringParams, type Preset } from "@/lib/mastering/params";
-import { DEFAULT_TEXT_MODEL, TEXT_MODELS } from "@/lib/mastering/models";
+import { DEFAULT_TEXT_MODEL, PROVIDER_LABELS, TEXT_MODELS, type Provider } from "@/lib/mastering/models";
 import { encodeWav16, masteredFileName, measure, uniqueNames, type Levels } from "@/lib/mastering/dsp";
 import { PcExportPanel } from "@/components/studio/PcExportPanel";
 import { bufferChannels, masterAudio, toAudioBuffer } from "@/lib/mastering/engine";
@@ -361,7 +361,11 @@ export function MasteringStudio() {
         <p className="text-xs text-slate-400">원하는 소리를 한국어로 적으면 AI 엔지니어가 설정값을 제안합니다. 회원님 본인의 API 키로 독립 호출됩니다.</p>
         <div className="flex flex-col gap-2.5 sm:flex-row">
           <select value={textModel} onChange={(e) => { setTextModel(e.target.value); try { localStorage.setItem(MODEL_KEY, e.target.value); } catch { /* 무시 */ } }} className="rounded-xl border border-[#1e293b] bg-[#131b2e] px-3 py-2 text-sm text-slate-200 sm:w-64 focus:outline-hidden focus:border-[#00f0ff]">
-            {TEXT_MODELS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+            {(Object.keys(PROVIDER_LABELS) as Provider[]).map((p) => (
+              <optgroup key={p} label={PROVIDER_LABELS[p]}>
+                {TEXT_MODELS.filter((m) => m.provider === p).map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+              </optgroup>
+            ))}
           </select>
           <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value.slice(0, 400))} rows={2} placeholder="예: 선명한 고음과 깊은 저음 펀치감이 있는 현대적인 K-Pop 사운드" className="min-w-0 flex-1 rounded-xl border border-[#1e293b] bg-[#131b2e] px-3 py-2 text-sm text-slate-200 focus:outline-hidden focus:border-[#00f0ff]" />
           <button type="button" onClick={runAi} disabled={aiBusy || !aiPrompt.trim()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] px-4 py-2 text-sm font-bold text-white hover:brightness-110 disabled:opacity-60 transition shrink-0">
