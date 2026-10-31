@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.15 AI 엔진 3가지·설정 화면 재구성
+- OpenAI·Claude·Gemini 선택과 모델 고르기(선택은 확장 저장소, DB 변경 없음), 설정 화면을 부동산과 같은 단계별 표로. 남은 일: 엔진 3가지 실제 호출 확인, PC별 연결 끊기.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/settings
+
 ## 2026-10-31 ⚠ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.13 가짜 지표 제거 배포
 - 문제: 운영 화면에 고정 글자로 된 위너 사수율 94.2%, 탈환 대기 1건, 「10원 최저가 실시간 매칭 엔진」, 「AI 자동 수정」, 「암호화 보관」이 올라가 있다(2026-10-31 크롬 확인). 공식 API 104개에 위너·경쟁가 조회가 없고 해당 코드도 없다.
 - 조치: `0c4545a79`에서 모두 제거, 첫 화면 카드는 쿠팡에서 읽은 실제 건수로 교체, 디자인 틀 유지. 시험 112개·빌드 통과. v1.13 배포 Ready, 크롬에서 가짜 문구 없음 확인, 오늘 할 일 실제 조회 통과(회원 Fixie, 6칸 0건). 이어서 v1.14 배포: 수동 가격 제안 `3edea4937`, `CRON_SECRET` 등록(값 없음·틀린 값 401 확인, 실제 삭제는 03:30 실행 뒤 확인). 이어서 v1.15: 알림·예약 키 칸을 「API키등록·플랫폼연동」 5~8번으로 통합(`ff2682c89`).
