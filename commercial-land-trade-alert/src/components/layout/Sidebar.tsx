@@ -9,7 +9,7 @@ import { BrandMark } from "@/components/ui/BrandMark";
 
 // 메뉴 이름과 앞 4칸 순서는 「부동산 실시간 매물 알림」과 같게 둔다(2026-10-31 주인님 지시). 뒤 3칸은 이 프로그램의 실거래 기능이다.
 const FLOW_STEPS = [
-  { step: 1, href: "/watch", icon: "🎯", label: "감시 대상", description: "네이버 화면 추가·조건 (최대 10개)" },
+  { step: 1, href: "/watch", icon: "🎯", label: "감시 대상", description: "네이버 화면·조건 (최대 10개)" },
   { step: 2, href: "/watch#schedule", icon: "⏰", label: "예약 설정", description: "켜기/끄기·수집 간격·시간대" },
   { step: 3, href: "/settings", icon: "📨", label: "받는 방법", description: "텔레그램·이메일·카카오톡" },
   { step: 4, href: "/results", icon: "📑", label: "수집 결과", description: "통계·추이·매물 표" },

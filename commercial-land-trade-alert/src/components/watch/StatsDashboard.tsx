@@ -87,7 +87,7 @@ function LineChart({ title, points, fmt }: { title: string; points: { at: string
 
 function Gap({ s }: { s?: SaleStat }) {
   const v = s?.gapMed;
-  if (v == null) return <>—</>;
+  if (!s || v == null) return <>—</>;
   const color = v > 0 ? "text-blue-700" : v < 0 ? "text-red-600" : "";
   return <><b className={color}>{v > 0 ? "▲" : v < 0 ? "▼" : ""} {Math.abs(v)}% {v > 0 ? "높음" : v < 0 ? "낮음" : "같음"}</b> <small className="text-mx-muted">({s.gapN}건)</small></>;
 }
