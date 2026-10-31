@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { CopyBox } from "@/components/CopyBox";
-import { SERVER_IPS } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +9,8 @@ const WING = "https://wing.coupang.com";
 
 const STEPS = [
   { emoji: "🔑", title: "WING에서 키 발급", body: "판매자정보 → 추가판매정보 → OPEN API 키 발급" },
-  { emoji: "🌐", title: "자체개발 + IP 등록", body: "연동 방식 「자체개발」, 우리 서버 IP 2개 넣기" },
+  { emoji: "🌐", title: "내 고정 IP 만들기", body: "Fixie 가입, 프록시 주소와 고정 IP 2개 확인" },
+  { emoji: "🛡️", title: "자체개발 + IP 등록", body: "연동 방식 「자체개발」, 내 고정 IP 2개 넣기" },
   { emoji: "🧩", title: "이 프로그램에 키 등록", body: "업체코드·Access Key·Secret Key·WING 로그인 ID" },
   { emoji: "✅", title: "연결 시험 → 사용", body: "연결이 확인되면 상품 등록부터 시작" },
 ];
@@ -31,9 +32,9 @@ export default async function GuidePage() {
         <h2 className="text-lg font-extrabold text-slate-900">🚀 한눈에 보기</h2>
         <p className="mt-1 text-sm leading-relaxed text-slate-700">
           이 프로그램은 쿠팡이 판매자에게 공식으로 주는 <b>WING Open API</b>로 동작합니다. 화면을 대신 누르는 방식이 아니라서 빠르고 안정적입니다.
-          판매자 본인의 키를 한 번 등록하면, 우리 서버가 쿠팡에 등록된 고정 IP로만 요청을 보냅니다.
+          판매자 본인의 키를 한 번 등록하면, 내 Fixie 계정의 고정 IP로만 쿠팡에 요청을 보냅니다.
         </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {STEPS.map((s, i) => (
             <div key={s.title} className="rounded-xl border border-blue-200 bg-blue-50 p-3">
               <p className="text-[11px] font-black text-blue-700">STEP {i + 1}</p>
@@ -57,14 +58,26 @@ export default async function GuidePage() {
       </section>
 
       <section className="slw-card space-y-3 p-5">
-        <h2 className="text-lg font-extrabold text-slate-900">STEP 2. 연동 방식 「자체개발」 + 허용 IP 등록</h2>
+        <h2 className="text-lg font-extrabold text-slate-900">STEP 2. 내 고정 IP 만들기(Fixie)</h2>
+        <p className="text-sm leading-relaxed text-slate-700">쿠팡은 WING에 등록한 IP에서 온 요청만 받습니다. 이 프로그램 서버는 나가는 IP가 바뀌므로, 항상 같은 IP로 나가게 해 주는 Fixie를 거칩니다.</p>
+        <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">
+          <li><a href="https://usefixie.com/" target="_blank" rel="noreferrer" className="font-bold text-blue-700 underline">Fixie 사이트 ↗</a>에서 가입하고 <b>HTTP/HTTPS용</b> 프록시를 만듭니다.</li>
+          <li><a href="https://app.usefixie.com/" target="_blank" rel="noreferrer" className="font-bold text-blue-700 underline">Fixie 대시보드 ↗</a>에서 <b>프록시 주소</b>와 <b>고정 IP 2개</b>를 확인합니다.</li>
+          <li>이 프로그램 <Link href="/connect" className="font-bold text-blue-700 underline">🔑 API키등록·플랫폼연동</Link>의 「내 고정 IP 만들기」 칸에 프록시 주소를 넣고 저장합니다.</li>
+        </ol>
+        <CopyBox label="주소 모양" text="http://fixie:토큰@내주소.usefixie.com:80" />
+        <Notice tone="tip">💡 요금은 내 Fixie 계정에 적용됩니다. 무료 Tricycle은 월 500회, 유료 Commuter는 월 2,500회에 5달러입니다(2026-10-31 Fixie 요금표 기준). 첫 화면에서 이번 달 호출 수를 볼 수 있고, 아침 요약은 켜 두면 월 약 210회를 씁니다.</Notice>
+        <Notice tone="warn">⚠️ 프록시 주소에는 비밀 토큰이 들어 있습니다. 다른 사람에게 보여 주지 마세요. 재발급하면 이 프로그램에도 새 주소를 넣어 주세요.</Notice>
+      </section>
+
+      <section className="slw-card space-y-3 p-5">
+        <h2 className="text-lg font-extrabold text-slate-900">STEP 3. 연동 방식 「자체개발」 + 허용 IP 등록</h2>
         <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">
           <li>같은 화면의 <b>「연동 정보 → 수정」</b>을 누르고 연동 방식을 <b>「자체개발」</b>로 고릅니다.</li>
           <li>업체 입력 방식은 <b>「자체개발(직접입력)」</b>, 업체명은 자유롭게(예: 내 상호), URL은 아래 주소(https:// 없이)를 넣습니다.</li>
-          <li>IP 주소 칸에 우리 서버 IP를 <b>하나씩</b> 넣고 그때마다 <b>「추가」</b>를 누릅니다(두 개). 목록에 둘 다 보이면 「확인」을 누릅니다.</li>
+          <li>IP 주소 칸에 Fixie 대시보드의 고정 IP를 <b>하나씩</b> 넣고 그때마다 <b>「추가」</b>를 누릅니다(두 개). 목록에 둘 다 보이면 「확인」을 누릅니다.</li>
         </ol>
         <CopyBox label="URL" text="www.buylife.xyz" />
-        {SERVER_IPS.map((ip, i) => <CopyBox key={ip} label={`IP ${i + 1}`} text={ip} />)}
         <Notice tone="tip">
           💡 IP는 등록 후 쿠팡에 반영되기까지 30분~1시간, 처음 발급한 키는 최대 24시간이 걸릴 수 있습니다. 바로 연결이 안 되면 잠시 뒤 다시 시험해 주세요.
         </Notice>
@@ -136,8 +149,16 @@ export default async function GuidePage() {
           <p className="mt-2 leading-relaxed text-slate-700">쿠팡 Open API는 무료입니다. 이 프로그램 이용 권한은 AIMaster 회원 등급·이용 기간을 따릅니다.</p>
         </details>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">Fixie는 왜 필요한가요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">쿠팡은 WING에 등록한 IP에서 온 요청만 받는데, 이 프로그램 서버는 나가는 IP가 바뀝니다. Fixie가 요청을 항상 같은 IP로 내보내 주므로, 그 IP를 WING에 등록해 두면 연결됩니다. 쿠팡 기능이 아니라 고정 IP를 빌려주는 별도 서비스이고, 회원마다 본인 계정을 씁니다.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">연결 시험에서 IP를 허용하지 않는다고 나와요</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">오류 문구에 지금 나가는 IP가 함께 나오면 그 IP가 WING 허용 IP에 있는지 확인해 주세요. 등록 후 쿠팡에 반영되기까지 30분~1시간 걸릴 수 있습니다.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">내 PC IP도 등록해야 하나요?</summary>
-          <p className="mt-2 leading-relaxed text-slate-700">아니요. 쿠팡 호출은 모두 우리 서버에서 나가므로 위 서버 IP 두 개만 넣으면 됩니다.</p>
+          <p className="mt-2 leading-relaxed text-slate-700">아니요. 쿠팡 호출은 모두 내 Fixie 고정 IP로 나가므로 그 IP 두 개만 넣으면 됩니다.</p>
         </details>
       </section>
     </div>

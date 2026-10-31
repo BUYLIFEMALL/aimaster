@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { THIS_PROGRAM_SLUG } from "@/lib/access";
 import { gapLeftSeconds } from "@/lib/readGapRule";
 
-// 쿠팡 조회 간격 제한(C3-1 백로그 「Fixie 사용량 보호」). 운영 쿠팡 호출은 모두 고정 IP 프록시(FIXIE_URL, 운영자 비용)를 거치므로
+// 쿠팡 조회 간격 제한(C3-1 백로그 「Fixie 사용량 보호」). 운영 쿠팡 호출은 모두 회원 본인 고정 IP 프록시를 거쳐 그 회원의 월 사용량을 쓴다.
 // 버튼을 연달아 눌러도 같은 조회가 짧은 간격으로 반복되지 않게 서버에서 막는다.
 // 기록은 공용 usage_logs(회원별, 서버 키로만 쓰기)에 남기고 마지막 기록 시각과 비교한다 — 새 표 없음. 주문 내용은 남기지 않는다.
 

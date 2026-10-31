@@ -3,7 +3,6 @@
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
-import { callBudgetBlock } from "@/lib/coupang/usage";
 import { LIST_PATH, listQuery, normalizeProductList, type ListedProduct } from "@/lib/coupang/listing";
 
 export type ListResult = { ok: true; items: ListedProduct[]; nextToken: string } | { ok: false; error: string };
@@ -13,8 +12,6 @@ export async function listMyCoupangProductsAction(opt: { nextToken?: string; sta
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
-  const blocked = await callBudgetBlock(user.id);
-  if (blocked) return { ok: false, error: blocked };
   try {
     const r = await wingRequest(keys, "GET", LIST_PATH, { query: listQuery(keys.vendorId, opt) });
     return { ok: true, ...normalizeProductList(r.data) };

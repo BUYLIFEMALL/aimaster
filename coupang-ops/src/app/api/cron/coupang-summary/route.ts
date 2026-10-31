@@ -4,7 +4,6 @@ import { getWingKeysForJob } from "@/lib/data";
 import { readTodayCounts } from "@/lib/coupang/todayRead";
 import { deliver, loadTargets } from "@/lib/alerts/deliver";
 import { cleanChannels, kstDate, summaryMessage } from "@/lib/coupang/summary";
-import { callBudgetBlock } from "@/lib/coupang/usage";
 import { checkProgramAccess } from "@/lib/programAccess";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -27,10 +26,6 @@ async function run(userId: string) {
     if (!access.allowed) return finish("이용 권한이 없어 건너뛰었습니다.");
     const keys = await getWingKeysForJob(userId);
     if (!keys) return finish("쿠팡 키가 없어 건너뛰었습니다.");
-    const blocked = await callBudgetBlock(userId);
-    if (blocked) {
-      return finish(`${blocked} / ${await notify(`🛒 쿠팡 아침 요약을 오늘은 쉽니다. ${blocked}`)}`);
-    }
     return finish(await notify(summaryMessage(await readTodayCounts(keys))));
   } catch (e) {
     console.error("[coupang-summary]", (e as Error).name);

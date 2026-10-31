@@ -2,7 +2,7 @@
 
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
-import { wingRequest, WingApiError } from "@/lib/coupang/client";
+import { outgoingIp, wingRequest, WingApiError } from "@/lib/coupang/client";
 import { PREDICT_PATH, metaPath, normalizeMeta, normalizePredict, predictBody, type CategoryMeta, type PredictResult } from "@/lib/coupang/category";
 import { OUTBOUND_PATH, normalizeOutbound, normalizeReturnCenters, returnCentersPath, type OutboundPlace, type ReturnCenter } from "@/lib/coupang/logistics";
 
@@ -23,7 +23,11 @@ export async function testWingConnectionAction(): Promise<ConnectionResult> {
     places = normalizeOutbound(r.data).places;
     warnings = r.warnings;
   } catch (e) {
-    return { ok: false, step: "outbound", error: e instanceof WingApiError ? e.message : "쿠팡에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+    if (e instanceof WingApiError && e.status === 403 && !/계정 상태/.test(e.message)) {
+      const ip = await outgoingIp(keys.proxyUrl);
+      return { ok: false, step: "outbound", error: ip ? `${e.message} 지금 쿠팡으로 나가는 IP는 ${ip}입니다.` : e.message };
+    }
+    return { ok: false, step: "outbound", error: e instanceof WingApiError ? e.message : "쿠팡에 연결하지 못했습니다. 내 고정 IP 주소(Fixie)가 맞는지, 이번 달 사용량이 남았는지 확인해 주세요." };
   }
   try {
     const r = await wingRequest(keys, "GET", returnCentersPath(keys.vendorId), { query });

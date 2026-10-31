@@ -4,7 +4,6 @@ import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { refreshJobStatusAction } from "@/lib/actions/product";
 import { RECHECK_GAP_SECONDS, RECHECK_LIMIT, RECHECK_STATUSES } from "@/lib/coupang/status";
-import { callBudgetBlock } from "@/lib/coupang/usage";
 import { takeReadSlot } from "@/lib/readGap";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -15,8 +14,6 @@ export async function recheckJobsAction(): Promise<RecheckResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
-  const blocked = await callBudgetBlock(user.id);
-  if (blocked) return { ok: false, error: blocked };
   const wait = await takeReadSlot(user.id, "coupang_recheck_read", RECHECK_GAP_SECONDS);
   if (wait > 0) return { ok: false, error: `조금 전에 확인했습니다. ${wait}초 뒤에 다시 눌러 주세요.` };
   const { data } = await createAdminClient().from("coupang_ops_jobs").select("id").eq("user_id", user.id).in("status", RECHECK_STATUSES).not("seller_product_id", "is", null).order("created_at", { ascending: false }).limit(RECHECK_LIMIT);

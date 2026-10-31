@@ -5,7 +5,6 @@ import { getWingKeys } from "@/lib/data";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
 import { normalizeOrderSheets, ordersPath, ordersQuery } from "@/lib/coupang/orders";
 import { historyPath, normalizeHistorySteps, STALE_READ_GAP_SECONDS, staleShipments, type HistoryStep, type StaleShipment } from "@/lib/coupang/shipping";
-import { callBudgetBlock } from "@/lib/coupang/usage";
 import { takeReadSlot } from "@/lib/readGap";
 
 export type StaleResult = { ok: true; rows: StaleShipment[]; more: boolean } | { ok: false; error: string };
@@ -18,8 +17,6 @@ export async function listStaleShipmentsAction(): Promise<StaleResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: NO_KEYS };
-  const blocked = await callBudgetBlock(user.id);
-  if (blocked) return { ok: false, error: blocked };
   const wait = await takeReadSlot(user.id, "coupang_stale_read", STALE_READ_GAP_SECONDS);
   if (wait > 0) return { ok: false, error: `조금 전에 확인했습니다. ${wait}초 뒤에 다시 눌러 주세요.` };
   try {

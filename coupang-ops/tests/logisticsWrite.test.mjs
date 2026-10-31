@@ -56,3 +56,12 @@ test("응답 정리", () => {
   assert.deepEqual(normalizeWithdrawals(null), []);
   assert.deepEqual(normalizeCouponItems({ data: { content: [{ vendorItemId: 7 }], pagination: { totalElements: 9 } } }), { vendorItemIds: [7], total: 9 });
 });
+
+test("고정 IP 주소 검사와 가림", async () => {
+  const { maskProxyUrl, validateProxyUrl } = await import("../src/lib/coupang/keys.ts");
+  const good = "http://fixie:abc123@my-group.usefixie.com:80";
+  assert.equal(validateProxyUrl(good).url, good);
+  assert.equal(maskProxyUrl(good), "http://••••@my-group.usefixie.com");
+  assert.doesNotMatch(maskProxyUrl(good), /abc123/);
+  for (const bad of ["", "fixie", "ftp://a.com", "http://localhost:80", "http://127.0.0.1:80", "http://192.168.0.1", "http://10.0.0.1", "http://[::1]:80"]) assert.ok(validateProxyUrl(bad).error, bad);
+});

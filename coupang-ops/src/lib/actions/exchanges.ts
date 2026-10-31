@@ -4,7 +4,6 @@ import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
 import type { WingKeys } from "@/lib/coupang/keys";
-import { callBudgetBlock } from "@/lib/coupang/usage";
 import { cleanInvoice } from "@/lib/coupang/orders";
 import { canSendExchangeInvoice, EXCHANGE_READ_GAP_SECONDS, EXCHANGE_REJECT_REASONS, exchangeActionFailed, exchangeConfirmPath, exchangeInvoiceBody, exchangeInvoicePath, exchangeRange, exchangeRejectPath, exchangesPath, exchangesQuery, isOpenExchange, normalizeExchanges, type ExchangeRow } from "@/lib/coupang/exchanges";
 import { takeReadSlot } from "@/lib/readGap";
@@ -25,8 +24,6 @@ export async function listExchangesAction(nextToken?: string): Promise<ExchangeL
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: NO_KEYS };
-  const blocked = await callBudgetBlock(user.id);
-  if (blocked) return { ok: false, error: blocked };
   if (!nextToken) {
     const wait = await takeReadSlot(user.id, "coupang_exchange_read", EXCHANGE_READ_GAP_SECONDS);
     if (wait > 0) return { ok: false, error: `조금 전에 불러왔습니다. ${wait}초 뒤에 다시 눌러 주세요.` };

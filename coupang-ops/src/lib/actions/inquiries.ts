@@ -3,7 +3,6 @@
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
-import { callBudgetBlock } from "@/lib/coupang/usage";
 import { centerConfirmPath, centerListPath, centerQuery, centerReplyPath, checkReply, inquiryRange, INQUIRY_READ_GAP_SECONDS, normalizeCenter, normalizeOnline, onlineListPath, onlineQuery, onlineReplyPath, redactInquiry, sortInquiries, type InquiryRow } from "@/lib/coupang/inquiry";
 import { takeReadSlot } from "@/lib/readGap";
 import { missingKeyMessage, providerOfModel } from "@/lib/ai/models";
@@ -23,8 +22,6 @@ export async function listInquiriesAction(): Promise<InquiryList> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: NO_KEYS };
-  const blocked = await callBudgetBlock(user.id);
-  if (blocked) return { ok: false, error: blocked };
   const wait = await takeReadSlot(user.id, "coupang_inquiry_read", INQUIRY_READ_GAP_SECONDS);
   if (wait > 0) return { ok: false, error: `조금 전에 불러왔습니다. ${wait}초 뒤에 다시 눌러 주세요.` };
   const range = inquiryRange(Date.now());
