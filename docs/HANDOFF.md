@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — `music-automation` v1.48 AI 모델 추가
+- AI 공급사 순서를 OpenAI·Claude·Gemini로 변경, GPT-6.1 Sol·6 Astra·6.1 Terra·6 Luna·Claude Opus 5.5·Fable 5.1 추가, 출력 한도 8192 → 16000. 기본값은 Gemini 3.8 Flash 유지. 곡 기획 실제 호출(시험 계정 본인 키, 7회): 6개 통과 10.7~42.9초. gemini-4-argon은 HTTP 402로 실패해 목록에서 제외(원인 미확인, 앨범 생성 길이는 미시험).
+- 배포·DB v1.48, 크롬 화면 버전 확인. 링크: https://music-automation.buylife.xyz/studio
+
 ## 2026-10-31 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — `ai-mastering-studio` v1.15 AI 제안 모델 추가(배포 완료)
 - 한 일: AI 제안 모델 추가(Gemini 3.8 Flash·3.5 Flash-Lite·4 Argon, GPT-6 Luna·6.1 Terra·6.1 Sol·6 Astra, Claude Opus 5.5·Fable 5.1), 플랫폼별 묶음, 기본값 3.8 Flash. 호환: Gemini 생각 끄기는 2.5에만, Claude 출력 한도 16000. 커밋 `a7746f979`.
 - 확인: 시험 22개·`tsc` 통과, 시험 계정 키로 모델 조회 15개 200. 실제 생성 호출과 화면은 미확인.
