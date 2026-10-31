@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ⚠ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` 커밋 섞임 기록·AGY 디자인 인계
+- 무슨 일: `f37dff121`(메시지는 AI 모델 선택)은 `-- coupang-ops/src` 폴더 지정 커밋이라, AGY가 진행 중이던 디자인 리뉴얼 파일 6개(`home/page.tsx`·`globals.css`·`TodayBoard`·`WingKeyForm`·`layout/Sidebar`·`ui/PageHeader`)가 들어가 푸시됐다. 그 커밋에 모델 기능은 없다. 실제 모델 기능은 `309ad926c`.
+- 영향: 작업 파일은 그대로이고 운영 배포 없음(운영 v1.12는 그 전 배포). 되돌리면 AGY 작업 파일을 덮으므로 revert·이력 수정을 하지 않았다. AGY는 위 파일이 이미 HEAD에 있다는 점만 알고 이어서 커밋하면 된다.
+- AGY 주의: 키 입력칸·2단 확인 등 동작 코드를 지우지 말 것. 미배포 대기: `2e332a881`·`309ad926c`. 배포 전 빌드 승인 필요.
+- 다음 첫 단계: 디자인 끝난 뒤 함께 배포. 고정 IP 실제 호출 확인은 주인님 연결 시험 뒤. 이 세션은 AGY 작업 동안 `coupang-ops`를 고치지 않는다.
+- https://coupang-ops.buylife.xyz
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.14 토지 비교 보류·묶음 배포
 - 실물에서 토지 시세 대비가 -91%~+541%로 나와 잘못된 후보 13건 발생 → 토지 비교·점수 제외. 지역으로 매물 감시 등록은 주인님이 실제 성공 확인(일산동구 백석동, 강남구 역삼동). 표 이름 짧게, 유형·거래별 건수 기록, 쌓인 수정 5건 함께 배포. 남은 일: 역삼동 건물 매매 0건 원인, 토지 지목 비교.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/results
