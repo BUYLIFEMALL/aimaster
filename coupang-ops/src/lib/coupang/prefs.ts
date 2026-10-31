@@ -1,9 +1,10 @@
 import { AI_MODEL_OPTIONS, type AIModelProvider } from "../ai/models.ts";
+import { cleanStockLimit, cleanStockWatch, type StockWatch } from "./stock.ts";
 
 // 회원 설정 정리(R3·R5·R7). 외부 호출 없음(tests/prefs.test.mjs). 저장 전에 크기를 제한한다.
 export type ReplyTemplate = { title: string; text: string };
 export type ListingTemplate = { name: string; brand: string; manufacturer: string; code: string; tags: string; searchVals: Record<string, string>; axisText: Record<string, string> };
-export type Prefs = { replyTemplates: ReplyTemplate[]; listingTemplates: ListingTemplate[]; unitCosts: Record<string, string>; targetMargin: string; wingKeyExpiry: string; aiModels: Partial<Record<AIModelProvider, string>>; feeRate: string; alertEmailTo: string };
+export type Prefs = { replyTemplates: ReplyTemplate[]; listingTemplates: ListingTemplate[]; unitCosts: Record<string, string>; targetMargin: string; wingKeyExpiry: string; aiModels: Partial<Record<AIModelProvider, string>>; feeRate: string; alertEmailTo: string; stockWatch: StockWatch[]; stockLimit: number };
 
 const MAX_REPLY = 30;
 const MAX_LISTING = 20;
@@ -59,6 +60,8 @@ export function normalizePrefs(raw: unknown): Prefs {
     targetMargin: text(r.targetMargin, 6),
     feeRate: text(r.feeRate, 6),
     alertEmailTo: text(r.alertEmailTo, 254),
+    stockWatch: cleanStockWatch(r.stockWatch),
+    stockLimit: cleanStockLimit(r.stockLimit),
     wingKeyExpiry: isDate(r.wingKeyExpiry) ? String(r.wingKeyExpiry) : "",
     aiModels: cleanAiModels(r.aiModels),
   };

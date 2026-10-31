@@ -4,7 +4,8 @@ import { useEffect, useState, useTransition } from "react";
 import { updateQuantityAction } from "@/lib/actions/items";
 import { scanStockAction, type StockRow } from "@/lib/actions/stock";
 import { checkQuantity } from "@/lib/coupang/items";
-import { cleanStockLimit, DEFAULT_STOCK_LIMIT, STOCK_PAGE_SIZE, stockLevel, type StockLevel } from "@/lib/coupang/stock";
+import { cleanStockLimit, DEFAULT_STOCK_LIMIT, STOCK_PAGE_SIZE, stockLevel, type StockLevel, type StockWatch } from "@/lib/coupang/stock";
+import { StockWatchPanel } from "@/components/StockWatchPanel";
 
 const LIMIT_KEY = "coupang-ops:stock-limit";
 const LEVEL: Record<Exclude<StockLevel, "ok">, { label: string; cls: string }> = {
@@ -19,7 +20,7 @@ type Totals = { products: number; calls: number; failed: number; skipped: number
 type Result = { ok: boolean; message: string };
 
 /** 플랜 B1 품절 예방 — 버튼을 눌렀을 때만 20개씩 읽고, 재고 변경은 2단 확인 뒤 1건씩 보낸다 */
-export function StockCheck({ keysSaved }: { keysSaved: boolean }) {
+export function StockCheck({ keysSaved, watch }: { keysSaved: boolean; watch: StockWatch[] }) {
   const [limitText, setLimitText] = useState(String(DEFAULT_STOCK_LIMIT));
   const [rows, setRows] = useState<StockRow[]>([]);
   const [next, setNext] = useState("");
@@ -86,6 +87,7 @@ export function StockCheck({ keysSaved }: { keysSaved: boolean }) {
     });
 
   return (
+    <>
     <section className="slw-card space-y-3 p-5">
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-xs font-bold text-slate-700">
@@ -158,5 +160,7 @@ export function StockCheck({ keysSaved }: { keysSaved: boolean }) {
         </>
       )}
     </section>
+    <StockWatchPanel initial={watch} options={rows} limit={limit} />
+    </>
   );
 }

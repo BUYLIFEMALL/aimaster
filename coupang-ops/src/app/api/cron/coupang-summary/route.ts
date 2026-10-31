@@ -1,7 +1,8 @@
 import { createHash } from "crypto";
 import { after, NextRequest, NextResponse } from "next/server";
-import { getKeyExpiry, getWingKeysForJob } from "@/lib/data";
+import { getKeyExpiry, getStockWatchForJob, getWingKeysForJob } from "@/lib/data";
 import { readTodayCounts } from "@/lib/coupang/todayRead";
+import { readStockAlertLine } from "@/lib/coupang/stockWatchRead";
 import { deliver, loadTargets } from "@/lib/alerts/deliver";
 import { keyExpiryNotice } from "@/lib/coupang/prefs";
 import { cleanChannels, kstDate, summaryMessage } from "@/lib/coupang/summary";
@@ -29,7 +30,9 @@ async function run(userId: string) {
     if (!keys) return finish("쿠팡 키가 없어 건너뛰었습니다.");
     const expiry = await getKeyExpiry(userId, true).catch(() => "");
     const nowMs = Date.now();
-    return finish(await notify(summaryMessage(await readTodayCounts(keys), nowMs, keyExpiryNotice(expiry, nowMs)?.text ?? "")));
+    const { watch, limit } = await getStockWatchForJob(userId).catch(() => ({ watch: [], limit: 0 }));
+    const stockLine = watch.length ? await readStockAlertLine(keys, watch, limit).catch(() => "📉 재고를 읽지 못했습니다") : "";
+    return finish(await notify(summaryMessage(await readTodayCounts(keys), nowMs, keyExpiryNotice(expiry, nowMs)?.text ?? "", stockLine)));
   } catch (e) {
     console.error("[coupang-summary]", (e as Error).name);
     return finish("보내지 못했습니다. 받을 곳 연결을 확인해 주세요.");

@@ -57,6 +57,13 @@ export async function getKeyExpiry(userId: string, asJob = false): Promise<strin
   return normalizePrefs(data?.data).wingKeyExpiry;
 }
 
+/** R9 예약 실행용: 그 회원이 고른 재고 알림 옵션과 기준 */
+export async function getStockWatchForJob(userId: string) {
+  const { data } = await createAdminClient().from("coupang_ops_prefs").select("data").eq("user_id", userId).maybeSingle();
+  const prefs = normalizePrefs(data?.data);
+  return { watch: prefs.stockWatch, limit: prefs.stockLimit };
+}
+
 /** 플랫폼별로 고른 AI 모델 */
 export async function getAiModels(userId: string) {
   const supabase = await createClient();
