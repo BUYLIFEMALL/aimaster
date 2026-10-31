@@ -29,7 +29,7 @@ export function AiKeyForm({ shown, models }: { shown: Partial<Record<AIModelProv
   return (
     <div className="space-y-2">
       {AI_PROVIDERS.map((p) => (
-        <div key={p} className="grid grid-cols-1 items-center gap-2 text-[13px] sm:grid-cols-[9rem_minmax(0,1fr)_3.5rem_17rem_3.5rem]">
+        <div key={p} className="grid grid-cols-1 items-center gap-2 text-[13px] sm:grid-cols-[9rem_minmax(0,2fr)_3.5rem_minmax(0,3fr)_3.5rem]">
           <span className="font-bold text-slate-700">{PROVIDER_LABEL[p]}</span>
           <input type="password" autoComplete="new-password" aria-label={`${PROVIDER_LABEL[p]} API 키`} placeholder={shown[p] ? `저장됨 ${shown[p]} — 바꿀 때만 입력` : PLACEHOLDER[p]} value={draft[p] ?? ""} onChange={(e) => setDraft({ ...draft, [p]: e.target.value })} className="w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 focus:border-blue-500 focus:outline-none" />
           <button type="button" disabled={pending || !(draft[p] ?? "").trim()} onClick={() => run(() => saveAiKeyAction(p, draft[p]), p, "저장했습니다.")} className="w-full rounded-lg border border-slate-300 bg-white px-1 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-50">저장</button>
