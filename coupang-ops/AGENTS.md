@@ -36,7 +36,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 단점: 회원이 Fixie 가입과 WING IP 등록을 해야 한다. 쓰기 기능 대부분이 실제 건 시험 전이다. 이미지·옵션 구성 수정은 WING에서 해야 한다.
 
 ## 4. 버전·이력
-운영 v1.11, 코드는 v1.12 대기(버전 표기는 배포 때 올린다). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
+운영 v1.12(2026-10-31). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
 
 ## 5. 남은 일
 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) · [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md). 배포 절차와 주의는 맨 아래 v1.12 항목.
@@ -225,3 +225,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - S2 `8deed7e30`: 고객센터 미답변에 이관 시각 + 24시간 기준 남은 시간, 임박한 건부터. S3 `d31521697`: 재고 0개 판매 재개 확인 창 경고(막지 않음). S4 `8c1346219`: `X-CAG-Warnings`를 `usage_logs`(번호 지움)에 기록, 첫 화면·연결 시험 표시. S5 `83cd9583d`: `(dashboard)/error.tsx`(Next 16 `retry`)·`not-found.tsx`. S6 `d10a75d75`: 오늘 할 일·아침 요약·오래 멈춘 배송을 3쪽(150건)까지 이어 읽음, 문의는 숨은 건수 안내.
 - A4 `e8c4bf879`: 상품 화면에 카테고리 찾아보기(명세 how-to-get-categories, 응답이 한 단계씩이라 누를 때 1회)·브랜드 찾기. 좌측 메뉴 글자 키움 `39b56e0e2`. D2 `bba53c843`: 첫 화면 STEP 카드 제거, 시작 안내는 키 없을 때만, `/connect` 개발용 카테고리 칸 삭제.
 - 시험 111개·tsc·로컬 build 통과. 화면·실제 호출은 배포 뒤 확인. 쿠팡 경고 머리글의 실제 값, 24시간 기준 시각이 `replyAt`인지, 카테고리·브랜드 실제 응답은 미확인.
+
+## 2026-10-31 — v1.12 운영 배포
+- 운영 DB에 `coupang_ops_prefs`·`fixed_ip_proxy_url` 적용(확인 쿼리: 허용 true, 카탈로그 1, RLS true). 빌드 1회 Ready, DB 버전 v1.12.
+- 확인(시험 계정, 쿠팡 쓰기 0회): `/connect` 고정 IP 칸·만료일·연결 시험의 「고정 IP 주소 등록」 안내, `/home` 카드 제거·호출 수, `/guide` STEP 2. 좌측 메뉴 「API키등록·플랫폼연동」은 두 줄로 보인다.
+- ⚠ WING 키 보유 회원은 주인님 두 계정뿐. 둘 다 Fixie 등록 전이라 쿠팡 기능이 멈춘 상태다. 시험 계정 아침 요약이 켜져 있어 등록 전까지 요약에 「확인 실패」가 나간다. 그래서 고정 IP 실제 호출, 카테고리·브랜드 찾기, 오늘 할 일 등 쿠팡 조회는 등록 뒤 확인이 남았다.
+- `CRON_SECRET` 미등록: 30일 정리는 계속 동작하지 않는다. 등록 뒤 배포 1회 필요.
+- 주인님 지시로 나중: S7 쓰기 시험, 이미지·옵션 구성 수정, 로켓그로스. 운영자 `FIXIE_URL`은 Vercel에 남아 있으나 이 프로그램은 쓰지 않는다.
