@@ -6,6 +6,7 @@ import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { ChannelSwitches, EmailCard, KakaoCard } from "@/components/settings/ChannelCards";
 import { ExtensionConnect } from "@/components/settings/ExtensionConnect";
+import { ExtensionTokenManager, type ExtensionToken } from "@/components/settings/ExtensionTokenManager";
 import { AiEngineCard } from "@/components/settings/AiEngineCard";
 import { ConfirmButton, SetupTable } from "@/components/settings/SetupTable";
 import { stepBadge } from "@/components/settings/setupStyles";
@@ -22,16 +23,17 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const supabase = await createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
-  const [{ data }, { data: prefs }, { count: extCount }, resend, kakaoKey, kakao, aiTails] = await Promise.all([
+  const [{ data }, { data: prefs }, { data: extTokens }, resend, kakaoKey, kakao, aiTails] = await Promise.all([
     supabase.from("user_telegram_links").select("program_slug, bot_username, linked_at").eq("user_id", user.id).not("bot_token", "is", null).order("linked_at", { ascending: false }),
     supabase.from("commercial_land_preferences").select("notify_telegram, notify_email, email_to, notify_kakao").eq("user_id", user.id).maybeSingle(),
-    supabase.from("personal_access_tokens").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("program_slug", THIS_PROGRAM_SLUG).is("revoked_at", null),
+    supabase.from("personal_access_tokens").select("id, label, created_at, last_used_at").eq("user_id", user.id).eq("program_slug", THIS_PROGRAM_SLUG).is("revoked_at", null).order("created_at", { ascending: false }),
     getResendKey(admin, user.id),
     hasKakaoKey(admin, user.id),
     getKakaoState(admin, user.id, false),
     aiKeyTails(admin, user.id),
   ]);
   const links = (data ?? []) as { program_slug: string; bot_username: string | null }[];
+  const extCount = extTokens?.length ?? 0;
   const own = links.find((l) => l.program_slug === THIS_PROGRAM_SLUG);
   const shared = links[0];
 
@@ -45,12 +47,17 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <SetupTable
           head={["항목", "상태", "정보"]}
           rows={[{
-            id: "extension", name: "🧩 확장", on: (extCount ?? 0) > 0, onLabel: "✓ 연결됨", offLabel: "연결 전",
-            info: (extCount ?? 0) > 0 ? `${APP_VERSION} · PC ${extCount}대 연결` : "설치 후 「바로 연결」을 눌러 주세요",
+            id: "extension", name: "🧩 확장", on: extCount > 0, onLabel: "✓ 연결됨", offLabel: "연결 전",
+            info: extCount > 0 ? `${APP_VERSION} · PC ${extCount}대 연결` : "설치 후 「바로 연결」을 눌러 주세요",
             openLabel: "설치·연결",
             issue: { href: `/downloads/${THIS_PROGRAM_SLUG}-extension-latest.zip`, label: "⬇ 받기" },
             defaultOpen: !extCount,
-            detail: <ExtensionConnect version={APP_VERSION} />,
+            detail: (
+              <>
+                <ExtensionConnect version={APP_VERSION} />
+                <ExtensionTokenManager tokens={(extTokens ?? []) as ExtensionToken[]} />
+              </>
+            ),
           }]}
         />
       </section>
