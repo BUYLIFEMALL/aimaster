@@ -67,10 +67,8 @@ export function ResultsClient({ email }: { email: string }) {
     return () => { alive = false; };
   }, [email]);
 
-  async function pickAi(value: string) {
-    const [id, model] = value.split("|");
-    const provider = toAiProvider(id);
-    const next = { provider, models: { ...aiChoice.models, [provider]: model } };
+  async function pickAi(provider: AiProvider) {
+    const next = { provider, models: aiChoice.models };
     setAiChoice(next);
     const r = await askExtension<{ ok?: boolean; error?: string }>("aiChoice", 2000, { email, set: next });
     if (!r?.ok) setAi({ error: r?.error || "선택을 저장하지 못했습니다. 확장을 새로고침한 뒤 이 화면도 새로고침해 주세요." });
@@ -156,24 +154,26 @@ export function ResultsClient({ email }: { email: string }) {
       </div>
       <div className="mx-card mt-3 p-4">
         <div className="flex flex-wrap items-center gap-3">
-          <select
-            value={`${aiChoice.provider}|${aiModelOf(aiChoice.provider, aiChoice.models)}`}
-            onChange={(e) => pickAi(e.target.value)}
-            disabled={ai.busy}
-            aria-label="AI 요약에 쓸 플랫폼과 모델"
-            className="mx-input min-h-[44px] w-full py-2 text-sm md:w-72"
-          >
+          <div role="group" aria-label="AI 요약에 쓸 플랫폼" className="flex gap-1.5">
             {AI_ENGINES.map((e) => (
-              <optgroup key={e.id} label={e.name}>
-                {e.models.map((m) => <option key={m.value} value={`${e.id}|${m.value}`}>{m.label}</option>)}
-              </optgroup>
+              <button
+                key={e.id}
+                type="button"
+                aria-pressed={aiChoice.provider === e.id}
+                disabled={ai.busy}
+                onClick={() => pickAi(e.id)}
+                title={aiModelName(e.id, aiModelOf(e.id, aiChoice.models))}
+                className={`min-h-[44px] rounded-xl border px-4 text-sm font-bold ${aiChoice.provider === e.id ? "border-mx-primary bg-mx-primary/10 text-mx-primary" : "border-mx-border bg-white text-mx-text hover:border-mx-primary"}`}
+              >
+                {e.short}
+              </button>
             ))}
-          </select>
+          </div>
           <button type="button" onClick={runAi} disabled={ai.busy} className="mx-btn-primary">
             {ai.busy ? "요약 중입니다..." : "🤖 AI 요약 보기"}
           </button>
           <p className="min-w-60 flex-1 text-xs text-mx-muted">
-            왼쪽에서 고른 AI에 회원님 본인 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 고른 모델 기준으로 본인 키에 청구됩니다.
+            고른 AI에 회원님 본인 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 본인 키에 청구되며, 세부 모델은 API키등록·플랫폼연동에서 고릅니다.
           </p>
         </div>
         {ai.error && <p className="mt-3 text-sm text-red-600">{ai.error}</p>}
