@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.14 토지 비교 보류·묶음 배포
+- 실물에서 토지 시세 대비가 -91%~+541%로 나와 잘못된 후보 13건 발생 → 토지 비교·점수 제외. 지역으로 매물 감시 등록은 주인님이 실제 성공 확인(일산동구 백석동, 강남구 역삼동). 표 이름 짧게, 유형·거래별 건수 기록, 쌓인 수정 5건 함께 배포. 남은 일: 역삼동 건물 매매 0건 원인, 토지 지목 비교.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/results
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.13 실거래 메뉴 1칸으로
 - 메뉴 4칸(매물 감시, 받는 방법, 수집 결과, 실거래 내역). 실거래 내역 안 탭으로 지역 설정·조건 전환. `/districts`·`/conditions` 주소 유지. 실제 화면과 지역 등록 좌표 조회는 주인님 확인 대기.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/trades

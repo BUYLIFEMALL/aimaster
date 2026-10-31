@@ -17,8 +17,6 @@
 
 
 
-- `commercial-land-trade-alert` — 실거래 지역 화면 정리(웹, 2026-10-31, [역할: realty], 커밋 ec6b6648d, 다음 배포 때)
-- `commercial-land-trade-alert` — 수집 결과 표 시세 대비 ▲▼ 색 표시(웹, 2026-10-31, [역할: realty], 커밋 1861a6949, 다음 배포 때)
 - `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
 
 
@@ -70,6 +68,7 @@
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |
 | `real_estate_sales` | v1.33 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 전월세 거래 목록·알림 |
 | `real_estate_sales` | v1.32 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 공공데이터포털 공용 키 교체 적용, 지역당 20건 안내 문구 |
+| `commercial-land-trade-alert` | v1.14 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 토지 비교 보류, 시세 대비 표시, 지역 화면 정리 등 |
 | `commercial-land-trade-alert` | v1.13 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 실거래 메뉴 합침 |
 | `commercial-land-trade-alert` | v1.12 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 실거래 메뉴 맞춤 |
 | `commercial-land-trade-alert` | v1.11 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 지역으로 매물 감시 추가 |
