@@ -8,7 +8,7 @@ import { APP_VERSION } from "@/lib/version";
 const FLOW = [
   { id: "targets", step: 1, icon: "🎯", label: "감시 대상", desc: "단지 추가·조건 (최대 10개)", href: "/targets" },
   { id: "schedule", step: 2, icon: "⏰", label: "예약 설정", desc: "켜기/끄기·수집 간격·시간대", href: "/schedule" },
-  { id: "delivery", step: 3, icon: "📨", label: "받는 방법", desc: "텔레그램·파일·이메일", href: "/delivery" },
+  { id: "delivery", step: 3, icon: "📨", label: "받는 방법", desc: "텔레그램·이메일·카카오톡", href: "/delivery" },
   // 2026-10-25 주인님 「좌측에 메뉴는 보여야 할꺼 아냐」 — 수집 결과를 메뉴에서 바로
   { id: "results", step: 4, icon: "📄", label: "수집 결과", desc: "통계·추이·매물 표", href: "/results" },
 ];
@@ -101,7 +101,7 @@ export function StudioSidebar({
       <aside className="sidebar">
         <div>
           {brand}
-          <div className="brand-sub">새 매물을 찾아 텔레그램/메일/카톡으로</div>
+          <div className="brand-sub">새 매물을 찾아 텔레그램/이메일/카카오톡으로</div>
           <a className="sidebar-back" href="https://www.buylife.xyz/programs">← 다른 프로그램 보기</a>
         </div>
         {menu}

@@ -56,7 +56,7 @@ export default function RecentResults({ email, summary }: { email: string; summa
         <div className="ra-hint">
           <strong>💻 결과 표는 회원님 PC 크롬 확장 안에만 있어요</strong>
           <span>매물 정보는 이 사이트로 보내지 않아서(개인 정보 보호), 확장이 설치된 <b>PC 크롬</b>에서 이 화면을 열면 표가 보여요.</span>
-          <span>지금은 메일·텔레그램으로 받은 <b>엑셀 파일</b>로 확인해 주세요.</span>
+          <span>지금은 텔레그램·이메일로 받은 <b>엑셀 파일</b>로 확인해 주세요.</span>
           {summary.lastRunAt && <span>마지막 수집: <b>{when(summary.lastRunAt)}</b> · 매물 {summary.lastCount ?? 0}건</span>}
         </div>
       )}
