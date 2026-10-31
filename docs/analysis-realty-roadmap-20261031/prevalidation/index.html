@@ -1,0 +1,41 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>임장 위치 사전 검증</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#f4f6f4;--fg:#17211c;--mut:#5a6a61;--line:#d5ddd8;--card:#fff;--ac:#0b6b4f;--warn:#a2520a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif;padding:16px}
+main{max-width:560px;margin:auto;display:grid;gap:14px}h1{font-size:21px;margin:0}h2{font-size:16px;margin:0 0 8px}p{margin:0}.mut{color:var(--mut);font-size:14px}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px}
+label.btn,button{display:block;width:100%;min-height:50px;padding:13px;border-radius:8px;border:1px solid var(--ac);background:var(--ac);color:#fff;font:600 16px system-ui;text-align:center;cursor:pointer}
+label.alt{background:#fff;color:var(--ac)}input[type=file]{display:none}
+#map{height:280px;border-radius:8px;z-index:0}.row{border-top:1px solid var(--line);padding-top:10px;font-size:14px;display:grid;grid-template-columns:64px 1fr;gap:10px}.row img{width:64px;height:64px;object-fit:cover;border-radius:6px}.row b{display:block}.warn{color:var(--warn)}
+</style></head><body><main>
+<h1>📍 임장 위치 사전 검증</h1>
+<p class="mut">건물 밖에서 시험해 주세요. 사진은 이 휴대폰 밖으로 나가지 않습니다. 위치·정확도 같은 측정값만 「결과 보내기」를 누를 때 전송됩니다.</p>
+<section><h2>1. 현재 위치</h2><button id="loc">위치 측정 (5회 반복)</button><p id="locOut" class="mut">아직 측정하지 않았습니다.</p></section>
+<section><h2>2. 사진</h2><label class="btn" for="cam">📷 카메라로 찍기</label><input id="cam" type="file" accept="image/*" capture="environment"><label class="btn alt" for="gal">🖼 앨범에서 고르기</label><input id="gal" type="file" accept="image/*" multiple><p class="mut">앨범 시험은 휴대폰 기본 카메라로 위치 기록을 켜고 찍어 둔 사진으로 해 주세요.</p></section>
+<section><h2>3. 지도에서 핀 옮기기</h2><div id="map"></div><p id="pin" class="mut">위치를 측정하거나 사진을 고르면 핀이 나타납니다. 핀을 끌어 실제 건물로 옮겨 보세요.</p></section>
+<section><h2>4. 결과</h2><div id="list"></div><button id="send">결과 보내기</button><p id="sendOut" class="mut"></p></section>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const base=location.pathname.replace(/\/$/,'');const $=i=>document.getElementById(i);
+const R={ua:navigator.userAgent,locs:[],photos:[],locError:null};
+const map=L.map('map').setView([37.5665,126.978],13);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+let marker=null;
+function dist(a,b){const r=6371000,t=Math.PI/180,x=(b[1]-a[1])*t*Math.cos((a[0]+b[0])/2*t),y=(b[0]-a[0])*t;return Math.hypot(x,y)*r}
+async function addr(lat,lng){try{const r=await fetch(base+`/geo?lat=${lat}&lng=${lng}`);return (await r.json()).address}catch(e){return null}}
+function setPin(lat,lng,row){if(!marker){marker=L.marker([lat,lng],{draggable:true}).addTo(map);marker.on('dragend',async()=>{const p=marker.getLatLng();const a=await addr(p.lat,p.lng);const d=dist(marker._orig,[p.lat,p.lng]);$('pin').textContent='핀 위치 주소: '+(a||'찾지 못함')+' · 처음 위치에서 '+Math.round(d)+'m 이동';marker._row.pinMovedM=Math.round(d);marker._row.pinAddress=a})}marker.setLatLng([lat,lng]);marker._row=row;marker._orig=[lat,lng];map.setView([lat,lng],18)}
+function once(){return new Promise(res=>{const t0=performance.now();navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lng:p.coords.longitude,acc:Math.round(p.coords.accuracy),ms:Math.round(performance.now()-t0)}),e=>res({error:e.code+':'+e.message,ms:Math.round(performance.now()-t0)}),{enableHighAccuracy:true,timeout:20000,maximumAge:0})})}
+$('loc').onclick=async()=>{if(!navigator.geolocation){$('locOut').textContent='이 브라우저는 위치를 지원하지 않습니다.';R.locError='unsupported';return}
+ $('loc').disabled=true;for(let i=1;i<=5;i++){$('locOut').textContent=`측정 중 ${i}/5…`;const v=await once();R.locs.push(v);if(v.error){R.locError=v.error;$('locOut').textContent='실패: '+v.error;$('loc').disabled=false;return}await new Promise(r=>setTimeout(r,1500))}
+ const ok=R.locs.filter(x=>!x.error),last=ok[ok.length-1],a=await addr(last.lat,last.lng);R.locAddress=a;const acc=ok.map(x=>x.acc).sort((p,q)=>p-q);
+ $('locOut').textContent=`${ok.length}회 성공 · 정확도 중앙값 ${acc[acc.length>>1]}m · 주소: ${a||'찾지 못함'}`;setPin(last.lat,last.lng,R);$('loc').disabled=false};
+function tiff(buf,o){try{const d=new DataView(buf);const le=d.getUint16(o)==0x4949;const u16=p=>d.getUint16(p,le),u32=p=>d.getUint32(p,le);const ifd=o+u32(o+4);let gp=null;const n=u16(ifd);for(let i=0;i<n;i++){const e=ifd+2+i*12;if(u16(e)==0x8825)gp=o+u32(e+8)}if(gp==null)return {gps:false};const m=u16(gp);let la,lo,lr='N',lor='E';const rat=p=>{const v=o+u32(p);const f=k=>u32(v+k*8)/u32(v+k*8+4);return f(0)+f(1)/60+f(2)/3600};for(let i=0;i<m;i++){const e=gp+2+i*12,t=u16(e);if(t==1)lr=String.fromCharCode(d.getUint8(e+8));if(t==2)la=rat(e+8);if(t==3)lor=String.fromCharCode(d.getUint8(e+8));if(t==4)lo=rat(e+8)}if(!(la>0&&lo>0))return {gps:false};return {gps:true,lat:lr=='S'?-la:la,lng:lor=='W'?-lo:lo}}catch(e){return {gps:false,err:String(e)}}}
+function exifGps(buf){const b=new Uint8Array(buf);for(let i=0;i<b.length-10;i++){if(b[i]==0x45&&b[i+1]==0x78&&b[i+2]==0x69&&b[i+3]==0x66&&b[i+4]==0&&b[i+5]==0)return Object.assign({exif:true},tiff(buf,i+6))}return {exif:false,gps:false}}
+async function handle(files,source){for(const f of files){const buf=await f.arrayBuffer();const g=exifGps(buf);const v=source=='camera'?await once():null;const row={source,type:f.type,sizeKB:Math.round(f.size/1024),exif:g.exif,exifGps:g.gps,exifLat:g.lat,exifLng:g.lng,webLoc:v};
+ const pos=g.gps?[g.lat,g.lng]:(v&&!v.error?[v.lat,v.lng]:null);if(pos){row.address=await addr(pos[0],pos[1]);setPin(pos[0],pos[1],row)}if(g.gps&&v&&!v.error)row.exifVsWebM=Math.round(dist(pos,[v.lat,v.lng]));R.photos.push(row);
+ const d=document.createElement('div');d.className='row';const i=document.createElement('img');i.src=URL.createObjectURL(f);i.alt='';const t=document.createElement('div');const h=document.createElement('b');h.textContent=(source=='camera'?'카메라':'앨범')+' · '+(g.gps?'사진 속 위치 있음':'사진 속 위치 없음');if(!g.gps)h.className='warn';const s=document.createElement('span');s.textContent=(v?(v.error?'현재 위치 실패 · ':`현재 위치 ±${v.acc}m · `):'')+'주소: '+(row.address||'없음');t.append(h,s);d.append(i,t);$('list').prepend(d)}}
+$('cam').onchange=e=>{handle([...e.target.files],'camera');e.target.value=''};$('gal').onchange=e=>{handle([...e.target.files],'gallery');e.target.value=''};
+$('send').onclick=async()=>{try{const r=await fetch(base+'/results',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(R)});$('sendOut').textContent=r.ok?'보냈습니다.':'보내지 못했습니다.'}catch(e){$('sendOut').textContent='보내지 못했습니다.'}};
+</script></body></html>
