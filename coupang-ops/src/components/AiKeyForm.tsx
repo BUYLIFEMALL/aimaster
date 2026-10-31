@@ -56,14 +56,14 @@ function EngineCard({ p, mask, savedModel }: { p: AIModelProvider; mask: string;
     });
 
   return (
-    <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-3">
+    <div className="space-y-2 bg-white p-3">
       <div className="flex flex-wrap items-center gap-2 text-[13px]">
         <b className="text-slate-900">{ENGINE[p].icon} {PROVIDER_LABEL[p]}</b>
         <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${has ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{has ? "✓ 등록완료" : "미등록"}</span>
         <span className="min-w-0 flex-1 text-[12px] text-slate-600">{ROLE}</span>
         <IssueLink href={ENGINE[p].keyUrl} />
       </div>
-      <div className="grid grid-cols-1 items-center gap-2 text-[13px] sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto]">
+      <div className="grid grid-cols-1 items-center gap-2 text-[13px] sm:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)_auto]">
         {editing ? (
           <input type="password" autoComplete="new-password" aria-label={`${PROVIDER_LABEL[p]} API 키`} placeholder={has ? "새 키(비우면 그대로)" : ENGINE[p].placeholder} value={key} onChange={(e) => setKey(e.target.value)} className="h-9 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 focus:border-blue-500 focus:outline-none" />
         ) : (
@@ -99,7 +99,7 @@ function EngineCard({ p, mask, savedModel }: { p: AIModelProvider; mask: string;
 /** 회원 본인 AI 키(공용 표 user_api_keys). 다른 프로그램에 등록했으면 그대로 보인다. 화면에는 끝 4자리만 */
 export function AiKeyForm({ shown, models }: { shown: Partial<Record<AIModelProvider, string>>; models: Partial<Record<AIModelProvider, string>> }) {
   return (
-    <div className="space-y-2">
+    <div className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200">
       {AI_PROVIDERS.map((p) => <EngineCard key={`${p}:${shown[p] ?? ""}`} p={p} mask={shown[p] ?? ""} savedModel={models[p] ?? DEFAULT_AI_MODELS[p]} />)}
     </div>
   );

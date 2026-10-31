@@ -1,7 +1,9 @@
 "use server";
 
 import { createHash, randomBytes } from "crypto";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { isClientSecret, isRestApiKey, kakaoAuthorizeUrl, makeState, STATE_COOKIE } from "@/lib/kakao/oauth";
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { stopDailyJob, upsertDailyJob } from "@/lib/alerts/cronJob";
@@ -43,7 +45,7 @@ export async function connectTelegramAction(botToken: string): Promise<Done> {
   }
 }
 
-/** 고른 곳으로 시험 메시지 1건. 카카오톡은 회원 SOLAPI 요금이 든다 */
+/** 고른 곳으로 시험 메시지 1건 */
 export async function testChannelAction(channel: AlertChannel): Promise<Done> {
   const user = await requireProgramAccess();
   const [c] = cleanChannels([channel]);
@@ -74,16 +76,30 @@ export async function saveResendKeyAction(input: { apiKey: string; emailTo: stri
   return { ok: true, message: "저장했습니다. 시험 메일로 확인해 주세요." };
 }
 
-export async function saveSolapiAction(input: { apiKey: string; apiSecret: string; senderPhone: string; pfId: string }): Promise<Done> {
+export async function saveKakaoKeysAction(input: { restKey: string; secret: string }): Promise<Done> {
   const user = await requireProgramAccess();
-  const row = { api_key: String(input.apiKey ?? "").trim(), api_secret: String(input.apiSecret ?? "").trim(), sender_phone: String(input.senderPhone ?? "").replace(/\D/g, ""), kakao_pf_id: String(input.pfId ?? "").trim() };
-  if (!row.api_key || !row.api_secret || !row.sender_phone || !row.kakao_pf_id) return { ok: false, error: "API Key·Secret·발신번호·카카오 채널 ID를 모두 넣어 주세요." };
-  const supabase = await createClient();
-  const { error } = await supabase.from("user_solapi_accounts").upsert({ user_id: user.id, ...row }, { onConflict: "user_id" });
+  const rest = String(input.restKey ?? "").trim();
+  const secret = String(input.secret ?? "").trim();
+  if (!isRestApiKey(rest)) return { ok: false, error: "REST API 키는 영문·숫자 32자입니다. 카카오 개발자 → 내 앱 → 앱 키에서 다시 복사해 주세요." };
+  if (secret && !isClientSecret(secret)) return { ok: false, error: "클라이언트 시크릿 모양을 확인해 주세요. 쓰지 않으면 비워 두세요." };
+  const rows = [{ user_id: user.id, provider: "kakao_rest_api_key", api_key: rest }];
+  if (secret) rows.push({ user_id: user.id, provider: "kakao_client_secret", api_key: secret });
+  const { error } = await (await createClient()).from("user_api_keys").upsert(rows, { onConflict: "user_id,provider" });
   if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
   revalidatePath("/alerts");
   revalidatePath("/connect");
-  return { ok: true, message: "저장했습니다. 다른 프로그램에서도 같은 계정을 씁니다." };
+  return { ok: true, message: "저장했습니다. 이제 「카카오 연결하기」를 눌러 주세요." };
+}
+
+/** 회원 본인 카카오 앱 연결 화면 주소 */
+export async function startKakaoConnectAction(): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  const user = await requireProgramAccess();
+  const { data } = await (await createClient()).from("user_api_keys").select("api_key").eq("user_id", user.id).eq("provider", "kakao_rest_api_key").maybeSingle();
+  const rest = String(data?.api_key ?? "").trim();
+  if (!rest) return { ok: false, error: "먼저 카카오 REST API 키를 저장해 주세요." };
+  const state = makeState(user.id, randomBytes(16).toString("hex"));
+  (await cookies()).set(STATE_COOKIE, state, { httpOnly: true, secure: true, sameSite: "lax", path: "/api/kakao", maxAge: 600 });
+  return { ok: true, url: kakaoAuthorizeUrl(rest, state) };
 }
 
 export async function saveCronKeyAction(apiKey: string): Promise<Done> {
@@ -140,7 +156,7 @@ export async function disableDailyAlertAction(): Promise<Done> {
   }
 }
 
-export type AlertStatus = { resendKeySaved: boolean; emailTo: string; enabled: boolean; hour: number; channels: AlertChannel[]; ready: Record<AlertChannel, boolean>; lastRunDate: string; lastResult: string; telegram: string; phoneMasked: string; cronKeySaved: boolean; wingKeysSaved: boolean };
+export type AlertStatus = { resendKeySaved: boolean; emailTo: string; enabled: boolean; hour: number; channels: AlertChannel[]; ready: Record<AlertChannel, boolean>; lastRunDate: string; lastResult: string; telegram: string; kakaoOk: boolean; kakaoHasKey: boolean; kakaoNickname: string; kakaoMessage: string; cronKeySaved: boolean; wingKeysSaved: boolean };
 
 export async function alertStatus(userId: string): Promise<AlertStatus> {
   const [row, t, key, keys] = await Promise.all([
@@ -150,5 +166,5 @@ export async function alertStatus(userId: string): Promise<AlertStatus> {
     getWingKeys(userId),
   ]);
   const ready = Object.fromEntries(ALERT_CHANNELS.map((c) => [c, !channelProblem(c, t)])) as Record<AlertChannel, boolean>;
-  return { resendKeySaved: !!t.resendKey, emailTo: t.email, enabled: !!row?.enabled, hour: row?.hour ?? 8, channels: row ? cleanChannels(row.channels) : ["telegram"], ready, lastRunDate: row?.last_run_date ?? "", lastResult: row?.last_result ?? "", telegram: t.telegram ? t.telegram.bot_username || "연결됨" : "", phoneMasked: t.phone ? `끝자리 ${t.phone.replace(/\D/g, "").slice(-4)}` : "", cronKeySaved: !!key, wingKeysSaved: !!keys };
+  return { resendKeySaved: !!t.resendKey, emailTo: t.email, enabled: !!row?.enabled, hour: row?.hour ?? 8, channels: row ? cleanChannels(row.channels) : ["telegram"], ready, lastRunDate: row?.last_run_date ?? "", lastResult: row?.last_result ?? "", telegram: t.telegram ? t.telegram.bot_username || "연결됨" : "", kakaoOk: t.kakao.ok, kakaoHasKey: t.kakaoKey, kakaoNickname: t.kakao.ok ? t.kakao.nickname ?? "" : "", kakaoMessage: t.kakao.ok ? "" : t.kakao.message, cronKeySaved: !!key, wingKeysSaved: !!keys };
 }

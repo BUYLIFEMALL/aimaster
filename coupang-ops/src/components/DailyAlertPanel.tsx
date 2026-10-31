@@ -29,7 +29,7 @@ export function DailyAlertPanel({ status }: { status: AlertStatus }) {
 
   return (
     <div className="space-y-5">
-      <p className="text-[13px] text-slate-600">텔레그램, 이메일, 카카오톡, 예약 키는 <Link href="/connect" className="font-bold text-blue-700 underline">🔑 API키등록·플랫폼연동</Link> 5~8번 칸에서 등록합니다.</p>
+      <p className="text-[13px] text-slate-600">텔레그램, 이메일, 카카오톡, 예약 키는 <Link href="/connect" className="font-bold text-blue-700 underline">🔑 API키등록·플랫폼연동</Link> 「2 선택 아침 요약 받을 곳」 칸에서 등록합니다.</p>
       <section className="slw-card space-y-3 p-5">
         <h2 className="text-base font-extrabold text-slate-900">{ok(status.enabled)} 아침 요약 {status.enabled ? `켜짐 · 매일 ${status.hour}시` : "꺼짐"}</h2>
         <p className="text-[13px] text-slate-600">출고중지 요청, 미답변 문의, 결제완료, 상품준비중, 반품 접수, 교환 건수를 고른 곳으로 보냅니다. 건수만 보내고 고객 정보는 보내지 않으며, 쿠팡에는 읽기만 합니다.</p>
