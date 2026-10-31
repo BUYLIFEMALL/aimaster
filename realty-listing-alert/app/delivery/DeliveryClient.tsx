@@ -342,14 +342,20 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
       const k = await saveAiKeyAction({}, fd);
       if (k.error) { setMsg({ kind: "err", text: k.error }); return; }
     } else if (!has) { setMsg({ kind: "err", text: `${info.name} API 키를 넣어 주세요.` }); return; }
-    if (model !== saved) {
-      const r = await saveAiModelAction(id, model);
-      if (r.error) { setMsg({ kind: "err", text: r.error }); return; }
-      setSaved(model);
-    }
     setKey(""); setEditing(false); router.refresh();
   });
-  const cancel = () => { setModel(saved); setKey(""); setEditing(false); setMsg(null); };
+  // 모델은 「수정」을 누르지 않고 고르는 즉시 저장한다
+  const pickModel = (next: string) => {
+    setModel(next);
+    start(async () => {
+      setMsg(null);
+      const r = await saveAiModelAction(id, next);
+      if (r.error) { setModel(saved); setMsg({ kind: "err", text: r.error }); return; }
+      setSaved(next);
+      router.refresh();
+    });
+  };
+  const cancel = () => { setKey(""); setEditing(false); setMsg(null); };
   const remove = () => start(async () => {
     const r = await deleteAiKeyAction(id);
     if (r.error) { setMsg({ kind: "err", text: r.error }); return; }
@@ -373,7 +379,7 @@ function AiEngineRow({ id, has, mask, selected, savedModel, disabled, onSelect }
           ) : (
             <span className="ra-keychip ra-aieng-key"><i /><span className="ra-keydots">{"•".repeat(40)}</span><span className="ra-keytail">{mask.slice(-4)}</span></span>
           )}
-          <select className="ra-aitbl-model ra-aieng-model" aria-label={`${engine.label} 모델`} value={model} disabled={!editing || busy} onChange={(e) => setModel(e.target.value)}>
+          <select className="ra-aitbl-model ra-aieng-model" aria-label={`${engine.label} 모델`} value={model} disabled={busy} onChange={(e) => pickModel(e.target.value)}>
             {AI_MODELS[id].map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
           <span className="ra-aitbl-btns">
@@ -427,7 +433,7 @@ export function AiEngineCard({ ai, initialProvider, models }: { ai: AiInfo; init
       <div className="ra-card-head">
         <h2 className="card-title"><span className="ra-step opt">③ 선택</span>🤖 AI 시세 요약 엔진 <small className="ra-engine-sub">OpenAI / Claude / Gemini · 선택</small></h2>
       </div>
-      <p className="card-caption">엔진 이름을 누르면 그 줄이 요약에 쓰여요(색이 바뀐 줄). 저장한 키·모델은 「수정」으로 바꿔요.</p>
+      <p className="card-caption">엔진 이름을 누르면 그 줄이 요약에 쓰여요(색이 바뀐 줄). 모델은 고르면 바로 저장되고, 키는 「수정」으로 바꿔요.</p>
       <div className="ra-aitbl-wrap">
         <table className="ra-aitbl">
           <tbody>

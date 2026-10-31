@@ -106,7 +106,7 @@ async function callClaude(apiKey, prompt, model) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-    body: JSON.stringify({ model: model || CLAUDE_MODEL, max_tokens: 900, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model: model || CLAUDE_MODEL, max_tokens: 2000, messages: [{ role: "user", content: prompt }] }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Claude ${res.status} ${j?.error?.message || ""}`.trim());

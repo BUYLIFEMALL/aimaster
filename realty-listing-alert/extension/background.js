@@ -304,7 +304,7 @@ async function runCollection(trigger) {
         if (aiSummary?.date !== kstDate()) {
           try {
             const text = await makeAiSummary(settings.ai, nextHistory);
-            await set({ aiSummary: { text, at: new Date().toISOString(), date: kstDate(), provider: settings.ai.provider } });
+            await set({ aiSummary: { text, at: new Date().toISOString(), date: kstDate(), provider: settings.ai.provider, model: settings.ai.model || null } });
             await addLog("AI 요약을 만들었어요.");
           } catch (e) { await addLog(`AI 요약 실패: ${e.message || e}`); }
         }

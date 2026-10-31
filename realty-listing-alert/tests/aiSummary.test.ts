@@ -53,10 +53,12 @@ test("쓸 AI 3가지: 이름·키 모양(Claude는 공용 키 anthropic)", async
 test("모델 고르기: 엔진마다 목록(쓰레드 콘텐츠 운영과 같은 목록), 맨 앞이 기본 추천, 목록 밖 값은 기본값", async () => {
   const { AI_MODELS, resolveAiModel } = await import("../lib/aiModels.ts");
   assert.equal(AI_MODELS.openai[0].value, "gpt-4.1");
-  assert.equal(AI_MODELS.claude[0].value, "claude-sonnet-5");
+  assert.equal(AI_MODELS.claude[0].value, "claude-sonnet-5-5");
   assert.equal(AI_MODELS.gemini[0].value, "gemini-3.7-flash");
   assert.equal(resolveAiModel("openai", "gpt-6-astra"), "gpt-6-astra");
-  assert.equal(resolveAiModel("claude", "gpt-4o"), "claude-sonnet-5");
+  assert.equal(resolveAiModel("claude", "gpt-4o"), "claude-sonnet-5-5");
+  assert.equal(resolveAiModel("claude", "claude-haiku-4-5"), "claude-haiku-5-5", "옛 값은 같은 등급으로");
+  assert.equal(resolveAiModel("claude", "claude-opus-5"), "claude-opus-5-5");
   assert.equal(resolveAiModel("gemini", undefined), "gemini-3.7-flash");
 });
 

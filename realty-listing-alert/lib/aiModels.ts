@@ -25,9 +25,9 @@ export const AI_MODELS: Record<AiProvider, AiModelOption[]> = {
     { value: "gpt-4o-mini", label: "⚡ GPT-4o-mini (빠르고 저렴)" },
   ],
   claude: [
-    { value: "claude-sonnet-5", label: "🎯 Claude Sonnet 5 (최신 세대 · 자연스러운 문체 · 기본 추천)" },
-    { value: "claude-opus-5", label: "💎 Claude Opus 5 (고급형 복잡한 맥락 이해)" },
-    { value: "claude-haiku-4-5", label: "⚡ Claude Haiku 4.5 (가성비 초고속)" },
+    { value: "claude-sonnet-5-5", label: "🎯 Claude Sonnet 5.5 (최신 세대 · 자연스러운 문체 · 기본 추천)" },
+    { value: "claude-opus-5-5", label: "💎 Claude Opus 5.5 (고급형 복잡한 맥락 이해)" },
+    { value: "claude-haiku-5-5", label: "⚡ Claude Haiku 5.5 (가성비 초고속)" },
   ],
   gemini: [
     { value: "gemini-3.7-flash", label: "⚡ Gemini 3.7 Flash (속도와 품질 균형 · 기본 추천)" },
@@ -42,9 +42,13 @@ export function defaultAiModel(provider: AiProvider): string {
   return AI_MODELS[provider][0].value;
 }
 
-/** 저장값이 목록에 없으면(옛 값·잘못된 값) 그 엔진의 기본 추천 */
+// 회원이 저장해 둔 옛 Claude 모델은 같은 등급의 새 모델로 잇는다(고른 품질이 바뀌지 않게)
+const OLD_MODELS: Record<string, string> = { "claude-sonnet-5": "claude-sonnet-5-5", "claude-opus-5": "claude-opus-5-5", "claude-haiku-4-5": "claude-haiku-5-5" };
+
+/** 저장값이 목록에 없으면(잘못된 값) 그 엔진의 기본 추천 */
 export function resolveAiModel(provider: AiProvider, value: unknown): string {
-  return AI_MODELS[provider].some((m) => m.value === value) ? String(value) : defaultAiModel(provider);
+  const v = OLD_MODELS[String(value)] ?? value;
+  return AI_MODELS[provider].some((m) => m.value === v) ? String(v) : defaultAiModel(provider);
 }
 
 /** 화면 표시용 짧은 이름(이모지·괄호 설명 뺌) — 예: 「GPT-4.1」 */
