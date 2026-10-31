@@ -92,3 +92,12 @@ export function isWatchableUrl(url) {
     return false;
   }
 }
+
+/**
+ * 네이버는 저장 화면으로 옮기기 전에 직전에 본 지역을 먼저 부를 수 있다.
+ * 그래서 화면이 자리 잡은 마지막 동 코드를 기준으로 삼고, 다른 동 코드로 받은 쪽은 버린다. 코드가 없는 쪽은 둔다.
+ */
+export function selectViewPages(pages) {
+  const cortarNo = [...pages].reverse().find((p) => p.cortarNo)?.cortarNo || null;
+  return { cortarNo, bodies: pages.filter((p) => !p.cortarNo || p.cortarNo === cortarNo).map((p) => p.body) };
+}

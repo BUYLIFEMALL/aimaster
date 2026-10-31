@@ -2,6 +2,7 @@
 // 네이버로 직접 요청을 보내지 않는다. 다음 페이지도 목록을 스크롤해 페이지가 부르게 한다.
 // 차단(401·403·429)·확인 화면·로그인 화면이면 바로 멈추고 우회하지 않는다.
 import { BLOCK_TEXT, isBlockedStatus } from "./guard.js";
+import { selectViewPages } from "./listing.js";
 
 export const RULES = {
   listPath: "/api/articles",
@@ -70,7 +71,8 @@ export async function collectView(url, log = async () => {}) {
   let blockedStatus = null;
   let blockedText = false;
   let lastMore = true;
-  let cortarNo = null;
+  const cortarOf = new Map();
+  const pages = [];
   let error = null;
   let diag = ""; // 다음 페이지가 안 올 때 원인을 보는 기록(숫자와 화면 요소 이름만)
 
@@ -86,7 +88,7 @@ export async function collectView(url, log = async () => {}) {
       if (isBlockedStatus(params.response.status)) blockedStatus = params.response.status;
       else {
         pending.add(params.requestId);
-        cortarNo = cortarNo || new URL(rurl).searchParams.get("cortarNo");
+        cortarOf.set(params.requestId, new URL(rurl).searchParams.get("cortarNo"));
       }
     } else if (method === "Network.loadingFinished" && pending.has(params.requestId)) {
       pending.delete(params.requestId);
@@ -97,6 +99,7 @@ export async function collectView(url, log = async () => {}) {
         if (pageKeys.has(key)) return;
         pageKeys.add(key);
         bodies.push(body);
+        pages.push({ cortarNo: cortarOf.get(params.requestId) || null, body });
         lastMore = body?.isMoreData === true;
       } catch (e) {
         error = `응답 읽기 실패: ${String(e).slice(0, 80)}`;
@@ -147,5 +150,6 @@ export async function collectView(url, log = async () => {}) {
   if (!bodies.length) return { status: error ? "error" : "rule_mismatch", bodies, complete: false, error: error || "매물 목록 응답을 찾지 못했어요. 네이버 화면이 바뀌었을 수 있어요." };
   if (bodies.some((b) => !Array.isArray(b?.articleList))) return { status: "rule_mismatch", bodies: [], complete: false, error: "매물 목록 모양이 예상과 달라요." };
   if (lastMore && diag) await log(`다음 페이지 진단: ${diag}`);
-  return { status: "ok", bodies, complete: !lastMore, cortarNo, pagesRead: bodies.length };
+  const view = selectViewPages(pages);
+  return { status: "ok", bodies: view.bodies, complete: !lastMore, cortarNo: view.cortarNo, pagesRead: view.bodies.length };
 }

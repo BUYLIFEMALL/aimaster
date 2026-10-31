@@ -134,6 +134,7 @@ async function runCollection(trigger) {
       const cortarNo = r.cortarNo || cortarByTarget[t.id] || null;
       if (r.cortarNo && r.cortarNo !== cortarByTarget[t.id]) await set({ cortarByTarget: { ...cortarByTarget, [t.id]: r.cortarNo } });
       const market = await marketFor(cortarNo);
+      if (market?.name) await addLog(`${t.name}: 시세 기준 ${market.name}`);
       if (!market?.samples) await addLog(`${t.name}: 시세 자료를 받지 못해 비교를 건너뛰었어요(동 코드 ${cortarNo || "없음"})`);
       for (const it of items) {
         const saved = cmp.state.items[it.no];

@@ -192,3 +192,12 @@ test("AI 요약 자료와 응답 읽기", async () => {
   await assert.rejects(readStream(sse([{ type: "message_delta", delta: { stop_reason: "refusal" } }])));
   await assert.rejects(readStream(sse([])));
 });
+
+test("직전에 본 지역 응답을 버리고 저장 화면 기준을 쓴다", async () => {
+  const { selectViewPages } = await import("../extension/lib/listing.js");
+  const a = { articleList: [1] }, b = { articleList: [2] }, c = { articleList: [3] };
+  const v = selectViewPages([{ cortarNo: "2653010100", body: a }, { cortarNo: "1168010100", body: b }, { cortarNo: null, body: c }]);
+  assert.equal(v.cortarNo, "1168010100");
+  assert.deepEqual(v.bodies, [b, c]);
+  assert.equal(selectViewPages([{ cortarNo: null, body: a }]).cortarNo, null);
+});
