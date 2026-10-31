@@ -25,16 +25,23 @@ export const rand = (a, b) => a + Math.floor(Math.random() * Math.max(1, b - a))
 const PAGE_CHECK = `(() => ({ host: location.hostname, blocked: ${BLOCK_TEXT}.test((document.body && document.body.innerText) || "") }))()`;
 // 가장 많이 스크롤되는 영역(매물 목록)을 끝까지 내린다
 const SCROLL_ONE = `(() => {
-  let best = null, gap = 0;
-  for (const el of document.querySelectorAll("*")) {
-    const s = getComputedStyle(el);
-    if (!/(auto|scroll)/.test(s.overflowY)) continue;
-    const g = el.scrollHeight - el.clientHeight;
-    if (g > gap && el.clientHeight > 150) { gap = g; best = el; }
+  let best = document.querySelector(".item_list--article"), gap = 0;
+  if (!best) {
+    for (const el of document.querySelectorAll("*")) {
+      const s = getComputedStyle(el);
+      if (!/(auto|scroll)/.test(s.overflowY)) continue;
+      const g = el.scrollHeight - el.clientHeight;
+      if (g > gap && el.clientHeight > 150) { gap = g; best = el; }
+    }
   }
   const t = best || document.scrollingElement;
+  const items = t.querySelectorAll(".item_link, .item");
+  const last = items[items.length - 1];
   t.scrollTop = t.scrollHeight;
-  return true;
+  if (last) last.scrollIntoView({ block: "end" });
+  t.dispatchEvent(new Event("scroll", { bubbles: true }));
+  const r = t.getBoundingClientRect();
+  return { cls: String(t.className).slice(0, 40), h: t.scrollHeight, c: t.clientHeight, top: Math.round(t.scrollTop), n: items.length, x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), vis: document.visibilityState };
 })()`;
 
 const evalInPage = async (tabId, expression) =>
@@ -65,8 +72,9 @@ export async function collectView(url, log = async () => {}) {
   let lastMore = true;
   let cortarNo = null;
   let error = null;
+  let diag = ""; // 다음 페이지가 안 올 때 원인을 보는 기록(숫자와 화면 요소 이름만)
 
-  const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
+  const win =await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
   const tab = await chrome.tabs.create({ url: "about:blank", active: false, ...(win?.id ? { windowId: win.id } : {}) });
   const tabId = tab.id;
 
@@ -100,6 +108,8 @@ export async function collectView(url, log = async () => {}) {
   try {
     await chrome.debugger.attach({ tabId }, "1.3");
     await chrome.debugger.sendCommand({ tabId }, "Network.enable");
+    // 배경 탭은 화면에 안 보여 목록이 다음 페이지를 부르지 않을 수 있어 보이는 탭처럼 다룬다
+    await chrome.debugger.sendCommand({ tabId }, "Emulation.setFocusEmulationEnabled", { enabled: true }).catch(() => {});
     await chrome.debugger.sendCommand({ tabId }, "Page.navigate", { url });
     await sleep(RULES.firstLoadWaitMs);
     let stale = 0;
@@ -110,10 +120,13 @@ export async function collectView(url, log = async () => {}) {
       if (bodies.length >= RULES.maxPagesPerTarget) break;
       if (bodies.length && !lastMore) break;
       const before = bodies.length;
-      await evalInPage(tabId, SCROLL_ONE);
+      const info = await evalInPage(tabId, SCROLL_ONE);
+      // 스크롤만으로 안 오면 사람이 휠을 굴리는 것과 같은 입력을 목록 위에 보낸다
+      if (info?.x && info?.y) await chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", { type: "mouseWheel", x: info.x, y: info.y, deltaX: 0, deltaY: 1500 }).catch(() => {});
       await sleep(rand(...RULES.scrollWaitMs));
       if (bodies.length === before) {
         stale += 1;
+        diag = `대상 ${info?.cls || "?"} · 높이 ${info?.h}/${info?.c} · 위치 ${info?.top} · 항목 ${info?.n} · 화면 ${info?.vis}`;
         if (stale >= 2) break;
       } else stale = 0;
     }
@@ -133,5 +146,6 @@ export async function collectView(url, log = async () => {}) {
   }
   if (!bodies.length) return { status: error ? "error" : "rule_mismatch", bodies, complete: false, error: error || "매물 목록 응답을 찾지 못했어요. 네이버 화면이 바뀌었을 수 있어요." };
   if (bodies.some((b) => !Array.isArray(b?.articleList))) return { status: "rule_mismatch", bodies: [], complete: false, error: "매물 목록 모양이 예상과 달라요." };
+  if (lastMore && diag) await log(`다음 페이지 진단: ${diag}`);
   return { status: "ok", bodies, complete: !lastMore, cortarNo, pagesRead: bodies.length };
 }
