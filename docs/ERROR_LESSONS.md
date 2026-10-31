@@ -4,7 +4,7 @@
 - 증상: `buylifemall@naver.com`이 프리미엄 등급인데 프리미엄 프로그램 18개 중 이것만 구독 안내로 돌아갔다.
 - 원인: 프리미엄 배지로 정지된 수동 권한이 남아 있었고, `profiles_grade_change_sync`의 `ON CONFLICT DO NOTHING`이 기존 행을 건너뛰었다.
 - 해결: `supabase/migrations/0049_premium_grade_restore_suspended_grants.sql` — 프리미엄 등급 전환 때 체크된 프로그램의 정지 권한을 등급 권한으로 전환. 시험 계정 1건 복구. 내렸다 올리는 시험은 예외를 일으켜 자동 롤백되게 돌렸다.
-- 남은 틈: `grade_program_access_sync`와 `apply_grade_programs`는 여전히 `DO NOTHING`이다(체크를 새로 켤 때 같은 현상 가능). 또 0047이 함수를 0032 원본으로 되돌리면서 0036의 가입일 기준 만료(`grade_access_expires_at`)가 빠졌다.
+- 추가 수정(`0050_grade_access_signup_basis_and_premium_restore.sql`): 체크 동기화·일괄 적용에도 같은 복구를 넣고, 0047이 함수를 0032 원본으로 되돌리며 빠뜨린 가입일 기준 만료(`grade_access_expires_at`)를 복원했다. 이미 있는 권한의 만료일은 바꾸지 않았다.
 - 다음부터: 권한 함수를 「원본으로 복원」할 때 그 사이 마이그레이션이 바꾼 내용까지 확인한다. 권한 문제는 등급만 보지 말고 `user_program_access` 행의 `expires_at`·`premium_suspended`·`grant_source`를 본다.
 
 ## 2026-10-31 화면을 지침·다른 프로그램을 안 보고 만들어 다시 작업함(`coupang-ops` v1.16)
