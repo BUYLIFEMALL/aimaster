@@ -43,6 +43,9 @@ export function checkPrice(current: number, next: number): string {
   return "";
 }
 
+/** S3 재고 0개 옵션 판매 재개 경고. 막지는 않는다 */
+export const resumeWarning = (stock: number) => (stock <= 0 ? " ⚠ 재고가 0개입니다. 재개해도 품절로 보이니 재고를 먼저 넣어 주세요." : "");
+
 export function checkQuantity(current: number, next: number): string {
   if (!Number.isInteger(next) || next < 0) return "재고는 0 이상 정수로 넣어 주세요.";
   if (next > MAX_QUANTITY) return `재고는 ${MAX_QUANTITY.toLocaleString()}개까지 넣을 수 있습니다.`;

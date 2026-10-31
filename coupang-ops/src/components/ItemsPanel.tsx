@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { loadItemsAction, setSaleAction, updatePriceAction, updateQuantityAction, type ItemRow } from "@/lib/actions/items";
 import { setAutoOptionAction, updateOriginalPriceAction } from "@/lib/actions/productEdit";
-import { checkPrice, checkQuantity } from "@/lib/coupang/items";
+import { checkPrice, checkQuantity, resumeWarning } from "@/lib/coupang/items";
 import { checkOriginalPrice } from "@/lib/coupang/productEdit";
 
 const input = "w-24 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] focus:border-blue-500 focus:outline-none";
@@ -34,7 +34,7 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
     setNote("");
     if (kind === "sale") {
       const on = !it.inventory.onSale;
-      return setAsk({ kind, vendorItemId: it.vendorItemId, value: on ? 1 : 0, label: `「${it.itemName}」 ${on ? "판매를 재개" : "판매를 중지"}할까요?` });
+      return setAsk({ kind, vendorItemId: it.vendorItemId, value: on ? 1 : 0, label: `「${it.itemName}」 ${on ? "판매를 재개" : "판매를 중지"}할까요?${on ? resumeWarning(it.inventory.stock) : ""}` });
     }
     const raw = Number(String(draft[`${kind}:${it.vendorItemId}`] ?? "").replace(/[,\s원개]/g, ""));
     if (kind === "original") {
