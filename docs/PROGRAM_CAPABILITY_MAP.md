@@ -671,7 +671,7 @@
 - 문서: [`realty-listing-alert/AGENTS.md`](../realty-listing-alert/AGENTS.md) · 인수인계 [`HANDOFF_20261024_REALTY_LISTING_ALERT.md`](analysis-naver-realty-collector-20261024/HANDOFF_20261024_REALTY_LISTING_ALERT.md)
 
 #### 상가·건물·토지 매물 알림 (`commercial-land-trade-alert`, 2026-10-31 신규)
-- 주소·폴더: https://commercial-land-trade-alert.buylife.xyz · `commercial-land-trade-alert/` · v1.04 (2026-10-31 공개, 시세 대비·후보 점수·결과 화면 추가)
+- 주소·폴더: https://commercial-land-trade-alert.buylife.xyz · `commercial-land-trade-alert/` · v1.05 (2026-10-31 공개, 시세 대비·후보 점수·결과 화면, 층·면적별 비교)
 - **차별점**: 아파트가 아닌 상가·건물·토지. 회원은 지역·조건만 고르고 서버가 국토부 자료를 지역당 하루 1회 수집.
 - **가져온 것**: `real-estate-sales`의 지역 목록·로그인·메뉴·지역 찾기·봇 연결·429 재시도. **보강**: 고유 번호 없는 자료의 순번 키, 취소 갱신, 지분 제외, 토지 호출 한도 세기, 지역별 수집 상태 표시.
 - **단점·한계**: 토지·일반 건물 지번 가림으로 공시지가 불가, 임대료·호가 없음, 12개월 비교가 차는 데 시간 필요.
