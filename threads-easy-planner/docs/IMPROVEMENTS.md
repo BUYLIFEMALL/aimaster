@@ -56,3 +56,5 @@
 
 - ~~미배포 대기: 배포판 이름 ALLA AI용 `APP_NAME` 코드~~ → ✅ 2026-10-23 v1.49 배포에 함께 나감(운영 이름 그대로).
 - 2026-10-23 v1.49: 운영에서는 이미지 기능 숨김(`IMAGE_FEATURE`), 배포판만 사용 — 운영 이미지 개선 항목은 배포판 기준으로 본다.
+
+> **2026-11-01 미처리 인수인계:** API 키 「암호화」 문구가 실제와 다를 수 있음, 주인님 결정 대기. 상세: [`docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md`](../../docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md)

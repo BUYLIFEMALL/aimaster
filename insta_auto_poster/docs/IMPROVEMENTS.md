@@ -108,3 +108,5 @@
 - 결정: 주인님(2026-10-27) 「넣도록 하고 담당자는 추후에 정해줄께」 → 구현 담당 미정.
 - 플랜: [`PLAN_20261027_HASHTAG_SETS_POST_QUEUE.md`](PLAN_20261027_HASHTAG_SETS_POST_QUEUE.md) — 새 게시 엔진 없이 지금 예약 실행(`dispatch.ts`)을 그대로 쓰고, 대기열에 넣을 때 다음 빈 시간을 `scheduled_at`에 채우는 방식. DB 새 표 2개(사전 승인), 빌드 1~2회, AI 호출 없음.
 - 상태: 처리 대기(담당 지정 전). 분석 보고서 `../../docs/analysis-marketing14-20261027/REPORT.md` §9.
+
+> **2026-11-01 미처리 인수인계:** API 키 「암호화」 문구가 실제와 다를 수 있음, 주인님 결정 대기. 상세: [`docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md`](../../docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md)

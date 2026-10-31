@@ -19,3 +19,5 @@
 ## 4. 타 프로그램 탐색 기반 개선 제안
 - **`shorts-onestop-studio`**: 현재 클래식 콘솔 테마를 사용 중이므로, 본 프로그램의 헐리우드 시네마틱 네온 REC 스타일 또는 비선택 시안 2(사이버네틱 펄스 타임라인 다크)를 적용하여 영상군 프로그램 간의 패밀리 룩 완성 추천.
 - **`suno-automation`**: 음악 파형(Waveform) 시각화 및 멀티트랙 타임라인이 강조된 시안 2(사이버네틱 펄스 타임라인 다크) 템플릿 도입 제안.
+
+> **2026-11-01 미처리 인수인계:** API 키 「암호화」 문구가 실제와 다를 수 있음, 주인님 결정 대기. 상세: [`docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md`](../../docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md)

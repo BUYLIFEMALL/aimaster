@@ -74,3 +74,5 @@
   https://shorts-maker.buylife.xyz
 - **분석 및 개선점**: 기존 쇼츠 생성기에는 텍스트 기반 TTS 영상 위주로 구성되어 있으나, `music-video-studio`의 8초 심리스 루프(Seamless Loop) 영상 생성 로직을 사본 모듈로 탑재하여 감성 쇼츠/명언 쇼츠의 배경 영상 퀄리티를 한 단계 업그레이드할 필요가 있음.
 - **✅ 배포됨(v1.12, 2026-10-23 — 데스크톱 화면에서 계정 위치 확인, 휴대폰 폭은 미확인)**: 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 것을 마지막 메뉴 바로 아래(8~16px)로 — `docs/SIDEBAR_LAYOUT_STANDARD.md` 「계정 이메일·로그아웃 위치」(메뉴 `flex-1`/틀 `justify-between`/계정 `mt-auto` 제거). 클래스만 바꿈, tsc 통과. **다음 배포 때 함께 내보내고(버전 +0.01) 데스크톱·휴대폰 폭에서 계정 위치 확인 후 이 줄과 `docs/PENDING_DEPLOYS.md` 줄 지우기.** (Claude Code 윈도우, YOUTUBE Shots v1.38과 같은 수정)
+
+> **2026-11-01 미처리 인수인계:** 배포 전 필독: `Composition.tsx` 사본이 없는 `renderTrace`를 불러옴(배포 실패 위험), API 키 암호화 문구 점검. 상세: [`docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md`](../../docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md)

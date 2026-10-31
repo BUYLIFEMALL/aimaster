@@ -52,3 +52,5 @@
 ## 2026-10-23 ✅ 배포됨 v1.37 — 이전 「미배포 대기(정리 기록)」 — Claude Code(윈도우), 커밋 `8ad8ea2e5` · `f53021369`
 - 분석 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images) 기록 — 공용 `cleanup-usage-log` 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 메인 관리자 「운영 상태」 정리 기록 진행률에 들어감. 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
+
+> **2026-11-01 미처리 인수인계:** API 키 「암호화」 문구가 실제와 다를 수 있음, 주인님 결정 대기. 상세: [`docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md`](../../docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md)
