@@ -127,7 +127,8 @@ test("시세 대비와 후보 점수", async () => {
   assert.equal(marketGap({ ...it, floor: "B1/15" }, { samples: { SG: five("b") } }).floorName, "지하");
   assert.equal(marketGap(it, { samples: { SG: [1, 2, 3, 4, 5].map(() => row("1", 300)) } }), null, "면적 2배 초과 제외");
   assert.equal(marketGap(it, { samples: { SG: [row("1"), ...[1, 2, 3, 4].map(() => row("1", 100, 0))] } }).scope, "시군구");
-  assert.equal(marketGap({ ...it, kind: "TJ", floor: "" }, { samples: { TJ: five(null) } }).floorName, "");
+  assert.equal(marketGap({ ...it, kind: "TJ", floor: "" }, { samples: { TJ: five(null) } }), null, "토지는 지목이 달라 비교 안 함");
+  assert.equal(marketGap({ ...it, kind: "GM", floor: "" }, { samples: { GM: five(null) } }).floorName, "");
   assert.equal(marketGap(it, { SG: { median: 4000, count: 12, scope: "동" } }), null, "표본 없으면 비교 안 함");
   const s = scoreListing({ gap: g, drops: 1, ageDays: 40 });
   assert.equal(s.score, 60);
@@ -261,4 +262,10 @@ test("지역 고르기: 동 좌표와 화면 주소", async () => {
   assert.equal(parseWatchUrl(url).kinds, "SG:TJ");
   assert.equal(buildRegionUrl(0, 0, "SG"), null);
   assert.equal(buildRegionUrl(35, 128, "XX"), null);
+});
+
+test("유형·거래별 건수와 짧은 이름", async () => {
+  const { countByKindTrade } = await import("../extension/lib/listing.js");
+  assert.equal(countByKindTrade([{ kindName: "상가", tradeName: "매매" }, { kindName: "상가", tradeName: "매매" }, { kindName: "건물", tradeName: "월세" }]), "상가 매매 2 · 건물 월세 1");
+  assert.equal(countByKindTrade([]), "");
 });

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
-import { StatsDashboard } from "./StatsDashboard";
+import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
 type Result = { at: string; columns: string[]; table: (string | number)[][]; perTarget: { name: string; total: number; complete: boolean }[] };
@@ -167,7 +167,7 @@ export function ResultsClient({ email }: { email: string }) {
               <tr key={`${String(r[at(LINK)])}-${i}`}>
                 {SHOW.map((c) => (
                   <td key={c} className={c === "가격" ? "font-semibold" : undefined}>
-                    {c === "시세 대비" ? <GapCell value={r[at(c)]} /> : c === "후보 점수" && Number(r[at(c)]) >= 40 ? `⭐ ${r[at(c)]}` : String(r[at(c)] ?? "")}
+                    {c === "감시 화면" ? shortWatch(String(r[at(c)] ?? "")) : c === "시세 대비" ? <GapCell value={r[at(c)]} /> : c === "후보 점수" && Number(r[at(c)]) >= 40 ? `⭐ ${r[at(c)]}` : String(r[at(c)] ?? "")}
                   </td>
                 ))}
                 <td>

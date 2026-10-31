@@ -1,7 +1,7 @@
 // 상가·건물·토지 매물 알림 확장 — 수집 엔진. 기준: realty-listing-alert/extension/background.js
 // 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectView, locateDong, rand, RULES, sleep } from "./lib/collector.js";
-import { isWatchableUrl, matchesTarget, normalizeArticle } from "./lib/listing.js";
+import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle } from "./lib/listing.js";
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
@@ -125,11 +125,12 @@ async function runCollection(trigger) {
         continue;
       }
       const seen = new Set();
-      const items = r.bodies
+      const allItems = r.bodies
         .flatMap((b) => b.articleList || [])
         .map((a) => normalizeArticle(a, t.id, t.url))
-        .filter((it) => it.no && !seen.has(it.no) && seen.add(it.no))
-        .filter((it) => matchesTarget(it, t));
+        .filter((it) => it.no && !seen.has(it.no) && seen.add(it.no));
+      const items = allItems.filter((it) => matchesTarget(it, t));
+      await addLog(`${t.name}: 읽은 매물 ${allItems.length}건(${countByKindTrade(allItems) || "없음"})${items.length === allItems.length ? "" : ` → 조건 맞는 ${items.length}건(${countByKindTrade(items) || "없음"})`}`);
       const cmp = compareTarget(states[t.id], items, { complete: r.complete });
       states[t.id] = cmp.state;
       // 네이버 요청에 동 코드가 없는 회차도 있어 감시 화면별로 마지막 코드를 기억한다

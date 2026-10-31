@@ -26,6 +26,8 @@ export function listingFloor(text) {
  * 상가는 같은 층 묶음만, 모든 유형은 면적 0.5~2배만 쓰고 5건이 안 되면 비교하지 않는다(null).
  */
 export function marketGap(item, market) {
+  // 토지는 지목이 달라 평당가가 수십 배 차이 나서, 지목을 맞출 수 있을 때까지 시세와 비교하지 않는다
+  if (item.kind === "TJ") return null;
   const samples = market?.samples?.[item.kind];
   if (!samples || item.tradeType !== "A1" || !item.price || !item.area) return null;
   const floor = item.kind === "SG" ? listingFloor(item.floor) : null;

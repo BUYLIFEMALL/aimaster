@@ -109,3 +109,13 @@ export function pickDongCenter(body, cortarNo) {
   const lon = Number(row?.centerLon);
   return Number.isFinite(lat) && Number.isFinite(lon) && lat && lon ? { lat, lon } : null;
 }
+
+/** 유형·거래별 건수 글. 「상가 매매 76 · 건물 월세 14」 */
+export function countByKindTrade(items) {
+  const counts = new Map();
+  for (const it of items) {
+    const k = `${it.kindName} ${it.tradeName}`;
+    counts.set(k, (counts.get(k) || 0) + 1);
+  }
+  return [...counts].map(([k, n]) => `${k} ${n}`).join(" · ");
+}

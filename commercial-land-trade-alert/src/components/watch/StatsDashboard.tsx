@@ -13,6 +13,14 @@ type Snap = { at: string; groups: Group[] };
 type Weekly = { text: string; at: string; from: string; to: string };
 type Trade = "매매" | "월세";
 
+/** 「고양시 일산동구 백석동 상가·건물·토지」→「백석동」. 회원이 지은 이름은 그대로 둔다 */
+export function shortWatch(watch: string) {
+  const name = String(watch).replace(/\s*(상가|건물|토지)(·(상가|건물|토지))*$/, "").trim() || String(watch);
+  const words = name.split(/\s+/);
+  return words.length > 1 && /[동읍면가리]$/.test(words[words.length - 1]) ? words[words.length - 1] : name;
+}
+const label = (g: { watch: string; kind: string }) => `${shortWatch(g.watch)} · ${g.kind}`;
+
 const RANGES: [number, string][] = [[30, "1개월"], [90, "3개월"], [180, "6개월"], [365, "1년"]];
 
 function won(v: number | null | undefined) {
@@ -126,6 +134,8 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
   const common = prev ? latest.groups.filter((g) => prev.groups.some((p) => p.name === g.name)) : [];
   const total = latest.groups.reduce((n, g) => n + g.total, 0);
   const delta = common.length ? common.reduce((n, g) => n + g.total - (prev!.groups.find((p) => p.name === g.name)?.total ?? 0), 0) : null;
+  const selectedGroup = latest.groups.find((g) => g.name === selected);
+  const selectedLabel = selectedGroup ? label(selectedGroup) : selected;
   const countPoints = series.flatMap((p) => { const t = p.g?.trades[trade]; return t ? [{ at: p.at, v: t.n }] : []; });
   const pricePoints = series.flatMap((p) => { const t = p.g?.trades[trade]; const v = trade === "월세" ? (t as RentStat | undefined)?.rentAvg : t?.avg; return v != null ? [{ at: p.at, v }] : []; });
 
@@ -151,15 +161,15 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <select value={selected} onChange={(e) => setPicked(e.target.value)} aria-label="감시 화면과 유형" className="mx-input min-h-[40px] w-auto py-2 text-sm">
-          {names.map((n) => <option key={n} value={n}>{n}</option>)}
+          {latest.groups.map((g) => <option key={g.name} value={g.name}>{label(g)}</option>)}
         </select>
         <Seg label="거래 종류" options={[["매매", "매매"], ["월세", "월세"]] as [Trade, string][]} value={trade} onChange={setTrade} />
         <Seg label="추이 기간" options={RANGES} value={range} onChange={setRange} />
       </div>
       {countPoints.length < 2 && <p className="mt-2 text-xs text-mx-muted">추이 그래프는 기록이 2회 이상 쌓이면 선으로 이어집니다(지금 {countPoints.length}회). 예약 수집이 돌 때마다 하나씩 쌓입니다.</p>}
       <div className="mt-3 grid gap-3 lg:grid-cols-2">
-        <LineChart title={`${selected} · ${trade} 매물 수`} points={countPoints} fmt={(v) => `${v.toLocaleString("ko-KR")}건`} />
-        <LineChart title={`${selected} · ${trade === "월세" ? "평균 월세" : "매매 평균 가격"}`} points={pricePoints} fmt={won} />
+        <LineChart title={`${selectedLabel} · ${trade} 매물 수`} points={countPoints} fmt={(v) => `${v.toLocaleString("ko-KR")}건`} />
+        <LineChart title={`${selectedLabel} · ${trade === "월세" ? "평균 월세" : "매매 평균 가격"}`} points={pricePoints} fmt={won} />
       </div>
 
       <h3 className="mt-5 text-base font-bold">🏢 감시 화면 비교 (이번 회차)</h3>
@@ -172,7 +182,7 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
               const kind = g.kind === "토지" ? "land" : "building";
               return (
                 <tr key={g.name}>
-                  <td>{g.name}{g.sgg && <> <Link href={`/trades?sgg=${g.sgg}&kind=${kind}`} className="text-mx-link underline">📈 실거래</Link></>}</td>
+                  <td title={g.watch}>{label(g)}{g.sgg && <> <Link href={`/trades?sgg=${g.sgg}&kind=${kind}`} className="text-mx-link underline">📈 실거래</Link></>}</td>
                   <td>{g.total}건</td>
                   <td>{s ? `${won(s.avg)} (${s.n})` : "—"}</td>
                   <td>{won(s?.perPyeong)}</td>
@@ -185,7 +195,7 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-xs text-mx-muted">금액은 호가 기준이며 (괄호)는 매물 수입니다. 평당가와 실거래 대비는 극단값에 덜 흔들리도록 중간값으로 보여 드립니다. 추정 수익률은 호가로 어림한 값이며 5건 이상일 때만 표시합니다.</p>
+      <p className="mt-2 text-xs text-mx-muted">금액은 호가 기준이며 (괄호)는 매물 수입니다. 평당가와 실거래 대비는 극단값에 덜 흔들리도록 중간값으로 보여 드립니다. 추정 수익률은 호가로 어림한 값이며 5건 이상일 때만 표시합니다. 토지는 지목이 달라 비교가 어려워 실거래 대비를 표시하지 않습니다.</p>
     </section>
   );
 }
