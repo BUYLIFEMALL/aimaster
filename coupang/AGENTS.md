@@ -1,5 +1,7 @@
 # 🤖 AI Agent 협업 가이드라인 — Coupang Seller Copilot (AGENTS.md)
 
+> **2026-10-31 흡수:** 이 기획의 손익·재고 소진·경고는 `coupang-ops` v1.09 `/revenue`로 옮겼다. 새 작업은 `coupang-ops`에서 한다. 경쟁사 수집은 하지 않는다. 이 폴더 정리는 주인님 승인 뒤.
+
 이 문서는 **AIMaster Coupang Seller Copilot (쿠팡 셀러 운영 & Product Intelligence AI)** 프로젝트에서 AI Agent가 작업할 때 준수해야 할 가이드라인 및 안전 수칙입니다.
 
 ---
