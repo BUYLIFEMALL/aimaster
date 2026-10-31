@@ -1,6 +1,6 @@
 # 쿠팡 연동업체(셀러툴) 정보 등록 신청 준비(C0-2)
 
-> **2026-10-31 제출 보류(주인님 결정 대기).** 아래 허용 IP는 운영자 Fixie를 함께 쓰던 때의 값이라 지금 구조와 맞지 않는다. v1.12부터 회원마다 본인 Fixie + WING 자체개발이다. 지금 구조에서 등록이 필요한지는 쿠팡 판매자 지원에 문의한다. 등록 방식으로 바꾸면 운영자 고정 IP·호출 코드 변경과 비용 플랜이 먼저다. 공지: https://developers.coupang.com/ko/notices/please-add-the-information-on-the-integrator-seller-tool
+> **2026-10-31 주인님 결정: 회원 본인 Fixie + 자체개발 방식 유지, 제출 보류(「그럼 유지해」).** 많은 회원에게 알리기 전에 쿠팡 판매자 지원에 등록 필요 여부만 문의한다. 아래 허용 IP는 운영자 Fixie를 함께 쓰던 때의 값이라 지금 구조와 맞지 않는다. v1.12부터 회원마다 본인 Fixie + WING 자체개발이다. 지금 구조에서 등록이 필요한지는 쿠팡 판매자 지원에 문의한다. 등록 방식으로 바꾸면 운영자 고정 IP·호출 코드 변경과 비용 플랜이 먼저다. 공지: https://developers.coupang.com/ko/notices/please-add-the-information-on-the-integrator-seller-tool
 
 주인님 사업자로 신청하는 일이라 API 연동협약서 동의와 제출은 주인님이 직접 합니다. 아래는 칸에 넣을 값입니다. 사업자 정보·담당자 연락처는 저장소에 적지 않습니다.
 
