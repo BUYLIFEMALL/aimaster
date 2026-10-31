@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-10-26 (claude-win-20261025-workspace — 할 일 플래너 담당 추가, 미배포 묶음 결정 기록)
+- 마지막 갱신: 2026-10-31 (claude-win-20261025-workspace — 요약 지침 이름 한글화, Aside 받아쓰기 실패 기록)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -17,7 +17,7 @@
 | `ai-work-workspace` | U6-A 자동 요약 실제 1회(30초 이상 녹음) | 주인님 녹음 | `ai-work-workspace/docs/PLAN_20261024_U6_MEETING_NOTES.md` §3 |
 | `ai-work-workspace` | U6-B 음성 파일 받아쓰기(회원 Gemini 우선·OpenAI 보조) → v1.18 | U6-A 운영 확인 | 같은 플랜 §2 |
 | `ai-work-workspace` | U9 연계(음성 분석·문서 챗봇·번역·슬라이드 보내기 버튼) | 착수 전 플랜·비용 보고 | 로드맵 §5, `docs/WORK_INBOX.md` |
-| `ai-work-workspace` | 미배포 `94719d8da`(표 행 글자형 우선순위·날짜 칸 읽기) | 다음 워크스페이스 배포 때 함께 내보내기(2026-10-26 주인님 결정, 단독 배포 안 함) | `ai-work-workspace/docs/IMPROVEMENTS.md` |
+| `ai-work-workspace` | 미배포 `94719d8da`(표 행 글자형 우선순위·날짜 칸 읽기)·`26db40bd4`(요약 지침 이름 한글화) | 다음 워크스페이스 배포 때 함께 내보내기(2026-10-26 주인님 결정, 단독 배포 안 함) | `ai-work-workspace/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
