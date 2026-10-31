@@ -70,7 +70,7 @@ test('already cancelled or finished album performs zero requests',async()=>{
 test('provider uses selected model and combines all Anthropic text blocks',async()=>{
   let sent;const send=async(u,options)=>{sent={url:u,...options};return Response.json({content:[{type:'thinking',text:'ignore'},{type:'text',text:'first'},{type:'text',text:'second'}]});};
   const result=await callModel('anthropic','claude-sonnet-5-5','fixture-key','system','user',new AbortController().signal,send);
-  assert.equal(result,'first\nsecond');assert.equal(JSON.parse(sent.body).model,'claude-sonnet-5-5');assert.equal(JSON.parse(sent.body).max_tokens,8192);
+  assert.equal(result,'first\nsecond');assert.equal(JSON.parse(sent.body).model,'claude-sonnet-5-5');assert.equal(JSON.parse(sent.body).max_tokens,16000);
 });
 test('Gemini key stays out of URL and parses multi-part text',async()=>{
   let url;const send=async(u)=>{url=u;return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:'a'},{text:'b'}]}}]});};
