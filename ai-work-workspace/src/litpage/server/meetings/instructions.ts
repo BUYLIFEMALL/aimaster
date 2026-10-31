@@ -33,13 +33,13 @@ const AUTO_PROMPT = `Pick the structure that fits the conversation. Usually:
 Skip a section when it would be empty.`;
 
 export const BUILTINS: BuiltinInstructions[] = [
-  { key: 'sales_call', name: 'Sales call', icon: '💼', prompt: `Sections: ### Customer context (company, people, current setup), ### Pain points, ### Requirements, ### Objections & concerns, ### Pricing & timeline, ### Next steps ("- [ ] …" with owners). Keep the customer's own words for important quotes.` },
-  { key: 'standup', name: 'Standup', icon: '🧍', prompt: `One section per person (### Name) with three bullets: Yesterday, Today, Blockers. End with ### Action items ("- [ ] …") for blockers that need follow-up.` },
-  { key: 'team_meeting', name: 'Team meeting', icon: '👥', prompt: `Sections: ### Updates, ### Decisions, ### Open questions, ### Action items ("- [ ] task @owner"). Group updates by project.` },
-  { key: 'one_on_one', name: '1:1', icon: '🤝', prompt: `Sections: ### Wins, ### Challenges, ### Feedback, ### Growth & career, ### Action items ("- [ ] …" with owners). Keep the tone personal and supportive.` },
-  { key: 'interview', name: 'Interview', icon: '🎙', prompt: `Sections: ### Candidate background, ### Strengths, ### Concerns, ### Notable answers (question → answer summary), ### Recommendation (hire signal with reasons). Be factual; don't invent ratings.` },
-  { key: 'brainstorm', name: 'Brainstorm', icon: '💡', prompt: `Sections: ### Ideas (grouped by theme, one bullet each), ### Most promising, ### Open questions, ### Next steps ("- [ ] …").` },
-  { key: 'lecture', name: 'Lecture', icon: '🎓', prompt: `Sections: ### Main concepts (with short explanations), ### Examples, ### Key terms, ### Questions to review. Write it as study notes.` },
+  { key: 'sales_call', name: '영업 미팅', icon: '💼', prompt: `Sections: ### Customer context (company, people, current setup), ### Pain points, ### Requirements, ### Objections & concerns, ### Pricing & timeline, ### Next steps ("- [ ] …" with owners). Keep the customer's own words for important quotes.` },
+  { key: 'standup', name: '데일리 스탠드업', icon: '🧍', prompt: `One section per person (### Name) with three bullets: Yesterday, Today, Blockers. End with ### Action items ("- [ ] …") for blockers that need follow-up.` },
+  { key: 'team_meeting', name: '팀 회의', icon: '👥', prompt: `Sections: ### Updates, ### Decisions, ### Open questions, ### Action items ("- [ ] task @owner"). Group updates by project.` },
+  { key: 'one_on_one', name: '1:1 면담', icon: '🤝', prompt: `Sections: ### Wins, ### Challenges, ### Feedback, ### Growth & career, ### Action items ("- [ ] …" with owners). Keep the tone personal and supportive.` },
+  { key: 'interview', name: '면접', icon: '🎙', prompt: `Sections: ### Candidate background, ### Strengths, ### Concerns, ### Notable answers (question → answer summary), ### Recommendation (hire signal with reasons). Be factual; don't invent ratings.` },
+  { key: 'brainstorm', name: '브레인스토밍', icon: '💡', prompt: `Sections: ### Ideas (grouped by theme, one bullet each), ### Most promising, ### Open questions, ### Next steps ("- [ ] …").` },
+  { key: 'lecture', name: '강의', icon: '🎓', prompt: `Sections: ### Main concepts (with short explanations), ### Examples, ### Key terms, ### Questions to review. Write it as study notes.` },
 ];
 
 export function autoPrompt(): string {

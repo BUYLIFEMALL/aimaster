@@ -235,7 +235,7 @@ describe('summary', () => {
     expect(rec(c.pageId).format.meeting_instruction).toBe(true);
     const list = await call(ids.editor, 'meetingInstructions', {});
     expect(list.custom.map((x: any) => x.pageId)).toContain(c.pageId);
-    expect(list.builtins.map((x: any) => x.name)).toContain('Standup');
+    expect(list.builtins.map((x: any) => x.name)).toContain('데일리 스탠드업');
     await call(ids.editor, 'meetingUpdateInstructions', { defaultKey: c.pageId });
     const seen: any[] = [];
     await summary.summarize(ids.m, ids.editor, { client: fake('### Notes\n- ok [L1]', seen) as any });
