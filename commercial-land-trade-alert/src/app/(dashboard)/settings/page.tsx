@@ -9,7 +9,7 @@ import { ExtensionConnect } from "@/components/settings/ExtensionConnect";
 import { AiEngineCard } from "@/components/settings/AiEngineCard";
 import { ConfirmButton, SetupTable } from "@/components/settings/SetupTable";
 import { stepBadge } from "@/components/settings/setupStyles";
-import { deleteResendKeyAction } from "@/lib/actions/channels";
+import { deleteResendKeyAction, disconnectKakaoAction } from "@/lib/actions/channels";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { aiKeyTails, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
 import { APP_VERSION } from "@/lib/version";
@@ -62,7 +62,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           rows={[
             {
               id: "telegram", name: "📨 텔레그램", sub: "요약 + 엑셀", on: !!(own || shared),
-              info: own ? `@${own.bot_username ?? "봇"}` : shared ? `@${shared.bot_username ?? "봇"} (다른 프로그램에 연결한 봇)` : "회원님 텔레그램 봇 토큰으로 연결",
+              info: own ? `@${own.bot_username ?? "봇"}` : shared ? `@${shared.bot_username ?? "봇"} (다른 프로그램의 봇 · 끊기는 그 프로그램에서)` : "회원님 텔레그램 봇 토큰으로 연결",
               quick: own ? <ConfirmButton label="끊기" confirm="텔레그램 연결을 끊어요" action={disconnectTelegramAction} /> : null,
               issue: { href: "https://t.me/BotFather", label: "발급 ↗" },
               openLabel: own || shared ? "방법" : "연결하기",
@@ -80,13 +80,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             {
               id: "email", name: "✉️ 이메일", sub: "요약 + 엑셀", on: !!resend,
               info: resend ? `••••${resend.slice(-4)} · ${prefs?.email_to || "받는 주소 없음"}` : "Resend(무료) 키로 보내요",
-              quick: resend ? <ConfirmButton label="삭제" confirm="Resend 키를 지워요" action={deleteResendKeyAction} /> : null,
+              quick: resend ? <ConfirmButton label="삭제" confirm="Resend 키를 지워요" warn="다른 AIMaster 프로그램에서도 지워집니다." action={deleteResendKeyAction} /> : null,
               issue: { href: "https://resend.com/api-keys", label: "발급 ↗" },
               detail: <EmailCard hasKey={!!resend} />,
             },
             {
               id: "kakao", name: "💬 카카오톡", sub: "요약만", on: kakao.status === "ok", onLabel: "✓ 연결됨",
               info: kakao.status === "ok" ? kakao.nickname || "카카오 계정" : kakaoKey ? "앱 키 저장됨 · 연결 전" : "회원님 카카오 앱으로 연결",
+              quick: kakao.status === "ok" ? <ConfirmButton label="끊기" confirm="카카오 연결을 끊어요" warn="다른 AIMaster 프로그램의 카카오 연결도 함께 끊깁니다." action={disconnectKakaoAction} /> : null,
               issue: { href: "https://developers.kakao.com/console/app", label: "발급 ↗" },
               defaultOpen: !!sp.kakao_error,
               detail: <KakaoCard hasKey={kakaoKey} connected={kakao.status === "ok"} message={kakao.status === "ok" ? "" : kakao.message} />,

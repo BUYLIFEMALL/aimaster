@@ -51,6 +51,15 @@ export async function deleteResendKeyAction(): Promise<ChannelResult> {
   return { success: "Resend 키를 지웠어요." };
 }
 
+// 공용 카카오 연결만 지운다. 앱 키는 남겨 다시 연결하기 쉽게 한다. 기준: kakao_auto_poster disconnectKakaoAccountAction
+export async function disconnectKakaoAction(): Promise<ChannelResult> {
+  const user = await requireProgramAccess();
+  const { error } = await db().from("member_platform_accounts").delete().eq("user_id", user.id).eq("platform", "kakao");
+  if (error) return { error: `연결을 끊지 못했습니다: ${error.message}` };
+  revalidatePath("/settings");
+  return { success: "카카오 연결을 끊었어요." };
+}
+
 // AI 요약 키. 공용 user_api_keys라 다른 AIMaster 프로그램과 같은 키를 함께 쓴다
 export async function saveAiKeyAction(_: ChannelResult, formData: FormData): Promise<ChannelResult> {
   const user = await requireProgramAccess();

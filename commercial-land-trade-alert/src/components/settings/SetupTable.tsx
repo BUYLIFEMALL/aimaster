@@ -49,9 +49,9 @@ function SetupLine({ row, open, toggle }: { row: SetupRow; open: boolean; toggle
       <tr id={row.id} className="border-b border-slate-100 last:border-b-0">
         <td className="px-3 py-2.5"><b className="block whitespace-nowrap">{row.name}</b>{row.sub && <small className="text-xs text-mx-muted">{row.sub}</small>}</td>
         <td className="px-3 py-2.5"><span className={statusBadge(row.on)}>{row.on ? row.onLabel ?? "✓ 등록완료" : row.offLabel ?? "미등록"}</span></td>
-        <td className="truncate px-3 py-2.5 text-mx-text">{row.info}</td>
+        <td className="break-words px-3 py-2.5 text-mx-text">{row.info}</td>
         <td className="px-3 py-2.5">
-          <span className="flex flex-nowrap justify-end gap-1.5">
+          <span className="flex flex-wrap justify-end gap-1.5">
             <button type="button" className={row.on ? editBtn : saveBtn} onClick={toggle}>{open ? "닫기 ▲" : row.openLabel ?? (row.on ? "수정" : "연결하기")}</button>
             {row.quick}
             {row.issue && <a className={issueBtn} href={row.issue.href} target="_blank" rel="noopener noreferrer">{row.issue.label}</a>}
@@ -64,7 +64,7 @@ function SetupLine({ row, open, toggle }: { row: SetupRow; open: boolean; toggle
 }
 
 /** 줄에서 바로 쓰는 끊기·삭제. 한 번 더 확인한다 */
-export function ConfirmButton({ label, confirm, action }: { label: string; confirm: string; action: () => Promise<unknown> }) {
+export function ConfirmButton({ label, confirm, warn, action }: { label: string; confirm: string; warn?: string; action: () => Promise<unknown> }) {
   const router = useRouter();
   const [ask, setAsk] = useState(false);
   const [busy, start] = useTransition();
@@ -73,6 +73,7 @@ export function ConfirmButton({ label, confirm, action }: { label: string; confi
     <>
       <button type="button" className={delBtn} title={confirm} disabled={busy} onClick={() => start(async () => { await action(); setAsk(false); router.refresh(); })}>{busy ? "처리 중..." : `정말 ${label}`}</button>
       <button type="button" className={editBtn} onClick={() => setAsk(false)}>취소</button>
+      {warn && <small className="basis-full text-right text-xs text-rose-600">{warn}</small>}
     </>
   );
 }
