@@ -47,7 +47,6 @@
 | `naver-cafe-poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `naver-cafe-poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `persona-style-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `persona-style-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `react-ui-showcase` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `react-ui-showcase/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
-| `ai-audio-analyzer` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-audio-analyzer/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `ai-slide-builder` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-slide-builder/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
@@ -65,6 +64,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `ai-audio-analyzer` | v1.14 · 2026-10-31 ([역할: music], 승인 빌드 1회) | 메뉴 계정 위치(`22c6cda35`) |
 | `.` (메인 사이트) | 커밋 `3e4f029b8` 자동 빌드 · 2026-10-31 (Claude Code 윈도우, 주인님 승인) | 일반 등급 권한 경고 팝업 4곳, 공개 프로그램 없는 카테고리 숨김(워드프레스·주식·Tools). 백업 카테고리는 `f23d2ea85`에서 이미 처리돼 표에서만 지움. 운영 홈·목록 확인, 팝업 화면은 관리자 로그인 필요로 미확인 |
 | `coupang-ops` | v1.17 · 2026-10-31 ([역할: ecommerce-image], 승인 빌드 1회) | 카카오 웹 도메인 안내(`054f96270`), 품절 임박 자동 알림(`244e05212`), 수시 알림·회원 시각 선택(`905fe8284`·`2c4bd91db`·`bcb940598`), 고정 IP 미등록 안내(`d381ca59d`) |
 | `coupang-ops` | v1.16 · 2026-10-31 ([역할: ecommerce-image], 승인 빌드 1회) | 연동 화면 부동산 표 구조, 발급 버튼·매뉴얼, Resend 메일, 카카오 나에게 보내기(`71c8571a5`·`ed5e72204`) |
