@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { DownloadCouponPanel } from "@/components/DownloadCouponPanel";
+import { listCouponItemsAction } from "@/lib/actions/logistics";
 import { addCouponItemsAction, couponRequestAction, createCouponAction, expireCouponAction, loadBudgetAction, loadCouponsAction } from "@/lib/actions/coupons";
 import { checkCoupon, COUPON_STATUSES, COUPON_TYPES, MAX_COUPON_ITEMS, parseVendorItemIds, type Contract, type Coupon, type RequestState } from "@/lib/coupang/coupons";
 
@@ -27,6 +28,12 @@ export function CouponBoard({ keysSaved }: { keysSaved: boolean }) {
   const [itemText, setItemText] = useState<Record<number, string>>({});
   const [form, setForm] = useState({ contractId: 0, name: "", type: "RATE", discount: "", maxDiscountPrice: "", startDate: "", endDate: "" });
   const [pending, start] = useTransition();
+  const [itemsOf, setItemsOf] = useState<Record<number, string>>({});
+  const showItems = (c: Coupon) =>
+    start(async () => {
+      const r = await listCouponItemsAction(c.couponId, c.status);
+      setItemsOf((old) => ({ ...old, [c.couponId]: r.ok ? (r.vendorItemIds.length ? `적용 옵션 ${r.total}개: ${r.vendorItemIds.join(", ")}${r.total > r.vendorItemIds.length ? " …" : ""}` : "적용된 옵션이 없습니다.") : `❌ ${r.error}` }));
+    });
 
   const load = () =>
     start(async () => {
@@ -94,6 +101,8 @@ export function CouponBoard({ keysSaved }: { keysSaved: boolean }) {
                   <span className="text-xs text-slate-500">#{c.couponId} · {typeLabel(c.type)} {c.discount.toLocaleString()} · 최대 {c.maxDiscountPrice.toLocaleString()}원 · {c.startAt.slice(0, 10)}~{c.endAt.slice(0, 10)}</span>
                   {(c.status === "APPLIED" || c.status === "STANDBY" || c.status === "PAUSED") && <button type="button" disabled={pending} onClick={() => setAsk({ kind: "expire", coupon: c })} className={line}>파기</button>}
                 </div>
+                <button type="button" disabled={pending || c.status === "DETACHED"} onClick={() => showItems(c)} className={line}>적용 옵션 보기</button>
+                {itemsOf[c.couponId] && <p className="break-all text-[12px] text-slate-700">{itemsOf[c.couponId]}</p>}
                 {(c.status === "APPLIED" || c.status === "STANDBY") && (
                   <div className="flex flex-wrap items-center gap-2">
                     <input aria-label="추가할 옵션ID" placeholder={`옵션ID(쉼표로, ${MAX_COUPON_ITEMS}개까지)`} value={itemText[c.couponId] ?? ""} onChange={(e) => setItemText({ ...itemText, [c.couponId]: e.target.value })} className="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1 text-[12px]" />

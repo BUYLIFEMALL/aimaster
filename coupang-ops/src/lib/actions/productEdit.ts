@@ -89,12 +89,12 @@ export async function updateOriginalPriceAction(vendorItemId: number, price: num
   }
 }
 
-/** 판매자 전체 자동생성옵션 켜기·끄기 */
-export async function setAutoOptionAction(on: boolean): Promise<Done> {
+/** 자동생성옵션 켜기·끄기(옵션ID가 없으면 판매자 전체) */
+export async function setAutoOptionAction(on: boolean, vendorItemId?: number): Promise<Done> {
   const keys = await keysOf();
   if (!keys) return NO_KEYS;
   try {
-    const r = autoOptionResult((await wingRequest(keys, "POST", autoOptionPath(on === true))).data);
+    const r = autoOptionResult((await wingRequest(keys, "POST", autoOptionPath(on === true, vendorItemId ? Number(vendorItemId) : undefined))).data);
     return r.ok ? { ok: true, message: r.message } : { ok: false, error: r.message };
   } catch (e) {
     return fail(e, "자동생성옵션을 바꾸지 못했습니다");

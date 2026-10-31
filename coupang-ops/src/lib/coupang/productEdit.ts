@@ -8,7 +8,8 @@ const BASE = "/v2/providers/seller_api/apis/api/v1/marketplace";
 export const EDIT_PATH = `${BASE}/seller-products`;
 export const partialPath = (sellerProductId: number) => `${BASE}/seller-products/${sellerProductId}/partial`;
 export const originalPricePath = (vendorItemId: number, price: number) => `${BASE}/vendor-items/${vendorItemId}/original-prices/${price}`;
-export const autoOptionPath = (on: boolean) => `${BASE}/seller/auto-generated/${on ? "opt-in" : "opt-out"}`;
+/** 옵션ID를 주면 그 옵션만(옵션 상품 단위), 없으면 판매자 전체 */
+export const autoOptionPath = (on: boolean, vendorItemId?: number) => `${BASE}/${vendorItemId ? `vendor-items/${vendorItemId}` : "seller"}/auto-generated/${on ? "opt-in" : "opt-out"}`;
 
 export const MAX_TAGS = 20;
 export const NOT_EDITABLE = ["저장중", "심사중", "승인대기중", "승인요청", "상품삭제"];

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { loadItemsAction, setSaleAction, updatePriceAction, updateQuantityAction, type ItemRow } from "@/lib/actions/items";
-import { updateOriginalPriceAction } from "@/lib/actions/productEdit";
+import { setAutoOptionAction, updateOriginalPriceAction } from "@/lib/actions/productEdit";
 import { checkPrice, checkQuantity } from "@/lib/coupang/items";
 import { checkOriginalPrice } from "@/lib/coupang/productEdit";
 
@@ -10,7 +10,7 @@ const input = "w-24 rounded border border-slate-300 bg-white px-2 py-1 text-[13p
 const btn = "rounded border px-2 py-1 text-[11px] font-bold disabled:opacity-50";
 
 /** 바꾸기 전에 한 번 더 묻는 상태(실제 판매 중인 상품이 바뀌므로) */
-type Ask = { kind: "price" | "original" | "qty" | "sale"; vendorItemId: number; value: number; label: string };
+type Ask = { kind: "price" | "original" | "qty" | "sale" | "auto"; vendorItemId: number; value: number; label: string };
 
 export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
   const [rows, setRows] = useState<ItemRow[] | null>(null);
@@ -50,7 +50,7 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
   const confirm = () =>
     ask &&
     start(async () => {
-      const r = ask.kind === "price" ? await updatePriceAction(ask.vendorItemId, ask.value) : ask.kind === "original" ? await updateOriginalPriceAction(ask.vendorItemId, ask.value) : ask.kind === "qty" ? await updateQuantityAction(ask.vendorItemId, ask.value) : await setSaleAction(ask.vendorItemId, ask.value === 1);
+      const r = ask.kind === "price" ? await updatePriceAction(ask.vendorItemId, ask.value) : ask.kind === "auto" ? await setAutoOptionAction(ask.value === 1, ask.vendorItemId) : ask.kind === "original" ? await updateOriginalPriceAction(ask.vendorItemId, ask.value) : ask.kind === "qty" ? await updateQuantityAction(ask.vendorItemId, ask.value) : await setSaleAction(ask.vendorItemId, ask.value === 1);
       setAsk(null);
       setNote(r.ok ? `✅ ${r.message}` : `❌ ${r.error}`);
       const again = await loadItemsAction(sellerProductId);
@@ -90,6 +90,9 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
                     <td className="py-1.5">
                       <span className={`block font-bold ${it.inventory.onSale ? "text-teal-700" : "text-slate-500"}`}>{it.inventory.onSale ? "판매 중" : "판매 중지"}</span>
                       <button type="button" disabled={pending} onClick={() => prepare("sale", it)} className={`${btn} border-slate-300 bg-white text-slate-700`}>{it.inventory.onSale ? "판매 중지" : "판매 재개"}</button>
+                      <span className="mt-1.5 block text-[11px] text-slate-500">자동생성옵션</span>
+                      <button type="button" disabled={pending} onClick={() => setAsk({ kind: "auto", vendorItemId: it.vendorItemId!, value: 1, label: `「${it.itemName}」 자동생성옵션을 켤까요?` })} className={`${btn} border-slate-300 bg-white text-slate-700`}>켜기</button>
+                      <button type="button" disabled={pending} onClick={() => setAsk({ kind: "auto", vendorItemId: it.vendorItemId!, value: 0, label: `「${it.itemName}」 자동생성옵션을 끌까요? 이미 만들어진 자동 옵션은 따로 판매 중지해야 합니다.` })} className={`${btn} ml-1 border-slate-300 bg-white text-slate-700`}>끄기</button>
                     </td>
                   </>
                 ) : (

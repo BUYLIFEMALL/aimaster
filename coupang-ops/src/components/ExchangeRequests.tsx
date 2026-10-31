@@ -3,6 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import { confirmExchangeAction, listExchangesAction, rejectExchangeAction, sendExchangeInvoiceAction, type ExchangeDone } from "@/lib/actions/exchanges";
 import { COMMON_COURIERS } from "@/lib/coupang/defaults";
+import { PickupInvoice } from "@/components/PickupInvoice";
+import { PICKUP_EXCHANGE_COLLECT } from "@/lib/coupang/logisticsWrite";
 import { canSendExchangeInvoice, EXCHANGE_REJECT_REASONS, isOpenExchange, type ExchangeRow } from "@/lib/coupang/exchanges";
 
 const btn = "rounded border px-2 py-1 text-[11px] font-bold disabled:opacity-50";
@@ -107,6 +109,7 @@ export function ExchangeRequests({ keysSaved, defaultCourier, autoLoad = false }
                   )}
                 </div>
               )}
+              {isOpenExchange(x) && x.collectStatus === PICKUP_EXCHANGE_COLLECT && <PickupInvoice type="EXCHANGE" receiptId={x.exchangeId} defaultCourier={defaultCourier} />}
             </li>
           );
         })}

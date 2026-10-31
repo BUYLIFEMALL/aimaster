@@ -4,6 +4,9 @@ import { useEffect, useState, useTransition } from "react";
 import { alreadyShippedAction, approveReturnAction, confirmReturnReceiptAction, listReturnRequestsAction, stopShipmentAction } from "@/lib/actions/returns";
 import { RETURN_VIEWS, returnSteps, type ReturnRequest } from "@/lib/coupang/returns";
 import { COMMON_COURIERS } from "@/lib/coupang/defaults";
+import { PickupInvoice } from "@/components/PickupInvoice";
+import { listWithdrawalsAction } from "@/lib/actions/logistics";
+import { PICKUP_RETURN_STATUS, type Withdrawal } from "@/lib/coupang/logisticsWrite";
 
 const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
 const btn = "rounded border px-2 py-1 text-[11px] font-bold disabled:opacity-50";
@@ -22,6 +25,15 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "", au
   const [error, setError] = useState("");
   const [note, setNote] = useState("");
   const [ask, setAsk] = useState<Ask | null>(null);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[] | null>(null);
+  const [withdrawError, setWithdrawError] = useState("");
+  const loadWithdrawals = () =>
+    start(async () => {
+      setWithdrawError("");
+      const r = await listWithdrawalsAction();
+      if (!r.ok) return setWithdrawError(r.error);
+      setWithdrawals(r.rows);
+    });
   const [ship, setShip] = useState<Record<number, { courier: string; invoice: string }>>({});
   const [pending, start] = useTransition();
 
@@ -110,6 +122,7 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "", au
                 </li>
               ))}
             </ul>
+            {x.receiptStatus === PICKUP_RETURN_STATUS && <PickupInvoice type="RETURN" receiptId={x.receiptId} defaultCourier={defaultCourier} />}
             {returnSteps(x).canConfirmReceipt && (
               <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2">
                 <span className="text-[11px] text-amber-800">반품 상품이 도착해 상태를 확인했다면 입고 확인을 눌러 주세요. 10만원 미만 빠른환불 대상은 이 단계에서 바로 환불될 수 있습니다.</span>
@@ -144,6 +157,16 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "", au
           </li>
         ))}
       </ul>
+      <div className="space-y-2 border-t border-slate-200 pt-3">
+        <button type="button" disabled={!keysSaved || pending} onClick={loadWithdrawals} className="rounded border border-slate-300 bg-white px-2 py-1 text-[12px] font-bold text-slate-700 disabled:opacity-50">↩ 고객이 철회한 반품 보기(최근 7일)</button>
+        {withdrawError && <p className="text-[12px] text-rose-800">❌ {withdrawError}</p>}
+        {withdrawals?.length === 0 && <p className="text-[12px] text-slate-600">최근 7일에 철회된 반품이 없습니다.</p>}
+        {!!withdrawals?.length && (
+          <ul className="space-y-1 text-[12px] text-slate-800">
+            {withdrawals.map((w) => <li key={w.cancelId}>주문번호 {w.orderId} · 접수번호 {w.cancelId} · 귀책 {w.dutyLabel} · {w.createdAt.replace("T", " ").slice(0, 16)} 철회 · 옵션 {w.vendorItemIds.join(", ")}</li>)}
+          </ul>
+        )}
+      </div>
       {next && (
         <button type="button" disabled={pending} onClick={() => load(true)} className="w-full rounded-lg border border-slate-300 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
           {pending ? "불러오는 중…" : "더 보기"}

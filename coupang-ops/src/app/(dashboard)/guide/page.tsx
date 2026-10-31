@@ -88,6 +88,14 @@ export default async function GuidePage() {
       <section className="slw-card space-y-2 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">❓ 자주 묻는 질문</h2>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">주문을 가장 빨리 처리하는 방법은요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">「주문」에서 결제완료를 불러와 「처리하고 발주서 파일 받기」를 누릅니다. 받은 파일을 택배사에 올리고, 송장이 채워진 파일을 「송장 파일 올리기」로 올린 뒤 등록하면 끝납니다. 파일에는 고객 정보가 있어 서버에 저장하지 않으니, 다 쓴 파일은 지워 주세요. 택배사 파일은 「주문번호」나 「배송번호」, 「송장번호」 칸만 있으면 읽습니다.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">상세페이지 프로그램을 안 써도 등록할 수 있나요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">네. 「상품 등록 → 상세페이지 없이 등록」에서 이미지와 상품명·가격을 넣거나, 「내 쿠팡 상품 → 상품 수정 → 복사 등록」으로 기존 상품을 복사합니다. 자주 쓰는 값은 등록 템플릿으로 저장해 불러올 수 있습니다. 복사본은 저장만 되며 승인 요청은 직접 보냅니다.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">아침 요약 알림은 어떻게 켜나요?</summary>
           <p className="mt-2 leading-relaxed text-slate-700">「판매자정보 → 아침 요약 알림」에서 텔레그램 봇, 메일 SMTP, SOLAPI 카카오톡 중 받을 곳을 연결하고 무료 cron-job.org API 키를 넣은 뒤 시각을 골라 켭니다. 카카오톡은 내 카카오 채널을 친구로 추가해야 받을 수 있고 요금은 내 SOLAPI에 청구됩니다. 건수만 보내고 고객 정보는 보내지 않으며, 쿠팡에는 읽기만 합니다. 한 번에 쿠팡을 7번 읽으므로 호출 상한에 닿으면 그날은 쉬고 알려 드립니다.</p>
         </details>
