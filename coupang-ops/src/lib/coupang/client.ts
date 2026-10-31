@@ -2,7 +2,7 @@ import "server-only";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 import type { WingKeys } from "@/lib/coupang/keys";
 import { buildWingAuthorization, type WingMethod as Method } from "@/lib/coupang/sign";
-import { recordWingCalls } from "@/lib/coupang/usage";
+import { recordWingCalls, recordWingWarning } from "@/lib/coupang/usage";
 
 // 쿠팡 WING Open API 호출 컴포넌트(C1-3).
 // - 서명: HMAC-SHA256 「CEA」 방식. 서명 규칙은 쿠팡 파트너스와 같고, 실계정으로 확인된
@@ -103,6 +103,7 @@ export async function wingRequest<T = unknown>(
     }
     const text = await response.text();
     const warnings = response.headers.get("x-cag-warnings");
+    if (warnings && keys.userId) await recordWingWarning(keys.userId, method, path, warnings).catch(() => {});
     if (!response.ok) throw new WingApiError(wingErrorMessage(response.status, text), response.status, text);
     let data: unknown = text;
     try {

@@ -7,7 +7,7 @@ import { TodayBoard } from "@/components/TodayBoard";
 import { RejectedBoard, type RejectedJob } from "@/components/RejectedBoard";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { keyExpiryNotice } from "@/lib/coupang/prefs";
-import { monthlyCalls } from "@/lib/coupang/usage";
+import { monthlyCalls, recentWingWarnings } from "@/lib/coupang/usage";
 import { FIXIE_FREE_MONTHLY } from "@/lib/coupang/usageRule";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +17,7 @@ export default async function HomePage() {
   const user = await requireProgramAccess();
   const [keys, defaults] = await Promise.all([getWingKeys(user.id), getCoupangDefaults(user.id)]);
   const calls = await monthlyCalls(user.id).catch(() => null);
+  const apiWarnings = await recentWingWarnings(user.id).catch(() => []);
   const keyNotice = keys ? keyExpiryNotice(await getKeyExpiry(user.id).catch(() => ""), Date.now()) : null;
   const { data: rejected } = await createAdminClient().from("coupang_ops_jobs").select("id,product_id,product_name,seller_product_id,message").eq("user_id", user.id).eq("status", "rejected").order("created_at", { ascending: false }).limit(10);
 
@@ -41,6 +42,15 @@ export default async function HomePage() {
         <p className="px-1 text-[12px] text-slate-500">
           이번 달 내 쿠팡 호출 약 {calls}회. Fixie 무료 요금은 월 {FIXIE_FREE_MONTHLY}회이며, 넘으면 Fixie에서 요금제를 올려 주세요.
         </p>
+      )}
+
+      {apiWarnings.length > 0 && (
+        <Notice tone="warn">
+          ⚠ <b>쿠팡이 보낸 경고(최근 7일)</b>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-[12px]">
+            {apiWarnings.map((w) => <li key={`${w.api}|${w.warning}`}>{w.warning} <span className="font-mono text-slate-500">({w.api})</span></li>)}
+          </ul>
+        </Notice>
       )}
 
       <RejectedBoard jobs={(rejected ?? []) as RejectedJob[]} keysSaved={!!keys} />

@@ -25,6 +25,7 @@ export function ConnectionTest({ saved }: { saved: boolean }) {
       {result?.ok && (
         <div className="space-y-3 rounded-xl border border-teal-200 bg-teal-50 p-3.5 text-[13px] text-teal-900">
           <p className="font-bold">✅ 쿠팡 연결 성공 — 출고지 {result.places.length}곳, 반품지 {result.centers.length}곳을 불러왔습니다.</p>
+          {result.warnings && <p className="rounded-lg bg-amber-50 px-2 py-1 text-xs text-amber-900">⚠ 쿠팡 경고: {result.warnings}</p>}
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <p className="text-xs font-bold text-slate-700">🏭 출고지</p>
