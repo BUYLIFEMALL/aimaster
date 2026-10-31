@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.16 설정 화면 서버 오류 수정
+- v1.15에서 "use client" 파일의 stepBadge()를 서버 화면에서 호출해 /settings가 열리지 않음(빌드는 통과). 스타일을 setupStyles.ts로 분리.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/settings
+
 ## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.16 연동 화면 재구성(운영 배포)
 - 한 일: `/connect`를 부동산 설정 화면과 같은 표 구조로 변경, 플랫폼 발급 버튼·매뉴얼 박스, 메일 Resend, 카카오 나에게 보내기(SMTP·SOLAPI 제거), 운영 DB `platform_guides` 매뉴얼 3건 추가.
 - 커밋 `71c8571a5`·`ed5e72204`, 빌드 1회(승인), DB 버전 v1.16. 시험 122개·tsc·빌드 통과. 크롬에서 표·버튼·펼침 확인, 쿠팡 쓰기 0회.
