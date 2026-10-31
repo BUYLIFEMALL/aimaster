@@ -4,7 +4,8 @@ import { collectView, rand, RULES, sleep } from "./lib/collector.js";
 import { isWatchableUrl, matchesTarget, normalizeArticle } from "./lib/listing.js";
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
-import { toCsv, toTable, toXlsx } from "./lib/sheet.js";
+import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
+import { daysSince, gapText, marketGap, scoreListing } from "./lib/score.js";
 import { ALERT_PREFIX, buildKakaoText, buildMailHtml, buildMailSubject, buildSummary, kakaoLinkFor, sendDocument, sendKakaoMemo, sendMessage, sendResendMail } from "./lib/notify.js";
 
 const WEB = "https://commercial-land-trade-alert.buylife.xyz";
@@ -54,6 +55,24 @@ async function pagesToday() {
 }
 async function addPages(n) {
   await set({ pagesDay: { date: kstDate(), count: (await pagesToday()) + n } });
+}
+
+// 동 코드만 보내 실거래 시세를 받아 하루 기억한다. 매물 내용은 보내지 않는다.
+async function marketFor(cortarNo) {
+  if (!cortarNo) return null;
+  const { marketCache = {} } = await get("marketCache");
+  const hit = marketCache[cortarNo];
+  if (hit && Date.now() - new Date(hit.at).getTime() < 24 * 3600 * 1000) return hit.value;
+  try {
+    const r = await api("/api/extension/market", { method: "POST", body: JSON.stringify({ cortarNos: [cortarNo] }) });
+    const value = r.markets?.[cortarNo] || null;
+    if (value?.collecting) await addLog(`${value.name}: 실거래 자료를 모으는 중이에요(관심 지역에 추가). 시세 비교는 다음 수집부터 나옵니다.`);
+    else await set({ marketCache: { ...marketCache, [cortarNo]: { at: new Date().toISOString(), value } } });
+    return value;
+  } catch (e) {
+    await addLog(`시세 조회 실패: ${e.message}`);
+    return null;
+  }
 }
 
 let busy = false;
@@ -109,6 +128,13 @@ async function runCollection(trigger) {
         .filter((it) => matchesTarget(it, t));
       const cmp = compareTarget(states[t.id], items, { complete: r.complete });
       states[t.id] = cmp.state;
+      const market = await marketFor(r.cortarNo);
+      for (const it of items) {
+        const saved = cmp.state.items[it.no];
+        const gap = marketGap(it, market);
+        const s = scoreListing({ gap, drops: saved?.drops || 0, ageDays: daysSince(saved?.firstSeen) });
+        Object.assign(it, { gapText: gapText(gap), gapPct: gap?.pct ?? null, score: s.score, reasons: s.reasons, candidate: s.candidate });
+      }
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));
       for (const it of items) {
         const e = statusOf.get(it.no);
@@ -127,7 +153,7 @@ async function runCollection(trigger) {
       states,
       lastRunAt: startedAt,
       nextDueAt: computeNextDue(new Date(startedAt).getTime(), iv, RULES.scheduleJitter),
-      lastResult: { at: startedAt, trigger, result, error: errMsg, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete })) },
+      lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table: table.slice(0, 2000), perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete })) },
     });
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit });
     await reportStatus(result, total, errMsg);
@@ -235,6 +261,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       if (msg.type === "state") {
         const s = await get(["extToken", "connectedEmail", "consentAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "log"]);
         if (s.running && !busy) { s.running = null; await set({ running: null }); } // 끊긴 수집 정리
+        if (s.lastResult) s.lastResult = { at: s.lastResult.at, result: s.lastResult.result, error: s.lastResult.error };
         return reply({
           connected: !!s.extToken,
           email: s.connectedEmail || null,

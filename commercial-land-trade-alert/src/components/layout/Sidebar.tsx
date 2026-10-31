@@ -13,6 +13,7 @@ const FLOW_STEPS = [
   { step: 2, href: "/conditions", icon: "🎯", label: "거래 조건", description: "용도·지목·금액·면적" },
   { step: 3, href: "/trades", icon: "🏢", label: "실거래 목록", description: "거르기·비교·CSV" },
   { step: 4, href: "/watch", icon: "🔔", label: "매물 감시", description: "네이버 화면·가격 변동 알림" },
+  { step: 5, href: "/results", icon: "⭐", label: "매물 결과", description: "시세 대비·후보 점수" },
 ];
 
 

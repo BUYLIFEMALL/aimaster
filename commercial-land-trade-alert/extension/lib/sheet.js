@@ -2,7 +2,7 @@
 // 전화·상세 주소 칸 없음.
 import { EVENT_LABEL } from "./compare.js";
 
-export const COLUMNS = ["감시 화면", "유형", "거래 종류", "가격", "이전 가격", "변동", "면적 기준", "면적(㎡)", "보조 면적(㎡)", "층", "방향", "매물 특징", "확인일", "중개사 상호", "처음 본 날", "네이버 매물 주소"];
+export const COLUMNS = ["감시 화면", "유형", "거래 종류", "가격", "이전 가격", "변동", "면적 기준", "면적(㎡)", "보조 면적(㎡)", "층", "방향", "매물 특징", "확인일", "중개사 상호", "처음 본 날", "네이버 매물 주소", "시세 대비", "후보 점수", "근거"];
 
 const ymd = (s) => (s && /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}` : s || "");
 
@@ -10,7 +10,7 @@ const ymd = (s) => (s && /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-
 export function toTable(rows) {
   return rows.map(({ item, status, prevPriceText, firstSeen }) => [
     item.targetName, item.kindName, item.tradeName, item.priceText, prevPriceText || "", EVENT_LABEL[status] || "", item.areaLabel, item.area ?? "", item.subArea ?? "",
-    item.floor, item.direction, item.feature, ymd(item.confirmYmd), item.realtor, String(firstSeen || "").slice(0, 10), item.url,
+    item.floor, item.direction, item.feature, ymd(item.confirmYmd), item.realtor, String(firstSeen || "").slice(0, 10), item.url, item.gapText || "", item.score || "", (item.reasons || []).join(", "),
   ]);
 }
 
@@ -43,7 +43,7 @@ function sheetXml(table) {
     });
     return `<row r="${ri + 1}">${cells.join("")}</row>`;
   });
-  const widths = [18, 7, 8, 20, 18, 11, 8, 9, 10, 8, 8, 30, 11, 22, 11, 16].map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("");
+  const widths = [18, 7, 8, 20, 18, 11, 8, 9, 10, 8, 8, 30, 11, 22, 11, 16, 16, 9, 30].map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("");
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${widths}</cols><sheetData>${rows.join("")}</sheetData></worksheet>`;
 }
 const PARTS = (table) => ({

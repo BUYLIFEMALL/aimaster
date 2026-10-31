@@ -18,7 +18,9 @@ const areaText = (i) => (i.area ? `${i.areaLabel} ${i.area}㎡` : "");
 function itemLine(e) {
   const i = e.item;
   const prev = e.prevPriceText ? ` (이전 ${e.prevPriceText})` : "";
-  return `${EVENT_LABEL[e.type]} ${i.kindName} ${i.tradeName} ${i.priceText}${prev} · ${[areaText(i), i.floor].filter(Boolean).join(" · ")}`;
+  const gap = i.gapText ? ` · 시세 대비 ${i.gapText}` : "";
+  const star = i.candidate ? ` ⭐후보 ${i.score}점` : "";
+  return `${EVENT_LABEL[e.type]}${star} ${i.kindName} ${i.tradeName} ${i.priceText}${prev}${gap} · ${[areaText(i), i.floor].filter(Boolean).join(" · ")}`;
 }
 
 /** perTarget: [{ name, total, events, firstRun, complete, pagesRead }] */
@@ -82,7 +84,7 @@ export function buildMailHtml(perTarget, { now = new Date(), maxRows = 200 } = {
       if (shown >= maxRows) { hidden++; return ""; }
       shown++;
       const i = e.item || {};
-      return `<tr><td style="${td}"><span style="display:inline-block;padding:2px 8px;border-radius:999px;background:${MAIL_COLOR[e.type] || "#334155"};color:#fff;font-size:12px;font-weight:700;white-space:nowrap;">${esc(SHORT[e.type] || e.type)}</span></td><td style="${td}"><b>${esc(i.kindName)} ${esc(i.tradeName)} ${esc(i.priceText)}</b>${e.prevPriceText ? `<br><span style="color:#6b7280;">이전 ${esc(e.prevPriceText)}</span>` : ""}</td><td style="${td}">${esc(areaText(i))}<br><span style="color:#6b7280;">${esc(i.floor)}</span></td><td style="${td}">${esc(i.realtor)}</td><td style="${td}">${i.url ? `<a href="${esc(i.url)}" style="color:#009b4d;font-weight:700;">네이버에서 보기</a>` : ""}</td></tr>`;
+      return `<tr><td style="${td}"><span style="display:inline-block;padding:2px 8px;border-radius:999px;background:${MAIL_COLOR[e.type] || "#334155"};color:#fff;font-size:12px;font-weight:700;white-space:nowrap;">${esc(SHORT[e.type] || e.type)}</span></td><td style="${td}"><b>${esc(i.kindName)} ${esc(i.tradeName)} ${esc(i.priceText)}</b>${e.prevPriceText ? `<br><span style="color:#6b7280;">이전 ${esc(e.prevPriceText)}</span>` : ""}${i.gapText ? `<br><span style="color:#6b7280;">시세 대비 ${esc(i.gapText)}</span>` : ""}${i.candidate ? `<br><span style="color:#b45309;font-weight:700;">⭐ 후보 ${esc(i.score)}점: ${esc((i.reasons || []).join(", "))}</span>` : ""}</td><td style="${td}">${esc(areaText(i))}<br><span style="color:#6b7280;">${esc(i.floor)}</span></td><td style="${td}">${esc(i.realtor)}</td><td style="${td}">${i.url ? `<a href="${esc(i.url)}" style="color:#009b4d;font-weight:700;">네이버에서 보기</a>` : ""}</td></tr>`;
     }).join("");
     return `<div style="margin:18px 0;border:1px solid #e2e6ee;border-radius:14px;overflow:hidden;"><div style="padding:12px 14px;border-bottom:1px solid #eef0f3;"><b style="font-size:15px;">📍 ${esc(t.name)}</b> <span style="color:#5b6475;font-size:13px;">지금 ${esc(t.total)}건 · ${esc(state)}</span></div>${rows ? `<table role="presentation" style="width:100%;border-collapse:collapse;"><thead><tr><th style="${th}">변동</th><th style="${th}">거래·가격</th><th style="${th}">면적·층</th><th style="${th}">중개사</th><th style="${th}">링크</th></tr></thead><tbody>${rows}</tbody></table>` : ""}</div>`;
   }).join("");

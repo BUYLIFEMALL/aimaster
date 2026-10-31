@@ -111,3 +111,42 @@ test("감시 주소 검사", () => {
   assert.equal(parseWatchUrl("https://new.land.naver.com/offices?ms=1&a=APT"), null);
   assert.equal(kindsText("SG:TJ"), "상가·토지");
 });
+
+test("시세 대비와 후보 점수", async () => {
+  const { gapText, marketGap, scoreListing, daysSince } = await import("../extension/lib/score.js");
+  const it = item({ tradeType: "A1", price: 100000, area: 100 });
+  const g = marketGap(it, { SG: { median: 4000, count: 12, scope: "동" } });
+  assert.equal(g.pct, -17);
+  assert.equal(gapText(g), "-17%(동 12건)");
+  assert.equal(marketGap(item(), { SG: { median: 4000, count: 12, scope: "동" } }), null, "월세는 비교 안 함");
+  assert.equal(marketGap(it, { SG: null }), null);
+  const s = scoreListing({ gap: g, drops: 1, ageDays: 40 });
+  assert.equal(s.score, 60);
+  assert.equal(s.candidate, true);
+  assert.equal(s.reasons.length, 3);
+  assert.equal(scoreListing({ gap: { pct: 5 } }).candidate, false);
+  assert.equal(scoreListing({ drops: 9 }).score, 30);
+  assert.equal(daysSince(new Date(Date.now() - 3 * 86400000).toISOString()), 3);
+});
+
+test("가격을 내릴 때마다 횟수를 센다", () => {
+  let s = compareTarget(undefined, [item({ no: "1", price: 9000 })]).state;
+  s = compareTarget(s, [item({ no: "1", price: 8000 })]).state;
+  s = compareTarget(s, [item({ no: "1", price: 8500 })]).state;
+  s = compareTarget(s, [item({ no: "1", price: 7000 })]).state;
+  assert.equal(s.items["1"].drops, 2);
+});
+
+test("실거래 시세 요약", async () => {
+  const { summarizeMarket } = await import("../src/lib/trades/market.ts");
+  const row = (over) => ({ kind: "building", building_type: "집합", category: "판매", umd_nm: "역삼동", price_per_pyeong: 100, is_share: false, cancelled: false, ...over });
+  const rows = [1, 2, 3, 4, 5].map((n) => row({ price_per_pyeong: n * 100 }));
+  assert.deepEqual(summarizeMarket(rows, "역삼동").SG, { median: 300, count: 5, scope: "동" });
+  assert.equal(summarizeMarket(rows, "대치동").SG.scope, "시군구");
+  assert.equal(summarizeMarket(rows.slice(0, 4), "역삼동").SG, null);
+  const noisy = [...rows, row({ price_per_pyeong: 99999, is_share: true }), row({ price_per_pyeong: 99999, cancelled: true }), row({ price_per_pyeong: 99999, category: "숙박" }), row({ price_per_pyeong: 99999, building_type: "일반" })];
+  assert.equal(summarizeMarket(noisy, "역삼동").SG.median, 300);
+  assert.equal(summarizeMarket(noisy, "역삼동").GM, null);
+  const land = [1, 2, 3, 4, 5].map((n) => row({ kind: "land", building_type: null, category: "대", price_per_pyeong: n * 10 }));
+  assert.equal(summarizeMarket([...land, row({ kind: "land", building_type: null, category: "도로", price_per_pyeong: 1 })], "역삼동").TJ.median, 30);
+});

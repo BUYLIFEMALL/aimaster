@@ -19,13 +19,14 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
   for (const item of items) {
     if (!item.no) continue;
     const old = prev ? prev.items[item.no] : null;
-    const entry = { price: item.price, rent: item.rent, priceText: item.priceText, firstSeen: old?.firstSeen || nowIso, lastSeen: nowIso, item };
+    const entry = { price: item.price, rent: item.rent, priceText: item.priceText, firstSeen: old?.firstSeen || nowIso, lastSeen: nowIso, drops: old?.drops || 0, item };
     nextItems[item.no] = entry;
     if (!prev) continue;
     if (!old) {
       if (trustNew || String(item.confirmYmd) >= recentYmd) events.push({ type: "new", item, firstSeen: entry.firstSeen });
     } else if (old.price !== item.price || (old.rent ?? null) !== (item.rent ?? null)) {
       const down = (item.price ?? 0) < (old.price ?? 0) || ((item.price ?? 0) === (old.price ?? 0) && (item.rent ?? 0) < (old.rent ?? 0));
+      if (down) entry.drops += 1;
       events.push({ type: down ? "priceDown" : "priceUp", item, prevPriceText: old.priceText, firstSeen: entry.firstSeen });
     }
   }

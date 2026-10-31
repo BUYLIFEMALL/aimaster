@@ -58,6 +58,7 @@ $("add").onclick = async () => {
   refresh();
 };
 $("openNaver").onclick = () => chrome.tabs.create({ url: NAVER });
+$("results").onclick = () => chrome.tabs.create({ url: `${WEB}/results` });
 $("watch").onclick = () => chrome.tabs.create({ url: `${WEB}/watch` });
 $("settings").onclick = () => chrome.tabs.create({ url: `${WEB}/settings` });
 
