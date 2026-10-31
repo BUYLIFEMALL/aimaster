@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 📝 [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` 완성·확장 플랜(승인 대기, 코드 변경 없음)
+- 문서: `coupang-ops/docs/PLAN_20261031_COUPANG_COMPLETION_AND_EXPANSION.md`. 공식 API 104개 대조, 지금 약 23개 사용. 호출 수 계측이 없어 묶음 1을 먼저 제안. 다음 첫 단계는 승인 뒤 묶음 1 범위 확정.
+
 ## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.04 품절 예방·반려 알림
 - 한 일: `/stock` 재고 점검·채우기, 첫 화면 반려 칸. 상세 `coupang-ops/AGENTS.md` 맨 아래. 시험 54개·tsc·빌드 통과, 빌드 1회. 쿠팡 읽기 약 5회, 쓰기 0.
 - 담당 변경: 이 세션은 쇼핑몰만, 이미지는 새 작업자에게 인계(`docs/roles/ecommerce-image.md` 「이미지 인계 대기」).
