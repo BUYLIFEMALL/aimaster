@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { deleteAiKeyAction, saveAiKeyAction } from "@/lib/actions/channels";
 import { AI_ENGINES, toAiProvider, type AiProvider } from "@/lib/aiEngines";
 import { askExtension } from "@/lib/extensionBridge";
-import { delBtn, editBtn, issueBtn, saveBtn, statusBadge } from "./SetupTable";
+import { delBtn, editBtn, issueBtn, saveBtn, statusBadge } from "./setupStyles";
 
 type Choice = { ok?: boolean; provider?: string; models?: Record<string, string>; error?: string };
 
