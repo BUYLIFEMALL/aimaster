@@ -10,6 +10,10 @@
 - 확인: 코드·문서 대조, 공식 페이지. 주인님 자료의 신청 링크 `15057532`는 자동차 API, `15044713`·`16000108`은 404. 미확인: 도로명주소 한도, R-ONE 칸, 등기 API, 개인정보·중개보수 기준.
 - 다음 첫 단계: 주인님 결정 5건(플랜 §9) 뒤 0단계 문서 정리와 A2·A3 상세 플랜.
 
+## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.08 묶음 3
+- 반품 입고 확인·승인, 교환 `/exchanges`, 오래 멈춘 배송. 시험 73개·tsc·빌드 통과, 조회 실제 확인(0건), 쓰기 미시험. 상세 `coupang-ops/AGENTS.md` 맨 아래. 다음은 묶음 4.
+- 링크: https://coupang-ops.buylife.xyz/exchanges
+
 ## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.07 상품 문의 기간 수정
 - 아래 미배포분 배포, 조회 3건 실제 통과(문의 0건). 답변 전송은 실제 문의가 생긴 뒤. 다음은 묶음 3.
 
