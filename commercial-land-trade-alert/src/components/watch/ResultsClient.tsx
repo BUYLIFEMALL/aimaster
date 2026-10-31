@@ -9,6 +9,23 @@ type Result = { at: string; columns: string[]; table: (string | number)[][]; per
 const SHOW = ["감시 화면", "유형", "거래 종류", "가격", "시세 대비", "추정 수익률", "후보 점수", "근거", "변동", "이전 가격", "면적 기준", "면적(㎡)", "층"];
 const LINK = "네이버 매물 주소";
 
+// AI 요약의 ## 제목과 **굵게**만 그린다. HTML로 넣지 않아 내용이 코드로 실행되지 않는다.
+function bold(text: string) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
+}
+
+function AiText({ text }: { text: string }) {
+  return (
+    <div className="space-y-1 text-sm leading-relaxed">
+      {text.split("\n").map((line, i) => {
+        const heading = /^#{1,6}\s+(.*)$/.exec(line);
+        if (heading) return <h3 key={i} className="pt-3 text-base font-bold first:pt-0">{heading[1].replaceAll("**", "")}</h3>;
+        return line.trim() ? <p key={i}>{bold(line)}</p> : null;
+      })}
+    </div>
+  );
+}
+
 const yieldOf = (v: unknown) => Number.parseFloat(String(v ?? "")) || 0;
 
 const pctOf = (v: unknown) => {
@@ -93,13 +110,13 @@ export function ResultsClient({ email }: { email: string }) {
         {ai.error && <p className="mt-3 text-sm text-red-600">{ai.error}</p>}
         {ai.text && (
           <div className="mt-3 border-t border-mx-border pt-3">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">{ai.text}</p>
+            <AiText text={ai.text} />
             <p className="mt-2 text-xs text-mx-muted">{ai.count}건 기준 AI 요약입니다. 사실과 다를 수 있으니 투자 판단은 직접 확인 후 해 주세요.</p>
           </div>
         )}
       </div>
       <div className="mx-card mt-3 overflow-x-auto p-0">
-        <table className="mx-table min-w-[1100px]">
+        <table className="mx-table [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
           <thead>
             <tr>
               {SHOW.map((c) => (
@@ -112,7 +129,7 @@ export function ResultsClient({ email }: { email: string }) {
             {rows.slice(0, 500).map((r, i) => (
               <tr key={`${String(r[at(LINK)])}-${i}`}>
                 {SHOW.map((c) => (
-                  <td key={c} className={c === "가격" ? "whitespace-nowrap font-semibold" : c === "근거" ? "min-w-40" : "whitespace-nowrap"}>
+                  <td key={c} className={c === "가격" ? "font-semibold" : undefined}>
                     {c === "후보 점수" && Number(r[at(c)]) >= 40 ? `⭐ ${r[at(c)]}` : String(r[at(c)] ?? "")}
                   </td>
                 ))}

@@ -5,7 +5,7 @@ import { ResultsClient } from "@/components/watch/ResultsClient";
 export default async function ResultsPage() {
   const user = await requireUser();
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-7xl">
       <PageHero
         badge="⭐ STEP 5 · 매물 결과"
         title="매물 결과와 후보"

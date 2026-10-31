@@ -68,7 +68,7 @@ async function marketFor(cortarNo) {
     const r = await api("/api/extension/market", { method: "POST", body: JSON.stringify({ cortarNos: [cortarNo] }) });
     const value = r.markets?.[cortarNo] || null;
     if (value?.collecting) await addLog(`${value.name}: 실거래 자료를 모으는 중이에요(관심 지역에 추가). 시세 비교는 다음 수집부터 나옵니다.`);
-    else await set({ marketCacheV2: { ...marketCacheV2, [cortarNo]: { at: new Date().toISOString(), value } } });
+    else if (value?.samples) await set({ marketCacheV2: { ...marketCacheV2, [cortarNo]: { at: new Date().toISOString(), value } } });
     return value;
   } catch (e) {
     await addLog(`시세 조회 실패: ${e.message}`);
@@ -129,7 +129,12 @@ async function runCollection(trigger) {
         .filter((it) => matchesTarget(it, t));
       const cmp = compareTarget(states[t.id], items, { complete: r.complete });
       states[t.id] = cmp.state;
-      const market = await marketFor(r.cortarNo);
+      // 네이버 요청에 동 코드가 없는 회차도 있어 감시 화면별로 마지막 코드를 기억한다
+      const { cortarByTarget = {} } = await get("cortarByTarget");
+      const cortarNo = r.cortarNo || cortarByTarget[t.id] || null;
+      if (r.cortarNo && r.cortarNo !== cortarByTarget[t.id]) await set({ cortarByTarget: { ...cortarByTarget, [t.id]: r.cortarNo } });
+      const market = await marketFor(cortarNo);
+      if (!market?.samples) await addLog(`${t.name}: 시세 자료를 받지 못해 비교를 건너뛰었어요(동 코드 ${cortarNo || "없음"})`);
       for (const it of items) {
         const saved = cmp.state.items[it.no];
         const gap = marketGap(it, market);
