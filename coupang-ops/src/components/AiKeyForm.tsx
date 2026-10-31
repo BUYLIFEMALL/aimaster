@@ -27,15 +27,16 @@ export function AiKeyForm({ shown, models }: { shown: Partial<Record<AIModelProv
   return (
     <div className="space-y-2">
       {AI_PROVIDERS.map((p) => (
-        <div key={p} className="flex flex-wrap items-center gap-2 text-[13px]">
-          <span className="w-36 shrink-0 font-bold text-slate-700">{PROVIDER_LABEL[p]}</span>
-          <input type="password" autoComplete="new-password" aria-label={`${PROVIDER_LABEL[p]} API 키`} placeholder={shown[p] ? `저장됨 ${shown[p]} — 바꿀 때만 입력` : "API 키"} value={draft[p] ?? ""} onChange={(e) => setDraft({ ...draft, [p]: e.target.value })} className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 focus:border-blue-500 focus:outline-none" />
-          <button type="button" disabled={pending || !(draft[p] ?? "").trim()} onClick={() => run(() => saveAiKeyAction(p, draft[p]), p, "저장했습니다.")} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-50">저장</button>
-          <select aria-label={`${PROVIDER_LABEL[p]} 모델`} value={chosen[p] ?? DEFAULT_AI_MODELS[p]} disabled={pending} onChange={(e) => choose(p, e.target.value)} className="min-w-0 max-w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
+        <div key={p} className="grid grid-cols-1 items-center gap-2 text-[13px] sm:grid-cols-[9rem_minmax(0,1fr)_3.5rem_17rem_3.5rem]">
+          <span className="font-bold text-slate-700">{PROVIDER_LABEL[p]}</span>
+          <input type="password" autoComplete="new-password" aria-label={`${PROVIDER_LABEL[p]} API 키`} placeholder={shown[p] ? `저장됨 ${shown[p]} — 바꿀 때만 입력` : "API 키"} value={draft[p] ?? ""} onChange={(e) => setDraft({ ...draft, [p]: e.target.value })} className="w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 focus:border-blue-500 focus:outline-none" />
+          <button type="button" disabled={pending || !(draft[p] ?? "").trim()} onClick={() => run(() => saveAiKeyAction(p, draft[p]), p, "저장했습니다.")} className="w-full rounded-lg border border-slate-300 bg-white px-1 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-50">저장</button>
+          <select aria-label={`${PROVIDER_LABEL[p]} 모델`} value={chosen[p] ?? DEFAULT_AI_MODELS[p]} disabled={pending} onChange={(e) => choose(p, e.target.value)} className="w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
             {AI_MODEL_OPTIONS.filter((o) => o.provider === p).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
-          {shown[p] && <button type="button" disabled={pending} onClick={() => run(() => deleteAiKeyAction(p), p, "삭제했습니다.")} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-50">삭제</button>}
-          {note.at === p && <p role="status" className="w-full text-[12px] font-bold text-slate-800">{note.text}</p>}
+          {!shown[p] && <span aria-hidden className="hidden sm:block" />}
+          {shown[p] && <button type="button" disabled={pending} onClick={() => run(() => deleteAiKeyAction(p), p, "삭제했습니다.")} className="w-full rounded-lg border border-slate-300 bg-white px-1 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-50">삭제</button>}
+          {note.at === p && <p role="status" className="col-span-full text-[12px] font-bold text-slate-800">{note.text}</p>}
         </div>
       ))}
     </div>
