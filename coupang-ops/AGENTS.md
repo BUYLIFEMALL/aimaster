@@ -36,7 +36,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 단점: 회원이 Fixie 가입과 WING IP 등록을 해야 한다. 쓰기 기능 대부분이 실제 건 시험 전이다. 이미지·옵션 구성 수정은 WING에서 해야 한다.
 
 ## 4. 버전·이력
-운영 v1.13(2026-10-31). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
+운영 v1.14(2026-10-31). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
 
 ## 5. 남은 일
 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) · [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md). 배포 절차와 주의는 맨 아래 v1.12 항목.
@@ -238,3 +238,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 확인: 회원 Fixie로 연결 시험(주인님 캡처)·오늘 할 일 조회 통과, 쿠팡 쓰기 0회.
 - 가격 제안 `3edea4937`(미배포): 옵션 관리 「경쟁가로 가격 제안」(`lib/coupang/priceSuggest.ts`, `PriceSuggest`). 회원 입력 경쟁가·원가·수수료율·최소 이익률로 계산하고 새 판매가 칸만 채운다. 변경은 기존 2단 확인. 경쟁가는 저장하지 않고 원가·수수료율·이익률은 `coupang_ops_prefs`에 저장. 배송비·광고비·쿠폰은 계산에 없다.
 - 미확인: 플랫폼별 모델 선택·저장 화면, 카테고리·브랜드 찾기 실제 응답, 가격 제안 화면.
+
+## 2026-10-31 — v1.14 배포
+- 가격 제안 `3edea4937` 배포. 크롬: 옵션 표에 칸 표시, 빈 값 안내 확인. 계산 성공은 시험으로만 확인했다(화면에서 계산하면 입력한 원가·수수료율이 회원 설정에 저장되어 시험 값을 넣지 않았다).
+- 30일 정리 암호(`CRON_SECRET`, Vercel Production, 이름은 Vercel 고정)는 주인님이 등록. 값 없음·틀린 값은 401 확인. 실제 삭제는 매일 03:30(한국) 실행 뒤 Vercel 로그로 확인이 남았다. 회원 값이 아니다.
