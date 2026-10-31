@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.09 메뉴 맞춤·비교 표 중간값
+- 확장 받기 버튼·한 줄 소개·메뉴 모양을 매물 알림과 맞춤, 5~7번은 실거래 묶음으로 구분. 비교 표 중간값, 수익률 5건 이상만, 15% 초과 확인 표시. 시험 33개·tsc·빌드 통과. 모바일 폭 화면은 주인님 확인 대기.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/results
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.08 통계 대시보드·메뉴 정리
 - 통계·추이 대시보드, 감시 화면 비교 표, 주간 리포트(팝업에서 켬), AI 요약 7일 추이, 수집기 동 코드 수정(강남구 역삼동 기준 복구를 주인님 화면으로 확인), 메뉴를 매물 알림과 같은 이름·순서로 정리. 시험 33개·tsc·빌드 통과. 그래프·주간 리포트 실제 동작은 수집이 쌓인 뒤 확인 대기. 플랜 `commercial-land-trade-alert/docs/PLAN_20261031_STATS_DASHBOARD.md`.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/results
