@@ -17,6 +17,7 @@ export const TOOLS: ToolItem[] = [
   { href: "/returns", emoji: "↩", label: "출고중지·취소", short: "출고중지 요청 처리", description: "고객의 출고중지 요청·반품 접수를 확인하고 출고중지 완료 또는 이미출고로 처리합니다." },
   { href: "/exchanges", emoji: "🔄", label: "교환", short: "입고 확인·교환 송장", description: "교환 요청을 확인하고 입고 확인, 교환 송장 등록, 거부를 처리합니다." },
   { href: "/inquiries", emoji: "💬", label: "고객 문의", short: "문의·AI 답변 초안", description: "상품 문의와 고객센터 이관 문의를 모아 보고, AI 초안을 확인해 답변합니다." },
+  { href: "/revenue", emoji: "📊", label: "매출·정산", short: "실제 수수료·순이익", description: "쿠팡 실제 정산 값으로 옵션별 수수료와 순이익을 계산하고 지급 내역을 확인합니다." },
 ];
 
 /** 출시 순서(docs/IMPROVEMENT_BACKLOG.md 단계). 대시보드 「기능 출시 순서」에 보여 준다. */

@@ -88,6 +88,10 @@ export default async function GuidePage() {
       <section className="slw-card space-y-2 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">❓ 자주 묻는 질문</h2>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">「매출·정산」의 순이익은 어떻게 계산하나요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">쿠팡이 실제로 계산한 정산액에서 판매자 쿠폰과, 회원이 넣은 개당 원가 × 순판매수량을 뺍니다. 택배비·포장비는 원가에 포함해 주세요. 원가를 넣지 않은 옵션은 순이익을 표시하지 않습니다. 매출은 구매확정 또는 배송완료 7일 뒤에 잡히므로 최근 주문은 아직 없을 수 있습니다. 「주문 리포트용 파일 받기」로 받은 파일은 AI 쇼핑몰 주문·매출 리포트에 그대로 올릴 수 있습니다.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">반품 승인 버튼이 안 보이는 건은 어떻게 하나요?</summary>
           <p className="mt-2 leading-relaxed text-slate-700">10만원 미만 빠른환불 대상이나 입고 확인을 마친 건은 쿠팡이 자동으로 승인할 수 있어 승인 단계가 필요 없습니다. 쿠팡 조회 조건에 「입고완료」가 없어, 입고 확인 뒤 승인 버튼은 그 자리에서 다시 읽은 건에만 나타납니다. 목록을 새로 불러온 뒤 보이지 않으면 WING에서 처리해 주세요.</p>
         </details>
