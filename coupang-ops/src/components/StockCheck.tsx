@@ -90,12 +90,12 @@ export function StockCheck({ keysSaved }: { keysSaved: boolean }) {
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-xs font-bold text-slate-700">
           부족 기준(개 이하)
-          <input className="mt-1 block w-24 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm font-normal focus:border-rose-500 focus:outline-none" inputMode="numeric" value={limitText} onChange={(e) => changeLimit(e.target.value)} />
+          <input className="mt-1 block w-24 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm font-normal focus:border-blue-500 focus:outline-none" inputMode="numeric" value={limitText} onChange={(e) => changeLimit(e.target.value)} />
         </label>
-        <button type="button" disabled={!keysSaved || pending} onClick={() => scan(false)} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+        <button type="button" disabled={!keysSaved || pending} onClick={() => scan(false)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
           {pending && !asking ? "점검 중…" : scanned ? "처음부터 다시 점검" : `재고 점검 시작(상품 ${STOCK_PAGE_SIZE}개)`}
         </button>
-        {next && <button type="button" disabled={pending} onClick={() => scan(true)} className="rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-bold text-rose-800 disabled:opacity-50">다음 {STOCK_PAGE_SIZE}개 점검</button>}
+        {next && <button type="button" disabled={pending} onClick={() => scan(true)} className="rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-800 disabled:opacity-50">다음 {STOCK_PAGE_SIZE}개 점검</button>}
       </div>
       {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
@@ -130,7 +130,7 @@ export function StockCheck({ keysSaved }: { keysSaved: boolean }) {
                         </td>
                         <td className="py-1.5 pr-2">{r.stock}개</td>
                         <td className="py-1.5">
-                          <input aria-label={`${r.itemName} 새 재고`} className="w-24 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] focus:border-rose-500 focus:outline-none" inputMode="numeric" placeholder="새 재고" value={draft[r.vendorItemId] ?? ""} onChange={(e) => { setAsking(false); setDraft({ ...draft, [r.vendorItemId]: e.target.value }); }} />
+                          <input aria-label={`${r.itemName} 새 재고`} className="w-24 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] focus:border-blue-500 focus:outline-none" inputMode="numeric" placeholder="새 재고" value={draft[r.vendorItemId] ?? ""} onChange={(e) => { setAsking(false); setDraft({ ...draft, [r.vendorItemId]: e.target.value }); }} />
                         </td>
                       </tr>
                     );
@@ -142,7 +142,7 @@ export function StockCheck({ keysSaved }: { keysSaved: boolean }) {
           {filled.length > 0 && (problems.length > 0 ? (
             <p className="text-[12px] text-rose-800">❌ {problems[0]}</p>
           ) : !asking ? (
-            <button type="button" disabled={pending} onClick={() => setAsking(true)} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">입력한 {filled.length}건 재고 변경 확인</button>
+            <button type="button" disabled={pending} onClick={() => setAsking(true)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">입력한 {filled.length}건 재고 변경 확인</button>
           ) : (
             <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
               <p className="font-bold">아래 {filled.length}건을 쿠팡에 바로 적용할까요? 판매 중인 재고가 실제로 바뀝니다.</p>
@@ -150,7 +150,7 @@ export function StockCheck({ keysSaved }: { keysSaved: boolean }) {
                 {filled.map((r) => <li key={r.vendorItemId}>{r.productName} · {r.itemName}: {r.stock}개 → {parseQty(draft[r.vendorItemId])}개</li>)}
               </ul>
               <div className="flex gap-2">
-                <button type="button" disabled={pending} onClick={apply} className="rounded border border-rose-600 bg-rose-700 px-3 py-1 font-bold text-white disabled:opacity-50">{pending ? "적용 중…" : "네, 쿠팡에 적용"}</button>
+                <button type="button" disabled={pending} onClick={apply} className="rounded border border-blue-600 bg-blue-700 px-3 py-1 font-bold text-white disabled:opacity-50">{pending ? "적용 중…" : "네, 쿠팡에 적용"}</button>
                 <button type="button" disabled={pending} onClick={() => setAsking(false)} className="rounded border border-slate-300 bg-white px-3 py-1 font-bold text-slate-700 disabled:opacity-50">취소</button>
               </div>
             </div>

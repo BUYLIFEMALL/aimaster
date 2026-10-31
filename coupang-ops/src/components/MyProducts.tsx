@@ -4,8 +4,9 @@ import { useState, useTransition } from "react";
 import { listMyCoupangProductsAction } from "@/lib/actions/listing";
 import { LIST_STATUSES, type ListedProduct } from "@/lib/coupang/listing";
 import { ItemsPanel } from "@/components/ItemsPanel";
+import { ProductEditPanel } from "@/components/ProductEditPanel";
 
-const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-rose-500 focus:outline-none";
+const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
 const STATUS_TONE: Record<string, string> = { 승인완료: "bg-teal-50 text-teal-800", 부분승인완료: "bg-teal-50 text-teal-800", 승인반려: "bg-rose-50 text-rose-800", 상품삭제: "bg-slate-100 text-slate-500" };
 
 export function MyProducts({ keysSaved }: { keysSaved: boolean }) {
@@ -17,6 +18,7 @@ export function MyProducts({ keysSaved }: { keysSaved: boolean }) {
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
   const [open, setOpen] = useState<number | null>(null);
+  const [editing, setEditing] = useState<number | null>(null);
 
   const load = (more: boolean) =>
     start(async () => {
@@ -42,7 +44,7 @@ export function MyProducts({ keysSaved }: { keysSaved: boolean }) {
           상품명(20자 이내)
           <input value={name} maxLength={20} onChange={(e) => setName(e.target.value)} placeholder="비우면 전체" className={`mt-1 block w-full ${input}`} />
         </label>
-        <button type="button" disabled={!keysSaved || pending} onClick={() => load(false)} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+        <button type="button" disabled={!keysSaved || pending} onClick={() => load(false)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
           {pending ? "불러오는 중…" : "쿠팡에서 불러오기"}
         </button>
       </div>
@@ -58,11 +60,17 @@ export function MyProducts({ keysSaved }: { keysSaved: boolean }) {
                 상품번호 {p.sellerProductId}{p.brand ? ` · ${p.brand}` : ""} · 등록 {p.createdAt.slice(0, 10)}
               </span>
               {p.statusName !== "상품삭제" && (
-                <button type="button" onClick={() => setOpen(open === p.sellerProductId ? null : p.sellerProductId)} className="rounded border border-rose-300 bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-800 hover:bg-rose-100">
+                <button type="button" onClick={() => setOpen(open === p.sellerProductId ? null : p.sellerProductId)} className="rounded border border-blue-300 bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-800 hover:bg-blue-100">
                   {open === p.sellerProductId ? "닫기" : "옵션 관리"}
                 </button>
               )}
+              {p.statusName !== "상품삭제" && (
+                <button type="button" onClick={() => setEditing(editing === p.sellerProductId ? null : p.sellerProductId)} className="rounded border border-slate-300 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50">
+                  {editing === p.sellerProductId ? "수정 닫기" : "상품 수정"}
+                </button>
+              )}
               {open === p.sellerProductId && <div className="w-full"><ItemsPanel sellerProductId={p.sellerProductId} /></div>}
+              {editing === p.sellerProductId && <div className="w-full"><ProductEditPanel sellerProductId={p.sellerProductId} /></div>}
             </li>
           ))}
         </ul>

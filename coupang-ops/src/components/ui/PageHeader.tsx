@@ -12,7 +12,7 @@ export function PageHeader({ emoji, title, description, children }: { emoji: str
         <p className="mt-1 text-sm text-slate-600">{description}</p>
       </div>
       <div className="flex items-center gap-2">
-        <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-800">
+        <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">
           🔒 내 쿠팡 계정만 보입니다
         </span>
         {children}
@@ -25,9 +25,7 @@ export function PageHeader({ emoji, title, description, children }: { emoji: str
 export function Notice({ tone = "info", children }: { tone?: "info" | "warn" | "tip"; children: ReactNode }) {
   const cls =
     tone === "warn"
-      ? "border-amber-300 bg-amber-50 text-amber-900"
-      : tone === "tip"
-        ? "border-teal-200 bg-teal-50 text-teal-900"
-        : "border-slate-200 bg-slate-50 text-slate-700";
-  return <div className={`rounded-xl border px-3.5 py-2.5 text-[13px] leading-relaxed ${cls}`}>{children}</div>;
+      ? "border-amber-500 bg-amber-50 text-amber-900"
+      : "border-blue-600 bg-blue-50 text-slate-800";
+  return <div className={`rounded-md border-l-4 px-3.5 py-2.5 text-[13px] leading-relaxed ${cls}`}>{children}</div>;
 }

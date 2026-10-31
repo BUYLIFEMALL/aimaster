@@ -28,7 +28,7 @@ function LoginCard() {
   return (
     <div className="mx-auto w-full max-w-md">
       <div className="mb-6 text-center">
-        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-700 text-3xl shadow">📦</div>
+        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-700 text-3xl shadow">📦</div>
         <h1 className="text-xl font-extrabold text-slate-900">{APP_NAME}</h1>
         <p className="mt-1 text-xs text-slate-600">{APP_VERSION} · AIMaster 계정으로 로그인하세요</p>
       </div>
@@ -47,8 +47,8 @@ function LoginCard() {
           <button type="submit" disabled={pending} className="slw-primary w-full">{pending ? "로그인 확인 중…" : "로그인"}</button>
         </form>
         <div className="mt-5 flex justify-between border-t border-slate-200 pt-4 text-[12px]">
-          <a className="text-slate-600 hover:text-rose-800" href={`${MAIN_SITE}/register`}>AIMaster 회원가입</a>
-          <a className="text-slate-600 hover:text-rose-800" href={`${MAIN_SITE}/login`}>메인 사이트에서 로그인 →</a>
+          <a className="text-slate-600 hover:text-blue-800" href={`${MAIN_SITE}/register`}>AIMaster 회원가입</a>
+          <a className="text-slate-600 hover:text-blue-800" href={`${MAIN_SITE}/login`}>메인 사이트에서 로그인 →</a>
         </div>
       </div>
     </div>

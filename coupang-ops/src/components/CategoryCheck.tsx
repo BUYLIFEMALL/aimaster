@@ -15,7 +15,7 @@ export function CategoryCheck({ saved }: { saved: boolean }) {
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 남성 노트북 백팩 15.6인치 방수"
           className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
         <button type="button" disabled={!saved || pending || !name.trim()} onClick={() => start(async () => setResult(await checkCategoryAction(name)))}
-          className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+          className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
           {pending ? "쿠팡에 묻는 중…" : "🗂 카테고리 확인"}
         </button>
       </div>

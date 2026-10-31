@@ -7,7 +7,7 @@ import { cleanTargetMargin, daysBetween, defaultRevenueRange, revenueToTsv, reve
 const COST_KEY = "coupang-ops:unit-costs";
 const TARGET_KEY = "coupang-ops:target-margin";
 const REPORT_URL = "https://shop-order-report.buylife.xyz/upload";
-const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-rose-500 focus:outline-none";
+const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
 const won = (v: number) => `${Math.round(v).toLocaleString("ko-KR")}원`;
 
 const readLocal = (key: string): string | null => {
@@ -136,8 +136,8 @@ export function RevenueReport({ keysSaved }: { keysSaved: boolean }) {
         <div className="flex flex-wrap items-end gap-2">
           <label className="text-xs font-bold text-slate-700">시작일<input type="date" value={range.from} onChange={(e) => setRange({ ...range, from: e.target.value })} className={`mt-1 block ${input}`} /></label>
           <label className="text-xs font-bold text-slate-700">종료일<input type="date" value={range.to} onChange={(e) => setRange({ ...range, to: e.target.value })} className={`mt-1 block ${input}`} /></label>
-          <button type="button" disabled={!keysSaved || pending} onClick={() => load(false)} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">{pending ? "불러오는 중…" : "매출 불러오기"}</button>
-          {next && <button type="button" disabled={pending} onClick={() => load(true)} className="rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-bold text-rose-800 disabled:opacity-50">다음 50건</button>}
+          <button type="button" disabled={!keysSaved || pending} onClick={() => load(false)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">{pending ? "불러오는 중…" : "매출 불러오기"}</button>
+          {next && <button type="button" disabled={pending} onClick={() => load(true)} className="rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-800 disabled:opacity-50">다음 50건</button>}
         </div>
         <p className="text-[11px] text-slate-500">기준일은 매출인식일(구매확정 또는 배송완료 + 7일)이라 최근 주문은 아직 없을 수 있습니다. 어제까지, 한 번에 30일까지 조회됩니다.</p>
         {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
@@ -161,7 +161,7 @@ export function RevenueReport({ keysSaved }: { keysSaved: boolean }) {
               <label className="text-xs font-bold text-slate-700">목표 이익률(%)<input inputMode="numeric" value={target} onChange={(e) => { setTarget(e.target.value); writeLocal(TARGET_KEY, e.target.value); }} className={`mt-1 block w-24 ${input}`} /></label>
               {totals.roas !== null && <p className="pb-2 text-[13px] font-bold text-slate-800">광고 수익률(ROAS) {totals.roas.toLocaleString()}%</p>}
               <button type="button" onClick={saveFile} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] font-bold text-slate-800">📄 주문 리포트용 파일 받기</button>
-              <a href={REPORT_URL} target="_blank" rel="noopener noreferrer" className="pb-2 text-[12px] font-bold text-rose-800 underline">주문 리포트에 올리기 ↗</a>
+              <a href={REPORT_URL} target="_blank" rel="noopener noreferrer" className="pb-2 text-[12px] font-bold text-blue-800 underline">주문 리포트에 올리기 ↗</a>
             </div>
             {warnings.length > 0 && (
               <ul className="space-y-1 rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
@@ -173,7 +173,7 @@ export function RevenueReport({ keysSaved }: { keysSaved: boolean }) {
           <section className="slw-card space-y-3 p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-base font-extrabold text-slate-900">옵션별 손익</h2>
-              <button type="button" disabled={pending} onClick={loadStocks} className="rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-[12px] font-bold text-rose-800 disabled:opacity-50">재고 소진일 계산(많이 팔린 {RUNOUT_MAX_OPTIONS}개까지)</button>
+              <button type="button" disabled={pending} onClick={loadStocks} className="rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-[12px] font-bold text-blue-800 disabled:opacity-50">재고 소진일 계산(많이 팔린 {RUNOUT_MAX_OPTIONS}개까지)</button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[820px] text-left text-[12px]">
@@ -190,7 +190,7 @@ export function RevenueReport({ keysSaved }: { keysSaved: boolean }) {
                         <td className="py-1.5 pr-2">{o.feeRate === null ? "-" : `${o.feeRate}%`}</td>
                         <td className="py-1.5 pr-2">{won(o.settlement)}</td>
                         <td className="py-1.5 pr-2"><input aria-label={`${o.optionName} 개당 원가`} inputMode="numeric" value={costs[String(o.vendorItemId)] ?? ""} onChange={(e) => setCost(o.vendorItemId, e.target.value)} placeholder="원" className="w-20 rounded border border-slate-300 bg-white px-2 py-1 text-[12px]" /></td>
-                        <td className={`py-1.5 pr-2 font-bold ${o.margin !== null && o.margin < targetMargin ? "text-rose-700" : "text-slate-900"}`}>{o.profit === null ? "-" : `${won(o.profit)} (${o.margin ?? "-"}%)`}</td>
+                        <td className={`py-1.5 pr-2 font-bold ${o.margin !== null && o.margin < targetMargin ? "text-blue-700" : "text-slate-900"}`}>{o.profit === null ? "-" : `${won(o.profit)} (${o.margin ?? "-"}%)`}</td>
                         <td className="py-1.5">{stock === undefined ? "-" : `${stock}개${left === null ? "" : ` · 약 ${left}일`}`}</td>
                       </tr>
                     );
@@ -207,7 +207,7 @@ export function RevenueReport({ keysSaved }: { keysSaved: boolean }) {
         <div className="flex flex-wrap items-end gap-2">
           <h2 className="w-full text-base font-extrabold text-slate-900">지급 내역</h2>
           <label className="text-xs font-bold text-slate-700">매출인식월<input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className={`mt-1 block ${input}`} /></label>
-          <button type="button" disabled={!keysSaved || pending} onClick={loadMonth} className="rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-bold text-rose-800 disabled:opacity-50">지급 내역 불러오기</button>
+          <button type="button" disabled={!keysSaved || pending} onClick={loadMonth} className="rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-800 disabled:opacity-50">지급 내역 불러오기</button>
         </div>
         {settlements?.length === 0 && <p className="rounded-lg bg-slate-50 px-3 py-2 text-[13px] text-slate-700">이 달의 지급 내역이 없습니다.</p>}
         {!!settlements?.length && (

@@ -29,7 +29,7 @@ export function RejectedBoard({ jobs, keysSaved }: { jobs: RejectedJob[]; keysSa
           <h2 className="text-base font-extrabold text-slate-900">⛔ 반려된 상품 {jobs.length > 0 && <span className="text-rose-700">{jobs.length}건</span>}</h2>
           <p className="mt-0.5 text-xs text-slate-600">이 프로그램에서 보낸 상품 가운데 쿠팡이 반려한 것을 최근 순으로 최대 10건 보여 줍니다. 저장 뒤 결과는 「등록 상태 다시 확인」으로 받아 옵니다.</p>
         </div>
-        <button type="button" disabled={!keysSaved || pending} onClick={recheck} className="rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-bold text-rose-800 disabled:opacity-50">
+        <button type="button" disabled={!keysSaved || pending} onClick={recheck} className="rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-800 disabled:opacity-50">
           {pending ? "확인 중…" : "등록 상태 다시 확인"}
         </button>
       </div>
@@ -42,10 +42,10 @@ export function RejectedBoard({ jobs, keysSaved }: { jobs: RejectedJob[]; keysSa
             const body = (
               <>
                 <p className="text-[13px] font-bold text-slate-900">{j.product_name || "(이름 없음)"}{j.seller_product_id ? <span className="ml-1 text-[11px] font-normal text-slate-500">상품번호 {j.seller_product_id}</span> : null}</p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-rose-900">{rejectReasonText(j.message)}</p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-blue-900">{rejectReasonText(j.message)}</p>
               </>
             );
-            return <li key={j.id}>{j.product_id ? <Link href={`/products/${j.product_id}`} className="block rounded-xl border border-rose-200 bg-rose-50 p-3 transition hover:border-rose-400">{body}</Link> : <div className="rounded-xl border border-rose-200 bg-rose-50 p-3">{body}</div>}</li>;
+            return <li key={j.id}>{j.product_id ? <Link href={`/products/${j.product_id}`} className="block rounded-xl border border-blue-200 bg-blue-50 p-3 transition hover:border-blue-400">{body}</Link> : <div className="rounded-xl border border-blue-200 bg-blue-50 p-3">{body}</div>}</li>;
           })}
         </ul>
       )}

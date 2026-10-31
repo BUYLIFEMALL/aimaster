@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { loadItemsAction, setSaleAction, updatePriceAction, updateQuantityAction, type ItemRow } from "@/lib/actions/items";
+import { updateOriginalPriceAction } from "@/lib/actions/productEdit";
 import { checkPrice, checkQuantity } from "@/lib/coupang/items";
+import { checkOriginalPrice } from "@/lib/coupang/productEdit";
 
-const input = "w-24 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] focus:border-rose-500 focus:outline-none";
+const input = "w-24 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] focus:border-blue-500 focus:outline-none";
 const btn = "rounded border px-2 py-1 text-[11px] font-bold disabled:opacity-50";
 
 /** 바꾸기 전에 한 번 더 묻는 상태(실제 판매 중인 상품이 바뀌므로) */
-type Ask = { kind: "price" | "qty" | "sale"; vendorItemId: number; value: number; label: string };
+type Ask = { kind: "price" | "original" | "qty" | "sale"; vendorItemId: number; value: number; label: string };
 
 export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
   const [rows, setRows] = useState<ItemRow[] | null>(null);
@@ -35,6 +37,11 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
       return setAsk({ kind, vendorItemId: it.vendorItemId, value: on ? 1 : 0, label: `「${it.itemName}」 ${on ? "판매를 재개" : "판매를 중지"}할까요?` });
     }
     const raw = Number(String(draft[`${kind}:${it.vendorItemId}`] ?? "").replace(/[,\s원개]/g, ""));
+    if (kind === "original") {
+      const problem = checkOriginalPrice(raw);
+      if (problem || String(draft[`${kind}:${it.vendorItemId}`] ?? "").trim() === "") return setNote(`❌ ${problem || "새 할인 기준가를 넣어 주세요."}`);
+      return setAsk({ kind, vendorItemId: it.vendorItemId, value: raw, label: `「${it.itemName}」 할인 기준가를 ${it.originalPrice.toLocaleString()}원 → ${raw.toLocaleString()}원으로 바꿀까요?` });
+    }
     const problem = kind === "price" ? checkPrice(it.inventory.salePrice, raw) : checkQuantity(it.inventory.stock, raw);
     if (problem) return setNote(`❌ ${problem}`);
     setAsk({ kind, vendorItemId: it.vendorItemId, value: raw, label: kind === "price" ? `「${it.itemName}」 판매가를 ${it.inventory.salePrice.toLocaleString()}원 → ${raw.toLocaleString()}원으로 바꿀까요?` : `「${it.itemName}」 재고를 ${it.inventory.stock}개 → ${raw}개로 바꿀까요?` });
@@ -43,7 +50,7 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
   const confirm = () =>
     ask &&
     start(async () => {
-      const r = ask.kind === "price" ? await updatePriceAction(ask.vendorItemId, ask.value) : ask.kind === "qty" ? await updateQuantityAction(ask.vendorItemId, ask.value) : await setSaleAction(ask.vendorItemId, ask.value === 1);
+      const r = ask.kind === "price" ? await updatePriceAction(ask.vendorItemId, ask.value) : ask.kind === "original" ? await updateOriginalPriceAction(ask.vendorItemId, ask.value) : ask.kind === "qty" ? await updateQuantityAction(ask.vendorItemId, ask.value) : await setSaleAction(ask.vendorItemId, ask.value === 1);
       setAsk(null);
       setNote(r.ok ? `✅ ${r.message}` : `❌ ${r.error}`);
       const again = await loadItemsAction(sellerProductId);
@@ -70,12 +77,15 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
                     <td className="py-1.5 pr-2">
                       <span className="block">{it.inventory.salePrice.toLocaleString()}원</span>
                       <input className={input} inputMode="numeric" placeholder="새 판매가" value={draft[`price:${it.vendorItemId}`] ?? ""} onChange={(e) => setDraft({ ...draft, [`price:${it.vendorItemId}`]: e.target.value })} />
-                      <button type="button" disabled={pending} onClick={() => prepare("price", it)} className={`${btn} ml-1 border-rose-300 bg-white text-rose-800`}>바꾸기</button>
+                      <button type="button" disabled={pending} onClick={() => prepare("price", it)} className={`${btn} ml-1 border-blue-300 bg-white text-blue-800`}>바꾸기</button>
+                      <span className="mt-1.5 block text-[11px] text-slate-500">할인 기준가 {it.originalPrice.toLocaleString()}원</span>
+                      <input className={input} inputMode="numeric" placeholder="새 기준가" value={draft[`original:${it.vendorItemId}`] ?? ""} onChange={(e) => setDraft({ ...draft, [`original:${it.vendorItemId}`]: e.target.value })} />
+                      <button type="button" disabled={pending} onClick={() => prepare("original", it)} className={`${btn} ml-1 border-blue-300 bg-white text-blue-800`}>바꾸기</button>
                     </td>
                     <td className="py-1.5 pr-2">
                       <span className="block">{it.inventory.stock}개</span>
                       <input className={input} inputMode="numeric" placeholder="새 재고" value={draft[`qty:${it.vendorItemId}`] ?? ""} onChange={(e) => setDraft({ ...draft, [`qty:${it.vendorItemId}`]: e.target.value })} />
-                      <button type="button" disabled={pending} onClick={() => prepare("qty", it)} className={`${btn} ml-1 border-rose-300 bg-white text-rose-800`}>바꾸기</button>
+                      <button type="button" disabled={pending} onClick={() => prepare("qty", it)} className={`${btn} ml-1 border-blue-300 bg-white text-blue-800`}>바꾸기</button>
                     </td>
                     <td className="py-1.5">
                       <span className={`block font-bold ${it.inventory.onSale ? "text-teal-700" : "text-slate-500"}`}>{it.inventory.onSale ? "판매 중" : "판매 중지"}</span>
@@ -93,7 +103,7 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
       {ask && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
           <span className="font-bold">{ask.label}</span>
-          <button type="button" disabled={pending} onClick={confirm} className={`${btn} border-rose-600 bg-rose-700 text-white`}>{pending ? "바꾸는 중…" : "네, 쿠팡에 적용"}</button>
+          <button type="button" disabled={pending} onClick={confirm} className={`${btn} border-blue-600 bg-blue-700 text-white`}>{pending ? "바꾸는 중…" : "네, 쿠팡에 적용"}</button>
           <button type="button" disabled={pending} onClick={() => setAsk(null)} className={`${btn} border-slate-300 bg-white text-slate-700`}>취소</button>
         </div>
       )}

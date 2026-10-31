@@ -60,7 +60,7 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
   return (
     <li className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-        <span className={`rounded-full px-2 py-0.5 font-bold ${row.needsConfirm ? "bg-slate-100 text-slate-700" : row.kind === "center" ? "bg-rose-50 text-rose-800" : "bg-amber-50 text-amber-800"}`}>
+        <span className={`rounded-full px-2 py-0.5 font-bold ${row.needsConfirm ? "bg-slate-100 text-slate-700" : row.kind === "center" ? "bg-blue-50 text-blue-800" : "bg-amber-50 text-amber-800"}`}>
           {row.needsConfirm ? "고객센터 미확인" : row.kind === "center" ? "고객센터 미답변" : "상품 문의"}
         </span>
         <span>{whenText(row.at)}</span>
@@ -72,7 +72,7 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
       {row.needsConfirm ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[12px] text-slate-600">쿠팡이 상담을 마친 건이라 답변은 필요 없습니다.</span>
-          <button type="button" disabled={pending} onClick={() => (asking ? confirm() : setAsking(true))} className={`${smallBtn} border-rose-300 bg-white text-rose-800`}>
+          <button type="button" disabled={pending} onClick={() => (asking ? confirm() : setAsking(true))} className={`${smallBtn} border-blue-300 bg-white text-blue-800`}>
             {pending ? "처리 중…" : asking ? "네, 확인 처리" : "확인 처리"}
           </button>
         </div>
@@ -80,10 +80,10 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
         <>
           <label className="block text-[12px] font-bold text-slate-700">
             초안에 쓸 사실(선택)
-            <input value={facts} onChange={(e) => setFacts(e.target.value)} placeholder="예: 11월 5일 입고 예정, 출고는 평일 오후 2시 마감" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[13px] font-normal focus:border-rose-500 focus:outline-none" />
+            <input value={facts} onChange={(e) => setFacts(e.target.value)} placeholder="예: 11월 5일 입고 예정, 출고는 평일 오후 2시 마감" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[13px] font-normal focus:border-blue-500 focus:outline-none" />
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" disabled={pending} onClick={draft} className={`${smallBtn} border-rose-300 bg-white text-rose-800`}>
+            <button type="button" disabled={pending} onClick={draft} className={`${smallBtn} border-blue-300 bg-white text-blue-800`}>
               {pending && !asking ? "만드는 중…" : text ? "✨ 초안 다시 만들기" : "✨ AI 답변 초안"}
             </button>
             <span className="text-[11px] text-slate-500">회원 본인 Claude 키로 1회 호출합니다. 쿠팡 호출은 없습니다.</span>
@@ -97,14 +97,14 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
             }}
             rows={5}
             placeholder="답변을 직접 쓰거나 AI 초안을 고쳐 주세요."
-            className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[13px] leading-relaxed focus:border-rose-500 focus:outline-none"
+            className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[13px] leading-relaxed focus:border-blue-500 focus:outline-none"
           />
           {needs.length > 0 && <p className="rounded-lg bg-amber-50 px-3 py-1.5 text-[12px] text-amber-900">⚠ 보내기 전에 확인할 것: {needs.join(", ")}</p>}
           {hasBlank && <p className="text-[12px] font-bold text-rose-800">대괄호 [ ] 부분을 실제 내용으로 바꿔야 보낼 수 있습니다.</p>}
           {problem && <p className="text-[12px] text-rose-800">{problem}</p>}
           {text.trim() && !problem && !hasBlank && (
             <div className="flex flex-wrap items-center gap-2">
-              <button type="button" disabled={pending} onClick={() => (asking ? send() : setAsking(true))} className={`${smallBtn} border-rose-600 bg-rose-700 text-white`}>
+              <button type="button" disabled={pending} onClick={() => (asking ? send() : setAsking(true))} className={`${smallBtn} border-blue-600 bg-blue-700 text-white`}>
                 {pending && asking ? "보내는 중…" : asking ? "네, 쿠팡에 답변 등록" : "답변 보내기"}
               </button>
               {asking && (
@@ -157,7 +157,7 @@ export function InquiryBoard({ keysSaved }: { keysSaved: boolean }) {
     <section className="slw-card space-y-3 p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs text-slate-600">최근 7일의 미답변 상품 문의와 고객센터 미답변·미확인 건을 불러옵니다(각 첫 쪽).</p>
-        <button type="button" disabled={!keysSaved || pending} onClick={load} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+        <button type="button" disabled={!keysSaved || pending} onClick={load} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
           {pending ? "불러오는 중…" : rows ? "다시 불러오기" : "문의 불러오기"}
         </button>
       </div>

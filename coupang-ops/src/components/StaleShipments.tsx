@@ -34,7 +34,7 @@ export function StaleShipments({ keysSaved }: { keysSaved: boolean }) {
           <h2 className="text-base font-extrabold text-slate-900">🐢 오래 멈춘 배송</h2>
           <p className="mt-0.5 text-xs text-slate-600">주문한 지 배송지시 3일, 배송중 5일이 지난 건을 보여 줍니다. 송장 오입력이나 미집하를 찾는 용도입니다.</p>
         </div>
-        <button type="button" disabled={!keysSaved || pending} onClick={load} className="rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-bold text-rose-800 disabled:opacity-50">
+        <button type="button" disabled={!keysSaved || pending} onClick={load} className="rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-800 disabled:opacity-50">
           {pending ? "확인 중…" : rows ? "다시 확인" : "오래 멈춘 배송 확인"}
         </button>
       </div>

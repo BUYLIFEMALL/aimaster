@@ -17,12 +17,12 @@ export default async function ProductsPage() {
       {!error && rows.length === 0 && (
         <p className="slw-card p-5 text-sm text-slate-600">
           아직 상세페이지 상품이 없습니다.{" "}
-          <a href="https://shop-detail-page.buylife.xyz/products/new" className="font-bold text-rose-700 underline">AI 상세페이지 자동화에서 상품 만들기 →</a>
+          <a href="https://shop-detail-page.buylife.xyz/products/new" className="font-bold text-blue-700 underline">AI 상세페이지 자동화에서 상품 만들기 →</a>
         </p>
       )}
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((p) => (
-          <Link key={p.id} href={`/products/${p.id}`} className="slw-card block p-4 transition hover:border-rose-300">
+          <Link key={p.id} href={`/products/${p.id}`} className="slw-card block p-4 transition hover:border-blue-300">
             <p className="font-bold text-slate-900">{productName(p)}</p>
             <p className="mt-1 text-xs text-slate-500">
               {p.reviewed_at ? "✅ 검토 완료" : "검토 전"} · {p.sale_price ? `${p.sale_price.toLocaleString()}원` : p.price ? `${p.price.toLocaleString()}원` : "가격 없음"}

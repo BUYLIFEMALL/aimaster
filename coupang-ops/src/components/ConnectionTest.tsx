@@ -13,7 +13,7 @@ export function ConnectionTest({ saved }: { saved: boolean }) {
         type="button"
         disabled={!saved || pending}
         onClick={() => start(async () => setResult(await testWingConnectionAction()))}
-        className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50"
+        className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50"
       >
         {pending ? "쿠팡에 묻는 중…" : "🔌 연결 시험"}
       </button>
@@ -31,7 +31,7 @@ export function ConnectionTest({ saved }: { saved: boolean }) {
               <ul className="mt-1 space-y-1 text-xs text-slate-700">
                 {result.places.map((p) => (
                   <li key={p.code} className="rounded-lg bg-white px-2 py-1">
-                    <b>{p.name}</b> <span className="font-mono text-slate-500">#{p.code}</span>{!p.usable && <span className="ml-1 text-rose-700">(사용 안 함)</span>}
+                    <b>{p.name}</b> <span className="font-mono text-slate-500">#{p.code}</span>{!p.usable && <span className="ml-1 text-blue-700">(사용 안 함)</span>}
                     <span className="block text-slate-500">{p.address}</span>
                     {p.remote.length > 0 ? <span className="block text-[11px] text-slate-500">🏝 제주·도서산간 추가: {p.remote.map((x) => `${x.courier} 제주 ${x.jeju.toLocaleString()}원 · 도서산간 ${x.notJeju.toLocaleString()}원`).join(" / ")}</span> : <span className="block text-[11px] text-slate-400">🏝 제주·도서산간 추가배송비 설정 없음</span>}
                   </li>
@@ -44,7 +44,7 @@ export function ConnectionTest({ saved }: { saved: boolean }) {
               <ul className="mt-1 space-y-1 text-xs text-slate-700">
                 {result.centers.map((c) => (
                   <li key={c.code} className="rounded-lg bg-white px-2 py-1">
-                    <b>{c.name}</b> <span className="font-mono text-slate-500">#{c.code}</span> · {c.courierName || c.courierCode}{!c.usable && <span className="ml-1 text-rose-700">(사용 안 함)</span>}
+                    <b>{c.name}</b> <span className="font-mono text-slate-500">#{c.code}</span> · {c.courierName || c.courierCode}{!c.usable && <span className="ml-1 text-blue-700">(사용 안 함)</span>}
                     <span className="block text-slate-500">{c.address} {c.addressDetail}</span>
                   </li>
                 ))}

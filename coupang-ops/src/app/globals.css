@@ -1,15 +1,27 @@
 @import "tailwindcss";
 
-/* 쿠팡 운영 워크벤치 스타일(라이트) — 흰 바탕 + 쿠팡 빨강 강조. 모든 페이지 같은 바탕색(디자인 지침 ⑪) */
+/* 쿠팡 셀러 콘솔 스타일(라이트) — WING 판매자 화면처럼 흰 바탕 + 파랑 강조. 모든 페이지 같은 바탕색(디자인 지침 ⑪) */
+@theme {
+  --color-blue-50: #f0f5ff;
+  --color-blue-100: #e0eaff;
+  --color-blue-200: #c4d6ff;
+  --color-blue-300: #9dbaff;
+  --color-blue-400: #6f97fb;
+  --color-blue-500: #346aff;
+  --color-blue-600: #2b62ee;
+  --color-blue-700: #2b62ee;
+  --color-blue-800: #214fc7;
+  --color-blue-900: #1a3f9e;
+}
 :root {
-  --bg: #f5f7fa;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --border: #e2e8f0;
-  --text: #0f172a;
-  --muted: #475569;
-  --accent: #be123c;
-  --accent-hover: #9f1239;
-  --accent-soft: #fff1f2;
+  --border: #dfe3e8;
+  --text: #111827;
+  --muted: #4b5563;
+  --accent: #2b62ee;
+  --accent-hover: #214fc7;
+  --accent-soft: #f0f5ff;
 }
 
 body {
@@ -23,7 +35,6 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .slw-btn,
@@ -43,7 +54,6 @@ body {
   background: var(--accent);
   color: #ffffff;
   border: 1px solid var(--accent);
-  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
 }
 .slw-primary:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
 .slw-btn {
@@ -64,7 +74,7 @@ body {
   font-size: 13px;
   color: var(--text);
 }
-.slw-field:focus { outline: 2px solid rgba(4, 120, 87, 0.35); border-color: var(--accent); }
+.slw-field:focus { outline: 2px solid rgba(43, 98, 238, 0.35); border-color: var(--accent); }
 .slw-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
 
 .slw-drop {

@@ -7,7 +7,7 @@ import { CHARGE_TYPES, COMMON_COURIERS, DELIVERY_METHODS, defaultReturnFee, DEFA
 import type { CoupangDefaults } from "@/lib/coupang/product";
 import type { OutboundPlace, ReturnCenter } from "@/lib/coupang/logistics";
 
-const input = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-rose-500 focus:outline-none";
+const input = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
 const label = "text-xs font-bold text-slate-700";
 
 export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults | null; keysSaved: boolean }) {
@@ -37,7 +37,7 @@ export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults 
       <section className="slw-card space-y-3 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-extrabold text-slate-900">🏭 출고지 · ↩️ 반품지</h2>
-          <button type="button" disabled={!keysSaved || loading} onClick={load} className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-800 hover:bg-rose-100 disabled:opacity-50">
+          <button type="button" disabled={!keysSaved || loading} onClick={load} className="rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-800 hover:bg-blue-100 disabled:opacity-50">
             {loading ? "불러오는 중…" : "쿠팡에서 불러오기"}
           </button>
         </div>
@@ -174,7 +174,7 @@ export function DefaultsForm({ initial, keysSaved }: { initial: CoupangDefaults 
       </section>
 
       <div className="flex flex-wrap items-center gap-3">
-        <button type="submit" disabled={saving} className="rounded-lg bg-rose-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-60">
+        <button type="submit" disabled={saving} className="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-60">
           {saving ? "저장 중…" : "기본값 저장"}
         </button>
         {state.ok && <span className="text-xs font-bold text-teal-700">✅ 저장했습니다</span>}

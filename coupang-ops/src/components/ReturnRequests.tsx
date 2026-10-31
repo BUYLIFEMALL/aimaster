@@ -5,7 +5,7 @@ import { alreadyShippedAction, approveReturnAction, confirmReturnReceiptAction, 
 import { RETURN_VIEWS, returnSteps, type ReturnRequest } from "@/lib/coupang/returns";
 import { COMMON_COURIERS } from "@/lib/coupang/defaults";
 
-const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-rose-500 focus:outline-none";
+const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
 const btn = "rounded border px-2 py-1 text-[11px] font-bold disabled:opacity-50";
 /** 한국 시간 기준 오늘에서 n일 전 날짜(yyyy-mm-dd) */
 const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10);
@@ -75,7 +75,7 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: 
           종료일
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={`mt-1 block ${input}`} />
         </label>
-        <button type="button" disabled={!keysSaved || pending} onClick={() => load(false)} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+        <button type="button" disabled={!keysSaved || pending} onClick={() => load(false)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
           {pending ? "불러오는 중…" : "요청 불러오기"}
         </button>
       </div>
@@ -85,7 +85,7 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: 
       {ask && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-[12px] text-rose-900">
           <span className="font-bold">{ask.label}</span>
-          <button type="button" disabled={pending} onClick={confirm} className={`${btn} border-rose-600 bg-rose-700 text-white`}>{pending ? "보내는 중…" : "네, 쿠팡에 적용"}</button>
+          <button type="button" disabled={pending} onClick={confirm} className={`${btn} border-blue-600 bg-blue-700 text-white`}>{pending ? "보내는 중…" : "네, 쿠팡에 적용"}</button>
           <button type="button" disabled={pending} onClick={() => setAsk(null)} className={`${btn} border-slate-300 bg-white text-slate-700`}>취소</button>
         </div>
       )}
@@ -108,20 +108,20 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: 
             {returnSteps(x).canConfirmReceipt && (
               <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2">
                 <span className="text-[11px] text-amber-800">반품 상품이 도착해 상태를 확인했다면 입고 확인을 눌러 주세요. 10만원 미만 빠른환불 대상은 이 단계에서 바로 환불될 수 있습니다.</span>
-                <button type="button" disabled={pending} onClick={() => setAsk({ kind: "receipt", receiptId: x.receiptId, label: `주문번호 ${x.orderId}의 반품 상품을 받았다고 입고 확인할까요? 바로 환불될 수 있습니다.` })} className={`${btn} border-rose-600 bg-white text-rose-800`}>입고 확인</button>
+                <button type="button" disabled={pending} onClick={() => setAsk({ kind: "receipt", receiptId: x.receiptId, label: `주문번호 ${x.orderId}의 반품 상품을 받았다고 입고 확인할까요? 바로 환불될 수 있습니다.` })} className={`${btn} border-blue-600 bg-white text-blue-800`}>입고 확인</button>
               </div>
             )}
             {returnSteps(x).canApprove && (
               <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2">
                 <span className="text-[11px] text-amber-800">입고가 끝난 건입니다. 승인하면 고객에게 환불됩니다. 상품에 문제가 있으면 승인하지 말고 WING에서 「쿠팡 확인 요청」을 해 주세요.</span>
-                <button type="button" disabled={pending} onClick={() => setAsk({ kind: "approve", receiptId: x.receiptId, label: `주문번호 ${x.orderId}의 반품을 승인할까요? 고객에게 환불됩니다(${x.cancelCountSum}개).` })} className={`${btn} border-rose-600 bg-rose-700 text-white`}>반품 승인(환불)</button>
+                <button type="button" disabled={pending} onClick={() => setAsk({ kind: "approve", receiptId: x.receiptId, label: `주문번호 ${x.orderId}의 반품을 승인할까요? 고객에게 환불됩니다(${x.cancelCountSum}개).` })} className={`${btn} border-blue-600 bg-blue-700 text-white`}>반품 승인(환불)</button>
               </div>
             )}
             {x.actionable && (
               <div className="mt-2 space-y-2 rounded-lg bg-slate-50 p-2">
                 <p className="text-[11px] text-amber-800">⚠ 아직 보내지 않았다면 「출고중지 완료」, 이미 보냈다면 송장을 넣고 「이미출고」로 처리하세요. 출고중지 요청 건을 보내면 왕복 반품 배송비는 판매자 부담입니다.</p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <button type="button" disabled={pending} onClick={() => setAsk({ kind: "stop", receiptId: x.receiptId, label: `주문번호 ${x.orderId}를 보내지 않고 출고중지 완료로 처리할까요? (취소 ${x.cancelCountSum}개)` })} className={`${btn} border-rose-600 bg-white text-rose-800`}>
+                  <button type="button" disabled={pending} onClick={() => setAsk({ kind: "stop", receiptId: x.receiptId, label: `주문번호 ${x.orderId}를 보내지 않고 출고중지 완료로 처리할까요? (취소 ${x.cancelCountSum}개)` })} className={`${btn} border-blue-600 bg-white text-blue-800`}>
                     출고중지 완료(보내지 않음)
                   </button>
                   <span className="text-[11px] text-slate-400">또는</span>

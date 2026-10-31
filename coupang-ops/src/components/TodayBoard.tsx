@@ -39,7 +39,7 @@ export function TodayBoard({ keysSaved }: { keysSaved: boolean }) {
           <h2 className="text-base font-extrabold text-slate-900">🗓 오늘 할 일</h2>
           <p className="mt-0.5 text-xs text-slate-600">최근 31일 주문 가운데 처리할 것을 한 번에 셉니다. 숫자를 누르면 그 목록으로 갑니다.</p>
         </div>
-        <button type="button" disabled={!keysSaved || pending} onClick={load} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+        <button type="button" disabled={!keysSaved || pending} onClick={load} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
           {pending ? "세는 중…" : data ? "다시 세기" : "오늘 할 일 불러오기"}
         </button>
       </div>
@@ -48,7 +48,7 @@ export function TodayBoard({ keysSaved }: { keysSaved: boolean }) {
       {data && (
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((k) => (
-            <Link key={k.label} href={k.href} className={`block rounded-xl border p-3 transition hover:border-rose-400 ${k.urgent && !zero(k.c) ? "border-rose-400 bg-rose-50" : "border-slate-200 bg-white"}`}>
+            <Link key={k.label} href={k.href} className={`block rounded-xl border p-3 transition hover:border-blue-400 ${k.urgent && !zero(k.c) ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-white"}`}>
               <p className="text-xs font-bold text-slate-600">{k.urgent && !zero(k.c) ? "⚠ " : ""}{k.label}</p>
               <p className={`mt-1 text-2xl font-black ${zero(k.c) ? "text-slate-400" : "text-slate-900"}`}>{show(k.c)}</p>
               <p className="text-[11px] text-slate-500">{"error" in k.c ? k.c.error : k.hint}</p>

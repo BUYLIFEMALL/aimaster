@@ -24,7 +24,7 @@ export default async function GuidePage() {
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 font-bold text-slate-700">⏱ 약 10분</span>
         <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 font-bold text-slate-700">💳 비용 없음(쿠팡 API 무료)</span>
-        <a href={WING} target="_blank" rel="noreferrer" className="rounded-full bg-rose-700 px-3 py-1 font-bold text-white hover:bg-rose-800">쿠팡 WING 열기 ↗</a>
+        <a href={WING} target="_blank" rel="noreferrer" className="rounded-full bg-blue-700 px-3 py-1 font-bold text-white hover:bg-blue-800">쿠팡 WING 열기 ↗</a>
       </div>
 
       <section className="slw-card p-5">
@@ -35,8 +35,8 @@ export default async function GuidePage() {
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s, i) => (
-            <div key={s.title} className="rounded-xl border border-rose-200 bg-rose-50 p-3">
-              <p className="text-[11px] font-black text-rose-700">STEP {i + 1}</p>
+            <div key={s.title} className="rounded-xl border border-blue-200 bg-blue-50 p-3">
+              <p className="text-[11px] font-black text-blue-700">STEP {i + 1}</p>
               <p className="mt-1 font-extrabold text-slate-900">{s.emoji} {s.title}</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-600">{s.body}</p>
             </div>
@@ -47,7 +47,7 @@ export default async function GuidePage() {
       <section className="slw-card space-y-3 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">STEP 1. WING에서 Open API 키 발급</h2>
         <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">
-          <li><a href={WING} target="_blank" rel="noreferrer" className="font-bold text-rose-700 underline">쿠팡 WING</a>에 판매자 계정으로 로그인합니다.</li>
+          <li><a href={WING} target="_blank" rel="noreferrer" className="font-bold text-blue-700 underline">쿠팡 WING</a>에 판매자 계정으로 로그인합니다.</li>
           <li>왼쪽 메뉴 <b>판매자정보 → 추가판매정보</b>로 들어가 아래쪽 <b>「OPEN API 키 발급」</b>을 찾습니다.</li>
           <li>「발급」 버튼을 누르면 <b>업체코드(A로 시작)·Access Key·Secret Key</b>가 나옵니다. 이미 발급돼 있으면 그 값을 씁니다.</li>
         </ol>
@@ -77,7 +77,7 @@ export default async function GuidePage() {
       <section className="slw-card space-y-3 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">STEP 3·4. 키 등록과 연결 시험</h2>
         <p className="text-sm leading-relaxed text-slate-700">
-          키 등록 화면과 연결 시험 버튼은 다음 업데이트에서 열립니다. 업체코드·Access Key·Secret Key와 <b>WING 로그인 ID</b>(상품 등록에 필요)를 준비해 두세요.
+          왼쪽 메뉴 「판매자정보 → 쿠팡 연결」에서 업체코드·Access Key·Secret Key와 <b>WING 로그인 ID</b>(상품 등록에 필요)를 넣고 「연결 시험」을 눌러 주세요.
         </p>
         <Notice tone="warn">
           🔒 키 값은 채팅·메신저·캡처로 다른 사람에게 보내지 마세요. 노출됐다면 WING에서 <b>「재발급」</b>으로 바꾸면 이전 키는 쓸 수 없게 됩니다.
@@ -87,6 +87,14 @@ export default async function GuidePage() {
 
       <section className="slw-card space-y-2 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">❓ 자주 묻는 질문</h2>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">상품을 고치면 바로 반영되나요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">「내 쿠팡 상품 → 상품 수정」에서 배송·반품 값은 승인 없이 바로 바뀝니다. 상품명·브랜드·검색어는 승인된 상품이면 쿠팡 재승인 뒤 반영됩니다. 가격·재고·판매 상태는 「옵션 관리」나 「일괄 가격·재고」에서 바꾸고, 이미지와 옵션 구성은 WING에서 고쳐 주세요.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">쿠폰을 만들면 비용이 드나요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">할인액은 계약 조건에 따라 판매자 정산에서 빠질 수 있으니, 계약의 판매자 부담 비율과 예산을 확인한 뒤 만들어 주세요. 쿠폰은 내일 0시부터 시작할 수 있고, 넣은 옵션은 뺄 수 없어 바꾸려면 파기해야 합니다.</p>
+        </details>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">「매출·정산」의 순이익은 어떻게 계산하나요?</summary>
           <p className="mt-2 leading-relaxed text-slate-700">쿠팡이 실제로 계산한 정산액에서 판매자 쿠폰과, 회원이 넣은 개당 원가 × 순판매수량을 뺍니다. 택배비·포장비는 원가에 포함해 주세요. 원가를 넣지 않은 옵션은 순이익을 표시하지 않습니다. 매출은 구매확정 또는 배송완료 7일 뒤에 잡히므로 최근 주문은 아직 없을 수 있습니다. 「주문 리포트용 파일 받기」로 받은 파일은 AI 쇼핑몰 주문·매출 리포트에 그대로 올릴 수 있습니다.</p>

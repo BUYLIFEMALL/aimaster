@@ -20,7 +20,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
 
   return (
     <div className="space-y-5">
-      <Link href="/products" className="text-xs font-bold text-rose-700">← 상품 목록</Link>
+      <Link href="/products" className="text-xs font-bold text-blue-700">← 상품 목록</Link>
       <PageHeader emoji="📦" title={productName(p)} description={`이미지: 대표 ${shop.mainImage ? 1 : 0}장 · 추가 ${shop.extraImages.length}장 · 상세 섹션 ${shop.sectionImages.length}장`} />
       {thumbs.length > 0 && (
         <div className="flex gap-2 overflow-x-auto">

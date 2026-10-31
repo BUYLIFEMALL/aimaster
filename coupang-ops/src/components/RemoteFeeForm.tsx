@@ -22,7 +22,7 @@ export function RemoteFeeForm({ placeCode }: { placeCode: string }) {
           <input inputMode="numeric" value={notJeju || ""} onChange={(e) => setNotJeju(num(e.target.value))} className={input} /></label>
         <div className="flex items-end">
           <button type="button" disabled={pending} onClick={() => start(async () => setResult(await updateRemoteFeeAction(placeCode, jeju, notJeju)))}
-            className="w-full rounded-lg border border-rose-300 px-3 py-2 text-sm font-bold text-rose-800 hover:bg-rose-50 disabled:opacity-50">
+            className="w-full rounded-lg border border-blue-300 px-3 py-2 text-sm font-bold text-blue-800 hover:bg-blue-50 disabled:opacity-50">
             {pending ? "쿠팡에 저장 중…" : "🏝 WING 출고지에 저장"}
           </button>
         </div>

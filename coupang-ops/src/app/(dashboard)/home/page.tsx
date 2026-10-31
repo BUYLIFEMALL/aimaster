@@ -24,7 +24,7 @@ export default async function HomePage() {
 
       <Notice tone="tip">
         🧭 <b>시작 순서</b>: 1. WING에서 Open API 키 발급(연동 방식 「자체개발」, 허용 IP 등록) → 2. 이 프로그램에 키 등록 → 3. 연결 시험 → 4. 상품 등록.
-        키 발급 방법은 <Link href="/guide" className="font-bold text-rose-700 underline">📖 연동 &amp; 사용 매뉴얼</Link>에 있습니다.
+        키 발급 방법은 <Link href="/guide" className="font-bold text-blue-700 underline">📖 연동 &amp; 사용 매뉴얼</Link>에 있습니다.
       </Notice>
 
       <TodayBoard keysSaved={!!keys} />
@@ -41,8 +41,8 @@ export default async function HomePage() {
       {TOOLS.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-3">
           {TOOLS.map((t, i) => (
-            <Link key={t.href} href={t.href} className="slw-card block p-4 transition hover:border-rose-300">
-              <p className="text-[11px] font-black text-rose-700">STEP {i + 1}</p>
+            <Link key={t.href} href={t.href} className="slw-card block p-4 transition hover:border-blue-300">
+              <p className="text-[11px] font-black text-blue-700">STEP {i + 1}</p>
               <p className="mt-1 font-extrabold text-slate-900">{t.emoji} {t.label}</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-600">{t.description}</p>
             </Link>
@@ -55,8 +55,8 @@ export default async function HomePage() {
         <p className="mt-1 text-xs text-slate-600">기능을 하나씩 만들어 순서대로 엽니다. 지금은 1단계를 만드는 중입니다.</p>
         <ol className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {ROADMAP.map((r, i) => (
-            <li key={r.stage} className={`rounded-xl border p-3 ${i === 0 ? "border-rose-300 bg-rose-50" : "border-slate-200 bg-white"}`}>
-              <p className="text-[11px] font-black text-rose-700">{r.stage}{i === 0 ? " · 만드는 중" : " · 예정"}</p>
+            <li key={r.stage} className={`rounded-xl border p-3 ${i === 0 ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white"}`}>
+              <p className="text-[11px] font-black text-blue-700">{r.stage}{i === 0 ? " · 만드는 중" : " · 예정"}</p>
               <p className="mt-0.5 font-extrabold text-slate-900">{r.emoji} {r.title}</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-600">{r.items}</p>
             </li>

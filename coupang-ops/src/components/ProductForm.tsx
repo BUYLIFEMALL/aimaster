@@ -172,7 +172,7 @@ export function ProductForm(props: {
           <label className="block"><span className={label}>제조사(없으면 비움)</span><input value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} className={input} /></label>
         </div>
         <div className="flex flex-wrap items-end gap-2">
-          <button type="button" disabled={pending || !props.keysSaved || !name.trim()} onClick={() => loadCategory()} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+          <button type="button" disabled={pending || !props.keysSaved || !name.trim()} onClick={() => loadCategory()} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
             {pending ? "쿠팡에 묻는 중…" : "🗂 쿠팡 카테고리 추천받기"}
           </button>
           <span className="text-xs text-slate-500">또는 번호 직접</span>
@@ -203,7 +203,7 @@ export function ProductForm(props: {
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={buildRows} disabled={comboCount > MAX_COMBOS} className="rounded-lg border border-rose-300 px-3 py-2 text-sm font-bold text-rose-800 hover:bg-rose-50 disabled:opacity-50">🧮 옵션 표 만들기</button>
+            <button type="button" onClick={buildRows} disabled={comboCount > MAX_COMBOS} className="rounded-lg border border-blue-300 px-3 py-2 text-sm font-bold text-blue-800 hover:bg-blue-50 disabled:opacity-50">🧮 옵션 표 만들기</button>
             <span className="text-xs text-slate-500">{axes.length ? `조합 ${comboCount}개${comboCount > MAX_COMBOS ? ` — ${MAX_COMBOS}개를 넘어 만들 수 없습니다` : ""}` : cat.meta.singleAllowed ? "값이 없으면 옵션 없는 상품 1줄" : ""}</span>
           </div>
           {rows.length > 0 && <p className="text-xs text-slate-500">옵션마다 바코드나 모델번호(품번) 중 하나를 넣어 주세요. 바코드가 없으면 비워 두면 「바코드 없음」으로 보냅니다.</p>}
@@ -264,7 +264,7 @@ export function ProductForm(props: {
         <section className="slw-card space-y-3 p-5">
           <h2 className="text-base font-extrabold text-slate-900">4. 보내기 전 검사</h2>
           <p className="text-sm text-slate-600">빠진 값과 쿠팡 규칙 위반을 미리 찾습니다. 쿠팡에는 아직 아무것도 보내지 않습니다.</p>
-          <button type="button" disabled={pending} onClick={runCheck} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">{pending ? "검사 중…" : "🔍 검사하기"}</button>
+          <button type="button" disabled={pending} onClick={runCheck} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">{pending ? "검사 중…" : "🔍 검사하기"}</button>
           {check && (
             <div className="space-y-2 text-[13px]">
               <p className="text-slate-600">이미지: 대표 {check.images.main ? "1장" : "없음"} · 추가 {check.images.extras}장 · 상세 {check.images.contents}장 (보낼 때 쿠팡이 받아 갈 짧은 주소로 바뀝니다)</p>
@@ -284,7 +284,7 @@ export function ProductForm(props: {
             <input type="checkbox" checked={confirmSend} onChange={(e) => setConfirmSend(e.target.checked)} disabled={!checkPassed} />
             위 내용을 확인했습니다{!checkPassed ? " (먼저 「검사하기」를 통과해 주세요)" : ""}
           </label>
-          <button type="button" disabled={pending || !confirmSend || !checkPassed} onClick={runSend} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-50">
+          <button type="button" disabled={pending || !confirmSend || !checkPassed} onClick={runSend} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
             {pending ? "쿠팡에 보내는 중…" : "📤 쿠팡에 저장만 보내기"}
           </button>
           {sent && !sent.ok && (
@@ -316,7 +316,7 @@ export function ProductForm(props: {
                         type="button"
                         disabled={refreshing === j.id}
                         onClick={() => (confirmApprove === j.id ? approveJob(j.id) : setConfirmApprove(j.id))}
-                        className="ml-2 rounded border border-rose-600 bg-rose-700 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-rose-800 disabled:opacity-50"
+                        className="ml-2 rounded border border-blue-600 bg-blue-700 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-blue-800 disabled:opacity-50"
                       >
                         {confirmApprove === j.id ? "네, 판매 승인 요청" : "판매 승인 요청"}
                       </button>

@@ -29,14 +29,14 @@ export function WingKeyForm({ saved }: { saved: boolean }) {
               data-lpignore="true"
               required
               spellCheck={false}
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm focus:border-rose-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm focus:border-blue-500 focus:outline-none"
             />
             <span className="mt-0.5 block text-[11px] text-slate-500">{f.hint}</span>
           </label>
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <button type="submit" disabled={saving} className="rounded-lg bg-rose-700 px-4 py-2 text-sm font-bold text-white hover:bg-rose-800 disabled:opacity-60">
+        <button type="submit" disabled={saving} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-60">
           {saving ? "저장 중…" : saved ? "새 키로 바꾸기" : "키 저장"}
         </button>
         {saved && (
