@@ -435,3 +435,7 @@ POST 콜백을 보낸다. 이 라우트는:
 - 로드맵 5단계(`../docs/analysis-pc-renderer-20261024/ROADMAP.md`). 곡 카드(`TrackCard.tsx`) 변주 재생기 아래 「내 PC로 저장(MP3·FLAC)」(`components/plannings/PcSaveButton.tsx`, AI 음악 스튜디오와 같은 동작·주황 색) — 서명 주소 곡을 브라우저가 받아 회원 PC 실행기로 MP3·AAC·FLAC·WAV24 + -14 LUFS 맞춤. 곡 파일을 못 받으면(만료된 Suno 임시 주소 등) 「먼저 저장소에 저장」 안내.
 - 공용 기준 코드 사본: `lib/pcRenderer.ts`·`lib/pcAudio.ts`(기준 `ai-mastering-studio`). 직접 고치지 말 것.
 - 검수: 시험 58·tsc·build · 배포 `music-8xq1thby3` Ready·DB v1.46 · 크롬 시험 계정 「빗속의 다짐」 단추 2개, 첫 곡(207초) → MP3(ID3, 8.3MB), 음량 -13.3 → -14.0 LUFS·최대 -1.4 dBTP. 커밋 `3e625741c`. 플랜 `../ai-music-studio/docs/PLAN_20261024_PC_SAVE.md`.
+
+## 2026-11-01 v1.48 — AI 기획 모델 추가 (Claude Code 윈도우 · 음악 담당)
+- AI 공급사 순서를 OpenAI·Claude·Gemini로 변경, GPT-6.1 Sol·6 Astra·6.1 Terra·6 Luna·Claude Opus 5.5·Fable 5.1 추가, 출력 한도 8192 → 16000. 기본값은 Gemini 3.8 Flash 유지. 곡 기획 실제 호출(시험 계정 본인 키, 7회): 6개 통과 10.7~42.9초. gemini-4-argon은 HTTP 402로 실패해 목록에서 제외(원인 미확인, 앨범 생성 길이는 미시험).
+- 검수: 시험 58·tsc·build, 배포 Ready, DB v1.48, 크롬 화면 v1.48. 커밋 `2a6c922e0`·`73704b95e`.

@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-01 (`claude-win-20261024-music` — 마스터링 v1.15 AI 모델 추가 배포)
+- 마지막 갱신: 2026-11-01 (`claude-win-20261024-music` — 음악(SUNO) v1.48 AI 모델 추가 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -22,6 +22,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-01 | `music-automation` v1.48 | AI 공급사 순서 변경, 최신 모델 6개 추가 | 배포 |
 | 2026-10-31 | `ai-mastering-studio` v1.15 | AI 제안 최신 모델 9개 추가, 플랫폼별 묶음, 기본값 3.8 Flash | 배포 |
 | 2026-10-31 | `ai-audio-analyzer` v1.14 | `gemini-3.8-flash` 교체, Suno v6 지시문·화면 문구, 정확성 규칙. 합성음 환각은 미해결 | 배포 |
 | 2026-10-25 | `lyric-video-studio` v1.11 | Lyricbi L-1 노래방 로마자 발음(끔/위/아래, 시험 5개) | 배포 |
