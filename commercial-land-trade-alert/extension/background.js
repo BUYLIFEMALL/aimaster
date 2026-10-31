@@ -13,8 +13,9 @@ const get = (keys) => chrome.storage.local.get(keys);
 const set = (obj) => chrome.storage.local.set(obj);
 
 async function addLog(text) {
-  const { log = [] } = await get("log");
-  await set({ log: [...log, `${new Date().toISOString()} ${text}`].slice(-100) });
+  const { log } = await get("log");
+  // 사전 검증 때 남은 다른 모양의 기록이 있어도 멈추지 않는다
+  await set({ log: [...(Array.isArray(log) ? log : []), `${new Date().toISOString()} ${text}`].slice(-100) });
 }
 
 async function api(path, init = {}) {
@@ -248,7 +249,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           schedule: s.settingsCache?.schedule || null,
           targetCount: s.settingsCache?.targets?.length ?? null,
           latestVersion: s.settingsCache?.latestVersion || null,
-          recent: (s.log || []).slice(-6),
+          recent: (Array.isArray(s.log) ? s.log : []).slice(-6),
         });
       }
       if (msg.type === "refreshSettings") { await loadSettings(); return reply({ ok: true }); }
