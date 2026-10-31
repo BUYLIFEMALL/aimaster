@@ -113,3 +113,7 @@
 - **큰 파일**: `api/upload/start`가 회원 본인 키로 Gemini Files API 이어 올리기 세션을 시작(요청 사이트 주소 Origin을 Google에 함께 전달 — 이것이 있어야 브라우저 직접 업로드가 CORS로 허용됨)하고 키 없는 올림 주소만 돌려줌 → 브라우저가 그 주소로 파일을 직접 올림(진행률 표시) → `api/analyze`는 파일 주소(`fileUri`)만 JSON으로 받아 `fileData`로 분석, 끝나면 Google 쪽 파일 삭제 요청. 한도 100MB로 화면·가이드 통일, 분석 시간 제한 300초. 서버를 거쳐 4MB 조각으로 보내는 방식은 Google 조각 단위가 8MB라 실패해 버림(`docs/ERROR_LESSONS.md` 2026-10-21).
 - 검수: tsc·build, Vercel 프로덕션 배포 Ready, DB `programs.version = v1.11`. 크롬(일반 회원 계정)에서 7.45MB 한국어 음성 WAV를 「음성·회의록」 모드로 실제 분석 성공(화자 2명·00:41·결정·질문·받아쓰기 표시, Gemini 2.5 Flash 1회 호출). 권한 없는 회원의 차단은 FREE 배지라 실제 시험 대상이 없어 코드 확인으로 대신함. Google 쪽 파일 삭제는 코드상 요청만 확인(실제 삭제 여부 미확인, 실패해도 48시간 뒤 자동 삭제).
 - 남은 일: auto 모드가 판별·분석으로 두 번 호출(비용 2배, D-71-02), `next lint` 실패(F-019), m4a 등 형식별 MIME 확인.
+
+## 2026-10-31 인수인계: Gemini 모델·Suno v6 업데이트(미착수)
+음악 담당 작업. [`docs/IMPROVEMENT_HANDOFF_20261031_MODEL_UPDATE.md`](docs/IMPROVEMENT_HANDOFF_20261031_MODEL_UPDATE.md)
+
