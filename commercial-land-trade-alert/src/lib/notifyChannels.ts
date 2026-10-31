@@ -1,5 +1,6 @@
 import "server-only";
 
+import { aiEngine, AI_ENGINES, type AiProvider } from "@/lib/aiEngines";
 import { getMemberAccount, markMemberAccountNeedsReconnect, updateMemberAccountToken } from "@/lib/memberIntegrations";
 
 // 카톡·이메일 키. 기준: realty-listing-alert/lib/notifyChannels.ts. 회원 본인 계정·키만 쓰고 폴백하지 않는다.
@@ -54,5 +55,15 @@ export async function getKakaoState(db: Db, userId: string, withToken = true): P
 }
 
 export const hasKakaoKey = async (db: Db, userId: string) => !!(await memberKey(db, userId, "kakao_rest_api_key"));
-export const getAnthropicKey = (db: Db, userId: string) => memberKey(db, userId, "anthropic");
+export const getAiKey = (db: Db, userId: string, provider: AiProvider) => memberKey(db, userId, aiEngine(provider).keyProvider);
+
+/** 화면용: 키 끝 4자리만 보낸다. 없으면 null */
+export async function aiKeyTails(db: Db, userId: string): Promise<Record<AiProvider, string | null>> {
+  const out = { openai: null, claude: null, gemini: null } as Record<AiProvider, string | null>;
+  await Promise.all(AI_ENGINES.map(async (e) => {
+    const key = await memberKey(db, userId, e.keyProvider);
+    out[e.id] = key ? key.slice(-4) : null;
+  }));
+  return out;
+}
 export const getResendKey = (db: Db, userId: string) => memberKey(db, userId, "resend_api_key");

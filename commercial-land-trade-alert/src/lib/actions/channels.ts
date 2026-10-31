@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { aiEngine, toAiProvider } from "@/lib/aiEngines";
 import { getKakaoState, getResendKey } from "@/lib/notifyChannels";
 import { sendKakaoMemo, sendResendMail } from "@/lib/notifySend";
 import { isClientSecret, isRestApiKey, kakaoAuthorizeUrl, makeState, STATE_COOKIE } from "@/lib/kakaoOAuth";
@@ -40,6 +41,35 @@ export async function saveResendKeyAction(_: ChannelResult, formData: FormData):
   if (error) return { error: `저장에 실패했습니다: ${error.message}` };
   revalidatePath("/settings");
   return { success: "Resend 키를 저장했어요." };
+}
+
+export async function deleteResendKeyAction(): Promise<ChannelResult> {
+  const user = await requireProgramAccess();
+  const { error } = await db().from("user_api_keys").delete().eq("user_id", user.id).eq("provider", "resend_api_key");
+  if (error) return { error: `삭제에 실패했습니다: ${error.message}` };
+  revalidatePath("/settings");
+  return { success: "Resend 키를 지웠어요." };
+}
+
+// AI 요약 키. 공용 user_api_keys라 다른 AIMaster 프로그램과 같은 키를 함께 쓴다
+export async function saveAiKeyAction(_: ChannelResult, formData: FormData): Promise<ChannelResult> {
+  const user = await requireProgramAccess();
+  const engine = aiEngine(toAiProvider(formData.get("provider")));
+  const key = String(formData.get("aiKey") ?? "").trim();
+  if (!engine.keyPattern.test(key)) return { error: engine.keyHint };
+  const { error } = await db().from("user_api_keys").upsert({ user_id: user.id, provider: engine.keyProvider, api_key: key }, { onConflict: "user_id,provider" });
+  if (error) return { error: `저장에 실패했습니다: ${error.message}` };
+  revalidatePath("/settings");
+  return { success: `${engine.name} 키를 저장했어요.` };
+}
+
+export async function deleteAiKeyAction(provider: string): Promise<ChannelResult> {
+  const user = await requireProgramAccess();
+  const engine = aiEngine(toAiProvider(provider));
+  const { error } = await db().from("user_api_keys").delete().eq("user_id", user.id).eq("provider", engine.keyProvider);
+  if (error) return { error: `삭제에 실패했습니다: ${error.message}` };
+  revalidatePath("/settings");
+  return { success: `${engine.name} 키를 지웠어요.` };
 }
 
 export async function sendTestEmailAction(): Promise<ChannelResult> {

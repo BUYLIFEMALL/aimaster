@@ -6,7 +6,7 @@ import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
 import { daysSince, estimateYield, gapText, marketGap, scoreListing, yieldText } from "./lib/score.js";
-import { buildAiInput, summarize } from "./lib/ai.js";
+import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable, trendText } from "./lib/stats.js";
 import { buildWeeklyReport, shouldSendWeekly } from "./lib/weekly.js";
 import { ALERT_PREFIX, buildKakaoText, buildMailHtml, buildMailSubject, buildSummary, kakaoLinkFor, sendDocument, sendKakaoMemo, sendMessage, sendResendMail } from "./lib/notify.js";
@@ -323,6 +323,11 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         return reply(await locateDong(msg.cortarNo, addLog));
       }
       if (msg.type === "setWeekly") { await set({ weeklyOn: !!msg.on }); return reply({ ok: true }); }
+      if (msg.type === "aiChoice") {
+        if (msg.set) await set({ aiChoice: normalizeChoice(msg.set) });
+        const { aiChoice } = await get("aiChoice");
+        return reply({ ok: true, ...normalizeChoice(aiChoice) });
+      }
       if (msg.type === "aiSummary") {
         const { lastResult } = await get("lastResult");
         if (!lastResult?.table?.length) return reply({ ok: false, error: "먼저 「지금 수집」을 해 주세요." });
@@ -330,8 +335,10 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         const { history = [] } = await get("history");
         input.trend = trendText(history);
         if (!input.count) return reply({ ok: false, error: "요약할 후보나 변동 매물이 없습니다." });
-        const { apiKey } = await api("/api/extension/ai-key"); // 저장하지 않고 이번 호출에만 쓴다
-        return reply({ ok: true, count: input.count, text: await summarize(apiKey, input) });
+        const { aiChoice } = await get("aiChoice");
+        const { provider, models } = normalizeChoice(aiChoice);
+        const { apiKey } = await api(`/api/extension/ai-key?provider=${provider}`); // 저장하지 않고 이번 호출에만 쓴다
+        return reply({ ok: true, count: input.count, text: await summarize({ provider, model: models[provider], apiKey }, input) });
       }
       if (msg.type === "refreshSettings") { await loadSettings(); return reply({ ok: true }); }
       reply({ ok: false, error: "알 수 없는 요청" });

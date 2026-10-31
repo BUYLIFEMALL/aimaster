@@ -5,7 +5,7 @@
     if (event.source !== window || event.origin !== location.origin) return;
     const m = event.data;
     if (m?.source !== "clta-app" || typeof m.requestId !== "string") return;
-    if (m.type !== "ping" && m.type !== "connect" && m.type !== "lastResult" && m.type !== "aiSummary" && m.type !== "stats" && m.type !== "locateDong") return;
+    if (m.type !== "ping" && m.type !== "connect" && m.type !== "lastResult" && m.type !== "aiSummary" && m.type !== "aiChoice" && m.type !== "stats" && m.type !== "locateDong") return;
     let result;
     if (m.type === "ping") {
       const { extToken, connectedEmail } = await chrome.storage.local.get(["extToken", "connectedEmail"]).catch(() => ({}));
@@ -25,6 +25,11 @@
       const same = connectedEmail && String(m.email || "").toLowerCase() === String(connectedEmail).toLowerCase();
       try { result = same ? await chrome.runtime.sendMessage({ type: "stats" }) : { ok: false }; }
       catch { result = { ok: false }; }
+    } else if (m.type === "aiChoice") {
+      const { connectedEmail } = await chrome.storage.local.get("connectedEmail").catch(() => ({}));
+      const same = connectedEmail && String(m.email || "").toLowerCase() === String(connectedEmail).toLowerCase();
+      try { result = same ? await chrome.runtime.sendMessage({ type: "aiChoice", set: m.set || null }) : { ok: false, error: "확장을 연결한 계정으로 로그인해 주세요." }; }
+      catch { result = { ok: false, error: "확장을 새로고침하고 이 화면도 새로고침해 주세요." }; }
     } else if (m.type === "aiSummary") {
       // 화면은 내용을 넘기지 못하고 요청만 한다. 보낼 자료는 확장이 자기 기록에서 만든다.
       const { connectedEmail } = await chrome.storage.local.get("connectedEmail").catch(() => ({}));

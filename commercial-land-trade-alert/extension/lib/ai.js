@@ -1,4 +1,4 @@
-// AI 요약. 회원이 누를 때만, 회원 본인 Claude 키로 Anthropic에 직접 보낸다. 매물은 우리 서버를 거치지 않는다.
+// AI 요약. 회원이 누를 때만, 회원이 고른 엔진(OpenAI·Claude·Gemini)의 본인 키로 직접 보낸다. 매물은 우리 서버를 거치지 않는다.
 // 확장은 빌드 과정이 없어 SDK를 쓸 수 없으므로 HTTP로 부른다. 회원 키 이중 과금을 막으려고 재시도하지 않는다.
 const AI_COLUMNS = ["유형", "거래 종류", "가격", "이전 가격", "변동", "면적 기준", "면적(㎡)", "층", "시세 대비", "후보 점수", "근거", "추정 수익률"];
 const MAX_ROWS = 30;
@@ -24,34 +24,62 @@ const systemPrompt = (year) => `당신은 한국 상업용 부동산 매물 목�
 4. 현장에서 확인할 것: 3가지
 핵심 단어와 숫자는 **굵게** 표시합니다. 매수를 권하거나 수익을 단정하지 말고, 자료에 없는 사실을 지어내지 않습니다.`;
 
-/** 응답을 흘려 받아 서비스 워커가 긴 대기로 끊기지 않게 한다 */
-export async function summarize(apiKey, input, year = new Date().getFullYear()) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2026-10-21",
-      "anthropic-beta": "server-side-fallback-2026-07-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
-    body: JSON.stringify({
-      model: "claude-opus-5-5",
-      max_tokens: 4000,
-      stream: true,
-      fallbacks: "default",
-      output_config: { effort: "low" },
-      system: systemPrompt(year),
-      messages: [{ role: "user", content: `<listings>\n${input.text}\n</listings>${input.trend ? `\n<trend>\n${input.trend}\n</trend>` : ""}` }],
-    }),
-  });
-  if (!res.ok) {
-    if (res.status === 401) throw new Error("Claude API 키가 올바르지 않습니다. 메인 사이트 API 설정에서 확인해 주세요.");
-    if (res.status === 429) throw new Error("Claude 사용 한도에 걸렸습니다. 잠시 뒤 다시 눌러 주세요.");
-    const j = await res.json().catch(() => ({}));
-    throw new Error(`Claude 응답 오류(${res.status}) ${j.error?.message || ""}`.trim());
+const DEFAULT_MODEL = { openai: "gpt-4.1", claude: "claude-opus-5-5", gemini: "gemini-3.7-flash" };
+const NAME = { openai: "OpenAI", claude: "Claude", gemini: "Gemini" };
+const MAX_TOKENS = 4000;
+
+/** 저장값을 믿지 않고 엔진 3가지와 모델 이름 모양만 통과시킨다 */
+export function normalizeChoice(c) {
+  const provider = c?.provider === "openai" || c?.provider === "gemini" ? c.provider : "claude";
+  const models = {};
+  for (const id of Object.keys(DEFAULT_MODEL)) {
+    const m = c?.models?.[id];
+    if (typeof m === "string" && /^[a-z0-9.-]{1,60}$/.test(m)) models[id] = m;
   }
-  return readStream(res.body);
+  return { provider, models };
+}
+
+/** 엔진별 요청. 재시도하지 않는다 */
+export function buildRequest({ provider, model, apiKey }, input, year = new Date().getFullYear()) {
+  const name = model || DEFAULT_MODEL[provider];
+  const system = systemPrompt(year);
+  const user = `<listings>\n${input.text}\n</listings>${input.trend ? `\n<trend>\n${input.trend}\n</trend>` : ""}`;
+  const json = { "content-type": "application/json" };
+  if (provider === "openai") {
+    return { url: "https://api.openai.com/v1/chat/completions", headers: { ...json, authorization: `Bearer ${apiKey}` }, body: { model: name, max_completion_tokens: MAX_TOKENS, messages: [{ role: "system", content: system }, { role: "user", content: user }] } };
+  }
+  if (provider === "gemini") {
+    return { url: `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(name)}:generateContent`, headers: { ...json, "x-goog-api-key": apiKey }, body: { systemInstruction: { parts: [{ text: system }] }, contents: [{ role: "user", parts: [{ text: user }] }], generationConfig: { maxOutputTokens: MAX_TOKENS } } };
+  }
+  // Haiku는 거절 시 다른 모델로 넘기는 기능이 없어 뺀다
+  const fallback = !name.includes("haiku");
+  return {
+    url: "https://api.anthropic.com/v1/messages",
+    headers: { ...json, "x-api-key": apiKey, "anthropic-version": "2026-10-21", "anthropic-dangerous-direct-browser-access": "true", ...(fallback ? { "anthropic-beta": "server-side-fallback-2026-07-01" } : {}) },
+    body: { model: name, max_tokens: MAX_TOKENS, stream: true, ...(fallback ? { fallbacks: "default" } : {}), output_config: { effort: "low" }, system, messages: [{ role: "user", content: user }] },
+  };
+}
+
+/** OpenAI·Gemini 응답에서 글만 꺼낸다 */
+export function readJsonText(provider, j) {
+  const text = provider === "openai" ? j?.choices?.[0]?.message?.content : (j?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+  const cut = provider === "openai" ? j?.choices?.[0]?.finish_reason === "length" : j?.candidates?.[0]?.finishReason === "MAX_TOKENS";
+  if (!String(text || "").trim()) throw new Error("요약이 비어 있습니다. 다시 눌러 주세요.");
+  return cut ? `${text}\n\n(길이 제한으로 여기까지만 나왔습니다.)` : text;
+}
+
+/** ai: { provider, model, apiKey }. Claude는 응답을 흘려 받아 서비스 워커가 긴 대기로 끊기지 않게 한다 */
+export async function summarize(ai, input, year) {
+  const req = buildRequest(ai, input, year);
+  const res = await fetch(req.url, { method: "POST", headers: req.headers, body: JSON.stringify(req.body) });
+  const name = NAME[ai.provider];
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) throw new Error(`${name} API 키가 올바르지 않거나 권한이 없습니다. API키등록·플랫폼연동에서 확인해 주세요.`);
+    if (res.status === 429) throw new Error(`${name} 사용 한도에 걸렸습니다. 잠시 뒤 다시 눌러 주세요.`);
+    const j = await res.json().catch(() => ({}));
+    throw new Error(`${name} 응답 오류(${res.status}) ${j.error?.message || ""}`.trim());
+  }
+  return ai.provider === "claude" ? readStream(res.body) : readJsonText(ai.provider, await res.json());
 }
 
 export async function readStream(body) {

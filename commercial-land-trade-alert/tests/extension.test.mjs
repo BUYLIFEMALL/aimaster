@@ -269,3 +269,26 @@ test("유형·거래별 건수와 짧은 이름", async () => {
   assert.equal(countByKindTrade([{ kindName: "상가", tradeName: "매매" }, { kindName: "상가", tradeName: "매매" }, { kindName: "건물", tradeName: "월세" }]), "상가 매매 2 · 건물 월세 1");
   assert.equal(countByKindTrade([]), "");
 });
+
+test("AI 엔진 3가지 요청과 선택값 검사", async () => {
+  const { buildRequest, normalizeChoice, readJsonText } = await import("../extension/lib/ai.js");
+  const input = { text: "표" };
+  const openai = buildRequest({ provider: "openai", model: "gpt-4.1", apiKey: "k" }, input, 2026);
+  assert.match(openai.url, /api\.openai\.com/);
+  assert.equal(openai.headers.authorization, "Bearer k");
+  assert.equal(openai.body.messages[0].role, "system");
+  const gemini = buildRequest({ provider: "gemini", apiKey: "k" }, input, 2026);
+  assert.match(gemini.url, /models\/gemini-3\.7-flash:generateContent$/);
+  assert.equal(gemini.headers["x-goog-api-key"], "k");
+  const opus = buildRequest({ provider: "claude", apiKey: "k" }, input, 2026);
+  assert.equal(opus.body.model, "claude-opus-5-5");
+  assert.equal(opus.body.fallbacks, "default");
+  const haiku = buildRequest({ provider: "claude", model: "claude-haiku-5-5", apiKey: "k" }, input, 2026);
+  assert.equal(haiku.body.fallbacks, undefined);
+  assert.equal(haiku.headers["anthropic-beta"], undefined);
+  assert.equal(normalizeChoice(null).provider, "claude");
+  assert.deepEqual(normalizeChoice({ provider: "x", models: { gemini: "../evil", openai: "gpt-4.1" } }), { provider: "claude", models: { openai: "gpt-4.1" } });
+  assert.equal(readJsonText("openai", { choices: [{ message: { content: "요약" }, finish_reason: "stop" }] }), "요약");
+  assert.match(readJsonText("gemini", { candidates: [{ content: { parts: [{ text: "요약" }] }, finishReason: "MAX_TOKENS" }] }), /길이 제한/);
+  assert.throws(() => readJsonText("gemini", {}), /비어/);
+});

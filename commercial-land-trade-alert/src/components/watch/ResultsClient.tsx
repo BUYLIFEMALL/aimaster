@@ -141,7 +141,7 @@ export function ResultsClient({ email }: { email: string }) {
             {ai.busy ? "요약 중입니다..." : "🤖 AI 요약 보기"}
           </button>
           <p className="min-w-60 flex-1 text-xs text-mx-muted">
-            회원님 본인 Claude 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 Anthropic에 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 1회 약 100원 안팎이 본인 키에 청구됩니다.
+            API키등록·플랫폼연동에서 고른 AI(OpenAI·Claude·Gemini)에 회원님 본인 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 고른 모델 기준으로 본인 키에 청구됩니다.
           </p>
         </div>
         {ai.error && <p className="mt-3 text-sm text-red-600">{ai.error}</p>}
