@@ -60,14 +60,14 @@ async function addPages(n) {
 // 동 코드만 보내 실거래 시세를 받아 하루 기억한다. 매물 내용은 보내지 않는다.
 async function marketFor(cortarNo) {
   if (!cortarNo) return null;
-  const { marketCache = {} } = await get("marketCache");
-  const hit = marketCache[cortarNo];
+  const { marketCacheV2 = {} } = await get("marketCacheV2");
+  const hit = marketCacheV2[cortarNo];
   if (hit && Date.now() - new Date(hit.at).getTime() < 24 * 3600 * 1000) return hit.value;
   try {
     const r = await api("/api/extension/market", { method: "POST", body: JSON.stringify({ cortarNos: [cortarNo] }) });
     const value = r.markets?.[cortarNo] || null;
     if (value?.collecting) await addLog(`${value.name}: 실거래 자료를 모으는 중이에요(관심 지역에 추가). 시세 비교는 다음 수집부터 나옵니다.`);
-    else await set({ marketCache: { ...marketCache, [cortarNo]: { at: new Date().toISOString(), value } } });
+    else await set({ marketCacheV2: { ...marketCacheV2, [cortarNo]: { at: new Date().toISOString(), value } } });
     return value;
   } catch (e) {
     await addLog(`시세 조회 실패: ${e.message}`);

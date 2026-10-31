@@ -114,12 +114,21 @@ test("감시 주소 검사", () => {
 
 test("시세 대비와 후보 점수", async () => {
   const { gapText, marketGap, scoreListing, daysSince } = await import("../extension/lib/score.js");
-  const it = item({ tradeType: "A1", price: 100000, area: 100 });
-  const g = marketGap(it, { SG: { median: 4000, count: 12, scope: "동" } });
+  const it = item({ kind: "SG", tradeType: "A1", price: 100000, area: 100, floor: "1/5" });
+  const row = (floor, area = 100, inDong = 1) => [floor, area, 4000, inDong];
+  const five = (f) => [1, 2, 3, 4, 5].map(() => row(f));
+  const g = marketGap(it, { samples: { SG: five("1") } });
   assert.equal(g.pct, -17);
-  assert.equal(gapText(g), "-17%(동 12건)");
-  assert.equal(marketGap(item(), { SG: { median: 4000, count: 12, scope: "동" } }), null, "월세는 비교 안 함");
-  assert.equal(marketGap(it, { SG: null }), null);
+  assert.equal(gapText(g), "-17%(동·1층 5건)");
+  assert.equal(marketGap({ ...it, tradeType: "B2" }, { samples: { SG: five("1") } }), null, "월세는 비교 안 함");
+  assert.equal(marketGap(it, { samples: { SG: five("b") } }), null, "다른 층과 비교 안 함");
+  assert.equal(marketGap(it, { samples: { SG: five(null) } }), null, "층 없는 거래 안 씀");
+  assert.equal(marketGap({ ...it, floor: "고/15" }, { samples: { SG: five("1") } }), null, "층을 모르는 매물");
+  assert.equal(marketGap({ ...it, floor: "B1/15" }, { samples: { SG: five("b") } }).floorName, "지하");
+  assert.equal(marketGap(it, { samples: { SG: [1, 2, 3, 4, 5].map(() => row("1", 300)) } }), null, "면적 2배 초과 제외");
+  assert.equal(marketGap(it, { samples: { SG: [row("1"), ...[1, 2, 3, 4].map(() => row("1", 100, 0))] } }).scope, "시군구");
+  assert.equal(marketGap({ ...it, kind: "TJ", floor: "" }, { samples: { TJ: five(null) } }).floorName, "");
+  assert.equal(marketGap(it, { SG: { median: 4000, count: 12, scope: "동" } }), null, "표본 없으면 비교 안 함");
   const s = scoreListing({ gap: g, drops: 1, ageDays: 40 });
   assert.equal(s.score, 60);
   assert.equal(s.candidate, true);
@@ -138,7 +147,7 @@ test("가격을 내릴 때마다 횟수를 센다", () => {
 });
 
 test("실거래 시세 요약", async () => {
-  const { summarizeMarket } = await import("../src/lib/trades/market.ts");
+  const { floorBucket, marketSamples, summarizeMarket } = await import("../src/lib/trades/market.ts");
   const row = (over) => ({ kind: "building", building_type: "집합", category: "판매", umd_nm: "역삼동", price_per_pyeong: 100, is_share: false, cancelled: false, ...over });
   const rows = [1, 2, 3, 4, 5].map((n) => row({ price_per_pyeong: n * 100 }));
   assert.deepEqual(summarizeMarket(rows, "역삼동").SG, { median: 300, count: 5, scope: "동" });
@@ -147,6 +156,9 @@ test("실거래 시세 요약", async () => {
   const noisy = [...rows, row({ price_per_pyeong: 99999, is_share: true }), row({ price_per_pyeong: 99999, cancelled: true }), row({ price_per_pyeong: 99999, category: "숙박" }), row({ price_per_pyeong: 99999, building_type: "일반" })];
   assert.equal(summarizeMarket(noisy, "역삼동").SG.median, 300);
   assert.equal(summarizeMarket(noisy, "역삼동").GM, null);
+  assert.equal(floorBucket("-1") + floorBucket("B1") + floorBucket("1") + floorBucket("7"), "bb12");
+  assert.equal(floorBucket(null), null);
+  assert.deepEqual(marketSamples([row({ floor: "1", area_m2: 50 }), row({ area_m2: 0 })], "역삼동").SG, [["1", 50, 100, 1]]);
   const land = [1, 2, 3, 4, 5].map((n) => row({ kind: "land", building_type: null, category: "대", price_per_pyeong: n * 10 }));
   assert.equal(summarizeMarket([...land, row({ kind: "land", building_type: null, category: "도로", price_per_pyeong: 1 })], "역삼동").TJ.median, 30);
 });

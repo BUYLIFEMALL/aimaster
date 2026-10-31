@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dongOf } from "@/lib/regions";
-import { summarizeMarket, type MarketRow } from "@/lib/trades/market";
+import { marketSamples, summarizeMarket, type MarketRow } from "@/lib/trades/market";
 import { daysAgoIso } from "@/lib/trades/parse";
 
 export const dynamic = "force-dynamic";
@@ -31,11 +31,11 @@ export async function POST(request: Request) {
     }
     const { data } = await db
       .from("commercial_land_trades")
-      .select("kind, building_type, category, umd_nm, price_per_pyeong, is_share, cancelled")
+      .select("kind, building_type, category, umd_nm, floor, area_m2, price_per_pyeong, is_share, cancelled")
       .eq("sgg_cd", found.sggCd)
       .gte("deal_date", since)
       .limit(5000);
-    markets[code] = { name: `${found.sggNm} ${found.dong}`, collecting: !state?.first_collected_at, ...summarizeMarket((data ?? []) as MarketRow[], found.dong) };
+    markets[code] = { name: `${found.sggNm} ${found.dong}`, collecting: !state?.first_collected_at, ...summarizeMarket((data ?? []) as MarketRow[], found.dong), samples: marketSamples((data ?? []) as MarketRow[], found.dong) };
   }
   return NextResponse.json({ markets });
 }
