@@ -3,6 +3,17 @@
 // 메타: https://developers.coupang.com/ko/api/categories/category-metadata-query
 // ⚠️ 메타의 attributes에 고를 수 있는 값 목록(inputValues)이 오는지는 문서에 없어 실제 응답으로 확인한다.
 
+// 찾아보기: /ko/api/categories/how-to-get-categories(2026-10-31 확인). 0은 1단계, 응답은 바로 아래 한 단계만 준다
+export const browsePath = (code: number) => `/v2/providers/seller_api/apis/api/v1/marketplace/meta/display-categories/${code}`;
+export type CategoryNode = { code: number; name: string };
+/** 서비스 중(ACTIVE)인 하위 카테고리만. 없으면 맨 아래 카테고리다 */
+export function normalizeBrowse(raw: unknown): CategoryNode[] {
+  const child = (raw as { data?: { child?: unknown } })?.data?.child;
+  return (Array.isArray(child) ? (child as Record<string, unknown>[]) : [])
+    .filter((c) => c.status === "ACTIVE" && Number(c.displayItemCategoryCode) > 0)
+    .map((c) => ({ code: Number(c.displayItemCategoryCode), name: String(c.name ?? "") }));
+}
+
 export const PREDICT_PATH = "/v2/providers/openapi/apis/api/v1/categorization/predict";
 export const metaPath = (categoryCode: number | string) =>
   `/v2/providers/seller_api/apis/api/v1/marketplace/meta/category-related-metas/display-category-codes/${encodeURIComponent(String(categoryCode))}`;

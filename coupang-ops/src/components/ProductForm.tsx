@@ -6,7 +6,8 @@ import { upsertNamed, type ListingTemplate } from "@/lib/coupang/prefs";
 import Link from "next/link";
 import { AiModelSelect, useAiModel } from "@/components/AiModelSelect";
 import { suggestProductInfoAction } from "@/lib/actions/suggest";
-import { checkProductDraftAction, deleteJobProductAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, requestApprovalAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
+import { CategoryBrowser } from "@/components/CategoryBrowser";
+import { searchBrandsAction, checkProductDraftAction, deleteJobProductAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, requestApprovalAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
 
 const JOB_LABEL: Record<string, string> = { sending: "⏳ 보내는 중", saved: "✅ 쿠팡에 저장됨", requested: "📨 승인 요청", approved: "🟢 승인", rejected: "⛔ 반려", failed: "❌ 실패", unknown: "❓ 확인 필요" };
 import type { CategoryMeta } from "@/lib/coupang/category";
@@ -39,6 +40,16 @@ export function ProductForm(props: {
 }) {
   const [name, setName] = useState(props.initialName);
   const [brand, setBrand] = useState("");
+  const [brandHits, setBrandHits] = useState<string[] | null>(null);
+  const [brandError, setBrandError] = useState("");
+  const [brandPending, startBrand] = useTransition();
+  const findBrand = () =>
+    startBrand(async () => {
+      setBrandError("");
+      const r = await searchBrandsAction(brand);
+      if (r.ok) setBrandHits(r.names);
+      else setBrandError(r.error);
+    });
   const [manufacturer, setManufacturer] = useState("");
   const [codeInput, setCodeInput] = useState("");
   const [cat, setCat] = useState<{ code: number; name: string; meta: CategoryMeta } | null>(null);
@@ -243,6 +254,12 @@ export function ProductForm(props: {
           <label className="block"><span className={label}>브랜드(띄어쓰기·특수문자 없이, 없으면 비움 → GENERIC으로 보냄)</span><input value={brand} onChange={(e) => setBrand(e.target.value)} className={input} /></label>
           <label className="block"><span className={label}>제조사(없으면 비움)</span><input value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} className={input} /></label>
         </div>
+        <div className="flex flex-wrap items-center gap-2 text-[12px]">
+          <button type="button" disabled={brandPending || !props.keysSaved || !brand.trim()} onClick={findBrand} className="rounded border border-slate-300 bg-white px-2 py-1 font-bold text-slate-700 disabled:opacity-50">{brandPending ? "찾는 중…" : "🔍 쿠팡 브랜드 찾기"}</button>
+          {brandHits?.map((b) => <button key={b} type="button" onClick={() => { setBrand(b); setBrandHits(null); }} className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 font-bold text-blue-800">{b}</button>)}
+          {brandHits?.length === 0 && <span className="text-slate-600">쿠팡 목록에 없습니다. 철자를 확인하거나, 브랜드가 없으면 칸을 비워 주세요.</span>}
+          {brandError && <span className="text-rose-800">❌ {brandError}</span>}
+        </div>
         <div className="flex flex-wrap items-end gap-2">
           <button type="button" disabled={pending || !props.keysSaved || !name.trim()} onClick={() => loadCategory()} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50">
             {pending ? "쿠팡에 묻는 중…" : "🗂 쿠팡 카테고리 추천받기"}
@@ -251,6 +268,7 @@ export function ProductForm(props: {
           <input value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ""))} placeholder="예: 69579" className="w-28 rounded-lg border border-slate-300 px-2 py-2 text-sm" />
           <button type="button" disabled={pending || !codeInput} onClick={() => loadCategory(Number(codeInput))} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50">이 번호로</button>
         </div>
+        <CategoryBrowser disabled={pending || !props.keysSaved} onPick={(code) => { setCodeInput(String(code)); loadCategory(code); }} />
         <div className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2 text-[12px]">
           {templates.length > 0 && (
             <select aria-label="등록 템플릿" value="" disabled={pending} onChange={(e) => applyTemplate(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-2 py-1">

@@ -57,3 +57,12 @@ test("필수 안내: 빠진 구매옵션·필수 인증(병행수입 서류는 �
 test("메타 경로", () => {
   assert.equal(metaPath(56137), "/v2/providers/seller_api/apis/api/v1/marketplace/meta/category-related-metas/display-category-codes/56137");
 });
+
+test("A4 카테고리 찾아보기와 브랜드 이름", async () => {
+  const { browsePath, normalizeBrowse } = await import("../src/lib/coupang/category.ts");
+  const { brandNames } = await import("../src/lib/coupang/brand.ts");
+  assert.match(browsePath(0), /display-categories\/0$/);
+  assert.deepEqual(normalizeBrowse({ data: { child: [{ displayItemCategoryCode: 1, name: "가", status: "ACTIVE" }, { displayItemCategoryCode: 2, name: "나", status: "DISABLED" }] } }), [{ code: 1, name: "가" }]);
+  assert.deepEqual(normalizeBrowse({ data: { child: null } }), []);
+  assert.deepEqual(brandNames({ data: { items: [{ brandName: "A" }, { brandName: "A" }, { brandName: "" }] } }), ["A"]);
+});

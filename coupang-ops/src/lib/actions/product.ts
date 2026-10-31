@@ -8,7 +8,8 @@ import { PREDICT_PATH, fillNotices, metaPath, metaWarnings, normalizeMeta, norma
 import { buildCreateBody, checkDraft, type CoupangOption } from "@/lib/coupang/product";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createImageLinks } from "@/lib/imageLinks";
-import { BRAND_SEARCH_PATH, brandSearchBody, brandWarnings } from "@/lib/coupang/brand";
+import { BRAND_SEARCH_PATH, brandNames, brandSearchBody, brandWarnings } from "@/lib/coupang/brand";
+import { browsePath, normalizeBrowse, type CategoryNode } from "@/lib/coupang/category";
 import { APPROVABLE_STATUS, approvalPath, DELETABLE_STATUS, DELETED_PREFIX, historyPath, normalizeHistory, productPath, summarizeStatus, type HistoryEntry } from "@/lib/coupang/status";
 import { checkShopImages } from "@/lib/shopImageCheck";
 
@@ -233,5 +234,33 @@ export async function deleteJobProductAction(jobId: string): Promise<{ ok: true 
     return { ok: true };
   } catch (e) {
     return { ok: false, error: `쿠팡에서 지우지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류 — WING에서 상품이 남아 있는지 확인해 주세요"}` };
+  }
+}
+
+/** A4 카테고리 찾아보기(읽기 1회) */
+export async function browseCategoryAction(code: number): Promise<{ ok: true; children: CategoryNode[] } | { ok: false; error: string }> {
+  const user = await requireProgramAccess();
+  const keys = await getWingKeys(user.id);
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
+  const n = Number(code);
+  if (!Number.isInteger(n) || n < 0) return { ok: false, error: "카테고리 번호를 확인해 주세요." };
+  try {
+    return { ok: true, children: normalizeBrowse((await wingRequest(keys, "GET", browsePath(n))).data) };
+  } catch (e) {
+    return { ok: false, error: `카테고리를 읽지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
+  }
+}
+
+/** A4 브랜드 찾기(읽기 1회) */
+export async function searchBrandsAction(name: string): Promise<{ ok: true; names: string[] } | { ok: false; error: string }> {
+  const user = await requireProgramAccess();
+  const keys = await getWingKeys(user.id);
+  if (!keys) return { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." };
+  const q = String(name ?? "").trim();
+  if (!q) return { ok: false, error: "브랜드 이름을 넣어 주세요." };
+  try {
+    return { ok: true, names: brandNames((await wingRequest(keys, "POST", BRAND_SEARCH_PATH, { body: brandSearchBody(q) })).data) };
+  } catch (e) {
+    return { ok: false, error: `브랜드를 찾지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
   }
 }

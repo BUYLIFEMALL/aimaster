@@ -2,6 +2,12 @@
 export const BRAND_SEARCH_PATH = "/v2/providers/seller_api/apis/api/v1/marketplace/brands/search";
 export const brandSearchBody = (brandName: string) => ({ brandName, countPerPage: 10, page: 1 });
 
+/** A4 브랜드 찾기 결과: 이름 목록 */
+export function brandNames(raw: unknown): string[] {
+  const items = (raw as { data?: { items?: unknown } })?.data?.items;
+  return [...new Set((Array.isArray(items) ? (items as { brandName?: unknown }[]) : []).map((b) => String(b.brandName ?? "").trim()).filter(Boolean))];
+}
+
 /** 쿠팡 브랜드 목록과 대조한 경고. 등록을 막지는 않는다 */
 export function brandWarnings(raw: unknown, brand: string): string[] {
   const items = (raw as { data?: { items?: unknown } })?.data?.items;
