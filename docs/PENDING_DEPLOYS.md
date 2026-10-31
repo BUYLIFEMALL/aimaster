@@ -17,6 +17,7 @@
 
 
 
+- `commercial-land-trade-alert` — 실거래 지역 화면 정리(웹, 2026-10-31, [역할: realty], 커밋 ec6b6648d, 다음 배포 때)
 - `commercial-land-trade-alert` — 수집 결과 표 시세 대비 ▲▼ 색 표시(웹, 2026-10-31, [역할: realty], 커밋 1861a6949, 다음 배포 때)
 - `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
 
