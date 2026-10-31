@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.04 품절 예방·반려 알림
+- 한 일: `/stock` 재고 점검·채우기, 첫 화면 반려 칸. 상세 `coupang-ops/AGENTS.md` 맨 아래. 시험 54개·tsc·빌드 통과, 빌드 1회. 쿠팡 읽기 약 5회, 쓰기 0.
+- 담당 변경: 이 세션은 쇼핑몰만, 이미지는 새 작업자에게 인계(`docs/roles/ecommerce-image.md` 「이미지 인계 대기」).
+- 남은 일: 재고 변경 실제 1건(승인 대기 `3bb801f0`), 임시저장 `16433545652` 중지 유지. 프로그램 비교표에 빠져 있던 쿠팡 줄·카드를 추가함.
+- 링크: https://coupang-ops.buylife.xyz/stock
+
 ## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.03 이미지 규격·반려 처리
 - 첫 반려 원인: 추가 이미지 780×12996·780×13495, 대표 492×492. 실측 검사, 긴 이미지 제외, 대표 이미지 전송 시 확대(공개 주소 1000×1000 확인), 반려 건 삭제 후 재전송, 사유 표시 추가. 빌드 1회.
 - 재시험: 16433502859 삭제 → 16433545652 저장, 약 70초 뒤 「임시저장」. 시험 48개·tsc·빌드 통과. 승인 요청은 안 보냄(쿠팡 승인 심사 미확인). 상세 `coupang-ops/AGENTS.md`. https://coupang-ops.buylife.xyz/products
