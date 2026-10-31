@@ -17,6 +17,7 @@
 |---|---|---|---|
 | `shop-order-report` | 마켓별 열 이름·상태 사전 보정 | 주인님 실제 주문 파일(개인정보 지운 사본) | `shop-order-report/docs/IMPROVEMENT_BACKLOG.md` |
 | `coupang-ops` | 임시저장 상품 16433545652 중지 유지(2026-10-31 주인님 지시: 삭제하지 말고 중지만). 승인 요청·삭제 금지, 다시 지시가 있을 때만 재개 | 주인님 재지시 | `coupang-ops/AGENTS.md` 2026-10-31 |
+| `coupang-ops` | 품절 예방(B1) 미배포 대기, 반려 알림(B3)과 v1.04로 함께 배포 | B3 플랜 승인 | `coupang-ops/docs/PLAN_20261031_B3_REJECT_ALERT.md` |
 | `coupang-ops` | 옵션 가격·재고·판매 재개 실제 변경 1건 시험 | 주인님 승인(실제 판매 상품이 바뀜) | `coupang-ops/AGENTS.md` 2026-10-30 |
 | `coupang-ops` | 주문 쓰기 실제 1건 시험(상품준비중·송장 등록/수정·출고중지 완료·이미출고·판매자 취소)·발주서 화면 모양 확인 | 실제 주문이 들어온 뒤(주인님 10-30 「시험은 아직 주문이 안되니 나중에」) | `coupang-ops/AGENTS.md` 2026-10-30 |
 | `seller-label-docs` | 기본 라벨 규격 여백 보정 | 주인님 실물 라벨지 시험 인쇄 결과 | `seller-label-docs/docs/IMPROVEMENT_BACKLOG.md` |
