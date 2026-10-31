@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition, useRef } from "react";
+import { loadPrefsAction, savePrefsAction } from "@/lib/actions/prefs";
 import { loadRevenueAction, loadSettlementsAction, loadStocksAction } from "@/lib/actions/revenue";
 import { cleanTargetMargin, daysBetween, defaultRevenueRange, revenueToTsv, revenueWarnings, RUNOUT_MAX_OPTIONS, runoutDays, summarizeOptions, type RevenueLine, type RevenueOrderShipping, type SettlementRow } from "@/lib/coupang/revenue";
 
@@ -51,6 +52,23 @@ export function RevenueReport({ keysSaved }: { keysSaved: boolean }) {
     const savedTarget = readLocal(TARGET_KEY);
     if (savedTarget !== null) setTarget(savedTarget);
   }, []);
+
+  // R7: 서버에 저장해 어느 PC에서나 쓴다. 예전에 이 브라우저에 넣은 값은 서버 값이 없을 때 그대로 옮긴다
+  const prefsLoaded = useRef(false);
+  useEffect(() => {
+    loadPrefsAction()
+      .then((p) => {
+        if (Object.keys(p.unitCosts).length) setCosts(p.unitCosts);
+        if (p.targetMargin) setTarget(p.targetMargin);
+      })
+      .catch(() => {})
+      .finally(() => { prefsLoaded.current = true; });
+  }, []);
+  useEffect(() => {
+    if (!prefsLoaded.current) return;
+    const timer = setTimeout(() => { savePrefsAction({ unitCosts: costs, targetMargin: String(target) }).catch(() => {}); }, 1000);
+    return () => clearTimeout(timer);
+  }, [costs, target]);
 
   const costNumbers = useMemo(() => {
     const out: Record<string, number> = {};

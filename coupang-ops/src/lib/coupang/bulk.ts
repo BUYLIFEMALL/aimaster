@@ -30,3 +30,32 @@ export function previewQty(current: number, mode: QtyMode, value: number): BulkP
   const next = bulkQty(current, mode, value);
   return { next, problem: checkQuantity(current, next) };
 }
+
+// R6 파일로 일괄 변경. 옵션마다 쿠팡을 읽고 쓰므로(옵션·값마다 2회) 한 파일 상한을 둔다
+export const BULK_FILE_MAX = 100;
+export const BULK_FILE_HEADERS = ["옵션ID", "상품", "옵션", "지금 판매가", "지금 재고", "새 판매가", "새 재고"];
+export type BulkEntry = { vendorItemId: number; price: number | null; qty: number | null };
+
+export function parseBulkFile(rows: Record<string, string>[]): { entries: BulkEntry[]; problems: string[]; over: number } {
+  const entries: BulkEntry[] = [];
+  const problems: string[] = [];
+  const seen = new Set<number>();
+  const num = (v: unknown) => {
+    const t = String(v ?? "").replace(/[,\s원개]/g, "");
+    return t === "" ? null : Number(t);
+  };
+  rows.forEach((row, i) => {
+    const line = `${i + 2}번째 줄`;
+    const price = num(row["새 판매가"]);
+    const qty = num(row["새 재고"]);
+    if (price === null && qty === null) return;
+    const id = Number(String(row["옵션ID"] ?? "").replace(/\D/g, "") || NaN);
+    if (!Number.isSafeInteger(id) || id <= 0 || /[^\d\s]/.test(String(row["옵션ID"] ?? ""))) return void problems.push(`${line}: 옵션ID를 읽지 못했습니다.`);
+    if (seen.has(id)) return void problems.push(`${line}: 같은 옵션이 두 번 있습니다.`);
+    if (price !== null && (!Number.isInteger(price) || price <= 0 || price % 10 !== 0)) return void problems.push(`${line}: 판매가는 10원 단위입니다.`);
+    if (qty !== null && (!Number.isInteger(qty) || qty < 0)) return void problems.push(`${line}: 재고는 0 이상 정수입니다.`);
+    seen.add(id);
+    entries.push({ vendorItemId: id, price, qty });
+  });
+  return { entries: entries.slice(0, BULK_FILE_MAX), problems, over: Math.max(0, entries.length - BULK_FILE_MAX) };
+}

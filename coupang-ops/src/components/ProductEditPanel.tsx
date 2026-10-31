@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { loadProductEditAction, saveDeliveryAction, saveProductFieldsAction } from "@/lib/actions/productEdit";
+import { copyProductAction, loadProductEditAction, saveDeliveryAction, saveProductFieldsAction } from "@/lib/actions/productEdit";
 import { checkDelivery, checkProductFields, cleanTags, DELIVERY_TYPES, NEEDS_REAPPROVAL, NOT_EDITABLE, NOT_PARTIAL, type EditView } from "@/lib/coupang/productEdit";
 
 const field = "mt-1 block w-full rounded border border-slate-300 bg-white px-2 py-1.5 text-[13px] font-normal focus:border-blue-500 focus:outline-none";
@@ -15,7 +15,8 @@ export function ProductEditPanel({ sellerProductId }: { sellerProductId: number 
   const [tags, setTags] = useState("");
   const [error, setError] = useState("");
   const [note, setNote] = useState("");
-  const [ask, setAsk] = useState<"fields" | "delivery" | null>(null);
+  const [ask, setAsk] = useState<"fields" | "delivery" | "copy" | null>(null);
+  const [copyName, setCopyName] = useState("");
   const [pending, start] = useTransition();
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function ProductEditPanel({ sellerProductId }: { sellerProductId: number 
 
   const send = () =>
     start(async () => {
-      const r = ask === "fields" ? await saveProductFieldsAction(sellerProductId, fields) : await saveDeliveryAction(sellerProductId, view);
+      const r = ask === "copy" ? await copyProductAction(sellerProductId, copyName) : ask === "fields" ? await saveProductFieldsAction(sellerProductId, fields) : await saveDeliveryAction(sellerProductId, view);
       setNote(r.ok ? `✅ ${r.message}` : `❌ ${r.error}`);
       setAsk(null);
     });
@@ -80,9 +81,17 @@ export function ProductEditPanel({ sellerProductId }: { sellerProductId: number 
       </fieldset>
       {!canPartial && <p className="text-amber-800">승인된 상품에서만 배송·반품을 바로 고칠 수 있습니다.</p>}
 
+      <div className="space-y-2 border-t border-slate-200 pt-2">
+        <p className="font-extrabold text-slate-900">복사 등록 <span className="font-bold text-slate-500">(이 상품을 바탕으로 새 상품을 저장만 합니다)</span></p>
+        <div className="flex flex-wrap items-center gap-2">
+          <input aria-label="복사본 상품명" placeholder="새 상품명" maxLength={100} value={copyName} onChange={(e) => { setAsk(null); setCopyName(e.target.value); }} className="min-w-0 flex-1 rounded border border-slate-300 bg-white px-2 py-1.5 text-[13px]" />
+          <button type="button" disabled={pending || !copyName.trim()} onClick={() => setAsk("copy")} className={no}>복사본 저장</button>
+        </div>
+      </div>
+
       {ask && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900">
-          <b>{ask === "fields" ? (reapproval ? "쿠팡에 수정과 재승인 요청을 보낼까요? 승인될 때까지 이전 내용이 보일 수 있습니다." : "쿠팡에 수정을 보낼까요?") : "판매 중인 상품의 배송·반품 값을 바로 바꿀까요?"}</b>
+          <b>{ask === "copy" ? `「${copyName}」으로 복사본을 쿠팡에 저장할까요? 승인 요청은 보내지 않습니다.` : ask === "fields" ? (reapproval ? "쿠팡에 수정과 재승인 요청을 보낼까요? 승인될 때까지 이전 내용이 보일 수 있습니다." : "쿠팡에 수정을 보낼까요?") : "판매 중인 상품의 배송·반품 값을 바로 바꿀까요?"}</b>
           <button type="button" disabled={pending} onClick={send} className={ok}>{pending ? "보내는 중…" : "네, 쿠팡에 적용"}</button>
           <button type="button" disabled={pending} onClick={() => setAsk(null)} className={no}>취소</button>
         </div>

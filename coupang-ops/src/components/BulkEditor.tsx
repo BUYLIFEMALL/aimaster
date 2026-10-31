@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import { updatePriceAction, updateQuantityAction } from "@/lib/actions/items";
 import { setAutoOptionAction } from "@/lib/actions/productEdit";
 import { scanStockAction, type StockRow } from "@/lib/actions/stock";
-import { BULK_MAX, previewPrice, previewQty, type PriceMode, type QtyMode } from "@/lib/coupang/bulk";
+import { BULK_FILE_HEADERS, BULK_FILE_MAX, BULK_MAX, parseBulkFile, previewPrice, previewQty, type BulkEntry, type PriceMode, type QtyMode } from "@/lib/coupang/bulk";
+import { ACCEPT_SHEETS, readSheet, saveWorkbook } from "@/lib/sheet";
 
 const field = "rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none";
 const primary = "rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-50";
@@ -29,6 +30,38 @@ export function BulkEditor({ keysSaved }: { keysSaved: boolean }) {
   const [autoAsk, setAutoAsk] = useState<boolean | null>(null);
   const [autoNote, setAutoNote] = useState("");
   const [pending, start] = useTransition();
+  const [fileEntries, setFileEntries] = useState<BulkEntry[]>([]);
+  const [fileProblems, setFileProblems] = useState<string[]>([]);
+  const [fileAsk, setFileAsk] = useState(false);
+  const [fileNote, setFileNote] = useState("");
+  const downloadForm = () => saveWorkbook(`쿠팡_옵션_가격재고_${rows.length}건.xlsx`, "옵션", [BULK_FILE_HEADERS, ...rows.map((r) => [String(r.vendorItemId), r.productName, r.itemName, String(r.salePrice), String(r.stock), "", ""])]);
+  const readFile = async (file: File | undefined) => {
+    if (!file) return;
+    setFileAsk(false);
+    setFileNote("");
+    try {
+      const r = parseBulkFile(readSheet(new Uint8Array(await file.arrayBuffer()), file.name));
+      setFileEntries(r.entries);
+      setFileProblems(r.over ? [`${BULK_FILE_MAX}개가 넘어 앞 ${BULK_FILE_MAX}개만 읽었습니다.`, ...r.problems] : r.problems);
+    } catch {
+      setFileProblems(["파일을 읽지 못했습니다. 엑셀(.xlsx)이나 CSV 파일인지 확인해 주세요."]);
+    }
+  };
+  const applyFile = () =>
+    start(async () => {
+      let ok = 0;
+      const failed: string[] = [];
+      for (const e of fileEntries) {
+        for (const r of [e.price !== null ? await updatePriceAction(e.vendorItemId, e.price) : null, e.qty !== null ? await updateQuantityAction(e.vendorItemId, e.qty) : null]) {
+          if (!r) continue;
+          if (r.ok) ok++;
+          else failed.push(`${e.vendorItemId}: ${r.error}`);
+        }
+      }
+      setFileAsk(false);
+      setFileEntries([]);
+      setFileNote(`✅ ${ok}건을 바꿨습니다.${failed.length ? ` 실패 ${failed.length}건 — ${failed.slice(0, 5).join(" / ")}` : ""}`);
+    });
 
   const scan = (more: boolean) =>
     start(async () => {
@@ -136,6 +169,28 @@ export function BulkEditor({ keysSaved }: { keysSaved: boolean }) {
             ))}
           </>
         )}
+      </section>
+
+      <section className="slw-card space-y-2 p-5">
+        <h2 className="text-base font-extrabold text-slate-900">엑셀 파일로 일괄 변경</h2>
+        <p className="text-[13px] text-slate-600">위에서 옵션을 불러온 뒤 양식을 받아 「새 판매가」「새 재고」만 채워 올리세요. 빈 칸은 바꾸지 않습니다. 한 파일에 {BULK_FILE_MAX}개까지, 값마다 쿠팡을 2번 부릅니다.</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" disabled={!rows.length} onClick={downloadForm} className={line}>📥 양식 받기({rows.length}개)</button>
+          <label className={`${line} cursor-pointer`}>📤 파일 올리기<input type="file" accept={ACCEPT_SHEETS} className="hidden" onChange={(e) => { readFile(e.target.files?.[0]); e.target.value = ""; }} /></label>
+        </div>
+        {fileProblems.length > 0 && <ul className="list-disc rounded-lg bg-rose-50 py-2 pl-7 pr-3 text-[12px] text-rose-900">{fileProblems.slice(0, 8).map((p) => <li key={p}>{p}</li>)}</ul>}
+        {fileEntries.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+            <b>옵션 {fileEntries.length}개를 바꿉니다(판매가 {fileEntries.filter((e) => e.price !== null).length}개, 재고 {fileEntries.filter((e) => e.qty !== null).length}개). 쿠팡 규칙을 넘는 값은 건별로 실패합니다.</b>
+            {!fileAsk ? (
+              <button type="button" disabled={pending} onClick={() => setFileAsk(true)} className="rounded border border-slate-300 bg-white px-3 py-1 font-bold text-slate-700">변경 확인</button>
+            ) : (
+              <button type="button" disabled={pending} onClick={applyFile} className="rounded border border-blue-600 bg-blue-700 px-3 py-1 font-bold text-white disabled:opacity-50">{pending ? "적용 중…" : "네, 쿠팡에 적용"}</button>
+            )}
+            <button type="button" disabled={pending} onClick={() => { setFileEntries([]); setFileAsk(false); }} className="rounded border border-slate-300 bg-white px-3 py-1 font-bold text-slate-700">취소</button>
+          </div>
+        )}
+        {fileNote && <p className="text-[12px] text-slate-800">{fileNote}</p>}
       </section>
 
       <section className="slw-card space-y-2 p-5">

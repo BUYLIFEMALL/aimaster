@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { alreadyShippedAction, approveReturnAction, confirmReturnReceiptAction, listReturnRequestsAction, stopShipmentAction } from "@/lib/actions/returns";
 import { RETURN_VIEWS, returnSteps, type ReturnRequest } from "@/lib/coupang/returns";
 import { COMMON_COURIERS } from "@/lib/coupang/defaults";
@@ -12,7 +12,7 @@ const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86
 
 type Ask = { kind: "stop" | "shipped" | "receipt" | "approve"; receiptId: number; label: string };
 
-export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: { keysSaved: boolean; defaultCourier: string; initialView?: string }) {
+export function ReturnRequests({ keysSaved, defaultCourier, initialView = "", autoLoad = false }: { keysSaved: boolean; defaultCourier: string; initialView?: string; autoLoad?: boolean }) {
   const [view, setView] = useState(RETURN_VIEWS.some((v) => v.value === initialView) ? initialView : "RU");
   const [from, setFrom] = useState(kstDay(30));
   const [to, setTo] = useState(kstDay(0));
@@ -56,6 +56,11 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: 
       setNote(r.ok ? `✅ 접수번호 ${a.receiptId}: ${r.message}` : `❌ 접수번호 ${a.receiptId}: ${r.error}`);
       if (r.ok) setRows(rows.filter((x) => x.receiptId !== a.receiptId));
     });
+
+  useEffect(() => {
+    if (autoLoad && keysSaved) load(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section className="slw-card space-y-4 p-5">

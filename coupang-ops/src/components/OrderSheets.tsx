@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { acknowledgeOrdersAction, listOrderSheetsAction, submitInvoicesAction } from "@/lib/actions/orders";
 import { ACK_MAX, INVOICE_UPDATE_STATUSES, INVOICE_UPLOAD_STATUS, ORDER_STATUSES, orderStatusLabel, parseInvoicePaste, type AckResult, type OrderSheet } from "@/lib/coupang/orders";
 import { COMMON_COURIERS } from "@/lib/coupang/defaults";
+import { chunk, matchInvoiceFile, orderFileRows } from "@/lib/coupang/orderFile";
 import { cancelOrderAction } from "@/lib/actions/returns";
+import { ACCEPT_SHEETS, readSheet, saveWorkbook } from "@/lib/sheet";
 import { CANCEL_REASONS } from "@/lib/coupang/returns";
 
 const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
 /** 한국 시간 기준 오늘에서 n일 전 날짜(yyyy-mm-dd) */
 const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10);
 
-export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: { keysSaved: boolean; defaultCourier: string; initialStatus?: string }) {
+export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "", autoLoad = false }: { keysSaved: boolean; defaultCourier: string; initialStatus?: string; autoLoad?: boolean }) {
   const [status, setStatus] = useState(ORDER_STATUSES.some((s) => s.value === initialStatus) ? initialStatus : "ACCEPT");
   const [from, setFrom] = useState(kstDay(initialStatus ? 30 : 6)); // 「오늘 할 일」에서 넘어오면 그 숫자와 같은 31일
   const [to, setTo] = useState(kstDay(0));
@@ -22,7 +24,7 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
   const [pending, start] = useTransition();
   const [shownStatus, setShownStatus] = useState(""); // 지금 목록을 불러온 상태(결제완료일 때만 상품준비중 처리)
   const [picked, setPicked] = useState<number[]>([]);
-  const [asking, setAsking] = useState<"" | "ack" | "invoice">(""); // 쿠팡에 보내기 전 한 번 더 묻는 단계
+  const [asking, setAsking] = useState<"" | "ack" | "ackFile" | "invoice">(""); // 쿠팡에 보내기 전 한 번 더 묻는 단계
   const [inv, setInv] = useState<Record<number, { courier: string; invoice: string }>>({}); // 배송번호별 송장 입력
   const [paste, setPaste] = useState("");
   const [moved, setMoved] = useState<number[]>([]); // A4: 상품준비중 처리 뒤 배송지가 바뀐 배송번호
@@ -76,11 +78,18 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
     start(async () => {
       setAsking("");
       const entries = filled.map((o) => ({ shipmentBoxId: o.shipmentBoxId, orderId: o.orderId, courier: courierOf(o.shipmentBoxId), invoice: inv[o.shipmentBoxId].invoice, vendorItemIds: o.items.map((it) => it.vendorItemId) }));
-      const r = await submitInvoicesAction(invoiceMode, entries);
-      if (!r.ok) return setAckNote(`❌ ${r.error}`);
-      setAckResults(r.results);
-      setAckNote(`✅ ${r.summary}`);
-      const done = new Set(r.results.filter((x) => x.ok).map((x) => x.shipmentBoxId));
+      // 쿠팡은 한 번에 50건까지라 나눠 보낸다. 한 묶음이 실패하면 그 뒤는 보내지 않는다
+      const results: AckResult[] = [];
+      let stopped = "";
+      for (const part of chunk(entries, ACK_MAX)) {
+        const r = await submitInvoicesAction(invoiceMode, part);
+        if (!r.ok) { stopped = r.error; break; }
+        results.push(...r.results);
+      }
+      setAckResults(results);
+      const okCount = results.filter((x) => x.ok).length;
+      setAckNote(stopped ? `❌ ${stopped}${okCount ? ` (앞서 ${okCount}건은 처리됐습니다.)` : ""}` : `✅ ${results.length}건 중 ${okCount}건을 처리했습니다.`);
+      const done = new Set(results.filter((x) => x.ok).map((x) => x.shipmentBoxId));
       if (invoiceMode === "upload") setOrders(orders.filter((o) => !done.has(o.shipmentBoxId)));
       else
         setOrders(orders.map((o) => (done.has(o.shipmentBoxId) ? { ...o, invoiceNumber: inv[o.shipmentBoxId].invoice.replace(/[\s-]/g, ""), deliveryCompanyName: COMMON_COURIERS.find((c) => c.code === courierOf(o.shipmentBoxId))?.name ?? courierOf(o.shipmentBoxId) } : o)));
@@ -101,10 +110,26 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
       if (r.ok) setOrders(orders.filter((x) => x.shipmentBoxId !== o.shipmentBoxId));
     });
 
+  // R1: 발주서 파일은 브라우저에서만 만든다. 고객 정보가 있어 서버에 올리거나 저장하지 않는다
+  const downloadFile = (list: OrderSheet[]) => {
+    const today = kstDay(0);
+    saveWorkbook(`쿠팡_발주서_${today}_${list.length}건.xlsx`, "발주서", orderFileRows(list, defaultCourier));
+  };
+  const uploadInvoiceFile = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const r = matchInvoiceFile(readSheet(new Uint8Array(await file.arrayBuffer()), file.name), orders);
+      setInv((cur) => ({ ...cur, ...Object.fromEntries(r.fills.map((f) => [f.shipmentBoxId, { courier: f.courier || cur[f.shipmentBoxId]?.courier || defaultCourier, invoice: f.invoice }])) }));
+      setAckNote(`📄 파일에서 ${r.fills.length}건을 채웠습니다.${r.unmatched ? ` 목록에 없거나 어느 묶음인지 알 수 없는 줄 ${r.unmatched}건은 건너뛰었습니다.` : ""}${r.noInvoice ? ` 송장이 빈 줄 ${r.noInvoice}건.` : ""}${r.badKey ? ` ⚠ 번호가 2.2E+13처럼 바뀐 줄 ${r.badKey}건은 건너뛰었습니다. 받은 파일의 번호 칸을 그대로 두고 저장해 주세요.` : ""} 내용을 확인한 뒤 등록을 눌러 주세요.`);
+    } catch {
+      setAckNote("❌ 파일을 읽지 못했습니다. 엑셀(.xlsx)이나 CSV 파일인지 확인해 주세요.");
+    }
+  };
+
   const toggle = (id: number) => setPicked(picked.includes(id) ? picked.filter((x) => x !== id) : picked.length >= ACK_MAX ? picked : [...picked, id]);
 
   // 결제완료 → 상품준비중. 실제 주문 상태가 바뀌므로 확인을 한 번 더 받고, 실패해도 다시 보내지 않는다
-  const acknowledge = () =>
+  const acknowledge = (withFile = false) =>
     start(async () => {
       setAsking("");
       const r = await acknowledgeOrdersAction(picked, { from, to });
@@ -120,6 +145,11 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
       // A2: 바로 상품준비중 목록으로 넘어가 송장을 넣는다. A4: 처리 전 주소와 다르면 표시
       const before = new Map(orders.map((o) => [o.shipmentBoxId, `${o.postCode} ${o.address} ${o.receiverName}`]));
       const changed = r.preparing.filter((o) => before.has(o.shipmentBoxId) && before.get(o.shipmentBoxId) !== `${o.postCode} ${o.address} ${o.receiverName}`).map((o) => o.shipmentBoxId);
+      // R2: 방금 처리한 건만 파일로 받는다(이미 택배를 접수했을 수 있는 앞선 건이 다시 나가지 않게). 다시 읽은 주소가 들어간다
+      if (withFile) {
+        const fresh = r.preparing.filter((o) => done.has(o.shipmentBoxId));
+        if (fresh.length) downloadFile(fresh);
+      }
       setOrders(r.preparing);
       setNext("");
       setStatus("INSTRUCT");
@@ -127,6 +157,11 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
       setMoved(changed);
       setAckNote(`✅ ${r.summary} 이어서 송장을 넣을 수 있게 「상품준비중」 목록으로 넘어왔습니다.${changed.length ? ` ⚠ 배송지가 바뀐 주문 ${changed.length}건이 있습니다(빨간 표시).` : " 배송지가 바뀐 주문은 없습니다."}`);
     });
+
+  useEffect(() => {
+    if (autoLoad && keysSaved) load(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section className="slw-card space-y-4 p-5">
@@ -157,7 +192,8 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
           <span>보낼 준비를 시작할 주문을 고르세요(한 번에 {ACK_MAX}건까지). 처리하면 쿠팡 주문 상태가 「상품준비중」으로 바뀝니다.</span>
           <button type="button" onClick={() => setPicked(picked.length ? [] : orders.slice(0, ACK_MAX).map((o) => o.shipmentBoxId))} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">{picked.length ? "선택 해제" : "모두 고르기"}</button>
-          <button type="button" disabled={pending || picked.length === 0} onClick={() => setAsking("ack")} className="rounded border border-blue-600 bg-blue-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">선택한 {picked.length}건 상품준비중으로</button>
+          <button type="button" disabled={pending || picked.length === 0} onClick={() => setAsking("ack")} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700 disabled:opacity-50">선택한 {picked.length}건 상품준비중으로</button>
+          <button type="button" disabled={pending} onClick={() => { if (!picked.length) setPicked(orders.slice(0, ACK_MAX).map((o) => o.shipmentBoxId)); setAsking("ackFile"); }} className="rounded border border-blue-600 bg-blue-700 px-3 py-1 text-[12px] font-bold text-white disabled:opacity-50">⚡ {picked.length || Math.min(orders.length, ACK_MAX)}건 처리하고 발주서 파일 받기</button>
         </div>
       )}
       {invoiceMode && orders.length > 0 && (
@@ -166,14 +202,24 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
             {invoiceMode === "upload" ? "주문마다 택배사·송장번호를 넣고 등록하면 쿠팡 주문이 「배송지시」로 바뀝니다." : "잘못 넣은 송장만 새 번호로 고칩니다(고치면 배송지시로 다시 바뀌고, 이후 택배 추적에 따라 바뀝니다)."} 한 배송 묶음에 송장 하나로 보냅니다(분리배송은 WING에서).
             {!defaultCourier && " 「⚙ 배송·반품 기본값」에 택배사를 저장해 두면 자동으로 골라집니다."}
           </p>
+          {invoiceMode === "upload" && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={() => downloadFile(orders)} className="rounded border border-teal-600 bg-white px-2 py-1 text-[11px] font-bold text-teal-800">📥 발주서 파일 받기({orders.length}건{next ? ", 더 보기 전" : ""})</button>
+              <label className="cursor-pointer rounded border border-teal-600 bg-white px-2 py-1 text-[11px] font-bold text-teal-800">
+                📤 송장 파일 올리기
+                <input type="file" accept={ACCEPT_SHEETS} className="hidden" onChange={(e) => { uploadInvoiceFile(e.target.files?.[0]); e.target.value = ""; }} />
+              </label>
+              <span className="text-[11px]">파일을 택배사에 올리고, 송장이 채워진 파일을 다시 올리면 됩니다. 파일에는 고객 정보가 있으니 다 쓴 뒤 지워 주세요.</span>
+            </div>
+          )}
           <details>
             <summary className="cursor-pointer font-bold">📋 엑셀에서 한 번에 붙여넣기</summary>
             <p className="mt-1 text-[11px]">엑셀에서 「주문번호(또는 배송번호)」와 「송장번호」 두 칸을 함께 복사해 붙여 넣으세요. 머리글 줄은 건너뜁니다.</p>
             <textarea value={paste} onChange={(e) => setPaste(e.target.value)} rows={4} placeholder={"2000123456\t123456789012\n2000123457\t123456789013"} className="mt-1 w-full rounded border border-slate-300 bg-white p-2 font-mono text-[12px]" />
             <button type="button" disabled={!paste.trim()} onClick={applyPaste} className="mt-1 rounded border border-teal-600 bg-white px-2 py-1 text-[11px] font-bold text-teal-800 disabled:opacity-50">목록에 채우기</button>
           </details>
-          <button type="button" disabled={pending || filled.length === 0 || filled.length > ACK_MAX} onClick={() => setAsking("invoice")} className="rounded border border-blue-600 bg-blue-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">
-            송장 넣은 {filled.length}건 {invoiceMode === "upload" ? "등록" : "수정"}{filled.length > ACK_MAX ? ` (한 번에 ${ACK_MAX}건까지)` : ""}
+          <button type="button" disabled={pending || filled.length === 0} onClick={() => setAsking("invoice")} className="rounded border border-blue-600 bg-blue-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">
+            송장 넣은 {filled.length}건 {invoiceMode === "upload" ? "등록" : "수정"}
           </button>
         </div>
       )}
@@ -184,10 +230,17 @@ export function OrderSheets({ keysSaved, defaultCourier, initialStatus = "" }: {
           <button type="button" disabled={pending} onClick={() => setAsking("")} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">취소</button>
         </div>
       )}
+      {asking === "ackFile" && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-[12px] text-rose-900">
+          <span className="font-bold">주문 {picked.length}건을 「상품준비중」으로 바꾸고, 다시 읽은 배송지로 발주서 파일을 받을까요? 상태는 되돌릴 수 없습니다.</span>
+          <button type="button" disabled={pending} onClick={() => acknowledge(true)} className="rounded border border-blue-600 bg-blue-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">{pending ? "처리하는 중…" : "네, 쿠팡에 적용"}</button>
+          <button type="button" disabled={pending} onClick={() => setAsking("")} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">취소</button>
+        </div>
+      )}
       {asking === "ack" && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-[12px] text-rose-900">
           <span className="font-bold">주문 {picked.length}건을 쿠팡에서 「상품준비중」으로 바꿀까요? 되돌릴 수 없습니다.</span>
-          <button type="button" disabled={pending} onClick={acknowledge} className="rounded border border-blue-600 bg-blue-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">{pending ? "바꾸는 중…" : "네, 쿠팡에 적용"}</button>
+          <button type="button" disabled={pending} onClick={() => acknowledge()} className="rounded border border-blue-600 bg-blue-700 px-2 py-1 text-[11px] font-bold text-white disabled:opacity-50">{pending ? "바꾸는 중…" : "네, 쿠팡에 적용"}</button>
           <button type="button" disabled={pending} onClick={() => setAsking("")} className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-bold text-slate-700">취소</button>
         </div>
       )}

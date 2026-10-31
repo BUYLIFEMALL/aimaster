@@ -6,6 +6,8 @@ import { wingRequest, WingApiError } from "@/lib/coupang/client";
 import { productPath } from "@/lib/coupang/status";
 import { autoOptionPath, autoOptionResult, buildEditBody, buildPartialBody, checkDelivery, checkOriginalPrice, checkProductFields, EDIT_PATH, NOT_EDITABLE, NOT_PARTIAL, normalizeEditView, originalPricePath, partialPath, type DeliveryFields, type EditView, type ProductFields } from "@/lib/coupang/productEdit";
 
+import { buildCopyBody, checkCopyName } from "@/lib/coupang/productCopy";
+
 type Done = { ok: true; message: string } | { ok: false; error: string };
 const NO_KEYS = { ok: false, error: "먼저 「API키등록·플랫폼연동」에서 키를 등록해 주세요." } as const;
 
@@ -39,6 +41,22 @@ export async function saveProductFieldsAction(sellerProductId: number, fields: P
     return { ok: true, message: "수정을 보냈습니다. 승인된 상품은 쿠팡 재승인 뒤 반영됩니다." };
   } catch (e) {
     return fail(e, "상품을 수정하지 못했습니다");
+  }
+}
+
+/** R4 복사 등록: 지금 내용을 새 상품으로 저장만 한다(승인 요청 안 함, 재시도 없음). 상품 등록 기록과 별개로 WING에 임시저장으로 남는다 */
+export async function copyProductAction(sellerProductId: number, name: string): Promise<Done> {
+  const keys = await keysOf();
+  if (!keys) return NO_KEYS;
+  const problem = checkCopyName(String(name ?? ""));
+  if (problem) return { ok: false, error: problem };
+  try {
+    const raw = (await wingRequest(keys, "GET", productPath(Number(sellerProductId)))).data;
+    const saleStartedAt = new Date(Date.now() + 9 * 3_600_000).toISOString().slice(0, 19);
+    const r = (await wingRequest<{ data?: unknown }>(keys, "POST", EDIT_PATH, { body: buildCopyBody(raw, { name, vendorId: keys.vendorId, wingUserId: keys.wingUserId, saleStartedAt }) })).data;
+    return { ok: true, message: `복사본을 저장했습니다${r?.data ? `(상품번호 ${r.data})` : ""}. 목록을 다시 불러와 확인한 뒤 옵션을 고치고 승인 요청해 주세요.` };
+  } catch (e) {
+    return fail(e, "복사하지 못했습니다. 다시 보내기 전에 WING을 확인해 주세요");
   }
 }
 

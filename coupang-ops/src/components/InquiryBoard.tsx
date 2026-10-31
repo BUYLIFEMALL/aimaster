@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { AiModelSelect, useAiModel } from "@/components/AiModelSelect";
 import { confirmInquiryAction, draftReplyAction, listInquiriesAction, sendReplyAction } from "@/lib/actions/inquiries";
+import { loadPrefsAction, savePrefsAction } from "@/lib/actions/prefs";
 import { checkReply, type InquiryRow } from "@/lib/coupang/inquiry";
+import { upsertNamed, type ReplyTemplate } from "@/lib/coupang/prefs";
 
 const KEY_PAGE = "/connect";
 const smallBtn = "rounded border px-2.5 py-1 text-[12px] font-bold disabled:opacity-50";
@@ -13,7 +15,10 @@ const whenText = (at: string) => {
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleString("ko-KR");
 };
 
-function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: string) => void }) {
+const BULK_DRAFT_MAX = 20;
+
+function InquiryCard({ row, onDone, templates, onSaveTemplate, draftTick, index }: { row: InquiryRow; onDone: (message: string) => void; templates: ReplyTemplate[]; onSaveTemplate: (t: ReplyTemplate) => void; draftTick: number; index: number }) {
+  const [templateTitle, setTemplateTitle] = useState("");
   const [facts, setFacts] = useState("");
   const [model, setModel] = useAiModel();
   const [text, setText] = useState("");
@@ -23,6 +28,13 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
   const [asking, setAsking] = useState(false);
   const [pending, start] = useTransition();
   const problem = text.trim() ? checkReply(text) : "";
+  // 여러 건 초안: 아직 비어 있는 카드만, 차례로 조금씩 띄워 부른다. 보내기는 카드마다 회원이 누른다
+  useEffect(() => {
+    if (!draftTick || text.trim() || index >= BULK_DRAFT_MAX) return;
+    const timer = setTimeout(() => draft(), index * 800);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftTick]);
   const hasBlank = /\[[^\]]+\]/.test(text);
 
   const draft = () =>
@@ -91,6 +103,12 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
             </button>
             <span className="text-[11px] text-slate-500">고른 AI의 회원 본인 키로 1회 호출합니다. 쿠팡 호출은 없습니다.</span>
           </div>
+          {templates.length > 0 && (
+            <select aria-label="답변 템플릿" value="" onChange={(e) => { const t = templates.find((x) => x.title === e.target.value); if (t) { setText(t.text); setAsking(false); } }} className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-[12px]">
+              <option value="">📋 자주 쓰는 답변 넣기</option>
+              {templates.map((t) => <option key={t.title} value={t.title}>{t.title}</option>)}
+            </select>
+          )}
           <textarea
             aria-label="답변 내용"
             value={text}
@@ -102,6 +120,12 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
             placeholder="답변을 직접 쓰거나 AI 초안을 고쳐 주세요."
             className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[13px] leading-relaxed focus:border-blue-500 focus:outline-none"
           />
+          {text.trim() && (
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+              <input aria-label="템플릿 이름" placeholder="템플릿 이름" maxLength={40} value={templateTitle} onChange={(e) => setTemplateTitle(e.target.value)} className="w-36 rounded border border-slate-300 bg-white px-2 py-1" />
+              <button type="button" disabled={!templateTitle.trim()} onClick={() => { onSaveTemplate({ title: templateTitle.trim(), text }); setTemplateTitle(""); }} className={`${smallBtn} border-slate-300 bg-white text-slate-700`}>이 답변을 템플릿으로 저장</button>
+            </div>
+          )}
           {needs.length > 0 && <p className="rounded-lg bg-amber-50 px-3 py-1.5 text-[12px] text-amber-900">⚠ 보내기 전에 확인할 것: {needs.join(", ")}</p>}
           {hasBlank && <p className="text-[12px] font-bold text-rose-800">대괄호 [ ] 부분을 실제 내용으로 바꿔야 보낼 수 있습니다.</p>}
           {problem && <p className="text-[12px] text-rose-800">{problem}</p>}
@@ -133,7 +157,21 @@ function InquiryCard({ row, onDone }: { row: InquiryRow; onDone: (message: strin
 }
 
 /** 플랜 묶음 2 문의 모아 보기 — 버튼을 눌렀을 때만 읽는다(쿠팡 3회). 문의 내용은 저장하지 않는다 */
-export function InquiryBoard({ keysSaved }: { keysSaved: boolean }) {
+export function InquiryBoard({ keysSaved, autoLoad = false }: { keysSaved: boolean; autoLoad?: boolean }) {
+  const [templates, setTemplates] = useState<ReplyTemplate[]>([]);
+  const [draftTick, setDraftTick] = useState(0);
+  const [askBulk, setAskBulk] = useState(false);
+  useEffect(() => {
+    loadPrefsAction().then((p) => setTemplates(p.replyTemplates)).catch(() => {});
+    if (autoLoad) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const saveTemplate = async (t: ReplyTemplate) => {
+    const list = upsertNamed(templates, t, (x) => x.title);
+    setTemplates(list);
+    const r = await savePrefsAction({ replyTemplates: list });
+    setNote(r.ok ? `✅ 템플릿 「${t.title}」을 저장했습니다.` : `❌ ${r.error}`);
+  };
   const [rows, setRows] = useState<InquiryRow[] | null>(null);
   const [failed, setFailed] = useState<string[]>([]);
   const [range, setRange] = useState("");
@@ -174,8 +212,20 @@ export function InquiryBoard({ keysSaved }: { keysSaved: boolean }) {
         </p>
       )}
       {rows?.length === 0 && failed.length === 0 && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">✅ 처리할 문의가 없습니다.</p>}
+      {!!rows?.length && (
+        <div className="flex flex-wrap items-center gap-2 text-[12px]">
+          <button type="button" disabled={pending} onClick={() => setAskBulk(true)} className={`${smallBtn} border-blue-300 bg-white text-blue-800`}>✨ 빈 문의 초안 한 번에 만들기(최대 ${BULK_DRAFT_MAX}건)</button>
+          {askBulk && (
+            <>
+              <span className="font-bold text-amber-800">문의마다 AI를 1번씩 부르며 요금은 내 키에 청구됩니다. 보내기는 건마다 직접 누르셔야 합니다.</span>
+              <button type="button" onClick={() => { setDraftTick((n) => n + 1); setAskBulk(false); }} className={`${smallBtn} border-blue-600 bg-blue-700 text-white`}>네, 만들기</button>
+              <button type="button" onClick={() => setAskBulk(false)} className={`${smallBtn} border-slate-300 bg-white text-slate-700`}>취소</button>
+            </>
+          )}
+        </div>
+      )}
       <ul className="space-y-3">
-        {rows?.map((r) => <InquiryCard key={keyOf(r)} row={r} onDone={(m) => finish(r, m)} />)}
+        {rows?.map((r, i) => <InquiryCard key={keyOf(r)} row={r} onDone={(m) => finish(r, m)} templates={templates} onSaveTemplate={saveTemplate} draftTick={draftTick} index={i} />)}
       </ul>
     </section>
   );

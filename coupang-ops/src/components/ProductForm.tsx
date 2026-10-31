@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { loadPrefsAction, savePrefsAction } from "@/lib/actions/prefs";
+import { upsertNamed, type ListingTemplate } from "@/lib/coupang/prefs";
 import Link from "next/link";
 import { AiModelSelect, useAiModel } from "@/components/AiModelSelect";
 import { suggestProductInfoAction } from "@/lib/actions/suggest";
@@ -47,6 +49,11 @@ export function ProductForm(props: {
   const [notice, setNotice] = useState<string>("");
   const [tags, setTags] = useState("");
   const [suggestNote, setSuggestNote] = useState("");
+  const [templates, setTemplates] = useState<ListingTemplate[]>([]);
+  const [templateName, setTemplateName] = useState("");
+  const [templateNote, setTemplateNote] = useState("");
+  const pendingTemplate = useRef<ListingTemplate | null>(null);
+  useEffect(() => { loadPrefsAction().then((p) => setTemplates(p.listingTemplates)).catch(() => {}); }, []);
   const [aiModel, setAiModel] = useAiModel();
   const [lastForm, setLastForm] = useState<{ brand: string; manufacturer: string; code: string } | null>(null);
   useEffect(() => {
@@ -127,6 +134,38 @@ export function ProductForm(props: {
 
   const axes = purchaseAttrs.map((a) => ({ type: a.name, values: splitValues(axisText[a.name] ?? "") })).filter((a) => a.values.length);
   const comboCount = axes.length ? axes.reduce((n, a) => n * a.values.length, 1) : 0;
+
+  // 템플릿: 카테고리를 읽은 뒤에 속성을 채워야 하므로 카테고리 로드가 끝나면 이어서 넣는다
+  useEffect(() => {
+    const t = pendingTemplate.current;
+    if (!t || !cat) return;
+    pendingTemplate.current = null;
+    setSearchVals(t.searchVals);
+    setAxisText(t.axisText);
+    setTags(t.tags);
+  }, [cat]);
+  function applyTemplate(title: string) {
+    const t = templates.find((x) => x.name === title);
+    if (!t) return;
+    setBrand(t.brand);
+    setManufacturer(t.manufacturer);
+    setCodeInput(t.code);
+    if (t.code) {
+      pendingTemplate.current = t;
+      loadCategory(Number(t.code));
+    } else {
+      setTags(t.tags);
+    }
+    setTemplateNote(`📋 템플릿 「${t.name}」을 불러왔습니다. 옵션 표는 값을 확인한 뒤 만들어 주세요.`);
+  }
+  async function saveTemplate() {
+    const t: ListingTemplate = { name: templateName.trim(), brand, manufacturer, code: String(cat?.code ?? codeInput), tags, searchVals: Object.fromEntries(Object.entries(searchVals).filter(([, v]) => v)), axisText };
+    const list = upsertNamed(templates, t, (x) => x.name);
+    setTemplates(list);
+    setTemplateName("");
+    const r = await savePrefsAction({ listingTemplates: list });
+    setTemplateNote(r.ok ? `✅ 템플릿 「${t.name}」을 저장했습니다.` : `❌ ${r.error}`);
+  }
 
   function buildRows() {
     if (!axes.length) { setRows(cat?.meta.singleAllowed ? [singleRow()] : []); return; }
@@ -211,6 +250,17 @@ export function ProductForm(props: {
           <span className="text-xs text-slate-500">또는 번호 직접</span>
           <input value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ""))} placeholder="예: 69579" className="w-28 rounded-lg border border-slate-300 px-2 py-2 text-sm" />
           <button type="button" disabled={pending || !codeInput} onClick={() => loadCategory(Number(codeInput))} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50">이 번호로</button>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2 text-[12px]">
+          {templates.length > 0 && (
+            <select aria-label="등록 템플릿" value="" disabled={pending} onChange={(e) => applyTemplate(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-2 py-1">
+              <option value="">📋 등록 템플릿 불러오기</option>
+              {templates.map((t) => <option key={t.name} value={t.name}>{t.name}</option>)}
+            </select>
+          )}
+          <input aria-label="템플릿 이름" placeholder="템플릿 이름" maxLength={40} value={templateName} onChange={(e) => setTemplateName(e.target.value)} className="w-36 rounded-lg border border-slate-300 bg-white px-2 py-1" />
+          <button type="button" disabled={!templateName.trim()} onClick={saveTemplate} className="rounded-lg border border-slate-300 bg-white px-2 py-1 font-bold text-slate-700 disabled:opacity-50">지금 값을 템플릿으로 저장</button>
+          {templateNote && <span className="text-slate-700">{templateNote}</span>}
         </div>
         {lastForm && (
           <button type="button" onClick={() => { setBrand(lastForm.brand); setManufacturer(lastForm.manufacturer); setCodeInput(lastForm.code); }} className="text-xs font-bold text-blue-700 underline">

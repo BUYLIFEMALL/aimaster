@@ -14,6 +14,7 @@ export default async function ProductsPage() {
     <div className="space-y-5">
       <PageHeader emoji="📦" title="상품 등록" description="AI 상세페이지 자동화에서 만든 상품을 골라 쿠팡 등록 정보를 채웁니다." />
       <Notice tone="tip">💡 상세페이지에서 「검토 완료」한 상품이 위에 나옵니다. 상품을 누르면 카테고리 추천 → 옵션 → 검사 순서로 진행합니다.</Notice>
+      <Link href="/products/new" className="inline-block rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800">➕ 상세페이지 없이 등록</Link>
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">상품 목록을 읽지 못했습니다. 잠시 뒤 다시 시도해 주세요.</p>}
       {!error && rows.length === 0 && (
         <p className="slw-card p-5 text-sm text-slate-600">

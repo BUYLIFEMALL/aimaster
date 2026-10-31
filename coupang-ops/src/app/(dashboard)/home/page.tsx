@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { TOOLS } from "@/lib/tools";
-import { getWingKeys } from "@/lib/data";
+import { getCoupangDefaults, getWingKeys } from "@/lib/data";
 import { TodayBoard } from "@/components/TodayBoard";
 import { RejectedBoard, type RejectedJob } from "@/components/RejectedBoard";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -13,7 +13,7 @@ export const fetchCache = "force-no-store";
 
 export default async function HomePage() {
   const user = await requireProgramAccess();
-  const keys = await getWingKeys(user.id);
+  const [keys, defaults] = await Promise.all([getWingKeys(user.id), getCoupangDefaults(user.id)]);
   const usage = await usageCounts(user.id).catch(() => null);
   const { data: profile } = await createAdminClient().from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
   const { data: rejected } = await createAdminClient().from("coupang_ops_jobs").select("id,product_id,product_name,seller_product_id,message").eq("user_id", user.id).eq("status", "rejected").order("created_at", { ascending: false }).limit(10);
@@ -27,7 +27,7 @@ export default async function HomePage() {
         키 발급 방법은 <Link href="/guide" className="font-bold text-blue-700 underline">📖 연동 &amp; 사용 매뉴얼</Link>에 있습니다.
       </Notice>
 
-      <TodayBoard keysSaved={!!keys} />
+      <TodayBoard keysSaved={!!keys} defaultCourier={defaults?.deliveryCompanyCode ?? ""} />
 
       {usage && (
         <p className="px-1 text-[12px] text-slate-500">

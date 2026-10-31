@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { confirmExchangeAction, listExchangesAction, rejectExchangeAction, sendExchangeInvoiceAction, type ExchangeDone } from "@/lib/actions/exchanges";
 import { COMMON_COURIERS } from "@/lib/coupang/defaults";
 import { canSendExchangeInvoice, EXCHANGE_REJECT_REASONS, isOpenExchange, type ExchangeRow } from "@/lib/coupang/exchanges";
@@ -10,7 +10,7 @@ type Ask = { kind: "confirm" | "reject" | "invoice"; row: ExchangeRow; label: st
 type Form = { courier: string; invoice: string; reason: string };
 
 /** 플랜 묶음 3 교환 처리 — 버튼을 눌렀을 때만 읽고, 쓰기는 확인 뒤 서버가 상태를 다시 읽어 보낸다 */
-export function ExchangeRequests({ keysSaved, defaultCourier }: { keysSaved: boolean; defaultCourier: string }) {
+export function ExchangeRequests({ keysSaved, defaultCourier, autoLoad = false }: { keysSaved: boolean; defaultCourier: string; autoLoad?: boolean }) {
   const [rows, setRows] = useState<ExchangeRow[] | null>(null);
   const [next, setNext] = useState("");
   const [error, setError] = useState("");
@@ -46,6 +46,11 @@ export function ExchangeRequests({ keysSaved, defaultCourier }: { keysSaved: boo
       setNote(`✅ 교환번호 ${row.exchangeId}: ${r.message}`);
       if (r.row) setRows((old) => (old ?? []).map((x) => (x.exchangeId === row.exchangeId ? (r as { row: ExchangeRow }).row : x)));
     });
+
+  useEffect(() => {
+    if (autoLoad && keysSaved) load(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section className="slw-card space-y-3 p-5">
