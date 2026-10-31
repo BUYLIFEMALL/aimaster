@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ⚠️ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar — 미처리 2건 인수인계(담당 미정)
+- `music-video-studio` 다음 배포 실패 위험: 공용 사본 `Composition.tsx`(미커밋)가 없는 `renderTrace`를 불러옴. 배포 전 필독.
+- API 키 「암호화」 문구: 실제와 다를 수 있음. 5개 프로그램에 남아 있고 전체 검색 전, 주인님 결정 대기.
+- 상세·다음 첫 단계: [`docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md`](HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md)
+
 ## 2026-11-01 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — `music-automation` v1.48 AI 모델 추가
 - AI 공급사 순서를 OpenAI·Claude·Gemini로 변경, GPT-6.1 Sol·6 Astra·6.1 Terra·6 Luna·Claude Opus 5.5·Fable 5.1 추가, 출력 한도 8192 → 16000. 기본값은 Gemini 3.8 Flash 유지. 곡 기획 실제 호출(시험 계정 본인 키, 7회): 6개 통과 10.7~42.9초. gemini-4-argon은 HTTP 402로 실패해 목록에서 제외(원인 미확인, 앨범 생성 길이는 미시험).
 - 배포·DB v1.48, 크롬 화면 버전 확인. 링크: https://music-automation.buylife.xyz/studio
