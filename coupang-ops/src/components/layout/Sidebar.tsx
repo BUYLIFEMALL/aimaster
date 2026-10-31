@@ -47,9 +47,11 @@ function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: (
             <span>{g.title}</span>
           </p>
           {TOOLS.filter((t) => t.group === g.title).sort((a, b) => Number(a.href === "/connect") - Number(b.href === "/connect")).map((t) => (
-            <Link key={t.href} href={t.href} onClick={onNavigate} className={item(t.href)}>
-              {t.label}
-            </Link>
+            <div key={t.href} className={t.href === "/connect" ? "mx-3 mt-1 border-t border-slate-200 pt-1" : undefined}>
+              <Link href={t.href} onClick={onNavigate} className={t.href === "/connect" ? `${item(t.href)} -mx-3` : item(t.href)}>
+                {t.label}
+              </Link>
+            </div>
           ))}
         </div>
       ))}
