@@ -79,3 +79,8 @@ export function alertText(trades: { kind: string; sgg_nm: string; umd_nm: string
   });
   return `🏢 새 실거래 ${trades.length}건\n\n${lines.join("\n")}\n\n자세히 보기: ${siteUrl}/trades`;
 }
+
+export function kakaoAlertText(trades: { sgg_nm: string; umd_nm: string; kind: string; category: string; amount_manwon: number }[]) {
+  const t = trades[0];
+  return `[상가·건물·토지] 새 실거래 ${trades.length}건\n${t.sgg_nm} ${t.umd_nm} ${kindLabel(t.kind)}(${t.category}) ${formatManwon(t.amount_manwon)}${trades.length > 1 ? ` 외 ${trades.length - 1}건` : ""}`.slice(0, 200);
+}

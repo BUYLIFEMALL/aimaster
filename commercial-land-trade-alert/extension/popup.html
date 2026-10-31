@@ -1,10 +1,45 @@
-<!doctype html><meta charset="utf-8">
-<style>body{width:280px;font:13px Arial,sans-serif;padding:12px}button{display:block;width:100%;margin:6px 0;padding:9px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer}.g{background:#009b4d;color:#fff;border:0;font-weight:700}p{margin:6px 0;color:#555}</style>
-<b>상가·건물·토지 매물·실거래 알림</b><p>0단계 사전 검증</p>
-<p id="s">대기</p>
-<button class="g" data-l="상가">1. 상가 화면 기록 시작</button>
-<button class="g" data-l="건물">2. 건물 화면 기록 시작</button>
-<button class="g" data-l="토지">3. 토지 화면 기록 시작</button>
-<button id="d">결과 파일 저장</button>
-<button id="x">기록 끝내기(위쪽 안내 줄 닫기)</button>
-<script src="popup.js"></script>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --ink:#0f172a; --muted:#5b6475; --line:#e2e6ee; --accent:#009b4d; --soft:#e8f8ef; --red:#c0362c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 420px; background: #f6f7f9; color: var(--ink); font: 14px/1.55 Arial, "Noto Sans KR", sans-serif; }
+  header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: #0b5d3b; color: #fff; }
+  header b { font-size: 16px; flex: 1; }
+  header span { padding: 2px 10px; border-radius: 999px; background: #fff; color: #0b5d3b; font-size: 12px; font-weight: 800; }
+  main { display: grid; gap: 10px; padding: 12px 14px 14px; }
+  .note { padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: #fff; font-size: 13px; }
+  .note.stop { border-color: #f5c2c2; background: #fdecec; color: var(--red); }
+  .note.ok { border-color: #bfe6cf; background: var(--soft); color: #00803f; font-weight: 700; }
+  button { width: 100%; padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.primary { border: 0; background: #009b4d; color: #fff; }
+  .links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #msg { min-height: 18px; margin: 0; font-size: 13px; font-weight: 700; color: var(--accent); }
+  #msg.err { color: var(--red); }
+  #log { margin: 0; padding: 10px 12px; max-height: 130px; overflow: auto; white-space: pre-wrap; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-size: 12px; color: #334155; }
+  small { color: var(--muted); }
+</style>
+</head>
+<body>
+  <header><b>상가·건물·토지 매물 알림</b><span id="ver"></span></header>
+  <main>
+    <div class="note stop" id="stopped" hidden>⛔ 네이버가 잠시 이용을 제한해 오늘 예약을 멈췄어요. 네이버 부동산을 직접 열어 확인 화면을 풀어 주세요.</div>
+    <div class="note" id="consentBox" hidden>
+      네이버 부동산 정보를 <b>회원님 PC에서 회원님 계정으로</b> 읽어 정리합니다. 개인 참고용으로만 쓰고 다시 배포하지 마세요.
+      <label style="display:block;margin-top:6px;font-weight:700"><input type="checkbox" id="consent"> 위 내용을 확인했어요</label>
+    </div>
+    <div class="note" id="state">확인 중…</div>
+    <button id="add" hidden>➕ 이 화면 감시</button>
+    <button id="openNaver">🏠 네이버 부동산에서 지역·필터 고르기</button>
+    <button class="primary" id="collect">🔍 지금 수집</button>
+    <p id="msg"></p>
+    <div class="links"><button id="watch">🎯 감시 화면 관리</button><button id="settings">🔑 받는 곳 연결</button></div>
+    <pre id="log"></pre>
+    <small>크롬이 켜져 있어야 예약 수집이 돌아요. 매물은 우리 서버로 보내지 않아요.</small>
+  </main>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

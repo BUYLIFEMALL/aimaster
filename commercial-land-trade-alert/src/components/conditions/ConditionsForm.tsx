@@ -67,7 +67,7 @@ export function ConditionsForm({ prefs }: { prefs: Prefs }) {
       </section>
       <section className="mx-card space-y-2">
         <Check name="includeShare" label="지분 거래도 받기 (일부 지분만 사고판 거래)" checked={prefs.include_share} />
-        <Check name="notifyEnabled" label="새 거래를 텔레그램으로 받기" checked={prefs.notify_enabled} />
+        <Check name="notifyEnabled" label="새 거래 알림 받기(받는 곳은 설정에서)" checked={prefs.notify_enabled} />
       </section>
       {state.error && <p className="text-sm text-mx-danger">{state.error}</p>}
       {state.success && <p className="text-sm text-mx-success">{state.success}</p>}

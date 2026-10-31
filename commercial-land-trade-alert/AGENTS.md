@@ -1,4 +1,4 @@
-# 상가·건물·토지 실거래 알림 (`commercial-land-trade-alert`)
+# 상가·건물·토지 매물 알림 (`commercial-land-trade-alert`)
 
 주소: https://commercial-land-trade-alert.buylife.xyz · 담당 [역할: realty] · 운영 DB `esgxyikcnnvmlhygjkth`
 플랜·실측 근거: [`../real_estate_sales/docs/PLAN_20261031_COMMERCIAL_LAND.md`](../real_estate_sales/docs/PLAN_20261031_COMMERCIAL_LAND.md)
@@ -19,6 +19,7 @@ Next.js 16 App Router, Tailwind 4, Supabase 공용 DB, Vercel 예약 호출, 국
 - 단점: 토지·일반 건물 지번 가림, 임대료·호가 없음, 신고 지연, 12개월이 차기까지 비교 표본이 적음.
 
 ## 4. 버전
+- v1.02 (2026-10-31): 네이버 매물 1단계. 감시 화면, 예약, 가격 변동 비교, 텔레그램/이메일/카카오톡 알림과 파일, 실거래 알림도 3채널, 이름 변경. 플랜 `docs/PLAN_20261031_NAVER_LISTINGS.md`.
 - v1.01 (2026-10-31): 첫 버전. 빌드 3회. 2026-10-31 정식 공개, VIP 145명 등급 부여(일반·골드 제외), 시험 계정 14일 권한. 부동산 시리즈 디자인 + 전용 로고.
 - 검수: 강남구 원본 대조(상업 200, 토지 470 일치, 7월 채움 뒤 275·512), 재수집 중복 없음, 시험 줄 복구, 알림 전송 기록 1건, CSV 470줄, 390px 가로 넘침 없음. 토지 지분이 강남에서 453/470으로 많아 기본 목록이 적게 보일 수 있다.
 - 미배포 대기: 상세 「0% 높습니다」를 「비슷합니다」로.
@@ -33,7 +34,7 @@ Next.js 16 App Router, Tailwind 4, Supabase 공용 DB, Vercel 예약 호출, 국
 [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) §2
 
 ## 주의
-- `extension/`은 네이버 매물 0단계 사전 검증용이다. 회원에게 아직 배포하지 않는다(주소·ZIP·DB 확장 칸 없음).
+- 확장 수집은 회원이 저장한 네이버 화면을 열어 페이지가 받은 목록 응답만 읽는다. 직접 호출·상세 조회·중개사 번호는 하지 않는다(v1.02).
 - `vercel env pull`은 민감 변수를 `[SENSITIVE]` 글자로 내려 준다. 다른 프로젝트로 복사하면 안 된다(2026-10-31 사고, 루트 `docs/ERROR_LESSONS.md`).
 - 공공데이터 키·예약 호출·1년 보관은 주인님 지정 사항이다(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8, `docs/SCHEDULER_POLICY.md` §8). 범위를 넓히려면 다시 승인받는다.
 - 코드는 `real_estate_sales` 복사본이며 사본 등록 대상 공용 모듈 `telegram-bot-client`를 포함한다.

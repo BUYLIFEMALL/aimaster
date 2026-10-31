@@ -1,7 +1,9 @@
 import "server-only";
 import { kstDay, molitItems, monthKey, parseTrades, type TradeKind, type TradeRow } from "./parse";
-import { alertText, matchesPrefs, normalizePrefs, kindLabel } from "./prefs";
+import { alertText, kakaoAlertText, matchesPrefs, normalizePrefs, kindLabel } from "./prefs";
 import { sendTelegramMessage } from "@/lib/telegram/client";
+import { getKakaoState, getResendKey } from "@/lib/notifyChannels";
+import { sendKakaoMemo, sendResendMail } from "@/lib/notifySend";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = any;
@@ -140,8 +142,12 @@ export async function notifyUser(admin: Admin, userId: string, siteUrl: string, 
   const { data: prefRow } = await admin.from("commercial_land_preferences").select("*").eq("user_id", userId).maybeSingle();
   const prefs = normalizePrefs(prefRow);
   if (!prefs.notify_enabled) return 0;
-  const link = await telegramLinkFor(admin, userId);
-  if (!link?.bot_token) return 0;
+  // 받는 곳: 텔레그램 → 이메일 → 카카오톡. 회원 본인 봇·키·계정만 쓴다
+  const link = prefRow?.notify_telegram === false ? null : await telegramLinkFor(admin, userId);
+  const resend = prefRow?.notify_email && prefRow?.email_to ? await getResendKey(admin, userId) : null;
+  const kakao = prefRow?.notify_kakao ? await getKakaoState(admin, userId) : null;
+  const kakaoToken = kakao?.status === "ok" ? kakao.accessToken : null;
+  if (!link?.bot_token && !resend && !kakaoToken) return 0;
 
   const { data: watches } = await admin.from("commercial_land_watch").select("sgg_cd, created_at").eq("user_id", userId).eq("is_active", true);
   const watchList = (watches ?? []) as { sgg_cd: string; created_at: string }[];
@@ -185,7 +191,30 @@ export async function notifyUser(admin: Admin, userId: string, siteUrl: string, 
   const toSend = candidates.filter((c) => !sent.has(c.id)).slice(0, MAX_ALERTS_PER_RUN);
   if (!toSend.length) return 0;
 
-  await sendTelegramMessage({ botToken: link.bot_token, chatId: link.chat_id, text: alertText(toSend, siteUrl) });
+  const text = alertText(toSend, siteUrl);
+  let sent2 = 0;
+  const attempt = async (name: string, run: () => Promise<unknown>) => {
+    try {
+      await run();
+      sent2++;
+    } catch (err) {
+      console.error(`${name} 알림 실패:`, err);
+    }
+  };
+  if (link?.bot_token) await attempt("텔레그램", () => sendTelegramMessage({ botToken: link.bot_token!, chatId: link.chat_id, text }));
+  if (resend) {
+    await attempt("이메일", async () => {
+      const r = await sendResendMail(resend, { to: prefRow.email_to, subject: `🏢 [상가·건물·토지] 새 실거래 ${toSend.length}건`, text });
+      if (!r.ok) throw new Error(r.error);
+    });
+  }
+  if (kakaoToken) {
+    await attempt("카카오톡", async () => {
+      const r = await sendKakaoMemo(kakaoToken, { text: kakaoAlertText(toSend), url: `${siteUrl}/trades` });
+      if (!r.ok) throw new Error(r.error);
+    });
+  }
+  if (!sent2) return 0; // 모두 실패하면 기록하지 않아 다음 회차에 다시 보낸다
   const stamp = new Date().toISOString();
   await admin.from("commercial_land_user_trades").upsert(
     toSend.map((t) => ({ user_id: userId, trade_id: t.id, notified_at: stamp })),

@@ -12,6 +12,7 @@ const FLOW_STEPS = [
   { step: 1, href: "/districts", icon: "📍", label: "관심 지역", description: "전국 시·군·구 고르기" },
   { step: 2, href: "/conditions", icon: "🎯", label: "거래 조건", description: "용도·지목·금액·면적" },
   { step: 3, href: "/trades", icon: "🏢", label: "실거래 목록", description: "거르기·비교·CSV" },
+  { step: 4, href: "/watch", icon: "🔔", label: "매물 감시", description: "네이버 화면·가격 변동 알림" },
 ];
 
 
@@ -105,7 +106,7 @@ function Brand() {
       <BrandMark />
       <div className="min-w-0">
         <p className="text-[15px] font-extrabold leading-tight tracking-tight text-mx-text">
-          <span className="text-mx-primary">상가·건물·토지</span> 실거래 알림
+          <span className="text-mx-primary">상가·건물·토지</span> 매물 알림
         </p>
         <p className="mt-0.5 text-[11px] font-bold text-[#7b8494]">{APP_VERSION}</p>
       </div>

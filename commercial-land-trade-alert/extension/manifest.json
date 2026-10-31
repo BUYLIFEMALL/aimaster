@@ -1,24 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "상가·건물·토지 매물·실거래 알림",
-  "version": "1.1.0",
-  "description": "0단계 사전 검증: 지금 탭이 스스로 받은 네이버 부동산 응답의 칸 이름과 표본만 기록합니다. 네이버에 요청을 보내지 않고, 파일은 내 PC에만 저장합니다.",
-  "permissions": [
-    "debugger",
-    "activeTab",
-    "storage",
-    "tabs"
-  ],
+  "name": "상가·건물·토지 매물 알림",
+  "version": "1.2.0",
+  "version_name": "v1.02",
+  "description": "회원 PC에서 회원 본인 계정으로 네이버 상가·건물·토지 매물 화면을 읽어 변동을 본인 텔레그램·이메일·카카오톡으로 알려 줍니다.",
+  "permissions": ["debugger", "alarms", "storage", "unlimitedStorage", "tabs"],
   "host_permissions": [
     "https://new.land.naver.com/*",
-    "https://fin.land.naver.com/*"
+    "https://api.telegram.org/*",
+    "https://api.resend.com/*",
+    "https://kapi.kakao.com/*",
+    "https://commercial-land-trade-alert.buylife.xyz/*"
   ],
-  "background": {
-    "service_worker": "bg.js"
-  },
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "매물 사전 검증"
-  },
-  "version_name": "v1.01"
+  "background": { "service_worker": "background.js", "type": "module" },
+  "content_scripts": [
+    { "matches": ["https://commercial-land-trade-alert.buylife.xyz/*"], "js": ["web-bridge.js"], "run_at": "document_start" }
+  ],
+  "action": { "default_popup": "popup.html", "default_title": "상가·건물·토지 매물 알림" }
 }

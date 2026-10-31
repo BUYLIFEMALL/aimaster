@@ -14,7 +14,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-[440px]">
         <div className="mb-8 flex flex-col items-center text-center">
           <BrandMark size={44} />
-          <h1 className="mb-1 mt-3 text-3xl font-extrabold tracking-tight text-mx-text">상가·건물·토지 실거래 알림</h1>
+          <h1 className="mb-1 mt-3 text-3xl font-extrabold tracking-tight text-mx-text">상가·건물·토지 매물 알림</h1>
           <p className="text-sm font-medium text-mx-muted">AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
         </div>
         {children}

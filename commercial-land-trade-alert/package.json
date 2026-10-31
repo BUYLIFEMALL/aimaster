@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --no-warnings --experimental-strip-types --test tests/parse.test.mjs"
+    "test": "node --no-warnings --experimental-strip-types --test tests/parse.test.mjs tests/extension.test.mjs",
+    "prebuild": "node scripts/build-extension-archive.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
@@ -26,6 +27,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "archiver": "^7.0.1"
   }
 }

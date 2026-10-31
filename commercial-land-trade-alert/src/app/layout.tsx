@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "상가·건물·토지 실거래 알림",
-  description: "상가·건물·토지 실거래를 지역과 조건별로 모아 보고, 새 거래를 텔레그램으로 받습니다.",
+  title: "상가·건물·토지 매물 알림",
+  description: "상가·건물·토지 실거래와 새 매물·가격 변동을 내 PC가 찾아 텔레그램/이메일/카카오톡으로 알려 주는 알림 자동화",
 };
 
 export default function RootLayout({

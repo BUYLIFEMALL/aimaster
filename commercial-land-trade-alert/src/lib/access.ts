@@ -36,6 +36,12 @@ export async function requireProgramAccess() {
   redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}${verdict === "suspended" ? "?error=suspended" : ""}`);
 }
 
+export async function getSessionUser() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  return data.user ?? null;
+}
+
 /** API용: 이동시키지 않고 결과만 돌려준다 */
 export async function checkProgramAccessApi(): Promise<{ allowed: true; userId: string } | { allowed: false; status: number; error: string }> {
   const supabase = await createClient();
