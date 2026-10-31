@@ -11,16 +11,20 @@ import { ConnectionTest } from "@/components/ConnectionTest";
 import { WING_FIELDS, WING_LABELS } from "@/lib/coupang/keys";
 import { KeyRound, Shield, PlugZap, Bot, ExternalLink } from "lucide-react";
 
+import { AlertKeysPanel } from "@/components/AlertKeysPanel";
+import { alertStatus } from "@/lib/actions/dailyAlert";
+
 export const dynamic = "force-dynamic";
 
 export default async function ConnectPage() {
   const user = await requireProgramAccess();
-  const [status, aiKeys, proxy, expiry, aiModels] = await Promise.all([
+  const [status, aiKeys, proxy, expiry, aiModels, alerts] = await Promise.all([
     getWingKeyStatus(user.id),
     getAiKeyStatus(user.id),
     getProxyStatus(user.id),
     getKeyExpiry(user.id).catch(() => ""),
     getAiModels(user.id).catch(() => ({})),
+    alertStatus(user.id),
   ]);
   const expiryNotice = keyExpiryNotice(expiry, Date.now());
 
@@ -142,6 +146,8 @@ export default async function ConnectPage() {
         </p>
         <AiKeyForm shown={aiKeys} models={aiModels} />
       </section>
+
+      <AlertKeysPanel status={alerts} />
     </div>
   );
 }

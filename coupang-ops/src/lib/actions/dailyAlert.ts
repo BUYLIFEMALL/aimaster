@@ -35,6 +35,7 @@ export async function connectTelegramAction(botToken: string): Promise<Done> {
     if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
     await sendTelegramMessage({ botToken: token, chatId: info.chatId, text: "✅ AI 쿠팡 운영 자동화와 연결됐습니다." });
     revalidatePath("/alerts");
+  revalidatePath("/connect");
     return { ok: true, message: "연결했습니다. 텔레그램에 확인 메시지를 보냈습니다." };
   } catch (e) {
     return { ok: false, error: msg(e, "연결을 확인하지 못했습니다.") };
@@ -63,6 +64,7 @@ export async function saveSmtpAction(input: { host: string; port: number; user: 
   const { error } = await supabase.from("user_smtp_accounts").insert({ user_id: user.id, label: "쿠팡 운영 알림", smtp_host: host, smtp_port: Number(input.port) || 587, smtp_user: smtpUser, smtp_password: password, from_name: String(input.fromName ?? "").trim() || null });
   if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
   revalidatePath("/alerts");
+  revalidatePath("/connect");
   return { ok: true, message: "저장했습니다. 다른 프로그램에서도 같은 계정을 씁니다." };
 }
 
@@ -74,6 +76,7 @@ export async function saveSolapiAction(input: { apiKey: string; apiSecret: strin
   const { error } = await supabase.from("user_solapi_accounts").upsert({ user_id: user.id, ...row }, { onConflict: "user_id" });
   if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
   revalidatePath("/alerts");
+  revalidatePath("/connect");
   return { ok: true, message: "저장했습니다. 다른 프로그램에서도 같은 계정을 씁니다." };
 }
 
@@ -85,6 +88,7 @@ export async function saveCronKeyAction(apiKey: string): Promise<Done> {
   const { error } = await supabase.from("user_api_keys").upsert({ user_id: user.id, provider: CRON_PROVIDER, api_key: key }, { onConflict: "user_id,provider" });
   if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
   revalidatePath("/alerts");
+  revalidatePath("/connect");
   return { ok: true, message: "저장했습니다. 다른 프로그램의 예약에서도 같은 키를 씁니다." };
 }
 
@@ -111,6 +115,7 @@ export async function enableDailyAlertAction(hourInput: number, channelsInput: A
   const { error } = await createAdminClient().from("coupang_ops_alerts").upsert({ user_id: user.id, enabled: true, hour, channels, token_hash, updated_at: new Date().toISOString() });
   if (error) return { ok: false, error: "설정을 저장하지 못했습니다. 다시 눌러 주세요." };
   revalidatePath("/alerts");
+  revalidatePath("/connect");
   return { ok: true, message: `매일 ${hour}시에 요약을 보냅니다.` };
 }
 
@@ -120,6 +125,7 @@ export async function disableDailyAlertAction(): Promise<Done> {
   // 작업을 못 꺼도 서버가 요청을 거절하도록 먼저 끈다
   await createAdminClient().from("coupang_ops_alerts").update({ enabled: false, updated_at: new Date().toISOString() }).eq("user_id", user.id);
   revalidatePath("/alerts");
+  revalidatePath("/connect");
   try {
     if (key) await stopDailyJob(key, JOB_URL);
     return { ok: true, message: "껐습니다." };
