@@ -35,6 +35,20 @@ const pctOf = (v: unknown) => {
   return m ? Number(m[1]) : null;
 };
 
+// 「+160%(시군구·1층 10건)」을 매물 알림의 실거래 대비와 같은 모양으로 그린다
+function GapCell({ value }: { value: unknown }) {
+  const m = /^([+-]?\d+)%(?:\((.*)\))?$/.exec(String(value ?? ""));
+  if (!m) return <span className="text-mx-muted">—</span>;
+  const n = Number(m[1]);
+  const color = n > 0 ? "text-blue-700" : n < 0 ? "text-red-600" : "";
+  return (
+    <>
+      <b className={color}>{n > 0 ? "▲" : n < 0 ? "▼" : ""} {Math.abs(n)}% {n > 0 ? "높음" : n < 0 ? "낮음" : "같음"}</b>
+      {m[2] && <small className="ml-1 text-xs text-mx-muted">({m[2]})</small>}
+    </>
+  );
+}
+
 export function ResultsClient({ email }: { email: string }) {
   const [res, setRes] = useState<Result | null | undefined>(undefined);
   const [view, setView] = useState("all");
@@ -138,7 +152,7 @@ export function ResultsClient({ email }: { email: string }) {
               <tr key={`${String(r[at(LINK)])}-${i}`}>
                 {SHOW.map((c) => (
                   <td key={c} className={c === "가격" ? "font-semibold" : undefined}>
-                    {c === "후보 점수" && Number(r[at(c)]) >= 40 ? `⭐ ${r[at(c)]}` : String(r[at(c)] ?? "")}
+                    {c === "시세 대비" ? <GapCell value={r[at(c)]} /> : c === "후보 점수" && Number(r[at(c)]) >= 40 ? `⭐ ${r[at(c)]}` : String(r[at(c)] ?? "")}
                   </td>
                 ))}
                 <td>
