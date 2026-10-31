@@ -19,7 +19,7 @@
 | `coupang-ops` | 임시저장 상품 16433545652 중지 유지(2026-10-31 주인님 지시: 삭제하지 말고 중지만). 승인 요청·삭제 금지, 다시 지시가 있을 때만 재개 | 주인님 재지시 | `coupang-ops/AGENTS.md` 2026-10-31 |
 | `coupang-ops` | 옵션 가격·재고·판매 재개 실제 변경 1건 시험 | 주인님 승인(실제 판매 상품이 바뀜) | `coupang-ops/AGENTS.md` 2026-10-30 |
 | `coupang-ops` | 주문 쓰기 실제 1건 시험(상품준비중·송장 등록/수정·출고중지 완료·이미출고·판매자 취소)·발주서 화면 모양 확인 | 실제 주문이 들어온 뒤(주인님 10-30 「시험은 아직 주문이 안되니 나중에」) | `coupang-ops/AGENTS.md` 2026-10-30 |
-| `seller-label-docs` | 기본 라벨 규격 여백 보정 | 주인님 실물 라벨지 시험 인쇄 결과 | `seller-label-docs/docs/IMPROVEMENT_BACKLOG.md` |
+| `seller-label-docs` | 기본 라벨 규격 여백 보정 | 보류(2026-10-31 주인님 「나중에 하는것으로 해」) — 다시 지시가 있을 때 실물 라벨지 시험 인쇄 결과로 진행 | `seller-label-docs/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 이미지 인계 대기 (2026-10-31, 새 작업자 지정 전)
 다음 작업자는 `banana-canvas/docs/IMPROVEMENT_BACKLOG.md`의 E5-4 칸과 `banana-canvas/docs/PLAN_20261026_E5D_DIGIT_RULES_KOREAN_RETURN.md`부터 읽는다. 최신 상태: `banana-canvas` v1.42, AI 매직 지우개 일반 회원 검수 완료(10-29).
