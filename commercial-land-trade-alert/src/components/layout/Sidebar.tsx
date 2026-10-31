@@ -39,11 +39,13 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
           🏠 대시보드
         </Link>
 
-        <nav className="relative flex flex-col">
+        <nav className="relative flex flex-col gap-1">
           {FLOW_STEPS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
-                        return (
-              <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-1">
+            return (
+              <div key={item.href}>
+              {item.step === 5 && <p className="mx-2 mb-2 mt-2 border-t border-mx-border pt-3 text-[11px] font-bold text-mx-muted">실거래</p>}
+              <Link href={item.href} className={`flex items-center gap-3 rounded-xl px-2 py-2 ${isActive ? "bg-[#e8f8ef]" : "hover:bg-[#f4f6f9]"}`}>
                 <div className="flex flex-col items-center">
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
@@ -56,26 +58,33 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
                   </span>
                   
                 </div>
-                <div className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 ${isActive ? "bg-[#e8f8ef]" : "group-hover:bg-[#f4f6f9]"}`}>
+                <div className="min-w-0 flex-1">
                   <p className={`text-sm font-bold ${isActive ? "text-mx-link" : "text-[#475063]"}`}>
                     {item.icon} {item.label}
                   </p>
                   <p className="text-xs text-mx-muted">{item.description}</p>
                 </div>
               </Link>
+              </div>
             );
           })}
         </nav>
 
+        <a
+          href="/downloads/commercial-land-trade-alert-extension-latest.zip"
+          className="mt-4 flex min-h-[48px] items-center justify-center rounded-xl border border-[#008a44] bg-gradient-to-b from-[#00b45a] to-[#009b4d] px-3 text-sm font-bold text-white shadow-[0_4px_0_#00682f] hover:brightness-105 active:translate-y-[3px] active:shadow-[0_1px_0_#00682f]"
+        >
+          ⬇ 확장 프로그램 받기 ({APP_VERSION})
+        </a>
 
-        <div className="mt-6 border-t border-mx-border pt-3">
+        <div className="mt-4 pt-1">
           {UTILITY_ITEMS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium ${
+                className={`flex min-h-[44px] items-center rounded-lg px-3 text-sm font-semibold ${
                   isActive ? "bg-[#e8f8ef] text-mx-link" : "text-[#475063] hover:bg-[#e8f8ef] hover:text-mx-link"
                 }`}
               >
@@ -112,6 +121,7 @@ function Brand() {
           <span className="text-mx-primary">상가·건물·토지</span> 매물 알림
         </p>
         <p className="mt-0.5 text-[11px] font-bold text-[#7b8494]">{APP_VERSION}</p>
+        <p className="mt-0.5 text-[11px] text-mx-muted">새 매물을 찾아 텔레그램/이메일/카카오톡으로</p>
       </div>
     </div>
   );

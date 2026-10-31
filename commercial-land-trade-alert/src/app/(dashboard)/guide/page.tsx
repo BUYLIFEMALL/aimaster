@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PageHero } from "@/components/ui/PageHero";
 
 const STEPS = [
-  { icon: "🔔", title: "감시 대상 등록", href: "/watch", body: "크롬 확장을 설치하고 네이버 지도에서 지역과 필터를 맞춘 뒤 「이 화면 감시」를 누릅니다. 새 매물과 가격 변동을 알려 드립니다." },
+  { icon: "🔔", title: "감시 대상 등록", href: "/watch", body: "왼쪽 메뉴 「⬇ 확장 프로그램 받기」로 크롬 확장을 받아 설치하고 네이버 지도에서 지역과 필터를 맞춘 뒤 「이 화면 감시」를 누릅니다. 새 매물과 가격 변동을 알려 드립니다." },
   { icon: "📨", title: "받는 곳 연결", href: "/settings", body: "텔레그램/이메일/카카오톡 중 켭니다. 다른 프로그램에 연결한 값이 있으면 그대로 씁니다." },
   { icon: "⭐", title: "수집 결과 보기", href: "/results", body: "매매 매물의 평당 호가를 층·면적이 비슷한 실거래 중간값과 비교한 시세 대비와 후보 점수를 봅니다. 파일과 알림에도 함께 들어갑니다." },
   { icon: "📍", title: "관심 지역 고르기", href: "/districts", body: "전국 시·군·구에서 볼 곳을 누릅니다. 설치할 것도, 직접 수집할 것도 없습니다." },
