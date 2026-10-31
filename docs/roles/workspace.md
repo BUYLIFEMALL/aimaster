@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-work-workspace` | 요약 멈춤 수정·요약 소제목 한글화 → v1.20 | 빌드 1회 승인 | `ai-work-workspace/docs/IMPROVEMENTS.md` |
+| `ai-work-workspace` | 미배포 `05d0ec5f4`(요약 중 자동 갱신·소제목 언어). 배포 뒤 크롬 확인 필요 | 다음 워크스페이스 배포 때 함께 | `ai-work-workspace/docs/IMPROVEMENTS.md` |
 | `ai-work-workspace` | U6-B 음성 파일 받아쓰기(회원 Gemini 우선·OpenAI 보조) → v1.18 | 제공자 결정 | `ai-work-workspace/docs/PLAN_20261024_U6_MEETING_NOTES.md` §2 |
 | `ai-work-workspace` | U9 연계(음성 분석·문서 챗봇·번역·슬라이드 보내기 버튼) | 착수 전 플랜·비용 보고 | 로드맵 §5, `docs/WORK_INBOX.md` |
 | `ai-work-workspace` | 미배포 `94719d8da`(표 행 글자형 우선순위·날짜 칸 읽기)·`26db40bd4`(요약 지침 이름 한글화) | 다음 워크스페이스 배포 때 함께 내보내기(2026-10-26 주인님 결정, 단독 배포 안 함) | `ai-work-workspace/docs/IMPROVEMENTS.md` |
