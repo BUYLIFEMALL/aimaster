@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar — 프리미엄 등급 전환 함수 수정·시험 계정 권한 복구(운영 DB ref esgxyikcnnvmlhygjkth)
+- 한 일: 0049 적용(주인님 승인, 크롬 SQL 편집기). `buylifemall@naver.com`의 `ai-work-workspace` 권한을 2027-10-29까지 복구.
+- 확인: 자동 롤백 시험 통과, DB 값 대조, 시험 계정으로 프로그램 화면 열림. 빌드·배포 없음.
+- 남은 일(승인 대기, 요청함): `grade_program_access_sync`·`apply_grade_programs`의 같은 틈, 0047에서 빠진 가입일 기준 만료 복원. 지금 이 틈으로 막힌 회원은 0건.
+- 다음 첫 단계: 승인되면 세 함수를 `grade_access_expires_at` 기준으로 맞춘다. 상세: `docs/ERROR_LESSONS.md` 2026-10-31.
+
 ## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.17 알림 기능(운영 배포)
 - 한 일: 품절 임박 자동 알림, 출고중지·미답변 수시 알림(회원이 시각 선택, 기본 오전 9시·오후 6시), 고정 IP 미등록 안내 정리, 카카오 웹 도메인 안내. DB 구조 변경 없음.
 - 빌드 1회(승인), 시험 131개·빌드 통과. 크롬에서 켜기·끄기 확인, 틀린 토큰 401, 쿠팡 쓰기 0회.
