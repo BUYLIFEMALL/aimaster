@@ -9,7 +9,7 @@ import { getWingKeys } from "@/lib/data";
 import { stopDailyJob, upsertDailyJob, upsertUrgentJob } from "@/lib/alerts/cronJob";
 import { channelProblem, deliver, loadTargets } from "@/lib/alerts/deliver";
 import { cleanUrgent, normalizePrefs, type Urgent } from "@/lib/coupang/prefs";
-import { ALERT_CHANNELS, CHANNEL_LABEL, cleanChannels, cleanHour, SITE_ORIGIN, SUMMARY_PATH, TOKEN_PREFIX, URGENT_HOURS, URGENT_PATH, type AlertChannel } from "@/lib/coupang/summary";
+import { ALERT_CHANNELS, CHANNEL_LABEL, cleanChannels, cleanHour, SITE_ORIGIN, SUMMARY_PATH, TOKEN_PREFIX, cleanUrgentHours, hourLabel, URGENT_PATH, type AlertChannel } from "@/lib/coupang/summary";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { findChatIdFromUpdates, sendTelegramMessage } from "@/lib/telegram/client";
@@ -166,8 +166,10 @@ async function saveUrgent(userId: string, patch: Partial<Urgent>) {
 }
 
 /** R10 켜기: 회원 전용 토큰을 새로 만들어 회원 cron-job.org 작업에 넣는다. 작업을 못 만들면 켜지 않는다 */
-export async function enableUrgentAlertAction(channelsInput: AlertChannel[]): Promise<Done> {
+export async function enableUrgentAlertAction(hoursInput: number[], channelsInput: AlertChannel[]): Promise<Done> {
   const user = await requireProgramAccess();
+  const hours = cleanUrgentHours(hoursInput);
+  if (!hours.length) return { ok: false, error: "확인할 시각을 하나 이상 골라 주세요." };
   const channels = cleanChannels(channelsInput);
   if (!channels.length) return { ok: false, error: "받을 곳을 하나 이상 골라 주세요." };
   const [keys, key, targets] = await Promise.all([getWingKeys(user.id), cronKey(user.id), loadTargets(user.id)]);
@@ -179,14 +181,14 @@ export async function enableUrgentAlertAction(channelsInput: AlertChannel[]): Pr
   if (!key) return { ok: false, error: "먼저 cron-job.org API 키를 저장해 주세요." };
   const token = `${TOKEN_PREFIX}_${randomBytes(32).toString("hex")}`;
   try {
-    await upsertUrgentJob(key, URGENT_URL, token, URGENT_HOURS);
+    await upsertUrgentJob(key, URGENT_URL, token, hours);
   } catch (e) {
     return { ok: false, error: msg(e, "cron-job.org 작업을 만들지 못했습니다.") };
   }
-  const { error } = await saveUrgent(user.id, { enabled: true, tokenHash: createHash("sha256").update(token).digest("hex"), hours: URGENT_HOURS, channels });
+  const { error } = await saveUrgent(user.id, { enabled: true, tokenHash: createHash("sha256").update(token).digest("hex"), hours, channels });
   if (error) return { ok: false, error: "설정을 저장하지 못했습니다. 다시 눌러 주세요." };
   revalidatePath("/alerts");
-  return { ok: true, message: "매일 오전 9시와 오후 6시에 확인합니다. 새 건이 있을 때만 보냅니다." };
+  return { ok: true, message: `매일 ${hours.map(hourLabel).join(", ")}에 확인합니다. 새 건이 있을 때만 보냅니다.` };
 }
 
 export async function disableUrgentAlertAction(): Promise<Done> {

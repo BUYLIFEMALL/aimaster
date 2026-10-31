@@ -1,7 +1,7 @@
 // 아침 요약·정리 규칙·AI 추천 정리(외부 호출 없음)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cleanChannels, cleanHour, cleanupBefore, kstDate, summaryMessage, urgentMessage, urgentRunKey } from "../src/lib/coupang/summary.ts";
+import { cleanChannels, cleanHour, cleanupBefore, kstDate, cleanUrgentHours, hourLabel, summaryMessage, urgentMessage, urgentRunKey } from "../src/lib/coupang/summary.ts";
 import { cleanUrgent, normalizePrefs } from "../src/lib/coupang/prefs.ts";
 import { cleanSuggestion } from "../src/lib/coupang/suggest.ts";
 import { AI_MODEL_OPTIONS, AI_PROVIDERS, DEFAULT_AI_MODELS, missingKeyMessage, providerOfModel } from "../src/lib/ai/models.ts";
@@ -76,4 +76,14 @@ test("수시 알림 설정을 정리하고 기본은 꺼짐이다", () => {
   assert.equal(normalizePrefs({}).urgent.enabled, false);
   const u = cleanUrgent({ enabled: true, hours: [10, 99, "x"], channels: ["telegram", "bad"], stop: -1, inquiries: 2 });
   assert.deepEqual([u.hours, u.channels, u.stop, u.inquiries], [[10], ["telegram"], null, 2]);
+});
+
+test("수시 알림 시각은 회원이 고른 값을 정리해 쓴다", () => {
+  assert.deepEqual(cleanUrgentHours([18, 9, 9, 24, -1, "x", 1.5]), [9, 18]);
+  assert.equal(cleanUrgentHours([0, 1, 2, 3, 4, 5, 6, 7]).length, 6);
+  assert.deepEqual(cleanUrgentHours(null), []);
+});
+
+test("시각을 쉬운 말로 보여 준다", () => {
+  assert.deepEqual([0, 9, 12, 18].map(hourLabel), ["밤 12시", "오전 9시", "낮 12시", "오후 6시"]);
 });

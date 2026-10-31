@@ -1,6 +1,6 @@
 import { AI_MODEL_OPTIONS, type AIModelProvider } from "../ai/models.ts";
 import { cleanStockLimit, cleanStockWatch, type StockWatch } from "./stock.ts";
-import { cleanChannels, type AlertChannel } from "./summary.ts";
+import { cleanChannels, cleanUrgentHours, type AlertChannel } from "./summary.ts";
 
 // 회원 설정 정리(R3·R5·R7). 외부 호출 없음(tests/prefs.test.mjs). 저장 전에 크기를 제한한다.
 export type ReplyTemplate = { title: string; text: string };
@@ -48,7 +48,7 @@ export function cleanUrgent(raw: unknown): Urgent {
   return {
     enabled: r.enabled === true,
     tokenHash: text(r.tokenHash, 64),
-    hours: (Array.isArray(r.hours) ? r.hours : []).filter((h) => Number.isInteger(h) && h >= 0 && h <= 23).slice(0, 6),
+    hours: cleanUrgentHours(r.hours),
     channels: cleanChannels(r.channels),
     stop: countOrNull(r.stop),
     inquiries: countOrNull(r.inquiries),
