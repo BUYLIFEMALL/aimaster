@@ -23,7 +23,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`) | `94719d8da`·`26db40bd4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
+| `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
 | `commercial-land-trade-alert` | 글로 쓰기, 변동 기록 표, 수익률 대표값 보정, 토지 자료 확인 기록 | `b67c85bc7` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
 | `commercial-land-trade-alert` | 설정 화면에 PC별 확장 연결 끊기 | `658562a86` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
