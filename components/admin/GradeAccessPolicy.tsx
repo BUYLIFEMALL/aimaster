@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import GoldButton from "@/components/ui/GoldButton";
+import { confirmBasicGradeGrant } from "@/components/admin/basicGradeNotice";
 import type { MemberGrade } from "@/types/database.types";
 
 /**
@@ -63,7 +64,9 @@ export function GradeRow({ grade }: { grade: MemberGrade }) {
   }
 
   async function apply() {
-    if (!confirm(`${grade.name} 회원 전원에게 이 등급에 체크된 프로그램 중 아직 없는 권한을 부여합니다. (기존 부여는 그대로) 진행할까요?`)) return;
+    if (grade.slug === "basic") {
+      if (!confirmBasicGradeGrant(grade, "체크된 프로그램 중 아직 없는 권한을 부여합니다. (기존 부여는 그대로)")) return;
+    } else if (!confirm(`${grade.name} 회원 전원에게 이 등급에 체크된 프로그램 중 아직 없는 권한을 부여합니다. (기존 부여는 그대로) 진행할까요?`)) return;
     const d = await call({ action: "apply" });
     if (d) setMsg(`새로 부여된 권한 ${d.added}건`);
   }

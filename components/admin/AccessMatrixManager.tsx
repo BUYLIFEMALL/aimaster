@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { MemberGrade, Program } from "@/types/database.types";
+import { confirmBasicGradeGrant } from "@/components/admin/basicGradeNotice";
 
 interface CategoryRow {
   id: string;
@@ -83,6 +84,8 @@ export default function AccessMatrixManager({ grades, programs, categories = [],
     const key = `${gradeId}:${programId}`;
     const hasAccess = accessSet.has(key);
     const action = hasAccess ? "revoke" : "grant";
+    const grade = grades.find((g) => g.id === gradeId);
+    if (!hasAccess && grade && !confirmBasicGradeGrant(grade, `「${programs.find((p) => p.id === programId)?.name ?? "이 프로그램"}」을 체크합니다.`)) return;
 
     setLoading(key);
     setMany(gradeId, [programId], !hasAccess); // 먼저 화면에 반영
@@ -107,7 +110,9 @@ export default function AccessMatrixManager({ grades, programs, categories = [],
     const note = grade.auto_grant
       ? "자동 부여가 켜진 등급이라 회원 권한도 함께 " + (selectAll ? "부여" : "회수(자동 부여분만)") + "됩니다."
       : "";
-    if (!confirm(`[${grade.name}] 프로그램 ${programs.length}개를 ${label}합니다. ${note} 진행할까요?`)) return;
+    if (selectAll && grade.slug === "basic") {
+      if (!confirmBasicGradeGrant(grade, `프로그램 ${programs.length}개를 ${label}합니다.`)) return;
+    } else if (!confirm(`[${grade.name}] 프로그램 ${programs.length}개를 ${label}합니다. ${note} 진행할까요?`)) return;
     setLoading(`col:${grade.id}`);
     try {
       const res = await fetch("/api/admin/grade-access", {
@@ -127,7 +132,9 @@ export default function AccessMatrixManager({ grades, programs, categories = [],
     const targets = items.filter((p) => accessSet.has(`${grade.id}:${p.id}`) !== selectAll);
     if (targets.length === 0) return;
     const note = grade.auto_grant ? " 자동 부여가 켜진 등급이라 회원 권한도 함께 처리됩니다." : "";
-    if (!confirm(`[${grade.name}] ${categoryName} 프로그램 ${targets.length}개를 ${selectAll ? "선택" : "해제"}합니다.${note} 진행할까요?`)) return;
+    if (selectAll && grade.slug === "basic") {
+      if (!confirmBasicGradeGrant(grade, `${categoryName} 프로그램 ${targets.length}개를 선택합니다.`)) return;
+    } else if (!confirm(`[${grade.name}] ${categoryName} 프로그램 ${targets.length}개를 ${selectAll ? "선택" : "해제"}합니다.${note} 진행할까요?`)) return;
     const loadingKey = `cat:${grade.id}:${categoryName}`;
     setLoading(loadingKey);
     setMany(grade.id, targets.map((p) => p.id), selectAll);

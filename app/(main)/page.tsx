@@ -139,7 +139,9 @@ async function getHomeData() {
       };
     }
 
-    return { programs: programs ?? [], categories: categories ?? [], accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0, isAdminUser, likedIds, loggedIn: Boolean(user), programNotices: (programNotices ?? []) as WorkspaceNotice[], scheduleSummary };
+    // 공개 프로그램이 없는 카테고리는 분야 바로가기·개수에서 뺀다(2026-10-24 주인님 결정)
+    const usedCategoryIds = new Set((programs ?? []).map((p) => p.category_id));
+    return { programs: programs ?? [], categories: (categories ?? []).filter((c) => usedCategoryIds.has(c.id)), accessByProgramId, userAccess, activeUserCount: activeUserCount ?? 0, isAdminUser, likedIds, loggedIn: Boolean(user), programNotices: (programNotices ?? []) as WorkspaceNotice[], scheduleSummary };
   } catch {
     return { programs: [], categories: [], accessByProgramId: new Map<string, boolean>(), userAccess: null as UserAccessSummary | null, activeUserCount: 0, isAdminUser: false, likedIds: [] as string[], loggedIn: false, programNotices: [] as WorkspaceNotice[], scheduleSummary: null as MemberScheduleSummary | null };
   }

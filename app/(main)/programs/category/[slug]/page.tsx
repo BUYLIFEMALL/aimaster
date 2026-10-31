@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
 import { getLikedProgramIds } from "@/lib/programs/likes";
 import { getIsAdmin } from "@/lib/access/getIsAdmin";
+import { getVisibleCategories } from "@/lib/programs/visibleCategories";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -34,13 +35,7 @@ async function getCategory(slug: string) {
 
 async function getCategories() {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .is("parent_id", null)
-    .eq("is_public", true)
-    .order("sort_order");
-  return data ?? [];
+  return getVisibleCategories(supabase);
 }
 
 async function getPrograms(categoryId: string, query?: string, sort?: string) {
