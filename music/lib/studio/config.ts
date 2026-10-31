@@ -12,7 +12,6 @@ export const MODELS = [
   { provider: "anthropic", id: "claude-fable-5-1", name: "Claude Fable 5.1 (최고 품질)" },
   { provider: "anthropic", id: "claude-haiku-5-5", name: "Claude Haiku 5.5 (빠름·저렴)" },
   { provider: "gemini", id: "gemini-3.8-flash", name: "Gemini 3.8 Flash (빠름)" },
-  { provider: "gemini", id: "gemini-4-argon", name: "Gemini 4 Argon (최고 품질)" },
   {
     provider: "gemini",
     id: "gemini-3.5-flash-lite",
