@@ -15,6 +15,7 @@
 ## 2026-10-31 ⏳ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.12 코드 완료(미배포)
 - 한 일: 이메일·카카오 알림, AI 3종 선택, 반복 작업 8개(발주서·송장 파일, 복사 등록, 템플릿, 엑셀 일괄, 원가 저장, 오늘 할 일 안에서 처리), 회수 송장·철회 이력·출고지/반품지·옵션 단위 자동생성옵션·쿠폰 적용 옵션.
 - 커밋: `533bdded5`·`6e656fd51`·`00523fa9b`·`6754b148e`·`78cfc78c5`. 시험 107개·tsc·로컬 build 통과, 화면 확인·쿠팡 쓰기 0회.
+- 이어서 커밋: 회원 본인 고정 IP `a143d427b`, 사고 방지·화면·문서 정리(S1~S6·A4·D1·D2, `coupang-ops/AGENTS.md` 맨 아래). 시험 111개·빌드 통과. ⚠ 배포 즉시 고정 IP 주소가 없는 회원의 쿠팡 기능이 멈추므로 SQL 2건 적용·기존 회원 확인이 먼저다.
 - 다음 첫 단계: 주인님 빌드 승인 → `coupang_ops_prefs` SQL 적용(운영 ref esgxyikcnnvmlhygjkth) → 배포·버전 v1.12 → 크롬 확인(조회만). 상세: `coupang-ops/AGENTS.md` 맨 아래.
 - https://coupang-ops.buylife.xyz
 
