@@ -1,6 +1,6 @@
 // 지난 결과와 이번 결과를 매물 번호로 대조한다. 회원 PC(chrome.storage.local)에만 저장, 서버로 보내지 않는다. 기준: realty-listing-alert compare.js
 // 규칙: 처음 수집한 화면은 기준만 저장 · 가격이 바뀌면 이전 가격과 함께 1번 · 사라짐은 목록을 끝까지 읽었을 때만 판단.
-// 추가: 페이지 상한으로 끝까지 못 읽은 회차는 순위가 밀려 온 옛 매물이 신규처럼 보이므로, 최근 확인된 매물만 신규로 본다.
+// 추가: 이번이나 지난번을 끝까지 못 읽었으면 옛 매물이 신규처럼 보이므로, 최근 확인된 매물만 신규로 본다(2026-10-31 실물: 1페이지 기준 뒤 82건 오탐).
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -13,6 +13,9 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
   const nowIso = new Date(now).toISOString();
   const recentYmd = ymdOf(now - recentDays * DAY);
 
+  // 이번과 지난번을 모두 끝까지 읽었을 때만 처음 보는 매물을 곧바로 신규로 본다
+  const trustNew = complete && prev?.complete !== false;
+
   for (const item of items) {
     if (!item.no) continue;
     const old = prev ? prev.items[item.no] : null;
@@ -20,7 +23,7 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
     nextItems[item.no] = entry;
     if (!prev) continue;
     if (!old) {
-      if (complete || String(item.confirmYmd) >= recentYmd) events.push({ type: "new", item, firstSeen: entry.firstSeen });
+      if (trustNew || String(item.confirmYmd) >= recentYmd) events.push({ type: "new", item, firstSeen: entry.firstSeen });
     } else if (old.price !== item.price || (old.rent ?? null) !== (item.rent ?? null)) {
       const down = (item.price ?? 0) < (old.price ?? 0) || ((item.price ?? 0) === (old.price ?? 0) && (item.rent ?? 0) < (old.rent ?? 0));
       events.push({ type: down ? "priceDown" : "priceUp", item, prevPriceText: old.priceText, firstSeen: entry.firstSeen });
@@ -49,7 +52,7 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
   }
   return {
     events: relisted.size ? events.filter((e) => !relisted.has(e)) : events,
-    state: { items: nextItems, initializedAt: prev?.initializedAt || nowIso, updatedAt: nowIso },
+    state: { items: nextItems, initializedAt: prev?.initializedAt || nowIso, updatedAt: nowIso, complete },
     firstRun: !prev,
   };
 }

@@ -69,6 +69,15 @@ test("끝까지 못 읽은 회차는 사라짐을 판단하지 않고, 옛 확�
   assert.ok(r.state.items["2"], "옛 매물은 기준에 저장");
 });
 
+test("끝까지 못 읽은 기준 뒤 끝까지 읽어도 옛 매물을 신규로 보지 않는다", () => {
+  const now = Date.parse("2026-10-31T03:00:00Z");
+  const s = compareTarget(undefined, [item({ no: "1" })], { now, complete: false }).state;
+  const r = compareTarget(s, [item({ no: "1" }), item({ no: "2", confirmYmd: "20260901" }), item({ no: "3", confirmYmd: "20261030", price: 7000 })], { now, complete: true });
+  assert.deepEqual(r.events.map((e) => [e.type, e.item.no]), [["new", "3"]]);
+  const next = compareTarget(r.state, [item({ no: "1" }), item({ no: "2", confirmYmd: "20260901" }), item({ no: "3", confirmYmd: "20261030", price: 7000 }), item({ no: "4", confirmYmd: "20260901", price: 8000 })], { now, complete: true });
+  assert.deepEqual(next.events.map((e) => [e.type, e.item.no]), [["new", "4"]]);
+});
+
 test("같은 매물을 다시 올리면 알리지 않는다", () => {
   const s = compareTarget(undefined, [item({ no: "1" })]).state;
   const r = compareTarget(s, [item({ no: "9" })]);
