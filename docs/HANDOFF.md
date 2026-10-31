@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 📝 [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 위치 기반 임장 사진 관리 플랜, `realty`로 인계
+- 플랜 `docs/analysis-realty-roadmap-20261031/PLAN_ONSITE_GEO.md`, 작업표 RQ-G, 검증 페이지 원본 같은 폴더 `prevalidation/`. 코드·DB·배포 변경 없음.
+- 휴대폰 시험 미실시: 에이전트의 터널 실행이 권한 규칙에 막힘. 다음 첫 단계: `realty`가 지금 작업을 마친 뒤 플랜 §3 안내대로 진행.
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.07 표시 수정
 - AI 요약 실제 동작 확인(주인님 키). 제목·굵게 표시, 결과 표 한 줄, 감시 화면별 동 코드 기억, 시세 실패 기록. 시세 대비가 전부 비었던 원인은 추정(동 코드 미수집 또는 조회 실패)이며 재수집 확인 대기. 남은 일: 수익률 과대 보정 결정.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/results
