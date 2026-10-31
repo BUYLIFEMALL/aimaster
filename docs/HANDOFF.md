@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.08 통계 대시보드·메뉴 정리
+- 통계·추이 대시보드, 감시 화면 비교 표, 주간 리포트(팝업에서 켬), AI 요약 7일 추이, 수집기 동 코드 수정(강남구 역삼동 기준 복구를 주인님 화면으로 확인), 메뉴를 매물 알림과 같은 이름·순서로 정리. 시험 33개·tsc·빌드 통과. 그래프·주간 리포트 실제 동작은 수집이 쌓인 뒤 확인 대기. 플랜 `commercial-land-trade-alert/docs/PLAN_20261031_STATS_DASHBOARD.md`.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/results
+
 ## 2026-10-31 📝 [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-20261029-statusbar` — 위치 기반 임장 사진 관리 플랜, `realty`로 인계
 - 플랜 `docs/analysis-realty-roadmap-20261031/PLAN_ONSITE_GEO.md`, 작업표 RQ-G, 검증 페이지 원본 같은 폴더 `prevalidation/`. 코드·DB·배포 변경 없음.
 - 휴대폰 시험 미실시: 에이전트의 터널 실행이 권한 규칙에 막힘. 다음 첫 단계: `realty`가 지금 작업을 마친 뒤 플랜 §3 안내대로 진행.
