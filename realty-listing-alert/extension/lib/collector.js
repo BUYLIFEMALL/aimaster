@@ -103,7 +103,7 @@ export async function collectComplex(complexNo, rules, log = async () => {}, opt
     if (method === "Network.responseReceived") {
       const rurl = String(params.response?.url || "");
       // 단지 정보 응답(/api/complexes/…)에서 법정동 코드를 줍는다 — 위치가 필요할 때만
-      if (opts.needLocation && !cortarNo && rurl.includes("/api/complexes/") && !rurl.includes(rules.listPathIncludes) && params.response.status === 200) { locatePending.add(params.requestId); return; }
+      if (opts.needLocation && !cortarNo && rurl.includes(`/api/complexes/${complexNo}`) && !rurl.includes(rules.listPathIncludes) && params.response.status === 200) { locatePending.add(params.requestId); return; }
       if (!rurl.includes(rules.listPathIncludes)) return;
       if (isBlockedStatus(params.response.status)) blockedStatus = params.response.status;
       else pending.add(params.requestId);
