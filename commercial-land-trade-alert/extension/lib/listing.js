@@ -101,3 +101,11 @@ export function selectViewPages(pages) {
   const cortarNo = [...pages].reverse().find((p) => p.cortarNo)?.cortarNo || null;
   return { cortarNo, bodies: pages.filter((p) => !p.cortarNo || p.cortarNo === cortarNo).map((p) => p.body) };
 }
+
+/** 네이버 지역 목록 응답에서 동 중심 좌표를 고른다 */
+export function pickDongCenter(body, cortarNo) {
+  const row = (body?.regionList || []).find((r) => String(r.cortarNo) === String(cortarNo));
+  const lat = Number(row?.centerLat);
+  const lon = Number(row?.centerLon);
+  return Number.isFinite(lat) && Number.isFinite(lon) && lat && lon ? { lat, lon } : null;
+}

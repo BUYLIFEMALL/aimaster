@@ -1,6 +1,6 @@
 // 상가·건물·토지 매물 알림 확장 — 수집 엔진. 기준: realty-listing-alert/extension/background.js
 // 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
-import { collectView, rand, RULES, sleep } from "./lib/collector.js";
+import { collectView, locateDong, rand, RULES, sleep } from "./lib/collector.js";
 import { isWatchableUrl, matchesTarget, normalizeArticle } from "./lib/listing.js";
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
@@ -69,7 +69,7 @@ async function marketFor(cortarNo) {
   try {
     const r = await api("/api/extension/market", { method: "POST", body: JSON.stringify({ cortarNos: [cortarNo] }) });
     const value = r.markets?.[cortarNo] || null;
-    if (value?.collecting) await addLog(`${value.name}: 실거래 자료를 모으는 중이에요(관심 지역에 추가). 시세 비교는 다음 수집부터 나옵니다.`);
+    if (value?.collecting) await addLog(`${value.name}: 실거래 자료를 모으는 중이에요(실거래 지역에 추가). 시세 비교는 다음 수집부터 나옵니다.`);
     else if (value?.samples) await set({ marketCacheV2: { ...marketCacheV2, [cortarNo]: { at: new Date().toISOString(), value } } });
     return value;
   } catch (e) {
@@ -315,6 +315,11 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         // 통계를 넣기 전에 수집한 회원도 마지막 결과로 첫 화면을 볼 수 있게 한다
         const list = history.length || !lastResult?.table?.length ? history : [summarizeTable(lastResult.columns, lastResult.table, lastResult.at)];
         return reply({ ok: true, history: list, weeklyReport: weeklyReport || null });
+      }
+      if (msg.type === "locateDong") {
+        if (!/^\d{10}$/.test(msg.cortarNo || "")) return reply({ ok: false, error: "동 코드가 올바르지 않습니다." });
+        if (busy) return reply({ ok: false, error: "지금 수집 중이에요. 끝난 뒤 다시 눌러 주세요." });
+        return reply(await locateDong(msg.cortarNo, addLog));
       }
       if (msg.type === "setWeekly") { await set({ weeklyOn: !!msg.on }); return reply({ ok: true }); }
       if (msg.type === "aiSummary") {

@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/ui/PageHero";
 import { AddTargetForm, ScheduleForm, TargetCard, type TargetRow } from "@/components/watch/WatchForms";
+import { RegionPicker } from "@/components/watch/RegionPicker";
 import { MAX_TARGETS } from "@/lib/watchTargets";
 
 const NAVER = "https://new.land.naver.com/offices?ms=37.5006,127.0364,16&a=SG&e=RETAIL";
@@ -24,26 +25,36 @@ export default async function WatchPage() {
         tip={`${rows.length}/${MAX_TARGETS}곳 감시 중 · 크롬이 켜져 있어야 예약 수집이 돌아요.`}
       />
       <section className="mx-card mt-6">
-        <h2 className="mx-section-title">➕ 감시 화면 추가</h2>
-        <ol className="mb-3 list-decimal space-y-1 pl-5 text-sm text-mx-muted">
-          <li>
-            <a href={NAVER} target="_blank" rel="noreferrer" className="font-semibold text-mx-link underline">
-              네이버 부동산
-            </a>
-            을 열어 지역으로 이동하고, 상가·건물·토지와 가격·면적 필터를 고릅니다.
-          </li>
-          <li>
-            확장 아이콘의 <b>「이 화면 감시」</b>를 누르거나, 주소를 복사해 아래에 붙여 넣습니다.
-          </li>
-          <li>범위가 넓으면 앞부분만 읽으니 동 단위로 좁히고 필터를 걸어 주세요.</li>
-        </ol>
-        <AddTargetForm />
+        <h2 className="mx-section-title">➕ 화면 추가 <small className="text-xs font-normal text-mx-muted">{rows.length} / {MAX_TARGETS}</small></h2>
+        <div className="rounded-2xl border border-mx-primary/40 bg-mx-primary/5 p-4">
+          <a href={NAVER} target="_blank" rel="noreferrer" className="inline-flex min-h-[48px] items-center rounded-xl border border-[#008a44] bg-gradient-to-b from-[#00b45a] to-[#009b4d] px-5 text-sm font-bold text-white shadow-[0_4px_0_#00682f]">
+            🏠 네이버 부동산에서 화면 찾기 ↗
+          </a>
+          <ol className="mt-4 grid gap-3 md:grid-cols-3">
+            <li className="rounded-xl border border-mx-border bg-white p-4"><span className="text-2xl">🗺</span><strong className="mt-1 block text-sm">1. 지역 이동</strong><small className="text-xs text-mx-muted">열린 네이버 지도에서 볼 지역으로 옮겨요</small></li>
+            <li className="rounded-xl border border-mx-border bg-white p-4"><span className="text-2xl">🔍</span><strong className="mt-1 block text-sm">2. 필터 고르기</strong><small className="text-xs text-mx-muted">상가·건물·토지와 가격·면적을 골라요</small></li>
+            <li className="rounded-xl border border-mx-border bg-white p-4"><span className="text-2xl">➕</span><strong className="mt-1 block text-sm">3. 이 화면 감시</strong><small className="text-xs text-mx-muted">확장 아이콘을 눌러 「이 화면 감시」를 누르면 끝!</small></li>
+          </ol>
+          <p className="mt-3 text-xs text-mx-muted">💡 범위가 넓으면 앞부분만 읽으니 동 단위로 좁혀 주세요.</p>
+        </div>
+        <details open className="mt-3 rounded-xl border border-mx-border p-4">
+          <summary className="cursor-pointer text-sm font-bold">🏙 지역(시·구·동)으로 추가하기</summary>
+          <RegionPicker email={user.email ?? ""} disabled={rows.length >= MAX_TARGETS} />
+        </details>
+        <details className="mt-3 rounded-xl border border-mx-border p-4">
+          <summary className="cursor-pointer text-sm font-bold">✏️ 인터넷 주소를 복사해서 추가하기</summary>
+          <div className="mt-3"><AddTargetForm /></div>
+        </details>
       </section>
-      <div className="mt-4 space-y-3">
-        {rows.map((t) => (
-          <TargetCard key={t.id} t={t} />
-        ))}
-      </div>
+      <section className="mx-card mt-4">
+        <h2 className="mx-section-title">📋 감시 중인 화면</h2>
+        {rows.length === 0 && <p className="text-sm text-mx-muted">아직 등록한 화면이 없습니다. 위에서 첫 화면을 추가해 보세요.</p>}
+        <div className="space-y-3">
+          {rows.map((t) => (
+            <TargetCard key={t.id} t={t} />
+          ))}
+        </div>
+      </section>
       <section className="mx-card mt-4">
         <h2 id="schedule" className="mx-section-title scroll-mt-6">⏰ 예약과 알림</h2>
         <ScheduleForm p={prefs ?? {}} />

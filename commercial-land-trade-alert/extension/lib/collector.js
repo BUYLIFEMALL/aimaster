@@ -2,7 +2,7 @@
 // 네이버로 직접 요청을 보내지 않는다. 다음 페이지도 목록을 스크롤해 페이지가 부르게 한다.
 // 차단(401·403·429)·확인 화면·로그인 화면이면 바로 멈추고 우회하지 않는다.
 import { BLOCK_TEXT, isBlockedStatus } from "./guard.js";
-import { selectViewPages } from "./listing.js";
+import { pickDongCenter, selectViewPages } from "./listing.js";
 
 export const RULES = {
   listPath: "/api/articles",
@@ -152,4 +152,46 @@ export async function collectView(url, log = async () => {}) {
   if (lastMore && diag) await log(`다음 페이지 진단: ${diag}`);
   const view = selectViewPages(pages);
   return { status: "ok", bodies: view.bodies, complete: !lastMore, cortarNo: view.cortarNo, pagesRead: view.bodies.length };
+}
+
+/**
+ * 동 코드 → 중심 좌표. 회원이 지역 고르기를 누를 때 1번만 부른다. 기준: realty-listing-alert collectRegionComplexes
+ * 네이버 화면을 배경 탭으로 열어 페이지가 쓰는 인증으로 같은 탭 안에서 지역 목록을 읽는다. 차단·확인 화면이면 멈춘다.
+ */
+export async function locateDong(cortarNo, log = async () => {}) {
+  let auth = null;
+  let result = null;
+  let blocked = false;
+  const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
+  const tab = await chrome.tabs.create({ url: "about:blank", active: false, ...(win?.id ? { windowId: win.id } : {}) });
+  const tabId = tab.id;
+  const onEvent = (src, method, params) => {
+    if (src.tabId !== tabId || method !== "Network.requestWillBeSent") return;
+    const h = params.request?.headers || {};
+    if (/land\.naver\.com\/api\//.test(params.request?.url || "") && (h.authorization || h.Authorization)) auth = h.authorization || h.Authorization;
+  };
+  chrome.debugger.onEvent.addListener(onEvent);
+  try {
+    await chrome.debugger.attach({ tabId }, "1.3");
+    await chrome.debugger.sendCommand({ tabId }, "Network.enable");
+    await chrome.debugger.sendCommand({ tabId }, "Page.navigate", { url: "https://new.land.naver.com/offices?ms=37.5006,127.0364,16&a=SG&e=RETAIL" });
+    await sleep(RULES.firstLoadWaitMs);
+    const page = await evalInPage(tabId, PAGE_CHECK);
+    if (page && (page.blocked || !/land\.naver\.com$/.test(page.host))) blocked = true;
+    else {
+      const url = `https://new.land.naver.com/api/regions/list?cortarNo=${cortarNo.slice(0, 5)}00000`;
+      result = await evalInPage(tabId, `fetch(${JSON.stringify(url)}, { credentials: "include", headers: ${JSON.stringify(auth ? { authorization: auth } : {})} }).then(async (x) => ({ status: x.status, body: x.ok ? await x.json().catch(() => null) : null })).catch(() => ({ status: 0, body: null }))`);
+      if (isBlockedStatus(result?.status)) blocked = true;
+    }
+  } catch (e) {
+    result = { status: 0, body: null, error: String(e).slice(0, 120) };
+  } finally {
+    chrome.debugger.onEvent.removeListener(onEvent);
+    try { await chrome.debugger.detach({ tabId }); } catch {}
+    try { await chrome.tabs.remove(tabId); } catch {}
+  }
+  if (blocked) return { ok: false, error: "네이버 확인 화면이나 접근 제한이 나타났어요. 네이버 부동산을 직접 열어 풀어 주세요." };
+  const center = pickDongCenter(result?.body, cortarNo);
+  await log(`지역 위치 ${cortarNo} 진단: 인증${auth ? "있음" : "없음"} / 응답코드 ${result?.status ?? "-"} / ${center ? "좌표 찾음" : `못 찾음, 칸: ${Object.keys(result?.body || {}).slice(0, 6).join(",")} · 건수 ${result?.body?.regionList?.length ?? "-"}`}`);
+  return center ? { ok: true, ...center } : { ok: false, error: "네이버에서 이 동의 위치를 찾지 못했어요. 아래 「주소로 추가」나 확장의 「이 화면 감시」를 써 주세요." };
 }

@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { kindsText, MAX_TARGETS, parseWatchUrl } from "@/lib/watchTargets";
+import { dongOf } from "@/lib/regions";
+import { buildRegionUrl, kindsText, MAX_TARGETS, parseWatchUrl } from "@/lib/watchTargets";
 
 export interface WatchState {
   error?: string;
@@ -29,6 +30,24 @@ export async function addTargetAction(_: WatchState, formData: FormData): Promis
   if (error) return { error: error.code === "23505" ? "이미 넣은 화면이에요." : `저장에 실패했습니다: ${error.message}` };
   revalidatePath("/watch");
   return { success: "감시 화면을 추가했어요." };
+}
+
+// 지역 고르기로 추가. 시세 비교 자료가 필요해 그 시·군·구의 실거래 수집도 함께 켠다(회원이 꺼 둔 지역은 다시 켜지 않음).
+export async function addRegionTargetAction(_: WatchState, formData: FormData): Promise<WatchState> {
+  const user = await requireProgramAccess();
+  const found = dongOf(String(formData.get("cortarNo") ?? ""));
+  const kinds = String(formData.get("kinds") ?? "");
+  const url = buildRegionUrl(Number(formData.get("lat")), Number(formData.get("lon")), kinds);
+  if (!found || !url) return { error: "지역 정보를 확인하지 못했습니다. 다시 골라 주세요." };
+  const supabase = await createClient();
+  const { count } = await supabase.from("commercial_land_listing_targets").select("id", { count: "exact", head: true }).eq("user_id", user.id);
+  if ((count ?? 0) >= MAX_TARGETS) return { error: `감시 화면은 ${MAX_TARGETS}곳까지예요.` };
+  const name = `${found.sggNm} ${found.dong} ${kindsText(kinds)}`.slice(0, 60);
+  const { error } = await supabase.from("commercial_land_listing_targets").insert({ user_id: user.id, url, kinds, name });
+  if (error) return { error: error.code === "23505" ? "이미 넣은 지역이에요." : `저장에 실패했습니다: ${error.message}` };
+  await supabase.from("commercial_land_watch").upsert({ user_id: user.id, sgg_cd: found.sggCd, sgg_nm: found.sggNm, is_active: true }, { onConflict: "user_id,sgg_cd", ignoreDuplicates: true });
+  revalidatePath("/watch");
+  return { success: `${name}을(를) 추가했어요. 확장에서 「지금 수집」을 누르면 바로 읽습니다.` };
 }
 
 export async function updateTargetAction(_: WatchState, formData: FormData): Promise<WatchState> {

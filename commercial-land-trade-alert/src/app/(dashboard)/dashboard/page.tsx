@@ -43,7 +43,7 @@ export default async function DashboardPage() {
       <div className="mt-6 grid gap-3 md:grid-cols-2">
         <Step done={(targets ?? []).length > 0} href="/watch" title="1. 매물 감시 등록(선택)" note={(targets ?? []).length ? `${(targets ?? []).length}곳 감시 중` : "확장을 설치하고 감시 화면을 추가합니다"} />
         <Step done={(links ?? []).length > 0} href="/settings" title="2. 받는 곳 연결" note={(links ?? []).length ? "텔레그램 연결됨" : "텔레그램/이메일/카카오톡 중 연결해 주세요"} />
-        <Step done={regions.length > 0} href="/districts" title="3. 관심 지역 고르기" note={regions.length ? `${regions.length}곳 선택됨` : "전국 시·군·구에서 고릅니다"} />
+        <Step done={regions.length > 0} href="/districts" title="3. 실거래 지역 고르기" note={regions.length ? `${regions.length}곳 선택됨` : "전국 시·군·구에서 고릅니다"} />
         <Step done={Boolean(prefRow)} href="/conditions" title="4. 조건 확인" note={prefRow ? "저장됨" : "기본 조건으로 동작 중입니다"} />
       </div>
       <section className="mx-card mt-6">

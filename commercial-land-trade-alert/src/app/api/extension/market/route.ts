@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // 확장이 동 코드만 보내 그 동의 실거래 시세를 받는다. 매물 내용은 받지 않는다.
-// 아직 수집하지 않는 지역이면 이 회원의 관심 지역에 넣어 다음 수집부터 자료를 채운다.
+// 아직 수집하지 않는 지역이면 이 회원의 실거래 지역에 넣어 다음 수집부터 자료를 채운다.
 export async function POST(request: Request) {
   const user = await verifyExtensionToken(request);
   if (!user) return NextResponse.json({ error: "유효하지 않은 연결 코드이거나 이용 권한이 없습니다." }, { status: 401 });

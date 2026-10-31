@@ -5,7 +5,7 @@
     if (event.source !== window || event.origin !== location.origin) return;
     const m = event.data;
     if (m?.source !== "clta-app" || typeof m.requestId !== "string") return;
-    if (m.type !== "ping" && m.type !== "connect" && m.type !== "lastResult" && m.type !== "aiSummary" && m.type !== "stats") return;
+    if (m.type !== "ping" && m.type !== "connect" && m.type !== "lastResult" && m.type !== "aiSummary" && m.type !== "stats" && m.type !== "locateDong") return;
     let result;
     if (m.type === "ping") {
       const { extToken, connectedEmail } = await chrome.storage.local.get(["extToken", "connectedEmail"]).catch(() => ({}));
@@ -15,6 +15,11 @@
       const { connectedEmail, lastResult } = await chrome.storage.local.get(["connectedEmail", "lastResult"]).catch(() => ({}));
       const same = connectedEmail && String(m.email || "").toLowerCase() === String(connectedEmail).toLowerCase();
       result = same ? { ok: true, lastResult: lastResult || null } : { ok: false };
+    } else if (m.type === "locateDong") {
+      const { connectedEmail } = await chrome.storage.local.get("connectedEmail").catch(() => ({}));
+      const same = connectedEmail && String(m.email || "").toLowerCase() === String(connectedEmail).toLowerCase();
+      try { result = same ? await chrome.runtime.sendMessage({ type: "locateDong", cortarNo: String(m.cortarNo || "") }) : { ok: false, error: "확장을 연결한 계정으로 로그인해 주세요." }; }
+      catch { result = { ok: false, error: "확장을 새로고침하고 이 화면도 새로고침해 주세요." }; }
     } else if (m.type === "stats") {
       const { connectedEmail } = await chrome.storage.local.get("connectedEmail").catch(() => ({}));
       const same = connectedEmail && String(m.email || "").toLowerCase() === String(connectedEmail).toLowerCase();

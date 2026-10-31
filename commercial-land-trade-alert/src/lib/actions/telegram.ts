@@ -62,7 +62,7 @@ export async function connectTelegramAction(
     await sendTelegramMessage({
       botToken,
       chatId: chatInfo.chatId,
-      text: "✅ 상가·건물·토지 실거래 알림 연동이 완료됐어요. 앞으로 관심 지역에 새 실거래가 신고되면 여기로 알려드릴게요.",
+      text: "✅ 상가·건물·토지 실거래 알림 연동이 완료됐어요. 앞으로 실거래 지역에 새 실거래가 신고되면 여기로 알려드릴게요.",
     });
   } catch {
     // 저장은 이미 성공했으니, 테스트 메시지 발송 실패는 치명적이지 않음

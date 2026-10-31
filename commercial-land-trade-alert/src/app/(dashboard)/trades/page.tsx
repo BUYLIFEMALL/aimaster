@@ -67,7 +67,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
 
   return (
     <div className="mx-auto max-w-6xl">
-      <PageHero badge="🏢 STEP 6 · 실거래 목록" title="실거래 목록" description="관심 지역의 상가·건물·토지 실거래입니다. 계약 후 신고까지 시간이 걸려 최근 거래는 늦게 들어올 수 있습니다." tip={`조건에 맞는 거래 ${total.toLocaleString("ko-KR")}건`} />
+      <PageHero badge="🏢 STEP 6 · 실거래 목록" title="실거래 목록" description="실거래 지역의 상가·건물·토지 실거래입니다. 계약 후 신고까지 시간이 걸려 최근 거래는 늦게 들어올 수 있습니다." tip={`조건에 맞는 거래 ${total.toLocaleString("ko-KR")}건`} />
       <form className="mx-card my-4 grid gap-2 p-4 sm:grid-cols-2 lg:grid-cols-6" method="get">
         <select name="kind" defaultValue={filter.kind} aria-label="종류" className="mx-input min-h-[40px] py-2 text-sm">
           <option value="">상가·건물 + 토지</option>
@@ -75,7 +75,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
           <option value="land">토지</option>
         </select>
         <select name="sgg" defaultValue={filter.sgg} aria-label="지역" className="mx-input min-h-[40px] py-2 text-sm">
-          <option value="">모든 관심 지역</option>
+          <option value="">모든 실거래 지역</option>
           {regions.map((r) => (
             <option key={r.sgg_cd} value={r.sgg_cd}>
               {r.sgg_nm}
@@ -115,7 +115,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
         <p className="mx-card text-sm text-mx-muted">
           아직 고른 지역이 없습니다.{" "}
           <Link href="/districts" className="text-mx-link underline">
-            관심 지역 고르기
+            실거래 지역 고르기
           </Link>
         </p>
       )}

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { articleUrl, isWatchableUrl, matchesTarget, normalizeArticle, parseKoreanPrice } from "../extension/lib/listing.js";
 import { compareTarget, filterEvents } from "../extension/lib/compare.js";
 import { buildKakaoText, buildSummary, kakaoLinkFor } from "../extension/lib/notify.js";
-import { kindsText, parseWatchUrl } from "../src/lib/watchTargets.ts";
+import { buildRegionUrl, kindsText, parseWatchUrl } from "../src/lib/watchTargets.ts";
 
 const BASE = "https://new.land.naver.com/offices?ms=2AJhyo,3zk74s,16&a=SG&e=RETAIL";
 const RAW = { articleNo: "111", realEstateTypeCode: "SG", realEstateTypeName: "상가", tradeTypeCode: "B2", tradeTypeName: "월세", dealOrWarrantPrc: "5,000", rentPrc: "380", area1: 163, area2: 108, floorInfo: "1/6", articleConfirmYmd: "20261030", realtorName: "역삼공인중개사사무소02)555-1234" };
@@ -248,4 +248,17 @@ test("통계 요약과 주간 리포트", async () => {
   const rep = buildWeeklyReport({ history: [snap], eventLog: [{ type: "priceDown", url: "u", kind: "상가", area: 10, floor: "1/3", price: "1억" }, { type: "priceDown", url: "u", kind: "상가", area: 10, floor: "1/3", price: "9천" }], now });
   assert.ok(rep.text.includes("상가 1 · 상가") && rep.text.includes("2번 내림"));
   assert.ok(rep.kakao.length <= 200);
+});
+
+test("지역 고르기: 동 좌표와 화면 주소", async () => {
+  const { pickDongCenter, isWatchableUrl: ok } = await import("../extension/lib/listing.js");
+  const body = { regionList: [{ cortarNo: "2653010100", centerLat: 35.17, centerLon: 128.97 }, { cortarNo: "2653010200", centerLat: null }] };
+  assert.deepEqual(pickDongCenter(body, "2653010100"), { lat: 35.17, lon: 128.97 });
+  assert.equal(pickDongCenter(body, "2653010200"), null);
+  assert.equal(pickDongCenter(null, "1"), null);
+  const url = buildRegionUrl(35.17, 128.97, "SG:TJ");
+  assert.ok(ok(url), "확장 감시 조건을 통과");
+  assert.equal(parseWatchUrl(url).kinds, "SG:TJ");
+  assert.equal(buildRegionUrl(0, 0, "SG"), null);
+  assert.equal(buildRegionUrl(35, 128, "XX"), null);
 });

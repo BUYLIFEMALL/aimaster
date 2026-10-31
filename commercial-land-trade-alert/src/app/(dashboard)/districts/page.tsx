@@ -14,11 +14,12 @@ export default async function DistrictsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHero
-        badge="📍 STEP 4 · 관심 지역"
-        title="관심 지역 고르기"
+        badge="📍 STEP 4 · 실거래 지역"
+        title="실거래 지역 고르기"
         description="전국 시·군·구 중 관심 있는 곳을 눌러 주세요. 직접 수집할 일은 없습니다. 서버가 국토부 공개 자료를 지역마다 하루 1회 자동으로 받아 옵니다."
         tip={`지금 ${active.size}곳 선택됨 · 새로 고른 지역은 보통 5~10분 안에 첫 자료가 들어옵니다.`}
       />
+      <p className="mt-3 rounded-xl border border-mx-border bg-white p-3 text-sm text-mx-muted">💡 이미 계약된 <b>실거래</b>를 받을 지역입니다. 지금 나와 있는 <b>매물</b>을 보려면 1번 「매물 감시(예약 설정)」에 등록해 주세요.</p>
       <div className="mb-6" />
       <DistrictSearch districts={SIDO_GROUPS.flatMap((g) => g.districts.map((d) => ({ ...d, sido: g.sido })))} activeCodes={[...active]} />
       {SIDO_GROUPS.map((g) => {

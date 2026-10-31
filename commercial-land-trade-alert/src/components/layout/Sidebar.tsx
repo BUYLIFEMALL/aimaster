@@ -12,8 +12,8 @@ const FLOW_STEPS = [
   { step: 1, href: "/watch", icon: "🎯", label: "매물 감시(예약 설정)", description: "네이버 화면·조건·수집 간격" },
   { step: 2, href: "/settings", icon: "📨", label: "받는 방법", description: "텔레그램·이메일·카카오톡" },
   { step: 3, href: "/results", icon: "📑", label: "수집 결과", description: "통계·추이·매물 표" },
-  { step: 4, href: "/districts", icon: "📍", label: "관심 지역", description: "전국 시·군·구 고르기" },
-  { step: 5, href: "/conditions", icon: "🧾", label: "거래 조건", description: "용도·지목·금액·면적" },
+  { step: 4, href: "/districts", icon: "📍", label: "실거래 지역", description: "실거래 받을 시·군·구" },
+  { step: 5, href: "/conditions", icon: "🧾", label: "실거래 조건", description: "용도·지목·금액·면적" },
   { step: 6, href: "/trades", icon: "🏢", label: "실거래 목록", description: "거르기·비교·CSV" },
 ];
 

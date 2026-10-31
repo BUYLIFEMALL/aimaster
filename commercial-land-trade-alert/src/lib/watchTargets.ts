@@ -18,3 +18,10 @@ export function parseWatchUrl(raw: string): { url: string; kinds: string } | nul
 }
 
 export const kindsText = (kinds: string) => kinds.split(":").map((k) => KIND_LABEL[k] ?? k).join("·");
+
+/** 동 중심 좌표 → 네이버 지도 화면 주소. 대한민국 범위를 벗어나면 null */
+export function buildRegionUrl(lat: number, lon: number, kinds: string): string | null {
+  if (!(lat > 33 && lat < 39 && lon > 124 && lon < 132)) return null;
+  if (!kinds || !kinds.split(":").every((k) => KINDS.includes(k))) return null;
+  return `https://new.land.naver.com/offices?ms=${lat},${lon},16&a=${kinds}&e=RETAIL`;
+}
