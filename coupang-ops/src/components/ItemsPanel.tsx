@@ -5,6 +5,8 @@ import { loadItemsAction, setSaleAction, updatePriceAction, updateQuantityAction
 import { setAutoOptionAction, updateOriginalPriceAction } from "@/lib/actions/productEdit";
 import { checkPrice, checkQuantity, resumeWarning } from "@/lib/coupang/items";
 import { checkOriginalPrice } from "@/lib/coupang/productEdit";
+import { loadPrefsAction } from "@/lib/actions/prefs";
+import { PriceSuggest, type PriceSettings } from "@/components/PriceSuggest";
 
 const input = "w-24 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] focus:border-blue-500 focus:outline-none";
 const btn = "rounded border px-2 py-1 text-[11px] font-bold disabled:opacity-50";
@@ -19,6 +21,10 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [ask, setAsk] = useState<Ask | null>(null);
   const [pending, start] = useTransition();
+  const [priceSettings, setPriceSettings] = useState<PriceSettings | null>(null);
+  useEffect(() => {
+    loadPrefsAction().then((p) => setPriceSettings({ unitCosts: p.unitCosts, feeRate: p.feeRate, targetMargin: p.targetMargin })).catch(() => setPriceSettings({ unitCosts: {}, feeRate: "", targetMargin: "" }));
+  }, []);
 
   const reload = () =>
     start(async () => {
@@ -78,6 +84,7 @@ export function ItemsPanel({ sellerProductId }: { sellerProductId: number }) {
                       <span className="block">{it.inventory.salePrice.toLocaleString()}원</span>
                       <input className={input} inputMode="numeric" placeholder="새 판매가" value={draft[`price:${it.vendorItemId}`] ?? ""} onChange={(e) => setDraft({ ...draft, [`price:${it.vendorItemId}`]: e.target.value })} />
                       <button type="button" disabled={pending} onClick={() => prepare("price", it)} className={`${btn} ml-1 border-blue-300 bg-white text-blue-800`}>바꾸기</button>
+                      {priceSettings && <PriceSuggest vendorItemId={it.vendorItemId} current={it.inventory.salePrice} settings={priceSettings} onSettings={setPriceSettings} onUse={(price) => setDraft((old) => ({ ...old, [`price:${it.vendorItemId}`]: String(price) }))} />}
                       <span className="mt-1.5 block text-[11px] text-slate-500">할인 기준가 {it.originalPrice.toLocaleString()}원</span>
                       <input className={input} inputMode="numeric" placeholder="새 기준가" value={draft[`original:${it.vendorItemId}`] ?? ""} onChange={(e) => setDraft({ ...draft, [`original:${it.vendorItemId}`]: e.target.value })} />
                       <button type="button" disabled={pending} onClick={() => prepare("original", it)} className={`${btn} ml-1 border-blue-300 bg-white text-blue-800`}>바꾸기</button>

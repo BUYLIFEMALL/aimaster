@@ -177,7 +177,7 @@ export default async function GuidePage() {
             아이템위너 자동 가격 조정이 되나요?
           </summary>
           <p className="mt-2 leading-relaxed text-slate-600 text-xs">
-            아니요. 쿠팡 공식 API는 위너 여부와 경쟁사 가격을 알려 주지 않아, 이 프로그램은 위너를 추적하거나 가격을 자동으로 바꾸지 않습니다. 가격은 회원이 확인하고 직접 바꿉니다.
+            아니요. 쿠팡 공식 API는 위너 여부와 경쟁사 가격을 알려 주지 않아, 이 프로그램은 위너를 추적하거나 가격을 자동으로 바꾸지 않습니다. 대신 「내 쿠팡 상품 → 옵션 관리 → 경쟁가로 가격 제안」에서 직접 본 경쟁가와 원가·수수료율·최소 이익률을 넣으면 제안가를 계산해 드리고, 회원이 확인해야 가격이 바뀝니다.
           </p>
         </details>
         <details className="rounded-xl border border-slate-200 p-3.5 text-sm">
