@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.07 상품 문의 기간 수정
+- 아래 미배포분 배포, 조회 3건 실제 통과(문의 0건). 답변 전송은 실제 문의가 생긴 뒤. 다음은 묶음 3.
+
 ## 2026-10-31 ⚠ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.06 묶음 2
 - 고객 문의·AI 답변 초안 배포. 상품 문의 조회가 기간 문제로 실패 → 수정 `7311f0e59` 미배포 대기(추가 빌드 승인 필요). 상세 `coupang-ops/AGENTS.md` 맨 아래.
 - 링크: https://coupang-ops.buylife.xyz/inquiries
