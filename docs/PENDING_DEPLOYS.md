@@ -27,7 +27,6 @@
 |---|---|---|---|---|---|
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
 | `blog-neighbor-care` | 기존15묶음+검토완료 받은신청 반복수락/공용예약커서·복구(16묶음) | `8ffa45a9f`·`1a62398ea`·`6a307bbfc`·`7b6e4556e`·`4ebbb2f92`·`c34015232`·`620ca322a`·`ccf22b76c`·`f20ada675`·`b056ca71a`·`ab26e4627`·`20c3eced4`·`7afd15d6a`·`c9cb569c2`·`ed1c6bd86`·`4ee7dc674` | 2026-10-30 · [역할: blog] Codex `codex-win-20261026-blog-check` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 최신절 | SQL9(cursor/engagement/extension/context/messages/extension_schedule/incoming_accept/post_targets/accept_schedule) 미적용·승인전실행금지. 웹/manifest/ZIP/DB 묶음동기화. 자동RSS/AI초안 구현 및 실AI/Edge/Naver/운영Cron검수 잔여. 공개v1.03ZIP 보존 |
-| `coupang-ops` | 아침 요약 이메일·카카오톡, AI 플랫폼·모델 선택, 메뉴 「🔑 API키등록·플랫폼연동」, 저장됨 표시, 반복 작업 8개, 회수 송장·철회 이력·출고지/반품지·옵션 단위 자동생성옵션·쿠폰 적용 옵션, 저장 결과를 누른 칸 아래 표시, 회원 본인 고정 IP 등록, 키 만료 알림·문의 남은 시간·재고 0 경고·쿠팡 경고·오류 화면·건수 보강·카테고리/브랜드 찾기·메뉴 글자·화면 정리(시험 111개·빌드 통과, 배포 전 `coupang_ops_prefs`·`fixed_ip_proxy_key` SQL 필요, 기존 회원 주소 등록 필요) | `533bdded5`·`6e656fd51`·`00523fa9b`·`6754b148e`·`78cfc78c5`·`e151edbb8`·`a143d427b`·`998e1a43b`·`8deed7e30`·`d31521697`·`8c1346219`·`83cd9583d`·`39b56e0e2`·`d10a75d75`·`e8c4bf879`·`bba53c843` | 2026-10-31 · Claude Code 윈도우 `claude-win-sdp` | `coupang-ops/AGENTS.md` | v1.12로 함께 배포(빌드 승인 대기), `CRON_SECRET` 등록 뒤면 정리 작업도 시작 |
 | `shop-detail-page` | 마켓 등록에 쿠팡 칸 추가(2026-10-31 `claude-win-sdp`, tsc 통과, 쿠팡 v1.05 연계) |
 | `seller-label-docs` | 공용 흐름 띠 사본에 「🛒 마켓 등록」 단계 추가(`shop-flow` 사본만, 동작 변화는 띠 단계 하나) | `48b67dd5c` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow 줄 | 각 프로그램 다음 배포 때 함께(버전 +0.01) |
 | `detail-page-12p` · `auto-detail-page` (이동 안내만) | EC-W12 쓰이지 않던 옛 엔진·화면 파일 39개 삭제(화면·경로 동작 변화 없음, 백업·태그 있음). 일부러 배포할 필요 없음 — 다른 이유로 배포할 때 함께 나감 | `4e660826a` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | 각 폴더 `AGENTS.md` 맨 위 | 함께 나가면 이 줄을 「내보낸 기록」으로(버전은 그때 +0.01) |
@@ -65,6 +64,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `coupang-ops` | v1.12 · 2026-10-31 ([역할: ecommerce-image], 승인 빌드 1회) | 아침 요약 이메일·카카오톡, AI 플랫폼·모델 선택, 메뉴 「🔑 API키등록·플랫폼연동」, 저장됨 표시, 반복 작업 8개, 회수 송장·철회 이력·출고지/반품지·옵션 단위 자동생성옵션·쿠폰 적용 옵션, 저장 결과를 누른 칸 아래 표시, 회원 본인 고정 IP 등록, 키 만료 알림·문의 남은 시간·재고 0 경고·쿠팡 경고·오류 화면·건수 보강·카테고리/브랜드 찾기·메뉴 글자·화면 정리(시험 111개·빌드 통과, 배포 전 `coupang_ops_prefs`·`fixed_ip_proxy_key` SQL 필요, 기존 회원 주소 등록 필요) (`533bdded5`·`6e656fd51`·`00523fa9b`·`6754b148e`·`78cfc78c5`·`e151edbb8`·`a143d427b`·`998e1a43b`·`8deed7e30`·`d31521697`·`8c1346219`·`83cd9583d`·`39b56e0e2`·`d10a75d75`·`e8c4bf879`·`bba53c843`) |
 | `realty-listing-alert` | v1.39 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 단지 비교 표 「📈 실거래 ↗」(`c8f9bf948`) |
 | `commercial-land-trade-alert` | v1.02 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 네이버 매물 1단계, 3채널 알림, 이름 변경, 상세 문구 |
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |

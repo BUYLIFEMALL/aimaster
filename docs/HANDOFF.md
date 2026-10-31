@@ -12,11 +12,12 @@
 - 매물 감시 화면을 매물 알림과 같은 구성으로. 동 중심 좌표는 확장이 네이버 `/api/regions/list`에서 받음(이 API는 실제 호출 미확인, 주인님 시험 대기, 실패 시 팝업 기록에 진단). 등록 시 실거래 수집도 켬. 실거래 지역·실거래 조건으로 이름 구분.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/watch
 
-## 2026-10-31 ⏳ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.12 코드 완료(미배포)
+## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.12 운영 배포
 - 한 일: 이메일·카카오 알림, AI 3종 선택, 반복 작업 8개(발주서·송장 파일, 복사 등록, 템플릿, 엑셀 일괄, 원가 저장, 오늘 할 일 안에서 처리), 회수 송장·철회 이력·출고지/반품지·옵션 단위 자동생성옵션·쿠폰 적용 옵션.
 - 커밋: `533bdded5`·`6e656fd51`·`00523fa9b`·`6754b148e`·`78cfc78c5`. 시험 107개·tsc·로컬 build 통과, 화면 확인·쿠팡 쓰기 0회.
 - 이어서 커밋: 회원 본인 고정 IP `a143d427b`, 사고 방지·화면·문서 정리(S1~S6·A4·D1·D2, `coupang-ops/AGENTS.md` 맨 아래). 시험 111개·빌드 통과. ⚠ 배포 즉시 고정 IP 주소가 없는 회원의 쿠팡 기능이 멈추므로 SQL 2건 적용·기존 회원 확인이 먼저다.
-- 다음 첫 단계: 주인님 빌드 승인 → `coupang_ops_prefs` SQL 적용(운영 ref esgxyikcnnvmlhygjkth) → 배포·버전 v1.12 → 크롬 확인(조회만). 상세: `coupang-ops/AGENTS.md` 맨 아래.
+- 배포: SQL 2건 적용(운영 ref esgxyikcnnvmlhygjkth), 빌드 1회 Ready, DB v1.12. 크롬: 새 입력칸·메뉴·첫 화면·매뉴얼 표시, 주소 없을 때 연결 시험 안내 확인. 쿠팡 쓰기 0회.
+- 다음 첫 단계: 시험 계정 Fixie 등록·WING IP 교체 뒤 연결 시험. `CRON_SECRET`은 미등록, 등록 뒤 배포 1회 필요. S7·이미지/옵션 수정·로켓그로스는 나중(주인님 지시). 상세: `coupang-ops/AGENTS.md` 맨 아래.
 - https://coupang-ops.buylife.xyz
 
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-listing-alert` v1.40 · `commercial-land-trade-alert` v1.10 메뉴 합침
