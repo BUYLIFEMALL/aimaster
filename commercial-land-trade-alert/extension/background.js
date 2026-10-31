@@ -336,7 +336,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         input.trend = trendText(history);
         if (!input.count) return reply({ ok: false, error: "요약할 후보나 변동 매물이 없습니다." });
         const { aiChoice } = await get("aiChoice");
-        const { provider, models } = normalizeChoice(aiChoice);
+        // 누른 버튼의 AI를 쓴다. 세부 모델은 설정에서 고른 값
+        const { provider, models } = normalizeChoice({ ...aiChoice, provider: msg.provider || aiChoice?.provider });
         const { apiKey } = await api(`/api/extension/ai-key?provider=${provider}`); // 저장하지 않고 이번 호출에만 쓴다
         return reply({ ok: true, count: input.count, provider, model: models[provider] || null, text: await summarize({ provider, model: models[provider], apiKey }, input) });
       }

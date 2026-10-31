@@ -11,7 +11,7 @@ import { delBtn, editBtn, issueBtn, saveBtn, statusBadge } from "./setupStyles";
 
 type Choice = { ok?: boolean; provider?: string; models?: Record<string, string>; error?: string };
 
-function Row({ id, tail, selected, model, onSelect, onModel }: { id: AiProvider; tail: string | null; selected: boolean; model: string; onSelect: () => void; onModel: (m: string) => void }) {
+function Row({ id, tail, model, onModel }: { id: AiProvider; tail: string | null; model: string; onModel: (m: string) => void }) {
   const router = useRouter();
   const engine = AI_ENGINES.find((e) => e.id === id)!;
   const has = !!tail;
@@ -35,9 +35,9 @@ function Row({ id, tail, selected, model, onSelect, onModel }: { id: AiProvider;
     setAskDelete(false); setEditing(true); router.refresh();
   });
   return (
-    <div className={`border-t border-mx-border p-3 first:border-t-0 ${selected ? "border-l-4 border-l-amber-500 bg-orange-50" : "bg-white"}`}>
+    <div className={"border-t border-mx-border bg-white p-3 first:border-t-0"}>
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={onSelect} aria-pressed={selected} title="눌러서 요약에 사용" className="min-h-[40px] rounded-lg px-2 text-sm font-bold text-mx-text hover:bg-mx-primary/10">{engine.icon} {engine.name}</button>
+        <span className="px-2 text-sm font-bold text-mx-text">{engine.icon} {engine.name}</span>
         <span className={statusBadge(has)}>{has ? "✓ 등록완료" : "미등록"}</span>
         <span className="min-w-0 flex-1 text-sm text-mx-muted"><b className="text-mx-text">{engine.role}</b> · {engine.roleText}</span>
         <a href={engine.keyUrl} target="_blank" rel="noopener noreferrer" className={issueBtn}>발급 ↗</a>
@@ -99,16 +99,14 @@ export function AiEngineCard({ email, tails }: { email: string; tails: Record<Ai
 
   return (
     <div>
-      <p className="mb-3 text-sm text-mx-muted">엔진 이름을 누르면 그 줄이 요약에 쓰여요(색이 바뀐 줄). 키와 요금은 회원님 본인 계정 것이고, 다른 AIMaster 프로그램에 등록한 키를 그대로 씁니다.</p>
+      <p className="mb-3 text-sm text-mx-muted">수집 결과의 분석 버튼(GPT·Claude·Gemini)이 여기서 고른 모델을 씁니다. 모델은 고르면 바로 저장되고, 키와 요금은 회원님 본인 계정 것이고, 다른 AIMaster 프로그램에 등록한 키를 그대로 씁니다.</p>
       <div className="overflow-hidden rounded-xl border border-mx-border">
         {AI_ENGINES.map((e) => (
           <Row
             key={e.id}
             id={e.id}
             tail={tails[e.id]}
-            selected={provider === e.id}
             model={models[e.id] && e.models.some((m) => m.value === models[e.id]) ? models[e.id] : e.models[0].value}
-            onSelect={() => save(e.id, models)}
             onModel={(m) => save(provider, { ...models, [e.id]: m })}
           />
         ))}

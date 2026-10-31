@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AI_ENGINES, aiModelName, aiModelOf, toAiProvider, type AiProvider } from "@/lib/aiEngines";
+import { AI_ENGINES, aiModelName, toAiProvider, type AiProvider } from "@/lib/aiEngines";
 import { askExtension } from "@/lib/extensionBridge";
 import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
@@ -28,6 +28,8 @@ function AiText({ text }: { text: string }) {
     </div>
   );
 }
+
+const MIN_EXTENSION = 1.17;
 
 const yieldOf = (v: unknown) => Number.parseFloat(String(v ?? "")) || 0;
 
@@ -56,27 +58,17 @@ export function ResultsClient({ email }: { email: string }) {
   const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState("all");
   const [sort, setSort] = useState("score");
-  const [ai, setAi] = useState<{ busy?: boolean; text?: string; count?: number; used?: string; error?: string }>({});
-  const [aiChoice, setAiChoice] = useState<{ provider: AiProvider; models: Record<string, string> }>({ provider: "claude", models: {} });
+  const [ai, setAi] = useState<{ busy?: AiProvider; text?: string; count?: number; used?: string; error?: string }>({});
 
-  useEffect(() => {
-    let alive = true;
-    void askExtension<{ ok?: boolean; provider?: string; models?: Record<string, string> }>("aiChoice", 2000, { email }).then((r) => {
-      if (alive && r?.ok) setAiChoice({ provider: toAiProvider(r.provider), models: r.models ?? {} });
-    });
-    return () => { alive = false; };
-  }, [email]);
-
-  async function pickAi(provider: AiProvider) {
-    const next = { provider, models: aiChoice.models };
-    setAiChoice(next);
-    const r = await askExtension<{ ok?: boolean; error?: string }>("aiChoice", 2000, { email, set: next });
-    if (!r?.ok) setAi({ error: r?.error || "선택을 저장하지 못했습니다. 확장을 새로고침한 뒤 이 화면도 새로고침해 주세요." });
-  }
-
-  async function runAi() {
-    setAi({ busy: true });
-    const r = await askExtension<{ ok?: boolean; text?: string; count?: number; provider?: string; model?: string | null; error?: string }>("aiSummary", 180000, { email });
+  async function runAi(provider: AiProvider) {
+    setAi({ busy: provider });
+    // 옛 확장은 어느 버튼을 눌렀는지 몰라 다른 AI로 분석하므로 먼저 버전을 확인한다
+    const ping = await askExtension<{ ok?: boolean; version?: string }>("ping", 2000);
+    if ((Number.parseFloat(String(ping?.version ?? "").replace("v", "")) || 0) < MIN_EXTENSION) {
+      setAi({ error: "확장을 새 버전으로 바꿔 주세요. chrome://extensions에서 ↻ 새로고침한 뒤 이 화면도 새로고침해 주세요." });
+      return;
+    }
+    const r = await askExtension<{ ok?: boolean; text?: string; count?: number; provider?: string; model?: string | null; error?: string }>("aiSummary", 180000, { email, provider });
     setAi(r?.ok ? { text: r.text, count: r.count, used: aiModelName(toAiProvider(r.provider), r.model) } : { error: r?.error || "응답이 없습니다. 확장을 새로고침한 뒤 다시 눌러 주세요." });
   }
 
@@ -154,33 +146,22 @@ export function ResultsClient({ email }: { email: string }) {
       </div>
       <div className="mx-card mt-3 p-4">
         <div className="flex flex-wrap items-center gap-3">
-          <div role="group" aria-label="AI 요약에 쓸 플랫폼" className="flex gap-1.5">
+          <div role="group" aria-label="AI 분석" className="flex flex-wrap gap-2">
             {AI_ENGINES.map((e) => (
-              <button
-                key={e.id}
-                type="button"
-                aria-pressed={aiChoice.provider === e.id}
-                disabled={ai.busy}
-                onClick={() => pickAi(e.id)}
-                title={aiModelName(e.id, aiModelOf(e.id, aiChoice.models))}
-                className={`min-h-[44px] rounded-xl border px-4 text-sm font-bold ${aiChoice.provider === e.id ? "border-mx-primary bg-mx-primary/10 text-mx-primary" : "border-mx-border bg-white text-mx-text hover:border-mx-primary"}`}
-              >
-                {e.short}
+              <button key={e.id} type="button" onClick={() => runAi(e.id)} disabled={!!ai.busy} className="mx-btn-primary">
+                {ai.busy === e.id ? "분석 중입니다..." : `${e.icon} ${e.short} 분석`}
               </button>
             ))}
           </div>
-          <button type="button" onClick={runAi} disabled={ai.busy} className="mx-btn-primary">
-            {ai.busy ? "요약 중입니다..." : "🤖 AI 요약 보기"}
-          </button>
           <p className="min-w-60 flex-1 text-xs text-mx-muted">
-            고른 AI에 회원님 본인 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 본인 키에 청구되며, 세부 모델은 API키등록·플랫폼연동에서 고릅니다.
+            누른 AI에 회원님 본인 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 본인 키에 청구되며, 세부 모델은 API키등록·플랫폼연동에서 고릅니다.
           </p>
         </div>
         {ai.error && <p className="mt-3 text-sm text-red-600">{ai.error}</p>}
         {ai.text && (
           <div className="mt-3 border-t border-mx-border pt-3">
             <AiText text={ai.text} />
-            <p className="mt-2 text-xs text-mx-muted">{ai.used}로 만든 {ai.count}건 기준 AI 요약입니다. 사실과 다를 수 있으니 투자 판단은 직접 확인 후 해 주세요.</p>
+            <p className="mt-2 text-xs text-mx-muted">{ai.used}로 만든 {ai.count}건 기준 AI 분석입니다. 사실과 다를 수 있으니 투자 판단은 직접 확인 후 해 주세요.</p>
           </div>
         )}
       </div>
