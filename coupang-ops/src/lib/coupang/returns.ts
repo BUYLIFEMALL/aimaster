@@ -16,6 +16,10 @@ export const returnsPath = (vendorId: string) => `${V(6, vendorId)}/returnReques
 export const stopShipmentPath = (vendorId: string, receiptId: number) => `${V(4, vendorId)}/returnRequests/${receiptId}/stoppedShipment`;
 export const alreadyShippedPath = (vendorId: string, receiptId: number) => `${V(4, vendorId)}/returnRequests/${receiptId}/completedShipment`;
 export const cancelOrderPath = (vendorId: string, orderId: number) => `${V(5, vendorId)}/orders/${orderId}/cancel`;
+// 반품 입고 확인 PATCH …/receiveConfirmation { vendorId, receiptId } · 승인 PATCH …/approval { vendorId, receiptId, cancelCount } (명세 2026-10-31 확인)
+//   입고 확인: 반품접수(RETURNS_UNCHECKED) 건, 빠른환불 대상은 이 단계에서 바로 환불·완료될 수 있다. 승인: 입고완료(VENDOR_WAREHOUSE_CONFIRM) 건, 환불이 나간다.
+export const returnReceiptPath = (vendorId: string, receiptId: number) => `${V(4, vendorId)}/returnRequests/${receiptId}/receiveConfirmation`;
+export const returnApprovalPath = (vendorId: string, receiptId: number) => `${V(4, vendorId)}/returnRequests/${receiptId}/approval`;
 /** 반품요청 단건 조회 GET /v6/vendors/{vendorId}/returnRequests/{receiptId} — data는 배열(목록과 같은 필드) */
 export const returnOnePath = (vendorId: string, receiptId: number) => `${returnsPath(vendorId)}/${receiptId}`;
 
@@ -91,6 +95,11 @@ export function normalizeReturns(raw: unknown): { requests: ReturnRequest[]; nex
     })
     .filter((x) => x.receiptId > 0);
   return { requests, nextToken: s(r.nextToken) };
+}
+
+/** 지금 누를 수 있는 반품 단계. 미출고 반품접수는 출고중지 흐름이라 입고 확인 대상이 아니다 */
+export function returnSteps(r: Pick<ReturnRequest, "receiptStatus" | "actionable">): { canConfirmReceipt: boolean; canApprove: boolean } {
+  return { canConfirmReceipt: r.receiptStatus === "RETURNS_UNCHECKED" && !r.actionable, canApprove: r.receiptStatus === "VENDOR_WAREHOUSE_CONFIRM" };
 }
 
 /** 출고중지완료·이미출고 응답(data.resultCode) */

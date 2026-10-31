@@ -88,6 +88,10 @@ export default async function GuidePage() {
       <section className="slw-card space-y-2 p-5">
         <h2 className="text-lg font-extrabold text-slate-900">❓ 자주 묻는 질문</h2>
         <details className="rounded-lg border border-slate-200 p-3 text-sm">
+          <summary className="cursor-pointer font-bold text-slate-800">반품 승인 버튼이 안 보이는 건은 어떻게 하나요?</summary>
+          <p className="mt-2 leading-relaxed text-slate-700">10만원 미만 빠른환불 대상이나 입고 확인을 마친 건은 쿠팡이 자동으로 승인할 수 있어 승인 단계가 필요 없습니다. 쿠팡 조회 조건에 「입고완료」가 없어, 입고 확인 뒤 승인 버튼은 그 자리에서 다시 읽은 건에만 나타납니다. 목록을 새로 불러온 뒤 보이지 않으면 WING에서 처리해 주세요.</p>
+        </details>
+        <details className="rounded-lg border border-slate-200 p-3 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">AI가 문의에 자동으로 답변하나요?</summary>
           <p className="mt-2 leading-relaxed text-slate-700">아니요. AI는 초안만 만들고, 회원이 고쳐서 확인을 눌러야 등록됩니다. 메인 사이트 「API키생성|플랫폼연동」에 본인 Claude 키를 등록해야 쓸 수 있고 사용량은 회원 키에 청구됩니다. 고객 연락처와 번호는 가린 뒤 AI에 보내며, 고객센터 미답변 건은 24시간이 지나면 쿠팡이 처리하므로 그 전에 답해 주세요.</p>
         </details>

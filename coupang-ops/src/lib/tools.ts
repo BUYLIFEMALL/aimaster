@@ -15,6 +15,7 @@ export const TOOLS: ToolItem[] = [
   { href: "/stock", emoji: "📉", label: "품절 예방", short: "재고 점검·채우기", description: "승인된 상품의 옵션 재고를 20개씩 점검해 품절·부족 옵션을 모아 보고 재고를 채웁니다." },
   { href: "/orders", emoji: "🚚", label: "주문(발주서)", short: "발주서 조회", description: "쿠팡에 들어온 주문을 상태·기간별로 불러와 수량·수취인·배송 정보를 확인합니다." },
   { href: "/returns", emoji: "↩", label: "출고중지·취소", short: "출고중지 요청 처리", description: "고객의 출고중지 요청·반품 접수를 확인하고 출고중지 완료 또는 이미출고로 처리합니다." },
+  { href: "/exchanges", emoji: "🔄", label: "교환", short: "입고 확인·교환 송장", description: "교환 요청을 확인하고 입고 확인, 교환 송장 등록, 거부를 처리합니다." },
   { href: "/inquiries", emoji: "💬", label: "고객 문의", short: "문의·AI 답변 초안", description: "상품 문의와 고객센터 이관 문의를 모아 보고, AI 초안을 확인해 답변합니다." },
 ];
 

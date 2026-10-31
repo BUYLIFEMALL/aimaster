@@ -14,9 +14,12 @@ import {
   normalizeCancel,
   normalizeReturnAction,
   normalizeReturns,
+  returnApprovalPath,
   returnOnePath,
+  returnReceiptPath,
   returnsPath,
   returnsQuery,
+  returnSteps,
   stopShipmentPath,
   type ReturnRequest,
 } from "@/lib/coupang/returns";
@@ -107,6 +110,47 @@ export async function alreadyShippedAction(receiptId: number, courier: string, i
   } catch (e) {
     return writeFail(e, "이미출고 처리");
   }
+}
+
+export type ReturnStepDone = { ok: true; message: string; request: ReturnRequest | null } | { ok: false; error: string };
+
+/** 반품 입고 확인·승인 공통. 직전 상태를 다시 읽고, 재시도하지 않으며, 끝난 뒤 다시 읽어 다음 단계를 화면에 알린다 */
+async function runReturnStep(receiptId: number, kind: "receipt" | "approve"): Promise<ReturnStepDone> {
+  const user = await requireProgramAccess();
+  const keys = await getWingKeys(user.id);
+  if (!keys) return { ok: false, error: NO_KEYS };
+  const id = Number(receiptId);
+  if (!Number.isInteger(id) || id <= 0) return { ok: false, error: "접수번호가 없습니다." };
+  const what = kind === "receipt" ? "입고 확인" : "반품 승인";
+  let cur: ReturnRequest | null;
+  try {
+    cur = await currentRequest(keys, id);
+  } catch (e) {
+    return { ok: false, error: `요청 상태를 확인하지 못해 멈췄습니다: ${wingMsg(e)}` };
+  }
+  if (!cur) return { ok: false, error: "쿠팡에서 이 요청을 찾지 못했습니다." };
+  const steps = returnSteps(cur);
+  if (kind === "receipt" ? !steps.canConfirmReceipt : !steps.canApprove) return { ok: false, error: `지금 상태(${cur.statusLabel})에서는 ${what}을 할 수 없습니다. 쿠팡이 이미 자동 처리했을 수 있습니다.` };
+  try {
+    const r = kind === "receipt"
+      ? await wingRequest(keys, "PATCH", returnReceiptPath(keys.vendorId, id), { body: { vendorId: keys.vendorId, receiptId: id } })
+      : await wingRequest(keys, "PATCH", returnApprovalPath(keys.vendorId, id), { body: { vendorId: keys.vendorId, receiptId: id, cancelCount: cur.cancelCountSum } });
+    const d = (r.data as { data?: { resultCode?: unknown; resultMessage?: unknown } })?.data;
+    if (String(d?.resultCode ?? "") === "FAIL") return { ok: false, error: String(d?.resultMessage ?? "쿠팡이 처리하지 않았습니다.") };
+    const request = await currentRequest(keys, id).catch(() => null);
+    return { ok: true, message: kind === "receipt" ? "입고 확인했습니다." : "반품을 승인했습니다. 환불이 진행됩니다.", request };
+  } catch (e) {
+    const failed = writeFail(e, what);
+    return failed.ok ? { ok: false, error: what } : failed;
+  }
+}
+
+export async function confirmReturnReceiptAction(receiptId: number): Promise<ReturnStepDone> {
+  return runReturnStep(receiptId, "receipt");
+}
+
+export async function approveReturnAction(receiptId: number): Promise<ReturnStepDone> {
+  return runReturnStep(receiptId, "approve");
 }
 
 /** 판매자 주문 취소(결제완료 = 즉시 취소, 상품준비중 = 출고중지). 배송 묶음 하나씩, 판매자 점수가 낮아짐 — 화면 확인 뒤 호출 */

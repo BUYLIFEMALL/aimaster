@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { alreadyShippedAction, listReturnRequestsAction, stopShipmentAction } from "@/lib/actions/returns";
-import { RETURN_VIEWS, type ReturnRequest } from "@/lib/coupang/returns";
+import { alreadyShippedAction, approveReturnAction, confirmReturnReceiptAction, listReturnRequestsAction, stopShipmentAction } from "@/lib/actions/returns";
+import { RETURN_VIEWS, returnSteps, type ReturnRequest } from "@/lib/coupang/returns";
 import { COMMON_COURIERS } from "@/lib/coupang/defaults";
 
 const input = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-rose-500 focus:outline-none";
@@ -10,7 +10,7 @@ const btn = "rounded border px-2 py-1 text-[11px] font-bold disabled:opacity-50"
 /** 한국 시간 기준 오늘에서 n일 전 날짜(yyyy-mm-dd) */
 const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10);
 
-type Ask = { kind: "stop" | "shipped"; receiptId: number; label: string };
+type Ask = { kind: "stop" | "shipped" | "receipt" | "approve"; receiptId: number; label: string };
 
 export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: { keysSaved: boolean; defaultCourier: string; initialView?: string }) {
   const [view, setView] = useState(RETURN_VIEWS.some((v) => v.value === initialView) ? initialView : "RU");
@@ -44,6 +44,14 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: 
     start(async () => {
       const a = ask;
       setAsk(null);
+      if (a.kind === "receipt" || a.kind === "approve") {
+        const step = a.kind === "receipt" ? await confirmReturnReceiptAction(a.receiptId) : await approveReturnAction(a.receiptId);
+        if (!step.ok) return setNote(`❌ 접수번호 ${a.receiptId}: ${step.error}`);
+        const updated = step.request;
+        setNote(`✅ 접수번호 ${a.receiptId}: ${step.message}${updated ? ` 지금 상태: ${updated.statusLabel}` : " 상태는 목록을 다시 불러와 확인해 주세요."}`);
+        if (updated) setRows(rows.map((x) => (x.receiptId === a.receiptId ? updated : x)));
+        return;
+      }
       const r = a.kind === "stop" ? await stopShipmentAction(a.receiptId) : await alreadyShippedAction(a.receiptId, shipOf(a.receiptId).courier, shipOf(a.receiptId).invoice);
       setNote(r.ok ? `✅ 접수번호 ${a.receiptId}: ${r.message}` : `❌ 접수번호 ${a.receiptId}: ${r.error}`);
       if (r.ok) setRows(rows.filter((x) => x.receiptId !== a.receiptId));
@@ -97,6 +105,18 @@ export function ReturnRequests({ keysSaved, defaultCourier, initialView = "" }: 
                 </li>
               ))}
             </ul>
+            {returnSteps(x).canConfirmReceipt && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2">
+                <span className="text-[11px] text-amber-800">반품 상품이 도착해 상태를 확인했다면 입고 확인을 눌러 주세요. 10만원 미만 빠른환불 대상은 이 단계에서 바로 환불될 수 있습니다.</span>
+                <button type="button" disabled={pending} onClick={() => setAsk({ kind: "receipt", receiptId: x.receiptId, label: `주문번호 ${x.orderId}의 반품 상품을 받았다고 입고 확인할까요? 바로 환불될 수 있습니다.` })} className={`${btn} border-rose-600 bg-white text-rose-800`}>입고 확인</button>
+              </div>
+            )}
+            {returnSteps(x).canApprove && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2">
+                <span className="text-[11px] text-amber-800">입고가 끝난 건입니다. 승인하면 고객에게 환불됩니다. 상품에 문제가 있으면 승인하지 말고 WING에서 「쿠팡 확인 요청」을 해 주세요.</span>
+                <button type="button" disabled={pending} onClick={() => setAsk({ kind: "approve", receiptId: x.receiptId, label: `주문번호 ${x.orderId}의 반품을 승인할까요? 고객에게 환불됩니다(${x.cancelCountSum}개).` })} className={`${btn} border-rose-600 bg-rose-700 text-white`}>반품 승인(환불)</button>
+              </div>
+            )}
             {x.actionable && (
               <div className="mt-2 space-y-2 rounded-lg bg-slate-50 p-2">
                 <p className="text-[11px] text-amber-800">⚠ 아직 보내지 않았다면 「출고중지 완료」, 이미 보냈다면 송장을 넣고 「이미출고」로 처리하세요. 출고중지 요청 건을 보내면 왕복 반품 배송비는 판매자 부담입니다.</p>

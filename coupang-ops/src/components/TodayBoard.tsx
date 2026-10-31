@@ -28,6 +28,7 @@ export function TodayBoard({ keysSaved }: { keysSaved: boolean }) {
         { label: "상품준비중", hint: "송장을 넣을 주문", c: data.instruct, href: "/orders?status=INSTRUCT", urgent: false },
         { label: "반품 접수", hint: "미처리 반품", c: data.returnsReceived, href: "/returns?view=UC", urgent: false },
         { label: "미답변 문의", hint: "최근 7일 상품·고객센터", c: data.inquiries, href: "/inquiries", urgent: false },
+        { label: "처리 중인 교환", hint: "최근 7일", c: data.exchanges, href: "/exchanges", urgent: false },
       ]
     : [];
 
@@ -45,7 +46,7 @@ export function TodayBoard({ keysSaved }: { keysSaved: boolean }) {
       {!keysSaved && <p className="text-xs text-amber-800">먼저 「🔑 쿠팡 연결」에서 키를 저장해 주세요.</p>}
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
       {data && (
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((k) => (
             <Link key={k.label} href={k.href} className={`block rounded-xl border p-3 transition hover:border-rose-400 ${k.urgent && !zero(k.c) ? "border-rose-400 bg-rose-50" : "border-slate-200 bg-white"}`}>
               <p className="text-xs font-bold text-slate-600">{k.urgent && !zero(k.c) ? "⚠ " : ""}{k.label}</p>
@@ -55,7 +56,7 @@ export function TodayBoard({ keysSaved }: { keysSaved: boolean }) {
           ))}
         </div>
       )}
-      {data && <p className="text-[11px] text-slate-500">기간 {data.from} ~ {data.to} · 교환은 다음 단계에서 더합니다.</p>}
+      {data && <p className="text-[11px] text-slate-500">기간 {data.from} ~ {data.to}</p>}
     </section>
   );
 }

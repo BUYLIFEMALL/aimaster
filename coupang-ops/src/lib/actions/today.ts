@@ -7,14 +7,15 @@ import { callBudgetBlock } from "@/lib/coupang/usage";
 import { takeReadSlot } from "@/lib/readGap";
 import { TODAY_READ_GAP_SECONDS } from "@/lib/readGapRule";
 import { normalizeOrderSheets, ordersPath, ordersQuery } from "@/lib/coupang/orders";
+import { exchangeRange, exchangesPath, exchangesQuery, isOpenExchange, normalizeExchanges } from "@/lib/coupang/exchanges";
 import { centerListPath, centerQuery, inquiryRange, normalizeCenter, normalizeOnline, onlineListPath, onlineQuery } from "@/lib/coupang/inquiry";
 import { blockedOrderIds, normalizeReturns, returnsPath, returnsQuery } from "@/lib/coupang/returns";
 
 // 플랜 A1 「오늘 할 일」: 최근 31일(한국 날짜) 결제완료·상품준비중 발주서 수와 미처리 출고중지 요청·반품 접수 수.
-// 쿠팡 읽기 6번(각 첫 쪽만, 50건 넘으면 「50+」, 미답변 문의 2번 포함). 버튼을 눌렀을 때만, 회원별 30초 간격(고정 IP 사용량 보호). 주문 내용은 돌려주지 않는다.
+// 쿠팡 읽기 7번(각 첫 쪽만, 50건 넘으면 「50+」, 미답변 문의 2번·교환 1번 포함). 버튼을 눌렀을 때만, 회원별 30초 간격(고정 IP 사용량 보호). 주문 내용은 돌려주지 않는다.
 
 export type Count = { count: number; more: boolean } | { error: string };
-export type TodayResult = { ok: true; accept: Count; instruct: Count; stopRequests: Count; returnsReceived: Count; inquiries: Count; from: string; to: string } | { ok: false; error: string };
+export type TodayResult = { ok: true; accept: Count; instruct: Count; stopRequests: Count; returnsReceived: Count; inquiries: Count; exchanges: Count; from: string; to: string } | { ok: false; error: string };
 
 const kstDay = (back: number) => new Date(Date.now() + 9 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10);
 const wingMsg = (e: unknown) => (e instanceof WingApiError ? e.message : "연결 오류");
@@ -62,6 +63,16 @@ export async function todaySummaryAction(): Promise<TodayResult> {
     }
   };
 
-  const [accept, instruct, stopRequests, returnsReceived, inquiries] = await Promise.all([orders("ACCEPT"), orders("INSTRUCT"), pending("RU"), pending("UC"), unanswered()]);
-  return { ok: true, accept, instruct, stopRequests, returnsReceived, inquiries, from, to };
+  // 처리 중인 교환(쿠팡 조회 기간 7일)
+  const openExchanges = async (): Promise<Count> => {
+    try {
+      const r = normalizeExchanges((await wingRequest(keys, "GET", exchangesPath(keys.vendorId), { query: exchangesQuery(exchangeRange(Date.now())) })).data);
+      return { count: r.rows.filter(isOpenExchange).length, more: !!r.nextToken };
+    } catch (e) {
+      return { error: wingMsg(e) };
+    }
+  };
+
+  const [accept, instruct, stopRequests, returnsReceived, inquiries, exchanges] = await Promise.all([orders("ACCEPT"), orders("INSTRUCT"), pending("RU"), pending("UC"), unanswered(), openExchanges()]);
+  return { ok: true, accept, instruct, stopRequests, returnsReceived, inquiries, exchanges, from, to };
 }
