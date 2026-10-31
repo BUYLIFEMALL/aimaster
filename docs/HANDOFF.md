@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ⚠ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` 가짜 지표 제거(미배포·긴급)
+- 문제: 운영 화면에 고정 글자로 된 위너 사수율 94.2%, 탈환 대기 1건, 「10원 최저가 실시간 매칭 엔진」, 「AI 자동 수정」, 「암호화 보관」이 올라가 있다(2026-10-31 크롬 확인). 공식 API 104개에 위너·경쟁가 조회가 없고 해당 코드도 없다.
+- 조치: `0c4545a79`에서 모두 제거, 첫 화면 카드는 쿠팡에서 읽은 실제 건수로 교체, 디자인 틀 유지. 시험 112개·빌드 통과. 빌드 승인 대기.
+- 쿠팡 이용약관(https://www.coupang.com/np/policies/terms): 사전 승인 없는 로봇·스크레이퍼 등 자동화 접근을 금지한다. 위너 자동 수집·확장 수집은 만들지 않는다. 판매자용 별도 약관은 미확인.
+- 위너 기능 방향: 회원이 경쟁가를 직접 넣으면 마진 하한 안에서 제안가를 계산하고 회원이 눌러 바꾼다. 주인님 승인 뒤.
+- https://coupang-ops.buylife.xyz
+
 ## 2026-10-31 ⚠ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` 커밋 섞임 기록·AGY 디자인 인계
 - 무슨 일: `f37dff121`(메시지는 AI 모델 선택)은 `-- coupang-ops/src` 폴더 지정 커밋이라, AGY가 진행 중이던 디자인 리뉴얼 파일 6개(`home/page.tsx`·`globals.css`·`TodayBoard`·`WingKeyForm`·`layout/Sidebar`·`ui/PageHeader`)가 들어가 푸시됐다. 그 커밋에 모델 기능은 없다. 실제 모델 기능은 `309ad926c`.
 - 영향: 작업 파일은 그대로이고 운영 배포 없음(운영 v1.12는 그 전 배포). 되돌리면 AGY 작업 파일을 덮으므로 revert·이력 수정을 하지 않았다. AGY는 위 파일이 이미 HEAD에 있다는 점만 알고 이어서 커밋하면 된다.
