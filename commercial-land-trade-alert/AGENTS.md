@@ -33,6 +33,7 @@ Next.js 16 App Router, Tailwind 4, Supabase 공용 DB, Vercel 예약 호출, 국
 [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) §2
 
 ## 주의
+- `extension/`은 네이버 매물 0단계 사전 검증용이다. 회원에게 아직 배포하지 않는다(주소·ZIP·DB 확장 칸 없음).
 - `vercel env pull`은 민감 변수를 `[SENSITIVE]` 글자로 내려 준다. 다른 프로젝트로 복사하면 안 된다(2026-10-31 사고, 루트 `docs/ERROR_LESSONS.md`).
 - 공공데이터 키·예약 호출·1년 보관은 주인님 지정 사항이다(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8, `docs/SCHEDULER_POLICY.md` §8). 범위를 넓히려면 다시 승인받는다.
 - 코드는 `real_estate_sales` 복사본이며 사본 등록 대상 공용 모듈 `telegram-bot-client`를 포함한다.
