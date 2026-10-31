@@ -15,7 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `coupang-ops` | v1.12 배포(코드 완료): 운영 DB `coupang_ops_prefs` 적용 + 빌드 1회 | 주인님 빌드 승인 | `coupang-ops/AGENTS.md` 맨 아래 |
+| `coupang-ops` | v1.12 배포(코드 완료): 운영 DB `coupang_ops_prefs`·`fixed_ip_proxy_key` 적용 + 빌드 1회, 회원 본인 Fixie로 전환 | 주인님 빌드 승인 | `coupang-ops/AGENTS.md` 맨 아래 |
 | `shop-order-report` | 마켓별 열 이름·상태 사전 보정 | 주인님 실제 주문 파일(개인정보 지운 사본) | `shop-order-report/docs/IMPROVEMENT_BACKLOG.md` |
 | `coupang-ops` | 임시저장 상품 16433545652 중지 유지(2026-10-31 주인님 지시: 삭제하지 말고 중지만). 승인 요청·삭제 금지, 다시 지시가 있을 때만 재개 | 주인님 재지시 | `coupang-ops/AGENTS.md` 2026-10-31 |
 | `coupang-ops` | 주문 쓰기 실제 1건 시험(상품준비중·송장 등록/수정·출고중지 완료·이미출고·판매자 취소)·발주서 화면 모양 확인 | 실제 주문이 들어온 뒤(주인님 10-30 「시험은 아직 주문이 안되니 나중에」) | `coupang-ops/AGENTS.md` 2026-10-30 |
