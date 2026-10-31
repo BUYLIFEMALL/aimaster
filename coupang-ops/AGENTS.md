@@ -264,3 +264,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 미확인: 화면, 실제 요약 메시지. 카카오는 200자에서 잘리므로 재고 줄을 앞쪽에 넣었다.
 - 다음: 예약 가격·판매 중지(주인님 승인 대기 — DB 표, 실제 판매 자동 변경).
 
+## 2026-10-31 수시 알림·미등록 안내(미배포 대기 `905fe8284`·`d381ca59d`)
+- 주인님 결정: 예약 가격·판매 중지는 쓰기 시험 뒤로 미루고 수시 알림 먼저.
+- `/alerts` `UrgentAlertPanel`, `api/cron/coupang-urgent`, `readUrgentCounts`(읽기 3회). 하루 3번(10·14·18시, 월 약 270회) 또는 6번(월 약 540회), 건수가 늘었을 때만 발송, 건수만 보냄. 회원 본인 cron-job.org, 토큰은 해시만. 상태는 표 변경 없이 `coupang_ops_prefs.data.urgent`에 저장하고, `savePrefsAction`은 이 칸을 바꾸지 못한다.
+- 쿠팡 응답이 실패한 항목은 직전 건수를 유지하고 비교하지 않는다. 건수가 줄었다가 다시 늘면 다시 알린다.
+- 미등록 안내: 고정 IP가 없으면 오늘 할 일이 한 번만 안내, 첫 화면 「고정 IP 필요」, 연결 시험 줄 표기·버튼 정리.
+- 미확인: 화면, cron-job.org 작업 생성, 실제 알림 발송(실제 요청이 있어야 함), 토큰 조회(jsonb 경로) 운영 동작.
+
