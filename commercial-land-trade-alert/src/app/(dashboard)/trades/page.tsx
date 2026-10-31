@@ -1,11 +1,20 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { KpiCard, KpiGrid } from "@/components/ui/KpiCard";
 import { PageHero } from "@/components/ui/PageHero";
 import { formatManwon, kindLabel, normalizePrefs, BUILDING_USES, JIMOKS } from "@/lib/trades/prefs";
 import { applyTradeFilter } from "@/lib/trades/query";
 
 const PAGE_SIZE = 50;
+const STATS_LIMIT = 5000; // 요약 카드 계산에 쓰는 최대 건수
+
+const median = (v: number[]) => {
+  if (!v.length) return null;
+  const s = [...v].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2);
+};
 
 interface Row {
   id: string;
@@ -57,17 +66,39 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
   const viewed = new Set(((seen ?? []) as { trade_id: string }[]).map((s) => s.trade_id));
   const total: number = count ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const view = sp.view === "grid" ? "grid" : "table";
+  const { data: statRows } = total
+    ? await applyTradeFilter(supabase.from("commercial_land_trades").select("amount_manwon, price_per_pyeong"), filter, codes, prefs).limit(STATS_LIMIT)
+    : { data: [] };
+  const amounts = ((statRows ?? []) as { amount_manwon: number }[]).map((r) => Number(r.amount_manwon)).filter(Number.isFinite);
+  const pyeongs = ((statRows ?? []) as { price_per_pyeong: number | null }[]).filter((r) => r.price_per_pyeong !== null).map((r) => Number(r.price_per_pyeong));
+  const avgAmount = amounts.length ? Math.round(amounts.reduce((a, b) => a + b, 0) / amounts.length) : null;
 
   const params = new URLSearchParams(Object.entries({ ...filter, mine: filter.mine ? "" : "0" }).filter(([, v]) => v) as [string, string][]);
   const pageLink = (p: number) => {
     const q = new URLSearchParams(params);
     q.set("page", String(p));
+    if (view === "grid") q.set("view", "grid");
     return `/trades?${q}`;
   };
+  const viewLink = (v: string) => {
+    const q = new URLSearchParams(params);
+    if (v === "grid") q.set("view", "grid");
+    return `/trades?${q}`;
+  };
+  const toggle = (on: boolean) => `rounded-md px-3 py-1.5 text-sm font-semibold ${on ? "bg-mx-primary/10 text-mx-primary" : "text-mx-muted"}`;
 
   return (
     <div className="mx-auto max-w-6xl">
-      <PageHero badge="🏢 STEP 6 · 실거래 목록" title="실거래 목록" description="실거래 지역의 상가·건물·토지 실거래입니다. 계약 후 신고까지 시간이 걸려 최근 거래는 늦게 들어올 수 있습니다." tip={`조건에 맞는 거래 ${total.toLocaleString("ko-KR")}건`} />
+      <PageHero badge="🏢 STEP 5 · 실거래 내역" title="실거래 내역" description="실거래 지역의 상가·건물·토지 실거래입니다. 계약 후 신고까지 시간이 걸려 최근 거래는 늦게 들어올 수 있습니다." tip={`조건에 맞는 거래 ${total.toLocaleString("ko-KR")}건`} />
+      <div className="mt-4">
+        <KpiGrid>
+          <KpiCard icon="🏢" label="전체 실거래" value={`${total.toLocaleString("ko-KR")}건`} />
+          <KpiCard icon="📊" label="평균 금액" value={formatManwon(avgAmount)} tone="green" />
+          <KpiCard icon="🏆" label="최고 금액" value={formatManwon(amounts.length ? Math.max(...amounts) : null)} tone="amber" />
+          <KpiCard icon="📐" label="평당가 중간값" value={formatManwon(median(pyeongs))} tone="muted" hint={total > STATS_LIMIT ? `정렬 기준 앞 ${STATS_LIMIT.toLocaleString("ko-KR")}건 기준` : undefined} />
+        </KpiGrid>
+      </div>
       <form className="mx-card my-4 grid gap-2 p-4 sm:grid-cols-2 lg:grid-cols-6" method="get">
         <select name="kind" defaultValue={filter.kind} aria-label="종류" className="mx-input min-h-[40px] py-2 text-sm">
           <option value="">상가·건물 + 토지</option>
@@ -100,13 +131,18 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
           <option value="">내 조건만</option>
           <option value="0">전체 (취소·지분 포함)</option>
         </select>
-        <div className="flex flex-wrap gap-2 sm:col-span-2 lg:col-span-6">
+        {view === "grid" && <input type="hidden" name="view" value="grid" />}
+        <div className="flex flex-wrap items-center gap-2 sm:col-span-2 lg:col-span-6">
           <button type="submit" className="mx-btn-primary min-h-[40px] text-sm">
             적용
           </button>
           <a href={`/api/export?${params}`} className="mx-btn-ghost min-h-[40px] text-sm">
-            CSV 내려받기
+            📥 CSV 내려받기
           </a>
+          <div className="ml-auto flex rounded-lg border border-mx-border p-0.5">
+            <Link href={viewLink("table")} aria-current={view === "table" ? "true" : undefined} className={toggle(view === "table")}>☰ 표</Link>
+            <Link href={viewLink("grid")} aria-current={view === "grid" ? "true" : undefined} className={toggle(view === "grid")}>▦ 카드</Link>
+          </div>
         </div>
       </form>
 
@@ -115,7 +151,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
         <p className="mx-card text-sm text-mx-muted">
           아직 고른 지역이 없습니다.{" "}
           <Link href="/districts" className="text-mx-link underline">
-            실거래 지역 고르기
+            실거래 지역 설정
           </Link>
         </p>
       )}
@@ -123,7 +159,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
 
       {rows.length > 0 && (
         <>
-          <div className="mx-card hidden overflow-x-auto p-0 md:block">
+          <div className={`mx-card hidden overflow-x-auto p-0 ${view === "table" ? "md:block" : ""}`}>
             <table className="mx-table min-w-[820px]">
               <thead>
                 <tr>
@@ -157,7 +193,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
               </tbody>
             </table>
           </div>
-          <div className="space-y-2 md:hidden">
+          <div className={view === "grid" ? "grid gap-2 md:grid-cols-2 lg:grid-cols-3" : "space-y-2 md:hidden"}>
             {rows.map((t) => (
               <Link key={t.id} href={`/trades/${t.id}`} className="mx-card block p-4">
                 <p className="font-semibold text-mx-text">
