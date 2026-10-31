@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.16 연동 화면 재구성(운영 배포)
+- 한 일: `/connect`를 부동산 설정 화면과 같은 표 구조로 변경, 플랫폼 발급 버튼·매뉴얼 박스, 메일 Resend, 카카오 나에게 보내기(SMTP·SOLAPI 제거), 운영 DB `platform_guides` 매뉴얼 3건 추가.
+- 커밋 `71c8571a5`·`ed5e72204`, 빌드 1회(승인), DB 버전 v1.16. 시험 122개·tsc·빌드 통과. 크롬에서 표·버튼·펼침 확인, 쿠팡 쓰기 0회.
+- 못 한 것: 카카오·Resend 실제 발송, 카카오 새 연결, 매뉴얼 팝업, 좁은 화면, 30일 정리 실제 삭제.
+- 다음 첫 단계: 주인님이 카카오 Redirect URI를 추가하면 연결·시험 메시지 확인. 상세 `coupang-ops/AGENTS.md` 맨 아래.
+- https://coupang-ops.buylife.xyz/connect
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.15 AI 엔진 3가지·설정 화면 재구성
 - OpenAI·Claude·Gemini 선택과 모델 고르기(선택은 확장 저장소, DB 변경 없음), 설정 화면을 부동산과 같은 단계별 표로. 남은 일: 엔진 3가지 실제 호출 확인, PC별 연결 끊기.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/settings
