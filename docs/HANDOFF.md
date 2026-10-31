@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar — `music-video-studio` 문구·동작 대조 수정(미배포)
+- 한 일: 비용·곡 단계·매뉴얼 문구를 실제 동작에 맞춤. 커밋 `30a53cbc2`. 시험 33개·`tsc` 통과, 화면 미확인.
+- 배포: 미배포 대기(문구 수정). 다음 배포 때 v1.27.
+- 주의: `music-video-studio/src/components/edit/Composition.tsx`에 다른 세션 미커밋 변경이 있고 `@/lib/edit/renderTrace` 파일이 저장소에 없다. CLI 배포는 작업 폴더를 올리므로 그대로 배포하면 빌드가 실패할 수 있다. 배포 전 담당 세션과 확인한다.
+- 남은 일: 설정 화면의 암호화 문구가 다른 프로그램에도 있는지 미점검.
+- 링크: https://music-video-studio.buylife.xyz
+
 ## 2026-10-31 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar — 프리미엄 등급 전환 함수 수정·시험 계정 권한 복구(운영 DB ref esgxyikcnnvmlhygjkth)
 - 한 일: 0049 적용(주인님 승인, 크롬 SQL 편집기). `buylifemall@naver.com`의 `ai-work-workspace` 권한을 2027-10-29까지 복구.
 - 확인: 자동 롤백 시험 통과, DB 값 대조, 시험 계정으로 프로그램 화면 열림. 빌드·배포 없음.
