@@ -230,6 +230,12 @@ describe('summary', () => {
     expect(await status(() => call(ids.viewer, 'meetingSummarize', { blockId: ids.m }))).toBe(403);
   });
 
+  it('meetingRefresh: readers get the block, outsiders do not', async () => {
+    const r = await call(ids.viewer, 'meetingRefresh', { blockId: ids.m });
+    expect(r.recordMap.block[ids.m]).toBeTruthy();
+    expect(await status(() => call(ids.outsider, 'meetingRefresh', { blockId: ids.m }))).toBe(404);
+  });
+
   it('custom instructions: create, use, default, unreadable → Auto', async () => {
     const c = await call(ids.editor, 'meetingCreateInstructions', { spaceId: ids.space });
     expect(rec(c.pageId).format.meeting_instruction).toBe(true);

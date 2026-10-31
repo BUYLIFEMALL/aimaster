@@ -151,6 +151,14 @@ export const handlers: Record<string, Handler> = {
     return { recordMap: blockMap(uid, b.id) };
   },
 
+  /** 이식판: 실시간 소켓이 꺼져 있어(web/lib/store/sync.ts) 요약 중인 화면이 이 명령으로 결과를 다시 읽는다. */
+  meetingRefresh(ctx, { blockId }) {
+    const uid = requireUser(ctx);
+    const b = wrap(() => meetingBlock(blockId));
+    if (blockRole(b.id, uid) === 'none') throw new ApiError('Not found', 404);
+    return { recordMap: blockMap(uid, b.id) };
+  },
+
   /** "Retry summary" (and summarizing with other instructions). */
   async meetingSummarize(ctx, { blockId, instructions }) {
     const uid = requireUser(ctx);

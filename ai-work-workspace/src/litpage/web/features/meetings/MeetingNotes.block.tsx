@@ -240,6 +240,27 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
   const paused = live.status === 'paused' || (st.state === 'paused') || mineElsewhere;
   const busy = live.status === 'starting' || live.status === 'stopping' || live.status === 'pausing';
   const summarizing = st.state === 'summarizing';
+  // 이식판: 실시간 소켓이 꺼져 있어 요약 완료를 받지 못한다 → 요약 중에는 상태를 다시 읽는다(서버 함수 한도 300초 + 여유)
+  useEffect(() => {
+    if (!summarizing) return undefined;
+    const deadline = Date.now() + 6 * 60_000;
+    let timer: ReturnType<typeof setTimeout>;
+    let stopped = false;
+    const poll = async () => {
+      try {
+        const r = await api<{ recordMap?: any }>('meetingRefresh', { blockId: block.id });
+        if (!stopped && r.recordMap) records.mergeRecordMap(r.recordMap);
+      } catch {
+        /* 일시적 실패: 다음 차례에 다시 읽는다 */
+      }
+      if (!stopped && Date.now() < deadline) timer = setTimeout(() => void poll(), 3000);
+    };
+    timer = setTimeout(() => void poll(), 3000);
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
+  }, [summarizing, block.id]);
   const startedBefore = (st.elapsed_ms ?? 0) > 0 || lineCount > 0;
 
   let disabledReason: string | undefined;
