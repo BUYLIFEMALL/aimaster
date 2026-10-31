@@ -36,7 +36,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 단점: 회원이 Fixie 가입과 WING IP 등록을 해야 한다. 쓰기 기능 대부분이 실제 건 시험 전이다. 이미지·옵션 구성 수정은 WING에서 해야 한다.
 
 ## 4. 버전·이력
-운영 v1.14(2026-10-31). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
+운영 v1.15(2026-10-31). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
 
 ## 5. 남은 일
 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) · [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md). 배포 절차와 주의는 맨 아래 v1.12 항목.
@@ -242,3 +242,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 2026-10-31 — v1.14 배포
 - 가격 제안 `3edea4937` 배포. 크롬: 옵션 표에 칸 표시, 빈 값 안내 확인. 계산 성공은 시험으로만 확인했다(화면에서 계산하면 입력한 원가·수수료율이 회원 설정에 저장되어 시험 값을 넣지 않았다).
 - 30일 정리 암호(`CRON_SECRET`, Vercel Production, 이름은 Vercel 고정)는 주인님이 등록. 값 없음·틀린 값은 401 확인. 실제 삭제는 매일 03:30(한국) 실행 뒤 Vercel 로그로 확인이 남았다. 회원 값이 아니다.
+
+## 2026-10-31 — v1.15 연동 칸 통합(운영 배포)
+- 주인님 지시로 텔레그램·이메일·카카오톡·cron-job.org 키 칸을 `/connect` 5~8번(`AlertKeysPanel`)으로 옮겼다. `/alerts`(`DailyAlertPanel`)는 켜기·끄기, 받을 곳, 시각만 둔다. 새 연동값은 `/connect`에 모은다.
