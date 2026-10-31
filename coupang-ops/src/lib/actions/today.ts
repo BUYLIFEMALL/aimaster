@@ -3,6 +3,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
+import { callBudgetBlock } from "@/lib/coupang/usage";
 import { takeReadSlot } from "@/lib/readGap";
 import { TODAY_READ_GAP_SECONDS } from "@/lib/readGapRule";
 import { normalizeOrderSheets, ordersPath, ordersQuery } from "@/lib/coupang/orders";
@@ -21,6 +22,8 @@ export async function todaySummaryAction(): Promise<TodayResult> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  const blocked = await callBudgetBlock(user.id);
+  if (blocked) return { ok: false, error: blocked };
   const wait = await takeReadSlot(user.id, "coupang_today_read", TODAY_READ_GAP_SECONDS);
   if (wait > 0) return { ok: false, error: `조금 전에 불러왔습니다. ${wait}초 뒤에 다시 눌러 주세요.` };
   const from = kstDay(30);

@@ -6,6 +6,7 @@ import { getWingKeys } from "@/lib/data";
 import { TodayBoard } from "@/components/TodayBoard";
 import { RejectedBoard, type RejectedJob } from "@/components/RejectedBoard";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { usageCounts } from "@/lib/coupang/usage";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -13,6 +14,8 @@ export const fetchCache = "force-no-store";
 export default async function HomePage() {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
+  const usage = await usageCounts(user.id).catch(() => null);
+  const { data: profile } = await createAdminClient().from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
   const { data: rejected } = await createAdminClient().from("coupang_ops_jobs").select("id,product_id,product_name,seller_product_id,message").eq("user_id", user.id).eq("status", "rejected").order("created_at", { ascending: false }).limit(10);
 
   return (
@@ -25,6 +28,13 @@ export default async function HomePage() {
       </Notice>
 
       <TodayBoard keysSaved={!!keys} />
+
+      {usage && (
+        <p className="px-1 text-[12px] text-slate-500">
+          오늘 쿠팡 호출 {usage.today} / {usage.dailyLimit}회 · 상한에 닿으면 점검·목록 조회만 쉬고 주문·송장 처리는 계속됩니다.
+          {profile?.is_admin ? ` 관리자: 이번 달 전체 ${usage.month} / ${usage.monthlyLimit}회(토스 연동 제외).` : ""}
+        </p>
+      )}
 
       <RejectedBoard jobs={(rejected ?? []) as RejectedJob[]} keysSaved={!!keys} />
 

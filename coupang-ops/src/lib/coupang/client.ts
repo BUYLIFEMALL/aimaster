@@ -2,6 +2,7 @@ import "server-only";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 import type { WingKeys } from "@/lib/coupang/keys";
 import { buildWingAuthorization, type WingMethod as Method } from "@/lib/coupang/sign";
+import { recordWingCalls } from "@/lib/coupang/usage";
 
 // 쿠팡 WING Open API 호출 컴포넌트(C1-3).
 // - 서명: HMAC-SHA256 「CEA」 방식. 서명 규칙은 쿠팡 파트너스와 같고, 실계정으로 확인된
@@ -64,15 +65,17 @@ export type WingResponse<T> = { data: T; status: number; warnings: string | null
  * 회원 본인 키만 받는다(호출부가 getWingKeys로 본인 키를 넘김).
  */
 export async function wingRequest<T = unknown>(
-  keys: WingKeys,
+  keys: WingKeys & { userId?: string },
   method: Method,
   path: string,
   options: { query?: string | URLSearchParams; body?: unknown } = {},
 ): Promise<WingResponse<T>> {
   const query = options.query ? String(options.query).replace(/^\?/, "") : "";
   const url = `${WING_HOST}${path}${query ? `?${query}` : ""}`;
-  const send = () =>
-    undiciFetch(url, {
+  let calls = 0;
+  const send = () => {
+    calls++;
+    return undiciFetch(url, {
       method,
       headers: {
         Authorization: buildWingAuthorization(method, path, query, keys),
@@ -83,20 +86,25 @@ export async function wingRequest<T = unknown>(
       dispatcher: dispatcher(),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
+  };
 
-  let response = await send();
-  if (response.status === 429 && method === "GET") {
-    await new Promise((r) => setTimeout(r, 3_000));
-    response = await send();
-  }
-  const text = await response.text();
-  const warnings = response.headers.get("x-cag-warnings");
-  if (!response.ok) throw new WingApiError(wingErrorMessage(response.status, text), response.status, text);
-  let data: unknown = text;
   try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    /* JSON이 아니면 글자 그대로 */
+    let response = await send();
+    if (response.status === 429 && method === "GET") {
+      await new Promise((r) => setTimeout(r, 3_000));
+      response = await send();
+    }
+    const text = await response.text();
+    const warnings = response.headers.get("x-cag-warnings");
+    if (!response.ok) throw new WingApiError(wingErrorMessage(response.status, text), response.status, text);
+    let data: unknown = text;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      /* JSON이 아니면 글자 그대로 */
+    }
+    return { data: data as T, status: response.status, warnings };
+  } finally {
+    if (keys.userId) await recordWingCalls(keys.userId, calls).catch(() => {});
   }
-  return { data: data as T, status: response.status, warnings };
 }

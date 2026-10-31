@@ -42,6 +42,10 @@ export type StatusSummary = { statusName: string; jobStatus: JobStatus | null; m
 /** 쿠팡에서 지운 기록의 문구 머리말 — 기록 표 상태에 「삭제」가 없어 문구로 구분한다(이 기록은 다시 보내기를 막지 않는다) */
 export const DELETED_PREFIX = "쿠팡에서 삭제함";
 
+/** 승인 요청(명세 /ko/api/products/request-for-product-approval, 2026-10-31 확인). 본문은 임시저장만, 오류 설명은 승인완료 등도 가능으로 달라 수정 없이 의미 있는 두 상태만 연다 */
+export const approvalPath = (sellerProductId: number) => `/v2/providers/seller_api/apis/api/v1/marketplace/seller-products/${sellerProductId}/approvals`;
+export const APPROVABLE_STATUS = ["임시저장", "승인반려"];
+
 /** B3 「등록 상태 다시 확인」 대상 — 결과를 아직 모르는 기록. 1건당 쿠팡 2회라 최근 5건만 */
 export const RECHECK_STATUSES = ["saved", "requested"];
 export const RECHECK_LIMIT = 5;

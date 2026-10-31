@@ -8,7 +8,7 @@ import { gapLeftSeconds } from "@/lib/readGapRule";
 // 기록은 공용 usage_logs(회원별, 서버 키로만 쓰기)에 남기고 마지막 기록 시각과 비교한다 — 새 표 없음. 주문 내용은 남기지 않는다.
 
 let programId: string | null = null;
-async function thisProgramId(admin: ReturnType<typeof createAdminClient>): Promise<string | null> {
+export async function thisProgramId(admin: ReturnType<typeof createAdminClient>): Promise<string | null> {
   if (programId) return programId;
   const { data } = await admin.from("programs").select("id").eq("slug", THIS_PROGRAM_SLUG).maybeSingle();
   programId = (data?.id as string | undefined) ?? null;

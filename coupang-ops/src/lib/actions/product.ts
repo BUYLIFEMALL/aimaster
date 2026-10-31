@@ -8,7 +8,8 @@ import { PREDICT_PATH, fillNotices, metaPath, metaWarnings, normalizeMeta, norma
 import { buildCreateBody, checkDraft, type CoupangOption } from "@/lib/coupang/product";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createImageLinks } from "@/lib/imageLinks";
-import { DELETABLE_STATUS, DELETED_PREFIX, historyPath, normalizeHistory, productPath, summarizeStatus, type HistoryEntry } from "@/lib/coupang/status";
+import { BRAND_SEARCH_PATH, brandSearchBody, brandWarnings } from "@/lib/coupang/brand";
+import { APPROVABLE_STATUS, approvalPath, DELETABLE_STATUS, DELETED_PREFIX, historyPath, normalizeHistory, productPath, summarizeStatus, type HistoryEntry } from "@/lib/coupang/status";
 import { checkShopImages } from "@/lib/shopImageCheck";
 
 export type CategoryLoad = { ok: true; code: number; name: string; meta: CategoryMeta } | { ok: false; error: string };
@@ -83,6 +84,14 @@ export async function checkProductDraftAction(productId: string, input: DraftInp
       if (meta.notices.length && !fillNotices(meta, input.noticeCategory).length) warnings.push("상품정보제공고시 상품군을 골라 주세요.");
     } catch (e) {
       warnings.push(`카테고리 정보를 다시 읽지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}`);
+    }
+  }
+  const brand = input.brand.trim();
+  if (keys && brand && brand.toUpperCase() !== "GENERIC") {
+    try {
+      warnings.push(...brandWarnings((await wingRequest(keys, "POST", BRAND_SEARCH_PATH, { body: brandSearchBody(brand) })).data, brand));
+    } catch (e) {
+      warnings.push(`브랜드를 확인하지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}`);
     }
   }
   return { problems, warnings, images: { main: Boolean(shop.mainImage), extras: imageCheck.usableExtras.length, contents: shop.sectionImages.length } };
@@ -182,6 +191,28 @@ export async function refreshJobStatusAction(jobId: string): Promise<{ ok: true;
     return { ok: true, statusName: s.statusName, message: s.message };
   } catch (e) {
     return { ok: false, error: `쿠팡 상태를 읽지 못했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
+  }
+}
+
+/** 임시저장·반려 상품의 판매 승인을 요청한다. 직전 상태를 다시 읽고, 재시도하지 않는다. 통과하면 실제 판매될 수 있어 화면에서 2단 확인을 거친다 */
+export async function requestApprovalAction(jobId: string): Promise<{ ok: true; message: string } | { ok: false; error: string }> {
+  const user = await requireProgramAccess();
+  const keys = await getWingKeys(user.id);
+  if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  const admin = createAdminClient();
+  const { data: job } = await admin.from("coupang_ops_jobs").select("id,seller_product_id").eq("id", jobId).eq("user_id", user.id).maybeSingle();
+  if (!job?.seller_product_id) return { ok: false, error: "쿠팡 상품번호가 있는 기록만 승인 요청할 수 있습니다." };
+  const id = Number(job.seller_product_id);
+  try {
+    const current = summarizeStatus((await wingRequest(keys, "GET", productPath(id))).data, []);
+    if (!APPROVABLE_STATUS.includes(current.statusName)) return { ok: false, error: `지금 쿠팡 상태가 「${current.statusName || "알 수 없음"}」이라 요청하지 않았습니다. 임시저장·승인반려 상태만 요청합니다.` };
+    const r = await wingRequest<{ message?: unknown }>(keys, "PUT", approvalPath(id));
+    const message = String(r.data?.message || "승인을 요청했습니다.");
+    await admin.from("coupang_ops_jobs").update({ status: "requested", requested: true, message, updated_at: new Date().toISOString() }).eq("id", job.id).eq("user_id", user.id);
+    return { ok: true, message };
+  } catch (e) {
+    if (e instanceof WingApiError && e.status >= 400 && e.status < 500) return { ok: false, error: `승인 요청이 거절되었습니다: ${e.message}` };
+    return { ok: false, error: "쿠팡 응답을 받지 못했습니다. 이미 요청됐을 수 있으니 「쿠팡 상태 확인」으로 먼저 확인해 주세요." };
   }
 }
 

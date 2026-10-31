@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { checkProductDraftAction, deleteJobProductAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
+import { checkProductDraftAction, deleteJobProductAction, listJobsAction, loadCategoryAction, refreshJobStatusAction, requestApprovalAction, sendProductAction, type DraftCheck, type DraftInput, type JobRow, type SendResult } from "@/lib/actions/product";
 
 const JOB_LABEL: Record<string, string> = { sending: "⏳ 보내는 중", saved: "✅ 쿠팡에 저장됨", requested: "📨 승인 요청", approved: "🟢 승인", rejected: "⛔ 반려", failed: "❌ 실패", unknown: "❓ 확인 필요" };
 import type { CategoryMeta } from "@/lib/coupang/category";
@@ -72,6 +72,20 @@ export function ProductForm(props: {
       setJobs(await listJobsAction(props.productId));
     } finally {
       setConfirmDelete(null);
+      setRefreshing(null);
+    }
+  };
+
+  const [confirmApprove, setConfirmApprove] = useState<string | null>(null);
+  const approveJob = async (jobId: string) => {
+    setRefreshing(jobId);
+    setRefreshError("");
+    try {
+      const r = await requestApprovalAction(jobId);
+      if (!r.ok) setRefreshError(r.error);
+      setJobs(await listJobsAction(props.productId));
+    } finally {
+      setConfirmApprove(null);
       setRefreshing(null);
     }
   };
@@ -265,7 +279,7 @@ export function ProductForm(props: {
       {cat && (
         <section className="slw-card space-y-3 p-5">
           <h2 className="text-base font-extrabold text-slate-900">5. 쿠팡에 저장만 보내기</h2>
-          <p className="text-sm text-slate-600">쿠팡 WING에 상품을 <b>저장만</b> 합니다(승인 요청은 보내지 않음). 쿠팡이 저장 직후 자동 점검해 바로 <b>「승인반려」</b>로 바꿀 수 있으니, 잠시 뒤 「쿠팡 상태 확인」으로 결과를 봐 주세요. 같은 상품은 한 번만 보낼 수 있고, 반려된 건은 쿠팡에서 지운 뒤 다시 보냅니다.</p>
+          <p className="text-sm text-slate-600">쿠팡 WING에 상품을 <b>저장만</b> 합니다(승인 요청은 보내지 않음). 쿠팡이 저장 직후 자동 점검해 바로 <b>「승인반려」</b>로 바꿀 수 있으니, 잠시 뒤 「쿠팡 상태 확인」으로 결과를 봐 주세요. 임시저장으로 남으면 아래 기록의 「판매 승인 요청」으로 심사를 요청합니다. 같은 상품은 한 번만 보낼 수 있고, 반려된 건은 쿠팡에서 지운 뒤 다시 보냅니다.</p>
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input type="checkbox" checked={confirmSend} onChange={(e) => setConfirmSend(e.target.checked)} disabled={!checkPassed} />
             위 내용을 확인했습니다{!checkPassed ? " (먼저 「검사하기」를 통과해 주세요)" : ""}
@@ -297,6 +311,17 @@ export function ProductForm(props: {
                         {refreshing === j.id ? "확인 중…" : "쿠팡 상태 확인"}
                       </button>
                     ) : null}
+                    {j.seller_product_id && (j.status === "rejected" || j.status === "saved") && !j.message?.startsWith(DELETED_PREFIX) ? (
+                      <button
+                        type="button"
+                        disabled={refreshing === j.id}
+                        onClick={() => (confirmApprove === j.id ? approveJob(j.id) : setConfirmApprove(j.id))}
+                        className="ml-2 rounded border border-rose-600 bg-rose-700 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-rose-800 disabled:opacity-50"
+                      >
+                        {confirmApprove === j.id ? "네, 판매 승인 요청" : "판매 승인 요청"}
+                      </button>
+                    ) : null}
+                    {confirmApprove === j.id && <span className="ml-2 text-[11px] font-bold text-amber-800">⚠ 쿠팡 심사를 통과하면 이 가격·재고로 실제 판매될 수 있습니다.</span>}
                     {j.seller_product_id && (j.status === "rejected" || j.status === "saved") && !j.message?.startsWith(DELETED_PREFIX) ? (
                       <button
                         type="button"

@@ -7,6 +7,7 @@ import { inventoryPath, normalizeInventory, normalizeProductItems } from "@/lib/
 import { LIST_PATH, listQuery, normalizeProductList } from "@/lib/coupang/listing";
 import { productPath } from "@/lib/coupang/status";
 import { isCheckableStatus, pickOptions, STOCK_MAX_OPTIONS, STOCK_PAGE_SIZE, STOCK_READ_GAP_SECONDS } from "@/lib/coupang/stock";
+import { callBudgetBlock } from "@/lib/coupang/usage";
 import { takeReadSlot } from "@/lib/readGap";
 
 export type StockRow = { sellerProductId: number; productName: string; vendorItemId: number; itemName: string; stock: number; salePrice: number; onSale: boolean };
@@ -26,6 +27,8 @@ export async function scanStockAction(nextToken?: string): Promise<StockScan> {
   const user = await requireProgramAccess();
   const keys = await getWingKeys(user.id);
   if (!keys) return { ok: false, error: "먼저 「쿠팡 연결」에서 키를 등록해 주세요." };
+  const blocked = await callBudgetBlock(user.id);
+  if (blocked) return { ok: false, error: blocked };
   if (!nextToken) {
     const wait = await takeReadSlot(user.id, "coupang_stock_read", STOCK_READ_GAP_SECONDS);
     if (wait > 0) return { ok: false, error: `조금 전에 점검했습니다. ${wait}초 뒤에 다시 눌러 주세요.` };
