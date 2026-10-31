@@ -12,8 +12,6 @@ export const ALERT_CHANNELS = ["telegram", "email", "kakao"] as const;
 export type AlertChannel = (typeof ALERT_CHANNELS)[number];
 export const CHANNEL_LABEL: Record<AlertChannel, string> = { telegram: "텔레그램", email: "이메일", kakao: "카카오톡" };
 export const cleanChannels = (raw: unknown): AlertChannel[] => ALERT_CHANNELS.filter((c) => Array.isArray(raw) && raw.includes(c));
-const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-export const summaryHtml = (text: string) => `<div style="font-family:sans-serif;font-size:14px;line-height:1.7">${text.split("\n").map(escapeHtml).join("<br>")}</div>`;
 
 export const CLEANUP_DAYS = 30;
 export const cleanupBefore = (nowMs: number) => new Date(nowMs - CLEANUP_DAYS * 86_400_000).toISOString();

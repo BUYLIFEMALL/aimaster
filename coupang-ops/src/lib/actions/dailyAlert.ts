@@ -6,6 +6,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { stopDailyJob, upsertDailyJob } from "@/lib/alerts/cronJob";
 import { channelProblem, deliver, loadTargets } from "@/lib/alerts/deliver";
+import { normalizePrefs } from "@/lib/coupang/prefs";
 import { ALERT_CHANNELS, CHANNEL_LABEL, cleanChannels, cleanHour, SITE_ORIGIN, SUMMARY_PATH, TOKEN_PREFIX, type AlertChannel } from "@/lib/coupang/summary";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -54,18 +55,23 @@ export async function testChannelAction(channel: AlertChannel): Promise<Done> {
   return result.endsWith("보냄") ? { ok: true, message: result } : { ok: false, error: `${result}: 계정 정보를 확인해 주세요.` };
 }
 
-export async function saveSmtpAction(input: { host: string; port: number; user: string; password: string; fromName: string }): Promise<Done> {
+export async function saveResendKeyAction(input: { apiKey: string; emailTo: string }): Promise<Done> {
   const user = await requireProgramAccess();
-  const host = String(input.host ?? "").trim();
-  const smtpUser = String(input.user ?? "").trim();
-  const password = String(input.password ?? "").trim();
-  if (!host || !smtpUser || !password) return { ok: false, error: "SMTP 주소·로그인 계정·앱 비밀번호를 넣어 주세요." };
+  const key = String(input.apiKey ?? "").trim();
+  const emailTo = String(input.emailTo ?? "").trim();
+  if (key && !/^re_[A-Za-z0-9_]{10,}$/.test(key)) return { ok: false, error: "Resend 키는 re_로 시작합니다. Resend의 API Keys 화면에서 다시 복사해 주세요." };
+  if (emailTo && (emailTo.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailTo))) return { ok: false, error: "받는 메일 주소를 확인해 주세요." };
   const supabase = await createClient();
-  const { error } = await supabase.from("user_smtp_accounts").insert({ user_id: user.id, label: "쿠팡 운영 알림", smtp_host: host, smtp_port: Number(input.port) || 587, smtp_user: smtpUser, smtp_password: password, from_name: String(input.fromName ?? "").trim() || null });
-  if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  if (key) {
+    const { error } = await supabase.from("user_api_keys").upsert({ user_id: user.id, provider: "resend_api_key", api_key: key }, { onConflict: "user_id,provider" });
+    if (error) return { ok: false, error: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  }
+  const { data } = await supabase.from("coupang_ops_prefs").select("data").eq("user_id", user.id).maybeSingle();
+  const { error } = await supabase.from("coupang_ops_prefs").upsert({ user_id: user.id, data: { ...normalizePrefs(data?.data), alertEmailTo: emailTo }, updated_at: new Date().toISOString() });
+  if (error) return { ok: false, error: "받는 주소를 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
   revalidatePath("/alerts");
   revalidatePath("/connect");
-  return { ok: true, message: "저장했습니다. 다른 프로그램에서도 같은 계정을 씁니다." };
+  return { ok: true, message: "저장했습니다. 시험 메일로 확인해 주세요." };
 }
 
 export async function saveSolapiAction(input: { apiKey: string; apiSecret: string; senderPhone: string; pfId: string }): Promise<Done> {
@@ -134,7 +140,7 @@ export async function disableDailyAlertAction(): Promise<Done> {
   }
 }
 
-export type AlertStatus = { enabled: boolean; hour: number; channels: AlertChannel[]; ready: Record<AlertChannel, boolean>; lastRunDate: string; lastResult: string; telegram: string; smtpUser: string; email: string; phoneMasked: string; cronKeySaved: boolean; wingKeysSaved: boolean };
+export type AlertStatus = { resendKeySaved: boolean; emailTo: string; enabled: boolean; hour: number; channels: AlertChannel[]; ready: Record<AlertChannel, boolean>; lastRunDate: string; lastResult: string; telegram: string; phoneMasked: string; cronKeySaved: boolean; wingKeysSaved: boolean };
 
 export async function alertStatus(userId: string): Promise<AlertStatus> {
   const [row, t, key, keys] = await Promise.all([
@@ -144,5 +150,5 @@ export async function alertStatus(userId: string): Promise<AlertStatus> {
     getWingKeys(userId),
   ]);
   const ready = Object.fromEntries(ALERT_CHANNELS.map((c) => [c, !channelProblem(c, t)])) as Record<AlertChannel, boolean>;
-  return { enabled: !!row?.enabled, hour: row?.hour ?? 8, channels: row ? cleanChannels(row.channels) : ["telegram"], ready, lastRunDate: row?.last_run_date ?? "", lastResult: row?.last_result ?? "", telegram: t.telegram ? t.telegram.bot_username || "연결됨" : "", smtpUser: t.smtp?.smtp_user ?? "", email: t.email, phoneMasked: t.phone ? `끝자리 ${t.phone.replace(/\D/g, "").slice(-4)}` : "", cronKeySaved: !!key, wingKeysSaved: !!keys };
+  return { resendKeySaved: !!t.resendKey, emailTo: t.email, enabled: !!row?.enabled, hour: row?.hour ?? 8, channels: row ? cleanChannels(row.channels) : ["telegram"], ready, lastRunDate: row?.last_run_date ?? "", lastResult: row?.last_result ?? "", telegram: t.telegram ? t.telegram.bot_username || "연결됨" : "", phoneMasked: t.phone ? `끝자리 ${t.phone.replace(/\D/g, "").slice(-4)}` : "", cronKeySaved: !!key, wingKeysSaved: !!keys };
 }

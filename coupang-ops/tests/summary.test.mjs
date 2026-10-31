@@ -1,7 +1,7 @@
 // 아침 요약·정리 규칙·AI 추천 정리(외부 호출 없음)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cleanChannels, cleanHour, cleanupBefore, kstDate, summaryHtml, summaryMessage } from "../src/lib/coupang/summary.ts";
+import { cleanChannels, cleanHour, cleanupBefore, kstDate, summaryMessage } from "../src/lib/coupang/summary.ts";
 import { cleanSuggestion } from "../src/lib/coupang/suggest.ts";
 import { AI_MODEL_OPTIONS, AI_PROVIDERS, DEFAULT_AI_MODELS, missingKeyMessage, providerOfModel } from "../src/lib/ai/models.ts";
 
@@ -30,7 +30,6 @@ test("AI 모델 선택", () => {
 test("받을 곳과 메일 본문", () => {
   assert.deepEqual(cleanChannels(["kakao", "x", "telegram"]), ["telegram", "kakao"]);
   assert.deepEqual(cleanChannels(null), []);
-  assert.equal(summaryHtml("<b>\n둘").includes("&lt;b&gt;<br>둘"), true);
 });
 
 test("시각·날짜·정리 기준", () => {

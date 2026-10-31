@@ -12,7 +12,17 @@ import { WING_FIELDS, WING_LABELS } from "@/lib/coupang/keys";
 import { KeyRound, Shield, PlugZap, Bot, ExternalLink } from "lucide-react";
 
 import { AlertKeysPanel } from "@/components/AlertKeysPanel";
+import { ConsoleLink, GuideLinkButton, IssueLink } from "@/components/PlatformLinks";
 import { alertStatus } from "@/lib/actions/dailyAlert";
+
+// platform_guides.id — 이 프로그램이 쓰는 플랫폼의 공개 매뉴얼(지침 CLAUDE.md 「API키등록·플랫폼연동 페이지 표준」)
+const GUIDE_LINKS = [
+  { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Claude API 키 발급받기" },
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Gemini API 키 발급받기" },
+  { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
+  { guideId: "eb8f5eaf-6ef7-46b8-9b05-994e944fe69a", label: "SOLAPI 키 발급받기" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +54,7 @@ export default async function ConnectPage() {
               <KeyRound size={15} />
             </span>
             <h2 className="text-base font-extrabold text-slate-900">1. 쿠팡 WING Open API 키</h2>
+            <div className="ml-auto flex flex-wrap items-center gap-1.5"><IssueLink href="https://wing.coupang.com" label="WING에서 발급" /></div>
           </div>
           <span
             className={`rounded-full px-3 py-1 text-[11px] font-bold ${
@@ -87,6 +98,7 @@ export default async function ConnectPage() {
             <Shield size={15} />
           </span>
           <h2 className="text-base font-extrabold text-slate-900">2. 내 고정 IP 프록시 연동 (Fixie)</h2>
+          <div className="ml-auto flex flex-wrap items-center gap-1.5"><IssueLink href="https://app.usefixie.com/" label="Fixie에서 발급" /><ConsoleLink href="https://usefixie.com/" label="가입" /></div>
         </div>
         <p className="text-sm text-slate-600 leading-relaxed">
           쿠팡 WING은 보안 정책상 WING에 사전 등록된 고정 IP에서의 요청만 허용합니다. Fixie 프록시 URL을 등록해 고정 IP 통신을 설정하세요.
@@ -148,6 +160,12 @@ export default async function ConnectPage() {
       </section>
 
       <AlertKeysPanel status={alerts} />
+
+      <section className="lab-card space-y-3 border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-base font-extrabold text-slate-900">📖 연동 매뉴얼</h2>
+        <p className="text-[13px] text-slate-600">누르면 작은 창으로 열립니다. 이 화면 옆에 두고 따라 하세요. 쿠팡 WING·Fixie는 <Link href="/guide" className="font-bold text-blue-700 underline">연동 &amp; 사용 매뉴얼</Link>에 있습니다.</p>
+        <div className="flex flex-wrap gap-2">{GUIDE_LINKS.map((g) => <GuideLinkButton key={g.guideId} guideId={g.guideId} label={g.label} />)}</div>
+      </section>
     </div>
   );
 }

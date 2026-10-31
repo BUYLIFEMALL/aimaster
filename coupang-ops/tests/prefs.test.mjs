@@ -63,3 +63,9 @@ test("플랫폼별 AI 모델 저장값 검사", async () => {
   assert.deepEqual(cleanAiModels({ anthropic: "claude-haiku-5-5", openai: "claude-opus-5-5", gemini: "없는모델", etc: "x" }), { anthropic: "claude-haiku-5-5" });
   assert.deepEqual(cleanAiModels(null), {});
 });
+
+test("받는 메일 주소 저장값", async () => {
+  const { normalizePrefs } = await import("../src/lib/coupang/prefs.ts");
+  assert.equal(normalizePrefs({ alertEmailTo: "a@b.com" }).alertEmailTo, "a@b.com");
+  assert.equal(normalizePrefs({}).alertEmailTo, "");
+});
