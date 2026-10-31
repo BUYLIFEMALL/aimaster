@@ -1,35 +1,34 @@
 @import "tailwindcss";
 
 /*
- * 스마트 매트릭스 스타일 (Smart Matrix Style) — 다크 차콜(슬레이트) + 모던 블루 & 앰버.
- * 루트 DESIGN.md 템플릿 4번. 토큰·부품은 ghost-scraper(Tailwind v4 이식본)와 같다. 설명: docs/DESIGN_HANDOFF.md
- * 옛 금색 테마 이름(gold·dark-*)은 남은 클래스가 밝게 보이지 않도록 아래에서 같은 다크 토큰으로 다시 연결했다.
+ * 부동산 시리즈(realty-listing-alert)와 같은 라이트 + 네이버 그린. 2026-10-31 주인님 지시로 다크에서 변경.
+ * 옛 이름(gold·dark-*)은 복사해 온 컴포넌트가 쓰므로 같은 값으로 연결한다.
  */
 @theme {
-  --color-mx-bg: #0f1115;
-  --color-mx-surface: #171a21;
-  --color-mx-raised: #1f2430;
-  --color-mx-border: #2a3040;
-  --color-mx-text: #e6e9ef;
-  --color-mx-muted: #8b93a7;
-  --color-mx-primary: #2563eb;
-  --color-mx-primary-strong: #1d4ed8;
-  --color-mx-link: #93c5fd;
-  --color-mx-accent: #f59e0b;
-  --color-mx-success: #10b981;
-  --color-mx-danger: #f43f5e;
+  --color-mx-bg: #f6f7f9;
+  --color-mx-surface: #ffffff;
+  --color-mx-raised: #f4f6f9;
+  --color-mx-border: #e2e6ee;
+  --color-mx-text: #0f172a;
+  --color-mx-muted: #5b6475;
+  --color-mx-primary: #009b4d;
+  --color-mx-primary-strong: #00803f;
+  --color-mx-link: #00803f;
+  --color-mx-accent: #b45309;
+  --color-mx-success: #00803f;
+  --color-mx-danger: #c0362c;
 
   /* 옛 이름 → 새 토큰 (v1.11) */
-  --color-gold: #2563eb;
-  --color-gold-light: #93c5fd;
-  --color-gold-dark: #1d4ed8;
-  --color-dark: #0f1115;
-  --color-dark-50: #171a21;
-  --color-dark-100: #1f2430;
-  --color-dark-200: #2a3040;
-  --background-image-gold-gradient: linear-gradient(135deg, #2563eb, #1d4ed8);
-  --background-image-dark-gradient: linear-gradient(180deg, #0f1115 0%, #0f1115 100%);
-  --font-sans: var(--font-geist-sans);
+  --color-gold: #009b4d;
+  --color-gold-light: #03c75a;
+  --color-gold-dark: #00803f;
+  --color-dark: #f6f7f9;
+  --color-dark-50: #ffffff;
+  --color-dark-100: #ffffff;
+  --color-dark-200: #eef1f5;
+  --background-image-gold-gradient: linear-gradient(180deg, #03c75a, #009b4d);
+  --background-image-dark-gradient: linear-gradient(180deg, #f6f7f9 0%, #f6f7f9 100%);
+  --font-sans: Arial, "Noto Sans KR", sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -37,24 +36,27 @@
   body {
     background-color: var(--color-mx-bg);
     color: var(--color-mx-text);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: Arial, "Noto Sans KR", sans-serif;
+    accent-color: #009b4d;
   }
 }
 
 @layer components {
   .mx-card {
-    border-radius: 1rem;
+    border-radius: 20px;
     border: 1px solid var(--color-mx-border);
     background: var(--color-mx-surface);
-    padding: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.04);
   }
   .mx-section-title {
     margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: 1.125rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
     color: var(--color-mx-text);
   }
   .mx-kpi {
@@ -134,16 +136,16 @@
     color: var(--color-mx-muted);
   }
   .mx-chip-blue {
-    background: rgb(30 58 138 / 0.6);
-    color: #bfdbfe;
+    background: #e8f8ef;
+    color: #00803f;
   }
   .mx-chip-amber {
-    background: rgb(120 53 15 / 0.6);
-    color: #fde68a;
+    background: #fff3e0;
+    color: #b45309;
   }
   .mx-chip-green {
-    background: rgb(6 78 59 / 0.6);
-    color: #a7f3d0;
+    background: #e8f8ef;
+    color: #00803f;
   }
 
   /* 입력창 */
@@ -151,7 +153,7 @@
     width: 100%;
     border-radius: 0.75rem;
     border: 1px solid var(--color-mx-border);
-    background: var(--color-mx-raised);
+    background: #fff;
     padding: 0.75rem 1rem;
     color: var(--color-mx-text);
   }
@@ -174,11 +176,10 @@
   .mx-table th {
     border-bottom: 1px solid var(--color-mx-border);
     padding: 0.625rem 0.75rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--color-mx-muted);
+    font-size: 0.8125rem;
+    font-weight: 800;
+    background: #f1faf5;
+    color: #1f2937;
   }
   .mx-table td {
     border-bottom: 1px solid var(--color-mx-border);
@@ -232,7 +233,7 @@
   background: var(--color-mx-muted);
 }
 
-/* 옛 공용 클래스 — 같은 다크 토큰으로 */
+/* 옛 공용 클래스 */
 .gold-text {
   color: var(--color-mx-link);
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
+import { BrandMark } from "@/components/ui/BrandMark";
 
 // 지역 → 조건 → 거래 확인 순서로 쓰는 프로그램이라 메뉴도 그 순서대로 둔다.
 const FLOW_STEPS = [
@@ -28,32 +29,31 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
         <Link
           href="/dashboard"
           className={`mb-3 flex min-h-[44px] items-center gap-2 rounded-lg px-3 text-sm font-bold ${
-            pathname?.startsWith("/dashboard") ? "bg-mx-raised text-mx-text" : "text-mx-muted hover:bg-mx-raised hover:text-mx-text"
+            pathname?.startsWith("/dashboard") ? "bg-[#e8f8ef] text-mx-link" : "text-[#475063] hover:bg-[#e8f8ef] hover:text-mx-link"
           }`}
         >
           🏠 대시보드
         </Link>
 
         <nav className="relative flex flex-col">
-          {FLOW_STEPS.map((item, idx) => {
+          {FLOW_STEPS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
-            const isLast = idx === FLOW_STEPS.length - 1;
-            return (
+                        return (
               <Link key={item.href} href={item.href} className="group relative flex gap-3 pb-1">
                 <div className="flex flex-col items-center">
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                       isActive
                         ? "bg-mx-primary text-white"
-                        : "border border-mx-border bg-mx-raised text-mx-muted group-hover:text-mx-text"
+                        : "bg-[#eef1f5] text-[#5b6475]"
                     }`}
                   >
                     {item.step}
                   </span>
-                  {!isLast && <span className="mt-1 w-px flex-1 bg-mx-border" />}
+                  
                 </div>
-                <div className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 ${isActive ? "bg-mx-raised" : "group-hover:bg-mx-raised"}`}>
-                  <p className={`text-sm font-bold ${isActive ? "text-[#93c5fd]" : "text-mx-text"}`}>
+                <div className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 ${isActive ? "bg-[#e8f8ef]" : "group-hover:bg-[#f4f6f9]"}`}>
+                  <p className={`text-sm font-bold ${isActive ? "text-mx-link" : "text-[#475063]"}`}>
                     {item.icon} {item.label}
                   </p>
                   <p className="text-xs text-mx-muted">{item.description}</p>
@@ -72,7 +72,7 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
                 key={item.href}
                 href={item.href}
                 className={`flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium ${
-                  isActive ? "bg-mx-raised text-[#93c5fd]" : "text-mx-muted hover:bg-mx-raised hover:text-mx-text"
+                  isActive ? "bg-[#e8f8ef] text-mx-link" : "text-[#475063] hover:bg-[#e8f8ef] hover:text-mx-link"
                 }`}
               >
                 {item.icon} {item.label}
@@ -82,12 +82,13 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
         </div>
       </div>
 
-      <div className="mt-3 shrink-0 border-t border-mx-border pt-3">
-        <p className="mb-1 truncate px-3 text-xs text-mx-muted">{userEmail}</p>
+      <div className="mt-3 shrink-0 rounded-2xl border border-mx-border bg-white p-3">
+        <p className="text-[11px] text-mx-muted">로그인 계정</p>
+        <p className="mb-2 truncate text-xs font-bold text-[#1f2937]">{userEmail}</p>
         <form action={signOutAction}>
           <button
             type="submit"
-            className="flex min-h-[44px] w-full items-center rounded-lg px-3 text-left text-sm font-medium text-mx-muted hover:bg-mx-raised hover:text-mx-text"
+            className="flex min-h-[36px] w-full items-center rounded-lg border border-mx-border px-3 text-left text-xs font-semibold text-mx-muted hover:border-mx-primary hover:text-mx-link"
           >
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
             로그아웃
@@ -100,14 +101,14 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
 
 function Brand() {
   return (
-    <div>
-      <div className="flex items-center gap-2 px-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-mx-primary text-sm">🏙️</span>
-        <span className="text-base font-bold text-mx-text">상가·건물·토지 실거래 알림</span>
+    <div className="flex items-center gap-2.5">
+      <BrandMark />
+      <div className="min-w-0">
+        <p className="text-[15px] font-extrabold leading-tight tracking-tight text-mx-text">
+          <span className="text-mx-primary">상가·건물·토지</span> 실거래 알림
+        </p>
+        <p className="mt-0.5 text-[11px] font-bold text-[#7b8494]">{APP_VERSION}</p>
       </div>
-      <p className="mt-1 px-2 text-xs text-mx-muted">
-        <span className="mx-chip-amber px-2 py-0.5">{APP_VERSION}</span>
-      </p>
     </div>
   );
 }
@@ -121,7 +122,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   return (
     <>
       {/* 데스크톱(768px 이상): 좌측 고정 메뉴 */}
-      <aside className="hidden border-r border-mx-border bg-mx-surface p-4 md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col">
+      <aside className="hidden border-r border-mx-border bg-white p-4 md:sticky md:top-0 md:flex md:h-screen md:w-[248px] md:shrink-0 md:flex-col">
         <div className="mb-5">
           <Brand />
           <a href="https://www.buylife.xyz/programs" className="mt-2 block px-2 text-xs text-mx-muted hover:text-mx-text">
@@ -132,7 +133,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       </aside>
 
       {/* 휴대폰(767px 이하): 위쪽 바 + 접는 메뉴(☰) — 항목·순서는 데스크톱과 같다 */}
-      <div className="sticky top-0 z-40 border-b border-mx-border bg-mx-surface md:hidden">
+      <div className="sticky top-0 z-40 border-b border-mx-border bg-white md:hidden">
         <div className="flex items-center justify-between px-4 py-2">
           <Brand />
           <button

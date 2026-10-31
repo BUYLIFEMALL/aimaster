@@ -38,7 +38,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <PageHero badge="🏠 대시보드" title="상가·건물·토지 실거래 알림" description="지역과 조건만 고르면 서버가 국토부 공개 자료를 하루 1회 받아 새 거래를 알려 드립니다. 직접 수집할 일은 없습니다." tip={`최근 7일 동안 내 조건에 맞게 새로 들어온 거래 ${(count ?? 0).toLocaleString("ko-KR")}건`} />
+      <PageHero badge="🏠 대시보드" title="상가·건물·토지 실거래 알림" description="지역과 조건만 고르면 서버가 국토부 공개 자료를 하루 1회 받아 새 거래를 알려 드립니다. 직접 수집할 일은 없습니다." tip={`최근 7일 동안 수집한 내 조건 거래 ${(count ?? 0).toLocaleString("ko-KR")}건`} />
       <div className="mt-6 grid gap-3 md:grid-cols-3">
         <Step done={regions.length > 0} href="/districts" title="1. 관심 지역 고르기" note={regions.length ? `${regions.length}곳 선택됨` : "전국 시·군·구에서 고릅니다"} />
         <Step done={Boolean(prefRow)} href="/conditions" title="2. 조건 확인" note={prefRow ? "저장됨" : "기본 조건으로 동작 중입니다"} />

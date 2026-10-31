@@ -56,7 +56,7 @@ function LoginCard() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-mx-danger bg-[#4c0519]/40 p-3 text-center text-xs font-medium text-mx-danger">{error}</div>
+        <div className="mb-4 rounded-lg border border-mx-danger bg-red-50 p-3 text-center text-xs font-medium text-mx-danger">{error}</div>
       )}
 
       {mode === "signup" ? (

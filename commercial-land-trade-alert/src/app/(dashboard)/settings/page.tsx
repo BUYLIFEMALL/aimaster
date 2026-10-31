@@ -25,7 +25,7 @@ export default async function SettingsPage() {
           <>
             <p className="mb-3 text-sm text-mx-success">@{own.bot_username ?? "봇"} 연결됨</p>
             <form action={disconnectTelegramAction}>
-              <Button type="submit" variant="ghost">
+              <Button type="submit" variant="secondary">
                 연결 끊기
               </Button>
             </form>

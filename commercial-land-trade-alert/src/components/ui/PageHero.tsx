@@ -1,5 +1,4 @@
-// 화면 맨 위 히어로 블록 — 단계 배지 + 제목 + 목적 설명 + 팁(선택) + 오른쪽 버튼.
-// 스마트 매트릭스 스타일 공통 부품 (기준: longtail-keyword-expander/components/layout/PageHero.tsx)
+// 화면 맨 위 제목 — 부동산 시리즈(realty-listing-alert)와 같은 큰 제목 + 초록 안내 상자.
 export function PageHero({
   badge,
   title,
@@ -14,16 +13,16 @@ export function PageHero({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-mx-border bg-gradient-to-br from-[#172554] via-mx-surface to-mx-surface p-5 md:p-6">
+    <div>
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
-          {badge && <span className="mx-chip-blue mb-2">{badge}</span>}
-          <h1 className="text-2xl font-black text-mx-text">{title}</h1>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-mx-muted">{description}</p>
-          {tip && <p className="mt-2 text-xs text-[#fcd34d]">💡 {tip}</p>}
+          {badge && <p className="text-xs font-extrabold tracking-wider text-mx-primary">{badge}</p>}
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-mx-text md:text-4xl">{title}</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-mx-muted">{description}</p>
         </div>
         {children && <div className="flex shrink-0 flex-wrap gap-2">{children}</div>}
       </div>
+      {tip && <p className="mt-4 rounded-2xl border border-[#b7e8cc] bg-[#e8f8ef] px-5 py-3 text-sm text-[#14532d]">✅ {tip}</p>}
     </div>
   );
 }

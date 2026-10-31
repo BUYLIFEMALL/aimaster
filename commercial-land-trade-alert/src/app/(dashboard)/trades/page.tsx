@@ -114,7 +114,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
       {!error && codes.length === 0 && (
         <p className="mx-card text-sm text-mx-muted">
           아직 고른 지역이 없습니다.{" "}
-          <Link href="/districts" className="text-[#93c5fd] underline">
+          <Link href="/districts" className="text-mx-link underline">
             관심 지역 고르기
           </Link>
         </p>
@@ -140,7 +140,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
                   <tr key={t.id}>
                     <td>{t.deal_date}</td>
                     <td>
-                      <Link href={`/trades/${t.id}`} className="text-[#93c5fd] hover:underline">
+                      <Link href={`/trades/${t.id}`} className="text-mx-link hover:underline">
                         {t.sgg_nm} {t.umd_nm}
                       </Link>
                     </td>
