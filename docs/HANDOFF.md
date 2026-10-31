@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ⏳ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.12 코드 완료(미배포)
+- 한 일: 이메일·카카오 알림, AI 3종 선택, 반복 작업 8개(발주서·송장 파일, 복사 등록, 템플릿, 엑셀 일괄, 원가 저장, 오늘 할 일 안에서 처리), 회수 송장·철회 이력·출고지/반품지·옵션 단위 자동생성옵션·쿠폰 적용 옵션.
+- 커밋: `533bdded5`·`6e656fd51`·`00523fa9b`·`6754b148e`·`78cfc78c5`. 시험 107개·tsc·로컬 build 통과, 화면 확인·쿠팡 쓰기 0회.
+- 다음 첫 단계: 주인님 빌드 승인 → `coupang_ops_prefs` SQL 적용(운영 ref esgxyikcnnvmlhygjkth) → 배포·버전 v1.12 → 크롬 확인(조회만). 상세: `coupang-ops/AGENTS.md` 맨 아래.
+- https://coupang-ops.buylife.xyz
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-listing-alert` v1.40 · `commercial-land-trade-alert` v1.10 메뉴 합침
 - 두 프로그램 모두 메뉴 「매물 감시(예약 설정)」으로 합침. 매물 알림은 예약 화면을 감시 화면 아래로 옮기고 `/schedule`은 넘김. 알림 문구 통일 함께 배포. 실제 화면은 주인님 확인 대기.
 - 링크: https://realty-listing-alert.buylife.xyz/targets · https://commercial-land-trade-alert.buylife.xyz/watch
