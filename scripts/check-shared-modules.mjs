@@ -57,6 +57,7 @@ const MODULES = [
       "real_estate_sales/src/lib/telegram/client.ts",
       "trending-product-finder/lib/telegram/client.ts",
       "realty-listing-alert/lib/telegram/client.ts",
+      "coupang-ops/src/lib/telegram/client.ts",
     ],
   },
   {
