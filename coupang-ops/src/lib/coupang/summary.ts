@@ -24,7 +24,7 @@ export const cleanHour = (v: unknown) => {
 // R10 수시 알림: 건수가 늘었을 때만 보낸다
 export const URGENT_PATH = "/api/cron/coupang-urgent";
 export const URGENT_CALLS_PER_RUN = 3; // 출고중지 1 + 문의 2
-export const URGENT_HOUR_SETS = { 3: [10, 14, 18], 6: [9, 11, 13, 15, 17, 19] } as const;
+export const URGENT_HOURS = [9, 18]; // 2026-10-31 주인님 지시: 오전 9시·오후 6시 두 번
 export const urgentRunKey = (nowMs = Date.now()) => new Date(nowMs + 9 * 3_600_000).toISOString().slice(0, 13);
 type UrgentCounts = { stop: number | null; inquiries: number | null };
 
