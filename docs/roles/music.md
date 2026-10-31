@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-10-31 (`claude-win-20261024-music` — AI Audio분석 v1.14 모델·Suno v6 배포)
+- 마지막 갱신: 2026-10-31 (`claude-win-20261024-music` — 마스터링 AI 모델 추가, 미배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,6 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
+| `ai-mastering-studio` v1.14 | 미배포 대기 `a7746f979`(AI 제안 최신 모델 추가) | 실제 호출 시험과 빌드 승인 | `ai-mastering-studio/docs/IMPROVEMENTS.md` |
 | `shorts-onestop-studio` v1.42 | 미배포 대기 `a95613743`(안내 그림문자) | 다음 배포 때 함께 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
 | `playlist-channel-studio` v1.31 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
