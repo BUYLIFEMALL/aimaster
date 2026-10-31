@@ -12,8 +12,8 @@ const MIN_EXTENSION = 1.11;
 type Sido = { c: string; n: string; g: { c: string; n: string; d: [string, string][] }[] };
 
 const KINDS: [string, string][] = [["SG", "상가"], ["GM", "건물"], ["TJ", "토지"]];
-const btn = (on: boolean) => `min-h-[44px] rounded-xl border px-2 py-2 text-sm font-semibold ${on ? "border-mx-primary bg-mx-primary/10 text-mx-primary" : "border-mx-border bg-white text-mx-text hover:border-mx-primary"}`;
-const grid = "grid grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2";
+const btn = (on: boolean) => `min-h-[44px] whitespace-nowrap rounded-xl border px-2 py-2 text-sm font-semibold ${on ? "border-mx-primary bg-mx-primary/10 text-mx-primary" : "border-mx-border bg-white text-mx-text hover:border-mx-primary"}`;
+const grid = "grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2";
 const stepTitle = "mb-2 mt-4 text-sm font-bold text-mx-text first:mt-0";
 
 export function RegionPicker({ email, disabled }: { email: string; disabled: boolean }) {
