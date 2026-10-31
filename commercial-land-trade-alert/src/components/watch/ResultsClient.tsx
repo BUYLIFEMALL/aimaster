@@ -51,6 +51,8 @@ function GapCell({ value }: { value: unknown }) {
 
 export function ResultsClient({ email }: { email: string }) {
   const [res, setRes] = useState<Result | null | undefined>(undefined);
+  const [why, setWhy] = useState("");
+  const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState("all");
   const [sort, setSort] = useState("score");
   const [ai, setAi] = useState<{ busy?: boolean; text?: string; count?: number; error?: string }>({});
@@ -63,13 +65,25 @@ export function ResultsClient({ email }: { email: string }) {
 
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; lastResult?: Result }>("lastResult", 2500, { email }).then((r) => {
-      if (alive) setRes(r?.ok && r.lastResult?.table ? r.lastResult : null);
-    });
+    void (async () => {
+      const r = await askExtension<{ ok?: boolean; lastResult?: Result }>("lastResult", 5000, { email });
+      if (!alive) return;
+      if (r?.ok && r.lastResult?.table) { setRes(r.lastResult); return; }
+      // 실패 원인을 나눠 안내한다
+      const ping = r ? null : await askExtension<{ ok?: boolean }>("ping", 2000);
+      if (!alive) return;
+      setWhy(
+        r?.ok ? "아직 수집 결과가 없습니다. 확장 팝업에서 「지금 수집」을 눌러 주세요."
+        : r ? "확장을 연결한 계정과 지금 로그인한 계정이 다릅니다. API키등록·플랫폼연동에서 「바로 연결」을 다시 눌러 주세요."
+        : ping?.ok ? "확장이 결과를 늦게 보냈습니다. 「다시 불러오기」를 눌러 주세요."
+        : "확장과 연결이 끊겼습니다. 이 화면을 새로고침해 주세요. 그래도 안 되면 chrome://extensions에서 ↻ 새로고침한 뒤 이 화면도 새로고침해 주세요.",
+      );
+      setRes(null);
+    })();
     return () => {
       alive = false;
     };
-  }, [email]);
+  }, [email, attempt]);
 
   const rows = useMemo(() => {
     if (!res) return [];
@@ -91,9 +105,10 @@ export function ResultsClient({ email }: { email: string }) {
   if (res === undefined) return <p className="mx-card mt-6 text-sm text-mx-muted">확장에서 결과를 불러오는 중입니다...</p>;
   if (res === null) {
     return (
-      <p className="mx-card mt-6 text-sm text-mx-muted">
-        결과를 불러오지 못했습니다. 매물은 확장이 설치된 PC 크롬에만 있습니다. 확장을 연결한 계정으로 로그인했는지, 한 번 이상 「지금 수집」을 했는지 확인해 주세요. 확장을 새로고침했다면 이 화면도 새로고침해 주세요.
-      </p>
+      <div className="mx-card mt-6 text-sm text-mx-muted">
+        <p>결과를 불러오지 못했습니다. {why}</p>
+        <button type="button" onClick={() => { setRes(undefined); setAttempt((n) => n + 1); }} className="mx-btn-ghost mt-3 min-h-[40px] text-sm">다시 불러오기</button>
+      </div>
     );
   }
   const at = (n: string) => res.columns.indexOf(n);
