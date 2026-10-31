@@ -1,6 +1,6 @@
 # 개발 플랜 — 관리자·시험 계정 30일 자동 삭제 예외 (2026-10-31)
 
-작성: Claude Code(윈도우) `claude-win-20261029-statusbar` [역할: 미지정]. 상태: **승인 대기, 구현 전.** 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
+작성: Claude Code(윈도우) `claude-win-20261029-statusbar` [역할: 미지정]. 상태: **2026-11-01 주인님 승인 — 추가 배포 없는 방식으로 변경. 1단계 DB 적용 완료(`supabase/migrations/0052_retention_exempt_accounts.sql`). §4의 2단계·3단계 B안은 하지 않음. 프로그램별 코드는 각 프로그램 다음 배포 때 함께. 조회 숨김 RLS는 미변경.** 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
 근거: 주인님 「관리자인 buylifemall@gmail.com 계정과 테스트 계정인 buylifemall@naver.com 2개정은 30일 자동 삭제 규칙에서 예외되는 것으로 기능구현해줘」.
 
 ## 1. 현황 (저장소 코드 조사, 운영 `cron.job`·Vercel 등록 상태는 미확인)
