@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.07 표시 수정
+- AI 요약 실제 동작 확인(주인님 키). 제목·굵게 표시, 결과 표 한 줄, 감시 화면별 동 코드 기억, 시세 실패 기록. 시세 대비가 전부 비었던 원인은 추정(동 코드 미수집 또는 조회 실패)이며 재수집 확인 대기. 남은 일: 수익률 과대 보정 결정.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/results
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.06 수익률·AI 요약
 
 ### 2026-10-31 infinite-loop-video (v1.10) 38. 프로 크리에이터 슬레이트 NLE 랩 스타일 전면 리뉴얼 완료
