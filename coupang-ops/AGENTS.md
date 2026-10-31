@@ -14,7 +14,7 @@
 쿠팡에 상품을 올리고 운영하는 판매자가 **쿠팡 공식 WING Open API(판매자 본인 키, 연동 방식 「자체개발」)**로 상품 등록부터 가격·재고·주문·송장·반품·문의까지 한 화면에서 처리한다. 첫 모듈은 상품 등록(AI 상세페이지 자동화 `shop-detail-page` 상품을 그대로 사용).
 
 ## 2. 기술·도구
-Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공용 DB(ref `esgxyikcnnvmlhygjkth`). 뼈대는 `smartstore-register` 복사(권한·로그인·사이드바·`slw-*` 스타일, 강조색만 쿠팡 빨강 `#be123c`). 쿠팡 호출은 **우리 서버 + Fixie 고정 IP 프록시**(`FIXIE_URL`, IP `52.87.82.133`·`52.5.155.132`) — C1-3에서 `undici` `ProxyAgent`로 구현 예정(`threads-affiliate-poster` 토스 연동과 같은 방식). 확장 없음.
+Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공용 DB(ref `esgxyikcnnvmlhygjkth`). 뼈대는 `smartstore-register` 복사(권한·로그인·사이드바·`slw-*` 스타일, 강조색만 쿠팡 빨강 `#be123c`). 쿠팡 호출은 **우리 서버 + 회원 본인 고정 IP 프록시**(공용 키 `fixed_ip_proxy_url`, `undici` `ProxyAgent`, 2026-10-31부터. 운영자 `FIXIE_URL`은 쓰지 않음). 확장 없음.
 
 ## 3. 구조
 | 부분 | 파일 | 하는 일 |
@@ -210,3 +210,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 결정: 출고지 수정은 도서산간을 보내지 않는다(조회의 `remoteInfoId`가 비어 있음). 반품지 요금은 12칸을 한 값으로 받는다. 기간별 상품 목록·상품 요약은 호출을 줄이지 못해 만들지 않았다.
 - 배포 전 할 일: 운영 DB에 `supabase/migrations/20261031_coupang_ops_prefs.sql` 적용 → 빌드 1회(주인님 승인 대기) → `node scripts/deploy.mjs coupang-ops --go`, `--version-only --set-version v1.12`. 코드의 `APP_VERSION`은 배포 때까지 v1.11이다.
 - 검수: 시험 107개·tsc·로컬 build 통과(`78cfc78c5` 기준). 화면 확인과 쿠팡 쓰기 0회. 미확인: 이번 쓰기 전부, 복사 등록의 이미지 경로, AI 3종 호출, 메일·카카오 발송, 택배사 실제 파일 형식, 첫 실제 주문의 번호 정밀도.
+
+## 2026-10-31 — 회원 본인 고정 IP(v1.12에 포함, 미배포)
+- 주인님 지시: 「본인 키를 등록해서 사용하게 하고 해당 키 생성 위치와 넣어야 될 값을 플랫폼 연동 쪽에 넣어둬」「매뉴얼에서 관련 내용 추가 해주고」. 커밋 `a143d427b`.
+- 왜 필요한가: 쿠팡은 WING 허용 IP에서 온 요청만 받는데 Vercel은 나가는 IP가 바뀐다. Fixie가 항상 같은 IP 2개로 내보낸다.
+- 구현: 공용 표 `user_api_keys` provider `fixed_ip_proxy_url`(`validateProxyUrl`이 내부망 주소를 막음, 화면에는 `maskProxyUrl`로 토큰 가림). `wingRequest`가 회원 주소로 호출하고, 운영에서 주소가 없으면 호출하지 않고 등록을 안내한다(운영자 주소 폴백 없음). 연결 시험이 IP 불허면 `outgoingIp`로 나가는 IP를 함께 보여 준다(Fixie 1회, api.ipify.org).
+- 제거: 회원 하루 100회·월 500회 상한, 70% 요청함 알림(`callBudgetBlock`). 첫 화면은 이번 달 내 호출 수만 표시. 조회 간격 제한은 유지.
+- 화면: `/connect` 1번 칸 「내 고정 IP 만들기(Fixie)」에 발급 위치 링크·값 모양·입력칸(`ProxyKeyForm`), `/guide` STEP 2 신설(이후 STEP 3)·FAQ 2개.
+- ⚠ 배포 전 운영 DB에 `supabase/migrations/20261031_fixed_ip_proxy_key.sql`도 적용해야 저장된다. **배포 즉시 주소를 등록하지 않은 기존 회원의 쿠팡 기능이 멈춘다.** 기존 WING 키 보유 회원을 확인하고 시험 계정은 본인 Fixie 등록과 WING IP 교체가 필요하다.
+- 공식 확인(2026-10-31 usefixie.com): Tricycle 무료 월 500회·100MB, Commuter $5 월 2,500회, 프록시 그룹당 고정 IP 2개, 주소 형식 `http://fixie:토큰@서브도메인.usefixie.com:80`, IP는 app.usefixie.com. 대시보드에서 주소가 보이는 정확한 메뉴와 가입 첫 화면은 문서에 없어 미확인. 시험 105개·tsc 통과, 실제 Fixie 주소 등록·호출은 미확인.
