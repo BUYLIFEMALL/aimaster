@@ -2,7 +2,7 @@
 
 > 루트 `../CLAUDE.md`(메인 지침)를 함께 읽는다. 한국어 진행 안내·회원 본인 계정/키·비용 사전 승인·경로 지정 커밋 규칙이 그대로 적용된다.
 > 플랜: [`docs/PLAN_20261028_COUPANG_OPS.md`](docs/PLAN_20261028_COUPANG_OPS.md)(API 103개 목록 §10, 고정 IP 비용 §11·§12, 확정 §13·§14, 제한·제재 §15) · 기능 대기 목록: [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)
-> **📘 최신 인수인계(2026-10-29, 가장 먼저 읽기)**: [`docs/IMPROVEMENT_HANDOFF_20261029.md`](docs/IMPROVEMENT_HANDOFF_20261029.md) — 판매 재개·상품 등록 화면·짧은 이미지 주소·반품비 규칙·남은 일(등록 실행 → 최종 배포).
+> **현재 상태는 아래 §1~7과 맨 아래 날짜별 기록을 먼저 읽는다.** 2026-10-29 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261029.md`](docs/IMPROVEMENT_HANDOFF_20261029.md) — 판매 재개·상품 등록 화면·짧은 이미지 주소·반품비 규칙·남은 일(등록 실행 → 최종 배포).
 > 이전 인수인계(2026-10-28): [`docs/IMPROVEMENT_HANDOFF_20261028.md`](docs/IMPROVEMENT_HANDOFF_20261028.md) — 판매정지로 쿠팡 API가 막혀 멈춘 상태·운영 DB 적용 내용·코드 지도·함정·다음 첫 단계.
 > **📘 쿠팡 API 공식 사이트 먼저(2026-10-30 주인님 지시: 「여기 쿠팡 api전용 싸이트가 있으니 자세히 읽어보고 기능 구현하도록 해」「앞으로도 여기 관련 내용 확인하고 구현하도록 해」)**: 쿠팡 기능을 만들거나 고치기 전에 **https://developers.coupang.com/ko/api?market=KR** 목록에서 해당 API의 상세 페이지(`/ko/api/<묶음>/<이름>?market=KR`)를 읽고 경로·메서드·요청 본문·응답 필드·적용 상태·오류를 코드와 대조한 뒤 구현한다. 코드 주석에 상세 페이지 이름과 확인 날짜를 남긴다. 기억이나 다른 프로그램 코드로 추측하지 않는다.
 >   - 10-30 기존 작업 검토 결과: 코드가 부르는 경로 12개·메서드가 공식 목록과 모두 일치. 옵션 재고(`amountInStock`·`salePrice`·`onSale`)·가격 변경(`forceSalePriceUpdate` 기본 false 유지)·상태변경이력(`status`·`comment`·`createdBy`·`createdAt`)·카테고리 추천(`productName`, `autoCategorizationPredictionResultType`·`predictedCategoryId`) 응답 필드도 명세와 같음 — 고칠 곳 없음. 남은 확인: 송장 수정 본문 형식(명세 표의 타입 표기 차이, AGENTS 10-30 C3-3 항목).
@@ -11,41 +11,41 @@
 
 ## 1. 사용 목적·대상
 **목표(2026-10-31 주인님): 「자동화 프로그램의 목적은 사용자의 편리성,효율성」, 「이 자동화 프로그램을 사용하면 판매자 입장에서 쿠팡 운영이 편해진다」.** 기능을 고를 때 반복·단순 작업이 줄어드는지 먼저 본다.
-쿠팡에 상품을 올리고 운영하는 판매자가 **쿠팡 공식 WING Open API(판매자 본인 키, 연동 방식 「자체개발」)**로 상품 등록부터 가격·재고·주문·송장·반품·문의까지 한 화면에서 처리한다. 첫 모듈은 상품 등록(AI 상세페이지 자동화 `shop-detail-page` 상품을 그대로 사용).
+쿠팡 판매자가 **공식 WING Open API(회원 본인 키, 연동 방식 「자체개발」)**로 상품 등록·수정, 가격·재고, 주문·송장, 출고중지·반품·교환, 문의, 매출·정산, 쿠폰, 아침 요약을 WING을 오가지 않고 처리한다.
 
 ## 2. 기술·도구
-Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공용 DB(ref `esgxyikcnnvmlhygjkth`). 뼈대는 `smartstore-register` 복사(권한·로그인·사이드바·`slw-*` 스타일, 강조색만 쿠팡 빨강 `#be123c`). 쿠팡 호출은 **우리 서버 + 회원 본인 고정 IP 프록시**(공용 키 `fixed_ip_proxy_url`, `undici` `ProxyAgent`, 2026-10-31부터. 운영자 `FIXIE_URL`은 쓰지 않음). 확장 없음.
+Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공용 DB(ref `esgxyikcnnvmlhygjkth`) · `undici` `ProxyAgent`(회원 고정 IP) · `xlsx`(브라우저 파일 처리) · `sharp`(이미지 규격) · AI는 회원 본인 OpenAI·Claude·Gemini 키. 뼈대는 `smartstore-register`에서 가져왔다. 쿠팡 호출은 **회원 본인 고정 IP 프록시**(공용 키 `fixed_ip_proxy_url`, Fixie 등)를 거친다. 쿠팡이 WING 허용 IP만 받기 때문이며 운영자 `FIXIE_URL`은 쓰지 않는다. 확장 없음.
 
-## 3. 구조
-| 부분 | 파일 | 하는 일 |
+## 3. 핵심 기능·구조·장단점
+| 부분 | 화면·파일 | 하는 일 |
 |---|---|---|
-| 권한 | `src/lib/access.ts`·`src/lib/programAccess.ts` | 로그인 + 이용 권한(`THIS_PROGRAM_SLUG = "coupang-ops"`) |
-| 메뉴·출시 순서 | `src/lib/tools.ts` | `TOOLS`(출시한 화면만, 지금 비어 있음)·`ROADMAP`(대시보드 「기능 출시 순서」) |
-| 화면 | `/home`·`/guide` | 대시보드·키 발급 매뉴얼(자체개발·허용 IP 복사 상자) |
-| 쿠팡 키(C1-2) | `/connect`·`src/lib/coupang/keys.ts`·`src/lib/actions/connection.ts`·`src/lib/data.ts` | 공용 표 `user_api_keys`에 키 이름 4개(`coupang_wing_vendor_id`·`_access_key`·`_secret_key`·`_user_id`, 파트너스 키와 다름) 저장·삭제, 화면엔 끝 4자리만. 원문은 서버 `getWingKeys()`만 |
-| DB | `supabase/migrations/20261028_coupang_ops_v1_01.sql` | 프로그램 등록(비공개)·요금제·VIP·테스트 계정 14일 |
-| 쿠팡 호출(C1-3) | `src/lib/coupang/client.ts`(`wingRequest`)·`sign.ts`·`tests/client.test.mjs` | HMAC 「CEA」 서명(경로와 조건 사이 `?` 없음 — 파트너스 실계정 확인 규칙), `FIXIE_URL` 있으면 고정 IP 프록시·없으면 개발 PC 직접(운영에선 막음), 429는 GET만 1회 재시도, 생성·수정은 재시도 없음, `X-CAG-Warnings` 반환. `npm test` |
-| 상품·본문(C1-6·C1-12) | `src/lib/shop.ts`·`src/lib/coupang/product.ts`·`docs/API_PRODUCT_CREATE_SPEC.md`·`tests/product.test.mjs` | 상세페이지 상품 읽기(본인 폴더 이미지만), 쿠팡 생성 본문 `buildCreateBody`·검사 `checkDraft`(옵션명 중복·정가<판매가·재고·반품비 100~150%·이미지 https 200자) |
-| 물류·연결 시험(C1-4·C1-5) | `src/lib/coupang/logistics.ts`·`src/lib/actions/wing.ts`·`src/components/ConnectionTest.tsx`·`tests/logistics.test.mjs` | 출고지·반품지 조회와 응답 정리, `/connect` 「연결 시험」(읽기만) |
-| 카테고리(C1-7·C1-8) | `src/lib/coupang/category.ts`·`tests/category.test.mjs` | 추천(POST categorization/predict)·메타(구매/검색옵션·고시·서류·인증) 정리, 고시 채우기, 필수 안내. ⚠️ 메타의 고를 수 있는 값 목록 유무는 실응답 확인 필요 |
-| 기본값(C1-5) | `/defaults`·`src/components/DefaultsForm.tsx`·`src/lib/coupang/defaults.ts`·`tests/defaults.test.mjs` | 출고지·반품지(쿠팡에서 불러오기)·택배사·배송비·반품비 저장(`coupang_ops_defaults`) |
-| DB(C1-2) | `supabase/migrations/20261028_coupang_wing_keys_c1_2.sql` | 키 이름 제약에 4개 덧붙이기(운영 DB 현재 목록을 읽어 추가 — 다른 이름 보존) + `integration_catalog` 「쿠팡 WING Open API」 |
+| 연결 | `/connect`, `lib/coupang/keys.ts`, `actions/connection.ts` | 고정 IP 주소·WING 키·키 만료일·AI 키, 연결 시험 |
+| 호출 | `lib/coupang/client.ts`·`sign.ts`·`usage.ts` | HMAC 서명, 회원 프록시, 429는 GET만 1회 재시도, 쓰기 재시도 없음, 호출 수·쿠팡 경고 기록 |
+| 상품 | `/products`, `/products/new`, `/my-products`, `product.ts`·`productEdit.ts`·`productCopy.ts`·`category.ts`·`brand.ts` | 상세페이지 상품·직접 입력·복사 등록, 템플릿, 카테고리 추천·찾아보기, 브랜드 찾기, AI 추천, 승인 요청, 수정 |
+| 가격·재고 | `/stock`, `/bulk`, `ItemsPanel`, `items.ts`·`bulk.ts` | 품절 점검, 일괄·엑셀 변경, 자동생성옵션 |
+| 주문 | `/orders`, `orders.ts`·`orderFile.ts`·`lib/sheet.ts` | 상품준비중 처리, 발주서·송장 파일, 오래 멈춘 배송, 장기 미배송 |
+| 취소·반품·교환 | `/returns`, `/exchanges`, `returns.ts`·`exchanges.ts`·`logisticsWrite.ts` | 출고중지, 입고·승인, 교환 처리, 회수 송장, 철회 이력 |
+| 문의 | `/inquiries`, `inquiry.ts`, `lib/ai/llm.ts` | 답변, AI 초안, 템플릿, 고객센터 남은 시간 |
+| 정산·쿠폰 | `/revenue`, `/coupons`, `revenue.ts`·`coupons.ts`·`downloadCoupon.ts` | 실제 수수료·순이익, 지급 내역, 즉시·다운로드 쿠폰 |
+| 기본값 | `/defaults`, `LogisticsPanel`, `defaults.ts` | 배송·반품 기본값, 출고지·반품지 만들기·고치기 |
+| 알림·정리 | `/alerts`, `api/cron/coupang-summary`, `api/cron/cleanup`, `lib/alerts/` | 아침 요약(텔레그램·메일·카카오), 30일 정리 |
+| 첫 화면 | `/home`, `TodayBoard`, `RejectedBoard` | 오늘 할 일과 그 자리 처리, 반려 상품, 키 만료·쿠팡 경고 |
+| 설정 표 | `coupang_ops_defaults`·`_prefs`·`_jobs`·`_alerts`·`_image_links`, 공용 `user_api_keys` | 회원별 격리(RLS) |
+
+장점: 공식 API라 화면 자동화보다 안정적이고, 쓰기는 직전 상태 재확인·2단 확인·재시도 없음으로 안전하다. 고객 개인정보를 저장하지 않는다.
+단점: 회원이 Fixie 가입과 WING IP 등록을 해야 한다. 쓰기 기능 대부분이 실제 건 시험 전이다. 이미지·옵션 구성 수정은 WING에서 해야 한다.
 
 ## 4. 버전·이력
-- v1.01 (2026-10-28, **미배포 · 운영 DB 적용됨(비공개)**): C1-1 웹 뼈대 — 대시보드(출시 순서)·매뉴얼. tsc·로컬 build 통과. 같은 날 C1-2 키 등록 화면 추가(검사 함수 가짜 값 확인, DB SQL 미적용).
+운영 v1.11, 코드는 v1.12 대기(버전 표기는 배포 때 올린다). 버전별 상세는 이 문서 아래 날짜별 기록과 `git log -- coupang-ops`.
 
 ## 5. 남은 일
-1. **배포는 모았다가(2026-10-28 주인님 「모았다가 하자」)**: C1-2~C1-14는 로컬(`npm run dev`, 이 PC IP `210.178.96.91`이 WING 허용 IP에 있음)에서 만들고 시험 → 1단계 완성 때 Vercel 새 프로젝트·도메인·환경변수(Supabase 4개·`FIXIE_URL`)·빌드 1회(그때 승인). 운영 DB 등록 SQL은 로컬 시험 시작 때 C1-2 키 목록 변경과 함께 적용(그때 승인).
-2. C1-2 키 등록(공용 키 표 「쿠팡 WING Open API」, DB 변경 승인) → C1-3 호출 컴포넌트 → C1-4 연결 시험.
-3. 주인님 쿠팡 계정: 10-29 판매 재개 → 키 재발급 → 「자체개발」 + IP 등록(플레이오토 연동은 안 씀, 끊겨도 됨).
+[`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) · [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md). 배포 절차와 주의는 맨 아래 v1.12 항목.
 
 ## 6. 연계
-상세페이지 자동화(상품) → 이 프로그램(쿠팡) / 스마트스토어 등록기(스마트스토어)로 같은 상품을 두 마켓에. 주문·송장은 `shop-order-report`와 연계 예정(C3-3).
+상세페이지 자동화(상품) → 이 프로그램 / 스마트스토어 등록기로 같은 상품을 두 마켓에. 매출은 `shop-order-report`로 파일 전달. `coupang/` 기획은 흡수했으며 폴더 정리는 주인님 승인 뒤. 고정 IP 프록시 키는 공용이라 토스 등 다른 프로그램도 재사용할 수 있다.
 
-## 7. 디자인
-「쿠팡 셀러 콘솔 스타일」(2026-10-31 v1.10부터, 이전 「쿠팡 운영 워크벤치 스타일」) — [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md).
-
-<!-- BEGIN:nextjs-agent-rules -->
+## 7. 디자인·UI
+「쿠팡 셀러 콘솔 스타일」(v1.10부터) — [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md). 개선 제안은 `docs/IMPROVEMENTS.md`.
 
 ## This is NOT the Next.js you know
 
@@ -219,3 +219,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 화면: `/connect` 1번 칸 「내 고정 IP 만들기(Fixie)」에 발급 위치 링크·값 모양·입력칸(`ProxyKeyForm`), `/guide` STEP 2 신설(이후 STEP 3)·FAQ 2개.
 - ⚠ 배포 전 운영 DB에 `supabase/migrations/20261031_fixed_ip_proxy_key.sql`도 적용해야 저장된다. **배포 즉시 주소를 등록하지 않은 기존 회원의 쿠팡 기능이 멈춘다.** 기존 WING 키 보유 회원을 확인하고 시험 계정은 본인 Fixie 등록과 WING IP 교체가 필요하다.
 - 공식 확인(2026-10-31 usefixie.com): Tricycle 무료 월 500회·100MB, Commuter $5 월 2,500회, 프록시 그룹당 고정 IP 2개, 주소 형식 `http://fixie:토큰@서브도메인.usefixie.com:80`, IP는 app.usefixie.com. 대시보드에서 주소가 보이는 정확한 메뉴와 가입 첫 화면은 문서에 없어 미확인. 시험 105개·tsc 통과, 실제 Fixie 주소 등록·호출은 미확인.
+
+## 2026-10-31 — v1.12 대기 추가: 사고 방지 묶음(커밋 완료, 미배포)
+- S1 `998e1a43b`: 키 저장 시 6개월 뒤를 만료일로 저장(`coupang_ops_prefs.wingKeyExpiry`), 회원이 고칠 수 있음, 30일 전부터 첫 화면·`/connect`·아침 요약 안내. 쿠팡 만료일 조회 API는 확인하지 못해 쓰지 않는다. 기존 키 회원은 날짜를 직접 넣어야 한다.
+- S2 `8deed7e30`: 고객센터 미답변에 이관 시각 + 24시간 기준 남은 시간, 임박한 건부터. S3 `d31521697`: 재고 0개 판매 재개 확인 창 경고(막지 않음). S4 `8c1346219`: `X-CAG-Warnings`를 `usage_logs`(번호 지움)에 기록, 첫 화면·연결 시험 표시. S5 `83cd9583d`: `(dashboard)/error.tsx`(Next 16 `retry`)·`not-found.tsx`. S6 `d10a75d75`: 오늘 할 일·아침 요약·오래 멈춘 배송을 3쪽(150건)까지 이어 읽음, 문의는 숨은 건수 안내.
+- A4 `e8c4bf879`: 상품 화면에 카테고리 찾아보기(명세 how-to-get-categories, 응답이 한 단계씩이라 누를 때 1회)·브랜드 찾기. 좌측 메뉴 글자 키움 `39b56e0e2`. D2 `bba53c843`: 첫 화면 STEP 카드 제거, 시작 안내는 키 없을 때만, `/connect` 개발용 카테고리 칸 삭제.
+- 시험 111개·tsc·로컬 build 통과. 화면·실제 호출은 배포 뒤 확인. 쿠팡 경고 머리글의 실제 값, 24시간 기준 시각이 `replyAt`인지, 카테고리·브랜드 실제 응답은 미확인.
