@@ -29,6 +29,7 @@ async function refresh() {
   const s = await send("state").catch(() => null);
   if (!s) return;
   $("consentBox").hidden = s.consent;
+  $("weekly").checked = !!s.weeklyOn;
   $("stopped").hidden = !s.stoppedToday;
   const [text, cls] = stateText(s);
   $("state").textContent = text;
@@ -57,6 +58,7 @@ $("add").onclick = async () => {
   say(r?.ok ? `감시에 넣었어요 (${r.count}/10). 이름과 조건은 웹에서 바꿀 수 있어요.` : r?.error || "추가하지 못했어요.", !r?.ok);
   refresh();
 };
+$("weekly").onchange = (e) => send("setWeekly", { on: e.target.checked });
 $("openNaver").onclick = () => chrome.tabs.create({ url: NAVER });
 $("results").onclick = () => chrome.tabs.create({ url: `${WEB}/results` });
 $("watch").onclick = () => chrome.tabs.create({ url: `${WEB}/watch` });

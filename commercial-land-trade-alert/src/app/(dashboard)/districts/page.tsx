@@ -14,7 +14,7 @@ export default async function DistrictsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHero
-        badge="📍 STEP 1 · 관심 지역"
+        badge="📍 STEP 5 · 관심 지역"
         title="관심 지역 고르기"
         description="전국 시·군·구 중 관심 있는 곳을 눌러 주세요. 직접 수집할 일은 없습니다. 서버가 국토부 공개 자료를 지역마다 하루 1회 자동으로 받아 옵니다."
         tip={`지금 ${active.size}곳 선택됨 · 새로 고른 지역은 보통 5~10분 안에 첫 자료가 들어옵니다.`}

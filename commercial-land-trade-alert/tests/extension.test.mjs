@@ -201,3 +201,45 @@ test("직전에 본 지역 응답을 버리고 저장 화면 기준을 쓴다", 
   assert.deepEqual(v.bodies, [b, c]);
   assert.equal(selectViewPages([{ cortarNo: null, body: a }]).cortarNo, null);
 });
+
+test("통계 요약과 주간 리포트", async () => {
+  const { parsePriceCell, pickEvents, pushHistory, summarizeTable, trendText } = await import("../extension/lib/stats.js");
+  const { buildWeeklyReport, shouldSendWeekly, weeklyKey } = await import("../extension/lib/weekly.js");
+  const { COLUMNS } = await import("../extension/lib/sheet.js");
+  assert.deepEqual(parsePriceCell("10억 5,000만"), { price: 105000, rent: null });
+  assert.deepEqual(parsePriceCell("15억 / 월 8,500만"), { price: 150000, rent: 8500 });
+  assert.deepEqual(parsePriceCell("5,000만"), { price: 5000, rent: null });
+  const row = (over) => COLUMNS.map((c) => over[c] ?? "");
+  const base = { "감시 화면": "상가 1", "유형": "상가", "면적(㎡)": 100 };
+  const table = [
+    row({ ...base, "거래 종류": "매매", "가격": "10억", "시세 대비": "-20%(동·1층 5건)", "추정 수익률": "5.5%(월세 5건)", "변동": "🆕 신규", "네이버 매물 주소": "u1" }),
+    row({ ...base, "거래 종류": "매매", "가격": "20억", "시세 대비": "", "변동": "" }),
+    row({ ...base, "거래 종류": "월세", "가격": "1억 / 월 500만", "변동": "" }),
+    row({ ...base, "거래 종류": "매매", "가격": "99억", "변동": "👋 사라짐", "네이버 매물 주소": "u2" }),
+  ];
+  const now = Date.parse("2026-11-03T03:00:00Z");
+  const at = new Date(now).toISOString();
+  const snap = summarizeTable(COLUMNS, table, at, { "상가 1": "11680" });
+  const g = snap.groups[0];
+  assert.equal(g.total, 3, "사라진 매물 제외");
+  assert.equal(g.events.gone, 1);
+  assert.equal(g.sgg, "11680");
+  assert.equal(g.trades["매매"].avg, 150000);
+  assert.equal(g.trades["매매"].gapAvg, -20);
+  assert.equal(g.trades["매매"].gapN, 1);
+  assert.equal(g.trades["매매"].yieldAvg, 5.5);
+  assert.equal(g.trades["월세"].rentAvg, 500);
+  assert.equal(pickEvents(COLUMNS, table, at).length, 2);
+  assert.ok(!JSON.stringify(pickEvents(COLUMNS, table, at)).includes("중개"), "중개사 없음");
+  const old = { at: new Date(now - 400 * 86400000).toISOString(), groups: [] };
+  assert.equal(pushHistory([old], snap, { now }).length, 1, "1년 지난 기록 정리");
+  assert.ok(trendText([snap], now).includes("매물 3→3건"));
+  assert.equal(weeklyKey(now), "2026-11-02", "화요일이면 그 주 월요일");
+  assert.equal(shouldSendWeekly(false, null, [snap, snap], now), null, "꺼져 있으면 안 보냄");
+  assert.equal(shouldSendWeekly(true, null, [snap], now), null, "기록 2회 미만");
+  assert.equal(shouldSendWeekly(true, "2026-11-02", [snap, snap], now), null, "이번 주 보냄");
+  assert.equal(shouldSendWeekly(true, "2026-10-26", [snap, snap], now), "2026-11-02");
+  const rep = buildWeeklyReport({ history: [snap], eventLog: [{ type: "priceDown", url: "u", kind: "상가", area: 10, floor: "1/3", price: "1억" }, { type: "priceDown", url: "u", kind: "상가", area: 10, floor: "1/3", price: "9천" }], now });
+  assert.ok(rep.text.includes("상가 1 · 상가") && rep.text.includes("2번 내림"));
+  assert.ok(rep.kakao.length <= 200);
+});

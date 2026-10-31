@@ -7,6 +7,8 @@ import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
 import { daysSince, estimateYield, gapText, marketGap, scoreListing, yieldText } from "./lib/score.js";
 import { buildAiInput, summarize } from "./lib/ai.js";
+import { pickEvents, pushEvents, pushHistory, summarizeTable, trendText } from "./lib/stats.js";
+import { buildWeeklyReport, shouldSendWeekly } from "./lib/weekly.js";
 import { ALERT_PREFIX, buildKakaoText, buildMailHtml, buildMailSubject, buildSummary, kakaoLinkFor, sendDocument, sendKakaoMemo, sendMessage, sendResendMail } from "./lib/notify.js";
 
 const WEB = "https://commercial-land-trade-alert.buylife.xyz";
@@ -98,6 +100,7 @@ async function runCollection(trigger) {
     let result = "ok";
     let errMsg = null;
     let limitHit = false;
+    const sggByWatch = {};
 
     for (let i = 0; i < targets.length; i++) {
       const t = targets[i];
@@ -133,6 +136,7 @@ async function runCollection(trigger) {
       const { cortarByTarget = {} } = await get("cortarByTarget");
       const cortarNo = r.cortarNo || cortarByTarget[t.id] || null;
       if (r.cortarNo && r.cortarNo !== cortarByTarget[t.id]) await set({ cortarByTarget: { ...cortarByTarget, [t.id]: r.cortarNo } });
+      if (cortarNo) sggByWatch[t.name] = cortarNo.slice(0, 5);
       const market = await marketFor(cortarNo);
       if (market?.name) await addLog(`${t.name}: 시세 기준 ${market.name}`);
       if (!market?.samples) await addLog(`${t.name}: 시세 자료를 받지 못해 비교를 건너뛰었어요(동 코드 ${cortarNo || "없음"})`);
@@ -162,7 +166,12 @@ async function runCollection(trigger) {
       nextDueAt: computeNextDue(new Date(startedAt).getTime(), iv, RULES.scheduleJitter),
       lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table: table.slice(0, 2000), perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete })) },
     });
+    if (table.length) {
+      const { history = [], eventLog = [] } = await get(["history", "eventLog"]);
+      await set({ history: pushHistory(history, summarizeTable(COLUMNS, table, startedAt, sggByWatch)), eventLog: pushEvents(eventLog, pickEvents(COLUMNS, table, startedAt)) });
+    }
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit });
+    await sendWeekly(settings).catch((e) => addLog(`주간 리포트 실패: ${e.message}`));
     await reportStatus(result, total, errMsg);
     await addLog(`수집 끝 · ${result === "ok" ? "정상" : result} · 매물 ${total}건 · 알림 ${perTarget.reduce((n, p) => n + p.events.length, 0)}건`);
     return { ok: result === "ok", result, total, error: errMsg };
@@ -225,6 +234,20 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
   if (kakao) await sendKakaoMemo(kakao.accessToken, buildKakaoText(perTarget), kakaoLinkFor(perTarget)).catch((e) => addLog(`카톡 실패: ${e.message}`));
 }
 
+// 주간 리포트: 회원이 팝업에서 켠 경우만. 채널마다 따로 보내고, 보낸 뒤 이번 주 표시를 남긴다.
+async function sendWeekly(settings) {
+  const { weeklyOn, weeklySentKey, history = [], eventLog = [] } = await get(["weeklyOn", "weeklySentKey", "history", "eventLog"]);
+  const key = shouldSendWeekly(weeklyOn, weeklySentKey, history);
+  if (!key) return;
+  const rep = buildWeeklyReport({ history, eventLog });
+  if (!rep) return;
+  if (settings.telegram) await sendMessage(settings.telegram.botToken, settings.telegram.chatId, rep.text).catch((e) => addLog(`텔레그램 실패: ${e.message}`));
+  if (settings.email?.apiKey) await sendResendMail(settings.email.apiKey, { to: settings.email.to, subject: rep.subject, text: rep.text }).catch((e) => addLog(`이메일 실패: ${e.message}`));
+  if (settings.kakao?.accessToken) await sendKakaoMemo(settings.kakao.accessToken, rep.kakao, `${WEB}/results`).catch((e) => addLog(`카톡 실패: ${e.message}`));
+  await set({ weeklySentKey: key, weeklyReport: { text: rep.text, at: rep.at, from: rep.from, to: rep.to } });
+  await addLog("주간 리포트를 보냈어요");
+}
+
 // 예약: 1분마다 깨어나 차례인지 본다(밀린 회차는 1번만)
 function ensureAlarm() {
   chrome.alarms.get("tick", (a) => { if (!a) chrome.alarms.create("tick", { periodInMinutes: 1 }); });
@@ -266,11 +289,12 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         return reply({ ok: true, count: r.count, name: r.name });
       }
       if (msg.type === "state") {
-        const s = await get(["extToken", "connectedEmail", "consentAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "log"]);
+        const s = await get(["extToken", "connectedEmail", "consentAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "log", "weeklyOn"]);
         if (s.running && !busy) { s.running = null; await set({ running: null }); } // 끊긴 수집 정리
         if (s.lastResult) s.lastResult = { at: s.lastResult.at, result: s.lastResult.result, error: s.lastResult.error };
         return reply({
           connected: !!s.extToken,
+          weeklyOn: !!s.weeklyOn,
           email: s.connectedEmail || null,
           consent: !!s.consentAt,
           stoppedToday: s.stoppedDate === kstDate(),
@@ -286,10 +310,19 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
           recent: (Array.isArray(s.log) ? s.log : []).slice(-6),
         });
       }
+      if (msg.type === "stats") {
+        const { history = [], weeklyReport, lastResult } = await get(["history", "weeklyReport", "lastResult"]);
+        // 통계를 넣기 전에 수집한 회원도 마지막 결과로 첫 화면을 볼 수 있게 한다
+        const list = history.length || !lastResult?.table?.length ? history : [summarizeTable(lastResult.columns, lastResult.table, lastResult.at)];
+        return reply({ ok: true, history: list, weeklyReport: weeklyReport || null });
+      }
+      if (msg.type === "setWeekly") { await set({ weeklyOn: !!msg.on }); return reply({ ok: true }); }
       if (msg.type === "aiSummary") {
         const { lastResult } = await get("lastResult");
         if (!lastResult?.table?.length) return reply({ ok: false, error: "먼저 「지금 수집」을 해 주세요." });
         const input = buildAiInput(lastResult.columns, lastResult.table);
+        const { history = [] } = await get("history");
+        input.trend = trendText(history);
         if (!input.count) return reply({ ok: false, error: "요약할 후보나 변동 매물이 없습니다." });
         const { apiKey } = await api("/api/extension/ai-key"); // 저장하지 않고 이번 호출에만 쓴다
         return reply({ ok: true, count: input.count, text: await summarize(apiKey, input) });

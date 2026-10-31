@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
+import { StatsDashboard } from "./StatsDashboard";
 
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
 type Result = { at: string; columns: string[]; table: (string | number)[][]; perTarget: { name: string; total: number; complete: boolean }[] };
 
 const SHOW = ["감시 화면", "유형", "거래 종류", "가격", "시세 대비", "추정 수익률", "후보 점수", "근거", "변동", "이전 가격", "면적 기준", "면적(㎡)", "층"];
 const LINK = "네이버 매물 주소";
+const EVENT_VIEW: Record<string, string> = { new: "🆕 신규", priceDown: "📉 가격 내림", priceUp: "📈 가격 오름", gone: "👋 사라짐" };
 
 // AI 요약의 ## 제목과 **굵게**만 그린다. HTML로 넣지 않아 내용이 코드로 실행되지 않는다.
 function bold(text: string) {
@@ -59,6 +61,7 @@ export function ResultsClient({ email }: { email: string }) {
     if (!res) return [];
     const at = (n: string) => res.columns.indexOf(n);
     const list = res.table.filter((r) => {
+      if (EVENT_VIEW[view]) return r[at("변동")] === EVENT_VIEW[view];
       if (view === "candidate") return Number(r[at("후보 점수")]) >= 40;
       if (view === "changed") return !!r[at("변동")];
       if (view === "cheap") return (pctOf(r[at("시세 대비")]) ?? 0) < 0;
@@ -82,7 +85,8 @@ export function ResultsClient({ email }: { email: string }) {
   const at = (n: string) => res.columns.indexOf(n);
   return (
     <>
-      <div className="mx-card mt-6 flex flex-wrap items-center gap-2 p-4">
+      <StatsDashboard email={email} onPick={(v) => { setView(v); document.getElementById("result-rows")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
+      <div id="result-rows" className="mx-card mt-6 flex flex-wrap items-center gap-2 p-4">
         <span className="text-sm text-mx-muted">
           {new Date(res.at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} 수집 · {rows.length.toLocaleString("ko-KR")}건
         </span>
@@ -91,6 +95,10 @@ export function ResultsClient({ email }: { email: string }) {
           <option value="candidate">⭐ 후보만(40점 이상)</option>
           <option value="cheap">시세보다 낮은 매물</option>
           <option value="changed">변동 있는 매물</option>
+          <option value="new">🆕 새 매물</option>
+          <option value="priceDown">📉 가격 내림</option>
+          <option value="priceUp">📈 가격 오름</option>
+          <option value="gone">👋 사라진 매물</option>
         </select>
         <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬" className="mx-input min-h-[40px] w-auto py-2 text-sm">
           <option value="score">후보 점수 높은순</option>

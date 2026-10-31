@@ -36,7 +36,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       {sp.kakao === "connected" && <p className="mx-card mt-4 text-sm text-mx-success">✅ 카카오를 연결했어요.</p>}
       {sp.kakao_error && <p className="mx-card mt-4 text-sm text-mx-danger">{sp.kakao_error}</p>}
       <section className="mx-card mt-6">
-        <h2 className="mx-section-title">🧩 크롬 확장 (네이버 매물 감시용)</h2>
+        <h2 className="mx-section-title">🧩 크롬 확장 (감시 대상 수집용)</h2>
         <ExtensionConnect version={APP_VERSION} />
       </section>
       <section className="mx-card mt-4">
