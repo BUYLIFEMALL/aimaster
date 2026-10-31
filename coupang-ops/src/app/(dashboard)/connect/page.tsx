@@ -8,7 +8,6 @@ import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { ProxyKeyForm } from "@/components/ProxyKeyForm";
 import { WingKeyForm } from "@/components/WingKeyForm";
 import { ConnectionTest } from "@/components/ConnectionTest";
-import { CategoryCheck } from "@/components/CategoryCheck";
 import { WING_FIELDS, WING_LABELS } from "@/lib/coupang/keys";
 
 export const dynamic = "force-dynamic";
@@ -67,14 +66,8 @@ export default async function ConnectPage() {
         <ConnectionTest saved={status.saved} />
       </section>
 
-      <section className="slw-card space-y-2 p-5">
-        <h2 className="text-base font-extrabold text-slate-900">4. 카테고리 확인</h2>
-        <p className="text-sm text-slate-600">상품명을 넣으면 쿠팡이 추천하는 카테고리와 그 카테고리의 필수 속성·고시 상품군을 읽어 옵니다. 쿠팡에 아무것도 만들거나 바꾸지 않습니다.</p>
-        <CategoryCheck saved={status.saved} />
-      </section>
-
       <section className="slw-card space-y-3 p-5">
-        <h2 className="text-base font-extrabold text-slate-900">5. AI 키(문의 초안·상품 추천)</h2>
+        <h2 className="text-base font-extrabold text-slate-900">4. AI 키(문의 초안·상품 추천)</h2>
         <p className="text-sm text-slate-600">쓰실 AI의 키만 넣으면 됩니다. 문의 초안과 상품 추천 화면에서 플랫폼과 모델을 고를 수 있고, 사용량은 내 키에 청구됩니다. 다른 프로그램에 등록한 키는 그대로 씁니다.</p>
         <AiKeyForm shown={aiKeys} />
       </section>

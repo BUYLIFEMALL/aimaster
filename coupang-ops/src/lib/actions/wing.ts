@@ -3,7 +3,6 @@
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { outgoingIp, wingRequest, WingApiError } from "@/lib/coupang/client";
-import { PREDICT_PATH, metaPath, normalizeMeta, normalizePredict, predictBody, type CategoryMeta, type PredictResult } from "@/lib/coupang/category";
 import { OUTBOUND_PATH, normalizeOutbound, normalizeReturnCenters, returnCentersPath, type OutboundPlace, type ReturnCenter } from "@/lib/coupang/logistics";
 
 export type ConnectionResult =
@@ -34,32 +33,6 @@ export async function testWingConnectionAction(): Promise<ConnectionResult> {
     return { ok: true, places, centers: normalizeReturnCenters(r.data).centers, warnings: warnings ?? r.warnings, checkedAt: new Date().toISOString() };
   } catch (e) {
     return { ok: false, step: "return", error: `키와 IP는 맞습니다(출고지 ${places.length}곳 확인). 반품지 조회만 실패했습니다: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
-  }
-}
-
-export type CategoryCheckResult =
-  | { ok: true; predict: PredictResult; meta: CategoryMeta | null; metaError: string | null }
-  | { ok: false; error: string };
-
-/** C1-7·C1-8 실제 응답 확인 — 상품명으로 카테고리 추천을 받고 그 카테고리 메타를 읽는다. 쿠팡에 아무것도 만들지 않는다. */
-export async function checkCategoryAction(name: string): Promise<CategoryCheckResult> {
-  const user = await requireProgramAccess();
-  const keys = await getWingKeys(user.id);
-  if (!keys) return { ok: false, error: "먼저 쿠팡 키 4개를 저장해 주세요." };
-  if (!name.trim()) return { ok: false, error: "상품명을 넣어 주세요." };
-  let predict: PredictResult;
-  try {
-    const r = await wingRequest(keys, "POST", PREDICT_PATH, { body: predictBody({ name }) });
-    predict = normalizePredict(r.data);
-  } catch (e) {
-    return { ok: false, error: `카테고리 추천 실패: ${e instanceof WingApiError ? e.message : "연결 오류"}` };
-  }
-  if (!predict.ok) return { ok: true, predict, meta: null, metaError: null };
-  try {
-    const r = await wingRequest(keys, "GET", metaPath(predict.code));
-    return { ok: true, predict, meta: normalizeMeta(r.data), metaError: null };
-  } catch (e) {
-    return { ok: true, predict, meta: null, metaError: e instanceof WingApiError ? e.message : "연결 오류" };
   }
 }
 
