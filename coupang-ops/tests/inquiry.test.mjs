@@ -66,3 +66,13 @@ test("S2 고객센터 답변 기한", async () => {
   assert.equal(centerDeadline("2026-10-30T10:00:00", t + 3_600_000).text, "⏰ 약 23시간 0분 남음");
   assert.equal(centerDeadline("", t), null);
 });
+
+test("S6 여러 쪽 이어 읽기", async () => {
+  const { readPages } = await import("../src/lib/coupang/orders.ts");
+  let calls = 0;
+  const one = await readPages(async () => { calls++; return { items: [1], nextToken: "" }; });
+  assert.deepEqual([one.items.length, one.nextToken, calls], [1, "", 1]);
+  calls = 0;
+  const many = await readPages(async () => { calls++; return { items: [1, 2], nextToken: "n" }; });
+  assert.deepEqual([many.items.length, many.nextToken, calls], [6, "n", 3]);
+});

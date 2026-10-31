@@ -53,7 +53,7 @@ export function StaleShipments({ keysSaved }: { keysSaved: boolean }) {
       </div>
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
       {rows?.length === 0 && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">✅ 오래 멈춘 배송이 없습니다.{more ? " (상태별 앞 50건 기준)" : ""}</p>}
-      {more && !!rows?.length && <p className="text-[11px] text-amber-800">상태별 앞 50건만 확인했습니다. 더 있을 수 있습니다.</p>}
+      {more && !!rows?.length && <p className="text-[11px] text-amber-800">상태별 앞 150건만 확인했습니다. 더 있을 수 있습니다.</p>}
       <ul className="space-y-2">
         {rows?.map((x) => {
           const h = history[x.shipmentBoxId];

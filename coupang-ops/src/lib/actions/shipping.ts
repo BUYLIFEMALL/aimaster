@@ -3,7 +3,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { getWingKeys } from "@/lib/data";
 import { wingRequest, WingApiError } from "@/lib/coupang/client";
-import { normalizeOrderSheets, ordersPath, ordersQuery } from "@/lib/coupang/orders";
+import { normalizeOrderSheets, readPages, ordersPath, ordersQuery } from "@/lib/coupang/orders";
 import { historyPath, normalizeHistorySteps, STALE_READ_GAP_SECONDS, staleShipments, type HistoryStep, type StaleShipment } from "@/lib/coupang/shipping";
 import { takeReadSlot } from "@/lib/readGap";
 
@@ -20,9 +20,12 @@ export async function listStaleShipmentsAction(): Promise<StaleResult> {
   const wait = await takeReadSlot(user.id, "coupang_stale_read", STALE_READ_GAP_SECONDS);
   if (wait > 0) return { ok: false, error: `조금 전에 확인했습니다. ${wait}초 뒤에 다시 눌러 주세요.` };
   try {
-    const read = async (status: string) => normalizeOrderSheets((await wingRequest(keys, "GET", ordersPath(keys.vendorId), { query: ordersQuery({ from: kstDay(30), to: kstDay(0), status }) })).data);
+    const read = (status: string) => readPages(async (nextToken) => {
+      const p = normalizeOrderSheets((await wingRequest(keys, "GET", ordersPath(keys.vendorId), { query: ordersQuery({ from: kstDay(30), to: kstDay(0), status, nextToken }) })).data);
+      return { items: p.orders, nextToken: p.nextToken };
+    });
     const [a, b] = await Promise.all([read("DEPARTURE"), read("DELIVERING")]);
-    return { ok: true, rows: staleShipments([...a.orders, ...b.orders], Date.now()), more: !!a.nextToken || !!b.nextToken };
+    return { ok: true, rows: staleShipments([...a.items, ...b.items], Date.now()), more: !!a.nextToken || !!b.nextToken };
   } catch (e) {
     return { ok: false, error: `배송 중인 주문을 읽지 못했습니다: ${wingMsg(e)}` };
   }

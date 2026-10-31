@@ -26,18 +26,20 @@ export async function listInquiriesAction(): Promise<InquiryList> {
   if (wait > 0) return { ok: false, error: `조금 전에 불러왔습니다. ${wait}초 뒤에 다시 눌러 주세요.` };
   const range = inquiryRange(Date.now());
   const failed: string[] = [];
-  const read = async (label: string, work: () => Promise<InquiryRow[]>) => {
+  const read = async (label: string, work: () => Promise<{ rows: InquiryRow[]; total: number }>) => {
     try {
-      return await work();
+      const r = await work();
+      if (r.total > r.rows.length) failed.push(`${label}: 전체 ${r.total}건 중 앞 ${r.rows.length}건만 표시했습니다. 답변한 뒤 다시 불러오면 이어서 보입니다.`);
+      return r.rows;
     } catch (e) {
-      failed.push(`${label}: ${wingMsg(e)}`);
+      failed.push(`${label}을(를) 읽지 못했습니다: ${wingMsg(e)}`);
       return [];
     }
   };
   const [online, center, transfer] = await Promise.all([
-    read("상품 문의", async () => normalizeOnline((await wingRequest(keys, "GET", onlineListPath(keys.vendorId), { query: onlineQuery(keys.vendorId, range) })).data).rows),
-    read("고객센터 미답변", async () => normalizeCenter((await wingRequest(keys, "GET", centerListPath(keys.vendorId), { query: centerQuery("NO_ANSWER", range) })).data, "NO_ANSWER").rows),
-    read("고객센터 미확인", async () => normalizeCenter((await wingRequest(keys, "GET", centerListPath(keys.vendorId), { query: centerQuery("TRANSFER", range) })).data, "TRANSFER").rows),
+    read("상품 문의", async () => normalizeOnline((await wingRequest(keys, "GET", onlineListPath(keys.vendorId), { query: onlineQuery(keys.vendorId, range) })).data)),
+    read("고객센터 미답변", async () => normalizeCenter((await wingRequest(keys, "GET", centerListPath(keys.vendorId), { query: centerQuery("NO_ANSWER", range) })).data, "NO_ANSWER")),
+    read("고객센터 미확인", async () => normalizeCenter((await wingRequest(keys, "GET", centerListPath(keys.vendorId), { query: centerQuery("TRANSFER", range) })).data, "TRANSFER")),
   ]);
   return { ok: true, rows: [...sortInquiries(center).reverse(), ...sortInquiries(transfer), ...sortInquiries(online)], failed, from: range.from, to: range.to };
 }

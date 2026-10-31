@@ -208,7 +208,7 @@ export function InquiryBoard({ keysSaved, autoLoad = false }: { keysSaved: boole
       {!keysSaved && <p className="text-xs text-amber-800">먼저 「API키등록·플랫폼연동」에서 키를 저장해 주세요.</p>}
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-[13px] text-rose-900">❌ {error}</p>}
       {note && <p className="rounded-lg bg-teal-50 px-3 py-2 text-[13px] text-teal-900">{note}</p>}
-      {failed.map((f) => <p key={f} className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">⚠ 일부를 읽지 못했습니다 — {f}</p>)}
+      {failed.map((f) => <p key={f} className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">⚠ {f}</p>)}
       {rows && (
         <p className="text-[12px] font-bold text-slate-800">
           처리할 문의 {rows.length}건 <span className="font-normal text-slate-500">· 기간 {range} · 고객센터 미답변은 24시간이 지나면 쿠팡이 처리해 여기서 답할 수 없습니다.</span>

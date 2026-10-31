@@ -38,6 +38,19 @@ export function ordersQuery(opt: { from: string; to: string; status: string; nex
   return parts.join("&");
 }
 
+/** S6 건수·점검용: 다음 쪽이 있으면 이어 읽는다. 호출을 아끼려고 기본 3쪽(150건)까지. 다 못 읽으면 nextToken이 남는다 */
+export async function readPages<T>(readPage: (nextToken?: string) => Promise<{ items: T[]; nextToken?: string | null }>, maxPages = 3): Promise<{ items: T[]; nextToken: string }> {
+  const items: T[] = [];
+  let token = "";
+  for (let i = 0; i < maxPages; i++) {
+    const r = await readPage(token || undefined);
+    items.push(...r.items);
+    token = r.nextToken ?? "";
+    if (!token) break;
+  }
+  return { items, nextToken: token };
+}
+
 export type OrderItem = { vendorItemId: number; name: string; optionName: string; orderedQty: number; cancelQty: number; qty: number; unitPrice: number; orderPrice: number; estimatedShippingDate: string };
 export type OrderSheet = {
   shipmentBoxId: number;
