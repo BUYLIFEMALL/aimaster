@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ⚠️ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — 30일 삭제 예외 1단계 적용, 회원 권한 보안 문제 발견
+- 한 일: 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 `profiles.retention_exempt`·보호 트리거·예약 삭제 함수 6개·직접 삭제 작업 3개 적용(`supabase/migrations/0052_retention_exempt_accounts.sql`). 두 계정만 지정. 되돌리는 시험으로 예외 자료 유지·일반 회원 자료 삭제·회원 수정 차단 확인.
+- 못 한 것: Vercel 정리 라우트(프로그램 다음 배포 때), 조회 숨김 RLS(미변경 — 일부 프로그램은 자료가 남아도 30일 뒤 화면에 안 보임).
+- **보안 미처리(주인님 승인 대기): 일반 회원이 공개 키로 `profiles`의 권한 칸을 자기 행에서 바꿀 수 있음. 되돌리는 시험으로 확인.** 수정안: 회원 역할의 권한 칸 변경을 트리거로 차단.
+- 배포: 없음. 다음 첫 단계: 보안 수정 승인 뒤 적용, 각 프로그램 배포 때 `docs/PENDING_DEPLOYS.md` 공통 항목 처리.
+
 ## 2026-11-01 ⚠️ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar — 미처리 2건 인수인계(담당 미정)
 - `music-video-studio` 다음 배포 실패 위험: 공용 사본 `Composition.tsx`(미커밋)가 없는 `renderTrace`를 불러옴. 배포 전 필독.
 - API 키 「암호화」 문구: 실제와 다를 수 있음. 5개 프로그램에 남아 있고 전체 검색 전, 주인님 결정 대기.
