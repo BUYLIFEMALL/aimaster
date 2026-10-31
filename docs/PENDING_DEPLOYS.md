@@ -23,6 +23,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `realty-listing-alert` | 설정에서 AI 모델 바로 고르기, Claude 5.5 세대 갱신, 요약에 쓴 모델 표시 | `17209a3ca` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
+| `commercial-land-trade-alert` | 수집 결과의 GPT·Claude·Gemini 버튼 | `4e7ebf3a3` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
 | `commercial-land-trade-alert` | 수집 결과에서 AI 플랫폼·모델 바로 고르기, 요약에 쓴 모델 표시 | `4e38e2e0d` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
 | `commercial-land-trade-alert` | 설정 표 버튼 통일(카카오 끊기, 공용 키 삭제 경고, 다른 프로그램 봇 안내) | `2ac07f6a6` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
