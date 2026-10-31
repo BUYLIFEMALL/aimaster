@@ -10,6 +10,7 @@
 > 담당 역할: `ecommerce-image`(Claude Code 윈도우 `claude-win-sdp`). 마켓 등록기 공통 레퍼런스: [`../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md`](../docs/MARKETPLACE_REGISTER_ANALYSIS_GUIDE.md).
 
 ## 1. 사용 목적·대상
+**목표(2026-10-31 주인님): 「자동화 프로그램의 목적은 사용자의 편리성,효율성」, 「이 자동화 프로그램을 사용하면 판매자 입장에서 쿠팡 운영이 편해진다」.** 기능을 고를 때 반복·단순 작업이 줄어드는지 먼저 본다.
 쿠팡에 상품을 올리고 운영하는 판매자가 **쿠팡 공식 WING Open API(판매자 본인 키, 연동 방식 「자체개발」)**로 상품 등록부터 가격·재고·주문·송장·반품·문의까지 한 화면에서 처리한다. 첫 모듈은 상품 등록(AI 상세페이지 자동화 `shop-detail-page` 상품을 그대로 사용).
 
 ## 2. 기술·도구
@@ -201,3 +202,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 일부러 안 한 것: 이미지·옵션 구성 수정(상품 수정 본문을 쿠팡이 받는지 먼저 확인), 로켓그로스(계약 회원 전용, 시험 불가, 수요 미확인), 알림 채널은 텔레그램만.
 - 확인(시험 계정, 쿠팡 쓰기 0회): 구분선·v1.11·`/alerts` 화면, 텔레그램 시험 메시지 전송 응답 성공, 켜기·끄기(cron-job.org 작업 생성·중지, 해당 계정에 꺼진 작업 1개 남음), 잘못된 토큰 401 3건, `/coupons` 두 패널 표시, 시험 94개·tsc·빌드 통과.
 - 미확인: 실제 요약 메시지 1회 전체 동작(켜 두면 호출을 써서 바로 껐다), 텔레그램 수신은 응답만 확인, AI 추천 실제 호출, 연속 등록 흐름, 다운로드 쿠폰·장기 미배송·정리 작업 실제 동작.
+
+## 2026-10-31 — v1.12 대기: 알림 채널·AI 선택·반복 작업·빠진 API(커밋 완료, 미배포)
+- 알림: 아침 요약 받을 곳 이메일·카카오톡 추가(`lib/alerts/deliver.ts`, 회원 본인 SMTP·SOLAPI) `533bdded5`. AI: OpenAI·Claude·Gemini 선택(`lib/ai/llm.ts`·`models.ts`, `AiModelSelect`) `6e656fd51`.
+- 반복 작업 `6754b148e`: 발주서·송장 파일(`lib/sheet.ts`, `orderFile.ts`, 브라우저에서만 생성·서버 저장 없음), 「처리하고 발주서 파일 받기」, 50건 나눠 전송, 답변 템플릿·여러 건 초안(보내기는 회원 확인), 복사 등록·상세페이지 없이 등록(`/products/new`), 등록 템플릿, 엑셀 일괄(상한 100), 원가 서버 저장(`lib/coupang/prefs.ts`), 오늘 할 일 안에서 처리.
+- 빠진 API `78cfc78c5`(`lib/coupang/logisticsWrite.ts`, `actions/logistics.ts`): 회수 송장(`PickupInvoice`, 반품 RETURNS_UNCHECKED·교환 BeforeDirection일 때만), 반품 철회 이력(최근 7일), 출고지·반품지 만들기·고치기(`/defaults` `LogisticsPanel`, 2단 확인, 재시도 없음), 옵션 단위 자동생성옵션, 쿠폰 적용 옵션 보기.
+- 결정: 출고지 수정은 도서산간을 보내지 않는다(조회의 `remoteInfoId`가 비어 있음). 반품지 요금은 12칸을 한 값으로 받는다. 기간별 상품 목록·상품 요약은 호출을 줄이지 못해 만들지 않았다.
+- 배포 전 할 일: 운영 DB에 `supabase/migrations/20261031_coupang_ops_prefs.sql` 적용 → 빌드 1회(주인님 승인 대기) → `node scripts/deploy.mjs coupang-ops --go`, `--version-only --set-version v1.12`. 코드의 `APP_VERSION`은 배포 때까지 v1.11이다.
+- 검수: 시험 107개·tsc·로컬 build 통과(`78cfc78c5` 기준). 화면 확인과 쿠팡 쓰기 0회. 미확인: 이번 쓰기 전부, 복사 등록의 이미지 경로, AI 3종 호출, 메일·카카오 발송, 택배사 실제 파일 형식, 첫 실제 주문의 번호 정밀도.
