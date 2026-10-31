@@ -76,9 +76,11 @@ export function KakaoForm({ status }: { status: AlertStatus }) {
       <ol className="list-decimal space-y-1 pl-5 text-[13px] text-slate-700">
         <li>카카오 개발자에서 내 앱의 <b>REST API 키</b>를 아래에 저장합니다. 클라이언트 시크릿을 켰다면 함께 넣습니다.</li>
         <li>카카오 로그인 Redirect URI에 아래 주소를 추가하고, 동의항목에서 <b>카카오톡 메시지 전송</b>을 켭니다.</li>
+        <li><b>앱 → 제품 링크 관리 → 웹 도메인 수정</b>에 아래 웹 도메인을 추가합니다. 빠지면 메시지 버튼이 다른 화면을 엽니다.</li>
         <li><b>카카오 연결하기</b>를 누르고 동의합니다.</li>
       </ol>
       <CopyBox label="Redirect URI" text={KAKAO_REDIRECT_URI} />
+      <CopyBox label="웹 도메인" text={new URL(KAKAO_REDIRECT_URI).origin} />
       <div className="grid gap-2 sm:grid-cols-2">
         <input aria-label="카카오 REST API 키" type="password" autoComplete="off" placeholder={status.kakaoHasKey ? "저장됨 — 바꿀 때만 입력" : "REST API 키(영문·숫자 32자)"} value={keys.restKey} onChange={(e) => setKeys({ ...keys, restKey: e.target.value })} className={field} />
         <input aria-label="카카오 클라이언트 시크릿" type="password" autoComplete="new-password" placeholder="클라이언트 시크릿(쓰는 경우만)" value={keys.secret} onChange={(e) => setKeys({ ...keys, secret: e.target.value })} className={field} />
