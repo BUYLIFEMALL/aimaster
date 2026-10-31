@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
-import { getAiKeyStatus, getProxyStatus, getWingKeyStatus } from "@/lib/data";
+import { getAiKeyStatus, getKeyExpiry, getProxyStatus, getWingKeyStatus } from "@/lib/data";
+import { KeyExpiryForm } from "@/components/KeyExpiryForm";
+import { keyExpiryNotice } from "@/lib/coupang/prefs";
 import { AiKeyForm } from "@/components/AiKeyForm";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { ProxyKeyForm } from "@/components/ProxyKeyForm";
@@ -13,7 +15,8 @@ export const dynamic = "force-dynamic";
 
 export default async function ConnectPage() {
   const user = await requireProgramAccess();
-  const [status, aiKeys, proxy] = await Promise.all([getWingKeyStatus(user.id), getAiKeyStatus(user.id), getProxyStatus(user.id)]);
+  const [status, aiKeys, proxy, expiry] = await Promise.all([getWingKeyStatus(user.id), getAiKeyStatus(user.id), getProxyStatus(user.id), getKeyExpiry(user.id).catch(() => "")]);
+  const expiryNotice = keyExpiryNotice(expiry, Date.now());
 
   return (
     <div className="space-y-5">
@@ -50,6 +53,9 @@ export default async function ConnectPage() {
           </dl>
         )}
         <WingKeyForm saved={status.saved} />
+        {status.saved && <KeyExpiryForm key={expiry} expiry={expiry} />}
+        {status.saved && !expiry && <Notice tone="warn">🔑 키 만료일이 아직 없습니다. WING 키를 발급한 날에서 6개월 뒤 날짜를 넣어 두면 만료 전에 알려 드립니다.</Notice>}
+        {expiryNotice && <Notice tone="warn">🔑 {expiryNotice.text}</Notice>}
         <Notice tone="warn">
           🔒 키는 내 계정에만 저장되고, 화면에는 끝 4자리만 보입니다. 쿠팡 호출은 내 고정 IP로만 나갑니다. 키가 노출됐다면 WING에서 「재발급」한 뒤 여기서 새 키로 바꿔 주세요(키는 최대 6개월 사용).
         </Notice>

@@ -26,10 +26,11 @@ export const cleanHour = (v: unknown) => {
 const shown = (c: Count) => ("error" in c ? "확인 실패" : `${c.count}${c.more ? "+" : ""}건`);
 const urgent = (c: Count) => ("error" in c ? false : c.count > 0);
 
-export function summaryMessage(c: TodayCounts, nowMs = Date.now()): string {
+export function summaryMessage(c: TodayCounts, nowMs = Date.now(), keyNotice = ""): string {
   const failed = [c.accept, c.instruct, c.stopRequests, c.returnsReceived, c.inquiries, c.exchanges].some((x) => "error" in x);
   return [
     `🛒 쿠팡 아침 요약 (${kstDate(nowMs)})`,
+    ...(keyNotice ? [`🔑 ${keyNotice}`] : []),
     `${urgent(c.stopRequests) ? "🚨" : "▫"} 출고중지 요청 ${shown(c.stopRequests)}`,
     `${urgent(c.inquiries) ? "🚨" : "▫"} 미답변 문의 ${shown(c.inquiries)}`,
     `▫ 결제완료 ${shown(c.accept)}`,

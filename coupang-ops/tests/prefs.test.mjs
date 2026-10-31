@@ -41,3 +41,19 @@ test("파일 일괄 변경을 읽는다", () => {
   assert.equal(r.problems.length, 3);
   assert.equal(parseBulkFile(Array.from({ length: BULK_FILE_MAX + 5 }, (_, i) => ({ 옵션ID: String(i + 1), "새 재고": "1" }))).entries.length, BULK_FILE_MAX);
 });
+
+test("S1 키 만료 안내", async () => {
+  const { defaultKeyExpiry, isExpiryDate, keyExpiryNotice, normalizePrefs } = await import("../src/lib/coupang/prefs.ts");
+  const now = Date.parse("2026-10-31T03:00:00Z");
+  assert.equal(defaultKeyExpiry(now), "2027-04-30");
+  assert.equal(defaultKeyExpiry(Date.parse("2026-11-15T03:00:00Z")), "2027-05-15");
+  assert.equal(keyExpiryNotice("", now), null);
+  assert.equal(keyExpiryNotice("2026-12-01", now), null);
+  assert.equal(keyExpiryNotice("2026-11-30", now).level, "soon");
+  assert.equal(keyExpiryNotice("2026-11-07", now).level, "urgent");
+  assert.match(keyExpiryNotice("2026-10-31", now).text, /오늘/);
+  assert.equal(keyExpiryNotice("2026-10-30", now).level, "expired");
+  assert.equal(isExpiryDate("2026-02-30"), false);
+  assert.equal(normalizePrefs({ wingKeyExpiry: "abc" }).wingKeyExpiry, "");
+  assert.equal(normalizePrefs({ wingKeyExpiry: "2027-04-30" }).wingKeyExpiry, "2027-04-30");
+});

@@ -48,3 +48,9 @@ test("AI 추천은 허용 값만 남기고 태그를 정리한다", () => {
   assert.deepEqual(r.attributes, { 계절: "겨울", 소재: "나일론" });
   assert.deepEqual(cleanSuggestion(null, attrs), { tags: [], attributes: {} });
 });
+
+test("S1 아침 요약에 키 만료 안내", () => {
+  const empty = { accept: { count: 0 }, instruct: { count: 0 }, stopRequests: { count: 0 }, returnsReceived: { count: 0 }, inquiries: { count: 0 }, exchanges: { count: 0 } };
+  assert.match(summaryMessage(empty, Date.now(), "키 만료 예정"), /🔑 키 만료 예정/);
+  assert.doesNotMatch(summaryMessage(empty, Date.now()), /🔑/);
+});

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PROXY_KEY, WING_FIELDS, WING_KEYS, maskKey, maskProxyUrl, type WingField, type WingKeys } from "@/lib/coupang/keys";
 import { normalizeDefaults } from "@/lib/coupang/defaults";
+import { normalizePrefs } from "@/lib/coupang/prefs";
 
 /** 회원 본인 쿠팡 키(서버 전용 — 화면에 원문을 넘기지 않는다). 하나라도 없으면 null */
 export async function getWingKeys(userId: string): Promise<(WingKeys & { userId: string; proxyUrl: string }) | null> {
@@ -47,6 +48,13 @@ export async function getAiKeyStatus(userId: string): Promise<Partial<Record<"an
   const supabase = await createClient();
   const { data } = await supabase.from("user_api_keys").select("provider, api_key").eq("user_id", userId).in("provider", ["anthropic", "openai", "gemini"]);
   return Object.fromEntries((data ?? []).map((r: { provider: string; api_key: string }) => [r.provider, maskKey(r.api_key)]));
+}
+
+/** WING 키 만료일(S1). 없으면 빈 문자열. 예약 실행은 로그인 세션이 없어 서버 키로 그 회원 행만 읽는다 */
+export async function getKeyExpiry(userId: string, asJob = false): Promise<string> {
+  const db = asJob ? createAdminClient() : await createClient();
+  const { data } = await db.from("coupang_ops_prefs").select("data").eq("user_id", userId).maybeSingle();
+  return normalizePrefs(data?.data).wingKeyExpiry;
 }
 
 /** 배송·반품 기본값(없으면 null) */

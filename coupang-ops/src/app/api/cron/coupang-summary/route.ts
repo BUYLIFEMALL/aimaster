@@ -1,8 +1,9 @@
 import { createHash } from "crypto";
 import { after, NextRequest, NextResponse } from "next/server";
-import { getWingKeysForJob } from "@/lib/data";
+import { getKeyExpiry, getWingKeysForJob } from "@/lib/data";
 import { readTodayCounts } from "@/lib/coupang/todayRead";
 import { deliver, loadTargets } from "@/lib/alerts/deliver";
+import { keyExpiryNotice } from "@/lib/coupang/prefs";
 import { cleanChannels, kstDate, summaryMessage } from "@/lib/coupang/summary";
 import { checkProgramAccess } from "@/lib/programAccess";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -26,7 +27,9 @@ async function run(userId: string) {
     if (!access.allowed) return finish("이용 권한이 없어 건너뛰었습니다.");
     const keys = await getWingKeysForJob(userId);
     if (!keys) return finish("쿠팡 키가 없어 건너뛰었습니다.");
-    return finish(await notify(summaryMessage(await readTodayCounts(keys))));
+    const expiry = await getKeyExpiry(userId, true).catch(() => "");
+    const nowMs = Date.now();
+    return finish(await notify(summaryMessage(await readTodayCounts(keys), nowMs, keyExpiryNotice(expiry, nowMs)?.text ?? "")));
   } catch (e) {
     console.error("[coupang-summary]", (e as Error).name);
     return finish("보내지 못했습니다. 받을 곳 연결을 확인해 주세요.");
