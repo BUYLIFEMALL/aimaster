@@ -30,6 +30,9 @@
 - v1.02 배포: 바코드·품번 칸, 브랜드 GENERIC(빌드 1회). 시험 43개·tsc·빌드 통과, 크롬 검사 동작 확인. 쿠팡 쓰기 실제 시험 0회.
 - 다음 첫 단계: 주인님 승인 뒤 「저장만」 1건 → 옵션 변경 1건 시험. 상세 `coupang-ops/AGENTS.md`. https://coupang-ops.buylife.xyz
 
+## 2026-10-31 🟡 [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — 상가·건물·토지 매물 알림 v1.02: 네이버 매물 1단계 배포
+- 이름 변경, 확장, 감시 화면, 예약, 가격 변동, 텔레그램/이메일/카카오톡 알림. 운영 DB 표 1개·칸 추가, 카드 문구 2개 변경(ref esgxyikcnnvmlhygjkth). 확장 ZIP OK. 실제 네이버 수집은 에이전트 도구로 불가, 주인님 실물 시험 대기. 매물 알림 문구 수정은 미배포. 상세 `commercial-land-trade-alert/AGENTS.md`.
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-realty-docs` — 새 프로그램 상가·건물·토지 실거래 알림 v1.01
 - 상세 `commercial-land-trade-alert/AGENTS.md`, 플랜 `real_estate_sales/docs/PLAN_20261031_COMMERCIAL_LAND.md`. 운영 DB 표 6개(ref esgxyikcnnvmlhygjkth), 「준비중」. 2026-10-31 정식 공개(VIP 145명, 썸네일). 미배포: 상세 문구 1건. 다음: 네이버 매물 플랜 `commercial-land-trade-alert/docs/PLAN_20261031_NAVER_LISTINGS.md` 승인 대기.
 
