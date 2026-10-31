@@ -59,13 +59,12 @@
 
 | 할 일 | 급함 | 관련 파일 | 근거·메모 | 적은 날 · CLI |
 |---|---|---|---|---|
-| **「백업」 카테고리(`backup`) 외부 비노출** — 병합을 마친 옛 프로그램 보관용. ① 홈 「분야별 프로그램 바로가기」·프로그램 목록·카테고리 상세의 칩 줄에서 빼기(숨길 카테고리 목록 `HIDDEN_CATEGORY_SLUGS = ["backup"]` 한 곳) ② `/programs/category/backup`은 관리자가 아니면 404 ③ 관리자 화면(프로그램 관리·카테고리 관리)은 그대로 보임. 아래 「빈 카테고리 숨기기」와 같은 빌드로 | 보통(주인님 직접 지시) | `components/home/CategoryQuickBar.tsx`, `app/(main)/page.tsx` 52행, `app/(main)/programs/page.tsx` `getCategories()`, `app/(main)/programs/category/[slug]/page.tsx` `getCategory()`·`getCategories()` | 주인님 지시 2026-10-25 「백업카테고리는 프로그램 병합작업을 마치고 난 프로그램만 모아놓은 곳이야 백업 카테고리는 외부에 노출시키지 않는 것으로 해」. 현재: 홈 칩 줄에 「백업」 보임, `/programs/category/backup`이 「백업 프로그램」 제목으로 누구에게나 열림(200). 안의 프로그램은 모두 `is_active=false`라 목록엔 안 나옴. 카테고리 표에 숨김 칸이 없어 코드에서 거름(DB 변경 없음) | 2026-10-25 · Claude Code(윈도우) `claude-win-dotori` |
-| 공개 프로그램이 없는 카테고리(지금 Tools·주식·부업)를 카테고리 메뉴·목록에서 숨기기(`programs.is_active=true`가 0개인 상위 카테고리 제외, 관리자 화면은 그대로) | 보통 | `app/(main)/programs/page.tsx` `getCategories()`, `app/(main)/page.tsx` 52행, 카테고리 메뉴 컴포넌트 | 주인님 결정 「숨기기」 2026-10-24(`docs/PLAN_20261024_EBOOK_KEY_TAROT_RETENTION_YEAR.md` §0). 카테고리 표에 숨김 칸이 없어 코드에서 거른다 — 카테고리 상세 주소는 그대로 열림 | 2026-10-24 · Claude Code(윈도우) `claude-win-dotori` |
 
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `.` (메인 사이트) | 커밋 `3e4f029b8` 자동 빌드 · 2026-10-31 (Claude Code 윈도우, 주인님 승인) | 일반 등급 권한 경고 팝업 4곳, 공개 프로그램 없는 카테고리 숨김(워드프레스·주식·Tools). 백업 카테고리는 `f23d2ea85`에서 이미 처리돼 표에서만 지움. 운영 홈·목록 확인, 팝업 화면은 관리자 로그인 필요로 미확인 |
 | `coupang-ops` | v1.17 · 2026-10-31 ([역할: ecommerce-image], 승인 빌드 1회) | 카카오 웹 도메인 안내(`054f96270`), 품절 임박 자동 알림(`244e05212`), 수시 알림·회원 시각 선택(`905fe8284`·`2c4bd91db`·`bcb940598`), 고정 IP 미등록 안내(`d381ca59d`) |
 | `coupang-ops` | v1.16 · 2026-10-31 ([역할: ecommerce-image], 승인 빌드 1회) | 연동 화면 부동산 표 구조, 발급 버튼·매뉴얼, Resend 메일, 카카오 나에게 보내기(`71c8571a5`·`ed5e72204`) |
 | `coupang-ops` | v1.15 · 2026-10-31 ([역할: ecommerce-image], 승인 빌드 1회) | 알림 키 칸을 API키등록·플랫폼연동으로 이동(`ff2682c89`) |
