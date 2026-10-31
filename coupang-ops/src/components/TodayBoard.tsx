@@ -7,12 +7,14 @@ import { InquiryBoard } from "@/components/InquiryBoard";
 import { OrderSheets } from "@/components/OrderSheets";
 import { ReturnRequests } from "@/components/ReturnRequests";
 import { todaySummaryAction, type Count, type TodayResult } from "@/lib/actions/today";
-import { Zap, ShieldCheck, TrendingUp, AlertTriangle, RefreshCw, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { Truck, RotateCcw, AlertTriangle, RefreshCw, ArrowUpRight, CheckCircle2 } from "lucide-react";
 
 const show = (c: Count) => ("error" in c ? "확인 실패" : `${c.count}${c.more ? "+" : ""}건`);
 const zero = (c: Count) => !("error" in c) && c.count === 0;
+/** 요약 카드 합계. 하나라도 못 읽으면 합계를 내지 않는다 */
+const sum = (...list: Count[]) => (list.some((c) => "error" in c) ? "확인 실패" : `${list.reduce((n, c) => n + ("error" in c ? 0 : c.count), 0)}${list.some((c) => !("error" in c) && c.more) ? "+" : ""}건`);
 
-/** 3안: 쿠팡 아이템위너 알고리즘 데이터 인텔리전스 랩 - 오늘 할 일 & 위너 매칭 보드 */
+/** 오늘 할 일: 위 카드 숫자도 모두 「불러오기」로 쿠팡에서 읽은 값이다(고정 숫자 금지) */
 export function TodayBoard({ keysSaved, defaultCourier }: { keysSaved: boolean; defaultCourier: string }) {
   const [open, setOpen] = useState("");
   const [data, setData] = useState<Extract<TodayResult, { ok: true }> | null>(null);
@@ -41,82 +43,52 @@ export function TodayBoard({ keysSaved, defaultCourier }: { keysSaved: boolean; 
 
   return (
     <div className="space-y-4">
-      {/* 🧠 3안 특화: 아이템위너 알고리즘 4대 핵심 KPI 덱 */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {/* KPI 1: 위너 방어율 */}
-        <div className="lab-card p-4 border-l-4 border-l-emerald-600 bg-white">
+        <div className="lab-card p-4 border-l-4 border-l-rose-500 bg-white">
           <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[12px] font-bold">아이템위너 사수율</span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-              <ShieldCheck size={14} />
-            </span>
+            <span className="text-[12px] font-bold">먼저 볼 일</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-50 text-rose-600"><AlertTriangle size={14} /></span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900 tracking-tight">94.2%</span>
-            <span className="text-[11px] font-bold text-emerald-600 flex items-center">
-              +2.4%p <TrendingUp size={11} className="ml-0.5" />
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-slate-500">등록 18개 중 17개 위너 사수 중</p>
+          <p className="text-2xl font-black text-slate-900 tracking-tight">{data ? sum(data.stopRequests, data.inquiries) : "-"}</p>
+          <p className="mt-1 text-[11px] text-slate-500">출고중지 요청 + 미답변 문의</p>
         </div>
 
-        {/* KPI 2: 실시간 최저가 매칭 */}
         <div className="lab-card p-4 border-l-4 border-l-indigo-600 bg-white">
           <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[12px] font-bold">10원 최저가 매칭</span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-              <Zap size={14} />
-            </span>
+            <span className="text-[12px] font-bold">출고할 주문</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-50 text-indigo-600"><Truck size={14} /></span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-indigo-700 tracking-tight">실시간 추적</span>
-            <span className="inline-block h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
-          </div>
-          <p className="mt-1 text-[11px] text-slate-500">마진 하한선(15%) 안전 보호</p>
+          <p className="text-2xl font-black text-slate-900 tracking-tight">{data ? sum(data.accept, data.instruct) : "-"}</p>
+          <p className="mt-1 text-[11px] text-slate-500">결제완료 + 상품준비중</p>
         </div>
 
-        {/* KPI 3: 위너 쟁탈 감지 알림 */}
         <div className="lab-card p-4 border-l-4 border-l-amber-500 bg-white">
           <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[12px] font-bold">위너 탈환 대기</span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-50 text-amber-600">
-              <AlertTriangle size={14} />
-            </span>
+            <span className="text-[12px] font-bold">반품·교환</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-50 text-amber-600"><RotateCcw size={14} /></span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-amber-600 tracking-tight">1건 감지</span>
-            <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">경합중</span>
-          </div>
-          <p className="mt-1 text-[11px] text-slate-500">경쟁사 20원 인하로 뺏김 (탈환 권장)</p>
+          <p className="text-2xl font-black text-slate-900 tracking-tight">{data ? sum(data.returnsReceived, data.exchanges) : "-"}</p>
+          <p className="mt-1 text-[11px] text-slate-500">반품 접수 + 처리 중인 교환</p>
         </div>
 
-        {/* KPI 4: WING 오픈API 쿼터 */}
         <div className="lab-card p-4 border-l-4 border-l-blue-500 bg-white">
           <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[12px] font-bold">API 연결 상태</span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-              <CheckCircle2 size={14} />
-            </span>
+            <span className="text-[12px] font-bold">쿠팡 키</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600"><CheckCircle2 size={14} /></span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900 tracking-tight">{keysSaved ? "정상 가동" : "키 미등록"}</span>
-          </div>
-          <p className="mt-1 text-[11px] text-slate-500">{keysSaved ? "Fixie 고정 IP 프록시 연동됨" : "WING 키 등록 필요"}</p>
+          <p className="text-2xl font-black text-slate-900 tracking-tight">{keysSaved ? "등록됨" : "미등록"}</p>
+          <p className="mt-1 text-[11px] text-slate-500">{keysSaved ? "연결 확인은 「API키등록·플랫폼연동」에서" : "WING 키 등록 필요"}</p>
         </div>
       </div>
 
-      {/* 24시간 최저가 위너 쟁탈전 콘솔 & 오늘 할 일 섹션 */}
       <section className="lab-card space-y-4 p-5 sm:p-6 bg-white border border-slate-200 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 font-black text-xs">
-                AI
-              </span>
-              <h2 className="text-base font-extrabold text-slate-900">아이템위너 & 오늘의 주문 통합 관제</h2>
+              <h2 className="text-base font-extrabold text-slate-900">📋 오늘 할 일</h2>
             </div>
             <p className="mt-0.5 text-xs text-slate-500">
-              쿠팡 WING Open API를 통해 주문·송장·문의 및 아이템위너 매칭 상태를 실시간 스캔합니다.
+              최근 31일 주문과 처리할 요청을 버튼을 누를 때 쿠팡에서 읽어 옵니다. 숫자를 누르면 이 자리에서 바로 처리합니다.
             </p>
           </div>
 
@@ -128,14 +100,14 @@ export function TodayBoard({ keysSaved, defaultCourier }: { keysSaved: boolean; 
               className="btn-3d-indigo text-xs py-2 px-4"
             >
               <RefreshCw size={14} className={pending ? "animate-spin" : ""} />
-              <span>{pending ? "WING 스캔 중…" : data ? "데이터 다시 스캔" : "오늘 주문·위너 스캔"}</span>
+              <span>{pending ? "쿠팡에서 읽는 중…" : data ? "다시 불러오기" : "오늘 할 일 불러오기"}</span>
             </button>
           </div>
         </div>
 
         {!keysSaved && (
           <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 text-xs text-amber-900 flex items-center justify-between">
-            <span>🔑 WING Open API 키가 아직 등록되지 않았습니다. API 키를 등록해야 실시간 위너 추적과 주문 처리가 가능합니다.</span>
+            <span>🔑 WING Open API 키가 아직 등록되지 않았습니다. API 키를 등록해야 주문을 처리할 수 있습니다.</span>
             <Link href="/connect" className="font-bold underline text-indigo-700 hover:text-indigo-900 ml-2 shrink-0">
               키 등록하러 가기 →
             </Link>

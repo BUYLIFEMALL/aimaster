@@ -13,7 +13,7 @@ const STEPS = [
   { emoji: "🌐", title: "내 고정 IP 만들기", body: "Fixie 가입, 프록시 주소와 고정 IP 2개 확인" },
   { emoji: "🛡️", title: "자체개발 + IP 등록", body: "연동 방식 「자체개발」, 내 고정 IP 2개 넣기" },
   { emoji: "🧩", title: "이 프로그램에 키 등록", body: "업체코드·Access Key·Secret Key·WING 로그인 ID" },
-  { emoji: "✅", title: "연결 시험 → 사용", body: "연결이 확인되면 상품 대량 등록 & 위너 매칭 시작" },
+  { emoji: "✅", title: "연결 시험 → 사용", body: "연결이 확인되면 상품 등록부터 시작" },
 ];
 
 export default async function GuidePage() {
@@ -23,8 +23,8 @@ export default async function GuidePage() {
     <div className="space-y-6">
       <PageHeader
         emoji="📖"
-        title="WING 연동 & 위너 랩 매뉴얼"
-        description="쿠팡 WING Open API 키 발급부터 고정 IP 등록, 실시간 10원 최저가 위너 매칭 시작까지의 정밀 가이드입니다."
+        title="연동 & 사용 매뉴얼"
+        description="쿠팡 WING Open API 키 발급부터 고정 IP 등록, 연결 시험까지 따라 하는 안내입니다."
       >
         <a
           href={WING}
@@ -42,10 +42,7 @@ export default async function GuidePage() {
           ⏱ 소요시간 약 10분
         </span>
         <span className="rounded-full border border-slate-200 bg-white px-3 py-1 font-bold text-emerald-700 bg-emerald-50/50 shadow-xs">
-          💳 비용 없음 (쿠팡 WING API 100% 무료)
-        </span>
-        <span className="rounded-full border border-slate-200 bg-white px-3 py-1 font-bold text-indigo-700 bg-indigo-50/50 shadow-xs">
-          ⚡ 10원 최저가 위너 실시간 방어 엔진
+          💳 쿠팡 API 무료 · Fixie 월 500회 무료
         </span>
       </div>
 
@@ -177,16 +174,16 @@ export default async function GuidePage() {
         </div>
         <details className="rounded-xl border border-slate-200 p-3.5 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">
-            아이템위너 10원 최저가 매칭은 어떻게 동작하나요?
+            아이템위너 자동 가격 조정이 되나요?
           </summary>
           <p className="mt-2 leading-relaxed text-slate-600 text-xs">
-            쿠팡 동일 상품 카탈로그에 묶인 경쟁 판매자들의 최저가를 실시간 감지하여, 회원이 설정한 「최소 마진 하한선(예: 15%)」 내에서 10원 단위로 즉시 가격을 자동 조정하여 위너 배지를 최우선 탈환합니다. 마진 하한선에 도달하면 무리한 출혈 경쟁을 막기 위해 가격 인하를 자동으로 멈춥니다.
+            아니요. 쿠팡 공식 API는 위너 여부와 경쟁사 가격을 알려 주지 않아, 이 프로그램은 위너를 추적하거나 가격을 자동으로 바꾸지 않습니다. 가격은 회원이 확인하고 직접 바꿉니다.
           </p>
         </details>
         <details className="rounded-xl border border-slate-200 p-3.5 text-sm">
           <summary className="cursor-pointer font-bold text-slate-800">쿠팡 WING API 사용료가 있나요?</summary>
           <p className="mt-2 leading-relaxed text-slate-600 text-xs">
-            쿠팡 공식 WING Open API는 쿠팡 입점 판매자라면 100% 무료로 제공됩니다. 본 프로그램은 판매자 본인의 무료 API 쿼터를 이용하므로 별도의 추가 통신 요금이 발생하지 않습니다.
+            쿠팡 Open API는 무료입니다. 쿠팡 호출은 내 Fixie 고정 IP를 거치며, Fixie 무료 요금은 월 500회입니다. 넘으면 회원이 Fixie 요금제를 올려야 합니다. AI 기능은 내 AI 키에 사용량이 청구됩니다. 이 프로그램 이용 권한은 AIMaster 회원 등급·구독을 따릅니다.
           </p>
         </details>
       </section>

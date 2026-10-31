@@ -7,7 +7,7 @@ import { KeyRound, Check, Trash2, ShieldAlert } from "lucide-react";
 const FIELDS: { name: string; label: string; hint: string; secret?: boolean }[] = [
   { name: "vendorId", label: "업체코드 (Vendor ID)", hint: "A로 시작하는 번호 (예: A00012345)" },
   { name: "accessKey", label: "Access Key", hint: "WING 「OPEN API 키 발급」 표의 Access Key", secret: true },
-  { name: "secretKey", label: "Secret Key", hint: "같은 표의 Secret Key — 안전하게 암호화 보관됩니다", secret: true },
+  { name: "secretKey", label: "Secret Key", hint: "같은 표의 Secret Key — 다른 사람에게 보여 주지 마세요", secret: true },
   { name: "wingUserId", label: "WING 로그인 ID", hint: "WING 로그인 계정 ID (상품 등록 필수)" },
 ];
 
@@ -43,7 +43,7 @@ export function WingKeyForm({ saved }: { saved: boolean }) {
           className="btn-3d-indigo text-xs py-2 px-5"
         >
           <KeyRound size={14} />
-          <span>{saving ? "암호화 저장 중…" : saved ? "새 WING 키로 변경 저장" : "WING API 키 저장하기"}</span>
+          <span>{saving ? "저장 중…" : saved ? "새 WING 키로 변경 저장" : "WING API 키 저장하기"}</span>
         </button>
 
         {saved && (

@@ -20,8 +20,8 @@ function BackLink() {
 function BrandName({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <Link href="/home" onClick={onNavigate} className="flex min-w-0 items-center gap-2.5">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-sm font-bold text-sm">
-        WP
+      <div aria-hidden className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-sm font-bold text-sm">
+        🛒
       </div>
       <div className="flex flex-col min-w-0">
         <div className="flex items-center gap-1.5">
@@ -30,7 +30,7 @@ function BrandName({ onNavigate }: { onNavigate?: () => void }) {
             {APP_VERSION}
           </span>
         </div>
-        <span className="text-[10px] font-medium text-slate-500 tracking-tight">아이템위너 알고리즘 랩</span>
+        <span className="text-[10px] font-medium text-slate-500 tracking-tight">쿠팡 WING Open API</span>
       </div>
     </Link>
   );
@@ -59,7 +59,7 @@ function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: (
         }`}
       >
         <Activity size={16} />
-        <span>위너 관제 대시보드</span>
+        <span>대시보드</span>
       </Link>
 
       {MENU_GROUPS.map((g) => (
@@ -85,18 +85,6 @@ function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: (
           <BookOpen size={15} className="text-indigo-600" />
           <span>연동 & 사용 매뉴얼</span>
         </Link>
-      </div>
-
-      {/* 위너 알고리즘 실시간 HUD 상태 카드 */}
-      <div className="mx-1 rounded-xl border border-emerald-200 bg-emerald-50/60 p-2.5 text-xs">
-        <div className="flex items-center justify-between text-emerald-800 font-bold mb-1">
-          <span className="flex items-center gap-1">
-            <ShieldCheck size={13} className="text-emerald-600" />
-            위너 방어 모드
-          </span>
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-        </div>
-        <p className="text-[11px] text-emerald-700">실시간 최저가 추적 활성화됨 (마진 하한 15%)</p>
       </div>
 
       <div className="mt-2 border-t border-slate-200 pt-2.5">
@@ -126,10 +114,6 @@ export function TopBar({ userEmail }: { userEmail?: string }) {
     <header className="sticky top-0 z-40 hidden h-14 items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur px-6 print:hidden md:flex">
       <BrandName />
       <div className="flex items-center gap-4 text-xs text-slate-700">
-        <div className="flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50/80 px-2.5 py-1 text-[11px] font-bold text-indigo-700">
-          <Zap size={12} className="text-indigo-600" />
-          <span>WING 10원 최저가 실시간 매칭 엔진 가동중</span>
-        </div>
         <a
           href="https://wing.coupang.com"
           target="_blank"

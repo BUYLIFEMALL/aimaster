@@ -29,7 +29,7 @@ export default async function ConnectPage() {
       <PageHeader
         emoji="🔑"
         title="API키 등록 &amp; 플랫폼 연동"
-        description="쿠팡 WING API 키·Fixie 고정 IP·AI 모델 키를 안전하게 등록합니다. 모든 키는 본인 계정에만 암호화 저장됩니다."
+        description="쿠팡 WING API 키·Fixie 고정 IP·AI 모델 키를 안전하게 등록합니다. 모든 키는 내 계정에만 저장됩니다."
       />
 
       {/* 1. 쿠팡 WING 키 등록 섹션 */}
@@ -72,7 +72,7 @@ export default async function ConnectPage() {
         )}
         {expiryNotice && <Notice tone="warn">🔑 {expiryNotice.text}</Notice>}
         <Notice tone="tip">
-          🔒 키는 안전하게 암호화 보관되며, 화면에는 끝 4자리만 표시됩니다. 쿠팡 API 호출은 오직 등록된 본인 고정 IP로만 송출됩니다.
+          🔒 키는 내 계정에만 저장되고, 화면에는 끝 4자리만 표시됩니다. 쿠팡 API 호출은 오직 등록된 본인 고정 IP로만 송출됩니다.
         </Notice>
       </section>
 
@@ -121,7 +121,7 @@ export default async function ConnectPage() {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs">
             <PlugZap size={15} />
           </span>
-          <h2 className="text-base font-extrabold text-slate-900">3. WING 실시간 통신 및 연결 시험</h2>
+          <h2 className="text-base font-extrabold text-slate-900">3. 연결 시험</h2>
         </div>
         <p className="text-sm text-slate-600 leading-relaxed">
           저장된 WING API 키와 Fixie 고정 IP가 정상인지 쿠팡 서버에 직접 검증합니다. 출고지·반품지 정보만 안전하게 조회하며 기존 데이터는 변경되지 않습니다.

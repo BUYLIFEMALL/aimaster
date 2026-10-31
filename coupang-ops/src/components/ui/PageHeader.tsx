@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { ShieldCheck, Activity } from "lucide-react";
 
-/** 3안: 쿠팡 아이템위너 랩 헤더 — 스마트 인디고 & 위너 에메랄드 테마 */
+/** 페이지 머리글(인디고·에메랄드 테마) */
 export function PageHeader({
   emoji,
   title,

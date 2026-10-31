@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { recheckJobsAction } from "@/lib/actions/alerts";
 import { rejectReasonText } from "@/lib/coupang/status";
-import { AlertCircle, RefreshCw, Sparkles, ExternalLink } from "lucide-react";
+import { AlertCircle, RefreshCw, ExternalLink } from "lucide-react";
 
 export type RejectedJob = {
   id: string;
@@ -15,7 +15,7 @@ export type RejectedJob = {
   message: string | null;
 };
 
-/** 3안: 반려 상품 AI 자동 수정 및 재검토 관제 보드 */
+/** 반려된 상품: 사유를 보여 주고 상품 화면으로 보낸다. 자동 수정은 없다 */
 export function RejectedBoard({ jobs, keysSaved }: { jobs: RejectedJob[]; keysSaved: boolean }) {
   const router = useRouter();
   const [note, setNote] = useState("");
@@ -44,7 +44,7 @@ export function RejectedBoard({ jobs, keysSaved }: { jobs: RejectedJob[]; keysSa
               <AlertCircle size={15} />
             </span>
             <h2 className="text-base font-extrabold text-slate-900">
-              쿠팡 반려 상품 AI 관제{" "}
+              반려된 상품{" "}
               {jobs.length > 0 && (
                 <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-700">
                   {jobs.length}건
@@ -53,7 +53,7 @@ export function RejectedBoard({ jobs, keysSaved }: { jobs: RejectedJob[]; keysSa
             </h2>
           </div>
           <p className="mt-0.5 text-xs text-slate-500">
-            쿠팡 WING 승인 심사에서 반려된 상품을 감지하고, 사유 분석을 통해 원클릭 AI 자동 수정을 지원합니다.
+            이 프로그램에서 보낸 상품 가운데 쿠팡이 반려한 것을 최근 순으로 최대 10건 보여 줍니다. 저장 뒤 결과는 「등록 상태 다시 확인」으로 받아 옵니다.
           </p>
         </div>
 
@@ -76,7 +76,7 @@ export function RejectedBoard({ jobs, keysSaved }: { jobs: RejectedJob[]; keysSa
 
       {jobs.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-500">
-          ✨ 현재 반려된 상품이 없습니다. 등록된 모든 상품이 정상 승인 및 위너 매칭 진행 중입니다.
+          기록된 반려 상품이 없습니다.
         </div>
       ) : (
         <div className="divide-y divide-slate-100">
@@ -98,20 +98,19 @@ export function RejectedBoard({ jobs, keysSaved }: { jobs: RejectedJob[]; keysSa
 
               <div className="flex items-center gap-2 shrink-0">
                 <Link
-                  href={`/products?edit=${j.product_id || j.id}`}
+                  href={j.product_id ? `/products/${j.product_id}` : "/my-products"}
                   className="btn-3d-emerald text-xs py-1 px-3"
                 >
-                  <Sparkles size={12} />
-                  <span>AI 자동 수정</span>
+                  <span>상품 화면에서 고치기</span>
                 </Link>
                 {j.seller_product_id && (
                   <a
-                    href={`https://wing.coupang.com/seller/products/${j.seller_product_id}`}
+                    href="https://wing.coupang.com"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
                   >
-                    <span>WING 보기</span>
+                    <span>WING 열기</span>
                     <ExternalLink size={10} />
                   </a>
                 )}

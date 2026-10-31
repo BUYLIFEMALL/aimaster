@@ -31,12 +31,12 @@ export default async function HomePage() {
     <div className="space-y-6">
       <PageHeader
         emoji="📊"
-        title="AI 쿠팡 아이템위너 인텔리전스 랩"
-        description="쿠팡 공식 WING Open API 기반 상품 대량 등록·10원 최저가 위너 방어·주문/송장 자동화를 안전하게 통합 관제합니다."
+        title="AI 쿠팡 운영 자동화"
+        description="쿠팡 공식 WING Open API로 상품 등록부터 주문·송장·반품·문의·정산까지 처리합니다."
       >
         <Link href="/products" className="btn-3d-indigo text-xs py-1.5 px-3.5">
           <Zap size={13} />
-          <span>상품 대량등록 시작</span>
+          <span>상품 등록</span>
         </Link>
       </PageHeader>
 
@@ -55,7 +55,7 @@ export default async function HomePage() {
             <div>
               <p className="font-bold text-emerald-950 mb-1">🧭 3분 빠른 시작 가이드</p>
               <p className="text-emerald-900 text-xs leading-relaxed">
-                1. 쿠팡 WING Open API 키 발급(연동방식 「자체개발」) → 2. 프로그램에 Access/Secret Key 등록 → 3. 연결 시험 후 10원 최저가 위너 매칭 시작!
+                1. 쿠팡 WING Open API 키 발급(연동방식 「자체개발」) → 2. 프로그램에 키와 내 고정 IP(Fixie) 등록 → 3. 연결 시험 후 사용
               </p>
             </div>
             <Link
@@ -69,18 +69,17 @@ export default async function HomePage() {
         </Notice>
       )}
 
-      {/* 실시간 4대 KPI & 오늘 할 일 통합 관제 데크 */}
       <TodayBoard keysSaved={!!keys} defaultCourier={defaults?.deliveryCompanyCode ?? ""} />
 
       {/* WING API 호출 현황 및 알림 */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-[12px] text-slate-500">
         <div className="flex items-center gap-1.5">
           <ShieldCheck size={14} className="text-indigo-600" />
-          <span>Fixie 고정 IP 프록시를 통해 쿠팡 WING 서버와 100% 안전하게 통신합니다.</span>
+          <span>쿠팡 호출은 내 Fixie 고정 IP로 나갑니다. Fixie 무료 요금은 월 500회이며, 넘으면 Fixie에서 요금제를 올려 주세요.</span>
         </div>
         {calls !== null && (
           <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-semibold">
-            이번 달 내 호출: {calls} / {FIXIE_FREE_MONTHLY}회
+            이번 달 내 호출: 약 {calls}회 (무료 {FIXIE_FREE_MONTHLY}회)
           </span>
         )}
       </div>
