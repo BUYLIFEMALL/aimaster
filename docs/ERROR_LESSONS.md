@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-10-31 사전 검증 확장을 저장소 밖에 만듦(`commercial-land-trade-alert`)
+- 증상: 주인님 지적 「작업폴더는 프로그램 서브폴더에 만들고 그안에 extention 폴더에」.
+- 원인: 「사전 검증 페이지는 저장소 밖」 규칙을 확장에도 적용함. 2026-10-24 기록에 이미 프로그램 폴더 안으로 하라는 지시가 있었는데 놓침.
+- 해결: `commercial-land-trade-alert/extension/`으로 이동, 공통 지침에 추가.
+- 다음부터: 확장은 사전 검증용도 `<프로그램>/extension/`에 만든다.
+
 ## 2026-10-31 `vercel env pull`이 민감 변수를 `[SENSITIVE]` 글자로 내려 줌(`commercial-land-trade-alert`)
 - 증상: 새 프로그램 첫 배포에서 `Invalid supabaseUrl`.
 - 원인: 다른 프로젝트 환경변수를 pull해 복사했는데 민감 변수는 실제 값이 아니라 `[SENSITIVE]` 글자라 그대로 등록됨. 처음엔 줄바꿈 때문이라고 잘못 추정.
