@@ -1,5 +1,5 @@
 // 추가 요청 없이 페이지가 받은 응답만 읽는다. 개인 정보 칸은 값을 저장하지 않는다.
-const SENSITIVE = /realtor|phone|tel|mobile|cpName|cpPc|cpMobile|contact|detailAddr|exposureAddress|articleRealtor|Name$/i;
+const SENSITIVE = /realtor|phone|tel|mobile|cpName|cpPc|cpMobile|contact|detailAddr|exposureAddress|articleRealtor|Name$|desc|memo|comment|road|jibun|address/i;
 const KEEP_NAMES = /^(realEstateTypeName|tradeTypeName|areaName)$/;
 const WANT = /land\.naver\.com\/(api|front-api)\//;
 const requests = new Map();
@@ -18,7 +18,13 @@ const summarize = (body) => {
   const listKey = top.find((k) => Array.isArray(body[k]));
   const list = listKey ? body[listKey] : Array.isArray(body) ? body : null;
   const out = { top, listKey: listKey ?? null, count: list?.length ?? null, isMoreData: body?.isMoreData ?? null };
-  for (const k of top) if (!Array.isArray(body[k])) out[`top_${k}`] = mask(k, body[k]);
+  for (const k of top) {
+    const v = body[k];
+    if (Array.isArray(v)) continue;
+    // 상세 응답의 묶음은 안쪽 칸까지 본다. 중개사 묶음은 통째로 뺀다.
+    if (v && typeof v === "object" && !/realtor/i.test(k)) out[`top_${k}`] = Object.fromEntries(Object.entries(v).map(([a, b]) => [a, mask(a, b)]));
+    else out[`top_${k}`] = /realtor/i.test(k) ? "(가림)" : mask(k, v);
+  }
   if (list?.[0] && typeof list[0] === "object") {
     const fields = {};
     for (const row of list) for (const [k, v] of Object.entries(row)) {
