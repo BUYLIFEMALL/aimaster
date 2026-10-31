@@ -3,6 +3,7 @@
 import { EVENT_LABEL } from "./compare.js";
 
 const PYEONG = 3.3058;
+const MIN_YIELD = 5; // 표본이 적으면 대표값으로 보이지 않게 비운다
 const STATUS = Object.fromEntries(["new", "priceDown", "priceUp", "gone"].map((k) => [EVENT_LABEL[k], k]));
 const avg = (xs) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : null);
 const median = (xs) => {
@@ -48,7 +49,7 @@ export function summarizeTable(columns, table, at, sggByWatch = {}) {
     const gaps = sale.map((x) => x.gap).filter(Number.isFinite);
     const ylds = sale.map((x) => x.yld).filter(Number.isFinite);
     const trades = {};
-    if (sale.length) trades["매매"] = { n: sale.length, avg: avg(salePrices), med: median(salePrices), perPyeong: avg(sale.filter((x) => x.price && x.area).map((x) => (x.price / x.area) * PYEONG)), gapAvg: avg(gaps), gapN: gaps.length, yieldAvg: ylds.length ? Math.round((ylds.reduce((a, b) => a + b, 0) / ylds.length) * 10) / 10 : null, yieldN: ylds.length };
+    if (sale.length) trades["매매"] = { n: sale.length, avg: avg(salePrices), med: median(salePrices), perPyeong: median(sale.filter((x) => x.price && x.area).map((x) => (x.price / x.area) * PYEONG)), gapAvg: avg(gaps), gapMed: median(gaps), gapN: gaps.length, yieldMed: ylds.length >= MIN_YIELD ? median(ylds.map((y) => y * 10)) / 10 : null, yieldN: ylds.length };
     if (rent.length) trades["월세"] = { n: rent.length, avg: avg(rent.map((x) => x.price).filter(Number.isFinite)), rentAvg: avg(rent.map((x) => x.rent).filter(Number.isFinite)) };
     return { name: `${g.watch} · ${g.kind}`, watch: g.watch, kind: g.kind, sgg: sggByWatch[g.watch] || null, total: g.total, events: g.events, trades };
   });

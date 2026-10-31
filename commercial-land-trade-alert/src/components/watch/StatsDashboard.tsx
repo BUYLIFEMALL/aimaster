@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { askExtension } from "@/lib/extensionBridge";
 
-type SaleStat = { n: number; avg: number | null; med: number | null; perPyeong: number | null; gapAvg: number | null; gapN: number; yieldAvg: number | null; yieldN: number };
+type SaleStat = { n: number; avg: number | null; med: number | null; perPyeong: number | null; gapMed?: number | null; gapN: number; yieldMed?: number | null; yieldN: number };
 type RentStat = { n: number; avg: number | null; rentAvg: number | null };
 type Group = { name: string; watch: string; kind: string; sgg: string | null; total: number; events: { new: number; priceDown: number; priceUp: number; gone: number }; trades: { 매매?: SaleStat; 월세?: RentStat } };
 type Snap = { at: string; groups: Group[] };
@@ -86,9 +86,10 @@ function LineChart({ title, points, fmt }: { title: string; points: { at: string
 }
 
 function Gap({ s }: { s?: SaleStat }) {
-  if (s?.gapAvg == null) return <>—</>;
-  const color = s.gapAvg > 0 ? "text-blue-700" : s.gapAvg < 0 ? "text-red-600" : "";
-  return <><b className={color}>{s.gapAvg > 0 ? "▲" : s.gapAvg < 0 ? "▼" : ""} {Math.abs(s.gapAvg)}% {s.gapAvg > 0 ? "높음" : s.gapAvg < 0 ? "낮음" : "같음"}</b> <small className="text-mx-muted">({s.gapN}건)</small></>;
+  const v = s?.gapMed;
+  if (v == null) return <>—</>;
+  const color = v > 0 ? "text-blue-700" : v < 0 ? "text-red-600" : "";
+  return <><b className={color}>{v > 0 ? "▲" : v < 0 ? "▼" : ""} {Math.abs(v)}% {v > 0 ? "높음" : v < 0 ? "낮음" : "같음"}</b> <small className="text-mx-muted">({s.gapN}건)</small></>;
 }
 
 export function StatsDashboard({ email, onPick }: { email: string; onPick: (view: string) => void }) {
@@ -164,7 +165,7 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
       <h3 className="mt-5 text-base font-bold">🏢 감시 화면 비교 (이번 회차)</h3>
       <div className="mt-2 overflow-x-auto rounded-2xl border border-mx-border">
         <table className="mx-table [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
-          <thead><tr><th>감시 화면 · 유형</th><th>매물</th><th>매매 평균</th><th>매매 평당가</th><th>실거래 대비</th><th>월세 평균</th><th>평균 추정 수익률</th></tr></thead>
+          <thead><tr><th>감시 화면 · 유형</th><th>매물</th><th>매매 평균</th><th>매매 평당가(중간값)</th><th>실거래 대비(중간값)</th><th>월세 평균</th><th>추정 수익률(중간값)</th></tr></thead>
           <tbody>
             {latest.groups.map((g) => {
               const s = g.trades["매매"], m = g.trades["월세"];
@@ -177,14 +178,14 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
                   <td>{won(s?.perPyeong)}</td>
                   <td><Gap s={s} /></td>
                   <td>{m ? `${won(m.avg)} / 월 ${won(m.rentAvg)} (${m.n})` : "—"}</td>
-                  <td>{s?.yieldAvg != null ? `${s.yieldAvg}% (${s.yieldN}건)` : "—"}</td>
+                  <td>{s?.yieldMed != null ? `${s.yieldMed}% (${s.yieldN}건)` : "—"}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-xs text-mx-muted">금액은 호가 기준이며 (괄호)는 매물 수입니다. 실거래 대비는 시세 대비가 계산된 매물의 평균입니다. 면적이 다른 매물이 섞이면 평균이 크게 흔들리니 평당가를 함께 보세요. 추정 수익률은 호가로 어림한 값입니다.</p>
+      <p className="mt-2 text-xs text-mx-muted">금액은 호가 기준이며 (괄호)는 매물 수입니다. 평당가와 실거래 대비는 극단값에 덜 흔들리도록 중간값으로 보여 드립니다. 추정 수익률은 호가로 어림한 값이며 5건 이상일 때만 표시합니다.</p>
     </section>
   );
 }

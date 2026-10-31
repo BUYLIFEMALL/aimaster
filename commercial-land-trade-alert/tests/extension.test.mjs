@@ -170,6 +170,8 @@ test("추정 수익률", async () => {
   const y = estimateYield(sale, [sale, ...rents]);
   assert.equal(y.pct, 6.7);
   assert.equal(yieldText(y), "6.7%(월세 5건)");
+  assert.equal(yieldText({ pct: 15, count: 5 }), "15%(월세 5건)");
+  assert.equal(yieldText({ pct: 28.5, count: 10 }), "28.5%(월세 10건) · 확인 필요");
   assert.equal(estimateYield(sale, [sale, ...rents.slice(1)]), null, "5건 미만");
   assert.equal(estimateYield({ ...sale, floor: "B1/5" }, [sale, ...rents]), null, "다른 층");
   assert.equal(estimateYield({ ...sale, floor: "고/5" }, [sale, ...rents]), null, "층 모름");
@@ -227,7 +229,11 @@ test("통계 요약과 주간 리포트", async () => {
   assert.equal(g.trades["매매"].avg, 150000);
   assert.equal(g.trades["매매"].gapAvg, -20);
   assert.equal(g.trades["매매"].gapN, 1);
-  assert.equal(g.trades["매매"].yieldAvg, 5.5);
+  assert.equal(g.trades["매매"].gapMed, -20);
+  assert.equal(g.trades["매매"].yieldMed, null, "수익률 5건 미만은 비움");
+  assert.equal(g.trades["매매"].yieldN, 1);
+  const many = [1, 2, 3, 4, 5].map((n) => row({ ...base, "거래 종류": "매매", "가격": "10억", "추정 수익률": `${n}.5%(월세 5건)` }));
+  assert.equal(summarizeTable(COLUMNS, many, at).groups[0].trades["매매"].yieldMed, 3.5);
   assert.equal(g.trades["월세"].rentAvg, 500);
   assert.equal(pickEvents(COLUMNS, table, at).length, 2);
   assert.ok(!JSON.stringify(pickEvents(COLUMNS, table, at)).includes("중개"), "중개사 없음");

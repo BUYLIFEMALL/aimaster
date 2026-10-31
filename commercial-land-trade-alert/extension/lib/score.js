@@ -57,7 +57,8 @@ export function estimateYield(item, items) {
   return { pct: Math.round(((rent * 12) / (item.price - deposit)) * 1000) / 10, count: near.length };
 }
 
-export const yieldText = (y) => (y ? `${y.pct}%(월세 ${y.count}건)` : "");
+const YIELD_DOUBT = 15; // 호가 기준 어림이라 이보다 높으면 값을 지우지 않고 확인 표시만 붙인다
+export const yieldText = (y) => (y ? `${y.pct}%(월세 ${y.count}건)${y.pct > YIELD_DOUBT ? " · 확인 필요" : ""}` : "");
 
 /** @returns {{score:number, reasons:string[], candidate:boolean}} */
 export function scoreListing({ gap, drops = 0, ageDays = 0 }) {
