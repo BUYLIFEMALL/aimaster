@@ -1,5 +1,5 @@
 // 즉시할인 쿠폰(묶음 5). 경로·정리·검사만 — 외부 호출 없음(tests/coupons.test.mjs).
-// 명세(2026-10-31 확인, /ko/api/coupons): 계약 GET fms v2 contract/list · 예산 GET fms v1 budgets · 생성 POST fms v2 coupon(비동기 requestedId, 시작은 다음날 0시부터)
+// 명세(2026-10-31 확인, /ko/api/promotions/instant-discount-coupon-*): 계약 GET fms v2 contract/list · 예산 GET fms v1 budgets · 생성 POST fms v2 coupon(비동기 requestedId, 시작은 다음날 0시부터)
 //   옵션 추가 POST fms v1 coupons/{id}/items(적용 상품은 삭제 불가) · 요청 상태 GET fms v1 requested/{id} · 목록 GET fms v2 coupons · 파기 PUT fms v1 coupons/{id}?action=expire
 
 const V1 = "/v2/providers/fms/apis/api/v1/vendors";

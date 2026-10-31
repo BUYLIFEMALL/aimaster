@@ -42,7 +42,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 상세페이지 자동화(상품) → 이 프로그램(쿠팡) / 스마트스토어 등록기(스마트스토어)로 같은 상품을 두 마켓에. 주문·송장은 `shop-order-report`와 연계 예정(C3-3).
 
 ## 7. 디자인
-「쿠팡 운영 워크벤치 스타일」 — `smartstore-register` 「스토어 등록 워크벤치 스타일」 구조에 강조색만 쿠팡 빨강(`--accent: #be123c`, Tailwind `rose`). 디자인 다듬기는 디자인 담당에게.
+「쿠팡 셀러 콘솔 스타일」(2026-10-31 v1.10부터, 이전 「쿠팡 운영 워크벤치 스타일」) — [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -178,3 +178,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `shop-order-report` 연계: 코드 수정 없이 탭 구분 파일(.tsv)로 전달. 그쪽 `parsePasted`가 따옴표를 처리하지 않아 쉼표가 든 옵션명이 밀리므로 CSV를 쓰지 않는다. `tests/revenue.test.mjs`가 그쪽 `guessMapping`·`normalizeStatus`로 직접 확인한다.
 - `coupang/` 기획 흡수: 공헌이익·소진·마진/반품 경고는 여기로 옮겼다. 경쟁사 수집과 광고 CSV 분석은 넣지 않았다. 폴더 정리는 백업 규칙대로 주인님 승인 뒤.
 - 확인: 매출·지급 조회 실제 호출 통과, 시험 계정 실적 0건. 미확인: 실제 매출이 채워진 표·합계·파일 받기·소진일 화면, 반품 금액 부호, 지급내역 응답 모양(빈 결과와 형식 차이를 구분 못 함).
+
+## 2026-10-31 — v1.10 묶음 5: 상품 수정·일괄 변경·쿠폰 + WING 스타일(운영 배포)
+- 상품 수정: `/my-products` 「상품 수정」(`ProductEditPanel`, `lib/coupang/productEdit.ts`, `actions/productEdit.ts`). 상품명·브랜드·검색어는 조회 JSON 전체를 다시 읽어 고친 칸만 바꿔 PUT(승인된 상품은 `requested: true`, 재승인 뒤 반영). 배송·반품은 `/partial`(승인 불필요, 승인 상품만). 이미지·옵션 구성 수정은 범위 밖(WING 안내).
+- 옵션 관리에 할인 기준가 변경. `/bulk`(`BulkEditor`, `lib/coupang/bulk.ts`): 재고 점검 조회를 재사용해 옵션 선택 → %·금액·같은 값 → 미리보기 → 30건 상한 → 2단 확인 → 기존 변경 액션을 1건씩(재시도 없음, 직전 값 재확인). 같은 화면에 자동생성옵션 전체 켜기·끄기.
+- `/coupons`(`CouponBoard`, `lib/coupang/coupons.ts`, `actions/coupons.ts`): 즉시할인만. 계약·예산·목록·생성·처리 결과 확인·옵션 추가·파기. 다운로드 쿠폰은 범위 밖.
+- 디자인: 주인님 지시로 WING 판매자 화면 기준 「쿠팡 셀러 콘솔 스타일」. 위쪽 흰 헤더(로고 복제 없음), 왼쪽 메뉴 묶음(`MENU_GROUPS`), 파랑 강조(`globals.css` `@theme`), 왼쪽 파란 줄 안내 상자. 오류·품절·위험 표시는 빨강 유지. 「쿠팡 연결」은 매뉴얼 바로 위(`Sidebar` 정렬). 상세 `docs/DESIGN_HANDOFF.md`.
+- 확인(시험 계정 키, 쓰기 0회): 쿠폰 계약 #373796·목록 0건 조회, 일괄 옵션 1개 조회와 미리보기(-60 막힘, -10 → 216,000원), 승인 상품 15437165025 수정 패널 값 표시, 400px iframe에서 왼쪽 메뉴 숨김·☰·가로 넘침 없음(창 최대화라 실제 창 폭 검수는 못 함).
+- **미확인(쓰기 전체):** 상품 수정·배송 수정·기준가·일괄 적용·자동생성옵션·쿠폰 생성·옵션 추가·파기 모두 실제 전송 전. 조회 JSON을 그대로 PUT해도 쿠팡이 받는지, 예산 응답 모양은 첫 실제 건에서 확인. 16433545652는 중지 유지.
