@@ -15,9 +15,6 @@
 
 ## 대기 중
 
-- `commercial-land-trade-alert` — 메뉴 「매물 감시(예약 설정)」으로 합침(2026-10-31, [역할: realty], 커밋 0bdd69ce0, 다음 배포 때. 버전·ZIP·DB 함께)
-- `realty-listing-alert` — 메뉴 「매물 감시(예약 설정)」으로 합침(2026-10-31, [역할: realty], 커밋 5a437d16d, 다음 배포 때. 버전·ZIP·DB 함께)
-- `realty-listing-alert` — 알림 문구를 텔레그램/이메일/카카오톡으로 통일(웹·확장, 2026-10-31, [역할: realty], 다음 배포 때. 확장 ZIP 재생성 필요)
 
 
 - `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
@@ -71,6 +68,8 @@
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |
 | `real_estate_sales` | v1.33 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 전월세 거래 목록·알림 |
 | `real_estate_sales` | v1.32 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 공공데이터포털 공용 키 교체 적용, 지역당 20건 안내 문구 |
+| `realty-listing-alert` | v1.40 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 메뉴 합침, 알림 문구 통일 |
+| `commercial-land-trade-alert` | v1.10 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 메뉴 합침 |
 | `commercial-land-trade-alert` | v1.09 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 비교 표 중간값, 수익률 표시 기준, 메뉴 맞춤 |
 | `real_estate_sales` | v1.31 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 전국 256곳, 빌라·오피스텔, 유형 필터 |
 | `real_estate_sales` | v1.30 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 면적 범위 축소·거래 신고 면적 우선·특수 거래 표시 |

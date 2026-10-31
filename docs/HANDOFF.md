@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-listing-alert` v1.40 · `commercial-land-trade-alert` v1.10 메뉴 합침
+- 두 프로그램 모두 메뉴 「매물 감시(예약 설정)」으로 합침. 매물 알림은 예약 화면을 감시 화면 아래로 옮기고 `/schedule`은 넘김. 알림 문구 통일 함께 배포. 실제 화면은 주인님 확인 대기.
+- 링크: https://realty-listing-alert.buylife.xyz/targets · https://commercial-land-trade-alert.buylife.xyz/watch
+
 ## 2026-10-31 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `commercial-land-trade-alert` v1.09 메뉴 맞춤·비교 표 중간값
 - 확장 받기 버튼·한 줄 소개·메뉴 모양을 매물 알림과 맞춤, 5~7번은 실거래 묶음으로 구분. 비교 표 중간값, 수익률 5건 이상만, 15% 초과 확인 표시. 시험 33개·tsc·빌드 통과. 모바일 폭 화면은 주인님 확인 대기.
 - 링크: https://commercial-land-trade-alert.buylife.xyz/results
