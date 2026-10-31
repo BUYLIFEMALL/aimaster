@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-10-25 (`claude-win-20261024-music` — 가사영상 v1.11 L-1 로마자 발음 배포)
+- 마지막 갱신: 2026-10-31 (`claude-win-20261024-music` — AI Audio분석 v1.14 모델·Suno v6 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -17,12 +17,12 @@
 |---|---|---|---|
 | `shorts-onestop-studio` v1.42 | 미배포 대기 `a95613743`(안내 그림문자) | 다음 배포 때 함께 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
-| `ai-audio-analyzer` | 미배포 대기 `22c6cda35`(메뉴 계정 위치) | 다음 배포 때 함께 | `docs/PENDING_DEPLOYS.md` |
 | `playlist-channel-studio` v1.31 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-10-31 | `ai-audio-analyzer` v1.14 | `gemini-3.8-flash` 교체, Suno v6 지시문·화면 문구, 정확성 규칙. 합성음 환각은 미해결 | 배포 |
 | 2026-10-25 | `lyric-video-studio` v1.11 | Lyricbi L-1 노래방 로마자 발음(끔/위/아래, 시험 5개) | 배포 |
 | 2026-10-25 | 음악 카테고리 | 기본 지침 1판 `docs/MUSIC_AUTOMATION_POLICY.md`(대화 기록 66건 분석) · 쇼츠 무료 음성 휴대폰 속도 20초/20초 기록 | 없음(문서) |
 | 2026-10-24 | `shorts-onestop-studio` v1.42 | 무료 음성(내 브라우저) + 공용 엔진 `browser-free-tts` — 시험 계정 운영 검수 완료(음성·업로드·MP4) | 배포 |
@@ -38,3 +38,5 @@
 1. Lyricbi L-2 LP판 회전 → L-3 무료 사진 배경 → L-4 꾸밈 확장 → L-5 렌더 진단 → 배포(승인 빌드 남은 1회, `?remix=` 함께)
 
 ## 주인님께 여쭐 것
+- `gemini-2.5`를 코드에 쓰는 다른 파일이 101개 있습니다. 새 회원 키 접근 제한 영향을 프로그램별로 점검할지 결정해 주세요.
+- AI Audio분석 음악 분석 환각을 실제 연주곡으로 추가 시험할지 결정해 주세요(유료 호출, 소액).
