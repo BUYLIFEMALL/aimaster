@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { KpiCard, KpiGrid } from "@/components/ui/KpiCard";
 import { PageHero } from "@/components/ui/PageHero";
+import { TradeTabs } from "@/components/trades/TradeTabs";
 import { formatManwon, kindLabel, normalizePrefs, BUILDING_USES, JIMOKS } from "@/lib/trades/prefs";
 import { applyTradeFilter } from "@/lib/trades/query";
 
@@ -90,7 +91,8 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
 
   return (
     <div className="mx-auto max-w-6xl">
-      <PageHero badge="🏢 STEP 5 · 실거래 내역" title="실거래 내역" description="실거래 지역의 상가·건물·토지 실거래입니다. 계약 후 신고까지 시간이 걸려 최근 거래는 늦게 들어올 수 있습니다." tip={`조건에 맞는 거래 ${total.toLocaleString("ko-KR")}건`} />
+      <PageHero badge="🏢 STEP 4 · 실거래 내역" title="실거래 내역" description="실거래 지역의 상가·건물·토지 실거래입니다. 계약 후 신고까지 시간이 걸려 최근 거래는 늦게 들어올 수 있습니다." tip={`조건에 맞는 거래 ${total.toLocaleString("ko-KR")}건`} />
+      <TradeTabs active="trades" />
       <div className="mt-4">
         <KpiGrid>
           <KpiCard icon="🏢" label="전체 실거래" value={`${total.toLocaleString("ko-KR")}건`} />
