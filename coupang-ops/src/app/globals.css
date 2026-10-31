@@ -1,27 +1,38 @@
 @import "tailwindcss";
 
-/* 쿠팡 셀러 콘솔 스타일(라이트) — WING 판매자 화면처럼 흰 바탕 + 파랑 강조. 모든 페이지 같은 바탕색(디자인 지침 ⑪) */
+/* 41. 쿠팡 아이템위너 알고리즘 데이터 인텔리전스 랩 스타일 (라이트 테마)
+   스마트 클린 슬레이트 화이트 바탕 + 로열 인디고 블루 + 위너 에메랄드 그린 + 3D 엠보싱 버튼 */
 @theme {
-  --color-blue-50: #f0f5ff;
-  --color-blue-100: #e0eaff;
-  --color-blue-200: #c4d6ff;
-  --color-blue-300: #9dbaff;
-  --color-blue-400: #6f97fb;
-  --color-blue-500: #346aff;
-  --color-blue-600: #2b62ee;
-  --color-blue-700: #2b62ee;
-  --color-blue-800: #214fc7;
-  --color-blue-900: #1a3f9e;
+  --color-indigo-50: #eef2ff;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-200: #c7d2fe;
+  --color-indigo-300: #a5b4fc;
+  --color-indigo-400: #818cf8;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+  --color-indigo-700: #1d4ed8;
+  --color-indigo-800: #1e40af;
+  --color-indigo-900: #1e3a8a;
+
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
 }
+
 :root {
-  --bg: #ffffff;
+  --bg: #f8fafc;
   --surface: #ffffff;
-  --border: #dfe3e8;
-  --text: #111827;
-  --muted: #4b5563;
-  --accent: #2b62ee;
-  --accent-hover: #214fc7;
-  --accent-soft: #f0f5ff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #1d4ed8;
+  --accent-hover: #1e40af;
+  --accent-soft: #eff6ff;
+  --winner-green: #059669;
+  --winner-soft: #ecfdf5;
+  --danger: #e31a22;
 }
 
 body {
@@ -31,12 +42,108 @@ body {
   overflow-x: hidden;
 }
 
+/* 랩 스타일 슬레이트 카드 */
+.lab-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  transition: all 0.2s ease;
+}
+.lab-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+}
+
 .slw-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
 }
 
+/* 🎨 3D 엠보싱 버튼 규격 (DESIGN.md 원칙 21) */
+.btn-3d-indigo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff !important;
+  font-size: 13.5px;
+  font-weight: 800;
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid #1e40af;
+  box-shadow: 0 4px 0 #1e3a8a, 0 6px 14px rgba(29, 78, 216, 0.28);
+  transition: all 0.12s ease;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.btn-3d-indigo:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 5.5px 0 #1e3a8a, 0 8px 18px rgba(29, 78, 216, 0.35);
+}
+.btn-3d-indigo:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #1e3a8a, 0 2px 4px rgba(29, 78, 216, 0.2);
+}
+
+.btn-3d-emerald {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  color: #ffffff !important;
+  font-size: 13.5px;
+  font-weight: 800;
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid #047857;
+  box-shadow: 0 4px 0 #064e3b, 0 6px 14px rgba(5, 150, 105, 0.28);
+  transition: all 0.12s ease;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.btn-3d-emerald:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  box-shadow: 0 5.5px 0 #064e3b, 0 8px 18px rgba(5, 150, 105, 0.35);
+}
+.btn-3d-emerald:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #064e3b, 0 2px 4px rgba(5, 150, 105, 0.2);
+}
+
+.btn-3d-red {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff !important;
+  font-size: 13.5px;
+  font-weight: 800;
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid #b91c1c;
+  box-shadow: 0 4px 0 #991b1b, 0 6px 14px rgba(220, 38, 38, 0.28);
+  transition: all 0.12s ease;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.btn-3d-red:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 5.5px 0 #991b1b, 0 8px 18px rgba(220, 38, 38, 0.35);
+}
+.btn-3d-red:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #991b1b, 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+/* 기존 버튼 호환 클래스 고도화 */
 .slw-btn,
 .slw-primary {
   display: inline-flex;
@@ -44,38 +151,71 @@ body {
   justify-content: center;
   gap: 6px;
   border-radius: 10px;
-  padding: 8px 14px;
+  padding: 8px 15px;
   font-size: 13px;
   font-weight: 700;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
-  min-height: 36px;
+  transition: all 0.15s ease;
+  min-height: 38px;
 }
 .slw-primary {
-  background: var(--accent);
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
   color: #ffffff;
-  border: 1px solid var(--accent);
+  border: 1px solid #1e40af;
+  box-shadow: 0 3px 0 #1e3a8a, 0 4px 10px rgba(29, 78, 216, 0.2);
 }
-.slw-primary:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+.slw-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #1e3a8a, 0 6px 12px rgba(29, 78, 216, 0.28);
+}
+.slw-primary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #1e3a8a;
+}
+
 .slw-btn {
   background: #ffffff;
-  color: var(--text);
+  color: #334155;
   border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
-.slw-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-hover); }
+.slw-btn:hover:not(:disabled) {
+  border-color: #94a3b8;
+  color: #0f172a;
+  background: #f8fafc;
+}
 .slw-btn:disabled,
-.slw-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.slw-primary:disabled,
+.btn-3d-indigo:disabled,
+.btn-3d-emerald:disabled,
+.btn-3d-red:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
 
 .slw-field {
   width: 100%;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   background: #ffffff;
-  padding: 7px 10px;
+  padding: 8px 12px;
   font-size: 13px;
-  color: var(--text);
+  color: #0f172a;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.slw-field:focus { outline: 2px solid rgba(43, 98, 238, 0.35); border-color: var(--accent); }
-.slw-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.slw-field:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+.slw-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 5px;
+}
 
 .slw-drop {
   border: 2px dashed #94a3b8;
@@ -87,5 +227,7 @@ body {
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .slw-drop:hover,
-.slw-drop[data-over="true"] { border-color: var(--accent); background: var(--accent-soft); }
-
+.slw-drop[data-over="true"] {
+  border-color: #2563eb;
+  background: #eff6ff;
+}

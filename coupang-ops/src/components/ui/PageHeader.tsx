@@ -1,31 +1,58 @@
 import type { ReactNode } from "react";
+import { ShieldCheck, Activity } from "lucide-react";
 
-/** 도구 화면 맨 위 제목 줄 — 이모티콘·제목·한 줄 설명·「내 상품만」 배지. */
-export function PageHeader({ emoji, title, description, children }: { emoji: string; title: string; description: string; children?: ReactNode }) {
+/** 3안: 쿠팡 아이템위너 랩 헤더 — 스마트 인디고 & 위너 에메랄드 테마 */
+export function PageHeader({
+  emoji,
+  title,
+  description,
+  children,
+}: {
+  emoji: string;
+  title: string;
+  description: string;
+  children?: ReactNode;
+}) {
   return (
-    <header className="mb-5 flex flex-wrap items-start justify-between gap-3">
+    <header className="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-slate-200/80 pb-5">
       <div className="min-w-0">
-        <h1 className="flex items-center gap-2 text-xl font-extrabold text-slate-900 sm:text-2xl">
-          <span aria-hidden>{emoji}</span>
+        <h1 className="flex items-center gap-2.5 text-xl font-extrabold text-slate-900 sm:text-2xl tracking-tight">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100 text-lg shadow-sm" aria-hidden>
+            {emoji}
+          </span>
           <span>{title}</span>
         </h1>
-        <p className="mt-1 text-sm text-slate-600">{description}</p>
+        <p className="mt-1.5 text-xs sm:text-sm text-slate-600 font-medium">{description}</p>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">
-          🔒 내 쿠팡 계정만 보입니다
-        </span>
+      <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex items-center gap-1.5 rounded-full border border-indigo-200 bg-white px-3 py-1 text-[11px] font-bold text-indigo-700 shadow-xs">
+          <ShieldCheck size={13} className="text-emerald-600" />
+          <span>보안 격리: 내 쿠팡 WING 계정만 연동</span>
+        </div>
         {children}
       </div>
     </header>
   );
 }
 
-/** 안내·주의 상자 */
-export function Notice({ tone = "info", children }: { tone?: "info" | "warn" | "tip"; children: ReactNode }) {
+/** 안내·주의 상자 (3안 인디고 & 에메랄드 & 앰버 테마) */
+export function Notice({
+  tone = "info",
+  children,
+}: {
+  tone?: "info" | "warn" | "tip";
+  children: ReactNode;
+}) {
   const cls =
     tone === "warn"
-      ? "border-amber-500 bg-amber-50 text-amber-900"
-      : "border-blue-600 bg-blue-50 text-slate-800";
-  return <div className={`rounded-md border-l-4 px-3.5 py-2.5 text-[13px] leading-relaxed ${cls}`}>{children}</div>;
+      ? "border-amber-400 bg-amber-50/80 text-amber-950"
+      : tone === "tip"
+      ? "border-emerald-500 bg-emerald-50/80 text-emerald-950"
+      : "border-indigo-500 bg-indigo-50/80 text-indigo-950";
+
+  return (
+    <div className={`rounded-xl border-l-4 px-4 py-3 text-[13px] leading-relaxed shadow-xs ${cls}`}>
+      {children}
+    </div>
+  );
 }
