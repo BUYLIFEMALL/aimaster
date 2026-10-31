@@ -3,7 +3,7 @@ import Link from "next/link";
 // 실거래 메뉴 하나 안에서 내역·지역 설정·조건을 오가는 탭(2026-10-31 주인님 지시로 메뉴 3칸을 1칸으로).
 const TABS = [
   { id: "trades", href: "/trades", label: "🏢 내역" },
-  { id: "districts", href: "/districts", label: "📍 지역 설정" },
+  { id: "districts", href: "/districts", label: "📍 실거래 지역 추가" },
   { id: "conditions", href: "/conditions", label: "🧾 조건" },
 ];
 

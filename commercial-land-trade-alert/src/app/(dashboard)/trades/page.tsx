@@ -153,7 +153,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
         <p className="mx-card text-sm text-mx-muted">
           아직 고른 지역이 없습니다.{" "}
           <Link href="/districts" className="text-mx-link underline">
-            실거래 지역 설정
+            실거래 지역 추가
           </Link>
         </p>
       )}
