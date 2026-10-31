@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-10-31 ⚠ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp —  v1.06 묶음 2
+- 고객 문의·AI 답변 초안 배포. 상품 문의 조회가 기간 문제로 실패 → 수정  미배포 대기(추가 빌드 승인 필요). 상세  맨 아래.
+- 링크: https://coupang-ops.buylife.xyz/inquiries
+
 ## 2026-10-31 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `coupang-ops` v1.05 묶음 1
 - 호출 수 집계·상한·승인 요청·브랜드 검사. 상세 `coupang-ops/AGENTS.md` 맨 아래. 시험 60개·tsc·빌드 통과, 빌드 1회. 미배포: `shop-detail-page` 쿠팡 칸. 다음은 묶음 2 범위 플랜.
 - 링크: https://coupang-ops.buylife.xyz/home
