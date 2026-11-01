@@ -23,7 +23,7 @@ export function parseNeighborFeed(xml:string,owner:string):FeedPost[]{
 export async function fetchNeighborFeed(owner:string,fetcher:typeof fetch=fetch){
  if(!/^[a-z0-9_-]{1,50}$/.test(owner))throw Error('Feed owner');
  const r=await fetcher(`https://rss.blog.naver.com/${owner}.xml`,{redirect:'error',cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(10000)});
- if(!r.ok||!r.body)throw Error('Feed unavailable');const reader=r.body.getReader(),chunks=[];let size=0;
+ if(!r.ok||!r.body)throw Object.assign(Error('Feed unavailable'),{status:r.status});const reader=r.body.getReader(),chunks=[];let size=0;
  for(;;){const next=await reader.read();if(next.done)break;size+=next.value.length;if(size>1048576){await reader.cancel();throw Error('Feed size');}chunks.push(next.value);}
  const xml=new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(chunks));return {xml,posts:parseNeighborFeed(xml,owner)};
 }

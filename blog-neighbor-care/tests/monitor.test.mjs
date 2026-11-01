@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {randomUUID} from 'node:crypto';
 import {createMonitorHandler,monitorQuotes,reserveEstimate} from '../src/lib/neighbors/monitor.ts';
+import {createCronClient,MONITOR_CRON_URL} from '../src/lib/neighbors/cronJob.ts';
 const user=randomUUID(),session=randomUUID(),account=randomUUID(),target=randomUUID(),profile=randomUUID(),workId=randomUUID(),source=randomUUID();
 const body='비를 막는 방수 덮개와 가벼운 접이식 의자를 준비하는 과정에 대한 전체 글입니다.';
 const prices=JSON.stringify([{provider:'anthropic',model:'claude-haiku-4-5',inputUsdPerMillion:1,outputUsdPerMillion:5,validUntil:'2099-01-01T00:00:00Z',reference:'https://fixture.test/reviewed-price'}]);
@@ -7,7 +8,7 @@ const req=(operation,payload={},headers={})=>new Request('https://fixture.test/a
 function fixture(phase='ai'){
  const calls=[],s={paid:0,feeds:0,done:false,lose:false,budget:false,key:'own-fixture-key'};
  const work={id:session,work_id:workId,generation:1,phase,account_id:account,target_id:target,neighbor_id:'neighbor',profile_id:profile,profile_revision:1,provider:'anthropic',model:'claude-haiku-4-5',quote_hash:monitorQuotes(prices)[0].hash};
- const d={member:async()=>({allowed:true,userId:user}),key:async(u,p)=>{calls.push('key');assert.equal(u,user);assert.equal(p,'anthropic');return s.key;},feedEnabled:()=>true,aiEnabled:()=>true,prices:()=>prices,
+ const d={member:async()=>({allowed:true,userId:user}),key:async(u,p)=>{calls.push('key');assert.equal(u,user);assert.equal(p,'anthropic');return s.key;},feedEnabled:()=>true,aiEnabled:()=>true,prices:()=>prices,cron:{key:async()=>null,saveKey:async()=>{},deleteKey:async()=>{},client:{upsert:async()=>1,setEnabled:async()=>{}}},
   fetcher:async(url)=>{s.feeds++;assert.equal(url,'https://rss.blog.naver.com/neighbor.xml');return new Response('<rss><channel><item><title>제목</title><link>https://blog.naver.com/neighbor/123</link><description>excerpt is never presumed full</description></item></channel></rss>');},
   generate:async(p,m,k)=>{calls.push('generate');s.paid++;assert.equal(k,'own-fixture-key');if(s.lose)throw Error('secret-provider-error');return {text:'방수 덮개와 접이식 의자를 함께 준비하는 과정이 구체적으로 담겨 있어 짐을 챙길 때 참고하기 좋겠어요.',summary:'캠핑 준비 과정',emotion:'차분함',questionNeeded:false,aiLikeScore:3,usedFacts:[],details:[{sourceId:source,quote:'비를 막는 방수 덮개'},{sourceId:source,quote:'가벼운 접이식 의자'}]};},
   rpc:async(u,ns,op,p)=>{assert.equal(u,user);calls.push(`${ns}:${op}`);let data={};if(op==='claim')data=s.done?{phase:'idle'}:work;if(op==='material')data={url:'https://blog.naver.com/neighbor/123',title:'캠핑',body,expiresAt:'2099-01-01T00:00:00Z'};if(ns==='analysis')data={reviewedProfile:{}};if(op==='reserve_ai'){assert.ok(p.amountMicros>30000);data=s.budget?{phase:'budget'}:{id:workId,phase:'ai',kind:'comment',input:{facts:[]},profile:{},posts:[{id:source,title:'캠핑',body}],previousTexts:[],expiresAt:'2099-01-01T00:00:00Z'};}if(op==='feed_complete'){assert.equal(p.posts[0].body,'');s.done=true;}if(op==='ai_complete')s.done=true;if(op==='status')data={monitor:{state:'active'},awaitingBody:0};return {data,error:null};},
@@ -19,7 +20,7 @@ test('MON01 expired/unreviewed/mismatched prices never enable a quote; estimate 
 });
 test('MON02 member/origin/strict operation/start consent gates reject before feed, key or AI access',async()=>{
  const f=fixture();assert.equal((await f.handler(req('tick',{sessionId:session},{origin:'https://evil.test'}))).status,403);assert.equal((await f.handler(req('reserve_ai',{}))).status,400);assert.equal((await f.handler(req('tick',{sessionId:session,user_id:'other'}))).status,400);
- assert.equal((await f.handler(req('start',{accountId:account,neighbors:['neighbor'],aiEnabled:false,expectedRevision:0,feedConsent:false,confirmed:true,budgetMicros:0,maxAi:0}))).status,400);assert.equal(f.s.paid,0);assert.equal(f.s.feeds,0);assert.equal(f.calls.length,0);
+ assert.equal((await f.handler(req('start',{accountId:account,neighbors:['neighbor'],aiEnabled:false,expectedRevision:0,feedConsent:false,confirmed:true,budgetMicros:0,maxAi:0,background:false}))).status,400);assert.equal(f.s.paid,0);assert.equal(f.s.feeds,0);assert.equal(f.calls.length,0);
 });
 test('MON03 feed tick fetches only fixed publisher URL, stores metadata only and never calls an AI',async()=>{
  const f=fixture('feed');assert.equal((await f.handler(req('tick',{sessionId:session}))).status,200);assert.equal(f.s.feeds,1);assert.equal(f.s.paid,0);assert.ok(f.calls.includes('monitor:feed_complete'));assert.ok(!f.calls.includes('key'));
@@ -31,4 +32,16 @@ test('MON05 budget/key/unknown provider result cannot trigger fallback/retry or 
  const capped=fixture();capped.s.budget=true;assert.equal((await capped.handler(req('tick',{sessionId:session}))).status,200);assert.equal(capped.s.paid,0);
  const noKey=fixture();noKey.s.key=null;assert.equal((await noKey.handler(req('tick',{sessionId:session}))).status,409);assert.equal(noKey.s.paid,0);
  const failed=fixture();failed.s.lose=true;const r=await failed.handler(req('tick',{sessionId:session}));assert.equal(r.status,409);assert.equal(failed.s.paid,1);assert.ok(failed.calls.includes('message:uncertain'));assert.ok(failed.calls.includes('monitor:fail'));assert.doesNotMatch(await r.text(),/secret-provider|own-fixture-key/);
+});
+test('MON06 a failed feed read records a skip and keeps the tab session; no key is needed for feed work',async()=>{
+ const f=fixture('feed');f.d.fetcher=async()=>new Response('',{status:500});const handler=createMonitorHandler(f.d);f.s.done=false;
+ assert.equal((await handler(req('tick',{sessionId:session}))).status,200);assert.ok(f.calls.includes('monitor:fail'));assert.ok(!f.calls.includes('monitor:feed_complete'));assert.ok(!f.calls.includes('key'));
+});
+test('MON07 cron client uses the member key, a five-minute schedule, and reuses an existing job',async()=>{
+ const seen=[];const client=createCronClient(async(url,o)=>{seen.push({url,method:o.method,auth:o.headers.authorization,body:o.body&&JSON.parse(o.body)});if(o.method==='GET')return Response.json({jobs:seen.length>2?[{jobId:9,url:MONITOR_CRON_URL}]:[]});if(o.method==='PUT')return Response.json({jobId:5});return new Response('');});
+ assert.equal(await client.upsert('own-key','bnc_mon_token'),5);assert.equal(seen[1].method,'PUT');assert.equal(seen[1].auth,'Bearer own-key');
+ const job=seen[1].body.job;assert.equal(job.url,MONITOR_CRON_URL);assert.equal(job.schedule.minutes.length,12);assert.equal(job.extendedData.headers.Authorization,'Bearer bnc_mon_token');assert.doesNotMatch(JSON.stringify(job),/own-key|CRON_SECRET/);
+ assert.equal(await client.upsert('own-key','bnc_mon_second'),9);assert.equal(seen.at(-1).method,'PATCH');assert.equal(seen.at(-1).url,'https://api.cron-job.org/jobs/9');
+ await client.setEnabled('own-key',9,false);assert.deepEqual(seen.at(-1).body,{job:{enabled:false}});
+ const denied=createCronClient(async()=>new Response('',{status:401}));await assert.rejects(denied.setEnabled('bad',1,true),/API 키가 올바르지/);
 });

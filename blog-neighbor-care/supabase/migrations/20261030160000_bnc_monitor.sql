@@ -1,4 +1,4 @@
--- Foreground web monitor. Metadata feed reads and confirmed-material AI only.
+-- Member-started monitor. Feed metadata may run from the member's own cron-job.org; confirmed-material AI runs only from a visible web tab.
 begin;
 set local lock_timeout='5s';set local statement_timeout='30s';
 create table public.bnc_monitors(
@@ -7,9 +7,9 @@ create table public.bnc_monitors(
  neighbors text[] not null,ai_enabled boolean not null,profile_id uuid,profile_revision integer,provider text,model text,quote_hash text,
  budget_micros bigint not null check(budget_micros between 0 and 10000000),reserved_micros bigint not null default 0 check(reserved_micros>=0),
  max_ai integer not null check(max_ai between 0 and 20),ai_count integer not null default 0,feed_count integer not null default 0,
- generation bigint not null default 0,work_id uuid,work_kind text check(work_kind in ('feed','ai')),neighbor_id text,target_id uuid,
+ background boolean not null default false,feed_failures integer not null default 0,last_feed_at timestamptz,generation bigint not null default 0,work_id uuid,work_kind text check(work_kind in ('feed','ai')),neighbor_id text,target_id uuid,
  lease_until timestamptz,last_kind text,last_reason text not null default 'started',created_at timestamptz not null,expires_at timestamptz not null,
- check(cardinality(neighbors) between 1 and 50),check(expires_at<=created_at+interval '8 hours'),check(reserved_micros<=budget_micros)
+ check(cardinality(neighbors) between 1 and 50),check(expires_at<=created_at+interval '7 days'),check(reserved_micros<=budget_micros)
 );
 create table public.bnc_monitor_attempts(
  id uuid primary key,user_id uuid not null references public.bnc_settings(user_id) on delete cascade,session_id uuid not null,
@@ -22,6 +22,42 @@ alter table public.bnc_monitors enable row level security;alter table public.bnc
 revoke all on public.bnc_monitors,public.bnc_monitor_attempts from public,anon,authenticated,service_role;
 grant select,insert,update,delete on public.bnc_monitors,public.bnc_monitor_attempts to service_role;
 create index bnc_monitor_attempt_expiry on public.bnc_monitor_attempts(expires_at);
+create table public.bnc_monitor_scheduler(
+ user_id uuid primary key references public.bnc_settings(user_id) on delete cascade,token_hash text not null unique check(token_hash~'^[a-f0-9]{64}$'),
+ job_id bigint,active boolean not null default false,paused boolean not null default false,last_called_at timestamptz,last_error text check(length(last_error)<=300),updated_at timestamptz not null default clock_timestamp()
+);
+alter table public.bnc_monitor_scheduler enable row level security;
+revoke all on public.bnc_monitor_scheduler from public,anon,authenticated,service_role;
+grant select,insert,update,delete on public.bnc_monitor_scheduler to service_role;
+create function public.bnc_monitor_scheduler_dispatch(p_user_id uuid,p_operation text,p_payload jsonb) returns jsonb language plpgsql security invoker set search_path='' as $$
+declare r public.bnc_monitor_scheduler;
+begin
+ if jsonb_typeof(p_payload) is distinct from 'object' then raise exception 'BNC_INVALID_INPUT';end if;
+ if p_operation='lookup' then
+  if p_user_id is not null then raise exception 'BNC_INVALID_INPUT';end if;
+  update public.bnc_monitor_scheduler set last_called_at=clock_timestamp() where token_hash=p_payload->>'tokenHash' returning * into r;
+  if not found then return jsonb_build_object('userId',null);end if;
+  return jsonb_build_object('userId',r.user_id,'jobId',r.job_id,'paused',r.paused);
+ end if;
+ if p_user_id is null then raise exception 'BNC_INVALID_INPUT';end if;
+ if p_operation='get' then
+  select * into r from public.bnc_monitor_scheduler where user_id=p_user_id;
+  if not found then return jsonb_build_object('jobId',null,'active',false,'paused',false);end if;
+  return jsonb_build_object('jobId',r.job_id,'active',r.active,'paused',r.paused,'lastCalledAt',r.last_called_at,'lastError',r.last_error);
+ end if;
+ if p_operation='rotate' then
+  insert into public.bnc_monitor_scheduler(user_id,token_hash) values(p_user_id,p_payload->>'tokenHash')
+   on conflict(user_id) do update set token_hash=excluded.token_hash,active=false,paused=false,last_error=null,updated_at=clock_timestamp();
+  return jsonb_build_object('saved',true);
+ end if;
+ if p_operation='set' then
+  update public.bnc_monitor_scheduler set job_id=coalesce((p_payload->>'jobId')::bigint,job_id),active=coalesce((p_payload->>'active')::boolean,active),paused=coalesce((p_payload->>'paused')::boolean,paused),last_error=case when p_payload?'lastError' then p_payload->>'lastError' else last_error end,updated_at=clock_timestamp() where user_id=p_user_id;
+  return jsonb_build_object('saved',found);
+ end if;
+ raise exception 'BNC_INVALID_INPUT';
+end $$;
+revoke all on function public.bnc_monitor_scheduler_dispatch(uuid,text,jsonb) from public,anon,authenticated;
+grant execute on function public.bnc_monitor_scheduler_dispatch(uuid,text,jsonb) to service_role;
 create function public.bnc_monitor_dispatch(p_user_id uuid,p_operation text,p_payload jsonb) returns jsonb language plpgsql security invoker set search_path='' as $$
 declare m public.bnc_monitors;a public.member_platform_accounts;x public.bnc_post_targets;p public.bnc_analysis_jobs;
  t timestamptz:=clock_timestamp();neighbor text;v jsonb;prepared jsonb;amount bigint;n integer:=0;removed integer:=0;ai_target uuid;
@@ -35,10 +71,14 @@ begin
  if p_user_id is null or jsonb_typeof(p_payload) is distinct from 'object' then raise exception 'BNC_INVALID_INPUT';end if;
  perform pg_advisory_xact_lock(hashtextextended(p_user_id::text,71031));
  select * into m from public.bnc_monitors where user_id=p_user_id for update;
+ -- A feed read has no paid or social side effect: an abandoned one only skips that neighbor until the next due time.
+ if m.state='active' and m.work_kind='feed' and m.work_id is not null and m.lease_until<=t then
+  update public.bnc_monitors set work_id=null,lease_until=null,last_kind='feed',feed_failures=feed_failures+1,last_reason='feed_failed' where user_id=p_user_id returning * into m;
+ end if;
  if p_operation='status' then
   if p_payload<>'{}'::jsonb then raise exception 'BNC_INVALID_INPUT';end if;
   if m.state='active' and (m.expires_at<=t or m.lease_until<=t) then update public.bnc_monitors set state='paused',last_reason=case when expires_at<=t then 'expired' else 'unconfirmed' end where user_id=p_user_id returning * into m;end if;
-  return jsonb_build_object('monitor',to_jsonb(m),'awaitingBody',(select count(*) from public.bnc_post_targets where user_id=p_user_id and account_id=m.account_id and neighbor_id=any(m.neighbors) and not body_confirmed and expires_at>t));
+  return jsonb_build_object('monitor',case when m.user_id is null then null else to_jsonb(m) end,'awaitingBody',(select count(*) from public.bnc_post_targets where user_id=p_user_id and account_id=m.account_id and neighbor_id=any(m.neighbors) and not body_confirmed and expires_at>t));
  end if;
  if p_operation='start' then
   if p_payload->'confirmed' is distinct from 'true'::jsonb or p_payload->'feedConsent' is distinct from 'true'::jsonb or coalesce(m.revision,0) is distinct from (p_payload->>'expectedRevision')::bigint or m.state in ('active','paused') then raise exception 'BNC_MONITOR_CHANGED';end if;
@@ -53,14 +93,14 @@ begin
    select * into p from public.bnc_analysis_jobs where id=(p_payload->>'profileId')::uuid and user_id=p_user_id and kind='profile' and state='succeeded' and reviewed_result is not null and revision=(p_payload->>'profileRevision')::integer and input->>'ownBlogId'=a.external_id and expires_at>t+interval '90 seconds';
    if not found or nullif(p_payload->>'quoteHash','') is null then raise exception 'BNC_MESSAGE_PROFILE';end if;
   end if;
-  insert into public.bnc_monitors(user_id,state,account_id,neighbors,ai_enabled,profile_id,profile_revision,provider,model,quote_hash,budget_micros,max_ai,created_at,expires_at)
-   values(p_user_id,'active',a.id,array(select jsonb_array_elements_text(p_payload->'neighbors')),(p_payload->>'aiEnabled')::boolean,p.id,p.revision,p_payload->>'provider',p_payload->>'model',p_payload->>'quoteHash',(p_payload->>'budgetMicros')::bigint,(p_payload->>'maxAi')::integer,t,least(t+interval '8 hours',coalesce(p.expires_at,t+interval '8 hours')))
-   on conflict(user_id) do update set id=gen_random_uuid(),revision=public.bnc_monitors.revision+1,state='active',account_id=excluded.account_id,neighbors=excluded.neighbors,ai_enabled=excluded.ai_enabled,profile_id=excluded.profile_id,profile_revision=excluded.profile_revision,provider=excluded.provider,model=excluded.model,quote_hash=excluded.quote_hash,budget_micros=excluded.budget_micros,max_ai=excluded.max_ai,reserved_micros=0,ai_count=0,feed_count=0,generation=public.bnc_monitors.generation+1,work_id=null,work_kind=null,lease_until=null,last_kind=null,last_reason='started',created_at=t,expires_at=excluded.expires_at returning * into m;
+  insert into public.bnc_monitors(user_id,state,account_id,neighbors,background,ai_enabled,profile_id,profile_revision,provider,model,quote_hash,budget_micros,max_ai,created_at,expires_at)
+   values(p_user_id,'active',a.id,array(select jsonb_array_elements_text(p_payload->'neighbors')),p_payload->'background'='true'::jsonb,(p_payload->>'aiEnabled')::boolean,p.id,p.revision,p_payload->>'provider',p_payload->>'model',p_payload->>'quoteHash',(p_payload->>'budgetMicros')::bigint,(p_payload->>'maxAi')::integer,t,least(t+interval '7 days',coalesce(p.expires_at,t+interval '7 days')))
+   on conflict(user_id) do update set id=gen_random_uuid(),revision=public.bnc_monitors.revision+1,state='active',account_id=excluded.account_id,neighbors=excluded.neighbors,background=excluded.background,feed_failures=0,last_feed_at=null,ai_enabled=excluded.ai_enabled,profile_id=excluded.profile_id,profile_revision=excluded.profile_revision,provider=excluded.provider,model=excluded.model,quote_hash=excluded.quote_hash,budget_micros=excluded.budget_micros,max_ai=excluded.max_ai,reserved_micros=0,ai_count=0,feed_count=0,generation=public.bnc_monitors.generation+1,work_id=null,work_kind=null,lease_until=null,last_kind=null,last_reason='started',created_at=t,expires_at=excluded.expires_at returning * into m;
   return jsonb_build_object('saved',true,'sessionId',m.id,'externalActions',0);
  end if;
  if m.user_id is null or m.id is distinct from (p_payload->>'sessionId')::uuid then raise exception 'BNC_MONITOR_CHANGED';end if;
  if p_operation='stop' then
-  update public.bnc_monitors set state=case when work_id is null then 'off' else 'paused' end,revision=revision+1,last_reason='stopped' where user_id=p_user_id;return jsonb_build_object('stopped',true);
+  update public.bnc_monitors set state=case when work_id is null or work_kind='feed' then 'off' else 'paused' end,work_id=case when work_kind='feed' then null else work_id end,lease_until=case when work_kind='feed' then null else lease_until end,revision=revision+1,last_reason='stopped' where user_id=p_user_id;return jsonb_build_object('stopped',true);
  end if;
  if p_operation='acknowledge' then
   if p_payload->'confirmed' is distinct from 'true'::jsonb or m.state<>'paused' or m.lease_until>t then raise exception 'BNC_MONITOR_BUSY';end if;
@@ -70,16 +110,16 @@ begin
  end if;
  if p_operation='claim' then
   if m.state<>'active' then return jsonb_build_object('phase','idle','reason',m.state);end if;
-  if m.expires_at<=t or m.lease_until<=t then update public.bnc_monitors set state='paused',last_reason='unconfirmed' where user_id=p_user_id;return jsonb_build_object('phase','idle','reason','paused');end if;
+  if m.expires_at<=t or m.lease_until<=t then update public.bnc_monitors set state='paused',last_reason=case when expires_at<=t then 'expired' else 'unconfirmed' end where user_id=p_user_id;return jsonb_build_object('phase','idle','reason','paused');end if;
   if m.work_id is not null then return jsonb_build_object('phase','idle','reason','busy');end if;
   if not exists(select 1 from public.member_platform_accounts where id=m.account_id and user_id=p_user_id and platform='naver_blog' and not needs_reconnect) then raise exception 'BNC_ACCOUNT_REQUIRED';end if;
-  if m.ai_enabled then
-   select id into ai_target from public.bnc_post_targets x where x.user_id=p_user_id and x.account_id=m.account_id and x.neighbor_id=any(m.neighbors) and x.body_confirmed and x.expires_at>t+interval '90 seconds'
-    and exists(select 1 from public.bnc_neighbor_directory where user_id=p_user_id and account_id=m.account_id and neighbor_id=x.neighbor_id and new_posts_enabled)
-    and not exists(select 1 from public.bnc_message_jobs where user_id=p_user_id and neighbor_id=x.neighbor_id and post_id=x.post_id and state in ('queued','running','succeeded','uncertain'))
-    and not exists(select 1 from public.bnc_monitor_attempts where user_id=p_user_id and neighbor_id=x.neighbor_id and post_id=x.post_id) order by x.created_at,x.id limit 1;
+  if m.ai_enabled and p_payload->'feedOnly' is distinct from 'true'::jsonb then
+   select cand.id into ai_target from public.bnc_post_targets cand where cand.user_id=p_user_id and cand.account_id=m.account_id and cand.neighbor_id=any(m.neighbors) and cand.body_confirmed and cand.expires_at>t+interval '90 seconds'
+    and exists(select 1 from public.bnc_neighbor_directory where user_id=p_user_id and account_id=m.account_id and neighbor_id=cand.neighbor_id and new_posts_enabled)
+    and not exists(select 1 from public.bnc_message_jobs where user_id=p_user_id and neighbor_id=cand.neighbor_id and post_id=cand.post_id and state in ('queued','running','succeeded','uncertain'))
+    and not exists(select 1 from public.bnc_monitor_attempts where user_id=p_user_id and neighbor_id=cand.neighbor_id and post_id=cand.post_id) order by cand.created_at,cand.id limit 1;
   end if;
-  if m.feed_count<100 then
+  if m.feed_count<40000 then
    select z into neighbor from unnest(m.neighbors)z where exists(select 1 from public.bnc_neighbor_directory where user_id=p_user_id and account_id=m.account_id and neighbor_id=z and new_posts_enabled)
     and not exists(select 1 from public.bnc_feed_checks where user_id=p_user_id and neighbor_id=z and checked_at>t-interval '15 minutes' and expires_at>t) order by z limit 1;
   end if;
@@ -95,6 +135,7 @@ begin
  end if;
  if m.work_id is distinct from (p_payload->>'workId')::uuid or m.generation is distinct from (p_payload->>'generation')::bigint then raise exception 'BNC_STALE_RUN';end if;
  if p_operation='fail' then
+  if m.work_kind='feed' then update public.bnc_monitors set work_id=null,lease_until=null,last_kind='feed',feed_failures=feed_failures+1,last_reason='feed_failed' where user_id=p_user_id;return jsonb_build_object('paused',false);end if;
   update public.bnc_monitor_attempts set state=case when state='prepared' then 'blocked' else 'uncertain' end where id=m.work_id and user_id=p_user_id and state in ('prepared','running');
   update public.bnc_monitors set state='paused',last_reason='unconfirmed' where user_id=p_user_id;return jsonb_build_object('paused',true);
  end if;
@@ -102,10 +143,11 @@ begin
  if p_operation='check' then return jsonb_build_object('allowed',true);end if;
  if p_operation='feed_complete' and m.work_kind='feed' then
   v:=public.bnc_post_dispatch(p_user_id,null,'import',jsonb_build_object('accountId',m.account_id,'neighborId',m.neighbor_id,'rightsConfirmed',true,'bodyConfirmed',false,'posts',p_payload->'posts'));
+  update public.bnc_monitors set feed_failures=0,last_feed_at=t where user_id=p_user_id;
  elsif p_operation='reserve_ai' and m.work_kind='ai' then
   select * into x from public.bnc_post_targets where id=m.target_id and user_id=p_user_id and body_confirmed and expires_at>t+interval '90 seconds';prepared:=p_payload->'prepared';amount:=(p_payload->>'amountMicros')::bigint;
   if not found or prepared->>'id' is distinct from m.work_id::text or prepared->>'kind' is distinct from 'comment' or prepared->'input'->>'accountId' is distinct from m.account_id::text or prepared->'input'->>'profileId' is distinct from m.profile_id::text or prepared->'input'->>'profileRevision' is distinct from m.profile_revision::text or prepared->'input'->>'provider' is distinct from m.provider or prepared->'input'->>'model' is distinct from m.model or prepared->'input'->'post'->>'hash' is distinct from x.content_hash or p_payload->>'quoteHash' is distinct from m.quote_hash or amount is null or amount<=0 then raise exception 'BNC_MONITOR_CHANGED';end if;
-  if m.ai_count>=m.max_ai or m.reserved_micros+amount>m.budget_micros then update public.bnc_monitor_attempts set state='blocked' where id=m.work_id;update public.bnc_monitors set state='paused',last_reason='budget',work_id=null,lease_until=null where user_id=p_user_id;return jsonb_build_object('phase','budget');end if;
+  if m.ai_count>=m.max_ai or m.reserved_micros+amount>m.budget_micros then update public.bnc_monitor_attempts set state='blocked' where id=m.work_id;update public.bnc_monitors set state=case when background then 'active' else 'paused' end,ai_enabled=case when background then false else ai_enabled end,last_reason='budget',work_id=null,lease_until=null where user_id=p_user_id;return jsonb_build_object('phase','budget');end if;
   if not exists(select 1 from public.bnc_monitor_attempts where id=m.work_id and user_id=p_user_id and state='prepared') then raise exception 'BNC_STALE_RUN';end if;
   perform public.bnc_message_dispatch(p_user_id,'prepare',prepared);
   v:=public.bnc_message_dispatch(p_user_id,'claim',jsonb_build_object('id',m.work_id,'run_hash',p_payload->>'runHash'));

@@ -25,7 +25,8 @@
     "test:accept-schedule-database": "node --import tsx tests/accept-schedule-database.mjs",
     "test:extension-schedule-database": "node --import tsx tests/extension-schedule-database.mjs",
     "test:messages-database": "node --import tsx tests/messages-database.mjs",
-    "test:context-read-database": "node --import tsx tests/context-read-database.mjs"
+    "test:context-read-database": "node --import tsx tests/context-read-database.mjs",
+    "test:monitor-database": "node --import tsx tests/monitor-database.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
