@@ -11,7 +11,7 @@ import { formatDate } from "@/lib/utils/format";
 interface PremiumIndividualGrantProps {
   memberId: string;
   /** 공개 중인 프리미엄 뱃지 프로그램 */
-  programs: { id: string; name: string }[];
+  programs: { id: string; name: string; category?: { name: string; sort_order: number } | null }[];
   /** 이 회원의 개별 프리미엄 권한 */
   grants: { program_id: string; expires_at: string | null; program_name: string }[];
 }
@@ -23,6 +23,27 @@ export default function PremiumIndividualGrant({ memberId, programs, grants }: P
   const [date, setDate] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 카테고리별로 묶어 카테고리 순서대로 보여 준다
+  const groups = Array.from(
+    programs.reduce((map, p) => {
+      const name = p.category?.name ?? "기타";
+      const group = map.get(name) ?? { name, order: p.category?.sort_order ?? Number.MAX_SAFE_INTEGER, items: [] as typeof programs };
+      group.items.push(p);
+      return map.set(name, group);
+    }, new Map<string, { name: string; order: number; items: typeof programs }>()).values(),
+  ).sort((a, b) => a.order - b.order);
+
+  /** 오늘부터 고른 개월 수만큼 뒤의 날짜를 만료일 칸에 채운다(한국 날짜 기준). */
+  function applyMonths(months: number) {
+    const target = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    const day = target.getUTCDate();
+    target.setUTCDate(1);
+    target.setUTCMonth(target.getUTCMonth() + months);
+    const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+    target.setUTCDate(Math.min(day, lastDay));
+    setDate(target.toISOString().slice(0, 10));
+  }
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -110,22 +131,43 @@ export default function PremiumIndividualGrant({ memberId, programs, grants }: P
         </div>
       )}
 
-      <div className="max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-white/5 p-2 mb-3 space-y-0.5">
-        {programs.map((p) => (
-          <label key={p.id} className="flex items-center gap-2 text-sm text-white px-2 py-1.5 rounded-lg hover:bg-white/5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={selected.has(p.id)}
-              onChange={() => toggle(p.id)}
-              className="rounded border-white/20 bg-white/5 accent-gold"
-            />
-            {p.name}
-          </label>
+      <div className="max-h-72 overflow-y-auto rounded-xl border border-white/10 bg-white/5 p-2 mb-3 space-y-3">
+        {groups.map((group) => (
+          <div key={group.name}>
+            <p className="text-xs font-semibold text-gold px-2 py-1">
+              {group.name} <span className="text-subtext font-normal">{group.items.length}개</span>
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((p) => (
+                <label key={p.id} className="flex items-center gap-2 text-sm text-white px-2 py-1.5 rounded-lg hover:bg-white/5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(p.id)}
+                    onChange={() => toggle(p.id)}
+                    className="rounded border-white/20 bg-white/5 accent-gold"
+                  />
+                  {p.name}
+                </label>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-subtext">선택 {selected.size}개 · 만료일</span>
+        <span className="text-xs text-subtext">선택 {selected.size}개 · 기간</span>
+        <select
+          value=""
+          onChange={(e) => e.target.value && applyMonths(Number(e.target.value))}
+          className="input-dark text-xs py-1.5 px-2 w-[110px]"
+        >
+          <option value="">기간 선택</option>
+          {Array.from({ length: 11 }, (_, i) => i + 1).map((m) => (
+            <option key={m} value={m}>{m}달</option>
+          ))}
+          <option value="12">1년</option>
+        </select>
+        <span className="text-xs text-subtext">만료일</span>
         <input
           type="date"
           value={date}

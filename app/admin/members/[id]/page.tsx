@@ -54,7 +54,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
         .order("last_active", { ascending: false }),
       supabase
         .from("programs")
-        .select("id, name, slug, badges")
+        .select("id, name, slug, badges, category:categories(name, sort_order)")
         .eq("is_active", true)
         .order("sort_order"),
     ]);
