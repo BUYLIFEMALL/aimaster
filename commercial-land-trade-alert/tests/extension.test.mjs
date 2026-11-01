@@ -409,3 +409,17 @@ test("크롬이 메일 전송을 막으면 해결 방법을 알려 준다", asyn
     delete globalThis.chrome;
   }
 });
+
+test("행정동 이름으로 법정동을 찾는다", async () => {
+  const { normalizeDong, searchAdminDongs } = await import("../src/lib/adminDongs.ts");
+  const fs = await import("node:fs");
+  const { asOf, rows } = JSON.parse(fs.readFileSync(new URL("../public/admin-dongs.json", import.meta.url), "utf8"));
+  assert.match(asOf, /^\d{4}-\d{2}-\d{2}$/);
+  assert.equal(normalizeDong("노량진 제1동"), "노량진1동");
+  const codes = (q) => searchAdminDongs(rows, q).find((r) => normalizeDong(r[0]) === normalizeDong(q))?.[1];
+  assert.deepEqual([...codes("노량진1동")].sort(), ["1159010100", "1159010400"]);
+  assert.deepEqual(codes("노량진제2동"), ["1159010100"]);
+  assert.deepEqual(codes("상도2동"), ["1159010200"]);
+  assert.equal(searchAdminDongs(rows, "노").length, 0, "한 글자는 찾지 않음");
+  assert.ok(searchAdminDongs(rows, "역삼").length <= 20);
+});

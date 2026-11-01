@@ -4,6 +4,7 @@
 // 상가·건물·토지는 단지가 없어 동 중심 좌표로 네이버 지도 화면을 만든다. 좌표는 회원 PC의 확장이 네이버에서 받는다(서버는 네이버에 요청하지 않음).
 import { startTransition, useActionState, useEffect, useMemo, useState } from "react";
 import { addRegionTargetAction, type WatchState } from "@/lib/actions/watchTargets";
+import { type AdminDongRow, searchAdminDongs } from "@/lib/adminDongs";
 import { askExtension } from "@/lib/extensionBridge";
 
 // 옛 확장은 지역 요청을 모른 채 무시해 화면이 멈춰 보이므로 먼저 버전을 확인한다
@@ -25,6 +26,8 @@ export function RegionPicker({ email, disabled }: { email: string; disabled: boo
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState("");
   const [state, action, adding] = useActionState<WatchState, FormData>(addRegionTargetAction, {});
+  const [dongQuery, setDongQuery] = useState("");
+  const [adminDongs, setAdminDongs] = useState<{ rows: AdminDongRow[]; asOf?: string; failed?: boolean }>({ rows: [] });
 
   useEffect(() => {
     let alive = true;
@@ -35,6 +38,20 @@ export function RegionPicker({ email, disabled }: { email: string; disabled: boo
   const sidoRow = useMemo(() => regions?.find((s) => s.c === sido) ?? null, [regions, sido]);
   const sggRow = useMemo(() => sidoRow?.g.find((g) => g.c === sgg) ?? null, [sidoRow, sgg]);
   const dongName = sggRow?.d.find((d) => d[0] === dong)?.[1];
+
+  // 행정동 자료는 찾기 칸을 처음 쓸 때 받는다
+  function searchDong(text: string) {
+    setDongQuery(text);
+    if (adminDongs.rows.length || adminDongs.failed) return;
+    fetch("/admin-dongs.json").then((r) => r.json()).then((d) => setAdminDongs({ rows: d.rows, asOf: d.asOf })).catch(() => setAdminDongs({ rows: [], failed: true }));
+  }
+  const dongResults = useMemo(() => searchAdminDongs(adminDongs.rows, dongQuery), [adminDongs.rows, dongQuery]);
+  function legalPlace(code: string) {
+    const s = regions?.find((x) => x.c === code.slice(0, 2));
+    const g = s?.g.find((x) => x.c === code.slice(0, 5));
+    const d = g?.d.find((x) => x[0] === code);
+    return s && g && d ? { sido: s.c, sgg: g.c, sggName: g.n, name: d[1] } : null;
+  }
 
   async function add() {
     if (!dong || !kinds.length) return;
@@ -68,6 +85,29 @@ export function RegionPicker({ email, disabled }: { email: string; disabled: boo
   if (!regions) return <p className="text-sm text-mx-muted">지역 목록을 불러오는 중입니다...</p>;
   return (
     <div className="mt-3">
+      <div className="mb-4 rounded-xl border border-mx-border bg-mx-primary/5 p-3">
+        <label htmlFor="admin-dong" className="text-sm font-bold">행정동 이름으로 찾기</label>
+        <input id="admin-dong" value={dongQuery} onChange={(e) => searchDong(e.target.value)} placeholder="예: 노량진1동" className="mx-input mt-2 min-h-[44px] w-full" />
+        <p className="mt-1 text-xs text-mx-muted">네이버 매물과 실거래는 법정동 기준이에요. 행정동을 넣으면 등록할 법정동을 알려 드리며, 같은 법정동의 다른 행정동 매물도 함께 나올 수 있어요.</p>
+        {adminDongs.failed && <p className="mt-2 text-sm text-mx-danger" role="alert">행정동 자료를 불러오지 못했습니다. 화면을 새로고침해 주세요.</p>}
+        {dongQuery.trim().length >= 2 && adminDongs.rows.length > 0 && dongResults.length === 0 && <p className="mt-2 text-sm text-mx-muted">찾는 행정동이 없습니다. 이름을 확인하거나 아래에서 직접 골라 주세요.</p>}
+        {dongResults.length > 0 && (
+          <ul className="mt-2 space-y-2">
+            {dongResults.map(([name, codes]) => (
+              <li key={`${name}-${codes.join()}`} className="text-sm">
+                <b>{legalPlace(codes[0])?.sggName} {name}</b> → 법정동
+                <span className="ml-2 inline-flex flex-wrap gap-1 align-middle">
+                  {codes.map((code) => {
+                    const p = legalPlace(code);
+                    return p ? <button key={code} type="button" className={btn(dong === code)} onClick={() => { setSido(p.sido); setSgg(p.sgg); setDong(code); }}>{p.name}</button> : null;
+                  })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {adminDongs.asOf && <p className="mt-2 text-xs text-mx-muted">출처: 행정안전부 행정기관·관할구역 코드({adminDongs.asOf} 기준)</p>}
+      </div>
       <p className={stepTitle}>1. 시·도</p>
       <div className={grid}>
         {regions.map((s) => <button key={s.c} type="button" className={btn(sido === s.c)} onClick={() => { setSido(s.c); setSgg(null); setDong(null); }}>{s.n}</button>)}
@@ -82,7 +122,7 @@ export function RegionPicker({ email, disabled }: { email: string; disabled: boo
       )}
       {sggRow && (
         <>
-          <p className={stepTitle}>3. 읍·면·동</p>
+          <p className={stepTitle}>3. 읍·면·동 (법정동 기준)</p>
           <div className={grid}>
             {sggRow.d.map(([code, name]) => <button key={code} type="button" className={btn(dong === code)} onClick={() => setDong(code)}>{name}</button>)}
           </div>
