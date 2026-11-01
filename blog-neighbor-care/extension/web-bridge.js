@@ -3,7 +3,7 @@
   window.addEventListener('message', async event => {
     if (event.source !== window || event.origin !== location.origin) return;
     const m = event.data;
-    if (m?.source !== 'bnc-reader-app' || !['status', 'connect', 'feed_sync'].includes(m.type) || typeof m.requestId !== 'string' || m.requestId.length > 80) return;
+    if (m?.source !== 'bnc-reader-app' || !['status', 'connect', 'feed_sync', 'version'].includes(m.type) || typeof m.requestId !== 'string' || m.requestId.length > 80) return;
     let result;
     try { result = await chrome.runtime.sendMessage({ type: m.type, ...(m.type === 'connect' ? { code: m.code } : {}) }); }
     catch { result = { ok: false, error: '확장과 프로그램 화면을 새로고침해 주세요.' }; }

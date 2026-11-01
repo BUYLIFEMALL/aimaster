@@ -7,7 +7,7 @@ function applyButtons(){
   $('contextRead').disabled=busy||active||!$('contextPreview').hidden;$('contextKind').disabled=busy||active||!$('contextPreview').hidden;
   $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
-const running=chrome.runtime.getManifest().version_name;$('runningVersion').textContent=`실행 중 버전 ${running}`;$('runningBadge').textContent=running;
+const running=chrome.runtime.getManifest().version_name;$('runningVersion').textContent=`확장프로그램 실행 중 버전 ${running}`;$('runningBadge').textContent=`확장 ${running}`;
 // The popup has many blocks. Each title is a filled bar that folds its block, closed by default and remembered per block.
 const foldable=[...document.querySelectorAll('.card:not(.connection-card):not(.status-card)')].filter(card=>card.querySelector(':scope>h2'));
 let openCards=[];

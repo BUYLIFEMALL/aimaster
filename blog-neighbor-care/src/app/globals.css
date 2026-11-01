@@ -57,3 +57,4 @@
   .mobile-menu .bnc-account{margin-top:12px}
   .bnc-workspace>main{padding:20px 14px}
 }
+.bnc-app .bnc-versions{margin-top:12px;display:grid;gap:6px}.bnc-app .bnc-versions p{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0;padding:8px 10px;border-radius:6px;background:#0b7a5b;color:#fff;font-size:13px;font-weight:700;line-height:1.3}.bnc-app .bnc-versions p.ext{background:#1f4e8c}.bnc-app .bnc-versions p.warn{background:#b42318}.bnc-app .bnc-versions b{font-size:15px;font-weight:800;color:#fff}.bnc-app .bnc-versions small{display:block;padding:6px 8px;border-radius:6px;background:#fdecea;color:#912018;font-size:12px;font-weight:600;line-height:1.45}.bnc-app .bnc-versions button{width:100%;padding:8px;border-radius:6px;background:#b42318;color:#fff;font-size:12px;font-weight:700}

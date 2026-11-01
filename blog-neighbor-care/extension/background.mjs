@@ -62,7 +62,8 @@ export function createReaderController(browser, fetcher = fetch) {
     const popup = sender.id === browser.runtime.id && sender.url === browser.runtime.getURL('popup.html');
     let web = false;
     try { web = sender.id === browser.runtime.id && new URL(sender.tab?.url).origin === SITE; } catch { /* not the program tab */ }
-    if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect', 'feed_sync'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
+    if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect', 'feed_sync', 'version'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
+    if(message.type==='version')return {version:browser.runtime.getManifest().version_name};
     const { token } = await browser.storage.local.get('token');
     if(message.type==='feed_sync')return feedWatch.sync();
     if(['feed_status','feed_stop'].includes(message.type)){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return message.type==='feed_status'?feedWatch.status():feedWatch.stop();}

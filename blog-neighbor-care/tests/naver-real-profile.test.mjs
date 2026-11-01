@@ -101,3 +101,9 @@ test('NR11 the like button only saves a draft through the work API, and the popu
  const popup=readFileSync(new URL('../extension/popup.mjs',import.meta.url),'utf8');
  assert.match(popup,/const running=chrome\.runtime\.getManifest\(\)\.version_name/);assert.match(popup,/다시 로드/);
 });
+
+test('NR12 the menu separates main and extension versions from live answers, and the bridge passes only the version question',()=>{
+ const read=p=>readFileSync(new URL(p,import.meta.url),'utf8'),s=read('../src/components/VersionStatus.tsx');
+ assert.match(s,/메인프로그램/);assert.match(s,/확장프로그램/);assert.match(s,/\/api\/extension\/version/);assert.match(s,/다시 로드/);assert.match(s,/location\.reload/);
+ assert.match(read('../extension/web-bridge.js'),/'version'/);assert.match(read('../extension/background.mjs'),/version:browser\.runtime\.getManifest\(\)\.version_name/);
+});

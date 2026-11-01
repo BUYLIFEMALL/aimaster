@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
 import { APP_VERSION } from '../lib/version';
+import { VersionStatus } from './VersionStatus';
 
 const steps = [
   { href: '/reader', title: '내 글 연결', description: '확장 연결 · 본인 글 가져오기' },
@@ -32,8 +33,9 @@ export function ProgramNavigation({ children, email }: { children: ReactNode; em
       <Link className="bnc-brand" href="/studio" onClick={close}>
         <span className="bnc-brand-mark" aria-hidden="true">N↗</span>
         <strong>AI 블로그<br />이웃 소통 자동화</strong>
-        <small className="bnc-brand-version">{APP_VERSION} · RELAY DESK</small>
+        <small className="bnc-brand-version">RELAY DESK</small>
       </Link>
+      <VersionStatus />
       <a className="bnc-backlink" href="https://www.buylife.xyz/programs">← 다른 프로그램 보기</a>
     </div>
     <nav className="bnc-sidebar-nav" aria-label={mobile ? '모바일 프로그램 메뉴' : '프로그램 메뉴'}>
@@ -46,7 +48,7 @@ export function ProgramNavigation({ children, email }: { children: ReactNode; em
         </Link>
       </li>)}</ol>
       <div className="bnc-utilities">
-        <a className="primary nav-download" href="/downloads/blog-neighbor-care-extension-latest.zip" download><span>⬇ 확장 프로그램 받기</span><small>{APP_VERSION}</small></a>
+        <a className="primary nav-download" href="/downloads/blog-neighbor-care-extension-latest.zip" download><span>⬇ 확장 프로그램 받기</span><small>최신 {APP_VERSION}</small></a>
         <Link href="/settings" aria-current={active('/settings') ? 'page' : undefined} onClick={close}><span aria-hidden="true">🔑</span>API키등록·플랫폼연동</Link>
         <Link href="/guide" aria-current={active('/guide') ? 'page' : undefined} onClick={close}><span aria-hidden="true">📖</span>연동 &amp; 사용 매뉴얼</Link>
       </div>

@@ -38,7 +38,7 @@ test('NAV02 mobile menu includes the same account/actions, closes on navigation,
     assert.equal(document.querySelectorAll('.mobile-menu .bnc-flow a').length,4);
     assert.match(document.querySelector('.mobile-menu .bnc-account').textContent,/layout@example.invalid/);
     await React.act(async()=>document.querySelector('.mobile-menu .bnc-account button').dispatchEvent(new window.Event('click',{bubbles:true})));
-    assert.deepEqual(calls.map(c=>[c.url,c.options.method]),[['/api/auth/logout','POST']]);
+    assert.deepEqual(calls.filter(c=>c.url!=='/api/extension/version').map(c=>[c.url,c.options.method]),[['/api/auth/logout','POST']]);
     assert.match(document.querySelector('.mobile-menu [role=alert]').textContent,/다시 시도/);
     assert.equal(document.querySelector('.mobile-menu .bnc-account button').disabled,false);
     await React.act(async()=>document.querySelector('.mobile-menu a[href="/guide"]').dispatchEvent(new window.Event('click',{bubbles:true,cancelable:true})));
