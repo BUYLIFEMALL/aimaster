@@ -176,6 +176,8 @@ export interface UserProgramAccess {
   granted_by: string | null;
   granted_at: string;
   expires_at: string | null;
+  /** 프리미엄 프로그램이라 결제 전까지 효력이 정지된 권한 */
+  premium_suspended?: boolean;
   // joined
   program?: Program;
 }

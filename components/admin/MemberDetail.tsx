@@ -552,7 +552,9 @@ export default function MemberDetail({
                       <div>
                         <span className="text-white text-sm font-medium">{access.program?.name ?? access.program_id}</span>
                         <span className="text-subtext text-xs ml-3">{formatDate(access.granted_at)} 부여</span>
-                        {access.expires_at ? (
+                        {access.premium_suspended ? (
+                          <span className="text-xs ml-3 text-amber-400">결제 전 정지</span>
+                        ) : access.expires_at ? (
                           <span className={`text-xs ml-3 ${isExpired ? "text-red-400" : "text-subtext"}`}>
                             {isExpired ? "만료됨" : "만료"} {formatDate(access.expires_at)}
                           </span>
