@@ -235,7 +235,7 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-xs text-mx-muted">금액은 호가 기준이며 (괄호)는 매물 수입니다. 평당가와 실거래 대비는 극단값에 덜 흔들리도록 중간값으로 보여 드립니다. 추정 수익률은 호가로 어림한 값이며, 15%를 넘어 확인이 필요한 값을 뺀 5건 이상일 때만 표시합니다. 토지는 지목이 달라 비교가 어려워 실거래 대비를 표시하지 않습니다.</p>
+      <p className="mt-2 text-xs text-mx-muted">금액은 호가 기준이며 (괄호)는 매물 수입니다. 평당가와 실거래 대비는 극단값에 덜 흔들리도록 중간값으로 보여 드립니다. 추정 수익률은 호가로 어림한 값이며, 15%를 넘어 확인이 필요한 값을 뺀 5건 이상일 때만 표시합니다. 토지는 같은 지목의 실거래와만 비교합니다.</p>
       <EventLog events={events} lastAt={latest.at} short={shortWatch} />
     </section>
   );

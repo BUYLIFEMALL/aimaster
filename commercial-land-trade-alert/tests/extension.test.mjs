@@ -127,7 +127,12 @@ test("시세 대비와 후보 점수", async () => {
   assert.equal(marketGap({ ...it, floor: "B1/15" }, { samples: { SG: five("b") } }).floorName, "지하");
   assert.equal(marketGap(it, { samples: { SG: [1, 2, 3, 4, 5].map(() => row("1", 300)) } }), null, "면적 2배 초과 제외");
   assert.equal(marketGap(it, { samples: { SG: [row("1"), ...[1, 2, 3, 4].map(() => row("1", 100, 0))] } }).scope, "시군구");
-  assert.equal(marketGap({ ...it, kind: "TJ", floor: "" }, { samples: { TJ: five(null) } }), null, "토지는 지목이 달라 비교 안 함");
+  const lot = { ...it, kind: "TJ", floor: "", jimok: "답" };
+  const lots = (j) => [1, 2, 3, 4, 5].map(() => [null, 100, 4000, 1, j]);
+  assert.equal(gapText(marketGap(lot, { samples: { TJ: lots("답") } })), "-17%(동·답 5건)");
+  assert.equal(marketGap(lot, { samples: { TJ: lots("대") } }), null, "다른 지목과 비교 안 함");
+  assert.equal(marketGap({ ...lot, jimok: "" }, { samples: { TJ: lots("답") } }), null, "지목을 모르는 매물");
+  assert.equal(marketGap(lot, { samples: { TJ: [1, 2, 3, 4, 5].map(() => [null, 100, 4000, 1]) } }), null, "지목 없는 옛 표본");
   assert.equal(marketGap({ ...it, kind: "GM", floor: "" }, { samples: { GM: five(null) } }).floorName, "");
   assert.equal(marketGap(it, { SG: { median: 4000, count: 12, scope: "동" } }), null, "표본 없으면 비교 안 함");
   const s = scoreListing({ gap: g, drops: 1, ageDays: 40 });
@@ -162,6 +167,10 @@ test("실거래 시세 요약", async () => {
   assert.deepEqual(marketSamples([row({ floor: "1", area_m2: 50 }), row({ area_m2: 0 })], "역삼동").SG, [["1", 50, 100, 1]]);
   const land = [1, 2, 3, 4, 5].map((n) => row({ kind: "land", building_type: null, category: "대", price_per_pyeong: n * 10 }));
   assert.equal(summarizeMarket([...land, row({ kind: "land", building_type: null, category: "도로", price_per_pyeong: 1 })], "역삼동").TJ.median, 30);
+  assert.deepEqual(marketSamples([row({ kind: "land", building_type: null, category: "답", area_m2: 50 })], "역삼동").TJ, [[null, 50, 100, 1, "답"]]);
+  const { normalizeArticle } = await import("../extension/lib/listing.js");
+  assert.equal(normalizeArticle({ realEstateTypeCode: "TJ", articleName: "답", articleNo: "1" }, "t", "https://new.land.naver.com/").jimok, "답");
+  assert.equal(normalizeArticle({ realEstateTypeCode: "SG", articleName: "상가", articleNo: "2" }, "t", "https://new.land.naver.com/").jimok, "");
 });
 
 test("추정 수익률", async () => {
@@ -293,13 +302,7 @@ test("AI 엔진 3가지 요청과 선택값 검사", async () => {
   assert.throws(() => readJsonText("gemini", {}), /비어/);
 });
 
-test("토지 자료 확인 기록과 글쓰기 주제", async () => {
-  const { landFieldNote } = await import("../extension/lib/listing.js");
-  assert.equal(landFieldNote([{ realEstateTypeCode: "SG" }]), "");
-  const note = landFieldNote([{ realEstateTypeCode: "TJ", articleName: "임야", tagList: ["대지"], realtorName: "가나" }]);
-  assert.match(note, /임야/);
-  assert.match(note, /대지/);
-  assert.doesNotMatch(note, /가나/);
+test("글쓰기 주제", async () => {
   const { buildDraft } = await import("../src/lib/blogDraft.ts");
   const d = buildDraft({ area: "역삼동", kind: "상가", total: 3, events: { new: 2, priceDown: 0 }, saleAvg: 105000, saleN: 3, gapMed: 45 }, new Date("2026-10-31T00:00:00+09:00"));
   assert.match(d.topic, /2026년 10월 역삼동 상가 매물 시세 — 매매 호가 평균 10억 5,000만 원, 실거래 대비 \+45%, 새 매물 2건/);

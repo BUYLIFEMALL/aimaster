@@ -1,7 +1,7 @@
 // 상가·건물·토지 매물 알림 확장 — 수집 엔진. 기준: realty-listing-alert/extension/background.js
 // 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectView, locateDong, rand, RULES, sleep } from "./lib/collector.js";
-import { countByKindTrade, isWatchableUrl, landFieldNote, matchesTarget, normalizeArticle } from "./lib/listing.js";
+import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle } from "./lib/listing.js";
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
@@ -125,8 +125,6 @@ async function runCollection(trigger) {
         continue;
       }
       const seen = new Set();
-      const landNote = landFieldNote(r.bodies.flatMap((b) => b.articleList || []));
-      if (landNote) await addLog(`${t.name}: ${landNote}`);
       const allItems = r.bodies
         .flatMap((b) => b.articleList || [])
         .map((a) => normalizeArticle(a, t.id, t.url))

@@ -23,22 +23,22 @@ export function listingFloor(text) {
 
 /**
  * 매매 호가 평당가와, 비슷한 실거래 중간값의 차이(%). 표본 [층, 면적, 평당가, 같은 동 여부].
- * 상가는 같은 층 묶음만, 모든 유형은 면적 0.5~2배만 쓰고 5건이 안 되면 비교하지 않는다(null).
+ * 상가는 같은 층 묶음만, 토지는 같은 지목만, 모든 유형은 면적 0.5~2배만 쓰고 5건이 안 되면 비교하지 않는다(null).
  */
 export function marketGap(item, market) {
-  // 토지는 지목이 달라 평당가가 수십 배 차이 나서, 지목을 맞출 수 있을 때까지 시세와 비교하지 않는다
-  if (item.kind === "TJ") return null;
+  // 토지는 지목이 다르면 평당가가 수십 배 차이 나므로, 지목을 모르면 비교하지 않는다
+  if (item.kind === "TJ" && !item.jimok) return null;
   const samples = market?.samples?.[item.kind];
   if (!samples || item.tradeType !== "A1" || !item.price || !item.area) return null;
   const floor = item.kind === "SG" ? listingFloor(item.floor) : null;
   if (item.kind === "SG" && !floor) return null;
-  const near = samples.filter(([f, a]) => a >= item.area / 2 && a <= item.area * 2 && (item.kind !== "SG" || f === floor));
+  const near = samples.filter(([f, a, , , j]) => a >= item.area / 2 && a <= item.area * 2 && (item.kind !== "SG" || f === floor) && (item.kind !== "TJ" || j === item.jimok));
   const inDong = near.filter((x) => x[3]);
   const used = inDong.length >= MIN_SAMPLES ? inDong : near;
   if (used.length < MIN_SAMPLES) return null;
   const m = median(used.map((x) => x[2]));
   const perPyeong = item.price / (item.area / SQM_PER_PYEONG);
-  return { pct: Math.round((perPyeong / m - 1) * 100), scope: used === inDong ? "동" : "시군구", floorName: FLOOR_NAME[floor] || "", count: used.length, median: m };
+  return { pct: Math.round((perPyeong / m - 1) * 100), scope: used === inDong ? "동" : "시군구", floorName: item.kind === "TJ" ? item.jimok : FLOOR_NAME[floor] || "", count: used.length, median: m };
 }
 
 export const gapText = (g) => (g ? `${g.pct > 0 ? "+" : ""}${g.pct}%(${g.scope}${g.floorName ? `·${g.floorName}` : ""} ${g.count}건)` : "");
