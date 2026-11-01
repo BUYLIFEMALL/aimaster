@@ -8,6 +8,12 @@ function applyButtons(){
   $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
 const running=chrome.runtime.getManifest().version_name;$('runningVersion').textContent=`실행 중 버전 ${running}`;$('runningBadge').textContent=running;
+// The popup has many blocks. Each title is a filled bar that folds its block, closed by default and remembered per block.
+const foldable=[...document.querySelectorAll('.card:not(.connection-card):not(.status-card)')].filter(card=>card.querySelector(':scope>h2'));
+let openCards=[];
+function setOpen(card,open,save=true){const h=card.querySelector(':scope>h2'),name=h.textContent;card.classList.toggle('folded',!open);h.setAttribute('aria-expanded',String(open));if(save){openCards=open?[...new Set([...openCards,name])]:openCards.filter(x=>x!==name);chrome.storage?.local.set({openCards}).catch(()=>{});}}
+foldable.forEach(card=>{const h=card.querySelector(':scope>h2');h.setAttribute('role','button');h.tabIndex=0;setOpen(card,false,false);h.addEventListener('click',()=>setOpen(card,card.classList.contains('folded')));h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click();}});});
+chrome.storage?.local.get('openCards').then(v=>{openCards=Array.isArray(v.openCards)?v.openCards:[];foldable.forEach(card=>{if(openCards.includes(card.querySelector(':scope>h2').textContent))setOpen(card,true,false);});}).catch(()=>{});
 function showStatus(text,state='idle'){
   $('status-heading').textContent=state==='error'?'확인 필요':'지금 상태';$('message').textContent=text;
   document.querySelector('.status-card').dataset.state=state;
@@ -44,7 +50,7 @@ async function status() {
     const r = await send({ type: 'status' });
     currentDeviceId=r.connected?r.deviceId:null;
     $('connection').textContent = r.connected ? `연결된 블로그: ${r.blogId}` : '프로그램에서 회원 계정을 연결해 주세요.';
-    if(r.pageKind==='neighbors')document.querySelector('.status-card').after($('neighborSection'));
+    if(r.pageKind==='neighbors'){document.querySelector('.status-card').after($('neighborSection'));setOpen($('neighborSection'),true,false);}
     if(r.neighborProgress)renderNeighborProgress(r.neighborProgress);
     if (r.latestVersion && r.latestVersion !== running) showStatus(`실행 중 ${running} · 최신 ${r.latestVersion}. 새 ZIP을 받아 확장 폴더에 덮어쓴 뒤 edge://extensions에서 이 확장의 「다시 로드」를 눌러 주세요.`);
   } catch (error) {
