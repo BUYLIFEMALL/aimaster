@@ -27,6 +27,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `blog-keyword` | 사용법 머리 배지 「PRO v1.09」 고정 글자 → `APP_VERSION` 표시 | `c0af2aed9` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `blog-keyword/docs/IMPROVEMENTS.md` 2026-11-02 | 다음 키워드 배포 때 |
 | `naver-blog-allinone` | 쓰이지 않던 `requireProgramAccess`가 비공개일 때 모두 통과시키던 것 → 차단(실제 영향 없음) | `21022a363` | 2026-11-01 · Claude Code(맥미니) [역할: mac-mini] | `naver-blog-allinone/docs/IMPROVEMENTS.md` 2026-11-01 | 다음 올인원 배포 때(지금 백업·비공개 예정) |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
