@@ -108,3 +108,9 @@ test('NR12 the menu separates main and extension versions from live answers, and
  assert.match(s,/메인프로그램/);assert.match(s,/확장프로그램/);assert.match(s,/\/api\/extension\/version/);assert.match(s,/다시 로드/);assert.match(s,/location\.reload/);
  assert.match(read('../extension/web-bridge.js'),/'version'/);assert.match(read('../extension/background.mjs'),/version:browser\.runtime\.getManifest\(\)\.version_name/);
 });
+
+test('NR13 the reading wait tolerates a short loss of focus but keeps stopping on a long one',()=>{
+ const s=readFileSync(new URL('../extension/work-bridge.mjs',import.meta.url),'utf8');
+ assert.match(s,/blurred\.blurred=true/);assert.match(s,/if\(e\?\.blurred!==true\)throw e/);assert.match(s,/away>15000/);
+ assert.match(s,/r=await post\('reading'/);
+});

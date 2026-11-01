@@ -8,7 +8,7 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
   const who=await identity();if(version!==epoch||who.deviceId!==binding.deviceId||who.blogId!==binding.blogId)throw Error('연결 계정이 바뀌거나 실행을 중단했습니다.');
   const tabs=await browser.tabs.query({active:true,currentWindow:true});
   if(tabs.length!==1||tabs[0].id!==target.id||tabs[0].windowId!==target.windowId||tabs[0].url!==target.url)throw Error('현재 탭이 바뀌었습니다.');
-  const w=await browser.windows.get(target.windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(target.windowId)))throw Error('Edge 창과 현재 탭을 화면에 유지해 주세요.');
+  const w=await browser.windows.get(target.windowId);if(w.state==='minimized')throw Error('Edge 창과 현재 탭을 화면에 유지해 주세요.');if(!w.focused&&!await popupFocused(target.windowId)){const blurred=Error('Edge 창과 현재 탭을 화면에 유지해 주세요.');blurred.blurred=true;throw blurred;}
  }
  async function stop(){
   epoch++;last='실행 중단 요청 · 불확실한 작업은 기록 확인 필요';
@@ -57,10 +57,14 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
    if(job.kind!=='request'){
     const duration=r.readDurationMs;
     if(r.phase!=='reading'||typeof r.nonce!=='string'||!Number.isSafeInteger(duration)||duration!==Math.max(30000,Math.ceil(expectedArticle.articleCharacters/500)*5000))throw Error('정독 대기 조건을 확인하지 못했습니다.');
-    const started=readingClock.now();let lastElapsed=0;
+    const started=readingClock.now();let lastElapsed=0,blurSince=null;
     while(lastElapsed<duration){
      emit(`정독 대기 중 · ${Math.ceil((duration-lastElapsed)/1000)}초 남음 · 같은 글과 Edge 탭을 유지하세요.`);
-     await readingClock.sleep(Math.min(1000,duration-lastElapsed));await current(binding,target,version);v=await script('inspect');
+     await readingClock.sleep(Math.min(1000,duration-lastElapsed));
+     // A notification or another program can take focus for a moment while reading. That alone should not lose the run;
+     // a longer absence still stops it, and the click itself below keeps the strict check.
+     try{await current(binding,target,version);blurSince=null;}catch(e){if(e?.blurred!==true)throw e;blurSince??=readingClock.now();const away=readingClock.now()-blurSince;if(away>15000)throw Error(`Edge 창 선택이 ${Math.round(away/1000)}초 동안 풀려 멈췄습니다. 다른 프로그램을 쓰지 말고 다시 시작해 주세요.`);}
+     v=await script('inspect');
      if(v.articleHash!==expectedArticle.articleHash||v.articleCharacters!==expectedArticle.articleCharacters||v.restriction!=='none')throw Error('정독 중 본문·계정·화면이 변경됐습니다.');
      const elapsed=readingClock.now()-started;if(!Number.isFinite(elapsed)||elapsed<lastElapsed||elapsed>duration+30000)throw Error('정독 시간을 확인하지 못했습니다.');lastElapsed=elapsed;
     }
