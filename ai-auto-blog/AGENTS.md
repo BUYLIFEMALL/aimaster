@@ -1,3 +1,5 @@
+> **🎓 2026-11-01 주인님 지시 — 교육용 레퍼런스 프로그램:** 이 프로그램은 수업·수강생 배포 키트(`Blog_Content_Kit`)의 기준이 되는 교육용 레퍼런스다. 다른 블로그 프로그램과 기능이 겹쳐도 병합·정지·백업하지 않고 FREE 배지로 유지한다(배지는 주인님 관리). 블로그 9→5 정리의 병합 ③은 취소됐다. 에이전트 간편 모드는 더 이상 이 프로그램 권한으로 열리지 않는다(에이전트 v2.23).
+
 > **2026-10-30 수강생 배포 키트 최종본 `Blog_Content_Kit_v1.03`(`f40272124`) — 운영 미배포:** `lib/deployment.ts` `APP_TITLE`, 독립 모드에서만 이름·문구 변경. 포장 때 `kit.json` `showKitVersion`으로 압축 사본의 `APP_VERSION`만 배포판 번호로 바꿈. **글 보기 복사에서 이미지 설명 제외는 운영에도 적용되는 변경이라 다음 운영 배포 때 함께 나가며 버전을 올린다.**
 
 > **2026-10-30 수업용 배포 키트 `Blog_Content_Kit_v1.01`(Claude Code 윈도우 [역할: 미지정], 커밋 `0e6e50061`) — 미배포·운영 동작 변화 없음:** 독립 모드 스위치 `lib/deployment.ts`(`NEXT_PUBLIC_STANDALONE_MODE=true`일 때만): 로그인만으로 사용·자체 가입·AIMaster 링크/매뉴얼 팝업 숨김·**크롬 확장 자동 포스팅 제외**(`proxy.ts`가 확장 화면/API 차단, 버튼·설정 숨김, prebuild 확장 ZIP 생략)·운영 전용 표 조회 생략·기본 AI Gemini. 배포판 범위: 글감 수집 → 글+이미지 생성 → 게시글 관리 → 「본문 복사하기」로 붙여넣기(주인님 지시). `KIT/` 6종(빈 값 env, `schema.sql` 13표·`post-images` 버킷·RLS). 포장 `python scripts/make_lecture_kit.py --name Blog_Content_Kit --programs ai-auto-blog --version v1.0N`. **다음에 운영 배포할 때** 이 커밋은 동작 변화가 없으므로 버전만 함께 올리면 된다. 리허설 Supabase `BUYLIFE-DEV`/`kit-blog`.
