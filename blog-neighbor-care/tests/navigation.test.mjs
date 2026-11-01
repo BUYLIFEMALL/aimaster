@@ -24,7 +24,7 @@ test('NAV01 nested routes select the proper workflow, account is verified-only a
 });
 
 test('NAV02 mobile menu includes the same account/actions, closes on navigation, and handles logout failure without redirect/retry', async () => {
-  const {window,document}=parseHTML('<html><body><div id="root"></div></body></html>');
+  const {window,document}=parseHTML('<html><body><div id="root"></div></body></html>');Object.defineProperty(window,'location',{value:new URL('https://blog-neighbor-care.buylife.xyz/'),configurable:true});window.postMessage=()=>{};
   const globals={window,self:window,document,HTMLElement:window.HTMLElement,Event:window.Event,IS_REACT_ACT_ENVIRONMENT:true},previous=new Map();
   for(const [key,value]of Object.entries(globals)){previous.set(key,Object.getOwnPropertyDescriptor(globalThis,key));Object.defineProperty(globalThis,key,{value,configurable:true,writable:true});}
   const original=globalThis.fetch;let root;const calls=[];
