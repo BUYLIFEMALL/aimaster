@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-02 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar · 블로그 5개 소개 문구·사용법 카드 배포(담당 대신 처리)
+
+- **소개 문구:** `docs/program-descriptions/blog-copy-2026-11-01.sql` 내용을 운영 DB에 반영(백업 일치 확인 후, 재조회 일치). 되돌리기 `backup-blog-before-2026-11-01.json`.
+- **배포 5회 순차:** naver-blog-seo-studio v2.23, blog-keyword v1.10, tistory-auto-blog v1.94, ai-auto-blog v1.85, naver-blog-agent v2.24 모두 Ready. 확장 4개 DB/라이브 ZIP OK. 커밋 `f8ac99638`·`c186110b8`.
+- **시험:** 5개 타입 검사 통과. ai-auto-blog `test:security` 6건·`test:shorts` 1건 실패는 v1.84 회원별 카테고리 전환 뒤 기대값이 낡은 기존 건(`7189aeeb4` 기록), 미수정.
+- **남은 일:** 맥미니 화면 검수, 회원 확장은 ZIP 다시 받아 덮어쓰기 후 새로고침. 푸시는 블로그 세션 커밋 `504dddcc7`과 함께 나가도록 보류.
+- **링크:** https://www.buylife.xyz/programs
+
 ## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 소통 v1.06·AI 프로필 성공·블로그 3개 백업 이동
 
 - **v1.06 배포:** 첫 읽기는 최근 7일 글만 저장, 읽기 전 확인 시각 표시 수정, AI 프로필 검증 항목만 남기기. 운영 SQL `20261101130000_bnc_monitor_sync_fix` 적용, 빌드 1회(`blog-neighbor-care-hpykndu5j`), DB·ZIP v1.06 OK. 커밋 `60160822b`, `bd061bfa1`.

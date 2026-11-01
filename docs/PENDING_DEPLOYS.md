@@ -68,6 +68,11 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `naver-blog-seo-studio` | v2.23 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `blog-keyword` | v1.10 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB OK(확장 없음). 맥미니 화면 검수 대기 |
+| `tistory-auto-blog` | v1.94 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `ai-auto-blog` | v1.85 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542` + 글 보기 복사에서 이미지 설명 제외. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `naver-blog-agent` | v2.24 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `blog-neighbor-care` | v1.06 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드 1회, `blog-neighbor-care-hpykndu5j`) | 첫 읽기 최근 7일, 확인 시각 수정, AI 프로필 검증 항목 유지. SQL 1건. DB/ZIP OK, AI 재시험 성공 |
 | `naver-blog-allinone` | v1.58 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `naver-blog-allinone-9f60r9weg`) | 이동 안내 띠 `5c1e40ac2`. DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `blog-content-maker` | v1.14 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `blog-content-maker-1dhxtjetc`) | 이동 안내 띠 `5c1e40ac2`. DB/ZIP OK. 맥미니 화면 검수 대기 |
