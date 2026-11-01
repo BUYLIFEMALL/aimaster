@@ -2,6 +2,14 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar — 골드·VIP 개별 프리미엄 권한(운영 DB ref esgxyikcnnvmlhygjkth)
+- 한 일: 회원 상세에 「💎 개별 프리미엄 권한」 칸, API `/api/admin/premium-access`, 마이그레이션 `0053`(표시 `grant_source='premium_manual'`, 함수 `grant_premium_individual`·`revoke_premium_individual`). 프리미엄 등급 전환 때 만료 권한이 막던 문제도 수정, 시험 계정 `blog-neighbor-care` 복구. 일반 부여가 정지되면 화면에 알림.
+- 커밋 `6d3019c86`, 메인 사이트 배포 Ready. 플랜: `docs/PLAN_20261101_PREMIUM_INDIVIDUAL_GRANT.md`.
+- 확인: 롤백 시험 10개 시나리오, 적용 전후 전체 17,421건·정지 3,767건 동일. 시험 계정을 VIP로 내려 크롬에서 부여 프로그램 열림·미부여 차단·회수 후 차단 확인 뒤 프리미엄 등급과 등급 지정일 복구(79개 전부 열림). 부여·회수는 DB 함수로 실행.
+- 못 한 것: 관리자 화면 칸의 실제 클릭 검수(크롬이 시험 계정 로그인 상태). 주인님 관리자 로그인 뒤 확인 필요.
+- 남은 틈(미수정): 프리미엄 등급일 때 받은 수동 권한은 등급을 내려도 정지되지 않는다. 시험 계정 VIP 상태에서 프리미엄 프로그램 3개가 열려 있었다.
+- 다음 첫 단계: 관리자 계정으로 VIP 회원 상세를 열어 칸 표시와 부여·회수를 확인한다.
+
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — API 키 암호화 문구 A안
 문구 48곳·파일 42개 수정(`b16550ad4`), 미배포 대기. 남은 곳과 범위 밖 문구: `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` 처리 결과.
 
