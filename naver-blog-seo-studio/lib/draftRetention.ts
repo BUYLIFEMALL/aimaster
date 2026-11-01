@@ -17,6 +17,18 @@ function getRetentionCutoff() {
   return new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
 }
 
+// 2026-11-02: 30일 삭제 예외 회원(profiles.retention_exempt, 관리자·시험 계정)은 지우지 않는다.
+// 회원 본인 정리(userId)는 그 회원이 예외면 건너뛰고, 크론(전체)은 예외 회원을 조건에서 뺀다. 확인하지 못하면 지우지 않는다.
+async function retentionScope(supabase: SupabaseClient, userId?: string): Promise<{ skip: boolean; notIn: string | null; error: unknown }> {
+  let query = supabase.from("profiles").select("id").eq("retention_exempt", true);
+  if (userId) query = query.eq("id", userId);
+  const { data, error } = await query;
+  if (error) return { skip: true, notIn: null, error };
+  const ids = (data ?? []).map((row: { id: string }) => row.id);
+  if (userId) return { skip: ids.length > 0, notIn: null, error: null };
+  return { skip: false, notIn: ids.length ? `(${ids.join(",")})` : null, error: null };
+}
+
 function getDraftImagePaths(draft: DraftImageMetadata) {
   const paths = new Set<string>();
   if (typeof draft.image_path === "string" && draft.image_path) paths.add(draft.image_path);
@@ -33,8 +45,11 @@ function getDraftImagePaths(draft: DraftImageMetadata) {
 
 export async function purgeExpiredDrafts(supabase: SupabaseClient, userId?: string, counts?: CleanupCounts) {
   const cutoff = getRetentionCutoff();
+  const scope = await retentionScope(supabase, userId);
+  if (scope.skip) return { deleted: 0, error: scope.error };
   let query = supabase.from("naver_blog_seo_drafts").select("id, user_id, image_path, seo_report").lt("created_at", cutoff).limit(RETENTION_BATCH_SIZE);
   if (userId) query = query.eq("user_id", userId);
+  if (scope.notIn) query = query.not("user_id", "in", scope.notIn);
   const { data: expired, error } = await query;
   if (error || !expired?.length) return { deleted: 0, error };
 
@@ -52,8 +67,11 @@ export async function purgeExpiredDrafts(supabase: SupabaseClient, userId?: stri
 
 export async function purgeExpiredTitleRecommendations(supabase: SupabaseClient, userId?: string, counts?: CleanupCounts) {
   const cutoff = getRetentionCutoff();
+  const scope = await retentionScope(supabase, userId);
+  if (scope.skip) return { deleted: 0, error: scope.error };
   let query = supabase.from("naver_blog_seo_title_recommendations").select("id, user_id").lt("created_at", cutoff).limit(RETENTION_BATCH_SIZE);
   if (userId) query = query.eq("user_id", userId);
+  if (scope.notIn) query = query.not("user_id", "in", scope.notIn);
   const { data: expired, error } = await query;
   if (error || !expired?.length) return { deleted: 0, error };
 
@@ -66,8 +84,11 @@ export async function purgeExpiredTitleRecommendations(supabase: SupabaseClient,
 
 // BLC-08a (2026-10-22): 「자료부터 집필」 자료·근거도 만든 날 기준 30일 뒤 삭제한다.
 export async function purgeExpiredResearch(supabase: SupabaseClient, userId?: string, counts?: CleanupCounts) {
+  const scope = await retentionScope(supabase, userId);
+  if (scope.skip) return { deleted: 0, error: scope.error };
   let query = supabase.from("naver_blog_seo_research").delete().lt("created_at", getRetentionCutoff());
   if (userId) query = query.eq("user_id", userId);
+  if (scope.notIn) query = query.not("user_id", "in", scope.notIn);
   const { data, error } = await query.select("id, user_id");
   if (counts && !error) for (const row of data ?? []) addCleanupCount(counts, row.user_id, "research");
   return { deleted: error ? 0 : data?.length ?? 0, error };
@@ -78,9 +99,12 @@ export async function purgeExpiredResearch(supabase: SupabaseClient, userId?: st
 // 분석 결과·승인은 계속 쓰고(승인 지문은 profile 항목만 봄), 끝맺음은 profile.ending에 남긴다. 분석이 없는 「자료만」 문체는 예전처럼 지운다.
 export async function purgeExpiredStyles(supabase: SupabaseClient, userId?: string, counts?: CleanupCounts) {
   const table = "naver_blog_seo_styles";
+  const scope = await retentionScope(supabase, userId);
+  if (scope.skip) return { deleted: 0, error: scope.error };
   let query = supabase.from(table).select("id, user_id, profile, samples, posts")
     .lt("created_at", getRetentionCutoff()).is("profile->>sourceClearedAt", null).limit(RETENTION_BATCH_SIZE);
   if (userId) query = query.eq("user_id", userId);
+  if (scope.notIn) query = query.not("user_id", "in", scope.notIn);
   const { data, error } = await query;
   if (error) return { deleted: 0, error };
   let done = 0;
@@ -98,8 +122,11 @@ export async function purgeExpiredStyles(supabase: SupabaseClient, userId?: stri
 
 // BLC-09 (2026-10-22): 「구간별로 쓰기」 목차·구간 본문도 30일 뒤 삭제.
 export async function purgeExpiredOutlines(supabase: SupabaseClient, userId?: string, counts?: CleanupCounts) {
+  const scope = await retentionScope(supabase, userId);
+  if (scope.skip) return { deleted: 0, error: scope.error };
   let query = supabase.from("naver_blog_seo_outlines").delete().lt("created_at", getRetentionCutoff());
   if (userId) query = query.eq("user_id", userId);
+  if (scope.notIn) query = query.not("user_id", "in", scope.notIn);
   const { data, error } = await query.select("id, user_id");
   if (counts && !error) for (const row of data ?? []) addCleanupCount(counts, row.user_id, "outlines");
   return { deleted: error ? 0 : data?.length ?? 0, error };
