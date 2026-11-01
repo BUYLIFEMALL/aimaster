@@ -20,6 +20,7 @@
 
 
 - `trending-product-finder` — 쿠팡 리뷰 결과 회원별 사이트 저장, 확장 연결 (2026-11-01, [역할: ecommerce-image], `308da3f1c`, DB 표 적용 완료, 빌드 1회 승인됨). 쿠팡 시험·자동 검색과 묶어 v1.31로 배포
+- `commercial-land-trade-alert` — 주간 리포트는 도착한 경우에만 기록, 사라진 매물 이전 가격 중복 제거, 이메일 링크 줄바꿈 막음 (2026-11-01, [역할: realty], `b42607427`, 확장 변경이라 배포 때 manifest·ZIP·DB 버전 함께)
 - `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
 
 

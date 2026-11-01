@@ -2,6 +2,14 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가 주간 리포트 기록·이메일 표 수정(미배포)
+
+- 한 일: 주간 리포트는 한 채널이라도 도착해야 이번 주 표시를 남기고, 전부 실패하면 다음 수집 때 다시 보낸다(`sendToChannels`). 받는 곳이 없으면 표시를 남기지 않는다. 사라진 매물의 이전 가격을 비교 단계에서 빼서 이메일·텔레그램·파일 중복을 없앴고, 이메일 링크 칸 줄바꿈을 막았다. 대기 목록과 네이버 매물 플랜의 옛 상태도 고쳤다.
+- 커밋: `b42607427`. 배포: 미배포 대기(자잘한 수정). 다음 배포 때 manifest·ZIP·DB 버전을 함께 올린다.
+- 검수: 시험 41개 통과, `background.js` 문법 검사. 실제 메일·텔레그램 도착은 배포 전이라 미확인. 원본 `realty-listing-alert`는 이미 성공 시에만 기록해 수정 없음.
+- 남은 일: `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md`, 주인님 확인은 요청함 `ba0d5540`.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/settings
+
 ## 2026-11-01 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `trending-product-finder` v1.30 쿠팡 리뷰 거르기 확장
 - 한 일: 회원이 검색한 쿠팡 화면만 읽어 리뷰 수로 거르는 크롬 확장, 안내 화면 `/coupang-reviews`. 주인님 지정 예외(§8), 회원 책임 고지. 승인 빌드 1회, DB·ZIP v1.30.
 - 사전 검증: 비로그인 1페이지 2회 정상, 주소로 연 2페이지 2회 「검색결과 없음」으로 중단(원인 미구분). 그래서 자동 수집 없이 회원이 직접 넘기는 설계.
