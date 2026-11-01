@@ -82,17 +82,8 @@ export default async function MemberDetailPage({ params }: PageProps) {
         <p className="text-subtext mt-1">회원 상세 정보 및 접근 권한 관리</p>
       </div>
 
-      <MemberDetail
-        member={member}
-        subscriptions={subscriptions ?? []}
-        // 비공개(is_active=false) 프로그램의 부여는 사용 가능 권한 목록·개수에서 뺀다(2026-10-13 주인님 지시)
-        manualAccess={visibleAccess.filter((a: { grant_source?: string | null }) => !isPremiumGrant(a))}
-        sessions={sessions ?? []}
-        allPrograms={allPrograms ?? []}
-      />
-
       {(canGrantPremium || premiumGrants.length > 0) && (
-        <div className="max-w-4xl mt-6">
+        <div className="max-w-4xl mb-6">
           <PremiumIndividualGrant
             memberId={member.id}
             programs={(allPrograms ?? []).filter((p: { badges?: string[] | null }) => (p.badges ?? []).includes("premium"))}
@@ -104,6 +95,15 @@ export default async function MemberDetailPage({ params }: PageProps) {
           />
         </div>
       )}
+
+      <MemberDetail
+        member={member}
+        subscriptions={subscriptions ?? []}
+        // 비공개(is_active=false) 프로그램의 부여는 사용 가능 권한 목록·개수에서 뺀다(2026-10-13 주인님 지시)
+        manualAccess={visibleAccess.filter((a: { grant_source?: string | null }) => !isPremiumGrant(a))}
+        sessions={sessions ?? []}
+        allPrograms={allPrograms ?? []}
+      />
     </div>
   );
 }
