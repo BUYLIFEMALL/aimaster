@@ -66,7 +66,7 @@ export function analysisOutputSchema(kind:'profile'|'candidates'):ObjectValue{
  if(kind==='candidates')return closed({candidates:{type:'array',items:closed({blogId:string,topicScore:{type:'integer'},reasons:strings,evidence})}});
  return bad();
 }
-const norm = (s:string)=>s.replace(/\s+/g,' ').trim();
+const norm = (s:string)=>s.replace(/[\u200b-\u200f\ufeff]/g,'').replace(/\s+/g,' ').trim();
 function evidence(v:unknown,posts:Post[]) {
   if(!Array.isArray(v) || v.length<1 || v.length>8) bad();
   return (v as unknown[]).map(e=>{
@@ -76,6 +76,27 @@ function evidence(v:unknown,posts:Post[]) {
     return {sourceId:x.sourceId as string,quote};
   });
 }
+// A paid profile answer keeps every item that passes. Only verified quotes and real phrases are stored; nothing is invented or repaired.
+function fit(v:unknown,max:number,length:number,min=0){
+  if(!Array.isArray(v)) bad();
+  const kept=[...new Set((v as unknown[]).flatMap(s=>{try{return [text(s,length)];}catch{return [];}}))].slice(0,max);
+  if(kept.length<min) bad();
+  return kept;
+}
+const clip=(v:unknown,max:number)=>{if(typeof v!=='string') return bad();return text(v.slice(0,max),max);};
+function profileOutput(v:unknown,posts:Post[]){
+  if(!object(v) || !only(v,['topics','interests','audience','tone','phrases','keywords'])) bad();
+  const x=v as ObjectValue;
+  const inPosts=(s:string)=>posts.some(p=>norm(p.body+' '+p.title).includes(norm(s)));
+  return {topics:fit(x.topics,8,80,1),interests:fit(x.interests,12,80),audience:clip(x.audience,500),tone:clip(x.tone,500),
+    phrases:fit(x.phrases,50,150).filter(inPosts).slice(0,10),keywords:fit(x.keywords,12,80,1)};
+}
+function verifiedEvidence(v:unknown,posts:Post[]){
+  if(!Array.isArray(v)) bad();
+  const kept=(v as unknown[]).flatMap(e=>{try{return evidence([e],posts);}catch{return [];}}).slice(0,8);
+  if(kept.length<1) bad();
+  return kept;
+}
 export function validateResult(value:unknown,bundle:Bundle) {
   if(!object(value)) bad();
   const v=value as ObjectValue;
@@ -83,8 +104,7 @@ export function validateResult(value:unknown,bundle:Bundle) {
     originalCharacterCount:p.originalCharacterCount??[...p.body].length,analyzedCharacterCount:[...p.body].length,bodyTruncated:p.bodyTruncated===true}));
   if(bundle.kind==='profile') {
     if(!only(v,['profile','evidence'])) bad();
-    const profile=profileFields(v.profile),citations=evidence(v.evidence,bundle.posts);
-    for(const phrase of profile.phrases) if(!bundle.posts.some(p=>norm(p.body).includes(norm(phrase)))) bad();
+    const profile=profileOutput(v.profile,bundle.posts),citations=verifiedEvidence(v.evidence,bundle.posts);
     return {profile,evidence:citations,sources:sourceMetadata,sampleCount:bundle.posts.length,
       provisional:bundle.posts.length<10,requiresMemberReview:true,scope:'provided-own-posts-only'};
   }

@@ -120,3 +120,15 @@ test('AN16 대기 작업 취소는 회원 작업ID만 전달·키/AI 호출 없�
   assert.deepEqual(s.calls.rpc,['cancel']);assert.deepEqual(s.calls.key,[]);assert.equal(s.calls.generate,0);
   assert.equal((await s.send({operation:'cancel',payload:{id,userId:randomUUID()}})).status,400);
 });
+
+test('AN-P1 a profile answer keeps the verified items, drops the rest, and never stores an unverified quote',()=>{
+  const id='11111111-1111-4111-8111-111111111111',body='방수 덮개와 가벼운\u00a0접이식 의자를 준비하는 과정을 적었습니다.';
+  const bundle={id,kind:'profile',input:{},posts:[{id,blogId:'own',postId:'1',title:'캠핑 준비 기록',body,source:'member'}],profile:null,expiresAt:'2099-01-01T00:00:00Z'};
+  const base={profile:{topics:['캠핑'],interests:[],audience:'캠핑 입문자',tone:'차분함',phrases:['캠핑 준비 기록','없는 표현'],keywords:['캠핑']},evidence:[{sourceId:id,quote:'가벼운 접이식 의자'},{sourceId:id,quote:'지어낸 인용 문장'}]};
+  const r=validateResult(base,bundle);assert.deepEqual(r.evidence.map(e=>e.quote),['가벼운 접이식 의자']);assert.deepEqual(r.profile.phrases,['캠핑 준비 기록']);
+  const many=validateResult({...base,profile:{...base.profile,topics:Array.from({length:12},(_,i)=>'주제'+i),keywords:['캠핑','x'.repeat(200)]}},bundle);assert.equal(many.profile.topics.length,8);assert.deepEqual(many.profile.keywords,['캠핑']);
+  assert.throws(()=>validateResult({...base,evidence:[{sourceId:id,quote:'지어낸 인용 문장'}]},bundle));
+  assert.throws(()=>validateResult({...base,evidence:[{sourceId:'22222222-2222-4222-8222-222222222222',quote:'가벼운 접이식 의자'}]},bundle));
+  assert.throws(()=>validateResult({...base,profile:{...base.profile,topics:[]}},bundle));
+  assert.throws(()=>validateResult({...base,extra:1},bundle));
+});
