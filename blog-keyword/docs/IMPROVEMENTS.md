@@ -36,3 +36,7 @@
 
 ## 2026-11-01 v1.10 사용법 「✨ 새로 생긴 기능」 카드 (맥미니 `claude-mac-20261101-blog`, 주인님 승인 바로 배포)
 - 블로그 정리 뒤 남은 프로그램의 소구점을 사용법(/guide) 맨 위 카드로 안내(기능·설명·「📍 어디서」 실제 메뉴 이름·💡 팁·⚠️ 주의). 컴포넌트 `GuideHighlights.tsx`(블로그 5개 공통 사본, 인라인 스타일). 메인 사이트 소개 문구도 같은 소구점으로 갱신(SQL `docs/program-descriptions/blog-copy-2026-11-01.sql`, DB만). tsc 통과.
+
+## 2026-11-02 Claude Code(맥미니) [역할: mac-mini] — v1.10 화면 검수 중 발견
+
+- **미배포 대기**: 사용법 머리 배지가 「PRO v1.09 Matrix Guide」 고정 글자라 v1.10 배포 뒤에도 옛 버전이 보임 → `APP_VERSION`을 쓰도록 고침(`app/(workspace)/guide/page.tsx`). 다음 키워드 배포 때 함께 나감. 검수: 배포 뒤 `/guide` 머리 배지가 현재 버전과 같은지.

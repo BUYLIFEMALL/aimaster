@@ -3,6 +3,7 @@ import { GEMINI_GUIDE_URL, NAVER_ADS_GUIDE_URL, NAVER_SEARCH_GUIDE_URL } from "@
 import { FEATURE_INFO } from "@/lib/kw/types";
 import { KeyRound, ExternalLink, UserPlus, Search, Sparkles, TrendingUp, BarChart3, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { GuideHighlights } from "@/components/GuideHighlights";
+import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -35,7 +36,7 @@ export default function GuidePage() {
         <div className="luxury-hero-text">
           <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
             <span style={{ fontSize: "11px", fontWeight: 800, padding: "3px 9px", borderRadius: "999px", background: "rgba(37,99,235,0.2)", color: "#93c5fd", border: "1px solid rgba(59,130,246,0.4)" }}>
-              PRO v1.09 Matrix Guide
+              PRO {APP_VERSION} Matrix Guide
             </span>
             <span style={{ fontSize: "11px", fontWeight: 800, padding: "3px 9px", borderRadius: "999px", background: "rgba(16,185,129,0.15)", color: "#34d399", border: "1px solid rgba(16,185,129,0.3)" }}>
               ⚡ 네이버 실측 데이터 연동
