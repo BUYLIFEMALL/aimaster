@@ -5,6 +5,12 @@
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — API 키 암호화 문구 A안
 문구 48곳·파일 42개 수정(`b16550ad4`), 미배포 대기. 남은 곳과 범위 밖 문구: `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` 처리 결과.
 
+## 2026-11-01 🟡 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 9→5 결정, SEO v2.22 작업실 병합 마무리(배포 대기)
+- 결정(주인님 승인): 독립 5개(에이전트·SEO·키워드·티스토리·이웃 소통), 병합 4개(① 작업실 → SEO ② 올인원 → 에이전트 ③ BLOG → 에이전트 ④ 콘텐츠 제작 → SEO+이미지·영상). 원본은 닫지 않고 신규 개발만 중단. 근거 `docs/analysis-blog-consolidation-20261020/REPORT.md#blog-9to5-20261101`.
+- 한 일: SEO v2.22 — 이미지 노드별 참고 사진, 문체 수집 20·30개, 문체 주제 정보(승인 지문 밖). 커밋 `d47023c06`(17파일). tsc·시험 133/133 통과.
+- **윈도우에 요청(배포 승인됨, 빌드 1회)**: `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261101.md` 「윈도우 CLI 다음 첫 단계」 — build → extension:archive → deploy → DB version/extension_version v2.22 → check-extension-release.
+- 남은 일: 배포 뒤 맥 크롬 화면 검수(이미지 1장·문체 분석 1회, 시험 계정). 병합 ②③은 에이전트 담당 Codex와 협의.
+
 ## 2026-11-01 ⚠️ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — 30일 삭제 예외 1단계 적용, 회원 권한 보안 문제 발견
 - 한 일: 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 `profiles.retention_exempt`·보호 트리거·예약 삭제 함수 6개·직접 삭제 작업 3개 적용(`supabase/migrations/0052_retention_exempt_accounts.sql`). 두 계정만 지정. 되돌리는 시험으로 예외 자료 유지·일반 회원 자료 삭제·회원 수정 차단 확인.
 - 못 한 것: Vercel 정리 라우트(프로그램 다음 배포 때), 조회 숨김 RLS(미변경 — 일부 프로그램은 자료가 남아도 30일 뒤 화면에 안 보임).
