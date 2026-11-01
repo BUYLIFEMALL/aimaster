@@ -51,10 +51,19 @@ export function readImageRefs(value: unknown): ImageRef[] {
 }
 
 export const REF_RULE = "Reference photos are attached. Use them only for mood, color palette and composition. Do not copy any person's face, any text, logo or watermark from them; create a new original scene.";
-/** 참고 사진이 있으면 글 + 사진 조각(Gemini parts), 없으면 null(프롬프트 글만 보냄). */
-export function refParts(prompt: string, refs: ImageRef[]) {
+// 콘텐츠 제작 병합(블로그 ④, v2.22): 참고 사진 용도 — mood(기본, 위 REF_RULE 그대로) / product(회원 제품 사진을 장면에 그대로 넣기).
+// 제품 모드 문구는 blog-content-maker의 「제품 형태·특징 보존 합성」을 SEO 지시문 형식으로 옮긴 것(프롬프트는 프로그램 고유, IMAGE_PROMPT_RULES).
+export type ImageRefMode = "mood" | "product";
+export const IMAGE_REF_MODES: { value: ImageRefMode; label: string }[] = [
+  { value: "mood", label: "분위기만 참고(기본)" },
+  { value: "product", label: "제품 그대로 넣기" },
+];
+export const readImageRefMode = (v: unknown): ImageRefMode => (v === "product" ? "product" : "mood");
+export const PRODUCT_REF_RULE = "Product photos are attached. Place this exact product naturally into the requested scene, preserving its shape, proportions, colors, materials and distinctive features. Keep the product's own packaging and printed label as they appear in the photo, but do not add any other text, logo or watermark, and do not copy any person's face from the photos.";
+/** 참고 사진이 있으면 글 + 사진 조각(Gemini parts), 없으면 null(프롬프트 글만 보냄). mood(기본)는 예전과 같은 글이다. */
+export function refParts(prompt: string, refs: ImageRef[], mode: ImageRefMode = "mood") {
   if (!refs.length) return null;
-  return [{ text: `${prompt} ${REF_RULE}` }, ...refs.map((r) => ({ inlineData: { mimeType: r.mimeType, data: r.data } }))];
+  return [{ text: `${prompt} ${mode === "product" ? PRODUCT_REF_RULE : REF_RULE}` }, ...refs.map((r) => ({ inlineData: { mimeType: r.mimeType, data: r.data } }))];
 }
 
 /** 작업실 병합(v2.22): 이 이미지 노드에만 붙인 참고 사진이 있으면 그것만, 없으면 공통 참고 사진. 둘을 합치지 않는다(장수·요청 크기 한도 유지). */

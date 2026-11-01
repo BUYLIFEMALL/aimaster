@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
-import { ImageRefError, readImageRatio, readImageRefs, readImageStyle, type ImageRef } from "@/lib/imageOptions";
+import { ImageRefError, readImageRatio, readImageRefMode, readImageRefs, readImageStyle, type ImageRef } from "@/lib/imageOptions";
 import { resolveGeminiImageModel } from "@/lib/ai/geminiModels";
 import { cleanRequest, isImageSlot, nodePrompt, upsertNode, type ImageNode } from "@/lib/imageNodes";
 import { changeNodes, NodeStoreError, readNodes } from "@/lib/imageNodeStore";
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
 
-  const input = await request.json().catch(() => null) as { draftId?: string; slot?: unknown; model?: unknown; request?: unknown; aspectRatio?: unknown; style?: unknown; refs?: unknown } | null;
+  const input = await request.json().catch(() => null) as { draftId?: string; slot?: unknown; model?: unknown; request?: unknown; aspectRatio?: unknown; style?: unknown; refs?: unknown; refMode?: unknown } | null;
   const draftId = input?.draftId?.trim() ?? "";
   const slot = input?.slot;
   // 병합 B-4: 비율·표현 방식·참고 사진(저장하지 않고 이번 요청에만 사용)
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       title: draft.title,
       keywords: Array.isArray(draft.keywords) ? draft.keywords.join(", ") : "",
       model: resolveGeminiImageModel(input?.model),
-      aspectRatio: readImageRatio(input?.aspectRatio), style: readImageStyle(input?.style), refs,
+      aspectRatio: readImageRatio(input?.aspectRatio), style: readImageStyle(input?.style), refs, refMode: readImageRefMode(input?.refMode),
       sceneDescription: nodePrompt(current.prompt, nodeRequest),
     });
     path = `${access.user.id}/${draftId}/${slot}-${Date.now()}.${image.mimeType === "image/jpeg" ? "jpg" : "png"}`;

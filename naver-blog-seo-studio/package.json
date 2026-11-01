@@ -31,7 +31,8 @@
     "test:style-strength": "node --test tests/style-strength.test.mjs",
     "test:narrative-structure": "node --test tests/narrative-structure.test.mjs",
     "test:review-apply": "node --test tests/review-apply.test.mjs",
-    "test:source-url": "node --test tests/source-url.test.mjs"
+    "test:source-url": "node --test tests/source-url.test.mjs",
+    "test:zip-store": "node --test tests/zip-store.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

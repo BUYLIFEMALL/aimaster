@@ -5,7 +5,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { createClient } from "@/lib/supabase/server";
 import { generateNanoBananaImage } from "@/lib/ai/nanoBanana";
 import { resolveGeminiImageModel } from "@/lib/ai/geminiModels";
-import { ImageRefError, readImageRatio, readImageRefs, readImageStyle, type ImageRef } from "@/lib/imageOptions";
+import { ImageRefError, readImageRatio, readImageRefMode, readImageRefs, readImageStyle, type ImageRef } from "@/lib/imageOptions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -13,7 +13,7 @@ export const fetchCache = "force-no-store";
 export async function POST(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const input = await request.json().catch(() => null) as { draftId?: string; topic?: string; title?: string; keywords?: string; model?: string; aspectRatio?: unknown; style?: unknown; refs?: unknown } | null;
+  const input = await request.json().catch(() => null) as { draftId?: string; topic?: string; title?: string; keywords?: string; model?: string; aspectRatio?: unknown; style?: unknown; refs?: unknown; refMode?: unknown } | null;
   const topic = input?.topic?.trim() ?? "";
   const draftId = input?.draftId?.trim() ?? "";
   if (!topic || topic.length > 300) return NextResponse.json({ error: "이미지 주제를 1~300자로 입력해주세요." }, { status: 400 });
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     if (draftError || !draft) return NextResponse.json({ error: "이미지를 저장할 내 초안을 찾지 못했습니다." }, { status: 404 });
     const report = draftReport(draft.seo_report);
     if (draftLocked(report)) return NextResponse.json({ error: "자동 발행을 시작한 원고의 이미지는 바꿀 수 없습니다." }, { status: 409 });
-    const image = await generateNanoBananaImage({ apiKey, topic, title: input?.title, keywords: input?.keywords, model: resolveGeminiImageModel(input?.model), aspectRatio: readImageRatio(input?.aspectRatio), style: readImageStyle(input?.style), refs });
+    const image = await generateNanoBananaImage({ apiKey, topic, title: input?.title, keywords: input?.keywords, model: resolveGeminiImageModel(input?.model), aspectRatio: readImageRatio(input?.aspectRatio), style: readImageStyle(input?.style), refs, refMode: readImageRefMode(input?.refMode) });
     const extension = image.mimeType === "image/jpeg" ? "jpg" : "png";
     const imagePath = `${access.user.id}/${draftId}/${Date.now()}.${extension}`;
     const bytes = Uint8Array.from(Buffer.from(image.base64, "base64"));

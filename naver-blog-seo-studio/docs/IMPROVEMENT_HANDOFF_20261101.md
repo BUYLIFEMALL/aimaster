@@ -26,3 +26,18 @@
 ## 남은 일
 - 배포·DB·ZIP(윈도우), 배포 뒤 맥미니 크롬 화면 검수.
 - 작업실(`blog-workroom`)은 그대로 둔다(주소·데이터 유지, 신규 개발 중단). 「SEO로 옮겨 쓰세요」 안내 배너는 주인님 결정 뒤 별도.
+
+---
+
+## 추가 — 블로그 병합 ④ 콘텐츠 제작 → SEO (같은 날, 같은 미배포 묶음)
+> 플랜 [PLAN_20261101_CONTENT_MAKER_MERGE.md](PLAN_20261101_CONTENT_MAKER_MERGE.md) · 주인님 승인(ZIP은 라이브러리 없이 직접 작성). 상태: **코드·로컬 시험 완료, ⏸ 미배포 대기(v2.22에 합침)**.
+
+| 기능 | 내용 | 파일 |
+|---|---|---|
+| 참고 사진 용도 | 「분위기만 참고(기본, 지시문 예전과 한 글자도 같음)」/「제품 그대로 넣기」(제품 모양·색·재질·특징 보존, 제품 자체 라벨은 유지, 다른 글자·로고·워터마크·얼굴은 넣지 않음 — `PRODUCT_REF_RULE`). 공통 참고 사진은 패널의 선택 상자, 이미지별 참고 사진은 노드의 「제품 그대로 넣기」 체크. API 2곳이 `refMode`를 받음(`readImageRefMode`, 잘못된 값은 기본) | `lib/imageOptions.ts`, `lib/ai/nanoBanana.ts`, `app/api/images/generate`·`regenerate-content`, `ImageOptionsPanel.tsx`, `TitleView.tsx`, `NewDraftView.tsx`, `useStudio.ts` |
+| ZIP(글+이미지) | 「파일로 내보내기」에 「ZIP(글+이미지)」. 편집기 블록 순서대로 `index.html`(이미지 상대 경로)·`article.md`·`images/NN.확장자`. **브라우저에서 묶음**(Vercel 응답 4.5MB 한도 — 2K 이미지 7장이면 넘음), 이미지는 화면이 쓰는 회원 본인 주소로 받음, 받지 못한 이미지는 건너뛰고 장수 안내. 서버 API 추가 없음 | `lib/zipStore.ts`(무압축 ZIP·CRC32·UTF-8 이름 표시), `lib/draftExport.ts`(`toPackageHtml`·`toPackageMarkdown`·`packageImageName` — 기존 TXT·MD·HTML 출력 불변), `useStudio.ts` `exportDraftZip`, `NewDraftView.tsx` |
+| 가져오지 않음 | 영상 첫·끝 장면 이미지 — `ai-video-studio`가 첫·끝 장면 이미지를 직접 올려 영상까지 만듦. 프로그램 간 이미지 넘기기는 공통 아이디어 표 후보 | — |
+
+검수(맥미니): `tsc --noEmit` 통과, `node --test tests/*.test.mjs` **143/143 통과**(새 시험 10개: 지시문 불변·제품 모드·값 검사·요청 전달, CRC32 표준값·ZIP 구조, 맥 `unzip`으로 실제 풀기, 한글 이름은 Python 표준 해석기로 확인, 패키지 HTML·MD 순서·이스케이프).
+알아 둘 점: 맥 기본 `unzip`(6.0)은 ZIP의 UTF-8 이름 표시를 무시해 한글 이름을 깨뜨린다 — 그래서 ZIP 안 파일 이름은 영문·번호만 쓴다.
+배포 뒤 화면 검수 추가: 「제품 그대로 넣기」 이미지 1장(시험 계정 Gemini, 승인됨), ZIP 내려받기·풀기(비용 없음).

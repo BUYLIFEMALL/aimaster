@@ -70,3 +70,25 @@ test("pickImageRefs: never more than MAX_IMAGE_REFS", () => {
   const many = Array.from({ length: opts.MAX_IMAGE_REFS + 3 }, (_, i) => `n${i}`);
   assert.equal(opts.pickImageRefs(many, []).length, opts.MAX_IMAGE_REFS);
 });
+
+// 콘텐츠 제작 병합(블로그 ④, v2.22): 참고 사진 용도
+const REF = [{ mimeType: "image/jpeg", data: "AAAA" }];
+test("refParts: default and mood keep the old wording exactly", () => {
+  assert.equal(opts.refParts("P", REF)[0].text, `P ${opts.REF_RULE}`);
+  assert.equal(opts.refParts("P", REF, "mood")[0].text, `P ${opts.REF_RULE}`);
+});
+test("refParts: product mode uses the product rule (keep the product, no new text/logo)", () => {
+  const text = opts.refParts("P", REF, "product")[0].text;
+  assert.equal(text, `P ${opts.PRODUCT_REF_RULE}`);
+  assert.match(opts.PRODUCT_REF_RULE, /preserving its shape/);
+  assert.match(opts.PRODUCT_REF_RULE, /do not add any other text, logo or watermark/);
+});
+test("readImageRefMode: only 'product' switches, anything else is mood", () => {
+  assert.equal(opts.readImageRefMode("product"), "product");
+  for (const v of [undefined, null, "", "PRODUCT", "mood", 1]) assert.equal(opts.readImageRefMode(v), "mood");
+});
+test("nanoBanana: refMode reaches the request (product rule in parts)", async () => {
+  sent = null;
+  await nano.generateNanoBananaImage({ apiKey: "k", topic: "t", refs: REF, refMode: "product" });
+  assert.ok(sent.parts[0].text.endsWith(opts.PRODUCT_REF_RULE));
+});

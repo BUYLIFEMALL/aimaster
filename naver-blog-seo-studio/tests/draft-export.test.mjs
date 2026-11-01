@@ -54,3 +54,22 @@ test("file names drop forbidden characters and fall back when empty", () => {
   assert.equal(exportFileName("  ", "txt"), "블로그 원고.txt");
   assert.equal(exportFileName("가".repeat(80), "html").length, 65);
 });
+
+// 콘텐츠 제작 병합(블로그 ④, v2.22): ZIP(글+이미지)용 HTML·MD — 블록 순서대로 글과 이미지
+import { packageImageName, toPackageHtml, toPackageMarkdown } from "../lib/draftExport.ts";
+test("packageImageName: numbered English names by type", () => {
+  assert.equal(packageImageName(1, "image/png"), "images/01.png");
+  assert.equal(packageImageName(2, "image/jpeg"), "images/02.jpg");
+  assert.equal(packageImageName(12, "image/webp"), "images/12.webp");
+  assert.equal(packageImageName(3, ""), "images/03.png");
+});
+test("toPackageHtml/Markdown keep block order and escape alt text", () => {
+  const items = [{ type: "image", file: "images/01.png", alt: "대표 \"이미지\"" }, { type: "text", text: "준비물 정리\n\n텐트와 침낭을 챙깁니다." }, { type: "image", file: "images/02.jpg", alt: "텐트 [사진]" }];
+  const html = toPackageHtml("가을 캠핑", items);
+  assert.ok(html.startsWith("<!doctype html>"));
+  assert.ok(html.indexOf('src="images/01.png"') < html.indexOf("<h3>준비물 정리</h3>"));
+  assert.ok(html.indexOf("<h3>준비물 정리</h3>") < html.indexOf('src="images/02.jpg"'));
+  assert.ok(html.includes('alt="대표 &quot;이미지&quot;"'));
+  const md = toPackageMarkdown("가을 캠핑", items);
+  assert.equal(md, "# 가을 캠핑\n\n![대표 \"이미지\"](images/01.png)\n\n## 준비물 정리\n\n텐트와 침낭을 챙깁니다.\n\n![텐트 사진](images/02.jpg)\n");
+});

@@ -3,8 +3,9 @@
 // StudioPage의 상태·처리 함수를 그대로 옮긴 훅 (2026-10-17 파일 나누기, 로직 변경 없음)
 import { useEffect, useState, useRef } from "react";
 import type { DraftRevision } from "@/lib/draftRevisions";
-import { exportFileName, toHtmlDocument, toHtmlFragment, toMarkdown, toPlainText } from "@/lib/draftExport";
-import { pickImageRefs, type ImageRatio, type ImageStyle } from "@/lib/imageOptions";
+import { exportFileName, packageImageName, toHtmlDocument, toHtmlFragment, toMarkdown, toPackageHtml, toPackageMarkdown, toPlainText, type PackageItem } from "@/lib/draftExport";
+import { zipStore, type ZipEntry } from "@/lib/zipStore";
+import { pickImageRefs, type ImageRatio, type ImageRefMode, type ImageStyle } from "@/lib/imageOptions";
 import type { ImageRefInput } from "./ImageOptionsPanel";
 import type { DraftLength } from "@/lib/lengthPlan";
 import { readStyleStrength, type StyleStrength } from "@/lib/styleStrength";
@@ -52,8 +53,11 @@ export function useStudio() {
   const [imageRefs, setImageRefs] = useState<ImageRefInput[]>([]);
   // 작업실 병합(v2.22): 본문 이미지 노드마다 따로 붙인 참고 사진. 열쇠는 「원고 id/칸」 — 다른 원고로 바꿔도 섞이지 않는다. 서버에 저장하지 않는다.
   const [nodeRefs, setNodeRefs] = useState<Record<string, ImageRefInput[]>>({});
+  // 콘텐츠 제작 병합(v2.22): 참고 사진 용도 — 공통 사진용 하나, 이미지별 사진은 노드마다(사진을 붙인 노드만 의미 있음)
+  const [imageRefMode, setImageRefMode] = useState<ImageRefMode>("mood");
+  const [nodeRefModes, setNodeRefModes] = useState<Record<string, ImageRefMode>>({});
   const nodeRefKey = (draftId: string, slot: string) => `${draftId}/${slot}`;
-  const imageOptionBody = (refs: ImageRefInput[] = imageRefs) => ({ aspectRatio: imageRatio, style: imageStyle, ...(refs.length ? { refs: refs.map(({ mimeType, data }) => ({ mimeType, data })) } : {}) });
+  const imageOptionBody = (refs: ImageRefInput[] = imageRefs, refMode: ImageRefMode = imageRefMode) => ({ aspectRatio: imageRatio, style: imageStyle, ...(refs.length ? { refs: refs.map(({ mimeType, data }) => ({ mimeType, data })), refMode } : {}) });
   const [contentProvider, setContentProvider] = useState<ContentProvider>("openai");
   const [contentModel, setContentModel] = useState<string>(DEFAULT_OPENAI_CONTENT_MODEL);
   // v1.96: 고른 AI 회사·모델을 이 브라우저에 기억. 불러오기가 끝나기 전에는 저장하지 않아 기본값이 덮어쓰지 않게 한다.
@@ -591,8 +595,15 @@ export function useStudio() {
   }
 
   // BLC-10 (2026-10-22): 본문 이미지를 노드 단위로 — 요청 1번에 이미지 1장, 서버가 그 노드만 저장(다른 이미지·위치 그대로).
+  // 이미지별 사진이 있으면 그 사진과 그 노드의 용도, 없으면 공통 사진과 공통 용도
+  function nodeImageOptionBody(draftId: string, slot: string) {
+    const key = nodeRefKey(draftId, slot);
+    const own = nodeRefs[key] ?? [];
+    return imageOptionBody(pickImageRefs(own, imageRefs), own.length ? nodeRefModes[key] ?? "mood" : imageRefMode);
+  }
+
   async function makeContentImage(draftId: string, slot: ContentImageSlot, request?: string) {
-    const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId, slot, model: imageModel, ...imageOptionBody(pickImageRefs(nodeRefs[nodeRefKey(draftId, slot)], imageRefs)), ...(request !== undefined ? { request } : {}) }) });
+    const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId, slot, model: imageModel, ...nodeImageOptionBody(draftId, slot), ...(request !== undefined ? { request } : {}) }) });
     const result = await response.json() as { image?: ContentImage; error?: string };
     if (!response.ok || !result.image) throw new Error(result.error || "본문 이미지를 만들지 못했습니다.");
     setContentImages((items) => upsertNode(items, result.image!));
@@ -661,6 +672,7 @@ export function useStudio() {
       setContentBlocks((blocks) => removeNodeBlock(blocks, slot));
       const deletedKey = nodeRefKey(currentDraft.id, slot);
       setNodeRefs((current) => { const next = { ...current }; delete next[deletedKey]; return next; });
+      setNodeRefModes((current) => { const next = { ...current }; delete next[deletedKey]; return next; });
       setMessage(`${slot.replace("content-", "")}번 본문 이미지를 삭제했습니다. 다른 이미지와 위치는 그대로입니다.`);
       refreshHistory().catch(() => {});
     } catch (error) {
@@ -885,6 +897,44 @@ export function useStudio() {
     setMessage(`${ext.toUpperCase()} 파일로 내보냈습니다. 이미지는 포함되지 않습니다.`);
   }
 
+  // 콘텐츠 제작 병합(블로그 ④, v2.22): 「ZIP(글+이미지)」 — 편집기 블록 순서대로 글과 이미지를 브라우저에서 묶는다.
+  // Vercel 응답 4.5MB 한도 때문에 서버에서 만들지 않고, 이미지는 화면이 쓰는 회원 본인 주소로 한 장씩 받는다. 받지 못한 이미지는 건너뛰고 알린다.
+  async function exportDraftZip() {
+    if (!currentDraft) return;
+    const draftId = currentDraft.id;
+    const blocks = contentBlocks.length ? contentBlocks : [{ id: "body", type: "text" as const, text: currentDraft.body }];
+    setMessage("이미지를 모아 ZIP 파일을 만들고 있습니다.");
+    const items: PackageItem[] = [];
+    const files: ZipEntry[] = [];
+    let skipped = 0;
+    for (const block of blocks) {
+      if (block.type === "text") { items.push({ type: "text", text: block.text }); continue; }
+      const node = block.slot === "cover" ? null : contentImages.find((image) => image.slot === block.slot);
+      if (block.slot !== "cover" && !node?.path) continue; // 아직 만들지 않은 칸
+      try {
+        const query = block.slot === "cover" ? "" : `?slot=${block.slot}&v=${encodeURIComponent(node?.path ?? "")}`;
+        const response = await fetch(`/api/drafts/${encodeURIComponent(draftId)}/image${query}`);
+        if (!response.ok) throw new Error();
+        const data = new Uint8Array(await response.arrayBuffer());
+        const file = packageImageName(files.length + 1, response.headers.get("content-type") ?? "");
+        files.push({ name: file, data });
+        items.push({ type: "image", file, alt: block.alt });
+      } catch { skipped += 1; }
+    }
+    const encoder = new TextEncoder();
+    const zip = zipStore([
+      { name: "index.html", data: encoder.encode(toPackageHtml(currentDraft.title, items)) },
+      { name: "article.md", data: encoder.encode(toPackageMarkdown(currentDraft.title, items)) },
+      ...files,
+    ]);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([zip], { type: "application/zip" }));
+    a.download = exportFileName(currentDraft.title, "zip");
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    setMessage(`ZIP 파일로 내보냈습니다(글 + 이미지 ${files.length}장).${skipped ? ` 이미지 ${skipped}장은 받지 못해 빠졌습니다. 다시 시도해 주세요.` : ""}`);
+  }
+
   async function copyDraftText() {
     if (!currentDraft) return;
     try {
@@ -946,6 +996,10 @@ export function useStudio() {
     nodeRefs,
     setNodeRefs,
     nodeRefKey,
+    imageRefMode,
+    setImageRefMode,
+    nodeRefModes,
+    setNodeRefModes,
     contentProvider,
     setContentProvider,
     contentModel,
@@ -1074,6 +1128,7 @@ export function useStudio() {
     restoreRevision,
     saveReviewFix,
     exportDraftFile,
+    exportDraftZip,
     selectedContentModelLabel,
     completedInputCount,
     experienceNote,
