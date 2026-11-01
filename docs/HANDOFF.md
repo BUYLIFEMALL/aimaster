@@ -21,6 +21,11 @@
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — API 키 암호화 문구 A안
 문구 48곳·파일 42개 수정(`b16550ad4`), 미배포 대기. 남은 곳과 범위 밖 문구: `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` 처리 결과.
 
+## 2026-11-01 ⏸ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 올인원 API 키 저장 정리(미배포 대기)
+- 결정(주인님): ②③ 결정 4건 — 컬러 테마 버림, 간편 모드 무료 입구 그대로, 원본 이동 안내는 SEO v2.22 배포 뒤, 올인원 키 정리 진행.
+- 한 일: `naver-blog-allinone` 키를 `localStorage` 대신 회원 본인 `user_api_keys`에 저장(`/api/my-keys` POST, 삭제 없음), 예전 브라우저 키는 설정 창에서 옮기기. 커밋 `b3a6fd89b`(9파일), tsc·새 시험 4/4.
+- 주의: 맥에서는 `npm test` 불가(윈도우용 esbuild) → 배포 세션이 윈도우에서 `npm test` 먼저. 미배포 목록 등록.
+
 ## 2026-11-01 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 병합 ②③(→ 에이전트) 재대조: 옮길 코드 거의 없음
 - 묶음 A(에이전트 v2.16~v2.18)로 이미 반영. 남은 올인원 컬러 테마는 타이핑 입력 방식(§20)과 맞지 않아 버림 추천, 상호작용 요소는 네이버 미지원. 제품 코드·DB 변경 없음(에이전트 폴더 미접촉). 결정 4건 주인님 대기. 근거 `docs/analysis-blog-consolidation-20261020/REPORT.md#blog-merge23-20261101`.
 

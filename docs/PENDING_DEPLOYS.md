@@ -25,6 +25,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `naver-blog-allinone` (운영 v1.55) | API 키를 브라우저(`localStorage`) 대신 회원 본인 계정(`user_api_keys`)에 저장, 예전 브라우저 키는 설정 창에서 계정으로 옮기기(블로그 병합 결정 4번) | `b3a6fd89b` | 2026-11-01 · [역할: mac-mini] Claude Code(맥미니) `claude-mac-20261101-blog` | `naver-blog-allinone/docs/IMPROVEMENT_HANDOFF_20261101.md` | v1.56으로 · **윈도우에서 `npm test` 먼저**(맥은 윈도우용 esbuild라 못 돌림) · 배포 뒤 맥미니 화면 검수(키 표시·옮기기·글 1편, 승인됨) |
 | `naver-blog-seo-studio` (운영 v2.21) | 블로그 병합 ① 작업실 → SEO 마무리: 이미지 노드별 참고 사진·문체 수집 20/30개·문체 주제 정보 + ④ 콘텐츠 제작 → SEO: 참고 사진 「제품 그대로 넣기」·「ZIP(글+이미지)」 | `0bf9a6d55`·`ae0da6b38`·`0543e8646` | 2026-11-01 · [역할: mac-mini] Claude Code(맥미니) `claude-mac-20261101-blog` | `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261101.md` | v2.22로(버전·manifest 올리기부터 순서 문서대로) · 배포 뒤 맥미니 화면 검수(이미지 2장[노드별·제품]·문체 분석 1회, 승인됨·ZIP 풀기) |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
