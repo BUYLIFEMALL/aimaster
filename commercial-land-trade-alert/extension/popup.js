@@ -31,6 +31,7 @@ async function refresh() {
   $("consentBox").hidden = s.consent;
   $("weekly").checked = !!s.weeklyOn;
   $("stopped").hidden = !s.stoppedToday;
+  $("mailBlocked").hidden = !s.mailBlocked;
   const [text, cls] = stateText(s);
   $("state").textContent = text;
   $("state").style.whiteSpace = "pre-line";

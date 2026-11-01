@@ -394,3 +394,18 @@ test("매매·월세 화면을 나눠도 같은 동 월세로 수익률을 계�
   assert.equal(sale.yieldText, "6.3%(월세 5건)");
   assert.equal(other.yieldText, "", "다른 동 월세는 쓰지 않음");
 });
+
+test("크롬이 메일 전송을 막으면 해결 방법을 알려 준다", async () => {
+  const { MAIL_ACCESS_TEXT, sendResendMail } = await import("../extension/lib/notify.js");
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () => { throw new TypeError("Failed to fetch"); };
+  try {
+    globalThis.chrome = { permissions: { contains: async () => false } };
+    await assert.rejects(sendResendMail("k", { to: "a@b.c", subject: "s", text: "t" }), new RegExp(MAIL_ACCESS_TEXT.slice(0, 10)));
+    globalThis.chrome = { permissions: { contains: async () => true } };
+    await assert.rejects(sendResendMail("k", { to: "a@b.c", subject: "s", text: "t" }), /메일 서버에 연결하지 못했어요/);
+  } finally {
+    globalThis.fetch = realFetch;
+    delete globalThis.chrome;
+  }
+});

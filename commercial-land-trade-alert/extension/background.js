@@ -9,7 +9,7 @@ import { daysSince, gapText, marketGap, scoreListing, applyYields } from "./lib/
 import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable, trendText } from "./lib/stats.js";
 import { buildWeeklyReport, sendToChannels, shouldSendWeekly } from "./lib/weekly.js";
-import { ALERT_PREFIX, buildKakaoText, buildMailHtml, buildMailSubject, buildSummary, kakaoLinkFor, sendDocument, sendKakaoMemo, sendMessage, sendResendMail } from "./lib/notify.js";
+import { ALERT_PREFIX, hasMailAccess, buildKakaoText, buildMailHtml, buildMailSubject, buildSummary, kakaoLinkFor, sendDocument, sendKakaoMemo, sendMessage, sendResendMail } from "./lib/notify.js";
 
 const WEB = "https://commercial-land-trade-alert.buylife.xyz";
 const version = () => chrome.runtime.getManifest().version_name || "";
@@ -305,7 +305,9 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
         const s = await get(["extToken", "connectedEmail", "consentAt", "stoppedDate", "limitDate", "nextDueAt", "pagesDay", "running", "lastResult", "settingsCache", "log", "weeklyOn"]);
         if (s.running && !busy) { s.running = null; await set({ running: null }); } // 끊긴 수집 정리
         if (s.lastResult) s.lastResult = { at: s.lastResult.at, result: s.lastResult.result, error: s.lastResult.error };
+        const mailBlocked = !!s.settingsCache?.email?.apiKey && !(await hasMailAccess());
         return reply({
+          mailBlocked,
           connected: !!s.extToken,
           weeklyOn: !!s.weeklyOn,
           email: s.connectedEmail || null,

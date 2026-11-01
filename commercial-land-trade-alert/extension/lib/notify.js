@@ -98,15 +98,31 @@ function toBase64(bytes) {
   return btoa(bin);
 }
 
+export const MAIL_ACCESS_TEXT = "크롬이 이 확장의 메일 전송을 막고 있어요. chrome://extensions → 이 확장 「세부정보」 → 「사이트 액세스」를 「모든 사이트에서」로 바꿔 주세요.";
+
+/** 회원이 크롬에서 사이트 액세스를 제한하면 false. 확인할 수 없으면 막지 않는다 */
+export async function hasMailAccess() {
+  try {
+    return await chrome.permissions.contains({ origins: ["https://api.resend.com/*"] });
+  } catch {
+    return true;
+  }
+}
+
 export async function sendResendMail(apiKey, { to, subject, text, html, file }) {
   const body = { from: "상가·건물·토지 매물 알림 <onboarding@resend.dev>", to: [to], subject, text };
   if (html) body.html = html;
   if (file) body.attachments = [{ filename: file.filename, content: toBase64(file.bytes) }];
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let res;
+  try {
+    res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    throw new Error((await hasMailAccess()) ? `메일 서버에 연결하지 못했어요(${e.message})` : MAIL_ACCESS_TEXT);
+  }
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
     throw new Error(`메일 보내기 실패(${res.status}) ${j.message || ""}`.trim());
