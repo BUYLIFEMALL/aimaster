@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 새 글 확인을 회원 PC 확장 방식으로 전환
+
+- **왜:** 주인님 질문 「각자 할수는 없나?」→「진행해」. 회원 수만큼 Vercel 호출·서버 고정 IP 읽기가 늘어나는 구조를, 마케팅 예외 지침(트래픽은 회원 PC)에 맞게 바꿨습니다.
+- **동작:** 웹 시작 → `feed_sync`로 확장에 알림 → `extension/feed-watch.mjs`가 5분 알람, 이웃별 15분 간격, 한 번에 최대 20명·25초, 1초 간격으로 `rss.blog.naver.com`을 쿠키 없이 읽음 → 처음 보는 글만 `/api/neighbors/monitor/extension`의 `report`로 저장 → 약 1시간마다 `sync`로 세션·이웃 목록·횟수 확인. 403·429면 1시간 대기. 하루 넘게 서버 확인이 안 되면 읽기를 멈춤. 브라우저 재시작·확장 새로고침 뒤 저장된 세션을 이어 감.
+- **권한:** manifest `host_permissions`에 `https://rss.blog.naver.com/*` 추가. 서버는 글 기록을 직접 만들고 본문은 항상 빈 값으로 저장합니다.
+- **숨긴 것:** 서버 RSS 읽기(탭·cron-job.org)는 `BNC_SERVER_FEED_ENABLED=true`일 때만 동작합니다. 코드는 `9b2fba448` 그대로 보존. 주인님이 처음 원하신 「PC를 꺼도 진행」은 이 설정을 켜야 가능합니다.
+- **SQL:** 운영 미적용 10번째 마이그레이션을 그대로 고쳤습니다(`runner`, `runner_seen_at`, `extension_sync`, `extension_report`).
+- **검수:** 단위 329, 격리 PostgreSQL 26시나리오, 타입 통과. 실제 공개 RSS 1건을 파서로 읽어 50건 확인(링크가 CDATA, 네이버 RSS는 최근 50건 제공). ID가 바뀐 블로그는 302로 넘어가므로 실패 처리되어 그 이웃만 건너뜁니다.
+- **못 한 것:** 실제 Edge 확장 설치 상태의 동작(서비스 워커 수명·알람·CORS 권한), 운영 저장, `next build`·ZIP 재생성, 실제 화면 검수. 네이버가 회원 PC 반복 읽기를 제한하는지는 실사용에서만 확인됩니다.
+- **다음 첫 단계:** 묶음 배포 승인 시 SQL 10개 적용 → `BNC_FEED_READ_ENABLED`·`BNC_FEED_READ_POLICY_REFERENCE` 확인(`BNC_SERVER_FEED_ENABLED`는 넣지 않음) → 새 ZIP 설치 → Edge에서 이웃 1명으로 시작, 탭 닫기, 15분 뒤 새 글 저장 확인.
+- **링크:** https://blog-neighbor-care.buylife.xyz/neighbors
+
+
 ## 2026-11-01 🔧 [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp · coupang-ops 텔레그램 끊기(미배포)
 - 한 일: 연동 화면 끊기 버튼, 쿠팡 줄만 삭제, 다른 프로그램 봇 빌려 쓰기 제거. 커밋 `8479b2009`.
 - 확인: 시험 131개·tsc. 못 한 것: 크롬 화면·실제 끊기(로그인 필요, 쿠팡 봇 미등록).
