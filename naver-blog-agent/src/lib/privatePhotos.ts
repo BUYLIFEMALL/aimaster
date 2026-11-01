@@ -111,7 +111,7 @@ export async function resolvePrivatePostPhotos<T extends { images?: unknown }>(a
 
 /** 전체 페이지를 먼저 읽고 삭제해 offset 변화로 인한 누락을 방지한다. */
 // counts(2026-10-23, 선택): 실제로 지운 사진을 회원별로 센다(cron/cleanup의 usage_logs 정리 기록용)
-export async function cleanupPrivatePhotos(admin: PhotoAdmin, dryRun: boolean, now = Date.now(), counts?: CleanupCounts) {
+export async function cleanupPrivatePhotos(admin: PhotoAdmin, dryRun: boolean, now = Date.now(), counts?: CleanupCounts, exempt?: Set<string>) {
   if (!await requirePrivatePhotoBucket(admin, true)) return { configured: false, expired: 0, removed: 0 };
   const storage = admin.storage.from(PRIVATE_PHOTO_BUCKET);
   const folders: string[] = [];
@@ -124,6 +124,7 @@ export async function cleanupPrivatePhotos(admin: PhotoAdmin, dryRun: boolean, n
     if (data.length < PAGE_SIZE) break;
   }
   for (const owner of folders) {
+    if (exempt?.has(owner)) continue; // 30일 삭제 예외 회원(2026-11-02)
     for (let offset = 0; ; offset += PAGE_SIZE) {
       const { data, error } = await storage.list(owner, { limit: PAGE_SIZE, offset, sortBy: { column: "name", order: "asc" } });
       if (error || !data) throw new PrivatePhotoError("사진 파일 정리 목록을 읽지 못했습니다.", 503);

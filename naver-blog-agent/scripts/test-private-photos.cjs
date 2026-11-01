@@ -31,11 +31,13 @@ function harness() {
     const filters = []; let patch;
     const run = () => {
       state.reads.push(table);
-      const rows = state.rows.filter(row => filters.every(([key, value, operator]) => operator === 'lt' ? row[key] < value : row[key] === value));
+      if (table === 'profiles') return state.exemptError ? { data: null, error: {} } : { data: (state.exempt || []).map(id => ({ id })), error: null };
+      const rows = state.rows.filter(row => filters.every(([key, value, operator]) => operator === 'lt' ? row[key] < value
+        : operator === 'notin' ? !value.slice(1, -1).split(',').includes(row[key]) : operator === 'in' ? value.includes(row[key]) : row[key] === value));
       if (patch && table === 'nba_posts') { state.writes.push({ patch, ids: rows.map(row => row.id) }); rows.forEach(row => Object.assign(row, patch)); }
       return { data: table === 'nba_posts' ? structuredClone(rows) : [], count: 0, error: table === 'nba_collected_materials' && state.sourceError ? {message:'mock source cleanup failed'} : null };
     };
-    const query = { select() { return query; }, delete() { return query; }, lte(key,value) { filters.push([key,value,'lt']); return query; }, eq(key, value) { filters.push([key, value]); return query; }, lt(key, value) { filters.push([key, value, 'lt']); return query; }, update(value) { patch = value; return query; }, order() { return query; }, limit() { return query; },
+    const query = { select() { return query; }, delete() { return query; }, lte(key,value) { filters.push([key,value,'lt']); return query; }, eq(key, value) { filters.push([key, value]); return query; }, lt(key, value) { filters.push([key, value, 'lt']); return query; }, not(key, _op, value) { filters.push([key, value, 'notin']); return query; }, in(key, value) { filters.push([key, value, 'in']); return query; }, update(value) { patch = value; return query; }, order() { return query; }, limit() { return query; },
       async maybeSingle() { return table === 'nba_posts' ? { data: run().data[0] || null, error: state.readError ? {} : null } : { data: { default_category: '일상' }, error: null }; }, then(resolve, reject) { return Promise.resolve(run()).then(resolve, reject); } }; return query;
   } };
   function load(file) {
@@ -272,6 +274,43 @@ test('새 글감 정리 실패도 성공으로 숨기지 않으며 dry 모드가
     const result=await h.load('app/api/cron/cleanup/route.ts').GET({headers:{get:()=> 'Bearer mock-cron'},nextUrl:new URL('https://test/api/cron/cleanup?dry=1')});
     assert.equal(result.status,503);assert.equal(result.body.success,false);assert.ok(result.body.sourceMaterials.error);assert.equal(result.body.dryRun,true);assert.equal(h.state.removed.length,0);
   } finally {previous===undefined?delete process.env.CRON_SECRET:process.env.CRON_SECRET=previous;}
+});
+
+// 2026-11-02: 30일 삭제 예외 회원(profiles.retention_exempt)은 원고·사진·이미지 정리에서 빠지고 일반 회원만 지운다.
+test('예외 회원의 오래된 사진은 남기고 다른 회원 사진만 삭제한다', async () => {
+  const h = harness(), now = Date.now(); h.state.objects.clear();
+  const mine = PHOTO, other = OTHER + '/10000000-0000-4000-8000-000000000001.png';
+  for (const p of [mine, other]) h.state.objects.set(p, { createdAt: new Date(now - 31 * DAY).toISOString() });
+  const result = await h.library.cleanupPrivatePhotos(h.admin, false, now, undefined, new Set([OWNER]));
+  assert.deepEqual(result, { configured: true, expired: 1, removed: 1 });
+  assert.deepEqual(h.state.removed, [other]); assert.ok(h.state.objects.has(mine));
+});
+
+test('Cron 정리는 예외 회원의 원고·사진을 대상에서 빼고 일반 회원 것만 센다', async () => {
+  const h = harness(), now = Date.now(); h.state.exempt = [OWNER];
+  h.load('lib/retention.ts').retentionCutoff = () => new Date(now - 30 * DAY);
+  const old = new Date(now - 40 * DAY).toISOString();
+  h.state.rows = [{ id: 'a', user_id: OWNER, created_at: old }, { id: 'b', user_id: OTHER, created_at: old }];
+  h.state.objects.clear();
+  for (const p of [PHOTO, OTHER + '/10000000-0000-4000-8000-000000000001.png']) h.state.objects.set(p, { createdAt: new Date(now - 31 * DAY).toISOString() });
+  const originalFrom = h.admin.storage.from;
+  h.admin.storage.from = bucket => bucket === 'nba-private-photos' ? originalFrom(bucket) : { list: async () => ({ data: [] }) };
+  const previous = process.env.CRON_SECRET; process.env.CRON_SECRET = 'mock-cron';
+  try {
+    const result = await h.load('app/api/cron/cleanup/route.ts').GET({ headers: { get: () => 'Bearer mock-cron' }, nextUrl: new URL('https://test/api/cron/cleanup?dry=1') });
+    assert.equal(result.status, 200); assert.equal(result.body.expiredPosts, 1); assert.equal(result.body.privatePhotos.expired, 1);
+    assert.equal(h.state.removed.length, 0);
+  } finally { previous === undefined ? delete process.env.CRON_SECRET : process.env.CRON_SECRET = previous; }
+});
+
+test('예외 회원 목록을 못 읽으면 아무것도 읽거나 지우지 않고 실패를 알린다', async () => {
+  const h = harness(); h.state.exemptError = true;
+  const previous = process.env.CRON_SECRET; process.env.CRON_SECRET = 'mock-cron';
+  try {
+    const result = await h.load('app/api/cron/cleanup/route.ts').GET({ headers: { get: () => 'Bearer mock-cron' }, nextUrl: new URL('https://test/api/cron/cleanup') });
+    assert.equal(result.status, 503); assert.equal(result.body.success, false);
+    assert.ok(!h.state.reads.includes('nba_posts')); assert.equal(h.state.bucketReads, 0); assert.equal(h.state.removed.length, 0);
+  } finally { previous === undefined ? delete process.env.CRON_SECRET : process.env.CRON_SECRET = previous; }
 });
 
 // E-4(2026-10-24): 가짜 권한 모듈에 범위 판정 함수(항상 '전체' 범위)를 덧붙인다.

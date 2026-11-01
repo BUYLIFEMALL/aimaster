@@ -4,6 +4,7 @@ import { RETENTION_DAYS, retentionCutoff } from "@/lib/retention";
 import { checkRankingHealth } from "@/lib/naverRanking";
 import { cleanupPrivatePhotos, PrivatePhotoError } from "@/lib/privatePhotos";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
+import { exemptInFilter, loadRetentionExemptIds } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -35,9 +36,14 @@ export async function GET(request: NextRequest) {
     const admin = createAdminClient() as any;
     // 2026-10-23: 실제로 지운 것만 회원별로 세어 usage_logs(cleanup_expired)에 남긴다(관리자 「30일 자동 정리」 표). 미리 보기(dry)는 기록 안 함
     const counts: CleanupCounts = new Map();
+    // 2026-11-02: 30일 삭제 예외 회원(관리자·시험 계정)은 모든 정리에서 뺀다. 목록을 못 읽으면 아무것도 지우지 않는다.
+    let exempt: Set<string>;
+    try { exempt = await loadRetentionExemptIds(admin); }
+    catch { return NextResponse.json({ success: false, error: "자동 삭제 예외 회원 목록을 읽지 못해 정리를 멈췄습니다.", dryRun }, { status: 503 }); }
+    const exemptFilter = exemptInFilter(exempt);
     // 새 사진은 옛 콘텐츠 유예와 관계없이 원래 업로드일부터 30일을 적용한다.
     let privatePhotos: Awaited<ReturnType<typeof cleanupPrivatePhotos>> | { error: string };
-    try { privatePhotos = await cleanupPrivatePhotos(admin, dryRun, Date.now(), counts); }
+    try { privatePhotos = await cleanupPrivatePhotos(admin, dryRun, Date.now(), counts, exempt); }
     catch (error) {
       // 새 버킷 장애가 기존 원고·이미지 정리까지 막지는 않지만 실패 상태는 드러낸다.
       privatePhotos = { error: error instanceof PrivatePhotoError ? error.message : "비공개 사진 정리를 완료하지 못했습니다." };
@@ -45,8 +51,10 @@ export async function GET(request: NextRequest) {
     const privatePhotosFailed = "error" in privatePhotos;
     // 새 자료는 보관 여부와 관계없이 원래 수집일부터 만료. DB count/delete 오류도 실패로 표시한다.
     const sourceNow = new Date().toISOString();
-    const sourceQuery = dryRun ? admin.from("nba_collected_materials").select("id", {count: "exact", head: true}).lte("expires_at", sourceNow)
-      : admin.from("nba_collected_materials").delete({count: "exact"}).lte("expires_at", sourceNow).select("user_id");
+    let sourceQuery = dryRun ? admin.from("nba_collected_materials").select("id", {count: "exact", head: true}).lte("expires_at", sourceNow)
+      : admin.from("nba_collected_materials").delete({count: "exact"}).lte("expires_at", sourceNow);
+    if (exemptFilter) sourceQuery = sourceQuery.not("user_id", "in", exemptFilter);
+    if (!dryRun) sourceQuery = sourceQuery.select("user_id");
     const {data: sourceRows, count: sourceCount, error: sourceError} = await sourceQuery;
     if (!dryRun && !sourceError) for (const row of sourceRows ?? []) addCleanupCount(counts, row.user_id, "ideas");
     const sourceMaterials = sourceError ? {error: "만료 글감 정리를 완료하지 못했습니다."} : {count: sourceCount || 0, dryRun};
@@ -71,10 +79,11 @@ export async function GET(request: NextRequest) {
 
     // 1. 오래된 원고 삭제 (nba_posts)
     try {
-      const { data: oldNbaPosts, error: nbaErr } = await admin
+      const { data: oldRows, error: nbaErr } = await admin
         .from("nba_posts")
         .select("id, user_id")
         .lt("created_at", cutoff.toISOString());
+      const oldNbaPosts = (oldRows ?? []).filter((p: any) => !exempt.has(p.user_id));
 
       if (!nbaErr && oldNbaPosts && oldNbaPosts.length > 0) {
         expiredPostsCount += oldNbaPosts.length;
@@ -100,6 +109,7 @@ export async function GET(request: NextRequest) {
 
       if (userFolders && userFolders.length > 0) {
         for (const uFolder of userFolders) {
+          if (exempt.has(uFolder.name)) continue;
           const subPath = `naver-blog-agent/${uFolder.name}`;
           const { data: files } = await storage.list(subPath, { limit: 1000 });
           if (files) {
