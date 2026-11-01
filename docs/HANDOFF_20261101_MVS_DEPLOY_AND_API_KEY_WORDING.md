@@ -54,6 +54,13 @@
 2. `user_api_keys`의 RLS와 다른 프로그램의 읽기 코드를 대조한다.
 3. 주인님 결정 뒤 진행한다. **키 값을 문서·채팅·로그에 남기지 않는다.**
 
+### 처리 결과 (2026-11-01, 주인님 A안 결정)
+- 실제 암호화는 나중에 전체 작업으로 한다(주인님 지시). 전 프로그램 코드 검색에서 앱 수준 키 암호화 코드는 나오지 않았다.
+- `b16550ad4`: 문구 48곳, 파일 42개 수정. 미배포 대기. 화면 확인은 안 함(문법 검사만).
+- 남은 API 키 문구: `naver-blog-agent`, `naver-blog-seo-studio`(다른 세션 작업 중), 메인 사이트 `app/(main)/guides/[id]/page.tsx`(푸시하면 빌드 비용이 생겨 승인 뒤 처리).
+- 키가 아닌 데이터 암호화 문구는 범위 밖이라 그대로 두었다: `ai-task-planner`, `ai-work-workspace` 2곳, `document-translator`, `music` UsageGuide, `persona-style-studio` 123행, `personality-suite` 58행, `shorts-viral-studio`. 전송 구간 표현(`ebook-studio`, `photo-remake-studio`)과 `tistory-auto-blog`도 그대로다.
+- `user_api_keys` 접근 규칙 대조는 아직 안 했다.
+
 ## 3. 작업 후
 이 문서의 해당 절에 처리 결과·커밋을 적고, 프로그램별 `docs/IMPROVEMENTS.md`와 루트 `docs/HANDOFF.md`를 갱신한다.
 
