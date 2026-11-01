@@ -930,3 +930,19 @@ https://tistory-auto-blog.buylife.xyz
 
 ### 다음
 ② 올인원 → 에이전트, ③ BLOG → 에이전트는 에이전트 담당(Codex)과 일정 협의 필요. ④는 이미지·영상 카테고리와 연계 설계 먼저.
+
+<a id="blog-merge4-20261101"></a>
+## 2026-11-01 블로그 병합 ④ 콘텐츠 제작 → SEO 분석·구현 (맥미니 `claude-mac-20261101-blog` [역할: mac-mini])
+
+> 주인님 「④번 콘텐츠 제작 분석과 플랜 진행해」 → ZIP 방식 「첫번째로 진행해」. 코드 확인 기준 `blog-content-maker` v1.12, SEO v2.21+미배포분.
+
+| 콘텐츠 제작 기능 | 코드 근거 | 다른 곳 | 판단 |
+|---|---|---|---|
+| 제목 10개·작성 모드 5가지·다시 쓰기·점검·수정 이력 | `src/lib/types.ts` `MODES`, `src/lib/content.ts` `auditDraft` | SEO 제목·구성 양식 5종·전개 구조 8가지·다시 쓰기 3모드·품질 점검·AI 검수 8영역·수정 이력 | 이미 있음 |
+| 네이버 입력(발행·예약 없음) | `extension/` | SEO 입력·발행·예약·결과 기록 | SEO가 더 나음 |
+| 제품 사진 합성 | `src/lib/ai.ts` 76줄 「첨부한 제품의 형태와 주요 특징을 보존하여 … 합성」 | SEO `REF_RULE`은 「분위기만, 따라 그리지 말 것」 — 반대 | **가져옴** → `PRODUCT_REF_RULE`·`refMode` |
+| 이미지 포함 ZIP | `src/app/api/export/route.ts`(JSZip, 서버 생성) | SEO TXT·MD·HTML(이미지 없음) | **가져옴** → 브라우저 생성(서버 생성은 Vercel 응답 4.5MB 한도에 걸림 — 콘텐츠 제작도 같은 위험) |
+| 영상 첫·끝 장면 정지 이미지(MP4 없음) | `MediaPlan.kind` `scene-start`·`scene-end` | `ai-video-studio`가 `start_image`·`end_image`로 영상까지 생성 | 가져오지 않음 → IDEA-MEDIA-HANDOFF-01 |
+
+결과: SEO 커밋 `0543e8646`(18파일), 시험 143/143·tsc 통과, **미배포**(작업실 병합분과 함께 v2.22). 콘텐츠 제작은 그대로 둠(주소·데이터 유지, 신규 개발 중단). 상세 [SEO 인수인계](../../naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261101.md).
+알아 둘 점: 맥 기본 `unzip` 6.0은 ZIP UTF-8 이름 표시를 무시해 한글 이름을 깨뜨림 → ZIP 안 파일 이름은 영문·번호만.

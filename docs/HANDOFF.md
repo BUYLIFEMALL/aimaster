@@ -13,6 +13,11 @@
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — API 키 암호화 문구 A안
 문구 48곳·파일 42개 수정(`b16550ad4`), 미배포 대기. 남은 곳과 범위 밖 문구: `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` 처리 결과.
 
+## 2026-11-01 ⏸ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 병합 ④ 콘텐츠 제작 → SEO(미배포 대기)
+- 분석: 콘텐츠 제작에만 있는 기능은 제품 사진 합성·이미지 포함 ZIP 두 가지(나머지는 SEO에 있음). 영상 첫·끝 장면은 `ai-video-studio` 담당으로 두고 프로그램 간 이미지 넘기기를 아이디어 후보 IDEA-MEDIA-HANDOFF-01로 등록. 근거 `docs/analysis-blog-consolidation-20261020/REPORT.md#blog-merge4-20261101`.
+- 한 일: SEO 참고 사진 「제품 그대로 넣기」(`PRODUCT_REF_RULE`), 「ZIP(글+이미지)」 브라우저 생성(`lib/zipStore.ts`, 라이브러리 없음 — 주인님 선택). 커밋 `0543e8646`(18파일), 시험 143/143·tsc 통과.
+- 배포: ⏸ 미배포 대기 — 작업실 병합분과 함께 다음 SEO 배포 때 v2.22(`docs/PENDING_DEPLOYS.md`). 다음 첫 단계: 묶음 배포 뒤 맥 크롬 화면 검수(이미지 2장·문체 분석 1회·ZIP 풀기).
+
 ## 2026-11-01 🟡 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 9→5 결정, SEO 작업실 병합 마무리(⏸ 미배포 대기)
 - 결정(주인님 승인): 독립 5개(에이전트·SEO·키워드·티스토리·이웃 소통), 병합 4개(① 작업실 → SEO ② 올인원 → 에이전트 ③ BLOG → 에이전트 ④ 콘텐츠 제작 → SEO+이미지·영상). 원본은 닫지 않고 신규 개발만 중단. 근거 `docs/analysis-blog-consolidation-20261020/REPORT.md#blog-9to5-20261101`.
 - 한 일: SEO v2.22 — 이미지 노드별 참고 사진, 문체 수집 20·30개, 문체 주제 정보(승인 지문 밖). 커밋 `0bf9a6d55`(17파일). tsc·시험 133/133 통과.
