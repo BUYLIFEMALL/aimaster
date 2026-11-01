@@ -4,9 +4,27 @@
   "version": "1.30.0",
   "version_name": "v1.30",
   "description": "회원이 직접 검색한 쿠팡 화면의 상품을 읽어 리뷰 수 기준으로 거르는 확장 프로그램",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
   "action": {
     "default_title": "쿠팡 리뷰 거르기",
     "default_popup": "popup.html"
-  }
+  },
+  "host_permissions": [
+    "https://trending-product-finder.buylife.xyz/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://trending-product-finder.buylife.xyz/*"
+      ],
+      "js": [
+        "web-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
 }

@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { build } from "esbuild";
+import { fileURLToPath } from "node:url";
 import { filterProducts, isExpired, mergeProducts, pageState, parseCard, toCsv } from "../extension/lib/parse.js";
 
 // 2026-11-01 쿠팡 검색 화면에서 실제로 읽은 카드 글자
@@ -50,4 +52,23 @@ test("30일 지난 저장본은 만료로 본다", () => {
   assert.equal(isExpired(now - 29 * 24 * 60 * 60 * 1000, now), false);
   assert.equal(isExpired(now - 31 * 24 * 60 * 60 * 1000, now), true);
   assert.equal(isExpired(undefined, now), true);
+});
+
+test("서버 저장 자료를 다시 만들어 주소 위조와 잘못된 값을 막는다", async () => {
+  const out = await build({ entryPoints: [fileURLToPath(new URL("../lib/coupangResults.ts", import.meta.url))], bundle: true, format: "esm", write: false, platform: "node" });
+  const mod = await import("data:text/javascript;base64," + Buffer.from(out.outputFiles[0].text).toString("base64"));
+  const items = mod.sanitizeReviewItems([
+    { id: "123", name: " 상품 ", price: 1000, reviews: 5, isAd: true, url: "https://evil.example" },
+    { id: "123", name: "중복", price: 1, reviews: 1 },
+    { id: "abc", name: "번호 틀림" },
+    { id: "456", name: "x".repeat(400), price: -1, reviews: "많음" },
+  ]);
+  assert.equal(items.length, 2);
+  assert.equal(items[0].url, "https://www.coupang.com/vp/products/123");
+  assert.equal(items[0].name, "상품");
+  assert.equal(items[1].name.length, 300);
+  assert.equal(items[1].price, null);
+  assert.equal(items[1].reviews, 0);
+  assert.deepEqual(mod.sanitizeReviewItems("x"), []);
+  assert.equal(mod.COUPANG_RESULT_RETENTION_DAYS, 365);
 });

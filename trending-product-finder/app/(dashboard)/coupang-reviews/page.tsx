@@ -1,6 +1,9 @@
 import { PageHero } from "@/components/ui/PageHero";
 import { requireProgramAccess } from "@/lib/access";
 import { APP_VERSION } from "@/lib/version";
+import { listReviewRunsAction } from "@/lib/actions/coupangResults";
+import { ExtensionConnect } from "@/components/coupang/ExtensionConnect";
+import { ReviewResults } from "@/components/coupang/ReviewResults";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -10,7 +13,7 @@ const DOWNLOAD_URL = "/downloads/trending-product-finder-extension-latest.zip";
 const INSTALL_STEPS = [
   { title: "ZIP 받아 압축 풀기", desc: "아래 버튼으로 받은 뒤 지우지 않을 폴더에 압축을 풉니다." },
   { title: "크롬에 올리기", desc: "chrome://extensions → 오른쪽 위 개발자 모드 켜기 → 「압축해제된 확장 프로그램 로드」 → 그 폴더 선택." },
-  { title: "쿠팡에서 직접 검색", desc: "쿠팡 검색 결과 화면을 연 채 확장 아이콘을 눌러 첫 사용 확인에 동의합니다." },
+  { title: "쿠팡에서 직접 검색", desc: "이 화면에서 「확장 연결하기」를 누른 뒤, 쿠팡 검색 결과 화면에서 확장 아이콘을 눌러 첫 사용 확인에 동의합니다." },
   { title: "읽고 거르기", desc: "「이 페이지 읽어 담기」를 누르고 리뷰 기준을 고릅니다. 더 보려면 직접 다음 페이지로 넘겨 다시 누릅니다." },
 ];
 
@@ -18,12 +21,13 @@ const FAQ = [
   { q: "왜 쿠팡 API로 안 하나요?", a: "쿠팡 파트너스 검색 응답에 리뷰 수가 없습니다. 그래서 회원 PC의 확장이 회원이 보고 있는 화면만 읽습니다." },
   { q: "여러 페이지를 자동으로 읽을 수 있나요?", a: "자동으로 넘기지 않습니다. 짧은 시간에 여러 페이지를 읽으면 쿠팡이 제한할 수 있어, 회원이 직접 넘길 때만 읽습니다." },
   { q: "다음 페이지가 「검색결과 없음」으로 나와요.", a: "쿠팡이 제한했을 수 있습니다. 다시 시도하지 말고 시간을 두었다가 사용해 주세요. 확인 화면이 뜨면 확장이 읽기를 멈춥니다." },
-  { q: "읽은 자료는 어디에 저장되나요?", a: "회원 PC의 크롬에만 저장되고 서버로 보내지 않습니다. 마지막 저장 뒤 30일이 지나면 지워지고, 「목록 비우기」로 바로 지울 수도 있습니다." },
+  { q: "읽은 자료는 어디에 저장되나요?", a: "확장을 연결하면 공개 상품 정보만 AIMaster의 내 계정에 저장되어 어느 PC에서든 보고 내려받을 수 있습니다. 1년 뒤 자동으로 지워지고 언제든 삭제할 수 있습니다. 쿠팡 접속은 회원 PC에서만 하며 우리 서버는 쿠팡을 호출하지 않습니다." },
   { q: "리뷰 없는 상품은 어떻게 보이나요?", a: "카드에 리뷰 수가 없으면 0개로 담깁니다. 쿠팡 화면 구조가 바뀌면 값이 틀릴 수 있으니 중요한 상품은 화면에서 한 번 더 확인해 주세요." },
 ];
 
 export default async function CoupangReviewsPage() {
   await requireProgramAccess();
+  const { runs, error } = await listReviewRunsAction();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -43,6 +47,8 @@ export default async function CoupangReviewsPage() {
         </a>
       </section>
 
+      <ExtensionConnect />
+
       <section className="rounded-lg border border-amber-400/40 bg-amber-400/10 p-4 text-sm leading-relaxed text-[#fde68a]">
         <p className="font-bold">⚠️ 먼저 읽어 주세요</p>
         <p className="mt-1">이 기능은 쿠팡 약관 위반·계정 제재·법적 책임의 소지가 있으며, 사용 책임은 회원 본인에게 있습니다. 판매자 계정을 함께 쓰는 브라우저에서는 그 계정에 영향이 갈 수 있으니 주의해 주세요.</p>
@@ -57,6 +63,8 @@ export default async function CoupangReviewsPage() {
           </div>
         ))}
       </section>
+
+      {error ? <p className="rounded-lg border border-amber-400/40 bg-amber-400/10 p-4 text-sm text-[#fde68a]">⚠️ {error} 잠시 뒤 새로고침해 주세요.</p> : <ReviewResults initialRuns={runs} />}
 
       <section className="mx-card p-5">
         <h2 className="text-sm font-bold text-mx-text">💡 자주 묻는 질문</h2>

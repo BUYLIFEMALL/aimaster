@@ -1,6 +1,7 @@
 import { filterProducts, isExpired, mergeProducts, pageState, parseCard, toCsv } from "./lib/parse.js";
 
 const READ_GAP_MS = 10_000;
+const SITE = "https://trending-product-finder.buylife.xyz";
 const $ = (id) => document.getElementById(id);
 let items = [];
 let lastReadAt = 0;
@@ -81,10 +82,30 @@ async function readPage() {
   if (state === "unknown") return setStatus("상품을 찾지 못했습니다. 쿠팡 화면이 바뀌었을 수 있습니다.", true);
 
   const before = items.length;
-  items = mergeProducts(items, result.cards.map(parseCard));
+  const products = mergeProducts([], result.cards.map(parseCard));
+  items = mergeProducts(items, products);
   await save();
-  setStatus(`읽기 완료: 새 상품 ${items.length - before}개를 담았습니다.`);
   render();
+  setStatus(`읽기 완료: 새 상품 ${items.length - before}개를 담았습니다. 저장 중…`);
+  const keyword = new URL(tab.url).searchParams.get("q") ?? "";
+  setStatus(`새 상품 ${items.length - before}개를 담았습니다. ${await saveToAccount(keyword, products)}`);
+}
+
+/** 쿠팡이 아니라 우리 사이트로만 보낸다. 공개 상품 정보만 담긴다. */
+async function saveToAccount(keyword, products) {
+  const { extToken } = await chrome.storage.local.get("extToken");
+  if (!extToken) return "사이트의 「쿠팡 리뷰 거르기」에서 확장을 연결하면 내 계정에 저장됩니다.";
+  try {
+    const response = await fetch(`${SITE}/api/extension/coupang-results`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${extToken}` },
+      body: JSON.stringify({ keyword, items: products }),
+    });
+    const data = await response.json().catch(() => ({}));
+    return response.ok ? `내 계정에 ${data.saved}개를 저장했습니다.` : data.error || "내 계정에 저장하지 못했습니다.";
+  } catch {
+    return "내 계정에 저장하지 못했습니다. 인터넷 연결을 확인해 주세요.";
+  }
 }
 
 function downloadCsv() {

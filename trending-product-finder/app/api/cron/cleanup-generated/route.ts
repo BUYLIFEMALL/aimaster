@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { retentionCutoff, RETENTION_DAYS } from "@/lib/retention";
+import { resultCutoff } from "@/lib/coupangResults";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
@@ -47,6 +48,14 @@ export async function GET(request: NextRequest) {
       result[t.table] = data?.length ?? 0;
       for (const r of (data ?? []) as { user_id: string }[]) addCleanupCount(counts, r.user_id, KEY[t.table]);
     }
+  }
+  // 쿠팡 리뷰 거르기 기록은 주인님 지정으로 1년 보관한다(결과 행은 cascade로 함께 지워진다).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: oldRuns, error: runError } = await (admin as unknown as { from: (table: string) => any }).from("coupang_review_runs").delete().lt("created_at", resultCutoff()).select("user_id");
+  if (runError) errors.push(`coupang_review_runs: ${runError.message}`);
+  else {
+    result.coupang_review_runs = oldRuns?.length ?? 0;
+    for (const r of (oldRuns ?? []) as { user_id: string }[]) addCleanupCount(counts, r.user_id, "coupangReviewRuns");
   }
   result.loggedOwners = await logCleanupUsage(admin, "trending-product-finder", counts);
 

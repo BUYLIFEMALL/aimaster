@@ -378,3 +378,10 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 검수: `test:trend` 26개, tsc, build, DB·라이브 ZIP `check-extension-release` OK, 크롬 관리자 화면 v1.30, 390px 틀 가로 넘침 없음.
 - **미확인(다음 첫 단계)**: 실제 크롬에 설치해 팝업으로 쿠팡 읽기·CSV. 파싱은 실제 화면 글자로 시험했지만 팝업 동작은 미시험. 2026-11-02 이후, 쿠팡 접속 1~2페이지만, 시험 계정. 직접 넘긴 2페이지가 읽히는지도 함께 확인(주소로 연 2페이지는 2026-11-01 「검색결과 없음」, 원인 미구분). 새 버전 알림은 미구현.
 
+## 2026-11-01 (미배포 대기) — 쿠팡 리뷰 결과 회원별 사이트 저장 ([역할: ecommerce-image] `claude-win-sdp`)
+- 주인님 정정: 쿠팡 호출은 회원 PC에서만, 결과는 AIMaster DB에 회원별 저장·보기·다운로드, 보관 1년(§8 지정). 승인: 표 2개·빌드 1회.
+- 운영 DB(ref `esgxyikcnnvmlhygjkth`) 적용 완료: `coupang_review_runs`·`coupang_review_items`(RLS 본인만, 쓰기는 API의 서버 키). 비로그인 읽기·쓰기·삭제 차단과 cascade 실측 확인.
+- 코드: `/api/extension/coupang-results`·`whoami`(연결 코드 + `checkProgramAccess`), `lib/extensionAuth.ts`, 사이트 「🗂 내 검색 기록」·확장 연결(`components/coupang/`), 확장 `web-bridge.js`·저장 호출, 1년 정리(`cleanup-generated`).
+- 검수: `test:trend` 27개, tsc, `next build`, 린트. **미확인**: 운영 API·연결·저장 화면 실제 동작, 팝업(다음 배포 뒤).
+- 다음 첫 단계: 주인님 「쿠팡 시험해」(11-02 이후). v1.30 팝업 시험과 키워드 3개 사전 검증. 키워드 자동 검색까지 묶어 v1.31로 승인 빌드 1회 배포(manifest·ZIP·DB 함께), 그 뒤 저장 화면 확인. 통과하지 못하면 자동 검색 없이 저장 기능만 배포.
+
