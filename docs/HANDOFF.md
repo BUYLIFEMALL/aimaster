@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 소통 v1.04 운영 배포(SQL 10개 + 빌드 1회)
+
+- **한 일:** 주인님 승인으로 16묶음과 PC 확장 전환을 v1.04로 배포했습니다. 운영 DB(`esgxyikcnnvmlhygjkth`)에 SQL 10개를 한 트랜잭션으로 적용(표 16개, 전체 RLS). 실행 확정 클릭은 권한 장치에 막혀 주인님이 직접 눌렀습니다. 빌드 1회 Ready, `https://blog-neighbor-care-4fn9tvouc-buylife.vercel.app`.
+- **검증:** `check-extension-release` OK(DB·ext·ZIP 모두 v1.04, `extension_version`이 v1.01로 밀려 있던 것도 바로잡음). 운영 화면 v1.04, 상태 API 200, 확장 API 무인증 401.
+- **아직 꺼져 있음:** 운영에 `BNC_` 환경변수가 0개라 `feedReady`·`aiReady`가 false입니다. 새 글 확인은 시작할 수 없습니다. 값을 넣을지는 주인님 결정 대기.
+- **발견·미배포:** 「조회」 전 안내문에 옛 cron-job.org 문구가 보이는 결함을 소스에서 고침(다음 배포 대기).
+- **못 한 것:** 실제 Edge 확장, RSS 저장, 네이버 동작, AI 호출. 새 ZIP 재설치도 아직입니다.
+- **다음 첫 단계:** 주인님 승인 후 `BNC_FEED_READ_ENABLED=true`와 `BNC_FEED_READ_POLICY_REFERENCE` 등록(환경변수 추가 뒤 재배포 필요, 빌드 1회) → 새 ZIP 설치 → Edge에서 이웃 1명 검수.
+- **교훈:** SQL 편집기로 큰 SQL을 옮길 때 클립보드는 다른 세션과 공유됩니다. 붙여넣은 뒤 해시 대조가 필수입니다.
+- **링크:** https://blog-neighbor-care.buylife.xyz/neighbors
+
+
 ## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 새 글 확인을 회원 PC 확장 방식으로 전환
 
 - **왜:** 주인님 질문 「각자 할수는 없나?」→「진행해」. 회원 수만큼 Vercel 호출·서버 고정 IP 읽기가 늘어나는 구조를, 마케팅 예외 지침(트래픽은 회원 PC)에 맞게 바꿨습니다.
