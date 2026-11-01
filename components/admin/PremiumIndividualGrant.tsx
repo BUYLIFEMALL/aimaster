@@ -54,6 +54,16 @@ export default function PremiumIndividualGrant({ memberId, programs, grants }: P
     });
   }
 
+  /** 카테고리 전체 선택 — 모두 선택돼 있으면 해제하고, 아니면 모두 선택한다. */
+  function toggleGroup(ids: string[]) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      const allSelected = ids.every((id) => next.has(id));
+      ids.forEach((id) => (allSelected ? next.delete(id) : next.add(id)));
+      return next;
+    });
+  }
+
   async function grant() {
     setPending(true);
     setError(null);
@@ -134,9 +144,15 @@ export default function PremiumIndividualGrant({ memberId, programs, grants }: P
       <div className="max-h-72 overflow-y-auto rounded-xl border border-white/10 bg-white/5 p-2 mb-3 space-y-3">
         {groups.map((group) => (
           <div key={group.name}>
-            <p className="text-xs font-semibold text-gold px-2 py-1">
-              {group.name} <span className="text-subtext font-normal">{group.items.length}개</span>
-            </p>
+            <label className="flex items-center gap-2 text-xs font-semibold text-gold px-2 py-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={group.items.every((p) => selected.has(p.id))}
+                onChange={() => toggleGroup(group.items.map((p) => p.id))}
+                className="rounded border-white/20 bg-white/5 accent-gold"
+              />
+              {group.name} 전체 <span className="text-subtext font-normal">{group.items.length}개</span>
+            </label>
             <div className="space-y-0.5">
               {group.items.map((p) => (
                 <label key={p.id} className="flex items-center gap-2 text-sm text-white px-2 py-1.5 rounded-lg hover:bg-white/5 cursor-pointer">
