@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { articleNoOf, type DongBoundary, locateDong, UNKNOWN_DONG } from "@/lib/adminDongGeo";
 import { AI_ENGINES, aiModelName, toAiProvider, type AiProvider } from "@/lib/aiEngines";
 import { askExtension } from "@/lib/extensionBridge";
 import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
-type Result = { at: string; columns: string[]; table: (string | number)[][]; perTarget: { name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null; coords?: { total: number; withCoord: number; places: number } }[] };
+type Result = { at: string; columns: string[]; table: (string | number)[][]; places?: Record<string, [number, number]>; sggByWatch?: Record<string, string>; perTarget: { name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null; coords?: { total: number; withCoord: number; places: number } }[] };
 
 const SHOW = ["감시 화면", "유형", "거래 종류", "가격", "시세 대비", "추정 수익률", "후보 점수", "근거", "변동", "이전 가격", "면적 기준", "면적(㎡)", "층"];
 const LINK = "네이버 매물 주소";
@@ -58,6 +59,8 @@ export function ResultsClient({ email }: { email: string }) {
   const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState("all");
   const [sort, setSort] = useState("score");
+  const [dongFilter, setDongFilter] = useState("");
+  const [boundaries, setBoundaries] = useState<Record<string, DongBoundary[]>>({});
   const [ai, setAi] = useState<{ busy?: AiProvider; text?: string; count?: number; used?: string; error?: string }>({});
 
   async function runAi(provider: AiProvider) {
@@ -94,10 +97,39 @@ export function ResultsClient({ email }: { email: string }) {
     };
   }, [email, attempt]);
 
+  // 필요한 시·군·구 경계만 받는다. 좌표는 이 브라우저 안에서만 쓴다
+  useEffect(() => {
+    if (!res?.places) return;
+    let alive = true;
+    for (const sgg of new Set(Object.values(res.sggByWatch ?? {}))) {
+      fetch(`/dong-boundaries/${sgg}.json`).then((r) => (r.ok ? r.json() : [])).then((d: DongBoundary[]) => alive && setBoundaries((b) => ({ ...b, [sgg]: d }))).catch(() => {});
+    }
+    return () => { alive = false; };
+  }, [res]);
+
+  const hasDong = !!res?.places && Object.keys(boundaries).length > 0;
+  const dongOfRow = useMemo(() => {
+    const memo = new Map<(string | number)[], string>();
+    if (!res?.places) return memo;
+    const at = (n: string) => res.columns.indexOf(n);
+    for (const r of res.table) {
+      const place = res.places[articleNoOf(r[at(LINK)])];
+      const list = boundaries[res.sggByWatch?.[String(r[at("감시 화면")])] ?? ""];
+      memo.set(r, place && list ? locateDong(list, place[0], place[1]) : UNKNOWN_DONG);
+    }
+    return memo;
+  }, [res, boundaries]);
+  const dongCounts = useMemo(() => {
+    const c = new Map<string, number>();
+    for (const d of dongOfRow.values()) c.set(d, (c.get(d) ?? 0) + 1);
+    return [...c.entries()].sort((a, b) => (a[0] === UNKNOWN_DONG ? 1 : b[0] === UNKNOWN_DONG ? -1 : a[0].localeCompare(b[0], "ko")));
+  }, [dongOfRow]);
+
   const rows = useMemo(() => {
     if (!res) return [];
     const at = (n: string) => res.columns.indexOf(n);
     const list = res.table.filter((r) => {
+      if (dongFilter && dongOfRow.get(r) !== dongFilter) return false;
       if (EVENT_VIEW[view]) return r[at("변동")] === EVENT_VIEW[view];
       if (view === "candidate") return Number(r[at("후보 점수")]) >= 40;
       if (view === "changed") return !!r[at("변동")];
@@ -109,7 +141,7 @@ export function ResultsClient({ email }: { email: string }) {
       if (sort === "gap") return (pctOf(a[at("시세 대비")]) ?? 9999) - (pctOf(b[at("시세 대비")]) ?? 9999);
       return Number(b[at("후보 점수")] || 0) - Number(a[at("후보 점수")] || 0);
     });
-  }, [res, view, sort]);
+  }, [res, view, sort, dongFilter, dongOfRow]);
 
   if (res === undefined) return <p className="mx-card mt-6 text-sm text-mx-muted">확장에서 결과를 불러오는 중입니다...</p>;
   if (res === null) {
@@ -157,6 +189,12 @@ export function ResultsClient({ email }: { email: string }) {
           <option value="gap">시세 대비 낮은순</option>
           <option value="yield">추정 수익률 높은순</option>
         </select>
+        {hasDong && (
+          <select value={dongFilter} onChange={(e) => setDongFilter(e.target.value)} aria-label="행정동" className="mx-input min-h-[40px] w-auto py-2 text-sm">
+            <option value="">행정동 전체</option>
+            {dongCounts.map(([d, n]) => <option key={d} value={d}>{d} ({n.toLocaleString("ko-KR")})</option>)}
+          </select>
+        )}
       </div>
       <div className="mx-card mt-3 p-4">
         <div className="flex flex-wrap items-center gap-3">
@@ -183,6 +221,7 @@ export function ResultsClient({ email }: { email: string }) {
         <table className="mx-table [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
           <thead>
             <tr>
+              {hasDong && <th>행정동(추정)</th>}
               {SHOW.map((c) => (
                 <th key={c}>{c}</th>
               ))}
@@ -192,6 +231,7 @@ export function ResultsClient({ email }: { email: string }) {
           <tbody>
             {rows.slice(0, 500).map((r, i) => (
               <tr key={`${String(r[at(LINK)])}-${i}`}>
+                {hasDong && <td>{dongOfRow.get(r) ?? UNKNOWN_DONG}</td>}
                 {SHOW.map((c) => (
                   <td key={c} className={c === "가격" ? "font-semibold" : undefined}>
                     {c === "감시 화면" ? shortWatch(String(r[at(c)] ?? "")) : c === "시세 대비" ? <GapCell value={r[at(c)]} /> : c === "후보 점수" && Number(r[at(c)]) >= 40 ? `⭐ ${r[at(c)]}` : String(r[at(c)] ?? "")}
@@ -209,6 +249,7 @@ export function ResultsClient({ email }: { email: string }) {
           </tbody>
         </table>
       </div>
+      {hasDong && <p className="mt-2 text-xs text-mx-muted">행정동은 네이버 매물 좌표로 어림한 값이라 경계 근처는 틀릴 수 있습니다. 앞부분만 읽은 화면의 뒤쪽 매물은 나오지 않습니다. 경계 출처: 통계청 SGIS, vuski/admdongkor(CC BY 4.0).</p>}
       {rows.length > 500 && <p className="mt-2 text-xs text-mx-muted">앞 500건만 보여 드립니다. 전체는 알림에 첨부된 파일에서 볼 수 있습니다.</p>}
     </>
   );

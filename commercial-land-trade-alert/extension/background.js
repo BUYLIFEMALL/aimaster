@@ -1,7 +1,7 @@
 // 상가·건물·토지 매물 알림 확장 — 수집 엔진. 기준: realty-listing-alert/extension/background.js
 // 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectView, locateDong, rand, RULES, sleep } from "./lib/collector.js";
-import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle, coordStats } from "./lib/listing.js";
+import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle, coordStats, placesOf } from "./lib/listing.js";
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
@@ -102,6 +102,7 @@ async function runCollection(trigger) {
     let errMsg = null;
     let limitHit = false;
     const sggByWatch = {};
+    const places = {};
 
     for (let i = 0; i < targets.length; i++) {
       const t = targets[i];
@@ -126,6 +127,7 @@ async function runCollection(trigger) {
         continue;
       }
       const coords = coordStats(r.bodies.flatMap((b) => b.articleList || []));
+      Object.assign(places, placesOf(r.bodies.flatMap((b) => b.articleList || [])));
       const seen = new Set();
       const allItems = r.bodies
         .flatMap((b) => b.articleList || [])
@@ -173,7 +175,7 @@ async function runCollection(trigger) {
       states,
       lastRunAt: startedAt,
       nextDueAt: computeNextDue(new Date(startedAt).getTime(), iv, RULES.scheduleJitter),
-      lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table: table.slice(0, 2000), perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete, pagesRead: p.pagesRead, filterChanged: p.filterChanged, filterText: p.filterText, coords: p.coords })) },
+      lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table: table.slice(0, 2000), places, sggByWatch, perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete, pagesRead: p.pagesRead, filterChanged: p.filterChanged, filterText: p.filterText, coords: p.coords })) },
     });
     if (table.length) {
       const { history = [], eventLog = [] } = await get(["history", "eventLog"]);

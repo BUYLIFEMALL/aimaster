@@ -431,3 +431,17 @@ test("좌표 진단은 건수와 표본만 낸다", async () => {
   assert.deepEqual(s.sample[0], ["1", 37.5, 127]);
   assert.ok(!JSON.stringify(s).includes("중개"));
 });
+
+test("좌표로 행정동을 판정한다", async () => {
+  const { articleNoOf, locateDong, UNKNOWN_DONG } = await import("../src/lib/adminDongGeo.ts");
+  const fs = await import("node:fs");
+  const list = JSON.parse(fs.readFileSync(new URL("../public/dong-boundaries/41285.json", import.meta.url), "utf8"));
+  assert.ok(["백석1동", "백석2동"].includes(locateDong(list, 37.645108, 126.78463)));
+  assert.equal(locateDong(list, 35, 129), UNKNOWN_DONG, "경계 밖");
+  const square = [[[126, 37], [127, 37], [127, 38], [126, 38], [126, 37]]];
+  assert.equal(locateDong([["가", [square]], ["나", [square]]], 37.5, 126.5), UNKNOWN_DONG, "겹치면 단정하지 않음");
+  assert.equal(articleNoOf("https://new.land.naver.com/offices?articleNo=123"), "123");
+  assert.equal(articleNoOf(""), "");
+  const { placesOf } = await import("../extension/lib/listing.js");
+  assert.deepEqual(placesOf([{ articleNo: "1", latitude: "37.5", longitude: "127", realtorName: "중개" }, { articleNo: "2" }]), { 1: [37.5, 127] });
+});

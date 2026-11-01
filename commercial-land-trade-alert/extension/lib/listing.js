@@ -123,6 +123,13 @@ export function coordStats(articles, maxSample = 30) {
   };
 }
 
+/** 매물 번호 → 좌표. 결과 화면의 행정동 판정용으로 회원 PC에만 둔다 */
+export function placesOf(articles) {
+  const out = {};
+  for (const a of articles || []) if (a?.articleNo && Number(a.latitude) && Number(a.longitude)) out[a.articleNo] = [Number(a.latitude), Number(a.longitude)];
+  return out;
+}
+
 /** 팝업 「이 화면 감시」: 상가·건물·토지 지도 화면인지 */
 export function isWatchableUrl(url) {
   try {
