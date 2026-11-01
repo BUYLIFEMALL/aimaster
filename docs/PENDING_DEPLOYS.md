@@ -19,6 +19,7 @@
 
 
 
+- `trending-product-finder` — 쿠팡 리뷰 결과 회원별 사이트 저장, 확장 연결 (2026-11-01, [역할: ecommerce-image], `308da3f1c`, DB 표 적용 완료, 빌드 1회 승인됨). 쿠팡 시험·자동 검색과 묶어 v1.31로 배포
 - `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
 
 
