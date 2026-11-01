@@ -37,11 +37,20 @@ export async function GET(request: NextRequest) {
   const storage = supabase.storage.from(POST_IMAGES_BUCKET)
   const toRemove = new Set<string>()
 
+  // 2026-11-02: 30일 삭제 예외 회원(profiles.retention_exempt, 관리자·시험 계정)은 글·이미지·글감 모두 지우지 않는다.
+  // 목록을 못 읽으면 아무것도 지우지 않는다.
+  const { data: exemptRows, error: exemptError } = await supabase.from('profiles').select('id').eq('retention_exempt', true)
+  if (exemptError) return NextResponse.json({ error: '자동 삭제 예외 회원 목록을 읽지 못해 정리를 멈췄습니다.' }, { status: 503 })
+  const exempt = new Set((exemptRows ?? []).map((row: { id: string }) => row.id))
+  // 빈 목록 조건을 피하려고 있을 수 없는 id 하나를 항상 넣는다
+  const exemptFilter = `(${[...exempt, '00000000-0000-0000-0000-000000000000'].join(',')})`
+
   // 1) 오래된 글
   const { data: oldPosts, error: postsError } = await supabase
     .from('tistory_posts')
     .select('id, content, user_id')
     .lt('published_at', cutoff.toISOString())
+    .not('user_id', 'in', exemptFilter)
   if (postsError) return NextResponse.json({ error: postsError.message }, { status: 500 })
   for (const post of oldPosts ?? []) {
     for (const match of String(post.content ?? '').matchAll(BLOG_IMAGE_PATH)) toRemove.add(decodeURIComponent(match[1]))
@@ -57,6 +66,7 @@ export async function GET(request: NextRequest) {
   }
   let checkedImages = 0
   for (const owner of owners) {
+    if (exempt.has(owner)) continue
     const folder = `${owner}/tistory-auto-blog`
     for (let offset = 0; ; offset += 1000) {
       const { data, error } = await storage.list(folder, { limit: 1000, offset })
@@ -76,6 +86,7 @@ export async function GET(request: NextRequest) {
     .from('tistory_candidates')
     .select('user_id', { count: 'exact' })
     .lt('created_at', cutoff.toISOString())
+    .not('user_id', 'in', exemptFilter)
     .range(0, 9999)
   if (candError) return NextResponse.json({ error: candError.message }, { status: 500 })
 
@@ -100,7 +111,7 @@ export async function GET(request: NextRequest) {
       for (const post of oldPosts ?? []) addCleanupCount(counts, post.user_id, 'posts')
     }
     if ((expiredCandidates ?? 0) > 0) {
-      const { error } = await supabase.from('tistory_candidates').delete().lt('created_at', cutoff.toISOString())
+      const { error } = await supabase.from('tistory_candidates').delete().lt('created_at', cutoff.toISOString()).not('user_id', 'in', exemptFilter)
       if (error) return NextResponse.json({ error: error.message, removedImages, removedPosts }, { status: 500 })
       removedCandidates = expiredCandidates ?? 0
       for (const row of candidateRows ?? []) addCleanupCount(counts, row.user_id, 'ideas')
