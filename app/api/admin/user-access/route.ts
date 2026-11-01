@@ -100,11 +100,31 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { error } = await service
+  // 개별 프리미엄 권한은 전용 칸에서만 고친다(일반 저장이 무제한 등으로 덮어쓰지 않게)
+  const { data: individual } = await service
     .from("user_program_access")
-    .upsert(rows, { onConflict: "user_id,program_id" });
+    .select("user_id, program_id")
+    .eq("grant_source", "premium_manual")
+    .in("user_id", targetUserIds)
+    .in("program_id", targetProgramIds);
+  const individualKeys = new Set((individual ?? []).map((r: { user_id: string; program_id: string }) => `${r.user_id}:${r.program_id}`));
+  rows = rows.filter((r) => !individualKeys.has(`${r.user_id}:${r.program_id}`));
+
+  const { error } = rows.length
+    ? await service.from("user_program_access").upsert(rows, { onConflict: "user_id,program_id" })
+    : { error: null };
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // 저장은 됐지만 프리미엄 가드가 바로 정지한 건수 — 화면에 알린다
+  const { count: suspendedCount } = rows.length
+    ? await service
+        .from("user_program_access")
+        .select("id", { count: "exact", head: true })
+        .eq("premium_suspended", true)
+        .in("user_id", targetUserIds)
+        .in("program_id", targetProgramIds)
+    : { count: 0 };
   // 회원별 새 만료일(가장 이른 것, 모두 무기한이면 null) — 사람마다 다른 모드에서 목록 표시를 갱신하는 데 쓴다
   const perUser = new Map<string, string | null>();
   rows.forEach((r) => {
@@ -113,7 +133,7 @@ export async function POST(req: NextRequest) {
     if (prev === undefined || prev === null || r.expires_at < prev) perUser.set(r.user_id, r.expires_at);
   });
   return NextResponse.json(
-    { success: true, count: rows.length, per_user: Array.from(perUser, ([user_id, expires_at]) => ({ user_id, expires_at })) },
+    { success: true, count: rows.length, premium_suspended_count: suspendedCount ?? 0, per_user: Array.from(perUser, ([user_id, expires_at]) => ({ user_id, expires_at })) },
     { status: 201 },
   );
 }
@@ -154,20 +174,25 @@ export async function GET(req: NextRequest) {
 
   const service = createServiceClient();
   const nowIso = new Date().toISOString();
-  const [{ data: profiles }, { data: grants }, { data: grades }, { data: gradeAccess }] = await Promise.all([
+  const [{ data: profiles }, { data: grants }, { data: grades }, { data: gradeAccess }, { data: premiumPrograms }] = await Promise.all([
     service.from("profiles").select("id, grade_id").in("id", ids),
     service
       .from("user_program_access")
       .select("user_id, program_id, expires_at, premium_suspended")
       .in("user_id", ids),
-    service.from("member_grades").select("id, auto_grant"),
+    service.from("member_grades").select("id, auto_grant, grants_premium"),
     service.from("grade_program_access").select("grade_id, program_id").eq("can_access", true),
+    service.from("programs").select("id").contains("badges", ["premium"]),
   ]);
 
   const autoGrades = new Set<string>((grades ?? []).filter((g: { auto_grant: boolean }) => g.auto_grant).map((g: { id: string }) => g.id));
+  const premiumGrades = new Set<string>((grades ?? []).filter((g: { grants_premium: boolean }) => g.grants_premium).map((g: { id: string }) => g.id));
+  const premiumIds = new Set<string>((premiumPrograms ?? []).map((p: { id: string }) => p.id));
   const gradePrograms = new Map<string, string[]>();
   (gradeAccess ?? []).forEach((r: { grade_id: string; program_id: string }) => {
     if (!autoGrades.has(r.grade_id)) return;
+    // 프리미엄 프로그램은 프리미엄 등급만 등급으로 사용한다(골드·VIP는 지금 사용 가능 목록에서 뺀다)
+    if (premiumIds.has(r.program_id) && !premiumGrades.has(r.grade_id)) return;
     gradePrograms.set(r.grade_id, [...(gradePrograms.get(r.grade_id) ?? []), r.program_id]);
   });
 

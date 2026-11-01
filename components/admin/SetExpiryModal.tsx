@@ -133,6 +133,9 @@ export default function SetExpiryModal({ members, programs, onClose, onSaved }: 
       }
 
       const data = await res.json().catch(() => ({}));
+      if (data.premium_suspended_count > 0) {
+        alert(`프리미엄 프로그램 ${data.premium_suspended_count}건은 결제 전이라 사용이 정지됩니다. 골드·VIP 회원에게 열어 주려면 회원 상세의 「개별 프리미엄 권한」을 사용해주세요.`);
+      }
       onSaved(
         mode !== "set" && Array.isArray(data.per_user)
           ? data.per_user

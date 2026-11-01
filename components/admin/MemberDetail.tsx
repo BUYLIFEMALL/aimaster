@@ -107,6 +107,10 @@ export default function MemberDetail({
       body: JSON.stringify({ user_id: member.id, program_id: selectedProgramId, expires_at: expiresAt }),
     });
     if (res.ok) {
+      const saved = await res.json().catch(() => ({}));
+      if (saved.premium_suspended_count > 0) {
+        alert("프리미엄 프로그램은 결제 전이라 사용이 정지됩니다. 골드·VIP 회원에게 열어 주려면 아래 「개별 프리미엄 권한」을 사용해주세요.");
+      }
       const program = allPrograms.find((p) => p.id === selectedProgramId);
       setManualAccess((prev) => [
         ...prev,

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/server";
 import MemberDetail from "@/components/admin/MemberDetail";
+import PremiumIndividualGrant from "@/components/admin/PremiumIndividualGrant";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -53,10 +54,16 @@ export default async function MemberDetailPage({ params }: PageProps) {
         .order("last_active", { ascending: false }),
       supabase
         .from("programs")
-        .select("id, name, slug")
+        .select("id, name, slug, badges")
         .eq("is_active", true)
         .order("sort_order"),
     ]);
+
+  // 개별 프리미엄 권한은 전용 칸에서 관리한다(수동 접근 목록의 일반 수정·삭제에서 분리)
+  const visibleAccess = (manualAccess ?? []).filter((a: { program?: { is_active?: boolean } | null }) => a.program?.is_active !== false);
+  const isPremiumGrant = (a: { grant_source?: string | null }) => a.grant_source === "premium_manual";
+  const canGrantPremium = member.grade?.slug === "gold" || member.grade?.slug === "vip";
+  const premiumGrants = visibleAccess.filter(isPremiumGrant);
 
   return (
     <div>
@@ -79,10 +86,24 @@ export default async function MemberDetailPage({ params }: PageProps) {
         member={member}
         subscriptions={subscriptions ?? []}
         // 비공개(is_active=false) 프로그램의 부여는 사용 가능 권한 목록·개수에서 뺀다(2026-10-13 주인님 지시)
-        manualAccess={(manualAccess ?? []).filter((a: { program?: { is_active?: boolean } | null }) => a.program?.is_active !== false)}
+        manualAccess={visibleAccess.filter((a: { grant_source?: string | null }) => !isPremiumGrant(a))}
         sessions={sessions ?? []}
         allPrograms={allPrograms ?? []}
       />
+
+      {(canGrantPremium || premiumGrants.length > 0) && (
+        <div className="max-w-4xl mt-6">
+          <PremiumIndividualGrant
+            memberId={member.id}
+            programs={(allPrograms ?? []).filter((p: { badges?: string[] | null }) => (p.badges ?? []).includes("premium"))}
+            grants={premiumGrants.map((g: { program_id: string; expires_at: string | null; program?: { name?: string } | null }) => ({
+              program_id: g.program_id,
+              expires_at: g.expires_at,
+              program_name: g.program?.name ?? g.program_id,
+            }))}
+          />
+        </div>
+      )}
     </div>
   );
 }
