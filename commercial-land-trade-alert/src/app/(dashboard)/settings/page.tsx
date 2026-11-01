@@ -2,7 +2,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
+import { TelegramBotPicker, TelegramConnectForm } from "@/components/settings/TelegramConnectForm";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { ChannelSwitches, EmailCard, KakaoCard } from "@/components/settings/ChannelCards";
 import { ExtensionConnect } from "@/components/settings/ExtensionConnect";
@@ -13,6 +13,7 @@ import { stepBadge } from "@/components/settings/setupStyles";
 import { deleteResendKeyAction, disconnectKakaoAction } from "@/lib/actions/channels";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { aiKeyTails, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
+import { botChoices } from "@/lib/telegram/choices";
 import { APP_VERSION } from "@/lib/version";
 
 const THIS_PROGRAM_SLUG = "commercial-land-trade-alert";
@@ -36,6 +37,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const extCount = extTokens?.length ?? 0;
   const own = links.find((l) => l.program_slug === THIS_PROGRAM_SLUG);
   const shared = links[0];
+  const otherBots = botChoices(links, THIS_PROGRAM_SLUG);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -69,12 +71,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           rows={[
             {
               id: "telegram", name: "📨 텔레그램", sub: "요약 + 엑셀", on: !!(own || shared),
-              info: own ? `@${own.bot_username ?? "봇"}` : shared ? `@${shared.bot_username ?? "봇"} (다른 프로그램의 봇 · 끊기는 그 프로그램에서)` : "회원님 텔레그램 봇 토큰으로 연결",
-              quick: own ? <ConfirmButton label="끊기" confirm="텔레그램 연결을 끊어요" action={disconnectTelegramAction} /> : null,
+              info: own ? `@${own.bot_username ?? "봇"} (이 프로그램 전용)` : shared ? `⚠️ @${shared.bot_username ?? "봇"} 빌려 쓰는 중 · 다른 프로그램에 봇을 연결하면 받는 곳이 바뀝니다. 「수정」에서 받을 봇을 정해 주세요` : "회원님 텔레그램 봇 토큰으로 연결",
+              quick: own ? <ConfirmButton label="끊기" confirm="이 프로그램 전용 봇 연결을 끊어요" warn="다른 프로그램의 봇 연결은 그대로입니다. 그런 봇이 있으면 가장 최근에 연결한 봇으로 받게 되니, 그만 받으려면 위 「텔레그램」 체크를 꺼 주세요." action={disconnectTelegramAction} /> : null,
               issue: { href: "https://t.me/BotFather", label: "발급 ↗" },
-              openLabel: own || shared ? "방법" : "연결하기",
+              openLabel: own || shared ? "수정" : "연결하기",
               detail: (
                 <>
+                  {otherBots.length > 0 && <TelegramBotPicker bots={otherBots} />}
+                  {otherBots.length > 0 && <p className="mb-2 text-sm font-semibold text-mx-text">새 봇 연결하기</p>}
                   <ol className="mb-3 list-decimal space-y-1 pl-5 text-sm text-mx-muted">
                     <li>텔레그램에서 BotFather로 본인 봇을 만들고 토큰을 복사합니다.</li>
                     <li>만든 봇을 열어 아무 메시지나 한 번 보냅니다.</li>

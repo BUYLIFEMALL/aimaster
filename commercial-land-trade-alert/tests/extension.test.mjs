@@ -317,3 +317,15 @@ test("확인이 필요한 수익률은 대표값에서 뺀다", async () => {
   assert.equal(summarizeTable(COLUMNS, [...five, row("28.5%(월세 5건) · 확인 필요")], "2026-10-31T00:00:00Z").groups[0].trades["매매"].yieldMed, 5);
   assert.equal(summarizeTable(COLUMNS, [...five.slice(0, 4), row("28.5%(월세 5건) · 확인 필요")], "2026-10-31T00:00:00Z").groups[0].trades["매매"].yieldMed, null);
 });
+
+test("받을 봇 고르기 목록", async () => {
+  const { botChoices } = await import("../src/lib/telegram/choices.ts");
+  const links = [
+    { program_slug: "coupang-ops", bot_username: "c_bot" },
+    { program_slug: "realty-listing-alert", bot_username: "r_bot" },
+    { program_slug: "real-estate-sales", bot_username: "r_bot" },
+    { program_slug: "no-name", bot_username: null },
+  ];
+  assert.deepEqual(botChoices(links, "this"), [{ slug: "coupang-ops", name: "c_bot" }, { slug: "realty-listing-alert", name: "r_bot" }]);
+  assert.deepEqual(botChoices([...links, { program_slug: "this", bot_username: "r_bot" }], "this"), [{ slug: "coupang-ops", name: "c_bot" }], "이미 전용으로 쓰는 봇은 뺀다");
+});
