@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog · 올인원 v1.57 이미지 「없음」 버그 수정·재확인
+
+- **한 일:** `clampImageCount`가 0을 2로 바꾸던 버그 수정(`edd6edfd0`, 주인님 채팅 승인), 윈도우 블로그 세션 배포(`naver-blog-allinone-99flpqnff`, DB/확장/ZIP v1.57 OK). 맥 크롬 재확인: 대표 끔+「없음」으로 글 생성 → 이미지 0/0장·이미지 요청 없음·보관함 0장 카드 정상, 상단 「내 AIMaster 계정 키 사용 중」.
+- **비용:** 시험 계정 본인 Gemini Flash 글 2편(중단됐던 요청이 한 번 더 실행돼 1편 추가) 약 0.02달러. 이미지 0장.
+- **다음 첫 단계:** 원본 4개 화면 이동 안내 플랜 제시.
+- **링크:** https://naver-blog-allinone.buylife.xyz
+
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · real_estate_sales v1.34 임장 노트 1차
 
 - **한 일:** 메뉴 「📷 임장 노트」(관리자·시험 계정에만 표시). 촬영 순간 위치 측정 후 저장, 앨범 사진 위치 읽기, 위치가 없으면 지도에서 지정, 행정동 자동 분류, 사진 긴 변 1600px, 메모·상태·별점, 삭제, 1년 자동 정리. 운영 DB(`esgxyikcnnvmlhygjkth`) 표 2개·비공개 버킷 `real-estate-onsite`. 대기 중이던 월세 표기·`deal_type`도 함께 배포.
