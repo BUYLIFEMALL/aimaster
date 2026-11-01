@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 소통 v1.06·AI 프로필 성공·블로그 3개 백업 이동
+
+- **v1.06 배포:** 첫 읽기는 최근 7일 글만 저장, 읽기 전 확인 시각 표시 수정, AI 프로필 검증 항목만 남기기. 운영 SQL `20261101130000_bnc_monitor_sync_fix` 적용, 빌드 1회(`blog-neighbor-care-hpykndu5j`), DB·ZIP v1.06 OK. 커밋 `60160822b`, `bd061bfa1`.
+- **AI 프로필 재시험 성공:** Haiku 4.5, 시험 계정 본인 키, 1회, 요청 `b60de5c7`. 글 1건 기준 잠정 초안이 저장됨. 회원 확인 저장은 하지 않음.
+- **블로그 3개 이동:** blog-workroom, blog-content-maker, naver-blog-allinone을 백업 카테고리·is_active=false로 변경(주인님 지시). 되돌리기: category_id `8e8be410-3ed4-46f7-80d9-4b408af61cc1`, is_active=true. 맥미니 확인 대기.
+- **남은 일:** 엣지 확장을 v1.06으로 재설치해야 수정이 적용됨. 진행 중 세션(buylifeacademy)은 v1.05 확장이 이미 옛 글 50건을 저장했고 그대로 둠. 15분 반복·1시간 상태 확인 미확인.
+- **링크:** https://blog-neighbor-care.buylife.xyz/neighbors
+
+
 ## 2026-11-01 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog · 블로그 이동 안내 띠·에이전트 입구 정리 검수
 
 - **한 일:** BLOG = 교육용 레퍼런스(FREE 유지) 지침 기록(`aba1a0656`·`8418b5780`), 이동 안내 띠(작업실 v1.16·콘텐츠 제작 v1.14·올인원 v1.58, `5c1e40ac2`), 에이전트 v2.23 간편 모드 에이전트 권한만(`9a2c21c6e`). 윈도우 배포 뒤 맥 크롬 검수 통과(띠·버튼·7일 닫기·390px, `/quick`).
