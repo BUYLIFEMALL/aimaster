@@ -142,7 +142,7 @@ export default function GuidePage() {
               <strong style={{ color: "#1e3a8a", fontSize: "14px" }}>최상위 보안 원칙 (BYOK Standard)</strong>
               <p style={{ fontSize: "13px", color: "#1e40af", margin: "4px 0 0", lineHeight: 1.5 }}>
                 AI 랜딩페이지 기획 자동화는 운영자 키나 타 회원 키를 일체 공유하지 않으며, <b>회원님 본인의 Google Gemini API 키</b>로만 독립 동작합니다.
-                등록된 키는 암호화되어 안전하게 보관되며 오직 회원님의 기획안 생성 시에만 직접 호출됩니다.
+                등록된 키는 본인 계정에 연결해 보관하며 회원님의 기획안 생성 시에만 호출합니다.
               </p>
             </div>
           </div>

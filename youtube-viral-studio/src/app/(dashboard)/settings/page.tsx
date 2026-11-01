@@ -105,7 +105,7 @@ export default function SettingsPage() {
               보안 키 금고 (Security Key Vault)
             </h1>
             <p className="mt-0.5 text-xs text-slate-400">
-              회원 본인 계정의 YouTube Data API v3 및 AI 엔진 키를 등록하고 안전하게 암호화 관리합니다.
+              회원 본인 계정의 YouTube Data API v3 및 AI 엔진 키를 등록하고 관리합니다.
             </p>
           </div>
         </div>

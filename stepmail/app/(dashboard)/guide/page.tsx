@@ -277,7 +277,7 @@ export default async function GuidePage() {
         </div>
         <p className="text-xs text-sky-900 leading-relaxed">
           Step Mail은 회원의 개인정보와 발송 계정을 안전하게 보호합니다. 등록하신 네이버/다음/구글 메일 계정 및 앱비밀번호는
-          Supabase 공용 DB의 회원 전용 레코드(`user_smtp_accounts`)에 암호화되어 안전하게 보관되며,
+          회원 본인 계정에 연결해 보관하며,
           오직 본인의 캠페인 발송에만 사용됩니다. 운영자 메일이나 타 회원의 계정으로 폴백되지 않으며,
           모든 리드 DB는 회원 본인만 열람할 수 있도록 RLS(행 단위 보안)가 완벽하게 적용되어 있습니다.
         </p>

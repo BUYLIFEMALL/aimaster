@@ -32,7 +32,7 @@ const PIPELINE_STEPS = [
     step: "01",
     title: "Gemini API 키 1초 연동",
     subtitle: "초고속 생성 인프라",
-    desc: "Google AI Studio에서 무료로 발급받은 본인의 Gemini API 키를 1회 등록합니다. 계정 DB에 안전하게 암호화 보관되며 즉시 활성화됩니다.",
+    desc: "Google AI Studio에서 무료로 발급받은 본인의 Gemini API 키를 1회 등록합니다. 본인 계정에 연결해 보관하며 즉시 활성화됩니다.",
     icon: KeyRound,
     color: "from-emerald-500 to-teal-600",
     badge: "무료 발급",
@@ -146,7 +146,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "등록한 API 키와 작성한 프롬프트는 안전한가요?",
-    a: "네, 완벽히 안전합니다. AIMaster는 '사용자 본인 키 직접 연동 및 회원 데이터 격리 원칙'을 철저히 준수합니다. 등록된 API 키는 암호화되어 오직 본인 요청 시에만 서버 사이드에서 안전하게 호출되며, 다른 회원이나 외부와 절대 공유되지 않습니다.",
+    a: "AIMaster는 '사용자 본인 키 직접 연동 및 회원 데이터 격리 원칙'을 철저히 준수합니다. 등록된 API 키는 본인 계정에 연결해 보관하며, 본인이 요청할 때만 서버에서 호출합니다. 다른 회원의 키로 대신 처리하지 않습니다.",
   },
 ];
 

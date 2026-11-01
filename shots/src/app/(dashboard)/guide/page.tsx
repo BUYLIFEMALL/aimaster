@@ -88,7 +88,7 @@ export default function GuidePage() {
     },
     {
       q: "API 키는 안전하게 관리되나요?",
-      a: "AIMaster의 100% BYOK(Bring Your Own Key) 보안 원칙에 따라 회원의 API 키는 암호화되어 본인 계정에만 저장되며, 생성된 대본과 영상 소스 또한 회원 본인만 열람할 수 있도록 안전하게 격리됩니다.",
+      a: "AIMaster의 100% BYOK(Bring Your Own Key) 보안 원칙에 따라 회원의 API 키는 본인 계정에 연결해 저장하며, 생성된 대본과 영상 소스 또한 회원 본인만 열람할 수 있도록 안전하게 격리됩니다.",
     },
     {
       q: "영상의 길이는 어떻게 최적화되나요?",

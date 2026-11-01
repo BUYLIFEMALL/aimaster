@@ -378,7 +378,7 @@ export function CommerceUsageGuide() {
                   <span>3. 키 등록 및 보관</span>
                 </p>
                 <p className="text-[11px] leading-relaxed text-slate-500">
-                  좌측 메뉴 <span className="font-semibold text-slate-800">[API키등록·플랫폼연동]</span>에 입력하면 DB에 안전하게 암호화 보관됩니다.
+                  좌측 메뉴 <span className="font-semibold text-slate-800">[API키등록·플랫폼연동]</span>에 입력하면 본인 계정에 연결해 보관합니다.
                 </p>
               </div>
             </div>

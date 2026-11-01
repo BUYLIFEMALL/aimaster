@@ -36,7 +36,7 @@ export function GuideSection({ onGoTab, onOpenSettings }: GuideSectionProps) {
   const FAQS = [
     {
       q: "API 키는 어디에 저장되며 안전한가요?",
-      a: "등록하신 Gemini 및 이미지 생성 API 키는 서버 DB에 전송되지 않으며, 사용자 본인의 브라우저 로컬 저장소(LocalStorage)에만 안전하게 암호화 격리 저장됩니다. 타 회원이나 관리자와 일체 공유되지 않습니다.",
+      a: "설정에 입력한 Gemini 및 이미지 생성 API 키는 사용 중인 브라우저에 저장되며, 메인 사이트 계정에 등록한 본인 키를 불러와 쓸 수도 있습니다. 다른 회원의 키로 대신 처리하지 않습니다.",
     },
     {
       q: "생성된 블로그 글을 네이버 스마트에디터 ONE에 어떻게 옮기나요?",

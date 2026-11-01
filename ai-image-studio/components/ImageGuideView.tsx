@@ -243,8 +243,8 @@ export function ImageGuideView() {
             <p className="text-[11px] text-zinc-400">생성된 이미지는 회원 본인의 갤러리에만 보관되며 타 회원과 공유되지 않습니다.</p>
           </div>
           <div className="rounded-xl bg-zinc-900/80 p-3 border border-zinc-800">
-            <p className="font-bold text-amber-400 mb-1">✓ 브라우저 암호화 저장</p>
-            <p className="text-[11px] text-zinc-400">등록한 키는 암호화 세션으로 안전하게 관리되며 언제든 삭제 또는 변경 가능합니다.</p>
+            <p className="font-bold text-amber-400 mb-1">✓ 본인 계정에 키 보관</p>
+            <p className="text-[11px] text-zinc-400">등록한 키는 본인 계정에 연결해 보관하며 언제든 삭제 또는 변경할 수 있습니다.</p>
           </div>
         </div>
       </div>

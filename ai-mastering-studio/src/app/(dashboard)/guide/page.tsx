@@ -249,7 +249,7 @@ export default function GuidePage() {
           <div className="space-y-1">
             <p className="font-semibold text-white">② 회원 본인 API 키 원칙 (BYOK)</p>
             <p className="text-slate-400">
-              AI 로직 추천 기능 호출 시 운영자 또는 타인의 키를 공유하지 않고 본인이 등록한 Gemini/OpenAI 키로만 안전하게 구동됩니다. 키는 브라우저 로컬 스토리지에 암호화 보관됩니다.
+              AI 로직 추천 기능 호출 시 운영자 또는 타인의 키를 공유하지 않고 본인이 등록한 Gemini/OpenAI 키로만 안전하게 구동됩니다. 키는 본인 계정에 연결해 보관합니다.
             </p>
           </div>
         </div>

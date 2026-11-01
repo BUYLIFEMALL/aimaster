@@ -311,7 +311,7 @@ export default function GuidePage() {
           <div className="p-4 rounded-lg bg-[#0d0f17] border border-[#262c3d] space-y-2">
             <h4 className="font-bold text-pink-300 text-xs">Q. 등록한 API 키와 인스타 계정 토큰은 안전한가요?</h4>
             <p className="text-xs text-slate-400 leading-relaxed">
-              모든 회원의 데이터는 Supabase PostgreSQL RLS(소유자 격리) 정책을 통해 회원 본인의 고유 세션에서만 암호화 조회되며 타인에게 절대 노출되지 않습니다.
+              모든 회원의 데이터는 Supabase PostgreSQL RLS(소유자 격리) 정책을 통해 회원 본인 기준으로 구분해 조회합니다.
             </p>
           </div>
         </div>

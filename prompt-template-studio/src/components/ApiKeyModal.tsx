@@ -141,7 +141,7 @@ export function ApiKeyModal({
             <div className="flex items-start gap-2 text-[11px] text-slate-500">
               <Shield className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
               <p>
-                등록하신 API 키는 암호화되어 안전하게 보관되며, 본인의 프롬프트 실행 및 자동 채우기에만 사용됩니다.
+                등록하신 API 키는 본인 계정에 연결해 보관하며, 본인의 프롬프트 실행 및 자동 채우기에만 사용됩니다.
               </p>
             </div>
             <a

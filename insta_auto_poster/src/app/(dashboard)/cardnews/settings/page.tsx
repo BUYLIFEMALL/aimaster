@@ -168,7 +168,7 @@ export default function SettingsPage() {
           <div>
             <h1 className="text-xl font-bold text-slate-100">카드뉴스 키·예약 실행 설정</h1>
             <p className="mt-1 text-xs text-slate-400">
-              이 프로그램은 회원님 본인의 API 키로만 동작합니다. 운영자나 다른 회원의 키는 사용되지 않으며, 키는 본인 계정에만 암호화 저장됩니다.
+              이 프로그램은 회원님 본인의 API 키로만 동작합니다. 운영자나 다른 회원의 키는 사용되지 않으며, 키는 본인 계정에 연결해 저장합니다.
             </p>
           </div>
         </div>

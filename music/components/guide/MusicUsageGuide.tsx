@@ -91,7 +91,7 @@ export function MusicUsageGuide() {
                   <span>완전한 계정 격리 보장</span>
                 </p>
                 <p className="text-zinc-400 leading-relaxed">
-                  등록된 모든 키는 암호화되어 본인 계정 세션에서만 단독 사용되며, 타인에게 절대 공유되지 않습니다.
+                  등록된 모든 키는 본인 계정에 연결해 보관하며, 본인 작업에만 사용합니다.
                 </p>
               </div>
             </div>

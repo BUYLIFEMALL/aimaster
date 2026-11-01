@@ -143,7 +143,7 @@ export function ApiKeyModal({
               <span>개인 API 키 보안 안내</span>
             </div>
             <p className="text-amber-200/80">
-              등록된 키는 본인 계정에만 암호화되어 보관되며, Google Gemini AI 이미지 생성 및 스타일에만 직접 사용됩니다.
+              등록된 키는 본인 계정에 연결해 보관하며, Google Gemini AI 이미지 생성 및 스타일에만 직접 사용됩니다.
             </p>
             <a
               href="https://aistudio.google.com/app/apikey"

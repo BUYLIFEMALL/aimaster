@@ -133,7 +133,7 @@ export default function ApiKeyModal({ isOpen, onClose, onKeySaved }: ApiKeyModal
             <p className="text-slate-500 leading-relaxed text-[11px]">
               • Gemini 2.5 Flash / 3.1 Flash Image 기반의 초고해상도 이미지 생성을 위해 본인 API 키가 필요합니다.
               <br />
-              • 개인 키는 암호화되어 본인 계정에만 안전하게 적용됩니다.
+              • 개인 키는 본인 계정에 연결해 보관합니다.
             </p>
           </div>
 

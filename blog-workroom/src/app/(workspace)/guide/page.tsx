@@ -214,7 +214,7 @@ export default function GuidePage() {
             <div>
               <h2 style={{ margin: 0, fontSize: 17 }}>시작 전 필수: 본인 API 키 & 네이버 플랫폼 연동</h2>
               <p className="muted" style={{ fontSize: 12, marginTop: 2 }}>
-                모든 키는 회원 본인 브라우저 세션 및 전용 암호화 저장소에 안전하게 연동되며, 타인과 공유되지 않습니다.
+                모든 키는 회원 본인 계정에 연결해 보관하며, 본인 작업에만 사용합니다.
               </p>
             </div>
           </div>

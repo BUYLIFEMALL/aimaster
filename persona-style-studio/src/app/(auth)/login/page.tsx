@@ -192,7 +192,7 @@ function LoginCard() {
               <div className="flex items-start gap-2.5 text-xs text-slate-700">
                 <CheckCircle2 className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-semibold text-slate-900">철저한 개인 키 격리 보안:</span> 개인 API 키 직접 등록 및 안전한 브라우저 암호화
+                  <span className="font-semibold text-slate-900">철저한 개인 키 격리 보안:</span> 개인 API 키를 직접 등록해 본인 계정에서만 사용
                 </div>
               </div>
             </div>

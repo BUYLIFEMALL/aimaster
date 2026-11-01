@@ -214,8 +214,8 @@ export function VinylGuideView({ onBackToStudio, onOpenApiKeyModal }: VinylGuide
               </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
                 본 프로그램은 운영자나 타인의 공용 API 키로 폴백하지 않으며, 회원님이 직접 연동한
-                본인 Google Gemini API 키로만 앨범 아트워크를 생성합니다. 키는 로컬 브라우저와 안전한
-                개인 암호화 영역에만 저장되어 완벽한 보안과 비용 격리를 보장합니다.
+                본인 Google Gemini API 키로만 앨범 아트워크를 생성합니다. 키는 본인 계정 기준으로
+                구분해 저장하며, 다른 회원의 비용으로 처리하지 않습니다.
               </p>
             </div>
           </div>

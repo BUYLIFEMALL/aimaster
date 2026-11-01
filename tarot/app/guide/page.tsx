@@ -49,7 +49,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "API 키(Gemini / OpenAI)는 어떻게 연동하며 안전한가요?",
-    a: "타로 카드 일러스트 연성에는 Google Gemini API 키가, 심층 해석 작성에는 OpenAI API 키가 사용됩니다. 회원님의 API 키는 AIMaster 본인 키 사용 원칙(BYOK)에 따라 안전하게 브라우저 로컬스토리지 및 회원 격리 세션에 암호화 보관되며, 타인과 절대 공유되거나 관리자 서버에 남지 않습니다.",
+    a: "타로 카드 일러스트 연성에는 Google Gemini API 키가, 심층 해석 작성에는 OpenAI API 키가 사용됩니다. 회원님의 API 키는 본인 계정에 연결해 보관하며, 본인 요청에만 사용합니다.",
     badge: "BYOK 보안"
   }
 ];
@@ -318,7 +318,7 @@ export default function TarotGuidePage() {
             </h3>
             <p className="text-xs text-slate-300 leading-relaxed">
               AIMaster 타로점은 회원의 소중한 개인적 고민과 리딩 내역을 타인이나 관리자 공용 캐시와 일체 공유하지 않습니다.
-              Google Gemini 및 OpenAI API 키는 본인 계정에만 암호화되어 안전하게 연동되며, 회원 탈퇴 시 모든 상담 데이터는 완벽히 파기됩니다.
+              Google Gemini 및 OpenAI API 키는 본인 계정에 연결해 보관하며, 회원 탈퇴 시 모든 상담 데이터는 완벽히 파기됩니다.
             </p>
           </div>
         </div>

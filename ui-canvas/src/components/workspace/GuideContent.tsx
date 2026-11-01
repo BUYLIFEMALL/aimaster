@@ -111,7 +111,7 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
           </div>
         </div>
         <p style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6, margin: 0 }}>
-          등록된 키는 군사급 양방향 암호화되어 안전하게 격리되며 타 회원이나 관리자와 절대 공유되지 않습니다. 무료로 발급받아 등록하시면 제한 없이 UI 캔버스를 활용할 수 있습니다.
+          등록된 키는 본인 계정에 연결해 보관하며 본인 작업에만 사용합니다. 무료로 발급받아 등록하시면 제한 없이 UI 캔버스를 활용할 수 있습니다.
         </p>
         <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap" }}>
           {geminiGuideUrl && (

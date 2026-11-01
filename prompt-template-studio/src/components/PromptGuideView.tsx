@@ -387,7 +387,7 @@ export function PromptGuideView({ onGoToLibrary, onOpenApiKey }: PromptGuideView
             </h3>
           </div>
           <p className="text-xs text-blue-200 max-w-xl leading-relaxed">
-            AIMaster는 사용자의 Gemini API 키를 브라우저 및 안전한 회원 전용 테이블(`user_api_keys`)에 암호화하여 저장하며, 운영자나 타인의 키로 우회 처리하지 않습니다. 무료 할당량 내에서 안심하고 무제한 실행하세요.
+            AIMaster는 사용자의 Gemini API 키를 본인 계정에 연결해 저장하며, 운영자나 타인의 키로 우회 처리하지 않습니다. 무료 할당량 내에서 안심하고 무제한 실행하세요.
           </p>
         </div>
 

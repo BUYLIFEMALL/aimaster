@@ -13,10 +13,10 @@ export default function SettingsPage() {
         <h1 style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <span>보안 키 터미널 (API & 렌더링 엔진 연동)</span>
           <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 999, background: "rgba(56,189,248,0.15)", color: "#38BDF8", border: "1px solid rgba(56,189,248,0.3)", fontWeight: 800 }}>
-            암호화 볼트
+            본인 키 보관
           </span>
         </h1>
-        <p>초고속 썸네일 이미지 생성 및 시선 집중 분석에 사용되는 Google Gemini API 키를 안전하게 암호화 보관합니다.</p>
+        <p>초고속 썸네일 이미지 생성 및 시선 집중 분석에 사용되는 Google Gemini API 키를 본인 계정에 연결해 보관합니다.</p>
       </div>
 
       <div className="card" style={{ marginBottom: 20 }}>

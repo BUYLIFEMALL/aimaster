@@ -112,7 +112,7 @@ export default function GuidePage() {
           <div style={{ background: "#141a27", border: "1px solid var(--line)", borderRadius: "12px", padding: "16px 18px" }}>
             <strong style={{ color: "#f59e0b", fontSize: "13.5px" }}>3단계: 안전한 보관 및 즉시 사용</strong>
             <p style={{ fontSize: "12.5px", color: "#94a3b8", marginTop: "6px" }}>
-              키는 브라우저 보안 저장소에 암호화 보관되며, 언제든 등록·교체·삭제할 수 있습니다.
+              키는 본인 계정에 연결해 보관하며, 언제든 등록·교체·삭제할 수 있습니다.
             </p>
           </div>
         </div>

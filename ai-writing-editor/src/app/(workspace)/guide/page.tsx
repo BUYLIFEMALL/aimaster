@@ -254,7 +254,7 @@ export default function GuidePage() {
               </div>
               <p style={{ fontSize: "13px", color: "#1e293b", lineHeight: "1.6", margin: "6px 0 12px" }}>
                 본 프로그램은 회원님 본인의 Google Gemini API 키로만 작동합니다. 운영자나 다른 회원의 키를 절대 공유하지 않으며,
-                등록된 키는 암호화되어 안전하게 보관됩니다. 무료로 API 키를 발급받아 등록하시면 제한 없이 글쓰기를 시작하실 수 있습니다.
+                등록된 키는 본인 계정에 연결해 보관합니다. 무료로 API 키를 발급받아 등록하시면 제한 없이 글쓰기를 시작하실 수 있습니다.
               </p>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 <a

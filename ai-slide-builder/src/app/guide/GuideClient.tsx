@@ -161,7 +161,7 @@ export default function GuideClient({ userEmail }: GuideClientProps) {
                     <strong className="text-xs font-bold text-blue-900">최상위 보안 원칙 (BYOK Standard)</strong>
                     <p className="text-xs text-blue-950/80 mt-1 leading-relaxed">
                       AI 슬라이드 자동화는 운영자 키나 타 회원의 키를 절대 공유하지 않으며, <b>회원님 본인의 Google Gemini API 키</b>로만 독립 동작합니다.
-                      등록된 키는 암호화되어 안전하게 관리되며 슬라이드 데이터 생성 요청 시에만 안전하게 호출됩니다.
+                      등록된 키는 본인 계정에 연결해 보관하며 슬라이드 데이터 생성 요청 시에만 호출됩니다.
                     </p>
                   </div>
                 </div>

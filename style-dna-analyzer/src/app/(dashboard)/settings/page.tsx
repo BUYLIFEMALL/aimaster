@@ -180,7 +180,7 @@ export default function SettingsPage() {
           <h1 className="text-xl font-extrabold text-white tracking-tight">API키등록·플랫폼연동</h1>
         </div>
         <p className="mt-2 text-xs md:text-sm text-slate-400 leading-relaxed">
-          이 프로그램은 회원님 본인의 API 키로만 동작합니다. 운영자나 다른 회원의 키는 사용되지 않으며, 키는 본인 계정에만 암호화 저장됩니다.
+          이 프로그램은 회원님 본인의 API 키로만 동작합니다. 운영자나 다른 회원의 키는 사용되지 않으며, 키는 본인 계정에 연결해 저장합니다.
         </p>
       </div>
 

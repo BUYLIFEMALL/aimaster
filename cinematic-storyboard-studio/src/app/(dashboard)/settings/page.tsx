@@ -10,7 +10,7 @@ export default function SettingsPage() {
           API키등록·플랫폼연동
         </h1>
         <p className="mt-1 text-sm text-slate-400">
-          이 프로그램은 회원님 본인의 Google Gemini API 키로 직접 동작합니다. 키는 회원님의 개인 계정에만 안전하게 암호화 보관되며, 다른 회원이나 운영자가 대신 사용하지 않습니다.
+          이 프로그램은 회원님 본인의 Google Gemini API 키로 직접 동작합니다. 키는 회원님의 개인 계정에 연결해 보관하며, 다른 회원이나 운영자가 대신 사용하지 않습니다.
         </p>
       </div>
       <ApiKeySettings />

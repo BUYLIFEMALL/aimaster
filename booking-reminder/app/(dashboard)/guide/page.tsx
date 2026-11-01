@@ -251,7 +251,7 @@ export default async function GuidePage() {
         </div>
         <p className="text-xs text-emerald-900 leading-relaxed">
           AIMaster는 회원의 안전과 개인정보 보호를 최우선으로 합니다. 회원이 등록한 SOLAPI API 키,
-          네이버/다음 메일 SMTP 로그인 정보는 암호화되어 공용 DB의 회원 전용 레코드에 안전하게 저장되며,
+          네이버/다음 메일 SMTP 로그인 정보는 회원 본인 계정에 연결해 저장하며,
           오직 본인의 예약 발송에만 사용됩니다. 운영자 키나 타 회원의 계정으로 폴백되지 않으며,
           모든 고객 데이터는 30일 보존 원칙에 따라 안전하게 보호됩니다.
         </p>

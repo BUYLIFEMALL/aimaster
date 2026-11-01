@@ -101,7 +101,7 @@ export default async function SettingsPage() {
       <div className="rounded-2xl border border-emerald-500/40 bg-emerald-950/30 p-4 flex items-center gap-3.5 shadow-md">
         <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
         <p className="text-xs text-emerald-200/90 leading-relaxed font-medium">
-          <strong>100% BYOK 보안 원칙:</strong> 등록된 모든 키는 안전하게 암호화되어 본인 계정에만 종속되며, 외부 유출 없이 오직 쇼츠 렌더링 파이프라인에만 사용됩니다.
+          <strong>100% BYOK 보안 원칙:</strong> 등록한 키는 본인 계정에 연결해 보관하며, 쇼츠 제작에만 사용합니다.
         </p>
       </div>
 

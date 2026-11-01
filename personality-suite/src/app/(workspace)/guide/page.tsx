@@ -194,7 +194,7 @@ export default function GuidePage() {
         </div>
         <p className="ps-text">
           AI 심층 분석과 종합 프로필은 <strong>회원님 본인의 Google Gemini API 키</strong>로 동작합니다.
-          운영자나 다른 회원의 키로 대신 처리되지 않으며, 한 번 등록해 두면 안전하게 암호화 보관되어 모든 분석 기능을 자유롭게 이용할 수 있습니다.
+          운영자나 다른 회원의 키로 대신 처리되지 않으며, 한 번 등록해 두면 본인 계정에 연결해 보관되어 모든 분석 기능을 자유롭게 이용할 수 있습니다.
         </p>
         <div className="ps-hero-actions" style={{ marginTop: 16 }}>
           <Link href="/settings" className="ps-btn ps-btn-primary">🔑 API키등록·플랫폼연동으로 이동</Link>

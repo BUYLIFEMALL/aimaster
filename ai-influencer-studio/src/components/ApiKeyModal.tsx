@@ -81,7 +81,7 @@ export function ApiKeyModal({
               <span>최상위 불변 보안 규칙</span>
             </div>
             <p className="text-[11px] leading-relaxed text-amber-300">
-              AIMaster의 모든 AI 기능은 <strong>사용자 본인의 개인 API 키</strong>로만 안전하게 동작합니다. 운영자나 타인의 키로 대신 처리하지 않으며, 등록하신 키는 본인 계정에만 암호화되어 공유 연동됩니다.
+              AIMaster의 모든 AI 기능은 <strong>사용자 본인의 개인 API 키</strong>로만 안전하게 동작합니다. 운영자나 타인의 키로 대신 처리하지 않으며, 등록하신 키는 본인 계정에 연결해 보관합니다.
             </p>
           </div>
 

@@ -278,7 +278,7 @@ export default function GuidePage() {
               Google Gemini API 키 직접 등록으로 안전하고 자유롭게 분석하세요
             </h3>
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
-              본 플랫폼은 운영자나 타 회원의 API 키를 공유하지 않으며, 회원님이 등록하신 본인 키는 브라우저 및 회원 데이터베이스에 암호화 보관되어 본인 요청 시에만 독립 호출됩니다.
+              본 플랫폼은 운영자나 타 회원의 API 키를 공유하지 않으며, 회원님이 등록하신 본인 키는 본인 계정에 연결해 보관하며, 본인이 요청할 때만 사용합니다.
             </p>
           </div>
 

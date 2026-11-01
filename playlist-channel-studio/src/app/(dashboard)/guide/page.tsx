@@ -335,7 +335,7 @@ export default function GuidePage() {
                 3
               </div>
               <div className="text-slate-300">
-                <span className="font-semibold text-white block mb-0.5">연동 및 로컬 암호화 저장</span>
+                <span className="font-semibold text-white block mb-0.5">연동 및 키 저장</span>
                 좌측 사이드바 '🔑 API키등록'에 입력하면 즉시 활성화됩니다.
               </div>
             </div>

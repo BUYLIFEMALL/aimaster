@@ -131,7 +131,7 @@ export default function SettingsClient({ userEmail }: SettingsClientProps) {
                 ★ 최상위 불변 보안 규칙: 본인 전용 API 키 직접 연동
               </span>
               모든 회원은 본인의 Google AI 계정에서 발급받은 본인 전용 API 키를 연동하여 사용합니다.
-              플랫폼 운영자나 타인의 키로 폴백되지 않으며, 등록하신 API 키는 암호화되어 본인 계정에서만 독립적으로 격리 호출됩니다.
+              플랫폼 운영자나 타인의 키로 폴백되지 않으며, 등록하신 API 키는 본인 계정에 연결해 보관하며 본인 작업에만 사용합니다.
             </div>
           </div>
 
