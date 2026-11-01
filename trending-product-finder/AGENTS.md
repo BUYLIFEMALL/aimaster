@@ -370,3 +370,11 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 쿠팡 WING·11번가 셀러오피스는 공식 표가 판매자 로그인 뒤에만 보여 아직 ⚠ 참고치.
 - 검사: 주문 리포트 22개·상품소싱 `test:trend` 20개·두 프로그램 tsc 통과. 커밋 `fix(market-fees)`. **배포 대기** — 다음 배포 때 상품소싱 v1.29·주문 리포트 버전 +0.01과 함께.
 - ✅ 2026-10-29 배포됨: 상품소싱 v1.29(`trending-product-finder-2arev86dm`)·주문 리포트 v1.05(`shop-order-report-3qdt03vl7`), DB 버전 갱신, 흐름 띠 「마켓 등록」 대기 항목도 함께 나감. 크롬 `/fees` 확인은 로그인 뒤 진행.
+
+## 2026-11-01 v1.30 — 쿠팡 리뷰 거르기 크롬 확장 ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`)
+- 주인님 결정: 리뷰 수 API 포기(파트너스 응답에 없음, 실측), 쿠팡 문의 없이 회원 책임으로 제공. 관리자 지정 예외 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8. 플랜 `docs/PLAN_20261101_COUPANG_REVIEW_FILTER.md`.
+- 확장 `extension/`(activeTab·scripting·storage만, 쿠팡 상시 권한 없음): 버튼을 누를 때 지금 보이는 검색 화면만 읽음, 리뷰 기준 1·2·직접 입력, 광고 제외, 상품번호 합치기, CSV, 회원 PC에만 30일 보관, 첫 사용 책임 동의, 확인 화면이면 멈춤, 읽기 간격 10초. 자동 페이지 넘기기·예약·서버 수집 없음.
+- 화면 `/coupang-reviews`(다운로드·4단계 설치·FAQ), 메뉴, `/guide` FAQ. ZIP은 `prebuild`(`scripts/build-extension-archive.mjs`)가 생성.
+- 검수: `test:trend` 26개, tsc, build, DB·라이브 ZIP `check-extension-release` OK, 크롬 관리자 화면 v1.30, 390px 틀 가로 넘침 없음.
+- **미확인(다음 첫 단계)**: 실제 크롬에 설치해 팝업으로 쿠팡 읽기·CSV. 파싱은 실제 화면 글자로 시험했지만 팝업 동작은 미시험. 2026-11-02 이후, 쿠팡 접속 1~2페이지만, 시험 계정. 직접 넘긴 2페이지가 읽히는지도 함께 확인(주소로 연 2페이지는 2026-11-01 「검색결과 없음」, 원인 미구분). 새 버전 알림은 미구현.
+
