@@ -24,6 +24,7 @@
 - `commercial-land-trade-alert` — 토지도 동 표본이 없으면 시세 대비 참고 처리 (2026-11-01, [역할: realty], 확장 변경이라 배포 때 manifest·ZIP·DB 버전 함께)
 - `commercial-land-trade-alert` — 설정 화면 이메일 경고, 읽은 범위 화면 이름 전체 표시 (2026-11-01, [역할: realty], 다음 배포 때 함께)
 - `commercial-land-trade-alert` — 크롬 사이트 액세스 제한으로 메일이 막히면 기록·팝업에 안내 (2026-11-01, [역할: realty], 확장 변경이라 배포 때 manifest·ZIP·DB 버전 함께)
+- `commercial-land-trade-alert` — 행정동으로 법정동 찾기, 법정동 기준 표시 (2026-11-01, [역할: realty], 다음 배포 때 함께)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
 - `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
 
