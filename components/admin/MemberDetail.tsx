@@ -346,6 +346,46 @@ export default function MemberDetail({
         </div>
       </GlassCard>
 
+      {/* 활성 세션 */}
+      <GlassCard>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-white">
+            활성 <GoldGradientText>세션</GoldGradientText>
+          </h2>
+          {sessions.length > 0 && (
+            <GoldButton type="button" variant="outline" size="sm" onClick={forceLogoutAll}>
+              <LogOut size={14} /> 전체 로그아웃
+            </GoldButton>
+          )}
+        </div>
+
+        {sessions.length === 0 ? (
+          <p className="text-subtext text-sm">활성 세션이 없습니다.</p>
+        ) : (
+          <div className="space-y-2">
+            {sessions.map((session) => (
+              <div key={session.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                <div className="flex items-center gap-3">
+                  <Monitor size={16} className="text-subtext" />
+                  <div>
+                    <p className="text-white text-sm">{session.device_info ?? "알 수 없는 기기"}</p>
+                    <p className="text-subtext text-xs">
+                      {session.ip_address ?? "-"} · 마지막 활동: {formatDate(session.last_active)}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => forceLogout(session.id)}
+                  className="text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors"
+                >
+                  <LogOut size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </GlassCard>
+
       {/* 구독 (활성/만료/취소 전체 — 중지시킨 뒤 재개할 대상을 찾을 수 있도록 전체를 보여준다) */}
       <GlassCard>
         <h2 className="text-lg font-bold text-white mb-4">
@@ -627,45 +667,6 @@ export default function MemberDetail({
           )}
       </GlassCard>
 
-      {/* 활성 세션 */}
-      <GlassCard>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white">
-            활성 <GoldGradientText>세션</GoldGradientText>
-          </h2>
-          {sessions.length > 0 && (
-            <GoldButton type="button" variant="outline" size="sm" onClick={forceLogoutAll}>
-              <LogOut size={14} /> 전체 로그아웃
-            </GoldButton>
-          )}
-        </div>
-
-        {sessions.length === 0 ? (
-          <p className="text-subtext text-sm">활성 세션이 없습니다.</p>
-        ) : (
-          <div className="space-y-2">
-            {sessions.map((session) => (
-              <div key={session.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                <div className="flex items-center gap-3">
-                  <Monitor size={16} className="text-subtext" />
-                  <div>
-                    <p className="text-white text-sm">{session.device_info ?? "알 수 없는 기기"}</p>
-                    <p className="text-subtext text-xs">
-                      {session.ip_address ?? "-"} · 마지막 활동: {formatDate(session.last_active)}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => forceLogout(session.id)}
-                  className="text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors"
-                >
-                  <LogOut size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </GlassCard>
     </div>
   );
 }
