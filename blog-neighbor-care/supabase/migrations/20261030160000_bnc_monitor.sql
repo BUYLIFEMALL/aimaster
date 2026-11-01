@@ -1,4 +1,4 @@
--- Member-started monitor. Feed metadata may run from the member's own cron-job.org; confirmed-material AI runs only from a visible web tab.
+-- Member-started monitor. Feed reads run on the member's own PC through the extension (runner=extension). Server reads (runner=server: tab or cron-job.org) stay behind an operator flag. Confirmed-material AI runs only from a visible web tab.
 begin;
 set local lock_timeout='5s';set local statement_timeout='30s';
 create table public.bnc_monitors(
@@ -7,7 +7,7 @@ create table public.bnc_monitors(
  neighbors text[] not null,ai_enabled boolean not null,profile_id uuid,profile_revision integer,provider text,model text,quote_hash text,
  budget_micros bigint not null check(budget_micros between 0 and 10000000),reserved_micros bigint not null default 0 check(reserved_micros>=0),
  max_ai integer not null check(max_ai between 0 and 20),ai_count integer not null default 0,feed_count integer not null default 0,
- background boolean not null default false,feed_failures integer not null default 0,last_feed_at timestamptz,generation bigint not null default 0,work_id uuid,work_kind text check(work_kind in ('feed','ai')),neighbor_id text,target_id uuid,
+ background boolean not null default false,runner text not null default 'server' check(runner in ('server','extension')),runner_seen_at timestamptz,feed_failures integer not null default 0,last_feed_at timestamptz,generation bigint not null default 0,work_id uuid,work_kind text check(work_kind in ('feed','ai')),neighbor_id text,target_id uuid,
  lease_until timestamptz,last_kind text,last_reason text not null default 'started',created_at timestamptz not null,expires_at timestamptz not null,
  check(cardinality(neighbors) between 1 and 50),check(expires_at<=created_at+interval '7 days'),check(reserved_micros<=budget_micros)
 );
@@ -60,7 +60,7 @@ revoke all on function public.bnc_monitor_scheduler_dispatch(uuid,text,jsonb) fr
 grant execute on function public.bnc_monitor_scheduler_dispatch(uuid,text,jsonb) to service_role;
 create function public.bnc_monitor_dispatch(p_user_id uuid,p_operation text,p_payload jsonb) returns jsonb language plpgsql security invoker set search_path='' as $$
 declare m public.bnc_monitors;a public.member_platform_accounts;x public.bnc_post_targets;p public.bnc_analysis_jobs;
- t timestamptz:=clock_timestamp();neighbor text;v jsonb;prepared jsonb;amount bigint;n integer:=0;removed integer:=0;ai_target uuid;
+ t timestamptz:=clock_timestamp();neighbor text;v jsonb;prepared jsonb;posts jsonb;amount bigint;n integer:=0;removed integer:=0;ai_target uuid;
 begin
  if p_operation='cleanup' then
   if p_user_id is not null or p_payload is distinct from '{}'::jsonb then raise exception 'BNC_INVALID_INPUT';end if;
@@ -93,12 +93,28 @@ begin
    select * into p from public.bnc_analysis_jobs where id=(p_payload->>'profileId')::uuid and user_id=p_user_id and kind='profile' and state='succeeded' and reviewed_result is not null and revision=(p_payload->>'profileRevision')::integer and input->>'ownBlogId'=a.external_id and expires_at>t+interval '90 seconds';
    if not found or nullif(p_payload->>'quoteHash','') is null then raise exception 'BNC_MESSAGE_PROFILE';end if;
   end if;
-  insert into public.bnc_monitors(user_id,state,account_id,neighbors,background,ai_enabled,profile_id,profile_revision,provider,model,quote_hash,budget_micros,max_ai,created_at,expires_at)
-   values(p_user_id,'active',a.id,array(select jsonb_array_elements_text(p_payload->'neighbors')),p_payload->'background'='true'::jsonb,(p_payload->>'aiEnabled')::boolean,p.id,p.revision,p_payload->>'provider',p_payload->>'model',p_payload->>'quoteHash',(p_payload->>'budgetMicros')::bigint,(p_payload->>'maxAi')::integer,t,least(t+interval '7 days',coalesce(p.expires_at,t+interval '7 days')))
-   on conflict(user_id) do update set id=gen_random_uuid(),revision=public.bnc_monitors.revision+1,state='active',account_id=excluded.account_id,neighbors=excluded.neighbors,background=excluded.background,feed_failures=0,last_feed_at=null,ai_enabled=excluded.ai_enabled,profile_id=excluded.profile_id,profile_revision=excluded.profile_revision,provider=excluded.provider,model=excluded.model,quote_hash=excluded.quote_hash,budget_micros=excluded.budget_micros,max_ai=excluded.max_ai,reserved_micros=0,ai_count=0,feed_count=0,generation=public.bnc_monitors.generation+1,work_id=null,work_kind=null,lease_until=null,last_kind=null,last_reason='started',created_at=t,expires_at=excluded.expires_at returning * into m;
+  insert into public.bnc_monitors(user_id,state,account_id,neighbors,background,runner,ai_enabled,profile_id,profile_revision,provider,model,quote_hash,budget_micros,max_ai,created_at,expires_at)
+   values(p_user_id,'active',a.id,array(select jsonb_array_elements_text(p_payload->'neighbors')),p_payload->'background'='true'::jsonb,coalesce(p_payload->>'runner','server'),(p_payload->>'aiEnabled')::boolean,p.id,p.revision,p_payload->>'provider',p_payload->>'model',p_payload->>'quoteHash',(p_payload->>'budgetMicros')::bigint,(p_payload->>'maxAi')::integer,t,least(t+interval '7 days',coalesce(p.expires_at,t+interval '7 days')))
+   on conflict(user_id) do update set id=gen_random_uuid(),revision=public.bnc_monitors.revision+1,state='active',account_id=excluded.account_id,neighbors=excluded.neighbors,background=excluded.background,runner=excluded.runner,runner_seen_at=null,feed_failures=0,last_feed_at=null,ai_enabled=excluded.ai_enabled,profile_id=excluded.profile_id,profile_revision=excluded.profile_revision,provider=excluded.provider,model=excluded.model,quote_hash=excluded.quote_hash,budget_micros=excluded.budget_micros,max_ai=excluded.max_ai,reserved_micros=0,ai_count=0,feed_count=0,generation=public.bnc_monitors.generation+1,work_id=null,work_kind=null,lease_until=null,last_kind=null,last_reason='started',created_at=t,expires_at=excluded.expires_at returning * into m;
   return jsonb_build_object('saved',true,'sessionId',m.id,'externalActions',0);
  end if;
+ -- The extension reads RSS on the member's PC and checks in here about hourly: this is the only regular server call of an extension session.
+ if p_operation='extension_sync' then
+  if m.user_id is null or m.state<>'active' or m.runner<>'extension' then return jsonb_build_object('active',false);end if;
+  if m.expires_at<=t then update public.bnc_monitors set state='paused',last_reason='expired' where user_id=p_user_id;return jsonb_build_object('active',false);end if;
+  if not exists(select 1 from public.member_platform_accounts where id=m.account_id and user_id=p_user_id and platform='naver_blog' and not needs_reconnect) then return jsonb_build_object('active',false);end if;
+  update public.bnc_monitors set runner_seen_at=t,feed_count=feed_count+(p_payload->>'reads')::integer,feed_failures=(p_payload->>'failures')::integer,last_feed_at=greatest(last_feed_at,least((p_payload->>'lastReadAt')::timestamptz,t)) where user_id=p_user_id returning * into m;
+  return jsonb_build_object('active',true,'sessionId',m.id,'expiresAt',m.expires_at,'neighbors',coalesce((select jsonb_agg(z order by z) from unnest(m.neighbors)z where exists(select 1 from public.bnc_neighbor_directory where user_id=p_user_id and account_id=m.account_id and neighbor_id=z and new_posts_enabled)),'[]'::jsonb));
+ end if;
  if m.user_id is null or m.id is distinct from (p_payload->>'sessionId')::uuid then raise exception 'BNC_MONITOR_CHANGED';end if;
+ if p_operation='extension_report' then
+  if m.state<>'active' or m.runner<>'extension' or m.expires_at<=t or not((p_payload->>'neighborId')=any(m.neighbors)) then raise exception 'BNC_MONITOR_CHANGED';end if;
+  -- An article whose stored copy already expired stays out, so one old RSS entry cannot block the neighbor's new posts on every check.
+  select coalesce(jsonb_agg(e),'[]'::jsonb) into posts from jsonb_array_elements(p_payload->'posts') e where not exists(select 1 from public.bnc_post_targets where user_id=p_user_id and neighbor_id=e->>'blogId' and post_id=e->>'postId' and expires_at<=t) and not exists(select 1 from public.bnc_analysis_sources where user_id=p_user_id and blog_id=e->>'blogId' and post_id=e->>'postId' and expires_at<=t);
+  v:=public.bnc_post_dispatch(p_user_id,null,'import',jsonb_build_object('accountId',m.account_id,'neighborId',p_payload->>'neighborId','rightsConfirmed',true,'bodyConfirmed',false,'posts',posts));
+  update public.bnc_monitors set runner_seen_at=t,last_feed_at=t,feed_failures=0,last_kind='feed',last_reason='completed' where user_id=p_user_id;
+  return v||jsonb_build_object('completed',true);
+ end if;
  if p_operation='stop' then
   update public.bnc_monitors set state=case when work_id is null or work_kind='feed' then 'off' else 'paused' end,work_id=case when work_kind='feed' then null else work_id end,lease_until=case when work_kind='feed' then null else lease_until end,revision=revision+1,last_reason='stopped' where user_id=p_user_id;return jsonb_build_object('stopped',true);
  end if;
@@ -119,7 +135,7 @@ begin
     and not exists(select 1 from public.bnc_message_jobs where user_id=p_user_id and neighbor_id=cand.neighbor_id and post_id=cand.post_id and state in ('queued','running','succeeded','uncertain'))
     and not exists(select 1 from public.bnc_monitor_attempts where user_id=p_user_id and neighbor_id=cand.neighbor_id and post_id=cand.post_id) order by cand.created_at,cand.id limit 1;
   end if;
-  if m.feed_count<40000 then
+  if m.feed_count<40000 and m.runner='server' then
    select z into neighbor from unnest(m.neighbors)z where exists(select 1 from public.bnc_neighbor_directory where user_id=p_user_id and account_id=m.account_id and neighbor_id=z and new_posts_enabled)
     and not exists(select 1 from public.bnc_feed_checks where user_id=p_user_id and neighbor_id=z and checked_at>t-interval '15 minutes' and expires_at>t) order by z limit 1;
   end if;

@@ -4,7 +4,7 @@ import React from 'react';
 import {parseHTML} from 'linkedom';
 import {FeedMonitor} from '../src/components/analysis/FeedMonitor.tsx';
 const monitor=(o={})=>({id:'11111111-1111-4111-8111-111111111111',revision:1,state:'active',last_reason:'started',feed_count:3,ai_count:0,reserved_micros:0,budget_micros:0,lease_until:null,expires_at:'2099-01-01T00:00:00Z',background:true,ai_enabled:false,feed_failures:0,last_feed_at:null,...o});
-const catalog=(m,o={})=>({data:{monitor:m,awaitingBody:0},scheduler:{jobId:7,active:true,paused:false},hasCronKey:true,directory:[{account_id:'a',external_id:'own',neighbor_id:'alpha'}],choices:{profiles:[],accounts:[{id:'a',external_id:'own'}]},quotes:[],feedReady:true,aiReady:false,...o});
+const catalog=(m,o={})=>({data:{monitor:m,awaitingBody:0},scheduler:{jobId:7,active:true,paused:false},hasCronKey:true,directory:[{account_id:'a',external_id:'own',neighbor_id:'alpha'}],choices:{profiles:[],accounts:[{id:'a',external_id:'own'}]},quotes:[],feedReady:true,serverFeedEnabled:true,aiReady:false,...o});
 async function mount(respond,fn){
  const {window,document}=parseHTML('<html><body><div id="root"></div></body></html>');
  let visibility='visible';Object.defineProperty(document,'visibilityState',{get:()=>visibility,configurable:true});
@@ -45,12 +45,28 @@ test('MUI03 reopening an active background session does not restart anything unt
 test('MUI04 hiding the tab stops only the local AI loop of a background session and never stops the server session',async()=>{
  await mount(v=>v.operation==='tick'?{data:{monitor:monitor({ai_enabled:true}),awaitingBody:0}}:catalog(monitor({ai_enabled:true})),async({click,ops,hide,document})=>{
   await click('선택 항목');await click('이 탭에서 이어서');assert.equal(ops().at(-1),'tick');
-  await hide();assert.ok(!ops().includes('stop'));assert.match(document.body.textContent,/cron-job\.org가 이어 갑니다/);
+  await hide();assert.ok(!ops().includes('stop'));assert.match(document.body.textContent,/새 글 확인은 탭과 상관없이 이어집니다/);
  });
 });
 test('MUI05 hiding the tab stops the server session when background checking is off',async()=>{
  await mount(v=>v.operation==='tick'?{data:{monitor:monitor({background:false}),awaitingBody:0}}:v.operation==='stop'?{data:{stopped:true}}:catalog(monitor({background:false})),async({click,ops,hide})=>{
   await click('선택 항목');await click('이 탭에서 이어서');await hide();assert.equal(ops().at(-1),'stop');
+ });
+});
+test('MUI07 by default the screen asks for no cron-job.org key and starts on this PC through the extension',async()=>{
+ await mount(v=>v.operation==='start'?{data:{sessionId:'11111111-1111-4111-8111-111111111111'}}:catalog(null,{serverFeedEnabled:false,hasCronKey:false,scheduler:{jobId:null,active:false,paused:false}}),async({click,document,window,calls})=>{
+  await click('선택 항목');assert.doesNotMatch(document.body.textContent,/cron-job/);assert.equal(document.querySelector('input[type=password]'),null);assert.match(document.body.textContent,/이 PC의 확장이 읽으므로/);
+  const fire=async(el,value)=>{const props=el[Object.keys(el).find(k=>k.startsWith('__reactProps'))];await React.act(async()=>props.onChange({target:value}));};
+  await fire(document.querySelector('select'),{value:'a'});
+  const boxes=()=>[...document.querySelectorAll('input[type=checkbox]')];
+  await fire(boxes().find(i=>i.parentElement.textContent.includes('alpha')),{checked:true});
+  await fire(boxes().find(i=>i.parentElement.textContent.includes('공개 RSS')),{checked:true});
+  await click('선택한 범위로');const start=calls.find(c=>c.operation==='start');assert.equal(start.payload.runner,'extension');assert.equal(start.payload.background,true);
+ });
+});
+test('MUI08 an extension session shows its own status line, and hiding the tab never stops it',async()=>{
+ await mount(()=>catalog(monitor({runner:'extension',runner_seen_at:'2026-11-01T00:00:00Z'}),{serverFeedEnabled:false,scheduler:{jobId:null,active:false,paused:false}}),async({click,document,hide,ops,button})=>{
+  await click('선택 항목');assert.match(document.body.textContent,/새 글 확인: 이 PC의 확장/);assert.doesNotMatch(document.body.textContent,/상시 감시: /);assert.equal(button('이 탭에서 이어서'),undefined);await hide();assert.ok(!ops().includes('stop'));
  });
 });
 test('MUI06 a tick failure stops the local loop without retrying',async()=>{

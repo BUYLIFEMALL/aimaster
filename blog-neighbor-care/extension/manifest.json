@@ -12,7 +12,8 @@
     "alarms"
   ],
   "host_permissions": [
-    "https://blog-neighbor-care.buylife.xyz/*"
+    "https://blog-neighbor-care.buylife.xyz/*",
+    "https://rss.blog.naver.com/*"
   ],
   "optional_host_permissions": ["https://blog.naver.com/*"],
   "background": {

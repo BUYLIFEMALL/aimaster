@@ -8,6 +8,7 @@ import {createAcceptBridge} from './accept-bridge.mjs';
 import {operateIncomingRequests} from './accept-dom.mjs';
 import {createExtensionSchedule} from './schedule-bridge.mjs';
 import {createContextReader} from './context-bridge.mjs';
+import {createFeedWatch} from './feed-watch.mjs';
 
 export const SITE = 'https://blog-neighbor-care.buylife.xyz';
 export function createReaderController(browser, fetcher = fetch) {
@@ -55,13 +56,17 @@ export function createReaderController(browser, fetcher = fetch) {
     const {token}=await browser.storage.local.get('token');if(!token||token!==importToken)throw Error('연결 계정이 변경됐습니다.');
     return (await post('whoami',{},token)).data;
   },undefined,undefined,publishProgress,popupFocused);
+  const feedWatch=createFeedWatch(browser,async(operation,payload)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Object.assign(Error('회원 연결이 필요합니다.'),{status:401});return (await post(operation,payload,token,'/api/neighbors/monitor/extension')).data;},fetcher);
   const handle=async function(message, sender) {
     await ready;
     const popup = sender.id === browser.runtime.id && sender.url === browser.runtime.getURL('popup.html');
     let web = false;
     try { web = sender.id === browser.runtime.id && new URL(sender.tab?.url).origin === SITE; } catch { /* not the program tab */ }
-    if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
+    if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect', 'feed_sync'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
     const { token } = await browser.storage.local.get('token');
+    if(message.type==='feed_sync')return feedWatch.sync();
+    if(['feed_status','feed_stop'].includes(message.type)){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return message.type==='feed_status'?feedWatch.status():feedWatch.stop();}
+    if(['connect','disconnect'].includes(message.type))await feedWatch.clear();
     if(['connect','disconnect','read','neighbors_read','work_start','work_stop','schedule_start','context_preview','accept_preview','accept_start','accept_check'].includes(message.type)){await traversal.stop();await acceptReader.cancel();await acceptance.stop();}
     if(['connect','disconnect','read','neighbors_read','work_start','work_stop','schedule_start','context_preview','accept_preview','accept_start','accept_check','accept_stop','traversal_start'].includes(message.type))await acceptSchedule.stop();
     if(['accept_schedule_start','accept_schedule_stop','accept_schedule_status'].includes(message.type)){
@@ -190,12 +195,15 @@ export function createReaderController(browser, fetcher = fetch) {
     }
     throw new Error('지원하지 않는 작업입니다.');
   };
-  handle.onAlarm=async alarm=>{await schedule.alarm(alarm.name);await traversal.alarm(alarm.name);await acceptSchedule.alarm(alarm.name);};return handle;
+  handle.onAlarm=async alarm=>{await feedWatch.alarm(alarm.name);await schedule.alarm(alarm.name);await traversal.alarm(alarm.name);await acceptSchedule.alarm(alarm.name);};handle.resumeFeed=()=>feedWatch.resume();return handle;
 }
 
 if (globalThis.chrome?.runtime?.onMessage) {
   const handle = createReaderController(chrome);
   chrome.alarms?.onAlarm?.addListener(alarm=>{void handle.onAlarm(alarm).catch(()=>{});});
+  // Alarms can be gone after a browser restart or extension reload; the saved session puts them back.
+  chrome.runtime.onStartup?.addListener(()=>{void handle.resumeFeed().catch(()=>{});});
+  chrome.runtime.onInstalled?.addListener(()=>{void handle.resumeFeed().catch(()=>{});});
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(['neighbor_progress','neighbor_focus_probe','work_progress','schedule_progress','traversal_progress','accept_schedule_progress'].includes(message?.type))return false;
     handle(message, sender).then(data => sendResponse({ ok: true, data }), error => sendResponse({ ok: false,

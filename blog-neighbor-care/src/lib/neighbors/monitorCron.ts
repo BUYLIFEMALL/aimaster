@@ -27,7 +27,7 @@ export function createMonitorCronHandler(d:D){return async(req:Request)=>{
    if(status.monitor?.state==='active')await rpc('monitor','stop',{sessionId:status.monitor.id}).catch(()=>{});
    return await disable('access');
   }
-  if(status.monitor?.state!=='active'||!status.monitor.background)return await disable('inactive');
+  if(status.monitor?.state!=='active'||!status.monitor.background||status.monitor.runner!=='server')return await disable('inactive');
   if(!d.feedEnabled())return reply({ok:false,reason:'feed_disabled'});
   let reads=0;
   while(reads<MAX_READS&&now()-started<START_BUDGET_MS){

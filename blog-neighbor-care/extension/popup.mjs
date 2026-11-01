@@ -3,7 +3,7 @@ let draft = null, busy = false, currentDeviceId=null, currentProgress=null;
 const stageTitles={checking:'진행 중 · 계정 확인',starting:'진행 중 · 요청 준비',reserving:'진행 중 · 읽기 준비',reading:'진행 중 · 목록 읽기',sending:'진행 중 · 서버 전송',received:'진행 중 · 수신 확인',ready:'수신 완료 · 아직 저장 전',confirmed:'프로그램 저장 완료',failed:'읽기 중단 · 사유 확인',stopping:'읽기 중단 처리 중',paused:'진행 결과 확인 필요'};
 function applyButtons(){
   const active=currentProgress?.state==='running';
-  document.querySelectorAll('button').forEach(b=>{b.disabled=['workStop','contextCancel','scheduleStop','acceptStop','acceptCancel','traversalStop'].includes(b.id)?false:b.id==='neighborStop'?!active:busy||active;});
+  document.querySelectorAll('button').forEach(b=>{b.disabled=['workStop','contextCancel','scheduleStop','acceptStop','acceptCancel','traversalStop','feedStop'].includes(b.id)?false:b.id==='neighborStop'?!active:busy||active;});
   $('contextRead').disabled=busy||active||!$('contextPreview').hidden;$('contextKind').disabled=busy||active||!$('contextPreview').hidden;
   $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
@@ -127,4 +127,5 @@ $('traversalStop').addEventListener('click',async()=>{try{$('traversalMessage').
 $('acceptScheduleStart').addEventListener('click',()=>run(async()=>{if(!$('acceptScheduleConsent').checked)throw Error('반복 수락 동의를 확인해 주세요.');$('acceptScheduleConsent').checked=false;$('acceptScheduleMessage').textContent=(await send({type:'accept_schedule_start',confirmed:true})).message;}));
 $('acceptScheduleStatus').addEventListener('click',()=>run(async()=>{$('acceptScheduleMessage').textContent=(await send({type:'accept_schedule_status'})).message;}));
 $('acceptScheduleStop').addEventListener('click',async()=>{try{$('acceptScheduleMessage').textContent=(await send({type:'accept_schedule_stop'})).message;}catch{$('acceptScheduleMessage').textContent='중단 응답 미확인 · 웹에서 결과를 먼저 확인하세요.';}});
-run(async()=>{await status();if(currentDeviceId){for(const [type,id] of [['traversal_status','traversalMessage'],['schedule_status','scheduleMessage'],['accept_status','acceptMessage'],['accept_schedule_status','acceptScheduleMessage']]){try{$(id).textContent=(await send({type})).message;}catch{$(id).textContent='상태 미확인 · 이전 결과를 확인하세요.';}}}});
+$('feedStop').addEventListener('click',async()=>{try{$('feedMessage').textContent=(await send({type:'feed_stop'})).message;}catch(e){$('feedMessage').textContent=e.message||'중단 응답 미확인 · 웹에서 상태를 확인해 주세요.';}});
+run(async()=>{await status();if(currentDeviceId){try{await send({type:'feed_sync'});}catch{/* The saved state below still shows what this PC knows. */}try{$('feedMessage').textContent=(await send({type:'feed_status'})).message;}catch{$('feedMessage').textContent='상태 미확인 · 웹에서 확인해 주세요.';}for(const [type,id] of [['traversal_status','traversalMessage'],['schedule_status','scheduleMessage'],['accept_status','acceptMessage'],['accept_schedule_status','acceptScheduleMessage']]){try{$(id).textContent=(await send({type})).message;}catch{$(id).textContent='상태 미확인 · 이전 결과를 확인하세요.';}}}});

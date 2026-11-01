@@ -123,10 +123,10 @@ try{
  const client={upsert:async(key,token)=>{assert.equal(key,'member-own-cron-key');jobs.push({token,enabled:true});return 777;},setEnabled:async(key,id,enabled)=>{assert.equal(key,'member-own-cron-key');assert.equal(id,777);jobs.at(-1).enabled=enabled;}};
  let cronKey=null,allowed=true;
  const rpc=async(user,ns,op,p)=>{try{return {data:call(user,ns,op,p),error:null};}catch(error){return {data:null,error};}};
- const web=createMonitorHandler({member:async()=>({allowed:true,userId:e.user}),key:async()=>'member-own-ai-key',generate:async()=>{paid++;assert.ok(Number(sql(`select ai_count from bnc_monitors where user_id=${q(e.user)};`))>=1);if(loseAi)throw Error('lost');const source=sql(`select id from bnc_analysis_sources where user_id=${q(e.user)} and body=${q(krBody)} limit 1;`);return {text:'방수 덮개와 접이식 의자를 함께 준비하는 과정이 구체적으로 담겨 있어 짐을 챙길 때 참고하기 좋겠어요.',summary:'캠핑 준비',emotion:'차분함',questionNeeded:false,aiLikeScore:3,usedFacts:[],details:[{sourceId:source,quote:'비를 막는 방수 덮개'},{sourceId:source,quote:'가벼운 접이식 의자'}]};},feedEnabled:()=>true,aiEnabled:()=>true,prices:()=>prices,fetcher,rpc,cron:{key:async()=>cronKey,saveKey:async(u,k)=>{cronKey=k;},deleteKey:async()=>{cronKey=null;},client}});
+ const web=createMonitorHandler({serverFeedEnabled:()=>true,member:async()=>({allowed:true,userId:e.user}),key:async()=>'member-own-ai-key',generate:async()=>{paid++;assert.ok(Number(sql(`select ai_count from bnc_monitors where user_id=${q(e.user)};`))>=1);if(loseAi)throw Error('lost');const source=sql(`select id from bnc_analysis_sources where user_id=${q(e.user)} and body=${q(krBody)} limit 1;`);return {text:'방수 덮개와 접이식 의자를 함께 준비하는 과정이 구체적으로 담겨 있어 짐을 챙길 때 참고하기 좋겠어요.',summary:'캠핑 준비',emotion:'차분함',questionNeeded:false,aiLikeScore:3,usedFacts:[],details:[{sourceId:source,quote:'비를 막는 방수 덮개'},{sourceId:source,quote:'가벼운 접이식 의자'}]};},feedEnabled:()=>true,aiEnabled:()=>true,prices:()=>prices,fetcher,rpc,cron:{key:async()=>cronKey,saveKey:async(u,k)=>{cronKey=k;},deleteKey:async()=>{cronKey=null;},client}});
  const req=(operation,p={})=>new Request('https://fixture.test/api/neighbors/monitor',{method:'POST',headers:{origin:'https://fixture.test','content-type':'application/json'},body:JSON.stringify({operation,payload:p})});
  const send=async(op,p)=>{const r=await web(req(op,p));return {status:r.status,body:await r.json()};};
- const startBody={accountId:e.account,neighbors:e.neighbors,aiEnabled:false,expectedRevision:0,feedConsent:true,confirmed:true,budgetMicros:0,maxAi:0,background:true};
+ const startBody={accountId:e.account,neighbors:e.neighbors,aiEnabled:false,expectedRevision:0,feedConsent:true,confirmed:true,budgetMicros:0,maxAi:0,background:true,runner:'server'};
  assert.equal((await send('start',startBody)).status,409);assert.equal(jobs.length,0);assert.equal(mon(e,'status').monitor,null);
  assert.equal((await send('cron_key_save',{apiKey:'member-own-cron-key'})).status,200);
  const catalog=await send('catalog');assert.equal(catalog.body.hasCronKey,true);assert.doesNotMatch(JSON.stringify(catalog.body),/member-own-cron-key/);
@@ -194,6 +194,33 @@ try{
  const again=await send('start',{...startBody,aiEnabled:true,aiConsent:true,background:false,profileId:e.profile,profileRevision:1,provider:'anthropic',model:'claude-haiku-4-5',quoteHash:quote.hash,budgetMicros:2000000,maxAi:2,expectedRevision:mon(e,'status').monitor.revision});assert.equal(again.status,200);
  loseAi=false;assert.equal((await send('tick',{sessionId:again.body.data.sessionId})).status,200);assert.equal(paid,2);
  ok('a lost AI result pauses, charges nothing further, and neither retry nor restart regenerates that article');
+ // Extension sessions: the member's PC reads RSS, the server only stores what is new.
+ const xa=fixture(['alpha','beta']),xo=fixture(['alpha']),xs=startFeed(xa,{runner:'extension'}),sync0={reads:0,failures:0,lastReadAt:null};
+ let xr=mon(xa,'extension_sync',sync0);assert.equal(xr.active,true);assert.equal(xr.sessionId,xs.sessionId);assert.deepEqual(xr.neighbors,['alpha','beta']);assert.ok(mon(xa,'status').monitor.runner_seen_at);
+ assert.equal(mon(xa,'claim',{sessionId:xs.sessionId}).phase,'idle');assert.equal(mon(xa,'status').monitor.feed_count,0);assert.equal(sql(`select count(*) from bnc_feed_checks where user_id=${q(xa.user)};`),'0');
+ ok('an extension session gets its neighbor list and the server never claims a read for it');
+ const xpost=(blog,id,title='Trip')=>({blogId:blog,postId:id,title,body:'',hash:sha([title,'']),publishedAt:null});
+ const report=(a,s,n,...ids)=>mon(a,'extension_report',{sessionId:s,neighborId:n,posts:ids.map(i=>xpost(n,i))});
+ assert.equal(report(xa,xs.sessionId,'alpha','701').savedCount,1);assert.equal(report(xa,xs.sessionId,'alpha','701').savedCount,0);
+ assert.equal(sql(`select body='' and not body_confirmed from bnc_post_targets where user_id=${q(xa.user)} and post_id='701';`),'t');assert.ok(mon(xa,'status').monitor.last_feed_at);
+ assert.throws(()=>report(xa,xs.sessionId,'gamma','702'),/MONITOR_CHANGED/);assert.throws(()=>report(xo,xs.sessionId,'alpha','702'),/MONITOR_CHANGED/);
+ assert.throws(()=>mon(xa,'extension_report',{sessionId:xs.sessionId,neighborId:'alpha',posts:[xpost('beta','703')]}),/TARGET_CHANGED/);
+ assert.equal(sql(`select count(*) from bnc_post_targets where user_id=${q(xo.user)};`),'0');
+ ok('reports save metadata once, stay inside the session neighbors and never reach another member');
+ sql(`update bnc_post_targets set created_at=t.c,expires_at=t.c+interval '720 hours' from (select clock_timestamp()-interval '721 hours' c) t where user_id=${q(xa.user)} and post_id='701';`);
+ assert.equal(report(xa,xs.sessionId,'alpha','701','704').savedCount,1);
+ ok('one expired article cannot block the new posts of that neighbor');
+ mon(xa,'extension_sync',{reads:7,failures:2,lastReadAt:'2099-01-01T00:00:00Z'});let xm=mon(xa,'status').monitor;assert.equal(xm.feed_count,7);assert.equal(xm.feed_failures,2);assert.ok(Date.parse(xm.last_feed_at)<Date.parse('2090-01-01'));
+ sql(`update bnc_neighbor_directory set new_posts_enabled=false where user_id=${q(xa.user)} and neighbor_id='beta';`);assert.deepEqual(mon(xa,'extension_sync',sync0).neighbors,['alpha']);assert.throws(()=>report(xa,xs.sessionId,'beta','705'),/TARGET_DISABLED/);
+ ok('hourly counters are stored, a future date is capped, a neighbor turned off leaves the list');
+ const xt='bnc_mon_'+'e'.repeat(64),xfeeds=feeds;call(xa.user,'scheduler','rotate',{tokenHash:hashMonitorToken(xt)});
+ assert.equal((await (await cron(new Request('https://fixture.test/c',{headers:{authorization:`Bearer ${xt}`}}))).json()).reason,'inactive');assert.equal(feeds,xfeeds);assert.equal(mon(xa,'status').monitor.state,'active');
+ ok('a leftover cron-job.org call does not read RSS for an extension session');
+ mon(xa,'stop',{sessionId:xs.sessionId});assert.equal(mon(xa,'extension_sync',sync0).active,false);assert.throws(()=>report(xa,xs.sessionId,'alpha','706'),/MONITOR_CHANGED/);
+ const xserver=fixture(['alpha']);startFeed(xserver);assert.equal(mon(xserver,'extension_sync',sync0).active,false);assert.equal(mon(xo,'extension_sync',sync0).active,false);
+ const xold=fixture(['alpha']);startFeed(xold,{runner:'extension'});sql(`update bnc_monitors set expires_at=clock_timestamp()-interval '1 second' where user_id=${q(xold.user)};`);assert.equal(mon(xold,'extension_sync',sync0).active,false);assert.equal(mon(xold,'status').monitor.last_reason,'expired');
+ const xlost=fixture(['alpha']);startFeed(xlost,{runner:'extension'});sql(`update member_platform_accounts set needs_reconnect=true where id=${q(xlost.account)};`);assert.equal(mon(xlost,'extension_sync',sync0).active,false);
+ ok('stopping, a server session, no session, expiry and a lost account all tell the PC to stop');
  // Retention: generated records follow their source; connection settings end with the member's settings row.
  const old=fixture(['alpha']),oldT=addTarget(old,'alpha','501'),oldS=startFeed(old);
  sql(`insert into bnc_monitor_attempts(id,user_id,session_id,target_id,neighbor_id,post_id,state,expires_at) values(gen_random_uuid(),${q(old.user)},${q(oldS.sessionId)},${q(oldT.id)},'alpha','501','blocked',clock_timestamp()-interval '1 second');

@@ -23,7 +23,7 @@ type Namespace='monitor'|'post'|'message'|'analysis'|'scheduler';
 export type MonitorRpc=(ns:Namespace,op:string,p?:ObjectValue)=>Promise<any>;
 type D=Pick<AnalysisDependencies,'member'|'key'|'generate'>&{
  rpc:(user:string,namespace:Namespace,op:string,p:ObjectValue)=>Promise<{data:any;error:unknown}>;
- feedEnabled:()=>boolean;aiEnabled:()=>boolean;prices:()=>string|undefined;fetcher?:typeof fetch;
+ feedEnabled:()=>boolean;serverFeedEnabled:()=>boolean;aiEnabled:()=>boolean;prices:()=>string|undefined;fetcher?:typeof fetch;
  cron:{key:(user:string)=>Promise<string|null>;saveKey:(user:string,key:string)=>Promise<void>;deleteKey:(user:string)=>Promise<void>;client:CronClient};
 };
 // One publisher read. A failed read only skips that neighbor until it is due again; it never stops the session.
@@ -50,7 +50,7 @@ export function createMonitorHandler(d:D){return async(req:Request)=>{
   const v=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!object(v)||!only(v,['operation','payload'])||!object(v.payload))bad();const op=v.operation,p=v.payload;
   if(op==='catalog'||op==='status'){
    if(!only(p,[]))bad();const data=await rpc('monitor','status');
-   return reply({data,scheduler:await rpc('scheduler','get'),hasCronKey:!!(await d.cron.key(userId)),...(op==='catalog'?{directory:await rpc('post','directory'),choices:await rpc('message','list')}:{}),quotes:monitorQuotes(d.prices()),feedReady:d.feedEnabled(),aiReady:d.aiEnabled()});
+   return reply({data,scheduler:await rpc('scheduler','get'),hasCronKey:!!(await d.cron.key(userId)),...(op==='catalog'?{directory:await rpc('post','directory'),choices:await rpc('message','list')}:{}),quotes:monitorQuotes(d.prices()),feedReady:d.feedEnabled(),serverFeedEnabled:d.serverFeedEnabled(),aiReady:d.aiEnabled()});
   }
   if(op==='cron_key_save'){
    const key=typeof p.apiKey==='string'?p.apiKey.trim():'';if(!only(p,['apiKey'])||key.length<8||key.length>512||/\s/.test(key))bad();
@@ -58,17 +58,20 @@ export function createMonitorHandler(d:D){return async(req:Request)=>{
   }
   if(op==='cron_key_delete'){
    if(!only(p,[]))bad();const status=await rpc('monitor','status');
-   if(status.monitor?.state==='active'&&status.monitor.background)return reply({error:'상시 감시를 먼저 중단한 뒤 키를 삭제하세요.'},409);
+   if(status.monitor?.state==='active'&&status.monitor.background&&status.monitor.runner==='server')return reply({error:'상시 감시를 먼저 중단한 뒤 키를 삭제하세요.'},409);
    await d.cron.deleteKey(userId);return reply({data:{deleted:true},hasCronKey:false});
   }
   if(op==='start'){
-   if(!only(p,['accountId','neighbors','aiEnabled','profileId','profileRevision','provider','model','quoteHash','budgetMicros','maxAi','expectedRevision','feedConsent','aiConsent','confirmed','background'])||!uuid(p.accountId)||!Array.isArray(p.neighbors)||p.neighbors.length<1||p.neighbors.length>50||p.neighbors.some((n:unknown)=>typeof n!=='string'||!/^[a-z0-9_-]{1,50}$/.test(n))||new Set(p.neighbors).size!==p.neighbors.length||typeof p.aiEnabled!=='boolean'||typeof p.background!=='boolean'||p.feedConsent!==true||p.confirmed!==true||!Number.isSafeInteger(p.expectedRevision)||Number(p.expectedRevision)<0||!Number.isSafeInteger(p.budgetMicros)||Number(p.budgetMicros)<0||Number(p.budgetMicros)>10000000||!Number.isSafeInteger(p.maxAi)||Number(p.maxAi)<0||Number(p.maxAi)>20)bad();
+   if(!only(p,['accountId','neighbors','aiEnabled','profileId','profileRevision','provider','model','quoteHash','budgetMicros','maxAi','expectedRevision','feedConsent','aiConsent','confirmed','background','runner'])||!['server','extension'].includes(String(p.runner))||!uuid(p.accountId)||!Array.isArray(p.neighbors)||p.neighbors.length<1||p.neighbors.length>50||p.neighbors.some((n:unknown)=>typeof n!=='string'||!/^[a-z0-9_-]{1,50}$/.test(n))||new Set(p.neighbors).size!==p.neighbors.length||typeof p.aiEnabled!=='boolean'||typeof p.background!=='boolean'||p.feedConsent!==true||p.confirmed!==true||!Number.isSafeInteger(p.expectedRevision)||Number(p.expectedRevision)<0||!Number.isSafeInteger(p.budgetMicros)||Number(p.budgetMicros)<0||Number(p.budgetMicros)>10000000||!Number.isSafeInteger(p.maxAi)||Number(p.maxAi)<0||Number(p.maxAi)>20)bad();
    if(!d.feedEnabled())return reply({error:'RSS 읽기 운영 준비가 필요합니다.'},409);
+   // Reads belong on the member's PC. Reading from this server stays off unless the operator turns it on.
+   if(p.runner==='extension'&&p.background!==true)bad();
+   if(p.runner==='server'&&!d.serverFeedEnabled())return reply({error:'새 글 확인은 확장 프로그램으로 진행합니다. 화면을 새로고침해 주세요.'},409);
    if(p.aiEnabled){
     if(!d.aiEnabled()||!uuid(p.profileId)||!Number.isSafeInteger(p.profileRevision)||Number(p.profileRevision)<1||p.aiConsent!==true||Number(p.maxAi)<1||Number(p.budgetMicros)<1||!monitorQuotes(d.prices()).some(q=>q.hash===p.quoteHash&&q.provider===p.provider&&q.model===p.model))return reply({error:'AI 프로필·모델·유효한 단가·예산·전송 동의를 확인하세요.'},400);
    }else if(p.maxAi!==0||p.budgetMicros!==0)bad();
-   const cronKey=p.background?await d.cron.key(userId):null;
-   if(p.background&&!cronKey)return reply({error:'탭을 닫아도 확인하려면 본인 cron-job.org API 키를 먼저 등록하세요.'},409);
+   const useCron=p.background&&p.runner==='server',cronKey=useCron?await d.cron.key(userId):null;
+   if(useCron&&!cronKey)return reply({error:'탭을 닫아도 확인하려면 본인 cron-job.org API 키를 먼저 등록하세요.'},409);
    const started=await rpc('monitor','start',p);
    if(cronKey){
     // The token is stored before the job exists so the first call is never rejected. A job that cannot start leaves no running session behind.
@@ -79,7 +82,7 @@ export function createMonitorHandler(d:D){return async(req:Request)=>{
   }
   if(op==='scheduler_pause'||op==='scheduler_resume'){
    if(!only(p,['sessionId'])||!uuid(p.sessionId))bad();const status=await rpc('monitor','status'),s=await rpc('scheduler','get'),key=await d.cron.key(userId);
-   if(status.monitor?.id!==p.sessionId||status.monitor.state!=='active'||!status.monitor.background||!s.jobId||!key)return reply({error:'일시정지할 상시 감시가 없습니다. 상태를 다시 조회하세요.'},409);
+   if(status.monitor?.id!==p.sessionId||status.monitor.state!=='active'||!status.monitor.background||status.monitor.runner!=='server'||!s.jobId||!key)return reply({error:'일시정지할 상시 감시가 없습니다. 상태를 다시 조회하세요.'},409);
    const resume=op==='scheduler_resume';
    try{await d.cron.client.setEnabled(key,s.jobId,resume);}catch(e){return reply({error:e instanceof Error?e.message:'cron-job.org 응답을 확인하지 못했습니다.'},409);}
    await rpc('scheduler','set',{active:resume,paused:!resume,lastError:null});return reply({data:{paused:!resume},scheduler:await rpc('scheduler','get')});

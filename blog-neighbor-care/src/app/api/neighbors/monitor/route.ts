@@ -5,6 +5,7 @@ import {deleteCronKey,getCronKey,monitorRpc,saveCronKey} from '@/lib/neighbors/m
 export const runtime='nodejs';export const dynamic='force-dynamic';export const maxDuration=60;
 export const POST=createMonitorHandler({member:analysisDependencies.member,key:analysisDependencies.key,generate:analysisDependencies.generate,
  feedEnabled:()=>process.env.BNC_FEED_READ_ENABLED==='true'&&!!process.env.BNC_FEED_READ_POLICY_REFERENCE?.trim(),
+ serverFeedEnabled:()=>process.env.BNC_SERVER_FEED_ENABLED==='true',
  aiEnabled:()=>process.env.BNC_AUTO_MESSAGE_ENABLED==='true',prices:()=>process.env.BNC_AUTO_MESSAGE_PRICES,
  rpc:monitorRpc,cron:{key:getCronKey,saveKey:saveCronKey,deleteKey:deleteCronKey,client:createCronClient()},
 });
