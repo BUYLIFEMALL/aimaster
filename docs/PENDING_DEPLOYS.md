@@ -20,7 +20,6 @@
 
 
 - `trending-product-finder` — 쿠팡 리뷰 결과 회원별 사이트 저장, 확장 연결 (2026-11-01, [역할: ecommerce-image], `308da3f1c`, DB 표 적용 완료, 빌드 1회 승인됨). 쿠팡 시험·자동 검색과 묶어 v1.31로 배포
-- `commercial-land-trade-alert` — 주간 리포트는 도착한 경우에만 기록, 사라진 매물 이전 가격 중복 제거, 이메일 링크 줄바꿈 막음 (2026-11-01, [역할: realty], `b42607427`, 확장 변경이라 배포 때 manifest·ZIP·DB 버전 함께)
 - `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
 
 
@@ -70,6 +69,7 @@
 |---|---|---|
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `commercial-land-trade-alert` | v1.19 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 주간 리포트 도착 뒤 기록, 사라진 매물 이전 가격 중복 제거, 이메일 링크 줄바꿈 막음(`b42607427`) |
 | `commercial-land-trade-alert` | v1.18 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 받을 텔레그램 봇 고르기·빌려 쓰는 중 경고(`a6cfe2e87`), PC별 확장 끊기, 글로 쓰기, 변동 기록 표, 수익률 대표값 보정, 팝업 기록 30줄, 토지 같은 지목 시세 비교 |
 | `music` | v1.48 · 2026-11-01 ([역할: music], 승인 빌드 1회) | 대기 항목 없음(AI 모델 추가 `73704b95e`) |
 | `ai-mastering-studio` | v1.15 · 2026-10-31 ([역할: music], 승인 빌드 1회) | AI 제안 모델 추가(`a7746f979`) |

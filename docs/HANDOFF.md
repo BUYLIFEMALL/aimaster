@@ -13,6 +13,12 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가·건물·토지 v1.19 배포와 실제 결과 점검
+
+- 배포: 승인 빌드 1회. 시험 41개, 로컬 빌드, DB·확장·ZIP v1.19 `check-extension-release` OK. 시험 계정 화면 v1.19 확인. 회원은 확장 ZIP을 다시 받아 덮어쓴 뒤 새로고침해야 수정이 적용된다.
+- 실제 결과 128건: 시세 대비·후보 표시 동작, 이메일 주간 리포트 도착 확인. 매물이 모두 10억~30억이고 역삼동 건물은 월세 12건뿐이다. 코드와 감시 칸에는 가격 제한이 없어 네이버 화면에 남은 필터로 의심하지만 미확인이다. 맞으면 역삼동 건물 매매 0건, 시세 대비 과대, 수익률 28.5%가 함께 설명된다.
+- 못 한 것: 네이버 화면 대조(브라우저 도구 제한, 우회 안 함), AI 3종 호출, 텔레그램 글 모양·봇 고르기. 다음 첫 단계: 주인님이 네이버 화면 필터 확인. 링크: https://commercial-land-trade-alert.buylife.xyz
+
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 임장 사진 안드로이드 사전 검증(RQ-G)
 
 - 운영 코드·DB 변경 없음, 비용 없음. 결과: `docs/analysis-realty-roadmap-20261031/PREVALIDATION_ONSITE_GEO.md`. 임시 서버·측정값은 삭제했다.
