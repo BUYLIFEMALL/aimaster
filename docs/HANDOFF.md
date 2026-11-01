@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 새 글 상시 확인(회원 cron-job.org)
+
+- **한 일:** RSS 감시 WIP(`b3fcfaabf`)를 완성하고 탭을 닫아도 동작하도록 확장했습니다. 커밋 `9b2fba448`와 후속 수정. 주인님 결정: 회원마다 본인 cron-job.org 계정·키를 등록해 사용합니다.
+- **동작:** 호출 주소 `/api/neighbors/monitor/cron`, 회원 전용 토큰(DB에는 SHA-256만), 5분 주기, 호출당 최대 20명·새 읽기 시작은 15초까지, 세션 최대 7일. 읽기 실패는 해당 이웃만 건너뜁니다. 토큰 오류 외에는 200으로 응답해 25회 실패 자동 꺼짐을 피합니다. 세션이 끝나거나 권한이 사라지면 다음 호출 때 작업을 끕니다.
+- **검증 중 찾아 고친 결함:** AI 대상 조회의 변수·별칭 충돌(AI를 켠 감시는 첫 확인부터 실패), 빈 상태의 null 객체, AI 호출 뒤 실패를 「설정 오류」로 안내하던 문구, 예산 소진이 상시 감시의 RSS까지 멈추던 동작.
+- **검수:** 격리 PostgreSQL 20시나리오(모의 RSS·AI·cron), 단위 316, 타입 통과. 정리 DB 11시나리오도 통과했습니다.
+- **못 한 것:** 실제 RSS·AI·cron-job.org 호출, 실제 화면 검수, `next build`(prebuild가 ZIP을 재생성하므로 배포 묶음 때 실행). 공용 기준 코드 `member-scheduler` 사본은 쓰지 않았습니다(1분 고정·vercel 모드·직접 표 접근이 이번 결정과 맞지 않아 프로그램 전용 `cronJob.ts`로 구현).
+- **남은 일과 다음 첫 단계:** 묶음 배포 승인 시 SQL 10개를 순서대로 적용하고 `BNC_FEED_READ_ENABLED`·`BNC_FEED_READ_POLICY_REFERENCE`를 확인한 뒤, 회원 키로 cron 호출 1회와 RSS 1건을 실제 검수합니다. 네이버 RSS 차단 여부와 Vercel 사용량은 실제 운영에서만 확인됩니다.
+- **링크:** https://blog-neighbor-care.buylife.xyz/neighbors
+
+
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 임장 사진 안드로이드 사전 검증(RQ-G)
