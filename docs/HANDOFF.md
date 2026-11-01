@@ -2,6 +2,14 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 회원 권한 칸 보안 수정 적용(운영 DB)
+
+- 주인님 채팅 승인으로 workspace 세션이 찾은 문제를 처리했다. 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 `profiles_protect_member_columns` 트리거 적용. 파일 `supabase/migrations/0056_profiles_protect_member_columns.sql`.
+- 막는 칸(회원 역할): `is_admin`, `grade_id`, `grade_assigned_at`, `is_suspended`, `suspended_at`, `suspended_reason`, `created_at`, `referred_by`, `affiliate_code`. 회원 직접 INSERT 때는 권한 칸을 기본값으로 덮는다. 이메일 칸은 범위 밖이라 그대로다.
+- 검수: 시험 계정 권한으로 8개 수정 시도 전부 차단, 회원 이름 수정 1행 성공, 서버 키 수정 1행 성공(오류로 전부 되돌림, 시험 계정 값 변화 없음 확인). `user_program_access`·`subscriptions`·`payment_records`에는 회원 쓰기 정책이 없음을 확인.
+- 악용 점검: `is_admin`이 켜진 계정은 `buylifemall@gmail.com` 1개. 등급 변경 이력 표가 없어 과거에 회원이 직접 등급을 올렸는지는 확인 불가.
+- 못 한 것: 관리자 화면에서 실제 등급 변경 클릭 확인(API는 서버 키라 시험의 서버 키 경로와 같음). 요청함 `be0abb60`은 workspace 세션 몫이라 닫지 않았다.
+
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가 주간 리포트 기록·이메일 표 수정(미배포)
 
 - 한 일: 주간 리포트는 한 채널이라도 도착해야 이번 주 표시를 남기고, 전부 실패하면 다음 수집 때 다시 보낸다(`sendToChannels`). 받는 곳이 없으면 표시를 남기지 않는다. 사라진 매물의 이전 가격을 비교 단계에서 빼서 이메일·텔레그램·파일 중복을 없앴고, 이메일 링크 칸 줄바꿈을 막았다. 대기 목록과 네이버 매물 플랜의 옛 상태도 고쳤다.
