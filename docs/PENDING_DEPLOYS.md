@@ -27,6 +27,10 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `naver-blog-agent` | 30일 정리에서 예외 회원(관리자·시험 계정) 제외 — **첫 삭제 추정 2026-11-07 전 배포 필요** | `6c8e0eb63` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §6 | 다음 에이전트 배포 때(11-07 전) |
+| `naver-blog-seo-studio` | 30일 정리(크론·회원 본인 정리)에서 예외 회원 제외 | `3fa97c0f4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 SEO 배포 때 |
+| `ai-auto-blog` | 30일 정리에서 예외 회원 제외(독립 키트는 확인 생략) | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 BLOG 배포 때 |
+| `tistory-auto-blog` | 30일 정리에서 예외 회원 제외 | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 티스토리 배포 때 |
 | `blog-keyword` | 사용법 머리 배지 「PRO v1.09」 고정 글자 → `APP_VERSION` 표시 | `c0af2aed9` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `blog-keyword/docs/IMPROVEMENTS.md` 2026-11-02 | 다음 키워드 배포 때 |
 | `naver-blog-allinone` | 쓰이지 않던 `requireProgramAccess`가 비공개일 때 모두 통과시키던 것 → 차단(실제 영향 없음) | `21022a363` | 2026-11-01 · Claude Code(맥미니) [역할: mac-mini] | `naver-blog-allinone/docs/IMPROVEMENTS.md` 2026-11-01 | 다음 올인원 배포 때(지금 백업·비공개 예정) |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
