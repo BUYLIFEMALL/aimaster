@@ -71,6 +71,7 @@
 |---|---|---|
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `commercial-land-trade-alert` | v1.20 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 네이버 필터·잘림 표시, 필터 변경 회차 기준 재저장, 동 표본 없는 상가 비교 「참고」, 쿠팡 봇 제외(`1f488abf2`) |
 | `commercial-land-trade-alert` | v1.19 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 주간 리포트 도착 뒤 기록, 사라진 매물 이전 가격 중복 제거, 이메일 링크 줄바꿈 막음(`b42607427`) |
 | `commercial-land-trade-alert` | v1.18 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 받을 텔레그램 봇 고르기·빌려 쓰는 중 경고(`a6cfe2e87`), PC별 확장 끊기, 글로 쓰기, 변동 기록 표, 수익률 대표값 보정, 팝업 기록 30줄, 토지 같은 지목 시세 비교 |
 | `music` | v1.48 · 2026-11-01 ([역할: music], 승인 빌드 1회) | 대기 항목 없음(AI 모델 추가 `73704b95e`) |

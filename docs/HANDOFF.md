@@ -18,6 +18,13 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가·건물·토지 v1.20 배포
+
+- 네이버 필터·잘림 표시, 필터 변경 회차 기준 재저장, 동 표본 없는 상가 시세 대비 「참고」(점수·평균 제외), 쿠팡 봇 제외. 시험 44개, 로컬 빌드, 승인 빌드 1회.
+- 원인: 강남구 집합 상가 125건, 역삼동 1층 0건이라 다른 동과 비교됐다. 새 매물 숫자 차이는 끝까지 못 읽은 회차의 신규 판정 규칙 때문이다. 두 화면 모두 280건에서 끊겨 쪽수 상한으로 보이며 다음 수집 때 경고로 확인한다.
+- 사고: 주인님 요청을 넓게 해석해 시험 계정 쿠팡 봇 연결 1줄을 지웠다. 주인님이 쿠팡 화면에서 재등록 예정, 끊기 기능은 쿠팡 담당 프롬프트로 전달.
+- 못 한 것: 확장 v1.20 실제 수집(회원 PC ZIP 덮어쓰기 필요), 필터 금액 단위 확인, AI 3종 호출. 링크: https://commercial-land-trade-alert.buylife.xyz/results
+
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가·건물·토지 v1.19 배포와 실제 결과 점검
 
 - 배포: 승인 빌드 1회. 시험 41개, 로컬 빌드, DB·확장·ZIP v1.19 `check-extension-release` OK. 시험 계정 화면 v1.19 확인. 회원은 확장 ZIP을 다시 받아 덮어쓴 뒤 새로고침해야 수정이 적용된다.
