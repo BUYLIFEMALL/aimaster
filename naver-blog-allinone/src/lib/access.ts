@@ -50,8 +50,8 @@ export async function requireProgramAccess() {
     .maybeSingle();
 
   if (!program || !program.is_active) {
-    // 프로그램이 아직 비활성 상태거나 없을 때
-    return user;
+    // 2026-11-01: 비공개·없는 프로그램은 차단(예전엔 통과시켰음). 루트 checkProgramAccess의 not_found와 같은 결과.
+    redirect(`${MAIN_SITE_URL}/programs/${THIS_PROGRAM_SLUG}?need_access=1`);
   }
 
   // 1. FREE 배지 프로그램은 가입 회원 누구나 무료 이용 (핵심 원칙 6번)
