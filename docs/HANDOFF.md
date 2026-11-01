@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 🔧 [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp · coupang-ops 텔레그램 끊기(미배포)
+- 한 일: 연동 화면 끊기 버튼, 쿠팡 줄만 삭제, 다른 프로그램 봇 빌려 쓰기 제거. 커밋 `8479b2009`.
+- 확인: 시험 131개·tsc. 못 한 것: 크롬 화면·실제 끊기(로그인 필요, 쿠팡 봇 미등록).
+- 다음 첫 단계: 주인님 로그인 뒤 http://localhost:3078/connect 확인. 상세 `coupang-ops/AGENTS.md` 맨 아래.
+
 ## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 새 글 상시 확인(회원 cron-job.org)
 
 - **한 일:** RSS 감시 WIP(`b3fcfaabf`)를 완성하고 탭을 닫아도 동작하도록 확장했습니다. 커밋 `9b2fba448`와 후속 수정. 주인님 결정: 회원마다 본인 cron-job.org 계정·키를 등록해 사용합니다.
