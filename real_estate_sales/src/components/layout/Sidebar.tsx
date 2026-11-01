@@ -20,7 +20,10 @@ const UTILITY_ITEMS = [
   { href: "/guide", icon: "📖", label: "연동 & 사용 매뉴얼" },
 ];
 
-function NavContent({ pathname, userEmail }: { pathname: string | null; userEmail: string }) {
+// 주소 자동 등록 전까지 관리자·시험 계정에만 보인다
+const ONSITE_ITEM = { href: "/onsite", icon: "📷", label: "임장 노트" };
+
+function NavContent({ pathname, userEmail, showOnsite }: { pathname: string | null; userEmail: string; showOnsite: boolean }) {
   return (
     <>
       {/* The account block sits right under the menu; on long menus only the menu scrolls so it stays in view. */}
@@ -65,7 +68,7 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
 
 
         <div className="mt-6 border-t border-mx-border pt-3">
-          {UTILITY_ITEMS.map((item) => {
+          {[...(showOnsite ? [ONSITE_ITEM] : []), ...UTILITY_ITEMS].map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
               <Link
@@ -112,7 +115,7 @@ function Brand() {
   );
 }
 
-export function Sidebar({ userEmail }: { userEmail: string }) {
+export function Sidebar({ userEmail, showOnsite }: { userEmail: string; showOnsite: boolean }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -131,7 +134,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             ← 다른 프로그램 보기
           </a>
         </div>
-        <NavContent pathname={pathname} userEmail={userEmail} />
+        <NavContent pathname={pathname} userEmail={userEmail} showOnsite={showOnsite} />
       </aside>
 
       {/* 휴대폰(767px 이하): 위쪽 바 + 접는 메뉴(☰) — 항목·순서는 데스크톱과 같다 */}
@@ -153,7 +156,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
             <a href="https://www.buylife.xyz/programs" className="mb-3 block px-2 text-xs text-mx-muted hover:text-mx-text">
               ← 다른 프로그램 보기
             </a>
-            <NavContent pathname={pathname} userEmail={userEmail} />
+            <NavContent pathname={pathname} userEmail={userEmail} showOnsite={showOnsite} />
           </div>
         )}
       </div>

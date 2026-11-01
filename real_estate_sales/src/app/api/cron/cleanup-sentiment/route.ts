@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
+import { ONSITE_BUCKET } from "@/lib/onsite/types";
+
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
@@ -39,10 +41,23 @@ export async function GET(request: NextRequest) {
   if (analysesError) {
     return NextResponse.json({ error: analysesError.message }, { status: 500 });
   }
+  // 임장 노트(2026-11-01): 사진을 먼저 지우고 기록을 지운다. 사진 삭제가 실패하면 기록을 남겨 다음 날 다시 시도한다
+  const { data: onsite } = await admin
+    .from("real_estate_onsite_properties" as never)
+    .select("id, user_id, real_estate_onsite_photos(storage_path)")
+    .lt("created_at", cutoff)
+    .limit(500);
+  const onsiteRows = (onsite ?? []) as unknown as { id: string; user_id: string; real_estate_onsite_photos: { storage_path: string }[] }[];
+  const onsitePaths = onsiteRows.flatMap((r) => r.real_estate_onsite_photos.map((p) => p.storage_path));
+  const removeResult = onsitePaths.length ? await admin.storage.from(ONSITE_BUCKET).remove(onsitePaths) : { error: null };
+  if (!removeResult.error && onsiteRows.length) {
+    await admin.from("real_estate_onsite_properties" as never).delete().in("id" as never, onsiteRows.map((r) => r.id) as never);
+  }
   // 정리 기록 — 회원별 지운 지역 분위기(sentiments)·매물 분석(analyses) 수
   const counts: CleanupCounts = new Map();
   for (const r of (data ?? []) as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "sentiments");
   for (const r of (analyses ?? []) as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "analyses");
+  if (!removeResult.error) for (const r of onsiteRows) addCleanupCount(counts, r.user_id, "onsite");
   const loggedOwners = await logCleanupUsage(admin, "real-estate-sales", counts);
-  return NextResponse.json({ deleted: data?.length ?? 0, deletedAnalyses: analyses?.length ?? 0, cutoff, retentionDays: RETENTION_DAYS, loggedOwners });
+  return NextResponse.json({ deleted: data?.length ?? 0, deletedAnalyses: analyses?.length ?? 0, deletedOnsite: removeResult.error ? 0 : onsiteRows.length, cutoff, retentionDays: RETENTION_DAYS, loggedOwners });
 }
