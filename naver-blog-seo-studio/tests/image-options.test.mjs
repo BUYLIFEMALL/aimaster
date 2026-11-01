@@ -56,3 +56,17 @@ test("non-photo styles drop the photorealistic wording; the default stays identi
   await nano.generateNanoBananaImage({ apiKey: "k", topic: "가을 캠핑", title: "제목", keywords: "캠핑" });
   assert.equal(sent.prompt, OLD);
 });
+
+// 작업실 병합(v2.22): 이미지 노드별 참고 사진
+test("pickImageRefs: node photos win, common photos are not mixed in", () => {
+  assert.deepEqual(opts.pickImageRefs(["n1"], ["c1", "c2"]), ["n1"]);
+});
+test("pickImageRefs: no node photos -> common photos (old behaviour)", () => {
+  assert.deepEqual(opts.pickImageRefs(undefined, ["c1", "c2"]), ["c1", "c2"]);
+  assert.deepEqual(opts.pickImageRefs([], ["c1"]), ["c1"]);
+  assert.deepEqual(opts.pickImageRefs([], []), []);
+});
+test("pickImageRefs: never more than MAX_IMAGE_REFS", () => {
+  const many = Array.from({ length: opts.MAX_IMAGE_REFS + 3 }, (_, i) => `n${i}`);
+  assert.equal(opts.pickImageRefs(many, []).length, opts.MAX_IMAGE_REFS);
+});

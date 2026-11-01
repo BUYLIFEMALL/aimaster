@@ -9,12 +9,19 @@ const ENDING_RULE: Record<StyleEnding, string> = {
   hamnida: "\n문장 끝맺음(필수): 이 작성자의 글은 합니다체입니다. 본문의 평서문을 「~습니다」「~입니다」로 끝냅니다.",
 };
 
+// v2.22(작업실 병합 — 글 20·30개): 글 본문 전체를 18,000자 안에서 나눠 넣는다. 10개 이하는 예전과 같은 글당 1,800자.
+const POSTS_CHAR_BUDGET = 18_000;
+export function postCharLimit(count: number): number {
+  return Math.min(1_800, Math.floor(POSTS_CHAR_BUDGET / Math.max(1, count)));
+}
+
 export function stylePrompt(name: string, posts: StylePost[], samples: string[]): { system: string; user: string } {
-  const postText = posts.map((p, i) => `#${i + 1} 제목: ${p.title}\n본문: ${p.text.slice(0, 1800)}`).join("\n\n");
+  const perPost = postCharLimit(posts.length);
+  const postText = posts.map((p, i) => `#${i + 1} 제목: ${p.title}\n본문: ${p.text.slice(0, perPost)}`).join("\n\n");
   const sampleText = samples.map((s, i) => `표본 ${i + 1}: ${s.slice(0, 2000)}`).join("\n\n");
   return {
     system: "당신은 한국어 블로그 글쓰기 분석가입니다. 제공된 글에서 근거가 보이는 특징만 쓰고 JSON만 반환합니다.",
-    user: `아래는 「${name}」 작성자의 최근 글과 붙여 넣은 글 표본입니다. 이 작성자의 글쓰기 특징을 분석하세요. 글에 없는 사실·경력·경험은 만들지 마세요.\n\n${postText}${sampleText ? `\n\n${sampleText}` : ""}\n\n다음 JSON으로 답하세요:\n{"summary":"글 성격 2~3문장","tone":"어조·말투(존댓말/반말, 친근함 정도 등)","sentence":"문장 길이·리듬·문단 습관","structure":"글 구성 습관(도입·소제목·마무리)","reader":"주로 염두에 둔 독자","expressions":["자주 쓰는 표현(최대 8개)"],"avoid":["이 작성자가 쓰지 않는 표현(최대 5개)"],"strengths":["강점(최대 4개)"],"cautions":["따라 쓸 때 주의할 점(최대 4개)"]}`,
+    user: `아래는 「${name}」 작성자의 최근 글과 붙여 넣은 글 표본입니다. 이 작성자의 글쓰기 특징을 분석하세요. 글에 없는 사실·경력·경험은 만들지 마세요.\n\n${postText}${sampleText ? `\n\n${sampleText}` : ""}\n\n다음 JSON으로 답하세요:\n{"summary":"글 성격 2~3문장","tone":"어조·말투(존댓말/반말, 친근함 정도 등)","sentence":"문장 길이·리듬·문단 습관","structure":"글 구성 습관(도입·소제목·마무리)","reader":"주로 염두에 둔 독자","expressions":["자주 쓰는 표현(최대 8개)"],"avoid":["이 작성자가 쓰지 않는 표현(최대 5개)"],"strengths":["강점(최대 4개)"],"cautions":["따라 쓸 때 주의할 점(최대 4개)"],"topics":["이 블로그가 주로 다루는 주제(최대 3개, 짧은 명사구)"],"subtopics":["자주 다루는 하위 주제(최대 5개, 짧은 명사구)"]}`,
   };
 }
 

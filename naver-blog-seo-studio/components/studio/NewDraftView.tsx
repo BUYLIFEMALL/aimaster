@@ -13,13 +13,14 @@ import { QualityPanel } from "./QualityPanel";
 import { DraftReviewPanel } from "./DraftReviewPanel";
 import { RevisionsPanel } from "./RevisionsPanel";
 import { SocialCopyPanel } from "./SocialCopyPanel";
+import { RefPicker } from "./ImageOptionsPanel";
 import type { Studio } from "./useStudio";
 import type { DraftRecord } from "./shared";
 
 export function NewDraftView({ s }: { s: Studio }) {
   const [postMode, setPostMode] = useState<"draft" | "publish" | "reserve">("draft");
 
-  const { strategy, selectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateContentImagesWithDraft, setGenerateContentImagesWithDraft, imageModel, setImageModel, contentImageCount, setContentImageCount, history, setHistory, currentDraft, setCurrentDraft, draftSaving, draftSaveMessage, imagePending, generatedImage, contentImages, contentBlocks, contentImagePending, regeneratingContentImageSlot, handoffPending, handoffMessage, selectedPersonaName, openMenu, reuseDraft, sendDraftToExtension, generateImage, generateContentImages, regenerateContentImage, deleteContentImage, addContentImageAt, uploadContentImage, imageRequests, setImageRequests, confirmDeleteSlot, setConfirmDeleteSlot, updateTextBlock, moveContentBlock, removeContentBlock, addTextBlock, saveCurrentDraft, copyDraftText } = s;
+  const { strategy, selectedTitle, personaId, setPersonaId, customPersona, setCustomPersona, generateContentImagesWithDraft, setGenerateContentImagesWithDraft, imageModel, setImageModel, contentImageCount, setContentImageCount, history, setHistory, currentDraft, setCurrentDraft, draftSaving, draftSaveMessage, imagePending, generatedImage, contentImages, contentBlocks, contentImagePending, regeneratingContentImageSlot, handoffPending, handoffMessage, selectedPersonaName, openMenu, reuseDraft, sendDraftToExtension, generateImage, generateContentImages, regenerateContentImage, deleteContentImage, addContentImageAt, uploadContentImage, imageRequests, setImageRequests, confirmDeleteSlot, setConfirmDeleteSlot, updateTextBlock, moveContentBlock, removeContentBlock, addTextBlock, saveCurrentDraft, copyDraftText, imageRefs, nodeRefs, setNodeRefs, nodeRefKey } = s;
   // BLC-10: 본문 이미지 노드 — 작업 중이면 다른 이미지 버튼을 잠그고, 빈 칸 수(목표 장수까지 + 이미지 없는 노드)를 계산
   const imageBusy = contentImagePending || regeneratingContentImageSlot !== null;
   const openSlots = freeSlots(contentImages).length;
@@ -100,9 +101,13 @@ export function NewDraftView({ s }: { s: Studio }) {
           {contentImages.length > 0 && <div className="content-image-list">{contentImages.map((item) => {
             const no = item.slot.replace("content-", "");
             const request = imageRequests[item.slot] ?? item.request ?? "";
+            const refKey = nodeRefKey(currentDraft.id, item.slot);
+            const ownRefs = nodeRefs[refKey] ?? [];
             return <div className="generated-image-preview" key={item.slot}><strong>{no}번 이미지가 들어갈 문장</strong><p>{item.sentence}</p>
               {item.path ? <Image src={`/api/drafts/${encodeURIComponent(currentDraft.id)}/image?slot=${item.slot}&v=${encodeURIComponent(item.path)}`} alt={`${no}번 본문 문장 매칭 이미지`} width={1280} height={720} unoptimized /> : <div className="content-image-empty"><p>{regeneratingContentImageSlot === item.slot ? "이미지를 만드는 중입니다..." : "아직 이미지가 없습니다."}</p></div>}
               {item.prompt && <input type="text" value={request} maxLength={200} placeholder="요청 덧붙이기 (선택, 예: 사람 없이 소품만)" aria-label={`${no}번 이미지 요청`} onChange={(event) => setImageRequests((current) => ({ ...current, [item.slot]: event.target.value }))} disabled={imageBusy} />}
+              {item.prompt && <div className="content-image-node-refs"><small>{ownRefs.length ? `이 이미지만 참고 사진 ${ownRefs.length}장을 씁니다(공통 참고 사진 대신).` : imageRefs.length ? `공통 참고 사진 ${imageRefs.length}장을 씁니다. 이 이미지만 다른 사진을 쓰려면 붙여 주세요.` : "참고 사진 없음 (선택)"}</small>
+                <RefPicker refs={ownRefs} setRefs={(next) => setNodeRefs((current) => ({ ...current, [refKey]: next }))} disabled={imageBusy} label="📷 이 이미지만 참고 사진" size={48} /></div>}
               <div className="content-image-node-actions">{item.prompt && <button type="button" className="secondary compact" onClick={() => void regenerateContentImage(item, request)} disabled={imageBusy}>{regeneratingContentImageSlot === item.slot ? "만드는 중..." : item.path ? "이 이미지만 다시 만들기" : "이 이미지 만들기"}</button>}<PhotoPicker label={item.model === "내 사진" ? "다른 사진으로 바꾸기" : "내 사진으로 바꾸기"} disabled={imageBusy} onPick={(file) => void uploadContentImage(file, { slot: item.slot })} />
                 {confirmDeleteSlot === item.slot
                   ? <><button type="button" className="text-button danger" onClick={() => void deleteContentImage(item.slot)} disabled={imageBusy}>정말 삭제</button><button type="button" className="text-button" onClick={() => setConfirmDeleteSlot(null)}>취소</button></>

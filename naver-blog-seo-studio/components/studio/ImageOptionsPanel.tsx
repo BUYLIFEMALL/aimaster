@@ -19,15 +19,33 @@ async function toRef(file: File): Promise<ImageRefInput | null> {
   return { mimeType: "image/jpeg", data: url.split(",")[1] ?? "", url };
 }
 
-export function ImageOptionsPanel({ ratio, setRatio, style, setStyle, refs, setRefs, disabled }: {
-  ratio: ImageRatio; setRatio: (v: ImageRatio) => void; style: ImageStyle; setStyle: (v: ImageStyle) => void;
-  refs: ImageRefInput[]; setRefs: (v: ImageRefInput[]) => void; disabled?: boolean;
+// 참고 사진 미리보기·빼기·첨부(공통 패널과 이미지 노드가 함께 쓴다)
+export function RefPicker({ refs, setRefs, disabled, label, size = 64 }: {
+  refs: ImageRefInput[]; setRefs: (v: ImageRefInput[]) => void; disabled?: boolean; label: string; size?: number;
 }) {
   const add = async (files: FileList | null) => {
     if (!files) return;
     const list = (await Promise.all([...files].slice(0, MAX_IMAGE_REFS - refs.length).map(toRef))).filter((x): x is ImageRefInput => Boolean(x?.data));
     setRefs([...refs, ...list].slice(0, MAX_IMAGE_REFS));
   };
+  return (<>
+    {refs.length > 0 && <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>{refs.map((r, i) => (
+      <span key={i} style={{ position: "relative" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={r.url} alt={`참고 사진 ${i + 1}`} style={{ width: size, height: size, objectFit: "cover", borderRadius: 6 }} />
+        <button type="button" className="secondary compact" disabled={disabled} aria-label={`참고 사진 ${i + 1} 빼기`} onClick={() => setRefs(refs.filter((_, j) => j !== i))} style={{ position: "absolute", top: -6, right: -6, padding: "0 6px" }}>×</button>
+      </span>
+    ))}</div>}
+    {refs.length < MAX_IMAGE_REFS && <label className="secondary compact" style={{ display: "inline-block", marginTop: 6, cursor: "pointer" }}>
+      {label}<input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden disabled={disabled} onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
+    </label>}
+  </>);
+}
+
+export function ImageOptionsPanel({ ratio, setRatio, style, setStyle, refs, setRefs, disabled }: {
+  ratio: ImageRatio; setRatio: (v: ImageRatio) => void; style: ImageStyle; setStyle: (v: ImageStyle) => void;
+  refs: ImageRefInput[]; setRefs: (v: ImageRefInput[]) => void; disabled?: boolean;
+}) {
   return (
     <div className="field">
       <label htmlFor="image-ratio">이미지 비율 · 표현 방식</label>
@@ -42,17 +60,8 @@ export function ImageOptionsPanel({ ratio, setRatio, style, setStyle, refs, setR
       <small>대표 이미지와 본문 이미지에 함께 적용됩니다. 기본값은 예전과 같은 16:9 사진 같은 편집 이미지입니다.</small>
       <div style={{ marginTop: 8 }}>
         <strong style={{ fontSize: 13 }}>참고 사진 (선택) · {refs.length}/{MAX_IMAGE_REFS}</strong>
-        {refs.length > 0 && <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>{refs.map((r, i) => (
-          <span key={i} style={{ position: "relative" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={r.url} alt={`참고 사진 ${i + 1}`} style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 6 }} />
-            <button type="button" className="secondary compact" disabled={disabled} aria-label={`참고 사진 ${i + 1} 빼기`} onClick={() => setRefs(refs.filter((_, j) => j !== i))} style={{ position: "absolute", top: -6, right: -6, padding: "0 6px" }}>×</button>
-          </span>
-        ))}</div>}
-        {refs.length < MAX_IMAGE_REFS && <label className="secondary compact" style={{ display: "inline-block", marginTop: 6, cursor: "pointer" }}>
-          📷 참고 사진 첨부<input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden disabled={disabled} onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
-        </label>}
-        <small style={{ display: "block" }}>분위기·색감·구도만 참고하고 얼굴·글자·로고는 그대로 따라 그리지 않게 지시합니다. 사진은 저장하지 않고 이번 생성 요청에만 씁니다. 본인이 쓸 권리가 있는 사진만 올려 주세요(민감한 사진·개인정보 제외).</small>
+        <RefPicker refs={refs} setRefs={setRefs} disabled={disabled} label="📷 참고 사진 첨부" />
+        <small style={{ display: "block" }}>본문 이미지마다 따로 참고 사진을 붙이면 그 이미지는 이 공통 사진 대신 붙인 사진만 씁니다. 분위기·색감·구도만 참고하고 얼굴·글자·로고는 그대로 따라 그리지 않게 지시합니다. 사진은 저장하지 않고 이번 생성 요청에만 씁니다. 본인이 쓸 권리가 있는 사진만 올려 주세요(민감한 사진·개인정보 제외).</small>
       </div>
     </div>
   );

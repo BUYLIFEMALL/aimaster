@@ -56,3 +56,8 @@ export function refParts(prompt: string, refs: ImageRef[]) {
   if (!refs.length) return null;
   return [{ text: `${prompt} ${REF_RULE}` }, ...refs.map((r) => ({ inlineData: { mimeType: r.mimeType, data: r.data } }))];
 }
+
+/** 작업실 병합(v2.22): 이 이미지 노드에만 붙인 참고 사진이 있으면 그것만, 없으면 공통 참고 사진. 둘을 합치지 않는다(장수·요청 크기 한도 유지). */
+export function pickImageRefs<T>(nodeRefs: readonly T[] | undefined, commonRefs: readonly T[]): T[] {
+  return [...(nodeRefs?.length ? nodeRefs : commonRefs)].slice(0, MAX_IMAGE_REFS);
+}

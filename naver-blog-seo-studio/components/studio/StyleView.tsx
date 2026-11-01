@@ -3,7 +3,9 @@
 // BLC-08b (2026-10-22): 「내 문체」 — 내 글(공개 RSS 또는 붙여 넣은 표본) → 문체 분석 → 승인. 승인한 문체는 「새 글 만들기」·「자료부터 집필」에서 고른다.
 import { useEffect, useState } from "react";
 import { CONTENT_PROVIDER_LABELS, CONTENT_PROVIDERS, getContentModels, getDefaultContentModel, type ContentProvider } from "@/lib/ai/contentModels";
-import type { StyleProfile, StylePost } from "@/lib/style";
+import type { StyleDepth, StyleProfile, StylePost } from "@/lib/style";
+// lib/style.ts는 node:crypto를 쓰므로 화면에는 값을 가져오지 않고 같은 선택지를 둔다(서버가 readStyleDepth로 다시 검사).
+const DEPTH_OPTIONS: StyleDepth[] = [5, 10, 20, 30];
 import type { Studio } from "./useStudio";
 
 type Style = { id: string; name: string; blog_id: string | null; samples: string[]; posts: StylePost[]; profile: StyleProfile | null; approved_at: string | null; approval_valid?: boolean; created_at: string };
@@ -19,7 +21,7 @@ export function StyleView({ s }: { s: Studio }) {
   const { contentProvider, setContentProvider, contentModel, setContentModel, setSelectedStyleId, openMenu } = s;
   const [name, setName] = useState("");
   const [blog, setBlog] = useState("");
-  const [depth, setDepth] = useState<5 | 10>(5);
+  const [depth, setDepth] = useState<StyleDepth>(5);
   const [sampleText, setSampleText] = useState("");
   const [style, setStyle] = useState<Style | null>(null);
   const [list, setList] = useState<Style[]>([]);
@@ -56,7 +58,7 @@ export function StyleView({ s }: { s: Studio }) {
 
       <div className="field"><label htmlFor="style-name">이름 (선택)</label><input id="style-name" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder="예: 내 생활정보 블로그" /></div>
       <div className="field"><label htmlFor="style-blog">네이버 블로그 주소 또는 ID (선택)</label><input id="style-blog" value={blog} onChange={(e) => setBlog(e.target.value)} placeholder="https://blog.naver.com/아이디" />
-        <select aria-label="가져올 최신 글 수" value={depth} onChange={(e) => setDepth(Number(e.target.value) === 10 ? 10 : 5)}><option value={5}>최신 글 5개</option><option value={10}>최신 글 10개</option></select></div>
+        <select aria-label="가져올 최신 글 수" value={depth} onChange={(e) => setDepth(DEPTH_OPTIONS.find((d) => d === Number(e.target.value)) ?? 5)}>{DEPTH_OPTIONS.map((d) => <option key={d} value={d}>최신 글 {d}개{d >= 20 ? " (더 정확, 읽기 1분 안팎)" : ""}</option>)}</select></div>
       <div className="field"><label htmlFor="style-samples">내 글 표본 붙여넣기 (선택, 40자 이상 · 여러 개는 --- 줄로 구분, 최대 10개)</label><textarea id="style-samples" rows={5} value={sampleText} onChange={(e) => setSampleText(e.target.value)} placeholder={"첫 번째 글 본문\n---\n두 번째 글 본문"} /></div>
       <button type="button" className="primary" disabled={(!blog.trim() && !sampleText.trim()) || Boolean(busy)} onClick={create}>{busy === "create" ? "글을 가져오는 중..." : "문체 자료 만들기"}</button>
 
@@ -82,6 +84,7 @@ export function StyleView({ s }: { s: Studio }) {
         {p && <>
           <h3 className="card-title">분석 결과 {style.approval_valid ? "· ✅ 승인됨" : stale ? "· ⚠️ 승인 뒤 바뀜 · 다시 승인 필요" : ""}</h3>
           <dl>
+            {(p.topics?.length ?? 0) > 0 && <><dt>블로그 주제</dt><dd>{p.topics!.join(", ")}{p.subtopics?.length ? ` · 하위 주제: ${p.subtopics.join(", ")}` : ""}</dd></>}
             <dt>성격</dt><dd>{p.summary}</dd><dt>어조</dt><dd>{p.tone}</dd><dt>문장</dt><dd>{p.sentence}</dd><dt>구성</dt><dd>{p.structure}</dd><dt>독자</dt><dd>{p.reader}</dd>
             {p.expressions.length > 0 && <><dt>자주 쓰는 표현</dt><dd>{p.expressions.join(", ")}</dd></>}
             {p.avoid.length > 0 && <><dt>쓰지 않는 표현</dt><dd>{p.avoid.join(", ")}</dd></>}

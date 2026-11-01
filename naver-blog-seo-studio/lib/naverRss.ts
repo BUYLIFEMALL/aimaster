@@ -14,6 +14,10 @@ export async function fetchBlogStylePosts(blogId: string, depth: number): Promis
   if (!response.ok) throw new Error("블로그 공개 글 목록(RSS)을 읽지 못했습니다. 블로그 ID와 공개 설정을 확인하거나 글 표본을 붙여 넣어주세요.");
   const { name, posts } = parseNaverRss(await response.text(), depth);
   if (!posts.length) throw new Error("블로그에서 공개 글을 찾지 못했습니다. 글 표본을 붙여 넣어주세요.");
-  const texts = await Promise.all(posts.map((p) => fetchPublicArticle(p.link).then((a) => a.body).catch(() => "")));
+  // v2.22: 글이 20·30개여도 네이버에 한꺼번에 몰리지 않게 5개씩 나눠 읽는다(10개 이하는 예전과 같은 결과).
+  const texts: string[] = [];
+  for (let i = 0; i < posts.length; i += 5) {
+    texts.push(...await Promise.all(posts.slice(i, i + 5).map((p) => fetchPublicArticle(p.link).then((a) => a.body).catch(() => ""))));
+  }
   return { name: name || blogId, posts: posts.map((p, i) => ({ title: p.title, link: p.link, text: (texts[i] || p.summary).slice(0, 4_000) })) };
 }

@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { purgeExpiredStyles } from "@/lib/draftRetention";
 import { fetchBlogStylePosts } from "@/lib/naverRss";
-import { cleanSamples, parseBlogId, withStyleApproval } from "@/lib/style";
+import { cleanSamples, parseBlogId, readStyleDepth, withStyleApproval } from "@/lib/style";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // BLC-08b (2026-10-22): 본인 문체 1단계 — 문체 자료 만들기(AI 호출 없음).
-// 내 글 표본(40자 이상, 최대 10개) 또는 네이버 블로그 ID의 공개 RSS 최신 글 5/10개.
+// 내 글 표본(40자 이상, 최대 10개) 또는 네이버 블로그 ID의 공개 RSS 최신 글 5/10/20/30개(v2.22 작업실 병합으로 20·30 추가).
 const COLUMNS = "id, name, blog_id, samples, posts, profile, approved_at, approval_hash, created_at, updated_at";
 
 export async function GET() {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   if (blogInput && !blogId) return NextResponse.json({ error: "네이버 블로그 주소 또는 블로그 ID를 확인해주세요. 예) https://blog.naver.com/아이디" }, { status: 400 });
   const samples = cleanSamples(input?.samples);
   if (!blogId && !samples.length) return NextResponse.json({ error: "블로그 주소를 입력하거나 40자 이상의 내 글 표본을 붙여 넣어주세요." }, { status: 400 });
-  const depth = input?.depth === 5 ? 5 : 10;
+  const depth = readStyleDepth(input?.depth);
   let name = typeof input?.name === "string" && input.name.trim() ? input.name.trim().slice(0, 60) : "내 문체";
   let posts: { title: string; link: string; text: string }[] = [];
   if (blogId) {

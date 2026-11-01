@@ -4,7 +4,9 @@ import { createHash } from "node:crypto";
 
 export interface StyleProfile { summary: string; tone: string; sentence: string; structure: string; reader: string; expressions: string[]; avoid: string[]; strengths: string[]; cautions: string[];
   /** 병합 B-2: 30일 뒤 원문을 비울 때 원문에서 찾은 끝맺음을 남긴다(승인 지문 항목 아님). */
-  ending?: StyleEnding | null; sourceClearedAt?: string }
+  ending?: StyleEnding | null; sourceClearedAt?: string;
+  /** 작업실 병합(v2.22): 블로그 주요 주제(≤3)·하위 주제(≤5). 승인 지문 항목이 아니다 — 넣으면 기존 승인이 모두 무효가 된다. */
+  topics?: string[]; subtopics?: string[] }
 export interface StylePost { title: string; link: string; text: string }
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -17,7 +19,19 @@ export function normalizeStyle(raw: unknown): StyleProfile | null {
     summary: str(r.summary, 600), tone: str(r.tone, 300), sentence: str(r.sentence, 300), structure: str(r.structure, 300), reader: str(r.reader, 300),
     expressions: strArr(r.expressions, 8, 60), avoid: strArr(r.avoid, 5, 60), strengths: strArr(r.strengths, 4, 120), cautions: strArr(r.cautions, 4, 120),
   };
+  // v2.22: 주제 정보는 AI가 준 경우에만 담는다(없으면 예전과 같은 모양)
+  const topics = strArr(r.topics, 3, 30);
+  const subtopics = strArr(r.subtopics, 5, 30);
+  if (topics.length) profile.topics = topics;
+  if (subtopics.length) profile.subtopics = subtopics;
   return profile.summary ? profile : null;
+}
+
+/** 작업실 병합(v2.22): 블로그에서 가져올 최신 글 수 5·10·20·30(작업실과 같은 선택지). 그 밖의 값은 예전 기본값 10. */
+export const STYLE_DEPTHS = [5, 10, 20, 30] as const;
+export type StyleDepth = (typeof STYLE_DEPTHS)[number];
+export function readStyleDepth(value: unknown): StyleDepth {
+  return STYLE_DEPTHS.find((depth) => depth === value) ?? 10;
 }
 
 /** 표본: 40자 이상만, 최대 10개, 각 8,000자까지 */

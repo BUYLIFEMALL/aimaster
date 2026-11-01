@@ -78,3 +78,30 @@ test("v1.88: endingShare measures the target ending among declarative endings", 
   assert.equal(Math.round(endingShare(mixed, "hamnida") * 100), 33);
   assert.equal(endingShare("소제목만 있는 글", "haeyo"), 1);
 });
+
+// 작업실 병합(v2.22): 글 20·30개, 블로그 주제 정보
+import { readStyleDepth, STYLE_DEPTHS } from "../lib/style.ts";
+import { postCharLimit, stylePrompt } from "../lib/ai/stylePrompt.ts";
+test("v2.22: readStyleDepth accepts 5/10/20/30 only, default 10 (old default)", () => {
+  assert.deepEqual([...STYLE_DEPTHS], [5, 10, 20, 30]);
+  for (const d of STYLE_DEPTHS) assert.equal(readStyleDepth(d), d);
+  for (const v of [undefined, null, "30", 15, 50, 0]) assert.equal(readStyleDepth(v), 10);
+});
+test("v2.22: post text per post stays 1,800 up to 10 posts and shrinks within 18,000 total", () => {
+  assert.equal(postCharLimit(1), 1800);
+  assert.equal(postCharLimit(10), 1800);
+  assert.equal(postCharLimit(20), 900);
+  assert.equal(postCharLimit(30), 600);
+  const posts = Array.from({ length: 30 }, (_, i) => ({ title: `t${i}`, link: "", text: "뷁".repeat(5000) }));
+  const { user } = stylePrompt("내 블로그", posts, []);
+  assert.ok((user.match(/뷁/g) || []).length <= 18000);
+});
+test("v2.22: topics/subtopics are kept (trimmed, capped) and stay outside the approval hash", () => {
+  const withTopics = normalizeStyle({ ...raw, topics: ["캠핑", "요리", "육아", "여행"], subtopics: ["a", "b", "c", "d", "e", "f"] });
+  assert.deepEqual(withTopics.topics, ["캠핑", "요리", "육아"]);
+  assert.equal(withTopics.subtopics.length, 5);
+  assert.equal(profileHash(withTopics), profileHash(normalizeStyle(raw)));
+  const without = normalizeStyle(raw);
+  assert.equal("topics" in without, false);
+  assert.equal("subtopics" in without, false);
+});

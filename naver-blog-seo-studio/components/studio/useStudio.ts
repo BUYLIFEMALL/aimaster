@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from "react";
 import type { DraftRevision } from "@/lib/draftRevisions";
 import { exportFileName, toHtmlDocument, toHtmlFragment, toMarkdown, toPlainText } from "@/lib/draftExport";
-import type { ImageRatio, ImageStyle } from "@/lib/imageOptions";
+import { pickImageRefs, type ImageRatio, type ImageStyle } from "@/lib/imageOptions";
 import type { ImageRefInput } from "./ImageOptionsPanel";
 import type { DraftLength } from "@/lib/lengthPlan";
 import { readStyleStrength, type StyleStrength } from "@/lib/styleStrength";
@@ -50,7 +50,10 @@ export function useStudio() {
   const [imageRatio, setImageRatio] = useState<ImageRatio>("16:9");
   const [imageStyle, setImageStyle] = useState<ImageStyle>("default");
   const [imageRefs, setImageRefs] = useState<ImageRefInput[]>([]);
-  const imageOptionBody = () => ({ aspectRatio: imageRatio, style: imageStyle, ...(imageRefs.length ? { refs: imageRefs.map(({ mimeType, data }) => ({ mimeType, data })) } : {}) });
+  // 작업실 병합(v2.22): 본문 이미지 노드마다 따로 붙인 참고 사진. 열쇠는 「원고 id/칸」 — 다른 원고로 바꿔도 섞이지 않는다. 서버에 저장하지 않는다.
+  const [nodeRefs, setNodeRefs] = useState<Record<string, ImageRefInput[]>>({});
+  const nodeRefKey = (draftId: string, slot: string) => `${draftId}/${slot}`;
+  const imageOptionBody = (refs: ImageRefInput[] = imageRefs) => ({ aspectRatio: imageRatio, style: imageStyle, ...(refs.length ? { refs: refs.map(({ mimeType, data }) => ({ mimeType, data })) } : {}) });
   const [contentProvider, setContentProvider] = useState<ContentProvider>("openai");
   const [contentModel, setContentModel] = useState<string>(DEFAULT_OPENAI_CONTENT_MODEL);
   // v1.96: 고른 AI 회사·모델을 이 브라우저에 기억. 불러오기가 끝나기 전에는 저장하지 않아 기본값이 덮어쓰지 않게 한다.
@@ -589,7 +592,7 @@ export function useStudio() {
 
   // BLC-10 (2026-10-22): 본문 이미지를 노드 단위로 — 요청 1번에 이미지 1장, 서버가 그 노드만 저장(다른 이미지·위치 그대로).
   async function makeContentImage(draftId: string, slot: ContentImageSlot, request?: string) {
-    const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId, slot, model: imageModel, ...imageOptionBody(), ...(request !== undefined ? { request } : {}) }) });
+    const response = await fetch("/api/images/regenerate-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftId, slot, model: imageModel, ...imageOptionBody(pickImageRefs(nodeRefs[nodeRefKey(draftId, slot)], imageRefs)), ...(request !== undefined ? { request } : {}) }) });
     const result = await response.json() as { image?: ContentImage; error?: string };
     if (!response.ok || !result.image) throw new Error(result.error || "본문 이미지를 만들지 못했습니다.");
     setContentImages((items) => upsertNode(items, result.image!));
@@ -656,6 +659,8 @@ export function useStudio() {
       if (!response.ok || !result.images) throw new Error(result.error || "본문 이미지를 삭제하지 못했습니다.");
       setContentImages(result.images);
       setContentBlocks((blocks) => removeNodeBlock(blocks, slot));
+      const deletedKey = nodeRefKey(currentDraft.id, slot);
+      setNodeRefs((current) => { const next = { ...current }; delete next[deletedKey]; return next; });
       setMessage(`${slot.replace("content-", "")}번 본문 이미지를 삭제했습니다. 다른 이미지와 위치는 그대로입니다.`);
       refreshHistory().catch(() => {});
     } catch (error) {
@@ -938,6 +943,9 @@ export function useStudio() {
     setImageStyle,
     imageRefs,
     setImageRefs,
+    nodeRefs,
+    setNodeRefs,
+    nodeRefKey,
     contentProvider,
     setContentProvider,
     contentModel,
