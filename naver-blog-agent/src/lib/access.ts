@@ -128,18 +128,15 @@ async function evaluateSlugAccess(userId: string, slug: string): Promise<Program
   return { allowed: false, error: ACCESS_ERRORS.denied, status: 403 };
 }
 
-// E-4 간편 모드 무료 입구(2026-10-24 주인님 결정): 에이전트 권한이 없어도 BLOG(ai-auto-blog, FREE 배지) 권한이 있으면
-// 「간편」 범위로 간편 모드 화면·간편 원고만 쓴다. 판정 순서(정지 → 핸드폰 → FREE → 구독 → 부여 → 등급)는 두 프로그램 모두 공통 그대로.
-export const QUICK_ENTRY_SLUG = "ai-auto-blog";
+// E-4 간편 모드 무료 입구(2026-10-24)는 2026-11-01 주인님 지시(「에이전트 프로그램 사용자는 에이전트 프로그램만 사용가능하게 해」
+// 「다른 블로그 권한으로 들어올 이유가 없잖아」)로 없앴다 — 간편 모드를 포함해 에이전트 권한(naver-blog-agent)이 있어야 쓴다.
+// 범위 형식("quick")은 호출부 호환을 위해 남겨 두었고, 지금은 항상 "full"이다.
 export type AccessScope = "full" | "quick";
 type ScopeResult = { allowed: true; userId: string; scope: AccessScope } | { allowed: false; error: string; status: 401 | 403 };
 
 export async function evaluateAccessScope(userId: string): Promise<ScopeResult> {
   const full = await evaluateSlugAccess(userId, THIS_PROGRAM_SLUG);
-  if (full.allowed) return { ...full, scope: "full" };
-  if (full.error !== ACCESS_ERRORS.denied && full.error !== ACCESS_ERRORS.unavailable) return full; // 정지·핸드폰 없음은 그대로 차단
-  const quick = await evaluateSlugAccess(userId, QUICK_ENTRY_SLUG);
-  return quick.allowed ? { ...quick, scope: "quick" } : full;
+  return full.allowed ? { ...full, scope: "full" } : full;
 }
 
 /** 간편 모드에서도 쓰는 API용: 전체 또는 간편 범위면 통과(간편 범위는 호출부에서 간편 원고만 다루게 한다). */

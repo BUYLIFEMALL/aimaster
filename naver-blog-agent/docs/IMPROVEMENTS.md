@@ -335,3 +335,9 @@
 - 운영 ref esgxyikcnnvmlhygjkth: programs 버전/확장 버전1행을 이전v2.21/예상URL 조건으로 v2.22로 정정. deploy.mjs가 site_settings.ops_overview 집계를 갱신. 회원 원고/키/연결/권한/스키마 변경0, 실제 전송/발행/예약0.
 - 비용: Vercel 빌드1회(인수인계의 프로그램별1회 승인), AI0. 로컬 에이전트 빌드1회; 처음 루트 workdir를 잘못 지정한 무료 로컬 빌드는 즉시 중단, 운영 메인 배포0. 나머지4앱 보안 업데이트는 미실행, SEO 소스는 agy 담당 보존.
 - 근거: [시험](../../docs/analysis-blog-consolidation-20261020/evidence/agent-security-tests-20261026.json)·[릴리스](../../docs/analysis-blog-consolidation-20261020/evidence/agent-security-release-20261026.json). 실제 입력/예약 성공과 구분합니다.
+
+## 2026-11-01 v2.23 간편 모드 BLOG 권한 입구 제거 (맥미니 `claude-mac-20261101-blog`, ⏸ 배포 대기)
+- 주인님 지시: 「에이전트 프로그램 사용자는 에이전트 프로그램만 사용가능하게 해」「다른 블로그 권한으로 들어올 이유가 없잖아」.
+- 수정: `src/lib/access.ts` `evaluateAccessScope`에서 BLOG(`ai-auto-blog`) 권한 예외(`QUICK_ENTRY_SLUG`)를 없앰 → 간편 모드 화면·간편 API·확장 인증 13곳 모두 에이전트 권한만 통과. 반환 형식(`scope`)은 호출부 호환을 위해 유지(지금은 항상 "full"). `(quick)/layout.tsx` 주석 정정. tsc 통과.
+- 영향: 에이전트 권한 없이 BLOG 권한만 있던 회원은 간편 모드에 못 들어감(에이전트 상품 페이지로 이동). 그 회원들이 만든 간편 원고는 DB에 그대로 있고 30일 규칙대로 정리됨.
+- 남은 일: 윈도우 배포(빌드 1회, prebuild가 manifest·ZIP v2.23 맞춤, DB `version`·`extension_version` SQL). 배포 뒤 시험 계정으로 간편 모드 접근 확인. E-4 플랜(`docs/PLAN_20261024_MAEPSI_E1_E4.md`)은 기록으로 둠.
