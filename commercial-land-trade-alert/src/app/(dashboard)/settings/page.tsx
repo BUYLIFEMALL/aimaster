@@ -38,6 +38,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const own = links.find((l) => l.program_slug === THIS_PROGRAM_SLUG);
   const shared = links[0];
   const otherBots = botChoices(links, THIS_PROGRAM_SLUG);
+  // 키만 등록하면 확장이 기록 없이 메일을 건너뛰므로 여기서 알린다
+  const emailWarn = !resend ? "" : !prefs?.notify_email && !prefs?.email_to ? "이메일 체크를 켜고 받는 메일 주소를 넣은 뒤 저장해 주세요." : !prefs?.notify_email ? "이메일 체크를 켜고 저장해 주세요." : !prefs?.email_to ? "받는 메일 주소를 넣고 저장해 주세요." : "";
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -66,6 +68,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       <section className="mx-card mt-4">
         <h2 className="mx-section-title"><span className={stepBadge()}>두 번째 · 필수</span>📨 알림 받을 곳 <small className="text-sm font-normal text-mx-muted">하나 이상 연결</small></h2>
         <ChannelSwitches telegram={prefs?.notify_telegram ?? true} email={prefs?.notify_email ?? false} emailTo={prefs?.email_to ?? ""} kakao={prefs?.notify_kakao ?? false} />
+        {emailWarn && <p className="mt-2 text-sm font-semibold text-amber-700">⚠️ Resend 키는 등록됐지만 아직 메일이 가지 않아요. {emailWarn}</p>}
         <SetupTable
           head={["받는 곳", "상태", "연결 정보"]}
           rows={[

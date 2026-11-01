@@ -129,7 +129,7 @@ export function ResultsClient({ email }: { email: string }) {
           <p className="font-bold">🔎 이번 회차에 읽은 범위</p>
           {res.perTarget.map((t) => (
             <p key={t.name} className="text-mx-muted">
-              <b>{shortWatch(t.name)}</b> · {t.total.toLocaleString("ko-KR")}건
+              <b>{t.name}</b> · {t.total.toLocaleString("ko-KR")}건
               {t.filterText !== undefined && t.filterText !== null && <> · 네이버 조건: {t.filterText || "없음"}</>}
               {t.filterChanged && <> · 필터가 바뀌어 알림 없이 기준을 다시 저장</>}
               {!t.complete && <b className="text-amber-700"> · ⚠ 앞 {t.pagesRead ?? ""}페이지까지만 읽음. 네이버 화면에서 거래방식이나 면적을 좁히면 빠짐없이 읽습니다.</b>}
