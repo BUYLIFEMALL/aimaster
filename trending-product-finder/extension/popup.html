@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>쿠팡 리뷰 거르기</title>
+<style>
+  body { width: 460px; margin: 0; padding: 14px; font: 13px/1.5 "Malgun Gothic", sans-serif; color: #e5e7eb; background: #0f1115; }
+  h1 { margin: 0 0 2px; font-size: 15px; }
+  .muted { color: #9ca3af; font-size: 12px; }
+  .box { margin-top: 10px; padding: 10px; border: 1px solid #2a2f3a; border-radius: 8px; background: #171a21; }
+  .warn { border-color: #92702a; background: #2a2212; color: #fde68a; font-size: 12px; }
+  label { display: inline-flex; align-items: center; gap: 4px; margin-right: 10px; white-space: nowrap; }
+  input[type="number"] { width: 56px; background: #0f1115; color: #e5e7eb; border: 1px solid #2a2f3a; border-radius: 4px; padding: 2px 4px; }
+  button { padding: 7px 10px; border: 1px solid #2a2f3a; border-radius: 6px; background: #1f2430; color: #e5e7eb; cursor: pointer; white-space: nowrap; font: inherit; }
+  button.primary { background: #2563eb; border-color: #2563eb; color: #fff; font-weight: 700; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  #status { margin-top: 10px; font-weight: 700; }
+  #status.bad { color: #fca5a5; }
+  .list { margin-top: 10px; max-height: 300px; overflow: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 5px 4px; border-bottom: 1px solid #2a2f3a; text-align: left; vertical-align: top; }
+  th { position: sticky; top: 0; background: #171a21; white-space: nowrap; }
+  td.num { text-align: right; white-space: nowrap; }
+  a { color: #93c5fd; text-decoration: none; }
+</style>
+</head>
+<body>
+  <h1>🛒 쿠팡 리뷰 거르기</h1>
+  <div class="muted">상품소싱 자동화 <span id="version"></span> · 지금 보이는 검색 화면만 읽습니다</div>
+
+  <div id="consent" class="box warn" hidden>
+    <b>⚠️ 사용 전 확인</b><br>
+    이 기능은 쿠팡 약관 위반·계정 제재·법적 책임의 소지가 있으며, 사용 책임은 회원 본인에게 있습니다. 판매자 계정과 같은 브라우저에서 쓰면 그 계정에 영향이 갈 수 있습니다.
+    <div class="row"><label><input type="checkbox" id="agree"> 내용을 확인했고 본인 책임으로 사용합니다</label></div>
+  </div>
+
+  <div id="main" hidden>
+    <div class="box">
+      <div>
+        <b>리뷰 기준</b>
+        <label><input type="radio" name="min" value="1" checked> 1개 이상</label>
+        <label><input type="radio" name="min" value="2"> 2개 이상</label>
+        <label><input type="radio" name="min" value="custom"> 직접 <input type="number" id="custom" min="0" value="10"> 개</label>
+      </div>
+      <div style="margin-top:6px"><label><input type="checkbox" id="excludeAds"> 광고 상품 빼기</label></div>
+      <div class="row">
+        <button id="read" class="primary">이 페이지 읽어 담기</button>
+        <button id="csv">CSV 저장</button>
+        <button id="clear">목록 비우기</button>
+      </div>
+    </div>
+    <div id="status" aria-live="polite"></div>
+    <div class="muted" id="summary"></div>
+    <div class="list"><table><thead><tr><th>상품명</th><th>판매가</th><th>리뷰</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="muted" style="margin-top:8px">더 보려면 쿠팡 화면에서 직접 다음 페이지로 넘긴 뒤 다시 누르세요. 목록은 이 PC에만 보관되고 30일 뒤 지워집니다.</div>
+  </div>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

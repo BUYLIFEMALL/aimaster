@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/build-extension-archive.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test:permissions": "node tests/permissions.cjs",
     "test:fixtures": "node tests/fixtures.mjs",
-    "test:trend": "node --test tests/reportTrend.test.mjs tests/sourcingResults.test.mjs tests/loadErrors.test.mjs tests/retention.test.mjs tests/customs.test.mjs",
+    "test:trend": "node --test tests/coupangReviews.test.mjs tests/reportTrend.test.mjs tests/sourcingResults.test.mjs tests/loadErrors.test.mjs tests/retention.test.mjs tests/customs.test.mjs",
     "test:runtime": "node tests/runtime.mjs",
     "build:verify": "node tests/local.mjs build"
   },
@@ -29,6 +30,7 @@
     "@types/nodemailer": "^8.0.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "archiver": "^7.0.1",
     "esbuild": "0.25.12",
     "eslint": "^8",
     "eslint-config-next": "^15.5.28",

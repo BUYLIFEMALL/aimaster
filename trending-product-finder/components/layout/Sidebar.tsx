@@ -15,6 +15,7 @@ const FLOW_STEPS = [
 ];
 
 const UTILITY_ITEMS = [
+  { href: "/coupang-reviews", icon: "🧩", label: "쿠팡 리뷰 거르기" },
   { href: "/fees", icon: "🧾", label: "플랫폼·카테고리별 판매수수료" },
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
   { href: "/guide", icon: "📖", label: "연동 & 사용 매뉴얼" },
