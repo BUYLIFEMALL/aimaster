@@ -20,3 +20,13 @@ test('CB02 changing the active target prevents confirmation and discards the pre
 test('CB03 a lost confirmation response is not sent again and cannot leave a reusable approval',async()=>{
  const f=fixture();await f.reader.preview('incoming');f.state.fail=true;await assert.rejects(f.reader.confirm());await assert.rejects(f.reader.confirm());assert.equal(f.calls.filter(op=>op==='confirm').length,1);assert.equal(f.state.reads,2);
 });
+
+test('CB-P1 a preview survives a sleeping service worker and a closed popup, and a cancelled one does not come back',async()=>{
+ const {createContextReader}=await import('../extension/context-bridge.mjs');
+ const store={},calls=[];const browser={storage:{session:{get:async k=>({[k]:store[k]}),set:async v=>Object.assign(store,v),remove:async k=>{delete store[k];}}},tabs:{query:async()=>[{id:1,windowId:2,url:'https://blog.naver.com/own/1'}]},windows:{get:async()=>({focused:true,state:'normal'})},scripting:{executeScript:async()=>[{frameId:0,result:{accountId:'a',actorId:'own'}}]}};
+ const post=async(op,p)=>{calls.push(op);if(op==='offer')return {phase:'read',id:'r1',nonce:'n1',scope:{actorId:'own',accountId:'a'},profile:{}};if(op==='preview')return {phase:'preview',nonce:'n2'};if(op==='confirm'){assert.equal(p.nonce,'n2');return {phase:'done',savedCount:1};}return {};};
+ const make=()=>createContextReader(browser,async()=>({deviceId:'d',blogId:'own'}),post);
+ await make().preview('incoming');assert.equal((await make().confirm()).phase,'done');assert.equal(store.contextPending,undefined);
+ await assert.rejects(make().confirm(),/미리보기부터/);
+ await make().preview('incoming');await make().cancel();assert.equal(store.contextPending,undefined);assert.ok(calls.includes('cancel'));await assert.rejects(make().confirm(),/미리보기부터/);
+});
