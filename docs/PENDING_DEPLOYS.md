@@ -62,6 +62,7 @@
 
 | 할 일 | 급함 | 관련 파일 | 근거·메모 | 적은 날 · CLI |
 |---|---|---|---|---|
+| 수동 목록 「결제 전 정지」 표시 내보내기(코드 작성 완료, 푸시만 남음) | 낮음 | `components/admin/MemberDetail.tsx`, `types/database.types.ts` | 커밋 `8b117fced`. 주인님 지시: 다음 배포 때 함께. 푸시 뒤 회원 상세에서 정지 권한 표시 확인 | 2026-11-01 · Claude Code(윈도우) claude-win-20261029-statusbar |
 
 ## 내보낸 기록
 
