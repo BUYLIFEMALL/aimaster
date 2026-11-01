@@ -2,6 +2,14 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가 v1.18 받을 봇 고르기
+
+- 원인: 상가에 직접 연결한 봇이 없으면 `telegramLinkFor`가 가장 최근 연결 봇을 고른다. 시험 계정은 10월 31일 쿠팡 봇 연결 뒤 상가 알림이 `aimaster_coupang_bot`으로 갔다(0시 20분 알림 도착 캡처 확인, 이메일도 도착).
+- 한 일: 설정 텔레그램 줄에 수정·봇 고르기(확인 메시지 도착 시에만 저장)·빌려 쓰는 중 경고·실패 문구에 봇 이름. 대기분 4커밋 함께 배포. 커밋 `a6cfe2e87`.
+- 검수: tsc, 시험 39개, 로컬 빌드, `check-extension-release` OK, 크롬 관리자 계정으로 v1.18·경고·고르기 칸 확인. 시험 계정 봇 변경·확인 메시지 도착은 미확인.
+- 남은 일: 전용 봇 고르기 전 자동 선택 동작은 유지. 주간 리포트 기록이 실제 전송과 무관한 문제, 주간 리포트 도착 확인, 이메일 표 다듬기는 `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md`.
+- 링크: https://commercial-land-trade-alert.buylife.xyz/settings
+
 ## 2026-11-01 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar — 골드·VIP 개별 프리미엄 권한(운영 DB ref esgxyikcnnvmlhygjkth)
 - 한 일: 회원 상세에 「💎 개별 프리미엄 권한」 칸, API `/api/admin/premium-access`, 마이그레이션 `0053`(표시 `grant_source='premium_manual'`, 함수 `grant_premium_individual`·`revoke_premium_individual`). 프리미엄 등급 전환 때 만료 권한이 막던 문제도 수정, 시험 계정 `blog-neighbor-care` 복구. 일반 부여가 정지되면 화면에 알림.
 - 커밋 `6d3019c86`, 메인 사이트 배포 Ready. 플랜: `docs/PLAN_20261101_PREMIUM_INDIVIDUAL_GRANT.md`.

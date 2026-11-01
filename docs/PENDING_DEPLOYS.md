@@ -29,8 +29,6 @@
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
 | ai-image-studio, ai-influencer-studio, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, ai-writing-editor, allinone-graphic, banana-canvas, blog-workroom, booking-reminder, cinematic-storyboard-studio, insta_auto_poster, kakao_auto_poster, landing-architect, mbti-character, music, naver-blog-allinone, personality-suite, persona-style-studio, playlist-channel-studio, prompt-template-studio, react-ui-showcase, reverse-prompt, shop-detail-page, shots, stepmail, style-dna-analyzer, tarot, threads-easy-planner, thumbnail-master, ui-canvas, vinyl-lp-studio, youtube-viral-studio | API 키 암호화 문구 수정(문구만, 각 프로그램 다음 배포 때 함께) | `b16550ad4` | 2026-11-01 [역할: realty] Claude Code(윈도우) | `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` |  |
-| `commercial-land-trade-alert` | 글로 쓰기, 변동 기록 표, 수익률 대표값 보정, 팝업 기록 30줄 표시, 토지 같은 지목 시세 비교 | `b67c85bc7`, `c723c961c`, `56d647118` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
-| `commercial-land-trade-alert` | 설정 화면에 PC별 확장 연결 끊기 | `658562a86` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `commercial-land-trade-alert/docs/IMPROVEMENT_BACKLOG.md` |  |
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
 | `blog-neighbor-care` | 기존15묶음+검토완료 받은신청 반복수락/공용예약커서·복구(16묶음) | `8ffa45a9f`·`1a62398ea`·`6a307bbfc`·`7b6e4556e`·`4ebbb2f92`·`c34015232`·`620ca322a`·`ccf22b76c`·`f20ada675`·`b056ca71a`·`ab26e4627`·`20c3eced4`·`7afd15d6a`·`c9cb569c2`·`ed1c6bd86`·`4ee7dc674` | 2026-10-30 · [역할: blog] Codex `codex-win-20261026-blog-check` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 최신절 | SQL9(cursor/engagement/extension/context/messages/extension_schedule/incoming_accept/post_targets/accept_schedule) 미적용·승인전실행금지. 웹/manifest/ZIP/DB 묶음동기화. 자동RSS/AI초안 구현 및 실AI/Edge/Naver/운영Cron검수 잔여. 공개v1.03ZIP 보존 |
 | `shop-detail-page` | 마켓 등록에 쿠팡 칸 추가(2026-10-31 `claude-win-sdp`, tsc 통과, 쿠팡 v1.05 연계) |
@@ -68,6 +66,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `commercial-land-trade-alert` | v1.18 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 받을 텔레그램 봇 고르기·빌려 쓰는 중 경고(`a6cfe2e87`), PC별 확장 끊기, 글로 쓰기, 변동 기록 표, 수익률 대표값 보정, 팝업 기록 30줄, 토지 같은 지목 시세 비교 |
 | `music` | v1.48 · 2026-11-01 ([역할: music], 승인 빌드 1회) | 대기 항목 없음(AI 모델 추가 `73704b95e`) |
 | `ai-mastering-studio` | v1.15 · 2026-10-31 ([역할: music], 승인 빌드 1회) | AI 제안 모델 추가(`a7746f979`) |
 | `ai-audio-analyzer` | v1.14 · 2026-10-31 ([역할: music], 승인 빌드 1회) | 메뉴 계정 위치(`22c6cda35`) |
