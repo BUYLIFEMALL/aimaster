@@ -70,6 +70,7 @@
 |---|---|---|
 | `blog-neighbor-care` | v1.05 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-donc06qa2`) | 새 글 확인 환경변수 2개 등록, 서버 RSS 미리보기 차단, 안내문 수정. ZIP·DB OK. Edge 실검수 전 |
 | `blog-neighbor-care` | v1.04 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-4fn9tvouc`) | 16묶음+회원 PC 확장 새 글 확인, SQL 10개 적용(표 16개), ZIP·DB OK. 운영 `BNC_` 환경변수 없음으로 기능은 꺼짐 |
+| `naver-blog-allinone` | v1.57 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `naver-blog-allinone-99flpqnff`) | 회원 키 과금 버그: 본문 이미지 없음에도 2장 생성 수정 `edd6edfd0`(맥미니). 시험 37개·DB/ZIP OK. 맥미니 화면 재확인 대기 |
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `commercial-land-trade-alert` | v1.23 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 수집 결과 행정동(추정) 칸과 거르기 |
