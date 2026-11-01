@@ -2,6 +2,13 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 임장 사진 안드로이드 사전 검증(RQ-G)
+
+- 운영 코드·DB 변경 없음, 비용 없음. 결과: `docs/analysis-realty-roadmap-20261031/PREVALIDATION_ONSITE_GEO.md`. 임시 서버·측정값은 삭제했다.
+- 위치 5회 성공·정확도 중앙값 16m(카카오톡 안). 크롬은 사진 속 위치가 없어 촬영 순간 웹 위치(±15m, 약 13초)를 원본으로 쓴다. 핀 끌기는 주인님 판단 「불편」이라 지도 맞추기로 바꾼다.
+- 못 한 것: 크롬 5회 반복, 동 일치 표본 추가, 묶기 반경 판단, 브이월드·카카오 비교. 아이폰은 안드로이드 구현 뒤(주인님 결정).
+- 다음 첫 단계: DB 표 2개·빌드 약 2회 승인 뒤 구현. 요청함 `b98d7e81`은 다른 세션 항목이라 닫지 않았다. 링크: https://real-estate-sales.buylife.xyz
+
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 회원 권한 칸 보안 수정 적용(운영 DB)
 
 - 주인님 채팅 승인으로 workspace 세션이 찾은 문제를 처리했다. 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 `profiles_protect_member_columns` 트리거 적용. 파일 `supabase/migrations/0056_profiles_protect_member_columns.sql`.
