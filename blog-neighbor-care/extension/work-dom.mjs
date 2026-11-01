@@ -138,5 +138,16 @@ export async function operateVisibleNaverWork(command) {
  }
  // Re-read after page input handlers before the single physical submission.
  if(!usable(snapshot())||!freshPermit()||one(buttonName,root)!==button||button.disabled)fail();
- button.click();return true;
+ button.click();
+ // On a real post this button only opens the reaction menu; the heart inside it is what records the like.
+ // Pressing a heart that is already on would cancel the like, so only an "off" heart is ever pressed, once.
+ if(job.kind==='like'&&p.selectors.likeChoice!==undefined){
+  let choice=[];
+  for(let i=0;i<30&&!choice.length;i++){await new Promise(resolve=>setTimeout(resolve,100));choice=list('likeChoice');}
+  if(choice.length!==1||!choice[0].classList.contains('off')||!freshPermit())fail();
+  await new Promise(resolve=>setTimeout(resolve,400+Math.floor(Math.random()*500)));
+  if(!freshPermit()||one('likeChoice')!==choice[0])fail();
+  choice[0].click();
+ }
+ return true;
 }

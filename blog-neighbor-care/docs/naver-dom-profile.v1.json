@@ -38,7 +38,8 @@
     "requestIdInput": "input[name=\"targetBlogId\"]",
     "requestAccept": "button._acceptBuddy",
     "acceptPopupSubmit": "form[name=\"buddyFrm\"] #footer input[type=\"image\"]",
-    "acceptPopupDone": ".info2"
+    "acceptPopupDone": ".info2",
+    "likeChoice": ".post-btn .my_reaction a.u_likeit_list_button[data-type=\"like\"]"
   },
   "acceptPopupPath": "/BuddyAccept.naver",
   "acceptPopupDoneText": "서로이웃이 되었습니다"
