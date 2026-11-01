@@ -46,3 +46,14 @@ test('NAV02 mobile menu includes the same account/actions, closes on navigation,
     assert.equal(document.querySelector('.mobile-menu'),null);
   }finally{if(root)await React.act(async()=>root.unmount());globalThis.fetch=original;for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
 });
+
+test('NAV-FOLD panels fold under their title, open remembered ones, and keep untitled panels open',async()=>{
+ const {parseHTML}=await import('linkedom');const {enhancePanels}=await import('../src/components/FoldablePanels.tsx');
+ const {document}=parseHTML('<div id="r"><section class="panel" id="a"><h2>첫째</h2><p id="x">내용</p></section><section class="panel" id="b"><div class="section-head"><h2>둘째</h2></div></section><section class="panel" id="c"><p>제목 없음</p></section></div>');
+ const toggled=[];enhancePanels(document.getElementById('r'),title=>title==='둘째',(title,open)=>toggled.push([title,open]));
+ const a=document.getElementById('a'),b=document.getElementById('b'),c=document.getElementById('c');
+ assert.equal(a.classList.contains('bnc-folded'),true);assert.equal(b.classList.contains('bnc-folded'),false);assert.equal(c.classList.contains('bnc-fold'),false);
+ a.querySelector('h2').dispatchEvent(new document.defaultView.Event('click',{bubbles:true}));
+ assert.equal(a.classList.contains('bnc-folded'),false);assert.deepEqual(toggled,[['첫째',true]]);
+ enhancePanels(document.getElementById('r'),()=>false,()=>{});assert.equal(a.classList.contains('bnc-folded'),false);
+});
