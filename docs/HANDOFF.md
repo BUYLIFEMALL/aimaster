@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog · 블로그 이동 안내 띠·에이전트 입구 정리 검수
+
+- **한 일:** BLOG = 교육용 레퍼런스(FREE 유지) 지침 기록(`aba1a0656`·`8418b5780`), 이동 안내 띠(작업실 v1.16·콘텐츠 제작 v1.14·올인원 v1.58, `5c1e40ac2`), 에이전트 v2.23 간편 모드 에이전트 권한만(`9a2c21c6e`). 윈도우 배포 뒤 맥 크롬 검수 통과(띠·버튼·7일 닫기·390px, `/quick`).
+- **남은 것:** BLOG FREE 배지(주인님), BLOG 권한만 있는 계정의 간편 모드 차단 화면(시험 계정 없음), 닫기 버튼 19px 후보. 플랜·결과 `docs/analysis-blog-consolidation-20261020/PLAN_20261101_SOURCE_MOVE_NOTICE.md`.
+- **비용:** 맥 쪽 없음(빌드 4회는 윈도우, 승인됨).
+
 ## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 블로그 4개 순차 배포·이웃 소통 AI 프로필 검수
 
 - **배포(맥미니 요청, 주인님 승인, 빌드 4회):** `9a2c21c6e`·`5c1e40ac2`. naver-blog-agent v2.23(간편 모드 에이전트 권한만, `naver-blog-agent-ni50xpp8e`), blog-workroom v1.16(`blog-workroom-678yhouoy`), blog-content-maker v1.14(`blog-content-maker-1dhxtjetc`), naver-blog-allinone v1.58(`naver-blog-allinone-9f60r9weg`). 모두 Ready, 확장 3개 `check-extension-release` OK.
