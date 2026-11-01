@@ -10,9 +10,10 @@ export function finalizePrompt(prompt: string): string {
   return `${prompt.trim().slice(0, 1500)}\n\n${KOREAN_PEOPLE_RULE} ${NO_TEXT_RULE}`;
 }
 
-/** 전체 컷 수(대표 포함)를 1~5로 고정한다. */
+/** 전체 컷 수(대표 포함)를 0~5로 고정한다. 0은 「이미지 없음」(2026-11-01: 예전엔 0이 2로 바뀌어 고르지 않은 이미지 2장이 과금됨). 값이 없으면 기본 2. */
 export function clampImageCount(count: unknown): number {
-  return Math.min(5, Math.max(1, Math.trunc(Number(count) || 2)));
+  const n = Math.trunc(Number(count));
+  return Number.isFinite(n) ? Math.min(5, Math.max(0, n)) : 2;
 }
 
 /** AI가 장면 프롬프트를 주지 못했을 때 쓰는 기본 계획(naver-blog-agent 의 buildImagePlan 과 같은 구도). */

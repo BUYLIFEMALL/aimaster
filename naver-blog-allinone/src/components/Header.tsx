@@ -118,7 +118,7 @@ export function Header({
         <div className="max-w-7xl mx-auto flex items-center justify-end">
           <div className="text-[11px] text-slate-500 hidden sm:block">
             {hasApiKey ? (
-              <span className="text-emerald-600 font-medium">● Gemini API 연동 완료 (사용자 브라우저 격리 보관)</span>
+              <span className="text-emerald-600 font-medium">● Gemini API 연동 완료 (내 AIMaster 계정 키 사용 중)</span>
             ) : (
               <span className="text-amber-600 font-medium">⚠️ 좌측 [API키등록·플랫폼연동] 메뉴에서 본인 Gemini API 키를 등록해주세요</span>
             )}

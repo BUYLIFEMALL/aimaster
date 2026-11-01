@@ -118,8 +118,13 @@ test("yearPolicy: 최신 표기는 올해로, 과거 사실은 보존", () => {
 
 test("imagePlan: 개수 고정·fallback·AI 장면 정리", () => {
   assert.equal(clampImageCount(99), 5);
-  assert.equal(clampImageCount(0), 2);
+  assert.equal(clampImageCount(0), 0); // 「이미지 없음」은 0장 그대로(2026-11-01 수정 전엔 2장)
+  assert.equal(clampImageCount(-3), 0);
+  assert.equal(clampImageCount(3.7), 3);
   assert.equal(clampImageCount(undefined), 2);
+  assert.equal(clampImageCount("abc"), 2);
+  assert.deepEqual(buildFallbackPlan("제목", "주제", [{ title: "소제목" }], 0, false), []);
+  assert.deepEqual(normalizeImagePlan([{ caption: "남는 컷", prompt: "x" }], []), []);
   const fb = buildFallbackPlan("제목", "주제", [{ title: "소제목" }], 3, true);
   assert.deepEqual(fb.map((s) => s.type), ["thumbnail", "body", "body"]);
   const plan = normalizeImagePlan([{ caption: "대표 컷", prompt: "cover" }, { caption: "대표 컷", prompt: "dup" }, { caption: "본문 컷", prompt: "body" }], fb);
