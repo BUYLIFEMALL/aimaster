@@ -32,7 +32,7 @@ export function ExtensionExecutionSettings(){
    {Object.entries(readActions).map(([key,label])=><label className="check" key={key}><input type="checkbox" checked={reads.includes(key)} disabled={busy} onChange={e=>{setReads(old=>e.target.checked?[...old,key]:old.filter(k=>k!==key));setConsent(false);}}/>{label}</label>)}
    {Object.entries(actions).map(([key,label])=><label className="check" key={key}><input type="checkbox" checked={kinds.includes(key)} disabled={busy} onChange={e=>{setKinds(old=>e.target.checked?[...old,key]:old.filter(k=>k!==key));setConsent(false);}}/>{label}</label>)}
    <label className="check"><input type="checkbox" checked={consent} disabled={busy} onChange={e=>setConsent(e.target.checked)}/>선택한 본인 확장에서 선택한 읽기·실행 동작을 수행하는 데 동의합니다.</label>
-   <div className="actions"><button className="primary" disabled={busy||!selected||!consent||!(kinds.length+reads.length)} onClick={()=>run('grant_extension')}>선택한 확장 동작 허용</button><button disabled={busy||!selected} onClick={()=>run('revoke_extension')}>동작 허용 해제</button></div>
+   <div className="actions"><button className="primary" disabled={busy||!selected||!consent||!(kinds.length+reads.length)} onClick={()=>run('grant_extension')}>선택한 확장 동작 허용</button><button className="bnc-danger" disabled={busy||!selected} onClick={()=>run('revoke_extension')}>동작 허용 해제</button></div>
   </>}
  </section>;
 }

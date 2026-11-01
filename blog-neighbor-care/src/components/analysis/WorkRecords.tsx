@@ -46,7 +46,7 @@ export function WorkRecords(){
    </div>}
    <p>내 계정 {job.actor_id??'미확인'} → {job.neighbor_id} · 글 {job.post_id||'프로필'}{job.parent_comment_id&&` · 원댓글 ${job.parent_comment_id}`}</p>{['draft','ready'].includes(job.state)&&<pre>{job.body}</pre>}
    {['draft','ready'].includes(job.state)&&job.actor_id&&<><label><input type="checkbox" disabled={busy} checked={reviewed===job.id} onChange={e=>setReviewed(e.target.checked?job.id:'')}/>이 계정·대상·문장을 확인했습니다.</label><button className="primary" disabled={busy||reviewed!==job.id} onClick={()=>run(job.id,true)}>{job.state==='ready'?'현재 기준으로 다시 검토 완료':'확인한 내용으로 검토 완료'}</button></>}
-   {['draft','ready','claimed','armed'].includes(job.state)&&<button disabled={busy} onClick={()=>run(job.id)}>{job.state==='armed'?'중단 요청 · 결과 확인 필요':'이 작업 중단'}</button>}
+   {['draft','ready','claimed','armed'].includes(job.state)&&<button className="bnc-danger" disabled={busy} onClick={()=>run(job.id)}>{job.state==='armed'?'중단 요청 · 결과 확인 필요':'이 작업 중단'}</button>}
    {job.state==='uncertain'&&<p>결과를 확인하기 전에는 다시 실행할 수 없습니다.</p>}
   </li>;})}</ul>}
  </section>;

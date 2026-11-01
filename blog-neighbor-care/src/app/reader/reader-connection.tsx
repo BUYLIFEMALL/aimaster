@@ -58,7 +58,7 @@ export default function ReaderConnection() {
       <p>본문은 최초 읽기 요청부터 30일 보관합니다. 이미지·첨부파일·댓글은 가져오지 않습니다.</p>
       <h3>연결된 기기</h3>{devices.length === 0 && <p>목록을 새로고침하면 확인할 수 있습니다.</p>}
       <ul>{devices.map(d => <li key={d.id}>{d.device_name} · {d.blog_id} · {d.revoked_at ? '해제됨' : `만료 ${new Date(d.expires_at).toLocaleString('ko-KR')}`}
-        {!d.revoked_at && <button disabled={busy} onClick={() => run(async () => { await member('revoke', { device_id: d.id }); await load(); setMessage('해당 기기의 읽기 연결을 해제했습니다. 받은 글은 기존 만료일까지 유지됩니다.'); })}>이 기기 해제</button>}</li>)}</ul>
+        {!d.revoked_at && <button className="bnc-danger" disabled={busy} onClick={() => run(async () => { await member('revoke', { device_id: d.id }); await load(); setMessage('해당 기기의 읽기 연결을 해제했습니다. 받은 글은 기존 만료일까지 유지됩니다.'); })}>이 기기 해제</button>}</li>)}</ul>
       <h3>받은 글</h3>{materials.length === 0 && <p>받은 글이 없습니다. 확장에서 전달 후 새로고침하세요.</p>}
       <ul>{materials.map(m => <li key={m.id}><button disabled={busy} onClick={() => run(async () => { const r = await member('material', { id: m.id }); setSelected(r.data); setMessage('받은 본문을 열었습니다.'); })}>{m.title}</button></li>)}</ul>
       {selected && <article><h3>{selected.title}</h3><a href={`https://blog.naver.com/${selected.blog_id}/${selected.post_id}`} target="_blank" rel="noreferrer">원문 열기</a>
