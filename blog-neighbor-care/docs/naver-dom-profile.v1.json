@@ -1,0 +1,41 @@
+{
+  "v": 1,
+  "reviewed": true,
+  "reference": "blog-neighbor-care/docs/PLAN_20261101_NAVER_DOM_PROFILE.md",
+  "ownerScriptVar": "gUserNaverId",
+  "articleCompleteMode": "bodyVisible",
+  "commentsCompleteMode": "singlePage",
+  "commentInfoAttribute": "data-info",
+  "relationshipMap": {
+    "서로이웃": "mutual",
+    "이웃추가": "none"
+  },
+  "submitText": {
+    "comment": "등록"
+  },
+  "incomingRequestPath": "/BuddyInviteReceivedManage.naver",
+  "incomingOwnerFromPath": true,
+  "requestIdField": true,
+  "requestAcceptText": "수락",
+  "selectors": {
+    "ownerLink": "#gnb_my",
+    "captcha": "#captcha, .captcha_area",
+    "login": ".login_area_notice",
+    "platformRestriction": ".error_content",
+    "articleBody": ".se-main-container",
+    "relationship": ".btn_buddy._buddy_popup_btn",
+    "likeControl": ".post-btn .my_reaction .u_likeit_button._face",
+    "commentOpener": "a.btn_comment._cmtList",
+    "commentList": ".u_cbox_content_wrap > .u_cbox_list",
+    "commentRow": ":scope > li.u_cbox_comment:not(:has(.u_cbox_type_secret))",
+    "commentAuthor": "a.u_cbox_name",
+    "commentText": ".u_cbox_contents",
+    "commentPageLink": ".u_cbox_paginate a",
+    "commentInput": ".u_cbox_write_wrap .u_cbox_text[contenteditable=\"true\"]",
+    "commentSubmit": ".u_cbox_write_wrap .u_cbox_btn_upload",
+    "requestList": "table.table4 tbody",
+    "requestRow": "tr:has(input[name=\"targetBlogId\"])",
+    "requestIdInput": "input[name=\"targetBlogId\"]",
+    "requestAccept": "button._acceptBuddy"
+  }
+}
