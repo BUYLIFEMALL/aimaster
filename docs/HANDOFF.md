@@ -21,6 +21,9 @@
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — API 키 암호화 문구 A안
 문구 48곳·파일 42개 수정(`b16550ad4`), 미배포 대기. 남은 곳과 범위 밖 문구: `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` 처리 결과.
 
+## 2026-11-01 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 병합 ②③(→ 에이전트) 재대조: 옮길 코드 거의 없음
+- 묶음 A(에이전트 v2.16~v2.18)로 이미 반영. 남은 올인원 컬러 테마는 타이핑 입력 방식(§20)과 맞지 않아 버림 추천, 상호작용 요소는 네이버 미지원. 제품 코드·DB 변경 없음(에이전트 폴더 미접촉). 결정 4건 주인님 대기. 근거 `docs/analysis-blog-consolidation-20261020/REPORT.md#blog-merge23-20261101`.
+
 ## 2026-11-01 ⏸ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 병합 ④ 콘텐츠 제작 → SEO(미배포 대기)
 - 분석: 콘텐츠 제작에만 있는 기능은 제품 사진 합성·이미지 포함 ZIP 두 가지(나머지는 SEO에 있음). 영상 첫·끝 장면은 `ai-video-studio` 담당으로 두고 프로그램 간 이미지 넘기기를 아이디어 후보 IDEA-MEDIA-HANDOFF-01로 등록. 근거 `docs/analysis-blog-consolidation-20261020/REPORT.md#blog-merge4-20261101`.
 - 한 일: SEO 참고 사진 「제품 그대로 넣기」(`PRODUCT_REF_RULE`), 「ZIP(글+이미지)」 브라우저 생성(`lib/zipStore.ts`, 라이브러리 없음 — 주인님 선택). 커밋 `0543e8646`(18파일), 시험 143/143·tsc 통과.
