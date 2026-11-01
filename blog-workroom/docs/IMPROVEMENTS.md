@@ -26,3 +26,7 @@
 
 ## 2026-10-23 (Claude Code 윈도우, 블로그 전담 `claude-win-20261023-seo-bg`) — ⏳ 미배포 대기: 30일 정리 회원별 기록
 - 매일 30일 정리 크론이 **실제로 지운 것만** 회원별로 세어 `usage_logs`(action `cleanup_expired`)에 한 줄씩 남김 — 메인 관리자 「30일 자동 정리」 표·「운영 상태」 진행률용. 공용 기준 `cleanup-usage-log`(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`) 사본을 `check-shared-modules.mjs --sync`로 받음(직접 고치지 않음). 미리 보기(`?dry=1`)는 기록 안 함, 기록 실패해도 정리는 계속. 다음 배포 때 함께(버전 +0.01).
+
+## 2026-11-01 v1.16 이동 안내 띠 (맥미니 `claude-mac-20261101-blog`, ⏸ 배포 대기 — 주인님 승인 빌드)
+- 블로그 9→5 정리: 이 프로그램의 기능은 SEO 스튜디오·키워드(으)로 옮겨졌다는 띠를 화면 맨 위에 넣음(`src/components/MovedNotice.tsx`, 닫기 판단 `src/lib/movedNotice.ts`, 시험 `tests/moved-notice.test.mjs`). 닫으면 이 브라우저에서 7일 숨김. 원본은 계속 사용 가능(주소·저장 글 유지), 새 기능은 옮겨 간 곳에만. 이 프로그램은 주인님이 백업 카테고리로 옮길 예정.
+- 검수: 맥 노드 단독 시험·tsc 통과. 전체 `npm test`·빌드·화면 검수는 배포 때.

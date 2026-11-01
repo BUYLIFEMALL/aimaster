@@ -11,6 +11,7 @@ import { KeywordFighterSection } from "@/components/KeywordFighterSection";
 import { PostCreationSection } from "@/components/PostCreationSection";
 import { LibrarySection } from "@/components/blog/LibrarySection";
 import { GuideSection } from "@/components/GuideSection";
+import { MovedNotice } from "@/components/MovedNotice";
 import { getPost } from "@/lib/blog/postsApi";
 import type { SavedPost } from "@/lib/blog/types";
 import { AppSettings, DEFAULT_SETTINGS, getLegacyKeys, getStoredSettings, legacyKeysToMove, withAccountKeys, type AccountKeys } from "@/lib/storage";
@@ -125,6 +126,11 @@ export default function HomePage() {
 
         {/* Main Content Area */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* 2026-11-01 블로그 9→5: 기능을 블로그 에이전트·키워드로 옮김(원본은 계속 사용 가능) */}
+          <MovedNotice
+            targets={[{ name: "블로그 에이전트", href: "https://naver-blog-agent.buylife.xyz" }, { name: "키워드", href: "https://blog-keyword.buylife.xyz" }]}
+            features={["참고 URL·지시", "주제 뉴스", "사진 후기 방문 정보·FAQ", "화자·경험 질문", "메모·파일 글감", "확장 자동 발행·예약(에이전트)", "키워드 분석(키워드)"]}
+          />
 
           {/* Tab 1 Content: 주제 아이디어 얻기 (E-E-A-T 기반, 카테고리별, 에버그린, 롱테일, 메모/파일) */}
           {activeMainTab === "ideas" && (
