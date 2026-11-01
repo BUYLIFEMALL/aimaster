@@ -423,3 +423,11 @@ test("행정동 이름으로 법정동을 찾는다", async () => {
   assert.equal(searchAdminDongs(rows, "노").length, 0, "한 글자는 찾지 않음");
   assert.ok(searchAdminDongs(rows, "역삼").length <= 20);
 });
+
+test("좌표 진단은 건수와 표본만 낸다", async () => {
+  const { coordStats } = await import("../extension/lib/listing.js");
+  const s = coordStats([{ articleNo: 1, latitude: "37.5", longitude: "127", realtorName: "중개" }, { articleNo: 2, latitude: "37.5", longitude: "127" }, { articleNo: 3 }]);
+  assert.deepEqual([s.total, s.withCoord, s.places], [3, 2, 1]);
+  assert.deepEqual(s.sample[0], ["1", 37.5, 127]);
+  assert.ok(!JSON.stringify(s).includes("중개"));
+});

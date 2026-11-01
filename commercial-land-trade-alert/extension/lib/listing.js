@@ -109,6 +109,20 @@ export function viewFilter(rawUrl) {
   return { key: text, text };
 }
 
+/**
+ * 행정동 필터 사전 검증용 좌표 진단. 회원 PC 안에서만 쓰고 서버로 보내지 않는다.
+ * 좌표가 있는 건수, 서로 다른 위치 수, 표본(최대 30건)을 돌려준다.
+ */
+export function coordStats(articles, maxSample = 30) {
+  const withCoord = (articles || []).filter((a) => Number(a?.latitude) && Number(a?.longitude));
+  return {
+    total: (articles || []).length,
+    withCoord: withCoord.length,
+    places: new Set(withCoord.map((a) => `${a.latitude},${a.longitude}`)).size,
+    sample: withCoord.slice(0, maxSample).map((a) => [String(a.articleNo ?? ""), Number(a.latitude), Number(a.longitude)]),
+  };
+}
+
 /** 팝업 「이 화면 감시」: 상가·건물·토지 지도 화면인지 */
 export function isWatchableUrl(url) {
   try {

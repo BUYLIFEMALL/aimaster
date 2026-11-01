@@ -6,7 +6,7 @@ import { askExtension } from "@/lib/extensionBridge";
 import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
-type Result = { at: string; columns: string[]; table: (string | number)[][]; perTarget: { name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null }[] };
+type Result = { at: string; columns: string[]; table: (string | number)[][]; perTarget: { name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null; coords?: { total: number; withCoord: number; places: number } }[] };
 
 const SHOW = ["감시 화면", "유형", "거래 종류", "가격", "시세 대비", "추정 수익률", "후보 점수", "근거", "변동", "이전 가격", "면적 기준", "면적(㎡)", "층"];
 const LINK = "네이버 매물 주소";
