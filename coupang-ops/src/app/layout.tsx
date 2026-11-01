@@ -4,10 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://coupang-ops.buylife.xyz"),
   title: "AI 쿠팡 운영 자동화 | AIMaster",
-  description: "쿠팡 공식 WING Open API로 상품 등록부터 10원 최저가 위너 방어·주문·송장·문의까지 내 쿠팡 판매를 한 화면에서 처리하는 운영 도우미",
+  description: "쿠팡 공식 WING Open API로 상품 등록부터 주문·송장·문의까지 내 쿠팡 판매를 한 화면에서 처리하는 운영 도우미",
   openGraph: {
-    title: "AI 쿠팡 운영 자동화 | 아이템위너 인텔리전스 랩",
-    description: "쿠팡 WING Open API 연동 10원 단위 최저가 위너 탈환 & 상품 대량 등록·발주 관제 올인원 스튜디오",
+    title: "AI 쿠팡 운영 자동화 | AIMaster",
+    description: "쿠팡 공식 WING Open API로 상품 등록부터 주문·송장·문의까지 내 쿠팡 판매를 한 화면에서 처리",
     url: "https://coupang-ops.buylife.xyz",
     siteName: "AIMaster",
     images: [
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "AI 쿠팡 운영 자동화 | AIMaster",
-    description: "쿠팡 공식 WING Open API 기반 상품 대량 등록 및 10원 최저가 위너 실시간 방어",
+    description: "쿠팡 공식 WING Open API로 상품 등록부터 주문·송장·문의까지 내 쿠팡 판매를 한 화면에서 처리",
     images: ["/coupang-ops-thumbnail.jpg"],
   },
 };
