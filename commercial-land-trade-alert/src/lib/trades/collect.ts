@@ -1,3 +1,4 @@
+import { canBorrowBot } from "@/lib/telegram/choices";
 import "server-only";
 import { kstDay, molitItems, monthKey, parseTrades, type TradeKind, type TradeRow } from "./parse";
 import { alertText, kakaoAlertText, matchesPrefs, normalizePrefs, kindLabel } from "./prefs";
@@ -134,7 +135,7 @@ export async function telegramLinkFor(admin: Admin, userId: string) {
     .eq("user_id", userId)
     .order("linked_at", { ascending: false });
   const links = ((data ?? []) as { program_slug: string; bot_token: string | null; chat_id: string; bot_username: string | null }[]).filter((l) => l.bot_token);
-  return links.find((l) => l.program_slug === THIS_PROGRAM_SLUG) ?? links[0] ?? null;
+  return links.find((l) => l.program_slug === THIS_PROGRAM_SLUG) ?? links.find((l) => canBorrowBot(l.program_slug)) ?? null;
 }
 
 /** 조건에 맞는 새 거래를 회원 본인 봇으로 보낸다. 보낸 줄만 기록해 실패하면 다음 회차에 다시 보낸다 */

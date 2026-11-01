@@ -346,6 +346,6 @@ test("받을 봇 고르기 목록", async () => {
     { program_slug: "real-estate-sales", bot_username: "r_bot" },
     { program_slug: "no-name", bot_username: null },
   ];
-  assert.deepEqual(botChoices(links, "this"), [{ slug: "coupang-ops", name: "c_bot" }, { slug: "realty-listing-alert", name: "r_bot" }]);
-  assert.deepEqual(botChoices([...links, { program_slug: "this", bot_username: "r_bot" }], "this"), [{ slug: "coupang-ops", name: "c_bot" }], "이미 전용으로 쓰는 봇은 뺀다");
+  assert.deepEqual(botChoices(links, "this"), [{ slug: "realty-listing-alert", name: "r_bot" }]);
+  assert.deepEqual(botChoices([...links, { program_slug: "this", bot_username: "r_bot" }], "this"), [], "이미 전용으로 쓰는 봇은 뺀다");
 });

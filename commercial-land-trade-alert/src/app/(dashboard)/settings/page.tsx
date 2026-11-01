@@ -13,7 +13,7 @@ import { stepBadge } from "@/components/settings/setupStyles";
 import { deleteResendKeyAction, disconnectKakaoAction } from "@/lib/actions/channels";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import { aiKeyTails, getKakaoState, getResendKey, hasKakaoKey } from "@/lib/notifyChannels";
-import { botChoices } from "@/lib/telegram/choices";
+import { botChoices, canBorrowBot } from "@/lib/telegram/choices";
 import { APP_VERSION } from "@/lib/version";
 
 const THIS_PROGRAM_SLUG = "commercial-land-trade-alert";
@@ -33,7 +33,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     getKakaoState(admin, user.id, false),
     aiKeyTails(admin, user.id),
   ]);
-  const links = (data ?? []) as { program_slug: string; bot_username: string | null }[];
+  const links = ((data ?? []) as { program_slug: string; bot_username: string | null }[]).filter((l) => canBorrowBot(l.program_slug));
   const extCount = extTokens?.length ?? 0;
   const own = links.find((l) => l.program_slug === THIS_PROGRAM_SLUG);
   const shared = links[0];
