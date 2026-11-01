@@ -33,11 +33,12 @@ interface ProgramInstantSearchProps {
   loggedIn: boolean;
 }
 
-type FilterTag = "all" | "recommended" | "free" | "focus" | "neon" | "wizard";
+type FilterTag = "all" | "recommended" | "premium" | "free" | "focus" | "neon" | "wizard";
 
 const FILTER_TABS: Array<{ id: FilterTag; label: string; icon: React.ReactNode }> = [
   { id: "all", label: "전체", icon: null },
   { id: "recommended", label: "🔥 추천", icon: null },
+  { id: "premium", label: "💎 프리미엄", icon: null },
   { id: "free", label: "🎁 무료", icon: null },
   { id: "focus", label: "🎯 포커스형", icon: null },
   { id: "neon", label: "⚡ 네온콘솔형", icon: null },
@@ -78,6 +79,9 @@ export default function ProgramInstantSearch({
           (p.like_count ?? 0) > 0 ||
           (p.badges ?? []).includes("popular")
         );
+      }
+      if (activeFilter === "premium") {
+        return (p.badges ?? []).includes("premium");
       }
       if (activeFilter === "free") {
         return (

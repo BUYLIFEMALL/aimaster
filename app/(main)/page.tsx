@@ -175,9 +175,10 @@ export default async function HomePage() {
   const likedSet = new Set(likedIds);
   const freeProgramCount = programs.filter((p) => (p.badges ?? []).includes("free")).length;
   const paidProgramCount = programs.length - freeProgramCount;
-  // 이달의 무료 프로그램 / 추천 프로그램 — 추천(♥)을 많이 받은 순으로 왼쪽→오른쪽 나열
+  // 이달의 무료 프로그램 / 추천 프로그램 / 프리미엄 프로그램 — 추천(♥)을 많이 받은 순으로 왼쪽→오른쪽 나열
   const freePrograms = sortByLikes(programs.filter((p) => (p.badges ?? []).includes("free"))).slice(0, 12);
   const recommendedPrograms = sortByLikes(programs.filter((p) => (p.badges ?? []).includes("recommended"))).slice(0, 12);
+  const premiumPrograms = sortByLikes(programs.filter((p) => (p.badges ?? []).includes("premium")));
   const latestPrograms = [...programs]
     .sort((a, b) => {
       const aPinned = (a.badges ?? []).includes("new") ? 1 : 0;
@@ -377,6 +378,40 @@ export default async function HomePage() {
             <div className="grid md:grid-cols-3 gap-6">
               {recommendedPrograms.map((program) => (
                 <ProgramCard key={program.id} program={program} hasAccess={accessByProgramId.get(program.id)} isAdmin={isAdminUser} liked={likedSet.has(program.id)} loggedIn={loggedIn} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 프리미엄 프로그램 — 관리자가 프리미엄 뱃지를 단 프로그램, 추천(♥) 많은 순 */}
+      {premiumPrograms.length > 0 && (
+        <section id="premium-programs" className="py-16 px-4 relative overflow-hidden bg-gradient-to-b from-amber-500/[0.04] via-transparent to-transparent scroll-mt-[240px]">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+                  <span className="text-amber-400">💎</span>
+                  <span><GoldGradientText>프리미엄 프로그램</GoldGradientText></span>
+                </h2>
+                <p className="text-subtext mt-2">
+                  검증된 비즈니스 성과와 고도화된 기능을 제공하는 프리미엄 자동화 솔루션입니다. 회원 ♥ 추천 투표가 많은 순서로 왼쪽부터 보여 드립니다.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-3.5 py-1.5 rounded-full w-fit shrink-0">
+                총 {premiumPrograms.length}개 프리미엄 솔루션
+              </span>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {premiumPrograms.map((program) => (
+                <ProgramCard
+                  key={program.id}
+                  program={program}
+                  hasAccess={accessByProgramId.get(program.id)}
+                  isAdmin={isAdminUser}
+                  liked={likedSet.has(program.id)}
+                  loggedIn={loggedIn}
+                />
               ))}
             </div>
           </div>
