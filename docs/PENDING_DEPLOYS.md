@@ -25,8 +25,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `naver-blog-allinone` (운영 v1.55) | API 키를 브라우저(`localStorage`) 대신 회원 본인 계정(`user_api_keys`)에 저장, 예전 브라우저 키는 설정 창에서 계정으로 옮기기(블로그 병합 결정 4번) | `b3a6fd89b` | 2026-11-01 · [역할: mac-mini] Claude Code(맥미니) `claude-mac-20261101-blog` | `naver-blog-allinone/docs/IMPROVEMENT_HANDOFF_20261101.md` | v1.56으로 · **윈도우에서 `npm test` 먼저**(맥은 윈도우용 esbuild라 못 돌림) · 배포 뒤 맥미니 화면 검수(키 표시·옮기기·글 1편, 승인됨) |
-| `naver-blog-seo-studio` (운영 v2.21) | 블로그 병합 ① 작업실 → SEO 마무리: 이미지 노드별 참고 사진·문체 수집 20/30개·문체 주제 정보 + ④ 콘텐츠 제작 → SEO: 참고 사진 「제품 그대로 넣기」·「ZIP(글+이미지)」 | `0bf9a6d55`·`ae0da6b38`·`0543e8646` | 2026-11-01 · [역할: mac-mini] Claude Code(맥미니) `claude-mac-20261101-blog` | `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261101.md` | v2.22로(버전·manifest 올리기부터 순서 문서대로) · 배포 뒤 맥미니 화면 검수(이미지 2장[노드별·제품]·문체 분석 1회, 승인됨·ZIP 풀기) |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
 | ai-image-studio, ai-influencer-studio, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, ai-writing-editor, allinone-graphic, banana-canvas, blog-workroom, booking-reminder, cinematic-storyboard-studio, insta_auto_poster, kakao_auto_poster, landing-architect, mbti-character, music, naver-blog-allinone, personality-suite, persona-style-studio, playlist-channel-studio, prompt-template-studio, react-ui-showcase, reverse-prompt, shop-detail-page, shots, stepmail, style-dna-analyzer, tarot, threads-easy-planner, thumbnail-master, ui-canvas, vinyl-lp-studio, youtube-viral-studio | API 키 암호화 문구 수정(문구만, 각 프로그램 다음 배포 때 함께) | `b16550ad4` | 2026-11-01 [역할: realty] Claude Code(윈도우) | `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` |  |
@@ -68,6 +66,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `commercial-land-trade-alert` | v1.18 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 받을 텔레그램 봇 고르기·빌려 쓰는 중 경고(`a6cfe2e87`), PC별 확장 끊기, 글로 쓰기, 변동 기록 표, 수익률 대표값 보정, 팝업 기록 30줄, 토지 같은 지목 시세 비교 |
 | `music` | v1.48 · 2026-11-01 ([역할: music], 승인 빌드 1회) | 대기 항목 없음(AI 모델 추가 `73704b95e`) |
 | `ai-mastering-studio` | v1.15 · 2026-10-31 ([역할: music], 승인 빌드 1회) | AI 제안 모델 추가(`a7746f979`) |

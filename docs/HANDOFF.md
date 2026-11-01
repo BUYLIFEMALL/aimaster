@@ -2,6 +2,13 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog — 블로그 담당 인수, SEO v2.22·올인원 v1.56 배포
+- 담당: Codex 크레딧 소진으로 주인님 지시에 따라 `blog-neighbor-care`·`naver-blog-agent` 포함 블로그 전체 인수. 맥미니 보조 계정 작업자와 협업(맥미니 코드·화면 검수, 윈도우 시험·빌드·배포·DB).
+- 배포(승인 빌드 2회, 순차): SEO v2.22(시험 142 통과·1 건너뜀[윈도우에 python3 없음], tsc·빌드, DB/ZIP OK), 올인원 v1.56(시험 37/37, tsc·빌드, Ready, DB/ZIP OK).
+- 못 한 것: 화면 검수 미완료. **맥미니 요청**: SEO 노드별·제품 참고 사진 이미지 2장·문체 30개 분석 1회·ZIP 풀기 / 올인원 설정 창 계정 키 표시·저장·예전 키 옮기기·글 1편(시험 계정, 승인된 범위).
+- 다음 첫 단계: 이웃 소통 WIP `b3fcfaabf` 마무리(`docs/HANDOFF_20261030_BLOG_MONITOR_WIP_TO_NEXT_CLI.md` §5).
+- https://naver-blog-seo-studio.buylife.xyz · https://naver-blog-allinone.buylife.xyz
+
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가 v1.18 받을 봇 고르기
 
 - 원인: 상가에 직접 연결한 봇이 없으면 `telegramLinkFor`가 가장 최근 연결 봇을 고른다. 시험 계정은 10월 31일 쿠팡 봇 연결 뒤 상가 알림이 `aimaster_coupang_bot`으로 갔다(0시 20분 알림 도착 캡처 확인, 이메일도 도착).
