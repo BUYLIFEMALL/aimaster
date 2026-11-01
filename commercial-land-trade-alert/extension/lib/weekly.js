@@ -19,6 +19,21 @@ export function shouldSendWeekly(on, sentKey, history, now = Date.now()) {
   return key === sentKey ? null : key;
 }
 
+/** 채널마다 따로 보낸다. channels: [{ name, send }] → 보낸 채널과 실패 채널 */
+export async function sendToChannels(channels) {
+  const sent = [];
+  const failed = [];
+  for (const c of channels) {
+    try {
+      await c.send();
+      sent.push(c.name);
+    } catch (e) {
+      failed.push({ name: c.name, message: e.message || String(e) });
+    }
+  }
+  return { sent, failed };
+}
+
 const diff = (a, b) => (b - a > 0 ? `+${b - a}` : `${b - a}`);
 
 export function buildWeeklyReport({ history, eventLog, now = Date.now() }) {

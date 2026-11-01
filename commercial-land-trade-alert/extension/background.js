@@ -8,7 +8,7 @@ import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
 import { daysSince, estimateYield, gapText, marketGap, scoreListing, yieldText } from "./lib/score.js";
 import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable, trendText } from "./lib/stats.js";
-import { buildWeeklyReport, shouldSendWeekly } from "./lib/weekly.js";
+import { buildWeeklyReport, sendToChannels, shouldSendWeekly } from "./lib/weekly.js";
 import { ALERT_PREFIX, buildKakaoText, buildMailHtml, buildMailSubject, buildSummary, kakaoLinkFor, sendDocument, sendKakaoMemo, sendMessage, sendResendMail } from "./lib/notify.js";
 
 const WEB = "https://commercial-land-trade-alert.buylife.xyz";
@@ -235,18 +235,23 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
   if (kakao) await sendKakaoMemo(kakao.accessToken, buildKakaoText(perTarget), kakaoLinkFor(perTarget)).catch((e) => addLog(`카톡 실패: ${e.message}`));
 }
 
-// 주간 리포트: 회원이 팝업에서 켠 경우만. 채널마다 따로 보내고, 보낸 뒤 이번 주 표시를 남긴다.
+// 주간 리포트: 회원이 팝업에서 켠 경우만. 채널마다 따로 보내고, 한 곳이라도 도착해야 이번 주 표시를 남긴다(전부 실패하면 다음 수집 때 다시 보낸다).
 async function sendWeekly(settings) {
   const { weeklyOn, weeklySentKey, history = [], eventLog = [] } = await get(["weeklyOn", "weeklySentKey", "history", "eventLog"]);
   const key = shouldSendWeekly(weeklyOn, weeklySentKey, history);
   if (!key) return;
   const rep = buildWeeklyReport({ history, eventLog });
   if (!rep) return;
-  if (settings.telegram) await sendMessage(settings.telegram.botToken, settings.telegram.chatId, rep.text).catch((e) => addLog(`텔레그램 실패: ${e.message}`));
-  if (settings.email?.apiKey) await sendResendMail(settings.email.apiKey, { to: settings.email.to, subject: rep.subject, text: rep.text }).catch((e) => addLog(`이메일 실패: ${e.message}`));
-  if (settings.kakao?.accessToken) await sendKakaoMemo(settings.kakao.accessToken, rep.kakao, `${WEB}/results`).catch((e) => addLog(`카톡 실패: ${e.message}`));
+  const channels = [];
+  if (settings.telegram) channels.push({ name: "텔레그램", send: () => sendMessage(settings.telegram.botToken, settings.telegram.chatId, rep.text) });
+  if (settings.email?.apiKey) channels.push({ name: "이메일", send: () => sendResendMail(settings.email.apiKey, { to: settings.email.to, subject: rep.subject, text: rep.text }) });
+  if (settings.kakao?.accessToken) channels.push({ name: "카톡", send: () => sendKakaoMemo(settings.kakao.accessToken, rep.kakao, `${WEB}/results`) });
+  if (!channels.length) { await addLog("주간 리포트: 받는 곳이 연결되지 않아 보내지 않았어요"); return; }
+  const { sent, failed } = await sendToChannels(channels);
+  for (const f of failed) await addLog(`주간 리포트 ${f.name} 실패: ${f.message}`);
+  if (!sent.length) { await addLog("주간 리포트를 보내지 못했어요. 다음 수집 때 다시 보내요"); return; }
   await set({ weeklySentKey: key, weeklyReport: { text: rep.text, at: rep.at, from: rep.from, to: rep.to } });
-  await addLog("주간 리포트를 보냈어요");
+  await addLog(`주간 리포트를 보냈어요(${sent.join("·")})`);
 }
 
 // 예약: 1분마다 깨어나 차례인지 본다(밀린 회차는 1번만)

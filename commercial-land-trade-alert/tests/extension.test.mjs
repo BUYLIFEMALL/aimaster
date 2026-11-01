@@ -214,6 +214,26 @@ test("직전에 본 지역 응답을 버리고 저장 화면 기준을 쓴다", 
   assert.equal(selectViewPages([{ cortarNo: null, body: a }]).cortarNo, null);
 });
 
+test("주간 리포트는 채널마다 따로 보내고 결과를 나눈다", async () => {
+  const { sendToChannels } = await import("../extension/lib/weekly.js");
+  const fail = () => Promise.reject(new Error("막힘"));
+  const ok = () => Promise.resolve();
+  const part = await sendToChannels([{ name: "텔레그램", send: fail }, { name: "이메일", send: ok }]);
+  assert.deepEqual(part, { sent: ["이메일"], failed: [{ name: "텔레그램", message: "막힘" }] }, "한 곳이 실패해도 다음 채널을 보냄");
+  assert.deepEqual((await sendToChannels([{ name: "텔레그램", send: fail }])).sent, [], "전부 실패하면 보낸 곳 없음");
+});
+
+test("사라진 매물은 이전 가격을 따로 표시하지 않는다", async () => {
+  const { buildMailHtml } = await import("../extension/lib/notify.js");
+  const item = { no: "1", price: 100, priceText: "1억", kindName: "상가", tradeName: "매매", url: "https://new.land.naver.com/a" };
+  const before = compareTarget(null, [item]).state;
+  const gone = compareTarget(before, [], { complete: true }).events.find((e) => e.type === "gone");
+  assert.equal(gone.prevPriceText, undefined);
+  const html = buildMailHtml([{ name: "상가 1", total: 0, events: [gone] }]);
+  assert.ok(!html.includes("이전 1억"), "가격 중복 없음");
+  assert.match(html, /white-space:nowrap;"><a href=/, "링크 칸 줄바꿈 없음");
+});
+
 test("통계 요약과 주간 리포트", async () => {
   const { parsePriceCell, pickEvents, pushHistory, summarizeTable, trendText } = await import("../extension/lib/stats.js");
   const { buildWeeklyReport, shouldSendWeekly, weeklyKey } = await import("../extension/lib/weekly.js");

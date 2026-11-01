@@ -34,7 +34,7 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
   if (prev) {
     for (const [no, old] of Object.entries(prev.items)) {
       if (nextItems[no]) continue;
-      if (complete) events.push({ type: "gone", item: old.item, prevPriceText: old.priceText, firstSeen: old.firstSeen });
+      if (complete) events.push({ type: "gone", item: old.item, firstSeen: old.firstSeen });
       else if (now - new Date(old.lastSeen).getTime() < 30 * DAY) nextItems[no] = old;
     }
   }

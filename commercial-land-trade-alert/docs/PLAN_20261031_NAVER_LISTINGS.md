@@ -1,6 +1,6 @@
 # 개발 플랜 — 네이버 매물 읽기 + 시세 대비 분석
 
-상태: 승인(2026-10-31). 0단계 완료, 결과 `docs/PREVALIDATION_20261031_NAVER_LISTINGS.md`. 1단계 대기.
+상태: 승인(2026-10-31). 0단계 완료, 결과 `docs/PREVALIDATION_20261031_NAVER_LISTINGS.md`. 1~3단계 구현 완료(v1.02~v1.08). 남은 확인은 `docs/IMPROVEMENT_BACKLOG.md`.
 근거: 주인님 「네이버 매물 읽기도 해야지」, 「실시간 가격변동 체크, 좋은 매물 찾기 위한 모니터링, 그리고 투자가치분석 기존 시세대비 가격변동률」.
 옛 플랜: `docs/analysis-naver-realty-collector-20261024/PLAN_20261025_BUILDING_LISTING_ALERT.md`(건물만, 별도 프로그램). 이 플랜이 대체한다.
 
