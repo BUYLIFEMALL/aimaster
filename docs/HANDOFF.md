@@ -5,10 +5,10 @@
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — API 키 암호화 문구 A안
 문구 48곳·파일 42개 수정(`b16550ad4`), 미배포 대기. 남은 곳과 범위 밖 문구: `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` 처리 결과.
 
-## 2026-11-01 🟡 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 9→5 결정, SEO v2.22 작업실 병합 마무리(배포 대기)
+## 2026-11-01 🟡 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 9→5 결정, SEO 작업실 병합 마무리(⏸ 미배포 대기)
 - 결정(주인님 승인): 독립 5개(에이전트·SEO·키워드·티스토리·이웃 소통), 병합 4개(① 작업실 → SEO ② 올인원 → 에이전트 ③ BLOG → 에이전트 ④ 콘텐츠 제작 → SEO+이미지·영상). 원본은 닫지 않고 신규 개발만 중단. 근거 `docs/analysis-blog-consolidation-20261020/REPORT.md#blog-9to5-20261101`.
 - 한 일: SEO v2.22 — 이미지 노드별 참고 사진, 문체 수집 20·30개, 문체 주제 정보(승인 지문 밖). 커밋 `0bf9a6d55`(17파일). tsc·시험 133/133 통과.
-- **윈도우에 요청(배포 승인됨, 빌드 1회)**: `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261101.md` 「윈도우 CLI 다음 첫 단계」 — build → extension:archive → deploy → DB version/extension_version v2.22 → check-extension-release.
+- **⏸ 미배포 대기(주인님 「배포는 모아서」)**: `docs/PENDING_DEPLOYS.md`에 등록. 다음에 SEO를 배포하는 세션이 v2.22로 함께 내보냄(순서 `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261101.md`). 코드 버전은 v2.21 그대로(`ae0da6b38`).
 - 남은 일: 배포 뒤 맥 크롬 화면 검수(이미지 1장·문체 분석 1회, 시험 계정). 병합 ②③은 에이전트 담당 Codex와 협의.
 
 ## 2026-11-01 ⚠️ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — 30일 삭제 예외 1단계 적용, 회원 권한 보안 문제 발견
