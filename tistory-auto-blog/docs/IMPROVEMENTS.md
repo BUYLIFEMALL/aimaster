@@ -146,3 +146,6 @@
 - Vercel 빌드1회(인수인계 앱별1회 승인), AI/이미지/영상 생성0. 운영 ref esgxyikcnnvmlhygjkth의 programs 해당1행만 이전버전/예상다운로드URL 조건으로 갱신했고 배포 도우미의 ops집계 갱신 포함. 회원원고/키/연결/권한/스키마 변경0, 실제 입력/발행/예약0.
 - 기존 분량 지시문 대기 fef7491d6·756a2ca7a도 이번 배포 포함을 확인했습니다. 기존 AI 품질 실측은 당시 기록이며 이번 재생성은0입니다.
 - [세 앱 공통 근거](../../docs/analysis-blog-consolidation-20261020/evidence/blog-security-batch-20261026.json)·[이 앱 검사](../../docs/analysis-blog-consolidation-20261020/evidence/tistory-auto-blog-security-tests-20261026.json). 실제 회원 화면/확장 설치본 검수는 별도입니다.
+
+## 2026-11-01 v1.94 사용법 「✨ 새로 생긴 기능」 카드 (맥미니 `claude-mac-20261101-blog`, 주인님 승인 바로 배포)
+- 블로그 정리 뒤 남은 프로그램의 소구점을 사용법(/guide) 맨 위 카드로 안내(기능·설명·「📍 어디서」 실제 메뉴 이름·💡 팁·⚠️ 주의). 컴포넌트 `GuideHighlights.tsx`(블로그 5개 공통 사본, 인라인 스타일). 메인 사이트 소개 문구도 같은 소구점으로 갱신(SQL `docs/program-descriptions/blog-copy-2026-11-01.sql`, DB만). tsc 통과.

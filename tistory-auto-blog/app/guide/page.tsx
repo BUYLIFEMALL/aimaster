@@ -4,6 +4,7 @@ import AutoPublishGuide from '@/blog/components/AutoPublishGuide'
 import { useState } from 'react'
 import Link from 'next/link'
 import { APP_VERSION } from '@/utils/version'
+import { GuideHighlights } from '@/app/_components/GuideHighlights'
 
 interface StepCard {
   step: number
@@ -181,6 +182,8 @@ export default function GuidePage() {
         </div>
       </section>
 
+      {/* 2026-11-01: 새로 생긴 기능(소개 문구와 같은 소구점) */}
+      <GuideHighlights items={[{"icon": "📝", "title": "티스토리 맞춤 원고", "desc": "주제로 티스토리용 원문·이미지·태그를 만들어 내 보관함에 저장합니다.", "where": "좌측 「AI 글쓰기」"}, {"icon": "🧩", "title": "서식 그대로 입력", "desc": "소제목·목록·인용·표를 티스토리 화면에 옮기고, 태그 등록까지 확인합니다.", "where": "크롬 확장(자동 입력)"}, {"icon": "📅", "title": "3가지 발행 방식", "desc": "발행 전까지(입력만)·즉시 발행(마지막 버튼까지 자동)·예약 포스팅(날짜·시간까지 맞춰 둠) 중 고릅니다.", "where": "「AI 글쓰기」 → 포스팅 방식"}, {"icon": "✅", "title": "결과 기록", "desc": "즉시 발행한 글은 글 주소와 발행 시각이 원고에 기록됩니다.", "where": "좌측 「게시글 관리」"}]} tip="태그까지 실제로 등록돼야 완료로 처리하므로, 빠진 항목이 있으면 바로 알 수 있습니다." warn="예약 포스팅은 날짜·시간까지 맞춰 두고 멈춥니다. 티스토리 화면에서 마지막 「예약」 버튼을 직접 눌러 주세요." />
       <AutoPublishGuide />
       {/* 5단계 시각적 파이프라인 다이어그램 */}
       <section className="mb-14">

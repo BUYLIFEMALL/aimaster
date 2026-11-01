@@ -1,6 +1,7 @@
 import AutoPublishGuide from "@/components/AutoPublishGuide";
 import { requireProgramAccess } from "@/lib/access";
 import { StudioSidebar } from "@/components/studio/StudioSidebar";
+import { GuideHighlights } from "@/components/GuideHighlights";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -119,6 +120,8 @@ export default async function GuidePage() {
           </div>
         </section>
 
+        {/* 2026-11-01: 새로 생긴 기능(소개 문구와 같은 소구점) */}
+        <GuideHighlights items={[{"icon": "📚", "title": "근거 승인 후 집필", "desc": "웹 주소·PDF·유튜브·붙여 넣은 원문에서 근거를 모아 승인하고, 그 범위 안에서 구간별로 씁니다.", "where": "좌측 「자료부터 집필」"}, {"icon": "✅", "title": "8영역 검수·한 번에 반영", "desc": "검수 지적을 하나씩 또는 한 번에 반영하고 다시 검수해 고치기 전후를 비교합니다.", "where": "원고 화면 → AI 검수"}, {"icon": "✍️", "title": "내 문체 30개", "desc": "내 블로그 최신 글 5·10·20·30개 중 골라 문체와 블로그 주제를 분석·승인합니다.", "where": "좌측 「내 문체」"}, {"icon": "🖼️", "title": "이미지별 참고 사진", "desc": "이미지마다 참고 사진을 붙이고, 「제품 그대로 넣기」로 제품 모양·색을 살립니다.", "where": "「제목 추천」 참고 사진 / 원고의 본문 이미지 칸"}, {"icon": "📦", "title": "ZIP 내보내기", "desc": "글과 이미지를 ZIP 하나로 받아 다른 곳에도 그대로 씁니다.", "where": "원고 화면 「파일로 내보내기 ▾」 → ZIP(글+이미지)"}, {"icon": "📅", "title": "3가지 발행 방식", "desc": "크롬 확장에서 발행 전까지·즉시 발행·예약 포스팅 중 골라 네이버에 올립니다.", "where": "크롬 확장 사이드패널"}]} tip="이미지 하나에만 다른 사진을 붙이면, 그 이미지는 공통 참고 사진 대신 붙인 사진만 씁니다." warn="참고 사진은 본인이 쓸 권리가 있는 사진만 올려 주세요. 사진은 저장하지 않고 이번 생성에만 씁니다." />
         <AutoPublishGuide />
           <section className="card">
           <h2 className="card-title">🧭 사용 순서</h2>

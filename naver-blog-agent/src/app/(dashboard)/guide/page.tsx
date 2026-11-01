@@ -26,6 +26,7 @@ import { RETENTION_DAYS } from "@/lib/retention";
 import PhotoReviewGuide from "@/components/PhotoReviewGuide";
 import SourceCollectionGuide from "@/components/SourceCollectionGuide";
 import EditorWorkflowGuide from "@/components/EditorWorkflowGuide";
+import { GuideHighlights } from "@/components/GuideHighlights";
 
 export default function GuidePage() {
   const currentYear = new Date().getFullYear();
@@ -108,6 +109,8 @@ export default function GuidePage() {
         </div>
       </div>
 
+      {/* 2026-11-01: 새로 생긴 기능(소개 문구와 같은 소구점) */}
+      <GuideHighlights items={[{"icon": "⚡", "title": "간편 모드", "desc": "주제 하나만 적으면 키워드·화자를 추천받아 원고와 이미지를 한 번에 만듭니다.", "where": "좌측 메뉴 「간편 모드」"}, {"icon": "🧭", "title": "근거 넣고 쓰기", "desc": "참고 URL·추가 지시, 주제 관련 최근 뉴스, 메모·파일 글감을 근거로 사실에 맞춰 씁니다.", "where": "「콘텐츠 생성」 → 기획 세부 조건"}, {"icon": "📸", "title": "사진 후기", "desc": "내 사진 6장과 방문 정보·FAQ로 맛집·여행 후기를 정리합니다.", "where": "「콘텐츠 생성」 → 내 사진 준비"}, {"icon": "📅", "title": "3가지 발행 방식", "desc": "원고마다 발행 전까지·실제 포스팅(즉시)·예약 포스팅 중 고르고, 발행된 글 주소와 시각을 기록합니다.", "where": "원고 결과 화면 → 포스팅 방식"}]} tip="「경험을 떠올릴 질문 받기」로 받은 질문에 직접 답을 적으면, 1인칭 경험은 적은 내용만 씁니다." warn="원고를 확인하고 「최종원고 수정 및 확인 완료」를 체크해야 발행으로 넘어갑니다. 네이버는 크롬에 로그인돼 있어야 합니다." />
       {/* 2. 3단계 핵심 워크플로우 카드 */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">

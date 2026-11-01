@@ -2,6 +2,7 @@ import { GuideLinkButton } from "@/components/workspace/GuideLinkButton";
 import { GEMINI_GUIDE_URL, NAVER_ADS_GUIDE_URL, NAVER_SEARCH_GUIDE_URL } from "@/lib/guides";
 import { FEATURE_INFO } from "@/lib/kw/types";
 import { KeyRound, ExternalLink, UserPlus, Search, Sparkles, TrendingUp, BarChart3, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { GuideHighlights } from "@/components/GuideHighlights";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -48,6 +49,8 @@ export default function GuidePage() {
         </div>
       </section>
 
+      {/* 2026-11-01: 새로 생긴 기능(소개 문구와 같은 소구점) */}
+      <GuideHighlights items={[{"icon": "🏅", "title": "키워드 등급 탐색", "desc": "직접 넣은 키워드 20개까지 검색량·문서 수로 5단계 등급을 매깁니다.", "where": "분석 종류 → 「키워드 등급 탐색」"}, {"icon": "📈", "title": "급상승 검증", "desc": "데이터랩 급상승 키워드를 실제 수치로 확인해 지금 뜨는 주제를 잡습니다.", "where": "분석 종류 → 「급상승 검증」"}, {"icon": "👀", "title": "블로그 벤치마킹", "desc": "관심 블로그의 최근 7일 새 글만 골라 잘되는 글의 구조를 봅니다.", "where": "분석 종류 → 「블로그 벤치마킹」"}, {"icon": "➡️", "title": "SEO 스튜디오로 보내기", "desc": "고른 키워드와 분석 결과를 SEO 스튜디오 글쓰기로 바로 넘깁니다.", "where": "분석 결과 → 「SEO 스튜디오로 보내기」"}]} tip="월간 검색수는 네이버 검색광고 API 키를 등록했을 때 보입니다." warn="점수는 추정치라 상위 노출을 보장하지 않습니다." />
       {/* 2. 3단계 스마트 파이프라인 */}
       <section className="card">
         <h2>🧭 3단계 키워드 공략 파이프라인</h2>

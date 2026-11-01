@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { APP_VERSION } from "@/utils/version";
 import { APP_TITLE, EXTENSION_ENABLED, IS_STANDALONE } from "@/lib/deployment";
+import { GuideHighlights } from "@/app/_components/GuideHighlights";
 
 // 독립 배포판은 모델 목록이 바뀌어도 설명이 틀리지 않게 회사 이름으로 적는다(실제 목록은 글쓰기 화면)
 const MODELS = IS_STANDALONE
@@ -132,6 +133,8 @@ export default function GuidePage() {
         </div>
       </section>}
 
+      {/* 2026-11-01: 새로 생긴 기능(소개 문구와 같은 소구점) */}
+      <GuideHighlights items={[{"icon": "🔰", "title": "4단계만 따라가기", "desc": "게시글 주제 수집 → AI 글쓰기 → 게시글 관리 → 네이버로 보내기, 메뉴 순서대로 진행합니다.", "where": "좌측 메뉴 위에서부터"},{"icon": "📰", "title": "이슈·쇼츠 글감", "desc": "실시간 이슈와 유튜브 쇼츠, 참고 주소에서 바로 쓸 글감을 고릅니다.", "where": "좌측 「게시글 주제 수집」"},{"icon": "🖼️", "title": "글·이미지 한 번에", "desc": "본문·해시태그와 실사 이미지를 한 번에 만들어 줍니다.", "where": "좌측 「AI 글쓰기」"},...(EXTENSION_ENABLED ? [{"icon": "🧩", "title": "확장이 대신 입력", "desc": "「네이버 입력기로 보내기」를 누르면 확장이 제목·본문·이미지를 입력하고, 발행은 직접 누릅니다.", "where": "「게시글 관리」 → 글 보기"}] : [])]} tip="처음이라면 「API키등록·플랫폼연동」에서 AI 키 하나만 등록하고 바로 시작하세요." />
       {/* =================== 1. 4단계 프로세스 파이프라인 =================== */}
       <section className="mb-12">
         <div className="mb-6 flex items-center justify-between">
