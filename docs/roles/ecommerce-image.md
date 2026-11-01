@@ -16,6 +16,7 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `trending-product-finder` | 쿠팡 팝업 시험·키워드 3개 사전 검증 → 자동 검색 구현 → v1.31 배포(결과 사이트 저장 미배포 대기, DB 표·빌드 1회 승인됨) | 2026-11-02 이후 주인님 「쿠팡 시험해」 | `trending-product-finder/AGENTS.md` 맨 아래 |
+| `trending-product-finder` | 네이버 쇼핑 키워드 자동 검색·회원별 저장(부동산 방식, 쿠팡 뒤 순서). 코드 미작성. 시험 전 ego 창 네이버 로그아웃 또는 별도 프로필 확인, 개발 플랜(마켓 칸 표 변경·빌드·상한) 승인 필요 | 주인님 재개 지시(쿠팡 시험 뒤 세션이 다시 여쭘) | `trending-product-finder/docs/PLAN_20261101_COUPANG_REVIEW_FILTER.md` |
 | `shop-order-report` | 마켓별 열 이름·상태 사전 보정 | 주인님 실제 주문 파일(개인정보 지운 사본) | `shop-order-report/docs/IMPROVEMENT_BACKLOG.md` |
 | `coupang-ops` | 임시저장 상품 16433545652 중지 유지(2026-10-31 주인님 지시: 삭제하지 말고 중지만). 승인 요청·삭제 금지, 다시 지시가 있을 때만 재개 | 주인님 재지시 | `coupang-ops/AGENTS.md` 2026-10-31 |
 | `coupang-ops` | 주문 쓰기 실제 1건 시험(상품준비중·송장 등록/수정·출고중지 완료·이미출고·판매자 취소)·발주서 화면 모양 확인 | 실제 주문이 들어온 뒤(주인님 10-30 「시험은 아직 주문이 안되니 나중에」) | `coupang-ops/AGENTS.md` 2026-10-30 |
