@@ -379,6 +379,9 @@ test("동 표본 없는 상가 비교는 참고로만 쓴다", async () => {
   assert.equal(scoreListing({ gap: low }).score, 0, "참고 값은 후보 점수에 넣지 않음");
   const gm = marketGap({ ...it, kind: "GM" }, { samples: { GM: far } });
   assert.equal(gm.weak, false, "건물은 그대로");
+  const land = marketGap({ kind: "TJ", jimok: "전", tradeType: "A1", price: 1000, area: 33.058 }, { samples: { TJ: [1, 2, 3, 4, 5].map(() => [null, 33, 500, 0, "전"]) } });
+  assert.equal(land.weak, true, "토지도 동 표본이 없으면 참고");
+  assert.equal(scoreListing({ gap: land }).score, 0);
 });
 
 test("매매·월세 화면을 나눠도 같은 동 월세로 수익률을 계산한다", async () => {

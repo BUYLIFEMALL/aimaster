@@ -38,8 +38,8 @@ export function marketGap(item, market) {
   if (used.length < MIN_SAMPLES) return null;
   const m = median(used.map((x) => x[2]));
   const perPyeong = item.price / (item.area / SQM_PER_PYEONG);
-  // 상가는 같은 시군구라도 동마다 값 차이가 커서(2026-11-01 역삼동 1층 거래 0건, 다른 동과 비교돼 +272%) 동 표본이 없으면 참고로만 쓴다
-  const weak = item.kind === "SG" && used !== inDong;
+  // 상가·토지는 같은 시군구라도 동마다 값 차이가 커서(2026-11-01 역삼동 상가 +272%, 백석동 토지 -90%) 동 표본이 없으면 참고로만 쓴다
+  const weak = item.kind !== "GM" && used !== inDong;
   return { pct: Math.round((perPyeong / m - 1) * 100), scope: used === inDong ? "동" : "시군구", floorName: item.kind === "TJ" ? item.jimok : FLOOR_NAME[floor] || "", count: used.length, median: m, weak };
 }
 
