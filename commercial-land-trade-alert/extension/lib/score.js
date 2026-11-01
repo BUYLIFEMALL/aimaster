@@ -46,7 +46,7 @@ export function marketGap(item, market) {
 export const gapText = (g) => (g ? `${g.pct > 0 ? "+" : ""}${g.pct}%(${g.scope}${g.floorName ? `·${g.floorName}` : ""} ${g.count}건${g.weak ? "·참고" : ""})` : "");
 
 /**
- * 추정 수익률(%). 같은 화면 월세 매물의 ㎡당 월세·보증금 중간값으로 이 매매 매물의 임대료를 어림한다.
+ * 추정 수익률(%). 같은 동 월세 매물의 ㎡당 월세·보증금 중간값으로 이 매매 매물의 임대료를 어림한다.
  * 연 임대료 ÷ (매매가 - 보증금). 대출·세금·공실은 뺐고, 비슷한 월세 매물이 5건 미만이면 null. 토지는 계산하지 않는다.
  */
 export function estimateYield(item, items) {
@@ -59,6 +59,19 @@ export function estimateYield(item, items) {
   const deposit = median(near.map((x) => (x.price || 0) / x.area)) * item.area;
   if (item.price <= deposit) return null;
   return { pct: Math.round(((rent * 12) / (item.price - deposit)) * 1000) / 10, count: near.length };
+}
+
+/**
+ * 같은 동의 감시 화면을 묶어 수익률을 계산한다. 매매 화면과 월세 화면을 나눠 감시해도 월세를 함께 쓰기 위해서다.
+ * rows: [{ item, area }] area는 동 코드(없으면 감시 화면 id). 사라진 매물은 넣지 않는다.
+ */
+export function applyYields(rows) {
+  const pools = new Map();
+  for (const r of rows) {
+    if (!pools.has(r.area)) pools.set(r.area, new Map());
+    pools.get(r.area).set(r.item.no, r.item);
+  }
+  for (const r of rows) r.item.yieldText = yieldText(estimateYield(r.item, [...pools.get(r.area).values()]));
 }
 
 const YIELD_DOUBT = 15; // 호가 기준 어림이라 이보다 높으면 값을 지우지 않고 확인 표시만 붙인다

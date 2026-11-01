@@ -5,7 +5,7 @@ import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle } fro
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
-import { daysSince, estimateYield, gapText, marketGap, scoreListing, yieldText } from "./lib/score.js";
+import { daysSince, gapText, marketGap, scoreListing, applyYields } from "./lib/score.js";
 import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable, trendText } from "./lib/stats.js";
 import { buildWeeklyReport, sendToChannels, shouldSendWeekly } from "./lib/weekly.js";
@@ -96,6 +96,7 @@ async function runCollection(trigger) {
     const { states = {} } = await get("states");
     const perTarget = [];
     const fileRows = [];
+    const yieldRows = [];
     let total = 0;
     let result = "ok";
     let errMsg = null;
@@ -148,12 +149,14 @@ async function runCollection(trigger) {
         const saved = cmp.state.items[it.no];
         const gap = marketGap(it, market);
         const s = scoreListing({ gap, drops: saved?.drops || 0, ageDays: daysSince(saved?.firstSeen) });
-        Object.assign(it, { gapText: gapText(gap), gapPct: gap?.pct ?? null, score: s.score, reasons: s.reasons, candidate: s.candidate, yieldText: yieldText(estimateYield(it, items)) });
+        Object.assign(it, { gapText: gapText(gap), gapPct: gap?.pct ?? null, score: s.score, reasons: s.reasons, candidate: s.candidate });
       }
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));
       for (const it of items) {
         const e = statusOf.get(it.no);
-        fileRows.push({ item: { ...it, targetName: t.name }, status: e ? e.type : "same", prevPriceText: e?.prevPriceText, firstSeen: cmp.state.items[it.no]?.firstSeen });
+        const row = { item: { ...it, targetName: t.name }, status: e ? e.type : "same", prevPriceText: e?.prevPriceText, firstSeen: cmp.state.items[it.no]?.firstSeen };
+        fileRows.push(row);
+        yieldRows.push({ item: row.item, area: cortarNo || t.id });
       }
       for (const e of cmp.events.filter((x) => x.type === "gone")) fileRows.push({ item: { ...e.item, targetName: t.name }, status: "gone", prevPriceText: e.prevPriceText, firstSeen: e.firstSeen });
       perTarget.push({ name: t.name, total: items.length, events: filterEvents(cmp.events, settings.delivery), firstRun: cmp.firstRun, complete: r.complete, pagesRead: r.pagesRead, filterChanged, filterText: r.filter?.text ?? null });
@@ -162,6 +165,7 @@ async function runCollection(trigger) {
     }
 
     if (limitHit) await set({ limitDate: kstDate() });
+    applyYields(yieldRows);
     const table = toTable(fileRows);
     const iv = settings.schedule?.intervalMinutes || 360;
     await set({

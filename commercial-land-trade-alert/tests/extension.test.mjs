@@ -380,3 +380,14 @@ test("동 표본 없는 상가 비교는 참고로만 쓴다", async () => {
   const gm = marketGap({ ...it, kind: "GM" }, { samples: { GM: far } });
   assert.equal(gm.weak, false, "건물은 그대로");
 });
+
+test("매매·월세 화면을 나눠도 같은 동 월세로 수익률을 계산한다", async () => {
+  const { applyYields } = await import("../extension/lib/score.js");
+  const sale = { no: "s", kind: "SG", tradeType: "A1", price: 100000, area: 100, floor: "1/5" };
+  const rents = [1, 2, 3, 4, 5].map((n) => ({ no: `r${n}`, kind: "SG", tradeType: "B2", price: 5000, rent: 500, area: 100, floor: "1/5" }));
+  const other = { ...sale, no: "o" };
+  const rows = [{ item: sale, area: "동1" }, ...rents.map((item) => ({ item, area: "동1" })), { item: other, area: "동2" }];
+  applyYields(rows);
+  assert.equal(sale.yieldText, "6.3%(월세 5건)");
+  assert.equal(other.yieldText, "", "다른 동 월세는 쓰지 않음");
+});
