@@ -55,7 +55,7 @@ test('MUI05 hiding the tab stops the server session when background checking is 
 });
 test('MUI07 by default the screen asks for no cron-job.org key and starts on this PC through the extension',async()=>{
  await mount(v=>v.operation==='start'?{data:{sessionId:'11111111-1111-4111-8111-111111111111'}}:catalog(null,{serverFeedEnabled:false,hasCronKey:false,scheduler:{jobId:null,active:false,paused:false}}),async({click,document,window,calls})=>{
-  await click('선택 항목');assert.doesNotMatch(document.body.textContent,/cron-job/);assert.equal(document.querySelector('input[type=password]'),null);assert.match(document.body.textContent,/이 PC의 확장이 읽으므로/);
+  assert.doesNotMatch(document.body.textContent,/cron-job/);await click('선택 항목');assert.doesNotMatch(document.body.textContent,/cron-job/);assert.equal(document.querySelector('input[type=password]'),null);assert.match(document.body.textContent,/이 PC의 확장이 읽으므로/);
   const fire=async(el,value)=>{const props=el[Object.keys(el).find(k=>k.startsWith('__reactProps'))];await React.act(async()=>props.onChange({target:value}));};
   await fire(document.querySelector('select'),{value:'a'});
   const boxes=()=>[...document.querySelectorAll('input[type=checkbox]')];
