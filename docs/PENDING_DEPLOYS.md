@@ -32,7 +32,6 @@
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
 | ai-image-studio, ai-influencer-studio, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, ai-writing-editor, allinone-graphic, banana-canvas, blog-workroom, booking-reminder, cinematic-storyboard-studio, insta_auto_poster, kakao_auto_poster, landing-architect, mbti-character, music, naver-blog-allinone, personality-suite, persona-style-studio, playlist-channel-studio, prompt-template-studio, react-ui-showcase, reverse-prompt, shop-detail-page, shots, stepmail, style-dna-analyzer, tarot, threads-easy-planner, thumbnail-master, ui-canvas, vinyl-lp-studio, youtube-viral-studio | API 키 암호화 문구 수정(문구만, 각 프로그램 다음 배포 때 함께) | `b16550ad4` | 2026-11-01 [역할: realty] Claude Code(윈도우) | `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` |  |
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
-| `blog-neighbor-care` | 새 글 자동 확인 안내문의 옛 cron-job.org 문구 수정(소스만, v1.04 배포 뒤 발견) | 2026-11-01 커밋 참조 | 2026-11-01 · [역할: blog] Claude Code 윈도우 | `docs/HANDOFF.md` 2026-11-01 v1.04 항목 | 환경변수 등록 때 함께 배포. 운영 v1.04 |
 | `shop-detail-page` | 마켓 등록에 쿠팡 칸 추가(2026-10-31 `claude-win-sdp`, tsc 통과, 쿠팡 v1.05 연계) |
 | `seller-label-docs` | 공용 흐름 띠 사본에 「🛒 마켓 등록」 단계 추가(`shop-flow` 사본만, 동작 변화는 띠 단계 하나) | `48b67dd5c` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow 줄 | 각 프로그램 다음 배포 때 함께(버전 +0.01) |
 | `detail-page-12p` · `auto-detail-page` (이동 안내만) | EC-W12 쓰이지 않던 옛 엔진·화면 파일 39개 삭제(화면·경로 동작 변화 없음, 백업·태그 있음). 일부러 배포할 필요 없음 — 다른 이유로 배포할 때 함께 나감 | `4e660826a` | 2026-10-26 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | 각 폴더 `AGENTS.md` 맨 위 | 함께 나가면 이 줄을 「내보낸 기록」으로(버전은 그때 +0.01) |
@@ -69,6 +68,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `blog-neighbor-care` | v1.05 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-donc06qa2`) | 새 글 확인 환경변수 2개 등록, 서버 RSS 미리보기 차단, 안내문 수정. ZIP·DB OK. Edge 실검수 전 |
 | `blog-neighbor-care` | v1.04 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-4fn9tvouc`) | 16묶음+회원 PC 확장 새 글 확인, SQL 10개 적용(표 16개), ZIP·DB OK. 운영 `BNC_` 환경변수 없음으로 기능은 꺼짐 |
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |

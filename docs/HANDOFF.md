@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 소통 v1.05 새 글 확인 켜기
+
+- **한 일:** 주인님 승인으로 운영 환경변수 `BNC_FEED_READ_ENABLED`, `BNC_FEED_READ_POLICY_REFERENCE`(값: 마케팅 예외 지침 경로) 등록, 빌드 1회, v1.05 배포(`blog-neighbor-care-donc06qa2`). DB·ZIP v1.05 OK. 안내문 수정 함께 배포.
+- **찾아 막은 것:** 이 값을 켜면 `posts` 경로의 `fetch_preview`가 운영 서버에서 RSS를 읽게 되어, `BNC_SERVER_FEED_ENABLED` 뒤로 옮김(`79f3e6084`). 그래서 화면 「새 글 자료 준비」의 RSS 불러오기 버튼은 운영 준비 오류 문구가 나옵니다. XML 붙여넣기는 동작. 주인님 방침 「결과 보면서 수정」에 따라 실제 사용을 본 뒤 정리.
+- **못 한 것:** 새 ZIP 설치 후 Edge 실검수. RSS 허용 근거 값은 내부 지침 경로이며 네이버 약관 검토 결과가 아닙니다.
+- **다음 첫 단계:** v1.05 ZIP 덮어쓰기·새로고침 → 이웃 1명으로 시작 → 탭 닫기 → 15분 뒤 확장 창 마지막 확인 시각과 저장 글 확인.
+- **링크:** https://blog-neighbor-care.buylife.xyz/neighbors
+
+
 ## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 소통 v1.04 운영 배포(SQL 10개 + 빌드 1회)
 
 - **한 일:** 주인님 승인으로 16묶음과 PC 확장 전환을 v1.04로 배포했습니다. 운영 DB(`esgxyikcnnvmlhygjkth`)에 SQL 10개를 한 트랜잭션으로 적용(표 16개, 전체 RLS). 실행 확정 클릭은 권한 장치에 막혀 주인님이 직접 눌렀습니다. 빌드 1회 Ready, `https://blog-neighbor-care-4fn9tvouc-buylife.vercel.app`.
