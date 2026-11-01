@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · real_estate_sales v1.34 임장 노트 1차
+
+- **한 일:** 메뉴 「📷 임장 노트」(관리자·시험 계정에만 표시). 촬영 순간 위치 측정 후 저장, 앨범 사진 위치 읽기, 위치가 없으면 지도에서 지정, 행정동 자동 분류, 사진 긴 변 1600px, 메모·상태·별점, 삭제, 1년 자동 정리. 운영 DB(`esgxyikcnnvmlhygjkth`) 표 2개·비공개 버킷 `real-estate-onsite`. 대기 중이던 월세 표기·`deal_type`도 함께 배포.
+- **확인:** 시험 5개 추가·기존 14개 통과, 빌드, 시험 계정 크롬에서 앨범 저장→지도 지정→분류→메모→삭제, DB 0건 복귀, 공개 주소 차단, 브이월드 배경지도, 400px 내부 틀.
+- **못 한 것:** 실제 휴대폰 카메라 촬영·현장 위치. 실제 창 폭 시험(창이 최대화 상태). 1년 정리 실행.
+- **다음 첫 단계:** 주인님 휴대폰 현장 시험 → 위치정보요약DB 승인되면 파일로 칸·용량·정확도 측정 → 주소 자동 등록 → `src/lib/onsite/types.ts`의 공개 제한 제거. 설계 메모: `docs/analysis-realty-roadmap-20261031/PLAN_ONSITE_GEO.md` §10.
+- **링크:** https://real-estate-sales.buylife.xyz/onsite
+
 ## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · naver-blog-allinone v1.57 즉시 배포
 
 - **한 일:** 맥미니 요청과 주인님 승인으로 `edd6edfd0`(본문 이미지 없음인데 2장 생성·과금되던 버그, 키 안내 문구)을 배포. 커밋 대조, 시험 37개, 타입 통과. Ready, DB·ext·ZIP v1.57, `check-extension-release` OK.

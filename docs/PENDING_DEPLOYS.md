@@ -22,7 +22,6 @@
 - `trending-product-finder` — 쿠팡 리뷰 결과 회원별 사이트 저장, 확장 연결 (2026-11-01, [역할: ecommerce-image], `308da3f1c`, DB 표 적용 완료, 빌드 1회 승인됨). 쿠팡 시험·자동 검색과 묶어 v1.31로 배포
 - `coupang-ops` — 텔레그램 끊기, 다른 프로그램 봇 빌려 쓰기 제거 (2026-11-01, [역할: ecommerce-image], `8479b2009`, 실제 끊기 내 PC에서 통과) · 페이지 설명 위너 문구 제거(`ebd28e0e9`)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
-- `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
 
 
 
@@ -92,6 +91,7 @@
 | `realty-listing-alert` | v1.39 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 단지 비교 표 「📈 실거래 ↗」(`c8f9bf948`) |
 | `commercial-land-trade-alert` | v1.02 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 네이버 매물 1단계, 3채널 알림, 이름 변경, 상세 문구 |
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |
+| `real_estate_sales` | v1.34 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 임장 노트 1차(시험 계정까지), 대기 중이던 월세 표기·`deal_type` |
 | `real_estate_sales` | v1.33 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 전월세 거래 목록·알림 |
 | `real_estate_sales` | v1.32 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 공공데이터포털 공용 키 교체 적용, 지역당 20건 안내 문구 |
 | `commercial-land-trade-alert` | v1.14 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 토지 비교 보류, 시세 대비 표시, 지역 화면 정리 등 |
