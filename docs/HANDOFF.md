@@ -2,6 +2,12 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `trending-product-finder` v1.30 쿠팡 리뷰 거르기 확장
+- 한 일: 회원이 검색한 쿠팡 화면만 읽어 리뷰 수로 거르는 크롬 확장, 안내 화면 `/coupang-reviews`. 주인님 지정 예외(§8), 회원 책임 고지. 승인 빌드 1회, DB·ZIP v1.30.
+- 사전 검증: 비로그인 1페이지 2회 정상, 주소로 연 2페이지 2회 「검색결과 없음」으로 중단(원인 미구분). 그래서 자동 수집 없이 회원이 직접 넘기는 설계.
+- 못 한 것: 팝업 실물 시험. 다음 첫 단계: 11-02 이후 시험 계정으로 설치해 1~2페이지 확인. 상세 `trending-product-finder/AGENTS.md` 맨 아래.
+- https://trending-product-finder.buylife.xyz/coupang-reviews
+
 ## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog — 블로그 담당 인수, SEO v2.22·올인원 v1.56 배포
 - 담당: Codex 크레딧 소진으로 주인님 지시에 따라 `blog-neighbor-care`·`naver-blog-agent` 포함 블로그 전체 인수. 맥미니 보조 계정 작업자와 협업(맥미니 코드·화면 검수, 윈도우 시험·빌드·배포·DB).
 - 배포(승인 빌드 2회, 순차): SEO v2.22(시험 142 통과·1 건너뜀[윈도우에 python3 없음], tsc·빌드, DB/ZIP OK), 올인원 v1.56(시험 37/37, tsc·빌드, Ready, DB/ZIP OK).

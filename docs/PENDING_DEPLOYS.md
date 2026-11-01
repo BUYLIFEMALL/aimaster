@@ -103,6 +103,7 @@
 | `real_estate_sales` | v1.23 · 2026-10-30 ([역할: realty], 승인 빌드 1회) | RE-B4 경기·인천 확장(`9ab5d5ba3`) · RE-B5 `zod` ^4.6.7(`8f86de0ec`) |
 | `realty-listing-alert` | v1.37 · 2026-10-29 ([역할: realty], 승인 빌드 1회) | (대기 항목 없음) 추가개선 5·6·7 — 주간 동향 글로 쓰기·블로그/티스토리 고르기·「최근 6개월 매매 신고 없음 (n일째)」 (`f8156bd12`) |
 | `blog-neighbor-care` | v1.03 · 2026-10-29 · Codex `codex-win-20261026-blog-check` · dpl_FM3zxNjsfHPYB4GrTe2q7LLRXZBu | 좌측메뉴표준/모바일계정·진단·정리5종·중단/반복설정·비공개실행인증/최소결과·확장가시성/진행범위(소스a93fc9ecd까지),SQL재적용없음 |
+| `trending-product-finder` | v1.30 · 2026-11-01 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회) | 쿠팡 리뷰 거르기 확장·안내 화면 `839fc5860` |
 | `trending-product-finder` | v1.29 · 2026-10-29 ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-2arev86dm`) | 흐름 띠 「🛒 마켓 등록」 단계(`48b67dd5c`) (본 작업: 스마트스토어 수수료 6.63% 공식 대조 `6ce752039`) |
 | `shop-order-report` | v1.05 · 2026-10-29 ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`, 승인 빌드 1회 `shop-order-report-3qdt03vl7`) | 흐름 띠 「🛒 마켓 등록」 단계(`48b67dd5c`) + 사이드바 프로그램명 2열(`187ec0d28`) (본 작업: 스마트스토어 수수료 6.63% `6ce752039`) |
 | `shop-detail-page` | v1.40 · 2026-10-29 ([역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp`, 승인 빌드 1회 `shop-detail-page-izoi9n7fk`) | 옛 12단 자료 가져오기 삭제(`f4b930e99`) · 나노바나나 2.1 표기·2K 비용 $0.0504 정정(`e0da4a46a`) |
