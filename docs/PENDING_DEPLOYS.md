@@ -21,10 +21,6 @@
 
 - `trending-product-finder` — 쿠팡 리뷰 결과 회원별 사이트 저장, 확장 연결 (2026-11-01, [역할: ecommerce-image], `308da3f1c`, DB 표 적용 완료, 빌드 1회 승인됨). 쿠팡 시험·자동 검색과 묶어 v1.31로 배포
 - `coupang-ops` — 텔레그램 끊기, 다른 프로그램 봇 빌려 쓰기 제거 (2026-11-01, [역할: ecommerce-image], `8479b2009`, 실제 끊기 내 PC에서 통과) · 페이지 설명 위너 문구 제거(`ebd28e0e9`)
-- `commercial-land-trade-alert` — 토지도 동 표본이 없으면 시세 대비 참고 처리 (2026-11-01, [역할: realty], 확장 변경이라 배포 때 manifest·ZIP·DB 버전 함께)
-- `commercial-land-trade-alert` — 설정 화면 이메일 경고, 읽은 범위 화면 이름 전체 표시 (2026-11-01, [역할: realty], 다음 배포 때 함께)
-- `commercial-land-trade-alert` — 크롬 사이트 액세스 제한으로 메일이 막히면 기록·팝업에 안내 (2026-11-01, [역할: realty], 확장 변경이라 배포 때 manifest·ZIP·DB 버전 함께)
-- `commercial-land-trade-alert` — 행정동으로 법정동 찾기, 법정동 기준 표시 (2026-11-01, [역할: realty], 다음 배포 때 함께)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
 - `real_estate_sales` — 월세 금액 표기, 매매 저장 때 `deal_type` 명시 (2026-10-31, [역할: realty], 급하지 않아 다음 배포 때 함께)
 
@@ -76,6 +72,7 @@
 | `blog-neighbor-care` | v1.04 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-4fn9tvouc`) | 16묶음+회원 PC 확장 새 글 확인, SQL 10개 적용(표 16개), ZIP·DB OK. 운영 `BNC_` 환경변수 없음으로 기능은 꺼짐 |
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `commercial-land-trade-alert` | v1.22 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 행정동 찾기, 메일 권한 안내, 이메일 경고, 토지 비교 참고 처리, 좌표 진단 |
 | `commercial-land-trade-alert` | v1.21 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 수익률을 같은 동 감시 화면 월세로 계산(`a7cfe7127`) |
 | `commercial-land-trade-alert` | v1.20 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 네이버 필터·잘림 표시, 필터 변경 회차 기준 재저장, 동 표본 없는 상가 비교 「참고」, 쿠팡 봇 제외(`1f488abf2`) |
 | `commercial-land-trade-alert` | v1.19 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 주간 리포트 도착 뒤 기록, 사라진 매물 이전 가격 중복 제거, 이메일 링크 줄바꿈 막음(`b42607427`) |

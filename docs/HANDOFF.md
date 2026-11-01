@@ -43,6 +43,11 @@
 
 > [역할: ecommerce-image] **AI 쿠팡 운영 자동화(coupang-ops) 공식 실사(포토리얼) 썸네일 등록 완료** — 2026-11-01: 지침(docs/PLATFORM_PATTERNS.md §13)에 따라 16:9 포토리얼 실사 썸네일(30대 한국인 대표, 노트북 대시보드 UI, 배경 배송 박스, 글자/숫자/로고 0건) 생성. scripts/upload-program-thumbnail.mjs로 Supabase Storage program-images/catalog/coupang-ops-thumbnail.jpg 업로드 및 DB programs.thumbnail_url 갱신(?v=1793460612379) 완료. 6분할 확대 점검(scripts/thumbnail-zoom-tiles.mjs) 결과 화면·배경 가짜 글자/상표 0건 검증 완료. 로컬 coupang-ops/public/coupang-ops-thumbnail.jpg 및 Vercel 배포 완료.
 
+## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가·건물·토지 v1.22 배포
+
+- 행정동 찾기(행안부 코드 2026-10-26), 메일 권한 안내, 이메일 경고, 토지 비교 참고 처리, 좌표 진단. 주 사용자는 공인중개사(주인님). 시험 48개, 승인 빌드 1회.
+- 다음 첫 단계: 확장 갱신 뒤 수집 → 좌표 진단 확인 → 행정동별 매물 보기 사전 검증. 플랜 `commercial-land-trade-alert/docs/PLAN_20261101_ADMIN_DONG.md`. 링크: https://commercial-land-trade-alert.buylife.xyz/watch
+
 ## 2026-11-01 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 상가·건물·토지 v1.21 배포
 
 - 수익률을 같은 동 감시 화면 월세로 계산. 주인님 결정으로 매매·월세 화면을 나눠 감시한다. 시험 45개, 승인 빌드 1회.
