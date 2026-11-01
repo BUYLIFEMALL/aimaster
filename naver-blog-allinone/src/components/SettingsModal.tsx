@@ -15,7 +15,9 @@ import {
   Image as ImageIcon,
   ShieldCheck,
 } from "lucide-react";
-import { AppSettings, getStoredSettings, saveStoredSettings } from "@/lib/storage";
+import { AppSettings, clearLegacyKeys, getLegacyKeys, getStoredSettings, legacyKeysToMove, saveStoredSettings, withAccountKeys, type AccountKeys, type KeyProvider } from "@/lib/storage";
+
+const PROVIDER_LABEL: Record<KeyProvider, string> = { gemini: "Gemini", openai: "OpenAI", anthropic: "Claude", replicate: "Replicate" };
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -36,19 +38,39 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [loadingAccountKeys, setLoadingAccountKeys] = useState(false);
   const [accountKeyMessage, setAccountKeyMessage] = useState("");
+  // 2026-11-01: 키 원본은 회원 본인 AIMaster 계정. 열 때 계정 키를 채우고, 계정에 없고 이 브라우저에만 있던 예전 키는 「옮기기」 대상으로 보여 준다.
+  const [accountKeys, setAccountKeys] = useState<AccountKeys>({});
+  const [legacyProviders, setLegacyProviders] = useState<KeyProvider[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  const fillFields = (keys: AccountKeys) => {
+    setApiKey(keys.gemini ?? "");
+    setOpenaiKey(keys.openai ?? "");
+    setAnthropicKey(keys.anthropic ?? "");
+    setReplicateKey(keys.replicate ?? "");
+  };
 
   useEffect(() => {
     if (isOpen) {
       const s = getStoredSettings();
-      setApiKey(s.geminiApiKey);
-      setOpenaiKey(s.openaiApiKey ?? "");
-      setAnthropicKey(s.anthropicApiKey ?? "");
-      setReplicateKey(s.replicateApiKey ?? "");
       setTextModel(s.textModel);
       setImageModel(s.imageModel);
       setTestStatus("idle");
       setTestMessage("");
       setSavedSuccess(false);
+      setAccountKeyMessage("");
+      fillFields({});
+      fetch("/api/my-keys", { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data: { keys?: AccountKeys } | null) => {
+          const account = data?.keys ?? {};
+          const legacy = getLegacyKeys();
+          const move = legacyKeysToMove(legacy, account);
+          setAccountKeys(account);
+          setLegacyProviders(move);
+          fillFields({ ...account, ...Object.fromEntries(move.map((p) => [p, legacy[p]])) });
+        })
+        .catch(() => setAccountKeyMessage("계정에 등록된 키를 불러오지 못했습니다. 잠시 후 다시 열어 주세요."));
     }
   }, [isOpen]);
 
@@ -87,7 +109,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
     }
   };
 
-  // 내 AIMaster 계정(user_api_keys)에 등록해 둔 본인 키를 입력칸에 채운다. 이미 입력된 칸은 덮어쓰지 않고, 저장은 [로컬에 저장]을 눌러야 적용된다.
+  // 내 AIMaster 계정(user_api_keys)의 최신 키로 입력칸을 다시 채운다(다른 프로그램·메인 사이트에서 바꾼 경우).
   const handleLoadAccountKeys = async () => {
     setLoadingAccountKeys(true);
     setAccountKeyMessage("");
@@ -95,20 +117,12 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
       const res = await fetch("/api/my-keys", { cache: "no-store" });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "등록된 키를 불러오지 못했습니다.");
-      const k = data.keys as Record<string, string | null>;
-      const filled: string[] = [];
-      if (k.gemini && !apiKey.trim()) { setApiKey(k.gemini); filled.push("Gemini"); }
-      if (k.openai && !openaiKey.trim()) { setOpenaiKey(k.openai); filled.push("OpenAI"); }
-      if (k.anthropic && !anthropicKey.trim()) { setAnthropicKey(k.anthropic); filled.push("Claude"); }
-      if (k.replicate && !replicateKey.trim()) { setReplicateKey(k.replicate); filled.push("Replicate"); }
-      const found = ["gemini", "openai", "anthropic", "replicate"].filter((p) => k[p]).length;
-      setAccountKeyMessage(
-        found === 0
-          ? "AIMaster 계정에 등록된 키가 없습니다."
-          : filled.length
-            ? `${filled.join("·")} 키를 불러왔습니다. 아래 [로컬에 저장]을 눌러 이 브라우저에 적용하세요.`
-            : "계정에 등록된 키가 이미 모두 입력되어 있습니다(입력된 칸은 덮어쓰지 않습니다)."
-      );
+      const k = (data.keys ?? {}) as AccountKeys;
+      setAccountKeys(k);
+      fillFields(k);
+      setLegacyProviders([]);
+      const found = (["gemini", "openai", "anthropic", "replicate"] as KeyProvider[]).filter((p) => k[p]).map((p) => PROVIDER_LABEL[p]);
+      setAccountKeyMessage(found.length ? `계정에 등록된 ${found.join("·")} 키로 다시 채웠습니다.` : "AIMaster 계정에 등록된 키가 없습니다.");
     } catch (e) {
       setAccountKeyMessage(e instanceof Error ? e.message : "등록된 키를 불러오지 못했습니다.");
     } finally {
@@ -116,37 +130,50 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
     }
   };
 
-  const handleSave = () => {
-    // 모델 선택 등 다른 저장값은 그대로 두고 키·기존 모델 선택만 갱신한다
-    const nextSettings: AppSettings = {
-      ...getStoredSettings(),
-      geminiApiKey: apiKey.trim(),
-      openaiApiKey: openaiKey.trim(),
-      anthropicApiKey: anthropicKey.trim(),
-      replicateApiKey: replicateKey.trim(),
-      textModel,
-      imageModel,
-    };
-    saveStoredSettings(nextSettings);
-    setSavedSuccess(true);
-    if (onSaved) onSaved(nextSettings);
-    setTimeout(() => {
-      onClose();
-    }, 400);
+  // 입력칸에서 계정 값과 달라진 키만 계정에 저장한다(빈 칸은 계정 키를 지우지 않음). 저장되면 이 브라우저의 예전 키 사본은 지운다.
+  const handleSave = async () => {
+    const fields: Record<KeyProvider, string> = { gemini: apiKey.trim(), openai: openaiKey.trim(), anthropic: anthropicKey.trim(), replicate: replicateKey.trim() };
+    const changed = Object.fromEntries((Object.keys(fields) as KeyProvider[]).filter((p) => fields[p] && fields[p] !== (accountKeys[p] ?? "")).map((p) => [p, fields[p]]));
+    setSaving(true);
+    setAccountKeyMessage("");
+    try {
+      if (Object.keys(changed).length) {
+        const res = await fetch("/api/my-keys", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ keys: changed }) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.error || "API 키를 저장하지 못했습니다.");
+      }
+      clearLegacyKeys();
+      setLegacyProviders([]);
+      const merged: AccountKeys = { ...accountKeys, ...changed };
+      setAccountKeys(merged);
+      // 모델 선택 등 다른 저장값은 그대로 두고 기존 모델 선택만 갱신한다(키는 브라우저에 쓰지 않음)
+      const nextSettings: AppSettings = withAccountKeys({ ...getStoredSettings(), textModel, imageModel }, merged);
+      saveStoredSettings(nextSettings);
+      setSavedSuccess(true);
+      if (onSaved) onSaved(nextSettings);
+      setTimeout(() => {
+        onClose();
+      }, 400);
+    } catch (e) {
+      setAccountKeyMessage(e instanceof Error ? e.message : "API 키를 저장하지 못했습니다.");
+    } finally {
+      setSaving(false);
+    }
   };
 
+  // 입력칸만 비운다. 계정에 저장된 키는 다른 프로그램도 쓰므로 여기서 지우지 않는다(삭제는 메인 사이트 API 설정).
   const handleDeleteKey = () => {
     setApiKey("");
-    const nextSettings: AppSettings = {
-      ...getStoredSettings(),
-      geminiApiKey: "",
-      textModel,
-      imageModel,
-    };
-    saveStoredSettings(nextSettings);
     setTestStatus("idle");
     setTestMessage("");
-    if (onSaved) onSaved(nextSettings);
+  };
+
+  // 이 브라우저에만 있던 예전 키를 계정으로 옮기지 않고 지운다
+  const handleDiscardLegacy = () => {
+    clearLegacyKeys();
+    setLegacyProviders([]);
+    fillFields(accountKeys);
+    setAccountKeyMessage("이 브라우저에 남아 있던 예전 키를 지웠습니다.");
   };
 
   const hasSavedKey = Boolean(apiKey.trim());
@@ -201,7 +228,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
               {hasSavedKey ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  로컬 저장 키 활성화됨
+                  계정 키 사용 중
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
@@ -211,8 +238,20 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              본인의 Google AI Studio API 키를 등록하면 안전하게 브라우저 로컬(localStorage)에 저장되어 모든 글 생성 및 키워드 분석에 우선 적용됩니다.
+              본인의 Google AI Studio API 키를 등록하면 내 AIMaster 계정에 저장되어 모든 글 생성·키워드 분석에 쓰이고, 다른 AIMaster 프로그램에서도 다시 등록하지 않고 그대로 쓸 수 있습니다.
             </p>
+
+            {legacyProviders.length > 0 && (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 space-y-2">
+                <p>
+                  이 브라우저에만 저장돼 있던 <strong>{legacyProviders.map((p) => PROVIDER_LABEL[p]).join("·")}</strong> 키를 찾았습니다. 아래 칸에 채워 두었습니다.{" "}
+                  <strong>[내 계정에 저장]</strong>을 누르면 AIMaster 계정으로 옮겨 다른 기기·프로그램에서도 쓰고, 브라우저 사본은 지웁니다.
+                </p>
+                <button type="button" onClick={handleDiscardLegacy} className="text-[11px] font-semibold text-amber-800 underline cursor-pointer">
+                  옮기지 않고 브라우저 사본만 지우기
+                </button>
+              </div>
+            )}
 
             <div className="space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
@@ -269,11 +308,12 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
               </button>
               <button
                 type="button"
-                onClick={handleSave}
-                className="btn-3d-emerald flex items-center gap-1.5"
+                onClick={() => void handleSave()}
+                disabled={saving}
+                className="btn-3d-emerald flex items-center gap-1.5 disabled:opacity-50"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                로컬에 저장
+                {saving ? "저장 중..." : "내 계정에 저장"}
               </button>
               {hasSavedKey && (
                 <button
@@ -282,7 +322,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                   className="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition ml-auto flex items-center gap-1 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  키 삭제
+                  입력 지우기
                 </button>
               )}
             </div>
@@ -300,11 +340,13 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
               </div>
             )}
 
+            {accountKeyMessage && <p className="text-xs font-semibold text-indigo-800">{accountKeyMessage}</p>}
+
             <div className="flex items-start gap-2 p-3 bg-slate-100/70 rounded-lg text-[11px] text-slate-600">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-slate-800">안전한 로컬 격리 보관:</span>{" "}
-                입력하신 API 키는 외부 서버 데이터베이스로 전송되지 않으며, 사용자 본인의 브라우저(localStorage)에만 안전하게 보관되어 AI 요청 시 직접 사용됩니다.
+                <span className="font-semibold text-slate-800">내 계정에만 보관:</span>{" "}
+                입력하신 API 키는 회원님 본인의 AIMaster 계정에만 저장되고(다른 회원·운영자는 쓰지 않음), 이 브라우저에는 저장하지 않습니다. 화면을 열 때 불러와 AI 요청에 직접 사용합니다. 계정 키 삭제는 메인 사이트 API 설정에서 할 수 있습니다.
               </div>
             </div>
           </div>
@@ -325,11 +367,10 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                 disabled={loadingAccountKeys}
                 className="btn-3d-indigo disabled:opacity-50"
               >
-                {loadingAccountKeys ? "불러오는 중..." : "내 AIMaster 계정에 등록된 키 불러오기"}
+                {loadingAccountKeys ? "불러오는 중..." : "계정에 등록된 키 다시 불러오기"}
               </button>
-              <span className="text-[11px] text-slate-600">Gemini·OpenAI·Claude·Replicate 키를 본인 계정에서 한 번에 채웁니다(본인 키만, 입력된 칸은 덮어쓰지 않음).</span>
+              <span className="text-[11px] text-slate-600">설정 창을 열 때 본인 계정의 Gemini·OpenAI·Claude·Replicate 키를 자동으로 채웁니다. 다른 곳에서 키를 바꿨다면 눌러서 다시 채우세요.</span>
             </div>
-            {accountKeyMessage && <p className="text-xs font-semibold text-indigo-800">{accountKeyMessage}</p>}
             {([
               {
                 id: "openai",
@@ -401,7 +442,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
               </div>
             ))}
             <p className="text-[11px] text-slate-500">
-              키는 이 브라우저(localStorage)에만 저장됩니다. 다만 Replicate(FLUX·Z-Image)는 브라우저에서 직접 호출할 수 없어, 이미지를 만드는 순간에만 키가 AIMaster 서버를 거쳐 전달되며 서버에는 저장하지 않습니다. 입력 후 아래 [로컬에 저장]을 눌러주세요.
+              키는 내 AIMaster 계정에 저장되고 이 브라우저에는 저장하지 않습니다. Replicate(FLUX·Z-Image)는 브라우저에서 직접 호출할 수 없어, 이미지를 만드는 순간에만 키가 AIMaster 서버를 거쳐 전달됩니다. 입력 후 [내 계정에 저장]을 눌러주세요.
             </p>
           </div>
 
@@ -533,7 +574,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/60">
           <p className="text-xs text-slate-500">
-            선택된 모델 및 저장된 API 키는 브라우저 로컬 저장소에 즉시 반영됩니다.
+            선택한 모델은 이 브라우저에, API 키는 내 AIMaster 계정에 저장됩니다.
           </p>
           <div className="flex items-center gap-2">
             <button
@@ -545,7 +586,8 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
             </button>
             <button
               type="button"
-              onClick={handleSave}
+              onClick={() => void handleSave()}
+              disabled={saving}
               className="btn-3d-indigo"
             >
               {savedSuccess ? "저장 완료!" : "완료"}

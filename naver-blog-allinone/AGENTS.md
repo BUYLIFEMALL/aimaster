@@ -1,3 +1,5 @@
+> **⏸ 미배포 대기(2026-11-01, Claude Code 맥미니 `claude-mac-20261101-blog` [역할: mac-mini]) — API 키 저장 정리(블로그 병합 결정 4번):** 키를 브라우저(`localStorage`)에 저장하지 않고 회원 본인 계정(`user_api_keys`)을 원본으로 씀(`src/lib/storage.ts` `withoutKeys`·`withAccountKeys`, `/api/my-keys` `POST` 본인 행 `upsert`·삭제 없음, 설정 창 자동 채움·예전 키 옮기기). AI 호출 구조는 그대로. 시험 `tests/key-storage.test.mjs` 4/4·tsc 통과. 버전은 배포 때 v1.56. [인수인계](docs/IMPROVEMENT_HANDOFF_20261101.md)
+
 > **2026-10-26 v1.54 보안 배포(Codex):** Next.js/eslint-config-next16.4.2·sharp0.35.5, 무료검사33개·tsc·로컬빌드 통과. READY·공식alias·DB/라이브ZIP v1.54 OK. Vercel1회·AI0. 실제 회원 입력/발행/예약은 이번 미검수. [최신 개선 기록](docs/IMPROVEMENTS.md)·[공통 인계 §12](../docs/HANDOFF_20261025_BLOG_TO_CODEX.md#12-2026-10-26-후속--블로그-보안3개-배포seo-메타-정정포그라운드-검수-대기). 아래 버전/대기는 당시 이력입니다.
 
 > **2026-10-25 운영 정합성 점검(Codex):** 기존 READY 배포·공식 도메인 HTML·라이브 ZIP v1.53 확인 후 programs 앱/확장 표시를 v1.53로 정정했습니다. 재배포·소스/회원 데이터 변경 없음. 블로그6개 release 검사 모두 OK. 상세·실행 SQL: [담당 인수인계 §10](../docs/HANDOFF_20261025_BLOG_TO_CODEX.md#10-추천-운영13-실행-기록2026-10-25-codex). 아래 버전 기록은 당시 이력입니다.

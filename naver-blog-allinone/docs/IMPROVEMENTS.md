@@ -59,3 +59,8 @@
 - 무료 검사33개·tsc·로컬빌드 통과 → 팀 빌드0 확인 뒤 한 곳씩 배포 → READY/공식alias·HTTP 버전·인증 응답·DB/확장/라이브ZIP v1.54 OK. 최근15분 운영 오류 기록0.
 - Vercel 빌드1회(인수인계 앱별1회 승인), AI/이미지/영상 생성0. 운영 ref esgxyikcnnvmlhygjkth의 programs 해당1행만 이전버전/예상다운로드URL 조건으로 갱신했고 배포 도우미의 ops집계 갱신 포함. 회원원고/키/연결/권한/스키마 변경0, 실제 입력/발행/예약0.
 - [세 앱 공통 근거](../../docs/analysis-blog-consolidation-20261020/evidence/blog-security-batch-20261026.json)·[이 앱 검사](../../docs/analysis-blog-consolidation-20261020/evidence/naver-blog-allinone-security-tests-20261026.json). 실제 회원 화면/확장 설치본 검수는 별도입니다.
+
+## 2026-11-01 API 키 저장 정리 — 브라우저 → 회원 본인 계정 (맥미니 `claude-mac-20261101-blog`, ⏸ 미배포 대기)
+- ✅(미배포) 키를 `localStorage`에 저장하지 않고 `user_api_keys`(본인 계정)를 원본으로, 예전 브라우저 키는 설정 창에서 계정으로 옮기기. 시험 4/4·tsc. 상세 [IMPROVEMENT_HANDOFF_20261101.md](IMPROVEMENT_HANDOFF_20261101.md).
+- 후보(미구현): AI 호출을 서버로 옮겨 키가 브라우저 메모리에도 오지 않게 하기 — 신규 개발 중단 원칙상 보류.
+- 참고: 맥미니에서는 `npm test`가 안 됨(윈도우용 esbuild) → 윈도우에서 전체 시험.

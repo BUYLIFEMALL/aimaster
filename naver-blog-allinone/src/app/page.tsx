@@ -13,7 +13,7 @@ import { LibrarySection } from "@/components/blog/LibrarySection";
 import { GuideSection } from "@/components/GuideSection";
 import { getPost } from "@/lib/blog/postsApi";
 import type { SavedPost } from "@/lib/blog/types";
-import { AppSettings, DEFAULT_SETTINGS, getStoredSettings } from "@/lib/storage";
+import { AppSettings, DEFAULT_SETTINGS, getLegacyKeys, getStoredSettings, legacyKeysToMove, withAccountKeys, type AccountKeys } from "@/lib/storage";
 import { APP_NAME } from "@/lib/version";
 import { createClient } from "@/lib/supabase/client";
 
@@ -66,6 +66,16 @@ export default function HomePage() {
 
   useEffect(() => {
     setSettings(getStoredSettings());
+    // 2026-11-01: API 키는 회원 본인 계정(user_api_keys)에서 불러와 메모리에서만 쓴다(브라우저에 저장하지 않음).
+    // 예전에 이 브라우저에만 저장한 키가 있고 계정에는 없으면 설정 창을 열어 계정으로 옮기도록 안내한다.
+    fetch("/api/my-keys", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { keys?: AccountKeys } | null) => {
+        const keys = data?.keys ?? {};
+        setSettings((current) => withAccountKeys(current, keys));
+        if (legacyKeysToMove(getLegacyKeys(), keys).length) setIsSettingsOpen(true);
+      })
+      .catch(() => {});
 
     // Load Supabase user email safely
     try {
