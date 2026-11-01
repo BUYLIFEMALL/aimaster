@@ -7,7 +7,7 @@
 
 ## 2026-11-01 🟡 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 9→5 결정, SEO v2.22 작업실 병합 마무리(배포 대기)
 - 결정(주인님 승인): 독립 5개(에이전트·SEO·키워드·티스토리·이웃 소통), 병합 4개(① 작업실 → SEO ② 올인원 → 에이전트 ③ BLOG → 에이전트 ④ 콘텐츠 제작 → SEO+이미지·영상). 원본은 닫지 않고 신규 개발만 중단. 근거 `docs/analysis-blog-consolidation-20261020/REPORT.md#blog-9to5-20261101`.
-- 한 일: SEO v2.22 — 이미지 노드별 참고 사진, 문체 수집 20·30개, 문체 주제 정보(승인 지문 밖). 커밋 `d47023c06`(17파일). tsc·시험 133/133 통과.
+- 한 일: SEO v2.22 — 이미지 노드별 참고 사진, 문체 수집 20·30개, 문체 주제 정보(승인 지문 밖). 커밋 `0bf9a6d55`(17파일). tsc·시험 133/133 통과.
 - **윈도우에 요청(배포 승인됨, 빌드 1회)**: `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261101.md` 「윈도우 CLI 다음 첫 단계」 — build → extension:archive → deploy → DB version/extension_version v2.22 → check-extension-release.
 - 남은 일: 배포 뒤 맥 크롬 화면 검수(이미지 1장·문체 분석 1회, 시험 계정). 병합 ②③은 에이전트 담당 Codex와 협의.
 
