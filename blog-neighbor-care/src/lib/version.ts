@@ -1,2 +1,2 @@
 // Approved batch release: keep app, package, manifest, ZIP and program registration in sync.
-export const APP_VERSION = 'v1.09';
+export const APP_VERSION = 'v1.10';

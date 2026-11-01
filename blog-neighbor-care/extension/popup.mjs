@@ -7,6 +7,7 @@ function applyButtons(){
   $('contextRead').disabled=busy||active||!$('contextPreview').hidden;$('contextKind').disabled=busy||active||!$('contextPreview').hidden;
   $('neighborRead').disabled=busy||active||(currentProgress?.state==='complete'&&currentProgress.stage!=='confirmed')||!currentDeviceId;
 }
+const running=chrome.runtime.getManifest().version_name;$('runningVersion').textContent=`실행 중 버전 ${running}`;$('runningBadge').textContent=running;
 function showStatus(text,state='idle'){
   $('status-heading').textContent=state==='error'?'확인 필요':'지금 상태';$('message').textContent=text;
   document.querySelector('.status-card').dataset.state=state;
@@ -45,7 +46,7 @@ async function status() {
     $('connection').textContent = r.connected ? `연결된 블로그: ${r.blogId}` : '프로그램에서 회원 계정을 연결해 주세요.';
     if(r.pageKind==='neighbors')document.querySelector('.status-card').after($('neighborSection'));
     if(r.neighborProgress)renderNeighborProgress(r.neighborProgress);
-    if (r.latestVersion && r.latestVersion !== chrome.runtime.getManifest().version_name) showStatus('프로그램에서 새 설치본이 있는지 확인해 주세요.');
+    if (r.latestVersion && r.latestVersion !== running) showStatus(`실행 중 ${running} · 최신 ${r.latestVersion}. 새 ZIP을 받아 확장 폴더에 덮어쓴 뒤 edge://extensions에서 이 확장의 「다시 로드」를 눌러 주세요.`);
   } catch (error) {
     $('connection').textContent = '연결 확인 실패 · 지금 상태를 확인해 주세요.';
     throw error;

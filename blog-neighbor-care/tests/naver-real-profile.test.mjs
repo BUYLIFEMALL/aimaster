@@ -94,3 +94,10 @@ test('NR10 a row click that opens the Naver window saves success only after the 
  const ok=run(true);assert.equal((await ok.bridge.start()).state,'succeeded');assert.equal(ok.ops.find(o=>o[0]==='effect')[1].snapshot.state,'mutual');assert.deepEqual(ok.closed,[9]);
  const no=run(false);await assert.rejects(no.bridge.start(),/다시 수락하지 않습니다/);assert.equal(no.ops.some(o=>o[0]==='effect'),false);assert.equal(no.ops.at(-1)[0],'stop');assert.deepEqual(no.closed,[]);
 });
+
+test('NR11 the like button only saves a draft through the work API, and the popup shows the loaded version',()=>{
+ const planner=readFileSync(new URL('../src/components/analysis/PostPlanner.tsx',import.meta.url),'utf8');
+ assert.match(planner,/operation:'create',payload:\{account_id:row\.account_id,neighbor_id:row\.neighbor_id,kind:'like',post_id:row\.post_id\}/);
+ const popup=readFileSync(new URL('../extension/popup.mjs',import.meta.url),'utf8');
+ assert.match(popup,/const running=chrome\.runtime\.getManifest\(\)\.version_name/);assert.match(popup,/다시 로드/);
+});

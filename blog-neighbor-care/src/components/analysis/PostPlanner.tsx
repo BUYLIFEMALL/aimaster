@@ -16,6 +16,12 @@ export function PostPlanner({onPick}:{onPick:(post:PreparedPost)=>void}){
    setMessage('저장된 설정·자료를 조회했습니다. RSS·AI·네이버 소통을 실행하지 않았습니다.');
   }catch(e){if(alive.current)setMessage(`${e instanceof Error?e.message:'결과 미확인'} 자동 재요청하지 않습니다.`);}finally{lock.current=false;if(alive.current)setBusy(false);}
  }
+ // A like has no text to review here. This only saves a draft; the member still reviews it in the work records before the extension may act.
+ async function prepareLike(row:Row){
+  if(lock.current)return;lock.current=true;setBusy(true);setMessage('처리 중…');
+  try{const r=await fetch('/api/work',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({operation:'create',payload:{account_id:row.account_id,neighbor_id:row.neighbor_id,kind:'like',post_id:row.post_id}})}),v=await r.json();if(!r.ok)throw Error(v.error||'결과 미확인');if(alive.current)setMessage('공감 초안을 저장했습니다. 네이버에는 아직 보내지 않았습니다. 작업 대기·결과 기록에서 대상을 확인해 검토 완료로 저장하세요.');
+  }catch(e){if(alive.current)setMessage(`${e instanceof Error?e.message:'결과 미확인'} 자동 재요청하지 않습니다. 작업 기록부터 조회하세요.`);}finally{lock.current=false;if(alive.current)setBusy(false);}
+ }
  return <section className="panel"><h2>이웃 새 글 자료 준비</h2><small>새 글 대상 최대200명·최근 준비 자료50개를 조회합니다.</small><p>새 글 대상으로 켠 기존 이웃을 재사용합니다. RSS에 제공된 항목만 확인하며, 요약을 전문으로 취급하지 않습니다.</p>
  <button disabled={busy} onClick={()=>run('directory')}>새 글 대상 이웃 조회</button><button disabled={busy} onClick={()=>run('list')}>준비한 글 목록 조회</button><p role="status" aria-live="polite">{message}</p>
  <fieldset disabled={busy}><legend>피드 미리보기</legend><label>내 블로그 · 이웃<select value={selection} onChange={e=>{setSelection(e.target.value);setXml('');setPreview(null);setRights(false);setFull(false);setFeedConsent(false);}}><option value="">선택하세요</option>{directory.map(d=><option key={`${d.account_id}:${d.neighbor_id}`} value={`${d.account_id}:${d.neighbor_id}`}>{d.external_id} → {d.neighbor_id}</option>)}</select></label>
@@ -28,6 +34,7 @@ export function PostPlanner({onPick}:{onPick:(post:PreparedPost)=>void}){
  </fieldset>
  {rows?.length===0&&<p>준비한 글 자료가 없습니다. 실제 새 글이 없다는 뜻은 아닙니다.</p>}
  {!!rows?.length&&<ul>{rows.map(row=><li key={row.id}><h3>{row.title}</h3><p>{row.neighbor_id}/{row.post_id} · {row.body_confirmed?'전문 사용 확인됨':'제목·주소만 저장됨'} · 보관 {new Date(row.expires_at).toLocaleString('ko-KR')}</p>
+ <button disabled={busy} onClick={()=>prepareLike(row)}>이 글에 공감 준비</button>
  {row.body_confirmed?<button className="primary" disabled={busy} onClick={()=>run('material',{id:row.id})}>이 글로 댓글 문장 준비</button>:<><button disabled={busy} onClick={()=>{setRowId(row.id);setBody('');setBodyConsent(false);}}>이 글의 확인한 전문 입력</button>{rowId===row.id&&<><label>제공받은 전문<textarea maxLength={20000} value={body} onChange={e=>{setBody(e.target.value);setBodyConsent(false);}}/></label><label><input type="checkbox" checked={bodyConsent} onChange={e=>setBodyConsent(e.target.checked)}/>이 본문이 전문이며 사용 권한을 확인했습니다.</label><button className="primary" disabled={busy||!bodyConsent||body.length<30} onClick={()=>run('provide',{id:row.id,body,confirmed:true,rightsConfirmed:true})}>확인한 전문 저장</button></>}</>}
  </li>)}</ul>}
  </section>;
