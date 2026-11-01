@@ -6,7 +6,7 @@ const DAY = 24 * 60 * 60 * 1000;
 
 const ymdOf = (ms) => new Date(ms + 9 * 3600 * 1000).toISOString().slice(0, 10).replace(/-/g, "");
 
-export function compareTarget(prevState, items, { now = Date.now(), complete = true, recentDays = 3 } = {}) {
+export function compareTarget(prevState, items, { now = Date.now(), complete = true, recentDays = 3, rebase = false } = {}) {
   const prev = prevState && prevState.items ? prevState : null;
   const nextItems = {};
   const events = [];
@@ -35,7 +35,7 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
     for (const [no, old] of Object.entries(prev.items)) {
       if (nextItems[no]) continue;
       if (complete) events.push({ type: "gone", item: old.item, firstSeen: old.firstSeen });
-      else if (now - new Date(old.lastSeen).getTime() < 30 * DAY) nextItems[no] = old;
+      else if (!rebase && now - new Date(old.lastSeen).getTime() < 30 * DAY) nextItems[no] = old;
     }
   }
 
@@ -52,7 +52,8 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
     if (nextItems[e.item.no] && g.firstSeen) nextItems[e.item.no].firstSeen = g.firstSeen;
   }
   return {
-    events: relisted.size ? events.filter((e) => !relisted.has(e)) : events,
+    // rebase: 네이버 필터가 바뀐 회차는 목록 자체가 달라져 변동으로 볼 수 없어 알리지 않고 기준만 다시 저장한다
+    events: rebase ? [] : relisted.size ? events.filter((e) => !relisted.has(e)) : events,
     state: { items: nextItems, initializedAt: prev?.initializedAt || nowIso, updatedAt: nowIso, complete },
     firstRun: !prev,
   };

@@ -2,7 +2,7 @@
 // 네이버로 직접 요청을 보내지 않는다. 다음 페이지도 목록을 스크롤해 페이지가 부르게 한다.
 // 차단(401·403·429)·확인 화면·로그인 화면이면 바로 멈추고 우회하지 않는다.
 import { BLOCK_TEXT, isBlockedStatus } from "./guard.js";
-import { pickDongCenter, selectViewPages } from "./listing.js";
+import { pickDongCenter, selectViewPages, viewFilter } from "./listing.js";
 
 export const RULES = {
   listPath: "/api/articles",
@@ -72,6 +72,7 @@ export async function collectView(url, log = async () => {}) {
   let blockedText = false;
   let lastMore = true;
   const cortarOf = new Map();
+  const filterOf = new Map();
   const pages = [];
   let error = null;
   let diag = ""; // 다음 페이지가 안 올 때 원인을 보는 기록(숫자와 화면 요소 이름만)
@@ -89,6 +90,7 @@ export async function collectView(url, log = async () => {}) {
       else {
         pending.add(params.requestId);
         cortarOf.set(params.requestId, new URL(rurl).searchParams.get("cortarNo"));
+        filterOf.set(params.requestId, viewFilter(rurl));
       }
     } else if (method === "Network.loadingFinished" && pending.has(params.requestId)) {
       pending.delete(params.requestId);
@@ -99,7 +101,7 @@ export async function collectView(url, log = async () => {}) {
         if (pageKeys.has(key)) return;
         pageKeys.add(key);
         bodies.push(body);
-        pages.push({ cortarNo: cortarOf.get(params.requestId) || null, body });
+        pages.push({ cortarNo: cortarOf.get(params.requestId) || null, filter: filterOf.get(params.requestId) || null, body });
         lastMore = body?.isMoreData === true;
       } catch (e) {
         error = `응답 읽기 실패: ${String(e).slice(0, 80)}`;
@@ -151,7 +153,7 @@ export async function collectView(url, log = async () => {}) {
   if (bodies.some((b) => !Array.isArray(b?.articleList))) return { status: "rule_mismatch", bodies: [], complete: false, error: "매물 목록 모양이 예상과 달라요." };
   if (lastMore && diag) await log(`다음 페이지 진단: ${diag}`);
   const view = selectViewPages(pages);
-  return { status: "ok", bodies: view.bodies, complete: !lastMore, cortarNo: view.cortarNo, pagesRead: view.bodies.length };
+  return { status: "ok", bodies: view.bodies, complete: !lastMore, cortarNo: view.cortarNo, pagesRead: view.bodies.length, filter: pages[pages.length - 1]?.filter || null };
 }
 
 /**

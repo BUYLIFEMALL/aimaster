@@ -6,7 +6,7 @@ import { askExtension } from "@/lib/extensionBridge";
 import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
-type Result = { at: string; columns: string[]; table: (string | number)[][]; perTarget: { name: string; total: number; complete: boolean }[] };
+type Result = { at: string; columns: string[]; table: (string | number)[][]; perTarget: { name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null }[] };
 
 const SHOW = ["감시 화면", "유형", "거래 종류", "가격", "시세 대비", "추정 수익률", "후보 점수", "근거", "변동", "이전 가격", "면적 기준", "면적(㎡)", "층"];
 const LINK = "네이버 매물 주소";
@@ -124,6 +124,20 @@ export function ResultsClient({ email }: { email: string }) {
   return (
     <>
       <StatsDashboard email={email} onPick={(v) => { setView(v); document.getElementById("result-rows")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
+      {res.perTarget?.length > 0 && (
+        <div className="mx-card mt-6 space-y-1 p-4 text-sm">
+          <p className="font-bold">🔎 이번 회차에 읽은 범위</p>
+          {res.perTarget.map((t) => (
+            <p key={t.name} className="text-mx-muted">
+              <b>{shortWatch(t.name)}</b> · {t.total.toLocaleString("ko-KR")}건
+              {t.filterText !== undefined && t.filterText !== null && <> · 네이버 조건: {t.filterText || "없음"}</>}
+              {t.filterChanged && <> · 필터가 바뀌어 알림 없이 기준을 다시 저장</>}
+              {!t.complete && <b className="text-amber-700"> · ⚠ 앞 {t.pagesRead ?? ""}페이지까지만 읽음. 네이버 화면에서 거래방식이나 면적을 좁히면 빠짐없이 읽습니다.</b>}
+            </p>
+          ))}
+          <p className="text-xs text-mx-muted">시세 대비의 「참고」는 같은 동 거래가 부족해 시·군·구 거래와 견준 값입니다. 후보 점수와 평균에는 넣지 않습니다.</p>
+        </div>
+      )}
       <div id="result-rows" className="mx-card mt-6 flex flex-wrap items-center gap-2 p-4">
         <span className="text-sm text-mx-muted">
           {new Date(res.at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} 수집 · {rows.length.toLocaleString("ko-KR")}건

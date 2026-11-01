@@ -131,8 +131,11 @@ async function runCollection(trigger) {
         .filter((it) => it.no && !seen.has(it.no) && seen.add(it.no));
       const items = allItems.filter((it) => matchesTarget(it, t));
       await addLog(`${t.name}: 읽은 매물 ${allItems.length}건(${countByKindTrade(allItems) || "없음"})${items.length === allItems.length ? "" : ` → 조건 맞는 ${items.length}건(${countByKindTrade(items) || "없음"})`}`);
-      const cmp = compareTarget(states[t.id], items, { complete: r.complete });
-      states[t.id] = cmp.state;
+      const prevFilter = states[t.id]?.filterKey;
+      const filterChanged = typeof prevFilter === "string" && !!r.filter && prevFilter !== r.filter.key;
+      const cmp = compareTarget(states[t.id], items, { complete: r.complete, rebase: filterChanged });
+      states[t.id] = { ...cmp.state, filterKey: r.filter ? r.filter.key : prevFilter };
+      if (filterChanged) await addLog(`${t.name}: 네이버 필터가 바뀌어 알림 없이 기준을 다시 저장했어요`);
       // 네이버 요청에 동 코드가 없는 회차도 있어 감시 화면별로 마지막 코드를 기억한다
       const { cortarByTarget = {} } = await get("cortarByTarget");
       const cortarNo = r.cortarNo || cortarByTarget[t.id] || null;
@@ -153,7 +156,7 @@ async function runCollection(trigger) {
         fileRows.push({ item: { ...it, targetName: t.name }, status: e ? e.type : "same", prevPriceText: e?.prevPriceText, firstSeen: cmp.state.items[it.no]?.firstSeen });
       }
       for (const e of cmp.events.filter((x) => x.type === "gone")) fileRows.push({ item: { ...e.item, targetName: t.name }, status: "gone", prevPriceText: e.prevPriceText, firstSeen: e.firstSeen });
-      perTarget.push({ name: t.name, total: items.length, events: filterEvents(cmp.events, settings.delivery), firstRun: cmp.firstRun, complete: r.complete, pagesRead: r.pagesRead });
+      perTarget.push({ name: t.name, total: items.length, events: filterEvents(cmp.events, settings.delivery), firstRun: cmp.firstRun, complete: r.complete, pagesRead: r.pagesRead, filterChanged, filterText: r.filter?.text ?? null });
       total += items.length;
       await addLog(`${t.name}: ${r.pagesRead}페이지 · 조건 맞는 매물 ${items.length}건${r.complete ? "" : " · 범위가 넓어 앞부분만 읽음"}`);
     }
@@ -165,7 +168,7 @@ async function runCollection(trigger) {
       states,
       lastRunAt: startedAt,
       nextDueAt: computeNextDue(new Date(startedAt).getTime(), iv, RULES.scheduleJitter),
-      lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table: table.slice(0, 2000), perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete })) },
+      lastResult: { at: startedAt, trigger, result, error: errMsg, columns: COLUMNS, table: table.slice(0, 2000), perTarget: perTarget.map((p) => ({ name: p.name, total: p.total, events: p.events.length, firstRun: p.firstRun, complete: p.complete, pagesRead: p.pagesRead, filterChanged: p.filterChanged, filterText: p.filterText })) },
     });
     if (table.length) {
       const { history = [], eventLog = [] } = await get(["history", "eventLog"]);
@@ -211,7 +214,7 @@ async function deliver({ settings, perTarget, table, result, errMsg, trigger, li
       await set({ limitNoticeDate: kstDate() });
     }
   }
-  const changed = perTarget.some((t) => t.events.length || t.firstRun);
+  const changed = perTarget.some((t) => t.events.length || t.firstRun || t.filterChanged);
   if (!changed && trigger !== "manual") return;
 
   const { telegramFailed = false } = await get("telegramFailed");

@@ -82,6 +82,33 @@ export function matchesTarget(item, t) {
   return true;
 }
 
+/**
+ * 네이버 목록 요청에 실린 화면 필터. 저장 주소에 없어도 네이버가 기억한 필터가 실려 온다(2026-11-01 실측).
+ * key는 필터가 바뀌었는지 비교하는 값, text는 화면에 보일 글(조건이 없으면 빈 글). 금액 단위는 만 원으로 본다.
+ */
+export function viewFilter(rawUrl) {
+  let p;
+  try {
+    p = new URL(rawUrl).searchParams;
+  } catch {
+    return null;
+  }
+  const num = (k) => {
+    const n = Number(p.get(k));
+    return Number.isFinite(n) && n > 0 && n < 900000000 ? n : null;
+  };
+  const range = (name, a, b, fmt) => {
+    const lo = num(a);
+    const hi = num(b);
+    return lo === null && hi === null ? "" : `${name} ${lo === null ? "" : fmt(lo)}~${hi === null ? "" : fmt(hi)}`;
+  };
+  const parts = [range("가격", "priceMin", "priceMax", formatManwon), range("월세", "rentPriceMin", "rentPriceMax", formatManwon), range("면적", "areaMin", "areaMax", (n) => `${n}㎡`)];
+  const trades = (p.get("tradeType") || "").split(":").filter(Boolean).map((c) => TRADE_NAMES[c] || c);
+  if (trades.length) parts.push(`거래 ${trades.join("·")}`);
+  const text = parts.filter(Boolean).join(" · ");
+  return { key: text, text };
+}
+
 /** 팝업 「이 화면 감시」: 상가·건물·토지 지도 화면인지 */
 export function isWatchableUrl(url) {
   try {

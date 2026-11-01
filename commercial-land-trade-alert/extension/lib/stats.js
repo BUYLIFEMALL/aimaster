@@ -43,7 +43,7 @@ export function summarizeTable(columns, table, at, sggByWatch = {}) {
     g.rows.push(r);
   }
   const groupList = [...groups.values()].map((g) => {
-    const of = (name) => g.rows.filter((r) => r[C.trade] === name).map((r) => ({ ...parsePriceCell(r[C.price]), area: Number(r[C.area]) || null, gap: Number.parseInt(r[C.gap], 10), yld: Number.parseFloat(r[C.yld]) }));
+    const of = (name) => g.rows.filter((r) => r[C.trade] === name).map((r) => ({ ...parsePriceCell(r[C.price]), area: Number(r[C.area]) || null, gap: String(r[C.gap]).includes("참고") ? NaN : Number.parseInt(r[C.gap], 10), yld: Number.parseFloat(r[C.yld]) }));
     const sale = of("매매");
     const rent = of("월세");
     const salePrices = sale.map((x) => x.price).filter(Number.isFinite);

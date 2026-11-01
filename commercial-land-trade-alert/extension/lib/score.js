@@ -38,10 +38,12 @@ export function marketGap(item, market) {
   if (used.length < MIN_SAMPLES) return null;
   const m = median(used.map((x) => x[2]));
   const perPyeong = item.price / (item.area / SQM_PER_PYEONG);
-  return { pct: Math.round((perPyeong / m - 1) * 100), scope: used === inDong ? "동" : "시군구", floorName: item.kind === "TJ" ? item.jimok : FLOOR_NAME[floor] || "", count: used.length, median: m };
+  // 상가는 같은 시군구라도 동마다 값 차이가 커서(2026-11-01 역삼동 1층 거래 0건, 다른 동과 비교돼 +272%) 동 표본이 없으면 참고로만 쓴다
+  const weak = item.kind === "SG" && used !== inDong;
+  return { pct: Math.round((perPyeong / m - 1) * 100), scope: used === inDong ? "동" : "시군구", floorName: item.kind === "TJ" ? item.jimok : FLOOR_NAME[floor] || "", count: used.length, median: m, weak };
 }
 
-export const gapText = (g) => (g ? `${g.pct > 0 ? "+" : ""}${g.pct}%(${g.scope}${g.floorName ? `·${g.floorName}` : ""} ${g.count}건)` : "");
+export const gapText = (g) => (g ? `${g.pct > 0 ? "+" : ""}${g.pct}%(${g.scope}${g.floorName ? `·${g.floorName}` : ""} ${g.count}건${g.weak ? "·참고" : ""})` : "");
 
 /**
  * 추정 수익률(%). 같은 화면 월세 매물의 ㎡당 월세·보증금 중간값으로 이 매매 매물의 임대료를 어림한다.
@@ -66,7 +68,7 @@ export const yieldText = (y) => (y ? `${y.pct}%(월세 ${y.count}건)${y.pct > Y
 export function scoreListing({ gap, drops = 0, ageDays = 0 }) {
   let score = 0;
   const reasons = [];
-  if (gap) {
+  if (gap && !gap.weak) {
     const add = gap.pct <= -20 ? 50 : gap.pct <= -10 ? 35 : gap.pct <= -5 ? 15 : 0;
     if (add) {
       score += add;

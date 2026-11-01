@@ -349,3 +349,34 @@ test("받을 봇 고르기 목록", async () => {
   assert.deepEqual(botChoices(links, "this"), [{ slug: "realty-listing-alert", name: "r_bot" }]);
   assert.deepEqual(botChoices([...links, { program_slug: "this", bot_username: "r_bot" }], "this"), [], "이미 전용으로 쓰는 봇은 뺀다");
 });
+
+test("네이버 요청에서 화면 필터를 읽는다", async () => {
+  const { viewFilter } = await import("../extension/lib/listing.js");
+  const base = "https://new.land.naver.com/api/articles?cortarNo=1168010100&order=rank&realEstateType=SG&tag=::::::::&page=2";
+  assert.deepEqual(viewFilter(`${base}&priceMin=100000&priceMax=300000&rentPriceMin=0&rentPriceMax=900000000&areaMin=0&areaMax=900000000&tradeType=`), { key: "가격 10억~30억", text: "가격 10억~30억" });
+  assert.equal(viewFilter(`${base}&priceMin=0&priceMax=900000000&areaMin=0&areaMax=900000000&tradeType=`).text, "");
+  assert.equal(viewFilter(`${base}&priceMax=50000&areaMin=33&tradeType=A1:B2`).text, "가격 ~5억 · 면적 33㎡~ · 거래 매매·월세");
+  assert.equal(viewFilter("잘못된 주소"), null);
+});
+
+test("필터가 바뀐 회차는 알리지 않고 기준만 다시 저장한다", () => {
+  const s = compareTarget(undefined, [item()]).state;
+  const r = compareTarget(s, [item({ no: "222" }), item({ no: "333" })], { rebase: true });
+  assert.equal(r.events.length, 0);
+  assert.deepEqual(Object.keys(r.state.items).sort(), ["222", "333"]);
+  const cut = compareTarget(s, [item({ no: "222" })], { rebase: true, complete: false });
+  assert.deepEqual(Object.keys(cut.state.items), ["222"], "옛 필터 매물을 남기지 않음");
+});
+
+test("동 표본 없는 상가 비교는 참고로만 쓴다", async () => {
+  const { gapText, marketGap, scoreListing } = await import("../extension/lib/score.js");
+  const it = { kind: "SG", tradeType: "A1", price: 10000, area: 33.058, floor: "1/5" };
+  const far = [1, 2, 3, 4, 5].map(() => ["1", 33, 500, 0]);
+  const g = marketGap(it, { samples: { SG: far } });
+  assert.equal(g.weak, true);
+  assert.equal(gapText(g), "+100%(시군구·1층 5건·참고)");
+  const low = marketGap({ ...it, price: 1000 }, { samples: { SG: far } });
+  assert.equal(scoreListing({ gap: low }).score, 0, "참고 값은 후보 점수에 넣지 않음");
+  const gm = marketGap({ ...it, kind: "GM" }, { samples: { GM: far } });
+  assert.equal(gm.weak, false, "건물은 그대로");
+});

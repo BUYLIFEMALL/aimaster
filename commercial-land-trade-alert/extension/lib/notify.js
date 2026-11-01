@@ -31,7 +31,8 @@ export function buildSummary(perTarget, { failedBefore = false, now = new Date()
   let hidden = 0;
   for (const t of perTarget) {
     const c = countText([t]);
-    lines.push("", `📍 ${t.name} — 지금 ${t.total}건${t.firstRun ? " (첫 수집: 기준으로 저장했어요)" : c ? ` · ${c}` : " · 변동 없음"}`);
+    lines.push("", `📍 ${t.name} — 지금 ${t.total}건${t.firstRun ? " (첫 수집: 기준으로 저장했어요)" : t.filterChanged ? " (네이버 필터가 바뀌어 기준을 다시 저장했어요)" : c ? ` · ${c}` : " · 변동 없음"}`);
+    if (t.filterText) lines.push(`   네이버 조건: ${t.filterText}`);
     if (!t.complete) lines.push(`   ⚠ 범위가 넓어 앞 ${t.pagesRead}페이지만 읽었어요. 네이버 화면 필터를 좁히면 정확해져요.`);
     for (const e of t.events) {
       if (shown >= MAX_LINES) { hidden++; continue; }
@@ -79,7 +80,7 @@ export function buildMailHtml(perTarget, { now = new Date(), maxRows = 200 } = {
   let shown = 0;
   let hidden = 0;
   const sections = perTarget.map((t) => {
-    const state = t.firstRun ? "첫 수집 — 기준으로 저장했어요" : countText([t]) || "변동 없음";
+    const state = t.firstRun ? "첫 수집 — 기준으로 저장했어요" : t.filterChanged ? "네이버 필터가 바뀌어 기준을 다시 저장했어요" : countText([t]) || "변동 없음";
     const rows = t.events.map((e) => {
       if (shown >= maxRows) { hidden++; return ""; }
       shown++;
