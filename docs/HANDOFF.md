@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog · SEO v2.22·올인원 v1.56 화면 검수
+
+- **한 일:** 맥미니 크롬·시험 계정 `buylifemall@naver.com`으로 배포본 검수. SEO: 문체 「최신 글 30개」 읽기 → GPT-4o mini 분석 → 「블로그 주제」 표시·승인, 공통 참고 사진 「제품 그대로 넣기」(제품이 장면에 그대로 들어감), 같은 칸에 분위기 사진을 붙여 다시 만들면 공통 사진 대신 그 칸 사진만 반영, 「ZIP(글+이미지)」 맥 `unzip -t` 통과·내용 3개·이미지 경로 일치, 잠긴 원고는 생성 전에 409로 막힘. 올인원: 설정 창 계정 키 자동 채움·「계정 키 사용 중」·「내 계정에 저장」, 브라우저 저장소에 키 없음, 글 1편 생성·보관함 저장.
+- **찾은 버그(미수정·승인 대기):** 올인원 「본문 이미지 없음」을 골라도 2장 생성 — `naver-blog-allinone/src/lib/blog/imagePlan.ts` `clampImageCount`가 0을 2로 바꿈. 회원 키 과금 버그라 승인 뒤 바로 배포 대상. 상세 `naver-blog-allinone/docs/IMPROVEMENTS.md`.
+- **못 한 것:** 올인원 예전 브라우저 키 옮기기 안내는 계정에 키 4종이 모두 있어 화면 재현 안 함(단위 시험 4/4로 갈음).
+- **비용:** 시험 계정 본인 키 — OpenAI GPT-4o mini 문체 분석 1회·장면 정하기 1회, Gemini 이미지 1K 2장(SEO), Gemini Flash 글 1편 + NanoBanana 2-2K 2장(올인원, 위 버그로 의도치 않게 생성). 대략 0.3달러.
+- **다음 첫 단계:** 버그 수정 승인 받기 → 원본 4개 화면 이동 안내 플랜 제시.
+- **링크:** https://naver-blog-seo-studio.buylife.xyz · https://naver-blog-allinone.buylife.xyz
+
 ## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 이웃 소통 v1.05 새 글 확인 켜기
 
 - **한 일:** 주인님 승인으로 운영 환경변수 `BNC_FEED_READ_ENABLED`, `BNC_FEED_READ_POLICY_REFERENCE`(값: 마케팅 예외 지침 경로) 등록, 빌드 1회, v1.05 배포(`blog-neighbor-care-donc06qa2`). DB·ZIP v1.05 OK. 안내문 수정 함께 배포.
