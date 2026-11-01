@@ -16,7 +16,8 @@
     "https://rss.blog.naver.com/*"
   ],
   "optional_host_permissions": [
-    "https://blog.naver.com/*"
+    "https://blog.naver.com/*",
+    "https://admin.blog.naver.com/*"
   ],
   "background": {
     "service_worker": "background.mjs",

@@ -36,3 +36,16 @@ export async function operateIncomingRequests({scope,profile:p,operation='read',
   button.click();return true;
  }catch{return unavailable();}
 }
+// Naver finishes an acceptance in a small window of its own: pick a group, press confirm, then read one line of result.
+// The member's default group stays as Naver selected it. Runs inside that window only, and only for this job's sender.
+export function operateAcceptPopup({operation,job,profile:p}){
+ try{
+  const u=new URL(location.href);if(u.protocol!=='https:'||u.hostname!=='admin.blog.naver.com'||u.port||u.username||u.password||u.hash||u.pathname!==p?.acceptPopupPath)return {unavailable:true};
+  const sel=key=>{const s=p.selectors?.[key];if(typeof s!=='string'||!s.trim()||s.length>256)throw Error();return [...document.querySelectorAll(s)];};
+  if(operation==='result'){const done=sel('acceptPopupDone');return {done:done.length===1&&!!p.acceptPopupDoneText&&(done[0].textContent??'').includes(p.acceptPopupDoneText)};}
+  if(operation!=='confirm')return {unavailable:true};
+  const field=name=>document.querySelector('form[name="buddyFrm"] input[name="'+name+'"]')?.getAttribute('value');
+  if(field('blogId')!==job.actorId||field('targetBlogId')!==job.neighborId||field('acceptyn')!=='true')return {unavailable:true};
+  const submit=sel('acceptPopupSubmit');if(submit.length!==1)return {unavailable:true};submit[0].click();return {clicked:true};
+ }catch{return {unavailable:true};}
+}

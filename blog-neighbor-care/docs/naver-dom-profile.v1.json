@@ -36,6 +36,10 @@
     "requestList": "table.table4 tbody",
     "requestRow": "tr:has(input[name=\"targetBlogId\"])",
     "requestIdInput": "input[name=\"targetBlogId\"]",
-    "requestAccept": "button._acceptBuddy"
-  }
+    "requestAccept": "button._acceptBuddy",
+    "acceptPopupSubmit": "form[name=\"buddyFrm\"] #footer input[type=\"image\"]",
+    "acceptPopupDone": ".info2"
+  },
+  "acceptPopupPath": "/BuddyAccept.naver",
+  "acceptPopupDoneText": "서로이웃이 되었습니다"
 }

@@ -72,3 +72,25 @@ test('NR08 the profile needs no guessed request flow yet: request stays unusable
  assert.equal(profile.selectors.requestSubmit,undefined);assert.equal(profile.reviewed,true);
  await page(post(),'https://blog.naver.com/BuddyAdd.naver?blogId=neighbor',async()=>{await assert.rejects(call('apply',{...job,kind:'request',post_id:''}));});
 });
+
+const popupHtml=(target='alpha-')=>`<html><body><form name="buddyFrm"><input type="hidden" name="blogId" value="own-blog"><input type="hidden" name="targetBlogId" value="${target}"><input type="hidden" name="acceptyn" value="true"><div id="footer"><input type="image" alt="확인"></div></form></body></html>`;
+const POPUP='https://admin.blog.naver.com/BuddyAccept.naver?blogId=own-blog&targetBlogId=alpha-&acceptyn=true';
+test('NR09 the accept window: confirms once only for this sender, and only the result line counts',async()=>{
+ const {operateAcceptPopup}=await import('../extension/accept-dom.mjs');const a={actorId:'own-blog',neighborId:'alpha-'};
+ await page(popupHtml(),POPUP,async({document})=>{let c=0;document.querySelector('form').addEventListener('click',()=>c++);assert.equal(operateAcceptPopup({operation:'result',job:a,profile:real}).done,false);assert.equal(operateAcceptPopup({operation:'confirm',job:a,profile:real}).clicked,true);assert.equal(c,1);});
+ await page(popupHtml('someone-else'),POPUP,async()=>{assert.equal(operateAcceptPopup({operation:'confirm',job:a,profile:real}).unavailable,true);});
+ await page('<div class="info2"><strong>이름님과 서로이웃이 되었습니다.</strong></div>',POPUP,async()=>{assert.equal(operateAcceptPopup({operation:'result',job:a,profile:real}).done,true);});
+ await page(popupHtml(),INBOX,async()=>{assert.equal(operateAcceptPopup({operation:'confirm',job:a,profile:real}).unavailable,true);});
+});
+test('NR10 a row click that opens the Naver window saves success only after the result line, then closes it; no result line saves nothing',{timeout:30000},async()=>{
+ const {createAcceptBridge}=await import('../extension/accept-bridge.mjs');
+ const job={id:'j',accountId:'acc',actorId:'own-blog',neighborId:'alpha-',requestId:'alpha-',expiresAt:new Date(Date.now()+60000).toISOString()};
+ const run=finish=>{const ops=[],closed=[],store={};let focusMoved=false;const tab={id:1,windowId:2,url:INBOX};
+  const browser={storage:{session:{get:async k=>({[k]:store[k]}),set:async v=>Object.assign(store,v),remove:async k=>{delete store[k];}}},windows:{get:async()=>({focused:!focusMoved,state:'normal'})},
+   tabs:{query:async q=>q.url?(focusMoved?[{id:9,status:'complete',url:POPUP}]:[]):[focusMoved?{id:9,windowId:3,url:POPUP}:tab],remove:async id=>{closed.push(id);},reload:async()=>{}},
+   scripting:{executeScript:async({target,args:[a]})=>{if(target.tabId===9)return [{frameId:0,result:a.operation==='confirm'?{clicked:true}:{done:finish}}];if(a.operation==='apply'){focusMoved=true;return [{frameId:0,result:true}];}return [{frameId:0,result:{accountId:'acc',actorId:'own-blog',requestId:'alpha-',neighborId:'alpha-',state:'pending',restriction:'none',checkedAt:Date.now()}}];}}};
+  const post=async(op,p)=>{ops.push([op,p]);if(op==='offer_work')return {phase:'inspect',id:'11111111-1111-4111-8111-111111111111',nonce:'n',job,profile:real};if(op==='inspect')return {phase:'recheck',nonce:'n'};if(op==='arm')return {phase:'apply',nonce:'n',validUntil:new Date(Date.now()+30000).toISOString()};if(op==='effect')return {state:'succeeded'};if(op==='stop')return {state:'uncertain'};return {};};
+  return {bridge:createAcceptBridge(browser,async()=>({deviceId:'d',blogId:'own-blog'}),post),ops,closed};};
+ const ok=run(true);assert.equal((await ok.bridge.start()).state,'succeeded');assert.equal(ok.ops.find(o=>o[0]==='effect')[1].snapshot.state,'mutual');assert.deepEqual(ok.closed,[9]);
+ const no=run(false);await assert.rejects(no.bridge.start(),/다시 수락하지 않습니다/);assert.equal(no.ops.some(o=>o[0]==='effect'),false);assert.equal(no.ops.at(-1)[0],'stop');assert.deepEqual(no.closed,[]);
+});
