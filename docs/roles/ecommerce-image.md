@@ -15,7 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `trending-product-finder` | 쿠팡 리뷰 거르기 팝업 실물 시험(1~2페이지) | 2026-11-02 이후 주인님 지시 | `trending-product-finder/AGENTS.md` 맨 아래 |
+| `trending-product-finder` | 쿠팡 팝업 시험·키워드 3개 사전 검증 → 자동 검색 구현 → v1.31 배포(결과 사이트 저장 미배포 대기, DB 표·빌드 1회 승인됨) | 2026-11-02 이후 주인님 「쿠팡 시험해」 | `trending-product-finder/AGENTS.md` 맨 아래 |
 | `shop-order-report` | 마켓별 열 이름·상태 사전 보정 | 주인님 실제 주문 파일(개인정보 지운 사본) | `shop-order-report/docs/IMPROVEMENT_BACKLOG.md` |
 | `coupang-ops` | 임시저장 상품 16433545652 중지 유지(2026-10-31 주인님 지시: 삭제하지 말고 중지만). 승인 요청·삭제 금지, 다시 지시가 있을 때만 재개 | 주인님 재지시 | `coupang-ops/AGENTS.md` 2026-10-31 |
 | `coupang-ops` | 주문 쓰기 실제 1건 시험(상품준비중·송장 등록/수정·출고중지 완료·이미출고·판매자 취소)·발주서 화면 모양 확인 | 실제 주문이 들어온 뒤(주인님 10-30 「시험은 아직 주문이 안되니 나중에」) | `coupang-ops/AGENTS.md` 2026-10-30 |
