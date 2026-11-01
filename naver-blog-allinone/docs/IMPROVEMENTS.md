@@ -60,7 +60,15 @@
 - Vercel 빌드1회(인수인계 앱별1회 승인), AI/이미지/영상 생성0. 운영 ref esgxyikcnnvmlhygjkth의 programs 해당1행만 이전버전/예상다운로드URL 조건으로 갱신했고 배포 도우미의 ops집계 갱신 포함. 회원원고/키/연결/권한/스키마 변경0, 실제 입력/발행/예약0.
 - [세 앱 공통 근거](../../docs/analysis-blog-consolidation-20261020/evidence/blog-security-batch-20261026.json)·[이 앱 검사](../../docs/analysis-blog-consolidation-20261020/evidence/naver-blog-allinone-security-tests-20261026.json). 실제 회원 화면/확장 설치본 검수는 별도입니다.
 
-## 2026-11-01 API 키 저장 정리 — 브라우저 → 회원 본인 계정 (맥미니 `claude-mac-20261101-blog`, ⏸ 미배포 대기)
-- ✅(미배포) 키를 `localStorage`에 저장하지 않고 `user_api_keys`(본인 계정)를 원본으로, 예전 브라우저 키는 설정 창에서 계정으로 옮기기. 시험 4/4·tsc. 상세 [IMPROVEMENT_HANDOFF_20261101.md](IMPROVEMENT_HANDOFF_20261101.md).
+## 2026-11-01 API 키 저장 정리 — 브라우저 → 회원 본인 계정 (맥미니 `claude-mac-20261101-blog`, ✅ v1.56 배포·화면 검수 2026-11-01)
+- ✅ 키를 `localStorage`에 저장하지 않고 `user_api_keys`(본인 계정)를 원본으로, 예전 브라우저 키는 설정 창에서 계정으로 옮기기. 시험 4/4·tsc. 상세 [IMPROVEMENT_HANDOFF_20261101.md](IMPROVEMENT_HANDOFF_20261101.md).
 - 후보(미구현): AI 호출을 서버로 옮겨 키가 브라우저 메모리에도 오지 않게 하기 — 신규 개발 중단 원칙상 보류.
 - 참고: 맥미니에서는 `npm test`가 안 됨(윈도우용 esbuild) → 윈도우에서 전체 시험.
+- 화면 검수(2026-11-01, 맥미니 크롬, 시험 계정): 설정 창 「계정 키 사용 중」·계정 키 자동 채움·「내 계정에 저장」(값이 같으면 다시 보내지 않고 설정만 저장)·브라우저 저장소에 키 없음 확인. 예전 키 옮기기 안내는 계정에 키 4종이 모두 있어 화면 재현 안 함(단위 시험 4/4로 갈음). 글 1편 생성·보관함 자동 저장 정상.
+- 남은 문구(미수정): 상단 「Gemini API 연동 완료 (사용자 브라우저 격리 보관)」·바닥글 「개인 API 키 격리 보관」 표현이 v1.56 이후 사실과 다름 → 「내 AIMaster 계정 키 사용 중」으로 고칠 후보.
+
+## 2026-11-01 🐞 본문 이미지 「없음」을 골라도 2장이 만들어짐 (맥미니 화면 검수 중 발견, 미수정)
+- 증상: 대표 이미지 끔 + 본문 이미지 수 「없음」 + 「글 완성 후 이미지 자동 생성」 켜짐 상태로 글을 만들면 본문 이미지 2장이 자동 생성됨(회원 키 과금). 시험 계정에서 NanoBanana 2-2K 2장이 실제로 만들어짐.
+- 원인: `src/lib/blog/imagePlan.ts` `clampImageCount`가 `Number(0) || 2`라 0을 2로 바꾸고 최솟값도 1. `PostCreationSection.tsx`는 `imageCount: 0`을 보내지만 결과에 이미지 칸 2개가 생기고 `autoImages && result.images.length`로 전체 생성이 실행됨. 같은 줄의 이미지 키 확인(`bodyImages > 0`)도 건너뛰어, 이미지 키가 없는 회원은 글 생성 뒤 이미지 오류를 보게 됨. `PlacesVisionSection.tsx:359`도 같은 함수를 거침.
+- 고칠 방향(주인님 승인 뒤): 0을 허용(0~5)하고 0이면 이미지 계획을 비우기, 자동 생성 조건을 「실제 이미지 칸 수 > 0」으로. 시험 케이스 추가. 회원 비용이 걸린 버그라 다음 배포 묶음이 아니라 바로 배포 대상(CLAUDE.md 배포 예외).
+
