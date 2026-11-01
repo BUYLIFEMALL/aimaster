@@ -7,7 +7,7 @@ const session='11111111-1111-4111-8111-111111111111';
 const item=(owner,id,title=`글 ${id}`)=>`<item><title><![CDATA[${title}]]></title><link>https://blog.naver.com/${owner}/${id}?fromRss=true&amp;trackingCode=rss</link><description><![CDATA[<p>요약 본문</p>]]></description><pubDate>Sun, 01 Nov 2026 10:00:00 +0900</pubDate></item>`;
 const rss=(owner,...ids)=>`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>블로그</title>${ids.map(i=>item(owner,i)).join('')}</channel></rss>`;
 function fixture(neighbors=['alpha','beta']){
- const store={},alarms=[],cleared=[],f={time:1800000000000,feeds:{alpha:['1'],beta:['2']},feedStatus:null,reads:[],fail:null,syncActive:true};
+ const store={},alarms=[],cleared=[],f={time:Date.UTC(2026,10,2),feeds:{alpha:['1'],beta:['2']},feedStatus:null,reads:[],fail:null,syncActive:true};
  const calls=[];
  const browser={storage:{local:{get:async k=>({[k]:store[k]}),set:async v=>Object.assign(store,v),remove:async k=>{delete store[k];}}},alarms:{create:async(n,o)=>alarms.push([n,o]),clear:async n=>cleared.push(n)}};
  const api=async(op,p)=>{calls.push({op,p});if(f.fail?.[op])throw Object.assign(Error('fail'),{status:f.fail[op]});if(op==='sync')return f.syncActive?{active:true,sessionId:f.session??session,expiresAt:new Date(f.time+7*864e5).toISOString(),neighbors}:{active:false};if(op==='report')return {savedCount:p.posts.length};return {stopped:true};};
@@ -26,6 +26,11 @@ test('FW02 only unseen posts reach the server: a repeat check makes no server ca
  await f.watch.alarm(FEED_ALARM);assert.deepEqual(f.f.reads,['https://rss.blog.naver.com/alpha.xml','https://rss.blog.naver.com/beta.xml']);assert.equal(f.reports().length,2);
  const before=f.calls.length;f.f.time+=15*60000;await f.watch.alarm(FEED_ALARM);assert.equal(f.f.reads.length,4);assert.equal(f.calls.length,before);
  f.f.time+=15*60000;f.f.feeds.alpha=['3','1'];await f.watch.alarm(FEED_ALARM);assert.equal(f.reports().length,3);assert.deepEqual(f.reports().at(-1).p.posts.map(p=>p.postId),['3']);assert.deepEqual(Object.keys(f.reports().at(-1).p.posts[0]).sort(),['postId','publishedAt','title']);
+});
+test('FW09 the first read stores only the last week; older posts count as seen and are never sent later',async()=>{
+ const f=fixture(['alpha']);await f.watch.sync();f.f.time+=30*864e5;await f.watch.sync();await f.watch.alarm(FEED_ALARM);assert.equal(f.reports().length,0);assert.deepEqual(f.store.feedWatch.rows.alpha.seen,['1']);
+ f.f.time+=15*60000;await f.watch.alarm(FEED_ALARM);assert.equal(f.reports().length,0);
+ f.f.feeds.alpha=['9','1'];f.f.time+=15*60000;await f.watch.alarm(FEED_ALARM);assert.deepEqual(f.reports().at(-1).p.posts.map(p=>p.postId),['9']);
 });
 test('FW03 each neighbor is read at most once in 15 minutes and one wake reads at most 20',async()=>{
  const names=Array.from({length:50},(_,i)=>`n${i}`),f=fixture(names);for(const n of names)f.f.feeds[n]=[];await f.watch.sync();

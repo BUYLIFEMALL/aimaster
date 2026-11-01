@@ -1,6 +1,6 @@
 export const FEED_ALARM='bnc-feed-watch';
 const CHECK_EVERY=15*60000,SYNC_EVERY=60*60000,BLOCK_FOR=60*60000,OFFLINE_LIMIT=24*60*60000,MAX_READS=20,START_BUDGET=25000,READ_GAP=1000,MAX_BYTES=1048576,KEEP_SEEN=200,MAX_COUNT=5000;
-const KEY='feedWatch',OWNER=/^[a-z0-9_-]{1,50}$/;
+const FIRST_READ_WINDOW=7*24*60*60000,KEY='feedWatch',OWNER=/^[a-z0-9_-]{1,50}$/;
 const ENTITIES={amp:'&',lt:'<',gt:'>',quot:'"',apos:"'",nbsp:' '};
 const decode=text=>text.replace(/&(#x[0-9a-f]{1,6}|#\d{1,7}|[a-z]+);/gi,(all,code)=>{
  if(code[0]!=='#')return ENTITIES[code.toLowerCase()]??all;
@@ -71,12 +71,14 @@ export function createFeedWatch(browser,api,fetcher=fetch,now=Date.now,sleep=ms=
   try{posts=await readFeed(owner,fetcher);}
   catch(e){s.failures++;await save(s);return e.status===403||e.status===429?'blocked':'next';}
   s.failures=0;s.lastReadAt=now();
-  const known=new Set(row.seen),fresh=posts.filter(p=>!known.has(p.postId));
+  const known=new Set(row.seen),first=row.seen.length===0;
+  // A feed's backlog is not news: the first read only stores what appeared in the last week. A post without a date stays out of that first batch.
+  const fresh=posts.filter(p=>!known.has(p.postId)&&(!first||(p.publishedAt&&now()-Date.parse(p.publishedAt)<=FIRST_READ_WINDOW)));
   if(fresh.length){
    const r=await api('report',{sessionId:s.sessionId,neighborId:owner,posts:fresh});
    s.savedCount+=r.savedCount??0;
-   s.rows[owner].seen=[...posts.map(p=>p.postId),...row.seen.filter(id=>!posts.some(p=>p.postId===id))].slice(0,KEEP_SEEN);
   }
+  s.rows[owner].seen=[...posts.map(p=>p.postId),...row.seen.filter(id=>!posts.some(p=>p.postId===id))].slice(0,KEEP_SEEN);
   await save(s);return 'next';
  }
  async function alarm(name){
