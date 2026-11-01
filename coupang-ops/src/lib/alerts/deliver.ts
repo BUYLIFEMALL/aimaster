@@ -7,23 +7,23 @@ import { sendTelegramMessage } from "@/lib/telegram/client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CHANNEL_LABEL, type AlertChannel } from "@/lib/coupang/summary";
 
-// 회원 본인 계정으로만 보낸다(텔레그램 봇·Resend·카카오 앱, 운영자 계정 폴백 없음). 등록 표는 다른 프로그램과 공용이라 한 번 등록하면 재사용된다.
+// 회원 본인 계정으로만 보낸다(텔레그램 봇·Resend·카카오 앱, 운영자 계정 폴백 없음). Resend·카카오는 다른 프로그램과 공용으로 재사용한다.
+// 텔레그램 봇은 쿠팡 전용이다(2026-11-01 주인님 지시): 이 프로그램 줄만 읽고 다른 프로그램의 봇을 빌려 쓰지 않는다.
 export async function loadTargets(userId: string) {
   const admin = createAdminClient();
-  const [links, resend, prefs, kakao, kakaoKey, auth] = await Promise.all([
-    admin.from("user_telegram_links").select("program_slug,bot_token,chat_id,bot_username").eq("user_id", userId),
+  const [link, resend, prefs, kakao, kakaoKey, auth] = await Promise.all([
+    admin.from("user_telegram_links").select("bot_token,chat_id,bot_username").eq("user_id", userId).eq("program_slug", "coupang-ops").maybeSingle(),
     admin.from("user_api_keys").select("api_key").eq("user_id", userId).eq("provider", "resend_api_key").maybeSingle(),
     admin.from("coupang_ops_prefs").select("data").eq("user_id", userId).maybeSingle(),
     getKakaoState(admin, userId, false),
     hasKakaoKey(admin, userId),
     admin.auth.admin.getUserById(userId),
   ]);
-  const rows = (links.data ?? []) as { program_slug: string; bot_token: string; chat_id: string; bot_username: string | null }[];
   return {
     userId,
     kakao,
     kakaoKey,
-    telegram: rows.find((r) => r.program_slug === "coupang-ops") ?? rows[0] ?? null,
+    telegram: link.data as { bot_token: string; chat_id: string; bot_username: string | null } | null,
     resendKey: String(resend.data?.api_key ?? ""),
     email: normalizePrefs(prefs.data?.data).alertEmailTo || (auth.data.user?.email ?? ""),
   };

@@ -45,6 +45,15 @@ export async function connectTelegramAction(botToken: string): Promise<Done> {
   }
 }
 
+/** 쿠팡 봇 연결만 지운다. 다른 프로그램의 봇 연결은 그대로 둔다 */
+export async function disconnectTelegramAction(): Promise<void> {
+  const user = await requireProgramAccess();
+  const { error } = await createAdminClient().from("user_telegram_links").delete().eq("user_id", user.id).eq("program_slug", SLUG);
+  if (error) throw new Error("연결을 끊지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+  revalidatePath("/alerts");
+  revalidatePath("/connect");
+}
+
 /** 고른 곳으로 시험 메시지 1건 */
 export async function testChannelAction(channel: AlertChannel): Promise<Done> {
   const user = await requireProgramAccess();

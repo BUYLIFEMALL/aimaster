@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { requireProgramAccess } from "@/lib/access";
 import { deleteProxyAction, deleteWingKeysAction } from "@/lib/actions/connection";
-import { alertStatus } from "@/lib/actions/dailyAlert";
+import { alertStatus, disconnectTelegramAction } from "@/lib/actions/dailyAlert";
 import { CronForm, KakaoForm, ResendForm, TelegramForm } from "@/components/AlertKeysPanel";
 import { AiKeyForm } from "@/components/AiKeyForm";
 import { ConnectionTest } from "@/components/ConnectionTest";
@@ -123,7 +123,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
         <SetupTable
           head={["받는 곳", "상태", "연결 정보"]}
           rows={[
-            { id: "telegram-card", name: "✈️ 텔레그램", on: !!alerts.telegram, info: alerts.telegram ? `@${alerts.telegram}` : "내 봇으로 받습니다", issue: { href: "https://t.me/BotFather" }, detail: <TelegramForm status={alerts} /> },
+            { id: "telegram-card", name: "✈️ 텔레그램", on: !!alerts.telegram, info: alerts.telegram ? `@${alerts.telegram}` : "내 봇으로 받습니다", quick: alerts.telegram ? <ConfirmButton label="끊기" action={disconnectTelegramAction} /> : undefined, issue: { href: "https://t.me/BotFather" }, detail: <TelegramForm status={alerts} /> },
             { id: "email-card", name: "✉️ 이메일", sub: "Resend", on: alerts.ready.email, info: alerts.resendKeySaved ? `키 등록됨 · ${alerts.emailTo}` : "내 Resend 키로 받습니다", issue: { href: "https://resend.com/api-keys" }, detail: <ResendForm status={alerts} /> },
             { id: "kakao-card", name: "💬 카카오톡", sub: "나와의 채팅", on: alerts.kakaoOk, onLabel: "✓ 연결됨", offLabel: "연결 전", info: alerts.kakaoOk ? alerts.kakaoNickname || "카카오 계정" : alerts.kakaoMessage, issue: { href: "https://developers.kakao.com/console/app" }, detail: <KakaoForm status={alerts} /> },
             { id: "cron-card", name: "⏰ 예약 키", sub: "cron-job.org", on: alerts.cronKeySaved, info: alerts.cronKeySaved ? "저장됨" : "매일 정한 시각에 요약을 실행합니다", issue: { href: "https://console.cron-job.org/settings" }, detail: <CronForm status={alerts} /> },

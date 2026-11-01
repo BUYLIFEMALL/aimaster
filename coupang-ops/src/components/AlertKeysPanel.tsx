@@ -30,7 +30,7 @@ export function TelegramForm({ status }: { status: AlertStatus }) {
   const [botToken, setBotToken] = useState("");
   return (
     <div className="space-y-2">
-      <p className={hint}>텔레그램 BotFather에서 본인 봇을 만들고, 그 봇에게 아무 메시지나 보낸 뒤 토큰을 넣어 주세요. 다른 프로그램에서 연결한 봇이 있으면 그대로 씁니다.</p>
+      <p className={hint}>텔레그램 BotFather에서 본인 봇을 만들고, 그 봇에게 아무 메시지나 보낸 뒤 토큰을 넣어 주세요. 쿠팡 알림 전용으로 연결하며, 다른 프로그램에 연결한 봇은 쓰지 않습니다.</p>
       <div className="flex flex-wrap gap-2">
         <input type="password" autoComplete="off" aria-label="텔레그램 봇 토큰" placeholder={status.telegram ? "저장됨 — 바꿀 때만 입력" : "봇 토큰"} value={botToken} onChange={(e) => setBotToken(e.target.value)} className={`${field} min-w-0 flex-1`} />
         <button type="button" disabled={pending || !botToken.trim()} onClick={() => run(() => connectTelegramAction(botToken), () => setBotToken(""))} className={line}>연결</button>
