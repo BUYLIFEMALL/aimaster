@@ -27,6 +27,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `blog-neighbor-care` | AI 프로필 응답에서 검증된 항목만 남기기(유료 결과 전체 폐기 방지) | `bd061bfa1` | 2026-11-01 · [역할: blog] Claude Code 윈도우 | `docs/HANDOFF.md` 2026-11-01 4개 배포 항목 | 재시험 승인 때 함께 배포. 확장 변경 없음 |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
 | ai-image-studio, ai-influencer-studio, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, ai-writing-editor, allinone-graphic, banana-canvas, blog-workroom, booking-reminder, cinematic-storyboard-studio, insta_auto_poster, kakao_auto_poster, landing-architect, mbti-character, music, naver-blog-allinone, personality-suite, persona-style-studio, playlist-channel-studio, prompt-template-studio, react-ui-showcase, reverse-prompt, shop-detail-page, shots, stepmail, style-dna-analyzer, tarot, threads-easy-planner, thumbnail-master, ui-canvas, vinyl-lp-studio, youtube-viral-studio | API 키 암호화 문구 수정(문구만, 각 프로그램 다음 배포 때 함께) | `b16550ad4` | 2026-11-01 [역할: realty] Claude Code(윈도우) | `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` |  |
@@ -67,6 +68,10 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `naver-blog-allinone` | v1.58 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `naver-blog-allinone-9f60r9weg`) | 이동 안내 띠 `5c1e40ac2`. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `blog-content-maker` | v1.14 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `blog-content-maker-1dhxtjetc`) | 이동 안내 띠 `5c1e40ac2`. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `blog-workroom` | v1.16 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `blog-workroom-678yhouoy`) | 이동 안내 띠 `5c1e40ac2`. 맥미니 화면 검수 대기 |
+| `naver-blog-agent` | v2.23 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `naver-blog-agent-ni50xpp8e`) | 간편 모드 에이전트 권한만 `9a2c21c6e`. DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `blog-neighbor-care` | v1.05 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-donc06qa2`) | 새 글 확인 환경변수 2개 등록, 서버 RSS 미리보기 차단, 안내문 수정. ZIP·DB OK. Edge 실검수 전 |
 | `blog-neighbor-care` | v1.04 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-4fn9tvouc`) | 16묶음+회원 PC 확장 새 글 확인, SQL 10개 적용(표 16개), ZIP·DB OK. 운영 `BNC_` 환경변수 없음으로 기능은 꺼짐 |
 | `naver-blog-allinone` | v1.57 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `naver-blog-allinone-99flpqnff`) | 회원 키 과금 버그: 본문 이미지 없음에도 2장 생성 수정 `edd6edfd0`(맥미니). 시험 37개·DB/ZIP OK. 맥미니 화면 재확인 대기 |

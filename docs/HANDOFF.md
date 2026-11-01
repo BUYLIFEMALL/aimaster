@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-01 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 블로그 4개 순차 배포·이웃 소통 AI 프로필 검수
+
+- **배포(맥미니 요청, 주인님 승인, 빌드 4회):** `9a2c21c6e`·`5c1e40ac2`. naver-blog-agent v2.23(간편 모드 에이전트 권한만, `naver-blog-agent-ni50xpp8e`), blog-workroom v1.16(`blog-workroom-678yhouoy`), blog-content-maker v1.14(`blog-content-maker-1dhxtjetc`), naver-blog-allinone v1.58(`naver-blog-allinone-9f60r9weg`). 모두 Ready, 확장 3개 `check-extension-release` OK.
+- **고친 것:** blog-content-maker `prebuild`는 manifest를 맞추지 않고 다르면 멈춰, manifest를 v1.14로 맞춤. 맥미니 재확인: 화면 검수 대기(띠 3개, 간편 모드 권한, BLOG FREE).
+- **이웃 소통 AI 프로필:** 승인 1회 실행(Haiku 4.5, `3c8e504e`) → 검사 탈락, 결과 없음. 응답 원문을 저장하지 않아 탈락 조건은 미확정. 검증된 항목만 남기도록 수정 `bd061bfa1`(미배포). 재시험은 새 승인 필요.
+- **이웃 소통 새 글 확인:** 엣지(`6455da5d…`)에서 로그인은 됐으나 확장 응답 없음. 지침의 엣지 ID `b210…`는 현재 엣지가 아님. 설치 프로필 확인 대기.
+- **링크:** https://blog-neighbor-care.buylife.xyz/studio
+
+
 ## 2026-11-01 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog · 올인원 v1.57 이미지 「없음」 버그 수정·재확인
 
 - **한 일:** `clampImageCount`가 0을 2로 바꾸던 버그 수정(`edd6edfd0`, 주인님 채팅 승인), 윈도우 블로그 세션 배포(`naver-blog-allinone-99flpqnff`, DB/확장/ZIP v1.57 OK). 맥 크롬 재확인: 대표 끔+「없음」으로 글 생성 → 이미지 0/0장·이미지 요청 없음·보관함 0장 카드 정상, 상단 「내 AIMaster 계정 키 사용 중」.
