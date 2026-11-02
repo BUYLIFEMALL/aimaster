@@ -1,4 +1,4 @@
-import { draftReport, draftLocked, nextDraftReport, writableDraft } from "@/lib/draftWriteGuard";
+import { draftReport, draftLocked, manualInputAllowed, matchDraftRevision, nextDraftReport, writableDraft } from "@/lib/draftWriteGuard";
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -71,11 +71,18 @@ export async function DELETE(_request: Request, context: { params: Promise<{ dra
     .maybeSingle();
   if (findError || !draft) return NextResponse.json({ error: "삭제할 내 초안을 찾지 못했습니다." }, { status: 404 });
   const report = draftReport(draft.seo_report);
-  if (draftLocked(report)) return NextResponse.json({ error: "자동 발행 기록이 있는 원고는 삭제할 수 없습니다. 발행 결과를 확인해 주세요." }, { status: 409 });
+  // 2026-11-02: 최종 발행 버튼을 누르기 전에 실패했거나 20분 넘게 멈춘 실행은 지워도 된다(발행·예약 결과가 없음). 발행·예약·확인 필요 원고만 막는다.
+  if (draftLocked(report) && !manualInputAllowed(draftReport(report.autoPublish))) return NextResponse.json({ error: "자동 발행 기록이 있는 원고는 삭제할 수 없습니다. 발행 결과를 확인해 주세요." }, { status: 409 });
   const contentImages = typeof draft.seo_report === "object" && draft.seo_report !== null && Array.isArray((draft.seo_report as { contentImages?: unknown }).contentImages)
     ? (draft.seo_report as { contentImages: Array<{ path?: string }> }).contentImages : [];
   const imagePaths = [draft.image_path, ...contentImages.map((item) => item.path)].filter((path): path is string => Boolean(path));
-  const { data: removed, error } = await writableDraft(supabase.from("naver_blog_seo_drafts").delete().eq("id", draftId).eq("user_id", access.user.id), report).select("id").maybeSingle();
+  const run = draftReport(report.autoPublish);
+  const target = supabase.from("naver_blog_seo_drafts").delete().eq("id", draftId).eq("user_id", access.user.id);
+  // 실행 기록이 있으면 읽은 실행 번호·상태가 그대로일 때만 지운다(그사이 바뀌면 지우지 않음).
+  const guarded = typeof run.runId === "string"
+    ? matchDraftRevision(target, report).eq("seo_report->autoPublish->>runId", run.runId).eq("seo_report->autoPublish->>state", String(run.state ?? ""))
+    : writableDraft(target, report);
+  const { data: removed, error } = await guarded.select("id").maybeSingle();
   if (error) return NextResponse.json({ error: "초안을 삭제하지 못했습니다." }, { status: 500 });
   if (!removed) return NextResponse.json({ error: "원고가 변경되거나 발행이 시작되어 삭제하지 않았습니다." }, { status: 409 });
   if (imagePaths.length) await supabase.storage.from("naver-blog-seo-images").remove(imagePaths);
