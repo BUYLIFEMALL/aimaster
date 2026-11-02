@@ -95,3 +95,15 @@ test("collects the auto-publish result for the auto-publish card only", () => {
   assert.equal(text({ mode: "fill", running: false, props }), "");
   assert.ok(read("sidepanel.html").includes('id="autoPublishStatus"'));
 });
+
+// 2026-11-02: 본문 이미지만 있는 원고를 다 불러와도 「이미지를 불러오지 못했습니다」가 나오던 문제.
+test("reports image loading by comparing saved and loaded counts", () => {
+  const w = loadWorker();
+  const status = (expected, cover, content) => w.value(`webDraftImageStatus(${expected}, ${cover}, ${content})`);
+  assert.match(status(2, false, 2), /^콘텐츠와 저장된 본문 이미지 2장을 불러왔습니다/);
+  assert.match(status(3, true, 2), /^콘텐츠와 저장된 대표 이미지·본문 이미지 2장을 불러왔습니다/);
+  assert.match(status(1, true, 0), /^콘텐츠와 저장된 대표 이미지를 불러왔습니다/);
+  assert.match(status(0, false, 0), /^이미지 없는 텍스트 원고/);
+  assert.match(status(3, true, 1), /^이미지 3장 중 1장을 불러오지 못했습니다/);
+  assert.match(status(2, false, 0), /^이미지 2장 중 2장을 불러오지 못했습니다/);
+});

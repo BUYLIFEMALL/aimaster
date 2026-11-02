@@ -259,11 +259,17 @@ async function loadSelectedWebDraftNow() {
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
   const imageSummary = draft.image_summary || {};
   const imageCount = (imageSummary.cover ? 1 : 0) + Number(imageSummary.contentCount || 0);
-  $("webDraftStatus").textContent = storedImageLoaded
-    ? `콘텐츠와 저장된 대표 이미지${activeWebDraftContentImages.length ? `·본문 이미지 ${activeWebDraftContentImages.length}장` : ""}를 불러왔습니다. 미리보기에서 확인한 뒤 네이버 글쓰기 화면에 입력하세요.`
-    : imageCount === 0
-      ? "이미지 없는 텍스트 원고를 불러왔습니다. 미리보기에서 확인한 뒤 입력 또는 자동 포스팅을 진행하세요."
-      : `이미지 ${imageCount}장을 불러오지 못했습니다. 확장 프로그램을 최신 버전으로 업데이트한 뒤 다시 시도해주세요.`;
+  $("webDraftStatus").textContent = webDraftImageStatus(imageCount, storedImageLoaded, activeWebDraftContentImages.length);
+}
+
+// 2026-11-02: 대표 이미지만 보고 성공을 판단해, 본문 이미지만 있는 원고는 다 불러와도 「불러오지 못했습니다」로 나왔다.
+// 원고에 저장된 장수와 실제로 불러온 장수를 비교한다.
+function webDraftImageStatus(expected, coverLoaded, contentLoaded) {
+  const loaded = (coverLoaded ? 1 : 0) + contentLoaded;
+  if (expected === 0 && loaded === 0) return "이미지 없는 텍스트 원고를 불러왔습니다. 미리보기에서 확인한 뒤 입력 또는 자동 포스팅을 진행하세요.";
+  if (loaded < expected) return `이미지 ${expected}장 중 ${expected - loaded}장을 불러오지 못했습니다. 확장 프로그램을 최신 버전으로 업데이트한 뒤 다시 시도해주세요.`;
+  const parts = [...(coverLoaded ? ["대표 이미지"] : []), ...(contentLoaded ? [`본문 이미지 ${contentLoaded}장`] : [])];
+  return `콘텐츠와 저장된 ${parts.join("·")}${contentLoaded ? "을" : "를"} 불러왔습니다. 미리보기에서 확인한 뒤 네이버 글쓰기 화면에 입력하세요.`;
 }
 
 async function reportWebDraftInputResult(status, details = {}) {
