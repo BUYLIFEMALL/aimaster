@@ -777,6 +777,14 @@ async function typeWithDebugger(tabId, value) {
   }
 }
 
+// 2026-11-02: 「작성 중인 글이 있습니다」 창이 편집기를 가리면 제목 칸을 못 찾는다. '취소'만 누른다(임시글은 지워지지 않음, 「확인」은 누르지 않음).
+async function dismissNaverResume(tabId) {
+  const results = await chrome.scripting.executeScript({ target: { tabId, allFrames: true }, func: aioCategoryCommand, args: ["dismissResume"] }).catch(() => []);
+  const dismissed = results.some((entry) => entry.result?.dismissed);
+  if (dismissed) await sleep(800);
+  return dismissed;
+}
+
 async function focusNaverEditor(tabId, kind, placement = "end") {
   const results = await chrome.scripting.executeScript({
     target: { tabId, allFrames: true },
@@ -972,6 +980,7 @@ async function fillDraftIntoNaver(options = {}) {
     await chrome.windows.update(tab.windowId, { focused: true });
     await chrome.tabs.update(tab.id, { active: true });
     await sleep(350);
+    await dismissNaverResume(tab.id);
     const titleFocus = await focusNaverEditor(tab.id, "title");
     if (!titleFocus.ok) throw new Error("제목 입력 요소를 찾지 못했습니다. 네이버 글쓰기 화면을 새로 연 뒤 다시 시도하세요.");
     await reportWebDraftInputResult("in_progress").catch(() => {});
