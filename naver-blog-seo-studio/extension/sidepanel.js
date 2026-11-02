@@ -757,6 +757,13 @@ const MAC_NEW_PARAGRAPH = `(() => {
   return handled ? "key" : "command";
 })()`;
 
+// 편집기(같은 출처의 iframe 포함)에 있는 본문 문단 수(맥 문단 나눔 확인용).
+const MAC_PARAGRAPH_COUNT = `(() => {
+  const docs = [document]; let total = 0;
+  while (docs.length) { const d = docs.pop(); total = Math.max(total, d.querySelectorAll(".se-text-paragraph").length); for (const f of d.querySelectorAll("iframe")) { try { if (f.contentDocument) docs.push(f.contentDocument); } catch {} } }
+  return total;
+})()`;
+
 async function typeWithDebugger(tabId, value) {
   const text = plainText(value);
   const total = Array.from(text).length;
@@ -770,7 +777,19 @@ async function typeWithDebugger(tabId, value) {
       // 맥에서는 같은 맥에서 동작이 확인된 블로그 에이전트 방식(편집 칸에 Enter 키 이벤트, 처리되지 않으면 insertParagraph)을 쓴다. 윈도우는 그대로.
       const mac = (await chrome.runtime.getPlatformInfo().catch(() => ({})))?.os === "mac";
       if (mac) {
-        await debuggerCommand(tabId, "Runtime.evaluate", { expression: MAC_NEW_PARAGRAPH, returnByValue: true });
+        // 2026-11-02: Enter마다 편집기 문단 수가 실제로 늘었는지 확인한다. 안 늘면 디버거 Enter(insertNewline)로 한 번 더, 그래도 안 되면 글이 붙기 전에 멈춘다.
+        const count = async () => (await debuggerCommand(tabId, "Runtime.evaluate", { expression: MAC_PARAGRAPH_COUNT, returnByValue: true }))?.result?.value;
+        const before = await count();
+        const how = (await debuggerCommand(tabId, "Runtime.evaluate", { expression: MAC_NEW_PARAGRAPH, returnByValue: true }))?.result?.value;
+        await sleep(120);
+        let after = await count();
+        if (typeof before === "number" && before > 0 && !(after > before)) {
+          await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", text: "\r", unmodifiedText: "\r", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 36, commands: ["insertNewline"] });
+          await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 36 });
+          await sleep(120);
+          after = await count();
+          if (!(after > before)) throw new Error(`맥에서 새 문단이 만들어지지 않아 입력을 멈췄습니다(방식 ${how}, 문단 ${before}→${after}). 발행·예약은 하지 않았습니다.`);
+        }
       } else {
         await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", text: "\r", unmodifiedText: "\r", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
         await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
