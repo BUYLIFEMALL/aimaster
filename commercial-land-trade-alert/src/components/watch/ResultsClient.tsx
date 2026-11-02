@@ -220,7 +220,6 @@ export function ResultsClient({ email }: { email: string }) {
         <table className="mx-table min-w-[820px] text-sm [&_td]:align-top">
           <thead>
             <tr>
-              <th>보기</th>
               <th>{hasDong ? "행정동(추정)" : "감시 화면"}</th>
               <th>매물</th>
               <th>가격</th>
@@ -229,6 +228,7 @@ export function ResultsClient({ email }: { email: string }) {
               <th>추정 수익률</th>
               <th>후보 점수</th>
               <th>변동</th>
+              <th>보기</th>
             </tr>
           </thead>
           <tbody>
@@ -237,13 +237,6 @@ export function ResultsClient({ email }: { email: string }) {
               const watch = shortWatch(v("감시 화면"));
               return (
                 <tr key={`${v(LINK)}-${i}`}>
-                  <td>
-                    {v(LINK) ? (
-                      <a href={v(LINK)} target="_blank" rel="noreferrer" className="whitespace-nowrap text-mx-link underline">
-                        네이버
-                      </a>
-                    ) : null}
-                  </td>
                   <td className="whitespace-nowrap">
                     <b>{hasDong ? dongOfRow.get(r) ?? UNKNOWN_DONG : watch}</b>
                     {hasDong && <small className="block text-xs text-mx-muted">{watch}</small>}
@@ -264,6 +257,13 @@ export function ResultsClient({ email }: { email: string }) {
                     {v("근거") && <small className="block text-xs text-mx-muted">{v("근거")}</small>}
                   </td>
                   <td className="whitespace-nowrap">{v("변동")}</td>
+                  <td>
+                    {v(LINK) ? (
+                      <a href={v(LINK)} target="_blank" rel="noreferrer" className="whitespace-nowrap text-mx-link underline">
+                        네이버
+                      </a>
+                    ) : null}
+                  </td>
                 </tr>
               );
             })}
