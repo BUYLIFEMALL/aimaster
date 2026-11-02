@@ -27,6 +27,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `commercial-land-trade-alert` | 건물 시세 비교도 동 표본이 없으면 「참고」(후보 점수 제외) | `1fb2c1886` | 2026-11-02 · Claude Code(윈도우) [역할: realty] | `commercial-land-trade-alert/docs/IMPROVEMENTS.md` 2026-11-02 | 확장 코드라 ZIP·manifest·DB 버전 함께, 결과 화면 개선과 묶어 v1.24 |
 | `naver-blog-agent` | 30일 정리에서 예외 회원(관리자·시험 계정) 제외 — **첫 삭제 추정 2026-11-07 전 배포 필요** | `6c8e0eb63` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §6 | 다음 에이전트 배포 때(11-07 전) |
 | `naver-blog-seo-studio` | 30일 정리(크론·회원 본인 정리)에서 예외 회원 제외 | `3fa97c0f4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 SEO 배포 때 |
 | `ai-auto-blog` | 30일 정리에서 예외 회원 제외(독립 키트는 확인 생략) | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 BLOG 배포 때 |
