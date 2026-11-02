@@ -188,6 +188,32 @@ export async function fetchBuildingRegister(params: {
   return data?.response?.body?.items?.item ?? [];
 }
 
+// B 주소 리포트(2026-11-02): 건축물대장 표제부 — 사용승인일·용적률·건폐율·주차·세대수·층수. 동이 여러 개면 여러 줄이 온다
+export interface BuildingTitleItem {
+  bldNm?: string;
+  dongNm?: string;
+  mainPurpsCdNm?: string;
+  useAprDay?: string;
+  vlRat?: string | number;
+  bcRat?: string | number;
+  grndFlrCnt?: string | number;
+  hhldCnt?: string | number;
+  indrAutoUtcnt?: string | number;
+  oudrAutoUtcnt?: string | number;
+  indrMechUtcnt?: string | number;
+  oudrMechUtcnt?: string | number;
+  [key: string]: unknown;
+}
+
+export async function fetchBuildingTitle(params: { keys?: PublicDataKeys; sigunguCd: string; bjdongCd: string; bun: string; ji: string }): Promise<BuildingTitleItem[]> {
+  const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
+  const qs = new URLSearchParams({ serviceKey: key, sigunguCd: params.sigunguCd, bjdongCd: params.bjdongCd, platGbCd: "0", bun: params.bun, ji: params.ji, _type: "json", numOfRows: "100", pageNo: "1" });
+  const res = await fetch(`${DATA_GO_KR_BASE}/getBrTitleInfo?${qs.toString()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`건축물대장 표제부 API 요청 실패 (${res.status})`);
+  const raw = (await res.json())?.response?.body?.items?.item ?? [];
+  return Array.isArray(raw) ? raw : [raw];
+}
+
 export interface VworldPriceField {
   stdrYear: string;
   prvuseAr: string;
