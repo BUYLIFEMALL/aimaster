@@ -9,7 +9,6 @@ import { shortWatch, StatsDashboard } from "./StatsDashboard";
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
 type Result = { at: string; columns: string[]; table: (string | number)[][]; places?: Record<string, [number, number]>; sggByWatch?: Record<string, string>; perTarget: { name: string; total: number; complete: boolean; pagesRead?: number; filterChanged?: boolean; filterText?: string | null; coords?: { total: number; withCoord: number; places: number } }[] };
 
-const SHOW = ["감시 화면", "유형", "거래 종류", "가격", "시세 대비", "추정 수익률", "후보 점수", "근거", "변동", "이전 가격", "면적 기준", "면적(㎡)", "층"];
 const LINK = "네이버 매물 주소";
 const EVENT_VIEW: Record<string, string> = { new: "🆕 신규", priceDown: "📉 가격 내림", priceUp: "📈 가격 오름", gone: "👋 사라짐" };
 
@@ -47,8 +46,8 @@ function GapCell({ value }: { value: unknown }) {
   const color = n > 0 ? "text-blue-700" : n < 0 ? "text-red-600" : "";
   return (
     <>
-      <b className={color}>{n > 0 ? "▲" : n < 0 ? "▼" : ""} {Math.abs(n)}% {n > 0 ? "높음" : n < 0 ? "낮음" : "같음"}</b>
-      {m[2] && <small className="ml-1 text-xs text-mx-muted">({m[2]})</small>}
+      <b className={`whitespace-nowrap ${color}`}>{n > 0 ? "▲" : n < 0 ? "▼" : ""} {Math.abs(n)}% {n > 0 ? "높음" : n < 0 ? "낮음" : "같음"}</b>
+      {m[2] && <small className="block text-xs text-mx-muted">({m[2]})</small>}
     </>
   );
 }
@@ -218,34 +217,56 @@ export function ResultsClient({ email }: { email: string }) {
         )}
       </div>
       <div className="mx-card mt-3 overflow-x-auto p-0">
-        <table className="mx-table [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
+        <table className="mx-table min-w-[820px] text-sm [&_td]:align-top">
           <thead>
             <tr>
-              {hasDong && <th>행정동(추정)</th>}
-              {SHOW.map((c) => (
-                <th key={c}>{c}</th>
-              ))}
               <th>보기</th>
+              <th>{hasDong ? "행정동(추정)" : "감시 화면"}</th>
+              <th>매물</th>
+              <th>가격</th>
+              <th>면적·층</th>
+              <th>시세 대비</th>
+              <th>추정 수익률</th>
+              <th>후보 점수</th>
+              <th>변동</th>
             </tr>
           </thead>
           <tbody>
-            {rows.slice(0, 500).map((r, i) => (
-              <tr key={`${String(r[at(LINK)])}-${i}`}>
-                {hasDong && <td>{dongOfRow.get(r) ?? UNKNOWN_DONG}</td>}
-                {SHOW.map((c) => (
-                  <td key={c} className={c === "가격" ? "font-semibold" : undefined}>
-                    {c === "감시 화면" ? shortWatch(String(r[at(c)] ?? "")) : c === "시세 대비" ? <GapCell value={r[at(c)]} /> : c === "후보 점수" && Number(r[at(c)]) >= 40 ? `⭐ ${r[at(c)]}` : String(r[at(c)] ?? "")}
+            {rows.slice(0, 500).map((r, i) => {
+              const v = (c: string) => String(r[at(c)] ?? "");
+              const watch = shortWatch(v("감시 화면"));
+              return (
+                <tr key={`${v(LINK)}-${i}`}>
+                  <td>
+                    {v(LINK) ? (
+                      <a href={v(LINK)} target="_blank" rel="noreferrer" className="whitespace-nowrap text-mx-link underline">
+                        네이버
+                      </a>
+                    ) : null}
                   </td>
-                ))}
-                <td>
-                  {r[at(LINK)] ? (
-                    <a href={String(r[at(LINK)])} target="_blank" rel="noreferrer" className="whitespace-nowrap text-mx-link underline">
-                      네이버
-                    </a>
-                  ) : null}
-                </td>
-              </tr>
-            ))}
+                  <td className="whitespace-nowrap">
+                    <b>{hasDong ? dongOfRow.get(r) ?? UNKNOWN_DONG : watch}</b>
+                    {hasDong && <small className="block text-xs text-mx-muted">{watch}</small>}
+                  </td>
+                  <td className="whitespace-nowrap">{v("유형")} {v("거래 종류")}</td>
+                  <td className="whitespace-nowrap font-semibold">
+                    {v("가격")}
+                    {v("이전 가격") && <small className="block text-xs font-normal text-mx-muted">이전 {v("이전 가격")}</small>}
+                  </td>
+                  <td className="whitespace-nowrap">
+                    {v("면적 기준")} {v("면적(㎡)")}㎡
+                    {v("층") && <small className="block text-xs text-mx-muted">{v("층")}층</small>}
+                  </td>
+                  <td><GapCell value={v("시세 대비")} /></td>
+                  <td>{v("추정 수익률")}</td>
+                  <td>
+                    {Number(v("후보 점수")) >= 40 ? `⭐ ${v("후보 점수")}` : v("후보 점수")}
+                    {v("근거") && <small className="block text-xs text-mx-muted">{v("근거")}</small>}
+                  </td>
+                  <td className="whitespace-nowrap">{v("변동")}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
