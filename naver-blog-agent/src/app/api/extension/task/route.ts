@@ -5,6 +5,7 @@ import { validSource } from "@/lib/sourceBundle";
 import { getPostReview } from "@/lib/postReview";
 import { PrivatePhotoError, resolvePrivatePostPhotos } from "@/lib/privatePhotos";
 import { QUICK_POST_MODE } from "@/lib/quickMode";
+import { RESERVATION_TOO_LATE_MESSAGE, reservationTooLate } from "@/lib/scheduleSlots";
 import { connectionOwner, newExecution, OWNER_PATH, publicExecution, readExecution, withExecution } from "@/lib/executionRuns";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,12 @@ export async function POST(req: Request) {
     // Fail it (only while still queued) so it neither publishes nor blocks the next draft.
     if (!hasBodyText(row.content)) {
       await admin.from("nba_posts").update({ status: "failed", error_message: "본문이 비어 있어 입력하지 않았습니다. 원고를 확인해 주세요.", updated_at: new Date().toISOString() })
+        .eq("id", row.id).eq("user_id", userId).eq("status", "queued");
+      return reply({ task: null });
+    }
+    // 2026-11-02: 예약 시각이 지났거나 입력할 시간이 부족한 예약 원고는 가져가지 않고 실패로 돌려 다시 정하게 한다.
+    if (reservationTooLate(row)) {
+      await admin.from("nba_posts").update({ status: "failed", error_message: RESERVATION_TOO_LATE_MESSAGE, updated_at: new Date().toISOString() })
         .eq("id", row.id).eq("user_id", userId).eq("status", "queued");
       return reply({ task: null });
     }

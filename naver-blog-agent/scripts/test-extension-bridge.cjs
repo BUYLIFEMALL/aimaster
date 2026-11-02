@@ -46,6 +46,7 @@ function loadTS(filename) {
     if (id === '@/lib/quickMode') return loadTS(path.join(root, 'src/lib/quickMode.ts'));
     if (id === '@/lib/shoppingLinks') return loadTS(path.join(root, 'src/lib/shoppingLinks.ts'));
     if (id === '@/lib/executionRuns') return loadTS(path.join(root, 'src/lib/executionRuns.ts'));
+    if (id === '@/lib/scheduleSlots') return loadTS(path.join(root, 'src/lib/scheduleSlots.ts')); // 2026-11-02 가져가기 때 예약 시각 확인
     if (id === '@/lib/bodyText') return loadTS(path.join(root, 'src/lib/bodyText.ts'));
     if (id === '@/lib/postReview') return loadTS(path.join(root, 'src/lib/postReview.ts'));
     if (id === './postReviewSnapshot') return loadTS(path.join(root, 'src/lib/postReviewSnapshot.ts'));

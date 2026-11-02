@@ -259,6 +259,10 @@ async function editorCommand(command, args = {}) {
     if (title && (body || insertionReady)) return { status: 'valid', editorBuild:build, titleQuoteOnly, reason: '글쓰기 화면 확인 · 확장 '+build+' · 제목 '+title.tagName+'/'+(title.isContentEditable?'편집가능':'편집불가')+' · 입력호스트 '+(title.closest('[contenteditable]')?.getAttribute('contenteditable') ?? '없음'), automationControlled: navigator.webdriver === true, titleText:readText(title).trim(),bodyHasContent:Boolean(paragraphs().some(p=>readText(p).trim()) || document.querySelector('.se-component.se-image') || quotes().length),hasContent: Boolean(readText(title).trim() || paragraphs().some(p => readText(p).trim()) || document.querySelector('.se-component.se-image') || quotes().length) };
     return { status: 'unknown', reason: `편집기를 확인할 수 없습니다. Chrome의 알림·임시글 창을 확인하세요. (확장 ${build}, 제목 ${title?'있음':'없음'}, 본문 ${body?'있음':'없음'})`, diagnostics:{url:location.origin+location.pathname,ready:document.readyState,editableCount:document.querySelectorAll('[contenteditable]').length,componentCount:document.querySelectorAll('.se-component').length} };
   }
+  if (command === 'reserveRejected') {
+    // 2026-11-02: 네이버는 지난 시각 예약을 발행 창의 이 경고로 거부하고 글을 올리지 않는다.
+    return {rejected:[...document.querySelectorAll('p,span,em,strong,div')].some(el=>!el.children.length && visible(el) && /현재 시간 이후로 설정해/.test(el.textContent || ''))};
+  }
   if (command === 'reserved') {
     const url=new URL(location.href);
     if(url.hostname!=='blog.naver.com' || !(url.pathname===`/${args.blogId}/postwrite` || url.searchParams.get('blogId')===args.blogId))return {complete:false,reason:'예약 확인 대상 블로그가 아닙니다.'};

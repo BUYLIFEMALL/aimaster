@@ -319,3 +319,32 @@ function withScope(m) {
     ...(m.checkProgramAccessApi ? { checkAccessScopeApi: async () => { const r = await m.checkProgramAccessApi(); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}),
     ...(m.evaluateProgramAccessForUser ? { evaluateAccessScope: async (id) => { const r = await m.evaluateProgramAccessForUser(id); return r.allowed ? { ...r, scope: 'full' } : r; } } : {}) };
 }
+
+// 2026-11-02: 예약 시각이 지났거나 너무 가까운 예약 원고는 확장이 가져가지 않는다(첫 실제 예약 시험에서 발견).
+const CLAIM = { blogId: 'myblog', supportsPrepare: true, supportsPrivatePhotos: true, supportsRuns: true };
+test('예약 시각이 지난 원고는 가져가지 않고 실패로 돌려 다시 정하게 한다', async () => {
+  const h = harness(); Object.assign(h.state.rows[0], { is_reserved: true, scheduled_at: new Date(Date.now() - 30 * 60000).toISOString() });
+  const result = await h.load('app/api/extension/task/route.ts').POST(h.request(CLAIM));
+  assert.equal(result.status, 200); assert.equal(result.body.task, null);
+  assert.equal(h.state.rows[0].status, 'failed'); assert.match(h.state.rows[0].error_message, /예약 시각을 다시 정해/);
+  assert.equal(h.state.signs.length, 0);
+});
+
+test('예약 시각이 충분히 남은 원고와 즉시 발행 원고는 그대로 가져간다', async () => {
+  const h = harness(); Object.assign(h.state.rows[0], { is_reserved: true, scheduled_at: new Date(Date.now() + 30 * 60000).toISOString() });
+  const result = await h.load('app/api/extension/task/route.ts').POST(h.request(CLAIM));
+  assert.equal(result.status, 200); assert.equal(h.state.rows[0].status, 'publishing'); assert.equal(result.body.task.payload.publishScheduleMode, 'reserve');
+  const slots = h.load('lib/scheduleSlots.ts'), now = Date.parse('2026-11-02T03:00:00Z');
+  assert.equal(slots.reservationTooLate({ is_reserved: true, scheduled_at: '2026-11-02T03:10:00Z' }, now), false);
+  assert.equal(slots.reservationTooLate({ is_reserved: true, scheduled_at: '2026-11-02T03:09:00Z' }, now + 60000), true);
+  assert.equal(slots.reservationTooLate({ is_reserved: true, scheduled_at: 'bad' }, now), true);
+  assert.equal(slots.reservationTooLate({ is_reserved: false, scheduled_at: '2026-11-01T00:00:00Z' }, now), false);
+});
+
+test('확장도 발행 직전 같은 10분 올림 기준으로 2분 미만이면 누르지 않는다', () => {
+  const line = fs.readFileSync(path.resolve(__dirname, '../extension/background.js'), 'utf8').split('\n').find(l => l.startsWith('const reservationTooLate'));
+  const tooLate = new Function(line + ';return reservationTooLate;')(), now = Date.parse('2026-11-02T03:00:00Z');
+  assert.equal(tooLate('2026-11-02T03:01:00Z', now), false); // 03:10으로 올림
+  assert.equal(tooLate('2026-11-02T02:59:00Z', now), true);
+  assert.equal(tooLate('bad', now), true);
+});

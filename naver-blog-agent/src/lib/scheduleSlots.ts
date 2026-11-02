@@ -35,3 +35,15 @@ export function validateReservation(isReserved: unknown, scheduledAt: unknown, n
   if (time < now + MIN_LEAD_MINUTES * 60_000) return `예약 시각은 지금부터 ${MIN_LEAD_MINUTES}분 이후여야 합니다.`;
   return null;
 }
+
+// 2026-11-02: 확장이 원고를 가져갈 때 다시 본다. 저장 때 검사를 통과했어도 확장 연결이 늦으면 예약 시각이 지나고,
+// 네이버는 지난 시각 예약을 「현재 시간 이후로 설정해주세요」로 거부한다(첫 실제 시험에서 확인).
+export const CLAIM_LEAD_MINUTES = 10; // 입력에 걸리는 시간(실측 약 6분)을 남긴다.
+export const RESERVATION_TOO_LATE_MESSAGE = "예약 시각이 지났거나 너무 가까워 입력하지 않았습니다. 보관함에서 예약 시각을 다시 정해 주세요.";
+
+/** 예약 원고이면서 10분 단위로 올린 예약 시각이 지금부터 CLAIM_LEAD_MINUTES 안쪽이거나 지났으면 true. */
+export function reservationTooLate(row: { is_reserved?: boolean | null; scheduled_at?: string | null }, now: number = Date.now()): boolean {
+  if (!row.is_reserved || !row.scheduled_at) return false;
+  const time = new Date(row.scheduled_at).getTime();
+  return !Number.isFinite(time) || roundUpToStep(time) < now + CLAIM_LEAD_MINUTES * 60_000;
+}

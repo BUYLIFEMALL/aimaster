@@ -1,6 +1,8 @@
 importScripts('editor.js','article-plan.js','writer.js');
 const API = 'https://naver-blog-agent.buylife.xyz'; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+// 서버 src/lib/scheduleSlots.ts와 같은 10분 올림 기준. 발행 직전에는 2분만 남으면 된다.
+const reservationTooLate = (at, now = Date.now()) => { const time = Math.ceil(new Date(at).getTime() / 600000) * 600000; return !Number.isFinite(time) || time < now + 2 * 60000; };
 let busy = false;
 let refreshSession = false;
 let runtimeQueue = Promise.resolve();
@@ -347,10 +349,19 @@ async function publish(task) {
     await chrome.storage.local.set({activeTask:{...task,stage:'prepared'}});
     return {prepared:true,published:false};
   }
+  // 2026-11-02: 입력하는 사이 예약 시각이 지나면 누르지 않는다(네이버가 거부함). 입력한 글은 편집기에 남는다.
+  if(p.publishScheduleMode==='reserve' && reservationTooLate(p.scheduledAt))throw Object.assign(new Error('예약 시각이 지났거나 너무 가까워 발행 버튼을 누르지 않았습니다. 보관함에서 예약 시각을 다시 정해 주세요.'),{code:'RESERVATION_TOO_LATE'});
   await api('/stage',{id:task.id,runId:task.runId,stage:'final_publish'});
   await chrome.storage.local.set({activeTask:{...task,stage:'final_publish'}});
   await command(tabId,'click',{selector:'button[data-testid="seOnePublishBtn"], button[data-click-area="tpb*i.publish"]'});
-  if(p.publishScheduleMode==='reserve')return verifyReservation(task);
+  if(p.publishScheduleMode==='reserve'){
+    for(let n=0;n<4;n++){
+      await sleep(500);
+      const checks=await frameResults(tabId,'reserveRejected').catch(()=>[]);
+      if(checks.some(r=>r.rejected))throw Object.assign(new Error('네이버가 예약 시각을 거부했습니다(현재 시각 이후로 설정 필요). 글은 발행되지 않았습니다. 보관함에서 예약 시각을 다시 정해 주세요.'),{code:'RESERVATION_REJECTED'});
+    }
+    return verifyReservation(task);
+  }
   let refreshed=false;
   for(let n=0;n<45;n++){
     await sleep(1000);
@@ -415,7 +426,7 @@ async function resume(task) {
   let result;
   try {result={id:task.id,runId:task.runId,result:await publish(task)};}catch(error){
     const current=(await stored()).activeTask;
-    result={id:task.id,runId:task.runId,error:error.message,code:current?.stage==='final_publish'?'PUBLISH_UNCERTAIN':error.code || 'AUTHORING_FAILED'};
+    result={id:task.id,runId:task.runId,error:error.message,code:error.code==='RESERVATION_REJECTED'?error.code:current?.stage==='final_publish'?'PUBLISH_UNCERTAIN':error.code || 'AUTHORING_FAILED'};
   }
   return finish(result);
 }
