@@ -4,6 +4,9 @@
 - 공급사 순서를 OpenAI·Claude·Gemini로 맞추고 플랫폼별 묶음 표시. 텍스트에 GPT-6.1 Sol·6 Astra·6.1 Terra·6 Luna·Claude Opus 5.5·Fable 5.1·Gemini 3.8 Flash(새 기본값)·4 Argon·3.5 Flash-Lite, 이미지에 GPT Image 2.5 Sunburst·2.5 Flare·2·1.5·1 mini·나노 바나나 2.1 추가. Gemini 생각 끄기는 2.5에만, Claude 출력 한도 16000. 실제 호출(시험 계정 본인 키, 재시도 없음): 텍스트 9개 제목 생성 모두 통과 1.7~13.8초(Argon도 통과), 이미지 6개 썸네일 모두 통과 11.9~27.2초.
 - 배포·DB v1.33, 크롬 화면 확인. 커밋 `d2fc103ed`·`b40567c94`. 링크: https://playlist-channel-studio.buylife.xyz/studio
 
+## 2026-11-03 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp · `naver-blog-agent` v2.26 대신 배포(맥미니 요청 7번째)
+- 아래 항목에서 건너뛴 블로그 에이전트를 **주인님 승인으로 블로그 세션 대신 배포**(`--owner`로 블로그 세션 줄 지정, 그 줄은 지우지 않음). 대기 `2a37dabc4`(좌측 메뉴 「FREE」 삭제). tsc·빌드 통과, Ready `naver-blog-agent-8fw0nvubj`, DB/ZIP v2.26 OK. 이로써 맥미니 요청 7개 모두 배포(빌드 7회). 화면 확인은 맥미니 몫.
+
 ## 2026-11-03 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp · 맥미니 배포 요청 7개 중 6개 순차 배포
 - 근거: `docs/DEPLOY_REQUEST_20261103_MAC.md`, 주인님 채팅 승인 「배포해」(빌드 7회 범위, 6회 사용).
 - 배포(한 번에 하나, 모두 Ready·DB 버전 맞춤, 확장은 `check-extension-release` OK): `shop-order-report` v1.06(수수료 공식 대조), `trending-product-finder` v1.31(수수료 + 쿠팡 리뷰 결과 회원별 사이트 저장 `308da3f1c`, 키워드 자동 검색은 아직 없음), `ai-auto-blog` v1.86·`tistory-auto-blog` v1.95(30일 정리 예외 회원), `blog-keyword` v1.11(사용법 배지), `naver-blog-allinone` v1.59(권한 함수 + API 키 문구 `b16550ad4`).

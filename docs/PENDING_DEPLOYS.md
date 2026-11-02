@@ -27,7 +27,6 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `ghost-scraper`(website-scraper) | 사이드바 고정 「FREE」 표시 삭제 — DB 배지 없음·비공개라 DB와 다름(2026-11-03 배지 전수 조사) | `937ce820d` | 2026-11-03 · Claude Code(윈도우) `claude-win-20261029-statusbar` | `src/components/layout/Sidebar.tsx` | 다음 배포 때(버전 +0.01) |
-| `naver-blog-agent` | 좌측 메뉴 제목 옆 고정 「FREE」 표시 삭제(DB 배지는 비어 있음, 옛 간편 모드 무료 입구 잔재) — 주인님 「일반으로 전환해」 | `2a37dabc4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | — | 다음 에이전트 배포 때 |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
 | `realty-listing-alert` | A3 좌측 메뉴 「🔗 함께 쓰는 부동산 프로그램」(실거래·상가 바로가기) | 2026-11-02 커밋 | 2026-11-02 · [역할: realty] | `real_estate_sales/docs/PLAN_20261102_A2_A3.md` | 다음 배포 때 버전 올려 함께(확장 ZIP·DB) |
@@ -69,6 +68,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `naver-blog-agent` | v2.26 · 2026-11-03 (`claude-win-sdp`, **주인님 승인으로 블로그 세션 대신 배포** — 작업 중 표 블로그 세션 줄은 그대로 둠, 빌드 `naver-blog-agent-8fw0nvubj`) | 좌측 메뉴 제목 옆 고정 「FREE」 삭제 `2a37dabc4`. tsc·빌드 통과, DB/ZIP OK |
 | `playlist-channel-studio` | v1.33 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 승인 빌드 1회 `playlist-channel-studio-nb1fq7dnw`) | 최신 AI 모델 추가 `d2fc103ed` + API 키 암호화 문구 `b16550ad4`. 시험 28·tsc, 실제 호출 15개 통과, DB v1.33, 크롬 확인 |
 | `shop-order-report` | v1.06 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 맥미니 요청·주인님 승인 빌드 1회 `shop-order-report-ojibtobuy`) | 쿠팡·11번가 수수료 공식 대조 `0a9870e16`. 시험 22개·tsc·빌드 통과, DB OK. 맥미니 화면 확인 대기 |
 | `trending-product-finder` | v1.31 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-j48lqxy7m`) | 수수료 공식 대조 `0a9870e16` + 쿠팡 리뷰 결과 회원별 사이트 저장·확장 연결 `308da3f1c`(자동 검색은 아직 없음, 쿠팡 시험 뒤). 시험 27개·tsc·빌드 통과, DB/ZIP OK. 연결·저장 화면 실동작 미확인 |
