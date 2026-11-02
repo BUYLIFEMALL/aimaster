@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp · 맥미니 배포 요청 7개 중 6개 순차 배포
+- 근거: `docs/DEPLOY_REQUEST_20261103_MAC.md`, 주인님 채팅 승인 「배포해」(빌드 7회 범위, 6회 사용).
+- 배포(한 번에 하나, 모두 Ready·DB 버전 맞춤, 확장은 `check-extension-release` OK): `shop-order-report` v1.06(수수료 공식 대조), `trending-product-finder` v1.31(수수료 + 쿠팡 리뷰 결과 회원별 사이트 저장 `308da3f1c`, 키워드 자동 검색은 아직 없음), `ai-auto-blog` v1.86·`tistory-auto-blog` v1.95(30일 정리 예외 회원), `blog-keyword` v1.11(사용법 배지), `naver-blog-allinone` v1.59(권한 함수 + API 키 문구 `b16550ad4`).
+- **건너뜀: `naver-blog-agent` v2.26** — 작업 중 표에 `claude-win-20261101-blog` 줄이 있어 `deploy.mjs`가 막음. 버전·ZIP 변경은 되돌림(폴더 변경 없음). 대기 줄 `2a37dabc4` 그대로. 블로그 세션 줄이 정리되거나 주인님이 허락하면 배포.
+- 못 한 것: 운영 화면 확인(맥미니가 `/fees`·블로그 화면 확인 예정), 상품소싱 「내 검색 기록」 연결·저장 실동작, 쿠팡 팝업·키워드 시험(주인님 「쿠팡 시험해」 대기).
+- 회원 안내: 확장 4개(상품소싱·BLOG·티스토리·올인원)는 ZIP 다시 받기 → 덮어쓰기 → `chrome://extensions` 새로고침.
+
 ## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · 부동산 A2·A3 (실거래 v1.38·v1.39, 상가 v1.30, 매물 알림 미배포)
 - 결정 5건 모두 처리: 이름 `realty-client-desk`(AI 중개사무소 고객관리 자동화), 순서 A2·A3 → B(주소 리포트) → D(고객관리) → C(뉴스), A4 보류. 플랜 `docs/analysis-realty-roadmap-20261031/PLAN.md` §9.
 - A2: 실거래 새 매매가 같은 단지·면적 ±3㎡·12개월 보유 거래 3건 이상보다 높/낮으면 `price_rank`(배지·상세·알림). 거래량은 국토부 API에 줄 1개만 묻고 `totalCount`를 시·군·구×월×유형으로 `real_estate_trade_volume`에 기록(지난 달은 한 번, 최근 세 달은 하루 한 번, 회차당 지역 6번 상한). 관심 지역 화면 표·알림 🔥 줄. **v1.38에서 신고 중인 지난달을 비교해 모든 지역이 낮게 보이고 유형이 섞이는 착시 → v1.39에서 신고 끝난 달(2달 전) vs 그 전 3개월, 다 모인 유형만 합산.** 서울도 같은 국토부 API로 셈(서울 열린데이터는 달별 건수 없음).

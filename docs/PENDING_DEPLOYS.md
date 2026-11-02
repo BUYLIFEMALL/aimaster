@@ -19,7 +19,6 @@
 
 
 
-- `trending-product-finder` — 쿠팡 리뷰 결과 회원별 사이트 저장, 확장 연결 (2026-11-01, [역할: ecommerce-image], `308da3f1c`, DB 표 적용 완료, 빌드 1회 승인됨). 쿠팡 시험·자동 검색과 묶어 v1.31로 배포
 - `coupang-ops` — 텔레그램 끊기, 다른 프로그램 봇 빌려 쓰기 제거 (2026-11-01, [역할: ecommerce-image], `8479b2009`, 실제 끊기 내 PC에서 통과) · 페이지 설명 위너 문구 제거(`ebd28e0e9`)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
 
@@ -28,16 +27,11 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `ghost-scraper`(website-scraper) | 사이드바 고정 「FREE」 표시 삭제 — DB 배지 없음·비공개라 DB와 다름(2026-11-03 배지 전수 조사) | `937ce820d` | 2026-11-03 · Claude Code(윈도우) `claude-win-20261029-statusbar` | `src/components/layout/Sidebar.tsx` | 다음 배포 때(버전 +0.01) |
-| `trending-product-finder`·`shop-order-report` | 쿠팡·11번가 수수료 공식 대조(✅ 표시, 쿠팡 대표 10.9%, 11번가 카테고리 표·7~15%) — 맥에서 시험 실행 불가, 배포 전 윈도우에서 `npm run test:trend`·`npm test` | `0a9870e16` | 2026-11-03 · Claude Code(맥미니) [역할: mac-mini] | `trending-product-finder/AGENTS.md` 2026-11-03 | 다음 상품소싱·주문 리포트 배포 때 |
 | `naver-blog-agent` | 좌측 메뉴 제목 옆 고정 「FREE」 표시 삭제(DB 배지는 비어 있음, 옛 간편 모드 무료 입구 잔재) — 주인님 「일반으로 전환해」 | `2a37dabc4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | — | 다음 에이전트 배포 때 |
-| `ai-auto-blog` | 30일 정리에서 예외 회원 제외(독립 키트는 확인 생략) | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 BLOG 배포 때 |
-| `tistory-auto-blog` | 30일 정리에서 예외 회원 제외 | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 티스토리 배포 때 |
-| `blog-keyword` | 사용법 머리 배지 「PRO v1.09」 고정 글자 → `APP_VERSION` 표시 | `c0af2aed9` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `blog-keyword/docs/IMPROVEMENTS.md` 2026-11-02 | 다음 키워드 배포 때 |
-| `naver-blog-allinone` | 쓰이지 않던 `requireProgramAccess`가 비공개일 때 모두 통과시키던 것 → 차단(실제 영향 없음) | `21022a363` | 2026-11-01 · Claude Code(맥미니) [역할: mac-mini] | `naver-blog-allinone/docs/IMPROVEMENTS.md` 2026-11-01 | 다음 올인원 배포 때(지금 백업·비공개 예정) |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |
 | `realty-listing-alert` | A3 좌측 메뉴 「🔗 함께 쓰는 부동산 프로그램」(실거래·상가 바로가기) | 2026-11-02 커밋 | 2026-11-02 · [역할: realty] | `real_estate_sales/docs/PLAN_20261102_A2_A3.md` | 다음 배포 때 버전 올려 함께(확장 ZIP·DB) |
-| ai-image-studio, ai-influencer-studio, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, ai-writing-editor, allinone-graphic, banana-canvas, blog-workroom, booking-reminder, cinematic-storyboard-studio, insta_auto_poster, kakao_auto_poster, landing-architect, mbti-character, music, naver-blog-allinone, personality-suite, persona-style-studio, playlist-channel-studio, prompt-template-studio, react-ui-showcase, reverse-prompt, shop-detail-page, shots, stepmail, style-dna-analyzer, tarot, threads-easy-planner, thumbnail-master, ui-canvas, vinyl-lp-studio, youtube-viral-studio | API 키 암호화 문구 수정(문구만, 각 프로그램 다음 배포 때 함께) | `b16550ad4` | 2026-11-01 [역할: realty] Claude Code(윈도우) | `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` |  |
+| ai-image-studio, ai-influencer-studio, ai-mastering-studio, ai-prompt-studio, ai-slide-builder, ai-writing-editor, allinone-graphic, banana-canvas, blog-workroom, booking-reminder, cinematic-storyboard-studio, insta_auto_poster, kakao_auto_poster, landing-architect, mbti-character, music, personality-suite, persona-style-studio, playlist-channel-studio, prompt-template-studio, react-ui-showcase, reverse-prompt, shop-detail-page, shots, stepmail, style-dna-analyzer, tarot, threads-easy-planner, thumbnail-master, ui-canvas, vinyl-lp-studio, youtube-viral-studio | API 키 암호화 문구 수정(문구만, 각 프로그램 다음 배포 때 함께) | `b16550ad4` | 2026-11-01 [역할: realty] Claude Code(윈도우) | `docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md` |  |
 | `shots` | DUP-4 유튜브·인스타 업로드 중복 방지(서버 선점·불확실 유지·재발송 확인 창) | `7da2cb688` | 2026-10-29 · Claude Code 윈도우 `claude-win-video` | `shots/docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md` | v1.45로 함께 · 배포 뒤 크롬에서 배지·확인 창 확인 |
 | `shop-detail-page` | 마켓 등록에 쿠팡 칸 추가(2026-10-31 `claude-win-sdp`, tsc 통과, 쿠팡 v1.05 연계) |
 | `seller-label-docs` | 공용 흐름 띠 사본에 「🛒 마켓 등록」 단계 추가(`shop-flow` 사본만, 동작 변화는 띠 단계 하나) | `48b67dd5c` | 2026-10-27 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` | `docs/SHARED_MODULES.md` shop-flow 줄 | 각 프로그램 다음 배포 때 함께(버전 +0.01) |
@@ -75,6 +69,12 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `shop-order-report` | v1.06 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 맥미니 요청·주인님 승인 빌드 1회 `shop-order-report-ojibtobuy`) | 쿠팡·11번가 수수료 공식 대조 `0a9870e16`. 시험 22개·tsc·빌드 통과, DB OK. 맥미니 화면 확인 대기 |
+| `trending-product-finder` | v1.31 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-j48lqxy7m`) | 수수료 공식 대조 `0a9870e16` + 쿠팡 리뷰 결과 회원별 사이트 저장·확장 연결 `308da3f1c`(자동 검색은 아직 없음, 쿠팡 시험 뒤). 시험 27개·tsc·빌드 통과, DB/ZIP OK. 연결·저장 화면 실동작 미확인 |
+| `ai-auto-blog` | v1.86 · 2026-11-03 (`claude-win-sdp`, 맥미니 요청 승인 빌드 `ai-auto-blog-68j3hvewj`) | 30일 정리 예외 회원 제외 `204080c43`. tsc·빌드 통과, DB/ZIP OK |
+| `tistory-auto-blog` | v1.95 · 2026-11-03 (`claude-win-sdp`, 맥미니 요청 승인 빌드 `tistory-auto-blog-mx8ptuijj`) | 30일 정리 예외 회원 제외 `204080c43`. tsc·빌드 통과, DB/ZIP OK |
+| `blog-keyword` | v1.11 · 2026-11-03 (`claude-win-sdp`, 맥미니 요청 승인 빌드 `blog-keyword-fq3jr9crd`) | 사용법 배지 실제 버전 `c0af2aed9`. tsc·빌드 통과, DB OK(확장 없음) |
+| `naver-blog-allinone` | v1.59 · 2026-11-03 (`claude-win-sdp`, 맥미니 요청 승인 빌드 `naver-blog-allinone-ppc9nvlqc`) | 쓰이지 않던 권한 함수 보완 `21022a363` + API 키 암호화 문구 `b16550ad4`. tsc·빌드 통과, DB/ZIP OK |
 | `naver-blog-seo-studio` | v2.23 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
 | `blog-keyword` | v1.10 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB OK(확장 없음). 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
 | `tistory-auto-blog` | v1.94 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
