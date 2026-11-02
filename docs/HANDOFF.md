@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · commercial-land-trade-alert v1.26
+
+- **한 일:** 상가 매매에 같은 건물 호가 비교 추가(같은 좌표·층 구분·면적 0.5~2배·조건이 다른 3건 이상, 20% 이상 낮으면 40점). 실거래는 참고로 유지. 근거 측정은 프로그램 `docs/IMPROVEMENTS.md` 「조사: 상가 매매 후보 0건」.
+- **확인:** 시험 53개, 타입·린트·빌드, DB·ZIP v1.26.
+- **못 한 것:** 실제 수집 결과(확장 교체 필요), 같은 좌표가 같은 건물인지 네이버 대조, 층 빈칸 원인.
+- **다음 첫 단계:** 주인님 확장 v1.26 교체·수집 → 상가 후보 수와 같은 건물 여부 대조.
+- **링크:** https://commercial-land-trade-alert.buylife.xyz/results
+
 ## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · commercial-land-trade-alert v1.25
 
 - **한 일:** 결과 표에 감시 화면 거르기, 같은 조건 묶기(링크 유지), 네이버 링크 맨 뒤로, 법정동·행정동 안내. 「직전보다」 비교 불가 표시, 추이는 있는 거래 종류만. 사라진 매물 좌표 저장. AI 자료를 화면별로 뽑고 같은 조건 묶기, 지시문 보강.

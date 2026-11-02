@@ -88,6 +88,7 @@
 | `naver-blog-allinone` | v1.57 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `naver-blog-allinone-99flpqnff`) | 회원 키 과금 버그: 본문 이미지 없음에도 2장 생성 수정 `edd6edfd0`(맥미니). 시험 37개·DB/ZIP OK. 맥미니 화면 재확인 대기 |
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `commercial-land-trade-alert` | v1.26 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 상가 매매 「같은 건물 호가 대비」 후보(`b320b1b84`) |
 | `commercial-land-trade-alert` | v1.25 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 감시 화면 거르기, 같은 조건 묶기, 네이버 링크 맨 뒤로, 비교 불가 표시, 추이 거래 종류, 사라진 매물 행정동, AI 자료·지시문(`af983f066`) |
 | `commercial-land-trade-alert` | v1.24 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 결과 표 한눈에 보기, 건물 시세 비교도 동 표본 기준(`1fb2c1886`, `fa5c849e2`) |
 | `commercial-land-trade-alert` | v1.23 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 수집 결과 행정동(추정) 칸과 거르기 |
