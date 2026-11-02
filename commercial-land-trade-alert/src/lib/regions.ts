@@ -9,3 +9,9 @@ export function dongOf(cortarNo: string): { sggCd: string; sggNm: string; dong: 
   const dong = sgg?.d.find((d) => d[0] === cortarNo);
   return sgg && dong ? { sggCd: sgg.c, sggNm: sgg.n, dong: dong[1] } : null;
 }
+
+/** 시군구 코드 + 법정동 이름 → 법정동 코드 10자리(건축물대장 조회용) */
+export function bjdongCodeOf(sggCd: string, umdNm: string): string | null {
+  const sgg = (regions as unknown as Sido[]).find((s) => s.c === sggCd.slice(0, 2))?.g.find((g) => g.c === sggCd);
+  return sgg?.d.find((d) => d[1] === umdNm.trim())?.[0] ?? null;
+}

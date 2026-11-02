@@ -2,6 +2,19 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { blankFloorKey, medianOrNull, molitItems, monthKey, parseTrades, pricePerPyeong } from "../src/lib/trades/parse.ts";
 import { marketSamples, mergeLandBundles } from "../src/lib/trades/market.ts";
+import { parseJibun, pickFloor } from "../src/lib/trades/floor.ts";
+
+test("건축물대장 전유부에서 같은 전용면적 호실의 층을 찾는다", () => {
+  assert.deepEqual(parseJibun("823-4"), { bun: "0823", ji: "0004" });
+  assert.deepEqual(parseJibun("12"), { bun: "0012", ji: "0000" });
+  assert.equal(parseJibun("8**"), null);
+  assert.equal(parseJibun("산 12"), null);
+  const unit = (flrNo, area, gb = "전유", flr = "지상") => ({ exposPubuseGbCdNm: gb, flrGbCdNm: flr, flrNo, area });
+  assert.deepEqual(pickFloor([unit(3, 33.12), unit(4, 40), unit(3, 33.12, "공용")], 33.12), { floor: "3" });
+  assert.deepEqual(pickFloor([unit(1, 50, "전유", "지하")], 50.03), { floor: "-1" }, "지하는 -1, 면적 ±0.05");
+  assert.deepEqual(pickFloor([unit(2, 33), unit(5, 33)], 33), { ambiguous: ["2", "5"] });
+  assert.equal(pickFloor([unit(2, 33)], 34), null);
+});
 
 test("층이 채워진 줄의 층 빈칸 쌍둥이 키", () => {
   assert.equal(blankFloorKey("building|11680|역삼동|8**|2026-10-01|50000|33.1|판매|3#1"), "building|11680|역삼동|8**|2026-10-01|50000|33.1|판매|#1");
