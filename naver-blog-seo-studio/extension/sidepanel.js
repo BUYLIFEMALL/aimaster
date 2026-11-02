@@ -751,7 +751,9 @@ async function typeWithDebugger(tabId, value) {
   for (const chunk of typingChunks(text)) {
     if (chunk === "\n") {
       // 2026-10-23: 줄바꿈 문자(\r)를 함께 보내야 네이버 편집기가 새 문단을 만든다(없으면 문단이 이어 붙음).
-      await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", text: "\r", unmodifiedText: "\r", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+      // 2026-11-02: 맥 크롬은 Enter 신호만으로는 편집 칸에 새 문단을 만들지 않아 「새 줄 넣기」 명령을 함께 보낸다(윈도우는 그대로).
+      const mac = (await chrome.runtime.getPlatformInfo().catch(() => ({})))?.os === "mac";
+      await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", text: "\r", unmodifiedText: "\r", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13, ...(mac ? { commands: ["insertNewline"] } : {}) });
       await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
     } else {
       await debuggerCommand(tabId, "Input.insertText", { text: chunk });
