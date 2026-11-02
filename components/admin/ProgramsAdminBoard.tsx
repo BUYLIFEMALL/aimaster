@@ -141,9 +141,14 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
 
   const applyUpdate = async (ids: string[], patch: Partial<Pick<ProgramRow, "is_active" | "required_grade_id" | "badges">>) => {
     if (ids.length === 0) return;
-    const { error } = await supabase.from("programs").update(patch).in("id", ids);
+    const { data, error } = await supabase.from("programs").update(patch).in("id", ids).select("id");
     if (error) {
       alert(`변경 중 오류가 발생했습니다: ${error.message}`);
+      return;
+    }
+    // 권한 규칙에 막히면 오류 없이 0건만 바뀐다 — 화면만 바뀌고 DB엔 안 들어가는 일을 막는다(2026-11-03).
+    if ((data?.length ?? 0) !== ids.length) {
+      alert(`저장되지 않았습니다(${data?.length ?? 0}/${ids.length}건). 관리자 계정으로 다시 로그인한 뒤 새로고침해서 다시 시도해 주세요.`);
       return;
     }
     setPrograms((prev) => prev.map((p) => (ids.includes(p.id) ? { ...p, ...patch } : p)));

@@ -292,8 +292,10 @@ export default function ProgramForm({ program }: ProgramFormProps) {
       let programId = program?.id;
 
       if (isEdit && programId) {
-        const { error: e } = await supabase.from("programs").update(programData).eq("id", programId);
+        const { data: saved, error: e } = await supabase.from("programs").update(programData).eq("id", programId).select("id");
         if (e) throw e;
+        // 권한 규칙에 막히면 오류 없이 0건만 바뀐다(2026-11-03) — 저장된 것처럼 넘어가지 않게 한다.
+        if (!saved?.length) throw new Error("저장되지 않았습니다. 관리자 계정으로 다시 로그인한 뒤 다시 시도해 주세요.");
       } else {
         const { data, error: e } = await supabase.from("programs").insert(programData).select("id").single();
         if (e) throw e;
