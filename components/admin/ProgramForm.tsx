@@ -333,8 +333,9 @@ export default function ProgramForm({ program }: ProgramFormProps) {
             sort_order: i,
           };
           if (p.id) {
-            const { error: ue } = await supabase.from("pricing_plans").update(payload).eq("id", p.id);
+            const { data: savedPlan, error: ue } = await supabase.from("pricing_plans").update(payload).eq("id", p.id).select("id");
             if (ue) throw ue;
+            if (!savedPlan?.length) throw new Error("요금제가 저장되지 않았습니다. 관리자 계정으로 다시 로그인해 주세요.");
           } else {
             const { error: ie } = await supabase.from("pricing_plans").insert(payload);
             if (ie) throw ie;
@@ -343,7 +344,8 @@ export default function ProgramForm({ program }: ProgramFormProps) {
       }
 
       if (programId) {
-        await supabase.from("affiliate_rates").upsert({ program_id: programId, rate: parseFloat(affiliateRate) || 10 });
+        const { error: ae } = await supabase.from("affiliate_rates").upsert({ program_id: programId, rate: parseFloat(affiliateRate) || 10 });
+        if (ae) throw ae;
       }
 
       router.push("/admin/programs");

@@ -264,10 +264,11 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     setCategories((prev) => prev.map((c) => (sortMap.has(c.id) ? { ...c, sort_order: sortMap.get(c.id)! } : c)));
 
     const results = await Promise.all(
-      updates.map((u) => supabase.from("categories").update({ sort_order: u.sort_order }).eq("id", u.id)),
+      updates.map((u) => supabase.from("categories").update({ sort_order: u.sort_order }).eq("id", u.id).select("id")),
     );
 
-    const firstError = results.find((r) => r.error)?.error;
+    // 권한 규칙에 막힌 0건 변경도 실패로 본다(2026-11-03).
+    const firstError = results.find((r) => r.error)?.error ?? (results.some((r) => !r.data?.length) ? { message: "저장되지 않았습니다. 관리자 계정으로 다시 로그인해 주세요." } : undefined);
     if (firstError) {
       alert(`순서 변경 중 오류가 발생했습니다: ${firstError.message}`);
       setCategories(previous);
@@ -290,10 +291,11 @@ export default function ProgramsAdminBoard({ programs: initialPrograms, categori
     setPrograms((prev) => prev.map((p) => (sortMap.has(p.id) ? { ...p, sort_order: sortMap.get(p.id)! } : p)));
 
     const results = await Promise.all(
-      updates.map((u) => supabase.from("programs").update({ sort_order: u.sort_order }).eq("id", u.id)),
+      updates.map((u) => supabase.from("programs").update({ sort_order: u.sort_order }).eq("id", u.id).select("id")),
     );
 
-    const firstError = results.find((r) => r.error)?.error;
+    // 권한 규칙에 막힌 0건 변경도 실패로 본다(2026-11-03).
+    const firstError = results.find((r) => r.error)?.error ?? (results.some((r) => !r.data?.length) ? { message: "저장되지 않았습니다. 관리자 계정으로 다시 로그인해 주세요." } : undefined);
     if (firstError) {
       alert(`순서 변경 중 오류가 발생했습니다: ${firstError.message}`);
       setPrograms(previous);

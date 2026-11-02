@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Play, Star, Eye, Sparkles } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
-import Badge from "@/components/ui/Badge";
+import Badge, { sortBadges } from "@/components/ui/Badge";
 import GoldButton from "@/components/ui/GoldButton";
 import LikeButton from "@/components/programs/LikeButton";
 import QuickPreviewModal from "@/components/programs/QuickPreviewModal";
@@ -31,7 +31,7 @@ export default function ProgramCard({ program, badge, hasAccess = false, isAdmin
   const [isHovered, setIsHovered] = useState(false);
   const [isQuickPreviewOpen, setIsQuickPreviewOpen] = useState(false);
 
-  const resolvedBadges = badge ? [badge] : (program.badges ?? []);
+  const resolvedBadges = badge ? [badge] : sortBadges(program.badges ?? []);
   const subscriptionTarget = `/programs/${program.slug}#pricing`;
   const templateBadge = getTemplateBadge(program.slug, program.category?.slug);
 

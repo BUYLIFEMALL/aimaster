@@ -7,7 +7,7 @@ import { X, Play, ExternalLink, Sparkles, CheckCircle2, ShieldCheck, Star } from
 import { formatKRW } from "@/lib/utils/format";
 import { parseDetailSections } from "@/lib/programs/detailSections";
 import { getTemplateBadge } from "@/lib/templateBadge";
-import Badge from "@/components/ui/Badge";
+import Badge, { sortBadges } from "@/components/ui/Badge";
 import GoldButton from "@/components/ui/GoldButton";
 import type { Program } from "@/types/database.types";
 
@@ -30,7 +30,7 @@ export default function QuickPreviewModal({
   onToggleFavorite,
 }: QuickPreviewModalProps) {
   const templateBadge = getTemplateBadge(program.slug, program.category?.slug);
-  const resolvedBadges = program.badges ?? [];
+  const resolvedBadges = sortBadges(program.badges ?? []);
   const minPrice = program.pricing_plans
     ?.filter((p) => p.is_active)
     .sort((a, b) => a.price - b.price)[0];

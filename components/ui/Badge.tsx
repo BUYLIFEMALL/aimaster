@@ -33,6 +33,13 @@ const defaultLabels: Record<BadgeVariant, string> = {
   custom: "",
 };
 
+// 카드 배지는 DB에 단 순서가 아니라 이 순서로 보여 준다(관리자 편집 화면 버튼 순서와 같음, 2026-11-03 주인님 「추천이 앞쪽이고 프리미엄이 뒤쪽」).
+const BADGE_ORDER: string[] = ["free", "new", "best", "sale", "recommended", "premium", "coming"];
+export function sortBadges<T extends string>(badges: readonly T[]): T[] {
+  const rank = (b: string) => (BADGE_ORDER.indexOf(b) === -1 ? BADGE_ORDER.length : BADGE_ORDER.indexOf(b));
+  return [...badges].sort((a, b) => rank(a) - rank(b));
+}
+
 export default function Badge({
   variant = "new",
   label,
