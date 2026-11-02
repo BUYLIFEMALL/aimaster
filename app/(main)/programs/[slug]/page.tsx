@@ -10,8 +10,9 @@ import { createClient } from "@/lib/supabase/server";
 import { checkProgramAccess } from "@/lib/access/checkProgramAccess";
 import { PHONE_REQUIRED_MESSAGE } from "@/lib/utils/phone";
 import { PREMIUM_NOTICE_TITLE, PREMIUM_NOTICE_BODY } from "@/lib/programs/premium";
-import type { MemberGrade } from "@/types/database.types";
+import type { MemberGrade, PricingPlan } from "@/types/database.types";
 import { parseDetailSections } from "@/lib/programs/detailSections";
+import { sortPlansByPeriod } from "@/lib/utils/planOrder";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -106,7 +107,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
 
   const isAccessAllowed = !!accessResult?.allowed && !reachedLimit;
 
-  const activePlans = (program.pricing_plans ?? []).filter((p: { is_active: boolean }) => p.is_active);
+  const activePlans = sortPlansByPeriod<PricingPlan>((program.pricing_plans ?? []).filter((p: PricingPlan) => p.is_active));
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

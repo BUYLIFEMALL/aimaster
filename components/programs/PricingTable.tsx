@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import GoldButton from "@/components/ui/GoldButton";
 import { formatKRW } from "@/lib/utils/format";
+import { sortPlansByPeriod } from "@/lib/utils/planOrder";
 import type { PricingPlan } from "@/types/database.types";
 
 const BILLING_LABELS: Record<string, { label: string; period: string }> = {
@@ -32,9 +33,7 @@ interface PricingTableProps {
 }
 
 export default function PricingTable({ plans, programId, onSelectPlan }: PricingTableProps) {
-  const activePlans = plans
-    .filter((p) => p.is_active)
-    .sort((a, b) => a.sort_order - b.sort_order);
+  const activePlans = sortPlansByPeriod(plans.filter((p) => p.is_active));
 
   if (activePlans.length === 0) return null;
 
