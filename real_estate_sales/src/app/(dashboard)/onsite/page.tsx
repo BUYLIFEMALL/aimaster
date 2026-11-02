@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { findDistrict } from "@/lib/publicdata/districts";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -7,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/ui/PageHero";
 import { CaptureButtons } from "@/components/onsite/CaptureButtons";
 import { OnsiteMap } from "@/components/onsite/OnsiteMap";
-import { ONSITE_BUCKET, ONSITE_STATUSES, canUseOnsite, type OnsitePhoto, type OnsiteProperty, type OnsiteStatus } from "@/lib/onsite/types";
+import { ONSITE_BUCKET, ONSITE_STATUSES, type OnsitePhoto, type OnsiteProperty, type OnsiteStatus } from "@/lib/onsite/types";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -18,7 +17,6 @@ type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @ty
 
 export default async function OnsitePage({ searchParams }: { searchParams: Promise<{ dong?: string; status?: string; date?: string }> }) {
   const user = await requireProgramAccess();
-  if (!canUseOnsite(user.email)) redirect("/dashboard");
   const filter = await searchParams;
   const db = (await createClient()) as unknown as SupabaseLike;
 

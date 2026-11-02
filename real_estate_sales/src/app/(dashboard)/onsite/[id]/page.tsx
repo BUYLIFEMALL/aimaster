@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { findDistrict } from "@/lib/publicdata/districts";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { CaptureButtons } from "@/components/onsite/CaptureButtons";
 import { MoveOnMap, PhotoGrid, PropertyForm } from "@/components/onsite/PropertyEditor";
-import { ONSITE_BUCKET, canUseOnsite, type OnsitePhoto, type OnsiteProperty } from "@/lib/onsite/types";
+import { ONSITE_BUCKET, type OnsitePhoto, type OnsiteProperty } from "@/lib/onsite/types";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,7 +17,6 @@ const SOURCE_LABELS = { capture: "촬영 때 위치", exif: "사진 속 위치",
 
 export default async function OnsiteDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireProgramAccess();
-  if (!canUseOnsite(user.email)) redirect("/dashboard");
   const { id } = await params;
   const db = (await createClient()) as unknown as SupabaseLike;
 

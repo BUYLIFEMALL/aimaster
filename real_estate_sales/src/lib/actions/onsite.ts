@@ -2,12 +2,11 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { ONSITE_BUCKET, ONSITE_KINDS, ONSITE_STATUSES, canUseOnsite } from "@/lib/onsite/types";
+import { ONSITE_BUCKET, ONSITE_KINDS, ONSITE_STATUSES } from "@/lib/onsite/types";
 
 // AIMaster Database 타입에 아직 없는 표라 from()의 반환값만 느슨하게 받는다(lib/access.ts와 같은 방식).
 type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -16,7 +15,6 @@ export type OnsiteResult<T = unknown> = ({ ok: true } & T) | { ok: false; error:
 
 async function requireOnsiteUser() {
   const user = await requireProgramAccess();
-  if (!canUseOnsite(user.email)) redirect("/dashboard");
   return { user, db: (await createClient()) as unknown as SupabaseLike };
 }
 
