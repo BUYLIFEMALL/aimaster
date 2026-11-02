@@ -481,3 +481,25 @@ test("결과 줄 묶기와 직전 회차 비교", async () => {
   assert.equal(totalDelta(snap(["역삼", 10], ["백석", 5]), snap(["역삼", 9])), null, "화면 구성이 다르면 비교 불가");
   assert.equal(totalDelta(snap(["역삼", 10]), null), null);
 });
+
+test("상가는 같은 건물 호가 3건 이상과 비교해 20% 낮으면 후보다", async () => {
+  const { buildingPeerGap, scoreListing } = await import("../extension/lib/score.js");
+  const sg = (no, price, area = 50, floor = "1/5") => ({ no, kind: "SG", tradeType: "A1", price, area, floor });
+  const places = { 1: [37.5, 127], 2: [37.5, 127], 3: [37.5, 127], 4: [37.5, 127], 5: [37.6, 127] };
+  const me = sg("1", 7000);
+  const peers = [sg("2", 10000), sg("3", 10500), sg("4", 9500)];
+  const peer = buildingPeerGap(me, [me, ...peers], places);
+  assert.deepEqual(peer, { pct: -30, count: 3 });
+  const s = scoreListing({ peer });
+  assert.equal(s.score, 40);
+  assert.equal(s.candidate, true);
+  assert.deepEqual(s.reasons, ["같은 건물 호가 대비 -30%(3건)"]);
+  assert.equal(scoreListing({ peer: { pct: -19, count: 3 } }).score, 0, "20% 미만은 점수 없음");
+  assert.equal(buildingPeerGap(me, [me, peers[0], peers[1]], places), null, "2건이면 비교 안 함");
+  assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], { ...peers[0], no: "4" }], places), null, "같은 조건은 1건으로 센다");
+  assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], sg("5", 9000)], places), null, "다른 좌표 제외");
+  assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], sg("4", 9000, 50, "2/5")], places), null, "다른 층 구분 제외");
+  assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], sg("4", 90000, 200)], places), null, "면적 2배 초과 제외");
+  assert.equal(buildingPeerGap({ ...me, kind: "GM" }, [me, ...peers], places), null, "상가만");
+  assert.equal(buildingPeerGap({ ...me, no: "9" }, [me, ...peers], places), null, "좌표 없으면 안 함");
+});

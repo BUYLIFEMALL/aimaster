@@ -5,7 +5,7 @@ import { countByKindTrade, isWatchableUrl, matchesTarget, normalizeArticle, coor
 import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
-import { daysSince, gapText, marketGap, scoreListing, applyYields } from "./lib/score.js";
+import { buildingPeerGap, daysSince, gapText, marketGap, scoreListing, applyYields } from "./lib/score.js";
 import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable, trendText } from "./lib/stats.js";
 import { buildWeeklyReport, sendToChannels, shouldSendWeekly } from "./lib/weekly.js";
@@ -152,7 +152,7 @@ async function runCollection(trigger) {
       for (const it of items) {
         const saved = cmp.state.items[it.no];
         const gap = marketGap(it, market);
-        const s = scoreListing({ gap, drops: saved?.drops || 0, ageDays: daysSince(saved?.firstSeen) });
+        const s = scoreListing({ gap, drops: saved?.drops || 0, ageDays: daysSince(saved?.firstSeen), peer: buildingPeerGap(it, items, targetPlaces) });
         Object.assign(it, { gapText: gapText(gap), gapPct: gap?.pct ?? null, score: s.score, reasons: s.reasons, candidate: s.candidate });
       }
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));

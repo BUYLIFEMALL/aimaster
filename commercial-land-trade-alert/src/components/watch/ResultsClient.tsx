@@ -184,7 +184,7 @@ export function ResultsClient({ email }: { email: string }) {
               {!t.complete && <b className="text-amber-700"> · ⚠ 앞 {t.pagesRead ?? ""}페이지까지만 읽음. 네이버 화면에서 거래방식이나 면적을 좁히면 빠짐없이 읽습니다.</b>}
             </p>
           ))}
-          <p className="text-xs text-mx-muted">시세 대비의 「참고」는 같은 동 거래가 부족해 시·군·구 거래와 견준 값입니다. 후보 점수와 평균에는 넣지 않습니다.</p>
+          <p className="text-xs text-mx-muted">시세 대비의 「참고」는 같은 동 거래가 부족해 시·군·구 거래와 견준 값입니다. 후보 점수와 평균에는 넣지 않습니다. 근거의 「같은 건물 호가 대비」는 좌표가 같은 상가 매물 3건 이상의 호가와 견준 값으로, 실제 거래가가 아니며 전면·안쪽 차이는 현장에서 확인해 주세요.</p>
         </div>
       )}
       <div id="result-rows" className="mx-card mt-6 flex flex-wrap items-center gap-2 p-4">
