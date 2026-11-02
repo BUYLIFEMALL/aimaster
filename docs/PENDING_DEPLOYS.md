@@ -28,6 +28,7 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `ghost-scraper`(website-scraper) | 사이드바 고정 「FREE」 표시 삭제 — DB 배지 없음·비공개라 DB와 다름(2026-11-03 배지 전수 조사) | `937ce820d` | 2026-11-03 · Claude Code(윈도우) `claude-win-20261029-statusbar` | `src/components/layout/Sidebar.tsx` | 다음 배포 때(버전 +0.01) |
+| `trending-product-finder`·`shop-order-report` | 쿠팡·11번가 수수료 공식 대조(✅ 표시, 쿠팡 대표 10.9%, 11번가 카테고리 표·7~15%) — 맥에서 시험 실행 불가, 배포 전 윈도우에서 `npm run test:trend`·`npm test` | `0a9870e16` | 2026-11-03 · Claude Code(맥미니) [역할: mac-mini] | `trending-product-finder/AGENTS.md` 2026-11-03 | 다음 상품소싱·주문 리포트 배포 때 |
 | `naver-blog-agent` | 좌측 메뉴 제목 옆 고정 「FREE」 표시 삭제(DB 배지는 비어 있음, 옛 간편 모드 무료 입구 잔재) — 주인님 「일반으로 전환해」 | `2a37dabc4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | — | 다음 에이전트 배포 때 |
 | `ai-auto-blog` | 30일 정리에서 예외 회원 제외(독립 키트는 확인 생략) | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 BLOG 배포 때 |
 | `tistory-auto-blog` | 30일 정리에서 예외 회원 제외 | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 티스토리 배포 때 |
