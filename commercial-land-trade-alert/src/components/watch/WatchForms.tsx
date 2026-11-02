@@ -51,21 +51,26 @@ export interface TargetRow {
 // 감시 화면의 시·군·구는 확장이 마지막 수집에서 기억한 값(sggByWatch, 감시 화면 이름별)을 쓴다. 네이버 주소의 지도 가운데 값은 암호화돼 있어 읽지 않는다.
 export function TargetCards({ rows, email }: { rows: TargetRow[]; email: string }) {
   const [sggByWatch, setSggByWatch] = useState<Record<string, string> | null>(null);
+  const [noExtension, setNoExtension] = useState(false);
   useEffect(() => {
     let alive = true;
-    void askExtension<{ ok?: boolean; lastResult?: { sggByWatch?: Record<string, string> } }>("lastResult", 5000, { email }).then((r) => alive && setSggByWatch(r?.lastResult?.sggByWatch ?? {}));
+    void askExtension<{ ok?: boolean; lastResult?: { sggByWatch?: Record<string, string> } }>("lastResult", 5000, { email }).then((r) => {
+      if (!alive) return;
+      setNoExtension(!r); // 확장을 새로고침하기 전부터 열려 있던 탭은 응답이 없다(2026-11-02 실제 사례)
+      setSggByWatch(r?.lastResult?.sggByWatch ?? {});
+    });
     return () => { alive = false; };
   }, [email]);
   return (
     <div className="space-y-3">
       {rows.map((t) => (
-        <TargetCard key={t.id} t={t} sgg={sggByWatch?.[t.name] ?? null} loading={sggByWatch === null} />
+        <TargetCard key={t.id} t={t} sgg={sggByWatch?.[t.name] ?? null} loading={sggByWatch === null} noExtension={noExtension} />
       ))}
     </div>
   );
 }
 
-function DongPicker({ t, sgg, loading }: { t: TargetRow; sgg: string | null; loading: boolean }) {
+function DongPicker({ t, sgg, loading, noExtension }: { t: TargetRow; sgg: string | null; loading: boolean; noExtension: boolean }) {
   const chosen = t.admin_dongs ?? [];
   const [names, setNames] = useState<string[] | null>(null);
   useEffect(() => {
@@ -79,7 +84,7 @@ function DongPicker({ t, sgg, loading }: { t: TargetRow; sgg: string | null; loa
     return (
       <p className="mt-3 text-xs text-mx-muted">
         🏘 알림 받을 행정동: {label}
-        {loading ? " · 확장 확인 중…" : " · 확장에서 이 화면을 한 번 수집하면 행정동을 고를 수 있어요."}
+        {loading ? " · 확장 확인 중…" : noExtension ? " · 확장과 연결되지 않았어요. 이 화면을 새로고침해 주세요(확장을 새로 고친 뒤라면 꼭)." : " · 확장에서 이 화면을 한 번 수집하면 행정동을 고를 수 있어요."}
       </p>
     );
   }
@@ -101,7 +106,7 @@ function DongPicker({ t, sgg, loading }: { t: TargetRow; sgg: string | null; loa
   );
 }
 
-export function TargetCard({ t, sgg = null, loading = false }: { t: TargetRow; sgg?: string | null; loading?: boolean }) {
+export function TargetCard({ t, sgg = null, loading = false, noExtension = false }: { t: TargetRow; sgg?: string | null; loading?: boolean; noExtension?: boolean }) {
   const [s, action, pending] = useActionState(updateTargetAction, initial);
   return (
     <div className="mx-card">
@@ -129,7 +134,7 @@ export function TargetCard({ t, sgg = null, loading = false }: { t: TargetRow; s
           <input name="areaMin" className={input} defaultValue={t.area_min ?? ""} placeholder="최소 면적(㎡)" aria-label="최소 면적" />
           <input name="areaMax" className={input} defaultValue={t.area_max ?? ""} placeholder="최대 면적(㎡)" aria-label="최대 면적" />
         </div>
-        <DongPicker t={t} sgg={sgg} loading={loading} />
+        <DongPicker t={t} sgg={sgg} loading={loading} noExtension={noExtension} />
         <div className="mt-3 flex items-center gap-2">
           <button className="mx-btn-primary min-h-[36px] text-sm" disabled={pending}>
             저장
