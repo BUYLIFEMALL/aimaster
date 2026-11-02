@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { prepareOnsiteUploadAction, saveOnsiteCaptureAction } from "@/lib/actions/onsite";
 import { bestSample, exifGps, fitSize, shouldStopWaiting, type GeoSample } from "@/lib/onsite/geo";
 import { locateAdminDong } from "@/lib/onsite/locate";
+import { findAddress } from "@/lib/onsite/address";
+import { AUTO_ADDRESS_MAX_M } from "@/lib/onsite/geo";
 import { ONSITE_BUCKET, type CoordSource } from "@/lib/onsite/types";
 import { createClient } from "@/lib/supabase/client";
 import { OnsiteMap } from "./OnsiteMap";
@@ -90,8 +92,9 @@ export function CaptureButtons({
         .from(ONSITE_BUCKET)
         .uploadToSignedUrl(prepared.path, prepared.token, blob, { contentType: "image/jpeg" });
       if (uploadError) throw new Error("사진을 올리지 못했습니다. 인터넷 연결을 확인해 주세요.");
-      const place = await locateAdminDong(fix.lat, fix.lon);
+      const [place, hit] = await Promise.all([locateAdminDong(fix.lat, fix.lon), findAddress(fix.lat, fix.lon)]);
       const result = await saveOnsiteCaptureAction({
+        address: hit && hit.distanceM <= AUTO_ADDRESS_MAX_M ? hit.address : null,
         propertyId,
         path: prepared.path,
         lat: fix.lat,

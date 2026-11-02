@@ -35,6 +35,7 @@ const captureSchema = coordsSchema.extend({
   width: z.number().int().positive(),
   height: z.number().int().positive(),
   bytes: z.number().int().positive(),
+  address: z.string().trim().max(200).nullable().optional(),
 });
 
 /** 함수 본문 4.5MB 제한을 피하려고 사진은 브라우저에서 저장소로 바로 올린다. 경로는 서버가 정한다 */
@@ -65,6 +66,8 @@ export async function saveOnsiteCaptureAction(input: z.input<typeof captureSchem
         coord_confirmed: v.source === "manual",
         sgg_cd: v.sggCd,
         admin_dong: v.adminDong,
+        address: v.address || null,
+        address_source: v.address ? "auto" : null,
       })
       .select("id")
       .single();
@@ -124,9 +127,11 @@ export async function updateOnsitePropertyAction(id: string, input: z.input<type
   return { ok: true };
 }
 
-export async function moveOnsitePropertyAction(id: string, input: z.input<typeof coordsSchema>): Promise<OnsiteResult> {
+const moveSchema = coordsSchema.extend({ address: z.string().trim().max(200).nullable().optional() });
+
+export async function moveOnsitePropertyAction(id: string, input: z.input<typeof moveSchema>): Promise<OnsiteResult> {
   const { user, db } = await requireOnsiteUser();
-  const v = coordsSchema.parse(input);
+  const v = moveSchema.parse(input);
   const { error } = await db
     .from("real_estate_onsite_properties")
     .update({
@@ -142,6 +147,15 @@ export async function moveOnsitePropertyAction(id: string, input: z.input<typeof
     .eq("id", id)
     .eq("user_id", user.id);
   if (error) return { ok: false, error: "위치를 저장하지 못했습니다. 다시 시도해 주세요." };
+  // 회원이 직접 적은 주소는 그대로 두고, 자동 주소이거나 비어 있을 때만 새 위치의 주소로 바꾼다
+  if (v.address !== undefined) {
+    await db
+      .from("real_estate_onsite_properties")
+      .update({ address: v.address || null, address_source: v.address ? "auto" : null })
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .or("address_source.is.null,address_source.eq.auto");
+  }
   revalidatePath("/onsite");
   return { ok: true };
 }

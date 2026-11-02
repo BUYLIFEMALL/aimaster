@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteOnsitePhotoAction, deleteOnsitePropertyAction, moveOnsitePropertyAction, updateOnsitePropertyAction } from "@/lib/actions/onsite";
 import { locateAdminDong } from "@/lib/onsite/locate";
+import { findAddress } from "@/lib/onsite/address";
+import { AUTO_ADDRESS_MAX_M } from "@/lib/onsite/geo";
 import { ONSITE_KINDS, ONSITE_STATUSES, type OnsiteProperty, type OnsiteStatus } from "@/lib/onsite/types";
 import { OnsiteMap } from "./OnsiteMap";
 
@@ -18,7 +20,9 @@ export function MoveOnMap({ property, mapKey }: { property: OnsiteProperty; mapK
   async function confirm() {
     setSaving(true);
     setMessage("");
-    const result = await moveOnsitePropertyAction(property.id, { ...center.current, ...(await locateAdminDong(center.current.lat, center.current.lon)) });
+    const { lat, lon } = center.current;
+    const [place, hit] = await Promise.all([locateAdminDong(lat, lon), findAddress(lat, lon)]);
+    const result = await moveOnsitePropertyAction(property.id, { lat, lon, ...place, address: hit && hit.distanceM <= AUTO_ADDRESS_MAX_M ? hit.address : null });
     setSaving(false);
     setMessage(result.ok ? "✅ 위치를 확정했습니다." : result.error);
     if (result.ok) router.refresh();
@@ -50,7 +54,8 @@ export function PropertyForm({ property }: { property: OnsiteProperty }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm({ ...form, [key]: e.target.value });
+  const [hint, setHint] = useState("");
+  const set =(key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm({ ...form, [key]: e.target.value });
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -65,6 +70,15 @@ export function PropertyForm({ property }: { property: OnsiteProperty }) {
     setMessage(result.ok ? "✅ 저장했습니다." : result.error);
   }
 
+  async function lookup() {
+    setHint("가까운 건물을 찾는 중입니다");
+    const hit = await findAddress(property.lat, property.lon);
+    if (!hit) return setHint("150m 안에서 건물을 찾지 못했습니다. 지도에서 위치를 옮기거나 직접 적어 주세요.");
+    setForm((f) => ({ ...f, address: hit.address }));
+    const near = hit.distanceM > AUTO_ADDRESS_MAX_M ? " · 거리가 있어 근처 건물일 수 있으니 확인해 주세요" : "";
+    setHint(`가장 가까운 건물 약 ${hit.distanceM}m${hit.use ? ` · 용도 ${hit.use}` : ""}${near}. 맞으면 「저장」을 눌러 주세요.`);
+  }
+
   async function remove() {
     const result = await deleteOnsitePropertyAction(property.id);
     if (result.ok) router.push("/onsite");
@@ -75,8 +89,14 @@ export function PropertyForm({ property }: { property: OnsiteProperty }) {
     <form onSubmit={(e) => void save(e)} className="mx-card flex flex-col gap-3 p-4">
       <label className="text-sm text-mx-muted">
         주소
-        <input className={inputClass} value={form.address} onChange={set("address")} placeholder="자동 등록 준비 중입니다. 지금은 직접 적으실 수 있습니다." />
+        <input className={inputClass} value={form.address} onChange={set("address")} placeholder="사진 위치에서 찾은 도로명주소가 들어갑니다. 직접 고칠 수 있습니다." />
       </label>
+      <div>
+        <button type="button" className="mx-btn-ghost min-h-[44px] w-full" onClick={() => void lookup()}>
+          📍 위치로 주소 찾기
+        </button>
+        {hint && <p role="status" className="mt-1 text-xs text-mx-muted">{hint}</p>}
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <label className="text-sm text-mx-muted">
           상태

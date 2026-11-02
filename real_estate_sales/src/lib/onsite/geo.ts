@@ -75,6 +75,66 @@ function readTiffGps(buf: ArrayBuffer, start: number): { lat: number; lon: numbe
   return { lat: latRef === "S" ? -lat : lat, lon: lonRef === "W" ? -lon : lon };
 }
 
+// ── 주소 자동 등록(2026-11-02): 행정안전부 위치정보요약DB(도로명주소 건물마다 대표 출입구 1곳)를 약 1km 격자 파일로 나눠 둔다.
+// 칸: [위도×1e5, 경도×1e5, 시도, 시군구, 법정동(읍면동), 도로명, 지하(0/1), 본번, 부번, 건물명, 건물용도, 관할행정동]
+export type AddressRow = [lat5: number, lon5: number, sido: string, sgg: string, emd: string, road: string, under: string, main: string, sub: string, building: string, use: string, adminDong: string];
+export type AddressHit = { address: string; building: string; use: string; distanceM: number };
+
+export const ADDRESS_TILE_STEP = 0.01;
+export const AUTO_ADDRESS_MAX_M = 30; // 이보다 멀면 자동으로 넣지 않고 「근처」로 보여 준다(큰 건물 앞 표시 오차 수십 m, 2026-11-01 현장 시험)
+const SEARCH_MAX_M = 150;
+const EDGE = 0.0015; // 격자 가장자리 약 150m 안이면 옆 격자도 본다
+
+/** UTM-K(EPSG:5179, GRS80) → 위경도. 중앙자오선 127.5·원점위도 38·k0 0.9996·가산 1,000,000/2,000,000 (Snyder 역변환) */
+export function utmkToWgs(x: number, y: number): [lat: number, lon: number] {
+  const a = 6378137, f = 1 / 298.257222101, e2 = f * (2 - f), ep2 = e2 / (1 - e2), k0 = 0.9996;
+  const lat0 = (38 * Math.PI) / 180, lon0 = (127.5 * Math.PI) / 180;
+  const meridian = (p: number) => a * ((1 - e2 / 4 - (3 * e2 ** 2) / 64 - (5 * e2 ** 3) / 256) * p - ((3 * e2) / 8 + (3 * e2 ** 2) / 32 + (45 * e2 ** 3) / 1024) * Math.sin(2 * p) + ((15 * e2 ** 2) / 256 + (45 * e2 ** 3) / 1024) * Math.sin(4 * p) - ((35 * e2 ** 3) / 3072) * Math.sin(6 * p));
+  const e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2));
+  const mu = (meridian(lat0) + (y - 2e6) / k0) / (a * (1 - e2 / 4 - (3 * e2 ** 2) / 64 - (5 * e2 ** 3) / 256));
+  const p1 = mu + ((3 * e1) / 2 - (27 * e1 ** 3) / 32) * Math.sin(2 * mu) + ((21 * e1 ** 2) / 16 - (55 * e1 ** 4) / 32) * Math.sin(4 * mu) + ((151 * e1 ** 3) / 96) * Math.sin(6 * mu) + ((1097 * e1 ** 4) / 512) * Math.sin(8 * mu);
+  const C1 = ep2 * Math.cos(p1) ** 2, T1 = Math.tan(p1) ** 2, s2 = 1 - e2 * Math.sin(p1) ** 2;
+  const N1 = a / Math.sqrt(s2), R1 = (a * (1 - e2)) / s2 ** 1.5, D = (x - 1e6) / (N1 * k0);
+  const lat = p1 - ((N1 * Math.tan(p1)) / R1) * (D ** 2 / 2 - ((5 + 3 * T1 + 10 * C1 - 4 * C1 ** 2 - 9 * ep2) * D ** 4) / 24 + ((61 + 90 * T1 + 298 * C1 + 45 * T1 ** 2 - 252 * ep2 - 3 * C1 ** 2) * D ** 6) / 720);
+  const lon = lon0 + (D - ((1 + 2 * T1 + C1) * D ** 3) / 6 + ((5 - 2 * C1 + 28 * T1 - 3 * C1 ** 2 + 8 * ep2 + 24 * T1 ** 2) * D ** 5) / 120) / Math.cos(p1);
+  return [(lat * 180) / Math.PI, (lon * 180) / Math.PI];
+}
+
+export const tileKey = (lat: number, lon: number) => `${Math.floor(lat / ADDRESS_TILE_STEP)}_${Math.floor(lon / ADDRESS_TILE_STEP)}`;
+
+/** 이 위치를 찾으려면 받아야 할 격자들. 가장자리 가까이면 옆 격자까지 */
+export function tilesFor(lat: number, lon: number): string[] {
+  const keys = new Set<string>();
+  for (const dLat of [-EDGE, 0, EDGE]) for (const dLon of [-EDGE, 0, EDGE]) keys.add(tileKey(lat + dLat, lon + dLon));
+  return [...keys];
+}
+
+export function distanceM(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const rad = Math.PI / 180;
+  const x = (lon2 - lon1) * rad * Math.cos(((lat1 + lat2) / 2) * rad);
+  return Math.sqrt(x ** 2 + ((lat2 - lat1) * rad) ** 2) * 6371000;
+}
+
+/** 도로명주소 표기: 「서울특별시 종로구 자하문로 96 (청운동, 평안빌)」 */
+export function formatAddress(r: AddressRow): string {
+  const [, , sido, sgg, emd, road, under, main, sub, building] = r;
+  const no = `${under === "1" ? "지하 " : ""}${main}${sub && sub !== "0" ? `-${sub}` : ""}`;
+  const note = [emd, building].filter(Boolean).join(", ");
+  return `${[sido, sgg, road, no].filter(Boolean).join(" ")}${note ? ` (${note})` : ""}`;
+}
+
+/** 가장 가까운 건물. 150m 안에 없으면 null */
+export function nearestAddress(rows: AddressRow[], lat: number, lon: number): AddressHit | null {
+  let best: AddressRow | null = null;
+  let bestM = Infinity;
+  for (const r of rows) {
+    const m = distanceM(lat, lon, r[0] / 1e5, r[1] / 1e5);
+    if (m < bestM) [best, bestM] = [r, m];
+  }
+  if (!best || bestM > SEARCH_MAX_M) return null;
+  return { address: formatAddress(best), building: best[9], use: best[10], distanceM: Math.round(bestM) };
+}
+
 /** 사진 속 위치 정보. 브라우저에 따라 지워져 있어 없을 수 있다(사전 검증: 크롬 없음) */
 export function exifGps(buf: ArrayBuffer): { lat: number; lon: number } | null {
   const bytes = new Uint8Array(buf);

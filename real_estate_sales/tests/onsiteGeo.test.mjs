@@ -1,7 +1,7 @@
 // 임장 노트 위치 계산(2026-11-01)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bestSample, exifGps, fitSize, locateDong, sggCandidates, shouldStopWaiting } from "../src/lib/onsite/geo.ts";
+import { bestSample, distanceM, exifGps, fitSize, formatAddress, locateDong, nearestAddress, sggCandidates, shouldStopWaiting, tileKey, tilesFor, utmkToWgs } from "../src/lib/onsite/geo.ts";
 
 const square = (x, y, size = 1) => [[x, y], [x + size, y], [x + size, y + size], [x, y + size], [x, y]];
 const boundaries = [
@@ -73,4 +73,28 @@ test("사진 속 위치: 있으면 읽고 없으면 없음", () => {
   assert.equal(gps.lat, 37.5);
   assert.equal(gps.lon, 127.01);
   assert.equal(exifGps(new ArrayBuffer(50)), null);
+});
+
+test("주소: 위치정보요약DB 좌표(UTM-K)를 위경도로 바꾼다", () => {
+  const [lat, lon] = utmkToWgs(953241.683263, 1954023.466812); // 종로구 청운동 자하문로 94(파일 첫 줄)
+  assert.ok(Math.abs(lat - 37.584415) < 1e-5 && Math.abs(lon - 126.970406) < 1e-5);
+  assert.ok(distanceM(37.5, 127, 37.5009, 127) > 99 && distanceM(37.5, 127, 37.5009, 127) < 101);
+});
+
+test("주소: 격자는 가장자리 가까우면 옆 칸까지 본다", () => {
+  assert.equal(tileKey(37.584, 126.970), "3758_12697");
+  assert.deepEqual(tilesFor(37.585, 126.975), ["3758_12697"]);
+  assert.equal(tilesFor(37.5801, 126.9701).length, 4, "모서리면 4칸");
+});
+
+test("주소: 가장 가까운 건물을 도로명주소로, 150m 밖이면 없음", () => {
+  const row = (lat, lon, main, sub = "0", building = "", under = "0") => [Math.round(lat * 1e5), Math.round(lon * 1e5), "서울특별시", "종로구", "청운동", "자하문로", under, main, sub, building, "주택", "청운효자동"];
+  assert.equal(formatAddress(row(0, 0, "96", "0", "평안빌")), "서울특별시 종로구 자하문로 96 (청운동, 평안빌)");
+  assert.equal(formatAddress(row(0, 0, "12", "3", "", "1")), "서울특별시 종로구 자하문로 지하 12-3 (청운동)");
+  const rows = [row(37.5844, 126.9704, "94"), row(37.5846, 126.9704, "96")];
+  const hit = nearestAddress(rows, 37.58442, 126.9704);
+  assert.equal(hit.address, "서울특별시 종로구 자하문로 94 (청운동)");
+  assert.equal(hit.distanceM, 2);
+  assert.equal(nearestAddress(rows, 37.59, 126.9704), null, "150m 밖");
+  assert.equal(nearestAddress([], 37.5, 127), null);
 });
