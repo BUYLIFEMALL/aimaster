@@ -34,3 +34,6 @@ Next.js 16 + Tailwind 4 + 공용 Supabase(권한 판정·회원 키 조회만). 
 
 ## 2026-10-26 ✅ v1.04 — 「🙈 사진 속 개인정보 가리기 ↗」 바로가기 (Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image])
 - 홈 「작업 순서」 카드 끝과 「리뷰 분석」 화면 왼쪽에 바나나 캔버스 무료 이미지 도구 `https://banana-canvas.buylife.xyz/tools?tab=face`(새 탭) 바로가기. 이 프로그램에는 송장·후기 사진 화면이 없어 사진을 넘기지 않고 바로가기로 연결(키·비용 없음). 커밋 `38180d0d9`. 운영 크롬에서 주소·새 탭 확인.
+
+## 2026-11-03 (미배포 대기) — `market-fees` 쿠팡·11번가 공식 값 반영 (맥미니 [역할: mac-mini])
+- 설정 화면의 쿠팡·11번가 표시가 ⚠ → ✅, 쿠팡 대표 수수료 10.8 → 10.9%(정산액이 없을 때 추정에 씀). 근거·상세: `trending-product-finder/AGENTS.md` 2026-11-03, 시험 `tests/report.test.mjs` 기대값 수정(맥에서는 실행 불가 — 윈도우에서 `npm test`).

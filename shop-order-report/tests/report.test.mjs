@@ -160,7 +160,8 @@ test("카테고리 요율·마켓 비교", () => {
   assert.equal(defaultFeePct("gmarket", "모니터/프린터"), 9);
   assert.equal(defaultFeePct("smartstore"), 6.63); // 2026-10-29 공식 도움말: Npay 3.63% + 판매수수료 3%(부가세 포함)
   assert.equal(CATEGORY_FEES.gmarket.verified, true);
-  assert.equal(CATEGORY_FEES.coupang.verified, false);
+  assert.equal(CATEGORY_FEES.coupang.verified, true); // 2026-11-03 WING 공식 표 대조
+  assert.equal(CATEGORY_FEES["11st"].verified, true);
   const rows = compareMarkets({ sellingPrice: 30000, shippingMode: "free", courierCost: 3000, unitCost: 10000 });
   assert.equal(rows.length, 5);
   assert.equal(rows[0].market, "smartstore"); // 대표 수수료가 가장 낮음

@@ -14,7 +14,9 @@ interface FeeRow {
 
 // v1.27(E1): 수수료 숫자는 공용 기준 코드 market-fees 사본(lib/marketFees.ts) 한 곳에서만 읽는다(계산기와 같은 값).
 const pct = (n: number) => `${Number.isInteger(n) ? n.toFixed(1) : n}%`;
-const COUPANG_FEES: FeeRow[] = (CATEGORY_FEES.coupang?.rows ?? []).map((r) => ({ category: r.label, values: [pct(r.ratePct)] }));
+const COUPANG_FEES: FeeRow[] = (CATEGORY_FEES.coupang?.rows ?? []).map((r) => ({ category: r.label, values: [pct(r.ratePct), r.exception ?? "—"] }));
+// 2026-11-03: 11번가도 셀러오피스 공식 표로 대조해 카테고리별 값을 다시 넣었다.
+const ELEVENST_FEES: FeeRow[] = (CATEGORY_FEES["11st"]?.rows ?? []).map((r) => ({ category: r.label, values: [`${r.ratePct}%`, r.exception ?? "—"] }));
 
 // 2026-10-25 재확인: G마켓·옥션은 ESM PLUS 공식 「서비스 이용료 안내」 표의 대분류 「전체」 값을 그대로 옮겼다(중분류는 다를 수 있음).
 // 예전 표(옥션·G마켓 6.5~10%, 「ESM 통합이라 동일」)는 공식 값(대부분 13%)보다 낮아 마진이 높게 보였다.
@@ -102,9 +104,9 @@ export default async function FeesPage() {
             카테고리 판매수수료(아래 표, 최종 결제금액 기준) + 월 매출 100만원 이상이면 서비스 이용료(월 5.5만원 별도)
           </p>
         </div>
-        <FeeTable headers={["카테고리", "수수료율"]} rows={COUPANG_FEES} />
-        <SourceNote verified={false}>
-          쿠팡 공식 카테고리 수수료표는 판매자 센터(쿠팡 WING) 로그인 뒤에만 보여 직접 대조하지 못했습니다. 위 값은 여러 판매자 안내 자료와 일치하는 참고치이며 부가세 별도로 안내되는 경우가 많습니다. 내 카테고리 값은 WING의 상품 등록 화면 「카테고리 수수료」에서 확인하세요.
+        <FeeTable headers={["대분류", "기본 수수료", "소분류 예외(예)"]} rows={COUPANG_FEES} />
+        <SourceNote verified date="2026-11-03">
+          쿠팡 WING 「도움말 › 정산 › 판매수수료 › 카테고리별 수수료 자세히 보기」 공식 표의 대분류 기본값입니다(표 기준일 2019-11-25). 할인된 가격에 부과하며, 배송비에는 수수료 3%(부가세 별도)가 붙습니다. 소분류마다 다를 수 있으니 내 상품 카테고리 값은 같은 화면에서 확인하세요.
         </SourceNote>
       </section>
 
@@ -112,11 +114,12 @@ export default async function FeesPage() {
         <div>
           <h2 className="text-base font-extrabold text-mx-text">🏬 11번가</h2>
           <p className="text-xs text-mx-muted">
-            서비스 이용료 = (판매가 × 카테고리 요율) − (추가 할인 × 90%). 판매자 안내 자료 기준 카테고리별 대략 <span className="font-semibold">7~13%</span>입니다.
+            서비스 이용료 = (판매가 × 카테고리 요율) − (추가 할인 × 90%). 공식 표 기준 카테고리별 <span className="font-semibold">7~15%</span>(대부분 13%)입니다.
           </p>
         </div>
-        <SourceNote verified={false}>
-          11번가 카테고리별 요율표는 판매자 센터(셀러오피스) 로그인 뒤 「상품관리 › 상품등록 › 카테고리별 서비스이용료 안내」에서만 보여, 예전에 적어 둔 카테고리별 숫자는 근거를 확인할 수 없어 뺐습니다. 내 카테고리 값을 그 화면에서 확인해 마진계산기에 넣어 주세요(신규 판매자 할인 등 조건에 따라 달라질 수 있음).
+        <FeeTable headers={["대카테고리", "서비스 이용료", "하위 카테고리 예외(예)"]} rows={ELEVENST_FEES} />
+        <SourceNote verified date="2026-11-03">
+          11번가 셀러오피스 「상품관리 › 상품등록 › 카테고리별 서비스이용료 안내」 공식 표(2025년 4월 기준, 고정가/예약판매)의 대카테고리 값입니다. 하위 카테고리·신규 판매자 할인 등 조건에 따라 달라질 수 있으니 내 카테고리 값은 같은 화면에서 확인하세요. 렌털/구독 서비스는 1% 또는 정액입니다.
         </SourceNote>
       </section>
 

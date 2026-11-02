@@ -73,7 +73,9 @@ test("E1: 검색결과 전체 마진에 고른 마켓 수수료가 들어간다(
 
 test("E1: 공용 사본의 ESM·쿠팡 표와 대표값", () => {
   assert.equal(fees.CATEGORY_FEES.gmarket.rows.length, 20);
-  assert.equal(fees.CATEGORY_FEES.coupang.rows[0].ratePct, 10.8);
+  assert.equal(fees.CATEGORY_FEES.coupang.rows[0].ratePct, 10.9); // 2026-11-03 WING 공식 표: 면/라면 10.9%
+  assert.equal(fees.CATEGORY_FEES.coupang.verified, true);
+  assert.equal(fees.defaultFeePct("11st", "도서/음반"), 15);
   assert.equal(fees.defaultFeePct("auction", "도서·음반·교육"), 15);
   assert.equal(fees.compareMarkets({ sellingPrice: 20000, shippingMode: "free", courierCost: 3000, unitCost: 8000 }).length, 5);
 });

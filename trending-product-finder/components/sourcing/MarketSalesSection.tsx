@@ -86,7 +86,7 @@ export function MarketSalesSection({ form, onChange }: { form: MarginForm; onCha
       {market && (
         <>
           <p className={`rounded-md px-2 py-1.5 text-[11px] leading-snug ${verified ? "bg-mx-success/10 text-[#a7f3d0]" : "bg-amber-400/10 text-[#fde68a]"}`}>
-            {verified ? "✅ 공식 표 확인 · 2026-10-25" : "⚠ 공식 표 미확인 대표값 · 판매자센터 요율로 아래 수수료 칸을 바꿔 쓰세요"} — {table ? table.source : fee?.note}
+            {verified ? `✅ 공식 표 확인 · ${table?.checkedAt ?? fee?.checkedAt ?? ""}` : "⚠ 공식 표 미확인 대표값 · 판매자센터 요율로 아래 수수료 칸을 바꿔 쓰세요"} — {table ? table.source : fee?.note}
             {market === "smartstore" && ` · 주문관리 ${SMARTSTORE_PARTS.orderFeePct}%(등급별, 부가세 포함) + 판매수수료 ${SMARTSTORE_PARTS.salesFeePct}%(유입 경로별, 부가세 별도)`}
           </p>
           <details className="text-xs text-mx-muted">
