@@ -110,8 +110,19 @@ async function reconcileReservation(state) {
   }
   if (!["publishing", "uncertain"].includes(state.state)) throw new Error("예약 발행을 시작한 실행이 아닙니다. 원고를 확인하세요.");
   let last = "";
+  let reopened = false;
   for (let attempt = 0; attempt < 45; attempt++) {
     await sleep(1000);
+    // 2026-11-02: 예약 뒤 네이버가 글 목록(PostList.naver)으로 넘기면 「예약 발행 글」 목록 버튼이 없다.
+    // 같은 탭을 새 글쓰기 화면으로 한 번 다시 열어 목록에서 확인한다(입력하지 않음, 이어쓰기 창은 '취소').
+    const tab = await chrome.tabs.get(seoPublication.tabId).catch(() => null);
+    const writing = `/${seoPublication.blogId}/postwrite`;
+    if (tab && !reopened && attempt >= 2 && (() => { try { return new URL(tab.url).pathname !== writing; } catch { return true; } })()) {
+      await chrome.tabs.update(tab.id, { url: `https://blog.naver.com${writing}` });
+      reopened = true;
+      await sleep(4000);
+    }
+    if (tab) await dismissNaverResume(tab.id);
     const result = await publicationPage("reserved").catch(() => null);
     if (result?.complete) {
       await publicationApi("reserved", { scheduledAt: result.scheduledAt });
