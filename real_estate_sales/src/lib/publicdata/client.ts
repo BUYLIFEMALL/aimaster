@@ -9,7 +9,8 @@ import { LEGAL_DONG } from "./legalDong";
 // 그대로 이식했다.
 
 const SEOUL_BASE = "http://openapi.seoul.go.kr:8088";
-const DATA_GO_KR_BASE = "http://apis.data.go.kr/1613000/BldRgstHubService";
+// 2026-11-03 B0: http 주소로 표제부가 21곳 모두 403 — 상가 층 진단(https)은 같은 서비스가 동작해 https로 맞춤
+const DATA_GO_KR_BASE = "https://apis.data.go.kr/1613000/BldRgstHubService";
 const VWORLD_BASE = "https://api.vworld.kr/ned/data";
 
 // VWorld 키는 원래 n8n.buylife.xyz 도메인으로 등록되어 있어(Phase 0 스파이크로 확인),
@@ -131,6 +132,12 @@ export async function fetchMolitTrades(params: {
   return rows.sort((a, b) => b.CTRT_DAY.localeCompare(a.CTRT_DAY));
 }
 
+/** B1 주소 리포트(2026-11-03): 국토부 한 달·한 유형 원본 응답(매매 또는 전월세) */
+export async function fetchMolitMonth(params: { keys?: PublicDataKeys; type: PropertyType; deal: "trade" | "rent"; sggCd: string; ymd: string }): Promise<unknown> {
+  const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
+  return molitGet(MOLIT_SERVICE[params.type][params.deal], key, params.sggCd, params.ymd, 1000);
+}
+
 /** 국토부 매매 신고 건수(한 달·한 유형). 줄은 1개만 받고 응답의 전체 건수(totalCount)만 읽는다 — A2 거래량(2026-11-02). 서울도 같은 API로 센다 */
 export async function fetchMolitTradeCount(params: { keys?: PublicDataKeys; sggCd: string; type: PropertyType; ymd: string }): Promise<number> {
   const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
@@ -209,8 +216,18 @@ export async function fetchBuildingTitle(params: { keys?: PublicDataKeys; sigung
   const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
   const qs = new URLSearchParams({ serviceKey: key, sigunguCd: params.sigunguCd, bjdongCd: params.bjdongCd, platGbCd: "0", bun: params.bun, ji: params.ji, _type: "json", numOfRows: "100", pageNo: "1" });
   const res = await fetch(`${DATA_GO_KR_BASE}/getBrTitleInfo?${qs.toString()}`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`건축물대장 표제부 API 요청 실패 (${res.status})`);
-  const raw = (await res.json())?.response?.body?.items?.item ?? [];
+  const text = await res.text();
+  // 실패 원인을 가리려고 공공포털 응답 문구를 짧게 붙인다(키 값은 응답에 없음)
+  if (!res.ok) throw new Error(`건축물대장 표제부 API 요청 실패 (${res.status}) ${text.replace(/<[^>]+>/g, " ").replace(/s+/g, " ").trim().slice(0, 80)}`);
+  let json: { response?: { header?: { resultCode?: string; resultMsg?: string }; body?: { items?: { item?: BuildingTitleItem | BuildingTitleItem[] } } } };
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`건축물대장 표제부 응답을 읽지 못했습니다: ${text.replace(/s+/g, " ").slice(0, 80)}`);
+  }
+  const code = json?.response?.header?.resultCode;
+  if (code && code !== "00") throw new Error(`건축물대장 표제부 오류 ${code} ${json?.response?.header?.resultMsg ?? ""}`);
+  const raw = json?.response?.body?.items?.item ?? [];
   return Array.isArray(raw) ? raw : [raw];
 }
 

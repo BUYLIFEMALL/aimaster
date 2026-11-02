@@ -22,6 +22,8 @@ const UTILITY_ITEMS = [
 
 // 주소 자동 등록 전까지 관리자·시험 계정에만 보인다
 const ONSITE_ITEM = { href: "/onsite", icon: "📷", label: "임장 노트" };
+// B1(2026-11-03): 한 필지의 실거래·전세·공시가·토지·건물 정보를 한 장으로
+const REPORT_ITEM = { href: "/report", icon: "📄", label: "주소 리포트" };
 
 function NavContent({ pathname, userEmail }: { pathname: string | null; userEmail: string }) {
   return (
@@ -68,7 +70,7 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
 
 
         <div className="mt-6 border-t border-mx-border pt-3">
-          {[ONSITE_ITEM, ...UTILITY_ITEMS].map((item) => {
+          {[ONSITE_ITEM, REPORT_ITEM, ...UTILITY_ITEMS].map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
               <Link

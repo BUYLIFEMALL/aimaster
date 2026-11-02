@@ -42,6 +42,12 @@ export default async function OnsiteDetailPage({ params }: { params: Promise<{ i
           {property.accuracy_m !== null ? ` · 오차 약 ${property.accuracy_m}m` : ""}
           {property.coord_confirmed ? " · 확정" : " · 추정"}
         </p>
+        {property.pnu && (
+          // B1(2026-11-03): 지번이 확인된 기록만
+          <Link href={`/report?onsite=${property.id}`} className="mx-btn-ghost mt-2 inline-flex">
+            📄 주소 리포트 보기
+          </Link>
+        )}
       </div>
       <div className="mx-card flex flex-col gap-3 p-4">
         <PhotoGrid photos={photos.map((p) => ({ id: p.id, url: urlByPath.get(p.storage_path) ?? null }))} />

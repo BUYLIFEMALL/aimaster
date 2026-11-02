@@ -104,6 +104,12 @@ export default async function ListingDetailPage({
             🏠 네이버 부동산에서 보기 ↗
           </a>
         )}
+        {listing.pnu && (
+          // B1(2026-11-03): 같은 지번 12개월 실거래·전세·공시가·토지·건물 정보 한 장
+          <Link href={`/report?listing=${listing.id}`} className="mx-btn-ghost mt-3 ml-2">
+            📄 이 단지 주소 리포트
+          </Link>
+        )}
       </div>
 
       {rankLabel((listing as { price_rank?: string | null }).price_rank) && (
