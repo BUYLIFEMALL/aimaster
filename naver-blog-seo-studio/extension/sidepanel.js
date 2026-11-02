@@ -743,6 +743,20 @@ function typingChunks(text) {
   return chunks;
 }
 
+// 포커스가 들어 있는 가장 안쪽 문서(편집기 iframe)에서 새 문단을 만든다(맥 전용).
+const MAC_NEW_PARAGRAPH = `(() => {
+  let doc = document;
+  while (doc.activeElement && doc.activeElement.tagName === "IFRAME") { try { doc = doc.activeElement.contentDocument; } catch { break; } if (!doc) return "no-doc"; }
+  const target = doc.activeElement || doc.body;
+  let handled = false;
+  for (const type of ["keydown", "keypress", "keyup"]) {
+    const event = new doc.defaultView.KeyboardEvent(type, { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true, cancelable: true });
+    if (!target.dispatchEvent(event) && type === "keydown") handled = true;
+  }
+  if (!handled) doc.execCommand("insertParagraph");
+  return handled ? "key" : "command";
+})()`;
+
 async function typeWithDebugger(tabId, value) {
   const text = plainText(value);
   const total = Array.from(text).length;
@@ -752,10 +766,15 @@ async function typeWithDebugger(tabId, value) {
   for (const chunk of typingChunks(text)) {
     if (chunk === "\n") {
       // 2026-10-23: 줄바꿈 문자(\r)를 함께 보내야 네이버 편집기가 새 문단을 만든다(없으면 문단이 이어 붙음).
-      // 2026-11-02: 맥 크롬은 Enter 신호만으로는 편집 칸에 새 문단을 만들지 않아 「새 줄 넣기」 명령을 함께 보낸다(윈도우는 그대로).
+      // 2026-11-02: 맥 크롬은 디버거 Enter 신호로 편집기에 새 문단이 생기지 않는다(실제 화면 2회 확인).
+      // 맥에서는 같은 맥에서 동작이 확인된 블로그 에이전트 방식(편집 칸에 Enter 키 이벤트, 처리되지 않으면 insertParagraph)을 쓴다. 윈도우는 그대로.
       const mac = (await chrome.runtime.getPlatformInfo().catch(() => ({})))?.os === "mac";
-      await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", text: "\r", unmodifiedText: "\r", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13, ...(mac ? { commands: ["insertNewline"] } : {}) });
-      await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+      if (mac) {
+        await debuggerCommand(tabId, "Runtime.evaluate", { expression: MAC_NEW_PARAGRAPH, returnByValue: true });
+      } else {
+        await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", text: "\r", unmodifiedText: "\r", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+        await debuggerCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+      }
     } else {
       await debuggerCommand(tabId, "Input.insertText", { text: chunk });
     }
