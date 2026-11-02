@@ -91,6 +91,7 @@
 | `naver-blog-allinone` | v1.57 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `naver-blog-allinone-99flpqnff`) | 회원 키 과금 버그: 본문 이미지 없음에도 2장 생성 수정 `edd6edfd0`(맥미니). 시험 37개·DB/ZIP OK. 맥미니 화면 재확인 대기 |
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `commercial-land-trade-alert` | v1.29 · 2026-11-02 ([역할: realty], 주인님 「진행해」 빌드 1회) | 감시 화면별 「알림 받을 행정동」(DB `admin_dongs`, 확장이 회원 PC에서 판정). 확장 ZIP·DB v1.29 검증 OK |
 | `commercial-land-trade-alert` | v1.28 · 2026-11-02 ([역할: realty], 주인님 「진행해」 빌드 1회) | 관리자 층 진단 쪽 넘김(건축물대장 API가 한 쪽 100줄만 줌). 확장 ZIP·DB v1.28 검증 OK |
 | `commercial-land-trade-alert` | v1.27 · 2026-11-02 ([역할: realty], 「전부 진행」 승인 빌드 1회) | 대기 3건(`6a7dfff33`·`69fde47bd`·`ac52a4d20`) + 시세 정확도 1~4단계: 건물 연면적·대지 두 기준, 토지 묶음 합치기·「비교 자료 부족」, 층 빈칸 쌍둥이 정리, 관리자 층 진단 경로. 확장 ZIP·DB v1.27 검증 OK |
 | `commercial-land-trade-alert` | v1.26 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 상가 매매 「같은 건물 호가 대비」 후보(`b320b1b84`) |
