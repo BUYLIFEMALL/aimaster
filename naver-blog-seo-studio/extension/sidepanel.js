@@ -1294,18 +1294,22 @@ if (!IN_WORKER) {
     $("publishTags").value = settings.tags || "";
   }).catch(() => {});
   // 2026-11-02: 실제 블로그 ID는 한 번 넣으면 기억한다(카테고리·태그 저장과 섞이지 않게 따로 보관).
-  // 저장값이 없으면 열려 있는 네이버 블로그 탭 주소(blog.naver.com/<ID>/...)에서 찾아 채우고 저장한다.
+  // 로그인한 본인 블로그 ID는 MyBlog.naver가 넘겨 주는 주소(blog.naver.com/<ID>)로 확인한다(남의 블로그 탭에서 고르지 않음).
+  // 저장값이 없으면 본인 ID로 채우고, 칸의 값이 본인 ID와 다르면 경고만 보여 준다(관리하는 다른 블로그일 수 있어 덮어쓰지 않음).
   const saveBlogId = () => {
     const blogId = $("publishBlogId").value.trim();
     if (!blogId || /^[A-Za-z0-9_-]{2,40}$/.test(blogId)) chrome.storage.local.set({ [BLOG_ID_KEY]: blogId }).catch(() => {});
   };
-  chrome.storage.local.get(BLOG_ID_KEY).then(async (stored) => {
-    if ($("publishBlogId").value) return;
-    if (stored[BLOG_ID_KEY]) { $("publishBlogId").value = stored[BLOG_ID_KEY]; return; }
-    const tabs = await chrome.tabs.query({ url: "https://blog.naver.com/*" });
-    const found = tabs.map((tab) => { try { return new URL(tab.url).pathname.split("/")[1] || ""; } catch { return ""; } })
-      .find((part) => /^[A-Za-z0-9_-]{2,40}$/.test(part));
-    if (found && !$("publishBlogId").value) { $("publishBlogId").value = found; saveBlogId(); }
+  const ownBlogId = async () => {
+    const response = await fetch("https://blog.naver.com/MyBlog.naver", { credentials: "include", redirect: "follow" });
+    const part = new URL(response.url).pathname.split("/")[1] || "";
+    return /^[A-Za-z0-9_-]{2,40}$/.test(part) ? part : "";
+  };
+  Promise.all([chrome.storage.local.get(BLOG_ID_KEY), ownBlogId().catch(() => "")]).then(([stored, own]) => {
+    if (!$("publishBlogId").value) $("publishBlogId").value = stored[BLOG_ID_KEY] || own;
+    if (!stored[BLOG_ID_KEY] && own && $("publishBlogId").value === own) saveBlogId();
+    const current = $("publishBlogId").value.trim();
+    if (own) $("publishBlogIdHint").textContent = current === own ? `로그인한 내 블로그 ID: ${own}` :  `지금 로그인한 네이버 블로그 ID는 「${own}」입니다. 칸의 값 「${current}」와 다릅니다. 본인 블로그에 올리려면 「${own}」로 바꿔 주세요.`;
   }).catch(() => {});
   $("publishBlogId").addEventListener("input", saveBlogId);
   // 사이드패널을 다시 열면 background가 진행 중이거나 마지막으로 남긴 상황을 그대로 보여 준다.

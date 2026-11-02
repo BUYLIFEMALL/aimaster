@@ -68,7 +68,7 @@
     <section class="card" aria-labelledby="auto-publish-title">
       <h2 id="auto-publish-title">자동 포스팅</h2>
       <p class="hint">선택한 원고를 새 글쓰기 탭에 입력하고, 전체 내용과 공개 범위를 확인한 뒤 마지막 발행까지 자동으로 진행합니다. 기존 준비 탭은 사용하지 않습니다.</p>
-      <label for="publishBlogId">실제 블로그 ID</label><input id="publishBlogId" placeholder="블로그 주소의 ID (로그인 ID와 다를 수 있음)">
+      <label for="publishBlogId">실제 블로그 ID</label><input id="publishBlogId" placeholder="블로그 주소의 ID (로그인 ID와 다를 수 있음)"><div id="publishBlogIdHint" class="status"></div>
       <label for="publishVisibility">공개 범위</label><select id="publishVisibility"><option value="private">비공개</option><option value="public">전체공개</option></select>
       <button id="autoPublish" class="primary">선택한 원고 자동 포스팅 시작(바로 발행)</button>
       <label for="publishScheduleAt">예약 날짜·시각(10분 단위, 지금부터 20분 이후)</label><input id="publishScheduleAt" type="datetime-local" step="600">
