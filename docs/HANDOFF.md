@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · real_estate_sales v1.35 임장 노트 주소 자동 등록
+
+- **한 일:** 주인님이 받은 행정안전부 위치정보요약DB 전체분(642만 줄)을 위경도 약 1km 격자 8만 2천여 개(압축 85MB)로 바꿔 운영 Supabase Storage 공개 읽기 버킷 `geo-address`에 올림(`real_estate_sales/scripts/build-geo-address.mjs --upload`). 촬영 때 30m 안 건물이면 도로명주소 자동 저장, 위치 확정 때 자동 주소 갱신, 편집 화면 「📍 위치로 주소 찾기」.
+- **확인:** 시험 25개·타입·로컬 빌드, 배포 Ready, DB v1.35. 화면 확인은 프로그램 AGENTS.md 기록.
+- **남은 일:** 매달 새 전체분 받으면 스크립트 다시 실행. 지번 연결(공시가·실거래) 없음. 회원 공개는 관리자·시험 계정만 유지. 기존 린트 오류 `OnsiteMap.tsx` 34줄.
+- **상세:** `docs/analysis-realty-roadmap-20261031/PLAN_ONSITE_GEO.md` §11, `real_estate_sales/AGENTS.md` v1.35.
+- **링크:** https://real-estate-sales.buylife.xyz/onsite
+
 ## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · commercial-land-trade-alert v1.26
 
 - **한 일:** 상가 매매에 같은 건물 호가 비교 추가(같은 좌표·층 구분·면적 0.5~2배·조건이 다른 3건 이상, 20% 이상 낮으면 40점). 실거래는 참고로 유지. 근거 측정은 프로그램 `docs/IMPROVEMENTS.md` 「조사: 상가 매매 후보 0건」.

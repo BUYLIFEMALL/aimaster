@@ -112,6 +112,7 @@
 | `realty-listing-alert` | v1.39 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 단지 비교 표 「📈 실거래 ↗」(`c8f9bf948`) |
 | `commercial-land-trade-alert` | v1.02 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 네이버 매물 1단계, 3채널 알림, 이름 변경, 상세 문구 |
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |
+| `real_estate_sales` | v1.35 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 임장 노트 주소 자동 등록(위치정보요약DB 격자, `9a195b728`) |
 | `real_estate_sales` | v1.34 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 임장 노트 1차(시험 계정까지), 대기 중이던 월세 표기·`deal_type` |
 | `real_estate_sales` | v1.33 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 전월세 거래 목록·알림 |
 | `real_estate_sales` | v1.32 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 공공데이터포털 공용 키 교체 적용, 지역당 20건 안내 문구 |
