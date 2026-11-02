@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-01 (`claude-win-20261024-music` — 음악(SUNO) v1.48 AI 모델 추가 배포)
+- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — YOUTUBE 플레이리스트 v1.33 최신 모델 추가 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -17,11 +17,12 @@
 |---|---|---|---|
 | `shorts-onestop-studio` v1.42 | 미배포 대기 `a95613743`(안내 그림문자) | 다음 배포 때 함께 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
-| `playlist-channel-studio` v1.31 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
+| `playlist-channel-studio` v1.33 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-03 | `playlist-channel-studio` v1.33 | 플랫폼별 최신 모델 추가(텍스트 9·이미지 6, 시험 모두 통과) | 배포 |
 | 2026-11-01 | `music-automation` v1.48 | AI 공급사 순서 변경, 최신 모델 6개 추가 | 배포 |
 | 2026-10-31 | `ai-mastering-studio` v1.15 | AI 제안 최신 모델 9개 추가, 플랫폼별 묶음, 기본값 3.8 Flash | 배포 |
 | 2026-10-31 | `ai-audio-analyzer` v1.14 | `gemini-3.8-flash` 교체, Suno v6 지시문·화면 문구, 정확성 규칙. 합성음 환각은 미해결 | 배포 |
