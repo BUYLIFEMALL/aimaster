@@ -28,7 +28,6 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `naver-blog-agent` | 좌측 메뉴 제목 옆 고정 「FREE」 표시 삭제(DB 배지는 비어 있음, 옛 간편 모드 무료 입구 잔재) — 주인님 「일반으로 전환해」 | `2a37dabc4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | — | 다음 에이전트 배포 때 |
-| `commercial-land-trade-alert` | 같은 건물 비교에 총층수 조건, 한도로 0곳 읽은 회차가 직전 결과를 지우지 않고 「한도 도달」 표시, 많이 싼 후보 「⚠ 확인 필요」(권리관계·임대차·입지·현장·대지지분), 시세 비교 같은 연식 우선(확장 포함 → 버전·ZIP·DB 함께) | `6a7dfff33`, `69fde47bd`, `ac52a4d20` | 2026-11-02 · [역할: realty] | 프로그램 `docs/IMPROVEMENTS.md` | 버전 올려 서버+확장 함께 |
 | `naver-blog-seo-studio` | 30일 정리(크론·회원 본인 정리)에서 예외 회원 제외 | `3fa97c0f4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 SEO 배포 때 |
 | `ai-auto-blog` | 30일 정리에서 예외 회원 제외(독립 키트는 확인 생략) | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 BLOG 배포 때 |
 | `tistory-auto-blog` | 30일 정리에서 예외 회원 제외 | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 티스토리 배포 때 |
@@ -90,6 +89,7 @@
 | `naver-blog-allinone` | v1.57 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `naver-blog-allinone-99flpqnff`) | 회원 키 과금 버그: 본문 이미지 없음에도 2장 생성 수정 `edd6edfd0`(맥미니). 시험 37개·DB/ZIP OK. 맥미니 화면 재확인 대기 |
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `commercial-land-trade-alert` | v1.27 · 2026-11-02 ([역할: realty], 「전부 진행」 승인 빌드 1회) | 대기 3건(`6a7dfff33`·`69fde47bd`·`ac52a4d20`) + 시세 정확도 1~4단계: 건물 연면적·대지 두 기준, 토지 묶음 합치기·「비교 자료 부족」, 층 빈칸 쌍둥이 정리, 관리자 층 진단 경로. 확장 ZIP·DB v1.27 검증 OK |
 | `commercial-land-trade-alert` | v1.26 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 상가 매매 「같은 건물 호가 대비」 후보(`b320b1b84`) |
 | `commercial-land-trade-alert` | v1.25 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 감시 화면 거르기, 같은 조건 묶기, 네이버 링크 맨 뒤로, 비교 불가 표시, 추이 거래 종류, 사라진 매물 행정동, AI 자료·지시문(`af983f066`) |
 | `commercial-land-trade-alert` | v1.24 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 결과 표 한눈에 보기, 건물 시세 비교도 동 표본 기준(`1fb2c1886`, `fa5c849e2`) |
@@ -112,6 +112,7 @@
 | `realty-listing-alert` | v1.39 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 단지 비교 표 「📈 실거래 ↗」(`c8f9bf948`) |
 | `commercial-land-trade-alert` | v1.02 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 네이버 매물 1단계, 3채널 알림, 이름 변경, 상세 문구 |
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |
+| `real_estate_sales` | v1.37 · 2026-11-02 ([역할: realty], 「전부 진행」 승인 빌드 1회) | 임장 노트 지번 연결: 격자 v2(PNU·공동주택, 전국 100%), DB `pnu`·`jibun` 칸, 「공시지가·용도지역 보기」 |
 | `real_estate_sales` | v1.36 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 임장 노트 회원 공개, 소개 문구(`5eaa1797d`) |
 | `real_estate_sales` | v1.35 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 임장 노트 주소 자동 등록(위치정보요약DB 격자, `9a195b728`) |
 | `real_estate_sales` | v1.34 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 임장 노트 1차(시험 계정까지), 대기 중이던 월세 표기·`deal_type` |

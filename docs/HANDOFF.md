@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · real_estate_sales v1.37 지번 연결 + commercial-land-trade-alert v1.27 시세 정확도
+- 주인님 「전부 진행」(지번 연결 + 상가 시세 정확도 플랜 전부).
+- 임장 노트 v1.37: 「도로명주소 한글」 전체분과 연결해 전국 640만 건물 100% PNU·공동주택을 붙인 격자 v2(`geo-address/v2/`, 108MB). 운영 DB `real_estate_onsite_properties`에 `pnu`·`jibun` 칸 추가(크롬 SQL 편집기). 편집 화면 「🧭 지번」·「공시지가·용도지역 보기」(기존 `ensureLandInfo` 재사용). 상세 `real_estate_sales/AGENTS.md` v1.37.
+- 상가 v1.27: 대기 3건 + 플랜 1~4단계(건물 연면적·대지 두 기준, 토지 묶음 합치기·「비교 자료 부족」, 층 빈칸 쌍둥이 정리, 관리자 층 진단 경로). 확장 검증 OK. **4단계 측정은 관리자 로그인 필요**(크롬이 시험 계정), 5단계는 그 결과에 따라. 상세 `commercial-land-trade-alert/docs/IMPROVEMENTS.md`.
+
 ## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · real_estate_sales v1.36 임장 노트 회원 공개
 
 - **한 일:** 주인님 「오픈해도 되」로 관리자·시험 계정 제한 제거 → 프로그램 이용 권한 회원 누구나. 현장 3곳 자동 주소 대조(2곳 정확, 지하철 출구 1곳은 바로 옆 건물).
