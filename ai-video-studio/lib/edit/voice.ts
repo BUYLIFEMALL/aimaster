@@ -5,11 +5,17 @@ export type TtsProvider = "openai" | "gemini" | "elevenlabs";
 export const TTS_MODELS: { provider: TtsProvider; id: string; name: string }[] = [
   { provider: "openai", id: "gpt-4o-mini-tts", name: "OpenAI GPT-4o mini TTS · 말투 지시 가능 (기본)" },
   { provider: "openai", id: "tts-1", name: "OpenAI TTS-1 · 빠른 기본형" },
-  { provider: "gemini", id: "gemini-2.5-flash-preview-tts", name: "Gemini 2.5 Flash TTS (Preview)" },
+  // 2026-11-03 gemini-2.5-flash-preview-tts 종료(2026-11-17) → Gemini 3.8 TTS(docs/AI_MODEL_CATALOG.md 3절)
+  { provider: "gemini", id: "gemini-3.8-flash-tts", name: "Gemini 3.8 Flash TTS · 고품질" },
+  { provider: "gemini", id: "gemini-3.8-flash-lite-tts", name: "Gemini 3.8 Flash-Lite TTS · 저렴" },
   // v1.26 본인 목소리 복제: 목소리는 회원 ElevenLabs 계정에서 불러온다(/api/voice/elevenlabs). 한국어 지원 다국어 모델
   { provider: "elevenlabs", id: "eleven_multilingual_v2", name: "ElevenLabs 다국어 v2 · 내 목소리(복제) 사용 가능" },
   { provider: "elevenlabs", id: "eleven_flash_v2_5", name: "ElevenLabs Flash v2.5 · 빠르고 저렴" },
 ];
+
+// 예전에 저장된 종료 모델 값은 같은 회사의 새 모델로 바꿔 찾는다(Gemini를 고른 회원이 OpenAI 기본값으로 넘어가지 않게)
+const LEGACY_TTS_MODEL: Record<string, string> = { "gemini-2.5-flash-preview-tts": "gemini-3.8-flash-tts", "gemini-2.5-pro-preview-tts": "gemini-3.8-flash-tts" };
+export const ttsModelById = (id: unknown) => TTS_MODELS.find((m) => m.id === (typeof id === "string" ? LEGACY_TTS_MODEL[id] ?? id : id));
 export const TTS_VOICES: Record<TtsProvider, { id: string; name: string }[]> = {
   openai: [
     { id: "coral", name: "코랄 · 밝은 여성" }, { id: "nova", name: "노바 · 또렷한 여성" }, { id: "shimmer", name: "시머 · 부드러운 여성" },

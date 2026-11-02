@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi, getUserApiKey, logProgramUsage } from "@/lib/access";
-import { TTS_MODELS, TTS_VOICES, isElevenVoiceId } from "@/lib/edit/voice";
+import { TTS_MODELS, TTS_VOICES, isElevenVoiceId, ttsModelById } from "@/lib/edit/voice";
 import { VoiceError, synthesize, wordStarts } from "@/lib/edit/tts";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const text = typeof body.text === "string" ? body.text.replace(/\s+/g, " ").trim().slice(0, 1000) : "";
   if (!text) return NextResponse.json({ error: "읽을 내레이션 문장을 입력해 주세요." }, { status: 400 });
-  const model = TTS_MODELS.find((m) => m.id === body.model) ?? TTS_MODELS[0];
+  const model = ttsModelById(body.model) ?? TTS_MODELS[0];
   const voice = model.provider === "elevenlabs"
     ? (isElevenVoiceId(body.voice) ? body.voice : "")
     : (TTS_VOICES[model.provider].some((v) => v.id === body.voice) ? body.voice : TTS_VOICES[model.provider][0].id);

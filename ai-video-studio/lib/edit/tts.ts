@@ -8,13 +8,6 @@ export class VoiceError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 
-function wav(pcm: Buffer, rate = 24000): Buffer {
-  const h = Buffer.alloc(44); const size = pcm.length;
-  h.write("RIFF", 0); h.writeUInt32LE(36 + size, 4); h.write("WAVE", 8); h.write("fmt ", 12); h.writeUInt32LE(16, 16); h.writeUInt16LE(1, 20); h.writeUInt16LE(1, 22);
-  h.writeUInt32LE(rate, 24); h.writeUInt32LE(rate * 2, 28); h.writeUInt16LE(2, 32); h.writeUInt16LE(16, 34); h.write("data", 36); h.writeUInt32LE(size, 40);
-  return Buffer.concat([h, pcm]);
-}
-
 function err(provider: TtsProvider, status: number): never {
   const who = provider === "openai" ? "OpenAI" : provider === "elevenlabs" ? "ElevenLabs" : "Gemini";
   if (status === 401 || status === 403) throw new VoiceError(400, `본인 ${who} API 키와 음성 모델 사용 권한을 확인해 주세요.`);
@@ -48,16 +41,26 @@ export async function synthesize(o: { provider: TtsProvider; key: string; model:
     if (!res.ok) err("openai", res.status);
     return { bytes: Buffer.from(await res.arrayBuffer()), mime: "audio/mpeg" };
   }
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(o.model)}:generateContent`, {
+  // 2026-11-03 gemini-2.5-flash-preview-tts 종료(11-17) → Gemini 3.8 TTS는 Interactions API를 쓴다.
+  // 응답은 완성된 WAV(24kHz·16비트·모노)라 머리말을 붙이지 않는다. 빠르기 칸이 없어 말투·빠르기를 style 문장으로 넘긴다.
+  const pace = o.speed >= 1.15 ? "조금 빠르게 말하기" : o.speed <= 0.85 ? "천천히 말하기" : "";
+  const style = [o.tone, pace].filter(Boolean).join(", ");
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
     method: "POST", headers: { "x-goog-api-key": o.key, "Content-Type": "application/json" }, cache: "no-store", signal: AbortSignal.timeout(90_000),
-    body: JSON.stringify({ contents: [{ parts: [{ text: o.tone ? `${o.tone}\n\n${text}` : text }] }], generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: o.voice } } } } }),
+    body: JSON.stringify({
+      model: o.model,
+      input: [{ type: "user_input", content: [{ type: "text", text, ...(style ? { annotations: [{ type: "speech_metadata", style }] } : {}) }] }],
+      response_format: { type: "audio" },
+      generation_config: { speech_config: [{ voice: o.voice }] },
+    }),
   }).catch(() => null);
   if (!res) throw new VoiceError(504, "음성 생성이 늦어지고 있습니다. 다시 시도해 주세요.");
   if (!res.ok) err("gemini", res.status);
   const data = await res.json();
-  const part = (data?.candidates?.[0]?.content?.parts ?? []).find((p: { inlineData?: { data?: string } }) => p.inlineData?.data);
-  if (!part) throw new VoiceError(502, "AI가 음성을 돌려주지 않았습니다. 다시 시도해 주세요.");
-  return { bytes: wav(Buffer.from(part.inlineData.data, "base64")), mime: "audio/wav" };
+  type Step = { type?: string; content?: { type?: string; data?: string }[] };
+  const audio = ((data?.steps ?? []) as Step[]).filter((s) => s.type === "model_output").flatMap((s) => s.content ?? []).filter((c) => c.type === "audio" && c.data).pop();
+  if (!audio?.data) throw new VoiceError(502, "AI가 음성을 돌려주지 않았습니다. 다시 시도해 주세요.");
+  return { bytes: Buffer.from(audio.data, "base64"), mime: "audio/wav" };
 }
 
 /** OpenAI·Gemini 음성의 낱말 시각: 회원 본인 OpenAI 키로 받아쓰기(whisper-1, 낱말 시각) → 대본 낱말에 맞춤. 실패하면 null(글자 수 비례로 대신함) */

@@ -12,7 +12,7 @@ import { EditComposition } from "@/components/edit/Composition";
 import { probeClip, readDuration, reencodeSoftware } from "@/components/edit/probe";
 import { createClient } from "@/lib/supabase/client";
 import type { ClientGeneration } from "@/lib/generationTypes";
-import { TTS_MODELS, TTS_VOICES, type TtsProvider } from "@/lib/edit/voice";
+import { TTS_MODELS, TTS_VOICES, ttsModelById, type TtsProvider } from "@/lib/edit/voice";
 import { compressCommand, normalizeCommand, SHRINK_QUALITIES, toMb, type ShrinkQuality } from "@/lib/edit/pcVideo";
 import { CLEANING_HINT_MS, STALL_MS, STOP_GRACE_MS, etaFromProgress, formatEta, isSlowRender, isStalled, renderCanvasFromParam, renderDecodeFromParam, renderDiagnostics, renderHwFromParam, renderTestSwitches, renderVerboseFromParam } from "@/lib/edit/renderInfo";
 import { PHASE_NAMES, RenderTrace, TRACE_WATCH_MS, setActiveTrace } from "@/lib/edit/renderTrace";
@@ -101,7 +101,7 @@ export function EditStudio() {
 
   const patch = (p: Partial<EditProject>) => setProject((cur) => ({ ...cur, ...p }));
   const patchClip = (id: string, p: Partial<EditClip>) => setProject((cur) => ({ ...cur, clips: cur.clips.map((c) => (c.id === id ? { ...c, ...p } : c)) }));
-  const provider: TtsProvider = (TTS_MODELS.find((m) => m.id === voiceSet.model) ?? TTS_MODELS[0]).provider;
+  const provider: TtsProvider = (ttsModelById(voiceSet.model) ?? TTS_MODELS[0]).provider;
 
   useEffect(() => {
     const check = () => setCanRender(window.innerWidth >= 768 && "VideoEncoder" in window);
