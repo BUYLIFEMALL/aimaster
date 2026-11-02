@@ -553,3 +553,19 @@ test("시세 비교는 매물 연식 구간과 같은 거래를 먼저 쓴다", 
   assert.equal(none.count, 8);
   assert.ok(!none.ageMixed && !none.ageMatched, "연식 모르면 예전과 같다");
 });
+
+test("알림 받을 행정동만 보낸다(좌표 없으면 판정 불가로 함께, 옆 시·군·구는 뺌)", async () => {
+  const { chosenDongs, filterEventsByDong, locateDong, UNKNOWN_DONG } = await import("../extension/lib/dong.js");
+  const sq = (x0, y0, x1, y1) => [[[x0, y0], [x1, y0], [x1, y1], [x0, y1]]];
+  const b = [["역삼1동", [sq(127, 37.5, 127.01, 37.51)]], ["역삼2동", [sq(127.01, 37.5, 127.02, 37.51)]]];
+  assert.equal(locateDong(b, 37.505, 127.005), "역삼1동");
+  assert.equal(locateDong(b, 37.6, 127.005), UNKNOWN_DONG);
+  const chosen = chosenDongs(["11680|역삼1동", "잘못된값", "11680|"]);
+  assert.deepEqual(Object.keys(chosen), ["11680"]);
+  const ev = (no) => ({ type: "new", item: { no } });
+  const places = { a: [37.505, 127.005], b: [37.505, 127.015], c: [37.6, 127.005] };
+  const out = filterEventsByDong([ev("a"), ev("b"), ev("c"), ev("d")], chosen, { 11680: b }, (no) => places[no]);
+  assert.deepEqual(out.map((e) => [e.item.no, e.item.dongText]), [["a", "역삼1동"], ["d", "행정동 판정 불가"]]);
+  assert.equal(filterEventsByDong([ev("a")], chosenDongs([]), {}, () => null).length, 1, "고른 동이 없으면 전체");
+  assert.equal(filterEventsByDong([ev("a")], chosen, {}, (no) => places[no])[0].item.dongText, "행정동 판정 불가", "경계를 못 받으면 거르지 않음");
+});

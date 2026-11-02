@@ -6,6 +6,7 @@ import { compareTarget, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toTable, toXlsx } from "./lib/sheet.js";
 import { buildingPeerGap, daysSince, gapText, marketGap, scoreListing, applyYields } from "./lib/score.js";
+import { chosenDongs, filterEventsByDong } from "./lib/dong.js";
 import { buildAiInput, normalizeChoice, summarize } from "./lib/ai.js";
 import { pickEvents, pushEvents, pushHistory, summarizeTable, trendText } from "./lib/stats.js";
 import { buildWeeklyReport, sendToChannels, shouldSendWeekly } from "./lib/weekly.js";
@@ -76,6 +77,28 @@ async function marketFor(cortarNo) {
     await addLog(`시세 조회 실패: ${e.message}`);
     return null;
   }
+}
+
+// 「알림 받을 행정동」 판정용 경계(시·군·구당 중간값 50KB). 사이트 공개 파일을 받아 30일 기억한다. 좌표는 보내지 않는다.
+async function boundariesFor(sggs) {
+  const { dongBoundaries = {} } = await get("dongBoundaries");
+  const out = {};
+  let changed = false;
+  for (const sgg of sggs) {
+    const hit = dongBoundaries[sgg];
+    if (hit && Date.now() - new Date(hit.at).getTime() < 30 * 24 * 3600 * 1000) { out[sgg] = hit.data; continue; }
+    try {
+      const res = await fetch(`${WEB}/dong-boundaries/${sgg}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      out[sgg] = await res.json();
+      dongBoundaries[sgg] = { at: new Date().toISOString(), data: out[sgg] };
+      changed = true;
+    } catch (e) {
+      await addLog(`행정동 경계를 받지 못했어요(${sgg}): ${e.message} — 이번 알림은 행정동으로 거르지 않고 「판정 불가」로 보내요`);
+    }
+  }
+  if (changed) await set({ dongBoundaries });
+  return out;
 }
 
 let busy = false;
@@ -166,7 +189,15 @@ async function runCollection(trigger) {
         if (e.place) places[e.item.no] = e.place; // 사라진 매물은 이번 응답에 좌표가 없어 저장해 둔 값을 쓴다
         fileRows.push({ item: { ...e.item, targetName: t.name }, status: "gone", prevPriceText: e.prevPriceText, firstSeen: e.firstSeen });
       }
-      perTarget.push({ name: t.name, total: items.length, events: filterEvents(cmp.events, settings.delivery), firstRun: cmp.firstRun, complete: r.complete, pagesRead: r.pagesRead, filterChanged, filterText: r.filter?.text ?? null, coords });
+      let events = filterEvents(cmp.events, settings.delivery);
+      const chosen = chosenDongs(t.admin_dongs);
+      if (Object.keys(chosen).length && events.length) {
+        const goneAt = new Map(cmp.events.filter((x) => x.place).map((x) => [x.item.no, x.place]));
+        const before = events.length;
+        events = filterEventsByDong(events, chosen, await boundariesFor(Object.keys(chosen)), (no) => targetPlaces[no] || goneAt.get(no));
+        await addLog(`${t.name}: 알림 받을 행정동(${Object.values(chosen).flatMap((s) => [...s]).join("·")})만 → 알림 ${before}건 중 ${events.length}건`);
+      }
+      perTarget.push({ name: t.name, total: items.length, events, firstRun: cmp.firstRun, complete: r.complete, pagesRead: r.pagesRead, filterChanged, filterText: r.filter?.text ?? null, coords });
       total += items.length;
       await addLog(`${t.name}: ${r.pagesRead}페이지 · 조건 맞는 매물 ${items.length}건${r.complete ? "" : " · 범위가 넓어 앞부분만 읽음"}`);
     }

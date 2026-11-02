@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/ui/PageHero";
-import { AddTargetForm, ScheduleForm, TargetCard, type TargetRow } from "@/components/watch/WatchForms";
+import { AddTargetForm, ScheduleForm, TargetCards, type TargetRow } from "@/components/watch/WatchForms";
 import { RegionPicker } from "@/components/watch/RegionPicker";
 import { MAX_TARGETS } from "@/lib/watchTargets";
 
@@ -49,11 +49,7 @@ export default async function WatchPage() {
       <section className="mx-card mt-4">
         <h2 className="mx-section-title">📋 감시 중인 화면</h2>
         {rows.length === 0 && <p className="text-sm text-mx-muted">아직 등록한 화면이 없습니다. 위에서 첫 화면을 추가해 보세요.</p>}
-        <div className="space-y-3">
-          {rows.map((t) => (
-            <TargetCard key={t.id} t={t} />
-          ))}
-        </div>
+        <TargetCards rows={rows} email={user.email ?? ""} />
       </section>
       <section className="mx-card mt-4">
         <h2 id="schedule" className="mx-section-title scroll-mt-6">⏰ 예약과 알림</h2>

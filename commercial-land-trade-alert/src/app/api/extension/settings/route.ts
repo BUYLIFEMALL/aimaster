@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
   const [{ data: targets }, { data: s }] = await Promise.all([
-    db.from("commercial_land_listing_targets").select("id, name, url, kinds, trade_types, price_min, price_max, area_min, area_max").eq("user_id", user.userId).eq("enabled", true).order("created_at"),
+    db.from("commercial_land_listing_targets").select("id, name, url, kinds, trade_types, price_min, price_max, area_min, area_max, admin_dongs").eq("user_id", user.userId).eq("enabled", true).order("created_at"),
     db.from("commercial_land_preferences").select("*").eq("user_id", user.userId).maybeSingle(),
   ]);
   const tg = s?.notify_telegram === false ? null : await telegramLinkFor(db, user.userId);

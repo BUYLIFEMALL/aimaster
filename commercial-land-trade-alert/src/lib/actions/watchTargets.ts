@@ -56,6 +56,10 @@ export async function updateTargetAction(_: WatchState, formData: FormData): Pro
   const [pMin, pMax, aMin, aMax] = ["priceMin", "priceMax", "areaMin", "areaMax"].map((k) => numOrNull(formData.get(k)));
   if ([pMin, pMax, aMin, aMax].some((v) => Number.isNaN(v))) return { error: "금액과 면적은 숫자로 적어 주세요." };
   const trades = formData.getAll("trades").map(String).filter((t) => t === "A1" || t === "B2");
+  // 행정동 목록을 화면에 보여 준 때만 바꾼다(확장 결과가 없어 목록을 못 띄우면 기존 선택 유지). 값: 「시군구코드|행정동」
+  const dongs = formData.get("dongsShown") === "1"
+    ? { admin_dongs: [...new Set(formData.getAll("dongs").map(String).filter((v) => /^\d{5}\|[^|]{1,30}$/.test(v)))].slice(0, 60) }
+    : {};
   const supabase = await createClient();
   const { error } = await supabase
     .from("commercial_land_listing_targets")
@@ -67,6 +71,7 @@ export async function updateTargetAction(_: WatchState, formData: FormData): Pro
       price_max: pMax === null ? null : Math.round((pMax as number) * 10000),
       area_min: aMin,
       area_max: aMax,
+      ...dongs,
     })
     .eq("id", id)
     .eq("user_id", user.id);

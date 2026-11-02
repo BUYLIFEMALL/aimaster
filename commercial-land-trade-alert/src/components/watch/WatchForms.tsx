@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { askExtension } from "@/lib/extensionBridge";
 import { addTargetAction, deleteTargetAction, saveScheduleAction, updateTargetAction, type WatchState } from "@/lib/actions/watchTargets";
 import { kindsText } from "@/lib/watchTargets";
 
@@ -44,9 +45,63 @@ export interface TargetRow {
   area_min: number | null;
   area_max: number | null;
   enabled: boolean;
+  admin_dongs?: string[];
 }
 
-export function TargetCard({ t }: { t: TargetRow }) {
+// 감시 화면의 시·군·구는 확장이 마지막 수집에서 기억한 값(sggByWatch, 감시 화면 이름별)을 쓴다. 네이버 주소의 지도 가운데 값은 암호화돼 있어 읽지 않는다.
+export function TargetCards({ rows, email }: { rows: TargetRow[]; email: string }) {
+  const [sggByWatch, setSggByWatch] = useState<Record<string, string> | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void askExtension<{ ok?: boolean; lastResult?: { sggByWatch?: Record<string, string> } }>("lastResult", 5000, { email }).then((r) => alive && setSggByWatch(r?.lastResult?.sggByWatch ?? {}));
+    return () => { alive = false; };
+  }, [email]);
+  return (
+    <div className="space-y-3">
+      {rows.map((t) => (
+        <TargetCard key={t.id} t={t} sgg={sggByWatch?.[t.name] ?? null} loading={sggByWatch === null} />
+      ))}
+    </div>
+  );
+}
+
+function DongPicker({ t, sgg, loading }: { t: TargetRow; sgg: string | null; loading: boolean }) {
+  const chosen = t.admin_dongs ?? [];
+  const [names, setNames] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!sgg) return;
+    let alive = true;
+    fetch(`/dong-boundaries/${sgg}.json`).then((r) => (r.ok ? r.json() : [])).then((d: [string, unknown][]) => alive && setNames([...new Set(d.map(([n]) => n))].sort((a, b) => a.localeCompare(b, "ko")))).catch(() => alive && setNames([]));
+    return () => { alive = false; };
+  }, [sgg]);
+  const label = chosen.length ? chosen.map((v) => v.split("|")[1]).join("·") : "전체";
+  if (!sgg || !names?.length) {
+    return (
+      <p className="mt-3 text-xs text-mx-muted">
+        🏘 알림 받을 행정동: {label}
+        {loading ? " · 확장 확인 중…" : " · 확장에서 이 화면을 한 번 수집하면 행정동을 고를 수 있어요."}
+      </p>
+    );
+  }
+  // 다른 시·군·구로 저장된 선택도 지우지 않게 함께 보여 준다
+  const options = [...new Set([...names.map((n) => `${sgg}|${n}`), ...chosen])];
+  return (
+    <details className="mt-3" open={chosen.length > 0}>
+      <summary className="cursor-pointer text-sm font-semibold text-mx-text">🏘 알림 받을 행정동: {label}</summary>
+      <input type="hidden" name="dongsShown" value="1" />
+      <p className="mt-1 text-xs text-mx-muted">고른 행정동의 새 매물·가격 변동만 알려요(안 고르면 전체). 판정은 이 PC 확장에서 매물 좌표로 하며(전국 정확도 98.6%), 좌표가 없는 매물은 「행정동 판정 불가」로 함께 보내요. 결과 화면은 그대로 전체가 보여요.</p>
+      <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
+        {options.map((v) => (
+          <label key={v} className={check}>
+            <input type="checkbox" name="dongs" value={v} defaultChecked={chosen.includes(v)} /> {v.split("|")[1]}
+          </label>
+        ))}
+      </div>
+    </details>
+  );
+}
+
+export function TargetCard({ t, sgg = null, loading = false }: { t: TargetRow; sgg?: string | null; loading?: boolean }) {
   const [s, action, pending] = useActionState(updateTargetAction, initial);
   return (
     <div className="mx-card">
@@ -74,6 +129,7 @@ export function TargetCard({ t }: { t: TargetRow }) {
           <input name="areaMin" className={input} defaultValue={t.area_min ?? ""} placeholder="최소 면적(㎡)" aria-label="최소 면적" />
           <input name="areaMax" className={input} defaultValue={t.area_max ?? ""} placeholder="최대 면적(㎡)" aria-label="최대 면적" />
         </div>
+        <DongPicker t={t} sgg={sgg} loading={loading} />
         <div className="mt-3 flex items-center gap-2">
           <button className="mx-btn-primary min-h-[36px] text-sm" disabled={pending}>
             저장
