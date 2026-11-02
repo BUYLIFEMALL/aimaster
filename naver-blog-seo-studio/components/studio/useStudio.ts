@@ -25,6 +25,7 @@ function blocksOfDraft(draft: DraftRecord) {
   const stored = getContentBlocks(draft);
   return splitParagraphBlocks(stored.length ? stored : createContentBlocks(draft));
 }
+import { historyInputState, type HistoryInputState } from "@/lib/historyInputState";
 import { strategies, type ContentImageCount, DraftRecord, ContentImageSlot, ContentImage, ContentBlock, getContentImages, getContentBlocks, fitContentBlockTextarea, createContentBlocks, withoutContentImages, missingBlockImages, RecommendedTitle, ContentAnalysis, TitleRecommendationRecord } from "./shared";
 
 export function useStudio() {
@@ -127,7 +128,7 @@ export function useStudio() {
   const [categoryManageOpen, setCategoryManageOpen] = useState(false);
   const { categories: seoCategories, saveCategories: saveSeoCategories } = useCategories();
   const [historyPeriod, setHistoryPeriod] = useState<"all" | "today" | "week" | "month">("all");
-  const [historyInputStatus, setHistoryInputStatus] = useState<"all" | "not_started" | "in_progress" | "completed" | "publish_ready" | "failed">("all");
+  const [historyInputStatus, setHistoryInputStatus] = useState<"all" | HistoryInputState>("all");
   const [duplicatingDraftId, setDuplicatingDraftId] = useState<string | null>(null);
   const [currentDraft, setCurrentDraft] = useState<DraftRecord | null>(null);
   // BLC-09: 서버에서 받은 시점의 제목·본문 — 저장할 때 보내서 다른 창·탭이 먼저 저장했는지 확인한다.
@@ -759,7 +760,7 @@ export function useStudio() {
     if (historyPeriod === "week" && createdAt.getTime() < now.getTime() - 7 * 24 * 60 * 60 * 1000) return false;
     if (historyPeriod === "month" && createdAt.getTime() < now.getTime() - 30 * 24 * 60 * 60 * 1000) return false;
     if (historyCategory !== "all" && historyCategoryOf(draft) !== historyCategory) return false;
-    return historyInputStatus === "all" || (draft.naver_input_status ?? "not_started") === historyInputStatus;
+    return historyInputStatus === "all" || historyInputState(draft) === historyInputStatus;
   });
 
   function syncBodyFromBlocks(blocks: ContentBlock[]) {

@@ -1,8 +1,19 @@
 import type { DraftRecord } from "./shared";
+import { historyInputState, type HistoryInputState } from "@/lib/historyInputState";
 
 export function publicationOf(draft: DraftRecord) {
   const value = (draft.seo_report as unknown as { autoPublish?: Record<string, unknown> })?.autoPublish;
   return value && typeof value.runId === "string" ? value : null;
+}
+const INPUT_BADGES: Record<HistoryInputState, { label: string; tone: string }> = {
+  not_started: { label: "미전송", tone: "" }, sent: { label: "확장 전송됨 · 입력 전", tone: "pending" }, in_progress: { label: "확장 입력 진행 중", tone: "pending" },
+  completed: { label: "확장 입력 완료", tone: "done" }, publish_ready: { label: "최종 발행 준비 완료", tone: "done" }, failed: { label: "확장 입력 재확인 필요", tone: "failed" },
+};
+// 자동 포스팅 기록이 있는 원고는 아래 PublicationResult가 상태를 보여 주므로 배지를 붙이지 않는다.
+export function HistoryInputBadge({ draft }: { draft: DraftRecord }) {
+  if (publicationOf(draft)) return null;
+  const badge = INPUT_BADGES[historyInputState(draft)];
+  return <em className={`input-state ${badge.tone}`.trim()}>{badge.label}</em>;
 }
 export function PublicationResult({ draft }: { draft: DraftRecord }) {
   const result = publicationOf(draft);

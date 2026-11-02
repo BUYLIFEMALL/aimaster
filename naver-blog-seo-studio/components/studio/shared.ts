@@ -23,6 +23,7 @@ export type DraftRecord = {
   naver_input_status?: "not_started" | "in_progress" | "completed" | "publish_ready" | "failed";
   naver_input_completed_at?: string | null;
   naver_input_error?: string | null;
+  extension_handoff_at?: string | null;
   category_id?: string | null;
   naver_category?: { id: string; name: string } | null;
 };

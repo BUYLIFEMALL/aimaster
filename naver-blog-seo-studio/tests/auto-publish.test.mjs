@@ -202,3 +202,18 @@ test("explains why a draft cannot be loaded into the editor", () => {
   assert.match(guards.manualInputBlockMessage(run("reserved"), now), /^이미 예약한 원고입니다.*「복제」/);
   assert.match(guards.manualInputBlockMessage(run("uncertain"), now), /「발행 결과만 다시 확인」/);
 });
+
+// 2026-11-02: 생성 기록 상태 — 보냈지만 입력 전인 원고는 「미전송」이 아니고, 자동 포스팅 실패는 「재확인 필요」에 잡힌다.
+test("history input state uses the handoff time and the auto-publish run", () => {
+  const { historyInputState } = moduleAt("../lib/historyInputState.ts");
+  const run = (state) => ({ seo_report: { autoPublish: { runId: "run-1", state } }, naver_input_status: "not_started", extension_handoff_at: "2026-11-02T10:00:00Z" });
+  assert.equal(historyInputState({ naver_input_status: "not_started" }), "not_started");
+  assert.equal(historyInputState({}), "not_started");
+  assert.equal(historyInputState({ naver_input_status: "not_started", extension_handoff_at: "2026-11-02T10:00:00Z" }), "sent");
+  assert.equal(historyInputState({ naver_input_status: "completed", extension_handoff_at: "2026-11-02T10:00:00Z" }), "completed");
+  assert.equal(historyInputState(run("failed")), "failed");
+  assert.equal(historyInputState(run("uncertain")), "failed");
+  assert.equal(historyInputState(run("reserved")), "completed");
+  assert.equal(historyInputState(run("published")), "completed");
+  assert.equal(historyInputState(run("writing")), "in_progress");
+});

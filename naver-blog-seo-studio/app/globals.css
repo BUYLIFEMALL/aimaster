@@ -218,7 +218,9 @@ h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -0.06
 .history-empty { margin: 0; color: var(--muted); font-size: 13px; }
 .history-list { display: grid; gap: 8px; }
 .history-list > * { min-width: 0; }
-.history-row { display: flex; align-items: stretch; gap: 8px; }
+.history-row { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+/* 2026-11-02: 발행·예약 결과 안내는 줄 아래 전체 폭으로 — 같은 줄에 끼면 제목·「복제」 칸이 찌그러졌다 */
+.history-row > .history-detail { flex: 1 0 100%; margin-top: 0; }
 .history-row .history-item { flex: 1 1 auto; min-width: 0; }
 .history-controls { display: grid; grid-template-columns: minmax(0, 1fr) 130px 140px; gap: 8px; margin: 18px 0 12px; }
 .history-controls input, .history-controls select { width: 100%; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); padding: 9px 10px; font: inherit; font-size: 12px; outline: none; }
