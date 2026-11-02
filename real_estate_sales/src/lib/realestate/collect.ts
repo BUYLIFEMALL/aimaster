@@ -14,7 +14,7 @@ import {
   fetchMolitTradeCount,
   type PublicDataKeys,
 } from "@/lib/publicdata/client";
-import { priceRank, rankLabel, RANK_AREA_TOLERANCE, RANK_MONTHS, recentMonths, VOLUME_MONTHS, volumeMonthsToFetch, volumeTrend, ymLabel, type VolumeTrend } from "./insights";
+import { priceRank, rankLabel, RANK_AREA_TOLERANCE, RANK_MONTHS, recentMonths, sumCompleteTypes, VOLUME_MONTHS, volumeMonthsToFetch, volumeTrend, ymLabel, type VolumeTrend } from "./insights";
 import { isSeoulDistrict } from "@/lib/publicdata/districts";
 import { normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
 import { sendTelegramMessage } from "@/lib/telegram/client";
@@ -235,29 +235,27 @@ export async function refreshTradeVolume(supabase: AdminClient, sggCd: string, k
   }
 }
 
-export type DistrictVolume = VolumeTrend & { months: Record<string, number> };
+export type DistrictVolume = VolumeTrend & { months: Record<string, number>; types: string[] };
 
 /** 시·군·구별 거래량 추세(세 유형 합). 비교할 달이 모자라면 그 지역은 빠진다 */
 export async function tradeVolumeTrends(supabase: AdminClient, sggCds: string[], now = new Date()): Promise<Record<string, DistrictVolume>> {
   if (!sggCds.length) return {};
   const months = recentMonths(now, VOLUME_MONTHS);
-  const { data } = await loose(supabase).from("real_estate_trade_volume").select("sgg_cd, ym, count").in("sgg_cd", sggCds).in("ym", months);
-  const by: Record<string, Record<string, number>> = {};
-  for (const r of (data ?? []) as { sgg_cd: string; ym: string; count: number }[]) {
-    const m = (by[r.sgg_cd] ??= {});
-    m[r.ym] = (m[r.ym] ?? 0) + r.count;
-  }
+  const { data } = await loose(supabase).from("real_estate_trade_volume").select("sgg_cd, ym, property_type, count").in("sgg_cd", sggCds).in("ym", months);
+  const by: Record<string, Record<string, Record<string, number>>> = {};
+  for (const r of (data ?? []) as { sgg_cd: string; ym: string; property_type: string; count: number }[]) ((by[r.sgg_cd] ??= {})[r.property_type] ??= {})[r.ym] = r.count;
   const out: Record<string, DistrictVolume> = {};
-  for (const [sgg, m] of Object.entries(by)) {
-    const trend = volumeTrend(m, now);
-    if (trend) out[sgg] = { ...trend, months: m };
+  for (const [sgg, byType] of Object.entries(by)) {
+    const { months: m, types } = sumCompleteTypes(byType, now);
+    const trend = types.length ? volumeTrend(m, now) : null;
+    if (trend) out[sgg] = { ...trend, months: m, types };
   }
   return out;
 }
 
 /** 알림 끝 한 줄: 지난달 매매가 늘어난 지역이면 「🔥 …」 */
 export function volumeLine(trend: VolumeTrend | undefined): string {
-  return trend?.rising ? `\n🔥 이 지역 ${ymLabel(trend.ym)} 매매 ${trend.last}건(직전 3개월 평균 ${trend.avg}건)` : "";
+  return trend?.rising ? `\n🔥 이 지역 ${ymLabel(trend.ym)} 매매 ${trend.last}건(그 전 3개월 평균 ${trend.avg}건)` : "";
 }
 
 // 이 사용자가 이 지역 실거래 중 아직 매칭(real_estate_user_matches)되지 않은 것을 찾는다.

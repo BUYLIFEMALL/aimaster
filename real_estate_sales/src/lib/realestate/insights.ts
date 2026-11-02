@@ -31,31 +31,46 @@ export function recentMonths(now: Date, count: number): string[] {
   });
 }
 
-export const VOLUME_MONTHS = 5; // 이번 달 + 지난달 + 비교용 3개월
+// 이번 달·지난달은 아직 신고 중(계약 후 30일 안 신고)이라 비교하지 않는다. 신고가 끝난 달(2달 전) vs 그 전 3개월. 2026-11-02 실측: 모든 지역 10월이 낮게 나옴
+export const VOLUME_MONTHS = 6;
 export const VOLUME_RISE = 1.3;
 export const VOLUME_MIN = 10;
 
 export type VolumeTrend = { ym: string; last: number; avg: number; rising: boolean };
 
 /**
- * 달별 매매 건수(세 유형 합) → 지난달이 직전 3개월 평균보다 30% 이상 많고 10건 이상이면 증가.
- * 이번 달은 신고 기한(계약 후 30일)이 남아 비교하지 않는다. 비교할 달이 다 없으면 null
+ * 달별 매매 건수 → 신고가 끝난 달(2달 전)이 그 전 3개월 평균보다 30% 이상 많고 10건 이상이면 증가. 비교할 달이 다 없으면 null
  */
 export function volumeTrend(byMonth: Record<string, number>, now: Date): VolumeTrend | null {
-  const [, last, ...prev] = recentMonths(now, VOLUME_MONTHS);
+  const [, , last, ...prev] = recentMonths(now, VOLUME_MONTHS);
   if (!(last in byMonth) || prev.some((m) => !(m in byMonth))) return null;
   const avg = prev.reduce((s, m) => s + byMonth[m], 0) / prev.length;
   const n = byMonth[last];
   return { ym: last, last: n, avg: Math.round(avg), rising: n >= VOLUME_MIN && n >= avg * VOLUME_RISE };
 }
 
-/** 다시 받아야 할 달: 이번 달·지난달은 하루가 지나면, 그 전 달은 저장된 적이 없을 때만 */
+/** 비교에 쓰는 달(신고가 끝난 달 + 그 전 3개월) */
+export const compareMonths = (now: Date) => recentMonths(now, VOLUME_MONTHS).slice(2);
+
+/**
+ * 유형별 달 건수 → 비교할 4개월이 모두 모인 유형만 더한다(처음엔 회차당 6번만 받아 유형마다 모인 달이 다르다 — 섞어 더하면 착시).
+ * 이번 달·지난달 칸은 참고로 같은 유형만 더한다
+ */
+export function sumCompleteTypes(byType: Record<string, Record<string, number>>, now: Date): { months: Record<string, number>; types: string[] } {
+  const need = compareMonths(now);
+  const types = Object.keys(byType).filter((ty) => need.every((m) => m in byType[ty]));
+  const months: Record<string, number> = {};
+  for (const ty of types) for (const [m, n] of Object.entries(byType[ty])) months[m] = (months[m] ?? 0) + n;
+  return { months, types };
+}
+
+/** 다시 받아야 할 달: 최근 세 달(이번 달·지난달·신고가 막 끝난 달)은 하루가 지나면, 그 전 달은 저장된 적이 없을 때만 */
 export function volumeMonthsToFetch(stored: Record<string, string>, now: Date, staleMs = 20 * 3600 * 1000): string[] {
   const months = recentMonths(now, VOLUME_MONTHS);
   return months.filter((m, i) => {
     const at = stored[m];
     if (!at) return true;
-    return i < 2 && now.getTime() - new Date(at).getTime() > staleMs;
+    return i < 3 && now.getTime() - new Date(at).getTime() > staleMs;
   });
 }
 
