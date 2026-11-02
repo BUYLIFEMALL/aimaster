@@ -61,14 +61,15 @@ export async function GET(request: NextRequest) {
   const result = { tracks: 0, plannings: 0, remixes: 0, sources: 0, files: 0 };
 
   // 1) 곡(트랙): 음원·커버·MR·WAV 파일 → 트랙 행(변형·MR·WAV는 함께 지워짐)
-  const { data: tracks } = await db
+  // 「생성 중」도 지운다(2026-11-03): 생성은 몇 분이면 끝나므로 30일 지난 「생성 중」은 멈춘 행이다(9월 곡 2개가 그대로 남아 있었음).
+  const { data: tracks, error: tracksErr } = await db
     .from("music_tracks")
     .select(
       "id, user_id, music_track_media(urls), music_track_variants!track_id(id, audio_url, image_url, music_track_mr(instrumental_url, vocal_url, stems), music_track_wav(wav_url))",
     )
     .lte("created_at", iso)
-    .neq("status", "generating")
     .limit(BATCH);
+  if (tracksErr) throw new Error(`track select failed: ${tracksErr.message}`);
   if (tracks?.length) {
     const urls: unknown[] = [];
     for (const t of tracks) {
@@ -97,12 +98,12 @@ export async function GET(request: NextRequest) {
   }
 
   // 2) 곡이 하나도 남지 않은 30일 지난 기획
-  const { data: plannings } = await db
+  const { data: plannings, error: planningsErr } = await db
     .from("music_plannings")
     .select("id, music_tracks(id)")
     .lte("created_at", iso)
-    .neq("status", "generating")
     .limit(BATCH);
+  if (planningsErr) throw new Error(`planning select failed: ${planningsErr.message}`);
   const emptyPlannings = (plannings ?? []).filter((p: { music_tracks: unknown[] }) => !p.music_tracks?.length);
   if (emptyPlannings.length) {
     await db.from("music_plannings").delete().in("id", emptyPlannings.map((p: { id: string }) => p.id));
@@ -110,12 +111,12 @@ export async function GET(request: NextRequest) {
   }
 
   // 3) 리믹스: 결과 음원·커버 → 리믹스 행(결과 행은 함께 지워짐)
-  const { data: remixes } = await db
+  const { data: remixes, error: remixesErr } = await db
     .from("music_track_remixes")
     .select("id, music_track_remix_variants(audio_url, image_url)")
     .lte("created_at", iso)
-    .neq("status", "generating")
     .limit(BATCH);
+  if (remixesErr) throw new Error(`remix select failed: ${remixesErr.message}`);
   if (remixes?.length) {
     const urls: unknown[] = [];
     for (const r of remixes) for (const v of r.music_track_remix_variants ?? []) urls.push(v.audio_url, v.image_url);
@@ -125,12 +126,14 @@ export async function GET(request: NextRequest) {
   }
 
   // 4) 리믹스가 남지 않은 30일 지난 리믹스 원곡(직접 올린 원곡 파일만 지움 — 내 곡에서 고른 원곡은 그 곡이 지울 때 함께 지워짐)
-  const { data: sources } = await db
+  // 원곡↔리믹스 연결이 두 개(source_id·second_source_id, v1.37 0019)라 이름을 붙여 따로 받는다 — 하나로 받으면 조회가 PGRST201로 실패해 이 단계가 통째로 건너뛰어졌다(2026-11-03 발견).
+  const { data: sources, error: sourcesErr } = await db
     .from("music_remix_sources")
-    .select("id, audio_url, music_track_remixes(id)")
+    .select("id, audio_url, main:music_track_remixes!source_id(id), second:music_track_remixes!second_source_id(id)")
     .lte("created_at", iso)
     .limit(BATCH);
-  const emptySources = (sources ?? []).filter((s: { music_track_remixes: unknown[] }) => !s.music_track_remixes?.length);
+  if (sourcesErr) throw new Error(`remix source select failed: ${sourcesErr.message}`);
+  const emptySources = (sources ?? []).filter((s: { main: unknown[]; second: unknown[] }) => !s.main?.length && !s.second?.length);
   if (emptySources.length) {
     result.files += await removeFiles(
       db,
