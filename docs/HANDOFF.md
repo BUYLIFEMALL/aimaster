@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · commercial-land-trade-alert v1.24
+
+- **한 일:** 첫 예약 수집 확인(1,171건, 메일 도착), AI 3종 실제 호출 성공, 결과 표를 9칸으로 묶고 네이버 링크를 맨 왼쪽으로, 건물 시세도 같은 동 표본이 없으면 참고(주인님 결정).
+- **확인:** 시험 49개, 빌드, 운영 화면 폭 1582에서 가로 밀림 없음, 확장 ZIP 대조. 좁은 폭과 건물 기준의 실제 수집 결과는 미확인(확장 교체 뒤 다음 수집).
+- **다음 첫 단계:** `commercial-land-trade-alert/docs/IMPROVEMENTS.md` 2026-11-02의 대기 항목(감시 화면 거르기, AI 30건 뽑기 등). 주인님 장항1동 위치 확인 대기.
+- **링크:** https://commercial-land-trade-alert.buylife.xyz/results
+
 ## 2026-11-02 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261029-statusbar · 블로그 5개 소개 문구·사용법 카드 배포(담당 대신 처리)
 
 - **소개 문구:** `docs/program-descriptions/blog-copy-2026-11-01.sql` 내용을 운영 DB에 반영(백업 일치 확인 후, 재조회 일치). 되돌리기 `backup-blog-before-2026-11-01.json`.

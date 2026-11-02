@@ -27,7 +27,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `commercial-land-trade-alert` | 건물 시세 비교도 동 표본이 없으면 「참고」(후보 점수 제외) | `1fb2c1886` | 2026-11-02 · Claude Code(윈도우) [역할: realty] | `commercial-land-trade-alert/docs/IMPROVEMENTS.md` 2026-11-02 | 확장 코드라 ZIP·manifest·DB 버전 함께, 결과 화면 개선과 묶어 v1.24 |
 | `naver-blog-agent` | 30일 정리에서 예외 회원(관리자·시험 계정) 제외 — **첫 삭제 추정 2026-11-07 전 배포 필요** | `6c8e0eb63` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §6 | 다음 에이전트 배포 때(11-07 전) |
 | `naver-blog-seo-studio` | 30일 정리(크론·회원 본인 정리)에서 예외 회원 제외 | `3fa97c0f4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 SEO 배포 때 |
 | `ai-auto-blog` | 30일 정리에서 예외 회원 제외(독립 키트는 확인 생략) | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 BLOG 배포 때 |
@@ -89,6 +88,7 @@
 | `naver-blog-allinone` | v1.57 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `naver-blog-allinone-99flpqnff`) | 회원 키 과금 버그: 본문 이미지 없음에도 2장 생성 수정 `edd6edfd0`(맥미니). 시험 37개·DB/ZIP OK. 맥미니 화면 재확인 대기 |
 | `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `commercial-land-trade-alert` | v1.24 · 2026-11-02 ([역할: realty], 승인 빌드 1회) | 결과 표 한눈에 보기, 건물 시세 비교도 동 표본 기준(`1fb2c1886`, `fa5c849e2`) |
 | `commercial-land-trade-alert` | v1.23 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 수집 결과 행정동(추정) 칸과 거르기 |
 | `commercial-land-trade-alert` | v1.22 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 행정동 찾기, 메일 권한 안내, 이메일 경고, 토지 비교 참고 처리, 좌표 진단 |
 | `commercial-land-trade-alert` | v1.21 · 2026-11-01 ([역할: realty], 승인 빌드 1회) | 수익률을 같은 동 감시 화면 월세로 계산(`a7cfe7127`) |
