@@ -7,7 +7,7 @@ export const fetchCache = "force-no-store";
 
 // 확장 상태 보고. 숫자·상태만 받는다. 다른 칸(매물 내용 등)이 섞인 요청은 거절한다.
 const ALLOWED = new Set(["extVersion", "result", "count", "error", "ranAt"]);
-const RESULTS = new Set(["ok", "blocked", "rule_mismatch", "error"]);
+const RESULTS = new Set(["ok", "limit", "blocked", "rule_mismatch", "error"]);
 
 export async function POST(request: Request) {
   const user = await verifyExtensionToken(request);

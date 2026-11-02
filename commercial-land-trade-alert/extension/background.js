@@ -172,6 +172,14 @@ async function runCollection(trigger) {
     }
 
     if (limitHit) await set({ limitDate: kstDate() });
+    // 한도 때문에 한 곳도 읽지 못한 회차는 직전 결과를 빈 결과로 덮어쓰지 않는다(2026-11-02 결과 화면이 비었던 일)
+    if (limitHit && !perTarget.length) {
+      await set({ lastRunAt: startedAt });
+      await deliver({ settings, perTarget, table: [], result, errMsg, trigger: "schedule", limitHit });
+      await reportStatus("limit", 0, null);
+      await addLog("수집 끝 · 오늘 한도에 닿아 한 곳도 읽지 않았어요 · 직전 결과는 그대로 둬요");
+      return { ok: false, result: "limit", total: 0, error: `오늘 수집 한도(${RULES.maxPagesPerDay}페이지)에 닿았어요.` };
+    }
     applyYields(yieldRows);
     const table = toTable(fileRows);
     const iv = settings.schedule?.intervalMinutes || 360;
@@ -187,8 +195,8 @@ async function runCollection(trigger) {
     }
     await deliver({ settings, perTarget, table, result, errMsg, trigger, limitHit });
     await sendWeekly(settings).catch((e) => addLog(`주간 리포트 실패: ${e.message}`));
-    await reportStatus(result, total, errMsg);
-    await addLog(`수집 끝 · ${result === "ok" ? "정상" : result} · 매물 ${total}건 · 알림 ${perTarget.reduce((n, p) => n + p.events.length, 0)}건`);
+    await reportStatus(limitHit && result === "ok" ? "limit" : result, total, errMsg);
+    await addLog(`수집 끝 · ${result === "ok" ? (limitHit ? "한도 도달로 일부만 읽음" : "정상") : result} · 매물 ${total}건 · 알림 ${perTarget.reduce((n, p) => n + p.events.length, 0)}건`);
     return { ok: result === "ok", result, total, error: errMsg };
   } catch (e) {
     await addLog(`수집 오류: ${e.message || e}`);

@@ -499,6 +499,8 @@ test("상가는 같은 건물 호가 3건 이상과 비교해 20% 낮으면 후�
   assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], { ...peers[0], no: "4" }], places), null, "같은 조건은 1건으로 센다");
   assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], sg("5", 9000)], places), null, "다른 좌표 제외");
   assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], sg("4", 9000, 50, "2/5")], places), null, "다른 층 구분 제외");
+  assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], sg("4", 9000, 50, "1/23")], places), null, "같은 좌표라도 총층수가 다르면 다른 건물");
+  assert.equal(buildingPeerGap({ ...me, floor: "1" }, [me, ...peers], places), null, "총층수를 모르면 비교 안 함");
   assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], sg("4", 90000, 200)], places), null, "면적 2배 초과 제외");
   assert.equal(buildingPeerGap({ ...me, kind: "GM" }, [me, ...peers], places), null, "상가만");
   assert.equal(buildingPeerGap({ ...me, no: "9" }, [me, ...peers], places), null, "좌표 없으면 안 함");

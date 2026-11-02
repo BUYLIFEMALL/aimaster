@@ -80,19 +80,23 @@ export const yieldText = (y) => (y ? `${y.pct}%(월세 ${y.count}건)${y.pct > Y
 const MIN_PEERS = 3;
 const PEER_LOW_PCT = -20;
 
+const totalFloors = (text) => String(text || "").split("/")[1]?.trim() || "";
+
 /**
- * 같은 좌표(같은 건물로 본다)의 상가 매매 호가와 비교한 차이(%). 같은 층 구분·면적 0.5~2배이고 조건이 서로 다른 매물이 3건 이상일 때만.
+ * 같은 건물(같은 좌표·같은 총층수)의 상가 매매 호가와 비교한 차이(%). 같은 층 구분·면적 0.5~2배이고 조건이 서로 다른 매물이 3건 이상일 때만.
  * 2026-11-02 측정: 한 건 빼고 맞히기 오차 13~15%로 실거래 비교(31% 이상)보다 작았다. 호가끼리라 실제 거래가는 아니다.
+ * 같은 좌표에 총층수가 다른 매물이 섞인 곳이 100곳 중 8곳이라(2026-11-02 실측) 총층수가 없거나 다르면 같은 건물로 보지 않는다.
  */
 export function buildingPeerGap(item, items, places) {
   const place = places?.[item.no];
   const floor = listingFloor(item.floor);
-  if (item.kind !== "SG" || item.tradeType !== "A1" || !item.price || !item.area || !place || !floor) return null;
+  const total = totalFloors(item.floor);
+  if (item.kind !== "SG" || item.tradeType !== "A1" || !item.price || !item.area || !place || !floor || !total) return null;
   const sameCondition = (x) => `${x.price}|${x.area}|${x.floor}`;
   const peers = new Map();
   for (const x of items) {
     const p = places[x.no];
-    if (x.kind !== "SG" || x.tradeType !== "A1" || !x.price || !x.area || !p || p[0] !== place[0] || p[1] !== place[1]) continue;
+    if (x.kind !== "SG" || x.tradeType !== "A1" || !x.price || !x.area || !p || p[0] !== place[0] || p[1] !== place[1] || totalFloors(x.floor) !== total) continue;
     if (listingFloor(x.floor) !== floor || x.area < item.area / 2 || x.area > item.area * 2 || sameCondition(x) === sameCondition(item)) continue;
     peers.set(sameCondition(x), x.price / x.area);
   }

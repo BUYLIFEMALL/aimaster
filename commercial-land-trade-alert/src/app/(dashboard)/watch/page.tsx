@@ -6,7 +6,7 @@ import { RegionPicker } from "@/components/watch/RegionPicker";
 import { MAX_TARGETS } from "@/lib/watchTargets";
 
 const NAVER = "https://new.land.naver.com/offices?ms=37.5006,127.0364,16&a=SG&e=RETAIL";
-const RESULT: Record<string, string> = { ok: "정상", blocked: "⛔ 네이버 제한으로 멈춤", rule_mismatch: "⚠ 네이버 화면 변경 의심", error: "⚠ 오류" };
+const RESULT: Record<string, string> = { ok: "정상", limit: "⏸ 오늘 수집 한도(200페이지) 도달", blocked: "⛔ 네이버 제한으로 멈춤", rule_mismatch: "⚠ 네이버 화면 변경 의심", error: "⚠ 오류" };
 
 export default async function WatchPage() {
   const user = await requireUser();
