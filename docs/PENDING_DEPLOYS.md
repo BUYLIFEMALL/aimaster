@@ -117,6 +117,7 @@
 | `realty-listing-alert` | v1.39 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 단지 비교 표 「📈 실거래 ↗」(`c8f9bf948`) |
 | `commercial-land-trade-alert` | v1.02 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 네이버 매물 1단계, 3채널 알림, 이름 변경, 상세 문구 |
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |
+| `real_estate_sales` | v1.40 · 2026-11-02 ([역할: realty], B0 승인 빌드 1회) | B0 관리자 진단 `/api/admin/report-probe`(주소 리포트 칸 채움률), 건축물대장 표제부 조회 |
 | `real_estate_sales` | v1.39 · 2026-11-02 ([역할: realty], A2·A3 승인 빌드) | 거래량 비교를 신고가 끝난 달(2달 전) vs 그 전 3개월로, 비교 달이 다 모인 유형만 합산(v1.38 착시 수정) |
 | `real_estate_sales` | v1.38 · 2026-11-02 ([역할: realty], A2·A3 승인 빌드) | A2 보유 자료 12개월 최고가·최저가 배지·알림, 지역 매매 신고 건수 표·🔥 알림 줄(DB `price_rank` 칸·`real_estate_trade_volume` 표), A3 메뉴 이동 링크 |
 | `real_estate_sales` | v1.37 · 2026-11-02 ([역할: realty], 「전부 진행」 승인 빌드 1회) | 임장 노트 지번 연결: 격자 v2(PNU·공동주택, 전국 100%), DB `pnu`·`jibun` 칸, 「공시지가·용도지역 보기」 |
