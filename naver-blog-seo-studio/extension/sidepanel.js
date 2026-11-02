@@ -1294,11 +1294,20 @@ if (!IN_WORKER) {
     $("publishTags").value = settings.tags || "";
   }).catch(() => {});
   // 2026-11-02: 실제 블로그 ID는 한 번 넣으면 기억한다(카테고리·태그 저장과 섞이지 않게 따로 보관).
-  chrome.storage.local.get(BLOG_ID_KEY).then((stored) => { if (!$("publishBlogId").value) $("publishBlogId").value = stored[BLOG_ID_KEY] || ""; }).catch(() => {});
-  $("publishBlogId").addEventListener("change", () => {
+  // 저장값이 없으면 열려 있는 네이버 블로그 탭 주소(blog.naver.com/<ID>/...)에서 찾아 채우고 저장한다.
+  const saveBlogId = () => {
     const blogId = $("publishBlogId").value.trim();
     if (!blogId || /^[A-Za-z0-9_-]{2,40}$/.test(blogId)) chrome.storage.local.set({ [BLOG_ID_KEY]: blogId }).catch(() => {});
-  });
+  };
+  chrome.storage.local.get(BLOG_ID_KEY).then(async (stored) => {
+    if ($("publishBlogId").value) return;
+    if (stored[BLOG_ID_KEY]) { $("publishBlogId").value = stored[BLOG_ID_KEY]; return; }
+    const tabs = await chrome.tabs.query({ url: "https://blog.naver.com/*" });
+    const found = tabs.map((tab) => { try { return new URL(tab.url).pathname.split("/")[1] || ""; } catch { return ""; } })
+      .find((part) => /^[A-Za-z0-9_-]{2,40}$/.test(part));
+    if (found && !$("publishBlogId").value) { $("publishBlogId").value = found; saveBlogId(); }
+  }).catch(() => {});
+  $("publishBlogId").addEventListener("input", saveBlogId);
   // 사이드패널을 다시 열면 background가 진행 중이거나 마지막으로 남긴 상황을 그대로 보여 준다.
   chrome.storage.local.get(SEO_RUN_UI).then((stored) => applySeoRunUi(stored[SEO_RUN_UI])).catch(() => {});
   renderExtensionVersion();
