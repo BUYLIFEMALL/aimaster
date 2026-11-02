@@ -490,10 +490,13 @@ test("상가는 같은 건물 호가 3건 이상과 비교해 20% 낮으면 후�
   const peers = [sg("2", 10000), sg("3", 10500), sg("4", 9500)];
   const peer = buildingPeerGap(me, [me, ...peers], places);
   assert.deepEqual(peer, { pct: -30, count: 3 });
-  const s = scoreListing({ peer });
+  const s = scoreListing({ peer, kind: "SG" });
   assert.equal(s.score, 40);
   assert.equal(s.candidate, true);
-  assert.deepEqual(s.reasons, ["같은 건물 호가 대비 -30%(3건)"]);
+  assert.deepEqual(s.reasons, ["같은 건물 호가 대비 -30%(3건)", "⚠ 확인 필요: 권리관계(등기부등본)·임대차 현황·현장조사·집합건물 대지지분"]);
+  assert.ok(scoreListing({ gap: { pct: -25, weak: false }, kind: "GM" }).reasons.at(-1).endsWith("대지면적 기준 가격"), "시세보다 많이 싼 건물도 확인 문구");
+  assert.ok(!scoreListing({ gap: { pct: -25, weak: true }, kind: "GM" }).reasons.length, "참고 값만으로는 붙이지 않음");
+  assert.ok(!scoreListing({ drops: 2, kind: "SG" }).reasons.some((r) => r.startsWith("⚠")), "가격 내림만으로는 붙이지 않음");
   assert.equal(scoreListing({ peer: { pct: -19, count: 3 } }).score, 0, "20% 미만은 점수 없음");
   assert.equal(buildingPeerGap(me, [me, peers[0], peers[1]], places), null, "2건이면 비교 안 함");
   assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], { ...peers[0], no: "4" }], places), null, "같은 조건은 1건으로 센다");

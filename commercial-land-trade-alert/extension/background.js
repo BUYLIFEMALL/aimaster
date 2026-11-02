@@ -152,7 +152,7 @@ async function runCollection(trigger) {
       for (const it of items) {
         const saved = cmp.state.items[it.no];
         const gap = marketGap(it, market);
-        const s = scoreListing({ gap, drops: saved?.drops || 0, ageDays: daysSince(saved?.firstSeen), peer: buildingPeerGap(it, items, targetPlaces) });
+        const s = scoreListing({ gap, drops: saved?.drops || 0, ageDays: daysSince(saved?.firstSeen), peer: buildingPeerGap(it, items, targetPlaces), kind: it.kind });
         Object.assign(it, { gapText: gapText(gap), gapPct: gap?.pct ?? null, score: s.score, reasons: s.reasons, candidate: s.candidate });
       }
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));

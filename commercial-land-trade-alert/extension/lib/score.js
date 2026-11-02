@@ -104,8 +104,14 @@ export function buildingPeerGap(item, items, places) {
   return { pct: Math.round(((item.price / item.area) / median([...peers.values()]) - 1) * 100), count: peers.size };
 }
 
+// 호가·시세보다 많이 싼 매물은 싼 이유(권리관계·임대차·입지)를 꼭 봐야 한다(2026-11-02 주인님·중개사 의견).
+// 집합건물(상가)은 대지지분이 작아 전용면적만으로는 값이 낮게 보이고, 건물은 대지면적으로 따져야 매매가에 가깝다.
+const CHECK_BASE = "권리관계(등기부등본)·임대차 현황·현장조사";
+const CHECK_BY_KIND = { SG: "집합건물 대지지분", GM: "대지면적 기준 가격" };
+export const checkNote = (kind) => `⚠ 확인 필요: ${CHECK_BASE}${CHECK_BY_KIND[kind] ? `·${CHECK_BY_KIND[kind]}` : ""}`;
+
 /** @returns {{score:number, reasons:string[], candidate:boolean}} */
-export function scoreListing({ gap, drops = 0, ageDays = 0, peer = null }) {
+export function scoreListing({ gap, drops = 0, ageDays = 0, peer = null, kind = "" }) {
   let score = 0;
   const reasons = [];
   if (peer && peer.pct <= PEER_LOW_PCT) {
@@ -127,6 +133,8 @@ export function scoreListing({ gap, drops = 0, ageDays = 0, peer = null }) {
     score += ageDays >= 90 ? 15 : 10;
     reasons.push(`${ageDays}일째 등록`);
   }
+  const tooCheap = (peer && peer.pct <= PEER_LOW_PCT) || (gap && !gap.weak && gap.pct <= -20);
+  if (tooCheap) reasons.push(checkNote(kind));
   return { score, reasons, candidate: score >= 40 };
 }
 
