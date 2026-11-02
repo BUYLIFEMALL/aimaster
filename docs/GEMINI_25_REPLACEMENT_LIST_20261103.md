@@ -9,15 +9,17 @@
 - **글 모델(`gemini-2.5-flash`·`-pro`·`-flash-lite`)이 남아 있음.** 종료 공지는 저장소에서 확인하지 못함(`docs/ERROR_LESSONS.md`에는 「존재하지 않는 `gemini-2.5-flash`」 기록이 있어 상반됨 — `docs/IMAGE_CONSOLIDATION_TASKS.md` IM-U6). 종료되면 아래 A그룹은 기능이 바로 멈춘다.
 - 음성 `gemini-2.5-flash-preview-tts` 3곳은 저장소에 대체 모델 기록이 없음 → 공식 목록 확인 먼저.
 
-## 1. 바꿀 모델(안) — 확정 전 공식 모델 목록으로 확인
-| 지금 | 바꿀 후보 | 근거 |
-|---|---|---|
-| `gemini-2.5-flash` | `gemini-3.5-flash` | 저장소 기준 최신 정식 글 모델(상품소싱 v1.22·상세페이지 사용) |
-| `gemini-2.5-flash-lite` | `gemini-3.5-flash-lite` | 저장소 사용 56곳 |
-| `gemini-2.5-pro` | `gemini-3.1-pro`(정식) | 저장소에 정식·미리보기 둘 다 있음 → 정식 사용 가능 여부 확인 |
-| `gemini-2.5-flash-preview-tts` | 미정 | 공식 음성 모델 목록 확인 필요 |
+## 1. 바꿀 모델 — Google 공식 문서 확인(2026-11-03, aistudio.google.com/docs/models·deprecations·pricing)
+| 지금 | 공식 상태 | 공식 권장 대체 | 비고 |
+|---|---|---|---|
+| `gemini-2.5-flash` | 지원 중단 | `gemini-3.5-flash-lite`(자동 연결 대상) / 품질 유지면 `gemini-3.8-flash` | **2026-12-01부터 요청이 3.5-flash-lite로 자동 연결** |
+| `gemini-2.5-pro` | 지원 중단 | `gemini-3.8-flash` | 2026-12-01부터 자동 연결 |
+| `gemini-2.5-flash-lite` | 계속 제공(종료일 없음) | 새 작업은 `gemini-3.5-flash-lite` | 급하지 않음 |
+| `gemini-2.5-flash-preview-tts` | **2026-11-17 종료** | `gemini-3.8-flash-tts` / `gemini-3.8-flash-lite-tts` | 가장 급함(D그룹 3곳) |
 
-확인 방법(무료): 회원 본인 키로 Gemini `models.list` 1회 — 모델 목록 조회는 과금되지 않는다.
+가격(유료, 100만 토큰당 입력/출력): 2.5-flash $0.30/$2.50 · 3.5-flash-lite $0.30/$2.50 · 3.1-flash-lite $0.25/$1.50 · 3.8-flash $0.75/$3.75(2027-01-01 인상 예정) · 2.5-pro $1.25/$10 · 3.1-pro-preview $2/$12(무료 등급 없음). 3.8 계열·3.5-flash-lite 모두 무료 등급 있음.
+
+주의(앞선 후보 정정): `gemini-3.5-flash`는 종료 예정은 아니지만 `gemini-3.6-flash`로 자동 연결되는 이전 모델, `gemini-3.7-flash`는 `gemini-3.8-flash`로 자동 연결. `gemini-3.1-pro` 정식은 목록에 없고 `gemini-3.1-pro-preview`(미리보기)만 있음 → pro 대체로 쓰지 않음. 저장소의 예비 목록 `["gemini-3.5-flash", "gemini-2.5-flash"]`도 함께 `3.8-flash`·`3.5-flash-lite`로 바꾸는 것이 맞다.
 
 ## 2. A그룹 — 2.5를 직접 고정 호출 (우선 교체, 종료 시 기능 정지)
 | 프로그램(slug) | 위치 | 내용 |
