@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     }
     const { data } = await db
       .from("commercial_land_trades")
-      .select("kind, building_type, category, umd_nm, floor, area_m2, price_per_pyeong, is_share, cancelled")
+      .select("kind, building_type, category, umd_nm, floor, area_m2, build_year, price_per_pyeong, is_share, cancelled")
       .eq("sgg_cd", found.sggCd)
       .gte("deal_date", since)
       .limit(5000);

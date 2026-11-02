@@ -25,7 +25,7 @@ export function listingFloor(text) {
  * 매매 호가 평당가와, 비슷한 실거래 중간값의 차이(%). 표본 [층, 면적, 평당가, 같은 동 여부].
  * 상가는 같은 층 묶음만, 토지는 같은 지목만, 모든 유형은 면적 0.5~2배만 쓰고 5건이 안 되면 비교하지 않는다(null).
  */
-export function marketGap(item, market) {
+export function marketGap(item, market, year = new Date().getFullYear()) {
   // 토지는 지목이 다르면 평당가가 수십 배 차이 나므로, 지목을 모르면 비교하지 않는다
   if (item.kind === "TJ" && !item.jimok) return null;
   const samples = market?.samples?.[item.kind];
@@ -34,16 +34,33 @@ export function marketGap(item, market) {
   if (item.kind === "SG" && !floor) return null;
   const near = samples.filter(([f, a, , , j]) => a >= item.area / 2 && a <= item.area * 2 && (item.kind !== "SG" || f === floor) && (item.kind !== "TJ" || j === item.jimok));
   const inDong = near.filter((x) => x[3]);
-  const used = inDong.length >= MIN_SAMPLES ? inDong : near;
+  // 연식 구간을 알면 같은 구간 거래를 먼저 쓴다. 신축과 오래된 건물은 평당가가 크게 달라서다(2026-11-02 주인님 의견)
+  const byAge = item.age && item.kind !== "TJ" ? (arr) => arr.filter((x) => ageFits(item.age, x[5], year)) : null;
+  const dongAge = byAge ? byAge(inDong) : null;
+  const nearAge = byAge ? byAge(near) : null;
+  let used;
+  if (dongAge?.length >= MIN_SAMPLES) used = dongAge;
+  else if (inDong.length >= MIN_SAMPLES) used = inDong;
+  else if (nearAge?.length >= MIN_SAMPLES) used = nearAge;
+  else used = near;
   if (used.length < MIN_SAMPLES) return null;
+  const ageMixed = !!byAge && used !== dongAge && used !== nearAge;
   const m = median(used.map((x) => x[2]));
   const perPyeong = item.price / (item.area / SQM_PER_PYEONG);
   // 같은 시군구라도 동마다 값 차이가 커서(2026-11-01 역삼동 상가 +272%, 백석동 토지 -90%) 동 표본이 없으면 참고로만 쓴다. 건물도 같다(2026-11-02 주인님 결정)
-  const weak = used !== inDong;
-  return { pct: Math.round((perPyeong / m - 1) * 100), scope: used === inDong ? "동" : "시군구", floorName: item.kind === "TJ" ? item.jimok : FLOOR_NAME[floor] || "", count: used.length, median: m, weak };
+  const isDong = used === inDong || used === dongAge;
+  const weak = !isDong;
+  return { pct: Math.round((perPyeong / m - 1) * 100), scope: isDong ? "동" : "시군구", floorName: item.kind === "TJ" ? item.jimok : FLOOR_NAME[floor] || "", count: used.length, median: m, weak, ageMatched: !!byAge && !ageMixed, ageMixed };
 }
 
-export const gapText = (g) => (g ? `${g.pct > 0 ? "+" : ""}${g.pct}%(${g.scope}${g.floorName ? `·${g.floorName}` : ""} ${g.count}건${g.weak ? "·참고" : ""})` : "");
+/** 매물 연식 구간에 실거래 건축년도가 드는지. 건축년도를 모르는 거래는 넣지 않는다 */
+export function ageFits(age, buildYear, year = new Date().getFullYear()) {
+  if (!age || !buildYear) return false;
+  const a = year - buildYear;
+  return age.max != null ? a <= age.max : a >= age.min;
+}
+
+export const gapText = (g) => (g ? `${g.pct > 0 ? "+" : ""}${g.pct}%(${g.scope}${g.floorName ? `·${g.floorName}` : ""}${g.ageMatched ? "·같은 연식" : ""} ${g.count}건${g.weak ? "·참고" : ""}${g.ageMixed ? "·연식 섞임" : ""})` : "");
 
 /**
  * 추정 수익률(%). 같은 동 월세 매물의 ㎡당 월세·보증금 중간값으로 이 매매 매물의 임대료를 어림한다.
@@ -106,7 +123,7 @@ export function buildingPeerGap(item, items, places) {
 
 // 호가·시세보다 많이 싼 매물은 싼 이유(권리관계·임대차·입지)를 꼭 봐야 한다(2026-11-02 주인님·중개사 의견).
 // 집합건물(상가)은 대지지분이 작아 전용면적만으로는 값이 낮게 보이고, 건물은 대지면적으로 따져야 매매가에 가깝다.
-const CHECK_BASE = "권리관계(등기부등본)·임대차 현황·현장조사";
+const CHECK_BASE = "권리관계(등기부등본)·임대차 현황·입지(전면·코너·동선)·현장조사";
 const CHECK_BY_KIND = { SG: "집합건물 대지지분", GM: "대지면적 기준 가격" };
 export const checkNote = (kind) => `⚠ 확인 필요: ${CHECK_BASE}${CHECK_BY_KIND[kind] ? `·${CHECK_BY_KIND[kind]}` : ""}`;
 

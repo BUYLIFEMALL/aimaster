@@ -16,6 +16,7 @@ export interface MarketRow {
   price_per_pyeong: number | string | null;
   floor?: string | null;
   area_m2?: number | string | null;
+  build_year?: number | string | null;
   is_share: boolean;
   cancelled: boolean;
 }
@@ -64,8 +65,8 @@ export function floorBucket(floor: string | null | undefined): "b" | "1" | "2" |
 }
 
 // 층·면적은 매물마다 달라 확장이 회원 PC에서 고른다. 그래서 매물을 서버로 보내지 않고 공개 실거래 표본만 내려 준다.
-// 토지 표본에는 같은 지목끼리 비교하도록 지목을 붙인다.
-export type MarketSample = [floor: "b" | "1" | "2" | null, area: number, perPyeong: number, inDong: 0 | 1, jimok?: string];
+// 토지 표본에는 같은 지목끼리 비교하도록 지목을 붙인다. 상가·건물에는 비슷한 연식끼리 비교하도록 건축년도를 붙인다(2026-11-02 주인님 의견).
+export type MarketSample = [floor: "b" | "1" | "2" | null, area: number, perPyeong: number, inDong: 0 | 1, jimok?: string | null, buildYear?: number | null];
 
 export function marketSamples(rows: MarketRow[], dong: string): Record<string, MarketSample[]> {
   const clean = rows.filter((r) => !r.is_share && !r.cancelled && r.price_per_pyeong !== null && Number(r.area_m2) > 0);
@@ -76,7 +77,7 @@ export function marketSamples(rows: MarketRow[], dong: string): Record<string, M
       .map((r): MarketSample => {
         const inDong = r.umd_nm === dong ? 1 : 0;
         if (code === "TJ") return [floorBucket(r.floor), Number(r.area_m2), Number(r.price_per_pyeong), inDong, r.category];
-        return [floorBucket(r.floor), Number(r.area_m2), Number(r.price_per_pyeong), inDong];
+        return [floorBucket(r.floor), Number(r.area_m2), Number(r.price_per_pyeong), inDong, null, Number(r.build_year) > 1900 ? Number(r.build_year) : null];
       });
   }
   return out;

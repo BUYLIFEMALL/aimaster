@@ -58,8 +58,18 @@ export function normalizeArticle(raw, targetId, baseUrl) {
     realtor: stripPhoneNumbers(raw.realtorName || raw.cpName || ""),
     sameCount: Number(raw.sameAddrCnt) || 1,
     naverChange: raw.priceChangeState || "",
+    age: ageOf(raw.tagList),
     url: articleUrl(baseUrl, no),
   };
+}
+
+/** 네이버 태그의 연식 구간(「15년이내」, 「25년이상」). 없으면 null */
+export function ageOf(tags) {
+  for (const t of Array.isArray(tags) ? tags : []) {
+    const m = String(t).match(/^(\d+)년(이내|이상)$/);
+    if (m) return m[2] === "이내" ? { max: Number(m[1]) } : { min: Number(m[1]) };
+  }
+  return null;
 }
 
 export function articleUrl(baseUrl, no) {

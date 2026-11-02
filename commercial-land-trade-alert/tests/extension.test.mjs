@@ -164,7 +164,8 @@ test("실거래 시세 요약", async () => {
   assert.equal(summarizeMarket(noisy, "역삼동").GM, null);
   assert.equal(floorBucket("-1") + floorBucket("B1") + floorBucket("1") + floorBucket("7"), "bb12");
   assert.equal(floorBucket(null), null);
-  assert.deepEqual(marketSamples([row({ floor: "1", area_m2: 50 }), row({ area_m2: 0 })], "역삼동").SG, [["1", 50, 100, 1]]);
+  assert.deepEqual(marketSamples([row({ floor: "1", area_m2: 50 }), row({ area_m2: 0 })], "역삼동").SG, [["1", 50, 100, 1, null, null]]);
+  assert.equal(marketSamples([row({ floor: "1", area_m2: 50, build_year: 2021 })], "역삼동").SG[0][5], 2021, "건축년도를 붙인다");
   const land = [1, 2, 3, 4, 5].map((n) => row({ kind: "land", building_type: null, category: "대", price_per_pyeong: n * 10 }));
   assert.equal(summarizeMarket([...land, row({ kind: "land", building_type: null, category: "도로", price_per_pyeong: 1 })], "역삼동").TJ.median, 30);
   assert.deepEqual(marketSamples([row({ kind: "land", building_type: null, category: "답", area_m2: 50 })], "역삼동").TJ, [[null, 50, 100, 1, "답"]]);
@@ -493,7 +494,7 @@ test("상가는 같은 건물 호가 3건 이상과 비교해 20% 낮으면 후�
   const s = scoreListing({ peer, kind: "SG" });
   assert.equal(s.score, 40);
   assert.equal(s.candidate, true);
-  assert.deepEqual(s.reasons, ["같은 건물 호가 대비 -30%(3건)", "⚠ 확인 필요: 권리관계(등기부등본)·임대차 현황·현장조사·집합건물 대지지분"]);
+  assert.deepEqual(s.reasons, ["같은 건물 호가 대비 -30%(3건)", "⚠ 확인 필요: 권리관계(등기부등본)·임대차 현황·입지(전면·코너·동선)·현장조사·집합건물 대지지분"]);
   assert.ok(scoreListing({ gap: { pct: -25, weak: false }, kind: "GM" }).reasons.at(-1).endsWith("대지면적 기준 가격"), "시세보다 많이 싼 건물도 확인 문구");
   assert.ok(!scoreListing({ gap: { pct: -25, weak: true }, kind: "GM" }).reasons.length, "참고 값만으로는 붙이지 않음");
   assert.ok(!scoreListing({ drops: 2, kind: "SG" }).reasons.some((r) => r.startsWith("⚠")), "가격 내림만으로는 붙이지 않음");
@@ -507,4 +508,29 @@ test("상가는 같은 건물 호가 3건 이상과 비교해 20% 낮으면 후�
   assert.equal(buildingPeerGap(me, [me, peers[0], peers[1], sg("4", 90000, 200)], places), null, "면적 2배 초과 제외");
   assert.equal(buildingPeerGap({ ...me, kind: "GM" }, [me, ...peers], places), null, "상가만");
   assert.equal(buildingPeerGap({ ...me, no: "9" }, [me, ...peers], places), null, "좌표 없으면 안 함");
+});
+
+test("시세 비교는 매물 연식 구간과 같은 거래를 먼저 쓴다", async () => {
+  const { marketGap, ageFits, gapText } = await import("../extension/lib/score.js");
+  const { ageOf } = await import("../extension/lib/listing.js");
+  assert.deepEqual(ageOf(["15년이내", "지하층"]), { max: 15 });
+  assert.deepEqual(ageOf(["25년이상"]), { min: 25 });
+  assert.equal(ageOf(undefined), null);
+  assert.equal(ageFits({ max: 4 }, 2024, 2026), true);
+  assert.equal(ageFits({ max: 4 }, 2010, 2026), false);
+  assert.equal(ageFits({ min: 25 }, null, 2026), false, "건축년도 모르면 넣지 않음");
+  const s = (pp, by) => ["1", 50, pp, 1, null, by];
+  const market = { samples: { SG: [s(1000, 2023), s(1100, 2024), s(1050, 2022), s(900, 2023), s(1000, 2025), s(400, 1990), s(420, 1992), s(380, 1995)] } };
+  const item = { kind: "SG", tradeType: "A1", price: 50 / 3.3058 * 700, area: 50, floor: "1/10" };
+  const fresh = marketGap({ ...item, age: { max: 4 } }, market, 2026);
+  assert.equal(fresh.count, 5);
+  assert.equal(fresh.ageMatched, true);
+  assert.equal(fresh.pct, -30);
+  assert.ok(gapText(fresh).includes("같은 연식"));
+  const old = marketGap({ ...item, age: { min: 25 } }, market, 2026);
+  assert.equal(old.ageMixed, true, "같은 연식 5건 미만이면 전체로 비교하고 표시");
+  assert.ok(gapText(old).includes("연식 섞임"));
+  const none = marketGap(item, market, 2026);
+  assert.equal(none.count, 8);
+  assert.ok(!none.ageMixed && !none.ageMatched, "연식 모르면 예전과 같다");
 });
