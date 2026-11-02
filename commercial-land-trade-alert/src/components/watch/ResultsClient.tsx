@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { articleNoOf, type DongBoundary, locateDong, UNKNOWN_DONG } from "@/lib/adminDongGeo";
 import { AI_ENGINES, aiModelName, toAiProvider, type AiProvider } from "@/lib/aiEngines";
 import { askExtension } from "@/lib/extensionBridge";
+import { groupSameRows } from "@/lib/resultRows";
 import { shortWatch, StatsDashboard } from "./StatsDashboard";
 
 // 매물은 서버에 없다. 이 브라우저의 확장에 직접 물어 같은 화면에만 보여 준다(확장 연결 계정 = 로그인 계정일 때만).
@@ -59,6 +60,7 @@ export function ResultsClient({ email }: { email: string }) {
   const [view, setView] = useState("all");
   const [sort, setSort] = useState("score");
   const [dongFilter, setDongFilter] = useState("");
+  const [watchFilter, setWatchFilter] = useState("");
   const [boundaries, setBoundaries] = useState<Record<string, DongBoundary[]>>({});
   const [ai, setAi] = useState<{ busy?: AiProvider; text?: string; count?: number; used?: string; error?: string }>({});
 
@@ -124,10 +126,19 @@ export function ResultsClient({ email }: { email: string }) {
     return [...c.entries()].sort((a, b) => (a[0] === UNKNOWN_DONG ? 1 : b[0] === UNKNOWN_DONG ? -1 : a[0].localeCompare(b[0], "ko")));
   }, [dongOfRow]);
 
+  const watchCounts = useMemo(() => {
+    const c = new Map<string, number>();
+    if (!res) return c;
+    const i = res.columns.indexOf("감시 화면");
+    for (const r of res.table) c.set(String(r[i]), (c.get(String(r[i])) ?? 0) + 1);
+    return c;
+  }, [res]);
+
   const rows = useMemo(() => {
     if (!res) return [];
     const at = (n: string) => res.columns.indexOf(n);
     const list = res.table.filter((r) => {
+      if (watchFilter && String(r[at("감시 화면")]) !== watchFilter) return false;
       if (dongFilter && dongOfRow.get(r) !== dongFilter) return false;
       if (EVENT_VIEW[view]) return r[at("변동")] === EVENT_VIEW[view];
       if (view === "candidate") return Number(r[at("후보 점수")]) >= 40;
@@ -140,7 +151,14 @@ export function ResultsClient({ email }: { email: string }) {
       if (sort === "gap") return (pctOf(a[at("시세 대비")]) ?? 9999) - (pctOf(b[at("시세 대비")]) ?? 9999);
       return Number(b[at("후보 점수")] || 0) - Number(a[at("후보 점수")] || 0);
     });
-  }, [res, view, sort, dongFilter, dongOfRow]);
+  }, [res, view, sort, dongFilter, watchFilter, dongOfRow]);
+
+  // 같은 화면·행정동에서 유형·거래·가격·면적·층·변동이 같으면 한 줄로 묶고 링크는 모두 남긴다
+  const groups = useMemo(() => {
+    if (!res) return [];
+    const at = (n: string) => res.columns.indexOf(n);
+    return groupSameRows(rows, (r) => [...["감시 화면", "유형", "거래 종류", "가격", "면적(㎡)", "층", "변동"].map((c) => r[at(c)]), dongOfRow.get(r)].join("|"));
+  }, [res, rows, dongOfRow]);
 
   if (res === undefined) return <p className="mx-card mt-6 text-sm text-mx-muted">확장에서 결과를 불러오는 중입니다...</p>;
   if (res === null) {
@@ -172,7 +190,12 @@ export function ResultsClient({ email }: { email: string }) {
       <div id="result-rows" className="mx-card mt-6 flex flex-wrap items-center gap-2 p-4">
         <span className="text-sm text-mx-muted">
           {new Date(res.at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} 수집 · {rows.length.toLocaleString("ko-KR")}건
+          {groups.length < rows.length && <> · 같은 조건을 묶어 {groups.length.toLocaleString("ko-KR")}줄</>}
         </span>
+        <select value={watchFilter} onChange={(e) => setWatchFilter(e.target.value)} aria-label="감시 화면" className="mx-input min-h-[40px] w-auto py-2 text-sm">
+          <option value="">감시 화면 전체</option>
+          {[...watchCounts].map(([w, n]) => <option key={w} value={w}>{shortWatch(w)} ({n.toLocaleString("ko-KR")})</option>)}
+        </select>
         <select value={view} onChange={(e) => setView(e.target.value)} aria-label="보기" className="mx-input min-h-[40px] w-auto py-2 text-sm">
           <option value="all">전체</option>
           <option value="candidate">⭐ 후보만(40점 이상)</option>
@@ -205,7 +228,7 @@ export function ResultsClient({ email }: { email: string }) {
             ))}
           </div>
           <p className="min-w-60 flex-1 text-xs text-mx-muted">
-            누른 AI에 회원님 본인 키로 후보·변동 매물 최대 30건의 가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 본인 키에 청구되며, 세부 모델은 API키등록·플랫폼연동에서 고릅니다.
+            누른 AI에 회원님 본인 키로 후보·변동 매물 최대 30건의 감시 화면 이름·가격·면적·층·비교값을 보냅니다. 중개사와 링크는 보내지 않고 우리 서버도 거치지 않습니다. 요금은 본인 키에 청구되며, 세부 모델은 API키등록·플랫폼연동에서 고릅니다.
           </p>
         </div>
         {ai.error && <p className="mt-3 text-sm text-red-600">{ai.error}</p>}
@@ -232,7 +255,7 @@ export function ResultsClient({ email }: { email: string }) {
             </tr>
           </thead>
           <tbody>
-            {rows.slice(0, 500).map((r, i) => {
+            {groups.slice(0, 500).map(({ row: r, rest }, i) => {
               const v = (c: string) => String(r[at(c)] ?? "");
               const watch = shortWatch(v("감시 화면"));
               return (
@@ -263,6 +286,14 @@ export function ResultsClient({ email }: { email: string }) {
                         네이버
                       </a>
                     ) : null}
+                    {rest.length > 0 && (
+                      <small className="block whitespace-nowrap text-xs text-mx-muted">
+                        같은 조건 {rest.length + 1}건:{" "}
+                        {rest.map((x, n) => (
+                          <a key={n} href={String(x[at(LINK)] ?? "")} target="_blank" rel="noreferrer" className="mr-1 text-mx-link underline">{n + 2}</a>
+                        ))}
+                      </small>
+                    )}
                   </td>
                 </tr>
               );
@@ -270,7 +301,7 @@ export function ResultsClient({ email }: { email: string }) {
           </tbody>
         </table>
       </div>
-      {hasDong && <p className="mt-2 text-xs text-mx-muted">행정동은 네이버 매물 좌표로 어림한 값이라 경계 근처는 틀릴 수 있습니다. 앞부분만 읽은 화면의 뒤쪽 매물은 나오지 않습니다. 경계 출처: 통계청 SGIS, vuski/admdongkor(CC BY 4.0).</p>}
+      {hasDong && <p className="mt-2 text-xs text-mx-muted">행정동은 네이버 매물 좌표로 어림한 값이라 경계 근처는 틀릴 수 있습니다. 네이버 소재지는 법정동이어서 행정동과 다를 수 있습니다(예: 법정동 백석동 일부는 행정동 장항1동). 앞부분만 읽은 화면의 뒤쪽 매물은 나오지 않습니다. 경계 출처: 통계청 SGIS, vuski/admdongkor(CC BY 4.0).</p>}
       {rows.length > 500 && <p className="mt-2 text-xs text-mx-muted">앞 500건만 보여 드립니다. 전체는 알림에 첨부된 파일에서 볼 수 있습니다.</p>}
     </>
   );

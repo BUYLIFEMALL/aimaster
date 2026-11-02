@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { buildDraftLink, DRAFT_TARGETS, isDraftTarget, type DraftTarget } from "@/lib/blogDraft";
 import { askExtension } from "@/lib/extensionBridge";
+import { totalDelta } from "@/lib/resultRows";
 import { EventLog, type EventRow } from "./EventLog";
 
 type SaleStat = { n: number; avg: number | null; med: number | null; perPyeong: number | null; gapMed?: number | null; gapN: number; yieldMed?: number | null; yieldN: number };
@@ -153,13 +154,15 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
   if (history === undefined || history === null || !latest) return null; // 안내는 아래 결과 칸이 맡는다
 
   const sum = (k: keyof Group["events"]) => latest.groups.reduce((n, g) => n + g.events[k], 0);
-  const common = prev ? latest.groups.filter((g) => prev.groups.some((p) => p.name === g.name)) : [];
   const total = latest.groups.reduce((n, g) => n + g.total, 0);
-  const delta = common.length ? common.reduce((n, g) => n + g.total - (prev!.groups.find((p) => p.name === g.name)?.total ?? 0), 0) : null;
+  const delta = totalDelta(latest, prev);
   const selectedGroup = latest.groups.find((g) => g.name === selected);
   const selectedLabel = selectedGroup ? label(selectedGroup) : selected;
-  const countPoints = series.flatMap((p) => { const t = p.g?.trades[trade]; return t ? [{ at: p.at, v: t.n }] : []; });
-  const pricePoints = series.flatMap((p) => { const t = p.g?.trades[trade]; const v = trade === "월세" ? (t as RentStat | undefined)?.rentAvg : t?.avg; return v != null ? [{ at: p.at, v }] : []; });
+  // 고른 화면에 있는 거래 종류만 보여 줘 빈 그래프가 먼저 나오지 않게 한다
+  const trades = (["매매", "월세"] as Trade[]).filter((t) => selectedGroup?.trades[t]);
+  const shownTrade = trades.includes(trade) ? trade : trades[0] ?? trade;
+  const countPoints = series.flatMap((p) => { const t = p.g?.trades[shownTrade]; return t ? [{ at: p.at, v: t.n }] : []; });
+  const pricePoints = series.flatMap((p) => { const t = p.g?.trades[shownTrade]; const v = shownTrade === "월세" ? (t as RentStat | undefined)?.rentAvg : t?.avg; return v != null ? [{ at: p.at, v }] : []; });
 
   return (
     <section className="mx-card mt-6 p-5" aria-labelledby="stats-title">
@@ -174,7 +177,7 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
       )}
 
       <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Tile label="지금 매물" value={`${total.toLocaleString("ko-KR")}건`} sub={delta === null ? "직전 회차 없음" : delta === 0 ? "직전보다 변동 없음" : `직전보다 ${delta > 0 ? "▲" : "▼"} ${Math.abs(delta)}`} />
+        <Tile label="지금 매물" value={`${total.toLocaleString("ko-KR")}건`} sub={!prev ? "직전 회차 없음" : delta === null ? "직전과 감시 화면이 달라 비교 불가" : delta === 0 ? "직전보다 변동 없음" : `직전보다 ${delta > 0 ? "▲" : "▼"} ${Math.abs(delta)}`} />
         <Tile label="🆕 새 매물" value={`${sum("new")}건`} sub="눌러서 보기 →" onClick={() => onPick("new")} />
         <Tile label="📉 가격 내림" value={`${sum("priceDown")}건`} sub="눌러서 보기 →" onClick={() => onPick("priceDown")} />
         <Tile label="📈 가격 오름" value={`${sum("priceUp")}건`} sub="눌러서 보기 →" onClick={() => onPick("priceUp")} />
@@ -185,13 +188,13 @@ export function StatsDashboard({ email, onPick }: { email: string; onPick: (view
         <select value={selected} onChange={(e) => setPicked(e.target.value)} aria-label="감시 화면과 유형" className="mx-input min-h-[40px] w-auto py-2 text-sm">
           {latest.groups.map((g) => <option key={g.name} value={g.name}>{label(g)}</option>)}
         </select>
-        <Seg label="거래 종류" options={[["매매", "매매"], ["월세", "월세"]] as [Trade, string][]} value={trade} onChange={setTrade} />
+        <Seg label="거래 종류" options={trades.map((t) => [t, t] as [Trade, string])} value={shownTrade} onChange={setTrade} />
         <Seg label="추이 기간" options={RANGES} value={range} onChange={setRange} />
       </div>
       {countPoints.length < 2 && <p className="mt-2 text-xs text-mx-muted">추이 그래프는 기록이 2회 이상 쌓이면 선으로 이어집니다(지금 {countPoints.length}회). 예약 수집이 돌 때마다 하나씩 쌓입니다.</p>}
       <div className="mt-3 grid gap-3 lg:grid-cols-2">
-        <LineChart title={`${selectedLabel} · ${trade} 매물 수`} points={countPoints} fmt={(v) => `${v.toLocaleString("ko-KR")}건`} />
-        <LineChart title={`${selectedLabel} · ${trade === "월세" ? "평균 월세" : "매매 평균 가격"}`} points={pricePoints} fmt={won} />
+        <LineChart title={`${selectedLabel} · ${shownTrade} 매물 수`} points={countPoints} fmt={(v) => `${v.toLocaleString("ko-KR")}건`} />
+        <LineChart title={`${selectedLabel} · ${shownTrade === "월세" ? "평균 월세" : "매매 평균 가격"}`} points={pricePoints} fmt={won} />
       </div>
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-2">

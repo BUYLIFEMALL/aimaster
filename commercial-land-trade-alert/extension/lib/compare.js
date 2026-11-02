@@ -6,7 +6,7 @@ const DAY = 24 * 60 * 60 * 1000;
 
 const ymdOf = (ms) => new Date(ms + 9 * 3600 * 1000).toISOString().slice(0, 10).replace(/-/g, "");
 
-export function compareTarget(prevState, items, { now = Date.now(), complete = true, recentDays = 3, rebase = false } = {}) {
+export function compareTarget(prevState, items, { now = Date.now(), complete = true, recentDays = 3, rebase = false, places = {} } = {}) {
   const prev = prevState && prevState.items ? prevState : null;
   const nextItems = {};
   const events = [];
@@ -19,7 +19,7 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
   for (const item of items) {
     if (!item.no) continue;
     const old = prev ? prev.items[item.no] : null;
-    const entry = { price: item.price, rent: item.rent, priceText: item.priceText, firstSeen: old?.firstSeen || nowIso, lastSeen: nowIso, drops: old?.drops || 0, item };
+    const entry = { price: item.price, rent: item.rent, priceText: item.priceText, firstSeen: old?.firstSeen || nowIso, lastSeen: nowIso, drops: old?.drops || 0, item, place: places[item.no] || old?.place || null };
     nextItems[item.no] = entry;
     if (!prev) continue;
     if (!old) {
@@ -34,7 +34,7 @@ export function compareTarget(prevState, items, { now = Date.now(), complete = t
   if (prev) {
     for (const [no, old] of Object.entries(prev.items)) {
       if (nextItems[no]) continue;
-      if (complete) events.push({ type: "gone", item: old.item, firstSeen: old.firstSeen });
+      if (complete) events.push({ type: "gone", item: old.item, firstSeen: old.firstSeen, place: old.place || null });
       else if (!rebase && now - new Date(old.lastSeen).getTime() < 30 * DAY) nextItems[no] = old;
     }
   }

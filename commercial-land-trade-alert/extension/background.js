@@ -127,7 +127,8 @@ async function runCollection(trigger) {
         continue;
       }
       const coords = coordStats(r.bodies.flatMap((b) => b.articleList || []));
-      Object.assign(places, placesOf(r.bodies.flatMap((b) => b.articleList || [])));
+      const targetPlaces = placesOf(r.bodies.flatMap((b) => b.articleList || []));
+      Object.assign(places, targetPlaces);
       const seen = new Set();
       const allItems = r.bodies
         .flatMap((b) => b.articleList || [])
@@ -137,7 +138,7 @@ async function runCollection(trigger) {
       await addLog(`${t.name}: 읽은 매물 ${allItems.length}건(${countByKindTrade(allItems) || "없음"})${items.length === allItems.length ? "" : ` → 조건 맞는 ${items.length}건(${countByKindTrade(items) || "없음"})`}`);
       const prevFilter = states[t.id]?.filterKey;
       const filterChanged = typeof prevFilter === "string" && !!r.filter && prevFilter !== r.filter.key;
-      const cmp = compareTarget(states[t.id], items, { complete: r.complete, rebase: filterChanged });
+      const cmp = compareTarget(states[t.id], items, { complete: r.complete, rebase: filterChanged, places: targetPlaces });
       states[t.id] = { ...cmp.state, filterKey: r.filter ? r.filter.key : prevFilter };
       if (filterChanged) await addLog(`${t.name}: 네이버 필터가 바뀌어 알림 없이 기준을 다시 저장했어요`);
       // 네이버 요청에 동 코드가 없는 회차도 있어 감시 화면별로 마지막 코드를 기억한다
@@ -161,7 +162,10 @@ async function runCollection(trigger) {
         fileRows.push(row);
         yieldRows.push({ item: row.item, area: cortarNo || t.id });
       }
-      for (const e of cmp.events.filter((x) => x.type === "gone")) fileRows.push({ item: { ...e.item, targetName: t.name }, status: "gone", prevPriceText: e.prevPriceText, firstSeen: e.firstSeen });
+      for (const e of cmp.events.filter((x) => x.type === "gone")) {
+        if (e.place) places[e.item.no] = e.place; // 사라진 매물은 이번 응답에 좌표가 없어 저장해 둔 값을 쓴다
+        fileRows.push({ item: { ...e.item, targetName: t.name }, status: "gone", prevPriceText: e.prevPriceText, firstSeen: e.firstSeen });
+      }
       perTarget.push({ name: t.name, total: items.length, events: filterEvents(cmp.events, settings.delivery), firstRun: cmp.firstRun, complete: r.complete, pagesRead: r.pagesRead, filterChanged, filterText: r.filter?.text ?? null, coords });
       total += items.length;
       await addLog(`${t.name}: ${r.pagesRead}페이지 · 조건 맞는 매물 ${items.length}건${r.complete ? "" : " · 범위가 넓어 앞부분만 읽음"}`);

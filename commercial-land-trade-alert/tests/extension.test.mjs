@@ -448,3 +448,36 @@ test("좌표로 행정동을 판정한다", async () => {
   const { placesOf } = await import("../extension/lib/listing.js");
   assert.deepEqual(placesOf([{ articleNo: "1", latitude: "37.5", longitude: "127", realtorName: "중개" }, { articleNo: "2" }]), { 1: [37.5, 127] });
 });
+
+test("사라진 매물도 저장해 둔 좌표를 넘긴다", () => {
+  const s = compareTarget(undefined, [item({ no: "1" })], { places: { 1: [37.6, 126.7] } }).state;
+  const kept = compareTarget(s, [item({ no: "1" })]).state;
+  assert.deepEqual(kept.items["1"].place, [37.6, 126.7], "이번 응답에 좌표가 없어도 유지");
+  const gone = compareTarget(kept, [], { complete: true }).events.find((x) => x.type === "gone");
+  assert.deepEqual(gone.place, [37.6, 126.7]);
+});
+
+test("AI 자료는 감시 화면별로 나눠 뽑고 같은 조건을 묶는다", async () => {
+  const { buildAiInput } = await import("../extension/lib/ai.js");
+  const cols = ["감시 화면", "유형", "거래 종류", "가격", "면적(㎡)", "층", "후보 점수", "변동", "추정 수익률"];
+  const many = Array.from({ length: 40 }, (_, i) => ["역삼", "건물", "매매", i + "억", 100, "1/5", 50, "", ""]);
+  const dup = Array.from({ length: 3 }, () => ["역삼", "건물", "매매", "65억", 655, "4/B1", 60, "", ""]);
+  const few = [["백석", "상가", "월세", "1억", 50, "1/3", 0, "🆕 신규", ""], ["백석", "상가", "월세", "2억", 60, "1/3", 0, "🆕 신규", ""]];
+  const input = buildAiInput(cols, [...many, ...dup, ...few]);
+  const lines = input.text.split("\n");
+  assert.equal(input.count, 30);
+  assert.equal(lines.filter((l) => l.startsWith("백석")).length, 2, "점수 낮은 화면도 빠지지 않음");
+  const merged = lines.filter((l) => l.includes("65억"));
+  assert.equal(merged.length, 1);
+  assert.ok(merged[0].endsWith("\t3"), "같은 조건 건수");
+});
+
+test("결과 줄 묶기와 직전 회차 비교", async () => {
+  const { groupSameRows, totalDelta } = await import("../src/lib/resultRows.ts");
+  const g = groupSameRows(["a1", "b1", "a2", "a3"], (x) => x[0]);
+  assert.deepEqual(g, [{ row: "a1", rest: ["a2", "a3"] }, { row: "b1", rest: [] }]);
+  const snap = (...t) => ({ groups: t.map(([watch, total]) => ({ watch, total })) });
+  assert.equal(totalDelta(snap(["역삼", 10], ["백석", 5]), snap(["백석", 4], ["역삼", 9])), 2);
+  assert.equal(totalDelta(snap(["역삼", 10], ["백석", 5]), snap(["역삼", 9])), null, "화면 구성이 다르면 비교 불가");
+  assert.equal(totalDelta(snap(["역삼", 10]), null), null);
+});
