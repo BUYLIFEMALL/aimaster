@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · real_estate_sales v1.36 임장 노트 회원 공개
+
+- **한 일:** 주인님 「오픈해도 되」로 관리자·시험 계정 제한 제거 → 프로그램 이용 권한 회원 누구나. 현장 3곳 자동 주소 대조(2곳 정확, 지하철 출구 1곳은 바로 옆 건물).
+- **확인:** 시험 25개·타입·빌드, 배포 Ready, DB v1.36, 운영 화면 메뉴·소개 문구 확인.
+- **남은 일:** 브이월드 배경지도 하루 한도 사용량 지켜보기, 아이폰 확인, 지번 연결 조사(주인님 요청, 다음 작업).
+- **링크:** https://real-estate-sales.buylife.xyz/onsite
+
 ## 2026-11-02 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs · real_estate_sales v1.35 임장 노트 주소 자동 등록
 
 - **한 일:** 주인님이 받은 행정안전부 위치정보요약DB 전체분(642만 줄)을 위경도 약 1km 격자 8만 2천여 개(압축 85MB)로 바꿔 운영 Supabase Storage 공개 읽기 버킷 `geo-address`에 올림(`real_estate_sales/scripts/build-geo-address.mjs --upload`). 촬영 때 30m 안 건물이면 도로명주소 자동 저장, 위치 확정 때 자동 주소 갱신, 편집 화면 「📍 위치로 주소 찾기」.
