@@ -300,11 +300,11 @@ export function useStudio() {
     setDuplicatingDraftId(draft.id);
     try {
       const response = await fetch(`/api/drafts/${encodeURIComponent(draft.id)}/duplicate`, { method: "POST" });
-      const result = await response.json() as { draft?: DraftRecord; error?: string };
+      const result = await response.json() as { draft?: DraftRecord; error?: string; missingImages?: number };
       if (!response.ok || !result.draft) throw new Error(result.error || "블로그(원문)을 복제하지 못했습니다.");
       setHistory((items) => [result.draft!, ...items]);
       reuseDraft(result.draft);
-      setMessage(`블로그(원문)을 복제해 편집 화면에 열었습니다: ${result.draft.title}`);
+      setMessage(`블로그(원문)을 복제해 편집 화면에 열었습니다: ${result.draft.title}${result.missingImages ? ` · 이미지 ${result.missingImages}장은 복사하지 못했습니다. 빈 칸에서 다시 만들거나 내 사진을 넣어 주세요.` : ""}`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "블로그(원문)을 복제하지 못했습니다.");
     } finally {

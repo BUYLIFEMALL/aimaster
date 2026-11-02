@@ -217,3 +217,33 @@ test("history input state uses the handoff time and the auto-publish run", () =>
   assert.equal(historyInputState(run("published")), "completed");
   assert.equal(historyInputState(run("writing")), "in_progress");
 });
+
+// 2026-11-02: 복제는 대표·본문 이미지 파일을 새 원고 폴더로 복사해 함께 넘긴다(같은 파일을 가리키지 않음).
+test("duplicating a draft copies its cover and content images to the new draft folder", async () => {
+  const USER = "u1";
+  const original = { topic: "캠핑", keywords: [], strategy: "s", title: "가을 캠핑", body: "본문", category_id: null, naver_category: null, created_at: "2026-11-01T00:00:00Z",
+    image_path: null, image_model: null, image_mime_type: null, image_created_at: null,
+    seo_report: { contentBlocks: [{ id: "b1", type: "image", slot: "content-1" }], autoPublish: { runId: "r", state: "reserved" },
+      contentImages: [{ slot: "content-1", sentence: "문장", path: `${USER}/old/content-1-1.png`, mimeType: "image/png" }, { slot: "content-2", path: `${USER}/old/content-2-1.png` }] } };
+  const copies = [], removed = []; let inserted;
+  const supabase = {
+    storage: { from: () => ({ copy: async (from, to) => { if (from.includes("content-2")) return { error: { message: "없음" } }; copies.push([from, to]); return { error: null }; }, remove: async (paths) => { removed.push(...paths); return { error: null }; } }) },
+    from: () => {
+      const q = { select: () => q, eq: () => q, maybeSingle: async () => ({ data: original, error: null }), insert: (row) => { inserted = row; return q; }, single: async () => ({ data: { id: inserted.id, seo_report: inserted.seo_report }, error: null }) };
+      return q;
+    },
+  };
+  const route = moduleAt("../app/api/drafts/[draftId]/duplicate/route.ts", {
+    "next/server": { NextResponse: { json: (body, init) => ({ body, status: init?.status ?? 200 }) } },
+    "@/lib/access": { checkProgramAccessApi: async () => ({ allowed: true, user: { id: USER } }) },
+    "@/lib/supabase/server": { createClient: async () => supabase },
+  });
+  const result = await route.POST(new Request("https://x/"), { params: Promise.resolve({ draftId: "old" }) });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.missingImages, 1);
+  assert.deepEqual(copies, [[`${USER}/old/content-1-1.png`, `${USER}/${inserted.id}/content-1-1.png`]]);
+  assert.deepEqual(JSON.parse(JSON.stringify(inserted.seo_report.contentImages)), [{ slot: "content-1", sentence: "문장", path: `${USER}/${inserted.id}/content-1-1.png`, mimeType: "image/png" }]);
+  assert.equal(inserted.seo_report.autoPublish, undefined);
+  assert.equal(inserted.seo_report.contentBlocks.length, 1);
+  assert.equal(removed.length, 0);
+});
