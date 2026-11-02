@@ -28,6 +28,7 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `naver-blog-agent` | 30일 정리에서 예외 회원(관리자·시험 계정) 제외 — **첫 삭제 추정 2026-11-07 전 배포 필요** | `6c8e0eb63` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §6 | 다음 에이전트 배포 때(11-07 전) |
+| `naver-blog-agent` | **주인님 승인 바로 배포(빌드 1회, v2.25)** — 예약 시각이 지난 원고를 확장이 가져가지 않음·발행 직전 재확인·네이버 「현재 시간 이후로」 거부 경고 기록. 위 30일 예외와 함께. 확장 manifest·ZIP·DB 버전 맞춤 필요 | `ab67e1ff0` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `naver-blog-agent/docs/PLAN_20261102_SCHEDULE_PAST_GUARD.md` | 윈도우 세션 배포 요청(11-07 전) |
 | `naver-blog-seo-studio` | 30일 정리(크론·회원 본인 정리)에서 예외 회원 제외 | `3fa97c0f4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 SEO 배포 때 |
 | `ai-auto-blog` | 30일 정리에서 예외 회원 제외(독립 키트는 확인 생략) | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 BLOG 배포 때 |
 | `tistory-auto-blog` | 30일 정리에서 예외 회원 제외 | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 티스토리 배포 때 |
