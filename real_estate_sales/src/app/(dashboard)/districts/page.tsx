@@ -6,6 +6,9 @@ import { DistrictToggle } from "@/components/districts/DistrictToggle";
 import { MonitoringSettings } from "@/components/districts/MonitoringSettings";
 import { QueryNowButton } from "@/components/districts/QueryNowButton";
 import { PageHero } from "@/components/ui/PageHero";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { tradeVolumeTrends } from "@/lib/realestate/collect";
+import { recentMonths, ymLabel } from "@/lib/realestate/insights";
 
 export default async function DistrictsPage() {
   const user = await requireUser();
@@ -20,6 +23,9 @@ export default async function DistrictsPage() {
     .eq("is_active", true);
 
   const watchMap = new Map((watches ?? []).map((w) => [w.sgg_cd, w]));
+  // A2(2026-11-02): 관심 지역 달별 매매 신고 건수. 공공 집계라 회원 정보가 없고 서버 키로 읽는다
+  const volumes = await tradeVolumeTrends(createAdminClient(), [...watchMap.keys()]).catch(() => ({}) as Awaited<ReturnType<typeof tradeVolumeTrends>>);
+  const months = recentMonths(new Date(), 5).slice(1).reverse(); // 지난달까지 4개월(이번 달은 신고 기한이 남아 뺀다)
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -30,6 +36,37 @@ export default async function DistrictsPage() {
         tip={`지금 ${watchMap.size}개 지역 선택됨 · 「지금 조회하기」나 예약 조회로 실거래를 가져옵니다.`}
       />
       <div className="mb-6" />
+      {watchMap.size > 0 && (
+        <section className="mx-card mb-6 p-4">
+          <h2 className="text-sm font-bold text-mx-text">📊 관심 지역 매매 신고 건수(아파트·빌라·오피스텔)</h2>
+          {Object.keys(volumes).length === 0 ? (
+            <p className="mt-2 text-xs text-mx-muted">조회하면 지역마다 최근 달 건수를 모읍니다. 몇 번 조회한 뒤부터 보여요.</p>
+          ) : (
+            <div className="mt-2 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs text-mx-muted">
+                    <th className="py-1 text-left">지역</th>
+                    {months.map((m) => <th key={m} className="py-1 text-right">{ymLabel(m)}</th>)}
+                    <th className="py-1 text-right">지난달 / 직전 3개월 평균</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(volumes).map(([sgg, v]) => (
+                    <tr key={sgg} className="border-t border-mx-border">
+                      <td className="py-1 text-mx-text">{ALL_DISTRICTS.find((d) => d.sgg_cd === sgg)?.sgg_nm ?? sgg}</td>
+                      {months.map((m) => <td key={m} className="py-1 text-right tabular-nums text-mx-muted">{v.months[m] ?? "-"}</td>)}
+                      <td className="py-1 text-right tabular-nums">{v.rising ? "🔥 " : ""}{v.last} / {v.avg}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="mt-2 text-xs text-mx-muted">국토교통부 실거래 신고 건수(공공 자료)입니다. 지난달이 직전 3개월 평균보다 30% 넘게 많고 10건 이상이면 🔥로 표시하고 알림에도 한 줄 붙여요. 해제·정정 신고는 늦게 반영될 수 있어요.</p>
+          <a href="https://commercial-land-trade-alert.buylife.xyz/watch" className="mt-2 inline-block text-xs font-semibold text-mx-link underline">🏬 이 지역 상가·건물·토지 매물도 감시하기 →</a>
+        </section>
+      )}
       <DistrictSearch
         districts={SIDO_GROUPS.flatMap((g) => g.districts.map((d) => ({ ...d, sido: g.sido })))}
         activeCodes={[...watchMap.keys()]}

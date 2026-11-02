@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { formatDealPrice, formatWon, isUnusualPriceRatio, priceToOfficialPct } from "@/lib/format";
+import { rankLabel } from "@/lib/realestate/insights";
 import { exportListingsCsvAction } from "@/lib/actions/export";
 
 export interface ListingRow {
@@ -20,6 +21,7 @@ export interface ListingRow {
   type: string; // 아파트/빌라/오피스텔
   deal: string; // 매매/전세/월세
   rent: number | null; // 월세(만원)
+  rank?: string | null; // A2: high/low — 보유 자료 12개월 최고가·최저가
 }
 
 type Sort = "recent" | "price" | "area" | "ratio";
@@ -150,6 +152,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                       <Link href={`/listings/${r.id}`} className="hover:text-mx-link">
                         {r.name}
                       </Link>
+                      {rankLabel(r.rank) && <span className="mx-chip-amber ml-2 whitespace-nowrap text-xs" title="같은 단지·비슷한 면적(±3㎡) 매매 3건 이상과 비교. 우리가 모은 자료 기준이라 빠진 거래가 있을 수 있어요">{rankLabel(r.rank)}</span>}
                     </td>
                     <td className="text-mx-muted">
                       {r.sgg} {r.dong}
@@ -186,6 +189,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                   <span className={st.chip}>{st.label}</span>
                 </div>
                 <p className="mt-1 truncate font-bold text-mx-text">{r.name}</p>
+                {rankLabel(r.rank) && <p className="mt-1 text-xs font-bold text-mx-link">{rankLabel(r.rank)}</p>}
                 <p className="mt-1 text-2xl font-black tabular-nums text-mx-link">{formatDealPrice(r.deal, r.price, r.rent)}</p>
                 <p className="mt-1 text-xs text-mx-muted">
                   {r.type} · 전용 {r.area ?? "-"}㎡ · {r.floor ?? "-"}층 · {r.contractDate ?? "-"}

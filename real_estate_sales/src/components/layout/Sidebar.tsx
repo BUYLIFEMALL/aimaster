@@ -83,6 +83,13 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
             );
           })}
         </div>
+
+        {/* A3(2026-11-02): 부동산 3개 프로그램 이동 링크. 서로 코드를 부르지 않고 주소만 연다(권한은 각 프로그램이 확인) */}
+        <div className="mt-3 border-t border-mx-border px-3 pt-3 text-xs">
+          <p className="mb-1 font-bold text-mx-muted">🔗 함께 쓰는 부동산 프로그램</p>
+          <a href="https://realty-listing-alert.buylife.xyz/dashboard" className="block py-1 text-mx-muted hover:text-mx-text">🔔 아파트 실시간 매물 알림</a>
+          <a href="https://commercial-land-trade-alert.buylife.xyz/watch" className="block py-1 text-mx-muted hover:text-mx-text">🏬 상가·건물·토지 매물 알림</a>
+        </div>
       </div>
 
       <div className="mt-3 shrink-0 border-t border-mx-border pt-3">

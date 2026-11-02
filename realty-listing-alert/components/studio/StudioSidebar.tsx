@@ -59,6 +59,11 @@ export function StudioSidebar({
         <a className="nav-utility nav-download" href="/downloads/realty-listing-alert-extension-latest.zip" download>⬇ 확장 프로그램 받기 ({APP_VERSION})</a>
         <a className={`nav-utility ${active === "settings" ? "active" : ""}`} href="/settings">🔑 API키등록·플랫폼연동</a>
         <a className={`nav-utility ${active === "guide" ? "active" : ""}`} href="/guide">📖 연동 & 사용 매뉴얼</a>
+        {/* A3(2026-11-02): 부동산 3개 프로그램 이동 링크. 서로 코드를 부르지 않고 주소만 연다(권한은 각 프로그램이 확인) */}
+        <div className="nav-divider" />
+        <small className="nav-utility" style={{ fontWeight: 700, opacity: 0.7 }}>🔗 함께 쓰는 부동산 프로그램</small>
+        <a className="nav-utility" href="https://real-estate-sales.buylife.xyz/listings">🏢 아파트·빌라 실거래 투자분석</a>
+        <a className="nav-utility" href="https://commercial-land-trade-alert.buylife.xyz/watch">🏬 상가·건물·토지 매물 알림</a>
       </nav>
       {/* 계정은 메뉴 바로 아래에 붙인다(SIDEBAR_LAYOUT_STANDARD) */}
       <div className="sidebar-account" title={email}>

@@ -5,6 +5,7 @@ import { ReanalyzeButton } from "@/components/listings/ReanalyzeButton";
 import Link from "next/link";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { formatDealPrice, formatWon, isUnusualPriceRatio, priceToOfficialPct } from "@/lib/format";
+import { rankLabel } from "@/lib/realestate/insights";
 
 export default async function ListingDetailPage({
   params,
@@ -105,6 +106,12 @@ export default async function ListingDetailPage({
         )}
       </div>
 
+      {rankLabel((listing as { price_rank?: string | null }).price_rank) && (
+        <p className="mx-card px-4 py-3 text-sm font-bold text-mx-link">
+          {rankLabel((listing as { price_rank?: string | null }).price_rank)}
+          <span className="ml-2 font-normal text-mx-muted">같은 단지·비슷한 면적(±3㎡) 매매 3건 이상과 비교했어요. 우리가 모은 자료(지역별 회당 20건) 기준이라 빠진 거래가 있을 수 있어요.</span>
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard icon="💰" label={isSale ? "거래가" : listing.deal_type ?? "거래"} value={formatDealPrice(listing.deal_type, listing.price_amount, listing.monthly_rent)} />
         <KpiCard

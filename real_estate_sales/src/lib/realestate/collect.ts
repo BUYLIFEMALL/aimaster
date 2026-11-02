@@ -11,8 +11,10 @@ import {
   fetchSeoulRentComparables,
   fetchSeoulTrades,
   fetchMolitTrades,
+  fetchMolitTradeCount,
   type PublicDataKeys,
 } from "@/lib/publicdata/client";
+import { priceRank, rankLabel, RANK_AREA_TOLERANCE, RANK_MONTHS, recentMonths, VOLUME_MONTHS, volumeMonthsToFetch, volumeTrend, ymLabel, type VolumeTrend } from "./insights";
 import { isSeoulDistrict } from "@/lib/publicdata/districts";
 import { normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
 import { sendTelegramMessage } from "@/lib/telegram/client";
@@ -121,7 +123,11 @@ export async function collectDistrict(
       console.error("전월세 비교 조회 실패:", rentResult.reason);
     }
 
-    const { error: insertError } = await supabase.from("real_estate_listings").insert({
+    // A2(2026-11-02): 같은 단지·비슷한 면적의 보유 매매 거래(12개월)보다 높거나 낮은지 저장 시 한 번 정한다
+    const rank = await rankAgainstStored(supabase, { sggCd, stdgNm: row.STDG_NM, bldgNm: row.BLDG_NM, area: exclusiveArea, price: toNumberOrNull(row.THING_AMT), dedupKey, contractDate: normalizeDate(row.CTRT_DAY, year) });
+
+    const { error: insertError } = await loose(supabase).from("real_estate_listings").insert({
+      price_rank: rank,
       dedup_key: dedupKey,
       sgg_cd: sggCd,
       sgg_nm: sggNm,
@@ -174,7 +180,84 @@ export async function collectDistrict(
     else newCount += newRents.length;
   }
 
+  // A2 거래량: 달별 매매 신고 건수(줄 1개만 받는 가벼운 호출, 지난 달들은 한 번만). 실패해도 수집은 그대로
+  await refreshTradeVolume(supabase, sggCd, keys).catch((err) => console.error(`${sggNm} 거래량 기록 실패:`, err));
+
   return { newCount };
+}
+
+// AIMaster Database 타입에 아직 없는 표·칸(real_estate_trade_volume, price_rank)은 느슨하게 받는다(onsite.ts와 같은 방식)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const loose = (s: AdminClient) => s as unknown as { from: (table: string) => any };
+
+async function rankAgainstStored(
+  supabase: AdminClient,
+  x: { sggCd: string; stdgNm: string; bldgNm: string; area: number | null; price: number | null; dedupKey: string; contractDate: string | null },
+) {
+  if (!x.area || !x.price || !x.bldgNm || !x.contractDate) return null;
+  const since = new Date(new Date(x.contractDate).getTime() - RANK_MONTHS * 30.5 * 86400000).toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from("real_estate_listings")
+    .select("price_amount")
+    .eq("sgg_cd", x.sggCd)
+    .eq("stdg_nm", x.stdgNm)
+    .eq("bldg_nm", x.bldgNm)
+    .eq("deal_type", "매매")
+    .gte("exclusive_area", x.area - RANK_AREA_TOLERANCE)
+    .lte("exclusive_area", x.area + RANK_AREA_TOLERANCE)
+    .gte("contract_date", since)
+    .lte("contract_date", x.contractDate)
+    .neq("dedup_key", x.dedupKey)
+    .limit(300);
+  return priceRank(x.price, ((data ?? []) as { price_amount: number | null }[]).map((r) => Number(r.price_amount)));
+}
+
+/** 시·군·구 달별 매매 신고 건수 기록(유형별). 이번 달·지난달은 하루 한 번, 그 전 달은 처음 한 번만 받는다 */
+export async function refreshTradeVolume(supabase: AdminClient, sggCd: string, keys?: PublicDataKeys, now = new Date()) {
+  const months = recentMonths(now, VOLUME_MONTHS);
+  const { data } = await loose(supabase).from("real_estate_trade_volume").select("ym, property_type, updated_at").eq("sgg_cd", sggCd).in("ym", months);
+  // 처음에는 지역당 5달 × 3유형 = 15번이라, 예약 수집 시간 제한(300초)을 넘지 않게 한 번에 6번까지만 받고 나머지는 다음 회차에
+  let budget = 6;
+  for (const type of PROPERTY_TYPES) {
+    const stored: Record<string, string> = {};
+    for (const r of (data ?? []) as { ym: string; property_type: string; updated_at: string }[]) if (r.property_type === type) stored[r.ym] = r.updated_at;
+    for (const ym of volumeMonthsToFetch(stored, now)) {
+      if (budget-- <= 0) return;
+      let count: number;
+      try {
+        count = await fetchMolitTradeCount({ keys, sggCd, type, ymd: ym });
+      } catch (err) {
+        console.error(`${sggCd} ${type} ${ym} 건수 조회 실패:`, err);
+        break; // 승인 전(403) 유형이면 그 유형만 건너뛴다
+      }
+      await loose(supabase).from("real_estate_trade_volume").upsert({ sgg_cd: sggCd, ym, property_type: type, count, updated_at: new Date().toISOString() }, { onConflict: "sgg_cd,ym,property_type" });
+    }
+  }
+}
+
+export type DistrictVolume = VolumeTrend & { months: Record<string, number> };
+
+/** 시·군·구별 거래량 추세(세 유형 합). 비교할 달이 모자라면 그 지역은 빠진다 */
+export async function tradeVolumeTrends(supabase: AdminClient, sggCds: string[], now = new Date()): Promise<Record<string, DistrictVolume>> {
+  if (!sggCds.length) return {};
+  const months = recentMonths(now, VOLUME_MONTHS);
+  const { data } = await loose(supabase).from("real_estate_trade_volume").select("sgg_cd, ym, count").in("sgg_cd", sggCds).in("ym", months);
+  const by: Record<string, Record<string, number>> = {};
+  for (const r of (data ?? []) as { sgg_cd: string; ym: string; count: number }[]) {
+    const m = (by[r.sgg_cd] ??= {});
+    m[r.ym] = (m[r.ym] ?? 0) + r.count;
+  }
+  const out: Record<string, DistrictVolume> = {};
+  for (const [sgg, m] of Object.entries(by)) {
+    const trend = volumeTrend(m, now);
+    if (trend) out[sgg] = { ...trend, months: m };
+  }
+  return out;
+}
+
+/** 알림 끝 한 줄: 지난달 매매가 늘어난 지역이면 「🔥 …」 */
+export function volumeLine(trend: VolumeTrend | undefined): string {
+  return trend?.rising ? `\n🔥 이 지역 ${ymLabel(trend.ym)} 매매 ${trend.last}건(직전 3개월 평균 ${trend.avg}건)` : "";
 }
 
 // 이 사용자가 이 지역 실거래 중 아직 매칭(real_estate_user_matches)되지 않은 것을 찾는다.
@@ -259,6 +342,7 @@ export async function notifyUserForListings(
     .eq("user_id", userId)
     .maybeSingle();
   const autoAnalyze = pref?.auto_analyze_on_notify ?? true;
+  let trends: Record<string, DistrictVolume> = {};
 
   for (const listingId of listingIds) {
     try {
@@ -268,13 +352,15 @@ export async function notifyUserForListings(
         .eq("id", listingId)
         .maybeSingle();
       if (!listing) continue;
+      if (!(listing.sgg_cd in trends)) trends = { ...trends, ...(await tradeVolumeTrends(supabase, [listing.sgg_cd]).catch(() => ({}))) };
 
       const priceEok = listing.price_amount
         ? (listing.price_amount / 10000).toFixed(1)
         : "-";
       const isSale = (listing.deal_type ?? "매매") === "매매";
+      const rank = rankLabel((listing as { price_rank?: string | null }).price_rank);
       let message = isSale
-        ? `🏠 새 실거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층\n거래금액 ${priceEok}억`
+        ? `🏠 새 실거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층\n거래금액 ${priceEok}억${rank ? `\n${rank}` : ""}${volumeLine(trends[listing.sgg_cd])}`
         : `🏠 새 ${listing.deal_type} 거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층\n${formatDealPrice(listing.deal_type, listing.price_amount, listing.monthly_rent)}`;
 
       // 텔레그램으로 알리기 전에, 이 사용자의 등록 키/선호 모델로 AI 투자 분석까지

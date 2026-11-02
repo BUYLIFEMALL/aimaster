@@ -131,6 +131,15 @@ export async function fetchMolitTrades(params: {
   return rows.sort((a, b) => b.CTRT_DAY.localeCompare(a.CTRT_DAY));
 }
 
+/** 국토부 매매 신고 건수(한 달·한 유형). 줄은 1개만 받고 응답의 전체 건수(totalCount)만 읽는다 — A2 거래량(2026-11-02). 서울도 같은 API로 센다 */
+export async function fetchMolitTradeCount(params: { keys?: PublicDataKeys; sggCd: string; type: PropertyType; ymd: string }): Promise<number> {
+  const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
+  const json = (await molitGet(MOLIT_SERVICE[params.type].trade, key, params.sggCd, params.ymd, 1)) as { response?: { body?: { totalCount?: unknown } } };
+  const n = Number(json?.response?.body?.totalCount);
+  if (!Number.isFinite(n)) throw new Error(`국토부 ${params.type} 매매 건수를 읽지 못했습니다`);
+  return n;
+}
+
 /** 국토부 전월세 — 지역·유형별 최근 3달. 수집 한 번에 지역·유형당 한 번만 부른다 */
 export async function fetchMolitRents(params: { keys?: PublicDataKeys; sggCd: string; type: PropertyType; now?: Date }): Promise<RentComparable[]> {
   const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");

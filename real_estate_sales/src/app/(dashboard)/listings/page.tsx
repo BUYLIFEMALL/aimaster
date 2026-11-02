@@ -70,6 +70,7 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
         type: l.property_type ?? "아파트",
         deal: l.deal_type ?? "매매",
         rent: l.monthly_rent,
+        rank: (l as { price_rank?: string | null }).price_rank ?? null,
       },
     ];
   });
