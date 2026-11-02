@@ -16,6 +16,8 @@ export type OnsiteProperty = {
   sgg_cd: string | null;
   admin_dong: string | null;
   address: string | null;
+  pnu?: string | null;
+  jibun?: string | null;
   kind: string | null;
   status: OnsiteStatus;
   rating: number | null;

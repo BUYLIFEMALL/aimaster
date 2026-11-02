@@ -1,7 +1,7 @@
 import { nearestAddress, tilesFor, type AddressHit, type AddressRow } from "./geo";
 
 // 격자 파일은 운영 Supabase Storage 공개 읽기 버킷에 있다(scripts/build-geo-address.mjs). 좌표를 서버로 보내지 않고 주변 격자만 받는다.
-const BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/geo-address/v1/`;
+const BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/geo-address/v2/`;
 const cache = new Map<string, Promise<AddressRow[]>>();
 
 async function fetchTile(key: string): Promise<AddressRow[]> {

@@ -7,6 +7,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { ONSITE_BUCKET, ONSITE_KINDS, ONSITE_STATUSES } from "@/lib/onsite/types";
+import { ensureLandInfo, type LandInfo } from "@/lib/realestate/collect";
 
 // AIMaster Database 타입에 아직 없는 표라 from()의 반환값만 느슨하게 받는다(lib/access.ts와 같은 방식).
 type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -25,6 +26,13 @@ const coordsSchema = z.object({
   adminDong: z.string().max(50).nullable(),
 });
 
+// 주소 자동 등록 때 함께 오는 지번(v1.37). 회원이 직접 적은 주소에는 붙이지 않는다
+const parcelSchema = {
+  address: z.string().trim().max(200).nullable().optional(),
+  pnu: z.string().regex(/^\d{19}$/).nullable().optional(),
+  jibun: z.string().trim().max(100).nullable().optional(),
+};
+
 const captureSchema = coordsSchema.extend({
   propertyId: z.string().uuid().nullable(),
   path: z.string().max(200),
@@ -33,7 +41,7 @@ const captureSchema = coordsSchema.extend({
   width: z.number().int().positive(),
   height: z.number().int().positive(),
   bytes: z.number().int().positive(),
-  address: z.string().trim().max(200).nullable().optional(),
+  ...parcelSchema,
 });
 
 /** 함수 본문 4.5MB 제한을 피하려고 사진은 브라우저에서 저장소로 바로 올린다. 경로는 서버가 정한다 */
@@ -66,6 +74,8 @@ export async function saveOnsiteCaptureAction(input: z.input<typeof captureSchem
         admin_dong: v.adminDong,
         address: v.address || null,
         address_source: v.address ? "auto" : null,
+        pnu: v.address ? v.pnu || null : null,
+        jibun: v.address ? v.jibun || null : null,
       })
       .select("id")
       .single();
@@ -92,6 +102,9 @@ export async function saveOnsiteCaptureAction(input: z.input<typeof captureSchem
 
 const editSchema = z.object({
   address: z.string().trim().max(200),
+  // 「위치로 주소 찾기」로 고른 건물의 지번. 주소를 직접 고쳐 쓰면 화면이 null로 보낸다
+  pnu: z.string().regex(/^\d{19}$/).nullable(),
+  jibun: z.string().trim().max(100).nullable(),
   kind: z.enum(ONSITE_KINDS).nullable(),
   status: z.enum(Object.keys(ONSITE_STATUSES) as [keyof typeof ONSITE_STATUSES]),
   rating: z.number().int().min(1).max(5).nullable(),
@@ -109,6 +122,8 @@ export async function updateOnsitePropertyAction(id: string, input: z.input<type
     .update({
       address: v.address || null,
       address_source: v.address ? "member" : null,
+      pnu: v.address ? v.pnu : null,
+      jibun: v.address ? v.jibun : null,
       kind: v.kind,
       status: v.status,
       rating: v.rating,
@@ -125,7 +140,7 @@ export async function updateOnsitePropertyAction(id: string, input: z.input<type
   return { ok: true };
 }
 
-const moveSchema = coordsSchema.extend({ address: z.string().trim().max(200).nullable().optional() });
+const moveSchema = coordsSchema.extend(parcelSchema);
 
 export async function moveOnsitePropertyAction(id: string, input: z.input<typeof moveSchema>): Promise<OnsiteResult> {
   const { user, db } = await requireOnsiteUser();
@@ -149,13 +164,28 @@ export async function moveOnsitePropertyAction(id: string, input: z.input<typeof
   if (v.address !== undefined) {
     await db
       .from("real_estate_onsite_properties")
-      .update({ address: v.address || null, address_source: v.address ? "auto" : null })
+      .update({
+        address: v.address || null,
+        address_source: v.address ? "auto" : null,
+        pnu: v.address ? v.pnu || null : null,
+        jibun: v.address ? v.jibun || null : null,
+      })
       .eq("id", id)
       .eq("user_id", user.id)
       .or("address_source.is.null,address_source.eq.auto");
   }
   revalidatePath("/onsite");
   return { ok: true };
+}
+
+/** 지번이 붙은 임장 기록의 개별공시지가·용도지역. 실거래 분석과 같은 캐시(real_estate_land_info)를 쓴다 */
+export async function onsiteLandInfoAction(id: string): Promise<OnsiteResult<{ land: LandInfo }>> {
+  const { user, db } = await requireOnsiteUser();
+  const { data } = await db.from("real_estate_onsite_properties").select("pnu").eq("id", id).eq("user_id", user.id).maybeSingle();
+  if (!data?.pnu) return { ok: false, error: "지번이 없어 조회할 수 없습니다. 「위치로 주소 찾기」로 건물을 먼저 골라 주세요." };
+  const land = await ensureLandInfo(data.pnu as string);
+  if (!land) return { ok: false, error: "공시지가를 불러오지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
+  return { ok: true, land };
 }
 
 export async function deleteOnsitePhotoAction(photoId: string): Promise<OnsiteResult> {

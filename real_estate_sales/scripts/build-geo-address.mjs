@@ -1,7 +1,8 @@
 // 임장 노트 주소 자동 등록용 격자 파일을 만들고(선택) 운영 Supabase Storage 공개 읽기 버킷에 올린다.
 // 원본: 행정안전부 「도로명주소 위치정보요약DB」 전체분(시도별 entrc_*.txt, EUC-KR, | 구분 18칸, 좌표 UTM-K). 공공데이터라 회원 개인정보가 없다.
-// 사용: node scripts/build-geo-address.mjs <전체분.zip> <출력 폴더> [--upload] [--skip=N]
-//   --upload: 루트 .env.local 서버 키로 버킷 geo-address에 v1/<격자>.json.gz를 덮어쓴다(키는 출력하지 않는다). 매달 새 전체분을 받으면 다시 돌린다.
+// 사용: node scripts/build-geo-address.mjs <위치정보요약DB 전체분.zip> <출력 폴더> --road=<도로명주소 한글 전체분.zip> [--upload] [--skip=N]
+//   --road: 같은 달 「도로명주소 한글」 전체분(rnaddrkor_*.txt)으로 건물마다 지번(PNU 19자리)과 공동주택 여부를 붙인다(v2, 2026-11-02 서울 연결 100%).
+//   --upload: 루트 .env.local 서버 키로 버킷 geo-address에 v2/<격자>.json.gz를 덮어쓴다(키는 출력하지 않는다). 매달 새 전체분 2개를 받으면 다시 돌린다.
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
@@ -9,36 +10,63 @@ import { fileURLToPath } from "node:url";
 import { tileKey, utmkToWgs } from "../src/lib/onsite/geo.ts";
 
 const [zipPath, outDir] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const roadZip = process.argv.find((a) => a.startsWith("--road="))?.slice(7);
 const upload = process.argv.includes("--upload");
-if (!zipPath || !outDir) throw new Error("사용: node scripts/build-geo-address.mjs <전체분.zip> <출력 폴더> [--upload]");
+if (!zipPath || !outDir || !roadZip) throw new Error("사용: node scripts/build-geo-address.mjs <위치정보요약DB.zip> <출력 폴더> --road=<도로명주소 한글.zip> [--upload]");
 
 const BUCKET = "geo-address";
-const PREFIX = "v1";
+const PREFIX = "v2";
 const SUPABASE_URL = "https://esgxyikcnnvmlhygjkth.supabase.co"; // ① AIMaster 운영 DB
 
-/** zip 안 시도별 파일을 하나씩 풀어 돌려준다(라이브러리 없이 중앙 디렉터리를 읽는다) */
-function* zipEntries(file) {
+/** zip 안 파일 목록. 내용은 read()로 그때그때 푼다(라이브러리 없이 중앙 디렉터리를 읽는다) */
+function zipEntries(file) {
   const b = fs.readFileSync(file);
   let end = b.length - 22;
   while (b.readUInt32LE(end) !== 0x06054b50) end--;
   let p = b.readUInt32LE(end + 16);
+  const list = [];
   for (let i = 0, n = b.readUInt16LE(end + 10); i < n; i++) {
     const method = b.readUInt16LE(p + 10), size = b.readUInt32LE(p + 20), nameLen = b.readUInt16LE(p + 28);
     const extraLen = b.readUInt16LE(p + 30), commentLen = b.readUInt16LE(p + 32), at = b.readUInt32LE(p + 42);
     const name = b.slice(p + 46, p + 46 + nameLen).toString("latin1");
     p += 46 + nameLen + extraLen + commentLen;
-    if (!/^entrc_.*\.txt$/.test(name)) continue;
-    const start = at + 30 + b.readUInt16LE(at + 26) + b.readUInt16LE(at + 28);
-    const data = b.slice(start, start + size);
-    yield [name, method === 8 ? zlib.inflateRawSync(data) : data];
+    list.push({
+      name,
+      read() {
+        const start = at + 30 + b.readUInt16LE(at + 26) + b.readUInt16LE(at + 28);
+        const data = b.slice(start, start + size);
+        return method === 8 ? zlib.inflateRawSync(data) : data;
+      },
+    });
   }
+  return list;
+}
+
+const decoder = new TextDecoder("euc-kr");
+const roadEntries = zipEntries(roadZip);
+
+/** 도로명주소 한글(시도 하나): 도로명코드|지하|건물본번|건물부번 → [PNU, 공동주택 "1"/""] */
+function parcelsOf(sido) {
+  const entry = roadEntries.find((e) => e.name === `rnaddrkor_${sido}.txt`);
+  if (!entry) throw new Error(`도로명주소 한글에 rnaddrkor_${sido}.txt가 없습니다`);
+  const map = new Map();
+  for (const line of decoder.decode(entry.read()).split(/\r?\n/)) {
+    const c = line.split("|");
+    if (c.length < 20 || c[1].length !== 10) continue;
+    // PNU = 법정동코드 10 + 산여부(대지 1, 산 2 — 원본은 0/1) + 본번 4 + 부번 4
+    const pnu = `${c[1]}${c[6] === "1" ? "2" : "1"}${c[7].padStart(4, "0")}${c[8].padStart(4, "0")}`;
+    map.set(`${c[9]}|${c[11]}|${c[12]}|${c[13]}`, [pnu, c[19] === "1" ? "1" : ""]);
+  }
+  return map;
 }
 
 const tiles = new Map();
-const decoder = new TextDecoder("euc-kr");
-let rows = 0, noCoord = 0, noUse = 0;
-for (const [name, buf] of zipEntries(zipPath)) {
-  for (const line of decoder.decode(buf).split(/\r?\n/)) {
+let rows = 0, noCoord = 0, noUse = 0, noParcel = 0;
+for (const entry of zipEntries(zipPath)) {
+  const sido = entry.name.match(/^entrc_(.*)\.txt$/)?.[1];
+  if (!sido) continue;
+  const parcels = parcelsOf(sido);
+  for (const line of decoder.decode(entry.read()).split(/\r?\n/)) {
     const c = line.split("|");
     if (c.length < 18) continue;
     if (!c[16] || !c[17]) { noCoord++; continue; }
@@ -46,10 +74,12 @@ for (const [name, buf] of zipEntries(zipPath)) {
     const [lat, lon] = utmkToWgs(Number(c[16]), Number(c[17]));
     const key = tileKey(lat, lon);
     if (!tiles.has(key)) tiles.set(key, []);
-    tiles.get(key).push([Math.round(lat * 1e5), Math.round(lon * 1e5), c[3], c[4], c[5], c[7], c[8], c[9], c[10], c[11], c[13], c[15]]);
+    const [pnu, apt] = parcels.get(`${c[6]}|${c[8]}|${c[9]}|${c[10]}`) ?? ["", ""];
+    if (!pnu) noParcel++;
+    tiles.get(key).push([Math.round(lat * 1e5), Math.round(lon * 1e5), c[3], c[4], c[5], c[7], c[8], c[9], c[10], c[11], c[13], c[15], pnu, apt]);
     rows++;
   }
-  console.log(`${name} 읽음 · 누적 ${rows}곳`);
+  console.log(`${entry.name} 읽음 · 누적 ${rows}곳 · 지번 못 찾음 ${noParcel}`);
 }
 
 fs.mkdirSync(outDir, { recursive: true });
@@ -61,7 +91,7 @@ for (const [key, list] of tiles) {
   files.push(key);
   bytes += gz.length;
 }
-console.log(`건물 ${rows}곳(좌표 없음 ${noCoord}, 용도 없음 ${noUse}) · 격자 ${files.length}개 · 압축 ${(bytes / 1e6).toFixed(1)}MB → ${outDir}`);
+console.log(`건물 ${rows}곳(좌표 없음 ${noCoord}, 용도 없음 ${noUse}, 지번 못 찾음 ${noParcel}) · 격자 ${files.length}개 · 압축 ${(bytes / 1e6).toFixed(1)}MB → ${outDir}`);
 
 if (upload) {
   const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "../..");

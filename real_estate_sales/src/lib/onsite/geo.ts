@@ -76,9 +76,10 @@ function readTiffGps(buf: ArrayBuffer, start: number): { lat: number; lon: numbe
 }
 
 // ── 주소 자동 등록(2026-11-02): 행정안전부 위치정보요약DB(도로명주소 건물마다 대표 출입구 1곳)를 약 1km 격자 파일로 나눠 둔다.
-// 칸: [위도×1e5, 경도×1e5, 시도, 시군구, 법정동(읍면동), 도로명, 지하(0/1), 본번, 부번, 건물명, 건물용도, 관할행정동]
-export type AddressRow = [lat5: number, lon5: number, sido: string, sgg: string, emd: string, road: string, under: string, main: string, sub: string, building: string, use: string, adminDong: string];
-export type AddressHit = { address: string; building: string; use: string; distanceM: number };
+// 칸: [위도×1e5, 경도×1e5, 시도, 시군구, 법정동(읍면동), 도로명, 지하(0/1), 본번, 부번, 건물명, 건물용도, 관할행정동, PNU, 공동주택("1"/"")]
+// PNU·공동주택은 v2 격자부터 있다(도로명주소 한글 전체분과 연결, 못 찾으면 "").
+export type AddressRow = [lat5: number, lon5: number, sido: string, sgg: string, emd: string, road: string, under: string, main: string, sub: string, building: string, use: string, adminDong: string, pnu?: string, apartment?: string];
+export type AddressHit = { address: string; building: string; use: string; distanceM: number; pnu: string | null; jibun: string | null; apartment: boolean };
 
 export const ADDRESS_TILE_STEP = 0.01;
 export const AUTO_ADDRESS_MAX_M = 30; // 이보다 멀면 자동으로 넣지 않고 「근처」로 보여 준다(큰 건물 앞 표시 오차 수십 m, 2026-11-01 현장 시험)
@@ -123,6 +124,21 @@ export function formatAddress(r: AddressRow): string {
   return `${[sido, sgg, road, no].filter(Boolean).join(" ")}${note ? ` (${note})` : ""}`;
 }
 
+/** 30m 안 건물이면 저장할 주소·지번. 멀면 모두 null(회원이 「위치로 주소 찾기」로 확인) */
+export function autoParcel(hit: AddressHit | null): { address: string | null; pnu: string | null; jibun: string | null } {
+  if (!hit || hit.distanceM > AUTO_ADDRESS_MAX_M) return { address: null, pnu: null, jibun: null };
+  return { address: hit.address, pnu: hit.pnu, jibun: hit.jibun };
+}
+
+/** 지번 표기: PNU 1111010100 1 0144 0003 → 「서울특별시 종로구 청운동 144-3」(산이면 「산 12」) */
+export function formatJibun(r: AddressRow): string | null {
+  const pnu = r[12];
+  if (!pnu || !/^\d{19}$/.test(pnu)) return null;
+  const main = Number(pnu.slice(11, 15)), sub = Number(pnu.slice(15, 19));
+  const no = `${pnu[10] === "2" ? "산 " : ""}${main}${sub ? `-${sub}` : ""}`;
+  return [r[2], r[3], r[4], no].filter(Boolean).join(" ");
+}
+
 /** 가장 가까운 건물. 150m 안에 없으면 null */
 export function nearestAddress(rows: AddressRow[], lat: number, lon: number): AddressHit | null {
   let best: AddressRow | null = null;
@@ -132,7 +148,8 @@ export function nearestAddress(rows: AddressRow[], lat: number, lon: number): Ad
     if (m < bestM) [best, bestM] = [r, m];
   }
   if (!best || bestM > SEARCH_MAX_M) return null;
-  return { address: formatAddress(best), building: best[9], use: best[10], distanceM: Math.round(bestM) };
+  const jibun = formatJibun(best);
+  return { address: formatAddress(best), building: best[9], use: best[10], distanceM: Math.round(bestM), pnu: jibun ? best[12]! : null, jibun, apartment: best[13] === "1" };
 }
 
 /** 사진 속 위치 정보. 브라우저에 따라 지워져 있어 없을 수 있다(사전 검증: 크롬 없음) */

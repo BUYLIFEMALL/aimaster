@@ -1,7 +1,7 @@
 // 임장 노트 위치 계산(2026-11-01)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bestSample, distanceM, exifGps, fitSize, formatAddress, locateDong, nearestAddress, sggCandidates, shouldStopWaiting, tileKey, tilesFor, utmkToWgs } from "../src/lib/onsite/geo.ts";
+import { autoParcel, bestSample, distanceM, exifGps, fitSize, formatAddress, formatJibun, locateDong, nearestAddress, sggCandidates, shouldStopWaiting, tileKey, tilesFor, utmkToWgs } from "../src/lib/onsite/geo.ts";
 
 const square = (x, y, size = 1) => [[x, y], [x + size, y], [x + size, y + size], [x, y + size], [x, y]];
 const boundaries = [
@@ -97,4 +97,18 @@ test("주소: 가장 가까운 건물을 도로명주소로, 150m 밖이면 없�
   assert.equal(hit.distanceM, 2);
   assert.equal(nearestAddress(rows, 37.59, 126.9704), null, "150m 밖");
   assert.equal(nearestAddress([], 37.5, 127), null);
+  assert.equal(hit.pnu, null, "v1 격자(지번 칸 없음)는 지번 없음");
+});
+
+test("지번: PNU로 지번 표기, 산·부번 0 처리, 30m 넘으면 저장 안 함", () => {
+  const row = (pnu, apt = "") => [3758440, 12697040, "서울특별시", "종로구", "청운동", "자하문로", "0", "94", "0", "", "공동주택", "청운효자동", pnu, apt];
+  assert.equal(formatJibun(row("1111010100101440003")), "서울특별시 종로구 청운동 144-3");
+  assert.equal(formatJibun(row("1111010100200120000")), "서울특별시 종로구 청운동 산 12");
+  assert.equal(formatJibun(row("")), null);
+  const hit = nearestAddress([row("1111010100101440003", "1")], 37.5844, 126.9704);
+  assert.equal(hit.pnu, "1111010100101440003");
+  assert.equal(hit.apartment, true);
+  assert.deepEqual(autoParcel(hit), { address: hit.address, pnu: hit.pnu, jibun: "서울특별시 종로구 청운동 144-3" });
+  assert.deepEqual(autoParcel({ ...hit, distanceM: 31 }), { address: null, pnu: null, jibun: null });
+  assert.deepEqual(autoParcel(null), { address: null, pnu: null, jibun: null });
 });

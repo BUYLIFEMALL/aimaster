@@ -2,10 +2,11 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteOnsitePhotoAction, deleteOnsitePropertyAction, moveOnsitePropertyAction, updateOnsitePropertyAction } from "@/lib/actions/onsite";
+import { deleteOnsitePhotoAction, deleteOnsitePropertyAction, moveOnsitePropertyAction, onsiteLandInfoAction, updateOnsitePropertyAction } from "@/lib/actions/onsite";
 import { locateAdminDong } from "@/lib/onsite/locate";
 import { findAddress } from "@/lib/onsite/address";
-import { AUTO_ADDRESS_MAX_M } from "@/lib/onsite/geo";
+import { AUTO_ADDRESS_MAX_M, autoParcel } from "@/lib/onsite/geo";
+import type { LandInfo } from "@/lib/realestate/collect";
 import { ONSITE_KINDS, ONSITE_STATUSES, type OnsiteProperty, type OnsiteStatus } from "@/lib/onsite/types";
 import { OnsiteMap } from "./OnsiteMap";
 
@@ -22,7 +23,7 @@ export function MoveOnMap({ property, mapKey }: { property: OnsiteProperty; mapK
     setMessage("");
     const { lat, lon } = center.current;
     const [place, hit] = await Promise.all([locateAdminDong(lat, lon), findAddress(lat, lon)]);
-    const result = await moveOnsitePropertyAction(property.id, { lat, lon, ...place, address: hit && hit.distanceM <= AUTO_ADDRESS_MAX_M ? hit.address : null });
+    const result = await moveOnsitePropertyAction(property.id, { lat, lon, ...place, ...autoParcel(hit) });
     setSaving(false);
     setMessage(result.ok ? "✅ 위치를 확정했습니다." : result.error);
     if (result.ok) router.refresh();
@@ -43,6 +44,8 @@ export function PropertyForm({ property }: { property: OnsiteProperty }) {
   const router = useRouter();
   const [form, setForm] = useState({
     address: property.address ?? "",
+    pnu: property.pnu ?? null,
+    jibun: property.jibun ?? null,
     kind: property.kind ?? "",
     status: property.status,
     rating: property.rating ? String(property.rating) : "",
@@ -55,6 +58,8 @@ export function PropertyForm({ property }: { property: OnsiteProperty }) {
   const [message, setMessage] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [hint, setHint] = useState("");
+  const [land, setLand] = useState<LandInfo | null>(null);
+  const [landMessage, setLandMessage] = useState("");
   const set =(key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm({ ...form, [key]: e.target.value });
 
   async function save(e: React.FormEvent) {
@@ -68,15 +73,26 @@ export function PropertyForm({ property }: { property: OnsiteProperty }) {
     });
     setSaving(false);
     setMessage(result.ok ? "✅ 저장했습니다." : result.error);
+    if (result.ok) router.refresh();
   }
 
   async function lookup() {
     setHint("가까운 건물을 찾는 중입니다");
     const hit = await findAddress(property.lat, property.lon);
     if (!hit) return setHint("150m 안에서 건물을 찾지 못했습니다. 지도에서 위치를 옮기거나 직접 적어 주세요.");
-    setForm((f) => ({ ...f, address: hit.address }));
+    setForm((f) => ({ ...f, address: hit.address, pnu: hit.pnu, jibun: hit.jibun }));
+    setLand(null);
     const near = hit.distanceM > AUTO_ADDRESS_MAX_M ? " · 거리가 있어 근처 건물일 수 있으니 확인해 주세요" : "";
-    setHint(`가장 가까운 건물 약 ${hit.distanceM}m${hit.use ? ` · 용도 ${hit.use}` : ""}${near}. 맞으면 「저장」을 눌러 주세요.`);
+    // 공동주택에는 아파트·연립·다세대가 함께 들어 있어 유형은 회원이 고른다
+    const apt = hit.apartment && !form.kind ? " · 공동주택(아파트·빌라)이라 아래 「유형」도 골라 주세요" : "";
+    setHint(`가장 가까운 건물 약 ${hit.distanceM}m${hit.use ? ` · 용도 ${hit.use}` : ""}${near}${apt}. 맞으면 「저장」을 눌러 주세요.`);
+  }
+
+  async function showLand() {
+    setLandMessage("공시지가와 용도지역을 불러오는 중입니다");
+    const result = await onsiteLandInfoAction(property.id);
+    setLandMessage(result.ok ? "" : result.error);
+    if (result.ok) setLand(result.land);
   }
 
   async function remove() {
@@ -89,8 +105,37 @@ export function PropertyForm({ property }: { property: OnsiteProperty }) {
     <form onSubmit={(e) => void save(e)} className="mx-card flex flex-col gap-3 p-4">
       <label className="text-sm text-mx-muted">
         주소
-        <input className={inputClass} value={form.address} onChange={set("address")} placeholder="사진 위치에서 찾은 도로명주소가 들어갑니다. 직접 고칠 수 있습니다." />
+        <input
+          className={inputClass}
+          value={form.address}
+          // 직접 고쳐 쓰면 찾은 건물과 달라질 수 있어 지번을 떼어 낸다
+          onChange={(e) => setForm({ ...form, address: e.target.value, pnu: null, jibun: null })}
+          placeholder="사진 위치에서 찾은 도로명주소가 들어갑니다. 직접 고칠 수 있습니다."
+        />
       </label>
+      {form.jibun && (
+        <div className="rounded-lg border border-mx-border bg-mx-raised p-3 text-sm">
+          <p className="text-mx-text">🧭 지번 {form.jibun}</p>
+          {form.pnu === property.pnu ? (
+            <button type="button" className="mx-btn-ghost mt-2 min-h-[44px] w-full" onClick={() => void showLand()}>
+              공시지가·용도지역 보기
+            </button>
+          ) : (
+            <p className="mt-1 text-xs text-mx-muted">「저장」을 누르면 공시지가·용도지역을 볼 수 있습니다.</p>
+          )}
+          {landMessage && <p role="status" className="mt-1 text-xs text-mx-muted">{landMessage}</p>}
+          {land && (
+            <ul className="mt-2 space-y-1 text-xs text-mx-muted">
+              <li>
+                개별공시지가:{" "}
+                {land.pricePerM2 ? `${land.pricePerM2.toLocaleString("ko-KR")}원/㎡ (평당 약 ${Math.round((land.pricePerM2 * 3.3058) / 10000).toLocaleString("ko-KR")}만 원)${land.priceStdrYear ? ` · ${land.priceStdrYear}년 기준` : ""}` : "자료 없음"}
+              </li>
+              <li>용도지역·지구: {land.useZones ?? "자료 없음"}</li>
+              <li>출처: 국토교통부(브이월드). 집합건물은 대지 전체 기준이라 내 지분만큼 나눠 봐야 합니다.</li>
+            </ul>
+          )}
+        </div>
+      )}
       <div>
         <button type="button" className="mx-btn-ghost min-h-[44px] w-full" onClick={() => void lookup()}>
           📍 위치로 주소 찾기
