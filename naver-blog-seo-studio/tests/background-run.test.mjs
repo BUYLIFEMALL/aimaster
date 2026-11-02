@@ -72,3 +72,14 @@ test("a restarted worker clears a run left marked as running", async () => {
   assert.equal(ui.props.fill.disabled, false);
   assert.match(ui.props.generateStatus.textContent, /중간에 멈췄습니다/);
 });
+
+// 2026-11-02: 허용 목록에 reserve가 빠져 「예약 포스팅 시작」이 「알 수 없는 작업입니다」로 거절됐다(실제 화면에서 발견).
+test("accepts the reserve run and starts the publication in reserve mode", async () => {
+  const w = loadWorker();
+  let reserveArg;
+  w.context.startAutoPublication = async (reserve) => { reserveArg = reserve; };
+  const result = await w.send({ type: "seoRun", mode: "reserve", payload });
+  assert.equal(result.ok, true);
+  for (let i = 0; i < 20 && reserveArg === undefined; i++) await tick();
+  assert.equal(reserveArg, true);
+});

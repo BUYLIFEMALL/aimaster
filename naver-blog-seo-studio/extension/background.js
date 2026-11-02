@@ -146,7 +146,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
   if (message?.type === "seoRun") {
     // 이 확장의 사이드패널에서 온 요청만 받는다(네이버·스튜디오 페이지의 스크립트는 거절).
     if (sender?.id !== chrome.runtime.id || sender?.tab || !String(sender?.url || "").startsWith(chrome.runtime.getURL("sidepanel.html"))) { reply({ ok: false, error: "허용되지 않은 요청입니다." }); return false; }
-    if (!["fill", "auto", "reconcile"].includes(message.mode)) { reply({ ok: false, error: "알 수 없는 작업입니다." }); return false; }
+    if (!["fill", "auto", "reserve", "reconcile"].includes(message.mode)) { reply({ ok: false, error: "알 수 없는 작업입니다." }); return false; }
     if (seoRunActive) { reply({ ok: false, error: "이미 입력이 진행 중입니다. 끝난 뒤 다시 눌러 주세요." }); return false; }
     runSeoJob(message.mode, message.payload || {});
     reply({ ok: true });
