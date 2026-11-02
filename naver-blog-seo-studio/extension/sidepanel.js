@@ -1097,6 +1097,28 @@ async function fillDraftIntoNaver(options = {}) {
 
 // 2026-10-23: 입력·자동 포스팅은 background가 실행한다. 사이드패널은 원고를 넘기고 진행 상황만 비춘다.
 const SEO_RUN_STALE_MS = 60 * 1000;
+// 2026-11-02: 자동 포스팅·예약·결과 확인의 결과가 위쪽 진행 칸(generateStatus)과 아래 카테고리 칸(publishStatus)에만 찍혀
+// 누른 버튼 근처에서는 「반응 없음」처럼 보였다. 자동 포스팅 칸의 결과 칸(autoPublishStatus)에 같은 내용을 모아 보여 준다.
+const SEO_RESULT_MODES = ["auto", "reserve", "reconcile"];
+function seoRunResultText(state) {
+  if (!SEO_RESULT_MODES.includes(state?.mode)) return "";
+  const lines = [state.props?.generateStatus?.textContent, state.props?.publishStatus?.textContent].map((text) => String(text || "").trim()).filter(Boolean);
+  if (!lines.length) return state.running ? "실행을 시작했습니다. 진행 상황을 기다리는 중입니다..." : "";
+  return [...new Set(lines)].join("\n");
+}
+let seoWatchedRunAt = 0;
+function showAutoPublishResult(text, running = false) {
+  const box = $("autoPublishStatus");
+  if (!box || !text) return;
+  box.textContent = text;
+  box.hidden = false;
+  box.classList.toggle("running", running);
+}
+function showRunMessage(mode, text) {
+  $("generateStatus").textContent = text;
+  if (SEO_RESULT_MODES.includes(mode)) showAutoPublishResult(text);
+  return text;
+}
 function applySeoRunUi(state) {
   if (!state || IN_WORKER) return;
   for (const [id, props] of Object.entries(state.props || {})) {
@@ -1104,17 +1126,26 @@ function applySeoRunUi(state) {
     if (element) Object.assign(element, props);
   }
   // 실행 중이라는데 1분 넘게 소식이 없으면 background가 도중에 멈춘 것이다. 버튼을 다시 풀어 준다.
-  if (state.running && Date.now() - Number(state.aliveAt || 0) > SEO_RUN_STALE_MS) {
-    $("generateStatus").textContent = "입력이 중간에 멈춘 것 같습니다. 네이버 탭의 글을 확인한 뒤 다시 시작하세요.";
+  const stale = state.running && Date.now() - Number(state.aliveAt || 0) > SEO_RUN_STALE_MS;
+  if (stale) {
+    showRunMessage(state.mode, "입력이 중간에 멈춘 것 같습니다. 네이버 탭의 글을 확인한 뒤 다시 시작하세요.");
     $("keepPanelOpen").hidden = true;
     for (const id of ["fill", "previewFill", "autoPublish", "reservePublish", "reconcilePublish"]) $(id).disabled = false;
+    return;
+  }
+  showAutoPublishResult(seoRunResultText(state), Boolean(state.running));
+  // 이 사이드패널이 지켜본 실행이 끝났을 때만 결과 칸으로 화면을 옮긴다(사이드패널을 열 때 지난 결과로 화면이 움직이지 않게).
+  if (state.running) seoWatchedRunAt = Number(state.startedAt || 0);
+  else if (seoWatchedRunAt && seoWatchedRunAt === Number(state.startedAt || 0)) {
+    seoWatchedRunAt = 0;
+    if (SEO_RESULT_MODES.includes(state.mode)) $("autoPublishStatus")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 }
 
 async function startBackgroundRun(mode) {
   if (mode !== "reconcile") {
-    if (webDraftLoading) return ($("generateStatus").textContent = "콘텐츠와 이미지를 불러오는 중입니다. 「…불러왔습니다」 안내가 나온 뒤 다시 눌러 주세요.");
-    if (!activeWebDraftId || !activeWebDraftTitle || !activeWebDraftBody) return ($("generateStatus").textContent = "웹에서 전송한 콘텐츠를 먼저 불러오세요.");
+    if (webDraftLoading) return showRunMessage(mode, "콘텐츠와 이미지를 불러오는 중입니다. 「…불러왔습니다」 안내가 나온 뒤 다시 눌러 주세요.");
+    if (!activeWebDraftId || !activeWebDraftTitle || !activeWebDraftBody) return showRunMessage(mode, "웹에서 전송한 콘텐츠를 먼저 불러오세요.");
   }
   const payload = {
     draft: webDrafts.find((item) => item.id === activeWebDraftId) || null,
@@ -1128,9 +1159,9 @@ async function startBackgroundRun(mode) {
   };
   try {
     const result = await chrome.runtime.sendMessage({ type: "seoRun", mode, payload });
-    if (!result?.ok) $("generateStatus").textContent = result?.error || "입력을 시작하지 못했습니다.";
+    if (!result?.ok) showRunMessage(mode, result?.error || "입력을 시작하지 못했습니다.");
   } catch (error) {
-    $("generateStatus").textContent = formatBrowserError(error, "입력 시작");
+    showRunMessage(mode, formatBrowserError(error, "입력 시작"));
   }
 }
 

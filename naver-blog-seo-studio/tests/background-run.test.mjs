@@ -83,3 +83,15 @@ test("accepts the reserve run and starts the publication in reserve mode", async
   for (let i = 0; i < 20 && reserveArg === undefined; i++) await tick();
   assert.equal(reserveArg, true);
 });
+
+// 2026-11-02: 자동 포스팅·예약·결과 확인의 결과는 자동 포스팅 칸의 결과 칸(autoPublishStatus)에도 모아 보여 준다.
+test("collects the auto-publish result for the auto-publish card only", () => {
+  const w = loadWorker();
+  const text = (state) => w.value(`seoRunResultText(${JSON.stringify(state)})`);
+  const props = { generateStatus: { textContent: "예약 완료 · 11월 2일 오후 09:30" }, publishStatus: { textContent: "네이버 예약 목록에서 제목과 예약 시각을 확인하고 서버에 기록했습니다." } };
+  assert.equal(text({ mode: "reconcile", running: false, props }), "예약 완료 · 11월 2일 오후 09:30\n네이버 예약 목록에서 제목과 예약 시각을 확인하고 서버에 기록했습니다.");
+  assert.equal(text({ mode: "reserve", running: true, props: {} }), "실행을 시작했습니다. 진행 상황을 기다리는 중입니다...");
+  assert.equal(text({ mode: "auto", running: false, props: { generateStatus: { textContent: "같은 문구" }, publishStatus: { textContent: "같은 문구" } } }), "같은 문구");
+  assert.equal(text({ mode: "fill", running: false, props }), "");
+  assert.ok(read("sidepanel.html").includes('id="autoPublishStatus"'));
+});
