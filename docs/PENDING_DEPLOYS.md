@@ -28,7 +28,6 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `ghost-scraper`(website-scraper) | 사이드바 고정 「FREE」 표시 삭제 — DB 배지 없음·비공개라 DB와 다름(2026-11-03 배지 전수 조사) | `937ce820d` | 2026-11-03 · Claude Code(윈도우) `claude-win-20261029-statusbar` | `src/components/layout/Sidebar.tsx` | 다음 배포 때(버전 +0.01) |
-| `naver-blog-seo-studio` | 확장: 원고를 빨리 바꿔 고르면 앞 원고 불러오기 결과(이미지·미리보기·안내)가 지금 원고를 덮어쓰던 문제 — 불러오기 순번으로 늦은 결과 버림, 입력 막기는 마지막 불러오기 끝날 때만 해제 | `176004fa9` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | `naver-blog-seo-studio/docs/IMPROVEMENTS.md` 2026-11-02 | 다음 SEO 배포 때(v2.25, manifest·ZIP·DB 함께) |
 | `naver-blog-agent` | 좌측 메뉴 제목 옆 고정 「FREE」 표시 삭제(DB 배지는 비어 있음, 옛 간편 모드 무료 입구 잔재) — 주인님 「일반으로 전환해」 | `2a37dabc4` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | — | 다음 에이전트 배포 때 |
 | `ai-auto-blog` | 30일 정리에서 예외 회원 제외(독립 키트는 확인 생략) | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 BLOG 배포 때 |
 | `tistory-auto-blog` | 30일 정리에서 예외 회원 제외 | `204080c43` | 2026-11-02 · Claude Code(맥미니) [역할: mac-mini] | 같은 문서 §6 | 다음 티스토리 배포 때 |
@@ -79,6 +78,7 @@
 | `blog-keyword` | v1.10 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB OK(확장 없음). 맥미니 화면 검수 대기 |
 | `tistory-auto-blog` | v1.94 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 대기 |
 | `ai-auto-blog` | v1.85 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542` + 글 보기 복사에서 이미지 설명 제외. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `naver-blog-seo-studio` | v2.25 · 2026-11-03 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 맥미니 요청·주인님 승인 빌드 1회, `naver-blog-seo-studio-nrhlnfwaf`) | 확장: 원고를 빨리 바꿔 고를 때 앞 원고 결과가 덮어쓰던 문제 `176004fa9`. 버전·manifest·ZIP `e3c199f92`. 시험 158(157 통과·1 건너뜀)·tsc·build 통과, DB/ZIP OK |
 | `naver-blog-seo-studio` | v2.24 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 맥미니 요청·주인님 승인 빌드 1회, `naver-blog-seo-studio-ixznbia00`) | 맥 예약 포스팅 검수 수정 묶음(확장 9커밋) + 웹 6커밋(재전송 409 복제 안내·실패 원고 삭제·목록 상태 표시·생성 기록 칸·복제 때 이미지 복사·30일 정리 예외 회원 제외) — 핸드오프 `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261102.md`. 버전·ZIP `07b1b1abe`. DB/ZIP OK. 웹 확인: 생성 기록 결과 칸 전체 폭, 이미지 있는 원고 복제 → 새 원고 폴더에 본문 이미지 1장 복사·화면 표시 확인. 확장 화면은 맥미니 확인 대기 |
 | `naver-blog-agent` | v2.25 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 맥미니 요청·주인님 승인 빌드 1회, `naver-blog-agent-f3irqshs0`) | 예약 시각 지난 원고 막기·발행 직전 재확인 `ab67e1ff0` + 30일 정리 예외 회원 제외 `6c8e0eb63`. 버전 `5ac258ab5` 커밋. DB/ZIP OK. 맥미니 예약 재시험 대기 |
 | `naver-blog-agent` | v2.24 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 대기 |
