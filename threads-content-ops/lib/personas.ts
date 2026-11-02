@@ -91,10 +91,6 @@ export const IMAGE_MODELS: { value: string; label: string; platform: ImagePlatfo
   { value: "nanobanana-2-4k", label: "NanoBanana 2-4K (울트라 HD)", platform: "nanobanana" },
   { value: "nanobanana-pro", label: "NanoBanana Pro (프로페셔널 정밀 비주얼)", platform: "nanobanana" },
   { value: "gpt-image-2", label: "GPT Image 2 (OpenAI 표준 비주얼 · 추천)", platform: "openai" },
-  { value: "chatgpt-image-latest", label: "ChatGPT Image Latest (최신 통합 플래그십)", platform: "openai" },
-  { value: "gpt-image-1.5", label: "GPT Image 1.5 (고성능)", platform: "openai" },
-  { value: "gpt-image-1", label: "GPT Image 1 (표준 1세대)", platform: "openai" },
-  { value: "gpt-image-1-mini", label: "GPT Image 1 Mini (초고속 경량 미니)", platform: "openai" },
   { value: "gpt-image-2.5-flare", label: "GPT Image 2.5 Flare (데일리 고품질)", platform: "openai" },
   { value: "gpt-image-2.5-sunburst", label: "GPT Image 2.5 Sunburst (최상위 플래그십)", platform: "openai" },
   { value: "black-forest-labs/flux-2-dev", label: "FLUX 2 [dev] (정밀 디테일 & 초고속 최적화 · 추천)", platform: "flux" },
@@ -105,15 +101,18 @@ export const IMAGE_MODELS: { value: string; label: string; platform: ImagePlatfo
 export const DEFAULT_IMAGE_PLATFORM: ImagePlatform = "nanobanana";
 export const DEFAULT_IMAGE_MODELS: Record<ImagePlatform, string> = {
   nanobanana: "nanobanana-2-2k",
-  openai: "gpt-image-2",
+  openai: "gpt-image-2.5-flare",
   flux: "black-forest-labs/flux-2-dev",
   zimage: "prunaai/z-image-turbo",
 };
 export const MAX_IMAGES_PER_POST = 10;
 export const MAX_GENERATE_COUNT = 10;
 
+// 2026-11-03 종료 모델 정리(docs/AI_MODEL_CATALOG.md 4절): gpt-image-1(10-23 종료)·gpt-image-1-mini·gpt-image-1.5·chatgpt-image-latest(12-01 종료) 삭제,
+// 예전에 저장된 값은 gpt-image-2.5-flare로 바꿔 찾는다.
+const RETIRED_OPENAI_IMAGE: Record<string, string> = { "gpt-image-1": "gpt-image-2.5-flare", "gpt-image-1-mini": "gpt-image-2.5-flare", "gpt-image-1.5": "gpt-image-2.5-flare", "chatgpt-image-latest": "gpt-image-2.5-flare" };
 export function findImageModel(value: string) {
-  const model = IMAGE_MODELS.find((item) => item.value === value);
+  const model = IMAGE_MODELS.find((item) => item.value === (RETIRED_OPENAI_IMAGE[value] ?? value));
   if (!model) return undefined;
   const platform = IMAGE_PLATFORMS.find((item) => item.id === model.platform)!;
   return { ...model, keyProvider: platform.keyProvider };

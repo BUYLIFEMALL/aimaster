@@ -7,7 +7,7 @@ const FLAGSHIP_QUALITY_OPTIONS = [
   { label: "Medium (중간)", value: "medium" },
   { label: "Low (낮음)", value: "low" },
   { label: "Max (최대)", value: "max" },
-  { label: "Extra high (최고화질)", value: "extra_high" }
+  { label: "Extra high (최고화질)", value: "xhigh" }
 ];
 
 // gpt-image-1.5 이하 모델 품질 4종 세트 (Auto, High, Medium, Low)
@@ -454,30 +454,6 @@ export const PROVIDERS_REGISTRY: ProviderConfig[] = [
         name: "gpt-image-2",
         description: "OpenAI 표준 비주얼 편집",
         options: GPT_IMAGE_2_OPTIONS
-      },
-      {
-        id: "chatgpt-image-latest",
-        name: "chatgpt-image-latest",
-        description: "OpenAI ChatGPT 최신 통합",
-        options: CHATGPT_IMAGE_LATEST_OPTIONS
-      },
-      {
-        id: "gpt-image-1",
-        name: "gpt-image-1",
-        description: "OpenAI 표준 1세대",
-        options: GPT_IMAGE_1_OPTIONS
-      },
-      {
-        id: "gpt-image-1-mini",
-        name: "gpt-image-1-mini",
-        description: "OpenAI 초고속 경량 미니",
-        options: GPT_IMAGE_1_MINI_OPTIONS
-      },
-      {
-        id: "gpt-image-1.5",
-        name: "gpt-image-1.5",
-        description: "OpenAI 차세대 고성능",
-        options: GPT_IMAGE_1_5_OPTIONS
       },
       {
         id: "gpt-image-2.5-flare",

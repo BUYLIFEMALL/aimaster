@@ -76,5 +76,5 @@ export async function generateImageBytes(params: { model: string; ratio: ImageRa
   const prompt = finalizeImagePrompt(params.prompt);
   return info.engine === "gemini"
     ? withGemini(params.model, params.ratio, prompt, params.apiKey)
-    : withOpenAI(params.model, params.ratio, prompt, params.apiKey);
+    : withOpenAI(info.value, params.ratio, prompt, params.apiKey);
 }

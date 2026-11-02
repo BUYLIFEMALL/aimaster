@@ -69,10 +69,6 @@ export const IMAGE_MODELS: { value: string; label: string; platform: ImagePlatfo
   { value: "nanobanana-2-4k", label: "NanoBanana 2-4K (울트라 HD)", platform: "nanobanana" },
   { value: "nanobanana-pro", label: "NanoBanana Pro (정밀 비주얼)", platform: "nanobanana" },
   { value: "gpt-image-2", label: "GPT Image 2 (OpenAI 표준 비주얼 · 추천)", platform: "openai" },
-  { value: "chatgpt-image-latest", label: "ChatGPT Image Latest (최신 통합 플래그십)", platform: "openai" },
-  { value: "gpt-image-1.5", label: "GPT Image 1.5 (고성능)", platform: "openai" },
-  { value: "gpt-image-1", label: "GPT Image 1 (표준 1세대)", platform: "openai" },
-  { value: "gpt-image-1-mini", label: "GPT Image 1 Mini (초고속 경량)", platform: "openai" },
   { value: "black-forest-labs/flux-2-dev", label: "FLUX 2 [dev] (정밀 디테일·빠름 · 추천)", platform: "flux" },
   { value: "black-forest-labs/flux-2-pro", label: "FLUX 2 [pro] (상업용 극실사)", platform: "flux" },
   { value: "black-forest-labs/flux-2-max", label: "FLUX 2 [max] (최대 해상도)", platform: "flux" },
@@ -81,7 +77,7 @@ export const IMAGE_MODELS: { value: string; label: string; platform: ImagePlatfo
 
 export const DEFAULT_IMAGE_BY_PLATFORM: Record<ImagePlatform, string> = {
   nanobanana: "nanobanana-2-2k",
-  openai: "gpt-image-2",
+  openai: "gpt-image-2.5-flare",
   flux: "black-forest-labs/flux-2-dev",
   zimage: "prunaai/z-image-turbo",
 };
@@ -96,8 +92,11 @@ export function isKnownTextModel(provider: string, model: string): boolean {
   return !!findTextEngine(provider)?.models.some((m) => m.value === model);
 }
 
+// 2026-11-03 종료 모델 정리(docs/AI_MODEL_CATALOG.md 4절): gpt-image-1(10-23 종료)·gpt-image-1-mini·gpt-image-1.5·chatgpt-image-latest(12-01 종료) 삭제,
+// 예전에 저장된 값은 gpt-image-2.5-flare로 바꿔 찾는다.
+const RETIRED_OPENAI_IMAGE: Record<string, string> = { "gpt-image-1": "gpt-image-2.5-flare", "gpt-image-1-mini": "gpt-image-2.5-flare", "gpt-image-1.5": "gpt-image-2.5-flare", "chatgpt-image-latest": "gpt-image-2.5-flare" };
 export function findImageModel(value: string) {
-  return IMAGE_MODELS.find((m) => m.value === value);
+  return IMAGE_MODELS.find((m) => m.value === (RETIRED_OPENAI_IMAGE[value] ?? value));
 }
 
 export function imagePlatformOf(value: string): ImagePlatform | undefined {
@@ -143,7 +142,7 @@ const LEGACY_IMAGE: Record<string, string> = { "nano-banana-2": "nanobanana-2-2k
 
 /** 지금 이미지 생성에 쓸 모델. 새 설정이 없으면 기존 나노바나나 설정(imageModel)을 그대로 쓴다. */
 export function resolveImageEngine(settings: AppSettings): ResolvedImageEngine {
-  const modelId = settings.imageModelId && findImageModel(settings.imageModelId) ? settings.imageModelId : LEGACY_IMAGE[settings.imageModel] ?? DEFAULT_IMAGE_BY_PLATFORM.nanobanana;
+  const modelId = settings.imageModelId && findImageModel(settings.imageModelId) ? findImageModel(settings.imageModelId)!.value : LEGACY_IMAGE[settings.imageModel] ?? DEFAULT_IMAGE_BY_PLATFORM.nanobanana;
   const platform = imagePlatformOf(modelId) ?? "nanobanana";
   const keyProvider = IMAGE_PLATFORMS.find((p) => p.id === platform)!.keyProvider;
   return { platform, model: modelId, keyProvider, apiKey: keyOf(settings, keyProvider), label: findImageModel(modelId)?.label.split(" (")[0] ?? modelId };

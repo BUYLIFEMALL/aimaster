@@ -16,13 +16,13 @@ export const IMAGE_MODEL_OPTIONS: ImageModelOption[] = [
   { value: "nanobanana", label: "🍌 NanoBanana 2 · 1K (빠르고 저렴)", engine: "gemini" },
   { value: "nanobanana-pro", label: "🍌 NanoBanana Pro (정밀 고품질)", engine: "gemini" },
   { value: "gpt-image-2", label: "🎨 GPT Image 2 (OpenAI 표준 · 추천)", engine: "openai" },
-  { value: "gpt-image-1-mini", label: "🎨 GPT Image 1 Mini (빠르고 저렴)", engine: "openai" },
-  { value: "gpt-image-1", label: "🎨 GPT Image 1 (표준 1세대)", engine: "openai" },
+  { value: "gpt-image-2.5-flare", label: "🎨 GPT Image 2.5 Flare (빠른 데일리 고품질)", engine: "openai" },
+  { value: "gpt-image-2.5-sunburst", label: "🎨 GPT Image 2.5 Sunburst (정밀 편집 플래그십)", engine: "openai" },
 ];
 
 export const DEFAULT_IMAGE_MODELS: Record<ImageEngine, string> = {
   gemini: "nanobanana-2-2k",
-  openai: "gpt-image-2",
+  openai: "gpt-image-2.5-flare",
 };
 
 export const IMAGE_RATIO_OPTIONS: { value: ImageRatio; label: string }[] = [
@@ -38,8 +38,11 @@ export const IMAGE_ENGINE_LABELS: Record<ImageEngine, string> = {
 /** 한 번에 만드는 장수(1~2) — 장마다 따로 요청해 Vercel 시간 제한(300초) 안에 끝나게 한다 */
 export const MAX_IMAGE_COUNT = 2;
 
+// 2026-11-03 종료 모델 정리(docs/AI_MODEL_CATALOG.md 4절): gpt-image-1(10-23 종료)·gpt-image-1-mini·gpt-image-1.5·chatgpt-image-latest(12-01 종료) 삭제,
+// 예전에 저장된 값은 gpt-image-2.5-flare로 바꿔 찾는다.
+const RETIRED_OPENAI_IMAGE: Record<string, string> = { "gpt-image-1": "gpt-image-2.5-flare", "gpt-image-1-mini": "gpt-image-2.5-flare", "gpt-image-1.5": "gpt-image-2.5-flare", "chatgpt-image-latest": "gpt-image-2.5-flare" };
 export function findImageModel(value: string): ImageModelOption | undefined {
-  return IMAGE_MODEL_OPTIONS.find((m) => m.value === value);
+  return IMAGE_MODEL_OPTIONS.find((m) => m.value === (RETIRED_OPENAI_IMAGE[value] ?? value));
 }
 
 export function isImageRatio(value: string): value is ImageRatio {

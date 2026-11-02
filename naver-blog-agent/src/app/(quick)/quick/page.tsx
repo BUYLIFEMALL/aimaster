@@ -42,7 +42,7 @@ export default function QuickModePage() {
         const p = d?.preferences;
         if (p?.textProvider && p?.textModel) setEngine({ provider: p.textProvider, model: p.textModel });
         if (p?.imageCount) setImageCount(Math.min(5, Math.max(1, Number(p.imageCount) || 2)));
-        if (p?.imageModel && findImageModel(p.imageModel)) setImage({ model: p.imageModel, ratio: p.imageRatio || "1:1" });
+        if (p?.imageModel && findImageModel(p.imageModel)) setImage({ model: findImageModel(p.imageModel)!.value, ratio: p.imageRatio || "1:1" });
       }).catch(() => {});
   }, []);
 

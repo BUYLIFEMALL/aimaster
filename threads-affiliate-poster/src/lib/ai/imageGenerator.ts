@@ -51,29 +51,22 @@ async function generateWithOpenAI(prompt: string, model: string, apiKey: string)
   const openai = new OpenAI({ apiKey });
   const composedPrompt = `${prompt}\n\n${KOREAN_DEFAULT_PEOPLE_INSTRUCTION}`;
 
+  // 2026-11-03: 종료 모델(gpt-image-1 10-23, 1-mini·1.5·chatgpt-image-latest 12-01)은 공식 대체 gpt-image-2.5-flare로 만든다.
+  // GPT Image 모델은 주소(url)를 주지 않고 base64(b64_json)로만 돌려주므로 response_format 없이 base64를 받는다.
+  const RETIRED: Record<string, string> = { "gpt-image-1": "gpt-image-2.5-flare", "gpt-image-1-mini": "gpt-image-2.5-flare", "gpt-image-1.5": "gpt-image-2.5-flare", "chatgpt-image-latest": "gpt-image-2.5-flare" };
+  const useModel = RETIRED[model] ?? (model || "gpt-image-2.5-flare");
   const response = await openai.images.generate({
-    model: model || "gpt-image-2",
+    model: useModel,
     prompt: composedPrompt,
     n: 1,
     size: "1024x1024",
-    response_format: "url",
   });
 
-  const rawUrl = response.data?.[0]?.url;
-  if (!rawUrl) {
-    throw new Error(`OpenAI (${model}) 이미지 URL을 받지 못했습니다.`);
+  const b64 = response.data?.[0]?.b64_json;
+  if (!b64) {
+    throw new Error(`OpenAI (${useModel}) 이미지를 받지 못했습니다. 다시 시도해 주세요.`);
   }
-
-  // 다운로드하여 버퍼로 변환
-  const fetchRes = await fetch(rawUrl, { signal: AbortSignal.timeout(20000) });
-  if (!fetchRes.ok) {
-    throw new Error(`OpenAI 이미지 다운로드 실패 (${fetchRes.status})`);
-  }
-  const arrayBuffer = await fetchRes.arrayBuffer();
-  const contentType = fetchRes.headers.get("content-type") || "image/png";
-  const ext = contentType.includes("jpeg") || contentType.includes("jpg") ? "jpg" : "png";
-
-  return { buffer: Buffer.from(arrayBuffer), contentType, ext };
+  return { buffer: Buffer.from(b64, "base64"), contentType: "image/png", ext: "png" };
 }
 
 // 3. Replicate (FLUX & Z-Image)

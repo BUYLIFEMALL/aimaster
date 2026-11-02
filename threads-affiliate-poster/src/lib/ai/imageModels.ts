@@ -52,7 +52,7 @@ export const IMAGE_PROVIDERS: ImageProviderConfig[] = [
 
 export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = {
   nanobanana: "nanobanana-2-2k",
-  openai: "gpt-image-2",
+  openai: "gpt-image-2.5-flare",
   flux: "black-forest-labs/flux-2-dev",
   zimage: "prunaai/z-image-turbo",
 };
@@ -66,9 +66,6 @@ export const IMAGE_MODEL_OPTIONS: ImageModelOption[] = [
 
   // 2. GPT Image (OpenAI)
   { value: "gpt-image-2", label: "GPT Image 2 (OpenAI 표준 비주얼 - 추천)", provider: "openai" },
-  { value: "chatgpt-image-latest", label: "ChatGPT Image Latest (최신 통합 플래그십)", provider: "openai" },
-  { value: "gpt-image-1", label: "GPT Image 1 (표준 1세대)", provider: "openai" },
-  { value: "gpt-image-1-mini", label: "GPT Image 1 Mini (초고속 경량 미니)", provider: "openai" },
   { value: "gpt-image-2.5-flare", label: "GPT Image 2.5 Flare (데일리 고품질)", provider: "openai" },
   { value: "gpt-image-2.5-sunburst", label: "GPT Image 2.5 Sunburst (최상위 플래그십)", provider: "openai" },
 

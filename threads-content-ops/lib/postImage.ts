@@ -159,6 +159,7 @@ export async function generateImageBytes(params: { model: string; ratio: ImageRa
   const prompt = finalizePrompt(params.prompt);
   const platform: ImagePlatform = info.platform;
   if (platform === "nanobanana") return withGemini(params.model, params.ratio, prompt, params.apiKey);
-  if (platform === "openai") return withOpenAI(params.model, params.ratio, prompt, params.apiKey);
+  // 옛 종료 모델 값은 findImageModel이 바꿔 준 새 모델(info.value)로 호출한다
+  if (platform === "openai") return withOpenAI(info.value, params.ratio, prompt, params.apiKey);
   return withReplicate(platform, params.model, params.ratio, prompt, params.apiKey);
 }

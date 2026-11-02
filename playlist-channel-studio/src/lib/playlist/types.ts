@@ -37,9 +37,6 @@ export const IMAGE_MODELS: ImageModel[] = [
   { id: "gpt-image-2.5-sunburst", provider: "openai", label: "GPT Image 2.5 Sunburst (본인 OpenAI 키)", perImage: 0.04 },
   { id: "gpt-image-2.5-flare", provider: "openai", label: "GPT Image 2.5 Flare (본인 OpenAI 키)", perImage: 0.04 },
   { id: "gpt-image-2", provider: "openai", label: "GPT Image 2 (본인 OpenAI 키)", perImage: 0.04 },
-  { id: "gpt-image-1.5", provider: "openai", label: "GPT Image 1.5 (본인 OpenAI 키)", perImage: 0.04 },
-  { id: "gpt-image-1-mini", provider: "openai", label: "GPT Image 1 mini (저렴 · 본인 OpenAI 키)", perImage: 0.01 },
-  { id: "gpt-image-1", provider: "openai", label: "GPT Image 1 (이전 모델 · 본인 OpenAI 키)", perImage: 0.04 },
   { id: "gemini-3.1-flash-lite-image", provider: "gemini", label: "나노 바나나 (Gemini Flash Image · 빠름)", perImage: 0.039 },
   { id: "gemini-nano-banana-2.1", provider: "gemini", label: "나노 바나나 2.1 (Gemini · 최신)", perImage: 0.0336 },
   { id: "gemini-3-pro-image", provider: "gemini", label: "나노 바나나 프로 (고화질 · 본인 Google 결제 연결 필요)", perImage: 0.134 },
@@ -51,6 +48,8 @@ export const textModelById = (id: string) => TEXT_MODELS.find((m) => m.id === id
 const LEGACY_IMAGE_MODEL: Record<string, string> = {
   "gemini-2.5-flash-image": "gemini-3.1-flash-lite-image",
   "gemini-3-pro-image-preview": "gemini-3-pro-image",
+  // 2026-11-03 OpenAI 종료 모델(gpt-image-1 10-23, 1-mini·1.5 12-01)
+  "gpt-image-1": "gpt-image-2.5-flare", "gpt-image-1-mini": "gpt-image-2.5-flare", "gpt-image-1.5": "gpt-image-2.5-flare",
 };
 export const imageModelById = (id: string) => IMAGE_MODELS.find((m) => m.id === (LEGACY_IMAGE_MODEL[id] ?? id));
 
