@@ -368,7 +368,7 @@ test("필터가 바뀐 회차는 알리지 않고 기준만 다시 저장한다"
   assert.deepEqual(Object.keys(cut.state.items), ["222"], "옛 필터 매물을 남기지 않음");
 });
 
-test("동 표본 없는 상가 비교는 참고로만 쓴다", async () => {
+test("동 표본 없는 비교는 유형과 상관없이 참고로만 쓴다", async () => {
   const { gapText, marketGap, scoreListing } = await import("../extension/lib/score.js");
   const it = { kind: "SG", tradeType: "A1", price: 10000, area: 33.058, floor: "1/5" };
   const far = [1, 2, 3, 4, 5].map(() => ["1", 33, 500, 0]);
@@ -378,7 +378,10 @@ test("동 표본 없는 상가 비교는 참고로만 쓴다", async () => {
   const low = marketGap({ ...it, price: 1000 }, { samples: { SG: far } });
   assert.equal(scoreListing({ gap: low }).score, 0, "참고 값은 후보 점수에 넣지 않음");
   const gm = marketGap({ ...it, kind: "GM" }, { samples: { GM: far } });
-  assert.equal(gm.weak, false, "건물은 그대로");
+  assert.equal(gm.weak, true, "건물도 동 표본이 없으면 참고");
+  const gmDong = marketGap({ ...it, kind: "GM", price: 1000 }, { samples: { GM: [1, 2, 3, 4, 5].map(() => ["1", 33, 500, 1]) } });
+  assert.equal(gmDong.weak, false, "건물도 동 표본이 있으면 정상 비교");
+  assert.equal(scoreListing({ gap: gmDong }).score, 50);
   const land = marketGap({ kind: "TJ", jimok: "전", tradeType: "A1", price: 1000, area: 33.058 }, { samples: { TJ: [1, 2, 3, 4, 5].map(() => [null, 33, 500, 0, "전"]) } });
   assert.equal(land.weak, true, "토지도 동 표본이 없으면 참고");
   assert.equal(scoreListing({ gap: land }).score, 0);
