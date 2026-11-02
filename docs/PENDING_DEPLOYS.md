@@ -74,24 +74,24 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
-| `naver-blog-seo-studio` | v2.23 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 대기 |
-| `blog-keyword` | v1.10 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB OK(확장 없음). 맥미니 화면 검수 대기 |
-| `tistory-auto-blog` | v1.94 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 대기 |
-| `ai-auto-blog` | v1.85 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542` + 글 보기 복사에서 이미지 설명 제외. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `naver-blog-seo-studio` | v2.23 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
+| `blog-keyword` | v1.10 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB OK(확장 없음). 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
+| `tistory-auto-blog` | v1.94 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
+| `ai-auto-blog` | v1.85 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542` + 글 보기 복사에서 이미지 설명 제외. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
 | `naver-blog-seo-studio` | v2.25 · 2026-11-03 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 맥미니 요청·주인님 승인 빌드 1회, `naver-blog-seo-studio-nrhlnfwaf`) | 확장: 원고를 빨리 바꿔 고를 때 앞 원고 결과가 덮어쓰던 문제 `176004fa9`. 버전·manifest·ZIP `e3c199f92`. 시험 158(157 통과·1 건너뜀)·tsc·build 통과, DB/ZIP OK |
 | `naver-blog-seo-studio` | v2.24 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 맥미니 요청·주인님 승인 빌드 1회, `naver-blog-seo-studio-ixznbia00`) | 맥 예약 포스팅 검수 수정 묶음(확장 9커밋) + 웹 6커밋(재전송 409 복제 안내·실패 원고 삭제·목록 상태 표시·생성 기록 칸·복제 때 이미지 복사·30일 정리 예외 회원 제외) — 핸드오프 `naver-blog-seo-studio/docs/IMPROVEMENT_HANDOFF_20261102.md`. 버전·ZIP `07b1b1abe`. DB/ZIP OK. 웹 확인: 생성 기록 결과 칸 전체 폭, 이미지 있는 원고 복제 → 새 원고 폴더에 본문 이미지 1장 복사·화면 표시 확인. 확장 화면은 맥미니 확인 대기 |
 | `naver-blog-agent` | v2.25 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 맥미니 요청·주인님 승인 빌드 1회, `naver-blog-agent-f3irqshs0`) | 예약 시각 지난 원고 막기·발행 직전 재확인 `ab67e1ff0` + 30일 정리 예외 회원 제외 `6c8e0eb63`. 버전 `5ac258ab5` 커밋. DB/ZIP OK. 맥미니 예약 재시험 대기 |
-| `naver-blog-agent` | v2.24 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `naver-blog-agent` | v2.24 · 2026-11-02 (Claude Code 윈도우 `claude-win-20261029-statusbar`, 블로그 담당 대신 처리, 승인 빌드) | 사용법 「새로 생긴 기능」 카드 `12118b542`. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
 | `blog-neighbor-care` | v1.06 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드 1회, `blog-neighbor-care-hpykndu5j`) | 첫 읽기 최근 7일, 확인 시각 수정, AI 프로필 검증 항목 유지. SQL 1건. DB/ZIP OK, AI 재시험 성공 |
-| `naver-blog-allinone` | v1.58 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `naver-blog-allinone-9f60r9weg`) | 이동 안내 띠 `5c1e40ac2`. DB/ZIP OK. 맥미니 화면 검수 대기 |
-| `blog-content-maker` | v1.14 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `blog-content-maker-1dhxtjetc`) | 이동 안내 띠 `5c1e40ac2`. DB/ZIP OK. 맥미니 화면 검수 대기 |
-| `blog-workroom` | v1.16 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `blog-workroom-678yhouoy`) | 이동 안내 띠 `5c1e40ac2`. 맥미니 화면 검수 대기 |
-| `naver-blog-agent` | v2.23 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `naver-blog-agent-ni50xpp8e`) | 간편 모드 에이전트 권한만 `9a2c21c6e`. DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `naver-blog-allinone` | v1.58 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `naver-blog-allinone-9f60r9weg`) | 이동 안내 띠 `5c1e40ac2`. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
+| `blog-content-maker` | v1.14 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `blog-content-maker-1dhxtjetc`) | 이동 안내 띠 `5c1e40ac2`. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
+| `blog-workroom` | v1.16 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `blog-workroom-678yhouoy`) | 이동 안내 띠 `5c1e40ac2`. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
+| `naver-blog-agent` | v2.23 · 2026-11-01 ([역할: blog] 윈도우, 승인 빌드, `naver-blog-agent-ni50xpp8e`) | 간편 모드 에이전트 권한만 `9a2c21c6e`. DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
 | `blog-neighbor-care` | v1.05 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-donc06qa2`) | 새 글 확인 환경변수 2개 등록, 서버 RSS 미리보기 차단, 안내문 수정. ZIP·DB OK. Edge 실검수 전 |
 | `blog-neighbor-care` | v1.04 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `blog-neighbor-care-4fn9tvouc`) | 16묶음+회원 PC 확장 새 글 확인, SQL 10개 적용(표 16개), ZIP·DB OK. 운영 `BNC_` 환경변수 없음으로 기능은 꺼짐 |
 | `naver-blog-allinone` | v1.57 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `naver-blog-allinone-99flpqnff`) | 회원 키 과금 버그: 본문 이미지 없음에도 2장 생성 수정 `edd6edfd0`(맥미니). 시험 37개·DB/ZIP OK. 맥미니 화면 재확인 대기 |
-| `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 대기 |
-| `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 대기 |
+| `naver-blog-allinone` | v1.56 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회, `dpl_EBo9V4UYA8cTWMT8m1dpvC1bNXBJ`) | API 키 회원 계정 저장 `b3a6fd89b`. 시험 37개·DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
+| `naver-blog-seo-studio` | v2.22 · 2026-11-01 ([역할: blog] Claude Code 윈도우, 승인 빌드 1회) | 작업실·콘텐츠 병합 `0bf9a6d55`·`ae0da6b38`·`0543e8646`. 시험 142 통과·1 건너뜀(python3 없음)·DB/ZIP OK. 맥미니 화면 검수 완료(2026-11-03, 상세·사용법 5개, 요청함 결과 `d950e9b2`) |
 | `commercial-land-trade-alert` | v1.30 · 2026-11-02 ([역할: realty], A2·A3 승인 빌드) | A3 메뉴 이동 링크, 행정동 고르기 「새로고침」 안내. 확장 ZIP·DB v1.30 검증 OK |
 | `commercial-land-trade-alert` | v1.29 · 2026-11-02 ([역할: realty], 주인님 「진행해」 빌드 1회) | 감시 화면별 「알림 받을 행정동」(DB `admin_dongs`, 확장이 회원 PC에서 판정). 확장 ZIP·DB v1.29 검증 OK |
 | `commercial-land-trade-alert` | v1.28 · 2026-11-02 ([역할: realty], 주인님 「진행해」 빌드 1회) | 관리자 층 진단 쪽 넘김(건축물대장 API가 한 쪽 100줄만 줌). 확장 ZIP·DB v1.28 검증 OK |
@@ -119,6 +119,7 @@
 | `realty-listing-alert` | v1.39 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 단지 비교 표 「📈 실거래 ↗」(`c8f9bf948`) |
 | `commercial-land-trade-alert` | v1.02 · 2026-10-31 ([역할: realty], 승인 빌드 1회) | 네이버 매물 1단계, 3채널 알림, 이름 변경, 상세 문구 |
 | `commercial-land-trade-alert` | v1.01 · 2026-10-31 ([역할: realty], 승인 빌드 3회) | 새 프로그램 첫 배포, 준비중 |
+| `realty-listing-alert` | v1.42 · 2026-11-03 ([역할: realty], 주인님 「배포해」, 빌드 1회) | A3 「함께 쓰는 부동산 프로그램」 링크, 확장 단지 위치 한정(a4c60b987). 확장·ZIP·DB v1.42 확인 OK |
 | `real_estate_sales` | v1.41 · 2026-11-03 ([역할: realty], B1, 빌드 2회 — 1회는 실수로 중복 실행) | B1 주소 리포트(`/report`, 실거래 상세·임장 기록 버튼), 건축HUB https. ⚠ 운영 공용 공공데이터 키가 11-02 23:23 이후 국토부·건축HUB 403 |
 | `real_estate_sales` | v1.40 · 2026-11-02 ([역할: realty], B0 승인 빌드 1회) | B0 관리자 진단 `/api/admin/report-probe`(주소 리포트 칸 채움률), 건축물대장 표제부 조회 |
 | `real_estate_sales` | v1.39 · 2026-11-02 ([역할: realty], A2·A3 승인 빌드) | 거래량 비교를 신고가 끝난 달(2달 전) vs 그 전 3개월로, 비교 달이 다 모인 유형만 합산(v1.38 착시 수정) |
