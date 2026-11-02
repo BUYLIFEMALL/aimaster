@@ -1,6 +1,6 @@
 // 임장 노트 주소 자동 등록용 격자 파일을 만들고(선택) 운영 Supabase Storage 공개 읽기 버킷에 올린다.
 // 원본: 행정안전부 「도로명주소 위치정보요약DB」 전체분(시도별 entrc_*.txt, EUC-KR, | 구분 18칸, 좌표 UTM-K). 공공데이터라 회원 개인정보가 없다.
-// 사용: node scripts/build-geo-address.mjs <전체분.zip> <출력 폴더> [--upload]
+// 사용: node scripts/build-geo-address.mjs <전체분.zip> <출력 폴더> [--upload] [--skip=N]
 //   --upload: 루트 .env.local 서버 키로 버킷 geo-address에 v1/<격자>.json.gz를 덮어쓴다(키는 출력하지 않는다). 매달 새 전체분을 받으면 다시 돌린다.
 import fs from "node:fs";
 import path from "node:path";
@@ -73,15 +73,19 @@ if (upload) {
   // 공개 읽기 버킷(쓰기는 서버 키만). 이미 있으면 그대로 쓴다
   const made = await fetch(`${SUPABASE_URL}/storage/v1/bucket`, { method: "POST", headers: { ...headers, "Content-Type": "application/json" }, body: JSON.stringify({ id: BUCKET, name: BUCKET, public: true, file_size_limit: 1048576 }) });
   if (!made.ok && made.status !== 409 && !/already exists/i.test(await made.text())) throw new Error(`버킷을 만들지 못했습니다(${made.status})`);
-  let done = 0, failed = 0;
-  const queue = [...files];
+  // --skip=N: 앞에서 이미 올린 N개를 건너뛴다(같은 원본이면 순서가 같다)
+  const skip = Number(process.argv.find((a) => a.startsWith("--skip="))?.slice(7) || 0);
+  let done = skip, failed = 0;
+  const queue = files.slice(skip);
   async function worker() {
     for (let k = queue.shift(); k; k = queue.shift()) {
       const body = fs.readFileSync(path.join(outDir, `${k}.json.gz`));
-      for (let attempt = 0; attempt < 3; attempt++) {
-        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${PREFIX}/${k}.json.gz`, { method: "POST", headers: { ...headers, "Content-Type": "application/gzip", "x-upsert": "true", "Cache-Control": "max-age=86400" }, body });
+      for (let attempt = 0; attempt < 4; attempt++) {
+        // 연결이 끊기면(HTTP/2 GOAWAY 등) 예외가 나므로 잡아서 잠시 뒤 다시 보낸다(2026-11-02 1만 8천 개쯤에서 멈춘 일)
+        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${PREFIX}/${k}.json.gz`, { method: "POST", headers: { ...headers, "Content-Type": "application/gzip", "x-upsert": "true", "Cache-Control": "max-age=86400" }, body }).catch((e) => ({ ok: false, status: e.cause?.code || e.message }));
         if (res.ok) { done++; break; }
-        if (attempt === 2) { failed++; console.log(`실패 ${k}: ${res.status}`); }
+        if (attempt === 3) { failed++; console.log(`실패 ${k}: ${res.status}`); }
+        else await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
       }
       if ((done + failed) % 2000 === 0) console.log(`올림 ${done}/${files.length}`);
     }
