@@ -55,7 +55,7 @@ export default async function OnsitePage({ searchParams }: { searchParams: Promi
       <PageHero
         badge="📍 임장 노트"
         title="임장 노트"
-        description="현장에서 사진을 찍으면 위치가 함께 저장되고 시·군·구와 행정동으로 자동 분류됩니다. 주소 자동 등록은 자료를 받는 대로 붙입니다."
+        description="현장에서 사진을 찍으면 위치가 함께 저장되고 시·군·구와 행정동으로 자동 분류되고, 30m 안의 건물이면 도로명주소도 자동으로 들어갑니다."
         tip={`저장한 곳 ${all.length}개 · 사진과 기록은 본인만 보며 1년 뒤 자동으로 지워집니다.`}
       />
 
