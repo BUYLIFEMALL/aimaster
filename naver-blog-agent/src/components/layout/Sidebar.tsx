@@ -83,9 +83,6 @@ export function Sidebar({ userEmail, isOpenMobile = false, onCloseMobile, scope 
                   <span className="text-[11px] font-bold text-slate-500">
                     {APP_VERSION}
                   </span>
-                  <span className="px-1.5 py-0.2 text-[9px] font-extrabold bg-emerald-500 text-white rounded tracking-wide">
-                    FREE
-                  </span>
                 </div>
               </div>
             </Link>
