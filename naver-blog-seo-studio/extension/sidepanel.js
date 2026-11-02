@@ -125,7 +125,16 @@ function formatWebDraftLabel(draft) {
   const date = draft.extension_handoff_at ? new Date(draft.extension_handoff_at).toLocaleDateString("ko-KR") : "";
   const imageSummary = draft.image_summary || {};
   const imageCount = (imageSummary.cover ? 1 : 0) + Number(imageSummary.contentCount || 0);
-  return `${draft.title || "제목 없는 초안"}${date ? ` · ${date}` : ""} · 이미지 ${imageCount}장`;
+  const blocked = webDraftBlockLabel(draft);
+  return `${blocked ? `[${blocked}] ` : ""}${draft.title || "제목 없는 초안"}${date ? ` · ${date}` : ""} · 이미지 ${imageCount}장`;
+}
+
+// 2026-11-02: 서버가 불러오기를 거절할 원고(이미 발행·예약·실행 중·검수 필수 지적)는 목록에 표시하고, 고르면 이유를 바로 보여 준다.
+// 예전엔 표시 없이 섞여 있어, 고르면 작은 실패 문구만 떠 「선택이 안 된다」로 보였다.
+function webDraftBlockLabel(draft) {
+  if (!draft?.input_blocked) return "";
+  const state = draft.auto_publish_state;
+  return state === "published" ? "발행됨" : state === "reserved" ? "예약됨" : state && state !== "failed" ? "실행 중" : "검수 필요";
 }
 
 async function refreshWebDrafts() {
@@ -1197,11 +1206,19 @@ $("webDraftList").addEventListener("change", () => {
     $("generateStatus").textContent = "대기 중 · 입력할 콘텐츠를 목록에서 선택하세요.";
     return;
   }
-  $("webDraftStatus").textContent = "선택한 콘텐츠와 이미지를 불러오는 중...";
-  loadSelectedWebDraft().catch((error) => {
+  const selected = webDrafts.find((item) => item.id === $("webDraftList").value);
+  const failLoad = (message) => {
     resetActiveWebDraft();
     clearWebDraftPreview();
-    $("webDraftStatus").textContent = `콘텐츠 자동 불러오기 실패: ${error instanceof Error ? error.message : String(error)}`;
+    // 같은 원고를 다시 골라도 change가 일어나도록 선택을 비운다. 안내는 그대로 남긴다.
+    $("webDraftList").value = "";
+    $("webDraftStatus").textContent = message;
+    $("generateStatus").textContent = "대기 중 · 입력할 수 있는 콘텐츠를 목록에서 선택하세요.";
+  };
+  if (selected?.input_blocked) return failLoad(`「${selected.title || "제목 없는 초안"}」은 불러올 수 없습니다. ${selected.input_blocked}`);
+  $("webDraftStatus").textContent = "선택한 콘텐츠와 이미지를 불러오는 중...";
+  loadSelectedWebDraft().catch((error) => {
+    failLoad(`콘텐츠 자동 불러오기 실패: ${error instanceof Error ? error.message : String(error)}`);
   });
 });
 

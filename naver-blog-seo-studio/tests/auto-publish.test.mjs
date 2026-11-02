@@ -191,3 +191,14 @@ test("stale writing runs (20+ min, before arm) end and allow manual input record
   assert.equal(guards.manualInputAllowed(run("publishing", 60), now), false);
   assert.equal(guards.manualInputAllowed(run("uncertain", 60), now), false);
 });
+
+// 2026-11-02: 확장 목록에서 고를 수 없는 원고의 이유(목록과 불러오기가 같은 문구).
+test("explains why a draft cannot be loaded into the editor", () => {
+  const now = Date.parse("2026-11-02T13:00:00Z");
+  const run = (state) => ({ runId: "run-1", state, startedAt: new Date(now - 60000).toISOString() });
+  assert.equal(guards.manualInputBlockMessage({}, now), null);
+  assert.equal(guards.manualInputBlockMessage(run("failed"), now), null);
+  assert.match(guards.manualInputBlockMessage(run("published"), now), /^이미 발행한 원고입니다.*「복제」/);
+  assert.match(guards.manualInputBlockMessage(run("reserved"), now), /^이미 예약한 원고입니다.*「복제」/);
+  assert.match(guards.manualInputBlockMessage(run("uncertain"), now), /「발행 결과만 다시 확인」/);
+});

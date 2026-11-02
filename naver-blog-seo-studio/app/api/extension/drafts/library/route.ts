@@ -1,4 +1,5 @@
-import { publicationFingerprint } from "@/lib/draftWriteGuard";
+import { draftReport, manualInputBlockMessage, publicationFingerprint } from "@/lib/draftWriteGuard";
+import { reviewBlockMessage } from "@/lib/draftReview";
 import { NextResponse } from "next/server";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { readNaverCategory } from "@/lib/naverCategory";
@@ -30,7 +31,11 @@ export async function GET(request: Request) {
       if (item.type === "text" && typeof item.text === "string") contentBlocks.push({ id: item.id, type: "text", text: item.text });
       if (item.type === "image" && (item.slot === "cover" || (typeof item.slot === "string" && /^content-[1-6]$/.test(item.slot) && readySlots.has(item.slot)))) contentBlocks.push({ id: item.id, type: "image", slot: item.slot, alt: typeof item.alt === "string" ? item.alt : "" });
     }
+    // 2026-11-02: 불러오기(claim)가 거절할 원고는 이유를 함께 보내 확장 목록에 표시한다(예전엔 고르면 작은 실패 문구만 떴다).
+    const run = draftReport(draftReport(draft.seo_report).autoPublish);
+    const inputBlocked = manualInputBlockMessage(run) ?? reviewBlockMessage(draftReport(draft.seo_report), draft.title, draft.body);
     return {
+      input_blocked: inputBlocked, auto_publish_state: typeof run.state === "string" ? run.state : null,
       publication_fingerprint: publicationFingerprint(draft), id: draft.id, topic: draft.topic, keywords: draft.keywords, strategy: draft.strategy, title: draft.title, body: draft.body,
       image_path: draft.image_path, image_model: draft.image_model, image_mime_type: draft.image_mime_type,
       extension_handoff_at: draft.extension_handoff_at, naver_input_status: draft.naver_input_status, naver_category: readNaverCategory(draft.naver_category), content_images: contentImages, content_blocks: contentBlocks,

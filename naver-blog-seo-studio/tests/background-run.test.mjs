@@ -107,3 +107,15 @@ test("reports image loading by comparing saved and loaded counts", () => {
   assert.match(status(3, true, 1), /^이미지 3장 중 1장을 불러오지 못했습니다/);
   assert.match(status(2, false, 0), /^이미지 2장 중 2장을 불러오지 못했습니다/);
 });
+
+// 2026-11-02: 불러올 수 없는 원고는 목록에 [발행됨]·[예약됨] 등으로 표시한다.
+test("marks drafts the server will not load in the side panel list", () => {
+  const w = loadWorker();
+  const label = (draft) => w.value(`formatWebDraftLabel(${JSON.stringify(draft)})`);
+  const base = { title: "가을 캠핑", image_summary: { cover: false, contentCount: 2 } };
+  assert.equal(label(base), "가을 캠핑 · 이미지 2장");
+  assert.equal(label({ ...base, input_blocked: "이미 예약", auto_publish_state: "reserved" }), "[예약됨] 가을 캠핑 · 이미지 2장");
+  assert.equal(label({ ...base, input_blocked: "이미 발행", auto_publish_state: "published" }), "[발행됨] 가을 캠핑 · 이미지 2장");
+  assert.equal(label({ ...base, input_blocked: "진행 중", auto_publish_state: "uncertain" }), "[실행 중] 가을 캠핑 · 이미지 2장");
+  assert.equal(label({ ...base, input_blocked: "필수 지적", auto_publish_state: "failed" }), "[검수 필요] 가을 캠핑 · 이미지 2장");
+});

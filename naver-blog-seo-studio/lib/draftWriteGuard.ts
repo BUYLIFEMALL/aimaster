@@ -25,6 +25,13 @@ export function staleWritingRun(run: DraftReport, now = Date.now()) {
 }
 // 「편집기로 입력만」 결과는 자동 포스팅 실행이 없거나, 실패했거나, 멈춘 실행일 때만 기록한다.
 export const manualInputAllowed = (run: DraftReport, now = Date.now()) => !run.runId || run.state === "failed" || staleWritingRun(run, now);
+// 2026-11-02: 확장 목록에서 고를 수 없는 원고의 이유. 목록(library)과 불러오기(claim)가 같은 문구를 쓴다.
+export function manualInputBlockMessage(run: DraftReport, now = Date.now()): string | null {
+  if (manualInputAllowed(run, now)) return null;
+  if (run.state === "published") return "이미 발행한 원고입니다. 다시 쓰려면 웹 생성 기록에서 「복제」로 새 원고를 만들어 확장으로 보내 주세요.";
+  if (run.state === "reserved") return "이미 예약한 원고입니다. 다시 쓰려면 웹 생성 기록에서 「복제」로 새 원고를 만들어 확장으로 보내 주세요.";
+  return "자동 포스팅이 진행 중이거나 결과 확인이 필요한 원고입니다. 사이드패널의 「발행 결과만 다시 확인」을 먼저 실행해 주세요.";
+}
 export function publicationFingerprint(row: Record<string, unknown>) {
   const report = draftReport(row.seo_report);
   return createHash("sha256").update(JSON.stringify([

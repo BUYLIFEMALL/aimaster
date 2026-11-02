@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
-import { draftReport, manualInputAllowed } from "@/lib/draftWriteGuard";
+import { draftReport, manualInputBlockMessage } from "@/lib/draftWriteGuard";
 import { reviewBlockMessage } from "@/lib/draftReview";
 import { createServiceClient } from "@/lib/supabase/service";
 
@@ -19,7 +19,8 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
   if (!row) return NextResponse.json({ error: "불러올 수 없는 초안입니다." }, { status: 404 });
   // 2026-10-23: 실패했거나 20분 넘게 멈춘 자동 포스팅 실행이 남은 원고도 「편집기로 입력만」을 위해 불러올 수 있게 한다(입력 결과 API와 같은 기준).
   const run = draftReport(draftReport(row.seo_report).autoPublish);
-  if (!manualInputAllowed(run)) return NextResponse.json({ error: "자동 포스팅이 진행 중인 원고입니다. 발행 결과를 먼저 확인해 주세요." }, { status: 409 });
+  const blocked = manualInputBlockMessage(run);
+  if (blocked) return NextResponse.json({ error: blocked }, { status: 409 });
   // 병합 B-1: 필수 검수 지적이 남은 원고는 편집기에 입력하지 않는다.
   const reviewBlocked = reviewBlockMessage(draftReport(row.seo_report), row.title, row.body);
   if (reviewBlocked) return NextResponse.json({ code: "REVIEW_MUST_FIX", error: reviewBlocked }, { status: 409 });
