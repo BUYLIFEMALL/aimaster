@@ -31,6 +31,12 @@ export interface PublicDataKeys {
   vworldDomain?: string;
 }
 
+/** 공공데이터포털 오류 응답에서 원인 코드(예: SERVICE_KEY_IS_NOT_REGISTERED_ERROR)를, 없으면 앞부분 문구를 뽑는다(키 값은 응답에 없음) */
+function portalReason(text: string): string {
+  const code = text.match(/(?:returnAuthMsg|errMsg|resultMsg)"?\s*[:>]\s*"?([A-Z_]{8,})/)?.[1];
+  return code ?? text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+}
+
 function requireEnv(name: string): string {
   const v = process.env[name];
   if (!v) throw new Error(`환경변수 ${name}가 설정되지 않았습니다.`);
@@ -95,7 +101,7 @@ async function molitGet(service: string, key: string, sggCd: string, ymd: string
     res = await fetch(url, { cache: "no-store" });
   }
   if (res.status === 401 || res.status === 403) {
-    throw new Error(`국토부 ${service} API 사용 승인이 필요합니다 (${res.status}) — 공공데이터포털에서 해당 실거래가 자료 활용신청`);
+    throw new Error(`국토부 ${service} API 사용 승인이 필요합니다 (${res.status} ${portalReason(await res.text())}) — 공공데이터포털에서 해당 실거래가 자료 활용신청`);
   }
   if (!res.ok) throw new Error(`국토부 ${service} API 요청 실패 (${res.status})`);
   const text = await res.text();
@@ -218,12 +224,12 @@ export async function fetchBuildingTitle(params: { keys?: PublicDataKeys; sigung
   const res = await fetch(`${DATA_GO_KR_BASE}/getBrTitleInfo?${qs.toString()}`, { cache: "no-store" });
   const text = await res.text();
   // 실패 원인을 가리려고 공공포털 응답 문구를 짧게 붙인다(키 값은 응답에 없음)
-  if (!res.ok) throw new Error(`건축물대장 표제부 API 요청 실패 (${res.status}) ${text.replace(/<[^>]+>/g, " ").replace(/s+/g, " ").trim().slice(0, 80)}`);
+  if (!res.ok) throw new Error(`건축물대장 표제부 API 요청 실패 (${res.status}) ${portalReason(text)}`);
   let json: { response?: { header?: { resultCode?: string; resultMsg?: string }; body?: { items?: { item?: BuildingTitleItem | BuildingTitleItem[] } } } };
   try {
     json = JSON.parse(text);
   } catch {
-    throw new Error(`건축물대장 표제부 응답을 읽지 못했습니다: ${text.replace(/s+/g, " ").slice(0, 80)}`);
+    throw new Error(`건축물대장 표제부 응답을 읽지 못했습니다: ${portalReason(text)}`);
   }
   const code = json?.response?.header?.resultCode;
   if (code && code !== "00") throw new Error(`건축물대장 표제부 오류 ${code} ${json?.response?.header?.resultMsg ?? ""}`);
