@@ -50,8 +50,21 @@ export function marketGap(item, market, year = new Date().getFullYear()) {
   // 같은 시군구라도 동마다 값 차이가 커서(2026-11-01 역삼동 상가 +272%, 백석동 토지 -90%) 동 표본이 없으면 참고로만 쓴다. 건물도 같다(2026-11-02 주인님 결정)
   const isDong = used === inDong || used === dongAge;
   const weak = !isDong;
-  return { pct: Math.round((perPyeong / m - 1) * 100), scope: isDong ? "동" : "시군구", floorName: item.kind === "TJ" ? item.jimok : FLOOR_NAME[floor] || "", count: used.length, median: m, weak, ageMatched: !!byAge && !ageMixed, ageMixed };
+  const floorName = item.kind === "TJ" ? item.jimok : FLOOR_NAME[floor] || "";
+  // 토지 시군구 참고값은 ±80%씩 튀어 오해만 줘서(2026-11-02 백석 10건 전부) 값을 보이지 않는다
+  if (item.kind === "TJ" && !isDong) return { lacking: true, pct: null, weak: true, scope: "시군구", floorName, count: used.length };
+  const pct = Math.round((perPyeong / m - 1) * 100);
+  const base = { pct, scope: isDong ? "동" : "시군구", floorName, count: used.length, median: m, weak, ageMatched: !!byAge && !ageMixed, ageMixed };
+  // 건물은 대지면적으로도 비교한다. 두 기준이 함께 싸야 믿을 만하다(2026-11-02 역삼 265건: 연면적만 43건·대지만 64건·둘 다 23건)
+  const plotRows = item.kind === "GM" && item.subArea ? used.filter((x) => x[6] > 0) : [];
+  if (plotRows.length < MIN_SAMPLES) return base;
+  const plotPct = Math.round((item.price / (item.subArea / SQM_PER_PYEONG) / median(plotRows.map((x) => x[6])) - 1) * 100);
+  // 점수는 덜 싼 쪽 기준으로 매기고, 한쪽만 많이 싸면 「기준 엇갈림」으로 점수를 주지 않는다
+  const split = Math.min(pct, plotPct) <= LOW_PCT && Math.max(pct, plotPct) > LOW_PCT;
+  return { ...base, pct: Math.max(pct, plotPct), areaPct: pct, plotPct, split };
 }
+
+const LOW_PCT = -20;
 
 /** 매물 연식 구간에 실거래 건축년도가 드는지. 건축년도를 모르는 거래는 넣지 않는다 */
 export function ageFits(age, buildYear, year = new Date().getFullYear()) {
@@ -60,7 +73,13 @@ export function ageFits(age, buildYear, year = new Date().getFullYear()) {
   return age.max != null ? a <= age.max : a >= age.min;
 }
 
-export const gapText = (g) => (g ? `${g.pct > 0 ? "+" : ""}${g.pct}%(${g.scope}${g.floorName ? `·${g.floorName}` : ""}${g.ageMatched ? "·같은 연식" : ""} ${g.count}건${g.weak ? "·참고" : ""}${g.ageMixed ? "·연식 섞임" : ""})` : "");
+const signed = (n) => `${n > 0 ? "+" : ""}${n}%`;
+export const gapText = (g) => {
+  if (!g) return "";
+  if (g.lacking) return `비교 자료 부족(같은 동 ${g.floorName || ""} 거래 5건 미만)`;
+  const head = g.plotPct != null ? `연면적 ${signed(g.areaPct)} · 대지 ${signed(g.plotPct)}` : signed(g.pct);
+  return `${head}(${g.scope}${g.floorName ? `·${g.floorName}` : ""}${g.ageMatched ? "·같은 연식" : ""} ${g.count}건${g.weak ? "·참고" : ""}${g.ageMixed ? "·연식 섞임" : ""}${g.split ? "·기준 엇갈림" : ""})`;
+};
 
 /**
  * 추정 수익률(%). 같은 동 월세 매물의 ㎡당 월세·보증금 중간값으로 이 매매 매물의 임대료를 어림한다.
@@ -135,7 +154,7 @@ export function scoreListing({ gap, drops = 0, ageDays = 0, peer = null, kind = 
     score += 40;
     reasons.push(`같은 건물 호가 대비 ${peer.pct}%(${peer.count}건)`);
   }
-  if (gap && !gap.weak) {
+  if (gap && !gap.weak && !gap.split) {
     const add = gap.pct <= -20 ? 50 : gap.pct <= -10 ? 35 : gap.pct <= -5 ? 15 : 0;
     if (add) {
       score += add;
@@ -150,7 +169,7 @@ export function scoreListing({ gap, drops = 0, ageDays = 0, peer = null, kind = 
     score += ageDays >= 90 ? 15 : 10;
     reasons.push(`${ageDays}일째 등록`);
   }
-  const tooCheap = (peer && peer.pct <= PEER_LOW_PCT) || (gap && !gap.weak && gap.pct <= -20);
+  const tooCheap = (peer && peer.pct <= PEER_LOW_PCT) || (gap && !gap.weak && !gap.split && gap.pct <= -20);
   if (tooCheap) reasons.push(checkNote(kind));
   return { score, reasons, candidate: score >= 40 };
 }

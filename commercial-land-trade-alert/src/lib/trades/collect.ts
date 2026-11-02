@@ -1,6 +1,6 @@
 import { canBorrowBot } from "@/lib/telegram/choices";
 import "server-only";
-import { kstDay, molitItems, monthKey, parseTrades, type TradeKind, type TradeRow } from "./parse";
+import { blankFloorKey, kstDay, molitItems, monthKey, parseTrades, type TradeKind, type TradeRow } from "./parse";
 import { alertText, kakaoAlertText, matchesPrefs, normalizePrefs, kindLabel } from "./prefs";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { getKakaoState, getResendKey } from "@/lib/notifyChannels";
@@ -52,6 +52,12 @@ async function saveTrades(admin: Admin, rows: TradeRow[]) {
       .from("commercial_land_trades")
       .upsert(rows.slice(i, i + 200).map((r) => ({ ...r, updated_at: now })), { onConflict: "trade_key" });
     if (error) throw new Error(`저장 실패: ${error.message}`);
+  }
+  // 층이 채워진 거래의 「층 빈칸」 쌍둥이 줄을 지운다. 지우기 실패는 수집을 멈추지 않는다(다음 수집에서 다시 시도)
+  const twins = rows.map((r) => blankFloorKey(r.trade_key)).filter((k): k is string => !!k);
+  for (let i = 0; i < twins.length; i += 200) {
+    const { error } = await admin.from("commercial_land_trades").delete().in("trade_key", twins.slice(i, i + 200));
+    if (error) console.error(`층 빈칸 중복 정리 실패: ${error.message}`);
   }
 }
 

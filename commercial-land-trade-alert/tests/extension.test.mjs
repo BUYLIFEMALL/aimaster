@@ -135,6 +135,25 @@ test("시세 대비와 후보 점수", async () => {
   assert.equal(marketGap(lot, { samples: { TJ: [1, 2, 3, 4, 5].map(() => [null, 100, 4000, 1]) } }), null, "지목 없는 옛 표본");
   assert.equal(marketGap({ ...it, kind: "GM", floor: "" }, { samples: { GM: five(null) } }).floorName, "");
   assert.equal(marketGap(it, { SG: { median: 4000, count: 12, scope: "동" } }), null, "표본 없으면 비교 안 함");
+  // 토지: 같은 동 5건 미만이면 시군구 참고값 대신 「비교 자료 부족」
+  const farLots = [1, 2, 3, 4, 5].map(() => [null, 100, 4000, 0, "답"]);
+  const lack = marketGap(lot, { samples: { TJ: farLots } });
+  assert.equal(lack.lacking, true);
+  assert.equal(lack.pct, null);
+  assert.equal(gapText(lack), "비교 자료 부족(같은 동 답 거래 5건 미만)");
+  assert.equal(scoreListing({ gap: lack }).score, 0);
+  // 건물: 연면적·대지 두 기준. 한쪽만 많이 싸면 엇갈림이라 점수 없음
+  const bld = { ...it, kind: "GM", floor: "", subArea: 50 };
+  const blds = (perPyeong, plot) => [1, 2, 3, 4, 5].map(() => [null, 100, perPyeong, 1, null, null, plot]);
+  const split = marketGap(bld, { samples: { GM: blds(4000, 10000) } });
+  assert.deepEqual([split.areaPct, split.plotPct, split.pct, split.split], [-17, -34, -17, true]);
+  assert.equal(gapText(split), "연면적 -17% · 대지 -34%(동 5건·기준 엇갈림)");
+  assert.equal(scoreListing({ gap: split, kind: "GM" }).score, 0);
+  const both = marketGap(bld, { samples: { GM: blds(6000, 10000) } });
+  assert.deepEqual([both.areaPct, both.plotPct, both.pct, both.split], [-45, -34, -34, false]);
+  assert.equal(scoreListing({ gap: both, kind: "GM" }).score, 50);
+  assert.equal(marketGap(bld, { samples: { GM: blds(4000, null) } }).plotPct, undefined, "대지 표본 없으면 연면적만");
+  assert.equal(marketGap({ ...bld, subArea: null }, { samples: { GM: blds(4000, 10000) } }).plotPct, undefined, "대지면적 없는 매물");
   const s = scoreListing({ gap: g, drops: 1, ageDays: 40 });
   assert.equal(s.score, 60);
   assert.equal(s.candidate, true);

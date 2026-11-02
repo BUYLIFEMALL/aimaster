@@ -42,8 +42,15 @@ export function summarizeTable(columns, table, at, sggByWatch = {}) {
     g.total++;
     g.rows.push(r);
   }
+  // 시세 칸: 「-12%(동…)」 또는 건물 「연면적 -12% · 대지 -30%(동…)」. 참고·비교 자료 부족은 빼고, 두 값이면 덜 싼 쪽(점수와 같은 기준)
+  const gapCellPct = (cell) => {
+    const s = String(cell ?? "");
+    if (s.includes("참고") || s.includes("부족")) return NaN;
+    const nums = (s.split("(")[0].match(/[+-]?\d+(?=%)/g) || []).map(Number);
+    return nums.length ? Math.max(...nums) : NaN;
+  };
   const groupList = [...groups.values()].map((g) => {
-    const of = (name) => g.rows.filter((r) => r[C.trade] === name).map((r) => ({ ...parsePriceCell(r[C.price]), area: Number(r[C.area]) || null, gap: String(r[C.gap]).includes("참고") ? NaN : Number.parseInt(r[C.gap], 10), yld: Number.parseFloat(r[C.yld]) }));
+    const of = (name) => g.rows.filter((r) => r[C.trade] === name).map((r) => ({ ...parsePriceCell(r[C.price]), area: Number(r[C.area]) || null, gap: gapCellPct(r[C.gap]), yld: Number.parseFloat(r[C.yld]) }));
     const sale = of("매매");
     const rent = of("월세");
     const salePrices = sale.map((x) => x.price).filter(Number.isFinite);

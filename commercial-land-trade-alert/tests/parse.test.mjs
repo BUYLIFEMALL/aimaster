@@ -1,6 +1,26 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { medianOrNull, molitItems, monthKey, parseTrades, pricePerPyeong } from "../src/lib/trades/parse.ts";
+import { blankFloorKey, medianOrNull, molitItems, monthKey, parseTrades, pricePerPyeong } from "../src/lib/trades/parse.ts";
+import { marketSamples, mergeLandBundles } from "../src/lib/trades/market.ts";
+
+test("층이 채워진 줄의 층 빈칸 쌍둥이 키", () => {
+  assert.equal(blankFloorKey("building|11680|역삼동|8**|2026-10-01|50000|33.1|판매|3#1"), "building|11680|역삼동|8**|2026-10-01|50000|33.1|판매|#1");
+  assert.equal(blankFloorKey("building|11680|역삼동|8**|2026-10-01|50000|33.1|판매|#1"), null, "이미 빈칸");
+  assert.equal(blankFloorKey("building|11680|역삼동|8**|2026-10-01|50000|33.1|판매|-1#2"), "building|11680|역삼동|8**|2026-10-01|50000|33.1|판매|#2", "지하층");
+});
+
+test("시세 표본: 건물 중복 합치기·대지 평당가, 토지 일괄 거래 묶음 합치기", () => {
+  const b = (o) => ({ kind: "building", building_type: "일반", category: "근린생활", umd_nm: "역삼동", deal_date: "2026-09-01", area_m2: 200, plot_m2: 100, price_per_pyeong: 5000, build_year: 2000, floor: null, is_share: false, cancelled: false, ...o });
+  const gm = marketSamples([b({}), b({}), b({ deal_date: "2026-09-02" })], "역삼동").GM;
+  assert.equal(gm.length, 2, "같은 날·면적·값 중복은 한 건");
+  assert.equal(gm[0][6], 10000, "대지 평당가 = 연면적 평당가 × 연면적 ÷ 대지");
+  assert.equal(marketSamples([b({ plot_m2: null })], "역삼동").GM[0][6], null);
+  const l = (o) => ({ kind: "land", building_type: null, umd_nm: "설문동", deal_date: "2026-08-01", price_per_pyeong: 179, is_share: false, cancelled: false, ...o });
+  const merged = mergeLandBundles([l({ category: "대", area_m2: 300 }), l({ category: "잡종지", area_m2: 100 }), l({ category: "답", area_m2: 50, price_per_pyeong: 90 })]);
+  assert.equal(merged.length, 2);
+  assert.deepEqual([merged[0].category, merged[0].area_m2], ["대", 400], "가장 넓은 필지 지목, 면적 합계");
+  assert.equal(marketSamples([l({ category: "대", area_m2: 300 }), l({ category: "잡종지", area_m2: 100 })], "설문동").TJ.length, 1);
+});
 import { DEFAULT_PREFS, alertText, formatManwon, matchesPrefs } from "../src/lib/trades/prefs.ts";
 
 const NRG = { buildYear: 1989, buildingAr: 645.08, buildingType: "일반", buildingUse: "제2종근린생활", cdealDay: " ", cdealType: " ", dealAmount: "580,000", dealDay: 18, dealMonth: 9, dealYear: 2026, dealingGbn: "중개거래", floor: " ", jibun: "1***", landUse: "제2종일반주거", plottageAr: 264.4, shareDealingType: " ", umdNm: "개포동" };

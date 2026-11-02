@@ -16,6 +16,8 @@ export interface MarketRow {
   price_per_pyeong: number | string | null;
   floor?: string | null;
   area_m2?: number | string | null;
+  plot_m2?: number | string | null;
+  deal_date?: string | null;
   build_year?: number | string | null;
   is_share: boolean;
   cancelled: boolean;
@@ -42,7 +44,8 @@ export function summarizeMarket(rows: MarketRow[], dong: string): Record<string,
   const clean = rows.filter((r) => !r.is_share && !r.cancelled && r.price_per_pyeong !== null);
   const out: Record<string, MarketValue | null> = {};
   for (const code of ["SG", "GM", "TJ"]) {
-    const all = clean.filter((r) => belongs(code, r)).map((r) => ({ v: Number(r.price_per_pyeong), d: r.umd_nm }));
+    const mine = clean.filter((r) => belongs(code, r));
+    const all = (code === "TJ" ? mergeLandBundles(mine) : mine).map((r) => ({ v: Number(r.price_per_pyeong), d: r.umd_nm }));
     const inDong = all.filter((x) => x.d === dong).map((x) => x.v);
     const dongMedian = medianOrNull(inDong);
     if (dongMedian !== null) {
@@ -66,19 +69,54 @@ export function floorBucket(floor: string | null | undefined): "b" | "1" | "2" |
 
 // 층·면적은 매물마다 달라 확장이 회원 PC에서 고른다. 그래서 매물을 서버로 보내지 않고 공개 실거래 표본만 내려 준다.
 // 토지 표본에는 같은 지목끼리 비교하도록 지목을 붙인다. 상가·건물에는 비슷한 연식끼리 비교하도록 건축년도를 붙인다(2026-11-02 주인님 의견).
-export type MarketSample = [floor: "b" | "1" | "2" | null, area: number, perPyeong: number, inDong: 0 | 1, jimok?: string | null, buildYear?: number | null];
+// 일반건물에는 대지 평당가를 7번째 칸으로 붙인다. 연면적·대지 한 기준만 보면 헛짚기 쉬워 두 기준을 함께 본다(2026-11-02 플랜 §1). 옛 확장은 이 칸을 무시한다.
+export type MarketSample = [floor: "b" | "1" | "2" | null, area: number, perPyeong: number, inDong: 0 | 1, jimok?: string | null, buildYear?: number | null, plotPerPyeong?: number | null];
+
+/** 같은 날·같은 동·같은 면적·같은 평당가인 건물 거래는 한 건으로 본다(실거래에 중복으로 보이는 줄, 2026-11-02 역삼 3쌍) */
+function dedupeBuildings(rows: MarketRow[]): MarketRow[] {
+  const seen = new Set<string>();
+  return rows.filter((r) => {
+    const key = [r.deal_date, r.umd_nm, r.area_m2, r.plot_m2, r.price_per_pyeong].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * 여러 필지를 한 번에 판 토지 거래는 필지마다 같은 평당가로 찍혀 중간값을 흔든다(고양 70건 중 48건).
+ * 같은 날·같은 동·같은 평당가 묶음을 면적 합계 한 건으로 합치고, 지목은 가장 넓은 필지 것을 쓴다.
+ */
+export function mergeLandBundles(rows: MarketRow[]): MarketRow[] {
+  const groups = new Map<string, MarketRow[]>();
+  for (const r of rows) {
+    const key = [r.deal_date, r.umd_nm, r.price_per_pyeong].join("|");
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(r);
+  }
+  return [...groups.values()].map((g) => {
+    if (g.length === 1) return g[0];
+    const widest = g.reduce((a, b) => (Number(b.area_m2) > Number(a.area_m2) ? b : a));
+    return { ...widest, area_m2: g.reduce((s, r) => s + Number(r.area_m2), 0) };
+  });
+}
 
 export function marketSamples(rows: MarketRow[], dong: string): Record<string, MarketSample[]> {
   const clean = rows.filter((r) => !r.is_share && !r.cancelled && r.price_per_pyeong !== null && Number(r.area_m2) > 0);
   const out: Record<string, MarketSample[]> = {};
   for (const code of ["SG", "GM", "TJ"]) {
-    out[code] = clean
-      .filter((r) => belongs(code, r))
-      .map((r): MarketSample => {
-        const inDong = r.umd_nm === dong ? 1 : 0;
-        if (code === "TJ") return [floorBucket(r.floor), Number(r.area_m2), Number(r.price_per_pyeong), inDong, r.category];
-        return [floorBucket(r.floor), Number(r.area_m2), Number(r.price_per_pyeong), inDong, null, Number(r.build_year) > 1900 ? Number(r.build_year) : null];
-      });
+    const mine = clean.filter((r) => belongs(code, r));
+    const list = code === "TJ" ? mergeLandBundles(mine) : dedupeBuildings(mine);
+    out[code] = list.map((r): MarketSample => {
+      const inDong = r.umd_nm === dong ? 1 : 0;
+      if (code === "TJ") return [floorBucket(r.floor), Number(r.area_m2), Number(r.price_per_pyeong), inDong, r.category];
+      const buildYear = Number(r.build_year) > 1900 ? Number(r.build_year) : null;
+      if (code === "SG") return [floorBucket(r.floor), Number(r.area_m2), Number(r.price_per_pyeong), inDong, null, buildYear];
+      // 평당가는 연면적 기준이라 같은 거래금액을 대지면적으로 다시 나눈다
+      const plot = Number(r.plot_m2);
+      const plotPerPyeong = plot > 0 ? Math.round((Number(r.price_per_pyeong) * Number(r.area_m2)) / plot) : null;
+      return [floorBucket(r.floor), Number(r.area_m2), Number(r.price_per_pyeong), inDong, null, buildYear, plotPerPyeong];
+    });
   }
   return out;
 }

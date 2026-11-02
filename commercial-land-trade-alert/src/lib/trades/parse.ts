@@ -101,6 +101,15 @@ export function parseTrades(kind: TradeKind, items: Raw[], sggCd: string, sggNm:
   return out;
 }
 
+/**
+ * 층이 있는 줄과 같은 거래인데 층만 비어 먼저 들어온 줄의 키. 국토부가 나중에 층을 채우면 키가 달라져 두 줄로 남기 때문이다(2026-11-02 플랜 §2).
+ * 층이 이미 비어 있으면 null. 키 형식은 바꾸지 않는다(기존 줄과 어긋나지 않게).
+ */
+export function blankFloorKey(key: string): string | null {
+  const m = key.match(/^(.*)\|([^|#]+)(#\d+)$/);
+  return m ? `${m[1]}|${m[3]}` : null;
+}
+
 /** 표본 수가 적으면 비교가 왜곡되므로 5건 미만은 null */
 export function medianOrNull(values: number[], minSamples = 5): number | null {
   if (values.length < minSamples) return null;
