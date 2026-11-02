@@ -101,7 +101,6 @@ export function Sidebar({
                 <p className="text-sm font-black tracking-tight text-mx-text group-hover:text-mx-link">{APP_NAME}</p>
                 <div className="mt-0.5 flex items-center gap-1.5">
                   <span className="mx-chip-amber px-1.5 py-0 text-[11px]">{APP_VERSION}</span>
-                  <span className="rounded bg-mx-success px-1.5 text-[10px] font-extrabold tracking-wide text-white">FREE</span>
                 </div>
               </div>
             </Link>
