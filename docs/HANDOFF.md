@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ⏳ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — `music` 30일 정리 대조·수정(미배포)
+- 첫 실제 삭제 10-29 곡 34개(회원 5명) 확인. 남은 30일 초과 곡 2·기획 2·원곡 3의 원인: 멈춘 「생성 중」 제외 조건, 원곡 끼워 읽기 PGRST201을 오류 확인 없이 넘김. `3f3bac612`에서 고침, tsc·시험 58. 배포 승인 대기 → 배포 뒤 다음 03:00 정리 결과 대조. 상세 `music/AGENTS.md` 2026-11-03
+
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — `playlist-channel-studio` v1.33 최신 AI 모델 추가
 - 공급사 순서를 OpenAI·Claude·Gemini로 맞추고 플랫폼별 묶음 표시. 텍스트에 GPT-6.1 Sol·6 Astra·6.1 Terra·6 Luna·Claude Opus 5.5·Fable 5.1·Gemini 3.8 Flash(새 기본값)·4 Argon·3.5 Flash-Lite, 이미지에 GPT Image 2.5 Sunburst·2.5 Flare·2·1.5·1 mini·나노 바나나 2.1 추가. Gemini 생각 끄기는 2.5에만, Claude 출력 한도 16000. 실제 호출(시험 계정 본인 키, 재시도 없음): 텍스트 9개 제목 생성 모두 통과 1.7~13.8초(Argon도 통과), 이미지 6개 썸네일 모두 통과 11.9~27.2초.
 - 배포·DB v1.33, 크롬 화면 확인. 커밋 `d2fc103ed`·`b40567c94`. 링크: https://playlist-channel-studio.buylife.xyz/studio
