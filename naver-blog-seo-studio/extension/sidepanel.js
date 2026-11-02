@@ -225,12 +225,27 @@ function openWebDraftPreview() {
 
 // 2026-10-23: 원고(이미지·블록)를 다 불러오기 전에 입력을 시작하면 이미지 없는 원고로 잘못 입력되므로, 불러오는 동안 입력을 막는다.
 let webDraftLoading = false;
+// 2026-11-02: 이미지를 받는 데 수십 초가 걸려, 다른 원고로 바꿔 고르면 먼저 시작한 불러오기가 늦게 끝나며
+// 지금 원고의 이미지·미리보기·안내를 덮어썼다. 불러오기마다 순번을 붙여 마지막으로 고른 원고의 결과만 쓴다.
+let webDraftLoadSeq = 0;
+function cancelWebDraftLoad() {
+  webDraftLoadSeq += 1;
+  webDraftLoading = false;
+}
 async function loadSelectedWebDraft() {
+  const seq = ++webDraftLoadSeq;
   webDraftLoading = true;
-  try { return await loadSelectedWebDraftNow(); } finally { webDraftLoading = false; }
+  try {
+    return await loadSelectedWebDraftNow(() => seq === webDraftLoadSeq);
+  } catch (error) {
+    if (seq !== webDraftLoadSeq) return false;
+    throw error;
+  } finally {
+    if (seq === webDraftLoadSeq) webDraftLoading = false;
+  }
 }
 
-async function loadSelectedWebDraftNow() {
+async function loadSelectedWebDraftNow(isCurrent = () => true) {
   const draft = webDrafts.find((item) => item.id === $("webDraftList").value);
   if (!draft) throw new Error("미리볼 콘텐츠를 먼저 선택해주세요.");
   clearWebDraftPreview();
@@ -245,18 +260,24 @@ async function loadSelectedWebDraftNow() {
   $("webDraftTagSuggestion").hidden = activeWebDraftTags.length === 0;
   $("webDraftTagList").textContent = activeWebDraftTags.length ? activeWebDraftTags.map((tag) => `#${tag}`).join(" ") : "";
   const token = await getToken();
-  let storedImageLoaded = false;
+  if (!isCurrent()) return false;
+  let coverDataUrl = "";
   try {
-    storedImageLoaded = await loadStoredWebDraftImage(draft, token);
+    coverDataUrl = await loadStoredWebDraftImage(draft, token);
   } catch (error) {
     console.warn("저장된 대표 이미지 불러오기 실패", error);
   }
+  if (!isCurrent()) return false;
+  let contentImages = [];
   try {
-    activeWebDraftContentImages = await loadStoredWebDraftContentImages(draft, token);
+    contentImages = await loadStoredWebDraftContentImages(draft, token);
   } catch (error) {
     console.warn("저장된 본문 이미지 불러오기 실패", error);
-    activeWebDraftContentImages = [];
   }
+  if (!isCurrent()) return false;
+  const storedImageLoaded = Boolean(coverDataUrl);
+  activeWebDraftCoverDataUrl = coverDataUrl;
+  activeWebDraftContentImages = contentImages;
   activeWebDraftBlocks = Array.isArray(draft.content_blocks) ? draft.content_blocks.filter((block) => {
     if (!block || typeof block !== "object") return false;
     return (block.type === "text" && typeof block.text === "string")
@@ -265,10 +286,12 @@ async function loadSelectedWebDraftNow() {
   renderWebDraftPreview(draft);
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/claim`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json().catch(() => ({}));
+  if (!isCurrent()) return false;
   if (!response.ok) throw new Error(result.error || `초안 불러오기 기록 실패 (${response.status})`);
   const imageSummary = draft.image_summary || {};
   const imageCount = (imageSummary.cover ? 1 : 0) + Number(imageSummary.contentCount || 0);
   $("webDraftStatus").textContent = webDraftImageStatus(imageCount, storedImageLoaded, activeWebDraftContentImages.length);
+  return true;
 }
 
 // 2026-11-02: 대표 이미지만 보고 성공을 판단해, 본문 이미지만 있는 원고는 다 불러와도 「불러오지 못했습니다」로 나왔다.
@@ -310,15 +333,13 @@ function blobToDataUrl(blob) {
 }
 
 async function loadStoredWebDraftImage(draft, token) {
-  if (!draft.image_path) return false;
+  if (!draft.image_path) return "";
   const response = await fetch(`${BASE}/api/extension/drafts/library/${encodeURIComponent(draft.id)}/image`, { headers: { Authorization: `Bearer ${token}` } });
   if (!response.ok) {
     const result = await response.json().catch(() => ({}));
     throw new Error(result.error || `저장된 대표 이미지 조회 실패 (${response.status})`);
   }
-  const dataUrl = await blobToDataUrl(await response.blob());
-  activeWebDraftCoverDataUrl = dataUrl;
-  return true;
+  return blobToDataUrl(await response.blob());
 }
 
 async function loadStoredWebDraftContentImages(draft, token) {
@@ -1201,6 +1222,7 @@ $("previewFill").addEventListener("click", () => {
 
 $("webDraftList").addEventListener("change", () => {
   if (!$("webDraftList").value) {
+    cancelWebDraftLoad();
     resetActiveWebDraft();
     clearWebDraftPreview();
     $("generateStatus").textContent = "대기 중 · 입력할 콘텐츠를 목록에서 선택하세요.";
@@ -1208,6 +1230,7 @@ $("webDraftList").addEventListener("change", () => {
   }
   const selected = webDrafts.find((item) => item.id === $("webDraftList").value);
   const failLoad = (message) => {
+    cancelWebDraftLoad();
     resetActiveWebDraft();
     clearWebDraftPreview();
     // 같은 원고를 다시 골라도 change가 일어나도록 선택을 비운다. 안내는 그대로 남긴다.

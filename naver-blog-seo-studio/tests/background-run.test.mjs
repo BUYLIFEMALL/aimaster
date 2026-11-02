@@ -119,3 +119,52 @@ test("marks drafts the server will not load in the side panel list", () => {
   assert.equal(label({ ...base, input_blocked: "진행 중", auto_publish_state: "uncertain" }), "[실행 중] 가을 캠핑 · 이미지 2장");
   assert.equal(label({ ...base, input_blocked: "필수 지적", auto_publish_state: "failed" }), "[검수 필요] 가을 캠핑 · 이미지 2장");
 });
+
+// 2026-11-02: 원고를 빨리 바꿔 고르면 먼저 시작한 불러오기가 늦게 끝나며 지금 원고의 이미지·안내를 덮어썼다.
+test("ignores a draft load that finishes after another draft was selected", async () => {
+  const w = loadWorker();
+  w.value(`webDrafts = [
+    { id: "a", title: "A", image_path: "u/a/cover.png", content_images: [{ slot: "content-1" }], image_summary: { cover: true, contentCount: 1 } },
+    { id: "b", title: "B", content_images: [], image_summary: { cover: false, contentCount: 0 } },
+  ]`);
+  const release = {};
+  const late = (key, value) => new Promise((resolve) => { release[key] = () => resolve(value); });
+  w.context.getToken = async () => "token";
+  w.context.loadStoredWebDraftImage = (draft) => (draft.id === "a" ? late("cover", "data:a") : Promise.resolve(""));
+  w.context.loadStoredWebDraftContentImages = (draft) => (draft.id === "a" ? late("content", [{ slot: "content-1" }]) : Promise.resolve([]));
+  w.context.renderWebDraftPreview = () => {};
+  w.context.fetch = async () => ({ ok: false, status: 409, json: async () => ({ error: "이미 예약한 원고입니다." }) });
+
+  w.value('$("webDraftList").value = "a"');
+  const first = w.value("loadSelectedWebDraft()");
+  await tick();
+  assert.equal(w.value("webDraftLoading"), true);
+  w.context.fetch = async () => ({ ok: true, json: async () => ({}) });
+  w.value('$("webDraftList").value = "b"');
+  assert.equal(await w.value("loadSelectedWebDraft()"), true);
+  assert.equal(w.value("webDraftLoading"), false);
+  release.cover();
+  await tick();
+  release.content?.();
+  assert.equal(await first, false);
+  assert.equal(w.value("activeWebDraftId"), "b");
+  assert.equal(w.value("activeWebDraftCoverDataUrl"), "");
+  assert.equal(w.value("activeWebDraftContentImages.length"), 0);
+  assert.match(w.value('$("webDraftStatus").textContent'), /^이미지 없는 텍스트 원고/);
+  assert.equal(w.value("webDraftLoading"), false);
+});
+
+test("releases the input lock when the selection is cleared during a load", async () => {
+  const w = loadWorker();
+  w.value('webDrafts = [{ id: "a", title: "A", content_images: [], image_summary: {} }]');
+  let release;
+  w.context.getToken = () => new Promise((resolve) => { release = () => resolve("token"); });
+  w.value('$("webDraftList").value = "a"');
+  const load = w.value("loadSelectedWebDraft()");
+  await tick();
+  w.value("cancelWebDraftLoad()");
+  assert.equal(w.value("webDraftLoading"), false);
+  release();
+  assert.equal(await load, false);
+  assert.equal(w.value("webDraftLoading"), false);
+});
