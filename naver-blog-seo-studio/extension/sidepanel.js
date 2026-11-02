@@ -5,6 +5,7 @@ let seoAutoBusy = false;
 const BASE = "https://naver-blog-seo-studio.buylife.xyz"; // 2026-10-16 새 주소(옛 vercel.app 삭제 대비, 허용 목록은 두 주소 유지)
 const KEY = "seoStudioToken";
 const PUBLISH_SETTINGS_KEY = "seoStudioPublishSettings";
+const BLOG_ID_KEY = "seoStudioBlogId";
 // 2026-10-23: background.js도 이 파일을 불러와 입력 엔진을 실행한다. 그때는 화면이 없으므로 seoRunUiElement(background.js)가 대신 받는다.
 const IN_WORKER = typeof importScripts === "function" && typeof document === "undefined";
 const SEO_RUN_UI = "seo_run_ui_v1";
@@ -1254,6 +1255,12 @@ if (!IN_WORKER) {
     $("publishCategory").value = settings.category || "";
     $("publishTags").value = settings.tags || "";
   }).catch(() => {});
+  // 2026-11-02: 실제 블로그 ID는 한 번 넣으면 기억한다(카테고리·태그 저장과 섞이지 않게 따로 보관).
+  chrome.storage.local.get(BLOG_ID_KEY).then((stored) => { if (!$("publishBlogId").value) $("publishBlogId").value = stored[BLOG_ID_KEY] || ""; }).catch(() => {});
+  $("publishBlogId").addEventListener("change", () => {
+    const blogId = $("publishBlogId").value.trim();
+    if (!blogId || /^[A-Za-z0-9_-]{2,40}$/.test(blogId)) chrome.storage.local.set({ [BLOG_ID_KEY]: blogId }).catch(() => {});
+  });
   // 사이드패널을 다시 열면 background가 진행 중이거나 마지막으로 남긴 상황을 그대로 보여 준다.
   chrome.storage.local.get(SEO_RUN_UI).then((stored) => applySeoRunUi(stored[SEO_RUN_UI])).catch(() => {});
   renderExtensionVersion();
