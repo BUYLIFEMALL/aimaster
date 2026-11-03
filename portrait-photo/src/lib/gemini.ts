@@ -10,7 +10,8 @@ export const IMAGE_MODELS: Record<ModelLevel, string> = {
   flash: "gemini-3.1-flash-lite-image",
   pro: "gemini-3-pro-image",
 };
-export const TEXT_MODEL = "gemini-2.5-flash";
+// 2026-11-03: gemini-2.5-flash(12-01 자동 연결) → 3.8-flash (docs/PLAN_20261103_MODEL_MIGRATION_DEC.md)
+export const TEXT_MODEL = "gemini-3.8-flash";
 
 export type AiErrorCode = "key" | "quota" | "timeout" | "safety" | "noimage" | "unknown";
 export class AiError extends Error {
