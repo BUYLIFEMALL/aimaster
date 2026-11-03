@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.11 · 엔진 0.3.0 설치 파일 배포
+- 주인님 「사용자들은 쉽게 해야 할 듯」 → 설치 파일. `free-music-studio/desktop/`(Electron 44.9.2·electron-builder 26.18.0, NSIS 한 번 클릭·관리자 권한 없음): 작업 표시줄 🎵 아이콘·상태 창(연결 코드·상태·저장 폴더·기록·다시 켜기·끄기), 한 번만 실행, PC 켤 때 자동 실행(`--hidden`), 엔진이 꺼지면 3번까지 다시 켬, 예전 PowerShell 엔진 정리, `freemusic-engine://` 주소, `engine-latest.json`으로 새 버전 알림. 엔진 0.3.0: uv 0.9.29·ffmpeg 8.1.3 LGPL을 처음 켤 때 받기(SHA-256), 실행 환경 실측 6.1GB + uv 보관 4.3GB로 크기·필요 공간 고침.
+- 사이트 v1.11 원클릭 다운로드 센터(`free-music-studio-3jjuvdkqi` Ready, 화면·DB v1.11). 설치 파일은 git에 넣지 않고 `public/downloads/`에 복사해 배포(`.vercelignore`로 `desktop/` 제외). 만드는 법: `desktop/`에서 `npm run dist` → `release/` exe를 `public/downloads/`로 복사 → `engine-latest.json`의 버전·크기·SHA-256 갱신.
+- 검수: 미니PC에 설치 파일로 설치 → 엔진 0.3.0 준비됨, 두 번 실행·주소로 열기에도 엔진 하나, 주소·자동 실행이 설치 경로로 등록, 운영 사이트에서 로그인 상태로 106.7MB 받기·확인값 일치. 화면 캡처가 막힌 세션이라 상태 창은 예시 상태로 ego에서 확인.
+- 남은 일: **마스터PC에서 설치 파일 실물**(주인님) · 작업 표시줄 [끄기]로 엔진까지 꺼지는지 · 미배포 `9d0d6fae9`(`/downloads` 로그인 검사 제외 — 새 버전 알림용) · 맥 dmg.
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.10 · 엔진 0.2.0 비상업용 음악 엔진 YuE2 배포
 - 주인님 결정: 비상업 모델 YuE2를 회원도 쓰되 상업용/비상업용으로 구분. 엔진 `yue2.mjs`(고정 주소·SHA-256 받기, `yue-server.exe`, YuE2 차례면 ACE-Step을 잠시 꺼 그래픽 메모리 비움), 웹 엔진 고르기·비상업 동의·「비상업용」 표시, DB `free_music_tracks.license`(운영 적용).
 - 함께 나감: 4단계 재생바·복사 버튼, 웹 옛 방식 실패 이유 표시, 구성 바꾼 뒤 「새 구성으로 준비됐습니다」, 프리셋 안내. 커밋 `d411c0b26`·`2cac793c0`·`c69023503`, 배포 `free-music-studio-pre6r21xo` Ready, 화면·DB v1.10, 시험 웹 47·엔진 37, ego 운영 화면 확인.
