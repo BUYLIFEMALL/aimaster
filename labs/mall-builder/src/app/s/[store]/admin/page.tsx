@@ -34,7 +34,7 @@ export default async function StoreAdminPage({ params }: { params: Promise<{ sto
         <dt className="text-gray-500">개설일</dt>
         <dd>{new Date(store.created_at).toLocaleDateString("ko-KR")}</dd>
       </dl>
-      <p className="mt-6 text-sm text-gray-500">카테고리·상품 관리 메뉴는 다음 기능부터 하나씩 추가됩니다.</p>
+      <p className="mt-6 text-sm text-gray-500">상품·주문 관리 메뉴는 다음 기능부터 하나씩 추가됩니다.</p>
     </AdminShell>
   );
 }
