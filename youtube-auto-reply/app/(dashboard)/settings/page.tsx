@@ -14,9 +14,9 @@ import { getYoutubeConnectionStatus } from "@/lib/actions/youtube";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import {
   REPLY_MODEL_OPTIONS,
-  DEFAULT_REPLY_MODEL,
   REPLY_MODEL_PROVIDER_SHORT_LABELS,
   getReplyModelProvider,
+  currentReplyModel,
 } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
 import { YOUTUBE_REDIRECT_NEW, YOUTUBE_REDIRECT_OLD } from "@/lib/oauthRedirect";
@@ -74,7 +74,7 @@ export default async function SettingsPage() {
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
   // 댓글 모니터링 실행 방식(v1.12) — 회원별 상태는 서비스 키로 읽는다(표 RLS는 본인 조회만)
   const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
-  const activeModel = settings?.reply_model ?? DEFAULT_REPLY_MODEL;
+  const activeModel = currentReplyModel(settings?.reply_model);
   const activeModelOption = REPLY_MODEL_OPTIONS.find((o) => o.value === activeModel);
   const activeProvider = getReplyModelProvider(activeModel);
 
