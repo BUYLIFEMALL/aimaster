@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { remove } from "@/lib/files";
 import type { OutputItem } from "@/lib/bnc/types";
 import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
+import { retentionExemptFilter } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,12 +20,13 @@ export async function GET(request: Request) {
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return json({ error: "unauthorized" }, 401);
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const admin = createAdminClient();
+  const exemptFilter = await retentionExemptFilter(admin); // 예외 회원(관리자·시험 계정)은 지우지 않는다. 못 읽으면 오류로 멈춤
   let rows = 0, files = 0;
   const counts: CleanupCounts = new Map();
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
     const { data: old, error } = await admin
-      .from("banana_canvas_results").select("id, outputs, input_paths").lt("created_at", cutoff).limit(BATCH);
+      .from("banana_canvas_results").select("id, outputs, input_paths").lt("created_at", cutoff).not("user_id", "in", exemptFilter).limit(BATCH);
     if (error) return json({ error: error.message }, 500);
     if (!old?.length) break;
     const paths = old.flatMap((r) => [
