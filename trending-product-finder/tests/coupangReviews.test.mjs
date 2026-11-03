@@ -100,3 +100,30 @@ test("서버 저장 자료를 다시 만들어 주소 위조와 잘못된 값을
   assert.deepEqual(mod.sanitizeReviewItems("x"), []);
   assert.equal(mod.COUPANG_RESULT_RETENTION_DAYS, 365);
 });
+
+import { DAILY_LIMIT, kstDay, nextGapMinutes, parseKeywords, searchUrl, startProblem, todayRecord } from "../extension/lib/auto.js";
+
+test("자동 검색 키워드는 줄·쉼표로 나누고 중복·빈 칸을 빼며 10개까지만 쓴다", () => {
+  assert.deepEqual(parseKeywords(" 스텐 텀블러 \n\n빨대  텀블러, 스텐 텀블러,"), ["스텐 텀블러", "빨대 텀블러"]);
+  assert.equal(parseKeywords(Array.from({ length: 15 }, (_, i) => `k${i}`).join("\n")).length, 10);
+});
+
+test("자동 검색은 판매량순 1페이지 주소만 연다", () => {
+  assert.equal(searchUrl("빨대 텀블러"), "https://www.coupang.com/np/search?q=%EB%B9%A8%EB%8C%80%20%ED%85%80%EB%B8%94%EB%9F%AC&sorter=saleCountDesc");
+});
+
+test("하루 상한·오늘 중단·날짜 바뀜을 한국 시간으로 판단한다", () => {
+  const night = Date.parse("2026-11-03T15:30:00Z"); // 한국 11-04 00:30
+  assert.equal(kstDay(night), "2026-11-04");
+  assert.deepEqual(todayRecord({ day: "2026-11-03", count: 30, stopped: true }, night), { day: "2026-11-04", count: 0, stopped: false });
+  assert.equal(startProblem([], { count: 0 }), "검색할 키워드를 한 줄에 하나씩 넣어 주세요.");
+  assert.match(startProblem(["a"], { count: 0, stopped: true }), /멈췄습니다/);
+  assert.match(startProblem(["a"], { count: DAILY_LIMIT }), /상한/);
+  assert.match(startProblem(["a", "b", "c"], { count: DAILY_LIMIT - 2 }), /남은 자동 검색은 2개/);
+  assert.equal(startProblem(["a", "b"], { count: DAILY_LIMIT - 2 }), null);
+});
+
+test("키워드 사이 대기는 3~5분이다", () => {
+  assert.equal(nextGapMinutes(0), 3);
+  assert.equal(nextGapMinutes(0.999) < 5, true);
+});

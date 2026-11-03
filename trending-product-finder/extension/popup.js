@@ -1,7 +1,8 @@
-import { filterProducts, isExpired, mergeProducts, pageState, parseCard, toCsv } from "./lib/parse.js";
+import { DAILY_LIMIT, MAX_KEYWORDS, parseKeywords, todayRecord } from "./lib/auto.js";
+import { addToLocalList, readTab, saveToAccount } from "./lib/page.js";
+import { filterProducts, isExpired, toCsv } from "./lib/parse.js";
 
 const READ_GAP_MS = 10_000;
-const SITE = "https://trending-product-finder.buylife.xyz";
 const $ = (id) => document.getElementById(id);
 let items = [];
 let lastReadAt = 0;
@@ -46,24 +47,6 @@ function render() {
   );
 }
 
-async function save() {
-  await chrome.storage.local.set({ items, savedAt: Date.now() });
-}
-
-/** 쿠팡 탭 안에서 실행된다. 바깥 변수를 쓸 수 없고, 화면을 움직이지 않는다. */
-function readVisiblePage() {
-  const nodes = [...document.querySelectorAll('li[class*="ProductUnit_productUnit"]')];
-  return {
-    title: document.title,
-    text: (document.body?.innerText ?? "").slice(0, 4000),
-    cards: nodes.map((node) => ({
-      lines: node.innerText.split("\n"),
-      href: node.querySelector('a[href*="/vp/products/"]')?.getAttribute("href") ?? "",
-      name: node.querySelector('[class*="productName"]')?.innerText ?? node.querySelector("img[alt]")?.getAttribute("alt") ?? "",
-    })),
-  };
-}
-
 async function readPage() {
   const wait = READ_GAP_MS - (Date.now() - lastReadAt);
   if (wait > 0) return setStatus(`${Math.ceil(wait / 1000)}초 뒤에 다시 눌러 주세요.`, true);
@@ -73,43 +56,46 @@ async function readPage() {
     return setStatus("쿠팡에서 직접 검색한 결과 화면을 연 뒤 눌러 주세요.", true);
   }
   lastReadAt = Date.now();
-  let result;
-  try {
-    [{ result }] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: readVisiblePage });
-  } catch {
-    return setStatus("화면을 읽지 못했습니다. 쿠팡 탭을 새로고침한 뒤 다시 눌러 주세요.", true);
-  }
+  const read = await readTab(tab.id);
+  if (!read) return setStatus("화면을 읽지 못했습니다. 쿠팡 탭을 새로고침한 뒤 다시 눌러 주세요.", true);
+  if (read.state === "blocked") return setStatus("⛔ 쿠팡 확인 화면이 떠서 멈췄습니다. 오늘은 더 읽지 말고 쉬어 주세요.", true);
+  if (read.state === "no-result") return setStatus("이 화면에 검색 결과가 없습니다. 상품이 있는 검색어인데 이렇게 나오면 쿠팡이 제한했을 수 있으니 잠시 쉬어 주세요.", true);
+  if (read.state === "unknown") return setStatus("상품을 찾지 못했습니다. 쿠팡 화면이 바뀌었을 수 있습니다.", true);
 
-  const state = pageState({ cardCount: result.cards.length, title: result.title, text: result.text });
-  if (state === "blocked") return setStatus("⛔ 쿠팡 확인 화면이 떠서 멈췄습니다. 오늘은 더 읽지 말고 쉬어 주세요.", true);
-  if (state === "no-result") return setStatus("이 화면에 검색 결과가 없습니다. 상품이 있는 검색어인데 이렇게 나오면 쿠팡이 제한했을 수 있으니 잠시 쉬어 주세요.", true);
-  if (state === "unknown") return setStatus("상품을 찾지 못했습니다. 쿠팡 화면이 바뀌었을 수 있습니다.", true);
-
-  const before = items.length;
-  const products = mergeProducts([], result.cards.map(parseCard));
-  items = mergeProducts(items, products);
-  await save();
+  const added = await addToLocalList(read.products);
+  items = (await chrome.storage.local.get("items")).items ?? [];
   render();
-  setStatus(`읽기 완료: 새 상품 ${items.length - before}개를 담았습니다. 저장 중…`);
+  setStatus(`새 상품 ${added}개를 담았습니다. 저장 중…`);
   const keyword = new URL(tab.url).searchParams.get("q") ?? "";
-  setStatus(`새 상품 ${items.length - before}개를 담았습니다. ${await saveToAccount(keyword, products)}`);
+  setStatus(`새 상품 ${added}개를 담았습니다. ${await saveToAccount(keyword, read.products)}`);
 }
 
-/** 쿠팡이 아니라 우리 사이트로만 보낸다. 공개 상품 정보만 담긴다. */
-async function saveToAccount(keyword, products) {
-  const { extToken } = await chrome.storage.local.get("extToken");
-  if (!extToken) return "사이트의 「쿠팡 상품소싱기」에서 확장을 연결하면 내 계정에 저장됩니다.";
-  try {
-    const response = await fetch(`${SITE}/api/extension/coupang-results`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${extToken}` },
-      body: JSON.stringify({ keyword, items: products }),
-    });
-    const data = await response.json().catch(() => ({}));
-    return response.ok ? `내 계정에 ${data.saved}개를 저장했습니다.` : data.error || "내 계정에 저장하지 못했습니다.";
-  } catch {
-    return "내 계정에 저장하지 못했습니다. 인터넷 연결을 확인해 주세요.";
+function renderAuto(job, daily) {
+  const running = Boolean(job?.running);
+  $("autoStart").disabled = running;
+  $("autoStop").hidden = !running;
+  $("keywords").disabled = running;
+  const record = todayRecord(daily);
+  const lines = [`오늘 자동 검색 ${record.count}/${DAILY_LIMIT}개${record.stopped ? " · 오늘은 중단됨" : ""}`];
+  if (job?.message) lines.push(job.message);
+  if (running && job.nextAt) {
+    const left = Math.max(0, Math.round((job.nextAt - Date.now()) / 1000));
+    lines.push(`다음 키워드 「${job.keywords[job.index]}」까지 약 ${Math.floor(left / 60)}분 ${left % 60}초`);
   }
+  for (const r of job?.results ?? []) lines.push(`· ${r.keyword}: 상품 ${r.count}개(새로 ${r.added}개) — ${r.saved}`);
+  $("autoStatus").textContent = lines.join("\n");
+}
+
+async function refreshAuto() {
+  const { autoJob, autoDaily } = await chrome.storage.local.get(["autoJob", "autoDaily"]);
+  renderAuto(autoJob, autoDaily);
+}
+
+async function startAuto() {
+  const keywords = parseKeywords($("keywords").value);
+  const reply = await chrome.runtime.sendMessage({ type: "auto-start", keywords });
+  if (!reply?.ok) return setStatus(reply?.error ?? "자동 검색을 시작하지 못했습니다.", true);
+  setStatus(`키워드 ${keywords.length}개 자동 검색을 시작했습니다. 이 창을 닫아도 계속됩니다.`);
 }
 
 function downloadCsv() {
@@ -151,6 +137,24 @@ async function init() {
     showMain();
   });
   $("read").addEventListener("click", readPage);
+  $("keywords").placeholder = `한 줄에 하나씩, 최대 ${MAX_KEYWORDS}개\n예: 스텐 텀블러\n빨대 텀블러`;
+  const { autoAgreed } = await chrome.storage.local.get("autoAgreed");
+  $("autoAgree").checked = Boolean(autoAgreed);
+  $("autoStart").addEventListener("click", async () => {
+    if (!$("autoAgree").checked) return setStatus("자동 검색 주의 사항을 확인하고 체크해 주세요.", true);
+    await chrome.storage.local.set({ autoAgreed: true });
+    startAuto();
+  });
+  $("autoStop").addEventListener("click", () => chrome.runtime.sendMessage({ type: "auto-stop" }));
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes.items) {
+      items = changes.items.newValue ?? [];
+      render();
+    }
+    if (changes.autoJob || changes.autoDaily) refreshAuto();
+  });
+  setInterval(refreshAuto, 1000);
+  refreshAuto();
   $("csv").addEventListener("click", downloadCsv);
   $("clear").addEventListener("click", clearList);
   document.querySelectorAll('input[name="min"], #excludeAds, #custom').forEach((el) => el.addEventListener("input", render));

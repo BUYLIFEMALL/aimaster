@@ -27,7 +27,7 @@
 </head>
 <body>
   <h1>🛒 쿠팡 상품소싱기</h1>
-  <div class="muted">상품소싱 자동화 <span id="version"></span> · 지금 보이는 검색 화면만 읽습니다</div>
+  <div class="muted">상품소싱 자동화 <span id="version"></span> · 직접 읽기 또는 키워드 자동 검색</div>
   <div class="muted">판매량순으로 정렬한 화면을 읽으면 많이 팔리는 상품 가운데 리뷰가 쌓인 상품을 찾습니다.</div>
 
   <div id="consent" class="box warn" hidden>
@@ -51,10 +51,23 @@
         <button id="clear">목록 비우기</button>
       </div>
     </div>
+    <div class="box">
+      <b>🔁 키워드 자동 검색</b>
+      <div class="muted">적어 둔 키워드를 하나씩 쿠팡 판매량순으로 검색해 1페이지만 읽고 담습니다. 키워드 사이 3~5분 쉬고, 한 번에 최대 10개·하루 최대 30개입니다. 이 창을 닫아도 계속됩니다.</div>
+      <textarea id="keywords" rows="4" style="width:100%;box-sizing:border-box;margin-top:6px;background:#0f1115;color:#e5e7eb;border:1px solid #2a2f3a;border-radius:6px;padding:6px;font:inherit"></textarea>
+      <div class="warn box" style="margin-top:6px">자동 검색은 쿠팡에 여러 번 접속하므로 직접 읽을 때보다 제재 위험이 큽니다. 쿠팡 확인 화면이나 「검색결과 없음」이 나오면 그날은 자동으로 멈춥니다. 우회는 하지 않으며 사용 책임은 회원 본인에게 있습니다.
+        <div class="row" style="margin-top:6px"><label><input type="checkbox" id="autoAgree"> 확인했고 본인 책임으로 자동 검색을 씁니다</label></div>
+      </div>
+      <div class="row">
+        <button id="autoStart" class="primary">자동 검색 시작</button>
+        <button id="autoStop" hidden>멈춤</button>
+      </div>
+      <div id="autoStatus" class="muted" style="margin-top:6px;white-space:pre-line"></div>
+    </div>
     <div id="status" aria-live="polite"></div>
     <div class="muted" id="summary"></div>
     <div class="list"><table><thead><tr><th>순위</th><th>상품명</th><th>판매가</th><th>리뷰</th></tr></thead><tbody id="rows"></tbody></table></div>
-    <div class="muted" style="margin-top:8px">더 많은 상품은 키워드를 바꿔 검색한 뒤 다시 누르면 이어서 담깁니다. 읽은 결과는 사이트의 내 계정에 1년 동안 저장됩니다. 이 창의 목록도 이 PC에 1년 보관됩니다.</div>
+    <div class="muted" style="margin-top:8px">더 많은 상품은 키워드를 바꿔 검색한 뒤 다시 누르거나 키워드 자동 검색을 쓰면 이어서 담깁니다. 읽은 결과는 사이트의 내 계정에 1년 동안 저장됩니다. 이 창의 목록도 이 PC에 1년 보관됩니다.</div>
   </div>
   <script type="module" src="popup.js"></script>
 </body>
