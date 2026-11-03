@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseSongInput, SONGS_TABLE } from "@/lib/songs";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -12,14 +13,13 @@ const COLUMNS = "id, title, style_prompt, lyrics, duration_sec, created_at, upda
 export async function GET() {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
-  const { data, error } = await createAdminClient()
-    .from(SONGS_TABLE)
-    .select(COLUMNS)
-    .eq("user_id", access.user.id)
-    .order("updated_at", { ascending: false })
-    .limit(200);
+  const admin = createAdminClient();
+  const [{ data, error }, retentionExempt] = await Promise.all([
+    admin.from(SONGS_TABLE).select(COLUMNS).eq("user_id", access.user.id).order("updated_at", { ascending: false }).limit(200),
+    isRetentionExempt(admin, access.user.id),
+  ]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ songs: data ?? [] });
+  return NextResponse.json({ songs: data ?? [], retentionExempt });
 }
 
 export async function POST(request: Request) {

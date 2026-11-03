@@ -48,6 +48,7 @@ export default function LibraryPage() {
   const [view, setView] = useState<View>({ type: "all" });
   const [order, setOrder] = useState<string[]>([]); // 지금 보는 플레이리스트의 곡 순서
   const [loading, setLoading] = useState(true);
+  const [exempt, setExempt] = useState(false);
   const [onPc, setOnPc] = useState<Set<string> | null>(null);
   const [formats, setFormats] = useState<Record<string, string>>({});
   const [query, setQuery] = useState("");
@@ -73,7 +74,10 @@ export default function LibraryPage() {
     try {
       const res = await fetch("/api/tracks");
       const data = await res.json();
-      if (res.ok) setTracks(data.tracks ?? []);
+      if (res.ok) {
+        setTracks(data.tracks ?? []);
+        setExempt(!!data.retentionExempt);
+      }
       else setMessage(data.error || "목록을 불러오지 못했습니다.");
     } catch {
       setMessage("목록을 불러오지 못했습니다.");
@@ -263,7 +267,7 @@ export default function LibraryPage() {
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-bold tracking-tight text-slate-100">🎧 모든 음악</h1>
             <p className="mt-0.5 text-xs text-slate-400">
-              내 PC 엔진으로 만든 노래가 모두 모입니다. 프로젝트로 묶고, 플레이리스트에 담아 이어 들을 수 있습니다. 음원 파일은 회원님 PC에 있고, 곡 기록은 30일 동안 보관됩니다.
+              내 PC 엔진으로 만든 노래가 모두 모입니다. 프로젝트로 묶고, 플레이리스트에 담아 이어 들을 수 있습니다. 음원 파일은 회원님 PC에 있고, 곡 기록은 {exempt ? "기한 없이 보관됩니다(관리자·시험 계정)" : "30일 동안 보관됩니다"}.
             </p>
           </div>
           <span className="text-xs text-slate-400">총 {tracks.length}곡</span>

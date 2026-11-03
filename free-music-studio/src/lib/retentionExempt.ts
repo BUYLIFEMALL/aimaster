@@ -11,6 +11,12 @@ export async function loadRetentionExemptIds(admin: ExemptAdmin): Promise<Set<st
   return new Set((data ?? []).map((row: { id: string }) => row.id));
 }
 
+/** 이 회원이 30일 자동 삭제 예외인가(화면 안내용 — 못 읽으면 예외 아님으로 본다). */
+export async function isRetentionExempt(admin: ExemptAdmin, userId: string): Promise<boolean> {
+  const { data } = await admin.from("profiles").select("retention_exempt").eq("id", userId).maybeSingle();
+  return data?.retention_exempt === true;
+}
+
 /** PostgREST `not in` 필터 값. 빈 목록이면 null(필터를 걸지 않음). */
 export function exemptInFilter(exempt: Set<string>): string | null {
   return exempt.size ? `(${[...exempt].join(",")})` : null;

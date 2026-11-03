@@ -21,6 +21,7 @@ const durationLabel = (s: number) => (s < 60 ? `${s}초` : `${s / 60}분`);
 export default function SongsPage() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exempt, setExempt] = useState(false);
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string; needKey?: boolean } | null>(null);
@@ -56,7 +57,10 @@ export default function SongsPage() {
     try {
       const res = await fetch("/api/songs");
       const data = await res.json();
-      if (res.ok) setSongs(data.songs ?? []);
+      if (res.ok) {
+        setSongs(data.songs ?? []);
+        setExempt(!!data.retentionExempt);
+      }
       else setMessage({ type: "error", text: data.error || "곡 목록을 불러오지 못했습니다." });
     } catch {
       setMessage({ type: "error", text: "곡 목록을 불러오지 못했습니다." });
@@ -179,7 +183,7 @@ export default function SongsPage() {
           >
             <Plus className="h-4 w-4" /> 새 곡
           </button>
-          <p className="px-1 pt-2 text-[11px] font-semibold text-slate-400">내 곡 {songs.length}개 · 30일 보관</p>
+          <p className="px-1 pt-2 text-[11px] font-semibold text-slate-400">내 곡 {songs.length}개 · {exempt ? "보관 기한 없음(관리자·시험 계정)" : "30일 보관"}</p>
           {loading ? (
             <p className="px-1 text-xs text-slate-500">불러오는 중…</p>
           ) : songs.length === 0 ? (
