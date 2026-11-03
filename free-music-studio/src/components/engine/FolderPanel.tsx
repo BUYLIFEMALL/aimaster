@@ -185,7 +185,7 @@ export function FolderPanel({ status, onChanged }: { status: EngineStatus | null
                 autoFocus
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && createFolder()}
+                onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && createFolder()}
                 placeholder="새 폴더 이름"
                 maxLength={60}
                 className="w-56 rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden"

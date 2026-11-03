@@ -339,7 +339,7 @@ export default function LibraryPage() {
                   autoFocus
                   value={renaming}
                   onChange={(e) => setRenaming(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && renameCurrent(renaming)}
+                  onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && renameCurrent(renaming)}
                   maxLength={40}
                   className="w-56 rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 focus:border-emerald-400 focus:outline-hidden"
                 />
