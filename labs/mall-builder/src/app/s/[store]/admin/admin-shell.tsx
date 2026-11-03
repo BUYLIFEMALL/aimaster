@@ -9,6 +9,7 @@ const MENU = [
   { href: "/settings", label: "쇼핑몰 정보" },
   { href: "/categories", label: "카테고리" },
   { href: "/products", label: "상품" },
+  { href: "/shipping", label: "배송비" },
 ] as const;
 
 export async function AdminShell({ slug, storeName, active, children }: { slug: string; storeName: string; active: string; children: ReactNode }) {

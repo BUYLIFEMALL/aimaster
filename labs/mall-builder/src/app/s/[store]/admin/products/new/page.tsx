@@ -1,4 +1,4 @@
-import { getCategoryRows, getStaffStore } from "@/lib/store";
+import { getCategoryRows, getShippingPolicies, getStaffStore } from "@/lib/store";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { AdminShell, NoPermission } from "../../admin-shell";
 import ProductForm from "../product-form";
@@ -10,7 +10,8 @@ export default async function NewProductPage({ params }: { params: Promise<{ sto
   const { store: slug } = await params;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/products/new`);
   if (!staff) return <NoPermission />;
-  const categories = flattenTree(buildCategoryTree(await getCategoryRows(store.id), true));
+  const [categoryRows, shippingPolicies] = await Promise.all([getCategoryRows(store.id), getShippingPolicies(store.id)]);
+  const categories = flattenTree(buildCategoryTree(categoryRows, true));
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/products">
@@ -21,9 +22,10 @@ export default async function NewProductPage({ params }: { params: Promise<{ sto
         productId={null}
         categories={categories}
         savedNotice={false}
+        shippingPolicies={shippingPolicies}
         values={{
           name: "", summary: "", description: "", base_price: "", list_price: "", cost: "",
-          tax_type: "taxable", status: "draft", stock_mode: "none", stock: "", images: [], category_ids: [],
+          tax_type: "taxable", status: "draft", stock_mode: "none", stock: "", images: [], category_ids: [], shipping_policy_id: "",
         }}
       />
     </AdminShell>

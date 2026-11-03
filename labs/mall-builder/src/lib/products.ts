@@ -25,6 +25,7 @@ export type ProductInput = {
   stock: number;
   images: ProductImage[];
   category_ids: string[];
+  shipping_policy_id: string | null; // 없으면 몰 기본 배송비 정책
 };
 
 export type ProductErrors = Partial<Record<keyof ProductInput, string>>;
@@ -105,6 +106,9 @@ export function validateProduct(input: Record<string, unknown>, storeId?: string
     /^[0-9a-f-]{36}$/.test(id),
   );
 
+  const sp = String(input.shipping_policy_id ?? "");
+  const shipping_policy_id = /^[0-9a-f-]{36}$/.test(sp) ? sp : null;
+
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
@@ -112,7 +116,7 @@ export function validateProduct(input: Record<string, unknown>, storeId?: string
       name, summary, description,
       base_price: base as number, list_price: list, cost,
       tax_type, status, stock_mode, stock,
-      images: images ?? [], category_ids,
+      images: images ?? [], category_ids, shipping_policy_id,
     },
   };
 }

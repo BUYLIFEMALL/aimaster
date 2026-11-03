@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { CategoryRow } from "@/lib/categories";
 import type { OptionGroup, Variant } from "@/lib/options";
+import type { ShippingPolicy } from "@/lib/shipping";
 
 export type Store = {
   id: string;
@@ -78,11 +79,24 @@ export type ProductRow = {
   stock: number;
   images: { url: string; path: string }[];
   option_groups: OptionGroup[];
+  shipping_policy_id: string | null;
   created_at: string;
 };
 
 export const PRODUCT_COLUMNS =
-  "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, created_at";
+  "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, created_at";
+
+/** 몰의 배송비 정책(기본 정책이 맨 앞) */
+export async function getShippingPolicies(storeId: string): Promise<ShippingPolicy[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_shipping_policies")
+    .select("id, name, type, base_fee, free_over, jeju_fee, island_fee, is_default")
+    .eq("store_id", storeId)
+    .order("is_default", { ascending: false })
+    .order("created_at");
+  return (data ?? []) as ShippingPolicy[];
+}
 
 /** 손님 화면용 상품 목록 — 판매 중·품절만(운영자가 볼 때도 손님과 같게). 카테고리·검색어로 거른다 */
 export async function getShopProducts(

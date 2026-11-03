@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoryRows, getProductForEdit, getProductVariants, getStaffStore } from "@/lib/store";
+import { getCategoryRows, getProductForEdit, getProductVariants, getShippingPolicies, getStaffStore } from "@/lib/store";
 import OptionsEditor from "./options-editor";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { AdminShell, NoPermission } from "../../admin-shell";
@@ -23,7 +23,11 @@ export default async function EditProductPage({
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const product = await getProductForEdit(store.id, id);
   if (!product) notFound();
-  const [categoryRows, variants] = await Promise.all([getCategoryRows(store.id), getProductVariants(product.id)]);
+  const [categoryRows, variants, shippingPolicies] = await Promise.all([
+    getCategoryRows(store.id),
+    getProductVariants(product.id),
+    getShippingPolicies(store.id),
+  ]);
   const categories = flattenTree(buildCategoryTree(categoryRows, true));
   const won = (n: number | null) => (n == null ? "" : String(n));
 
@@ -39,6 +43,7 @@ export default async function EditProductPage({
         productId={product.id}
         categories={categories}
         savedNotice={saved === "1"}
+        shippingPolicies={shippingPolicies}
         values={{
           name: product.name,
           summary: product.summary,
@@ -52,6 +57,7 @@ export default async function EditProductPage({
           stock: product.stock_mode === "product" ? String(product.stock) : "",
           images: product.images ?? [],
           category_ids: product.category_ids,
+          shipping_policy_id: product.shipping_policy_id ?? "",
         }}
       />
       <div className="mt-8">

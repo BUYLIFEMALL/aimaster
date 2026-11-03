@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoryRows, getProductVariants, getShopProduct, getStoreBySlug } from "@/lib/store";
+import { getCategoryRows, getProductVariants, getShippingPolicies, getShopProduct, getStoreBySlug } from "@/lib/store";
+import { describePolicy } from "@/lib/shipping";
 import { buildCategoryTree, categoryPath, flattenTree } from "@/lib/categories";
 import ProductDetail from "./product-detail";
 
@@ -13,7 +14,12 @@ export default async function ProductPage({ params }: { params: Promise<{ store:
   const store = await getStoreBySlug(slug);
   const product = await getShopProduct(store.id, id);
   if (!product) notFound();
-  const [variants, categoryRows] = await Promise.all([getProductVariants(product.id), getCategoryRows(store.id)]);
+  const [variants, categoryRows, policies] = await Promise.all([
+    getProductVariants(product.id),
+    getCategoryRows(store.id),
+    getShippingPolicies(store.id),
+  ]);
+  const policy = policies.find((p) => p.id === product.shipping_policy_id) ?? policies.find((p) => p.is_default) ?? null;
 
   // 경로: 손님에게 보이는 첫 번째 카테고리
   const visibleIds = new Set(flattenTree(buildCategoryTree(categoryRows, false)).map((c) => c.id));
@@ -42,6 +48,7 @@ export default async function ProductPage({ params }: { params: Promise<{ store:
         soldOut={product.status === "sold_out"}
         stockMode={product.stock_mode}
         stock={product.stock}
+        shippingText={describePolicy(policy)}
         groups={product.option_groups ?? []}
         variants={variants.map(({ key, values, extra_price, stock, sku, is_active }) => ({ key, values, extra_price, stock, sku, is_active }))}
       />

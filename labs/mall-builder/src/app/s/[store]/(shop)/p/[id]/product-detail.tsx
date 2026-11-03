@@ -13,9 +13,11 @@ export default function ProductDetail({
   soldOut,
   stockMode,
   stock,
+  shippingText,
   groups,
   variants,
 }: {
+  shippingText: string;
   name: string;
   summary: string;
   images: { url: string }[];
@@ -79,6 +81,7 @@ export default function ProductDetail({
           <b>{price.toLocaleString("ko-KR")}</b>원
           {rate > 0 && <span className="ml-2 text-base text-gray-400 line-through">{listPrice!.toLocaleString("ko-KR")}원</span>}
         </p>
+        <p className="mt-2 text-sm text-gray-600" data-shipping>{shippingText}</p>
 
         {groups.map((g, level) => (
           <label key={g.name} className="mt-4 block">

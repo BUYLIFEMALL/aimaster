@@ -19,6 +19,7 @@ export type ProductFormValues = {
   stock: string;
   images: ProductImage[];
   category_ids: string[];
+  shipping_policy_id: string;
 };
 
 const initial: ProductFormState = { saved: false, error: null, errors: {} };
@@ -30,6 +31,7 @@ export default function ProductForm({
   values,
   categories,
   savedNotice,
+  shippingPolicies,
 }: {
   slug: string;
   storeId: string;
@@ -37,6 +39,7 @@ export default function ProductForm({
   values: ProductFormValues;
   categories: CategoryNode[];
   savedNotice: boolean;
+  shippingPolicies: { id: string; name: string; is_default: boolean }[];
 }) {
   const [state, formAction, pending] = useActionState(saveProductAction.bind(null, slug, productId), initial);
   // 오류로 돌아오면 제출한 값을, 아니면 받은 값을 보여 준다
@@ -109,6 +112,15 @@ export default function ProductForm({
           </select>
         </label>
         {field("stock", "재고 수량", { inputMode: "numeric", placeholder: "수량 관리일 때만" })}
+        <label className="block sm:col-span-3">
+          <span className="text-sm">배송비 정책</span>
+          <select name="shipping_policy_id" defaultValue={v.shipping_policy_id} className="mt-1 w-full rounded border px-3 py-2">
+            <option value="">몰 기본 정책 사용{shippingPolicies.find((p) => p.is_default) ? ` (${shippingPolicies.find((p) => p.is_default)!.name})` : " (정책 없음 — 무료)"}</option>
+            {shippingPolicies.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </label>
         <p className="text-xs text-gray-500 sm:col-span-3">손님 화면에는 「판매 중」과 「품절」 상품만 보입니다. 「준비 중」·「숨김」은 운영자만 봅니다.</p>
       </fieldset>
 
