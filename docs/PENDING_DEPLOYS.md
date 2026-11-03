@@ -19,7 +19,6 @@
 
 
 
-- `trending-product-finder` — 쿠팡 기능 메뉴 이름 「쿠팡 리뷰 거르기」 → **「쿠팡 상품소싱기」**(따로 떼어 낸 프로그램이면 「쿠팡 상품소싱 자동화」, 주인님 2026-11-03) `9e113b1d8` + 「판매량순 정렬 → 리뷰 수로 거르기」 설명(화면 제목·4단계·FAQ·팝업·사용법) `ae0fcc64d` (2026-11-03, [역할: ecommerce-image] `claude-win-sdp`). 이어서 같은 날: 상품명 읽기(혜택 줄 건너뛰기) `0dc265d8b`, 회원 PC 목록 1년 보관 `49eb7a716`, 판매가(쿠폰 금액 줄 제외)·읽은 순서=판매 순위·CSV 순위 칸 `452844f75`, 「검색 한 번에 1페이지」 안내 `29649b211`, 사이트 판매 순위 저장·표시 `ffabfc9ca`(**운영 DB `coupang_review_items.sales_rank` 칸 2026-11-03 적용 완료** — 주인님 SQL 편집기 실행, 읽기 200 확인). 확장 문구 포함 → 다음 배포 때 v1.32·manifest·ZIP·DB 함께. 쿠팡 실물 시험(키워드 3개) 진행 중
 - `coupang-ops` — 텔레그램 끊기, 다른 프로그램 봇 빌려 쓰기 제거 (2026-11-01, [역할: ecommerce-image], `8479b2009`, 실제 끊기 내 PC에서 통과) · 페이지 설명 위너 문구 제거(`ebd28e0e9`)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
 
@@ -82,6 +81,7 @@
 | `naver-blog-agent` | v2.26 · 2026-11-03 (`claude-win-sdp`, **주인님 승인으로 블로그 세션 대신 배포** — 작업 중 표 블로그 세션 줄은 그대로 둠, 빌드 `naver-blog-agent-8fw0nvubj`) | 좌측 메뉴 제목 옆 고정 「FREE」 삭제 `2a37dabc4`. tsc·빌드 통과, DB/ZIP OK |
 | `playlist-channel-studio` | v1.33 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 승인 빌드 1회 `playlist-channel-studio-nb1fq7dnw`) | 최신 AI 모델 추가 `d2fc103ed` + API 키 암호화 문구 `b16550ad4`. 시험 28·tsc, 실제 호출 15개 통과, DB v1.33, 크롬 확인 |
 | `shop-order-report` | v1.06 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 맥미니 요청·주인님 승인 빌드 1회 `shop-order-report-ojibtobuy`) | 쿠팡·11번가 수수료 공식 대조 `0a9870e16`. 시험 22개·tsc·빌드 통과, DB OK. 맥미니 화면 확인 대기 |
+| `trending-product-finder` | v1.32 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-29uom1q0i`) | 쿠팡 상품소싱기 이름·판매량순 설명·판매 순위(사이트 `sales_rank`)·1년 보관·키워드 자동 검색 `6ce5b201c`(쿠팡 읽기 권한 추가) + 맥미니 쿠팡·11번가 수수료 공식 대조. 시험 33개·tsc·빌드, DB/ZIP OK, ego 자동 검색 실검수·확장 연결·사이트 저장(순위 1~54) 확인 |
 | `trending-product-finder` | v1.31 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-j48lqxy7m`) | 수수료 공식 대조 `0a9870e16` + 쿠팡 리뷰 결과 회원별 사이트 저장·확장 연결 `308da3f1c`(자동 검색은 아직 없음, 쿠팡 시험 뒤). 시험 27개·tsc·빌드 통과, DB/ZIP OK. 연결·저장 화면 실동작 미확인 |
 | `ai-auto-blog` | v1.86 · 2026-11-03 (`claude-win-sdp`, 맥미니 요청 승인 빌드 `ai-auto-blog-68j3hvewj`) | 30일 정리 예외 회원 제외 `204080c43`. tsc·빌드 통과, DB/ZIP OK |
 | `tistory-auto-blog` | v1.95 · 2026-11-03 (`claude-win-sdp`, 맥미니 요청 승인 빌드 `tistory-auto-blog-mx8ptuijj`) | 30일 정리 예외 회원 제외 `204080c43`. tsc·빌드 통과, DB/ZIP OK |
