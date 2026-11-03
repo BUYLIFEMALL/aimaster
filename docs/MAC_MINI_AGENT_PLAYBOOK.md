@@ -41,7 +41,7 @@
 - **타입 검사만**: `cd <프로그램 웹앱 폴더> && node node_modules/typescript/bin/tsc --noEmit --incremental false -p tsconfig.json` (node_modules는 윈도우가 설치해 둔 것을 그대로 읽기만 함). 테스트가 순수 node 스크립트면 `node --test` 정도는 가능.
 - 문서 작성: 플랜, `DESIGN_HANDOFF.md`, `IMPROVEMENTS.md`, `IMPROVEMENT_HANDOFF_YYYYMMDD.md`, 프로그램 `AGENTS.md`, 루트 공용 문서의 **내 항목**.
 - `DESIGN.md` 현황판 상태 변경(🔵 착수 / 🟠 맥미니 완료), `docs/ACTIVE_WORK.md` 내 줄 추가·삭제.
-- **커밋·푸시**(내 파일만, §4 — 권장 `node scripts/commit-paths.mjs`·공용 문서 `safe-commit.mjs`, 대안 `scripts/mac-mini/commit-gate.sh`).
+- **커밋·푸시**(내 파일만, §4 — `node scripts/commit-paths.mjs`·공용 문서 `safe-commit.mjs`. `commit-gate.sh`는 2026-11-03 사용 중지).
 - DB **읽기 조회**(버전·`app_url`·데이터 건수) — Supabase MCP가 있는 CLI만(프로젝트 `esgxyikcnnvmlhygjkth`). 없으면 §2-2로.
 - 배포 결과 **확인**: DB 버전, `curl -s https://<주소>/login | grep -o 'v1\.[0-9]*'`, 브라우저 화면(§3).
 
@@ -89,7 +89,9 @@
 
 ---
 
-## 4. 커밋 — `scripts/mac-mini/commit-gate.sh` (세 CLI 공통)
+## 4. 커밋 — `commit-paths.mjs`·`safe-commit.mjs` (세 CLI 공통)
+
+> **2026-11-03 `scripts/mac-mini/commit-gate.sh` 사용 중지** — 공용 인덱스에 직접 써서(`git add -A`·`update-index`·경로 없는 `git commit`) 같은 날 두 도우미에 넣은 재발 방지 장치(잠금·직전 사본·줄면 되돌리기)를 거치지 않는다. 실행하면 안내만 하고 멈춘다(블랙박스 기록상 사용 0건). 아래 옛 사용법은 기록용이다.
 
 여러 CLI가 두 PC에서 **같은 Git 인덱스**를 쓰므로 `git add .`·`git commit -a`·`git stash`·`git reset`·`git checkout -- .` 은 금지. 이 스크립트를 쓴다.
 

@@ -14,6 +14,14 @@
 #   scripts/mac-mini/commit-gate.sh -m "feat(x): ... (v1.05)" -s DESIGN.md:/tmp/d14.py -s docs/ACTIVE_WORK.md:/tmp/aw.py -- x/src x/docs
 # 주의: 맥에는 GNU timeout·sleep 사용이 막힐 수 있어 perl select 로 기다린다. zsh 에서는 `grep --include=*.tsx` 같은 글롭이 깨지니 따옴표로 감싼다.
 set -u
+# 2026-11-03 사용 중지: 이 스크립트는 공용 인덱스에 직접 쓴다(git add -A·update-index·경로 없는 git commit).
+# 같은 날 설치한 재발 방지 장치(도우미 잠금 .git/safe-commit-index.lock, 맞추기 직전 사본, 절반 아래로 줄면 되돌리기)는
+# commit-paths.mjs·safe-commit.mjs에만 있어 여기에는 닿지 않는다(루트 CLAUDE.md 「여섯째」, docs/ERROR_LESSONS.md 2026-11-03).
+# 블랙박스 기록상 사용 0건. 아래 본문은 기록용으로 남기고 실행하지 않는다.
+echo "⛔ commit-gate.sh는 2026-11-03부터 사용하지 않습니다(공용 인덱스 보호 장치 밖)."
+echo "   일반 파일: node scripts/commit-paths.mjs \"<메시지>\" <경로>... --as <세션> [--push]"
+echo "   공용 문서: node scripts/safe-commit.mjs --begin <파일>... --as <세션>  →  고친 뒤  node scripts/safe-commit.mjs \"<메시지>\" <파일>... --as <세션>"
+exit 2
 cd "$(git rev-parse --show-toplevel)" || exit 1
 MSG=""; typeset -a SHARED; SHARED=()
 while [[ $# -gt 0 ]]; do
