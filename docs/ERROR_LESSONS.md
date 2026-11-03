@@ -4,7 +4,7 @@
 - 증상: `node scripts/commit-paths.mjs`(타로 2개 파일)가 08:56에 시작해 끝나지 않음. 하위 `index-watch.mjs commit-paths:start … --stale-only`가 git을 계속 새로 띄움. 같은 시각 다른 명령에서 `fatal: index file corrupt`가 한 번 나왔지만 몇 초 뒤 다시 읽으니 정상(항목 13,943개 — 다른 세션이 스테이징을 쓰던 순간에 읽은 것).
 - 원인(추정): `scripts/index-watch.mjs`의 `staleEntries()`가 스테이징의 M·D 항목마다 `git rev-parse HEAD:<파일>`와 `git hash-object`를 **파일 하나에 2번씩 새로 띄운다**. 시작 순간 다른 세션 작업으로 스테이징에 항목이 많았고(기록 `lock=2s` — 다른 git이 잠금 중), SMB에서는 git 한 번 띄우는 데 시간이 걸려 반복이 수백~수천 번이 된 것으로 본다. 그 순간의 스테이징 항목 수는 기록되지 않아 정확한 수는 미확인.
 - 처리: 이 점검은 **읽기만 하는 안내용**(스테이징을 쓰지 않음)이라 `index-watch.mjs` 프로세스만 멈춤 → 커밋 도우미가 곧바로 이어서 정상 커밋(`22fbd1b03`, 기록 `commit-paths:end` 09:12:21). git 쓰기 명령·`index.lock`은 건드리지 않음.
-- 다음부터: 커밋 도우미가 수 분 넘게 멈추면 `ps -o pid,ppid,etime,command -ax | grep index-watch`로 읽기 전용 점검이 붙잡고 있는지 먼저 본다(그 node만 멈춰도 안전). git 쓰기 명령(`commit`·`add`·`update-index`)은 끊지 않는다(최상위 규칙 ⑤). **개선 제안(미구현)**: `staleEntries()`를 파일마다 git을 띄우지 말고 `git ls-tree HEAD -- <파일들>` 1번 + `git hash-object --stdin-paths` 1번으로 묶기, 항목이 많으면(예: 200개 초과) 확인을 건너뛰고 한 줄 경고만.
+- 다음부터: 커밋 도우미가 수 분 넘게 멈추면 `ps -o pid,ppid,etime,command -ax | grep index-watch`로 읽기 전용 점검이 붙잡고 있는지 먼저 본다(그 node만 멈춰도 안전). git 쓰기 명령(`commit`·`add`·`update-index`)은 끊지 않는다(최상위 규칙 ⑤). **개선 적용(같은 날, 주인님 「진행해」)**: `staleEntries()`를 `git ls-tree -r -z HEAD` 1번 + `git hash-object --stdin-paths` 1번으로 묶음(항목 수와 상관없이 git 3번). `-z`로 경로를 받아 **예전에 놓치던 한글 이름 파일의 묵은 항목도 잡는다**. 시험 저장소(묵은 150 + 한글 1 + 진짜 수정 50 + 삭제 1): 옛 코드 150개·3.7초 → 새 코드 151개·0.2초(로컬 디스크), 종료 코드 3/0 동일.
 
 ## 2026-11-03 30일 정리가 오류 없이 「일부만」 건너뛰었다 (`music`, 음악 담당)
 - 증상: 정리 작업은 매일 성공(200)인데 30일 넘은 곡 2개·원곡 3개가 남음.

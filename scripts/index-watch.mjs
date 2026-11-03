@@ -52,15 +52,28 @@ try {
   const shown = (p) => relative(root, p).replace(/\\/g, "/"); // 안내 문장에는 저장소 기준 짧은 경로(.git/…)로(2026-10-23)
   // 묵은 스테이징 항목(2026-10-23): 스테이징은 HEAD와 다른데(M·D) 작업 파일은 HEAD와 같은 파일 = 옛 판이 스테이징에 남은 것.
   // 누가 일반 커밋에 섞으면 그 파일의 최근 변경이 되돌려진다(예: 루트 지침의 새 최상위 규칙). 새로 추가(A)는 진짜 작업일 수 있어 뺀다.
-  const staleEntries = () => git(["diff", "--cached", "--name-status"]).split("\n").filter(Boolean).map((l) => l.split("\t")).filter(([st]) => st === "M" || st === "D")
-    // 작업 파일 내용 해시 = HEAD 내용 해시로 직접 비교(스테이징에 없는 새 파일이 「D」로 보일 때 git diff HEAD는 비교하지 않아 놓쳤음)
-    .map(([, f]) => f).filter((f) => {
-      try {
-        const headBlob = git(["rev-parse", `HEAD:${f}`]).trim();
-        const workBlob = execFileSync("git", ["hash-object", "--", f], { cwd: root, env, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
-        return headBlob === workBlob;
-      } catch { return false; } // HEAD에 없거나 작업 파일이 없음 = 진짜 추가·삭제일 수 있음
-    });
+  // 2026-11-03: 파일마다 git을 2번씩 띄우던 방식이 스테이징 항목이 많을 때 SMB(맥미니)에서 14분 넘게 멈춤(docs/ERROR_LESSONS.md 2026-11-03)
+  // → HEAD 목록(`ls-tree -r`) 1번 + 작업 파일 해시(`hash-object --stdin-paths`) 1번으로 묶는다. 판정 기준은 그대로.
+  const staleEntries = () => {
+    // -z: 한글 등 파일 이름을 따옴표·이스케이프 없이 그대로 받는다(상태\0경로\0 …)
+    const z = git(["diff", "--cached", "--name-status", "--no-renames", "-z"]).split("\0");
+    const files = [];
+    for (let i = 0; i + 1 < z.length; i += 2) if (z[i] === "M" || z[i] === "D") files.push(z[i + 1]);
+    if (!files.length) return [];
+    const headBlob = new Map();
+    for (const l of git(["ls-tree", "-r", "--full-tree", "-z", "HEAD"]).split("\0")) {
+      const tab = l.indexOf("\t"); if (tab < 0) continue;
+      headBlob.set(l.slice(tab + 1), l.slice(0, tab).split(" ")[2]);
+    }
+    // HEAD에 없거나 작업 파일이 없음 = 진짜 추가·삭제일 수 있어 뺀다(예전 catch와 같음)
+    const cands = files.filter((f) => headBlob.has(f) && existsSync(join(root, f)));
+    if (!cands.length) return [];
+    let hashes = [];
+    try {
+      hashes = execFileSync("git", ["hash-object", "--stdin-paths"], { cwd: root, env, encoding: "utf8", input: cands.join("\n") + "\n", maxBuffer: 64 * 1024 * 1024, stdio: ["pipe", "pipe", "ignore"] }).split("\n");
+    } catch { return []; }
+    return cands.filter((f, i) => hashes[i] === headBlob.get(f));
+  };
   // 요약 줄은 앞 5개만(세션 점검 요약 칸이 220자에서 잘림), 정리 명령은 전체 파일로 다음 줄에 따로
   const printStale = (stale) => {
     if (!stale.length) return;
