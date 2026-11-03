@@ -10,7 +10,7 @@
     "storage"
   ],
   "action": {
-    "default_title": "쿠팡 리뷰 거르기",
+    "default_title": "쿠팡 상품소싱기",
     "default_popup": "popup.html"
   },
   "host_permissions": [

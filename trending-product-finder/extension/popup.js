@@ -94,7 +94,7 @@ async function readPage() {
 /** 쿠팡이 아니라 우리 사이트로만 보낸다. 공개 상품 정보만 담긴다. */
 async function saveToAccount(keyword, products) {
   const { extToken } = await chrome.storage.local.get("extToken");
-  if (!extToken) return "사이트의 「쿠팡 리뷰 거르기」에서 확장을 연결하면 내 계정에 저장됩니다.";
+  if (!extToken) return "사이트의 「쿠팡 상품소싱기」에서 확장을 연결하면 내 계정에 저장됩니다.";
   try {
     const response = await fetch(`${SITE}/api/extension/coupang-results`, {
       method: "POST",

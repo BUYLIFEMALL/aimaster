@@ -32,7 +32,7 @@ export default async function CoupangReviewsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHero
-        badge="🧩 쿠팡 리뷰 거르기"
+        badge="🧩 쿠팡 상품소싱기"
         title="내가 검색한 쿠팡 화면에서 리뷰 있는 상품만 골라 보기"
         description="크롬 확장이 지금 보이는 검색 결과를 읽어 리뷰 1개 이상, 2개 이상처럼 기준에 맞는 상품만 표로 보여 줍니다."
       />
