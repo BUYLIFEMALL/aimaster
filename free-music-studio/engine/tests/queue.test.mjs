@@ -111,6 +111,9 @@ test("대기열: 기록 표시·끝난 작업 지우기", async () => {
 test("작업 상태 읽기: 진행·실패·완료", () => {
   assert.deepEqual(parseTaskState({ data: [] }, "t"), { state: "running" });
   assert.equal(parseTaskState({ data: [{ task_id: "t", status: 2 }] }, "t").state, "failed");
+  // 음악 엔진이 알려 준 실패 이유를 그대로 보여 준다
+  const why = parseTaskState({ data: [{ task_id: "t", status: 2, result: JSON.stringify([{ status: 2, error: "CUDA out of memory.\n Tried to allocate 2.00 GiB" }]) }] }, "t");
+  assert.match(why.error, /CUDA out of memory\. Tried to allocate 2\.00 GiB/);
   assert.deepEqual(parseTaskState({ data: [{ task_id: "t", status: 1, result: JSON.stringify([{ file: "/v1/audio?path=a.flac" }]) }] }, "t"), { state: "done", file: "/v1/audio?path=a.flac" });
   assert.equal(parseTaskState({ data: [{ task_id: "t", status: 1, result: "[]" }] }, "t").state, "failed");
 });

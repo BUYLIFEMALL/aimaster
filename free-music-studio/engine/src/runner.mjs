@@ -13,8 +13,6 @@ export function parseTaskState(body, taskId) {
   const item = Array.isArray(list) ? list.find((d) => d && d.task_id === taskId) : null;
   if (!item) return { state: "running" };
   const status = Number(item.status);
-  if (status === 2) return { state: "failed", error: "음악 엔진이 곡을 만들지 못했습니다. 가사·스타일을 줄여 다시 시도해 주세요." };
-  if (status !== 1) return { state: "running" };
   let results = item.result;
   if (typeof results === "string") {
     try {
@@ -23,6 +21,13 @@ export function parseTaskState(body, taskId) {
       results = null;
     }
   }
+  if (status === 2) {
+    // 음악 엔진이 알려 준 실패 이유(result[0].error)를 그대로 붙인다 — 이것이 없으면 원인을 찾을 수 없다(2026-11-04 마스터PC)
+    const reason = Array.isArray(results) && typeof results[0]?.error === "string" ? results[0].error.trim() : "";
+    const short = reason.replace(/\s+/g, " ").slice(0, 400);
+    return { state: "failed", error: short ? `음악 엔진이 곡을 만들지 못했습니다 — ${short}` : "음악 엔진이 곡을 만들지 못했습니다. 가사·스타일을 줄여 다시 시도해 주세요." };
+  }
+  if (status !== 1) return { state: "running" };
   const file = Array.isArray(results) && typeof results[0]?.file === "string" ? results[0].file : "";
   if (!file.startsWith("/v1/audio?")) return { state: "failed", error: "완성된 음원 주소를 찾지 못했습니다." };
   return { state: "done", file };
