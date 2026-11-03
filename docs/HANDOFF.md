@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.03 배포(「모든 음악」 보관함)
+- 계기: 주인님이 원본 앱(보관함·프로젝트·플레이리스트·가져온 음악·영상·대기열)과 비교해 「왜 같은 소스인데 이런 기능은 없지」 → 첫 빈자리부터 채움.
+- 한 일: 엔진 0.1.1 내 PC 보관함(`engine/src/library.mjs`), 운영 DB 새 표 `free_music_tracks`(ego SQL, RLS 확인), `/api/tracks`, `/library` 화면, 생성 직후 자동 보관, 30일 정리 포함. 커밋 `15b466474`, 배포 `free-music-studio-eiwn25r02`, DB v1.03. 엔진 zip `D:PDSProgram_devree-music-srcree-music-engine-0.1.1.zip`(0.1 zip 삭제).
+- 확인: 운영에서 30초 생성 → PC 보관 파일 470KB → 모든 음악에서 다시 듣기·가사 보기, 401·403 차단. 지우기 버튼은 확인 창 때문에 운영에서 미실행.
+- 남은 일: 프로젝트·플레이리스트 → 가져온 음악(커버, 4단계) → 작업 대기열 → 영상(6단계), 엔진 0.2 설치 파일. 마스터PC는 0.1.1 zip으로 바꿔야 보관함 생김.
+
 ## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` v1.03 2단계(내 매물·맞는 고객·광고 문자) 배포(준비중)
 - 법령 원문 대조(국가법령정보센터 2026-10-02 시행판): 시행령 제61조③·별표 6(문자: 시작 「(광고)·전송자 명칭·전화번호 또는 주소」, 끝 「수신자 무료 수신거부 방법」 — 080뿐 아니라 「전화를 갈음하는 쉬운 방식」 허용, 공통: 연락처 밖 정보 요구 금지), 제62조의2(14일 안 처리 결과 통지 → 수신거부 화면에 보낸 곳·날짜·결과 표시), 제62조의3(2년마다 확인 → 23개월 경고·2년 지나면 발송 막음).
 - 코드 `8a022ffcc`: `src/lib/desk/adRules.ts`(매칭·광고 머리/꼬리·밤 시간·2년, 시험 `tests/adRules.test.mjs` 5개 — 전체 7개 통과), `lib/actions/listings.ts`(사무소·매물·발송·수신거부, 발송은 기록 먼저 넣고 보냄 + (고객, 매물) 고유), `lib/actions/solapiAccount.ts`(공용 `user_solapi_accounts`), 화면 `/settings` `/listings` `/listings/[id]` `/u/[token]`, 사이드바 3단계·「API키등록·플랫폼연동」, 매뉴얼 6단계, 고객 목록 2년 표시. SOLAPI 공용 사본 추가(`scripts/check-shared-modules.mjs`). DB `supabase/migrations/20261103020000_listings_ad_sends.sql` ego SQL 적용(표 3개 RLS·본인 규칙 확인).
