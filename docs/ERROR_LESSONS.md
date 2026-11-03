@@ -1,5 +1,10 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-03 안전 커밋 도우미 `--begin` 전에 고친 줄은 커밋에서 빠진다 · PowerShell로 넘긴 환경변수 끝 줄바꿈 (`realty-client-desk`, [역할: realty])
+- **증상 1**: `safe-commit.mjs`로 프로그램 비교표를 커밋했는데 목록 표 버전 칸(v1.05)이 빠졌고, 다음 커밋에서 「같은 자리에서 겹칩니다」로 멈췄다. **원인**: 도우미는 `--begin`을 실행한 순간의 파일을 기준으로 「내 변경」을 계산한다 — `deploy.mjs --set-version`이 이미 고쳐 둔 줄이나 `--begin` 전에 고친 줄은 기준에 들어가 커밋되지 않는다. **해결**: 그 파일에 내 변경만 있을 때 `git show HEAD:<파일>`로 파일을 HEAD 내용으로 맞춘 뒤 `--begin` → 고치기 → 커밋. **다음부터**: 공용 문서는 **고치기 전에** `--begin`부터. 도우미가 「기준 사본은 이미 떠 둠」이라고 한 뒤 다른 도구가 같은 파일을 고쳤으면, 커밋 뒤 `git diff -- <파일>`이 비었는지 확인한다.
+- **증상 2**: Vercel 배포가 2초 만에 실패 — 「The `CRON_SECRET` environment variable contains leading or trailing whitespace」. **원인**: PowerShell에서 `$값 | vercel env add …`로 넘기면 끝에 줄바꿈이 붙는다. **해결**: 제가 만든 그 변수만 `vercel env rm` 뒤 Node `execFileSync(..., { input: value })`로 다시 등록(값 출력 안 함). **다음부터**: 비밀값 등록은 기존 `scripts/add-*-vercel-env.mjs`처럼 Node 표준입력으로 한다.
+- 함께: `deploy.mjs --set-version`은 배포가 실패해도 DB 버전을 올린다 — 실패했으면 재배포로 맞추거나 DB 버전을 되돌린다.
+
 ## 2026-11-03 PowerShell 문자 치환 표에서 한 쌍짜리 배열이 풀려 파일 글자가 깨짐 (`free-music-studio`, 음악 담당)
 - 증상: `@( @(경로, @( @(찾을말, 바꿀말) )) )`로 여러 파일 문구를 한꺼번에 바꿨더니, 바꿀 쌍이 하나뿐인 파일은 따옴표(`"`)가 「엔」으로, `P`가 `C`로 바뀌는 등 글자가 통째로 깨졌다.
 - 원인: PowerShell은 원소가 하나인 `@( @(a,b) )`를 `@(a,b)`로 풀어 버린다. 그래서 반복문이 문자열 하나씩을 쌍으로 보고 `$r[0]`·`$r[1]`(첫 글자·둘째 글자)로 치환했다.
