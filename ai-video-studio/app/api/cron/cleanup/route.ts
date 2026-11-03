@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { BUCKET, RETENTION_DAYS, type GenerationRow } from "@/lib/generations";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 import { PROGRAM_SLUG } from "@/lib/access";
+import { retentionExemptFilter } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -16,11 +17,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const admin = createAdminClient();
+  const exemptFilter = await retentionExemptFilter(admin); // 예외 회원(관리자·시험 계정)은 지우지 않는다. 못 읽으면 오류로 멈춤
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 86_400_000).toISOString();
   const { data, error } = await admin
     .from("avs_generations")
     .select("id, user_id, outputs, status, start_image, end_image")
-    .lt("created_at", cutoff)
+    .lt("created_at", cutoff).not("user_id", "in", exemptFilter)
     .neq("status", "running")
     .order("created_at", { ascending: true })
     .limit(200);
@@ -44,7 +46,7 @@ export async function GET(request: Request) {
   const { data: edits } = await admin
     .from("avs_edits")
     .select("id, user_id, voice_paths, output_path")
-    .lt("created_at", cutoff)
+    .lt("created_at", cutoff).not("user_id", "in", exemptFilter)
     .order("created_at", { ascending: true })
     .limit(200);
   let removedEdits = 0;
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
   const { data: prompts } = await admin
     .from("avs_user_prompts")
     .select("id, user_id")
-    .lt("expires_at", new Date().toISOString())
+    .lt("expires_at", new Date().toISOString()).not("user_id", "in", exemptFilter)
     .limit(1000);
   let removedPrompts = 0;
   const promptRows = (prompts ?? []) as { id: string; user_id: string }[];
