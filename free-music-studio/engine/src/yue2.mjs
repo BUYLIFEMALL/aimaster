@@ -1,14 +1,13 @@
 // 비상업용 음악 엔진 YuE2(yue2.cpp) — 원본 기능을 옮김(2026-11-04, electron/native-engine.mjs).
 // 받기(고정 주소·SHA-256 확인) → yue-server.exe 실행(실행마다 빈 번호) → /synth → /job 확인 → 결과(JSON + 48kHz 24bit WAV) → 보관함 저장.
 // 모델은 CC BY-NC 4.0(비상업). 회원 PC가 공식 저장소에서 직접 받고, 우리 서버에는 두지 않는다.
-import { createHash } from "node:crypto";
-import { createReadStream, createWriteStream, existsSync } from "node:fs";
-import { copyFile, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { copyFile, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { spawn, spawnSync } from "node:child_process";
-import { Readable } from "node:stream";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { pickFreePort } from "./acestep.mjs";
+import { downloadVerified, findFile, untar } from "./download.mjs";
 
 export const YUE2_LICENSE = "noncommercial";
 export const YUE2_STYLE_MAX = 1000;
@@ -72,50 +71,7 @@ export async function yue2MissingBytes(dataDir, profile) {
 
 const gbText = (b) => `${Math.round((b / GB) * 10) / 10}GB`;
 
-/** 받으면서 SHA-256을 함께 계산하고, 맞을 때만 이름을 바꾼다(중간에 끊기면 다시 받음) */
-export async function downloadVerified({ url, bytes, sha256 }, dest, { onProgress, signal, fetchImpl = fetch }) {
-  await mkdir(path.dirname(dest), { recursive: true });
-  const part = `${dest}.part`;
-  const res = await fetchImpl(url, { redirect: "follow", signal });
-  if (!res.ok || !res.body) throw new Error(`받지 못했습니다(HTTP ${res.status}): ${path.basename(dest)}`);
-  const hash = createHash("sha256");
-  const out = createWriteStream(part);
-  let done = 0;
-  let last = 0;
-  try {
-    for await (const chunk of Readable.fromWeb(res.body)) {
-      hash.update(chunk);
-      if (!out.write(chunk)) await new Promise((r) => out.once("drain", r));
-      done += chunk.length;
-      if (Date.now() - last > 1000) {
-        last = Date.now();
-        onProgress?.(done, bytes);
-      }
-    }
-  } finally {
-    await new Promise((r) => out.end(r));
-  }
-  if (done !== bytes) throw new Error(`받은 크기가 다릅니다: ${path.basename(dest)}(${done}/${bytes})`);
-  if (hash.digest("hex") !== sha256) throw new Error(`파일 확인값(SHA-256)이 맞지 않습니다: ${path.basename(dest)}`);
-  await rename(part, dest);
-}
-
-async function findFile(dir, name) {
-  for (const e of await readdir(dir, { withFileTypes: true })) {
-    const p = path.join(dir, e.name);
-    if (e.isFile() && e.name.toLowerCase() === name.toLowerCase()) return p;
-    if (e.isDirectory()) {
-      const f = await findFile(p, name);
-      if (f) return f;
-    }
-  }
-  return null;
-}
-
-const untar = (zip, to) => {
-  const r = spawnSync(process.platform === "win32" ? path.join(process.env.SystemRoot ?? "C:\\Windows", "System32", "tar.exe") : "tar", ["-xf", zip, "-C", to], { windowsHide: true });
-  if (r.status !== 0) throw new Error(`압축을 풀지 못했습니다: ${path.basename(zip)}`);
-};
+export { downloadVerified };
 
 /** 실행 도구·CUDA·모델 받기(처음 한 번). onStage로 「YuE2 받는 중 · 1.2/4.3GB」 */
 export async function ensureYue2(dataDir, profile, { onStage = () => {}, signal, fetchImpl } = {}) {

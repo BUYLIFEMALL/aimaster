@@ -7,7 +7,7 @@ import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { ensureInstalled, killStaleAcestep, missingModelGb, progressText, watchGrowth, pickFreePort, PYTHON_UTF8_ENV, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
+import { ensureInstalled, hasUv, killStaleAcestep, missingModelGb, progressText, watchGrowth, pickFreePort, PYTHON_UTF8_ENV, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
 import { checkItems, chooseDevice, qualityOptions, qualityProfile } from "./device.mjs";
 import { inspectSystem, listInstalledModels } from "./system.mjs";
 import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
@@ -15,6 +15,7 @@ import { createLibrary } from "./library.mjs";
 import { createQueue } from "./queue.mjs";
 import { createRunner } from "./runner.mjs";
 import { newToken } from "./security.mjs";
+import { ensureTools, useTools } from "./tools.mjs";
 import { runYue2, yue2Installed, yue2MissingBytes, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
 
 const VERSION = "0.2.1"; // 0.2.1: 처음 받는 ACE-Step 모델·실행 환경도 「받는 중 · 3.2GB / 약 14.9GB」로 표시, 연결 문이 열린 뒤에만 연결 코드, 대기열 저장 한 번에 하나씩 · 0.2.0: 비상업용 음악 엔진 YuE2(새 곡 만들기) · 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내 · 0.1.8: 켜진 뒤 살아 있는지 확인·끌 때 음악 엔진도 함께 끄기 · 0.1.9: 내부 번호를 실행마다 비어 있는 번호로, 남은 음악 엔진은 실행 명령 이름으로 찾아 끄기 · 0.1.10: 음악 엔진이 알려 준 실패 이유를 대기열·엔진 창에 그대로 표시 · 0.1.11: 음악 엔진 글자 UTF-8(한국어 윈도우 cp949 오류 해결)
@@ -29,9 +30,11 @@ const dataDir =
 const tokensFile = path.join(dataDir, "paired.json");
 const logLine = (s) => process.stdout.write(s.endsWith("\n") ? s : s + "\n");
 
+// 엔진 0.3.0: 데이터 폴더 tools/에 받아 둔 uv·ffmpeg를 먼저 쓴다(설치 파일 회원은 따로 설치하지 않음)
+useTools(dataDir);
 const device = chooseDevice({ platform: process.platform, arch: process.arch, nvidia: process.platform === "win32" && hasNvidia() });
 const vramGb = device.device === "cuda" ? nvidiaVramGb() : null;
-const ffmpeg = hasFfmpeg();
+let ffmpeg = hasFfmpeg(); // 도구를 받은 뒤 다시 확인한다
 const acestepDir = process.env.FMS_ACESTEP_DIR || path.join(dataDir, "acestep");
 const checkpointsDir = path.join(acestepDir, "checkpoints");
 const engineSettingsFile = path.join(dataDir, "engine-settings.json");
@@ -167,7 +170,9 @@ const gateway = createGateway({
   queue,
   queueSourceDir,
   library,
-  ffmpeg,
+  get ffmpeg() {
+    return ffmpeg;
+  },
   mp3CacheDir: path.join(dataDir, "mp3-cache"),
   tokens,
   saveTokens,
@@ -332,6 +337,20 @@ if (!device.supported) {
   state.error = device.reason;
   logLine(`⚠ ${device.reason}`);
 } else {
+  // 도구 받기 — uv는 꼭 필요(없으면 음악 엔진을 설치 못 함), ffmpeg는 없으면 MP3만 못 함(FLAC 원음은 됨)
+  const onStage = (s) => ((state.stage = s), logLine(`… ${s}`));
+  try {
+    if (!hasUv()) await ensureTools(dataDir, ["uv"], { onStage });
+  } catch (err) {
+    logLine(`⚠ 파이썬 도구(uv)를 받지 못했습니다: ${err.message}`);
+  }
+  try {
+    if (!ffmpeg) await ensureTools(dataDir, ["ffmpeg"], { onStage });
+  } catch (err) {
+    logLine(`⚠ MP3 변환 도구를 받지 못했습니다(FLAC 원음은 그대로 됩니다): ${err.message}`);
+  }
+  useTools(dataDir);
+  ffmpeg = hasFfmpeg();
   try {
     await startMusicEngine();
     logLine("✔ 준비됨 — 사이트에서 노래를 만들 수 있습니다.");
