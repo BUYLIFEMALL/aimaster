@@ -82,7 +82,7 @@ async function readPage() {
 
   const state = pageState({ cardCount: result.cards.length, title: result.title, text: result.text });
   if (state === "blocked") return setStatus("⛔ 쿠팡 확인 화면이 떠서 멈췄습니다. 오늘은 더 읽지 말고 쉬어 주세요.", true);
-  if (state === "no-result") return setStatus("이 화면에 검색 결과가 없습니다. 다음 페이지에서 이렇게 나오면 쿠팡이 제한했을 수 있으니 잠시 쉬어 주세요.", true);
+  if (state === "no-result") return setStatus("이 화면에 검색 결과가 없습니다. 상품이 있는 검색어인데 이렇게 나오면 쿠팡이 제한했을 수 있으니 잠시 쉬어 주세요.", true);
   if (state === "unknown") return setStatus("상품을 찾지 못했습니다. 쿠팡 화면이 바뀌었을 수 있습니다.", true);
 
   const before = items.length;
