@@ -9,7 +9,8 @@ import { parseBeauty, parseSuggestions } from "@/lib/look/validate";
 
 // 모델 구성은 한곳에서 관리한다(모델명은 자주 바뀐다). pro가 계정에서 쓸 수 없으면 standard로 자동 폴백한다.
 export const MODELS: Record<ModelLevel, { text: string; image: string }> = {
-  standard: { text: "gemini-2.5-flash", image: "gemini-3.1-flash-lite-image" },
+  // 2026-11-03: standard 글 모델 2.5-flash(12-01 자동 연결) → 3.8-flash
+  standard: { text: "gemini-3.8-flash", image: "gemini-3.1-flash-lite-image" },
   // v1.11: 미리보기(gemini-3-pro-preview) → 정식 최신 Flash(저장소 ai-auto-blog 모델 표 lifecycle stable). 쓸 수 없으면 기존처럼 standard로 폴백
   pro: { text: "gemini-3.8-flash", image: "gemini-nano-banana-2.1" },
 };
