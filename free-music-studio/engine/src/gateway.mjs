@@ -5,7 +5,7 @@ import { bearer, corsHeaders, isAllowedOrigin, newPairCode, newToken, sameSecret
 import { AUDIO_TYPES, extOfAudioRef, isTrackId } from "./library.mjs";
 import { pickFolder, revealFolder } from "./folderDialog.mjs";
 import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
-import { mkdir, rename, rm, stat } from "node:fs/promises";
+import { mkdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { spawn } from "node:child_process";
 import path from "node:path";
@@ -93,12 +93,15 @@ export function createGateway(ctx) {
     const target = FORWARD.get(key);
     const isLibrary = url.pathname === "/library" || url.pathname.startsWith("/library/");
     const isSystem = key === "GET /system" || key === "POST /quality";
-    if (!target && !isLibrary && !isSystem) return json(res, 404, { error: "없는 주소입니다." }, origin);
+    const isQueue = !!ctx.queue && (url.pathname === "/queue" || url.pathname.startsWith("/queue/"));
+    if (!target && !isLibrary && !isSystem && !isQueue) return json(res, 404, { error: "없는 주소입니다." }, origin);
     const token = bearer(req.headers.authorization);
     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
       return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
     }
     if (isLibrary) return handleLibrary(req, res, url, origin, ctx, json);
+    // 작업 대기열 — 엔진이 준비 중이어도 넣어 둘 수 있다(준비되면 차례로 만든다)
+    if (isQueue) return handleQueue(req, res, url, origin, ctx, json);
     // PC 검사(다시 검사할 때마다 새로 읽음)·음악 모델 구성 바꾸기 — 엔진이 준비 중이어도 된다
     if (key === "GET /system") {
       try {
@@ -236,6 +239,93 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
     await lib.remove(rest);
     await rm(path.join(ctx.mp3CacheDir, rest + ".mp3"), { force: true });
     return json(res, 200, { ok: true }, origin);
+  }
+  return json(res, 404, { error: "없는 주소입니다." }, origin);
+}
+
+const QUEUE_KINDS = new Set(["text2music", "cover", "repaint"]);
+const AUDIO_EXT = /\.(mp3|wav|flac|ogg|m4a|aac|opus)$/i;
+
+/** 대기열에 넣을 기록 정보 검사 — 곡 번호는 사이트가 만든 uuid(보관함 파일 이름) */
+function parseQueueMeta(m) {
+  if (!m || typeof m !== "object") return null;
+  const kind = m.kind;
+  const title = typeof m.title === "string" ? m.title.trim().slice(0, 80) : "";
+  const track = m.track && typeof m.track === "object" ? m.track : null;
+  if (!QUEUE_KINDS.has(kind) || !title || !track || !isTrackId(track.id)) return null;
+  return { kind, title, track };
+}
+
+/**
+ *  GET    /queue                 → { jobs } 대기열(최근 끝난 작업 포함)
+ *  POST   /queue                 { kind:"text2music", title, track, task } → { job }
+ *  POST   /queue/edit            multipart: meta(JSON { kind:"cover"|"repaint", title, track, fields }) + src_audio → { job }
+ *  POST   /queue/<id>/cancel     대기 중·만드는 중 취소
+ *  POST   /queue/<id>/rerun      { trackId } 중단·실패 작업 다시 하기
+ *  POST   /queue/<id>/recorded   사이트가 「모든 음악」 기록을 남김
+ *  DELETE /queue/<id>            끝난 작업을 목록에서 지우기
+ */
+async function handleQueue(req, res, url, origin, ctx, json) {
+  const q = ctx.queue;
+  const parts = url.pathname.split("/").filter(Boolean); // ["queue", id?, action?]
+  if (req.method === "GET" && parts.length === 1) return json(res, 200, { jobs: q.list() }, origin);
+
+  try {
+    if (req.method === "POST" && parts.length === 1) {
+      const body = await readSmall(req, 256 * 1024).catch(() => null);
+      const meta = parseQueueMeta(body);
+      if (!meta || meta.kind !== "text2music" || !body.task || typeof body.task !== "object") return json(res, 400, { error: "작업 내용이 올바르지 않습니다." }, origin);
+      return json(res, 200, { job: await q.add({ ...meta, task: body.task }) }, origin);
+    }
+
+    if (req.method === "POST" && parts.length === 2 && parts[1] === "edit") {
+      if (Number(req.headers["content-length"] ?? 0) > MAX_BODY) return json(res, 413, { error: "파일이 너무 큽니다(60MB까지)." }, origin);
+      const form = await new Request("http://127.0.0.1/queue/edit", { method: "POST", headers: req.headers, body: req, duplex: "half" }).formData();
+      let meta = null;
+      try {
+        meta = JSON.parse(String(form.get("meta") ?? ""));
+      } catch {}
+      const parsed = parseQueueMeta(meta);
+      const file = form.get("src_audio");
+      if (!parsed || parsed.kind === "text2music" || !meta.fields || typeof meta.fields !== "object" || !file || typeof file === "string") {
+        return json(res, 400, { error: "작업 내용이나 원곡 파일이 올바르지 않습니다." }, origin);
+      }
+      const name = String(file.name || "source.mp3").slice(-120);
+      const ext = (name.match(AUDIO_EXT)?.[0] ?? ".mp3").toLowerCase();
+      const saved = `${crypto.randomUUID()}${ext}`;
+      await mkdir(ctx.queueSourceDir, { recursive: true });
+      await writeFile(path.join(ctx.queueSourceDir, saved), Buffer.from(await file.arrayBuffer()));
+      const fields = Object.fromEntries(Object.entries(meta.fields).map(([k, v]) => [k, String(v)]));
+      return json(res, 200, { job: await q.add({ ...parsed, fields, source: { file: saved, name } }) }, origin);
+    }
+
+    const id = parts[1];
+    const job = id ? q.get(id) : null;
+    if (!job) return json(res, 404, { error: "그 작업을 찾지 못했습니다." }, origin);
+
+    if (req.method === "POST" && parts[2] === "cancel") {
+      await q.cancel(id);
+      return json(res, 200, { ok: true }, origin);
+    }
+    if (req.method === "POST" && parts[2] === "rerun") {
+      const body = await readSmall(req).catch(() => null);
+      if (!isTrackId(body?.trackId)) return json(res, 400, { error: "곡 번호가 올바르지 않습니다." }, origin);
+      return json(res, 200, { job: await q.rerun(id, body.trackId) }, origin);
+    }
+    if (req.method === "POST" && parts[2] === "recorded") {
+      await q.markRecorded(id);
+      return json(res, 200, { ok: true }, origin);
+    }
+    if (req.method === "DELETE" && parts.length === 2) {
+      const source = job.source?.file;
+      if (await q.dismiss(id)) {
+        if (source) await rm(path.join(ctx.queueSourceDir, source), { force: true });
+        return json(res, 200, { ok: true }, origin);
+      }
+      return json(res, 400, { error: "끝난 작업만 지울 수 있습니다." }, origin);
+    }
+  } catch (e) {
+    return json(res, 400, { error: e instanceof Error ? e.message : "대기열 요청을 처리하지 못했습니다." }, origin);
   }
   return json(res, 404, { error: "없는 주소입니다." }, origin);
 }

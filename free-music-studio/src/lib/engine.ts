@@ -375,6 +375,90 @@ export async function deleteFromLibrary(id: string): Promise<void> {
   await call(`/library/${id}`, { method: "DELETE" });
 }
 
+// ── 작업 대기열(엔진 0.1.6+) ─────────────────────────────────
+// 엔진이 차례로 만들고 보관함에 저장한다. 끝난 작업의 「모든 음악」 기록은 사이트가 남긴다(QueueSync).
+
+export type QueueStatus = "queued" | "running" | "done" | "failed" | "cancelled" | "interrupted";
+export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" };
+export type QueueJob = {
+  id: string;
+  kind: QueueTrack["kind"];
+  title: string;
+  track: QueueTrack;
+  status: QueueStatus;
+  stage: string;
+  createdAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+  error?: string;
+  result?: { trackId: string; ext: string };
+  recorded: boolean;
+};
+
+export const QUEUE_LABEL: Record<QueueStatus, string> = { queued: "대기 중", running: "만드는 중", done: "완료", failed: "실패", cancelled: "취소됨", interrupted: "중단됨" };
+
+/** 작업 대기열이 있는 엔진인가(0.1.6+) */
+export function hasQueue(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("queue");
+}
+
+/** 대기 중·만드는 중인 작업 수 */
+export const activeCount = (jobs: QueueJob[]) => jobs.filter((j) => j.status === "queued" || j.status === "running").length;
+
+export async function listQueue(): Promise<QueueJob[]> {
+  const data = await (await call("/queue")).json();
+  return Array.isArray(data?.jobs) ? data.jobs : [];
+}
+
+/** 노래 만들기를 대기열에 넣는다(곡 번호는 여기서 만들어 보관함 파일 이름·기록에 같이 쓴다). */
+export async function enqueueSong(
+  song: SongForEngine,
+  info: { title: string; songId: string | null; device: string },
+  quality?: EngineQuality | null
+): Promise<QueueJob> {
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: info.songId, style_prompt: song.style_prompt, lyrics: song.lyrics, duration_sec: song.duration_sec, device: info.device, kind: "text2music" };
+  const res = await call("/queue", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "text2music", title: info.title, track, task: buildTaskBody(song, info.device, quality) }),
+  });
+  return (await res.json()).job;
+}
+
+/** 가져온 음악 커버·부분 수정을 대기열에 넣는다(원곡 파일은 회원 PC 엔진으로만, 60MB까지). */
+export async function enqueueEdit(
+  source: File,
+  opts: EditOptions,
+  sourceSec: number,
+  info: { title: string; device: string },
+  quality?: EngineQuality | null
+): Promise<QueueJob> {
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: null, style_prompt: opts.style_prompt, lyrics: opts.lyrics, duration_sec: Math.round(sourceSec), device: info.device, kind: opts.mode };
+  const form = new FormData();
+  form.append("meta", JSON.stringify({ kind: opts.mode, title: info.title, track, fields: buildEditFields(opts, sourceSec, quality) }));
+  form.append("src_audio", source, source.name);
+  const res = await call("/queue/edit", { method: "POST", body: form }, 180_000);
+  return (await res.json()).job;
+}
+
+export async function cancelJob(id: string) {
+  await call(`/queue/${id}/cancel`, { method: "POST" });
+}
+export async function rerunJob(id: string) {
+  await call(`/queue/${id}/rerun`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trackId: crypto.randomUUID() }) });
+}
+export async function dismissJob(id: string) {
+  await call(`/queue/${id}`, { method: "DELETE" });
+}
+export async function markJobRecorded(id: string) {
+  await call(`/queue/${id}/recorded`, { method: "POST" });
+}
+
+/** 끝난 작업 → 「모든 음악」 기록 본문(/api/tracks) */
+export function trackRecordOf(job: QueueJob) {
+  return { ...job.track, title: job.title };
+}
+
 /** 완성 음원을 받아 브라우저 안 주소(blob:)로 돌려준다. 재생·내려받기에 같이 쓴다. */
 export async function fetchAudio(file: string): Promise<string> {
   const res = await call(file, {}, 120_000);

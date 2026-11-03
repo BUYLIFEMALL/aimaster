@@ -40,6 +40,11 @@ export async function POST(request: Request) {
     .insert({ ...value, user_id: access.user.id })
     .select(COLUMNS)
     .single();
+  // 대기열 기록은 같은 곡 번호로 다시 올 수 있다(기록 뒤 엔진 표시가 실패한 경우) — 이미 있으면 그대로 성공
+  if (error?.code === "23505") {
+    const { data: existing } = await admin.from(TRACKS_TABLE).select(COLUMNS).eq("id", value.id).eq("user_id", access.user.id).maybeSingle();
+    if (existing) return NextResponse.json({ track: existing });
+  }
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ track: data });
 }

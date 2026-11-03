@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Upload, Wand2, Loader2, AlertCircle, ShieldAlert, Scissors, Palette } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
-import { EngineError, fetchLibraryFile, hasLibrary, saveToLibrary, startEditTask, waitForTask, type EditOptions } from "@/lib/engine";
+import { EngineError, enqueueEdit, fetchLibraryFile, hasLibrary, hasQueue, saveToLibrary, startEditTask, waitForTask, type EditOptions } from "@/lib/engine";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { LIMITS } from "@/lib/songs";
 import { SOURCE_MAX_SEC, SOURCE_MIN_SEC } from "@/lib/tracks";
@@ -92,17 +92,28 @@ export default function ImportPage() {
     }
   };
 
-  const canStart = ready && hasLibrary(status) && !!file && rights && !busy && (style.trim() || lyrics.trim()) && (mode === "cover" || range[1] > range[0]);
+  // 엔진 0.1.6+: 원곡을 엔진에 올려 대기열에 넣는다(엔진이 준비 중이어도 되고, 탭을 닫아도 계속 만든다)
+  const queueMode = engine.paired && hasQueue(status);
+  const canStart =
+    (queueMode || (ready && hasLibrary(status))) && !!file && rights && !busy && (style.trim() || lyrics.trim()) && (mode === "cover" || range[1] > range[0]);
+  const [queuedNote, setQueuedNote] = useState("");
 
   const start = async () => {
     if (!file || !status) return;
     setError(null);
+    setQueuedNote("");
     setBusy("upload");
     try {
       const opts: EditOptions =
         mode === "cover"
           ? { mode, style_prompt: style, lyrics, strength }
           : { mode, style_prompt: style, lyrics, start: range[0], end: range[1] };
+      if (queueMode) {
+        const name = `${title.trim() || "가져온 음악"} (${mode === "cover" ? "커버" : "부분 수정"})`.slice(0, LIMITS.title);
+        await enqueueEdit(file, opts, sourceSec, { title: name, device: status.device }, status.quality);
+        setQueuedNote(`「${name}」 작업을 대기열에 넣었습니다. 엔진이 차례로 만들고, 다 되면 「모든 음악」에 저절로 기록됩니다.`);
+        return;
+      }
       const taskId = await startEditTask(file, opts, sourceSec, status.quality);
       setBusy("run");
       const out = await waitForTask(taskId, () => cancelled.current);
@@ -255,7 +266,8 @@ export default function ImportPage() {
             disabled={!canStart}
             className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
           >
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} {busy ? stageText : mode === "cover" ? "커버 만들기" : "이 구간 다시 만들기"}
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}{" "}
+            {busy ? stageText : `${mode === "cover" ? "커버 만들기" : "이 구간 다시 만들기"}${queueMode ? " (대기열에 넣기)" : ""}`}
           </button>
           {busy && <span className="font-mono text-xs text-teal-200">{clock(elapsed)} 지남</span>}
           {!busy && !rights && file && <span className="text-[11px] text-slate-500">권리 확인에 체크해야 시작할 수 있습니다.</span>}
@@ -264,6 +276,14 @@ export default function ImportPage() {
         {error && (
           <p className="flex items-center gap-2 text-xs font-semibold text-rose-300">
             <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+          </p>
+        )}
+        {queuedNote && (
+          <p className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-emerald-300">
+            {queuedNote}
+            <Link href="/queue" className="underline underline-offset-2">
+              작업 대기열 보기
+            </Link>
           </p>
         )}
 

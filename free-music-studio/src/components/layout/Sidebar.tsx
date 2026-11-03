@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION, APP_NAME } from "@/lib/version";
-import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library, Upload } from "lucide-react";
+import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library, Upload, ListOrdered } from "lucide-react";
+import { activeCount } from "@/lib/engine";
+import { useQueue } from "@/components/engine/useQueue";
 
 interface SidebarProps {
   userEmail?: string;
@@ -14,8 +16,9 @@ interface SidebarProps {
 const FLOW_STEPS = [
   { step: 1, href: "/songs", label: "곡 만들기", description: "가사·스타일 쓰기 & AI 작사", icon: Music2 },
   { step: 2, href: "/engine", label: "내 PC 엔진", description: "키 없이 내 PC에서 노래 생성", icon: Cpu },
-  { step: 3, href: "/library", label: "모든 음악", description: "만든 노래 다시 듣기·내려받기", icon: Library },
-  { step: 4, href: "/import", label: "가져온 음악", description: "내 음원으로 커버·부분 수정", icon: Upload },
+  { step: 3, href: "/queue", label: "작업 대기열", description: "쌓아 둔 작업을 차례로 만들기", icon: ListOrdered },
+  { step: 4, href: "/library", label: "모든 음악", description: "만든 노래 다시 듣기·내려받기", icon: Library },
+  { step: 5, href: "/import", label: "가져온 음악", description: "내 음원으로 커버·부분 수정", icon: Upload },
 ];
 
 const UTILITY_ITEMS = [
@@ -58,7 +61,7 @@ function Brand({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
+function NavBody({ userEmail, onNavigate, queued = 0 }: SidebarProps & { onNavigate?: () => void; queued?: number }) {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || (href !== "/songs" && pathname.startsWith(`${href}/`));
 
@@ -104,6 +107,11 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
                   <p className={`flex items-center gap-1.5 text-xs font-bold ${active ? "text-emerald-200" : "text-slate-200"}`}>
                     <Icon size={14} className={active ? "text-emerald-400" : "text-slate-400"} />
                     <span>{label}</span>
+                    {href === "/queue" && queued > 0 && (
+                      <span className="ml-auto rounded-full bg-emerald-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-black" aria-label={`대기·진행 ${queued}개`}>
+                        {queued}
+                      </span>
+                    )}
                   </p>
                   <p className="mt-0.5 text-[11px] leading-snug text-slate-400">{description}</p>
                 </div>
@@ -159,13 +167,15 @@ function NavBody({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => 
 
 export function Sidebar({ userEmail }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  // 대기열 확인은 여기 한 곳에서 — 어느 화면에 있든 끝난 곡을 「모든 음악」에 기록하고 개수를 보여 준다.
+  const queued = activeCount(useQueue().jobs);
 
   return (
     <>
       {/* 데스크톱: 고정 좌측 네온 앰프 콘솔 사이드바 (w-64) */}
       <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-[#1e293b] bg-[#0a0e1a] md:sticky md:top-0 md:flex select-none">
         <Brand />
-        <NavBody userEmail={userEmail} />
+        <NavBody userEmail={userEmail} queued={queued} />
       </aside>
 
       {/* 모바일: 56px 상단 슬림 헤더 (sticky top-0 z-40) */}
@@ -219,7 +229,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
               </button>
             </div>
 
-            <NavBody userEmail={userEmail} onNavigate={() => setMobileOpen(false)} />
+            <NavBody userEmail={userEmail} queued={queued} onNavigate={() => setMobileOpen(false)} />
           </div>
         </div>
       )}

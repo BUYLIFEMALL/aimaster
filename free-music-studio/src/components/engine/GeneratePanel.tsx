@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Cpu, Loader2, AlertCircle, Wand2 } from "lucide-react";
+import { Cpu, Loader2, AlertCircle, Wand2, ListPlus, CheckCircle2 } from "lucide-react";
 import { useEngine } from "./useEngine";
 import { DownloadButtons } from "./DownloadButtons";
 import {
   EngineError,
+  enqueueSong,
+  hasQueue,
   checkTask,
   fetchAudio,
   fetchLibraryFile,
@@ -58,8 +60,31 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
 
   const [count, setCount] = useState(1);
   const [round, setRound] = useState(0);
+  const [queueing, setQueueing] = useState(false);
 
   const canStart = ready && !busy && !round && (song.style_prompt.trim() || song.lyrics.trim());
+  // 엔진 0.1.6+: 엔진 대기열에 넣는다(탭을 닫아도 계속 만들고, 엔진이 준비 중이어도 넣어 둘 수 있음)
+  const queueMode = paired && hasQueue(status);
+  const canQueue = queueMode && !queueing && !!(song.style_prompt.trim() || song.lyrics.trim());
+  const [queued, setQueued] = useState(0);
+
+  const addToQueue = async () => {
+    if (!status) return;
+    setError(null);
+    setQueueing(true);
+    let n = 0;
+    try {
+      for (let i = 0; i < count; i++) {
+        await enqueueSong(song, { title: title.trim() || "제목 없는 노래", songId, device: status.device }, status.quality);
+        n++;
+      }
+    } catch (e) {
+      setError(e instanceof EngineError ? { text: e.message, needPair: e.needPair } : { text: "대기열에 넣지 못했습니다." });
+    } finally {
+      setQueued((q) => q + n);
+      setQueueing(false);
+    }
+  };
 
   // 생성 개수만큼 같은 가사·스타일로 차례로 만든다(한 곡씩 — PC 한 대가 동시에 두 곡을 만들면 더 느리다).
   const generate = async () => {
@@ -153,14 +178,25 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={generate}
-          disabled={!canStart}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
-        >
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} {busy ? stageText : count > 1 ? `노래 ${count}곡 만들기` : "노래 만들기"}
-        </button>
+        {queueMode ? (
+          <button
+            type="button"
+            onClick={addToQueue}
+            disabled={!canQueue}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
+          >
+            {queueing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListPlus className="h-4 w-4" />} {queueing ? "대기열에 넣는 중…" : count > 1 ? `대기열에 ${count}곡 넣기` : "대기열에 넣기"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={generate}
+            disabled={!canStart}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
+          >
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} {busy ? stageText : count > 1 ? `노래 ${count}곡 만들기` : "노래 만들기"}
+          </button>
+        )}
         <select
           aria-label="생성 개수"
           value={count}
@@ -180,6 +216,16 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           </span>
         )}
       </div>
+
+      {queueMode && queued > 0 && (
+        <p className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-emerald-300">
+          <CheckCircle2 className="h-4 w-4" /> 이번에 대기열에 {queued}곡 넣었습니다. 엔진이 차례로 만들고, 다 되면 「모든 음악」에 저절로 기록됩니다.
+          <Link href="/queue" className="underline underline-offset-2">
+            작업 대기열 보기
+          </Link>
+        </p>
+      )}
+      {queueMode && !ready && <p className="text-[11px] text-slate-400">엔진이 아직 준비 중이어도 넣어 둘 수 있습니다. 준비되면 이어서 만듭니다.</p>}
 
       {error && (
         <p className="flex items-center gap-2 text-xs font-semibold text-rose-300">

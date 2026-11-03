@@ -3,7 +3,7 @@
 // 순서: 연결 문 열기(상태 「설치 중」) → ACE-Step 설치 확인 → 내부 서버 실행 → 「준비됨」.
 // 시험용: FMS_ACESTEP_DIR(이미 설치된 ACE-Step 폴더) + FMS_PYTHON(그 폴더의 파이썬)이 있으면 설치를 건너뛰고 그 파이썬으로 띄운다.
 import { spawn } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { ensureInstalled, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
@@ -11,9 +11,11 @@ import { checkItems, chooseDevice, qualityOptions, qualityProfile } from "./devi
 import { inspectSystem } from "./system.mjs";
 import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
 import { createLibrary } from "./library.mjs";
+import { createQueue } from "./queue.mjs";
+import { createRunner } from "./runner.mjs";
 import { newToken } from "./security.mjs";
 
-const VERSION = "0.1.5"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality)
+const VERSION = "0.1.6"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue)
 const ACESTEP_PORT = 47822;
 
 const dataDir =
@@ -61,11 +63,26 @@ const saveTokens = () => writeFile(tokensFile, JSON.stringify({ tokens: [...toke
 const acestepKey = newToken(); // 실행할 때마다 새로 — 연결 문만 안다
 const library = createLibrary(dataDir);
 await library.init();
+const queueSourceDir = path.join(dataDir, "queue-src");
+const queue = createQueue({
+  file: path.join(dataDir, "queue.json"),
+  run: createRunner({ port: ACESTEP_PORT, key: acestepKey, library, sourceDir: queueSourceDir }),
+  canRun: () => state.ready && !restarting,
+  // 취소한 커버 작업의 원곡 파일은 바로 지운다(실패는 [다시 하기]를 위해 남김)
+  onFinished: async (job) => {
+    if (job.status === "cancelled" && job.source) await rm(path.join(queueSourceDir, job.source.file), { force: true });
+    logLine(`🎵 대기열: ${job.title} — ${job.stage}${job.error ? ` (${job.error})` : ""}`);
+  },
+  log: (e) => logLine(`⚠ 대기열 오류: ${e instanceof Error ? e.message : e}`),
+});
+await queue.load();
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system"], libraryDir: library.dir, quality: { ...profile, vramGb, ffmpeg } }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue"], libraryDir: library.dir, quality: { ...profile, vramGb, ffmpeg } }),
   systemReport,
   setQuality,
+  queue,
+  queueSourceDir,
   library,
   ffmpeg,
   mp3CacheDir: path.join(dataDir, "mp3-cache"),
@@ -133,6 +150,7 @@ async function startMusicEngine() {
   if (!ok) throw new Error("음악 엔진이 3분 안에 켜지지 않았습니다.");
   state.ready = true;
   state.stage = "준비됨";
+  void queue.pump(); // 기다리던 작업이 있으면 이어서 만든다
 }
 
 /**
