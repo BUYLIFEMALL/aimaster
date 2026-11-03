@@ -74,6 +74,8 @@
 |---|---|---|---|
 | 11-03 | A 완료 | `ai-auto-blog` `142cb45ec` · `tistory-auto-blog` `7eb961fbd` · `naver-blog-seo-studio` `6103af9a8` · `real_estate_sales` `7b55bd09d` · `threads-affiliate-poster` `0caadc5ee` | tsc 5개 통과, SEO 시험 158 통과(기대값 1줄 `gpt-5`→`gpt-5.6-sol`), 옛 값 변환 직접 확인 |
 | 11-03 | C 일부 | `blog-keyword` `fb1d16075` · `ai-writing-editor` `aae03dda7` · `banana-canvas` `b8fa1638c` · `personality-suite` `73e8ac110` · `thumbnail-master` `dc64d2eae` | tsc 5개 통과 |
-| — | B 13개 · C 나머지 13개 | 대기 | 다음 작업 |
+| 11-03 | C 나머지 완료 | `ai-doc-chatbot`(새로 찾음, 공용 기준) · `ai-prompt-studio` · `ai-slide-builder` · `allinone-graphic` · `cinematic-storyboard-studio` · `persona-style-studio` · `photo-remake-studio` · `portrait-photo` · `react-ui-showcase` · `ui-canvas` · `vinyl-lp-studio` · `fashion-style` · `landing-architect` · `reverse-prompt` (해시: `docs/PENDING_DEPLOYS.md`) | tsc 14개 통과 |
+| 11-03 | B 12개 완료 | 댓글 3종 · `web-crawler` · `ai-mastering-studio` · `playlist-channel-studio` · `blog-content-maker` · `blog-workroom` · `emotion-writer` · `ghost-scraper` · `ai-webtoon-studio` · `ebook-studio` | tsc 12개 통과, 옛 저장값 변환 코드로 확인. 시험 3개는 맥에서 못 돌림(윈도우 배포 때) |
+| — | 남음 | `blog-neighbor-care`(윈도우 blog 세션), 배포는 각 프로그램 다음 배포 때. **묶음 A 4개 중 `real_estate_sales`는 v1.42로 배포됨** — 나머지 3개(`ai-auto-blog`·`tistory`·`seo-studio`는 MAC 배포 요청에 함께)와 `threads-affiliate-poster`는 12-05 점검 | — |
 1. 묶음 C(고정 호출 18개): 이번엔 값만 바꾸기(추천) / 모델 선택 칸까지 새로 만들기.
 2. 빌드 약 32회 승인(11-30까지 나눠서).

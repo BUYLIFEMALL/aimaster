@@ -41,7 +41,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| 36개 폴더(`docs/PLAN_20261103_MODEL_MIGRATION_DEC.md` 3절, `blog-neighbor-care` 제외) | [역할: mac-mini] Claude Code(맥미니) · 세션 `claude-mac-20261101-blog` | 2026-11-03 | 12월 모델 교체(gemini-2.5·gpt-5·o3) 모델 이름 값만 — 폴더마다 짧게 수정·커밋, 배포 없음 |
 | `free-music-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-11-03 | 새 프로그램 기획 — 플랜 승인 대기 |
 | `blog-neighbor-care/` | [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 브라우저: 엣지(주인님 지정) | 2026-11-01 | v1.05 새 글 확인 실제 검수 |
 | `shorts-viral-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-shorts-viral-v2` | 2026-10-30 | 쇼츠 떡상 분석 및 대본 자동화 v2.0 리뉴얼 — 4대 화면 3시안(12뷰) 쇼케이스 및 라이트박스 팝업 제작 중 |

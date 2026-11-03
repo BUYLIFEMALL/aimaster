@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 12월 모델 교체 코드 완료(배포 없음, 미배포 대기)
+- 한 일: 플랜 `docs/PLAN_20261103_MODEL_MIGRATION_DEC.md`의 36개 중 35개(+공용 선택 창 `ai-doc-chatbot` 새로 찾음) 코드 수정·경로 지정 커밋. `gemini-2.5`(12-01)·`gpt-5`/`o3`(12-11) → `gemini-3.8-flash`/`3.5-flash-lite`/`gpt-5.6-sol`. 선택 칸이 있는 곳은 **저장된 옛 값을 읽는 곳에서 새 모델로 바꿔 호출**(옛 값 고른 회원도 실제 동작).
+- 배포: 주인님 결정(「다른 프로그램 수정할 때 같이」)으로 따로 빌드하지 않음 → `docs/PENDING_DEPLOYS.md` 「12월 모델 교체」 4줄. **예외: `gpt-5`·`o3`(묶음 A)는 12-11에 호출이 실패하므로 12-05까지 배포가 없으면 주인님께 여쭐 것**(`real_estate_sales`는 v1.42에 이미 실림).
+- 배포하는 세션 확인할 것: 플레이리스트·블로그 작업실·감성 글쓰기 시험은 맥에서 못 돌림(윈도우용 `tsx`) → 배포 때 `npm test`. 플레이리스트 시험 기대값 1줄(`gemini-2.5-flash`→`3.5-flash-lite`, 금액 같음).
+- 남은 일: `blog-neighbor-care`(`web-crawler`와 같은 모델 파일)는 윈도우 blog 세션 몫 — `4206fcdaa`와 똑같이. 같은 날 공용 스테이징 축소(13:26) 기록 보충은 `docs/ERROR_LESSONS.md`.
+
 ## 2026-11-03 ✅ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — `ai-work-workspace` v1.20 배포(U6-B 음성 파일 받아쓰기 외 미배포 5건)
 - 배포: `ai-work-workspace-kgvdb1nmm` Ready(빌드 1회, 23505 없이 통과), 운영 주소 연결, DB `programs.version` v1.19 → v1.20, 프로그램 비교표 버전 갱신. 아래 11-03 ⏳ 항목의 미배포 5건(`03d5373a5`·`20557e396`·`05d0ec5f4`·`94719d8da`·`26db40bd4`)이 모두 나감.
 - 운영 크롬(시험 계정 본인 Gemini 키): 음성 파일 받아쓰기 통과(약 15초 WAV → 시각 포함 4문장 정확), 「요약 만들기」 뒤 새로고침 없이 요약 표시 통과. OpenAI 경로는 시험 계정에 Gemini 키가 있어 실제 확인 못 함(자동 시험만).
