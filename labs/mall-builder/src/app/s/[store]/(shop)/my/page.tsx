@@ -6,6 +6,7 @@ import DeleteButton from "../../admin/categories/delete-button";
 import LogoutButton from "@/app/logout-button";
 import { APPROVAL_LABEL } from "@/lib/business";
 import BusinessForm from "./business-form";
+import AddressFields from "./address-fields";
 import { deleteAddressAction, leaveStoreAction, makeDefaultAddressAction, saveAddressAction, updateProfileAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -26,14 +27,7 @@ function AddressForm({ slug, address }: { slug: string; address: CustomerAddress
         <span className="text-xs text-gray-500">휴대폰</span>
         <input name="phone" defaultValue={address?.phone ?? ""} required inputMode="tel" placeholder="010-1234-5678" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
-      <label className="block">
-        <span className="text-xs text-gray-500">우편번호</span>
-        <input name="zip" defaultValue={address?.zip ?? ""} required inputMode="numeric" maxLength={5} placeholder="06236" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
-      </label>
-      <label className="block sm:col-span-2">
-        <span className="text-xs text-gray-500">주소</span>
-        <input name="addr1" defaultValue={address?.addr1 ?? ""} required maxLength={120} className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
-      </label>
+      <AddressFields zip={address?.zip ?? ""} addr1={address?.addr1 ?? ""} />
       <label className="block sm:col-span-2">
         <span className="text-xs text-gray-500">상세 주소</span>
         <input name="addr2" defaultValue={address?.addr2 ?? ""} maxLength={120} className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
