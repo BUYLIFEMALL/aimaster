@@ -1,6 +1,25 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildTaskBody, parseTaskState, vocalLanguage } from "../src/lib/engine.ts";
+import { buildEditFields, buildTaskBody, parseTaskState, vocalLanguage } from "../src/lib/engine.ts";
+
+test("가져온 음악: 커버 — 세기 0.2~1.0으로 자르고 언어 모델 끔", () => {
+  const f = buildEditFields({ mode: "cover", style_prompt: " jazz ", lyrics: "[Verse]\n안녕", strength: 0.05 }, 200);
+  assert.equal(f.task_type, "cover");
+  assert.equal(f.audio_cover_strength, "0.20");
+  assert.equal(f.prompt, "jazz");
+  assert.equal(f.vocal_language, "ko");
+  assert.equal(f.thinking, "false");
+  assert.equal(f.batch_size, "1");
+  assert.equal(buildEditFields({ mode: "cover", style_prompt: "", lyrics: "", strength: 3 }, 200).audio_cover_strength, "1.00");
+});
+
+test("가져온 음악: 부분 수정 — 구간을 원곡 길이 안으로", () => {
+  const f = buildEditFields({ mode: "repaint", style_prompt: "x", lyrics: "", start: 10, end: 20 }, 60.4);
+  assert.deepEqual([f.task_type, f.repainting_start, f.repainting_end, f.chunk_mask_mode], ["repaint", "10", "20", "explicit"]);
+  const g = buildEditFields({ mode: "repaint", style_prompt: "x", lyrics: "", start: 100, end: 500 }, 60.4);
+  assert.deepEqual([g.repainting_start, g.repainting_end], ["59", "60"]);
+  assert.equal(f.audio_cover_strength, undefined);
+});
 
 const song = { style_prompt: " warm city pop ", lyrics: " [Verse]\n비 오는 오후 ", duration_sec: 60 };
 

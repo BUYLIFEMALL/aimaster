@@ -31,11 +31,11 @@ import {
   listLibrary,
   revealLibraryFolder,
 } from "@/lib/engine";
-import type { Track } from "@/lib/tracks";
+import { KIND_LABEL, type Track } from "@/lib/tracks";
 import type { Collection, CollectionKind } from "@/lib/collections";
 
 const DEVICE_LABEL: Record<string, string> = { cuda: "그래픽카드", mps: "Apple 맥", cpu: "CPU" };
-const durationLabel = (s: number) => (s < 60 ? `${s}초` : `${s / 60}분`);
+const durationLabel = (s: number) => (s < 60 ? `${s}초` : s % 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s / 60}분`);
 const smallSelect =
   "rounded-lg border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] text-slate-300 focus:border-emerald-400 focus:outline-hidden disabled:opacity-40";
 
@@ -431,6 +431,7 @@ export default function LibraryPage() {
                           {t.title}
                         </p>
                         <p className="mt-0.5 truncate text-[11px] text-slate-500">
+                          {KIND_LABEL[t.kind] && <span className="mr-1 rounded bg-sky-900/60 px-1.5 py-0.5 text-sky-200">{KIND_LABEL[t.kind]}</span>}
                           {durationLabel(t.duration_sec)} · {DEVICE_LABEL[t.device] ?? t.device} · {new Date(t.created_at).toLocaleString("ko-KR")}
                           {here === false && <span className="text-amber-300/80"> · 이 PC에 음원 없음(다른 PC에서 만들었거나 지운 곡)</span>}
                         </p>

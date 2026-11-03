@@ -23,6 +23,16 @@ test("곡 기록: 곡 번호·초안 번호는 uuid만(엔진 파일 이름과 �
   assert.equal(parseTrackInput({ ...ok, song_id: id }).value.song_id, id);
 });
 
+test("곡 기록: 종류 — 기본은 노래 만들기, 커버·부분 수정은 원곡 길이 10~600초", () => {
+  assert.equal(parseTrackInput(ok).value.kind, "text2music");
+  assert.equal(parseTrackInput({ ...ok, kind: "cover", duration_sec: 205 }).ok, true);
+  assert.equal(parseTrackInput({ ...ok, kind: "repaint", duration_sec: 9 }).ok, false);
+  assert.equal(parseTrackInput({ ...ok, kind: "cover", duration_sec: 601 }).ok, false);
+  assert.equal(parseTrackInput({ ...ok, kind: "cover", duration_sec: 20.5 }).ok, false);
+  assert.equal(parseTrackInput({ ...ok, kind: "text2music", duration_sec: 205 }).ok, false);
+  assert.equal(parseTrackInput({ ...ok, kind: "remix" }).ok, false);
+});
+
 test("곡 기록: 길이·장치는 정해진 값만", () => {
   assert.equal(parseTrackInput({ ...ok, duration_sec: 45 }).ok, false);
   assert.equal(parseTrackInput({ ...ok, device: "xpu" }).ok, false);

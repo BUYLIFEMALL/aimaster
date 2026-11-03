@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION, APP_NAME } from "@/lib/version";
-import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library } from "lucide-react";
+import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library, Upload } from "lucide-react";
 
 interface SidebarProps {
   userEmail?: string;
@@ -15,6 +15,7 @@ const FLOW_STEPS = [
   { step: 1, href: "/songs", label: "곡 만들기", description: "가사·스타일 쓰기 & AI 작사", icon: Music2 },
   { step: 2, href: "/engine", label: "내 PC 엔진", description: "키 없이 내 PC에서 노래 생성", icon: Cpu },
   { step: 3, href: "/library", label: "모든 음악", description: "만든 노래 다시 듣기·내려받기", icon: Library },
+  { step: 4, href: "/import", label: "가져온 음악", description: "내 음원으로 커버·부분 수정", icon: Upload },
 ];
 
 const UTILITY_ITEMS = [

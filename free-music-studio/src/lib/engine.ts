@@ -51,6 +51,37 @@ export function buildTaskBody(song: SongForEngine, device: string) {
   };
 }
 
+export type EditOptions =
+  | { mode: "cover"; style_prompt: string; lyrics: string; strength: number }
+  | { mode: "repaint"; style_prompt: string; lyrics: string; start: number; end: number };
+
+/**
+ * 가져온 음악(원곡 파일) 작업의 폼 칸 — 커버(스타일 바꾸기) 또는 일부만 다시 만들기.
+ * 커버 세기는 0.2~1.0(높을수록 원곡을 많이 따름), 구간은 원곡 길이 안으로 자른다. 언어 모델은 이 작업에서 쓰이지 않는다.
+ */
+export function buildEditFields(opts: EditOptions, sourceSec: number): Record<string, string> {
+  const base: Record<string, string> = {
+    task_type: opts.mode,
+    prompt: opts.style_prompt.trim(),
+    lyrics: opts.lyrics.trim(),
+    vocal_language: vocalLanguage(opts.lyrics),
+    thinking: "false",
+    batch_size: "1",
+    audio_format: "mp3",
+  };
+  if (opts.mode === "cover") {
+    const s = Math.min(1, Math.max(0.2, Number.isFinite(opts.strength) ? opts.strength : 1));
+    base.audio_cover_strength = s.toFixed(2);
+  } else {
+    const start = Math.max(0, Math.min(Math.floor(opts.start), Math.floor(sourceSec) - 1));
+    const end = Math.max(start + 1, Math.min(Math.ceil(opts.end), Math.floor(sourceSec)));
+    base.repainting_start = String(start);
+    base.repainting_end = String(end);
+    base.chunk_mask_mode = "explicit";
+  }
+  return base;
+}
+
 /** query_result 응답에서 내 작업 하나의 상태를 꺼낸다. result는 JSON 문자열(배열)이다. */
 export function parseTaskState(body: unknown, taskId: string): TaskState {
   const list = (body as { data?: unknown })?.data;
@@ -155,6 +186,31 @@ export async function startTask(song: SongForEngine, device: string): Promise<st
   const taskId = data?.data?.task_id;
   if (typeof taskId !== "string") throw new EngineError("음악 엔진이 작업을 받지 못했습니다.");
   return taskId;
+}
+
+/** 원곡 파일을 엔진에 올려 커버·부분 수정 작업을 시작한다(파일은 회원 PC 엔진으로만 간다, 60MB까지). */
+export async function startEditTask(source: File, opts: EditOptions, sourceSec: number): Promise<string> {
+  const form = new FormData();
+  for (const [k, v] of Object.entries(buildEditFields(opts, sourceSec))) form.append(k, v);
+  form.append("src_audio", source, source.name);
+  const res = await call("/release_task", { method: "POST", body: form }, 180_000);
+  const data = await res.json();
+  const taskId = data?.data?.task_id;
+  if (typeof taskId !== "string") throw new EngineError("음악 엔진이 작업을 받지 못했습니다.");
+  return taskId;
+}
+
+/** 작업이 끝날 때까지 3초마다 확인한다. 끝나면 음원 주소, 실패·취소·시간 초과면 예외. */
+export async function waitForTask(taskId: string, isCancelled: () => boolean, maxMs = 45 * 60_000): Promise<string> {
+  const until = Date.now() + maxMs;
+  while (!isCancelled()) {
+    await new Promise((r) => setTimeout(r, 3000));
+    const s = await checkTask(taskId);
+    if (s.state === "failed") throw new EngineError(s.error);
+    if (s.state === "done") return s.file;
+    if (Date.now() > until) throw new EngineError("너무 오래 걸려 기다리기를 멈췄습니다. 엔진 창에 오류가 있는지 확인해 주세요.");
+  }
+  throw new EngineError("화면을 떠나 기다리기를 멈췄습니다.");
 }
 
 export async function checkTask(taskId: string): Promise<TaskState> {

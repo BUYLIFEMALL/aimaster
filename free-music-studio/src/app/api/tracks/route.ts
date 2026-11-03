@@ -7,7 +7,7 @@ import { parseTrackInput, TRACKS_TABLE } from "@/lib/tracks";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const COLUMNS = "id, song_id, project_id, title, style_prompt, lyrics, duration_sec, device, created_at";
+const COLUMNS = "id, song_id, project_id, title, style_prompt, lyrics, duration_sec, device, kind, created_at";
 
 // 「모든 음악」 목록 — 서비스 키로 읽으므로 user_id를 코드에서 직접 건다(멀티테넌시 원칙 2).
 export async function GET() {
