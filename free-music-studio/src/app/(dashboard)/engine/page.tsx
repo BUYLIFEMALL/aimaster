@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Cpu, Download, ShieldCheck, Clock, Link2, CheckCircle2, AlertCircle, Unplug } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
@@ -17,10 +17,22 @@ const SPECS = [
 ];
 
 const STEPS = [
-  { n: 1, title: "엔진 켜기", body: "엔진을 실행하면 처음 한 번 필요한 구성을 설치하고, 창에 6자리 연결 코드가 나옵니다. 디스크 20GB 여유를 확인해 주세요." },
-  { n: 2, title: "이 화면에서 PC 연결", body: "브라우저가 「로컬 네트워크 접근」을 물으면 허용하고, 아래 칸에 6자리 연결 코드를 넣습니다. 브라우저마다 한 번만 하면 됩니다." },
-  { n: 3, title: "곡 만들기에서 생성", body: "상태가 「연결됨」이 되면 곡 만들기 화면의 [내 PC로 노래 만들기]를 누릅니다. 첫 곡은 음악 모델(약 10GB)을 받느라 오래 걸립니다." },
+  {
+    n: 1,
+    title: "설치 파일 받아 실행",
+    body: "위 [설치 파일 받기]로 받은 파일을 더블클릭합니다. 관리자 권한 없이 몇 초 만에 설치되고 엔진이 바로 켜집니다. 처음 한 번은 필요한 구성(약 10GB)을 받느라 수 분 걸립니다.",
+  },
+  { n: 2, title: "연결 코드 넣기", body: "엔진 창의 6자리 연결 코드를 아래 「내 PC 엔진 연결」 칸에 넣습니다. 브라우저가 「로컬 네트워크 접근」을 물으면 허용합니다. 브라우저마다 한 번만 하면 됩니다." },
+  { n: 3, title: "곡 만들기", body: "「연결됨」이 되면 곡 만들기 화면에서 [대기열에 넣기]를 누릅니다. 첫 곡은 음악 모델(약 15GB)을 받느라 오래 걸리고, 진행은 작업 대기열에 「받는 중 · ○GB」로 보입니다." },
 ];
+
+/** 사이트가 알려 주는 최신 설치 파일(엔진 실행 프로그램의 「새 버전」 알림도 같은 파일을 읽음) */
+type LatestEngine = { version: string; url: string; sizeMb: number; sha256: string; releasedAt?: string };
+const newerThan = (a: string, b: string) => {
+  const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+  for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0);
+  return false;
+};
 
 function StatusBadge({ engine }: { engine: ReturnType<typeof useEngine> }) {
   const { status, checking, online, paired, ready } = engine;
@@ -39,6 +51,15 @@ export default function EnginePage() {
   const [code, setCode] = useState("");
   const [pairing, setPairing] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [latest, setLatest] = useState<LatestEngine | null>(null);
+  useEffect(() => {
+    fetch("/downloads/engine-latest.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => j?.version && setLatest(j))
+      .catch(() => {});
+  }, []);
+  const mine = online ? status?.version : undefined;
+  const outdated = !!(latest && mine && newerThan(latest.version, mine));
 
   const pair = async () => {
     setPairing(true);
@@ -154,14 +175,70 @@ export default function EnginePage() {
 
       {paired && <FolderPanel status={status} onChanged={engine.refresh} />}
 
-      <section className="space-y-3 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-5">
-        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
-          <Download className="h-4 w-4 text-emerald-300" /> 원클릭 다운로드 센터
-        </h2>
-        <p className="text-xs text-slate-400">윈도우·맥용 엔진 앱을 준비하고 있습니다. 공개되면 이곳에서 최신 버전을 바로 받을 수 있습니다.</p>
-        <button type="button" disabled className="rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-semibold text-slate-500">
-          내려받기 (준비 중)
-        </button>
+      <section className="space-y-3 rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-[#0b1a18] to-[#0a0f1d] p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
+            <Download className="h-4 w-4 text-emerald-300" /> 원클릭 다운로드 센터
+          </h2>
+          {mine && latest && (
+            <span
+              className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${outdated ? "border-amber-500/40 bg-amber-950/40 text-amber-200" : "border-emerald-500/40 bg-emerald-950/40 text-emerald-300"}`}
+            >
+              내 PC 엔진 {mine} · {outdated ? `새 버전 ${latest.version} 있음` : "최신"}
+            </span>
+          )}
+        </div>
+        <p className="text-xs leading-relaxed text-slate-400">
+          🪟 윈도우 10·11(64비트)용 「AI 무료음악 자동화 엔진」 설치 파일입니다. 설치하면 바탕화면·작업 표시줄 🎵 아이콘으로 켜지고, PC를 켤 때 저절로 켜집니다. 예전에
+          PowerShell로 켜던 엔진이 있으면 설치 파일이 알아서 끄고 이어서 씁니다(받아 둔 모델·노래·연결 그대로).
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          {latest ? (
+            <a href={latest.url} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110">
+              <Download className="h-4 w-4" /> 설치 파일 받기 · 엔진 {latest.version} ({latest.sizeMb}MB)
+            </a>
+          ) : (
+            <span className="text-xs text-slate-500">최신 설치 파일 정보를 불러오는 중…</span>
+          )}
+          {!online && (
+            <a href="freemusic-engine://start" className="rounded-xl border border-emerald-500/40 px-4 py-2.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-950/40">
+              ▶ 설치한 엔진 켜기
+            </a>
+          )}
+        </div>
+        {!online && <p className="text-[11px] text-slate-500">[설치한 엔진 켜기]는 설치 파일로 설치한 뒤에 쓸 수 있습니다. 브라우저가 「열기」를 물으면 허용해 주세요.</p>}
+        {latest?.sha256 && (
+          <p className="break-all font-mono text-[10px] text-slate-600">
+            파일 확인값(SHA-256): {latest.sha256}
+          </p>
+        )}
+        <p className="text-[11px] text-slate-500">🍎 맥용 설치 파일은 준비 중입니다. 맥은 지금처럼 안내에 따라 직접 실행해 주세요.</p>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-amber-500/30 bg-amber-950/10 p-5">
+        <h2 className="text-sm font-bold text-amber-200">⚠️ 「Windows의 PC 보호」 창이 뜨면</h2>
+        <p className="text-xs leading-relaxed text-slate-300">
+          새로 나온 프로그램이라 윈도우가 처음 한 번 확인 창을 띄웁니다. 창 안의 <b>[추가 정보]</b>를 누른 뒤 <b>[실행]</b>을 누르면 설치됩니다. 바이러스 검사 프로그램이
+          막으면 「허용」을 눌러 주세요.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl bg-[#0067b8] p-4 text-white shadow-lg">
+            <p className="text-base font-semibold">Windows의 PC 보호</p>
+            <p className="mt-2 text-[11px] leading-relaxed opacity-90">Microsoft Defender SmartScreen에서 인식할 수 없는 앱의 시작을 차단했습니다…</p>
+            <p className="mt-2 inline-block rounded bg-amber-300 px-1.5 text-[11px] font-bold text-slate-900 underline">1단계 · 추가 정보</p>
+            <div className="mt-4 flex justify-end">
+              <span className="rounded border border-white/60 px-4 py-1 text-[11px]">실행 안 함</span>
+            </div>
+          </div>
+          <div className="rounded-xl bg-[#0067b8] p-4 text-white shadow-lg">
+            <p className="text-base font-semibold">Windows의 PC 보호</p>
+            <p className="mt-2 text-[11px] leading-relaxed opacity-90">앱: AI-Free-Music-Engine-Setup.exe<br />게시자: 알 수 없는 게시자</p>
+            <div className="mt-4 flex justify-end gap-2">
+              <span className="rounded bg-amber-300 px-4 py-1 text-[11px] font-bold text-slate-900">2단계 · 실행</span>
+              <span className="rounded border border-white/60 px-4 py-1 text-[11px]">실행 안 함</span>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="space-y-3 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-5">
@@ -201,7 +278,8 @@ export default function EnginePage() {
         </div>
         <p className="flex items-start gap-2 text-[11px] text-slate-500">
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
-          음악 모델은 상업 이용이 허용된 공개 모델(MIT)을 씁니다. 커버는 회원님이 권리를 가진 곡으로만 만들 수 있습니다.
+          기본 음악 모델(ACE-Step)은 상업 이용이 허용된 공개 모델(MIT)입니다. 곡 만들기에서 고를 수 있는 YuE2는 비상업용(CC BY-NC 4.0)이라 수익 영상·판매에 쓸 수 없고
+          「모든 음악」에 「비상업용」으로 표시됩니다. 커버는 회원님이 권리를 가진 곡으로만 만들 수 있습니다.
         </p>
       </section>
     </div>

@@ -20,7 +20,8 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
   return;
 }
-app.setAsDefaultProtocolClient("freemusic-engine");
+// 사이트 [엔진 켜기] 주소·자동 실행은 설치한 프로그램만 등록한다(개발 모드로 켜면 개발용 electron.exe가 등록돼 꼬였음 — 2026-11-04)
+if (app.isPackaged) app.setAsDefaultProtocolClient("freemusic-engine");
 
 let tray = null;
 let win = null;
@@ -43,7 +44,7 @@ function writeSettings(s) {
 }
 const autoStart = () => app.getLoginItemSettings().openAtLogin;
 function setAutoStart(on) {
-  app.setLoginItemSettings({ openAtLogin: on, args: ["--hidden"] });
+  if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: on, args: ["--hidden"] });
 }
 
 function push(state) {

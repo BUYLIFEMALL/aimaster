@@ -38,6 +38,7 @@
       "artifactName": "AI-Free-Music-Engine-Setup-${version}.${ext}"
     },
     "electronLanguages": ["ko", "en-US"],
+    "compression": "maximum",
     "publish": null
   }
 }

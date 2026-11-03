@@ -8,3 +8,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# 엔진 설치 파일(100MB 넘음)은 저장소에 넣지 않고 배포 때만 올린다 — 만드는 법: desktop/ 에서 npm run dist
+public/downloads/*.exe
