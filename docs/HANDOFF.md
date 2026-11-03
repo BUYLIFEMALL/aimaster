@@ -1,10 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.10 · 엔진 0.2.0 비상업용 음악 엔진 YuE2 배포
+- 주인님 결정: 비상업 모델 YuE2를 회원도 쓰되 상업용/비상업용으로 구분. 엔진 `yue2.mjs`(고정 주소·SHA-256 받기, `yue-server.exe`, YuE2 차례면 ACE-Step을 잠시 꺼 그래픽 메모리 비움), 웹 엔진 고르기·비상업 동의·「비상업용」 표시, DB `free_music_tracks.license`(운영 적용).
+- 함께 나감: 4단계 재생바·복사 버튼, 웹 옛 방식 실패 이유 표시, 구성 바꾼 뒤 「새 구성으로 준비됐습니다」, 프리셋 안내. 커밋 `d411c0b26`·`2cac793c0`·`c69023503`, 배포 `free-music-studio-pre6r21xo` Ready, 화면·DB v1.10, 시험 웹 47·엔진 37, ego 운영 화면 확인.
+- 남은 일: **마스터PC에서 엔진 0.2.0(`D:\PDS\Program_dev\free-music-src\free-music-engine-0.2.0.zip`)으로 YuE2 첫 실물**(원작자도 미검증 표시) — 같은 가사로 ACE-Step XL vs YuE2 비교. 받기 이어 받기·YuE2 커버는 아직 없음. 기록: `free-music-studio/docs/PLAN_20261104_YUE2_NONCOMMERCIAL.md`.
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 마스터PC 엔진 오류 대응(엔진 0.1.6→0.1.11)
 - 마스터PC에서 대기열 곡이 계속 실패 → 원인 넷이 겹침: 창 없는 예전 엔진 0.1.0이 연결 문 점유 / 예전 엔진이 남긴 python이 고정 내부 번호 47822 점유(엔진은 남은 서버 `/health`에 속아 「준비됨」) / 파이썬이 한국어 윈도우 cp949로 긴 줄표(—)를 못 씀 / 엔진이 ACE-Step 실패 이유(`result[0].error`)를 버림.
 - 엔진 0.1.7~0.1.11로 고침(기록 파일·한국어 안내·빈 내부 번호·남은 음악 엔진 이름으로 정리·종료 때 자식 정리·실패 이유 표시·UTF-8). 0.1.11로 대기열 실물 확인 끝(완성·자동 기록·취소·중단됨).
 - 인수인계: [`free-music-studio/docs/IMPROVEMENT_HANDOFF_20261104_ENGINE_ERRORS.md`](../free-music-studio/docs/IMPROVEMENT_HANDOFF_20261104_ENGINE_ERRORS.md) · 교훈 `docs/ERROR_LESSONS.md` 2026-11-04.
-- 남은 일: 웹 옛 방식 `parseTaskState` 실패 이유 표시·구성 바꾼 뒤 안내 문구(다음 배포), 4단계 화면 개편(재생바 코드 작성 중, 미커밋).
+- 남은 일: 웹 옛 방식 `parseTaskState` 실패 이유 표시·구성 바꾼 뒤 안내 문구(다음 배포), 4단계 화면 개편(재생바 코드 작성 중, 미커밋). → v1.10에서 모두 나감(위 항목).
 
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 로드맵 3단계(작업 대기열) v1.09 · 엔진 0.1.6 배포
 - 엔진: `engine/src/queue.mjs`(대기·만드는 중·완료·실패·취소·중단됨, `queue.json`, 다시 켜면 진행 중 → 중단됨), `runner.mjs`(엔진이 ACE-Step에 직접 맡기고 보관함 저장, 커버 원곡은 `queue-src/`), 연결 문 `/queue`. 압축 `D:\PDS\Program_dev\free-music-src\free-music-engine-0.1.6.zip`.
