@@ -1,6 +1,10 @@
 // 첫 화면 블록 — 블록 등록표(종류마다 이름·기본값·검사). 편집기와 손님 화면이 이 표 하나를 쓴다(docs/mall/ARCHITECTURE.md §6)
 // 새 블록 = 여기에 종류 하나 추가 + 손님 화면 그리기(home-blocks.tsx) + 편집 칸(block-editor.tsx)
+// 서버 데이터가 필요한 블록(쇼윈도·공지)은 손님 첫 화면(서버)이 내용을 만들어 slots로 넘긴다
+// html은 validateDoc에서 위험 태그를 지운다 — 저장할 때와 readDoc(손님 화면 읽기) 두 번 거친다
 // 저장 모양: { schema_version: 1, blocks: [{ id, type, visible, settings }] } — DB mall_builder_pages.draft_blocks / published_blocks
+
+import { sanitizeHtml } from "./sanitize.ts";
 
 export const SCHEMA_VERSION = 1;
 export const MAX_BLOCKS = 30;
@@ -8,12 +12,23 @@ export const MAX_BLOCKS = 30;
 export type TopbarSettings = { items: { text: string; link: string; bg: string }[]; rotate_sec: number };
 export type SliderSettings = { slides: { image: string; link: string }[]; height: number; autoplay_sec: number };
 export type BannerSettings = { image: string; link: string; max_width: number };
+export type ShowcaseSource = "new" | "category" | "manual";
+export type ShowcaseSettings = { title: string; source: ShowcaseSource; category_id: string; product_ids: string[]; columns: number; limit: number };
+export type HtmlSettings = { html: string };
+export type NoticeSettings = { title: string; count: number };
 
 export type BlockSettingsMap = {
   topbar: TopbarSettings;
   slider: SliderSettings;
   banner: BannerSettings;
+  showcase: ShowcaseSettings;
+  html: HtmlSettings;
+  notice: NoticeSettings;
 };
+
+export const SHOWCASE_SOURCE_LABEL: Record<ShowcaseSource, string> = { new: "신상품", category: "카테고리", manual: "직접 선택" };
+export const MAX_HTML = 20000;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export type BlockType = keyof BlockSettingsMap;
 export type Block<T extends BlockType = BlockType> = { id: string; type: T; visible: boolean; settings: BlockSettingsMap[T] };
 export type BlocksDoc = { schema_version: number; blocks: Block[] };
@@ -94,6 +109,45 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
       const link = safeLink(s.link);
       if (link === null) return { ok: false, error: "링크는 /로 시작하는 이 몰 주소나 https 주소만 쓸 수 있습니다." };
       return { ok: true, value: { image, link, max_width: int(s.max_width, 320, 1600, 1100) } };
+    },
+  },
+  showcase: {
+    label: "상품 쇼윈도",
+    description: "상품 묶음(신상품·카테고리·직접 고른 상품)",
+    defaults: () => ({ title: "추천 상품", source: "new", category_id: "", product_ids: [], columns: 4, limit: 8 }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<ShowcaseSettings>;
+      const title = str(s.title).slice(0, 40);
+      const source: ShowcaseSource = s.source === "category" || s.source === "manual" ? s.source : "new";
+      const category_id = str(s.category_id);
+      const product_ids = [...new Set((Array.isArray(s.product_ids) ? s.product_ids : []).map(str).filter((x) => UUID.test(x)))].slice(0, 24);
+      if (source === "category" && !UUID.test(category_id)) return { ok: false, error: "보여 줄 카테고리를 골라 주세요." };
+      if (source === "manual" && !product_ids.length) return { ok: false, error: "보여 줄 상품을 1개 이상 골라 주세요." };
+      return {
+        ok: true,
+        value: { title, source, category_id: source === "category" ? category_id : "", product_ids: source === "manual" ? product_ids : [], columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8) },
+      };
+    },
+  },
+  html: {
+    label: "글·HTML",
+    description: "자유 글(굵게·목록·표·그림·링크). 스크립트 등 위험한 태그는 저장할 때 지워진다",
+    defaults: () => ({ html: "<h3>제목</h3><p>내용을 입력하세요.</p>" }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<HtmlSettings>;
+      if (typeof s.html !== "string" || s.html.length > MAX_HTML) return { ok: false, error: `글은 ${MAX_HTML.toLocaleString()}자까지 넣을 수 있습니다.` };
+      const html = sanitizeHtml(s.html);
+      if (!html) return { ok: false, error: "글 내용을 넣어 주세요." };
+      return { ok: true, value: { html } };
+    },
+  },
+  notice: {
+    label: "공지",
+    description: "최근 공지 제목 목록(공지 메뉴에서 쓴 글, 상단 고정 먼저)",
+    defaults: () => ({ title: "공지사항", count: 5 }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<NoticeSettings>;
+      return { ok: true, value: { title: str(s.title).slice(0, 40) || "공지사항", count: int(s.count, 3, 10, 5) } };
     },
   },
 };

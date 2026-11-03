@@ -11,6 +11,7 @@ const MENU = [
   { href: "/customers", label: "손님" },
   { href: "/settings", label: "쇼핑몰 정보" },
   { href: "/home", label: "첫 화면" },
+  { href: "/notices", label: "공지" },
   { href: "/categories", label: "카테고리" },
   { href: "/products", label: "상품" },
   { href: "/shipping", label: "배송비" },

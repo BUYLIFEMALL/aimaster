@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { CategoryRow } from "@/lib/categories";
+import { buildCategoryTree, flattenTree, type CategoryRow } from "@/lib/categories";
 import type { OptionGroup, Variant } from "@/lib/options";
 import type { ShippingPolicy } from "@/lib/shipping";
 import { ORDER_COLUMNS, type OrderEventRow, type OrderItemRow, type OrderRow } from "@/lib/orders";
@@ -8,7 +8,7 @@ import type { ApprovalStatus } from "@/lib/business";
 import type { QuoteStatus } from "@/lib/quotes";
 import type { LedgerKind } from "@/lib/credit";
 import { priceLine, viewerOf, type GradePrice, type PriceContext, type VolumeTier } from "@/lib/pricing";
-import { readDoc, type BlocksDoc } from "@/lib/blocks";
+import { readDoc, type BlocksDoc, type ShowcaseSettings } from "@/lib/blocks";
 import { cache } from "react";
 
 export type Store = {
@@ -193,10 +193,11 @@ export async function getShippingPolicies(storeId: string): Promise<ShippingPoli
 /** 손님 화면용 상품 목록 — 판매 중·품절만(운영자가 볼 때도 손님과 같게). 카테고리·검색어로 거른다 */
 export async function getShopProducts(
   storeId: string,
-  opts: { categoryIds?: string[]; q?: string; limit?: number } = {},
+  opts: { categoryIds?: string[]; ids?: string[]; q?: string; limit?: number } = {},
 ): Promise<ShopProduct[]> {
   const supabase = await createClient();
-  let productIds: string[] | null = null;
+  let productIds: string[] | null = opts.ids ?? null;
+  if (productIds && !productIds.length) return [];
   if (opts.categoryIds) {
     if (!opts.categoryIds.length) return [];
     const { data: links } = await supabase
@@ -555,6 +556,47 @@ export async function getPublishedHome(storeId: string): Promise<BlocksDoc> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_published_page", { p_store_id: storeId });
   return readDoc(data);
+}
+
+/** 상품 쇼윈도 블록의 상품 — 판매 중·품절만, 보는 사람 기준 가격. 직접 선택은 고른 순서대로, 카테고리는 하위 카테고리 포함 */
+export async function getShowcaseProducts(storeId: string, s: ShowcaseSettings): Promise<ShopProduct[]> {
+  if (s.source === "manual") {
+    const list = await getShopProducts(storeId, { ids: s.product_ids, limit: 24 });
+    const order = new Map(s.product_ids.map((id, i) => [id, i]));
+    return list.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)).slice(0, s.limit);
+  }
+  if (s.source === "category") {
+    const node = flattenTree(buildCategoryTree(await getCategoryRows(storeId), false)).find((c) => c.id === s.category_id);
+    if (!node) return [];
+    return getShopProducts(storeId, { categoryIds: flattenTree([node]).map((c) => c.id), limit: s.limit });
+  }
+  return getShopProducts(storeId, { limit: s.limit });
+}
+
+export type Notice = { id: string; title: string; body: string; is_pinned: boolean; created_at: string; updated_at: string };
+
+/** 공지 목록 — 상단 고정 먼저, 그다음 최근 순 */
+export async function getNotices(storeId: string, limit = 50): Promise<Notice[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_notices")
+    .select("id, title, body, is_pinned, created_at, updated_at")
+    .eq("store_id", storeId)
+    .order("is_pinned", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []) as Notice[];
+}
+
+export async function getNotice(storeId: string, id: string): Promise<Notice | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_notices")
+    .select("id, title, body, is_pinned, created_at, updated_at")
+    .eq("store_id", storeId)
+    .eq("id", id)
+    .maybeSingle();
+  return (data as Notice) ?? null;
 }
 
 /** 운영자 편집 화면 — 초안·게시본·저장 시각(표 읽기는 운영자만 허용) */

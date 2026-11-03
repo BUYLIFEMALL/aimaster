@@ -3,8 +3,9 @@
 import { useMemo, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
-  BLOCK_DEFS, BLOCK_TYPES, MAX_BLOCKS, moveBlock, newBlock, validateDoc,
-  type BannerSettings, type Block, type BlocksDoc, type BlockType, type SliderSettings, type TopbarSettings,
+  BLOCK_DEFS, BLOCK_TYPES, MAX_BLOCKS, MAX_HTML, SHOWCASE_SOURCE_LABEL, moveBlock, newBlock, validateDoc,
+  type BannerSettings, type Block, type BlocksDoc, type BlockType, type HtmlSettings, type NoticeSettings,
+  type ShowcaseSettings, type ShowcaseSource, type SliderSettings, type TopbarSettings,
 } from "@/lib/blocks";
 import { publishHomeAction, saveHomeDraftAction } from "@/lib/page-actions";
 import { HomeBlocks } from "../../home-blocks";
@@ -68,7 +69,11 @@ function NumberInput({ label, value, min, max, onChange }: { label: string; valu
   );
 }
 
-function SettingsForm({ storeId, block, onChange }: { storeId: string; block: Block; onChange: (s: Block["settings"]) => void }) {
+type Option = { id: string; name: string };
+
+function SettingsForm({ storeId, block, categories, products, onChange }: {
+  storeId: string; block: Block; categories: Option[]; products: Option[]; onChange: (s: Block["settings"]) => void;
+}) {
   if (block.type === "topbar") {
     const s = block.settings as TopbarSettings;
     const setItem = (i: number, patch: Partial<TopbarSettings["items"][number]>) => onChange({ ...s, items: s.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) });
@@ -115,6 +120,78 @@ function SettingsForm({ storeId, block, onChange }: { storeId: string; block: Bl
       </div>
     );
   }
+  if (block.type === "showcase") {
+    const s = block.settings as ShowcaseSettings;
+    const picked = new Set(s.product_ids);
+    const toggle = (id: string) => onChange({ ...s, product_ids: picked.has(id) ? s.product_ids.filter((x) => x !== id) : [...s.product_ids, id] });
+    return (
+      <div className="space-y-3">
+        <label className="block">
+          <span className="text-xs text-gray-500">제목(비우면 제목 없이)</span>
+          <input value={s.title} maxLength={40} onChange={(e) => onChange({ ...s, title: e.target.value })} className={input} />
+        </label>
+        <div className="flex flex-wrap gap-3 text-sm" role="radiogroup" aria-label="상품 고르는 방법">
+          {(Object.keys(SHOWCASE_SOURCE_LABEL) as ShowcaseSource[]).map((k) => (
+            <label key={k} className="flex items-center gap-1">
+              <input type="radio" name={`src-${block.id}`} checked={s.source === k} onChange={() => onChange({ ...s, source: k })} /> {SHOWCASE_SOURCE_LABEL[k]}
+            </label>
+          ))}
+        </div>
+        {s.source === "category" && (
+          <label className="block">
+            <span className="text-xs text-gray-500">카테고리(하위 카테고리 상품도 함께)</span>
+            <select value={s.category_id} onChange={(e) => onChange({ ...s, category_id: e.target.value })} className={input}>
+              <option value="">— 고르세요 —</option>
+              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </label>
+        )}
+        {s.source === "manual" && (
+          <div>
+            <span className="text-xs text-gray-500">보여 줄 상품({s.product_ids.length}개 고름 — 고른 순서대로 보임)</span>
+            <ul className="mt-1 max-h-48 overflow-y-auto rounded border text-sm" data-product-picker>
+              {products.length === 0 && <li className="px-2 py-1 text-gray-500">판매 중인 상품이 없습니다.</li>}
+              {products.map((p) => (
+                <li key={p.id}>
+                  <label className="flex items-center gap-2 px-2 py-1">
+                    <input type="checkbox" checked={picked.has(p.id)} onChange={() => toggle(p.id)} />
+                    <span className="flex-1 truncate">{p.name}</span>
+                    {picked.has(p.id) && <span className="text-xs text-gray-500">{s.product_ids.indexOf(p.id) + 1}번째</span>}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="grid grid-cols-2 gap-2">
+          <NumberInput label="큰 화면 열 수(2~5, 휴대폰은 2열)" value={s.columns} min={2} max={5} onChange={(columns) => onChange({ ...s, columns })} />
+          <NumberInput label="최대 상품 수(2~24)" value={s.limit} min={2} max={24} onChange={(limit) => onChange({ ...s, limit })} />
+        </div>
+      </div>
+    );
+  }
+  if (block.type === "html") {
+    const s = block.settings as HtmlSettings;
+    return (
+      <label className="block">
+        <span className="text-xs text-gray-500">HTML(제목 h2~h4·문단·굵게·목록·표·그림·링크). 스크립트·iframe·style 등은 저장할 때 지워집니다.</span>
+        <textarea value={s.html} maxLength={MAX_HTML} rows={8} onChange={(e) => onChange({ html: e.target.value })} className={`${input} font-mono`} />
+      </label>
+    );
+  }
+  if (block.type === "notice") {
+    const s = block.settings as NoticeSettings;
+    return (
+      <div className="space-y-3">
+        <label className="block">
+          <span className="text-xs text-gray-500">제목</span>
+          <input value={s.title} maxLength={40} onChange={(e) => onChange({ ...s, title: e.target.value })} className={input} />
+        </label>
+        <NumberInput label="보여 줄 공지 수(3~10)" value={s.count} min={3} max={10} onChange={(count) => onChange({ ...s, count })} />
+        <p className="text-xs text-gray-500">공지 글은 관리 메뉴 「공지」에서 씁니다.</p>
+      </div>
+    );
+  }
   const s = block.settings as BannerSettings;
   return (
     <div className="space-y-3">
@@ -125,8 +202,8 @@ function SettingsForm({ storeId, block, onChange }: { storeId: string; block: Bl
   );
 }
 
-export default function BlockEditor({ slug, storeId, initial, published, draftAt, publishedAt }: {
-  slug: string; storeId: string; initial: BlocksDoc; published: BlocksDoc | null; draftAt: string | null; publishedAt: string | null;
+export default function BlockEditor({ slug, storeId, categories, products, initial, published, draftAt, publishedAt }: {
+  slug: string; storeId: string; categories: Option[]; products: Option[]; initial: BlocksDoc; published: BlocksDoc | null; draftAt: string | null; publishedAt: string | null;
 }) {
   const [blocks, setBlocks] = useState<Block[]>(initial.blocks);
   const [selected, setSelected] = useState<string | null>(initial.blocks[0]?.id ?? null);
@@ -211,7 +288,7 @@ export default function BlockEditor({ slug, storeId, initial, published, draftAt
       {current && (
         <section className="rounded border p-3">
           <h2 className="mb-2 text-sm font-semibold">{BLOCK_DEFS[current.type].label} 설정</h2>
-          <SettingsForm storeId={storeId} block={current} onChange={(settings) => update(current.id, { settings })} />
+          <SettingsForm storeId={storeId} block={current} categories={categories} products={products} onChange={(settings) => update(current.id, { settings })} />
         </section>
       )}
 
@@ -231,7 +308,7 @@ export default function BlockEditor({ slug, storeId, initial, published, draftAt
         <div className="mt-2 overflow-hidden rounded border py-4">
           {blocks.some((b) => b.visible) ? <HomeBlocks blocks={blocks.filter((b) => validateDoc({ blocks: [b] }).ok)} /> : <p className="px-4 text-sm text-gray-500">보이는 블록이 없습니다.</p>}
         </div>
-        <p className="mt-1 text-xs text-gray-500">그림을 아직 안 올린 블록은 미리보기에 나오지 않습니다.</p>
+        <p className="mt-1 text-xs text-gray-500">그림을 아직 안 올린 블록은 미리보기에 나오지 않습니다. 글·HTML은 위험 태그를 지운 결과로 보입니다.</p>
       </section>
     </div>
   );

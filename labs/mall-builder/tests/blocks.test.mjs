@@ -42,6 +42,39 @@ test("저장 전 검사·정리", () => {
   assert.match(validateDoc({ blocks: Array.from({ length: 31 }, (_, i) => newBlock("topbar", `t${i}`)) }).error, /30개/);
 });
 
+test("글·HTML 블록 위험 태그 제거", () => {
+  const dirty = `<h3 onclick="x()">안내</h3><script>alert(1)</script><p style="color:red">본문 <a href="javascript:alert(1)">나쁜</a> <a href="https://buylife.kr">좋은</a> <a href="/s/x/c/1">안쪽</a></p>`
+    + `<img src="x" onerror="alert(1)"><img src="https://a.com/b.png"><iframe src="https://evil.com"></iframe><style>body{}</style><form><input></form>`;
+  const v = validateDoc({ blocks: [{ id: "h", type: "html", settings: { html: dirty } }] });
+  assert.equal(v.ok, true);
+  const html = v.value.blocks[0].settings.html;
+  for (const bad of ["script", "onclick", "onerror", "style", "javascript:", "iframe", "<form", "<input", 'src="x"']) assert.equal(html.includes(bad), false, bad);
+  assert.match(html, /<h3>안내<\/h3>/);
+  assert.match(html, /<a href="https:\/\/buylife.kr" target="_blank" rel="noopener noreferrer">좋은<\/a>/);
+  assert.match(html, /<a href="\/s\/x\/c\/1">안쪽<\/a>/);
+  assert.match(html, /<img src="https:\/\/a.com\/b.png" \/>/);
+  assert.match(validateDoc({ blocks: [{ id: "h", type: "html", settings: { html: "<script>x</script>" } }] }).error, /글 내용/);
+  // 손님 화면 읽기(readDoc)에서도 다시 지운다 — DB에 직접 넣은 위험 태그 대비
+  assert.equal(readDoc({ blocks: [{ id: "h", type: "html", visible: true, settings: { html: "<p>a</p><script>b</script>" } }] }).blocks[0].settings.html, "<p>a</p>");
+});
+
+test("상품 쇼윈도·공지 검사", () => {
+  const C = "11111111-2222-3333-4444-555555555555";
+  assert.match(validateDoc({ blocks: [{ id: "s", type: "showcase", settings: { source: "category" } }] }).error, /카테고리를 골라/);
+  assert.match(validateDoc({ blocks: [{ id: "s", type: "showcase", settings: { source: "manual", product_ids: ["x"] } }] }).error, /상품을 1개 이상/);
+  const ok = validateDoc({ blocks: [
+    { id: "a", type: "showcase", settings: { title: "특가", source: "manual", product_ids: [C, C, "bad"], columns: 9, limit: 6, category_id: C } },
+    { id: "b", type: "showcase", settings: { source: "new" } },
+    { id: "n", type: "notice", settings: { count: 99 } },
+  ] });
+  assert.equal(ok.ok, true);
+  assert.deepEqual(ok.value.blocks[0].settings.product_ids, [C]); // 중복·잘못된 번호 제거
+  assert.equal(ok.value.blocks[0].settings.category_id, ""); // 직접 선택이면 카테고리 비움
+  assert.equal(ok.value.blocks[0].settings.columns, 4);
+  assert.equal(ok.value.blocks[1].settings.limit, 8);
+  assert.deepEqual(ok.value.blocks[2].settings, { title: "공지사항", count: 5 });
+});
+
 test("순서 바꾸기·망가진 문서 읽기", () => {
   const bs = [newBlock("topbar", "1"), newBlock("topbar", "2"), newBlock("topbar", "3")];
   assert.deepEqual(moveBlock(bs, 0, 1).map((b) => b.id), ["2", "1", "3"]);

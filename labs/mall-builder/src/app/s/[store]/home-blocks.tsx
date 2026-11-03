@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
-import type { BannerSettings, Block, SliderSettings, TopbarSettings } from "@/lib/blocks";
+import {
+  SHOWCASE_SOURCE_LABEL,
+  type BannerSettings, type Block, type HtmlSettings, type NoticeSettings, type ShowcaseSettings, type SliderSettings, type TopbarSettings,
+} from "@/lib/blocks";
 
 // 첫 화면 블록 그리기 — 손님 첫 화면과 운영자 편집기 미리보기가 같이 쓴다. 숨긴 블록은 그리지 않는다.
 // 새 블록 종류를 추가하면 src/lib/blocks.ts(등록표)·block-editor.tsx(편집 칸)와 함께 여기에도 넣는다.
@@ -76,7 +79,22 @@ function Banner({ s }: { s: BannerSettings }) {
   );
 }
 
-export function HomeBlocks({ blocks }: { blocks: Block[] }) {
+/** 편집기 미리보기용 — 서버 데이터가 필요한 블록(쇼윈도·공지)의 자리 표시 */
+function Placeholder({ b }: { b: Block }) {
+  const text =
+    b.type === "showcase"
+      ? (() => { const s = b.settings as ShowcaseSettings; return `${s.title || "상품 쇼윈도"} — ${SHOWCASE_SOURCE_LABEL[s.source]} ${s.limit}개, ${s.columns}열`; })()
+      : `${(b.settings as NoticeSettings).title} — 최근 공지 ${(b.settings as NoticeSettings).count}개`;
+  return (
+    <div className="mx-4 rounded border border-dashed px-4 py-6 text-center text-sm text-gray-500">
+      {text}
+      <p className="mt-1 text-xs">실제 상품·공지는 손님 화면에서 보입니다.</p>
+    </div>
+  );
+}
+
+// html은 readDoc/validateDoc에서 위험 태그를 지운 값만 들어온다(src/lib/sanitize.ts)
+export function HomeBlocks({ blocks, slots }: { blocks: Block[]; slots?: Record<string, ReactNode> }) {
   const shown = blocks.filter((b) => b.visible);
   if (!shown.length) return null;
   return (
@@ -86,6 +104,8 @@ export function HomeBlocks({ blocks }: { blocks: Block[] }) {
           {b.type === "topbar" && <Topbar s={b.settings as TopbarSettings} />}
           {b.type === "slider" && <Slider s={b.settings as SliderSettings} />}
           {b.type === "banner" && <Banner s={b.settings as BannerSettings} />}
+          {b.type === "html" && <div className="mall-html px-4" dangerouslySetInnerHTML={{ __html: (b.settings as HtmlSettings).html }} />}
+          {(b.type === "showcase" || b.type === "notice") && (slots ? slots[b.id] : <Placeholder b={b} />)}
         </section>
       ))}
     </div>

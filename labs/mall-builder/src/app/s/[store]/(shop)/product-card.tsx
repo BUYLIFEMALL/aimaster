@@ -36,10 +36,13 @@ export function ProductCard({ base, product }: { base: string; product: ShopProd
   );
 }
 
-export function ProductGrid({ base, products, empty }: { base: string; products: ShopProduct[]; empty: string }) {
+// 큰 화면 열 수(쇼윈도 블록 설정) — Tailwind가 찾을 수 있게 클래스 이름을 그대로 적는다. 휴대폰은 2열
+const COLS: Record<number, string> = { 2: "md:grid-cols-2", 3: "md:grid-cols-3", 4: "md:grid-cols-4", 5: "md:grid-cols-5" };
+
+export function ProductGrid({ base, products, empty, columns = 4 }: { base: string; products: ShopProduct[]; empty: string; columns?: number }) {
   if (!products.length) return <p className="py-12 text-center text-gray-500">{empty}</p>;
   return (
-    <ul className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 md:grid-cols-4">
+    <ul className={`grid grid-cols-2 gap-x-3 gap-y-6 ${columns > 2 ? "sm:grid-cols-3" : ""} ${COLS[columns] ?? COLS[4]}`}>
       {products.map((p) => (
         <li key={p.id}>
           <ProductCard base={base} product={p} />
