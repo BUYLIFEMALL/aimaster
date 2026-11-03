@@ -1,4 +1,5 @@
-// 키워드 자동 검색의 규칙(브라우저·시험 공용). 쿠팡에는 판매량순 1페이지만 연다.
+// 키워드 자동 검색의 규칙(브라우저·시험 공용). 쿠팡은 판매량순, 네이버 쇼핑은 랭킹순 1페이지만 연다.
+import { isNaverSearchUrl, naverSearchUrl } from "./naver.js";
 
 export const MAX_KEYWORDS = 10;
 export const DAILY_LIMIT = 30;
@@ -18,7 +19,18 @@ export function parseKeywords(text) {
   return list.slice(0, MAX_KEYWORDS);
 }
 
-export function searchUrl(keyword) {
+/** 자동 검색이 쓰는 마켓. 마켓 값이 없으면 쿠팡(예전 저장분·예약). */
+export const MARKETS = {
+  coupang: { name: "쿠팡", tabPattern: "https://www.coupang.com/*" },
+  naver: { name: "네이버 쇼핑", tabPattern: "https://search.shopping.naver.com/*" },
+};
+
+export function marketOf(value) {
+  return value === "naver" ? "naver" : "coupang";
+}
+
+export function searchUrl(keyword, market = "coupang") {
+  if (marketOf(market) === "naver") return naverSearchUrl(keyword);
   return `https://www.coupang.com/np/search?q=${encodeURIComponent(keyword)}&sorter=saleCountDesc`;
 }
 
@@ -36,7 +48,7 @@ export function todayRecord(stored, now = Date.now()) {
 /** 시작해도 되는지. 막히면 이유 문장을 돌려준다. */
 export function startProblem(keywords, record) {
   if (!keywords.length) return "검색할 키워드를 한 줄에 하나씩 넣어 주세요.";
-  if (record.stopped) return "⛔ 오늘 쿠팡 확인 화면이나 「검색결과 없음」이 나와 자동 검색을 멈췄습니다. 내일 다시 써 주세요.";
+  if (record.stopped) return "⛔ 오늘 쇼핑몰 확인 화면이나 「검색결과 없음」이 나와 자동 검색을 멈췄습니다. 내일 다시 써 주세요.";
   const left = DAILY_LIMIT - record.count;
   if (left <= 0) return `오늘 자동 검색 상한(${DAILY_LIMIT}개)을 다 썼습니다. 내일 다시 써 주세요.`;
   if (keywords.length > left) return `오늘 남은 자동 검색은 ${left}개입니다. 키워드를 ${left}개 이하로 줄여 주세요.`;
@@ -67,19 +79,22 @@ export function nextScheduleAt(time, { now = Date.now(), lastRunDay = null, catc
   return new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1, hour, minute).getTime();
 }
 
-/** 쿠팡이 거부하는 징후. 하나라도 보이면 자동 검색과 매일 예약을 일시정지한다. */
+/** 쇼핑몰이 거부하는 징후. 하나라도 보이면 자동 검색과 매일 예약(두 마켓 모두)을 일시정지한다. */
 export const SAFETY_TEXT = {
-  blocked: "쿠팡이 사람인지 확인하는 화면을 띄웠습니다",
-  "no-result": "상품이 있을 검색어인데 「검색결과 없음」이 나왔습니다",
-  redirect: "검색 화면이 아닌 다른 화면으로 넘어갔습니다",
-  "load-fail": "쿠팡 화면이 30초 안에 열리지 않았습니다",
-  unknown: "화면에 상품이 하나도 보이지 않았습니다",
+  blocked: (name) => `${name}이 사람인지 확인하는 화면을 띄웠습니다`,
+  "no-result": () => "상품이 있을 검색어인데 「검색결과 없음」이 나왔습니다",
+  redirect: () => "검색 화면이 아닌 다른 화면으로 넘어갔습니다",
+  "load-fail": (name) => `${name} 화면이 30초 안에 열리지 않았습니다`,
+  unknown: () => "화면에 상품이 하나도 보이지 않았습니다",
 };
 
-export function isSearchUrl(url) {
+export function isSearchUrl(url, market = "coupang") {
+  if (marketOf(market) === "naver") return isNaverSearchUrl(url);
   return /^https:\/\/www\.coupang\.com\/np\/search\?/.test(String(url ?? ""));
 }
 
-export function safetyMessage(reason, keyword) {
-  return `⛔ 「${keyword}」 검색 중 ${SAFETY_TEXT[reason] ?? "이상한 화면이 나왔습니다"}. 쿠팡이 접속을 거부하는 징후일 수 있어 자동 검색과 매일 예약을 일시정지했습니다.`;
+export function safetyMessage(reason, keyword, market = "coupang") {
+  const name = MARKETS[marketOf(market)].name;
+  const what = SAFETY_TEXT[reason]?.(name) ?? "이상한 화면이 나왔습니다";
+  return `⛔ ${name} 「${keyword}」 검색 중 ${what}. ${name}이 접속을 거부하는 징후일 수 있어 자동 검색과 매일 예약을 일시정지했습니다.`;
 }

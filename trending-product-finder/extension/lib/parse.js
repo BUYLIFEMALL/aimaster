@@ -35,26 +35,36 @@ export function pageState({ cardCount, title, text }) {
   return "unknown";
 }
 
-/** 같은 상품번호는 처음 본 것을 남기고, 리뷰 수는 큰 값을 쓴다. */
+/** 같은 마켓의 같은 상품번호는 처음 본 것을 남기고, 리뷰·구매 수는 큰 값을 쓴다. 마켓이 없으면 쿠팡(예전 저장분). */
 export function mergeProducts(existing, incoming) {
   const byId = new Map();
   for (const item of [...existing, ...incoming]) {
     if (!item.id) continue;
-    const seen = byId.get(item.id);
-    if (!seen) byId.set(item.id, { ...item });
+    const key = `${item.market ?? "coupang"}:${item.id}`;
+    const seen = byId.get(key);
+    if (!seen) byId.set(key, { ...item });
     else {
       seen.reviews = Math.max(seen.reviews, item.reviews);
+      if (item.purchases != null) seen.purchases = Math.max(seen.purchases ?? 0, item.purchases);
       seen.isAd = seen.isAd && item.isAd;
     }
   }
   return [...byId.values()];
 }
 
-/** 읽은 순서를 순위로 붙여 지킨다. 판매량순 화면을 읽었다면 이 순위가 쿠팡의 판매량 순위다. */
-export function filterProducts(items, { minReviews, excludeAds }) {
+/** 읽은 순서를 순위로 붙여 지킨다. 판매량순(쿠팡)·랭킹순(네이버) 화면을 읽었다면 이 순위가 그 마켓의 순위다. */
+export function filterProducts(items, { minReviews, excludeAds, minPurchases = 0 }) {
   return items
     .map((item, index) => ({ ...item, rank: index + 1 }))
-    .filter((item) => item.reviews >= minReviews && !(excludeAds && item.isAd));
+    .filter((item) => item.reviews >= minReviews && (item.purchases ?? 0) >= minPurchases && !(excludeAds && item.isAd));
+}
+
+export const MARKET_NAME = { coupang: "쿠팡", naver: "네이버쇼핑" };
+
+/** 판매처 칸: 가격비교 상품은 「가격비교 N곳」, 그 밖은 판매처 이름. */
+export function sellerText(item) {
+  if (item.market !== "naver") return "";
+  return item.sellers > 0 ? `가격비교 ${item.sellers}곳` : item.mall ?? "";
 }
 
 /** 엑셀이 수식으로 실행하지 않도록 위험한 첫 글자를 막고 따옴표로 감싼다. */
@@ -67,9 +77,13 @@ function csvCell(value) {
 export function toCsv(items) {
   // 확장 목록에는 읽은 순서(판매 순위)가 있고, 사이트 저장분에는 아직 없다.
   const withRank = items.some((item) => item.rank != null);
-  const head = ["상품명", "판매가", "리뷰 수", "광고", "상품 주소"];
+  // 네이버 쇼핑 상품이 있으면 마켓·구매 수·판매처 칸을 더한다(쿠팡만이면 예전 모양 그대로).
+  const withNaver = items.some((item) => item.market === "naver");
+  const head = withNaver ? ["마켓", "상품명", "판매가", "리뷰 수", "구매 수", "판매처", "광고", "상품 주소"] : ["상품명", "판매가", "리뷰 수", "광고", "상품 주소"];
   const rows = items.map((item) => {
-    const row = [item.name, item.price ?? "", item.reviews, item.isAd ? "광고" : "", item.url];
+    const row = withNaver
+      ? [MARKET_NAME[item.market ?? "coupang"], item.name, item.price ?? "", item.reviews, item.market === "naver" ? item.purchases ?? 0 : "", sellerText(item), item.isAd ? "광고" : "", item.url]
+      : [item.name, item.price ?? "", item.reviews, item.isAd ? "광고" : "", item.url];
     return withRank ? [item.rank ?? "", ...row] : row;
   });
   return "﻿" + [withRank ? ["순위", ...head] : head, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");

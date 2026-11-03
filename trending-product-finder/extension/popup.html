@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>쿠팡 상품소싱기</title>
+<title>상품소싱기</title>
 <style>
   body { width: 460px; margin: 0; padding: 14px; font: 13px/1.5 "Malgun Gothic", sans-serif; color: #e5e7eb; background: #0f1115; }
   h1 { margin: 0 0 2px; font-size: 15px; }
@@ -27,15 +27,15 @@
 </head>
 <body>
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-    <h1>🛒 쿠팡 상품소싱기</h1>
+    <h1>🛒 상품소싱기</h1>
     <span id="version" title="설치된 확장 버전" style="padding:3px 10px;border-radius:999px;background:#2563eb;color:#fff;font-weight:800;font-size:13px"></span>
   </div>
-  <div class="muted">상품소싱 자동화 · 직접 읽기 또는 키워드 자동 검색</div>
-  <div class="muted">판매량순으로 정렬한 화면을 읽으면 많이 팔리는 상품 가운데 리뷰가 쌓인 상품을 찾습니다.</div>
+  <div class="muted">상품소싱 자동화 · 쿠팡 상품소싱기 · 스마트스토어 상품소싱기(네이버 쇼핑)</div>
+  <div class="muted">쿠팡은 판매량순, 네이버 쇼핑은 랭킹순 화면을 읽어 많이 팔리는 상품 가운데 리뷰·구매가 쌓인 상품을 찾습니다.</div>
 
   <div id="consent" class="box warn" hidden>
     <b>⚠️ 사용 전 확인</b><br>
-    이 기능은 쿠팡 약관 위반·계정 제재·법적 책임의 소지가 있으며, 사용 책임은 회원 본인에게 있습니다. 판매자 계정과 같은 브라우저에서 쓰면 그 계정에 영향이 갈 수 있습니다.
+    이 기능은 쿠팡·네이버 약관 위반, 계정 제재·이용 정지, 법적 책임의 소지가 있으며, 사용 책임은 회원 본인에게 있습니다. 판매자 계정이나 네이버 계정에 로그인한 브라우저에서 쓰면 그 계정에 영향이 갈 수 있습니다.
     <div class="row"><label><input type="checkbox" id="agree"> 내용을 확인했고 본인 책임으로 사용합니다</label></div>
   </div>
 
@@ -44,8 +44,8 @@
       <b style="font-size:14px">⛔ 자동 검색·매일 예약 일시정지 중</b>
       <div id="safetyText" style="margin-top:4px"></div>
       <ul style="margin:6px 0 0;padding-left:18px;font-size:12px">
-        <li>오늘은 쿠팡 읽기를 쉬어 주세요. 같은 날 다시 시도하면 제재 위험이 커집니다.</li>
-        <li>내일 쿠팡에서 직접 검색해 보고 화면이 정상으로 나오는지 확인하세요.</li>
+        <li>오늘은 쇼핑몰 읽기를 쉬어 주세요. 같은 날 다시 시도하면 제재 위험이 커집니다.</li>
+        <li>내일 그 쇼핑몰에서 직접 검색해 보고 화면이 정상으로 나오는지 확인하세요.</li>
         <li>확인 화면(사람 확인)이 나오면 직접 풀어 주고, 우회 프로그램은 쓰지 마세요.</li>
       </ul>
       <div class="row"><button id="safetyResume">확인했고 다시 사용</button></div>
@@ -58,7 +58,7 @@
         <label><input type="radio" name="min" value="2"> 2개 이상</label>
         <label><input type="radio" name="min" value="custom"> 직접 <input type="number" id="custom" min="0" value="10"> 개</label>
       </div>
-      <div style="margin-top:6px"><label><input type="checkbox" id="excludeAds"> 광고 상품 빼기</label></div>
+      <div style="margin-top:6px"><label><input type="checkbox" id="excludeAds"> 광고 상품 빼기</label> <label>구매 <input type="number" id="minPurchases" min="0" value="0"> 개 이상(네이버만)</label></div>
       <div class="row">
         <button id="read" class="primary">이 페이지 읽어 담기</button>
         <button id="csv">CSV 저장</button>
@@ -67,9 +67,13 @@
     </div>
     <div class="box">
       <b>🔁 키워드 자동 검색</b>
-      <div class="muted">적어 둔 키워드를 하나씩 쿠팡 판매량순으로 검색해 1페이지만 읽고 담습니다. 키워드 사이 3~5분 쉬고, 한 번에 최대 10개·하루 최대 30개입니다. 이 창은 닫아도 되지만 <b>PC와 크롬은 켜 두세요</b>(끄면 멈춥니다). 결과는 내 계정에 저장되어 휴대폰으로도 볼 수 있습니다.</div>
+      <div class="row" style="margin-top:4px;align-items:center"><b style="font-size:12px">마켓</b>
+        <label><input type="radio" name="market" value="coupang" checked> 쿠팡(판매량순)</label>
+        <label><input type="radio" name="market" value="naver"> 네이버 쇼핑(랭킹순)</label>
+      </div>
+      <div class="muted">적어 둔 키워드를 하나씩 고른 마켓에서 검색해 1페이지만 읽고 담습니다. 키워드 사이 3~5분 쉬고, 한 번에 최대 10개·하루 최대 30개(두 마켓 합계)입니다. 이 창은 닫아도 되지만 <b>PC와 크롬은 켜 두세요</b>(끄면 멈춥니다). 결과는 내 계정에 저장되어 휴대폰으로도 볼 수 있습니다.</div>
       <textarea id="keywords" rows="4" style="width:100%;box-sizing:border-box;margin-top:6px;background:#0f1115;color:#e5e7eb;border:1px solid #2a2f3a;border-radius:6px;padding:6px;font:inherit"></textarea>
-      <div class="warn box" style="margin-top:6px">자동 검색은 쿠팡에 여러 번 접속하므로 직접 읽을 때보다 제재 위험이 큽니다. 쿠팡 확인 화면이나 「검색결과 없음」이 나오면 그날은 자동으로 멈춥니다. 우회는 하지 않으며 사용 책임은 회원 본인에게 있습니다.
+      <div class="warn box" style="margin-top:6px">자동 검색은 쇼핑몰에 여러 번 접속하므로 직접 읽을 때보다 제재 위험이 큽니다. 확인 화면이나 「검색결과 없음」이 나오면 그날은 두 마켓 모두 자동으로 멈춥니다. 네이버 쇼핑은 네이버에 로그아웃한 브라우저에서 쓰기를 권합니다. 우회는 하지 않으며 사용 책임은 회원 본인에게 있습니다.
         <div class="row" style="margin-top:6px"><label><input type="checkbox" id="autoAgree"> 확인했고 본인 책임으로 자동 검색을 씁니다</label></div>
       </div>
       <div class="row">
@@ -79,7 +83,7 @@
       <div id="autoStatus" class="muted" style="margin-top:6px;white-space:pre-line"></div>
       <div class="box" style="margin-top:8px">
         <b>⏰ 매일 예약</b>
-        <div class="muted">위 칸의 키워드를 매일 정한 시각에 자동으로 검색합니다. <b>그 시각에 PC와 크롬이 켜져 있어야</b> 돕니다(꺼져 있었으면 같은 날 크롬을 켤 때 한 번 늦게 시작).</div>
+        <div class="muted">위 칸의 키워드를 위에서 고른 마켓으로 매일 정한 시각에 자동으로 검색합니다. <b>그 시각에 PC와 크롬이 켜져 있어야</b> 돕니다(꺼져 있었으면 같은 날 크롬을 켤 때 한 번 늦게 시작).</div>
         <div class="row" style="align-items:center">
           <label><input type="checkbox" id="scheduleOn"> 매일</label>
           <input type="time" id="scheduleTime" value="09:00" style="background:#0f1115;color:#e5e7eb;border:1px solid #2a2f3a;border-radius:4px;padding:2px 4px">
@@ -90,7 +94,7 @@
     </div>
     <div id="status" aria-live="polite"></div>
     <div class="muted" id="summary"></div>
-    <div class="list"><table><thead><tr><th>순위</th><th>상품명</th><th>판매가</th><th>리뷰</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="list"><table><thead><tr><th>순위</th><th>상품명</th><th>판매가</th><th>리뷰</th><th>구매</th></tr></thead><tbody id="rows"></tbody></table></div>
     <div class="muted" style="margin-top:8px">더 많은 상품은 키워드를 바꿔 검색한 뒤 다시 누르거나 키워드 자동 검색을 쓰면 이어서 담깁니다. 읽은 결과는 사이트의 내 계정에 1년 동안 저장됩니다. 이 창의 목록도 이 PC에 1년 보관됩니다.</div>
   </div>
   <script type="module" src="popup.js"></script>

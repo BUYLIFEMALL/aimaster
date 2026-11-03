@@ -1,6 +1,7 @@
 // 키워드 자동 검색. 회원이 팝업에서 「시작」을 누르거나, 회원이 켠 「매일 예약」 시각에만 돈다(PC·크롬이 켜져 있을 때).
-// 쿠팡 탭 하나만 쓰고, 키워드마다 판매량순 1페이지만 열어 읽는다. 차단 우회는 하지 않는다.
-import { isSearchUrl, kstDay, nextGapMinutes, nextScheduleAt, safetyMessage, searchUrl, startProblem, todayRecord, validTime } from "./lib/auto.js";
+// 마켓(쿠팡·네이버 쇼핑) 탭 하나만 쓰고, 키워드마다 1페이지만 열어 읽는다. 차단 우회는 하지 않는다.
+// 하루 상한과 거부 징후 일시정지는 두 마켓이 함께 쓴다(한쪽에서 징후가 보이면 둘 다 쉰다).
+import { MARKETS, isSearchUrl, marketOf, kstDay, nextGapMinutes, nextScheduleAt, safetyMessage, searchUrl, startProblem, todayRecord, validTime } from "./lib/auto.js";
 import { addToLocalList, readTab, saveToAccount } from "./lib/page.js";
 
 const ALARM = "auto-next";
@@ -24,14 +25,16 @@ async function stopJob(message) {
   await setJob({ running: false, nextAt: null, message });
 }
 
-/** 지난번 쿠팡 탭이 있으면 그 탭을, 없으면 지금 창의 쿠팡 탭을, 그것도 없으면 지금 창에 새 탭을 쓴다. */
-async function coupangTab(job, url) {
+/** 지난번 그 마켓 탭이 있으면 그 탭을, 없으면 지금 창의 그 마켓 탭을, 그것도 없으면 지금 창에 새 탭을 쓴다. */
+async function marketTab(job, url) {
+  const pattern = MARKETS[job.market].tabPattern;
+  const prefix = pattern.slice(0, -1);
   if (job.tabId != null) {
     const tab = await chrome.tabs.get(job.tabId).catch(() => null);
-    if (tab) return chrome.tabs.update(tab.id, { url });
+    if (tab && String(tab.url ?? "").startsWith(prefix)) return chrome.tabs.update(tab.id, { url });
   }
   const win = await chrome.windows.getLastFocused().catch(() => null);
-  const [existing] = await chrome.tabs.query({ url: "https://www.coupang.com/*", ...(win ? { windowId: win.id } : {}) });
+  const [existing] = await chrome.tabs.query({ url: pattern, ...(win ? { windowId: win.id } : {}) });
   if (existing) return chrome.tabs.update(existing.id, { url });
   return chrome.tabs.create({ url, active: false, ...(win ? { windowId: win.id } : {}) });
 }
@@ -57,18 +60,18 @@ async function countToday() {
   await chrome.storage.local.set({ autoDaily: { ...record, count: record.count + 1 } });
 }
 
-/** 쿠팡 거부 징후: 오늘 멈춤 + 회원이 다시 켤 때까지 자동 검색·예약 일시정지 + 아이콘 「!」 + 컴퓨터 알림. */
-async function pauseForSafety(reason, keyword) {
-  const message = safetyMessage(reason, keyword);
+/** 쇼핑몰 거부 징후: 오늘 멈춤 + 회원이 다시 켤 때까지 자동 검색·예약 일시정지 + 아이콘 「!」 + 컴퓨터 알림. */
+async function pauseForSafety(reason, keyword, market = "coupang") {
+  const message = safetyMessage(reason, keyword, market);
   const { autoDaily } = await chrome.storage.local.get("autoDaily");
-  await chrome.storage.local.set({ autoDaily: { ...todayRecord(autoDaily), stopped: true }, autoSafety: { reason, keyword, at: Date.now(), message } });
+  await chrome.storage.local.set({ autoDaily: { ...todayRecord(autoDaily), stopped: true }, autoSafety: { reason, keyword, market, at: Date.now(), message } });
   await stopJob(message);
   await chrome.alarms.clear(SCHEDULE_ALARM);
   await showSafetyBadge(true);
   chrome.notifications.create("coupang-safety", {
     type: "basic",
     iconUrl: "icons/icon128.png",
-    title: "쿠팡 상품소싱기 — 자동 검색 일시정지",
+    title: `${MARKETS[marketOf(market)].name} 상품소싱기 — 자동 검색 일시정지`,
     message: `${message} 오늘은 쉬고, 확장 창을 열어 안내를 확인해 주세요.`,
     priority: 2,
   });
@@ -84,11 +87,12 @@ async function step() {
   const job = await getJob();
   if (!job?.running) return;
   const keyword = job.keywords[job.index];
+  const market = marketOf(job.market);
   if (keyword == null) return stopJob(`✅ 키워드 ${job.keywords.length}개를 모두 읽었습니다.`);
 
   await setJob({ message: `「${keyword}」 검색 화면을 여는 중… (${job.index + 1}/${job.keywords.length})`, nextAt: null });
-  const tab = await coupangTab(job, searchUrl(keyword)).catch(() => null);
-  if (!tab) return stopJob("쿠팡 탭을 열지 못했습니다. 브라우저 창을 하나 연 뒤 다시 시작해 주세요.");
+  const tab = await marketTab({ ...job, market }, searchUrl(keyword, market)).catch(() => null);
+  if (!tab) return stopJob(`${MARKETS[market].name} 탭을 열지 못했습니다. 브라우저 창을 하나 연 뒤 다시 시작해 주세요.`);
   await setJob({ tabId: tab.id });
   const loaded = await waitForLoad(tab.id);
   // 뒤에 있는 탭은 상품 목록을 늦게 그린다(2026-11-03 실측: 다 읽힌 뒤 2.5초엔 0개, 잠시 뒤 60개).
@@ -96,18 +100,18 @@ async function step() {
   for (let tries = 0; loaded && tries < READ_TRIES; tries++) {
     await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
     if (!(await getJob())?.running) return; // 기다리는 사이 회원이 멈춤
-    read = await readTab(tab.id);
+    read = await readTab(tab.id, market);
     if (read && read.state !== "unknown") break;
   }
   await countToday();
   const after = await chrome.tabs.get(tab.id).catch(() => null);
-  if (after && !isSearchUrl(after.url)) return pauseForSafety("redirect", keyword);
-  if (!loaded) return pauseForSafety("load-fail", keyword);
-  if (!read) return stopJob(`「${keyword}」 화면을 읽지 못해 멈췄습니다. 쿠팡 탭을 확인한 뒤 다시 시작해 주세요.`);
-  if (read.state !== "ok") return pauseForSafety(read.state, keyword);
+  if (after && !isSearchUrl(after.url, market)) return pauseForSafety("redirect", keyword, market);
+  if (!loaded) return pauseForSafety("load-fail", keyword, market);
+  if (!read) return stopJob(`「${keyword}」 화면을 읽지 못해 멈췄습니다. ${MARKETS[market].name} 탭을 확인한 뒤 다시 시작해 주세요.`);
+  if (read.state !== "ok") return pauseForSafety(read.state, keyword, market);
 
   const added = await addToLocalList(read.products);
-  const saved = await saveToAccount(keyword, read.products);
+  const saved = await saveToAccount(keyword, read.products, market);
   const results = [...(job.results ?? []), { keyword, count: read.products.length, added, saved }];
   const index = job.index + 1;
   if (index >= job.keywords.length) {
@@ -124,16 +128,16 @@ async function step() {
   });
 }
 
-async function start(keywords, label = "") {
+async function start(keywords, label = "", market = "coupang") {
   const { autoDaily } = await chrome.storage.local.get("autoDaily");
   const problem = startProblem(keywords, todayRecord(autoDaily));
   if (problem) return { ok: false, error: problem };
   const { autoSafety } = await chrome.storage.local.get("autoSafety");
-  if (autoSafety) return { ok: false, error: "⛔ 쿠팡 거부 징후로 일시정지 중입니다. 확장 창의 안내를 읽고 「확인했고 다시 사용」을 먼저 눌러 주세요." };
+  if (autoSafety) return { ok: false, error: "⛔ 쇼핑몰 거부 징후로 일시정지 중입니다. 확장 창의 안내를 읽고 「확인했고 다시 사용」을 먼저 눌러 주세요." };
   if ((await getJob())?.running) return { ok: false, error: "이미 자동 검색이 진행 중입니다." };
   const previous = await getJob();
   await chrome.storage.local.set({
-    autoJob: { keywords, index: 0, tabId: previous?.tabId ?? null, running: true, results: [], nextAt: null, message: `${label}시작합니다…` },
+    autoJob: { keywords, market: marketOf(market), index: 0, tabId: previous?.tabId ?? null, running: true, results: [], nextAt: null, message: `${label}${MARKETS[marketOf(market)].name} 자동 검색을 시작합니다…` },
   });
   step();
   return { ok: true };
@@ -155,18 +159,18 @@ async function runSchedule() {
   const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
   if (!autoSchedule?.enabled) return;
   await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, lastRunDay: kstDay() } });
-  const reply = await start(autoSchedule.keywords ?? [], "⏰ 매일 예약 — ");
+  const reply = await start(autoSchedule.keywords ?? [], "⏰ 매일 예약 — ", autoSchedule.market);
   if (!reply.ok && !(await getJob())?.running) await setJob({ running: false, nextAt: null, message: `⏰ 매일 예약을 시작하지 못했습니다: ${reply.error}` });
   await armSchedule(false);
 }
 
-async function saveSchedule({ enabled, time, keywords }) {
+async function saveSchedule({ enabled, time, keywords, market }) {
   if (enabled) {
     if (!validTime(time)) return { ok: false, error: "예약 시각을 다시 골라 주세요." };
     if (!keywords?.length) return { ok: false, error: "예약할 키워드를 한 줄에 하나씩 넣어 주세요." };
   }
   const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
-  await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, enabled: Boolean(enabled), time, keywords: keywords ?? [] } });
+  await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, enabled: Boolean(enabled), time, keywords: keywords ?? [], market: marketOf(market) } });
   return { ok: true, nextAt: await armSchedule(false) };
 }
 
@@ -186,7 +190,7 @@ chrome.runtime.onInstalled.addListener(() => restoreBadge().then(() => armSchedu
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
   if (sender.id !== chrome.runtime.id) return;
   if (message?.type === "auto-start") {
-    start(message.keywords).then(reply);
+    start(message.keywords, "", message.market).then(reply);
     return true;
   }
   if (message?.type === "schedule-save") {
@@ -194,7 +198,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     return true;
   }
   if (message?.type === "safety-pause") {
-    pauseForSafety(message.reason, message.keyword).then(() => reply({ ok: true }));
+    pauseForSafety(message.reason, message.keyword, message.market).then(() => reply({ ok: true }));
     return true;
   }
   if (message?.type === "safety-resume") {

@@ -2,24 +2,28 @@
 
 import { useMemo, useState } from "react";
 import { deleteReviewRunAction, getReviewItemsAction, renameReviewRunAction, type ReviewItem, type ReviewRun } from "@/lib/actions/coupangResults";
-import { toCsv } from "@/extension/lib/parse.js";
+import { sellerText, toCsv } from "@/extension/lib/parse.js";
+import { MARKET_LABEL, type SourcingMarket } from "@/lib/coupangResults";
 
 const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "medium", timeStyle: "short" });
 const runTitle = (run: ReviewRun) => run.label || run.keyword || "키워드 없음";
 
-export function ReviewResults({ initialRuns }: { initialRuns: ReviewRun[] }) {
+export function ReviewResults({ initialRuns, market = "coupang" }: { initialRuns: ReviewRun[]; market?: SourcingMarket }) {
+  const naver = market === "naver";
+  const label = MARKET_LABEL[market];
   const [runs, setRuns] = useState(initialRuns);
   const [selected, setSelected] = useState<ReviewRun | null>(null);
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [minReviews, setMinReviews] = useState(1);
   const [excludeAds, setExcludeAds] = useState(false);
+  const [minPurchases, setMinPurchases] = useState(0);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const shown = useMemo(
-    () => items.filter((item) => item.reviews >= minReviews && !(excludeAds && item.is_ad)),
-    [items, minReviews, excludeAds],
+    () => items.filter((item) => item.reviews >= minReviews && (item.purchases ?? 0) >= minPurchases && !(excludeAds && item.is_ad)),
+    [items, minReviews, minPurchases, excludeAds],
   );
 
   async function open(run: ReviewRun) {
@@ -51,23 +55,23 @@ export function ReviewResults({ initialRuns }: { initialRuns: ReviewRun[] }) {
   }
 
   function download() {
-    const csv = toCsv(shown.map((item) => ({ rank: item.sales_rank ?? undefined, name: item.name, price: item.price, reviews: item.reviews, isAd: item.is_ad, url: item.url })));
+    const csv = toCsv(shown.map((item) => ({ market, rank: item.sales_rank ?? undefined, name: item.name, price: item.price, reviews: item.reviews, purchases: item.purchases ?? 0, sellers: item.sellers ?? 0, mall: item.mall_name ?? "", isAd: item.is_ad, url: item.url })));
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const link = document.createElement("a");
     link.href = url;
-    link.download = `쿠팡_리뷰거르기_${selected ? runTitle(selected) : "결과"}.csv`;
+    link.download = `${label}_상품소싱_${selected ? runTitle(selected) : "결과"}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   }
 
   return (
     <section className="mx-card p-5">
-      <h2 className="text-sm font-bold text-mx-text">🗂 내 검색 기록</h2>
+      <h2 className="text-sm font-bold text-mx-text">🗂 내 {label} 검색 기록</h2>
       <p className="mt-1 text-xs text-mx-muted">내 계정에만 보이고 어느 PC에서든 볼 수 있습니다. 저장한 날부터 1년 뒤 자동으로 지워집니다.</p>
       {message && <p className="mt-2 text-xs text-[#fca5a5]">{message}</p>}
 
       {!runs.length ? (
-        <p className="mt-4 text-sm text-mx-muted">아직 저장된 기록이 없습니다. 확장을 연결한 뒤 쿠팡 검색 화면에서 「이 페이지 읽어 담기」를 눌러 보세요.</p>
+        <p className="mt-4 text-sm text-mx-muted">아직 저장된 기록이 없습니다. 확장을 연결한 뒤 {naver ? "네이버 쇼핑" : "쿠팡"} 검색 화면에서 「이 페이지 읽어 담기」를 누르거나 키워드 자동 검색을 써 보세요.</p>
       ) : (
         <div className="mt-3 grid gap-4 lg:grid-cols-[280px_1fr]">
           <ul className="max-h-[480px] space-y-2 overflow-y-auto">
@@ -110,6 +114,13 @@ export function ReviewResults({ initialRuns }: { initialRuns: ReviewRun[] }) {
                     <input type="number" min={0} value={minReviews} onChange={(event) => setMinReviews(Math.max(0, Number(event.target.value) || 0))} className="w-16 rounded border border-mx-border bg-transparent px-1 py-1 text-mx-text" />
                     개 이상
                   </label>
+                  {naver && (
+                    <label className="flex items-center gap-1 whitespace-nowrap text-xs text-mx-text">
+                      구매
+                      <input type="number" min={0} value={minPurchases} onChange={(event) => setMinPurchases(Math.max(0, Number(event.target.value) || 0))} className="w-16 rounded border border-mx-border bg-transparent px-1 py-1 text-mx-text" />
+                      개 이상
+                    </label>
+                  )}
                   <label className="flex items-center gap-1 whitespace-nowrap text-xs text-mx-text">
                     <input type="checkbox" checked={excludeAds} onChange={(event) => setExcludeAds(event.target.checked)} /> 광고 빼기
                   </label>
@@ -118,14 +129,15 @@ export function ReviewResults({ initialRuns }: { initialRuns: ReviewRun[] }) {
                 <p className="mt-2 text-xs text-mx-muted">{loading ? "불러오는 중…" : `${items.length}개 중 ${shown.length}개`}</p>
                 <div className="mt-2 overflow-x-auto">
                   <table className="w-full min-w-[480px] text-left text-xs text-mx-text">
-                    <thead><tr className="border-b border-mx-border text-mx-muted"><th className="whitespace-nowrap py-2 pr-2 text-right">순위</th><th className="py-2 pr-2">상품명</th><th className="whitespace-nowrap py-2 pr-2 text-right">판매가</th><th className="whitespace-nowrap py-2 text-right">리뷰</th></tr></thead>
+                    <thead><tr className="border-b border-mx-border text-mx-muted"><th className="whitespace-nowrap py-2 pr-2 text-right">순위</th><th className="py-2 pr-2">상품명</th><th className="whitespace-nowrap py-2 pr-2 text-right">판매가</th><th className="whitespace-nowrap py-2 text-right">리뷰</th>{naver && <th className="whitespace-nowrap py-2 pl-2 text-right">구매</th>}</tr></thead>
                     <tbody>
                       {shown.map((item) => (
                         <tr key={item.product_id} className="border-b border-mx-border/60">
                           <td className="whitespace-nowrap py-2 pr-2 text-right text-mx-muted">{item.sales_rank ?? "-"}</td>
-                          <td className="py-2 pr-2"><a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#93c5fd] hover:underline">{item.is_ad ? `[광고] ${item.name}` : item.name}</a></td>
+                          <td className="py-2 pr-2"><a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#93c5fd] hover:underline">{item.is_ad ? `[광고] ${item.name}` : item.name}</a>{naver && <span className="block text-[11px] text-mx-muted">{sellerText({ market, sellers: item.sellers ?? 0, mall: item.mall_name ?? "" })}</span>}</td>
                           <td className="whitespace-nowrap py-2 pr-2 text-right">{item.price == null ? "-" : `${item.price.toLocaleString("ko-KR")}원`}</td>
                           <td className="whitespace-nowrap py-2 text-right">{item.reviews.toLocaleString("ko-KR")}</td>
+                          {naver && <td className="whitespace-nowrap py-2 pl-2 text-right">{(item.purchases ?? 0).toLocaleString("ko-KR")}</td>}
                         </tr>
                       ))}
                     </tbody>

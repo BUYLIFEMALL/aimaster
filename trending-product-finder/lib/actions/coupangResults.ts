@@ -6,7 +6,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { hashExtensionToken } from "@/lib/extensionAuth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { resultCutoff } from "@/lib/coupangResults";
+import { resultCutoff, type SourcingMarket } from "@/lib/coupangResults";
 
 // 공용 DB 타입에 없는 표를 쓰므로 from()만 느슨하게 받는다(lib/access.ts와 같은 방식).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,6 +17,7 @@ const AUTO_LABEL = "쿠팡 리뷰 거르기 확장 자동 연결";
 
 export interface ReviewRun {
   id: string;
+  market: SourcingMarket;
   keyword: string;
   label: string | null;
   item_count: number;
@@ -31,15 +32,19 @@ export interface ReviewItem {
   is_ad: boolean;
   url: string;
   sales_rank: number | null;
+  purchases: number | null;
+  sellers: number | null;
+  mall_name: string | null;
 }
 
-export async function listReviewRunsAction(): Promise<{ runs: ReviewRun[]; error?: string }> {
+export async function listReviewRunsAction(market: SourcingMarket = "coupang"): Promise<{ runs: ReviewRun[]; error?: string }> {
   const user = await requireProgramAccess();
   const supabase = (await createClient()) as unknown as SupabaseLike;
   const { data, error } = await supabase
     .from("coupang_review_runs")
-    .select("id, keyword, label, item_count, created_at")
+    .select("id, market, keyword, label, item_count, created_at")
     .eq("user_id", user.id)
+    .eq("market", market)
     .gte("created_at", resultCutoff())
     .order("created_at", { ascending: false })
     .limit(300);
@@ -51,7 +56,7 @@ export async function getReviewItemsAction(runId: string): Promise<{ items: Revi
   const supabase = (await createClient()) as unknown as SupabaseLike;
   const { data, error } = await supabase
     .from("coupang_review_items")
-    .select("product_id, name, price, reviews, is_ad, url, sales_rank")
+    .select("product_id, name, price, reviews, is_ad, url, sales_rank, purchases, sellers, mall_name")
     .eq("user_id", user.id)
     .eq("run_id", runId)
     // 판매 순위 순서로. 순위가 없는 예전 기록(2026-11-03 이전)은 리뷰 많은 순
@@ -70,6 +75,7 @@ export async function renameReviewRunAction(runId: string, label: string): Promi
     .eq("id", runId)
     .eq("user_id", user.id);
   revalidatePath("/coupang-reviews");
+  revalidatePath("/naver-reviews");
   return error ? { error: "이름을 저장하지 못했습니다." } : {};
 }
 
@@ -78,6 +84,7 @@ export async function deleteReviewRunAction(runId: string): Promise<{ error?: st
   const supabase = (await createClient()) as unknown as SupabaseLike;
   const { error } = await supabase.from("coupang_review_runs").delete().eq("id", runId).eq("user_id", user.id);
   revalidatePath("/coupang-reviews");
+  revalidatePath("/naver-reviews");
   return error ? { error: "삭제하지 못했습니다." } : {};
 }
 
