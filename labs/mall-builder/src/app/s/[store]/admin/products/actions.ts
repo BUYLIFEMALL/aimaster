@@ -3,13 +3,14 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { parseGradePrice, validateProduct, type ProductErrors } from "@/lib/products";
+import { MAX_TIERS, parseGradePrice, parseTiers, validateProduct, type ProductErrors } from "@/lib/products";
 
 export type ProductFormState = {
   saved: boolean;
   error: string | null;
   errors: ProductErrors;
   gradeError?: string;
+  tierError?: string;
   /** 제출한 값 — 오류 때 폼이 처음 값으로 되돌아가지 않게 다시 채운다 */
   values?: Record<string, unknown>;
 };
@@ -41,6 +42,10 @@ export async function saveProductAction(
     if (!parsed.ok) return { saved: false, error: "입력값을 확인해 주세요.", errors: {}, gradeError: parsed.error, values: raw };
     gradePrices.push({ grade_id: m[1], value: parsed.value });
   }
+
+  // 수량 구간 할인 칸: tier_min_<n>, tier_value_<n>
+  const tiers = parseTiers(Array.from({ length: MAX_TIERS }, (_, i) => ({ min_qty: raw[`tier_min_${i}`], value: raw[`tier_value_${i}`] })));
+  if (!tiers.ok) return { saved: false, error: "입력값을 확인해 주세요.", errors: {}, tierError: tiers.error, values: raw };
   const { cost, category_ids, ...product } = checked.value;
 
   let id = productId;
@@ -80,6 +85,15 @@ export async function saveProductAction(
   }
   const clear = gradePrices.filter((g) => !g.value).map((g) => g.grade_id);
   if (clear.length) await supabase.from("mall_builder_product_grade_prices").delete().eq("product_id", id).in("grade_id", clear);
+
+  // 구간 할인: 지우고 다시 넣기(같은 몰 상품만 — DB 트리거가 확인)
+  await supabase.from("mall_builder_product_volume_tiers").delete().eq("product_id", id).eq("store_id", store.id);
+  if (tiers.value.length) {
+    const { error: tierError } = await supabase
+      .from("mall_builder_product_volume_tiers")
+      .insert(tiers.value.map((t) => ({ ...t, store_id: store.id, product_id: id })));
+    if (tierError) return { saved: false, error: tierError.message, errors: {}, values: raw };
+  }
 
   revalidatePath(`/s/${slug}`, "layout");
   if (!productId) redirect(`/s/${slug}/admin/products/${id}?saved=1`);

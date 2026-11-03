@@ -28,7 +28,43 @@ export type ProductInput = {
   shipping_policy_id: string | null; // 없으면 몰 기본 배송비 정책
   visibility: "public" | "members" | "business_only";
   price_visibility: "all" | "login" | "approved_business";
+  moq: number; // 최소 주문 수량
+  order_unit: number; // 주문 단위
+  max_qty: number | null; // 최대 수량(없으면 제한 없음 — 999)
 };
+
+export const MAX_TIERS = 3;
+
+/** 수량 구간 할인 칸: "5%" → 할인율, "-1000" → 개당 1,000원 할인, "40000" → 개당 가격 지정 */
+export function parseTierValue(input: unknown): { ok: true; value: { discount_type: "rate" | "amount" | "unit_price"; value: number } } | { ok: false; error: string } {
+  const s = String(input ?? "").replace(/[,\s원]/g, "");
+  const rate = s.match(/^(\d{1,2})%$/);
+  if (rate) {
+    const n = Number(rate[1]);
+    if (n < 1 || n > 99) return { ok: false, error: "구간 할인율은 1~99%로 입력해 주세요." };
+    return { ok: true, value: { discount_type: "rate", value: n } };
+  }
+  const minus = s.match(/^-(\d+)$/);
+  if (minus) return Number(minus[1]) > 0 ? { ok: true, value: { discount_type: "amount", value: Number(minus[1]) } } : { ok: false, error: "할인액은 1원 이상으로 입력해 주세요." };
+  if (/^\d+$/.test(s) && Number(s) <= MAX_PRICE) return { ok: true, value: { discount_type: "unit_price", value: Number(s) } };
+  return { ok: false, error: "구간 할인은 5%(할인율)·-1000(개당 할인)·40000(개당 가격)처럼 입력해 주세요." };
+}
+
+/** 구간 행들(최소 수량 + 할인 칸) → 정리된 목록. 빈 행은 건너뛰고, 최소 수량은 2 이상·겹치지 않게 */
+export function parseTiers(rows: { min_qty: unknown; value: unknown }[]): { ok: true; value: { min_qty: number; discount_type: "rate" | "amount" | "unit_price"; value: number }[] } | { ok: false; error: string } {
+  const out: { min_qty: number; discount_type: "rate" | "amount" | "unit_price"; value: number }[] = [];
+  for (const r of rows) {
+    const q = String(r.min_qty ?? "").trim();
+    const val = String(r.value ?? "").trim();
+    if (!q && !val) continue;
+    if (!/^\d+$/.test(q) || Number(q) < 2 || Number(q) > 999) return { ok: false, error: "구간 최소 수량은 2~999로 입력해 주세요." };
+    const parsed = parseTierValue(val);
+    if (!parsed.ok) return parsed;
+    if (out.some((t) => t.min_qty === Number(q))) return { ok: false, error: "같은 최소 수량 구간이 두 번 있습니다." };
+    out.push({ min_qty: Number(q), ...parsed.value });
+  }
+  return { ok: true, value: out.sort((a, b) => a.min_qty - b.min_qty) };
+}
 
 export const VISIBILITY_LABEL = { public: "모두에게 보임", members: "보이지만 로그인해야 구매", business_only: "승인 사업자에게만 보임" } as const;
 export const PRICE_VISIBILITY_LABEL = { all: "모두에게 가격 공개", login: "로그인하면 가격 공개", approved_business: "승인 사업자에게만 가격 공개" } as const;
@@ -138,6 +174,21 @@ export function validateProduct(input: Record<string, unknown>, storeId?: string
     ? (input.price_visibility as ProductInput["price_visibility"])
     : "all";
 
+  const qtyField = (key: "moq" | "order_unit" | "max_qty", label: string, fallback: number | null) => {
+    const n = parseWon(input[key]);
+    if (n == null) return fallback;
+    if (Number.isNaN(n) || n < 1 || n > 999) {
+      errors[key] = `${label}은(는) 1~999로 입력해 주세요.`;
+      return fallback;
+    }
+    return n;
+  };
+  const moq = qtyField("moq", "최소 주문 수량", 1) as number;
+  const order_unit = qtyField("order_unit", "주문 단위", 1) as number;
+  const max_qty = qtyField("max_qty", "최대 수량", null);
+  if (max_qty != null && max_qty < moq) errors.max_qty = "최대 수량은 최소 주문 수량보다 작을 수 없습니다.";
+  if (order_unit > 1 && moq % order_unit !== 0) errors.moq = "최소 주문 수량은 주문 단위의 배수로 입력해 주세요.";
+
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
@@ -147,6 +198,7 @@ export function validateProduct(input: Record<string, unknown>, storeId?: string
       tax_type, status, stock_mode, stock,
       images: images ?? [], category_ids, shipping_policy_id,
       visibility, price_visibility,
+      moq, order_unit, max_qty,
     },
   };
 }

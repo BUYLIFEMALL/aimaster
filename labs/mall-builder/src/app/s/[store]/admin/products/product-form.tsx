@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { PRICE_VISIBILITY_LABEL, PRODUCT_STATUS, VISIBILITY_LABEL, discountRate, parseWon, type ProductImage } from "@/lib/products";
+import { MAX_TIERS, PRICE_VISIBILITY_LABEL, PRODUCT_STATUS, VISIBILITY_LABEL, discountRate, parseWon, type ProductImage } from "@/lib/products";
 import type { CategoryNode } from "@/lib/categories";
 import { saveProductAction, type ProductFormState } from "./actions";
 import ImageUploader from "./image-uploader";
@@ -23,6 +23,10 @@ export type ProductFormValues = {
   visibility: string;
   price_visibility: string;
   grade_prices: Record<string, string>; // 등급 id → "8000" 또는 "15%"
+  moq: string;
+  order_unit: string;
+  max_qty: string;
+  tiers: { min_qty: string; value: string }[]; // "5%"·"-1500"·"8000"
 };
 
 const initial: ProductFormState = { saved: false, error: null, errors: {} };
@@ -54,6 +58,7 @@ export default function ProductForm({
         ...(state.values as Partial<ProductFormValues>),
         category_ids: (state.values.category_ids as string[]) ?? values.category_ids,
         grade_prices: values.grade_prices,
+        tiers: values.tiers,
       }
     : values;
   const e = state.errors;
@@ -148,6 +153,32 @@ export default function ProductForm({
           </select>
         </label>
         <p className="text-xs text-gray-500 sm:col-span-3">손님 화면에는 「판매 중」과 「품절」 상품만 보입니다. 「준비 중」·「숨김」은 운영자만 봅니다.</p>
+      </fieldset>
+
+      <fieldset className="grid gap-3 rounded-lg border p-4 sm:grid-cols-3" data-quantity-rules>
+        <legend className="px-1 text-sm font-semibold">수량 규칙·수량 할인(B2B)</legend>
+        {field("moq", "최소 주문 수량", { inputMode: "numeric", placeholder: "1" })}
+        {field("order_unit", "주문 단위(묶음)", { inputMode: "numeric", placeholder: "1" })}
+        {field("max_qty", "최대 수량", { inputMode: "numeric", placeholder: "제한 없음" })}
+        <div className="space-y-2 sm:col-span-3">
+          <p className="text-sm">
+            수량 구간 할인{" "}
+            <span className="text-xs text-gray-500">— 「5%」 할인율 · 「-1500」 개당 할인 · 「8000」 개당 가격. 수량에 맞는 가장 큰 구간 하나만, 등급가 다음에 적용</span>
+          </p>
+          {Array.from({ length: MAX_TIERS }, (_, i) => {
+            const t = (state.values
+              ? { min_qty: String(state.values[`tier_min_${i}`] ?? ""), value: String(state.values[`tier_value_${i}`] ?? "") }
+              : v.tiers[i]) ?? { min_qty: "", value: "" };
+            return (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <input name={`tier_min_${i}`} defaultValue={t.min_qty} inputMode="numeric" placeholder="수량" aria-label={`구간 ${i + 1} 최소 수량`} className="w-20 rounded border px-2 py-1.5" />
+                <span>개 이상</span>
+                <input name={`tier_value_${i}`} defaultValue={t.value} placeholder="5% / -1500 / 8000" aria-label={`구간 ${i + 1} 할인`} className="w-40 rounded border px-2 py-1.5" />
+              </div>
+            );
+          })}
+          {state.tierError && <p className="text-xs text-red-600">{state.tierError}</p>}
+        </div>
       </fieldset>
 
       <fieldset className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2">

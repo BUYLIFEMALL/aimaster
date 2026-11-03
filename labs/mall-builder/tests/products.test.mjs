@@ -90,3 +90,28 @@ test("F13 보이기·가격 공개 범위 기본값과 허용값", async () => {
   const x = validateProduct({ ...base, visibility: "hack", price_visibility: "hack" });
   assert.equal(x.ok && x.value.visibility, "public");
 });
+
+test("F14 수량 규칙 칸", async () => {
+  const { validateProduct } = await import("../src/lib/products.ts");
+  const base = { name: "a", base_price: "1000" };
+  const d = validateProduct(base);
+  assert.deepEqual(d.ok && [d.value.moq, d.value.order_unit, d.value.max_qty], [1, 1, null]);
+  const ok = validateProduct({ ...base, moq: "10", order_unit: "5", max_qty: "100" });
+  assert.deepEqual(ok.ok && [ok.value.moq, ok.value.order_unit, ok.value.max_qty], [10, 5, 100]);
+  assert.match(validateProduct({ ...base, moq: "12", order_unit: "5" }).errors.moq, /배수/);
+  assert.match(validateProduct({ ...base, moq: "10", max_qty: "5" }).errors.max_qty, /작을 수 없/);
+  assert.match(validateProduct({ ...base, order_unit: "0" }).errors.order_unit, /1~999/);
+});
+
+test("F14 수량 구간 할인 칸", async () => {
+  const { parseTiers } = await import("../src/lib/products.ts");
+  const r = parseTiers([{ min_qty: "50", value: "-1,500원" }, { min_qty: "", value: "" }, { min_qty: "20", value: "5%" }, { min_qty: "80", value: "8000" }]);
+  assert.deepEqual(r, { ok: true, value: [
+    { min_qty: 20, discount_type: "rate", value: 5 },
+    { min_qty: 50, discount_type: "amount", value: 1500 },
+    { min_qty: 80, discount_type: "unit_price", value: 8000 },
+  ] });
+  assert.match(parseTiers([{ min_qty: "1", value: "5%" }]).error, /2~999/);
+  assert.match(parseTiers([{ min_qty: "10", value: "abc" }]).error, /5%/);
+  assert.match(parseTiers([{ min_qty: "10", value: "5%" }, { min_qty: "10", value: "7%" }]).error, /두 번/);
+});

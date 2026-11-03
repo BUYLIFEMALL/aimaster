@@ -137,3 +137,40 @@ test("문맥이 없으면 예전과 같다(일반 손님·공개 상품)", () =>
   assert.equal(r.priceHidden, false);
   assert.equal(r.unitPrice, 47000);
 });
+
+// F14 — 최소·단위·최대 수량, 수량 구간 할인
+const bulk = { ...plain, base_price: 10000, moq: 10, order_unit: 5, max_qty: 100 };
+const tiers = [
+  { min_qty: 20, discount_type: "rate", value: 5 },
+  { min_qty: 50, discount_type: "amount", value: 1500 },
+  { min_qty: 80, discount_type: "unit_price", value: 8000 },
+];
+
+test("수량 규칙 — 최소·단위·최대", () => {
+  assert.match(priceLine(bulk, null, 5).errors[0], /최소 10개/);
+  assert.match(priceLine(bulk, null, 12).errors[0], /5개 단위/);
+  assert.match(priceLine(bulk, null, 105).errors[0], /최대 100개/);
+  assert.equal(priceLine(bulk, null, 15).orderable, true);
+});
+
+test("수량 구간 할인 — 가장 큰 구간 하나만", () => {
+  assert.equal(priceLine(bulk, null, 15, { tiers }).unitPrice, 10000);
+  const r20 = priceLine(bulk, null, 20, { tiers });
+  assert.equal(r20.unitPrice, 9500);
+  assert.deepEqual(r20.breakdown.at(-1), { label: "수량 할인(20개 이상)", amount: -500 });
+  assert.equal(priceLine(bulk, null, 50, { tiers }).unitPrice, 8500);
+  assert.equal(priceLine(bulk, null, 80, { tiers }).unitPrice, 8000);
+  assert.equal(priceLine(bulk, null, 80, { tiers }).lineTotal, 640000);
+});
+
+test("구간 할인은 등급가 다음에 — 단가 지정은 더 싼 쪽", () => {
+  const ctx = { viewer: "business", gradePrice: { price: null, discount_rate: 10 }, tiers };
+  assert.equal(priceLine(bulk, null, 20, ctx).unitPrice, 8550); // 9000 × 0.95
+  assert.equal(priceLine(bulk, null, 50, ctx).unitPrice, 7500); // 9000 − 1500
+  assert.equal(priceLine(bulk, null, 80, { ...ctx, gradePrice: { price: 7000, discount_rate: null } }).unitPrice, 7000); // 등급가가 더 쌈
+});
+
+test("옵션 추가금과 단가 지정", () => {
+  const opt = { ...withOptions, base_price: 10000, stock_mode: "none" };
+  assert.equal(priceLine(opt, v("블랙", 2000, 0), 80, { tiers }).unitPrice, 10000); // 8000 + 2000
+});

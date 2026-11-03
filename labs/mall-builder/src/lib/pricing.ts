@@ -16,12 +16,18 @@ export type PricingProduct = {
   option_groups: OptionGroup[] | null;
   visibility?: "public" | "members" | "business_only"; // 없으면 공개
   price_visibility?: "all" | "login" | "approved_business"; // 없으면 모두에게 가격 공개
+  moq?: number; // 최소 주문 수량(없으면 1)
+  order_unit?: number; // 주문 단위(없으면 1)
+  max_qty?: number | null; // 최대 수량(없으면 MAX_QTY)
 };
+
+/** 수량 구간 할인 — rate: %, amount: 개당 할인액, unit_price: 개당 가격 지정(옵션 추가금은 더함) */
+export type VolumeTier = { min_qty: number; discount_type: "rate" | "amount" | "unit_price"; value: number };
 
 /** 보는 사람 — 비로그인 / 일반(가입·로그인) / 사업자 승인 대기 / 승인 사업자 */
 export type Viewer = "guest" | "consumer" | "pending" | "business";
 export type GradePrice = { price: number | null; discount_rate: number | null } | null;
-export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string };
+export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string; tiers?: VolumeTier[] };
 
 export type PriceLine = {
   visible: boolean; // false면 목록·상세에 보이지 않는 상품(사업자 전용)
@@ -68,10 +74,22 @@ export function priceLine(product: PricingProduct, variant: Variant | null, qty:
     unitPrice = Math.max(0, Math.floor(graded));
     if (unitPrice !== base) breakdown.push({ label: `등급가${ctx.gradeName ? `(${ctx.gradeName})` : ""}`, amount: unitPrice - base });
   }
+  // 4. 수량 구간 할인 — 수량 이상인 구간 중 가장 큰 구간 하나만, 등급가 다음에
+  const tier = (ctx.tiers ?? []).filter((t) => Number.isInteger(qty) && qty >= t.min_qty).sort((a, b) => b.min_qty - a.min_qty)[0];
+  if (tier) {
+    const before = unitPrice;
+    if (tier.discount_type === "rate") unitPrice = Math.floor((unitPrice * (100 - tier.value)) / 100);
+    else if (tier.discount_type === "amount") unitPrice = Math.max(0, unitPrice - tier.value);
+    else unitPrice = Math.min(unitPrice, tier.value + extra);
+    if (unitPrice !== before) breakdown.push({ label: `수량 할인(${tier.min_qty}개 이상)`, amount: unitPrice - before });
+  }
 
   // 6. 수량·재고
   if (!Number.isInteger(qty) || qty < 1) errors.push("수량은 1개 이상으로 입력해 주세요.");
   else if (qty > MAX_QTY) errors.push(`한 번에 ${MAX_QTY}개까지 주문할 수 있습니다.`);
+  else if (product.moq && qty < product.moq) errors.push(`최소 ${product.moq}개부터 주문할 수 있습니다.`);
+  else if (product.order_unit && product.order_unit > 1 && qty % product.order_unit !== 0) errors.push(`${product.order_unit}개 단위로 주문해 주세요.`);
+  else if (product.max_qty && qty > product.max_qty) errors.push(`최대 ${product.max_qty}개까지 주문할 수 있습니다.`);
   else if (product.stock_mode === "product" && product.status === "on_sale") {
     const available = hasOptions ? variant?.stock ?? null : product.stock;
     if (available != null) {

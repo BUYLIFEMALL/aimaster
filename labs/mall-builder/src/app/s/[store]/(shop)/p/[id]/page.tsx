@@ -58,6 +58,9 @@ export default async function ProductPage({ params }: { params: Promise<{ store:
         status={product.status}
         visibility={product.visibility}
         priceVisibility={product.price_visibility}
+        moq={product.moq}
+        orderUnit={product.order_unit}
+        maxQty={product.max_qty}
         ctx={ctx}
         basePrice={product.base_price}
         listPrice={product.list_price}

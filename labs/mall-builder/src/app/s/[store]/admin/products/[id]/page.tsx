@@ -8,7 +8,9 @@ import {
   getProductVariants,
   getShippingPolicies,
   getStaffStore,
+  getTierMap,
 } from "@/lib/store";
+import type { VolumeTier } from "@/lib/pricing";
 import OptionsEditor from "./options-editor";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { AdminShell, NoPermission } from "../../admin-shell";
@@ -31,13 +33,15 @@ export default async function EditProductPage({
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const product = await getProductForEdit(store.id, id);
   if (!product) notFound();
-  const [categoryRows, variants, shippingPolicies, grades, gradePrices] = await Promise.all([
+  const [categoryRows, variants, shippingPolicies, grades, gradePrices, tierMap] = await Promise.all([
     getCategoryRows(store.id),
     getProductVariants(product.id),
     getShippingPolicies(store.id),
     getGrades(store.id),
     getProductGradePriceInputs(product.id),
+    getTierMap([product.id]),
   ]);
+  const tierInput = (t: VolumeTier) => (t.discount_type === "rate" ? `${t.value}%` : t.discount_type === "amount" ? `-${t.value}` : String(t.value));
   const categories = flattenTree(buildCategoryTree(categoryRows, true));
   const won = (n: number | null) => (n == null ? "" : String(n));
 
@@ -59,6 +63,10 @@ export default async function EditProductPage({
           visibility: product.visibility,
           price_visibility: product.price_visibility,
           grade_prices: gradePrices,
+          moq: product.moq > 1 ? String(product.moq) : "",
+          order_unit: product.order_unit > 1 ? String(product.order_unit) : "",
+          max_qty: product.max_qty ? String(product.max_qty) : "",
+          tiers: (tierMap.get(product.id) ?? []).map((t) => ({ min_qty: String(t.min_qty), value: tierInput(t) })),
           name: product.name,
           summary: product.summary,
           description: product.description,

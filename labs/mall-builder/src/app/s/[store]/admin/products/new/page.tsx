@@ -28,6 +28,7 @@ export default async function NewProductPage({ params }: { params: Promise<{ sto
           name: "", summary: "", description: "", base_price: "", list_price: "", cost: "",
           tax_type: "taxable", status: "draft", stock_mode: "none", stock: "", images: [], category_ids: [], shipping_policy_id: "",
           visibility: "public", price_visibility: "all", grade_prices: {},
+          moq: "", order_unit: "", max_qty: "", tiers: [],
         }}
       />
     </AdminShell>

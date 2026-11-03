@@ -5,7 +5,7 @@ import type { OptionGroup, Variant } from "@/lib/options";
 import type { ShippingPolicy } from "@/lib/shipping";
 import { ORDER_COLUMNS, type OrderEventRow, type OrderItemRow, type OrderRow } from "@/lib/orders";
 import type { ApprovalStatus } from "@/lib/business";
-import { priceLine, viewerOf, type GradePrice, type PriceContext } from "@/lib/pricing";
+import { priceLine, viewerOf, type GradePrice, type PriceContext, type VolumeTier } from "@/lib/pricing";
 import { cache } from "react";
 
 export type Store = {
@@ -86,11 +86,32 @@ export type ProductRow = {
   shipping_policy_id: string | null;
   visibility: "public" | "members" | "business_only";
   price_visibility: "all" | "login" | "approved_business";
+  moq: number;
+  order_unit: number;
+  max_qty: number | null;
   created_at: string;
 };
 
 export const PRODUCT_COLUMNS =
-  "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, visibility, price_visibility, created_at";
+  "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, visibility, price_visibility, moq, order_unit, max_qty, created_at";
+
+/** 상품별 수량 구간 할인(공개) — 상품 id → 구간 목록(작은 수량부터) */
+export async function getTierMap(productIds: string[]): Promise<Map<string, VolumeTier[]>> {
+  const map = new Map<string, VolumeTier[]>();
+  if (!productIds.length) return map;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_product_volume_tiers")
+    .select("product_id, min_qty, discount_type, value")
+    .in("product_id", productIds)
+    .order("min_qty");
+  for (const r of data ?? []) {
+    const list = map.get(r.product_id as string) ?? [];
+    list.push({ min_qty: r.min_qty as number, discount_type: r.discount_type as VolumeTier["discount_type"], value: Number(r.value) });
+    map.set(r.product_id as string, list);
+  }
+  return map;
+}
 
 /** 지금 보는 사람(손님 화면) — 요청마다 한 번만 읽는다 */
 export const getShopper = cache(async (storeId: string) => {
@@ -140,15 +161,18 @@ export async function getProductGradePriceInputs(productId: string): Promise<Rec
 /** 상품 여러 개의 가격 문맥(장바구니·주문서) — 상품 id를 주면 그 상품의 문맥 */
 export async function getPriceContexts(storeId: string, productIds: string[]): Promise<(productId: string) => PriceContext> {
   const shopper = await getShopper(storeId);
-  const prices = await getGradePriceMap(storeId, shopper.gradeId, productIds);
-  return (productId) => ({ viewer: shopper.viewer, gradePrice: prices.get(productId) ?? null, gradeName: shopper.gradeName ?? undefined });
+  const [prices, tiers] = await Promise.all([getGradePriceMap(storeId, shopper.gradeId, productIds), getTierMap(productIds)]);
+  return (productId) => ({
+    viewer: shopper.viewer,
+    gradePrice: prices.get(productId) ?? null,
+    gradeName: shopper.gradeName ?? undefined,
+    tiers: tiers.get(productId) ?? [],
+  });
 }
 
 /** 손님 화면 가격 문맥(상품 하나) — 가격 엔진 priceLine의 네 번째 인자 */
 export async function getPriceContext(storeId: string, productId: string): Promise<PriceContext> {
-  const shopper = await getShopper(storeId);
-  const prices = await getGradePriceMap(storeId, shopper.gradeId, [productId]);
-  return { viewer: shopper.viewer, gradePrice: prices.get(productId) ?? null, gradeName: shopper.gradeName ?? undefined };
+  return (await getPriceContexts(storeId, [productId]))(productId);
 }
 
 /** 몰의 배송비 정책(기본 정책이 맨 앞) */

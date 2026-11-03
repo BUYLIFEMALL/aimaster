@@ -25,7 +25,13 @@ export default function ProductDetail({
   visibility,
   priceVisibility,
   ctx,
+  moq,
+  orderUnit,
+  maxQty,
 }: {
+  moq: number;
+  orderUnit: number;
+  maxQty: number | null;
   visibility: PricingProduct["visibility"];
   priceVisibility: PricingProduct["price_visibility"];
   ctx: PriceContext;
@@ -46,7 +52,8 @@ export default function ProductDetail({
   const router = useRouter();
   const [imageIndex, setImageIndex] = useState(0);
   const [picked, setPicked] = useState<string[]>(groups.map(() => ""));
-  const [qty, setQty] = useState(1);
+  // 최소 수량(주문 단위의 배수)에서 시작
+  const [qty, setQty] = useState(Math.max(1, moq));
   const [message, setMessage] = useState<{ text: string; ok: boolean; goto?: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const stockByOption = stockMode === "product";
@@ -56,7 +63,10 @@ export default function ProductDetail({
   const variant = allPicked ? byKey.get(variantKey(picked)) ?? null : null;
   // 금액·주문 가능 여부는 장바구니와 같은 가격 엔진으로
   const line = priceLine(
-    { status, base_price: basePrice, stock_mode: stockMode, stock, option_groups: groups, visibility, price_visibility: priceVisibility },
+    {
+      status, base_price: basePrice, stock_mode: stockMode, stock, option_groups: groups,
+      visibility, price_visibility: priceVisibility, moq, order_unit: orderUnit, max_qty: maxQty,
+    },
     variant,
     qty,
     ctx,
@@ -149,8 +159,9 @@ export default function ProductDetail({
             <input
               type="number"
               name="qty"
-              min={1}
-              max={MAX_QTY}
+              min={Math.max(1, moq)}
+              max={maxQty ?? MAX_QTY}
+              step={orderUnit > 1 ? orderUnit : 1}
               value={qty}
               disabled={soldOut}
               onChange={(e) => setQty(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
@@ -162,6 +173,22 @@ export default function ProductDetail({
           </p>
         </div>
 
+        {(moq > 1 || orderUnit > 1 || maxQty) && (
+          <p className="mt-2 text-xs text-gray-500" data-qty-rules>
+            {[moq > 1 && `최소 ${moq}개`, orderUnit > 1 && `${orderUnit}개 단위`, maxQty && `최대 ${maxQty}개`].filter(Boolean).join(" · ")}
+          </p>
+        )}
+        {!line.priceHidden && (ctx.tiers ?? []).length > 0 && (
+          <ul className="mt-3 space-y-0.5 rounded bg-gray-50 px-3 py-2 text-sm" data-tiers>
+            <li className="text-xs text-gray-500">수량 할인</li>
+            {(ctx.tiers ?? []).map((t) => (
+              <li key={t.min_qty}>
+                {t.min_qty}개 이상 ·{" "}
+                {t.discount_type === "rate" ? `${t.value}% 할인` : t.discount_type === "amount" ? `개당 ${t.value.toLocaleString("ko-KR")}원 할인` : `개당 ${t.value.toLocaleString("ko-KR")}원`}
+              </li>
+            ))}
+          </ul>
+        )}
         {line.errors[0] && <p className="mt-4 text-sm text-amber-700">{line.errors[0]}</p>}
         <button
           type="button"
