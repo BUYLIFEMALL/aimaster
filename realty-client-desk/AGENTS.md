@@ -16,12 +16,17 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 | 접수 링크 토큰(sha256 해시만 저장) | `src/lib/desk/token.ts` |
 | 서버 동작(링크·고객·접수) | `src/lib/actions/desk.ts` — 모두 `requireProgramAccess()` + `user_id`, 접수는 링크 해시 확인 뒤 service role로 그 회원 줄만, 링크당 하루 50건, 숨은 칸으로 봇 거르기 |
 | 화면 | `/dashboard` `/intake` `/clients` `/guide`, 고객 접수 `/i/[token]`(로그인 없음, 검색 제외) |
-| DB | `supabase/migrations/20261103010000_client_desk_init.sql`(표 2개·RLS), `20261103010100_register_program.sql`(준비중 등록·요금제·시험 계정 14일) |
+| DB | `supabase/migrations/20261103010000_client_desk_init.sql`(표 2개·RLS), `20261103010100_register_program.sql`(준비중 등록·요금제·시험 계정 14일), `20261103020000_listings_ad_sends.sql`(사무소·매물·발송 기록 표 3개·RLS, 고객 `optout_token`) |
+| 2단계 규칙(순수 함수·시험) | `src/lib/desk/adRules.ts` — 매칭(거래·종류·동 이름·예산 5% 여유·면적), 광고 머리 「(광고)명칭 전화」·꼬리 「무료수신거부 링크(080 선택)」, 밤 9시~아침 8시(KST), 광고 동의 2년 / `tests/adRules.test.mjs` |
+| 2단계 서버 동작 | `src/lib/actions/listings.ts`(사무소·매물·발송·수신거부 — 발송은 회원 SOLAPI, 기록 먼저 넣고 보냄, (고객, 매물) 한 번), `solapiAccount.ts`(공용 `user_solapi_accounts`), SOLAPI 공용 사본 `src/lib/solapi/client.ts`(직접 고치지 말 것 — 기준 `crm-google-form/lib/solapi/client.ts`) |
+| 2단계 화면 | `/settings`(API키등록·플랫폼연동), `/listings`, `/listings/[id]`(맞는 고객 고르기·미리보기·발송 기록), 수신거부 `/u/[token]`(로그인 없음, 버튼 한 번, 처리 결과 표시) |
 - 지킬 것: 수기 입력은 「동의 받음」 체크 + 방법·날짜 없으면 저장 안 함(결정 1). 광고 문자는 2단계에서 광고 동의자만·21~8시 막음·「(광고)」·무료 수신거부(결정 2). 공개는 주인님 확인 뒤(결정 3). 고객 명부 1년(관리자 지정) — 정리 작업은 3단계에 추가.
 
 ## 4. 버전
 - v1.01 (2026-11-03): 1단계 — 고객 접수 링크·관심고객 명부·동의 기록·대시보드·매뉴얼. 배포 `dpl_4TzHGSg7Rrps1Cft4M1H2yCj5nq1`.
 - v1.02 (2026-11-03): 직접 입력 동의·방법·날짜·휴대폰 형식을 브라우저에서 먼저 검사(서버가 거절하면 React가 폼을 비워 적은 내용이 사라지던 문제).
 
+- v1.03 (2026-11-03): 2단계 — 내 매물·맞는 고객·광고 문자(회원 SOLAPI)·무료 수신거부 화면·광고 동의 2년 표시. 시행령 별표 6·제62조의2·제62조의3 원문 대조. 커밋 `8a022ffcc`, 배포 `realty-client-desk-qztxwj8fc`.
+
 ## 5. 남은 일
-2단계 내 매물·조건 매칭·문자(회원 SOLAPI) → 3단계 일정 알림·1년 정리 → 4단계 AI 초안·광고 항목 점검. 정보통신망법 시행령 원문 대조(「(광고)」 방식·2년 재확인) 2단계 전.
+3단계 일정 알림·1년 정리(CRON_SECRET) → 4단계 AI 초안·광고 항목 점검. 실제 문자 발송 시험(SOLAPI 있는 계정, 본인 번호 1건) 미실시. 지역 맞춤은 동 이름 글자 포함만 봄(인접 동·좌표는 나중 검토).
