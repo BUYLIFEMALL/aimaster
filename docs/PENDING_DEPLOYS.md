@@ -26,7 +26,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `music` | 30일 정리: 멈춘 「생성 중」 곡·리믹스 원곡(PGRST201로 건너뜀) 정리 안 되던 문제 | `3f3bac612` | 2026-11-03 [역할: music] Claude Code(윈도우) | `music/AGENTS.md` 2026-11-03 |  |
+| `music` | 30일 정리: 멈춘 「생성 중」 곡·리믹스 원곡(PGRST201로 건너뜀) 정리 안 되던 문제 + 관리자·시험 계정 제외(두 계정 곡 11-20부터 삭제 예정) | `3f3bac612`·`f4ac53ba3` | 2026-11-03 [역할: music] Claude Code(윈도우) | `music/AGENTS.md` 2026-11-03 |  |
 | `ghost-scraper`(website-scraper) | 사이드바 고정 「FREE」 표시 삭제 — DB 배지 없음·비공개라 DB와 다름(2026-11-03 배지 전수 조사) | `937ce820d` | 2026-11-03 · Claude Code(윈도우) `claude-win-20261029-statusbar` | `src/components/layout/Sidebar.tsx` | 다음 배포 때(버전 +0.01) |
 | `ai-work-workspace` | 표 행 글자형 우선순위·날짜 읽기(`94719d8da`), 회의록 요약 지침 이름 한글화(`26db40bd4`), 요약 중 화면 자동 갱신·요약 소제목 언어(`05d0ec5f4`) | `94719d8da`·`26db40bd4`·`05d0ec5f4` | 2026-10-31 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` |  |
 | `realty-listing-alert` | 단지 위치 응답을 단지 번호로 한정(동 코드 점검) | `a4c60b987` | 2026-10-31 [역할: realty] Claude Code(윈도우) | `realty-listing-alert/AGENTS.md` |  |

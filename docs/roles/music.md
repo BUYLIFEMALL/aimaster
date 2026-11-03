@@ -15,7 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `music` v1.48 | 미배포 대기 `3f3bac612`(30일 정리: 멈춘 생성 중 곡·리믹스 원곡) | 배포 승인 → 다음 03:00 정리 뒤 남은 행 0개 확인 | `music/AGENTS.md` 2026-11-03 |
+| `music` v1.48 | 미배포 대기 `3f3bac612`·`f4ac53ba3`(30일 정리: 멈춘 생성 중 곡·리믹스 원곡, 관리자·시험 계정 제외 — 11-20 전 배포 필요) | 배포 승인 → 다음 03:00 정리 뒤 남은 행 0개 확인 | `music/AGENTS.md` 2026-11-03 |
 | `shorts-onestop-studio` v1.42 | 미배포 대기 `a95613743`(안내 그림문자) | 다음 배포 때 함께 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
 | `playlist-channel-studio` v1.33 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
