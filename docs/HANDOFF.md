@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 30일 보관 열외 블로그 밖 21개 코드 반영(미배포 대기)
+- 주인님 「진행해 순서대로」(무료 화면 확인 → 올인원 이미지 1장 → 30일 열외). 이미지 1장은 ego 로그인 계정에 OpenAI 키가 없어 못 함(키 등록은 주인님 몫).
+- 30일 열외: `threads-content-ops` `657b44c3c` · `threads-affiliate-poster` `fea3571a8` · `threads` `567567979` · `shop-detail-page` `668f6532a` · `ai-image-studio` `21f22863d` · `ai-music-studio` `78e3eb561` · `ai-video-studio` `84e1de257` · `banana-canvas` `a17062357` · `cinematic-storyboard-studio` `97a6d8589` · `coupang-ops` `a4a3b1857` · `music-video-studio` `ed488d875` · `smartstore-register` `e619be285` · `style-dna-analyzer` `dd305ff4e` · `trending-product-finder` `e7c031b6f` · `youtube-auto-reply` `e3f93b8d7` · `thumbnail-master` `16eb5d6e2` · `reverse-prompt` `a253ae63d` · `portrait-photo` `0fef47e81` · `four-cut-comics` `508565e5d` · `shorts-onestop-studio` `c720528f6` · `shots` `ab4595846`. 판정은 `profiles.retention_exempt`, 못 읽으면 정리 멈춤. tsc 21개 통과.
+- 남은 일: 각 프로그램 다음 배포 때 함께(`docs/PENDING_DEPLOYS.md` 줄). `blog-neighbor-care`는 윈도우 blog 세션 몫. 조회 숨김(30일 지난 자료를 화면에서 감춤)은 블로그 밖 프로그램은 아직 조사 안 함.
+
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.06 배포(가져온 음악·AI 작사 3사·최고 품질)
 - 주인님 지시 3건: 「왜 모델을 클로드만」→ 좌측부터 OpenAI/Claude/Gemini 각 3모델(AI_MODEL_CATALOG, 다른 음악 프로그램 참고) · 「음악 퀄리티 최고 수준」→ 엔진 0.1.4 그래픽 메모리별 XL·4B(MIT), FLAC 원음(이전 128k MP3), MP3 320k(ffmpeg) · 남은 작업 가져온 음악(커버·부분 수정, 권리 확인).
 - SQL `20261103_v1_06_cover.sql`(kind 칸, 가져온 음악 10~600초) ego 실행·규칙 확인 → 배포 `free-music-studio-83c438grx`, DB v1.06. 미니PC 엔진 0.1.4 실물: 30초 80초, FLAC 원음 저장, MP3 320k 변환(1.2MB) 확인.
