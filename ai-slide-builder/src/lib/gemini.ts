@@ -8,7 +8,8 @@ import {
 } from "./constants";
 import { PromptFormat } from "./types";
 
-const MODEL_NAME = "gemini-2.5-flash";
+// 2026-11-03: gemini-2.5-flash(12-01 자동 연결) → 3.8-flash (docs/PLAN_20261103_MODEL_MIGRATION_DEC.md)
+const MODEL_NAME = "gemini-3.8-flash";
 
 export interface GeminiSlideResponse {
   jsonString: string;
