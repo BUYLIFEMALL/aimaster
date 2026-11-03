@@ -76,6 +76,7 @@ export type OrderRow = {
   memo: string;
   courier: string;
   tracking_no: string;
+  is_credit: boolean;
   created_at: string;
 };
 
@@ -92,7 +93,7 @@ export type OrderItemRow = {
 
 export type OrderEventRow = { id: string; from_status: OrderStatus | null; to_status: OrderStatus; actor_role: string; note: string; created_at: string };
 
-export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, courier, tracking_no, created_at";
+export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, courier, tracking_no, is_credit, created_at";
 
 /** 입금 기한 안내 등 날짜를 한국 시간으로 */
 export function formatDateTime(iso: string): string {

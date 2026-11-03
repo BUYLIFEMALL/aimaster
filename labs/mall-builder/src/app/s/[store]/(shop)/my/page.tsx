@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getMyAddresses, getMyCustomer, getStoreBySlug, requireUser, type CustomerAddress } from "@/lib/store";
+import { getCreditLedger, getMyAddresses, getMyCustomer, getStoreBySlug, requireUser, type CustomerAddress } from "@/lib/store";
+import CreditLedger from "@/app/credit-ledger";
 import DeleteButton from "../../admin/categories/delete-button";
 import LogoutButton from "@/app/logout-button";
 import { APPROVAL_LABEL } from "@/lib/business";
@@ -61,6 +62,7 @@ export default async function MyPage({
   const customer = await getMyCustomer(store.id, user.id);
   if (!customer) redirect(`/s/${slug}/join?next=${encodeURIComponent(`/s/${slug}/my`)}`);
   const addresses = await getMyAddresses(customer.id);
+  const credit = customer.credit_limit > 0 ? await getCreditLedger(customer.id) : null;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -104,6 +106,12 @@ export default async function MyPage({
           <p className="text-sm text-gray-700">
             {customer.company} · {customer.ceo_name} · {customer.business_no} — 사업자 가격·주문 기능을 쓸 수 있습니다.
           </p>
+        )}
+        {credit && (
+          <div className="mt-4 border-t pt-3">
+            <p className="mb-2 text-sm font-medium">외상(후불)</p>
+            <CreditLedger limit={customer.credit_limit} balance={credit.balance} entries={credit.entries} />
+          </div>
         )}
         {customer.approval_status === "pending" && (
           <p className="text-sm text-gray-700">

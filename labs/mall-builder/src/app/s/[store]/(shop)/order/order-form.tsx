@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import type { CustomerAddress } from "@/lib/store";
 import { placeOrderAction, type PlaceOrderState } from "./actions";
+import { canUseCredit, creditAvailable } from "@/lib/credit";
 
 type Totals = { subtotal: number; shipping: number; total: number };
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
@@ -17,6 +18,7 @@ export default function OrderForm({
   bankText,
   action,
   note,
+  credit,
 }: {
   slug: string;
   addresses: CustomerAddress[];
@@ -28,12 +30,18 @@ export default function OrderForm({
   action?: (prev: PlaceOrderState, form: FormData) => Promise<PlaceOrderState>;
   /** 주문 버튼 아래 안내 — 없으면 장바구니 주문 안내 */
   note?: string;
+  /** 외상 한도가 있는 승인 사업자면 결제 방법에 「외상」이 보인다 */
+  credit?: { limit: number; balance: number };
 }) {
   const [addressId, setAddressId] = useState(addresses.find((a) => a.is_default)?.id ?? addresses[0]?.id ?? "");
   const initial: PlaceOrderState = { error: null, depositor: defaultDepositor, memo: "" };
   const [state, formAction, pending] = useActionState(action ?? placeOrderAction.bind(null, slug), initial);
   const region = regionOf[addressId] ?? "mainland";
   const t = totalsByRegion[region];
+  const [pay, setPay] = useState<"bank" | "credit">("bank");
+  const creditOk = !!credit && canUseCredit(credit.limit, credit.balance, t.total);
+  // 배송지를 바꿔 금액이 한도를 넘으면 무통장으로 되돌린다
+  const payMethod = pay === "credit" && !creditOk ? "bank" : pay;
 
   return (
     <form action={formAction} className="mt-6 space-y-6">
@@ -67,16 +75,35 @@ export default function OrderForm({
         </label>
       </section>
 
-      <section className="rounded border bg-gray-50 p-4 text-sm">
-        <p className="font-medium">결제 방법: 무통장 입금</p>
-        <p className="mt-1 text-gray-600">{bankText}</p>
-      </section>
+      {credit && credit.limit > 0 ? (
+        <section className="space-y-2 rounded border bg-gray-50 p-4 text-sm" data-pay-methods>
+          <p className="font-medium">결제 방법</p>
+          <label className="flex items-start gap-2">
+            <input type="radio" name="pay_method" value="bank" checked={pay === "bank"} onChange={() => setPay("bank")} className="mt-1" />
+            <span>무통장 입금 — <span className="text-gray-600">{bankText}</span></span>
+          </label>
+          <label className="flex items-start gap-2">
+            <input type="radio" name="pay_method" value="credit" checked={pay === "credit"} disabled={!creditOk} onChange={() => setPay("credit")} className="mt-1" />
+            <span>
+              외상(후불) — 남은 한도 <b>{won(creditAvailable(credit.limit, credit.balance))}</b>
+              {!creditOk && <span className="ml-1 text-red-600">이번 주문 금액이 남은 한도보다 큽니다</span>}
+              <span className="block text-xs text-gray-500">외상 주문은 바로 「결제 완료」가 되고, 대금은 운영자와 정한 날에 입금합니다.</span>
+            </span>
+          </label>
+        </section>
+      ) : (
+        <section className="rounded border bg-gray-50 p-4 text-sm">
+          <p className="font-medium">결제 방법: 무통장 입금</p>
+          <p className="mt-1 text-gray-600">{bankText}</p>
+        </section>
+      )}
 
       <section className="ml-auto max-w-sm space-y-2 text-sm" data-order-totals>
         <p className="flex justify-between"><span>상품 금액</span><span>{won(t.subtotal)}</span></p>
         <p className="flex justify-between"><span>배송비{REGION_NOTE[region] && ` (${REGION_NOTE[region]})`}</span><span>{won(t.shipping)}</span></p>
         <p className="flex justify-between border-t pt-2 text-lg font-bold"><span>결제 금액</span><span>{won(t.total)}</span></p>
         <input type="hidden" name="expected_total" value={t.total} />
+        {credit && credit.limit > 0 && payMethod !== pay && <input type="hidden" name="pay_method" value={payMethod} />}
         {state.error && <p className="text-red-600" data-order-error>{state.error}</p>}
         <button disabled={pending || !addressId} className="min-h-12 w-full rounded bg-gray-900 text-white disabled:opacity-50">
           {pending ? "주문하는 중…" : `${won(t.total)} 주문하기`}

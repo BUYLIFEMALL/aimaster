@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCertUrl, getStaffStore, getStoreCustomer } from "@/lib/store";
+import { getCertUrl, getCreditLedger, getStaffStore, getStoreCustomer } from "@/lib/store";
+import CreditLedger from "@/app/credit-ledger";
 import { APPROVAL_LABEL } from "@/lib/business";
 import { formatDateTime } from "@/lib/orders";
 import { AdminShell, NoPermission } from "../../admin-shell";
-import { reviewBusinessAction } from "../actions";
+import { creditEntryAction, reviewBusinessAction, setCreditLimitAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -23,7 +24,7 @@ export default async function AdminCustomerPage({
   if (!staff) return <NoPermission />;
   const c = await getStoreCustomer(store.id, id);
   if (!c) notFound();
-  const certUrl = await getCertUrl(c.cert_path);
+  const [certUrl, ledger] = await Promise.all([getCertUrl(c.cert_path), getCreditLedger(c.id)]);
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/customers">
@@ -34,7 +35,7 @@ export default async function AdminCustomerPage({
         {c.grade && <span className="text-sm text-gray-500" data-grade>등급 {c.grade.name}</span>}
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-review-error>{error}</p>}
-      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{ok === "approved" ? "승인했습니다." : "반려했습니다."}</p>}
+      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{ok === "approved" ? "승인했습니다." : ok === "rejected" ? "반려했습니다." : ok === "credit" ? "외상 한도를 저장했습니다." : "장부에 기록했습니다."}</p>}
 
       <section className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
         <div className="rounded border p-4">
@@ -63,6 +64,38 @@ export default async function AdminCustomerPage({
           )}
         </div>
       </section>
+
+      {c.approval_status === "approved" && (
+        <section className="mt-6 space-y-4 rounded-lg border p-4" data-credit-admin>
+          <h3 className="text-sm font-semibold">외상(후불)</h3>
+          <CreditLedger limit={c.credit_limit} balance={ledger.balance} entries={ledger.entries} />
+          <form action={setCreditLimitAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2">
+            <label className="block">
+              <span className="text-xs text-gray-500">외상 한도(원, 0 = 외상 안 씀)</span>
+              <input name="credit_limit" defaultValue={c.credit_limit ? String(c.credit_limit) : ""} inputMode="numeric" className="mt-0.5 w-40 rounded border px-2 py-1.5 text-sm" />
+            </label>
+            <button className="min-h-10 rounded border px-4 text-sm">한도 저장</button>
+          </form>
+          <form action={creditEntryAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2">
+            <label className="block">
+              <span className="text-xs text-gray-500">구분</span>
+              <select name="kind" className="mt-0.5 block rounded border px-2 py-1.5 text-sm">
+                <option value="payment">입금(사용 금액 줄이기)</option>
+                <option value="adjust">조정(+/−, 사유 필수)</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-xs text-gray-500">금액(원)</span>
+              <input name="amount" inputMode="numeric" placeholder="입금 50000 / 조정 -3000" className="mt-0.5 w-40 rounded border px-2 py-1.5 text-sm" />
+            </label>
+            <label className="block">
+              <span className="text-xs text-gray-500">메모</span>
+              <input name="note" maxLength={200} className="mt-0.5 w-56 rounded border px-2 py-1.5 text-sm" />
+            </label>
+            <button className="min-h-10 rounded bg-gray-900 px-4 text-sm text-white">장부에 기록</button>
+          </form>
+        </section>
+      )}
 
       {c.approval_status === "pending" && (
         <section className="mt-6 flex flex-wrap items-end gap-3 rounded-lg border p-4" data-review>

@@ -34,14 +34,20 @@ export default async function OrderDetailPage({
       {done && (
         <div className="mb-6 rounded-lg bg-green-50 p-4 text-sm text-green-800" data-order-done>
           <p className="text-base font-bold">주문이 접수되었습니다.</p>
-          <p className="mt-1">아래 계좌로 {formatWon(order.total)}을 입금해 주세요. 입금이 확인되면 배송을 준비합니다.</p>
+          <p className="mt-1">
+            {order.is_credit
+              ? `외상(후불)으로 ${formatWon(order.total)} 결제 완료되었습니다. 배송을 준비합니다.`
+              : `아래 계좌로 ${formatWon(order.total)}을 입금해 주세요. 입금이 확인되면 배송을 준비합니다.`}
+          </p>
         </div>
       )}
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-bold">주문 {order.order_no}</h1>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-order-status>{ORDER_STATUS_LABEL[order.status]}</span>
       </div>
-      <p className="mt-1 text-sm text-gray-500">{formatDateTime(order.created_at)} 주문</p>
+      <p className="mt-1 text-sm text-gray-500">
+        {formatDateTime(order.created_at)} 주문 · 결제 {order.is_credit ? "외상(후불)" : "무통장 입금"}
+      </p>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-order-error>{error}</p>}
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">처리했습니다.</p>}
       {order.tracking_no && (

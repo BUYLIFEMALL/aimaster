@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCart, getMyAddresses, getMyCustomer, getPriceContexts, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
+import { getCart, getCreditLedger, getMyAddresses, getMyCustomer, getPriceContexts, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
 import { cartTotals, priceLine } from "@/lib/pricing";
 import { regionOfZip, type Region } from "@/lib/shipping";
 import { formatWon } from "@/lib/products";
@@ -32,6 +32,9 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
     }),
   ) as Record<Region, { subtotal: number; shipping: number; total: number }>;
   const info = readBusinessInfo(store.business_info);
+  // 외상: 승인 사업자이고 한도가 있을 때만 결제 방법에 보인다(DB 함수가 한 번 더 검사)
+  const isBusiness = customer.approval_status === "approved" && !!customer.grade?.is_business;
+  const credit = isBusiness && customer.credit_limit > 0 ? { limit: customer.credit_limit, balance: (await getCreditLedger(customer.id)).balance } : undefined;
   const bankText =
     info.bank_name && info.bank_account
       ? `${info.bank_name} ${info.bank_account}${info.bank_holder ? ` (예금주 ${info.bank_holder})` : ""} — 주문 후 입금해 주세요.`
@@ -65,6 +68,7 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
           totalsByRegion={totalsByRegion}
           defaultDepositor={customer.name}
           bankText={bankText}
+          credit={credit}
         />
       )}
     </main>

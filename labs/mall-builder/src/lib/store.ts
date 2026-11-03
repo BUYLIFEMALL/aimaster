@@ -6,6 +6,7 @@ import type { ShippingPolicy } from "@/lib/shipping";
 import { ORDER_COLUMNS, type OrderEventRow, type OrderItemRow, type OrderRow } from "@/lib/orders";
 import type { ApprovalStatus } from "@/lib/business";
 import type { QuoteStatus } from "@/lib/quotes";
+import type { LedgerKind } from "@/lib/credit";
 import { priceLine, viewerOf, type GradePrice, type PriceContext, type VolumeTier } from "@/lib/pricing";
 import { cache } from "react";
 
@@ -322,10 +323,26 @@ export type StoreCustomer = {
   reject_reason: string | null;
   applied_at: string | null;
   reviewed_at: string | null;
+  credit_limit: number;
   grade: { name: string; code: string; is_business: boolean } | null;
 };
+
+export type LedgerEntry = { id: string; kind: LedgerKind; amount: number; balance_after: number; note: string; order_id: string | null; created_at: string };
+
+/** 외상 장부(최근 순)와 지금 사용 중 금액 — 보안 규칙상 그 손님 본인과 그 몰 운영자만 */
+export async function getCreditLedger(customerId: string): Promise<{ balance: number; entries: LedgerEntry[] }> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_credit_ledger")
+    .select("id, kind, amount, balance_after, note, order_id, created_at")
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const entries = ((data ?? []) as LedgerEntry[]).map((e) => ({ ...e, amount: Number(e.amount), balance_after: Number(e.balance_after) }));
+  return { balance: entries[0]?.balance_after ?? 0, entries };
+}
 const CUSTOMER_COLUMNS =
-  "id, store_id, user_id, name, phone, marketing_agree, created_at, kind, grade_id, approval_status, business_no, company, ceo_name, cert_path, reject_reason, applied_at, reviewed_at, grade:mall_builder_customer_grades(name, code, is_business)";
+  "id, store_id, user_id, name, phone, marketing_agree, created_at, kind, grade_id, approval_status, business_no, company, ceo_name, cert_path, reject_reason, applied_at, reviewed_at, credit_limit, grade:mall_builder_customer_grades(name, code, is_business)";
 export type CustomerAddress = {
   id: string; label: string; receiver: string; phone: string; zip: string; addr1: string; addr2: string; is_default: boolean;
 };
