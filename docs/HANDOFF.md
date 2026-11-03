@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — `ai-work-workspace` v1.20 배포(U6-B 음성 파일 받아쓰기 외 미배포 5건)
+- 배포: `ai-work-workspace-kgvdb1nmm` Ready(빌드 1회, 23505 없이 통과), 운영 주소 연결, DB `programs.version` v1.19 → v1.20, 프로그램 비교표 버전 갱신. 아래 11-03 ⏳ 항목의 미배포 5건(`03d5373a5`·`20557e396`·`05d0ec5f4`·`94719d8da`·`26db40bd4`)이 모두 나감.
+- 운영 크롬(시험 계정 본인 Gemini 키): 음성 파일 받아쓰기 통과(약 15초 WAV → 시각 포함 4문장 정확), 「요약 만들기」 뒤 새로고침 없이 요약 표시 통과. OpenAI 경로는 시험 계정에 Gemini 키가 있어 실제 확인 못 함(자동 시험만).
+- 발견·수정(미배포): 요약 소제목이 영어(「Action items」)로 나옴 → 지침 소제목 한국어화 `297efb419`, 페이지 휴지통 안내 영어 → 번역 키 사용 `1551c9041`. 다음 배포(v1.21) 때 함께.
+- 상세: `ai-work-workspace/docs/IMPROVEMENTS.md` 「v1.20 운영 확인」. 링크: https://ai-work-workspace.buylife.xyz
+
 ## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `real_estate_sales` v1.42 배포(공용 공공키 교체·수집 재개 확인)
 - 한 일: 공용 공공데이터 키 403 → 주인님이 Vercel `DATA_GO_KR_SERVICE_KEY`(Production)를 직접 교체(10:32, 값은 안 읽음). 대기분 4건(포털 사유 코드 `15c066de2`·경기 전용면적 `de7ec2b30`·`zod` 4.6.7·o3 교체 `7b55bd09d`) 함께 v1.42 배포(`dpl_Cr1eX4wGmoA78spQQRq6yoN4XGAJ`, DB 버전 v1.42). 커밋 `a195b42b4`·`c5eb5b17d`, 비교표 `d5fb270df`.
 - 확인: ego lite Supabase SQL 편집기 읽기 조회 — 매물 최신 수집 12:10 KST·3시간 40건, 종로구(60분 주기) 성공 기록 갱신. 24시간 주기 지역은 11-03 23:22쯤 차례(그때 함께 보면 확실).
