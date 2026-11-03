@@ -1,0 +1,6 @@
+{
+  "name": "mall-builder",
+  "vercelProject": "dev-mall-builder",
+  "tablePrefix": "mall_builder_",
+  "bucketPrefix": "mall-builder-"
+}
