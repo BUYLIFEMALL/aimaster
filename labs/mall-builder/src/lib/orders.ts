@@ -91,7 +91,11 @@ export type OrderItemRow = {
   unit_price: number;
   qty: number;
   line_total: number;
+  cancelled_qty: number; // 부분 취소한 수량(D5) — 남은 금액 = unit_price × (qty - cancelled_qty)
 };
+
+/** 부분 취소할 수 있는 상태(배송 전) — DB 함수 mall_builder_cancel_order_items와 같은 기준 */
+export const PARTIAL_CANCEL_STATUSES = ["pending_payment", "paid", "preparing"] as const;
 
 export type OrderEventRow = { id: string; from_status: OrderStatus | null; to_status: OrderStatus; actor_role: string; note: string; created_at: string };
 

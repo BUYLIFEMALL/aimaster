@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrder, getStaffStore } from "@/lib/store";
-import { ORDER_STATUS_LABEL, formatDateTime } from "@/lib/orders";
+import { ORDER_STATUS_LABEL, PARTIAL_CANCEL_STATUSES, formatDateTime } from "@/lib/orders";
+import { partialCancelAction } from "@/lib/order-actions";
+import PartialCancelForm from "./partial-cancel-form";
 import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
 import { TAX_INVOICE_LABEL } from "@/lib/taxInvoice";
@@ -40,7 +42,7 @@ export default async function AdminOrderDetailPage({
         <span className="text-sm text-gray-500">{formatDateTime(order.created_at)}</span>
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-order-error>{error}</p>}
-      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">상태를 바꿨습니다.</p>}
+      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-order-ok>{ok === "partial" ? "부분 취소했습니다. 결제 금액과 재고를 다시 계산했습니다." : "상태를 바꿨습니다."}</p>}
 
       <section className="mt-6 rounded-lg border p-4">
         <h3 className="mb-3 text-sm font-semibold">처리</h3>
@@ -86,17 +88,22 @@ export default async function AdminOrderDetailPage({
         </section>
       )}
 
-      <ul className="mt-6 divide-y border-y text-sm">
+      <ul className="mt-6 divide-y border-y text-sm" data-admin-order-items>
         {items.map((it) => (
           <li key={it.id} className="flex justify-between gap-4 py-2">
             <span>
               {it.name_snapshot}
               {it.option_snapshot && <span className="text-gray-500"> · {it.option_snapshot}</span>} × {it.qty}
+              {it.cancelled_qty > 0 && <span className="ml-1 text-red-600">(취소 {it.cancelled_qty}개)</span>}
             </span>
-            <b>{formatWon(it.line_total)}</b>
+            <b>{formatWon(it.unit_price * (it.qty - it.cancelled_qty))}</b>
           </li>
         ))}
       </ul>
+
+      {(PARTIAL_CANCEL_STATUSES as readonly string[]).includes(order.status) && items.some((it) => it.qty > it.cancelled_qty) && (
+        <PartialCancelForm items={items} isCredit={order.is_credit} action={partialCancelAction.bind(null, store.slug, order.id)} />
+      )}
 
       <section className="mt-6 text-sm">
         <p className="mb-2 font-medium">진행 기록</p>
@@ -110,7 +117,7 @@ export default async function AdminOrderDetailPage({
                   {ORDER_STATUS_LABEL[e.to_status]}
                 </>
               )}
-              {e.note && ` — ${e.note}`}
+              {e.note && (e.from_status !== e.to_status ? ` — ${e.note}` : e.note)}
             </li>
           ))}
         </ul>

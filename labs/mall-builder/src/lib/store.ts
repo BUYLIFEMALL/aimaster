@@ -456,7 +456,7 @@ export async function getOrder(storeId: string, orderId: string) {
   const [{ data: items }, { data: events }] = await Promise.all([
     supabase
       .from("mall_builder_order_items")
-      .select("id, product_id, name_snapshot, option_snapshot, image_url, unit_price, qty, line_total")
+      .select("id, product_id, name_snapshot, option_snapshot, image_url, unit_price, qty, line_total, cancelled_qty")
       .eq("order_id", orderId),
     supabase.from("mall_builder_order_events").select("id, from_status, to_status, actor_role, note, created_at").eq("order_id", orderId).order("created_at"),
   ]);

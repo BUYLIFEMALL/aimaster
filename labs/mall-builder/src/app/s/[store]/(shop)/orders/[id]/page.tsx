@@ -89,8 +89,9 @@ export default async function OrderDetailPage({
               {it.option_snapshot && <span className="text-gray-500"> · {it.option_snapshot}</span>}
               <br />
               <span className="text-gray-500">{formatWon(it.unit_price)} × {it.qty}</span>
+              {it.cancelled_qty > 0 && <span className="ml-1 text-red-600">(취소 {it.cancelled_qty}개)</span>}
             </span>
-            <b>{formatWon(it.line_total)}</b>
+            <b>{formatWon(it.unit_price * (it.qty - it.cancelled_qty))}</b>
           </li>
         ))}
       </ul>
