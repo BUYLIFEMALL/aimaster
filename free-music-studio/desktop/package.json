@@ -1,0 +1,43 @@
+{
+  "name": "free-music-engine-desktop",
+  "version": "0.3.0",
+  "private": true,
+  "description": "AI 무료음악 자동화 엔진 — 작업 표시줄 아이콘·자동 실행·설치 파일(엔진 코드는 ../engine 그대로)",
+  "main": "main.cjs",
+  "author": "BUYLIFE",
+  "scripts": {
+    "start": "electron .",
+    "icon": "node scripts/make-icon.mjs",
+    "dist": "node scripts/make-icon.mjs && electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "44.9.2",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "xyz.buylife.free-music-engine",
+    "productName": "AI 무료음악 자동화 엔진",
+    "executableName": "FreeMusicEngine",
+    "asar": true,
+    "directories": { "output": "release" },
+    "files": ["main.cjs", "preload.cjs", "status.html", "build/icon.png", "package.json"],
+    "extraResources": [
+      { "from": "../engine/src", "to": "engine/src", "filter": ["**/*"] },
+      { "from": "../engine/package.json", "to": "engine/package.json" },
+      { "from": "build/icon.png", "to": "icon.png" }
+    ],
+    "protocols": [{ "name": "AI 무료음악 자동화 엔진", "schemes": ["freemusic-engine"] }],
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }], "icon": "build/icon.png" },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AI 무료음악 엔진",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "AI-Free-Music-Engine-Setup-${version}.${ext}"
+    },
+    "electronLanguages": ["ko", "en-US"],
+    "publish": null
+  }
+}
