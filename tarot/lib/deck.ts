@@ -144,8 +144,6 @@ export const OPENAI_MODEL_OPTIONS = [
   { value: "gpt-5.6-luna", label: "GPT-5.6 Luna (가성비 · 신속한 타로 해석)" },
   { value: "gpt-5.5", label: "GPT-5.5 (고성능 심층 리딩)" },
   { value: "gpt-5.4", label: "GPT-5.4 (안정적인 고품질 리딩)" },
-  { value: "o3-mini", label: "OpenAI o3-Mini (추론 특화 AI - 명쾌한 논리 리딩)" },
-  { value: "o1", label: "OpenAI o1 (최고 수준 심층 추론 AI)" },
 ] as const;
 
 // 2026-10-20: OpenAI에 없는 모델 이름(gpt-5.5/5.4의 luna·sol·terra)을 메뉴에서 뺐다.
@@ -153,8 +151,11 @@ export const OPENAI_MODEL_OPTIONS = [
 // (따옴표 문자열로 적지 않는 이유: scripts/check-openai-models.mjs가 옛 이름을 「쓰는 모델」로 세지 않게)
 const RETIRED_OPENAI_MODEL = /^(gpt-5\.[45])-(sol|terra|luna)$/;
 
+// 2026-11-03: o3-mini·o1은 2026-10-23 종료 → 공식 대체 모델 gpt-5.6-sol로 바꾼다(예전 저장·공유 링크 ?om=).
+const SHUTDOWN_OPENAI_MODEL: Record<string, string> = { ["o3" + "-mini"]: "gpt-5.6-sol", ["o" + "1"]: "gpt-5.6-sol" };
+
 export function normalizeOpenAIModel(model: string): string {
-  return model.replace(RETIRED_OPENAI_MODEL, "$1");
+  return SHUTDOWN_OPENAI_MODEL[model] ?? model.replace(RETIRED_OPENAI_MODEL, "$1");
 }
 
 export type SpreadPosition =

@@ -6,6 +6,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+export const maxDuration = 180;
 
 /**
  * 뽑힌 타로 카드들 + 사용자가 입력한 질문을 바탕으로 OpenAI가 하나로 엮인
@@ -311,7 +312,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "질문은 300자 이내로 입력해주세요." }, { status: 400 });
   }
 
-  const isReasoningModel = targetModel.startsWith("o1") || targetModel.startsWith("o3");
+  // 추론 모델 판정은 공용 기준(openai-request-params)과 같게: gpt-5·gpt-6·o 계열.
+  // 추론 모델은 생각 단계도 출력 한도를 쓰므로 한도를 4000 더 준다(모자라면 빈 결과가 나온다).
+  const isReasoningModel = /^(gpt-5|gpt-6|o\d)/i.test(targetModel);
   // 카드 수가 많은 스프레드는 흐름을 엮어 쓸 문단이 많아져 더 넉넉한 토큰 한도가 필요하다.
   const maxTokens = config.cardCount >= 10 ? 3500 : config.cardCount >= 6 ? 3000 : 2000;
   const requestBody: Record<string, unknown> = {
@@ -320,7 +323,7 @@ export async function POST(request: NextRequest) {
       { role: isReasoningModel ? "user" : "system", content: getSystemPrompt(spreadType) },
       { role: "user", content: buildUserPrompt(cards, question, spreadType) },
     ],
-    max_completion_tokens: maxTokens,
+    max_completion_tokens: isReasoningModel ? maxTokens + 4000 : maxTokens,
   };
 
 
@@ -330,7 +333,8 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify(requestBody),
-      signal: AbortSignal.timeout(45000),
+      // 추론 모델은 생각 단계 때문에 오래 걸리므로 더 기다린다(함수 최대 실행 시간 maxDuration 안)
+      signal: AbortSignal.timeout(isReasoningModel ? 150_000 : 45_000),
     });
   } catch {
     return NextResponse.json(
