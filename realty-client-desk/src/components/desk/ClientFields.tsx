@@ -12,7 +12,7 @@ export function ClientFields() {
       </div>
       <div>
         <label className={label} htmlFor="phone">휴대폰 *</label>
-        <input id="phone" name="phone" required inputMode="tel" placeholder="010-1234-5678" className="mx-input" />
+        <input id="phone" name="phone" required inputMode="tel" pattern="01[016789][\-\s]?[0-9]{3,4}[\-\s]?[0-9]{4}" title="010으로 시작하는 휴대폰 번호" placeholder="010-1234-5678" className="mx-input" />
       </div>
       <fieldset className="sm:col-span-2">
         <legend className={label}>원하는 거래 *</legend>

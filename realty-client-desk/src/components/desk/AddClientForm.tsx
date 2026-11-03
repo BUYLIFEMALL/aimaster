@@ -15,20 +15,21 @@ export function AddClientForm({ today }: { today: string }) {
         <ClientFields />
         <div className="rounded-xl border border-mx-border p-4 text-sm text-mx-text">
           <label className="flex min-h-[44px] items-start gap-2 font-bold">
-            <input type="checkbox" name="consented" className="mt-1 h-5 w-5 shrink-0" />
+            {/* required: 서버에서 거절되면 React가 폼을 비워 적은 내용이 사라지므로, 제출 전에 브라우저가 먼저 막는다 */}
+            <input type="checkbox" name="consented" required className="mt-1 h-5 w-5 shrink-0" />
             이 고객에게 개인정보 수집·이용 동의(목적·항목·1년 보관·거부 권리 안내)를 받았습니다. *
           </label>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-xs font-semibold text-mx-muted" htmlFor="consentMethod">동의 받은 방법 *</label>
-              <select id="consentMethod" name="consentMethod" defaultValue="" className="mx-input">
+              <select id="consentMethod" name="consentMethod" defaultValue="" required className="mx-input">
                 <option value="" disabled>고르세요</option>
                 {CONSENT_METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold text-mx-muted" htmlFor="consentDate">동의 받은 날짜 *</label>
-              <input id="consentDate" name="consentDate" type="date" defaultValue={today} max={today} className="mx-input" />
+              <input id="consentDate" name="consentDate" type="date" defaultValue={today} max={today} required className="mx-input" />
             </div>
           </div>
           <label className="mt-3 flex min-h-[44px] items-start gap-2">
