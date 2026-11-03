@@ -18,7 +18,7 @@ export async function generateComponentCode(apiKey: string, prompt: string, comp
 
   const ai = new GoogleGenAI({ apiKey });
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3.8-flash",
     contents: [{ role: "user", parts: [{ text: `요청 컴포넌트 타입: ${componentType || "자유 컴포넌트"}\n요청 상세 설명: ${prompt}\n\n위 요구사항을 충족하는 모던 React 19 + Tailwind CSS 컴포넌트를 작성해주세요.` }] }],
     config: { systemInstruction: { parts: [{ text: systemInstruction }] }, temperature: 0.4 },
   });

@@ -3,7 +3,8 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { COMPONENT_TYPES, type CanvasSize, type DesignSpec } from "@/lib/canvas/types";
 import { TOOLBOX } from "@/lib/canvas/constants";
 
-const MODEL = "gemini-2.5-flash";
+// 2026-11-03: gemini-2.5-flash(12-01 자동 연결) → 3.8-flash (docs/PLAN_20261103_MODEL_MIGRATION_DEC.md)
+const MODEL = "gemini-3.8-flash";
 
 /** 사용자에게 보여줄 한국어 메시지로 바꾼다(키 값은 절대 포함하지 않는다). */
 export function friendlyAiError(error: unknown): { message: string; status: number } {
