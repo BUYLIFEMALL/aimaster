@@ -15,7 +15,7 @@
 
 ## 대기 중
 
-- `free-music-studio` — 사이트 안 한글 폴더 고르기(윈도우 기본 창이 영어 윈도우에서 영어·고른 뒤 버튼 한 번 더 → 한글 화면 + 「이 폴더에 저장」 한 번), 엔진 0.1.3 browse·mkdir. 커밋 `c1f99cbd3`. 주인님 「급한 건 아냐, 다음 배포 때 같이」(2026-11-03, [역할: music] `claude-win-20261024-music`). 다음 배포 v1.05에 함께.
+- `free-music-studio` — 사이트 안 한글 폴더 고르기(윈도우 기본 창이 영어 윈도우에서 영어·고른 뒤 버튼 한 번 더 → 한글 화면 + 「이 폴더에 저장」 한 번), 엔진 0.1.3 browse·mkdir. 커밋 `c1f99cbd3`. 주인님 「급한 건 아냐, 다음 배포 때 같이」(2026-11-03, [역할: music] `claude-win-20261024-music`). 다음 배포 v1.05에 함께. + 프로젝트·플레이리스트(`0e30aa896`) — **⚠ 배포 전에 SQL `free-music-studio/supabase/migrations/20261103_v1_05_collections.sql`을 먼저 실행(곡 목록이 `project_id` 칸을 읽음, SQL 없이 배포하면 모든 음악 목록 오류)**.
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
 
