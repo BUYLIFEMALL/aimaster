@@ -27,12 +27,15 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
   let working = false;
   let controller = null;
 
-  const save = async () => {
+  // 저장은 한 번에 하나씩 — 넣기와 처리가 같은 임시 파일에 동시에 쓰면 윈도우에서 이름 바꾸기가 부딪혀 실패했다(2026-11-04 시험에서 가끔 재현)
+  let saving = Promise.resolve();
+  const saveNow = async () => {
     await mkdir(path.dirname(file), { recursive: true });
     const tmp = `${file}.tmp`;
     await writeFile(tmp, JSON.stringify({ jobs }, null, 2));
     await rename(tmp, file);
   };
+  const save = () => (saving = saving.catch(() => {}).then(saveNow));
 
   const trim = () => {
     const finished = jobs.filter((j) => FINISHED.has(j.status));

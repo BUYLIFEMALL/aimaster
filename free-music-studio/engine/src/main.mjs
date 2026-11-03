@@ -7,9 +7,9 @@ import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { ensureInstalled, killStaleAcestep, pickFreePort, PYTHON_UTF8_ENV, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
+import { ensureInstalled, killStaleAcestep, missingModelGb, progressText, watchGrowth, pickFreePort, PYTHON_UTF8_ENV, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
 import { checkItems, chooseDevice, qualityOptions, qualityProfile } from "./device.mjs";
-import { inspectSystem } from "./system.mjs";
+import { inspectSystem, listInstalledModels } from "./system.mjs";
 import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
 import { createLibrary } from "./library.mjs";
 import { createQueue } from "./queue.mjs";
@@ -17,7 +17,7 @@ import { createRunner } from "./runner.mjs";
 import { newToken } from "./security.mjs";
 import { runYue2, yue2Installed, yue2MissingBytes, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
 
-const VERSION = "0.2.0"; // 0.2.0: 비상업용 음악 엔진 YuE2(새 곡 만들기) · 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내 · 0.1.8: 켜진 뒤 살아 있는지 확인·끌 때 음악 엔진도 함께 끄기 · 0.1.9: 내부 번호를 실행마다 비어 있는 번호로, 남은 음악 엔진은 실행 명령 이름으로 찾아 끄기 · 0.1.10: 음악 엔진이 알려 준 실패 이유를 대기열·엔진 창에 그대로 표시 · 0.1.11: 음악 엔진 글자 UTF-8(한국어 윈도우 cp949 오류 해결)
+const VERSION = "0.2.1"; // 0.2.1: 처음 받는 ACE-Step 모델·실행 환경도 「받는 중 · 3.2GB / 약 14.9GB」로 표시, 연결 문이 열린 뒤에만 연결 코드, 대기열 저장 한 번에 하나씩 · 0.2.0: 비상업용 음악 엔진 YuE2(새 곡 만들기) · 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내 · 0.1.8: 켜진 뒤 살아 있는지 확인·끌 때 음악 엔진도 함께 끄기 · 0.1.9: 내부 번호를 실행마다 비어 있는 번호로, 남은 음악 엔진은 실행 명령 이름으로 찾아 끄기 · 0.1.10: 음악 엔진이 알려 준 실패 이유를 대기열·엔진 창에 그대로 표시 · 0.1.11: 음악 엔진 글자 UTF-8(한국어 윈도우 cp949 오류 해결)
 // 내부 음악 엔진 번호 — 실행마다 비어 있는 번호(0.1.9). 예전에는 47822로 고정해, 남은 음악 엔진이 잡고 있으면 새 음악 엔진이 켜지지 못했다.
 const ACESTEP_PORT = await pickFreePort();
 
@@ -89,7 +89,14 @@ const acestepKey = newToken(); // 실행할 때마다 새로 — 연결 문만 �
 const library = createLibrary(dataDir);
 await library.init();
 const queueSourceDir = path.join(dataDir, "queue-src");
-const aceRun = createRunner({ port: ACESTEP_PORT, key: acestepKey, library, sourceDir: queueSourceDir });
+const aceRun = createRunner({
+  port: ACESTEP_PORT,
+  key: acestepKey,
+  library,
+  sourceDir: queueSourceDir,
+  // 이 구성의 모델을 아직 안 받았으면 받는 동안 「음악 모델 받는 중 · 3.2GB / 약 13.5GB」
+  watch: { dir: checkpointsDir, missingGb: async () => missingModelGb(profile, await listInstalledModels(checkpointsDir)) },
+});
 const yue2LogFile = path.join(dataDir, "yue2-log.txt");
 
 /**
@@ -262,7 +269,12 @@ async function startMusicEngineInner() {
     state.error = `음악 엔진이 멈췄습니다(코드 ${code}). 엔진을 다시 실행해 주세요.`;
     logLine(`⚠ ${state.error}`);
   });
-  const ok = await waitHealthy(ACESTEP_PORT);
+  // 켜는 동안 모델을 받으면 엔진 상태에도 받는 크기를 보인다
+  const missingGb = missingModelGb(profile, await listInstalledModels(checkpointsDir));
+  const stopWatch = missingGb
+    ? watchGrowth(checkpointsDir, (b) => (state.stage = progressText("음악 모델 받는 중(처음 한 번)", b, missingGb)))
+    : () => {};
+  const ok = await waitHealthy(ACESTEP_PORT).finally(stopWatch);
   if (!ok) throw new Error("음악 엔진이 3분 안에 켜지지 않았습니다.");
   // 다른 음악 엔진이 대신 대답했을 수 있다 — 우리가 띄운 음악 엔진이 살아 있어야 준비된 것
   await new Promise((r) => setTimeout(r, 2000));

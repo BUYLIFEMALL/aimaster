@@ -1,8 +1,8 @@
 // ACE-Step 1.5(MIT) 설치·실행 — 2026-11-03 사전 검증을 통과한 버전 하나로 고정한다.
 import { spawn, spawnSync } from "node:child_process";
 import { createWriteStream } from "node:fs";
-import { access, mkdir, readdir, rename, rm, writeFile, readFile } from "node:fs/promises";
-import { Readable } from "node:stream";
+import { access, mkdir, readdir, rename, rm, stat, writeFile, readFile } from "node:fs/promises";
+import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import net from "node:net";
 import path from "node:path";
@@ -50,6 +50,65 @@ export function profileEnv(profile) {
   return env;
 }
 
+// ── 받는 중 표시(2026-11-04 주인님: 「처음 받는 모델도 다운로드되는 것을 보여 줘, 동작하고 있는지 알 수 있게」) ──
+// ACE-Step은 모델을 스스로 받으므로, 받는 폴더 크기를 몇 초마다 재서 「받는 중 · 3.2GB / 약 13.5GB」로 보인다.
+
+/** 모델 폴더(checkpoints 안 이름)별 대략 크기(GB) — device.mjs 근거와 같음(미니PC 실측·공식 크기) */
+export const MODEL_SIZE_GB = {
+  "acestep-v15-xl-sft": 10,
+  "acestep-v15-xl-turbo": 10,
+  "acestep-v15-turbo": 4.5,
+  "acestep-5Hz-lm-4B": 8,
+  "acestep-5Hz-lm-1.7B": 3.5,
+  "acestep-5Hz-lm-0.6B": 1.3,
+};
+const COMMON_MODELS_GB = 1.4; // 소리 복원·글자 이해 모델(처음 한 번)
+export const RUNTIME_GB = 4.3; // uv sync로 설치하는 실행 환경(미니PC 실측)
+
+/** 이 구성에서 아직 받지 않은 모델 크기(GB) — 처음이면 공통 모델도 더한다 */
+export function missingModelGb(profile, installed) {
+  let gb = installed.length === 0 ? COMMON_MODELS_GB : 0;
+  for (const m of [profile.dit, profile.lm]) if (m && !installed.includes(m)) gb += MODEL_SIZE_GB[m] ?? 0;
+  return Math.round(gb * 10) / 10;
+}
+
+/** 폴더 전체 크기(바이트). 없으면 0. 받는 중 바뀌는 파일은 건너뛴다. */
+export async function dirSize(dir) {
+  let total = 0;
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  for (const e of entries) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) total += await dirSize(p);
+    else if (e.isFile()) total += (await stat(p).catch(() => ({ size: 0 }))).size;
+  }
+  return total;
+}
+
+export const gbText = (bytes) => `${(bytes / 1024 ** 3).toFixed(1)}GB`;
+
+/** 「… · 1.2GB / 약 4.3GB」 — 예상보다 크면 「약」 크기는 뺀다 */
+export function progressText(label, doneBytes, expectGb) {
+  const done = gbText(doneBytes);
+  return expectGb && doneBytes / 1024 ** 3 < expectGb ? `${label} · ${done} / 약 ${expectGb}GB` : `${label} · ${done}`;
+}
+
+/** 폴더가 커지는 동안 every ms마다 onGrow(늘어난 바이트)를 부른다. stop()으로 멈춘다. */
+export function watchGrowth(dir, onGrow, every = 3000) {
+  let base = null;
+  let last = 0;
+  let stopped = false;
+  const tick = async () => {
+    if (stopped) return;
+    const now = await dirSize(dir);
+    if (base == null) base = now;
+    else if (now > last) onGrow(now - base);
+    last = now;
+    if (!stopped) timer = setTimeout(tick, every);
+  };
+  let timer = setTimeout(tick, 0);
+  return () => ((stopped = true), clearTimeout(timer));
+}
+
 function run(cmd, args, opts, log) {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, { ...opts, windowsHide: true });
@@ -81,7 +140,16 @@ export async function ensureInstalled(dataDir, { onStage = () => {}, log = () =>
     const zip = path.join(dataDir, `acestep-${ACESTEP_COMMIT.slice(0, 7)}.zip`);
     const res = await fetch(ARCHIVE_URL, { redirect: "follow" });
     if (!res.ok || !res.body) throw new Error(`음악 엔진을 받지 못했습니다(HTTP ${res.status}). 인터넷 연결을 확인해 주세요.`);
-    await pipeline(Readable.fromWeb(res.body), createWriteStream(zip));
+    let got = 0;
+    let shown = 0;
+    const counter = new Transform({
+      transform(chunk, _enc, cb) {
+        got += chunk.length;
+        if (Date.now() - shown > 1000) ((shown = Date.now()), onStage(`음악 엔진 내려받는 중 · ${(got / 1024 ** 2).toFixed(0)}MB`));
+        cb(null, chunk);
+      },
+    });
+    await pipeline(Readable.fromWeb(res.body), counter, createWriteStream(zip));
     onStage("압축 푸는 중");
     const tmp = path.join(dataDir, "acestep-tmp");
     await rm(tmp, { recursive: true, force: true });
@@ -95,7 +163,12 @@ export async function ensureInstalled(dataDir, { onStage = () => {}, log = () =>
   }
 
   onStage("필요한 구성 설치 중(처음 한 번, 수 분)");
-  await run("uv", ["sync"], { cwd: dir }, log);
+  const stopWatch = watchGrowth(path.join(dir, ".venv"), (b) => onStage(progressText("필요한 구성 설치 중(처음 한 번)", b, RUNTIME_GB)));
+  try {
+    await run("uv", ["sync"], { cwd: dir }, log);
+  } finally {
+    stopWatch();
+  }
   await writeFile(stateFile, JSON.stringify({ commit: ACESTEP_COMMIT, status: "installed", installedAt: new Date().toISOString() }, null, 2));
   return dir;
 }

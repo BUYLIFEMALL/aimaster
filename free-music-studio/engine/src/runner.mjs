@@ -3,6 +3,7 @@
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { extOfAudioRef } from "./library.mjs";
+import { progressText, watchGrowth } from "./acestep.mjs";
 
 const POLL_MS = 3000;
 const MAX_WAIT_MS = 45 * 60_000;
@@ -43,9 +44,11 @@ const sleep = (ms, signal) =>
   });
 
 /**
- * @param {{ port: number, key: string, library: { save: Function }, sourceDir: string, pollMs?: number, maxWaitMs?: number, fetchImpl?: typeof fetch }} ctx
+ * watch: 처음 쓰는 모델을 ACE-Step이 받는 폴더(checkpoints)와 아직 안 받은 크기(GB) — 폴더가 커지는 동안 「받는 중」을 보인다
+ * @param {{ port: number, key: string, library: { save: Function }, sourceDir: string, pollMs?: number, maxWaitMs?: number, fetchImpl?: typeof fetch,
+ *           watch?: { dir: string, missingGb: () => Promise<number>, every?: number } }} ctx
  */
-export function createRunner({ port, key, library, sourceDir, pollMs = POLL_MS, maxWaitMs = MAX_WAIT_MS, fetchImpl = fetch }) {
+export function createRunner({ port, key, library, sourceDir, pollMs = POLL_MS, maxWaitMs = MAX_WAIT_MS, fetchImpl = fetch, watch }) {
   const base = `http://127.0.0.1:${port}`;
   const auth = { authorization: `Bearer ${key}` };
 
@@ -68,10 +71,29 @@ export function createRunner({ port, key, library, sourceDir, pollMs = POLL_MS, 
     return taskId;
   }
 
-  return async function run(job, signal, stage) {
+  async function run(job, signal, stage) {
+    // 이 구성의 모델을 아직 안 받았으면 받는 폴더를 지켜본다(받는 동안은 그 진행을 먼저 보인다)
+    const missing = watch ? await watch.missingGb().catch(() => 0) : 0;
+    let grewAt = 0;
+    let dlText = "";
+    const stopWatch = missing
+      ? watchGrowth(watch.dir, (b) => {
+          grewAt = Date.now();
+          dlText = progressText("음악 모델 받는 중(처음 한 번)", b, missing);
+          stage(dlText);
+        }, watch.every)
+      : () => {};
+    try {
+      return await runInner(job, signal, stage, () => (Date.now() - grewAt < 15_000 ? dlText : ""));
+    } finally {
+      stopWatch();
+    }
+  }
+
+  async function runInner(job, signal, stage, downloading) {
     stage("음악 엔진에 보내는 중");
     const taskId = await release(job);
-    stage("만드는 중");
+    stage(downloading() || "만드는 중");
     const started = Date.now();
     let file = "";
     for (;;) {
@@ -84,7 +106,7 @@ export function createRunner({ port, key, library, sourceDir, pollMs = POLL_MS, 
         break;
       }
       const sec = Math.round((Date.now() - started) / 1000);
-      stage(`만드는 중 · ${Math.floor(sec / 60)}분 ${sec % 60}초 지남`);
+      stage(downloading() || `만드는 중 · ${Math.floor(sec / 60)}분 ${sec % 60}초 지남`);
       if (Date.now() - started > maxWaitMs) throw new Error("너무 오래 걸려 기다리기를 멈췄습니다. 엔진 창에 오류가 있는지 확인해 주세요.");
     }
     stage("보관함에 저장하는 중");
@@ -98,5 +120,7 @@ export function createRunner({ port, key, library, sourceDir, pollMs = POLL_MS, 
       delete job.source;
     }
     return { trackId: job.track.id, ext };
-  };
+  }
+
+  return run;
 }

@@ -17,6 +17,29 @@ import {
   YUE2_STYLE_MAX,
 } from "../src/yue2.mjs";
 import { createQueue } from "../src/queue.mjs";
+import { dirSize, missingModelGb, progressText, watchGrowth } from "../src/acestep.mjs";
+import { mkdir, writeFile } from "node:fs/promises";
+
+test("ACE-Step 받는 중 표시 — 안 받은 크기·진행 문구·폴더가 커질 때만 알림", async () => {
+  const xl = { dit: "acestep-v15-xl-turbo", lm: "acestep-5Hz-lm-1.7B" };
+  assert.equal(missingModelGb(xl, []), 14.9); // 처음: 공통 1.4 + XL 10 + 1.7B 3.5
+  assert.equal(missingModelGb(xl, ["acestep-v15-turbo", "acestep-5Hz-lm-1.7B"]), 10);
+  assert.equal(missingModelGb(xl, ["acestep-v15-xl-turbo", "acestep-5Hz-lm-1.7B"]), 0);
+  assert.equal(progressText("받는 중", 3.2 * 1024 ** 3, 14.9), "받는 중 · 3.2GB / 약 14.9GB");
+  assert.equal(progressText("받는 중", 16 * 1024 ** 3, 14.9), "받는 중 · 16.0GB"); // 예상보다 크면 「약」은 뺌
+
+  const dir = path.join(await tmpDir(), "checkpoints");
+  await mkdir(path.join(dir, "m"), { recursive: true });
+  await writeFile(path.join(dir, "m", "a.bin"), Buffer.alloc(1000));
+  const seen = [];
+  const stop = watchGrowth(dir, (b) => seen.push(b), 30);
+  await new Promise((r) => setTimeout(r, 200));
+  await writeFile(path.join(dir, "m", "b.bin"), Buffer.alloc(500));
+  await new Promise((r) => setTimeout(r, 300));
+  stop();
+  assert.ok(seen.length >= 1 && seen.every((b) => b === 500), JSON.stringify(seen));
+  assert.equal(await dirSize(dir), 1500);
+});
 
 const tmpDir = () => mkdtemp(path.join(os.tmpdir(), "fms-yue2-"));
 
