@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` v1.07 지역별 조례 요율 + 「내 cron-job.org」 실검수
+- 조례: 2021-10-19 시행규칙 개정 때 「조례로 ±0.1%p 가감」 조항이 빠져 시·도 조례는 별표 1 요율을 그대로 반영(서울시 부동산정보광장 게시 — 서울특별시 주택중개보수 등에 관한 조례 별표 1, 2021-12-30 시행 — 와 완전히 같음 확인, 충남·충북 게시본도 같은 구조). 계산기에 17개 시·도 선택 추가: 대조한 3곳 ✅, 나머지는 「○○ 주택 중개보수 등에 관한 조례」 원문 확인 안내(요율은 같음). 커밋 `f2e5d32fc`, 배포 `realty-client-desk-nf5kq3r0m`, DB v1.07.
+- 「내 cron-job.org」 실검수(시험 계정 — 본인 cron-job.org 키 있음·SOLAPI 없음이라 문자 없음): 설정에서 선택 → 일정 저장 → 상태 줄 「실행 중 · 1개」, cron-job.org 작업 8782421(주소 `/api/cron/dispatch-member`, 매일 08:00 Asia/Seoul, 인증 머리글) 켜짐 → 작업과 같은 머리글로 1회 호출 200·가짜 토큰 401·실행 기록 오류 없음(모레 일정이라 알림 안 감 — 맞음) → 일정 삭제로 「대기」 → Vercel 복귀, 작업 `enabled: false`. 코드 수정 없음.
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.05 배포(프로젝트·플레이리스트 + 한글 폴더 고르기)
 - 한 일: 원본 앱 PROJECTS·PLAYLISTS를 「모든 음악」 왼쪽 목록으로 — 프로젝트(곡 하나에 하나, 지우면 묶음만 풀림)·플레이리스트(순서·↑↓·빼기·전체 이어 듣기), 이름 바꾸기·지우기. 새 표 `free_music_collections`·`free_music_playlist_items` + `free_music_tracks.project_id`(ego SQL, RLS·규칙 확인 — 경고 창은 새 표 정책 DROP IF EXISTS 때문). 미배포였던 사이트 안 한글 폴더 고르기도 함께. 커밋 `0e30aa896`·`c1f99cbd3`, 배포 `free-music-studio-4h0idon07`, DB v1.05.
 - 확인(ego lite, 시험 계정): 프로젝트 「발라드」·플레이리스트 「비 오는 날」 만들기 → 곡 지정·담기 → 목록 곡 수 1·1. 못 한 것: 플레이리스트 화면 순서 바꾸기·전체 이어 듣기(곡 1개뿐)·이름 바꾸기·지우기 — 도중에 ego 탭 묶음이 계속 닫혀(다른 세션 사용 추정) 멈춤. 발견: 한글 이름 Enter가 안 먹음 → `e17ace42a` 미배포 대기.

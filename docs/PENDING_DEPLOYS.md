@@ -71,6 +71,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `realty-client-desk` | v1.07 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 지시 빌드 1회, `realty-client-desk-nf5kq3r0m`) | 중개보수 계산기 지역 선택(17개 시·도, 서울·충남·충북 공식 게시본 대조 표시, 나머지 조례 이름 안내)(`f2e5d32fc`). 운영 화면 확인 |
 | `free-music-studio` | v1.05 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-4h0idon07`) | 프로젝트·플레이리스트(`0e30aa896`, SQL `20261103_v1_05_collections.sql` 먼저 실행·RLS 확인) + 사이트 안 한글 폴더 고르기(`c1f99cbd3`). ego lite에서 프로젝트·플레이리스트 만들기·지정·담기·곡 수 확인 |
 | `naver-blog-agent` | v2.27 · 2026-11-03 (Claude Code 윈도우 `deploy-naver-blog-agent`, 맥미니 요청 「블로그 급한 2개」·주인님 승인 빌드 2회 중 2번째, `naver-blog-agent-ea60hyj4o`) | 종료된 `gpt-image-1` 교체 `87b12267e` + 30일 열외 글감 `27795e295`·비공개 사진 `01d973bf6`. 시험 46·tsc 통과, DB/ext/ZIP v2.27 OK |
 | `naver-blog-allinone` | v1.60 · 2026-11-03 (Claude Code 윈도우 `deploy-naver-blog-allinone`, 같은 승인 1번째, `naver-blog-allinone-348m64t7u`) | 종료된 `gpt-image-1` 교체 `87b12267e` + 30일 열외 `0e46894fb`. 시험 38·tsc 통과, DB/ext/ZIP v1.60 OK |
