@@ -29,6 +29,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - v1.03 (2026-11-03): 2단계 — 내 매물·맞는 고객·광고 문자(회원 SOLAPI)·무료 수신거부 화면·광고 동의 2년 표시. 시행령 별표 6·제62조의2·제62조의3 원문 대조. 커밋 `8a022ffcc`, 배포 `realty-client-desk-qztxwj8fc`.
 
 - v1.04 (2026-11-03): 3단계 — 일정·아침 8시 알림(회원 SOLAPI→본인 핸드폰), 회원 실행 방식(Vercel 기본/내 cron-job.org, 공용 `member-scheduler` 사본 — `memberScheduler.ts` 직접 수정 금지, 값은 `schedulerConfig.ts`), 운영 `/api/cron/daily`(일정 알림 + 1년 정리, `CRON_SECRET`). 커밋 `e43a37bae`, 배포 `realty-client-desk-ffflmwj64`.
+- v1.05 (2026-11-03): 4단계 — 광고 명시 항목 점검(src/lib/desk/adCheck.ts)·AI 광고 글/문자 초안(src/lib/ai/listingDraft.ts, 회원 본인 Claude 키, claude-sonnet-5-5, 재시도 0, 1분 잠금, 저장 안 함)·사무소 등록번호/성명·Claude 키 칸. 커밋 `4be6ba487`, 배포 `realty-client-desk-hsthsm95m`.
 
 ## 5. 남은 일
-4단계 AI 초안·광고 항목 점검(회원 본인 Claude 키). 실제 아침 알림 문자·「내 cron-job.org」 회원 실행 200 미확인. 실제 문자 발송 시험(SOLAPI 있는 계정, 본인 번호 1건) 미실시. 지역 맞춤은 동 이름 글자 포함만 봄(인접 동·좌표는 나중 검토).
+플랜 1~4단계 끝. 공개는 주인님 확인 뒤(결정 3). D5 중개보수 계산기(후순위). 실제 아침 알림 문자·「내 cron-job.org」 회원 실행 200 미확인. 실제 문자 발송 시험(SOLAPI 있는 계정, 본인 번호 1건) 미실시. 지역 맞춤은 동 이름 글자 포함만 봄(인접 동·좌표는 나중 검토).
