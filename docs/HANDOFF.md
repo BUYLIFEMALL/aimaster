@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — `shots` v1.45 배포(DUP-4 + 공통 문구)
+- 주인님 채팅 승인 빌드 1회 `shots-bl2l6rixx` Ready → https://shots.buylife.xyz . 함께 나감: DUP-4 업로드 중복 방지 `7da2cb688`, API 키 암호화 안내 문구 `b16550ad4`. 버전 커밋 `269f2eb46`, DB `programs.version` v1.45.
+- 검수: 공용 사본 일치, tsc 통과, 시험 14개 통과, 로컬 빌드 통과. 크롬(시험 계정): 좌측 메뉴 v1.45, 영상 포스팅 업로드 카드 「미게시」 배지 정상.
+- 못 한 것: 「확인 필요」 배지·재발송 확인 창은 시험 계정에 유튜브·인스타 연결이 없어 실제 화면 미확인(확인 창은 `window.confirm`이라 자동 조작도 피함). 다음 첫 단계: 채널 연결된 회원 화면에서 이미 올린 영상 「다시 올리기」 때 확인 창이 뜨는지 확인.
+
 ## 2026-11-03 ⏳ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 새 프로그램 `free-music-studio`(AI 무료음악 자동화) 기획
 - 공개 MIT 로컬 AI 음악 앱 분석(원저작자 협의로 이름 기록 생략). 결정: 웹 + 내 PC 엔진 앱, 음악 모델 YuE2(비상업) → ACE-Step 1.5(MIT), 커버 포함(원곡 권리 체크), YouTube 가져오기 제외. 플랜 `free-music-studio/docs/PLAN_20261103_V1_01.md` 승인 대기. 외부 분석표 EXT-MUS-08.
 
