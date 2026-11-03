@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` v1.04 3단계(일정 알림·1년 정리) 배포(준비중)
+- 코드 `e43a37bae`: 일정 `realty_desk_events`(임장·계약·중도금·잔금·만기·기타, 「며칠 전 아침 8시」 기본 임장 0·잔금 3·만기 60일), 규칙 `src/lib/desk/eventRules.ts`(시험 3개, 전체 10개 통과), 알림 `src/lib/schedulerMember/dispatch.ts`(회원별 하루 한 통, 회원 본인 SOLAPI → 회원 본인 핸드폰 `profiles.phone`, 알리기 전 `notified_at` 선점·실패 시 되돌림, 핸드폰·정지·이용 권한 확인), 회원 실행 방식 공용 사본 `memberScheduler.ts` + `schedulerConfig.ts`(표 `realty_desk_member_scheduler`, 토큰 `deskcal_`), cron-job.org 작업 매일 08:00(`cronJobOrg.ts`, booking-reminder 사본에서 이름·주기만), 실행 주소 `/api/cron/dispatch-member`(after), 운영 `/api/cron/daily`(vercel.json `0 23 * * *` = 08:00 KST, 일정 알림 + 1년 보관 정리 — `retention_exempt` 제외), 화면 `/events`·설정 「⏰ 일정 알림 실행 방식」·대시보드 「7일 안 일정」·사이드바 4단계·매뉴얼 7단계.
+- 운영: DB 마이그레이션 `20261103030000_events_scheduler.sql` ego SQL 적용, Vercel `CRON_SECRET` 새로 등록(값 출력 안 함 — 첫 등록은 PowerShell 파이프 줄바꿈으로 배포 실패 → 지우고 Node로 다시). 배포 `realty-client-desk-ffflmwj64` Ready, DB v1.04, 실행 주소 2개 가짜 토큰 401.
+- ego lite 시험 계정: 상태 줄 「AIMaster 기본(Vercel) 실행 중 · 알릴 일정 0개」 → 잔금 일정 저장(기본 3일 전) → 「1개」·대시보드 표시 → 설정 화면 → 390px 4화면 → 시험 일정 삭제.
+- 못 한 것: 실제 아침 8시 알림 문자(시험 계정에 SOLAPI 없음, 운영 첫 호출은 11-04 08:00), 「내 cron-job.org」 회원 실행 200. 다음: 4단계 AI 초안·광고 항목 점검(회원 본인 Claude 키).
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.03 배포(「모든 음악」 보관함)
 - 계기: 주인님이 원본 앱(보관함·프로젝트·플레이리스트·가져온 음악·영상·대기열)과 비교해 「왜 같은 소스인데 이런 기능은 없지」 → 첫 빈자리부터 채움.
 - 한 일: 엔진 0.1.1 내 PC 보관함(`engine/src/library.mjs`), 운영 DB 새 표 `free_music_tracks`(ego SQL, RLS 확인), `/api/tracks`, `/library` 화면, 생성 직후 자동 보관, 30일 정리 포함. 커밋 `15b466474`, 배포 `free-music-studio-eiwn25r02`, DB v1.03. 엔진 zip `D:PDSProgram_devree-music-srcree-music-engine-0.1.1.zip`(0.1 zip 삭제).
