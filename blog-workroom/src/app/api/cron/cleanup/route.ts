@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { KEEP_KINDS, orphanJobFolders, retentionCutoff, RETENTION_DAYS } from "@/lib/retention";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
+import { exemptInFilter, loadRetentionExemptIds } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,13 +20,18 @@ export async function GET(request: NextRequest) {
   const dryRun = request.nextUrl.searchParams.get("dry") === "1";
   const cutoff = retentionCutoff();
   const admin = createAdminClient();
+  // 2026-11-03: 30일 삭제 예외 회원(profiles.retention_exempt, 관리자·시험 계정)의 글·이미지는 지우지 않는다. 목록을 못 읽으면 멈춘다.
+  let exempt: Set<string>;
+  try { exempt = await loadRetentionExemptIds(admin); } catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 503 }); }
+  const exemptFilter = exemptInFilter(exempt);
 
-  const { data: expired, error: expiredError } = await admin
+  let expiredQuery = admin
     .from("blog_workroom_items")
     .select("id, user_id, kind")
     .not("kind", "in", `(${KEEP_KINDS.join(",")})`)
-    .lte("created_at", cutoff)
-    .limit(5000);
+    .lte("created_at", cutoff);
+  if (exemptFilter) expiredQuery = expiredQuery.not("user_id", "in", exemptFilter);
+  const { data: expired, error: expiredError } = await expiredQuery.limit(5000);
   if (expiredError) return NextResponse.json({ error: expiredError.message }, { status: 500 });
   let deletedRows = 0;
   // 2026-10-23: 실제로 지운 것만 회원별로 세어 usage_logs(cleanup_expired)에 남긴다(관리자 「30일 자동 정리」 표). 미리 보기(dry)는 기록 안 함
@@ -47,7 +53,7 @@ export async function GET(request: NextRequest) {
   if (ownersError) return NextResponse.json({ error: ownersError.message }, { status: 500 });
   let orphanFolders = 0;
   let removedFiles = 0;
-  for (const owner of (owners ?? []).filter((o) => o.id === null)) {
+  for (const owner of (owners ?? []).filter((o) => o.id === null && !exempt.has(o.name))) {
     const { data: folders } = await storage.list(owner.name, { limit: 1000 });
     for (const folder of orphanJobFolders((folders ?? []).filter((f) => f.id === null).map((f) => f.name), live)) {
       orphanFolders += 1;

@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { UserError } from "@/lib/errors";
 import { retainedFilter } from "@/lib/retention";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 // 회원 작업 저장소: public.blog_workroom_items(user_id + RLS owner-only).
 // 서버는 service role로 읽고 쓰므로 모든 조회·수정에 user_id 조건을 반드시 붙인다(멀티테넌시 원칙 2).
@@ -15,7 +16,10 @@ const COLS = "id, kind, title, data, ref_id, created_at, updated_at";
 const LIMIT: Partial<Record<Kind, number>> = { keyword: 1000, blog: 30 };
 
 export async function listItems<T>(userId: string, kind: Kind, opts: { refId?: string; limit?: number } = {}): Promise<Item<T>[]> {
-  let q = createAdminClient().from(TABLE).select(COLS).eq("user_id", userId).eq("kind", kind).or(retainedFilter()).order("updated_at", { ascending: false }).limit(opts.limit ?? 200);
+  const admin = createAdminClient();
+  let q = admin.from(TABLE).select(COLS).eq("user_id", userId).eq("kind", kind);
+  if (!(await isRetentionExempt(admin, userId))) q = q.or(retainedFilter()); // 2026-11-03: 예외 회원(관리자·시험)은 30일 숨김 없음
+  q = q.order("updated_at", { ascending: false }).limit(opts.limit ?? 200);
   if (opts.refId) q = q.eq("ref_id", opts.refId);
   const { data, error } = await q;
   if (error) throw new UserError(500, "저장된 작업을 불러오지 못했습니다.");
@@ -24,7 +28,9 @@ export async function listItems<T>(userId: string, kind: Kind, opts: { refId?: s
 
 export async function getItem<T>(userId: string, id: string, kind?: Kind): Promise<Item<T> | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
-  let q = createAdminClient().from(TABLE).select(COLS).eq("user_id", userId).eq("id", id).or(retainedFilter()); // v1.12: 30일 지난 생성물은 바로 숨김
+  const admin = createAdminClient();
+  let q = admin.from(TABLE).select(COLS).eq("user_id", userId).eq("id", id);
+  if (!(await isRetentionExempt(admin, userId))) q = q.or(retainedFilter()); // v1.12: 30일 지난 생성물은 바로 숨김(예외 회원 제외, 2026-11-03)
   if (kind) q = q.eq("kind", kind);
   const { data } = await q.maybeSingle();
   return (data as Item<T> | null) ?? null;
