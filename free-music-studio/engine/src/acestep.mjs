@@ -36,6 +36,12 @@ export function hasFfmpeg() {
   return spawnSync("ffmpeg", ["-version"], { encoding: "utf8" }).status === 0;
 }
 
+/**
+ * 음악 엔진(파이썬)이 글자를 UTF-8로 쓰게 한다. 한국어 윈도우 기본(cp949)으로 두면 진행 문구의 긴 줄표(—, —)를
+ * 쓰다가 'cp949' codec can't encode 오류로 곡 만들기가 바로 실패했다(2026-11-04 마스터PC).
+ */
+export const PYTHON_UTF8_ENV = { PYTHONUTF8: "1", PYTHONIOENCODING: "utf-8" };
+
 /** 음질 설정을 ACE-Step 환경 변수로 — 모델은 첫 사용 때 엔진이 스스로 받는다. */
 export function profileEnv(profile) {
   const env = { ACESTEP_CONFIG_PATH: profile.dit, ACESTEP_INIT_LLM: profile.lm ? "true" : "false" };
@@ -104,6 +110,7 @@ export function launch(dir, { port, apiKey, device, profile }, log = () => {}) {
     windowsHide: true,
     env: {
       ...process.env,
+      ...PYTHON_UTF8_ENV,
       ACESTEP_API_HOST: "127.0.0.1",
       ACESTEP_API_PORT: String(port),
       ACESTEP_API_KEY: apiKey,

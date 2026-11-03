@@ -5,7 +5,12 @@ import os from "node:os";
 import path from "node:path";
 import { createQueue } from "../src/queue.mjs";
 import { createRunner, parseTaskState } from "../src/runner.mjs";
-import { pickFreePort, staleAcestepPids } from "../src/acestep.mjs";
+import { PYTHON_UTF8_ENV, pickFreePort, staleAcestepPids } from "../src/acestep.mjs";
+
+test("음악 엔진 글자: 파이썬을 UTF-8 모드로(한국어 윈도우 cp949 오류 방지)", () => {
+  assert.equal(PYTHON_UTF8_ENV.PYTHONUTF8, "1");
+  assert.equal(PYTHON_UTF8_ENV.PYTHONIOENCODING, "utf-8");
+});
 
 test("남은 음악 엔진 찾기: 실행 명령에 acestep-api가 있는 프로그램만, 지금 것은 빼고", () => {
   const procs = [
