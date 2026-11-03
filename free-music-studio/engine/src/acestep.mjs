@@ -63,7 +63,13 @@ export const MODEL_SIZE_GB = {
   "acestep-5Hz-lm-0.6B": 1.3,
 };
 const COMMON_MODELS_GB = 1.4; // 소리 복원·글자 이해 모델(처음 한 번)
-export const RUNTIME_GB = 4.3; // uv sync로 설치하는 실행 환경(미니PC 실측)
+// uv sync 실측(2026-11-04 미니PC 처음 설치): 먼저 uv 보관 폴더에 약 4.3GB를 받고, 실행 환경(.venv)에 6.1GB를 깐다
+export const RUNTIME_DL_GB = 4.3;
+export const RUNTIME_GB = 6.1;
+/** uv가 받은 패키지를 쌓는 폴더(UV_CACHE_DIR이 없으면 기본 위치) */
+export const uvCacheDir = () =>
+  process.env.UV_CACHE_DIR ||
+  (process.platform === "win32" ? path.join(process.env.LOCALAPPDATA || "", "uv", "cache") : path.join(process.env.HOME || "", ".cache", "uv"));
 
 /** 이 구성에서 아직 받지 않은 모델 크기(GB) — 처음이면 공통 모델도 더한다 */
 export function missingModelGb(profile, installed) {
@@ -163,11 +169,14 @@ export async function ensureInstalled(dataDir, { onStage = () => {}, log = () =>
   }
 
   onStage("필요한 구성 설치 중(처음 한 번, 수 분)");
-  const stopWatch = watchGrowth(path.join(dir, ".venv"), (b) => onStage(progressText("필요한 구성 설치 중(처음 한 번)", b, RUNTIME_GB)));
+  // 받는 동안은 uv 보관 폴더가, 까는 동안은 실행 환경 폴더가 커진다 — 커지는 쪽을 보인다
+  const stopDl = watchGrowth(uvCacheDir(), (b) => onStage(progressText("필요한 구성 받는 중(처음 한 번)", b, RUNTIME_DL_GB)), 5000);
+  const stopVenv = watchGrowth(path.join(dir, ".venv"), (b) => onStage(progressText("필요한 구성 설치 중(처음 한 번)", b, RUNTIME_GB)));
   try {
     await run("uv", ["sync"], { cwd: dir }, log);
   } finally {
-    stopWatch();
+    stopDl();
+    stopVenv();
   }
   await writeFile(stateFile, JSON.stringify({ commit: ACESTEP_COMMIT, status: "installed", installedAt: new Date().toISOString() }, null, 2));
   return dir;

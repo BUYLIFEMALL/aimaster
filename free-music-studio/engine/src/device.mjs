@@ -47,14 +47,15 @@ export function qualityProfile({ device, vramGb }) {
  * diskGb: 처음 받을 때 필요한 여유(실행 환경·공통 6GB + 음악 모델 + 언어 모델, 넉넉히 올림).
  * 근거: 미니PC 실측(2026-11-03) 표준 음악 모델 4.5GB·1.7B 3.5GB·공통 1.4GB·실행 환경 4.3GB,
  * XL 음악 모델 약 10GB·4B 약 8GB·0.6B 약 1.3GB는 공식 모델 크기 기준 추정(마스터PC 실측 뒤 고침).
+ * 2026-11-04 미니PC 처음 설치 실측: 실행 환경(.venv) 6.1GB + uv 보관 폴더 약 4.3GB → 처음 계산(4.3GB)보다 6GB 더 들어 모두 +6.
  */
 export const QUALITY_TIERS = [
-  { id: "max4b", tier: "max", name: "최고 품질 4B", label: "최고 품질 · XL 음악 모델 + 4B 언어 모델", dit: "acestep-v15-xl-sft", lm: "acestep-5Hz-lm-4B", steps: 50, offload: false, minVramGb: 24, diskGb: 25 },
-  { id: "max", tier: "max", name: "최고 품질", label: "최고 품질 · XL 음악 모델 + 1.7B 언어 모델", dit: "acestep-v15-xl-sft", lm: "acestep-5Hz-lm-1.7B", steps: 50, offload: false, minVramGb: 20, diskGb: 21 },
-  { id: "xlturbo", tier: "high", name: "XL 고품질", label: "고품질 · XL 음악 모델(일부 CPU 사용) + 1.7B 언어 모델", dit: "acestep-v15-xl-turbo", lm: "acestep-5Hz-lm-1.7B", steps: 8, offload: true, minVramGb: 15, diskGb: 21 },
-  { id: "high", tier: "high", name: "고품질", label: "고품질 · 표준 음악 모델 + 1.7B 언어 모델", dit: "acestep-v15-turbo", lm: "acestep-5Hz-lm-1.7B", steps: 8, offload: false, minVramGb: 12, diskGb: 15 },
-  { id: "standard", tier: "standard", name: "표준", label: "표준 · 표준 음악 모델 + 0.6B 언어 모델", dit: "acestep-v15-turbo", lm: "acestep-5Hz-lm-0.6B", steps: 8, offload: false, minVramGb: 6, diskGb: 13 },
-  { id: "basic", tier: "basic", name: "기본", label: "기본 · 표준 음악 모델(언어 모델 없음)", dit: "acestep-v15-turbo", lm: null, steps: 8, offload: false, minVramGb: 0, diskGb: 11 },
+  { id: "max4b", tier: "max", name: "최고 품질 4B", label: "최고 품질 · XL 음악 모델 + 4B 언어 모델", dit: "acestep-v15-xl-sft", lm: "acestep-5Hz-lm-4B", steps: 50, offload: false, minVramGb: 24, diskGb: 31 },
+  { id: "max", tier: "max", name: "최고 품질", label: "최고 품질 · XL 음악 모델 + 1.7B 언어 모델", dit: "acestep-v15-xl-sft", lm: "acestep-5Hz-lm-1.7B", steps: 50, offload: false, minVramGb: 20, diskGb: 27 },
+  { id: "xlturbo", tier: "high", name: "XL 고품질", label: "고품질 · XL 음악 모델(일부 CPU 사용) + 1.7B 언어 모델", dit: "acestep-v15-xl-turbo", lm: "acestep-5Hz-lm-1.7B", steps: 8, offload: true, minVramGb: 15, diskGb: 27 },
+  { id: "high", tier: "high", name: "고품질", label: "고품질 · 표준 음악 모델 + 1.7B 언어 모델", dit: "acestep-v15-turbo", lm: "acestep-5Hz-lm-1.7B", steps: 8, offload: false, minVramGb: 12, diskGb: 21 },
+  { id: "standard", tier: "standard", name: "표준", label: "표준 · 표준 음악 모델 + 0.6B 언어 모델", dit: "acestep-v15-turbo", lm: "acestep-5Hz-lm-0.6B", steps: 8, offload: false, minVramGb: 6, diskGb: 19 },
+  { id: "basic", tier: "basic", name: "기본", label: "기본 · 표준 음악 모델(언어 모델 없음)", dit: "acestep-v15-turbo", lm: null, steps: 8, offload: false, minVramGb: 0, diskGb: 17 },
 ];
 
 /**

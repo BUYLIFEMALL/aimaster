@@ -200,7 +200,7 @@ function showWindow() {
   if (!win) {
     win = new BrowserWindow({
       width: 460,
-      height: 640,
+      height: 820,
       resizable: true,
       title: "AI 무료음악 자동화 엔진",
       icon: ICON,
@@ -209,7 +209,12 @@ function showWindow() {
       webPreferences: { preload: path.join(__dirname, "preload.cjs"), contextIsolation: true, nodeIntegration: false },
     });
     win.loadFile(path.join(__dirname, "status.html"));
-    win.webContents.on("did-finish-load", () => push());
+    win.webContents.on("did-finish-load", () => {
+      push();
+      // 개발 확인용: FMS_DESKTOP_SNAPSHOT=<파일.png>이면 8초 뒤 창 화면을 저장한다(화면 캡처가 막힌 환경에서 모양 확인)
+      const snap = process.env.FMS_DESKTOP_SNAPSHOT;
+      if (snap) setTimeout(() => win.webContents.capturePage().then((img) => fs.writeFileSync(snap, img.toPNG()), () => {}), 8000);
+    });
     // X는 숨기기만 — 완전히 끄려면 [끄기]
     win.on("close", (e) => {
       if (!quitting) {
