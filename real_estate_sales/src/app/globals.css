@@ -241,3 +241,19 @@
   border: 1px solid var(--color-mx-border);
   border-radius: 1rem;
 }
+
+/* B2 주소 리포트 인쇄(2026-11-03): 어두운 화면을 흰 바탕·검은 글자로 — 브라우저는 배경색을 인쇄하지 않아 밝은 글자가 안 보이므로 색 변수만 바꾼다 */
+@media print {
+  :root {
+    --color-mx-bg: #ffffff;
+    --color-mx-surface: #ffffff;
+    --color-mx-raised: #f3f4f6;
+    --color-mx-border: #d1d5db;
+    --color-mx-text: #111827;
+    --color-mx-muted: #4b5563;
+    --color-mx-link: #1d4ed8;
+    --background-image-dark-gradient: none;
+  }
+  body { background: #ffffff !important; color: #111827 !important; }
+  .mx-card, .rounded-2xl { break-inside: avoid; box-shadow: none !important; }
+}

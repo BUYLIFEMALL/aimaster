@@ -53,8 +53,15 @@ export async function GET(request: NextRequest) {
   if (!removeResult.error && onsiteRows.length) {
     await admin.from("real_estate_onsite_properties" as never).delete().in("id" as never, onsiteRows.map((r) => r.id) as never);
   }
+  // B2 저장한 주소 리포트(2026-11-03): 1년 지난 것. 관리자·시험 계정(profiles.retention_exempt)은 빼고 지운다
+  const { data: exemptRows } = await admin.from("profiles").select("id").eq("retention_exempt" as never, true as never);
+  const exemptIds = ((exemptRows ?? []) as { id: string }[]).map((p) => p.id);
+  let savedQuery = admin.from("real_estate_saved_reports" as never).delete().lt("created_at" as never, cutoff as never);
+  if (exemptIds.length) savedQuery = savedQuery.not("user_id" as never, "in", `(${exemptIds.join(",")})`);
+  const { data: savedReports } = await savedQuery.select("id, user_id");
   // 정리 기록 — 회원별 지운 지역 분위기(sentiments)·매물 분석(analyses) 수
   const counts: CleanupCounts = new Map();
+  for (const r of (savedReports ?? []) as unknown as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "saved_reports");
   for (const r of (data ?? []) as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "sentiments");
   for (const r of (analyses ?? []) as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "analyses");
   if (!removeResult.error) for (const r of onsiteRows) addCleanupCount(counts, r.user_id, "onsite");

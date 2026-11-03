@@ -1,6 +1,19 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildingFacts, jeonseRatio, lotDeals, mainZones, median, summarize } from "../src/lib/realestate/report.ts";
+import { buildingFacts, diffPct, jeonseRatio, lotDeals, mainZones, median, parseAskingPrice, summarize } from "../src/lib/realestate/report.ts";
+
+test("B2 호가 입력 읽기·차이 %", () => {
+  assert.equal(parseAskingPrice("8억 5,000"), 85000);
+  assert.equal(parseAskingPrice("8.5억"), 85000);
+  assert.equal(parseAskingPrice("85000"), 85000);
+  assert.equal(parseAskingPrice("8억"), 80000);
+  assert.equal(parseAskingPrice("5000만원"), 5000);
+  assert.equal(parseAskingPrice(""), null);
+  assert.equal(parseAskingPrice("팔억"), null);
+  assert.equal(diffPct(110, 100), 10);
+  assert.equal(diffPct(95, 100), -5);
+  assert.equal(diffPct(100, null), null);
+});
 
 const resp = (items) => ({ response: { body: { items: { item: items } } } });
 // 서초구 서초동(법정동 10800) 1487-31

@@ -16,7 +16,8 @@ import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
 import { resolveAnalysisModel } from "@/lib/ai/models";
 
-const PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
+// B2(2026-11-03): 주소 리포트 「🧠 AI 총평」은 Claude(회원 본인 anthropic 키) — 기본 AI는 Claude, 기존 투자 분석은 OpenAI 그대로
+const PROVIDERS: ApiKeyProvider[] = ["anthropic", "openai", "perplexity"];
 const PUBLIC_DATA_PROVIDERS: ApiKeyProvider[] = [
   "seoul_opendata_api_key",
   "data_go_kr_service_key",
@@ -70,14 +71,14 @@ export default async function SettingsPage() {
       <PageHero
         badge="🔑 API키등록·플랫폼연동"
         title="API 키·텔레그램 연결"
-        description="AI 투자 분석에 쓸 OpenAI·Perplexity 키와 새 실거래 알림을 받을 텔레그램 봇을 회원님 본인 것으로 등록합니다. 운영자 키로 대신 동작하지 않아요."
+        description="AI 총평·투자 분석에 쓸 Claude·OpenAI·Perplexity 키와 새 실거래 알림을 받을 텔레그램 봇을 회원님 본인 것으로 등록합니다. 운영자 키로 대신 동작하지 않아요."
       />
 
       <section>
         <div className="mb-3">
-          <h2 className="text-lg font-medium text-mx-text">🤖 AI 분석 키 (OpenAI / Perplexity)</h2>
+          <h2 className="text-lg font-medium text-mx-text">🤖 AI 키 (Claude / OpenAI / Perplexity)</h2>
           <p className="text-sm text-mx-muted">
-            AI 분석(투자 매력도 분석)에 사용돼요. 등록하지 않으면 분석 기능을 쓸 수 없어요.
+            Claude는 주소 리포트 「🧠 AI 총평」에, OpenAI·Perplexity는 실거래 AI 투자 분석에 사용돼요. 등록하지 않으면 그 기능을 쓸 수 없어요.
           </p>
         </div>
         <div className="rounded-2xl border border-mx-border bg-mx-surface p-5">

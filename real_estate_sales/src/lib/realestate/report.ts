@@ -127,7 +127,26 @@ export interface BuildingFacts {
   topFloor: number | null;
 }
 
-const PARKING_KEYS = ["indrAutoUtcnt", "oudrAutoUtcnt", "indrMechUtcnt", "oudrMechUtcnt"];
+/**
+ * B2(2026-11-03) 호가 입력 → 만 원. 「8억 5,000」「8.5억」「85000」「8억」 모두 받는다. 읽지 못하면 null.
+ * 숫자만 있으면 만 원으로 본다(실거래 금액과 같은 단위).
+ */
+export function parseAskingPrice(text: string | null | undefined): number | null {
+  const s = str(text).replace(/[,\s원]/g, "");
+  if (!s) return null;
+  const m = s.match(/^(?:(\d+(?:\.\d+)?)억)?(?:(\d+)(?:만)?)?$/);
+  if (!m || (!m[1] && !m[2])) return null;
+  const v = Math.round((m[1] ? Number(m[1]) * 10000 : 0) + (m[2] ? Number(m[2]) : 0));
+  return v > 0 && v < 10_000_000 ? v : null;
+}
+
+/** 호가가 기준값보다 몇 % 높은지(낮으면 음수). 기준이 없으면 null */
+export function diffPct(asking: number, base: number | null | undefined): number | null {
+  if (!base || base <= 0) return null;
+  return Math.round(((asking - base) / base) * 1000) / 10;
+}
+
+const PARKING_KEYS =["indrAutoUtcnt", "oudrAutoUtcnt", "indrMechUtcnt", "oudrMechUtcnt"];
 
 /**
  * 표제부 여러 줄(동별) → 대표값. 사용승인일은 가장 이른 날, 층은 최고.
