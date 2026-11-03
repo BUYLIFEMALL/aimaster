@@ -26,7 +26,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `real_estate_sales` | 설정 「카카오 알림톡 템플릿」 🗑 삭제 버튼·값 검사(텔레그램 토큰 모양·KA01TP 아닌 값 거절) — 주인님이 토큰을 잘못 저장한 사례 | `29ae525ca` | 2026-11-03 [역할: realty] Claude Code(윈도우) | `real_estate_sales/src/lib/actions/solapiAccount.ts` | 다음 실거래 배포 때(지금도 칸을 비우고 저장하면 지워짐) |
 | `free-music-studio` `96f04aee3` + Intel 맥 줄 | 설정 화면 키 확인 중 「확인 중…」 표시(1~3초 「미등록」 깜빡임 제거) · 엔진 화면 Apple Silicon 속도 「아직 측정 전」 · 엔진 화면 「Intel 맥 — 지원하지 않음」 줄. tsc 통과 | `96f04aee3` | 2026-11-03 · [역할: music] Claude Code(윈도우(미니PC)) | `free-music-studio/docs/IMPROVEMENTS.md` | 다음 배포(v1.02, 2단계 엔진 연결 때) 함께 |
 | **12월 모델 교체 묶음 A (12-11 호출 실패 — 기한 있음)** `ai-auto-blog` `142cb45ec` · `tistory-auto-blog` `7eb961fbd` · `naver-blog-seo-studio` `6103af9a8` · ~~`real_estate_sales` `7b55bd09d`~~(✅ v1.42 배포에 실림, 11-03 realty 세션) · `threads-affiliate-poster` `0caadc5ee` | `gpt-5`·`o3`·`gemini-2.5` 선택지 삭제 + 저장된 옛 값을 대체 모델로 읽기(`gpt-5`/`o3`→`gpt-5.6-sol`, 2.5→`3.8-flash`). tsc 통과, SEO 시험 158 통과 | 각 프로그램 줄 | 2026-11-03 · [역할: mac-mini] Claude Code(맥미니) | `docs/PLAN_20261103_MODEL_MIGRATION_DEC.md` | **12-05까지 다른 배포가 없으면 12-10 전에 이 5개만 배포 여쭘**(주인님 11-03). ⚠ MAC 7개 배포(요청 63ff201b)는 11-03 08:32~08:45에 `claude-win-sdp`가 이미 끝냈고 이 교체 커밋(10:24~)보다 먼저라 **실리지 않음** — 블로그·티스토리·SEO·threads·blog-keyword 모두 아직 미배포(11-03 14:31 배포 시각 대조, `claude-win-20261103-deploy`) |
 | 12월 모델 교체 묶음 C(일부) `blog-keyword` `fb1d16075` · `ai-writing-editor` `aae03dda7` · `banana-canvas` `b8fa1638c` · `personality-suite` `73e8ac110` · `thumbnail-master` `dc64d2eae` | 텍스트 실패 대비 목록 `["gemini-3.5-flash","gemini-2.5-flash"]` → `["gemini-3.8-flash","gemini-3.5-flash-lite"]`(개수 같음, 대기 시간 변화 없음). tsc 통과 | 각 프로그램 줄 | 2026-11-03 · [역할: mac-mini] Claude Code(맥미니) | 같은 플랜 | 다른 배포 때 함께(급하지 않음 — 12-01 뒤에도 자동 연결로 동작). `blog-keyword`는 MAC 7개 배포에 함께 |
@@ -71,6 +70,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `real_estate_sales` | v1.45 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 「삭제/수정 기능 넣어달라니까」 빌드 1회, `dpl_6pWGcoSGzNCwzkatqknsYnWm3aR3`) | 설정 「카카오 알림톡 템플릿」 🗑 삭제 버튼·값 검사(`29ae525ca`). 운영 설정 화면(시험 계정)에서 버튼·안내 확인 |
 | `real_estate_sales` | v1.44 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `dpl_2HsMQiwfYqZDVeVnKgWLSdegcA7h`) | B3 임장 모드 — 리포트에 임장 사진·메모, 저장 리포트 나란히 비교(`f35b2b73b`) + B2 작은 수정 3건(`a94d618ea`). 운영 화면·390px 확인 |
 | `real_estate_sales` | v1.43 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 채팅 승인 빌드 1회, `dpl_9pSAFXbNyz5Uox1pAcBa8inVqXVw`) | B2 주소 리포트 호가 비교·저장·Claude AI 총평·인쇄(`31695e09a`, 새 표 `real_estate_saved_reports` ego SQL 적용) + 건물 칸 총괄표제부(`83d3f0daf`). 운영 화면에서 저장·AI 총평 1회·인쇄 확인, 용적률·건폐율·주차 값 확인 |
 | `realty-listing-alert` | v1.43 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 채팅 승인 빌드 1회, `dpl_4rdqQWg2ZHkTsFHTfAhcLsZFkuPQ`) | 확장: 네이버 화면 필터(`tradeType`)가 남아도 감시 조건대로 읽기·조건 밖 매물은 「사라짐」 대신 기록에서 뺌. DB·확장·ZIP v1.43 `check-extension-release` OK, 운영 화면 v1.43 확인. (대기에 남아 있던 A3 링크·단지 위치 한정 두 줄은 v1.42에 이미 나간 것이라 정리) |

@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `real_estate_sales` v1.45 배포(알림톡 칸 삭제·값 검사)
+- 주인님 「삭제/수정 기능 넣어달라니까」(캡처: 운영 v1.44 설정 알림톡 칸에 텔레그램 토큰이 저장돼 있고 버튼 없음). 원인: 기능은 `29ae525ca`로 커밋했지만 「자잘한 수정 모았다가 배포」로 미배포 대기에 두었음 → 회원이 지금 쓰는 화면 문제라 바로 배포.
+- 배포 `dpl_6pWGcoSGzNCwzkatqknsYnWm3aR3` Ready, DB 버전 v1.45, 커밋 `d1b8a89b5`. ego lite(시험 계정) 설정 화면에서 「저장」 옆 「🗑 삭제」·「고치려면 값을 바꾸고 「저장」」 안내 확인. 잘못 저장된 값 지우기는 주인님이 직접(데이터 삭제라 누르지 않음).
+- 남은 일: 고객관리 2단계(코드 작성 중, 미커밋) 이어서.
+
 ## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — 새 프로그램 `realty-client-desk` v1.02 1단계 배포(준비중)
 - 한 일: 플랜(`realty-client-desk/docs/PLAN_20261103_CLIENT_DESK.md`, 결정 1~3 추천안 승인)·법령 대조·동의 문구(`docs/CONSENT_DRAFT_20261103.md`) → 뼈대(`commercial-land-trade-alert` 복사)·고객 접수 링크(로그인 없음 `/i/[token]`, 해시만 저장, 링크당 하루 50건)·관심고객 명부(동의 기록, 수기 입력은 동의 확인 필수)·대시보드·매뉴얼. DB 표 2개·RLS·프로그램 등록(준비중)·요금제 3·시험 계정(ego SQL). Vercel 프로젝트·도메인·환경변수 3개(`scripts/add-realty-client-desk-vercel-env.mjs`, 값 미출력). 배포 v1.01 `dpl_4TzHGSg7Rrps1Cft4M1H2yCj5nq1`·v1.02 `dpl_6phAkTKnE2gm8eUUsUWNtHqgwXLo`(빌드 2회). 커밋 `8008824d2`·`256767d0c`.
 - 확인(ego lite, 시험 계정): 링크 만들기 → 접수 → 목록(동의 기록), 수기 입력 동의 없으면 막힘·내용 보존, 390px 4화면 넘침 없음. 시험 고객 2명 삭제·시험 링크 멈춤.
