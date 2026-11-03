@@ -68,5 +68,12 @@
 | 회원 부담 | — | `gemini-3.8-flash`는 2.5-flash보다 입력 약 2.5배·출력 1.5배(회원 본인 키). `gpt-5.6-sol`은 `gpt-5`와 비슷한 고가 구간 |
 
 ## 6. 주인님 결정
+
+## 7. 진행 (맥미니)
+| 날짜 | 묶음 | 프로그램 · 커밋 | 확인 |
+|---|---|---|---|
+| 11-03 | A 완료 | `ai-auto-blog` `142cb45ec` · `tistory-auto-blog` `7eb961fbd` · `naver-blog-seo-studio` `6103af9a8` · `real_estate_sales` `7b55bd09d` · `threads-affiliate-poster` `0caadc5ee` | tsc 5개 통과, SEO 시험 158 통과(기대값 1줄 `gpt-5`→`gpt-5.6-sol`), 옛 값 변환 직접 확인 |
+| 11-03 | C 일부 | `blog-keyword` `fb1d16075` · `ai-writing-editor` `aae03dda7` · `banana-canvas` `b8fa1638c` · `personality-suite` `73e8ac110` · `thumbnail-master` `dc64d2eae` | tsc 5개 통과 |
+| — | B 13개 · C 나머지 13개 | 대기 | 다음 작업 |
 1. 묶음 C(고정 호출 18개): 이번엔 값만 바꾸기(추천) / 모델 선택 칸까지 새로 만들기.
 2. 빌드 약 32회 승인(11-30까지 나눠서).
