@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ⏳ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 새 프로그램 `free-music-studio`(AI 무료음악 자동화) 기획
+- 공개 MIT 로컬 AI 음악 앱 분석(원저작자 협의로 이름 기록 생략). 결정: 웹 + 내 PC 엔진 앱, 음악 모델 YuE2(비상업) → ACE-Step 1.5(MIT), 커버 포함(원곡 권리 체크), YouTube 가져오기 제외. 플랜 `free-music-studio/docs/PLAN_20261103_V1_01.md` 승인 대기. 외부 분석표 EXT-MUS-08.
+
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 종료 모델 긴급 교체 8개 순차 배포(맥미니 요청)
 - 영상 v1.26·쇼츠 원스톱 v1.43(코드 v2.0 표기 정정)·이미지 v1.31·플레이리스트 v1.34·쓰레드 제휴 v1.85·쓰레드 콘텐츠 v2.22·쓰레드 쉬운 기획 v1.50·타로 v1.28. 모두 Ready·DB 갱신, 버전 커밋 `d9448b5bb`. 시험: 음성 3.8 TTS·이미지 flare·플레이리스트 flare 편집·타로 gpt-5.6-luna 모두 통과. 결과표 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md` 맨 끝. 블로그 2개는 MAC 요청 배포 몫.
 

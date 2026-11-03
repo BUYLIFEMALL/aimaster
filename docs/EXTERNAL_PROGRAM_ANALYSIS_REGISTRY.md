@@ -106,6 +106,7 @@
 | EXT-MUS-05 | GPT PARK MUSIC PLAYER | AI Studio 앱 | 10-13 | 음악 파일 재생·반복·셔플·시각화 5모드·8밴드 EQ | 🆕 독립 새 프로그램 | `music-player` v1.09 | ✅ |
 | EXT-MUS-06 | GPT PARK 마스터링 스튜디오 | 웹앱 | 확인 못 함 | 음원 마스터링 처리 순서·프리셋 12종·AI 분석 | 🆕 독립 새 프로그램 | `ai-mastering-studio` v1.14 | ✅ |
 | EXT-MUS-07 | 외부 음악 생성 플랫폼 조사(10곳) | 플랫폼·API 조사 | 10-23 | Lyria·ElevenLabs·fal·Replicate·Suno(중계) 등 공식 API·상업 이용 조건·단가 비교 | 🆕 독립 새 프로그램(음악 연동 기준) | `ai-music-studio` v1.14 | ✅ |
+| EXT-MUS-08 | 공개 MIT 로컬 AI 음악 데스크톱 앱 0.1.0-beta.3(원저작자 협의로 이름 기록 생략) | Electron 44 + React + Python 엔진 | 11-03 | 내 PC 음악 생성(YuE2)·커버·경음악·보컬 분리·가사 시간표·마스터링·영상 37종·앨범아트·프로젝트 관리 | 🆕 독립 새 프로그램 | `free-music-studio`(기획) | ⏳ |
 | **이미지** | | | | | | | |
 | EXT-IMG-01 | ClearPic 1.3.0 | NSIS + Electron + ONNX | 10-24 | 키 없는 브라우저 지우기(LaMa)·글자 자동 찾기(PP-OCRv4)·여러 장 일괄·ZIP | 🔗 기존 병합 → `banana-canvas`(제미나이 워터마크 제거는 ❌ 제외) | `banana-canvas` v1.34 | 🔶 |
 | EXT-IMG-02 | AI Studio 「Banana Canvas」 | AI Studio 앱 | 10-14 | 생성·편집·합성·배경 제거·부분 삭제·증명사진·스토리 8컷·레시피 | 🆕 독립 새 프로그램 | `banana-canvas` v1.33 | ✅ |
@@ -151,7 +152,7 @@
 | 카테고리 | 건수 | 판단 |
 |---|---|---|
 | 블로그 | 15 | 독립 5 · 병합 6(EXT-BLOG-08·09·11·12 → `blog-neighbor-care` 보강 결정 10-27) · 제외 4(EXT-BLOG-10·13·14·15) (EXT-BLOG-07 신규 서버/DB 구현·운영SQL 검수완료, UI/AI/확장·출시 미완료) |
-| 음악 | 7 | 독립 5(2개는 이후 병합) · 병합 1 · 조사 1(독립) |
+| 음악 | 8 | 독립 6(2개는 이후 병합) · 병합 1 · 조사 1(독립) |
 | 이미지 | 5 | 독립 4 · 병합 1 |
 | 업무자동화 | 7 | 독립 6(1개는 이후 병합) · 병합 1 |
 | 유튜브 | 3 | 독립 1 · 병합 2 |
@@ -579,6 +580,23 @@
 | 오픈 가중치 직접 운영(ACE-Step·Stable Audio Open·MiniMax Music3·YuE) | 자체 GPU 필요 | 모델별 | 제외(운영자 서버 비용, Vercel에서 실행 불가) |
 
 미룬 것: Mureka(선불 $30), Stability 직접, Lyria RealTime(2차), Suno 공식 API(공개 대기).
+
+#### EXT-MUS-08 공개 MIT 로컬 AI 음악 데스크톱 앱 (0.1.0-beta.3)
+| 항목 | 내용 |
+|---|---|
+| 원본 | 공개 GitHub 저장소(MIT), 클론 `e03bf1c`(2026-11-03) · 분석 위치 `D:/PDS/Program_dev/free-music-src/repo` · **원저작자와 협의해 이름·저작권 표시를 우리 쪽에 남기지 않기로 함(주인님 확인 2026-11-03) — 이 카드에도 이름을 적지 않음** |
+| 분석 | 2026-11-03 · Claude Code(윈도우) `claude-win-20261024-music` · 소스 읽기·`npm ci`(실행은 권한 검사로 못 함) · 권리: 코드 MIT + 원저작자 협의 → 코드 재사용 가능, **모델은 별도 조건** |
+| 원본 기능 | 프로젝트 단위 곡 관리 · 가사+스타일 음악 생성 · 경음악 · 커버 · 보컬/멀티트랙 분리 · 가사 시간표(LRC)·직접 조정 · 마스터링(LUFS 4단·피크·성격 3) · 가사/경음악 영상 37종(Canvas+WebCodecs, 4K) · 앨범아트(로컬/에이전트) · AI 작사(구독 CLI) · 플레이리스트·휴지통 · PC 사양 진단·엔진 자동 설치(SHA-256) · YouTube 가져오기 |
+| 원본 기술 | Electron 44·React 19·Vite 8 · YuE2 3B GGUF(yue2.cpp CUDA / audio.cpp Metal) · SheetSage2 · BS-RoFormer(python-audio-separator) · Qwen3-ASR·ForcedAligner · stable-diffusion.cpp + FLUX.2 klein·Z-Image Turbo · FFmpeg · yt-dlp · Claude Code/Codex CLI |
+| 원본 비용 구조 | 모델·엔진 무료(내 PC) · 구독 CLI 로그인(API 키 미사용) |
+| 모델 이용 조건 | YuE2·SheetSage2·경음악 LoRA **CC BY-NC 4.0(비상업)** · BS-RoFormer 6stem 표시 없음 · Qwen3·FLUX.2 klein·Z-Image Apache 2.0 |
+| 우리 대상 | 새 프로그램 `free-music-studio`(AI 무료음악 자동화) · 겹침: `music-automation`(Suno)·`ai-music-studio`(클라우드)·`lyric-video-studio`·`playlist-channel-studio`·`ai-mastering-studio` · 없던 것: **API 비용 0원 내 PC 생성**·무료 보컬 분리·커버 |
+| 뽑아낸 기능 | 1 내 PC 엔진 설치·사양 진단 → 엔진 앱 · 2 작업 대기열 → 엔진 앱 · 3 영상 37종 → 웹(브라우저) · 4 가사 시간 조정 화면 → 웹 · 5 마스터링 → 엔진 앱 · 6 프로젝트·플레이리스트·휴지통 → 웹 DB |
+| 하지 않기로 한 것 | YuE2·SheetSage2(비상업) → ACE-Step 1.5(MIT)로 교체 · YouTube 가져오기(약관) · 구독 CLI(회원 본인 키 원칙) · 원작자 이름·아이콘 |
+| 결정 | 🆕 독립 새 프로그램 · 웹 + 내 PC 엔진 앱 · 커버는 ACE-Step 자체 기능 + 원곡 권리 체크 (주인님 2026-11-03) |
+| 진행 상태 | ⏳ 플랜 `free-music-studio/docs/PLAN_20261103_V1_01.md` 승인 대기 · 담당 [역할: music] |
+| 남은 결정 | 플랜 승인(0단계 사전 검증부터) · 보컬 분리 모델 라이선스 |
+| 관련 문서 | `free-music-studio/AGENTS.md` · 플랜 |
 
 ### 3-4. 이미지
 

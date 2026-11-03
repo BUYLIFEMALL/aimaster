@@ -5,11 +5,12 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — 가사 영상 L-2~L-5 다음 작업 대기로 보류)
+- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — 새 프로그램 AI 무료음악 자동화 기획)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
+| `free-music-studio`(새) | AI 무료음악 자동화 개발 플랜 | **주인님 플랜 승인** → 0단계 사전 검증(맥미니·이 PC) | `free-music-studio/docs/PLAN_20261103_V1_01.md` |
 | `lyric-video-studio` v1.11 | Lyricbi L-2~L-5 남음(L-1 v1.11 배포 끝, 승인 빌드 2회 중 1회 사용, 플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`) | 2026-10-24 | L-1 끝, 다음 L-2 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
