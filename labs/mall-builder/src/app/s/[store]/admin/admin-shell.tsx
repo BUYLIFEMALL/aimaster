@@ -6,6 +6,7 @@ import LogoutButton from "@/app/logout-button";
 // 운영자 관리 화면 공통 틀 — 메뉴는 기능을 하나씩 만들 때마다 추가한다.
 const MENU = [
   { href: "", label: "대시보드" },
+  { href: "/orders", label: "주문" },
   { href: "/settings", label: "쇼핑몰 정보" },
   { href: "/categories", label: "카테고리" },
   { href: "/products", label: "상품" },

@@ -25,6 +25,44 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   returned: "반품 완료",
 };
 
+export type ActorRole = "customer" | "staff";
+
+/**
+ * 허용 상태 이동표 — DB 함수 mall_builder_change_order_status의 표(0009_order_flow.sql)와 같아야 한다.
+ * [바꾸는 사람, 지금 상태, 다음 상태, 버튼 글자]
+ */
+export const TRANSITIONS: [ActorRole, OrderStatus, OrderStatus, string][] = [
+  ["customer", "pending_payment", "cancelled", "주문 취소"],
+  ["customer", "paid", "cancel_requested", "취소 요청"],
+  ["customer", "preparing", "cancel_requested", "취소 요청"],
+  ["customer", "delivered", "confirmed", "구매 확정"],
+  ["customer", "delivered", "return_requested", "반품 요청"],
+  ["staff", "pending_payment", "paid", "입금 확인"],
+  ["staff", "pending_payment", "cancelled", "주문 취소"],
+  ["staff", "paid", "preparing", "배송 준비"],
+  ["staff", "paid", "cancelled", "주문 취소"],
+  ["staff", "preparing", "shipping", "발송(송장 입력)"],
+  ["staff", "preparing", "cancelled", "주문 취소"],
+  ["staff", "shipping", "delivered", "배송 완료"],
+  ["staff", "delivered", "confirmed", "구매 확정"],
+  ["staff", "cancel_requested", "cancelled", "취소 승인"],
+  ["staff", "cancel_requested", "paid", "취소 거절"],
+  ["staff", "return_requested", "returned", "반품 승인"],
+  ["staff", "return_requested", "delivered", "반품 거절"],
+];
+
+/** 이 사람이 지금 상태에서 할 수 있는 이동(버튼 목록) */
+export function nextActions(role: ActorRole, from: OrderStatus): { to: OrderStatus; label: string }[] {
+  return TRANSITIONS.filter(([r, f]) => r === role && f === from).map(([, , to, label]) => ({ to, label }));
+}
+
+export function canTransition(role: ActorRole, from: OrderStatus, to: OrderStatus): boolean {
+  return TRANSITIONS.some(([r, f, t]) => r === role && f === from && t === to);
+}
+
+/** 재고를 되돌리는 도착 상태 */
+export const RESTOCK_STATUSES: OrderStatus[] = ["cancelled", "returned"];
+
 export type OrderRow = {
   id: string;
   order_no: string;
@@ -36,6 +74,8 @@ export type OrderRow = {
   depositor: string;
   bank: { bank_name: string | null; bank_account: string | null; bank_holder: string | null };
   memo: string;
+  courier: string;
+  tracking_no: string;
   created_at: string;
 };
 
@@ -52,7 +92,7 @@ export type OrderItemRow = {
 
 export type OrderEventRow = { id: string; from_status: OrderStatus | null; to_status: OrderStatus; actor_role: string; note: string; created_at: string };
 
-export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, created_at";
+export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, courier, tracking_no, created_at";
 
 /** 입금 기한 안내 등 날짜를 한국 시간으로 */
 export function formatDateTime(iso: string): string {

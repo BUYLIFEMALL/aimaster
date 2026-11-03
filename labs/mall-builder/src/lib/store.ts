@@ -252,6 +252,34 @@ export async function getMyOrders(storeId: string, userId: string): Promise<(Ord
   }));
 }
 
+/** 운영자 주문 목록(이 몰, 최근 순) — 상태로 거르기. 보안 규칙상 운영자가 아니면 자기 주문만 온다 */
+export async function getStoreOrders(storeId: string, status?: string) {
+  const supabase = await createClient();
+  let query = supabase
+    .from("mall_builder_orders")
+    .select(`${ORDER_COLUMNS}, mall_builder_order_items(name_snapshot)`)
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (status) query = query.eq("status", status);
+  const { data } = await query;
+  type Raw = OrderRow & { mall_builder_order_items: { name_snapshot: string }[] };
+  return ((data ?? []) as unknown as Raw[]).map(({ mall_builder_order_items: items, ...o }) => ({
+    ...o,
+    item_count: items.length,
+    first_item: items[0]?.name_snapshot ?? "",
+  }));
+}
+
+/** 상태별 주문 수(운영자 탭 숫자) */
+export async function getOrderCounts(storeId: string): Promise<Record<string, number>> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_orders").select("status").eq("store_id", storeId).limit(5000);
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) counts[row.status as string] = (counts[row.status as string] ?? 0) + 1;
+  return counts;
+}
+
 /** 주문 하나(품목·이력 포함) — 보안 규칙상 주문한 손님과 그 몰 운영자만 받는다. 없으면 null */
 export async function getOrder(storeId: string, orderId: string) {
   const supabase = await createClient();

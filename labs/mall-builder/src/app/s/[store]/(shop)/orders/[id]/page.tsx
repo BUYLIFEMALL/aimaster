@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getOrder, getStoreBySlug, requireUser } from "@/lib/store";
 import { ORDER_STATUS_LABEL, formatDateTime } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
+import OrderStatusButtons from "@/app/order-status-buttons";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -15,10 +16,10 @@ export default async function OrderDetailPage({
   searchParams,
 }: {
   params: Promise<{ store: string; id: string }>;
-  searchParams: Promise<{ done?: string }>;
+  searchParams: Promise<{ done?: string; error?: string; ok?: string }>;
 }) {
   const { store: slug, id } = await params;
-  const { done } = await searchParams;
+  const { done, error, ok } = await searchParams;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const user = await requireUser(`/s/${slug}/orders/${id}`);
   const store = await getStoreBySlug(slug);
@@ -41,6 +42,16 @@ export default async function OrderDetailPage({
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-order-status>{ORDER_STATUS_LABEL[order.status]}</span>
       </div>
       <p className="mt-1 text-sm text-gray-500">{formatDateTime(order.created_at)} 주문</p>
+      {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-order-error>{error}</p>}
+      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">처리했습니다.</p>}
+      {order.tracking_no && (
+        <p className="mt-4 rounded border px-3 py-2 text-sm" data-tracking>
+          배송: {order.courier} · 송장 번호 <b>{order.tracking_no}</b>
+        </p>
+      )}
+      <div className="mt-4">
+        <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="customer" backPath={`${base}/orders/${order.id}`} />
+      </div>
 
       {order.status === "pending_payment" && (
         <section className="mt-6 rounded border bg-gray-50 p-4 text-sm" data-order-bank>
