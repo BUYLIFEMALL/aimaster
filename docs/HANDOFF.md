@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 마스터PC 엔진 오류 대응(엔진 0.1.6→0.1.11)
+- 마스터PC에서 대기열 곡이 계속 실패 → 원인 넷이 겹침: 창 없는 예전 엔진 0.1.0이 연결 문 점유 / 예전 엔진이 남긴 python이 고정 내부 번호 47822 점유(엔진은 남은 서버 `/health`에 속아 「준비됨」) / 파이썬이 한국어 윈도우 cp949로 긴 줄표(—)를 못 씀 / 엔진이 ACE-Step 실패 이유(`result[0].error`)를 버림.
+- 엔진 0.1.7~0.1.11로 고침(기록 파일·한국어 안내·빈 내부 번호·남은 음악 엔진 이름으로 정리·종료 때 자식 정리·실패 이유 표시·UTF-8). 0.1.11로 대기열 실물 확인 끝(완성·자동 기록·취소·중단됨).
+- 인수인계: [`free-music-studio/docs/IMPROVEMENT_HANDOFF_20261104_ENGINE_ERRORS.md`](../free-music-studio/docs/IMPROVEMENT_HANDOFF_20261104_ENGINE_ERRORS.md) · 교훈 `docs/ERROR_LESSONS.md` 2026-11-04.
+- 남은 일: 웹 옛 방식 `parseTaskState` 실패 이유 표시·구성 바꾼 뒤 안내 문구(다음 배포), 4단계 화면 개편(재생바 코드 작성 중, 미커밋).
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 로드맵 3단계(작업 대기열) v1.09 · 엔진 0.1.6 배포
 - 엔진: `engine/src/queue.mjs`(대기·만드는 중·완료·실패·취소·중단됨, `queue.json`, 다시 켜면 진행 중 → 중단됨), `runner.mjs`(엔진이 ACE-Step에 직접 맡기고 보관함 저장, 커버 원곡은 `queue-src/`), 연결 문 `/queue`. 압축 `D:\PDS\Program_dev\free-music-src\free-music-engine-0.1.6.zip`.
 - 웹: `/queue` 화면, 좌측 「작업 대기열」 개수, 끝난 곡 「모든 음악」 자동 기록(`useQueue`), 곡 만들기·가져온 음악 [대기열에 넣기]. 커밋 `d6880119a`, 시험 웹 46·엔진 25, 배포 `free-music-studio-astk6ny4p` Ready, 화면·DB v1.09.
