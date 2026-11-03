@@ -1,11 +1,12 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ClipboardCopy, Download, FileText, ImageIcon, Loader2, RefreshCw, Sparkles, Wand2, X } from "lucide-react";
+import { Check, ClipboardCopy, Download, Eraser, FileText, ImageIcon, Loader2, RefreshCw, Sparkles, Wand2, X } from "lucide-react";
 import type { Audience, BorderStyle, ImageSet, Inputs, Opt, ProjectDoc, RefDoc, Strategy, SubjectType } from "@/lib/tmb/types";
 import { AGES, EMPTY_SET, ETHNICITIES, OPTS } from "@/lib/tmb/types";
 import { AUDIENCES } from "@/lib/tmb/audience";
 import { changedTextLine, lengthConfirmText, mainWarning, subWarning, textChanged } from "@/lib/tmb/strategy";
 import { DOC_MAX_CHARS, charsLabel, missingInputs } from "@/lib/tmb/validate";
+import { NUKKI_MSG_FILE, NUKKI_RECEIVER_ORIGIN, isNukkiReady, nukkiToolsUrl, readNukkiResult } from "@/lib/nukkiHandoff";
 
 interface ApiErr { error?: string; needKey?: boolean }
 type Busy = Record<"strategy" | Opt, "" | "gen" | "edit">;
@@ -39,6 +40,16 @@ async function saveImage(url: string, name: string) {
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(href), 1500);
   } catch { window.open(url, "_blank", "noopener"); }
+}
+
+/** 돌아온 결과(PNG 등)를 JPG(품질 90, 크면 80)로 — 서버 요청 한도(4MB) 아래로 */
+async function toUploadJpeg(blob: Blob): Promise<Blob> {
+  const bm = await createImageBitmap(blob);
+  const c = document.createElement("canvas"); c.width = bm.width; c.height = bm.height;
+  const x = c.getContext("2d")!; x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(bm, 0, 0); bm.close();
+  const enc = (q: number) => new Promise<Blob>((ok, no) => c.toBlob((b) => (b ? ok(b) : no(new Error("encode"))), "image/jpeg", q));
+  const first = await enc(0.9);
+  return first.size > 4 * 1024 * 1024 ? enc(0.8) : first;
 }
 
 interface Props {
@@ -165,6 +176,60 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
     const r = await call<{ set: ImageSet }>(`/api/projects/${projectId}`, "PATCH", { option: opt, cur });
     if (!r.ok) { fail(r); return; }
     setSets((s) => ({ ...s, [opt]: r.data.set }));
+  }
+
+  // 「🧽 무료 지우기」 — 결과를 바나나 무료 지우기 창(회원 브라우저 처리)으로 넘기고, 지운 결과를 새 버전으로 받는다(공용 nukki-handoff)
+  const [eraseNotes, setEraseNotes] = useState<Record<Opt, string>>({ a: "", b: "" });
+  const nukkiCleanup = useRef<(() => void) | null>(null);
+  useEffect(() => () => nukkiCleanup.current?.(), []);
+  function sendToErase(opt: Opt, url: string) {
+    const note = (text: string) => setEraseNotes((n) => ({ ...n, [opt]: text }));
+    nukkiCleanup.current?.();
+    const win = window.open(nukkiToolsUrl("thumbnail", "erase"), "aimaster-nukki-tools");
+    if (!win) { note("새 창이 막혔습니다. 주소창 오른쪽의 팝업 허용을 누른 뒤 다시 눌러 주세요."); return; }
+    note(`${LABEL[opt]}: 무료 지우기 창을 여는 중입니다…`);
+    // 「준비됨」 신호를 놓치지 않게 대기를 먼저 걸고, 그림은 신호를 받은 뒤 보낸다
+    const filePromise = fetch(url).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.blob(); });
+    let sent = false;
+    const onMessage = async (e: MessageEvent) => {
+      if (e.source !== win) return;
+      const back = readNukkiResult(e.origin, e.data);
+      if (back) {
+        if ("error" in back) { note(back.error); return; }
+        if (back.section !== `opt-${opt}`) return;
+        note(`${LABEL[opt]}: 지운 결과를 저장하는 중입니다…`);
+        const form = new FormData();
+        form.append("option", opt);
+        form.append("file", await toUploadJpeg(back.file), "erased.jpg");
+        try {
+          const res = await fetch(`/api/projects/${projectId}`, { method: "POST", body: form });
+          const data = (await res.json().catch(() => ({}))) as { set?: ImageSet; urls?: Record<string, string>; error?: string };
+          if (!res.ok || !data.set) { note(`저장하지 못했습니다: ${data.error ?? "다시 시도해 주세요."}`); return; }
+          setSets((s) => ({ ...s, [opt]: data.set! }));
+          setUrls((u) => ({ ...u, ...data.urls }));
+          note(`✅ ${LABEL[opt]}: 지운 결과를 새 버전으로 저장했습니다(이전 버전은 버전 목록에 남아 있습니다).`);
+        } catch { note("서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."); }
+        return;
+      }
+      if (sent || !isNukkiReady(e.origin, e.data)) return;
+      try {
+        win.postMessage({ type: NUKKI_MSG_FILE, name: `썸네일_${LABEL[opt]}`, section: `opt-${opt}`, file: await filePromise }, NUKKI_RECEIVER_ORIGIN);
+        sent = true;
+        note(`${LABEL[opt]}: 보냈습니다. 새 창에서 지울 곳을 칠하거나 「문구 찾기」 → 「지우기」 뒤 「↩ 썸네일에 넣기」를 누르면 새 버전으로 들어옵니다.`);
+      } catch { note("이미지를 읽지 못했습니다. 새로 고친 뒤 다시 눌러 주세요."); cleanup(); }
+    };
+    const slow = window.setTimeout(() => {
+      if (!sent) note("무료 지우기 창이 아직 준비되지 않았습니다. 로그인 화면이면 로그인해 주세요 — 열리면 자동으로 넘어갑니다.");
+    }, 10_000);
+    const watch = window.setInterval(() => { if (win.closed) cleanup(); }, 1000);
+    function cleanup() {
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(slow);
+      window.clearInterval(watch);
+      if (nukkiCleanup.current === cleanup) nukkiCleanup.current = null;
+    }
+    window.addEventListener("message", onMessage);
+    nukkiCleanup.current = cleanup;
   }
 
   async function copy(key: string, text: string) {
@@ -361,7 +426,9 @@ export function Studio({ projectId, initialName, initialDoc, initialImages, init
                   <div className="actions">
                     <button type="button" disabled={!url || b !== ""} onClick={() => url && void saveImage(url, `thumbnail_option_${o.toUpperCase()}.jpg`)}><Download size={14} />다운로드 (JPG)</button>
                     <button type="button" disabled={b !== ""} onClick={() => void makeImage(o)}><RefreshCw size={14} />다시 생성</button>
+                    <button type="button" disabled={!url || b !== ""} onClick={() => url && sendToErase(o, url)} title="바나나 캔버스의 무료 지우기 창에서 글자·물체를 지운 뒤 새 버전으로 받습니다(내 PC 처리, AI 비용 없음)"><Eraser size={14} />무료 지우기</button>
                   </div>
+                  {eraseNotes[o] && <small className="muted" role="status">🧽 {eraseNotes[o]}</small>}
                   {url && inputs.style.ratio === "9:16" && (
                     <small className="muted">
                       릴스 표지로 쓰려면 JPG를 받은 뒤 YOUTUBE Shots 자동화 [영상 포스팅] → 인스타 칸 「표지 이미지」에 올리세요.{" "}

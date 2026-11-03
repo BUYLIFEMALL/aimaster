@@ -6,6 +6,8 @@ import JSZip from "jszip";
 import { Brush, Copy, Download, Eraser, Eye, ImagePlus, RotateCcw, ScanText, Sparkles, Square, Trash2, Undo2 } from "lucide-react";
 import { detectTextBoxes, eraseRegion, freeEraseBackend, loadFreeErase, maskFromImage, type FreeEraseProgress } from "@/lib/freeErase/engine";
 import { FREE_ERASE_CACHE, FREE_ERASE_MODELS, fillBoxes } from "@/lib/freeErase/protocol";
+import { NUKKI_RESULT_MAX_BYTES } from "@/lib/nukkiHandoff";
+import { useNukkiReceive } from "@/lib/nukkiReceive";
 
 const MAX_ITEMS = 50;
 const PAINT = "rgb(236,72,153)";
@@ -56,6 +58,23 @@ export function FreeEraseBoard() {
 
   // 화면을 떠나면 만든 주소를 정리
   useEffect(() => () => { for (const i of itemsRef.current) { URL.revokeObjectURL(i.url); if (i.result) URL.revokeObjectURL(i.result.url); } }, []);
+
+  // E5-5: 썸네일·인스타 카드뉴스 창의 「🧽 무료 지우기」로 열렸으면 그림을 받고, 지운 결과를 그 자리로 돌려보낸다(공용 nukki-handoff)
+  const { link, sendBack } = useNukkiReceive((got) => {
+    if ("error" in got) { setNotice(got.error); return; }
+    void addFiles([got.file]).then(() => setNotice(`📥 ${got.label}에서 「${got.file.name}」을 받았습니다. 지울 곳을 칠하거나 「문구 찾기」 → 「지우기」 뒤 「↩ ${got.label}에 넣기」를 누르세요.`));
+  });
+  const returnToSender = () => run(`${link?.label ?? ""}로 보내기`, async () => {
+    if (!cur?.result || !link) return;
+    let blob = cur.result.blob;
+    // PNG가 10MB를 넘으면 JPG(품질 92)로 줄여 보낸다
+    if (blob.size > NUKKI_RESULT_MAX_BYTES) {
+      const im = await loadImage(cur.result.url), c = document.createElement("canvas"); c.width = cur.w; c.height = cur.h;
+      const x = c.getContext("2d")!; x.fillStyle = "#fff"; x.fillRect(0, 0, cur.w, cur.h); x.drawImage(im, 0, 0);
+      blob = await toBlob(c, "image/jpeg", 0.92);
+    }
+    setNotice(sendBack(blob) ?? `↩ ${link.label}로 보냈습니다. ${link.label} 창에서 들어간 결과를 확인해 주세요.`);
+  });
 
   async function ensureModel(kind: "lama" | "det") {
     const b = await loadFreeErase(kind, (p) => setProgress(p));
@@ -371,6 +390,9 @@ export function FreeEraseBoard() {
               <div className="actions">
                 <button type="button" disabled={!!busy} onClick={findHere}><ScanText size={14} />{busy === "문구 찾기" ? "찾는 중…" : "문구 찾기"}</button>
                 <button type="button" className="primary" disabled={!!busy} onClick={eraseHere}><Sparkles size={14} />{busy === "지우기" ? "지우는 중…" : "지우기"}</button>
+                {link && cur.name === link.name && (
+                  <button type="button" disabled={!!busy || !cur.result} onClick={returnToSender} title={`지운 결과를 ${link.label} 그 자리에 넣습니다`}>↩ {link.label}에 넣기</button>
+                )}
               </div>
             </>
           )}

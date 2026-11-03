@@ -88,6 +88,22 @@ test("누끼 넘기기: 허용 주소·형식·크기만 받음", () => {
   assert.equal(nukkiFileName("", "image/png"), "상세페이지_사진.png");
 });
 
+// E5-5(2026-11-04) 보낸 곳 여러 개(썸네일·인스타 카드뉴스)
+import { NUKKI_SENDERS, nukkiSenderOf, nukkiToolsUrl } from "../src/lib/nukkiHandoff.ts";
+
+test("누끼 넘기기: 보낸 곳마다 그 주소에서 온 것만 받음", () => {
+  const png = new Blob([new Uint8Array(10)], { type: "image/png" });
+  const msg = { type: NUKKI_MSG_FILE, name: "", section: "img-2", file: png };
+  assert.deepEqual(readNukkiFile(NUKKI_SENDERS.thumbnail.origin, msg, "thumbnail"), { name: "썸네일_사진.png", file: png, section: "img-2" });
+  assert.equal(readNukkiFile(NUKKI_SENDERS.thumbnail.origin, msg, "insta"), null);
+  assert.equal(readNukkiFile(NUKKI_SENDERS.insta.origin, msg), null); // 기본은 상세페이지
+  assert.equal(nukkiSenderOf("insta"), "insta");
+  assert.equal(nukkiSenderOf("toString"), null);
+  assert.equal(nukkiSenderOf("evil"), null);
+  assert.equal(nukkiToolsUrl("thumbnail", "erase"), `${NUKKI_RECEIVER_ORIGIN}/erase?from=thumbnail`);
+  assert.equal(nukkiToolsUrl("insta", "face"), `${NUKKI_RECEIVER_ORIGIN}/tools?from=insta&tab=face`);
+});
+
 test("사진 일괄 손질 보관: 10분 안만 받음", () => {
   assert.equal(isFresh({ at: 1000 }, 1000 + HANDOFF_TTL_MS - 1), true);
   assert.equal(isFresh({ at: 1000 }, 1000 + HANDOFF_TTL_MS), false);

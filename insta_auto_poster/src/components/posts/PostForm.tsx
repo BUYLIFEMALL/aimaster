@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useState, useTransition } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -17,6 +17,7 @@ import { uploadImageDirect } from "@/lib/uploadImageClient";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageZoomModal } from "@/components/posts/ImageZoomModal";
 import { IS_STANDALONE } from "@/lib/deployment";
+import { NUKKI_MSG_FILE, NUKKI_RECEIVER_ORIGIN, isNukkiReady, nukkiToolsUrl, readNukkiResult, type NukkiTool } from "@/lib/nukkiHandoff";
 import { PhotoSearchPanel } from "@/components/cardnews/studio/PhotoSearchPanel";
 import { PROVIDER_LABELS } from "@/lib/apiKeyLabels";
 import type { ImageAspectRatio, InstaTone } from "@/lib/ai/generator";
@@ -357,6 +358,51 @@ export function PostForm({
       }
       setRegeneratingIndex(null);
     });
+  };
+
+  // 슬라이드 이미지를 바나나 무료 도구(누끼·가리기·지우기, 회원 브라우저 처리) 창으로 넘기고 결과를 이 장의 새 이미지로 받는다(공용 nukki-handoff)
+  const [toolNotes, setToolNotes] = useState<Record<number, string>>({});
+  const toolCleanup = useRef<(() => void) | null>(null);
+  useEffect(() => () => toolCleanup.current?.(), []);
+  const sendToFreeTool = (index: number, url: string, tool: NukkiTool) => {
+    const note = (text: string) => setToolNotes((n) => ({ ...n, [index]: text }));
+    toolCleanup.current?.();
+    const win = window.open(nukkiToolsUrl("insta", tool), "aimaster-nukki-tools");
+    if (!win) { note("새 창이 막혔습니다. 주소창 오른쪽의 팝업 허용을 누른 뒤 다시 눌러 주세요."); return; }
+    note("무료 이미지 도구 창을 여는 중입니다…");
+    // 「준비됨」 신호를 놓치지 않게 대기를 먼저 걸고, 그림은 신호를 받은 뒤 보낸다
+    const filePromise = fetch(url).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.blob(); });
+    const section = `slide-${index}`;
+    let sent = false;
+    const onMessage = async (e: MessageEvent) => {
+      if (e.source !== win) return;
+      const back = readNukkiResult(e.origin, e.data);
+      if (back) {
+        if ("error" in back) { note(back.error); return; }
+        if (back.section !== section) return;
+        handleUploadSlideImage(index, new File([back.file], `slide-${index + 1}-free-tool.${back.file.type === "image/png" ? "png" : "jpg"}`, { type: back.file.type }));
+        note("✅ 결과를 이 장의 새 이미지로 넣었습니다(이전 이미지는 아래 이력에 남아 있습니다).");
+        return;
+      }
+      if (sent || !isNukkiReady(e.origin, e.data)) return;
+      try {
+        win.postMessage({ type: NUKKI_MSG_FILE, name: `슬라이드_${index + 1}`, section, file: await filePromise }, NUKKI_RECEIVER_ORIGIN);
+        sent = true;
+        note("보냈습니다. 새 창에서 처리한 뒤 「↩ 인스타 카드뉴스에 넣기」를 누르면 이 장에 들어옵니다.");
+      } catch { note("이미지를 읽지 못했습니다. 새로 고친 뒤 다시 눌러 주세요."); cleanup(); }
+    };
+    const slow = window.setTimeout(() => {
+      if (!sent) note("무료 이미지 도구 창이 아직 준비되지 않았습니다. 로그인 화면이면 로그인해 주세요 — 열리면 자동으로 넘어갑니다.");
+    }, 10_000);
+    const watch = window.setInterval(() => { if (win.closed) cleanup(); }, 1000);
+    function cleanup() {
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(slow);
+      window.clearInterval(watch);
+      if (toolCleanup.current === cleanup) toolCleanup.current = null;
+    }
+    window.addEventListener("message", onMessage);
+    toolCleanup.current = cleanup;
   };
 
   // v1.27: 다른 프로그램(예: 4컷 만화)에서 넘겨받은 그림처럼, AI 생성 없이 내 이미지 파일로 슬라이드를 채운다.
@@ -801,6 +847,25 @@ export function PostForm({
                       }}
                     />
                   </label>
+
+                  {!IS_STANDALONE && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-[11px] text-slate-400">🧰 무료 손질(내 PC 처리):</span>
+                      {([["bg", "✂ 누끼"], ["face", "🙈 가리기"], ["erase", "🧽 지우기"]] as const).map(([tool, label]) => (
+                        <button
+                          key={tool}
+                          type="button"
+                          onClick={() => sendToFreeTool(index, slide.imageUrl, tool)}
+                          disabled={regeneratingIndex !== null || isGeneratingAll}
+                          className="whitespace-nowrap rounded-lg border border-[#2f3650] px-2 py-1 text-xs text-slate-200 hover:border-pink-500 disabled:opacity-50"
+                          title="바나나 캔버스 무료 도구 창에서 처리한 뒤 이 장의 새 이미지로 받습니다(AI 비용 없음)"
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {toolNotes[index] && <p role="status" className="text-[11px] text-pink-200">🧰 {toolNotes[index]}</p>}
 
                   {slide.imageUrls.length > 1 && (
                     <div>

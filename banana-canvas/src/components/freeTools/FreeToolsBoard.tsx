@@ -8,7 +8,7 @@ import { Download, ImagePlus, Trash2 } from "lucide-react";
 import { detectTextBoxes, loadFreeErase, type FreeEraseError } from "@/lib/freeErase/engine";
 import { FREE_ERASE_MODELS } from "@/lib/freeErase/protocol";
 import { readBitmap } from "@/lib/batch/render";
-import { NUKKI_SENDER_ORIGIN, NUKKI_MSG_READY, NUKKI_MSG_RESULT, NUKKI_RESULT_MAX_BYTES, readNukkiFile } from "@/lib/nukkiHandoff";
+import { useNukkiReceive } from "@/lib/nukkiReceive";
 import { BATCH_FROM_TOOLS, prepareText, putForBatch } from "@/lib/freeTools/toBatch";
 import { DEFAULT_DIGIT_RULE, SPLIT_LAYOUTS, clampDigitRule, clampRect, evenCuts, moveCut, pieceNames, splitRects, type DigitRule, type Rect, type SplitLayout } from "@/lib/freeTools/calc";
 
@@ -102,22 +102,11 @@ export function FreeToolsBoard() {
     bitmaps.current.forEach((b) => b.close());
   }, []);
 
-  // E5-2: 상세페이지 「✂ 누끼」로 열린 창이면 「준비됨」을 보내고 그림을 받는다(공용 nukki-handoff, 서버를 거치지 않음)
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("from") !== "shop-detail" || !window.opener) return;
-    const onMessage = (e: MessageEvent) => {
-      if (e.source !== window.opener) return;
-      const got = readNukkiFile(e.origin, e.data);
-      if (!got) return;
-      if ("error" in got) { setNotice(got.error); return; }
-      setTab("bg");
-      if (got.section) setFromShop({ section: got.section, name: got.name });
-      void addFiles([new File([got.file], got.name, { type: got.file.type })]).then(() => setNotice(`📥 상세페이지에서 「${got.name}」을 받았습니다. 「배경 자동 지우기」 뒤 「↩ 상세페이지에 넣기」를 누르면 그 섹션에 새 버전으로 저장됩니다.`));
-    };
-    window.addEventListener("message", onMessage);
-    window.opener.postMessage({ type: NUKKI_MSG_READY }, NUKKI_SENDER_ORIGIN);
-    return () => window.removeEventListener("message", onMessage);
-  }, [addFiles]);
+  // E5-2·E5-5: 상세페이지·썸네일·인스타 카드뉴스 창에서 열렸으면 그림을 받는다(공용 nukki-handoff, 서버를 거치지 않음). 열 탭은 ?tab=
+  const { link, sendBack } = useNukkiReceive((got) => {
+    if ("error" in got) { setNotice(got.error); return; }
+    void addFiles([got.file]).then(() => setNotice(`📥 ${got.label}에서 「${got.file.name}」을 받았습니다. 처리한 뒤 「↩ ${got.label}에 넣기」를 누르면 그 자리에 결과가 들어갑니다.`));
+  });
 
   // E5-3: 다른 프로그램의 「🙈 사진 속 개인정보 가리기」 바로가기(?tab=face)로 열리면 그 탭부터
   useEffect(() => {
@@ -125,18 +114,15 @@ export function FreeToolsBoard() {
     if (t === "face" || t === "split" || t === "bg") setTab(t);
   }, []);
 
-  /** E5-3: 누끼 결과를 상세페이지 그 섹션으로 되돌려 보낸다(상세페이지가 새 버전으로 저장) */
-  const [fromShop, setFromShop] = useState<{ section: string; name: string } | null>(null);
-  async function returnToShop() {
-    if (!cur || !fromShop) return;
-    if (!window.opener || window.opener.closed) { setNotice("상세페이지 창이 닫혔습니다. 결과를 받아서 상세페이지 「📤 직접 등록」으로 넣어 주세요."); return; }
+  /** E5-3·E5-5: 결과(누끼·가림)를 보낸 곳 그 자리로 되돌려 보낸다(상세페이지는 그 섹션에 새 버전으로 저장) */
+  async function returnToSender() {
+    if (!cur || !link || (tab !== "bg" && tab !== "face")) return;
     setNotice(null);
     try {
-      await prepare("bg"); setBusy("상세페이지로 보낼 결과 만드는 중…");
+      await prepare(tab); setBusy(`${link.label}로 보낼 결과 만드는 중…`);
       const [f] = await outputsFor(cur);
-      if (f.blob.size > NUKKI_RESULT_MAX_BYTES) { setNotice("결과가 10MB를 넘습니다. JPG로 바꾸거나 결과를 받아 줄여서 「📤 직접 등록」으로 넣어 주세요."); return; }
-      window.opener.postMessage({ type: NUKKI_MSG_RESULT, section: fromShop.section, file: f.blob }, NUKKI_SENDER_ORIGIN);
-      setNotice("↩ 상세페이지로 보냈습니다. 상세페이지 창의 그 섹션 카드에서 저장 결과를 확인해 주세요.");
+      const err = sendBack(f.blob);
+      setNotice(err ?? `↩ ${link.label}로 보냈습니다. ${link.label} 창에서 들어간 결과를 확인해 주세요.`);
     } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
   }
   const [digitsOnly, setDigitsOnly] = useState(true);
@@ -375,6 +361,11 @@ export function FreeToolsBoard() {
 
   const pieces = cur && curCuts ? splitRects(cur.w, cur.h, curCuts.xs, curCuts.ys) : [];
   const hasMask = !!(cur && masks.current.get(cur.id));
+  const returnButton = link && cur?.name === link.name ? (
+    <button type="button" className="button bp-go" disabled={(tab === "bg" && !hasMask) || !!busy} onClick={() => void returnToSender()} title={`이 결과를 ${link.label} 그 자리에 넣습니다`}>
+      ↩ {link.label}에 넣기
+    </button>
+  ) : null;
 
   return (
     <div className="fe-wrap">
@@ -452,11 +443,7 @@ export function FreeToolsBoard() {
           {tab === "bg" && (
             <>
               <button type="button" className="primary bp-go" disabled={!cur || !!busy} onClick={() => void runAuto()}>✂ {hasMask ? "다시 자동 지우기" : "배경 자동 지우기"}</button>
-              {fromShop && cur?.name === fromShop.name && (
-                <button type="button" className="button bp-go" disabled={!hasMask || !!busy} onClick={() => void returnToShop()} title="이 결과를 상세페이지 그 섹션의 새 버전으로 저장합니다(원본은 버전 목록에 남음)">
-                  ↩ 상세페이지에 넣기
-                </button>
-              )}
+              {returnButton}
               <div>
                 <span className="bp-label">🖌 경계 다듬기 붓</span>
                 <div className="bp-seg c2">
@@ -480,6 +467,7 @@ export function FreeToolsBoard() {
           {tab === "face" && (
             <>
               <button type="button" className="primary bp-go" disabled={!cur || !!busy} onClick={() => void runAuto()}>🔍 얼굴 찾아 가리기</button>
+              {returnButton}
               <div>
                 <span className="bp-label">🙈 가리는 방식</span>
                 <div className="bp-seg c3">
