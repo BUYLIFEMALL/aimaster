@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ⏳ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — `ai-work-workspace` U6-B 음성 파일 받아쓰기 + 30일 예외 회원 제외(미배포)
+- U6-B(주인님 승인: Gemini 우선·OpenAI 보조) `03d5373a5`: Gemini 키면 브라우저가 Google로 직접 올림(100MB, 새 명령 `meetingAudioUploadStart`·`meetingAttachAudioFile`), OpenAI 키만 있으면 4MB 이하 서버 경유. 모델 `gemini-3.8-flash`·`gpt-transcribe`(선택표 기준). 받아쓰기 150초 안에 끝나면 요약 자동 시작. 매뉴얼 팁 `6a134f651`.
+- 30일 예외(주인님 지시 「관리자·테스트 계정 제외 확인」) `20557e396`: AI 채팅 기록·받은편지함 정리에서 `profiles.retention_exempt` 회원 제외, 목록을 못 읽으면 정리 건너뜀. 할 일 플래너는 30일 정리 코드 없음.
+- 시험 원본 523·연결부 47, 로컬 빌드 통과(첫 회 23505 뒤 재실행 통과). **배포 명령이 자동 권한 검사에 막혀 v1.20 대기** — 다음 첫 단계: 허용되면 버전 v1.20(코드+DB) → `deploy.mjs --go` → 시험 계정으로 Gemini·OpenAI 각 1회 유료 시험·크롬 확인. 상세 `ai-work-workspace/docs/IMPROVEMENTS.md`.
+
 ## 2026-11-03 ⏳ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — `music` 30일 정리 대조·수정(미배포)
 - 첫 실제 삭제 10-29 곡 34개(회원 5명) 확인. 남은 30일 초과 곡 2·기획 2·원곡 3의 원인: 멈춘 「생성 중」 제외 조건, 원곡 끼워 읽기 PGRST201을 오류 확인 없이 넘김. `3f3bac612`에서 고침, 이어 `f4ac53ba3`에서 관리자·시험 계정 제외(10-29에 두 계정 곡 23개는 이미 지워짐, 남은 두 계정 곡은 11-20부터 지워질 예정), tsc·시험 61. 배포 승인 대기 → 배포 뒤 다음 03:00 정리 결과 대조. 상세 `music/AGENTS.md` 2026-11-03
 
