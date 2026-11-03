@@ -7,10 +7,11 @@ export type Store = {
   slug: string;
   name: string;
   status: "active" | "suspended";
+  business_info: unknown; // readBusinessInfo()로 읽는다
   created_at: string;
 };
 
-const STORE_COLUMNS = "id, owner_id, slug, name, status, created_at";
+const STORE_COLUMNS = "id, owner_id, slug, name, status, business_info, created_at";
 
 export async function getCurrentUser() {
   const supabase = await createClient();
@@ -50,4 +51,11 @@ export async function isStoreStaff(storeId: string): Promise<boolean> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_is_store_staff", { p_store_id: storeId });
   return data === true;
+}
+
+/** 운영자 관리 화면 공통 입구 — 로그인 확인 후 몰과 「운영자인가」를 함께 돌려준다 */
+export async function getStaffStore(slug: string, path: string): Promise<{ store: Store; staff: boolean }> {
+  await requireUser(path);
+  const store = await getStoreBySlug(slug);
+  return { store, staff: await isStoreStaff(store.id) };
 }
