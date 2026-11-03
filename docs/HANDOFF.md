@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.05 배포(프로젝트·플레이리스트 + 한글 폴더 고르기)
+- 한 일: 원본 앱 PROJECTS·PLAYLISTS를 「모든 음악」 왼쪽 목록으로 — 프로젝트(곡 하나에 하나, 지우면 묶음만 풀림)·플레이리스트(순서·↑↓·빼기·전체 이어 듣기), 이름 바꾸기·지우기. 새 표 `free_music_collections`·`free_music_playlist_items` + `free_music_tracks.project_id`(ego SQL, RLS·규칙 확인 — 경고 창은 새 표 정책 DROP IF EXISTS 때문). 미배포였던 사이트 안 한글 폴더 고르기도 함께. 커밋 `0e30aa896`·`c1f99cbd3`, 배포 `free-music-studio-4h0idon07`, DB v1.05.
+- 확인(ego lite, 시험 계정): 프로젝트 「발라드」·플레이리스트 「비 오는 날」 만들기 → 곡 지정·담기 → 목록 곡 수 1·1. 못 한 것: 플레이리스트 화면 순서 바꾸기·전체 이어 듣기(곡 1개뿐)·이름 바꾸기·지우기 — 도중에 ego 탭 묶음이 계속 닫혀(다른 세션 사용 추정) 멈춤. 발견: 한글 이름 Enter가 안 먹음 → `e17ace42a` 미배포 대기.
+- 남은 일: 가져온 음악(커버, 4단계) → 작업 대기열 → 영상, 엔진 0.2(자동 실행).
+
+## 2026-11-03 ✅ [역할: 미지정] Claude Code(윈도우) · 블로그 급한 2개 배포 — `naver-blog-allinone` v1.60 · `naver-blog-agent` v2.27
+- 맥미니 요청(아래 🔔 항목)·주인님 승인 빌드 2회. 한 번에 하나씩, 시작 전 팀 빌드 중 0건 확인.
+- 실린 것: 종료된 `gpt-image-1` 교체 `87b12267e`(두 프로그램), 30일 열외 `0e46894fb`(올인원)·`27795e295`·`01d973bf6`(에이전트).
+- 검수: 올인원 시험 38·tsc, 에이전트 시험 46·tsc(맥 기록과 같음). 배포 `naver-blog-allinone-348m64t7u`·`naver-blog-agent-ea60hyj4o` Ready. 운영 DB(ref esgxyik…) version·extension_version 두 칸 갱신, `check-extension-release` 두 개 OK.
+- 에이전트는 작업 중 표 blog 세션 줄(「담당만 인수, 지금 수정 없음」, 미커밋 변경 없음) 때문에 도우미가 멈춰 `--owner`로 확인 처리 — 그 줄은 그대로 둠.
+- 남은 일: 맥미니가 올인원 OpenAI 이미지 1장 확인(실행 전 주인님께 여쭘). 회원은 확장 ZIP 다시 받기 → 덮어쓰기 → 확장 새로고침. 나머지 블로그 6개는 미배포 대기 그대로.
+
 
 ## 2026-11-03 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `trending-product-finder` v1.35 매일 예약 마켓별
 - 주인님 「진행해」: 확장 매일 예약을 쿠팡·네이버 따로(시각·키워드·켜짐), 두 마켓을 동시에 검색하지 않으므로 겹치면 나중 마켓이 10분 뒤 재시도, 저장 때 겹침 안내(시간 선택은 막지 않기로 결정). 예전 예약은 자동으로 옮김.
