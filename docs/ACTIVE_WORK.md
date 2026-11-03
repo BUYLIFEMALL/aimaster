@@ -42,7 +42,7 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `real_estate_sales/` | [역할: realty] Claude Code(윈도우, ego lite) · 세션 `claude-win-realty-docs` | 2026-11-03 | B2 주소 리포트 호가 비교·AI 총평(Claude)·저장·인쇄 — 승인됨, 구현 중 |
-| `free-music-studio/` | [역할: music] Claude Code(윈도우(미니PC), 크롬) · 세션 `claude-win-20261024-music` | 2026-11-03 | 1단계 웹 뼈대 v1.01 코드 커밋(미배포) — 배포 승인 대기 |
+| `free-music-studio/` | [역할: music] Claude Code(윈도우(미니PC), 크롬) · 세션 `claude-win-20261024-music` | 2026-11-03 | v1.01 1단계 배포 완료 — 다음 2단계 엔진 앱 |
 | `blog-neighbor-care/` | [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 브라우저: 엣지(주인님 지정) | 2026-11-01 | v1.05 새 글 확인 실제 검수 |
 | `shorts-viral-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-shorts-viral-v2` | 2026-10-30 | 쇼츠 떡상 분석 및 대본 자동화 v2.0 리뉴얼 — 4대 화면 3시안(12뷰) 쇼케이스 및 라이트박스 팝업 제작 중 |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261101-blog` (2026-11-01 Codex 크레딧 소진으로 주인님 지시 인수) | 2026-11-01 | 담당만 인수, 지금 수정 없음. 올인원·BLOG 병합은 맥미니 재대조 결과 기준. 설치 v2.21 → v2.22 업데이트·옛 연결 8개 정리 잔여 |

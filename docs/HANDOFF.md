@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — AI 무료음악 자동화 v1.01 1단계 배포
+- 한 일: 새 프로그램 `free-music-studio` 웹 뼈대(곡 만들기·AI 작사(회원 Claude 키, 3등급, 재시도 0)·내 PC 엔진 안내·설정·매뉴얼 기본판·30일 정리(예외 계정 제외)). 뼈대는 `music-video-studio` 공통 파일. 커밋 `37b563ea1`·`96f04aee3`.
+- 배포(주인님 승인, 빌드 1회): Vercel 새 프로젝트 `free-music-studio`(환경변수 5개), 도메인 `free-music-studio.buylife.xyz`, 운영 DB(ref esgxyik…) 마이그레이션 `free-music-studio/supabase/migrations/20261103_v1_01_init.sql`(곡 표·RLS·등록 `new·coming`·요금제 3단계). 등록 때 등급 자동 부여로 3개 계정에 1년 이용기간이 생김.
+- 검수: 크롬 시험 계정으로 AI 작사 1회 성공·저장·목록·엔진·설정·매뉴얼 정상, 390px 틀에서 메뉴 접힘, 비로그인 API·정리 작업 401.
+- 0단계 정리: 음질 「SUNO보단 못하지만 들을만함」(윈도우(미니PC) CPU·마스터PC RTX 5080 같은 판정). 맥미니는 Intel이라 시험 취소(요청함 `1709ae4d` 필요 없음 처리).
+- 미배포 대기: `96f04aee3`(설정 「확인 중」·엔진 문구). `music-video-studio` 로그인 기본 이동 `/convert` 버그는 그 폴더 `docs/IMPROVEMENTS.md`에 기록(미수정).
+- 다음 첫 단계: 플랜 §4 2단계 엔진 앱 0.1. 링크: https://free-music-studio.buylife.xyz
+
 ## 2026-11-03 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 30일 열외 마무리 · commit-gate 사용 중지 · 비교표 SEO 버전
 - 30일 열외: 블로그 7개 코드 수정(삭제 제외 + 조회 숨김 풂), 미배포 대기 — 해시·남은 일은 `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §6, `docs/PENDING_DEPLOYS.md`. 남은 일: `naver-blog-agent` 비공개 사진 30일 기한(서버+화면), `blog-neighbor-care`(윈도우 blog 세션).
 - `scripts/mac-mini/commit-gate.sh` 사용 중지(`1639001ca`): 공용 인덱스에 직접 써서 11-03 재발 방지 장치 밖. 실행하면 두 도우미를 안내하고 멈춤. 플레이북 §4 갱신.

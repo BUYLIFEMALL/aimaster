@@ -111,7 +111,7 @@
 | 31 | 뮤직 플레이어 자동화 | `music-player` | 음악 | v1.09 | 운영 | 내 음악 파일을 끌어다 놓고 시각화·이퀄라이저로 즐기는 브라우저 뮤직 플레이어 |
 | 32 | AI 리버스 프롬프트 자동화 | `reverse-prompt` | AI 프롬프트 | v1.14 | 운영(2026-10-21 이미지 스타일 분석기와 서로 연결·30일 정리) | 이미지·영상·음악 파일 하나로 다른 생성 AI에 넣을 프롬프트를 거꾸로 만들어 주는 도구 |
 | 33 | 무한루프 영상자동화 | `infinite-loop-video` | 영상 | v1.10 | 운영 | 영상에서 가장 자연스럽게 이어지는 구간을 찾아 끝없이 반복되는 MP4·WebM·GIF로 만드는 도구 |
-| 34 | 부동산 실거래 투자분석 자동화 | `real-estate-sales` | 부동산 | v1.42 | 운영 | 서울 관심 지역의 새 실거래가를 알려 주고 AI가 투자 매력도를 분석하는 부동산 도구 |
+| 34 | 부동산 실거래 투자분석 자동화 | `real-estate-sales` | 부동산 | v1.43 | 운영 | 서울 관심 지역의 새 실거래가를 알려 주고 AI가 투자 매력도를 분석하는 부동산 도구 |
 | 35 | AI 블로그 키워드 자동화 | `blog-keyword` | 블로그 | v1.11 | 운영 | 키워드 하나로 자동완성·상위 블로그·경쟁력·오늘의 이슈·글감까지 한 화면에서 분석하는 도구 |
 | 36 | 티스토리 포스팅 자동화 | `tistory-auto-blog` | 블로그 | v1.95 | 운영 | AI로 티스토리 원문·이미지를 만들고 크롬 확장이 서식까지 글쓰기 화면에 입력하는 도구 |
 | 37 | 블로그 포스팅 자동화 | `ai-auto-blog` | 블로그 | v1.86 | 운영 | 실시간 이슈로 블로그 글·이미지를 AI로 만들고 크롬 확장으로 네이버에 입력하는 도구 |
@@ -173,6 +173,7 @@
 | 90 | 부동산 실시간 매물 알림 | `realty-listing-alert` | 부동산 | v1.43 | 공개(2026-10-26 정식 공개, VIP 자동 부여) | 관심 단지의 네이버 부동산 새 매물·가격 변동을 회원 PC 크롬 확장이 회원 본인 계정으로 찾아 본인 텔레그램·카톡·메일로 알림 + 통계·추이 대시보드(서버는 매물 미보관) |
 | 94 | 상가·건물·토지 매물 알림 | `commercial-land-trade-alert` | 부동산 | v1.30 | 공개(2026-10-31, VIP 자동 부여) | 상가·건물·토지 실거래와 새 매물·가격 변동을 내 PC가 찾아 텔레그램/이메일/카카오톡으로 알려 주는 알림 자동화 |
 | 95 | AI 쿠팡 운영 자동화 | `coupang-ops` | 이커머스 | v1.17 | 공개(2026-10-31 공개 전환) | 쿠팡 공식 WING Open API로 상품 등록·옵션 관리·품절 점검·주문·송장·출고중지를 처리 |
+| 96 | AI 무료음악 자동화 | `free-music-studio` | 음악 | v1.01 | 등록(2026-11-03, `new·coming` 배지 — 엔진 앱 전) | 웹에서 가사·스타일 정리(AI 작사: 회원 Claude 키), 노래는 회원 PC 엔진(ACE-Step 1.5, MIT)이 키·요금 없이 생성. 장점: 생성 비용 0·음원이 서버에 안 남음. 단점: 음질 SUNO보다 낮음(주인님 판정), 엔진 앱(2단계) 전이라 아직 생성 불가 |
 
 ## 0. 이 문서를 쓰는 방법
 1. **새 프로그램 기획 전**: §3 분야 묶음에서 비슷한 프로그램을 찾고, §4 카드의 장점·단점을 읽는다. 「기존 A의 장점 + B의 장점 − A·B의 단점」으로 기획안을 쓰고, 보고할 때 어떤 프로그램에서 무엇을 가져왔는지 밝힌다.
@@ -246,7 +247,7 @@
 | Threads | auto-threads-posting(기본 예약) · threads-content-ops(여러 계정) · threads-affiliate-poster(제휴 링크) · threads-easy-planner(초보 기획) · threads-comment-reply(댓글) | 여러 계정 운영 + 초보자 원클릭 기획 + 제휴 링크 + 댓글 답글을 한 운영판으로 |
 | Instagram | auto-instagram-posting(피드·카드뉴스 디자인·게시 — 2026-10-20 cardnews-studio 병합) · ai-influencer-studio(가상 인물 화보) · instagram-comment-reply(댓글·DM 응대 — 2026-10-20 instagram-dm-reply 병합) | 카드뉴스 디자인 편집 + 예약 게시 + 댓글·DM 응대를 하나로 |
 | 유튜브 | youtube-viral-studio(YOUTUBE 트렌드 분석 — 떡상 발굴 + 채널·키워드 진단, 2026-10-20 youtube-channel-consultant 병합) · shorts-viral-studio(공식 분석→대본) · thumbnail-master(AI 썸네일·SEO 자동화 — A/B 썸네일 + SEO 전략, 2026-10-20 seo-thumbnail-pro 병합) · (병합됨: seo-thumbnail-pro 메타데이터 전략+썸네일) · youtube-auto-reply(댓글) · auto-shorts-posting(이미지 스토리 쇼츠) · playlist-channel-studio · yt-playlist-studio | 발굴 → 공식 분석 → 대본 → 썸네일·메타데이터 → 업로드 → 댓글까지 이어지는 채널 운영 파이프라인 |
-| 음악 | ai-music-studio(여러 음악 AI 생성·비교, 음악 모델 레퍼런스, 2026-10-23) · music-automation(정밀 기획 + Suno V6 실제 생성, 2026-10-21 suno-music-studio 병합) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · lyric-video-studio(가사 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
+| 음악 | ai-music-studio(여러 음악 AI 생성·비교, 음악 모델 레퍼런스, 2026-10-23) · free-music-studio(내 PC 무료 생성, 2026-11-03) · music-automation(정밀 기획 + Suno V6 실제 생성, 2026-10-21 suno-music-studio 병합) · playlist-channel-studio(채널 소재) · yt-playlist-studio(영상 렌더) · vinyl-lp-studio(턴테이블 영상) · lyric-video-studio(가사 영상) · music-video-studio(MV) · ai-mastering-studio · ai-audio-analyzer(역설계) · music-player | 정밀 기획(Suno 스튜디오) + 실제 생성(음악 자동화) + 마스터링 + 플레이리스트 영상 렌더를 한 흐름으로 |
 | 이미지 생성·편집 | ai-image-studio(여러 엔진) · banana-canvas(편집 도구함) · allinone-graphic(123종 템플릿·인페인팅) · photo-remake-studio(복원·합성) · portrait-photo(인물 규격) · fashion-style(가상 피팅) · style-dna-analyzer · reverse-prompt · image-convert-studio · emotion-writer | 템플릿 시작 + 여러 엔진 선택 + 부분 수정 + 변환·규격 저장을 하나의 이미지 작업실로 |
 | 만화·영상 기획 | four-cut-comics(짧은 인스타툰) · ai-webtoon-studio(장편 웹툰) · cinematic-storyboard-studio(9컷 콘티) · music-video-studio · infinite-loop-video · video-to-gif | 캐릭터 일관성 엔진을 공용화해 4컷↔웹툰↔콘티를 같은 캐릭터로 |
 | 상세페이지 | shop-detail-page(사진·사양서 분석 → 15섹션·쿠팡 12단·스토어 9단 이미지 + HTML 내보내기, 2026-10-21 detail-page-12p·auto-detail-page 병합) | 사진 분석 + 스펙 자동 채우기 + 이미지형·HTML형 동시 출력 |
@@ -678,7 +679,7 @@
 - 문서: [`AGENTS.md`](../commercial-land-trade-alert/AGENTS.md)
 
 #### 부동산 실거래 투자분석 자동화 (`real-estate-sales`)
-- 주소·폴더: https://real-estate-sales.buylife.xyz · `real_estate_sales/` · v1.42 (스마트 매트릭스 다크 슬레이트, 운영)
+- 주소·폴더: https://real-estate-sales.buylife.xyz · `real_estate_sales/` · v1.43 (스마트 매트릭스 다크 슬레이트, 운영)
 - **화면(v1.11)**: 대시보드 지표·연결 상태 · 실거래 목록 검색·자치구·정렬(공시가 대비 포함)·표/카드 · 상세 공시가 대비·㎡당 거래가·매력도 막대 · 숫자 읽는 법이 있는 그림 매뉴얼
 - **차별점**: 전국 관심 시·군·구에 새 실거래(매매·전세·월세, 아파트·빌라·오피스텔)가 신고되면 알려 주고, AI가 투자 매력도를 분석하며, 현장 사진으로 위치·주소·지번·공시지가까지 모으는 임장 노트가 있는 부동산 실거래 분석 프로그램입니다.
 - **2026-11-02 바뀐 점(RQ-0 문서 바로잡기)**: v1.31 전국 256곳·빌라·오피스텔, v1.33 전월세, v1.34~v1.37 임장 노트(사진 위치·행정동·도로명주소·지번·공시지가·용도지역), 목록 쪽 나눔·CSV, 매물 알림 바로가기. 아래 「기능」 문단은 v1.18 당시 설명이다. 상세: [기능 비교표](REAL_ESTATE_FEATURE_MATRIX.md).
