@@ -90,6 +90,14 @@ function EngineCheck({ engine }: { engine: Engine }) {
 
   const current = engine.status?.quality?.id ?? report?.selected ?? "";
   const changing = engine.status?.stage === "구성 바꾸는 중" || (applying && !engine.status?.ready);
+  // 구성을 바꾼 뒤 음악 엔진이 다시 준비되면 「다시 켜는 중」 안내를 「준비됐습니다」로 바꾼다
+  const [waitingRestart, setWaitingRestart] = useState(false);
+  const readyNow = !!engine.status?.ready && !changing;
+  useEffect(() => {
+    if (!waitingRestart || applying || !readyNow) return;
+    setWaitingRestart(false);
+    setMessage({ type: "success", text: "새 구성으로 준비됐습니다. 이제 곡을 만들 수 있습니다." });
+  }, [waitingRestart, applying, readyNow]);
 
   const apply = async () => {
     setApplying(true);
@@ -97,6 +105,7 @@ function EngineCheck({ engine }: { engine: Engine }) {
     try {
       await setQualityTier(pick);
       setMessage({ type: "success", text: "구성을 바꿨습니다. 음악 엔진을 다시 켜는 중입니다(1~2분). 새 모델은 첫 곡을 만들 때 받습니다." });
+      setWaitingRestart(true);
       await engine.refresh();
       await load();
     } catch (e) {

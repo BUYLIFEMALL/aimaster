@@ -133,8 +133,6 @@ export function parseTaskState(body: unknown, taskId: string): TaskState {
   const item = Array.isArray(list) ? list.find((d) => d && (d as { task_id?: string }).task_id === taskId) : null;
   if (!item) return { state: "running" };
   const status = Number((item as { status?: unknown }).status);
-  if (status === 2) return { state: "failed", error: "음악 엔진이 곡을 만들지 못했습니다. 가사·스타일을 줄여 다시 시도해 주세요." };
-  if (status !== 1) return { state: "running" };
   let results: unknown = (item as { result?: unknown }).result;
   if (typeof results === "string") {
     try {
@@ -143,7 +141,13 @@ export function parseTaskState(body: unknown, taskId: string): TaskState {
       results = null;
     }
   }
-  const first = Array.isArray(results) ? (results[0] as { file?: unknown }) : null;
+  const first = Array.isArray(results) ? (results[0] as { file?: unknown; error?: unknown }) : null;
+  if (status === 2) {
+    // 음악 엔진이 알려 준 실패 이유를 붙인다(엔진 runner.mjs와 같은 규칙 — 2026-11-04 마스터PC cp949 오류를 이것으로 찾음)
+    const reason = first && typeof first.error === "string" ? first.error.replace(/\s+/g, " ").trim().slice(0, 400) : "";
+    return { state: "failed", error: reason ? `음악 엔진이 곡을 만들지 못했습니다 — ${reason}` : "음악 엔진이 곡을 만들지 못했습니다. 가사·스타일을 줄여 다시 시도해 주세요." };
+  }
+  if (status !== 1) return { state: "running" };
   const file = first && typeof first.file === "string" ? first.file : "";
   // 연결 문은 /v1/audio만 넘겨 준다 — 다른 주소가 오면 받지 않는다.
   if (!file.startsWith("/v1/audio?")) return { state: "failed", error: "완성된 음원 주소를 찾지 못했습니다." };

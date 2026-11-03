@@ -62,6 +62,9 @@ test("작업 상태: 진행 중·실패·없는 작업", () => {
   assert.equal(parseTaskState(reply(2, ""), "t1").state, "failed");
   assert.deepEqual(parseTaskState(reply(1, "[]"), "other"), { state: "running" });
   assert.deepEqual(parseTaskState(null, "t1"), { state: "running" });
+  // 음악 엔진이 알려 준 실패 이유를 붙인다(2026-11-04 마스터PC cp949 오류)
+  const fail = parseTaskState(reply(2, JSON.stringify([{ error: "'cp949' codec can't encode\n character" }])), "t1");
+  assert.equal(fail.error, "음악 엔진이 곡을 만들지 못했습니다 — 'cp949' codec can't encode character");
 });
 
 test("작업 상태: 완성 — result(JSON 문자열)에서 음원 주소 꺼내기", () => {
