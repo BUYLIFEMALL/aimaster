@@ -1,0 +1,13 @@
+{
+  "name": "free-music-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI 무료음악 자동화 — 내 PC 엔진",
+  "type": "module",
+  "main": "src/main.mjs",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/main.mjs",
+    "test": "node --test tests/"
+  }
+}
