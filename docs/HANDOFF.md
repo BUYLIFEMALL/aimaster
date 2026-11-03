@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 블로그 30일 열외 마무리 · commit-gate 사용 중지 · 비교표 SEO 버전
+- 30일 열외: 블로그 7개 코드 수정(삭제 제외 + 조회 숨김 풂), 미배포 대기 — 해시·남은 일은 `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §6, `docs/PENDING_DEPLOYS.md`. 남은 일: `naver-blog-agent` 비공개 사진 30일 기한(서버+화면), `blog-neighbor-care`(윈도우 blog 세션).
+- `scripts/mac-mini/commit-gate.sh` 사용 중지(`1639001ca`): 공용 인덱스에 직접 써서 11-03 재발 방지 장치 밖. 실행하면 두 도우미를 안내하고 멈춤. 플레이북 §4 갱신.
+- 비교표 SEO 스튜디오: 다른 세션이 남긴 미커밋 v2.22 2줄 → 실제 배포 버전 v2.25로 고쳐 커밋(`7ff60c263`).
+- 음악 사전 검증: 맥미니가 Intel(i7-8700B)이라 MLX 불가 → 음악 플랜 §8에 보류 기록(`d21bee9cc`), 음악 세션이 플랜 전제를 고칠 것.
+
 ## 2026-11-03 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 12월 모델 교체 코드 완료(배포 없음, 미배포 대기)
 - 한 일: 플랜 `docs/PLAN_20261103_MODEL_MIGRATION_DEC.md`의 36개 중 35개(+공용 선택 창 `ai-doc-chatbot` 새로 찾음) 코드 수정·경로 지정 커밋. `gemini-2.5`(12-01)·`gpt-5`/`o3`(12-11) → `gemini-3.8-flash`/`3.5-flash-lite`/`gpt-5.6-sol`. 선택 칸이 있는 곳은 **저장된 옛 값을 읽는 곳에서 새 모델로 바꿔 호출**(옛 값 고른 회원도 실제 동작).
 - 배포: 주인님 결정(「다른 프로그램 수정할 때 같이」)으로 따로 빌드하지 않음 → `docs/PENDING_DEPLOYS.md` 「12월 모델 교체」 4줄. **예외: `gpt-5`·`o3`(묶음 A)는 12-11에 호출이 실패하므로 12-05까지 배포가 없으면 주인님께 여쭐 것**(`real_estate_sales`는 v1.42에 이미 실림).
