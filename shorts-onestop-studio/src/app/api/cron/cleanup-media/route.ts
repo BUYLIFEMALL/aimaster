@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { json } from "@/lib/route";
 import { BUCKET } from "@/lib/media";
+import { loadRetentionExemptIds } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -20,6 +21,9 @@ export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET?.trim();
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return json({ error: "unauthorized" }, 401);
   const store = createAdminClient().storage.from(BUCKET);
+  // 예외 회원(관리자·시험 계정) 폴더는 지우지 않는다. 목록을 읽지 못하면 정리 전체를 멈춘다(2026-11-03).
+  let exempt: Set<string>;
+  try { exempt = await loadRetentionExemptIds(createAdminClient()); } catch { return json({ error: "자동 삭제 예외 회원 목록을 읽지 못해 정리를 멈췄습니다." }, 503); }
   const now = Date.now();
   const removed: Record<string, number> = { image: 0, voice: 0, video: 0, ams: 0 };
   // v1.37 회원별 지운 개수 → usage_logs cleanup_expired(메인 관리자 「30일 자동 정리」 표, docs/PLATFORM_PATTERNS.md §35)
@@ -29,6 +33,7 @@ export async function GET(request: Request) {
     if (error) return json({ error: error.message }, 500);
     for (const f of folders ?? []) {
       if (f.id) continue; // 폴더만(파일은 id가 있음)
+      if (exempt.has(f.name)) continue; // 예외 회원 폴더
       for (const sub of SUBFOLDERS) {
         const dir = sub ? `${f.name}/${sub}` : f.name;
         // 오래된 순으로 받아 지우고, 한 묶음(1000개)이 모두 지울 대상이었으면 처음부터 다시 받는다(지우면서 넘기면 순서가 밀려 건너뜀)
