@@ -56,6 +56,6 @@ export interface WebtoonProject {
 }
 
 export interface AppSettings {
-  textModel: "gemini-2.5-flash" | "gemini-2.5-flash-lite";
+  textModel: "gemini-3.8-flash" | "gemini-3.5-flash-lite";
   imageModel: "nano-banana-2" | "pollinations-flux";
 }

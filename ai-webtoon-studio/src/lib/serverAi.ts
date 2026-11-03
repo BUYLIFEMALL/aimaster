@@ -19,7 +19,7 @@ const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/mo
 
 // 글 생성(시놉시스·캐릭터·콘티). 예전 브라우저 호출과 같은 모델·값이며, 키는 주소가 아니라 머리글로 보낸다.
 export async function callGeminiTextServer(apiKey: string, prompt: string): Promise<string> {
-  const res = await fetch(`${GEMINI_API_ENDPOINT}/gemini-2.5-flash:generateContent`, {
+  const res = await fetch(`${GEMINI_API_ENDPOINT}/gemini-3.8-flash:generateContent`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify({

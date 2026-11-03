@@ -25,7 +25,7 @@ export function SettingsModal({
   // 키 입력칸은 비워 두고(원문은 서버에만), 새 키를 넣을 때만 서버로 보낸다(v1.27)
   const [keyInput, setKeyInput] = useState("");
   const [saving, setSaving] = useState(false);
-  const [textModel, setTextModel] = useState(settings.textModel || "gemini-2.5-flash");
+  const [textModel, setTextModel] = useState(settings.textModel || "gemini-3.8-flash");
   const [imageModel, setImageModel] = useState(settings.imageModel || "nano-banana-2");
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
   const [testMessage, setTestMessage] = useState("");
@@ -180,8 +180,8 @@ export function SettingsModal({
               onChange={(e) => setTextModel(e.target.value as any)}
               className="w-full px-3 py-2 border border-[#232b3e] rounded-xl focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-[#0a0d14] text-slate-100"
             >
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (추천: 빠른 속도와 높은 창의력)</option>
-              <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (초경량 초고속)</option>
+              <option value="gemini-3.8-flash">Gemini 3.8 Flash (추천: 빠른 속도와 높은 창의력)</option>
+              <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (초경량 초고속)</option>
             </select>
           </div>
 

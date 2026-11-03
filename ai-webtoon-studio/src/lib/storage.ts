@@ -5,7 +5,7 @@ const SETTINGS_KEY = "ai_webtoon_studio_settings_v1";
 const PROJECT_KEY = "ai_webtoon_studio_project_v1";
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  textModel: "gemini-2.5-flash",
+  textModel: "gemini-3.8-flash",
   imageModel: "nano-banana-2",
 };
 
@@ -44,7 +44,9 @@ export function getStoredSettings(): AppSettings {
       delete parsed.geminiApiKey;
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(parsed));
     }
-    return { ...DEFAULT_SETTINGS, ...parsed };
+    // 2026-11-03: 종료되는 옛 글 모델(Gemini 2.5, 12-01)로 저장된 설정은 새 모델 이름으로 바꿔 보여 준다.
+    const textModel = parsed?.textModel === "gemini-2.5-flash-lite" ? "gemini-3.5-flash-lite" : parsed?.textModel === "gemini-2.5-flash" ? "gemini-3.8-flash" : parsed?.textModel;
+    return { ...DEFAULT_SETTINGS, ...parsed, ...(textModel ? { textModel } : {}) };
   } catch (e) {
     console.warn("Failed to load settings:", e);
     return DEFAULT_SETTINGS;
