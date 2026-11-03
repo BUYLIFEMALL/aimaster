@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` 회원 공개(결정 3)
+- 주인님 「회원에게 공개」 선택 + 「프로그램 기능에 맞는 썸네일 이미지 만들어 등록해줘」. DB `realty-client-desk/supabase/migrations/20261103050000_publish.sql`(ego SQL): 배지 `coming` → `new`, 한 줄 요약·상세 소개(6단락, 표준 형식)·핵심 특징 4·사용 순서 4·추천 대상 3을 1~4단계 기능으로, VIP 등급 자동 부여 켬(다른 부동산 프로그램과 같음). 빌드 없음(DB 값만, 버전 그대로 v1.05).
+- 썸네일: `scripts/generate-program-thumbnail.mjs`(관리자 Gemini 키, `gemini-3-pro-image-preview` 1회) — 실사, 40대 한국인 공인중개사·휴대폰 문자·노트북 고객 카드/달력, 아이콘 3개(고객 카드·집·일정 체크). 확대본으로 글자·로고 없음 확인(노트북 화면은 읽을 수 없는 흐린 자리표시).
+- 확인(ego lite): https://www.buylife.xyz/programs/realty-client-desk 새 썸네일·설명·특징, 「준비중」 없음 / 카탈로그 `/programs`에 이름·썸네일.
+- 남은 일: 실제 문자 시험(관리자 SOLAPI), 11-04 08:00 첫 일정 알림 호출 확인, D5 중개보수 계산기(후순위).
 ## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` v1.05 4단계(광고 명시 항목 점검·AI 초안) 배포(준비중) — 플랜 1~4단계 끝
 - 코드 `4be6ba487`: `src/lib/desk/adCheck.ts`(공인중개사법 제18조의2·시행령 제17조의2·국토부 명시사항 세부기준 — 사무소 5항목, 매물 기본 5항목 + 건축물 총 층수·사용승인일·방향·방/욕실·입주일·주차·관리비, 주의 표현 목록; 시험 4개, 전체 14개 통과), `src/lib/ai/listingDraft.ts`(`claude-sonnet-5-5`, `maxRetries: 0`, 주어진 칸만·과장 금지·연도 동적), `lib/actions/aiDraft.ts`(회원 본인 `user_api_keys` anthropic — 폴백 없음, 매물 `ai_requested_at` 1분 잠금, 초안은 저장하지 않음), 매물 상세 「📋 광고 명시 항목 점검」·「✨ AI 초안」(광고 글 복사·문자 칸 넣기), 사무소 등록번호·개업공인중개사 성명 칸, 설정 Claude 키 칸, 매뉴얼 8단계. DB `20261103040000_ad_check_ai.sql` ego SQL 적용.
 - 배포 `realty-client-desk-hsthsm95m` Ready, DB v1.05. ego lite 시험 계정: 점검(사무소 5·매물 7 빠짐) → AI 초안 1회(시험 계정 본인 키, 지어낸 사실·과장 표현 없음) → 「문자 칸 넣기」 동작 → 390px → 시험 매물 화면 삭제.
