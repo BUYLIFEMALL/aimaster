@@ -15,7 +15,7 @@
 
 ## 대기 중
 
-- `free-music-studio` — 사이트 안 한글 폴더 고르기(윈도우 기본 창이 영어 윈도우에서 영어·고른 뒤 버튼 한 번 더 → 한글 화면 + 「이 폴더에 저장」 한 번), 엔진 0.1.3 browse·mkdir. 커밋 `c1f99cbd3`. 주인님 「급한 건 아냐, 다음 배포 때 같이」(2026-11-03, [역할: music] `claude-win-20261024-music`). 다음 배포 v1.05에 함께. + 프로젝트·플레이리스트(`0e30aa896`) — **⚠ 배포 전에 SQL `free-music-studio/supabase/migrations/20261103_v1_05_collections.sql`을 먼저 실행(곡 목록이 `project_id` 칸을 읽음, SQL 없이 배포하면 모든 음악 목록 오류)**.
+- `free-music-studio` — 이름 칸(프로젝트·플레이리스트·폴더·이름 바꾸기)에서 한글 입력 중 Enter 무시(`e17ace42a`, 운영 검수 때 한글 이름이 Enter로 안 만들어짐 발견). 다음 배포 때 함께. (2026-11-03, [역할: music] `claude-win-20261024-music`)
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
 
@@ -71,6 +71,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `free-music-studio` | v1.05 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-4h0idon07`) | 프로젝트·플레이리스트(`0e30aa896`, SQL `20261103_v1_05_collections.sql` 먼저 실행·RLS 확인) + 사이트 안 한글 폴더 고르기(`c1f99cbd3`). ego lite에서 프로젝트·플레이리스트 만들기·지정·담기·곡 수 확인 |
 | `trending-product-finder` | v1.35 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-l1cvtpead`) | 매일 예약 마켓별(쿠팡·네이버 따로, 겹치면 10분 뒤 재시도·저장 때 안내) `90f85b4e5`. 시험 42·tsc·빌드, DB/ZIP v1.35 OK, ego 예약 옮김·겹침 안내·알람 확인 |
 | `realty-client-desk` | v1.06 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 「중개보수 계산기 작업해」 빌드 1회, `realty-client-desk-mdyg9kbm3`) | D5 중개보수 계산기 `/fee`(시행규칙 제20조 별표 1·2, 월세 ×100/×70, 한도·부가세), 매물 화면 값 채움 링크(`047e0dc42`). 운영 화면 계산값 3가지·390px 확인 |
 | `trending-product-finder` | v1.34 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-kl5zo2n5q`) | 스마트스토어 상품소싱기(네이버 쇼핑 구매·리뷰 거르기, 쿠팡 확장에 마켓 추가) `e09fc075c` 외. 운영 DB 칸 4개 적용(배포 전), 시험 40·tsc·빌드, DB/ZIP v1.34 OK, ego 자동 검색 실검수(「접이식 캠핑의자」 56개 저장) |
