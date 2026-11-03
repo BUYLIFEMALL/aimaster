@@ -1,4 +1,5 @@
 // 주문 상태 이름표 — 손님·운영자 화면 공통(상태 흐름: docs/mall/ARCHITECTURE.md §5)
+import type { TaxInvoice } from "./taxInvoice.ts";
 
 export type OrderStatus =
   | "pending_payment"
@@ -77,6 +78,7 @@ export type OrderRow = {
   courier: string;
   tracking_no: string;
   is_credit: boolean;
+  tax_invoice: TaxInvoice | null;
   created_at: string;
 };
 
@@ -93,7 +95,7 @@ export type OrderItemRow = {
 
 export type OrderEventRow = { id: string; from_status: OrderStatus | null; to_status: OrderStatus; actor_role: string; note: string; created_at: string };
 
-export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, courier, tracking_no, is_credit, created_at";
+export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, courier, tracking_no, is_credit, tax_invoice, created_at";
 
 /** 입금 기한 안내 등 날짜를 한국 시간으로 */
 export function formatDateTime(iso: string): string {

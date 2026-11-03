@@ -69,6 +69,7 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
           defaultDepositor={customer.name}
           bankText={bankText}
           credit={credit}
+          invoice={isBusiness ? { defaultEmail: user.email ?? "" } : undefined}
         />
       )}
     </main>

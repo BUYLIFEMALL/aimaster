@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { validateInvoiceEmail } from "@/lib/taxInvoice";
 
 export type PlaceOrderState = { error: string | null; depositor: string; memo: string };
 
@@ -30,6 +31,14 @@ export async function placeOrderAction(slug: string, _prev: PlaceOrderState, for
   if (!row) return { ...values, error: "주문을 만들지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
   const { data: auth } = await supabase.auth.getUser();
   if (auth.user) await supabase.from("mall_builder_cart_items").delete().eq("store_id", store.id).eq("user_id", auth.user.id);
+  // 세금계산서 요청(체크했으면) — 주문은 이미 됐으므로 실패해도 주문 상세에서 다시 요청할 수 있게 안내만
+  let invoiceError = "";
+  if (form.get("want_invoice") === "on") {
+    const email = validateInvoiceEmail(form.get("invoice_email"));
+    const res = email.ok ? await supabase.rpc("mall_builder_request_tax_invoice", { p_order_id: row.order_id, p_email: email.value }) : null;
+    invoiceError = !email.ok ? email.error : res?.error?.message ?? "";
+  }
   revalidatePath(`/s/${slug}`, "layout");
+  if (invoiceError) redirect(`/s/${slug}/orders/${row.order_id}?done=1&error=${encodeURIComponent(`세금계산서 요청 실패: ${invoiceError}`)}`);
   redirect(`/s/${slug}/orders/${row.order_id}?done=1`);
 }

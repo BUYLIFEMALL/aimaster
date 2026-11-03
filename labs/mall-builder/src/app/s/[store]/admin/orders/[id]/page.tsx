@@ -4,6 +4,8 @@ import { getOrder, getStaffStore } from "@/lib/store";
 import { ORDER_STATUS_LABEL, formatDateTime } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
+import { TAX_INVOICE_LABEL } from "@/lib/taxInvoice";
+import { markTaxInvoiceIssuedAction } from "@/lib/tax-invoice-actions";
 import { AdminShell, NoPermission } from "../../admin-shell";
 
 export const dynamic = "force-dynamic";
@@ -61,6 +63,29 @@ export default async function AdminOrderDetailPage({
         </div>
       </section>
 
+      {order.tax_invoice && (
+        <section className="mt-6 rounded border p-4 text-sm" data-invoice-admin>
+          <p className="font-medium">세금계산서 — {TAX_INVOICE_LABEL[order.tax_invoice.status]}</p>
+          <p className="mt-1">
+            {order.tax_invoice.company} · 대표 {order.tax_invoice.ceo_name} · {order.tax_invoice.business_no} · 받을 메일 {order.tax_invoice.email}
+          </p>
+          <p className="text-xs text-gray-500">
+            {formatDateTime(order.tax_invoice.requested_at)} 요청
+            {order.tax_invoice.issued_at && ` · ${formatDateTime(order.tax_invoice.issued_at)} 발행 완료 표시`}
+            {order.tax_invoice.note && ` · ${order.tax_invoice.note}`}
+          </p>
+          {order.tax_invoice.status === "requested" && (
+            <form action={markTaxInvoiceIssuedAction.bind(null, store.slug, order.id)} className="mt-2 flex flex-wrap items-end gap-2">
+              <label className="block">
+                <span className="text-xs text-gray-500">메모(선택, 예: 홈택스 승인번호)</span>
+                <input name="note" maxLength={200} className="mt-0.5 w-64 rounded border px-2 py-1.5" />
+              </label>
+              <button className="min-h-10 rounded bg-gray-900 px-4 text-white">발행 완료로 표시</button>
+            </form>
+          )}
+        </section>
+      )}
+
       <ul className="mt-6 divide-y border-y text-sm">
         {items.map((it) => (
           <li key={it.id} className="flex justify-between gap-4 py-2">
@@ -79,8 +104,12 @@ export default async function AdminOrderDetailPage({
           {events.map((e) => (
             <li key={e.id}>
               {formatDateTime(e.created_at)} · {ROLE_LABEL[e.actor_role] ?? e.actor_role} ·{" "}
-              {e.from_status ? `${ORDER_STATUS_LABEL[e.from_status]} → ` : ""}
-              {ORDER_STATUS_LABEL[e.to_status]}
+              {e.from_status !== e.to_status && (
+                <>
+                  {e.from_status ? `${ORDER_STATUS_LABEL[e.from_status]} → ` : ""}
+                  {ORDER_STATUS_LABEL[e.to_status]}
+                </>
+              )}
               {e.note && ` — ${e.note}`}
             </li>
           ))}

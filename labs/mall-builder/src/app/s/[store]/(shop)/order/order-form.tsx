@@ -19,6 +19,7 @@ export default function OrderForm({
   action,
   note,
   credit,
+  invoice,
 }: {
   slug: string;
   addresses: CustomerAddress[];
@@ -32,6 +33,8 @@ export default function OrderForm({
   note?: string;
   /** 외상 한도가 있는 승인 사업자면 결제 방법에 「외상」이 보인다 */
   credit?: { limit: number; balance: number };
+  /** 승인 사업자면 세금계산서 발행 요청 칸이 보인다 */
+  invoice?: { defaultEmail: string };
 }) {
   const [addressId, setAddressId] = useState(addresses.find((a) => a.is_default)?.id ?? addresses[0]?.id ?? "");
   const initial: PlaceOrderState = { error: null, depositor: defaultDepositor, memo: "" };
@@ -39,6 +42,7 @@ export default function OrderForm({
   const region = regionOf[addressId] ?? "mainland";
   const t = totalsByRegion[region];
   const [pay, setPay] = useState<"bank" | "credit">("bank");
+  const [wantInvoice, setWantInvoice] = useState(false);
   const creditOk = !!credit && canUseCredit(credit.limit, credit.balance, t.total);
   // 배송지를 바꿔 금액이 한도를 넘으면 무통장으로 되돌린다
   const payMethod = pay === "credit" && !creditOk ? "bank" : pay;
@@ -74,6 +78,21 @@ export default function OrderForm({
           <input name="memo" defaultValue={state.memo} maxLength={200} placeholder="예: 문 앞에 놓아 주세요" className="mt-1 w-full rounded border px-3 py-2" />
         </label>
       </section>
+
+      {invoice && (
+        <section className="space-y-2 rounded border p-4 text-sm" data-invoice-request>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" name="want_invoice" checked={wantInvoice} onChange={(e) => setWantInvoice(e.target.checked)} />
+            세금계산서 발행 요청 <span className="text-xs text-gray-500">(사업자 정보는 승인된 가입 정보로)</span>
+          </label>
+          {wantInvoice && (
+            <label className="block">
+              <span className="text-xs text-gray-500">받을 메일</span>
+              <input name="invoice_email" type="email" defaultValue={invoice.defaultEmail} required maxLength={100} className="mt-0.5 w-full rounded border px-2 py-1.5 sm:w-80" />
+            </label>
+          )}
+        </section>
+      )}
 
       {credit && credit.limit > 0 ? (
         <section className="space-y-2 rounded border bg-gray-50 p-4 text-sm" data-pay-methods>

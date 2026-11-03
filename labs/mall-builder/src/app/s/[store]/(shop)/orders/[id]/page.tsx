@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getOrder, getStoreBySlug, requireUser } from "@/lib/store";
+import { getMyCustomer, getOrder, getStoreBySlug, requireUser } from "@/lib/store";
+import { TAX_INVOICE_LABEL, canRequestInvoice } from "@/lib/taxInvoice";
+import { requestTaxInvoiceAction } from "@/lib/tax-invoice-actions";
 import { ORDER_STATUS_LABEL, formatDateTime } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
@@ -26,6 +28,8 @@ export default async function OrderDetailPage({
   const found = await getOrder(store.id, id);
   if (!found || found.order.user_id !== user.id) notFound();
   const { order, items, events } = found;
+  const customer = await getMyCustomer(store.id, user.id);
+  const isBusiness = customer?.approval_status === "approved" && !!customer.grade?.is_business;
   const base = `/s/${store.slug}`;
   const r = order.receiver;
 
@@ -96,6 +100,26 @@ export default async function OrderDetailPage({
         <p className="flex justify-between"><span>배송비{REGION_LABEL[r.region] ? ` (${REGION_LABEL[r.region]})` : ""}</span><span>{formatWon(order.shipping_fee)}</span></p>
         <p className="flex justify-between border-t pt-1 text-base font-bold"><span>결제 금액</span><span>{formatWon(order.total)}</span></p>
       </section>
+
+      {(order.tax_invoice || (isBusiness && canRequestInvoice(order))) && (
+        <section className="mt-6 rounded border p-4 text-sm" data-invoice>
+          <p className="font-medium">세금계산서</p>
+          {order.tax_invoice ? (
+            <p className="mt-1">
+              <b>{TAX_INVOICE_LABEL[order.tax_invoice.status]}</b> · {order.tax_invoice.company} ({order.tax_invoice.business_no}) · {order.tax_invoice.email}
+              {order.tax_invoice.issued_at && ` · ${formatDateTime(order.tax_invoice.issued_at)} 발행`}
+            </p>
+          ) : (
+            <form action={requestTaxInvoiceAction.bind(null, store.slug, order.id)} className="mt-2 flex flex-wrap items-end gap-2">
+              <label className="block">
+                <span className="text-xs text-gray-500">받을 메일</span>
+                <input name="invoice_email" type="email" defaultValue={user.email ?? ""} required maxLength={100} className="mt-0.5 w-64 rounded border px-2 py-1.5" />
+              </label>
+              <button className="min-h-10 rounded border px-4">발행 요청</button>
+            </form>
+          )}
+        </section>
+      )}
 
       <section className="mt-6 rounded border p-4 text-sm">
         <p className="font-medium">받는 분</p>
