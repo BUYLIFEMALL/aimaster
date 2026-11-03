@@ -84,6 +84,14 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
               </Link>
             );
           })}
+          <a
+            href="/downloads/trending-product-finder-extension-latest.zip"
+            download
+            className="mt-2 flex min-h-[44px] items-center justify-between gap-2 rounded-lg border border-mx-primary bg-mx-primary/15 px-3 text-sm font-bold text-[#bfdbfe] hover:bg-mx-primary/30"
+          >
+            <span>⬇ 확장 프로그램 받기</span>
+            <span className="rounded-md bg-mx-primary px-2 py-0.5 text-xs font-extrabold text-white">{APP_VERSION}</span>
+          </a>
         </div>
       </div>
 

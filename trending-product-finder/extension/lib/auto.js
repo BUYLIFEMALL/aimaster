@@ -47,3 +47,39 @@ export function startProblem(keywords, record) {
 export function nextGapMinutes(random = Math.random()) {
   return MIN_GAP_MINUTES + random * (MAX_GAP_MINUTES - MIN_GAP_MINUTES);
 }
+
+/** 「HH:MM」(24시간) 형식인지. */
+export function validTime(time) {
+  const match = String(time ?? "").match(/^(\d{2}):(\d{2})$/);
+  return Boolean(match) && Number(match[1]) < 24 && Number(match[2]) < 60;
+}
+
+/**
+ * 매일 예약의 다음 시작 시각(이 PC 시계 기준).
+ * 오늘 시각이 아직이면 오늘, 지났으면 내일. catchUp이면(크롬을 다시 켰을 때) 오늘 아직 안 돌았으면 1분 뒤.
+ */
+export function nextScheduleAt(time, { now = Date.now(), lastRunDay = null, catchUp = false } = {}) {
+  const [hour, minute] = time.split(":").map(Number);
+  const base = new Date(now);
+  const today = new Date(base.getFullYear(), base.getMonth(), base.getDate(), hour, minute).getTime();
+  if (today > now) return today;
+  if (catchUp && lastRunDay !== kstDay(now)) return now + 60_000;
+  return new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1, hour, minute).getTime();
+}
+
+/** 쿠팡이 거부하는 징후. 하나라도 보이면 자동 검색과 매일 예약을 일시정지한다. */
+export const SAFETY_TEXT = {
+  blocked: "쿠팡이 사람인지 확인하는 화면을 띄웠습니다",
+  "no-result": "상품이 있을 검색어인데 「검색결과 없음」이 나왔습니다",
+  redirect: "검색 화면이 아닌 다른 화면으로 넘어갔습니다",
+  "load-fail": "쿠팡 화면이 30초 안에 열리지 않았습니다",
+  unknown: "화면에 상품이 하나도 보이지 않았습니다",
+};
+
+export function isSearchUrl(url) {
+  return /^https:\/\/www\.coupang\.com\/np\/search\?/.test(String(url ?? ""));
+}
+
+export function safetyMessage(reason, keyword) {
+  return `⛔ 「${keyword}」 검색 중 ${SAFETY_TEXT[reason] ?? "이상한 화면이 나왔습니다"}. 쿠팡이 접속을 거부하는 징후일 수 있어 자동 검색과 매일 예약을 일시정지했습니다.`;
+}

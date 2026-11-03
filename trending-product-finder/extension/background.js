@@ -1,9 +1,10 @@
-// 키워드 자동 검색. 회원이 팝업에서 「시작」을 눌렀을 때만 돌고, 예약은 없다.
+// 키워드 자동 검색. 회원이 팝업에서 「시작」을 누르거나, 회원이 켠 「매일 예약」 시각에만 돈다(PC·크롬이 켜져 있을 때).
 // 쿠팡 탭 하나만 쓰고, 키워드마다 판매량순 1페이지만 열어 읽는다. 차단 우회는 하지 않는다.
-import { nextGapMinutes, searchUrl, startProblem, todayRecord } from "./lib/auto.js";
+import { isSearchUrl, kstDay, nextGapMinutes, nextScheduleAt, safetyMessage, searchUrl, startProblem, todayRecord, validTime } from "./lib/auto.js";
 import { addToLocalList, readTab, saveToAccount } from "./lib/page.js";
 
 const ALARM = "auto-next";
+const SCHEDULE_ALARM = "auto-schedule";
 const LOAD_TIMEOUT_MS = 30_000;
 const SETTLE_MS = 2_500;
 const READ_TRIES = 8; // 최대 약 20초
@@ -56,10 +57,26 @@ async function countToday() {
   await chrome.storage.local.set({ autoDaily: { ...record, count: record.count + 1 } });
 }
 
-async function stopForToday(message) {
+/** 쿠팡 거부 징후: 오늘 멈춤 + 회원이 다시 켤 때까지 자동 검색·예약 일시정지 + 아이콘 「!」 + 컴퓨터 알림. */
+async function pauseForSafety(reason, keyword) {
+  const message = safetyMessage(reason, keyword);
   const { autoDaily } = await chrome.storage.local.get("autoDaily");
-  await chrome.storage.local.set({ autoDaily: { ...todayRecord(autoDaily), stopped: true } });
+  await chrome.storage.local.set({ autoDaily: { ...todayRecord(autoDaily), stopped: true }, autoSafety: { reason, keyword, at: Date.now(), message } });
   await stopJob(message);
+  await chrome.alarms.clear(SCHEDULE_ALARM);
+  await showSafetyBadge(true);
+  chrome.notifications.create("coupang-safety", {
+    type: "basic",
+    iconUrl: "icons/icon128.png",
+    title: "쿠팡 상품소싱기 — 자동 검색 일시정지",
+    message: `${message} 오늘은 쉬고, 확장 창을 열어 안내를 확인해 주세요.`,
+    priority: 2,
+  });
+}
+
+async function showSafetyBadge(on) {
+  await chrome.action.setBadgeText({ text: on ? "!" : "" });
+  if (on) await chrome.action.setBadgeBackgroundColor({ color: "#dc2626" });
 }
 
 /** 키워드 하나를 처리하고 다음 차례를 예약한다. */
@@ -83,12 +100,11 @@ async function step() {
     if (read && read.state !== "unknown") break;
   }
   await countToday();
+  const after = await chrome.tabs.get(tab.id).catch(() => null);
+  if (after && !isSearchUrl(after.url)) return pauseForSafety("redirect", keyword);
+  if (!loaded) return pauseForSafety("load-fail", keyword);
   if (!read) return stopJob(`「${keyword}」 화면을 읽지 못해 멈췄습니다. 쿠팡 탭을 확인한 뒤 다시 시작해 주세요.`);
-  if (read.state === "blocked") return stopForToday("⛔ 쿠팡 확인 화면이 떠서 자동 검색을 멈췄습니다. 오늘은 더 읽지 말고 쉬어 주세요.");
-  if (read.state === "no-result") {
-    return stopForToday(`「${keyword}」에서 검색 결과가 없다고 나와 오늘 자동 검색을 멈췄습니다. 상품이 있는 검색어라면 쿠팡이 제한했을 수 있습니다.`);
-  }
-  if (read.state === "unknown") return stopJob("상품을 찾지 못해 멈췄습니다. 쿠팡 화면이 바뀌었을 수 있습니다.");
+  if (read.state !== "ok") return pauseForSafety(read.state, keyword);
 
   const added = await addToLocalList(read.products);
   const saved = await saveToAccount(keyword, read.products);
@@ -108,27 +124,81 @@ async function step() {
   });
 }
 
-async function start(keywords) {
+async function start(keywords, label = "") {
   const { autoDaily } = await chrome.storage.local.get("autoDaily");
   const problem = startProblem(keywords, todayRecord(autoDaily));
   if (problem) return { ok: false, error: problem };
+  const { autoSafety } = await chrome.storage.local.get("autoSafety");
+  if (autoSafety) return { ok: false, error: "⛔ 쿠팡 거부 징후로 일시정지 중입니다. 확장 창의 안내를 읽고 「확인했고 다시 사용」을 먼저 눌러 주세요." };
   if ((await getJob())?.running) return { ok: false, error: "이미 자동 검색이 진행 중입니다." };
   const previous = await getJob();
   await chrome.storage.local.set({
-    autoJob: { keywords, index: 0, tabId: previous?.tabId ?? null, running: true, results: [], nextAt: null, message: "시작합니다…" },
+    autoJob: { keywords, index: 0, tabId: previous?.tabId ?? null, running: true, results: [], nextAt: null, message: `${label}시작합니다…` },
   });
   step();
   return { ok: true };
 }
 
+/** 매일 예약 알람을 다시 건다. catchUp은 크롬을 새로 켰을 때만(그 시각에 꺼져 있었으면 오늘 안에 한 번). */
+async function armSchedule(catchUp = false) {
+  await chrome.alarms.clear(SCHEDULE_ALARM);
+  const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
+  const { autoSafety } = await chrome.storage.local.get("autoSafety");
+  if (autoSafety || !autoSchedule?.enabled || !validTime(autoSchedule.time)) return null;
+  const when = nextScheduleAt(autoSchedule.time, { lastRunDay: autoSchedule.lastRunDay, catchUp });
+  await chrome.alarms.create(SCHEDULE_ALARM, { when });
+  await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, nextAt: when } });
+  return when;
+}
+
+async function runSchedule() {
+  const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
+  if (!autoSchedule?.enabled) return;
+  await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, lastRunDay: kstDay() } });
+  const reply = await start(autoSchedule.keywords ?? [], "⏰ 매일 예약 — ");
+  if (!reply.ok && !(await getJob())?.running) await setJob({ running: false, nextAt: null, message: `⏰ 매일 예약을 시작하지 못했습니다: ${reply.error}` });
+  await armSchedule(false);
+}
+
+async function saveSchedule({ enabled, time, keywords }) {
+  if (enabled) {
+    if (!validTime(time)) return { ok: false, error: "예약 시각을 다시 골라 주세요." };
+    if (!keywords?.length) return { ok: false, error: "예약할 키워드를 한 줄에 하나씩 넣어 주세요." };
+  }
+  const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
+  await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, enabled: Boolean(enabled), time, keywords: keywords ?? [] } });
+  return { ok: true, nextAt: await armSchedule(false) };
+}
+
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM) step();
+  if (alarm.name === SCHEDULE_ALARM) runSchedule();
 });
+
+// 브라우저를 다시 켜거나 확장을 새로 고치면 예약 알람이 사라질 수 있어 다시 건다.
+async function restoreBadge() {
+  const { autoSafety } = await chrome.storage.local.get("autoSafety");
+  await showSafetyBadge(Boolean(autoSafety));
+}
+chrome.runtime.onStartup.addListener(() => restoreBadge().then(() => armSchedule(true)));
+chrome.runtime.onInstalled.addListener(() => restoreBadge().then(() => armSchedule(false)));
 
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
   if (sender.id !== chrome.runtime.id) return;
   if (message?.type === "auto-start") {
     start(message.keywords).then(reply);
+    return true;
+  }
+  if (message?.type === "schedule-save") {
+    saveSchedule(message).then(reply);
+    return true;
+  }
+  if (message?.type === "safety-pause") {
+    pauseForSafety(message.reason, message.keyword).then(() => reply({ ok: true }));
+    return true;
+  }
+  if (message?.type === "safety-resume") {
+    chrome.storage.local.remove("autoSafety").then(() => showSafetyBadge(false)).then(() => armSchedule(false)).then(() => reply({ ok: true }));
     return true;
   }
   if (message?.type === "auto-stop") {

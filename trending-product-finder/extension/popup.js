@@ -58,8 +58,11 @@ async function readPage() {
   lastReadAt = Date.now();
   const read = await readTab(tab.id);
   if (!read) return setStatus("화면을 읽지 못했습니다. 쿠팡 탭을 새로고침한 뒤 다시 눌러 주세요.", true);
-  if (read.state === "blocked") return setStatus("⛔ 쿠팡 확인 화면이 떠서 멈췄습니다. 오늘은 더 읽지 말고 쉬어 주세요.", true);
-  if (read.state === "no-result") return setStatus("이 화면에 검색 결과가 없습니다. 상품이 있는 검색어인데 이렇게 나오면 쿠팡이 제한했을 수 있으니 잠시 쉬어 주세요.", true);
+  if (read.state === "blocked" || read.state === "no-result") {
+    // 직접 읽기에서도 거부 징후가 보이면 자동 검색·예약을 함께 일시정지한다.
+    await chrome.runtime.sendMessage({ type: "safety-pause", reason: read.state, keyword: new URL(tab.url).searchParams.get("q") ?? "" });
+    return setStatus(read.state === "blocked" ? "⛔ 쿠팡 확인 화면이 떠서 멈췄습니다. 오늘은 더 읽지 말고 쉬어 주세요." : "이 화면에 검색 결과가 없습니다. 상품이 있는 검색어인데 이렇게 나오면 쿠팡이 제한했을 수 있으니 쉬어 주세요.", true);
+  }
   if (read.state === "unknown") return setStatus("상품을 찾지 못했습니다. 쿠팡 화면이 바뀌었을 수 있습니다.", true);
 
   const added = await addToLocalList(read.products);
@@ -87,8 +90,34 @@ function renderAuto(job, daily) {
 }
 
 async function refreshAuto() {
-  const { autoJob, autoDaily } = await chrome.storage.local.get(["autoJob", "autoDaily"]);
+  const { autoJob, autoDaily, autoSafety, autoSchedule } = await chrome.storage.local.get(["autoJob", "autoDaily", "autoSafety", "autoSchedule"]);
   renderAuto(autoJob, autoDaily);
+  $("safety").hidden = !autoSafety;
+  if (autoSafety) $("safetyText").textContent = `${autoSafety.message} (${new Date(autoSafety.at).toLocaleString("ko-KR")})`;
+  const when = autoSchedule?.enabled && autoSchedule.nextAt ? new Date(autoSchedule.nextAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : null;
+  $("scheduleStatus").textContent = !autoSchedule?.enabled
+    ? "예약 꺼짐"
+    : autoSafety
+      ? `⛔ 일시정지 중이라 예약이 돌지 않습니다 (키워드 ${autoSchedule.keywords.length}개)`
+      : `다음 예약: ${when ?? "-"} · 키워드 ${autoSchedule.keywords.length}개 (${autoSchedule.keywords.join(", ")})`;
+}
+
+async function loadSchedule() {
+  const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
+  if (!autoSchedule) return;
+  $("scheduleOn").checked = Boolean(autoSchedule.enabled);
+  if (autoSchedule.time) $("scheduleTime").value = autoSchedule.time;
+  if (!$("keywords").value && autoSchedule.keywords?.length) $("keywords").value = autoSchedule.keywords.join("\n");
+}
+
+async function saveSchedule() {
+  const enabled = $("scheduleOn").checked;
+  if (enabled && !$("autoAgree").checked) return setStatus("자동 검색 주의 사항을 확인하고 체크해 주세요.", true);
+  if (enabled) await chrome.storage.local.set({ autoAgreed: true });
+  const reply = await chrome.runtime.sendMessage({ type: "schedule-save", enabled, time: $("scheduleTime").value, keywords: parseKeywords($("keywords").value) });
+  if (!reply?.ok) return setStatus(reply?.error ?? "예약을 저장하지 못했습니다.", true);
+  setStatus(enabled ? "매일 예약을 저장했습니다. 그 시각에 PC와 크롬을 켜 두세요." : "매일 예약을 껐습니다.");
+  refreshAuto();
 }
 
 async function startAuto() {
@@ -146,12 +175,19 @@ async function init() {
     startAuto();
   });
   $("autoStop").addEventListener("click", () => chrome.runtime.sendMessage({ type: "auto-stop" }));
+  $("scheduleSave").addEventListener("click", saveSchedule);
+  $("safetyResume").addEventListener("click", async () => {
+    await chrome.runtime.sendMessage({ type: "safety-resume" });
+    setStatus("일시정지를 풀었습니다. 같은 일이 또 생기면 며칠 쉬어 주세요.");
+    refreshAuto();
+  });
+  await loadSchedule();
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.items) {
       items = changes.items.newValue ?? [];
       render();
     }
-    if (changes.autoJob || changes.autoDaily) refreshAuto();
+    if (changes.autoJob || changes.autoDaily || changes.autoSafety || changes.autoSchedule) refreshAuto();
   });
   setInterval(refreshAuto, 1000);
   refreshAuto();

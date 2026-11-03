@@ -127,3 +127,27 @@ test("키워드 사이 대기는 3~5분이다", () => {
   assert.equal(nextGapMinutes(0), 3);
   assert.equal(nextGapMinutes(0.999) < 5, true);
 });
+
+import { nextScheduleAt, validTime } from "../extension/lib/auto.js";
+
+test("매일 예약: 시각 형식과 다음 시작 시각", () => {
+  assert.equal(validTime("09:30"), true);
+  assert.equal(validTime("24:00"), false);
+  assert.equal(validTime("9:30"), false);
+  const morning = new Date(2026, 10, 3, 8, 0).getTime();
+  const noon = new Date(2026, 10, 3, 12, 0).getTime();
+  assert.equal(nextScheduleAt("09:30", { now: morning }), new Date(2026, 10, 3, 9, 30).getTime());
+  assert.equal(nextScheduleAt("09:30", { now: noon }), new Date(2026, 10, 4, 9, 30).getTime());
+  // 크롬을 늦게 켰고 오늘 아직 안 돌았으면 1분 뒤, 이미 돌았으면 내일
+  assert.equal(nextScheduleAt("09:30", { now: noon, catchUp: true }), noon + 60_000);
+  assert.equal(nextScheduleAt("09:30", { now: noon, catchUp: true, lastRunDay: kstDay(noon) }), new Date(2026, 10, 4, 9, 30).getTime());
+});
+
+import { isSearchUrl, safetyMessage } from "../extension/lib/auto.js";
+
+test("거부 징후: 검색 화면이 아닌 주소로 튕기면 징후로 본다", () => {
+  assert.equal(isSearchUrl("https://www.coupang.com/np/search?q=a&sorter=saleCountDesc"), true);
+  assert.equal(isSearchUrl("https://login.coupang.com/login/login.pang"), false);
+  assert.equal(isSearchUrl("https://www.coupang.com/"), false);
+  assert.match(safetyMessage("blocked", "텀블러"), /「텀블러」.*확인하는 화면.*일시정지/);
+});
