@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --no-warnings --experimental-strip-types --test tests/consent.test.mjs tests/adRules.test.mjs tests/eventRules.test.mjs"
+    "test": "node --no-warnings --experimental-strip-types --test tests/consent.test.mjs tests/adRules.test.mjs tests/eventRules.test.mjs tests/adCheck.test.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.4.0",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
     "next": "16.4.2",

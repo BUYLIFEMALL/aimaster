@@ -2,12 +2,14 @@
 
 import { useActionState, useMemo, useState } from "react";
 import { sendListingAdAction, type SendState } from "@/lib/actions/listings";
+import { draftListingAction, type DraftState } from "@/lib/actions/aiDraft";
 
 export type Candidate = { id: string; name: string; phone: string; why: string[]; ok: boolean; note: string; soon: boolean; sent: boolean };
 
 // 2단계(2026-11-03): 중개사가 고객을 직접 고르고, 미리보기로 실제 문자 모양을 확인한 뒤 보낸다(자동 일괄 발송 없음).
-export function SendAdForm({ listingId, draft, header, footer, candidates, night, ready }: {
+export function SendAdForm({ listingId, draft, header, footer, candidates, night, ready, missing, hasClaudeKey }: {
   listingId: string; draft: string; header: string; footer: string; candidates: Candidate[]; night: boolean; ready: string | null;
+  missing: { office: string[]; listing: string[] }; hasClaudeKey: boolean;
 }) {
   const [picked, setPicked] = useState<string[]>([]);
   const [state, action, pending] = useActionState<SendState, FormData>(async (p, fd) => {
@@ -16,6 +18,14 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
     return r;
   }, {});
   const [body, setBody] = useState(draft);
+  const [ai, setAi] = useState<DraftState | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+  async function runAi() {
+    setAiBusy(true);
+    setCopied(false);
+    try { setAi(await draftListingAction(listingId)); } finally { setAiBusy(false); }
+  }
   const selectable = candidates.filter((c) => c.ok && !c.sent);
   const preview = useMemo(() => `${header}\n${body.trim()}\n${footer}`, [header, body, footer]);
   const len = [...preview].length;
@@ -60,6 +70,39 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
         )}
       </div>
 
+      {/* 4단계(2026-11-03): 광고 명시 항목 점검(규칙, 비용 없음) + 회원 본인 Claude 키 AI 초안(저장하지 않음) */}
+      <div className="mx-card space-y-3 p-5 text-sm">
+        <h2 className="text-base font-bold text-mx-text">📋 광고 명시 항목 점검</h2>
+        {missing.office.length === 0 && missing.listing.length === 0 ? (
+          <p className="text-mx-success">✅ 공인중개사법 광고 명시 항목이 모두 들어 있어요.</p>
+        ) : (
+          <div className="space-y-1 text-mx-text">
+            {missing.office.length > 0 && <p>🏢 사무소: <b className="text-mx-danger">{missing.office.join(", ")}</b> — <a href="/settings" className="text-mx-link underline">사무소 정보</a>에서 넣어 주세요.</p>}
+            {missing.listing.length > 0 && <p>🏠 매물: <b className="text-mx-danger">{missing.listing.join(", ")}</b> — 포털·블로그에 올릴 광고 글에는 꼭 넣어 주세요.</p>}
+          </div>
+        )}
+        <p className="text-xs text-mx-muted">인터넷 광고에 넣어야 하는 항목(국토부 「표시·광고 명시사항 세부기준」)을 대조한 참고용이에요. 법률 자문이 아니며, 대장에 위반이 있으면 「위반건축물」 표기도 직접 확인해 주세요.</p>
+        <div className="border-t border-mx-border pt-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-base font-bold text-mx-text">✨ AI 초안 (본인 Claude 키)</h2>
+            <button type="button" onClick={() => void runAi()} disabled={aiBusy || !hasClaudeKey} className="mx-btn-primary min-h-[40px] px-3 text-xs disabled:opacity-60">{aiBusy ? "만드는 중… (10~30초)" : "✨ 광고 글·문자 초안 만들기"}</button>
+          </div>
+          {!hasClaudeKey && <p className="mt-1 text-xs text-mx-muted">본인 Claude 키가 있어야 해요. <a href="/settings" className="text-mx-link underline">API키등록·플랫폼연동</a>에서 넣어 주세요(요금은 본인 계정, 1회 약 10~30원).</p>}
+          {ai?.error && <p className="mt-2 text-mx-danger">{ai.error}</p>}
+          {ai?.ad && (
+            <div className="mt-3 space-y-2">
+              {ai.risky && ai.risky.length > 0 && <p className="rounded-lg bg-[#fff4e5] p-2 text-[#8a5300]">⚠️ 과장으로 보일 수 있는 표현: {ai.risky.join(", ")} — 고쳐서 쓰세요.</p>}
+              <p className="text-xs font-semibold text-mx-muted">매물 광고 글 (포털·블로그용 — 사실과 맞는지 꼭 확인하고 고쳐서 쓰세요)</p>
+              <pre className="whitespace-pre-wrap rounded-xl border border-mx-border bg-[#f7f9fb] p-3 text-mx-text">{ai.ad}</pre>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => { void navigator.clipboard.writeText(ai.ad ?? "").then(() => setCopied(true)); }} className="mx-btn-ghost min-h-[40px] px-3 text-xs">{copied ? "✅ 복사했어요" : "📋 광고 글 복사"}</button>
+                {ai.sms && <button type="button" onClick={() => setBody(ai.sms ?? "")} className="mx-btn-ghost min-h-[40px] px-3 text-xs">✉️ 문자 초안을 아래 「보낼 내용」에 넣기</button>}
+              </div>
+              <p className="text-xs text-mx-muted">초안은 저장하지 않아요(이 화면을 나가면 사라져요). 모델 {ai.model}.</p>
+            </div>
+          )}
+        </div>
+      </div>
       <div className="mx-card space-y-3 p-5">
         <h2 className="text-base font-bold text-mx-text">✉️ 보낼 내용</h2>
         <textarea name="body" value={body} onChange={(e) => setBody(e.target.value)} rows={6} maxLength={600} className="mx-input" />

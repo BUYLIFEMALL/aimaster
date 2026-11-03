@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { saveOfficeAction, type ListingState } from "@/lib/actions/listings";
 
-export type OfficeData = { office_name: string; office_phone: string; office_address: string | null; reject_080: string | null } | null;
+export type OfficeData = { office_name: string; office_phone: string; office_address: string | null; reject_080: string | null; reg_no?: string | null; broker_name?: string | null } | null;
 
 // 광고 문자 맨 앞 「(광고)사무소 이름 전화번호」와 맨 끝 무료 수신거부에 들어가는 값(정보통신망법 시행령 별표 6)
 export function OfficeForm({ office }: { office: OfficeData }) {
@@ -24,6 +24,14 @@ export function OfficeForm({ office }: { office: OfficeData }) {
         <label className="text-sm">
           <span className="mb-1 block text-xs font-semibold text-mx-muted">사무소 주소 (선택)</span>
           <input name="officeAddress" maxLength={120} defaultValue={office?.office_address ?? ""} className="mx-input" />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block text-xs font-semibold text-mx-muted">중개사무소 등록번호 (매물 광고에 표시)</span>
+          <input name="regNo" maxLength={40} defaultValue={office?.reg_no ?? ""} placeholder="예: 41285-2020-00001" className="mx-input" />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block text-xs font-semibold text-mx-muted">개업공인중개사 성명 (매물 광고에 표시)</span>
+          <input name="brokerName" maxLength={20} defaultValue={office?.broker_name ?? ""} className="mx-input" />
         </label>
         <label className="text-sm">
           <span className="mb-1 block text-xs font-semibold text-mx-muted">080 무료 수신거부 번호 (선택)</span>

@@ -36,7 +36,7 @@ export async function saveOfficeAction(_prev: ListingState, fd: FormData): Promi
   if (reject && !/^080-?\d{3,4}-?\d{4}$/.test(reject)) return { error: "080 무료 수신거부 번호는 「080-123-4567」 모양이에요. 없으면 비워 두세요." };
   const db = (await createClient()) as unknown as SupabaseLike;
   const { error } = await db.from(OFFICES).upsert(
-    { user_id: user.id, office_name: officeName, office_phone: officePhone, office_address: text(fd, "officeAddress", 120), reject_080: reject, updated_at: new Date().toISOString() },
+    { user_id: user.id, office_name: officeName, office_phone: officePhone, office_address: text(fd, "officeAddress", 120), reject_080: reject, reg_no: text(fd, "regNo", 40), broker_name: text(fd, "brokerName", 20), updated_at: new Date().toISOString() },
     { onConflict: "user_id" },
   );
   if (error) return { error: `저장하지 못했어요: ${error.message}` };
