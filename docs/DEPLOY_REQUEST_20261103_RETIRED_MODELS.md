@@ -37,3 +37,18 @@
 3. 플레이리스트: 참조 이미지(페르소나) 있는 상태로 `gpt-image-2.5-flare` 1장 — **flare가 편집(`/v1/images/edits`)을 지원하는지 공식 문서에 없음**. 실패하면 그 오류 원문을 맥미니에 알려 주면 sunburst로 돌리는 수정을 한다.
 4. 타로: OpenAI 모델 `gpt-5.6-luna`로 3장 리딩 1회 → 본문이 비지 않는지.
 (시험 계정에 해당 키가 없으면 그 시험은 건너뛰고 「키 없음」으로 기록)
+
+## 결과 (2026-11-03, 윈도우 Claude Code `claude-win-20261024-music`)
+- 8개 모두 순서대로 배포 Ready·DB 버전 갱신(빌드 8회, 승인 범위 안). 버전 커밋 `d9448b5bb`.
+| 순서 | 프로그램 | 버전 | 배포 | 시험 |
+|---|---|---|---|---|
+| 1 | `ai-video-studio` | v1.26 | `ai-video-studio-nikbwpt4l` | 음성 Gemini 3.8 Flash TTS 1회 통과(6.4초, WAV 188KB, RIFF 머리말) |
+| 2 | `shorts-onestop-studio` | v1.43 | `shorts-onestop-studio-2z711hpa9` | 같은 음성 공용 코드 — 영상 스튜디오 시험으로 대신(자체 호출 시험 안 함) |
+| 3 | `ai-image-studio` | v1.31 | `ai-image-studio-2amw33trt` | gpt-image-2.5-flare 1024 low 1장 통과(10.5초, b64). 갤러리 저장은 미확인 |
+| 4 | `playlist-channel-studio` | v1.34 | `playlist-channel-studio-e5lnm0rdl` | 참조 이미지 편집(`/v1/images/edits`) flare 1장 통과(15.1초) — flare가 편집 지원함 확인 |
+| 5 | `threads-affiliate-poster` | v1.85 | `threads-affiliate-poster-dg55pgkc0` | 호출 시험 안 함(요청서 범위 밖) |
+| 6 | `threads-content-ops` | v2.22 | `threads-content-dq8rs2jct` | 호출 시험 안 함(요청서 범위 밖). 배포 도구 출력에 결과 줄이 없어 `vercel ls`로 Ready 확인 |
+| 7 | `threads-easy-planner` | v1.50 | `threads-easy-planner-matxodjk3` | 호출 시험 안 함(요청서 범위 밖) |
+| 8 | `tarot` | v1.28 | `tarot-ofrylsvat` | gpt-5.6-luna 3장 리딩 1회 통과(7.5초, 본문 828자, finish stop), 메뉴에 o3-mini·o1 없음 |
+- 시험 4개 모두 통과 → 플레이리스트를 sunburst로 돌리는 수정은 필요 없음. 생성 비용 합계 약 $0.15 이하(추정).
+- `naver-blog-agent`·`naver-blog-allinone`은 `DEPLOY_REQUEST_20261103_MAC.md` 배포 몫으로 남김(이 세션은 배포 안 함). `music-video-studio`는 미배포 대기 그대로.

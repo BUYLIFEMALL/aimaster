@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — 음악(SUNO) v1.49 30일 정리 수정 배포)
+- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — 종료 모델 긴급 교체 8개 순차 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,13 +16,13 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `music` v1.49 | 30일 정리 결과 대조 | 2026-11-04 03:00 정리 뒤 남은 행 0개(다른 회원 4행 삭제)·두 계정 자료 유지 확인 | `music/AGENTS.md` 2026-11-03 |
-| `shorts-onestop-studio` v1.42 | 미배포 대기 `a95613743`(안내 그림문자) | 다음 배포 때 함께 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
 | `playlist-channel-studio` v1.33 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-03 | 종료 모델 긴급 교체 8개 | 영상 v1.26·쇼츠 v1.43·이미지 v1.31·플레이리스트 v1.34·쓰레드 3개·타로 v1.28, 시험 4개 통과 | 배포 |
 | 2026-11-03 | `music` v1.49 | 30일 정리 수정(멈춘 생성 중·원곡 조회 오류)·관리자·시험 계정 제외 | 배포 |
 | 2026-11-03 | `playlist-channel-studio` v1.33 | 플랫폼별 최신 모델 추가(텍스트 9·이미지 6, 시험 모두 통과) | 배포 |
 | 2026-11-01 | `music-automation` v1.48 | AI 공급사 순서 변경, 최신 모델 6개 추가 | 배포 |

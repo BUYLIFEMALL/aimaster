@@ -41,7 +41,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `ai-video-studio/` `shorts-onestop-studio/` `ai-image-studio/` `playlist-channel-studio/` `threads-affiliate-poster/` `threads-content-ops/` `threads-easy-planner/` `tarot/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-11-03 | **연속 배포 중(8개)** — 종료 모델 긴급 교체(`docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`) |
 | `trending-product-finder/` | [역할: ecommerce-image] Claude Code(윈도우, ego lite) · 세션 `claude-win-sdp` | 2026-11-03 | 쿠팡 리뷰 거르기 실물 시험(팝업 읽기·2페이지·키워드 3개) — 코드 변경 전 시험 단계 |
 | `blog-neighbor-care/` | [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 브라우저: 엣지(주인님 지정) | 2026-11-01 | v1.05 새 글 확인 실제 검수 |
 | `shorts-viral-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-shorts-viral-v2` | 2026-10-30 | 쇼츠 떡상 분석 및 대본 자동화 v2.0 리뉴얼 — 4대 화면 3시안(12뷰) 쇼케이스 및 라이트박스 팝업 제작 중 |

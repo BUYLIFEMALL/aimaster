@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 종료 모델 긴급 교체 8개 순차 배포(맥미니 요청)
+- 영상 v1.26·쇼츠 원스톱 v1.43(코드 v2.0 표기 정정)·이미지 v1.31·플레이리스트 v1.34·쓰레드 제휴 v1.85·쓰레드 콘텐츠 v2.22·쓰레드 쉬운 기획 v1.50·타로 v1.28. 모두 Ready·DB 갱신, 버전 커밋 `d9448b5bb`. 시험: 음성 3.8 TTS·이미지 flare·플레이리스트 flare 편집·타로 gpt-5.6-luna 모두 통과. 결과표 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md` 맨 끝. 블로그 2개는 MAC 요청 배포 몫.
+
 ## 2026-11-03 ⏳ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — `ai-work-workspace` U6-B 음성 파일 받아쓰기 + 30일 예외 회원 제외(미배포)
 - U6-B(주인님 승인: Gemini 우선·OpenAI 보조) `03d5373a5`: Gemini 키면 브라우저가 Google로 직접 올림(100MB, 새 명령 `meetingAudioUploadStart`·`meetingAttachAudioFile`), OpenAI 키만 있으면 4MB 이하 서버 경유. 모델 `gemini-3.8-flash`·`gpt-transcribe`(선택표 기준). 받아쓰기 150초 안에 끝나면 요약 자동 시작. 매뉴얼 팁 `6a134f651`.
 - 30일 예외(주인님 지시 「관리자·테스트 계정 제외 확인」) `20557e396`: AI 채팅 기록·받은편지함 정리에서 `profiles.retention_exempt` 회원 제외, 목록을 못 읽으면 정리 건너뜀. 할 일 플래너는 30일 정리 코드 없음.
