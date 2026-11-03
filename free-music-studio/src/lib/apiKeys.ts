@@ -1,14 +1,17 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// 음악 생성은 회원 PC 엔진에서 키 없이 돈다. 키가 필요한 것은 AI 작사(기본 Claude, 2026-10-28 주인님 지시)뿐이다.
-export type ApiKeyProvider = "anthropic";
+// 음악 생성은 회원 PC 엔진에서 키 없이 돈다. 키가 필요한 것은 AI 작사뿐이며,
+// 회원이 OpenAI·Claude·Gemini 중 본인 키가 있는 곳을 골라 쓴다(공용 user_api_keys — 다른 프로그램에 등록한 키 그대로 사용).
+export type ApiKeyProvider = "openai" | "anthropic" | "gemini";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
-  anthropic: "Claude(Anthropic) API 키 (AI 작사에 사용 — 음악 생성 자체는 키 없이 내 PC에서)",
+  openai: "OpenAI API 키 (AI 작사)",
+  anthropic: "Claude(Anthropic) API 키 (AI 작사)",
+  gemini: "Google Gemini API 키 (AI 작사)",
 };
 
-export const ALL_PROVIDERS: ApiKeyProvider[] = ["anthropic"];
+export const ALL_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini"];
 
 /**
  * 로그인한 회원 본인이 user_api_keys 테이블에 등록한 본인 키만 반환한다.

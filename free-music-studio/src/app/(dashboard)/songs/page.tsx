@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 import { DEFAULT_DURATION, DURATIONS, LIMITS, type Song } from "@/lib/songs";
-import { DEFAULT_LYRIC_MODEL, LYRIC_MODELS } from "@/lib/lyricModels";
+import { DEFAULT_LYRIC_PROVIDER, LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number };
@@ -29,7 +29,27 @@ export default function SongsPage() {
   const [genre, setGenre] = useState("");
   const [mood, setMood] = useState("");
   const [language, setLanguage] = useState<"ko" | "en">("ko");
-  const [model, setModel] = useState<string>(DEFAULT_LYRIC_MODEL);
+  const [provider, setProvider] = useState<LyricProvider>(DEFAULT_LYRIC_PROVIDER);
+  const [model, setModel] = useState<string>(LYRIC_PROVIDERS.find((p) => p.id === DEFAULT_LYRIC_PROVIDER)!.defaultModel);
+  const [keys, setKeys] = useState<Record<string, { registered: boolean }> | null>(null);
+
+  // 어느 AI에 본인 키가 있는지 — 키가 있는 곳 중 첫 번째(OpenAI → Claude → Gemini)를 기본으로 고른다.
+  useEffect(() => {
+    fetch("/api/settings/api-keys")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d?.keys) return;
+        setKeys(d.keys);
+        if (!d.keys[DEFAULT_LYRIC_PROVIDER]?.registered) {
+          const first = LYRIC_PROVIDERS.find((p) => d.keys[p.id]?.registered);
+          if (first) {
+            setProvider(first.id);
+            setModel(first.defaultModel);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [writing, setWriting] = useState(false);
 
   const load = useCallback(async () => {
@@ -95,7 +115,7 @@ export default function SongsPage() {
       const res = await fetch("/api/lyrics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ theme, genre, mood, language, model, duration_sec: draft.duration_sec }),
+        body: JSON.stringify({ theme, genre, mood, language, provider, model, duration_sec: draft.duration_sec }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -193,18 +213,41 @@ export default function SongsPage() {
           {/* AI 작사 */}
           <section className="space-y-3 rounded-2xl border border-teal-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
-              <Sparkles className="h-4 w-4 text-teal-300" /> AI 작사 <span className="text-[11px] font-normal text-slate-400">(내 Claude 키 사용 · 선택)</span>
+              <Sparkles className="h-4 w-4 text-teal-300" /> AI 작사 <span className="text-[11px] font-normal text-slate-400">(내 OpenAI·Claude·Gemini 키 중 골라 사용 · 선택)</span>
             </h2>
             <input className={field} value={theme} onChange={(e) => setTheme(e.target.value)} placeholder="어떤 노래인가요? 예) 비 오는 오후, 쉬어 가도 괜찮다는 위로" maxLength={300} />
-            <div className="grid gap-2 sm:grid-cols-4">
+            <div className="grid gap-2 sm:grid-cols-3">
               <input className={field} value={genre} onChange={(e) => setGenre(e.target.value)} placeholder="장르 예) 시티팝" maxLength={60} />
               <input className={field} value={mood} onChange={(e) => setMood(e.target.value)} placeholder="분위기 예) 따뜻한" maxLength={60} />
               <select className={field} value={language} onChange={(e) => setLanguage(e.target.value as "ko" | "en")}>
                 <option value="ko">한국어 가사</option>
                 <option value="en">영어 가사</option>
               </select>
-              <select className={field} value={model} onChange={(e) => setModel(e.target.value)}>
-                {LYRIC_MODELS.map((m) => (
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex rounded-xl border border-slate-700/60 bg-slate-950/80 p-1">
+                {LYRIC_PROVIDERS.map((p) => {
+                  const noKey = keys !== null && !keys[p.id]?.registered;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setProvider(p.id);
+                        setModel(p.defaultModel);
+                      }}
+                      className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-colors ${
+                        provider === p.id ? "bg-teal-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                      }`}
+                    >
+                      {p.label}
+                      {noKey && <span className="ml-1 text-[10px] font-normal text-slate-400">키 없음</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              <select className={`${field} w-auto min-w-[16rem] flex-1`} value={model} onChange={(e) => setModel(e.target.value)}>
+                {LYRIC_PROVIDERS.find((p) => p.id === provider)!.models.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.label}
                   </option>

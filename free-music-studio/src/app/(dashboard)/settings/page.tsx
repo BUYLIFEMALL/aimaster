@@ -96,7 +96,11 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
 }
 
 // 연동 매뉴얼: 루트 AIMaster `platform_guides` 게시글 ID
-const GUIDES = [{ guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" }];
+const GUIDES = [
+  { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
+  { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
+  { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+];
 
 export default function SettingsPage() {
   const [keys, setKeys] = useState<KeyState>({});
@@ -167,7 +171,7 @@ export default function SettingsPage() {
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-100">API 키 연동 및 보안 콘솔</h1>
             <p className="mt-0.5 text-xs text-slate-400">
-              음악 생성은 키 없이 회원님 PC에서 돌아갑니다. AI 작사를 쓸 때만 회원님 본인의 Claude API 키가 필요하며, 키는 회원님 계정에만 연결해 보관합니다.
+              음악 생성은 키 없이 회원님 PC에서 돌아갑니다. AI 작사를 쓸 때만 회원님 본인의 OpenAI·Claude·Gemini 키 중 하나가 필요하며(다른 프로그램에 등록한 키도 그대로 쓰입니다), 키는 회원님 계정에만 연결해 보관합니다.
             </p>
           </div>
         </div>
@@ -191,10 +195,24 @@ export default function SettingsPage() {
       )}
 
       <KeyCard
+        provider="openai"
+        title="OpenAI API 키"
+        description="AI 작사에 GPT 모델을 쓸 때 필요합니다. 세 AI 중 하나만 등록해도 됩니다."
+        placeholder="sk- 로 시작하는 본인 OpenAI API 키 입력"
+        {...common}
+      />
+      <KeyCard
         provider="anthropic"
         title="Claude(Anthropic) API 키"
-        description="AI 작사(가사·곡 제목·스타일 추천)에 쓰입니다. 등록하지 않아도 가사를 직접 써서 노래를 만들 수 있습니다."
+        description="AI 작사에 Claude 모델을 쓸 때 필요합니다. 등록하지 않아도 가사를 직접 써서 노래를 만들 수 있습니다."
         placeholder="sk-ant- 로 시작하는 본인 Claude API 키 입력"
+        {...common}
+      />
+      <KeyCard
+        provider="gemini"
+        title="Google Gemini API 키"
+        description="AI 작사에 Gemini 모델을 쓸 때 필요합니다. 무료 등급 키로도 가성비·균형 모델을 쓸 수 있습니다."
+        placeholder="AIza 로 시작하는 본인 Gemini API 키 입력"
         {...common}
       />
 
@@ -202,7 +220,7 @@ export default function SettingsPage() {
         <p className="flex items-start gap-2.5">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
           <span className="leading-relaxed">
-            AI 작사 요금은 회원님 Claude 계정에 직접 청구됩니다(가사 1곡 기준 균형 모델 약 $0.01~0.03). 음악 생성·커버·부분 다시 만들기는 내 PC 엔진에서 돌아가 요금이 없습니다.
+            AI 작사 요금은 회원님이 고른 AI(OpenAI·Claude·Gemini) 계정에 직접 청구됩니다(가사 1곡 기준 균형 모델 약 $0.01~0.03, Gemini 무료 등급은 0원). 음악 생성·커버·부분 다시 만들기는 내 PC 엔진에서 돌아가 요금이 없습니다.
           </span>
         </p>
       </div>
@@ -210,7 +228,7 @@ export default function SettingsPage() {
       <div className="space-y-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-6 shadow-xl">
         <h2 className="text-sm font-bold text-slate-200">📖 연동 가이드 및 매뉴얼</h2>
         <p className="text-xs text-slate-400">
-          Claude Console에서 API 키를 발급받는 단계별 안내를 팝업 창으로 확인하실 수 있습니다.
+          OpenAI·Claude·Gemini에서 API 키를 발급받는 단계별 안내를 팝업 창으로 확인하실 수 있습니다.
         </p>
         <div className="flex flex-wrap gap-2 pt-1">
           {GUIDES.map((g) => (
