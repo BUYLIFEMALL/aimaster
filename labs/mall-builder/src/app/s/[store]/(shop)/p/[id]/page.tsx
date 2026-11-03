@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoryRows, getProductVariants, getShippingPolicies, getShopProduct, getStoreBySlug } from "@/lib/store";
+import { getCategoryRows, getPriceContext, getProductVariants, getShippingPolicies, getShopProduct, getStoreBySlug } from "@/lib/store";
 import { describePolicy } from "@/lib/shipping";
 import { buildCategoryTree, categoryPath, flattenTree } from "@/lib/categories";
 import ProductDetail from "./product-detail";
@@ -20,6 +20,16 @@ export default async function ProductPage({ params }: { params: Promise<{ store:
     getShippingPolicies(store.id),
   ]);
   const policy = policies.find((p) => p.id === product.shipping_policy_id) ?? policies.find((p) => p.is_default) ?? null;
+  const ctx = await getPriceContext(store.id, product.id);
+  if (product.visibility === "business_only" && ctx.viewer !== "business") {
+    return (
+      <main className="mx-auto max-w-md px-4 py-16 text-center" data-business-only>
+        <h1 className="text-xl font-bold">사업자 회원 전용 상품입니다</h1>
+        <p className="mt-2 text-sm text-gray-600">사업자 승인을 받은 회원만 볼 수 있습니다. 마이페이지에서 사업자 승인을 신청해 주세요.</p>
+        <Link href={`/s/${store.slug}/my`} className="mt-4 inline-block text-sm underline">마이페이지</Link>
+      </main>
+    );
+  }
 
   // 경로: 손님에게 보이는 첫 번째 카테고리
   const visibleIds = new Set(flattenTree(buildCategoryTree(categoryRows, false)).map((c) => c.id));
@@ -46,6 +56,9 @@ export default async function ProductPage({ params }: { params: Promise<{ store:
         summary={product.summary}
         images={product.images ?? []}
         status={product.status}
+        visibility={product.visibility}
+        priceVisibility={product.price_visibility}
+        ctx={ctx}
         basePrice={product.base_price}
         listPrice={product.list_price}
         stockMode={product.stock_mode}

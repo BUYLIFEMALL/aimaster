@@ -67,3 +67,26 @@ test("알 수 없는 상태는 준비 중으로", () => {
   assert.equal(ok({ status: "deleted" }).ok && ok({ status: "deleted" }).value.status, "draft");
   assert.equal(ok({ status: "on_sale" }).ok && ok({ status: "on_sale" }).value.status, "on_sale");
 });
+
+test("F13 등급가 칸 읽기", async () => {
+  const { parseGradePrice } = await import("../src/lib/products.ts");
+  assert.deepEqual(parseGradePrice(""), { ok: true, value: null });
+  assert.deepEqual(parseGradePrice("8,000원"), { ok: true, value: { price: 8000, discount_rate: null } });
+  assert.deepEqual(parseGradePrice("15%"), { ok: true, value: { price: null, discount_rate: 15 } });
+  assert.equal(parseGradePrice("0%").ok, false);
+  assert.equal(parseGradePrice("100%").ok, false);
+  assert.equal(parseGradePrice("abc").ok, false);
+});
+
+test("F13 보이기·가격 공개 범위 기본값과 허용값", async () => {
+  const { validateProduct } = await import("../src/lib/products.ts");
+  const base = { name: "a", base_price: "1000" };
+  const d = validateProduct(base);
+  assert.equal(d.ok && d.value.visibility, "public");
+  assert.equal(d.ok && d.value.price_visibility, "all");
+  const b = validateProduct({ ...base, visibility: "business_only", price_visibility: "approved_business" });
+  assert.equal(b.ok && b.value.visibility, "business_only");
+  assert.equal(b.ok && b.value.price_visibility, "approved_business");
+  const x = validateProduct({ ...base, visibility: "hack", price_visibility: "hack" });
+  assert.equal(x.ok && x.value.visibility, "public");
+});

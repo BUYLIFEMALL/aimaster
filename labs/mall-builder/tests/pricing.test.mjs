@@ -85,3 +85,55 @@ test("장바구니 합계 — 주문 가능한 줄만, 배송비는 정책 묶�
   // 주문 가능한 줄이 없으면 배송비도 0
   assert.deepEqual(cartTotals([lines[3]], policies), { subtotal: 0, shipping: 0, total: 0, shippingBreakdown: [] });
 });
+
+// F13 — 보는 사람·등급가·가격 비공개·사업자 전용
+const b2b = { ...plain, base_price: 10000 };
+
+test("등급가 — 금액 지정·할인율, 옵션 추가금은 그대로 더함", () => {
+  const byPrice = priceLine(b2b, null, 2, { viewer: "business", gradePrice: { price: 8000, discount_rate: null }, gradeName: "사업자" });
+  assert.equal(byPrice.unitPrice, 8000);
+  assert.equal(byPrice.lineTotal, 16000);
+  assert.deepEqual(byPrice.breakdown, [{ label: "판매가", amount: 10000 }, { label: "등급가(사업자)", amount: -2000 }]);
+  const byRate = priceLine(b2b, null, 1, { viewer: "business", gradePrice: { price: null, discount_rate: 15 }, gradeName: "사업자" });
+  assert.equal(byRate.unitPrice, 8500);
+  // 원 단위 내림: 9,999 × 0.85 = 8,499.15 → 8,499
+  assert.equal(priceLine({ ...b2b, base_price: 9999 }, null, 1, { viewer: "business", gradePrice: { price: null, discount_rate: 15 } }).unitPrice, 8499);
+  const opt = { ...withOptions, base_price: 10000 };
+  assert.equal(priceLine(opt, v("블랙", 2000, 7), 1, { viewer: "business", gradePrice: { price: 8000, discount_rate: null } }).unitPrice, 10000);
+  assert.equal(priceLine(opt, v("블랙", 2000, 7), 1, { viewer: "business", gradePrice: { price: null, discount_rate: 10 } }).unitPrice, 10800);
+});
+
+test("가격 비공개 — 로그인 / 승인 사업자", () => {
+  const loginOnly = { ...b2b, price_visibility: "login" };
+  const g = priceLine(loginOnly, null, 1, { viewer: "guest" });
+  assert.equal(g.priceHidden, true);
+  assert.equal(g.unitPrice, 0);
+  assert.equal(g.orderable, false);
+  assert.match(g.errors[0], /로그인/);
+  assert.equal(priceLine(loginOnly, null, 1, { viewer: "consumer" }).priceHidden, false);
+  const bizOnly = { ...b2b, price_visibility: "approved_business" };
+  for (const viewer of ["guest", "consumer", "pending"]) {
+    const r = priceLine(bizOnly, null, 1, { viewer });
+    assert.equal(r.priceHidden, true, viewer);
+    assert.match(r.errors[0], /사업자 승인 후/);
+  }
+  assert.equal(priceLine(bizOnly, null, 1, { viewer: "business" }).orderable, true);
+});
+
+test("보이기 — 사업자 전용 상품, 회원 전용 구매", () => {
+  const only = { ...b2b, visibility: "business_only" };
+  const c = priceLine(only, null, 1, { viewer: "consumer" });
+  assert.equal(c.visible, false);
+  assert.match(c.errors[0], /사업자 회원 전용/);
+  assert.equal(priceLine(only, null, 1, { viewer: "business" }).visible, true);
+  const members = { ...b2b, visibility: "members" };
+  assert.match(priceLine(members, null, 1, { viewer: "guest" }).errors[0], /로그인 후 구매/);
+  assert.equal(priceLine(members, null, 1, { viewer: "consumer" }).orderable, true);
+});
+
+test("문맥이 없으면 예전과 같다(일반 손님·공개 상품)", () => {
+  const r = priceLine(plain, null, 1);
+  assert.equal(r.visible, true);
+  assert.equal(r.priceHidden, false);
+  assert.equal(r.unitPrice, 47000);
+});

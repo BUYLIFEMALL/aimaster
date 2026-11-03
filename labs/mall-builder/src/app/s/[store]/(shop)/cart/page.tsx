@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCart, getMyAddresses, getMyCustomer, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
+import { getCart, getMyAddresses, getMyCustomer, getPriceContexts, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
 import { cartTotals, priceLine, MAX_QTY } from "@/lib/pricing";
 import { regionOfZip } from "@/lib/shipping";
 import { formatWon } from "@/lib/products";
@@ -28,7 +28,8 @@ export default async function CartPage({
   const [rows, policies, addresses] = await Promise.all([getCart(store.id, user.id), getShippingPolicies(store.id), getMyAddresses(customer.id)]);
 
   // 금액은 저장하지 않고 매번 가격 엔진으로 계산(상세 화면과 같은 함수)
-  const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty) }));
+  const ctxOf = await getPriceContexts(store.id, rows.map((r) => r.product.id));
+  const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty, ctxOf(r.product.id)) }));
   const address = addresses.find((a) => a.is_default) ?? null;
   const region = address ? regionOfZip(address.zip) : "mainland";
   const totals = cartTotals(

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCart, getMyAddresses, getMyCustomer, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
+import { getCart, getMyAddresses, getMyCustomer, getPriceContexts, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
 import { cartTotals, priceLine } from "@/lib/pricing";
 import { regionOfZip, type Region } from "@/lib/shipping";
 import { formatWon } from "@/lib/products";
@@ -19,7 +19,8 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
   const customer = await getMyCustomer(store.id, user.id);
   if (!customer) redirect(`${base}/join?next=${encodeURIComponent(`${base}/order`)}`);
   const [rows, policies, addresses] = await Promise.all([getCart(store.id, user.id), getShippingPolicies(store.id), getMyAddresses(customer.id)]);
-  const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty) }));
+  const ctxOf = await getPriceContexts(store.id, rows.map((r) => r.product.id));
+  const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty, ctxOf(r.product.id)) }));
   // 비었거나 주문할 수 없는 줄이 있으면 장바구니에서 먼저 정리
   if (!lines.length || lines.some((l) => !l.price.orderable)) redirect(`${base}/cart`);
 

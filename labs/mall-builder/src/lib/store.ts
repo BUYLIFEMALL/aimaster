@@ -5,6 +5,8 @@ import type { OptionGroup, Variant } from "@/lib/options";
 import type { ShippingPolicy } from "@/lib/shipping";
 import { ORDER_COLUMNS, type OrderEventRow, type OrderItemRow, type OrderRow } from "@/lib/orders";
 import type { ApprovalStatus } from "@/lib/business";
+import { priceLine, viewerOf, type GradePrice, type PriceContext } from "@/lib/pricing";
+import { cache } from "react";
 
 export type Store = {
   id: string;
@@ -82,11 +84,72 @@ export type ProductRow = {
   images: { url: string; path: string }[];
   option_groups: OptionGroup[];
   shipping_policy_id: string | null;
+  visibility: "public" | "members" | "business_only";
+  price_visibility: "all" | "login" | "approved_business";
   created_at: string;
 };
 
 export const PRODUCT_COLUMNS =
-  "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, created_at";
+  "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, visibility, price_visibility, created_at";
+
+/** 지금 보는 사람(손님 화면) — 요청마다 한 번만 읽는다 */
+export const getShopper = cache(async (storeId: string) => {
+  const user = await getCurrentUser();
+  const customer = user ? await getMyCustomer(storeId, user.id) : null;
+  return {
+    user,
+    customer,
+    viewer: viewerOf(customer, !!user),
+    // 사업자 등급은 승인 때만 붙으므로 손님의 등급 그대로(주문 DB 함수도 같은 등급으로 계산)
+    gradeId: customer?.grade_id ?? null,
+    gradeName: customer?.grade?.name ?? null,
+  };
+});
+
+/** 내 등급의 등급가(상품 id → 금액/할인율) — 보안 규칙상 내 등급 것만 온다 */
+export async function getGradePriceMap(storeId: string, gradeId: string | null, productIds: string[]): Promise<Map<string, GradePrice>> {
+  const map = new Map<string, GradePrice>();
+  if (!gradeId || !productIds.length) return map;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_product_grade_prices")
+    .select("product_id, price, discount_rate")
+    .eq("store_id", storeId)
+    .eq("grade_id", gradeId)
+    .in("product_id", productIds);
+  for (const r of data ?? []) map.set(r.product_id as string, { price: r.price as number | null, discount_rate: r.discount_rate as number | null });
+  return map;
+}
+
+export type Grade = { id: string; code: string; name: string; rank: number; is_business: boolean };
+
+/** 몰 등급 목록(낮은 등급부터) */
+export async function getGrades(storeId: string): Promise<Grade[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_customer_grades").select("id, code, name, rank, is_business").eq("store_id", storeId).order("rank");
+  return (data ?? []) as Grade[];
+}
+
+/** 상품의 등급가(운영자 편집용) — 등급 id → 입력 칸 글자("8000" 또는 "15%") */
+export async function getProductGradePriceInputs(productId: string): Promise<Record<string, string>> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_product_grade_prices").select("grade_id, price, discount_rate").eq("product_id", productId);
+  return Object.fromEntries((data ?? []).map((r) => [r.grade_id as string, r.price != null ? String(r.price) : `${r.discount_rate}%`]));
+}
+
+/** 상품 여러 개의 가격 문맥(장바구니·주문서) — 상품 id를 주면 그 상품의 문맥 */
+export async function getPriceContexts(storeId: string, productIds: string[]): Promise<(productId: string) => PriceContext> {
+  const shopper = await getShopper(storeId);
+  const prices = await getGradePriceMap(storeId, shopper.gradeId, productIds);
+  return (productId) => ({ viewer: shopper.viewer, gradePrice: prices.get(productId) ?? null, gradeName: shopper.gradeName ?? undefined });
+}
+
+/** 손님 화면 가격 문맥(상품 하나) — 가격 엔진 priceLine의 네 번째 인자 */
+export async function getPriceContext(storeId: string, productId: string): Promise<PriceContext> {
+  const shopper = await getShopper(storeId);
+  const prices = await getGradePriceMap(storeId, shopper.gradeId, [productId]);
+  return { viewer: shopper.viewer, gradePrice: prices.get(productId) ?? null, gradeName: shopper.gradeName ?? undefined };
+}
 
 /** 몰의 배송비 정책(기본 정책이 맨 앞) */
 export async function getShippingPolicies(storeId: string): Promise<ShippingPolicy[]> {
@@ -104,7 +167,7 @@ export async function getShippingPolicies(storeId: string): Promise<ShippingPoli
 export async function getShopProducts(
   storeId: string,
   opts: { categoryIds?: string[]; q?: string; limit?: number } = {},
-): Promise<ProductRow[]> {
+): Promise<ShopProduct[]> {
   const supabase = await createClient();
   let productIds: string[] | null = null;
   if (opts.categoryIds) {
@@ -128,7 +191,27 @@ export async function getShopProducts(
   const q = opts.q?.trim();
   if (q) query = query.ilike("name", `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`);
   const { data } = await query;
-  return (data ?? []) as ProductRow[];
+  return withDisplayPrices(storeId, (data ?? []) as ProductRow[]);
+}
+
+export type ShopProduct = ProductRow & { display: { unitPrice: number; priceHidden: boolean; note: string } };
+
+/** 보는 사람 기준으로 사업자 전용 상품을 빼고, 카드에 보여 줄 가격(등급가·비공개 반영)을 붙인다 */
+async function withDisplayPrices(storeId: string, rows: ProductRow[]): Promise<ShopProduct[]> {
+  const shopper = await getShopper(storeId);
+  const prices = await getGradePriceMap(storeId, shopper.gradeId, rows.map((r) => r.id));
+  const out: ShopProduct[] = [];
+  for (const r of rows) {
+    // 옵션 상품도 카드에는 기본 판매가 기준(옵션 추가금 없이)으로 보여 준다
+    const line = priceLine({ ...r, option_groups: [] }, null, 1, {
+      viewer: shopper.viewer,
+      gradePrice: prices.get(r.id) ?? null,
+      gradeName: shopper.gradeName ?? undefined,
+    });
+    if (!line.visible) continue;
+    out.push({ ...r, display: { unitPrice: line.unitPrice, priceHidden: line.priceHidden, note: line.priceHidden ? line.errors.find((e) => /가격/.test(e)) ?? "" : "" } });
+  }
+  return out;
 }
 
 /** 손님 상품 상세 — 판매 중·품절만. 없으면 null */
@@ -205,6 +288,7 @@ export type StoreCustomer = {
   marketing_agree: boolean;
   created_at: string;
   kind: "consumer" | "business";
+  grade_id: string | null;
   approval_status: ApprovalStatus;
   business_no: string | null;
   company: string | null;
@@ -216,7 +300,7 @@ export type StoreCustomer = {
   grade: { name: string; code: string; is_business: boolean } | null;
 };
 const CUSTOMER_COLUMNS =
-  "id, store_id, user_id, name, phone, marketing_agree, created_at, kind, approval_status, business_no, company, ceo_name, cert_path, reject_reason, applied_at, reviewed_at, grade:mall_builder_customer_grades(name, code, is_business)";
+  "id, store_id, user_id, name, phone, marketing_agree, created_at, kind, grade_id, approval_status, business_no, company, ceo_name, cert_path, reject_reason, applied_at, reviewed_at, grade:mall_builder_customer_grades(name, code, is_business)";
 export type CustomerAddress = {
   id: string; label: string; receiver: string; phone: string; zip: string; addr1: string; addr2: string; is_default: boolean;
 };

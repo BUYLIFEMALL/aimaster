@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { priceLine } from "@/lib/pricing";
-import { PRODUCT_COLUMNS, type ProductRow } from "@/lib/store";
+import { PRODUCT_COLUMNS, getPriceContext, type ProductRow } from "@/lib/store";
 import type { Variant } from "@/lib/options";
 
 // 보안 규칙(본인 줄만·가입한 몰에만·같은 몰 상품만)을 그대로 거친다. 담을 때도 가격 엔진으로 다시 검사한다
@@ -50,7 +50,7 @@ export async function addToCartAction(slug: string, productId: string, variantId
   existing = variantId ? existing.eq("variant_id", variantId) : existing.is("variant_id", null);
   const { data: line } = await existing.maybeSingle();
   const total = (line?.qty ?? 0) + qty;
-  const check = priceLine(loaded.product, loaded.variant, total);
+  const check = priceLine(loaded.product, loaded.variant, total, await getPriceContext(storeId, productId));
   if (!check.orderable) return { ok: false, error: line ? `${check.errors[0]} (장바구니에 이미 ${line.qty}개)` : check.errors[0] };
 
   const { error } = line
@@ -75,7 +75,7 @@ export async function updateQtyAction(slug: string, itemId: string, form: FormDa
   if (!item) back(slug, "장바구니에 없는 상품입니다.");
   const loaded = await loadProduct(supabase, storeId!, item!.product_id, item!.variant_id);
   if (!loaded) back(slug, "지금 판매하지 않는 상품입니다.");
-  const check = priceLine(loaded!.product, loaded!.variant, qty);
+  const check = priceLine(loaded!.product, loaded!.variant, qty, await getPriceContext(storeId!, item!.product_id));
   if (!check.orderable) back(slug, check.errors[0]);
   const { error } = await supabase.from("mall_builder_cart_items").update({ qty }).eq("id", itemId).eq("user_id", user!.id);
   back(slug, error?.message);

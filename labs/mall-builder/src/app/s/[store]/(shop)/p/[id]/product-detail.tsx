@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { isVariantOrderable, variantKey, type OptionGroup, type Variant } from "@/lib/options";
 import { discountRate } from "@/lib/products";
-import { priceLine, MAX_QTY, type PricingProduct } from "@/lib/pricing";
+import { priceLine, MAX_QTY, type PriceContext, type PricingProduct } from "@/lib/pricing";
 import { addToCartAction } from "../../cart/actions";
 
 export default function ProductDetail({
@@ -22,7 +22,13 @@ export default function ProductDetail({
   shippingText,
   groups,
   variants,
+  visibility,
+  priceVisibility,
+  ctx,
 }: {
+  visibility: PricingProduct["visibility"];
+  priceVisibility: PricingProduct["price_visibility"];
+  ctx: PriceContext;
   slug: string;
   productId: string;
   shippingText: string;
@@ -49,8 +55,14 @@ export default function ProductDetail({
   const allPicked = groups.length > 0 && picked.every(Boolean);
   const variant = allPicked ? byKey.get(variantKey(picked)) ?? null : null;
   // 금액·주문 가능 여부는 장바구니와 같은 가격 엔진으로
-  const line = priceLine({ status, base_price: basePrice, stock_mode: stockMode, stock, option_groups: groups }, variant, qty);
-  const rate = discountRate(basePrice, listPrice);
+  const line = priceLine(
+    { status, base_price: basePrice, stock_mode: stockMode, stock, option_groups: groups, visibility, price_visibility: priceVisibility },
+    variant,
+    qty,
+    ctx,
+  );
+  const graded = line.breakdown.some((b) => b.label.startsWith("등급가"));
+  const rate = graded || line.priceHidden ? 0 : discountRate(basePrice, listPrice);
   const soldOut = status === "sold_out";
 
   // 이 단의 이 값이 고를 수 있는지 — 앞 단에서 고른 값과 이어지는 조합 중 하나라도 주문 가능하면 고를 수 있다
@@ -93,11 +105,17 @@ export default function ProductDetail({
       <div>
         <h1 className="text-2xl font-bold">{name}</h1>
         {summary && <p className="mt-2 text-gray-600">{summary}</p>}
-        <p className="mt-4 text-2xl" data-unit-price>
-          {rate > 0 && !variant?.extra_price && <span className="mr-2 font-bold text-red-600">{rate}%</span>}
-          <b>{line.unitPrice.toLocaleString("ko-KR")}</b>원
-          {rate > 0 && <span className="ml-2 text-base text-gray-400 line-through">{listPrice!.toLocaleString("ko-KR")}원</span>}
-        </p>
+        {line.priceHidden ? (
+          <p className="mt-4 rounded bg-gray-50 px-3 py-2 text-gray-700" data-unit-price>{line.errors.find((e) => /가격/.test(e))}</p>
+        ) : (
+          <p className="mt-4 text-2xl" data-unit-price>
+            {graded && <span className="mr-2 rounded bg-blue-50 px-1.5 text-sm text-blue-700">{ctx.gradeName ?? "회원"} 가격</span>}
+            {rate > 0 && !variant?.extra_price && <span className="mr-2 font-bold text-red-600">{rate}%</span>}
+            <b>{line.unitPrice.toLocaleString("ko-KR")}</b>원
+            {graded && <span className="ml-2 text-base text-gray-400 line-through">{(basePrice + (variant?.extra_price ?? 0)).toLocaleString("ko-KR")}원</span>}
+            {rate > 0 && <span className="ml-2 text-base text-gray-400 line-through">{listPrice!.toLocaleString("ko-KR")}원</span>}
+          </p>
+        )}
         <p className="mt-2 text-sm text-gray-600" data-shipping>{shippingText}</p>
 
         {groups.map((g, level) => (

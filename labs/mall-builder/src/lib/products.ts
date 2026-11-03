@@ -26,7 +26,28 @@ export type ProductInput = {
   images: ProductImage[];
   category_ids: string[];
   shipping_policy_id: string | null; // 없으면 몰 기본 배송비 정책
+  visibility: "public" | "members" | "business_only";
+  price_visibility: "all" | "login" | "approved_business";
 };
+
+export const VISIBILITY_LABEL = { public: "모두에게 보임", members: "보이지만 로그인해야 구매", business_only: "승인 사업자에게만 보임" } as const;
+export const PRICE_VISIBILITY_LABEL = { all: "모두에게 가격 공개", login: "로그인하면 가격 공개", approved_business: "승인 사업자에게만 가격 공개" } as const;
+
+/** 등급가 칸: "8000"·"8,000원" → 금액, "15%" → 할인율(1~99), 빈칸 → 없음(기본 판매가) */
+export function parseGradePrice(input: unknown): { ok: true; value: { price: number | null; discount_rate: number | null } | null } | { ok: false; error: string } {
+  const s = String(input ?? "").replace(/[,\s원]/g, "");
+  if (s === "") return { ok: true, value: null };
+  const rate = s.match(/^(\d{1,2})%$/);
+  if (rate) {
+    const n = Number(rate[1]);
+    if (n < 1 || n > 99) return { ok: false, error: "할인율은 1~99%로 입력해 주세요." };
+    return { ok: true, value: { price: null, discount_rate: n } };
+  }
+  if (!/^\d+$/.test(s)) return { ok: false, error: "등급가는 금액(예: 8000) 또는 할인율(예: 15%)로 입력해 주세요." };
+  const n = Number(s);
+  if (n > MAX_PRICE) return { ok: false, error: "등급가가 너무 큽니다." };
+  return { ok: true, value: { price: n, discount_rate: null } };
+}
 
 export type ProductErrors = Partial<Record<keyof ProductInput, string>>;
 
@@ -108,6 +129,14 @@ export function validateProduct(input: Record<string, unknown>, storeId?: string
 
   const sp = String(input.shipping_policy_id ?? "");
   const shipping_policy_id = /^[0-9a-f-]{36}$/.test(sp) ? sp : null;
+  const visibility = (Object.keys(VISIBILITY_LABEL) as ProductInput["visibility"][]).includes(input.visibility as ProductInput["visibility"])
+    ? (input.visibility as ProductInput["visibility"])
+    : "public";
+  const price_visibility = (Object.keys(PRICE_VISIBILITY_LABEL) as ProductInput["price_visibility"][]).includes(
+    input.price_visibility as ProductInput["price_visibility"],
+  )
+    ? (input.price_visibility as ProductInput["price_visibility"])
+    : "all";
 
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
@@ -117,6 +146,7 @@ export function validateProduct(input: Record<string, unknown>, storeId?: string
       base_price: base as number, list_price: list, cost,
       tax_type, status, stock_mode, stock,
       images: images ?? [], category_ids, shipping_policy_id,
+      visibility, price_visibility,
     },
   };
 }

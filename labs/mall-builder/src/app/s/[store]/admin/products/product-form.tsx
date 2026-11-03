@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { PRODUCT_STATUS, discountRate, parseWon, type ProductImage } from "@/lib/products";
+import { PRICE_VISIBILITY_LABEL, PRODUCT_STATUS, VISIBILITY_LABEL, discountRate, parseWon, type ProductImage } from "@/lib/products";
 import type { CategoryNode } from "@/lib/categories";
 import { saveProductAction, type ProductFormState } from "./actions";
 import ImageUploader from "./image-uploader";
@@ -20,6 +20,9 @@ export type ProductFormValues = {
   images: ProductImage[];
   category_ids: string[];
   shipping_policy_id: string;
+  visibility: string;
+  price_visibility: string;
+  grade_prices: Record<string, string>; // 등급 id → "8000" 또는 "15%"
 };
 
 const initial: ProductFormState = { saved: false, error: null, errors: {} };
@@ -32,6 +35,7 @@ export default function ProductForm({
   categories,
   savedNotice,
   shippingPolicies,
+  grades,
 }: {
   slug: string;
   storeId: string;
@@ -40,11 +44,17 @@ export default function ProductForm({
   categories: CategoryNode[];
   savedNotice: boolean;
   shippingPolicies: { id: string; name: string; is_default: boolean }[];
+  grades: { id: string; name: string; is_business: boolean }[];
 }) {
   const [state, formAction, pending] = useActionState(saveProductAction.bind(null, slug, productId), initial);
   // 오류로 돌아오면 제출한 값을, 아니면 받은 값을 보여 준다
   const v = state.values
-    ? { ...values, ...(state.values as Partial<ProductFormValues>), category_ids: (state.values.category_ids as string[]) ?? values.category_ids }
+    ? {
+        ...values,
+        ...(state.values as Partial<ProductFormValues>),
+        category_ids: (state.values.category_ids as string[]) ?? values.category_ids,
+        grade_prices: values.grade_prices,
+      }
     : values;
   const e = state.errors;
   const rate = discountRate(parseWon(v.base_price) ?? 0, parseWon(v.list_price));
@@ -83,8 +93,24 @@ export default function ProductForm({
         {field("cost", "원가(원) — 운영자만 보임", { inputMode: "numeric" })}
         <p className="text-xs text-gray-500 sm:col-span-3">
           {rate > 0 ? `손님 화면에 정가 대비 ${rate}% 할인으로 표시됩니다.` : "정가를 판매가보다 높게 넣으면 할인율이 표시됩니다."}
-          {" "}사업자 등급별 가격·수량 할인은 B2B 기능(F13·F14)에서 추가됩니다.
         </p>
+        <div className="space-y-2 sm:col-span-3" data-grade-prices>
+          <p className="text-sm">등급별 가격 <span className="text-xs text-gray-500">— 금액(예: 42000) 또는 할인율(예: 10%). 비우면 판매가. 옵션 추가금은 그대로 더해집니다.</span></p>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {grades.map((g) => (
+              <label key={g.id} className="block">
+                <span className="text-xs text-gray-500">{g.name}{g.is_business ? " (승인 사업자)" : ""}</span>
+                <input
+                  name={`grade_price_${g.id}`}
+                  defaultValue={String((state.values?.[`grade_price_${g.id}`] as string | undefined) ?? v.grade_prices[g.id] ?? "")}
+                  placeholder="판매가"
+                  className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm"
+                />
+              </label>
+            ))}
+          </div>
+          {state.gradeError && <p className="text-xs text-red-600">{state.gradeError}</p>}
+        </div>
         <label className="block">
           <span className="text-sm">과세</span>
           <select name="tax_type" defaultValue={v.tax_type} className="mt-1 w-full rounded border px-3 py-2">
@@ -122,6 +148,26 @@ export default function ProductForm({
           </select>
         </label>
         <p className="text-xs text-gray-500 sm:col-span-3">손님 화면에는 「판매 중」과 「품절」 상품만 보입니다. 「준비 중」·「숨김」은 운영자만 봅니다.</p>
+      </fieldset>
+
+      <fieldset className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2">
+        <legend className="px-1 text-sm font-semibold">공개 범위(B2B)</legend>
+        <label className="block">
+          <span className="text-sm">상품 보이기</span>
+          <select name="visibility" defaultValue={v.visibility} className="mt-1 w-full rounded border px-3 py-2">
+            {Object.entries(VISIBILITY_LABEL).map(([k, label]) => (
+              <option key={k} value={k}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          <span className="text-sm">가격 공개</span>
+          <select name="price_visibility" defaultValue={v.price_visibility} className="mt-1 w-full rounded border px-3 py-2">
+            {Object.entries(PRICE_VISIBILITY_LABEL).map(([k, label]) => (
+              <option key={k} value={k}>{label}</option>
+            ))}
+          </select>
+        </label>
       </fieldset>
 
       <fieldset className="rounded-lg border p-4">

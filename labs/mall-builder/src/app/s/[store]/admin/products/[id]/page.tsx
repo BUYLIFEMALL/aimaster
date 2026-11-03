@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoryRows, getProductForEdit, getProductVariants, getShippingPolicies, getStaffStore } from "@/lib/store";
+import {
+  getCategoryRows,
+  getGrades,
+  getProductForEdit,
+  getProductGradePriceInputs,
+  getProductVariants,
+  getShippingPolicies,
+  getStaffStore,
+} from "@/lib/store";
 import OptionsEditor from "./options-editor";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { AdminShell, NoPermission } from "../../admin-shell";
@@ -23,10 +31,12 @@ export default async function EditProductPage({
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const product = await getProductForEdit(store.id, id);
   if (!product) notFound();
-  const [categoryRows, variants, shippingPolicies] = await Promise.all([
+  const [categoryRows, variants, shippingPolicies, grades, gradePrices] = await Promise.all([
     getCategoryRows(store.id),
     getProductVariants(product.id),
     getShippingPolicies(store.id),
+    getGrades(store.id),
+    getProductGradePriceInputs(product.id),
   ]);
   const categories = flattenTree(buildCategoryTree(categoryRows, true));
   const won = (n: number | null) => (n == null ? "" : String(n));
@@ -44,7 +54,11 @@ export default async function EditProductPage({
         categories={categories}
         savedNotice={saved === "1"}
         shippingPolicies={shippingPolicies}
+        grades={grades}
         values={{
+          visibility: product.visibility,
+          price_visibility: product.price_visibility,
+          grade_prices: gradePrices,
           name: product.name,
           summary: product.summary,
           description: product.description,
