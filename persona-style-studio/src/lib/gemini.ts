@@ -2,7 +2,8 @@ import "server-only";
 import { GoogleGenAI } from "@google/genai";
 
 // 플랫폼에서 쓰는 Gemini 텍스트 모델(다른 프로그램과 같은 계열). 바꿀 때는 이 한 줄만 고친다.
-export const GEMINI_TEXT_MODEL = "gemini-2.5-flash";
+// 2026-11-03: gemini-2.5-flash(12-01 자동 연결) → 3.8-flash (docs/PLAN_20261103_MODEL_MIGRATION_DEC.md)
+export const GEMINI_TEXT_MODEL = "gemini-3.8-flash";
 
 export interface GeminiResult { ok: true; text: string; ms: number }
 export interface GeminiError { ok: false; error: string; status: number }
