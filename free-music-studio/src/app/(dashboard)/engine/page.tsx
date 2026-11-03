@@ -1,6 +1,12 @@
-import { Cpu, Download, ShieldCheck, Clock } from "lucide-react";
+"use client";
 
-// 내 PC 엔진 안내 — 엔진 앱은 플랜 2단계에서 붙는다. 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
+import { useState } from "react";
+import Link from "next/link";
+import { Cpu, Download, ShieldCheck, Clock, Link2, CheckCircle2, AlertCircle, Unplug } from "lucide-react";
+import { useEngine } from "@/components/engine/useEngine";
+import { EngineError, forgetEngine, pairEngine } from "@/lib/engine";
+
+// 내 PC 엔진 — 상태 확인·짝짓기(3단계). 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
 const SPECS = [
   { pc: "NVIDIA 그래픽카드 (예: RTX 4060 이상)", mode: "고품질 모드 — 작사 보조 모델까지 켜서 생성", speed: "빠름" },
   { pc: "Apple Silicon 맥 (M1 이상)", mode: "고품질 모드", speed: "아직 측정 전" },
@@ -9,12 +15,44 @@ const SPECS = [
 ];
 
 const STEPS = [
-  { n: 1, title: "엔진 내려받기", body: "이 화면의 [내려받기]로 설치 파일을 받습니다." },
-  { n: 2, title: "설치·첫 실행", body: "처음 한 번 음악 모델(약 10GB)을 자동으로 받습니다. 디스크 20GB 여유를 확인해 주세요." },
-  { n: 3, title: "이 화면에서 연결", body: "엔진이 켜지면 위쪽 상태가 「연결됨」으로 바뀌고, 곡 만들기 화면에서 바로 노래를 만들 수 있습니다." },
+  { n: 1, title: "엔진 켜기", body: "엔진을 실행하면 처음 한 번 필요한 구성을 설치하고, 창에 6자리 연결 코드가 나옵니다. 디스크 20GB 여유를 확인해 주세요." },
+  { n: 2, title: "이 화면에서 PC 연결", body: "브라우저가 「로컬 네트워크 접근」을 물으면 허용하고, 아래 칸에 6자리 연결 코드를 넣습니다. 브라우저마다 한 번만 하면 됩니다." },
+  { n: 3, title: "곡 만들기에서 생성", body: "상태가 「연결됨」이 되면 곡 만들기 화면의 [내 PC로 노래 만들기]를 누릅니다. 첫 곡은 음악 모델(약 10GB)을 받느라 오래 걸립니다." },
 ];
 
+function StatusBadge({ engine }: { engine: ReturnType<typeof useEngine> }) {
+  const { status, checking, online, paired, ready } = engine;
+  const base = "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold";
+  if (checking) return <span className={`${base} border-slate-600 text-slate-400`}><Clock className="h-3.5 w-3.5" /> 확인 중…</span>;
+  if (!online) return <span className={`${base} border-slate-600 bg-slate-900 text-slate-400`}><Unplug className="h-3.5 w-3.5" /> 엔진 꺼짐</span>;
+  if (status?.error) return <span className={`${base} border-rose-500/40 bg-rose-950/40 text-rose-300`}><AlertCircle className="h-3.5 w-3.5" /> {status.stage}</span>;
+  if (!paired) return <span className={`${base} border-amber-500/30 bg-amber-950/40 text-amber-300`}><Link2 className="h-3.5 w-3.5" /> 연결 코드 입력 필요</span>;
+  if (!ready) return <span className={`${base} border-amber-500/30 bg-amber-950/40 text-amber-300`}><Clock className="h-3.5 w-3.5" /> {status?.stage}</span>;
+  return <span className={`${base} border-emerald-500/40 bg-emerald-950/40 text-emerald-300`}><CheckCircle2 className="h-3.5 w-3.5" /> 연결됨 · {status?.mode}</span>;
+}
+
 export default function EnginePage() {
+  const engine = useEngine();
+  const { status, online, paired } = engine;
+  const [code, setCode] = useState("");
+  const [pairing, setPairing] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const pair = async () => {
+    setPairing(true);
+    setMessage(null);
+    try {
+      await pairEngine(code);
+      setCode("");
+      setMessage({ type: "success", text: "PC 연결을 마쳤습니다. 이제 곡 만들기 화면에서 노래를 만들 수 있습니다." });
+      await engine.refresh();
+    } catch (e) {
+      setMessage({ type: "error", text: e instanceof EngineError ? e.message : "PC를 연결하지 못했습니다." });
+    } finally {
+      setPairing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-[#0a0f1d] via-[#0b1a18] to-[#070b14] p-6 shadow-xl">
@@ -28,11 +66,80 @@ export default function EnginePage() {
               노래는 회원님 PC에서 만들어지고, 음원 파일도 회원님 PC에만 저장됩니다. API 키나 생성 요금이 없습니다.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-950/40 px-3 py-1 text-xs font-bold text-amber-300">
-            <Clock className="h-3.5 w-3.5" /> 엔진 준비 중
-          </span>
+          <StatusBadge engine={engine} />
         </div>
       </div>
+
+      {/* 연결 상태·짝짓기 */}
+      <section className="space-y-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
+        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
+          <Link2 className="h-4 w-4 text-emerald-300" /> 내 PC 엔진 연결
+        </h2>
+        {!online ? (
+          <p className="text-xs leading-relaxed text-slate-400">
+            엔진이 꺼져 있거나 브라우저가 연결을 막고 있습니다. 엔진 창을 켠 뒤, 주소창 왼쪽의 사이트 설정에서 「로컬 네트워크 접근」을 허용해
+            주세요. 5초마다 다시 확인합니다.
+          </p>
+        ) : (
+          <div className="grid gap-1 text-xs text-slate-300 sm:grid-cols-3">
+            <p>
+              <span className="text-slate-500">엔진 버전</span> {status?.version}
+            </p>
+            <p>
+              <span className="text-slate-500">동작 방식</span> {status?.mode}
+            </p>
+            <p>
+              <span className="text-slate-500">상태</span> {status?.stage}
+            </p>
+            {status?.error && <p className="text-rose-300 sm:col-span-3">{status.error}</p>}
+          </div>
+        )}
+        {online && !paired && (
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              onKeyDown={(e) => e.key === "Enter" && code.length === 6 && pair()}
+              inputMode="numeric"
+              placeholder="연결 코드 6자리"
+              className="w-48 rounded-xl border border-slate-700/60 bg-slate-950/80 px-3.5 py-2.5 text-center font-mono text-base tracking-[0.3em] text-slate-100 placeholder:text-xs placeholder:tracking-normal placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden"
+            />
+            <button
+              type="button"
+              onClick={pair}
+              disabled={pairing || code.length !== 6}
+              className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
+            >
+              {pairing ? "확인 중…" : "PC 연결"}
+            </button>
+          </div>
+        )}
+        {paired && (
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <Link
+              href="/songs"
+              className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110"
+            >
+              곡 만들기로 가기
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                forgetEngine();
+                engine.refresh();
+              }}
+              className="rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-semibold text-slate-400 hover:bg-slate-900"
+            >
+              이 브라우저 연결 끊기
+            </button>
+          </div>
+        )}
+        {message && (
+          <p className={`flex items-center gap-2 text-xs font-semibold ${message.type === "success" ? "text-emerald-300" : "text-rose-300"}`}>
+            {message.type === "success" ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />} {message.text}
+          </p>
+        )}
+      </section>
 
       <section className="space-y-3 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-5">
         <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">

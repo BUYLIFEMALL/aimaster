@@ -5,8 +5,8 @@ import { BookOpen, Lightbulb, AlertTriangle, ExternalLink } from "lucide-react";
 const STEPS = [
   { n: 1, emoji: "🔑", title: "(선택) Claude 키 등록", body: "AI 작사를 쓰려면 [API키등록·플랫폼연동]에 본인 Claude API 키를 넣습니다. 가사를 직접 쓰면 키가 없어도 됩니다.", href: "/settings" },
   { n: 2, emoji: "✍️", title: "곡 만들기", body: "곡 제목·길이·스타일(영어 태그)·가사를 적고 저장합니다. 주제만 적고 [가사 채우기]를 눌러 AI 작사로 채울 수도 있습니다.", href: "/songs" },
-  { n: 3, emoji: "🖥️", title: "내 PC 엔진 설치", body: "엔진 앱을 받아 설치합니다. 처음 한 번 음악 모델(약 10GB)을 받습니다. (엔진 공개 준비 중)", href: "/engine" },
-  { n: 4, emoji: "🎧", title: "노래 만들고 듣기", body: "저장한 곡을 엔진으로 보내 노래를 만들고, 내 PC에서 바로 듣고 저장합니다. (엔진 공개 후 사용)", href: "/engine" },
+  { n: 3, emoji: "🖥️", title: "내 PC 엔진 연결", body: "엔진을 켜고 「내 PC 엔진」 화면에 엔진 창의 연결 코드 6자리를 넣습니다. 브라우저마다 한 번만 하면 됩니다. (설치 파일 공개 준비 중)", href: "/engine" },
+  { n: 4, emoji: "🎧", title: "노래 만들고 듣기", body: "곡 만들기 화면 아래 [노래 만들기]를 누르면 걸린 시간이 보이고, 완성되면 바로 듣고 MP3로 내려받습니다. 첫 곡은 음악 모델(약 10GB)을 받느라 더 걸립니다.", href: "/songs" },
 ];
 
 const FAQ = [

@@ -40,7 +40,7 @@ const gateway = createGateway({
   saveTokens,
   acestepPort: ACESTEP_PORT,
   acestepKey,
-  onPairCode: (code) => logLine(`\n  🔑 짝짓기 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`),
+  onPairCode: (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`),
 });
 gateway.listen(GATEWAY_PORT, "127.0.0.1", () => logLine(`AI 무료음악 자동화 엔진 ${VERSION} — 연결 문 http://127.0.0.1:${GATEWAY_PORT}  · ${device.mode}`));
 

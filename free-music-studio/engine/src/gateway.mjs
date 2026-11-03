@@ -43,7 +43,7 @@ export function createGateway(ctx) {
     }
 
     if (key === "POST /pair") {
-      if (!origin) return json(res, 403, { error: "사이트에서만 짝짓기할 수 있습니다." });
+      if (!origin) return json(res, 403, { error: "사이트에서만 연결할 수 있습니다." });
       if (Date.now() < lockedUntil) return json(res, 429, { error: "잠시 뒤 다시 시도해 주세요." }, origin);
       const body = await readSmall(req).catch(() => null);
       const code = body && typeof body.code === "string" ? body.code.trim() : "";
@@ -53,7 +53,7 @@ export function createGateway(ctx) {
           lockedUntil = Date.now() + 60_000;
           failures = 0;
         }
-        return json(res, 401, { error: "짝짓기 코드가 맞지 않습니다. 엔진 창의 6자리 숫자를 확인해 주세요." }, origin);
+        return json(res, 401, { error: "연결 코드가 맞지 않습니다. 엔진 창의 6자리 숫자를 확인해 주세요." }, origin);
       }
       failures = 0;
       const token = newToken();
@@ -68,7 +68,7 @@ export function createGateway(ctx) {
     if (!target) return json(res, 404, { error: "없는 주소입니다." }, origin);
     const token = bearer(req.headers.authorization);
     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
-      return json(res, 401, { error: "짝짓기가 필요합니다.", needPair: true }, origin);
+      return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
     }
     if (!ctx.getState().ready) return json(res, 503, { error: "엔진을 준비하는 중입니다." }, origin);
     if (Number(req.headers["content-length"] ?? 0) > MAX_BODY) return json(res, 413, { error: "파일이 너무 큽니다(60MB까지)." }, origin);

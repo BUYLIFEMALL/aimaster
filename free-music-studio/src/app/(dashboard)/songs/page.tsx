@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2, Cpu } from "lucide-react";
+import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 import { DEFAULT_DURATION, DURATIONS, LIMITS, type Song } from "@/lib/songs";
 import { DEFAULT_LYRIC_MODEL, LYRIC_MODELS } from "@/lib/lyricModels";
+import { GeneratePanel } from "@/components/engine/GeneratePanel";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number };
 
@@ -258,12 +259,6 @@ export default function SongsPage() {
               >
                 <Save className="h-4 w-4" /> {saving ? "저장 중…" : "저장하기"}
               </button>
-              <Link
-                href="/engine"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-slate-900"
-              >
-                <Cpu className="h-4 w-4" /> 내 PC로 노래 만들기 (엔진 준비 중)
-              </Link>
               {draft.id && (
                 <button
                   type="button"
@@ -275,6 +270,12 @@ export default function SongsPage() {
               )}
             </div>
           </section>
+
+          {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
+          <GeneratePanel
+            title={draft.title}
+            song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }}
+          />
         </div>
       </div>
     </div>

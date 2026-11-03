@@ -1,0 +1,168 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { Cpu, Download, Loader2, AlertCircle, Wand2 } from "lucide-react";
+import { useEngine } from "./useEngine";
+import { EngineError, checkTask, fetchAudio, startTask, type SongForEngine } from "@/lib/engine";
+
+type Take = { id: string; title: string; url: string; seconds: number; at: string };
+
+const POLL_MS = 3000;
+const MAX_WAIT_MS = 45 * 60_000; // CPU 모드 4분 곡 + 첫 모델 내려받기까지 여유
+
+const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+/** 대략 걸리는 시간 — 2026-11-03 측정(CPU 30초 곡 약 90초, 3분 곡 약 371초). 그래픽카드는 훨씬 빠르다. */
+function estimate(device: string, durationSec: number) {
+  if (device === "cpu") return `약 ${Math.max(2, Math.round((durationSec * 2.1) / 60))}분`;
+  return "1분 안팎";
+}
+
+/** 곡 만들기 화면 아래 칸 — 지금 편집 중인 가사·스타일로 내 PC 엔진에 노래를 맡긴다. */
+export function GeneratePanel({ song, title }: { song: SongForEngine; title: string }) {
+  const engine = useEngine();
+  const { status, checking, online, paired, ready } = engine;
+  const [busy, setBusy] = useState<"" | "start" | "run" | "fetch">("");
+  const [elapsed, setElapsed] = useState(0);
+  const [error, setError] = useState<{ text: string; needPair?: boolean } | null>(null);
+  const [takes, setTakes] = useState<Take[]>([]);
+  const cancelled = useRef(false);
+  const urls = useRef<string[]>([]);
+
+  useEffect(() => {
+    cancelled.current = false;
+    return () => {
+      cancelled.current = true;
+      urls.current.forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!busy) return;
+    const started = Date.now();
+    setElapsed(0);
+    const t = setInterval(() => setElapsed(Math.round((Date.now() - started) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, [busy === ""]); // eslint-disable-line react-hooks/exhaustive-deps -- 생성 한 번에 시계 하나
+
+  const canStart = ready && !busy && (song.style_prompt.trim() || song.lyrics.trim());
+
+  const generate = async () => {
+    if (!status) return;
+    setError(null);
+    setBusy("start");
+    try {
+      const taskId = await startTask(song, status.device);
+      setBusy("run");
+      const until = Date.now() + MAX_WAIT_MS;
+      while (!cancelled.current) {
+        await new Promise((r) => setTimeout(r, POLL_MS));
+        const s = await checkTask(taskId);
+        if (s.state === "failed") throw new EngineError(s.error);
+        if (s.state === "done") {
+          setBusy("fetch");
+          const url = await fetchAudio(s.file);
+          urls.current.push(url);
+          setTakes((list) => [
+            { id: taskId, title: title.trim() || "제목 없는 노래", url, seconds: song.duration_sec, at: new Date().toLocaleTimeString("ko-KR") },
+            ...list,
+          ]);
+          break;
+        }
+        if (Date.now() > until) throw new EngineError("너무 오래 걸려 기다리기를 멈췄습니다. 엔진 창에 오류가 있는지 확인해 주세요.");
+      }
+    } catch (e) {
+      setError(e instanceof EngineError ? { text: e.message, needPair: e.needPair } : { text: "노래를 만들지 못했습니다." });
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const stageText =
+    busy === "start" ? "엔진에 보내는 중…" : busy === "run" ? "노래 만드는 중…" : busy === "fetch" ? "완성된 노래 받는 중…" : "";
+
+  return (
+    <section className="space-y-3 rounded-2xl border border-teal-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
+          <Cpu className="h-4 w-4 text-teal-300" /> 내 PC로 노래 만들기
+        </h2>
+        <span className="text-[11px] text-slate-400">
+          {checking
+            ? "엔진 확인 중…"
+            : !online
+              ? "엔진 꺼짐"
+              : !paired
+                ? "PC 연결 필요"
+                : !ready
+                  ? status?.stage
+                  : `연결됨 · ${status?.mode} · 예상 ${estimate(status!.device, song.duration_sec)}`}
+        </span>
+      </div>
+
+      {!checking && (!online || !paired) && (
+        <p className="text-xs leading-relaxed text-slate-400">
+          {!online ? "내 PC 엔진이 꺼져 있거나 브라우저가 연결을 막고 있습니다. " : "이 브라우저를 엔진과 한 번 연결해야 합니다. "}
+          <Link href="/engine" className="font-semibold text-emerald-300 underline underline-offset-2">
+            내 PC 엔진 화면
+          </Link>
+          에서 확인해 주세요.
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={generate}
+          disabled={!canStart}
+          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
+        >
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} {busy ? stageText : "노래 만들기"}
+        </button>
+        {busy && (
+          <span className="font-mono text-xs text-teal-200">
+            {clock(elapsed)} 지남 <span className="text-slate-500">· 처음 한 번은 음악 모델(약 10GB)을 받느라 더 걸립니다</span>
+          </span>
+        )}
+      </div>
+
+      {error && (
+        <p className="flex items-center gap-2 text-xs font-semibold text-rose-300">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {error.text}
+          {error.needPair && (
+            <Link href="/engine" className="shrink-0 underline underline-offset-2">
+              PC 연결하러 가기
+            </Link>
+          )}
+        </p>
+      )}
+
+      {takes.length > 0 && (
+        <ul className="space-y-2 pt-1">
+          {takes.map((t) => (
+            <li key={t.id} className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="font-semibold text-slate-100">{t.title}</span>
+                <span className="text-slate-500">
+                  {t.seconds}초 · {t.at}
+                </span>
+                <a
+                  href={t.url}
+                  download={`${t.title}.mp3`}
+                  className="ml-auto inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-3 py-1.5 font-semibold text-emerald-300 hover:bg-emerald-950/50"
+                >
+                  <Download className="h-3.5 w-3.5" /> MP3 내려받기
+                </a>
+              </div>
+              <audio controls src={t.url} className="w-full" />
+            </li>
+          ))}
+          <li className="text-[11px] text-slate-500">
+            💡 만든 노래는 이 화면을 떠나면 목록에서 사라집니다. 마음에 드는 곡은 [MP3 내려받기]로 PC에 저장해 주세요.
+          </li>
+        </ul>
+      )}
+    </section>
+  );
+}
