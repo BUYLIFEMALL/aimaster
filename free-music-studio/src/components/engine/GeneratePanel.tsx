@@ -77,7 +77,7 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           if (hasLibrary(status)) {
             // 보관: 내 PC 보관 폴더에 복사 → 「모든 음악」 기록 한 줄. 기록이 실패해도 음원은 PC에 남는다.
             const id = crypto.randomUUID();
-            await saveToLibrary(id, s.file);
+            await saveToLibrary(id, s.file, name);
             const res = await fetch("/api/tracks", {
               method: "POST",
               headers: { "Content-Type": "application/json" },

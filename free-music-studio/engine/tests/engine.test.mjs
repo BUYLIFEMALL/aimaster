@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { chooseDevice } from "../src/device.mjs";
 import { bearer, corsHeaders, isAllowedOrigin, newPairCode, sameSecret } from "../src/security.mjs";
-import { createLibrary, isTrackId } from "../src/library.mjs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { createLibrary, isTrackId, safeFileName } from "../src/library.mjs";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -14,22 +14,57 @@ test("보관함: 곡 번호는 uuid 모양만(경로 조작 거절)", () => {
   assert.equal(isTrackId(undefined), false);
 });
 
-test("보관함: 저장 → 목록 → 꺼내기 → 지우기", async () => {
-  const dir = await mkdtemp(path.join(tmpdir(), "fms-lib-"));
+test("보관함: 파일 이름은 곡 제목(못 쓰는 글자 제거)", () => {
+  assert.equal(safeFileName("비 오는 오후"), "비 오는 오후");
+  assert.equal(safeFileName('a/b:c*?"<>|'), "a_b_c______");
+  assert.equal(safeFileName("  ...  "), "노래");
+  assert.equal(safeFileName("끝에 점."), "끝에 점");
+});
+
+test("보관함: 제목으로 저장 → 같은 제목은 (2) → 목록·꺼내기·지우기", async () => {
+  const data = await mkdtemp(path.join(tmpdir(), "fms-lib-"));
   try {
-    const lib = createLibrary(dir);
-    const id = "3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
+    const lib = createLibrary(data, { defaultDir: path.join(data, "음악") });
+    await lib.init();
+    const a = "3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
+    const b = "4f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
     assert.deepEqual(await lib.list(), []);
-    await lib.save(id, Buffer.from("ID3abc"));
-    assert.deepEqual(await lib.list(), [id]);
-    const f = await lib.open(id);
+    const pa = await lib.save(a, Buffer.from("ID3abc"), "비 오는 오후");
+    const pb = await lib.save(b, Buffer.from("ID3x"), "비 오는 오후");
+    assert.equal(path.basename(pa), "비 오는 오후.mp3");
+    assert.equal(path.basename(pb), "비 오는 오후 (2).mp3");
+    assert.deepEqual((await lib.list()).sort(), [a, b]);
+    const f = await lib.open(a);
     assert.equal(f.size, 6);
     f.stream.destroy();
-    await lib.remove(id);
-    assert.deepEqual(await lib.list(), []);
-    assert.equal(await lib.open(id), null);
+    await lib.remove(a);
+    assert.deepEqual(await lib.list(), [b]);
+    assert.equal(await lib.open(a), null);
   } finally {
-    await rm(dir, { recursive: true, force: true });
+    await rm(data, { recursive: true, force: true });
+  }
+});
+
+test("보관함: 0.1.1 번호 파일을 읽고, 폴더를 바꾸며 제목 이름으로 옮김(설정은 다음 실행에도 유지)", async () => {
+  const data = await mkdtemp(path.join(tmpdir(), "fms-lib-"));
+  try {
+    const old = "5f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
+    await mkdir(path.join(data, "library"), { recursive: true });
+    await writeFile(path.join(data, "library", `${old}.mp3`), "ID3old");
+    const lib = createLibrary(data, { defaultDir: path.join(data, "음악") });
+    await lib.init();
+    assert.deepEqual(await lib.list(), [old]);
+    const target = path.join(data, "새 폴더");
+    const r = await lib.setDir(target, { move: true, titles: { [old]: "옛 노래" } });
+    assert.deepEqual(r, { dir: target, moved: 1, failed: 0 });
+    assert.equal(await readFile(path.join(target, "옛 노래.mp3"), "utf8"), "ID3old");
+    const again = createLibrary(data, { defaultDir: path.join(data, "음악") });
+    await again.init();
+    assert.equal(again.dir, target);
+    assert.deepEqual(await again.list(), [old]);
+    await assert.rejects(() => again.setDir("상대경로"));
+  } finally {
+    await rm(data, { recursive: true, force: true });
   }
 });
 

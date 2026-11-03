@@ -168,13 +168,40 @@ export async function checkTask(taskId: string): Promise<TaskState> {
 
 // ── 내 PC 보관함(엔진 0.1.1+) ─────────────────────────────────
 
-/** 완성 음원을 엔진 보관 폴더에 곡 번호(id) 이름으로 복사해 둔다. */
-export async function saveToLibrary(id: string, file: string): Promise<void> {
+/** 완성 음원을 엔진 저장 폴더에 복사해 둔다(0.1.2부터 파일 이름 = 곡 제목). */
+export async function saveToLibrary(id: string, file: string, title: string): Promise<void> {
   await call("/library/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, file }),
+    body: JSON.stringify({ id, file, title }),
   });
+}
+
+/** 저장 폴더를 고를 수 있는 엔진인가(0.1.2+) */
+export function hasFolderPicker(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("folder");
+}
+
+/** PC에 「폴더 고르기」 창을 띄운다. 회원이 고를 때까지 기다린다(최대 10분). 취소하면 null. */
+export async function pickFolder(): Promise<string | null> {
+  const res = await call("/library/pick-folder", { method: "POST" }, 600_000);
+  const data = await res.json();
+  return typeof data?.path === "string" && data.path ? data.path : null;
+}
+
+/** 저장 폴더 바꾸기. move면 기존 노래를 새 폴더로 옮긴다(titles: 곡 번호 → 제목, 옛 번호 이름 파일용). */
+export async function setLibraryFolder(path: string, move: boolean, titles: Record<string, string>) {
+  const res = await call(
+    "/library/folder",
+    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path, move, titles }) },
+    300_000
+  );
+  return (await res.json()) as { dir: string; moved: number; failed: number };
+}
+
+/** 저장 폴더를 PC 탐색기로 연다. */
+export async function revealLibraryFolder(): Promise<void> {
+  await call("/library/reveal", { method: "POST" });
 }
 
 /** 이 PC 보관함에 있는 곡 번호들 */

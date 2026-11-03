@@ -2,9 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Library, Play, Download, Trash2, Search, AlertCircle, HardDrive, Loader2, ChevronDown } from "lucide-react";
+import { Library, Play, Download, Trash2, Search, AlertCircle, HardDrive, Loader2, ChevronDown, FolderOpen } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
-import { EngineError, deleteFromLibrary, fetchLibraryAudio, hasLibrary, listLibrary } from "@/lib/engine";
+import {
+  EngineError,
+  deleteFromLibrary,
+  fetchLibraryAudio,
+  hasFolderPicker,
+  hasLibrary,
+  listLibrary,
+  revealLibraryFolder,
+} from "@/lib/engine";
 import type { Track } from "@/lib/tracks";
 
 const DEVICE_LABEL: Record<string, string> = { cuda: "그래픽카드", mps: "Apple 맥", cpu: "CPU" };
@@ -131,7 +139,21 @@ export default function LibraryPage() {
         </p>
       )}
       {libOk && engine.status?.libraryDir && (
-        <p className="text-[11px] text-slate-500">💾 이 PC 보관 폴더: <span className="font-mono">{engine.status.libraryDir}</span></p>
+        <p className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+          💾 저장 폴더: <span className="break-all font-mono">{engine.status.libraryDir}</span>
+          {hasFolderPicker(engine.status) && (
+            <button
+              type="button"
+              onClick={() => revealLibraryFolder().catch(() => setMessage("폴더를 열지 못했습니다."))}
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1 text-slate-300 hover:bg-slate-900"
+            >
+              <FolderOpen className="h-3.5 w-3.5" /> 폴더 열기
+            </button>
+          )}
+          <Link href="/engine" className="underline underline-offset-2">
+            폴더 바꾸기
+          </Link>
+        </p>
       )}
 
       {message && (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Cpu, Download, ShieldCheck, Clock, Link2, CheckCircle2, AlertCircle, Unplug } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
+import { FolderPanel } from "@/components/engine/FolderPanel";
 import { EngineError, forgetEngine, pairEngine } from "@/lib/engine";
 
 // 내 PC 엔진 — 상태 확인·짝짓기(3단계). 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
@@ -140,6 +141,8 @@ export default function EnginePage() {
           </p>
         )}
       </section>
+
+      {paired && <FolderPanel status={status} onChanged={engine.refresh} />}
 
       <section className="space-y-3 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-5">
         <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">

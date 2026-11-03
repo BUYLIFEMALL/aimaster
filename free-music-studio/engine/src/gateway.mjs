@@ -3,6 +3,8 @@
 import http from "node:http";
 import { bearer, corsHeaders, isAllowedOrigin, newPairCode, newToken, sameSecret } from "./security.mjs";
 import { isTrackId } from "./library.mjs";
+import { pickFolder, revealFolder } from "./folderDialog.mjs";
+import { mkdir } from "node:fs/promises";
 
 export const GATEWAY_PORT = 47821;
 const MAX_BODY = 60 * 1024 * 1024; // 커버 원곡 업로드 상한
@@ -96,8 +98,11 @@ export function createGateway(ctx) {
 
 /**
  * 내 PC 보관함(library.mjs) — 토큰 확인을 마친 요청만 온다.
- *  GET /library            → { ids: [...] } 이 PC에 있는 곡 번호
- *  POST /library/save      { id, file } → ACE-Step 결과(/v1/audio?…)를 받아 보관
+ *  GET /library            → { ids: [...], dir } 이 PC에 있는 곡 번호·저장 폴더
+ *  POST /library/save      { id, file, title } → ACE-Step 결과(/v1/audio?…)를 받아 「제목.mp3」로 보관
+ *  POST /library/pick-folder → { path|null } PC에 폴더 고르기 창
+ *  POST /library/folder    { path, move, titles } → 저장 폴더 바꾸기(기존 노래 옮기기 선택)
+ *  POST /library/reveal    → 저장 폴더를 탐색기로 열기
  *  GET /library/<id>       → 음원(audio/mpeg)
  *  DELETE /library/<id>    → 지우기
  */
@@ -105,19 +110,43 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
   const lib = ctx.library;
   const rest = url.pathname.slice("/library".length).replace(/^\//, "");
 
-  if (req.method === "GET" && !rest) return json(res, 200, { ids: await lib.list() }, origin);
+  if (req.method === "GET" && !rest) return json(res, 200, { ids: await lib.list(), dir: lib.dir }, origin);
+
+  // 저장 폴더: 고르기 창(PC에 뜸) → 바꾸기(기존 노래 옮기기 선택) · 탐색기로 열기
+  if (req.method === "POST" && rest === "pick-folder") {
+    try {
+      return json(res, 200, { path: await pickFolder(lib.dir) }, origin);
+    } catch (e) {
+      return json(res, 501, { error: e.message }, origin);
+    }
+  }
+  if (req.method === "POST" && rest === "folder") {
+    const body = await readSmall(req, 256 * 1024).catch(() => null);
+    try {
+      const r = await lib.setDir(body?.path, { move: body?.move === true, titles: body?.titles && typeof body.titles === "object" ? body.titles : {} });
+      return json(res, 200, r, origin);
+    } catch (e) {
+      return json(res, 400, { error: `그 폴더를 쓸 수 없습니다. ${e.message}` }, origin);
+    }
+  }
+  if (req.method === "POST" && rest === "reveal") {
+    await mkdir(lib.dir, { recursive: true });
+    await revealFolder(lib.dir);
+    return json(res, 200, { ok: true }, origin);
+  }
 
   if (req.method === "POST" && rest === "save") {
     const body = await readSmall(req).catch(() => null);
     const id = body?.id;
+    const title = typeof body?.title === "string" ? body.title : "";
     const file = typeof body?.file === "string" ? body.file : "";
     if (!isTrackId(id) || !file.startsWith("/v1/audio?")) return json(res, 400, { error: "곡 번호나 음원 주소가 올바르지 않습니다." }, origin);
     if (!ctx.getState().ready) return json(res, 503, { error: "엔진을 준비하는 중입니다." }, origin);
     try {
       const r = await fetch(`http://127.0.0.1:${ctx.acestepPort}${file}`, { headers: { authorization: `Bearer ${ctx.acestepKey}` } });
       if (!r.ok) return json(res, 502, { error: "음악 엔진에서 음원을 찾지 못했습니다(오래돼 지워졌을 수 있음)." }, origin);
-      await lib.save(id, Buffer.from(await r.arrayBuffer()));
-      return json(res, 200, { ok: true }, origin);
+      const saved = await lib.save(id, Buffer.from(await r.arrayBuffer()), title);
+      return json(res, 200, { ok: true, path: saved }, origin);
     } catch {
       return json(res, 500, { error: "보관 폴더에 저장하지 못했습니다. 디스크 공간을 확인해 주세요." }, origin);
     }
@@ -138,12 +167,12 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
   return json(res, 404, { error: "없는 주소입니다." }, origin);
 }
 
-async function readSmall(req) {
+async function readSmall(req, max = 4096) {
   let size = 0;
   const chunks = [];
   for await (const c of req) {
     size += c.length;
-    if (size > 4096) throw new Error("too large");
+    if (size > max) throw new Error("too large");
     chunks.push(c);
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");

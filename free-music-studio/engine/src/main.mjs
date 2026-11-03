@@ -12,7 +12,7 @@ import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
 import { createLibrary } from "./library.mjs";
 import { newToken } from "./security.mjs";
 
-const VERSION = "0.1.1"; // 0.1.1: 내 PC 보관함(/library)
+const VERSION = "0.1.2"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름
 const ACESTEP_PORT = 47822;
 
 const dataDir =
@@ -35,9 +35,10 @@ const saveTokens = () => writeFile(tokensFile, JSON.stringify({ tokens: [...toke
 
 const acestepKey = newToken(); // 실행할 때마다 새로 — 연결 문만 안다
 const library = createLibrary(dataDir);
+await library.init();
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library"], libraryDir: library.dir }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder"], libraryDir: library.dir }),
   library,
   tokens,
   saveTokens,
@@ -88,6 +89,7 @@ if (!device.supported) {
     state.ready = true;
     state.stage = "준비됨";
     logLine("✔ 준비됨 — 사이트에서 노래를 만들 수 있습니다.");
+    logLine(`  💾 저장 폴더: ${library.dir}  (사이트 「내 PC 엔진」 화면에서 바꿀 수 있음)`);
     const stop = () => {
       child.kill();
       process.exit(0);
