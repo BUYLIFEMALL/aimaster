@@ -9,7 +9,8 @@ export const ENGINES: Record<EngineId, { model: string; imageSize?: string; labe
   standard: { model: "gemini-3.1-flash-lite-image", label: "Nano Banana" },
   pro: { model: "gemini-3-pro-image", imageSize: "2K", label: "Nano Banana Pro" },
 };
-export const TEXT_MODEL = "gemini-2.5-flash";
+// 2026-11-03: gemini-2.5-flash(12-01 자동 연결) → 3.8-flash (docs/PLAN_20261103_MODEL_MIGRATION_DEC.md)
+export const TEXT_MODEL = "gemini-3.8-flash";
 
 export type DialogueMode = "none" | "ko" | "en";
 export const DURATION_OPTIONS = [
