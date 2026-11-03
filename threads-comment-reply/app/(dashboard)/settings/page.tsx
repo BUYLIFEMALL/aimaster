@@ -14,9 +14,9 @@ import { getThreadsConnectionStatus } from "@/lib/actions/threads";
 import { disconnectTelegramAction } from "@/lib/actions/telegram";
 import {
   REPLY_MODEL_OPTIONS,
-  DEFAULT_REPLY_MODEL,
   REPLY_MODEL_PROVIDER_SHORT_LABELS,
   getReplyModelProvider,
+  currentReplyModel,
 } from "@/lib/ai/models";
 import type { ApiKeyProvider } from "@/types/database.types";
 import { NEW_REDIRECT_URI, oldRedirectUri } from "@/lib/oauthRedirect";
@@ -75,7 +75,7 @@ export default async function SettingsPage() {
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
   const scheduler = await memberSchedulerState(createAdminClient() as unknown as SupabaseClient, user.id);
-  const activeModel = settings?.reply_model ?? DEFAULT_REPLY_MODEL;
+  const activeModel = currentReplyModel(settings?.reply_model);
   const activeModelOption = REPLY_MODEL_OPTIONS.find((o) => o.value === activeModel);
   const activeProvider = getReplyModelProvider(activeModel);
 

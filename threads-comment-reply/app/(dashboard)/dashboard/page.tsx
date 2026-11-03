@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getReplyAccount } from "@/lib/threads/memberAccount";
-import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from "@/lib/ai/models";
+import { REPLY_MODEL_OPTIONS, getReplyModelProvider, currentReplyModel } from "@/lib/ai/models";
 import { MONITORING_INTERVAL_OPTIONS } from "@/lib/schedule";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { StudioHeader, StatCard } from "@/components/ui/StudioHeader";
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
   const account = accountRes.data;
   const settings = settingsRes.data;
   const providers = new Set((keysRes.data ?? []).map((k) => k.provider));
-  const replyModel = settings?.reply_model ?? DEFAULT_REPLY_MODEL;
+  const replyModel = currentReplyModel(settings?.reply_model);
   const modelLabel = REPLY_MODEL_OPTIONS.find((o) => o.value === replyModel)?.shortLabel ?? replyModel;
   const intervalLabel = MONITORING_INTERVAL_OPTIONS.find((o) => o.value === settings?.monitoring_interval_minutes)?.label;
   const pending = pendingRes.count ?? 0;
