@@ -15,6 +15,8 @@ export default function OrderForm({
   totalsByRegion,
   defaultDepositor,
   bankText,
+  action,
+  note,
 }: {
   slug: string;
   addresses: CustomerAddress[];
@@ -22,10 +24,14 @@ export default function OrderForm({
   totalsByRegion: Record<"mainland" | "jeju" | "island", Totals>;
   defaultDepositor: string;
   bankText: string;
+  /** 다른 주문 방식(견적 주문 등) — 없으면 장바구니 주문 */
+  action?: (prev: PlaceOrderState, form: FormData) => Promise<PlaceOrderState>;
+  /** 주문 버튼 아래 안내 — 없으면 장바구니 주문 안내 */
+  note?: string;
 }) {
   const [addressId, setAddressId] = useState(addresses.find((a) => a.is_default)?.id ?? addresses[0]?.id ?? "");
   const initial: PlaceOrderState = { error: null, depositor: defaultDepositor, memo: "" };
-  const [state, formAction, pending] = useActionState(placeOrderAction.bind(null, slug), initial);
+  const [state, formAction, pending] = useActionState(action ?? placeOrderAction.bind(null, slug), initial);
   const region = regionOf[addressId] ?? "mainland";
   const t = totalsByRegion[region];
 
@@ -75,7 +81,7 @@ export default function OrderForm({
         <button disabled={pending || !addressId} className="min-h-12 w-full rounded bg-gray-900 text-white disabled:opacity-50">
           {pending ? "주문하는 중…" : `${won(t.total)} 주문하기`}
         </button>
-        <p className="text-xs text-gray-500">주문하면 재고가 확보되고 장바구니가 비워집니다. 입금이 확인되면 배송을 준비합니다.</p>
+        <p className="text-xs text-gray-500" data-order-note>{note ?? "주문하면 재고가 확보되고 장바구니가 비워집니다. 입금이 확인되면 배송을 준비합니다."}</p>
       </section>
     </form>
   );

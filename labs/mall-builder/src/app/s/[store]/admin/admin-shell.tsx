@@ -7,6 +7,7 @@ import LogoutButton from "@/app/logout-button";
 const MENU = [
   { href: "", label: "대시보드" },
   { href: "/orders", label: "주문" },
+  { href: "/quotes", label: "견적" },
   { href: "/customers", label: "손님" },
   { href: "/settings", label: "쇼핑몰 정보" },
   { href: "/categories", label: "카테고리" },

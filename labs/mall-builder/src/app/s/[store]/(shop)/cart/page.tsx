@@ -6,6 +6,7 @@ import { regionOfZip } from "@/lib/shipping";
 import { formatWon } from "@/lib/products";
 import DeleteButton from "../../admin/categories/delete-button";
 import { removeItemAction, updateQtyAction } from "./actions";
+import { requestQuoteAction } from "../quotes/actions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -98,6 +99,15 @@ export default async function CartPage({
                 주문하기
               </Link>
             )}
+          </section>
+
+          <section className="ml-auto mt-8 max-w-sm rounded border p-4 text-sm" data-quote-request>
+            <p className="font-medium">대량·정기 주문이면 견적을 받아 보세요</p>
+            <p className="mt-1 text-xs text-gray-500">담긴 상품·수량으로 견적을 요청합니다. 운영자가 회신한 견적가로 바로 주문할 수 있습니다(장바구니는 그대로).</p>
+            <form action={requestQuoteAction.bind(null, store.slug)} className="mt-2 space-y-2">
+              <textarea name="note" maxLength={500} rows={2} placeholder="요청 메모(예: 매달 20개씩 주문 예정)" className="w-full rounded border px-2 py-1.5" />
+              <button className="min-h-10 w-full rounded border border-gray-900 px-4">견적 요청</button>
+            </form>
           </section>
         </>
       )}

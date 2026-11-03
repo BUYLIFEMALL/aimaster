@@ -5,6 +5,7 @@ import type { OptionGroup, Variant } from "@/lib/options";
 import type { ShippingPolicy } from "@/lib/shipping";
 import { ORDER_COLUMNS, type OrderEventRow, type OrderItemRow, type OrderRow } from "@/lib/orders";
 import type { ApprovalStatus } from "@/lib/business";
+import type { QuoteStatus } from "@/lib/quotes";
 import { priceLine, viewerOf, type GradePrice, type PriceContext, type VolumeTier } from "@/lib/pricing";
 import { cache } from "react";
 
@@ -450,6 +451,62 @@ export async function getOrder(storeId: string, orderId: string) {
     items: (items ?? []) as OrderItemRow[],
     events: (events ?? []) as OrderEventRow[],
   };
+}
+
+export type QuoteRow = {
+  id: string;
+  quote_no: string;
+  status: QuoteStatus;
+  request_note: string;
+  answer_note: string;
+  valid_until: string | null;
+  order_id: string | null;
+  created_at: string;
+  answered_at: string | null;
+  user_id: string;
+  customer: { name: string; company: string | null } | null;
+};
+export type QuoteItemRow = {
+  id: string;
+  product_id: string | null;
+  name_snapshot: string;
+  option_snapshot: string;
+  qty: number;
+  ref_unit_price: number | null;
+  quoted_price: number | null;
+};
+const QUOTE_COLUMNS =
+  "id, quote_no, status, request_note, answer_note, valid_until, order_id, created_at, answered_at, user_id, customer:mall_builder_store_customers(name, company)";
+
+/** 견적 목록 — 손님은 자기 것만(userId), 운영자는 몰 전체(userId 없이). 보안 규칙이 한 번 더 거른다 */
+export async function getQuotes(storeId: string, userId?: string): Promise<(QuoteRow & { item_count: number; first_item: string })[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("mall_builder_quotes")
+    .select(`${QUOTE_COLUMNS}, mall_builder_quote_items(name_snapshot)`)
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (userId) query = query.eq("user_id", userId);
+  const { data } = await query;
+  type Raw = QuoteRow & { mall_builder_quote_items: { name_snapshot: string }[] };
+  return ((data ?? []) as unknown as Raw[]).map(({ mall_builder_quote_items: items, ...q }) => ({
+    ...q,
+    item_count: items.length,
+    first_item: items[0]?.name_snapshot ?? "",
+  }));
+}
+
+/** 견적 하나(품목 포함) — 없으면 null */
+export async function getQuote(storeId: string, quoteId: string): Promise<{ quote: QuoteRow; items: QuoteItemRow[] } | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_quotes").select(QUOTE_COLUMNS).eq("store_id", storeId).eq("id", quoteId).maybeSingle();
+  if (!data) return null;
+  const { data: items } = await supabase
+    .from("mall_builder_quote_items")
+    .select("id, product_id, name_snapshot, option_snapshot, qty, ref_unit_price, quoted_price")
+    .eq("quote_id", quoteId);
+  return { quote: data as unknown as QuoteRow, items: (items ?? []) as QuoteItemRow[] };
 }
 
 /** 장바구니 줄 수(머리글 표시용) */
