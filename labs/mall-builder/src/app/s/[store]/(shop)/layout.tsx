@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getCategoryRows, getCurrentUser, getMyCustomer, getStoreBySlug, isStoreStaff } from "@/lib/store";
+import { getCartCount, getCategoryRows, getCurrentUser, getMyCustomer, getStoreBySlug, isStoreStaff } from "@/lib/store";
 import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
 import { buildCategoryTree } from "@/lib/categories";
 
@@ -13,6 +13,7 @@ export default async function ShopLayout({ children, params }: { children: React
   const store = await getStoreBySlug(slug);
   const [user, staff, categoryRows] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id)]);
   const customer = user ? await getMyCustomer(store.id, user.id) : null;
+  const cartCount = customer && user ? await getCartCount(store.id, user.id) : 0;
   // 손님 메뉴에는 보이는 카테고리만(운영자로 보고 있어도 손님과 같게)
   const topCategories = buildCategoryTree(categoryRows, false);
   const info = readBusinessInfo(store.business_info);
@@ -48,7 +49,10 @@ export default async function ShopLayout({ children, params }: { children: React
                 <Link href={`${base}/join`}>가입</Link>
               </>
             ) : customer ? (
-              <Link href={`${base}/my`}>{customer.name}님 · 마이페이지</Link>
+              <>
+                <Link href={`${base}/cart`} data-cart-link>장바구니{cartCount ? ` ${cartCount}` : ""}</Link>
+                <Link href={`${base}/my`}>{customer.name}님 · 마이페이지</Link>
+              </>
             ) : (
               <Link href={`${base}/join`}>이 몰 가입하기</Link>
             )}

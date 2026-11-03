@@ -211,6 +211,39 @@ export async function getMyCustomer(storeId: string, userId: string): Promise<St
   return (data as StoreCustomer | null) ?? null;
 }
 
+export type CartRow = {
+  id: string;
+  qty: number;
+  product: ProductRow;
+  variant: (Variant & { id: string }) | null;
+};
+
+/** 내 장바구니(이 몰) — 상품·옵션을 함께 가져온다. 금액은 화면에서 pricing.ts로 계산 */
+export async function getCart(storeId: string, userId: string): Promise<CartRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_cart_items")
+    .select(`id, qty, mall_builder_products(${PRODUCT_COLUMNS}), mall_builder_product_variants(id, key, values, extra_price, stock, sku, is_active)`)
+    .eq("store_id", storeId)
+    .eq("user_id", userId)
+    .order("created_at");
+  type Raw = { id: string; qty: number; mall_builder_products: ProductRow | null; mall_builder_product_variants: (Variant & { id: string }) | null };
+  return ((data ?? []) as unknown as Raw[])
+    .filter((r) => r.mall_builder_products) // 손님에게 안 보이게 된 상품(숨김 등)은 빼고 보여 준다
+    .map((r) => ({ id: r.id, qty: r.qty, product: r.mall_builder_products!, variant: r.mall_builder_product_variants }));
+}
+
+/** 장바구니 줄 수(머리글 표시용) */
+export async function getCartCount(storeId: string, userId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("mall_builder_cart_items")
+    .select("id", { count: "exact", head: true })
+    .eq("store_id", storeId)
+    .eq("user_id", userId);
+  return count ?? 0;
+}
+
 /** 내 배송지 — 기본 배송지가 먼저 */
 export async function getMyAddresses(customerId: string): Promise<CustomerAddress[]> {
   const supabase = await createClient();

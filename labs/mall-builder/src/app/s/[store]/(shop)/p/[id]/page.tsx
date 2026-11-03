@@ -40,17 +40,19 @@ export default async function ProductPage({ params }: { params: Promise<{ store:
       </nav>
 
       <ProductDetail
+        slug={store.slug}
+        productId={product.id}
         name={product.name}
         summary={product.summary}
         images={product.images ?? []}
+        status={product.status}
         basePrice={product.base_price}
         listPrice={product.list_price}
-        soldOut={product.status === "sold_out"}
         stockMode={product.stock_mode}
         stock={product.stock}
         shippingText={describePolicy(policy)}
         groups={product.option_groups ?? []}
-        variants={variants.map(({ key, values, extra_price, stock, sku, is_active }) => ({ key, values, extra_price, stock, sku, is_active }))}
+        variants={variants.map(({ id, key, values, extra_price, stock, sku, is_active }) => ({ id, key, values, extra_price, stock, sku, is_active }))}
       />
 
       {product.description && (
