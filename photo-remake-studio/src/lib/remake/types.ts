@@ -6,7 +6,8 @@ export const IMAGE_MODELS = [
   { id: NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"].modelName, name: "Nano Banana 2 · 균형형" },
   { id: NANO_BANANA_MODEL_CONFIGS["nanobanana-pro"].modelName, name: "Nano Banana Pro · 정밀형" },
 ] as const;
-export const TEXT_MODEL = "gemini-2.5-flash";
+// 2026-11-03: gemini-2.5-flash(12-01 자동 연결) → 3.8-flash (docs/PLAN_20261103_MODEL_MIGRATION_DEC.md)
+export const TEXT_MODEL = "gemini-3.8-flash";
 export const ASPECTS = ["original", "1:1", "3:4", "4:3", "9:16", "16:9"] as const;
 export type Aspect = typeof ASPECTS[number];
 export type Mode = "restore" | "compose";
