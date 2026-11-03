@@ -4,6 +4,7 @@ import { expiredOrphanFiles, retentionCutoff, RETENTION_DAYS } from "@/lib/blog/
 import type { ImageSlot } from "@/lib/blog/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from "@/lib/cleanupUsageLog";
+import { exemptInFilter, loadRetentionExemptIds } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,8 +23,14 @@ export async function GET(request: NextRequest) {
   const cutoff = retentionCutoff();
   const admin = createAdminClient();
   const storage = admin.storage.from(BUCKET);
+  // 2026-11-03: 30일 삭제 예외 회원(profiles.retention_exempt, 관리자·시험 계정)의 글·이미지는 지우지 않는다. 목록을 못 읽으면 멈춘다.
+  let exempt: Set<string>;
+  try { exempt = await loadRetentionExemptIds(admin); } catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 503 }); }
+  const exemptFilter = exemptInFilter(exempt);
 
-  const { data: expired, error: expiredError } = await admin.from("aio_posts").select("id, user_id, images").lte("created_at", cutoff).limit(5000);
+  let expiredQuery = admin.from("aio_posts").select("id, user_id, images").lte("created_at", cutoff);
+  if (exemptFilter) expiredQuery = expiredQuery.not("user_id", "in", exemptFilter);
+  const { data: expired, error: expiredError } = await expiredQuery.limit(5000);
   if (expiredError) return NextResponse.json({ error: expiredError.message }, { status: 500 });
   const expiredFiles = (expired ?? []).flatMap((p) => imagePaths((p.images as ImageSlot[]) ?? [], SUPA(), p.user_id as string));
   let deletedPosts = 0;
@@ -44,7 +51,7 @@ export async function GET(request: NextRequest) {
   const { data: owners, error: ownersError } = await storage.list("", { limit: 1000 });
   if (ownersError) return NextResponse.json({ error: ownersError.message }, { status: 500 });
   let orphanFiles = 0;
-  for (const owner of (owners ?? []).filter((o) => o.id === null)) {
+  for (const owner of (owners ?? []).filter((o) => o.id === null && !exempt.has(o.name))) {
     const { data: files } = await storage.list(owner.name, { limit: 1000 });
     const targets = expiredOrphanFiles((files ?? []).filter((f) => f.id !== null).map((f) => ({ path: `${owner.name}/${f.name}`, createdAt: f.created_at })), used);
     if (!targets.length) continue;

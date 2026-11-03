@@ -4,6 +4,8 @@ import { MAX_POSTS, sanitizePost } from "@/lib/blog/sanitize";
 import { toSavedPost, toSummary } from "@/lib/blog/records";
 import { createClient } from "@/lib/supabase/server";
 import { retentionCutoff } from "@/lib/blog/retention";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -13,11 +15,13 @@ export async function GET() {
   const gate = await authorize();
   if (!gate.ok) return gate.response;
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("aio_posts")
     .select("id, title, summary, article, images, settings, review_status, created_at, updated_at")
-    .eq("user_id", gate.userId)
-    .gt("created_at", retentionCutoff()) // BC-05: 만든 지 30일 지난 글은 바로 숨김(Cron이 삭제)
+    .eq("user_id", gate.userId);
+  // BC-05: 만든 지 30일 지난 글은 바로 숨김(Cron이 삭제). 2026-11-03: 예외 회원(관리자·시험)은 숨기지 않는다
+  if (!(await isRetentionExempt(createAdminClient(), gate.userId))) query = query.gt("created_at", retentionCutoff());
+  const { data, error } = await query
     .order("updated_at", { ascending: false })
     .limit(MAX_POSTS);
   if (error) return NextResponse.json({ error: "보관함을 불러오지 못했습니다." }, { status: 500 });
