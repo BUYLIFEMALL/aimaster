@@ -71,6 +71,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `trending-product-finder` | v1.35 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-l1cvtpead`) | 매일 예약 마켓별(쿠팡·네이버 따로, 겹치면 10분 뒤 재시도·저장 때 안내) `90f85b4e5`. 시험 42·tsc·빌드, DB/ZIP v1.35 OK, ego 예약 옮김·겹침 안내·알람 확인 |
 | `realty-client-desk` | v1.06 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 「중개보수 계산기 작업해」 빌드 1회, `realty-client-desk-mdyg9kbm3`) | D5 중개보수 계산기 `/fee`(시행규칙 제20조 별표 1·2, 월세 ×100/×70, 한도·부가세), 매물 화면 값 채움 링크(`047e0dc42`). 운영 화면 계산값 3가지·390px 확인 |
 | `trending-product-finder` | v1.34 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-kl5zo2n5q`) | 스마트스토어 상품소싱기(네이버 쇼핑 구매·리뷰 거르기, 쿠팡 확장에 마켓 추가) `e09fc075c` 외. 운영 DB 칸 4개 적용(배포 전), 시험 40·tsc·빌드, DB/ZIP v1.34 OK, ego 자동 검색 실검수(「접이식 캠핑의자」 56개 저장) |
 | `realty-client-desk` | v1.05 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 플랜 4단계 빌드 1회, `realty-client-desk-hsthsm95m`) | 4단계 광고 명시 항목 점검·AI 광고 글/문자 초안(회원 본인 Claude 키, 저장 안 함)·사무소 등록번호/성명·Claude 키 칸(`4be6ba487`, 칸 3개 ego SQL). 시험 계정 점검 표시·AI 초안 1회·문자 칸 넣기·390px 확인 |
