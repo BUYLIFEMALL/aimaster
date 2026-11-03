@@ -10,7 +10,7 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `free-music-studio`(새) | AI 무료음악 자동화 — 0단계 끝(미니PC CPU·마스터PC 5080 「SUNO보단 못하지만 들을만함」), **1단계 웹 뼈대 v1.01 배포 완료**(https://free-music-studio.buylife.xyz , `new·coming` 배지) | 2026-11-03 | **2단계 엔진 0.1 코드 `6e6b73c4c`** — 미니PC에서 사이트→엔진→곡 생성 성공. 다음: 마스터PC(5080) 처음부터 설치 시험 → 3단계 웹 연결. 미배포 대기 `96f04aee3` 3건. 플랜 `free-music-studio/docs/PLAN_20261103_V1_01.md` |
+| `free-music-studio`(새) | AI 무료음악 자동화 — 0단계 끝(미니PC CPU·마스터PC 5080 「SUNO보단 못하지만 들을만함」), **1단계 웹 뼈대 v1.01 배포 완료**(https://free-music-studio.buylife.xyz , `new·coming` 배지) | 2026-11-03 | **2단계 엔진 0.1 코드 `6e6b73c4c`** — 미니PC에서 사이트→엔진→곡 생성 성공, **마스터PC(5080) 처음부터 설치 성공(2026-11-03, 고품질 cuda 자동 선택)**. 다음: 3단계 웹 연결. 미배포 대기 `96f04aee3` 3건. 플랜 `free-music-studio/docs/PLAN_20261103_V1_01.md` |
 | `lyric-video-studio` v1.11 | Lyricbi L-2~L-5 남음(L-1 v1.11 배포 끝, 승인 빌드 2회 중 1회 사용, 플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`) | 2026-10-24 | L-1 끝, 다음 L-2 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
