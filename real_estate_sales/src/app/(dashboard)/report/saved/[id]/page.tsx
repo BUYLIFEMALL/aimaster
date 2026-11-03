@@ -41,7 +41,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
       </div>
 
       <div className="mx-card space-y-4 p-5">
-        <AskingView asking={row.asking_price} saleMedian={r.sale.median} latest={r.sale.latest?.amount ?? null} assessed={typeof r.assessedPrice === "number" ? r.assessedPrice / 10000 : null} />
+        <AskingView asking={row.asking_price} saleMedian={r.sale.median} latest={r.sale.latest?.amount ?? null} assessed={typeof r.assessedPrice === "number" ? r.assessedPrice / 10000 : null} months={r.months} />
         <div>
           <h2 className="mx-section-title">🧠 AI 총평</h2>
           {row.ai_summary ? (

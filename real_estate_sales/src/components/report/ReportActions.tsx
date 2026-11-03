@@ -18,7 +18,7 @@ function Diff({ label, pct, base }: { label: string; pct: number | null; base: n
   );
 }
 
-export function AskingCompare({ value, onChange, saleMedian, latest, assessed }: { value: string; onChange: (v: string) => void; saleMedian: number | null; latest: number | null; assessed: number | null }) {
+export function AskingCompare({ value, onChange, saleMedian, latest, assessed, months }: { value: string; onChange: (v: string) => void; saleMedian: number | null; latest: number | null; assessed: number | null; months: number }) {
   const asking = parseAskingPrice(value);
   return (
     <div className="space-y-2">
@@ -36,7 +36,7 @@ export function AskingCompare({ value, onChange, saleMedian, latest, assessed }:
       {asking && (
         <ul className="space-y-1 text-sm text-mx-text">
           <li className="text-xs text-mx-muted">입력한 호가 {formatWon(asking)} 기준</li>
-          <Diff label="최근 12개월 매매 중간값" pct={diffPct(asking, saleMedian)} base={saleMedian} />
+          <Diff label={`최근 ${months}개월 매매 중간값`} pct={diffPct(asking, saleMedian)} base={saleMedian} />
           <Diff label="가장 최근 거래" pct={diffPct(asking, latest)} base={latest} />
           <Diff label="공동주택 공시가격" pct={diffPct(asking, assessed)} base={assessed} />
         </ul>
@@ -46,14 +46,14 @@ export function AskingCompare({ value, onChange, saleMedian, latest, assessed }:
 }
 
 /** 저장한 리포트: 저장 때 넣은 호가 비교(읽기만) */
-export function AskingView({ asking, saleMedian, latest, assessed }: { asking: number | null; saleMedian: number | null; latest: number | null; assessed: number | null }) {
+export function AskingView({ asking, saleMedian, latest, assessed, months }: { asking: number | null; saleMedian: number | null; latest: number | null; assessed: number | null; months: number }) {
   return (
     <div>
       <h2 className="mx-section-title">💬 저장 때 넣은 호가</h2>
       {asking ? (
         <ul className="space-y-1 text-sm text-mx-text">
           <li className="text-xs text-mx-muted">호가 {formatWon(asking)} 기준</li>
-          <Diff label="최근 12개월 매매 중간값" pct={diffPct(asking, saleMedian)} base={saleMedian} />
+          <Diff label={`최근 ${months}개월 매매 중간값`} pct={diffPct(asking, saleMedian)} base={saleMedian} />
           <Diff label="가장 최근 거래" pct={diffPct(asking, latest)} base={latest} />
           <Diff label="공동주택 공시가격" pct={diffPct(asking, assessed)} base={assessed} />
         </ul>
@@ -82,6 +82,7 @@ export function SaveReportForm(props: {
   saleMedian: number | null;
   latest: number | null;
   assessed: number | null;
+  months: number;
 }) {
   const [asking, setAsking] = useState("");
   const [state, action, pending] = useActionState<ReportActionState, FormData>(saveReportAction, {});
@@ -93,7 +94,7 @@ export function SaveReportForm(props: {
       <input type="hidden" name="title" value={props.title} />
       <input type="hidden" name="subtitle" value={props.subtitle} />
       <input type="hidden" name="report" value={props.reportJson} />
-      <AskingCompare value={asking} onChange={setAsking} saleMedian={props.saleMedian} latest={props.latest} assessed={props.assessed} />
+      <AskingCompare value={asking} onChange={setAsking} saleMedian={props.saleMedian} latest={props.latest} assessed={props.assessed} months={props.months} />
       <div className="flex flex-wrap items-center gap-2">
         <button type="submit" disabled={pending} className="mx-btn-primary min-h-[44px] px-4 text-sm disabled:opacity-60">
           {pending ? "저장 중…" : "💾 리포트 저장"}

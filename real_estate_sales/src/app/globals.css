@@ -255,5 +255,5 @@
     --background-image-dark-gradient: none;
   }
   body { background: #ffffff !important; color: #111827 !important; }
-  .mx-card, .rounded-2xl { break-inside: avoid; box-shadow: none !important; }
+  .mx-card, .rounded-2xl { break-inside: avoid; box-shadow: none !important; background-image: none !important; }
 }

@@ -112,6 +112,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
         saleMedian={r.sale.median}
         latest={r.sale.latest?.amount ?? null}
         assessed={assessedManwon}
+        months={r.months}
       />
 
       <ReportBody r={snapshot} nonResidential={nonResidential} />
