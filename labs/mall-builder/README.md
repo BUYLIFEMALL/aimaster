@@ -5,7 +5,7 @@
 - 기준 문서(먼저 읽기): [쇼핑몰 카테고리 총괄](../../docs/mall/README.md) · [공통 설계](../../docs/mall/ARCHITECTURE.md) · [1차 플랜 — 기능 F01~F19](../../docs/mall/PLAN_20261103_MALL_BUILDER_V1.md) · [버전 계열·로드맵](../../docs/mall/ROADMAP_AND_VARIANTS.md)
 - 담당 역할: `mall-builder` ([역할 파일](../../docs/roles/mall-builder.md))
 - DB: AIMaster_dev ref `rjjtjakljjxsgjelqgek`, 표 이름표 `mall_builder_`
-- 배포: Vercel `dev-mall-builder` (아직 배포 안 함 — 점검 묶음 🚩에서만, 플랜 §3)
+- 배포: Vercel `dev-mall-builder` → https://dev-mall-builder.vercel.app (점검 묶음 🚩에서만, 플랜 §3)
 - 작업 방식: **기능 하나씩 구현 → 멈추고 보고 → 주인님 점검 후 다음 기능**
 
 ## 실행 방법 (내 PC)
@@ -127,5 +127,14 @@ DB 변경은 `supabase/migrations/*.sql`에 적고 AIMaster_dev에만 적용한�
 - 비로그인 응답: 첫 화면·카테고리(컴퓨터/주변기기)·검색 「공기」 1개·상세 모두 200, 상품 없는 카테고리는 「아직 상품이 없습니다」, 원가 30,000원은 어떤 화면에도 안 나옴
 - ego lite 상세: 처음 47,000원·「옵션을 선택해 주세요」 → 블랙 49,000원 → 화이트 47,000원, 재고 0 실버는 「품절」로 선택 막힘, 사진 썸네일 2개
 
+## 🚩 점검 묶음 1 — 첫 Lab 배포 (2026-11-03)
+
+- 주소: **https://dev-mall-builder.vercel.app** (Vercel 프로젝트 `dev-mall-builder`, 팀 `buylife`, 배포 `dpl_Euzh6fEoodamZNa4gSUXMznViEkt` Ready)
+- 환경변수(Production): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — Lab DB 공개 값만. 서버 비밀 키 없음
+- 배포 전 내 PC `next build` 통과(화면 13개), 팀 빌드 중 배포 0건 확인 후 배포
+- 확인: 비로그인 `/login` 200, 손님 첫 화면·상품 상세 200(몰 이름·상품 표시), 관리 화면 → 로그인 이동(307). ego lite 휴대폰 폭 375px — 손님 첫 화면·상세 가로 넘침 없음
+- **빌드 2회 사용**: 첫 배포 결과를 잘못 읽어(출력이 요약 형식) 한 번 더 배포함 — 승인 4회 중 2회 사용, 남은 점검 묶음 3곳에 1회씩 쓰면 5회가 되므로 마지막 묶음 전에 주인님께 확인
+- 남은 점: Lab 인증 허용 주소 목록에 `https://dev-mall-builder.vercel.app/**` 추가(가입 확인 메일·비밀번호 재설정 링크용, Supabase 대시보드 — 이메일 확인을 쓰는 경우만 필요), 관리 화면 휴대폰 폭은 Lab 주소 로그인 후 확인
+
 ## 남은 일
-- 점검 묶음 1: Lab 배포(`dev-mall-builder`) → 주인님 확인 → F07(배송비 정책) (주인님 지시 2026-11-03: 꼭 필요한 것 아니면 플랜대로 판단해 진행)
+- 주인님 Lab 주소 점검 → F07(배송비 정책)부터 이어서 (주인님 지시 2026-11-03: 꼭 필요한 것 아니면 플랜대로 판단해 진행)

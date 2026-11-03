@@ -1,7 +1,7 @@
 // Lab 프로그램은 AIMaster_dev만 쓴다(docs/AIMASTER_DEV_LAB_GUIDELINES.md).
 const PROD_REF = "esgxyikcnnvmlhygjkth";
 
-export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+export const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim(); // 환경변수 등록 때 붙은 줄바꿈 대비
 export const SUPABASE_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ||
