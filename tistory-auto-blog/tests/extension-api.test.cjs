@@ -65,6 +65,7 @@ function harness(route, { user = { userId: 'member-a', email: 'a@test', name: 'A
   const mockRequire = (name) => {
     if (name === 'node:crypto') return require(name);
     if (name.endsWith('/autoPublication')) return autoModule;
+    if (name.endsWith('/retentionExempt')) return { retentionCutoffFor: async () => autoModule.retentionCutoff() }; // 2026-11-03: 일반 회원 기준(예외 회원 판정은 DB 한 곳)
     if (name === 'next/server') return { NextResponse: { json: (body, init) => Response.json(body, init) } };
     if (name.endsWith('/extensionAuth')) return { verifyExtensionToken: async () => user };
     if (name.endsWith('/supabase/admin')) return { createAdminClient: () => client };
