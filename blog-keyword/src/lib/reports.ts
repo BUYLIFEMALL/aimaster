@@ -3,6 +3,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { AnalysisResult, Feature, ReportSummary } from "@/lib/kw/types";
 import { isFeature } from "@/lib/kw/types";
 import { retentionCutoff } from "@/lib/kw/retention";
+import { isRetentionExempt } from "@/lib/retentionExempt";
+
+// 2026-11-03: 30일 보관 예외 회원(profiles.retention_exempt, 관리자·시험 계정)은 30일 숨김 없이 모두 보인다(DB 삭제 함수는 0052에서 이미 제외).
+async function keptFilter(admin: ReturnType<typeof createAdminClient>, userId: string): Promise<string | null> {
+  return (await isRetentionExempt(admin, userId)) ? null : `favorite.eq.true,created_at.gt.${retentionCutoff()}`;
+}
 
 // 분석 기록: 회원당 최대 100건(즐겨찾기는 한도에서 제외). v1.07: 만든 지 30일이 지나면 삭제(즐겨찾기 제외) — DB 예약 작업 + 목록·열기에서 바로 숨김. 서버는 service role이므로 모든 쿼리에서 user_id로 직접 거른다.
 export const MAX_REPORTS = 100;
@@ -37,24 +43,27 @@ async function prune(userId: string): Promise<void> {
 }
 
 export async function listReports(userId: string): Promise<ReportSummary[]> {
-  const { data } = await createAdminClient()
+  const admin = createAdminClient(), kept = await keptFilter(admin, userId);
+  let query = admin
     .from(TABLE)
     .select("id, feature, keyword, favorite, created_at")
-    .eq("user_id", userId)
-    .or(`favorite.eq.true,created_at.gt.${retentionCutoff()}`)
+    .eq("user_id", userId);
+  if (kept) query = query.or(kept);
+  const { data } = await query
     .order("created_at", { ascending: false })
     .limit(MAX_REPORTS + 50);
   return (data ?? []).filter((r) => isFeature(r.feature)) as ReportSummary[];
 }
 
 export async function loadReport(userId: string, id: string): Promise<ReportRow | null> {
-  const { data } = await createAdminClient()
+  const admin = createAdminClient(), kept = await keptFilter(admin, userId);
+  let query = admin
     .from(TABLE)
     .select("id, feature, keyword, favorite, created_at, params, result")
     .eq("id", id)
-    .eq("user_id", userId)
-    .or(`favorite.eq.true,created_at.gt.${retentionCutoff()}`)
-    .maybeSingle();
+    .eq("user_id", userId);
+  if (kept) query = query.or(kept);
+  const { data } = await query.maybeSingle();
   if (!data || !isFeature(data.feature)) return null;
   return data as unknown as ReportRow;
 }
