@@ -1,6 +1,6 @@
 # AI 무료음악 자동화 (`free-music-studio`) — 에이전트 작업 지침
 
-> 상태: **v1.06 배포 완료(2026-11-03) — 가져온 음악(커버·부분 수정) + AI 작사 OpenAI/Claude/Gemini + 최고 품질(엔진 0.1.4)** — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지. 주인님 지시: **음악 퀄리티 최고 수준 방향**(플랜 맨 위). 다음: 작업 대기열 → 영상, 엔진 0.2(설치 파일·자동 실행·ffmpeg). 플랜: [`docs/PLAN_20261103_V1_01.md`](docs/PLAN_20261103_V1_01.md)
+> 상태: **v1.08 배포 완료(2026-11-04) — 9단계 로드맵 2단계(만들기 강화: 스타일 프리셋 85개·내 프리셋·연주곡 + AI 작곡 기획·목표 길이 5분·생성 개수·가사 다듬기·금지어)** — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지. 주인님 지시: **음악 퀄리티 최고 수준 방향**. 다음: 3단계 작업 대기열(엔진 0.1.6). 로드맵: [`docs/PLAN_20261103_FULL_ROADMAP.md`](docs/PLAN_20261103_FULL_ROADMAP.md)
 > 담당: [역할: music] Claude Code(윈도우(미니PC)). 작업 전 루트 `CLAUDE.md`·`AGENTS.md`, `docs/roles/music.md`, 이 플랜을 읽는다.
 
 ## 꼭 지킬 것
@@ -20,7 +20,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 ## 3. 기능·구조
 | 화면 | 주소 | 내용 |
 |---|---|---|
-| 곡 만들기 | `/songs` | 곡 제목·길이(30초~4분)·스타일·가사 저장(표 `free_music_songs`, 회원별 RLS), AI 작사(Claude 3등급 선택, 기본 Sonnet 5.5) |
+| 곡 만들기 | `/songs` | 노래/연주곡, 곡 제목·길이(30초~5분, 기본 3분)·스타일 프리셋·스타일·가사 저장(표 `free_music_songs`, 회원별 RLS), 내 프리셋(`free_music_presets`), AI 작사(OpenAI·Claude·Gemini, 다듬기·금지어) / AI 작곡 기획(연주곡 여러 곡), 생성 개수 1~4 |
 | 내 PC 엔진 | `/engine` | 엔진 상태(지금 「준비 중」)·다운로드 센터·3단계 설치·PC별 속도표(사전 검증 결과) |
 | API키등록·플랫폼연동 | `/settings` | `user_api_keys` provider `anthropic` |
 | 연동 & 사용 매뉴얼 | `/guide` | 4단계 카드·팁·주의·FAQ(기본판, 8단계에서 완성) |
@@ -29,6 +29,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음. 단점(지금): 엔진 앱 전이라 실제 노래 생성은 아직 안 됨.
 
 ## 4. 버전
+- v1.08(배포 2026-11-04, `free-music-studio-ky09xxsqq`, 커밋 `273934d52`, 로드맵 2단계 — v1.07 번호는 1단계 PC 검사가 표시 버전 없이 나가 건너뜀): 마이그레이션 `20261104_v1_08_presets.sql`(표 `free_music_presets` 회원별 RLS·50개, 30일 정리 대상 아님 / `free_music_songs` 길이 300초 추가, 운영 DB 적용·RLS 확인) · `lib/presets.ts`(원본 프리셋 85개: 노래 43·연주 42, 18분류, 한 쪽 6개) · `components/songs/PresetPicker.tsx`(분류 목록·← n/m →·내 프리셋 저장·지우기) · `/api/presets`·`/[id]` · 노래/연주곡 전환(연주곡 = 가사 `[Instrumental]`, 엔진 수정 없음) · `/api/plan` AI 작곡 기획 1~10곡(제목·스타일·앨범 그림 설명, 형식 틀리면 1번 고쳐 받기) · `/api/lyrics` 가사 다듬기(초안 + 편집 1번, 켜고 끔)·「지금 가사 다듬기」·금지어(조사 포함, 남으면 그 줄만 최대 2번 고침)·최근 제목 10개 피하기, 호출 수를 화면에 표시 · `lib/lyricRules.ts` · 목표 길이 30초~5분(기본 3분) · 생성 패널 「생성 개수」 1~4곡(차례로). 시험 웹 44. 로그인 없는 새 API 3개 401 확인.
 - v1.06(배포 2026-11-03, `free-music-studio-83c438grx`): 가져온 음악 `/import`(원곡 파일 → 엔진 multipart `src_audio`, cover 세기 0.2~1.0·repaint 구간, 권리 확인, 마이그레이션 `20261103_v1_06_cover.sql` kind·10~600초, `8c7d2d039`) · AI 작사 공급사 `lib/lyricModels.ts` OpenAI/Claude/Gemini 각 3모델·설정 키 3칸·매뉴얼 3개, OpenAI json_schema·Gemini JSON, 재시도 없음(`70b78a36d`) · 최고 품질 엔진 0.1.4 `qualityProfile`(≥24GB XL-sft+4B·≥20 XL-sft+1.7B·≥15 XL-turbo offload+1.7B·≥12 turbo+1.7B·≥6 turbo+0.6B·CPU turbo), FLAC 원음·`?format=mp3` 320k(ffmpeg, mp3-cache), `DownloadButtons`, 엔진 화면 음질 표시(`4b6514cee`) · 한글 Enter(`e17ace42a`). 시험 웹 31·엔진 12. 미니PC 실물 FLAC·MP3 320k.
 - v1.05(배포 2026-11-03, `free-music-studio-4h0idon07`, 커밋 `0e30aa896`·`c1f99cbd3`): 프로젝트·플레이리스트 — 마이그레이션 `20261103_v1_05_collections.sql`(묶음 표·담긴 곡 표·곡 기록 `project_id`, 회원별 RLS, 묶음 이름은 30일 정리 대상 아님), `/api/collections`(목록·만들기)·`/[id]`(이름·지우기)·`/[id]/items`(플레이리스트 순서 통째 저장, 본인 곡만), `/api/tracks/[id]` PATCH(프로젝트 지정), `components/library/CollectionsNav.tsx`, 모든 음악 화면(묶음 보기·지정·담기·↑↓·빼기·전체 이어 듣기). 함께: 사이트 안 한글 폴더 고르기(엔진 0.1.3 browse·mkdir, `FolderPanel` 다시 씀, 「이 폴더에 저장」 한 번). 시험 웹 26·엔진 10.
 - v1.04(배포 2026-11-03, `free-music-studio-cc2l1vi3p`, 커밋 `fdd7db959`): 저장 폴더 — 주인님 「기본 저장 폴더를 정하거나 사용자가 정할 수 있게」. 엔진 0.1.2 `library.mjs`(기본 `음악AI 무료음악`, `settings.json`에 기억, 곡 번호→경로 `library-index.json`, 파일 이름 = 곡 제목·같으면 (2), 0.1.1 번호 파일도 읽음, 폴더 바꾸며 옮기기·쓰기 시험), `folderDialog.mjs`(윈도우 FolderBrowserDialog·맥 osascript, 탐색기 열기). 웹 `FolderPanel`(내 PC 엔진 화면: 경로·[폴더 바꾸기]·고른 폴더 확인·기존 노래 옮기기·[폴더 열기]), 모든 음악에 [폴더 열기]. 엔진 시험 9.
