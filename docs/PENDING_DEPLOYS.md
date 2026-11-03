@@ -71,6 +71,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `trending-product-finder` | v1.34 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-kl5zo2n5q`) | 스마트스토어 상품소싱기(네이버 쇼핑 구매·리뷰 거르기, 쿠팡 확장에 마켓 추가) `e09fc075c` 외. 운영 DB 칸 4개 적용(배포 전), 시험 40·tsc·빌드, DB/ZIP v1.34 OK, ego 자동 검색 실검수(「접이식 캠핑의자」 56개 저장) |
 | `realty-client-desk` | v1.05 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 플랜 4단계 빌드 1회, `realty-client-desk-hsthsm95m`) | 4단계 광고 명시 항목 점검·AI 광고 글/문자 초안(회원 본인 Claude 키, 저장 안 함)·사무소 등록번호/성명·Claude 키 칸(`4be6ba487`, 칸 3개 ego SQL). 시험 계정 점검 표시·AI 초안 1회·문자 칸 넣기·390px 확인 |
 | `realty-client-desk` | v1.04 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 플랜 3단계, `realty-client-desk-ffflmwj64` — 첫 시도 `5gb804l8q`는 CRON_SECRET 끝 줄바꿈으로 2초 만에 실패) | 3단계 일정·아침 8시 알림(회원 SOLAPI→회원 본인 핸드폰)·회원 실행 방식(Vercel 기본/내 cron-job.org)·운영 아침 호출(1년 정리 포함)(`e43a37bae`, 표 2개 ego SQL, `CRON_SECRET` 새로 등록). 시험 계정 일정 넣기·상태 줄·대시보드·설정·390px 확인, 실행 주소 가짜 토큰 401 |
 | `realty-client-desk` | v1.03 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 플랜 2단계 승인 빌드 1회, `realty-client-desk-qztxwj8fc`) | 2단계 내 매물·맞는 고객·광고 문자(회원 SOLAPI)·무료 수신거부 화면(`8a022ffcc`, 새 표 3개 ego SQL 적용). 시험 계정 운영 화면에서 등록→매칭→미리보기→수신거부 확인·390px 5화면, 실제 문자는 시험 계정 SOLAPI 없어 미발송 |

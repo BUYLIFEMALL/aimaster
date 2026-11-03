@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## 2026-11-03 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — `trending-product-finder` v1.34 스마트스토어 상품소싱기
+- 한 일: 주인님 「진행해」(플랜·DB 칸 추가·빌드 1회 승인). 쿠팡 상품소싱기 확장에 **마켓 「네이버 쇼핑」**을 더함 — 확장 `extension/lib/naver.js`(페이지에 함께 오는 상품 자료 `__NEXT_DATA__` compositeList를 읽음, 구매 수·리뷰 수·가격비교 판매처 수·광고), 자동 검색·매일 예약·거부 징후 일시정지·계정 저장을 마켓 값으로 공용(하루 30개·일시정지는 두 마켓 합계), 서버 `market` 칸·네이버 주소는 naver.com만, 화면 `/naver-reviews`·메뉴 「🟢 스마트스토어 상품소싱기」·구매 기준 거르기, 동의 버전 2(네이버 고지 더함).
+- 사전 검증(ego, 네이버 로그아웃): 「텀블러」 56개·「캠핑 의자」 정상, 확인 화면 0. 실측 — 가격비교 상품은 구매 수 0, 슈퍼적립 칸은 광고인데 `adId` 없음(광고로 처리), 「구매 많은순」 정렬 없음(랭킹순 사용).
+- 검수: 시험 40·tsc·빌드, 운영 DB 칸 4개 적용(배포 전, ego SQL 편집기), 배포 `trending-product-finder-kl5zo2n5q` Ready, DB/확장/ZIP v1.34 `check-extension-release` OK, ego 확장 새로고침 → 네이버 자동 검색 「접이식 캠핑의자」 56개 운영 DB 저장, `/naver-reviews` 표(구매 칸·「가격비교 N곳」)·`/coupang-reviews`에 네이버 기록 섞이지 않음 확인. 화면 캡처는 ego 창이 가려져 시간 초과(글자로 확인).
+- 남은 일: 매일 예약 네이버 실제 실행 확인(다음 날). 같은 날 앞서 `smartstore-register` 「바로 등록」은 10-28에 이미 성공한 것을 재확인(상품번호 13836444099 기록에 채움).
+- 링크: https://trending-product-finder.buylife.xyz/naver-reviews
+
 ## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` 회원 공개(결정 3)
 - 주인님 「회원에게 공개」 선택 + 「프로그램 기능에 맞는 썸네일 이미지 만들어 등록해줘」. DB `realty-client-desk/supabase/migrations/20261103050000_publish.sql`(ego SQL): 배지 `coming` → `new`, 한 줄 요약·상세 소개(6단락, 표준 형식)·핵심 특징 4·사용 순서 4·추천 대상 3을 1~4단계 기능으로, VIP 등급 자동 부여 켬(다른 부동산 프로그램과 같음). 빌드 없음(DB 값만, 버전 그대로 v1.05).
 - 썸네일: `scripts/generate-program-thumbnail.mjs`(관리자 Gemini 키, `gemini-3-pro-image-preview` 1회) — 실사, 40대 한국인 공인중개사·휴대폰 문자·노트북 고객 카드/달력, 아이콘 3개(고객 카드·집·일정 체크). 확대본으로 글자·로고 없음 확인(노트북 화면은 읽을 수 없는 흐린 자리표시).
