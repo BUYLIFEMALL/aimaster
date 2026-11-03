@@ -7,12 +7,24 @@ export { MAX_PHOTO_BYTES, MAX_REVIEW_PHOTOS } from "./privatePhotoRules";
 
 export const PRIVATE_PHOTO_BUCKET = "nba-private-photos";
 const LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+// 2026-11-03: 30일 보관 예외 회원(profiles.retention_exempt, 관리자·시험 계정)의 사진은 만료일을 이 값으로 보낸다(화면은 「무기한 보관」).
+export const EXEMPT_PHOTO_EXPIRES_AT = "9999-12-31T00:00:00.000Z";
 const SIGNED_URL_SECONDS = 300;
 const PAGE_SIZE = 1000;
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const PHOTO_PATH = new RegExp(`^(${UUID})/(${UUID})\\.(jpg|png|webp)$`, "i");
 const OWNER_FOLDER = new RegExp(`^${UUID}$`, "i");
 type PhotoAdmin = Pick<ReturnType<typeof createAdminClient>, "storage">;
+
+// 예외 회원 여부(읽지 못하면 일반 회원 — 30일 기한을 그대로 둔다). 시험 장치가 불러오기 쉽도록 import 없이 직접 조회한다.
+async function photoRetentionExempt(admin: PhotoAdmin, userId: string): Promise<boolean> {
+  const from = (admin as { from?: (table: string) => any }).from; // eslint-disable-line @typescript-eslint/no-explicit-any
+  if (typeof from !== "function") return false;
+  try {
+    const { data, error } = await from.call(admin, "profiles").select("retention_exempt").eq("id", userId).maybeSingle();
+    return !error && data?.retention_exempt === true;
+  } catch { return false; }
+}
 
 export class PrivatePhotoError extends Error {
   constructor(message: string, public readonly status: number) {
@@ -61,6 +73,8 @@ export async function signPrivatePhotos(admin: PhotoAdmin, userId: string, paths
   for (const path of paths) assertOwnedPhotoPath(path, userId);
   await requirePrivatePhotoBucket(admin);
   const storage = admin.storage.from(PRIVATE_PHOTO_BUCKET);
+  // 시험용 가짜 연결처럼 표 조회(from)가 없으면 일반 회원으로 본다.
+  const exempt = await photoRetentionExempt(admin, userId);
   const result = [];
   for (const path of paths as string[]) {
     const { data, error } = await storage.info(path);
@@ -69,7 +83,7 @@ export async function signPrivatePhotos(admin: PhotoAdmin, userId: string, paths
     }
     const created = Date.parse(data.createdAt);
     if (!Number.isFinite(created) || created > now) throw new PrivatePhotoError("사진의 원래 등록일을 확인하지 못했습니다.", 503);
-    const expires = created + LIFETIME_MS;
+    const expires = exempt ? Date.parse(EXEMPT_PHOTO_EXPIRES_AT) : created + LIFETIME_MS;
     // 최소 1초가 남지 않으면 주소 발급을 거부한다. 만료를 넘어서는 서명은 발급하지 않는다.
     const signingAt = now + (Date.now() - startedAt);
     const seconds = Math.min(SIGNED_URL_SECONDS, Math.floor((expires - signingAt) / 1000));

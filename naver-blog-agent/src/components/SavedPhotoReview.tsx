@@ -42,7 +42,7 @@ export default function SavedPhotoReview({ images, review }: { images: DraftImag
     <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">{photos.map((photo, index) => <li key={photo.storagePath} className="min-w-0 rounded-lg border border-slate-200 p-3 text-xs">
       {current && preview.urls[photo.storagePath!] && <img src={preview.urls[photo.storagePath!]} alt={`내 사진 ${index + 1}`} className="mb-2 aspect-video w-full rounded object-contain" onError={() => setPreview(previous => ({ ...previous, error: "미리보기 주소가 만료되었거나 사진을 읽지 못했습니다. 새로 조회해 주세요." }))} />}
       <p className="font-semibold">사진 {index + 1} · {photo.type === "thumbnail" ? "대표" : "본문"}</p><p className="mt-1 whitespace-pre-wrap break-words">{photo.caption}</p>
-      {photo.expiresAt && <p className="mt-1 text-slate-500">보관 만료: {new Date(photo.expiresAt).toLocaleString("ko-KR")}</p>}
+      {photo.expiresAt && <p className="mt-1 text-slate-500">{new Date(photo.expiresAt).getFullYear() >= 9999 ? "무기한 보관" : `보관 만료: ${new Date(photo.expiresAt).toLocaleString("ko-KR")}`}</p>}
     </li>)}</ol>
     {review && <PhotoReviewEvidence review={review} />}
   </section>;

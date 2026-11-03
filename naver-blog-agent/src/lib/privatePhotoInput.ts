@@ -104,7 +104,7 @@ export class PrivatePhotoInput {
       const metadata = await this.services.resolve(asset.storagePath, request.signal);
       if (!current()) return;
       const created = Date.parse(metadata.createdAt), expires = Date.parse(metadata.expiresAt);
-      if (metadata.storagePath !== asset.storagePath || !Number.isFinite(created) || expires - created !== 30 * 86400000) throw new Error("사진의 원래 보관 기간을 확인하지 못했습니다.");
+      if (metadata.storagePath !== asset.storagePath || !Number.isFinite(created) || (expires - created !== 30 * 86400000 && new Date(expires).getUTCFullYear() !== 9999)) throw new Error("사진의 원래 보관 기간을 확인하지 못했습니다.");
       this.patch(id, { metadata, status: expires <= this.services.now() ? "expired" : "ready", error: undefined });
     } catch (error) {
       if (current()) this.patch(id, { status: (error as { status?: number })?.status === 410 ? "expired" : "failed", error: error instanceof Error ? error.message : "사진을 처리하지 못했습니다." });

@@ -75,7 +75,7 @@ export default function PrivatePhotoInput(options: PhotoReviewOptions) {
                     {stateText[item.status]}
                   </div>
                   {item.error && <p className="text-xs leading-relaxed text-rose-700">{item.error}{!item.asset && " 목록에서 제거한 뒤 사진을 다시 선택해 주세요."}</p>}
-                  {item.metadata && <p className="text-[11px] text-slate-500">보관 만료: {new Date(item.metadata.expiresAt).toLocaleDateString("ko-KR")}</p>}
+                  {item.metadata && <p className="text-[11px] text-slate-500">{new Date(item.metadata.expiresAt).getFullYear() >= 9999 ? "무기한 보관" : `보관 만료: ${new Date(item.metadata.expiresAt).toLocaleDateString("ko-KR")}`}</p>}
                   <label className="block text-xs font-medium text-slate-700">사진 {index + 1} 설명
                     <textarea aria-label={`사진 ${index + 1} 설명`} maxLength={500} rows={2} value={item.caption} onChange={event => input.caption(item.id, event.target.value)} placeholder="사진에 보이는 내용과 직접 경험한 사실을 적어 주세요." className="mt-1 w-full resize-y rounded-lg border border-slate-200 p-2 text-xs leading-relaxed focus:border-emerald-600 focus:outline-none" />
                     <span className="mt-1 block text-right text-[10px] text-slate-400">{item.caption.length}/500</span>
