@@ -81,10 +81,21 @@ export interface CrawlResult {
 
 export interface AppSettings {
   geminiApiKey: string;
-  geminiModel: string; // "gemini-2.5-flash" | "gemini-1.5-flash"
+  geminiModel: string; // "gemini-3.8-flash" | "gemini-3.5-flash-lite"
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
   geminiApiKey: "",
-  geminiModel: "gemini-2.5-flash",
+  geminiModel: "gemini-3.8-flash",
 };
+
+// 2026-11-03 종료된·종료되는 옛 모델(1.5 Flash, 2.5 Flash 12-01) → 대체 모델. 브라우저에 저장된 옛 설정도 새 모델로 호출한다.
+const RETIRED_GEMINI_MODEL: Record<string, string> = {
+  "gemini-2.5-flash": "gemini-3.8-flash",
+  "gemini-2.5-flash-lite": "gemini-3.5-flash-lite",
+  "gemini-1.5-flash": "gemini-3.8-flash",
+};
+export function currentGeminiModel(model: string | null | undefined): string {
+  if (!model) return DEFAULT_SETTINGS.geminiModel;
+  return RETIRED_GEMINI_MODEL[model] ?? model;
+}

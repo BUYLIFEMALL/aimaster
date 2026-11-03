@@ -1,4 +1,4 @@
-import { AiStructuredItem } from "./types";
+import { AiStructuredItem, currentGeminiModel } from "./types";
 
 const CURRENT_YEAR = new Date().getFullYear(); // 2026년 동적 주입
 const [KOREA_YEAR, KOREA_MONTH] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date()).split("-").map(Number);
@@ -12,7 +12,7 @@ export async function testGeminiConnection(apiKey: string): Promise<boolean> {
     throw new Error("API 키가 입력되지 않았습니다.");
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey.trim()}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey.trim()}`;
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -38,7 +38,7 @@ export async function analyzeHtmlWithGemini(
   apiKey: string,
   targetUrl: string,
   cleanedHtml: string,
-  model = "gemini-2.5-flash"
+  modelInput = "gemini-3.8-flash"
 ): Promise<AiStructuredItem[]> {
   if (!apiKey.trim()) {
     throw new Error("Gemini API 키가 설정되지 않았습니다. 설정에서 API 키를 입력해주세요.");
@@ -66,7 +66,7 @@ ${cleanedHtml.slice(0, 45000)}
 반드시 마크다운 코드블록(\`\`\`json) 없이 순수 JSON 배열 [...] 형식으로만 응답하세요.
 `;
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${currentGeminiModel(modelInput)}:generateContent?key=${apiKey.trim()}`;
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

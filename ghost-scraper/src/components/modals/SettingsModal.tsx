@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { KeyRound, X, CheckCircle2, AlertCircle, Sparkles, ExternalLink, Loader2 } from "lucide-react";
-import { AppSettings } from "@/lib/types";
+import { AppSettings, currentGeminiModel } from "@/lib/types";
 import { saveStoredSettings } from "@/lib/storage";
 import { testGeminiConnection } from "@/lib/gemini";
 
@@ -20,7 +20,7 @@ export function SettingsModal({
   onSaveSettings,
 }: SettingsModalProps) {
   const [apiKey, setApiKey] = useState(settings.geminiApiKey || "");
-  const [model, setModel] = useState(settings.geminiModel || "gemini-2.5-flash");
+  const [model, setModel] = useState(currentGeminiModel(settings.geminiModel));
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
   const [testMessage, setTestMessage] = useState("");
 
@@ -133,8 +133,8 @@ export function SettingsModal({
               onChange={(e) => setModel(e.target.value)}
               className="mx-input text-sm"
             >
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (권장, 초고속 구조화 추출)</option>
-              <option value="gemini-1.5-flash">Gemini 1.5 Flash (안정적 표준 모델)</option>
+              <option value="gemini-3.8-flash">Gemini 3.8 Flash (권장, 빠른 구조화 추출)</option>
+              <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite (더 빠르고 저렴)</option>
             </select>
           </div>
 
