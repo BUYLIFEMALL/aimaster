@@ -3,6 +3,7 @@
 //       → 더 없음(isMoreData=false)·페이지 상한·새 응답 없음이면 멈춤 → 디버거 뗌 → 확장이 연 탭만 닫기.
 // 차단(401·403·429)·확인 화면·로그인 화면이면 바로 멈추고 우회하지 않는다(인수인계 §3-3).
 import { BLOCK_TEXT, isBlockedStatus, isRuleMismatch } from "./guard.js";
+import { tradeParamCovers, withTradeTypes } from "./listing.js";
 
 /** 기다리는 동안 10초마다 확장 API를 불러 서비스 워커가 잠들지 않게 한다(0단계에서 확인한 문제). */
 export async function sleep(ms) {
@@ -87,6 +88,7 @@ export async function collectComplex(complexNo, rules, log = async () => {}, opt
   let locateCount = 0;
   const locatePending = new Set();
   const diag = []; // 진단 기록(2026-10-25: 2페이지가 안 읽히는 원인 찾기) — 숫자·상태만, 매물 내용 없음
+  let narrowed = null; // 네이버 화면 필터가 감시 조건보다 좁았을 때 그 값(2026-11-03)
 
   const win = await chrome.windows.getLastFocused({ windowTypes: ["normal"] }).catch(() => null);
   const tab = await chrome.tabs.create({ url: "about:blank", active: false, ...(win?.id ? { windowId: win.id } : {}) });
@@ -105,6 +107,11 @@ export async function collectComplex(complexNo, rules, log = async () => {}, opt
       // 단지 정보 응답(/api/complexes/…)에서 법정동 코드를 줍는다 — 위치가 필요할 때만
       if (opts.needLocation && !cortarNo && rurl.includes(`/api/complexes/${complexNo}`) && !rurl.includes(rules.listPathIncludes) && params.response.status === 200) { locatePending.add(params.requestId); return; }
       if (!rurl.includes(rules.listPathIncludes)) return;
+      // 네이버 화면에 남은 거래 종류 필터로 좁혀진 응답은 버리고, 아래에서 감시 조건대로 다시 부른다(2026-11-03)
+      if (!tradeParamCovers(rurl, opts.tradeTypes)) {
+        if (!narrowed) { narrowed = new URL(rurl).searchParams.get("tradeType"); diag.push(`네이버 필터(${narrowed}) 응답 버림`); }
+        return;
+      }
       if (isBlockedStatus(params.response.status)) blockedStatus = params.response.status;
       else pending.add(params.requestId);
     } else if (method === "Network.loadingFinished" && locatePending.has(params.requestId)) {
@@ -139,14 +146,17 @@ export async function collectComplex(complexNo, rules, log = async () => {}, opt
       if (bodies.length >= (rules.maxPagesPerTarget || 10)) break;
       if (bodies.length && !lastMore) break;
       const before = bodies.length;
-      await evalInPage(tabId, SCROLL_ONE);
       const [a, b] = rules.scrollWaitMs || [2000, 5000];
-      await sleep(rand(a, b));
+      // 필터가 좁혀진 화면은 스크롤해도 버릴 응답만 오므로 스크롤하지 않고 바로 아래 직접 요청으로 간다
+      if (!narrowed) {
+        await evalInPage(tabId, SCROLL_ONE);
+        await sleep(rand(a, b));
+      }
       if (bodies.length === before) {
         // 스크롤로 다음 페이지가 안 오면(2026-10-25 헬리오시티 1페이지만 읽힘) 탭 안에서 페이지가 쓰던 같은 주소에 page만 바꿔 부른다.
         // 0단계: 페이지 인증 머리글을 붙이면 2페이지도 200(인수인계 §2-2 2순위). 응답은 위 onEvent가 똑같이 읽는다.
         if (lastMore && listUrl) {
-          const next = new URL(listUrl);
+          const next = new URL(withTradeTypes(listUrl, opts.tradeTypes));
           next.searchParams.set("page", String(bodies.length + 1));
           diag.push(`다음쪽 요청 page=${bodies.length + 1}${listAuth ? "(인증)" : "(인증없음)"}`);
           // 응답 본문을 그 자리에서 돌려받는다(2026-10-25 진단: 200인데 디버거 쪽에서 응답을 놓침)

@@ -62,6 +62,38 @@ export function matchesTarget(item, target) {
   return true;
 }
 
+/**
+ * 네이버 목록 주소의 거래 종류(tradeType, 「A1:B1」처럼 콜론으로 이음, 비면 전체)가 감시 조건을 다 담는지.
+ * 2026-11-03: 회원이 네이버 화면에서 「월세」 필터를 누르면 그 필터가 남아 모든 단지가 월세만 읽혔다 → 매매·전세 1,160건이 「사라짐」으로 잘못 잡힘.
+ * 칸이 없거나 비면 담는 것으로 본다(주소 모양을 모르면 건드리지 않음).
+ */
+export function tradeParamCovers(url, want) {
+  if (!Array.isArray(want) || !want.length) return true;
+  let v;
+  try { v = new URL(url).searchParams.get("tradeType"); } catch { return true; }
+  if (!v) return true;
+  const have = v.split(":");
+  return want.every((w) => have.includes(w));
+}
+
+/** 목록 주소에 tradeType 칸이 있으면 감시 조건 값으로 바꾼다(칸이 없으면 그대로). */
+export function withTradeTypes(url, want) {
+  if (!Array.isArray(want) || !want.length) return url;
+  try {
+    const u = new URL(url);
+    if (!u.searchParams.has("tradeType")) return url;
+    u.searchParams.set("tradeType", want.join(":"));
+    return u.toString();
+  } catch { return url; }
+}
+
+/** 지난 기록에서 지금 감시 조건에 안 맞는 매물을 뺀다 — 조건을 바꾼 뒤 빠진 매물이 「사라짐」으로 잡히지 않게(2026-11-03). */
+export function pruneStateToTarget(state, target) {
+  if (!state?.items) return state;
+  const items = Object.fromEntries(Object.entries(state.items).filter(([, v]) => !v?.item || matchesTarget(v.item, target)));
+  return { ...state, items };
+}
+
 /** 네이버 매물 주소(엑셀·텔레그램 링크) */
 export function articleUrl(complexNo, no) {
   return `https://new.land.naver.com/complexes/${complexNo}?articleNo=${no}`;

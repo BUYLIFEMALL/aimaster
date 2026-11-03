@@ -2,7 +2,7 @@
 // 원칙(인수인계 §0): 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다(확장 안에만 저장).
 // 텔레그램은 회원 본인 봇으로 이 PC에서 바로 보낸다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectComplex, collectRegionComplexes, rand, sleep } from "./lib/collector.js";
-import { complexNoFromUrl, extractPhones, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes } from "./lib/listing.js";
+import { complexNoFromUrl, extractPhones, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes, pruneStateToTarget } from "./lib/listing.js";
 import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
@@ -224,7 +224,7 @@ async function runCollection(trigger) {
       const pickDetails = (bodies) => {
         if (detailLeft <= 0) return [];
         const list = itemsOf(bodies);
-        const pre = compareComplex(states[t.complex_no], list, { complete: false });
+        const pre = compareComplex(pruneStateToTarget(states[t.complex_no], t), list, { complete: false });
         const changed = filterEvents(pre.events, settings.delivery).filter((e) => e.type !== "gone").map((e) => e.item.no);
         const unknown = list.map((it) => it.no).filter((no) => !phones[no] && !changed.includes(no));
         const nos = [...changed.filter((no) => !phones[no]), ...unknown].slice(0, detailLeft);
@@ -232,7 +232,7 @@ async function runCollection(trigger) {
         return nos;
       };
       const needLocation = !t.cortar_no && !complexInfo[t.complex_no]?.cortarNo;
-      const r = await collectComplex(t.complex_no, rules, addLog, { pickDetails, extract: (body) => extractPhones(body, rules.detail), needLocation });
+      const r = await collectComplex(t.complex_no, rules, addLog, { pickDetails, extract: (body) => extractPhones(body, rules.detail), needLocation, tradeTypes: t.trade_types });
       await addPages(Math.max(1, r.bodies?.length || 0) + (r.detailCount || 0) + (r.locateCount || 0));
       await set({ running: { startedAt, trigger, done: i + 1, total: work.length } });
       if (r.status === "blocked") {
@@ -264,7 +264,8 @@ async function runCollection(trigger) {
       if (r.cortarNo) complexInfo[t.complex_no] = { cortarNo: r.cortarNo, at: nowIso };
       const lawdSrc = t.cortar_no || complexInfo[t.complex_no]?.cortarNo;
       if (lawdSrc) tradeTargets.push({ key: String(t.complex_no), name, lawd: String(lawdSrc).slice(0, 5) });
-      const cmp = compareComplex(states[t.complex_no], items, { complete: r.complete });
+      // 조건에서 빠진 거래 종류·가격대 매물은 「사라짐」이 아니라 조용히 기록에서 뺀다(2026-11-03)
+      const cmp = compareComplex(pruneStateToTarget(states[t.complex_no], t), items, { complete: r.complete });
       states[t.complex_no] = cmp.state;
       const statusOf = new Map(cmp.events.map((e) => [e.item.no, e]));
       for (const it of items) {
