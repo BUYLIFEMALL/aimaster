@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { randomUUID } from "node:crypto";
 import { guard, json, fail } from "@/lib/route";
-import { db, table, settingsFor, validSettings, projectFor, createProject, duplicateProject, revisionsFor, currentFor, saveRevision, assetsFor, beginJob, endJob, uuid, cleanupExpired } from "@/lib/store";
+import { db, table, settingsFor, validSettings, projectFor, createProject, duplicateProject, revisionsFor, currentFor, saveRevision, assetsFor, beginJob, endJob, uuid, cleanupExpired, expiryCutoff } from "@/lib/store";
 import { cleanText, normalizeBrief, normalizeDraft, auditDraft } from "@/lib/content";
 import { getUserApiKeys, maskKey, saveUserApiKey, isKeyProvider } from "@/lib/apiKeys";
 import { generateDraft, textJson, imageGenerate, sniffImage } from "@/lib/ai";
@@ -13,7 +13,7 @@ export const maxDuration = 300;
 export async function GET(req: NextRequest) { try {
   const { userId } = await guard(req), id = req.nextUrl.searchParams.get("project");
   await cleanupExpired(userId);
-  const [listing, settings, keys] = await Promise.all([db().from(table("projects")).select("id,title,brief,current_revision_id,created_at,updated_at,expires_at").eq("user_id", userId).gt("expires_at", new Date().toISOString()).order("updated_at", { ascending: false }).limit(100), settingsFor(userId), getUserApiKeys(userId)]);
+  const [listing, settings, keys] = await Promise.all([db().from(table("projects")).select("id,title,brief,current_revision_id,created_at,updated_at,expires_at").eq("user_id", userId).gt("expires_at", await expiryCutoff(userId)).order("updated_at", { ascending: false }).limit(100), settingsFor(userId), getUserApiKeys(userId)]);
   if (listing.error) throw new UserError(503, "보관함을 읽지 못했습니다.");
   const project = id ? await projectFor(userId, id) : null;
   const [revisions, assets] = project ? await Promise.all([revisionsFor(userId, project.id), assetsFor(userId, project.id)]) : [[], []];

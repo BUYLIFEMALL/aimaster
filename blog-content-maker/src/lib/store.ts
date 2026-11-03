@@ -2,9 +2,14 @@ import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { createAdminClient } from "./supabase/admin";
 import { UserError } from "./errors";
+import { isRetentionExempt } from "./retentionExempt";
 import { DEFAULT_SETTINGS, TEXT_MODELS, IMAGE_MODELS, RETIRED_TEXT_MODEL, type Settings, type Project, type Revision, type Draft, type Asset, type Brief } from "./types";
 export const table = (name: string) => `blog_content_maker_${name}`;
 export function db() { return createAdminClient(); }
+// 2026-11-03: 30일 보관 예외 회원(profiles.retention_exempt, 관리자·시험 계정)은 만료 시각이 지나도 보이고 지워지지 않는다 — 조회 기준 시각을 아주 옛날로 둔다.
+export async function expiryCutoff(user: string): Promise<string> {
+  return (await isRetentionExempt(db(), user)) ? "1970-01-01T00:00:00.000Z" : new Date().toISOString();
+}
 export const uuid = (s: unknown): s is string => typeof s === "string" && /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(s);
 export async function settingsFor(user: string): Promise<Settings> {
   const { data, error } = await db().from(table("settings")).select("data").eq("user_id", user).maybeSingle();
@@ -20,7 +25,7 @@ export function validSettings(input: Partial<Settings> | null | undefined): Sett
 }
 export async function projectFor(user: string, id: unknown): Promise<Project> {
   if (!uuid(id)) throw new UserError(400, "작업 번호가 올바르지 않습니다.");
-  const { data, error } = await db().from(table("projects")).select("id,title,brief,current_revision_id,created_at,updated_at,expires_at").eq("user_id", user).eq("id", id).gt("expires_at", new Date().toISOString()).maybeSingle();
+  const { data, error } = await db().from(table("projects")).select("id,title,brief,current_revision_id,created_at,updated_at,expires_at").eq("user_id", user).eq("id", id).gt("expires_at", await expiryCutoff(user)).maybeSingle();
   if (error) throw new UserError(503, "작업을 읽지 못했습니다.");
   if (!data) throw new UserError(404, "본인의 작업을 찾을 수 없거나 보관 기간이 끝났습니다.");
   return data as Project;
@@ -91,6 +96,7 @@ export async function endJob(user: string, id: string, result: unknown, error?: 
 // Expired records are inaccessible immediately; delete their files on this member's next visit.
 // Never remove an active operation or another member's data.
 export async function cleanupExpired(user: string) {
+  if (await isRetentionExempt(db(), user)) return; // 2026-11-03: 예외 회원은 지우지 않는다
   const admin = db(), now = new Date().toISOString();
   const { data: expired } = await admin.from(table("projects")).select("id").eq("user_id", user).lt("expires_at", now).limit(5);
   for (const p of expired || []) {

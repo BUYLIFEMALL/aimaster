@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { randomBytes } from "node:crypto";
 import { guard, fail, json } from "@/lib/route";
-import { db, hash, table, projectFor, currentFor, assetsFor } from "@/lib/store";
+import { db, hash, table, projectFor, currentFor, assetsFor, expiryCutoff } from "@/lib/store";
 import { checkProgramAccess } from "@/lib/programAccess";
 import { UserError } from "@/lib/errors";
 import { APP_SLUG, APP_VERSION, APP_URL, DOWNLOAD_PATH } from "@/lib/version";
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) { try {
   if (!data) throw new UserError(401, "연결 코드가 만료됐거나 해제됐습니다.");
   const access = await checkProgramAccess(db(), data.user_id, APP_SLUG); if (!access.allowed) throw new UserError(403, "프로그램 이용 권한을 확인해 주세요.");
   const id = req.nextUrl.searchParams.get("project");
-  if (!id) { const { data: projects, error } = await db().from(table("projects")).select("id,title,current_revision_id,updated_at").eq("user_id", data.user_id).not("current_revision_id", "is", null).gt("expires_at", new Date().toISOString()).order("updated_at", { ascending: false }).limit(40); if (error) throw new UserError(503, "원고 목록을 읽지 못했습니다."); return json({ projects, version: APP_VERSION }); }
+  if (!id) { const { data: projects, error } = await db().from(table("projects")).select("id,title,current_revision_id,updated_at").eq("user_id", data.user_id).not("current_revision_id", "is", null).gt("expires_at", await expiryCutoff(data.user_id)).order("updated_at", { ascending: false }).limit(40); if (error) throw new UserError(503, "원고 목록을 읽지 못했습니다."); return json({ projects, version: APP_VERSION }); }
   const p = await projectFor(data.user_id, id), r = await currentFor(data.user_id, p), assets = activeAssets(await assetsFor(data.user_id, p.id), r.data.media);
   const title = r.data.title, html = articleHtml(r.data, assets).replace(/^<article><h1>[\s\S]*?<\/h1>/, "<article>");
   return json({ projectId: p.id, revisionId: r.id, title, body: r.data.body, html, tags: r.data.tags, images: assets, version: APP_VERSION });
