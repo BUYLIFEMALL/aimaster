@@ -41,7 +41,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `realty-client-desk/` | [역할: realty] Claude Code(윈도우, ego lite) · 세션 `claude-win-realty-docs` | 2026-11-03 | 새 프로그램 AI 중개사무소 고객관리 1단계(뼈대·고객 접수·목록) — 플랜 승인됨 |
 | `free-music-studio/` | [역할: music] Claude Code(윈도우(미니PC), 크롬) · 세션 `claude-win-20261024-music` | 2026-11-03 | v1.01 1단계 배포 완료 — 다음 2단계 엔진 앱 |
 | `blog-neighbor-care/` | [역할: blog] Claude Code(윈도우) · 세션 claude-win-20261101-blog · 브라우저: 엣지(주인님 지정) | 2026-11-01 | v1.05 새 글 확인 실제 검수 |
 | `shorts-viral-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-shorts-viral-v2` | 2026-10-30 | 쇼츠 떡상 분석 및 대본 자동화 v2.0 리뉴얼 — 4대 화면 3시안(12뷰) 쇼케이스 및 라이트박스 팝업 제작 중 |

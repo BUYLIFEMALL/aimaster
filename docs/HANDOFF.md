@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — 새 프로그램 `realty-client-desk` v1.02 1단계 배포(준비중)
+- 한 일: 플랜(`realty-client-desk/docs/PLAN_20261103_CLIENT_DESK.md`, 결정 1~3 추천안 승인)·법령 대조·동의 문구(`docs/CONSENT_DRAFT_20261103.md`) → 뼈대(`commercial-land-trade-alert` 복사)·고객 접수 링크(로그인 없음 `/i/[token]`, 해시만 저장, 링크당 하루 50건)·관심고객 명부(동의 기록, 수기 입력은 동의 확인 필수)·대시보드·매뉴얼. DB 표 2개·RLS·프로그램 등록(준비중)·요금제 3·시험 계정(ego SQL). Vercel 프로젝트·도메인·환경변수 3개(`scripts/add-realty-client-desk-vercel-env.mjs`, 값 미출력). 배포 v1.01 `dpl_4TzHGSg7Rrps1Cft4M1H2yCj5nq1`·v1.02 `dpl_6phAkTKnE2gm8eUUsUWNtHqgwXLo`(빌드 2회). 커밋 `8008824d2`·`256767d0c`.
+- 확인(ego lite, 시험 계정): 링크 만들기 → 접수 → 목록(동의 기록), 수기 입력 동의 없으면 막힘·내용 보존, 390px 4화면 넘침 없음. 시험 고객 2명 삭제·시험 링크 멈춤.
+- 알아 둘 것: 프로그램 등록 때 등급 자동 부여로 이용 권한 3건(시험 계정·관리자·회원 1명 `grant_source=grade`, 1년)이 생김 — 준비중 상태라도 그 회원은 들어올 수 있음.
+- 남은 일: 2단계(내 매물·조건 매칭·광고 문자, 정보통신망법 시행령 원문 대조 먼저), 3단계(일정·1년 정리), 4단계(AI 초안·광고 항목 점검), 공개는 주인님 확인 뒤.
+
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — AI 무료음악 자동화 엔진 0.1 + 브라우저 연결 확정
 - 브라우저 → 내 PC 연결: 처음 요청 때 「로컬 네트워크 접근」 권한을 묻고(상태 prompt — 응답 없이 멈춘 원인), 허용하자 엔진에 도착. ACE-Step은 CORS 헤더가 없어 엔진 연결 문이 붙임. **크롬 확장 경유는 필요 없음.** Claude Code가 조작하는 브라우저는 ego lite.
 - 엔진 0.1 `free-music-studio/engine/`(Node 새로 작성, 커밋 `6e6b73c4c`): 연결 문 47821(허용 사이트·짝짓기 토큰) → 내부 ACE-Step 47822(실행마다 새 키), 장치 자동 선택, 고정 버전 설치. 미니PC 실물: 사이트에서 짝짓기·30초 곡 176초·MP3 받기 성공.
