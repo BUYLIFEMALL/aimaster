@@ -127,23 +127,32 @@ export interface BuildingFacts {
   topFloor: number | null;
 }
 
-/** 표제부 여러 줄(동별) → 대표값. 사용승인일은 가장 이른 날, 주차·세대는 합, 층은 최고 */
-export function buildingFacts(titles: Record<string, unknown>[], now: Date): BuildingFacts | null {
-  if (!titles.length) return null;
-  const pos = (k: string) => titles.map((t) => num(t[k])).filter((n): n is number => n !== null && n > 0);
-  const days = titles.map((t) => str(t.useAprDay)).filter((d) => /^\d{8}$/.test(d)).sort();
+const PARKING_KEYS = ["indrAutoUtcnt", "oudrAutoUtcnt", "indrMechUtcnt", "oudrMechUtcnt"];
+
+/**
+ * 표제부 여러 줄(동별) → 대표값. 사용승인일은 가장 이른 날, 층은 최고.
+ * B2(2026-11-03): 총괄표제부(`recap`)가 있으면 용적률·건폐율·세대·주차는 그 값을 먼저 쓴다(동별 표제부는 비율이 0인 경우가 많음).
+ * 없으면 표제부 합계 — 단, 동마다 같은 주차 수가 반복되면(단지 전체 값을 동마다 담은 경우, 파크리오 205,086대 사례) 한 번만 센다.
+ */
+export function buildingFacts(titles: Record<string, unknown>[], now: Date, recap: Record<string, unknown>[] = []): BuildingFacts | null {
+  if (!titles.length && !recap.length) return null;
+  const pos = (rows: Record<string, unknown>[], k: string) => rows.map((t) => num(t[k])).filter((n): n is number => n !== null && n > 0);
+  const days = [...titles, ...recap].map((t) => str(t.useAprDay)).filter((d) => /^\d{8}$/.test(d)).sort();
   const day = days[0] ?? null;
-  const sum = (keys: string[]) => titles.reduce((n, t) => n + keys.reduce((m, k) => m + (num(t[k]) ?? 0), 0), 0);
-  const parking = sum(["indrAutoUtcnt", "oudrAutoUtcnt", "indrMechUtcnt", "oudrMechUtcnt"]);
-  const households = sum(["hhldCnt"]);
-  const first = (k: string) => pos(k)[0] ?? null;
+  const rowParking = (t: Record<string, unknown>) => PARKING_KEYS.reduce((m, k) => m + (num(t[k]) ?? 0), 0);
+  const perTitle = titles.map(rowParking).filter((n) => n > 0);
+  const titleParking = perTitle.length > 1 && perTitle.every((n) => n === perTitle[0]) ? perTitle[0] : perTitle.reduce((a, b) => a + b, 0);
+  const recapParking = recap.map((t) => num(t.totPkngCnt) || rowParking(t)).find((n) => n > 0) ?? 0;
+  const households = pos(recap, "hhldCnt")[0] ?? titles.reduce((n, t) => n + (num(t.hhldCnt) ?? 0), 0);
+  const first = (k: string) => pos(recap, k)[0] ?? pos(titles, k)[0] ?? null;
+  const floors = pos(titles, "grndFlrCnt");
   return {
     approvalDay: day ? `${day.slice(0, 4)}-${day.slice(4, 6)}-${day.slice(6, 8)}` : null,
     ageYears: day ? now.getFullYear() - Number(day.slice(0, 4)) : null,
     floorAreaRatio: first("vlRat"),
     coverageRatio: first("bcRat"),
-    parking: parking || null,
+    parking: recapParking || titleParking || null,
     households: households || null,
-    topFloor: pos("grndFlrCnt").length ? Math.max(...pos("grndFlrCnt")) : null,
+    topFloor: floors.length ? Math.max(...floors) : null,
   };
 }

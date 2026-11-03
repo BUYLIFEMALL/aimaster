@@ -218,23 +218,34 @@ export interface BuildingTitleItem {
   [key: string]: unknown;
 }
 
-export async function fetchBuildingTitle(params: { keys?: PublicDataKeys; sigunguCd: string; bjdongCd: string; bun: string; ji: string }): Promise<BuildingTitleItem[]> {
+type LotParams = { keys?: PublicDataKeys; sigunguCd: string; bjdongCd: string; bun: string; ji: string };
+
+async function fetchBuildingLedger(op: string, label: string, params: LotParams): Promise<BuildingTitleItem[]> {
   const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
   const qs = new URLSearchParams({ serviceKey: key, sigunguCd: params.sigunguCd, bjdongCd: params.bjdongCd, platGbCd: "0", bun: params.bun, ji: params.ji, _type: "json", numOfRows: "100", pageNo: "1" });
-  const res = await fetch(`${DATA_GO_KR_BASE}/getBrTitleInfo?${qs.toString()}`, { cache: "no-store" });
+  const res = await fetch(`${DATA_GO_KR_BASE}/${op}?${qs.toString()}`, { cache: "no-store" });
   const text = await res.text();
   // 실패 원인을 가리려고 공공포털 응답 문구를 짧게 붙인다(키 값은 응답에 없음)
-  if (!res.ok) throw new Error(`건축물대장 표제부 API 요청 실패 (${res.status}) ${portalReason(text)}`);
+  if (!res.ok) throw new Error(`건축물대장 ${label} API 요청 실패 (${res.status}) ${portalReason(text)}`);
   let json: { response?: { header?: { resultCode?: string; resultMsg?: string }; body?: { items?: { item?: BuildingTitleItem | BuildingTitleItem[] } } } };
   try {
     json = JSON.parse(text);
   } catch {
-    throw new Error(`건축물대장 표제부 응답을 읽지 못했습니다: ${portalReason(text)}`);
+    throw new Error(`건축물대장 ${label} 응답을 읽지 못했습니다: ${portalReason(text)}`);
   }
   const code = json?.response?.header?.resultCode;
-  if (code && code !== "00") throw new Error(`건축물대장 표제부 오류 ${code} ${json?.response?.header?.resultMsg ?? ""}`);
+  if (code && code !== "00") throw new Error(`건축물대장 ${label} 오류 ${code} ${json?.response?.header?.resultMsg ?? ""}`);
   const raw = json?.response?.body?.items?.item ?? [];
   return Array.isArray(raw) ? raw : [raw];
+}
+
+export function fetchBuildingTitle(params: LotParams): Promise<BuildingTitleItem[]> {
+  return fetchBuildingLedger("getBrTitleInfo", "표제부", params);
+}
+
+// B2(2026-11-03): 총괄표제부 — 동이 여러 개인 단지의 단지 전체 용적률·건폐율·세대수·총주차수(`totPkngCnt`). 단일 건물 지번은 비어 온다
+export function fetchBuildingRecapTitle(params: LotParams): Promise<BuildingTitleItem[]> {
+  return fetchBuildingLedger("getBrRecapTitleInfo", "총괄표제부", params);
 }
 
 export interface VworldPriceField {

@@ -1,5 +1,5 @@
 import "server-only";
-import { fetchApartAssessedPrice, fetchBuildingTitle, fetchMolitMonth, type PublicDataKeys } from "@/lib/publicdata/client";
+import { fetchApartAssessedPrice, fetchBuildingRecapTitle, fetchBuildingTitle, fetchMolitMonth, type PublicDataKeys } from "@/lib/publicdata/client";
 import { LEGAL_DONG } from "@/lib/publicdata/legalDong";
 import { legalDongCode, pickAssessedPrice, PROPERTY_TYPES, type PropertyType } from "@/lib/publicdata/molit";
 import { ensureLandInfo } from "@/lib/realestate/collect";
@@ -67,11 +67,13 @@ export async function buildAddressReport(input: ReportInput, keys?: PublicDataKe
   const jeonse = summarize(jeonseDeals);
 
   const lot = { sigunguCd: input.pnu.slice(0, 5), bjdongCd: input.pnu.slice(5, 10), bun: input.pnu.slice(11, 15), ji: input.pnu.slice(15, 19) };
-  const [titles, prices, land] = await Promise.all([
+  const [titles, recap, prices, land] = await Promise.all([
     fetchBuildingTitle({ keys, ...lot }).catch((e) => {
       errors.push(`건물 정보: ${msg(e)}`);
       return [];
     }),
+    // 총괄표제부는 동이 여러 개인 단지만 있다 — 없거나 실패하면 표제부 값으로 채운다(오류 줄을 따로 남기지 않음)
+    fetchBuildingRecapTitle({ keys, ...lot }).catch(() => []),
     type === "오피스텔"
       ? Promise.resolve(null)
       : fetchApartAssessedPrice({ keys, pnu: input.pnu, stdrYear: now.getFullYear() - 1, numOfRows: 1000 }).catch((e) => {
@@ -96,7 +98,7 @@ export async function buildAddressReport(input: ReportInput, keys?: PublicDataKe
     jeonseRatio: jeonseRatio(sale.median, jeonse.median),
     assessedPrice: assessed,
     land: land ? { pricePerM2: land.pricePerM2 ?? null, year: land.priceStdrYear ?? null, zones: mainZones(land.useZones), allZones: land.useZones ?? null } : null,
-    building: buildingFacts(titles as Record<string, unknown>[], now),
+    building: buildingFacts(titles as Record<string, unknown>[], now, recap as Record<string, unknown>[]),
     errors,
   };
 }

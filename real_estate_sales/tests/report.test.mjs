@@ -65,3 +65,19 @@ test("B1 요약·전세가율·용도지역·건물", () => {
   assert.equal(b.topFloor, 20);
   assert.equal(buildingFacts([], new Date()), null);
 });
+
+test("B2 동마다 같은 주차 수가 반복되면 한 번만 · 총괄표제부 값이 먼저", () => {
+  // 파크리오 사례: 동별 표제부마다 단지 전체 주차 수(3,107)를 담고 비율은 0
+  const titles = Array.from({ length: 66 }, () => ({ useAprDay: "20080825", vlRat: "0", bcRat: "0", hhldCnt: "104", indrAutoUtcnt: "3000", oudrAutoUtcnt: "107", grndFlrCnt: "36" }));
+  const noRecap = buildingFacts(titles, new Date("2026-11-03"));
+  assert.equal(noRecap.parking, 3107);
+  assert.equal(noRecap.floorAreaRatio, null);
+  const withRecap = buildingFacts(titles, new Date("2026-11-03"), [{ vlRat: "284.75", bcRat: "17.02", hhldCnt: "6864", totPkngCnt: "9400" }]);
+  assert.equal(withRecap.floorAreaRatio, 284.75);
+  assert.equal(withRecap.coverageRatio, 17.02);
+  assert.equal(withRecap.households, 6864);
+  assert.equal(withRecap.parking, 9400);
+  assert.equal(withRecap.topFloor, 36);
+  // 총주차수 칸이 비면 총괄표제부의 네 칸 합
+  assert.equal(buildingFacts(titles, new Date(), [{ indrAutoUtcnt: "9000", oudrAutoUtcnt: "400" }]).parking, 9400);
+});
