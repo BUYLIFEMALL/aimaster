@@ -32,4 +32,4 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - v1.05 (2026-11-03): 4단계 — 광고 명시 항목 점검(src/lib/desk/adCheck.ts)·AI 광고 글/문자 초안(src/lib/ai/listingDraft.ts, 회원 본인 Claude 키, claude-sonnet-5-5, 재시도 0, 1분 잠금, 저장 안 함)·사무소 등록번호/성명·Claude 키 칸. 커밋 `4be6ba487`, 배포 `realty-client-desk-hsthsm95m`.
 
 ## 5. 남은 일
-플랜 1~4단계 끝. 공개는 주인님 확인 뒤(결정 3). D5 중개보수 계산기(후순위). 실제 아침 알림 문자·「내 cron-job.org」 회원 실행 200 미확인. 실제 문자 발송 시험(SOLAPI 있는 계정, 본인 번호 1건) 미실시. 지역 맞춤은 동 이름 글자 포함만 봄(인접 동·좌표는 나중 검토).
+플랜 1~4단계 끝, **2026-11-03 회원 공개**(배지 NEW, VIP 자동 부여, 썸네일 — `supabase/migrations/20261103050000_publish.sql`). D5 중개보수 계산기(후순위). 실제 아침 알림 문자·「내 cron-job.org」 회원 실행 200 미확인. 실제 문자 발송 시험(SOLAPI 있는 계정, 본인 번호 1건) 미실시. 지역 맞춤은 동 이름 글자 포함만 봄(인접 동·좌표는 나중 검토).
