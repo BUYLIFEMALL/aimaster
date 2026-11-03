@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { validateAddress, validateCustomer } from "@/lib/customers";
+import { validateBusinessApplication } from "@/lib/business";
 
 // 보안 규칙(본인 줄만 쓰기, 영업 중 몰에만 가입)을 그대로 거친다
 
@@ -91,6 +92,23 @@ export async function deleteAddressAction(slug: string, addressId: string) {
   const { supabase, customerId } = await myCustomer(slug);
   const { error } = await supabase.from("mall_builder_customer_addresses").delete().eq("id", addressId).eq("customer_id", customerId);
   back(slug, error ? { error: error.message } : { ok: "배송지를 지웠습니다." });
+}
+
+/** 사업자 신청 — 파일은 브라우저가 비공개 저장소에 먼저 올리고, 여기서는 DB 함수로 신청만 기록(승인 칸은 함수만 바꾼다) */
+export async function applyBusinessAction(slug: string, input: { business_no: string; company: string; ceo_name: string; cert_path: string }): Promise<{ error: string | null }> {
+  const v = validateBusinessApplication(input);
+  if (!v.ok) return { error: v.error };
+  const { supabase, storeId } = await myCustomer(slug);
+  const { error } = await supabase.rpc("mall_builder_apply_business", {
+    p_store_id: storeId,
+    p_business_no: v.value.business_no,
+    p_company: v.value.company,
+    p_ceo_name: v.value.ceo_name,
+    p_cert_path: input.cert_path,
+  });
+  if (error) return { error: error.message };
+  revalidatePath(`/s/${slug}`, "layout");
+  return { error: null };
 }
 
 /** 이 몰에서만 탈퇴 — 로그인 계정과 다른 몰 가입은 그대로 */

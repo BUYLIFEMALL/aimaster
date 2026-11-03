@@ -4,6 +4,7 @@ import type { CategoryRow } from "@/lib/categories";
 import type { OptionGroup, Variant } from "@/lib/options";
 import type { ShippingPolicy } from "@/lib/shipping";
 import { ORDER_COLUMNS, type OrderEventRow, type OrderItemRow, type OrderRow } from "@/lib/orders";
+import type { ApprovalStatus } from "@/lib/business";
 
 export type Store = {
   id: string;
@@ -195,7 +196,27 @@ export async function getStaffStore(slug: string, path: string): Promise<{ store
   return { store, staff: await isStoreStaff(store.id) };
 }
 
-export type StoreCustomer = { id: string; store_id: string; user_id: string; name: string; phone: string; marketing_agree: boolean; created_at: string };
+export type StoreCustomer = {
+  id: string;
+  store_id: string;
+  user_id: string;
+  name: string;
+  phone: string;
+  marketing_agree: boolean;
+  created_at: string;
+  kind: "consumer" | "business";
+  approval_status: ApprovalStatus;
+  business_no: string | null;
+  company: string | null;
+  ceo_name: string | null;
+  cert_path: string | null;
+  reject_reason: string | null;
+  applied_at: string | null;
+  reviewed_at: string | null;
+  grade: { name: string; code: string; is_business: boolean } | null;
+};
+const CUSTOMER_COLUMNS =
+  "id, store_id, user_id, name, phone, marketing_agree, created_at, kind, approval_status, business_no, company, ceo_name, cert_path, reject_reason, applied_at, reviewed_at, grade:mall_builder_customer_grades(name, code, is_business)";
 export type CustomerAddress = {
   id: string; label: string; receiver: string; phone: string; zip: string; addr1: string; addr2: string; is_default: boolean;
 };
@@ -205,11 +226,35 @@ export async function getMyCustomer(storeId: string, userId: string): Promise<St
   const supabase = await createClient();
   const { data } = await supabase
     .from("mall_builder_store_customers")
-    .select("id, store_id, user_id, name, phone, marketing_agree, created_at")
+    .select(CUSTOMER_COLUMNS)
     .eq("store_id", storeId)
     .eq("user_id", userId)
     .maybeSingle();
-  return (data as StoreCustomer | null) ?? null;
+  return (data as unknown as StoreCustomer | null) ?? null;
+}
+
+/** 운영자 손님 목록(이 몰) — 승인 상태로 거르기. 승인 대기가 먼저 */
+export async function getStoreCustomers(storeId: string, approval?: ApprovalStatus): Promise<StoreCustomer[]> {
+  const supabase = await createClient();
+  let query = supabase.from("mall_builder_store_customers").select(CUSTOMER_COLUMNS).eq("store_id", storeId).order("created_at", { ascending: false }).limit(300);
+  if (approval) query = query.eq("approval_status", approval);
+  const { data } = await query;
+  return (data ?? []) as unknown as StoreCustomer[];
+}
+
+/** 손님 한 명(운영자 화면) — 보안 규칙상 그 몰 운영자(또는 본인)만 받는다 */
+export async function getStoreCustomer(storeId: string, customerId: string): Promise<StoreCustomer | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_store_customers").select(CUSTOMER_COLUMNS).eq("store_id", storeId).eq("id", customerId).maybeSingle();
+  return (data as unknown as StoreCustomer | null) ?? null;
+}
+
+/** 사업자등록증 보기 주소(10분) — 비공개 저장소라 서명 주소로만 */
+export async function getCertUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const supabase = await createClient();
+  const { data } = await supabase.storage.from("mall-builder-private").createSignedUrl(path, 600);
+  return data?.signedUrl ?? null;
 }
 
 export type CartRow = {

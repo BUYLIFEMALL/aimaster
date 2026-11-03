@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getMyAddresses, getMyCustomer, getStoreBySlug, requireUser, type CustomerAddress } from "@/lib/store";
 import DeleteButton from "../../admin/categories/delete-button";
 import LogoutButton from "@/app/logout-button";
+import { APPROVAL_LABEL } from "@/lib/business";
+import BusinessForm from "./business-form";
 import { deleteAddressAction, leaveStoreAction, makeDefaultAddressAction, saveAddressAction, updateProfileAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -89,6 +91,43 @@ export default async function MyPage({
           </label>
           <button className="min-h-10 rounded bg-gray-900 px-4 text-sm text-white sm:w-32">저장</button>
         </form>
+      </section>
+
+      <section className="mt-6 rounded-lg border p-4" data-business-section>
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <h2 className="font-semibold">사업자 회원</h2>
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs" data-approval>{APPROVAL_LABEL[customer.approval_status]}</span>
+          {customer.grade && <span className="text-xs text-gray-500">등급: {customer.grade.name}</span>}
+        </div>
+        {customer.approval_status === "approved" && (
+          <p className="text-sm text-gray-700">
+            {customer.company} · {customer.ceo_name} · {customer.business_no} — 사업자 가격·주문 기능을 쓸 수 있습니다.
+          </p>
+        )}
+        {customer.approval_status === "pending" && (
+          <p className="text-sm text-gray-700">
+            {customer.company}({customer.business_no}) 신청을 운영자가 확인하고 있습니다.
+            {customer.applied_at && ` 신청일 ${new Date(customer.applied_at).toLocaleDateString("ko-KR")}.`}
+          </p>
+        )}
+        {(customer.approval_status === "none" || customer.approval_status === "rejected") && (
+          <>
+            {customer.approval_status === "rejected" && (
+              <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-reject-reason>
+                반려 사유: {customer.reject_reason} — 고쳐서 다시 신청해 주세요.
+              </p>
+            )}
+            {customer.approval_status === "none" && (
+              <p className="mb-3 text-sm text-gray-600">사업자라면 등록증을 올려 승인 신청하세요. 승인되면 사업자 등급으로 바뀝니다.</p>
+            )}
+            <BusinessForm
+              slug={store.slug}
+              storeId={store.id}
+              userId={user.id}
+              initial={{ business_no: customer.business_no ?? "", company: customer.company ?? "", ceo_name: customer.ceo_name ?? "" }}
+            />
+          </>
+        )}
       </section>
 
       <section className="mt-6">
