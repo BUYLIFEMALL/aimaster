@@ -24,6 +24,9 @@ function render() {
   body.replaceChildren(
     ...shown.map((item) => {
       const row = document.createElement("tr");
+      const rank = document.createElement("td");
+      rank.className = "num";
+      rank.textContent = String(item.rank);
       const name = document.createElement("td");
       const link = document.createElement("a");
       link.href = item.url;
@@ -37,7 +40,7 @@ function render() {
       const reviews = document.createElement("td");
       reviews.className = "num";
       reviews.textContent = item.reviews.toLocaleString("ko-KR");
-      row.append(name, price, reviews);
+      row.append(rank, name, price, reviews);
       return row;
     }),
   );

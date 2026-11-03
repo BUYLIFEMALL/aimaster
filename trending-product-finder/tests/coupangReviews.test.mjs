@@ -29,9 +29,21 @@ test("혜택 줄이 위에 있어도 상품명 칸의 이름을 쓴다", () => {
   assert.equal(parseCard({ lines, href: "/vp/products/8179126315" }).name, "스탠리 퀜처 H2.0 텀블러, 887ml");
 });
 
-test("리뷰 기준과 광고 제외로 거르고 리뷰 많은 순으로 놓는다", () => {
+// 2026-11-03 판매량순 화면: 「960원 / 와우 가입 쿠폰」 쿠폰 금액 줄이 판매가 뒤에 붙는 카드
+test("쿠폰 금액 줄이 있어도 할인율 다음의 판매가를 쓴다", () => {
+  const card = parseCard({
+    lines: ["글라스락 텀블락 2p", "쿠폰할인", "33,480원", "37%", "20,970원", "960원", "와우 가입 쿠폰", "내일(수) 도착 보장", "(465)"],
+    href: "/vp/products/1",
+  });
+  assert.equal(card.price, 20970);
+  assert.equal(parseCard({ lines: ["상품", "9,500원", "(1개당 9,500원)", "(3)"], href: "/vp/products/2" }).price, 9500);
+});
+
+test("리뷰 기준과 광고 제외로 거르고 읽은 순서(판매 순위)를 지킨다", () => {
   const items = [none, one, ad];
-  assert.deepEqual(filterProducts(items, { minReviews: 1, excludeAds: false }).map((i) => i.reviews), [1981, 1]);
+  const shown = filterProducts(items, { minReviews: 1, excludeAds: false });
+  assert.deepEqual(shown.map((i) => i.reviews), [1, 1981]);
+  assert.deepEqual(shown.map((i) => i.rank), [2, 3]);
   assert.deepEqual(filterProducts(items, { minReviews: 2, excludeAds: false }).map((i) => i.reviews), [1981]);
   assert.deepEqual(filterProducts(items, { minReviews: 1, excludeAds: true }).map((i) => i.reviews), [1]);
 });
@@ -55,6 +67,10 @@ test("CSV는 BOM과 수식 방지를 넣는다", () => {
   const csv = toCsv([{ name: '=1+1 "특가"', price: 100, reviews: 3, isAd: false, url: "u" }]);
   assert.ok(csv.startsWith("﻿\"상품명\""));
   assert.ok(csv.includes(`"'=1+1 ""특가"""`));
+  // 순위가 있으면(확장 목록) 맨 앞에 순위 칸
+  const ranked = toCsv([{ rank: 3, name: "텀블러", price: 100, reviews: 3, isAd: false, url: "u" }]);
+  assert.ok(ranked.startsWith("﻿\"순위\",\"상품명\""));
+  assert.ok(ranked.includes(`"3","텀블러"`));
 });
 
 test("1년(365일) 지난 저장본은 만료로 본다", () => {
