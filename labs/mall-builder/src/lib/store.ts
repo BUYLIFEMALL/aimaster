@@ -8,6 +8,7 @@ import type { ApprovalStatus } from "@/lib/business";
 import type { QuoteStatus } from "@/lib/quotes";
 import type { LedgerKind } from "@/lib/credit";
 import { priceLine, viewerOf, type GradePrice, type PriceContext, type VolumeTier } from "@/lib/pricing";
+import { readDoc, type BlocksDoc } from "@/lib/blocks";
 import { cache } from "react";
 
 export type Store = {
@@ -547,4 +548,28 @@ export async function getMyAddresses(customerId: string): Promise<CustomerAddres
     .order("is_default", { ascending: false })
     .order("created_at");
   return (data ?? []) as CustomerAddress[];
+}
+
+/** 손님 첫 화면 — 게시된 블록만(초안은 DB 함수가 돌려주지 않는다). 게시 전이면 빈 문서 */
+export async function getPublishedHome(storeId: string): Promise<BlocksDoc> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_published_page", { p_store_id: storeId });
+  return readDoc(data);
+}
+
+/** 운영자 편집 화면 — 초안·게시본·저장 시각(표 읽기는 운영자만 허용) */
+export async function getHomeForEdit(storeId: string): Promise<{ draft: BlocksDoc; published: BlocksDoc | null; draftAt: string | null; publishedAt: string | null }> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_pages")
+    .select("draft_blocks, published_blocks, draft_updated_at, published_at")
+    .eq("store_id", storeId)
+    .eq("kind", "home")
+    .maybeSingle();
+  return {
+    draft: readDoc(data?.draft_blocks),
+    published: data?.published_blocks ? readDoc(data.published_blocks) : null,
+    draftAt: data?.draft_updated_at ?? null,
+    publishedAt: data?.published_at ?? null,
+  };
 }
