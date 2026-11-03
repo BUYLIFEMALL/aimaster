@@ -9,7 +9,7 @@ import { generatePostImage } from "@/lib/ai/generator";
 import { publishPost } from "@/lib/posts/publish-core";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
-import { AI_MODEL_OPTIONS, DEFAULT_AI_MODELS } from "@/lib/ai/models";
+import { AI_MODEL_OPTIONS, currentAiModel, DEFAULT_AI_MODELS } from "@/lib/ai/models";
 import { openAIGenerationParams } from "@/lib/ai/openaiRequestParams";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AffiliatePlatform } from "@/types/product";
@@ -573,7 +573,7 @@ RULES:
     const supabase = await createClient();
     let bodyText = "";
 
-    const model = input.aiModel || DEFAULT_AI_MODELS[provider];
+    const model = currentAiModel(input.aiModel) || DEFAULT_AI_MODELS[provider];
     if (!AI_MODEL_OPTIONS.some((opt) => opt.provider === provider && opt.value === model)) {
       return { error: `지원하지 않는 AI 모델입니다: ${model}` };
     }

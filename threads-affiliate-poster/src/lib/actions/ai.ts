@@ -5,6 +5,7 @@ import { generateAffiliatePostContent, getDisclosureText } from "@/lib/ai/affili
 import type { ThreadsTone } from "@/lib/ai/generator";
 import {
   type AIModelProvider,
+  currentAiModel,
   DEFAULT_AI_MODELS,
   PROVIDER_SHORT_LABELS,
 } from "@/lib/ai/models";
@@ -61,7 +62,7 @@ export async function generateAffiliateContentAction(input: {
     }
 
     const provider: AIModelProvider = input.aiProvider || "openai";
-    const model = input.aiModel || DEFAULT_AI_MODELS[provider];
+    const model = currentAiModel(input.aiModel) || DEFAULT_AI_MODELS[provider];
     const providerLabel = PROVIDER_SHORT_LABELS[provider] || provider;
 
     const apiKey = input.apiKey?.trim() || (await resolveApiKey(supabase, user.id, provider));

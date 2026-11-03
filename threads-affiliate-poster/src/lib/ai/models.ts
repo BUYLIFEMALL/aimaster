@@ -16,7 +16,6 @@ export const AI_MODEL_OPTIONS: AIModelOption[] = [
   { value: "gpt-5.6-luna", label: "⚡ GPT-5.6 Luna (가성비 초고속)", shortLabel: "GPT-5.6 Luna", provider: "openai" },
   { value: "gpt-5.6-terra", label: "🎯 GPT-5.6 Terra (균형형 자연스러운 어조)", shortLabel: "GPT-5.6 Terra", provider: "openai" },
   { value: "gpt-5.6-sol", label: "💎 GPT-5.6 Sol (최고 품질 플래그십)", shortLabel: "GPT-5.6 Sol", provider: "openai" },
-  { value: "o3", label: "🧩 o3 (고성능 논리 추론 모델)", shortLabel: "o3", provider: "openai" },
   { value: "gpt-4o", label: "⚙️ GPT-4o (범용 표준 모델)", shortLabel: "GPT-4o", provider: "openai" },
 
   // Google Gemini 최신 모델순 (2026-09-28 Gemini API 공식 모델 목록 대조 — gemini-3.6-pro는 존재하지 않아 제거)
@@ -30,6 +29,12 @@ export const AI_MODEL_OPTIONS: AIModelOption[] = [
   { value: "claude-opus-5", label: "💎 Claude Opus 5 (고급형 복잡한 맥락 이해)", shortLabel: "Claude Opus 5", provider: "anthropic" },
   { value: "claude-haiku-4-5", label: "⚡ Claude Haiku 4.5 (가성비 초고속)", shortLabel: "Claude Haiku 4.5", provider: "anthropic" },
 ];
+
+// 2026-11-03: o3는 2026-12-11 종료(공식 대체 gpt-5.6-sol) — 브라우저에 저장된 옛 값·옛 화면이 보낸 값을 대체 모델로 읽는다.
+const RETIRED_AI_MODEL: Record<string, string> = { o3: "gpt-5.6-sol" };
+export function currentAiModel(value: string | null | undefined): string | undefined {
+  return value ? RETIRED_AI_MODEL[value] ?? value : undefined;
+}
 
 export const DEFAULT_AI_MODELS: Record<AIModelProvider, string> = {
   openai: "gpt-4.1",

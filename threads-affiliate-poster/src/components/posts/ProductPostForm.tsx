@@ -21,6 +21,7 @@ import { resolvePersonaTone, type SavedPersona } from "@/lib/personaTone";
 import {
   type AIModelProvider,
   AI_MODEL_OPTIONS,
+  currentAiModel,
   DEFAULT_AI_MODELS,
   PROVIDER_SHORT_LABELS,
 } from "@/lib/ai/models";
@@ -266,7 +267,7 @@ export function ProductPostForm({
         localStorage.setItem("threads_post_ai_default_v136", "true");
       } else {
         const savedProvider = localStorage.getItem("threads_post_ai_provider") as AIModelProvider | null;
-        const savedModel = localStorage.getItem("threads_post_ai_model");
+        const savedModel = currentAiModel(localStorage.getItem("threads_post_ai_model"));
         if (savedProvider && (savedProvider === "openai" || savedProvider === "gemini" || savedProvider === "anthropic")) {
           setAiProvider(savedProvider);
           if (savedModel && AI_MODEL_OPTIONS.some((o) => o.provider === savedProvider && o.value === savedModel)) {
