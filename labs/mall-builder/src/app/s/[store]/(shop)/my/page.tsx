@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getMyAddresses, getMyCustomer, getStoreBySlug, requireUser, type CustomerAddress } from "@/lib/store";
 import DeleteButton from "../../admin/categories/delete-button";
@@ -63,7 +64,10 @@ export default async function MyPage({
     <main className="mx-auto max-w-3xl px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-bold">마이페이지</h1>
-        <LogoutButton label="로그아웃" />
+        <div className="flex items-center gap-2">
+          <Link href={`/s/${store.slug}/orders`} className="flex min-h-11 items-center rounded border px-3 text-sm">주문 내역</Link>
+          <LogoutButton label="로그아웃" />
+        </div>
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{ok}</p>}

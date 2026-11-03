@@ -90,9 +90,13 @@ export default async function CartPage({
               {address ? `기본 배송지(${address.label}, ${address.zip}) 기준 배송비입니다.` : "배송지를 등록하면 제주·도서산간 배송비가 반영됩니다."}
               {blocked > 0 && ` 주문할 수 없는 상품 ${blocked}개는 금액에서 뺐습니다.`}
             </p>
-            <button type="button" disabled className="min-h-12 w-full rounded bg-gray-900 text-white opacity-50" title="주문서는 다음 기능(F10)에서 열립니다">
-              주문하기 (준비 중)
-            </button>
+            {blocked > 0 ? (
+              <p className="rounded bg-amber-50 px-3 py-2 text-amber-800">주문할 수 없는 상품을 빼거나 수량을 고친 뒤 주문해 주세요.</p>
+            ) : (
+              <Link href={`${base}/order`} className="flex min-h-12 w-full items-center justify-center rounded bg-gray-900 text-white" data-checkout>
+                주문하기
+              </Link>
+            )}
           </section>
         </>
       )}

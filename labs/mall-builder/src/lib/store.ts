@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { CategoryRow } from "@/lib/categories";
 import type { OptionGroup, Variant } from "@/lib/options";
 import type { ShippingPolicy } from "@/lib/shipping";
+import { ORDER_COLUMNS, type OrderEventRow, type OrderItemRow, type OrderRow } from "@/lib/orders";
 
 export type Store = {
   id: string;
@@ -231,6 +232,43 @@ export async function getCart(storeId: string, userId: string): Promise<CartRow[
   return ((data ?? []) as unknown as Raw[])
     .filter((r) => r.mall_builder_products) // 손님에게 안 보이게 된 상품(숨김 등)은 빼고 보여 준다
     .map((r) => ({ id: r.id, qty: r.qty, product: r.mall_builder_products!, variant: r.mall_builder_product_variants }));
+}
+
+/** 내 주문 목록(이 몰, 최근 순) */
+export async function getMyOrders(storeId: string, userId: string): Promise<(OrderRow & { item_count: number; first_item: string })[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_orders")
+    .select(`${ORDER_COLUMNS}, mall_builder_order_items(name_snapshot)`)
+    .eq("store_id", storeId)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  type Raw = OrderRow & { mall_builder_order_items: { name_snapshot: string }[] };
+  return ((data ?? []) as unknown as Raw[]).map(({ mall_builder_order_items: items, ...o }) => ({
+    ...o,
+    item_count: items.length,
+    first_item: items[0]?.name_snapshot ?? "",
+  }));
+}
+
+/** 주문 하나(품목·이력 포함) — 보안 규칙상 주문한 손님과 그 몰 운영자만 받는다. 없으면 null */
+export async function getOrder(storeId: string, orderId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_orders").select(`${ORDER_COLUMNS}, user_id`).eq("store_id", storeId).eq("id", orderId).maybeSingle();
+  if (!data) return null;
+  const [{ data: items }, { data: events }] = await Promise.all([
+    supabase
+      .from("mall_builder_order_items")
+      .select("id, product_id, name_snapshot, option_snapshot, image_url, unit_price, qty, line_total")
+      .eq("order_id", orderId),
+    supabase.from("mall_builder_order_events").select("id, from_status, to_status, actor_role, note, created_at").eq("order_id", orderId).order("created_at"),
+  ]);
+  return {
+    order: data as OrderRow & { user_id: string },
+    items: (items ?? []) as OrderItemRow[],
+    events: (events ?? []) as OrderEventRow[],
+  };
 }
 
 /** 장바구니 줄 수(머리글 표시용) */
