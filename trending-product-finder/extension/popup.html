@@ -23,6 +23,16 @@
   th { position: sticky; top: 0; background: #171a21; white-space: nowrap; }
   td.num { text-align: right; white-space: nowrap; }
   a { color: #93c5fd; text-decoration: none; }
+  /* 마켓 선택: 라디오를 숨기고 큰 버튼 두 개로 보여 준다. 고른 쪽은 색을 채운다. */
+  .market-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .market-pick label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin: 0; padding: 10px 6px; border: 2px solid #2a2f3a; border-radius: 10px; background: #0f1115; cursor: pointer; font-size: 14px; font-weight: 800; white-space: normal; text-align: center; }
+  .market-pick label small { font-size: 11px; font-weight: 600; color: #9ca3af; }
+  .market-pick input { position: absolute; opacity: 0; pointer-events: none; }
+  .market-pick label:hover { border-color: #4b5563; }
+  .market-pick label.coupang:has(input:checked) { border-color: #ef4444; background: #3b0d0d; color: #fff; }
+  .market-pick label.naver:has(input:checked) { border-color: #22c55e; background: #052e16; color: #fff; }
+  .market-pick label:has(input:checked) small { color: #e5e7eb; }
+  .market-pick label:has(input:focus-visible) { outline: 2px solid #93c5fd; outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -67,9 +77,9 @@
     </div>
     <div class="box">
       <b>🔁 키워드 자동 검색</b>
-      <div class="row" style="margin-top:4px;align-items:center"><b style="font-size:12px">마켓</b>
-        <label><input type="radio" name="market" value="coupang" checked> 쿠팡(판매량순)</label>
-        <label><input type="radio" name="market" value="naver"> 네이버 쇼핑(랭킹순)</label>
+      <div class="market-pick" role="radiogroup" aria-label="자동 검색할 마켓">
+        <label class="coupang"><input type="radio" name="market" value="coupang" checked>🛒 쿠팡<small>판매량순</small></label>
+        <label class="naver"><input type="radio" name="market" value="naver">🟢 네이버 쇼핑<small>스마트스토어 · 랭킹순</small></label>
       </div>
       <div class="muted">적어 둔 키워드를 하나씩 고른 마켓에서 검색해 1페이지만 읽고 담습니다. 키워드 사이 3~5분 쉬고, 한 번에 최대 10개·하루 최대 30개(두 마켓 합계)입니다. 이 창은 닫아도 되지만 <b>PC와 크롬은 켜 두세요</b>(끄면 멈춥니다). 결과는 내 계정에 저장되어 휴대폰으로도 볼 수 있습니다.</div>
       <textarea id="keywords" rows="4" style="width:100%;box-sizing:border-box;margin-top:6px;background:#0f1115;color:#e5e7eb;border:1px solid #2a2f3a;border-radius:6px;padding:6px;font:inherit"></textarea>
