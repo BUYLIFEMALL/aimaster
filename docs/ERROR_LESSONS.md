@@ -6,6 +6,12 @@
 - **해결**: 엔진 0.1.11 — 파이썬 자식을 `PYTHONUTF8=1`·`PYTHONIOENCODING=utf-8`로 실행, 내부 번호를 실행마다 빈 번호(`pickFreePort`), 남은 음악 엔진은 실행 명령 이름(`acestep-api`)으로 찾아 끔, 켜진 뒤 자식 생존 확인, 종료 때 자식 트리 `taskkill /T /F`, 음악 엔진 출력을 `%LOCALAPPDATA%\FreeMusicEngine\acestep-log.txt`에, 실패 이유를 대기열·엔진 창에 그대로. 파일: `free-music-studio/engine/src/{main,acestep,runner}.mjs`.
 - **다음부터 확인**: 파이썬·외부 도구를 자식으로 띄울 때는 UTF-8 모드를 기본으로(한국어 윈도우는 영어 윈도우·미니PC 시험에서 안 드러남). 내부 포트를 고정하지 말고, `/health` 응답만으로 준비됐다고 보지 않기. 외부 엔진이 주는 실패 이유 칸을 버리지 않기. 추측(「XL 모델 문제」)보다 기록 파일부터. 상세: [`free-music-studio/docs/IMPROVEMENT_HANDOFF_20261104_ENGINE_ERRORS.md`](../free-music-studio/docs/IMPROVEMENT_HANDOFF_20261104_ENGINE_ERRORS.md).
 
+## 2026-11-04 React 19 폼이 끝나면 선택·라디오 칸이 화면에서만 처음 값으로 돌아감 (`labs/mall-builder`, Next 16·React 19, [역할: mall-builder])
+- **증상**: `useActionState` 폼에서 오류를 돌려받은 뒤 상품 선택 칸이 비어 보였다(상태에는 값이 남아 있어 그대로 다시 보내면 동작은 됨). 옵션 편집기는 저장 성공 뒤에도 같은 위험.
+- **원인**: React 19는 `<form action={formAction}>`의 동작이 끝나면 `form.reset()`을 부른다. `useState`로 관리하는 칸은 화면(DOM) 값만 처음 값으로 돌아가고 React 상태는 그대로라, 상태가 안 바뀌면 다시 그려지지 않는다.
+- **해결**: `onSubmit`에서 `preventDefault` → `new FormData(e.currentTarget)` → `startTransition(() => formAction(data))`로 넘겨 자동 초기화를 막는다. 공용 함수 `labs/mall-builder/src/lib/no-reset-submit.ts`(`noResetSubmit`).
+- **다음부터**: 화면 상태(`useState`)로 칸을 관리하는 폼은 `action={formAction}` 대신 이 방식. 여러 줄을 입력하는 폼은 오류 때 `redirect(?error=)`하지 말고 결과를 돌려준다(화면을 새로 그리면 입력이 사라짐). 시험에서 「오류 뒤·저장 뒤 칸 값」을 읽는다. 모든 Next 16 프로그램에 해당.
+
 ## 2026-11-04 보안 규칙 시험에서 「비로그인」이 운영자로 계산됨 · 화면에서만 가린 값이 DB 직접 조회로 보임 (`labs/mall-builder`, Lab DB, [역할: mall-builder])
 - **증상 1**: 사업자 전용 상품이 비로그인에게도 읽히는 것으로 나왔다(실제로는 정상). **원인**: 한 시험 블록 안에서 `set local role anon`으로 역할만 바꾸고, 앞 단계에서 넣은 `request.jwt.claims`(운영자)를 지우지 않음 → `auth.uid()`가 계속 운영자. **해결·다음부터**: 비로그인 시험 전에 `select set_config('request.jwt.claims', '', true)`로 로그인 정보부터 비운다. 결과가 이상하면 「지금 보는 사람」(예: `auth.uid()` 또는 판단 함수 값)을 같이 찍는다. 모든 CLI의 RLS 시험에 해당.
 - **증상 2**: 화면에서는 가린 사업자 전용 상품·가격 비공개 판매가가 DB 직접 조회(공개 키 + REST)로는 보였다. **원인**: 줄 단위 보안 규칙이 판매 상태만 봤고, 칸은 규칙으로 가릴 수 없다(칸 권한 회수는 확인 창 대상). **해결**: 표 직접 읽기를 「다 보여도 되는 줄」로 좁히고(`alter policy`), 일부만 보여 줄 줄은 값을 가려 돌려주는 `security definer` 함수로 읽는다. 연결 표 규칙의 `exists(select … from 상품)`도 상품 표 규칙을 받으므로 판단 함수로 바꿔야 함께 사라지지 않는다. 파일: `labs/mall-builder/supabase/migrations/0018_product_read_guard.sql`. **다음부터**: 「손님에게 숨김」 기능은 화면 코드가 아니라 DB 규칙·함수에서 막혔는지 비로그인 역할로 직접 조회해 확인한다.
