@@ -56,6 +56,11 @@ export default async function CoupangReviewsPage() {
         <p className="mt-1">이 기능은 쿠팡 약관 위반·계정 제재·법적 책임의 소지가 있으며, 사용 책임은 회원 본인에게 있습니다. 판매자 계정을 함께 쓰는 브라우저에서는 그 계정에 영향이 갈 수 있으니 주의해 주세요.</p>
       </section>
 
+      <p className="text-xs text-mx-muted">
+        처음이라면 설치·연결·자동 검색까지 차근차근 따라 하는{" "}
+        <a href="/guide#coupang" className="font-bold text-[#93c5fd] hover:underline">📖 단계별 사용법</a>을 먼저 보세요.
+      </p>
+
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {INSTALL_STEPS.map((step, index) => (
           <div key={step.title} className="mx-card p-4">

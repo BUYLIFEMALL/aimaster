@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { PageHero } from "@/components/ui/PageHero";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { CoupangGuide } from "@/components/coupang/CoupangGuide";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -26,7 +27,7 @@ const NUMBERS = [
 const FAQ = [
   {
     q: "쿠팡에서 리뷰 있는 상품만 골라 볼 수 있나요?",
-    a: "왼쪽 메뉴 「🧩 쿠팡 상품소싱기」에서 크롬 확장을 받으면, 직접 검색해 「판매량순」으로 정렬한 쿠팡 화면을 읽고, 많이 팔리는 상품 가운데 리뷰 수가 기준 이상인 상품만 찾을 수 있어요. 쿠팡 약관 위반·계정 제재 소지가 있어 사용 책임은 회원 본인에게 있습니다.",
+    a: "왼쪽 메뉴 「🧩 쿠팡 상품소싱기」에서 크롬 확장을 받으면, 직접 검색해 「판매량순」으로 정렬한 쿠팡 화면을 읽고, 많이 팔리는 상품 가운데 리뷰 수가 기준 이상인 상품만 찾을 수 있어요. 쿠팡 약관 위반·계정 제재 소지가 있어 사용 책임은 회원 본인에게 있습니다. 설치부터 자동 검색까지 단계별 사용법은 이 화면의 「🧩 쿠팡 상품소싱기 사용법」에 있어요.",
   },
   {
     q: "네이버 키는 어디서 받나요?",
@@ -76,6 +77,9 @@ export default async function GuidePage() {
         <Link href="/settings" className="mx-btn-primary">
           🔑 키 등록하러 가기
         </Link>
+        <a href="#coupang" className="mx-btn-ghost">
+          🧩 쿠팡 상품소싱기 사용법
+        </a>
       </PageHero>
 
       <div className="flex items-start gap-3">
@@ -112,6 +116,8 @@ export default async function GuidePage() {
           ))}
         </ol>
       </section>
+
+      <CoupangGuide />
 
       <section className="mx-card">
         <h2 className="mx-section-title">📐 숫자 읽는 법</h2>
