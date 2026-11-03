@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 🔔 [역할: mac-mini] Claude Code(맥미니) · 윈도우 배포 요청 — 블로그 급한 2개만(주인님 승인 빌드 2회)
+- **배포할 것**: `naver-blog-allinone` v1.59→v1.60, `naver-blog-agent` v2.26→v2.27. 한 번에 하나씩.
+- **왜 급한가**: `gpt-image-1`이 10-23에 이미 종료됐습니다. 교체 커밋 `87b12267e`(08:56)는 오전 블로그 배포(08:33~08:46)보다 늦게 들어가 빠졌습니다. 그래서 이 모델을 저장해 둔 회원은 OpenAI 이미지 생성이 실패할 수 있습니다.
+- **함께 실리는 것**: 30일 열외 `0e46894fb`(올인원), `27795e295`와 `01d973bf6`(에이전트 글감·비공개 사진).
+- **나머지 6개는 배포하지 않습니다**(주인님 「급하지 않은건 모았다가」). `gpt-5` 3개는 12-05에 점검합니다.
+- 절차·시험 명령: `docs/DEPLOY_REQUEST_20261103_BLOG.md` 1·2번 줄. 배포 뒤 맥미니가 올인원 OpenAI 이미지를 1장 만들어 확인합니다(실행 전에 다시 여쭙습니다).
+
 ## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` v1.04 3단계(일정 알림·1년 정리) 배포(준비중)
 - 코드 `e43a37bae`: 일정 `realty_desk_events`(임장·계약·중도금·잔금·만기·기타, 「며칠 전 아침 8시」 기본 임장 0·잔금 3·만기 60일), 규칙 `src/lib/desk/eventRules.ts`(시험 3개, 전체 10개 통과), 알림 `src/lib/schedulerMember/dispatch.ts`(회원별 하루 한 통, 회원 본인 SOLAPI → 회원 본인 핸드폰 `profiles.phone`, 알리기 전 `notified_at` 선점·실패 시 되돌림, 핸드폰·정지·이용 권한 확인), 회원 실행 방식 공용 사본 `memberScheduler.ts` + `schedulerConfig.ts`(표 `realty_desk_member_scheduler`, 토큰 `deskcal_`), cron-job.org 작업 매일 08:00(`cronJobOrg.ts`, booking-reminder 사본에서 이름·주기만), 실행 주소 `/api/cron/dispatch-member`(after), 운영 `/api/cron/daily`(vercel.json `0 23 * * *` = 08:00 KST, 일정 알림 + 1년 보관 정리 — `retention_exempt` 제외), 화면 `/events`·설정 「⏰ 일정 알림 실행 방식」·대시보드 「7일 안 일정」·사이드바 4단계·매뉴얼 7단계.
 - 운영: DB 마이그레이션 `20261103030000_events_scheduler.sql` ego SQL 적용, Vercel `CRON_SECRET` 새로 등록(값 출력 안 함 — 첫 등록은 PowerShell 파이프 줄바꿈으로 배포 실패 → 지우고 Node로 다시). 배포 `realty-client-desk-ffflmwj64` Ready, DB v1.04, 실행 주소 2개 가짜 토큰 401.
