@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 전체 단계 플랜 + 1단계 PC 검사·음악 모델 고르기 배포
+- 플랜: `free-music-studio/docs/PLAN_20261103_FULL_ROADMAP.md`(원본 분석 + 우리 저장소 재사용 조사, 9단계). 원본 코드는 MIT·원작자 허락으로 직접 옮겨 씀(원작자 이름 없이). YuE2·SheetSage2는 비상업이라 제외.
+- 1단계 배포 `be0b822ca`(빌드 1회): 설치 전 브라우저 검사, 엔진 0.1.5 `/system`·`/quality`, 엔진 화면 맨 위 「이 PC 검사 · 음악 모델 고르기」. 표시 버전은 v1.06 그대로(버전 올리기 누락) — 다음 배포 때 v1.07(`docs/PENDING_DEPLOYS.md`).
+- 남은 일: 마스터PC에서 엔진 0.1.5로 구성 바꾸기 재시작 확인 → 2단계(스타일 프리셋·연주곡 AI 작곡 기획·목표 길이·가사 다듬기).
+- 링크: https://free-music-studio.buylife.xyz/engine
+
 ## 2026-11-03 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — 30일 보관 열외 블로그 밖 21개 코드 반영(미배포 대기)
 - 주인님 「진행해 순서대로」(무료 화면 확인 → 올인원 이미지 1장 → 30일 열외). 이미지 1장은 ego 로그인 계정에 OpenAI 키가 없어 못 함(키 등록은 주인님 몫).
 - 30일 열외: `threads-content-ops` `657b44c3c` · `threads-affiliate-poster` `fea3571a8` · `threads` `567567979` · `shop-detail-page` `668f6532a` · `ai-image-studio` `21f22863d` · `ai-music-studio` `78e3eb561` · `ai-video-studio` `84e1de257` · `banana-canvas` `a17062357` · `cinematic-storyboard-studio` `97a6d8589` · `coupang-ops` `a4a3b1857` · `music-video-studio` `ed488d875` · `smartstore-register` `e619be285` · `style-dna-analyzer` `dd305ff4e` · `trending-product-finder` `e7c031b6f` · `youtube-auto-reply` `e3f93b8d7` · `thumbnail-master` `16eb5d6e2` · `reverse-prompt` `a253ae63d` · `portrait-photo` `0fef47e81` · `four-cut-comics` `508565e5d` · `shorts-onestop-studio` `c720528f6` · `shots` `ab4595846`. 판정은 `profiles.retention_exempt`, 못 읽으면 정리 멈춤. tsc 21개 통과.
