@@ -6,8 +6,9 @@ import { normalize, parseJsonLoose, responseSchema } from "@/lib/rpa/schemas";
 
 // 모델명은 자주 바뀌므로 한곳에서 관리한다. 앞 모델을 쓸 수 없으면 다음 모델로 자동 폴백한다.
 export const MODEL_CHAIN: Record<ModelLevel, string[]> = {
-  flash: ["gemini-3.5-flash", "gemini-2.5-flash"],
-  pro: ["gemini-3.1-pro-preview", "gemini-3.5-flash", "gemini-2.5-flash"],
+  // 2026-11-03: 2.5-flash(12-01 자동 연결)·3.5-flash(자동 연결되는 이전 모델) → 3.8-flash, 마지막은 3.5-flash-lite(개수 같음)
+  flash: ["gemini-3.8-flash", "gemini-3.5-flash-lite"],
+  pro: ["gemini-3.1-pro-preview", "gemini-3.8-flash", "gemini-3.5-flash-lite"],
 };
 
 export type AiErrorCode = "key" | "quota" | "timeout" | "parse" | "safety" | "media" | "unknown";
