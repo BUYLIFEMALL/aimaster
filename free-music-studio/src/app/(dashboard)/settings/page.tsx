@@ -31,7 +31,9 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
           </h2>
           <p className="mt-1 text-xs text-slate-400">{description}</p>
         </div>
-        {registered ? (
+        {keys[provider] === undefined ? (
+          <span className="inline-flex shrink-0 items-center rounded-full border border-slate-700 px-3 py-1 text-xs font-bold text-slate-400">확인 중…</span>
+        ) : registered ? (
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-3 py-1 text-xs font-bold text-emerald-300">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> 연동 완료
           </span>

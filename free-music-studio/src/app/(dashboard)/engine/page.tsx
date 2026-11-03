@@ -3,7 +3,7 @@ import { Cpu, Download, ShieldCheck, Clock } from "lucide-react";
 // 내 PC 엔진 안내 — 엔진 앱은 플랜 2단계에서 붙는다. 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
 const SPECS = [
   { pc: "NVIDIA 그래픽카드 (예: RTX 4060 이상)", mode: "고품질 모드 — 작사 보조 모델까지 켜서 생성", speed: "빠름" },
-  { pc: "Apple Silicon 맥 (M1 이상)", mode: "고품질 모드", speed: "보통 (측정 중)" },
+  { pc: "Apple Silicon 맥 (M1 이상)", mode: "고품질 모드", speed: "아직 측정 전" },
   { pc: "그래픽카드 없는 PC · Intel 내장 그래픽", mode: "CPU 모드 — 빠른 모델로 생성", speed: "30초 곡 약 1분 30초, 3분 곡 약 6분" },
 ];
 

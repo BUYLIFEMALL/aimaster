@@ -1,6 +1,6 @@
 # AI 무료음악 자동화 (`free-music-studio`) — 에이전트 작업 지침
 
-> 상태: **1단계 웹 뼈대 v1.01 — 코드·로컬 검사 완료, 미배포**(Vercel 새 프로젝트·DB 마이그레이션·도메인은 주인님 승인 대기). 플랜: [`docs/PLAN_20261103_V1_01.md`](docs/PLAN_20261103_V1_01.md)
+> 상태: **1단계 웹 뼈대 v1.01 배포 완료(2026-11-03)** — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지(엔진 앱 전). **미배포 대기**: 설정 화면 「확인 중」 표시·엔진 화면 Apple Silicon 「아직 측정 전」(다음 배포 v1.02 때 함께). 플랜: [`docs/PLAN_20261103_V1_01.md`](docs/PLAN_20261103_V1_01.md)
 > 담당: [역할: music] Claude Code(윈도우(미니PC)). 작업 전 루트 `CLAUDE.md`·`AGENTS.md`, `docs/roles/music.md`, 이 플랜을 읽는다.
 
 ## 꼭 지킬 것
@@ -29,7 +29,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음. 단점(지금): 엔진 앱 전이라 실제 노래 생성은 아직 안 됨.
 
 ## 4. 버전
-- v1.01(미배포, 2026-11-03): 1단계 웹 뼈대. 마이그레이션 `supabase/migrations/20261103_v1_01_init.sql`(곡 표 + 프로그램 등록 `coming` 배지 + 요금제 3단계).
+- v1.01(배포 2026-11-03, `free-music-studio-m2cntvbs4`): 1단계 웹 뼈대. Vercel 새 프로젝트 `free-music-studio`(환경변수 5개), 도메인 `free-music-studio.buylife.xyz`, 운영 DB 마이그레이션 실행(등록 시 등급 자동 부여로 3개 계정에 1년 이용기간 생김). 마이그레이션 `supabase/migrations/20261103_v1_01_init.sql`(곡 표 + 프로그램 등록 `coming` 배지 + 요금제 3단계).
 
 ## 5. 대기
 플랜 §4 2~8단계. 다음: 1단계 배포(승인 필요) → 2단계 엔진 앱 0.1. 사전 검증 맥미니 결과 대기(`docs/MAC_REQUEST_20261103_PREVALIDATION.md`).
@@ -44,3 +44,5 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 2026-11-03 기획: 원본 분석, 이름·구조·모델 결정, 플랜 작성. 외부 분석표 `EXT-MUS-08`.
 - 2026-11-03 0단계: 윈도우(미니PC) CPU·마스터PC(RTX 5080) 생성 성공, 음질 「SUNO보단 못하지만 들을만함」(주인님).
 - 2026-11-03 1단계 코드: 위 화면·API·마이그레이션, `tsc`·시험 14개·`npm run build` 통과. 로그인 뒤 기본 이동 경로를 `/songs`로(기준 프로그램의 `/convert` 남은 값은 `music-video-studio/docs/IMPROVEMENTS.md`에 기록).
+- 2026-11-03 1단계 배포·검수(크롬, 시험 계정 `buylifemall@naver.com`): 곡 만들기 열림 → AI 작사 1회 성공(균형 Sonnet 5.5, 제목 「쉬어 가도 괜찮아」·스타일·구간 가사) → 저장·목록 반영 → 엔진·설정(「연동 완료」)·매뉴얼 화면 정상. 390px 틀(창이 최대화라 실제 창 축소는 못 함)에서 좌측 메뉴 숨김·☰ 표시·가로 넘침 없음. 비로그인 `/api/songs`·비밀값 없는 `/api/cron/cleanup` 401. 발견: 키·목록을 불러오는 1~3초 동안 「미등록」·「0개」가 잠깐 보임 → 설정 화면은 「확인 중」으로 고침(미배포 대기).
+- 2026-11-03 맥미니가 Intel(i7-8700B)로 확인돼 맥미니 시험 취소 — 시험 장비는 마스터PC(RTX 5080)·윈도우(미니PC). Apple Silicon 엔진은 미검증.
