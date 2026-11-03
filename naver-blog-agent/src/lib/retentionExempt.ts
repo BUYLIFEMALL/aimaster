@@ -15,3 +15,9 @@ export async function loadRetentionExemptIds(admin: ExemptAdmin): Promise<Set<st
 export function exemptInFilter(exempt: Set<string>): string | null {
   return exempt.size ? `(${[...exempt].join(",")})` : null;
 }
+
+/** 이 회원이 예외 회원인지(30일 숨김·만료 확인을 풀 때, 2026-11-03). 읽지 못하면 false — 숨김은 지우는 것이 아니라 안전하다. */
+export async function isRetentionExempt(admin: ExemptAdmin, userId: string): Promise<boolean> {
+  const { data, error } = await admin.from("profiles").select("retention_exempt").eq("id", userId).maybeSingle();
+  return !error && data?.retention_exempt === true;
+}

@@ -3,11 +3,14 @@ import { z } from "zod";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publicCandidate } from "@/lib/collectedMaterials";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 const reply = (body: unknown, status = 200) => NextResponse.json(body, {status, headers: {"Cache-Control": "no-store"}});
 async function list(admin: any, owner: string) {
-  const {data, error} = await admin.from("nba_collected_materials").select("*").eq("user_id", owner).gt("expires_at", new Date().toISOString()).order("created_at", {ascending: false}).limit(500);
+  let query = admin.from("nba_collected_materials").select("*").eq("user_id", owner);
+  if (!(await isRetentionExempt(admin, owner))) query = query.gt("expires_at", new Date().toISOString()); // 2026-11-03: 예외 회원(관리자·시험)은 만료 글감도 보임
+  const {data, error} = await query.order("created_at", {ascending: false}).limit(500);
   if (error) throw new Error("글감 목록을 불러오지 못했습니다.");
   return (data || []).map(publicCandidate);
 }

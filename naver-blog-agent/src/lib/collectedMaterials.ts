@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { BlogViralCandidate } from "@/types/collector";
 import { sourceBundle, validSource, type SourceBundle } from "./sourceBundle";
 import { normalizeSourceMaterial } from "./ai/sourceGrounding";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 export class SourceError extends Error {
   constructor(message: string, public status = 400) { super(message); }
@@ -27,7 +28,7 @@ export async function loadCollected(admin: any, userId: string, id: unknown) {
   if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) throw new SourceError("서버에 저장한 글감을 다시 선택해 주세요.");
   const {data, error} = await admin.from("nba_collected_materials").select("*").eq("id", id).eq("user_id", userId).maybeSingle();
   if (error) throw new SourceError("글감 원문을 조회하지 못했습니다.", 503);
-  if (!data || !validSource(data.candidate?.source, userId) || Date.parse(data.expires_at) <= Date.now()) throw new SourceError("본인의 유효한 글감을 찾을 수 없습니다. 만료된 자료는 다시 수집해 주세요.", 410);
+  if (!data || !validSource(data.candidate?.source, userId) || (Date.parse(data.expires_at) <= Date.now() && !(await isRetentionExempt(admin, userId)))) throw new SourceError("본인의 유효한 글감을 찾을 수 없습니다. 만료된 자료는 다시 수집해 주세요.", 410);
   const candidate = publicCandidate(data);
   const bundle = candidate.source!;
   // 회원이 요약을 길게 고쳐도 원문과 출처가 프롬프트에서 밀려나지 않는다.
