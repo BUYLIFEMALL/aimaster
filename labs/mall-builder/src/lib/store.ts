@@ -64,6 +64,55 @@ export async function getCategoryRows(storeId: string): Promise<CategoryRow[]> {
   return (data ?? []) as CategoryRow[];
 }
 
+export type ProductRow = {
+  id: string;
+  name: string;
+  summary: string;
+  description: string;
+  base_price: number;
+  list_price: number | null;
+  tax_type: "taxable" | "exempt";
+  status: "draft" | "on_sale" | "sold_out" | "hidden";
+  stock_mode: "none" | "product";
+  stock: number;
+  images: { url: string; path: string }[];
+  created_at: string;
+};
+
+export const PRODUCT_COLUMNS = "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, created_at";
+
+/** 운영자용 상품 목록(모든 상태) — 보안 규칙상 운영자가 아니면 손님에게 보이는 것만 온다 */
+export async function getStoreProducts(storeId: string): Promise<(ProductRow & { category_ids: string[] })[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_products")
+    .select(`${PRODUCT_COLUMNS}, mall_builder_product_categories(category_id)`)
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((p) => {
+    const { mall_builder_product_categories: links, ...rest } = p as ProductRow & { mall_builder_product_categories: { category_id: string }[] };
+    return { ...rest, category_ids: (links ?? []).map((l) => l.category_id) };
+  });
+}
+
+/** 수정 화면용 상품 하나 + 원가 + 카테고리. 없으면 null */
+export async function getProductForEdit(storeId: string, productId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_products")
+    .select(`${PRODUCT_COLUMNS}, mall_builder_product_private(cost, memo), mall_builder_product_categories(category_id)`)
+    .eq("store_id", storeId)
+    .eq("id", productId)
+    .maybeSingle();
+  if (!data) return null;
+  const row = data as ProductRow & {
+    mall_builder_product_private: { cost: number | null; memo: string } | { cost: number | null; memo: string }[] | null;
+    mall_builder_product_categories: { category_id: string }[];
+  };
+  const priv = Array.isArray(row.mall_builder_product_private) ? row.mall_builder_product_private[0] : row.mall_builder_product_private;
+  return { ...row, cost: priv?.cost ?? null, category_ids: (row.mall_builder_product_categories ?? []).map((l) => l.category_id) };
+}
+
 /** 운영자 관리 화면 공통 입구 — 로그인 확인 후 몰과 「운영자인가」를 함께 돌려준다 */
 export async function getStaffStore(slug: string, path: string): Promise<{ store: Store; staff: boolean }> {
   await requireUser(path);
