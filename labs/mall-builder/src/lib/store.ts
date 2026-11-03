@@ -193,3 +193,32 @@ export async function getStaffStore(slug: string, path: string): Promise<{ store
   const store = await getStoreBySlug(slug);
   return { store, staff: await isStoreStaff(store.id) };
 }
+
+export type StoreCustomer = { id: string; store_id: string; user_id: string; name: string; phone: string; marketing_agree: boolean; created_at: string };
+export type CustomerAddress = {
+  id: string; label: string; receiver: string; phone: string; zip: string; addr1: string; addr2: string; is_default: boolean;
+};
+
+/** 이 몰에 내가 가입한 줄(없으면 null) — 몰마다 따로 가입한다 */
+export async function getMyCustomer(storeId: string, userId: string): Promise<StoreCustomer | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_store_customers")
+    .select("id, store_id, user_id, name, phone, marketing_agree, created_at")
+    .eq("store_id", storeId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return (data as StoreCustomer | null) ?? null;
+}
+
+/** 내 배송지 — 기본 배송지가 먼저 */
+export async function getMyAddresses(customerId: string): Promise<CustomerAddress[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_customer_addresses")
+    .select("id, label, receiver, phone, zip, addr1, addr2, is_default")
+    .eq("customer_id", customerId)
+    .order("is_default", { ascending: false })
+    .order("created_at");
+  return (data ?? []) as CustomerAddress[];
+}
