@@ -4,16 +4,17 @@ import type { AiConfig } from "@/lib/ai";
 import type { AdsAuth, NaverAuth } from "@/lib/naver";
 import { UserError } from "@/lib/errors";
 import { getSettings } from "@/lib/store";
-import { DEFAULT_IMAGE_MODEL, DEFAULT_MODEL, isImageModel, isTextModel } from "@/lib/models";
+import { DEFAULT_IMAGE_MODEL, DEFAULT_MODEL, currentTextModel, isImageModel, isTextModel } from "@/lib/models";
 import type { Settings } from "@/lib/types";
 
 // 회원 본인 설정·키 조회(권한 확인은 route.ts의 guard가 먼저 한다). next 모듈을 쓰지 않아 단계 처리·시험에서 바로 쓸 수 있다.
 export async function loadSettings(userId: string): Promise<Settings> {
   const s = (await getSettings<Settings>(userId))?.data;
   const provider = s?.provider === "openai" || s?.provider === "gemini" ? s.provider : "gemini";
+  const model = s && typeof s.model === "string" ? currentTextModel(s.model) : "";
   return {
     provider,
-    model: s && isTextModel(provider, s.model) ? s.model : DEFAULT_MODEL[provider],
+    model: isTextModel(provider, model) ? model : DEFAULT_MODEL[provider],
     imageModel: s && isImageModel(s.imageModel) ? s.imageModel : DEFAULT_IMAGE_MODEL,
   };
 }
