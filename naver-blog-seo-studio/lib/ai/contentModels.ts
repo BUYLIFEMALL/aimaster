@@ -1,4 +1,4 @@
-import { DEFAULT_OPENAI_CONTENT_MODEL, OPENAI_CONTENT_MODELS, type OpenAIContentModel } from "./openaiModels";
+import { currentModelName, DEFAULT_OPENAI_CONTENT_MODEL, OPENAI_CONTENT_MODELS, type OpenAIContentModel } from "./openaiModels";
 
 export const CONTENT_PROVIDERS = ["openai", "anthropic", "gemini"] as const;
 export type ContentProvider = (typeof CONTENT_PROVIDERS)[number];
@@ -12,7 +12,6 @@ export const CONTENT_MODEL_OPTIONS: ContentModelOption[] = [
   { value: "claude-opus-5", label: "Claude Opus 5 · 복잡한 맥락과 고품질 글", provider: "anthropic" },
   { value: "gemini-3.5-flash-lite", label: "Gemini 3.5 Flash Lite · 빠르고 경제적인 기본 모델", provider: "gemini" },
   { value: "gemini-3.7-flash", label: "Gemini 3.7 Flash · 속도와 품질의 균형", provider: "gemini" },
-  { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro · 깊이 있는 분석과 장문", provider: "gemini" },
   { value: "gemini-3.1-pro-preview", label: "Gemini 3.1 Pro Preview · 고품질 콘텐츠", provider: "gemini" },
   { value: "claude-fable-5", label: "Claude Fable 5 · 최신 고성능 장문 콘텐츠", provider: "anthropic" },
   { value: "gemini-3.5-flash", label: "Gemini 3.5 Flash · 일상적인 본문 생성 균형형", provider: "gemini" },
@@ -44,7 +43,8 @@ export function isContentModelForProvider(provider: ContentProvider, value: unkn
 }
 
 export function resolveContentModel(provider: ContentProvider, value: unknown) {
-  return isContentModelForProvider(provider, value) ? String(value) : getDefaultContentModel(provider);
+  const current = currentModelName(value);
+  return isContentModelForProvider(provider, current) ? String(current) : getDefaultContentModel(provider);
 }
 
 // 2026-10-23: 원고 기록(seo_report.generatedModel)에 남길 「회사 · 모델」 — 나중에 어떤 모델로 만든 글인지 확인용.

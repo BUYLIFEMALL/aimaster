@@ -95,7 +95,7 @@ test("v1.97: account model wins, legacy OpenAI setting is inherited, OpenAI-only
   assert.equal(accountContentModel({ naver_blog_seo_content_model: { provider: "openai", model: "retired" } }, options), null);
   assert.equal(accountContentModel(undefined, options), null);
   assert.equal(getUserOpenAIContentModel({ naver_blog_seo_content_model: { provider: "openai", model: "gpt-4o-mini" }, naver_blog_seo_openai_model: "gpt-4.1" }), "gpt-4o-mini");
-  assert.equal(getUserOpenAIContentModel({ naver_blog_seo_content_model: { provider: "anthropic", model: "claude-haiku-4-5" }, naver_blog_seo_openai_model: "gpt-5" }), "gpt-5");
+  assert.equal(getUserOpenAIContentModel({ naver_blog_seo_content_model: { provider: "anthropic", model: "claude-haiku-4-5" }, naver_blog_seo_openai_model: "gpt-5" }), "gpt-5.6-sol"); // 2026-11-03: 종료 모델 gpt-5 저장값은 대체 모델로 이어받음
   assert.equal(getUserOpenAIContentModel({}), "gpt-4.1");
 });
 
