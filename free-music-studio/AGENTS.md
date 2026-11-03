@@ -1,6 +1,6 @@
 # AI 무료음악 자동화 (`free-music-studio`) — 에이전트 작업 지침
 
-> 상태: **v1.05 배포 완료(2026-11-03) — 프로젝트·플레이리스트 + 한글 폴더 고르기** — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지(설치 파일 공개 전). 엔진 0.1.3(`engine/`). **미배포 대기**: 한글 입력 중 Enter 무시(`e17ace42a`). 다음: 가져온 음악(커버) → 작업 대기열 → 영상, 엔진 0.2 설치 파일(자동 실행). 플랜: [`docs/PLAN_20261103_V1_01.md`](docs/PLAN_20261103_V1_01.md)
+> 상태: **v1.05 배포 완료(2026-11-03) — 프로젝트·플레이리스트 + 한글 폴더 고르기** — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지(설치 파일 공개 전). 엔진 0.1.3(`engine/`). **미배포 대기(v1.06)**: 한글 입력 중 Enter 무시(`e17ace42a`) · 가져온 음악 커버·부분 수정(`8c7d2d039`) · AI 작사 OpenAI/Claude/Gemini(`70b78a36d`) · 최고 품질(엔진 0.1.4, `4b6514cee`, 미니PC 실물: 30초 80초·FLAC 원음·MP3 320k 확인). **⚠ 배포 전 `supabase/migrations/20261103_v1_06_cover.sql` 먼저 실행.** 주인님 지시: 음악 퀄리티 최고 수준 방향(플랜 맨 위). 다음: 가져온 음악(커버) → 작업 대기열 → 영상, 엔진 0.2 설치 파일(자동 실행). 플랜: [`docs/PLAN_20261103_V1_01.md`](docs/PLAN_20261103_V1_01.md)
 > 담당: [역할: music] Claude Code(윈도우(미니PC)). 작업 전 루트 `CLAUDE.md`·`AGENTS.md`, `docs/roles/music.md`, 이 플랜을 읽는다.
 
 ## 꼭 지킬 것
