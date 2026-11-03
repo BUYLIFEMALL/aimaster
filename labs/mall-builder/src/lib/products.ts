@@ -21,7 +21,7 @@ export type ProductInput = {
   cost: number | null;
   tax_type: "taxable" | "exempt";
   status: ProductStatus;
-  stock_mode: "none" | "product";
+  stock_mode: "none" | "product"; // 「product」 + 옵션이 있으면 옵션별 재고(옵션 조합 표의 stock)
   stock: number;
   images: ProductImage[];
   category_ids: string[];

@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { CategoryRow } from "@/lib/categories";
+import type { OptionGroup, Variant } from "@/lib/options";
 
 export type Store = {
   id: string;
@@ -73,13 +74,26 @@ export type ProductRow = {
   list_price: number | null;
   tax_type: "taxable" | "exempt";
   status: "draft" | "on_sale" | "sold_out" | "hidden";
-  stock_mode: "none" | "product";
+  stock_mode: "none" | "product"; // 「product」 + 옵션이 있으면 옵션별 재고
   stock: number;
   images: { url: string; path: string }[];
+  option_groups: OptionGroup[];
   created_at: string;
 };
 
-export const PRODUCT_COLUMNS = "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, created_at";
+export const PRODUCT_COLUMNS =
+  "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, created_at";
+
+/** 상품의 옵션 조합(정렬 순서대로) */
+export async function getProductVariants(productId: string): Promise<(Variant & { id: string })[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_product_variants")
+    .select("id, key, values, extra_price, stock, sku, is_active")
+    .eq("product_id", productId)
+    .order("sort");
+  return (data ?? []) as (Variant & { id: string })[];
+}
 
 /** 운영자용 상품 목록(모든 상태) — 보안 규칙상 운영자가 아니면 손님에게 보이는 것만 온다 */
 export async function getStoreProducts(storeId: string): Promise<(ProductRow & { category_ids: string[] })[]> {

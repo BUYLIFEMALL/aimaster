@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoryRows, getProductForEdit, getStaffStore } from "@/lib/store";
+import { getCategoryRows, getProductForEdit, getProductVariants, getStaffStore } from "@/lib/store";
+import OptionsEditor from "./options-editor";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { AdminShell, NoPermission } from "../../admin-shell";
 import ProductForm from "../product-form";
@@ -22,7 +23,8 @@ export default async function EditProductPage({
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const product = await getProductForEdit(store.id, id);
   if (!product) notFound();
-  const categories = flattenTree(buildCategoryTree(await getCategoryRows(store.id), true));
+  const [categoryRows, variants] = await Promise.all([getCategoryRows(store.id), getProductVariants(product.id)]);
+  const categories = flattenTree(buildCategoryTree(categoryRows, true));
   const won = (n: number | null) => (n == null ? "" : String(n));
 
   return (
@@ -52,6 +54,19 @@ export default async function EditProductPage({
           category_ids: product.category_ids,
         }}
       />
+      <div className="mt-8">
+        <OptionsEditor
+          slug={store.slug}
+          productId={product.id}
+          basePrice={product.base_price}
+          stockByOption={product.stock_mode === "product"}
+          initialGroups={product.option_groups ?? []}
+          initialVariants={variants}
+        />
+        {variants.length > 0 && product.stock_mode === "product" && (
+          <p className="mt-2 text-xs text-gray-500">옵션이 있는 상품은 위 「재고 수량」 대신 옵션 조합별 재고를 씁니다.</p>
+        )}
+      </div>
     </AdminShell>
   );
 }
