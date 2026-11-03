@@ -5,6 +5,19 @@ export const FEE_KINDS = ["주택", "오피스텔", "그 외(상가·토지 등)
 export type FeeKind = (typeof FEE_KINDS)[number];
 export type FeeDeal = "매매" | "전세" | "월세";
 
+// 시·도 조례(주택만 해당 — 오피스텔·그 외는 시행규칙 별표 2로 전국 같음). 2021-10-19 개정 때 「조례로 ±0.1%p 가감」 조항이 빠져
+// 시·도 조례는 별표 1 요율을 그대로 반영한다. checked = 공식 게시본과 직접 대조한 곳(2026-11-03), 나머지는 조례 원문 확인 안내.
+export const REGIONS = ["서울특별시", "부산광역시", "대구광역시", "인천광역시", "광주광역시", "대전광역시", "울산광역시", "세종특별자치시", "경기도", "강원특별자치도", "충청북도", "충청남도", "전북특별자치도", "전라남도", "경상북도", "경상남도", "제주특별자치도"] as const;
+export const REGION_CHECKED: Partial<Record<(typeof REGIONS)[number], string>> = {
+  서울특별시: "서울시 부동산정보광장 게시 요율과 같음(서울특별시 주택중개보수 등에 관한 조례 별표 1, 2021-12-30 시행)",
+  충청남도: "공주시청 게시 요율과 같음(충청남도 주택의 중개보수 등에 관한 조례 별표, 2021-10-19 시행)",
+  충청북도: "충청북도 조례 개정(시행규칙 개정 반영, 구간 6단계) 공고와 같음",
+};
+export function regionNote(region: string): string {
+  const checked = REGION_CHECKED[region as (typeof REGIONS)[number]];
+  return checked ? `✅ ${checked}` : `${region} 조례도 시행규칙 별표 1 요율을 따릅니다. 원문은 국가법령정보센터 자치법규에서 「${region} 주택 중개보수 등에 관한 조례」로 확인하세요.`;
+}
+
 type Band = { under: number; rate: number; cap: number | null }; // under: 만 원(이 금액 미만), cap: 원
 const HOUSE_SALE: Band[] = [
   { under: 5_000, rate: 0.006, cap: 250_000 },

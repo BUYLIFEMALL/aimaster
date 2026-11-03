@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { brokerFee, dealBase } from "../src/lib/desk/fee.ts";
+import { REGIONS, brokerFee, dealBase, regionNote } from "../src/lib/desk/fee.ts";
 
 test("월세 거래금액: 보증금+월세×100, 5천만 미만이면 ×70", () => {
   assert.equal(dealBase("월세", 1000, 50), 6000);   // 1천 + 50×100 = 6천
@@ -30,4 +30,10 @@ test("오피스텔·그 외, 협의 요율은 상한보다 낮을 때만", () =>
   assert.equal(brokerFee("그 외(상가·토지 등)", "매매", 100000).feeWon, 9_000_000); // 0.9%
   assert.equal(brokerFee("그 외(상가·토지 등)", "매매", 100000, 0, 0.005).feeWon, 5_000_000);
   assert.equal(brokerFee("그 외(상가·토지 등)", "매매", 100000, 0, 0.02).rate, 0.009); // 상한 넘는 협의는 무시
+});
+
+test("시·도 17곳, 대조한 곳은 ✅ 표시·나머지는 조례 이름 안내", () => {
+  assert.equal(REGIONS.length, 17);
+  assert.ok(regionNote("서울특별시").startsWith("✅"));
+  assert.ok(regionNote("부산광역시").includes("부산광역시 주택 중개보수 등에 관한 조례"));
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FEE_KINDS, brokerFee, type FeeDeal, type FeeKind } from "@/lib/desk/fee";
+import { FEE_KINDS, REGIONS, brokerFee, regionNote, type FeeDeal, type FeeKind } from "@/lib/desk/fee";
 import { parseManwon } from "@/lib/desk/consent";
 
 const field = "mb-1 block text-xs font-semibold text-mx-muted";
@@ -16,6 +16,7 @@ export function FeeCalculator({ initial }: { initial: { kind?: string; deal?: st
   const [monthly, setMonthly] = useState(initial.monthly ?? "");
   const [agreed, setAgreed] = useState("");
   const [vat, setVat] = useState(true);
+  const [region, setRegion] = useState<string>("서울특별시");
 
   const result = useMemo(() => {
     const p = parseManwon(price);
@@ -31,6 +32,10 @@ export function FeeCalculator({ initial }: { initial: { kind?: string; deal?: st
         <div className="grid gap-3 sm:grid-cols-2">
           <label><span className={field}>매물 종류</span>
             <select value={kind} onChange={(e) => setKind(e.target.value as FeeKind)} className="mx-input">{FEE_KINDS.map((k) => <option key={k}>{k}</option>)}</select></label>
+          {kind === "주택" && (
+            <label className="sm:col-span-2"><span className={field}>지역(주택 요율은 시·도 조례로 정해요)</span>
+              <select value={region} onChange={(e) => setRegion(e.target.value)} className="mx-input">{REGIONS.map((r) => <option key={r}>{r}</option>)}</select></label>
+          )}
           <label><span className={field}>거래</span>
             <select value={deal} onChange={(e) => setDeal(e.target.value as FeeDeal)} className="mx-input"><option>매매</option><option>전세</option><option>월세</option></select></label>
           <label><span className={field}>{deal === "매매" ? "매매가" : "보증금"} (예: 4억, 3.5억, 5000)</span>
@@ -57,6 +62,7 @@ export function FeeCalculator({ initial }: { initial: { kind?: string; deal?: st
             <p className="text-xs text-mx-muted">거래금액 {manText(result.baseManwon)}{deal === "월세" ? " (보증금 + 월세×100, 5천만 원 미만이면 ×70)" : ""} · 상한요율 {(result.rate * 100).toLocaleString("ko-KR", { maximumFractionDigits: 2 })}%{result.capWon !== null ? ` · 한도 ${wonText(result.capWon)}` : ""}</p>
             <p className="text-3xl font-black text-mx-text">{wonText(vat ? result.feeWon + result.vatWon : result.feeWon)}</p>
             <p className="text-mx-muted">{vat ? `중개보수 ${wonText(result.feeWon)} + 부가세 ${wonText(result.vatWon)}` : "부가세 별도"} · 의뢰인 한쪽 기준 상한</p>
+            {kind === "주택" && <p className="text-xs text-mx-muted">📍 {regionNote(region)}</p>}
             <p className="rounded-lg bg-[#f4f6f9] p-3 text-xs text-mx-muted">💡 {result.note} 상한 안에서 의뢰인과 협의해 정하며, 계약 전에 중개보수를 설명하고 영수증을 주어야 해요. 참고용 계산이며 법률 자문이 아니에요.</p>
           </div>
         )}
