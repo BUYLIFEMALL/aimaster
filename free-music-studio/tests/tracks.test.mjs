@@ -13,6 +13,13 @@ test("곡 기록: 정상 입력은 다듬어 통과", () => {
   assert.equal(r.value.song_id, null);
 });
 
+test("곡 기록: 사용 범위 — 기본 상업용, 비상업용(YuE2)은 새 곡 만들기만", () => {
+  assert.equal(parseTrackInput(ok).value.license, "commercial");
+  assert.equal(parseTrackInput({ ...ok, license: "noncommercial" }).value.license, "noncommercial");
+  assert.equal(parseTrackInput({ ...ok, license: "free" }).ok, false);
+  assert.equal(parseTrackInput({ ...ok, license: "noncommercial", kind: "cover", duration_sec: 120 }).ok, false);
+});
+
 test("곡 기록: 제목이 비면 「제목 없는 노래」", () => {
   assert.equal(parseTrackInput({ ...ok, title: "  " }).value.title, "제목 없는 노래");
 });

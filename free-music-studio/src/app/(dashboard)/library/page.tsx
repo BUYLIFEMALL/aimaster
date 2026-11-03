@@ -125,7 +125,7 @@ export default function LibraryPage() {
 
   // 듣기는 화면 아래 재생바 하나로 — 지금 보이는(이 PC에 있는) 곡 순서가 재생 목록이 된다.
   const player = usePlayer();
-  const toPlayer = (t: Track) => ({ key: t.id, title: t.title, subtitle: `${durationLabel(t.duration_sec)}${KIND_LABEL[t.kind] ? ` · ${KIND_LABEL[t.kind]}` : ""}` });
+  const toPlayer = (t: Track) => ({ key: t.id, title: t.title, subtitle: `${durationLabel(t.duration_sec)}${KIND_LABEL[t.kind] ? ` · ${KIND_LABEL[t.kind]}` : ""}${t.license === "noncommercial" ? " · 비상업용" : ""}` });
   const copy = async (text: string, what: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -398,6 +398,11 @@ export default function LibraryPage() {
                         </p>
                         <p className="mt-0.5 truncate text-[11px] text-slate-500">
                           {KIND_LABEL[t.kind] && <span className="mr-1 rounded bg-sky-900/60 px-1.5 py-0.5 text-sky-200">{KIND_LABEL[t.kind]}</span>}
+                          {t.license === "noncommercial" && (
+                            <span className="mr-1 rounded bg-amber-500/15 px-1.5 py-0.5 font-semibold text-amber-200" title="YuE2(CC BY-NC 4.0)로 만든 곡 — 수익 영상·판매에 쓸 수 없습니다">
+                              비상업용
+                            </span>
+                          )}
                           {durationLabel(t.duration_sec)} · {DEVICE_LABEL[t.device] ?? t.device} · {new Date(t.created_at).toLocaleString("ko-KR")}
                           {here === false && <span className="text-amber-300/80"> · 이 PC에 음원 없음(다른 PC에서 만들었거나 지운 곡)</span>}
                         </p>

@@ -9,6 +9,8 @@ import {
   EngineError,
   enqueueSong,
   hasQueue,
+  hasYue2,
+  type MusicEngineId,
   checkTask,
   fetchAudio,
   fetchLibraryFile,
@@ -22,6 +24,8 @@ type Take = { id: string; trackId: string | null; ext: string; title: string; ur
 
 const POLL_MS = 3000;
 const MAX_WAIT_MS = 45 * 60_000; // CPU 모드 4분 곡 + 첫 모델 내려받기까지 여유
+
+const YUE2_CONSENT_KEY = "fms-yue2-noncommercial-consent";
 
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
@@ -65,7 +69,24 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
   const canStart = ready && !busy && !round && (song.style_prompt.trim() || song.lyrics.trim());
   // 엔진 0.1.6+: 엔진 대기열에 넣는다(탭을 닫아도 계속 만들고, 엔진이 준비 중이어도 넣어 둘 수 있음)
   const queueMode = paired && hasQueue(status);
-  const canQueue = queueMode && !queueing && !!(song.style_prompt.trim() || song.lyrics.trim());
+  // 엔진 0.2.0+: 음악 엔진 고르기 — ACE-Step(상업용, 기본) / YuE2(비상업용, 처음 쓸 때 동의)
+  const yue2Ready = queueMode && hasYue2(status);
+  const [musicEngine, setMusicEngine] = useState<MusicEngineId>("acestep");
+  const [consent, setConsent] = useState(false);
+  useEffect(() => {
+    try {
+      setConsent(localStorage.getItem(YUE2_CONSENT_KEY) === "1");
+    } catch {}
+  }, []);
+  const agree = (v: boolean) => {
+    setConsent(v);
+    try {
+      if (v) localStorage.setItem(YUE2_CONSENT_KEY, "1");
+      else localStorage.removeItem(YUE2_CONSENT_KEY);
+    } catch {}
+  };
+  const engineToUse: MusicEngineId = yue2Ready && musicEngine === "yue2" ? "yue2" : "acestep";
+  const canQueue = queueMode && !queueing && !!(song.style_prompt.trim() || song.lyrics.trim()) && (engineToUse !== "yue2" || consent);
   const [queued, setQueued] = useState(0);
 
   const addToQueue = async () => {
@@ -75,7 +96,7 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
     let n = 0;
     try {
       for (let i = 0; i < count; i++) {
-        await enqueueSong(song, { title: title.trim() || "제목 없는 노래", songId, device: status.device }, status.quality);
+        await enqueueSong(song, { title: title.trim() || "제목 없는 노래", songId, device: status.device }, status.quality, engineToUse);
         n++;
       }
     } catch (e) {
@@ -175,6 +196,44 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           </Link>
           에서 확인해 주세요.
         </p>
+      )}
+
+      {yue2Ready && (
+        <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/50 p-3">
+          <p className="text-[11px] font-semibold text-slate-300">🎛️ 음악 엔진</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {(
+              [
+                { id: "acestep", name: "ACE-Step 1.5", badge: "상업용", desc: "수익 영상·판매에도 쓸 수 있습니다. 노래·연주곡·커버·부분 수정." },
+                { id: "yue2", name: "YuE2", badge: "비상업용", desc: "노래 음질이 좋은 모델입니다. 개인 감상·비수익 용도만(CC BY-NC 4.0)." },
+              ] as const
+            ).map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                onClick={() => setMusicEngine(o.id)}
+                aria-pressed={musicEngine === o.id}
+                className={`rounded-xl border p-3 text-left transition ${musicEngine === o.id ? "border-emerald-400/70 bg-emerald-500/10" : "border-slate-700/60 hover:border-slate-500"}`}
+              >
+                <span className="flex items-center gap-2 text-xs font-bold text-slate-100">
+                  {o.name}
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${o.id === "yue2" ? "bg-amber-500/20 text-amber-200" : "bg-emerald-500/20 text-emerald-200"}`}>{o.badge}</span>
+                </span>
+                <span className="mt-1 block text-[11px] leading-relaxed text-slate-400">{o.desc}</span>
+              </button>
+            ))}
+          </div>
+          {musicEngine === "yue2" && (
+            <div className="space-y-1.5 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5 text-[11px] leading-relaxed text-amber-100/90">
+              <p>⚠️ YuE2로 만든 곡은 <b>비상업용</b>입니다. 유튜브 수익 영상·광고·판매·납품에 쓰면 저작권 조건(CC BY-NC 4.0) 위반입니다. 「모든 음악」에 「비상업용」으로 표시됩니다.</p>
+              <p>💡 처음 한 번은 YuE2 모델(약 8GB)을 내 PC로 받느라 오래 걸립니다. 만드는 동안 ACE-Step은 잠시 멈췄다가 끝나면 다시 켜집니다. 지금은 새 곡 만들기만 됩니다.</p>
+              <label className="flex items-center gap-2 font-semibold text-amber-200">
+                <input type="checkbox" checked={consent} onChange={(e) => agree(e.target.checked)} className="h-3.5 w-3.5 accent-amber-400" />
+                비상업 용도로만 쓰겠습니다
+              </label>
+            </div>
+          )}
+        </div>
       )}
 
       <div className="flex flex-wrap items-center gap-3">

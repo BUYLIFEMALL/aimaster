@@ -62,7 +62,8 @@ export type SystemReport = {
   check: { verdict: CheckStatus; headline: string; items: CheckItem[] };
   options: QualityOption[];
   selected: string;
-  engines: { id: string; name: string; note: string; selected: boolean }[];
+  // 0.2.0+: license·supported·reason, YuE2는 installed(받아 둠)·downloadGb(더 받을 크기)·profile(구성)도
+  engines: { id: string; name: string; note: string; selected: boolean; license?: "commercial" | "noncommercial"; supported?: boolean; reason?: string; installed?: boolean; downloadGb?: number | null; profile?: string }[];
 };
 
 export type SongForEngine = { style_prompt: string; lyrics: string; duration_sec: number };
@@ -393,7 +394,21 @@ export type QueueJob = {
   error?: string;
   result?: { trackId: string; ext: string };
   recorded: boolean;
+  engine?: MusicEngineId; // 엔진 0.2.0+
+  license?: TrackLicense;
 };
+
+// ── 음악 엔진 고르기(엔진 0.2.0+) ──────────────────────────────
+// ACE-Step = 상업용 사용 가능(기본), YuE2 = 비상업용(CC BY-NC 4.0 — 수익 영상·판매 불가, 2026-11-04 주인님 결정: 회원도 쓰되 구분 표시)
+export type MusicEngineId = "acestep" | "yue2";
+export type TrackLicense = "commercial" | "noncommercial";
+export const LICENSE_LABEL: Record<TrackLicense, string> = { commercial: "상업용", noncommercial: "비상업용" };
+export const licenseOfEngine = (e: MusicEngineId): TrackLicense => (e === "yue2" ? "noncommercial" : "commercial");
+
+/** 이 PC 엔진이 YuE2를 쓸 수 있는가(엔진 0.2.0+ · 윈도우 NVIDIA 8GB+) */
+export function hasYue2(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("yue2");
+}
 
 export const QUEUE_LABEL: Record<QueueStatus, string> = { queued: "대기 중", running: "만드는 중", done: "완료", failed: "실패", cancelled: "취소됨", interrupted: "중단됨" };
 
@@ -414,13 +429,15 @@ export async function listQueue(): Promise<QueueJob[]> {
 export async function enqueueSong(
   song: SongForEngine,
   info: { title: string; songId: string | null; device: string },
-  quality?: EngineQuality | null
+  quality?: EngineQuality | null,
+  engine: MusicEngineId = "acestep"
 ): Promise<QueueJob> {
   const track: QueueTrack = { id: crypto.randomUUID(), song_id: info.songId, style_prompt: song.style_prompt, lyrics: song.lyrics, duration_sec: song.duration_sec, device: info.device, kind: "text2music" };
   const res = await call("/queue", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "text2music", title: info.title, track, task: buildTaskBody(song, info.device, quality) }),
+    // engine은 YuE2일 때만 보낸다(옛 엔진은 모르는 칸을 그냥 무시하지만, 상업용이 기본)
+    body: JSON.stringify({ kind: "text2music", title: info.title, track, task: buildTaskBody(song, info.device, quality), ...(engine === "yue2" ? { engine } : {}) }),
   });
   return (await res.json()).job;
 }
@@ -456,7 +473,7 @@ export async function markJobRecorded(id: string) {
 
 /** 끝난 작업 → 「모든 음악」 기록 본문(/api/tracks) */
 export function trackRecordOf(job: QueueJob) {
-  return { ...job.track, title: job.title };
+  return { ...job.track, title: job.title, license: job.license ?? licenseOfEngine(job.engine ?? "acestep") };
 }
 
 /** 완성 음원을 받아 브라우저 안 주소(blob:)로 돌려준다. 재생·내려받기에 같이 쓴다. */

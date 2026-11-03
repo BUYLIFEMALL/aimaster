@@ -13,9 +13,14 @@ export type TrackInput = {
   duration_sec: number;
   device: string;
   kind: TrackKind;
+  license: TrackLicense;
 };
 
 export type Track = TrackInput & { created_at: string; project_id: string | null };
+
+/** 상업용(ACE-Step) / 비상업용(YuE2, CC BY-NC 4.0) — v1.10, DB 칸 free_music_tracks.license */
+export type TrackLicense = "commercial" | "noncommercial";
+const LICENSES: TrackLicense[] = ["commercial", "noncommercial"];
 
 /** 노래 만들기 / 가져온 음악 커버 / 일부만 다시 만들기(v1.06) */
 export type TrackKind = "text2music" | "cover" | "repaint";
@@ -39,12 +44,16 @@ export function parseTrackInput(body: unknown): { ok: true; value: TrackInput } 
   const duration = Number(b.duration_sec);
   const device = typeof b.device === "string" ? b.device : "";
   const kind = (b.kind === undefined ? "text2music" : b.kind) as TrackKind;
+  const license = (b.license === undefined ? "commercial" : b.license) as TrackLicense;
 
   if (!UUID.test(id)) return { ok: false, error: "곡 번호가 올바르지 않습니다." };
   if (songId && !UUID.test(songId)) return { ok: false, error: "곡 번호가 올바르지 않습니다." };
   if (title.length > LIMITS.title) return { ok: false, error: `곡 제목은 ${LIMITS.title}자까지 쓸 수 있습니다.` };
   if (style.length > LIMITS.style || lyrics.length > LIMITS.lyrics) return { ok: false, error: "스타일·가사가 너무 깁니다." };
   if (!KINDS.includes(kind)) return { ok: false, error: "곡 종류가 올바르지 않습니다." };
+  if (!LICENSES.includes(license)) return { ok: false, error: "사용 범위(상업용·비상업용)가 올바르지 않습니다." };
+  // YuE2는 지금 새 곡 만들기만 한다
+  if (license === "noncommercial" && kind !== "text2music") return { ok: false, error: "비상업용 엔진은 새 곡 만들기만 할 수 있습니다." };
   const durationOk =
     kind === "text2music"
       ? (DURATIONS as readonly number[]).includes(duration)
@@ -52,5 +61,5 @@ export function parseTrackInput(body: unknown): { ok: true; value: TrackInput } 
   if (!durationOk) return { ok: false, error: "곡 길이가 올바르지 않습니다." };
   if (!DEVICES.includes(device)) return { ok: false, error: "만든 장치 정보가 올바르지 않습니다." };
 
-  return { ok: true, value: { id, song_id: songId, title, style_prompt: style, lyrics, duration_sec: duration, device, kind } };
+  return { ok: true, value: { id, song_id: songId, title, style_prompt: style, lyrics, duration_sec: duration, device, kind, license } };
 }

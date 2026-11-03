@@ -200,12 +200,30 @@ function EngineCheck({ engine }: { engine: Engine }) {
         <p className="text-xs font-bold text-slate-200">🧩 사용할 엔진</p>
         {report.engines.map((e) => (
           <div key={e.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-800 px-4 py-2.5 text-xs">
-            <span className="font-semibold text-slate-200">{e.name}</span>
+            <span className="flex items-center gap-2 font-semibold text-slate-200">
+              {e.name}
+              {e.license && (
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${e.license === "noncommercial" ? "bg-amber-500/20 text-amber-200" : "bg-emerald-500/20 text-emerald-200"}`}>
+                  {e.license === "noncommercial" ? "비상업용" : "상업용"}
+                </span>
+              )}
+            </span>
             <span className="text-slate-400">{e.note}</span>
-            {e.selected && <span className="rounded-full border border-emerald-500/40 px-2 py-0.5 text-[11px] font-bold text-emerald-300">사용 중</span>}
+            {e.selected ? (
+              <span className="rounded-full border border-emerald-500/40 px-2 py-0.5 text-[11px] font-bold text-emerald-300">기본</span>
+            ) : e.supported === false ? (
+              <span className="text-[11px] text-slate-500">이 PC에서는 못 씀 — {e.reason}</span>
+            ) : e.supported ? (
+              <span className="text-[11px] text-teal-200">
+                곡 만들기 화면에서 고를 수 있음 · {e.installed ? "받아 둠" : e.downloadGb != null ? `처음 쓸 때 약 ${e.downloadGb}GB 받음` : "처음 쓸 때 받음"}
+                {e.profile ? ` · ${e.profile}` : ""}
+              </span>
+            ) : null}
           </div>
         ))}
-        <p className="text-[11px] text-slate-500">상업 이용이 허용된 엔진만 넣습니다. 새 엔진이 나오면 이곳에서 고를 수 있게 됩니다.</p>
+        <p className="text-[11px] text-slate-500">
+          상업용 엔진으로 만든 곡은 수익 영상·판매에 쓸 수 있습니다. 비상업용(YuE2) 곡은 개인 감상·비수익 용도만 되고, 「모든 음악」에 「비상업용」으로 표시됩니다.
+        </p>
       </div>
     </div>
   );

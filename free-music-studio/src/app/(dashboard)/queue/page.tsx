@@ -56,6 +56,7 @@ export default function QueuePage() {
         {i !== undefined && <span className="font-mono text-slate-500">{i + 1}.</span>}
         <span className="font-semibold text-slate-100">{j.title}</span>
         {KIND_LABEL[j.kind] && <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400">{KIND_LABEL[j.kind]}</span>}
+        {j.engine === "yue2" && <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-200" title="YuE2(CC BY-NC 4.0) — 수익 영상·판매에 쓸 수 없습니다">YuE2 · 비상업용</span>}
         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${TONE[j.status]}`}>
           {j.status === "running" && <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />}
           {QUEUE_LABEL[j.status]}
