@@ -99,3 +99,37 @@ test("긴 덩어리는 384px 이하 조각으로 나눠 작업 영역이 그림 
   assert.ok(c.length >= 6, "두 줄이 따로, 각 줄이 여러 조각으로");
   for (const b of c) { const r = workRegion(b, w, h); assert.ok(Math.max(r.w, r.h) <= 640, "작업 영역이 512에 가깝다"); }
 });
+
+import { PIECE_OVERLAP, clipToPiece, markDone } from "../src/lib/freeErase/protocol.ts";
+
+test("회색 얼룩 방지: 조각 결과는 그 조각(+겹침) 안에만 붙인다", () => {
+  const r = { x: 0, y: 0, w: 100, h: 20 }, m = new Uint8Array(100 * 20).fill(1);
+  const piece = { x: 40, y: 0, w: 20, h: 20 };
+  const c = clipToPiece(m, r, piece);
+  const on = []; for (let x = 0; x < 100; x++) if (c[5 * 100 + x]) on.push(x);
+  assert.equal(on[0], 40 - PIECE_OVERLAP);
+  assert.equal(on.at(-1), 60 + PIECE_OVERLAP - 1);
+  assert.equal(c.reduce((s, v) => s + v, 0), (20 + PIECE_OVERLAP * 2) * 20);
+});
+
+test("회색 얼룩 방지: 긴 줄을 조각마다 차례로 붙이면 칠한 곳이 모두 붙고, 남은 지울 곳은 0이 된다", () => {
+  const w = 1300, h = 400, mask = new Uint8Array(w * h);
+  for (let y = 270; y < 360; y++) for (let x = 60; x < 1210; x++) mask[y * w + x] = 1;
+  const remaining = mask.slice(), pasted = new Uint8Array(w * h);
+  const pieces = maskClusters(mask, w, h);
+  assert.ok(pieces.length >= 3);
+  for (const b of pieces) {
+    const r = workRegion(b, w, h);
+    const local = new Uint8Array(r.w * r.h);
+    for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) local[y * r.w + x] = remaining[(r.y + y) * w + r.x + x];
+    const clip = clipToPiece(local, r, b);
+    // 앞 조각이 이미 채운 자리는 다시 붙이지 않는다
+    for (let i = 0; i < clip.length; i++) if (clip[i]) { const y = (i / r.w) | 0, x = i % r.w; pasted[(r.y + y) * w + r.x + x] += 1; }
+    markDone(remaining, w, clip, r);
+  }
+  let missing = 0, twice = 0;
+  for (let i = 0; i < mask.length; i++) { if (mask[i] && !pasted[i]) missing++; if (pasted[i] > 1) twice++; }
+  assert.equal(missing, 0, "빠진 자리 없음");
+  assert.equal(twice, 0, "같은 자리를 두 번 덮지 않음");
+  assert.equal(remaining.reduce((s, v) => s + v, 0), 0);
+});

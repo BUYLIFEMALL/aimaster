@@ -2,7 +2,7 @@
 // 쓰는 법: await loadFreeErase("lama", p => …) → const out = await eraseRegion(img, mask, w, h) (mask: 원본 크기 0/1)
 //          const boxes = await detectTextBoxes(img, w, h) → fillBoxes(mask, w, h, boxes)
 import {
-  LAMA_SIZE, MASK_DILATE, binarizeMask, detInputSize, dilateMask, freeEraseErrorText, maskClusters, probToBoxes, scaleBoxes, workRegion,
+  LAMA_SIZE, MASK_DILATE, binarizeMask, clipToPiece, detInputSize, dilateMask, freeEraseErrorText, markDone, maskClusters, probToBoxes, scaleBoxes, workRegion,
   type Backend, type Box, type ModelKind, type RunOutput, type WorkerIn, type WorkerOut,
 } from "./protocol";
 
@@ -95,13 +95,14 @@ export async function eraseRegion(src: Src, mask: Uint8Array, w: number, h: numb
   const clusters = maskClusters(mask, w, h);
   if (!clusters.length) return out;
   await loadFreeErase("lama");
-  const full = maskCanvas(mask, w, h);
-  // 떨어진 덩어리마다 따로 계산(앞 덩어리 결과 위에 이어서) — 해상도 손실을 줄인다
-  for (const b of clusters) await eraseOne(out, full, workRegion(b, w, h), opts.dilate ?? MASK_DILATE);
+  // 떨어진 덩어리·조각마다 따로 계산(앞 결과 위에 이어서) — 해상도 손실을 줄인다.
+  // 남은 지울 곳(remaining)에서 이미 붙인 자리를 빼 가며 계산해, 뒤 조각이 앞 조각 결과를 덮지 않고 단서로 쓴다.
+  const remaining = mask.slice();
+  for (const b of clusters) await eraseOne(out, maskCanvas(remaining, w, h), remaining, w, b, workRegion(b, w, h), opts.dilate ?? MASK_DILATE);
   return out;
 }
 
-async function eraseOne(out: HTMLCanvasElement, full: HTMLCanvasElement, r: Box, dilate: number): Promise<void> {
+async function eraseOne(out: HTMLCanvasElement, full: HTMLCanvasElement, remaining: Uint8Array, imgW: number, piece: Box, r: Box, dilate: number): Promise<void> {
   const ox = ctx2d(out);
   const S = LAMA_SIZE, N = S * S;
 
@@ -125,9 +126,10 @@ async function eraseOne(out: HTMLCanvasElement, full: HTMLCanvasElement, r: Box,
   for (let i = 0; i < N; i++) { pd.data[i * 4] = clamp(res.rgb[i]); pd.data[i * 4 + 1] = clamp(res.rgb[N + i]); pd.data[i * 4 + 2] = clamp(res.rgb[2 * N + i]); pd.data[i * 4 + 3] = 255; }
   px.putImageData(pd, 0, 0);
 
-  // 4) 원래 크기로 되돌려 마스크(512에서 넓힌 만큼 원본에서도 넓힘) 부분에만 붙인다
+  // 4) 원래 크기로 되돌려 마스크(512에서 넓힌 만큼 원본에서도 넓힘) 중 이 조각 자리(+겹침)에만 붙인다
   const grow = Math.max(1, Math.round((dilate * Math.max(r.w, r.h)) / S));
-  const rm = dilateMask(binarizeMask(ctx2d(full).getImageData(r.x, r.y, r.w, r.h).data, 4, 3), r.w, r.h, grow);
+  const rm = clipToPiece(dilateMask(binarizeMask(ctx2d(full).getImageData(r.x, r.y, r.w, r.h).data, 4, 3), r.w, r.h, grow), r, piece);
+  markDone(remaining, imgW, rm, r);
   const patch = canvas(r.w, r.h), tx = ctx2d(patch);
   tx.drawImage(pc, 0, 0, r.w, r.h);
   tx.globalCompositeOperation = "destination-in";

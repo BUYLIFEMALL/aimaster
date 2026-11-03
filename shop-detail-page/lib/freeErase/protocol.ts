@@ -162,6 +162,26 @@ export function splitBox(b: Box, maxPiece = MAX_PIECE): Box[] {
   return out;
 }
 
+/**
+ * 조각 경계 회색 얼룩 방지(2026-11-03): 작업 영역 r은 조각 b보다 넓어서, 예전처럼 r 안의 칠한 곳 전체에 붙이면
+ * 뒤 조각이 앞 조각이 이미 채운 자리를 가장자리에서 덜 보고 그린 결과로 다시 덮었다. 붙이는 곳은 b(+겹침)로 자른다.
+ */
+export const PIECE_OVERLAP = 8;
+
+/** r 좌표 마스크에서 조각 b(+overlap) 바깥을 지운 새 마스크 */
+export function clipToPiece(m: Uint8Array, r: Box, b: Box, overlap = PIECE_OVERLAP): Uint8Array {
+  const out = new Uint8Array(m.length);
+  const x0 = Math.max(0, b.x - overlap - r.x), x1 = Math.min(r.w, b.x + b.w + overlap - r.x);
+  const y0 = Math.max(0, b.y - overlap - r.y), y1 = Math.min(r.h, b.y + b.h + overlap - r.y);
+  for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) out[y * r.w + x] = m[y * r.w + x];
+  return out;
+}
+
+/** 붙인 자리(r 좌표)를 원본 좌표의 남은 지울 곳에서 뺀다 — 다음 조각은 그 자리를 채워진 배경으로 보고 단서로 쓴다 */
+export function markDone(remaining: Uint8Array, imgW: number, pasted: Uint8Array, r: Box): void {
+  for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) if (pasted[y * r.w + x]) remaining[(r.y + y) * imgW + r.x + x] = 0;
+}
+
 /** 글자 찾기 입력 크기 — 긴 변을 limit 안으로 줄이고 32의 배수로 맞춘다 */
 export function detInputSize(w: number, h: number, limit = DET_LIMIT_SIDE): { width: number; height: number } {
   const s = Math.min(1, limit / Math.max(w, h));
