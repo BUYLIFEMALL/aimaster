@@ -31,8 +31,8 @@ interface SectionVisual {
   prompt: string
 }
 
-// 문장 선택·장면 설명용 텍스트 모델(회원 Gemini 키로 호출). 2026-09-30 모델 목록 조회로 제공 확인.
-const VISUAL_DIRECTOR_MODEL = 'gemini-2.5-flash'
+// 문장 선택·장면 설명용 텍스트 모델(회원 Gemini 키로 호출). 2026-11-03 gemini-2.5-flash(12-01 자동 연결) → 3.8-flash.
+const VISUAL_DIRECTOR_MODEL = 'gemini-3.8-flash'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

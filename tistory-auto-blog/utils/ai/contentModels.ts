@@ -33,7 +33,6 @@ export const CONTENT_MODEL_OPTIONS: ContentModelOption[] = [
   { provider: 'openai', value: 'gpt-4.1', name: 'GPT-4.1', purpose: '긴 지시사항을 따르는 블로그 원문 (기본)', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-4o-mini', name: 'GPT-4o mini', purpose: '짧은 글·가벼운 작업', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-4o', name: 'GPT-4o', purpose: '일반 블로그 글', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-5', name: 'GPT-5', purpose: '추론형 장문 글', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-5.6-luna', name: 'GPT-5.6 Luna', purpose: '추론형 · 가벼운 작업', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-5.6-terra', name: 'GPT-5.6 Terra', purpose: '추론형 · 일반 장문', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-5.6-sol', name: 'GPT-5.6 Sol', purpose: '추론형 · 복잡한 주제', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
@@ -53,8 +52,6 @@ export const CONTENT_MODEL_OPTIONS: ContentModelOption[] = [
   { provider: 'gemini', value: 'gemini-3.6-flash', name: 'Gemini 3.6 Flash', purpose: '일반 블로그 글', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
   { provider: 'gemini', value: 'gemini-3.7-flash', name: 'Gemini 3.7 Flash', purpose: '일반 블로그 글', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
   { provider: 'gemini', value: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', purpose: '일반 블로그 글 · 최신 Flash', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
-  { provider: 'gemini', value: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', purpose: '예전 BLOG 기본 모델', category: 'text', lifecycle: 'stable', endpoint: 'generate-content' },
-  { provider: 'gemini', value: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', purpose: '깊이 있는 분석형 장문', category: 'reasoning', lifecycle: 'stable', endpoint: 'generate-content' },
   { provider: 'gemini', value: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro Preview', purpose: '분석형 장문 · 미리보기 모델', category: 'reasoning', lifecycle: 'preview', endpoint: 'generate-content' },
 ]
 
@@ -85,12 +82,27 @@ export function getDefaultContentModel(provider: ContentProvider) {
   return DEFAULT_MODEL_BY_PROVIDER[provider]
 }
 
+// 종료·자동 연결되는 모델(2026-11-03, docs/PLAN_20261103_MODEL_MIGRATION_DEC.md): 브라우저·예약 작업에 저장된 옛 이름을 공식 대체 모델로 바꿔 호출한다.
+// gpt-5는 2026-12-11 종료, gemini-2.5는 2026-12-01부터 새 모델로 자동 연결.
+const RETIRED_CONTENT_MODEL: Record<string, string> = {
+  'gpt-5': 'gpt-5.6-sol',
+  'gemini-2.5-flash': 'gemini-3.8-flash',
+  'gemini-2.5-pro': 'gemini-3.8-flash',
+  'gemini-2.5-flash-lite': 'gemini-3.5-flash-lite',
+}
+
+function currentContentModelValue(value: unknown): unknown {
+  return typeof value === 'string' ? RETIRED_CONTENT_MODEL[value] ?? value : value
+}
+
 export function findContentModel(value: unknown) {
-  return CONTENT_MODEL_OPTIONS.find((model) => model.value === value)
+  const current = currentContentModelValue(value)
+  return CONTENT_MODEL_OPTIONS.find((model) => model.value === current)
 }
 
 export function resolveContentModel(provider: ContentProvider, value: unknown): string {
-  return getContentModels(provider).some((model) => model.value === value) ? String(value) : getDefaultContentModel(provider)
+  const current = currentContentModelValue(value)
+  return getContentModels(provider).some((model) => model.value === current) ? String(current) : getDefaultContentModel(provider)
 }
 
 // 이미지 생성은 현재 Google Gemini(나노바나나)만 지원한다. 값은 utils/news/nanoBananaConfig.ts의 키와 같다.
