@@ -23,14 +23,20 @@ export function KakaoTemplateSection({ templateId }: { templateId: string | null
           친구톡과 달리 채널을 추가하지 않은 회원에게도 발송할 수 있는 정보성 메시지입니다.
         </p>
       </div>
-      <form action={formAction} className="flex flex-wrap items-end gap-3 rounded-xl border border-mx-border bg-dark-50 p-4">
+      {/* key: 지우거나 바꾼 뒤 입력칸이 저장된 값으로 다시 그려지게 */}
+      <form key={templateId ?? "none"} action={formAction} className="flex flex-wrap items-end gap-3 rounded-xl border border-mx-border bg-dark-50 p-4">
         <div className="min-w-[220px] flex-1">
-          <label className="mb-1 block text-xs text-mx-muted">알림톡 템플릿 ID</label>
+          <label className="mb-1 block text-xs text-mx-muted">알림톡 템플릿 ID {templateId ? "(고치려면 값을 바꾸고 「저장」)" : ""}</label>
           <Input name="templateId" defaultValue={templateId ?? ""} placeholder="KA01TP..." />
         </div>
         <Button type="submit" variant="secondary" disabled={isPending}>
-          {isPending ? "저장 중..." : "저장"}
+          {isPending ? "처리 중..." : "저장"}
         </Button>
+        {templateId && (
+          <Button type="submit" name="intent" value="delete" variant="secondary" disabled={isPending}>
+            🗑 삭제
+          </Button>
+        )}
         {state.error && <p className="w-full text-xs text-mx-danger">{state.error}</p>}
         {state.success && <p className="w-full text-xs text-mx-success">{state.success}</p>}
       </form>

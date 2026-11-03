@@ -127,9 +127,24 @@ export async function saveKakaoTemplateAction(
   formData: FormData,
 ): Promise<KakaoTemplateActionState> {
   const user = await requireProgramAccess();
-  const templateId = String(formData.get("templateId") ?? "").trim() || null;
-
   const supabase = await createClient();
+
+  // 2026-11-03: 「삭제」 버튼(주인님 「수정이나 삭제 기능이 왜 없어?」 — 텔레그램 봇 토큰을 잘못 저장한 사례)
+  if (formData.get("intent") === "delete") {
+    const { error } = await supabase.from("real_estate_kakao_templates").delete().eq("user_id", user.id);
+    if (error) return { error: error.message };
+    revalidatePath("/settings");
+    return { success: "지웠어요." };
+  }
+
+  const templateId = String(formData.get("templateId") ?? "").trim() || null;
+  if (templateId && /^\d{6,}:[\w-]{20,}$/.test(templateId)) {
+    return { error: "텔레그램 봇 토큰처럼 보여요. 이 칸은 알림톡 템플릿 ID 자리예요. 토큰은 아래 「텔레그램 봇 연동」에 넣어 주세요(저장하지 않았어요)." };
+  }
+  if (templateId && !/^KA01TP[\w-]+$/.test(templateId)) {
+    return { error: "알림톡 템플릿 ID는 SOLAPI에서 받은 「KA01TP…」로 시작하는 값이에요(저장하지 않았어요)." };
+  }
+
   const { error } = await supabase
     .from("real_estate_kakao_templates")
     .upsert({ user_id: user.id, template_id: templateId }, { onConflict: "user_id" });
