@@ -6,6 +6,7 @@ import type { ImageExt } from "@/lib/comic/savedIndex";
 import type { SavedMeta } from "@/lib/comic/savedIndex";
 import type { Script } from "@/lib/comic/script";
 import { jpegSize } from "@/lib/comic/imageSize";
+import { retentionCleanupBlocked } from "@/lib/retentionExempt";
 
 // 서버 보관함(선택 기능, v1.05): 회원이 [서버 보관함에 저장]을 누른 완성작만 비공개 버킷에 저장한다.
 // DB 테이블 없이 `<userId>/index.json`(목록)과 `<userId>/<id>.jpg`(이미지)를 쓴다. 버킷은 비공개라
@@ -42,6 +43,7 @@ async function removeImages(userId: string, metas: Pick<SavedMeta, "id" | "ext">
 async function liveIndex(userId: string): Promise<SavedMeta[]> {
   const list = await readIndex(userId);
   const { keep, expired } = splitExpired(list);
+  if (expired.length && await retentionCleanupBlocked(createAdminClient(), userId)) return list; // 30일 삭제 예외 회원(2026-11-03)
   if (expired.length) { await removeImages(userId, expired); await writeIndex(userId, keep); }
   return keep;
 }
