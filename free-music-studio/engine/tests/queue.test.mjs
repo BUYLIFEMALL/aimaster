@@ -5,6 +5,18 @@ import os from "node:os";
 import path from "node:path";
 import { createQueue } from "../src/queue.mjs";
 import { createRunner, parseTaskState } from "../src/runner.mjs";
+import { listeningPids } from "../src/acestep.mjs";
+
+test("남은 음악 엔진 찾기: 그 번호를 기다리는(LISTENING) 프로그램 번호만", () => {
+  const text = [
+    "  TCP    127.0.0.1:47822        0.0.0.0:0              LISTENING       12345",
+    "  TCP    127.0.0.1:47822        127.0.0.1:50001        ESTABLISHED     12345",
+    "  TCP    127.0.0.1:47821        127.0.0.1:57201        FIN_WAIT_2      49524",
+    "  TCP    127.0.0.1:147822       0.0.0.0:0              LISTENING       777",
+  ].join("\r\n");
+  assert.deepEqual(listeningPids(text, 47822), [12345]);
+  assert.deepEqual(listeningPids(text, 47821), []);
+});
 
 const tmpFile = async () => path.join(await mkdtemp(path.join(os.tmpdir(), "fms-q-")), "queue.json");
 const track = (id = "11111111-1111-4111-8111-111111111111") => ({ id, song_id: null, style_prompt: "pop", lyrics: "[Verse]\n가사", duration_sec: 30, device: "cpu", kind: "text2music" });

@@ -2,12 +2,12 @@
 // AI 무료음악 자동화 엔진 0.1 — 실행: `node src/main.mjs`
 // 순서: 연결 문 열기(상태 「설치 중」) → ACE-Step 설치 확인 → 내부 서버 실행 → 「준비됨」.
 // 시험용: FMS_ACESTEP_DIR(이미 설치된 ACE-Step 폴더) + FMS_PYTHON(그 폴더의 파이썬)이 있으면 설치를 건너뛰고 그 파이썬으로 띄운다.
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { ensureInstalled, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
+import { ensureInstalled, freeStalePort, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
 import { checkItems, chooseDevice, qualityOptions, qualityProfile } from "./device.mjs";
 import { inspectSystem } from "./system.mjs";
 import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
@@ -16,7 +16,7 @@ import { createQueue } from "./queue.mjs";
 import { createRunner } from "./runner.mjs";
 import { newToken } from "./security.mjs";
 
-const VERSION = "0.1.7"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내
+const VERSION = "0.1.8"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내 · 0.1.8: 남은 음악 엔진 정리·켜진 뒤 살아 있는지 확인·끌 때 음악 엔진도 함께 끄기
 const ACESTEP_PORT = 47822;
 
 const dataDir =
@@ -134,6 +134,13 @@ async function startMusicEngine() {
   aceLog?.end();
   aceLog = createWriteStream(aceLogFile, { flags: "w" });
   aceLog.write(`# ${new Date().toISOString()} · 엔진 ${VERSION} · 구성 ${profile.label}\n`);
+  // 예전 엔진이 남긴 음악 엔진이 내부 번호를 잡고 있으면 먼저 끈다(남아 있으면 새 음악 엔진이 켜지자마자 꺼진다).
+  const freed = freeStalePort(ACESTEP_PORT);
+  if (!freed.ok) throw new Error(freed.error);
+  if (freed.freed.length) {
+    logLine(`… 예전 엔진이 남긴 음악 엔진을 정리했습니다(PID ${freed.freed.join(", ")})`);
+    await new Promise((r) => setTimeout(r, 1500));
+  }
   if (process.env.FMS_ACESTEP_DIR && process.env.FMS_PYTHON) {
     state.stage = "음악 엔진 켜는 중";
     const dir = process.env.FMS_ACESTEP_DIR;
@@ -166,6 +173,9 @@ async function startMusicEngine() {
   });
   const ok = await waitHealthy(ACESTEP_PORT);
   if (!ok) throw new Error("음악 엔진이 3분 안에 켜지지 않았습니다.");
+  // 다른 음악 엔진이 대신 대답했을 수 있다 — 우리가 띄운 음악 엔진이 살아 있어야 준비된 것
+  await new Promise((r) => setTimeout(r, 2000));
+  if (child.exitCode != null) throw new Error(`음악 엔진이 켜지자마자 꺼졌습니다(코드 ${child.exitCode}). 자세한 이유: ${aceLogFile}`);
   state.ready = true;
   state.stage = "준비됨";
   void queue.pump(); // 기다리던 작업이 있으면 이어서 만든다
@@ -205,6 +215,15 @@ async function setQuality(tierId) {
   return { ok: true, quality: { ...profile, vramGb, ffmpeg } };
 }
 
+// 엔진을 끌 때(Ctrl+C·창 닫기) 음악 엔진(python)도 함께 끈다 — 남으면 다음 엔진이 내부 번호를 못 잡는다.
+const killChildNow = () => {
+  if (!child || child.exitCode != null) return;
+  if (process.platform === "win32") spawnSync("taskkill", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true });
+  else child.kill();
+};
+process.on("exit", killChildNow);
+for (const sig of ["SIGINT", "SIGTERM", "SIGHUP", "SIGBREAK"]) process.on(sig, () => process.exit(0));
+
 if (!device.supported) {
   state.stage = "미지원";
   state.error = device.reason;
@@ -214,12 +233,6 @@ if (!device.supported) {
     await startMusicEngine();
     logLine("✔ 준비됨 — 사이트에서 노래를 만들 수 있습니다.");
     logLine(`  💾 저장 폴더: ${library.dir}  (사이트 「내 PC 엔진」 화면에서 바꿀 수 있음)`);
-    const stop = async () => {
-      await killTree(child);
-      process.exit(0);
-    };
-    process.on("SIGINT", stop);
-    process.on("SIGTERM", stop);
   } catch (err) {
     state.stage = "오류";
     state.error = err.message;
