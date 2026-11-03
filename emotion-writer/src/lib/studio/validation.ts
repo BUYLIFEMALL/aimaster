@@ -4,6 +4,7 @@ import {
   RATIOS,
   STYLES,
   TEXT_MODELS,
+  currentTextModel,
   type Ratio,
 } from "./config";
 
@@ -28,13 +29,14 @@ export function validateCopy(input: Record<string, unknown>) {
     throw new AppError("글귀 스타일을 선택해 주세요.");
   if (![5, 6, 7, 8].includes(Number(input.lines)))
     throw new AppError("줄 수를 선택해 주세요.");
-  if (!TEXT_MODELS.some((m) => m.id === input.model))
+  const model = currentTextModel(input.model);
+  if (!TEXT_MODELS.some((m) => m.id === model))
     throw new AppError("지원하지 않는 글귀 모델입니다.");
   return {
     topic,
     style: String(input.style),
     lines: Number(input.lines),
-    model: String(input.model),
+    model: String(model),
   };
 }
 export function validateImage(input: Record<string, unknown>) {

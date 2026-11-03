@@ -24,7 +24,7 @@ export function POST(request: Request) {
       if (!key) throw new AppError("본인 API 키를 먼저 등록해 주세요.");
       if (provider === "gemini") {
         const res = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash",
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash",
           {
             headers: { "x-goog-api-key": key },
             cache: "no-store",
