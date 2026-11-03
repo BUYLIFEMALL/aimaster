@@ -27,19 +27,19 @@ export interface BuiltinInstructions {
 export const AUTO = 'auto';
 
 const AUTO_PROMPT = `Pick the structure that fits the conversation. Usually:
-### Action items — "- [ ] task @owner (when)" for every follow-up that was agreed
-### Key takeaways — the decisions and conclusions
-### Discussion — short bullets per topic, in the order they came up
+### 할 일 — "- [ ] task @owner (when)" for every follow-up that was agreed
+### 핵심 결론 — the decisions and conclusions
+### 논의 내용 — short bullets per topic, in the order they came up
 Skip a section when it would be empty.`;
 
 export const BUILTINS: BuiltinInstructions[] = [
-  { key: 'sales_call', name: '영업 미팅', icon: '💼', prompt: `Sections: ### Customer context (company, people, current setup), ### Pain points, ### Requirements, ### Objections & concerns, ### Pricing & timeline, ### Next steps ("- [ ] …" with owners). Keep the customer's own words for important quotes.` },
-  { key: 'standup', name: '데일리 스탠드업', icon: '🧍', prompt: `One section per person (### Name) with three bullets: Yesterday, Today, Blockers. End with ### Action items ("- [ ] …") for blockers that need follow-up.` },
-  { key: 'team_meeting', name: '팀 회의', icon: '👥', prompt: `Sections: ### Updates, ### Decisions, ### Open questions, ### Action items ("- [ ] task @owner"). Group updates by project.` },
-  { key: 'one_on_one', name: '1:1 면담', icon: '🤝', prompt: `Sections: ### Wins, ### Challenges, ### Feedback, ### Growth & career, ### Action items ("- [ ] …" with owners). Keep the tone personal and supportive.` },
-  { key: 'interview', name: '면접', icon: '🎙', prompt: `Sections: ### Candidate background, ### Strengths, ### Concerns, ### Notable answers (question → answer summary), ### Recommendation (hire signal with reasons). Be factual; don't invent ratings.` },
-  { key: 'brainstorm', name: '브레인스토밍', icon: '💡', prompt: `Sections: ### Ideas (grouped by theme, one bullet each), ### Most promising, ### Open questions, ### Next steps ("- [ ] …").` },
-  { key: 'lecture', name: '강의', icon: '🎓', prompt: `Sections: ### Main concepts (with short explanations), ### Examples, ### Key terms, ### Questions to review. Write it as study notes.` },
+  { key: 'sales_call', name: '영업 미팅', icon: '💼', prompt: `Sections: ### 고객 상황 (company, people, current setup), ### 고객의 어려움, ### 요구 사항, ### 우려·반대 의견, ### 가격·일정, ### 다음 할 일 ("- [ ] …" with owners). Keep the customer's own words for important quotes.` },
+  { key: 'standup', name: '데일리 스탠드업', icon: '🧍', prompt: `One section per person (### Name) with three bullets: 어제, 오늘, 막힌 점. End with ### 할 일 ("- [ ] …") for blockers that need follow-up.` },
+  { key: 'team_meeting', name: '팀 회의', icon: '👥', prompt: `Sections: ### 진행 상황, ### 결정 사항, ### 남은 질문, ### 할 일 ("- [ ] task @owner"). Group updates by project.` },
+  { key: 'one_on_one', name: '1:1 면담', icon: '🤝', prompt: `Sections: ### 잘한 점, ### 어려운 점, ### 피드백, ### 성장·진로, ### 할 일 ("- [ ] …" with owners). Keep the tone personal and supportive.` },
+  { key: 'interview', name: '면접', icon: '🎙', prompt: `Sections: ### 지원자 배경, ### 강점, ### 우려 사항, ### 주요 답변 (question → answer summary), ### 추천 의견 (hire signal with reasons). Be factual; don't invent ratings.` },
+  { key: 'brainstorm', name: '브레인스토밍', icon: '💡', prompt: `Sections: ### 아이디어 (grouped by theme, one bullet each), ### 가장 유망한 안, ### 남은 질문, ### 다음 할 일 ("- [ ] …").` },
+  { key: 'lecture', name: '강의', icon: '🎓', prompt: `Sections: ### 핵심 개념 (with short explanations), ### 예시, ### 주요 용어, ### 복습 질문. Write it as study notes.` },
 ];
 
 export function autoPrompt(): string {
