@@ -17,6 +17,7 @@ const FLOW_STEPS = [
 
 // "API키등록·플랫폼연동"은 플랫폼 표준 메뉴명이다(2026-09-13).
 const UTILITY_ITEMS = [
+  { href: "/fee", icon: "💰", label: "중개보수 계산기" },
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
   { href: "/guide", icon: "📖", label: "연동 & 사용 매뉴얼" },
 ];

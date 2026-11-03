@@ -1,0 +1,79 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { FEE_KINDS, brokerFee, type FeeDeal, type FeeKind } from "@/lib/desk/fee";
+import { parseManwon } from "@/lib/desk/consent";
+
+const field = "mb-1 block text-xs font-semibold text-mx-muted";
+const wonText = (v: number) => `${v.toLocaleString("ko-KR")}원`;
+const manText = (v: number) => (v >= 10000 ? `${(v / 10000).toLocaleString("ko-KR", { maximumFractionDigits: 4 })}억 원` : `${v.toLocaleString("ko-KR")}만 원`);
+
+// D5(2026-11-03): 중개보수 상한 계산기 — 화면 안에서만 계산(저장·서버 호출 없음). 매물 화면에서 값을 채워 열 수 있다(?kind=&deal=&price=&monthly=).
+export function FeeCalculator({ initial }: { initial: { kind?: string; deal?: string; price?: string; monthly?: string } }) {
+  const [kind, setKind] = useState<FeeKind>((FEE_KINDS as readonly string[]).includes(initial.kind ?? "") ? (initial.kind as FeeKind) : "주택");
+  const [deal, setDeal] = useState<FeeDeal>(initial.deal === "전세" || initial.deal === "월세" ? initial.deal : "매매");
+  const [price, setPrice] = useState(initial.price ?? "");
+  const [monthly, setMonthly] = useState(initial.monthly ?? "");
+  const [agreed, setAgreed] = useState("");
+  const [vat, setVat] = useState(true);
+
+  const result = useMemo(() => {
+    const p = parseManwon(price);
+    const m = deal === "월세" ? parseManwon(monthly) : 0;
+    if (p === null || Number.isNaN(p) || Number.isNaN(m)) return null;
+    const a = agreed.trim() ? Number(agreed) / 100 : undefined;
+    return brokerFee(kind, deal, p, m ?? 0, a !== undefined && Number.isFinite(a) ? a : undefined);
+  }, [kind, deal, price, monthly, agreed]);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="mx-card space-y-3 p-5">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label><span className={field}>매물 종류</span>
+            <select value={kind} onChange={(e) => setKind(e.target.value as FeeKind)} className="mx-input">{FEE_KINDS.map((k) => <option key={k}>{k}</option>)}</select></label>
+          <label><span className={field}>거래</span>
+            <select value={deal} onChange={(e) => setDeal(e.target.value as FeeDeal)} className="mx-input"><option>매매</option><option>전세</option><option>월세</option></select></label>
+          <label><span className={field}>{deal === "매매" ? "매매가" : "보증금"} (예: 4억, 3.5억, 5000)</span>
+            <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="text" placeholder="만 원 단위" className="mx-input" /></label>
+          {deal === "월세" && (
+            <label><span className={field}>월세 (만 원)</span>
+              <input value={monthly} onChange={(e) => setMonthly(e.target.value)} inputMode="numeric" placeholder="예: 120" className="mx-input" /></label>
+          )}
+          {kind === "그 외(상가·토지 등)" && (
+            <label><span className={field}>협의한 요율 % (비우면 상한 0.9%)</span>
+              <input value={agreed} onChange={(e) => setAgreed(e.target.value)} inputMode="decimal" placeholder="예: 0.5" className="mx-input" /></label>
+          )}
+        </div>
+        <label className="flex min-h-[40px] items-center gap-2 text-sm text-mx-text">
+          <input type="checkbox" checked={vat} onChange={(e) => setVat(e.target.checked)} className="h-5 w-5" /> 부가세 10% 더해서 보기(일반과세자)
+        </label>
+      </div>
+
+      <div className="mx-card p-5">
+        {!result ? (
+          <p className="text-sm text-mx-muted">금액을 넣으면 바로 계산해요.</p>
+        ) : (
+          <div className="space-y-2 text-sm text-mx-text">
+            <p className="text-xs text-mx-muted">거래금액 {manText(result.baseManwon)}{deal === "월세" ? " (보증금 + 월세×100, 5천만 원 미만이면 ×70)" : ""} · 상한요율 {(result.rate * 100).toLocaleString("ko-KR", { maximumFractionDigits: 2 })}%{result.capWon !== null ? ` · 한도 ${wonText(result.capWon)}` : ""}</p>
+            <p className="text-3xl font-black text-mx-text">{wonText(vat ? result.feeWon + result.vatWon : result.feeWon)}</p>
+            <p className="text-mx-muted">{vat ? `중개보수 ${wonText(result.feeWon)} + 부가세 ${wonText(result.vatWon)}` : "부가세 별도"} · 의뢰인 한쪽 기준 상한</p>
+            <p className="rounded-lg bg-[#f4f6f9] p-3 text-xs text-mx-muted">💡 {result.note} 상한 안에서 의뢰인과 협의해 정하며, 계약 전에 중개보수를 설명하고 영수증을 주어야 해요. 참고용 계산이며 법률 자문이 아니에요.</p>
+          </div>
+        )}
+      </div>
+
+      <details className="mx-card p-5 text-sm text-mx-text">
+        <summary className="cursor-pointer font-bold">📋 주택 상한요율표 보기 (시행규칙 별표 1)</summary>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <table className="w-full text-xs"><caption className="mb-1 text-left font-bold">매매·교환</caption><tbody>
+            {[["5천만 원 미만", "0.6%", "25만 원"], ["5천만~2억 원 미만", "0.5%", "80만 원"], ["2억~9억 원 미만", "0.4%", "없음"], ["9억~12억 원 미만", "0.5%", "없음"], ["12억~15억 원 미만", "0.6%", "없음"], ["15억 원 이상", "0.7%", "없음"]].map((r) => <tr key={r[0]} className="border-t border-mx-border"><td className="py-1">{r[0]}</td><td>{r[1]}</td><td>한도 {r[2]}</td></tr>)}
+          </tbody></table>
+          <table className="w-full text-xs"><caption className="mb-1 text-left font-bold">임대차(전세·월세)</caption><tbody>
+            {[["5천만 원 미만", "0.5%", "20만 원"], ["5천만~1억 원 미만", "0.4%", "30만 원"], ["1억~6억 원 미만", "0.3%", "없음"], ["6억~12억 원 미만", "0.4%", "없음"], ["12억~15억 원 미만", "0.5%", "없음"], ["15억 원 이상", "0.6%", "없음"]].map((r) => <tr key={r[0]} className="border-t border-mx-border"><td className="py-1">{r[0]}</td><td>{r[1]}</td><td>한도 {r[2]}</td></tr>)}
+          </tbody></table>
+        </div>
+        <p className="mt-3 text-xs text-mx-muted">오피스텔(전용 85㎡ 이하, 전용 부엌·수세식 화장실·목욕시설): 매매 0.5%, 임대 0.4%. 주택·오피스텔 외: 0.9% 안에서 협의. 근거: 공인중개사법 제32조, 시행규칙 제20조, 국토교통부 마이홈 게시 요율(2026-11-03 확인). 주택 요율은 시·도 조례로 정하므로 지역 조례를 함께 확인하세요.</p>
+      </details>
+    </div>
+  );
+}
