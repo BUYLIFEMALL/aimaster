@@ -15,7 +15,6 @@
 
 ## 대기 중
 
-- `free-music-studio` — 프리셋 지운 뒤 안내·조사 없는 문장(`ea6bba1d9`, 2026-11-04, [역할: music] `claude-win-20261024-music`, 화면 문구만, 다음 배포(3단계) 때 함께)
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
 
@@ -77,6 +76,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `free-music-studio` | v1.09 · 엔진 0.1.6 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `free-music-studio-astk6ny4p`) | 로드맵 3단계 작업 대기열(`d6880119a`) + 프리셋 지운 뒤 안내(`ea6bba1d9`). 가짜 음악 엔진으로 API·운영 화면 확인 |
 | `free-music-studio` | v1.08 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「DB 표 만들어서 2단계 진행해」 SQL 1회 + 빌드 1회, `free-music-studio-ky09xxsqq`) | 로드맵 2단계 만들기 강화(`273934d52`, SQL `20261104_v1_08_presets.sql` 먼저 실행·RLS 확인) + 1단계 표시 버전(v1.06 → v1.08, v1.07 건너뜀, DB 맞춤). 로그인 없는 새 API 401 확인, 로그인 화면 확인은 주인님 로그인 대기 |
 | `free-music-studio` | v1.06 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-83c438grx`) | 가져온 음악 커버·부분 수정(`8c7d2d039`, SQL `20261103_v1_06_cover.sql` 먼저 실행·규칙 확인) + AI 작사 OpenAI/Claude/Gemini(`70b78a36d`) + 최고 품질 엔진 0.1.4(`4b6514cee`) + 한글 Enter(`e17ace42a`). 로그인 없는 차단 확인, 화면 확인은 ego 로그인 풀려 대기 |
 | `realty-client-desk` | v1.08 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 지시 빌드 1회, `realty-client-desk-21gyn8g6j`) | 일정 알림 기본·유일 = 회원 cron-job.org, 가입하기 버튼(SOLAPI·OpenAI·Claude·Gemini·cron-job.org), AI 초안 플랫폼 3개·모델 선택(`dffad1a6a`). DB SQL `20261103060000_cronjob_default_ai_engines.sql`은 주인님 「진행해」 승인 뒤 ego SQL 적용(vercel 행 0·소개 문구 반영 확인) |

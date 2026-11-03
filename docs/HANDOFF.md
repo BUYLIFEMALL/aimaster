@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 로드맵 3단계(작업 대기열) v1.09 · 엔진 0.1.6 배포
+- 엔진: `engine/src/queue.mjs`(대기·만드는 중·완료·실패·취소·중단됨, `queue.json`, 다시 켜면 진행 중 → 중단됨), `runner.mjs`(엔진이 ACE-Step에 직접 맡기고 보관함 저장, 커버 원곡은 `queue-src/`), 연결 문 `/queue`. 압축 `D:\PDS\Program_dev\free-music-src\free-music-engine-0.1.6.zip`.
+- 웹: `/queue` 화면, 좌측 「작업 대기열」 개수, 끝난 곡 「모든 음악」 자동 기록(`useQueue`), 곡 만들기·가져온 음악 [대기열에 넣기]. 커밋 `d6880119a`, 시험 웹 46·엔진 25, 배포 `free-music-studio-astk6ny4p` Ready, 화면·DB v1.09.
+- 검수: 미니PC 여유 메모리 5GB라 진짜 ACE-Step 대신 가짜 음악 엔진 + 실제 엔진 코드로 API·크롬 운영 화면(2곡 넣기 → 차례로 완료 → 자동 기록) 확인, 시험 기록 3개 지움.
+- 남은 일: 진짜 음악 모델로 대기열 실물 시험(메모리가 비거나 마스터PC), 4단계 화면 개편.
+- 링크: https://free-music-studio.buylife.xyz/queue
+
 ## 2026-11-04 🟡 [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — 이미지 4·5번: 썸네일·인스타 카드뉴스에 바나나 무료 도구 + 결과 되돌려 넣기(미배포 대기)
 - 한 일(`75bd2728d`): 공용 `nukki-handoff`에 보낸 곳 목록(상세페이지·썸네일 `thumbnail-master.buylife.xyz`·INSTA `auto-instagram-posting.buylife.xyz`)·여는 주소 `nukkiToolsUrl`. 바나나 `src/lib/nukkiReceive.ts` 훅을 「🧰 무료 이미지 도구」와 「🧽 무료 지우기」가 함께 써서 받기·「↩ ○○에 넣기」. 썸네일 결과 칸 「무료 지우기」 → 돌아온 결과를 JPG로 줄여 새 받기 API(`POST /api/projects/[id]`, 권한·본인 프로젝트 확인, 이전 버전 유지)로 새 버전. INSTA 슬라이드 「✂ 누끼·🙈 가리기·🧽 지우기」 → 결과를 기존 직접 첨부 경로로 그 장 새 이미지(배포판에서는 숨김).
 - 검수: 시험 바나나 29·썸네일 19·INSTA 78+2, tsc 4곳, 로컬 build 4곳, 공용 사본 일치. 운영 창끼리 보내기·되돌려 넣기는 배포 뒤 확인(창 주소가 `*.buylife.xyz`일 때만 동작 — 옛 vercel.app 주소에서는 조용히 무시).
