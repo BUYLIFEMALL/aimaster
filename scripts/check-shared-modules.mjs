@@ -71,6 +71,7 @@ const MODULES = [
       "kakao_auto_poster/src/lib/solapi/client.ts",
       "trending-product-finder/lib/solapi/client.ts",
       "real_estate_sales/src/lib/solapi/client.ts",
+      "realty-client-desk/src/lib/solapi/client.ts",
     ],
   },
   {

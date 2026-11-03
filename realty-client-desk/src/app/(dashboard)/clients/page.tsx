@@ -3,6 +3,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { deleteClientAction, updateClientAction } from "@/lib/actions/desk";
 import { CLIENT_STATUSES, DEAL_TYPES } from "@/lib/desk/consent";
+import { adEligibility } from "@/lib/desk/adRules";
 import { AddClientForm } from "@/components/desk/AddClientForm";
 import { PageHero } from "@/components/ui/PageHero";
 
@@ -71,6 +72,12 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                   <p className="mt-1 text-xs text-mx-muted">
                     {SOURCE[c.source] ?? c.source} · 수집 동의 {day(c.consent_at)}({c.consent_method}) · 광고 문자{" "}
                     {c.ad_optout_at ? `수신거부(${day(c.ad_optout_at)})` : c.ad_consent_at ? `동의(${day(c.ad_consent_at)})` : "미동의"}
+                    {(() => {
+                      const e = adEligibility(c);
+                      if (c.ad_consent_at && !c.ad_optout_at && !e.ok) return <b className="ml-1 text-mx-danger">· 광고 동의 2년 지남 — 다시 받아 주세요</b>;
+                      if (e.ok && e.soon) return <b className="ml-1 text-[#8a5300]">· 광고 동의 2년이 곧 돼요</b>;
+                      return null;
+                    })()}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
