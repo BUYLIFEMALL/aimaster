@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --no-warnings --experimental-strip-types --test tests/consent.test.mjs tests/adRules.test.mjs tests/eventRules.test.mjs tests/adCheck.test.mjs tests/fee.test.mjs"
+    "test": "node --no-warnings --experimental-strip-types --test tests/consent.test.mjs tests/adRules.test.mjs tests/eventRules.test.mjs tests/adCheck.test.mjs tests/fee.test.mjs tests/aiEngines.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",

@@ -1,15 +1,18 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { sendListingAdAction, type SendState } from "@/lib/actions/listings";
 import { draftListingAction, type DraftState } from "@/lib/actions/aiDraft";
+import { AI_ENGINES, aiEngine, aiModelName, resolveAiModel, toAiProvider, type AiProvider } from "@/lib/ai/engines";
+
+const AI_CHOICE_KEY = "desk-ai-choice"; // 이 브라우저에 마지막으로 고른 엔진·모델(편의 기능 — 못 읽어도 기본값으로 동작)
 
 export type Candidate = { id: string; name: string; phone: string; why: string[]; ok: boolean; note: string; soon: boolean; sent: boolean };
 
 // 2단계(2026-11-03): 중개사가 고객을 직접 고르고, 미리보기로 실제 문자 모양을 확인한 뒤 보낸다(자동 일괄 발송 없음).
-export function SendAdForm({ listingId, draft, header, footer, candidates, night, ready, missing, hasClaudeKey }: {
+export function SendAdForm({ listingId, draft, header, footer, candidates, night, ready, missing, aiKeys }: {
   listingId: string; draft: string; header: string; footer: string; candidates: Candidate[]; night: boolean; ready: string | null;
-  missing: { office: string[]; listing: string[] }; hasClaudeKey: boolean;
+  missing: { office: string[]; listing: string[] }; aiKeys: Record<AiProvider, boolean>;
 }) {
   const [picked, setPicked] = useState<string[]>([]);
   const [state, action, pending] = useActionState<SendState, FormData>(async (p, fd) => {
@@ -21,10 +24,26 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
   const [ai, setAi] = useState<DraftState | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  const firstWithKey = AI_ENGINES.find((e) => aiKeys[e.id])?.id ?? "claude";
+  const [provider, setProvider] = useState<AiProvider>(firstWithKey);
+  const [models, setModels] = useState<Record<AiProvider, string>>({ openai: resolveAiModel("openai", ""), claude: resolveAiModel("claude", ""), gemini: resolveAiModel("gemini", "") });
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(AI_CHOICE_KEY) ?? "null");
+      if (saved) {
+        const p = toAiProvider(saved.provider);
+        setModels({ openai: resolveAiModel("openai", saved.models?.openai), claude: resolveAiModel("claude", saved.models?.claude), gemini: resolveAiModel("gemini", saved.models?.gemini) });
+        if (aiKeys[p]) setProvider(p);
+      }
+    } catch { /* 저장소를 못 쓰면 기본값 */ }
+  }, [aiKeys]);
+  function remember(p: AiProvider, m: Record<AiProvider, string>) {
+    try { localStorage.setItem(AI_CHOICE_KEY, JSON.stringify({ provider: p, models: m })); } catch { /* 무시 */ }
+  }
   async function runAi() {
     setAiBusy(true);
     setCopied(false);
-    try { setAi(await draftListingAction(listingId)); } finally { setAiBusy(false); }
+    try { setAi(await draftListingAction(listingId, provider, models[provider])); } finally { setAiBusy(false); }
   }
   const selectable = candidates.filter((c) => c.ok && !c.sent);
   const preview = useMemo(() => `${header}\n${body.trim()}\n${footer}`, [header, body, footer]);
@@ -83,11 +102,30 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
         )}
         <p className="text-xs text-mx-muted">인터넷 광고에 넣어야 하는 항목(국토부 「표시·광고 명시사항 세부기준」)을 대조한 참고용이에요. 법률 자문이 아니며, 대장에 위반이 있으면 「위반건축물」 표기도 직접 확인해 주세요.</p>
         <div className="border-t border-mx-border pt-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-base font-bold text-mx-text">✨ AI 초안 (본인 Claude 키)</h2>
-            <button type="button" onClick={() => void runAi()} disabled={aiBusy || !hasClaudeKey} className="mx-btn-primary min-h-[40px] px-3 text-xs disabled:opacity-60">{aiBusy ? "만드는 중… (10~30초)" : "✨ 광고 글·문자 초안 만들기"}</button>
+          <h2 className="text-base font-bold text-mx-text">✨ AI 초안 (본인 AI 키)</h2>
+          <p className="mt-1 text-xs text-mx-muted">플랫폼과 모델을 고르세요. 요금은 고른 플랫폼의 본인 계정에서 나가요(1회 약 10~30원, 최고 품질 모델은 더 비쌈).</p>
+          <div role="radiogroup" aria-label="AI 플랫폼" className="mt-2 grid gap-2 sm:grid-cols-3">
+            {AI_ENGINES.map((e) => {
+              const on = provider === e.id;
+              return (
+                <button key={e.id} type="button" role="radio" aria-checked={on} onClick={() => { setProvider(e.id); remember(e.id, models); }}
+                  className={`rounded-xl border-2 p-3 text-left ${on ? "border-mx-primary bg-[#e8f8ef]" : "border-mx-border bg-white hover:border-[#c9d3df]"}`}>
+                  <span className="block text-sm font-bold text-mx-text">{e.icon} {e.name}</span>
+                  <span className={`block text-xs ${aiKeys[e.id] ? "text-mx-success" : "text-mx-muted"}`}>{aiKeys[e.id] ? "✅ 키 등록됨" : "키 없음 — 설정에서 넣기"}</span>
+                </button>
+              );
+            })}
           </div>
-          {!hasClaudeKey && <p className="mt-1 text-xs text-mx-muted">본인 Claude 키가 있어야 해요. <a href="/settings" className="text-mx-link underline">API키등록·플랫폼연동</a>에서 넣어 주세요(요금은 본인 계정, 1회 약 10~30원).</p>}
+          <label className="mt-2 block">
+            <span className="mb-1 block text-xs font-semibold text-mx-muted">{aiEngine(provider).name} 모델</span>
+            <select value={models[provider]} onChange={(ev) => { const m = { ...models, [provider]: ev.target.value }; setModels(m); remember(provider, m); }} className="mx-input">
+              {aiEngine(provider).models.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+          </label>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => void runAi()} disabled={aiBusy || !aiKeys[provider]} className="mx-btn-primary min-h-[40px] px-3 text-xs disabled:opacity-60">{aiBusy ? "만드는 중… (10~30초)" : `✨ ${aiModelName(provider, models[provider])}로 초안 만들기`}</button>
+            {!aiKeys[provider] && <span className="text-xs text-mx-muted"><a href="/settings" className="text-mx-link underline">API키등록·플랫폼연동</a>에서 {aiEngine(provider).name} 키를 넣어 주세요.</span>}
+          </div>
           {ai?.error && <p className="mt-2 text-mx-danger">{ai.error}</p>}
           {ai?.ad && (
             <div className="mt-3 space-y-2">
@@ -98,7 +136,7 @@ export function SendAdForm({ listingId, draft, header, footer, candidates, night
                 <button type="button" onClick={() => { void navigator.clipboard.writeText(ai.ad ?? "").then(() => setCopied(true)); }} className="mx-btn-ghost min-h-[40px] px-3 text-xs">{copied ? "✅ 복사했어요" : "📋 광고 글 복사"}</button>
                 {ai.sms && <button type="button" onClick={() => setBody(ai.sms ?? "")} className="mx-btn-ghost min-h-[40px] px-3 text-xs">✉️ 문자 초안을 아래 「보낼 내용」에 넣기</button>}
               </div>
-              <p className="text-xs text-mx-muted">초안은 저장하지 않아요(이 화면을 나가면 사라져요). 모델 {ai.model}.</p>
+              <p className="text-xs text-mx-muted">초안은 저장하지 않아요(이 화면을 나가면 사라져요). {ai.engine} · {ai.model}.</p>
             </div>
           )}
         </div>

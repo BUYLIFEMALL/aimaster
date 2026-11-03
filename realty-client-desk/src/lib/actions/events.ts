@@ -28,11 +28,11 @@ async function syncScheduler(userId: string, added: boolean): Promise<string | n
   }
   if (mode === "cronjob") {
     const key = await memberCronjobKey(service, userId);
-    if (!key) return "「내 cron-job.org」 방식은 API 키가 필요해요. 「API키등록·플랫폼연동」에서 키를 넣거나 AIMaster 기본(Vercel)을 고르세요.";
+    if (!key) return "일정은 저장했어요. 아침 알림을 받으려면 「API키등록·플랫폼연동」에서 본인 무료 cron-job.org 키를 넣어 주세요.";
     try { await ensureMemberSchedulerRunning(service, userId, key); } catch (err) { return `알림 작업을 켜지 못했어요. ${err instanceof Error ? err.message : ""}`.trim(); }
     return null;
   }
-  return platformSchedulerEnabled() ? null : "지금은 사이트 예약 호출이 꺼져 있어요. 「API키등록·플랫폼연동」에서 「내 cron-job.org」를 골라 주세요.";
+  return platformSchedulerEnabled() ? null : "일정은 저장했어요. 아침 알림을 받으려면 「API키등록·플랫폼연동」에서 본인 무료 cron-job.org 키를 넣어 주세요.";
 }
 
 export async function addEventAction(_prev: EventState, fd: FormData): Promise<EventState> {

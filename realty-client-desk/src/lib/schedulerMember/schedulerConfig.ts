@@ -8,10 +8,12 @@ export const SCHEDULER_SITE_ORIGIN = "https://realty-client-desk.buylife.xyz";
 export const SCHEDULER_TABLE = "realty_desk_member_scheduler";
 /** 회원 전용 토큰 앞글자(「deskcal_」 + 64자리) */
 export const SCHEDULER_TOKEN_PREFIX = "deskcal";
-/** 관리자가 Vercel 방식을 끌 때 쓰는 환경변수 이름(off면 꺼짐) */
+/** Vercel 방식을 켜는 환경변수 이름(on일 때만 — 지금은 설정하지 않음) */
 export const PLATFORM_SCHEDULER_ENV = "REALTY_DESK_PLATFORM_SCHEDULER";
-/** 설치 키트(배포판) 모드 — 이 프로그램은 운영 전용 */
-export const SCHEDULER_IS_STANDALONE = false;
+/** 2026-11-03 주인님 「일반 사용자들은 vercel을 사용하지 않으니 기본값은 cron-job 가입 후 등록」 — 이 프로그램은 운영자 Vercel 예약 호출을 회원 일정 알림에 쓰지 않는다
+ * (메인 지침 원칙 26: 운영자 호출은 관리자가 지정한 프로그램만). 공용 사본을 고치지 않고 「키트 모드」 스위치를 켜서 기본 = 내 cron-job.org, Vercel 방식 = 환경변수
+ * REALTY_DESK_PLATFORM_SCHEDULER=on일 때만(설정하지 않음). 운영 아침 호출(/api/cron/daily)은 1년 보관 정리만 한다. */
+export const SCHEDULER_IS_STANDALONE = true;
 /** 회원 cron-job.org가 부르는 실행 주소 */
 export { MEMBER_DISPATCH_PATH } from "./cronJobOrg";
 

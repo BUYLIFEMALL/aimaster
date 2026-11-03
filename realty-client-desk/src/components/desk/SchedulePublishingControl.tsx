@@ -5,14 +5,14 @@ import { pauseScheduledPublishing, resumeScheduledPublishing } from "@/lib/actio
 import type { MemberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
 
 // 일정 화면의 「일정 알림 상태」 줄(realty-client-desk v1.04 — booking-reminder 사본, 문구만 바꿈). 규칙 켜기/끄기는 규칙마다 하고, 여기서는 전체 일시정지·재개만 한다.
-// 실행 방식(Vercel 기본 / 내 cron-job.org)은 설정에서 고르고, cron-job.org 작업 켜기/끄기는 프로그램이 자동으로 한다. 지침: 루트 docs/SCHEDULER_POLICY.md
+// 실행은 회원 본인 cron-job.org(2026-11-03 기본), 키는 설정에서 넣고, cron-job.org 작업 켜기/끄기는 프로그램이 자동으로 한다. 지침: 루트 docs/SCHEDULER_POLICY.md
 const STATE_TEXT: Record<MemberSchedulerState["state"], { label: string; tone: string; help: string }> = {
   platform: { label: "AIMaster 기본(Vercel) 실행 중", tone: "text-emerald-700", help: "사이트의 Vercel 예약 호출이 매일 아침 8시에 알릴 일정을 확인해 문자로 보내요." },
   running: { label: "내 cron-job.org 실행 중", tone: "text-emerald-700", help: "내 cron-job.org가 매일 아침 8시에 알릴 일정을 확인해 문자로 보내요." },
   idle: { label: "내 cron-job.org 대기", tone: "text-neutral-700", help: "남은 일정이 없어 쉬는 중이에요. 일정을 넣으면 자동으로 켜져요." },
   paused: { label: "일시정지됨", tone: "text-amber-700", help: "일정이 있어도 알리지 않아요. 재개하면 다음 날 아침부터 다시 알려요." },
-  "platform-off": { label: "실행 방식 선택 필요", tone: "text-rose-700", help: "관리자가 사이트 예약 호출을 꺼 두었습니다. 「내 cron-job.org」를 선택해 주세요." },
-  "no-key": { label: "cron-job.org 키 미등록", tone: "text-rose-700", help: "「내 cron-job.org」 방식은 본인 API 키가 필요합니다(또는 AIMaster 기본(Vercel)으로 바꾸기)." },
+  "platform-off": { label: "cron-job.org 연결 필요", tone: "text-rose-700", help: "일정 알림은 본인 무료 cron-job.org 키가 있어야 돌아가요." },
+  "no-key": { label: "cron-job.org 키 미등록", tone: "text-rose-700", help: "일정 알림은 본인 무료 cron-job.org 키가 있어야 돌아가요." },
 };
 
 export function SchedulePublishingControl({ initial }: { initial: MemberSchedulerState }) {

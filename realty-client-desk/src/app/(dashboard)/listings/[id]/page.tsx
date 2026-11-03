@@ -21,12 +21,12 @@ export default async function ListingMatchPage({ params }: { params: Promise<{ i
   const db = (await createClient()) as unknown as SupabaseLike;
   const { data: listing } = await db.from("realty_desk_listings").select("*").eq("id", id).eq("user_id", user.id).maybeSingle();
   if (!listing) notFound();
-  const [{ data: clients }, { data: sends }, { data: office }, { data: account }, { data: claude }] = await Promise.all([
+  const [{ data: clients }, { data: sends }, { data: office }, { data: account }, { data: aiKeys }] = await Promise.all([
     db.from("realty_desk_clients").select("*").eq("user_id", user.id).limit(2000),
     db.from("realty_desk_sends").select("id, client_id, to_phone, status, error, created_at").eq("user_id", user.id).eq("listing_id", id).order("created_at", { ascending: false }),
     db.from("realty_desk_offices").select("office_name, office_phone, office_address, reject_080, reg_no, broker_name").eq("user_id", user.id).maybeSingle(),
     db.from("user_solapi_accounts").select("user_id").eq("user_id", user.id).maybeSingle(),
-    db.from("user_api_keys").select("user_id").eq("user_id", user.id).eq("provider", "anthropic").maybeSingle(),
+    db.from("user_api_keys").select("provider").eq("user_id", user.id).in("provider", ["openai", "anthropic", "gemini"]),
   ]);
   const sentIds = new Set((sends ?? []).map((s: { client_id: string | null }) => s.client_id));
   const nameOf = new Map<string, string>((clients ?? []).map((c: { id: string; name: string }) => [c.id, c.name]));
@@ -58,7 +58,7 @@ export default async function ListingMatchPage({ params }: { params: Promise<{ i
           night={isNightKst()}
           ready={ready}
           missing={missingAdItems(listing, office ?? null)}
-          hasClaudeKey={Boolean(claude)}
+          aiKeys={{ openai: (aiKeys ?? []).some((k: { provider: string }) => k.provider === "openai"), claude: (aiKeys ?? []).some((k: { provider: string }) => k.provider === "anthropic"), gemini: (aiKeys ?? []).some((k: { provider: string }) => k.provider === "gemini") }}
         />
       )}
       {(sends ?? []).length > 0 && (

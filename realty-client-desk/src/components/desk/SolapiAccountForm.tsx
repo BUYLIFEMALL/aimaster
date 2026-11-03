@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SignupLinks } from "@/components/desk/SignupLinks";
 import {
   checkSolapiBalanceAction,
   deleteSolapiAccountAction,
@@ -38,7 +39,10 @@ export function SolapiAccountForm({ account }: { account: SolapiData }) {
     <div className="mx-card space-y-3 p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-bold text-mx-text">💬 문자 발송 (본인 SOLAPI 계정)</h2>
-        {account && !editing && <button type="button" onClick={() => setEditing(true)} className="mx-btn-ghost min-h-[40px] px-3 text-xs">✏️ 수정</button>}
+        <div className="flex flex-wrap items-center gap-2">
+          <SignupLinks links={[{ label: "SOLAPI 가입하기", href: "https://solapi.com/" }, { label: "API 키 만들기", href: "https://console.solapi.com/credentials" }]} />
+          {account && !editing && <button type="button" onClick={() => setEditing(true)} className="mx-btn-ghost min-h-[40px] px-3 text-xs">✏️ 수정</button>}
+        </div>
       </div>
       <p className="text-sm text-mx-muted">
         <a href="https://solapi.com/" target="_blank" rel="noreferrer" className="text-mx-link underline">solapi.com</a>에서 받은 API Key·Secret과 등록한 발신번호를 넣어 주세요. 문자 요금은 본인 SOLAPI 계정에서 나가요.
