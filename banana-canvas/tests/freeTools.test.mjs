@@ -128,3 +128,23 @@ test("누끼 결과 되돌리기: 바나나 주소·섹션 키·형식·10MB", (
   assert.equal(sectionKey("ss_hook-promo"), "ss_hook-promo");
   assert.equal(sectionKey("a b"), null);
 });
+
+import { DEFAULT_DIGIT_RULE, clampDigitRule } from "../src/lib/freeTools/calc.ts";
+
+test("E5-4 숫자 자리 기준: 회원이 정한 개수·비율로 판정하고, 이상한 값은 범위 안으로", () => {
+  // 기본값은 예전 판정과 같다
+  assert.equal(isNumberish({ chars: 13, digits: 11 }, DEFAULT_DIGIT_RULE), true);
+  assert.equal(isNumberish({ chars: 8, digits: 4 }), true);
+  assert.equal(isNumberish({ chars: 9, digits: 4 }), false);
+  // 짧은 우편번호(5자리)도 잡고 싶으면 숫자 3개·비율 30%
+  const loose = { minDigits: 3, ratio: 0.3 };
+  assert.equal(isNumberish({ chars: 6, digits: 3 }, loose), true); // 텀블러 500ml도 잡힘
+  // 송장만 잡고 싶으면 숫자 10개·비율 80%
+  const strict = { minDigits: 10, ratio: 0.8 };
+  assert.equal(isNumberish({ chars: 13, digits: 11 }, strict), true);
+  assert.equal(isNumberish({ chars: 14, digits: 9 }, strict), false);
+  assert.deepEqual(clampDigitRule({ minDigits: 0, ratio: 5 }), { minDigits: 1, ratio: 1 });
+  assert.deepEqual(clampDigitRule({ minDigits: 99, ratio: 0.01 }), { minDigits: 20, ratio: 0.1 });
+  assert.deepEqual(clampDigitRule("깨진 값"), DEFAULT_DIGIT_RULE);
+  assert.deepEqual(clampDigitRule({ minDigits: 6.4, ratio: 0.66 }), { minDigits: 6, ratio: 0.7 });
+});

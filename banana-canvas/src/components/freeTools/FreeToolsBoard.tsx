@@ -9,7 +9,9 @@ import { detectTextBoxes, loadFreeErase, type FreeEraseError } from "@/lib/freeE
 import { readBitmap } from "@/lib/batch/render";
 import { NUKKI_SENDER_ORIGIN, NUKKI_MSG_READY, NUKKI_MSG_RESULT, NUKKI_RESULT_MAX_BYTES, readNukkiFile } from "@/lib/nukkiHandoff";
 import { BATCH_FROM_TOOLS, prepareText, putForBatch } from "@/lib/freeTools/toBatch";
-import { SPLIT_LAYOUTS, clampRect, evenCuts, moveCut, pieceNames, splitRects, type Rect, type SplitLayout } from "@/lib/freeTools/calc";
+import { DEFAULT_DIGIT_RULE, SPLIT_LAYOUTS, clampDigitRule, clampRect, evenCuts, moveCut, pieceNames, splitRects, type DigitRule, type Rect, type SplitLayout } from "@/lib/freeTools/calc";
+
+const DIGIT_RULE_KEY = "banana-free-tools-digit-rule";
 import { autoBgMask, autoFaces, composeBg, composeHide, cropPiece, keepNumberBoxes, paintMask, toBlob, type HideMode } from "@/lib/freeTools/render";
 
 type Tab = "bg" | "face" | "split";
@@ -137,6 +139,16 @@ export function FreeToolsBoard() {
     } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
   }
   const [digitsOnly, setDigitsOnly] = useState(true);
+  // E5-4: 숫자 자리 판정 기준 — 이 브라우저에만 기억(localStorage). 막히면 기본값으로 동작
+  const [digitRule, setDigitRule] = useState<DigitRule>(DEFAULT_DIGIT_RULE);
+  useEffect(() => {
+    try { const saved = window.localStorage.getItem(DIGIT_RULE_KEY); if (saved) setDigitRule(clampDigitRule(JSON.parse(saved))); } catch { /* 기본값 */ }
+  }, []);
+  function changeDigitRule(patch: Partial<DigitRule>) {
+    const next = clampDigitRule({ ...digitRule, ...patch });
+    setDigitRule(next);
+    try { window.localStorage.setItem(DIGIT_RULE_KEY, JSON.stringify(next)); } catch { /* 기억만 못 함 */ }
+  }
 
   // 첫 모델 준비가 오래 걸리면 안내(60초)
   const [slow, setSlow] = useState(false);
@@ -199,7 +211,7 @@ export function FreeToolsBoard() {
       const found = boxes.length;
       if (digitsOnly && found) {
         await prepare("rec"); setBusy(`글자 ${found}곳을 읽어 숫자 자리를 고르는 중…`);
-        boxes = await keepNumberBoxes(bm, cur.w, cur.h, boxes);
+        boxes = await keepNumberBoxes(bm, cur.w, cur.h, boxes, digitRule);
       }
       setFaces((f) => ({ ...f, [cur.id]: [...(f[cur.id] ?? []), ...boxes] }));
       setNotice(boxes.length
@@ -473,8 +485,15 @@ export function FreeToolsBoard() {
                 <label className="bp-row" style={{ marginBottom: 6 }}>
                   <input type="checkbox" checked={digitsOnly} onChange={(e) => setDigitsOnly(e.target.checked)} />숫자가 많은 자리만(송장·전화번호·주문번호)
                 </label>
+                {digitsOnly && (
+                  <div className="bp-row" style={{ marginBottom: 6, flexWrap: "wrap", gap: 8 }}>
+                    <label>숫자 <input type="number" min={1} max={20} value={digitRule.minDigits} onChange={(e) => changeDigitRule({ minDigits: Number(e.target.value) })} style={{ width: 52 }} aria-label="최소 숫자 개수" />개 이상</label>
+                    <label>글자 중 숫자 <input type="number" min={10} max={100} step={10} value={Math.round(digitRule.ratio * 100)} onChange={(e) => changeDigitRule({ ratio: Number(e.target.value) / 100 })} style={{ width: 56 }} aria-label="숫자 비율(%)" />% 이상</label>
+                    <button type="button" className="button" onClick={() => changeDigitRule(DEFAULT_DIGIT_RULE)}>기본값</button>
+                  </div>
+                )}
                 <button type="button" className="button bp-go" disabled={!cur || !!busy} onClick={() => void runText()}>{digitsOnly ? "숫자 자리 찾아 가리기" : "글자 자리 모두 찾아 가리기"}</button>
-                <p className="bp-hint">{digitsOnly ? "글자를 읽어 숫자가 4개 이상이고 절반 이상인 자리만 가립니다(처음 한 번 약 5MB+11MB 모델을 받습니다). 한글은 읽지 못해 이름·주소는 끌어서 직접 가려 주세요." : "글자를 읽지 않고 자리만 찾으므로 상품명 같은 다른 글자도 가려집니다. 필요 없는 네모는 눌러서 빼세요(처음 한 번 약 5MB 모델을 받습니다)."}</p>
+                <p className="bp-hint">{digitsOnly ? `글자를 읽어 숫자가 ${digitRule.minDigits}개 이상이고 글자의 ${Math.round(digitRule.ratio * 100)}% 이상인 자리만 가립니다(처음 한 번 약 5MB+11MB 모델을 받습니다). 너무 적게 잡히면 숫자 개수·비율을 낮추고, 상품명까지 잡히면 높이세요. 한글은 읽지 못해 이름·주소는 끌어서 직접 가려 주세요.` : "글자를 읽지 않고 자리만 찾으므로 상품명 같은 다른 글자도 가려집니다. 필요 없는 네모는 눌러서 빼세요(처음 한 번 약 5MB 모델을 받습니다)."}</p>
               </div>
               <div>
                 <span className="bp-label">✍ 손으로 가리기</span>

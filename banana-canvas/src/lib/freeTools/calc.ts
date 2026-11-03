@@ -145,5 +145,21 @@ export function countDigits(scores: ArrayLike<number>, T: number, C: number, spa
   return { chars, digits };
 }
 
-/** 숫자가 많은 자리인가 — 숫자 4개 이상이면서 글자의 절반 이상이 숫자(전화번호·송장·주문번호). 「500ml」 같은 짧은 숫자는 제외 */
-export const isNumberish = (r: { chars: number; digits: number }) => r.digits >= 4 && r.digits * 2 >= r.chars;
+/** 숫자 자리 판정 기준 — 회원이 화면에서 조절(E5-4). ratio는 0.1~1(글자 중 숫자 비율) */
+export interface DigitRule { minDigits: number; ratio: number }
+export const DEFAULT_DIGIT_RULE: DigitRule = { minDigits: 4, ratio: 0.5 };
+
+/** 저장값·입력값을 허용 범위(숫자 1~20개, 비율 10~100%)로 맞춘다. 이상하면 기본값 */
+export function clampDigitRule(raw: unknown): DigitRule {
+  const v = (raw ?? {}) as Partial<DigitRule>;
+  const min = Math.round(Number(v.minDigits));
+  const ratio = Math.round(Number(v.ratio) * 10) / 10;
+  return {
+    minDigits: Number.isFinite(min) ? Math.min(20, Math.max(1, min)) : DEFAULT_DIGIT_RULE.minDigits,
+    ratio: Number.isFinite(ratio) ? Math.min(1, Math.max(0.1, ratio)) : DEFAULT_DIGIT_RULE.ratio,
+  };
+}
+
+/** 숫자가 많은 자리인가 — 기본: 숫자 4개 이상이면서 글자의 절반 이상이 숫자(전화번호·송장·주문번호). 「500ml」 같은 짧은 숫자는 제외 */
+export const isNumberish = (r: { chars: number; digits: number }, rule: DigitRule = DEFAULT_DIGIT_RULE) =>
+  r.digits >= rule.minDigits && r.digits >= r.chars * rule.ratio;
