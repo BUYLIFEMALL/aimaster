@@ -6,7 +6,7 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveApiKey, PROVIDER_LABELS } from "@/lib/apiKeys";
-import { getAiModelProvider } from "@/lib/ai/models";
+import { currentAiModel, getAiModelProvider } from "@/lib/ai/models";
 import { jobFormSchema, parseTargetFields } from "@/lib/validation";
 import type { ApiKeyProvider } from "@/types/database.types";
 
@@ -183,7 +183,7 @@ export async function resumeJobAction(formData: FormData) {
           url: job.url,
           target_fields: job.target_fields,
           ai_provider: aiProvider,
-          ai_model: job.ai_model,
+          ai_model: currentAiModel(job.ai_model),
           ai_api_key: apiKey,
           max_rows: job.max_rows,
         }),
