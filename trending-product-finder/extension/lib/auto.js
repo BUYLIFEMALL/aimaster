@@ -100,6 +100,15 @@ export function scheduleOverlaps(time, other) {
   return diff < scheduleMinutes(other.keywords?.length ?? 0);
 }
 
+/** 「v1.36」이 「v1.35」보다 새것인지. 형식이 틀리면 false(알림을 띄우지 않음). */
+export function isNewerVersion(latest, current) {
+  const parse = (v) => String(v ?? "").match(/^v(\d+)\.(\d{2})$/)?.slice(1).map(Number) ?? null;
+  const a = parse(latest);
+  const b = parse(current);
+  if (!a || !b) return false;
+  return a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1];
+}
+
 export const SCHEDULE_ALARM_PREFIX = "auto-schedule-";
 /** 다른 마켓 자동 검색이 도는 중에 예약 시각이 오면 이만큼 뒤에 다시 시도한다. */
 export const SCHEDULE_RETRY_MINUTES = 10;

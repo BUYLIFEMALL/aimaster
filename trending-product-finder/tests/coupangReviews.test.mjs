@@ -243,3 +243,14 @@ test("매일 예약 겹침: 다른 마켓 예약이 도는 시간(키워드×5�
   // 자정을 넘기는 예약
   assert.equal(scheduleOverlaps("00:05", { enabled: true, time: "23:50", keywords: ["a", "b", "c", "d"] }), true);
 });
+
+import { isNewerVersion } from "../extension/lib/auto.js";
+
+test("새 버전 알림: 사이트 버전이 더 높을 때만", () => {
+  assert.equal(isNewerVersion("v1.36", "v1.35"), true);
+  assert.equal(isNewerVersion("v2.00", "v1.99"), true);
+  assert.equal(isNewerVersion("v1.35", "v1.35"), false);
+  assert.equal(isNewerVersion("v1.34", "v1.35"), false);
+  assert.equal(isNewerVersion(undefined, "v1.35"), false);
+  assert.equal(isNewerVersion("1.36", "v1.35"), false);
+});

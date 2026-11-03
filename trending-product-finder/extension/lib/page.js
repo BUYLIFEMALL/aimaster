@@ -35,12 +35,29 @@ export async function readTab(tabId, market = "coupang") {
   return { state, products: state === "ok" ? mergeProducts([], result.cards.map(parseCard)) : [] };
 }
 
+// 확장 창(직접 읽기)과 뒤편(자동 검색)이 거의 동시에 담으면 「읽기→합치기→쓰기」가 겹쳐 한쪽 결과가 덮일 수 있어
+// 이 PC 목록 쓰기는 잠금으로 한 번에 하나씩만 한다(2026-11-03, 목록 98→53 감소 조사 중 찾은 결함).
+export function withListLock(work) {
+  return navigator.locks ? navigator.locks.request("local-items", work) : work();
+}
+
 /** 이 PC 목록에 이어 담는다. 늘어난 개수를 돌려준다. */
-export async function addToLocalList(products) {
-  const { items = [] } = await chrome.storage.local.get("items");
-  const merged = mergeProducts(items, products);
-  await chrome.storage.local.set({ items: merged, savedAt: Date.now() });
-  return merged.length - items.length;
+export function addToLocalList(products) {
+  return withListLock(async () => {
+    const { items = [] } = await chrome.storage.local.get("items");
+    const merged = mergeProducts(items, products);
+    await chrome.storage.local.set({ items: merged, savedAt: Date.now() });
+    return merged.length - items.length;
+  });
+}
+
+/** 이 PC 목록을 지우고, 언제·왜·몇 개를 지웠는지 최근 10건을 남긴다(다음에 목록이 줄면 원인을 바로 보려고). */
+export function clearLocalList(reason) {
+  return withListLock(async () => {
+    const { items = [], itemsClearLog = [] } = await chrome.storage.local.get(["items", "itemsClearLog"]);
+    await chrome.storage.local.remove(["items", "savedAt"]);
+    await chrome.storage.local.set({ itemsClearLog: [...itemsClearLog, { at: Date.now(), reason, count: items.length }].slice(-10) });
+  });
 }
 
 /** 쇼핑몰이 아니라 우리 사이트로만 보낸다. 공개 상품 정보만 담긴다. */

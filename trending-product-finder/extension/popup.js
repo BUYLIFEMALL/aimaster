@@ -1,6 +1,6 @@
-import { DAILY_LIMIT, MARKETS, MAX_KEYWORDS, isSearchUrl, marketOf, migrateSchedules, parseKeywords, scheduleMinutes, scheduleOverlaps, todayRecord } from "./lib/auto.js";
+import { DAILY_LIMIT, MARKETS, MAX_KEYWORDS, isNewerVersion, isSearchUrl, marketOf, migrateSchedules, parseKeywords, scheduleMinutes, scheduleOverlaps, todayRecord } from "./lib/auto.js";
 import { naverQuery } from "./lib/naver.js";
-import { addToLocalList, readTab, saveToAccount } from "./lib/page.js";
+import { addToLocalList, clearLocalList, readTab, saveToAccount } from "./lib/page.js";
 import { MARKET_NAME, filterProducts, isExpired, sellerText, toCsv } from "./lib/parse.js";
 
 // 네이버 쇼핑 고지를 더한 2026-11-03부터 동의 버전 2. 예전(쿠팡만) 동의는 다시 받는다.
@@ -184,15 +184,34 @@ function chosenMarket() {
 
 async function clearList() {
   items = [];
-  await chrome.storage.local.remove(["items", "savedAt"]);
+  await clearLocalList("목록 비우기");
   setStatus("목록을 비웠습니다.");
   render();
 }
 
+// 사이트의 공개 버전 정보만 읽는다(회원 정보 없음). 실패하면 조용히 넘어간다.
+const VERSION_URL = "https://trending-product-finder.buylife.xyz/api/extension/version";
+
+async function checkUpdate(current) {
+  try {
+    const response = await fetch(VERSION_URL, { cache: "no-store" });
+    if (!response.ok) return;
+    const { version, downloadUrl } = await response.json();
+    if (!isNewerVersion(version, current)) return;
+    $("updateVersion").textContent = version;
+    if (/^https:\/\/trending-product-finder\.buylife\.xyz\//.test(downloadUrl ?? "")) $("updateLink").href = downloadUrl;
+    else $("updateLink").href = "https://trending-product-finder.buylife.xyz/downloads/trending-product-finder-extension-latest.zip";
+    $("update").hidden = false;
+  } catch {
+    // 인터넷이 안 되거나 사이트가 바쁘면 알림만 건너뛴다.
+  }
+}
+
 async function init() {
   $("version").textContent = chrome.runtime.getManifest().version_name;
+  checkUpdate(chrome.runtime.getManifest().version_name);
   const stored = await chrome.storage.local.get(["agreed", "items", "savedAt"]);
-  if (isExpired(stored.savedAt)) await chrome.storage.local.remove(["items", "savedAt"]);
+  if (isExpired(stored.savedAt) && stored.items?.length) await clearLocalList("1년 만료");
   else items = stored.items ?? [];
 
   const showMain = () => {
