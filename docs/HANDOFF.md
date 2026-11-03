@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — AI 무료음악 자동화 엔진 0.1 + 브라우저 연결 확정
+- 브라우저 → 내 PC 연결: 처음 요청 때 「로컬 네트워크 접근」 권한을 묻고(상태 prompt — 응답 없이 멈춘 원인), 허용하자 엔진에 도착. ACE-Step은 CORS 헤더가 없어 엔진 연결 문이 붙임. **크롬 확장 경유는 필요 없음.** Claude Code가 조작하는 브라우저는 ego lite.
+- 엔진 0.1 `free-music-studio/engine/`(Node 새로 작성, 커밋 `6e6b73c4c`): 연결 문 47821(허용 사이트·짝짓기 토큰) → 내부 ACE-Step 47822(실행마다 새 키), 장치 자동 선택, 고정 버전 설치. 미니PC 실물: 사이트에서 짝짓기·30초 곡 176초·MP3 받기 성공.
+- Intel 맥 미지원 확정(맥미니 설치 확인 — torchcodec·PyTorch Intel 맥용 없음). 플랜·엔진 화면(미배포 대기)에 반영.
+- 다음 첫 단계: 마스터PC(5080)에서 엔진 처음부터 설치 시험(주인님) → 3단계 웹 「노래 만들기」 연결.
+
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — AI 무료음악 자동화 v1.01 1단계 배포
 - 한 일: 새 프로그램 `free-music-studio` 웹 뼈대(곡 만들기·AI 작사(회원 Claude 키, 3등급, 재시도 0)·내 PC 엔진 안내·설정·매뉴얼 기본판·30일 정리(예외 계정 제외)). 뼈대는 `music-video-studio` 공통 파일. 커밋 `37b563ea1`·`96f04aee3`.
 - 배포(주인님 승인, 빌드 1회): Vercel 새 프로젝트 `free-music-studio`(환경변수 5개), 도메인 `free-music-studio.buylife.xyz`, 운영 DB(ref esgxyik…) 마이그레이션 `free-music-studio/supabase/migrations/20261103_v1_01_init.sql`(곡 표·RLS·등록 `new·coming`·요금제 3단계). 등록 때 등급 자동 부여로 3개 계정에 1년 이용기간이 생김.
