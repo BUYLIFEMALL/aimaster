@@ -3,6 +3,7 @@
 // 순서: 연결 문 열기(상태 「설치 중」) → ACE-Step 설치 확인 → 내부 서버 실행 → 「준비됨」.
 // 시험용: FMS_ACESTEP_DIR(이미 설치된 ACE-Step 폴더) + FMS_PYTHON(그 폴더의 파이썬)이 있으면 설치를 건너뛰고 그 파이썬으로 띄운다.
 import { spawn } from "node:child_process";
+import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -15,7 +16,7 @@ import { createQueue } from "./queue.mjs";
 import { createRunner } from "./runner.mjs";
 import { newToken } from "./security.mjs";
 
-const VERSION = "0.1.6"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue)
+const VERSION = "0.1.7"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내
 const ACESTEP_PORT = 47822;
 
 const dataDir =
@@ -72,6 +73,7 @@ const queue = createQueue({
   onFinished: async (job) => {
     if (job.status === "cancelled" && job.source) await rm(path.join(queueSourceDir, job.source.file), { force: true });
     logLine(`🎵 대기열: ${job.title} — ${job.stage}${job.error ? ` (${job.error})` : ""}`);
+    if (job.status === "failed") logLine(`   자세한 이유는 음악 엔진 기록 파일에 있습니다: ${aceLogFile}`);
   },
   log: (e) => logLine(`⚠ 대기열 오류: ${e instanceof Error ? e.message : e}`),
 });
@@ -91,6 +93,14 @@ const gateway = createGateway({
   acestepPort: ACESTEP_PORT,
   acestepKey,
   onPairCode: (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`),
+});
+gateway.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    logLine(`\n⚠ 엔진이 이미 켜져 있습니다(연결 문 ${GATEWAY_PORT}번을 다른 엔진이 쓰는 중).`);
+    logLine("   예전 엔진 창을 닫고 다시 실행해 주세요. 창이 안 보이면 PowerShell에서:");
+    logLine(`   netstat -ano | findstr ${GATEWAY_PORT}   → 맨 끝 숫자(PID)를 확인한 뒤   taskkill /PID <숫자> /T /F`);
+  } else logLine(`⚠ 연결 문을 열지 못했습니다: ${err.message}`);
+  process.exit(1);
 });
 gateway.listen(GATEWAY_PORT, "127.0.0.1", () => {
   logLine(`AI 무료음악 자동화 엔진 ${VERSION} — 연결 문 http://127.0.0.1:${GATEWAY_PORT}  · ${device.mode}`);
@@ -112,10 +122,18 @@ function killTree(c) {
   });
 }
 
+// 음악 엔진(ACE-Step)이 화면에 쓰는 내용 — 곡을 못 만들었을 때 이유를 찾을 수 있게 데이터 폴더에 남긴다(켤 때마다 새로).
+const aceLogFile = path.join(dataDir, "acestep-log.txt");
+let aceLog = null;
+const writeAceLog = (d) => aceLog?.write(d);
+
 /** 지금 구성(profile)으로 음악 엔진(ACE-Step)을 띄우고 준비될 때까지 기다린다 */
 async function startMusicEngine() {
   state.ready = false;
   state.error = "";
+  aceLog?.end();
+  aceLog = createWriteStream(aceLogFile, { flags: "w" });
+  aceLog.write(`# ${new Date().toISOString()} · 엔진 ${VERSION} · 구성 ${profile.label}\n`);
   if (process.env.FMS_ACESTEP_DIR && process.env.FMS_PYTHON) {
     state.stage = "음악 엔진 켜는 중";
     const dir = process.env.FMS_ACESTEP_DIR;
@@ -132,12 +150,12 @@ async function startMusicEngine() {
         ...profileEnv(profile),
       },
     });
-    child.stdout.on("data", () => {});
-    child.stderr.on("data", () => {});
+    child.stdout.on("data", writeAceLog);
+    child.stderr.on("data", writeAceLog);
   } else {
     installedDir = await ensureInstalled(dataDir, { onStage: (s) => ((state.stage = s), logLine(`… ${s}`)) });
     state.stage = "음악 엔진 켜는 중";
-    child = launch(installedDir, { port: ACESTEP_PORT, apiKey: acestepKey, device: device.device, profile });
+    child = launch(installedDir, { port: ACESTEP_PORT, apiKey: acestepKey, device: device.device, profile }, writeAceLog);
   }
   child.on("exit", (code) => {
     if (restarting) return;
