@@ -37,6 +37,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - v1.01(배포 2026-11-03, `free-music-studio-m2cntvbs4`): 1단계 웹 뼈대. Vercel 새 프로젝트 `free-music-studio`(환경변수 5개), 도메인 `free-music-studio.buylife.xyz`, 운영 DB 마이그레이션 실행(등록 시 등급 자동 부여로 3개 계정에 1년 이용기간 생김). 마이그레이션 `supabase/migrations/20261103_v1_01_init.sql`(곡 표 + 프로그램 등록 `coming` 배지 + 요금제 3단계).
 
 ## 5. 대기
+**2026-11-03 전체 단계별 플랜: [`docs/PLAN_20261103_FULL_ROADMAP.md`](docs/PLAN_20261103_FULL_ROADMAP.md)** — 1단계 PC 검사·모델 고르기(v1.07) → 2 만들기 강화(프리셋·연주곡 기획) → 3 작업 대기열 → 4 화면 개편(홈·카드·재생바·내 곡 커버) → 5 앨범 커버 그림 → 6 마스터링 → 7 가사 시간 맞추기 → 8 영상 만들기(원본 장면 37종) → 9 설치 파일. 원본 코드는 MIT·원작자 허락으로 직접 옮겨 씀(원작자 이름 없이). 요청 기능 목록은 `docs/IMPROVEMENTS.md` 2026-11-03 「주인님 요청」 줄.
 플랜 §4 2~8단계. 다음: 1단계 배포(승인 필요) → 2단계 엔진 앱 0.1. 사전 검증 맥미니 결과 대기(`docs/MAC_REQUEST_20261103_PREVALIDATION.md`).
 
 ## 6. 연계 아이디어
