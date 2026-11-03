@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 const MENU = [
   { href: "", label: "대시보드" },
   { href: "/settings", label: "쇼핑몰 정보" },
+  { href: "/categories", label: "카테고리" },
 ] as const;
 
 export function AdminShell({ slug, storeName, active, children }: { slug: string; storeName: string; active: string; children: ReactNode }) {

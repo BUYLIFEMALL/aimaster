@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import type { CategoryRow } from "@/lib/categories";
 
 export type Store = {
   id: string;
@@ -51,6 +52,16 @@ export async function isStoreStaff(storeId: string): Promise<boolean> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_is_store_staff", { p_store_id: storeId });
   return data === true;
+}
+
+/** 몰의 카테고리 — 보안 규칙상 손님에게는 보이는 것만, 운영자에게는 숨긴 것까지 온다 */
+export async function getCategoryRows(storeId: string): Promise<CategoryRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_categories")
+    .select("id, parent_id, name, depth, sort, is_visible")
+    .eq("store_id", storeId);
+  return (data ?? []) as CategoryRow[];
 }
 
 /** 운영자 관리 화면 공통 입구 — 로그인 확인 후 몰과 「운영자인가」를 함께 돌려준다 */

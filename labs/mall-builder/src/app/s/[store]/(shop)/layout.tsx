@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getCurrentUser, getStoreBySlug, isStoreStaff } from "@/lib/store";
+import { getCategoryRows, getCurrentUser, getStoreBySlug, isStoreStaff } from "@/lib/store";
 import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
+import { buildCategoryTree } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,9 @@ export const dynamic = "force-dynamic";
 export default async function ShopLayout({ children, params }: { children: ReactNode; params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);
-  const [user, staff] = await Promise.all([getCurrentUser(), isStoreStaff(store.id)]);
+  const [user, staff, categoryRows] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id)]);
+  // 손님 메뉴에는 보이는 카테고리만(운영자로 보고 있어도 손님과 같게)
+  const topCategories = buildCategoryTree(categoryRows, false);
   const info = readBusinessInfo(store.business_info);
   const missing = missingRequired(info);
   const base = `/s/${store.slug}`;
@@ -37,6 +40,15 @@ export default async function ShopLayout({ children, params }: { children: React
             {user ? <span className="hidden sm:inline">{user.email}</span> : <Link href={`/login?next=${encodeURIComponent(base)}`}>로그인</Link>}
           </nav>
         </div>
+        {topCategories.length > 0 && (
+          <nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 pb-2 text-sm">
+            {topCategories.map((c) => (
+              <Link key={c.id} href={`${base}/c/${c.id}`} className="whitespace-nowrap rounded px-3 py-2 hover:bg-gray-100">
+                {c.name}
+              </Link>
+            ))}
+          </nav>
+        )}
       </header>
 
       <div className="flex-1">{children}</div>
