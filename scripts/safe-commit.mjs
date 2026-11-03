@@ -345,6 +345,11 @@ if (syncSkip) {
   console.log(`⚠ 공용 스테이징 맞추기를 건너뜁니다: ${syncSkip}.`);
   console.log(`  커밋은 정상입니다. 잠시 뒤 다른 도우미가 없을 때: git reset -q HEAD -- ${done.changed.map((r) => r.f).join(" ")}`);
 }
+// 2026-11-03 재발 대책: 맞추기 직전 공용 스테이징 사본을 떠 두고, 맞춘 뒤 절반 아래로 줄었으면 그 사본으로 되돌린다(git 잠금이 없을 때만)
+let indexSnapshot = null;
+if (!syncSkip) {
+  if ((tryRun(["ls-files"]) ?? "").split("\n").filter(Boolean).length >= headCount / 2) { try { indexSnapshot = readFileSync(join(GITDIR, "index")); } catch { /* 되돌리기 없이 진행 */ } }
+}
 if (!syncSkip) try {
 for (const r of done.changed) {
   // 2026-10-23: 삭제·이진 파일은 공용 스테이징을 새 HEAD에 맞추기만 한다(줄 병합 대상 아님)
@@ -363,6 +368,14 @@ for (const r of done.changed) {
   const sha = run(["hash-object", "-w", "--stdin"], { input: m.out }).trim();
   if (indexOp(["update-index", "--cacheinfo", `100644,${sha},${r.f}`])) console.log(`  ${r.f}: 다른 세션 스테이징 내용 위에 내 변경도 반영`);
   else indexFailed.push(r.f);
+}
+if (process.env.AIMASTER_TEST_SHRINK_AFTER_SYNC === "1") tryRun(["read-tree", "--empty"]); // 시험 전용: SMB에서 줄어든 순간 흉내
+const afterSync = (tryRun(["ls-files"]) ?? "").split("\n").filter(Boolean).length;
+if (afterSync < headCount / 2) {
+  if (indexSnapshot && !existsSync(join(GITDIR, "index.lock"))) {
+    writeFileSync(join(GITDIR, "index"), indexSnapshot);
+    console.log(`⚠ 맞춘 뒤 공용 스테이징이 ${afterSync}개로 줄어 맞추기 직전 사본으로 되돌렸습니다(지금 ${(tryRun(["ls-files"]) ?? "").split("\n").filter(Boolean).length}개). 커밋은 정상 — 주인님께 알리세요(docs/ERROR_LESSONS.md 2026-11-03).`);
+  } else console.log(`⚠ 맞춘 뒤 공용 스테이징이 ${afterSync}개로 줄었는데 되돌리지 못했습니다 — 커밋·푸시를 멈추고 주인님께 알리세요(루트 CLAUDE.md 최상단 여섯째).`);
 }
 } finally { rmSync(SYNC_LOCK, { force: true }); }
 if (indexFailed.length) {

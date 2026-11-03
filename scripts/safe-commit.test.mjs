@@ -47,6 +47,22 @@ test("① 옆자리 겹침: 내 변경은 제자리에, 다른 세션 미커밋 
   } finally { r.done(); }
 });
 
+test("공용 스테이징을 맞춘 직후 줄어들면 맞추기 직전 사본으로 되돌린다(2026-11-03 재발)", () => {
+  const r = repo();
+  try {
+    r.commit("a.md", ["A"], "a"); r.commit("b.md", ["B"], "b"); r.commit("c.md", ["C"], "c");
+    const before = r.git("ls-files").trim().split("\n").length;
+    assert.equal(r.helper("--begin", "a.md", "--as", "me").status, 0);
+    r.write("a.md", ["A2"]);
+    const out = spawnSync(process.execPath, ["scripts/safe-commit.mjs", "a 수정", "a.md", "--as", "me"], { cwd: r.dir, encoding: "utf8", env: { ...process.env, AIMASTER_TEST_SHRINK_AFTER_SYNC: "1" } });
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.match(out.stdout, /사본으로 되돌렸습니다/);
+    assert.deepEqual(r.head("a.md"), ["A2"]);                                       // 커밋은 정상
+    assert.equal(r.git("ls-files").trim().split("\n").length, before);              // 공용 스테이징 파일 수 그대로
+    assert.ok(!existsSync(join(r.dir, ".git", "safe-commit-index.lock")));          // 도우미 잠금도 남지 않음
+  } finally { r.done(); }
+});
+
 test("② 맨 위 동시 추가: 두 세션 항목이 모두 남는다", () => {
   const r = repo();
   try {

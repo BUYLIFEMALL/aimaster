@@ -66,6 +66,20 @@ test("② 공용 스테이징이 망가져 있어도 다른 파일을 지우지 
   } finally { r.done(); }
 });
 
+test("⑦ 공용 스테이징을 맞춘 직후 줄어들면 맞추기 직전 사본으로 되돌린다(2026-11-03 재발)", () => {
+  const r = repo(30);
+  try {
+    const beforeCount = r.tree().length;
+    writeFileSync(join(r.dir, "keep.txt"), "keep3\n");
+    const out = spawnSync(process.execPath, ["scripts/commit-paths.mjs", "keep 수정", "keep.txt"], { cwd: r.dir, encoding: "utf8", env: { ...process.env, AIMASTER_SESSION: "claude-test", AIMASTER_TEST_SHRINK_AFTER_SYNC: "1" } });
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.match(out.stdout, /사본으로 되돌렸습니다/);
+    assert.equal(r.git("show", "HEAD:keep.txt"), "keep3\n");                       // 커밋은 정상
+    assert.equal(r.git("ls-files").trim().split("\n").length, beforeCount);          // 공용 스테이징 파일 수 그대로
+    assert.ok(!existsSync(join(r.dir, ".git", "safe-commit-index.lock")));           // 도우미 잠금도 남지 않음
+  } finally { r.done(); }
+});
+
 test("③ 파일 50개 넘게 지우면 막는다", () => {
   const r = repo(60);
   try {
