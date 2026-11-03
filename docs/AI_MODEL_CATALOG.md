@@ -81,10 +81,10 @@ Gemini 이미지 모델은 모두 **무료 등급 없음**(회원 결제 연결 
 | `dall-e-3` | 2026-05-12 이미 종료 | 위와 같음 | 0 (이미지 스튜디오 `types.ts` 주석만) |
 | `o3-mini`·`o1`·`gpt-4-turbo` | 2026-10-23 이미 종료 | `gpt-5.6-sol` | **0** — 타로 교체 `22fbd1b03`, 11-03 배포(v1.28)·gpt-5.6-luna 시험 통과 |
 | `claude-sonnet-4-5` | 2026-11-30 | `claude-sonnet-5-5` | 0 |
-| `gemini-2.5-flash`·`-pro` | 2026-12-01 자동 연결(3.5-flash-lite·3.8-flash) | 1절 | 약 45 — `GEMINI_25_REPLACEMENT_LIST_20261103.md`·`PLAN_20261103_GEMINI_25_MIGRATION.md`(단계 2·3 승인 대기) |
-| `gpt-5` | 2026-12-11 | `gpt-5.6-sol` → 새로는 `gpt-6.1-sol` | 3: ai-auto-blog, naver-blog-seo-studio, tistory-auto-blog |
+| `gemini-2.5-flash`·`-pro` | 2026-12-01 자동 연결(3.5-flash-lite·3.8-flash) | 1절 | **1**(`blog-neighbor-care`, 윈도우 blog 세션 몫) — 나머지 35개는 코드 교체 완료·**배포 대기**(`PLAN_20261103_MODEL_MIGRATION_DEC.md` 7절, 남은 이름은 옛 값 변환표·`ai-prompt-studio` 호환 검사뿐). 블로그 묶음은 `DEPLOY_REQUEST_20261103_BLOG.md` |
+| `gpt-5` | 2026-12-11 | `gpt-5.6-sol` → 새로는 `gpt-6.1-sol` | **0** — 3곳 교체 완료(ai-auto-blog `142cb45ec`·tistory `7eb961fbd`·SEO `6103af9a8`), **배포 대기**(`DEPLOY_REQUEST_20261103_BLOG.md`, 12-05 점검) |
 | `gpt-5-mini` | 2026-12-11 | `gpt-5.6-terra`·`gpt-6-luna` | 0 |
-| `o3` | 2026-12-11 | `gpt-5.6-sol` | 2: real_estate_sales, threads-affiliate-poster |
+| `o3` | 2026-12-11 | `gpt-5.6-sol` | **0** — real_estate_sales v1.42 배포됨, threads-affiliate-poster `0caadc5ee` 배포 대기(12-05 점검) |
 | `tts-1`·`gpt-4o-mini-tts` | 2027-01-06 | `gpt-realtime-2.1-mini`(음성 합성 전용 모델 없음) | 3·4: ai-video-studio, music-video-studio(사본), shorts-onestop-studio, (+`gpt-4o-mini-tts`만 shots) |
 | `gpt-4o` | 2027-01-14 | `gpt-6-luna`·`gpt-6.1-terra` | 18 |
 | `gpt-4o-mini` | 2027-01-14 | `gpt-6-luna` | 32 (타로 기본값 포함) |
@@ -104,3 +104,4 @@ Gemini 이미지 모델은 모두 **무료 등급 없음**(회원 결제 연결 
 ## 6. 변경 이력
 - 2026-11-03: 처음 작성(세 회사 공식 문서 확인, 저장소 사용 현황 집계).
 - 2026-11-03 오후: 4절 다시 집계(따옴표 이름·변환표 제외) — 음성·이미지·o3-mini/o1 교체 반영, 남은 사용처 목록화.
+- 2026-11-03 저녁: 12월 묶음(2.5·`gpt-5`·`o3`) 코드 교체 완료 반영 — 다시 집계 결과 실제 사용은 `blog-neighbor-care`의 2.5만 남음, 나머지는 배포 대기.

@@ -64,6 +64,14 @@
 ## 6. 카탈로그 밖 폴더 (참고)
 `blog_auto_poster`·`shots`·`web-crawler/webapp`·`insta_auto_poster`·`kakao_auto_poster`·`music`·`tarot`·`threads` — DB `programs` slug와 폴더 이름이 직접 맞지 않음(옛 폴더이거나 다른 slug). `blog_auto_poster`·`shots`·`web-crawler`에 2.5 글 호출 고정이 있으나 운영 여부 확인 필요.
 
+## 8. 진행 현황 (2026-11-03 저녁, 맥미니)
+| 구분 | 상태 |
+|---|---|
+| 코드 교체 | **35개 완료** — 묶음 A·B·C 커밋 해시는 `PLAN_20261103_MODEL_MIGRATION_DEC.md` 7절·`PENDING_DEPLOYS.md` 「12월 모델 교체」 줄. 옛 저장값은 읽는 곳에서 새 값으로 변환 |
+| 다시 집계 | 따옴표로 감싼 2.5 이름이 남은 곳은 옛 값 변환표와 `ai-prompt-studio` 호환 검사(받아서 3.8로 실행)뿐. **실제 호출·선택지는 `blog-neighbor-care` 1곳**(윈도우 blog 세션 몫) |
+| 배포 | 주인님 결정: 따로 빌드하지 않고 각 프로그램 다음 배포 때 함께. 블로그 8개는 `DEPLOY_REQUEST_20261103_BLOG.md`(빌드 승인 요청함 대기) |
+| 실제 생성 시험 | 배포 뒤 대표 1회씩(플랜 4절 4번) — 아직 안 함 |
+
 ## 7. 진행 제안
 1. 무료 `models.list`로 바꿀 모델 확정(1번 표).
 2. A그룹부터 프로그램마다 모델 이름만 교체(프롬프트·온도는 그대로), 키를 주소에 넣는 곳은 헤더로. 공용 사본(`compatible-chat`, 댓글 3종 `models.ts`)은 기준만 고치고 `--sync`.
