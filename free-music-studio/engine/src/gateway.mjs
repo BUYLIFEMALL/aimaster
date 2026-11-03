@@ -4,6 +4,7 @@ import http from "node:http";
 import { bearer, corsHeaders, isAllowedOrigin, newPairCode, newToken, sameSecret } from "./security.mjs";
 import { isTrackId } from "./library.mjs";
 import { pickFolder, revealFolder } from "./folderDialog.mjs";
+import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
 import { mkdir } from "node:fs/promises";
 
 export const GATEWAY_PORT = 47821;
@@ -100,7 +101,9 @@ export function createGateway(ctx) {
  * 내 PC 보관함(library.mjs) — 토큰 확인을 마친 요청만 온다.
  *  GET /library            → { ids: [...], dir } 이 PC에 있는 곡 번호·저장 폴더
  *  POST /library/save      { id, file, title } → ACE-Step 결과(/v1/audio?…)를 받아 「제목.mp3」로 보관
- *  POST /library/pick-folder → { path|null } PC에 폴더 고르기 창
+ *  GET /library/browse?path= → { path, parent, dirs } (path 없으면 자주 쓰는 폴더·드라이브) — 사이트 안 한글 폴더 고르기
+ *  POST /library/mkdir     { parent, name } → { path } 새 폴더
+ *  POST /library/pick-folder → { path|null } PC에 윈도우 기본 폴더 창(0.1.2 화면용, 지금은 안 씀)
  *  POST /library/folder    { path, move, titles } → 저장 폴더 바꾸기(기존 노래 옮기기 선택)
  *  POST /library/reveal    → 저장 폴더를 탐색기로 열기
  *  GET /library/<id>       → 음원(audio/mpeg)
@@ -118,6 +121,22 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
       return json(res, 200, { path: await pickFolder(lib.dir) }, origin);
     } catch (e) {
       return json(res, 501, { error: e.message }, origin);
+    }
+  }
+  if (req.method === "GET" && rest === "browse") {
+    const dir = url.searchParams.get("path") ?? "";
+    try {
+      return json(res, 200, dir ? await browseDir(dir) : await browseRoots(), origin);
+    } catch (e) {
+      return json(res, 400, { error: e.message }, origin);
+    }
+  }
+  if (req.method === "POST" && rest === "mkdir") {
+    const body = await readSmall(req).catch(() => null);
+    try {
+      return json(res, 200, { path: await makeDir(body?.parent, body?.name) }, origin);
+    } catch (e) {
+      return json(res, 400, { error: e.message }, origin);
     }
   }
   if (req.method === "POST" && rest === "folder") {

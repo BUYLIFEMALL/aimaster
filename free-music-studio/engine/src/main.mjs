@@ -12,7 +12,7 @@ import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
 import { createLibrary } from "./library.mjs";
 import { newToken } from "./security.mjs";
 
-const VERSION = "0.1.2"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름
+const VERSION = "0.1.3"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse)
 const ACESTEP_PORT = 47822;
 
 const dataDir =
@@ -38,7 +38,7 @@ const library = createLibrary(dataDir);
 await library.init();
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder"], libraryDir: library.dir }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse"], libraryDir: library.dir }),
   library,
   tokens,
   saveTokens,

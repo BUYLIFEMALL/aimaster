@@ -199,6 +199,29 @@ export async function setLibraryFolder(path: string, move: boolean, titles: Reco
   return (await res.json()) as { dir: string; moved: number; failed: number };
 }
 
+/** 사이트 안 한글 폴더 고르기를 쓸 수 있는 엔진인가(0.1.3+) */
+export function hasFolderBrowse(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("browse");
+}
+
+export type FolderEntry = { name: string; path: string };
+export type FolderListing = { path: string; parent: string | null; dirs: FolderEntry[]; quick?: FolderEntry[]; drives?: FolderEntry[] };
+
+/** PC 폴더 목록. path가 비면 자주 쓰는 폴더·드라이브. */
+export async function browseFolders(path: string): Promise<FolderListing> {
+  const res = await call(`/library/browse?path=${encodeURIComponent(path)}`);
+  return (await res.json()) as FolderListing;
+}
+
+export async function makeFolder(parent: string, name: string): Promise<string> {
+  const res = await call("/library/mkdir", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ parent, name }),
+  });
+  return (await res.json()).path as string;
+}
+
 /** 저장 폴더를 PC 탐색기로 연다. */
 export async function revealLibraryFolder(): Promise<void> {
   await call("/library/reveal", { method: "POST" });

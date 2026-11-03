@@ -3,6 +3,29 @@ import assert from "node:assert/strict";
 import { chooseDevice } from "../src/device.mjs";
 import { bearer, corsHeaders, isAllowedOrigin, newPairCode, sameSecret } from "../src/security.mjs";
 import { createLibrary, isTrackId, safeFileName } from "../src/library.mjs";
+import { browseDir, browseRoots, makeDir } from "../src/folderBrowse.mjs";
+
+test("폴더 고르기: 하위 폴더만·숨김 제외·이름 순, 새 폴더 만들기", async () => {
+  const base = await mkdtemp(path.join(tmpdir(), "fms-browse-"));
+  try {
+    await mkdir(path.join(base, "나"), { recursive: true });
+    await mkdir(path.join(base, "가"), { recursive: true });
+    await mkdir(path.join(base, ".숨김"), { recursive: true });
+    await writeFile(path.join(base, "파일.txt"), "x");
+    const r = await browseDir(base);
+    assert.deepEqual(r.dirs.map((d) => d.name), ["가", "나"]);
+    assert.equal(r.parent, path.dirname(path.resolve(base)));
+    const made = await makeDir(base, "새 노래");
+    assert.equal(made, path.join(path.resolve(base), "새 노래"));
+    await assert.rejects(() => makeDir(base, "a/b"));
+    await assert.rejects(() => makeDir(base, ".."));
+    await assert.rejects(() => browseDir("상대경로"));
+    const roots = await browseRoots(base);
+    assert.ok(roots.drives.length > 0);
+  } finally {
+    await rm(base, { recursive: true, force: true });
+  }
+});
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
