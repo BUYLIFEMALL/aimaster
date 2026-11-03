@@ -1,4 +1,4 @@
-# 플랜 — 12월 모델 교체 묶음: Gemini 2.5 + GPT-5 + o3 (2026-11-03, 승인 대기)
+# 플랜 — 12월 모델 교체 묶음: Gemini 2.5 + GPT-5 + o3 (2026-11-03, 결정 확정 — 따로 빌드하지 않음)
 
 작성: Claude Code(맥미니) `claude-mac-20261101-blog` [역할: mac-mini]
 주인님 지시: 「묶어서 합친 플랜 만들어줘」(2026-11-03) — 기존 [`PLAN_20261103_GEMINI_25_MIGRATION.md`](PLAN_20261103_GEMINI_25_MIGRATION.md) 단계 2·3에 12-11 종료 모델(`gpt-5`·`o3`)을 합친 것. 그 플랜의 단계 1(음성)은 11-03 배포 완료.
@@ -68,6 +68,8 @@
 | 회원 부담 | — | `gemini-3.8-flash`는 2.5-flash보다 입력 약 2.5배·출력 1.5배(회원 본인 키). `gpt-5.6-sol`은 `gpt-5`와 비슷한 고가 구간 |
 
 ## 6. 주인님 결정
+1. ~~묶음 C~~ → **값만 바꾸기로 확정**(주인님 채팅 11-03).
+2. ~~빌드 약 32회~~ → **따로 빌드하지 않는다**(주인님 11-03 「수정해놨다 다른 프로그램 수정할때 같이 업데이트」): 코드만 고쳐 `docs/PENDING_DEPLOYS.md` 미배포 대기로 두고, 그 프로그램의 다음 배포 때 함께 나간다. **예외 — 묶음 A 5개(`gpt-5`·`o3`, 12-11 호출 실패)**: 12-05까지 다른 배포가 없으면 12-10 전에 그 5개만 배포를 주인님께 여쭌다. Gemini 2.5는 12-01 뒤에도 자동 연결로 동작하므로 기다려도 된다.
 
 ## 7. 진행 (맥미니)
 | 날짜 | 묶음 | 프로그램 · 커밋 | 확인 |
@@ -77,5 +79,3 @@
 | 11-03 | C 나머지 완료 | `ai-doc-chatbot`(새로 찾음, 공용 기준) · `ai-prompt-studio` · `ai-slide-builder` · `allinone-graphic` · `cinematic-storyboard-studio` · `persona-style-studio` · `photo-remake-studio` · `portrait-photo` · `react-ui-showcase` · `ui-canvas` · `vinyl-lp-studio` · `fashion-style` · `landing-architect` · `reverse-prompt` (해시: `docs/PENDING_DEPLOYS.md`) | tsc 14개 통과 |
 | 11-03 | B 12개 완료 | 댓글 3종 · `web-crawler` · `ai-mastering-studio` · `playlist-channel-studio` · `blog-content-maker` · `blog-workroom` · `emotion-writer` · `ghost-scraper` · `ai-webtoon-studio` · `ebook-studio` | tsc 12개 통과, 옛 저장값 변환 코드로 확인. 시험 3개는 맥에서 못 돌림(윈도우 배포 때) |
 | — | 남음 | `blog-neighbor-care`(윈도우 blog 세션), 배포는 각 프로그램 다음 배포 때. **묶음 A 5개 중 `real_estate_sales`는 v1.42로 배포됨** — `ai-auto-blog`·`tistory-auto-blog`·`naver-blog-seo-studio`(MAC 배포 요청에 함께)와 `threads-affiliate-poster`는 12-05에 배포 여부 점검 | — |
-1. 묶음 C(고정 호출 18개): 이번엔 값만 바꾸기(추천) / 모델 선택 칸까지 새로 만들기.
-2. 빌드 약 32회 승인(11-30까지 나눠서).
