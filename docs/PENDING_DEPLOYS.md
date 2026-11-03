@@ -15,6 +15,7 @@
 
 ## 대기 중
 
+- `free-music-studio` — 프리셋 지운 뒤 안내·조사 없는 문장(`ea6bba1d9`, 2026-11-04, [역할: music] `claude-win-20261024-music`, 화면 문구만, 다음 배포(3단계) 때 함께)
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
 
