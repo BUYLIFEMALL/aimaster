@@ -4,6 +4,7 @@
 // v1.31(주인님 결정 2026-10-23): 게시 완료 후 30일 지난 글은 사진 칸에서 이 버킷 주소를 빼고(본문·Threads 링크·게시 기록은 남김),
 // 그 뒤 같은 「안 쓰이는 파일」 규칙으로 파일을 지운다. 초안·예약·게시 중·실패 글은 손대지 않는다.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { loadRetentionExemptIds } from "@/lib/retentionExempt";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
 export const POST_IMAGE_BUCKET = "post-images";
@@ -55,10 +56,13 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** 모든 회원 폴더를 돌며 정리한다. admin = 서비스 키 클라이언트 */
 export async function cleanupPostImages(admin: SupabaseClient, now = Date.now()): Promise<{ members: number; removed: number; kept: number; postsCleared: number }> {
   // 1단계: 게시 완료 30일 지난 글의 사진 칸에서 이 버킷 주소를 뺀다(실패한 글은 그대로 → 그 파일은 아래에서 안 지워짐)
-  const { data: oldPosts, error: oldError } = await admin.from("posts").select("id, status, created_at, image_url").eq("status", "published").not("image_url", "is", null);
+  // 30일 삭제 예외 회원(관리자·시험 계정, 2026-11-03)은 사진 칸·파일 모두 손대지 않는다. 목록을 못 읽으면 오류로 멈춘다.
+  const exempt = await loadRetentionExemptIds(admin);
+  const { data: oldPosts, error: oldError } = await admin.from("posts").select("id, user_id, status, created_at, image_url").eq("status", "published").not("image_url", "is", null);
   if (oldError) throw new Error(`posts 읽기 실패: ${oldError.message}`);
   let postsCleared = 0;
-  for (const post of (oldPosts ?? []) as { id: string; status: string; created_at: string; image_url: string | null }[]) {
+  for (const post of (oldPosts ?? []) as { id: string; user_id: string; status: string; created_at: string; image_url: string | null }[]) {
+    if (exempt.has(post.user_id)) continue;
     const next = strippedImageUrl(post, now);
     if (next === undefined) continue;
     const { error } = await admin.from("posts").update({ image_url: next }).eq("id", post.id).eq("status", "published");
@@ -77,7 +81,7 @@ export async function cleanupPostImages(admin: SupabaseClient, now = Date.now())
   let removed = 0;
   let kept = 0;
   for (const dir of dirs ?? []) {
-    if (dir.id || !UUID.test(dir.name)) continue; // 회원 폴더만
+    if (dir.id || !UUID.test(dir.name) || exempt.has(dir.name)) continue; // 회원 폴더만(예외 회원 제외)
     members += 1;
     const { data: files } = await admin.storage.from(POST_IMAGE_BUCKET).list(dir.name, { limit: 1000, sortBy: { column: "created_at", order: "asc" } });
     const list = (files ?? []).filter((f) => f.id).map((f) => ({ path: `${dir.name}/${f.name}`, createdAt: f.created_at ?? null }));
