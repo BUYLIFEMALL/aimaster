@@ -742,3 +742,7 @@
 - 함께 나감: 보관함 초안 저장 직후 뺀 사진이 몇 초 다시 보이던 화면 문제(`editingRef`, `f92acc076`) · 쿠팡 수동 등록 실패 때 임시 상품 사진을 서버 키로 삭제(`6b44abdc8`) · 공용 사본 `member-scheduler`·`openai-request-params`(동작 같음). 버전 커밋 `c790a9539`, SQL `supabase/migrations/20261023260000_tco_v2_20_pending_batch.sql`.
 - 검수: tsc 0, `npm test` 36, 로컬 build, `deploy.mjs --go` 배포 Ready, DB v2.20. 크롬: 메뉴 v2.20 · `/api/threads-content-ops/dispatch-member` 가짜 토큰 → 401 · 시험 회원(buylifemall@naver.com)으로 시험 초안(서버 키로 만든 1px PNG 1장, 새 버킷) → 수정 → ✕ → 저장 → 저장 직후 0.3·1·2·4초 모두 사진 0장(전에는 몇 초 다시 보였음), DB media `[]`. 시험 초안·사진 삭제.
 - 참고: 검수 중 크롬이 관리자 계정으로 바뀌어 있어 주인님이 시험 회원으로 다시 로그인해 주심. 옛 버킷 시절 발행된 글의 보관함 이미지는 대체 글자로 보임(이미 발행됨, 30일 정리 대상).
+
+## 2026-11-03 v2.22 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
+- 함께 나감: 이미지 `87b12267e`. 버전 커밋 `d9448b5bb`, 배포 `threads-content-dq8rs2jct` Ready, DB v2.22. tsc(시험 있으면 npm test) 통과.
+- 실제 시험(시험 계정 본인 키, 재시도 없음): 호출 시험 안 함(요청서 범위 밖). 배포 도구 출력에 결과 줄이 없어 `vercel ls`로 Ready 확인.

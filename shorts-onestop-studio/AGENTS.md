@@ -257,3 +257,7 @@
 - 계산 라이브러리는 묶지 않음: `scripts/copy-ort.mjs`(predev·prebuild)가 `public/ort/`로 복사(.gitignore), 작업자가 실행 때 불러옴 — 이유는 `docs/ERROR_LESSONS.md` 2026-10-24.
 - 검수: tsc·시험 33개(새 `tests/freeTts.test.ts` 6개)·로컬 빌드, 로컬 크롬 실제 계산(처음 45.7초·두 번째 약 2초 준비, 8.36초 음성 6.9초 생성), 운영 머리글·`/ort/` 200·렌더 화면 선택지/안내(관리자 계정, 저장 안 함). **시험 계정(`buylifemall@naver.com`) 운영 검수 완료(2026-10-24): 무료 음성 선택 → 사용 조건 체크 → 인트로 「다시」 → 모델 4개 내려받아 Cache API 저장(격리 켜짐) → `/api/media/voice-upload` → 본인 `voice/` 폴더 WAV(7.06초·44.1kHz·소리 크기 0.052) → 서명 주소. MP4 만들기 24초(1080×1920·56.28초·25.7MB), 인트로 구간 소리 정상, 3.5초 지점 자막이 대본 중간 구절과 맞음. 유튜브 설명란 표기는 실제 업로드(외부 공개)를 하지 않아 시험(`usesFreeVoice`)으로만 확인.**
 - 커밋 `fa77fc06e`, 배포 `shorts-onestop-studio-d5tdeydn1` Ready, DB v1.42. 미배포 대기: 안내 그림문자 `a95613743`. 비용: 빌드 1회.
+
+## 2026-11-03 v1.43 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
+- 함께 나감: 음성 `9045a5005` + 안내 그림문자 `a95613743`, 코드 표기 v2.0 → v1.43(DB와 맞춤). 버전 커밋 `d9448b5bb`, 배포 `shorts-onestop-studio-2z711hpa9` Ready, DB v1.43. tsc(시험 있으면 npm test) 통과.
+- 실제 시험(시험 계정 본인 키, 재시도 없음): 같은 음성 공용 코드 — 영상 스튜디오 시험으로 대신(자체 호출 시험 안 함).

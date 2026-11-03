@@ -62,3 +62,7 @@
 ## 배포·운영 메모
 - 배포: `node scripts/deploy.mjs ai-video-studio --go --owner "<작업 중 표 내 줄 일부>"` (빌드 1회 = 비용, 사전 승인).
 - 환경변수(운영): `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`·`CRON_SECRET`(이 프로젝트 전용)·`NEXT_PUBLIC_MAIN_SITE_URL`.
+
+## 2026-11-03 v1.26 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
+- 함께 나감: 음성 `9045a5005`. 버전 커밋 `d9448b5bb`, 배포 `ai-video-studio-nikbwpt4l` Ready, DB v1.26. tsc(시험 있으면 npm test) 통과.
+- 실제 시험(시험 계정 본인 키, 재시도 없음): 음성 Gemini 3.8 Flash TTS 1회 통과(6.4초, WAV 188KB, RIFF 머리말).

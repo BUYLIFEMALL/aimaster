@@ -142,3 +142,7 @@
 
 ## 2026-10-22 ⏸ 미배포 — 좁은 칸 버튼 줄바꿈/잘림 수정 (Claude Code 윈도우, 커밋 f0871e568)
 - components/settings/ApiKeyRow.tsx: 버튼·짧은 문구에 whitespace-nowrap, 버튼 묶음 shrink-0(필요하면 flex-wrap). 기능·문구 변경 없음. **급하지 않아 배포하지 않음(주인님 B안) — 다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01, 이 항목을 「배포됨(버전)」으로 바꿀 것.** 근거: 루트 docs/UI_WRAP_AUDIT_20261022.md, 규칙 DESIGN.md 원칙 19.
+
+## 2026-11-03 v1.28 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
+- 함께 나감: 타로 `22fbd1b03` + API 키 문구 `b16550ad4` + 버튼 줄바꿈 `f0871e568`. 버전 커밋 `d9448b5bb`, 배포 `tarot-ofrylsvat` Ready, DB v1.28. tsc(시험 있으면 npm test) 통과.
+- 실제 시험(시험 계정 본인 키, 재시도 없음): gpt-5.6-luna 3장 리딩 1회 통과(7.5초, 본문 828자, finish stop), 메뉴에 o3-mini·o1 없음.

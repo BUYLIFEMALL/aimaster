@@ -244,3 +244,7 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 ## 2026-11-03 v1.33 ✅ 배포 — 플랫폼별 최신 AI 모델 추가 — `d2fc103ed`·`b40567c94` (Claude Code 윈도우 · 음악 담당)
 - 공급사 순서를 OpenAI·Claude·Gemini로 맞추고 플랫폼별 묶음 표시. 텍스트에 GPT-6.1 Sol·6 Astra·6.1 Terra·6 Luna·Claude Opus 5.5·Fable 5.1·Gemini 3.8 Flash(새 기본값)·4 Argon·3.5 Flash-Lite, 이미지에 GPT Image 2.5 Sunburst·2.5 Flare·2·1.5·1 mini·나노 바나나 2.1 추가. Gemini 생각 끄기는 2.5에만, Claude 출력 한도 16000. 실제 호출(시험 계정 본인 키, 재시도 없음): 텍스트 9개 제목 생성 모두 통과 1.7~13.8초(Argon도 통과), 이미지 6개 썸네일 모두 통과 11.9~27.2초.
 - 검수: tsc·시험 28개, 배포 Ready·DB v1.33, 크롬 화면에서 v1.33·묶음 순서·텍스트 15개/이미지 9개·기본값 확인. OpenAI 이미지 단가는 공식 장당 금액이 없어 추정치. API 키 암호화 문구 `b16550ad4`도 함께 나감.
+
+## 2026-11-03 v1.34 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
+- 함께 나감: 이미지 `87b12267e`(GPT Image 1·1 mini·1.5 목록 제거, 옛 값 → flare). 버전 커밋 `d9448b5bb`, 배포 `playlist-channel-studio-e5lnm0rdl` Ready, DB v1.34. tsc(시험 있으면 npm test) 통과.
+- 실제 시험(시험 계정 본인 키, 재시도 없음): 참조 이미지 편집(`/v1/images/edits`) flare 1장 통과(15.1초) — flare가 편집 지원함 확인.

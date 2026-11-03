@@ -656,3 +656,7 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 - 운영 앱 쪽 안전장치를 기준에 넣음: 붙여넣은 HTML 2만 자 한도·스크립트/주석 제거·쿠팡 CDN 이미지만 사진으로·배너 받을 때 리디렉션 거부·2MB 한도, 쿠팡 401/429 안내 구분, 쿠팡·알리 요청 시간 제한. 이름 변경: `searchProducts` → `searchCoupangProducts`. 알리 사진 찾기 메타 이미지 후보에서 너무 넓은 `"image":` 패턴은 뺌.
 - 토스: 목록에 없는 `tacaId`가 숨은 입력에 「NaN」으로 들어가던 것 → `TossProduct.tacaId`는 `null`, 화면은 빈 값, 쉐어링크는 tacaItemId(우선) 하나만 보냄. FIXIE_URL 앞뒤 공백 무시·미설정 안내 문구.
 - 시험 `npm run test:affiliate-clients`(7개, 외부 호출 가짜). 배포 `threads-affiliate-poster-hxign6r21` Ready, DB v1.83, 크롬 상품 등록 화면·일반 쿠팡 주소 거절 확인.
+
+## 2026-11-03 v1.85 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
+- 함께 나감: 이미지 `87b12267e`. 버전 커밋 `d9448b5bb`, 배포 `threads-affiliate-poster-dg55pgkc0` Ready, DB v1.85. tsc(시험 있으면 npm test) 통과.
+- 실제 시험(시험 계정 본인 키, 재시도 없음): 호출 시험 안 함(요청서 범위 밖).

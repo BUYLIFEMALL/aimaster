@@ -233,3 +233,7 @@
 - 함께 나간 것: 공용 `ai-video-models`에서 Replicate Kling v2.1 제거 사본(`c2b698db4`)·소리/글→영상 선택값 사본(`fd1f3cb67`)·`ai-video-*` 기준 이전 주석(모두 이 프로그램 화면에서는 쓰지 않아 동작 불변), 생성 기록 30일 정리의 `usage_logs` 기록.
 - 검수: build(시험 명령 없음), 배포 `ai-image-studio-55iswla9s` Ready, DB v1.30, 크롬 대시보드 v1.30·오류 없음.
 - 비용: 빌드 1회.
+
+## 2026-11-03 v1.31 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
+- 함께 나감: 이미지 `87b12267e` + API 키 문구 `b16550ad4`. 버전 커밋 `d9448b5bb`, 배포 `ai-image-studio-2amw33trt` Ready, DB v1.31. tsc(시험 있으면 npm test) 통과.
+- 실제 시험(시험 계정 본인 키, 재시도 없음): gpt-image-2.5-flare 1024 low 1장 통과(10.5초, b64). 갤러리 저장은 미확인.

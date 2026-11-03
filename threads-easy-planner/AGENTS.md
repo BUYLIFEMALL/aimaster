@@ -393,3 +393,7 @@
 - 주인님 지시 「다른 계정으로 옮겨서 바로 설치할 수 있도록 최종버전으로」. `D:\PDS\AIMater_KIT\ALLA_AI_Kit_v1.05.zip`(65개 파일).
 - 검증: ① `KIT/schema.sql` 전체를 Lab DB(ref rjjtjakljjxsgjelqgek)에서 임시 스키마 `kit_test`로 바꿔 `begin … rollback` 실행 → 오류 0, 남은 것 0 ② 공용 마법사 `설치결과.txt` 「다음 단계」가 플랫폼 앱·cron-job.org를 늘 적던 문제 → `kit.json` `resultSteps`(선택) 추가, 이 키트는 「키 저장 → 글 생성」 2단계 ③ 압축을 풀어 독립 모드 `npm ci`+build+start → 탭 제목 「ALLA AI」, `/`→`/login`.
 - 남은 일: 실제 새 Supabase·Vercel 계정으로 마법사 8단계 리허설(주인님 수강생 역할).
+
+## 2026-11-03 v1.50 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
+- 함께 나감: 이미지 `87b12267e` + API 키 문구 `b16550ad4`. 버전 커밋 `d9448b5bb`, 배포 `threads-easy-planner-matxodjk3` Ready, DB v1.50. tsc(시험 있으면 npm test) 통과.
+- 실제 시험(시험 계정 본인 키, 재시도 없음): 호출 시험 안 함(요청서 범위 밖).
