@@ -36,7 +36,11 @@ export default async function ShopLayout({ children, params }: { children: React
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
           <Link href={base} className="text-xl font-bold">{store.name}</Link>
           {/* 메뉴 자리: 카테고리(F03)·장바구니(F09)·로그인/마이페이지(F08)가 기능을 만들 때 하나씩 들어온다 */}
+          <form action={`${base}/search`} className="hidden flex-1 sm:block sm:max-w-xs">
+            <input name="q" placeholder="상품 검색" maxLength={50} className="w-full rounded-full border px-4 py-1.5 text-sm" />
+          </form>
           <nav className="flex items-center gap-3 text-sm text-gray-600">
+            <Link href={`${base}/search`} className="sm:hidden" aria-label="검색">검색</Link>
             {user ? <span className="hidden sm:inline">{user.email}</span> : <Link href={`/login?next=${encodeURIComponent(base)}`}>로그인</Link>}
           </nav>
         </div>

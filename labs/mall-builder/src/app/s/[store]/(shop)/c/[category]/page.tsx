@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoryRows, getStoreBySlug } from "@/lib/store";
+import { getCategoryRows, getShopProducts, getStoreBySlug } from "@/lib/store";
 import { buildCategoryTree, categoryPath, flattenTree } from "@/lib/categories";
+import { ProductGrid } from "../../product-card";
 
 export const dynamic = "force-dynamic";
 
-// 손님 카테고리 화면 — F03은 경로와 하위 카테고리만. 상품 목록은 F06에서 붙인다.
+// 손님 카테고리 화면 — 경로·하위 카테고리·이 카테고리와 하위 카테고리의 상품
 export default async function CategoryPage({ params }: { params: Promise<{ store: string; category: string }> }) {
   const { store: slug, category: categoryId } = await params;
   const store = await getStoreBySlug(slug);
@@ -18,6 +19,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ store
 
   const base = `/s/${store.slug}`;
   const path = categoryPath(rows, node.id);
+  const ids = flattenTree([node]).map((c) => c.id);
+  const products = await getShopProducts(store.id, { categoryIds: ids });
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -44,7 +47,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ store
         </ul>
       )}
 
-      <p className="mt-12 text-center text-gray-500">이 카테고리의 상품을 준비하고 있습니다.</p>
+      <div className="mt-6">
+        <ProductGrid base={base} products={products} empty="이 카테고리에는 아직 상품이 없습니다." />
+      </div>
     </main>
   );
 }

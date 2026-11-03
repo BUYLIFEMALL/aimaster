@@ -84,6 +84,52 @@ export type ProductRow = {
 export const PRODUCT_COLUMNS =
   "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, created_at";
 
+/** 손님 화면용 상품 목록 — 판매 중·품절만(운영자가 볼 때도 손님과 같게). 카테고리·검색어로 거른다 */
+export async function getShopProducts(
+  storeId: string,
+  opts: { categoryIds?: string[]; q?: string; limit?: number } = {},
+): Promise<ProductRow[]> {
+  const supabase = await createClient();
+  let productIds: string[] | null = null;
+  if (opts.categoryIds) {
+    if (!opts.categoryIds.length) return [];
+    const { data: links } = await supabase
+      .from("mall_builder_product_categories")
+      .select("product_id")
+      .eq("store_id", storeId)
+      .in("category_id", opts.categoryIds);
+    productIds = [...new Set((links ?? []).map((l) => l.product_id as string))];
+    if (!productIds.length) return [];
+  }
+  let query = supabase
+    .from("mall_builder_products")
+    .select(PRODUCT_COLUMNS)
+    .eq("store_id", storeId)
+    .in("status", ["on_sale", "sold_out"])
+    .order("created_at", { ascending: false })
+    .limit(opts.limit ?? 60);
+  if (productIds) query = query.in("id", productIds);
+  const q = opts.q?.trim();
+  if (q) query = query.ilike("name", `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`);
+  const { data } = await query;
+  return (data ?? []) as ProductRow[];
+}
+
+/** 손님 상품 상세 — 판매 중·품절만. 없으면 null */
+export async function getShopProduct(storeId: string, productId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_products")
+    .select(`${PRODUCT_COLUMNS}, mall_builder_product_categories(category_id)`)
+    .eq("store_id", storeId)
+    .eq("id", productId)
+    .in("status", ["on_sale", "sold_out"])
+    .maybeSingle();
+  if (!data) return null;
+  const row = data as ProductRow & { mall_builder_product_categories: { category_id: string }[] };
+  return { ...row, category_ids: (row.mall_builder_product_categories ?? []).map((l) => l.category_id) };
+}
+
 /** 상품의 옵션 조합(정렬 순서대로) */
 export async function getProductVariants(productId: string): Promise<(Variant & { id: string })[]> {
   const supabase = await createClient();
