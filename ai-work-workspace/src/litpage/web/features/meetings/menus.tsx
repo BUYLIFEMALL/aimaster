@@ -35,6 +35,29 @@ export async function retrySummary(blockId: string) {
   }
 }
 
+/** 이식판 U6-B: 브라우저가 Google 올림 주소(키 없음)로 파일을 직접 올린다(ai-audio-analyzer와 같은 방식). */
+function uploadToGoogle(uploadUrl: string, file: File): Promise<{ name: string; uri: string }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', uploadUrl);
+    xhr.setRequestHeader('X-Goog-Upload-Command', 'upload, finalize');
+    xhr.setRequestHeader('X-Goog-Upload-Offset', '0');
+    xhr.onload = () => {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300 && data.file?.name && data.file?.uri) resolve(data.file);
+        else reject(new Error(`upload ${xhr.status}`));
+      } catch {
+        reject(new Error(`upload ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('network'));
+    xhr.send(file);
+  });
+}
+
+const MB = 1024 * 1024;
+
 export function pickAudio(blockId: string) {
   const input = document.createElement('input');
   input.type = 'file';
@@ -43,13 +66,40 @@ export function pickAudio(blockId: string) {
     const f = input.files?.[0];
     if (!f) return;
     const b = records.get<BlockRecord>('block', blockId);
+    const toast = useUI.getState().toast;
     try {
-      useUI.getState().toast(t('lp.meetings.uploading_audio', 'Uploading audio'));
-      const up = await uploadFile(f, f.name, b?.space_id);
-      const r = await api<{ status: string; error?: string; recordMap: any }>('meetingUploadAudio', { blockId, fileId: up.id });
+      // 회원 키가 바뀌었을 수 있어 매번 새로 묻는다(Gemini 키 → Google 직접 업로드, OpenAI 키만 → 4MB 이하 서버 경유)
+      const status = await api<{ sttMode?: 'gemini' | 'openai' | null; sttMaxBytes?: number }>('meetingStatus', { spaceId: b?.space_id });
+      if (!status?.sttMode) return toast(noSttReason());
+      const max = status.sttMaxBytes ?? 4 * MB;
+      if (f.size > max) {
+        return toast(status.sttMode === 'gemini'
+          ? t('lp.meetings.aww_audio_too_large_gemini', '음성 파일은 100MB까지 받아쓸 수 있습니다. 나눠서 올려 주세요.')
+          : t('lp.meetings.aww_audio_too_large_openai', 'OpenAI 키로는 4MB 이하(약 4분) 음성 파일만 받아쓸 수 있습니다. 더 긴 파일은 본인 Gemini 키를 등록해 주세요.'));
+      }
+      toast(t('lp.meetings.uploading_audio', 'Uploading audio'));
+      let r: { status: string; error?: string; autoSummary?: boolean; recordMap: any };
+      if (status.sttMode === 'gemini') {
+        const start = await api<{ uploadUrl: string; mimeType: string }>('meetingAudioUploadStart', { blockId, fileName: f.name, mimeType: f.type, size: f.size, origin: window.location.origin });
+        let g: { name: string; uri: string };
+        try {
+          g = await uploadToGoogle(start.uploadUrl, f);
+        } catch {
+          return toast(t('lp.meetings.aww_audio_upload_network', '음성 파일을 올리지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.'));
+        }
+        toast(t('lp.meetings.aww_audio_transcribing', '받아쓰는 중입니다. 녹음 길이에 따라 몇 분 걸릴 수 있습니다.'));
+        r = await api('meetingAttachAudioFile', { blockId, name: g.name, uri: g.uri, fileName: f.name, mimeType: start.mimeType, size: f.size });
+      } else {
+        const up = await uploadFile(f, f.name, b?.space_id);
+        toast(t('lp.meetings.aww_audio_transcribing', '받아쓰는 중입니다. 녹음 길이에 따라 몇 분 걸릴 수 있습니다.'));
+        r = await api('meetingUploadAudio', { blockId, fileId: up.id });
+      }
       merge(r);
+      if (r.status === 'error' && r.error) toast(r.error);
+      else if (r.autoSummary) toast(t('lp.meetings.aww_audio_transcribed_summarizing', '받아쓰기를 마쳤습니다. 이어서 요약을 만들고 있습니다.'));
+      else toast(t('lp.meetings.aww_audio_transcribed', '받아쓰기를 마쳤습니다. 오른쪽 위 설정 메뉴의 「요약 다시 시도」로 요약을 만들 수 있습니다.'));
     } catch (e) {
-      useUI.getState().toast((e as Error).message || t('lp.meetings.the_audio_upload_failed_select_the', 'The audio upload failed. Select the file again and retry.'));
+      toast((e as Error).message || t('lp.meetings.the_audio_upload_failed_select_the', 'The audio upload failed. Select the file again and retry.'));
     }
   };
   input.click();

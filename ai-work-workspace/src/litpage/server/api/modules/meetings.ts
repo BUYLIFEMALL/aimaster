@@ -20,7 +20,8 @@ import {
 } from '../../meetings/model.ts';
 import { summarize } from '../../meetings/summary.ts';
 import { after } from 'next/server';
-import { ALLOWED_LABEL, deleteAudio, sttProvider, transcribeUploaded, uploadAudio } from '../../meetings/audio.ts';
+import { ALLOWED_LABEL, attachGeminiAudio, deleteAudio, startGeminiAudioUpload, sttMaxBytes, sttProvider, transcribeUploaded, uploadAudio } from '../../meetings/audio.ts';
+import { memberSttMode } from '../../meetings/memberStt.ts';
 import { AUTO, BUILTINS, CUSTOM_TEMPLATE, userMeetingPrefs } from '../../meetings/instructions.ts';
 
 type Handler = (ctx: Ctx, body: any) => any;
@@ -81,6 +82,25 @@ function saveSettings(userId: string, patch: Record<string, unknown>) {
   }], undefined, { client: true });
 }
 
+/** 요약을 뒤에서 이어 만든다(정지 때와 같이 after()로 함수를 살려 둠). 요약은 시작하자마자 「요약 중」 상태를 남겨 화면이 자동 갱신한다. */
+function summarizeInBackground(uid: string, blockId: string) {
+  const pending = summarize(blockId, uid, { auto: true }).catch((e) => console.error('[meetings] summary failed', e));
+  // 이식판(v1.15): Vercel은 응답 뒤 남은 작업을 멈출 수 있다 → after()로 요약이 끝날 때까지 함수를 살려 둔다
+  try {
+    after(pending);
+  } catch {
+    /* 요청 밖(시험 등): 그대로 뒤에서 진행 */
+  }
+}
+
+/** 이식판 U6-B: 음성 파일 받아쓰기가 끝나면 바로 요약한다. 받아쓰기가 오래 걸렸으면(함수 한도 300초) 요약이 끊길 수 있어 회원이 직접 누르게 둔다. */
+const AUTO_SUMMARY_WITHIN_MS = 150_000;
+function summarizeAfterTranscription(uid: string, blockId: string, status: string, began: number): boolean {
+  if (status !== 'complete' || Date.now() - began > AUTO_SUMMARY_WITHIN_MS) return false;
+  summarizeInBackground(uid, blockId);
+  return true;
+}
+
 export const handlers: Record<string, Handler> = {
   meetingStatus(ctx, { spaceId }) {
     const uid = requireUser(ctx);
@@ -94,6 +114,8 @@ export const handlers: Record<string, Handler> = {
       transcriptDeletion: spaceSetting<string>(space, 'meeting_transcript_deletion', 'never'),
       usedTodayMs: usedTodayMs(uid), dailyLimitMs: dailyLimitMs(), resetInMs: msUntilReset(),
       aiConfigured: aiConfigured(), sttProvider: sttProvider()?.label ?? null, audioTypes: ALLOWED_LABEL,
+      // 이식판 U6-B: 회원 키로 정한 받아쓰기 방식(gemini: Google 직접 업로드 / openai: 우리 서버 경유)과 최대 크기
+      sttMode: memberSttMode(), sttMaxBytes: sttMaxBytes(),
       defaultInstructions: prefs.defaultKey,
     };
   },
@@ -141,13 +163,7 @@ export const handlers: Record<string, Handler> = {
   meetingStop(ctx, { blockId, sessionId }) {
     const uid = requireUser(ctx);
     const b = wrap(() => stopTranscription(blockId, uid, sessionId));
-    const pending = summarize(b.id, uid, { auto: true }).catch((e) => console.error('[meetings] summary failed', e));
-    // 이식판(v1.15): Vercel은 응답 뒤 남은 작업을 멈출 수 있다 → after()로 요약이 끝날 때까지 함수를 살려 둔다
-    try {
-      after(pending);
-    } catch {
-      /* 요청 밖(시험 등): 그대로 뒤에서 진행 */
-    }
+    summarizeInBackground(uid, b.id);
     return { recordMap: blockMap(uid, b.id) };
   },
 
@@ -174,16 +190,32 @@ export const handlers: Record<string, Handler> = {
 
   async meetingUploadAudio(ctx, { blockId, fileId }) {
     const uid = requireUser(ctx);
+    const began = Date.now();
     const r = await wrapAsync(() => uploadAudio(blockId, uid, fileId));
-    return { ...r, recordMap: blockMap(uid, String(blockId)) };
+    return { ...r, autoSummary: summarizeAfterTranscription(uid, String(blockId), r.status, began), recordMap: blockMap(uid, String(blockId)) };
+  },
+
+  /** 이식판 U6-B: 회원 본인 Gemini 키로 Google 직접 업로드 주소를 받는다(키는 서버에만, 주소에는 키 없음). */
+  async meetingAudioUploadStart(ctx, { blockId, fileName, mimeType, size, origin }) {
+    const uid = requireUser(ctx);
+    return wrapAsync(() => startGeminiAudioUpload(blockId, uid, { fileName, mimeType, size, origin }));
+  },
+
+  /** 이식판 U6-B: Google에 다 올린 음성 파일을 회의록에 붙이고 받아쓴다. */
+  async meetingAttachAudioFile(ctx, { blockId, name, uri, fileName, mimeType, size }) {
+    const uid = requireUser(ctx);
+    const began = Date.now();
+    const r = await wrapAsync(() => attachGeminiAudio(blockId, uid, { name, uri, fileName, mimeType, size }));
+    return { ...r, autoSummary: summarizeAfterTranscription(uid, String(blockId), r.status, began), recordMap: blockMap(uid, String(blockId)) };
   },
 
   async meetingRetryTranscription(ctx, { blockId }) {
     const uid = requireUser(ctx);
     const b = wrap(() => meetingBlock(blockId));
     if (!roleAtLeast(blockRole(b.id, uid), 'read_and_write')) throw new ApiError('You do not have access to transcribe this recording', 403);
+    const began = Date.now();
     const r = await wrapAsync(() => transcribeUploaded(b.id, uid));
-    return { ...r, recordMap: blockMap(uid, b.id) };
+    return { ...r, autoSummary: summarizeAfterTranscription(uid, b.id, r.status, began), recordMap: blockMap(uid, b.id) };
   },
 
   meetingDeleteAudio(ctx, { blockId }) {

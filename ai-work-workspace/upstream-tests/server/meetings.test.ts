@@ -332,7 +332,8 @@ describe('audio upload', () => {
     const f = await upload('standup.mp3', 'audio/mpeg');
     const r = await call(ids.owner, 'meetingUploadAudio', { blockId: m, fileId: f.id });
     expect(r.status).toBe('error');
-    expect(state(m)).toMatchObject({ state: 'error', error: { code: 'stt_unavailable', message: 'This recording could not be transcribed.' }, audio: { status: 'failed', name: 'standup.mp3' } });
+    // 이식판 U6-B: 회원 키가 없을 때의 안내를 한국어로(키 등록 위치 안내)
+    expect(state(m)).toMatchObject({ state: 'error', error: { code: 'stt_unavailable', message: expect.stringContaining('API키등록·플랫폼연동') }, audio: { status: 'failed', name: 'standup.mp3' } });
     await call(ids.owner, 'meetingDeleteAudio', { blockId: m });
     expect(state(m).audio.status).toBe('deleted');
     expect(db.db.prepare('SELECT 1 FROM files WHERE id = ?').get(f.id)).toBeUndefined();
