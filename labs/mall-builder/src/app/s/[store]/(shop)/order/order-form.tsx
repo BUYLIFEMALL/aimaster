@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { noResetSubmit } from "@/lib/no-reset-submit";
 import type { CustomerAddress } from "@/lib/store";
 import { placeOrderAction, type PlaceOrderState } from "./actions";
 import { canUseCredit, creditAvailable } from "@/lib/credit";
@@ -48,7 +49,7 @@ export default function OrderForm({
   const payMethod = pay === "credit" && !creditOk ? "bank" : pay;
 
   return (
-    <form action={formAction} className="mt-6 space-y-6">
+    <form onSubmit={noResetSubmit(formAction)} className="mt-6 space-y-6">
       <section>
         <h2 className="mb-2 font-semibold">배송지</h2>
         <div className="space-y-2">

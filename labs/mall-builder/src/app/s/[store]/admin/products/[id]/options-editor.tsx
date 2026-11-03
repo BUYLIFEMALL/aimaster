@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { noResetSubmit } from "@/lib/no-reset-submit";
 import { MAX_GROUPS, buildVariants, splitValues, validateGroups, type OptionGroup, type Variant } from "@/lib/options";
 import { formatWon } from "@/lib/products";
 import { saveOptionsAction, type OptionsState } from "./options-actions";
@@ -42,7 +43,7 @@ export default function OptionsEditor({
   const setVariant = (i: number, patch: Partial<Variant>) => setVariants((prev) => prev.map((v, j) => (j === i ? { ...v, ...patch } : v)));
 
   return (
-    <form action={formAction} className="space-y-4 rounded-lg border p-4">
+    <form onSubmit={noResetSubmit(formAction)} className="space-y-4 rounded-lg border p-4">
       <h3 className="font-semibold">옵션</h3>
       <p className="text-xs text-gray-500">
         예: 옵션 이름 「색상」, 값 「빨강, 파랑」. 최대 {MAX_GROUPS}단, 조합 300개까지. 값을 고친 뒤 「조합 만들기」를 누르면 기존 조합의 추가금·재고는 그대로 남습니다.

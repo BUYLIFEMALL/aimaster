@@ -44,6 +44,37 @@ export function validateAnswer(
   return { ok: true, value: { items: out, valid_until: validUntil } };
 }
 
+export type QuoteOrigin = "customer" | "staff";
+export const QUOTE_ORIGIN_LABEL: Record<QuoteOrigin, string> = { customer: "손님 요청", staff: "운영자 발송" };
+export const MAX_SEND_ITEMS = 30;
+
+/** 운영자가 먼저 보내는 견적(D4)의 품목 검사 — 상품 필수, 옵션 상품이면 옵션 필수, 수량 1~999, 견적가 0원 이상. 같은 상품·옵션은 합친다 */
+export function validateSendItems(
+  rows: { product_id: unknown; variant_id: unknown; qty: unknown; price: unknown }[],
+  hasOptions: (productId: string) => boolean,
+): { ok: true; value: { product_id: string; variant_id: string | null; qty: number; price: number }[] } | { ok: false; error: string } {
+  const filled = rows.filter((r) => String(r.product_id ?? "").trim());
+  if (!filled.length) return { ok: false, error: "견적 품목을 1개 이상 넣어 주세요." };
+  if (filled.length > MAX_SEND_ITEMS) return { ok: false, error: `품목은 ${MAX_SEND_ITEMS}개까지입니다.` };
+  const merged = new Map<string, { product_id: string; variant_id: string | null; qty: number; price: number }>();
+  for (const [i, r] of filled.entries()) {
+    const product_id = String(r.product_id).trim();
+    const variant_id = String(r.variant_id ?? "").trim() || null;
+    if (hasOptions(product_id) && !variant_id) return { ok: false, error: `${i + 1}번째 품목의 옵션을 골라 주세요.` };
+    const qty = Number(String(r.qty ?? "").replace(/[,\s개]/g, ""));
+    if (!Number.isInteger(qty) || qty < 1 || qty > 999) return { ok: false, error: `${i + 1}번째 품목 수량은 1~999개입니다.` };
+    const p = String(r.price ?? "").replace(/[,\s원]/g, "");
+    if (!/^\d+$/.test(p) || Number(p) > 1_000_000_000) return { ok: false, error: `${i + 1}번째 품목 견적가(원)를 숫자로 입력해 주세요.` };
+    const key = `${product_id}/${variant_id ?? ""}`;
+    const prev = merged.get(key);
+    if (prev && prev.price !== Number(p)) return { ok: false, error: `${i + 1}번째 품목이 앞 품목과 같은 상품·옵션인데 견적가가 다릅니다.` };
+    merged.set(key, { product_id, variant_id, qty: (prev?.qty ?? 0) + qty, price: Number(p) });
+  }
+  const value = [...merged.values()];
+  if (value.some((v) => v.qty > 999)) return { ok: false, error: "같은 상품·옵션을 합친 수량이 999개를 넘습니다." };
+  return { ok: true, value };
+}
+
 /** 오늘부터 N일 뒤(기본 유효기한 7일) */
 export function addDays(day: string, n: number): string {
   const d = new Date(`${day}T00:00:00Z`);

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getQuote, getStaffStore } from "@/lib/store";
-import { QUOTE_STATUS_LABEL, addDays, displayStatus, todayKst } from "@/lib/quotes";
+import { QUOTE_ORIGIN_LABEL, QUOTE_STATUS_LABEL, addDays, displayStatus, todayKst } from "@/lib/quotes";
 import { formatDateTime } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
 import { AdminShell, NoPermission } from "../../admin-shell";
@@ -37,7 +37,8 @@ export default async function AdminQuotePage({
         <span className="text-sm text-gray-500">{formatDateTime(quote.created_at)} · {quote.customer?.company ?? quote.customer?.name}</span>
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-answer-error>{error}</p>}
-      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">회신했습니다. 손님이 견적가로 바로 주문할 수 있습니다.</p>}
+      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-quote-ok>{ok === "sent" ? "견적을 보냈습니다." : "회신했습니다."} 손님이 견적가로 바로 주문할 수 있습니다.</p>}
+      {quote.origin === "staff" && <p className="mt-2 text-xs text-gray-500" data-quote-origin>{QUOTE_ORIGIN_LABEL.staff} 견적</p>}
       {quote.request_note && <p className="mt-4 rounded bg-gray-50 px-3 py-2 text-sm">손님 메모: {quote.request_note}</p>}
 
       <form action={answerQuoteAction.bind(null, store.slug, quote.id)} className="mt-6 space-y-4" data-answer-form>

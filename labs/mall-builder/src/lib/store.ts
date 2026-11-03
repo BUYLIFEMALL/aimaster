@@ -5,7 +5,7 @@ import type { OptionGroup, Variant } from "@/lib/options";
 import type { ShippingPolicy } from "@/lib/shipping";
 import { ORDER_COLUMNS, type OrderEventRow, type OrderItemRow, type OrderRow } from "@/lib/orders";
 import type { ApprovalStatus } from "@/lib/business";
-import type { QuoteStatus } from "@/lib/quotes";
+import type { QuoteOrigin, QuoteStatus } from "@/lib/quotes";
 import type { LedgerKind } from "@/lib/credit";
 import { priceLine, viewerOf, type GradePrice, type PriceContext, type VolumeTier } from "@/lib/pricing";
 import { readDoc, type BlocksDoc, type ShowcaseSettings } from "@/lib/blocks";
@@ -478,6 +478,7 @@ export type QuoteRow = {
   created_at: string;
   answered_at: string | null;
   user_id: string;
+  origin: QuoteOrigin;
   customer: { name: string; company: string | null } | null;
 };
 export type QuoteItemRow = {
@@ -490,7 +491,25 @@ export type QuoteItemRow = {
   quoted_price: number | null;
 };
 const QUOTE_COLUMNS =
-  "id, quote_no, status, request_note, answer_note, valid_until, order_id, created_at, answered_at, user_id, customer:mall_builder_store_customers(name, company)";
+  "id, quote_no, status, request_note, answer_note, valid_until, order_id, created_at, answered_at, user_id, origin, customer:mall_builder_store_customers(name, company)";
+
+export type QuotableProduct = { id: string; name: string; base_price: number; status: string; variants: { id: string; key: string; extra_price: number }[] };
+
+/** 운영자 견적 보내기(D4)용 — 판매 중·품절 상품과 판매 중인 옵션 조합(운영자 권한으로 읽음) */
+export async function getQuotableProducts(storeId: string): Promise<QuotableProduct[]> {
+  const products = (await getStoreProducts(storeId)).filter((p) => p.status === "on_sale" || p.status === "sold_out");
+  if (!products.length) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_product_variants")
+    .select("id, product_id, key, extra_price")
+    .in("product_id", products.map((p) => p.id))
+    .eq("is_active", true)
+    .order("sort");
+  const byProduct = new Map<string, QuotableProduct["variants"]>();
+  for (const v of data ?? []) byProduct.set(v.product_id as string, [...(byProduct.get(v.product_id as string) ?? []), { id: v.id as string, key: v.key as string, extra_price: Number(v.extra_price) }]);
+  return products.map((p) => ({ id: p.id, name: p.name, base_price: p.base_price, status: p.status, variants: (p.option_groups?.length ?? 0) > 0 ? byProduct.get(p.id) ?? [] : [] }));
+}
 
 /** 견적 목록 — 손님은 자기 것만(userId), 운영자는 몰 전체(userId 없이). 보안 규칙이 한 번 더 거른다 */
 export async function getQuotes(storeId: string, userId?: string): Promise<(QuoteRow & { item_count: number; first_item: string })[]> {

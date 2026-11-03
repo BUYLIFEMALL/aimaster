@@ -33,6 +33,7 @@ export default async function AdminCustomerPage({
         <h2 className="text-xl font-bold">{c.name}</h2>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-approval>{APPROVAL_LABEL[c.approval_status]}</span>
         {c.grade && <span className="text-sm text-gray-500" data-grade>등급 {c.grade.name}</span>}
+        <Link href={`/s/${store.slug}/admin/quotes/new?customer=${c.id}`} className="ml-auto rounded border px-3 py-1 text-sm" data-send-quote>견적 보내기</Link>
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-review-error>{error}</p>}
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{ok === "approved" ? "승인했습니다." : ok === "rejected" ? "반려했습니다." : ok === "credit" ? "외상 한도를 저장했습니다." : "장부에 기록했습니다."}</p>}

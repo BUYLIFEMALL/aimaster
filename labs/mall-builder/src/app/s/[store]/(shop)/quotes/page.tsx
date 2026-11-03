@@ -26,6 +26,7 @@ export default async function QuotesPage({ params }: { params: Promise<{ store: 
               <Link href={`${base}/quotes/${q.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-4 hover:bg-gray-50">
                 <span className="text-sm text-gray-500">{formatDateTime(q.created_at)}</span>
                 <span className="text-sm">{q.quote_no}</span>
+                {q.origin === "staff" && <span className="text-xs text-blue-700">몰에서 보낸 견적</span>}
                 <span className="min-w-0 flex-1 truncate">
                   {q.first_item}
                   {q.item_count > 1 && ` 외 ${q.item_count - 1}건`}

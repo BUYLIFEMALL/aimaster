@@ -83,7 +83,7 @@ export default async function QuoteDetailPage({
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-quote-status>{QUOTE_STATUS_LABEL[status]}</span>
       </div>
       <p className="mt-1 text-sm text-gray-500">
-        {formatDateTime(quote.created_at)} 요청
+        {formatDateTime(quote.created_at)} {quote.origin === "staff" ? "몰에서 보낸 견적" : "요청"}
         {quote.valid_until && ` · 유효기한 ${quote.valid_until}까지`}
       </p>
       {quote.request_note && <p className="mt-3 text-sm text-gray-700">요청 메모: {quote.request_note}</p>}
