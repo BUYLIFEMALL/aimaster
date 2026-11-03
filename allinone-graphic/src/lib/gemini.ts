@@ -40,7 +40,7 @@ export async function validateGeminiApiKey(apiKey: string): Promise<ApiKeyValida
 
   try {
     await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: { parts: [{ text: "ping" }] },
     });
     result.canGenerateText = true;
@@ -233,7 +233,7 @@ ${referenceContent}
 }`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3.8-flash",
     contents: { parts: [{ text: prompt }] },
   });
 
