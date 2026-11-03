@@ -149,6 +149,9 @@ const queue = createQueue({
   log: (e) => logLine(`⚠ 대기열 오류: ${e instanceof Error ? e.message : e}`),
 });
 await queue.load();
+let gatewayOpen = false;
+let pendingPairCode = "";
+const showPairCode = (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`);
 const gateway = createGateway({
   version: VERSION,
   getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", ...(yue2.ok ? ["yue2"] : [])], libraryDir: library.dir, quality: { ...profile, vramGb, ffmpeg } }),
@@ -163,7 +166,8 @@ const gateway = createGateway({
   saveTokens,
   acestepPort: ACESTEP_PORT,
   acestepKey,
-  onPairCode: (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`),
+  // 연결 문이 열린 뒤에만 코드를 보인다(이미 켜진 엔진이 있어 실패하면 쓸 수 없는 코드가 먼저 찍혀 헷갈렸음 — 2026-11-04 마스터PC)
+  onPairCode: (code) => (gatewayOpen ? showPairCode(code) : (pendingPairCode = code)),
 });
 gateway.on("error", (err) => {
   if (err.code === "EADDRINUSE") {
@@ -176,6 +180,9 @@ gateway.on("error", (err) => {
 gateway.listen(GATEWAY_PORT, "127.0.0.1", () => {
   logLine(`AI 무료음악 자동화 엔진 ${VERSION} — 연결 문 http://127.0.0.1:${GATEWAY_PORT}  · ${device.mode}`);
   logLine(`  🎚️ 음질: ${profile.label}${vramGb ? ` (그래픽 메모리 ${vramGb}GB)` : ""} · MP3 변환 ${ffmpeg ? "가능" : "불가(ffmpeg 없음 — FLAC 원음만)"}`);
+  if (yue2.ok) logLine(`  🎛️ 비상업용 음악 엔진 YuE2 사용 가능 — ${yue2.profile.label}`);
+  gatewayOpen = true;
+  if (pendingPairCode) showPairCode(pendingPairCode);
 });
 
 let child = null;

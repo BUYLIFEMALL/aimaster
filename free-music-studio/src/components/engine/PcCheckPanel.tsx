@@ -156,7 +156,7 @@ function EngineCheck({ engine }: { engine: Engine }) {
       <Items items={report.check.items} />
 
       <div className="space-y-2">
-        <label htmlFor="quality-tier" className="text-xs font-bold text-slate-200">🎚️ 음악 모델 구성</label>
+        <label htmlFor="quality-tier" className="text-xs font-bold text-slate-200">🎚️ ACE-Step 음악 모델 구성 <span className="font-normal text-slate-500">(YuE2는 곡 만들기 화면에서 고릅니다)</span></label>
         <select
           id="quality-tier"
           value={pick}
