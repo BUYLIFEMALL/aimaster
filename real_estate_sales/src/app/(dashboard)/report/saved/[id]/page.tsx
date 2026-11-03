@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ReportBody, type ReportSnapshot } from "@/components/report/ReportBody";
 import { AiSummaryButton, AskingView, PrintButton } from "@/components/report/ReportActions";
 import { deleteSavedReportAction } from "@/lib/actions/reports";
+import { OnsiteNotes } from "@/components/report/OnsiteNotes";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -65,6 +66,8 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
           </form>
         </div>
       </div>
+
+      {row.source === "onsite" && row.source_id && <OnsiteNotes onsiteId={row.source_id} userId={user.id} />}
 
       <ReportBody r={r} />
     </div>

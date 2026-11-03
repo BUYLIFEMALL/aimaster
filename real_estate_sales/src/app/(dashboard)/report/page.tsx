@@ -7,6 +7,7 @@ import { PROPERTY_TYPES, type PropertyType } from "@/lib/publicdata/molit";
 import { buildAddressReport, type ReportInput } from "@/lib/realestate/reportData";
 import { ReportBody } from "@/components/report/ReportBody";
 import { SaveReportForm } from "@/components/report/ReportActions";
+import { OnsiteNotes } from "@/components/report/OnsiteNotes";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -114,6 +115,8 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
         assessed={assessedManwon}
         months={r.months}
       />
+
+      {source === "onsite" && sourceId && <OnsiteNotes onsiteId={sourceId} userId={user.id} />}
 
       <ReportBody r={snapshot} nonResidential={nonResidential} />
     </div>

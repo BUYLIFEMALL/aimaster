@@ -32,23 +32,33 @@ export default async function SavedReportsPage() {
         {rows.length === 0 ? (
           <p className="text-sm text-mx-muted">아직 저장한 리포트가 없어요. 주소 리포트를 열고 「💾 리포트 저장」을 누르세요.</p>
         ) : (
-          <ul className="divide-y divide-mx-border text-sm">
-            {rows.map((r) => (
-              <li key={r.id}>
-                <Link href={`/report/saved/${r.id}`} className="flex min-h-[52px] flex-wrap items-center justify-between gap-2 py-2 text-mx-text hover:text-mx-link">
-                  <span className="min-w-0">
-                    <b className="block truncate">{r.title}</b>
-                    <span className="block truncate text-xs text-mx-muted">{r.subtitle}</span>
-                  </span>
-                  <span className="shrink-0 text-right text-xs text-mx-muted">
-                    {r.asking_price ? `호가 ${formatWon(r.asking_price)} · ` : ""}
-                    {r.ai_summary ? "🧠 총평 있음 · " : ""}
-                    {dateLabel(r.created_at)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          // B3(2026-11-03): 2~4개를 체크하고 「⚖️ 나란히 비교」(GET /report/compare?id=…)
+          <form action="/report/compare" method="get">
+            <ul className="divide-y divide-mx-border text-sm">
+              {rows.map((r) => (
+                <li key={r.id} className="flex items-center gap-3">
+                  <input type="checkbox" name="id" value={r.id} aria-label={`${r.title} 비교에 넣기`} className="h-5 w-5 shrink-0 accent-mx-primary" />
+                  <Link href={`/report/saved/${r.id}`} className="flex min-h-[52px] min-w-0 flex-1 flex-wrap items-center justify-between gap-2 py-2 text-mx-text hover:text-mx-link">
+                    <span className="min-w-0">
+                      <b className="block truncate">{r.title}</b>
+                      <span className="block truncate text-xs text-mx-muted">{r.subtitle}</span>
+                    </span>
+                    <span className="shrink-0 text-right text-xs text-mx-muted">
+                      {r.asking_price ? `호가 ${formatWon(r.asking_price)} · ` : ""}
+                      {r.ai_summary ? "🧠 총평 있음 · " : ""}
+                      {dateLabel(r.created_at)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {rows.length >= 2 && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button type="submit" className="mx-btn-primary min-h-[44px] px-4 text-sm">⚖️ 나란히 비교</button>
+                <span className="text-xs text-mx-muted">2~4개를 체크하세요(5개 이상이면 앞의 4개만).</span>
+              </div>
+            )}
+          </form>
         )}
       </div>
     </div>
