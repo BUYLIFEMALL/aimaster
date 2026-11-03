@@ -2,6 +2,7 @@ import { json } from "@/lib/aiRoute";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BUCKET } from "@/lib/images";
 import { CLEANUP_ACTION, cleanupByUser, imagePathsOf, projectFolder, retentionCutoff } from "@/lib/tmb/retention";
+import { retentionExemptFilter } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,12 +20,13 @@ export async function GET(request: Request) {
   const dryRun = new URL(request.url).searchParams.get("dry") === "1";
   const cutoff = retentionCutoff();
   const admin = createAdminClient();
+  const exemptFilter = await retentionExemptFilter(admin); // 예외 회원(관리자·시험 계정)은 지우지 않는다. 못 읽으면 오류로 멈춤
   const storage = admin.storage.from(BUCKET);
   const done: { userId: string; images: number }[] = [];
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
     const { data: old, error } = await admin
-      .from("thumbnail_master_projects").select("id, user_id, images_a, images_b").lt("created_at", cutoff).limit(BATCH);
+      .from("thumbnail_master_projects").select("id, user_id, images_a, images_b").lt("created_at", cutoff).not("user_id", "in", exemptFilter).limit(BATCH);
     if (error) return json({ error: error.message }, 500);
     if (!old?.length) break;
     for (const row of old) {
