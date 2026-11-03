@@ -1,4 +1,5 @@
-import { publicationOf, retentionCutoff } from '@/blog/utils/autoPublication'
+import { publicationOf } from '@/blog/utils/autoPublication'
+import { retentionCutoffFor } from '@/blog/utils/retentionExempt'
 import { verifyExtensionToken } from '@/blog/utils/extensionAuth'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { htmlToInputBlocks } from '@/blog/utils/extensionContent'
@@ -35,7 +36,7 @@ async function claimTask(request: Request) {
     .eq('user_id', user.userId)
     .is('tistory_input_status', null)
     .gte('extension_handoff_at', cutoff)
-    .gte('created_at', retentionCutoff())
+    .gte('created_at', await retentionCutoffFor(user.userId))
     .order('extension_handoff_at', { ascending: true })
     .limit(1)
   if (!supportsAuto) candidates = candidates.is('tistory_publish->automation->>mode', null)
@@ -51,7 +52,7 @@ async function claimTask(request: Request) {
     .eq('user_id', user.userId)
     .is('tistory_input_status', null)
     .gte('extension_handoff_at', cutoff)
-    .gte('created_at', retentionCutoff())
+    .gte('created_at', await retentionCutoffFor(user.userId))
     .select('id, title, content, extension_handoff_at, tistory_publish')
   if (!supportsAuto) claim = claim.is('tistory_publish->automation->>mode', null)
   const { data: claimed, error: claimError } = await claim.maybeSingle()

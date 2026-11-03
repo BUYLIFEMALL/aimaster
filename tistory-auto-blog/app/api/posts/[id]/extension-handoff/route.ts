@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
-import { publicationOf, publicationFingerprint, retentionCutoff } from '@/blog/utils/autoPublication'
+import { publicationOf, publicationFingerprint } from '@/blog/utils/autoPublication'
+import { retentionCutoffFor } from '@/blog/utils/retentionExempt'
 import { NextResponse } from 'next/server'
 import { checkProgramAccessApi } from '@/blog/utils/access'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
@@ -39,7 +40,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   if (!current) return NextResponse.json({ error: '본인이 작성한 글만 보낼 수 있습니다.' }, { status: 403 })
 
   if (publicationOf(current.tistory_publish)) return NextResponse.json({ error: '자동 포스팅 실행 원고는 재전송하지 않습니다. 결과를 확인하거나 새 원고로 복제하세요.' }, { status: 409 })
-  if (!current.created_at || current.created_at < retentionCutoff()) return NextResponse.json({ error: '보관 기간이 지난 원고입니다.' }, { status: 404 })
+  if (!current.created_at || current.created_at < await retentionCutoffFor(access.user.id)) return NextResponse.json({ error: '보관 기간이 지난 원고입니다.' }, { status: 404 })
   const selected = 'tistory_publish' in publishUpdate ? publishUpdate.tistory_publish : readTistoryPublish(current.tistory_publish)
   const automatic = body?.mode === 'auto'
   if (automatic && selected.timing !== 'now') return NextResponse.json({ error: '자동 포스팅은 현재 발행을 선택해 주세요. 예약 설정은 입력 준비로 보낼 수 있습니다.' }, { status: 400 })
@@ -64,7 +65,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     .eq('id', postId)
     .eq('user_id', access.user.id)
     .is('tistory_publish->automation->>mode', null)
-    .gte('created_at', retentionCutoff())
+    .gte('created_at', await retentionCutoffFor(access.user.id))
   update = current.tistory_publish?._revision ? update.eq('tistory_publish->>_revision', current.tistory_publish._revision) : update.is('tistory_publish->>_revision', null)
   update = current.tistory_run_id ? update.eq('tistory_run_id', current.tistory_run_id) : update.is('tistory_run_id', null)
   const { data, error } = await update.select('id, extension_handoff_at')

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
-import { publicationOf, retentionCutoff } from '@/blog/utils/autoPublication'
+import { publicationOf } from '@/blog/utils/autoPublication'
+import { retentionCutoffFor } from '@/blog/utils/retentionExempt'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { checkProgramAccessApi } from '@/blog/utils/access'
@@ -89,7 +90,7 @@ export async function GET(
       `)
       .eq('id', postId)
       .eq('user_id', access.user.id)
-      .gte('created_at', retentionCutoff())
+      .gte('created_at', await retentionCutoffFor(access.user.id))
       .single()
 
     if (error || !post) {
@@ -178,7 +179,7 @@ export async function PUT(
       .eq('id', postId)
       .eq('user_id', access.user.id)
       .is('tistory_publish->automation->>mode', null)
-      .gte('created_at', retentionCutoff())
+      .gte('created_at', await retentionCutoffFor(access.user.id))
       .select('id, title, excerpt')
       .single()
 

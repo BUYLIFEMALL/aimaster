@@ -1,7 +1,8 @@
 import { verifyExtensionToken } from '@/blog/utils/extensionAuth'
 import { createAdminClient } from '@/blog/utils/supabase/admin'
 import { privateJson } from '@/blog/utils/privateResponse'
-import { publicationOf, publicationFingerprint, retentionCutoff, tistoryPostUrl } from '@/blog/utils/autoPublication'
+import { publicationOf, publicationFingerprint, tistoryPostUrl } from '@/blog/utils/autoPublication'
+import { retentionCutoffFor } from '@/blog/utils/retentionExempt'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -15,7 +16,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!Number.isSafeInteger(id) || id <= 0 || !input || typeof input.runId !== 'string') return privateJson({ error: '글/실행 번호가 필요합니다.' }, { status: 400 })
     const db = createAdminClient()
     const { data: row, error } = await db.from('tistory_posts').select('id,title,content,created_at,tistory_publish,tistory_run_id,tistory_input_status')
-      .eq('id', id).eq('user_id', user.userId).gte('created_at', retentionCutoff()).maybeSingle()
+      .eq('id', id).eq('user_id', user.userId).gte('created_at', await retentionCutoffFor(user.userId)).maybeSingle()
     if (error) return privateJson({ error: '발행 기록을 읽지 못했습니다.' }, { status: 503 })
     if (!row) return privateJson({ error: '본인의 보관 기간 안 원고를 찾지 못했습니다.' }, { status: 404 })
     const current = publicationOf(row.tistory_publish)
@@ -44,7 +45,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { data: saved, error: writeError } = await db.from('tistory_posts')
       .update({ tistory_publish: { ...row.tistory_publish, automation: next } })
       .eq('id', id).eq('user_id', user.userId).eq('tistory_run_id', input.runId)
-      .eq('tistory_publish->automation->>state', current.state).gte('created_at', retentionCutoff())
+      .eq('tistory_publish->automation->>state', current.state).gte('created_at', await retentionCutoffFor(user.userId))
       .select('id').maybeSingle()
     if (writeError) return privateJson({ error: '발행 결과 저장이 지연됐습니다. 재발행하지 말고 결과만 확인하세요.' }, { status: 503 })
     if (!saved) return privateJson({ error: '다른 요청이 먼저 상태를 바꿨습니다. 결과만 확인하세요.' }, { status: 409 })
