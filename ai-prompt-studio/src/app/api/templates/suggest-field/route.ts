@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       if (!content?.trim()) return NextResponse.json({ success: true, suggestions: [] });
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.8-flash",
         contents: `아래 프롬프트를 다시 쓰기 쉬운 템플릿으로 만들려고 합니다.
 쓸 때마다 바뀔 만한 구체적인 값(주제·상품명·대상 독자·어조·분량·날짜·숫자·지역·브랜드명 등)을 최대 8개 찾아 주세요.
 - original: 프롬프트 본문에 실제로 들어 있는 문구를 글자 그대로(띄어쓰기·문장부호 포함) 짧게 적습니다. 문장 전체가 아니라 바뀌는 값만 적습니다.
@@ -101,7 +101,7 @@ ${koreaNowRule()}
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: instruction,
       config: { temperature: 0.7 },
     });

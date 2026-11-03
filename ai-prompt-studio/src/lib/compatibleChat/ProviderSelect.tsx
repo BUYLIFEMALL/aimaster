@@ -5,7 +5,7 @@ import { ACTIVE_PROVIDERS, type ChatSelection, type LegacyProvider } from "./con
 export function ProviderSelect({ value, onChange, legacy, disabled, dark = false }: {
   value: ChatSelection; onChange: (value: ChatSelection) => void; legacy: LegacyProvider; disabled?: boolean; dark?: boolean;
 }) {
-  const original = legacy === "upstage" ? { name: "Upstage · 기존 Solar", model: "solar-pro4" } : { name: "Gemini · 기존 실행", model: "gemini-2.5-flash" };
+  const original = legacy === "upstage" ? { name: "Upstage · 기존 Solar", model: "solar-pro4" } : { name: "Gemini · 기존 실행", model: "gemini-3.8-flash" };
   const picked = ACTIVE_PROVIDERS.find((p) => p.id === value.provider);
   const input = `mt-1 w-full min-w-0 rounded-lg border px-2 py-2 text-xs ${dark ? "border-slate-700 bg-[#11141c] text-slate-200" : "border-slate-300 bg-white text-slate-800"}`;
   return <fieldset disabled={disabled} className={`space-y-2 text-xs ${dark ? "text-slate-300" : "text-slate-600"}`}>

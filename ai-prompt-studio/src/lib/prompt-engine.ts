@@ -226,7 +226,7 @@ export async function generateMetaPrompt(
   };
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3.8-flash",
     contents: promptText,
     config: {
       responseMimeType: "application/json",
@@ -263,7 +263,7 @@ export async function generateFieldSuggestion(
 - 불필요한 서론/결론 없이 오직 개선된 목적 문장만 간결하게 2~3문장 이내 한국어로 출력하세요.`;
 
     const res = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: `${prompt}\n${koreaNowRule()}`,
       config: { temperature: 0.6 },
     });
@@ -278,7 +278,7 @@ export async function generateFieldSuggestion(
 응답 형식: 정확히 5개의 짧고 전문적인 역할 명칭(예: "10년 차 B2B 전략 기획자", "글로벌 테크 테크니컬 라이터" 등)을 JSON 문자열 배열로만 응답하세요.`;
 
     const res = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: `${prompt}\n${koreaNowRule()}`,
       config: {
         responseMimeType: "application/json",
@@ -302,7 +302,7 @@ export async function generateFieldSuggestion(
 - 불필요한 군더더기 없이 작업 지시문 본문만 반환하세요.`;
 
     const res = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: `${prompt}\n${koreaNowRule()}`,
       config: { temperature: 0.7 },
     });
@@ -318,7 +318,7 @@ export async function generateFieldSuggestion(
 응답 형식: 각 항목은 1~2문장의 간결한 포맷 지침(예: "표(Table) 형태: 항목, 중요도, 실행계획 열로 구성", "마크다운 요약 보고서: 핵심 요약, 상세 분석, 체크리스트 순서")으로 된 JSON 배열로 응답하세요.`;
 
     const res = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: `${prompt}\n${koreaNowRule()}`,
       config: {
         responseMimeType: "application/json",
@@ -339,7 +339,7 @@ export async function generateFieldSuggestion(
 응답 형식: 각 항목은 1문장의 간결한 제약/사고 지침(예: "답변 전 <thought> 태그 내에서 논리적 근거를 먼저 검토할 것", "추측성 정보는 배제하고 검증된 사실만 답변할 것")으로 된 JSON 배열로 응답하세요.`;
 
     const res = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: `${prompt}\n${koreaNowRule()}`,
       config: {
         responseMimeType: "application/json",

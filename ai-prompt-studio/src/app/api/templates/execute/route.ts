@@ -37,13 +37,14 @@ export async function POST(req: Request) {
       const result = await compatibleChat({ ...credentials, messages: [{ role: "system", content: baseInstruction }, { role: "user", content: promptText }], temperature: 0.7, signal: req.signal });
       return NextResponse.json({ success: true, text: result.text, provider: credentials.provider, model: result.model });
     }
-    if (model !== undefined && model !== "gemini-2.5-flash") return NextResponse.json({ error: "지원하는 Gemini 실행 모델을 선택해 주세요." }, { status: 400 });
+    // 2026-11-03: 2.5-flash(12-01 자동 연결) → 3.8-flash. 새로고침 전 열린 화면이 보내는 옛 값도 받아 3.8로 실행한다.
+    if (model !== undefined && model !== "gemini-3.8-flash" && model !== "gemini-2.5-flash") return NextResponse.json({ error: "지원하는 Gemini 실행 모델을 선택해 주세요." }, { status: 400 });
     // 기존 Gemini 실행은 본인 Gemini 키만 사용한다. 새 공급자를 골랐을 때는 이 키를 요구하지 않는다.
     const apiKey = await getUserGeminiApiKey(auth.user.id);
     if (!apiKey) return NextResponse.json({ error: "본인의 Google Gemini API 키가 없습니다. API키등록·플랫폼연동에서 등록해 주세요.", needApiKey: true }, { status: 400 });
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: promptText,
       config: {
         systemInstruction: baseInstruction,

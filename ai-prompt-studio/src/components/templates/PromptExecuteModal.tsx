@@ -41,7 +41,7 @@ export function PromptExecuteModal({
   const [error, setError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [selection, setSelection] = useState<ChatSelection>({ provider: "gemini", model: "gemini-2.5-flash" });
+  const [selection, setSelection] = useState<ChatSelection>({ provider: "gemini", model: "gemini-3.8-flash" });
 
   if (!isOpen || !prompt) return null;
 
