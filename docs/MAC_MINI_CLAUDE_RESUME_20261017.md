@@ -37,6 +37,7 @@
 | Claude 메모리 | 프로필 `…/projects/-Volumes-gt1-mega-Antigravity-AIMaster/memory/` (보조 기록일 뿐, 저장소 문서가 정본) |
 
 ### 1-1. 커밋 방법 (여러 CLI가 Git 인덱스를 함께 씀) — `scripts/mac-mini/commit-gate.sh`
+> **2026-11-03 사용 중지** — 이 스크립트는 공용 인덱스에 직접 써서 재발 방지 장치 밖입니다. 지금은 `node scripts/commit-paths.mjs "<메시지>" <경로>... --as <세션>`(공용 문서는 `safe-commit.mjs`)를 씁니다. 아래는 기록입니다.
 - 다른 CLI가 스테이징 중이거나 `.git/index.lock`이 있으면 5초씩 최대 5분 기다림(잠금 파일은 **절대 지우지 않음**). 남의 파일이 스테이징돼 있으면 중단.
 - 내 파일만 경로 지정해서 `git add`.
 - **공용 문서**(`DESIGN.md`·`docs/HANDOFF.md`·`docs/ACTIVE_WORK.md`·`docs/PROGRAM_CAPABILITY_MAP.md`·`docs/ERROR_LESSONS.md`)는 작업 폴더 파일을 통째로 올리지 않고 **「HEAD 버전 + 내 변경」만** 계산해서 올린다(다른 CLI의 미커밋 줄이 섞이지 않게). 내 변경은 작은 python 변환 스크립트(표준입력→표준출력)로 만들고, 같은 변환을 작업 폴더에도 적용.

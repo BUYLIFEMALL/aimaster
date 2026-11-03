@@ -22,7 +22,7 @@
 | `scripts/index-watch.mjs` (블랙박스) | 부를 때마다 `.git/aimaster-index-log.txt`에 한 줄, 세션 시작 점검, 잠금 증거, 묵은 항목, 세션 주소 기록 | 훅·도우미·세션 시작 훅·사람 |
 | `scripts/cloud-session-start.mjs` | 저장소 공용 SessionStart 훅. 로컬 Claude Code 세션마다 `index-watch.mjs claude-session-start --quiet --warn-lock` → ⚠만 세션에 표시 | Claude Code 자동(윈도우·맥미니) |
 | `scripts/deploy.mjs` | 세션 시작 점검(`--version-only --all`)에 「[🚨 저장소 안전]」 묶음·훅 자기 시험·맨 끝 결론, 폴더 배포 점검에 작업 중 표 세션 이름·보낼 문안·「막힘」 줄 | 사람·CLI |
-| `scripts/mac-mini/commit-gate.sh` | 맥미니가 공용 스테이징으로 커밋할 때: pull 전 축소 확인, pull 뒤 묵은 항목이면 멈춤 | 맥미니 |
+| ~~`scripts/mac-mini/commit-gate.sh`~~ | **2026-11-03 사용 중지** — 공용 인덱스에 직접 써서 재발 방지 장치 밖. 맥미니도 `commit-paths`·`safe-commit` | — |
 | `scripts/assert-scratch-repo.mjs` | 시험·재현이 실제 저장소 안에서 돌면 즉시 실패 | 시험 파일·셸 명령 |
 | `scripts/commit-paths.test.mjs`(6)·`scripts/safe-commit.test.mjs`(14) | 저장소 밖 임시 폴더에서 두 도우미 시험 | `node scripts/<파일>` |
 
@@ -47,7 +47,7 @@
 | 축소 원인 관찰(끝) | `a88f09453` 이후 24시간 관찰 | 아래 6-1 |
 
 ## 4. 정해진 규칙 (주인님 결정·승인)
-- 커밋은 경로 지정만 합니다. 공용 문서·공용 스크립트는 `safe-commit`, 그 밖은 `commit-paths`(맥미니는 `commit-gate.sh`)를 씁니다. `--no-verify`, `git add -A`, 경로 없는 `git commit`은 쓰지 않습니다(루트 CLAUDE.md 최상단).
+- 커밋은 경로 지정만 합니다. 공용 문서·공용 스크립트는 `safe-commit`, 그 밖은 `commit-paths`를 씁니다(맥미니 포함, `commit-gate.sh`는 2026-11-03 사용 중지). `--no-verify`, `git add -A`, 경로 없는 `git commit`은 쓰지 않습니다(루트 CLAUDE.md 최상단).
 - **도우미는 세션 이름 필수**입니다(`--as` 또는 `AIMASTER_SESSION`). 형식은 `<claude|codex|agy>-<win|mac>-<날짜>-<작업>`입니다. 첫 단어로 블랙박스가 CLI를 구분합니다.
 - 루트 `AGENTS.md`·`GEMINI.md` 최상위 ⑥: 작업 시작 때 `session-check`를 한 번 합니다(승인받음).
 - 작업 중 표 줄의 「에이전트(장비)」 칸에는 `` 세션 `이름` ``을 꼭 넣습니다. 일부 파일만 맡으면 폴더 칸 끝에 `(범위: a·b/c)`(폴더 안 경로를 `·`로)를 적습니다. 줄을 올리면 `index-watch.mjs register <세션명>`을 실행합니다.
