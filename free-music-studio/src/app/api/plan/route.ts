@@ -1,0 +1,50 @@
+import { NextResponse } from "next/server";
+import { checkProgramAccessApi } from "@/lib/access";
+import { getUserApiKey } from "@/lib/apiKeys";
+import { LyricError, planInstrumentals } from "@/lib/ai/lyrics";
+import { LYRIC_PROVIDERS, toLyricModel, toLyricProvider } from "@/lib/lyricModels";
+import { PLAN_MAX, cleanBannedWords } from "@/lib/lyricRules";
+import { DEFAULT_DURATION, DURATIONS, LIMITS } from "@/lib/songs";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const maxDuration = 180;
+
+// AI 작곡 기획 — 연주곡 여러 곡의 제목·스타일·앨범 설명을 한 번에(곡마다 다르게). 회원 본인 키만.
+export async function POST(request: Request) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+
+  const b = ((await request.json().catch(() => null)) ?? {}) as Record<string, unknown>;
+  const theme = typeof b.theme === "string" ? b.theme.trim().slice(0, 300) : "";
+  if (!theme) return NextResponse.json({ error: "어떤 연주곡을 만들지 주제를 적어 주세요." }, { status: 400 });
+  const count = Math.min(PLAN_MAX, Math.max(1, Math.floor(Number(b.count) || 1)));
+
+  const provider = toLyricProvider(b.provider);
+  const label = LYRIC_PROVIDERS.find((p) => p.id === provider)!.label;
+  const apiKey = await getUserApiKey(access.user.id, provider);
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: `${label} API 키가 없습니다. [API키등록·플랫폼연동]에서 본인 키를 먼저 등록하거나 다른 AI를 골라 주세요.`, needApiKey: true },
+      { status: 400 }
+    );
+  }
+
+  const duration = Number(b.duration_sec);
+  try {
+    const result = await planInstrumentals(provider, apiKey, toLyricModel(provider, b.model), {
+      theme,
+      style: typeof b.style === "string" ? b.style.trim().slice(0, LIMITS.style) : "",
+      count,
+      durationSec: (DURATIONS as readonly number[]).includes(duration) ? duration : DEFAULT_DURATION,
+      bannedWords: cleanBannedWords(b.banned_words),
+      language: b.language === "en" ? "en" : "ko",
+    });
+    return NextResponse.json(result);
+  } catch (err) {
+    if (err instanceof LyricError) return NextResponse.json({ error: err.message }, { status: err.status });
+    const name = (err as Error).name;
+    if (name === "TimeoutError" || name === "AbortError") return NextResponse.json({ error: `${label} 응답이 너무 늦습니다. 곡 수를 줄여 다시 시도해 주세요.` }, { status: 504 });
+    return NextResponse.json({ error: "연주곡을 기획하지 못했습니다. 잠시 뒤 다시 시도해 주세요." }, { status: 502 });
+  }
+}

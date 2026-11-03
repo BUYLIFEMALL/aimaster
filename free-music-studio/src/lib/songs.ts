@@ -3,8 +3,9 @@
 
 export const SONGS_TABLE = "free_music_songs";
 
-export const DURATIONS = [30, 60, 120, 180, 240] as const;
-export const DEFAULT_DURATION = 120;
+// 목표 길이 — 2·3·4·5분(기본 3분, v1.08). 30초·1분은 CPU PC에서 빨리 들어 보는 용도.
+export const DURATIONS = [30, 60, 120, 180, 240, 300] as const;
+export const DEFAULT_DURATION = 180;
 
 export const LIMITS = { title: 80, style: 400, lyrics: 4000 } as const;
 

@@ -56,11 +56,23 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
     return () => clearInterval(t);
   }, [busy === ""]); // eslint-disable-line react-hooks/exhaustive-deps -- 생성 한 번에 시계 하나
 
-  const canStart = ready && !busy && (song.style_prompt.trim() || song.lyrics.trim());
+  const [count, setCount] = useState(1);
+  const [round, setRound] = useState(0);
 
+  const canStart = ready && !busy && !round && (song.style_prompt.trim() || song.lyrics.trim());
+
+  // 생성 개수만큼 같은 가사·스타일로 차례로 만든다(한 곡씩 — PC 한 대가 동시에 두 곡을 만들면 더 느리다).
   const generate = async () => {
-    if (!status) return;
     setError(null);
+    for (let i = 1; i <= count && !cancelled.current; i++) {
+      setRound(i);
+      if (!(await generateOne())) break;
+    }
+    setRound(0);
+  };
+
+  const generateOne = async (): Promise<boolean> => {
+    if (!status) return false;
     setBusy("start");
     try {
       const taskId = await startTask(song, status.device, status.quality);
@@ -94,19 +106,22 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           }
           urls.current.push(url);
           setTakes((list) => [{ id: taskId, trackId, ext, title: name, url, seconds: song.duration_sec, at: new Date().toLocaleTimeString("ko-KR"), saved }, ...list]);
-          break;
+          return true;
         }
         if (Date.now() > until) throw new EngineError("너무 오래 걸려 기다리기를 멈췄습니다. 엔진 창에 오류가 있는지 확인해 주세요.");
       }
+      return false;
     } catch (e) {
       setError(e instanceof EngineError ? { text: e.message, needPair: e.needPair } : { text: "노래를 만들지 못했습니다." });
+      return false;
     } finally {
       setBusy("");
     }
   };
 
+  const nth = count > 1 && round ? ` (${round}/${count}곡)` : "";
   const stageText =
-    busy === "start" ? "엔진에 보내는 중…" : busy === "run" ? "노래 만드는 중…" : busy === "fetch" ? "완성된 노래 받는 중…" : "";
+    (busy === "start" ? "엔진에 보내는 중…" : busy === "run" ? "노래 만드는 중…" : busy === "fetch" ? "완성된 노래 받는 중…" : "") + (busy ? nth : "");
 
   return (
     <section className="space-y-3 rounded-2xl border border-teal-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
@@ -144,8 +159,21 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           disabled={!canStart}
           className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
         >
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} {busy ? stageText : "노래 만들기"}
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} {busy ? stageText : count > 1 ? `노래 ${count}곡 만들기` : "노래 만들기"}
         </button>
+        <select
+          aria-label="생성 개수"
+          value={count}
+          disabled={!!busy || !!round}
+          onChange={(e) => setCount(Number(e.target.value))}
+          className="rounded-xl border border-slate-700/60 bg-slate-950/80 px-3 py-2.5 text-xs text-slate-100 focus:border-emerald-400 focus:outline-hidden disabled:opacity-40"
+        >
+          {[1, 2, 3, 4].map((n) => (
+            <option key={n} value={n}>
+              {n}곡{n > 1 ? " (같은 가사로 다른 버전)" : ""}
+            </option>
+          ))}
+        </select>
         {busy && (
           <span className="font-mono text-xs text-teal-200">
             {clock(elapsed)} 지남 <span className="text-slate-500">· 처음 한 번은 음악 모델(약 10GB)을 받느라 더 걸립니다</span>
