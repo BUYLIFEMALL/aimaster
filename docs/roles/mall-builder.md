@@ -20,13 +20,17 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-03 | (문서) `docs/mall/` | 쇼핑몰 카테고리 문서 5종(총괄·공통 설계·1차 플랜 기능 F01~F19·버전 계열 10종 로드맵·프로셀 분석), 외부 분석표 EXT-EC-01, 카테고리 지침 지도 이커머스 줄 | 없음 |
 | 2026-11-03 | (분석) 프로셀 buylife 몰 | 관리자 메뉴 약 95개·회원등급·상품 등록 칸(대량구매 할인·공급방식)·쇼핑환경 설정 확인, 첫 화면이 블록(인덱스 배너·상품 쇼윈도·게시물·콘텐츠)을 쌓는 위지위그 구조임을 확인 | 없음 |
 | 2026-11-03 | (도구) `D:\Antigravity\ai-website-cloner` | 사이트 복제 템플릿 설치 상태 확인·`npm run check` 통과. 원본 HTML은 `docs/research/buylife/`. 디자인 복제는 주인님 지시로 중단(디자인은 나중에 따로 받음) | 없음 |
 
+## 기준 문서
+- [쇼핑몰 카테고리 총괄](../mall/README.md) · [공통 설계](../mall/ARCHITECTURE.md) · [1차 플랜(기능 F01~F19)](../mall/PLAN_20261103_MALL_BUILDER_V1.md) · [버전 계열·로드맵](../mall/ROADMAP_AND_VARIANTS.md) · [프로셀 분석](../mall/PROSELL_ANALYSIS_20261103.md)
+- 작업 방식(주인님 2026-11-03): 기능 하나씩 구현 → 기능마다 멈추고 보고 → 주인님 점검 후 다음 기능
+
 ## 다음 첫 단계
-1. 플랜 승인을 받으면 `node scripts/lab/new-lab.mjs mall-builder`로 뼈대를 만들고 플랜 원본을 `labs/mall-builder/docs/`에 저장한다.
-2. Lab DB(ref `rjjtjakljjxsgjelqgek`)에 `mall_builder_` 표·RLS를 만들고, 계정 두 개로 몰 데이터 분리를 확인한다.
-3. 외부 프로그램 개발분석표에 프로셀 분석 카드를 추가한다(코드·디자인은 옮기지 않고 기능만 참고).
+1. 플랜 승인을 받으면 **F01만** 한다: `node scripts/lab/new-lab.mjs mall-builder` 뼈대, 몰 개설·내 몰 목록, `mall_builder_` 표·RLS(Lab DB ref `rjjtjakljjxsgjelqgek`), 계정 두 개로 몰 분리 확인.
+2. F01이 끝나면 멈추고 보고 → 주인님 점검 후 F02.
 
 ## 주인님께 여쭐 것
 - AI 쇼핑몰 빌더 1차 플랜·Lab 빌드 3~5회 비용 승인 여부(2026-11-03 채팅 보고)
