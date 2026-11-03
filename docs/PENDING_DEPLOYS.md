@@ -15,7 +15,7 @@
 
 ## 대기 중
 
-- `free-music-studio` — 이름 칸(프로젝트·플레이리스트·폴더·이름 바꾸기)에서 한글 입력 중 Enter 무시(`e17ace42a`, 운영 검수 때 한글 이름이 Enter로 안 만들어짐 발견). 다음 배포 때 함께. (2026-11-03, [역할: music] `claude-win-20261024-music`)
+- `free-music-studio` — 이름 칸(프로젝트·플레이리스트·폴더·이름 바꾸기)에서 한글 입력 중 Enter 무시(`e17ace42a`, 운영 검수 때 한글 이름이 Enter로 안 만들어짐 발견). 다음 배포 때 함께. (2026-11-03, [역할: music] `claude-win-20261024-music`) + 가져온 음악(커버·부분 수정, `8c7d2d039`) + AI 작사 OpenAI/Claude/Gemini 선택(`70b78a36d`) + 최고 품질(엔진 0.1.4 그래픽 메모리별 XL·4B 모델·FLAC 원음·MP3 320k, `4b6514cee`). **⚠ 배포 전에 SQL `free-music-studio/supabase/migrations/20261103_v1_06_cover.sql` 먼저 실행(곡 기록 kind 칸 — 없으면 모든 음악 목록 오류).** 다음 배포 v1.06.
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
 
