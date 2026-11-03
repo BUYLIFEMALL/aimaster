@@ -8,7 +8,8 @@ import { strategySystem, strategyUser } from "@/lib/tmb/prompts";
 import { normalizeStrategy, parseJsonLoose, responseSchema } from "@/lib/tmb/strategy";
 
 // 모델명은 자주 바뀌므로 한곳에서 관리한다. 앞 모델을 쓸 수 없으면 다음 모델로 자동 폴백한다.
-export const TEXT_MODELS = ["gemini-3.5-flash", "gemini-2.5-flash"];
+// 2026-11-03: 2.5-flash(12-01 자동 연결)·3.5-flash(자동 연결되는 이전 모델) → 3.8-flash, 실패 시 3.5-flash-lite (docs/PLAN_20261103_MODEL_MIGRATION_DEC.md)
+export const TEXT_MODELS = ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
 export const IMAGE_MODELS = ["gemini-3-pro-image", "gemini-3.1-flash-lite-image"];
 
 export type AiErrorCode = "key" | "quota" | "timeout" | "parse" | "safety" | "noimage" | "unknown";
