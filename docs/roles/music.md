@@ -5,12 +5,12 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — 새 프로그램 AI 무료음악 자동화 기획)
+- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — AI 무료음악 자동화 1단계 웹 뼈대 코드, gemini-2.5 점검은 맥미니 플랜 `docs/PLAN_20261103_MODEL_MIGRATION_DEC.md`로 대체)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `free-music-studio`(새) | AI 무료음악 자동화 개발 플랜 | **주인님 플랜 승인** → 0단계 사전 검증(맥미니·이 PC) | `free-music-studio/docs/PLAN_20261103_V1_01.md` |
+| `free-music-studio`(새) | AI 무료음악 자동화 — 0단계 끝(미니PC CPU·마스터PC 5080 「SUNO보단 못하지만 들을만함」), **1단계 웹 뼈대 v1.01 코드 커밋 `37b563ea1`(미배포)** | 2026-11-03 | 배포·DB 마이그레이션·도메인 승인 대기 → 2단계 엔진 앱. 맥미니 시험 A~F 대기. 플랜 `free-music-studio/docs/PLAN_20261103_V1_01.md` |
 | `lyric-video-studio` v1.11 | Lyricbi L-2~L-5 남음(L-1 v1.11 배포 끝, 승인 빌드 2회 중 1회 사용, 플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`) | 2026-10-24 | L-1 끝, 다음 L-2 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
@@ -46,4 +46,4 @@
 2. 그 다음 작업은 주인님 지시를 기다림 — 가사 영상 L-2~L-5는 대기 목록(위 표)
 
 ## 주인님께 여쭐 것
-- `gemini-2.5`를 코드에 쓰는 다른 파일이 101개 있습니다. 새 회원 키 접근 제한 영향을 프로그램별로 점검할지 결정해 주세요.
+- AI 무료음악 자동화 1단계 배포 승인: Vercel 새 프로젝트 `free-music-studio` 빌드 1회 + 운영 DB 마이그레이션(`free-music-studio/supabase/migrations/20261103_v1_01_init.sql`, 곡 표·프로그램 등록 `coming` 배지) + 도메인 `free-music-studio.buylife.xyz`.
