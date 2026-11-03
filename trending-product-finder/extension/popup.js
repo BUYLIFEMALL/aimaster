@@ -1,4 +1,4 @@
-import { DAILY_LIMIT, MARKETS, MAX_KEYWORDS, isSearchUrl, marketOf, parseKeywords, todayRecord } from "./lib/auto.js";
+import { DAILY_LIMIT, MARKETS, MAX_KEYWORDS, isSearchUrl, marketOf, migrateSchedules, parseKeywords, scheduleMinutes, scheduleOverlaps, todayRecord } from "./lib/auto.js";
 import { naverQuery } from "./lib/naver.js";
 import { addToLocalList, readTab, saveToAccount } from "./lib/page.js";
 import { MARKET_NAME, filterProducts, isExpired, sellerText, toCsv } from "./lib/parse.js";
@@ -106,25 +106,31 @@ function renderAuto(job, daily) {
 }
 
 async function refreshAuto() {
-  const { autoJob, autoDaily, autoSafety, autoSchedule } = await chrome.storage.local.get(["autoJob", "autoDaily", "autoSafety", "autoSchedule"]);
+  const { autoJob, autoDaily, autoSafety, autoSchedules, autoSchedule } = await chrome.storage.local.get(["autoJob", "autoDaily", "autoSafety", "autoSchedules", "autoSchedule"]);
+  const schedules = migrateSchedules(autoSchedules, autoSchedule);
   renderAuto(autoJob, autoDaily);
   $("safety").hidden = !autoSafety;
   if (autoSafety) $("safetyText").textContent = `${autoSafety.message} (${new Date(autoSafety.at).toLocaleString("ko-KR")})`;
-  const when = autoSchedule?.enabled && autoSchedule.nextAt ? new Date(autoSchedule.nextAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : null;
-  $("scheduleStatus").textContent = !autoSchedule?.enabled
-    ? "예약 꺼짐"
-    : autoSafety
-      ? `⛔ 일시정지 중이라 예약이 돌지 않습니다 (키워드 ${autoSchedule.keywords.length}개)`
-      : `다음 예약: ${when ?? "-"} · ${MARKETS[marketOf(autoSchedule.market)].name} · 키워드 ${autoSchedule.keywords.length}개 (${autoSchedule.keywords.join(", ")})`;
+  // 두 마켓 예약을 한 줄씩 보여 준다.
+  $("scheduleStatus").textContent = Object.keys(MARKETS)
+    .map((market) => {
+      const schedule = schedules[market];
+      const name = MARKETS[market].name;
+      if (!schedule?.enabled) return `${name}: 예약 꺼짐`;
+      if (autoSafety) return `${name}: ⛔ 일시정지 중이라 예약이 돌지 않습니다 (${schedule.time} · 키워드 ${schedule.keywords.length}개)`;
+      const when = schedule.nextAt ? new Date(schedule.nextAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "-";
+      return `${name}: 매일 ${schedule.time} · 다음 ${when} · 키워드 ${schedule.keywords.length}개 (${schedule.keywords.join(", ")})`;
+    })
+    .join("\n");
 }
 
 async function loadSchedule() {
-  const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
-  if (!autoSchedule) return;
-  $("scheduleOn").checked = Boolean(autoSchedule.enabled);
-  if (autoSchedule.time) $("scheduleTime").value = autoSchedule.time;
-  pickMarket(autoSchedule.market);
-  if (!$("keywords").value && autoSchedule.keywords?.length) $("keywords").value = autoSchedule.keywords.join("\n");
+  // 고른 마켓의 예약을 칸에 보여 준다. 마켓을 바꾸면 그 마켓 예약으로 바뀐다.
+  const { autoSchedules, autoSchedule } = await chrome.storage.local.get(["autoSchedules", "autoSchedule"]);
+  const schedule = migrateSchedules(autoSchedules, autoSchedule)[chosenMarket()];
+  $("scheduleOn").checked = Boolean(schedule?.enabled);
+  $("scheduleTime").value = schedule?.time ?? "09:00";
+  if (schedule?.keywords?.length) $("keywords").value = schedule.keywords.join("\n");
 }
 
 async function saveSchedule() {
@@ -133,7 +139,22 @@ async function saveSchedule() {
   if (enabled) await chrome.storage.local.set({ autoAgreed: true });
   const reply = await chrome.runtime.sendMessage({ type: "schedule-save", enabled, time: $("scheduleTime").value, keywords: parseKeywords($("keywords").value), market: chosenMarket() });
   if (!reply?.ok) return setStatus(reply?.error ?? "예약을 저장하지 못했습니다.", true);
-  setStatus(enabled ? "매일 예약을 저장했습니다. 그 시각에 PC와 크롬을 켜 두세요." : "매일 예약을 껐습니다.");
+  const market = chosenMarket();
+  const name = MARKETS[market].name;
+  if (!enabled) {
+    setStatus(`${name} 매일 예약을 껐습니다.`);
+    return refreshAuto();
+  }
+  // 다른 마켓 예약이 도는 시간과 겹치면 막지 않고, 끝난 뒤 이어서 돈다고 알려 준다.
+  const { autoSchedules } = await chrome.storage.local.get("autoSchedules");
+  const otherMarket = Object.keys(MARKETS).find((m) => m !== market);
+  const other = autoSchedules?.[otherMarket];
+  const time = $("scheduleTime").value;
+  setStatus(
+    scheduleOverlaps(time, other)
+      ? `${name} 매일 예약을 저장했습니다. ${MARKETS[otherMarket].name} 예약(${other.time}, 키워드 ${other.keywords.length}개, 약 ${scheduleMinutes(other.keywords.length)}분)과 겹쳐 ${name}은 ${MARKETS[otherMarket].name}이 끝난 뒤 시작됩니다(10분마다 다시 확인). 바로 시작하려면 ${MARKETS[otherMarket].name} 예약이 끝난 뒤 시각으로 잡아 주세요.`
+      : `${name} 매일 예약을 저장했습니다. 그 시각에 PC와 크롬을 켜 두세요.`,
+  );
   refreshAuto();
 }
 
@@ -159,11 +180,6 @@ function downloadCsv() {
 
 function chosenMarket() {
   return marketOf(document.querySelector('input[name="market"]:checked')?.value);
-}
-
-function pickMarket(market) {
-  const input = document.querySelector(`input[name="market"][value="${marketOf(market)}"]`);
-  if (input) input.checked = true;
 }
 
 async function clearList() {
@@ -203,6 +219,7 @@ async function init() {
   });
   $("autoStop").addEventListener("click", () => chrome.runtime.sendMessage({ type: "auto-stop" }));
   $("scheduleSave").addEventListener("click", saveSchedule);
+  document.querySelectorAll('input[name="market"]').forEach((el) => el.addEventListener("change", loadSchedule));
   $("safetyResume").addEventListener("click", async () => {
     await chrome.runtime.sendMessage({ type: "safety-resume" });
     setStatus("일시정지를 풀었습니다. 같은 일이 또 생기면 며칠 쉬어 주세요.");
@@ -214,7 +231,7 @@ async function init() {
       items = changes.items.newValue ?? [];
       render();
     }
-    if (changes.autoJob || changes.autoDaily || changes.autoSafety || changes.autoSchedule) refreshAuto();
+    if (changes.autoJob || changes.autoDaily || changes.autoSafety || changes.autoSchedules || changes.autoSchedule) refreshAuto();
   });
   setInterval(refreshAuto, 1000);
   refreshAuto();

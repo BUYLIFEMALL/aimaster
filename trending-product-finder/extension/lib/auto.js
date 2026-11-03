@@ -79,6 +79,31 @@ export function nextScheduleAt(time, { now = Date.now(), lastRunDay = null, catc
   return new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1, hour, minute).getTime();
 }
 
+/** 매일 예약은 마켓마다 따로(2026-11-03 v1.35). 예전 하나짜리 예약(autoSchedule)은 그 마켓 칸으로 옮긴다. */
+export function migrateSchedules(schedules, legacy) {
+  if (schedules && typeof schedules === "object") return schedules;
+  if (!legacy) return {};
+  const { market, ...rest } = legacy;
+  return { [marketOf(market)]: rest };
+}
+
+/** 예약 하나가 걸리는 대략의 시간(분): 키워드마다 최대 5분. */
+export function scheduleMinutes(keywordCount) {
+  return Math.max(1, keywordCount) * MAX_GAP_MINUTES;
+}
+
+/** 새 예약 시각이 다른 마켓 예약이 도는 동안이면 그 마켓 예약이 끝날 때까지 기다린다는 뜻으로 true. 막지는 않는다. 하루를 넘기는 경우(자정 근처)도 본다. */
+export function scheduleOverlaps(time, other) {
+  if (!other?.enabled || !validTime(time) || !validTime(other.time)) return false;
+  const toMin = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  const diff = (toMin(time) - toMin(other.time) + 1440) % 1440;
+  return diff < scheduleMinutes(other.keywords?.length ?? 0);
+}
+
+export const SCHEDULE_ALARM_PREFIX = "auto-schedule-";
+/** 다른 마켓 자동 검색이 도는 중에 예약 시각이 오면 이만큼 뒤에 다시 시도한다. */
+export const SCHEDULE_RETRY_MINUTES = 10;
+
 /** 쇼핑몰이 거부하는 징후. 하나라도 보이면 자동 검색과 매일 예약(두 마켓 모두)을 일시정지한다. */
 export const SAFETY_TEXT = {
   blocked: (name) => `${name}이 사람인지 확인하는 화면을 띄웠습니다`,

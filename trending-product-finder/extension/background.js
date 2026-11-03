@@ -1,11 +1,11 @@
 // 키워드 자동 검색. 회원이 팝업에서 「시작」을 누르거나, 회원이 켠 「매일 예약」 시각에만 돈다(PC·크롬이 켜져 있을 때).
 // 마켓(쿠팡·네이버 쇼핑) 탭 하나만 쓰고, 키워드마다 1페이지만 열어 읽는다. 차단 우회는 하지 않는다.
 // 하루 상한과 거부 징후 일시정지는 두 마켓이 함께 쓴다(한쪽에서 징후가 보이면 둘 다 쉰다).
-import { MARKETS, isSearchUrl, marketOf, kstDay, nextGapMinutes, nextScheduleAt, safetyMessage, searchUrl, startProblem, todayRecord, validTime } from "./lib/auto.js";
+import { MARKETS, SCHEDULE_ALARM_PREFIX, SCHEDULE_RETRY_MINUTES, isSearchUrl, marketOf, migrateSchedules, kstDay, nextGapMinutes, nextScheduleAt, safetyMessage, searchUrl, startProblem, todayRecord, validTime } from "./lib/auto.js";
 import { addToLocalList, readTab, saveToAccount } from "./lib/page.js";
 
 const ALARM = "auto-next";
-const SCHEDULE_ALARM = "auto-schedule";
+const LEGACY_SCHEDULE_ALARM = "auto-schedule"; // v1.34까지 하나짜리 예약
 const LOAD_TIMEOUT_MS = 30_000;
 const SETTLE_MS = 2_500;
 const READ_TRIES = 8; // 최대 약 20초
@@ -66,7 +66,7 @@ async function pauseForSafety(reason, keyword, market = "coupang") {
   const { autoDaily } = await chrome.storage.local.get("autoDaily");
   await chrome.storage.local.set({ autoDaily: { ...todayRecord(autoDaily), stopped: true }, autoSafety: { reason, keyword, market, at: Date.now(), message } });
   await stopJob(message);
-  await chrome.alarms.clear(SCHEDULE_ALARM);
+  await clearScheduleAlarms();
   await showSafetyBadge(true);
   chrome.notifications.create("coupang-safety", {
     type: "basic",
@@ -143,25 +143,57 @@ async function start(keywords, label = "", market = "coupang") {
   return { ok: true };
 }
 
-/** 매일 예약 알람을 다시 건다. catchUp은 크롬을 새로 켰을 때만(그 시각에 꺼져 있었으면 오늘 안에 한 번). */
-async function armSchedule(catchUp = false) {
-  await chrome.alarms.clear(SCHEDULE_ALARM);
-  const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
-  const { autoSafety } = await chrome.storage.local.get("autoSafety");
-  if (autoSafety || !autoSchedule?.enabled || !validTime(autoSchedule.time)) return null;
-  const when = nextScheduleAt(autoSchedule.time, { lastRunDay: autoSchedule.lastRunDay, catchUp });
-  await chrome.alarms.create(SCHEDULE_ALARM, { when });
-  await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, nextAt: when } });
-  return when;
+/** 마켓별 예약 { coupang: {...}, naver: {...} }. 예전 하나짜리 예약은 처음 읽을 때 옮기고 지운다. */
+async function getSchedules() {
+  const { autoSchedules, autoSchedule } = await chrome.storage.local.get(["autoSchedules", "autoSchedule"]);
+  if (autoSchedules) return autoSchedules;
+  const migrated = migrateSchedules(null, autoSchedule);
+  await chrome.storage.local.set({ autoSchedules: migrated });
+  await chrome.storage.local.remove("autoSchedule");
+  await chrome.alarms.clear(LEGACY_SCHEDULE_ALARM);
+  return migrated;
 }
 
-async function runSchedule() {
-  const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
-  if (!autoSchedule?.enabled) return;
-  await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, lastRunDay: kstDay() } });
-  const reply = await start(autoSchedule.keywords ?? [], "⏰ 매일 예약 — ", autoSchedule.market);
-  if (!reply.ok && !(await getJob())?.running) await setJob({ running: false, nextAt: null, message: `⏰ 매일 예약을 시작하지 못했습니다: ${reply.error}` });
-  await armSchedule(false);
+async function clearScheduleAlarms() {
+  await chrome.alarms.clear(LEGACY_SCHEDULE_ALARM);
+  for (const market of Object.keys(MARKETS)) await chrome.alarms.clear(SCHEDULE_ALARM_PREFIX + market);
+}
+
+/** 매일 예약 알람을 마켓마다 다시 건다. catchUp은 크롬을 새로 켰을 때만(그 시각에 꺼져 있었으면 오늘 안에 한 번). only면 그 마켓만. */
+async function armSchedule(catchUp = false, only = null) {
+  const schedules = await getSchedules();
+  const { autoSafety } = await chrome.storage.local.get("autoSafety");
+  for (const market of Object.keys(MARKETS)) {
+    if (only && only !== market) continue;
+    await chrome.alarms.clear(SCHEDULE_ALARM_PREFIX + market);
+    const schedule = schedules[market];
+    if (!schedule) continue;
+    if (autoSafety || !schedule.enabled || !validTime(schedule.time)) {
+      schedules[market] = { ...schedule, nextAt: null };
+      continue;
+    }
+    const when = nextScheduleAt(schedule.time, { lastRunDay: schedule.lastRunDay, catchUp });
+    await chrome.alarms.create(SCHEDULE_ALARM_PREFIX + market, { when });
+    schedules[market] = { ...schedule, nextAt: when };
+  }
+  await chrome.storage.local.set({ autoSchedules: schedules });
+  return only ? schedules[only]?.nextAt ?? null : null;
+}
+
+async function runSchedule(market) {
+  const schedules = await getSchedules();
+  const schedule = schedules[market];
+  if (!schedule?.enabled) return;
+  // 다른 마켓 자동 검색(또는 직접 시작한 검색)이 도는 중이면 겹치지 않게 조금 뒤에 다시 시도한다.
+  if ((await getJob())?.running) {
+    await chrome.alarms.create(SCHEDULE_ALARM_PREFIX + market, { delayInMinutes: SCHEDULE_RETRY_MINUTES });
+    await chrome.storage.local.set({ autoSchedules: { ...schedules, [market]: { ...schedule, nextAt: Date.now() + SCHEDULE_RETRY_MINUTES * 60_000 } } });
+    return;
+  }
+  await chrome.storage.local.set({ autoSchedules: { ...schedules, [market]: { ...schedule, lastRunDay: kstDay() } } });
+  const reply = await start(schedule.keywords ?? [], "⏰ 매일 예약 — ", market);
+  if (!reply.ok && !(await getJob())?.running) await setJob({ running: false, nextAt: null, message: `⏰ ${MARKETS[market].name} 매일 예약을 시작하지 못했습니다: ${reply.error}` });
+  await armSchedule(false, market);
 }
 
 async function saveSchedule({ enabled, time, keywords, market }) {
@@ -169,14 +201,16 @@ async function saveSchedule({ enabled, time, keywords, market }) {
     if (!validTime(time)) return { ok: false, error: "예약 시각을 다시 골라 주세요." };
     if (!keywords?.length) return { ok: false, error: "예약할 키워드를 한 줄에 하나씩 넣어 주세요." };
   }
-  const { autoSchedule } = await chrome.storage.local.get("autoSchedule");
-  await chrome.storage.local.set({ autoSchedule: { ...autoSchedule, enabled: Boolean(enabled), time, keywords: keywords ?? [], market: marketOf(market) } });
-  return { ok: true, nextAt: await armSchedule(false) };
+  const key = marketOf(market);
+  const schedules = await getSchedules();
+  await chrome.storage.local.set({ autoSchedules: { ...schedules, [key]: { ...schedules[key], enabled: Boolean(enabled), time, keywords: keywords ?? [] } } });
+  return { ok: true, nextAt: await armSchedule(false, key) };
 }
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM) step();
-  if (alarm.name === SCHEDULE_ALARM) runSchedule();
+  if (alarm.name.startsWith(SCHEDULE_ALARM_PREFIX)) runSchedule(marketOf(alarm.name.slice(SCHEDULE_ALARM_PREFIX.length)));
+  if (alarm.name === LEGACY_SCHEDULE_ALARM) getSchedules().then(() => armSchedule(true)); // 업데이트 전에 걸어 둔 알람
 });
 
 // 브라우저를 다시 켜거나 확장을 새로 고치면 예약 알람이 사라질 수 있어 다시 건다.

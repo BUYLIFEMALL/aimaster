@@ -219,3 +219,27 @@ test("서버: 네이버 저장 자료는 구매·판매처를 받고 주소를 �
   // 마켓을 안 보내는 예전 확장은 쿠팡 그대로
   assert.equal(mod.sanitizeReviewItems([{ id: "5", purchases: 3 }])[0].purchases, null);
 });
+
+import { migrateSchedules } from "../extension/lib/auto.js";
+
+test("매일 예약은 마켓별: 예전 하나짜리 예약은 그 마켓 칸으로 옮긴다", () => {
+  assert.deepEqual(migrateSchedules(null, { enabled: true, time: "09:00", keywords: ["a"], market: "naver", lastRunDay: "2026-11-03" }), { naver: { enabled: true, time: "09:00", keywords: ["a"], lastRunDay: "2026-11-03" } });
+  // 마켓 값이 없던 예약(v1.33 이하)은 쿠팡
+  assert.deepEqual(Object.keys(migrateSchedules(undefined, { enabled: true, time: "10:00", keywords: [] })), ["coupang"]);
+  assert.deepEqual(migrateSchedules(undefined, undefined), {});
+  const already = { coupang: { enabled: false }, naver: { enabled: true } };
+  assert.equal(migrateSchedules(already, { market: "coupang" }), already);
+});
+
+import { scheduleOverlaps } from "../extension/lib/auto.js";
+
+test("매일 예약 겹침: 다른 마켓 예약이 도는 시간(키워드×5분)이면 겹침으로 알린다", () => {
+  const coupang = { enabled: true, time: "09:00", keywords: ["a", "b", "c", "d", "e"] }; // 약 25분
+  assert.equal(scheduleOverlaps("09:00", coupang), true);
+  assert.equal(scheduleOverlaps("09:24", coupang), true);
+  assert.equal(scheduleOverlaps("09:25", coupang), false);
+  assert.equal(scheduleOverlaps("08:59", coupang), false);
+  assert.equal(scheduleOverlaps("09:10", { ...coupang, enabled: false }), false);
+  // 자정을 넘기는 예약
+  assert.equal(scheduleOverlaps("00:05", { enabled: true, time: "23:50", keywords: ["a", "b", "c", "d"] }), true);
+});
