@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import Link from "next/link";
 import { KeyRound, X } from "lucide-react";
 import {
-  DEFAULT_IMAGE_MODEL, DEFAULT_TEXT_MODEL, IMAGE_MODELS, PROVIDER_LABELS, TEXT_MODELS,
+  DEFAULT_IMAGE_MODEL, DEFAULT_TEXT_MODEL, IMAGE_MODELS, PROVIDER_LABELS, textModelById,
   type Provider, type UsageInfo,
 } from "@/lib/playlist/types";
 import { estimateCost } from "@/lib/playlist/validate";
@@ -52,7 +52,8 @@ export function AiProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const m = readLocal<{ text?: string; image?: string }>(MODEL_KEY, {});
-    if (m.text && TEXT_MODELS.some((x) => x.id === m.text)) setTextModelState(m.text);
+    const savedText = m.text ? textModelById(m.text) : undefined;
+    if (savedText) setTextModelState(savedText.id);
     if (m.image && IMAGE_MODELS.some((x) => x.id === m.image)) setImageModelState(m.image);
     setUsage(readLocal<UsageLogEntry[]>(USAGE_KEY, []));
   }, []);

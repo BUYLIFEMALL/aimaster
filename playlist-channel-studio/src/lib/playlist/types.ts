@@ -25,8 +25,6 @@ export const TEXT_MODELS: TextModel[] = [
   { id: "gemini-3.8-flash", provider: "gemini", label: "Gemini 3.8 Flash (빠름·기본)", inPer1M: 0.75, outPer1M: 3.75 },
   { id: "gemini-4-argon", provider: "gemini", label: "Gemini 4 Argon (최고 품질)", inPer1M: 2, outPer1M: 10 },
   { id: "gemini-3.5-flash-lite", provider: "gemini", label: "Gemini 3.5 Flash-Lite (저렴)", inPer1M: 0.3, outPer1M: 2.5 },
-  { id: "gemini-2.5-flash", provider: "gemini", label: "Gemini 2.5 Flash (이전 모델)", inPer1M: 0.3, outPer1M: 2.5 },
-  { id: "gemini-2.5-flash-lite", provider: "gemini", label: "Gemini 2.5 Flash-Lite (이전 모델)", inPer1M: 0.1, outPer1M: 0.4 },
 ];
 export const DEFAULT_TEXT_MODEL = "gemini-3.8-flash";
 
@@ -43,7 +41,11 @@ export const IMAGE_MODELS: ImageModel[] = [
 ];
 export const DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-lite-image";
 
-export const textModelById = (id: string) => TEXT_MODELS.find((m) => m.id === id);
+// 2026-11-03 종료·자동 연결되는 옛 글 모델(Gemini 2.5, 12-01)은 새 모델로 바꿔 찾는다 — 저장된 옛 값도 새 모델로 호출된다.
+const LEGACY_TEXT_MODEL: Record<string, string> = {
+  "gemini-2.5-flash": "gemini-3.8-flash", "gemini-2.5-pro": "gemini-3.8-flash", "gemini-2.5-flash-lite": "gemini-3.5-flash-lite",
+};
+export const textModelById = (id: string) => TEXT_MODELS.find((m) => m.id === (LEGACY_TEXT_MODEL[id] ?? id));
 // 2026-10-17 이전에 저장된 구형 모델 값은 새 모델로 바꿔 찾는다(구형 모델 지원 종료 대비).
 const LEGACY_IMAGE_MODEL: Record<string, string> = {
   "gemini-2.5-flash-image": "gemini-3.1-flash-lite-image",

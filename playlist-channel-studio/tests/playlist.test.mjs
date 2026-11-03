@@ -91,7 +91,7 @@ test("카탈로그 개수: 장르 23(기본 14+추천 9)·스타일 7·글꼴 14
 
 test("chunk / estimateCost", () => {
   assert.deepEqual(chunk([1, 2, 3, 4, 5], 2), [[1, 2], [3, 4], [5]]);
-  assert.ok(Math.abs(estimateCost({ model: "gemini-2.5-flash", inputTokens: 1_000_000, outputTokens: 1_000_000, ms: 1 }) - 2.8) < 1e-9);
+  assert.ok(Math.abs(estimateCost({ model: "gemini-3.5-flash-lite", inputTokens: 1_000_000, outputTokens: 1_000_000, ms: 1 }) - 2.8) < 1e-9);
   assert.equal(estimateCost({ model: "gemini-3.1-flash-lite-image", inputTokens: 0, outputTokens: 0, ms: 1, images: 2 }), 0.078);
   assert.equal(estimateCost({ model: "unknown", inputTokens: 5, outputTokens: 5, ms: 1 }), 0);
 });
