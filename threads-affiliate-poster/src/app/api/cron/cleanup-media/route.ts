@@ -5,6 +5,7 @@ import {
   getMediaRetentionCutoff,
   extractStoragePathFromUrl,
 } from "@/lib/mediaRetention";
+import { exemptInFilter, loadRetentionExemptIds } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
 
 export const dynamic = "force-dynamic";
@@ -26,12 +27,21 @@ async function handleCleanup(request: NextRequest) {
   const cutoff = getMediaRetentionCutoff();
   const supabase = createAdminClient();
   const storage = supabase.storage.from("post-images");
+  // 예외 회원(관리자·시험 계정)은 지우지 않는다. 목록을 읽지 못하면 정리 전체를 멈춘다.
+  let exemptFilter: string | null;
+  try {
+    exemptFilter = exemptInFilter(await loadRetentionExemptIds(supabase));
+  } catch {
+    return NextResponse.json({ error: "자동 삭제 예외 회원 목록을 읽지 못해 정리를 멈췄습니다." }, { status: 503 });
+  }
 
   // 1) 30일 이상 지난 게시글 목록 조회
-  const { data: expiredPosts, error: fetchError } = await supabase
+  let expiredQuery = supabase
     .from("tap_posts")
     .select("id, user_id, image_url, video_url, created_at")
     .lt("created_at", cutoff.toISOString());
+  if (exemptFilter) expiredQuery = expiredQuery.not("user_id", "in", exemptFilter);
+  const { data: expiredPosts, error: fetchError } = await expiredQuery;
 
   if (fetchError) {
     return NextResponse.json({ error: fetchError.message }, { status: 500 });
@@ -74,10 +84,12 @@ async function handleCleanup(request: NextRequest) {
   }
 
   // 3) 30일 경과한 오래된 게시글 삭제
-  const { error: deleteError, count } = await supabase
+  let deleteQuery = supabase
     .from("tap_posts")
     .delete({ count: "exact" })
     .lt("created_at", cutoff.toISOString());
+  if (exemptFilter) deleteQuery = deleteQuery.not("user_id", "in", exemptFilter);
+  const { error: deleteError, count } = await deleteQuery;
 
   if (deleteError) {
     return NextResponse.json({ error: deleteError.message }, { status: 500 });
