@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeviceNotice } from "./DeviceNotice";
 
 // 쿠팡 상품소싱기 사용법(매뉴얼 /guide#coupang). 단계마다 「어디서 하는 일인지」를 붙인다.
 type Place = "메인프로그램" | "확장프로그램" | "쿠팡" | "크롬 확장 관리" | "내 PC";
@@ -199,6 +200,8 @@ export function CoupangGuide() {
           </Link>
         </div>
       </div>
+
+      <DeviceNotice />
 
       {PARTS.map((part) => (
         <div key={part.id} id={`coupang-${part.id}`} className="scroll-mt-6">

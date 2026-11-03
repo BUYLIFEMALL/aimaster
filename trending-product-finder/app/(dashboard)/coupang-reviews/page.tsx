@@ -4,6 +4,7 @@ import { APP_VERSION } from "@/lib/version";
 import { listReviewRunsAction } from "@/lib/actions/coupangResults";
 import { ExtensionConnect } from "@/components/coupang/ExtensionConnect";
 import { ReviewResults } from "@/components/coupang/ReviewResults";
+import { DeviceNotice } from "@/components/coupang/DeviceNotice";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -38,6 +39,8 @@ export default async function CoupangReviewsPage() {
         title="쿠팡 판매량과 리뷰 수로 팔리는 상품 찾기"
         description="쿠팡 검색 결과를 「판매량순」으로 정렬하면 많이 팔리는 상품부터 나옵니다. 크롬 확장이 그 화면을 읽어 리뷰 수가 기준 이상인 상품만 골라, 판매와 리뷰로 검증된 소싱 후보를 표로 보여 줍니다."
       />
+
+      <DeviceNotice />
 
       <section className="mx-card flex flex-wrap items-center justify-between gap-4 p-5">
         <div className="min-w-0">
