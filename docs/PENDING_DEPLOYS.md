@@ -15,7 +15,6 @@
 
 ## 대기 중
 
-- `free-music-studio` — 이름 칸(프로젝트·플레이리스트·폴더·이름 바꾸기)에서 한글 입력 중 Enter 무시(`e17ace42a`, 운영 검수 때 한글 이름이 Enter로 안 만들어짐 발견). 다음 배포 때 함께. (2026-11-03, [역할: music] `claude-win-20261024-music`) + 가져온 음악(커버·부분 수정, `8c7d2d039`) + AI 작사 OpenAI/Claude/Gemini 선택(`70b78a36d`) + 최고 품질(엔진 0.1.4 그래픽 메모리별 XL·4B 모델·FLAC 원음·MP3 320k, `4b6514cee`). **⚠ 배포 전에 SQL `free-music-studio/supabase/migrations/20261103_v1_06_cover.sql` 먼저 실행(곡 기록 kind 칸 — 없으면 모든 음악 목록 오류).** 다음 배포 v1.06.
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
 
@@ -72,6 +71,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `free-music-studio` | v1.06 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-83c438grx`) | 가져온 음악 커버·부분 수정(`8c7d2d039`, SQL `20261103_v1_06_cover.sql` 먼저 실행·규칙 확인) + AI 작사 OpenAI/Claude/Gemini(`70b78a36d`) + 최고 품질 엔진 0.1.4(`4b6514cee`) + 한글 Enter(`e17ace42a`). 로그인 없는 차단 확인, 화면 확인은 ego 로그인 풀려 대기 |
 | `realty-client-desk` | v1.08 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 지시 빌드 1회, `realty-client-desk-21gyn8g6j`) | 일정 알림 기본·유일 = 회원 cron-job.org, 가입하기 버튼(SOLAPI·OpenAI·Claude·Gemini·cron-job.org), AI 초안 플랫폼 3개·모델 선택(`dffad1a6a`). DB SQL `20261103060000_cronjob_default_ai_engines.sql`은 자동 안전 검사로 막혀 **주인님 승인 대기** |
 | `realty-client-desk` | v1.07 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 지시 빌드 1회, `realty-client-desk-nf5kq3r0m`) | 중개보수 계산기 지역 선택(17개 시·도, 서울·충남·충북 공식 게시본 대조 표시, 나머지 조례 이름 안내)(`f2e5d32fc`). 운영 화면 확인 |
 | `free-music-studio` | v1.05 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-4h0idon07`) | 프로젝트·플레이리스트(`0e30aa896`, SQL `20261103_v1_05_collections.sql` 먼저 실행·RLS 확인) + 사이트 안 한글 폴더 고르기(`c1f99cbd3`). ego lite에서 프로젝트·플레이리스트 만들기·지정·담기·곡 수 확인 |
