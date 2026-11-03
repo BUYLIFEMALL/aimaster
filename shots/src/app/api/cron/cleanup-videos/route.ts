@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { REEL_COVER_BUCKET, reelCoverFolder } from "@/lib/instagram/reelCover";
 import { CLEANUP_ACTION, cleanupByOwner, pruneSegmentImages } from "@/lib/sceneImageCleanup";
 import { logProgramUsage } from "@/lib/access";
+import { loadRetentionExemptIds } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -25,6 +26,11 @@ export async function GET(request: NextRequest) {
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 86_400_000);
   const supabase = createAdminClient();
   const storage = supabase.storage.from(BUCKET);
+  // 예외 회원(관리자·시험 계정) 폴더는 지우지 않는다. 목록을 읽지 못하면 정리 전체를 멈춘다(2026-11-03).
+  let exempt: Set<string>;
+  try { exempt = await loadRetentionExemptIds(supabase); } catch {
+    return NextResponse.json({ error: "자동 삭제 예외 회원 목록을 읽지 못해 정리를 멈췄습니다." }, { status: 503 });
+  }
 
   const list = async (prefix: string, bucket = storage) => {
     const out: { name: string; id: string | null; created_at?: string | null; updated_at?: string | null }[] = [];
@@ -40,7 +46,7 @@ export async function GET(request: NextRequest) {
   const expired: string[] = [];
   let checked = 0;
   try {
-    for (const owner of (await list("")).filter((x) => x.id === null)) { // 폴더는 id가 null
+    for (const owner of (await list("")).filter((x) => x.id === null && !exempt.has(x.name))) { // 폴더는 id가 null
       for (const video of (await list(owner.name)).filter((x) => x.id === null)) {
         for (const file of (await list(`${owner.name}/${video.name}`)).filter((x) => x.id !== null)) {
           checked += 1;
@@ -55,7 +61,7 @@ export async function GET(request: NextRequest) {
   const voiceStorage = supabase.storage.from("shots-bgm");
   const expiredVoices: string[] = [];
   try {
-    for (const owner of (await list("", voiceStorage)).filter((x) => x.id === null)) {
+    for (const owner of (await list("", voiceStorage)).filter((x) => x.id === null && !exempt.has(x.name))) {
       for (const video of (await list(owner.name, voiceStorage)).filter((x) => x.id === null)) {
         for (const file of (await list(`${owner.name}/${video.name}/voice`, voiceStorage)).filter((x) => x.id !== null)) {
           checked += 1;
@@ -98,7 +104,7 @@ export async function GET(request: NextRequest) {
   const expiredCovers: string[] = [];
   let removedCovers = 0;
   try {
-    for (const owner of (await list("", coverStorage)).filter((x) => x.id === null)) {
+    for (const owner of (await list("", coverStorage)).filter((x) => x.id === null && !exempt.has(x.name))) {
       for (const file of (await list(reelCoverFolder(owner.name), coverStorage)).filter((x) => x.id !== null)) {
         checked += 1;
         const at = file.updated_at ?? file.created_at;
@@ -124,7 +130,7 @@ export async function GET(request: NextRequest) {
   let removedImages = 0, clearedSegments = 0;
   const segmentsByOwner: Record<string, string[]> = {};
   try {
-    for (const owner of (await list("", coverStorage)).filter((x) => x.id === null)) {
+    for (const owner of (await list("", coverStorage)).filter((x) => x.id === null && !exempt.has(x.name))) {
       for (const file of (await list(owner.name, coverStorage)).filter((x) => x.id !== null)) {
         checked += 1;
         if (file.created_at && new Date(file.created_at) < cutoff) expiredImages.push(`${owner.name}/${file.name}`);
