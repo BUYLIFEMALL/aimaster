@@ -208,18 +208,19 @@ export async function getShopProducts(
     productIds = [...new Set((links ?? []).map((l) => l.product_id as string))];
     if (!productIds.length) return [];
   }
-  let query = supabase
-    .from("mall_builder_products")
-    .select(PRODUCT_COLUMNS)
-    .eq("store_id", storeId)
-    .in("status", ["on_sale", "sold_out"])
-    .order("created_at", { ascending: false })
-    .limit(opts.limit ?? 60);
-  if (productIds) query = query.in("id", productIds);
-  const q = opts.q?.trim();
-  if (q) query = query.ilike("name", `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`);
-  const { data } = await query;
-  return withDisplayPrices(storeId, (data ?? []) as ProductRow[]);
+  return withDisplayPrices(storeId, await readShopProducts(storeId, { ids: productIds, q: opts.q, limit: opts.limit }));
+}
+
+/** 손님 화면 상품 읽기는 모두 DB 함수로(0018) — 사업자 전용은 승인 사업자에게만, 가격 비공개 상품은 판매가 0·정가 null로 가려서 온다 */
+async function readShopProducts(storeId: string, o: { ids?: string[] | null; q?: string; limit?: number }): Promise<ProductRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_shop_products", {
+    p_store_id: storeId,
+    p_ids: o.ids ?? null,
+    p_q: o.q?.trim() || null,
+    p_limit: o.limit ?? 60,
+  });
+  return (data ?? []) as ProductRow[];
 }
 
 export type ShopProduct = ProductRow & { display: { unitPrice: number; priceHidden: boolean; note: string } };
@@ -244,17 +245,11 @@ async function withDisplayPrices(storeId: string, rows: ProductRow[]): Promise<S
 
 /** 손님 상품 상세 — 판매 중·품절만. 없으면 null */
 export async function getShopProduct(storeId: string, productId: string) {
+  const [row] = await readShopProducts(storeId, { ids: [productId], limit: 1 });
+  if (!row) return null;
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("mall_builder_products")
-    .select(`${PRODUCT_COLUMNS}, mall_builder_product_categories(category_id)`)
-    .eq("store_id", storeId)
-    .eq("id", productId)
-    .in("status", ["on_sale", "sold_out"])
-    .maybeSingle();
-  if (!data) return null;
-  const row = data as ProductRow & { mall_builder_product_categories: { category_id: string }[] };
-  return { ...row, category_ids: (row.mall_builder_product_categories ?? []).map((l) => l.category_id) };
+  const { data: links } = await supabase.from("mall_builder_product_categories").select("category_id").eq("product_id", productId);
+  return { ...row, category_ids: (links ?? []).map((l) => l.category_id as string) };
 }
 
 /** 상품의 옵션 조합(정렬 순서대로) */

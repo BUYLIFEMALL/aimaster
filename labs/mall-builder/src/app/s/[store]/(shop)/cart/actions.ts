@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { priceLine } from "@/lib/pricing";
-import { PRODUCT_COLUMNS, getPriceContext, type ProductRow } from "@/lib/store";
+import { getPriceContext, type ProductRow } from "@/lib/store";
 import type { Variant } from "@/lib/options";
 
 // 보안 규칙(본인 줄만·가입한 몰에만·같은 몰 상품만)을 그대로 거친다. 담을 때도 가격 엔진으로 다시 검사한다
@@ -19,7 +19,9 @@ async function context(slug: string) {
 }
 
 async function loadProduct(supabase: Awaited<ReturnType<typeof createClient>>, storeId: string, productId: string, variantId: string | null) {
-  const { data: product } = await supabase.from("mall_builder_products").select(PRODUCT_COLUMNS).eq("store_id", storeId).eq("id", productId).maybeSingle();
+  // 손님 화면과 같은 DB 함수로 읽는다 — 가격 비공개 상품도 와서 가격 엔진이 「승인 후 가격 공개」 같은 정확한 안내를 낸다
+  const { data: rows } = await supabase.rpc("mall_builder_shop_products", { p_store_id: storeId, p_ids: [productId], p_limit: 1 });
+  const product = (rows as ProductRow[] | null)?.[0];
   if (!product) return null;
   let variant: (Variant & { id: string }) | null = null;
   if (variantId) {
