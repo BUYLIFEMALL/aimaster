@@ -8,8 +8,9 @@ import { templateById } from "@/lib/lpa/templates";
 
 // 모델명은 자주 바뀌므로 한곳에서 관리한다. 앞 모델을 쓸 수 없으면 다음 모델로 자동 폴백한다.
 export const MODEL_CHAIN: Record<ModelLevel, string[]> = {
-  pro: ["gemini-3.1-pro-preview", "gemini-2.5-flash"],
-  standard: ["gemini-2.5-flash"],
+  // 2026-11-03: 2.5-flash(12-01 자동 연결) → 3.8-flash
+  pro: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
+  standard: ["gemini-3.8-flash"],
 };
 
 export type AiErrorCode = "key" | "quota" | "timeout" | "parse" | "unknown";
