@@ -57,13 +57,17 @@ export function PresetPicker({ mode, style, onPick }: { mode: PresetMode; style:
     setPage(0);
     setNaming(false);
     setName("");
-    setNote({ ok: true, text: `「${data.preset.name}」을 내 프리셋에 저장했습니다.` });
+    setNote({ ok: true, text: `내 프리셋 저장 완료: ${data.preset.name}` });
   };
 
   const remove = async (id: string) => {
     const res = await fetch(`/api/presets/${id}`, { method: "DELETE" }).catch(() => null);
-    if (res?.ok) setMine((m) => m.filter((p) => p.id !== id));
-    else setNote({ ok: false, text: "프리셋을 지우지 못했습니다." });
+    if (res?.ok) {
+      const gone = mine.find((p) => p.id === id);
+      setMine((m) => m.filter((p) => p.id !== id));
+      if (chosen === `my:${id}`) setChosen("");
+      setNote({ ok: true, text: `내 프리셋 지움: ${gone?.name ?? ""}` });
+    } else setNote({ ok: false, text: "프리셋을 지우지 못했습니다." });
   };
 
   return (

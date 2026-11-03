@@ -216,7 +216,7 @@ export default function SongsPage() {
 
   const loadPlanned = (t: PlannedTrack) => {
     openDraft({ id: null, title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec });
-    setMessage({ type: "success", text: `「${t.title}」을 불러왔습니다. [저장하기] 또는 바로 [노래 만들기]를 눌러 주세요.` });
+    setMessage({ type: "success", text: `불러왔습니다: ${t.title} — [저장하기] 또는 바로 [노래 만들기]를 눌러 주세요.` });
   };
 
   const savePlan = async () => {
