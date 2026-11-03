@@ -274,6 +274,7 @@ export default function SongsPage() {
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
           <GeneratePanel
             title={draft.title}
+            songId={draft.id}
             song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }}
           />
         </div>

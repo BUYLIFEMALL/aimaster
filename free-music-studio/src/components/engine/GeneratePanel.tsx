@@ -4,9 +4,18 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Cpu, Download, Loader2, AlertCircle, Wand2 } from "lucide-react";
 import { useEngine } from "./useEngine";
-import { EngineError, checkTask, fetchAudio, startTask, type SongForEngine } from "@/lib/engine";
+import {
+  EngineError,
+  checkTask,
+  fetchAudio,
+  fetchLibraryAudio,
+  hasLibrary,
+  saveToLibrary,
+  startTask,
+  type SongForEngine,
+} from "@/lib/engine";
 
-type Take = { id: string; title: string; url: string; seconds: number; at: string };
+type Take = { id: string; title: string; url: string; seconds: number; at: string; saved: "saved" | "record-failed" | "old-engine" };
 
 const POLL_MS = 3000;
 const MAX_WAIT_MS = 45 * 60_000; // CPU 모드 4분 곡 + 첫 모델 내려받기까지 여유
@@ -20,7 +29,7 @@ function estimate(device: string, durationSec: number) {
 }
 
 /** 곡 만들기 화면 아래 칸 — 지금 편집 중인 가사·스타일로 내 PC 엔진에 노래를 맡긴다. */
-export function GeneratePanel({ song, title }: { song: SongForEngine; title: string }) {
+export function GeneratePanel({ song, title, songId }: { song: SongForEngine; title: string; songId: string | null }) {
   const engine = useEngine();
   const { status, checking, online, paired, ready } = engine;
   const [busy, setBusy] = useState<"" | "start" | "run" | "fetch">("");
@@ -62,12 +71,25 @@ export function GeneratePanel({ song, title }: { song: SongForEngine; title: str
         if (s.state === "failed") throw new EngineError(s.error);
         if (s.state === "done") {
           setBusy("fetch");
-          const url = await fetchAudio(s.file);
+          const name = title.trim() || "제목 없는 노래";
+          let url: string;
+          let saved: Take["saved"] = "old-engine";
+          if (hasLibrary(status)) {
+            // 보관: 내 PC 보관 폴더에 복사 → 「모든 음악」 기록 한 줄. 기록이 실패해도 음원은 PC에 남는다.
+            const id = crypto.randomUUID();
+            await saveToLibrary(id, s.file);
+            const res = await fetch("/api/tracks", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id, song_id: songId, title: name, ...song, device: status.device }),
+            }).catch(() => null);
+            saved = res?.ok ? "saved" : "record-failed";
+            url = await fetchLibraryAudio(id);
+          } else {
+            url = await fetchAudio(s.file);
+          }
           urls.current.push(url);
-          setTakes((list) => [
-            { id: taskId, title: title.trim() || "제목 없는 노래", url, seconds: song.duration_sec, at: new Date().toLocaleTimeString("ko-KR") },
-            ...list,
-          ]);
+          setTakes((list) => [{ id: taskId, title: name, url, seconds: song.duration_sec, at: new Date().toLocaleTimeString("ko-KR"), saved }, ...list]);
           break;
         }
         if (Date.now() > until) throw new EngineError("너무 오래 걸려 기다리기를 멈췄습니다. 엔진 창에 오류가 있는지 확인해 주세요.");
@@ -156,11 +178,23 @@ export function GeneratePanel({ song, title }: { song: SongForEngine; title: str
                 </a>
               </div>
               <audio controls src={t.url} className="w-full" />
+              <p className={`text-[11px] ${t.saved === "saved" ? "text-emerald-300/80" : "text-amber-300/80"}`}>
+                {t.saved === "saved" ? (
+                  <>
+                    ✔ 내 PC 보관함에 저장했습니다 —{" "}
+                    <Link href="/library" className="underline underline-offset-2">
+                      모든 음악
+                    </Link>
+                    에서 다시 들을 수 있습니다.
+                  </>
+                ) : t.saved === "record-failed" ? (
+                  "음원은 내 PC 보관함에 저장했지만 목록 기록을 남기지 못했습니다. [MP3 내려받기]로 따로 저장해 두세요."
+                ) : (
+                  "이 엔진은 보관함이 없는 옛 버전이라 화면을 떠나면 사라집니다. [MP3 내려받기]로 저장하고, 엔진을 새로 받아 주세요."
+                )}
+              </p>
             </li>
           ))}
-          <li className="text-[11px] text-slate-500">
-            💡 만든 노래는 이 화면을 떠나면 목록에서 사라집니다. 마음에 드는 곡은 [MP3 내려받기]로 PC에 저장해 주세요.
-          </li>
         </ul>
       )}
     </section>

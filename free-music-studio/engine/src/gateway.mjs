@@ -2,6 +2,7 @@
 // 짝짓기 토큰을 확인한 뒤 내부 ACE-Step 서버로 그대로 넘긴다(파일 업로드 포함, 본문을 해석하지 않음).
 import http from "node:http";
 import { bearer, corsHeaders, isAllowedOrigin, newPairCode, newToken, sameSecret } from "./security.mjs";
+import { isTrackId } from "./library.mjs";
 
 export const GATEWAY_PORT = 47821;
 const MAX_BODY = 60 * 1024 * 1024; // 커버 원곡 업로드 상한
@@ -13,7 +14,8 @@ const FORWARD = new Map([
 
 /**
  * @param {{ version: string, getState: () => object, tokens: Set<string>, saveTokens: () => Promise<void>,
- *           acestepPort: number, acestepKey: string, onPairCode?: (code: string) => void }} ctx
+ *           acestepPort: number, acestepKey: string, library: ReturnType<typeof import("./library.mjs").createLibrary>,
+ *           onPairCode?: (code: string) => void }} ctx
  */
 export function createGateway(ctx) {
   let pairCode = newPairCode();
@@ -65,11 +67,13 @@ export function createGateway(ctx) {
     }
 
     const target = FORWARD.get(key);
-    if (!target) return json(res, 404, { error: "없는 주소입니다." }, origin);
+    const isLibrary = url.pathname === "/library" || url.pathname.startsWith("/library/");
+    if (!target && !isLibrary) return json(res, 404, { error: "없는 주소입니다." }, origin);
     const token = bearer(req.headers.authorization);
     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
       return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
     }
+    if (isLibrary) return handleLibrary(req, res, url, origin, ctx, json);
     if (!ctx.getState().ready) return json(res, 503, { error: "엔진을 준비하는 중입니다." }, origin);
     if (Number(req.headers["content-length"] ?? 0) > MAX_BODY) return json(res, 413, { error: "파일이 너무 큽니다(60MB까지)." }, origin);
 
@@ -88,6 +92,50 @@ export function createGateway(ctx) {
     up.on("error", () => json(res, 502, { error: "음악 엔진이 응답하지 않습니다. 엔진 창을 확인해 주세요." }, origin));
     req.pipe(up);
   });
+}
+
+/**
+ * 내 PC 보관함(library.mjs) — 토큰 확인을 마친 요청만 온다.
+ *  GET /library            → { ids: [...] } 이 PC에 있는 곡 번호
+ *  POST /library/save      { id, file } → ACE-Step 결과(/v1/audio?…)를 받아 보관
+ *  GET /library/<id>       → 음원(audio/mpeg)
+ *  DELETE /library/<id>    → 지우기
+ */
+async function handleLibrary(req, res, url, origin, ctx, json) {
+  const lib = ctx.library;
+  const rest = url.pathname.slice("/library".length).replace(/^\//, "");
+
+  if (req.method === "GET" && !rest) return json(res, 200, { ids: await lib.list() }, origin);
+
+  if (req.method === "POST" && rest === "save") {
+    const body = await readSmall(req).catch(() => null);
+    const id = body?.id;
+    const file = typeof body?.file === "string" ? body.file : "";
+    if (!isTrackId(id) || !file.startsWith("/v1/audio?")) return json(res, 400, { error: "곡 번호나 음원 주소가 올바르지 않습니다." }, origin);
+    if (!ctx.getState().ready) return json(res, 503, { error: "엔진을 준비하는 중입니다." }, origin);
+    try {
+      const r = await fetch(`http://127.0.0.1:${ctx.acestepPort}${file}`, { headers: { authorization: `Bearer ${ctx.acestepKey}` } });
+      if (!r.ok) return json(res, 502, { error: "음악 엔진에서 음원을 찾지 못했습니다(오래돼 지워졌을 수 있음)." }, origin);
+      await lib.save(id, Buffer.from(await r.arrayBuffer()));
+      return json(res, 200, { ok: true }, origin);
+    } catch {
+      return json(res, 500, { error: "보관 폴더에 저장하지 못했습니다. 디스크 공간을 확인해 주세요." }, origin);
+    }
+  }
+
+  if (!isTrackId(rest)) return json(res, 404, { error: "없는 주소입니다." }, origin);
+
+  if (req.method === "GET") {
+    const f = await lib.open(rest);
+    if (!f) return json(res, 404, { error: "이 PC에 이 곡의 음원이 없습니다." }, origin);
+    res.writeHead(200, { "content-type": "audio/mpeg", "content-length": f.size, ...corsHeaders(origin) });
+    return f.stream.pipe(res);
+  }
+  if (req.method === "DELETE") {
+    await lib.remove(rest);
+    return json(res, 200, { ok: true }, origin);
+  }
+  return json(res, 404, { error: "없는 주소입니다." }, origin);
 }
 
 async function readSmall(req) {

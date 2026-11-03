@@ -9,9 +9,10 @@ import path from "node:path";
 import { ensureInstalled, hasNvidia, launch, waitHealthy } from "./acestep.mjs";
 import { chooseDevice } from "./device.mjs";
 import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
+import { createLibrary } from "./library.mjs";
 import { newToken } from "./security.mjs";
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1"; // 0.1.1: 내 PC 보관함(/library)
 const ACESTEP_PORT = 47822;
 
 const dataDir =
@@ -33,9 +34,11 @@ try {
 const saveTokens = () => writeFile(tokensFile, JSON.stringify({ tokens: [...tokens] }, null, 2));
 
 const acestepKey = newToken(); // 실행할 때마다 새로 — 연결 문만 안다
+const library = createLibrary(dataDir);
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0 }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library"], libraryDir: library.dir }),
+  library,
   tokens,
   saveTokens,
   acestepPort: ACESTEP_PORT,

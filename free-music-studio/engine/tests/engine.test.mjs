@@ -2,6 +2,36 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { chooseDevice } from "../src/device.mjs";
 import { bearer, corsHeaders, isAllowedOrigin, newPairCode, sameSecret } from "../src/security.mjs";
+import { createLibrary, isTrackId } from "../src/library.mjs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+test("보관함: 곡 번호는 uuid 모양만(경로 조작 거절)", () => {
+  assert.equal(isTrackId("3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab"), true);
+  assert.equal(isTrackId("../paired"), false);
+  assert.equal(isTrackId("3F2B8C1E-1A2B-4C3D-8E9F-0123456789AB"), false);
+  assert.equal(isTrackId(undefined), false);
+});
+
+test("보관함: 저장 → 목록 → 꺼내기 → 지우기", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "fms-lib-"));
+  try {
+    const lib = createLibrary(dir);
+    const id = "3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
+    assert.deepEqual(await lib.list(), []);
+    await lib.save(id, Buffer.from("ID3abc"));
+    assert.deepEqual(await lib.list(), [id]);
+    const f = await lib.open(id);
+    assert.equal(f.size, 6);
+    f.stream.destroy();
+    await lib.remove(id);
+    assert.deepEqual(await lib.list(), []);
+    assert.equal(await lib.open(id), null);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
 
 test("장치: NVIDIA 윈도우는 고품질(cuda, 언어 모델 켬)", () => {
   const d = chooseDevice({ platform: "win32", arch: "x64", nvidia: true });

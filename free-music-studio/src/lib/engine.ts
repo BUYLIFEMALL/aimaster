@@ -15,7 +15,14 @@ export type EngineStatus = {
   note: string;
   error: string;
   paired: boolean;
+  features?: string[]; // 0.1.1부터 ["library"]
+  libraryDir?: string;
 };
+
+/** 내 PC 보관함을 쓸 수 있는 엔진인가(0.1.0은 없음 — 엔진을 새로 받아야 함). */
+export function hasLibrary(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("library");
+}
 
 export type SongForEngine = { style_prompt: string; lyrics: string; duration_sec: number };
 
@@ -157,6 +164,33 @@ export async function checkTask(taskId: string): Promise<TaskState> {
     body: JSON.stringify({ task_id_list: [taskId] }),
   });
   return parseTaskState(await res.json(), taskId);
+}
+
+// ── 내 PC 보관함(엔진 0.1.1+) ─────────────────────────────────
+
+/** 완성 음원을 엔진 보관 폴더에 곡 번호(id) 이름으로 복사해 둔다. */
+export async function saveToLibrary(id: string, file: string): Promise<void> {
+  await call("/library/save", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, file }),
+  });
+}
+
+/** 이 PC 보관함에 있는 곡 번호들 */
+export async function listLibrary(): Promise<Set<string>> {
+  const res = await call("/library");
+  const data = await res.json();
+  return new Set(Array.isArray(data?.ids) ? data.ids : []);
+}
+
+export async function fetchLibraryAudio(id: string): Promise<string> {
+  const res = await call(`/library/${id}`, {}, 120_000);
+  return URL.createObjectURL(await res.blob());
+}
+
+export async function deleteFromLibrary(id: string): Promise<void> {
+  await call(`/library/${id}`, { method: "DELETE" });
 }
 
 /** 완성 음원을 받아 브라우저 안 주소(blob:)로 돌려준다. 재생·내려받기에 같이 쓴다. */
