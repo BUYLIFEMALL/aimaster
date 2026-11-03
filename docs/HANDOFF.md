@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` v1.03 2단계(내 매물·맞는 고객·광고 문자) 배포(준비중)
+- 법령 원문 대조(국가법령정보센터 2026-10-02 시행판): 시행령 제61조③·별표 6(문자: 시작 「(광고)·전송자 명칭·전화번호 또는 주소」, 끝 「수신자 무료 수신거부 방법」 — 080뿐 아니라 「전화를 갈음하는 쉬운 방식」 허용, 공통: 연락처 밖 정보 요구 금지), 제62조의2(14일 안 처리 결과 통지 → 수신거부 화면에 보낸 곳·날짜·결과 표시), 제62조의3(2년마다 확인 → 23개월 경고·2년 지나면 발송 막음).
+- 코드 `8a022ffcc`: `src/lib/desk/adRules.ts`(매칭·광고 머리/꼬리·밤 시간·2년, 시험 `tests/adRules.test.mjs` 5개 — 전체 7개 통과), `lib/actions/listings.ts`(사무소·매물·발송·수신거부, 발송은 기록 먼저 넣고 보냄 + (고객, 매물) 고유), `lib/actions/solapiAccount.ts`(공용 `user_solapi_accounts`), 화면 `/settings` `/listings` `/listings/[id]` `/u/[token]`, 사이드바 3단계·「API키등록·플랫폼연동」, 매뉴얼 6단계, 고객 목록 2년 표시. SOLAPI 공용 사본 추가(`scripts/check-shared-modules.mjs`). DB `supabase/migrations/20261103020000_listings_ad_sends.sql` ego SQL 적용(표 3개 RLS·본인 규칙 확인).
+- 배포 `realty-client-desk-qztxwj8fc` Ready, DB 버전 v1.03. ego lite 시험 계정: 사무소 저장 → 시험고객(광고 동의) → 매물 → 「맞는 고객 1명」·미리보기 머리/꼬리·SOLAPI 없음 안내로 보내기 막힘 → 수신거부 링크 화면 버튼 → DB 기록·「보낼 수 없음: 수신거부」 → 390px 5화면 넘침 없음 → 시험 데이터 3건 삭제.
+- 못 한 것: 실제 문자 발송(시험 계정에 SOLAPI 없음 — 주인님 SOLAPI로 본인 번호 1건 시험 필요). 다음: 3단계 일정 알림·1년 정리(CRON_SECRET).
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.02 배포(3단계 웹 ↔ 내 PC 엔진)
 - 한 일: 내 PC 엔진 화면 상태 배지·연결 코드 6자리 입력, 곡 만들기 아래 [노래 만들기](걸린 시간·재생·MP3 내려받기, 음원은 서버 안 거침). 「짝짓기」 표현을 「연결 코드」·「PC 연결」로(주인님이 뜻을 물어 바꿈, 엔진 창 문구·엔진 zip 포함). 미배포 대기 3건 함께. 커밋 `1b6a3c2df`, 배포 `dpl_7Fj5fc8d1KZvRmv9KLBebstf2aaq`, DB v1.02.
 - 확인: 마스터PC(5080) 엔진 처음부터 설치 성공(고품질 cuda). 운영 사이트(ego lite)에서 미니PC 엔진(CPU)으로 연결 코드 → 30초 곡 생성 → MP3 30초·470KB 재생·내려받기 준비 확인. 웹 시험 19·엔진 5·tsc·로컬 빌드 통과.

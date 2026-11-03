@@ -69,6 +69,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `realty-client-desk` | v1.03 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 플랜 2단계 승인 빌드 1회, `realty-client-desk-qztxwj8fc`) | 2단계 내 매물·맞는 고객·광고 문자(회원 SOLAPI)·무료 수신거부 화면(`8a022ffcc`, 새 표 3개 ego SQL 적용). 시험 계정 운영 화면에서 등록→매칭→미리보기→수신거부 확인·390px 5화면, 실제 문자는 시험 계정 SOLAPI 없어 미발송 |
 | `free-music-studio` | v1.02 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `dpl_7Fj5fc8d1KZvRmv9KLBebstf2aaq`) | 3단계 웹 ↔ 내 PC 엔진 연결(`1b6a3c2df`) + 대기 3건(`96f04aee3`: 설정 「확인 중」·Apple Silicon 「아직 측정 전」·Intel 맥 줄). ego lite에서 연결 코드 → 30초 곡 생성 → 재생·MP3 확인 |
 | `real_estate_sales` | v1.45 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 「삭제/수정 기능 넣어달라니까」 빌드 1회, `dpl_6pWGcoSGzNCwzkatqknsYnWm3aR3`) | 설정 「카카오 알림톡 템플릿」 🗑 삭제 버튼·값 검사(`29ae525ca`). 운영 설정 화면(시험 계정)에서 버튼·안내 확인 |
 | `real_estate_sales` | v1.44 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `dpl_2HsMQiwfYqZDVeVnKgWLSdegcA7h`) | B3 임장 모드 — 리포트에 임장 사진·메모, 저장 리포트 나란히 비교(`f35b2b73b`) + B2 작은 수정 3건(`a94d618ea`). 운영 화면·390px 확인 |
