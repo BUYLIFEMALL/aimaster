@@ -23,7 +23,7 @@ export async function generateCustomComponent(apiKey: string, prompt: string, co
 위 요구사항을 충족하는 모던 React 19 + Tailwind CSS 컴포넌트를 작성해주세요.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3.8-flash",
     contents: [
       { role: "user", parts: [{ text: userContent }] }
     ],
