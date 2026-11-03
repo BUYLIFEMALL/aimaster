@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SHOP_IMAGE_BUCKET, storagePathFromUrl } from "@/lib/imageSrc";
 import { isInRetentionGrace, retentionCutoff, RETENTION_DAYS, RETENTION_GRACE_END } from "@/lib/retention";
+import { exemptInFilter, loadRetentionExemptIds } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
 import { addCleanupCount, logCleanupUsage, ownerFromPath, type CleanupCounts } from "@/lib/cleanupUsageLog";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +64,14 @@ export async function GET(request: NextRequest) {
 
   const admin = createAdminClient();
   const cutoff = retentionCutoff();
+  // 예외 회원(관리자·시험 계정)은 지우지 않는다. 목록을 읽지 못하면 정리 전체를 멈춘다.
+  let exempt: Set<string>;
+  try {
+    exempt = await loadRetentionExemptIds(admin);
+  } catch {
+    return NextResponse.json({ error: "자동 삭제 예외 회원 목록을 읽지 못해 정리를 멈췄습니다." }, { status: 503 });
+  }
+  const exemptFilter = exemptInFilter(exempt);
   const errors: string[] = [];
   let productsDeleted = 0;
   let filesDeleted = 0;
@@ -71,11 +80,12 @@ export async function GET(request: NextRequest) {
   const counts: CleanupCounts = new Map();
 
   // ① 만료 상품
-  const { data: expired, error: expiredError } = await admin
+  let expiredQuery = admin
     .from("shop_products")
     .select("id, user_id, source_image_url, reference_image_urls")
-    .lt("created_at", cutoff)
-    .limit(PRODUCTS_PER_RUN);
+    .lt("created_at", cutoff);
+  if (exemptFilter) expiredQuery = expiredQuery.not("user_id", "in", exemptFilter);
+  const { data: expired, error: expiredError } = await expiredQuery.limit(PRODUCTS_PER_RUN);
   if (expiredError) errors.push(`shop_products: ${expiredError.message}`);
 
   for (const p of expired ?? []) {
@@ -118,6 +128,7 @@ export async function GET(request: NextRequest) {
 
     for (const userFolder of await listEntries(admin, "")) {
       if (userFolder.id) continue; // 루트에 바로 놓인 파일은 이 앱이 만들지 않는다
+      if (exempt.has(userFolder.name)) continue; // 예외 회원 폴더
       const base = `${userFolder.name}/products`;
       const stale: string[] = [];
       for (const e of await listEntries(admin, base)) {
