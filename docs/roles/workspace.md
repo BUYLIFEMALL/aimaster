@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-10-31 (claude-win-20261025-workspace — 요약 지침 이름 한글화, Aside 받아쓰기 실패 기록)
+- 마지막 갱신: 2026-11-03 (claude-win-20261025-workspace — U6-B 음성 파일 받아쓰기 구현·30일 예외 회원 제외, 배포 허용 대기)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,14 +14,14 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-work-workspace` | 미배포 `05d0ec5f4`(요약 중 자동 갱신·소제목 언어). 배포 뒤 크롬 확인 필요 | 다음 워크스페이스 배포 때 함께 | `ai-work-workspace/docs/IMPROVEMENTS.md` |
-| `ai-work-workspace` | U6-B 음성 파일 받아쓰기(회원 Gemini 우선·OpenAI 보조) → v1.18 | 제공자 결정 | `ai-work-workspace/docs/PLAN_20261024_U6_MEETING_NOTES.md` §2 |
+| `ai-work-workspace` | **v1.20 배포 대기**: U6-B 음성 파일 받아쓰기 `03d5373a5`·매뉴얼, 30일 예외 회원 제외 `20557e396`, 미배포 `05d0ec5f4`·`94719d8da`·`26db40bd4` 한꺼번에. 배포 뒤 유료 시험(Gemini 1·OpenAI 1, 시험 계정 본인 키)·크롬 확인 | 배포 명령 권한 허용(자동 권한 검사가 운영 배포를 막음, 빌드 1회는 승인됨) | `ai-work-workspace/docs/IMPROVEMENTS.md` 미배포 대기 |
 | `ai-work-workspace` | U9 연계(음성 분석·문서 챗봇·번역·슬라이드 보내기 버튼) | 착수 전 플랜·비용 보고 | 로드맵 §5, `docs/WORK_INBOX.md` |
 | `ai-work-workspace` | 미배포 `94719d8da`(표 행 글자형 우선순위·날짜 칸 읽기)·`26db40bd4`(요약 지침 이름 한글화) | 다음 워크스페이스 배포 때 함께 내보내기(2026-10-26 주인님 결정, 단독 배포 안 함) | `ai-work-workspace/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-03 | `ai-work-workspace` (미배포) | U6-B 음성 파일 받아쓰기(Gemini Google 직접 업로드 100MB·OpenAI 4MB, 받아쓰기 뒤 자동 요약) + 30일 예외 회원 제외. 시험 원본 523·연결부 47 통과, 로컬 빌드 통과 | 대기 |
 | 2026-10-31 | `ai-work-workspace` v1.19 | U6-A 운영 확인(받아쓰기→요약 생성). 단 정지 뒤 새로고침해야 요약이 보이는 버그 발견 | 없음 |
 | 2026-10-26 | 역할 | 주인님 결정 2건 반영: 할 일 플래너를 맡은 폴더에 추가, 미배포 `94719d8da`는 다음 워크스페이스 배포 때 묶어서 내보냄 | 없음 |
 | 2026-10-25 | `ai-work-workspace` v1.19 · `ai-task-planner` v1.12 | U8-B 워크스페이스 페이지 할 일 → 플래너 「📥 받은 할 일」(공용 표 받는 곳 열 추가) | 배포 2회 |
@@ -36,7 +36,8 @@
 | 2026-10-24 | `ai-work-workspace` v1.07 | 로그인·회원가입 화면을 공식 표준 2탭으로 교체 + 회원가입 버튼 404 수정(`/signup` → `/register`) | 배포 |
 
 ## 다음 첫 단계
+1. 배포 권한이 허용되면 `lib/version.ts` v1.20 + DB `programs.version` → `node scripts/deploy.mjs ai-work-workspace --go` → 크롬(시험 계정)에서 음성 파일 받아쓰기(Gemini·OpenAI 각 1회)·요약 중 자동 갱신 확인
 2. U9 연계 상세 플랜·비용 보고(음성 분석·문서 챗봇·번역·슬라이드)
 
 ## 주인님께 여쭐 것
-- U6-B 음성 파일 받아쓰기 제공자를 Gemini 우선·OpenAI 보조(4MB 이하)로 할까요?(추천)
+- 워크스페이스 v1.20 배포 명령이 자동 권한 검사에 막혔습니다. 배포를 허용해 주실까요?(빌드 1회, 승인 범위 안)

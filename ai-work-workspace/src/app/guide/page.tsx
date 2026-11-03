@@ -80,6 +80,8 @@ const MIC_TROUBLES = [
   { msg: "이 브라우저에서는 실시간 받아쓰기를 쓸 수 없습니다", fix: "크롬·엣지·사파리에서 열어 주세요. 다른 브라우저에서는 실시간 받아쓰기가 동작하지 않을 수 있습니다." },
   { msg: "녹취가 짧아 자동 요약을 건너뛰었습니다", fix: "고장이 아닙니다. 파란 띠의 「요약 만들기」를 누르면 바로 요약합니다." },
   { msg: "AI 비서를 쓰려면 본인 API 키가 필요합니다", fix: "받아쓰기는 무료지만 요약은 본인 AI 키(Gemini·OpenAI·Claude 중 하나)가 필요합니다. 왼쪽 메뉴 「API키등록·플랫폼연동」에서 한 번 등록하세요." },
+  { msg: "음성 파일 받아쓰기에는 본인 Gemini 또는 OpenAI API 키가 필요합니다", fix: "녹음 파일 받아쓰기는 Gemini(추천, 100MB까지) 또는 OpenAI(4MB까지) 키로 합니다. 「API키등록·플랫폼연동」에서 등록한 뒤 페이지를 새로고침하세요." },
+  { msg: "받아쓰기가 오래 걸려 멈췄습니다", fix: "녹음을 30분~1시간 단위로 나눠 올리거나, 설정 메뉴의 「받아쓰기 다시 시도」를 눌러 주세요." },
 ];
 
 export default async function GuidePage() {
@@ -235,6 +237,16 @@ export default async function GuidePage() {
             <span className="aww-3d green">🧾 요약 만들기</span>
             <span className="aww-meeting-buttons-note">← 회의록 블록에서 이 버튼들을 찾으세요</span>
           </div>
+          {/* U6-B 녹음 파일 받아쓰기 */}
+          <aside className="aww-banner aww-tip">
+            <div className="aww-banner-head"><span className="aww-banner-icon">💡</span><strong>이미 녹음한 파일도 받아쓸 수 있습니다</strong></div>
+            <ul>
+              <li>회의록 블록 오른쪽 위 ⬆️ 아이콘(또는 설정 메뉴 「음성 파일 받아쓰기」)을 누르고 MP3·M4A·WAV·AAC 파일을 고르세요.</li>
+              <li>본인 <b>Gemini</b> 키가 있으면 100MB까지(1시간 이내 녹음 권장), <b>OpenAI</b> 키만 있으면 4MB(약 4분)까지 받아씁니다. 말한 사람을 「화자 1·화자 2」로 나눠 적습니다(Gemini).</li>
+              <li>받아쓰기가 끝나면 요약을 자동으로 만듭니다. 녹음이 길어 자동 요약이 안 되면 설정 메뉴의 「요약 다시 시도」를 눌러 주세요.</li>
+              <li>올린 음성 파일은 받아쓰기가 끝나면 바로 지워집니다(실패하면 최대 3일 보관). Claude 키만으로는 음성 파일을 받아쓸 수 없습니다.</li>
+            </ul>
+          </aside>
         </section>
 
         {/* v1.15 마이크 연결·허용 방법 */}
