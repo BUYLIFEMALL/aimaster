@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Library,
   Play,
+  Pause,
+  Copy,
   Trash2,
   Search,
   AlertCircle,
@@ -22,10 +24,10 @@ import {
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
+import { usePlayer } from "@/components/player/PlayerProvider";
 import {
   EngineError,
   deleteFromLibrary,
-  fetchLibraryAudio,
   hasFolderPicker,
   hasLibrary,
   listLibraryFormats,
@@ -52,15 +54,10 @@ export default function LibraryPage() {
   const [onPc, setOnPc] = useState<Set<string> | null>(null);
   const [formats, setFormats] = useState<Record<string, string>>({});
   const [query, setQuery] = useState("");
-  const [audio, setAudio] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
-  const [queue, setQueue] = useState<{ ids: string[]; index: number } | null>(null); // 이어 듣기
-  const urls = useRef<string[]>([]);
-
-  useEffect(() => () => urls.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
   const loadCollections = useCallback(async () => {
     const res = await fetch("/api/collections").catch(() => null);
@@ -126,20 +123,15 @@ export default function LibraryPage() {
     return q ? list.filter((t) => `${t.title} ${t.style_prompt} ${t.lyrics}`.toLowerCase().includes(q)) : list;
   }, [tracks, view, order, query]);
 
-  const loadAudio = async (id: string) => {
-    if (audio[id]) return audio[id];
-    setBusy(id);
-    setMessage(null);
+  // 듣기는 화면 아래 재생바 하나로 — 지금 보이는(이 PC에 있는) 곡 순서가 재생 목록이 된다.
+  const player = usePlayer();
+  const toPlayer = (t: Track) => ({ key: t.id, title: t.title, subtitle: `${durationLabel(t.duration_sec)}${KIND_LABEL[t.kind] ? ` · ${KIND_LABEL[t.kind]}` : ""}` });
+  const copy = async (text: string, what: string) => {
     try {
-      const url = await fetchLibraryAudio(id);
-      urls.current.push(url);
-      setAudio((a) => ({ ...a, [id]: url }));
-      return url;
-    } catch (e) {
-      setMessage(e instanceof EngineError ? e.message : "음원을 불러오지 못했습니다.");
-      return null;
-    } finally {
-      setBusy(null);
+      await navigator.clipboard.writeText(text);
+      setMessage(`${what}을 복사했습니다.`);
+    } catch {
+      setMessage("복사하지 못했습니다. 글자를 직접 선택해 복사해 주세요.");
     }
   };
 
@@ -237,23 +229,10 @@ export default function LibraryPage() {
     if (saved) setOrder(saved);
   };
 
-  // ── 이어 듣기 ───────────────────────────────────────
+  // ── 이어 듣기(재생바) ─────────────────────────────────
   const playable = shown.filter((t) => libOk && onPc?.has(t.id));
-  const startQueue = async () => {
-    if (!playable.length) return;
-    const ids = playable.map((t) => t.id);
-    setQueue({ ids, index: 0 });
-    await loadAudio(ids[0]);
-  };
-  const nextInQueue = async () => {
-    if (!queue) return;
-    const index = queue.index + 1;
-    if (index >= queue.ids.length) return setQueue(null);
-    setQueue({ ...queue, index });
-    await loadAudio(queue.ids[index]);
-  };
-  const queueId = queue ? queue.ids[queue.index] : null;
-  const queueTrack = queueId ? tracks.find((t) => t.id === queueId) : null;
+  const startQueue = () => player?.playList(playable.map(toPlayer));
+  const playOne = (t: Track) => player?.playList(playable.map(toPlayer), t.id);
 
   const btn = "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold disabled:opacity-40";
 
@@ -325,7 +304,6 @@ export default function LibraryPage() {
           onView={(v) => {
             setView(v);
             setRenaming(null);
-            setQueue(null);
           }}
           onCreate={createCollection}
         />
@@ -374,18 +352,6 @@ export default function LibraryPage() {
               )}
             </div>
           </div>
-
-          {queue && queueTrack && audio[queueTrack.id] && (
-            <div className="space-y-2 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4">
-              <p className="flex items-center gap-2 text-xs text-emerald-200">
-                <PlayCircle className="h-4 w-4" /> 이어 듣기 {queue.index + 1}/{queue.ids.length} — <span className="font-semibold">{queueTrack.title}</span>
-                <button type="button" onClick={() => setQueue(null)} className="ml-auto text-slate-400 hover:text-slate-200" aria-label="이어 듣기 끄기">
-                  <X className="h-4 w-4" />
-                </button>
-              </p>
-              <audio key={queueTrack.id} controls autoPlay src={audio[queueTrack.id]} onEnded={nextInQueue} className="w-full" />
-            </div>
-          )}
 
           <div className="flex items-center gap-2 rounded-xl border border-slate-700/60 bg-slate-950/80 px-3.5">
             <Search className="h-4 w-4 text-slate-500" />
@@ -439,11 +405,18 @@ export default function LibraryPage() {
                       <div className="flex flex-wrap items-center gap-1.5">
                         <button
                           type="button"
-                          onClick={() => loadAudio(t.id)}
+                          onClick={() => playOne(t)}
                           disabled={!libOk || here === false || busy === t.id}
-                          className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}
+                          className={`${btn} ${player?.current?.key === t.id ? "border-emerald-400 bg-emerald-950/60 text-emerald-200" : "border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50"}`}
                         >
-                          {busy === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />} 듣기
+                          {player?.current?.key === t.id && player.loading ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : player?.current?.key === t.id && player.playing ? (
+                            <Pause className="h-3.5 w-3.5" />
+                          ) : (
+                            <Play className="h-3.5 w-3.5" />
+                          )}{" "}
+                          {player?.current?.key === t.id && player.playing ? "멈춤" : "듣기"}
                         </button>
                         {libOk && here !== false && (
                           <DownloadButtons trackId={t.id} title={t.title} ext={formats[t.id] ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} onError={setMessage} />
@@ -517,9 +490,20 @@ export default function LibraryPage() {
                       )}
                     </div>
 
-                    {audio[t.id] && queueId !== t.id && <audio controls autoPlay src={audio[t.id]} className="w-full" />}
                     {open === t.id && (
                       <div className="space-y-1 rounded-xl bg-slate-950/60 p-3 text-xs text-slate-300">
+                        <div className="flex flex-wrap gap-1.5 pb-1">
+                          {t.style_prompt && (
+                            <button type="button" onClick={() => copy(t.style_prompt, "스타일")} className={`${btn} border-slate-700 text-slate-300 hover:bg-slate-900`}>
+                              <Copy className="h-3.5 w-3.5" /> 스타일 복사
+                            </button>
+                          )}
+                          {t.lyrics && (
+                            <button type="button" onClick={() => copy(t.lyrics, "가사")} className={`${btn} border-slate-700 text-slate-300 hover:bg-slate-900`}>
+                              <Copy className="h-3.5 w-3.5" /> 가사 복사
+                            </button>
+                          )}
+                        </div>
                         {t.style_prompt && <p className="font-mono text-[11px] text-teal-300/80">{t.style_prompt}</p>}
                         <p className="whitespace-pre-wrap leading-relaxed">{t.lyrics || "(가사 없음)"}</p>
                       </div>
