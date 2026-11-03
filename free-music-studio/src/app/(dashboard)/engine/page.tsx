@@ -4,6 +4,7 @@ import { Cpu, Download, ShieldCheck, Clock } from "lucide-react";
 const SPECS = [
   { pc: "NVIDIA 그래픽카드 (예: RTX 4060 이상)", mode: "고품질 모드 — 작사 보조 모델까지 켜서 생성", speed: "빠름" },
   { pc: "Apple Silicon 맥 (M1 이상)", mode: "고품질 모드", speed: "아직 측정 전" },
+  { pc: "Intel 맥", mode: "지원하지 않음 — 음악 모델이 Intel 맥용으로 나오지 않습니다", speed: "—" },
   { pc: "그래픽카드 없는 PC · Intel 내장 그래픽", mode: "CPU 모드 — 빠른 모델로 생성", speed: "30초 곡 약 1분 30초, 3분 곡 약 6분" },
 ];
 
