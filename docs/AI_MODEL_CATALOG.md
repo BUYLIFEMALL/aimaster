@@ -71,23 +71,29 @@ Gemini 이미지 모델은 모두 **무료 등급 없음**(회원 결제 연결 
 | 임베딩 | `gemini-embedding-2` ($0.20 글) | `text-embedding-3-small` $0.02 · `-large` $0.13 | 없음 |
 **OpenAI에는 지금 일반 음성 합성(TTS) 전용 모델이 없다** — `tts-1`·`tts-1-hd`·`gpt-4o-mini-tts`는 2027-01-06 종료, 공식 대체는 실시간 API(`gpt-realtime-2.1-mini`)라 호출 방식이 다르다.
 
-## 4. 종료 일정 — 저장소에 아직 남은 모델 (2026-11-03 집계, 프로그램 폴더 수는 대략)
-| 모델 | 종료(공식) | 대체 | 저장소 사용 프로그램 |
+## 4. 종료 일정 — 저장소에 아직 남은 모델 (2026-11-03 다시 집계)
+집계 방법: `git ls-files`의 `*.ts·*.tsx·*.js·*.mjs`(node_modules·시험·백업·`labs/`·`docs/`·`public/`·`scripts/` 제외)에서 **따옴표로 감싼 모델 이름**만 찾고, 옛 값 변환표·종료 주석 줄은 뺀 「실제 호출·선택지」 기준. 처음 집계(같은 날 오전)는 검색이 느슨해 `dall-e-3`·`gpt-4-turbo` 등을 잘못 셌다.
+
+| 모델 | 종료(공식) | 대체 | 실제 사용 프로그램 |
 |---|---|---|---|
-| `gemini-2.5-flash-preview-tts` | **2026-11-17** | `gemini-3.8-flash-tts` | 3 |
-| `gpt-image-1` | **2026-10-23 이미 종료** | `gpt-image-2.5-sunburst`·`-flare` | 약 7 (1-mini·1.5 포함 겹침) |
-| `gpt-image-1-mini`·`gpt-image-1.5` | 2026-12-01 | 위와 같음 | 3 · 4 |
-| `dall-e-3` | **2026-05-12 이미 종료** | 위와 같음 | 2 |
-| `o3-mini`·`gpt-4-turbo` | **2026-10-23 이미 종료** | `gpt-5.6-sol` → 새로는 `gpt-6.1-sol` | 2 · 1 |
+| `gemini-2.5-flash-preview-tts` | **2026-11-17** | `gemini-3.8-flash-tts` | **0** — 3곳 교체 커밋 `9045a5005`(배포 요청 `DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`) |
+| `gpt-image-1`·`-1-mini`·`-1.5`·`chatgpt-image-latest` | 10-23 이미 종료 / 12-01 | `gpt-image-2.5-flare`·`-sunburst` | **0** — 7곳 교체 커밋 `87b12267e`(남은 것은 옛 값 변환표·이미지 스튜디오 갤러리의 옛 기록 이름표) |
+| `dall-e-3` | 2026-05-12 이미 종료 | 위와 같음 | 0 (이미지 스튜디오 `types.ts` 주석만) |
+| `o3-mini`·`o1`·`gpt-4-turbo` | 2026-10-23 이미 종료 | `gpt-5.6-sol` | **0** — 타로 교체 커밋 `22fbd1b03` |
 | `claude-sonnet-4-5` | 2026-11-30 | `claude-sonnet-5-5` | 0 |
-| `gemini-2.5-flash`·`-pro` | 2026-12-01 자동 연결(3.5-flash-lite·3.8-flash) | 1절 | 약 45 (`GEMINI_25_REPLACEMENT_LIST_20261103.md`) |
-| `gpt-5`·`gpt-5-mini`·`o3` | 2026-12-11 | `gpt-5.6-sol`·`-terra` → 새로는 `gpt-6.1-sol`·`-terra` | 약 13 · 3 |
-| `tts-1`·`gpt-4o-mini-tts` | 2027-01-06 | `gpt-realtime-2.1-mini` | 2 · 2 |
-| `gpt-4o`·`gpt-4o-mini`·`gpt-4.1`·`gpt-4.1-mini` | 2027-01-14 | `gpt-6-luna` | 약 14 · 13 · 9 · 3 |
-| `whisper-1` | 2027-02-26 | `gpt-transcribe` | 2 |
-| `claude-haiku-4-5` | 2026-10-15 이후 언제든 가능 | `claude-haiku-5-5` | 약 12 |
-| `claude-3-*` | 이미 종료 | `claude-haiku-5-5`·`sonnet-5-5` | 2 |
-(집계는 실제 코드 파일 기준, 문서·시험·참고 사본 제외. 정확한 위치는 `grep -rn '<모델>' --include='*.ts' --include='*.tsx'`로 다시 확인)
+| `gemini-2.5-flash`·`-pro` | 2026-12-01 자동 연결(3.5-flash-lite·3.8-flash) | 1절 | 약 45 — `GEMINI_25_REPLACEMENT_LIST_20261103.md`·`PLAN_20261103_GEMINI_25_MIGRATION.md`(단계 2·3 승인 대기) |
+| `gpt-5` | 2026-12-11 | `gpt-5.6-sol` → 새로는 `gpt-6.1-sol` | 3: ai-auto-blog, naver-blog-seo-studio, tistory-auto-blog |
+| `gpt-5-mini` | 2026-12-11 | `gpt-5.6-terra`·`gpt-6-luna` | 0 |
+| `o3` | 2026-12-11 | `gpt-5.6-sol` | 2: real_estate_sales, threads-affiliate-poster |
+| `tts-1`·`gpt-4o-mini-tts` | 2027-01-06 | `gpt-realtime-2.1-mini`(음성 합성 전용 모델 없음) | 3·4: ai-video-studio, music-video-studio(사본), shorts-onestop-studio, (+`gpt-4o-mini-tts`만 shots) |
+| `gpt-4o` | 2027-01-14 | `gpt-6-luna`·`gpt-6.1-terra` | 18 |
+| `gpt-4o-mini` | 2027-01-14 | `gpt-6-luna` | 32 (타로 기본값 포함) |
+| `gpt-4.1` | 2027-01-14 | `gpt-6.1-terra` | 21 |
+| `gpt-4.1-mini` | 2027-01-14 | `gpt-6-luna` | 2: blog-content-maker, music |
+| `whisper-1` | 2027-02-26 | `gpt-transcribe` | 3: ai-video-studio, insta_auto_poster, shorts-onestop-studio |
+| `claude-haiku-4-5` | 2026-10-15 이후 언제든 가능 | `claude-haiku-5-5` | 17 |
+| `claude-3-*` | 이미 종료 | `claude-haiku-5-5`·`sonnet-5-5` | (이번 집계 제외 — 필요 시 같은 방법으로) |
+(프로그램 목록이 긴 줄은 다시 세는 법: `git ls-files -- '*.ts' '*.tsx' | xargs grep -lE "[\"'\`]<모델>[\"'\`]"`)
 
 ## 5. 넣지 않는 모델 (새 선택지·기본값 금지)
 - 종료됐거나 종료 일정이 잡힌 모델: 4절 전부, `gpt-4o*`·`gpt-4.1*`·`gpt-5`·`gpt-5-mini`·`gpt-5-nano`·`o3*`·`o4-mini`·`gpt-image-1*`·`dall-e-*`·`tts-1*`·`whisper-1`·`claude-3-*`·`claude-sonnet-4-5`·`gemini-2.5-flash`·`gemini-2.5-pro`.
@@ -97,3 +103,4 @@ Gemini 이미지 모델은 모두 **무료 등급 없음**(회원 결제 연결 
 
 ## 6. 변경 이력
 - 2026-11-03: 처음 작성(세 회사 공식 문서 확인, 저장소 사용 현황 집계).
+- 2026-11-03 오후: 4절 다시 집계(따옴표 이름·변환표 제외) — 음성·이미지·o3-mini/o1 교체 반영, 남은 사용처 목록화.
