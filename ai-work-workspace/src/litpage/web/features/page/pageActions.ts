@@ -8,7 +8,7 @@ import { currentSpaceView } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { getLocation, navigate, openPage, pageUrl, spaceDomain } from '../../lib/router.ts';
 import { loadPage } from './usePageLoader.ts';
-import { tx } from '../shell/i18n.ts';
+import { t, tx } from '../shell/i18n.ts';
 
 export function isFavorite(pageId: string): boolean {
   return !!currentSpaceView()?.bookmarked_pages?.includes(pageId);
@@ -48,7 +48,7 @@ export function trashPage(pageId: string) {
     if (page.parent_table === 'block') openPage(page.parent_id);
     else navigate(`/${spaceDomain(page.space_id)}`);
   }
-  useUI.getState().toast(`Sent "${toPlainText(page.properties?.title) || tx('Untitled')}" to Trash`, {
+  useUI.getState().toast(t('lp.settings.sent_to_trash', 'Sent {pageName} to Trash', { pageName: `"${toPlainText(page.properties?.title) || tx('Untitled')}"` }), {
     label: tx('Undo'),
     run: () => restorePage(pageId),
   });
