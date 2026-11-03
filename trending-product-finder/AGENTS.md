@@ -399,3 +399,12 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 실측 교훈: 뒤에 있는 탭은 상품 목록을 늦게 그려 다 읽힌 뒤 2.5초엔 0개 → 2.5초 간격 최대 8번 다시 읽기.
 - 검수: `test:trend` 33개, tsc, ego 실제 자동 검색 통과(12:51~12:56 KST, 「보온 텀블러」 39개·「텀블러 세척솔」 54개, 같은 쿠팡 탭 재사용, 3~5분 대기 후 자동 진행, 차단 0). 첫 시도는 뒤 탭 늦은 그리기로 0개 → 다시 읽기 추가 후 통과. **남은 일**: v1.32 배포(빌드 1회 승인 필요, manifest·ZIP·DB 함께), 배포 뒤 확장 연결해 사이트 「내 검색 기록」 저장 확인.
 - (같은 날 이어서, 미배포) 매뉴얼 `/guide#coupang` 초보자 단계별 사용법(`components/coupang/CoupangGuide.tsx`), 「PC에서만·PC 켜 두기·결과는 휴대폰」 안내 상자(`DeviceNotice.tsx`, 쿠팡 화면 맨 위·매뉴얼), 「⏰ 매일 예약」(`background.js` `armSchedule`·`runSchedule`, 규칙 `lib/auto.js` `nextScheduleAt`), 거부 징후 일시정지(`pauseForSafety`: 그날 중단·예약 해제·빨간 「!」·컴퓨터 알림, 재개는 회원 버튼), 아이콘 `extension/icons/`, manifest `notifications`. 시험 35개. 다음 배포 v1.33.
+
+## 2026-11-03 v1.34 — 스마트스토어 상품소싱기(네이버 쇼핑) ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`)
+- 주인님 「진행해」(플랜·DB 칸 추가·빌드 1회). 쿠팡 상품소싱기 확장에 **마켓 「네이버 쇼핑」**을 더함 — 새 확장·새 표를 만들지 않고 같은 확장·같은 저장 표를 `market` 칸으로 나눔.
+- 읽기 `extension/lib/naver.js`: 네이버 쇼핑 검색(`search.shopping.naver.com/search/all?query=`, 기본 「네이버 랭킹순」) 페이지에 함께 오는 `__NEXT_DATA__` → `props.pageProps.compositeList.list`(1페이지 56개 안팎)에서 `purchaseCnt`(구매)·`reviewCountSum`/`reviewCount`(리뷰)·`mallCount`(가격비교 판매처 수)·`adId`(광고)·`lowPrice`·`mallProductUrl`. **실측 함정**: 가격비교로 묶인 상품(`mallCount>0`)은 구매 수가 0 → 주소는 `/catalog/<id>`, 「슈퍼적립」 칸(`type: supersaving`)은 화면에 「슈퍼적립광고」인데 `adId`가 없어 광고로 처리, 「구매 많은순」 정렬은 없음.
+- 확장: 자동 검색·매일 예약에 마켓 선택(`MARKETS`·`marketOf`·`searchUrl/isSearchUrl/safetyMessage(…, market)`), 마켓마다 탭 하나 재사용(`marketTab`), 하루 30개·거부 징후 일시정지는 두 마켓 합계(한쪽 징후 = 둘 다 쉼), 같은 번호라도 마켓이 다르면 따로(`mergeProducts` 키 `market:id`), 구매 기준(`minPurchases`)·CSV 마켓/구매/판매처 칸(쿠팡만이면 예전 모양), 동의 버전 2(네이버 고지 더함 — 예전 동의는 다시 받음), manifest 권한 `https://search.shopping.naver.com/*`.
+- 서버: `sanitizeMarket`·`sanitizeReviewItems(raw, market)`(네이버 주소는 https·naver.com만, 아니면 가격비교 주소), 저장 API `market`·`purchases`·`sellers`·`mall_name`, `listReviewRunsAction(market)`. DB `supabase/migrations/20261103150000_sourcing_market_naver.sql`(칸 추가만, 운영 적용 완료 — **배포보다 먼저** 적용해야 함). 예전 확장(v1.33 이하)은 마켓을 안 보내 쿠팡으로 저장.
+- 화면: `/naver-reviews`(안내 상자·다운로드·연결·4단계·기록·FAQ), 메뉴 「🟢 스마트스토어 상품소싱기」, 결과 표 구매 칸·「가격비교 N곳」·구매 기준. `DeviceNotice`에 `market` 속성.
+- 검수: 시험 40(네이버 5개 추가)·tsc·빌드, 배포 `kl5zo2n5q` Ready, DB/확장/ZIP v1.34 OK, ego(네이버 로그아웃) 사전 검증 「텀블러」·「캠핑 의자」 + 확장 자동 검색 「접이식 캠핑의자」 56개 운영 저장(구매 있음 29·가격비교 26·광고 16·주소 모두 naver.com), 화면 두 곳 마켓 분리 확인.
+- 남은 일: 네이버 매일 예약이 다음 날 실제로 도는지, 네이버 확인 화면이 생기면 일시정지가 걸리는지(일부러 만들지 않음).
