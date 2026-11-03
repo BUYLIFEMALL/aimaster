@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.06 배포(가져온 음악·AI 작사 3사·최고 품질)
+- 주인님 지시 3건: 「왜 모델을 클로드만」→ 좌측부터 OpenAI/Claude/Gemini 각 3모델(AI_MODEL_CATALOG, 다른 음악 프로그램 참고) · 「음악 퀄리티 최고 수준」→ 엔진 0.1.4 그래픽 메모리별 XL·4B(MIT), FLAC 원음(이전 128k MP3), MP3 320k(ffmpeg) · 남은 작업 가져온 음악(커버·부분 수정, 권리 확인).
+- SQL `20261103_v1_06_cover.sql`(kind 칸, 가져온 음악 10~600초) ego 실행·규칙 확인 → 배포 `free-music-studio-83c438grx`, DB v1.06. 미니PC 엔진 0.1.4 실물: 30초 80초, FLAC 원음 저장, MP3 320k 변환(1.2MB) 확인.
+- 못 한 것: 운영 화면 확인(ego 탭 로그인 풀림 — 주인님 로그인 필요), 커버·AI 작사 OpenAI/Gemini 실호출, 마스터PC 5080 XL-turbo 실측(첫 내려받기 약 19GB).
+- 남은 일: 작업 대기열 → 영상, 엔진 0.2(설치 파일·자동 실행·ffmpeg 동봉), 마스터링.
+
 ## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` v1.08 cron-job.org 기본 · 가입 버튼 · AI 플랫폼 3개·모델 선택
 - 주인님: 「일반 사용자들은 vercel을 사용하지 않으니 기본값은 cron-job 가입후 등록」「왜 옆에 사이트 가입버튼이 없어?」「AI 초안 그리고 여긴」「플랫폼 3개와 각각의 모델을 선택」「해당 기능을 사용하는 곳에서 원하는 플랫폼의 각기 원하는 모델을 선택」「다른 부동산 자동화 어떻게 해놨나 참고」.
 - 코드 `dffad1a6a`: `schedulerConfig.ts` `SCHEDULER_IS_STANDALONE = true`(공용 사본 그대로, 기본 cronjob·Vercel은 환경변수 on일 때만), 설정 방식 선택 삭제 → 가입 → 키 → 붙여 넣기 3단계, `SignupLinks`(SOLAPI·OpenAI·Claude·Gemini·cron-job.org 가입·키 만들기 새 탭 — 주소 응답 확인, OpenAI만 자동 접속 403), `AiKeyRow`(3종 공통 키 칸, 공용 `user_api_keys` openai·anthropic·gemini), `src/lib/ai/engines.ts`(상가 `aiEngines.ts`·매물 알림 `aiModels.ts` 모양, 모델은 `docs/AI_MODEL_CATALOG.md` 2026-11-03 추천 3개씩 — 기본 중가 GPT-6.1 Terra·Claude Sonnet 5.5·Gemini 3.8 Flash), `listingDraft.ts`(OpenAI chat/completions·Gemini generateContent fetch, Claude 공식 SDK, 재시도 0), 매물 화면 엔진 카드 3개(키 등록 여부)·모델 선택·마지막 선택 브라우저 기억. 시험 `tests/aiEngines.test.mjs` 2개(전체 21개). 배포 `realty-client-desk-21gyn8g6j` Ready, DB v1.08.
