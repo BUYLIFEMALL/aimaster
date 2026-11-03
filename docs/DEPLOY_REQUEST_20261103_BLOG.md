@@ -13,7 +13,7 @@
 | 순서 | 프로그램 | 현재 → 새 버전 | 들어가는 커밋 | 시험(로컬, 무료) | 확장 |
 |---|---|---|---|---|---|
 | 1 | `naver-blog-allinone` | v1.59 → v1.60 | 이미지 종료 모델 교체 `87b12267e` · 30일 열외 `0e46894fb` | `npm test` | 있음 |
-| 2 | `naver-blog-agent` | v2.26 → v2.27 | 이미지 종료 모델 교체 `87b12267e` · 30일 열외(글감) `27795e295` | `node scripts/test-source-materials.cjs` 외 `test:*` 필요한 것 | 있음 |
+| 2 | `naver-blog-agent` | v2.26 → v2.27 | 이미지 종료 모델 교체 `87b12267e` · 30일 열외(글감) `27795e295` · 30일 열외(비공개 사진, 화면 「무기한 보관」) `01d973bf6` | `node --test scripts/test-private-photos.cjs scripts/test-private-photo-input.cjs scripts/test-photo-review-save.cjs scripts/test-extension-bridge.cjs`(맥에서 46 통과) — `test-editor-mode.cjs` 실패 3건은 고치기 전에도 같음 | 있음 |
 | 3 | `ai-auto-blog` | v1.86 → v1.87 | gpt-5·2.5 교체 `142cb45ec` | `npm run test:extension-api`·`test:generation` | 있음 |
 | 4 | `tistory-auto-blog` | v1.95 → v1.96 | gpt-5·2.5 교체 `7eb961fbd` · 30일 열외 `00481371a` · 시험 `8ce1156a9` | `node --test tests/extension-api.test.cjs tests/retention-exempt.test.cjs`(맥에서 46 통과) | 있음 |
 | 5 | `naver-blog-seo-studio` | v2.25 → v2.26 | gpt-5·2.5-pro 교체 `6103af9a8` · 30일 열외 `4e1eab489` | `node --test tests/*.test.mjs`(맥에서 158 통과) | 있음 — **manifest를 손으로** `2.26.0`/`v2.26`(빌드 스크립트가 안 맞춤) |
@@ -38,5 +38,4 @@
 
 ## 남는 것
 - `blog-neighbor-care`: 모델 교체·30일 열외 모두 미적용(윈도우 blog 세션이 미커밋 작업 중).
-- `naver-blog-agent` 비공개 사진 30일 기한(맥미니가 이어서 작업, 이번 묶음에 넣을 수 있으면 커밋 해시를 이 표에 추가).
 - `threads-affiliate-poster` o3 교체 `0caadc5ee` — 블로그 아님, 12-05 점검.
