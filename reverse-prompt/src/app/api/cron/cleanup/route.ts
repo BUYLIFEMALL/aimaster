@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { json } from "@/lib/aiRoute";
 import { BUCKET, TEMP_TTL_MS } from "@/lib/rpa/media";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
+import { retentionExemptFilter } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,12 +18,13 @@ export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET?.trim();
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return json({ error: "unauthorized" }, 401);
   const admin = createAdminClient();
+  const exemptFilter = await retentionExemptFilter(admin); // 예외 회원(관리자·시험 계정)은 지우지 않는다. 못 읽으면 오류로 멈춤
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   let rows = 0;
   const counts: CleanupCounts = new Map();
   for (let round = 0; round < MAX_ROUNDS; round++) {
-    const { data: old, error } = await admin.from("reverse_prompt_history").select("id, user_id").lt("created_at", cutoff).limit(BATCH);
+    const { data: old, error } = await admin.from("reverse_prompt_history").select("id, user_id").lt("created_at", cutoff).not("user_id", "in", exemptFilter).limit(BATCH);
     if (error) return json({ error: error.message }, 500);
     if (!old?.length) break;
     const { error: delErr } = await admin.from("reverse_prompt_history").delete().in("id", old.map((r) => r.id as string));
@@ -38,6 +40,7 @@ export async function GET(request: Request) {
   const { data: folders } = await store.list("", { limit: 1000 });
   for (const f of folders ?? []) {
     if (f.id) continue; // 폴더만(파일은 id가 있음)
+    if (exemptFilter.includes(f.name)) continue; // 예외 회원 폴더
     const { data: items } = await store.list(f.name, { limit: 1000 });
     const stale = (items ?? []).filter((x) => x.created_at && Date.now() - new Date(x.created_at).getTime() > TEMP_TTL_MS).map((x) => `${f.name}/${x.name}`);
     for (let i = 0; i < stale.length; i += 100) await store.remove(stale.slice(i, i + 100));
