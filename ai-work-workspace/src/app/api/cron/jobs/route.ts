@@ -9,6 +9,8 @@ import "@/litpage/server/retention.ts";
 import "@/server/runtime";
 import { runAiRetention } from "@/server/aiRetention";
 import { runWorkInboxRetention } from "@/server/workInbox";
+import { loadRetentionExemptIds } from "@/server/retentionExempt";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -21,20 +23,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const ran = await withRequestCache(() => runDueJobs());
-  let ai: unknown = null;
+  // 30일 자동 삭제 예외 회원(관리자·시험 계정). 목록을 못 읽으면 두 정리를 모두 건너뛴다(다음 날 다시)
+  let exempt: Set<string> | null = null;
   try {
-    ai = withRequestCache(() => runAiRetention());
+    exempt = await loadRetentionExemptIds(createAdminClient());
   } catch (e) {
-    console.error(`[cron] ai retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
-    ai = { error: "failed" };
+    console.error(`[cron] retention exempt list failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
   }
-  // U7: 업무 받은편지함 30일 자동 삭제
-  let inbox: unknown = null;
-  try {
-    inbox = await runWorkInboxRetention();
-  } catch (e) {
-    console.error(`[cron] work inbox retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
-    inbox = { error: "failed" };
+  let ai: unknown = { skipped: "exempt list unavailable" };
+  let inbox: unknown = { skipped: "exempt list unavailable" };
+  if (exempt) {
+    const keep = exempt;
+    try {
+      ai = withRequestCache(() => runAiRetention(Date.now(), 2_000, keep));
+    } catch (e) {
+      console.error(`[cron] ai retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
+      ai = { error: "failed" };
+    }
+    // U7: 업무 받은편지함 30일 자동 삭제
+    try {
+      inbox = await runWorkInboxRetention(Date.now(), keep);
+    } catch (e) {
+      console.error(`[cron] work inbox retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
+      inbox = { error: "failed" };
+    }
   }
   return NextResponse.json({ ran, ai, inbox });
 }

@@ -13,6 +13,7 @@ import { compactId } from "#shared/ids.ts";
 import { inboxRowCsv } from "./workInboxCsv";
 import { uncheckedTodos, pageAsTask, type PlannerTask } from "./workInboxPlannerItems";
 import { sendToWorkInbox } from "@/lib/workInbox";
+import { exemptInFilter } from "./retentionExempt";
 import type { BlockRecord, CollectionRecord, SpaceRecord, SpaceViewRecord, UserRootRecord, UserSettingsRecord } from "#shared/records.ts";
 
 const APP_ORIGIN = "https://ai-work-workspace.buylife.xyz";
@@ -194,10 +195,14 @@ export const workInboxHandlers: Record<string, Handler> = {
   },
 };
 
-/** 30일 자동 삭제(운영 정리 작업) — 생성 30일 지난 받은편지함 줄. 가져가 만든 페이지·표 행은 남는다. */
-export async function runWorkInboxRetention(now = Date.now()): Promise<{ deleted: number }> {
+/** 30일 자동 삭제(운영 정리 작업) — 생성 30일 지난 받은편지함 줄. 가져가 만든 페이지·표 행은 남는다.
+ *  exempt: 30일 자동 삭제 예외 회원 id(관리자·시험 계정) — 이 회원들의 줄은 지우지 않는다. */
+export async function runWorkInboxRetention(now = Date.now(), exempt: ReadonlySet<string> = new Set()): Promise<{ deleted: number }> {
   const cutoff = new Date(now - WORK_INBOX_RETENTION_DAYS * 86_400_000).toISOString();
-  const { data, error } = await createAdminClient().from("work_inbox").delete().lt("created_at", cutoff).select("id");
+  let q = createAdminClient().from("work_inbox").delete().lt("created_at", cutoff);
+  const skip = exemptInFilter(new Set(exempt));
+  if (skip) q = q.not("user_id", "in", skip);
+  const { data, error } = await q.select("id");
   if (error) throw new Error(`work_inbox retention failed: ${error.message}`);
   return { deleted: data?.length ?? 0 };
 }

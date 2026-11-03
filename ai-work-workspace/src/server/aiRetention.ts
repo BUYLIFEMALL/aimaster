@@ -20,9 +20,12 @@ export interface AiRetentionResult {
   feedback: number;
 }
 
-export function runAiRetention(now = Date.now(), limit = 2_000): AiRetentionResult {
+/** exempt: 30일 자동 삭제 예외 회원 id(관리자·시험 계정, src/server/retentionExempt.ts) — 이 회원들의 기록은 지우지 않는다. */
+export function runAiRetention(now = Date.now(), limit = 2_000, exempt: ReadonlySet<string> = new Set()): AiRetentionResult {
   const cutoff = now - AI_RETENTION_DAYS * DAY;
-  const ids = (db.prepare("SELECT id FROM ai_threads WHERE created_time < ? ORDER BY created_time LIMIT ?").all(cutoff, limit) as { id: string }[]).map((r) => r.id);
+  const skip = [...exempt];
+  const notExempt = (col: string) => (skip.length ? ` AND (${col} IS NULL OR ${col} NOT IN (${skip.map(() => "?").join(", ")}))` : "");
+  const ids = (db.prepare(`SELECT id FROM ai_threads WHERE created_time < ?${notExempt("user_id")} ORDER BY created_time LIMIT ?`).all(cutoff, ...skip, limit) as { id: string }[]).map((r) => r.id);
   let messages = 0;
   let changes = 0;
   let threads = 0;
@@ -35,8 +38,8 @@ export function runAiRetention(now = Date.now(), limit = 2_000): AiRetentionResu
     threads += db.prepare(`DELETE FROM ai_threads WHERE id IN (${marks})`).run(...part).changes;
   }
   // 대화에 묶이지 않은 오래된 되돌리기 기록(대화 없이 쓴 AI 글쓰기 등)
-  changes += db.prepare("DELETE FROM ai_changes WHERE created_time < ?").run(cutoff).changes;
-  const runs = db.prepare("DELETE FROM agent_runs WHERE created_time < ?").run(cutoff).changes;
-  const feedback = db.prepare("DELETE FROM ai_formula_feedback WHERE time < ?").run(cutoff).changes;
+  changes += db.prepare(`DELETE FROM ai_changes WHERE created_time < ?${notExempt("user_id")}`).run(cutoff, ...skip).changes;
+  const runs = db.prepare(`DELETE FROM agent_runs WHERE created_time < ?${notExempt("actor_id")}`).run(cutoff, ...skip).changes;
+  const feedback = db.prepare(`DELETE FROM ai_formula_feedback WHERE time < ?${notExempt("user_id")}`).run(cutoff, ...skip).changes;
   return { threads, messages, changes, runs, feedback };
 }
