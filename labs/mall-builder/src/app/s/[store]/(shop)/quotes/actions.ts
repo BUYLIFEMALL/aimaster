@@ -38,6 +38,7 @@ export async function orderFromQuoteAction(slug: string, quoteId: string, _prev:
     p_depositor: values.depositor,
     p_memo: values.memo,
     p_expected_total: Number.isFinite(expected) ? expected : -1,
+    p_pay_method: form.get("pay_method") === "credit" ? "credit" : "bank", // 6칸 함수(0019) — 외상 검사·한도·장부는 DB가
   });
   if (error) return { ...values, error: error.message };
   const row = (data as { order_id: string; order_no: string }[] | null)?.[0];

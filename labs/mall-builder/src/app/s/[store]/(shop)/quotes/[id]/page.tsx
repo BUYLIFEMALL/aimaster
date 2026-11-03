@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getMyAddresses, getMyCustomer, getQuote, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
+import { getCreditLedger, getMyAddresses, getMyCustomer, getQuote, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
 import { QUOTE_STATUS_LABEL, displayStatus } from "@/lib/quotes";
 import { cartTotals } from "@/lib/pricing";
 import { regionOfZip, type Region } from "@/lib/shipping";
@@ -41,8 +41,11 @@ export default async function QuoteDetailPage({
     // 배송비 정책은 상품에서 — 견적가 합계로 정책 묶음별 계산(주문 DB 함수와 같은 방식)
     const supabase = await createClient();
     const ids = items.map((i) => i.product_id).filter((x): x is string => !!x);
-    const { data: prods } = ids.length ? await supabase.from("mall_builder_products").select("id, shipping_policy_id").in("id", ids) : { data: [] };
-    const policyOf = new Map((prods ?? []).map((p) => [p.id as string, p.shipping_policy_id as string | null]));
+    const { data: prods } = ids.length ? await supabase.rpc("mall_builder_shop_products", { p_store_id: store.id, p_ids: ids, p_limit: 200 }) : { data: [] };
+    const policyOf = new Map(((prods ?? []) as { id: string; shipping_policy_id: string | null }[]).map((p) => [p.id, p.shipping_policy_id]));
+    // 외상: 승인 사업자이고 한도가 있을 때만(장바구니 주문서와 같은 조건, DB 함수가 한 번 더 검사)
+    const isBusiness = customer?.approval_status === "approved" && !!customer.grade?.is_business;
+    const credit = customer && isBusiness && customer.credit_limit > 0 ? { limit: customer.credit_limit, balance: (await getCreditLedger(customer.id)).balance } : undefined;
     const lines = items.map((i) => ({ lineTotal: (i.quoted_price ?? 0) * i.qty, policyId: i.product_id ? policyOf.get(i.product_id) ?? null : null, orderable: true }));
     const totalsByRegion = Object.fromEntries(
       (["mainland", "jeju", "island"] as Region[]).map((r) => {
@@ -65,7 +68,8 @@ export default async function QuoteDetailPage({
           defaultDepositor={customer?.name ?? ""}
           bankText={info.bank_name && info.bank_account ? `${info.bank_name} ${info.bank_account}${info.bank_holder ? ` (예금주 ${info.bank_holder})` : ""}` : "입금 계좌는 주문 후 안내됩니다."}
           action={orderFromQuoteAction.bind(null, store.slug, quote.id)}
-          note="견적가 그대로 주문합니다. 장바구니는 그대로 남습니다. 입금이 확인되면 배송을 준비합니다."
+          credit={credit}
+          note="견적가 그대로 주문합니다. 장바구니는 그대로 남습니다. 무통장은 입금이 확인되면, 외상은 바로 배송을 준비합니다."
         />
       );
   }
