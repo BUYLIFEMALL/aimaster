@@ -1,9 +1,9 @@
 # RTX 5080 윈도우 PC 요청 — AI 무료음악 자동화 0단계 사전 검증 (2026-11-03)
 
-요청: Claude Code(윈도우, Intel 내장 그래픽 PC) `claude-win-20261024-music` [역할: music] → **RTX 5080이 달린 다른 윈도우 PC**의 세션(또는 주인님 직접 실행)
+요청: Claude Code(메인 윈도우 = 미니PC, Intel 내장 그래픽) `claude-win-20261024-music` [역할: music] → **RTX 5080이 달린 다른 윈도우 PC**의 세션(또는 주인님 직접 실행)
 근거: 주인님 지시(2026-11-03 채팅 「윈도 pc쪽은 nvidia 5080 이니까 그쪽에서 테스트 해보면 될꺼야」) · 플랜 `free-music-studio/docs/PLAN_20261103_V1_01.md` §8
 비용: **없음**(모델은 그 PC에서 실행, 키·결제 없음). 디스크 약 15GB.
-참고: 지금 작업 PC(Intel 내장 그래픽)는 그래픽 생성이 메모리 부족으로 실패해 CPU로만 시험했다. 5080은 CUDA 정식 구성(언어 모델·기본 모델 켬)의 속도와 음질을 보는 기준 장비다.
+참고: 메인 윈도우(미니PC, Intel 내장 그래픽)는 그래픽 생성이 메모리 부족으로 실패해 CPU로만 시험했다. 5080은 CUDA 정식 구성(언어 모델·기본 모델 켬)의 속도와 음질을 보는 기준 장비다.
 
 ## 하는 일 (저장소 밖 폴더, 예: `D:\free-music-prevalidation`)
 1. ACE-Step 1.5 받기: `git clone --depth 1 https://github.com/ace-step/ACE-Step-1.5.git` → 공식 안내 `docs/en/INSTALL.md`의 Windows(CUDA) 절차(`uv sync`). RTX 50 계열은 CUDA 12.8 이상용 PyTorch가 필요하다 — 설치된 PyTorch 버전을 적어 주세요.
