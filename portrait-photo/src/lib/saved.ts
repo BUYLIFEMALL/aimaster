@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { retentionCleanupBlocked } from "@/lib/retentionExempt";
 
 // 서버 보관함(선택 기능): 회원이 직접 켠 경우에만 "생성 결과"를 비공개 버킷에 저장한다. 원본 사진은 저장하지 않는다.
 // 모든 쿼리는 service role로 실행되므로 반드시 user_id로 직접 거른다(멀티테넌시 원칙 2번).
@@ -26,6 +27,7 @@ export function expiredFilter(now: Date = new Date()): string {
 /** 보관 기간이 지난 사진을 저장소와 목록에서 지운다(목록·저장 때 그 회원 것, 매일 정리 작업은 전체 — api/cron/cleanup) */
 export async function purgeExpired(userId: string): Promise<number> {
   const admin = createAdminClient();
+  if (await retentionCleanupBlocked(admin, userId)) return 0; // 30일 삭제 예외 회원(2026-11-03)
   const { data } = await admin
     .from("portrait_photo_saved")
     .select("id, path")
