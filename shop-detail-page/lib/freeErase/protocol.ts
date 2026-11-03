@@ -7,6 +7,10 @@ const OCR_COMMIT = "1cfba2e90fc938db55889873735088de210cc173";
 // E5 무료 이미지 도구(2026-10-26): 배경 지우기 U²-Net 경량판·얼굴 찾기 UltraFace RFB-320
 const U2NETP_COMMIT = "7112208dbac3a3642496c8d54e2f0f9bb3dc1dc8";
 const RFB_COMMIT = "6fd293d22b523ec88959f104b8eef5395e3adfbc";
+// E5-4(2026-11-03): 한글 이름·주소 가리기용 한국어 글자 읽기(PaddlePaddle 공식, 받기 제한 없음)
+const KOREC_COMMIT = "5c6f574b8e2230adf4287b33e736d71b9fabd28e";
+/** 한국어 모델 글자 목록(11,945자, 출력 0번은 빈칸·마지막은 띄어쓰기) — 같은 커밋의 inference.yml `character_dict` */
+export const KOREC_DICT_URL = `https://huggingface.co/PaddlePaddle/korean_PP-OCRv5_mobile_rec_onnx/resolve/${KOREC_COMMIT}/inference.yml`;
 export const FREE_ERASE_MODELS = {
   lama: {
     url: `https://huggingface.co/Carve/LaMa-ONNX/resolve/${LAMA_COMMIT}/lama_fp32.onnx`,
@@ -38,6 +42,12 @@ export const FREE_ERASE_MODELS = {
     bytes: 1_270_727,
     license: "Apache-2.0 · Ultra-Light-Fast-Generic-Face-Detector RFB-320 · ONNX Model Zoo",
     page: "https://huggingface.co/onnxmodelzoo/version-RFB-320",
+  },
+  korec: {
+    url: `https://huggingface.co/PaddlePaddle/korean_PP-OCRv5_mobile_rec_onnx/resolve/${KOREC_COMMIT}/inference.onnx`,
+    bytes: 13_418_787,
+    license: "Apache-2.0 · PaddleOCR PP-OCRv5 korean mobile rec(PaddlePaddle)",
+    page: "https://huggingface.co/PaddlePaddle/korean_PP-OCRv5_mobile_rec_onnx",
   },
 } as const;
 /** 캐시 이름에 모델 커밋을 넣어, 모델을 바꾸면 새로 받게 한다 */

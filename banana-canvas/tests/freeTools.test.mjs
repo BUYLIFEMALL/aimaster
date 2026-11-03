@@ -148,3 +148,33 @@ test("E5-4 숫자 자리 기준: 회원이 정한 개수·비율로 판정하고
   assert.deepEqual(clampDigitRule("깨진 값"), DEFAULT_DIGIT_RULE);
   assert.deepEqual(clampDigitRule({ minDigits: 6.4, ratio: 0.66 }), { minDigits: 6, ratio: 0.7 });
 });
+
+import { decodeCtcText, parseCharDict, privateKind, recInputBgr } from "../src/lib/freeTools/calc.ts";
+
+test("E5-4 한글: 글자 목록 읽기·출력 풀기·BGR 입력", () => {
+  const yml = "PostProcess:\n  name: CTCLabelDecode\n  character_dict:\n  - 가\n  - 나\n  - ''''\n  - '-'\n  - 다\nOther: 1\n";
+  const chars = parseCharDict(yml);
+  assert.deepEqual(chars, ["가", "나", "'", "-", "다"]);
+  // T=5, C=7(빈칸 0 + 글자 5 + 띄어쓰기 6): 가 가 빈칸 띄어쓰기 다
+  const pick = [1, 1, 0, 6, 5], C = 7, scores = new Float32Array(pick.length * C);
+  pick.forEach((k, t) => { scores[t * C + k] = 1; });
+  assert.equal(decodeCtcText(scores, pick.length, C, chars), "가 다");
+  const bgr = recInputBgr([255, 0, 0, 255], 1, 1); // 빨강 한 점 → B, G, R 순
+  assert.deepEqual([...bgr], [-1, -1, 1]);
+});
+
+test("E5-4 한글: 사전 검증에서 실제로 읽은 글자로 숫자·이름·주소 판정, 상품 글자는 제외", () => {
+  // 2026-11-03 ego 사전 검증 결과(모델이 읽은 그대로)
+  assert.equal(privateKind("서울특별시 강남구 테혜란로123"), "address");
+  assert.equal(privateKind("받는분 홍길동"), "name");
+  assert.equal(privateKind("경기도 성남시 분당구 정자일로95"), "address");
+  assert.equal(privateKind("010-234-5678"), "number");
+  assert.equal(privateKind("스텐팀블러500m"), null);
+  assert.equal(privateKind("수령인: 김영희"), "name");
+  assert.equal(privateKind("역삼동 123-45번지"), "address");
+  // 상품 크기·소재 표기는 주소가 아니다
+  assert.equal(privateKind("가로 30cm 세로 20cm"), null);
+  assert.equal(privateKind("순면 100%"), null);
+  assert.equal(privateKind("보온 텀블러"), null);
+  assert.equal(privateKind(""), null);
+});

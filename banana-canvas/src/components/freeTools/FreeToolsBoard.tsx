@@ -6,13 +6,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import JSZip from "jszip";
 import { Download, ImagePlus, Trash2 } from "lucide-react";
 import { detectTextBoxes, loadFreeErase, type FreeEraseError } from "@/lib/freeErase/engine";
+import { FREE_ERASE_MODELS } from "@/lib/freeErase/protocol";
 import { readBitmap } from "@/lib/batch/render";
 import { NUKKI_SENDER_ORIGIN, NUKKI_MSG_READY, NUKKI_MSG_RESULT, NUKKI_RESULT_MAX_BYTES, readNukkiFile } from "@/lib/nukkiHandoff";
 import { BATCH_FROM_TOOLS, prepareText, putForBatch } from "@/lib/freeTools/toBatch";
 import { DEFAULT_DIGIT_RULE, SPLIT_LAYOUTS, clampDigitRule, clampRect, evenCuts, moveCut, pieceNames, splitRects, type DigitRule, type Rect, type SplitLayout } from "@/lib/freeTools/calc";
 
 const DIGIT_RULE_KEY = "banana-free-tools-digit-rule";
-import { autoBgMask, autoFaces, composeBg, composeHide, cropPiece, keepNumberBoxes, paintMask, toBlob, type HideMode } from "@/lib/freeTools/render";
+import { autoBgMask, autoFaces, composeBg, composeHide, cropPiece, keepNumberBoxes, keepPrivateBoxes, paintMask, toBlob, type HideMode } from "@/lib/freeTools/render";
 
 type Tab = "bg" | "face" | "split";
 const TABS: { id: Tab; label: string }[] = [
@@ -139,6 +140,8 @@ export function FreeToolsBoard() {
     } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
   }
   const [digitsOnly, setDigitsOnly] = useState(true);
+  // E5-4: 숫자 자리에 더해 한글 이름(이름표 뒤)·주소도 찾기 — 한국어 모델 13MB를 처음 한 번 받으므로 기본 끔
+  const [koreanToo, setKoreanToo] = useState(false);
   // E5-4: 숫자 자리 판정 기준 — 이 브라우저에만 기억(localStorage). 막히면 기본값으로 동작
   const [digitRule, setDigitRule] = useState<DigitRule>(DEFAULT_DIGIT_RULE);
   useEffect(() => {
@@ -167,8 +170,8 @@ export function FreeToolsBoard() {
   function clearAll() { items.forEach((it) => remove(it.id)); }
 
   /** 모델 준비(첫 회 내려받기 진행률 표시) */
-  async function prepare(model: "bg" | "face" | "det" | "rec") {
-    const label = model === "bg" ? "배경 지우기" : model === "face" ? "얼굴 찾기" : model === "det" ? "글자 찾기" : "글자 읽기";
+  async function prepare(model: "bg" | "face" | "det" | "rec" | "korec") {
+    const label = model === "bg" ? "배경 지우기" : model === "face" ? "얼굴 찾기" : model === "det" ? "글자 찾기" : model === "korec" ? "한글 읽기" : "글자 읽기";
     setBusy(`${label} 준비 중…`);
     await loadFreeErase(model, (p) => setBusy(prepareText(label, p.loaded, p.total)));
   }
@@ -209,13 +212,19 @@ export function FreeToolsBoard() {
       const bm = bitmaps.current.get(cur.id)!;
       let boxes = await detectTextBoxes(bm, cur.w, cur.h);
       const found = boxes.length;
-      if (digitsOnly && found) {
+      let detail = "";
+      if (digitsOnly && found && koreanToo) {
+        await prepare("korec"); setBusy(`글자 ${found}곳을 한글로 읽어 숫자·이름·주소 자리를 고르는 중…`);
+        const r = await keepPrivateBoxes(bm, cur.w, cur.h, boxes, digitRule);
+        boxes = r.rects;
+        detail = ` (숫자 ${r.kinds.number} · 이름 ${r.kinds.name} · 주소 ${r.kinds.address})`;
+      } else if (digitsOnly && found) {
         await prepare("rec"); setBusy(`글자 ${found}곳을 읽어 숫자 자리를 고르는 중…`);
         boxes = await keepNumberBoxes(bm, cur.w, cur.h, boxes, digitRule);
       }
       setFaces((f) => ({ ...f, [cur.id]: [...(f[cur.id] ?? []), ...boxes] }));
       setNotice(boxes.length
-        ? `✅ ${digitsOnly ? `글자 ${found}곳 중 숫자가 많은 자리 ${boxes.length}곳` : `글자 자리 ${boxes.length}곳`}을 더 가렸습니다. 가릴 필요 없는 곳은 네모를 눌러서 빼세요.`
+        ? `✅ ${digitsOnly ? `글자 ${found}곳 중 ${koreanToo ? "숫자·이름·주소" : "숫자가 많은"} 자리 ${boxes.length}곳${detail}` : `글자 자리 ${boxes.length}곳`}을 더 가렸습니다. 가릴 필요 없는 곳은 네모를 눌러서 빼고, 빠진 곳은 끌어서 더하세요.`
         : digitsOnly && found ? `글자 ${found}곳을 찾았지만 숫자가 많은 자리는 없었습니다. 필요하면 「숫자가 많은 자리만」을 끄고 다시 눌러 주세요.` : "글자를 찾지 못했습니다. 가릴 곳을 끌어서 네모로 그려 주세요.");
     } catch (e) { setNotice(errorText(e)); } finally { setBusy(null); }
   }
@@ -492,8 +501,16 @@ export function FreeToolsBoard() {
                     <button type="button" className="button" onClick={() => changeDigitRule(DEFAULT_DIGIT_RULE)}>기본값</button>
                   </div>
                 )}
+                {digitsOnly && (
+                  <label className="bp-row" style={{ marginBottom: 6 }}>
+                    <input type="checkbox" checked={koreanToo} onChange={(e) => setKoreanToo(e.target.checked)} />한글 이름·주소도(「받는분 홍길동」처럼 이름표 뒤 이름, 시·구·로·동 주소 — 처음 한 번 한글 읽기 모델 약 13MB)
+                  </label>
+                )}
+                {digitsOnly && koreanToo && (
+                  <p className="bp-hint" style={{ marginTop: 0 }}>모델: <a href={FREE_ERASE_MODELS.korec.page} target="_blank" rel="noopener noreferrer">{FREE_ERASE_MODELS.korec.license}</a> · 사진은 이 브라우저 안에서만 읽고 어디에도 보내지 않습니다.</p>
+                )}
                 <button type="button" className="button bp-go" disabled={!cur || !!busy} onClick={() => void runText()}>{digitsOnly ? "숫자 자리 찾아 가리기" : "글자 자리 모두 찾아 가리기"}</button>
-                <p className="bp-hint">{digitsOnly ? `글자를 읽어 숫자가 ${digitRule.minDigits}개 이상이고 글자의 ${Math.round(digitRule.ratio * 100)}% 이상인 자리만 가립니다(처음 한 번 약 5MB+11MB 모델을 받습니다). 너무 적게 잡히면 숫자 개수·비율을 낮추고, 상품명까지 잡히면 높이세요. 한글은 읽지 못해 이름·주소는 끌어서 직접 가려 주세요.` : "글자를 읽지 않고 자리만 찾으므로 상품명 같은 다른 글자도 가려집니다. 필요 없는 네모는 눌러서 빼세요(처음 한 번 약 5MB 모델을 받습니다)."}</p>
+                <p className="bp-hint">{digitsOnly ? `글자를 읽어 숫자가 ${digitRule.minDigits}개 이상이고 글자의 ${Math.round(digitRule.ratio * 100)}% 이상인 자리만 가립니다(처음 한 번 약 5MB+11MB 모델을 받습니다). 너무 적게 잡히면 숫자 개수·비율을 낮추고, 상품명까지 잡히면 높이세요. ${koreanToo ? "한글 이름·주소는 「가릴 후보」만 고르므로 손글씨·작은 글씨·기울어진 송장은 빠질 수 있습니다. 결과를 꼭 확인하세요." : "이름·주소도 가리려면 아래 「한글 이름·주소도」를 켜거나 끌어서 직접 가려 주세요."}` : "글자를 읽지 않고 자리만 찾으므로 상품명 같은 다른 글자도 가려집니다. 필요 없는 네모는 눌러서 빼세요(처음 한 번 약 5MB 모델을 받습니다)."}</p>
               </div>
               <div>
                 <span className="bp-label">✍ 손으로 가리기</span>

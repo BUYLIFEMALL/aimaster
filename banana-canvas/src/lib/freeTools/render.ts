@@ -1,7 +1,8 @@
 // E5 「🧰 무료 이미지 도구」 그리기 — 브라우저 전용. 모델 실행은 공용 컴포넌트 browser-free-erase의 runModel(작업자)로.
 // 사진을 캔버스에 새로 그려 저장하므로 촬영 정보·위치 정보(EXIF 등)는 결과 파일에 들어가지 않는다(E4와 같은 방식).
 import { runModel } from "@/lib/freeErase/engine";
-import { BG_SIZE, DEFAULT_DIGIT_RULE, FACE_H, FACE_W, REC_H, bgInput, clampRect, countDigits, faceBoxes, faceInput, isNumberish, mosaicCell, probToAlpha, recInput, recWidth, type DigitRule, type Rect } from "./calc";
+import { KOREC_DICT_URL, modelCache } from "@/lib/freeErase/protocol";
+import { BG_SIZE, DEFAULT_DIGIT_RULE, FACE_H, FACE_W, REC_H, bgInput, clampRect, countDigits, decodeCtcText, faceBoxes, faceInput, isNumberish, mosaicCell, parseCharDict, privateKind, probToAlpha, recInput, recInputBgr, recWidth, type DigitRule, type PrivateKind, type Rect } from "./calc";
 
 export function makeCanvas(w: number, h: number): HTMLCanvasElement {
   const c = document.createElement("canvas"); c.width = w; c.height = h; return c;
@@ -76,6 +77,41 @@ export async function keepNumberBoxes(src: CanvasImageSource, w: number, h: numb
     if (isNumberish(countDigits(o.data, o.dims[1], o.dims[2]), rule)) out.push(raw);
   }
   return out;
+}
+
+/** 한국어 모델 글자 목록(96KB)을 모델과 같은 캐시에 두고 읽는다 — 처음 한 번만 받는다 */
+let koreanChars: Promise<string[]> | null = null;
+export function loadKoreanChars(): Promise<string[]> {
+  koreanChars ??= (async () => {
+    let res: Response | undefined;
+    try { res = await (await caches.open(modelCache("korec"))).match(KOREC_DICT_URL); } catch { /* 캐시를 못 쓰면 바로 받기 */ }
+    if (!res) {
+      res = await fetch(KOREC_DICT_URL);
+      if (!res.ok) throw new Error("한글 글자 목록을 받지 못했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.");
+      try { await (await caches.open(modelCache("korec"))).put(KOREC_DICT_URL, res.clone()); } catch { /* 저장만 못 함 */ }
+    }
+    const chars = parseCharDict(await res.text());
+    if (chars.length < 1000) throw new Error("한글 글자 목록이 올바르지 않습니다. 잠시 뒤 다시 시도해 주세요.");
+    return chars;
+  })().catch((e) => { koreanChars = null; throw e; });
+  return koreanChars;
+}
+
+/** E5-4: 글자 자리마다 한국어 모델로 읽고 숫자·이름표 뒤 이름·주소인 자리만 남긴다. 최대 40곳 */
+export async function keepPrivateBoxes(src: CanvasImageSource, w: number, h: number, boxes: Rect[], rule: DigitRule = DEFAULT_DIGIT_RULE): Promise<{ rects: Rect[]; kinds: Record<PrivateKind, number> }> {
+  const chars = await loadKoreanChars();
+  const rects: Rect[] = [], kinds: Record<PrivateKind, number> = { number: 0, name: 0, address: 0 };
+  for (const raw of boxes.slice(0, 40)) {
+    const r = clampRect(raw, w, h);
+    if (r.w < 4 || r.h < 4) continue;
+    const W = recWidth(r.w, r.h), c = makeCanvas(W, REC_H), x = ctx2d(c);
+    x.fillStyle = "#fff"; x.fillRect(0, 0, W, REC_H);
+    x.drawImage(src, r.x, r.y, r.w, r.h, 0, 0, W, REC_H);
+    const [o] = await runModel("korec", recInputBgr(x.getImageData(0, 0, W, REC_H).data, W), [1, 3, REC_H, W]);
+    const kind = privateKind(decodeCtcText(o.data, o.dims[1], o.dims[2], chars), rule);
+    if (kind) { rects.push(raw); kinds[kind]++; }
+  }
+  return { rects, kinds };
 }
 
 export type HideMode = "pixel" | "blur" | "fill";

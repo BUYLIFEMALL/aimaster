@@ -163,3 +163,65 @@ export function clampDigitRule(raw: unknown): DigitRule {
 /** 숫자가 많은 자리인가 — 기본: 숫자 4개 이상이면서 글자의 절반 이상이 숫자(전화번호·송장·주문번호). 「500ml」 같은 짧은 숫자는 제외 */
 export const isNumberish = (r: { chars: number; digits: number }, rule: DigitRule = DEFAULT_DIGIT_RULE) =>
   r.digits >= rule.minDigits && r.digits >= r.chars * rule.ratio;
+
+/* ───────── E5-4 한글 이름·주소 가리기(한국어 글자 읽기 모델) ───────── */
+
+/** 한국어 모델 inference.yml의 `character_dict` 목록 → 글자 배열(2026-11-03 실측 11,945자) */
+export function parseCharDict(yml: string): string[] {
+  const at = yml.indexOf("character_dict:");
+  if (at < 0) return [];
+  const out: string[] = [];
+  for (const line of yml.slice(at).split("\n").slice(1)) {
+    const m = line.match(/^\s*- (.*)$/);
+    if (!m) { if (out.length && /^\S/.test(line)) break; continue; }
+    let v = m[1];
+    if (/^'.*'$/.test(v)) v = v.slice(1, -1).replace(/''/g, "'");
+    else if (/^".*"$/.test(v)) { try { v = JSON.parse(v); } catch { /* 그대로 */ } }
+    out.push(v);
+  }
+  return out;
+}
+
+/** 읽기 출력(T×C) → 글자(같은 칸 반복·빈칸 0 빼기, chars 다음 칸은 띄어쓰기) */
+export function decodeCtcText(scores: ArrayLike<number>, T: number, C: number, chars: readonly string[]): string {
+  let prev = -1, s = "";
+  for (let t = 0; t < T; t++) {
+    let best = 0, bv = -Infinity;
+    for (let k = 0; k < C; k++) { const v = scores[t * C + k]; if (v > bv) { bv = v; best = k; } }
+    if (best !== prev && best !== 0) s += best <= chars.length ? chars[best - 1] : " ";
+    prev = best;
+  }
+  return s;
+}
+
+/** PaddleOCR 한국어 모델 입력 — BGR 순서, (값/255-0.5)/0.5 */
+export function recInputBgr(rgba: ArrayLike<number>, w: number, h = REC_H): Float32Array {
+  const n = w * h, out = new Float32Array(3 * n);
+  for (let i = 0; i < n; i++) { out[i] = (rgba[i * 4 + 2] / 255 - 0.5) / 0.5; out[n + i] = (rgba[i * 4 + 1] / 255 - 0.5) / 0.5; out[2 * n + i] = (rgba[i * 4] / 255 - 0.5) / 0.5; }
+  return out;
+}
+
+// 이름 앞에 붙는 말(송장·주문서) — 바로 뒤 한글 2~4자를 이름으로 본다
+const NAME_LABEL = /(받는\s?분|받는\s?사람|수령인|수취인|보내는\s?분|보내는\s?사람|주문자|구매자|고객명|성함|이름|예금주)\s*[:：]?\s*([가-힣]{2,4})/;
+// 주소: 시·도 + 시·군·구, 도로명(로·길 + 번호), 동·읍·면·리 + 번지.
+// 숫자 뒤에 단위가 오면 상품 크기(「가로 30cm」「순면 100%」)라서 주소로 보지 않는다.
+const NOT_UNIT = String.raw`(?!\s*(cm|mm|ml|kg|g|m|l|개|인치|%|\d))`;
+const ADDRESS = [
+  /(서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주|충청|전라|경상)[가-힣]*(특별시|광역시|특별자치시|특별자치도|도|시)?\s*[가-힣]{1,6}(시|군|구)/,
+  new RegExp(String.raw`[가-힣0-9]{1,10}(로|길)\s*\d{1,4}(-\d{1,4})?` + NOT_UNIT, "i"),
+  new RegExp(String.raw`[가-힣]{1,6}(동|읍|면|리)\s*\d{1,5}(-\d{1,5})?` + NOT_UNIT + String.raw`\s*(번지)?`, "i"),
+];
+
+export type PrivateKind = "number" | "name" | "address";
+
+/** 읽은 글자로 가릴 자리인지 판단 — 숫자(기준 rule), 이름표 뒤 이름, 주소. 아니면 null. 「가릴 후보」만 고르고 회원이 확인한다 */
+export function privateKind(text: string, rule: DigitRule = DEFAULT_DIGIT_RULE): PrivateKind | null {
+  const t = text.trim();
+  if (!t) return null;
+  const compact = t.replace(/\s/g, "");
+  const digits = (compact.match(/\d/g) ?? []).length;
+  if (isNumberish({ chars: compact.length, digits }, rule)) return "number";
+  if (NAME_LABEL.test(t)) return "name";
+  if (ADDRESS.some((re) => re.test(t))) return "address";
+  return null;
+}
