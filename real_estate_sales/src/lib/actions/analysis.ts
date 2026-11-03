@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { analyzeListing } from "@/lib/ai/analyze";
-import type { AnalysisModel } from "@/lib/ai/models";
+import { resolveAnalysisModel, type AnalysisModel } from "@/lib/ai/models";
 import { getDistrictSentiment } from "@/lib/ai/sentiment";
 import { ensureLandInfo } from "@/lib/realestate/collect";
 import { resolveMemberPublicDataKeys } from "@/lib/publicdata/memberKeys";
@@ -163,7 +163,7 @@ export async function ensureListingAnalysis(
     .eq("user_id", userId)
     .maybeSingle();
 
-  const model = (pref?.preferred_model ?? "gpt-5.6-luna") as AnalysisModel;
+  const model = resolveAnalysisModel(pref?.preferred_model);
 
   // 키가 없으면 조용히 건너뛴다 — 페이지는 "설정에서 키/모델을 등록해주세요" 안내만 보여준다.
   await runListingAnalysis(supabase, userId, listingId, model).catch(() => undefined);
@@ -198,7 +198,7 @@ export async function reanalyzeListingAction(
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const model = (pref?.preferred_model ?? "gpt-5.6-luna") as AnalysisModel;
+  const model = resolveAnalysisModel(pref?.preferred_model);
 
   const result = await runListingAnalysis(supabase, user.id, listingId, model);
   if (result.error) {

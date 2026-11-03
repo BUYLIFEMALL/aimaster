@@ -14,7 +14,7 @@ import { normalizeDealTypes, normalizePropertyTypes } from "@/lib/publicdata/mol
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import type { ApiKeyProvider } from "@/types/database.types";
-import type { AnalysisModel } from "@/lib/ai/models";
+import { resolveAnalysisModel } from "@/lib/ai/models";
 
 const PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity"];
 const PUBLIC_DATA_PROVIDERS: ApiKeyProvider[] = [
@@ -122,7 +122,7 @@ export default async function SettingsPage() {
           <br />
           상세 화면은 열기만 해서는 분석하지 않습니다(요금은 버튼을 누를 때만).
         </p>
-        <ModelPreferenceForm currentModel={(preference?.preferred_model as AnalysisModel) ?? null} />
+        <ModelPreferenceForm currentModel={preference?.preferred_model ? resolveAnalysisModel(preference.preferred_model) : null} />
       </section>
 
       <section>

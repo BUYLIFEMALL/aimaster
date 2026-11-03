@@ -4,7 +4,7 @@ import { normalizeDealTypes, normalizePropertyTypes } from "@/lib/publicdata/mol
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import type { AnalysisModel } from "@/lib/ai/models";
+import { resolveAnalysisModel, type AnalysisModel } from "@/lib/ai/models";
 
 export interface PreferencesActionState {
   error?: string;
@@ -16,11 +16,12 @@ export async function savePreferredModelAction(
   formData: FormData,
 ): Promise<PreferencesActionState> {
   const user = await requireProgramAccess();
-  const model = String(formData.get("model") ?? "") as AnalysisModel;
+  const raw = String(formData.get("model") ?? "");
 
-  if (!model) {
+  if (!raw) {
     return { error: "모델을 선택해주세요." };
   }
+  const model: AnalysisModel = resolveAnalysisModel(raw);
 
   const supabase = await createClient();
   const { error } = await supabase.from("real_estate_user_preferences").upsert(
