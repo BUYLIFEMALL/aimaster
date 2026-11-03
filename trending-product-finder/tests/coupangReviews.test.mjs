@@ -57,10 +57,10 @@ test("CSV는 BOM과 수식 방지를 넣는다", () => {
   assert.ok(csv.includes(`"'=1+1 ""특가"""`));
 });
 
-test("30일 지난 저장본은 만료로 본다", () => {
+test("1년(365일) 지난 저장본은 만료로 본다", () => {
   const now = 100 * 24 * 60 * 60 * 1000;
-  assert.equal(isExpired(now - 29 * 24 * 60 * 60 * 1000, now), false);
-  assert.equal(isExpired(now - 31 * 24 * 60 * 60 * 1000, now), true);
+  assert.equal(isExpired(now - 364 * 24 * 60 * 60 * 1000, now), false);
+  assert.equal(isExpired(now - 366 * 24 * 60 * 60 * 1000, now), true);
   assert.equal(isExpired(undefined, now), true);
 });
 

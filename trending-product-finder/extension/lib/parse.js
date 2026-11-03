@@ -66,7 +66,8 @@ export function toCsv(items) {
   return "﻿" + [["상품명", "판매가", "리뷰 수", "광고", "상품 주소"], ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
 }
 
-export const RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+// 주인님 지정 1년 보관(2026-11-03, docs/TOP_RULE_PERSONAL_ACCOUNT_API.md §8)
+export const RETENTION_MS = 365 * 24 * 60 * 60 * 1000;
 
 export function isExpired(savedAt, now = Date.now()) {
   return !savedAt || now - savedAt > RETENTION_MS;
