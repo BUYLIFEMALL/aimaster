@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { retentionCutoff } from "@/lib/retention";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
+import { exemptInFilter, loadRetentionExemptIds } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -10,6 +11,7 @@ export const maxDuration = 300;
 // 곡(트랙)·음원·커버·MR·WAV, 리믹스·리믹스 원곡을 생성일 기준 30일이 지나면 지운다(유예 마감 전에는 아무것도 안 함).
 // 저장소 파일은 Storage API로 먼저 지우고 행을 지운다(행이 지워지면 파일 위치를 알 수 없어서).
 // 정밀 기획 보관함(music_studio_projects)은 DB 예약 작업(pg_cron)이 따로 지운다.
+// 관리자·시험 계정(profiles.retention_exempt)은 네 단계 모두에서 제외한다(2026-11-01 승인, docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md). 목록을 못 읽으면 아무것도 지우지 않는다.
 const BUCKET = "music-audio";
 const PREFIX = `${(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "")}/storage/v1/object/public/${BUCKET}/`;
 const BATCH = 100;
@@ -59,16 +61,19 @@ export async function GET(request: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
   const result = { tracks: 0, plannings: 0, remixes: 0, sources: 0, files: 0 };
+  const exempt = exemptInFilter(await loadRetentionExemptIds(db));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const notExempt = (q: any) => (exempt ? q.not("user_id", "in", exempt) : q);
 
   // 1) 곡(트랙): 음원·커버·MR·WAV 파일 → 트랙 행(변형·MR·WAV는 함께 지워짐)
   // 「생성 중」도 지운다(2026-11-03): 생성은 몇 분이면 끝나므로 30일 지난 「생성 중」은 멈춘 행이다(9월 곡 2개가 그대로 남아 있었음).
-  const { data: tracks, error: tracksErr } = await db
+  const { data: tracks, error: tracksErr } = await notExempt(db
     .from("music_tracks")
     .select(
       "id, user_id, music_track_media(urls), music_track_variants!track_id(id, audio_url, image_url, music_track_mr(instrumental_url, vocal_url, stems), music_track_wav(wav_url))",
     )
     .lte("created_at", iso)
-    .limit(BATCH);
+    .limit(BATCH));
   if (tracksErr) throw new Error(`track select failed: ${tracksErr.message}`);
   if (tracks?.length) {
     const urls: unknown[] = [];
@@ -98,11 +103,11 @@ export async function GET(request: NextRequest) {
   }
 
   // 2) 곡이 하나도 남지 않은 30일 지난 기획
-  const { data: plannings, error: planningsErr } = await db
+  const { data: plannings, error: planningsErr } = await notExempt(db
     .from("music_plannings")
     .select("id, music_tracks(id)")
     .lte("created_at", iso)
-    .limit(BATCH);
+    .limit(BATCH));
   if (planningsErr) throw new Error(`planning select failed: ${planningsErr.message}`);
   const emptyPlannings = (plannings ?? []).filter((p: { music_tracks: unknown[] }) => !p.music_tracks?.length);
   if (emptyPlannings.length) {
@@ -111,11 +116,11 @@ export async function GET(request: NextRequest) {
   }
 
   // 3) 리믹스: 결과 음원·커버 → 리믹스 행(결과 행은 함께 지워짐)
-  const { data: remixes, error: remixesErr } = await db
+  const { data: remixes, error: remixesErr } = await notExempt(db
     .from("music_track_remixes")
     .select("id, music_track_remix_variants(audio_url, image_url)")
     .lte("created_at", iso)
-    .limit(BATCH);
+    .limit(BATCH));
   if (remixesErr) throw new Error(`remix select failed: ${remixesErr.message}`);
   if (remixes?.length) {
     const urls: unknown[] = [];
@@ -127,11 +132,11 @@ export async function GET(request: NextRequest) {
 
   // 4) 리믹스가 남지 않은 30일 지난 리믹스 원곡(직접 올린 원곡 파일만 지움 — 내 곡에서 고른 원곡은 그 곡이 지울 때 함께 지워짐)
   // 원곡↔리믹스 연결이 두 개(source_id·second_source_id, v1.37 0019)라 이름을 붙여 따로 받는다 — 하나로 받으면 조회가 PGRST201로 실패해 이 단계가 통째로 건너뛰어졌다(2026-11-03 발견).
-  const { data: sources, error: sourcesErr } = await db
+  const { data: sources, error: sourcesErr } = await notExempt(db
     .from("music_remix_sources")
     .select("id, audio_url, main:music_track_remixes!source_id(id), second:music_track_remixes!second_source_id(id)")
     .lte("created_at", iso)
-    .limit(BATCH);
+    .limit(BATCH));
   if (sourcesErr) throw new Error(`remix source select failed: ${sourcesErr.message}`);
   const emptySources = (sources ?? []).filter((s: { main: unknown[]; second: unknown[] }) => !s.main?.length && !s.second?.length);
   if (emptySources.length) {
