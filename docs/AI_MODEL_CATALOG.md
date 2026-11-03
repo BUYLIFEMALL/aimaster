@@ -76,10 +76,10 @@ Gemini 이미지 모델은 모두 **무료 등급 없음**(회원 결제 연결 
 
 | 모델 | 종료(공식) | 대체 | 실제 사용 프로그램 |
 |---|---|---|---|
-| `gemini-2.5-flash-preview-tts` | **2026-11-17** | `gemini-3.8-flash-tts` | **0** — 3곳 교체 커밋 `9045a5005`(배포 요청 `DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`) |
-| `gpt-image-1`·`-1-mini`·`-1.5`·`chatgpt-image-latest` | 10-23 이미 종료 / 12-01 | `gpt-image-2.5-flare`·`-sunburst` | **0** — 7곳 교체 커밋 `87b12267e`(남은 것은 옛 값 변환표·이미지 스튜디오 갤러리의 옛 기록 이름표) |
+| `gemini-2.5-flash-preview-tts` | **2026-11-17** | `gemini-3.8-flash-tts` | **0** — 3곳 교체 `9045a5005`, 2026-11-03 배포·실제 생성 시험 통과(`d9448b5bb`) |
+| `gpt-image-1`·`-1-mini`·`-1.5`·`chatgpt-image-latest` | 10-23 이미 종료 / 12-01 | `gpt-image-2.5-flare`·`-sunburst` | **0** — 7곳 교체 `87b12267e`, 이미지 스튜디오·플레이리스트·쓰레드 3개 11-03 배포(블로그 2개는 다음 배포), flare 생성·편집 시험 통과(남은 것은 옛 값 변환표·이미지 스튜디오 갤러리의 옛 기록 이름표) |
 | `dall-e-3` | 2026-05-12 이미 종료 | 위와 같음 | 0 (이미지 스튜디오 `types.ts` 주석만) |
-| `o3-mini`·`o1`·`gpt-4-turbo` | 2026-10-23 이미 종료 | `gpt-5.6-sol` | **0** — 타로 교체 커밋 `22fbd1b03` |
+| `o3-mini`·`o1`·`gpt-4-turbo` | 2026-10-23 이미 종료 | `gpt-5.6-sol` | **0** — 타로 교체 `22fbd1b03`, 11-03 배포(v1.28)·gpt-5.6-luna 시험 통과 |
 | `claude-sonnet-4-5` | 2026-11-30 | `claude-sonnet-5-5` | 0 |
 | `gemini-2.5-flash`·`-pro` | 2026-12-01 자동 연결(3.5-flash-lite·3.8-flash) | 1절 | 약 45 — `GEMINI_25_REPLACEMENT_LIST_20261103.md`·`PLAN_20261103_GEMINI_25_MIGRATION.md`(단계 2·3 승인 대기) |
 | `gpt-5` | 2026-12-11 | `gpt-5.6-sol` → 새로는 `gpt-6.1-sol` | 3: ai-auto-blog, naver-blog-seo-studio, tistory-auto-blog |
