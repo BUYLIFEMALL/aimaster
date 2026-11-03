@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 🟡 [역할: ecommerce-image] Claude Code(윈도우) · 세션 claude-win-sdp — 이미지 4·5번: 썸네일·인스타 카드뉴스에 바나나 무료 도구 + 결과 되돌려 넣기(미배포 대기)
+- 한 일(`75bd2728d`): 공용 `nukki-handoff`에 보낸 곳 목록(상세페이지·썸네일 `thumbnail-master.buylife.xyz`·INSTA `auto-instagram-posting.buylife.xyz`)·여는 주소 `nukkiToolsUrl`. 바나나 `src/lib/nukkiReceive.ts` 훅을 「🧰 무료 이미지 도구」와 「🧽 무료 지우기」가 함께 써서 받기·「↩ ○○에 넣기」. 썸네일 결과 칸 「무료 지우기」 → 돌아온 결과를 JPG로 줄여 새 받기 API(`POST /api/projects/[id]`, 권한·본인 프로젝트 확인, 이전 버전 유지)로 새 버전. INSTA 슬라이드 「✂ 누끼·🙈 가리기·🧽 지우기」 → 결과를 기존 직접 첨부 경로로 그 장 새 이미지(배포판에서는 숨김).
+- 검수: 시험 바나나 29·썸네일 19·INSTA 78+2, tsc 4곳, 로컬 build 4곳, 공용 사본 일치. 운영 창끼리 보내기·되돌려 넣기는 배포 뒤 확인(창 주소가 `*.buylife.xyz`일 때만 동작 — 옛 vercel.app 주소에서는 조용히 무시).
+- 다음 첫 단계: 주인님 「배포해」 뒤 바나나(v1.43) → 썸네일·INSTA·상세 각 +0.01 순서로, `docs/PENDING_DEPLOYS.md` 줄 참고. 비용 없음(빌드 0회, AI 0회).
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 로드맵 2단계(만들기 강화) v1.08 배포
 - 주인님 「DB 표 만들어서 2단계 진행해」 → 운영 DB(ref esgxyikcnnvmlhygjkth) `20261104_v1_08_presets.sql` 실행(ego lite SQL 편집기): 표 `free_music_presets` RLS 켜짐·정책 1개, `free_music_songs` 길이 300초 추가 확인.
 - 코드 `273934d52`: 스타일 프리셋 85개(원본 옮김)·내 프리셋 저장/지우기, 노래/연주곡 전환(가사 `[Instrumental]`, 엔진 수정 없음), AI 작곡 기획 1~10곡 `/api/plan`, 가사 다듬기·「지금 가사 다듬기」·금지어·최근 제목 피하기, 목표 길이 5분(기본 3분), 생성 개수 1~4곡. 시험 웹 44·`tsc`·`build` 통과.
