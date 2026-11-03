@@ -22,6 +22,8 @@ export type EngineStatus = {
 
 /** 엔진이 그래픽 메모리에 맞춰 고른 음질 설정(engine/src/device.mjs qualityProfile) */
 export type EngineQuality = {
+  id?: string; // 0.1.5부터 구성 번호(max4b·max·xlturbo·high·standard·basic)
+  name?: string;
   tier: "max" | "high" | "standard" | "basic";
   label: string;
   dit: string;
@@ -36,6 +38,32 @@ export type EngineQuality = {
 export function hasLibrary(status: EngineStatus | null): boolean {
   return !!status?.features?.includes("library");
 }
+
+/** PC 검사·구성 고르기를 쓸 수 있는 엔진인가(0.1.5+) */
+export function hasSystemCheck(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("system");
+}
+
+export type CheckStatus = "ok" | "warn" | "fail";
+export type CheckItem = { label: string; value: string; status: CheckStatus; note: string };
+export type QualityOption = EngineQuality & {
+  id: string;
+  name: string;
+  minVramGb: number;
+  diskGb: number;
+  supported: boolean;
+  recommended: boolean;
+  installed: boolean;
+  reason: string;
+};
+/** 엔진 GET /system — PC 정밀 검사 결과(engine/src/device.mjs checkItems·qualityOptions) */
+export type SystemReport = {
+  system: { os: string; cpu: string; gpu: string; vramGb: number | null; ramGb: number | null; freeGb: number | null; freePath: string; installedModels: string[] };
+  check: { verdict: CheckStatus; headline: string; items: CheckItem[] };
+  options: QualityOption[];
+  selected: string;
+  engines: { id: string; name: string; note: string; selected: boolean }[];
+};
 
 export type SongForEngine = { style_prompt: string; lyrics: string; duration_sec: number };
 
@@ -190,6 +218,17 @@ export async function pairEngine(code: string): Promise<void> {
 
 export function forgetEngine() {
   setToken(null);
+}
+
+/** PC 정밀 검사(부를 때마다 새로 검사) */
+export async function getSystemReport(): Promise<SystemReport> {
+  return (await call("/system", {}, 30_000)).json();
+}
+
+/** 음악 모델 구성 바꾸기 — 엔진이 저장하고 음악 엔진을 다시 켠다(새 모델은 첫 생성 때 받음) */
+export async function setQualityTier(tier: string): Promise<EngineQuality> {
+  const res = await call("/quality", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tier }) }, 30_000);
+  return (await res.json()).quality;
 }
 
 export async function startTask(song: SongForEngine, device: string, quality?: EngineQuality | null): Promise<string> {

@@ -7,12 +7,13 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { ensureInstalled, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
-import { chooseDevice, qualityProfile } from "./device.mjs";
+import { checkItems, chooseDevice, qualityOptions, qualityProfile } from "./device.mjs";
+import { inspectSystem } from "./system.mjs";
 import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
 import { createLibrary } from "./library.mjs";
 import { newToken } from "./security.mjs";
 
-const VERSION = "0.1.4"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k
+const VERSION = "0.1.5"; // 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality)
 const ACESTEP_PORT = 47822;
 
 const dataDir =
@@ -25,8 +26,29 @@ const logLine = (s) => process.stdout.write(s.endsWith("\n") ? s : s + "\n");
 
 const device = chooseDevice({ platform: process.platform, arch: process.arch, nvidia: process.platform === "win32" && hasNvidia() });
 const vramGb = device.device === "cuda" ? nvidiaVramGb() : null;
-const profile = qualityProfile({ device: device.device, vramGb });
 const ffmpeg = hasFfmpeg();
+const acestepDir = process.env.FMS_ACESTEP_DIR || path.join(dataDir, "acestep");
+const checkpointsDir = path.join(acestepDir, "checkpoints");
+const engineSettingsFile = path.join(dataDir, "engine-settings.json");
+
+/** 회원이 고른 구성(없거나 이 PC에서 안 되면 추천 구성) */
+async function readSavedTier() {
+  try {
+    return JSON.parse(await readFile(engineSettingsFile, "utf8")).tier ?? "";
+  } catch {
+    return "";
+  }
+}
+async function systemReport() {
+  const sys = await inspectSystem({ storageDir: acestepDir, checkpointsDir, ffmpeg });
+  const options = qualityOptions({ device: device.supported ? device.device : "", vramGb: sys.vramGb ?? vramGb, freeGb: sys.freeGb, installedModels: sys.installedModels });
+  const recommended = options.find((o) => o.recommended);
+  return { system: sys, check: checkItems(sys, device, recommended), options, selected: profile.id, engines: [{ id: "acestep", name: "ACE-Step 1.5", note: "노래·연주곡 생성, 커버, 부분 수정", selected: true }] };
+}
+const savedTier = await readSavedTier();
+const startOptions = qualityOptions({ device: device.supported ? device.device : "", vramGb, freeGb: null });
+const savedOption = startOptions.find((o) => o.id === savedTier && o.supported);
+let profile = savedOption ?? qualityProfile({ device: device.device, vramGb });
 const state = { ready: false, stage: "시작 중", mode: device.mode, device: device.device, note: device.reason, error: "" };
 
 await mkdir(dataDir, { recursive: true });
@@ -41,7 +63,9 @@ const library = createLibrary(dataDir);
 await library.init();
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality"], libraryDir: library.dir, quality: { ...profile, vramGb, ffmpeg } }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system"], libraryDir: library.dir, quality: { ...profile, vramGb, ffmpeg } }),
+  systemReport,
+  setQuality,
   library,
   ffmpeg,
   mp3CacheDir: path.join(dataDir, "mp3-cache"),
@@ -56,50 +80,106 @@ gateway.listen(GATEWAY_PORT, "127.0.0.1", () => {
   logLine(`  🎚️ 음질: ${profile.label}${vramGb ? ` (그래픽 메모리 ${vramGb}GB)` : ""} · MP3 변환 ${ffmpeg ? "가능" : "불가(ffmpeg 없음 — FLAC 원음만)"}`);
 });
 
+let child = null;
+let restarting = false;
+let installedDir = process.env.FMS_ACESTEP_DIR || "";
+
+/** 윈도우에서 uv run이 띄운 파이썬까지 함께 끈다 */
+function killTree(c) {
+  if (!c || c.exitCode != null) return Promise.resolve();
+  return new Promise((resolve) => {
+    c.once("exit", () => resolve());
+    if (process.platform === "win32") spawn("taskkill", ["/pid", String(c.pid), "/T", "/F"], { windowsHide: true });
+    else c.kill();
+    setTimeout(resolve, 10_000);
+  });
+}
+
+/** 지금 구성(profile)으로 음악 엔진(ACE-Step)을 띄우고 준비될 때까지 기다린다 */
+async function startMusicEngine() {
+  state.ready = false;
+  state.error = "";
+  if (process.env.FMS_ACESTEP_DIR && process.env.FMS_PYTHON) {
+    state.stage = "음악 엔진 켜는 중";
+    const dir = process.env.FMS_ACESTEP_DIR;
+    child = spawn(process.env.FMS_PYTHON, ["-c", "from acestep.api_server import main; main()"], {
+      cwd: dir,
+      windowsHide: true,
+      env: {
+        ...process.env,
+        PYTHONPATH: dir,
+        ACESTEP_API_HOST: "127.0.0.1",
+        ACESTEP_API_PORT: String(ACESTEP_PORT),
+        ACESTEP_API_KEY: acestepKey,
+        ACESTEP_DEVICE: device.device,
+        ...profileEnv(profile),
+      },
+    });
+    child.stdout.on("data", () => {});
+    child.stderr.on("data", () => {});
+  } else {
+    installedDir = await ensureInstalled(dataDir, { onStage: (s) => ((state.stage = s), logLine(`… ${s}`)) });
+    state.stage = "음악 엔진 켜는 중";
+    child = launch(installedDir, { port: ACESTEP_PORT, apiKey: acestepKey, device: device.device, profile });
+  }
+  child.on("exit", (code) => {
+    if (restarting) return;
+    state.ready = false;
+    state.stage = "멈춤";
+    state.error = `음악 엔진이 멈췄습니다(코드 ${code}). 엔진을 다시 실행해 주세요.`;
+    logLine(`⚠ ${state.error}`);
+  });
+  const ok = await waitHealthy(ACESTEP_PORT);
+  if (!ok) throw new Error("음악 엔진이 3분 안에 켜지지 않았습니다.");
+  state.ready = true;
+  state.stage = "준비됨";
+}
+
+/**
+ * 음악 모델 구성 바꾸기 — 저장하고 음악 엔진을 새 구성으로 다시 켠다(새 모델은 첫 생성 때 받음).
+ * @returns {Promise<{ ok: true, quality: object } | { ok: false, error: string, status: number }>}
+ */
+async function setQuality(tierId) {
+  if (restarting) return { ok: false, status: 409, error: "구성을 바꾸는 중입니다. 잠시 뒤 다시 시도해 주세요." };
+  const report = await systemReport();
+  const opt = report.options.find((o) => o.id === tierId);
+  if (!opt) return { ok: false, status: 400, error: "없는 구성입니다." };
+  if (!opt.supported) return { ok: false, status: 400, error: opt.reason };
+  await writeFile(engineSettingsFile, JSON.stringify({ tier: opt.id }, null, 2));
+  if (opt.id === profile.id && state.ready) return { ok: true, quality: { ...profile, vramGb, ffmpeg } };
+  const { supported, recommended, installed, reason, ...tier } = opt;
+  profile = tier;
+  logLine(`🎚️ 음질 구성 바꾸는 중: ${profile.label}`);
+  restarting = true;
+  state.ready = false;
+  state.stage = "구성 바꾸는 중";
+  (async () => {
+    try {
+      await killTree(child);
+      restarting = false;
+      await startMusicEngine();
+      logLine(`✔ 새 구성으로 준비됨 — ${profile.label}`);
+    } catch (err) {
+      restarting = false;
+      state.stage = "오류";
+      state.error = err.message;
+      logLine(`⚠ ${err.message}`);
+    }
+  })();
+  return { ok: true, quality: { ...profile, vramGb, ffmpeg } };
+}
+
 if (!device.supported) {
   state.stage = "미지원";
   state.error = device.reason;
   logLine(`⚠ ${device.reason}`);
 } else {
   try {
-    let child;
-    if (process.env.FMS_ACESTEP_DIR && process.env.FMS_PYTHON) {
-      state.stage = "음악 엔진 켜는 중";
-      const dir = process.env.FMS_ACESTEP_DIR;
-      child = spawn(process.env.FMS_PYTHON, ["-c", "from acestep.api_server import main; main()"], {
-        cwd: dir,
-        windowsHide: true,
-        env: {
-          ...process.env,
-          PYTHONPATH: dir,
-          ACESTEP_API_HOST: "127.0.0.1",
-          ACESTEP_API_PORT: String(ACESTEP_PORT),
-          ACESTEP_API_KEY: acestepKey,
-          ACESTEP_DEVICE: device.device,
-          ...profileEnv(profile),
-        },
-      });
-      child.stdout.on("data", () => {});
-      child.stderr.on("data", () => {});
-    } else {
-      const dir = await ensureInstalled(dataDir, { onStage: (s) => ((state.stage = s), logLine(`… ${s}`)) });
-      state.stage = "음악 엔진 켜는 중";
-      child = launch(dir, { port: ACESTEP_PORT, apiKey: acestepKey, device: device.device, profile });
-    }
-    child.on("exit", (code) => {
-      state.ready = false;
-      state.stage = "멈춤";
-      state.error = `음악 엔진이 멈췄습니다(코드 ${code}). 엔진을 다시 실행해 주세요.`;
-      logLine(`⚠ ${state.error}`);
-    });
-    const ok = await waitHealthy(ACESTEP_PORT);
-    if (!ok) throw new Error("음악 엔진이 3분 안에 켜지지 않았습니다.");
-    state.ready = true;
-    state.stage = "준비됨";
+    await startMusicEngine();
     logLine("✔ 준비됨 — 사이트에서 노래를 만들 수 있습니다.");
     logLine(`  💾 저장 폴더: ${library.dir}  (사이트 「내 PC 엔진」 화면에서 바꿀 수 있음)`);
-    const stop = () => {
-      child.kill();
+    const stop = async () => {
+      await killTree(child);
       process.exit(0);
     };
     process.on("SIGINT", stop);

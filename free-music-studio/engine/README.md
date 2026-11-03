@@ -30,6 +30,7 @@ node src/main.mjs
 | `POST /release_task` · `POST /query_result` · `GET /v1/audio` | `Authorization: Bearer <토큰>` | 내부 ACE-Step으로 그대로 전달(파일 업로드 포함, 60MB까지) |
 | `GET /library` · `POST /library/save {id, file, title}` · `GET`·`DELETE /library/<id>` | `Authorization: Bearer <토큰>` | 내 PC 보관함 — 완성 음원을 저장 폴더에 「곡 제목.mp3」로 복사(ACE-Step 임시 폴더는 시간이 지나면 지워짐). 곡 번호(사이트 「모든 음악」 기록 id) → 파일 경로는 `데이터 폴더\library-index.json`. 0.1.1의 `데이터 폴더\library\<uuid>.mp3`도 시작할 때 읽음 |
 | `POST /library/pick-folder` · `POST /library/folder {path, move, titles}` · `POST /library/reveal` | `Authorization: Bearer <토큰>` | 0.1.2 저장 폴더 — 기본 `음악\AI 무료음악`. PC에 폴더 고르기 창(윈도우 FolderBrowserDialog·맥 osascript) → 쓰기 시험 뒤 바꾸기(기존 노래 옮기기 선택) → `데이터 폴더\settings.json`에 기억. reveal은 탐색기로 열기 |
+| `GET /system` · `POST /quality {tier}` | `Authorization: Bearer <토큰>` | 0.1.5 PC 검사·음악 모델 구성 — `/system`은 부를 때마다 새로 검사(운영체제·CPU·메모리·그래픽카드·그래픽 메모리·드라이버·저장 공간·MP3 도구·받아 둔 모델)해 판정·구성 6단계(되는 것/안 되는 이유·추천·필요 공간)를 돌려줌. `/quality`는 이 PC에서 되는 구성만 받아 `데이터 폴더engine-settings.json`에 저장하고 음악 엔진을 새 구성으로 다시 켬(새 모델은 첫 생성 때 받음) |
 
 - 허용 사이트: `https://free-music-studio.buylife.xyz` + 내 PC 개발 주소(`localhost`·`127.0.0.1`). 다른 사이트의 요청은 403.
 - 내부 ACE-Step은 `127.0.0.1:47822`에서 실행마다 새 키를 걸고 돌아, 연결 문을 거치지 않은 요청은 받지 않습니다.

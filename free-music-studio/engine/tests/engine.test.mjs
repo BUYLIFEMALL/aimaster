@@ -148,3 +148,60 @@ test("보안: 짝짓기 코드 6자리, 토큰 비교, Bearer 꺼내기", () => 
   assert.equal(bearer("Bearer tok123"), "tok123");
   assert.equal(bearer("Basic x"), null);
 });
+
+import { checkItems, qualityOptions, QUALITY_TIERS } from "../src/device.mjs";
+import { inspectSystem } from "../src/system.mjs";
+
+test("모델 구성: CPU는 기본만, 나머지는 이유와 함께 막음", () => {
+  const o = qualityOptions({ device: "cpu", vramGb: null, freeGb: 100 });
+  assert.equal(o.length, QUALITY_TIERS.length);
+  assert.deepEqual(o.filter((x) => x.supported).map((x) => x.id), ["basic"]);
+  assert.equal(o.find((x) => x.recommended).id, "basic");
+  assert.match(o.find((x) => x.id === "high").reason, /CPU 모드/);
+});
+
+test("모델 구성: RTX 5080(15.9GB)은 XL 고품질 추천, 20GB 이상 구성은 막음", () => {
+  const o = qualityOptions({ device: "cuda", vramGb: 15.9, freeGb: 200 });
+  assert.equal(o.find((x) => x.recommended).id, "xlturbo");
+  assert.equal(o.find((x) => x.id === "max").supported, false);
+  assert.match(o.find((x) => x.id === "max").reason, /20GB 이상/);
+  assert.deepEqual(o.filter((x) => x.supported).map((x) => x.id), ["xlturbo", "high", "standard", "basic"]);
+});
+
+test("모델 구성: 저장 공간이 모자라면 막되, 받아 둔 구성은 공간과 상관없이 허용", () => {
+  const o = qualityOptions({ device: "cuda", vramGb: 16, freeGb: 12, installedModels: ["acestep-v15-turbo", "acestep-5Hz-lm-1.7B"] });
+  assert.equal(o.find((x) => x.id === "xlturbo").supported, false);
+  assert.match(o.find((x) => x.id === "xlturbo").reason, /저장 공간/);
+  assert.equal(o.find((x) => x.id === "high").supported, true);
+  assert.equal(o.find((x) => x.id === "high").installed, true);
+  assert.equal(qualityOptions({ device: "", vramGb: null, freeGb: 1 }).some((x) => x.supported), false);
+});
+
+test("PC 검사: CPU PC는 주의, 메모리 4GB·공간 부족은 설치 불가", () => {
+  const dev = { supported: true, device: "cpu", reason: "" };
+  const sys = { os: "Windows 11", cpu: "Intel", cores: 8, ramGb: 16, gpu: "Intel Graphics", vramGb: null, freeGb: 80, ffmpeg: true };
+  const basic = qualityOptions({ device: "cpu", vramGb: null, freeGb: 80 }).find((x) => x.recommended);
+  const a = checkItems(sys, dev, basic);
+  assert.equal(a.verdict, "warn");
+  assert.equal(a.items.find((i) => i.label === "그래픽카드").status, "warn");
+  const b = checkItems({ ...sys, ramGb: 4, freeGb: 5 }, dev, basic);
+  assert.equal(b.verdict, "fail");
+  assert.equal(b.items.find((i) => i.label === "저장 공간").status, "fail");
+  assert.equal(checkItems(sys, { supported: false, device: "", reason: "Intel 맥 미지원" }, null).verdict, "fail");
+});
+
+test("사양 읽기: nvidia-smi 결과에서 이름·그래픽 메모리·드라이버", async () => {
+  const fakeExec = async (cmd) => {
+    if (cmd === "nvidia-smi") return { stdout: "NVIDIA GeForce RTX 5080, 16303, 581.57\n" };
+    if (cmd === "powershell.exe") return { stdout: "Microsoft Windows 11 Pro\n" };
+    throw new Error("없음");
+  };
+  const fakeOs = { type: () => "Windows_NT", release: () => "10.0", cpus: () => [{ model: "AMD Ryzen 9 " }, {}], totalmem: () => 32 * 2 ** 30 };
+  const sys = await inspectSystem(
+    { storageDir: "C:/없는/폴더", checkpointsDir: "C:/없는/폴더/checkpoints", ffmpeg: false },
+    { platform: "win32", arch: "x64", exec: fakeExec, os: fakeOs, statfs: async () => ({ bavail: 100 * 2 ** 18, bsize: 4096 }) }
+  );
+  assert.deepEqual([sys.gpu, sys.gpuVendor, sys.vramGb, sys.driver], ["NVIDIA GeForce RTX 5080", "NVIDIA", 15.9, "581.57"]);
+  assert.deepEqual([sys.os, sys.cpu, sys.cores, sys.ramGb, sys.freeGb], ["Microsoft Windows 11 Pro", "AMD Ryzen 9", 2, 32, 100]);
+  assert.deepEqual(sys.installedModels, []);
+});

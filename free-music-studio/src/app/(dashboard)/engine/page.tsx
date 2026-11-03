@@ -5,9 +5,10 @@ import Link from "next/link";
 import { Cpu, Download, ShieldCheck, Clock, Link2, CheckCircle2, AlertCircle, Unplug } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { FolderPanel } from "@/components/engine/FolderPanel";
+import { PcCheckPanel } from "@/components/engine/PcCheckPanel";
 import { EngineError, forgetEngine, pairEngine } from "@/lib/engine";
 
-// 내 PC 엔진 — 상태 확인·짝짓기(3단계). 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
+// 내 PC 엔진 — PC 검사·음악 모델 고르기(v1.07) · 상태 확인·연결 코드(3단계). 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
 const SPECS = [
   { pc: "NVIDIA 그래픽카드 (예: RTX 4060 이상)", mode: "고품질 모드 — 작사 보조 모델까지 켜서 생성", speed: "빠름" },
   { pc: "Apple Silicon 맥 (M1 이상)", mode: "고품질 모드", speed: "아직 측정 전" },
@@ -70,6 +71,8 @@ export default function EnginePage() {
           <StatusBadge engine={engine} />
         </div>
       </div>
+
+      <PcCheckPanel engine={engine} />
 
       {/* 연결 상태·짝짓기 */}
       <section className="space-y-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">

@@ -92,12 +92,26 @@ export function createGateway(ctx) {
 
     const target = FORWARD.get(key);
     const isLibrary = url.pathname === "/library" || url.pathname.startsWith("/library/");
-    if (!target && !isLibrary) return json(res, 404, { error: "없는 주소입니다." }, origin);
+    const isSystem = key === "GET /system" || key === "POST /quality";
+    if (!target && !isLibrary && !isSystem) return json(res, 404, { error: "없는 주소입니다." }, origin);
     const token = bearer(req.headers.authorization);
     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
       return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
     }
     if (isLibrary) return handleLibrary(req, res, url, origin, ctx, json);
+    // PC 검사(다시 검사할 때마다 새로 읽음)·음악 모델 구성 바꾸기 — 엔진이 준비 중이어도 된다
+    if (key === "GET /system") {
+      try {
+        return json(res, 200, await ctx.systemReport(), origin);
+      } catch (e) {
+        return json(res, 500, { error: `PC 정보를 읽지 못했습니다. ${e.message}` }, origin);
+      }
+    }
+    if (key === "POST /quality") {
+      const body = await readSmall(req).catch(() => null);
+      const r = await ctx.setQuality(typeof body?.tier === "string" ? body.tier : "");
+      return r.ok ? json(res, 200, r, origin) : json(res, r.status, { error: r.error }, origin);
+    }
     if (!ctx.getState().ready) return json(res, 503, { error: "엔진을 준비하는 중입니다." }, origin);
     if (Number(req.headers["content-length"] ?? 0) > MAX_BODY) return json(res, 413, { error: "파일이 너무 큽니다(60MB까지)." }, origin);
 
