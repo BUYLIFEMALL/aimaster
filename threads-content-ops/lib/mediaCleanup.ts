@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { retentionCleanupBlocked } from "@/threads-content-ops/lib/retentionExempt";
 import { LEGACY_MEDIA_BUCKET, MEDIA_BUCKET, MEDIA_RETENTION_DAYS, memberMediaFolder, ownedMediaPath, type PostMedia } from "@/threads-content-ops/lib/media";
 
 // 30일 보관 후 자동 삭제 (v1.59). 회원의 이 프로그램 전용 폴더(`<회원id>/threads-content-ops/{ai,up}`)에서
@@ -9,6 +10,7 @@ import { LEGACY_MEDIA_BUCKET, MEDIA_BUCKET, MEDIA_RETENTION_DAYS, memberMediaFol
 type Result = { removed: number; postsUpdated: number };
 
 export async function cleanupUserMedia(service: SupabaseClient, userId: string, now = new Date()): Promise<Result> {
+  if (await retentionCleanupBlocked(service, userId)) return { removed: 0, postsUpdated: 0 }; // 30일 삭제 예외 회원(2026-11-03)
   const cutoff = now.getTime() - MEDIA_RETENTION_DAYS * 24 * 60 * 60 * 1000;
   const expired: string[] = [];
 

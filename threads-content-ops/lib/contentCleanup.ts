@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { retentionCutoff } from "@/threads-content-ops/lib/retention";
+import { retentionCleanupBlocked } from "@/threads-content-ops/lib/retentionExempt";
 
 // 30일 보관 후 자동 삭제 (v1.76) — 회원의 글감과 보관함 글을 만든 지 30일이 지나면 지운다.
 // · 글감(tco_viral_candidates): '보관 중'(archived)으로 표시한 글감은 영구 보관이라 지우지 않는다.
@@ -14,6 +15,7 @@ export type ContentCleanupResult = { viral: number; posts: number };
 export async function cleanupUserContent(service: SupabaseClient, userId: string): Promise<ContentCleanupResult> {
   const cutoff = retentionCutoff();
   if (!cutoff) return { viral: 0, posts: 0 };
+  if (await retentionCleanupBlocked(service, userId)) return { viral: 0, posts: 0 }; // 30일 삭제 예외 회원(2026-11-03)
   const before = cutoff.toISOString();
 
   const { data: viral } = await service.from("tco_viral_candidates").delete()
