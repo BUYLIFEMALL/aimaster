@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog"; // 공용 기준 코드 cleanup-usage-log 사본(30일 정리 기록)
+import { retentionExemptFilter } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -25,19 +26,20 @@ export async function GET(request: NextRequest) {
   }
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const admin = createAdminClient();
+  const exemptFilter = await retentionExemptFilter(admin); // 예외 회원(관리자·시험 계정)은 지우지 않는다. 못 읽으면 오류로 멈춤
 
   const expired = await admin
     .from("ytreply_comments")
     .update({ status: "skipped" })
     .eq("status", "pending_review")
-    .lt("fetched_at", cutoff)
+    .lt("fetched_at", cutoff).not("user_id", "in", exemptFilter)
     .select("id");
   if (expired.error) return NextResponse.json({ error: expired.error.message }, { status: 500 });
 
   const scrubbed = await admin
     .from("ytreply_comments")
     .update({ comment_text: "", author_display_name: null, generated_reply: null })
-    .lt("fetched_at", cutoff)
+    .lt("fetched_at", cutoff).not("user_id", "in", exemptFilter)
     .neq("comment_text", "")
     .select("id, user_id");
   if (scrubbed.error) return NextResponse.json({ error: scrubbed.error.message }, { status: 500 });
