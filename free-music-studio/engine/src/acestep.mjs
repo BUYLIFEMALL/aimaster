@@ -4,6 +4,7 @@ import { createWriteStream } from "node:fs";
 import { access, mkdir, readdir, rename, rm, writeFile, readFile } from "node:fs/promises";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import net from "node:net";
 import path from "node:path";
 
 export const ACESTEP_COMMIT = "ca1e85fe9430179831e6bc6be790c332190a3866";
@@ -115,38 +116,47 @@ export function launch(dir, { port, apiKey, device, profile }, log = () => {}) {
   return child;
 }
 
-/** netstat 출력에서 그 번호를 기다리는(LISTENING) 프로그램 번호들 — 순수 함수(시험용) */
-export function listeningPids(netstatText, port) {
-  const pids = new Set();
-  for (const line of String(netstatText).split(/\r?\n/)) {
-    const cols = line.trim().split(/\s+/);
-    if (cols[0] !== "TCP" || !cols[1]?.endsWith(`:${port}`) || !/LISTEN/i.test(cols[3] ?? "")) continue;
-    if (/^\d+$/.test(cols[4] ?? "") && cols[4] !== "0") pids.add(Number(cols[4]));
-  }
-  return [...pids];
+/** 지금 비어 있는 번호 하나(실행마다 새로) — 남은 음악 엔진이 옛 번호를 잡고 있어도 부딪히지 않게 */
+export function pickFreePort(host = "127.0.0.1") {
+  return new Promise((resolve, reject) => {
+    const s = net.createServer();
+    s.unref();
+    s.on("error", reject);
+    s.listen(0, host, () => {
+      const { port } = s.address();
+      s.close(() => resolve(port));
+    });
+  });
+}
+
+/** 프로그램 목록(JSON)에서 음악 엔진 서버(acestep-api) 프로그램 번호만 — 순수 함수(시험용) */
+export function staleAcestepPids(processes, keep = []) {
+  const list = Array.isArray(processes) ? processes : processes ? [processes] : [];
+  return list
+    .filter((p) => /acestep-api|acestep\.api_server/i.test(String(p?.CommandLine ?? "")))
+    .map((p) => Number(p.ProcessId))
+    .filter((pid) => Number.isInteger(pid) && pid > 0 && !keep.includes(pid));
 }
 
 /**
- * 내부 음악 엔진 번호를 예전 엔진이 남긴 음악 엔진(python·uv)이 잡고 있으면 끈다.
- * 예전 엔진 창을 닫아도 그 엔진이 띄운 python이 남아, 새 음악 엔진이 번호를 못 잡고 꺼지는 일이 있었다(2026-11-04 마스터PC).
- * 다른 프로그램이 잡고 있으면 끄지 않고 이유를 돌려준다.
- * @returns {{ ok: true, freed: number[] } | { ok: false, error: string }}
+ * 예전 엔진이 남긴 음악 엔진 서버를 실행 명령 이름으로 찾아 끈다(그래픽 메모리도 돌려받음).
+ * 이 PC에서는 netstat에 그 프로그램이 안 보이는 일이 있어(2026-11-04 마스터PC) 명령 이름으로 찾는다.
+ * @returns {number[]} 끈 프로그램 번호
  */
-export function freeStalePort(port) {
-  if (process.platform !== "win32") return { ok: true, freed: [] };
-  const ns = spawnSync("netstat", ["-ano", "-p", "TCP"], { encoding: "utf8", windowsHide: true });
-  const pids = listeningPids(ns.stdout, port);
-  const freed = [];
-  for (const pid of pids) {
-    const tl = spawnSync("tasklist", ["/FI", `PID eq ${pid}`, "/FO", "CSV", "/NH"], { encoding: "utf8", windowsHide: true });
-    const name = (String(tl.stdout).match(/^"([^"]+)"/m)?.[1] ?? "").toLowerCase();
-    if (!/^(python|pythonw|uv)\.exe$/.test(name)) {
-      return { ok: false, error: `내부 음악 엔진 번호 ${port}번을 다른 프로그램(${name || `PID ${pid}`})이 쓰고 있습니다. 그 프로그램을 끄고 엔진을 다시 실행해 주세요.` };
-    }
-    spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], { windowsHide: true });
-    freed.push(pid);
-  }
-  return { ok: true, freed };
+export function killStaleAcestep(keep = []) {
+  if (process.platform !== "win32") return [];
+  const ps = spawnSync(
+    "powershell.exe",
+    ["-NoProfile", "-Command", "Get-CimInstance Win32_Process -Filter \"Name='python.exe' OR Name='pythonw.exe' OR Name='acestep-api.exe' OR Name='uv.exe'\" | Select-Object ProcessId, CommandLine | ConvertTo-Json -Compress"],
+    { encoding: "utf8", windowsHide: true, timeout: 20_000 }
+  );
+  let procs = [];
+  try {
+    procs = JSON.parse(String(ps.stdout).trim() || "[]");
+  } catch {}
+  const pids = staleAcestepPids(procs, keep);
+  for (const pid of pids) spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], { windowsHide: true });
+  return pids;
 }
 
 export async function waitHealthy(port, { timeoutMs = 180_000 } = {}) {

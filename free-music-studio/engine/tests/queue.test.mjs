@@ -5,17 +5,25 @@ import os from "node:os";
 import path from "node:path";
 import { createQueue } from "../src/queue.mjs";
 import { createRunner, parseTaskState } from "../src/runner.mjs";
-import { listeningPids } from "../src/acestep.mjs";
+import { pickFreePort, staleAcestepPids } from "../src/acestep.mjs";
 
-test("남은 음악 엔진 찾기: 그 번호를 기다리는(LISTENING) 프로그램 번호만", () => {
-  const text = [
-    "  TCP    127.0.0.1:47822        0.0.0.0:0              LISTENING       12345",
-    "  TCP    127.0.0.1:47822        127.0.0.1:50001        ESTABLISHED     12345",
-    "  TCP    127.0.0.1:47821        127.0.0.1:57201        FIN_WAIT_2      49524",
-    "  TCP    127.0.0.1:147822       0.0.0.0:0              LISTENING       777",
-  ].join("\r\n");
-  assert.deepEqual(listeningPids(text, 47822), [12345]);
-  assert.deepEqual(listeningPids(text, 47821), []);
+test("남은 음악 엔진 찾기: 실행 명령에 acestep-api가 있는 프로그램만, 지금 것은 빼고", () => {
+  const procs = [
+    { ProcessId: 101, CommandLine: '"C:\\Users\\a\\.local\\bin\\uv.exe" run acestep-api' },
+    { ProcessId: 102, CommandLine: "C:\\data\\acestep\\.venv\\Scripts\\python.exe C:\\data\\acestep\\.venv\\Scripts\\acestep-api.exe" },
+    { ProcessId: 103, CommandLine: 'python -c "from acestep.api_server import main; main()"' },
+    { ProcessId: 200, CommandLine: "python my_other_script.py" },
+    { ProcessId: 300, CommandLine: null },
+  ];
+  assert.deepEqual(staleAcestepPids(procs), [101, 102, 103]);
+  assert.deepEqual(staleAcestepPids(procs, [102]), [101, 103]);
+  assert.deepEqual(staleAcestepPids({ ProcessId: 5, CommandLine: "uv run acestep-api" }), [5]); // 하나뿐이면 배열이 아님
+  assert.deepEqual(staleAcestepPids(null), []);
+});
+
+test("내부 번호: 실행마다 비어 있는 번호", async () => {
+  const a = await pickFreePort();
+  assert.ok(Number.isInteger(a) && a > 1024 && a < 65536);
 });
 
 const tmpFile = async () => path.join(await mkdtemp(path.join(os.tmpdir(), "fms-q-")), "queue.json");
