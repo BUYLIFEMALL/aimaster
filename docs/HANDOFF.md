@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-03 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — `realty-client-desk` v1.05 4단계(광고 명시 항목 점검·AI 초안) 배포(준비중) — 플랜 1~4단계 끝
+- 코드 `4be6ba487`: `src/lib/desk/adCheck.ts`(공인중개사법 제18조의2·시행령 제17조의2·국토부 명시사항 세부기준 — 사무소 5항목, 매물 기본 5항목 + 건축물 총 층수·사용승인일·방향·방/욕실·입주일·주차·관리비, 주의 표현 목록; 시험 4개, 전체 14개 통과), `src/lib/ai/listingDraft.ts`(`claude-sonnet-5-5`, `maxRetries: 0`, 주어진 칸만·과장 금지·연도 동적), `lib/actions/aiDraft.ts`(회원 본인 `user_api_keys` anthropic — 폴백 없음, 매물 `ai_requested_at` 1분 잠금, 초안은 저장하지 않음), 매물 상세 「📋 광고 명시 항목 점검」·「✨ AI 초안」(광고 글 복사·문자 칸 넣기), 사무소 등록번호·개업공인중개사 성명 칸, 설정 Claude 키 칸, 매뉴얼 8단계. DB `20261103040000_ad_check_ai.sql` ego SQL 적용.
+- 배포 `realty-client-desk-hsthsm95m` Ready, DB v1.05. ego lite 시험 계정: 점검(사무소 5·매물 7 빠짐) → AI 초안 1회(시험 계정 본인 키, 지어낸 사실·과장 표현 없음) → 「문자 칸 넣기」 동작 → 390px → 시험 매물 화면 삭제.
+- 남은 일: 공개 여부 주인님 확인(결정 3), 실제 문자 발송 시험(SOLAPI 있는 계정), 아침 8시 일정 알림 첫 운영 호출(11-04) 결과 확인, D5 중개보수 계산기(후순위).
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.04 배포(저장 폴더 고르기)
 - 주인님 「기본 저장 폴더를 정하거나 사용자가 정할 수 있게」 → 기본 `음악AI 무료음악`, 내 PC 엔진 화면 [폴더 바꾸기](엔진이 PC에 폴더 고르기 창)·기존 노래 옮기기·[폴더 열기], 파일 이름 = 곡 제목. 엔진 0.1.2(zip `D:PDSProgram_devree-music-srcree-music-engine-0.1.2.zip`, 0.1.1 zip 삭제). 커밋 `fdd7db959`, 배포 `free-music-studio-cc2l1vi3p`, DB v1.04, DB 변경 없음.
 - 확인: 운영 화면에서 탐색기 열림·폴더 고르기 창 뜸, 엔진 API로 옮기기·다시 꺼내기. 정정: v1.02·v1.03 운영 검수 계정은 관리자가 아니라 시험 계정 `buylifemall@naver.com`(ego 로그인 상태).

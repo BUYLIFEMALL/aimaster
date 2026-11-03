@@ -69,6 +69,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `realty-client-desk` | v1.05 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 플랜 4단계 빌드 1회, `realty-client-desk-hsthsm95m`) | 4단계 광고 명시 항목 점검·AI 광고 글/문자 초안(회원 본인 Claude 키, 저장 안 함)·사무소 등록번호/성명·Claude 키 칸(`4be6ba487`, 칸 3개 ego SQL). 시험 계정 점검 표시·AI 초안 1회·문자 칸 넣기·390px 확인 |
 | `realty-client-desk` | v1.04 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 플랜 3단계, `realty-client-desk-ffflmwj64` — 첫 시도 `5gb804l8q`는 CRON_SECRET 끝 줄바꿈으로 2초 만에 실패) | 3단계 일정·아침 8시 알림(회원 SOLAPI→회원 본인 핸드폰)·회원 실행 방식(Vercel 기본/내 cron-job.org)·운영 아침 호출(1년 정리 포함)(`e43a37bae`, 표 2개 ego SQL, `CRON_SECRET` 새로 등록). 시험 계정 일정 넣기·상태 줄·대시보드·설정·390px 확인, 실행 주소 가짜 토큰 401 |
 | `realty-client-desk` | v1.03 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 플랜 2단계 승인 빌드 1회, `realty-client-desk-qztxwj8fc`) | 2단계 내 매물·맞는 고객·광고 문자(회원 SOLAPI)·무료 수신거부 화면(`8a022ffcc`, 새 표 3개 ego SQL 적용). 시험 계정 운영 화면에서 등록→매칭→미리보기→수신거부 확인·390px 5화면, 실제 문자는 시험 계정 SOLAPI 없어 미발송 |
 | `free-music-studio` | v1.02 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `dpl_7Fj5fc8d1KZvRmv9KLBebstf2aaq`) | 3단계 웹 ↔ 내 PC 엔진 연결(`1b6a3c2df`) + 대기 3건(`96f04aee3`: 설정 「확인 중」·Apple Silicon 「아직 측정 전」·Intel 맥 줄). ego lite에서 연결 코드 → 30초 곡 생성 → 재생·MP3 확인 |
