@@ -14,7 +14,7 @@ export type TrackInput = {
   device: string;
 };
 
-export type Track = TrackInput & { created_at: string };
+export type Track = TrackInput & { created_at: string; project_id: string | null };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const DEVICES = ["cuda", "mps", "cpu"];
