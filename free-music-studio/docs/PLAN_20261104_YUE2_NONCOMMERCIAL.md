@@ -31,12 +31,14 @@
 
 ## 4. 단계
 
-| 단계 | 할 일 | 확인 |
-|---|---|---|
-| A | 엔진 0.2.0: `yue2.mjs`(받기·SHA-256 확인·실행·`/synth`·`/job`·multipart·WAV 확인), 대기열 실행기가 `engine` 값으로 ACE-Step/YuE2 고르기, `/system`에 YuE2 「되는지·필요 공간」 | 엔진 시험(가짜 yue-server) |
-| B | 웹: 엔진 선택·동의·「비상업용」 표시, DB `license` 칸 | 시험·tsc·build |
-| C | **마스터PC 실물**(주인님): 같은 가사로 ACE-Step XL vs YuE2 각 1곡 → 음질·한국어 발음·시간·그래픽 메모리 비교 | 캡처·청취 |
-| D | 배포(빌드 1회, 4단계 재생바와 함께) | 운영 화면 |
+| 단계 | 할 일 | 확인 | 상태(2026-11-04) |
+|---|---|---|---|
+| A | 엔진 0.2.0: `yue2.mjs`(받기·SHA-256 확인·실행·`/synth`·`/job`·multipart·WAV 확인), 대기열 실행기가 `engine` 값으로 ACE-Step/YuE2 고르기, `/system`에 YuE2 「되는지·필요 공간」 | 엔진 시험 | ✅ `d411c0b26` — 엔진 시험 37개 통과(받기 확인값·결과 읽기·WAV·연주곡·대기열 구분은 가짜 응답, 진짜 `yue-server.exe` 실행은 C에서 처음) |
+| B | 웹: 엔진 선택·동의·「비상업용」 표시, DB `license` 칸 | 시험·tsc·build | ✅ `2cac793c0` — 사이트 시험 47개·tsc·build 통과, DB 칸 운영 적용(`729d7defa`) |
+| C | **마스터PC 실물**(주인님): 같은 가사로 ACE-Step XL vs YuE2 각 1곡 → 음질·한국어 발음·시간·그래픽 메모리 비교 | 캡처·청취 | ⏳ 대기 — 엔진 0.2.0 압축 `D:\PDS\Program_dev\free-music-src\free-music-engine-0.2.0.zip` |
+| D | 배포(빌드 1회, 4단계 재생바와 함께) | 운영 화면 | ✅ v1.10 배포(`free-music-studio-pre6r21xo`, Ready) — C에서 YuE2 고르기 화면이 필요해 C보다 먼저 배포 |
+
+**만든 구조(A):** YuE2 작업 차례가 오면 ACE-Step을 잠시 꺼 그래픽 메모리를 비우고(16GB에 XL과 BF16을 같이 올리면 모자람), 뒤 작업이 YuE2가 아니면 다시 켠다. 뒤에 있던 YuE2 작업이 취소돼도 ACE-Step 작업 차례에 다시 켠다. 진행 문구는 데이터 폴더 `yue2-log.txt`. 그래픽 메모리 12GB 이상은 BF16(최고 음질, 처음 약 8.4GB 받음), 8GB 이상은 Q8.
 
 ## 5. 비용
 
