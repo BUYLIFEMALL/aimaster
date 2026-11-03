@@ -19,6 +19,16 @@ test("카드에서 판매가·리뷰 수·광고를 읽는다", () => {
   assert.equal(none.price, 6300);
 });
 
+// 2026-11-03 판매량순 화면: 혜택 줄이 상품명보다 위에 붙는 카드
+test("혜택 줄이 위에 있어도 상품명 칸의 이름을 쓴다", () => {
+  const lines = ["와우 710원 캐시 적립", "스탠리 퀜처 H2.0 텀블러, 887ml", "42,300원", "(48,641)"];
+  const withName = parseCard({ lines, href: "/vp/products/8179126315", name: "스탠리 퀜처 H2.0 텀블러, 887ml" });
+  assert.equal(withName.name, "스탠리 퀜처 H2.0 텀블러, 887ml");
+  assert.equal(withName.reviews, 48641);
+  // 상품명 칸을 못 찾으면 혜택 줄을 건너뛴 첫 줄
+  assert.equal(parseCard({ lines, href: "/vp/products/8179126315" }).name, "스탠리 퀜처 H2.0 텀블러, 887ml");
+});
+
 test("리뷰 기준과 광고 제외로 거르고 리뷰 많은 순으로 놓는다", () => {
   const items = [none, one, ad];
   assert.deepEqual(filterProducts(items, { minReviews: 1, excludeAds: false }).map((i) => i.reviews), [1981, 1]);

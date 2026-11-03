@@ -5,15 +5,18 @@ const PRICE_LINE = /^[\d,]+원$/;
 // 상품명에 「자외선 차단」처럼 흔한 말은 넣지 않는다. 상품이 0개인 화면에서만 본다.
 const BLOCK_TEXT = /Access Denied|보안 문자|자동입력 방지|비정상적인 접근|접근이 제한/;
 const NO_RESULT_TEXT = /검색결과가 없습니다/;
+// 상품명보다 위에 붙는 혜택·추천 줄(2026-11-03 판매량순 화면 「와우 710원 캐시 적립」)
+const BADGE_LINE = /^(와우 [\d,]+원 캐시 적립|쿠팡추천|광고)$/;
 
-export function parseCard({ lines, href }) {
+export function parseCard({ lines, href, name }) {
   const clean = (lines ?? []).map((line) => String(line).trim()).filter(Boolean);
+  const title = String(name ?? "").trim() || clean.find((line) => !BADGE_LINE.test(line)) || "";
   const review = clean.map((line) => line.match(REVIEW_LINE)).find(Boolean);
   const prices = clean.filter((line) => PRICE_LINE.test(line));
   const id = String(href ?? "").match(/\/vp\/products\/(\d+)/)?.[1] ?? null;
   return {
     id,
-    name: clean[0] ?? "",
+    name: title,
     price: prices.length ? Number(prices[prices.length - 1].replace(/[^\d]/g, "")) : null,
     reviews: review ? Number(review[1].replace(/,/g, "")) : 0,
     isAd: clean.includes("광고"),

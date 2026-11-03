@@ -56,6 +56,7 @@ function readVisiblePage() {
     cards: nodes.map((node) => ({
       lines: node.innerText.split("\n"),
       href: node.querySelector('a[href*="/vp/products/"]')?.getAttribute("href") ?? "",
+      name: node.querySelector('[class*="productName"]')?.innerText ?? node.querySelector("img[alt]")?.getAttribute("alt") ?? "",
     })),
   };
 }
