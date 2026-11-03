@@ -2,7 +2,7 @@ import { getDmAccount } from "@/lib/dmApp/instagram/memberAccount";
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/dmApp/access";
 import { createClient } from "@/lib/supabase/server";
-import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL, getReplyModelProvider } from "@/lib/ai/models";
+import { REPLY_MODEL_OPTIONS, getReplyModelProvider, currentReplyModel } from "@/lib/ai/models";
 import { formatDateTimeKo } from "@/lib/formatDate";
 import { StudioHeader, StatCard, Avatar } from "@/components/dm/ui/StudioHeader";
 import { IgLogo } from "@/components/dm/ui/IgLogo";
@@ -76,7 +76,7 @@ export default async function DashboardPage() {
   const account = accountRes.data;
   const settings = settingsRes.data;
   const providers = new Set<string>((keysRes.data ?? []).map((k) => k.provider));
-  const replyModel = settings?.reply_model ?? DEFAULT_REPLY_MODEL;
+  const replyModel = currentReplyModel(settings?.reply_model);
   const modelLabel = REPLY_MODEL_OPTIONS.find((o) => o.value === replyModel)?.shortLabel ?? replyModel;
 
   const connections = [

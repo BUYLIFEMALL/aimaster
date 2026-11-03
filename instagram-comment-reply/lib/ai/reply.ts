@@ -1,5 +1,5 @@
 import "server-only";
-import { DEFAULT_REPLY_MODEL, getReplyModelProvider } from "@/lib/ai/models";
+import { getReplyModelProvider, currentReplyModel } from "@/lib/ai/models";
 
 /** Gemini REST 에러 응답을 사람이 읽기 쉬운 한글 메시지로 바꾼다(shots/src/lib/ai/script.ts와 동일). */
 function describeGeminiError(status: number, errorBody: string): string {
@@ -132,7 +132,7 @@ export async function generateCommentReply(params: {
   model?: string;
 }): Promise<string> {
   const { postText, commentAuthor, commentText, link, customInstructions, apiKey, model: modelInput } = params;
-  const model = modelInput || DEFAULT_REPLY_MODEL;
+  const model = currentReplyModel(modelInput);
   const provider = getReplyModelProvider(model);
 
   const systemPrompt = buildSystemPrompt(link, customInstructions);

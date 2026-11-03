@@ -13,9 +13,9 @@ import { disconnectTelegramAction } from "@/lib/dmApp/actions/telegram";
 import { computeInstagramVerifyToken } from "@/lib/dmApp/instagram/webhookSecret";
 import {
   REPLY_MODEL_OPTIONS,
-  DEFAULT_REPLY_MODEL,
   REPLY_MODEL_PROVIDER_SHORT_LABELS,
   getReplyModelProvider,
+  currentReplyModel,
 } from "@/lib/ai/models";
 import { SITE_ORIGIN } from "@/lib/dmApp/oauthRedirect";
 
@@ -53,7 +53,7 @@ export default async function SettingsPage() {
   ]);
 
   const keyMap = new Map((keys ?? []).map((k) => [k.provider, k.api_key]));
-  const activeModel = settings?.reply_model ?? DEFAULT_REPLY_MODEL;
+  const activeModel = currentReplyModel(settings?.reply_model);
   const activeModelOption = REPLY_MODEL_OPTIONS.find((o) => o.value === activeModel);
   const activeProvider = getReplyModelProvider(activeModel);
 

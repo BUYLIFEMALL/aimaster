@@ -23,9 +23,7 @@ export type ReplyModel =
   | "claude-opus-5"
   | "claude-fable-5"
   | "gemini-3.5-flash-lite"
-  | "gemini-3.6-flash"
-  | "gemini-3.7-flash"
-  | "gemini-2.5-pro"
+  | "gemini-3.8-flash"
   | "gemini-3.1-pro-preview";
 
 export interface ReplyModelOption {
@@ -47,9 +45,7 @@ export const REPLY_MODEL_OPTIONS: ReplyModelOption[] = [
   { value: "claude-opus-5", label: "고급형 (Claude Opus 5, 복잡한 맥락도 잘 이해함)", shortLabel: "Claude Opus 5", provider: "anthropic" },
   { value: "claude-fable-5", label: "플래그십 (Claude Fable 5, Anthropic 최상위 모델 · 비용 최고)", shortLabel: "Claude Fable 5", provider: "anthropic" },
   { value: "gemini-3.5-flash-lite", label: "가성비 (Gemini 3.5 Flash Lite, 가장 빠르고 저렴)", shortLabel: "Gemini 3.5 Flash Lite", provider: "gemini" },
-  { value: "gemini-3.6-flash", label: "구형 균형형 (Gemini 3.6 Flash, 이전 세대)", shortLabel: "Gemini 3.6 Flash", provider: "gemini" },
-  { value: "gemini-3.7-flash", label: "균형형 (Gemini 3.7 Flash, 최신 세대 · 속도와 품질 균형)", shortLabel: "Gemini 3.7 Flash", provider: "gemini" },
-  { value: "gemini-2.5-pro", label: "고급형 (Gemini 2.5 Pro, 깊이 있는 추론)", shortLabel: "Gemini 2.5 Pro", provider: "gemini" },
+  { value: "gemini-3.8-flash", label: "균형형 (Gemini 3.8 Flash, 최신 세대 · 속도와 품질 균형)", shortLabel: "Gemini 3.8 Flash", provider: "gemini" },
   { value: "gemini-3.1-pro-preview", label: "플래그십 (Gemini 3.1 Pro Preview, Google 최상위 모델 · 비용 최고)", shortLabel: "Gemini 3.1 Pro Preview", provider: "gemini" },
 ];
 
@@ -62,7 +58,23 @@ export const REPLY_MODEL_PROVIDER_SHORT_LABELS: Record<ReplyModelProvider, strin
   gemini: "Google Gemini",
 };
 
+/** 종료·자동 연결되는 옛 모델 → 대체 모델(2026-12-01 Gemini 2.5 종료). 저장된 옛 값도 새 모델로 호출한다. */
+const RETIRED_REPLY_MODEL: Record<string, ReplyModel> = {
+  "gemini-2.5-pro": "gemini-3.8-flash",
+  "gemini-2.5-flash": "gemini-3.8-flash",
+  "gemini-2.5-flash-lite": "gemini-3.5-flash-lite",
+  "gemini-3.6-flash": "gemini-3.8-flash",
+  "gemini-3.7-flash": "gemini-3.8-flash",
+};
+
+/** 저장된 답글 모델 값을 지금 쓸 수 있는 값으로(비었으면 기본값, 옛 값은 대체 모델). */
+export function currentReplyModel(model: string | null | undefined): string {
+  if (!model) return DEFAULT_REPLY_MODEL;
+  return RETIRED_REPLY_MODEL[model] ?? model;
+}
+
 /** 선택된 답글 모델을 실제로 호출하려면 이 provider의 API 키가 등록되어 있어야 한다. */
 export function getReplyModelProvider(model: string | null | undefined): ReplyModelProvider {
-  return REPLY_MODEL_OPTIONS.find((o) => o.value === model)?.provider ?? "openai";
+  const current = currentReplyModel(model);
+  return REPLY_MODEL_OPTIONS.find((o) => o.value === current)?.provider ?? "openai";
 }

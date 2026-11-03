@@ -7,9 +7,9 @@ import { DEFAULT_DISCLOSURE_MESSAGE } from "@/lib/dmApp/dmDefaults";
 import { TONE_PRESETS } from "@/lib/dmApp/tonePresets";
 import {
   REPLY_MODEL_OPTIONS,
-  DEFAULT_REPLY_MODEL,
   REPLY_MODEL_PROVIDER_SHORT_LABELS,
   type ReplyModelProvider,
+  currentReplyModel,
 } from "@/lib/ai/models";
 
 const PROVIDER_GROUP_ORDER: ReplyModelProvider[] = ["openai", "anthropic", "gemini"];
@@ -83,7 +83,7 @@ export function ReplySettingsForm({
       </div>
       <div>
         <label className="block text-xs font-semibold text-ig-muted mb-1">답장 생성 AI 모델</label>
-        <select name="replyModel" defaultValue={replyModel ?? DEFAULT_REPLY_MODEL} className="input">
+        <select name="replyModel" defaultValue={currentReplyModel(replyModel)} className="input">
           {PROVIDER_GROUP_ORDER.map((provider) => (
             <optgroup key={provider} label={REPLY_MODEL_PROVIDER_SHORT_LABELS[provider]}>
               {REPLY_MODEL_OPTIONS.filter((opt) => opt.provider === provider).map((opt) => (

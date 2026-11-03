@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { TONE_PRESETS } from "@/lib/dmApp/tonePresets";
-import { REPLY_MODEL_OPTIONS, DEFAULT_REPLY_MODEL } from "@/lib/ai/models";
+import { REPLY_MODEL_OPTIONS, currentReplyModel } from "@/lib/ai/models";
 import { formatDateTimeKo } from "@/lib/formatDate";
 
 export interface SettingsSummaryData {
@@ -15,7 +15,7 @@ export interface SettingsSummaryData {
 export function SettingsSummary({ data }: { data: SettingsSummaryData }) {
   const toneLabel = TONE_PRESETS.find((p) => p.value === data.tonePreset)?.label ?? "직접 설정 안 함";
   const modelLabel =
-    REPLY_MODEL_OPTIONS.find((o) => o.value === (data.replyModel ?? DEFAULT_REPLY_MODEL))?.label ?? data.replyModel;
+    REPLY_MODEL_OPTIONS.find((o) => o.value === currentReplyModel(data.replyModel))?.label ?? data.replyModel;
 
   return (
     <div className="mb-6 grid gap-3 sm:grid-cols-2">
