@@ -59,6 +59,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // downloads/: 엔진 설치 파일·engine-latest.json — 엔진 실행 프로그램이 로그인 없이 새 버전을 확인한다(2026-11-04)
+    "/((?!_next/static|_next/image|favicon.ico|api/|downloads/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
