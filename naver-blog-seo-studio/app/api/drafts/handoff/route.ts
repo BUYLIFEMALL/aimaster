@@ -3,6 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { reviewBlockMessage } from "@/lib/draftReview";
 import { draftReport } from "@/lib/draftWriteGuard";
+import { retentionCutoffFor } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
   if (blocked) return NextResponse.json({ code: "REVIEW_MUST_FIX", error: blocked }, { status: 409 });
   const { data, error } = await supabase.from("naver_blog_seo_drafts")
     .update({ extension_handoff_at: new Date().toISOString(), extension_imported_at: null })
-    .eq("id", draftId).eq("user_id", access.user.id).is("seo_report->autoPublish->>runId", null).gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString())
+    .eq("id", draftId).eq("user_id", access.user.id).is("seo_report->autoPublish->>runId", null).gte("created_at", await retentionCutoffFor(access.user.id))
     .select("id, title, extension_handoff_at").maybeSingle();
   if (error) return NextResponse.json({ error: "확장 프로그램 전송 준비에 실패했습니다." }, { status: 500 });
   if (!data) return NextResponse.json({ error: "본인 초안을 찾지 못했습니다." }, { status: 404 });

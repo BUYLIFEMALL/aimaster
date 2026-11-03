@@ -41,6 +41,7 @@ function setup(initial = fixture()) {
     "@/lib/extensionAuth": { verifyExtensionToken: async request => request.headers.get("authorization") === "Bearer own" ? { userId: "member-1" } : null },
     "@/lib/access": { checkProgramAccessApi: async () => ({ allowed: true, user: { id: "member-1" } }) },
     "@/lib/supabase/service": { createServiceClient: () => db },
+    "@/lib/retentionExempt": { retentionCutoffFor: async () => new Date(Date.now() - 30 * 86400000).toISOString() }, // 2026-11-03: 일반 회원 기준
     "@/lib/supabase/server": { createClient: async () => db },
     "@/lib/draftWriteGuard": guards,
     "@/lib/draftReview": review,

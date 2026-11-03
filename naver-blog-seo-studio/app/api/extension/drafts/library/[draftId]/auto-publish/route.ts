@@ -5,6 +5,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { draftReport, matchDraftRevision, nextDraftReport, publicationFingerprint, naverPostUrl, staleWritingRun, writableDraft } from "@/lib/draftWriteGuard";
 import { reviewBlockMessage } from "@/lib/draftReview";
 import { checkReserveTime } from "@/lib/reserveTime";
+import { retentionCutoffFor } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -18,7 +19,7 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
   if (!input || !["claim", "arm", "published", "reserved", "uncertain", "failed", "status"].includes(input.action)) return fail("지원하지 않는 발행 요청입니다.", 400);
   const { draftId } = await context.params;
   const db = createServiceClient();
-  const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
+  const cutoff = await retentionCutoffFor(user.userId);
   const { data: row, error } = await db.from("naver_blog_seo_drafts").select("*")
     .eq("id", draftId).eq("user_id", user.userId).gte("created_at", cutoff)
     .not("extension_handoff_at", "is", null).maybeSingle();

@@ -3,6 +3,7 @@ import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { draftReport, manualInputBlockMessage } from "@/lib/draftWriteGuard";
 import { reviewBlockMessage } from "@/lib/draftReview";
 import { createServiceClient } from "@/lib/supabase/service";
+import { retentionCutoffFor } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -12,7 +13,7 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
   if (!user) return NextResponse.json({ error: "유효하지 않은 연동 토큰이거나 이용 권한이 없습니다." }, { status: 401 });
   const { draftId } = await context.params;
   const db = createServiceClient();
-  const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
+  const cutoff = await retentionCutoffFor(user.userId);
   const { data: row, error: readError } = await db.from("naver_blog_seo_drafts").select("title, body, seo_report")
     .eq("id", draftId).eq("user_id", user.userId).gte("created_at", cutoff).not("extension_handoff_at", "is", null).maybeSingle();
   if (readError) return NextResponse.json({ error: "확장 불러오기 상태 저장에 실패했습니다." }, { status: 500 });

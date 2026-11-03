@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { draftReport, manualInputAllowed } from "@/lib/draftWriteGuard";
 import { createServiceClient } from "@/lib/supabase/service";
+import { retentionCutoffFor } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -18,7 +19,7 @@ export async function POST(request: Request, context: { params: Promise<{ draftI
   const error = input?.error?.trim().slice(0, 500) || null;
   const completedAt = status === "completed" || status === "publish_ready" ? new Date().toISOString() : null;
   const db = createServiceClient();
-  const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
+  const cutoff = await retentionCutoffFor(user.userId);
   const { data: row, error: readError } = await db.from("naver_blog_seo_drafts").select("seo_report")
     .eq("id", draftId).eq("user_id", user.userId).gte("created_at", cutoff).not("extension_handoff_at", "is", null).maybeSingle();
   if (readError) return NextResponse.json({ error: "입력 결과 기록에 실패했습니다." }, { status: 500 });

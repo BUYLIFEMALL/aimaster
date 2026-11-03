@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { verifyExtensionToken } from "@/lib/extensionAuth";
 import { readNaverCategory } from "@/lib/naverCategory";
 import { createServiceClient } from "@/lib/supabase/service";
+import { retentionCutoffFor } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
   if (!user) return NextResponse.json({ error: "유효하지 않은 연동 토큰이거나 이용 권한이 없습니다." }, { status: 401 });
   const { data, error } = await createServiceClient().from("naver_blog_seo_drafts")
     .select("id, topic, keywords, strategy, title, body, image_path, image_model, image_mime_type, seo_report, extension_handoff_at, naver_input_status, naver_category")
-    .eq("user_id", user.userId).gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()).not("extension_handoff_at", "is", null)
+    .eq("user_id", user.userId).gte("created_at", await retentionCutoffFor(user.userId)).not("extension_handoff_at", "is", null)
     .order("extension_handoff_at", { ascending: false }).limit(20);
   if (error) return NextResponse.json({ error: "웹 초안 목록을 불러오지 못했습니다." }, { status: 500 });
   const drafts = (data ?? []).map((draft) => {
