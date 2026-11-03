@@ -2,20 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Cpu, Download, Loader2, AlertCircle, Wand2 } from "lucide-react";
+import { Cpu, Loader2, AlertCircle, Wand2 } from "lucide-react";
 import { useEngine } from "./useEngine";
+import { DownloadButtons } from "./DownloadButtons";
 import {
   EngineError,
   checkTask,
   fetchAudio,
-  fetchLibraryAudio,
+  fetchLibraryFile,
   hasLibrary,
   saveToLibrary,
   startTask,
   type SongForEngine,
 } from "@/lib/engine";
 
-type Take = { id: string; title: string; url: string; seconds: number; at: string; saved: "saved" | "record-failed" | "old-engine" };
+type Take = { id: string; trackId: string | null; ext: string; title: string; url: string; seconds: number; at: string; saved: "saved" | "record-failed" | "old-engine" };
 
 const POLL_MS = 3000;
 const MAX_WAIT_MS = 45 * 60_000; // CPU 모드 4분 곡 + 첫 모델 내려받기까지 여유
@@ -62,7 +63,7 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
     setError(null);
     setBusy("start");
     try {
-      const taskId = await startTask(song, status.device);
+      const taskId = await startTask(song, status.device, status.quality);
       setBusy("run");
       const until = Date.now() + MAX_WAIT_MS;
       while (!cancelled.current) {
@@ -73,6 +74,8 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           setBusy("fetch");
           const name = title.trim() || "제목 없는 노래";
           let url: string;
+          let ext = "mp3";
+          let trackId: string | null = null;
           let saved: Take["saved"] = "old-engine";
           if (hasLibrary(status)) {
             // 보관: 내 PC 보관 폴더에 복사 → 「모든 음악」 기록 한 줄. 기록이 실패해도 음원은 PC에 남는다.
@@ -84,12 +87,13 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
               body: JSON.stringify({ id, song_id: songId, title: name, ...song, device: status.device }),
             }).catch(() => null);
             saved = res?.ok ? "saved" : "record-failed";
-            url = await fetchLibraryAudio(id);
+            trackId = id;
+            ({ url, ext } = await fetchLibraryFile(id));
           } else {
             url = await fetchAudio(s.file);
           }
           urls.current.push(url);
-          setTakes((list) => [{ id: taskId, title: name, url, seconds: song.duration_sec, at: new Date().toLocaleTimeString("ko-KR"), saved }, ...list]);
+          setTakes((list) => [{ id: taskId, trackId, ext, title: name, url, seconds: song.duration_sec, at: new Date().toLocaleTimeString("ko-KR"), saved }, ...list]);
           break;
         }
         if (Date.now() > until) throw new EngineError("너무 오래 걸려 기다리기를 멈췄습니다. 엔진 창에 오류가 있는지 확인해 주세요.");
@@ -169,13 +173,9 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
                 <span className="text-slate-500">
                   {t.seconds}초 · {t.at}
                 </span>
-                <a
-                  href={t.url}
-                  download={`${t.title}.mp3`}
-                  className="ml-auto inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-3 py-1.5 font-semibold text-emerald-300 hover:bg-emerald-950/50"
-                >
-                  <Download className="h-3.5 w-3.5" /> MP3 내려받기
-                </a>
+                <span className="ml-auto">
+                  <DownloadButtons trackId={t.trackId} title={t.title} ext={t.ext} fallbackUrl={t.url} ffmpeg={!!status?.quality?.ffmpeg} onError={(m) => setError({ text: m })} />
+                </span>
               </div>
               <audio controls src={t.url} className="w-full" />
               <p className={`text-[11px] ${t.saved === "saved" ? "text-emerald-300/80" : "text-amber-300/80"}`}>
@@ -188,9 +188,9 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
                     에서 다시 들을 수 있습니다.
                   </>
                 ) : t.saved === "record-failed" ? (
-                  "음원은 내 PC 보관함에 저장했지만 목록 기록을 남기지 못했습니다. [MP3 내려받기]로 따로 저장해 두세요."
+                  "음원은 내 PC 보관함에 저장했지만 목록 기록을 남기지 못했습니다. [내려받기]로 따로 저장해 두세요."
                 ) : (
-                  "이 엔진은 보관함이 없는 옛 버전이라 화면을 떠나면 사라집니다. [MP3 내려받기]로 저장하고, 엔진을 새로 받아 주세요."
+                  "이 엔진은 보관함이 없는 옛 버전이라 화면을 떠나면 사라집니다. [내려받기]로 저장하고, 엔진을 새로 받아 주세요."
                 )}
               </p>
             </li>

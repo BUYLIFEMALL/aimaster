@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Library,
   Play,
-  Download,
   Trash2,
   Search,
   AlertCircle,
@@ -22,13 +21,14 @@ import {
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
+import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import {
   EngineError,
   deleteFromLibrary,
   fetchLibraryAudio,
   hasFolderPicker,
   hasLibrary,
-  listLibrary,
+  listLibraryFormats,
   revealLibraryFolder,
 } from "@/lib/engine";
 import { KIND_LABEL, type Track } from "@/lib/tracks";
@@ -49,6 +49,7 @@ export default function LibraryPage() {
   const [order, setOrder] = useState<string[]>([]); // 지금 보는 플레이리스트의 곡 순서
   const [loading, setLoading] = useState(true);
   const [onPc, setOnPc] = useState<Set<string> | null>(null);
+  const [formats, setFormats] = useState<Record<string, string>>({});
   const [query, setQuery] = useState("");
   const [audio, setAudio] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
@@ -89,8 +90,11 @@ export default function LibraryPage() {
   // 엔진이 연결되면 이 PC 보관함에 어떤 곡이 있는지 한 번 확인한다.
   useEffect(() => {
     if (!libOk) return;
-    listLibrary()
-      .then(setOnPc)
+    listLibraryFormats()
+      .then((r) => {
+        setOnPc(r.ids);
+        setFormats(r.formats);
+      })
       .catch(() => setOnPc(null));
   }, [libOk, tracks.length]);
 
@@ -135,14 +139,6 @@ export default function LibraryPage() {
     }
   };
 
-  const download = async (t: Track) => {
-    const url = await loadAudio(t.id);
-    if (!url) return;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${t.title}.mp3`;
-    a.click();
-  };
 
   const remove = async (t: Track) => {
     const here = onPc?.has(t.id);
@@ -445,14 +441,9 @@ export default function LibraryPage() {
                         >
                           {busy === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />} 듣기
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => download(t)}
-                          disabled={!libOk || here === false || busy === t.id}
-                          className={`${btn} border-slate-700 text-slate-300 hover:bg-slate-900`}
-                        >
-                          <Download className="h-3.5 w-3.5" /> MP3
-                        </button>
+                        {libOk && here !== false && (
+                          <DownloadButtons trackId={t.id} title={t.title} ext={formats[t.id] ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} onError={setMessage} />
+                        )}
                         {inPlaylist ? (
                           <>
                             <button type="button" onClick={() => moveInPlaylist(t.id, -1)} disabled={i === 0} className={`${btn} border-slate-700 text-slate-400`} aria-label="위로">

@@ -29,6 +29,17 @@ test("가사 언어: 한글이 있으면 한국어, 없으면 영어", () => {
   assert.equal(vocalLanguage(""), "en");
 });
 
+test("생성 요청: 음질 설정이 있으면 무손실 FLAC·그 설정 단계 수·언어 모델은 띄운 경우만", () => {
+  const q = { tier: "high", label: "", dit: "acestep-v15-xl-turbo", lm: "acestep-5Hz-lm-1.7B", steps: 8, offload: true, vramGb: 16, ffmpeg: true };
+  const b = buildTaskBody(song, "cuda", q);
+  assert.equal(b.audio_format, "flac");
+  assert.equal(b.inference_steps, 8);
+  assert.equal(b.thinking, true);
+  assert.equal(buildTaskBody(song, "cpu", { ...q, lm: null, steps: 50 }).thinking, false);
+  assert.equal(buildTaskBody(song, "cpu", { ...q, lm: null, steps: 50 }).inference_steps, 50);
+  assert.equal(buildEditFields({ mode: "cover", style_prompt: "", lyrics: "", strength: 1 }, 60, q).audio_format, "flac");
+});
+
 test("생성 요청: 한 곡·MP3·길이 그대로, 언어 모델은 그래픽카드에서만", () => {
   const gpu = buildTaskBody(song, "cuda");
   assert.deepEqual(gpu, {

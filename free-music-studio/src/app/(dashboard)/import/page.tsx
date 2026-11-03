@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Upload, Wand2, Loader2, AlertCircle, ShieldAlert, Download, Scissors, Palette } from "lucide-react";
+import { Upload, Wand2, Loader2, AlertCircle, ShieldAlert, Scissors, Palette } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
-import { EngineError, fetchLibraryAudio, hasLibrary, saveToLibrary, startEditTask, waitForTask, type EditOptions } from "@/lib/engine";
+import { EngineError, fetchLibraryFile, hasLibrary, saveToLibrary, startEditTask, waitForTask, type EditOptions } from "@/lib/engine";
+import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { LIMITS } from "@/lib/songs";
 import { SOURCE_MAX_SEC, SOURCE_MIN_SEC } from "@/lib/tracks";
 
@@ -13,7 +14,7 @@ const field =
   "w-full rounded-xl border border-slate-700/60 bg-slate-950/80 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden focus:ring-1 focus:ring-emerald-400";
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.round(s) % 60).padStart(2, "0")}`;
 
-type Result = { id: string; title: string; url: string; saved: boolean };
+type Result = { id: string; title: string; url: string; ext: string; saved: boolean };
 
 /** 원곡 파일 길이(초)를 브라우저에서 읽는다 — 파일은 서버로 보내지 않는다. */
 function readDuration(file: File): Promise<number> {
@@ -102,7 +103,7 @@ export default function ImportPage() {
         mode === "cover"
           ? { mode, style_prompt: style, lyrics, strength }
           : { mode, style_prompt: style, lyrics, start: range[0], end: range[1] };
-      const taskId = await startEditTask(file, opts, sourceSec);
+      const taskId = await startEditTask(file, opts, sourceSec, status.quality);
       setBusy("run");
       const out = await waitForTask(taskId, () => cancelled.current);
       setBusy("fetch");
@@ -114,9 +115,9 @@ export default function ImportPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, song_id: null, title: name, style_prompt: style, lyrics, duration_sec: Math.round(sourceSec), device: status.device, kind: mode }),
       }).catch(() => null);
-      const url = await fetchLibraryAudio(id);
+      const { url, ext } = await fetchLibraryFile(id);
       urls.current.push(url);
-      setResults((r) => [{ id, title: name, url, saved: !!res?.ok }, ...r]);
+      setResults((r) => [{ id, title: name, url, ext, saved: !!res?.ok }, ...r]);
     } catch (e) {
       setError(e instanceof EngineError ? e.message : "만들지 못했습니다.");
     } finally {
@@ -270,13 +271,9 @@ export default function ImportPage() {
           <div key={r.id} className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className="font-semibold text-slate-100">{r.title}</span>
-              <a
-                href={r.url}
-                download={`${r.title}.mp3`}
-                className="ml-auto inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-3 py-1.5 font-semibold text-emerald-300 hover:bg-emerald-950/50"
-              >
-                <Download className="h-3.5 w-3.5" /> MP3 내려받기
-              </a>
+              <span className="ml-auto">
+                <DownloadButtons trackId={r.id} title={r.title} ext={r.ext} ffmpeg={!!status?.quality?.ffmpeg} onError={setError} />
+              </span>
             </div>
             <audio controls src={r.url} className="w-full" />
             <p className={`text-[11px] ${r.saved ? "text-emerald-300/80" : "text-amber-300/80"}`}>
@@ -289,7 +286,7 @@ export default function ImportPage() {
                   에서 다시 들을 수 있습니다.
                 </>
               ) : (
-                "음원은 저장 폴더에 있지만 목록 기록을 남기지 못했습니다. [MP3 내려받기]로 따로 저장해 두세요."
+                "음원은 저장 폴더에 있지만 목록 기록을 남기지 못했습니다. [내려받기]로 따로 저장해 두세요."
               )}
             </p>
           </div>

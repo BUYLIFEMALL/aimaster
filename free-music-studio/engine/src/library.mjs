@@ -31,9 +31,24 @@ export function safeFileName(title) {
   return base || "노래";
 }
 
-async function uniquePath(dir, name) {
-  let p = path.join(dir, `${name}.mp3`);
-  for (let n = 2; await exists(p); n++) p = path.join(dir, `${name} (${n}).mp3`);
+/** 보관하는 음원 형식 — 0.1.4부터 무손실 FLAC 원음이 기본(옛 곡은 MP3). */
+export const AUDIO_EXTS = ["flac", "mp3", "wav"];
+export const AUDIO_TYPES = { flac: "audio/flac", mp3: "audio/mpeg", wav: "audio/wav" };
+
+/** 엔진 결과 주소(/v1/audio?path=...확장자)에서 형식을 고른다. 모르면 mp3. */
+export function extOfAudioRef(file) {
+  try {
+    const inner = new URL(file, "http://x").searchParams.get("path") ?? "";
+    const ext = inner.split(".").pop()?.toLowerCase() ?? "";
+    return AUDIO_EXTS.includes(ext) ? ext : "mp3";
+  } catch {
+    return "mp3";
+  }
+}
+
+async function uniquePath(dir, name, ext = "mp3") {
+  let p = path.join(dir, `${name}.${ext}`);
+  for (let n = 2; await exists(p); n++) p = path.join(dir, `${name} (${n}).${ext}`);
   return p;
 }
 
@@ -86,10 +101,10 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
       await saveSettings();
     },
 
-    /** 음원 바이트를 받아 저장 폴더에 「곡 제목.mp3」로 보관한다(임시 이름으로 쓴 뒤 바꿈). */
-    async save(id, bytes, title) {
+    /** 음원 바이트를 받아 저장 폴더에 「곡 제목.확장자」로 보관한다(임시 이름으로 쓴 뒤 바꿈). */
+    async save(id, bytes, title, ext = "mp3") {
       await mkdir(dir, { recursive: true });
-      const target = await uniquePath(dir, safeFileName(title));
+      const target = await uniquePath(dir, safeFileName(title), AUDIO_EXTS.includes(ext) ? ext : "mp3");
       const tmp = `${target}.part`;
       await writeFile(tmp, bytes);
       await rename(tmp, target);
@@ -105,13 +120,18 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
       return ids;
     },
 
-    /** 파일이 있으면 { size, stream }, 없으면 null */
+    /** 보관한 파일 경로(없으면 null) */
+    pathOf(id) {
+      return index[id] ?? null;
+    },
+
+    /** 파일이 있으면 { size, stream, ext }, 없으면 null */
     async open(id) {
       const p = index[id];
       if (!p) return null;
       try {
         const s = await stat(p);
-        return { size: s.size, stream: createReadStream(p) };
+        return { size: s.size, stream: createReadStream(p), ext: path.extname(p).slice(1).toLowerCase() || "mp3" };
       } catch {
         return null;
       }
@@ -140,10 +160,11 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
       if (move) {
         for (const [id, p] of Object.entries(index)) {
           if (!(await exists(p)) || path.dirname(p) === target) continue;
-          const base = path.basename(p, ".mp3");
+          const ext = path.extname(p).slice(1).toLowerCase() || "mp3";
+          const base = path.basename(p, path.extname(p));
           // 0.1.1 방식(번호 이름) 파일은 사이트가 보낸 곡 제목으로 바꿔 옮긴다.
           const name = isTrackId(base) ? safeFileName(typeof titles[id] === "string" ? titles[id] : "") : base;
-          const to = await uniquePath(target, name);
+          const to = await uniquePath(target, name, ext);
           try {
             await moveFile(p, to);
             index[id] = to;

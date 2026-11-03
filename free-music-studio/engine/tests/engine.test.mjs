@@ -1,8 +1,27 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chooseDevice } from "../src/device.mjs";
+import { chooseDevice, qualityProfile } from "../src/device.mjs";
+import { profileEnv } from "../src/acestep.mjs";
 import { bearer, corsHeaders, isAllowedOrigin, newPairCode, sameSecret } from "../src/security.mjs";
-import { createLibrary, isTrackId, safeFileName } from "../src/library.mjs";
+import { createLibrary, extOfAudioRef, isTrackId, safeFileName } from "../src/library.mjs";
+
+test("음질: 그래픽 메모리별 가장 좋은 조합(XL·4B는 24GB 이상)", () => {
+  assert.equal(qualityProfile({ device: "cuda", vramGb: 32 }).dit, "acestep-v15-xl-sft");
+  assert.equal(qualityProfile({ device: "cuda", vramGb: 32 }).lm, "acestep-5Hz-lm-4B");
+  assert.equal(qualityProfile({ device: "cuda", vramGb: 32 }).steps, 50);
+  const rtx5080 = qualityProfile({ device: "cuda", vramGb: 15.9 });
+  assert.deepEqual([rtx5080.dit, rtx5080.lm, rtx5080.offload, rtx5080.steps], ["acestep-v15-xl-turbo", "acestep-5Hz-lm-1.7B", true, 8]);
+  assert.equal(qualityProfile({ device: "cuda", vramGb: 8 }).lm, "acestep-5Hz-lm-0.6B");
+  assert.equal(qualityProfile({ device: "cpu", vramGb: null }).lm, null);
+  assert.deepEqual(profileEnv(qualityProfile({ device: "cpu", vramGb: null })), { ACESTEP_CONFIG_PATH: "acestep-v15-turbo", ACESTEP_INIT_LLM: "false" });
+  assert.equal(profileEnv(rtx5080).ACESTEP_OFFLOAD_DIT_TO_CPU, "true");
+});
+
+test("보관함: 엔진 결과 주소에서 원음 형식 고르기", () => {
+  assert.equal(extOfAudioRef("/v1/audio?path=%2Ftmp%2Fa.flac"), "flac");
+  assert.equal(extOfAudioRef("/v1/audio?path=C%3A%5Cx%5Cb.MP3"), "mp3");
+  assert.equal(extOfAudioRef("/v1/audio?path=x.exe"), "mp3");
+});
 import { browseDir, browseRoots, makeDir } from "../src/folderBrowse.mjs";
 
 test("폴더 고르기: 하위 폴더만·숨김 제외·이름 순, 새 폴더 만들기", async () => {
@@ -53,6 +72,10 @@ test("보관함: 제목으로 저장 → 같은 제목은 (2) → 목록·꺼내
     const b = "4f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
     assert.deepEqual(await lib.list(), []);
     const pa = await lib.save(a, Buffer.from("ID3abc"), "비 오는 오후");
+    const pf = await lib.save("6f2b8c1e-1a2b-4c3d-8e9f-0123456789ab", Buffer.from("fLaC"), "원음", "flac");
+    assert.equal(path.basename(pf), "원음.flac");
+    assert.equal((await lib.open("6f2b8c1e-1a2b-4c3d-8e9f-0123456789ab")).ext, "flac");
+    await lib.remove("6f2b8c1e-1a2b-4c3d-8e9f-0123456789ab");
     const pb = await lib.save(b, Buffer.from("ID3x"), "비 오는 오후");
     assert.equal(path.basename(pa), "비 오는 오후.mp3");
     assert.equal(path.basename(pb), "비 오는 오후 (2).mp3");

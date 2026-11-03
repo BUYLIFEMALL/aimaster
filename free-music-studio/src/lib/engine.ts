@@ -17,6 +17,19 @@ export type EngineStatus = {
   paired: boolean;
   features?: string[]; // 0.1.1부터 ["library"]
   libraryDir?: string;
+  quality?: EngineQuality; // 0.1.4부터
+};
+
+/** 엔진이 그래픽 메모리에 맞춰 고른 음질 설정(engine/src/device.mjs qualityProfile) */
+export type EngineQuality = {
+  tier: "max" | "high" | "standard" | "basic";
+  label: string;
+  dit: string;
+  lm: string | null;
+  steps: number;
+  offload: boolean;
+  vramGb: number | null;
+  ffmpeg: boolean;
 };
 
 /** 내 PC 보관함을 쓸 수 있는 엔진인가(0.1.0은 없음 — 엔진을 새로 받아야 함). */
@@ -36,18 +49,20 @@ export function vocalLanguage(lyrics: string): "ko" | "en" {
 }
 
 /**
- * 생성 요청 본문. 한 곡씩(batch_size 1 — 기본 2는 시간이 두 배), MP3.
- * 언어 모델(thinking)은 그래픽카드 모드에서만 켠다 — CPU 모드 엔진은 언어 모델을 띄우지 않는다.
+ * 생성 요청 본문. 한 곡씩(batch_size 1 — 기본 2는 시간이 두 배).
+ * 음질 설정이 있는 엔진(0.1.4+)이면 무손실 FLAC 원음 + 그 설정의 생성 단계 수, 언어 모델은 띄운 경우만 켠다.
+ * 옛 엔진은 예전대로 MP3(엔진 기본 128kbps), 언어 모델은 그래픽카드 모드에서만.
  */
-export function buildTaskBody(song: SongForEngine, device: string) {
+export function buildTaskBody(song: SongForEngine, device: string, quality?: EngineQuality | null) {
   return {
     prompt: song.style_prompt.trim(),
     lyrics: song.lyrics.trim(),
     audio_duration: song.duration_sec,
     vocal_language: vocalLanguage(song.lyrics),
-    thinking: device === "cuda" || device === "mps",
+    thinking: quality ? !!quality.lm : device === "cuda" || device === "mps",
     batch_size: 1,
-    audio_format: "mp3",
+    audio_format: quality ? "flac" : "mp3",
+    ...(quality ? { inference_steps: quality.steps } : {}),
   };
 }
 
@@ -59,7 +74,7 @@ export type EditOptions =
  * 가져온 음악(원곡 파일) 작업의 폼 칸 — 커버(스타일 바꾸기) 또는 일부만 다시 만들기.
  * 커버 세기는 0.2~1.0(높을수록 원곡을 많이 따름), 구간은 원곡 길이 안으로 자른다. 언어 모델은 이 작업에서 쓰이지 않는다.
  */
-export function buildEditFields(opts: EditOptions, sourceSec: number): Record<string, string> {
+export function buildEditFields(opts: EditOptions, sourceSec: number, quality?: EngineQuality | null): Record<string, string> {
   const base: Record<string, string> = {
     task_type: opts.mode,
     prompt: opts.style_prompt.trim(),
@@ -67,8 +82,9 @@ export function buildEditFields(opts: EditOptions, sourceSec: number): Record<st
     vocal_language: vocalLanguage(opts.lyrics),
     thinking: "false",
     batch_size: "1",
-    audio_format: "mp3",
+    audio_format: quality ? "flac" : "mp3",
   };
+  if (quality) base.inference_steps = String(quality.steps);
   if (opts.mode === "cover") {
     const s = Math.min(1, Math.max(0.2, Number.isFinite(opts.strength) ? opts.strength : 1));
     base.audio_cover_strength = s.toFixed(2);
@@ -176,11 +192,11 @@ export function forgetEngine() {
   setToken(null);
 }
 
-export async function startTask(song: SongForEngine, device: string): Promise<string> {
+export async function startTask(song: SongForEngine, device: string, quality?: EngineQuality | null): Promise<string> {
   const res = await call("/release_task", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(buildTaskBody(song, device)),
+    body: JSON.stringify(buildTaskBody(song, device, quality)),
   });
   const data = await res.json();
   const taskId = data?.data?.task_id;
@@ -189,9 +205,9 @@ export async function startTask(song: SongForEngine, device: string): Promise<st
 }
 
 /** 원곡 파일을 엔진에 올려 커버·부분 수정 작업을 시작한다(파일은 회원 PC 엔진으로만 간다, 60MB까지). */
-export async function startEditTask(source: File, opts: EditOptions, sourceSec: number): Promise<string> {
+export async function startEditTask(source: File, opts: EditOptions, sourceSec: number, quality?: EngineQuality | null): Promise<string> {
   const form = new FormData();
-  for (const [k, v] of Object.entries(buildEditFields(opts, sourceSec))) form.append(k, v);
+  for (const [k, v] of Object.entries(buildEditFields(opts, sourceSec, quality))) form.append(k, v);
   form.append("src_audio", source, source.name);
   const res = await call("/release_task", { method: "POST", body: form }, 180_000);
   const data = await res.json();
@@ -285,14 +301,35 @@ export async function revealLibraryFolder(): Promise<void> {
 
 /** 이 PC 보관함에 있는 곡 번호들 */
 export async function listLibrary(): Promise<Set<string>> {
+  return (await listLibraryFormats()).ids;
+}
+
+/** 보관함 곡 번호와 곡마다 원음 형식(0.1.4+, 옛 엔진은 모두 mp3) */
+export async function listLibraryFormats(): Promise<{ ids: Set<string>; formats: Record<string, string> }> {
   const res = await call("/library");
   const data = await res.json();
-  return new Set(Array.isArray(data?.ids) ? data.ids : []);
+  return { ids: new Set(Array.isArray(data?.ids) ? data.ids : []), formats: data?.formats && typeof data.formats === "object" ? data.formats : {} };
+}
+
+/** 보관함 음원을 브라우저 안 주소로. 기본은 원음(FLAC 등), format "mp3"면 엔진이 320kbps로 바꿔 준다. */
+export async function fetchLibraryFile(id: string, format?: "mp3"): Promise<{ url: string; ext: string }> {
+  const res = await call(`/library/${id}${format ? "?format=mp3" : ""}`, {}, 300_000);
+  const ext = format ?? res.headers.get("x-audio-format") ?? "mp3";
+  return { url: URL.createObjectURL(await res.blob()), ext };
 }
 
 export async function fetchLibraryAudio(id: string): Promise<string> {
-  const res = await call(`/library/${id}`, {}, 120_000);
-  return URL.createObjectURL(await res.blob());
+  return (await fetchLibraryFile(id)).url;
+}
+
+/** 보관함 곡을 파일로 내려받는다(원음 또는 MP3 320kbps). */
+export async function downloadFromLibrary(id: string, title: string, format?: "mp3"): Promise<void> {
+  const f = await fetchLibraryFile(id, format);
+  const a = document.createElement("a");
+  a.href = f.url;
+  a.download = `${title}.${f.ext}`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(f.url), 60_000);
 }
 
 export async function deleteFromLibrary(id: string): Promise<void> {

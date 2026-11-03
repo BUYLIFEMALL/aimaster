@@ -92,6 +92,13 @@ export default function EnginePage() {
             <p>
               <span className="text-slate-500">상태</span> {status?.stage}
             </p>
+            {status?.quality && (
+              <p className="sm:col-span-3">
+                <span className="text-slate-500">음질</span> 🎚️ {status.quality.label}
+                {status.quality.vramGb ? ` (그래픽 메모리 ${status.quality.vramGb}GB)` : ""} · 원음 무손실 FLAC
+                {status.quality.ffmpeg ? " · MP3 320k 변환 가능" : " · MP3 변환 도구(ffmpeg) 없음 — 원음만"}
+              </p>
+            )}
             {status?.error && <p className="text-rose-300 sm:col-span-3">{status.error}</p>}
           </div>
         )}

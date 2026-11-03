@@ -23,6 +23,26 @@ export function hasNvidia() {
   return r.status === 0 && /GPU \d/.test(r.stdout);
 }
 
+/** 첫 NVIDIA 그래픽카드의 메모리(GB). 모르면 null. */
+export function nvidiaVramGb() {
+  const r = spawnSync("nvidia-smi", ["--query-gpu=memory.total", "--format=csv,noheader,nounits"], { encoding: "utf8" });
+  const mib = r.status === 0 ? parseInt(String(r.stdout).split(/\r?\n/)[0], 10) : NaN;
+  return Number.isFinite(mib) ? Math.round((mib / 1024) * 10) / 10 : null;
+}
+
+/** ffmpeg가 있는지(FLAC 원음 → MP3 320kbps 변환에 씀) */
+export function hasFfmpeg() {
+  return spawnSync("ffmpeg", ["-version"], { encoding: "utf8" }).status === 0;
+}
+
+/** 음질 설정을 ACE-Step 환경 변수로 — 모델은 첫 사용 때 엔진이 스스로 받는다. */
+export function profileEnv(profile) {
+  const env = { ACESTEP_CONFIG_PATH: profile.dit, ACESTEP_INIT_LLM: profile.lm ? "true" : "false" };
+  if (profile.lm) env.ACESTEP_LM_MODEL_PATH = profile.lm;
+  if (profile.offload) env.ACESTEP_OFFLOAD_DIT_TO_CPU = "true";
+  return env;
+}
+
 function run(cmd, args, opts, log) {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, { ...opts, windowsHide: true });
@@ -77,7 +97,7 @@ export async function ensureInstalled(dataDir, { onStage = () => {}, log = () =>
  * 실행: 내부 포트에 ACE-Step 서버를 띄운다. 키(apiKey)를 걸어 연결 문을 거치지 않은 요청은 받지 않게 한다.
  * 음악 모델(약 10GB)은 첫 생성 요청 때 ACE-Step이 스스로 받는다.
  */
-export function launch(dir, { port, apiKey, device, initLlm }, log = () => {}) {
+export function launch(dir, { port, apiKey, device, profile }, log = () => {}) {
   const child = spawn("uv", ["run", "acestep-api"], {
     cwd: dir,
     windowsHide: true,
@@ -87,7 +107,7 @@ export function launch(dir, { port, apiKey, device, initLlm }, log = () => {}) {
       ACESTEP_API_PORT: String(port),
       ACESTEP_API_KEY: apiKey,
       ACESTEP_DEVICE: device,
-      ACESTEP_INIT_LLM: initLlm ? "true" : "false",
+      ...profileEnv(profile),
     },
   });
   child.stdout.on("data", (d) => log(String(d)));

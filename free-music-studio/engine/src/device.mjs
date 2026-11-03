@@ -22,3 +22,25 @@ export function chooseDevice({ platform, arch, nvidia }) {
   }
   return { supported: false, device: "", initLlm: false, mode: "미지원", reason: "윈도우·맥(Apple Silicon)에서만 동작합니다." };
 }
+
+/**
+ * 음질 설정 — 주인님 지시(2026-11-03) 「음악 퀄리티는 최고 수준으로」. 그래픽 메모리에 맞는 가장 좋은 조합을 고른다.
+ * 근거: ACE-Step 1.5 README 「Which Model Should I Choose?」·Model Zoo(XL·4B는 MIT, 상업 이용 가능 — HF 모델 카드 확인).
+ * dit: 음악 모델, lm: 언어 모델(곡 구성·멜로디 계획, null이면 안 띄움), steps: 생성 단계(turbo 8 · sft 50),
+ * offload: 그래픽 메모리가 모자라 일부를 CPU로 넘김.
+ * @param {{ device: string, vramGb: number | null }} pc
+ */
+export function qualityProfile({ device, vramGb }) {
+  const p = (tier, label, dit, lm, steps, offload = false) => ({ tier, label, dit, lm, steps, offload });
+  if (device === "cuda") {
+    const v = vramGb ?? 0;
+    if (v >= 24) return p("max", "최고 품질 · XL 음악 모델 + 4B 언어 모델", "acestep-v15-xl-sft", "acestep-5Hz-lm-4B", 50);
+    if (v >= 20) return p("max", "최고 품질 · XL 음악 모델 + 1.7B 언어 모델", "acestep-v15-xl-sft", "acestep-5Hz-lm-1.7B", 50);
+    if (v >= 15) return p("high", "고품질 · XL 음악 모델(일부 CPU 사용) + 1.7B 언어 모델", "acestep-v15-xl-turbo", "acestep-5Hz-lm-1.7B", 8, true);
+    if (v >= 12) return p("high", "고품질 · 표준 음악 모델 + 1.7B 언어 모델", "acestep-v15-turbo", "acestep-5Hz-lm-1.7B", 8);
+    if (v >= 6) return p("standard", "표준 · 표준 음악 모델 + 0.6B 언어 모델", "acestep-v15-turbo", "acestep-5Hz-lm-0.6B", 8);
+    return p("basic", "기본 · 표준 음악 모델(언어 모델 없음)", "acestep-v15-turbo", null, 8, true);
+  }
+  if (device === "mps") return p("standard", "표준 · 표준 음악 모델 + 0.6B 언어 모델(Apple 맥)", "acestep-v15-turbo", "acestep-5Hz-lm-0.6B", 8);
+  return p("basic", "기본 · CPU 모드(언어 모델 없음)", "acestep-v15-turbo", null, 8);
+}
