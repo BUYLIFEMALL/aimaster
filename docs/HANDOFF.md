@@ -30,7 +30,8 @@
 - 한 일: 공용 공공데이터 키 403 → 주인님이 Vercel `DATA_GO_KR_SERVICE_KEY`(Production)를 직접 교체(10:32, 값은 안 읽음). 대기분 4건(포털 사유 코드 `15c066de2`·경기 전용면적 `de7ec2b30`·`zod` 4.6.7·o3 교체 `7b55bd09d`) 함께 v1.42 배포(`dpl_Cr1eX4wGmoA78spQQRq6yoN4XGAJ`, DB 버전 v1.42). 커밋 `a195b42b4`·`c5eb5b17d`, 비교표 `d5fb270df`.
 - 확인: ego lite Supabase SQL 편집기 읽기 조회 — 매물 최신 수집 12:10 KST·3시간 40건, 종로구(60분 주기) 성공 기록 갱신. 24시간 주기 지역은 11-03 23:22쯤 차례(그때 함께 보면 확실).
 - 추가(같은 날 13:58): `realty-listing-alert` **v1.43 배포**(`dpl_4rdqQWg2ZHkTsFHTfAhcLsZFkuPQ`, 승인 빌드 1회) — 네이버 화면 필터가 남아도 감시 조건대로 읽기. DB·확장·ZIP v1.43 `check-extension-release` OK, 운영 화면 v1.43(ego lite) 확인, 커밋 `8f42a34fa`. 실거래 B2는 `83d3f0daf`로 커밋·미배포 대기(`PENDING_DEPLOYS.md`). 배포 전 공용 인덱스가 1개로 줄어 `git read-tree HEAD`로 복구하고 재발 방지 장치(`4ee4c0f4a`)·최상위 지침 여섯째(`f5c5947dd`) 추가.
-- 남은 일: 매물 알림 다음 수집에서 매매·전세가 들어오는지·진단 기록 확인, 실거래 B2 배포 뒤 파크리오 리포트 확인. 비교표의 SEO 스튜디오 v2.22 미커밋 2줄은 다른 세션 몫이라 그대로 둠. 상세: `real_estate_sales/docs/IMPROVEMENTS.md` 2026-11-03, 역할 파일 `docs/roles/realty.md`.
+- 추가(같은 날 14:3x): `real_estate_sales` **v1.43 배포**(`dpl_9pSAFXbNyz5Uox1pAcBa8inVqXVw`, 승인 빌드 1회) — B 주소 리포트 B2(호가 비교·저장·Claude AI 총평·인쇄), 새 표 `real_estate_saved_reports`(ego SQL 적용, 주인님 「SQL 실행 허용」), 건물 칸 총괄표제부. 운영 화면(시험 계정) 저장·AI 총평 1회·인쇄 확인. 커밋 `31695e09a`·`a94d618ea`. 상세 `real_estate_sales/docs/PLAN_20261102_B_ADDRESS_REPORT.md` 「B2 배포·확인」.
+- 남은 일: 매물 알림 다음 수집에서 매매·전세가 들어오는지·진단 기록 확인, 주소 리포트 작은 수정 3건 미배포 대기, 다음 B3 임장 모드. 비교표의 SEO 스튜디오 v2.22 미커밋 2줄은 다른 세션 몫이라 그대로 둠. 상세: `real_estate_sales/docs/IMPROVEMENTS.md` 2026-11-03, 역할 파일 `docs/roles/realty.md`.
 
 ## 2026-11-03 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — `shots` v1.45 배포(DUP-4 + 공통 문구)
 - 주인님 채팅 승인 빌드 1회 `shots-bl2l6rixx` Ready → https://shots.buylife.xyz . 함께 나감: DUP-4 업로드 중복 방지 `7da2cb688`, API 키 암호화 안내 문구 `b16550ad4`. 버전 커밋 `269f2eb46`, DB `programs.version` v1.45.
