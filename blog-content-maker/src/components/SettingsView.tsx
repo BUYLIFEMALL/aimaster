@@ -17,7 +17,7 @@ export function GuideView({ compact = false }: { compact?: boolean }) {
   const faqs = [
     {
       q: "글 작성 시 Gemini와 OpenAI 중 어떤 것을 추천하나요?",
-      a: "둘 다 본인의 API 키로 동작하며, 자연스러운 문장 구조와 검색 연동이 필요할 때는 Google Gemini(gemini-2.5-flash / gemini-3.5-flash), 정밀한 논리 구조가 필요할 때는 OpenAI(gpt-4o / gpt-4o-mini)를 선택하실 수 있습니다."
+      a: "둘 다 본인의 API 키로 동작하며, 자연스러운 문장 구조와 검색 연동이 필요할 때는 Google Gemini(gemini-3.8-flash / gemini-3.5-flash-lite), 정밀한 논리 구조가 필요할 때는 OpenAI(gpt-4o / gpt-4o-mini)를 선택하실 수 있습니다."
     },
     {
       q: "본문 이미지 생성은 어떤 모델로 동작하나요?",

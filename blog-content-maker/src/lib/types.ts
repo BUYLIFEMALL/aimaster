@@ -9,10 +9,12 @@ export interface Source { title: string; url: string; checkedAt: string }
 export interface MediaPlan { id: string; kind: "image" | "scene-start" | "scene-end"; alt: string; prompt: string; placement: number }
 export interface Draft { title: string; body: string; tags: string[]; summary: string; changeSummary: string; media: MediaPlan[]; sources: Source[]; social: { platform: string; content: string }[]; aiReview?: string[]; audit?: Audit }
 export interface Settings { provider: "gemini" | "openai"; model: string; imageModel: string; search: boolean }
-export const TEXT_MODELS = { gemini: ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-2.5-pro"], openai: ["gpt-4.1", "gpt-4.1-mini"] } as const;
+export const TEXT_MODELS = { gemini: ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-4-argon"], openai: ["gpt-4.1", "gpt-4.1-mini"] } as const;
 // 2026-10-17: 이미지 모델 이름은 공용 기준 코드 gemini-image-models(./nanoBananaModels — 기준은 ai-image-studio)의 2K·Pro 등급에서 가져온다(주인님 지시로 통합). 저장된 설정값과 같은 실제 모델 이름이다.
+// 2026-11-03 종료·자동 연결되는 옛 글 모델(Gemini 2.5 12-01, 3.5 Flash) → 대체 모델. 저장된 설정의 옛 값도 새 모델로 호출한다.
+export const RETIRED_TEXT_MODEL: Record<string, string> = { "gemini-2.5-pro": "gemini-3.8-flash", "gemini-2.5-flash": "gemini-3.8-flash", "gemini-2.5-flash-lite": "gemini-3.5-flash-lite", "gemini-3.5-flash": "gemini-3.8-flash" };
 export const IMAGE_MODELS = [NANO_BANANA_MODEL_CONFIGS["nanobanana-2-2k"].modelName, NANO_BANANA_MODEL_CONFIGS["nanobanana-pro"].modelName] as const;
-export const DEFAULT_SETTINGS: Settings = { provider: "gemini", model: "gemini-3.5-flash", imageModel: IMAGE_MODELS[0], search: false };
+export const DEFAULT_SETTINGS: Settings = { provider: "gemini", model: "gemini-3.8-flash", imageModel: IMAGE_MODELS[0], search: false };
 export interface Project { id: string; title: string; brief: Brief; current_revision_id: string | null; created_at: string; updated_at: string; expires_at: string }
 export interface Revision { id: string; project_id: string; version: number; data: Draft; created_at: string }
 export interface Asset { id: string; project_id: string; path: string; mime: string; bytes: number; alt: string; prompt: string; plan_id: string; placement: number; kind: string; url?: string }

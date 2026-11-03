@@ -2,7 +2,7 @@ import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { createAdminClient } from "./supabase/admin";
 import { UserError } from "./errors";
-import { DEFAULT_SETTINGS, TEXT_MODELS, IMAGE_MODELS, type Settings, type Project, type Revision, type Draft, type Asset, type Brief } from "./types";
+import { DEFAULT_SETTINGS, TEXT_MODELS, IMAGE_MODELS, RETIRED_TEXT_MODEL, type Settings, type Project, type Revision, type Draft, type Asset, type Brief } from "./types";
 export const table = (name: string) => `blog_content_maker_${name}`;
 export function db() { return createAdminClient(); }
 export const uuid = (s: unknown): s is string => typeof s === "string" && /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(s);
@@ -15,7 +15,8 @@ export function validSettings(input: Partial<Settings> | null | undefined): Sett
   const v = input && typeof input === "object" ? input : {};
   const provider = v.provider === "openai" ? "openai" : "gemini";
   const models: readonly string[] = TEXT_MODELS[provider];
-  return { provider, model: models.includes(v.model || "") ? v.model! : models[0], imageModel: (IMAGE_MODELS as readonly string[]).includes(v.imageModel || "") ? v.imageModel! : IMAGE_MODELS[0], search: v.search === true };
+  const model = RETIRED_TEXT_MODEL[v.model || ""] ?? v.model ?? "";
+  return { provider, model: models.includes(model) ? model : models[0], imageModel: (IMAGE_MODELS as readonly string[]).includes(v.imageModel || "") ? v.imageModel! : IMAGE_MODELS[0], search: v.search === true };
 }
 export async function projectFor(user: string, id: unknown): Promise<Project> {
   if (!uuid(id)) throw new UserError(400, "작업 번호가 올바르지 않습니다.");
