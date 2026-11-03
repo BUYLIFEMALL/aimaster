@@ -1,6 +1,6 @@
 # AI 무료음악 자동화 (`free-music-studio`) — 에이전트 작업 지침
 
-> 상태: **v1.04 배포 완료(2026-11-03) — 저장 폴더 고르기** — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지(설치 파일 공개 전). 엔진 0.1.2(`engine/`, 기본 저장 폴더 `음악AI 무료음악`·폴더 고르기 창·제목 파일 이름). 다음: 프로젝트·플레이리스트 → 가져온 음악(커버) → 작업 대기열 → 영상, 엔진 0.2 설치 파일(자동 실행 포함). 플랜: [`docs/PLAN_20261103_V1_01.md`](docs/PLAN_20261103_V1_01.md) **미배포 대기**: 사이트 안 한글 폴더 고르기(`c1f99cbd3`, 엔진 0.1.3) + 프로젝트·플레이리스트(`0e30aa896`) — 다음 배포 v1.05 때 함께. **⚠ 배포 전에 `supabase/migrations/20261103_v1_05_collections.sql` 먼저 실행.**
+> 상태: **v1.05 배포 완료(2026-11-03) — 프로젝트·플레이리스트 + 한글 폴더 고르기** — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지(설치 파일 공개 전). 엔진 0.1.3(`engine/`). **미배포 대기**: 한글 입력 중 Enter 무시(`e17ace42a`). 다음: 가져온 음악(커버) → 작업 대기열 → 영상, 엔진 0.2 설치 파일(자동 실행). 플랜: [`docs/PLAN_20261103_V1_01.md`](docs/PLAN_20261103_V1_01.md)
 > 담당: [역할: music] Claude Code(윈도우(미니PC)). 작업 전 루트 `CLAUDE.md`·`AGENTS.md`, `docs/roles/music.md`, 이 플랜을 읽는다.
 
 ## 꼭 지킬 것
@@ -29,6 +29,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음. 단점(지금): 엔진 앱 전이라 실제 노래 생성은 아직 안 됨.
 
 ## 4. 버전
+- v1.05(배포 2026-11-03, `free-music-studio-4h0idon07`, 커밋 `0e30aa896`·`c1f99cbd3`): 프로젝트·플레이리스트 — 마이그레이션 `20261103_v1_05_collections.sql`(묶음 표·담긴 곡 표·곡 기록 `project_id`, 회원별 RLS, 묶음 이름은 30일 정리 대상 아님), `/api/collections`(목록·만들기)·`/[id]`(이름·지우기)·`/[id]/items`(플레이리스트 순서 통째 저장, 본인 곡만), `/api/tracks/[id]` PATCH(프로젝트 지정), `components/library/CollectionsNav.tsx`, 모든 음악 화면(묶음 보기·지정·담기·↑↓·빼기·전체 이어 듣기). 함께: 사이트 안 한글 폴더 고르기(엔진 0.1.3 browse·mkdir, `FolderPanel` 다시 씀, 「이 폴더에 저장」 한 번). 시험 웹 26·엔진 10.
 - v1.04(배포 2026-11-03, `free-music-studio-cc2l1vi3p`, 커밋 `fdd7db959`): 저장 폴더 — 주인님 「기본 저장 폴더를 정하거나 사용자가 정할 수 있게」. 엔진 0.1.2 `library.mjs`(기본 `음악AI 무료음악`, `settings.json`에 기억, 곡 번호→경로 `library-index.json`, 파일 이름 = 곡 제목·같으면 (2), 0.1.1 번호 파일도 읽음, 폴더 바꾸며 옮기기·쓰기 시험), `folderDialog.mjs`(윈도우 FolderBrowserDialog·맥 osascript, 탐색기 열기). 웹 `FolderPanel`(내 PC 엔진 화면: 경로·[폴더 바꾸기]·고른 폴더 확인·기존 노래 옮기기·[폴더 열기]), 모든 음악에 [폴더 열기]. 엔진 시험 9.
 - v1.03(배포 2026-11-03, `free-music-studio-eiwn25r02`, 커밋 `15b466474`): 「모든 음악」 — 엔진 0.1.1 `engine/src/library.mjs`(완성 음원을 `데이터 폴더library<uuid>.mp3`로 복사, `/library` 목록·저장·꺼내기·지우기, uuid만 허용, CORS DELETE 추가), 웹 표 `free_music_tracks`(마이그레이션 `20261103_v1_03_tracks.sql`, ego SQL 실행, RLS·정책 1개 확인), `/api/tracks`, `/library` 화면(검색·듣기·MP3·가사 펼치기·지우기, 이 PC에 없는 곡 표시, 옛 엔진 안내), 곡 만들기 완성 직후 자동 보관, 30일 정리에 곡 기록 포함. 원본 앱 메뉴(프로젝트·플레이리스트·가져온 음악·영상·대기열) 대비 첫 빈자리 채움. 시험 웹 23·엔진 7.
 - v1.02(배포 2026-11-03, `free-music-studio-an8afxai3`, 커밋 `1b6a3c2df`): 3단계 웹 연결 — `src/lib/engine.ts`(엔진 호출·요청 본문·결과 해석), `components/engine/useEngine.ts`(5초마다 상태), `GeneratePanel.tsx`(곡 만들기 아래 생성·걸린 시간·재생·MP3 내려받기, 음원은 서버 안 거침), 내 PC 엔진 화면 상태 배지·연결 코드 6자리 입력·연결 끊기. 표현 「짝짓기」→「연결 코드」·「PC 연결」(엔진 창 문구 포함, 엔진 zip 다시 만듦). 요청: batch_size 1·MP3·한글 가사면 vocal_language ko·그래픽카드면 thinking 켬. 함께 내보낸 미배포 대기 `96f04aee3` 3건. 시험 웹 19·엔진 5.
@@ -47,6 +48,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 2026-11-03 기획: 원본 분석, 이름·구조·모델 결정, 플랜 작성. 외부 분석표 `EXT-MUS-08`.
 - 2026-11-03 0단계: 윈도우(미니PC) CPU·마스터PC(RTX 5080) 생성 성공, 음질 「SUNO보단 못하지만 들을만함」(주인님).
 - 2026-11-03 1단계 코드: 위 화면·API·마이그레이션, `tsc`·시험 14개·`npm run build` 통과. 로그인 뒤 기본 이동 경로를 `/songs`로(기준 프로그램의 `/convert` 남은 값은 `music-video-studio/docs/IMPROVEMENTS.md`에 기록).
+- 2026-11-03 v1.05 운영 검수(ego lite, 시험 계정): SQL 성공·RLS·정책·project_id 칸 확인 → 프로젝트 「발라드」·플레이리스트 「비 오는 날」 만들기(한글 Enter는 안 먹고 [만들기] 버튼으로 — 수정 `e17ace42a` 미배포) → 곡 프로젝트 지정·플레이리스트 담기 → 목록 곡 수 「모든 음악 1·발라드 1·비 오는 날 1」. 못 한 것: 플레이리스트 화면 ↑↓·빼기·이어 듣기·이름 바꾸기·지우기(ego 탭 묶음이 계속 닫혀 멈춤, 곡 1개라 이어 듣기 버튼도 안 나옴). 시험 묶음 2개는 시험 계정에 남겨 둠.
 - 2026-11-03 v1.04 운영 검수(ego lite, 시험 계정, 미니PC 엔진 0.1.2): 내 PC 엔진 화면에 저장 폴더 칸 표시, [폴더 열기] → 탐색기 `음악AI 무료음악` 열림, [폴더 바꾸기] → PC에 「Browse For Folder」 창 뜸·사이트 안내 문구. 엔진 API로 기존 곡 1곡을 「쉬어 가도 괜찮아.mp3」로 옮기고 다시 꺼내기 확인. 창에서 실제 폴더를 고르는 것은 주인님 몫(창은 사람 조작).
 - 2026-11-03 v1.03 운영 검수(ego lite, 시험 계정 `buylifemall@naver.com`, 미니PC 엔진 0.1.1 CPU): 저장된 초안 「쉬어 가도 괜찮아」로 30초 생성 → 「내 PC 보관함에 저장했습니다」 → PC 파일 `3aa17771-….mp3` 470KB → 모든 음악 1곡(CPU·30초) → 듣기 재생·가사 펼치기 정상, 기록 id = 파일 이름, 초안 연결 확인. 비로그인 `/api/tracks` 401, 토큰 없는 엔진 `/library` 401, 다른 사이트 403. 지우기 버튼은 확인 창(confirm) 때문에 운영에서 누르지 않음(엔진 시험으로 확인, 곡은 남겨 둠).
 - 2026-11-03 v1.02 운영 검수(ego lite, 시험 계정 `buylifemall@naver.com`, 미니PC 엔진 CPU 모드): 내 PC 엔진 화면 「연결 코드 입력 필요」 → 엔진 창 코드 6자리 입력 → 「연결됨 · CPU 모드」 → 곡 만들기에서 30초 곡 [노래 만들기] → 걸린 시간 표시 → 완성 후 재생기·[MP3 내려받기](MP3 30초·470KB, 파일 이름 = 곡 제목). 마스터PC(5080)는 엔진 처음부터 설치까지 확인(고품질 cuda), 사이트 생성은 미확인. 주의: ego 창 하나를 여러 세션이 함께 써서 앞에 다른 세션 탭이 있으면 시험 탭이 가려짐.
