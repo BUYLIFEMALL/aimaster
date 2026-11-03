@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { DEFAULT_TEXT_MODEL, currentTextModel } from "@/lib/textModels";
 import { Sidebar, FlowStep } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { SourceInputPanel } from "./SourceInputPanel";
@@ -105,7 +106,7 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
   const [project, setProject] = useState<EbookProject>(SAMPLE_PROJECT);
   const [currentStep, setCurrentStep] = useState<FlowStep>("source");
   const [apiKey, setApiKey] = useState("");
-  const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_TEXT_MODEL);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -136,7 +137,7 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
     const localKey = localStorage.getItem("ebook_studio_gemini_api_key");
     const localModel = localStorage.getItem("ebook_studio_gemini_model");
     if (localKey) setApiKey(localKey);
-    if (localModel) setSelectedModel(localModel);
+    if (localModel) setSelectedModel(currentTextModel(localModel));
 
     fetch("/api/user/key")
       .then((res) => (res.ok ? res.json() : null))

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { TEXT_MODELS, currentTextModel } from "@/lib/textModels";
 import { KeyRound, X, CheckCircle2, AlertCircle, Sparkles, ExternalLink, Loader2 } from "lucide-react";
 
 interface SettingsModalProps {
@@ -21,7 +22,7 @@ export function SettingsModal({
   onSelectModel,
 }: SettingsModalProps) {
   const [inputKey, setInputKey] = useState(apiKey || "");
-  const [model, setModel] = useState(selectedModel || "gemini-2.5-flash");
+  const [model, setModel] = useState(currentTextModel(selectedModel));
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
   const [testMessage, setTestMessage] = useState("");
 
@@ -151,9 +152,9 @@ export function SettingsModal({
               onChange={(e) => setModel(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
             >
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (권장: 초고속 & 최고 가성비)</option>
-              <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-              <option value="gemini-1.5-pro">Gemini 1.5 Pro (깊은 통찰 & 고품질 장문 집필)</option>
+              {TEXT_MODELS.map((m) => (
+                <option key={m.id} value={m.id}>{m.label}</option>
+              ))}
             </select>
           </div>
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { currentTextModel } from "@/lib/textModels";
 import { getUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUser();
     const body = await req.json();
-    const { sourceText, title, subtitle, author, mode = "detailed", apiKey: clientKey, model = "gemini-2.5-flash" } = body;
+    const { sourceText, title, subtitle, author, mode = "detailed", apiKey: clientKey, model: modelInput } = body;
 
     if (!sourceText || typeof sourceText !== "string" || !sourceText.trim()) {
       return NextResponse.json({ error: "전자책으로 변환할 원본 문서나 텍스트를 입력해주세요." }, { status: 400 });
@@ -86,7 +87,7 @@ ${sourceText.slice(0, 15000)}
   ]
 }`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${finalApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentTextModel(modelInput)}:generateContent?key=${finalApiKey}`;
 
     const response = await fetch(geminiUrl, {
       method: "POST",

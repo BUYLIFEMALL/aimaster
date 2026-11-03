@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { TEXT_MODELS } from "@/lib/textModels";
 import {
   Palette,
   Type,
@@ -584,9 +585,9 @@ export function StyleDesignPanel({
               onChange={(e) => onSelectModel(e.target.value)}
               className="px-3 py-1.5 rounded-xl bg-indigo-800/80 border border-indigo-700 text-xs font-bold text-white focus:outline-hidden focus:ring-2 focus:ring-amber-300"
             >
-              <option value="gemini-2.5-flash">gemini-2.5-flash (추천)</option>
-              <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (초고속)</option>
-              <option value="gemini-2.5-pro">gemini-2.5-pro (심층 분석)</option>
+              {TEXT_MODELS.map((m) => (
+                <option key={m.id} value={m.id}>{m.label}</option>
+              ))}
             </select>
           </div>
         </div>

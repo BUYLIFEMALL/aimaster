@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { currentTextModel } from "@/lib/textModels";
 import { getUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
       sourceContext = "",
       mode = "detailed",
       apiKey: clientKey,
-      model = "gemini-2.5-flash",
+      model: modelInput,
     } = body;
 
     if (!chapterTitle) {
@@ -98,7 +99,7 @@ ${styleGuide}
   ]
 }`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${finalApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentTextModel(modelInput)}:generateContent?key=${finalApiKey}`;
 
     const response = await fetch(geminiUrl, {
       method: "POST",
