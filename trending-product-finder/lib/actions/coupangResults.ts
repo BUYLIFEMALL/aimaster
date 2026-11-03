@@ -30,6 +30,7 @@ export interface ReviewItem {
   reviews: number;
   is_ad: boolean;
   url: string;
+  sales_rank: number | null;
 }
 
 export async function listReviewRunsAction(): Promise<{ runs: ReviewRun[]; error?: string }> {
@@ -50,9 +51,11 @@ export async function getReviewItemsAction(runId: string): Promise<{ items: Revi
   const supabase = (await createClient()) as unknown as SupabaseLike;
   const { data, error } = await supabase
     .from("coupang_review_items")
-    .select("product_id, name, price, reviews, is_ad, url")
+    .select("product_id, name, price, reviews, is_ad, url, sales_rank")
     .eq("user_id", user.id)
     .eq("run_id", runId)
+    // 판매 순위 순서로. 순위가 없는 예전 기록(2026-11-03 이전)은 리뷰 많은 순
+    .order("sales_rank", { ascending: true, nullsFirst: false })
     .order("reviews", { ascending: false })
     .limit(500);
   return error ? { items: [], error: "결과를 불러오지 못했습니다." } : { items: (data ?? []) as ReviewItem[] };

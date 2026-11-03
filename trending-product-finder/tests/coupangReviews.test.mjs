@@ -95,6 +95,8 @@ test("서버 저장 자료를 다시 만들어 주소 위조와 잘못된 값을
   assert.equal(items[1].name.length, 300);
   assert.equal(items[1].price, null);
   assert.equal(items[1].reviews, 0);
+  // 보낸 순서(판매량순 화면이면 판매 순위)를 1부터 저장한다
+  assert.deepEqual(items.map((item) => item.salesRank), [1, 2]);
   assert.deepEqual(mod.sanitizeReviewItems("x"), []);
   assert.equal(mod.COUPANG_RESULT_RETENTION_DAYS, 365);
 });

@@ -51,7 +51,7 @@ export function ReviewResults({ initialRuns }: { initialRuns: ReviewRun[] }) {
   }
 
   function download() {
-    const csv = toCsv(shown.map((item) => ({ name: item.name, price: item.price, reviews: item.reviews, isAd: item.is_ad, url: item.url })));
+    const csv = toCsv(shown.map((item) => ({ rank: item.sales_rank ?? undefined, name: item.name, price: item.price, reviews: item.reviews, isAd: item.is_ad, url: item.url })));
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const link = document.createElement("a");
     link.href = url;
@@ -118,10 +118,11 @@ export function ReviewResults({ initialRuns }: { initialRuns: ReviewRun[] }) {
                 <p className="mt-2 text-xs text-mx-muted">{loading ? "불러오는 중…" : `${items.length}개 중 ${shown.length}개`}</p>
                 <div className="mt-2 overflow-x-auto">
                   <table className="w-full min-w-[480px] text-left text-xs text-mx-text">
-                    <thead><tr className="border-b border-mx-border text-mx-muted"><th className="py-2 pr-2">상품명</th><th className="whitespace-nowrap py-2 pr-2 text-right">판매가</th><th className="whitespace-nowrap py-2 text-right">리뷰</th></tr></thead>
+                    <thead><tr className="border-b border-mx-border text-mx-muted"><th className="whitespace-nowrap py-2 pr-2 text-right">순위</th><th className="py-2 pr-2">상품명</th><th className="whitespace-nowrap py-2 pr-2 text-right">판매가</th><th className="whitespace-nowrap py-2 text-right">리뷰</th></tr></thead>
                     <tbody>
                       {shown.map((item) => (
                         <tr key={item.product_id} className="border-b border-mx-border/60">
+                          <td className="whitespace-nowrap py-2 pr-2 text-right text-mx-muted">{item.sales_rank ?? "-"}</td>
                           <td className="py-2 pr-2"><a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#93c5fd] hover:underline">{item.is_ad ? `[광고] ${item.name}` : item.name}</a></td>
                           <td className="whitespace-nowrap py-2 pr-2 text-right">{item.price == null ? "-" : `${item.price.toLocaleString("ko-KR")}원`}</td>
                           <td className="whitespace-nowrap py-2 text-right">{item.reviews.toLocaleString("ko-KR")}</td>

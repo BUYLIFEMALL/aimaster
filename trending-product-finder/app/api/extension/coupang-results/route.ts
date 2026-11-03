@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       reviews: item.reviews,
       is_ad: item.isAd,
       url: item.url,
+      sales_rank: item.salesRank,
     })),
   );
   if (itemError) {

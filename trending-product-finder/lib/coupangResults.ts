@@ -11,6 +11,8 @@ export interface ReviewItemInput {
   reviews: number;
   isAd: boolean;
   url: string;
+  /** 한 번 읽은 화면 안의 순서(1부터). 판매량순으로 정렬한 화면이면 판매 순위다. */
+  salesRank: number;
 }
 
 const toCount = (value: unknown): number | null => {
@@ -33,6 +35,7 @@ export function sanitizeReviewItems(raw: unknown): ReviewItemInput[] {
       reviews: toCount(item.reviews) ?? 0,
       isAd: item.isAd === true,
       url: `https://www.coupang.com/vp/products/${productId}`,
+      salesRank: byId.size + 1,
     });
   }
   return [...byId.values()];
