@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — 종료 모델 긴급 교체 8개 순차 배포)
+- 마지막 갱신: 2026-11-03 (`claude-win-20261024-music` — 가사 영상 L-2~L-5 다음 작업 대기로 보류)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -17,7 +17,8 @@
 |---|---|---|---|
 | `music` v1.49 | 30일 정리 결과 대조 | 2026-11-04 03:00 정리 뒤 남은 행 0개(다른 회원 4행 삭제)·두 계정 자료 유지 확인 | `music/AGENTS.md` 2026-11-03 |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
-| `playlist-channel-studio` v1.33 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
+| `lyric-video-studio` v1.11 | Lyricbi L-2 LP판 회전 → L-3 무료 사진 배경 → L-4 꾸밈 확장 → L-5 렌더 진단(배포 1회) | **다음 작업 대기** — 주인님이 시작을 지시하실 때(2026-11-03 보류 지시) | `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md` |
+| `playlist-channel-studio` v1.34 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
@@ -40,7 +41,8 @@
 | 2026-10-24 | `music-video-studio` v1.24 | AI 이미지 스튜디오 이미지를 참고로 | 배포 |
 
 ## 다음 첫 단계
-1. Lyricbi L-2 LP판 회전 → L-3 무료 사진 배경 → L-4 꾸밈 확장 → L-5 렌더 진단 → 배포(승인 빌드 남은 1회, `?remix=` 함께)
+1. 2026-11-04 03:00(KST) 뒤 음악(SUNO) 30일 정리 결과 대조(다른 회원 4행 삭제·관리자·시험 계정 자료 유지·`cleanup_expired` 새 줄)
+2. 그 다음 작업은 주인님 지시를 기다림 — 가사 영상 L-2~L-5는 대기 목록(위 표)
 
 ## 주인님께 여쭐 것
 - `gemini-2.5`를 코드에 쓰는 다른 파일이 101개 있습니다. 새 회원 키 접근 제한 영향을 프로그램별로 점검할지 결정해 주세요.
