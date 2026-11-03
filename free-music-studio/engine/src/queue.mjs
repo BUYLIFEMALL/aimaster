@@ -20,7 +20,7 @@ export function publicJob(j) {
 
 /**
  * @param {{ file: string, run: (job: object, signal: AbortSignal, stage: (s: string) => void) => Promise<object>,
- *           canRun?: () => boolean, onFinished?: (job: object) => Promise<void> | void, log?: (e: unknown) => void }} opts
+ *           canRun?: (job: object) => boolean, onFinished?: (job: object) => Promise<void> | void, log?: (e: unknown) => void }} opts
  */
 export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, log = () => {} }) {
   let jobs = [];
@@ -72,6 +72,8 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       const job = {
         id: randomUUID(),
         kind: request.kind,
+        engine: request.engine === "yue2" ? "yue2" : "acestep",
+        license: request.engine === "yue2" ? "noncommercial" : "commercial",
         title: request.title,
         track: request.track,
         ...(request.task ? { task: request.task } : {}),
@@ -135,7 +137,8 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       if (working) return;
       working = true;
       try {
-        for (let job; canRun() && (job = jobs.find((j) => j.status === "queued")); ) {
+        // 차례는 넣은 순서 그대로 — 맨 앞 작업을 지금 만들 수 없으면(예: 음악 엔진 준비 중) 기다린다
+        for (let job; (job = jobs.find((j) => j.status === "queued")) && canRun(job); ) {
           controller = new AbortController();
           Object.assign(job, { status: "running", stage: "작업 준비 중", startedAt: new Date().toISOString() });
           await save();

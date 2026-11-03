@@ -1,0 +1,30 @@
+{
+  "_note": "비상업용 음악 엔진 YuE2 받기 목록 — 원본 engines/native-catalog.json(2026-10-06 확인)의 고정 주소·SHA-256을 옮김(2026-11-04). 모델은 CC BY-NC 4.0(비상업), 실행 도구는 MIT.",
+  "license": "noncommercial",
+  "modelRevision": "64b030e3deb6e8150d2b7c0db641ef5a17eca8a3",
+  "minDriverMajor": 580,
+  "runtime": {
+    "url": "https://github.com/timoncool/YuE2-Studio/releases/download/v3.4.0/YuE2-Studio-3.4.0-portable-windows-x64.zip",
+    "bytes": 349102327,
+    "sha256": "3aa7859346605a63f859edf56db8f6d1047588edd9d0c40fe39cb746f0bdfb71",
+    "archiveSubdir": "resources/yue2-cpp",
+    "executable": "yue-server.exe",
+    "cudaSubdir": "cuda13"
+  },
+  "cuda": {
+    "url": "https://developer.download.nvidia.com/compute/cuda/redist/libcublas/windows-x86_64/libcublas-windows-x86_64-13.5.1.27-archive.zip",
+    "bytes": 391055517,
+    "sha256": "c946e1c825e05895747a95ed4fee18030b08052c09783b9b7b19818fd2e31f58",
+    "files": ["cublas64_13.dll", "cublasLt64_13.dll"]
+  },
+  "profiles": [
+    { "id": "q8", "label": "YuE2 · 8GB용(Q8)", "minVramGb": 8, "backbone": "YuE2-3B-Q8_0.gguf", "vae": "YuE2-Vae-F32.gguf", "transcriber": "SheetSage2-Q8_0.gguf" },
+    { "id": "bf16", "label": "YuE2 · 12GB용(BF16, 최고 음질)", "minVramGb": 12, "backbone": "YuE2-3B-BF16.gguf", "vae": "YuE2-Vae-F32.gguf", "transcriber": "SheetSage2-Q8_0.gguf" }
+  ],
+  "models": [
+    { "filename": "YuE2-3B-Q8_0.gguf", "bytes": 3810232064, "sha256": "41121ce97786d7795a325bcf123ca196956c03bb252c9e75384cfc1f2fc19e6b", "url": "https://huggingface.co/Serveurperso/YuE2-GGUF/resolve/64b030e3deb6e8150d2b7c0db641ef5a17eca8a3/YuE2-3B-Q8_0.gguf" },
+    { "filename": "YuE2-3B-BF16.gguf", "bytes": 7166072352, "sha256": "668ca9ffa4622449916aae5068b5737363e7ec186a824cd3d7a1a8a95269f166", "url": "https://huggingface.co/Serveurperso/YuE2-GGUF/resolve/64b030e3deb6e8150d2b7c0db641ef5a17eca8a3/YuE2-3B-BF16.gguf" },
+    { "filename": "YuE2-Vae-F32.gguf", "bytes": 530497344, "sha256": "93e49dfb1970e89ad64cacb17cf13b5d05f6bb30ef7ed3adae3050bcb728638a", "url": "https://huggingface.co/Serveurperso/YuE2-GGUF/resolve/64b030e3deb6e8150d2b7c0db641ef5a17eca8a3/YuE2-Vae-F32.gguf" },
+    { "filename": "SheetSage2-Q8_0.gguf", "bytes": 957571488, "sha256": "4507d8c1d9245f312c0894ea610ab18fbcbf31443764b5bd6a60e4b6df59e973", "url": "https://huggingface.co/Serveurperso/YuE2-GGUF/resolve/64b030e3deb6e8150d2b7c0db641ef5a17eca8a3/SheetSage2-Q8_0.gguf" }
+  ]
+}

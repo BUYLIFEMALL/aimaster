@@ -275,7 +275,10 @@ async function handleQueue(req, res, url, origin, ctx, json) {
       const body = await readSmall(req, 256 * 1024).catch(() => null);
       const meta = parseQueueMeta(body);
       if (!meta || meta.kind !== "text2music" || !body.task || typeof body.task !== "object") return json(res, 400, { error: "작업 내용이 올바르지 않습니다." }, origin);
-      return json(res, 200, { job: await q.add({ ...meta, task: body.task }) }, origin);
+      // 음악 엔진: acestep(상업용, 기본) | yue2(비상업용 — 새 곡 만들기만)
+      const engine = body.engine === undefined ? "acestep" : body.engine;
+      if (engine !== "acestep" && engine !== "yue2") return json(res, 400, { error: "없는 음악 엔진입니다." }, origin);
+      return json(res, 200, { job: await q.add({ ...meta, task: body.task, engine }) }, origin);
     }
 
     if (req.method === "POST" && parts.length === 2 && parts[1] === "edit") {
