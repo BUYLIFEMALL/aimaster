@@ -19,7 +19,6 @@
 
 
 
-- `trending-product-finder` — 매뉴얼 `/guide#coupang` 「🧩 쿠팡 상품소싱기 사용법」 초보자 단계별(설치·연결·직접 읽기·자동 검색·결과·업데이트·문제 해결, 단계마다 📍 위치 표시) + 쿠팡 화면 매뉴얼 링크 `0accfc97c` (2026-11-03, [역할: ecommerce-image] `claude-win-sdp`). + 「PC에서만·PC 켜 두기·결과는 휴대폰」 안내 상자 `715c27c2b` + **⏰ 매일 예약·쿠팡 거부 징후 일시정지(아이콘 「!」·컴퓨터 알림)·좌측 메뉴 「⬇ 확장 프로그램 받기 vX.YY」·다운로드 버튼/확장 창 버전 배지** `bdb918ca2`(manifest `notifications` 권한·아이콘 추가). ego 실검수: 예약 13:53 자동 실행 53개 저장·다음 날 재예약, 일시정지/재개 통과. 다음 배포 v1.33(확장 팝업 「새 버전」 알림은 후보)
 - `coupang-ops` — 텔레그램 끊기, 다른 프로그램 봇 빌려 쓰기 제거 (2026-11-01, [역할: ecommerce-image], `8479b2009`, 실제 끊기 내 PC에서 통과) · 페이지 설명 위너 문구 제거(`ebd28e0e9`)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
 
@@ -85,6 +84,7 @@
 | `naver-blog-agent` | v2.26 · 2026-11-03 (`claude-win-sdp`, **주인님 승인으로 블로그 세션 대신 배포** — 작업 중 표 블로그 세션 줄은 그대로 둠, 빌드 `naver-blog-agent-8fw0nvubj`) | 좌측 메뉴 제목 옆 고정 「FREE」 삭제 `2a37dabc4`. tsc·빌드 통과, DB/ZIP OK |
 | `playlist-channel-studio` | v1.33 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 승인 빌드 1회 `playlist-channel-studio-nb1fq7dnw`) | 최신 AI 모델 추가 `d2fc103ed` + API 키 암호화 문구 `b16550ad4`. 시험 28·tsc, 실제 호출 15개 통과, DB v1.33, 크롬 확인 |
 | `shop-order-report` | v1.06 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 맥미니 요청·주인님 승인 빌드 1회 `shop-order-report-ojibtobuy`) | 쿠팡·11번가 수수료 공식 대조 `0a9870e16`. 시험 22개·tsc·빌드 통과, DB OK. 맥미니 화면 확인 대기 |
+| `trending-product-finder` | v1.33 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-fnsqoe0di`) | 매뉴얼 쿠팡 상품소싱기 단계별 사용법·「PC에서만·켜 두기·결과는 휴대폰」 안내·⏰ 매일 예약·거부 징후 일시정지(「!」·컴퓨터 알림)·좌측 메뉴 확장 받기 버튼·버전 배지 `bdb918ca2` 외. DB/ZIP v1.33 OK, 운영 화면 확인 |
 | `trending-product-finder` | v1.32 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-29uom1q0i`) | 쿠팡 상품소싱기 이름·판매량순 설명·판매 순위(사이트 `sales_rank`)·1년 보관·키워드 자동 검색 `6ce5b201c`(쿠팡 읽기 권한 추가) + 맥미니 쿠팡·11번가 수수료 공식 대조. 시험 33개·tsc·빌드, DB/ZIP OK, ego 자동 검색 실검수·확장 연결·사이트 저장(순위 1~54) 확인 |
 | `trending-product-finder` | v1.31 · 2026-11-03 ([역할: ecommerce-image] `claude-win-sdp`, 승인 빌드 1회 `trending-product-finder-j48lqxy7m`) | 수수료 공식 대조 `0a9870e16` + 쿠팡 리뷰 결과 회원별 사이트 저장·확장 연결 `308da3f1c`(자동 검색은 아직 없음, 쿠팡 시험 뒤). 시험 27개·tsc·빌드 통과, DB/ZIP OK. 연결·저장 화면 실동작 미확인 |
 | `ai-auto-blog` | v1.86 · 2026-11-03 (`claude-win-sdp`, 맥미니 요청 승인 빌드 `ai-auto-blog-68j3hvewj`) | 30일 정리 예외 회원 제외 `204080c43`. tsc·빌드 통과, DB/ZIP OK |
