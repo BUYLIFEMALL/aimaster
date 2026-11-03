@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 로드맵 2단계(만들기 강화) v1.08 배포
+- 주인님 「DB 표 만들어서 2단계 진행해」 → 운영 DB(ref esgxyikcnnvmlhygjkth) `20261104_v1_08_presets.sql` 실행(ego lite SQL 편집기): 표 `free_music_presets` RLS 켜짐·정책 1개, `free_music_songs` 길이 300초 추가 확인.
+- 코드 `273934d52`: 스타일 프리셋 85개(원본 옮김)·내 프리셋 저장/지우기, 노래/연주곡 전환(가사 `[Instrumental]`, 엔진 수정 없음), AI 작곡 기획 1~10곡 `/api/plan`, 가사 다듬기·「지금 가사 다듬기」·금지어·최근 제목 피하기, 목표 길이 5분(기본 3분), 생성 개수 1~4곡. 시험 웹 44·`tsc`·`build` 통과.
+- 배포 `free-music-studio-ky09xxsqq` Ready, 버전 화면·DB v1.08(v1.07 번호는 1단계가 표시 없이 나가 건너뜀). 로그인 없는 새 API 3개 401.
+- 못 한 것: 로그인한 화면 확인·AI 실호출 시험(ego lite·크롬 모두 이 프로그램 로그인이 풀려 있음 — 주인님 시험 계정 로그인 대기).
+- 남은 일: 3단계 작업 대기열(엔진 0.1.6). 금지어는 지금 브라우저에만 저장(회원 설정 표는 나중에 승인 받고), 앨범 그림 설명 저장은 5단계.
+- 링크: https://free-music-studio.buylife.xyz/songs
+
 ## 2026-11-03 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` 전체 단계 플랜 + 1단계 PC 검사·음악 모델 고르기 배포
 - 플랜: `free-music-studio/docs/PLAN_20261103_FULL_ROADMAP.md`(원본 분석 + 우리 저장소 재사용 조사, 9단계). 원본 코드는 MIT·원작자 허락으로 직접 옮겨 씀(원작자 이름 없이). YuE2·SheetSage2는 비상업이라 제외.
 - 1단계 배포 `be0b822ca`(빌드 1회): 설치 전 브라우저 검사, 엔진 0.1.5 `/system`·`/quality`, 엔진 화면 맨 위 「이 PC 검사 · 음악 모델 고르기」. 표시 버전은 v1.06 그대로(버전 올리기 누락) — 다음 배포 때 v1.07(`docs/PENDING_DEPLOYS.md`).

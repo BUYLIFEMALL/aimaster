@@ -15,8 +15,6 @@
 
 ## 대기 중
 
-- `free-music-studio` — **표시 버전만 대기**: 2026-11-03 배포(`be0b822ca`, PC 검사·음악 모델 고르기 + 보관 기한 문구 `d906dc95b`)는 운영에 나갔으나 `APP_VERSION`을 올리지 않아 화면·DB가 v1.06. 다음 배포(2단계) 때 v1.07로 올리고 `--version-only --set-version`. ([역할: music] `claude-win-20261024-music`)
-
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
 
@@ -77,6 +75,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `free-music-studio` | v1.08 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「DB 표 만들어서 2단계 진행해」 SQL 1회 + 빌드 1회, `free-music-studio-ky09xxsqq`) | 로드맵 2단계 만들기 강화(`273934d52`, SQL `20261104_v1_08_presets.sql` 먼저 실행·RLS 확인) + 1단계 표시 버전(v1.06 → v1.08, v1.07 건너뜀, DB 맞춤). 로그인 없는 새 API 401 확인, 로그인 화면 확인은 주인님 로그인 대기 |
 | `free-music-studio` | v1.06 · 2026-11-03 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-83c438grx`) | 가져온 음악 커버·부분 수정(`8c7d2d039`, SQL `20261103_v1_06_cover.sql` 먼저 실행·규칙 확인) + AI 작사 OpenAI/Claude/Gemini(`70b78a36d`) + 최고 품질 엔진 0.1.4(`4b6514cee`) + 한글 Enter(`e17ace42a`). 로그인 없는 차단 확인, 화면 확인은 ego 로그인 풀려 대기 |
 | `realty-client-desk` | v1.08 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 지시 빌드 1회, `realty-client-desk-21gyn8g6j`) | 일정 알림 기본·유일 = 회원 cron-job.org, 가입하기 버튼(SOLAPI·OpenAI·Claude·Gemini·cron-job.org), AI 초안 플랫폼 3개·모델 선택(`dffad1a6a`). DB SQL `20261103060000_cronjob_default_ai_engines.sql`은 주인님 「진행해」 승인 뒤 ego SQL 적용(vercel 행 0·소개 문구 반영 확인) |
 | `realty-client-desk` | v1.07 · 2026-11-03 ([역할: realty] `claude-win-realty-docs`, 주인님 지시 빌드 1회, `realty-client-desk-nf5kq3r0m`) | 중개보수 계산기 지역 선택(17개 시·도, 서울·충남·충북 공식 게시본 대조 표시, 나머지 조례 이름 안내)(`f2e5d32fc`). 운영 화면 확인 |
