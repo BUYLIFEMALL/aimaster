@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { RENDER_BUCKET, RETENTION_DAYS } from "@/lib/music/renderArchive";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 import { THIS_PROGRAM_SLUG } from "@/lib/access";
+import { retentionExemptFilter } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -17,12 +18,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const admin = createAdminClient();
+  const exemptFilter = await retentionExemptFilter(admin); // 예외 회원(관리자·시험 계정)은 지우지 않는다. 못 읽으면 오류로 멈춤
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 86_400_000).toISOString();
   const stale = new Date(Date.now() - 86_400_000).toISOString();
   const { data, error } = await admin
     .from("mvs_renders")
     .select("id, user_id, output_path, uploaded")
     .or(`created_at.lt.${cutoff},and(uploaded.eq.false,created_at.lt.${stale})`)
+    .not("user_id", "in", exemptFilter)
     .order("created_at", { ascending: true })
     .limit(200);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
