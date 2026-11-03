@@ -1,7 +1,12 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { memberCronjobKey, memberSchedulerState } from "@/lib/schedulerMember/memberScheduler";
 import { OfficeForm } from "@/components/desk/OfficeForm";
 import { SolapiAccountForm } from "@/components/desk/SolapiAccountForm";
+import { SchedulerModePicker } from "@/components/desk/SchedulerModePicker";
+import { CronjobKeyRow } from "@/components/desk/CronjobKeyRow";
 import { PageHero } from "@/components/ui/PageHero";
 import { GuideLinkButton } from "@/components/desk/GuideLinkButton";
 
@@ -9,20 +14,30 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
+const mask = (k: string) => (k.length <= 8 ? "••••••••" : `${k.slice(0, 4)}••••${k.slice(-4)}`);
 
-// 「API키등록·플랫폼연동」(플랫폼 표준 메뉴명). 2단계(2026-11-03): 사무소 정보 + 본인 SOLAPI 계정
+// 「API키등록·플랫폼연동」(플랫폼 표준 메뉴명). 2단계: 사무소 정보 + 본인 SOLAPI 계정 / 3단계(v1.04): 일정 알림 실행 방식(Vercel 기본 / 내 cron-job.org)
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const db = (await createClient()) as unknown as SupabaseLike;
-  const [{ data: office }, { data: account }] = await Promise.all([
+  const service = createAdminClient() as unknown as SupabaseClient;
+  const [{ data: office }, { data: account }, sched, cronKey] = await Promise.all([
     db.from("realty_desk_offices").select("office_name, office_phone, office_address, reject_080").eq("user_id", user.id).maybeSingle(),
     db.from("user_solapi_accounts").select("api_key, sender_phone").eq("user_id", user.id).maybeSingle(),
+    memberSchedulerState(service, user.id),
+    memberCronjobKey(service, user.id),
   ]);
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-4">
-      <PageHero badge="🔑 API키등록·플랫폼연동" title="사무소 정보와 문자 계정" description="매물 안내 문자를 보내려면 두 가지가 필요해요. 사무소 정보(문자 맨 앞에 들어감)와 본인 SOLAPI 계정(문자 요금은 본인 계정에서)." />
+      <PageHero badge="🔑 API키등록·플랫폼연동" title="사무소 정보와 문자 계정" description="매물 안내 문자와 일정 알림 문자를 보내려면 사무소 정보(광고 문자 맨 앞에 들어감)와 본인 SOLAPI 계정(문자 요금은 본인 계정에서)이 필요해요." />
       <OfficeForm office={office ?? null} />
       <SolapiAccountForm account={account ?? null} />
+      <div className="mx-card space-y-3 p-5">
+        <h2 className="text-lg font-bold text-mx-text">⏰ 일정 알림 실행 방식</h2>
+        <p className="text-sm text-mx-muted">「📅 일정」에 넣은 일정을 매일 아침 8시에 확인해 내 핸드폰으로 알려요. 보통은 기본(Vercel) 그대로 두시면 돼요.</p>
+        <SchedulerModePicker initialMode={sched.mode} platformAvailable={sched.platformAvailable} hasKey={sched.hasKey} />
+        <CronjobKeyRow label="cron-job.org API 키 (「내 cron-job.org」를 쓸 때만)" maskedValue={cronKey ? mask(cronKey) : null} />
+      </div>
       <div className="mx-card p-5 text-sm text-mx-muted">
         <h2 className="mb-2 text-base font-bold text-mx-text">📖 연동 매뉴얼</h2>
         <p className="mb-2">눌러서 옆에 띄워 두고 그대로 따라 하세요.</p>

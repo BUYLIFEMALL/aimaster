@@ -7,11 +7,12 @@ import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
 import { BrandMark } from "@/components/ui/BrandMark";
 
-// 1단계(2026-11-03): 관심고객·접수 링크. 2단계: 내 매물·맞는 고객·안내 문자. 일정은 3단계(플랜 docs/PLAN_20261103_CLIENT_DESK.md)
+// 1단계(2026-11-03): 관심고객·접수 링크. 2단계: 내 매물·맞는 고객·안내 문자. 3단계: 일정 알림(플랜 docs/PLAN_20261103_CLIENT_DESK.md)
 const FLOW_STEPS = [
   { step: 1, href: "/intake", icon: "🔗", label: "고객 접수 링크", description: "고객이 직접 조건·동의 입력" },
   { step: 2, href: "/clients", icon: "👥", label: "관심고객", description: "조건·동의 기록·직접 입력" },
   { step: 3, href: "/listings", icon: "🏠", label: "내 매물", description: "맞는 고객 고르기·안내 문자" },
+  { step: 4, href: "/events", icon: "📅", label: "일정", description: "임장·계약·잔금·만기 아침 알림" },
 ];
 
 // "API키등록·플랫폼연동"은 플랫폼 표준 메뉴명이다(2026-09-13).
