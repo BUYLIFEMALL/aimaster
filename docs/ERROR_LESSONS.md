@@ -92,6 +92,12 @@
 - **증상 2**: Vercel 배포가 2초 만에 실패 — 「The `CRON_SECRET` environment variable contains leading or trailing whitespace」. **원인**: PowerShell에서 `$값 | vercel env add …`로 넘기면 끝에 줄바꿈이 붙는다. **해결**: 제가 만든 그 변수만 `vercel env rm` 뒤 Node `execFileSync(..., { input: value })`로 다시 등록(값 출력 안 함). **다음부터**: 비밀값 등록은 기존 `scripts/add-*-vercel-env.mjs`처럼 Node 표준입력으로 한다.
 - 함께: `deploy.mjs --set-version`은 배포가 실패해도 DB 버전을 올린다 — 실패했으면 재배포로 맞추거나 DB 버전을 되돌린다.
 
+## 2026-11-05 새 키 칸을 만들고 `user_api_keys` 허용 목록에 넣지 않아 저장 실패 (`free-music-studio` v1.12~v1.20, 음악 담당)
+- **증상**: 「API키등록·플랫폼연동」에서 Hugging Face 토큰 저장 시 `new row for relation "user_api_keys" violates check constraint "user_api_keys_provider_check"`.
+- **원인**: v1.12에서 코드(`ApiKeyProvider`)에 `huggingface`만 더하고 운영 DB의 provider 허용 목록과 `integration_catalog`는 「승인 대기」로 미뤄 둔 채 배포 — 실제 저장 시험을 하지 않아 7번 배포 동안 드러나지 않음.
+- **해결**: `free-music-studio/supabase/migrations/20261105_huggingface_provider.sql`(운영 허용 목록을 읽어 1개만 덧붙이기, coupang-ops 20261031과 같은 방식 + 카탈로그 1줄), 주인님 승인 뒤 SQL 편집기에서 실행(확인 allowed true·catalog 1).
+- **다음부터**: 공용 `user_api_keys`에 새 provider를 쓰는 화면을 만들면 **같은 배포에서 허용 목록 SQL을 적용하고 실제로 한 번 저장해 본다**. 승인이 남아 있으면 그 칸은 배포하지 않는다.
+
 ## 2026-11-04 MiniMax Music 3가 오프라인 실행에서 transformer를 못 불러온 채 1시간 넘게 돌기 (`free-music-studio` 엔진 0.6.3, 음악 담당)
 - **증상**: 마스터PC(RTX 5080 16GB)에서 「음악 만드는 중」이 1시간 반 넘게 이어짐(GPU 80%, 공유 GPU 메모리 20GB). 기록 `minimax3-log.txt`에 `Failed to create component transformer … OfflineModeIsEnabled` — 오류로 멈추지 않고 경고처럼 넘어가 언어 모델만 계속 돔.
 - **원인**: 엔진은 받은 뒤 `HF_HUB_OFFLINE=1`로 돌리는데, 모델의 부품 목록(`modular_model_index.json`)에 저장소 이름이 적혀 있어 diffusers 0.41.0이 나눠 저장된 transformer를 불러올 때 `_get_checkpoint_shard_files` → `model_info`로 인터넷에 묻다가 막힘. `load_components`는 부품 하나 실패를 경고로만 남김.
