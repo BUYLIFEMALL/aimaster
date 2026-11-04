@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getStoreBySlug } from "@/lib/store";
 import { checkMobile, checkSenderPhone, classifySendError, digits, parseKinds, type Credentials } from "@/lib/notify";
 import { getBalance, sendSms } from "@/lib/solapi";
-import { syncStoreJob } from "./job-sync";
+import { LOCAL_SKIP_MESSAGE, syncStoreJob } from "./job-sync";
 
 export type NotifyState = { error: string | null; message: string | null; sender: string; staff: string; kinds: string[] };
 
@@ -46,6 +46,7 @@ export async function saveNotifyAction(slug: string, _prev: NotifyState, form: F
   try {
     const sync = await syncStoreJob(supabase, store.id, slug);
     revalidatePath(`/s/${slug}/admin/settings`);
+    if (sync.skippedLocal) return back(null, LOCAL_SKIP_MESSAGE);
     if (!kinds.length) return back(null, "저장했습니다. 켜 둔 알림이 없어 문자를 보내지 않습니다.");
     if (!sync.hasKey) return back(null, "저장했습니다. 위 「입금 기한 자동 취소」 칸에 cron-job.org API 키를 등록하면 알림 발송이 시작됩니다.");
     return back(null, `저장했습니다. 알림 ${kinds.length}종을 켰습니다. 1분마다 확인해 문자를 보냅니다.`);

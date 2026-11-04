@@ -5,6 +5,7 @@ import { AdminShell, NoPermission } from "../admin-shell";
 import SettingsForm from "./settings-form";
 import DepositForm, { type DepositStatus } from "./deposit-form";
 import NotifyForm, { type NotifyStatus } from "./notify-form";
+import EmailForm, { type EmailStatus } from "./email-form";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { digits } from "@/lib/notify";
 
@@ -47,12 +48,29 @@ async function notifyStatus(storeId: string, deposit: DepositStatus): Promise<No
   };
 }
 
+async function emailStatus(storeId: string, deposit: DepositStatus): Promise<EmailStatus> {
+  const supabase = await createClient();
+  const [{ data: row }, { data: creds }] = await Promise.all([
+    supabase.from("mall_builder_store_notify_settings").select("email_from, staff_email, email_kinds").eq("store_id", storeId).maybeSingle(),
+    supabase.rpc("mall_builder_email_credentials", { p_store_id: storeId }),
+  ]);
+  return {
+    hasKey: Boolean((creds as { api_key?: string } | null)?.api_key), // 키 값은 화면으로 보내지 않는다
+    hasCronKey: deposit.hasKey,
+    from: row?.email_from ?? "",
+    staff: row?.staff_email ?? "",
+    kinds: (row?.email_kinds as string[] | undefined) ?? [],
+    linked: deposit.linked,
+    paused: deposit.paused,
+  };
+}
+
 export default async function StoreSettingsPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/settings`);
   if (!staff) return <NoPermission />;
   const deposit = await depositStatus(store.id);
-  const [notify, log] = await Promise.all([notifyStatus(store.id, deposit), loadNotifyLog(store.id)]);
+  const [notify, email, log] = await Promise.all([notifyStatus(store.id, deposit), emailStatus(store.id, deposit), loadNotifyLog(store.id)]);
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/settings">
@@ -62,6 +80,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <NotifyForm slug={store.slug} status={notify} />
+      </div>
+      <div className="mt-6">
+        <EmailForm slug={store.slug} status={email} />
       </div>
       <section className="mt-6">
         <h3 className="mb-2 text-sm font-semibold">최근 알림 기록</h3>

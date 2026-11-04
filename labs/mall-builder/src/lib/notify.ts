@@ -16,6 +16,19 @@ export const NOTIFY_KIND_LABEL: Record<string, string> = {
   test: "시험 문자",
 };
 
+/** 기록 표시용 종류 이름 — 메일 줄은 kind 앞에 email_이 붙어 있다(0026) */
+export function kindLabel(kind: string): string {
+  if (kind === "email_test") return "시험 메일";
+  return NOTIFY_KIND_LABEL[kind.replace(/^email_/, "")] ?? kind;
+}
+
+/** 화면 표시용: 메일 앞 두 글자만(owner@example.com → ow***@example.com) */
+export function maskEmail(email: string): string {
+  const [user, domain] = email.split("@");
+  if (!domain) return "***";
+  return `${user.slice(0, 2)}***@${domain}`;
+}
+
 export const NOTIFY_STATUS_LABEL: Record<string, string> = {
   queued: "대기",
   sending: "보내는 중",

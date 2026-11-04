@@ -14,20 +14,38 @@ export async function siteOrigin(): Promise<string> {
   return `${proto}://${host}`;
 }
 
-export type JobSync = { active: boolean; everyMinute: boolean; depositOn: boolean; notifyOn: boolean; hasKey: boolean };
+/**
+ * 내 PC 주소(localhost 등)에서 저장하면 cron-job.org 작업 주소가 내 PC로 잡히고 토큰이 바뀌어
+ * 실제 사이트의 작업이 401로 멈춘다(2026-11-04 실제 사고, docs/mall/LESSONS_LEARNED.md). 그런 주소에서는 작업을 건드리지 않는다.
+ */
+export function isLocalOrigin(origin: string): boolean {
+  try {
+    const h = new URL(origin).hostname;
+    return h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "::1" || h.endsWith(".localhost") || /^(10|192\.168|172\.(1[6-9]|2\d|3[01]))\./.test(h);
+  } catch {
+    return true;
+  }
+}
+
+export const LOCAL_SKIP_MESSAGE = "내 PC 주소에서 저장해 설정만 저장했고, cron-job.org 자동 작업은 바꾸지 않았습니다. 작업을 바꾸려면 실제 사이트 주소에서 저장해 주세요.";
+
+export type JobSync = { active: boolean; everyMinute: boolean; depositOn: boolean; notifyOn: boolean; hasKey: boolean; skippedLocal?: boolean };
 
 /** 저장 직후 호출. 실패하면 cron-job.org 오류 문구를 그대로 던진다 */
 export async function syncStoreJob(supabase: SupabaseClient, storeId: string, slug: string): Promise<JobSync> {
+  const origin = await siteOrigin();
+  if (isLocalOrigin(origin)) return { active: false, everyMinute: false, depositOn: false, notifyOn: false, hasKey: false, skippedLocal: true };
   const [{ data: key, error: keyError }, { data: sched }, { data: notify }] = await Promise.all([
     supabase.rpc("mall_builder_scheduler_api_key", { p_store_id: storeId }),
     supabase.from("mall_builder_store_schedulers").select("deposit_hours").eq("store_id", storeId).maybeSingle(),
-    supabase.from("mall_builder_store_notify_settings").select("kinds").eq("store_id", storeId).maybeSingle(),
+    supabase.from("mall_builder_store_notify_settings").select("kinds, email_kinds").eq("store_id", storeId).maybeSingle(),
   ]);
   if (keyError) throw new Error(keyError.message);
   const depositOn = sched?.deposit_hours != null;
-  const notifyOn = ((notify?.kinds as string[] | undefined) ?? []).length > 0;
+  // 문자·메일 알림 중 하나라도 켜져 있으면 1분 주기
+  const notifyOn = ((notify?.kinds as string[] | undefined) ?? []).length > 0 || ((notify?.email_kinds as string[] | undefined) ?? []).length > 0;
   const hasKey = Boolean(key);
-  const url = expireUrl(await siteOrigin(), slug);
+  const url = expireUrl(origin, slug);
 
   if ((depositOn || notifyOn) && hasKey) {
     const token = newRunToken();

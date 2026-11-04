@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getStoreBySlug } from "@/lib/store";
 import { expireUrl, parseDepositHours } from "@/lib/depositScheduler";
 import { setJobEnabled } from "@/lib/cronJobOrg";
-import { siteOrigin, syncStoreJob } from "./job-sync";
+import { isLocalOrigin, LOCAL_SKIP_MESSAGE, siteOrigin, syncStoreJob } from "./job-sync";
 
 export type DepositState = { error: string | null; message: string | null; hours: string };
 
@@ -22,8 +22,8 @@ export async function saveDepositAction(slug: string, _prev: DepositState, form:
   const supabase = await createClient();
 
   try {
-    // 키를 지우면 먼저 예전 키로 작업을 멈춘다(키를 지운 뒤에는 멈출 수 없으므로)
-    if (removeKey) {
+    // 키를 지우면 먼저 예전 키로 작업을 멈춘다(키를 지운 뒤에는 멈출 수 없으므로). 내 PC 주소면 작업은 건드리지 않는다
+    if (removeKey && !isLocalOrigin(await siteOrigin())) {
       const { data: oldKey, error: keyError } = await supabase.rpc("mall_builder_scheduler_api_key", { p_store_id: store.id });
       if (keyError) return { error: keyError.message, message: null, hours: hoursText };
       if (oldKey) await setJobEnabled(oldKey as string, expireUrl(await siteOrigin(), slug), false);
@@ -35,6 +35,7 @@ export async function saveDepositAction(slug: string, _prev: DepositState, form:
 
     const sync = await syncStoreJob(supabase, store.id, slug);
     revalidatePath(`/s/${slug}/admin/settings`);
+    if (sync.skippedLocal) return { error: null, message: LOCAL_SKIP_MESSAGE, hours: hoursText };
     if (parsed.value !== null && sync.active) {
       return { error: null, message: `자동 취소를 켰습니다. 이제 들어오는 무통장 주문은 ${parsed.value}시간 안에 입금이 없으면 취소됩니다(${sync.everyMinute ? "1분" : "10분"}마다 확인).`, hours: hoursText };
     }
@@ -50,6 +51,7 @@ export async function saveDepositAction(slug: string, _prev: DepositState, form:
 }
 
 export async function pauseDepositAction(slug: string, paused: boolean): Promise<{ error: string | null }> {
+  if (isLocalOrigin(await siteOrigin())) return { error: "내 PC 주소에서는 자동 작업을 일시정지·재개할 수 없습니다. 실제 사이트 주소에서 눌러 주세요." };
   const store = await getStoreBySlug(slug);
   const supabase = await createClient();
   const { data: key, error } = await supabase.rpc("mall_builder_scheduler_api_key", { p_store_id: store.id });

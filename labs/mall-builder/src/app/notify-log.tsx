@@ -1,15 +1,26 @@
-// 주문 알림 기록 목록(운영자 화면 전용) — 받는 번호는 뒤 4자리만 보인다
+// 주문 알림 기록 목록(운영자 화면 전용) — 받는 번호는 뒤 4자리, 메일은 앞 두 글자만 보인다
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/orders";
-import { maskPhone, NOTIFY_KIND_LABEL, NOTIFY_STATUS_LABEL } from "@/lib/notify";
+import { kindLabel, maskEmail, maskPhone, NOTIFY_STATUS_LABEL } from "@/lib/notify";
 
-type Row = { id: string; kind: string; to_phone: string; body: string; status: string; error: string; created_at: string; sent_at: string | null };
+type Row = {
+  id: string;
+  kind: string;
+  channel: string;
+  to_phone: string;
+  to_email: string;
+  body: string;
+  status: string;
+  error: string;
+  created_at: string;
+  sent_at: string | null;
+};
 
 export async function loadNotifyLog(storeId: string, orderId?: string, limit = 20): Promise<Row[]> {
   const supabase = await createClient();
   let q = supabase
     .from("mall_builder_notifications")
-    .select("id, kind, to_phone, body, status, error, created_at, sent_at")
+    .select("id, kind, channel, to_phone, to_email, body, status, error, created_at, sent_at")
     .eq("store_id", storeId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -28,8 +39,9 @@ export default function NotifyLog({ rows, empty }: { rows: Row[]; empty: string 
         <li key={r.id} className="py-2">
           <div className="flex flex-wrap items-center gap-x-2">
             <span className="text-gray-500">{formatDateTime(r.sent_at ?? r.created_at)}</span>
-            <span>{NOTIFY_KIND_LABEL[r.kind] ?? r.kind}</span>
-            <span className="text-gray-500">{maskPhone(r.to_phone)}</span>
+            <span className="rounded bg-gray-100 px-1.5 text-xs">{r.channel === "email" ? "메일" : "문자"}</span>
+            <span>{kindLabel(r.kind)}</span>
+            <span className="text-gray-500">{r.channel === "email" ? maskEmail(r.to_email) : maskPhone(r.to_phone)}</span>
             <b className={STATUS_COLOR[r.status] ?? ""}>{NOTIFY_STATUS_LABEL[r.status] ?? r.status}</b>
             {r.error && <span className="text-red-600">— {r.error}</span>}
           </div>
