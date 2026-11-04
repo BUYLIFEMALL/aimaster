@@ -28,7 +28,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `free-music-studio` | LeVo 2 한국어 가사 불가 안내 — 한글 가사 + LeVo 2면 빨간 안내·[대기열에 넣기] 막음, 엔진 설명 「중국어·영어 전용」(마스터PC 실물: 영어 단어만 반복, 공식 표도 zh·en만) | `5e9507063` | 2026-11-04 · [역할: music] `claude-win-20261024-music` | `free-music-studio/AGENTS.md` 미배포 대기(v1.19) | v1.19, 다음 배포 때 함께 |
+| `free-music-studio` | 한국어를 못 부르는 노래 엔진은 선택지에서 뺌(주인님 지시) — LeVo 2 제외(마스터PC 실물: 영어 단어만 반복, 공식 표도 zh·en만), 엔진마다 한국어 상태(된다·안 된다·시험 전), MiniMax Music 3은 「시험 전」 안내 | `5e9507063`, `5d8a47833` | 2026-11-04 · [역할: music] `claude-win-20261024-music` | `free-music-studio/AGENTS.md` 미배포 대기(v1.19) | v1.19, 다음 배포 때 함께 |
 | `real_estate_sales` | v1.48: 「지금 조회하기」 300초 초과 수정 — 수동 조회 200초·예약 수집 240초가 지나면 남은 새 매매는 AI 분석 없이 알림만, 단독/다가구 알림 「연면적 ○m²」. 시험 36·tsc·로컬 빌드 통과(코드 `version.ts`는 이미 v1.48) | `6d89f342f` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` 2026-11-04 v1.48 | 주인님 「다음 작업시 같이 배포해」 — 다음 실거래 배포 때 함께, 배포 뒤 DB 버전 맞추고 시험 계정 「지금 조회하기」 끝까지 되는지·단독/다가구 건수 확인 |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
 | `banana-canvas` | E5-4 한글 이름·주소 가리기(「한글 이름·주소도」, 한국어 글자 읽기 모델 13MB 브라우저 첫 1회) | `1dd57ac12` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` E5-4 | v1.43, 운영에서 송장 사진으로 확인 |
