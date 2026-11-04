@@ -9,7 +9,8 @@ export const PROPERTY_TYPES = ["아파트", "빌라", "오피스텔"] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 export const MOLIT_SERVICE: Record<PropertyType, { trade: string; rent: string }> = {
   아파트: { trade: "AptTrade", rent: "AptRent" },
-  빌라: { trade: "RHTrade", rent: "RHRent" },
+  // 2026-11-04: 연립 매매(15126467)는 새 서비스 RHTrade2만 승인과 연결된다(옛 RHTrade는 승인돼도 403 SERVICE_KEY_IS_NOT_REGISTERED)
+  빌라: { trade: "RHTrade2", rent: "RHRent" },
   오피스텔: { trade: "OffiTrade", rent: "OffiRent" },
 };
 export const molitUrl = (service: string) => `https://apis.data.go.kr/1613000/RTMSDataSvc${service}/getRTMSDataSvc${service}`;

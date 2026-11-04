@@ -1,5 +1,7 @@
 # 개선사항 기록 — 부동산 실거래 투자분석 자동화 (`real-estate-sales`, 폴더 `real_estate_sales/`)
 
+> **미배포 대기(2026-11-04, Claude Code 윈도우 [역할: realty])**: 빌라 매매 주소 `RHTrade` → `RHTrade2`(`src/lib/publicdata/molit.ts`, 시험 35개·tsc 통과). 승인(10-31)된 새 서비스에 맞춤 — 지금은 빌라 매매만 24시간 13번 403. 다음 배포 때 함께 내보내고, 배포 뒤 `vercel logs --project real-estate-sales --level error`에서 「빌라 … 건수 조회 실패」가 사라졌는지 확인. 응답 칸 이름(`mhouseNm` 등)이 옛 판과 같은지도 그때 첫 수집 결과로 확인.
+
 ## 2026-10-17 Claude Code(맥미니) — 디자인 리뉴얼 사전 분석 중 발견
 
 | # | 내용 | 근거·영향 | 우선순위 | 상태 | 관련 파일 | 다음 첫 단계·검수 |

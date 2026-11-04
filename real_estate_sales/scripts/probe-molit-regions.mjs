@@ -30,7 +30,7 @@ async function call(service, sgg, month = ymd) {
 
 console.log(`기준 달 ${ymd}`);
 console.log("== 유형별 응답 칸(고양시 일산동구)");
-for (const s of ["AptTrade", "RHTrade", "OffiTrade", "AptRent", "RHRent", "OffiRent"]) {
+for (const s of ["AptTrade", "RHTrade2", "OffiTrade", "AptRent", "RHRent", "OffiRent"]) {
   const r = await call(s, "41285");
   console.log(s, r.status, r.total ?? "", r.error ?? "", r.first ? Object.keys(r.first).join(",") : "");
   if (r.first) console.log("  예:", JSON.stringify({ ...r.first, jibun: r.first.jibun }).slice(0, 260));
