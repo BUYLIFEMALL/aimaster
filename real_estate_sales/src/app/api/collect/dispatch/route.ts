@@ -107,6 +107,7 @@ async function dispatch() {
     (collectStates ?? []).map((s) => [s.sgg_cd, s.last_collected_at]),
   );
 
+  const startedAt = Date.now(); // v1.47: 240초가 지나면 남은 알림은 AI 분석 없이
   const summary: Array<{ sgg_nm: string; newListings: number; reused: boolean; error?: string }> =
     [];
 
@@ -147,7 +148,7 @@ async function dispatch() {
 
     const unmatchedIds = await findUnmatchedListingIds(supabase, row.user_id, row.sgg_cd);
     if (unmatchedIds.length === 0) continue;
-    await notifyUserForListings(supabase, row.user_id, row.sgg_nm, unmatchedIds);
+    await notifyUserForListings(supabase, row.user_id, row.sgg_nm, unmatchedIds, { deadline: startedAt + 240_000 });
   }
 
   return { processed: dueRows.length, summary };

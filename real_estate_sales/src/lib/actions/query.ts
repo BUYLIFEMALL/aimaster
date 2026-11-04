@@ -14,6 +14,7 @@ import { collectDistrict, findUnmatchedListingIds, notifyUserForListings } from 
 const REUSE_WINDOW_MINUTES = 5;
 
 const QUERY_BUDGET_MS = 220_000;
+const NOTIFY_AI_BUDGET_MS = 200_000; // 이 뒤로는 AI 분석 없이 알림만(v1.47)
 
 export interface QueryDistrictsResult {
   error?: string;
@@ -96,7 +97,7 @@ export async function queryDistrictsAction(): Promise<QueryDistrictsResult> {
 
     totalNew += unmatchedIds.length;
     const beforeNotifiedCount = unmatchedIds.length;
-    await notifyUserForListings(admin, user.id, w.sgg_nm, unmatchedIds);
+    await notifyUserForListings(admin, user.id, w.sgg_nm, unmatchedIds, { deadline: startedAt + NOTIFY_AI_BUDGET_MS });
     if (telegramLinked) totalNotified += beforeNotifiedCount;
   }
 

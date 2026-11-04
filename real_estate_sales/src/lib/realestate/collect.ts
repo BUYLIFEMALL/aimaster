@@ -306,6 +306,8 @@ export async function notifyUserForListings(
   userId: string,
   sggNm: string,
   listingIds: string[],
+  // v1.47: 이 시각(ms)이 지나면 남은 건은 AI 분석 없이 알림만 보낸다(300초 시간 제한 — 분석은 상세 화면에서 볼 때)
+  opts: { deadline?: number } = {},
 ) {
   if (listingIds.length === 0) return;
 
@@ -363,16 +365,17 @@ export async function notifyUserForListings(
         : "-";
       const isSale = (listing.deal_type ?? "매매") === "매매";
       const rank = rankLabel((listing as { price_rank?: string | null }).price_rank);
+      const areaLine = listing.property_type === DETACHED ? `연면적 ${listing.exclusive_area ?? "-"}m²` : `전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층`;
       let message = isSale
-        ? `🏠 새 실거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층\n거래금액 ${priceEok}억${rank ? `\n${rank}` : ""}${volumeLine(trends[listing.sgg_cd])}`
-        : `🏠 새 ${listing.deal_type} 거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n전용 ${listing.exclusive_area ?? "-"}m² / ${listing.floor ?? "-"}층\n${formatDealPrice(listing.deal_type, listing.price_amount, listing.monthly_rent)}`;
+        ? `🏠 새 실거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n${areaLine}\n거래금액 ${priceEok}억${rank ? `\n${rank}` : ""}${volumeLine(trends[listing.sgg_cd])}`
+        : `🏠 새 ${listing.deal_type} 거래 발견\n\n${sggNm} ${listing.stdg_nm ?? "-"} ${listing.bldg_nm ?? "-"}\n${areaLine}\n${formatDealPrice(listing.deal_type, listing.price_amount, listing.monthly_rent)}`;
 
       // 텔레그램으로 알리기 전에, 이 사용자의 등록 키/선호 모델로 AI 투자 분석까지
       // 미리 돌려서 결과를 같이 전달한다 (이미 분석돼 있으면 재호출하지 않음).
       // 2026-10-17 v1.14: 회원이 설정에서 "알림에 AI 분석 포함"을 끄면 새로 분석하지 않고(유료 호출 없음), 이미 있는 결과만 붙인다.
       try {
         // 전월세는 AI 투자 분석 대상이 아니다(회원 키 요금 방지)
-        if (autoAnalyze && isSale) await ensureListingAnalysis(supabase, userId, listingId);
+        if (autoAnalyze && isSale && !(opts.deadline && Date.now() > opts.deadline)) await ensureListingAnalysis(supabase, userId, listingId);
         const { data: analysis } = await supabase
           .from("real_estate_analyses")
           .select("investment_score, undervaluation_index, predicted_growth_pct, rationale")
