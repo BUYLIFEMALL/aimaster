@@ -381,7 +381,7 @@
 | 하지 않기로 한 것 | 같은 댓글 반복 · 한 번에 붙여넣기 입력 · 비밀번호 자동 로그인 · 제한 안내 뒤 계속 진행 |
 | 결정 | ❌ 가져올 것 없음 |
 | 진행 상태 | 📝 검토 완료(2026-10-27) |
-| 관련 문서 | `docs/analysis-marketing14-20261027/REPORT.md` §3 |
+| 관련 문서 | `docs/analysis-marketing14-20261027/REPORT.md` §3 · **상세 분석(2026-11-05, 함수 흐름·화면 요소·개발 참고)** [`NBCL_DETAIL_20261105.md`](analysis-marketing14-20261027/NBCL_DETAIL_20261105.md) → 아이디어 2건 `IDEA-BNC-URLLIST-01`·`IDEA-BNC-DUPCHECK-02` 검토 대기 |
 
 #### EXT-BLOG-11 블로그 내이웃글 챗GPT 댓글공감(`nbnl`) — 14종 04
 | 항목 | 내용 |
