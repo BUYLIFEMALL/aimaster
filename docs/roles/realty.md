@@ -18,7 +18,7 @@
 | `commercial-land-trade-alert` | 미배포 대기: 목록 분류 거르기에 공장 용도·「모든 종류」 | 다음 상가 배포 때. 다음 날 재수집에서 공장·창고 줄이 늘지 않는지 확인 | `commercial-land-trade-alert/AGENTS.md` v1.31 |
 | `real_estate_sales` | v1.49 배포(서울 분양권 재정렬) — 분양권 실제 저장 확인 남음 | 다음 예약 회차 뒤 DB에서 분양권 줄·원본 칸 대조(「지금 조회하기」는 관리자 키 AI가 돌아 누르지 않음) | `real_estate_sales/AGENTS.md` v1.49 |
 | `real_estate_sales` | RQ-G 임장 노트: v1.34 1차 배포(시험 계정까지). 다음은 휴대폰 현장 시험, 주소 자동 등록, 회원 공개 | 주인님 현장 시험, 위치정보요약DB 승인 | `docs/analysis-realty-roadmap-20261031/PLAN_ONSITE_GEO.md` §10 |
-| 부동산 카테고리 | 플랜 결정 5건은 모두 처리됨(2026-11-04 확인). 남은 묶음: RQ-C 지역 뉴스 레이더(플랜 먼저), RQ-B5, RQ-A4 보류. RQ-B4는 v1.50 완료 — 회원 공개 전 개인정보 처리 판단은 주인님 몫. 공공 실거래 15종 모두 승인(2026-11-04) → 비주거는 공장·창고 추가로 끝(상가 v1.31). 남은 후보: 분양권(`SilvTrade`)을 실거래 프로그램에 | 주인님 착수 지시 | [작업표](../REAL_ESTATE_CONSOLIDATION_TASKS.md) · [플랜](../analysis-realty-roadmap-20261031/PLAN.md) · `real_estate_sales/docs/REVIEW_20261031_DATA_SCOPE.md` |
+| 부동산 카테고리 | 플랜 결정 5건은 모두 처리됨(2026-11-04 확인). 남은 묶음: RQ-C 지역 뉴스 레이더(플랜 먼저), RQ-B5, RQ-A4 보류. RQ-B4는 v1.50 완료, 주인님 2026-11-04 「그대로 공개 유지」 결정. 공공 실거래 15종 모두 승인(2026-11-04) → 비주거는 공장·창고 추가로 끝(상가 v1.31). 남은 후보: 분양권(`SilvTrade`)을 실거래 프로그램에 | 주인님 착수 지시 | [작업표](../REAL_ESTATE_CONSOLIDATION_TASKS.md) · [플랜](../analysis-realty-roadmap-20261031/PLAN.md) · `real_estate_sales/docs/REVIEW_20261031_DATA_SCOPE.md` |
 | `realty-listing-alert` | 남은 시험 | 월세 `B2`·20건 넘는 단지 2페이지·예약 연속 회차 · 차단 화면 실물(나오면) · 카톡 「○○ 매물 보기」 버튼. (RLS·봇 가져오기는 v1.27 두 계정 시험 통과 — 추가 계정 필요 없음) | 백로그 |
 | `realty-listing-alert` | 「신고 없음 n일째」 확인 | 이틀째 수집 뒤 | 인수인계 §4 |
 
