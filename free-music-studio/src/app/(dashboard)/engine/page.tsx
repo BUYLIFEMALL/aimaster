@@ -184,11 +184,23 @@ export default function EnginePage() {
           <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
             <Download className="h-4 w-4 text-emerald-300" /> 원클릭 다운로드 센터
           </h2>
+          {/* 왼쪽 = 이 PC에 설치된 판, 오른쪽 = 새 판(다른 색) — 2026-11-04 주인님 「버튼 두개로 나눠서 … 확실하게 구분」 */}
           {mine && latest && (
-            <span
-              className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${outdated ? "border-amber-500/40 bg-amber-950/40 text-amber-200" : "border-emerald-500/40 bg-emerald-950/40 text-emerald-300"}`}
-            >
-              내 PC 엔진 {mine} · {outdated ? `새 버전 ${latest.version} 있음` : "최신"}
+            <span className="inline-flex flex-wrap items-center gap-1.5">
+              <span className="rounded-lg border border-slate-500/50 bg-slate-800 px-2.5 py-1 text-xs font-bold text-slate-100">
+                설치된 엔진 <span className="font-mono">{mine}</span>
+              </span>
+              {outdated ? (
+                <a
+                  href={latest.url}
+                  className="animate-pulse rounded-lg bg-amber-400 px-2.5 py-1 text-xs font-extrabold text-[#2a1a00] shadow-sm shadow-amber-500/40 hover:animate-none hover:brightness-110"
+                  title="눌러서 새 설치 파일 받기"
+                >
+                  ⬆ 새 버전 <span className="font-mono">{latest.version}</span> 나옴
+                </a>
+              ) : (
+                <span className="rounded-lg bg-emerald-400 px-2.5 py-1 text-xs font-extrabold text-[#062018]">✓ 최신</span>
+              )}
             </span>
           )}
         </div>
