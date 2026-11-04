@@ -28,6 +28,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `free-music-studio` | 효과음 모드(3~30초, Stable Audio 3 전용, 공식 앞머리 자동, 한글 설명 경고) — **운영 DB SQL `20261105_sfx_durations.sql` 먼저**, 엔진 0.6.6 설치 파일 필요 | `3f2c41e27` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/AGENTS.md` 미배포 대기(v1.21) | v1.21과 함께 |
 | `free-music-studio` | MiniMax Music 3을 그래픽 메모리 24GB 이상 PC 전용으로(주인님 결정 — 5080 16GB에서 3분 곡이 1시간 17분 넘게 걸려 취소). 사이트에서 바로 막고(옛 엔진도), 엔진 목록 minVramGb 24는 다음 설치 파일 때 | `31fff3adc` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/AGENTS.md` 미배포 대기(v1.21) | v1.21, 다음 배포 때 함께 |
 | `real_estate_sales` | 주소 리포트 지도 가운데 📍 핀 겹치기(브이월드 marker 옵션이 그려지지 않음, v1.52 운영 확인 중 발견) | `d46717d97` | 2026-11-05 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` v1.52 | 다음 실거래 배포 때(+0.01) |
 | `commercial-land-trade-alert` | 실거래 목록 「분류」 거르기에 공장·창고 용도(공장·창고시설·자동차 관련시설) 추가, 종류 전체 선택 이름 「모든 종류」(v1.31 운영 확인 중 발견) | 이 커밋 바로 뒤 `fix(commercial-land-trade-alert)` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `commercial-land-trade-alert/AGENTS.md` v1.31 | 다음 상가 배포 때 함께(+0.01) |
