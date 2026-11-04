@@ -73,6 +73,11 @@
 - **v1.25**: 실거래 목록 주소 거르기 `?district=<시군구5자리>`·`?q=<단지명>`(서버에서 `!inner` 조인으로 거름, 0건이면 이름 앞 두 글자로 다시 찾고 「비슷한 이름으로 찾았어요」, 「전체 보기」, 쪽 이동 때 조건 유지) — 「부동산 실시간 매물 알림」 v1.38 「📈 실거래 보기」가 이 주소로 연다. 감시 지역 화면 경기 44곳을 시 이름으로 묶음(`groupByCity`, 경기에만). 시험 `test:molit` 6개. 커밋 `1d8cd99c5`.
 - 실물(크롬, 시험 계정): 전용면적 표시, `?district=41285&q=백송건영` → 「백송」으로 1건, 매물 알림에서 「📈 실거래 보기」 → 고양시 일산동구 20건, 경기 시 묶음 표시 확인.
 
+## 2026-11-05 v1.53 배포 — RQ-A4 0단계 R-ONE 진단 ([역할: realty] `claude-win-realty-docs`, 플랜 `docs/PLAN_20261105_RQ_A4_COMMERCIAL_RENT.md`)
+- 관리자·운영 계정 전용 중계 `/api/admin/rone-probe?service=SttsApi….do&STATBL_ID&CLS_ID&ITM_ID&DTACYCLE_CD&WRTTIME_IDTFR_ID&pIndex&pSize&grep=` — Vercel `RONE_API_KEY`(Secret, Production, 2026-11-05 주인님 등록)로 R-ONE Open API를 불러 그대로 넘김(키 비노출, 서비스 이름·요청 칸 화이트리스트, `grep`은 그 글자가 든 줄만).
+- 함께 나감: 지도 가운데 📍 핀(`d46717d97`).
+- 배포 직후 첫 호출: R-ONE `ERROR-290 인증키가 유효하지 않습니다` — 발급 요청 뒤 승인·활성화 전으로 보임. 키가 유효해지면 재배포 없이 진단 주소만 다시 부르면 됨(키 값을 바꾸면 Vercel 재배포 필요).
+
 ## 2026-11-05 v1.51·v1.52 배포 — RQ-B5 주소 리포트 2차: 상가·건물·토지 + 지도 ([역할: realty] `claude-win-realty-docs`, 플랜 `docs/PLAN_20261105_RQ_B5_NONRES_REPORT_MAP.md`)
 - v1.51(0단계): 관리자 진단 `/api/admin/nonres-probe`(관리자·운영 계정만) — 결과는 플랜 §0단계 결과·`docs/evidence/b5-nonres-probe-20261105.json`. 미배포 대기였던 저장 리포트 등기부 칸(`f7d15a34e`)도 함께 나감.
 - v1.52(`402c371ac`): 비주거 임장 기록 리포트는 주거 세 유형 찾기(18회)를 건너뛰고 상업업무용 12달·토지 6달을 받아 `lib/realestate/nonres.ts`(`summarizeNonRes`, 시험 `tests/nonres.test.mjs`)로 요약 — 집합 상가 같은 지번 거래 목록(최대 20)·같은 동 「구분·용도」별 건수·평당가 중간값(5건 미만 숨김)·범위, 토지 지목별(동 5건 미만이면 시군구 참고). 지분·취소 제외. 화면 `components/report/NonResSection.tsx`, 저장 리포트·AI 총평 입력·나란히 비교(같은 지번 거래 건수)에도 들어감. 동 이름은 필지 번호의 법정동 코드로 찾음(`dongFromPnu`).

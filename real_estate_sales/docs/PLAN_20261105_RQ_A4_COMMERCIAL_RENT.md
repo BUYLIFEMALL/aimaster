@@ -1,6 +1,6 @@
 # 개발 플랜 — RQ-A4 상가 임대료·공실률 참고값 (R-ONE 상업용부동산 임대동향)
 
-상태: 플랜 제시, 주인님 승인·인증키 대기(2026-11-05).
+상태: 0단계 진단 v1.53 배포(2026-11-05). R-ONE 키 등록됨(`RONE_API_KEY`) — 첫 호출 `ERROR-290 인증키가 유효하지 않습니다`, 키 활성화 대기.
 작성: [역할: realty] Claude Code(윈도우) `claude-win-realty-docs`
 근거: 주인님 「RQ-A4」 선택(2026-11-05). 로드맵 `docs/analysis-realty-roadmap-20261031/PLAN.md` 64줄·128줄(R-ONE 사전 검증 먼저).
 
