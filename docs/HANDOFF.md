@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`blog-neighbor-care` v1.15 배포: 관리자·시험 계정 30일 열외 + 12월 모델 교체**
+- 맥미니 요청서 §9(11-26 전 필수) 처리. 열외 회원의 30일 보관 기한만 트리거로 9999-12-31(표 18개)·감시 정리 한 줄 열외 → 정리 RPC 12개·조회 숨김 모두 풀림, 화면 「무기한 보관」. 운영 SQL 적용 전 대조(감시 함수는 줄 끝 CR만 다름) → 적용 → 열외 자료 87줄 변환·일반 회원 0줄. 모델은 `web-crawler`와 같은 파일 + 옛 값 변환
+- 커밋 `0a3a8c9f1`, 배포 `blog-neighbor-care-3focphnt6`(빌드 1회), DB v1.15·확장 릴리스 OK, 시험 단위 351·열외 DB 6 통과. 운영 작업 기록 4건 「무기한 보관」 확인
+- 남은 일: 맥미니 캡처 확인(요청서 §9 끝), 다음 작업은 위 맥미니 항목의 단계 A(정리) → v1.16. 상세 [`blog-neighbor-care/docs/IMPROVEMENTS.md`](../blog-neighbor-care/docs/IMPROVEMENTS.md) 맨 위
+- https://blog-neighbor-care.buylife.xyz/settings
+
 ## 2026-11-04 ⏳ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **윈도우 blog 세션 할 일: `blog-neighbor-care` 완전 자동 운영 단계 A~E (주인님 「추천대로 진행하고 윈도우 세션에 요청해」)**
 - **확정값**: 하루 기본 상한 공감 30·댓글 10·신청 수락 10 / 신청 자동 수락 기본 「내 이웃 기준에 맞을 때만」 / 시작하기에 하루 최대 AI 비용 안내 + 호출 상한 / 순서 A → C → B → D → E
 - **첫 번째 할 일**: 단계 A(정리) + 30일 열외(**11-26 전 필수**, [요청서 §9](FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md)) + 12월 모델 교체 묶음 B → v1.15 빌드 1회(주인님 승인 먼저). C부터는 개발 플랜을 주인님께 먼저

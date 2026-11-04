@@ -80,6 +80,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `blog-neighbor-care` | v1.15 · 2026-11-04 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-3focphnt6`) | 30일 보관 열외(운영 SQL `20261104120000` 적용, 열외 자료 87줄 무기한) + 12월 모델 교체 묶음 B(`web-crawler`와 같은 파일) `0a3a8c9f1`. DB/ZIP OK. 위 「12월 모델 교체 B」·「30일 보관 열외」 줄의 `blog-neighbor-care` 몫 처리 완료 |
 | `free-music-studio` | v1.18 · 엔진 0.6.3 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회) | LeVo 2 「pkg_resources 없음」 수정(`ae3578ec5`) + 다운로드 센터 버전 표시 두 개(`82f037ee7`) |
 | `free-music-studio` | v1.17 · 엔진 0.6.2 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-91rlksdgq`) | LeVo 2 모델 v1 base-full로(`4ba8bbb1f`) + 버전 표시 크고 밝게(`9b90e3463`) |
 | `free-music-studio` | v1.16 · 엔진 0.6.1 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-5gh1o5hsp`) | LeVo 2 LFS 자리표시 파일 자동 수정(`40506bee7`) |
