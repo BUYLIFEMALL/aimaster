@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
-import { buildPyJob, checkWav, heartTags, isInstalledState, levoDescriptions, levoLyric, parsePyLine, pyCatalog, pyErrorCause, pyEngine, pyPaths, pySupport, stepArgs, weightsKey, weightsPlan } from "../src/pyengines.mjs";
+import { buildPyJob, checkWav, fixLfsFiles, heartTags, isInstalledState, levoDescriptions, levoLyric, parseLfsPointer, parsePyLine, pyCatalog, pyErrorCause, pyEngine, pyPaths, pySupport, stepArgs, weightsKey, weightsPlan } from "../src/pyengines.mjs";
 
 const win = { platform: "win32", nvidia: true };
 
@@ -15,6 +15,36 @@ test("목록: 1차 엔진 3개 + 2차 MiniMax Music 3, 분류·고정 판이 있
   }
   assert.equal(pyEngine("levo2").license, "noncommercial");
   assert.equal(pyEngine("stableaudio3").hfToken, true);
+});
+
+test("LFS 자리표시 글 찾기·진짜 파일로 바꾸기(확인값 맞을 때만)", async () => {
+  const { mkdtemp, mkdir: md, writeFile: wf, readFile: rf, rm: rmf } = await import("node:fs/promises");
+  const os = await import("node:os");
+  const { createHash } = await import("node:crypto");
+  const real = Buffer.from("진짜 프롬프트 파일 내용".repeat(20));
+  const oid = createHash("sha256").update(real).digest("hex");
+  const pointer = `version https://git-lfs.github.com/spec/v1\noid sha256:${oid}\nsize ${real.length}\n`;
+  assert.deepEqual(parseLfsPointer(pointer), { oid, size: real.length });
+  assert.equal(parseLfsPointer("import torch\n"), null);
+  const root = await mkdtemp(path.join(os.tmpdir(), "fms-lfs-"));
+  try {
+    const e = pyEngine("levo2");
+    const p = { src: path.join(root, "src") };
+    await md(path.join(p.src, "tools"), { recursive: true });
+    await wf(path.join(p.src, "tools", "new_prompt.pt"), pointer);
+    await wf(path.join(p.src, "generate.py"), "print('hi')\n");
+    const asked = [];
+    const fetchImpl = async (url) => (asked.push(url), new Response(real));
+    assert.equal(await fixLfsFiles(e, p, { fetchImpl }), 1);
+    assert.deepEqual(asked, [`https://media.githubusercontent.com/media/levo-demo/LeVo/${e.source.commit}/tools/new_prompt.pt`]);
+    assert.deepEqual(await rf(path.join(p.src, "tools", "new_prompt.pt")), real);
+    // 확인값이 틀리면 바꾸지 않고 실패
+    await wf(path.join(p.src, "tools", "new_prompt.pt"), pointer);
+    await assert.rejects(fixLfsFiles(e, p, { fetchImpl: async () => new Response(Buffer.from("x".repeat(real.length))) }), /확인값/);
+    assert.equal(String(await rf(path.join(p.src, "tools", "new_prompt.pt"))), pointer);
+  } finally {
+    await rmf(root, { recursive: true, force: true });
+  }
 });
 
 test("파이썬 오류 줄 찾기 — 「코드 1」 대신 원인을 화면에", () => {

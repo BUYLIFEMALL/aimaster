@@ -4,13 +4,13 @@
 // 실행: 작업마다 실행 스크립트를 한 번 띄운다(YuE2와 같이 그래픽 메모리를 혼자 쓴다 — main.mjs가 ACE-Step을 잠시 끈다).
 import { spawn, spawnSync } from "node:child_process";
 import { createWriteStream, existsSync } from "node:fs";
-import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PYTHON_UTF8_ENV, dirSize, progressText, uvCacheDir, watchGrowth } from "./acestep.mjs";
-import { untar } from "./download.mjs";
+import { downloadVerified, untar } from "./download.mjs";
 
 const CATALOG = JSON.parse(await readFile(fileURLToPath(new URL("./pyengines-catalog.json", import.meta.url)), "utf8"));
 const PY_DIR = fileURLToPath(new URL("./py/", import.meta.url));
@@ -72,6 +72,20 @@ export function weightsPlan(engine, p) {
 export function isInstalledState(state, engine) {
   return !!state && state.status === "installed" && state.commit === sourceCommit(engine) && state.weights === weightsKey(engine);
 }
+/**
+ * Git LFS 자리표시 글이면 { oid, size } — GitHub 압축 파일(archive/<commit>.zip)은 LFS로 둔 큰 파일을 진짜 내용 대신
+ * 「version https://git-lfs.github.com/spec/v1 / oid sha256:… / size …」 글(약 130바이트)로 담는다(2026-11-04 마스터PC LeVo 2 tools/new_prompt.pt).
+ */
+export function parseLfsPointer(text) {
+  const s = String(text ?? "");
+  if (!s.startsWith("version https://git-lfs.github.com/spec/v1")) return null;
+  const oid = /^oid sha256:([0-9a-f]{64})$/m.exec(s)?.[1];
+  const size = Number(/^size (\d+)$/m.exec(s)?.[1]);
+  return oid && Number.isFinite(size) ? { oid, size } : null;
+}
+/** LFS 진짜 파일 주소(GitHub 미디어 서버, 판 고정) */
+export const lfsMediaUrl = (repo, commit, rel) => `https://media.githubusercontent.com/media/${repo}/${commit}/${rel.split(path.sep).join("/")}`;
+
 /** 파이썬 오류 줄(「ModuleNotFoundError: No module named 'x'」·「torch.OutOfMemoryError: …」)이면 그 줄(300자까지), 아니면 "" */
 export function pyErrorCause(line) {
   const s = String(line ?? "").trim();
@@ -254,6 +268,32 @@ function killTree(child) {
   else child.kill("SIGKILL");
 }
 
+/** 원본 폴더의 LFS 자리표시 글(1KB 미만 파일만 읽음)을 GitHub 미디어 서버의 진짜 파일로 바꾼다 — 확인값(sha256)·크기가 맞아야 저장. 바꾼 개수 */
+export async function fixLfsFiles(engine, p, { onStage = () => {}, signal, fetchImpl } = {}) {
+  const found = [];
+  const walk = async (dir) => {
+    for (const e of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name !== ".git") await walk(full);
+      } else if (e.isFile()) {
+        const s = await stat(full).catch(() => null);
+        if (s && s.size < 1024) {
+          const ptr = parseLfsPointer(await readFile(full, "utf8").catch(() => ""));
+          if (ptr) found.push({ full, ptr });
+        }
+      }
+    }
+  };
+  await walk(p.src);
+  for (const [i, f] of found.entries()) {
+    const rel = path.relative(p.src, f.full);
+    onStage(`${engine.name} 원본 큰 파일 받는 중 ${i + 1}/${found.length} · ${rel.split(path.sep).join("/")}`);
+    await downloadVerified({ url: lfsMediaUrl(engine.source.repo, engine.source.commit, rel), bytes: f.ptr.size, sha256: f.ptr.oid }, f.full, { signal, fetchImpl });
+  }
+  return found.length;
+}
+
 async function fetchSource(engine, p, { onStage, signal }) {
   const url = `https://github.com/${engine.source.repo}/archive/${engine.source.commit}.zip`;
   const zip = path.join(p.root, "src.zip");
@@ -295,7 +335,13 @@ export async function ensurePyEngine(dataDir, engine, { onStage = () => {}, sign
 
   if (engine.source && (!state.source || !existsSync(path.join(p.src)))) {
     await fetchSource(engine, p, { onStage, signal });
-    await save({ source: true, runtime: false });
+    await save({ source: true, runtime: false, lfs: false });
+  }
+  // 원본 압축에 든 LFS 자리표시 글을 진짜 파일로(0.6.1) — 이미 설치된 PC도 한 번 점검한다
+  if (engine.source && !state.lfs) {
+    const n = await fixLfsFiles(engine, p, { onStage, signal });
+    if (n) log(`# LFS 자리표시 ${n}개를 진짜 파일로 바꿈\n`);
+    await save({ lfs: true });
   }
   if (!state.runtime || !existsSync(p.python)) {
     onStage(`${engine.name} 실행 환경 만드는 중(처음 한 번)`);
