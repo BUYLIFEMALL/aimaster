@@ -72,6 +72,12 @@ export function weightsPlan(engine, p) {
 export function isInstalledState(state, engine) {
   return !!state && state.status === "installed" && state.commit === sourceCommit(engine) && state.weights === weightsKey(engine);
 }
+/** 파이썬 오류 줄(「ModuleNotFoundError: No module named 'x'」·「torch.OutOfMemoryError: …」)이면 그 줄(300자까지), 아니면 "" */
+export function pyErrorCause(line) {
+  const s = String(line ?? "").trim();
+  if (!/^[A-Za-z_][\w.]*(Error|Exception|Interrupt)(: |$)/.test(s)) return "";
+  return s.slice(0, 300);
+}
 /** 원본 코드 판 — 정식 패키지만으로 도는 엔진(MiniMax Music 3, 0.6.0)은 원본 코드가 없다 */
 export const sourceCommit = (engine) => engine.source?.commit ?? "none";
 export const weightsKey = (engine) => engine.weights.map((w) => `${w.repo}@${w.revision}`).join(",");
@@ -214,6 +220,7 @@ function run(cmd, args, { cwd, env, signal, log, onLine } = {}) {
     const child = spawn(cmd, args, { cwd, env: { ...process.env, ...PYTHON_UTF8_ENV, ...env }, windowsHide: true });
     let tail = "";
     let errorText = "";
+    let cause = ""; // 파이썬이 남긴 마지막 오류 줄(「RuntimeError: …」) — 「코드 1」만 보이던 것을 화면에서 바로 알 수 있게(2026-11-04 마스터PC LeVo 2)
     const onData = (d) => {
       const text = d.toString("utf8");
       log?.(text);
@@ -221,6 +228,8 @@ function run(cmd, args, { cwd, env, signal, log, onLine } = {}) {
       for (const line of text.split(/\r?\n/)) {
         const r = parsePyLine(line);
         if (r?.error) errorText = r.error;
+        const c = pyErrorCause(line);
+        if (c) cause = c;
         onLine?.(line, r);
       }
     };
@@ -233,7 +242,8 @@ function run(cmd, args, { cwd, env, signal, log, onLine } = {}) {
       signal?.removeEventListener("abort", abort);
       if (signal?.aborted) return reject(Object.assign(new Error("취소됨"), { name: "AbortError" }));
       if (code === 0) return resolve();
-      reject(new Error(errorText || `${path.basename(cmd)} 실패(코드 ${code}) — ${tail.trim().split(/\r?\n/).slice(-2).join(" / ").slice(0, 300)}`));
+      if (errorText) return reject(new Error(cause && !errorText.includes(cause) ? `${errorText} — 원인: ${cause}` : errorText));
+      reject(new Error(`${path.basename(cmd)} 실패(코드 ${code}) — ${cause || tail.trim().split(/\r?\n/).slice(-2).join(" / ").slice(0, 300)}`));
     });
   });
 }

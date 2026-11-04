@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
-import { buildPyJob, checkWav, heartTags, isInstalledState, levoDescriptions, levoLyric, parsePyLine, pyCatalog, pyEngine, pyPaths, pySupport, stepArgs, weightsKey, weightsPlan } from "../src/pyengines.mjs";
+import { buildPyJob, checkWav, heartTags, isInstalledState, levoDescriptions, levoLyric, parsePyLine, pyCatalog, pyErrorCause, pyEngine, pyPaths, pySupport, stepArgs, weightsKey, weightsPlan } from "../src/pyengines.mjs";
 
 const win = { platform: "win32", nvidia: true };
 
@@ -15,6 +15,15 @@ test("목록: 1차 엔진 3개 + 2차 MiniMax Music 3, 분류·고정 판이 있
   }
   assert.equal(pyEngine("levo2").license, "noncommercial");
   assert.equal(pyEngine("stableaudio3").hfToken, true);
+});
+
+test("파이썬 오류 줄 찾기 — 「코드 1」 대신 원인을 화면에", () => {
+  assert.equal(pyErrorCause("ModuleNotFoundError: No module named 'flashy'"), "ModuleNotFoundError: No module named 'flashy'");
+  assert.equal(pyErrorCause("  torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB"), "torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB");
+  assert.equal(pyErrorCause("KeyboardInterrupt"), "KeyboardInterrupt");
+  assert.equal(pyErrorCause('  File "generate.py", line 10, in <module>'), "");
+  assert.equal(pyErrorCause("FMS_STAGE LeVo 2 · 곡 만드는 중"), "");
+  assert.equal(pyErrorCause("loading Error-free model"), "");
 });
 
 test("MiniMax Music 3 — 원본 코드 없이 정식 패키지, diffusers용 구성만 받기, 작업 정보", () => {
