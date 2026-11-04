@@ -34,6 +34,9 @@ def main():
         env["PYTHONDONTWRITEBYTECODE"] = "1"
         env["OMP_NUM_THREADS"] = "1"
         env["MKL_NUM_THREADS"] = "1"
+        # PyTorch 2.6부터 torch.load 기본이 weights_only=True라 원본의 tools/new_prompt.pt가 「Weights only load failed」로 막힌다
+        # (2026-11-04 마스터PC). 이 파일은 판을 고정한 공식 lglg666/SongGeneration-Runtime에서 받은 것이라, LeVo 2 실행에서만 예전 방식으로 연다.
+        env["TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD"] = "1"
         # 원본은 경로를 「/」로 잘라 모델 이름을 읽는다
         args = [sys.executable, "generate.py", "--ckpt_path", job["modelDir"].replace("\\", "/"), "--input_jsonl", jsonl, "--save_dir", os.path.join(work, "out"), "--generate_type", "bgm" if job.get("bgm") else "mixed"]
         if float(job.get("vramGb") or 0) < 24:

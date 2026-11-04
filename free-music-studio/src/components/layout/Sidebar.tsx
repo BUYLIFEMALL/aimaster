@@ -7,6 +7,7 @@ import { APP_VERSION, APP_NAME } from "@/lib/version";
 import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library, Upload, ListOrdered } from "lucide-react";
 import { activeCount } from "@/lib/engine";
 import { useQueue } from "@/components/engine/useQueue";
+import { NewVersionNotice } from "./NewVersionNotice";
 
 interface SidebarProps {
   userEmail?: string;
@@ -57,6 +58,7 @@ function Brand({ onNavigate }: { onNavigate?: () => void }) {
         <span>← 다른 프로그램 보기</span>
         <ExternalLink size={11} className="opacity-70" />
       </a>
+      <NewVersionNotice />
     </div>
   );
 }
