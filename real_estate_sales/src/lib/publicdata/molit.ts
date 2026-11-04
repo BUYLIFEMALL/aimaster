@@ -7,24 +7,30 @@ import type { SeoulRtmsRow } from "./client";
 // 2026-10-31: 주거 세 유형. 국토부는 유형마다 서비스가 따로다(응답의 이름 칸: 아파트 aptNm, 연립 mhouseNm, 오피스텔 offiNm)
 // 2026-11-04 v1.46: 단독/다가구 추가(SHTrade·SHRent, 11-04 승인). 이 유형은 단지 이름·전용면적·층이 없고 연면적(totalFloorAr)·대지면적(plottageAr)·
 // 주택 유형(houseType: 단독/다가구)이 오며, 지번 일부가 가려져(「1**」) 필지 조회(건축물대장·공시가)를 할 수 없다
-export const PROPERTY_TYPES = ["아파트", "빌라", "오피스텔", "단독/다가구"] as const;
+// 2026-11-04 v1.48: 분양권 추가(국토부 분양권 전매 SilvTrade 15126471, 11-04 승인). 매매(전매)만 있고 전월세 자료가 없다.
+// 아직 지어지지 않은 아파트라 건축물대장·공시가 조회 대상이 아니다. 서울도 서울 열린데이터에 없어 국토부 자료로 받는다
+export const PROPERTY_TYPES = ["아파트", "빌라", "오피스텔", "단독/다가구", "분양권"] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 export const DETACHED: PropertyType = "단독/다가구";
+export const PRESALE: PropertyType = "분양권";
 /** 필지·단지로 맞출 수 있는 유형(주소 리포트·공시가·같은 단지 비교) — 단독/다가구는 지번이 가려져 빠진다 */
-export const LOT_TYPES = PROPERTY_TYPES.filter((t) => t !== DETACHED);
-export const MOLIT_SERVICE: Record<PropertyType, { trade: string; rent: string }> = {
+export const LOT_TYPES = PROPERTY_TYPES.filter((t) => t !== DETACHED && t !== PRESALE);
+export const MOLIT_SERVICE: Record<PropertyType, { trade: string; rent?: string }> = {
   아파트: { trade: "AptTrade", rent: "AptRent" },
   // 2026-11-04: 연립 매매(15126467)는 새 서비스 RHTrade2만 승인과 연결된다(옛 RHTrade는 승인돼도 403 SERVICE_KEY_IS_NOT_REGISTERED)
   빌라: { trade: "RHTrade2", rent: "RHRent" },
   오피스텔: { trade: "OffiTrade", rent: "OffiRent" },
   "단독/다가구": { trade: "SHTrade", rent: "SHRent" },
+  분양권: { trade: "SilvTrade" },
 };
+/** 전월세 자료가 있는 유형(분양권 제외) */
+export const RENT_TYPES = PROPERTY_TYPES.filter((t) => !!MOLIT_SERVICE[t].rent);
 export const molitUrl = (service: string) => `https://apis.data.go.kr/1613000/RTMSDataSvc${service}/getRTMSDataSvc${service}`;
 
 /** 서울 자료의 건물 용도 → 유형. 세 유형 밖이면 null */
 export function propertyTypeOf(usage: unknown): PropertyType | null {
   const u = String(usage ?? "").trim();
-  if (u === "아파트" || u === "오피스텔" || u === "빌라" || u === DETACHED) return u;
+  if (u === "아파트" || u === "오피스텔" || u === "빌라" || u === DETACHED || u === PRESALE) return u;
   if (u === "단독다가구" || u === "단독" || u === "다가구") return DETACHED; // 서울 자료 용도 「단독다가구」
   return u === "연립다세대" ? "빌라" : null;
 }

@@ -124,7 +124,7 @@ export default async function ListingDetailPage({
           icon="🏛️"
           label="공시가격"
           value={formatWon(listing.official_price ? listing.official_price / 10000 : null)}
-          hint={!listing.official_price && listing.property_type === "오피스텔" ? "오피스텔은 공동주택 공시가 대상이 아니에요" : !listing.official_price && listing.property_type === "단독/다가구" ? "단독·다가구는 공동주택 공시가 대상이 아니고, 국토부가 지번 일부를 가려 필지를 찾을 수 없어요" : undefined}
+          hint={!listing.official_price && listing.property_type === "오피스텔" ? "오피스텔은 공동주택 공시가 대상이 아니에요" : !listing.official_price && listing.property_type === "단독/다가구" ? "단독·다가구는 공동주택 공시가 대상이 아니고, 국토부가 지번 일부를 가려 필지를 찾을 수 없어요" : !listing.official_price && listing.property_type === "분양권" ? "분양권은 아직 지어지지 않은 집이라 공시가격이 없어요(거래가는 분양권 전매 금액)" : undefined}
           tone="muted"
         />
         <KpiCard icon="📐" label="공시가 대비" value={isSale && ratio !== null ? `${ratio}%` : "-"} hint={isUnusualPriceRatio(ratio) ? "⚠️ 특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : "거래가 ÷ 공시가격"} tone="amber" />

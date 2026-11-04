@@ -120,12 +120,14 @@ export async function fetchMolitTrades(params: {
   sggNm: string;
   numOfRows?: number;
   now?: Date;
+  /** 받을 유형(기본 전체). 서울은 분양권만 이 함수로 받는다(v1.48) */
+  types?: readonly PropertyType[];
 }): Promise<SeoulRtmsRow[]> {
   const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
-  const { sggCd, sggNm, numOfRows = 200, now } = params;
+  const { sggCd, sggNm, numOfRows = 200, now, types = PROPERTY_TYPES } = params;
   const rows: SeoulRtmsRow[] = [];
   const errors: unknown[] = [];
-  for (const type of PROPERTY_TYPES) {
+  for (const type of types) {
     try {
       const jsons: unknown[] = [];
       for (const ymd of molitMonths(now)) jsons.push(await molitGet(MOLIT_SERVICE[type].trade, key, sggCd, ymd, numOfRows));
@@ -135,14 +137,16 @@ export async function fetchMolitTrades(params: {
       errors.push(err);
     }
   }
-  if (errors.length === PROPERTY_TYPES.length) throw errors[0];
+  if (errors.length === types.length) throw errors[0];
   return rows.sort((a, b) => b.CTRT_DAY.localeCompare(a.CTRT_DAY));
 }
 
 /** B1 주소 리포트(2026-11-03): 국토부 한 달·한 유형 원본 응답(매매 또는 전월세) */
 export async function fetchMolitMonth(params: { keys?: PublicDataKeys; type: PropertyType; deal: "trade" | "rent"; sggCd: string; ymd: string }): Promise<unknown> {
   const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
-  return molitGet(MOLIT_SERVICE[params.type][params.deal], key, params.sggCd, params.ymd, 1000);
+  const service = MOLIT_SERVICE[params.type][params.deal];
+  if (!service) throw new Error(`국토부 ${params.type} 전월세 자료가 없습니다`);
+  return molitGet(service, key, params.sggCd, params.ymd, 1000);
 }
 
 /** 국토부 매매 신고 건수(한 달·한 유형). 줄은 1개만 받고 응답의 전체 건수(totalCount)만 읽는다 — A2 거래량(2026-11-02). 서울도 같은 API로 센다 */
@@ -157,8 +161,10 @@ export async function fetchMolitTradeCount(params: { keys?: PublicDataKeys; sggC
 /** 국토부 전월세 — 지역·유형별 최근 3달. 수집 한 번에 지역·유형당 한 번만 부른다 */
 export async function fetchMolitRents(params: { keys?: PublicDataKeys; sggCd: string; type: PropertyType; now?: Date }): Promise<RentComparable[]> {
   const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
+  const service = MOLIT_SERVICE[params.type].rent;
+  if (!service) return []; // 분양권은 전월세 자료가 없다
   const jsons: unknown[] = [];
-  for (const ymd of molitMonths(params.now, 3)) jsons.push(await molitGet(MOLIT_SERVICE[params.type].rent, key, params.sggCd, ymd, 1000));
+  for (const ymd of molitMonths(params.now, 3)) jsons.push(await molitGet(service, key, params.sggCd, ymd, 1000));
   return molitRentRows(jsons);
 }
 

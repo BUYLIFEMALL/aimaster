@@ -166,9 +166,9 @@ test("유형: 빌라·오피스텔 응답 변환(실제 칸 이름), 서울 용�
   assert.equal(propertyTypeOf("연립다세대"), "빌라");
   assert.equal(propertyTypeOf("아파트"), "아파트");
   assert.equal(propertyTypeOf("단독다가구"), "단독/다가구"); // v1.46부터 받음
-  assert.deepEqual(normalizePropertyTypes(null), ["아파트", "빌라", "오피스텔", "단독/다가구"]);
+  assert.deepEqual(normalizePropertyTypes(null), ["아파트", "빌라", "오피스텔", "단독/다가구", "분양권"]);
   assert.deepEqual(normalizePropertyTypes(["빌라", "엉뚱"]), ["빌라"]);
-  assert.deepEqual(normalizePropertyTypes([]), ["아파트", "빌라", "오피스텔", "단독/다가구"]);
+  assert.deepEqual(normalizePropertyTypes([]), ["아파트", "빌라", "오피스텔", "단독/다가구", "분양권"]);
 });
 
 test("전남광주 필지 번호: 브이월드 조회만 옛 코드, 다른 지역은 그대로", async () => {
@@ -219,5 +219,22 @@ test("v1.46: 단독/다가구 — 연면적·대지면적, 가려진 지번은 �
   assert.equal(rents[0].name, "단독주택 2**");
   assert.equal(rents[0].area, 120);
   assert.deepEqual(m.normalizePropertyTypes(["아파트", "빌라", "오피스텔"]), ["아파트", "빌라", "오피스텔"]); // 세 유형만 고른 회원은 그대로
-  assert.equal(m.normalizePropertyTypes([]).length, 4);
+  assert.equal(m.normalizePropertyTypes([]).length, 5);
+});
+
+test("v1.48: 분양권 — SilvTrade, 전월세 없음, 필지 조회 유형에서 빠짐, 아파트 이름·전용면적으로 읽음", async () => {
+  const m = await import("../src/lib/publicdata/molit.ts");
+  assert.ok(m.PROPERTY_TYPES.includes("분양권"));
+  assert.ok(!m.LOT_TYPES.includes("분양권"));
+  assert.equal(m.MOLIT_SERVICE["분양권"].trade, "SilvTrade");
+  assert.equal(m.MOLIT_SERVICE["분양권"].rent, undefined);
+  assert.ok(!m.RENT_TYPES.includes("분양권") && m.RENT_TYPES.includes("단독/다가구"));
+  assert.equal(m.propertyTypeOf("분양권"), "분양권");
+  const row = m.molitItemToRow({ aptNm: "힐스테이트 시험", excluUseAr: "84.97", dealAmount: "95,000", dealYear: "2026", dealMonth: "10", dealDay: "7", floor: "12", jibun: "123", sggCd: "41285", umdNm: "백석동", ownershipGbn: "분", cdealType: " " }, "고양시 일산동구", {}, "분양권");
+  assert.equal(row.BLDG_NM, "힐스테이트 시험");
+  assert.equal(row.BLDG_USG, "분양권");
+  assert.equal(row.THING_AMT, "95000");
+  assert.equal(row.ARCH_AREA, "84.97");
+  assert.equal(row.FLR, "12");
+  assert.equal(m.molitItemToRow({ aptNm: "x", excluUseAr: "84", dealAmount: "1", dealYear: "2026", dealMonth: "1", dealDay: "1", cdealType: "O" }, "x", {}, "분양권"), null, "해제 거래는 버림");
 });
