@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-04 Vercel CLI 출력 끝부분(`next` 안내 JSON)만 보고 실패로 오해해 다시 배포 → 빌드 2회 (`blog-neighbor-care` v1.14)
+- 증상: `vercel deploy --prod --yes … | tail -6`의 결과가 「Promote to production」 같은 다음 단계 안내 JSON만 보여 배포가 안 된 줄 알고 다시 실행. 실제로는 첫 명령도 Ready였고 빌드가 2번 생김(승인 1회 초과).
+- 원인: CLI가 끝에 다음 할 일 목록(JSON)을 붙여 출력하는데 `tail`로 잘라 보면서 배포 주소·Ready 줄을 놓침. MCP `list_deployments`는 프로젝트 필터에서 403이 나 확인도 못 함.
+- 해결: `vercel list <프로젝트> --scope buylife`로 두 배포가 모두 Ready인 것을 확인, 최신 것이 운영 주소.
+- 다음부터: 배포 출력은 자르지 말고 `head -30`(주소·Building 줄)으로 보거나 `scripts/deploy.mjs --go`를 쓴다. **다시 실행하기 전에 반드시 `vercel list <프로젝트> --scope buylife`로 방금 배포가 생겼는지 먼저 본다.**
+
 ## 2026-11-04 원본 코드보다 새 모델을 붙여 「Error(s) in loading state_dict for LmModel」 (`free-music-studio` LeVo 2, 엔진 0.6.2, [역할: music])
 - **증상**: LFS 파일을 고친 뒤 마스터PC LeVo 2가 `RuntimeError: Error(s) in loading state_dict for LmModel`(화면 실패 이유에 바로 표시됨 — 0.6.0 `pyErrorCause` 효과).
 - **원인**: 고정한 원본 `levo-demo/LeVo` `653cbcf`는 첫 커밋 하나뿐인 데모 사본이고, 지원 이름이 `songgeneration_base/base_new/base_full/large`(v1 모델). 1차에 v2-medium(2026-03)을 `songgeneration_base_full` 폴더 이름으로 넣어 원본의 이름 검사만 지나게 했는데, 구조가 v1과 달라 불러오기 실패(`strict=False`라도 크기가 다른 층은 실패). 공식 `tencent-ailab/SongGeneration`은 사라지고 v2 코드는 개인 사본뿐.

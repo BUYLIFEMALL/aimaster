@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — `blog-neighbor-care` v1.14: 댓글 0개 글에서 댓글 작업이 멈추던 문제 수정·운영 배포
+- **받은 요청**: 맥미니 [FIX_REQUEST_20261104](FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md) — 확장 v1.13이 댓글 0개 글에서 「현재 작업 화면을 하나로 확인하지 못했습니다」로 멈춤
+- **원인·수정**: 빈 댓글 목록(`ul.u_cbox_list`)이 크기 0이라 「보이는 목록 0개」로 걸러짐. 같은 이유로 댓글 열기 버튼이 이미 펼친 칸을 다시 닫을 수 있었음. `extension/work-dom.mjs` `commentList()`가 「숨김 아닌 목록 1개 + 자식 0개 + 입력 상자 보임」일 때만 빈 목록 인정, 열기 버튼도 같은 판정. 확인 실패 원인 코드 → `work-bridge.mjs` 원인별 문구. 확장 문구 「Edge」→「브라우저」
+- **검수**: 시험 348 통과(NR20·NR21 추가), tsc·next build 통과, DB `version`·`extension_version` v1.14, `check-extension-release` OK, 라이브 ZIP 해시 일치. 실제 네이버 화면 재시험은 아직(맥미니 몫)
+- **커밋·배포**: `7796219b6`(코드), 배포 `blog-neighbor-care-7g86hwk6k` Ready. **빌드 2회(승인 1회 초과)** — 첫 배포 출력 끝부분만 보고 실패로 오해해 다시 실행(두 번 모두 성공, `docs/ERROR_LESSONS.md` 같은 날)
+- **남은 일**: 맥미니 재시험(ZIP 다시 받기→덮어쓰기→새로고침→남은 「검토 완료 · 실행 전」 작업 1회). 문장 생성 실패 원인 구분, 안내 페이지 「Edge」 문구, 이 프로그램 몫 12월 모델 교체·30일 열외는 별도 작업
+- 링크: https://blog-neighbor-care.buylife.xyz/neighbors
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.16 · 엔진 0.6.1 LeVo 2 LFS 파일 수정
 - **원인**: GitHub 원본 압축 안 `tools/new_prompt.pt`가 133바이트 LFS 자리표시 글(realty 세션이 확인, 주인님이 마스터PC 파일을 진짜 파일로 바꿔 확인값 일치). 제가 앞서 낸 「Weights only」 판단은 절반만 맞음 — `docs/ERROR_LESSONS.md`에 바로잡음.
 - **수정**: 엔진이 원본을 푼 뒤 LFS 자리표시 글을 미디어 서버에서 받아 확인값으로 검사(`pyengines.mjs` `fixLfsFiles`), 설치된 PC도 한 번 점검.

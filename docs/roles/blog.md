@@ -169,7 +169,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-11-01 · 담당 인수(Codex→Claude Code 윈도우), SEO v2.22·올인원 v1.56 배포
+- 마지막 갱신: 2026-11-04 · 이웃 소통 v1.14 배포(댓글 0개 글 수정, claude-win-blog)
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -273,6 +273,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-04 이웃 소통 v1.14 배포 — 맥미니 요청서대로 댓글 0개 글 멈춤 수정, 원인별 팝업 문구. 시험 348·DB·ZIP OK. 맥미니 실물 재시험 대기. 빌드 2회(1회 초과, 교훈 기록).
 - 2026-11-01 주인님 결정: 작업실·콘텐츠 제작·올인원 비공개 유지. 권한 있는 회원도 404로 막히며 이동 안내 띠는 보이지 않음(사용자가 적어 그대로 둠).
 - 2026-11-01 이웃 소통 v1.06 배포, AI 프로필 재시험 성공, 블로그 3개 백업·비공개 이동.
 - 2026-11-01 블로그 4개 순차 배포(에이전트 v2.23·작업실 v1.16·콘텐츠 제작 v1.14·올인원 v1.58). 맥미니 화면 검수 대기.

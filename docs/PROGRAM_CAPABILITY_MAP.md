@@ -705,6 +705,7 @@
 ### 블로그
 
 #### AI 블로그 이웃 소통 자동화 (`blog-neighbor-care`) — v1.03 운영 / 재가져오기·정리로그·반복cursor·복구·주기호출·AI형식 후속6건 미배포
+- **현재 운영 v1.14(2026-11-04)**: 댓글 0개 글 댓글 작업 멈춤 수정(빈 목록은 입력 상자가 보일 때만 인정), 확인 실패 원인별 팝업 문구, 확장 문구 「브라우저」. 제목의 v1.03은 옛 기록.
 
 - **4번 실진단/수정(10-29):** ae2승인1회소진·d8520aec provider/output_json uncertain. 원문형태/원래실패동일원인미확정. Anthropic output_config/schema누락보강c34015232·단위225/분석DB14/타입통과·미배포. 실성공/품질/저장검수는새668992b9대기,추가호출0. [근거](../blog-neighbor-care/docs/evidence/profile-json-fix-20261029.json).
 
