@@ -43,6 +43,7 @@
 |---|---|---|---|
 | `free-music-studio/` | [역할: music] Claude Code(윈도우(미니PC), 크롬) · 세션 `claude-win-20261024-music` | 2026-11-03 | v1.06 커버·AI 3사·최고 품질 배포 완료 — 다음 운영 화면 확인·작업 대기열 |
 | `blog-neighbor-care/` | [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog · 네이버·엣지 조작은 주인님(윈도우 엣지, 캡처 판독) | 2026-11-03 | 윈도우 `claude-win-20261101-blog`에서 인수 — 공감 자동 재시험(작업 38ae2eeb) → 댓글 1건 → v1.14 준비 |
+| `blog-neighbor-care/` (확장 코드·배포) | [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog | 2026-11-04 | 맥미니 요청서 FIX_REQUEST_20261104 처리 — 댓글 0개 글 멈춤 수정 v1.14 커밋·배포(승인 빌드 1회). 재시험은 맥미니 |
 | `shorts-viral-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-shorts-viral-v2` | 2026-10-30 | 쇼츠 떡상 분석 및 대본 자동화 v2.0 리뉴얼 — 4대 화면 3시안(12뷰) 쇼케이스 및 라이트박스 팝업 제작 중 |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261101-blog` (2026-11-01 Codex 크레딧 소진으로 주인님 지시 인수) | 2026-11-01 | 담당만 인수, 지금 수정 없음. 올인원·BLOG 병합은 맥미니 재대조 결과 기준. 설치 v2.21 → v2.22 업데이트·옛 연결 8개 정리 잔여 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-10-24 | Lyricbi L-1~L-5 시작 예정(플랜 `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md`, 빌드 2회 승인). 쇼츠 원스톱 v1.42 무료 음성은 시험 계정 운영 검수까지 완료 |
