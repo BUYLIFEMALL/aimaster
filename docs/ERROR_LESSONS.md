@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-04 Supabase 저장소 `remove()`가 오류 없이 0개를 지움 — 지우기 규칙만 있고 읽기 규칙이 없음 (`labs/mall-builder`, Lab DB, [역할: mall-builder])
+- **증상**: 운영자 「안 쓰는 사진 지우기」에서 `storage.from(bucket).remove([path])`가 `error: null`, `data: []`로 끝나고 파일은 그대로였다(화면은 「0장을 지웠습니다」로 성공처럼 보임).
+- **원인**: 공개 버킷이라 `storage.objects`에 지우기(delete) 규칙만 만들고 읽기(select) 규칙은 없었다. 저장소의 지우기는 지운 줄을 다시 읽어 돌려주므로, 읽기 규칙이 없으면 지울 대상이 안 보여 조용히 0개가 된다.
+- **해결**: 그 몰 운영자가 자기 몰 폴더만 읽는 select 규칙 추가(`labs/mall-builder/supabase/migrations/0023_public_bucket_staff_select.sql`). 지운 개수가 0이면 성공으로 보이지 않게 오류로 알림(`admin/photos/actions.ts`).
+- **다음부터**: 저장소에서 지우거나 덮어쓰는 기능을 만들면 delete·update 규칙과 함께 **같은 범위의 select 규칙**도 있는지 확인한다. `remove()`는 `error`만 보지 말고 돌려받은 개수도 확인한다. 모든 Supabase 프로그램에 해당.
+
 ## 2026-11-04 회원 PC 엔진이 「준비됨」인데 곡이 계속 실패 — 남은 프로세스·고정 내부 번호·cp949 글자·버려진 실패 이유가 겹침 (`free-music-studio` 엔진 0.1.6→0.1.11, 마스터PC, [역할: music])
 - **증상**: ① 새 엔진이 `EADDRINUSE 127.0.0.1:47821`로 안 켜짐 ② 켜져도 곡이 넣자마자 「실패」·「음악 엔진이 멈췄습니다(코드 1)」 ③ 번호 문제를 풀어도 3초 만에 「실패」, 기록에 오류 없음.
 - **원인**: ① 창 없는 예전 엔진 0.1.0이 연결 문을 잡음 ② 예전 엔진 창을 닫아도 그 엔진이 띄운 python(ACE-Step)이 남아 고정 내부 번호 47822를 잡음 → 새 음악 엔진은 꺼지고, 엔진은 남은 옛 서버의 `/health`에 속아 「준비됨」 ③ 파이썬이 한국어 윈도우 기본 cp949로 진행 문구를 쓰다 긴 줄표(—, `—`)에서 `UnicodeEncodeError` ④ ACE-Step은 실패 이유를 `query_result`의 `result[0].error`에 주는데 엔진이 버려서 ③을 늦게 찾음. 이 PC는 `netstat`·`Get-NetTCPConnection`에 듣고 있는 프로그램이 보이지 않아 번호로 찾기도 실패.
