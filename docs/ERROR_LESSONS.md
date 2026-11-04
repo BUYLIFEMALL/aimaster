@@ -80,6 +80,12 @@
 - **증상 2**: Vercel 배포가 2초 만에 실패 — 「The `CRON_SECRET` environment variable contains leading or trailing whitespace」. **원인**: PowerShell에서 `$값 | vercel env add …`로 넘기면 끝에 줄바꿈이 붙는다. **해결**: 제가 만든 그 변수만 `vercel env rm` 뒤 Node `execFileSync(..., { input: value })`로 다시 등록(값 출력 안 함). **다음부터**: 비밀값 등록은 기존 `scripts/add-*-vercel-env.mjs`처럼 Node 표준입력으로 한다.
 - 함께: `deploy.mjs --set-version`은 배포가 실패해도 DB 버전을 올린다 — 실패했으면 재배포로 맞추거나 DB 버전을 되돌린다.
 
+## 2026-11-04 MiniMax Music 3가 오프라인 실행에서 transformer를 못 불러온 채 1시간 넘게 돌기 (`free-music-studio` 엔진 0.6.3, 음악 담당)
+- **증상**: 마스터PC(RTX 5080 16GB)에서 「음악 만드는 중」이 1시간 반 넘게 이어짐(GPU 80%, 공유 GPU 메모리 20GB). 기록 `minimax3-log.txt`에 `Failed to create component transformer … OfflineModeIsEnabled` — 오류로 멈추지 않고 경고처럼 넘어가 언어 모델만 계속 돔.
+- **원인**: 엔진은 받은 뒤 `HF_HUB_OFFLINE=1`로 돌리는데, 모델의 부품 목록(`modular_model_index.json`)에 저장소 이름이 적혀 있어 diffusers 0.41.0이 나눠 저장된 transformer를 불러올 때 `_get_checkpoint_shard_files` → `model_info`로 인터넷에 묻다가 막힘. `load_components`는 부품 하나 실패를 경고로만 남김.
+- **해결**: `run_minimax3.py`가 `snapshot_download(repo, local_files_only=True)`로 받아 둔 폴더를 찾아 `ModularPipeline.from_pretrained(local)` + `load_components(pretrained_model_name_or_path=local)`(diffusers 원본에서 부품 경로 덮어쓰기 지원 확인), 불러온 뒤 필수 부품이 비면 바로 `FMS_ERROR`로 멈춤.
+- **다음부터**: diffusers 모듈 파이프라인(`ModularPipeline`)을 오프라인으로 쓸 때는 저장소 이름이 아니라 받아 둔 폴더 경로로 부품을 불러오고, 부품이 다 올라왔는지 직접 확인한다(실패가 경고로 묻힘). 긴 작업은 기록 파일을 먼저 본다.
+
 ## 2026-11-03 PowerShell 문자 치환 표에서 한 쌍짜리 배열이 풀려 파일 글자가 깨짐 (`free-music-studio`, 음악 담당)
 - 증상: `@( @(경로, @( @(찾을말, 바꿀말) )) )`로 여러 파일 문구를 한꺼번에 바꿨더니, 바꿀 쌍이 하나뿐인 파일은 따옴표(`"`)가 「엔」으로, `P`가 `C`로 바뀌는 등 글자가 통째로 깨졌다.
 - 원인: PowerShell은 원소가 하나인 `@( @(a,b) )`를 `@(a,b)`로 풀어 버린다. 그래서 반복문이 문자열 하나씩을 쌍으로 보고 `$r[0]`·`$r[1]`(첫 글자·둘째 글자)로 치환했다.
