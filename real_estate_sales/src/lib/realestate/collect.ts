@@ -81,13 +81,14 @@ export async function collectDistrict(
     const dedupKey = dedupKeys[i];
     const propertyType = propertyTypeOf(row.BLDG_USG) as PropertyType;
     if (existingSet.has(dedupKey)) continue;
+    existingSet.add(dedupKey); // 같은 회차 안의 똑같은 줄은 한 번만(중복 키 저장 실패 방지, v1.46)
     // v1.46 단독/다가구: 국토부는 지번이 가려져 필지 조회가 안 되고, 공동주택 공시가·같은 단지 비교 대상도 아니다(서울 자료는 지번이 있어 건축물대장만 조회)
     const detached = propertyType === DETACHED;
     const lotKnown = !!row.MNO;
 
     // 신규 실거래 → 건축물대장/공시가격/전월세 3종을 병렬로 조회 (하나 실패해도 나머지는 반영).
     const [buildingResult, priceResult, rentResult] = await Promise.allSettled([
-      !lotKnown ? Promise.resolve([]) : fetchBuildingRegister({
+      detached || !lotKnown ? Promise.resolve([]) : fetchBuildingRegister({ // 단독/다가구는 건축물대장도 건너뜀(시간 절약, 면적은 신고 자료)
         keys,
         sigunguCd: row.CGG_CD,
         bjdongCd: row.STDG_CD,

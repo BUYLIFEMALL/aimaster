@@ -13,12 +13,15 @@ import { collectDistrict, findUnmatchedListingIds, notifyUserForListings } from 
 // real_estate_district_collect_state 재사용 로직만 그대로 따른다.
 const REUSE_WINDOW_MINUTES = 5;
 
+const QUERY_BUDGET_MS = 220_000;
+
 export interface QueryDistrictsResult {
   error?: string;
   queriedDistricts?: number;
   newListings?: number;
   notified?: number;
   telegramLinked?: boolean;
+  skippedDistricts?: number; // v1.46: 시간 제한(300초) 전에 멈춰 이번에 못 받은 지역 수
 }
 
 export async function queryDistrictsAction(): Promise<QueryDistrictsResult> {
@@ -49,8 +52,15 @@ export async function queryDistrictsAction(): Promise<QueryDistrictsResult> {
   const now = new Date();
   let totalNew = 0;
   let totalNotified = 0;
+  // v1.46(2026-11-04): 지역 8곳 조회가 300초를 넘겨 끊김(유형 4개로 호출 증가) — 220초가 지나면 남은 지역은 다음 조회·예약 수집 때 받는다
+  const startedAt = Date.now();
+  let skipped = 0;
 
   for (const w of watches) {
+    if (Date.now() - startedAt > QUERY_BUDGET_MS) {
+      skipped += 1;
+      continue;
+    }
     const { data: state } = await admin
       .from("real_estate_district_collect_state")
       .select("last_collected_at")
@@ -95,7 +105,8 @@ export async function queryDistrictsAction(): Promise<QueryDistrictsResult> {
   revalidatePath("/districts");
 
   return {
-    queriedDistricts: watches.length,
+    queriedDistricts: watches.length - skipped,
+    skippedDistricts: skipped,
     newListings: totalNew,
     notified: totalNotified,
     telegramLinked,

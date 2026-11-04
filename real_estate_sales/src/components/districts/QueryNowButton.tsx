@@ -32,6 +32,7 @@ export function QueryNowButton() {
           `${result.queriedDistricts}개 지역에서 새 실거래 ${result.newListings}건을 발견해서 AI 분석 후 ${telegramPart}`,
         );
       }
+      if (result.skippedDistricts) setMessage((m) => `${m} 시간이 오래 걸려 ${result.skippedDistricts}개 지역은 이번에 건너뛰었어요 — 다시 누르거나 예약 조회 때 받아요.`);
       router.refresh();
     } catch {
       setIsError(true);
