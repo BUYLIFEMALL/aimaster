@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.15 · 엔진 0.6.0 2차 엔진·LeVo 2 수정
+- **지시**: 주인님 「2차 진행해」(엔진 플랜 승인 빌드 3회 범위), MiniMax 매출 조건은 주인님 「연매출 2000만 달러 넘어갈일 절대 없어」.
+- **결정**: MiniMax Music 3 넣음(상업용 조건부 — 「MiniMax-Music3」 표시·AI 생성 표시), DiffRhythm 2 3차로(윈도우 `espeak-ng`·`pyopenjtalk` 빌드 문제), InspireMusic 보류(공식 HF 모델 내려감). 근거 `free-music-studio/docs/PLAN_20261104_MORE_ENGINES.md` 2차 진행 상태.
+- **수정**: 마스터PC LeVo 2 실패(`Weights only load failed`, torch 2.6+) → `TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD`. 실패 이유에 파이썬 오류 줄. 사이트 새 판 안내(`/api/version`). 상세 `docs/ERROR_LESSONS.md` 같은 날.
+- **검수/배포**: 시험 엔진 62·웹 48·빌드 통과, 배포 `free-music-studio-e1xugpr05` Ready, 화면·DB v1.15, 설치 파일 0.6.0 운영 200. 커밋 `d7a52afbd`·`ae3585bdf` 등.
+- **남은 일**: 마스터PC 0.6.0 설치 → LeVo 2 다시 하기 → MiniMax 1곡 → Stable Audio 3(토큰). 엔진 플랜 승인 빌드는 다 썼으므로 다음 배포는 새로 승인.
+
 ## 2026-11-04 ⏳ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — `blog-neighbor-care` 실제 시험: 공감 성공 · 댓글 실행 전 멈춤 → **윈도우 blog 세션 확장 수정 요청**
 - 공감 1건 성공(요청함 `9efcd252`). 댓글 1건은 확장 v1.13이 inspect 단계에서 「현재 작업 화면을 하나로 확인하지 못했습니다」로 2회 멈춤 — 댓글 등록 안 됨(확실), 요청함 `06f6a907`.
 - 원인(코드): 댓글 0개 글은 `commentList`(`.u_cbox_list`)가 비어 크기 0 → `work-dom.mjs` `one()`이 보이는 요소 0개로 fail.

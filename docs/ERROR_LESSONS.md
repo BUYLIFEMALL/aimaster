@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-04 옛 음악 모델 원본이 「Weights only load failed」로 멈춤 — torch 2.6+ `torch.load` 기본값 변경 (`free-music-studio` LeVo 2, 엔진 0.6.0, [역할: music])
+- **증상**: 마스터PC LeVo 2가 모델을 다 받은 뒤 곡 만들기 시작 직후 실패, 화면에는 「코드 1」만. 기록 파일 `levo2-log.txt`: `generate.py` 305줄 `torch.load('tools/new_prompt.pt')` → `_pickle.UnpicklingError: Weights only load failed … Unsupported operand 118`.
+- **원인**: PyTorch 2.6부터 `torch.load`의 `weights_only` 기본이 `True`. 원본은 그보다 옛 torch에 맞춰 쓰여 파이썬 객체가 든 `.pt`를 그냥 불러온다(우리는 RTX 50 때문에 torch 2.7.1 cu128을 씀).
+- **해결**: `engine/src/py/run_levo2.py`에서 LeVo 실행 환경 변수 `TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1`(torch 2.7.1 `serialization.py`가 지원, 호출 쪽이 `weights_only`를 직접 쓰지 않을 때만 적용). 파일은 판을 고정한 공식 런타임 저장소에서 받은 것이라 이 엔진에서만 허용.
+- **함께**: 추가 엔진 실패 이유에 파이썬 마지막 오류 줄을 붙임(`pyengines.mjs` `pyErrorCause`) — 기록 파일을 열지 않아도 원인이 보이게.
+- **다음부터**: 옛 원본 코드를 torch 2.6 이상으로 돌릴 때는 `torch.load(` 호출에 `weights_only`가 있는지 먼저 찾는다. 없으면 이 환경 변수를 그 엔진 실행에만 넣는다(전역으로 켜지 않음).
+
 ## 2026-11-04 파이썬 실행 환경(.venv)은 다른 폴더로 옮기면 쓸 수 없다 — 모델 폴더 옮기기 설계 (`free-music-studio` 엔진 0.5.0, [역할: music])
 - **상황**: 회원이 모델 저장 폴더를 다른 드라이브로 바꾸는 기능. ACE-Step·추가 엔진은 `uv`로 만든 `.venv`를 쓴다.
 - **주의**: `.venv`는 편집 설치(`-e`)의 `.pth`·실행 스크립트에 절대 경로가 박혀 있어 폴더째 옮기면 고장 난다(같은 드라이브 이름 바꾸기도 마찬가지). 그래서 `.venv`는 옮기지 않고 지운 뒤 새 자리에서 다시 만들게 했다(ACE-Step은 `install-state.json`을 「installing」으로 → `uv sync`, 추가 엔진은 python이 없으면 자동).
