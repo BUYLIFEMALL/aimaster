@@ -423,5 +423,6 @@ DB 변경은 `supabase/migrations/*.sql`에 적고 AIMaster_dev에만 적용한�
   - 발송 `src/lib/resend.ts`(fetch, `Idempotency-Key` = 알림 번호, 불확실하면 같은 키로 한 번 재시도), 실행 주소가 문자 다음에 메일. 화면 「주문 알림(메일)」(키·보내는 주소·받을 메일·종류·시험 메일), 기록에 문자/메일 표시·메일 가림
   - 확인: DB 시험 8항목(되돌림) — 메일 설정 전 문자만, 설정 뒤 문자 5+메일 3, 중복 없음, 꺼내기 채널 안 섞임, 기록, 형식·남의 읽기·저장 거절 / 자동 시험 114개(새 6개, 가짜 Resend) / 타입·빌드 / ego 메일 칸·형식 오류(브라우저가 막음)
   - **사고와 막기(11-04 22:51~22:55)**: 내 PC 화면에서 저장이 눌려 cron-job.org 작업이 localhost로 새로 생기고 토큰이 바뀌어 Lab 자동 작업이 4분 멈춤 → localhost 작업 일시정지 + Lab에서 다시 저장으로 복구(22:55 재개), `job-sync.ts` `isLocalOrigin()`으로 내 PC 주소에서는 작업을 건드리지 않게 막음(`docs/ERROR_LESSONS.md`). 그때 메일 보내는 주소만 저장됨(종류 비어 있어 안 나감)
-  - 남은 일: 주인님 Resend 가입·`mail.buylife.xyz` 도메인 인증(DNS는 Cloudflare에 주인님 직접)·키 입력 → 시험 메일 → 시험 주문으로 메일
+  - ✅ 실제 메일 시험 통과(2026-11-04): 주인님이 Resend에 `mail.buylife.xyz` 추가(지역 도쿄, Manual setup — Auto configure는 Cloudflare DNS 전체 권한을 넘기므로 쓰지 않음) → Cloudflare에 DKIM TXT·CNAME 2줄(DNS 전용) 입력, DMARC는 넣지 않음 → 공개 DNS(Cloudflare·Google) 조회로 세 줄 확인 → 23:21 Verified → 기존 Resend 키 사용(주인님 선택) → 설정 화면 저장(받을 메일 naver, 5종) → 시험 메일 1통(23:28, 주인님 수신 확인) → ego 손님 주문 `20261104-0008` → 운영자 입금 확인·배송 준비·발송 → 23:30 메일 4통(새 주문→naver, 접수·입금 확인·발송→주문자 gmail)·문자 4건 모두 보냄, 실패 0
+  - 시험 중 알게 된 것: 처음 저장 때 받을 메일·체크가 빠진 채 저장됨(체크 칸은 정상 — DB로 확인 후 다시 안내). ego 작업 공간 3번이 닫혀 이름(「AI 쇼핑몰 빌더 시험」)으로 다시 열고, 조작권이 주인님께 있을 때는 되찾지 않고 기다림
 - 2차: 알림톡
