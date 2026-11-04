@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`blog-neighbor-care` v1.16 실물 확인: 공감 1건 성공 + 실측 클릭 약 10·동의 2**
+- ego·확장 v1.16·시험 계정으로 「🏠 오늘의 소통」에서 공감 1건(`buylifeacademy/223437735917`) → 네이버 공감 1→2, 웹 기록 「성공 확인」. AI 비용 없음. 실측은 윈도우 추정(클릭 약 10·동의 2)과 같음.
+- **윈도우 blog 세션 확인 요청**: (1) 정독 30초 동안 ego 창 선택이 15초 넘게 풀리면 중단(`extension/work-bridge.mjs` 73줄) — 자동 운영 걸림돌 (2) 같은 글 `223406907419`에 「공감 · 성공 확인」 기록 2개 — 중복 공감 작업 생성 차단 확인. 나머지 발견 7개(동의 체크 풀림·결과 문구 위치·공감에 문장 확인 문구·팝업 「Edge」 문구 등)와 상세는 [`blog-neighbor-care/docs/IMPROVEMENTS.md`](../blog-neighbor-care/docs/IMPROVEMENTS.md) 맨 위. 1~4는 단계 C 플랜에, 나머지는 작은 수정으로 모아 다음 배포에.
+- https://blog-neighbor-care.buylife.xyz/today
+
 ## 2026-11-04 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`blog-neighbor-care` v1.16 배포: 단계 A 화면 정리**
 - 메뉴 7 → 4(🏠 오늘의 소통 첫 화면 · 👥 이웃(후보 찾기 탭) · 📊 내 블로그 · ⚙️ 설정), 옛 `/reader`·`/candidates`·`/`는 새 화면으로 307 연결. 실행 허용·일일 상한과 AI 모델은 설정 한 곳, 작업별 모델은 「고급」. 기기 허용 칸은 저장된 허용을 체크해 보여 주고 보이는 그대로 저장. Gemini 3개, 매뉴얼 20 → 3+3 단계. DB 변경 없음
 - 커밋 `587d08f6d`, 배포 `blog-neighbor-care-3bof0lg0q`(빌드 1회), DB v1.16·확장 릴리스 OK, 시험 355 통과, 운영 화면 확인
