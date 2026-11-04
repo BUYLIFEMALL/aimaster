@@ -29,7 +29,7 @@ export function RegistryCheck({ saleMedian, jeonseMedian }: { saleMedian: number
       <p className="text-sm text-mx-muted">
         인터넷등기소에서 직접 발급한 등기부(등기사항전부증명서) PDF를 올리면, 근저당·압류·가압류·신탁 같은 위험 항목을 표로 정리해 드려요. 올린 파일과 결과는 저장하지 않아요.
       </p>
-      <form action={action} className="space-y-3">
+      <form action={action} className="space-y-3 print:hidden">
         <input type="file" name="pdf" accept="application/pdf" required className="block w-full text-sm text-mx-text" />
         <label className="flex items-start gap-2 text-sm text-mx-text">
           <input type="checkbox" name="consent" value="1" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 h-4 w-4 shrink-0" />

@@ -6,6 +6,7 @@ import { ReportBody, type ReportSnapshot } from "@/components/report/ReportBody"
 import { AiSummaryButton, AskingView, PrintButton } from "@/components/report/ReportActions";
 import { deleteSavedReportAction } from "@/lib/actions/reports";
 import { OnsiteNotes } from "@/components/report/OnsiteNotes";
+import { RegistryCheck } from "@/components/report/RegistryCheck";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -70,6 +71,8 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
       {row.source === "onsite" && row.source_id && <OnsiteNotes onsiteId={row.source_id} userId={user.id} />}
 
       <ReportBody r={r} />
+
+      <RegistryCheck saleMedian={r.sale.median} jeonseMedian={r.jeonse.median} />
     </div>
   );
 }
