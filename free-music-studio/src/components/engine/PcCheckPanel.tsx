@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Cpu, Loader2, RefreshCw, ShieldAlert, Sparkles, XCircle } from "lucide-react";
-import { EngineError, getSystemReport, hasSystemCheck, removeEngineModel, setQualityTier, type CheckStatus, type MusicEngineId, type SystemReport } from "@/lib/engine";
+import { EngineError, MUSIC_ENGINES, getSystemReport, hasSystemCheck, removeEngineModel, setQualityTier, type CheckStatus, type MusicEngineId, type SystemReport } from "@/lib/engine";
 
 // 「받은 모델 지우기」가 되는 추가 엔진(엔진 0.4.0 pyengines)
 const PY_ENGINE_IDS = ["heartmula", "stableaudio3", "levo2", "minimax3"];
+const noKorean = (id: string) => MUSIC_ENGINES.some((m) => m.id === id && m.korean === "no");
 import { collectBrowserPc, judgeBrowserPc, type PreCheck } from "@/lib/pcCheck";
 import type { useEngine } from "./useEngine";
 
@@ -234,7 +235,8 @@ function EngineCheck({ engine }: { engine: Engine }) {
             { license: "noncommercial", title: "🏠 개인용 — 개인 감상·비수익만", tone: "text-amber-300" },
           ] as const
         ).map((g) => {
-          const list = report.engines.filter((e) => (e.license ?? "commercial") === g.license);
+          // 한국어를 못 부르는 노래 엔진은 숨긴다 — 받아 둔 PC는 [지우기]를 쓸 수 있게 남김(주인님 2026-11-04)
+          const list = report.engines.filter((e) => (e.license ?? "commercial") === g.license && (e.installed || !noKorean(e.id)));
           if (!list.length) return null;
           return (
             <div key={g.license} className="space-y-1.5">
@@ -251,7 +253,9 @@ function EngineCheck({ engine }: { engine: Engine }) {
                         <span className="rounded-full bg-slate-700/60 px-2 py-0.5 text-[10px] font-semibold text-slate-300">{e.kind === "vocal" ? "🎤 노래" : "🎹 연주곡"}</span>
                       )}
                     </span>
-                    {e.selected ? (
+                    {noKorean(e.id) ? (
+                      <span className="text-[11px] text-rose-300">한국어 가사를 부르지 못해 곡 만들기에서 뺐습니다 · 받아 둔 모델은 지워 주세요</span>
+                    ) : e.selected ? (
                       <span className="rounded-full border border-emerald-500/40 px-2 py-0.5 text-[11px] font-bold text-emerald-300">기본</span>
                     ) : e.supported === false ? (
                       <span className="text-[11px] text-slate-500">이 PC에서는 어려움 — {e.reason}</span>
