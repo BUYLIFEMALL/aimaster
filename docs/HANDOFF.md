@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.14 · 엔진 0.5.0 모델 저장 공간 관리
+- **지시**: 주인님 「다운로드 진행중 상태바」「사용안하는 모델 삭제기능과 관련 내용을 표시」「설치할 폴더를 사용자가 지정 — 여유있는 다른 드라이브에」 → 플랜 [`free-music-studio/docs/PLAN_20261104_MODEL_STORAGE.md`](../free-music-studio/docs/PLAN_20261104_MODEL_STORAGE.md) → 「진행해」(빌드 1회 승인).
+- **한 일**: 엔진 `storage.mjs`(무거운 것만 모델 저장 폴더, `/storage` 목록·지우기·옮기기, `.venv`는 새 자리에서 다시 만듦, 처음 폴더에서 옮기면 uv 보관함도 함께), 사이트 「모델 저장 공간」 상자·`FolderBrowser` 컴포넌트·받기 진행 막대·곡 만들기 「받는 곳」, 설치 파일 `customCheckAppRunning`(확인 창 없이 엔진 끄기)·연결된 PC는 새 버전 뒤 상태 창 대신 알림.
+- **검수**: 시험 엔진 60·웹 48, `tsc`·로컬 빌드 통과. 미니PC 실물 — 0.4.0 → 0.5.0 확인 창 없이 설치, `D:\AI무료음악\모델`(한글 경로)로 옮기기 → 실행 환경 다시 만들고 준비됨, 예전 uv 보관함 12.6GB 지워 C 12.7GB 회수, 막힘 응답 409·400·401. ego lite 운영 화면 확인.
+- **커밋/배포**: 커밋 여러 개(경로 지정), 배포 `free-music-studio-arwl7qh3c` Ready, 화면·DB v1.14, 설치 파일 0.5.0(111,863,001바이트) 운영 주소 200.
+- **남은 일**: 마스터PC 실물(HeartMuLa 첫 곡이 끝난 뒤 0.5.0 설치 → 모델 폴더 다른 드라이브로 옮기기). 설치 중 만들던 곡은 「중단됨」이 되므로 곡을 만드는 동안 새 버전을 깔지 않는다. 다음 작업 2차 엔진.
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.13 · 엔진 0.4.1 추가 엔진 설치 실패 수정
 - **계기**: 마스터PC(주인님) 엔진 0.4.0 설치·연결 성공 → HeartMuLa 첫 곡이 설치 단계에서 「torch==2.8.0 unsatisfiable」로 실패.
 - **원인·수정**: torch 단계 `--index-url` + `--exclude-newer`가 겹쳐 딸린 패키지가 모두 걸러짐 → `--extra-index-url` + `--index-strategy unsafe-best-match`(`engine/src/pyengines.mjs`). 이 PC에서 재현·수정 확인(torch 2.8.0·2.7.1 `+cu128`, HeartMuLa 패키지 90개). 세 추가 엔진 모두 해당. 상세 `docs/ERROR_LESSONS.md` 같은 날.

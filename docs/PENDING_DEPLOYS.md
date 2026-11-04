@@ -28,7 +28,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `free-music-studio` | 받기 진행 막대·%(작업 대기열·내 PC 엔진, `StageProgress`) | `c4468c688` | 2026-11-04 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/IMPROVEMENTS.md` | v1.14, 2차 엔진 배포와 함께 |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
 | `banana-canvas` | E5-4 한글 이름·주소 가리기(「한글 이름·주소도」, 한국어 글자 읽기 모델 13MB 브라우저 첫 1회) | `1dd57ac12` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` E5-4 | v1.43, 운영에서 송장 사진으로 확인 |
 | `banana-canvas` · `thumbnail-master` · `insta_auto_poster` · `shop-detail-page` | E5-5 무료 도구를 썸네일·인스타 카드뉴스에서도: 공용 `nukki-handoff` 보낸 곳 여러 개, 바나나 받기 훅(무료 이미지 도구·무료 지우기), 썸네일 「🧽 무료 지우기」→새 버전(받기 API `POST /api/projects/[id]`), INSTA 슬라이드 「✂ 누끼·🙈 가리기·🧽 지우기」→이 장 새 이미지. 시험 바나나 29·썸네일 19·INSTA 78+2, tsc·로컬 build 4곳 | `75bd2728d` | 2026-11-04 · [역할: ecommerce-image] `claude-win-sdp` | `docs/roles/ecommerce-image.md` 이미지 인계 | 바나나 v1.43과 함께, 썸네일·INSTA·상세 +0.01. 배포 순서 바나나 먼저. 배포 뒤 운영 창끼리 보내기·되돌려 넣기 확인 |
@@ -78,6 +77,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `free-music-studio` | v1.14 · 엔진 0.5.0 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `free-music-studio-arwl7qh3c`) | 모델 저장 공간 관리(안 쓰는 모델 지우기·모델 폴더를 다른 드라이브로·설치 확인 창 없앰) + 미배포였던 받기 진행 막대(`c4468c688`) |
+| `free-music-studio` | v1.13 · 엔진 0.4.1 설치 파일 · 2026-11-04 ([역할: music], 「진행해」 승인 빌드 3회 중 2회, `free-music-studio-m3pwx8pti`) | 추가 엔진 설치 실패(torch 판 맞추기) 수정 |
 | `free-music-studio` | v1.12 · 엔진 0.4.0 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 승인 빌드 3회 중 1회, `free-music-studio-jma2o97ob`) | 음악 엔진 더 넣기 1차(HeartMuLa·Stable Audio 3·LeVo 2, 상업용·개인용 두 묶음) + 미배포였던 `/downloads` 로그인 검사 제외(`9d0d6fae9`) |
 | `free-music-studio` | v1.11 · 엔진 0.3.0 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `free-music-studio-3jjuvdkqi`) | 원클릭 다운로드 센터(설치 파일 106.7MB·`engine-latest.json`·윈도우 경고 안내·[설치한 엔진 켜기]) + 미배포였던 「ACE-Step 음악 모델 구성」 제목(`6fc4b7ac3`) |
 | `free-music-studio` | v1.10 · 엔진 0.2.0 · 2026-11-04 ([역할: music], 빌드 1회, `free-music-studio-pre6r21xo`) | 비상업용 YuE2·재생바·실패 이유 표시·구성 안내·프리셋 안내 |

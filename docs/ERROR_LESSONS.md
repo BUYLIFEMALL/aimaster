@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-04 파이썬 실행 환경(.venv)은 다른 폴더로 옮기면 쓸 수 없다 — 모델 폴더 옮기기 설계 (`free-music-studio` 엔진 0.5.0, [역할: music])
+- **상황**: 회원이 모델 저장 폴더를 다른 드라이브로 바꾸는 기능. ACE-Step·추가 엔진은 `uv`로 만든 `.venv`를 쓴다.
+- **주의**: `.venv`는 편집 설치(`-e`)의 `.pth`·실행 스크립트에 절대 경로가 박혀 있어 폴더째 옮기면 고장 난다(같은 드라이브 이름 바꾸기도 마찬가지). 그래서 `.venv`는 옮기지 않고 지운 뒤 새 자리에서 다시 만들게 했다(ACE-Step은 `install-state.json`을 「installing」으로 → `uv sync`, 추가 엔진은 python이 없으면 자동).
+- **실측(미니PC)**: uv 기본 보관함(`%LOCALAPPDATA%\uv\cache`)을 그대로 두고 `UV_CACHE_DIR`만 새 폴더로 바꿨더니 실행 환경을 만들며 패키지 7.9GB를 다시 받았다(4MB/s, 약 18분). → 처음 폴더에서 옮길 때는 uv 보관함도 새 폴더 `uv-cache`로 함께 옮기도록 고침(`engine/src/storage.mjs` `moveHeavy({ uvCacheFrom })`). 한글 경로(`D:\AI무료음악\모델`)에서도 uv·ACE-Step 정상.
+- **다음부터**: 파이썬 실행 환경이 있는 데이터를 옮기는 기능은 「모델 파일만 옮기고 실행 환경은 다시 만들기 + 패키지 보관함도 같이 옮기기」로 설계한다. 옮기기 중 실패하면 설정을 바꾸지 않아 예전 폴더를 그대로 쓰게 한다.
+
 ## 2026-11-04 uv로 torch를 PyTorch 저장소에서 받는데 「torch==2.8.0 unsatisfiable」 — 날짜 제한과 `--index-url`이 겹침 (`free-music-studio` 엔진 0.4.1, [역할: music])
 - **증상**: 마스터PC에서 HeartMuLa 첫 설치가 `uv 실패(코드 1) — … you require torch==2.8.0, we can conclude that your requirements are unsatisfiable`로 멈춤. 미니PC 판 맞추기 확인 때는 지나갔던 조합.
 - **원인**: torch 단계에 `--index-url https://download.pytorch.org/whl/cu128`(그 저장소만)과 `--exclude-newer 2026-10-20`을 함께 썼다. 그러면 torch가 필요로 하는 `filelock` 같은 딸린 패키지도 PyTorch 저장소에서만 찾는데, 거기 파일에는 올린 날짜가 없어 날짜 제한에 모두 걸러진다(`missing an upload date` 경고 → `there are no versions of filelock`).
