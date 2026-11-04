@@ -1,0 +1,82 @@
+{
+  "_comment": "파이썬으로 도는 추가 음악 엔진(엔진 0.4.0~). 원본 저장소·모델은 나온 지 2주가 넘은 판으로 고정한다. 라이선스는 2026-11-04 원문 확인(docs/PLAN_20261104_MORE_ENGINES.md). steps는 uv pip install 인자 — {src}는 원본 폴더, index cu128은 RTX 50 계열까지 되는 torch 판.",
+  "indexes": { "cu128": "https://download.pytorch.org/whl/cu128" },
+  "_excludeNewer": "판을 고정하지 않은 패키지도 이 날짜 전에 나온 판만 고른다(나온 지 2주 넘은 판 규칙, 회원마다 같은 판). PyTorch 저장소와 함께 써도 되는 것을 2026-11-04 uv pip compile로 확인.",
+  "excludeNewer": "2026-10-20T00:00:00Z",
+  "engines": [
+    {
+      "id": "heartmula",
+      "name": "HeartMuLa 3B",
+      "kind": "vocal",
+      "license": "commercial",
+      "licenseName": "Apache 2.0",
+      "note": "노래 만들기 · 상업용 사용 가능(Apache 2.0) · 여러 언어",
+      "minVramGb": 10,
+      "maxSec": 240,
+      "python": "3.10",
+      "source": { "repo": "HeartMuLa/heartlib", "commit": "5858ca8f1ffe58d62be7c007ea55f1033c5ca456" },
+      "steps": [
+        { "index": "cu128", "args": ["torch==2.8.0", "torchaudio==2.8.0", "torchvision==0.23.0"] },
+        { "args": ["-e", "{src}"] }
+      ],
+      "weights": [
+        { "repo": "HeartMuLa/HeartMuLaGen", "revision": "2e18e01702011f4f7dc8642b6260967df62417ea", "dir": "ckpt" },
+        { "repo": "HeartMuLa/HeartMuLa-oss-3B-happy-new-year", "revision": "41f6fc68490e11dc43fdabaa6b5767946408c903", "dir": "ckpt/HeartMuLa-oss-3B" },
+        { "repo": "HeartMuLa/HeartCodec-oss-20260123", "revision": "f889dab0532cfa4bf459f2a3367eb6d346b8eeda", "dir": "ckpt/HeartCodec-oss" }
+      ],
+      "weightsGb": 20.9,
+      "runtimeGb": 6,
+      "runner": "run_heartmula.py"
+    },
+    {
+      "id": "stableaudio3",
+      "name": "Stable Audio 3 Medium",
+      "kind": "instrumental",
+      "license": "commercial",
+      "licenseName": "Stability AI Community License",
+      "note": "연주곡·배경음악(노래 없음) · 상업용은 연매출 100만 달러 미만일 때 무료 · 최대 6분 20초",
+      "licenseCondition": "연매출 100만 달러(약 13억 원) 이상인 개인·회사는 Stability AI와 따로 계약해야 상업용으로 쓸 수 있습니다.",
+      "minVramGb": 8,
+      "maxSec": 380,
+      "python": "3.10",
+      "source": { "repo": "Stability-AI/stable-audio-3", "commit": "77e0398c26f7d22d801ec1bb036307e8b231f741" },
+      "steps": [
+        { "index": "cu128", "args": ["torch==2.7.1", "torchaudio==2.7.1"] },
+        { "args": ["-e", "{src}"] }
+      ],
+      "hfToken": true,
+      "gatedUrl": "https://huggingface.co/stabilityai/stable-audio-3-medium",
+      "weights": [
+        { "repo": "stabilityai/stable-audio-3-medium", "revision": "d4d3579395a8ac0df4ab13b5b1d7138ce7290f81", "hfCache": true }
+      ],
+      "weightsGb": 9.7,
+      "runtimeGb": 5,
+      "runner": "run_stableaudio3.py"
+    },
+    {
+      "id": "levo2",
+      "name": "LeVo 2 (SongGeneration 2)",
+      "kind": "vocal",
+      "license": "noncommercial",
+      "licenseName": "SongGeneration License(학술·연구·교육용)",
+      "note": "노래 만들기 · 개인용(학술·연구·교육 목적만, 상업·제작 사용 금지) · 중국어·영어 중심",
+      "minVramGb": 12,
+      "maxSec": 270,
+      "python": "3.10",
+      "source": { "repo": "levo-demo/LeVo", "commit": "653cbcf4716101834900c75b7d5da43b07e15d5b" },
+      "overrides": ["torch==2.7.1", "torchaudio==2.7.1", "torchvision==0.22.1"],
+      "steps": [
+        { "index": "cu128", "args": ["torch==2.7.1", "torchaudio==2.7.1", "torchvision==0.22.1"] },
+        { "override": true, "args": ["-r", "{src}/requirements.txt"] },
+        { "args": ["--no-deps", "-r", "{src}/requirements_nodeps.txt"] }
+      ],
+      "weights": [
+        { "repo": "lglg666/SongGeneration-Runtime", "revision": "cc258cc694a63114c61684cc26d0583b8ad777d0", "dir": "{src}" },
+        { "repo": "lglg666/SongGeneration-v2-medium", "revision": "7d91660ebfa041e29bace194f5631e775796f600", "dir": "songgeneration_base_full", "_dir": "v2-medium을 원본 검사(지원 이름 4개)를 지나는 이름으로 — 그래픽 메모리 조건이 base-full과 같음" }
+      ],
+      "weightsGb": 20.9,
+      "runtimeGb": 7,
+      "runner": "run_levo2.py"
+    }
+  ]
+}

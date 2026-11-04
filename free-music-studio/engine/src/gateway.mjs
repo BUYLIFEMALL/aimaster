@@ -92,7 +92,8 @@ export function createGateway(ctx) {
 
     const target = FORWARD.get(key);
     const isLibrary = url.pathname === "/library" || url.pathname.startsWith("/library/");
-    const isSystem = key === "GET /system" || key === "POST /quality";
+    const removeMatch = req.method === "POST" ? /^\/engines\/([a-z0-9]{2,20})\/remove$/.exec(url.pathname) : null;
+    const isSystem = key === "GET /system" || key === "POST /quality" || !!removeMatch;
     const isQueue = !!ctx.queue && (url.pathname === "/queue" || url.pathname.startsWith("/queue/"));
     if (!target && !isLibrary && !isSystem && !isQueue) return json(res, 404, { error: "없는 주소입니다." }, origin);
     const token = bearer(req.headers.authorization);
@@ -109,6 +110,11 @@ export function createGateway(ctx) {
       } catch (e) {
         return json(res, 500, { error: `PC 정보를 읽지 못했습니다. ${e.message}` }, origin);
       }
+    }
+    // 받은 추가 엔진 모델·실행 환경 지우기(0.4.0) — POST /engines/<id>/remove
+    if (removeMatch) {
+      const r = (await ctx.removeEngine?.(removeMatch[1])) ?? { ok: false, status: 404, error: "없는 주소입니다." };
+      return r.ok ? json(res, 200, { ok: true }, origin) : json(res, r.status, { error: r.error }, origin);
     }
     if (key === "POST /quality") {
       const body = await readSmall(req).catch(() => null);
@@ -275,10 +281,13 @@ async function handleQueue(req, res, url, origin, ctx, json) {
       const body = await readSmall(req, 256 * 1024).catch(() => null);
       const meta = parseQueueMeta(body);
       if (!meta || meta.kind !== "text2music" || !body.task || typeof body.task !== "object") return json(res, 400, { error: "작업 내용이 올바르지 않습니다." }, origin);
-      // 음악 엔진: acestep(상업용, 기본) | yue2(비상업용 — 새 곡 만들기만)
+      // 음악 엔진: acestep(상업용, 기본) | yue2·추가 엔진(새 곡 만들기만, 0.4.0) — 분류는 엔진 쪽 목록이 정한다
       const engine = body.engine === undefined ? "acestep" : body.engine;
-      if (engine !== "acestep" && engine !== "yue2") return json(res, 400, { error: "없는 음악 엔진입니다." }, origin);
-      return json(res, 200, { job: await q.add({ ...meta, task: body.task, engine }) }, origin);
+      const license = engine === "acestep" ? "commercial" : ctx.engineLicense?.(engine);
+      if (!license) return json(res, 400, { error: "없는 음악 엔진입니다." }, origin);
+      // 회원 본인 Hugging Face 토큰(모델을 처음 받을 때만 씀) — 대기열 파일에 남기지 않고 엔진 메모리에만
+      if (typeof body.hfToken === "string" && body.hfToken.trim()) ctx.setHfToken?.(body.hfToken.trim().slice(0, 200));
+      return json(res, 200, { job: await q.add({ ...meta, task: body.task, engine, license }) }, origin);
     }
 
     if (req.method === "POST" && parts.length === 2 && parts[1] === "edit") {

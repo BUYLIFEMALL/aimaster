@@ -75,8 +75,9 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       const job = {
         id: randomUUID(),
         kind: request.kind,
-        engine: request.engine === "yue2" ? "yue2" : "acestep",
-        license: request.engine === "yue2" ? "noncommercial" : "commercial",
+        // 엔진 이름은 연결 문이 확인한 것만 온다(0.4.0: 추가 엔진). 분류는 엔진이 정한 값, 없으면 YuE2만 비상업용
+        engine: typeof request.engine === "string" && request.engine ? request.engine : "acestep",
+        license: request.license === "noncommercial" || request.engine === "yue2" ? "noncommercial" : "commercial",
         title: request.title,
         track: request.track,
         ...(request.task ? { task: request.task } : {}),

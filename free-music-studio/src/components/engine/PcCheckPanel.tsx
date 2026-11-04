@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Cpu, Loader2, RefreshCw, ShieldAlert, Sparkles, XCircle } from "lucide-react";
-import { EngineError, getSystemReport, hasSystemCheck, setQualityTier, type CheckStatus, type SystemReport } from "@/lib/engine";
+import { EngineError, getSystemReport, hasSystemCheck, removeEngineModel, setQualityTier, type CheckStatus, type MusicEngineId, type SystemReport } from "@/lib/engine";
+
+// 「받은 모델 지우기」가 되는 추가 엔진(엔진 0.4.0 pyengines)
+const PY_ENGINE_IDS = ["heartmula", "stableaudio3", "levo2"];
 import { collectBrowserPc, judgeBrowserPc, type PreCheck } from "@/lib/pcCheck";
 import type { useEngine } from "./useEngine";
 
@@ -98,6 +101,24 @@ function EngineCheck({ engine }: { engine: Engine }) {
     setWaitingRestart(false);
     setMessage({ type: "success", text: "새 구성으로 준비됐습니다. 이제 곡을 만들 수 있습니다." });
   }, [waitingRestart, applying, readyNow]);
+
+  // 받은 추가 엔진 모델 지우기(엔진 0.4.0+) — 두 번 눌러 확인
+  const [confirmRemove, setConfirmRemove] = useState("");
+  const [removing, setRemoving] = useState("");
+  const removeModel = async (id: string, name: string) => {
+    setRemoving(id);
+    setMessage(null);
+    try {
+      await removeEngineModel(id as MusicEngineId);
+      setMessage({ type: "success", text: `${name} 받은 모델·실행 환경을 지웠습니다. 다시 고르면 처음처럼 받습니다.` });
+      await load();
+    } catch (e) {
+      setMessage({ type: "error", text: e instanceof EngineError ? e.message : "모델을 지우지 못했습니다." });
+    } finally {
+      setRemoving("");
+      setConfirmRemove("");
+    }
+  };
 
   const apply = async () => {
     setApplying(true);
@@ -205,33 +226,70 @@ function EngineCheck({ engine }: { engine: Engine }) {
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <p className="text-xs font-bold text-slate-200">🧩 사용할 엔진</p>
-        {report.engines.map((e) => (
-          <div key={e.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-800 px-4 py-2.5 text-xs">
-            <span className="flex items-center gap-2 font-semibold text-slate-200">
-              {e.name}
-              {e.license && (
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${e.license === "noncommercial" ? "bg-amber-500/20 text-amber-200" : "bg-emerald-500/20 text-emerald-200"}`}>
-                  {e.license === "noncommercial" ? "비상업용" : "상업용"}
-                </span>
-              )}
-            </span>
-            <span className="text-slate-400">{e.note}</span>
-            {e.selected ? (
-              <span className="rounded-full border border-emerald-500/40 px-2 py-0.5 text-[11px] font-bold text-emerald-300">기본</span>
-            ) : e.supported === false ? (
-              <span className="text-[11px] text-slate-500">이 PC에서는 못 씀 — {e.reason}</span>
-            ) : e.supported ? (
-              <span className="text-[11px] text-teal-200">
-                곡 만들기 화면에서 고를 수 있음 · {e.installed ? "받아 둠" : e.downloadGb != null ? `처음 쓸 때 약 ${e.downloadGb}GB 받음` : "처음 쓸 때 받음"}
-                {e.profile ? ` · ${e.profile}` : ""}
-              </span>
-            ) : null}
-          </div>
-        ))}
+        {(
+          [
+            { license: "commercial", title: "💼 상업용 — 수익 영상·판매에도 쓸 수 있음", tone: "text-emerald-300" },
+            { license: "noncommercial", title: "🏠 개인용 — 개인 감상·비수익만", tone: "text-amber-300" },
+          ] as const
+        ).map((g) => {
+          const list = report.engines.filter((e) => (e.license ?? "commercial") === g.license);
+          if (!list.length) return null;
+          return (
+            <div key={g.license} className="space-y-1.5">
+              <p className={`text-[11px] font-bold ${g.tone}`}>{g.title}</p>
+              {list.map((e) => (
+                <div key={e.id} className="space-y-1 rounded-xl border border-slate-800 px-4 py-2.5 text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="flex flex-wrap items-center gap-1.5 font-semibold text-slate-200">
+                      {e.name}
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${e.license === "noncommercial" ? "bg-amber-500/20 text-amber-200" : "bg-emerald-500/20 text-emerald-200"}`}>
+                        {e.license === "noncommercial" ? "비상업용" : e.licenseCondition ? "상업용(조건)" : "상업용"}
+                      </span>
+                      {e.kind && e.kind !== "both" && (
+                        <span className="rounded-full bg-slate-700/60 px-2 py-0.5 text-[10px] font-semibold text-slate-300">{e.kind === "vocal" ? "🎤 노래" : "🎹 연주곡"}</span>
+                      )}
+                    </span>
+                    {e.selected ? (
+                      <span className="rounded-full border border-emerald-500/40 px-2 py-0.5 text-[11px] font-bold text-emerald-300">기본</span>
+                    ) : e.supported === false ? (
+                      <span className="text-[11px] text-slate-500">이 PC에서는 어려움 — {e.reason}</span>
+                    ) : e.supported ? (
+                      <span className="text-[11px] text-teal-200">
+                        곡 만들기에서 고를 수 있음 · {e.installed ? "받아 둠" : e.downloadGb ? `처음 쓸 때 약 ${e.downloadGb}GB 받음` : "처음 쓸 때 받음"}
+                        {e.profile ? ` · ${e.profile}` : ""}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="text-[11px] text-slate-400">{e.note}</p>
+                  {e.licenseCondition && <p className="text-[11px] text-emerald-200/80">📜 {e.licenseCondition}</p>}
+                  {e.hfToken && !e.installed && e.supported && (
+                    <p className="text-[11px] text-rose-200/90">
+                      🔑 처음 받을 때 회원님 본인 Hugging Face 토큰이 필요합니다 —{" "}
+                      <a href={e.gatedUrl} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                        모델 페이지에서 약관 동의
+                      </a>{" "}
+                      후 「API키 연동 및 보안 콘솔」에 등록.
+                    </p>
+                  )}
+                  {e.installed && PY_ENGINE_IDS.includes(e.id) && (
+                    <button
+                      type="button"
+                      disabled={removing === e.id}
+                      onClick={() => (confirmRemove === e.id ? removeModel(e.id, e.name) : setConfirmRemove(e.id))}
+                      className="rounded-lg border border-rose-500/40 px-2.5 py-1 text-[11px] font-semibold text-rose-200 hover:bg-rose-500/10 disabled:opacity-50"
+                    >
+                      {removing === e.id ? "지우는 중…" : confirmRemove === e.id ? `정말 지우기(다시 쓰면 약 ${e.downloadGb || "수십"}GB를 다시 받음)` : "🗑 받은 모델 지우기"}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        })}
         <p className="text-[11px] text-slate-500">
-          상업용 엔진으로 만든 곡은 수익 영상·판매에 쓸 수 있습니다. 비상업용(YuE2) 곡은 개인 감상·비수익 용도만 되고, 「모든 음악」에 「비상업용」으로 표시됩니다.
+          상업용 엔진으로 만든 곡은 수익 영상·판매에 쓸 수 있습니다(조건이 있는 엔진은 조건을 지켜 주세요). 개인용 엔진 곡은 개인 감상·비수익 용도만 되고, 「모든 음악」에 「비상업용」으로 표시됩니다. 엔진을 모두 받으면 PC 공간을 100GB 넘게 쓸 수 있으니, 안 쓰는 엔진은 모델을 지워 공간을 돌려받으세요.
         </p>
       </div>
     </div>

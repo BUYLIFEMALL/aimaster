@@ -78,3 +78,21 @@ test("작업 상태: /v1/audio가 아닌 주소·깨진 결과는 실패로", ()
   assert.equal(parseTaskState(reply(1, JSON.stringify([{ file: "http://evil.example/a.mp3" }])), "t1").state, "failed");
   assert.equal(parseTaskState(reply(1, "not json"), "t1").state, "failed");
 });
+
+test("음악 엔진 목록(v1.12): 상업용·개인용, 엔진이 알린 것만, 엔진 쪽 분류와 같음", async () => {
+  const { MUSIC_ENGINES, availableEngines, licenseOfEngine, consentKey, engineInfo } = await import("../src/lib/engine.ts");
+  const { readFile } = await import("node:fs/promises");
+  const cat = JSON.parse(await readFile(new URL("../engine/src/pyengines-catalog.json", import.meta.url), "utf8"));
+  for (const e of cat.engines) {
+    const w = MUSIC_ENGINES.find((m) => m.id === e.id);
+    assert.ok(w, `사이트 목록에 ${e.id}`);
+    assert.equal(w.license, e.license, e.id);
+    assert.equal(w.kind, e.kind, e.id);
+  }
+  assert.deepEqual(availableEngines(null).map((e) => e.id), ["acestep"]);
+  assert.deepEqual(availableEngines({ features: ["queue", "yue2", "levo2"] }).map((e) => e.id), ["acestep", "yue2", "levo2"]);
+  assert.equal(licenseOfEngine("levo2"), "noncommercial");
+  assert.equal(licenseOfEngine("stableaudio3"), "commercial");
+  assert.equal(consentKey("yue2"), "fms-yue2-noncommercial-consent"); // 예전 동의 그대로 이어짐
+  assert.equal(engineInfo(undefined).id, "acestep");
+});

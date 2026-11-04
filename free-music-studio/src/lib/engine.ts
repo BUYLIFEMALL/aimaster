@@ -63,7 +63,24 @@ export type SystemReport = {
   options: QualityOption[];
   selected: string;
   // 0.2.0+: license·supported·reason, YuE2는 installed(받아 둠)·downloadGb(더 받을 크기)·profile(구성)도
-  engines: { id: string; name: string; note: string; selected: boolean; license?: "commercial" | "noncommercial"; supported?: boolean; reason?: string; installed?: boolean; downloadGb?: number | null; profile?: string }[];
+  // 0.4.0+: 추가 엔진은 kind(노래·연주곡)·licenseName·licenseCondition(조건부 상업용)·hfToken·gatedUrl도
+  engines: {
+    id: string;
+    name: string;
+    note: string;
+    selected: boolean;
+    license?: "commercial" | "noncommercial";
+    supported?: boolean;
+    reason?: string;
+    installed?: boolean;
+    downloadGb?: number | null;
+    profile?: string;
+    kind?: "both" | "vocal" | "instrumental";
+    licenseName?: string;
+    licenseCondition?: string;
+    hfToken?: boolean;
+    gatedUrl?: string;
+  }[];
 };
 
 export type SongForEngine = { style_prompt: string; lyrics: string; duration_sec: number };
@@ -404,14 +421,80 @@ export type QueueJob = {
 
 // ── 음악 엔진 고르기(엔진 0.2.0+) ──────────────────────────────
 // ACE-Step = 상업용 사용 가능(기본), YuE2 = 비상업용(CC BY-NC 4.0 — 수익 영상·판매 불가, 2026-11-04 주인님 결정: 회원도 쓰되 구분 표시)
-export type MusicEngineId = "acestep" | "yue2";
+// v1.12(엔진 0.4.0): 공개된 모델을 더 넣고 「상업용」·「개인용」 두 묶음으로 나눔(2026-11-04 주인님: 「다 넣고 개인용과 상업용으로 나누면 되잖아」)
+export type MusicEngineId = "acestep" | "yue2" | "heartmula" | "stableaudio3" | "levo2";
 export type TrackLicense = "commercial" | "noncommercial";
 export const LICENSE_LABEL: Record<TrackLicense, string> = { commercial: "상업용", noncommercial: "비상업용" };
-export const licenseOfEngine = (e: MusicEngineId): TrackLicense => (e === "yue2" ? "noncommercial" : "commercial");
+
+export type MusicEngineInfo = {
+  id: MusicEngineId;
+  name: string;
+  license: TrackLicense;
+  /** 노래(가사) · 연주곡 · 둘 다 */
+  kind: "both" | "vocal" | "instrumental";
+  desc: string;
+  /** 비상업 동의 문구(개인용 엔진) / 조건부 상업용 조건 */
+  terms?: string;
+  /** 처음 받는 대략 크기(GB) */
+  firstGb?: number;
+  /** 회원 본인 Hugging Face 토큰이 있어야 모델을 받음 */
+  hfToken?: boolean;
+  gatedUrl?: string;
+};
+
+/** 엔진 목록(엔진 쪽 engine/src/pyengines-catalog.json·yue2와 같은 분류) */
+export const MUSIC_ENGINES: MusicEngineInfo[] = [
+  { id: "acestep", name: "ACE-Step 1.5", license: "commercial", kind: "both", desc: "수익 영상·판매에도 쓸 수 있습니다. 노래·연주곡·커버·부분 수정." },
+  { id: "heartmula", name: "HeartMuLa 3B", license: "commercial", kind: "vocal", desc: "노래 만들기. 여러 언어. Apache 2.0이라 수익 영상·판매에도 쓸 수 있습니다.", firstGb: 27 },
+  {
+    id: "stableaudio3",
+    name: "Stable Audio 3",
+    license: "commercial",
+    kind: "instrumental",
+    desc: "연주곡·배경음악(노래 없음), 최대 6분 20초. 상업용은 연매출 100만 달러 미만일 때 무료.",
+    terms: "Stability AI 커뮤니티 라이선스: 연매출 100만 달러(약 13억 원) 이상인 개인·회사는 Stability AI와 따로 계약해야 상업용으로 쓸 수 있습니다.",
+    firstGb: 15,
+    hfToken: true,
+    gatedUrl: "https://huggingface.co/stabilityai/stable-audio-3-medium",
+  },
+  { id: "yue2", name: "YuE2", license: "noncommercial", kind: "vocal", desc: "노래 음질이 좋은 모델입니다. 개인 감상·비수익 용도만(CC BY-NC 4.0).", terms: "YuE2로 만든 곡은 비상업용입니다. 유튜브 수익 영상·광고·판매·납품에 쓰면 저작권 조건(CC BY-NC 4.0) 위반입니다.", firstGb: 8 },
+  {
+    id: "levo2",
+    name: "LeVo 2",
+    license: "noncommercial",
+    kind: "vocal",
+    desc: "자연스러운 노래로 평가받는 모델. 중국어·영어 중심. 학술·연구·교육 목적만.",
+    terms: "LeVo 2(SongGeneration) 라이선스는 학술·연구·교육 목적만 허용하고 어떤 상업·제작 용도도 금지합니다. 판매·수익 영상·납품에 쓸 수 없습니다.",
+    firstGb: 28,
+  },
+];
+export const engineInfo = (id: MusicEngineId | undefined) => MUSIC_ENGINES.find((e) => e.id === (id ?? "acestep")) ?? MUSIC_ENGINES[0];
+export const licenseOfEngine = (e: MusicEngineId): TrackLicense => engineInfo(e).license;
+
+/** 이 PC 엔진에서 고를 수 있는 엔진(ACE-Step은 늘, 나머지는 엔진이 「된다」고 알린 것만) */
+export function availableEngines(status: EngineStatus | null): MusicEngineInfo[] {
+  return MUSIC_ENGINES.filter((e) => e.id === "acestep" || !!status?.features?.includes(e.id));
+}
 
 /** 이 PC 엔진이 YuE2를 쓸 수 있는가(엔진 0.2.0+ · 윈도우 NVIDIA 8GB+) */
 export function hasYue2(status: EngineStatus | null): boolean {
   return !!status?.features?.includes("yue2");
+}
+
+/** 개인용 엔진 동의 저장 키(엔진마다 따로 — YuE2는 예전 키 그대로) */
+export const consentKey = (id: MusicEngineId) => `fms-${id}-noncommercial-consent`;
+
+/** 회원 본인 Hugging Face 토큰(없으면 null) — 엔진이 모델을 처음 받을 때만 씀 */
+export async function fetchHfToken(): Promise<string | null> {
+  const r = await fetch("/api/settings/hf-token", { cache: "no-store" }).catch(() => null);
+  if (!r?.ok) return null;
+  const j = await r.json().catch(() => null);
+  return typeof j?.token === "string" && j.token ? j.token : null;
+}
+
+/** 받은 추가 엔진 모델·실행 환경 지우기(엔진 0.4.0+) */
+export async function removeEngineModel(id: MusicEngineId): Promise<void> {
+  await call(`/engines/${id}/remove`, { method: "POST" });
 }
 
 export const QUEUE_LABEL: Record<QueueStatus, string> = { queued: "대기 중", running: "만드는 중", done: "완료", failed: "실패", cancelled: "취소됨", interrupted: "중단됨" };
@@ -434,14 +517,15 @@ export async function enqueueSong(
   song: SongForEngine,
   info: { title: string; songId: string | null; device: string },
   quality?: EngineQuality | null,
-  engine: MusicEngineId = "acestep"
+  engine: MusicEngineId = "acestep",
+  hfToken?: string | null
 ): Promise<QueueJob> {
   const track: QueueTrack = { id: crypto.randomUUID(), song_id: info.songId, style_prompt: song.style_prompt, lyrics: song.lyrics, duration_sec: song.duration_sec, device: info.device, kind: "text2music" };
   const res = await call("/queue", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    // engine은 YuE2일 때만 보낸다(옛 엔진은 모르는 칸을 그냥 무시하지만, 상업용이 기본)
-    body: JSON.stringify({ kind: "text2music", title: info.title, track, task: buildTaskBody(song, info.device, quality), ...(engine === "yue2" ? { engine } : {}) }),
+    // engine은 ACE-Step이 아닐 때만 보낸다(옛 엔진은 모르는 칸을 그냥 무시하지만, 상업용이 기본). 토큰은 엔진 메모리에만(대기열 파일에 안 남음)
+    body: JSON.stringify({ kind: "text2music", title: info.title, track, task: buildTaskBody(song, info.device, quality), ...(engine !== "acestep" ? { engine } : {}), ...(hfToken ? { hfToken } : {}) }),
   });
   return (await res.json()).job;
 }

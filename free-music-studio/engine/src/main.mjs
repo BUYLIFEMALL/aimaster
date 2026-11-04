@@ -17,8 +17,9 @@ import { createRunner } from "./runner.mjs";
 import { newToken } from "./security.mjs";
 import { ensureTools, useTools } from "./tools.mjs";
 import { runYue2, yue2Installed, yue2MissingBytes, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
+import { pyCatalog, pyEngine, pyInstalled, pyMissingGb, pySupport, removePyEngine, runPyEngine } from "./pyengines.mjs";
 
-const VERSION = "0.3.0"; // 0.3.0: 설치 파일(엔진 실행 프로그램 desktop/)과 함께 — uv·ffmpeg 처음 켤 때 받기, 실행 환경 실측 크기(6.1GB)·받는 중 표시 · 0.2.1: 처음 받는 ACE-Step 모델·실행 환경도 「받는 중 · 3.2GB / 약 14.9GB」로 표시, 연결 문이 열린 뒤에만 연결 코드, 대기열 저장 한 번에 하나씩 · 0.2.0: 비상업용 음악 엔진 YuE2(새 곡 만들기) · 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내 · 0.1.8: 켜진 뒤 살아 있는지 확인·끌 때 음악 엔진도 함께 끄기 · 0.1.9: 내부 번호를 실행마다 비어 있는 번호로, 남은 음악 엔진은 실행 명령 이름으로 찾아 끄기 · 0.1.10: 음악 엔진이 알려 준 실패 이유를 대기열·엔진 창에 그대로 표시 · 0.1.11: 음악 엔진 글자 UTF-8(한국어 윈도우 cp949 오류 해결)
+const VERSION = "0.4.0"; // 0.4.0: 추가 음악 엔진 1차 — HeartMuLa(상업용 노래)·Stable Audio 3(상업용 조건부 연주곡)·LeVo 2(개인용 노래), 그래픽 메모리는 한 번에 한 엔진만 · 0.3.0: 설치 파일(엔진 실행 프로그램 desktop/)과 함께 — uv·ffmpeg 처음 켤 때 받기, 실행 환경 실측 크기(6.1GB)·받는 중 표시 · 0.2.1: 처음 받는 ACE-Step 모델·실행 환경도 「받는 중 · 3.2GB / 약 14.9GB」로 표시, 연결 문이 열린 뒤에만 연결 코드, 대기열 저장 한 번에 하나씩 · 0.2.0: 비상업용 음악 엔진 YuE2(새 곡 만들기) · 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내 · 0.1.8: 켜진 뒤 살아 있는지 확인·끌 때 음악 엔진도 함께 끄기 · 0.1.9: 내부 번호를 실행마다 비어 있는 번호로, 남은 음악 엔진은 실행 명령 이름으로 찾아 끄기 · 0.1.10: 음악 엔진이 알려 준 실패 이유를 대기열·엔진 창에 그대로 표시 · 0.1.11: 음악 엔진 글자 UTF-8(한국어 윈도우 cp949 오류 해결)
 // 내부 음악 엔진 번호 — 실행마다 비어 있는 번호(0.1.9). 예전에는 47822로 고정해, 남은 음악 엔진이 잡고 있으면 새 음악 엔진이 켜지지 못했다.
 const ACESTEP_PORT = await pickFreePort();
 
@@ -45,6 +46,19 @@ const nvidiaDriver = () => {
 };
 // 비상업용 음악 엔진 YuE2 — 되는 PC인지(윈도우 + NVIDIA 드라이버 580+ + 그래픽 메모리 8GB+)
 const yue2 = yue2Support({ platform: process.platform, nvidia: device.device === "cuda", vramGb, driver: nvidiaDriver() });
+// 추가 음악 엔진(0.4.0) — 이 PC에서 되는지
+const pySupportOf = (e) => pySupport(e, { platform: process.platform, nvidia: device.device === "cuda", vramGb });
+const pyOk = pyCatalog().engines.filter((e) => pySupportOf(e).ok).map((e) => e.id);
+let hfToken = ""; // 회원 본인 Hugging Face 토큰 — 사이트가 작업을 넣을 때만 보내고, 파일에 남기지 않는다
+
+/** /system에 넣을 추가 엔진 정보 */
+async function pyReport(e) {
+  const s = pySupportOf(e);
+  const base = { id: e.id, name: e.name, note: e.note, license: e.license, kind: e.kind, licenseName: e.licenseName, licenseCondition: e.licenseCondition ?? "", hfToken: !!e.hfToken, gatedUrl: e.gatedUrl ?? "", maxSec: e.maxSec, minVramGb: e.minVramGb, selected: false };
+  if (!s.ok) return { ...base, supported: false, reason: s.reason };
+  const installed = await pyInstalled(dataDir, e).catch(() => false);
+  return { ...base, supported: true, reason: "", installed, downloadGb: installed ? 0 : await pyMissingGb(dataDir, e).catch(() => null) };
+}
 
 /** /system에 넣을 YuE2 정보(설치 여부·더 받을 크기) */
 async function yue2Report() {
@@ -72,7 +86,11 @@ async function systemReport() {
     check: checkItems(sys, device, recommended),
     options,
     selected: profile.id,
-    engines: [{ id: "acestep", name: "ACE-Step 1.5", note: "노래·연주곡 생성, 커버, 부분 수정 · 상업용 사용 가능", license: "commercial", supported: device.supported, selected: true }, await yue2Report()],
+    engines: [
+      { id: "acestep", name: "ACE-Step 1.5", note: "노래·연주곡 생성, 커버, 부분 수정 · 상업용 사용 가능", license: "commercial", kind: "both", supported: device.supported, selected: true },
+      { ...(await yue2Report()), kind: "vocal" },
+      ...(await Promise.all(pyCatalog().engines.map(pyReport))),
+    ],
   };
 }
 const savedTier = await readSavedTier();
@@ -108,30 +126,45 @@ const yue2LogFile = path.join(dataDir, "yue2-log.txt");
  */
 async function yue2Run(job, signal, stage) {
   if (!yue2.ok) throw new Error(yue2.reason);
+  return exclusiveRun("YuE2", yue2LogFile, yue2.profile.label, stage, (log) => runYue2({ dataDir, profile: yue2.profile, library, log }, job, signal, stage));
+}
+
+/** 추가 음악 엔진(0.4.0) 작업 — YuE2와 같이 ACE-Step을 잠시 끄고 그래픽 메모리를 혼자 쓴다 */
+async function pyRun(job, signal, stage) {
+  const e = pyEngine(job.engine);
+  if (!e) throw new Error("없는 음악 엔진입니다.");
+  const s = pySupportOf(e);
+  if (!s.ok) throw new Error(s.reason);
+  const logFile = path.join(dataDir, `${e.id}-log.txt`);
+  return exclusiveRun(e.name, logFile, e.name, stage, (log) => runPyEngine({ dataDir, engine: e, vramGb, library, hfToken, log }, job, signal, stage));
+}
+
+/** ACE-Step이 아닌 엔진은 그래픽 메모리를 혼자 쓴다 — 끝나면 다음 작업이 ACE-Step일 때 다시 켠다 */
+async function exclusiveRun(name, logFile, label, stage, fn) {
   yue2Running = true;
   if (child && child.exitCode == null) {
     stage("그래픽 메모리 비우는 중(ACE-Step 잠시 멈춤)");
     yue2Pausing = true;
     state.ready = false;
-    state.stage = "YuE2 사용 중";
+    state.stage = `${name} 사용 중`;
     await killTree(child);
   }
-  const log = createWriteStream(yue2LogFile, { flags: "w" });
-  log.write(`# ${new Date().toISOString()} · 엔진 ${VERSION} · ${yue2.profile.label}\n`);
+  const log = createWriteStream(logFile, { flags: "w" });
+  log.write(`# ${new Date().toISOString()} · 엔진 ${VERSION} · ${label}\n`);
   try {
-    return await runYue2({ dataDir, profile: yue2.profile, library, log: (s) => log.write(s) }, job, signal, stage);
+    return await fn((s) => log.write(s));
   } catch (err) {
-    if (err?.name !== "AbortError") throw new Error(`${err instanceof Error ? err.message : err} (자세한 이유: ${yue2LogFile})`);
+    if (err?.name !== "AbortError") throw new Error(`${err instanceof Error ? err.message : err} (자세한 이유: ${logFile})`);
     throw err;
   } finally {
     log.end();
     yue2Running = false;
     const next = queue.list().find((j) => j.status === "queued");
-    if (next?.engine !== "yue2") resumeAce();
+    if (!next || next.engine === "acestep") resumeAce();
   }
 }
 
-/** YuE2 때문에 멈춘 ACE-Step을 다시 켠다(기다리지 않음 — 다 켜지면 startMusicEngine이 대기열을 이어서 돌린다) */
+/** 다른 엔진 때문에 멈춘 ACE-Step을 다시 켠다(기다리지 않음 — 다 켜지면 startMusicEngine이 대기열을 이어서 돌린다) */
 function resumeAce() {
   if (!yue2Pausing || yue2Running) return;
   yue2Pausing = false;
@@ -143,10 +176,10 @@ function resumeAce() {
 
 const queue = createQueue({
   file: path.join(dataDir, "queue.json"),
-  run: (job, signal, stage) => (job.engine === "yue2" ? yue2Run(job, signal, stage) : aceRun(job, signal, stage)),
-  // ACE-Step 작업은 ACE-Step이 준비돼야, YuE2 작업은 ACE-Step을 켜거나 구성을 바꾸는 중이 아니면 된다
+  run: (job, signal, stage) => (job.engine === "yue2" ? yue2Run(job, signal, stage) : job.engine === "acestep" || !job.engine ? aceRun(job, signal, stage) : pyRun(job, signal, stage)),
+  // ACE-Step 작업은 ACE-Step이 준비돼야, 다른 엔진 작업은 ACE-Step을 켜거나 구성을 바꾸는 중이 아니면 된다
   canRun: (job) => {
-    if (job.engine === "yue2") return !restarting && !aceStarting;
+    if (job.engine && job.engine !== "acestep") return !restarting && !aceStarting;
     if (yue2Pausing) resumeAce(); // 뒤에 있던 YuE2 작업이 취소돼 ACE-Step이 멈춘 채 남은 경우
     return state.ready && !restarting && !yue2Pausing;
   },
@@ -164,8 +197,19 @@ let pendingPairCode = "";
 const showPairCode = (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`);
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", ...(yue2.ok ? ["yue2"] : [])], libraryDir: library.dir, quality: { ...profile, vramGb, ffmpeg } }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, quality: { ...profile, vramGb, ffmpeg } }),
   systemReport,
+  // 엔진 이름 → 분류(없는 엔진·이 PC에서 안 되는 엔진은 null)
+  engineLicense: (id) => (id === "yue2" ? (yue2.ok ? YUE2_LICENSE : null) : pyOk.includes(id) ? pyEngine(id).license : null),
+  setHfToken: (t) => (hfToken = t),
+  removeEngine: async (id) => {
+    const e = pyEngine(id);
+    if (!e) return { ok: false, status: 400, error: "지울 수 없는 엔진입니다." };
+    if (queue.list().some((j) => j.engine === id && (j.status === "queued" || j.status === "running"))) return { ok: false, status: 409, error: "이 엔진으로 만드는 작업이 끝난 뒤 지워 주세요." };
+    await removePyEngine(dataDir, e);
+    logLine(`🗑 ${e.name} 받은 모델·실행 환경을 지웠습니다.`);
+    return { ok: true };
+  },
   setQuality,
   queue,
   queueSourceDir,
@@ -193,6 +237,7 @@ gateway.listen(GATEWAY_PORT, "127.0.0.1", () => {
   logLine(`AI 무료음악 자동화 엔진 ${VERSION} — 연결 문 http://127.0.0.1:${GATEWAY_PORT}  · ${device.mode}`);
   logLine(`  🎚️ 음질: ${profile.label}${vramGb ? ` (그래픽 메모리 ${vramGb}GB)` : ""} · MP3 변환 ${ffmpeg ? "가능" : "불가(ffmpeg 없음 — FLAC 원음만)"}`);
   if (yue2.ok) logLine(`  🎛️ 비상업용 음악 엔진 YuE2 사용 가능 — ${yue2.profile.label}`);
+  if (pyOk.length) logLine(`  🎛️ 추가 음악 엔진 사용 가능 — ${pyOk.map((id) => pyEngine(id).name).join(", ")} (처음 고를 때 받음)`);
   gatewayOpen = true;
   if (pendingPairCode) showPairCode(pendingPairCode);
 });
@@ -294,7 +339,7 @@ async function startMusicEngineInner() {
  */
 async function setQuality(tierId) {
   if (restarting) return { ok: false, status: 409, error: "구성을 바꾸는 중입니다. 잠시 뒤 다시 시도해 주세요." };
-  if (yue2Pausing) return { ok: false, status: 409, error: "YuE2로 곡을 만드는 중입니다. 끝난 뒤 다시 시도해 주세요." };
+  if (yue2Pausing) return { ok: false, status: 409, error: "다른 음악 엔진으로 곡을 만드는 중입니다. 끝난 뒤 다시 시도해 주세요." };
   const report = await systemReport();
   const opt = report.options.find((o) => o.id === tierId);
   if (!opt) return { ok: false, status: 400, error: "없는 구성입니다." };

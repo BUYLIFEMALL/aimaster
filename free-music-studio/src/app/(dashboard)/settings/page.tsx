@@ -215,6 +215,13 @@ export default function SettingsPage() {
         placeholder="AIza 로 시작하는 본인 Gemini API 키 입력"
         {...common}
       />
+      <KeyCard
+        provider="huggingface"
+        title="Hugging Face 토큰 (Stable Audio 3)"
+        description="연주곡 엔진 Stable Audio 3 Medium 모델을 내 PC가 처음 받을 때만 씁니다(무료). huggingface.co에 가입 → 모델 페이지(stabilityai/stable-audio-3-medium)에서 약관 동의 → Settings › Access Tokens에서 Read 토큰을 만들어 넣어 주세요. 다른 엔진은 토큰이 필요 없습니다."
+        placeholder="hf_ 로 시작하는 본인 읽기(Read) 토큰 입력"
+        {...common}
+      />
 
       <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs text-amber-200">
         <p className="flex items-start gap-2.5">
