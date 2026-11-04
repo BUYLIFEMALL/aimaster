@@ -22,3 +22,19 @@ test('WR02 armed cancellation displays uncertainty, prevents a second action and
   await React.act(async()=>button('중단 요청').dispatchEvent(new window.Event('click',{bubbles:true})));assert.match(document.body.textContent,/응답 유실/);assert.equal(calls.filter(c=>c.operation==='cancel').length,2);
  }finally{if(root)await React.act(async()=>root.unmount());globalThis.fetch=original;for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
 });
+test('WR03 records show the prepared post title (read-only lookup) and fall back to the post number',async()=>{
+ const {window,document}=parseHTML('<html><body><div id="root"></div></body></html>');const globals={window,self:window,document,HTMLElement:window.HTMLElement,Event:window.Event,IS_REACT_ACT_ENVIRONMENT:true},previous=new Map();
+ for(const [key,value]of Object.entries(globals)){previous.set(key,Object.getOwnPropertyDescriptor(globalThis,key));Object.defineProperty(globalThis,key,{value,configurable:true,writable:true});}
+ const original=globalThis.fetch;let root,postsFail=false;const calls=[];
+ const jobs=[{id:'a',state:'draft',kind:'like',neighbor_id:'nb',actor_id:'me',post_id:'111',body:'',created_at:'2026-11-05T00:00:00Z',expires_at:'2026-12-05T00:00:00Z'},{id:'b',state:'succeeded',kind:'like',neighbor_id:'nb',actor_id:'me',post_id:'222',body:'',created_at:'2026-11-05T00:00:00Z',expires_at:'2026-12-05T00:00:00Z'}];
+ globalThis.fetch=async(url,options)=>{const input=JSON.parse(options.body);calls.push([url,input.operation]);if(url==='/api/neighbors/posts'){if(postsFail)throw Error('목록 실패');return Response.json({data:[{neighbor_id:'nb',post_id:'111',title:'첫 번째 글 제목'}]});}return Response.json({data:jobs});};
+ const button=text=>[...document.querySelectorAll('button')].find(b=>b.textContent.includes(text));
+ try{
+  const {createRoot}=await import('react-dom/client');root=createRoot(document.getElementById('root'));await React.act(async()=>root.render(React.createElement(WorkRecords)));
+  await React.act(async()=>button('작업 기록 조회').dispatchEvent(new window.Event('click',{bubbles:true})));
+  const heads=[...document.querySelectorAll('h3')].map(h=>h.textContent);
+  assert.match(heads[0],/첫 번째 글 제목/);assert.match(heads[1],/글 222/);assert.deepEqual(calls,[['/api/work','list'],['/api/neighbors/posts','list']]);
+  postsFail=true;await React.act(async()=>button('작업 기록 조회').dispatchEvent(new window.Event('click',{bubbles:true})));
+  assert.match(document.querySelector('h3').textContent,/글 111/);assert.doesNotMatch(document.body.textContent,/목록 실패/);
+ }finally{if(root)await React.act(async()=>root.unmount());globalThis.fetch=original;for(const [key,descriptor]of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
+});

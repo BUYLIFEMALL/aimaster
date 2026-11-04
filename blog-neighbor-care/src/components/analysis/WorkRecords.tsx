@@ -10,6 +10,7 @@ export function WorkRecords(){
  const [jobs,setJobs]=useState<Job[]|null>(null),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
  const [reviewed,setReviewed]=useState(''),[acted,setActed]=useState('');
  const [relations,setRelations]=useState<RequestStatus[]>([]),[clock,setClock]=useState(Date.now);
+ const [titles,setTitles]=useState<Record<string,string>>({});
  const lock=useRef(false),alive=useRef(true),controller=useRef<AbortController|null>(null);
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;controller.current?.abort();};},[]);
  useEffect(()=>{if(!relations.length)return;const timer=setInterval(()=>setClock(Date.now()),30000);return()=>clearInterval(timer);},[relations]);
@@ -31,7 +32,15 @@ export function WorkRecords(){
      relationshipRows=r.requests;
     }catch{relationNote=' 신청 상태 기록은 확인하지 못했습니다. 현재 수락 여부를 추측하지 않습니다.';}
    }
-   if(alive.current){setJobs(rows);setRelations(relationshipRows);setClock(Date.now());setMessage((outcome||'최근 작업을 최대 50개 조회했습니다. 네이버에 새 요청을 보내지 않았습니다.')+relationNote);}
+   // v1.18: 글 번호만으로는 어떤 글인지 알 수 없어 준비한 글 목록(읽기 전용)에서 제목을 붙인다. 못 읽으면 번호만 보인다.
+   let titleMap:Record<string,string>={};
+   if(Array.isArray(rows)&&rows.some(job=>job.post_id)){
+    try{
+     const r=await fetch('/api/neighbors/posts',{method:'POST',credentials:'same-origin',cache:'no-store',signal:c.signal,headers:{'content-type':'application/json'},body:JSON.stringify({operation:'list',payload:{}})});
+     const v=await r.json();if(r.ok&&Array.isArray(v.data))for(const p of v.data)if(p&&typeof p.title==='string'&&typeof p.neighbor_id==='string'&&typeof p.post_id==='string')titleMap[`${p.neighbor_id}/${p.post_id}`]=p.title.slice(0,120);
+    }catch{titleMap={};}
+   }
+   if(alive.current){setJobs(rows);setTitles(titleMap);setRelations(relationshipRows);setClock(Date.now());setMessage((outcome||'최근 작업을 최대 50개 조회했습니다. 네이버에 새 요청을 보내지 않았습니다.')+relationNote);}
   }catch(e){if(alive.current){setJobs(null);setRelations([]);setMessage(c.signal.aborted?'응답을 확인하지 못했습니다. 자동으로 재요청하지 않습니다. 작업 기록부터 다시 조회해 주세요.':e instanceof Error?e.message:'작업 상태를 확인하지 못했습니다.');}}
   finally{clearTimeout(timer);lock.current=false;if(alive.current)setBusy(false);}
  }
@@ -40,7 +49,8 @@ export function WorkRecords(){
   {jobs?.length===0&&<p>보관 중인 작업이 없습니다.</p>}
   {jobs&&jobs.length>0&&<ul className="history">{jobs.map(job=>{const relation=relations.find(r=>r.jobId===job.id),fresh=relation&&freshRequestObservation(relation.checkedAt,clock);
    const label=relation?(relation.state==='not_requested'?relation.state:fresh?relation.state:'unknown'):'unknown';
-   return <li key={job.id}><h3>{kinds[job.kind]||job.kind} · {job.neighbor_id}{job.post_id?` · 글 ${job.post_id}`:''}</h3><p>{states[job.state]||job.state}</p><small>{retention(job.expires_at,'자료 보관 기한')}</small>
+   const title=job.post_id?titles[`${job.neighbor_id}/${job.post_id}`]:undefined;
+   return <li key={job.id}><h3>{kinds[job.kind]||job.kind} · {title?`「${title}」`:job.neighbor_id}{job.post_id&&!title?` · 글 ${job.post_id}`:''}</h3><p>{states[job.state]||job.state}</p><small>{retention(job.expires_at,'자료 보관 기한')}</small>
    {job.kind==='request'&&<div className="notice"><strong>{relationLabels[label]}</strong><p>서버에 저장된 관계 확인 기록입니다. 조회만으로 네이버에 접속하지 않으며, 5분이 지난 기록은 현재 상태로 표시하지 않습니다.</p>
     {relation?.requestedAt&&<small>신청 확인 시각: {new Date(relation.requestedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}</small>}
     {fresh&&relation?.cancellationSuggested&&label==='pending'&&<p>신청 확인 후 7일 이상 대기 중입니다. 네이버에서 현재 상태를 확인한 뒤 취소를 검토하세요. 자동으로 취소하지 않습니다.</p>}
