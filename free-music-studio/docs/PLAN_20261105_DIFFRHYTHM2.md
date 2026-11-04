@@ -1,5 +1,7 @@
 # DiffRhythm 2 넣기 플랜 (2026-11-05, [역할: music])
 
+> **결론(같은 날, 1단계에서 멈춤): 넣지 않는다.** 논문(arXiv 2510.22950) 데이터 절: 학습 곡이 「Chinese, English and instrumental music, … roughly 4:5:1」 — 한국어 없음. 이슈 검색 「korean」 0건, 모델 카드·안내에도 언어 목록 없음. `g2p/korean.py`는 공용 발음 변환기일 뿐이다. 노래 엔진 한국어 규칙에 따라 제외, 코드·배포 없음(비용 0).
+
 주인님 지시: 「1번부터 순차적으로 해」(Stable Audio 3 → HeartMuLa 재측정 → DiffRhythm 2). 규칙: 노래 엔진은 한국어를 불러야 선택지에 넣는다(`PLAN_20261104_MORE_ENGINES.md` §1).
 
 ## 1. 조사 결과
