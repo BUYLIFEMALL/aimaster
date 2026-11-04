@@ -4,16 +4,18 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // 음악 생성은 회원 PC 엔진에서 키 없이 돈다. 키가 필요한 것은 AI 작사뿐이며,
 // 회원이 OpenAI·Claude·Gemini 중 본인 키가 있는 곳을 골라 쓴다(공용 user_api_keys — 다른 프로그램에 등록한 키 그대로 사용).
 // huggingface(v1.12): 약관 동의가 필요한 음악 모델(Stable Audio 3)을 회원 PC 엔진이 처음 받을 때만 쓰는 회원 본인 읽기 토큰.
-export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "huggingface";
+// replicate(v1.25): 앨범 그림 FLUX 2(이미지 자동화 ai-image-studio와 같은 공용 키).
+export type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "huggingface" | "replicate";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
-  openai: "OpenAI API 키 (AI 작사)",
+  openai: "OpenAI API 키 (AI 작사·앨범 그림)",
   anthropic: "Claude(Anthropic) API 키 (AI 작사)",
-  gemini: "Google Gemini API 키 (AI 작사)",
+  gemini: "Google Gemini API 키 (AI 작사·앨범 그림)",
   huggingface: "Hugging Face 토큰 (음악 모델 받기)",
+  replicate: "Replicate API 키 (앨범 그림 FLUX 2)",
 };
 
-export const ALL_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "huggingface"];
+export const ALL_PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "huggingface", "replicate"];
 
 /**
  * 로그인한 회원 본인이 user_api_keys 테이블에 등록한 본인 키만 반환한다.

@@ -222,6 +222,13 @@ export default function SettingsPage() {
         placeholder="hf_ 로 시작하는 본인 읽기(Read) 토큰 입력"
         {...common}
       />
+      <KeyCard
+        provider="replicate"
+        title="Replicate API 키 (앨범 그림 FLUX 2)"
+        description="앨범 그림을 FLUX 2로 만들 때만 씁니다(선택). 이미지 자동화에 등록한 키를 그대로 씁니다. replicate.com 가입 → Account › API tokens에서 만들어 넣어 주세요."
+        placeholder="r8_ 로 시작하는 본인 Replicate API 키 입력"
+        {...common}
+      />
 
       <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs text-amber-200">
         <p className="flex items-start gap-2.5">

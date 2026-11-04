@@ -2,7 +2,8 @@
 
 // 앨범 그림 만들기(2026-11-05 주인님 「앨범 그림 만들기 기능도 넣어줘」) — 회원 본인 Gemini 키로 정사각형 1장,
 // 그림은 서버에 남기지 않고 내 PC 노래 저장 폴더(엔진 0.6.7+)에 「곡 제목.png」로 넣거나 바로 받는다.
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ART_PROVIDERS, DEFAULT_ART_PROVIDER, type ArtProvider } from "@/lib/albumArtModels";
 import Link from "next/link";
 import { ImageIcon, Loader2, FolderDown, Download } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
@@ -18,6 +19,17 @@ export function AlbumArtPanel({ title, style, art, onArtChange }: { title: strin
   const [image, setImage] = useState<{ base64: string; mimeType: string } | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string; needKey?: boolean } | null>(null);
   const canSave = paired && hasArt(status);
+  // 플랫폼·모델 선택(회원 본인 키가 있는 곳 표시) — Gemini 나노바나나 / GPT Image / Replicate FLUX 2
+  const [provider, setProvider] = useState<ArtProvider>(DEFAULT_ART_PROVIDER);
+  const [model, setModel] = useState<string>(ART_PROVIDERS.find((p) => p.id === DEFAULT_ART_PROVIDER)!.defaultModel);
+  const [keys, setKeys] = useState<Record<string, { registered: boolean }> | null>(null);
+  useEffect(() => {
+    fetch("/api/settings/api-keys")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d?.keys && setKeys(d.keys))
+      .catch(() => {});
+  }, []);
+  const info = ART_PROVIDERS.find((p) => p.id === provider)!;
 
   const make = async () => {
     setBusy("make");
@@ -26,7 +38,7 @@ export function AlbumArtPanel({ title, style, art, onArtChange }: { title: strin
       const res = await fetch("/api/album-art", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, style, art }),
+        body: JSON.stringify({ title, style, art, provider, model }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -63,7 +75,7 @@ export function AlbumArtPanel({ title, style, art, onArtChange }: { title: strin
     <section className="space-y-3 rounded-2xl border border-fuchsia-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
       <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
         <ImageIcon className="h-4 w-4 text-fuchsia-300" /> 앨범 그림 만들기{" "}
-        <span className="text-[11px] font-normal text-slate-400">(내 Gemini 키 · 정사각형 1장 약 $0.034 · 선택)</span>
+        <span className="text-[11px] font-normal text-slate-400">(내 Gemini·OpenAI·Replicate 키 중 골라 사용 · 정사각형 1장 · 선택)</span>
       </h2>
       <textarea
         className={`${field} min-h-[60px] text-xs`}
@@ -72,6 +84,34 @@ export function AlbumArtPanel({ title, style, art, onArtChange }: { title: strin
         maxLength={ART_PROMPT_LIMIT}
         placeholder="그림 설명(영어 권장, 선택) — 비워 두면 곡 제목·스타일로 만듭니다. AI 작곡 기획으로 만든 곡은 자동으로 채워집니다."
       />
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="그림 플랫폼">
+          {ART_PROVIDERS.map((p) => {
+            const noKey = keys !== null && !keys[p.id]?.registered;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  setProvider(p.id);
+                  setModel(p.defaultModel);
+                }}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${provider === p.id ? "bg-fuchsia-600 text-white" : "text-slate-300 hover:bg-slate-800"}`}
+              >
+                {p.label}
+                {noKey && <span className="ml-1 text-[10px] font-normal text-slate-400">키 없음</span>}
+              </button>
+            );
+          })}
+        </div>
+        <select className={`${field} w-auto min-w-[15rem] flex-1`} value={model} onChange={(e) => setModel(e.target.value)} aria-label="그림 모델">
+          {info.models.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
