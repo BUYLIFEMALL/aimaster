@@ -17,7 +17,7 @@ create table if not exists public.ncr_settings (
  mode_promo boolean not null default true,        -- C. 카페 홍보 글
  mode_extract boolean not null default false,     -- A. 카페 활동 회원 추출(관리자 지정 예외, 회원이 켬)
  extract_consent_at timestamptz,                  -- A를 켤 때 책임 고지 동의 시각
- daily_cap int not null default 20 check(daily_cap between 1 and 50),  -- 네이버 하루 50건의 절반 이하
+ daily_cap int not null default 20 check(daily_cap between 1 and 25),  -- 네이버 하루 50건의 절반 이하(윈도우 검토 2026-11-05: 최대 25)
  active_start_minute int not null default 540 check(active_start_minute between 0 and 1439), -- 09:00
  active_end_minute int not null default 1320 check(active_end_minute between 0 and 1439),    -- 22:00
  updated_at timestamptz not null default now()
