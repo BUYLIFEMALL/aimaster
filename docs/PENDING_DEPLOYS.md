@@ -28,6 +28,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `free-music-studio` | 효과음·연주곡 한국어 → 영어 설명(Stable Audio 3는 영어 학습): 효과음 화면 「AI 효과음 설명 만들기」(회원 본인 키, OpenAI·Claude·Gemini 최신 3모델 선택, API `/api/sound-prompt`) + 설명 칸에 한글이 있으면 「영어로 바꾸기」 버튼(주인님 지시) | `70fcdb9a0` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/src/app/(dashboard)/songs/page.tsx` | v1.22, 사이트만(엔진 그대로) |
 | `real_estate_sales` | 주소 리포트 지도 가운데 📍 핀 겹치기(브이월드 marker 옵션이 그려지지 않음, v1.52 운영 확인 중 발견) | `d46717d97` | 2026-11-05 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` v1.52 | 다음 실거래 배포 때(+0.01) |
 | `commercial-land-trade-alert` | 실거래 목록 「분류」 거르기에 공장·창고 용도(공장·창고시설·자동차 관련시설) 추가, 종류 전체 선택 이름 「모든 종류」(v1.31 운영 확인 중 발견) | 이 커밋 바로 뒤 `fix(commercial-land-trade-alert)` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `commercial-land-trade-alert/AGENTS.md` v1.31 | 다음 상가 배포 때 함께(+0.01) |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
