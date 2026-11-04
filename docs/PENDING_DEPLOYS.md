@@ -29,8 +29,6 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `real_estate_sales` | v1.48: 「지금 조회하기」 300초 초과 수정 — 수동 조회 200초·예약 수집 240초가 지나면 남은 새 매매는 AI 분석 없이 알림만, 단독/다가구 알림 「연면적 ○m²」. 시험 36·tsc·로컬 빌드 통과(코드 `version.ts`는 이미 v1.48) | `6d89f342f` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` 2026-11-04 v1.48 | 주인님 「다음 작업시 같이 배포해」 — 다음 실거래 배포 때 함께, 배포 뒤 DB 버전 맞추고 시험 계정 「지금 조회하기」 끝까지 되는지·단독/다가구 건수 확인 |
-| `free-music-studio` | 원클릭 다운로드 센터 버전 표시를 두 개로(왼쪽 설치된 엔진 회색 · 오른쪽 새 버전 노란색 깜빡임, 누르면 받기 / 최신이면 초록 「✓ 최신」) | `82f037ee7` | 2026-11-04 · [역할: music] `claude-win-20261024-music` | `free-music-studio/src/app/(dashboard)/engine/page.tsx` | v1.18, 다음 배포 때 함께 |
-| `free-music-studio` | 엔진 0.6.3: LeVo 2 「No module named 'pkg_resources'」 수정(실행 환경에 `setuptools<81` 추가, `runtimeRev`로 이미 설치된 PC도 한 번 다시 맞춤). 설치 파일 새로 만들어야 함 | `ae3578ec5` | 2026-11-04 · [역할: music] `claude-win-20261024-music` | `free-music-studio/engine/src/pyengines-catalog.json`, `pyengines.mjs` | v1.18과 함께(LeVo 2 시험에 필요) |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
 | `banana-canvas` | E5-4 한글 이름·주소 가리기(「한글 이름·주소도」, 한국어 글자 읽기 모델 13MB 브라우저 첫 1회) | `1dd57ac12` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` E5-4 | v1.43, 운영에서 송장 사진으로 확인 |
 | `banana-canvas` · `thumbnail-master` · `insta_auto_poster` · `shop-detail-page` | E5-5 무료 도구를 썸네일·인스타 카드뉴스에서도: 공용 `nukki-handoff` 보낸 곳 여러 개, 바나나 받기 훅(무료 이미지 도구·무료 지우기), 썸네일 「🧽 무료 지우기」→새 버전(받기 API `POST /api/projects/[id]`), INSTA 슬라이드 「✂ 누끼·🙈 가리기·🧽 지우기」→이 장 새 이미지. 시험 바나나 29·썸네일 19·INSTA 78+2, tsc·로컬 build 4곳 | `75bd2728d` | 2026-11-04 · [역할: ecommerce-image] `claude-win-sdp` | `docs/roles/ecommerce-image.md` 이미지 인계 | 바나나 v1.43과 함께, 썸네일·INSTA·상세 +0.01. 배포 순서 바나나 먼저. 배포 뒤 운영 창끼리 보내기·되돌려 넣기 확인 |
@@ -80,6 +78,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `free-music-studio` | v1.18 · 엔진 0.6.3 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회) | LeVo 2 「pkg_resources 없음」 수정(`ae3578ec5`) + 다운로드 센터 버전 표시 두 개(`82f037ee7`) |
 | `free-music-studio` | v1.17 · 엔진 0.6.2 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-91rlksdgq`) | LeVo 2 모델 v1 base-full로(`4ba8bbb1f`) + 버전 표시 크고 밝게(`9b90e3463`) |
 | `free-music-studio` | v1.16 · 엔진 0.6.1 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-5gh1o5hsp`) | LeVo 2 LFS 자리표시 파일 자동 수정(`40506bee7`) |
 | `free-music-studio` | v1.15 · 엔진 0.6.0 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 「진행해」 승인 빌드 3회 중 3회째, `free-music-studio-e1xugpr05`) | 2차 MiniMax Music 3(`d7a52afbd`) + LeVo 2 torch.load 수정 + 실패 원인 표시 + 새 판 안내 + 노래 폴더 안내 문구 |
