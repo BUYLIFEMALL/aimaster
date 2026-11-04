@@ -2,11 +2,19 @@
 
 > ⚠️ **데이터 보관 규칙 — 함부로 지우지 말 것 (2026-11-04 주인님 결정, 모든 CLI 필독)**
 > - **기본 30일**: 소통 문장 본문·남의 글/새 글 자료·실행 증거·분석 요청 등은 매일 03:20 정리(`src/lib/cleanup.ts`, RPC 12개) — 다른 블로그 프로그램과 같음(주인님 「블로그랑 똑같은데?」).
-> - **관리자·시험 계정 열외(무기한)**: `profiles.retention_exempt = true` 회원은 정리·30일 조회 숨김에서 **제외해야 함 — 아직 미적용**, 2026-11-26부터 시험 기록이 지워지므로 그 전 적용([요청서 §9](../../docs/FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md)).
+> - **관리자·시험 계정 열외(무기한)**: `profiles.retention_exempt = true` 회원은 정리·30일 조회 숨김에서 **제외 — v1.15(2026-11-04) 적용 완료**(아래 v1.15 항목). 새 표에 30일 `expires_at`를 만들면 `bnc_keep_exempt_expiry` 트리거를 붙이고 「30일 이하」 제한 조건에 `or expires_at='9999-12-31'`을 함께 둔다([요청서 §9](../../docs/FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md)).
 > - **통계·기준점 자료는 1년**: 이웃별 소통 요약(횟수·마지막 소통 날짜·답방 여부 등 숫자), 댓글 반복 방지 비교값 — 주인님 「통계자료나 계속 기준점을 잡아야 하는 경우는 1년치」. 지정 기록 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8. 기능은 **미구현**(요청서 §10, 개발 플랜 먼저).
 > - **정리 작업을 고치거나 새 표를 만들 때**: 위 1년 자료·열외 계정 자료를 30일 정리에 넣지 않는다. 작업 기록의 중복 방지용 최소 줄(문장만 비우고 줄은 유지)도 지우지 않는다. 지우는 범위를 바꾸려면 주인님 확인 먼저.
 > - **용량**: 이미지·파일을 저장소에 올리지 않는다(현재 저장 코드 0곳). 1년 자료는 숫자·짧은 값만.
 
+
+> [역할: blog] **v1.15 운영(2026-11-04, 커밋 `0a3a8c9f1` · 배포 `blog-neighbor-care-3focphnt6` `dpl_kADVNN8x2kwbrSJ82W7ZpFiUJGWW`):** 맥미니 요청서 §9 + 12월 모델 교체(묶음 B).
+> - **30일 열외**: 정리 RPC 12개와 화면 조회는 모두 「`expires_at`가 지났는가」로 판단하므로, 함수 본문은 그대로 두고 열외 회원의 30일 기한만 9999-12-31로 바꿈. 트리거 `bnc_private.keep_exempt_expiry`(20일 넘게 남은 기한만 — 2분~24시간 실행 잠금·읽기 기한은 그대로)를 표 18개에, 「생성 뒤 30일 이하」 제한 조건 9개에 9999 허용 추가, 기존 열외 자료 87줄 변환(일반 회원 0줄). 소통 수신함 원본 고정 트리거는 「열외 회원 기한을 9999로」만 추가 허용. 감시(`bnc_monitors`, 7일 기한 뒤 30일 삭제)는 정리 한 줄에 열외 조건. 연결 기기·실행/수락 허가·이웃 가져오기 임시 목록(회원 칸 없음, 최대 24시간)은 대상 아님.
+> - **운영 적용**: 적용 전 [대조 SQL](../supabase/checks/20261104_retention_exempt_precheck.sql)로 확인 — 감시 함수 지문이 달랐는데 원인은 운영 함수의 줄 끝 CR(예전 SQL 편집기 붙여넣기)뿐, CR을 빼면 저장소와 동일. ego SQL 편집기로 적용, [확인 SQL](../supabase/checks/20261104_retention_exempt_postcheck.sql): 트리거 18·열외 자료 87줄 무기한·일반 회원 무기한 0.
+> - **화면**: 작업 기록·분석 자료·읽기 자료의 보관 기한이 9999년이면 「무기한 보관」(`retention()` in `lib/analysis/client.ts`). 운영에서 작업 기록 4건 모두 「무기한 보관」 확인.
+> - **모델**: `lib/analysis/models.ts`를 `web-crawler`와 같은 파일로(Gemini 선택지 3.5 Flash Lite·3.8 Flash), 옛 값(2.5-pro/flash/flash-lite·3.7-flash)은 입력 검사 2곳(`analysis/contracts.ts`·`messages/contracts.ts`)과 실제 호출(`provider.ts`)에서 새 값으로 바꿈. 감시 AI 단가표(`BNC_AUTO_MESSAGE_PRICES`)에 옛 모델이 있으면 그 단가는 선택지에서 빠짐(잘못 호출하지 않고 멈춤).
+> - **시험**: 단위 351 통과(새 `v115-retention-models.test.mjs` 3), 새 DB 시험 `npm run test:retention-exempt-database` 6 통과(실제 Postgres에 전체 마이그레이션 순서 적용 → 기존 자료 변환·새 자료·짧은 기한 미변경·정리 12개 실행·보호 유지·회원 호출 거절).
+> - 남은 일: 맥미니 캡처 확인(시험 계정 작업 기록 「무기한 보관」), 요청서 §10(이웃별 소통 요약 1년·댓글 반복 비교값)은 개발 플랜 먼저.
 
 > [역할: blog] **v1.14 운영(2026-11-04, 커밋 `7796219b6` 기준 · 배포 `blog-neighbor-care-7g86hwk6k`):** 맥미니 요청서 [FIX_REQUEST_20261104](../../docs/FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md) 처리. 원인: 댓글 0개 글은 `ul.u_cbox_list`가 비어 크기 0 → 보이는 목록 0개로 걸러져 확인 단계에서 멈춤. 또 같은 이유로 「목록이 안 보이면 댓글 열기 버튼을 누름」이 이미 펼친 댓글 칸을 다시 닫을 수 있었음. 수정: `work-dom.mjs` `commentList()` — 보이는 목록이 있으면 그대로, 없으면 「숨김 아닌 목록이 정확히 1개 + 자식 요소 0개 + 댓글 입력 상자 1개가 보임」일 때만 빈 목록으로 인정(그 외는 그대로 멈춤). 열기 버튼도 같은 판정 사용. 확인 단계가 원인 코드(target/account/commentList/article)를 돌려주고 `work-bridge.mjs`가 원인별 문구로 보여 줌. 확장 안내 문구 「Edge」→「브라우저」. 시험 NR20·NR21 추가, 전체 348 통과·tsc·next build 통과. DB·ZIP v1.14 `check-extension-release` OK, 라이브 ZIP 해시 일치. **실제 네이버 화면 재시험은 맥미니 몫(남은 「검토 완료 · 실행 전」 작업 1회, AI 비용 없음).**
 > 남은 개선(미구현): 문장 생성 실패 원인(AI 오류/품질 탈락/저장 실패) 구분 — 지금은 `MESSAGE_UNCONFIRMED` 502 하나. `src/app/guide/page.tsx`의 「Edge」 문구. 이 프로그램 몫의 12월 모델 교체(묶음 B)·30일 보관 열외는 이번 배포에 넣지 않음(별도 작업).
