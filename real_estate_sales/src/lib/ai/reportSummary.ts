@@ -21,6 +21,12 @@ export function reportFactsText(title: string, subtitle: string | null, r: Repor
     r.building
       ? `건물: 사용승인 ${r.building.approvalDay ?? "-"}(약 ${r.building.ageYears ?? "-"}년 차), 용적률 ${r.building.floorAreaRatio ?? "-"}%, 건폐율 ${r.building.coverageRatio ?? "-"}%, 주차 ${r.building.parking ?? "-"}대, 세대 ${r.building.households ?? "-"}, 최고 ${r.building.topFloor ?? "-"}층`
       : "건물: 자료 없음",
+    ...(r.nonres
+      ? [
+          `상가·건물(최근 ${r.nonres.buildingMonths}개월): 같은 지번 거래 ${r.nonres.sameLot.length}건${r.nonres.sameLot[0] ? `(최근 ${won(r.nonres.sameLot[0].amount)}, ${r.nonres.sameLot[0].category})` : ""}, 같은 동 용도별 ${r.nonres.buildingGroups.slice(0, 4).map((g) => `${g.label} ${g.count}건 평당 ${g.median ? `${Math.round(g.median).toLocaleString("ko-KR")}만` : "표본 부족"}`).join(", ") || "없음"}`,
+          `토지(최근 ${r.nonres.landMonths}개월): ${r.nonres.landGroups.slice(0, 4).map((g) => `${g.label}(${g.scope}) ${g.count}건 평당 ${g.median ? `${Math.round(g.median).toLocaleString("ko-KR")}만` : "표본 부족"}`).join(", ") || "없음"}`,
+        ]
+      : []),
     `회원이 아는 호가: ${askingManwon ? won(askingManwon) : "입력 안 함"}`,
   ];
   return lines.join("\n");

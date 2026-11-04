@@ -8,6 +8,7 @@ import { buildAddressReport, type ReportInput } from "@/lib/realestate/reportDat
 import { ReportBody } from "@/components/report/ReportBody";
 import { SaveReportForm } from "@/components/report/ReportActions";
 import { RegistryCheck } from "@/components/report/RegistryCheck";
+import { jibunFromPnu } from "@/lib/realestate/nonres";
 import { OnsiteNotes } from "@/components/report/OnsiteNotes";
 
 export const dynamic = "force-dynamic";
@@ -36,18 +37,18 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
     const { data: l } = await db.from("real_estate_listings").select("id, pnu, sgg_cd, sgg_nm, stdg_nm, bldg_nm, property_type, exclusive_area, floor").eq("id", sp.listing).maybeSingle();
     if (l?.pnu && /^\d{19}$/.test(l.pnu)) {
       const type = (PROPERTY_TYPES as readonly string[]).includes(l.property_type) ? (l.property_type as PropertyType) : null;
-      input = { pnu: l.pnu, sggCd: l.sgg_cd, name: l.bldg_nm, dong: l.stdg_nm, area: l.exclusive_area, floor: l.floor, type };
+      input = { pnu: l.pnu, sggCd: l.sgg_cd, name: l.bldg_nm, dong: l.stdg_nm, area: l.exclusive_area, floor: l.floor, type, addressText: `${l.sgg_nm ?? ""} ${l.stdg_nm ?? ""} ${jibunFromPnu(l.pnu)}`.trim() };
       title = l.bldg_nm || "이름 없는 건물";
       subtitle = `${l.sgg_nm ?? ""} ${l.stdg_nm ?? ""} · ${l.property_type ?? ""}${l.exclusive_area ? ` · 전용 ${l.exclusive_area}㎡ 기준` : ""}`;
       backHref = `/listings/${l.id}`;
       sourceId = String(l.id);
     }
   } else if (sp.onsite) {
-    const { data: o } = await db.from("real_estate_onsite_properties").select("id, pnu, sgg_cd, admin_dong, address, kind").eq("id", sp.onsite).eq("user_id", user.id).maybeSingle();
+    const { data: o } = await db.from("real_estate_onsite_properties").select("id, pnu, sgg_cd, admin_dong, address, kind, lat, lon").eq("id", sp.onsite).eq("user_id", user.id).maybeSingle();
     if (o?.pnu && /^\d{19}$/.test(o.pnu)) {
       const mapped = o.kind ? ONSITE_TYPE[o.kind] : null;
       nonResidential = mapped === "비주거";
-      input = { pnu: o.pnu, sggCd: o.pnu.slice(0, 5), type: mapped && mapped !== "비주거" ? mapped : null };
+      input = { pnu: o.pnu, sggCd: o.pnu.slice(0, 5), type: mapped && mapped !== "비주거" ? mapped : null, point: o.lat && o.lon ? { x: Number(o.lon), y: Number(o.lat) } : null };
       title = o.address || [findDistrict(o.pnu.slice(0, 5))?.sgg_nm, o.admin_dong].filter(Boolean).join(" ") || "임장 기록";
       subtitle = `임장 노트${o.kind ? ` · ${o.kind}` : ""}`;
       backHref = `/onsite/${o.id}`;
@@ -89,7 +90,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
   }
 
   const keys = await resolveMemberPublicDataKeys(supabase, user.id);
-  const r = await buildAddressReport(nonResidential ? { ...input, type: null } : input, keys);
+  const r = await buildAddressReport({ ...input, type: nonResidential ? null : input.type, nonResidential }, keys);
   // 저장본에는 거래 목록(trades)을 빼고 숫자만(크기·개인정보 최소화)
   const { trades: _trades, ...snapshot } = r; // eslint-disable-line @typescript-eslint/no-unused-vars
   const assessedManwon = typeof r.assessedPrice === "number" ? r.assessedPrice / 10000 : null;

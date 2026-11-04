@@ -147,6 +147,18 @@ export async function fetchMolitServiceMonth(params: { keys?: PublicDataKeys; se
   return molitGet(params.service, key, params.sggCd, params.ymd, 1000);
 }
 
+/** RQ-B5(2026-11-05): 지번 주소 → 좌표(경도 x, 위도 y). 못 찾거나 실패하면 null(지도만 빠지고 리포트는 그대로) */
+export async function vworldGeocode(address: string, keys?: PublicDataKeys): Promise<{ x: number; y: number } | null> {
+  const { key, domain } = vworldAuthParams(keys);
+  const qs = new URLSearchParams({ service: "address", request: "getcoord", version: "2.0", crs: "epsg:4326", address, refine: "true", simple: "false", format: "json", type: "parcel", key, domain });
+  const res = await fetch(`https://api.vworld.kr/req/address?${qs}`, { cache: "no-store" });
+  if (!res.ok) return null;
+  const j = (await res.json().catch(() => null)) as { response?: { result?: { point?: { x?: string; y?: string } } } } | null;
+  const x = Number(j?.response?.result?.point?.x);
+  const y = Number(j?.response?.result?.point?.y);
+  return Number.isFinite(x) && Number.isFinite(y) && x && y ? { x, y } : null;
+}
+
 /** RQ-B5 사전 검증: 브이월드 요청 주소에 붙일 키·도메인(관리자 진단 전용, 값은 응답에 싣지 않음) */
 export function vworldAuthParams(keys?: PublicDataKeys): { key: string; domain: string } {
   return { key: keys?.vworld || requireEnv("VWORLD_API_KEY"), domain: keys?.vworldDomain || VWORLD_REGISTERED_DOMAIN };

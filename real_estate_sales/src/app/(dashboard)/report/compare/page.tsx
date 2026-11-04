@@ -22,6 +22,7 @@ const LINES: { label: string; value: (r: Row) => string }[] = [
   { label: "가장 최근 거래", value: (r) => formatWon(r.report.sale.latest?.amount) },
   { label: "전세 중간값", value: (r) => (r.report.jeonse.count ? formatWon(r.report.jeonse.median) : "-") },
   { label: "전세가율", value: (r) => (r.report.jeonseRatio !== null ? `${r.report.jeonseRatio}%` : "-") },
+  { label: "같은 지번 상가 거래", value: (r) => (r.report.nonres ? `${r.report.nonres.sameLot.length}건` : "-") },
   { label: "공시가격", value: (r) => (r.report.assessedPrice === "대상 아님" ? "대상 아님" : r.report.assessedPrice ? formatWon(r.report.assessedPrice / 10000) : "-") },
   { label: "내 호가", value: (r) => (r.asking_price ? formatWon(r.asking_price) : "-") },
   { label: "호가 − 매매 중간값", value: (r) => (r.asking_price ? pct(diffPct(r.asking_price, r.report.sale.median)) : "-") },
