@@ -53,3 +53,11 @@
 - 웹 「작업 대기·결과 기록」: `댓글 · buylifeacademy · 성공 확인`(글 223406907419). 팝업은 「검토 완료된 실행 대상이 없습니다」(작업 소진). 다시 실행하지 않음
 - 공감·댓글 모두 실물 시험 통과. 요청함 결과 `d64f4347`
 - 참고: 시험 계정 기록에 「자료 보관 기한 2026-11-26」이 보임 — 30일 열외가 이 프로그램에 아직 미적용(개선 원장에 기록된 남은 일과 같음)
+
+## 9. 추가 요청 — 30일 보관 열외 적용 (2026-11-04 주인님 결정, **11-26 전**)
+- 주인님(채팅): 「블로그랑 똑같은데? 단 관리자 계정과 테스트 계정은 열외가 되어야지」 → **보관 기간 연장 지정은 하지 않음.** 일반 회원은 다른 블로그 프로그램과 같이 30일, `profiles.retention_exempt = true`(관리자·시험 계정)만 열외
+- 지금 상태: 시험 계정 작업 기록에 「자료 보관 기한 2026-11-26」 표시 → 그날부터 오늘 시험 기록(공감·댓글 문장 등)이 정리되기 시작함
+- 고칠 곳(코드로 확인): `src/lib/cleanup.ts`가 매일 03:20 부르는 정리 RPC 12개(`bnc_message_dispatch`·`bnc_reader_dispatch`·`bnc_analysis_dispatch`·`bnc_neighbor_import_dispatch`·`bnc_work_cleanup`·`bnc_execution_result_dispatch`·`bnc_engagement_cleanup`·`bnc_extension_context_cleanup`·`bnc_extension_execution_cleanup`·`bnc_accept_cleanup`·`bnc_post_cleanup`·`bnc_monitor_dispatch`)에서 열외 회원 제외. 화면의 30일 조회 숨김·「보관 기한」 표시도 열외 회원은 「무기한 보관」으로
+- 기준: [`docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md`](PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md) (코드에 이메일 적지 않음, 회원 격리·RLS 그대로)
+- 12월 모델 교체(묶음 B)와 같은 배포에 넣으면 빌드 1회로 끝남. 빌드는 주인님 승인 먼저
+- 이번 요청은 맥미니가 기록만 했고 코드는 건드리지 않음
