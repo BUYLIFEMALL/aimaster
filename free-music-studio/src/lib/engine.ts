@@ -441,7 +441,12 @@ export type MusicEngineInfo = {
   /** 회원 본인 Hugging Face 토큰이 있어야 모델을 받음 */
   hfToken?: boolean;
   gatedUrl?: string;
+  /** 한국어 가사를 못 부름(LeVo 2: 마스터PC 실물 — 한글 대신 영어 단어만 반복) */
+  noKorean?: boolean;
 };
+
+/** 가사에 한글이 들어 있는가 */
+export const hasHangul = (s: string) => /[가-힣]/.test(s);
 
 /** 엔진 목록(엔진 쪽 engine/src/pyengines-catalog.json·yue2와 같은 분류) */
 export const MUSIC_ENGINES: MusicEngineInfo[] = [
@@ -473,7 +478,8 @@ export const MUSIC_ENGINES: MusicEngineInfo[] = [
     name: "LeVo 2",
     license: "noncommercial",
     kind: "vocal",
-    desc: "자연스러운 노래로 평가받는 모델. 중국어·영어 중심. 학술·연구·교육 목적만.",
+    desc: "중국어·영어 노래 전용(한국어 가사는 부르지 못합니다). 학술·연구·교육 목적만.",
+    noKorean: true,
     terms: "LeVo 2(SongGeneration) 라이선스는 학술·연구·교육 목적만 허용하고 어떤 상업·제작 용도도 금지합니다. 판매·수익 영상·납품에 쓸 수 없습니다.",
     firstGb: 33,
   },

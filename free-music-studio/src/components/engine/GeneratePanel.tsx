@@ -12,6 +12,7 @@ import {
   availableEngines,
   consentKey,
   engineInfo,
+  hasHangul,
   fetchHfToken,
   LICENSE_LABEL,
   MUSIC_ENGINES,
@@ -98,7 +99,9 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
   useEffect(() => {
     if (picked.hfToken && hfToken === undefined) void fetchHfToken().then(setHfToken);
   }, [picked.hfToken, hfToken]);
-  const canQueue = queueMode && !queueing && !!(song.style_prompt.trim() || song.lyrics.trim()) && consent;
+  // 한국어를 못 부르는 엔진(LeVo 2)에 한글 가사 — 12분 들여 영어 단어만 반복되는 곡이 나오므로 넣지 않는다
+  const koreanBlocked = !!picked.noKorean && hasHangul(song.lyrics);
+  const canQueue = queueMode && !queueing && !!(song.style_prompt.trim() || song.lyrics.trim()) && consent && !koreanBlocked;
   const [queued, setQueued] = useState(0);
 
   const addToQueue = async () => {
@@ -250,6 +253,9 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           })}
           {picked.kind === "instrumental" && song.lyrics.trim() && (
             <p className="rounded-lg border border-sky-500/30 bg-sky-500/5 p-2.5 text-[11px] leading-relaxed text-sky-100/90">🎹 {picked.name}은(는) 노래 없는 연주곡 엔진입니다. 가사는 쓰지 않고 스타일 설명으로만 만듭니다.</p>
+          )}
+          {koreanBlocked && (
+            <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2.5 text-[11px] leading-relaxed text-rose-100">⚠ {picked.name}은(는) 한국어 가사를 부르지 못합니다(한글 대신 영어 단어만 반복됩니다). 한국어 노래는 HeartMuLa·ACE-Step·YuE2를 골라 주세요. 중국어·영어 가사로 바꾸면 넣을 수 있습니다.</p>
           )}
           {picked.id !== "acestep" && (
             <p className="text-[11px] leading-relaxed text-slate-400">

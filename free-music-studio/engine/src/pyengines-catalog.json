@@ -59,7 +59,7 @@
       "kind": "vocal",
       "license": "noncommercial",
       "licenseName": "SongGeneration License(학술·연구·교육용)",
-      "note": "노래 만들기 · 개인용(학술·연구·교육 목적만, 상업·제작 사용 금지) · 중국어·영어 중심",
+      "note": "노래 만들기 · 개인용(학술·연구·교육 목적만, 상업·제작 사용 금지) · 중국어·영어 전용(한국어 가사 불가 — 2026-11-04 마스터PC 실물: 한글 대신 영어 단어만 반복)",
       "minVramGb": 12,
       "maxSec": 270,
       "python": "3.10",
