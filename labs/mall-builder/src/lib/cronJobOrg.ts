@@ -5,7 +5,7 @@
 import { CHECK_MINUTES } from "./depositScheduler.ts";
 
 const API_BASE = "https://api.cron-job.org";
-export const CRON_JOB_TITLE = "AI 쇼핑몰 빌더 입금 기한 확인";
+export const CRON_JOB_TITLE = "AI 쇼핑몰 빌더 자동 작업(입금 기한·주문 알림)";
 
 type Fetch = typeof fetch;
 
@@ -29,7 +29,8 @@ async function call<T>(f: Fetch, apiKey: string, method: "GET" | "PUT" | "PATCH"
   return (text ? JSON.parse(text) : {}) as T;
 }
 
-export function jobBody(url: string, bearerToken: string, enabled: boolean) {
+/** minutes: 기본 10분마다, 주문 알림이 켜져 있으면 [-1](1분마다) */
+export function jobBody(url: string, bearerToken: string, enabled: boolean, minutes: number[] = CHECK_MINUTES) {
   return {
     job: {
       url,
@@ -38,7 +39,7 @@ export function jobBody(url: string, bearerToken: string, enabled: boolean) {
       saveResponses: false,
       requestMethod: 0,
       requestTimeout: 30,
-      schedule: { timezone: "Asia/Seoul", expiresAt: 0, hours: [-1], mdays: [-1], minutes: CHECK_MINUTES, months: [-1], wdays: [-1] },
+      schedule: { timezone: "Asia/Seoul", expiresAt: 0, hours: [-1], mdays: [-1], minutes, months: [-1], wdays: [-1] },
       extendedData: { headers: { Authorization: `Bearer ${bearerToken}` } },
     },
   };
@@ -50,13 +51,13 @@ export async function findJob(apiKey: string, url: string, f: Fetch = fetch): Pr
 }
 
 /** 같은 주소의 작업이 있으면 덮어쓰고(새 토큰·켜짐), 없으면 새로 만든다 → 작업 번호 */
-export async function upsertJob(apiKey: string, url: string, bearerToken: string, f: Fetch = fetch): Promise<number> {
+export async function upsertJob(apiKey: string, url: string, bearerToken: string, f: Fetch = fetch, minutes: number[] = CHECK_MINUTES): Promise<number> {
   const existing = await findJob(apiKey, url, f);
   if (existing) {
-    await call(f, apiKey, "PATCH", `/jobs/${existing.jobId}`, jobBody(url, bearerToken, true));
+    await call(f, apiKey, "PATCH", `/jobs/${existing.jobId}`, jobBody(url, bearerToken, true, minutes));
     return existing.jobId;
   }
-  const { jobId } = await call<{ jobId: number }>(f, apiKey, "PUT", "/jobs", jobBody(url, bearerToken, true));
+  const { jobId } = await call<{ jobId: number }>(f, apiKey, "PUT", "/jobs", jobBody(url, bearerToken, true, minutes));
   return jobId;
 }
 

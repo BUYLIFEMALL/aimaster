@@ -9,6 +9,7 @@ import OrderStatusButtons from "@/app/order-status-buttons";
 import { TAX_INVOICE_LABEL } from "@/lib/taxInvoice";
 import { markTaxInvoiceIssuedAction } from "@/lib/tax-invoice-actions";
 import { AdminShell, NoPermission } from "../../admin-shell";
+import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -30,6 +31,7 @@ export default async function AdminOrderDetailPage({
   const found = await getOrder(store.id, id);
   if (!found) notFound();
   const { order, items, events } = found;
+  const notifyLog = await loadNotifyLog(store.id, order.id);
   const r = order.receiver;
   const here = `/s/${store.slug}/admin/orders/${order.id}`;
 
@@ -124,6 +126,11 @@ export default async function AdminOrderDetailPage({
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="mt-6 text-sm">
+        <p className="mb-2 font-medium">문자 알림</p>
+        <NotifyLog rows={notifyLog} empty="이 주문으로 보낸 알림이 없습니다." />
       </section>
     </AdminShell>
   );

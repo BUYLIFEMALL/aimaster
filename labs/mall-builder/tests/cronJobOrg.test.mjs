@@ -53,6 +53,12 @@ test("키가 틀리면 알아볼 수 있는 한국어 오류", async () => {
   await assert.rejects(findJob("k", URL_A, t.f), /하루 호출 한도/);
 });
 
+test("주문 알림이 켜지면 1분마다(minutes [-1])", async () => {
+  const { f, calls } = fakeFetch([]);
+  await upsertJob("key1", URL_A, "mbd_tok", f, [-1]);
+  assert.deepEqual(calls[1].body.job.schedule.minutes, [-1]);
+});
+
 test("작업 내용에 사이트 비밀값이 들어가지 않음", () => {
   const body = JSON.stringify(jobBody(URL_A, "mbd_x", true));
   assert.ok(!/CRON_SECRET|service_role|SUPABASE/i.test(body));

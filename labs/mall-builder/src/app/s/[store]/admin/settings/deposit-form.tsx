@@ -35,7 +35,7 @@ export default function DepositForm({ slug, status }: { slug: string; status: De
     <fieldset className="rounded-lg border p-4" data-deposit-auto-cancel>
       <legend className="px-1 text-sm font-semibold">입금 기한 자동 취소</legend>
       <p className="text-sm text-gray-600">
-        무통장 주문이 정한 시간 안에 입금되지 않으면 자동으로 취소하고 재고를 되돌립니다. 확인은 운영자님 본인 cron-job.org 무료 계정이 10분마다 합니다.
+        무통장 주문이 정한 시간 안에 입금되지 않으면 자동으로 취소하고 재고를 되돌립니다. 확인은 운영자님 본인 cron-job.org 무료 계정이 10분마다(주문 알림을 켜면 1분마다) 합니다.
       </p>
       <p className="mt-2 text-sm" data-deposit-status>
         상태 <b>{label}</b>
@@ -54,14 +54,14 @@ export default function DepositForm({ slug, status }: { slug: string; status: De
         </label>
         {status.hasKey && (
           <label className="flex items-center gap-2 text-sm sm:col-span-2">
-            <input type="checkbox" name="remove_key" /> 등록한 키 지우기(자동 취소도 멈춥니다)
+            <input type="checkbox" name="remove_key" /> 등록한 키 지우기(자동 취소·주문 알림이 모두 멈춥니다)
           </label>
         )}
         <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
           <button disabled={pending} className="min-h-11 rounded bg-gray-900 px-5 py-2 text-white disabled:opacity-50">
             {pending ? "저장 중…" : "자동 취소 저장"}
           </button>
-          {running && (
+          {status.linked && (
             <button type="button" onClick={togglePause} disabled={pausing} className="min-h-11 rounded border px-5 py-2 disabled:opacity-50">
               {pausing ? "바꾸는 중…" : status.paused ? "다시 켜기" : "일시정지"}
             </button>
