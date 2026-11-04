@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { KpiCard, KpiGrid } from "@/components/ui/KpiCard";
 import { PageHero } from "@/components/ui/PageHero";
 import { TradeTabs } from "@/components/trades/TradeTabs";
-import { formatManwon, kindLabel, normalizePrefs, BUILDING_USES, JIMOKS } from "@/lib/trades/prefs";
+import { formatManwon, kindLabel, normalizePrefs, BUILDING_USES, FACTORY_USES, JIMOKS } from "@/lib/trades/prefs";
 import { applyTradeFilter } from "@/lib/trades/query";
 
 const PAGE_SIZE = 50;
@@ -103,7 +103,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
       </div>
       <form className="mx-card my-4 grid gap-2 p-4 sm:grid-cols-2 lg:grid-cols-6" method="get">
         <select name="kind" defaultValue={filter.kind} aria-label="종류" className="mx-input min-h-[40px] py-2 text-sm">
-          <option value="">상가·건물 + 토지</option>
+          <option value="">모든 종류</option>
           <option value="building">상가·건물</option>
           <option value="land">토지</option>
           <option value="factory">공장·창고</option>
@@ -118,7 +118,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
         </select>
         <select name="category" defaultValue={filter.category} aria-label="분류" className="mx-input min-h-[40px] py-2 text-sm">
           <option value="">모든 분류</option>
-          {[...BUILDING_USES, ...JIMOKS.filter((j) => j !== "기타")].map((c) => (
+          {[...BUILDING_USES, ...FACTORY_USES, ...JIMOKS.filter((j) => j !== "기타")].map((c) => (
             <option key={c} value={c}>
               {c}
             </option>

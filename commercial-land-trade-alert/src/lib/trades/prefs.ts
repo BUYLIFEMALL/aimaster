@@ -26,6 +26,8 @@ export const DEFAULT_PREFS: Prefs = {
 };
 
 export const BUILDING_USES = ["제1종근린생활", "제2종근린생활", "판매", "업무", "숙박", "교육연구", "기타"];
+// 공장·창고(InduTrade) 용도 — 2026-11-04 고양 일산동구·부산 사상구 첫 수집에서 실제로 나온 값
+export const FACTORY_USES = ["공장", "창고시설", "자동차 관련시설"];
 export const JIMOKS = ["대", "전", "답", "임야", "잡종지", "공장용지", "과수원", "창고용지", "주차장", "도로", "구거", "하천", "제방", "유지", "염전", "목장용지", "기타"];
 
 export function normalizePrefs(row: Partial<Prefs> | null | undefined): Prefs {
