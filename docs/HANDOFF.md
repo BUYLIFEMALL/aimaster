@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-05 🟠 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`naver-cafe-recruit` 네이버 카페 화면 실물 확인 완료(윈도우 요청 응답) — 윈도우 blog 세션 필독**
+- 결과 [`naver-cafe-recruit/docs/DOM_CHECK_20261105.md`](../naver-cafe-recruit/docs/DOM_CHECK_20261105.md) + 캡처 6장(커밋 `cf21c5363`). ego·읽기만(초대하기·쪽지·채팅 안 누름), 작업 공간 닫음.
+- **핵심: 회원 화면 어디에도 작성자 네이버 아이디가 없음**(글 목록=닉네임+등급, 닉네임 메뉴=게시글 보기·1:1 채팅·쪽지·차단, 본문=닉네임·등급·암호화 회원 번호) → **모드 A(활동 회원 → 아이디 초대)는 회원 화면 정보로 불가, 주인님 재결정 대기**(추천 A-1: 명단만 모으기 + 초대링크·QR을 모드 C 홍보 글에 넣기). 확장의 모드 A 수집 부분은 결정 전까지 만들지 말 것.
+- 바로 쓸 정보: 초대 화면 = 초대링크·QR·아이디 3방식(`CafeInviteCheck.nhn?m=check&clubid=` → `CafeInvite.nhn?m=view`), 아이디 칸 `input.layer_input._naverIdList`, 「내소식으로 초대알림」·「한 달 최대 300명」·정보통신망법 경고 문구 · 카페 번호는 내 카페 목록 「내가 쓴 글 보기」 링크에서 · 게시판은 `menuLink<번호>`(외부 링크 메뉴 섞임) · 새/옛 카페 구조 혼재. 성공·제한 문구는 모드 B 첫 실물 시험 때 기록.
+
 ## 2026-11-05 🟡 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` 착수: 운영 DB 적용 + 웹 뼈대 v1.01(미배포) — 맥미니 실물 확인 요청**
 - 지시 `naver-cafe-recruit/docs/INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` 1~3단계 중 **DB·뼈대·웹 서버·화면 완료**. DB 초안 검토로 5가지 보완(한국 날짜 상한·초대 전 `next_target`·보냄 기록 보호·전체 매일 정리 `ncr_cleanup`·입력 제한, 상한 최대 25) → 격리 DB 시험 8 통과 → 운영 적용(표 3·RLS·함수 2, 회원 직접 실행 불가, `settings_get` 기본 20 확인).
 - 웹: `naver-cafe-poster`에서 로그인·틀·메뉴·공용 UI만 복사, 권한 판정은 서비스 키로(공통 순서), `/api/recruit`·`/api/cron/cleanup`, 화면 5개(오늘·설정 3방식+A 책임 고지·모으기/한 번에 승인·결과+엑셀·가이드). 단위 시험 4, 로컬 빌드 통과. `programs` **비공개** 등록(`is_active=false`, v1.01, `app_url`)·요금제 3단계. 마케팅 수집 지정 목록에 한 줄 추가.
