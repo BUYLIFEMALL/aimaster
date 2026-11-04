@@ -4,7 +4,7 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { LyricError, planInstrumentals } from "@/lib/ai/lyrics";
 import { LYRIC_PROVIDERS, toLyricModel, toLyricProvider } from "@/lib/lyricModels";
 import { PLAN_MAX, cleanBannedWords } from "@/lib/lyricRules";
-import { DEFAULT_DURATION, DURATIONS, LIMITS } from "@/lib/songs";
+import { DEFAULT_DURATION, MUSIC_DURATIONS as DURATIONS, LIMITS } from "@/lib/songs";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";

@@ -141,6 +141,11 @@ test("작업 내용: 엔진별 칸, 길이는 엔진 최대까지", () => {
   const j = buildPyJob(sa, job, { p: pyPaths("C:/d", sa), out: "o.wav", vramGb: 16 });
   assert.equal(j.durationSec, 380);
   assert.equal(j.style, "Lo-fi, chill");
+  assert.equal(j.sfx, false);
+  // 효과음([SFX])은 3초도 그대로, 곡은 10초 아래면 10초로
+  const fx = buildPyJob(sa, { track: { ...job.track, lyrics: "[SFX]", duration_sec: 3 } }, { p: pyPaths("C:/d", sa), out: "o.wav", vramGb: 16 });
+  assert.deepEqual({ sfx: fx.sfx, durationSec: fx.durationSec }, { sfx: true, durationSec: 3 });
+  assert.equal(buildPyJob(sa, { track: { ...job.track, duration_sec: 3 } }, { p: pyPaths("C:/d", sa), out: "o.wav", vramGb: 16 }).durationSec, 10);
   const lv = pyEngine("levo2");
   const k = buildPyJob(lv, job, { p: pyPaths("C:/d", lv), out: "o.flac", vramGb: 16 });
   assert.equal(k.bgm, true);

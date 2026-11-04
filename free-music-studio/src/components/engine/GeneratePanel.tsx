@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Cpu, Loader2, AlertCircle, Wand2, ListPlus, CheckCircle2 } from "lucide-react";
 import { useEngine } from "./useEngine";
 import { DownloadButtons } from "./DownloadButtons";
+import { isSfxLyrics } from "@/lib/songs";
 import {
   EngineError,
   enqueueSong,
@@ -69,11 +70,15 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
   const [round, setRound] = useState(0);
   const [queueing, setQueueing] = useState(false);
 
-  const canStart = ready && !busy && !round && (song.style_prompt.trim() || song.lyrics.trim());
+  // 효과음([SFX])은 Stable Audio 3만 만든다(2026-11-05) — ACE-Step 바로 만들기도 막음
+  const sfxMode = isSfxLyrics(song.lyrics);
+  const canStart = ready && !busy && !round && !sfxMode && (song.style_prompt.trim() || song.lyrics.trim());
   // 엔진 0.1.6+: 엔진 대기열에 넣는다(탭을 닫아도 계속 만들고, 엔진이 준비 중이어도 넣어 둘 수 있음)
   const queueMode = paired && hasQueue(status);
   // 엔진 0.2.0+: 음악 엔진 고르기 — v1.12(엔진 0.4.0)부터 「상업용」·「개인용」 두 묶음, 개인용은 엔진마다 처음 쓸 때 동의
-  const engines = queueMode ? availableEngines(status) : [];
+  const allEngines = queueMode ? availableEngines(status) : [];
+  const engines = sfxMode ? allEngines.filter((e) => e.id === "stableaudio3") : allEngines;
+  const sfxBlocked = sfxMode && !engines.length;
   const [musicEngine, setMusicEngine] = useState<MusicEngineId>("acestep");
   const [consents, setConsents] = useState<Partial<Record<MusicEngineId, boolean>>>({});
   useEffect(() => {
@@ -83,7 +88,7 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
     } catch {}
     setConsents(next);
   }, []);
-  const engineToUse: MusicEngineId = engines.some((e) => e.id === musicEngine) ? musicEngine : "acestep";
+  const engineToUse: MusicEngineId = engines.some((e) => e.id === musicEngine) ? musicEngine : sfxMode && engines[0] ? engines[0].id : "acestep";
   const picked = engineInfo(engineToUse);
   const consent = picked.license === "commercial" || !!consents[engineToUse];
   const agree = (v: boolean) => {
@@ -98,7 +103,9 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
   useEffect(() => {
     if (picked.hfToken && hfToken === undefined) void fetchHfToken().then(setHfToken);
   }, [picked.hfToken, hfToken]);
-  const canQueue = queueMode && !queueing && !!(song.style_prompt.trim() || song.lyrics.trim()) && consent;
+  const canQueue = queueMode && !queueing && !!(song.style_prompt.trim() || song.lyrics.trim()) && consent && !sfxBlocked;
+  // Stable Audio 3는 영어 설명으로만 학습됨(모델 카드) — 한글 설명이면 알린다
+  const koreanStyle = picked.id === "stableaudio3" && /[가-힣]/.test(song.style_prompt);
   const [queued, setQueued] = useState(0);
 
   const addToQueue = async () => {
@@ -211,7 +218,16 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
         </p>
       )}
 
-      {engines.length > 1 && (
+      {sfxBlocked && queueMode && (
+        <p className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-2.5 text-[11px] leading-relaxed text-rose-100/90">
+          🔊 효과음은 <b>Stable Audio 3</b> 엔진에서만 만들 수 있습니다. 이 PC 엔진에서 아직 고를 수 없습니다 —{" "}
+          <Link href="/engine" className="font-semibold underline underline-offset-2">
+            내 PC 엔진
+          </Link>
+          에서 「사용할 엔진」을 확인해 주세요(엔진 0.6.6 이상, NVIDIA 그래픽카드 필요).
+        </p>
+      )}
+      {(engines.length > 1 || (sfxMode && engines.length > 0)) && (
         <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/50 p-3">
           <p className="text-[11px] font-semibold text-slate-300">🎛️ 음악 엔진</p>
           {(
@@ -248,7 +264,12 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
               </div>
             );
           })}
-          {picked.kind === "instrumental" && song.lyrics.trim() && (
+          {koreanStyle && (
+            <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5 text-[11px] leading-relaxed text-amber-100/90">
+              🔤 {picked.name}은(는) 영어 설명으로 학습된 모델이라 한글 설명은 결과가 나빠질 수 있습니다. 설명을 영어로 바꿔 주세요{sfxMode ? "" : "(연주곡은 위 「AI 작곡 기획」이 한국어 주제를 영어 스타일로 만들어 줍니다)"}.
+            </p>
+          )}
+          {picked.kind === "instrumental" && song.lyrics.trim() && !sfxMode && (
             <p className="rounded-lg border border-sky-500/30 bg-sky-500/5 p-2.5 text-[11px] leading-relaxed text-sky-100/90">🎹 {picked.name}은(는) 노래 없는 연주곡 엔진입니다. 가사는 쓰지 않고 스타일 설명으로만 만듭니다.</p>
           )}
           {picked.korean === "untested" && (

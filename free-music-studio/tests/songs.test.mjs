@@ -24,6 +24,13 @@ test("목록에 없는 길이는 거절, 길이를 안 보내면 기본값", () 
   assert.equal(parseSongInput(rest).value.duration_sec, DEFAULT_DURATION);
 });
 
+test("효과음([SFX])은 3~30초 목록, 곡은 30초부터(2026-11-05)", () => {
+  const fx = { ...ok, lyrics: "[SFX]", style_prompt: "door slam" };
+  assert.equal(parseSongInput({ ...fx, duration_sec: 3 }).ok, true);
+  assert.equal(parseSongInput({ ...fx, duration_sec: 60 }).ok, false);
+  assert.equal(parseSongInput({ ...ok, duration_sec: 5 }).ok, false);
+});
+
 test("가사 글자 수 한도를 넘으면 거절", () => {
   assert.equal(parseSongInput({ ...ok, lyrics: "가".repeat(LIMITS.lyrics + 1) }).ok, false);
 });

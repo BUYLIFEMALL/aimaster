@@ -1,6 +1,6 @@
 # Stable Audio 3 Medium(Stability AI Community License) 연주곡 만들기 — 원본 stable-audio-3 77e0398 StableAudioModel.generate.
 # 사용: python run_stableaudio3.py <job.json>
-# job.json: {"style", "durationSec", "seed", "out"} — 모델은 HF_HOME 보관 폴더에서 읽는다(엔진이 먼저 받아 둠).
+# job.json: {"style", "durationSec", "seed", "out", "sfx"} — 모델은 HF_HOME 보관 폴더에서 읽는다(엔진이 먼저 받아 둠).
 # Flash Attention이 없으면 원본이 스스로 SDPA로 계산한다(윈도우).
 import json
 import math
@@ -20,8 +20,13 @@ def main():
     with open(sys.argv[1], encoding="utf-8") as fp:
         job = json.load(fp)
     seed = int(job.get("seed") or 0) or torch.seed() % (2**31)
-    duration = float(min(max(float(job.get("durationSec") or 120), 10), 380))
-    prompt = str(job.get("style") or "").strip() or "Instrumental music"
+    sfx = bool(job.get("sfx"))
+    duration = float(min(max(float(job.get("durationSec") or 120), 1 if sfx else 10), 380))
+    prompt = str(job.get("style") or "").strip() or ("Sound effect" if sfx else "Instrumental music")
+    # 공식 작성 안내서(docs/guides/prompting.md, 77e0398) 권장 앞머리 — 효과음 「TrackType: SFX」, 연주곡 「TrackType: Music, VocalType: Instrumental」
+    # (기술 보고서: 품질을 크게 올림). 회원이 이미 TrackType을 썼으면 그대로 둔다.
+    if "tracktype" not in prompt.lower():
+        prompt = ("TrackType: SFX, " if sfx else "TrackType: Music, VocalType: Instrumental, ") + prompt
 
     stage("Stable Audio 3 · 모델 올리는 중")
     model = StableAudioModel.from_pretrained("medium")

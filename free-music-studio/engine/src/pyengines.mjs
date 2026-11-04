@@ -156,7 +156,10 @@ export function buildPyJob(engine, job, { p, out, vramGb }) {
     const bgm = !lyrics || /^\[instrumental\]$/i.test(lyrics);
     return { ...base, gtLyric: levoLyric(lyrics), descriptions: levoDescriptions(t.style_prompt), bgm, srcDir: p.src, modelDir: weightsPlan(engine, p)[1].dir };
   }
-  const durationSec = Math.min(Math.max(Number(t.duration_sec) || 120, 10), engine.maxSec);
+  // 효과음(가사 칸 [SFX], 2026-11-05)은 3~30초라 1초까지 허용한다 — 곡은 지금처럼 10초부터
+  const sfx = /^\[sfx\]$/i.test(String(t.lyrics ?? "").trim());
+  const durationSec = Math.min(Math.max(Number(t.duration_sec) || 120, sfx ? 1 : 10), engine.maxSec);
+  if (engine.id === "stableaudio3") return { ...base, style: String(t.style_prompt ?? "").trim(), lyrics: "", durationSec, sfx };
   if (engine.id === "heartmula") return { ...base, style: heartTags(t.style_prompt), lyrics: t.lyrics ?? "", durationSec, modelDir: path.join(p.models, "ckpt") };
   if (engine.id === "minimax3") return { ...base, style: String(t.style_prompt ?? "").trim(), lyrics: String(t.lyrics ?? ""), durationSec, repo: engine.weights[0].repo, revision: engine.weights[0].revision };
   return { ...base, style: String(t.style_prompt ?? "").trim(), lyrics: "", durationSec };

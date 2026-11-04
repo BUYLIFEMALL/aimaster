@@ -6,6 +6,8 @@ import { LIMITS } from "./songs";
 /** ACE-Step은 가사 칸에 이 표기가 있으면 연주곡(보컬 없음)으로 만든다 */
 export const INSTRUMENTAL_LYRICS = "[Instrumental]";
 export const isInstrumentalLyrics = (lyrics: string) => lyrics.trim().toLowerCase() === INSTRUMENTAL_LYRICS.toLowerCase();
+/** 효과음 표시(Stable Audio 3 전용) — 엔진 pyengines.mjs buildPyJob과 같은 글자 */
+export const SFX_LYRICS = "[SFX]";
 
 export const BANNED_LIMIT = 30;
 export const PLAN_MAX = 10;

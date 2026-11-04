@@ -4,8 +4,16 @@
 export const SONGS_TABLE = "free_music_songs";
 
 // 목표 길이 — 2·3·4·5분(기본 3분, v1.08). 30초·1분은 CPU PC에서 빨리 들어 보는 용도.
-export const DURATIONS = [30, 60, 120, 180, 240, 300] as const;
+export const MUSIC_DURATIONS = [30, 60, 120, 180, 240, 300] as const;
+// 효과음(가사 칸 [SFX], Stable Audio 3 전용, 2026-11-05) — 공식 안내 「길이는 소리에 맞게」, 보고서 효과음 평가는 5초
+export const SFX_DURATIONS = [3, 5, 10, 15, 20, 30] as const;
+export const DEFAULT_SFX_DURATION = 5;
+/** 곡·효과음 길이 전체(결과 기록 검사용) */
+export const DURATIONS = [...SFX_DURATIONS.filter((d) => d < 30), ...MUSIC_DURATIONS] as const;
 export const DEFAULT_DURATION = 180;
+const SFX_MARK = "[sfx]";
+/** 가사 칸이 효과음 표시인가 */
+export const isSfxLyrics = (lyrics: string) => lyrics.trim().toLowerCase() === SFX_MARK;
 
 export const LIMITS = { title: 80, style: 400, lyrics: 4000 } as const;
 
@@ -25,7 +33,8 @@ export function parseSongInput(body: unknown): { ok: true; value: SongInput } | 
   if (title.length > LIMITS.title) return { ok: false, error: `곡 제목은 ${LIMITS.title}자까지 쓸 수 있습니다.` };
   if (style.length > LIMITS.style) return { ok: false, error: `스타일은 ${LIMITS.style}자까지 쓸 수 있습니다.` };
   if (lyrics.length > LIMITS.lyrics) return { ok: false, error: `가사는 ${LIMITS.lyrics}자까지 쓸 수 있습니다.` };
-  if (!(DURATIONS as readonly number[]).includes(duration)) return { ok: false, error: "곡 길이를 목록에서 골라 주세요." };
+  const allowed: readonly number[] = isSfxLyrics(lyrics) ? SFX_DURATIONS : MUSIC_DURATIONS;
+  if (!allowed.includes(duration)) return { ok: false, error: "곡 길이를 목록에서 골라 주세요." };
 
   return { ok: true, value: { title, style_prompt: style, lyrics, duration_sec: duration } };
 }

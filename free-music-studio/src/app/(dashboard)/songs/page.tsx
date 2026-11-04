@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2, Mic, Piano, Wand2, ListMusic, Download } from "lucide-react";
-import { DEFAULT_DURATION, DURATIONS, LIMITS, type Song } from "@/lib/songs";
+import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2, Mic, Piano, AudioLines, Wand2, ListMusic, Download } from "lucide-react";
+import { DEFAULT_DURATION, DEFAULT_SFX_DURATION, LIMITS, MUSIC_DURATIONS, SFX_DURATIONS, isSfxLyrics, type Song } from "@/lib/songs";
 import { DEFAULT_LYRIC_PROVIDER, LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
-import { INSTRUMENTAL_LYRICS, PLAN_MAX, isInstrumentalLyrics, parseBannedInput, type PlannedTrack } from "@/lib/lyricRules";
+import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseBannedInput, type PlannedTrack } from "@/lib/lyricRules";
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
 
@@ -21,12 +21,18 @@ const field =
 
 const durationLabel = (s: number) => (s < 60 ? `${s}초` : `${s / 60}분`);
 
+/** 곡 종류 — 노래 / 연주곡([Instrumental]) / 효과음([SFX], Stable Audio 3 전용, 2026-11-05) */
+type Mode = "vocal" | "instrumental" | "sfx";
+const modeOf = (lyrics: string): Mode => (isSfxLyrics(lyrics) ? "sfx" : isInstrumentalLyrics(lyrics) ? "instrumental" : "vocal");
+
 export default function SongsPage() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [exempt, setExempt] = useState(false);
   const [draft, setDraft] = useState<Draft>(EMPTY);
-  const [instrumental, setInstrumental] = useState(false);
+  const [mode, setMode] = useState<Mode>("vocal");
+  const instrumental = mode === "instrumental";
+  const sfx = mode === "sfx";
   const vocalLyrics = useRef("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string; needKey?: boolean } | null>(null);
@@ -99,21 +105,22 @@ export default function SongsPage() {
 
   const openDraft = (d: Draft) => {
     setDraft(d);
-    setInstrumental(isInstrumentalLyrics(d.lyrics));
-    vocalLyrics.current = isInstrumentalLyrics(d.lyrics) ? "" : d.lyrics;
+    setMode(modeOf(d.lyrics));
+    vocalLyrics.current = modeOf(d.lyrics) === "vocal" ? d.lyrics : "";
     setMessage(null);
   };
 
-  // 연주곡으로 바꾸면 가사 칸을 [Instrumental]로, 노래로 돌아오면 쓰던 가사를 되돌린다.
-  const changeMode = (inst: boolean) => {
-    if (inst === instrumental) return;
-    setInstrumental(inst);
+  // 연주곡·효과음으로 바꾸면 가사 칸을 표시 글자로, 노래로 돌아오면 쓰던 가사를 되돌린다. 길이는 그 종류의 목록 안으로 맞춘다.
+  const changeMode = (next: Mode) => {
+    if (next === mode) return;
+    const from = mode;
+    setMode(next);
     setDraft((d) => {
-      if (inst) {
-        vocalLyrics.current = d.lyrics;
-        return { ...d, lyrics: INSTRUMENTAL_LYRICS };
-      }
-      return { ...d, lyrics: vocalLyrics.current };
+      if (from === "vocal") vocalLyrics.current = d.lyrics;
+      const lyrics = next === "vocal" ? vocalLyrics.current : next === "sfx" ? SFX_LYRICS : INSTRUMENTAL_LYRICS;
+      const list: readonly number[] = next === "sfx" ? SFX_DURATIONS : MUSIC_DURATIONS;
+      const duration_sec = list.includes(d.duration_sec) ? d.duration_sec : next === "sfx" ? DEFAULT_SFX_DURATION : DEFAULT_DURATION;
+      return { ...d, lyrics, duration_sec };
     });
   };
 
@@ -296,7 +303,7 @@ export default function SongsPage() {
         <aside className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4">
           <button
             type="button"
-            onClick={() => openDraft({ ...EMPTY, lyrics: instrumental ? INSTRUMENTAL_LYRICS : "" })}
+            onClick={() => openDraft({ ...EMPTY, lyrics: sfx ? SFX_LYRICS : instrumental ? INSTRUMENTAL_LYRICS : "", duration_sec: sfx ? DEFAULT_SFX_DURATION : DEFAULT_DURATION })}
             className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-2.5 text-xs font-bold text-white hover:brightness-110"
           >
             <Plus className="h-4 w-4" /> 새 곡
@@ -337,18 +344,21 @@ export default function SongsPage() {
           {/* 노래 / 연주곡 */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="곡 종류">
-              {[
-                { inst: false, label: "노래", Icon: Mic },
-                { inst: true, label: "연주곡", Icon: Piano },
-              ].map(({ inst, label, Icon }) => (
+              {(
+                [
+                  { m: "vocal", label: "노래", Icon: Mic },
+                  { m: "instrumental", label: "연주곡", Icon: Piano },
+                  { m: "sfx", label: "효과음", Icon: AudioLines },
+                ] as const
+              ).map(({ m, label, Icon }) => (
                 <button
                   key={label}
                   type="button"
                   role="tab"
-                  aria-selected={instrumental === inst}
-                  onClick={() => changeMode(inst)}
+                  aria-selected={mode === m}
+                  onClick={() => changeMode(m)}
                   className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-bold transition-colors ${
-                    instrumental === inst ? "bg-emerald-600 text-white" : "text-slate-300 hover:bg-slate-800"
+                    mode === m ? "bg-emerald-600 text-white" : "text-slate-300 hover:bg-slate-800"
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" /> {label}
@@ -356,11 +366,16 @@ export default function SongsPage() {
               ))}
             </div>
             <p className="text-[11px] text-slate-400">
-              {instrumental ? "보컬 없이 악기만으로 만듭니다. AI 작곡 기획으로 곡마다 다른 제목·스타일을 한 번에 받을 수 있습니다." : "가사가 있는 노래를 만듭니다."}
+              {sfx
+                ? "박수·문소리·자연음 같은 짧은 효과음(3~30초)을 만듭니다. Stable Audio 3 엔진에서만 만들 수 있습니다."
+                : instrumental
+                  ? "보컬 없이 악기만으로 만듭니다. AI 작곡 기획으로 곡마다 다른 제목·스타일을 한 번에 받을 수 있습니다."
+                  : "가사가 있는 노래를 만듭니다."}
             </p>
           </div>
 
-          {/* AI 작사 / AI 작곡 기획 */}
+          {/* AI 작사 / AI 작곡 기획 — 효과음은 설명 한 줄이면 되어 숨김 */}
+          {!sfx && (
           <section className="space-y-3 rounded-2xl border border-teal-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
               <Sparkles className="h-4 w-4 text-teal-300" /> {instrumental ? "AI 작곡 기획" : "AI 작사"}{" "}
@@ -483,32 +498,39 @@ export default function SongsPage() {
               </div>
             )}
           </section>
+          )}
 
           {/* 곡 편집 */}
           <section className="space-y-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
             <div className="grid gap-2 sm:grid-cols-[1fr_140px]">
               <input className={field} value={draft.title} onChange={(e) => set("title", e.target.value)} placeholder="곡 제목" maxLength={LIMITS.title} />
               <select className={field} value={draft.duration_sec} onChange={(e) => set("duration_sec", Number(e.target.value))} aria-label="목표 길이">
-                {DURATIONS.map((d) => (
+                {(sfx ? SFX_DURATIONS : MUSIC_DURATIONS).map((d) => (
                   <option key={d} value={d}>
                     길이 {durationLabel(d)}
                   </option>
                 ))}
               </select>
             </div>
-            <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} />
+            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} />}
             <textarea
               className={`${field} min-h-[70px] font-mono text-xs`}
               value={draft.style_prompt}
               onChange={(e) => set("style_prompt", e.target.value)}
               placeholder={
-                instrumental
-                  ? "스타일(영어 태그) 예) instrumental, lo-fi jazz piano, soft brushed drums, upright bass, 80 BPM"
-                  : "스타일(영어 태그) 예) warm Korean city pop, soft electric piano, female vocal, 92 BPM"
+                sfx
+                  ? "어떤 소리인가요?(영어로) 예) A heavy wooden door slamming shut in a large empty hall, short reverb tail"
+                  : instrumental
+                    ? "스타일(영어 태그) 예) instrumental, lo-fi jazz piano, soft brushed drums, upright bass, 80 BPM"
+                    : "스타일(영어 태그) 예) warm Korean city pop, soft electric piano, female vocal, 92 BPM"
               }
               maxLength={LIMITS.style}
             />
-            {instrumental ? (
+            {sfx ? (
+              <p className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-[11px] leading-relaxed text-slate-400">
+                🔊 효과음은 <b className="text-slate-300">무엇이 · 어떻게 · 어디서</b> 나는 소리인지 영어로 적으면 잘 나옵니다(Stable Audio 3는 영어 설명으로 학습됨). 예) 소리 나는 물건, 세기·끝나는 모양(fast decay), 공간(small room, outdoor). 「TrackType: SFX」는 엔진이 알아서 붙입니다.
+              </p>
+            ) : instrumental ? (
               <p className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-[11px] leading-relaxed text-slate-400">
                 🎹 연주곡은 가사 없이 만듭니다(가사 칸에 <code className="text-slate-300">{INSTRUMENTAL_LYRICS}</code>로 저장). 악기·템포·분위기는 위 스타일 칸에 적어 주세요.
               </p>
