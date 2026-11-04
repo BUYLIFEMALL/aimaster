@@ -75,6 +75,19 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
 
   const saveIndex = () => writeFile(indexFile, JSON.stringify(index, null, 2));
   const saveSettings = () => writeFile(settingsFile, JSON.stringify({ libraryDir: dir }, null, 2));
+  /**
+   * 곡 파일 경로 — 기록된 자리에 없으면 지금 저장 폴더에서 같은 파일 이름을 찾아 기록을 고친다
+   * (회원이 탐색기로 곡을 저장 폴더로 옮긴 경우, 2026-11-04 마스터PC E:\AI-Musc → E:\AI-Musc\Song)
+   */
+  const resolve = async (id) => {
+    const p = index[id];
+    if (!p || (await exists(p))) return p ?? null;
+    const moved = path.join(dir, path.basename(p));
+    if (moved === p || !(await exists(moved))) return null;
+    index[id] = moved;
+    await saveIndex();
+    return moved;
+  };
 
   return {
     get dir() {
@@ -116,7 +129,7 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
     /** 파일이 실제로 있는 곡 번호만 */
     async list() {
       const ids = [];
-      for (const [id, p] of Object.entries(index)) if (isTrackId(id) && (await exists(p))) ids.push(id);
+      for (const id of Object.keys(index)) if (isTrackId(id) && (await resolve(id))) ids.push(id);
       return ids;
     },
 
@@ -124,10 +137,9 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
     pathOf(id) {
       return index[id] ?? null;
     },
-
     /** 파일이 있으면 { size, stream, ext }, 없으면 null */
     async open(id) {
-      const p = index[id];
+      const p = await resolve(id);
       if (!p) return null;
       try {
         const s = await stat(p);

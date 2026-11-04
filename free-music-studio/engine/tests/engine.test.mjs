@@ -45,7 +45,7 @@ test("폴더 고르기: 하위 폴더만·숨김 제외·이름 순, 새 폴더 
     await rm(base, { recursive: true, force: true });
   }
 });
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -109,6 +109,27 @@ test("보관함: 0.1.1 번호 파일을 읽고, 폴더를 바꾸며 제목 이�
     assert.equal(again.dir, target);
     assert.deepEqual(await again.list(), [old]);
     await assert.rejects(() => again.setDir("상대경로"));
+  } finally {
+    await rm(data, { recursive: true, force: true });
+  }
+});
+
+test("보관함: 탐색기로 저장 폴더에 옮긴 곡도 같은 파일 이름으로 찾아 기록을 고친다", async () => {
+  const data = await mkdtemp(path.join(tmpdir(), "fms-lib-"));
+  try {
+    const id = "6a2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
+    const root = path.join(data, "AI-Musc");
+    const lib = createLibrary(data, { defaultDir: root });
+    await lib.init();
+    await lib.save(id, Buffer.from("fLaC"), "가을 노래", "flac");
+    const song = path.join(root, "Song");
+    await mkdir(song, { recursive: true });
+    await rename(path.join(root, "가을 노래.flac"), path.join(song, "가을 노래.flac"));
+    assert.deepEqual(await lib.list(), []);
+    await lib.setDir(song);
+    assert.deepEqual(await lib.list(), [id]);
+    assert.equal(lib.pathOf(id), path.join(song, "가을 노래.flac"));
+    assert.equal((await lib.open(id))?.ext, "flac");
   } finally {
     await rm(data, { recursive: true, force: true });
   }
