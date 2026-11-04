@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ⏳ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — `blog-neighbor-care` 실제 시험: 공감 성공 · 댓글 실행 전 멈춤 → **윈도우 blog 세션 확장 수정 요청**
+- 공감 1건 성공(요청함 `9efcd252`). 댓글 1건은 확장 v1.13이 inspect 단계에서 「현재 작업 화면을 하나로 확인하지 못했습니다」로 2회 멈춤 — 댓글 등록 안 됨(확실), 요청함 `06f6a907`.
+- 원인(코드): 댓글 0개 글은 `commentList`(`.u_cbox_list`)가 비어 크기 0 → `work-dom.mjs` `one()`이 보이는 요소 0개로 fail.
+- **윈도우 blog 세션 할 일**: [`docs/FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md`](FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md) — 빈 목록 처리·오류 문구 원인별·시험 추가 → v1.14(빌드는 주인님 승인 먼저). 댓글 작업은 「검토 완료 · 실행 전」으로 남아 있어 수정 뒤 AI 비용 없이 재시험.
+- 켜 둔 것(주인님 지시 유지): 회원 실행 허용 켜짐, 기기 `5888b26d` 허용 공감·댓글·답방(기한 12-03). 비용: AI 2회(시험 계정 본인 키, 약 40~110원), 빌드 없음.
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.14 · 엔진 0.5.0 모델 저장 공간 관리
 - **지시**: 주인님 「다운로드 진행중 상태바」「사용안하는 모델 삭제기능과 관련 내용을 표시」「설치할 폴더를 사용자가 지정 — 여유있는 다른 드라이브에」 → 플랜 [`free-music-studio/docs/PLAN_20261104_MODEL_STORAGE.md`](../free-music-studio/docs/PLAN_20261104_MODEL_STORAGE.md) → 「진행해」(빌드 1회 승인).
 - **한 일**: 엔진 `storage.mjs`(무거운 것만 모델 저장 폴더, `/storage` 목록·지우기·옮기기, `.venv`는 새 자리에서 다시 만듦, 처음 폴더에서 옮기면 uv 보관함도 함께), 사이트 「모델 저장 공간」 상자·`FolderBrowser` 컴포넌트·받기 진행 막대·곡 만들기 「받는 곳」, 설치 파일 `customCheckAppRunning`(확인 창 없이 엔진 끄기)·연결된 PC는 새 버전 뒤 상태 창 대신 알림.
