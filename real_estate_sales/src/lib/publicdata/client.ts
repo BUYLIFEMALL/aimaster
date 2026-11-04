@@ -141,6 +141,17 @@ export async function fetchMolitTrades(params: {
   return rows.sort((a, b) => b.CTRT_DAY.localeCompare(a.CTRT_DAY));
 }
 
+/** RQ-B5(2026-11-05): 비주거 국토부 자료(NrgTrade·LandTrade·InduTrade) 한 달 원본 응답 — 서비스 이름으로 직접 부른다 */
+export async function fetchMolitServiceMonth(params: { keys?: PublicDataKeys; service: "NrgTrade" | "LandTrade" | "InduTrade"; sggCd: string; ymd: string }): Promise<unknown> {
+  const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
+  return molitGet(params.service, key, params.sggCd, params.ymd, 1000);
+}
+
+/** RQ-B5 사전 검증: 브이월드 요청 주소에 붙일 키·도메인(관리자 진단 전용, 값은 응답에 싣지 않음) */
+export function vworldAuthParams(keys?: PublicDataKeys): { key: string; domain: string } {
+  return { key: keys?.vworld || requireEnv("VWORLD_API_KEY"), domain: keys?.vworldDomain || VWORLD_REGISTERED_DOMAIN };
+}
+
 /** B1 주소 리포트(2026-11-03): 국토부 한 달·한 유형 원본 응답(매매 또는 전월세) */
 export async function fetchMolitMonth(params: { keys?: PublicDataKeys; type: PropertyType; deal: "trade" | "rent"; sggCd: string; ymd: string }): Promise<unknown> {
   const key = params.keys?.dataGoKr || requireEnv("DATA_GO_KR_SERVICE_KEY");
