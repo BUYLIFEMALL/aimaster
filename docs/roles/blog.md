@@ -169,7 +169,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-11-04 · 이웃 소통 v1.16 배포(단계 A 화면 정리, claude-win-blog)
+- 마지막 갱신: 2026-11-04 · 이웃 소통 v1.17 배포(단계 C-1, claude-win-blog)
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -401,7 +401,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-- 이웃 소통 단계 C 플랜 승인 대기 — [`blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md`](../../blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md). 승인되면 C-1(걸림돌 4개 + 작은 수정 5개, 빌드 1회)부터.
+- 이웃 소통 C-1(v1.17) 맥미니 실물 확인 결과를 받으면 C-2(시작하기·통합 동의·자동 흐름·일시정지) 구현. 기준 `blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md`.
 - 주인님 승인 후 `BNC_FEED_READ_ENABLED`·`BNC_FEED_READ_POLICY_REFERENCE` 등록·재배포 → 새 ZIP 설치 → Edge에서 이웃 1명 검수.
 - 이웃 소통 묶음 배포 승인 시 SQL 10개 적용 → 환경변수 확인(`BNC_SERVER_FEED_ENABLED`는 넣지 않음) → 새 ZIP 설치 → Edge에서 이웃 1명으로 탭 닫고 15분 뒤 저장 확인. 인수인계: `docs/HANDOFF.md` 2026-11-01 「회원 PC 확장」 항목.
 - 이웃 소통 묶음 배포 승인 시 SQL 10개 순차 적용 → 환경변수 확인 → 회원 키로 cron 호출 1회·RSS 1건 실제 검수. 인수인계: `docs/HANDOFF.md` 2026-11-01 항목.
@@ -412,7 +412,6 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 주인님께 여쭐 것
 
-- [승인·결정] 이웃 소통 단계 C 플랜(`blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md`) — 창 선택 조건(가안 추천) · 자동 승인 범위(댓글은 품질 통과 시 자동 추천) · 배포 2회 나눔(추천). 2026-11-04
 - [비용 승인] 668992b9-4d8d-4f57-96db-e0fdf1fb8c7b: JSON형식수정후 실성공검수 신규1회·동일본인글/회원Anthropic키/Haiku4.5·최대USD0.05(예상0.041534), 입력상한20000/출력6000·자동재시도0·성공저장재조회. 기존ae2는1회소진이라재사용금지. 채팅질문답변대기.
 
 - [화면 확인] fe166de3-d156-45b8-8563-2a4221387157: 기존 본인이웃관리탭에서 확장 동의체크→전체이웃목록다시읽기1회. 새허가80ad914d 시작기한2026-11-11 17:28:55KST(기존12:38제한폐기);수신후저장/설정검수는Codex. 43명/대상원래ON유지.

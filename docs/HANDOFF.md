@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`blog-neighbor-care` v1.17 배포: 단계 C-1 (맥미니 실물 확인 요청)**
+- 정독은 「대상 탭이 화면에 보이는가」로(다른 앱을 써도 이어감, 가려지면 시계만 멈춤, 10분 넘으면 누르지 않고 다음 주기로), 같은 글·같은 동작 작업은 만들 때부터 차단(운영 SQL 적용), 🏠 오늘의 소통 맨 위 「승인한 작업 실행」 버튼, 확장 실행 동의 처음 한 번, 작은 수정 5개(모델 선택표 포함). 커밋 `cf451f04c`, 배포 `blog-neighbor-care-cqt9g4sv3`, DB v1.17·확장 릴리스 OK, 시험 361 + DB 4 통과
+- **맥미니 할 일(상한 1건)**: 확장 ZIP 다시 받기 → 덮어쓰기 → 다시 로드(팝업 v1.17) → 팝업 「승인한 글 순회」에서 처음 한 번 동의 → 🏠 오늘의 소통에서 공감 1건 준비·검토 완료 → 「승인한 작업 실행」 → 정독 대기 중 **다른 앱을 쓰고, ego 창을 다른 창으로 가렸다가 다시 보이게** → 공감 성공·작업 기록 확인. 클릭·동의 횟수 실측(코드 추정 클릭 약 7·동의 0, 처음만 1). 같은 글에 공감 준비를 한 번 더 눌러 「이미 있습니다」가 버튼 아래에 나오는지도
+- 상세 [`blog-neighbor-care/docs/IMPROVEMENTS.md`](../blog-neighbor-care/docs/IMPROVEMENTS.md) 맨 위 · https://blog-neighbor-care.buylife.xyz/today
+
 ## 2026-11-04 📌 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **주인님 승인: `blog-neighbor-care` 단계 C 진행 (윈도우 blog 세션 필독)**
 - 주인님이 채팅으로 단계 C 플랜 3가지를 모두 추천안대로 승인: 가안(보이면 이어감) · 댓글 자동은 품질 검사 통과 시 + **댓글 하루 상한 처음 3건** · **배포 2회(C-1 → 맥미니 확인 → C-2)**, 빌드는 묶음마다 1회 승인.
 - 상세: [`blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md`](../blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md) §5 맨 위. 다음 첫 단계: 윈도우 blog 세션이 C-1 착수, 요청함 `45e9aa05` done 처리.
