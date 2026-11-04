@@ -9,7 +9,7 @@ export function createTargetTraversal(browser,identity,work,post,now=Date.now,sl
  async function current(s){
   const who=await identity();if(who.deviceId!==s.deviceId||who.blogId!==s.blogId||!await browser.permissions.contains({origins:[ORIGIN]}))throw Error('계정 또는 대상 글 접근 허용이 바뀌었습니다.');
   const tabs=await browser.tabs.query({active:true,currentWindow:true}),w=await browser.windows.get(s.windowId),tab=await browser.tabs.get(s.tabId);
-  if(tabs.length!==1||tabs[0].id!==s.tabId||tab.windowId!==s.windowId||tab.url!==s.url||w.state==='minimized'||(!w.focused&&!await popupFocused(s.windowId)))throw Error('순회 탭과 Edge 창을 화면에 유지해 주세요.');return tab;
+  if(tabs.length!==1||tabs[0].id!==s.tabId||tab.windowId!==s.windowId||tab.url!==s.url||w.state==='minimized'||(!w.focused&&!await popupFocused(s.windowId)))throw Error('순회 탭과 브라우저 창을 화면에 유지해 주세요.');return tab;
  }
  async function status(){let s=await read();if(!s)return {enabled:false,message:'대상 글 순회 꺼짐'};
   if(s.inFlight&&!busy){const r=await work.status();const settled=r.phase==='idle'||r.phase==='done'&&['succeeded','failed_no_effect','skipped','ready'].includes(r.resultState);s={...s,enabled:false,inFlight:!settled,message:settled?'이전 작업 확인됨 · 순회는 꺼져 있습니다.':'이전 결과 확인 필요 · 자동으로 순회하지 않습니다.'};await save(s);await browser.alarms.clear(TRAVERSAL_ALARM);}
@@ -21,9 +21,9 @@ export function createTargetTraversal(browser,identity,work,post,now=Date.now,sl
   try{
    const prior=await status(),running=await work.status();if(prior.enabled||prior.resultCheckRequired||running.connected||running.phase&&!['idle','done'].includes(running.phase))throw Error('이전 작업을 먼저 중단하고 결과를 확인하세요.');
    if(!await browser.permissions.contains({origins:[ORIGIN]}))throw Error('대상 네이버 글 접근을 허용해 주세요.');
-   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});if(tabs.length!==1)throw Error('작업할 Edge 창을 선택하세요.');const w=await browser.windows.get(tabs[0].windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(w.id)))throw Error('Edge 창을 화면에 유지하세요.');
+   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});if(tabs.length!==1)throw Error('작업할 브라우저 창을 선택하세요.');const w=await browser.windows.get(tabs[0].windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(w.id)))throw Error('브라우저 창을 화면에 유지하세요.');
    const first=await post('next',{});if(!['navigate','waiting','idle'].includes(first.phase))throw Error('웹 실행 설정·미확정 결과·승인 작업을 확인하세요.');if(version!==epoch)throw Error('시작이 취소됐습니다.');
-   const tab=await browser.tabs.create({windowId:tabs[0].windowId,url:HOME,active:true});if(!Number.isInteger(tab.id)||tab.windowId!==tabs[0].windowId)throw Error('같은 Edge 창의 순회 탭을 확인하지 못했습니다.');
+   const tab=await browser.tabs.create({windowId:tabs[0].windowId,url:HOME,active:true});if(!Number.isInteger(tab.id)||tab.windowId!==tabs[0].windowId)throw Error('같은 브라우저 창의 순회 탭을 확인하지 못했습니다.');
    if(version!==epoch)throw Error('시작이 취소됐습니다.');const started=++epoch;
    const s={enabled:true,deviceId:who.deviceId,blogId:who.blogId,tabId:tab.id,windowId:tab.windowId,url:HOME,expectedNavigation:null,navigating:false,inFlight:false,remaining:120,checksRemaining:960,expiresAt:now()+8*3600000,nextDueAt:first.nextDueAt??null,message:'순회 준비 완료 · 웹의 다음 주기 대기'};
    await save(s);if(started!==epoch)throw Error('시작이 취소됐습니다.');await wake(s.nextDueAt);if(started!==epoch){await stop();throw Error('시작이 취소됐습니다.');}return status();

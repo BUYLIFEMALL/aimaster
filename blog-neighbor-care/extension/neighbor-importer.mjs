@@ -11,7 +11,7 @@ export function createNeighborImporter(browser,post,identity,now=Date.now,pause=
   const tabs=await browser.tabs.query({active:true,currentWindow:true});
   if(tabs.length!==1||tabs[0].id!==expected.id||tabs[0].url!==expected.url||!tabs[0].active)throw Error('읽는 동안 활성 탭이 바뀌었습니다. 자동으로 계속 읽지 않습니다.');
   const window=await browser.windows.get(tabs[0].windowId);
-  if(window.state==='minimized')throw Error('Edge 창이 최소화되어 읽기를 멈췄습니다.');
+  if(window.state==='minimized')throw Error('브라우저 창이 최소화되어 읽기를 멈췄습니다.');
   const ownPopupFocused=!window.focused&&await popupFocused(tabs[0].windowId);
   let visibleSelectedTab=false;
   if(!window.focused&&!ownPopupFocused){
@@ -19,7 +19,7 @@ export function createNeighborImporter(browser,post,identity,now=Date.now,pause=
    visibleSelectedTab=checks.length===1&&checks[0].result?.url===expected.url&&checks[0].result?.visible===true;
   }
   if(progress)progress.focusCheck={browserFocused:!!window.focused,ownPopupFocused:!!ownPopupFocused,visibleSelectedTab};
-  if(!window.focused&&!ownPopupFocused&&!visibleSelectedTab)throw Error('선택한 이웃 관리 탭이 화면에 보이는지 확인하지 못해 읽기를 멈췄습니다. Edge에서 해당 탭을 열고 창을 최소화하지 마세요.');
+  if(!window.focused&&!ownPopupFocused&&!visibleSelectedTab)throw Error('선택한 이웃 관리 탭이 화면에 보이는지 확인하지 못해 읽기를 멈췄습니다. 브라우저에서 해당 탭을 열고 창을 최소화하지 마세요.');
   if(stopped)throw Error('목록 읽기를 멈췄습니다. 받은 범위는 프로그램에서 확인하고 취소할 수 있습니다.');
  }
  const handle=async function(message){

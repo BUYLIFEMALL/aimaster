@@ -8,7 +8,7 @@ export function createContextReader(browser,identity,post,popupFocused=async()=>
  const current=async p=>{
   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});
   if(p.epoch!==epoch||who.deviceId!==p.deviceId||who.blogId!==p.scope.actorId||tabs.length!==1||tabs[0].id!==p.tab.id||tabs[0].url!==p.tab.url||tabs[0].windowId!==p.tab.windowId)throw Error('연결 계정 또는 현재 탭이 바뀌었습니다.');
-  const w=await browser.windows.get(p.tab.windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(p.tab.windowId)))throw Error('Edge의 현재 탭을 화면에 유지해 주세요.');
+  const w=await browser.windows.get(p.tab.windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(p.tab.windowId)))throw Error('브라우저의 현재 탭을 화면에 유지해 주세요.');
  };
  const inspect=async p=>{
   await current(p);

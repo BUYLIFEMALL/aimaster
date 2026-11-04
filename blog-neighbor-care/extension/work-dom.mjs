@@ -3,7 +3,8 @@
 // There is deliberately no guessed default profile for live Naver markup.
 export async function operateVisibleNaverWork(command) {
  const {operation,job,permit,profile:p,expectedArticle}=command||{};
- const fail=()=>{throw Error('현재 네이버 계정·화면·대상을 확인하지 못했습니다.');};
+ // reason is a short code the bridge turns into a cause-specific message; it never carries page content.
+ const fail=reason=>{const e=Error('현재 네이버 계정·화면·대상을 확인하지 못했습니다.');if(reason)e.reason=reason;throw e;};
  if(!['inspect','assert','apply','verify'].includes(operation)||!p||p.v!==1||p.reviewed!==true||typeof p.reference!=='string'||!p.reference.trim()||p.reference.length>500||!p.selectors||
   !job||!['request','like','comment','reply'].includes(job.kind)||typeof job.body!=='string'||job.body.length>4000||
   (job.kind==='request'?job.post_id!=='':!/^\d{1,30}$/.test(job.post_id))||
@@ -30,23 +31,32 @@ export async function operateVisibleNaverWork(command) {
  };
  const commentsComplete=()=>{if(p.commentsCompleteMode==='singlePage')return list('commentPageLink').length===0;
   const complete=list('commentsComplete');return complete.length===1&&typeof p.completeText==='string'&&!!p.completeText&&text(complete[0])===p.completeText;};
+ // A post with zero comments renders an empty list box with no size. Accept that box only when it is the single
+ // unhidden list, holds no element at all, and the comment input is visibly open; anything else still fails closed.
+ const commentList=()=>{
+  if(list('commentList').length)return one('commentList');
+  const present=[...document.querySelectorAll(p.selectors.commentList)].filter(e=>e.isConnected&&!e.closest('[hidden],[aria-hidden="true"]'));
+  if(present.length!==1||present[0].childElementCount!==0||list('commentInput').length!==1)fail('commentList');
+  return present[0];
+ };
+ const commentListReady=()=>{try{commentList();return true;}catch{return false;}};
  const attr=name=>{const a=p[name];if(typeof a!=='string'||!(/^(id|data-[a-z0-9-]{1,40})$/.test(a)))fail();return a;};
  const hash=async value=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))].map(v=>v.toString(16).padStart(2,'0')).join('');
  function snapshot(){
   if(document.visibilityState!=='visible')fail();
-  const url=new URL(location.href);if(url.protocol!=='https:'||url.hostname!=='blog.naver.com'||url.username||url.password||url.port||url.hash)fail();
+  const url=new URL(location.href);if(url.protocol!=='https:'||url.hostname!=='blog.naver.com'||url.username||url.password||url.port||url.hash)fail('target');
   let owner,post;
   if(job.kind==='request'){
-   if(url.pathname!=='/BuddyAddForm.naver'||url.searchParams.getAll('blogId').length!==1||url.searchParams.get('blogId')!==job.neighbor_id)fail();
+   if(url.pathname!=='/BuddyAddForm.naver'||url.searchParams.getAll('blogId').length!==1||url.searchParams.get('blogId')!==job.neighbor_id)fail('target');
    owner=job.neighbor_id;post='';
   }else{
    const m=/^\/([a-z0-9_-]{1,50})\/(\d{1,30})\/?$/.exec(url.pathname);
    if(m&&!url.search){[,owner,post]=m;}
    else if(url.pathname==='/PostView.naver'&&url.searchParams.getAll('blogId').length===1&&url.searchParams.getAll('logNo').length===1){owner=url.searchParams.get('blogId');post=url.searchParams.get('logNo');}
-   if(owner!==(job.kind==='reply'?job.actor_id:job.neighbor_id)||post!==job.post_id)fail();
+   if(owner!==(job.kind==='reply'?job.actor_id:job.neighbor_id)||post!==job.post_id)fail('target');
   }
   // This selector must identify the native account header, outside post content.
-  if(ownerId()!==job.actor_id)fail();
+  if(ownerId()!==job.actor_id)fail('account');
   const restriction=list('captcha').length?'captcha':list('login').length?'login':list('platformRestriction').length?'platform':'none';
   const contexts={accountId:job.account_id,actorId:job.actor_id,neighborId:job.neighbor_id,postId:job.post_id,checkedAt:Date.now()};
   if(restriction!=='none')return {...contexts,restriction,relationship:'unknown',liked:null,duplicate:null};
@@ -61,8 +71,8 @@ export async function operateVisibleNaverWork(command) {
    const mutual=one('requestMutual');if(!['radio','checkbox'].includes(mutual.getAttribute('type'))||!mutual.checked||mutual.disabled)fail();
   }
   if(['comment','reply'].includes(job.kind)){
-   if(!commentsComplete())fail();
-   rows=list('commentRow',one('commentList'));if(rows.length>500)fail();
+   if(!commentsComplete())fail('commentList');
+   rows=list('commentRow',commentList());if(rows.length>500)fail();
    duplicate=rows.some(row=>{const links=list('commentAuthor',row);return links.length===1&&profileId(links[0])===job.actor_id;});
    if(job.kind==='reply'){
     if(typeof job.parent_comment_id!=='string'||!/^[a-zA-Z0-9_-]{1,128}$/.test(job.parent_comment_id))fail();
@@ -83,11 +93,11 @@ export async function operateVisibleNaverWork(command) {
  if(operation==='inspect'&&['comment','reply'].includes(job.kind)&&typeof p.selectors.commentOpener==='string'){
   try{
    const u=new URL(location.href),here=u.searchParams.get('logNo')===job.post_id||u.pathname.endsWith('/'+job.post_id);
-   if(here&&!list('commentList').length){const opener=list('commentOpener');if(opener.length===1){opener[0].click();for(let i=0;i<30&&!list('commentList').length;i++)await new Promise(resolve=>setTimeout(resolve,100));}}
+   if(here&&!commentListReady()){const opener=list('commentOpener');if(opener.length===1){opener[0].click();for(let i=0;i<30&&!commentListReady();i++)await new Promise(resolve=>setTimeout(resolve,100));}}
   }catch{return {unavailable:true};}
  }
  let s;
- try{s=snapshot();}catch(error){if(operation==='inspect')return {unavailable:true};throw error;}
+ try{s=snapshot();}catch(error){if(operation==='inspect')return {unavailable:true,...(error?.reason?{reason:error.reason}:{})};throw error;}
  let article={};
  try{
   if(job.kind!=='request'&&s.restriction==='none'){
@@ -96,7 +106,7 @@ export async function operateVisibleNaverWork(command) {
    article={articleHash:await hash(full),articleCharacters:characters};
    if(expectedArticle&&(expectedArticle.articleHash!==article.articleHash||expectedArticle.articleCharacters!==characters))fail();
   }
- }catch(error){if(operation==='inspect')return {unavailable:true};throw error;}
+ }catch(error){if(operation==='inspect')return {unavailable:true,reason:'article'};throw error;}
  if(operation==='inspect')return {...safe(s),...article};
  if(operation==='assert')return usable(s)&&Date.parse(job.expires_at)>Date.now();
  if(operation==='verify'){

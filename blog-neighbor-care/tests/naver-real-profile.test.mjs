@@ -114,3 +114,19 @@ test('NR13 the reading wait tolerates a short loss of focus but keeps stopping o
  assert.match(s,/blurred\.blurred=true/);assert.match(s,/if\(e\?\.blurred!==true\)throw e/);assert.match(s,/away>15000/);
  assert.match(s,/r=await post\('reading'/);
 });
+test('NR20 a post with zero comments: the empty list is accepted only with the open input, the opener is not re-clicked, and the new comment verifies',async()=>{
+ await page(post({rows:''}),POST,async({document,typed})=>{const ul=document.querySelector('ul.top');ul.getClientRects=()=>[];
+  const f=document.querySelector('.u_cbox_text');Object.defineProperty(document,'activeElement',{value:f,configurable:true});
+  let opens=0,clicks=0;document.querySelector('.btn_comment').addEventListener('click',()=>opens++);
+  document.querySelector('.u_cbox_btn_upload').addEventListener('click',()=>{clicks++;delete ul.getClientRects;ul.insertAdjacentHTML('beforeend',row('300','own-blog',job.body));});
+  const v0=await call('inspect');assert.equal(v0.unavailable,undefined);assert.equal(v0.duplicate,false);assert.equal(opens,0);
+  assert.equal(await call('apply'),true);assert.equal(typed.value,job.body);assert.equal(clicks,1);
+  const v=await call('verify');assert.equal(v.state,'commented');assert.equal(v.effectId,'300');});
+});
+test('NR21 an empty size-0 list without a visible input, or with stray content, still fails closed with the comment-list reason',async()=>{
+ await page(post({rows:''}),POST,async({document})=>{document.querySelector('ul.top').getClientRects=()=>[];document.querySelector('.u_cbox_text').getClientRects=()=>[];
+  let clicks=0;document.querySelector('.u_cbox_btn_upload').addEventListener('click',()=>clicks++);
+  const v=await call('inspect');assert.equal(v.unavailable,true);assert.equal(v.reason,'commentList');await assert.rejects(call('apply'));assert.equal(clicks,0);});
+ await page(post(),POST,async({document})=>{document.querySelector('ul.top').getClientRects=()=>[];assert.equal((await call('inspect')).reason,'commentList');});
+ await page(post(),'https://blog.naver.com/PostView.naver?blogId=neighbor&logNo=999',async()=>{assert.equal((await call('inspect')).reason,'target');});
+});

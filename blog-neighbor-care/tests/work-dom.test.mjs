@@ -52,7 +52,7 @@ test('WD07 top-level comment is verified by exact author, text and effect id',()
  await call('apply',{profile:p});const effect=await call('verify',{profile:p});assert.equal(effect.state,'commented');assert.equal(effect.effectId,'comment-2');assert.equal(clicks,1);
 }));
 test('WD08 unsupported frames return no evidence so all-frame inspection can select a single valid frame',()=>fixture('like',async({call})=>{
- globalThis.location=new URL('https://blog.naver.com/neighbor');assert.deepEqual(await call('inspect'),{unavailable:true});await assert.rejects(call('apply'));
+ globalThis.location=new URL('https://blog.naver.com/neighbor');assert.deepEqual(await call('inspect'),{unavailable:true,reason:'target'});await assert.rejects(call('apply'));
 }));
 
 test('WD09 article metadata never returns body; missing completeness or changed content blocks registration',()=>fixture('like',async({document,call})=>{

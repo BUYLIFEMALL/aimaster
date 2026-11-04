@@ -11,7 +11,7 @@ export function createExtensionSchedule(browser,identity,work,now=Date.now,popup
   const who=await identity();if(who.deviceId!==s.deviceId||who.blogId!==s.blogId)throw Error('연결 계정이 변경됐습니다.');
   const [tab,...rest]=await browser.tabs.query({active:true,currentWindow:true});
   if(rest.length||tab?.id!==s.tabId||tab?.windowId!==s.windowId||tab?.url!==s.url)throw Error('지정한 반복 탭이 변경됐습니다.');
-  const w=await browser.windows.get(s.windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(s.windowId)))throw Error('Edge 창과 지정한 반복 탭을 화면에 유지해 주세요.');
+  const w=await browser.windows.get(s.windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(s.windowId)))throw Error('브라우저 창과 지정한 반복 탭을 화면에 유지해 주세요.');
  }
  async function status(){
   let s=await read();if(!s)return {enabled:false,message:'반복 실행 꺼짐'};

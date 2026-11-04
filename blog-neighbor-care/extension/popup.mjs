@@ -24,7 +24,7 @@ function renderNeighborProgress(p){
   if(p.stage==='confirmed'&&currentProgress?.stage!=='confirmed')$('neighborConfirm').checked=false;
   currentProgress={...p};$('status-heading').textContent=stageTitles[p.stage];
   document.querySelector('.status-card').dataset.state=p.state;
-  $('message').textContent=p.message||(p.stage==='ready'?'목록을 임시 수신했습니다. 아래 버튼으로 확인·저장해 주세요.':p.stage==='confirmed'?'프로그램에 확인·반영을 완료했습니다.':'Edge와 현재 탭을 유지해 주세요.');
+  $('message').textContent=p.message||(p.stage==='ready'?'목록을 임시 수신했습니다. 아래 버튼으로 확인·저장해 주세요.':p.stage==='confirmed'?'프로그램에 확인·반영을 완료했습니다.':'브라우저와 현재 탭을 유지해 주세요.');
   const count=Number.isInteger(p.capturedCount)?p.capturedCount:0,last=Number.isInteger(p.lastPage)?p.lastPage:0;
   $('neighborCounts').textContent=`페이지 ${last} / ${p.totalPages??'확인 중'} · 받은 ${count} / ${p.totalCount??'확인 중'}명`;$('neighborCounts').hidden=false;
   const bar=$('neighborProgressBar');bar.hidden=p.state==='stopped';bar.max=p.totalPages||1;
@@ -88,7 +88,7 @@ $('neighborRead').addEventListener('click',()=>{
   if(!$('neighborConfirm').checked){$('message').textContent='본인 이웃 목록 읽기·임시 전송 동의를 확인해 주세요.';return;}
   const restartConfirmed=currentProgress?.stage==='confirmed';
   return run(async()=>{
-  renderNeighborProgress({deviceId:currentDeviceId,stage:'checking',state:'running',capturedCount:0,lastPage:0,message:'읽기를 준비합니다. Edge와 현재 탭을 유지해 주세요.'});
+  renderNeighborProgress({deviceId:currentDeviceId,stage:'checking',state:'running',capturedCount:0,lastPage:0,message:'읽기를 준비합니다. 브라우저와 현재 탭을 유지해 주세요.'});
   neighborResult(await send({type:'neighbors_read',ownerConfirmed:true,restartConfirmed}));
 },'neighbors');});
 $('neighborReceipt').addEventListener('click',()=>run(async()=>neighborResult(await send({type:'neighbors_status'})),'neighbors'));
