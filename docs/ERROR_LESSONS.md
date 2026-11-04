@@ -1,5 +1,17 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-05 Supabase SQL 편집기에 긴 마이그레이션을 붙여 넣고 「들어갔는지」 화면 글자로 확인하다 실패 — 화면에 보이는 줄만 그려짐 (`naver-cafe-recruit` 운영 DB 적용, [역할: blog])
+- 증상: ego로 붙여 넣은 뒤 `.view-lines` 글자에서 끝부분 표시를 찾으면 늘 실패(긴 한 줄도 가로로 넘쳐 안 보임). 붙여 넣기 직후 바로 실행하면 「query: Too small」(빈 쿼리)도 남. 긴 글을 넣은 뒤엔 편집기 클릭이 위쪽 탭 줄에 가려 멈춤.
+- 원인: Monaco 편집기는 보이는 줄만 화면에 그린다. 클립보드 붙여 넣기와 실행 단축키 사이에 순서 보장이 없음.
+- 해결: `window.monaco.editor.getEditors()[0]`의 `setValue(sql)` → `getValue()===sql`·`hasTextFocus()` 확인 → 클릭 없이 Ctrl+Enter. 결과는 「Success」 문구·결과 표로 확인하고, 적용 전후 표·함수 수를 같은 방식으로 대조.
+- 다음부터: 운영 SQL은 이 방식으로만 넣고, 「화면에 글자가 보이는가」로 들어갔는지 판단하지 않는다.
+
+## 2026-11-05 이 PC npm이 SheetJS(xlsx) CDN 주소 패키지를 거부 — `allow-remote=none` (`naver-cafe-recruit`, [역할: blog])
+- 증상: `npm install` 전체가 「Fetching packages of type remote have been disabled / Refusing to fetch xlsx@https://cdn.sheetjs.com/...」로 실패.
+- 원인: 전역 npm 설정 `allow-remote=none`(보안 설정). 다른 프로그램(`kakao_auto_poster` 등)은 이 설정 전에 설치됨.
+- 해결(설정은 바꾸지 않음): 지역 설치는 xlsx를 빼고 진행 → `kakao_auto_poster/node_modules/xlsx`(0.20.3)를 복사해 시험·빌드 확인. `package.json`에는 0.20.3 그대로 두고 Vercel 빌드가 설치.
+- 다음부터: xlsx 쓰는 새 프로그램은 같은 방식. 보안 설정을 끄거나 `--allow-remote`로 우회하지 않는다(필요하면 주인님께 여쭘).
+
 ## 2026-11-04 내 PC(localhost)에서 예약 설정을 저장했더니 실제 사이트의 회원 cron-job.org 작업이 401로 멈춤 (`labs/mall-builder`, Lab, [역할: mall-builder])
 - 증상: 내 PC 개발 서버 화면에서 「메일 알림 저장」을 한 번 눌렀더니, Lab 사이트의 자동 작업(입금 기한 자동 취소·문자 알림)이 22:51부터 들어오지 않음(약 4분 멈춤).
 - 원인: 저장 동작이 요청 주소(`siteOrigin()`)로 실행 주소를 만들어 cron-job.org 작업을 맞춤 → 주소가 `http://localhost:3210/...`라 같은 주소 작업이 없다고 보고 **새 작업을 만들고 새 토큰을 DB에 저장** → 실제 사이트 작업은 옛 토큰으로 불려 401. 내 PC 개발 서버도 같은 Lab DB를 쓰기 때문에 생긴 일.

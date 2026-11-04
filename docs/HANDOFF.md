@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-05 🟡 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` 착수: 운영 DB 적용 + 웹 뼈대 v1.01(미배포) — 맥미니 실물 확인 요청**
+- 지시 `naver-cafe-recruit/docs/INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` 1~3단계 중 **DB·뼈대·웹 서버·화면 완료**. DB 초안 검토로 5가지 보완(한국 날짜 상한·초대 전 `next_target`·보냄 기록 보호·전체 매일 정리 `ncr_cleanup`·입력 제한, 상한 최대 25) → 격리 DB 시험 8 통과 → 운영 적용(표 3·RLS·함수 2, 회원 직접 실행 불가, `settings_get` 기본 20 확인).
+- 웹: `naver-cafe-poster`에서 로그인·틀·메뉴·공용 UI만 복사, 권한 판정은 서비스 키로(공통 순서), `/api/recruit`·`/api/cron/cleanup`, 화면 5개(오늘·설정 3방식+A 책임 고지·모으기/한 번에 승인·결과+엑셀·가이드). 단위 시험 4, 로컬 빌드 통과. `programs` **비공개** 등록(`is_active=false`, v1.01, `app_url`)·요금제 3단계. 마케팅 수집 지정 목록에 한 줄 추가.
+- **남은 일**: 맥미니 ego 실물 확인([`naver-cafe-recruit/docs/REQUEST_20261105_MACMINI_DOM.md`](../naver-cafe-recruit/docs/REQUEST_20261105_MACMINI_DOM.md), 누르지 않고 관찰만) → 확장·확장용 서버 라우트 → 모드 C 연결 → 빌드(주인님 승인)·Vercel 프로젝트·환경변수(`CRON_SECRET`)·도메인 → `is_active=true`. **맥미니는 이 폴더 코드 직접 수정 말고 `docs/DOM_CHECK_20261105.md`에 결과만**(작업 중 표).
+
 ## 2026-11-05 🔨 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **외부 카페 마케팅 4종 상세 분석 + 새 프로그램 `naver-cafe-recruit` 플랜·DB 초안 (윈도우 뼈대·빌드 대기)**
 - **상세 분석 문서 3개(실행 없이 REA 정적 분석, 개발 참고용)**: 블로그 댓글공감 [`NBCL_DETAIL`](analysis-marketing14-20261027/NBCL_DETAIL_20261105.md)(EXT-BLOG-10) · 블로그 서로이웃 [`NBBB_DETAIL`](analysis-marketing14-20261027/NBBB_DETAIL_20261105.md)(EXT-BLOG-09, 방문자 수 거르기·신청 결과 6상태 → `blog-neighbor-care` A-1·A-2) · 카페 아이디 추출+초대 [`cafe DETAIL`](analysis-cafe-recruit-20261105/DETAIL.md)(EXT-MKT-08·10). **외부 분석표 카드에 모두 반영**(결정·대상 프로그램·진행 상태 갱신, 주인님 지시 「분석표에 반영해 다음 개발 참고」).
 - **새 프로그램 `naver-cafe-recruit`(네이버 카페 회원 모집) — 주인님 「3가지 방식 모두 필요 / 본인 계정 로그인 상태에서 초대」**: 세 방식(A 카페 활동 회원 추출=관리자 지정 예외, B 아는 사람=직접 입력+블로그 서로이웃, C 카페 홍보 글=`naver-cafe-poster` 재사용). 절대 경계: 회원 본인 로그인 세션에서만·비밀번호 안 다룸·IP 바꾸기/탐지 회피/보안 확인 자동 통과 ❌·동의 없는 대량 발송 ❌·상한·시간대·제한 뜨면 그날 중지·회원 소유 격리.
