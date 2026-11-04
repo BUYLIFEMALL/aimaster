@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ListOrdered, Loader2, Play, RotateCcw, Trash2, X, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { useQueue } from "@/components/engine/useQueue";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
-import { EngineError, QUEUE_LABEL, activeCount, cancelJob, dismissJob, fetchLibraryFile, rerunJob, type QueueJob, type QueueStatus } from "@/lib/engine";
+import { EngineError, LICENSE_LABEL, QUEUE_LABEL, activeCount, engineInfo, cancelJob, dismissJob, fetchLibraryFile, rerunJob, type QueueJob, type QueueStatus } from "@/lib/engine";
 import { KIND_LABEL } from "@/lib/tracks";
 
 const TONE: Record<QueueStatus, string> = {
@@ -56,7 +56,14 @@ export default function QueuePage() {
         {i !== undefined && <span className="font-mono text-slate-500">{i + 1}.</span>}
         <span className="font-semibold text-slate-100">{j.title}</span>
         {KIND_LABEL[j.kind] && <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400">{KIND_LABEL[j.kind]}</span>}
-        {j.engine === "yue2" && <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-200" title="YuE2(CC BY-NC 4.0) — 수익 영상·판매에 쓸 수 없습니다">YuE2 · 비상업용</span>}
+        {j.engine && j.engine !== "acestep" && (
+          <span
+            className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${engineInfo(j.engine).license === "noncommercial" ? "bg-amber-500/15 text-amber-200" : "bg-emerald-500/15 text-emerald-200"}`}
+            title={engineInfo(j.engine).terms ?? engineInfo(j.engine).desc}
+          >
+            {engineInfo(j.engine).name} · {LICENSE_LABEL[engineInfo(j.engine).license]}
+          </span>
+        )}
         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${TONE[j.status]}`}>
           {j.status === "running" && <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />}
           {QUEUE_LABEL[j.status]}

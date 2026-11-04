@@ -399,7 +399,7 @@ export default function LibraryPage() {
                         <p className="mt-0.5 truncate text-[11px] text-slate-500">
                           {KIND_LABEL[t.kind] && <span className="mr-1 rounded bg-sky-900/60 px-1.5 py-0.5 text-sky-200">{KIND_LABEL[t.kind]}</span>}
                           {t.license === "noncommercial" && (
-                            <span className="mr-1 rounded bg-amber-500/15 px-1.5 py-0.5 font-semibold text-amber-200" title="YuE2(CC BY-NC 4.0)로 만든 곡 — 수익 영상·판매에 쓸 수 없습니다">
+                            <span className="mr-1 rounded bg-amber-500/15 px-1.5 py-0.5 font-semibold text-amber-200" title="개인용 엔진(YuE2·LeVo 2 등)으로 만든 곡 — 수익 영상·판매에 쓸 수 없습니다">
                               비상업용
                             </span>
                           )}

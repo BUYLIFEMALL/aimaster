@@ -278,8 +278,8 @@ export default function EnginePage() {
         </div>
         <p className="flex items-start gap-2 text-[11px] text-slate-500">
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
-          기본 음악 모델(ACE-Step)은 상업 이용이 허용된 공개 모델(MIT)입니다. 곡 만들기에서 고를 수 있는 YuE2는 비상업용(CC BY-NC 4.0)이라 수익 영상·판매에 쓸 수 없고
-          「모든 음악」에 「비상업용」으로 표시됩니다. 커버는 회원님이 권리를 가진 곡으로만 만들 수 있습니다.
+          음악 엔진은 「상업용」(ACE-Step·HeartMuLa·Stable Audio 3 — 수익 영상·판매 가능, Stable Audio 3는 연매출 100만 달러 미만 조건)과 「개인용」(YuE2·LeVo 2 — 개인 감상·비수익만)으로 나뉩니다. 개인용
+          엔진 곡은 「모든 음악」에 「비상업용」으로 표시됩니다. 커버는 회원님이 권리를 가진 곡으로만 만들 수 있습니다.
         </p>
       </section>
     </div>
