@@ -175,3 +175,33 @@ export function buildingFacts(titles: Record<string, unknown>[], now: Date, reca
     topFloor: floors.length ? Math.max(...floors) : null,
   };
 }
+
+// RQ-B4 위험 점검(2026-11-04, 플랜 docs/PLAN_20261104_RQ_B4_RISK_CHECK.md)
+
+export type RiskLevel = "보통" | "주의" | "위험";
+
+/** 전세가율·깡통 위험 비율 구간: 70% 미만 보통, 70~80% 주의, 80% 이상 위험(보증금을 돌려받기 어려워지는 구간) */
+export function riskBand(percent: number | null): RiskLevel | null {
+  if (percent === null || !Number.isFinite(percent)) return null;
+  if (percent >= 80) return "위험";
+  if (percent >= 70) return "주의";
+  return "보통";
+}
+
+/** (말소 안 된 채권최고액 합계 + 전세 보증금) ÷ 매매 시세, % 정수. 값이 모자라면 null */
+export function gapRiskPercent(maxClaimManwon: number, depositManwon: number | null, saleManwon: number | null): number | null {
+  if (!saleManwon || saleManwon <= 0) return null;
+  return Math.round(((Math.max(0, maxClaimManwon) + Math.max(0, depositManwon ?? 0)) / saleManwon) * 100);
+}
+
+const ORG_WORDS = /(주식회사|㈜|\(주\)|은행|금고|조합|공사|캐피탈|보험|신탁|증권|저축|대부|공단|세무서|구청|시청|군청|도청|국가|대한민국|재단|법인|회사)/;
+
+/** 사람 이름만 가린다: 「김철수」→「김○○」. 회사·기관 이름은 그대로(채권자 확인용) */
+export function maskPersonName(name: string): string {
+  const s = String(name ?? "").trim();
+  if (!s || ORG_WORDS.test(s)) return s;
+  return s
+    .split(/\s*[,·]\s*/)
+    .map((n) => (/^[가-힣]{2,4}$/.test(n) ? `${n[0]}${"○".repeat(n.length - 1)}` : n.length > 1 && !/\d/.test(n) ? `${n[0]}${"○".repeat(Math.min(3, n.length - 1))}` : n))
+    .join(", ");
+}

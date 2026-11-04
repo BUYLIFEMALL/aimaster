@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // RQ-B4(2026-11-04): 등기부 PDF(최대 3MB)를 서버 액션으로 받는다. 기본 1MB라 올린다(Vercel 요청 한도 4.5MB 안)
+  experimental: { serverActions: { bodySizeLimit: "4mb" } },
 };
 
 export default nextConfig;

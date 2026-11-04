@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { parseAskingPrice } from "@/lib/realestate/report";
 import { REPORT_SUMMARY_MODEL, reportFactsText, summarizeReport } from "@/lib/ai/reportSummary";
+import { analyzeRegistry, type RegistryResult } from "@/lib/ai/registryCheck";
 import type { ReportSnapshot } from "@/components/report/ReportBody";
 
 // B2 주소 리포트 저장·삭제·AI 총평(2026-11-03). 표 real_estate_saved_reports(회원 본인만, RLS) — 타입 생성 전이라 느슨한 클라이언트로 부른다.
@@ -87,4 +88,32 @@ export async function aiSummaryAction(_prev: ReportActionState, formData: FormDa
   }
   revalidatePath(`/report/saved/${id}`);
   return {};
+}
+
+// RQ-B4 등기부 권리 점검(2026-11-04). 회원이 올린 PDF를 메모리에서만 읽어 회원 본인 Claude 키로 1회 분석하고 결과만 돌려준다 — DB·서버 기록에 남기지 않는다.
+const REGISTRY_MAX_BYTES = 3 * 1024 * 1024;
+
+export interface RegistryActionState extends ReportActionState {
+  result?: RegistryResult;
+}
+
+export async function registryCheckAction(_prev: RegistryActionState, formData: FormData): Promise<RegistryActionState> {
+  const user = await requireProgramAccess();
+  if (formData.get("consent") !== "1") return { error: "등기부 내용이 회원님의 Claude 계정으로 보내진다는 안내에 동의해 주세요." };
+  const file = formData.get("pdf");
+  if (!(file instanceof File) || file.size === 0) return { error: "등기부 PDF 파일을 골라 주세요." };
+  if (file.size > REGISTRY_MAX_BYTES) return { error: "파일이 3MB를 넘습니다. 인터넷등기소에서 받은 등기부 PDF를 그대로 올려 주세요." };
+  const bytes = Buffer.from(await file.arrayBuffer());
+  if (bytes.subarray(0, 5).toString("latin1") !== "%PDF-") return { error: "PDF 파일이 아닙니다. 등기부를 PDF로 저장해 올려 주세요." };
+
+  const supabase = await createClient();
+  const apiKey = await resolveApiKey(supabase, user.id, "anthropic");
+  if (!apiKey) return { error: "Claude(Anthropic) API 키가 없습니다. 「API키등록·플랫폼연동」에서 본인 키를 등록해 주세요.", needsKey: true };
+  try {
+    const result = await analyzeRegistry(apiKey, bytes.toString("base64"));
+    if (!result.is_registry) return { error: "등기부(등기사항전부증명서)로 보이지 않습니다. 인터넷등기소에서 발급한 PDF를 올려 주세요." };
+    return { result };
+  } catch (e) {
+    return { error: `등기부를 읽지 못했습니다: ${e instanceof Error ? e.message : String(e)}` };
+  }
 }

@@ -1,5 +1,6 @@
 import { formatWon } from "@/lib/format";
 import { ymLabel } from "@/lib/realestate/insights";
+import { riskBand } from "@/lib/realestate/report";
 import type { AddressReport } from "@/lib/realestate/reportData";
 
 // B1 리포트 본문(2026-11-03). B2부터 「리포트 보기」와 「저장한 리포트」가 함께 쓴다 — 저장본은 거래 목록(trades) 없이 숫자만 담는다.
@@ -56,7 +57,11 @@ export function ReportBody({ r, nonResidential = false }: { r: ReportSnapshot; n
         <dl className="grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
           <Fact label="전세 건수" value={r.jeonse.count ? `${r.jeonse.count}건` : "자료 없음"} />
           <Fact label="전세 중간값" value={r.jeonse.count ? formatWon(r.jeonse.median) : "-"} />
-          <Fact label="전세가율" value={r.jeonseRatio !== null ? `${r.jeonseRatio}%` : "-"} note="전세 중간값 ÷ 매매 중간값" />
+          <Fact
+            label="전세가율"
+            value={r.jeonseRatio !== null ? `${r.jeonseRatio}% · ${riskBand(r.jeonseRatio)}` : "-"}
+            note={`전세 중간값 ÷ 매매 중간값${r.jeonseRatio !== null && r.jeonseRatio >= 70 ? " · 70% 이상 주의, 80% 이상 깡통전세 위험 구간" : ""}`}
+          />
           <Fact label="월세 건수" value={`${r.monthlyCount}건`} />
         </dl>
       </div>
@@ -84,7 +89,11 @@ export function ReportBody({ r, nonResidential = false }: { r: ReportSnapshot; n
         <h2 className="mx-section-title">🏢 건물 정보 (건축물대장)</h2>
         {r.building ? (
           <dl className="grid grid-cols-2 gap-3 text-sm lg:grid-cols-3">
-            <Fact label="사용승인일" value={r.building.approvalDay ?? "-"} note={r.building.ageYears !== null ? `약 ${r.building.ageYears}년 차` : undefined} />
+            <Fact
+              label="사용승인일"
+              value={r.building.approvalDay ?? "-"}
+              note={r.building.ageYears !== null ? `약 ${r.building.ageYears}년 차` : "사용승인일이 없어요 — 미사용승인 건물일 수 있으니 건축물대장을 확인하세요"}
+            />
             <Fact label="용적률" value={r.building.floorAreaRatio ? `${r.building.floorAreaRatio}%` : "-"} />
             <Fact label="건폐율" value={r.building.coverageRatio ? `${r.building.coverageRatio}%` : "-"} />
             <Fact label="주차" value={r.building.parking ? `${r.building.parking}대` : "-"} note={r.building.households && r.building.parking ? `세대당 ${(r.building.parking / r.building.households).toFixed(2)}대` : undefined} />
@@ -94,6 +103,10 @@ export function ReportBody({ r, nonResidential = false }: { r: ReportSnapshot; n
         ) : (
           <p className="text-sm text-mx-muted">자료 없음 — 건축물대장 조회가 되지 않았어요.</p>
         )}
+        <p className="mt-2 text-xs text-mx-muted">
+          이 리포트는 위반건축물 여부를 보여 주지 않아요. 정부24에서 「건축물대장」을 검색해 무료로 열람해 확인하세요:{" "}
+          <a href="https://www.gov.kr" target="_blank" rel="noreferrer" className="text-mx-link underline">정부24 ↗</a>
+        </p>
       </div>
 
       {noDeals && !nonResidential && (

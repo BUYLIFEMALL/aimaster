@@ -7,6 +7,7 @@ import { PROPERTY_TYPES, type PropertyType } from "@/lib/publicdata/molit";
 import { buildAddressReport, type ReportInput } from "@/lib/realestate/reportData";
 import { ReportBody } from "@/components/report/ReportBody";
 import { SaveReportForm } from "@/components/report/ReportActions";
+import { RegistryCheck } from "@/components/report/RegistryCheck";
 import { OnsiteNotes } from "@/components/report/OnsiteNotes";
 
 export const dynamic = "force-dynamic";
@@ -119,6 +120,8 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
       {source === "onsite" && sourceId && <OnsiteNotes onsiteId={sourceId} userId={user.id} />}
 
       <ReportBody r={snapshot} nonResidential={nonResidential} />
+
+      <RegistryCheck saleMedian={r.sale.median} jeonseMedian={r.jeonse.median} />
     </div>
   );
 }
