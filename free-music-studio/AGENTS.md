@@ -30,7 +30,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음. 단점(지금): 엔진 앱 전이라 실제 노래 생성은 아직 안 됨.
 
 ## 4. 버전
-- v1.21 · 엔진 0.6.6(배포 2026-11-05, `free-music-studio-gngyp54fn`, 주인님 「진행해」 SQL 1회 + 빌드 1회, 운영 DB 길이 제약 실행·확인): 아래 효과음 모드 + 아래 MiniMax 24GB 전용. 남은 일: 마스터PC 0.6.6 설치 → 효과음 5초 1개·연주곡 1개 시험(앞머리 자동 효과 확인)
+- v1.21 · 엔진 0.6.6(배포 2026-11-05, `free-music-studio-gngyp54fn`, 주인님 「진행해」 SQL 1회 + 빌드 1회, 운영 DB 길이 제약 실행·확인): 아래 효과음 모드 + 아래 MiniMax 24GB 전용. **마스터PC 실물: 효과음 성공(2026-11-05, 주인님 「효과음 잘 만들어졌어」)**. 남은 일: 앞머리 자동이 붙은 연주곡 1곡을 예전 곡과 비교
 - (v1.21에 포함, `3f2c41e27`): **효과음 모드** — 곡 만들기 「노래 / 연주곡 / 효과음」, 효과음은 가사 칸 `[SFX]`·3~30초(`SFX_DURATIONS`)·Stable Audio 3 Medium 전용(다른 엔진·ACE-Step 바로 만들기 막음). 엔진 `buildPyJob`이 `sfx`를 넘기고 최소 1초, `run_stableaudio3.py`가 공식 앞머리(효과음 `TrackType: SFX`, 연주곡 `TrackType: Music, VocalType: Instrumental`, 회원이 TrackType을 썼으면 그대로) 자동. Stable Audio 3에 한글 설명이면 경고(영어 학습 모델). 근거 `docs/ANALYSIS_20261105_INSTRUMENTAL_SFX.md`(Small Music·Small SFX는 품질이 낮아 넣지 않음). **배포 전 운영 DB `supabase/migrations/20261105_sfx_durations.sql` 필요**(곡 표 길이 목록에 3~20초, 결과 표 1~600초).
 - 2026-11-05 **Stable Audio 3 마스터PC 실물 성공**(RTX 5080 16GB, 회원 본인 Hugging Face 토큰 — 운영 DB `user_api_keys` 허용 목록에 `huggingface` 추가 뒤 저장, `20261105_huggingface_provider.sql`). 주인님 평가 「연주곡밖에 안 돼서 아쉽지만 잘 만들어졌어」.
 - 2026-11-05 **마스터PC(RTX 5080 16GB) 엔진별 걸린 시간**(대기열 「걸린 시간」 배지): ACE-Step 3분 곡 1분 6초~1분 37초 · YuE2 3분 곡 1분 51초~3분 34초 · **HeartMuLa 2분 곡 6분 34초(모델 받아 둔 뒤, 주인님 「음질·한국어 표현 잘해」)** · Stable Audio 3 2분 연주곡 3분 50초(처음 받기 포함) · LeVo 2 3분 요청 약 12분(한국어 불가로 뺌) · MiniMax 3 3분 1시간 17분 넘게 미완(24GB 전용으로 뺌).
