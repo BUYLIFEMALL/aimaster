@@ -57,6 +57,12 @@
 
 마스터PC에서 안 되는 모델(그래픽 메모리 부족, RTX 50 호환 문제)은 목록에서 「이 PC에서는 어려움」으로 남기고 다음 모델로 넘어간다. 3차의 불안정한 모델은 시험 결과를 보고 드린 뒤 남길지 정한다.
 
+**진행 상태(2026-11-04):** 1차 가~바 ✅ 배포 v1.12 `free-music-studio-jma2o97ob`, 엔진 0.4.0 — 마 단계(마스터PC 실물)만 남음.
+- 원문 확인 결과: HeartMuLa 코드·가중치 Apache 2.0(LICENSE·모델 카드) → 상업용. Stable Audio 3 Medium `stable-audio-community`, 저장소 잠김(`gated: auto`, 약관 동의 즉시 허용) → 회원 본인 Hugging Face 토큰 필요, 상업용(조건부). LeVo 2 `levo-demo/LeVo` LICENSE 「academic, research and education purposes … refrain from using it for any commercial or production purposes」 → 개인용.
+- 고정 판: heartlib `5858ca8`(10-08), stable-audio-3 `77e0398`(10-11, 최신 11-02는 2주 안 돼 제외), LeVo `653cbcf`(06-29). 판을 안 정한 패키지는 `--exclude-newer 2026-10-20`.
+- 윈도우 판 맞춤(받지 않고 `uv pip compile`, 바이너리만): HeartMuLa·Stable Audio 3 성공(torch cu128). LeVo 2는 `flashy`·`argbind`가 원본 코드만 있어 회원 PC에서 빌드(순수 파이썬) — 확인은 남이 만든 빌드 코드를 실행해야 해 자동 권한 검사가 막아 마스터PC 실물로.
+- 마스터PC에서 확인할 것: 세 모델 처음 받기(진행 표시), HeartMuLa 16GB에서 차례 올리기(`lazy_load`), Stable Audio 3 토큰·오프라인 실행(`refs/main` 적어 둠), LeVo 2 폴더 이름·`--low_mem`·torch 2.7.1 덮어쓰기, 만든 곡 소리·길이·걸린 시간.
+
 ## 5. 비용
 
 | 항목 | 비용 |
