@@ -311,6 +311,22 @@ export async function saveToLibrary(id: string, file: string, title: string): Pr
   });
 }
 
+/** 앨범 그림을 노래 저장 폴더에 넣을 수 있는 엔진인가(0.6.7+) */
+export function hasArt(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("art");
+}
+
+/** 앨범 그림을 내 PC 노래 저장 폴더에 「곡 제목.png」로 저장한다(0.6.7+). 저장한 파일 경로를 돌려준다. */
+export async function saveArtToLibrary(title: string, base64: string, mimeType: string): Promise<string> {
+  const res = await call("/library/art", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, base64, mimeType }),
+  });
+  const data = await res.json().catch(() => null);
+  return typeof data?.path === "string" ? data.path : "";
+}
+
 /** 저장 폴더를 고를 수 있는 엔진인가(0.1.2+) */
 export function hasFolderPicker(status: EngineStatus | null): boolean {
   return !!status?.features?.includes("folder");

@@ -7,7 +7,7 @@ import { isRetentionExempt } from "@/lib/retentionExempt";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const COLUMNS = "id, title, style_prompt, lyrics, duration_sec, created_at, updated_at";
+const COLUMNS = "id, title, style_prompt, lyrics, duration_sec, art_prompt, created_at, updated_at";
 
 // 내 곡 목록 — 서비스 키로 읽으므로 user_id를 코드에서 직접 건다(멀티테넌시 원칙 2).
 export async function GET() {

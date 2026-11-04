@@ -346,7 +346,7 @@ let pendingPairCode = "";
 const showPairCode = (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`);
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", "art", ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
   systemReport,
   // 엔진 이름 → 분류(없는 엔진·이 PC에서 안 되는 엔진은 null)
   engineLicense: (id) => (id === "yue2" ? (yue2.ok ? YUE2_LICENSE : null) : pyOk.includes(id) ? pyEngine(id).license : null),

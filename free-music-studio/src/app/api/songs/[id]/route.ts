@@ -6,7 +6,7 @@ import { parseSongInput, SONGS_TABLE } from "@/lib/songs";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const COLUMNS = "id, title, style_prompt, lyrics, duration_sec, created_at, updated_at";
+const COLUMNS = "id, title, style_prompt, lyrics, duration_sec, art_prompt, created_at, updated_at";
 
 type Ctx = { params: Promise<{ id: string }> };
 

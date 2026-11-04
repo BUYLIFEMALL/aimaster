@@ -651,6 +651,7 @@ const MODULES = [
       "ai-webtoon-studio/src/lib/geminiImage.ts",
       "ebook-studio/src/lib/geminiImage.ts",
       "vinyl-lp-studio/src/lib/geminiImage.ts",
+      "free-music-studio/src/lib/ai/geminiImage.ts", // 2026-11-05 AI 무료음악 앨범 그림
     ],
   },
   {
@@ -703,6 +704,7 @@ const MODULES = [
       "ai-webtoon-studio/src/lib/nanoBananaModels.ts",
       "ebook-studio/src/lib/nanoBananaModels.ts",
       "vinyl-lp-studio/src/lib/nanoBananaModels.ts",
+      "free-music-studio/src/lib/ai/nanoBananaModels.ts", // 2026-11-05 AI 무료음악 앨범 그림
     ],
   },
   {

@@ -214,6 +214,21 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
     return json(res, 200, { ok: true }, origin);
   }
 
+  // 앨범 그림(엔진 0.6.7, 2026-11-05): 사이트가 회원 본인 Gemini 키로 만든 그림을 노래 저장 폴더에 「곡 제목.png」로
+  if (req.method === "POST" && rest === "art") {
+    const body = await readSmall(req, 12 * 1024 * 1024).catch(() => null);
+    const title = typeof body?.title === "string" ? body.title : "";
+    const mime = typeof body?.mimeType === "string" ? body.mimeType : "image/png";
+    const ext = mime === "image/jpeg" ? "jpg" : mime === "image/webp" ? "webp" : "png";
+    const bytes = typeof body?.base64 === "string" ? Buffer.from(body.base64, "base64") : null;
+    if (!bytes?.length || bytes.length > 9 * 1024 * 1024) return json(res, 400, { error: "그림 파일이 올바르지 않습니다." }, origin);
+    try {
+      return json(res, 200, { ok: true, path: await lib.saveArt(bytes, title, ext) }, origin);
+    } catch {
+      return json(res, 500, { error: "노래 저장 폴더에 그림을 저장하지 못했습니다. 디스크 공간을 확인해 주세요." }, origin);
+    }
+  }
+
   if (req.method === "POST" && rest === "save") {
     const body = await readSmall(req).catch(() => null);
     const id = body?.id;

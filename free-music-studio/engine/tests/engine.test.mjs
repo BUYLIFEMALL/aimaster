@@ -150,6 +150,22 @@ test("보관함: 탐색기로 저장 폴더에 옮긴 곡도 같은 파일 이�
   }
 });
 
+test("보관함: 앨범 그림은 저장 폴더에 「곡 제목.png」, 같은 이름이면 번호를 붙이고 목록에는 넣지 않는다", async () => {
+  const data = await mkdtemp(path.join(tmpdir(), "fms-art-"));
+  try {
+    const lib = createLibrary(data, { defaultDir: path.join(data, "Song") });
+    await lib.init();
+    const a = await lib.saveArt(Buffer.from([0x89, 0x50]), "가을 노래", "png");
+    const b = await lib.saveArt(Buffer.from([0x89, 0x50]), "가을 노래", "png");
+    assert.equal(path.basename(a), "가을 노래.png");
+    assert.notEqual(a, b);
+    assert.equal(path.extname(b), ".png");
+    assert.deepEqual(await lib.list(), []);
+  } finally {
+    await rm(data, { recursive: true, force: true });
+  }
+});
+
 test("장치: NVIDIA 윈도우는 고품질(cuda, 언어 모델 켬)", () => {
   const d = chooseDevice({ platform: "win32", arch: "x64", nvidia: true });
   assert.equal(d.device, "cuda");

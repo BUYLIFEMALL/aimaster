@@ -8,10 +8,11 @@ import { DEFAULT_LYRIC_PROVIDER, LYRIC_PROVIDERS, type LyricProvider } from "@/l
 import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseBannedInput, type PlannedTrack } from "@/lib/lyricRules";
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
+import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
 
-type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number };
+type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string };
 
-const EMPTY: Draft = { id: null, title: "", style_prompt: "", lyrics: "", duration_sec: DEFAULT_DURATION };
+const EMPTY: Draft = { id: null, title: "", style_prompt: "", lyrics: "", duration_sec: DEFAULT_DURATION, art_prompt: "" };
 
 const LYRIC_HINT = "[Verse]\n첫 번째 소절\n\n[Chorus]\n후렴 소절";
 const BANNED_KEY = "fms.bannedWords";
@@ -139,7 +140,7 @@ export default function SongsPage() {
         setMessage({ type: "error", text: data.error || "저장하지 못했습니다." });
         return;
       }
-      setDraft({ id: data.song.id, title: data.song.title, style_prompt: data.song.style_prompt, lyrics: data.song.lyrics, duration_sec: data.song.duration_sec });
+      setDraft({ id: data.song.id, title: data.song.title, style_prompt: data.song.style_prompt, lyrics: data.song.lyrics, duration_sec: data.song.duration_sec, art_prompt: data.song.art_prompt ?? "" });
       setMessage({ type: "success", text: "곡을 저장했습니다." });
       load();
     } catch {
@@ -247,7 +248,7 @@ export default function SongsPage() {
   };
 
   const loadPlanned = (t: PlannedTrack) => {
-    openDraft({ id: null, title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec });
+    openDraft({ id: null, title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec, art_prompt: t.art ?? "" });
     setMessage({ type: "success", text: `「${t.title}」을 넣었습니다 — 아래 「내 PC로 노래 만들기」에서 엔진을 고르고 [대기열에 넣기]를 눌러 주세요.` });
     // 「이 곡으로 생성하기」(주인님 2026-11-05) — 만들기 칸으로 바로 내려간다
     setTimeout(() => document.getElementById("generate-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
@@ -261,7 +262,7 @@ export default function SongsPage() {
       const res = await fetch("/api/songs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec }),
+        body: JSON.stringify({ title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec, art_prompt: t.art ?? "" }),
       }).catch(() => null);
       if (res?.ok) done++;
     }
@@ -348,7 +349,7 @@ export default function SongsPage() {
                 <li key={s.id}>
                   <button
                     type="button"
-                    onClick={() => openDraft({ id: s.id, title: s.title, style_prompt: s.style_prompt, lyrics: s.lyrics, duration_sec: s.duration_sec })}
+                    onClick={() => openDraft({ id: s.id, title: s.title, style_prompt: s.style_prompt, lyrics: s.lyrics, duration_sec: s.duration_sec, art_prompt: s.art_prompt ?? "" })}
                     className={`w-full rounded-lg px-3 py-2 text-left text-xs transition-colors ${
                       draft.id === s.id ? "bg-emerald-950/50 text-emerald-200" : "text-slate-300 hover:bg-slate-900"
                     }`}
@@ -648,6 +649,9 @@ export default function SongsPage() {
               )}
             </div>
           </section>
+
+          {/* 앨범 그림(노래·연주곡만 — 효과음은 표지가 필요 없음) */}
+          {!sfx && <AlbumArtPanel title={draft.title} style={draft.style_prompt} art={draft.art_prompt} onArtChange={(v) => set("art_prompt", v)} />}
 
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
           <div id="generate-panel" className="scroll-mt-6">

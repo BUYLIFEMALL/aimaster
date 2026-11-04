@@ -141,6 +141,14 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
       return target;
     },
 
+    /** 앨범 그림을 저장 폴더에 「곡 제목.확장자」로(목록에는 넣지 않음, 같은 이름이 있으면 번호를 붙임) */
+    async saveArt(bytes, title, ext = "png") {
+      await mkdir(dir, { recursive: true });
+      const target = await uniquePath(dir, safeFileName(title || "앨범 그림"), ["png", "jpg", "webp"].includes(ext) ? ext : "png");
+      await writeFile(target, bytes);
+      return target;
+    },
+
     /** 파일이 실제로 있는 곡 번호만 */
     async list() {
       const ids = [];
