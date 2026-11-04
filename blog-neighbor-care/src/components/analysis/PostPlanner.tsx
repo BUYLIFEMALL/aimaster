@@ -7,7 +7,9 @@ export function PostPlanner({onPick}:{onPick:(post:PreparedPost)=>void}){
  const [directory,setDirectory]=useState<{account_id:string;external_id:string;neighbor_id:string}[]>([]),[selection,setSelection]=useState(''),[xml,setXml]=useState(''),[preview,setPreview]=useState<Post[]|null>(null),[chosen,setChosen]=useState<string[]>([]),[rights,setRights]=useState(false),[full,setFull]=useState(false),[feedConsent,setFeedConsent]=useState(false),[rows,setRows]=useState<Row[]|null>(null),[body,setBody]=useState(''),[rowId,setRowId]=useState(''),[bodyConsent,setBodyConsent]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
  const lock=useRef(false),alive=useRef(true);useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
  const [accountId,neighborId]=selection.split(':');
+ const [likeRow,setLikeRow]=useState('');
  async function run(operation:string,payload:Record<string,unknown>={}){
+  setLikeRow('');
   if(lock.current)return;lock.current=true;setBusy(true);setMessage('처리 중…');
   try{const r=await fetch('/api/neighbors/posts',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({operation,payload})}),v=await r.json();if(!r.ok)throw Error(v.error||'결과 미확인');if(!alive.current)return;
    if(operation==='directory')setDirectory(v.data);else if(operation==='list')setRows(v.data);else if(operation==='material'){onPick(v.data);setMessage('확인한 전문을 문장 만들기에 넘겼습니다. 프로필·모델·AI 전송 동의를 다시 확인하세요.');return;}
@@ -18,7 +20,7 @@ export function PostPlanner({onPick}:{onPick:(post:PreparedPost)=>void}){
  }
  // A like has no text to review here. This only saves a draft; the member still reviews it in the work records before the extension may act.
  async function prepareLike(row:Row){
-  if(lock.current)return;lock.current=true;setBusy(true);setMessage('처리 중…');
+  if(lock.current)return;lock.current=true;setBusy(true);setLikeRow(row.id);setMessage('처리 중…');
   try{const r=await fetch('/api/work',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({operation:'create',payload:{account_id:row.account_id,neighbor_id:row.neighbor_id,kind:'like',post_id:row.post_id}})}),v=await r.json();if(!r.ok)throw Error(v.error||'결과 미확인');if(alive.current)setMessage('공감 초안을 저장했습니다. 네이버에는 아직 보내지 않았습니다. 작업 대기·결과 기록에서 대상을 확인해 검토 완료로 저장하세요.');
   }catch(e){if(alive.current)setMessage(`${e instanceof Error?e.message:'결과 미확인'} 자동 재요청하지 않습니다. 작업 기록부터 조회하세요.`);}finally{lock.current=false;if(alive.current)setBusy(false);}
  }
@@ -34,7 +36,7 @@ export function PostPlanner({onPick}:{onPick:(post:PreparedPost)=>void}){
  </fieldset>
  {rows?.length===0&&<p>준비한 글 자료가 없습니다. 실제 새 글이 없다는 뜻은 아닙니다.</p>}
  {!!rows?.length&&<ul>{rows.map(row=><li key={row.id}><h3>{row.title}</h3><p>{row.neighbor_id}/{row.post_id} · {row.body_confirmed?'전문 사용 확인됨':'제목·주소만 저장됨'} · 보관 {new Date(row.expires_at).toLocaleString('ko-KR')}</p>
- <button disabled={busy} onClick={()=>prepareLike(row)}>이 글에 공감 준비</button>
+ <button disabled={busy} onClick={()=>prepareLike(row)}>이 글에 공감 준비</button>{likeRow===row.id&&message&&<p className="button-result" role="status">{message}</p>}
  {row.body_confirmed?<button className="primary" disabled={busy} onClick={()=>run('material',{id:row.id})}>이 글로 댓글 문장 준비</button>:<><button disabled={busy} onClick={()=>{setRowId(row.id);setBody('');setBodyConsent(false);}}>이 글의 확인한 전문 입력</button>{rowId===row.id&&<><label>제공받은 전문<textarea maxLength={20000} value={body} onChange={e=>{setBody(e.target.value);setBodyConsent(false);}}/></label><label><input type="checkbox" checked={bodyConsent} onChange={e=>setBodyConsent(e.target.checked)}/>이 본문이 전문이며 사용 권한을 확인했습니다.</label><button className="primary" disabled={busy||!bodyConsent||body.length<30} onClick={()=>run('provide',{id:row.id,body,confirmed:true,rightsConfirmed:true})}>확인한 전문 저장</button></>}</>}
  </li>)}</ul>}
  </section>;

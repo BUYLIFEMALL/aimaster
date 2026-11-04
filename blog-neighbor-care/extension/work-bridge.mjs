@@ -4,11 +4,17 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
  let busy=false,epoch=0,active=null,last='연결 전 · 웹에서 확장 실행 허용 필요';
  const emit=message=>{last=message;try{void Promise.resolve(browser.runtime?.sendMessage?.({type:'work_progress',message,deviceId:active?.deviceId})).catch(()=>{});}catch{}};
  const state=()=>({connected:busy&&!!active,message:last});
+ // v1.17 단계 C-1(주인님 결정 가안): 「창이 선택돼 있는가」 대신 「대상 탭이 화면에 보이는가」로 판단한다.
+ // 다른 프로그램을 써도 대상 탭이 보이면 이어가고, 가려지면 정독 시계만 멈춘다. 누르는 단계는 보일 때만.
+ const PAUSE_LIMIT=600000;
+ async function visible(target){
+  try{const r=await browser.scripting.executeScript({target:{tabId:target.id},world:'ISOLATED',func:()=>document.visibilityState,args:[{operation:'visibility'}]});return r?.[0]?.result==='visible';}catch{return false;}
+ }
  async function current(binding,target,version){
   const who=await identity();if(version!==epoch||who.deviceId!==binding.deviceId||who.blogId!==binding.blogId)throw Error('연결 계정이 바뀌거나 실행을 중단했습니다.');
-  const tabs=await browser.tabs.query({active:true,currentWindow:true});
+  const tabs=await browser.tabs.query({active:true,windowId:target.windowId});
   if(tabs.length!==1||tabs[0].id!==target.id||tabs[0].windowId!==target.windowId||tabs[0].url!==target.url)throw Error('현재 탭이 바뀌었습니다.');
-  const w=await browser.windows.get(target.windowId);if(w.state==='minimized')throw Error('브라우저 창과 현재 탭을 화면에 유지해 주세요.');if(!w.focused&&!await popupFocused(target.windowId)){const blurred=Error('브라우저 창과 현재 탭을 화면에 유지해 주세요.');blurred.blurred=true;throw blurred;}
+  const w=await browser.windows.get(target.windowId);if(w.state==='minimized'||!await visible(target)){const hidden=Error('대상 탭이 화면에 보이지 않습니다. 브라우저 창을 최소화하지 말고 대상 탭이 보이게 두세요.');hidden.hidden=true;throw hidden;}
  }
  async function stop(){
   epoch++;last='실행 중단 요청 · 불확실한 작업은 기록 확인 필요';
@@ -64,16 +70,26 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
    if(job.kind!=='request'){
     const duration=r.readDurationMs;
     if(r.phase!=='reading'||typeof r.nonce!=='string'||!Number.isSafeInteger(duration)||duration!==Math.max(30000,Math.ceil(expectedArticle.articleCharacters/500)*5000))throw Error('정독 대기 조건을 확인하지 못했습니다.');
-    const started=readingClock.now();let lastElapsed=0,blurSince=null;
+    // 정독 시간은 대상 탭이 보이는 동안만 센다. 가려진 동안은 시계만 멈추고(실패 아님), 10분 넘게 가려지면
+    // 누르지 않고 이 작업을 다음 주기로 미룬다(작업은 「검토 완료」 그대로, 자동으로 다시 누르지 않음).
+    const started=readingClock.now();let lastElapsed=0,paused=0,deferred=false;
     while(lastElapsed<duration){
-     emit(`정독 대기 중 · ${Math.ceil((duration-lastElapsed)/1000)}초 남음 · 같은 글과 브라우저 탭을 유지하세요.`);
+     emit(`정독 대기 중 · ${Math.ceil((duration-lastElapsed)/1000)}초 남음 · 대상 탭이 화면에 보이게 두세요(다른 프로그램은 써도 됩니다).`);
+     const t0=readingClock.now();
      await readingClock.sleep(Math.min(1000,duration-lastElapsed));
-     // A notification or another program can take focus for a moment while reading. That alone should not lose the run;
-     // a longer absence still stops it, and the click itself below keeps the strict check.
-     try{await current(binding,target,version);blurSince=null;}catch(e){if(e?.blurred!==true)throw e;blurSince??=readingClock.now();const away=readingClock.now()-blurSince;if(away>15000)throw Error(`브라우저 창 선택이 ${Math.round(away/1000)}초 동안 풀려 멈췄습니다. 다른 프로그램을 쓰지 말고 다시 시작해 주세요.`);}
-     v=await script('inspect');
+     try{await current(binding,target,version);v=await script('inspect');}
+     catch(e){
+      if(e?.hidden!==true)throw e;
+      paused+=readingClock.now()-t0;if(paused>PAUSE_LIMIT){deferred=true;break;}
+      emit(`잠시 멈춤 · 대상 탭이 보이면 정독을 이어갑니다(${Math.ceil((PAUSE_LIMIT-paused)/60000)}분 안에 돌아오지 않으면 다음 주기로 미룹니다).`);continue;
+     }
      if(v.articleHash!==expectedArticle.articleHash||v.articleCharacters!==expectedArticle.articleCharacters||v.restriction!=='none')throw Error('정독 중 본문·계정·화면이 변경됐습니다.');
-     const elapsed=readingClock.now()-started;if(!Number.isFinite(elapsed)||elapsed<lastElapsed||elapsed>duration+30000)throw Error('정독 시간을 확인하지 못했습니다.');lastElapsed=elapsed;
+     lastElapsed+=readingClock.now()-t0;const wall=readingClock.now()-started;
+     if(!Number.isFinite(wall)||!Number.isFinite(lastElapsed)||wall>duration+paused+30000)throw Error('정독 시간을 확인하지 못했습니다.');
+    }
+    if(deferred){
+     await stop();last='다음 주기로 미룸 · 대상 탭이 10분 넘게 보이지 않아 누르지 않았습니다. 작업은 검토 완료 상태로 남아 다음 순회 때 다시 확인합니다.';
+     return {...state(),phase:'deferred'};
     }
     r=await post('reading',{id:active.id,nonce:r.nonce,observation:v});
    }

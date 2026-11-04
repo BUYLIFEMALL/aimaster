@@ -66,3 +66,6 @@
 .bnc-app .task-model{margin:16px 0;padding:12px 15px;background:var(--soft);border-left:3px solid var(--brand);font-size:12px}.bnc-app .task-model p{margin:0;color:var(--ink)}.bnc-app .task-model details{padding:10px 0 0;margin-top:10px}
 #connection{margin-bottom:22px}
 @media(max-width:767px){.bnc-app .bnc-tabs{width:100%}.bnc-app .bnc-tabs a{flex:1;text-align:center;padding:11px 8px}}
+/* v1.17 C-1: 누른 버튼 바로 아래 결과 한 줄 · 승인한 작업 실행 칸 */
+.bnc-app .button-result{margin:8px 0 12px;padding:9px 12px;background:var(--soft);border-left:3px solid var(--brand);color:var(--ink);font-size:12px}
+.bnc-app .run-approved .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.bnc-app .run-approved .actions .primary{margin:12px 0}

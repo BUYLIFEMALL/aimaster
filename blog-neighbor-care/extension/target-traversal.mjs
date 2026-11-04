@@ -8,8 +8,9 @@ export function createTargetTraversal(browser,identity,work,post,now=Date.now,sl
  const wake=async when=>browser.alarms.create(TRAVERSAL_ALARM,{when:Math.max(now()+30000,Date.parse(when)||0),periodInMinutes:0.5});
  async function current(s){
   const who=await identity();if(who.deviceId!==s.deviceId||who.blogId!==s.blogId||!await browser.permissions.contains({origins:[ORIGIN]}))throw Error('계정 또는 대상 글 접근 허용이 바뀌었습니다.');
-  const tabs=await browser.tabs.query({active:true,currentWindow:true}),w=await browser.windows.get(s.windowId),tab=await browser.tabs.get(s.tabId);
-  if(tabs.length!==1||tabs[0].id!==s.tabId||tab.windowId!==s.windowId||tab.url!==s.url||w.state==='minimized'||(!w.focused&&!await popupFocused(s.windowId)))throw Error('순회 탭과 브라우저 창을 화면에 유지해 주세요.');return tab;
+  // v1.17 C-1: 창 선택(focus)은 묻지 않는다 — 순회 창에서 순회 탭이 앞에 있고 창이 최소화되지 않았으면 이어간다.
+  const tabs=await browser.tabs.query({active:true,windowId:s.windowId}),w=await browser.windows.get(s.windowId),tab=await browser.tabs.get(s.tabId);
+  if(tabs.length!==1||tabs[0].id!==s.tabId||tab.windowId!==s.windowId||tab.url!==s.url||w.state==='minimized')throw Error('순회 탭을 그 창의 맨 앞에 두고 브라우저 창을 최소화하지 마세요.');return tab;
  }
  async function status(){let s=await read();if(!s)return {enabled:false,message:'대상 글 순회 꺼짐'};
   if(s.inFlight&&!busy){const r=await work.status();const settled=r.phase==='idle'||r.phase==='done'&&['succeeded','failed_no_effect','skipped','ready'].includes(r.resultState);s={...s,enabled:false,inFlight:!settled,message:settled?'이전 작업 확인됨 · 순회는 꺼져 있습니다.':'이전 결과 확인 필요 · 자동으로 순회하지 않습니다.'};await save(s);await browser.alarms.clear(TRAVERSAL_ALARM);}
@@ -21,7 +22,7 @@ export function createTargetTraversal(browser,identity,work,post,now=Date.now,sl
   try{
    const prior=await status(),running=await work.status();if(prior.enabled||prior.resultCheckRequired||running.connected||running.phase&&!['idle','done'].includes(running.phase))throw Error('이전 작업을 먼저 중단하고 결과를 확인하세요.');
    if(!await browser.permissions.contains({origins:[ORIGIN]}))throw Error('대상 네이버 글 접근을 허용해 주세요.');
-   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});if(tabs.length!==1)throw Error('작업할 브라우저 창을 선택하세요.');const w=await browser.windows.get(tabs[0].windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(w.id)))throw Error('브라우저 창을 화면에 유지하세요.');
+   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});if(tabs.length!==1)throw Error('작업할 브라우저 창을 선택하세요.');const w=await browser.windows.get(tabs[0].windowId);if(w.state==='minimized')throw Error('브라우저 창을 최소화하지 마세요.');
    const first=await post('next',{});if(!['navigate','waiting','idle'].includes(first.phase))throw Error('웹 실행 설정·미확정 결과·승인 작업을 확인하세요.');if(version!==epoch)throw Error('시작이 취소됐습니다.');
    const tab=await browser.tabs.create({windowId:tabs[0].windowId,url:HOME,active:true});if(!Number.isInteger(tab.id)||tab.windowId!==tabs[0].windowId)throw Error('같은 브라우저 창의 순회 탭을 확인하지 못했습니다.');
    if(version!==epoch)throw Error('시작이 취소됐습니다.');const started=++epoch;
@@ -47,6 +48,8 @@ export function createTargetTraversal(browser,identity,work,post,now=Date.now,sl
    const result=await work.start({scheduled:true,traversal:true,jobId:next.jobId});if(version!==epoch)return;
    if(result.phase==='idle'&&['not_due','scheduled','outside_window'].includes(result.reason)){s={...s,inFlight:false,nextDueAt:result.nextDueAt??null,message:'웹 주기가 변경되어 실행 없이 대기합니다.'};}
    else if(result.phase==='done'&&result.resultState==='succeeded'){s={...s,inFlight:false,remaining:s.remaining-1,nextDueAt:result.nextDueAt??null,message:'완료 · 결과 저장 후 다음 승인 글 대기'};}
+   // 대상 탭이 오래 가려져 누르지 않고 미룬 경우: 실행이 없었으므로 순회는 켠 채 다음 주기에 다시 확인한다.
+   else if(result.phase==='deferred'){s={...s,inFlight:false,nextDueAt:null,message:'미룸 · 대상 탭이 오래 가려져 누르지 않았습니다. 다음 주기에 다시 확인합니다.'};}
    else throw Error('대상이 바뀌었거나 실행 결과를 확인하지 못했습니다.');
    await save(s);if(version!==epoch)return;await wake(s.nextDueAt);if(version!==epoch)await browser.alarms.clear(TRAVERSAL_ALARM);
   }catch(e){if(s)await save({...s,enabled:false,message:`순회 중단 · ${e?.message??'결과 미확인'} 자동으로 재시도하지 않습니다.`});await browser.alarms.clear(TRAVERSAL_ALARM);}

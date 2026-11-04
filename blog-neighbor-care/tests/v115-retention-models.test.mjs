@@ -22,7 +22,7 @@ test('V115-02 saved retired model values are converted before validation and bef
   assert.equal(currentAiModel('gemini-2.5-flash'), 'gemini-3.8-flash');
   assert.equal(currentAiModel('gemini-2.5-flash-lite'), 'gemini-3.5-flash-lite');
   assert.equal(currentAiModel('gemini-3.7-flash'), 'gemini-3.8-flash');
-  assert.equal(currentAiModel('claude-haiku-4-5'), 'claude-haiku-4-5');
+  assert.equal(currentAiModel('claude-haiku-4-5'), 'claude-haiku-5-5'); assert.equal(currentAiModel('gpt-5.6-luna'), 'gpt-6-luna'); assert.equal(currentAiModel('claude-sonnet-5-5'), 'claude-sonnet-5-5');
   assert.equal(generation('profile', profileInput('gemini-3.7-flash')).input.model, 'gemini-3.8-flash');
   assert.equal(generation('profile', profileInput('gemini-2.5-flash-lite')).input.model, 'gemini-3.5-flash-lite');
   assert.throws(() => generation('profile', profileInput('gemini-1.0-unknown')));

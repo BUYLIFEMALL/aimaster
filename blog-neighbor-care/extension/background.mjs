@@ -62,9 +62,15 @@ export function createReaderController(browser, fetcher = fetch) {
     const popup = sender.id === browser.runtime.id && sender.url === browser.runtime.getURL('popup.html');
     let web = false;
     try { web = sender.id === browser.runtime.id && new URL(sender.tab?.url).origin === SITE; } catch { /* not the program tab */ }
-    if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect', 'feed_sync', 'version'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
+    if (!message || typeof message !== 'object' || !(popup || (web && ['status', 'connect', 'feed_sync', 'version', 'traversal_start', 'traversal_status'].includes(message.type)))) throw new Error('프로그램 또는 확장 화면에서 실행해 주세요.');
     if(message.type==='version')return {version:browser.runtime.getManifest().version_name};
     const { token } = await browser.storage.local.get('token');
+    // v1.17 C-1 (4): 실행 동의는 처음 한 번 — 같은 연결(토큰)·같은 범위면 다시 묻지 않는다. 연결이 바뀌거나 철회하면 사라진다.
+    const consented=async scope=>{const {runConsent}=await browser.storage.local.get('runConsent');return !!token&&runConsent?.token===token&&Array.isArray(runConsent.scopes)&&runConsent.scopes.includes(scope);};
+    const remember=async scope=>{const {runConsent}=await browser.storage.local.get('runConsent');const scopes=runConsent?.token===token&&Array.isArray(runConsent.scopes)?runConsent.scopes:[];await browser.storage.local.set({runConsent:{token,scopes:[...new Set([...scopes,scope])],at:new Date().toISOString()}});};
+    if(message.type==='consent_status'){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return {work:await consented('work'),traversal:await consented('traversal')};}
+    if(message.type==='consent_revoke'){if(!popup)throw Error('확장 화면에서 실행해 주세요.');await browser.storage.local.remove('runConsent');await traversal.stop();await schedule.stop();await work.stop();return {work:false,traversal:false};}
+    if(['connect','disconnect'].includes(message.type))await browser.storage.local.remove('runConsent');
     if(message.type==='feed_sync')return feedWatch.sync();
     if(['feed_status','feed_stop'].includes(message.type)){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return message.type==='feed_status'?feedWatch.status():feedWatch.stop();}
     if(['connect','disconnect'].includes(message.type))await feedWatch.clear();
@@ -77,7 +83,11 @@ export function createReaderController(browser, fetcher = fetch) {
       if(message.confirmed!==true||neighbors.isRunning())throw Error('받은 신청 반복 수락 동의를 확인해 주세요.');
       await traversal.stop();await schedule.stop();await work.stop();await contexts.cancel();await acceptReader.cancel();return acceptSchedule.start(true);
     }
-    if(['traversal_start','traversal_stop','traversal_status'].includes(message.type)){if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');if(message.type==='traversal_status')return traversal.status();if(message.type==='traversal_stop')return traversal.stop();if(message.confirmed!==true||neighbors.isRunning())throw Error('대상 글 순회 동의를 확인하세요.');await schedule.stop();await work.stop();await contexts.cancel();await acceptReader.cancel();await acceptance.stop();return traversal.start(true);}
+    if(['traversal_start','traversal_stop','traversal_status'].includes(message.type)){if(!token||(!popup&&!web))throw Error('연결된 확장 화면에서 실행해 주세요.');if(message.type==='traversal_status')return traversal.status();if(message.type==='traversal_stop'){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return traversal.stop();}
+      // 웹 「승인한 작업 실행」은 확장 팝업에서 한 번 기억한 순회 동의가 있을 때만 시작한다(웹에서 새 동의를 만들지 않음).
+      const ok=popup&&message.confirmed===true||await consented('traversal');if(!ok||neighbors.isRunning())throw Error(web?'확장 팝업 「승인한 글 순회」에서 처음 한 번 동의해 주세요.':'대상 글 순회 동의를 확인하세요.');
+      if(popup&&message.confirmed===true)await remember('traversal');
+      await schedule.stop();await work.stop();await contexts.cancel();await acceptReader.cancel();await acceptance.stop();return traversal.start(true);}
     if(['accept_preview','accept_confirm','accept_cancel','accept_start','accept_stop','accept_status','accept_check'].includes(message.type)){
       if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
       if(message.type==='accept_status')return acceptance.status();
@@ -107,7 +117,8 @@ export function createReaderController(browser, fetcher = fetch) {
       if(!popup)throw Error('확장 화면에서 실행해 주세요.');
       if(message.type==='work_stop'){await schedule.stop();return await work.stop();}
       if(message.type==='work_status')return await work.status();
-      if(!token||message.confirmed!==true||neighbors.isRunning())throw Error('회원 연결·현재 탭 실행 동의를 확인해 주세요.');
+      if(!token||!(message.confirmed===true||await consented('work'))||neighbors.isRunning())throw Error('회원 연결·현재 탭 실행 동의를 확인해 주세요.');
+      if(message.confirmed===true)await remember('work');
       await schedule.stop();await contexts.cancel();
       return work.start();
     }

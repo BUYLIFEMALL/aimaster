@@ -109,9 +109,10 @@ test('NR12 the menu separates main and extension versions from live answers, and
  assert.match(read('../extension/web-bridge.js'),/'version'/);assert.match(read('../extension/background.mjs'),/version:browser\.runtime\.getManifest\(\)\.version_name/);
 });
 
-test('NR13 the reading wait tolerates a short loss of focus but keeps stopping on a long one',()=>{
+test('NR13 v1.17 reading judges tab visibility (not focus): hidden pauses the clock, over 10 minutes defers without a click',()=>{
  const s=readFileSync(new URL('../extension/work-bridge.mjs',import.meta.url),'utf8');
- assert.match(s,/blurred\.blurred=true/);assert.match(s,/if\(e\?\.blurred!==true\)throw e/);assert.match(s,/away>15000/);
+ assert.match(s,/document\.visibilityState/);assert.match(s,/hidden\.hidden=true/);assert.match(s,/if\(e\?\.hidden!==true\)throw e/);
+ assert.match(s,/PAUSE_LIMIT=600000/);assert.match(s,/phase:'deferred'/);assert.doesNotMatch(s,/w\.focused/);
  assert.match(s,/r=await post\('reading'/);
 });
 test('NR20 a post with zero comments: the empty list is accepted only with the open input, the opener is not re-clicked, and the new comment verifies',async()=>{

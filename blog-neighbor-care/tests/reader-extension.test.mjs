@@ -111,3 +111,18 @@ test('읽는동안주소변경하면본문전송불가', async () => {
   await assert.rejects(s.run({ type: 'read', ownerConfirmed: true }), /주소가 바뀌/);
   assert.ok(!s.calls.some(x => x.operation === 'submit'));
 });
+test('v1.17 실행 동의는 처음 한 번 — 같은 연결이면 기억해 다시 묻지 않고, 웹 순회 시작은 기억된 동의가 있을 때만',async()=>{
+ const s=setup(),web={id:s.browser.runtime.id,tab:{url:`${SITE}/today`}};
+ const why=async p=>{try{await p;return '';}catch(e){return String(e?.message??e);}};
+ assert.deepEqual(await s.run({type:'consent_status'}),{work:false,traversal:false});
+ assert.match(await why(s.handle({type:'traversal_start'},web)),/처음 한 번 동의/);
+ assert.match(await why(s.run({type:'work_start'})),/동의를 확인/);
+ for(const type of ['consent_status','consent_revoke','traversal_stop'])await assert.rejects(s.handle({type},web));
+ s.local.runConsent={token:TOKEN,scopes:['work','traversal'],at:new Date().toISOString()};
+ assert.deepEqual(await s.run({type:'consent_status'}),{work:true,traversal:true});
+ assert.doesNotMatch(await why(s.handle({type:'traversal_start'},web)),/처음 한 번 동의|글 순회 동의를 확인하세요/,'background consent gate passed (the fixture has no alarms, so the traversal itself stops later)');
+ assert.doesNotMatch(await why(s.run({type:'work_start'})),/동의를 확인/);
+ s.local.token='b'.repeat(64);assert.deepEqual(await s.run({type:'consent_status'}),{work:false,traversal:false},'a different connection forgets the consent');
+ s.local.token=TOKEN;await s.run({type:'consent_revoke'});assert.equal(s.local.runConsent,undefined);
+ assert.equal(s.executed(),0);
+});

@@ -9,7 +9,7 @@ const valid = { profile: { topics: ['가상'], interests: [], audience: '가상 
   evidence: [{ sourceId: source, quote: '가상 원문입니다.' }] };
 function setup(mode, reporterThrows = false) {
   const diagnostics = [], jobs = new Map(); let fetchCalls = 0;
-  const input = { id: randomUUID(), provider: 'anthropic', model: 'claude-haiku-4-5', externalAiConfirmed: true,
+  const input = { id: randomUUID(), provider: 'anthropic', model: 'claude-haiku-5-5', externalAiConfirmed: true,
     materialIds: [source], preferences: { requiredTopics: [], excludedTopics: [], region: '', scale: 'any', styleSamples: [] } };
   const handler = createAnalysisHandler({
     member: async () => ({ allowed: true, userId: owner }), key: async () => sensitive,
@@ -47,7 +47,7 @@ test('AD01 provider rejection, malformed response, validation and storage failur
     const s = setup(mode), response = await s.send(), body = await response.json();
     assert.equal(response.status, 502); assert.equal(body.code, 'GENERATION_UNCONFIRMED');
     assert.equal(s.diagnostics.length, 1, `missing safe diagnostic for ${mode}`);
-    assert.deepEqual(s.diagnostics[0], { jobId: s.input.id, kind: 'profile', provider: 'anthropic', model: 'claude-haiku-4-5', stage, reason, ...(status ? { httpStatus: status, providerCode: 'authentication_required' } : {}) });
+    assert.deepEqual(s.diagnostics[0], { jobId: s.input.id, kind: 'profile', provider: 'anthropic', model: 'claude-haiku-5-5', stage, reason, ...(status ? { httpStatus: status, providerCode: 'authentication_required' } : {}) });
     assert.doesNotMatch(JSON.stringify([body, s.diagnostics]), new RegExp(sensitive));
     assert.equal(body.diagnostic, undefined); assert.equal(body.httpStatus, undefined);
     assert.equal(s.jobs.get(s.input.id).state, 'uncertain');

@@ -3,17 +3,18 @@ import assert from 'node:assert/strict';
 import {createWorkBridge} from '../extension/work-bridge.mjs';
 const device='11111111-1111-4111-8111-111111111111',id='22222222-2222-4222-8222-222222222222',account='33333333-3333-4333-8333-333333333333';
 function fixture(){
- const calls=[],session={},state={focused:true,popup:false,url:'https://blog.naver.com/neighbor/123',actor:'own-blog',applies:0,change:null,lose:null,time:0,characters:1000,articleHash:'d'.repeat(64),onSleep:null};
+ const calls=[],session={},state={focused:true,popup:false,hidden:false,url:'https://blog.naver.com/neighbor/123',actor:'own-blog',applies:0,change:null,lose:null,time:0,characters:1000,articleHash:'d'.repeat(64),onSleep:null};
  const job={id,account_id:account,actor_id:'own-blog',neighbor_id:'neighbor',post_id:'123',kind:'like',body:'',expires_at:new Date(Date.now()+600000).toISOString()};
  const browser={tabs:{query:async()=>[{id:7,windowId:8,url:state.url}]},windows:{get:async()=>({focused:state.focused,state:'normal'})},
   storage:{session:{get:async k=>({[k]:session[k]}),set:async v=>Object.assign(session,v),remove:async k=>{delete session[k];}}},scripting:{executeScript:async opts=>{
    assert.equal(opts.world,'ISOLATED');const op=opts.args[0].operation;let result;
+   if(op==='visibility')return [{frameId:0,result:state.hidden?'hidden':'visible'}];
    if(op==='inspect')result={articleHash:state.articleHash,articleCharacters:state.characters,accountId:account,actorId:'own-blog',neighborId:'neighbor',postId:'123',restriction:'none',relationship:'mutual',liked:false,duplicate:false,checkedAt:Date.now()};
    if(op==='assert')result=true;if(op==='apply'){assert.ok(session.workAttempts[`${device}:${id}:1`]);state.applies++;result=true;}
    if(op==='verify')result={state:'liked'};return [{frameId:1,result}];
   }}};
  const post=async(op,p)=>{
-  calls.push(op);if(state.lose===op)throw Error('response lost');if(state.change&&op==='inspect')state.change();
+  calls.push(op);state.onPost?.(op);if(state.lose===op)throw Error('response lost');if(state.change&&op==='inspect')state.change();
   if(['offer','scheduled_offer','traversal_offer'].includes(op))return {id,phase:'inspect',nonce:'a'.repeat(64),job,profile:{v:1,reviewed:true,reference:'synthetic'}};
   if(op==='inspect')return {id,phase:'reading',readDurationMs:Math.max(30000,Math.ceil(state.characters/500)*5000),nonce:'b'.repeat(64)};
   if(op==='reading')return {id,phase:'recheck',nonce:'e'.repeat(64)};
@@ -26,9 +27,9 @@ function fixture(){
 test('WW01 web-only execution checks phases and persists the attempt before the one physical application',async()=>{
  const f=fixture(),r=await f.bridge.start();assert.match(r.message,/완료/);assert.equal(r.connected,false);assert.equal(f.state.applies,1);assert.deepEqual(f.calls,['offer','inspect','reading','recheck','effect']);assert.equal(f.session.workRun,undefined);
 });
-test('WW02 own visible extension popup is allowed; a different foreground app/window cannot execute',async()=>{
- const f=fixture();f.state.focused=false;f.state.popup=true;await f.bridge.start();assert.equal(f.state.applies,1);
- const g=fixture();g.state.focused=false;await assert.rejects(g.bridge.start());assert.equal(g.state.applies,0);assert.equal(g.calls.includes('offer'),false);
+test('WW02 v1.17 using another program is fine while the target tab stays visible; a hidden tab cannot start',async()=>{
+ const f=fixture();f.state.focused=false;await f.bridge.start();assert.equal(f.state.applies,1);
+ const g=fixture();g.state.hidden=true;await assert.rejects(g.bridge.start());assert.equal(g.state.applies,0);assert.equal(g.calls.includes('offer'),false);
 });
 test('WW03 tab/account changes after the first server step stop without application',async()=>{
  for(const key of ['url','actor']){const f=fixture();f.state.change=()=>{f.state[key]=key==='url'?'https://blog.naver.com/other/123':'other';};await assert.rejects(f.bridge.start());assert.equal(f.state.applies,0);assert.equal(f.calls.at(-1),'stop');}
@@ -45,7 +46,20 @@ test('WW05 status is read-only and a lost final response never repeats applicati
  test('WW06 reading minimum and length-dependent wait precede claiming; changes or lost focus stop without applying',async()=>{
   const f=fixture();await f.bridge.start();assert.equal(f.state.time,30000);
   const long=fixture();long.state.characters=10000;await long.bridge.start();assert.equal(long.state.time,100000);
-  for(const mutate of [f=>f.state.focused=false,f=>f.state.url='https://blog.naver.com/neighbor/456',f=>f.state.articleHash='f'.repeat(64),f=>f.state.actor='other']){const g=fixture();g.state.onSleep=()=>mutate(g);await assert.rejects(g.bridge.start());assert.equal(g.state.applies,0);assert.equal(g.calls.includes('reading'),false);}
+  for(const mutate of [f=>f.state.url='https://blog.naver.com/neighbor/456',f=>f.state.articleHash='f'.repeat(64),f=>f.state.actor='other']){const g=fixture();g.state.onSleep=()=>mutate(g);await assert.rejects(g.bridge.start());assert.equal(g.state.applies,0);assert.equal(g.calls.includes('reading'),false);}
  });
 
 test('WW07 a different approved job cannot replace the server-selected traversal target',async()=>{const f=fixture();await assert.rejects(f.bridge.start({scheduled:true,traversal:true,jobId:'99999999-9999-4999-8999-999999999999'}));assert.equal(f.state.applies,0);assert.equal(f.calls.includes('inspect'),false);});
+
+test('WW10 v1.17 a hidden target only pauses the reading clock; it continues when visible again',async()=>{
+ const f=fixture();let n=0;f.state.onSleep=()=>{n++;if(n===5)f.state.hidden=true;if(n===305)f.state.hidden=false;};
+ await f.bridge.start();assert.equal(f.state.applies,1);assert.ok(f.state.time>=330000,'paused time is not counted as reading');
+});
+test('WW11 v1.17 hidden for more than 10 minutes: no click, the job is deferred (stop), never retried automatically',async()=>{
+ const f=fixture();let n=0;f.state.onSleep=()=>{n++;if(n===3)f.state.hidden=true;};
+ const r=await f.bridge.start();assert.equal(r.phase,'deferred');assert.equal(f.state.applies,0);assert.equal(f.calls.includes('reading'),false);assert.equal(f.calls.at(-1),'stop');assert.match(r.message,/다음 주기로 미룸/);
+});
+test('WW12 v1.17 the click step still needs the tab visible (no click in a hidden tab)',async()=>{
+ const f=fixture();f.state.onPost=op=>{if(op==='reading')f.state.hidden=true;};
+ await assert.rejects(f.bridge.start());assert.equal(f.state.applies,0);assert.equal(f.calls.includes('recheck'),false);assert.equal(f.calls.at(-1),'stop');
+});

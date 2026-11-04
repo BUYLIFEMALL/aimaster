@@ -11,13 +11,12 @@
 export type AiModelProvider = "openai" | "anthropic" | "gemini" | "perplexity";
 
 export type AiModel =
-  | "gpt-5.6-luna"
-  | "gpt-5.6-terra"
-  | "gpt-5.6-sol"
-  | "gpt-4.1"
-  | "claude-haiku-4-5"
-  | "claude-sonnet-5"
-  | "claude-opus-5"
+  | "gpt-6.1-terra"
+  | "gpt-6-luna"
+  | "gpt-6-astra"
+  | "claude-sonnet-5-5"
+  | "claude-haiku-5-5"
+  | "claude-opus-5-5"
   | "gemini-3.5-flash-lite"
   | "gemini-3.8-flash"
   | "gemini-4-argon"
@@ -32,16 +31,15 @@ export interface AiModelOption {
 }
 
 export const AI_MODEL_OPTIONS: AiModelOption[] = [
-  { value: "gpt-5.6-luna", label: "가성비 (GPT-5.6 Luna, 빠르고 저렴 · 추천)", provider: "openai" },
-  { value: "gpt-5.6-terra", label: "균형형 (GPT-5.6 Terra)", provider: "openai" },
-  { value: "gpt-5.6-sol", label: "고급형 (GPT-5.6 Sol, 복잡한 페이지 구조에 강함)", provider: "openai" },
-  { value: "gpt-4.1", label: "구형 (GPT-4.1, 이전 세대)", provider: "openai" },
+  // docs/AI_MODEL_CATALOG.md 등급별 추천 3개씩(OpenAI·Claude 2026-11-04 v1.17, Gemini v1.16) — 기본은 중가 균형.
+  { value: "gpt-6.1-terra", label: "균형형 (GPT-6.1 Terra · 기본 추천)", provider: "openai" },
+  { value: "gpt-6-luna", label: "가성비 (GPT-6 Luna, 빠르고 저렴)", provider: "openai" },
+  { value: "gpt-6-astra", label: "최고급 (GPT-6 Astra, 비용 높음)", provider: "openai" },
 
-  { value: "claude-haiku-4-5", label: "가성비 (Claude Haiku 4.5, 빠르고 저렴 · 추천)", provider: "anthropic" },
-  { value: "claude-sonnet-5", label: "균형형 (Claude Sonnet 5)", provider: "anthropic" },
-  { value: "claude-opus-5", label: "고급형 (Claude Opus 5, 복잡한 페이지 구조에 강함)", provider: "anthropic" },
+  { value: "claude-sonnet-5-5", label: "균형형 (Claude Sonnet 5.5 · 기본 추천)", provider: "anthropic" },
+  { value: "claude-haiku-5-5", label: "가성비 (Claude Haiku 5.5, 빠르고 저렴)", provider: "anthropic" },
+  { value: "claude-opus-5-5", label: "최고급 (Claude Opus 5.5)", provider: "anthropic" },
 
-  // docs/AI_MODEL_CATALOG.md 등급별 추천 3개(2026-11-04 v1.16) — 기본은 중가 균형.
   { value: "gemini-3.8-flash", label: "균형형 (Gemini 3.8 Flash · 기본 추천)", provider: "gemini" },
   { value: "gemini-3.5-flash-lite", label: "가성비 (Gemini 3.5 Flash Lite, 가장 빠르고 저렴)", provider: "gemini" },
   { value: "gemini-4-argon", label: "최고급 (Gemini 4 Argon · 무료 등급 없음, 결제 연결 키 필요)", provider: "gemini" },
@@ -50,10 +48,10 @@ export const AI_MODEL_OPTIONS: AiModelOption[] = [
   { value: "sonar-pro", label: "고급형 (Sonar Pro)", provider: "perplexity" },
 ];
 
-/** provider별 기본 선택 모델 — 전부 가장 저렴/빠른 티어. */
+/** provider별 기본 선택 모델 — 모델 선택표의 중가 균형(기본값). */
 export const DEFAULT_MODEL_BY_PROVIDER: Record<AiModelProvider, AiModel> = {
-  openai: "gpt-5.6-luna",
-  anthropic: "claude-haiku-4-5",
+  openai: "gpt-6.1-terra",
+  anthropic: "claude-sonnet-5-5",
   gemini: "gemini-3.8-flash",
   perplexity: "sonar",
 };
@@ -70,6 +68,14 @@ export const AI_MODEL_PROVIDER_ORDER: AiModelProvider[] = ["openai", "anthropic"
 
 /** 종료·자동 연결되는 옛 모델 → 대체 모델(2026-12-01 Gemini 2.5 종료). 저장된 작업의 옛 값도 새 모델로 호출한다. */
 const RETIRED_AI_MODEL: Record<string, AiModel> = {
+  // v1.17: 이전 세대 OpenAI·Claude 저장값은 같은 등급의 선택표 모델로.
+  "gpt-5.6-luna": "gpt-6-luna",
+  "gpt-5.6-terra": "gpt-6.1-terra",
+  "gpt-5.6-sol": "gpt-6-astra",
+  "gpt-4.1": "gpt-6.1-terra",
+  "claude-haiku-4-5": "claude-haiku-5-5",
+  "claude-sonnet-5": "claude-sonnet-5-5",
+  "claude-opus-5": "claude-opus-5-5",
   "gemini-2.5-pro": "gemini-3.8-flash",
   "gemini-2.5-flash": "gemini-3.8-flash",
   "gemini-2.5-flash-lite": "gemini-3.5-flash-lite",
