@@ -213,7 +213,7 @@ export default function SongsPage() {
         return;
       }
       setPlan(data.tracks);
-      setMessage({ type: "success", text: `연주곡 ${data.tracks.length}곡을 기획했습니다(AI 호출 ${data.calls}번). 곡마다 [불러오기] 하거나 [모두 곡으로 저장]을 눌러 주세요.` });
+      setMessage({ type: "success", text: `연주곡 ${data.tracks.length}곡을 기획했습니다(AI 호출 ${data.calls}번). 곡마다 [이 곡으로 생성하기]를 누르거나 [모두 내 곡에 저장]을 눌러 주세요.` });
     } catch {
       setMessage({ type: "error", text: "연주곡을 기획하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
     } finally {
@@ -248,7 +248,9 @@ export default function SongsPage() {
 
   const loadPlanned = (t: PlannedTrack) => {
     openDraft({ id: null, title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec });
-    setMessage({ type: "success", text: `불러왔습니다: ${t.title} — [저장하기] 또는 바로 [노래 만들기]를 눌러 주세요.` });
+    setMessage({ type: "success", text: `「${t.title}」을 넣었습니다 — 아래 「내 PC로 노래 만들기」에서 엔진을 고르고 [대기열에 넣기]를 눌러 주세요.` });
+    // 「이 곡으로 생성하기」(주인님 2026-11-05) — 만들기 칸으로 바로 내려간다
+    setTimeout(() => document.getElementById("generate-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
   const savePlan = async () => {
@@ -533,7 +535,7 @@ export default function SongsPage() {
                     disabled={savingPlan}
                     className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:brightness-110 disabled:opacity-40"
                   >
-                    <Save className="h-3.5 w-3.5" /> {savingPlan ? "저장 중…" : `모두 곡으로 저장(${durationLabel(draft.duration_sec)})`}
+                    <Save className="h-3.5 w-3.5" /> {savingPlan ? "저장 중…" : `${plan.length}곡 모두 내 곡에 저장(${durationLabel(draft.duration_sec)})`}
                   </button>
                 </div>
                 <ol className="space-y-1.5">
@@ -551,7 +553,7 @@ export default function SongsPage() {
                           onClick={() => loadPlanned(t)}
                           className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-teal-500/40 px-2.5 py-1.5 text-[11px] font-semibold text-teal-200 hover:bg-teal-950/50"
                         >
-                          <Download className="h-3 w-3" /> 불러오기
+                          <Download className="h-3 w-3" /> 이 곡으로 생성하기
                         </button>
                       </div>
                     </li>
@@ -648,7 +650,9 @@ export default function SongsPage() {
           </section>
 
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
-          <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} />
+          <div id="generate-panel" className="scroll-mt-6">
+            <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} />
+          </div>
         </div>
       </div>
     </div>
