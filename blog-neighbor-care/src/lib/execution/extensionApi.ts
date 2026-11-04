@@ -28,6 +28,11 @@ export function createExtensionExecutionHandler(d:Dependencies){return async(req
   const v=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!object(v)||!keys(v,['operation','payload'])||typeof v.operation!=='string'||!object(v.payload))throw Error('input');
   const op=v.operation,p=v.payload;let payload:Obj={};
   if(op==='status'||op==='next'){if(!keys(p,[]))throw Error('input');}
+  // v1.18 C-2: 자동 운영 상태 조회·전체 일시정지는 실행 준비(DOM 프로필) 없이도 된다 — 멈추는 쪽은 항상 열려 있어야 한다.
+  else if(op==='autopilot_status'||op==='autopilot_pause'){
+   if(!keys(p,[]))throw Error('input');const r=await d.rpc(a.userId,a.deviceId,op,{});
+   if(r.error||!object(r.data))return reply({error:'자동 운영 상태를 확인하지 못했습니다.'},409);return reply({data:r.data});
+  }
   else if(op==='stop'){if(!keys(p,['id'])||!uuid(p.id))throw Error('input');payload={id:p.id};}
   else if(op==='offer'||op==='scheduled_offer'||op==='traversal_offer'){
    if(!keys(p,['request_id','url'])||!uuid(p.request_id)||typeof p.url!=='string'||p.url.length>2048)throw Error('input');

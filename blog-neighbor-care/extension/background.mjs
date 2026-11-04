@@ -11,6 +11,7 @@ import {createContextReader} from './context-bridge.mjs';
 import {createFeedWatch} from './feed-watch.mjs';
 
 export const SITE = 'https://blog-neighbor-care.buylife.xyz';
+export const AUTOPILOT_ALARM='bnc-autopilot';
 export function createReaderController(browser, fetcher = fetch) {
   const ready = Promise.all([browser.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' }),
     browser.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })]);
@@ -56,6 +57,10 @@ export function createReaderController(browser, fetcher = fetch) {
     const {token}=await browser.storage.local.get('token');if(!token||token!==importToken)throw Error('연결 계정이 변경됐습니다.');
     return (await post('whoami',{},token)).data;
   },undefined,undefined,publishProgress,popupFocused);
+  // v1.18 C-2: 프로그램 「시작하기」에서 받은 통합 동의·일시정지 상태(서버 기록). 확장 팝업에서 다시 묻지 않는다.
+  const autopilotStatus=async()=>{const {token}=await browser.storage.local.get('token');if(!token)throw Error('회원 연결이 필요합니다.');return (await post('autopilot_status',{},token,'/api/execution/extension')).data;};
+  const seoul=(at=new Date())=>{const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(at).map(p=>[p.type,p.value]));return {day:`${parts.year}-${parts.month}-${parts.day}`,minute:Number(parts.hour)*60+Number(parts.minute)};};
+  const inWindow=(minute,start,end)=>start===end||(start<end?minute>=start&&minute<end:minute>=start||minute<end);
   const feedWatch=createFeedWatch(browser,async(operation,payload)=>{const {token}=await browser.storage.local.get('token');if(!token)throw Object.assign(Error('회원 연결이 필요합니다.'),{status:401});return (await post(operation,payload,token,'/api/neighbors/monitor/extension')).data;},fetcher);
   const handle=async function(message, sender) {
     await ready;
@@ -69,8 +74,14 @@ export function createReaderController(browser, fetcher = fetch) {
     const consented=async scope=>{const {runConsent}=await browser.storage.local.get('runConsent');return !!token&&runConsent?.token===token&&Array.isArray(runConsent.scopes)&&runConsent.scopes.includes(scope);};
     const remember=async scope=>{const {runConsent}=await browser.storage.local.get('runConsent');const scopes=runConsent?.token===token&&Array.isArray(runConsent.scopes)?runConsent.scopes:[];await browser.storage.local.set({runConsent:{token,scopes:[...new Set([...scopes,scope])],at:new Date().toISOString()}});};
     if(message.type==='consent_status'){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return {work:await consented('work'),traversal:await consented('traversal')};}
+    if(message.type==='autopilot_status'){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return autopilotStatus();}
+    // 전체 일시정지(팝업): 서버 기록을 먼저 남기고, 이 기기의 순회·반복·실행을 모두 멈춘다. 다시 시작은 프로그램 화면에서.
+    if(message.type==='autopilot_pause'){if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
+      let saved=true;try{await post('autopilot_pause',{},token,'/api/execution/extension');}catch{saved=false;}
+      await traversal.stop();await schedule.stop();await acceptSchedule.stop();await acceptance.stop();await work.stop();
+      return {paused:true,saved,message:saved?'전체 일시정지 · 다시 시작은 프로그램 「🏠 오늘의 소통」에서 누릅니다.':'이 기기의 실행은 멈췄습니다. 서버 기록은 확인하지 못했으니 프로그램에서도 일시정지를 눌러 주세요.'};}
     if(message.type==='consent_revoke'){if(!popup)throw Error('확장 화면에서 실행해 주세요.');await browser.storage.local.remove('runConsent');await traversal.stop();await schedule.stop();await work.stop();return {work:false,traversal:false};}
-    if(['connect','disconnect'].includes(message.type))await browser.storage.local.remove('runConsent');
+    if(['connect','disconnect'].includes(message.type)){await browser.storage.local.remove('runConsent');await browser.storage.local.remove('autopilotDay');}
     if(message.type==='feed_sync')return feedWatch.sync();
     if(['feed_status','feed_stop'].includes(message.type)){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return message.type==='feed_status'?feedWatch.status():feedWatch.stop();}
     if(['connect','disconnect'].includes(message.type))await feedWatch.clear();
@@ -85,8 +96,11 @@ export function createReaderController(browser, fetcher = fetch) {
     }
     if(['traversal_start','traversal_stop','traversal_status'].includes(message.type)){if(!token||(!popup&&!web))throw Error('연결된 확장 화면에서 실행해 주세요.');if(message.type==='traversal_status')return traversal.status();if(message.type==='traversal_stop'){if(!popup)throw Error('확장 화면에서 실행해 주세요.');return traversal.stop();}
       // 웹 「승인한 작업 실행」은 확장 팝업에서 한 번 기억한 순회 동의가 있을 때만 시작한다(웹에서 새 동의를 만들지 않음).
-      const ok=popup&&message.confirmed===true||await consented('traversal');if(!ok||neighbors.isRunning())throw Error(web?'확장 팝업 「승인한 글 순회」에서 처음 한 번 동의해 주세요.':'대상 글 순회 동의를 확인하세요.');
-      if(popup&&message.confirmed===true)await remember('traversal');
+      // v1.18 C-2: 프로그램 「시작하기」 통합 동의(서버 기록)가 있으면 확장 팝업 동의 없이 시작한다. 일시정지 중이면 시작하지 않는다.
+      let server=null;if(!(popup&&message.confirmed===true)){try{server=await autopilotStatus();}catch{server=null;}}
+      if(server?.paused)throw Error('전체 일시정지 중입니다. 프로그램에서 「다시 시작」을 누른 뒤 실행해 주세요.');
+      const ok=popup&&message.confirmed===true||server?.consented===true||await consented('traversal');if(!ok||neighbors.isRunning())throw Error(web?'프로그램 「🏠 오늘의 소통」의 「시작하기」에서 처음 한 번 동의해 주세요.':'대상 글 순회 동의를 확인하세요.');
+      if(popup&&message.confirmed===true||server?.consented===true)await remember('traversal');
       await schedule.stop();await work.stop();await contexts.cancel();await acceptReader.cancel();await acceptance.stop();return traversal.start(true);}
     if(['accept_preview','accept_confirm','accept_cancel','accept_start','accept_stop','accept_status','accept_check'].includes(message.type)){
       if(!popup||!token)throw Error('연결된 확장 화면에서 실행해 주세요.');
@@ -207,15 +221,32 @@ export function createReaderController(browser, fetcher = fetch) {
     }
     throw new Error('지원하지 않는 작업입니다.');
   };
-  handle.onAlarm=async alarm=>{await feedWatch.alarm(alarm.name);await schedule.alarm(alarm.name);await traversal.alarm(alarm.name);await acceptSchedule.alarm(alarm.name);};handle.resumeFeed=()=>feedWatch.resume();return handle;
+  // v1.18 C-2 자동 시작: 자동 모드·통합 동의가 있고 일시정지가 아니면, 동작 시간대가 되었을 때 하루 한 번 순회를 스스로 켠다.
+  // 시작하지 못하거나 오류로 멈추면 그날은 다시 켜지 않는다(같은 탭을 반복해서 열지 않음). 다음 날 다시 시도.
+  const autopilotTick=async()=>{
+    const {token}=await browser.storage.local.get('token');if(!token||neighbors.isRunning())return {started:false,reason:'not_ready'};
+    const today=seoul(new Date(Date.now()));const {autopilotDay}=await browser.storage.local.get('autopilotDay');if(autopilotDay===today.day)return {started:false,reason:'done_today'};
+    const s=await autopilotStatus();
+    if(!s?.consented||s.paused||s.mode!=='auto'||!s.enabled)return {started:false,reason:'off'};
+    const w=s.schedule??{};if(!inWindow(today.minute,Number(w.startMinute),Number(w.endMinute)))return {started:false,reason:'outside_window'};
+    const t=await traversal.status();if(t.enabled||t.resultCheckRequired){await browser.storage.local.set({autopilotDay:today.day});return {started:false,reason:'running'};}
+    await browser.storage.local.set({autopilotDay:today.day});
+    try{await remember('traversal');await traversal.start(true);return {started:true};}
+    catch(e){await browser.storage.local.set({autopilotNote:{day:today.day,message:e?.message??'시작하지 못했습니다.'}});return {started:false,reason:'start_failed'};}
+  };
+  const remember=async scope=>{const {token}=await browser.storage.local.get('token');const {runConsent}=await browser.storage.local.get('runConsent');const scopes=runConsent?.token===token&&Array.isArray(runConsent.scopes)?runConsent.scopes:[];await browser.storage.local.set({runConsent:{token,scopes:[...new Set([...scopes,scope])],at:new Date().toISOString()}});};
+  handle.onAlarm=async alarm=>{if(alarm.name===AUTOPILOT_ALARM){await ready;await autopilotTick().catch(()=>{});return;}await feedWatch.alarm(alarm.name);await schedule.alarm(alarm.name);await traversal.alarm(alarm.name);await acceptSchedule.alarm(alarm.name);};handle.resumeFeed=()=>feedWatch.resume();handle.autopilotTick=autopilotTick;
+  handle.ensureAutopilot=async()=>{if(!browser.alarms?.get)return;if(!await browser.alarms.get(AUTOPILOT_ALARM))await browser.alarms.create(AUTOPILOT_ALARM,{delayInMinutes:1,periodInMinutes:10});};
+  return handle;
 }
 
 if (globalThis.chrome?.runtime?.onMessage) {
   const handle = createReaderController(chrome);
   chrome.alarms?.onAlarm?.addListener(alarm=>{void handle.onAlarm(alarm).catch(()=>{});});
   // Alarms can be gone after a browser restart or extension reload; the saved session puts them back.
-  chrome.runtime.onStartup?.addListener(()=>{void handle.resumeFeed().catch(()=>{});});
-  chrome.runtime.onInstalled?.addListener(()=>{void handle.resumeFeed().catch(()=>{});});
+  chrome.runtime.onStartup?.addListener(()=>{void handle.resumeFeed().catch(()=>{});void handle.ensureAutopilot().catch(()=>{});});
+  chrome.runtime.onInstalled?.addListener(()=>{void handle.resumeFeed().catch(()=>{});void handle.ensureAutopilot().catch(()=>{});});
+  void handle.ensureAutopilot().catch(()=>{});
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(['neighbor_progress','neighbor_focus_probe','work_progress','schedule_progress','traversal_progress','accept_schedule_progress'].includes(message?.type))return false;
     handle(message, sender).then(data => sendResponse({ ok: true, data }), error => sendResponse({ ok: false,

@@ -20,10 +20,19 @@ const operations: Record<string, string[]> = {
   schedule: [], save_schedule: ['interval_minutes','start_minute','end_minute','expected_revision'],
   schedule_status: [], resume_schedule: ['run_id','generation','settings_revision','preference_revision','confirmed'],
   create: ['account_id', 'neighbor_id', 'post_id', 'kind', 'body'], approve: ['id'], edit: ['id', 'body'], cancel: ['id'],
+  // v1.18 C-2 자동 운영: 시작하기 저장 한 번·전체 일시정지·동의 철회.
+  autopilot: [], pause_autopilot: [], resume_autopilot: [], revoke_autopilot: [],
+  save_autopilot: ['mode','tasks','like_cap','comment_cap','interval_minutes','start_minute','end_minute','expected_revision','device_id','confirmed'],
 };
 function valid(operation: string, p: Record<string, unknown>) {
   if (Object.keys(p).some(key => !operations[operation].includes(key))) return false;
   if(operation==='review_approve')return uuid(p.id)&&text(p.expected_body);
+  if(operation==='save_autopilot'){
+   const tasks=p.tasks;
+   return p.confirmed===true&&['auto','review'].includes(String(p.mode))&&Array.isArray(tasks)&&tasks.length>=1&&tasks.length<=2&&new Set(tasks).size===tasks.length&&tasks.every(t=>['like','comment'].includes(String(t)))&&
+    Number.isInteger(p.like_cap)&&Number(p.like_cap)>=0&&Number(p.like_cap)<=limits.like_cap&&Number.isInteger(p.comment_cap)&&Number(p.comment_cap)>=0&&Number(p.comment_cap)<=10&&
+    uuid(p.device_id)&&Number.isSafeInteger(p.expected_revision)&&Number(p.expected_revision)>0&&validSchedule(p as {interval_minutes:number;start_minute:number;end_minute:number});
+  }
   if(operation==='save_execution')return p.confirmed===true&&typeof p.enabled==='boolean'&&Number.isSafeInteger(p.expected_revision)&&Number(p.expected_revision)>0&&Object.entries(limits).every(([k,max])=>Number.isInteger(p[k])&&Number(p[k])>=0&&Number(p[k])<=max);
   if(operation==='grant_accept')return uuid(p.device_id)&&p.confirmed===true&&typeof p.read==='boolean'&&typeof p.execute==='boolean';
   if(operation==='revoke_accept')return uuid(p.device_id);
@@ -102,8 +111,10 @@ export function createWorkHandler({ authorize, execute }: Dependencies) {
         const message = result.error.message ?? '';
         if(message==='BNC_SCHEDULE_CHANGED')return response({error:'반복 설정이나 실행 기록이 바뀌었습니다. 현재 상태를 다시 조회한 뒤 진행해 주세요.'},409);
         if(message==='BNC_RESUME_BLOCKED')return response({error:'이전 작업의 결과 확인과 미해결 작업 처리가 필요합니다. 자동 실행은 꺼진 상태에서 다시 확인해 주세요.'},409);
+        if(operation==='save_autopilot'&&message==='BNC_STALE_REVISION')return response({error:'그사이 설정이 바뀌었습니다. 화면을 다시 조회한 뒤 저장해 주세요.'},409);
+        if(operation==='save_autopilot'&&message==='BNC_NOT_FOUND')return response({error:'연결된 확장 기기를 찾지 못했습니다. 확장을 다시 연결한 뒤 저장해 주세요.'},409);
         if (message === 'BNC_NOT_FOUND') return response({ error: '작업을 찾을 수 없습니다.' }, 404);
-        if (message === 'BNC_DUPLICATE_ACTION') return response({ error: '이 글에 같은 작업이 이미 있습니다(초안·검토 완료·실행 중·성공 포함). 작업 기록에서 기존 작업을 확인해 주세요.', code: message }, 409);
+        if (message === 'BNC_DUPLICATE_ACTION') return response({ error: '이 글에 같은 작업이 이미 있습니다. 작업 기록에서 확인해 주세요.', code: message }, 409);
         if (message === 'BNC_ENGAGEMENT_EXISTS') return response({ error: '이미 초안이 있습니다. 대상을 다시 조회해 저장된 초안을 확인하세요.' }, 409);
         if (message === 'BNC_RETURN_POST_REQUIRED') return response({ error: '확인된 답방 글이 필요합니다.' }, 409);
         if (/^BNC_(LIVE_DISABLED|ACCOUNT_REQUIRED|STOPPED|UNCERTAIN|APPROVAL_CHANGED|INVALID_STATE|EXPIRED)$/.test(message)) {

@@ -12,9 +12,10 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
  }
  async function current(binding,target,version){
   const who=await identity();if(version!==epoch||who.deviceId!==binding.deviceId||who.blogId!==binding.blogId)throw Error('연결 계정이 바뀌거나 실행을 중단했습니다.');
+  // v1.18 C-2 (1): 같은 창에서 다른 탭을 본 것은 「가림」과 같다(시계만 멈춤). 대상 탭의 주소가 바뀌거나 탭이 사라지면 중단.
+  const tab=await browser.tabs.get(target.id);if(tab.windowId!==target.windowId||tab.url!==target.url)throw Error('현재 탭이 바뀌었습니다.');
   const tabs=await browser.tabs.query({active:true,windowId:target.windowId});
-  if(tabs.length!==1||tabs[0].id!==target.id||tabs[0].windowId!==target.windowId||tabs[0].url!==target.url)throw Error('현재 탭이 바뀌었습니다.');
-  const w=await browser.windows.get(target.windowId);if(w.state==='minimized'||!await visible(target)){const hidden=Error('대상 탭이 화면에 보이지 않습니다. 브라우저 창을 최소화하지 말고 대상 탭이 보이게 두세요.');hidden.hidden=true;throw hidden;}
+  const w=await browser.windows.get(target.windowId);if(tabs.length!==1||tabs[0].id!==target.id||w.state==='minimized'||!await visible(target)){const hidden=Error('대상 탭이 화면에 보이지 않습니다. 브라우저 창을 최소화하지 말고 대상 탭이 보이게 두세요.');hidden.hidden=true;throw hidden;}
  }
  async function stop(){
   epoch++;last='실행 중단 요청 · 불확실한 작업은 기록 확인 필요';
@@ -32,13 +33,20 @@ export function createWorkBridge(browser,identity,post,now=Date.now,popupFocused
  async function start(options={}){
   if(busy)throw Error('이미 현재 탭 작업을 처리하고 있습니다.');busy=true;const version=epoch;let detach=()=>{};
   try{
-   const binding=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});
+   const binding=await identity();
+   // v1.18 C-2: 순회는 자기 탭을 대상으로 넘긴다(그사이 회원이 다른 탭을 봐도 그 탭을 대상으로 잡지 않음).
+   const tabs=Number.isInteger(options.tabId)?[await browser.tabs.get(options.tabId)]:await browser.tabs.query({active:true,currentWindow:true});
    if(tabs.length!==1||!Number.isInteger(tabs[0].id))throw Error('네이버 글 또는 준비된 신청 화면을 열어 주세요.');const target={id:tabs[0].id,windowId:tabs[0].windowId,url:tabs[0].url};
-   const changedTab=info=>{if(info.windowId===target.windowId&&info.tabId!==target.id)epoch++;};
    const changedUrl=(id,change)=>{if(id===target.id&&change.url&&change.url!==target.url)epoch++;};
-   browser.tabs.onActivated?.addListener(changedTab);browser.tabs.onUpdated?.addListener(changedUrl);
-   detach=()=>{browser.tabs.onActivated?.removeListener(changedTab);browser.tabs.onUpdated?.removeListener(changedUrl);};
-   await current(binding,target,version);
+   browser.tabs.onUpdated?.addListener(changedUrl);
+   detach=()=>{browser.tabs.onUpdated?.removeListener(changedUrl);};
+   // 순회 대상 탭이 가려져 있으면 서버에 실행을 요청하기 전에 보일 때까지 기다린다(10분 넘으면 아무것도 하지 않고 미룸).
+   for(let waited=0;;){
+    try{await current(binding,target,version);break;}
+    catch(e){if(e?.hidden!==true||options.traversal!==true)throw e;const t0=readingClock.now();await readingClock.sleep(1000);waited+=readingClock.now()-t0;
+     if(waited>PAUSE_LIMIT){last='다음 주기로 미룸 · 대상 탭이 10분 넘게 보이지 않아 시작하지 않았습니다.';return {...state(),phase:'deferred'};}
+     emit('잠시 멈춤 · 대상 글 탭이 보이면 시작합니다.');}
+   }
    let r=await post(options.traversal===true?'traversal_offer':options.scheduled===true?'scheduled_offer':'offer',{request_id:crypto.randomUUID(),url:target.url});
    if(r.phase==='idle'){last=options.scheduled===true?`반복 대기 · ${r.reason??'현재 화면의 승인 작업 없음'}${r.nextDueAt?` · 다음 확인 ${r.nextDueAt}`:''}`:'현재 화면에 검토 완료된 실행 대상이 없습니다.';return {...state(),phase:'idle',reason:r.reason,nextDueAt:r.nextDueAt};}
    if(r.phase!=='inspect'||!r.job||typeof r.nonce!=='string'||!r.profile||r.job.actor_id!==binding.blogId)throw Error('실행 준비 결과를 확인하지 못했습니다.');

@@ -21,7 +21,10 @@ export function PostPlanner({onPick}:{onPick:(post:PreparedPost)=>void}){
  // A like has no text to review here. This only saves a draft; the member still reviews it in the work records before the extension may act.
  async function prepareLike(row:Row){
   if(lock.current)return;lock.current=true;setBusy(true);setLikeRow(row.id);setMessage('처리 중…');
-  try{const r=await fetch('/api/work',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({operation:'create',payload:{account_id:row.account_id,neighbor_id:row.neighbor_id,kind:'like',post_id:row.post_id}})}),v=await r.json();if(!r.ok)throw Error(v.error||'결과 미확인');if(alive.current)setMessage('공감 초안을 저장했습니다. 네이버에는 아직 보내지 않았습니다. 작업 대기·결과 기록에서 대상을 확인해 검토 완료로 저장하세요.');
+  try{const r=await fetch('/api/work',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({operation:'create',payload:{account_id:row.account_id,neighbor_id:row.neighbor_id,kind:'like',post_id:row.post_id}})}),v=await r.json();
+   // v1.18 C-2 (2): 중복 안내는 서버 문장 하나만(뒤에 같은 뜻의 안내를 덧붙이지 않음).
+   if(r.status===409&&v.code==='BNC_DUPLICATE_ACTION'){if(alive.current)setMessage(String(v.error));return;}
+   if(!r.ok)throw Error(v.error||'결과 미확인');if(alive.current)setMessage('공감 초안을 저장했습니다. 네이버에는 아직 보내지 않았습니다. 작업 대기·결과 기록에서 대상을 확인해 검토 완료로 저장하세요.');
   }catch(e){if(alive.current)setMessage(`${e instanceof Error?e.message:'결과 미확인'} 자동 재요청하지 않습니다. 작업 기록부터 조회하세요.`);}finally{lock.current=false;if(alive.current)setBusy(false);}
  }
  return <section className="panel"><h2>이웃 새 글 자료 준비</h2><small>새 글 대상 최대200명·최근 준비 자료50개를 조회합니다.</small><p>새 글 대상으로 켠 기존 이웃을 재사용합니다. RSS에 제공된 항목만 확인하며, 요약을 전문으로 취급하지 않습니다.</p>

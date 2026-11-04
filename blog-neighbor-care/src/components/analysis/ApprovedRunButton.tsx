@@ -35,6 +35,6 @@ export function ApprovedRunButton() {
     <p>검토 완료한 공감·댓글·대댓글을 확장이 같은 브라우저 창의 새 탭에서 차례로 열어 실행합니다. 대상 글을 직접 찾아 열 필요가 없습니다. 하루 상한과 동작 시간대 안에서만 실행하고, 결과가 불확실하면 다시 누르지 않습니다.</p>
     <div className="actions"><button className="primary" disabled={busy} onClick={() => void run('traversal_start')}>승인한 작업 실행</button><button disabled={busy} onClick={() => void run('traversal_status')}>진행 상태 보기</button></div>
     {message && <p className="button-result" role="status" aria-live="polite">{message}</p>}
-    <small>처음 한 번은 확장 팝업 「승인한 글 순회」에서 동의해 주세요. 그 뒤로는 이 버튼만 누르면 됩니다. 멈출 때는 확장 팝업의 「순회 중단」을 누릅니다.</small>
+    <small>위 「🤖 자동 운영」의 시작하기에서 한 번 동의하면 확장 팝업에서 다시 묻지 않습니다. 자동 모드면 동작 시간대에 확장이 스스로 시작하므로 이 버튼은 지금 바로 돌리고 싶을 때만 누르세요. 멈출 때는 「⏸ 전체 일시정지」를 누릅니다.</small>
   </section>;
 }
