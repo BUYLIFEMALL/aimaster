@@ -64,6 +64,8 @@ export async function collectDistrict(
     } catch (err) {
       console.error(`${sggNm} 분양권 조회 실패:`, err);
     }
+    // 뒤에 붙인 분양권이 지역당 새 거래 상한(20건)에 밀려 저장되지 않던 문제(2026-11-04 강서구 운영 확인) — 계약일 최신순으로 다시 섞는다
+    trades.sort((a, b) => (normalizeDate(b.CTRT_DAY, year) ?? "").localeCompare(normalizeDate(a.CTRT_DAY, year) ?? ""));
   }
   // 주거 네 유형(아파트·빌라·오피스텔·단독/다가구)만 받는다. 상가·건물·토지는 별도 프로그램
   // 서울 자료의 단독다가구는 건물 이름이 비어 있어 「단독주택」 같은 이름을 채운다(v1.46)
