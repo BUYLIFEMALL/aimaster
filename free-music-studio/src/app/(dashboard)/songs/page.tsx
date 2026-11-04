@@ -424,14 +424,15 @@ export default function SongsPage() {
                 </select>
                 <button
                   type="button"
-                  onClick={() => makeSoundPrompt(theme)}
-                  disabled={!!writing || !theme.trim()}
+                  onClick={() => makeSoundPrompt(theme.trim() || draft.title)}
+                  disabled={!!writing || !(theme.trim() || draft.title.trim())}
+                  title={theme.trim() ? undefined : "설명 칸이 비어 있으면 곡 제목으로 만듭니다"}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-teal-400/40 bg-teal-950/40 px-4 py-2 text-xs font-bold text-teal-200 hover:bg-teal-900/50 disabled:opacity-40"
                 >
                   <Wand2 className="h-3.5 w-3.5" /> {writing === "sound" ? "영어로 쓰는 중…" : "영어 설명 만들기"}
                 </button>
               </div>
-              <p className="text-[11px] text-slate-500">Stable Audio 3는 영어 설명으로 학습된 모델이라, 한국어로 적은 내용을 소리 나는 것·끝나는 모양·공간까지 담은 영어 설명으로 바꿔 아래 칸에 넣습니다 · AI 호출 1번</p>
+              <p className="text-[11px] text-slate-500">이 칸이 비어 있으면 곡 제목(예: 계곡물 소리)으로 만듭니다. Stable Audio 3는 영어 설명으로 학습된 모델이라, 한국어로 적은 내용을 소리 나는 것·끝나는 모양·공간까지 담은 영어 설명으로 바꿔 아래 칸에 넣습니다 · AI 호출 1번</p>
             </section>
           )}
 
