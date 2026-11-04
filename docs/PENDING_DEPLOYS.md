@@ -28,6 +28,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `real_estate_sales` | 저장한 리포트 화면에도 「🧾 등기부로 권리 점검」, 인쇄 때 파일 올리기 칸 숨김(주인님 지시) | `f7d15a34e` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` v1.50 | 다음 실거래 배포 때(+0.01). 배포 뒤 저장 리포트에서 칸 표시 확인 |
 | `commercial-land-trade-alert` | 실거래 목록 「분류」 거르기에 공장·창고 용도(공장·창고시설·자동차 관련시설) 추가, 종류 전체 선택 이름 「모든 종류」(v1.31 운영 확인 중 발견) | 이 커밋 바로 뒤 `fix(commercial-land-trade-alert)` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `commercial-land-trade-alert/AGENTS.md` v1.31 | 다음 상가 배포 때 함께(+0.01) |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
 | `banana-canvas` | E5-4 한글 이름·주소 가리기(「한글 이름·주소도」, 한국어 글자 읽기 모델 13MB 브라우저 첫 1회) | `1dd57ac12` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` E5-4 | v1.43, 운영에서 송장 사진으로 확인 |
