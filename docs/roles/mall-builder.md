@@ -16,7 +16,8 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `labs/mall-builder` | 시험 데이터 정리(첫 화면 시험 블록 7개·공지 1건·발송 견적·부분 취소 주문) | 주인님 삭제 승인 | [진행표](../../labs/mall-builder/README.md) |
-| `labs/mall-builder` | 입금 기한 자동 취소·주문 알림 | 예약 실행 방식 결정 / 운영자 본인 발송 계정 | [진행표](../../labs/mall-builder/README.md) |
+| `labs/mall-builder` | 입금 기한 자동 취소(방식: 운영자 본인 cron-job.org, 2026-11-04 결정) | 플랜 승인 | [플랜](../../labs/mall-builder/docs/PLAN_20261104_DEPOSIT_AUTO_CANCEL.md) |
+| `labs/mall-builder` | 주문 알림 | 운영자 본인 발송 계정 | [진행표](../../labs/mall-builder/README.md) |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
@@ -46,4 +47,5 @@
 
 ## 주인님께 여쭐 것
 - 점검 묶음 4 시험 데이터 삭제 승인(첫 화면 시험 블록 7개·공지 1건·발송 견적 117,000원·부분 취소 주문 20261104-0003, 2026-11-04)
-- 입금 기한 자동 취소의 예약 실행 방식(Lab 예약 호출 / 운영자 본인 cron-job.org) 결정
+- 시험 데이터 삭제가 Claude Code 자동 권한 검사에 두 번 막힘 — 권한 창 허용 또는 설정에 `mcp__claude_ai_Supabase_DEV__execute_sql` 허용 규칙 추가 필요(2026-11-04)
+- 입금 기한 자동 취소 플랜 승인(`labs/mall-builder/docs/PLAN_20261104_DEPOSIT_AUTO_CANCEL.md`)
