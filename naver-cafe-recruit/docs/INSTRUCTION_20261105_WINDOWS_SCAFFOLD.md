@@ -12,11 +12,11 @@
 2. **프로그램 뼈대**: `naver-cafe-poster`를 복사해 `naver-cafe-recruit`로 만들고(package.json 이름·버전 `v1.01`·`lib/version.ts`), `lib/access.ts`는 공통 판정 순서 그대로(정지→관리자→핸드폰→FREE→구독→등급+부여). `programs`에 slug `naver-cafe-recruit` 등록(`app_url` 포함).
 3. **서버**: `ncr_dispatch`를 부르는 라우트(service_role, `requireProgramAccess`/`checkProgramAccessApi` + `dynamic='force-dynamic'`+`fetchCache='force-no-store'`). 모드별 대상 모으기·검토·실행 요청.
 4. **확장**: `blog-neighbor-care/extension` 토대로 — 회원 로그인 세션에서 (A) 가입 카페·게시판 목록·공유 가능 글 범위 대상 수집 → `targets_add`, (B·A) 초대 화면에서 사람처럼 초대 → `sent_mark`, (C) `naver-cafe-poster` 게시. **§0 경계 준수**(회원 직접 로그인·보안 확인 자동 통과 금지·IP 바꾸기 없음).
-5. **화면**: 모드 선택 1화면 + 오늘 할 일 + 결과 + `/guide`.
+5. **화면**: 모드 선택 1화면 + 오늘 할 일 + 결과 + `/guide`. 결과 화면에 **「엑셀로 내려받기」** 버튼 — 초안 `src/app/api/export/route.ts` 그대로 쓰고 `package.json`에 `"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"` 추가(2026-11-05 주인님 「수집된 데이터를 엑셀파일로 다운로드 받을 수 있게」).
 6. **시험 → 빌드(주인님 승인) → 도메인 → 검수**. 맥미니가 ego로 실물 확인.
 
 ## 결정값(주인님 지시 2026-11-05)
-세 방식 모두 구현 · 모드 A 관리자 지정 예외(회원 본인 로그인 상태에서) · 이름 `naver-cafe-recruit` · 하루 상한 20 · 초대 기록 보관은 **지금 30일**, 1년 연장은 최상위 규칙 §8 지정 기록 후 별도 마이그레이션.
+세 방식 모두 구현 · 모드 A 관리자 지정 예외(회원 본인 로그인 상태에서) · 이름 `naver-cafe-recruit` · 하루 상한 20 · 초대 기록 보관은 **30일 확정**(2026-11-05 주인님 「30일 기준으로 만들어도 되는 프로그램이야」) — 연장 마이그레이션 없음.
 
 ## 지킬 것
 회원 본인 계정·본인 키 · 동시 빌드 금지 · 커밋 경로 지정 도우미 · 커밋 뒤 파일 수 확인 · 끝에 비용 리포트 · 완료 후 비교표(`PROGRAM_CAPABILITY_MAP.md`)·외부 분석표(`EXT-MKT-08·10`) 갱신.

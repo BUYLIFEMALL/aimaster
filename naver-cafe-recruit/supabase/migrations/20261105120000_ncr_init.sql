@@ -1,7 +1,7 @@
 -- 네이버 카페 회원 모집 자동화 (naver-cafe-recruit) 최초 표 — 초안 (2026-11-05 맥미니, 미적용)
 -- 플랜: naver-cafe-recruit/docs/PLAN_20261105_NEW.md · 기준 패턴: blog-neighbor-care 표·RLS·보관 기한·열외
 -- 원칙: 회원 본인 소유 격리(owner-only), 직접 테이블 접근 없음(모든 접근은 security definer RPC + service_role),
---   보관 기본 30일(720h) — 초대 기록 1년 연장은 최상위 규칙 §8 관리자 지정 기록 후 별도 마이그레이션에서(지금은 30일),
+--   보관 30일(720h) 확정(2026-11-05 주인님 「30일 기준으로 만들어도 되는 프로그램」, 연장 없음),
 --   관리자·시험 계정(profiles.retention_exempt) 열외는 keep_exempt_expiry 트리거로.
 -- ⚠️ 윈도우 세션: 적용 전 운영 DB(esgxyikcnnvmlhygjkth)에서 기존 ncr_* 이름 충돌 없는지 확인.
 begin;
@@ -51,7 +51,7 @@ create table if not exists public.ncr_sent (
  result text not null check(result in ('sent','failed','limited')),
  detail text check(char_length(detail)<=200),
  sent_at timestamptz not null default now(),
- expires_at timestamptz not null default(now()+interval '720 hours'),  -- 1년 연장은 §8 지정 후 별도 마이그레이션
+ expires_at timestamptz not null default(now()+interval '720 hours'),  -- 30일 확정(연장 없음)
  unique(user_id,cafe_id,naver_id)
 );
 create index if not exists ncr_sent_owner on public.ncr_sent(user_id,sent_at desc);
