@@ -401,7 +401,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-- 이웃 소통 단계 C(오늘의 소통 — 완전 자동 운영) 개발 플랜을 주인님께 먼저. 기준 `blog-neighbor-care/docs/PLAN_20261104_SIMPLIFY_FLOW.md` §3-3·§4, 맥미니 v1.16 실물 확인 결과 반영.
+- 이웃 소통 단계 C 플랜 승인 대기 — [`blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md`](../../blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md). 승인되면 C-1(걸림돌 4개 + 작은 수정 5개, 빌드 1회)부터.
 - 주인님 승인 후 `BNC_FEED_READ_ENABLED`·`BNC_FEED_READ_POLICY_REFERENCE` 등록·재배포 → 새 ZIP 설치 → Edge에서 이웃 1명 검수.
 - 이웃 소통 묶음 배포 승인 시 SQL 10개 적용 → 환경변수 확인(`BNC_SERVER_FEED_ENABLED`는 넣지 않음) → 새 ZIP 설치 → Edge에서 이웃 1명으로 탭 닫고 15분 뒤 저장 확인. 인수인계: `docs/HANDOFF.md` 2026-11-01 「회원 PC 확장」 항목.
 - 이웃 소통 묶음 배포 승인 시 SQL 10개 순차 적용 → 환경변수 확인 → 회원 키로 cron 호출 1회·RSS 1건 실제 검수. 인수인계: `docs/HANDOFF.md` 2026-11-01 항목.
@@ -412,6 +412,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 주인님께 여쭐 것
 
+- [승인·결정] 이웃 소통 단계 C 플랜(`blog-neighbor-care/docs/PLAN_20261104_STAGE_C_AUTOPILOT.md`) — 창 선택 조건(가안 추천) · 자동 승인 범위(댓글은 품질 통과 시 자동 추천) · 배포 2회 나눔(추천). 2026-11-04
 - [비용 승인] 668992b9-4d8d-4f57-96db-e0fdf1fb8c7b: JSON형식수정후 실성공검수 신규1회·동일본인글/회원Anthropic키/Haiku4.5·최대USD0.05(예상0.041534), 입력상한20000/출력6000·자동재시도0·성공저장재조회. 기존ae2는1회소진이라재사용금지. 채팅질문답변대기.
 
 - [화면 확인] fe166de3-d156-45b8-8563-2a4221387157: 기존 본인이웃관리탭에서 확장 동의체크→전체이웃목록다시읽기1회. 새허가80ad914d 시작기한2026-11-11 17:28:55KST(기존12:38제한폐기);수신후저장/설정검수는Codex. 43명/대상원래ON유지.
