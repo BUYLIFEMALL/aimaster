@@ -19,6 +19,17 @@ function MaybeLink({ href, className, style, children }: { href: string; classNa
   );
 }
 
+/** 휴대폰용 그림이 있으면 폭 767px 이하(globals.css 휴대폰 기준과 같음)에서 그 그림을 쓴다 */
+function BannerImage({ image, mobile, className, style }: { image: string; mobile: string; className: string; style?: CSSProperties }) {
+  return (
+    <picture>
+      {mobile && <source media="(max-width: 767px)" srcSet={mobile} />}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={image} alt="" className={className} style={style} />
+    </picture>
+  );
+}
+
 /** n개를 sec초마다 돌린다(0이면 멈춤) */
 function useRotate(n: number, sec: number) {
   const [i, setI] = useState(0);
@@ -49,8 +60,7 @@ function Slider({ s }: { s: SliderSettings }) {
     <div className="relative w-full overflow-hidden bg-gray-100" style={{ height: `min(${s.height}px, 62vw)` }}>
       {s.slides.map((sl, j) => (
         <MaybeLink key={j} href={sl.link} className={`absolute inset-0 transition-opacity duration-500 ${j === i ? "opacity-100" : "pointer-events-none opacity-0"}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={sl.image} alt="" className="h-full w-full object-cover" />
+          <BannerImage image={sl.image} mobile={sl.mobile_image} className="h-full w-full object-cover" />
         </MaybeLink>
       ))}
       {n > 1 && (
@@ -72,8 +82,7 @@ function Banner({ s }: { s: BannerSettings }) {
   return (
     <div className="px-4">
       <MaybeLink href={s.link} className="mx-auto block">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={s.image} alt="" className="mx-auto w-full rounded" style={{ maxWidth: s.max_width }} />
+        <BannerImage image={s.image} mobile={s.mobile_image} className="mx-auto w-full rounded" style={{ maxWidth: s.max_width }} />
       </MaybeLink>
     </div>
   );

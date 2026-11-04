@@ -42,6 +42,18 @@ test("저장 전 검사·정리", () => {
   assert.match(validateDoc({ blocks: Array.from({ length: 31 }, (_, i) => newBlock("topbar", `t${i}`)) }).error, /30개/);
 });
 
+test("휴대폰용 그림(선택) — 옛 저장본은 빈 값, 넣으면 https만", () => {
+  const M = IMG.replace("a.jpg", "m.jpg");
+  const old = readDoc({ blocks: [{ id: "b", type: "banner", settings: { image: IMG, link: "" } }, { id: "s", type: "slider", settings: { slides: [{ image: IMG }] } }] });
+  assert.equal(old.blocks[0].settings.mobile_image, "");
+  assert.equal(old.blocks[1].settings.slides[0].mobile_image, "");
+  const ok = validateDoc({ blocks: [{ id: "b", type: "banner", settings: { image: IMG, mobile_image: ` ${M} `, link: "" } }, { id: "s", type: "slider", settings: { slides: [{ image: IMG, mobile_image: M, link: "" }] } }] });
+  assert.equal(ok.value.blocks[0].settings.mobile_image, M);
+  assert.equal(ok.value.blocks[1].settings.slides[0].mobile_image, M);
+  assert.match(validateDoc({ blocks: [{ id: "b", type: "banner", settings: { image: IMG, mobile_image: "http://x/a.jpg" } }] }).error, /휴대폰용 그림/);
+  assert.match(validateDoc({ blocks: [{ id: "s", type: "slider", settings: { slides: [{ image: IMG, mobile_image: "javascript:x" }] } }] }).error, /1번째 블록\(슬라이드 배너\): 휴대폰용 그림/);
+});
+
 test("글·HTML 블록 위험 태그 제거", () => {
   const dirty = `<h3 onclick="x()">안내</h3><script>alert(1)</script><p style="color:red">본문 <a href="javascript:alert(1)">나쁜</a> <a href="https://buylife.kr">좋은</a> <a href="/s/x/c/1">안쪽</a></p>`
     + `<img src="x" onerror="alert(1)"><img src="https://a.com/b.png"><iframe src="https://evil.com"></iframe><style>body{}</style><form><input></form>`;

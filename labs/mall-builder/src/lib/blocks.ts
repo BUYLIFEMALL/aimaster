@@ -10,8 +10,9 @@ export const SCHEMA_VERSION = 1;
 export const MAX_BLOCKS = 30;
 
 export type TopbarSettings = { items: { text: string; link: string; bg: string }[]; rotate_sec: number };
-export type SliderSettings = { slides: { image: string; link: string }[]; height: number; autoplay_sec: number };
-export type BannerSettings = { image: string; link: string; max_width: number };
+// mobile_image: 휴대폰(폭 767px 이하)에서 대신 보일 그림. 비우면 image를 그대로 쓴다(옛 저장본은 칸이 없어 "")
+export type SliderSettings = { slides: { image: string; mobile_image: string; link: string }[]; height: number; autoplay_sec: number };
+export type BannerSettings = { image: string; mobile_image: string; link: string; max_width: number };
 export type ShowcaseSource = "new" | "category" | "manual";
 export type ShowcaseSettings = { title: string; source: ShowcaseSource; category_id: string; product_ids: string[]; columns: number; limit: number };
 export type HtmlSettings = { html: string };
@@ -56,6 +57,13 @@ export function safeImage(v: unknown): string | null {
   return /^https:\/\/[^\s"'<>]+$/.test(s) && s.length <= 1000 ? s : null;
 }
 
+/** 선택 그림 주소: 비우면 "", 넣었으면 https만 */
+export function optionalImage(v: unknown): string | null {
+  return str(v) ? safeImage(v) : "";
+}
+
+const MOBILE_IMAGE_ERROR = "휴대폰용 그림 주소가 올바르지 않습니다(https 주소). 다시 올리거나 지워 주세요.";
+
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
 export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
@@ -91,9 +99,11 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
       for (const sl of slides) {
         const image = safeImage(sl?.image);
         if (!image) return { ok: false, error: "슬라이드마다 그림을 올려 주세요(https 주소)." };
+        const mobile_image = optionalImage(sl?.mobile_image);
+        if (mobile_image === null) return { ok: false, error: MOBILE_IMAGE_ERROR };
         const link = safeLink(sl?.link);
         if (link === null) return { ok: false, error: "링크는 /로 시작하는 이 몰 주소나 https 주소만 쓸 수 있습니다." };
-        out.push({ image, link });
+        out.push({ image, mobile_image, link });
       }
       return { ok: true, value: { slides: out, height: int(s.height, 200, 800, 400), autoplay_sec: int(s.autoplay_sec, 0, 10, 5) } };
     },
@@ -101,14 +111,16 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
   banner: {
     label: "단일 배너",
     description: "그림 한 장(누르면 링크로)",
-    defaults: () => ({ image: "", link: "", max_width: 1100 }),
+    defaults: () => ({ image: "", mobile_image: "", link: "", max_width: 1100 }),
     validate: (raw) => {
       const s = (raw ?? {}) as Partial<BannerSettings>;
       const image = safeImage(s.image);
       if (!image) return { ok: false, error: "배너 그림을 올려 주세요(https 주소)." };
+      const mobile_image = optionalImage(s.mobile_image);
+      if (mobile_image === null) return { ok: false, error: MOBILE_IMAGE_ERROR };
       const link = safeLink(s.link);
       if (link === null) return { ok: false, error: "링크는 /로 시작하는 이 몰 주소나 https 주소만 쓸 수 있습니다." };
-      return { ok: true, value: { image, link, max_width: int(s.max_width, 320, 1600, 1100) } };
+      return { ok: true, value: { image, mobile_image, link, max_width: int(s.max_width, 320, 1600, 1100) } };
     },
   },
   showcase: {

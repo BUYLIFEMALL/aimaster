@@ -18,7 +18,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 const input = "mt-0.5 w-full rounded border px-2 py-1.5 text-sm";
 const docJson = (blocks: Block[]) => JSON.stringify(blocks);
 
-function ImagePicker({ storeId, value, onChange }: { storeId: string; value: string; onChange: (url: string) => void }) {
+function ImagePicker({ storeId, value, onChange, clearable }: { storeId: string; value: string; onChange: (url: string) => void; clearable?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function upload(file: File | undefined) {
@@ -46,7 +46,18 @@ function ImagePicker({ storeId, value, onChange }: { storeId: string; value: str
         {busy ? "올리는 중…" : value ? "그림 바꾸기" : "그림 올리기"}
         <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={busy} onChange={(e) => upload(e.target.files?.[0])} />
       </label>
+      {clearable && value && <button type="button" onClick={() => onChange("")} className="text-xs text-red-700">지우기</button>}
       {error && <span className="text-xs text-red-600">{error}</span>}
+    </div>
+  );
+}
+
+/** 휴대폰(폭 767px 이하)에서 대신 보일 그림 — 비우면 위 그림을 그대로 쓴다 */
+function MobileImagePicker({ storeId, value, onChange }: { storeId: string; value: string; onChange: (url: string) => void }) {
+  return (
+    <div data-mobile-image>
+      <span className="text-xs text-gray-500">휴대폰용 그림(선택 — 세로로 긴 그림을 따로 넣으면 휴대폰에서 이 그림이 보입니다)</span>
+      <div className="mt-0.5"><ImagePicker storeId={storeId} value={value} onChange={onChange} clearable /></div>
     </div>
   );
 }
@@ -109,10 +120,11 @@ function SettingsForm({ storeId, block, categories, products, onChange }: {
               <button type="button" onClick={() => onChange({ ...s, slides: s.slides.filter((_, j) => j !== i) })} className="text-red-700">빼기</button>
             </div>
             <div className="mt-1"><ImagePicker storeId={storeId} value={sl.image} onChange={(image) => setSlide(i, { image })} /></div>
+            <div className="mt-1"><MobileImagePicker storeId={storeId} value={sl.mobile_image ?? ""} onChange={(mobile_image) => setSlide(i, { mobile_image })} /></div>
             <div className="mt-1"><LinkInput value={sl.link} onChange={(link) => setSlide(i, { link })} /></div>
           </div>
         ))}
-        {s.slides.length < 8 && <button type="button" onClick={() => onChange({ ...s, slides: [...s.slides, { image: "", link: "" }] })} className="rounded border px-2 py-1 text-xs">+ 그림 추가</button>}
+        {s.slides.length < 8 && <button type="button" onClick={() => onChange({ ...s, slides: [...s.slides, { image: "", mobile_image: "", link: "" }] })} className="rounded border px-2 py-1 text-xs">+ 그림 추가</button>}
         <div className="grid grid-cols-2 gap-2">
           <NumberInput label="높이(px, 200~800)" value={s.height} min={200} max={800} onChange={(height) => onChange({ ...s, height })} />
           <NumberInput label="자동 넘김(초, 0이면 멈춤)" value={s.autoplay_sec} min={0} max={10} onChange={(autoplay_sec) => onChange({ ...s, autoplay_sec })} />
@@ -196,6 +208,7 @@ function SettingsForm({ storeId, block, categories, products, onChange }: {
   return (
     <div className="space-y-3">
       <ImagePicker storeId={storeId} value={s.image} onChange={(image) => onChange({ ...s, image })} />
+      <MobileImagePicker storeId={storeId} value={s.mobile_image ?? ""} onChange={(mobile_image) => onChange({ ...s, mobile_image })} />
       <LinkInput value={s.link} onChange={(link) => onChange({ ...s, link })} />
       <NumberInput label="최대 너비(px, 320~1600)" value={s.max_width} min={320} max={1600} onChange={(max_width) => onChange({ ...s, max_width })} />
     </div>
