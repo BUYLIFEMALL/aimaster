@@ -4,6 +4,7 @@
 # 모델은 엔진이 HF_HOME 보관 폴더에 받아 두고(refs/main = 고정 판), 만드는 동안은 인터넷에 묻지 않는다(HF_HUB_OFFLINE).
 # 그래픽 메모리: 24GB 이상은 통째로, 그 아래는 공식 「Low VRAM」 방식 — 자동 CPU 오프로딩, 22GB 미만은 언어 모델을 층마다 올리기(느림).
 import json
+import os
 import re
 import sys
 
@@ -11,7 +12,7 @@ import soundfile as sf
 import torch
 from diffusers import ComponentsManager, ModularPipeline
 from diffusers.hooks.group_offloading import apply_group_offloading
-from huggingface_hub import snapshot_download
+from huggingface_hub.constants import HF_HUB_CACHE
 
 TAG = re.compile(r"^\s*\[([^\]]+)\]\s*$")
 VOCAL_WORDS = re.compile(r"vocal|voice|singer|sing|보컬|목소리|가수|노래", re.I)
@@ -49,8 +50,12 @@ def main():
     vram = float(job.get("vramGb") or 0)
     # 부품 목록(modular_model_index.json)에는 저장소 이름이 적혀 있어, 그대로 두면 diffusers가 나눠 저장된 transformer를
     # 불러올 때 인터넷에 판 정보를 물어 오프라인 실행에서 「Failed to create component transformer」로 빠진다(2026-11-04 마스터PC).
-    # 받아 둔 폴더(refs/main = 고정 판)를 찾아 모든 부품을 그 폴더에서 불러온다.
-    local = snapshot_download(job["repo"], local_files_only=True)
+    # 받아 둔 폴더(고정 판)를 찾아 모든 부품을 그 폴더에서 불러온다. snapshot_download(local_files_only=True)는
+    # 저장소 파일을 전부 받았는지 검사해, diffusers용만 골라 받은(allow) 우리 폴더를 「64개 없음」으로 막는다(0.6.4 마스터PC) — 경로를 직접 만든다.
+    local = os.path.join(HF_HUB_CACHE, "models--" + job["repo"].replace("/", "--"), "snapshots", job["revision"])
+    if not os.path.isfile(os.path.join(local, "modular_model_index.json")):
+        print("FMS_ERROR MiniMax Music 3 모델 폴더를 찾지 못했습니다. 「내 PC 엔진」에서 이 모델을 지우고 다시 받아 주세요.", flush=True)
+        sys.exit(2)
 
     stage("MiniMax Music 3 · 모델 올리는 중")
     if vram >= 24:

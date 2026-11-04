@@ -158,7 +158,7 @@ export function buildPyJob(engine, job, { p, out, vramGb }) {
   }
   const durationSec = Math.min(Math.max(Number(t.duration_sec) || 120, 10), engine.maxSec);
   if (engine.id === "heartmula") return { ...base, style: heartTags(t.style_prompt), lyrics: t.lyrics ?? "", durationSec, modelDir: path.join(p.models, "ckpt") };
-  if (engine.id === "minimax3") return { ...base, style: String(t.style_prompt ?? "").trim(), lyrics: String(t.lyrics ?? ""), durationSec, repo: engine.weights[0].repo };
+  if (engine.id === "minimax3") return { ...base, style: String(t.style_prompt ?? "").trim(), lyrics: String(t.lyrics ?? ""), durationSec, repo: engine.weights[0].repo, revision: engine.weights[0].revision };
   return { ...base, style: String(t.style_prompt ?? "").trim(), lyrics: "", durationSec };
 }
 
