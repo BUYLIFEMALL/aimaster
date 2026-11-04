@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ⏳ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — `blog-neighbor-care` v1.14 댓글 재시험 통과 + **윈도우 blog 세션 할 일: 30일 열외 적용(11-26 전)**
+- **재시험**: ego · 확장 v1.14로 댓글 0개 글(`buylifeacademy/223406907419`)에 1회 → 네이버 댓글 0→1, 웹 기록 「성공 확인」. 공감·댓글 실물 시험 모두 통과. 요청함 `d64f4347`·`86c648bc`, 커밋 `fefa53bc5`
+- **윈도우 blog 세션 할 일**: 주인님 결정 「블로그랑 똑같은데? 단 관리자 계정과 테스트 계정은 열외」 → 보관 연장 지정 없음, `retention_exempt` 회원만 30일 정리 RPC 12개·화면 숨김에서 제외. 시험 계정 기록이 **2026-11-26**부터 정리되므로 그 전 배포(12월 모델 교체 묶음 B와 함께면 빌드 1회, 빌드는 주인님 승인 먼저). 상세: [FIX_REQUEST_20261104 §9](FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md)
+- 링크: https://blog-neighbor-care.buylife.xyz/settings
+
 ## 2026-11-04 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — `blog-neighbor-care` v1.14: 댓글 0개 글에서 댓글 작업이 멈추던 문제 수정·운영 배포
 - **받은 요청**: 맥미니 [FIX_REQUEST_20261104](FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md) — 확장 v1.13이 댓글 0개 글에서 「현재 작업 화면을 하나로 확인하지 못했습니다」로 멈춤
 - **원인·수정**: 빈 댓글 목록(`ul.u_cbox_list`)이 크기 0이라 「보이는 목록 0개」로 걸러짐. 같은 이유로 댓글 열기 버튼이 이미 펼친 칸을 다시 닫을 수 있었음. `extension/work-dom.mjs` `commentList()`가 「숨김 아닌 목록 1개 + 자식 0개 + 입력 상자 보임」일 때만 빈 목록 인정, 열기 버튼도 같은 판정. 확인 실패 원인 코드 → `work-bridge.mjs` 원인별 문구. 확장 문구 「Edge」→「브라우저」
