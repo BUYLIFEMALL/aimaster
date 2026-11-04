@@ -89,8 +89,12 @@ export function NonResSection({ n }: { n: NonResReport }) {
 export function ReportMap({ point }: { point: { x: number; y: number } }) {
   return (
     <div className="mx-card overflow-hidden p-0">
-      {/* eslint-disable-next-line @next/next/no-img-element -- 서버가 넘겨 주는 브이월드 정적 지도(키 비노출) */}
-      <img src={`/api/report-map?x=${point.x.toFixed(6)}&y=${point.y.toFixed(6)}`} alt="이 필지 위치 지도" loading="lazy" className="block h-auto w-full" width={640} height={360} />
+      <div className="relative">
+        {/* eslint-disable-next-line @next/next/no-img-element -- 서버가 넘겨 주는 브이월드 정적 지도(키 비노출) */}
+        <img src={`/api/report-map?x=${point.x.toFixed(6)}&y=${point.y.toFixed(6)}`} alt="이 필지 위치 지도" loading="lazy" className="block h-auto w-full" width={640} height={360} />
+        {/* 브이월드 marker 옵션이 그려지지 않아(2026-11-05 운영 확인) 지도 가운데(= 요청 좌표)에 핀을 겹친다 */}
+        <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full text-3xl drop-shadow">📍</span>
+      </div>
       <p className="px-4 py-2 text-[11px] text-mx-muted">
         지도: 브이월드(국토교통부) · 표시는 지번 중심 좌표예요 ·{" "}
         <a href={`https://map.naver.com/p?c=${point.x.toFixed(6)},${point.y.toFixed(6)},17,0,0,0,dh`} target="_blank" rel="noreferrer" className="text-mx-link underline">네이버 지도에서 보기 ↗</a>
