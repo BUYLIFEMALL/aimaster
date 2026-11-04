@@ -125,11 +125,20 @@ test("보관함: 탐색기로 저장 폴더에 옮긴 곡도 같은 파일 이�
     const song = path.join(root, "Song");
     await mkdir(song, { recursive: true });
     await rename(path.join(root, "가을 노래.flac"), path.join(song, "가을 노래.flac"));
-    assert.deepEqual(await lib.list(), []);
     await lib.setDir(song);
     assert.deepEqual(await lib.list(), [id]);
     assert.equal(lib.pathOf(id), path.join(song, "가을 노래.flac"));
     assert.equal((await lib.open(id))?.ext, "flac");
+    // 저장 폴더를 그대로 두고 한 단계 아래 폴더로 옮겨도 찾는다(모델 폴더 안은 뒤지지 않음)
+    await lib.setDir(root);
+    const best = path.join(root, "Best");
+    await mkdir(best, { recursive: true });
+    await rename(path.join(song, "가을 노래.flac"), path.join(best, "가을 노래.flac"));
+    assert.deepEqual(await lib.list(), [id]);
+    assert.equal(lib.pathOf(id), path.join(best, "가을 노래.flac"));
+    await mkdir(path.join(root, "engines"), { recursive: true });
+    await rename(path.join(best, "가을 노래.flac"), path.join(root, "engines", "가을 노래.flac"));
+    assert.deepEqual(await lib.list(), []);
   } finally {
     await rm(data, { recursive: true, force: true });
   }

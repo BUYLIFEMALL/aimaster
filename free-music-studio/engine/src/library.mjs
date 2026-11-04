@@ -6,6 +6,7 @@ import { createReadStream } from "node:fs";
 import { access, copyFile, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { HEAVY_ENTRIES } from "./storage.mjs";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const exists = (p) => access(p).then(() => true, () => false);
@@ -76,17 +77,24 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
   const saveIndex = () => writeFile(indexFile, JSON.stringify(index, null, 2));
   const saveSettings = () => writeFile(settingsFile, JSON.stringify({ libraryDir: dir }, null, 2));
   /**
-   * 곡 파일 경로 — 기록된 자리에 없으면 지금 저장 폴더에서 같은 파일 이름을 찾아 기록을 고친다
-   * (회원이 탐색기로 곡을 저장 폴더로 옮긴 경우, 2026-11-04 마스터PC E:\AI-Musc → E:\AI-Musc\Song)
+   * 곡 파일 경로 — 기록된 자리에 없으면 지금 저장 폴더와 그 한 단계 아래 폴더(모델 폴더 제외)에서 같은 파일 이름을 찾아 기록을 고친다
+   * (회원이 탐색기로 곡을 옮겨 정리한 경우, 2026-11-04 마스터PC E:\AI-Musc → Song·Best 등)
    */
   const resolve = async (id) => {
     const p = index[id];
     if (!p || (await exists(p))) return p ?? null;
-    const moved = path.join(dir, path.basename(p));
-    if (moved === p || !(await exists(moved))) return null;
-    index[id] = moved;
-    await saveIndex();
-    return moved;
+    const name = path.basename(p);
+    const subs = (await readdir(dir, { withFileTypes: true }).catch(() => []))
+      .filter((d) => d.isDirectory() && !d.name.startsWith(".") && !HEAVY_ENTRIES.includes(d.name))
+      .map((d) => path.join(dir, d.name));
+    for (const folder of [dir, ...subs]) {
+      const moved = path.join(folder, name);
+      if (moved === p || !(await exists(moved))) continue;
+      index[id] = moved;
+      await saveIndex();
+      return moved;
+    }
+    return null;
   };
 
   return {
