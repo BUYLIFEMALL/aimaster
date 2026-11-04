@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ⏳ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **윈도우 blog 세션 할 일: `blog-neighbor-care` 완전 자동 운영 단계 A~E (주인님 「추천대로 진행하고 윈도우 세션에 요청해」)**
+- **확정값**: 하루 기본 상한 공감 30·댓글 10·신청 수락 10 / 신청 자동 수락 기본 「내 이웃 기준에 맞을 때만」 / 시작하기에 하루 최대 AI 비용 안내 + 호출 상한 / 순서 A → C → B → D → E
+- **첫 번째 할 일**: 단계 A(정리) + 30일 열외(**11-26 전 필수**, [요청서 §9](FIX_REQUEST_20261104_BLOG_NEIGHBOR_COMMENT.md)) + 12월 모델 교체 묶음 B → v1.15 빌드 1회(주인님 승인 먼저). C부터는 개발 플랜을 주인님께 먼저
+- 상세: [`blog-neighbor-care/docs/PLAN_20261104_SIMPLIFY_FLOW.md`](../blog-neighbor-care/docs/PLAN_20261104_SIMPLIFY_FLOW.md) §7 · 기준 [`docs/AUTOMATION_MINIMAL_SETUP_POLICY.md`](AUTOMATION_MINIMAL_SETUP_POLICY.md)
+
 ## 2026-11-04 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **최상위 지침 등록: 자동화 프로그램의 기능 구현과 동작 조건** + `blog-neighbor-care` 최소 설정·완전 자동 흐름 플랜
 - **주인님 지시**: 「자동화를 구현한다는건 최소한의 설정,동작으로 사용자 대신 자동으로 동작하는 프로그램이어야해」「사용자는 최소한의 설정만으로 자동화운영이 가능하도록」「메인 핵심지침 … 최상단 지침에 등록하고 인수인계문서로 남겨」
 - **한 일**: 상세 기준 [`docs/AUTOMATION_MINIMAL_SETUP_POLICY.md`](AUTOMATION_MINIMAL_SETUP_POLICY.md) 새로 작성(정의·구현 조건 8·동작 조건 8·적용 순서), `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위에 같은 요약 등록
