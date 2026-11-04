@@ -16,7 +16,7 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | 카톡 자동발송 `koms`(외부 분석 M15) | **작업 진행 대기 목록**(주인님 2026-11-05 「작업 진행 대기리스트에 올려」) — 카카오톡 PC 프로그램 조작이라 데스크톱 앱 방식, 개인 카톡 대량 발송이라 수신 동의·계정 정지 위험, `kakao_auto_poster`(공식 발송)와 겹침 | 진행 순서·범위 주인님 지정 | `docs/analysis-programdev-batch-20261027/REPORT.md` M15 |
-| 새 카페 회원 모집 프로그램(EXT-MKT-08·10) | 개발 플랜 제시함(채팅) | 이름·초대 방식·하루 상한(추천 20)·초대 기록 1년 보관 결정 | `docs/EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md` EXT-MKT-08 |
+| `naver-cafe-recruit`(새 카페 회원 모집, EXT-MKT-08·09·10) | **착수 — 플랜·AGENTS·DB 초안 2개 만듦**(주인님 「3방식 모두·본인 로그인 상태」). 윈도우: DB 적용·뼈대·빌드 | 초대 기록 1년 보관(§8 지정) 확정 | `naver-cafe-recruit/docs/INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` |
 | `naver-blog-allinone` v1.60 | 이미지 종료 모델 교체 확인(이미지 1장, 1달러 미만) | 시험 계정 OpenAI 키 등록(요청함 58e1d618) | `docs/DEPLOY_REQUEST_20261103_BLOG.md` |
 | 30일 열외 26개(블로그 5 + 블로그 밖 21) | 코드 반영 끝, 배포만 남음 | 각 프로그램 다음 배포(윈도우) — 쓰레드 3개는 먼저 배포하면 좋음 | `docs/PENDING_DEPLOYS.md` |
 | 12월 모델 교체 묶음 A 4개 | `gpt-5`·`o3` 12-11 호출 실패 | 12-05 점검 — 다른 배포가 없으면 주인님께 배포 여쭘 | `docs/PLAN_20261103_MODEL_MIGRATION_DEC.md` §6 |
