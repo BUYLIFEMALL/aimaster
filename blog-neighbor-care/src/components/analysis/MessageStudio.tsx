@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import type {PreparedPost} from './PostPlanner';
-import {ModelPicker} from './ModelPicker';
+import {TaskModelPicker} from './TaskModelPicker';
 import {selectionForProvider} from '../../lib/analysis/modelSelection';
 type Lists={materials:{id:string;title:string;blog_id:string;post_id:string}[];profiles:{id:string;revision:number;topics:string[]}[];accounts:{id:string;external_id:string}[];candidates:{id:string;profile_job_id:string;profile_revision:number;selection:string[]}[];replies:{id:string;neighbor_id:string;own_post_id:string;comment_id:string}[];jobs:{id:string;kind:string;state:string}[]};
 type Result={id:string;kind:string;state:string;neighborId:string;postId:string;parentCommentId?:string;profileStale?:boolean;draftJobId?:string;result?:{text:string;summary:string;emotion:string;aiLikeScore:number;details:{sourceId:string;quote:string}[]}};
@@ -43,7 +43,7 @@ export function MessageStudio({preparedPost=null}:{preparedPost?:PreparedPost|nu
  {!!lists?.materials.length&&<label>이미 연결한 내 글 불러오기<select defaultValue="" onChange={e=>e.target.value&&run('material',{id:e.target.value})}><option value="">저장된 글 선택</option>{lists.materials.map(m=><option key={m.id} value={m.id}>{m.title} · {m.blog_id}/{m.post_id}</option>)}</select></label>}
  <label>글 주소<input value={url} onChange={e=>setUrl(e.target.value)}/></label><label>글 제목<input value={title} maxLength={500} onChange={e=>setTitle(e.target.value)}/></label><label>사용 권한을 확인한 글 전문<textarea value={body} maxLength={20000} onChange={e=>setBody(e.target.value)}/></label></>}
  <label>문장에 사용할 본인 경험·사실 (선택, 한 줄에 하나·최대 10개)<textarea value={facts} maxLength={3000} onChange={e=>setFacts(e.target.value)}/></label>
- <ModelPicker value={model} onChange={setModel} label="댓글·신청 문장"/>
+ <TaskModelPicker value={model} onChange={setModel} label="댓글·신청 문장"/>
  <label><input type="checkbox" checked={rights} onChange={e=>setRights(e.target.checked)}/>선택한 본문과 원댓글의 사용 권한을 확인했습니다.</label>
  <label><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/>선택한 AI에 프로필·본문·원댓글·사실을 전송하고 본인 키로 생성하는 데 동의합니다.</label>
  <button className="primary" disabled={!profileId||!accountId||!rights||!consent||(kind==='request'?!candidate:!url||!title||body.length<30)||(kind==='reply'&&(!sourceId||!original))} onClick={generate}>AI 문장 생성</button></fieldset>

@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
-import {ModelPicker} from './ModelPicker';
+import {TaskModelPicker} from './TaskModelPicker';
 import {selectionForProvider} from '../../lib/analysis/modelSelection';
 type Monitor={id:string;revision:number;state:string;last_reason:string;feed_count:number;ai_count:number;reserved_micros:number;budget_micros:number;lease_until:string|null;expires_at:string;background:boolean;runner?:'server'|'extension';runner_seen_at?:string|null;ai_enabled:boolean;feed_failures:number;last_feed_at:string|null};
 type Scheduler={jobId:number|null;active:boolean;paused:boolean;lastCalledAt?:string|null;lastError?:string|null};
@@ -51,7 +51,7 @@ export function FeedMonitor(){
  {catalog&&<fieldset disabled={busy||running}><legend>이번 자동 준비의 범위</legend><label>내 블로그<select value={account} onChange={e=>{setAccount(e.target.value);setNeighbors([]);setProfile('');setFeedConsent(false);setAiConsent(false);}}><option value="">선택하세요</option>{catalog.choices.accounts.map(a=><option key={a.id} value={a.id}>{a.external_id}</option>)}</select></label>
  <p>새 글 대상으로 켜 둔 이웃 중 최대50명을 선택하세요.</p>{catalog.directory.filter(n=>n.account_id===account).map(n=><label key={n.neighbor_id}><input type="checkbox" checked={neighbors.includes(n.neighbor_id)} onChange={e=>{setNeighbors(e.target.checked?[...neighbors,n.neighbor_id]:neighbors.filter(x=>x!==n.neighbor_id));setFeedConsent(false);setAiConsent(false);}}/>{n.neighbor_id}</label>)}
  <label><input type="checkbox" checked={ai} onChange={e=>{setAi(e.target.checked);setAiConsent(false);}}/>전문·권한을 확인한 저장 자료의 AI 댓글 초안도 자동 준비</label>
- {ai&&<><label>확인한 내 프로필<select value={profile} onChange={e=>{setProfile(e.target.value);setAiConsent(false);}}><option value="">선택하세요</option>{catalog.choices.profiles.map(p=><option key={p.id} value={p.id}>{p.topics.join(', ')} · 수정 {p.revision}</option>)}</select></label><ModelPicker value={model} onChange={v=>{setModel(v);setAiConsent(false);}} label="자동 초안"/>
+ {ai&&<><label>확인한 내 프로필<select value={profile} onChange={e=>{setProfile(e.target.value);setAiConsent(false);}}><option value="">선택하세요</option>{catalog.choices.profiles.map(p=><option key={p.id} value={p.id}>{p.topics.join(', ')} · 수정 {p.revision}</option>)}</select></label><TaskModelPicker value={model} onChange={v=>{setModel(v);setAiConsent(false);}} label="자동 초안"/>
  <label>이번 시작의 예상비용 예약 상한(USD)<input type="number" min="0.01" max="10" step="0.01" value={budget} onChange={e=>{setBudget(e.target.value);setAiConsent(false);}}/></label><label>최대 AI 호출 수(1~20)<input type="number" min={1} max={20} value={maxAi} onChange={e=>{setMaxAi(Number(e.target.value));setAiConsent(false);}}/></label>
  <p>{quote?`확인된 단가: 입력 ${quote.inputUsdPerMillion} / 출력 ${quote.outputUsdPerMillion} USD·백만 토큰. 출력 최대6000토큰과 보수적인 입력량으로 호출 전에 예약합니다.`:'선택 모델의 유효한 단가 확인이 없어 자동 AI 준비를 시작할 수 없습니다.'} 실제 청구액은 공급자 요금에 따릅니다. 실패·불확정 호출도 예약액을 돌려 쓰지 않습니다.</p><label><input type="checkbox" checked={aiConsent} onChange={e=>setAiConsent(e.target.checked)}/>선택한 본인 키·모델로 프로필과 전문을 전송하고 위 예산 예약·호출 수 범위에서 초안을 준비하는 데 동의합니다.</label></>}
  {catalog.serverFeedEnabled&&<><label><input type="checkbox" checked={background} disabled={!hasCronKey} onChange={e=>{setBackground(e.target.checked);setFeedConsent(false);}}/>탭을 닫거나 PC를 꺼도 새 글 확인 계속하기(내 cron-job.org 계정 사용, 최대 7일)</label>

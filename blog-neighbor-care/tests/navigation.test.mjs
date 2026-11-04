@@ -13,7 +13,10 @@ test('NAV01 nested routes select the proper workflow, account is verified-only a
   const { document } = parseHTML(renderToStaticMarkup(view('layout@example.invalid')));
   const sidebar = document.querySelector('.desktop-sidebar');
   assert.equal(sidebar.querySelector('[aria-current=page]').getAttribute('href'), '/neighbors');
-  assert.deepEqual([...sidebar.querySelectorAll('.bnc-flow a')].map(a => a.getAttribute('href')), ['/reader','/studio','/candidates','/neighbors']);
+  // v1.16 메뉴 4개: 오늘의 소통 · 이웃 · 내 블로그 · 설정(옛 /reader·/candidates는 새 화면으로 연결)
+  assert.deepEqual([...sidebar.querySelectorAll('.bnc-flow a')].map(a => a.getAttribute('href')), ['/today','/neighbors','/studio','/settings']);
+  assert.match(sidebar.querySelector('a[href="/settings"]').textContent, /API키등록·플랫폼연동/);
+  assert.equal(sidebar.querySelector('.bnc-dashboard'), null);
   assert.equal(sidebar.querySelector('.bnc-backlink').getAttribute('href'), 'https://www.buylife.xyz/programs');
   assert.ok(sidebar.querySelector('.nav-download').hasAttribute('download'));
   assert.equal(sidebar.lastElementChild.className, 'bnc-account');

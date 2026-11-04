@@ -43,7 +43,7 @@ export default function ReaderConnection() {
   return <div className="reader"><header><small>AI 블로그 이웃 소통 자동화 · {APP_VERSION}</small><h1>본인 글 1개부터 연결하기</h1>
     <p>로그인한 회원 계정으로 확장을 연결하고, 네이버에서 직접 선택한 글을 받아 확인합니다.</p></header>
     <section><h2>1. 확장 설치</h2><a className="primary" href="/downloads/blog-neighbor-care-extension-latest.zip">확장 ZIP 받기</a>
-      <p>ZIP을 풀고 Edge 확장 관리에서 개발자 모드를 켠 뒤 ‘압축 풀린 확장 로드’로 폴더를 선택하세요. 설치 후 이 화면을 새로고침하세요.</p></section>
+      <p>ZIP을 풀고 브라우저 확장 관리(edge://extensions 또는 chrome://extensions)에서 개발자 모드를 켠 뒤 ‘압축 풀린 확장 로드’로 폴더를 선택하세요. 설치 후 이 화면을 새로고침하세요.</p></section>
     <section><h2>2. 내 회원 계정과 블로그 연결</h2><label htmlFor="blog-id">본인 블로그 아이디</label>
       <input id="blog-id" value={blogId} onChange={e => setBlogId(e.target.value)} placeholder="예: buylifemall" maxLength={50} autoComplete="off" spellCheck={false} />
       <label className="check"><input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} />본인 블로그이며, 직접 선택한 글의 제목·본문을 프로그램에 전달하는 데 동의합니다.</label>

@@ -10,10 +10,11 @@ import { retention, isUnlimitedRetention } from '../src/lib/analysis/client.ts';
 const profileInput = model => ({ id: randomUUID(), provider: 'gemini', model, externalAiConfirmed: true, materialIds: [randomUUID()],
   preferences: { requiredTopics: [], excludedTopics: [], region: '', scale: 'any', styleSamples: [] } });
 
-test('V115-01 Gemini choices no longer offer retiring 2.5 / auto-redirected 3.7 models', () => {
+test('V115-01 Gemini choices follow the model catalog (v1.16: balanced default + lite + top) without retiring 2.5 / 3.7', () => {
   const gemini = AI_MODEL_OPTIONS.filter(o => o.provider === 'gemini').map(o => o.value);
-  assert.deepEqual(gemini, ['gemini-3.5-flash-lite', 'gemini-3.8-flash']);
-  assert.equal(DEFAULT_MODEL_BY_PROVIDER.gemini, 'gemini-3.5-flash-lite');
+  assert.deepEqual(gemini, ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-4-argon']);
+  assert.equal(DEFAULT_MODEL_BY_PROVIDER.gemini, 'gemini-3.8-flash');
+  assert.match(AI_MODEL_OPTIONS.find(o => o.value === 'gemini-4-argon').label, /결제 연결 키 필요/);
 });
 
 test('V115-02 saved retired model values are converted before validation and before the call', async () => {

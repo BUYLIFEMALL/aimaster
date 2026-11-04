@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ModelPicker } from './ModelPicker';
+import { TaskModelPicker } from './TaskModelPicker';
 import { CandidateSearch } from './CandidateSearch';
 import { CandidateBodyFile, CandidateFileImport } from './CandidateFileImport';
 import {reviseCandidateSource} from '../../lib/analysis/candidateFiles';
@@ -141,7 +141,7 @@ export function AnalysisStudio({ userId, mode }: { userId: string; mode: 'profil
         <button disabled={busy || posts.length >= 20} onClick={() => { setPosts(values => [...values, blankPost()]); setConfirmed(false); }}>후보 글 추가</button>
         <label className="check"><input type="checkbox" disabled={busy} checked={rights} onChange={e => setRights(e.target.checked)} />제공하는 모든 후보 글의 사용 권한을 확인했습니다.</label>
       </>}
-      <ModelPicker value={model} disabled={busy} onChange={value => { setModel(value); setConfirmed(false); }} label={mode === 'profile' ? '프로필 분석' : '후보 평가'} />
+      <TaskModelPicker value={model} disabled={busy} onChange={value => { setModel(value); setConfirmed(false); }} label={mode === 'profile' ? '프로필 분석' : '후보 평가'} />
       <div className="cost-notice"><strong>유료 AI 분석을 실행하기 전에</strong><p>선택한 플랫폼·모델에 글의 제목과 본문을 전송합니다. 회원 본인 키에 사용료가 발생할 수 있습니다. 입력 길이·응답량에 따라 금액이 달라지며 확정 견적은 제공하지 않습니다.</p></div>
       <label className="check"><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} />선택한 자료의 외부 AI 전송과 사용료 발생 가능성을 확인했습니다.</label>
       {unresolved.length > 0 && <div className="uncertain"><strong>이전 요청의 결과를 먼저 확인해 주세요.</strong>{unresolved.map(id => <button key={id} disabled={busy} onClick={() => run(() => open(id))}>요청 {id.slice(0, 8)} 상태 확인</button>)}<label className="check"><input type="checkbox" checked={acknowledged} disabled={busy} onChange={e => setAcknowledged(e.target.checked)} />이전 요청이 과금됐을 수 있음을 확인했고, 별도 새 분석을 요청합니다.</label></div>}

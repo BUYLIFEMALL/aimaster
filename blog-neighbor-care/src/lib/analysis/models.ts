@@ -20,6 +20,7 @@ export type AiModel =
   | "claude-opus-5"
   | "gemini-3.5-flash-lite"
   | "gemini-3.8-flash"
+  | "gemini-4-argon"
   | "sonar"
   | "sonar-pro";
 
@@ -40,8 +41,10 @@ export const AI_MODEL_OPTIONS: AiModelOption[] = [
   { value: "claude-sonnet-5", label: "균형형 (Claude Sonnet 5)", provider: "anthropic" },
   { value: "claude-opus-5", label: "고급형 (Claude Opus 5, 복잡한 페이지 구조에 강함)", provider: "anthropic" },
 
-  { value: "gemini-3.5-flash-lite", label: "가성비 (Gemini 3.5 Flash Lite, 가장 빠르고 저렴 · 추천)", provider: "gemini" },
-  { value: "gemini-3.8-flash", label: "균형형 (Gemini 3.8 Flash, 복잡한 페이지 구조에 강함)", provider: "gemini" },
+  // docs/AI_MODEL_CATALOG.md 등급별 추천 3개(2026-11-04 v1.16) — 기본은 중가 균형.
+  { value: "gemini-3.8-flash", label: "균형형 (Gemini 3.8 Flash · 기본 추천)", provider: "gemini" },
+  { value: "gemini-3.5-flash-lite", label: "가성비 (Gemini 3.5 Flash Lite, 가장 빠르고 저렴)", provider: "gemini" },
+  { value: "gemini-4-argon", label: "최고급 (Gemini 4 Argon · 무료 등급 없음, 결제 연결 키 필요)", provider: "gemini" },
 
   { value: "sonar", label: "가성비 (Sonar, 빠르고 저렴 · 추천)", provider: "perplexity" },
   { value: "sonar-pro", label: "고급형 (Sonar Pro)", provider: "perplexity" },
@@ -51,7 +54,7 @@ export const AI_MODEL_OPTIONS: AiModelOption[] = [
 export const DEFAULT_MODEL_BY_PROVIDER: Record<AiModelProvider, AiModel> = {
   openai: "gpt-5.6-luna",
   anthropic: "claude-haiku-4-5",
-  gemini: "gemini-3.5-flash-lite",
+  gemini: "gemini-3.8-flash",
   perplexity: "sonar",
 };
 

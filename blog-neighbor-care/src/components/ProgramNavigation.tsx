@@ -5,11 +5,12 @@ import { useState, type ReactNode } from 'react';
 import { APP_VERSION } from '../lib/version';
 import { VersionStatus } from './VersionStatus';
 
+// v1.16 메뉴 4개(PLAN_20261104_SIMPLIFY_FLOW §3-4). 옛 주소 /reader·/candidates는 새 화면으로 연결한다.
 const steps = [
-  { href: '/reader', title: '내 글 연결', description: '확장 연결 · 본인 글 가져오기' },
-  { href: '/studio', title: '내 블로그 분석', description: '프로필 분석 · 확인과 수정' },
-  { href: '/candidates', title: '이웃 후보 비교', description: '후보 검색 · 평가와 선택' },
-  { href: '/neighbors', title: '이웃 관계 기록', description: '기존 이웃 · 소통 대상 설정' },
+  { href: '/today', icon: '🏠', title: '오늘의 소통', description: '새 글 확인 · 문장 · 작업 결과' },
+  { href: '/neighbors', icon: '👥', title: '이웃', description: '관계 기록 · 가져오기 · 후보 찾기' },
+  { href: '/studio', icon: '📊', title: '내 블로그', description: '프로필 분석 · 확인과 수정' },
+  { href: '/settings', icon: '⚙️', title: '설정', description: 'API키등록·플랫폼연동 · 상한 · 모델' },
 ];
 
 export function ProgramNavigation({ children, email }: { children: ReactNode; email?: string }) {
@@ -30,7 +31,7 @@ export function ProgramNavigation({ children, email }: { children: ReactNode; em
   }
   const menu = (mobile: boolean) => <>
     <div className="bnc-sidebar-heading">
-      <Link className="bnc-brand" href="/studio" onClick={close}>
+      <Link className="bnc-brand" href="/today" onClick={close}>
         <span className="bnc-brand-mark" aria-hidden="true">N↗</span>
         <strong>AI 블로그<br />이웃 소통 자동화</strong>
         <small className="bnc-brand-version">RELAY DESK</small>
@@ -39,17 +40,15 @@ export function ProgramNavigation({ children, email }: { children: ReactNode; em
       <a className="bnc-backlink" href="https://www.buylife.xyz/programs">← 다른 프로그램 보기</a>
     </div>
     <nav className="bnc-sidebar-nav" aria-label={mobile ? '모바일 프로그램 메뉴' : '프로그램 메뉴'}>
-      <Link className="bnc-dashboard" href="/studio" onClick={close}><span aria-hidden="true">⌂</span>대시보드</Link>
-      <p className="bnc-nav-caption">작업 순서</p>
-      <ol className="bnc-flow">{steps.map((step, index) => <li key={step.href}>
+      <p className="bnc-nav-caption">메뉴</p>
+      <ol className="bnc-flow">{steps.map(step => <li key={step.href}>
         <Link className="bnc-flow-item" href={step.href} aria-current={active(step.href) ? 'page' : undefined} onClick={close}>
-          <span className="bnc-step-number" aria-hidden="true">{index + 1}</span>
+          <span className="bnc-step-number" aria-hidden="true">{step.icon}</span>
           <span><strong>{step.title}</strong><small>{step.description}</small></span>
         </Link>
       </li>)}</ol>
       <div className="bnc-utilities">
         <a className="primary nav-download" href="/downloads/blog-neighbor-care-extension-latest.zip" download><span>⬇ 확장 프로그램 받기</span><small>최신 {APP_VERSION}</small></a>
-        <Link href="/settings" aria-current={active('/settings') ? 'page' : undefined} onClick={close}><span aria-hidden="true">🔑</span>API키등록·플랫폼연동</Link>
         <Link href="/guide" aria-current={active('/guide') ? 'page' : undefined} onClick={close}><span aria-hidden="true">📖</span>연동 &amp; 사용 매뉴얼</Link>
       </div>
     </nav>
