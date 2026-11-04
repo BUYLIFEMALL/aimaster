@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.13 · 엔진 0.4.1 추가 엔진 설치 실패 수정
+- **계기**: 마스터PC(주인님) 엔진 0.4.0 설치·연결 성공 → HeartMuLa 첫 곡이 설치 단계에서 「torch==2.8.0 unsatisfiable」로 실패.
+- **원인·수정**: torch 단계 `--index-url` + `--exclude-newer`가 겹쳐 딸린 패키지가 모두 걸러짐 → `--extra-index-url` + `--index-strategy unsafe-best-match`(`engine/src/pyengines.mjs`). 이 PC에서 재현·수정 확인(torch 2.8.0·2.7.1 `+cu128`, HeartMuLa 패키지 90개). 세 추가 엔진 모두 해당. 상세 `docs/ERROR_LESSONS.md` 같은 날.
+- **커밋/배포**: 코드 커밋(경로 지정 8개 파일), 배포 `free-music-studio-m3pwx8pti` Ready, 화면·DB v1.13, 설치 파일 0.4.1(111,862,642바이트) 운영 주소 200 확인. 시험 엔진 51, `tsc` 통과. 빌드 승인 3회 중 2회 사용.
+- **못 한 것**: 실제 그래픽카드 설치·생성은 마스터PC에서 다시 시험해야 함(원본 빌드 단계는 자동 권한 검사로 이 PC에서 확인 못 함).
+- **다음 첫 단계**: 마스터PC 엔진 실행 프로그램 새 버전 알림 → 0.4.1 설치 → 작업 대기열에서 HeartMuLa [다시 하기].
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.12 · 엔진 0.4.0 음악 엔진 더 넣기 1차 배포
 - **지시**: 주인님 「공개된 건 써도 된다는 얘기야」「다 넣고 개인용과 상업용으로 나누면 되잖아」 → 플랜 [`free-music-studio/docs/PLAN_20261104_MORE_ENGINES.md`](../free-music-studio/docs/PLAN_20261104_MORE_ENGINES.md)(1~3차, 빌드 3회 승인) → 「진행해」.
 - **한 일(1차)**: 엔진 공통 실행 틀 `engine/src/pyengines.mjs`·`pyengines-catalog.json`·`src/py/*.py`, 상업용 HeartMuLa 3B(Apache 2.0)·Stable Audio 3 Medium(조건부, 회원 본인 Hugging Face 토큰 — `user_api_keys` provider `huggingface`), 개인용 LeVo 2(학술·연구·교육용). 그래픽 메모리 한 번에 한 엔진(`exclusiveRun`), 받은 모델 지우기. 사이트: 곡 만들기·PC 검사 「상업용」·「개인용」 두 묶음, 개인용 엔진별 동의, 설정 토큰 칸, 대기열·보관함 엔진 표시. 설치 파일 0.4.0.

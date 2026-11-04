@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-04 uv로 torch를 PyTorch 저장소에서 받는데 「torch==2.8.0 unsatisfiable」 — 날짜 제한과 `--index-url`이 겹침 (`free-music-studio` 엔진 0.4.1, [역할: music])
+- **증상**: 마스터PC에서 HeartMuLa 첫 설치가 `uv 실패(코드 1) — … you require torch==2.8.0, we can conclude that your requirements are unsatisfiable`로 멈춤. 미니PC 판 맞추기 확인 때는 지나갔던 조합.
+- **원인**: torch 단계에 `--index-url https://download.pytorch.org/whl/cu128`(그 저장소만)과 `--exclude-newer 2026-10-20`을 함께 썼다. 그러면 torch가 필요로 하는 `filelock` 같은 딸린 패키지도 PyTorch 저장소에서만 찾는데, 거기 파일에는 올린 날짜가 없어 날짜 제한에 모두 걸러진다(`missing an upload date` 경고 → `there are no versions of filelock`).
+- **해결**: `free-music-studio/engine/src/pyengines.mjs` `stepArgs` — `--extra-index-url <cu128> --index-strategy unsafe-best-match`. 딸린 패키지는 PyPI에서 날짜를 확인해 받고, torch는 판이 더 높은 `+cu128`이 골라진다. 같은 조건을 이 PC에서 `uv pip compile … --python-platform windows`로 재현 → 고친 뒤 torch 2.8.0·2.7.1 모두 `+cu128` 확인.
+- **다음부터**: uv에 날짜 제한을 걸 때 PyTorch 저장소는 `--index-url`이 아니라 `--extra-index-url` + `unsafe-best-match`로 둔다. 미리 확인은 실제 설치 명령과 **같은 인자**로 `uv pip compile`해야 한다(인자가 다르면 확인이 통과해도 실물에서 실패).
+
 ## 2026-11-04 공공데이터포털에서 승인됐는데도 403 SERVICE_KEY_IS_NOT_REGISTERED — 옛 서비스 주소를 부름 (`real_estate_sales`, [역할: realty])
 - **증상**: 연립다세대 매매(15126467)가 10-31 [승인]인데 예약 수집의 빌라 매매만 계속 403(24시간 13번). 같은 키로 아파트·오피스텔은 정상. 문서에는 「승인 반영 대기」로 4일째 남아 있었음.
 - **원인**: 코드가 옛 서비스 `RTMSDataSvcRHTrade`를 불렀다. 이 데이터의 현재 주소는 `RTMSDataSvcRHTrade2/getRTMSDataSvcRHTrade2`이고, 승인은 새 서비스에만 연결된다. 옛 주소도 살아 있어 404가 아니라 「키 미등록」 403을 돌려줘 승인 문제처럼 보였다.
