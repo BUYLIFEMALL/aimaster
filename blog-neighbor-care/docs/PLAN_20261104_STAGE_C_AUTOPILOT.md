@@ -1,6 +1,6 @@
 # 개발 플랜 — 단계 C: 완전 자동 운영 (블로그 이웃 소통 자동화)
 
-작성: 2026-11-04 · Claude Code(윈도우) [역할: blog] `claude-win-blog` · 상태: **승인됨(아래 §5) · C-1 v1.17 배포 완료(2026-11-04, `cf451f04c`) · 맥미니 실물 확인 뒤 C-2**
+작성: 2026-11-04 · Claude Code(윈도우) [역할: blog] `claude-win-blog` · 상태: **승인됨(아래 §5) · C-1 v1.17 배포 완료(2026-11-04, `cf451f04c`) · 맥미니 실물 확인 뒤 C-2** · **C-2 상세 플랜 [`PLAN_20261105_STAGE_C2.md`](PLAN_20261105_STAGE_C2.md)(2026-11-05, 승인 대기)**
 근거: 맥미니 v1.16 실물 확인(`docs/IMPROVEMENTS.md` 맨 위, 커밋 `0da0e0158`) · [단순화 플랜 §3-3·§4 C](PLAN_20261104_SIMPLIFY_FLOW.md) · 기준 [`docs/AUTOMATION_MINIMAL_SETUP_POLICY.md`](../../docs/AUTOMATION_MINIMAL_SETUP_POLICY.md) · 봇 탐지 회피 [`docs/PLATFORM_PATTERNS.md` §20](../../docs/PLATFORM_PATTERNS.md)
 
 ## 0. 먼저 확인한 것 — 같은 글 「공감 · 성공 확인」 2개 (읽기만, 2026-11-04)
