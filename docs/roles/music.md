@@ -24,6 +24,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-04 | `free-music-studio` v1.16 | 엔진 0.6.1: LeVo 2 진짜 원인(GitHub 압축 안 LFS 자리표시 파일) 자동 수정 | 배포 |
 | 2026-11-04 | `free-music-studio` v1.15 | 엔진 0.6.0: 2차 MiniMax Music 3(상업용 조건부)·LeVo 2 torch.load 수정·실패 원인 표시·새 판 안내 | 배포 |
 | 2026-11-04 | `free-music-studio` v1.14 | 엔진 0.5.0: 모델 저장 공간 관리 — 「모델 저장 공간」 상자(항목별 크기·안 쓰는 모델 지우기)·모델 폴더를 다른 드라이브로(옮기기/새로 받기)·설치 확인 창 없앰·받기 진행 막대. 미니PC 실물(한글 경로 D 드라이브) | 배포 |
 | 2026-11-04 | `free-music-studio` v1.13 | 엔진 0.4.1: 추가 엔진 설치 실패(torch 판 맞추기, 마스터PC HeartMuLa) 수정 — PyTorch 저장소를 보조로 | 배포 |
@@ -61,7 +62,7 @@
 3. (끝) 마스터PC YuE2 첫 실물 성공 — 주인님 「음질·음악적 필 모두 YuE2가 좋다」
 3-1. (끝) 마스터PC HeartMuLa 첫 실물 성공(엔진 0.4.1, 2026-11-04 14:14~14:52, 첫 받기 포함 38분, RTX 5080 16GB 나눠 올리기) — 주인님 「음질 무난하고 한국 발음도 자연스러워」(상업용 한국어 노래 후보)
 3-3. (끝) 2차 배포 v1.15·엔진 0.6.0(`free-music-studio-e1xugpr05`): MiniMax Music 3(상업용 조건부), LeVo 2 「Weights only load failed」 수정, 실패 원인 표시, 새 판 안내. DiffRhythm 2는 3차, InspireMusic 보류. 엔진 플랜 승인 빌드 3회 다 씀
-3-5. LeVo 2 진짜 원인 = GitHub 압축 안 LFS 자리표시 글(`tools/new_prompt.pt` 133바이트, realty 세션이 확인) → 마스터PC는 주인님이 진짜 파일로 바꿈(확인값 일치), 엔진 0.6.1 자동 수정 코드 `40506bee7` 미배포(빌드 승인 대기)
+3-5. LeVo 2 진짜 원인 = GitHub 압축 안 LFS 자리표시 글(`tools/new_prompt.pt` 133바이트, realty 세션이 확인) → 마스터PC는 주인님이 진짜 파일로 바꿈(확인값 일치), 엔진 0.6.1 자동 수정 배포 완료(v1.16 `free-music-studio-5gh1o5hsp`)
 3-4. 마스터PC 엔진 0.6.0 설치 → LeVo 2 [다시 하기] → MiniMax Music 3 1곡(약 35GB 받음, 16GB 나눠 올리기라 느림) → Stable Audio 3(회원 Hugging Face 토큰)
 3-2. 마스터PC 엔진 0.5.0 설치(확인 창 없이) → 「모델 저장 공간」에서 모델 폴더를 다른 드라이브로 옮기기 실물 → LeVo 2 · Stable Audio 3(회원 Hugging Face 토큰) 실물(엔진 실행 프로그램이 새 버전 알림 → 받기·설치 → 곡 만들기에서 HeartMuLa·Stable Audio 3·LeVo 2 각 1곡). 실패하면 데이터 폴더 `<엔진>-log.txt`부터. Stable Audio 3는 회원 Hugging Face 토큰·약관 동의 먼저
 4. AI 무료음악 자동화 4단계 나머지 — 홈 화면·곡 만들기 2단·내 곡에서 바로 커버·휴지통(재생바는 v1.10에서 끝)

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.16 · 엔진 0.6.1 LeVo 2 LFS 파일 수정
+- **원인**: GitHub 원본 압축 안 `tools/new_prompt.pt`가 133바이트 LFS 자리표시 글(realty 세션이 확인, 주인님이 마스터PC 파일을 진짜 파일로 바꿔 확인값 일치). 제가 앞서 낸 「Weights only」 판단은 절반만 맞음 — `docs/ERROR_LESSONS.md`에 바로잡음.
+- **수정**: 엔진이 원본을 푼 뒤 LFS 자리표시 글을 미디어 서버에서 받아 확인값으로 검사(`pyengines.mjs` `fixLfsFiles`), 설치된 PC도 한 번 점검.
+- **검수/배포**: 시험 엔진 63·웹 48·`tsc`, 배포 `free-music-studio-5gh1o5hsp` Ready, 화면·DB v1.16, 설치 파일 0.6.1 운영 200. 커밋 `40506bee7`·`b2560e3d3`.
+- **남은 일**: 마스터PC LeVo 2 [다시 하기] 결과 → MiniMax Music 3 1곡 → Stable Audio 3(토큰).
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.15 · 엔진 0.6.0 2차 엔진·LeVo 2 수정
 - **지시**: 주인님 「2차 진행해」(엔진 플랜 승인 빌드 3회 범위), MiniMax 매출 조건은 주인님 「연매출 2000만 달러 넘어갈일 절대 없어」.
 - **결정**: MiniMax Music 3 넣음(상업용 조건부 — 「MiniMax-Music3」 표시·AI 생성 표시), DiffRhythm 2 3차로(윈도우 `espeak-ng`·`pyopenjtalk` 빌드 문제), InspireMusic 보류(공식 HF 모델 내려감). 근거 `free-music-studio/docs/PLAN_20261104_MORE_ENGINES.md` 2차 진행 상태.

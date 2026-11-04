@@ -28,7 +28,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `free-music-studio` | 엔진 0.6.1: GitHub 원본 압축 안 LFS 자리표시 글을 진짜 파일로(LeVo 2 `tools/new_prompt.pt`, 회원 PC에서 LeVo 2가 안 되는 버그) — 설치 파일과 함께 | `40506bee7` | 2026-11-04 · [역할: music] `claude-win-20261024-music` | `docs/ERROR_LESSONS.md` 같은 날 | v1.16, **빌드 승인 대기**(회원 피해 버그라 승인되면 바로) |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
 | `banana-canvas` | E5-4 한글 이름·주소 가리기(「한글 이름·주소도」, 한국어 글자 읽기 모델 13MB 브라우저 첫 1회) | `1dd57ac12` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` E5-4 | v1.43, 운영에서 송장 사진으로 확인 |
 | `banana-canvas` · `thumbnail-master` · `insta_auto_poster` · `shop-detail-page` | E5-5 무료 도구를 썸네일·인스타 카드뉴스에서도: 공용 `nukki-handoff` 보낸 곳 여러 개, 바나나 받기 훅(무료 이미지 도구·무료 지우기), 썸네일 「🧽 무료 지우기」→새 버전(받기 API `POST /api/projects/[id]`), INSTA 슬라이드 「✂ 누끼·🙈 가리기·🧽 지우기」→이 장 새 이미지. 시험 바나나 29·썸네일 19·INSTA 78+2, tsc·로컬 build 4곳 | `75bd2728d` | 2026-11-04 · [역할: ecommerce-image] `claude-win-sdp` | `docs/roles/ecommerce-image.md` 이미지 인계 | 바나나 v1.43과 함께, 썸네일·INSTA·상세 +0.01. 배포 순서 바나나 먼저. 배포 뒤 운영 창끼리 보내기·되돌려 넣기 확인 |
@@ -78,6 +77,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `free-music-studio` | v1.16 · 엔진 0.6.1 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-5gh1o5hsp`) | LeVo 2 LFS 자리표시 파일 자동 수정(`40506bee7`) |
 | `free-music-studio` | v1.15 · 엔진 0.6.0 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 「진행해」 승인 빌드 3회 중 3회째, `free-music-studio-e1xugpr05`) | 2차 MiniMax Music 3(`d7a52afbd`) + LeVo 2 torch.load 수정 + 실패 원인 표시 + 새 판 안내 + 노래 폴더 안내 문구 |
 | `free-music-studio` | v1.14 · 엔진 0.5.0 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `free-music-studio-arwl7qh3c`) | 모델 저장 공간 관리(안 쓰는 모델 지우기·모델 폴더를 다른 드라이브로·설치 확인 창 없앰) + 미배포였던 받기 진행 막대(`c4468c688`) |
 | `free-music-studio` | v1.13 · 엔진 0.4.1 설치 파일 · 2026-11-04 ([역할: music], 「진행해」 승인 빌드 3회 중 2회, `free-music-studio-m3pwx8pti`) | 추가 엔진 설치 실패(torch 판 맞추기) 수정 |
