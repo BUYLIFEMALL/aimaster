@@ -28,7 +28,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `free-music-studio` | 효과음·연주곡 한국어 → 영어 설명(Stable Audio 3는 영어 학습): 효과음 화면 「AI 효과음 설명 만들기」(회원 본인 키, OpenAI·Claude·Gemini 최신 3모델 선택, API `/api/sound-prompt`) + 설명 칸에 한글이 있으면 「영어로 바꾸기」 버튼(주인님 지시) | `70fcdb9a0` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/src/app/(dashboard)/songs/page.tsx` | v1.22, 사이트만(엔진 그대로) |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |
 | `real_estate_sales` | 주소 리포트 지도 가운데 📍 핀 겹치기(브이월드 marker 옵션이 그려지지 않음, v1.52 운영 확인 중 발견) | `d46717d97` | 2026-11-05 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` v1.52 | 다음 실거래 배포 때(+0.01) |
 | `commercial-land-trade-alert` | 실거래 목록 「분류」 거르기에 공장·창고 용도(공장·창고시설·자동차 관련시설) 추가, 종류 전체 선택 이름 「모든 종류」(v1.31 운영 확인 중 발견) | 이 커밋 바로 뒤 `fix(commercial-land-trade-alert)` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `commercial-land-trade-alert/AGENTS.md` v1.31 | 다음 상가 배포 때 함께(+0.01) |
@@ -88,6 +87,7 @@
 | `real_estate_sales` | v1.49 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-kocrxxfxc`) | 서울 분양권 계약일순 재정렬 |
 | `real_estate_sales` | v1.48 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-l6lj3bimi`) | 「지금 조회하기」 시간 예산(`6d89f342f`, 운영 220초에 끝까지 확인) + 분양권(SilvTrade) 다섯째 유형 |
 | `blog-neighbor-care` | v1.15 · 2026-11-04 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-3focphnt6`) | 30일 보관 열외(운영 SQL `20261104120000` 적용, 열외 자료 87줄 무기한) + 12월 모델 교체 묶음 B(`web-crawler`와 같은 파일) `0a3a8c9f1`. DB/ZIP OK. 위 「12월 모델 교체 B」·「30일 보관 열외」 줄의 `blog-neighbor-care` 몫 처리 완료 |
+| `free-music-studio` | v1.22 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-j4e06dkvq`, 사이트만) | 효과음·연주곡 한국어 → 영어 설명(`70fcdb9a0`) |
 | `free-music-studio` | v1.21 · 엔진 0.6.6 설치 파일 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-gngyp54fn`) | 효과음 모드(`3f2c41e27`, SQL `20261105_sfx_durations.sql` 먼저 실행·제약 확인) + MiniMax 24GB 이상 전용(`31fff3adc`) |
 | `free-music-studio` | v1.20 · 엔진 0.6.5 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `free-music-studio-9yy4h3z4u`) | MiniMax 받아 둔 고정 판 폴더를 직접 찾기(`ace21838e`, 0.6.4의 snapshot_download 검사가 골라 받은 모델을 「64개 없음」으로 막음) |
 | `free-music-studio` | v1.19 · 엔진 0.6.4 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-gf8b7pan9`) | MiniMax 부품을 받아 둔 폴더에서 불러오기(`786c6627a`) + 옮긴 곡 세 단계 아래까지 찾기(`43e3b98a0`·`b12263837`·`1b012e633`) + 한국어 못 부르는 노래 엔진 숨기기(`5e9507063`·`5d8a47833`·`60ee2fe0b`) + 대기열 요청 길이·걸린 시간(`803439ff0`·`9f6dd1ebc`) |
