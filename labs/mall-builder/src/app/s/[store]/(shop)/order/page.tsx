@@ -5,6 +5,7 @@ import { cartTotals, priceLine } from "@/lib/pricing";
 import { regionOfZip, type Region } from "@/lib/shipping";
 import { formatWon } from "@/lib/products";
 import { readBusinessInfo } from "@/lib/businessInfo";
+import { createClient } from "@/lib/supabase/server";
 import OrderForm from "./order-form";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,9 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
     }),
   ) as Record<Region, { subtotal: number; shipping: number; total: number }>;
   const info = readBusinessInfo(store.business_info);
+  // 카드 결제: 몰이 켰고 클라이언트 키가 있을 때만(시크릿 키 여부는 DB 함수가 주문 때 다시 검사)
+  const { data: pay } = await (await createClient()).from("mall_builder_store_payment_settings").select("toss_client_key, card_enabled").eq("store_id", store.id).maybeSingle();
+  const card = Boolean(pay?.card_enabled && pay.toss_client_key);
   // 외상: 승인 사업자이고 한도가 있을 때만 결제 방법에 보인다(DB 함수가 한 번 더 검사)
   const isBusiness = customer.approval_status === "approved" && !!customer.grade?.is_business;
   const credit = isBusiness && customer.credit_limit > 0 ? { limit: customer.credit_limit, balance: (await getCreditLedger(customer.id)).balance } : undefined;
@@ -70,6 +74,7 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
           bankText={bankText}
           credit={credit}
           invoice={isBusiness ? { defaultEmail: user.email ?? "" } : undefined}
+          card={card}
         />
       )}
     </main>

@@ -6,6 +6,8 @@ import { requestTaxInvoiceAction } from "@/lib/tax-invoice-actions";
 import { ORDER_STATUS_LABEL, formatDateTime } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
+import { getCardPayment } from "@/lib/card-payments";
+import { CARD_STATUS_LABEL } from "@/lib/payment";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -18,10 +20,10 @@ export default async function OrderDetailPage({
   searchParams,
 }: {
   params: Promise<{ store: string; id: string }>;
-  searchParams: Promise<{ done?: string; error?: string; ok?: string }>;
+  searchParams: Promise<{ done?: string; error?: string; ok?: string; paid?: string }>;
 }) {
   const { store: slug, id } = await params;
-  const { done, error, ok } = await searchParams;
+  const { done, error, ok, paid } = await searchParams;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const user = await requireUser(`/s/${slug}/orders/${id}`);
   const store = await getStoreBySlug(slug);
@@ -32,6 +34,9 @@ export default async function OrderDetailPage({
   const isBusiness = customer?.approval_status === "approved" && !!customer.grade?.is_business;
   const base = `/s/${store.slug}`;
   const r = order.receiver;
+  // 카드 결제 기록(0028) — 보안 규칙상 이 주문의 손님만 읽힌다
+  const card = order.is_card ? (await getCardPayment(order.id)) : null;
+  const payLabel = order.is_card ? "카드" : order.is_credit ? "외상(후불)" : "무통장 입금";
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -45,12 +50,18 @@ export default async function OrderDetailPage({
           </p>
         </div>
       )}
+      {paid && (
+        <div className="mb-6 rounded-lg bg-green-50 p-4 text-sm text-green-800" data-card-paid>
+          <p className="text-base font-bold">카드 결제가 완료되었습니다.</p>
+          <p className="mt-1">{formatWon(order.total)} 결제되었습니다. 배송을 준비합니다.</p>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-bold">주문 {order.order_no}</h1>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-order-status>{ORDER_STATUS_LABEL[order.status]}</span>
       </div>
       <p className="mt-1 text-sm text-gray-500">
-        {formatDateTime(order.created_at)} 주문 · 결제 {order.is_credit ? "외상(후불)" : "무통장 입금"}
+        {formatDateTime(order.created_at)} 주문 · 결제 {payLabel}
       </p>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-order-error>{error}</p>}
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">처리했습니다.</p>}
@@ -63,7 +74,32 @@ export default async function OrderDetailPage({
         <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="customer" backPath={`${base}/orders/${order.id}`} />
       </div>
 
-      {order.status === "pending_payment" && (
+      {order.is_card && order.status === "pending_payment" && (
+        <section className="mt-6 rounded border bg-gray-50 p-4 text-sm" data-order-card-pending>
+          {card && (card.status === "requested" || card.status === "unknown") ? (
+            <p>결제를 확인하고 있습니다. 결제가 됐는지 운영자가 확인한 뒤 안내드립니다.</p>
+          ) : (
+            <>
+              <p className="font-medium">카드 결제 대기 — 결제할 금액 <b>{formatWon(order.total)}</b></p>
+              {order.pay_deadline_at && <p className="mt-1 text-red-700" data-pay-deadline>{formatDateTime(order.pay_deadline_at)}까지 결제하지 않으면 주문이 취소될 수 있습니다.</p>}
+              <Link href={`${base}/orders/${order.id}/pay`} className="mt-3 inline-block min-h-11 rounded bg-gray-900 px-5 py-2 text-white" data-pay-link>카드로 결제하기</Link>
+            </>
+          )}
+        </section>
+      )}
+      {card && card.status !== "requested" && card.status !== "failed" && !(order.status === "pending_payment" && card.status === "unknown") && (
+        <section className="mt-6 rounded border p-4 text-sm" data-card-info>
+          <p className="font-medium">카드 결제 — {CARD_STATUS_LABEL[card.status] ?? card.status}</p>
+          <p className="mt-1 text-gray-600">
+            {card.method || "카드"} · {formatWon(card.amount)}
+            {card.approved_at && ` · ${formatDateTime(card.approved_at)} 승인`}
+            {card.canceled_amount > 0 && ` · 환불 ${formatWon(card.canceled_amount)}`}
+          </p>
+          {card.receipt_url && <a href={card.receipt_url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-blue-700 underline">영수증 보기</a>}
+        </section>
+      )}
+
+      {!order.is_card && order.status === "pending_payment" && (
         <section className="mt-6 rounded border bg-gray-50 p-4 text-sm" data-order-bank>
           <p className="font-medium">무통장 입금 안내</p>
           <p className="mt-1">

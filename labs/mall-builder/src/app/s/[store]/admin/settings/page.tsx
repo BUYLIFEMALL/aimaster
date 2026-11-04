@@ -6,6 +6,7 @@ import SettingsForm from "./settings-form";
 import DepositForm, { type DepositStatus } from "./deposit-form";
 import NotifyForm, { type NotifyStatus } from "./notify-form";
 import EmailForm, { type EmailStatus } from "./email-form";
+import PaymentForm, { type PaymentStatus } from "./payment-form";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { digits } from "@/lib/notify";
 
@@ -65,16 +66,34 @@ async function emailStatus(storeId: string, deposit: DepositStatus): Promise<Ema
   };
 }
 
+async function paymentStatus(storeId: string): Promise<PaymentStatus> {
+  const supabase = await createClient();
+  const [{ data: row }, { data: secret }] = await Promise.all([
+    supabase.from("mall_builder_store_payment_settings").select("toss_client_key, card_enabled").eq("store_id", storeId).maybeSingle(),
+    supabase.rpc("mall_builder_payment_secret_status", { p_store_id: storeId }),
+  ]);
+  const s = (secret ?? {}) as { has_secret?: boolean; mode?: string };
+  return { clientKey: row?.toss_client_key ?? "", enabled: row?.card_enabled ?? false, hasSecret: Boolean(s.has_secret), secretMode: s.mode ?? "" };
+}
+
 export default async function StoreSettingsPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/settings`);
   if (!staff) return <NoPermission />;
   const deposit = await depositStatus(store.id);
-  const [notify, email, log] = await Promise.all([notifyStatus(store.id, deposit), emailStatus(store.id, deposit), loadNotifyLog(store.id)]);
+  const [notify, email, log, payment] = await Promise.all([
+    notifyStatus(store.id, deposit),
+    emailStatus(store.id, deposit),
+    loadNotifyLog(store.id),
+    paymentStatus(store.id),
+  ]);
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/settings">
       <SettingsForm slug={store.slug} name={store.name} info={readBusinessInfo(store.business_info)} />
+      <div className="mt-6">
+        <PaymentForm slug={store.slug} status={payment} />
+      </div>
       <div className="mt-6">
         <DepositForm slug={store.slug} status={deposit} />
       </div>

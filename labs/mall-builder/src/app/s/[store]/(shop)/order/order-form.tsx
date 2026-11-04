@@ -21,6 +21,7 @@ export default function OrderForm({
   note,
   credit,
   invoice,
+  card,
 }: {
   slug: string;
   addresses: CustomerAddress[];
@@ -36,13 +37,15 @@ export default function OrderForm({
   credit?: { limit: number; balance: number };
   /** 승인 사업자면 세금계산서 발행 요청 칸이 보인다 */
   invoice?: { defaultEmail: string };
+  /** 몰이 카드 결제(토스페이먼츠)를 켰으면 결제 방법에 「카드 결제」가 보인다 — 장바구니 주문만 */
+  card?: boolean;
 }) {
   const [addressId, setAddressId] = useState(addresses.find((a) => a.is_default)?.id ?? addresses[0]?.id ?? "");
   const initial: PlaceOrderState = { error: null, depositor: defaultDepositor, memo: "" };
   const [state, formAction, pending] = useActionState(action ?? placeOrderAction.bind(null, slug), initial);
   const region = regionOf[addressId] ?? "mainland";
   const t = totalsByRegion[region];
-  const [pay, setPay] = useState<"bank" | "credit">("bank");
+  const [pay, setPay] = useState<"bank" | "credit" | "card">("bank");
   const [wantInvoice, setWantInvoice] = useState(false);
   const creditOk = !!credit && canUseCredit(credit.limit, credit.balance, t.total);
   // 배송지를 바꿔 금액이 한도를 넘으면 무통장으로 되돌린다
@@ -70,10 +73,14 @@ export default function OrderForm({
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2">
-        <label className="block">
-          <span className="text-sm font-medium">입금자명</span>
-          <input name="depositor" defaultValue={state.depositor} required maxLength={20} className="mt-1 w-full rounded border px-3 py-2" />
-        </label>
+        {payMethod === "card" ? (
+          <input type="hidden" name="depositor" value="" />
+        ) : (
+          <label className="block">
+            <span className="text-sm font-medium">입금자명</span>
+            <input name="depositor" defaultValue={state.depositor} required maxLength={20} className="mt-1 w-full rounded border px-3 py-2" />
+          </label>
+        )}
         <label className="block">
           <span className="text-sm font-medium">배송 메모 (선택)</span>
           <input name="memo" defaultValue={state.memo} maxLength={200} placeholder="예: 문 앞에 놓아 주세요" className="mt-1 w-full rounded border px-3 py-2" />
@@ -95,21 +102,32 @@ export default function OrderForm({
         </section>
       )}
 
-      {credit && credit.limit > 0 ? (
+      {(credit && credit.limit > 0) || card ? (
         <section className="space-y-2 rounded border bg-gray-50 p-4 text-sm" data-pay-methods>
           <p className="font-medium">결제 방법</p>
+          {card && (
+            <label className="flex items-start gap-2">
+              <input type="radio" name="pay_method" value="card" checked={pay === "card"} onChange={() => setPay("card")} className="mt-1" />
+              <span>
+                카드 결제 <span className="text-gray-600">— 신용·체크카드, 간편결제</span>
+                <span className="block text-xs text-gray-500">주문하면 결제창이 열립니다. 30분 안에 결제하지 않으면 주문이 취소될 수 있습니다.</span>
+              </span>
+            </label>
+          )}
           <label className="flex items-start gap-2">
             <input type="radio" name="pay_method" value="bank" checked={pay === "bank"} onChange={() => setPay("bank")} className="mt-1" />
             <span>무통장 입금 — <span className="text-gray-600">{bankText}</span></span>
           </label>
-          <label className="flex items-start gap-2">
-            <input type="radio" name="pay_method" value="credit" checked={pay === "credit"} disabled={!creditOk} onChange={() => setPay("credit")} className="mt-1" />
-            <span>
-              외상(후불) — 남은 한도 <b>{won(creditAvailable(credit.limit, credit.balance))}</b>
-              {!creditOk && <span className="ml-1 text-red-600">이번 주문 금액이 남은 한도보다 큽니다</span>}
-              <span className="block text-xs text-gray-500">외상 주문은 바로 「결제 완료」가 되고, 대금은 운영자와 정한 날에 입금합니다.</span>
-            </span>
-          </label>
+          {credit && credit.limit > 0 && (
+            <label className="flex items-start gap-2">
+              <input type="radio" name="pay_method" value="credit" checked={pay === "credit"} disabled={!creditOk} onChange={() => setPay("credit")} className="mt-1" />
+              <span>
+                외상(후불) — 남은 한도 <b>{won(creditAvailable(credit.limit, credit.balance))}</b>
+                {!creditOk && <span className="ml-1 text-red-600">이번 주문 금액이 남은 한도보다 큽니다</span>}
+                <span className="block text-xs text-gray-500">외상 주문은 바로 「결제 완료」가 되고, 대금은 운영자와 정한 날에 입금합니다.</span>
+              </span>
+            </label>
+          )}
         </section>
       ) : (
         <section className="rounded border bg-gray-50 p-4 text-sm">
@@ -126,9 +144,11 @@ export default function OrderForm({
         {credit && credit.limit > 0 && payMethod !== pay && <input type="hidden" name="pay_method" value={payMethod} />}
         {state.error && <p className="text-red-600" data-order-error>{state.error}</p>}
         <button disabled={pending || !addressId} className="min-h-12 w-full rounded bg-gray-900 text-white disabled:opacity-50">
-          {pending ? "주문하는 중…" : `${won(t.total)} 주문하기`}
+          {pending ? "주문하는 중…" : payMethod === "card" ? `${won(t.total)} 주문하고 카드 결제` : `${won(t.total)} 주문하기`}
         </button>
-        <p className="text-xs text-gray-500" data-order-note>{note ?? "주문하면 재고가 확보되고 장바구니가 비워집니다. 입금이 확인되면 배송을 준비합니다."}</p>
+        <p className="text-xs text-gray-500" data-order-note>
+          {note ?? (payMethod === "card" ? "주문하면 재고가 확보되고 결제창으로 넘어갑니다. 결제가 끝나면 배송을 준비합니다." : "주문하면 재고가 확보되고 장바구니가 비워집니다. 입금이 확인되면 배송을 준비합니다.")}
+        </p>
       </section>
     </form>
   );

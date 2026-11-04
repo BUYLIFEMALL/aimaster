@@ -13,7 +13,8 @@ export async function placeOrderAction(slug: string, _prev: PlaceOrderState, for
   const values = { depositor: String(form.get("depositor") ?? ""), memo: String(form.get("memo") ?? "") };
   const addressId = String(form.get("address_id") ?? "");
   const expected = Number(form.get("expected_total"));
-  const payMethod = form.get("pay_method") === "credit" ? "credit" : "bank";
+  const raw = form.get("pay_method");
+  const payMethod = raw === "credit" ? "credit" : raw === "card" ? "card" : "bank";
   if (!addressId) return { ...values, error: "배송지를 골라 주세요." };
   const supabase = await createClient();
   const { data: store } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();
@@ -39,6 +40,8 @@ export async function placeOrderAction(slug: string, _prev: PlaceOrderState, for
     invoiceError = !email.ok ? email.error : res?.error?.message ?? "";
   }
   revalidatePath(`/s/${slug}`, "layout");
+  // 카드 주문은 결제 화면으로(토스 결제위젯). 결제가 끝나야 결제 완료가 된다
+  if (payMethod === "card") redirect(`/s/${slug}/orders/${row.order_id}/pay${invoiceError ? `?error=${encodeURIComponent(`세금계산서 요청 실패: ${invoiceError}`)}` : ""}`);
   if (invoiceError) redirect(`/s/${slug}/orders/${row.order_id}?done=1&error=${encodeURIComponent(`세금계산서 요청 실패: ${invoiceError}`)}`);
   redirect(`/s/${slug}/orders/${row.order_id}?done=1`);
 }
