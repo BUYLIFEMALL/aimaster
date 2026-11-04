@@ -57,3 +57,10 @@ test('AU02 after setup only the summary shows: today\'s counts, attention items 
     assert.ok(u.calls.some(c => c[1] === 'pause_autopilot')); assert.match(u.document.body.textContent, /전체 일시정지 중/); assert.ok(u.button('다시 시작'));
   } finally { await u.restore(); }
 });
+test('AU03 the 🤖 자동 운영 summary is never folded away (pinned), other panels still fold', async () => {
+  const { enhancePanels } = await import('../src/components/FoldablePanels.tsx');
+  const { document } = parseHTML('<html><body><div id="r"><section class="panel autopilot bnc-pinned"><h2>🤖 자동 운영</h2></section><section class="panel"><h2>작업 기록</h2></section></div></body></html>');
+  enhancePanels(document.getElementById('r'), () => false, () => {});
+  const [pinned, other] = document.querySelectorAll('section');
+  assert.equal(pinned.classList.contains('bnc-folded'), false); assert.equal(other.classList.contains('bnc-folded'), true);
+});

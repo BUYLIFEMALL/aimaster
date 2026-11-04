@@ -7,7 +7,8 @@ const titleOf = (head: Element) => (head.querySelector('h2') ?? head).textConten
 // Panels mount at different times behind the member check, so this runs again whenever new ones appear.
 export function enhancePanels(root: Element, isOpen: (title: string) => boolean, onToggle: (title: string, open: boolean) => void) {
   for (const panel of root.querySelectorAll('.panel')) {
-    if (panel.classList.contains('bnc-fold')) continue;
+    // v1.18: 매일 보는 요약(🤖 자동 운영)처럼 늘 펼쳐 둘 칸은 bnc-pinned로 접기에서 뺀다.
+    if (panel.classList.contains('bnc-fold') || panel.classList.contains('bnc-pinned')) continue;
     const title = panel.querySelector(':scope>h2,:scope>.section-head>h2');
     if (!title) continue;
     const head = title.parentElement?.classList.contains('section-head') ? title.parentElement : title;

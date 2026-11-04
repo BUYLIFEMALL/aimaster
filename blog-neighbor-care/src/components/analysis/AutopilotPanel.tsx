@@ -62,11 +62,11 @@ export function AutopilotPanel() {
   });
   const pause = (on: boolean) => act(async () => { await call('/api/work', on ? 'pause_autopilot' : 'resume_autopilot'); return on ? '⏸ 전체 일시정지 — 자동 승인·순회 실행이 모두 멈춥니다.' : '▶ 다시 시작했습니다.'; });
 
-  if (!a) return <section className="panel autopilot"><h2>🤖 자동 운영</h2><p role="status">{message || '상태 확인 중…'}</p></section>;
+  if (!a) return <section className="panel autopilot bnc-pinned"><h2>🤖 자동 운영</h2><p role="status">{message || '상태 확인 중…'}</p></section>;
   const attention = a.attention.uncertainJobs + a.attention.messageUncertain + (a.attention.resultCheck ? 1 : 0);
   const showForm = !a.consented || editing;
   const cost = quotes.length ? Math.max(...quotes.map(callCeilingUsd)) * form.commentCap : null;
-  return <section className="panel autopilot">
+  return <section className="panel autopilot bnc-pinned">
     <h2>🤖 자동 운영</h2>
     {a.consented && <>
       <div className="autopilot-summary" role="status">
