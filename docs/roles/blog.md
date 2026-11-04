@@ -169,7 +169,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-11-05 · 이웃 소통 글 제목 표시 시험 확인 + C-2 상세 플랜 작성(승인 대기, claude-win-blog)
+- 마지막 갱신: 2026-11-05 · 이웃 소통 v1.18 배포(단계 C-2 자동 운영, claude-win-blog)
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -401,7 +401,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-- 이웃 소통 C-2 상세 플랜 `blog-neighbor-care/docs/PLAN_20261105_STAGE_C2.md` 주인님 승인 대기(2026-11-05) → 승인되면 구현·시험 → 빌드 1회 승인 → v1.18 배포(맥미니 글 제목 표시 `3256ee05b` 함께, 윈도우 시험 362 통과 확인). 맥미니는 09:00 이후 v1.17 공감 1건 실물 결과 기록 예정.
+- 이웃 소통 v1.18(C-2 자동 운영) 배포 완료(2026-11-05). 맥미니 실물 확인(새 ZIP·시작하기·자동 공감 1건·다른 탭·일시정지) 결과를 받으면 다음 묶음: 답방·받은 신청 수락 자동 + 미배포 대기(자동 운영 칸 항상 펼침 `02029e8f4`). 감시 AI 변수 등록은 주인님 결정 대기.
 - 주인님 승인 후 `BNC_FEED_READ_ENABLED`·`BNC_FEED_READ_POLICY_REFERENCE` 등록·재배포 → 새 ZIP 설치 → Edge에서 이웃 1명 검수.
 - 이웃 소통 묶음 배포 승인 시 SQL 10개 적용 → 환경변수 확인(`BNC_SERVER_FEED_ENABLED`는 넣지 않음) → 새 ZIP 설치 → Edge에서 이웃 1명으로 탭 닫고 15분 뒤 저장 확인. 인수인계: `docs/HANDOFF.md` 2026-11-01 「회원 PC 확장」 항목.
 - 이웃 소통 묶음 배포 승인 시 SQL 10개 순차 적용 → 환경변수 확인 → 회원 키로 cron 호출 1회·RSS 1건 실제 검수. 인수인계: `docs/HANDOFF.md` 2026-11-01 항목.

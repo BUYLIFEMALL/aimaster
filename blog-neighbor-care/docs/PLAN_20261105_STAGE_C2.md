@@ -1,6 +1,6 @@
 # 개발 플랜 — 단계 C-2: 완전 자동 운영 (블로그 이웃 소통 자동화)
 
-작성: 2026-11-05 · Claude Code(윈도우) [역할: blog] `claude-win-blog` · 상태: **승인됨(2026-11-05 채팅 「진행해」 — 플랜·빌드 1회·§2-6 추천안 2건 포함) · 구현 중**
+작성: 2026-11-05 · Claude Code(윈도우) [역할: blog] `claude-win-blog` · 상태: **승인됨(2026-11-05 채팅 「진행해」 — 플랜·빌드 1회·§2-6 추천안 2건 포함) · **v1.18 배포 완료(2026-11-05)** — 답방·받은 신청 수락 자동은 다음 묶음**
 근거: [단계 C 플랜](PLAN_20261104_STAGE_C_AUTOPILOT.md) §2 C-2·§5 결정 · 맥미니 v1.17 실물 확인 발견 7개([`IMPROVEMENTS.md`](IMPROVEMENTS.md) 맨 위, 커밋 `de3223fb0`·`a37482d6c`) · 기준 [`docs/AUTOMATION_MINIMAL_SETUP_POLICY.md`](../../docs/AUTOMATION_MINIMAL_SETUP_POLICY.md) · 봇 탐지 회피 [`docs/PLATFORM_PATTERNS.md` §20](../../docs/PLATFORM_PATTERNS.md)
 
 ## 0. 지금 상태 (2026-11-05)
