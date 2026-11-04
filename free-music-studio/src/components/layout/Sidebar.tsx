@@ -42,7 +42,8 @@ function Brand({ onNavigate }: { onNavigate?: () => void }) {
             <p className="text-sm font-bold text-white leading-snug truncate tracking-tight">{APP_NAME}</p>
           </div>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="inline-flex items-center rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-mono font-medium text-emerald-400 border border-emerald-500/25">
+            {/* 버전은 크고 밝게(2026-11-04 주인님 「버전 표시 잘보이게 해줘」) */}
+            <span className="inline-flex items-center rounded-md bg-emerald-400 px-2 py-0.5 text-xs font-mono font-extrabold text-[#062018] shadow-sm shadow-emerald-500/30">
               {APP_VERSION}
             </span>
             <span className="text-[10px] text-teal-400 font-mono tracking-wider">LOCAL ENGINE</span>
@@ -187,9 +188,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
             <Music2 size={15} />
           </div>
           <span className="text-sm font-bold text-white truncate tracking-tight">{APP_NAME}</span>
-          <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-mono text-emerald-400 border border-emerald-500/25">
-            {APP_VERSION}
-          </span>
+          <span className="shrink-0 rounded-md bg-emerald-400 px-2 py-0.5 text-xs font-mono font-extrabold text-[#062018]">{APP_VERSION}</span>
         </Link>
         <button
           type="button"
@@ -219,7 +218,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
                 </div>
                 <div>
                   <p className="text-xs font-bold text-white">{APP_NAME}</p>
-                  <p className="text-[10px] font-mono text-emerald-400">{APP_VERSION}</p>
+                  <p className="mt-0.5 inline-block rounded bg-emerald-400 px-1.5 text-xs font-mono font-extrabold text-[#062018]">{APP_VERSION}</p>
                 </div>
               </div>
               <button
