@@ -79,6 +79,8 @@ export type OrderRow = {
   tracking_no: string;
   is_credit: boolean;
   tax_invoice: TaxInvoice | null;
+  /** 입금 기한(자동 취소가 켜진 몰의 무통장 주문만, 0024) — 지나면 자동 취소 */
+  pay_deadline_at: string | null;
   created_at: string;
 };
 
@@ -99,7 +101,7 @@ export const PARTIAL_CANCEL_STATUSES = ["pending_payment", "paid", "preparing"] 
 
 export type OrderEventRow = { id: string; from_status: OrderStatus | null; to_status: OrderStatus; actor_role: string; note: string; created_at: string };
 
-export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, courier, tracking_no, is_credit, tax_invoice, created_at";
+export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, courier, tracking_no, is_credit, tax_invoice, pay_deadline_at, created_at";
 
 /** 입금 기한 안내 등 날짜를 한국 시간으로 */
 export function formatDateTime(iso: string): string {

@@ -72,6 +72,11 @@ export default async function OrderDetailPage({
               : "입금 계좌는 쇼핑몰 고객센터로 문의해 주세요."}
           </p>
           <p className="mt-1">입금자명 <b>{order.depositor}</b> · 입금할 금액 <b>{formatWon(order.total)}</b></p>
+          {order.pay_deadline_at && (
+            <p className="mt-1 text-red-700" data-pay-deadline>
+              입금 기한 <b>{formatDateTime(order.pay_deadline_at)}</b>까지 — 지나면 주문이 자동으로 취소됩니다.
+            </p>
+          )}
         </section>
       )}
 

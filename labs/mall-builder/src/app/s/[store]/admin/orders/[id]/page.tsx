@@ -55,6 +55,9 @@ export default async function AdminOrderDetailPage({
           <p className="font-medium">결제</p>
           <p className="mt-1" data-pay>{order.is_credit ? "외상(후불) — 장부에 기록됨" : "무통장"} · 입금자명 <b>{order.depositor}</b></p>
           <p>결제 금액 <b>{formatWon(order.total)}</b> (상품 {formatWon(order.subtotal)} + 배송비 {formatWon(order.shipping_fee)})</p>
+          {order.pay_deadline_at && order.status === "pending_payment" && (
+            <p className="text-red-700" data-pay-deadline>입금 기한 {formatDateTime(order.pay_deadline_at)} — 지나면 자동 취소</p>
+          )}
         </div>
         <div className="rounded border p-4">
           <p className="font-medium">받는 분</p>

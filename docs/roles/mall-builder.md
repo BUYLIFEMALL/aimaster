@@ -10,17 +10,19 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `labs/mall-builder` | v1 기능 F01~F19 완료 + v1 다듬기 D1~D7(주소 찾기·가격 비공개 DB 보호·외상 견적 주문·운영자 견적 보내기·부분 취소·휴대폰용 배너 그림·안 쓰는 사진 정리) — 점검 묶음 4 Lab 배포·운영자 화면 확인 완료(2026-11-04) | 2026-11-03 | 입금 기한 자동 취소 플랜 승인 대기 |
+| `labs/mall-builder` | v1 기능 F01~F19 완료 + v1 다듬기 D1~D7(주소 찾기·가격 비공개 DB 보호·외상 견적 주문·운영자 견적 보내기·부분 취소·휴대폰용 배너 그림·안 쓰는 사진 정리) — 점검 묶음 4 Lab 배포·운영자 화면 확인 완료(2026-11-04) | 2026-11-03 | D8 입금 기한 자동 취소 구현 완료, Lab 배포 승인 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `labs/mall-builder` | 입금 기한 자동 취소(방식: 운영자 본인 cron-job.org, 2026-11-04 결정) | 플랜 승인 | [플랜](../../labs/mall-builder/docs/PLAN_20261104_DEPOSIT_AUTO_CANCEL.md) |
+| `labs/mall-builder` | 입금 기한 자동 취소 D8 Lab 배포 + 실제 cron-job.org 연결 시험 | 빌드 1회 승인 / 주인님 cron-job.org 키 등록 | [진행표](../../labs/mall-builder/README.md) |
+| `labs/mall-builder` | 안 쓰는 사진 4장 정리 | 하루 지나야 정리 가능(2026-11-05부터) | [진행표](../../labs/mall-builder/README.md) |
 | `labs/mall-builder` | 주문 알림 | 운영자 본인 발송 계정 | [진행표](../../labs/mall-builder/README.md) |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-04 | `labs/mall-builder` D8 | 입금 기한 자동 취소 — DB 0024(Lab 적용), 실행 주소, cron-job.org 연결(10분), 설정 화면, 주문 기한 표시. DB 시험 13항목·자동 시험 102개·내 PC 빌드·ego 확인 | 미배포(빌드 승인 대기) |
 | 2026-11-04 | `labs/mall-builder` 시험 데이터 정리 | 첫 화면 페이지·공지·발송 견적·부분 취소 주문 삭제, 옵션 재고 5로 되돌림, 검증 완료 | 없음(Lab DB만) |
 | 2026-11-04 | `labs/mall-builder` 점검 묶음 4 | F18·F19·D1~D7 Lab 배포(Ready), 손님 화면·운영자 화면 7개 항목 확인 | https://dev-mall-builder.vercel.app (빌드 1회, 누적 5회) |
 | 2026-11-04 | `labs/mall-builder` D7 | 운영자 「사진 정리」 — 어디에도 안 쓰는 사진(하루 지난 것)만 골라 지움, 지우기 직전 서버 재확인, 지난 주문 사진 보호 | 미배포(점검 묶음 4에서) |
@@ -42,8 +44,8 @@
 - **작업 과정·문제 기록 의무(주인님 2026-11-04: 「항상 작업과정과 문제 사항을 남겨 다음에 같은 반복 실수 않도록」)**: 시작 전 [교훈 모음](../mall/LESSONS_LEARNED.md) 점검 목록 확인, 문제를 만나면 같은 커밋에 그 문서(모든 CLI 공통이면 `docs/ERROR_LESSONS.md`에도)에 증상·원인·해결·다음부터를 남긴다
 
 ## 다음 첫 단계
-1. 시험 데이터 정리 완료(2026-11-04). 입금 기한 자동 취소 플랜(`labs/mall-builder/docs/PLAN_20261104_DEPOSIT_AUTO_CANCEL.md`) 승인을 받으면 순서 1(DB 추가)부터 시작. 다음 빌드도 시작 전 주인님 승인. ego 시험 작업 공간은 3(「AI 쇼핑몰 빌더 시험」, handOff 뒤에는 `takeOverTaskSpace(3)`). 시작 전 `docs/mall/LESSONS_LEARNED.md` 점검 목록.
+1. D8 입금 기한 자동 취소 구현 완료(미배포). 빌드 승인을 받으면 Lab 배포 → 주인님이 설정 화면에 cron-job.org 키를 넣고 기한 1시간으로 저장 → 시험 주문 1건으로 자동 취소 확인. 11-05에는 안 쓰는 사진 4장 정리. 다음 빌드도 시작 전 주인님 승인. ego 시험 작업 공간은 3(「AI 쇼핑몰 빌더 시험」, handOff 뒤에는 `takeOverTaskSpace(3)`). 시작 전 `docs/mall/LESSONS_LEARNED.md` 점검 목록.
 2. 내 PC 서버: `cd labs/mall-builder && npx next dev -p 3210`. DB 변경은 추가만(확인 창 방지).
 
 ## 주인님께 여쭐 것
-- 입금 기한 자동 취소 플랜 승인(`labs/mall-builder/docs/PLAN_20261104_DEPOSIT_AUTO_CANCEL.md`)
+- D8 Lab 배포 빌드 1회 승인, 실제 연결 시험용 cron-job.org 키 등록(설정 화면에 직접 입력, 2026-11-04)
