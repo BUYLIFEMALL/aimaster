@@ -70,7 +70,7 @@ export function weightsPlan(engine, p) {
 
 /** 설치가 끝났는지(install.json의 판이 목록과 같아야) */
 export function isInstalledState(state, engine) {
-  return !!state && state.status === "installed" && state.commit === sourceCommit(engine) && state.weights === weightsKey(engine);
+  return !!state && state.status === "installed" && state.commit === sourceCommit(engine) && state.weights === weightsKey(engine) && runtimeCurrent(state, engine);
 }
 /**
  * Git LFS 자리표시 글이면 { oid, size } — GitHub 압축 파일(archive/<commit>.zip)은 LFS로 둔 큰 파일을 진짜 내용 대신
@@ -95,6 +95,8 @@ export function pyErrorCause(line) {
 /** 원본 코드 판 — 정식 패키지만으로 도는 엔진(MiniMax Music 3, 0.6.0)은 원본 코드가 없다 */
 export const sourceCommit = (engine) => engine.source?.commit ?? "none";
 export const weightsKey = (engine) => engine.weights.map((w) => `${w.repo}@${w.revision}`).join(",");
+/** 실행 환경 단계가 목록과 같은 판인지 — 단계를 고치면 목록의 runtimeRev를 올려 설치된 PC도 한 번 다시 맞춘다 */
+export const runtimeCurrent = (state, engine) => !!state.runtime && (state.runtimeRev ?? 0) === (engine.runtimeRev ?? 0);
 
 /**
  * 우리 가사 형식([Verse] 줄바꿈 줄)을 LeVo 형식으로: 「[intro-short] ; [verse] 줄. 줄. ; [chorus] …」
@@ -343,7 +345,7 @@ export async function ensurePyEngine(dataDir, engine, { onStage = () => {}, sign
     if (n) log(`# LFS 자리표시 ${n}개를 진짜 파일로 바꿈\n`);
     await save({ lfs: true });
   }
-  if (!state.runtime || !existsSync(p.python)) {
+  if (!runtimeCurrent(state, engine) || !existsSync(p.python)) {
     onStage(`${engine.name} 실행 환경 만드는 중(처음 한 번)`);
     await run("uv", ["venv", "--python", engine.python, "--allow-existing", p.venv], { signal, log });
     if (engine.overrides) await writeFile(path.join(p.root, "overrides.txt"), engine.overrides.join("\n") + "\n");
@@ -353,7 +355,7 @@ export async function ensurePyEngine(dataDir, engine, { onStage = () => {}, sign
     } finally {
       stopDl();
     }
-    await save({ runtime: true });
+    await save({ runtime: true, runtimeRev: engine.runtimeRev ?? 0 });
   }
   if (state.weights !== weightsKey(engine)) {
     if (engine.hfToken && !hfToken) throw new Error(`${engine.name} 모델은 회원 본인 Hugging Face 토큰이 있어야 받을 수 있습니다. 사이트 「설정」에 토큰을 등록하고, ${engine.gatedUrl} 에서 약관에 동의한 뒤 다시 만들어 주세요.`);

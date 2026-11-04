@@ -70,7 +70,7 @@ test("MiniMax Music 3 — 원본 코드 없이 정식 패키지, diffusers용 �
   assert.equal(plan.dir, undefined, "보관 폴더(HF_HOME)로 — 파이프라인이 저장소 이름으로 찾음");
   assert.ok(plan.allow.includes("transformer/*") && !plan.allow.some((a) => /qwen_7B|flowmatching|dav/.test(a)));
   // 설치 기록: 원본 판이 없으면 "none"으로 비교
-  assert.ok(isInstalledState({ status: "installed", commit: "none", weights: weightsKey(e) }, e));
+  assert.ok(isInstalledState({ status: "installed", commit: "none", weights: weightsKey(e), runtime: true }, e));
   const job = buildPyJob(e, { track: { style_prompt: "k-pop ballad", lyrics: "[Verse]\n가을", duration_sec: 999 } }, { p, out: "C:/o.wav", vramGb: 16 });
   assert.deepEqual({ style: job.style, lyrics: job.lyrics, durationSec: job.durationSec, repo: job.repo }, { style: "k-pop ballad", lyrics: "[Verse]\n가을", durationSec: 300, repo: "MiniMaxAI/MiniMax-Music3" });
   assert.equal(pySupport(e, { ...win, vramGb: 16 }).ok, true);
@@ -107,9 +107,19 @@ test("모델 받기 목록: 폴더 있는 것은 models 아래, 원본 폴더({s
 
 test("설치 상태: 판이 바뀌면 다시 설치", () => {
   const e = pyEngine("heartmula");
-  assert.equal(isInstalledState({ status: "installed", commit: e.source.commit, weights: weightsKey(e) }, e), true);
+  assert.equal(isInstalledState({ status: "installed", commit: e.source.commit, weights: weightsKey(e), runtime: true, runtimeRev: e.runtimeRev }, e), true);
   assert.equal(isInstalledState({ status: "installed", commit: "0".repeat(40), weights: weightsKey(e) }, e), false);
   assert.equal(isInstalledState({ status: "installing", commit: e.source.commit }, e), false);
+});
+
+test("LeVo 2: setuptools 단계가 있고, 예전 실행 환경으로 설치된 PC는 한 번 다시 맞춘다(pkg_resources 없음 오류)", () => {
+  const e = pyEngine("levo2");
+  assert.ok(e.steps.some((s) => s.args.includes("setuptools<81")));
+  const done = { status: "installed", commit: e.source.commit, weights: weightsKey(e), runtime: true };
+  assert.equal(isInstalledState(done, e), false);
+  assert.equal(isInstalledState({ ...done, runtimeRev: e.runtimeRev }, e), true);
+  const h = pyEngine("heartmula");
+  assert.equal(isInstalledState({ status: "installed", commit: h.source?.commit ?? "none", weights: weightsKey(h), runtime: true }, h), true);
 });
 
 test("LeVo 가사: 구간 이름·문장 마침표·세미콜론 구분", () => {

@@ -68,8 +68,11 @@
       "steps": [
         { "index": "cu128", "args": ["torch==2.7.1", "torchaudio==2.7.1", "torchvision==0.22.1"] },
         { "override": true, "args": ["-r", "{src}/requirements.txt"] },
-        { "args": ["--no-deps", "-r", "{src}/requirements_nodeps.txt"] }
+        { "args": ["--no-deps", "-r", "{src}/requirements_nodeps.txt"] },
+        { "args": ["setuptools<81"] }
       ],
+      "runtimeRev": 1,
+      "_runtimeRev": "2026-11-04 마스터PC 「No module named 'pkg_resources'」 — uv 실행 환경에는 setuptools가 없고 81판부터 pkg_resources가 빠짐. 단계를 바꾸면 이 숫자를 올려 이미 설치된 PC도 실행 환경을 한 번 다시 맞춘다",
       "weights": [
         { "repo": "lglg666/SongGeneration-Runtime", "revision": "cc258cc694a63114c61684cc26d0583b8ad777d0", "dir": "{src}" },
         { "repo": "lglg666/SongGeneration-base-full", "revision": "19ebdb6090e4df5c1e211ffb9588f9c8d98c9279", "dir": "songgeneration_base_full", "_dir": "원본 levo-demo/LeVo 653cbcf(데모 사본, 첫 커밋 하나)가 지원하는 v1 모델. 0.6.1까지 쓴 v2-medium(2026-03)은 이 코드와 구조가 달라 「Error(s) in loading state_dict for LmModel」(2026-11-04 마스터PC) — 같은 폴더에 덮어써짐" }
