@@ -15,6 +15,7 @@ const MENU = [
   { href: "/categories", label: "카테고리" },
   { href: "/products", label: "상품" },
   { href: "/shipping", label: "배송비" },
+  { href: "/photos", label: "사진 정리" },
 ] as const;
 
 export async function AdminShell({ slug, storeName, active, children }: { slug: string; storeName: string; active: string; children: ReactNode }) {
