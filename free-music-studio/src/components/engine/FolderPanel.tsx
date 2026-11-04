@@ -84,7 +84,9 @@ export function FolderPanel({ status, onChanged }: { status: EngineStatus | null
         <FolderCog className="h-4 w-4 text-emerald-300" /> 노래 저장 폴더
       </h2>
       <p className="break-all rounded-xl border border-slate-700/60 bg-slate-950/80 px-3.5 py-2.5 font-mono text-xs text-slate-200">{status.libraryDir}</p>
-      <p className="text-[11px] text-slate-500">만든 노래는 이 폴더에 「곡 제목.mp3」로 저장됩니다. 처음에는 PC 「음악」 폴더 안 「AI 무료음악」입니다.</p>
+      <p className="text-[11px] text-slate-500">
+        만든 노래는 이 폴더에 「곡 제목.mp3」로 저장됩니다. 처음에는 PC 「음악」 폴더 안 「AI 무료음악」입니다. 여기서는 <b className="text-slate-300">노래 파일만</b> 옮깁니다 — 음악 엔진 모델(수십 GB)은 아래 「모델 저장 공간」에서 옮깁니다.
+      </p>
 
       {!browsing && (
         <div className="flex flex-wrap items-center gap-2">
