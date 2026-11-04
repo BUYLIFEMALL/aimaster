@@ -43,7 +43,24 @@ export function dealBase(deal: FeeDeal, price: number, monthly = 0): number {
   return b < 5_000 ? price + monthly * 70 : b;
 }
 
-export type FeeResult = { baseManwon: number; rate: number; capWon: number | null; feeWon: number; vatWon: number; note: string };
+// v1.09(2026-11-04 현장 피드백): 부가세는 사업자 과세 유형에 따라 다르다.
+// 일반과세자 10%. 간이과세자는 공급대가 × 업종별 부가가치율 × 10% — 부동산중개업 부가가치율 40%(부가가치세법 시행령 제111조②) → 4%.
+export const VAT_TYPES = [
+  { key: "general", label: "일반과세자 (부가세 10%)", rate: 0.1 },
+  { key: "simple", label: "간이과세자 (부가세 4%)", rate: 0.04 },
+  { key: "none", label: "부가세 없이 보기", rate: 0 },
+] as const;
+export type VatType = (typeof VAT_TYPES)[number]["key"];
+export const vatOf = (feeWon: number, type: VatType) => Math.floor(feeWon * (VAT_TYPES.find((v) => v.key === type)?.rate ?? 0));
+
+/** 매물 유형 → 중개보수 계산 종류. 분양권은 주택 요율(거래금액 = 이미 낸 계약금·중도금 + 프리미엄) */
+export function feeKindOf(propertyType: string): FeeKind {
+  if (propertyType === "오피스텔") return "오피스텔";
+  if (["아파트", "다세대/빌라", "다가구/주택", "분양권", "빌라·주택"].includes(propertyType)) return "주택";
+  return "그 외(상가·토지 등)";
+}
+
+export type FeeResult ={ baseManwon: number; rate: number; capWon: number | null; feeWon: number; vatWon: number; note: string };
 
 /** 상한 중개보수(원). 오피스텔은 전용 85㎡ 이하 + 부엌·화장실·목욕시설 요건을 갖춘 경우(아니면 「그 외」로). 「그 외」는 0.9% 안에서 협의 — agreedRate로 협의 요율을 넣을 수 있다 */
 export function brokerFee(kind: FeeKind, deal: FeeDeal, price: number, monthly = 0, agreedRate?: number): FeeResult {

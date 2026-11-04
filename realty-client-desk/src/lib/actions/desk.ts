@@ -5,7 +5,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hashToken, newIntakeToken } from "@/lib/desk/token";
-import { CLIENT_STATUSES, CONSENT_METHODS, CONSENT_VERSION, DEAL_TYPES, PROPERTY_TYPES, normalizePhone, parseManwon } from "@/lib/desk/consent";
+import { CLIENT_STATUSES, CONSENT_METHODS, CONSENT_VERSION, DEAL_TYPES, PROPERTY_TYPES, isSideOf, normalizePhone, parseManwon } from "@/lib/desk/consent";
 
 // 1단계(2026-11-03): 접수 링크·관심고객. 표는 타입 생성 전이라 느슨한 클라이언트로 부른다. 모든 쓰기는 회원 권한 + user_id 조건.
 type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -27,6 +27,8 @@ function readClientFields(formData: FormData): { error: string } | { row: Record
   if (!name) return { error: "이름을 넣어 주세요." };
   if (!phone) return { error: "휴대폰 번호(010으로 시작)를 넣어 주세요." };
   if (!(DEAL_TYPES as readonly string[]).includes(dealType)) return { error: "원하는 거래(매매·전세·월세)를 골라 주세요." };
+  const dealSide = String(formData.get("dealSide") ?? "");
+  if (!isSideOf(dealType, dealSide)) return { error: dealType === "매매" ? "매수인지 매도인지 골라 주세요." : "임차(구함)인지 임대(내놓음)인지 골라 주세요." };
   const budgetMin = parseManwon(String(formData.get("budgetMin") ?? ""));
   const budgetMax = parseManwon(String(formData.get("budgetMax") ?? ""));
   const monthlyMax = parseManwon(String(formData.get("monthlyMax") ?? ""));
@@ -40,6 +42,7 @@ function readClientFields(formData: FormData): { error: string } | { row: Record
       name,
       phone,
       deal_type: dealType,
+      deal_side: dealSide,
       regions: String(formData.get("regions") ?? "").trim().slice(0, 200) || null,
       property_types: types,
       budget_min: budgetMin,

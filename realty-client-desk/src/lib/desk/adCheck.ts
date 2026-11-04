@@ -10,8 +10,9 @@ export type CheckListing = {
   move_in: string | null; parking: string | null; mgmt_fee: string | null;
 };
 
-const BUILDINGS = ["아파트", "빌라·주택", "오피스텔", "상가", "사무실"];
-const HOMES = ["아파트", "빌라·주택", "오피스텔"];
+// v1.09: 다세대/빌라·다가구/주택으로 나눔, 건물 추가. 분양권은 아직 지어지지 않은 집이라 건축물 항목을 묻지 않는다
+const BUILDINGS = ["아파트", "다세대/빌라", "다가구/주택", "오피스텔", "상가", "사무실", "건물", "빌라·주택"];
+const HOMES = ["아파트", "다세대/빌라", "다가구/주택", "오피스텔", "빌라·주택"];
 const blank = (v: unknown) => v === null || v === undefined || String(v).trim() === "";
 
 /** 빠진 명시 항목(사무소 · 매물) */

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { deleteClientAction, updateClientAction } from "@/lib/actions/desk";
-import { CLIENT_STATUSES, DEAL_TYPES } from "@/lib/desk/consent";
+import { ALL_SIDES, CLIENT_STATUSES, DEAL_TYPES } from "@/lib/desk/consent";
 import { adEligibility } from "@/lib/desk/adRules";
 import { AddClientForm } from "@/components/desk/AddClientForm";
 import { PageHero } from "@/components/ui/PageHero";
@@ -12,7 +12,7 @@ export const fetchCache = "force-no-store";
 
 type SupabaseLike = { from: (table: string) => any }; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Client = {
-  id: string; name: string; phone: string; deal_type: string; regions: string | null; property_types: string[];
+  id: string; name: string; phone: string; deal_type: string; deal_side: string | null; regions: string | null; property_types: string[];
   budget_min: number | null; budget_max: number | null; monthly_max: number | null; area_min: number | null; move_in: string | null; memo: string | null;
   source: string; consent_at: string; consent_method: string; ad_consent_at: string | null; ad_optout_at: string | null; status: string; created_at: string;
 };
@@ -21,20 +21,23 @@ const won = (v: number | null) => (v === null ? "" : v >= 10000 ? `${(v / 10000)
 const day = (iso: string) => new Date(iso).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" });
 const SOURCE: Record<string, string> = { intake: "접수 링크", manual: "직접 입력", excel: "엑셀" };
 
-export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ deal?: string; status?: string }> }) {
+export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ deal?: string; side?: string; status?: string }> }) {
   const user = await requireProgramAccess();
   const sp = await searchParams;
   const db = (await createClient()) as unknown as SupabaseLike;
   let q = db.from("realty_desk_clients").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(200);
   if (sp.deal && (DEAL_TYPES as readonly string[]).includes(sp.deal)) q = q.eq("deal_type", sp.deal);
+  if (sp.side && (ALL_SIDES as readonly string[]).includes(sp.side)) q = q.eq("deal_side", sp.side);
   if (sp.status && (CLIENT_STATUSES as readonly string[]).includes(sp.status)) q = q.eq("status", sp.status);
   const { data } = await q;
   const clients = (data ?? []) as Client[];
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
-  const chip = (key: "deal" | "status", v?: string) => {
+  const chip = (key: "deal" | "side" | "status", v?: string) => {
     const params = new URLSearchParams();
-    if (key === "deal" ? v : sp.deal) params.set("deal", (key === "deal" ? v : sp.deal) as string);
-    if (key === "status" ? v : sp.status) params.set("status", (key === "status" ? v : sp.status) as string);
+    for (const k of ["deal", "side", "status"] as const) {
+      const val = k === key ? v : sp[k];
+      if (val) params.set(k, val);
+    }
     const qs = params.toString();
     return `/clients${qs ? `?${qs}` : ""}`;
   };
@@ -46,6 +49,9 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
       <div className="flex flex-wrap gap-2 text-sm">
         <Link href={chip("deal", undefined)} className={!sp.deal ? "mx-chip-blue" : "mx-chip"}>전체 거래</Link>
         {DEAL_TYPES.map((d) => <Link key={d} href={chip("deal", d)} className={sp.deal === d ? "mx-chip-blue" : "mx-chip"}>{d}</Link>)}
+        <span className="mx-2 text-mx-muted">|</span>
+        <Link href={chip("side", undefined)} className={!sp.side ? "mx-chip-blue" : "mx-chip"}>전체 입장</Link>
+        {ALL_SIDES.map((s) => <Link key={s} href={chip("side", s)} className={sp.side === s ? "mx-chip-blue" : "mx-chip"}>{s}</Link>)}
         <span className="mx-2 text-mx-muted">|</span>
         <Link href={chip("status", undefined)} className={!sp.status ? "mx-chip-blue" : "mx-chip"}>전체 상태</Link>
         {CLIENT_STATUSES.map((s) => <Link key={s} href={chip("status", s)} className={sp.status === s ? "mx-chip-blue" : "mx-chip"}>{s}</Link>)}
@@ -60,7 +66,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                 <div className="min-w-0">
                   <p className="text-base font-bold text-mx-text">{c.name} <span className="ml-1 text-sm font-normal text-mx-muted">{c.phone}</span></p>
                   <p className="text-mx-text">
-                    <b>{c.deal_type}</b>
+                    <b>{c.deal_type}{c.deal_side ? ` ${c.deal_side}` : ""}</b>
                     {c.regions ? ` · ${c.regions}` : ""}
                     {c.property_types.length ? ` · ${c.property_types.join(", ")}` : ""}
                     {c.budget_min || c.budget_max ? ` · ${won(c.budget_min)}~${won(c.budget_max)}` : ""}

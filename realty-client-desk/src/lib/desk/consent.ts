@@ -1,16 +1,22 @@
 // 동의 문구(2026-11-03 주인님 확인, docs/CONSENT_DRAFT_20261103.md A·B). 문구를 바꾸면 판을 올린다(이미 받은 동의는 옛 판으로 남음).
-export const CONSENT_VERSION = "consent-v1";
+export const CONSENT_VERSION = "consent-v2"; // v2(2026-11-04): 수집 항목에 거래 입장(매수·매도·임차·임대) 추가
 
 export const DEAL_TYPES = ["매매", "전세", "월세"] as const;
 export type DealType = (typeof DEAL_TYPES)[number];
-export const PROPERTY_TYPES = ["아파트", "빌라·주택", "오피스텔", "상가", "사무실", "토지", "기타"] as const;
+// 거래 입장(2026-11-04 현장 피드백). 매수·임차 = 매물을 구하는 고객(광고 문자 대상), 매도·임대 = 물건을 내놓는 고객
+export const DEAL_SIDES: Record<DealType, readonly [string, string]> = { 매매: ["매수", "매도"], 전세: ["임차", "임대"], 월세: ["임차", "임대"] };
+export const SEEKER_SIDES = ["매수", "임차"] as const;
+export const ALL_SIDES = ["매수", "매도", "임차", "임대"] as const;
+export const isSideOf = (deal: string, side: string) => (DEAL_SIDES[deal as DealType] ?? []).includes(side);
+// 유형(2026-11-04): 「빌라·주택」을 다세대/빌라·다가구/주택으로 나누고 건물·분양권 추가. 옛 값은 DB에서 옮김(20261104010000)
+export const PROPERTY_TYPES = ["아파트", "다세대/빌라", "다가구/주택", "오피스텔", "상가", "사무실", "건물", "토지", "분양권", "기타"] as const;
 export const CONSENT_METHODS = ["전화", "방문", "문자", "서면"] as const; // 수기 입력 때(링크 접수는 「링크」)
 export const CLIENT_STATUSES = ["상담 중", "보류", "계약", "종료"] as const;
 
 export function collectionConsentItems(officeName: string) {
   return [
     { label: "수집·이용 목적", text: "원하시는 조건에 맞는 매물 상담과 연락" },
-    { label: "수집 항목", text: "이름, 휴대폰 번호, 원하는 거래(매매·전세·월세)·지역·유형·예산·면적·입주 시기, 남기신 메모" },
+    { label: "수집 항목", text: "이름, 휴대폰 번호, 원하는 거래(매매·전세·월세)와 입장(매수·매도·임차·임대)·지역·유형·예산·면적·입주 시기, 남기신 메모" },
     { label: "보유·이용 기간", text: "마지막 상담일부터 1년. 그 뒤 자동으로 지웁니다. 언제든 삭제를 요청하실 수 있습니다." },
     { label: "동의를 거부할 권리", text: "동의하지 않으셔도 됩니다. 다만 동의하지 않으시면 이 화면으로 상담을 신청하실 수 없고, 전화·방문 상담은 그대로 가능합니다." },
     { label: "처리를 맡긴 곳", text: `${officeName}은(는) 고객 명부 보관을 Buylife(부동산 고객관리 프로그램)에 맡기고, 문자는 ${officeName}의 SOLAPI 계정으로 보냅니다. 맡은 곳은 이 목적 밖으로 쓰지 않습니다.` },

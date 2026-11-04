@@ -43,3 +43,10 @@ test("광고 문자: 맨 앞 (광고)·명칭·전화, 맨 끝 무료 수신거�
   assert.equal(text, "(광고)백석공인 031-123-4567\n본문\n무료수신거부 https://x/u/abc");
   assert.ok(composeAd({ ...office, reject_080: "080-123-4567" }, "b", "u").endsWith("무료수신거부 080-123-4567 / u"));
 });
+
+test("v1.09: 매도·임대 고객은 매물 광고 대상이 아니다(물건을 내놓는 쪽)", () => {
+  assert.equal(matchReasons({ ...client, deal_side: "임대" }, listing), null);
+  assert.equal(matchReasons({ ...client, deal_type: "매매", deal_side: "매도" }, { ...listing, deal_type: "매매" }), null);
+  assert.ok(matchReasons({ ...client, deal_side: "임차" }, listing));
+  assert.ok(matchReasons(client, listing)); // 입장이 없는 옛 자료는 구하는 쪽으로 본다
+});

@@ -33,6 +33,7 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - v1.06 (2026-11-03): D5 중개보수 계산기 /fee(src/lib/desk/fee.ts, 시행규칙 제20조 별표 1·2), 매물 화면 값 채움 링크. 커밋 `047e0dc42`, 배포 `realty-client-desk-mdyg9kbm3`.
 - v1.07 (2026-11-03): 중개보수 계산기 지역 선택(17개 시·도, REGION_CHECKED 대조 3곳). 「내 cron-job.org」 실검수 완료(코드 변경 없음). 배포 `realty-client-desk-nf5kq3r0m`.
 - v1.08 (2026-11-03): 일정 알림 = 회원 cron-job.org 기본·유일(schedulerConfig.ts 키트 스위치), 가입하기 버튼, AI 초안 플랫폼 3개·모델 선택(src/lib/ai/engines.ts). 커밋 `dffad1a6a`, 배포 `realty-client-desk-21gyn8g6j`. DB SQL `20261103060000_cronjob_default_ai_engines.sql` 적용함(주인님 승인).
+- v1.09 (2026-11-04, **코드 완료·DB 적용과 배포 대기**): 현장 공인중개사 피드백 반영 — 고객 거래 입장 `deal_side`(매매 = 매수/매도, 전세·월세 = 임차/임대, 칸 문구도 입장에 맞게), 매도·임대 고객은 광고 문자 대상에서 제외(`matchReasons`), 고객 목록 입장 거르기, 유형 「빌라·주택」 → 다세대/빌라·다가구/주택 + 건물·분양권 추가(유형 버튼 2열/5열 정렬), 중개보수 과세 유형(일반 10%·간이 4%·없음, 이 브라우저에 기억)·분양권 주택 요율 안내(`feeKindOf`), 동의 판 `consent-v2`(수집 항목에 입장 추가). 시험 24개·tsc·로컬 빌드 통과. **반드시 DB SQL `20261104010000_deal_side_property_types.sql`을 먼저 적용한 뒤 배포**(새 코드가 `deal_side`를 저장함 — 순서가 바뀌면 고객 저장이 실패).
 
 ## 5. 남은 일
 플랜 1~4단계 끝, **2026-11-03 회원 공개**(배지 NEW, VIP 자동 부여, 썸네일 — `supabase/migrations/20261103050000_publish.sql`). D5 중개보수 계산기 v1.06·지역 선택 v1.07 완료. 실제 아침 알림 문자 미확인(「내 cron-job.org」 실행은 v1.07 때 확인). 실제 문자 발송 시험(SOLAPI 있는 계정, 본인 번호 1건) 미실시. 지역 맞춤은 동 이름 글자 포함만 봄(인접 동·좌표는 나중 검토).

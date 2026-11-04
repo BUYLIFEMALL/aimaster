@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // D5(2026-11-03, v1.06): 중개보수 계산기 — 계산은 화면에서만(저장·외부 호출 없음).
-export default async function FeePage({ searchParams }: { searchParams: Promise<{ kind?: string; deal?: string; price?: string; monthly?: string }> }) {
+export default async function FeePage({ searchParams }: { searchParams: Promise<{ kind?: string; deal?: string; price?: string; monthly?: string; presale?: string }> }) {
   await requireProgramAccess();
   const sp = await searchParams;
   return (

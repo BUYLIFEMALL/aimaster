@@ -18,7 +18,7 @@ export default async function ListingsPage() {
   const db = (await createClient()) as unknown as SupabaseLike;
   const [{ data: rows }, { data: clientRows }] = await Promise.all([
     db.from("realty_desk_listings").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(200),
-    db.from("realty_desk_clients").select("deal_type, regions, property_types, budget_min, budget_max, monthly_max, area_min, status").eq("user_id", user.id).limit(2000),
+    db.from("realty_desk_clients").select("deal_type, deal_side, regions, property_types, budget_min, budget_max, monthly_max, area_min, status").eq("user_id", user.id).limit(2000),
   ]);
   const listings = (rows ?? []) as Listing[];
   const clients = clientRows ?? [];

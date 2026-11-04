@@ -37,3 +37,15 @@ test("시·도 17곳, 대조한 곳은 ✅ 표시·나머지는 조례 이름 �
   assert.ok(regionNote("서울특별시").startsWith("✅"));
   assert.ok(regionNote("부산광역시").includes("부산광역시 주택 중개보수 등에 관한 조례"));
 });
+test("v1.09: 부가세 과세 유형 — 일반 10%, 간이 4%, 없음 0", async () => {
+  const { vatOf, feeKindOf } = await import("../src/lib/desk/fee.ts");
+  assert.equal(vatOf(2_000_000, "general"), 200_000);
+  assert.equal(vatOf(2_000_000, "simple"), 80_000);
+  assert.equal(vatOf(2_000_000, "none"), 0);
+  assert.equal(vatOf(333_333, "simple"), 13_333); // 원 미만 버림
+  assert.equal(feeKindOf("다세대/빌라"), "주택");
+  assert.equal(feeKindOf("다가구/주택"), "주택");
+  assert.equal(feeKindOf("분양권"), "주택");
+  assert.equal(feeKindOf("오피스텔"), "오피스텔");
+  assert.equal(feeKindOf("건물"), "그 외(상가·토지 등)");
+});

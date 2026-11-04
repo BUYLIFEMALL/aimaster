@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { deleteSendAction } from "@/lib/actions/listings";
+import { feeKindOf } from "@/lib/desk/fee";
 import { adEligibility, adFooter, adHeader, draftBody, isNightKst, matchReasons, type Office } from "@/lib/desk/adRules";
 import { missingAdItems } from "@/lib/desk/adCheck";
 import { day, priceText } from "@/lib/desk/format";
@@ -45,7 +46,7 @@ export default async function ListingMatchPage({ params }: { params: Promise<{ i
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
       <Link href="/listings" className="text-sm text-mx-link">← 내 매물</Link>
       <PageHero badge="👥 맞는 고객" title={listing.title} description={`${listing.property_type} · ${priceText(listing)}${listing.area_m2 ? ` · 전용 ${listing.area_m2}㎡` : ""} · ${listing.address}`} />
-      <Link href={`/fee?kind=${encodeURIComponent(listing.property_type === "오피스텔" ? "오피스텔" : listing.property_type === "아파트" || listing.property_type === "빌라·주택" ? "주택" : "그 외(상가·토지 등)")}&deal=${encodeURIComponent(listing.deal_type)}&price=${listing.price}${listing.monthly ? `&monthly=${listing.monthly}` : ""}`} className="mx-btn-ghost inline-flex min-h-[40px] w-fit items-center px-3 text-xs">💰 이 매물 중개보수 계산</Link>
+      <Link href={`/fee?kind=${encodeURIComponent(feeKindOf(listing.property_type))}${listing.property_type === "분양권" ? "&presale=1" : ""}&deal=${encodeURIComponent(listing.deal_type)}&price=${listing.price}${listing.monthly ? `&monthly=${listing.monthly}` : ""}`} className="mx-btn-ghost inline-flex min-h-[40px] w-fit items-center px-3 text-xs">💰 이 매물 중개보수 계산</Link>
       {listing.status !== "광고 중" ? (
         <p className="mx-card p-5 text-sm text-mx-muted">「광고 중」인 매물만 안내할 수 있어요. 목록에서 상태를 바꿔 주세요.</p>
       ) : (

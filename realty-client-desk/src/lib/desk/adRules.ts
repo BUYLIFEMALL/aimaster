@@ -8,6 +8,7 @@ export const LISTING_STATUSES = ["광고 중", "계약", "내림"] as const;
 
 export type MatchClient = {
   deal_type: string;
+  deal_side?: string | null; // v1.09: 매수·임차만 매물 광고 대상(매도·임대는 물건을 내놓는 고객). 없으면(옛 자료) 구하는 쪽으로 본다
   regions: string | null;
   property_types: string[];
   budget_min: number | null;
@@ -30,6 +31,7 @@ const BUDGET_SLACK = 1.05; // 예산보다 5%까지는 후보로 보여 준다(�
 /** 조건이 맞으면 맞는 이유를, 안 맞으면 null */
 export function matchReasons(c: MatchClient, l: MatchListing): string[] | null {
   if (c.status === "계약" || c.status === "종료") return null;
+  if (c.deal_side === "매도" || c.deal_side === "임대") return null;
   if (c.deal_type !== l.deal_type) return null;
   const why: string[] = [l.deal_type];
   if (c.property_types.length) {
