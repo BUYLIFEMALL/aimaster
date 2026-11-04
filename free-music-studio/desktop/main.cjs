@@ -262,7 +262,22 @@ app.whenReady().then(async () => {
   tray = new Tray(nativeImage.createFromPath(ICON).resize({ width: 16, height: 16 }));
   tray.on("click", showWindow);
   updateTray();
-  if (!process.argv.includes("--hidden")) showWindow();
+  // 이미 사이트와 연결된 PC에서 새 버전으로 바꾼 직후(설치 프로그램이 켬)에는 창 대신 알림만(2026-11-04 주인님 「이게 뜨네 필요한건가」)
+  const paired = (() => {
+    try {
+      return (JSON.parse(fs.readFileSync(path.join(DATA_DIR, "paired.json"), "utf8")).tokens ?? []).length > 0;
+    } catch {
+      return false;
+    }
+  })();
+  // 버전 기록이 없는데 연결돼 있으면 0.4.x 이하에서 바꾼 것(그때는 버전을 남기지 않았음)
+  const updated = !st.lastVersion || st.lastVersion !== app.getVersion();
+  writeSettings({ ...readSettings(), lastVersion: app.getVersion() });
+  if (process.argv.includes("--hidden")) {
+    // PC 켤 때 자동 실행 — 조용히
+  } else if (paired && updated) {
+    tray.displayBalloon?.({ iconType: "info", title: "AI 무료음악 자동화 엔진", content: `엔진 ${app.getVersion()}(으)로 바뀌었습니다. 사이트와 연결은 그대로입니다. 작업 표시줄 🎵 아이콘을 누르면 상태 창이 열립니다.` });
+  } else showWindow();
   await startEngine();
   checkLatest();
   setInterval(checkLatest, 6 * 60 * 60 * 1000);

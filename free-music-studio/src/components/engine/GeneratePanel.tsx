@@ -254,6 +254,12 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           {picked.id !== "acestep" && (
             <p className="text-[11px] leading-relaxed text-slate-400">
               💡 처음 한 번은 {picked.name} 모델{picked.firstGb ? `(약 ${picked.firstGb}GB)` : ""}을 내 PC로 받느라 오래 걸립니다. 만드는 동안 ACE-Step은 잠시 멈췄다가 끝나면 다시 켜집니다. 지금은 새 곡 만들기만 됩니다.
+              {status?.modelsDir && (
+                <>
+                  {" "}
+                  받는 곳: <span className="font-mono text-slate-300">{status.modelsDir}</span> (「내 PC 엔진」 → 「모델 저장 공간」에서 다른 드라이브로 바꿀 수 있음)
+                </>
+              )}
             </p>
           )}
           {picked.license === "commercial" && picked.terms && <p className="rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-2.5 text-[11px] leading-relaxed text-emerald-100/90">📜 {picked.terms}</p>}

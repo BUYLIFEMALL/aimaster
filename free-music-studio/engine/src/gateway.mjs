@@ -95,7 +95,8 @@ export function createGateway(ctx) {
     const removeMatch = req.method === "POST" ? /^\/engines\/([a-z0-9]{2,20})\/remove$/.exec(url.pathname) : null;
     const isSystem = key === "GET /system" || key === "POST /quality" || !!removeMatch;
     const isQueue = !!ctx.queue && (url.pathname === "/queue" || url.pathname.startsWith("/queue/"));
-    if (!target && !isLibrary && !isSystem && !isQueue) return json(res, 404, { error: "없는 주소입니다." }, origin);
+    const isStorage = !!ctx.storage && ["GET /storage", "POST /storage/remove", "POST /storage/move"].includes(key);
+    if (!target && !isLibrary && !isSystem && !isQueue && !isStorage) return json(res, 404, { error: "없는 주소입니다." }, origin);
     const token = bearer(req.headers.authorization);
     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
       return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
@@ -103,6 +104,17 @@ export function createGateway(ctx) {
     if (isLibrary) return handleLibrary(req, res, url, origin, ctx, json);
     // 작업 대기열 — 엔진이 준비 중이어도 넣어 둘 수 있다(준비되면 차례로 만든다)
     if (isQueue) return handleQueue(req, res, url, origin, ctx, json);
+    // 저장 공간(0.5.0) — GET /storage 항목·크기·남은 공간 · POST /storage/remove { id } · POST /storage/move { path, mode: "move"|"fresh" }
+    if (isStorage) {
+      try {
+        if (key === "GET /storage") return json(res, 200, await ctx.storage.report(), origin);
+        const body = await readSmall(req).catch(() => null);
+        const r = key === "POST /storage/remove" ? await ctx.storage.remove(typeof body?.id === "string" ? body.id : "") : await ctx.storage.move(typeof body?.path === "string" ? body.path : "", body?.mode);
+        return r.ok ? json(res, 200, r, origin) : json(res, r.status, { error: r.error }, origin);
+      } catch (e) {
+        return json(res, 500, { error: `저장 공간을 처리하지 못했습니다. ${e.message}` }, origin);
+      }
+    }
     // PC 검사(다시 검사할 때마다 새로 읽음)·음악 모델 구성 바꾸기 — 엔진이 준비 중이어도 된다
     if (key === "GET /system") {
       try {

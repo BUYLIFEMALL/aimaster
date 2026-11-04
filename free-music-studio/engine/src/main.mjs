@@ -7,7 +7,10 @@ import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { ensureInstalled, hasUv, killStaleAcestep, missingModelGb, progressText, watchGrowth, pickFreePort, PYTHON_UTF8_ENV, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
+import { existsSync } from "node:fs";
+import { readdir } from "node:fs/promises";
+import { checkTarget, freeBytes, listItems, moveHeavy, removeBestEffort, removeHeavy, sizeOf, SKIP_DIRS, HEAVY_ENTRIES } from "./storage.mjs";
+import { ensureInstalled, hasUv, killStaleAcestep, uvCacheDir, missingModelGb, progressText, watchGrowth, pickFreePort, PYTHON_UTF8_ENV, hasFfmpeg, hasNvidia, launch, nvidiaVramGb, profileEnv, waitHealthy } from "./acestep.mjs";
 import { checkItems, chooseDevice, qualityOptions, qualityProfile } from "./device.mjs";
 import { inspectSystem, listInstalledModels } from "./system.mjs";
 import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
@@ -16,10 +19,10 @@ import { createQueue } from "./queue.mjs";
 import { createRunner } from "./runner.mjs";
 import { newToken } from "./security.mjs";
 import { ensureTools, useTools } from "./tools.mjs";
-import { runYue2, yue2Installed, yue2MissingBytes, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
-import { pyCatalog, pyEngine, pyInstalled, pyMissingGb, pySupport, removePyEngine, runPyEngine } from "./pyengines.mjs";
+import { runYue2, yue2Installed, yue2MissingBytes, yue2Paths, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
+import { pyCatalog, pyEngine, pyInstalled, pyMissingGb, pyPaths, pySupport, removePyEngine, runPyEngine } from "./pyengines.mjs";
 
-const VERSION = "0.4.1"; // 0.4.1: 추가 엔진 설치 실패 수정 — PyTorch 저장소를 보조로(딸린 패키지가 날짜 제한에 걸려 torch를 못 맞추던 것, 마스터PC HeartMuLa 실물) · 0.4.0: 추가 음악 엔진 1차 — HeartMuLa(상업용 노래)·Stable Audio 3(상업용 조건부 연주곡)·LeVo 2(개인용 노래), 그래픽 메모리는 한 번에 한 엔진만 · 0.3.0: 설치 파일(엔진 실행 프로그램 desktop/)과 함께 — uv·ffmpeg 처음 켤 때 받기, 실행 환경 실측 크기(6.1GB)·받는 중 표시 · 0.2.1: 처음 받는 ACE-Step 모델·실행 환경도 「받는 중 · 3.2GB / 약 14.9GB」로 표시, 연결 문이 열린 뒤에만 연결 코드, 대기열 저장 한 번에 하나씩 · 0.2.0: 비상업용 음악 엔진 YuE2(새 곡 만들기) · 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내 · 0.1.8: 켜진 뒤 살아 있는지 확인·끌 때 음악 엔진도 함께 끄기 · 0.1.9: 내부 번호를 실행마다 비어 있는 번호로, 남은 음악 엔진은 실행 명령 이름으로 찾아 끄기 · 0.1.10: 음악 엔진이 알려 준 실패 이유를 대기열·엔진 창에 그대로 표시 · 0.1.11: 음악 엔진 글자 UTF-8(한국어 윈도우 cp949 오류 해결)
+const VERSION = "0.5.0"; // 0.5.0: 모델 저장 공간 관리 — 모델 저장 폴더 고르기(다른 드라이브로 옮기기·새로 받기, engine-settings.json modelsDir)·항목별 실제 크기·안 쓰는 모델 지우기(/storage), 설치 패키지 보관함도 그 폴더(UV_CACHE_DIR) · 0.4.1: 추가 엔진 설치 실패 수정 — PyTorch 저장소를 보조로(딸린 패키지가 날짜 제한에 걸려 torch를 못 맞추던 것, 마스터PC HeartMuLa 실물) · 0.4.0: 추가 음악 엔진 1차 — HeartMuLa(상업용 노래)·Stable Audio 3(상업용 조건부 연주곡)·LeVo 2(개인용 노래), 그래픽 메모리는 한 번에 한 엔진만 · 0.3.0: 설치 파일(엔진 실행 프로그램 desktop/)과 함께 — uv·ffmpeg 처음 켤 때 받기, 실행 환경 실측 크기(6.1GB)·받는 중 표시 · 0.2.1: 처음 받는 ACE-Step 모델·실행 환경도 「받는 중 · 3.2GB / 약 14.9GB」로 표시, 연결 문이 열린 뒤에만 연결 코드, 대기열 저장 한 번에 하나씩 · 0.2.0: 비상업용 음악 엔진 YuE2(새 곡 만들기) · 0.1.1: 내 PC 보관함(/library) · 0.1.2: 저장 폴더 고르기·제목 파일 이름 · 0.1.3: 사이트 안 한글 폴더 고르기(browse) · 0.1.4: 그래픽 메모리별 최고 음질 모델·FLAC 원음·MP3 320k · 0.1.5: PC 검사(/system)·음악 모델 구성 고르기(/quality) · 0.1.6: 작업 대기열(/queue) · 0.1.7: 음악 엔진 기록 파일(acestep-log.txt)·「이미 켜져 있음」 한국어 안내 · 0.1.8: 켜진 뒤 살아 있는지 확인·끌 때 음악 엔진도 함께 끄기 · 0.1.9: 내부 번호를 실행마다 비어 있는 번호로, 남은 음악 엔진은 실행 명령 이름으로 찾아 끄기 · 0.1.10: 음악 엔진이 알려 준 실패 이유를 대기열·엔진 창에 그대로 표시 · 0.1.11: 음악 엔진 글자 UTF-8(한국어 윈도우 cp949 오류 해결)
 // 내부 음악 엔진 번호 — 실행마다 비어 있는 번호(0.1.9). 예전에는 47822로 고정해, 남은 음악 엔진이 잡고 있으면 새 음악 엔진이 켜지지 못했다.
 const ACESTEP_PORT = await pickFreePort();
 
@@ -36,9 +39,30 @@ useTools(dataDir);
 const device = chooseDevice({ platform: process.platform, arch: process.arch, nvidia: process.platform === "win32" && hasNvidia() });
 const vramGb = device.device === "cuda" ? nvidiaVramGb() : null;
 let ffmpeg = hasFfmpeg(); // 도구를 받은 뒤 다시 확인한다
-const acestepDir = process.env.FMS_ACESTEP_DIR || path.join(dataDir, "acestep");
-const checkpointsDir = path.join(acestepDir, "checkpoints");
 const engineSettingsFile = path.join(dataDir, "engine-settings.json");
+/** 엔진 설정 — tier(음악 모델 구성) · modelsDir(모델 저장 폴더, 0.5.0) */
+async function readEngineSettings() {
+  try {
+    return JSON.parse(await readFile(engineSettingsFile, "utf8")) ?? {};
+  } catch {
+    return {};
+  }
+}
+const saveEngineSettings = async (patch) => writeFile(engineSettingsFile, JSON.stringify({ ...(await readEngineSettings()), ...patch }, null, 2));
+// 모델 저장 폴더(0.5.0) — 무거운 것(ACE-Step·YuE2·추가 엔진·설치 패키지 보관함·MP3 변환)만 여기에 둔다.
+// 회원이 폴더를 고르면 설치 패키지 보관함도 그 안(uv-cache)으로 — 고르지 않았으면 예전처럼 데이터 폴더 + uv 기본 보관함.
+const defaultUvCache = uvCacheDir();
+let heavyDir = dataDir;
+let acestepDir = "";
+let checkpointsDir = "";
+function applyHeavyDir(dir, custom) {
+  heavyDir = dir;
+  acestepDir = process.env.FMS_ACESTEP_DIR || path.join(heavyDir, "acestep");
+  checkpointsDir = path.join(acestepDir, "checkpoints");
+  if (custom) process.env.UV_CACHE_DIR = path.join(heavyDir, "uv-cache");
+}
+const startSettings = await readEngineSettings();
+applyHeavyDir(typeof startSettings.modelsDir === "string" && startSettings.modelsDir ? startSettings.modelsDir : dataDir, !!startSettings.modelsDir);
 const nvidiaDriver = () => {
   if (device.device !== "cuda") return "";
   const r = spawnSync("nvidia-smi", ["--query-gpu=driver_version", "--format=csv,noheader"], { encoding: "utf8", windowsHide: true });
@@ -56,27 +80,19 @@ async function pyReport(e) {
   const s = pySupportOf(e);
   const base = { id: e.id, name: e.name, note: e.note, license: e.license, kind: e.kind, licenseName: e.licenseName, licenseCondition: e.licenseCondition ?? "", hfToken: !!e.hfToken, gatedUrl: e.gatedUrl ?? "", maxSec: e.maxSec, minVramGb: e.minVramGb, selected: false };
   if (!s.ok) return { ...base, supported: false, reason: s.reason };
-  const installed = await pyInstalled(dataDir, e).catch(() => false);
-  return { ...base, supported: true, reason: "", installed, downloadGb: installed ? 0 : await pyMissingGb(dataDir, e).catch(() => null) };
+  const installed = await pyInstalled(heavyDir, e).catch(() => false);
+  return { ...base, supported: true, reason: "", installed, downloadGb: installed ? 0 : await pyMissingGb(heavyDir, e).catch(() => null) };
 }
 
 /** /system에 넣을 YuE2 정보(설치 여부·더 받을 크기) */
 async function yue2Report() {
   const base = { id: "yue2", name: "YuE2", note: "노래 만들기 · 비상업용(CC BY-NC 4.0) — 수익 영상·판매에는 쓸 수 없습니다", license: YUE2_LICENSE, selected: false };
   if (!yue2.ok) return { ...base, supported: false, reason: yue2.reason };
-  const installed = await yue2Installed(dataDir, yue2.profile).catch(() => false);
-  const missing = installed ? 0 : await yue2MissingBytes(dataDir, yue2.profile).catch(() => null);
+  const installed = await yue2Installed(heavyDir, yue2.profile).catch(() => false);
+  const missing = installed ? 0 : await yue2MissingBytes(heavyDir, yue2.profile).catch(() => null);
   return { ...base, supported: true, reason: "", profile: yue2.profile.label, installed, downloadGb: missing == null ? null : Math.round((missing / 1024 ** 3) * 10) / 10 };
 }
 
-/** 회원이 고른 구성(없거나 이 PC에서 안 되면 추천 구성) */
-async function readSavedTier() {
-  try {
-    return JSON.parse(await readFile(engineSettingsFile, "utf8")).tier ?? "";
-  } catch {
-    return "";
-  }
-}
 async function systemReport() {
   const sys = await inspectSystem({ storageDir: acestepDir, checkpointsDir, ffmpeg });
   const options = qualityOptions({ device: device.supported ? device.device : "", vramGb: sys.vramGb ?? vramGb, freeGb: sys.freeGb, installedModels: sys.installedModels });
@@ -93,7 +109,8 @@ async function systemReport() {
     ],
   };
 }
-const savedTier = await readSavedTier();
+// 회원이 고른 구성(없거나 이 PC에서 안 되면 추천 구성)
+const savedTier = startSettings.tier ?? "";
 const startOptions = qualityOptions({ device: device.supported ? device.device : "", vramGb, freeGb: null });
 const savedOption = startOptions.find((o) => o.id === savedTier && o.supported);
 let profile = savedOption ?? qualityProfile({ device: device.device, vramGb });
@@ -116,7 +133,13 @@ const aceRun = createRunner({
   library,
   sourceDir: queueSourceDir,
   // 이 구성의 모델을 아직 안 받았으면 받는 동안 「음악 모델 받는 중 · 3.2GB / 약 13.5GB」
-  watch: { dir: checkpointsDir, missingGb: async () => missingModelGb(profile, await listInstalledModels(checkpointsDir)) },
+  // 모델 저장 폴더를 바꾸면 따라가도록 쓸 때마다 읽는다
+  watch: {
+    get dir() {
+      return checkpointsDir;
+    },
+    missingGb: async () => missingModelGb(profile, await listInstalledModels(checkpointsDir)),
+  },
 });
 const yue2LogFile = path.join(dataDir, "yue2-log.txt");
 
@@ -126,7 +149,7 @@ const yue2LogFile = path.join(dataDir, "yue2-log.txt");
  */
 async function yue2Run(job, signal, stage) {
   if (!yue2.ok) throw new Error(yue2.reason);
-  return exclusiveRun("YuE2", yue2LogFile, yue2.profile.label, stage, (log) => runYue2({ dataDir, profile: yue2.profile, library, log }, job, signal, stage));
+  return exclusiveRun("YuE2", yue2LogFile, yue2.profile.label, stage, (log) => runYue2({ dataDir: heavyDir, profile: yue2.profile, library, log }, job, signal, stage));
 }
 
 /** 추가 음악 엔진(0.4.0) 작업 — YuE2와 같이 ACE-Step을 잠시 끄고 그래픽 메모리를 혼자 쓴다 */
@@ -136,7 +159,7 @@ async function pyRun(job, signal, stage) {
   const s = pySupportOf(e);
   if (!s.ok) throw new Error(s.reason);
   const logFile = path.join(dataDir, `${e.id}-log.txt`);
-  return exclusiveRun(e.name, logFile, e.name, stage, (log) => runPyEngine({ dataDir, engine: e, vramGb, library, hfToken, log }, job, signal, stage));
+  return exclusiveRun(e.name, logFile, e.name, stage, (log) => runPyEngine({ dataDir: heavyDir, engine: e, vramGb, library, hfToken, log }, job, signal, stage));
 }
 
 /** ACE-Step이 아닌 엔진은 그래픽 메모리를 혼자 쓴다 — 끝나면 다음 작업이 ACE-Step일 때 다시 켠다 */
@@ -174,6 +197,132 @@ function resumeAce() {
   );
 }
 
+// ── 저장 공간(0.5.0) ─────────────────────────────────────
+const activeJobs = () => queue.list().filter((j) => j.status === "queued" || j.status === "running");
+const isWorking = () => moving || restarting || aceStarting || yue2Running || queue.list().some((j) => j.status === "running");
+
+/** 항목 목록(크기 포함) — GET /storage */
+async function storageItemsNow() {
+  const custom = !!(await readEngineSettings()).modelsDir;
+  const uv = uvCacheDir();
+  return listItems({
+    acestepDir,
+    aceEntries: await readdir(acestepDir).catch(() => []),
+    checkpoints: await listInstalledModels(checkpointsDir),
+    profile,
+    yue2Root: yue2Paths(heavyDir).root,
+    yue2Exists: existsSync(yue2Paths(heavyDir).root),
+    pyEngines: pyCatalog().engines.map((e) => ({ id: e.id, name: e.name, root: pyPaths(heavyDir, e).root, exists: existsSync(pyPaths(heavyDir, e).root) })),
+    uvCache: uv,
+    uvCacheExists: existsSync(uv),
+    oldUvCache: custom && path.resolve(defaultUvCache) !== path.resolve(uv) ? defaultUvCache : "",
+    oldUvCacheExists: custom && existsSync(defaultUvCache),
+    mp3Cache: path.join(heavyDir, "mp3-cache"),
+    mp3Exists: existsSync(path.join(heavyDir, "mp3-cache")),
+    busy: new Set(activeJobs().map((j) => j.engine || "acestep")),
+    working: isWorking(),
+  });
+}
+async function storageReport() {
+  const items = await storageItemsNow();
+  const sized = await Promise.all(items.map(async (it) => ({ ...it, bytes: (await Promise.all(it.paths.map((p) => sizeOf(p)))).reduce((a, b) => a + b, 0) })));
+  return {
+    dir: heavyDir,
+    isDefault: path.resolve(heavyDir) === path.resolve(dataDir) && !(await readEngineSettings()).modelsDir,
+    freeBytes: await freeBytes(heavyDir),
+    totalBytes: sized.reduce((a, b) => a + b.bytes, 0),
+    moving,
+    stage: moving ? state.stage : "",
+    items: sized.map(({ paths, ...it }) => ({ ...it, path: paths[0] ?? "" })),
+  };
+}
+/** POST /storage/remove { id } */
+async function removeStorageItem(id) {
+  const it = (await storageItemsNow()).find((x) => x.id === id);
+  if (!it) return { ok: false, status: 404, error: "그 항목이 없습니다(이미 지웠을 수 있음)." };
+  if (!it.removable) return { ok: false, status: 409, error: it.note || "지금은 지울 수 없습니다." };
+  let all = true;
+  for (const p of it.paths) all = (await removeBestEffort(p)) && all;
+  logLine(`🗑 ${it.label}${all ? "을(를) 지웠습니다." : " — 사용 중인 파일 일부는 남겼습니다."}`);
+  return { ok: true, partial: !all };
+}
+/**
+ * POST /storage/move { path, mode: "move" | "fresh" } — 모델 저장 폴더 바꾸기. 바로 답하고 뒤에서 옮긴다(상태 「모델 폴더 옮기는 중 · 3.2GB / 약 40GB」).
+ * 옮기는 동안 ACE-Step을 끄고 대기열은 기다린다. 실패하면 예전 폴더 그대로 쓴다.
+ */
+async function moveModels(target, mode) {
+  if (moving) return { ok: false, status: 409, error: "이미 옮기는 중입니다." };
+  if (restarting || aceStarting) return { ok: false, status: 409, error: "엔진을 켜거나 구성을 바꾸는 중입니다. 잠시 뒤 다시 시도해 주세요." };
+  if (yue2Running || queue.list().some((j) => j.status === "running")) return { ok: false, status: 409, error: "곡을 만드는 중입니다. 끝난 뒤 바꿔 주세요." };
+  if (mode !== "move" && mode !== "fresh") return { ok: false, status: 400, error: "옮기기 방식이 올바르지 않습니다." };
+  if (process.env.FMS_ACESTEP_DIR) return { ok: false, status: 400, error: "시험용 설정(FMS_ACESTEP_DIR)으로 켠 엔진은 모델 폴더를 바꿀 수 없습니다." };
+  const t = checkTarget(target, { current: heavyDir });
+  if (t.error) return { ok: false, status: 400, error: t.error };
+  const to = t.dir;
+  try {
+    await mkdir(to, { recursive: true });
+  } catch (e) {
+    return { ok: false, status: 400, error: `그 폴더를 만들 수 없습니다. ${e.message}` };
+  }
+  if (mode === "move") {
+    let need = 0;
+    for (const e of HEAVY_ENTRIES) need += await sizeOf(path.join(heavyDir, e), SKIP_DIRS);
+    if (!(await readEngineSettings()).modelsDir) need += await sizeOf(uvCacheDir()); // 처음 폴더에서 옮기면 uv 보관함도 함께
+    const free = await freeBytes(to);
+    const sameDrive = path.parse(path.resolve(to)).root.toLowerCase() === path.parse(path.resolve(heavyDir)).root.toLowerCase();
+    if (!sameDrive && free != null && free < need + 2 * 1024 ** 3) {
+      return { ok: false, status: 400, error: `그 드라이브 남은 공간이 모자랍니다(필요 약 ${Math.ceil(need / 1024 ** 3) + 2}GB, 남은 ${Math.floor(free / 1024 ** 3)}GB).` };
+    }
+  }
+  const from = heavyDir;
+  moving = true;
+  restarting = true;
+  state.ready = false;
+  state.error = "";
+  state.stage = mode === "move" ? "모델 폴더 옮기는 중" : "모델 폴더 바꾸는 중";
+  logLine(`📦 모델 저장 폴더 바꾸기: ${from} → ${to} (${mode === "move" ? "받은 모델 옮기기" : "새로 받기"})`);
+  (async () => {
+    try {
+      await killTree(child);
+      killStaleAcestep();
+      if (mode === "move") {
+        const wasCustom = !!(await readEngineSettings()).modelsDir;
+        const { copied } = await moveHeavy(from, to, { uvCacheFrom: wasCustom ? "" : uvCacheDir(), onProgress: (done, total) => (state.stage = progressText("모델 폴더 옮기는 중", done, Math.round((total / 1024 ** 3) * 10) / 10)) });
+        // 실행 환경은 새 자리에서 다시 만든다 — ACE-Step은 설치 기록을 「설치 중」으로 돌려 다음에 켤 때 uv sync
+        const stFile = path.join(to, "install-state.json");
+        try {
+          const st = JSON.parse(await readFile(stFile, "utf8"));
+          await writeFile(stFile, JSON.stringify({ ...st, status: "installing" }, null, 2));
+        } catch {}
+        await saveEngineSettings({ modelsDir: to });
+        applyHeavyDir(to, true);
+        state.stage = "예전 폴더 정리 중";
+        for (const p of copied) await removeBestEffort(p);
+      } else {
+        await saveEngineSettings({ modelsDir: to });
+        applyHeavyDir(to, true);
+        state.stage = "예전 폴더 정리 중";
+        await removeHeavy(from);
+      }
+      logLine(`✔ 모델 저장 폴더: ${to}`);
+    } catch (err) {
+      state.error = `모델 폴더를 옮기지 못했습니다 — 예전 폴더를 그대로 씁니다. ${err.message}`;
+      logLine(`⚠ ${state.error}`);
+    } finally {
+      moving = false;
+      restarting = false;
+      try {
+        await startMusicEngine();
+      } catch (err) {
+        state.stage = "오류";
+        state.error = err.message;
+        logLine(`⚠ ${err.message}`);
+      }
+    }
+  })();
+  return { ok: true, dir: to };
+}
+
 const queue = createQueue({
   file: path.join(dataDir, "queue.json"),
   run: (job, signal, stage) => (job.engine === "yue2" ? yue2Run(job, signal, stage) : job.engine === "acestep" || !job.engine ? aceRun(job, signal, stage) : pyRun(job, signal, stage)),
@@ -197,7 +346,7 @@ let pendingPairCode = "";
 const showPairCode = (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`);
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, quality: { ...profile, vramGb, ffmpeg } }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
   systemReport,
   // 엔진 이름 → 분류(없는 엔진·이 PC에서 안 되는 엔진은 null)
   engineLicense: (id) => (id === "yue2" ? (yue2.ok ? YUE2_LICENSE : null) : pyOk.includes(id) ? pyEngine(id).license : null),
@@ -206,7 +355,7 @@ const gateway = createGateway({
     const e = pyEngine(id);
     if (!e) return { ok: false, status: 400, error: "지울 수 없는 엔진입니다." };
     if (queue.list().some((j) => j.engine === id && (j.status === "queued" || j.status === "running"))) return { ok: false, status: 409, error: "이 엔진으로 만드는 작업이 끝난 뒤 지워 주세요." };
-    await removePyEngine(dataDir, e);
+    await removePyEngine(heavyDir, e);
     logLine(`🗑 ${e.name} 받은 모델·실행 환경을 지웠습니다.`);
     return { ok: true };
   },
@@ -217,7 +366,10 @@ const gateway = createGateway({
   get ffmpeg() {
     return ffmpeg;
   },
-  mp3CacheDir: path.join(dataDir, "mp3-cache"),
+  get mp3CacheDir() {
+    return path.join(heavyDir, "mp3-cache");
+  },
+  storage: { report: storageReport, remove: removeStorageItem, move: moveModels },
   tokens,
   saveTokens,
   acestepPort: ACESTEP_PORT,
@@ -244,6 +396,7 @@ gateway.listen(GATEWAY_PORT, "127.0.0.1", () => {
 
 let child = null;
 let restarting = false;
+let moving = false; // 모델 저장 폴더를 옮기는 중(0.5.0)
 let aceStarting = false; // ACE-Step을 켜는 중(이때 YuE2를 띄우면 그래픽 메모리가 겹친다)
 let yue2Pausing = false; // YuE2 때문에 ACE-Step을 잠시 끈 상태
 let yue2Running = false;
@@ -308,7 +461,7 @@ async function startMusicEngineInner() {
     child.stdout.on("data", writeAceLog);
     child.stderr.on("data", writeAceLog);
   } else {
-    installedDir = await ensureInstalled(dataDir, { onStage: (s) => ((state.stage = s), logLine(`… ${s}`)) });
+    installedDir = await ensureInstalled(heavyDir, { onStage: (s) => ((state.stage = s), logLine(`… ${s}`)) });
     state.stage = "음악 엔진 켜는 중";
     child = launch(installedDir, { port: ACESTEP_PORT, apiKey: acestepKey, device: device.device, profile }, writeAceLog);
   }
@@ -338,13 +491,13 @@ async function startMusicEngineInner() {
  * @returns {Promise<{ ok: true, quality: object } | { ok: false, error: string, status: number }>}
  */
 async function setQuality(tierId) {
-  if (restarting) return { ok: false, status: 409, error: "구성을 바꾸는 중입니다. 잠시 뒤 다시 시도해 주세요." };
+  if (restarting) return { ok: false, status: 409, error: moving ? "모델 폴더를 옮기는 중입니다. 끝난 뒤 다시 시도해 주세요." : "구성을 바꾸는 중입니다. 잠시 뒤 다시 시도해 주세요." };
   if (yue2Pausing) return { ok: false, status: 409, error: "다른 음악 엔진으로 곡을 만드는 중입니다. 끝난 뒤 다시 시도해 주세요." };
   const report = await systemReport();
   const opt = report.options.find((o) => o.id === tierId);
   if (!opt) return { ok: false, status: 400, error: "없는 구성입니다." };
   if (!opt.supported) return { ok: false, status: 400, error: opt.reason };
-  await writeFile(engineSettingsFile, JSON.stringify({ tier: opt.id }, null, 2));
+  await saveEngineSettings({ tier: opt.id });
   if (opt.id === profile.id && state.ready) return { ok: true, quality: { ...profile, vramGb, ffmpeg } };
   const { supported, recommended, installed, reason, ...tier } = opt;
   profile = tier;

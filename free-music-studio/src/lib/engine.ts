@@ -17,6 +17,7 @@ export type EngineStatus = {
   paired: boolean;
   features?: string[]; // 0.1.1부터 ["library"]
   libraryDir?: string;
+  modelsDir?: string; // 0.5.0부터 모델 저장 폴더
   quality?: EngineQuality; // 0.1.4부터
 };
 
@@ -495,6 +496,38 @@ export async function fetchHfToken(): Promise<string | null> {
 /** 받은 추가 엔진 모델·실행 환경 지우기(엔진 0.4.0+) */
 export async function removeEngineModel(id: MusicEngineId): Promise<void> {
   await call(`/engines/${id}/remove`, { method: "POST" });
+}
+
+// ── 저장 공간(엔진 0.5.0, 플랜 docs/PLAN_20261104_MODEL_STORAGE.md) ──
+export type StorageItem = {
+  id: string;
+  engine: string;
+  label: string;
+  path: string;
+  bytes: number;
+  removable: boolean;
+  inUse: boolean;
+  note: string;
+  reGb?: number;
+};
+export type StorageReport = { dir: string; isDefault: boolean; freeBytes: number | null; totalBytes: number; moving: boolean; stage: string; items: StorageItem[] };
+
+/** 저장 공간 관리가 되는 엔진인가(0.5.0+) */
+export function hasStorage(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("storage");
+}
+export const gb = (bytes: number | null | undefined) => (bytes == null ? "확인 불가" : `${(bytes / 1024 ** 3).toFixed(bytes >= 10 * 1024 ** 3 ? 0 : 1)}GB`);
+
+/** 항목별 실제 크기(엔진이 폴더를 재므로 수십 GB면 몇 초 걸림) */
+export async function getStorage(): Promise<StorageReport> {
+  return (await call("/storage", {}, 120_000)).json();
+}
+export async function removeStorageItem(id: string): Promise<{ partial: boolean }> {
+  return (await call("/storage/remove", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }, 120_000)).json();
+}
+/** 모델 저장 폴더 바꾸기 — move: 받은 모델 옮기기 · fresh: 새로 받기. 엔진이 바로 답하고 뒤에서 옮긴다(상태 문구로 진행 표시) */
+export async function moveModelsFolder(path: string, mode: "move" | "fresh"): Promise<{ dir: string }> {
+  return (await call("/storage/move", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path, mode }) }, 120_000)).json();
 }
 
 export const QUEUE_LABEL: Record<QueueStatus, string> = { queued: "대기 중", running: "만드는 중", done: "완료", failed: "실패", cancelled: "취소됨", interrupted: "중단됨" };
