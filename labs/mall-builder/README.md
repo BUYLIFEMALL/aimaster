@@ -401,7 +401,9 @@ DB 변경은 `supabase/migrations/*.sql`에 적고 AIMaster_dev에만 적용한�
 
 ## 남은 일
 - ✅ 시험 데이터 정리 완료(2026-11-04, 주인님 채팅 승인): 첫 화면 페이지(시험 블록 7개)·공지 1건·운영자 발송 견적 Q20261104-0002·부분 취소 주문 20261104-0003(상품 줄·처리 기록 함께) 삭제, 블랙 옵션 재고 3→5 되돌림. 견적 Q20261104-0001은 「수락됨」으로 남고 연결 주문 칸만 비었음. 첫 화면에 쓰던 사진 4장은 「안 쓰는 사진」이 되어 하루 뒤 사진 정리 화면에서 지울 수 있음 → (바로잡음 11-04 22:41 화면 확인) 전체 4장 중 상품 사진 2장은 쓰는 중이고 **안 쓰는 사진은 첫 화면 그림 2장**, 11-05 03:08부터 지울 수 있음
-- D3 외상 견적 주문은 DB 시험으로만 확인 — 사업자 손님 계정으로 실제 주문해 보는 화면 확인은 손님 계정 로그인이 필요해 남김
+- ✅ D3 외상 견적 주문 화면 확인(2026-11-05 00:05, 시험 계정 `buylifemall@naver.com`): ego(손님)에서 몰 가입 → 사업자 신청(가짜 번호 123-45-67891·「시험상회(가짜)」·등록증 업로드) → 배송지 「회사」 / 운영자 쪽은 같은 브라우저라 로그인 대신 운영자 권한으로 화면과 같은 DB 함수 호출(`mall_builder_review_business` 승인·`_set_credit_limit` 100,000·`_send_quote` 화이트 2개 39,000원) → 손님 견적 `Q20261105-0002` 화면에서 「외상(후불) — 남은 한도 100,000원」 선택 → 주문 `20261105-0009` 「외상(후불)으로 78,000원 결제 완료」. DB: 견적 accepted, 장부 charge 78,000(견적 번호), 재고 정상, 알림은 「새 주문 → 운영자」 문자·메일만(00:07 보냄)
+  - 발견·수정: 외상 주문에 입금 기한(D8)이 붙음 — 외상 주문은 「입금 대기」로 넣은 뒤 결제 완료로 바꾸는 순서라 insert 트리거가 기한을 적음(자동 취소는 안 되지만 데이터가 틀림) → `0027_credit_clears_deadline.sql`(update 전 트리거로 외상이면 기한 비움, 기존 잘못된 줄 정리 — Lab 적용, 되돌림 시험 확인)
+  - 참고: 00:04~00:07 cron-job.org 호출이 3분 비었다가 이어짐(밀린 알림은 다음 실행에서 보냄)
 - 입금 기한 자동 취소(D8) — ✅ 구현·내 PC 확인 → ✅ Lab 배포 Ready(2026-11-04, 배포 `dpl_59uxiFEXft21m8Wj3ZpRwSJja3qj`, 빌드 1회·누적 6회, 주인님 채팅 승인). 배포 뒤 확인: 실행 주소 토큰 없음·틀림 401, 손님 첫 화면 200, ego에서 Lab 설정 화면 「입금 기한 자동 취소」 칸·상태 꺼짐 확인. [플랜](docs/PLAN_20261104_DEPOSIT_AUTO_CANCEL.md)
   - DB `supabase/migrations/0024_deposit_auto_cancel.sql`(0024a 표·칸, 0024b 함수 — Lab 적용됨): 주문 칸 `pay_deadline_at`, 예약 표 `mall_builder_store_schedulers`(운영자만 읽기), 비밀 표 `mall_builder_store_scheduler_secrets`(규칙 0개 = 아무도 직접 못 읽음), 함수 `mall_builder_scheduler_save`·`_api_key`·`_link`·`mall_builder_expire_deposits`, 주문 넣을 때 기한 적는 트리거
   - 실행 주소 `/api/cron/deposit-expire?store=<slug>`(몰 전용 토큰, DB엔 해시만, 틀리면 401), cron-job.org 연결 `src/lib/cronJobOrg.ts`(기준 코드 insta-cronjob-org 방식, 10분 주기), 계산 `src/lib/depositScheduler.ts`
