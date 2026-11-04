@@ -1,6 +1,6 @@
-# naver-cafe-recruit — 네이버 카페 회원 모집 자동화 (개발 중, v0 플랜 단계)
+# naver-cafe-recruit — 네이버 카페 회원 모집 자동화 (개발 중, v1.01 뼈대)
 
-> 상태: **플랜·DB 초안 단계**(아직 빌드·배포 전). 플랜 [`docs/PLAN_20261105_NEW.md`](docs/PLAN_20261105_NEW.md) · 외부 원본 분석 [`../docs/analysis-cafe-recruit-20261105/DETAIL.md`](../docs/analysis-cafe-recruit-20261105/DETAIL.md).
+> 상태(2026-11-05 윈도우 `claude-win-blog`): **운영 DB 적용 + 웹 뼈대(v1.01) 완료, 미배포·확장 미구현.** `programs`에 비공개(`is_active=false`)로 등록·요금제 3단계. 다음: 맥미니 ego로 네이버 초대·카페 화면 실물 확인([`docs/REQUEST_20261105_MACMINI_DOM.md`](docs/REQUEST_20261105_MACMINI_DOM.md)) → 확장 → 빌드(주인님 승인)·Vercel 프로젝트·도메인. 플랜 [`docs/PLAN_20261105_NEW.md`](docs/PLAN_20261105_NEW.md) · 외부 원본 분석 [`../docs/analysis-cafe-recruit-20261105/DETAIL.md`](../docs/analysis-cafe-recruit-20261105/DETAIL.md).
 > 공통 지침은 루트 [`CLAUDE.md`](../CLAUDE.md)·[`AGENTS.md`](../AGENTS.md)를 함께 읽는다(회원 본인 계정·본인 키 최상위 규칙, 마케팅 수집 예외 지침).
 
 ## 1. 사용 목적 및 대상
@@ -21,12 +21,16 @@
 
 ## 4. 현재 버전 및 변경 이력
 - v0(2026-11-05): 플랜 + DB 마이그레이션 2개 초안(`ncr_init`·`ncr_dispatch`, 미적용). 아직 화면·확장·배포 없음.
+- v1.01(2026-11-05, 윈도우, 미배포): **DB 검토 보완 후 운영 적용**(ref esgxyikcnnvmlhygjkth) — 하루 상한을 한국 날짜로, 초대 전에 `next_target`(시간대·상한·제한·이미 보낸 사람 확인), 「보냄」 기록 덮어쓰기 금지, 모든 회원 대상 매일 정리 `ncr_cleanup()`, 아이디 형식·200줄·500줄 제한, 상한 최대 25. 격리 DB 시험 8개(`npm run test:database`). **웹 뼈대**: `naver-cafe-poster`에서 로그인·화면 틀·메뉴·공용 UI만 골라 복사, `lib/access.ts`는 권한 표 조회를 서비스 키로(공통 판정 순서), `/api/recruit`(설정·아는 사람 넣기·검토·기록, 네이버 요청 없음), `/api/cron/cleanup`(매일 03:40, `CRON_SECRET`), 화면 🏠 오늘의 모집·⚙️ 모집 방식·설정(세 방식, A 책임 고지)·👥 모으기·승인(붙여넣기·한 번에 승인)·📊 결과·엑셀(맥미니 초안 `api/export`)·📖 가이드. 단위 시험 4. `programs` 비공개 등록.
+- **로컬 설치 주의**: 이 PC npm은 `allow-remote=none`이라 `xlsx`(SheetJS CDN tgz)를 받지 못함 → 지역 설치는 xlsx를 빼고 하고 `kakao_auto_poster/node_modules/xlsx`(0.20.3)를 복사해 시험. `package.json`에는 0.20.3 그대로(Vercel 빌드가 설치). `package-lock.json`에는 xlsx가 없음.
 
 ## 5. 남은 작업 (백로그)
-- [ ] DB 적용(윈도우) · [ ] 프로그램 뼈대(`naver-cafe-poster` 복사·이름·`lib/access.ts`·버전 v1.01)
-- [ ] 서버 라우트(모드별 대상·검토·실행 요청) · [ ] 확장(수집·초대·게시) · [ ] 화면(모드 선택·오늘 할 일·결과·가이드)
-- [ ] 시험 · 빌드(승인) · 도메인 `naver-cafe-recruit.buylife.xyz` · `programs` 등록(`app_url`·설명·`detail_sections`) · 비교표·분석표 갱신
-- [ ] 엑셀 내려받기(2026-11-05 주인님 「수집된 데이터를 엑셀파일로 다운로드 받을 수 있게」) — 초안 `src/app/api/export/route.ts`(시트 「모은 대상」·「보낸 기록」), 화면 버튼은 결과 화면에
+- [x] DB 적용(윈도우, 2026-11-05) · [x] 프로그램 뼈대 v1.01 · [x] 웹 서버 라우트(설정·대상·검토·기록) · [x] 화면(오늘·설정·모으기·결과·가이드) · [x] 엑셀 내려받기 버튼(결과 화면)
+- [ ] 맥미니 ego 실물 확인: 카페 초대 화면·제한 문구·가입 카페/게시판 목록·글 작성자 표시([`docs/REQUEST_20261105_MACMINI_DOM.md`](docs/REQUEST_20261105_MACMINI_DOM.md))
+- [ ] 확장(기기 연결·`next_target`→초대→`sent_mark`, A 수집→`targets_add`) + 확장용 서버 라우트(기기 토큰 인증) — 위 실물 확인 뒤
+- [ ] 모드 C(카페 홍보 글) 연결 — `naver-cafe-poster` 게시 재사용 방식 결정
+- [ ] 모드 B 자동 채우기: `blog-neighbor-care` 서로이웃 가져오기
+- [ ] 빌드(주인님 승인) · Vercel 프로젝트 생성·환경변수(`CRON_SECRET` 포함) · 도메인 `naver-cafe-recruit.buylife.xyz` · `programs.is_active=true`·`detail_sections`·썸네일 · 비교표·분석표(EXT-MKT-08·10) 갱신 · VIP 자동 부여 확인
 - [x] 보관 기간: 30일 확정(2026-11-05 주인님 「30일 기준으로 만들어도 되는 프로그램이야」), 연장 없음
 
 ## 6. 타 프로그램 연계·병합 아이디어
