@@ -102,6 +102,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
             <option value="아파트">아파트</option>
             <option value="빌라">빌라</option>
             <option value="오피스텔">오피스텔</option>
+            <option value="단독/다가구">단독/다가구</option>
           </select>
           <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="정렬" className="mx-input min-h-[40px] w-auto py-2 text-sm">
             <option value="recent">최근 수집순</option>
@@ -162,7 +163,7 @@ export function ListingMatrix({ rows }: { rows: ListingRow[] }) {
                     <td className="text-right tabular-nums">{r.area ?? "-"}㎡</td>
                     <td className="text-right tabular-nums">{r.floor ?? "-"}</td>
                     <td className="text-right font-bold tabular-nums text-mx-link">{formatDealPrice(r.deal, r.price, r.rent)}</td>
-                    <td className="text-right tabular-nums text-mx-muted">{r.official ? formatWon(r.official / 10000) : r.deal !== "매매" ? "-" : r.type === "오피스텔" ? "대상 아님" : "-"}</td>
+                    <td className="text-right tabular-nums text-mx-muted">{r.official ? formatWon(r.official / 10000) : r.deal !== "매매" ? "-" : (r.type === "오피스텔" || r.type === "단독/다가구") ? "대상 아님" : "-"}</td>
                     <td className="text-right tabular-nums" title={isUnusualPriceRatio(pct) ? "특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : undefined}>
                       {pct !== null ? `${isUnusualPriceRatio(pct) ? "⚠️ " : ""}${pct}%` : "-"}
                     </td>

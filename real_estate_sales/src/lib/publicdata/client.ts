@@ -59,6 +59,7 @@ export interface SeoulRtmsRow {
   ARCH_AREA: string;
   FLR: string;
   ARCH_YR?: string;
+  LAND_AREA?: string; // v1.46 단독/다가구 대지면적 ㎡(국토부 plottageAr)
   RIGHT_SE?: string;
   [key: string]: string | undefined;
 }

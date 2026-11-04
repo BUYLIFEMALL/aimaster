@@ -76,7 +76,7 @@ export default async function ListingDetailPage({
         </span>
         <h1 className="text-2xl font-black text-mx-text">{listing.bldg_nm}</h1>
         <p className="mt-1 text-sm text-mx-muted">
-          계약일 {listing.contract_date ?? "-"} · 전용 {listing.exclusive_area ?? "-"}㎡ · {listing.floor ?? "-"}층 · 건축 {listing.building_year ?? "-"}년
+          계약일 {listing.contract_date ?? "-"} · {listing.property_type === "단독/다가구" ? `연면적 ${listing.exclusive_area ?? "-"}㎡${(listing.raw_data as { LAND_AREA?: string } | null)?.LAND_AREA ? ` · 대지 ${(listing.raw_data as { LAND_AREA?: string }).LAND_AREA}㎡` : ""}` : `전용 ${listing.exclusive_area ?? "-"}㎡ · ${listing.floor ?? "-"}층`} · 건축 {listing.building_year ?? "-"}년
         </p>
         {listing.bldg_nm && (
           // 같은 단지의 지금 올라온 네이버 매물(호가)을 「AI 부동산 매물 알림 자동화」 감시 대상으로 보낸다.
@@ -124,7 +124,7 @@ export default async function ListingDetailPage({
           icon="🏛️"
           label="공시가격"
           value={formatWon(listing.official_price ? listing.official_price / 10000 : null)}
-          hint={!listing.official_price && listing.property_type === "오피스텔" ? "오피스텔은 공동주택 공시가 대상이 아니에요" : undefined}
+          hint={!listing.official_price && listing.property_type === "오피스텔" ? "오피스텔은 공동주택 공시가 대상이 아니에요" : !listing.official_price && listing.property_type === "단독/다가구" ? "단독·다가구는 공동주택 공시가 대상이 아니고, 국토부가 지번 일부를 가려 필지를 찾을 수 없어요" : undefined}
           tone="muted"
         />
         <KpiCard icon="📐" label="공시가 대비" value={isSale && ratio !== null ? `${ratio}%` : "-"} hint={isUnusualPriceRatio(ratio) ? "⚠️ 특수 거래일 수 있어요(지분 거래·재개발 기대·신고 오류 등)" : "거래가 ÷ 공시가격"} tone="amber" />

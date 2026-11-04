@@ -165,10 +165,10 @@ test("유형: 빌라·오피스텔 응답 변환(실제 칸 이름), 서울 용�
   assert.equal(rent[0].rent, 0);
   assert.equal(propertyTypeOf("연립다세대"), "빌라");
   assert.equal(propertyTypeOf("아파트"), "아파트");
-  assert.equal(propertyTypeOf("단독다가구"), null);
-  assert.deepEqual(normalizePropertyTypes(null), ["아파트", "빌라", "오피스텔"]);
+  assert.equal(propertyTypeOf("단독다가구"), "단독/다가구"); // v1.46부터 받음
+  assert.deepEqual(normalizePropertyTypes(null), ["아파트", "빌라", "오피스텔", "단독/다가구"]);
   assert.deepEqual(normalizePropertyTypes(["빌라", "엉뚱"]), ["빌라"]);
-  assert.deepEqual(normalizePropertyTypes([]), ["아파트", "빌라", "오피스텔"]);
+  assert.deepEqual(normalizePropertyTypes([]), ["아파트", "빌라", "오피스텔", "단독/다가구"]);
 });
 
 test("전남광주 필지 번호: 브이월드 조회만 옛 코드, 다른 지역은 그대로", async () => {
@@ -198,4 +198,26 @@ test("전월세 거래: 표 값 변환, 기본은 매매만, 금액 표기(2026-
   assert.equal(formatDealPrice("전세", 32000, null), "전세 3.2억");
   assert.equal(formatDealPrice("월세", 5000, 80), "월세 5,000만/80만");
   assert.equal(formatDealPrice("월세", 20000, 80), "월세 2억/80만");
+});
+
+test("v1.46: 단독/다가구 — 연면적·대지면적, 가려진 지번은 필지 번호로 쓰지 않음, 이름은 「다가구주택 1**」", async () => {
+  const m = await import("../src/lib/publicdata/molit.ts");
+  assert.ok(m.PROPERTY_TYPES.includes("단독/다가구"));
+  assert.ok(!m.LOT_TYPES.includes("단독/다가구"));
+  assert.equal(m.MOLIT_SERVICE["단독/다가구"].trade, "SHTrade");
+  assert.equal(m.MOLIT_SERVICE["단독/다가구"].rent, "SHRent");
+  const it = { sggCd: "41285", umdNm: "백석동", houseType: "다가구", jibun: "1**", totalFloorAr: "312.5", plottageAr: "198", dealAmount: "95,000", dealYear: "2026", dealMonth: "10", dealDay: "7", buildYear: "1998" };
+  const row = m.molitItemToRow(it, "고양시 일산동구", {}, "단독/다가구");
+  assert.equal(row.BLDG_NM, "다가구주택 1**");
+  assert.equal(row.ARCH_AREA, "312.5");
+  assert.equal(row.LAND_AREA, "198");
+  assert.equal(row.MNO, "");
+  assert.equal(row.THING_AMT, "95000");
+  assert.equal(m.propertyTypeOf("단독다가구"), "단독/다가구");
+  const rents = m.molitRentRows([{ response: { body: { items: { item: { umdNm: "백석동", houseType: "단독", jibun: "2**", totalFloorAr: "120", deposit: "20,000", monthlyRent: "0", dealYear: "2026", dealMonth: "10", dealDay: "3" } } } } }]);
+  assert.equal(rents.length, 1);
+  assert.equal(rents[0].name, "단독주택 2**");
+  assert.equal(rents[0].area, 120);
+  assert.deepEqual(m.normalizePropertyTypes(["아파트", "빌라", "오피스텔"]), ["아파트", "빌라", "오피스텔"]); // 세 유형만 고른 회원은 그대로
+  assert.equal(m.normalizePropertyTypes([]).length, 4);
 });

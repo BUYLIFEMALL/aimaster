@@ -1,7 +1,7 @@
 import "server-only";
 import { fetchApartAssessedPrice, fetchBuildingRecapTitle, fetchBuildingTitle, fetchMolitMonth, type PublicDataKeys } from "@/lib/publicdata/client";
 import { LEGAL_DONG } from "@/lib/publicdata/legalDong";
-import { legalDongCode, pickAssessedPrice, PROPERTY_TYPES, type PropertyType } from "@/lib/publicdata/molit";
+import { legalDongCode, LOT_TYPES, pickAssessedPrice, type PropertyType } from "@/lib/publicdata/molit";
 import { ensureLandInfo } from "@/lib/realestate/collect";
 import { recentMonths } from "@/lib/realestate/insights";
 import { buildingFacts, jeonseRatio, lotDeals, mainZones, REPORT_MONTHS, summarize, type BuildingFacts, type DealSummary, type LotTarget, type ReportDeal } from "@/lib/realestate/report";
@@ -52,7 +52,7 @@ export async function buildAddressReport(input: ReportInput, keys?: PublicDataKe
   const yms = recentMonths(now, count);
   if (type) trades = await months(type, "trade", input, keys, yms, errors);
   else {
-    for (const t of PROPERTY_TYPES) {
+    for (const t of LOT_TYPES) { // 단독/다가구는 지번이 가려져 필지로 맞출 수 없음(v1.46)
       const found = await months(t, "trade", input, keys, yms, errors);
       if (found.length) {
         type = t;

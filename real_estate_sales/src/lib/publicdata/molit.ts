@@ -5,21 +5,34 @@
 import type { SeoulRtmsRow } from "./client";
 
 // 2026-10-31: 주거 세 유형. 국토부는 유형마다 서비스가 따로다(응답의 이름 칸: 아파트 aptNm, 연립 mhouseNm, 오피스텔 offiNm)
-export const PROPERTY_TYPES = ["아파트", "빌라", "오피스텔"] as const;
+// 2026-11-04 v1.46: 단독/다가구 추가(SHTrade·SHRent, 11-04 승인). 이 유형은 단지 이름·전용면적·층이 없고 연면적(totalFloorAr)·대지면적(plottageAr)·
+// 주택 유형(houseType: 단독/다가구)이 오며, 지번 일부가 가려져(「1**」) 필지 조회(건축물대장·공시가)를 할 수 없다
+export const PROPERTY_TYPES = ["아파트", "빌라", "오피스텔", "단독/다가구"] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
+export const DETACHED: PropertyType = "단독/다가구";
+/** 필지·단지로 맞출 수 있는 유형(주소 리포트·공시가·같은 단지 비교) — 단독/다가구는 지번이 가려져 빠진다 */
+export const LOT_TYPES = PROPERTY_TYPES.filter((t) => t !== DETACHED);
 export const MOLIT_SERVICE: Record<PropertyType, { trade: string; rent: string }> = {
   아파트: { trade: "AptTrade", rent: "AptRent" },
   // 2026-11-04: 연립 매매(15126467)는 새 서비스 RHTrade2만 승인과 연결된다(옛 RHTrade는 승인돼도 403 SERVICE_KEY_IS_NOT_REGISTERED)
   빌라: { trade: "RHTrade2", rent: "RHRent" },
   오피스텔: { trade: "OffiTrade", rent: "OffiRent" },
+  "단독/다가구": { trade: "SHTrade", rent: "SHRent" },
 };
 export const molitUrl = (service: string) => `https://apis.data.go.kr/1613000/RTMSDataSvc${service}/getRTMSDataSvc${service}`;
 
 /** 서울 자료의 건물 용도 → 유형. 세 유형 밖이면 null */
 export function propertyTypeOf(usage: unknown): PropertyType | null {
   const u = String(usage ?? "").trim();
-  if (u === "아파트" || u === "오피스텔" || u === "빌라") return u;
+  if (u === "아파트" || u === "오피스텔" || u === "빌라" || u === DETACHED) return u;
+  if (u === "단독다가구" || u === "단독" || u === "다가구") return DETACHED; // 서울 자료 용도 「단독다가구」
   return u === "연립다세대" ? "빌라" : null;
+}
+
+/** 단독/다가구 표시 이름: 「다가구주택 1**」(이름 칸이 없어 주택 유형 + 가려진 지번으로 구별) */
+export function detachedName(houseType: unknown, jibun: unknown): string {
+  const h = String(houseType ?? "").trim() || "단독";
+  return `${h.endsWith("주택") ? h : `${h}주택`} ${String(jibun ?? "").trim()}`.trim();
 }
 
 /** 회원이 받을 유형: 비어 있거나 잘못된 값이면 전체 */
@@ -70,7 +83,8 @@ const str = (v: unknown) => (v === null || v === undefined ? "" : String(v).trim
 export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongTable: DongTable = {}, type?: PropertyType): SeoulRtmsRow | null {
   if (str(it.cdealType)) return null; // 해제 신고된 거래(「O」)는 버림
   const amount = str(it.dealAmount).replace(/[,\s]/g, "");
-  const area = str(it.excluUseAr);
+  const detached = type === DETACHED;
+  const area = str(it.excluUseAr) || (detached ? str(it.totalFloorAr) : ""); // 단독/다가구는 연면적
   const y = str(it.dealYear);
   const m = str(it.dealMonth).padStart(2, "0");
   const d = str(it.dealDay).padStart(2, "0");
@@ -78,7 +92,7 @@ export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongT
   const sggCd = str(it.sggCd);
   const umdNm = str(it.umdNm);
   // 응답에 umdCd·bonbun·bubun·landCd가 있으면 쓰고, 없으면(2026-10 실제 응답) 동 이름·지번에서 만든다
-  const jb = splitJibun(str(it.jibun));
+  const jb = detached ? { mountain: false, bun: "", ji: "" } : splitJibun(str(it.jibun)); // 가려진 지번은 필지 번호로 쓰지 않음
   const mountain = str(it.landCd) ? str(it.landCd) === "2" : jb.mountain;
   return {
     RCPT_YR: y,
@@ -90,8 +104,9 @@ export function molitItemToRow(it: Record<string, unknown>, sggNm: string, dongT
     LOTNO_SE_NM: mountain ? "산" : "대지",
     MNO: str(it.bonbun).replace(/^0+(?=\d)/, "") || jb.bun,
     SNO: str(it.bubun).replace(/^0+(?=\d)/, "") || jb.ji,
-    BLDG_NM: str(it.aptNm) || str(it.mhouseNm) || str(it.offiNm),
+    BLDG_NM: detached ? detachedName(it.houseType, it.jibun) : str(it.aptNm) || str(it.mhouseNm) || str(it.offiNm),
     ...(type ? { BLDG_USG: type } : {}),
+    ...(detached && str(it.plottageAr) ? { LAND_AREA: str(it.plottageAr) } : {}), // 대지면적 ㎡(원본 줄에만 남김)
     CTRT_DAY: `${y}${m}${d}`,
     THING_AMT: amount, // 만 원(서울 자료와 같은 단위)
     ARCH_AREA: area, // 전용면적 ㎡
@@ -153,9 +168,9 @@ export function molitRentRows(jsons: unknown[]): RentComparable[] {
   return jsons
     .flatMap((j) => molitItems(j))
     .map((it) => ({
-      name: str(it.aptNm) || str(it.mhouseNm) || str(it.offiNm),
+      name: str(it.aptNm) || str(it.mhouseNm) || str(it.offiNm) || (str(it.houseType) ? detachedName(it.houseType, it.jibun) : ""),
       dong: str(it.umdNm),
-      area: num(it.excluUseAr),
+      area: num(it.excluUseAr) ?? num(it.totalFloorAr),
       floor: str(it.floor),
       buildYear: num(it.buildYear),
       day: `${str(it.dealYear)}${str(it.dealMonth).padStart(2, "0")}${str(it.dealDay).padStart(2, "0")}`,

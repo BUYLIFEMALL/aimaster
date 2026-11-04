@@ -16,7 +16,7 @@ import {
 } from "@/lib/publicdata/client";
 import { priceRank, rankLabel, RANK_AREA_TOLERANCE, RANK_MONTHS, recentMonths, sumCompleteTypes, VOLUME_MONTHS, volumeMonthsToFetch, volumeTrend, ymLabel, type VolumeTrend } from "./insights";
 import { isSeoulDistrict } from "@/lib/publicdata/districts";
-import { normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
+import { DETACHED, detachedName, normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { ensureListingAnalysis } from "@/lib/actions/analysis";
@@ -57,7 +57,9 @@ export async function collectDistrict(
   const trades = seoul
     ? await fetchSeoulTrades({ sggCd, year, numOfRows: 200, keys })
     : await fetchMolitTrades({ sggCd, sggNm, numOfRows: 200, keys });
-  // 세 유형(아파트·빌라·오피스텔)만 받는다. 상가·건물·토지는 별도 프로그램
+  // 주거 네 유형(아파트·빌라·오피스텔·단독/다가구)만 받는다. 상가·건물·토지는 별도 프로그램
+  // 서울 자료의 단독다가구는 건물 이름이 비어 있어 「단독주택」 같은 이름을 채운다(v1.46)
+  for (const row of trades) if (!row.BLDG_NM && propertyTypeOf(row.BLDG_USG) === DETACHED) row.BLDG_NM = detachedName("", `${row.MNO}${row.SNO && row.SNO !== "0" ? `-${row.SNO}` : ""}`);
   const validTrades = trades.filter((row) => row.CTRT_DAY && row.BLDG_NM && propertyTypeOf(row.BLDG_USG));
 
   // 최대 200건을 매번 한 건씩 존재 여부 조회하던 것을, 한 번의 IN 쿼리로 일괄 확인하도록 변경.
@@ -79,10 +81,13 @@ export async function collectDistrict(
     const dedupKey = dedupKeys[i];
     const propertyType = propertyTypeOf(row.BLDG_USG) as PropertyType;
     if (existingSet.has(dedupKey)) continue;
+    // v1.46 단독/다가구: 국토부는 지번이 가려져 필지 조회가 안 되고, 공동주택 공시가·같은 단지 비교 대상도 아니다(서울 자료는 지번이 있어 건축물대장만 조회)
+    const detached = propertyType === DETACHED;
+    const lotKnown = !!row.MNO;
 
     // 신규 실거래 → 건축물대장/공시가격/전월세 3종을 병렬로 조회 (하나 실패해도 나머지는 반영).
     const [buildingResult, priceResult, rentResult] = await Promise.allSettled([
-      fetchBuildingRegister({
+      !lotKnown ? Promise.resolve([]) : fetchBuildingRegister({
         keys,
         sigunguCd: row.CGG_CD,
         bjdongCd: row.STDG_CD,
@@ -90,9 +95,9 @@ export async function collectDistrict(
         ji: row.SNO,
       }),
       // 오피스텔은 공동주택 공시가 대상이 아니다(서울 421줄 중 4줄만 값 있음, 2026-10-31)
-      propertyType === "오피스텔" ? Promise.resolve([]) : fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, numOfRows: 1000, keys }),
+      propertyType === "오피스텔" || detached ? Promise.resolve([]) : fetchApartAssessedPrice({ pnu: buildPnu(row), stdrYear: year - 1, numOfRows: 1000, keys }),
       // 서울은 단지별 열린데이터, 경기·인천은 국토부 지역 자료(지역당 한 번만 받아 재사용)
-      seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }).then(seoulRentToComparables) : rentsOf(propertyType),
+      detached ? Promise.resolve([] as RentComparable[]) : seoul ? fetchSeoulRentComparables({ sggCd, sggNm, stdgCd: row.STDG_CD, bldgNm: row.BLDG_NM, year, keys }).then(seoulRentToComparables) : rentsOf(propertyType),
     ]);
 
     let exclusiveArea: number | null = null;
@@ -124,7 +129,7 @@ export async function collectDistrict(
     }
 
     // A2(2026-11-02): 같은 단지·비슷한 면적의 보유 매매 거래(12개월)보다 높거나 낮은지 저장 시 한 번 정한다
-    const rank = await rankAgainstStored(supabase, { sggCd, stdgNm: row.STDG_NM, bldgNm: row.BLDG_NM, area: exclusiveArea, price: toNumberOrNull(row.THING_AMT), dedupKey, contractDate: normalizeDate(row.CTRT_DAY, year) });
+    const rank = detached ? null : await rankAgainstStored(supabase, { sggCd, stdgNm: row.STDG_NM, bldgNm: row.BLDG_NM, area: exclusiveArea, price: toNumberOrNull(row.THING_AMT), dedupKey, contractDate: normalizeDate(row.CTRT_DAY, year) });
 
     const { error: insertError } = await loose(supabase).from("real_estate_listings").insert({
       price_rank: rank,
@@ -144,7 +149,7 @@ export async function collectDistrict(
       building_year: toNumberOrNull(row.ARCH_YR),
       prev_deposit: prevDeposit,
       prev_rent: prevRent,
-      pnu: buildPnu(row),
+      pnu: lotKnown ? buildPnu(row) : null,
       raw_data: row,
       data_provided_at: new Date().toISOString().slice(0, 10),
     });
