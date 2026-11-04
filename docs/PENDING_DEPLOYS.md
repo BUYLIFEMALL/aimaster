@@ -28,7 +28,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `free-music-studio` | AI 작곡 기획 버튼 이름: 「불러오기」 → 「이 곡으로 생성하기」(누르면 편집 칸에 넣고 만들기 칸으로 내려감), 「모두 곡으로 저장」 → 「N곡 모두 내 곡에 저장」(주인님 결정) | `f763d7e84` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/src/app/(dashboard)/songs/page.tsx` | 다음 배포(앨범 그림) 때 함께 |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |
 | `real_estate_sales` | 주소 리포트 지도 가운데 📍 핀 겹치기(브이월드 marker 옵션이 그려지지 않음, v1.52 운영 확인 중 발견) | `d46717d97` | 2026-11-05 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` v1.52 | 다음 실거래 배포 때(+0.01) |
 | `commercial-land-trade-alert` | 실거래 목록 「분류」 거르기에 공장·창고 용도(공장·창고시설·자동차 관련시설) 추가, 종류 전체 선택 이름 「모든 종류」(v1.31 운영 확인 중 발견) | 이 커밋 바로 뒤 `fix(commercial-land-trade-alert)` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `commercial-land-trade-alert/AGENTS.md` v1.31 | 다음 상가 배포 때 함께(+0.01) |
@@ -88,6 +87,7 @@
 | `real_estate_sales` | v1.49 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-kocrxxfxc`) | 서울 분양권 계약일순 재정렬 |
 | `real_estate_sales` | v1.48 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-l6lj3bimi`) | 「지금 조회하기」 시간 예산(`6d89f342f`, 운영 220초에 끝까지 확인) + 분양권(SilvTrade) 다섯째 유형 |
 | `blog-neighbor-care` | v1.15 · 2026-11-04 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-3focphnt6`) | 30일 보관 열외(운영 SQL `20261104120000` 적용, 열외 자료 87줄 무기한) + 12월 모델 교체 묶음 B(`web-crawler`와 같은 파일) `0a3a8c9f1`. DB/ZIP OK. 위 「12월 모델 교체 B」·「30일 보관 열외」 줄의 `blog-neighbor-care` 몫 처리 완료 |
+| `free-music-studio` | v1.24 · 엔진 0.6.7 설치 파일 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-hgctyhc6i`) | 앨범 그림 만들기(`6e18009f6`, SQL `20261105_song_art_prompt.sql` 먼저 실행·확인) + 기획 버튼 이름 「이 곡으로 생성하기」(`f763d7e84`) |
 | `free-music-studio` | v1.23 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-jokdxocpj`, 사이트만) | 효과음 영어 설명 버튼이 설명 칸이 비면 곡 제목으로 만들기(`69191c1a3`) |
 | `free-music-studio` | v1.22 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-j4e06dkvq`, 사이트만) | 효과음·연주곡 한국어 → 영어 설명(`70fcdb9a0`) |
 | `free-music-studio` | v1.21 · 엔진 0.6.6 설치 파일 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-gngyp54fn`) | 효과음 모드(`3f2c41e27`, SQL `20261105_sfx_durations.sql` 먼저 실행·제약 확인) + MiniMax 24GB 이상 전용(`31fff3adc`) |
