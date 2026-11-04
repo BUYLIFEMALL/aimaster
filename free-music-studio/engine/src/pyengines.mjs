@@ -51,7 +51,9 @@ export const fillPath = (s, p) => String(s).replaceAll("{src}", p.src);
 export function stepArgs(step, p, catalog = CATALOG) {
   const args = ["pip", "install", "--python", p.python];
   if (catalog.excludeNewer) args.push("--exclude-newer", catalog.excludeNewer);
-  if (step.index) args.push("--index-url", catalog.indexes[step.index]);
+  // PyTorch 저장소만 쓰면 filelock 같은 딸린 패키지에 올린 날짜가 없어 --exclude-newer에 모두 걸러진다(마스터PC 실물 실패 2026-11-04).
+  // 그래서 PyTorch 저장소는 보조로 두고, 판이 가장 높은 것(torch는 +cu128)을 고르게 한다.
+  if (step.index) args.push("--extra-index-url", catalog.indexes[step.index], "--index-strategy", "unsafe-best-match");
   if (step.override) args.push("--override", path.join(p.root, "overrides.txt"));
   return [...args, ...step.args.map((a) => fillPath(a, p))];
 }

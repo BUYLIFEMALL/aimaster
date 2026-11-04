@@ -29,7 +29,8 @@ test("설치 명령: torch는 cu128에서, {src}는 원본 폴더로, LeVo는 �
   const e = pyEngine("levo2");
   const p = pyPaths("C:/d", e);
   const [torch, req] = e.steps.map((s) => stepArgs(s, p));
-  assert.deepEqual(torch.slice(0, 8), ["pip", "install", "--python", p.python, "--exclude-newer", "2026-10-20T00:00:00Z", "--index-url", "https://download.pytorch.org/whl/cu128"]);
+  assert.deepEqual(torch.slice(0, 10), ["pip", "install", "--python", p.python, "--exclude-newer", "2026-10-20T00:00:00Z", "--extra-index-url", "https://download.pytorch.org/whl/cu128", "--index-strategy", "unsafe-best-match"]);
+  assert.ok(!torch.includes("--index-url"), "PyTorch 저장소만 쓰면 딸린 패키지가 날짜 제한에 걸린다");
   assert.ok(req.includes("--override"));
   assert.ok(req.includes(path.join(p.src) + "/requirements.txt"));
 });
