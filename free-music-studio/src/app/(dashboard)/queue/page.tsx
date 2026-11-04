@@ -18,6 +18,7 @@ const TONE: Record<QueueStatus, string> = {
   interrupted: "border-amber-500/50 text-amber-300",
 };
 
+const lengthLabel = (s: number) => (s < 60 ? `${s}초` : s % 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s / 60}분`);
 const time = (iso?: string) => (iso ? new Date(iso).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "");
 
 export default function QueuePage() {
@@ -70,7 +71,7 @@ export default function QueuePage() {
           {QUEUE_LABEL[j.status]}
         </span>
         <span className="text-[11px] text-slate-500">
-          {j.track.duration_sec}초 · 넣은 시각 {time(j.createdAt)}
+          <span title="곡을 넣을 때 요청한 길이입니다. 엔진에 따라 실제 곡 길이는 조금 다를 수 있습니다.">요청 길이 {lengthLabel(j.track.duration_sec)}</span> · 넣은 시각 {time(j.createdAt)}
           {j.finishedAt ? ` · 끝난 시각 ${time(j.finishedAt)}` : ""}
         </span>
         <span className="ml-auto flex flex-wrap items-center gap-1.5">
