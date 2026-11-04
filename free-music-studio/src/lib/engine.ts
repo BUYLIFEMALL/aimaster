@@ -441,17 +441,17 @@ export type MusicEngineInfo = {
   /** 회원 본인 Hugging Face 토큰이 있어야 모델을 받음 */
   hfToken?: boolean;
   gatedUrl?: string;
-  /** 한국어 가사를 못 부름(LeVo 2: 마스터PC 실물 — 한글 대신 영어 단어만 반복) */
-  noKorean?: boolean;
+  /**
+   * 한국어 가사(노래 엔진만) — 주인님 지시(2026-11-04): 「한글지원 안되는 모델은 선택지에서 제외」.
+   * "no"는 고르기 목록에서 뺀다(지난 곡 이름 표시용으로만 남김), "untested"는 마스터PC 시험 전 안내.
+   */
+  korean?: "yes" | "no" | "untested";
 };
-
-/** 가사에 한글이 들어 있는가 */
-export const hasHangul = (s: string) => /[가-힣]/.test(s);
 
 /** 엔진 목록(엔진 쪽 engine/src/pyengines-catalog.json·yue2와 같은 분류) */
 export const MUSIC_ENGINES: MusicEngineInfo[] = [
-  { id: "acestep", name: "ACE-Step 1.5", license: "commercial", kind: "both", desc: "수익 영상·판매에도 쓸 수 있습니다. 노래·연주곡·커버·부분 수정." },
-  { id: "heartmula", name: "HeartMuLa 3B", license: "commercial", kind: "vocal", desc: "노래 만들기. 여러 언어. Apache 2.0이라 수익 영상·판매에도 쓸 수 있습니다.", firstGb: 27 },
+  { id: "acestep", name: "ACE-Step 1.5", license: "commercial", kind: "both", desc: "수익 영상·판매에도 쓸 수 있습니다. 노래·연주곡·커버·부분 수정.", korean: "yes" },
+  { id: "heartmula", name: "HeartMuLa 3B", license: "commercial", kind: "vocal", desc: "노래 만들기. 여러 언어. Apache 2.0이라 수익 영상·판매에도 쓸 수 있습니다.", firstGb: 27, korean: "yes" },
   {
     id: "stableaudio3",
     name: "Stable Audio 3",
@@ -471,15 +471,16 @@ export const MUSIC_ENGINES: MusicEngineInfo[] = [
     desc: "가사 정확도 평가 1위 모델. 노래 최대 5분. 상업용(조건부). 그래픽 메모리 24GB 미만은 나눠 올려 느립니다.",
     terms: "MiniMax-Music3 커뮤니티 라이선스: 상업용으로 쓸 때 영상·서비스 설명에 「MiniMax-Music3」로 만들었음을 표시하고, 공개할 때 AI로 만든 곡임을 밝혀 주세요(연매출 2천만 달러 초과 시 MiniMax 허가 필요).",
     firstGb: 35,
+    korean: "untested",
   },
-  { id: "yue2", name: "YuE2", license: "noncommercial", kind: "vocal", desc: "노래 음질이 좋은 모델입니다. 개인 감상·비수익 용도만(CC BY-NC 4.0).", terms: "YuE2로 만든 곡은 비상업용입니다. 유튜브 수익 영상·광고·판매·납품에 쓰면 저작권 조건(CC BY-NC 4.0) 위반입니다.", firstGb: 8 },
+  { id: "yue2", name: "YuE2", license: "noncommercial", kind: "vocal", desc: "노래 음질이 좋은 모델입니다. 개인 감상·비수익 용도만(CC BY-NC 4.0).", terms: "YuE2로 만든 곡은 비상업용입니다. 유튜브 수익 영상·광고·판매·납품에 쓰면 저작권 조건(CC BY-NC 4.0) 위반입니다.", firstGb: 8, korean: "yes" },
   {
     id: "levo2",
     name: "LeVo 2",
     license: "noncommercial",
     kind: "vocal",
     desc: "중국어·영어 노래 전용(한국어 가사는 부르지 못합니다). 학술·연구·교육 목적만.",
-    noKorean: true,
+    korean: "no",
     terms: "LeVo 2(SongGeneration) 라이선스는 학술·연구·교육 목적만 허용하고 어떤 상업·제작 용도도 금지합니다. 판매·수익 영상·납품에 쓸 수 없습니다.",
     firstGb: 33,
   },
@@ -487,9 +488,9 @@ export const MUSIC_ENGINES: MusicEngineInfo[] = [
 export const engineInfo = (id: MusicEngineId | undefined) => MUSIC_ENGINES.find((e) => e.id === (id ?? "acestep")) ?? MUSIC_ENGINES[0];
 export const licenseOfEngine = (e: MusicEngineId): TrackLicense => engineInfo(e).license;
 
-/** 이 PC 엔진에서 고를 수 있는 엔진(ACE-Step은 늘, 나머지는 엔진이 「된다」고 알린 것만) */
+/** 이 PC 엔진에서 고를 수 있는 엔진(ACE-Step은 늘, 나머지는 엔진이 「된다」고 알린 것만, 한국어를 못 부르는 노래 엔진은 빼고) */
 export function availableEngines(status: EngineStatus | null): MusicEngineInfo[] {
-  return MUSIC_ENGINES.filter((e) => e.id === "acestep" || !!status?.features?.includes(e.id));
+  return MUSIC_ENGINES.filter((e) => e.korean !== "no" && (e.id === "acestep" || !!status?.features?.includes(e.id)));
 }
 
 /** 이 PC 엔진이 YuE2를 쓸 수 있는가(엔진 0.2.0+ · 윈도우 NVIDIA 8GB+) */
