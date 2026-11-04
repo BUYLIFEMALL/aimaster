@@ -20,7 +20,6 @@
 
 
 
-- `free-music-studio` — `/downloads`를 로그인 검사에서 빼기(엔진 실행 프로그램이 로그인 없이 `engine-latest.json`으로 새 버전 확인, `9d0d6fae9`, 2026-11-04 [역할: music]). 엔진 0.3.1 등 새 설치 파일을 낼 때 함께 — 그 전에는 영향 없음(설치 파일 받기는 로그인 회원이라 됨)
 
 - `coupang-ops` — 텔레그램 끊기, 다른 프로그램 봇 빌려 쓰기 제거 (2026-11-01, [역할: ecommerce-image], `8479b2009`, 실제 끊기 내 PC에서 통과) · 페이지 설명 위너 문구 제거(`ebd28e0e9`)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
@@ -78,6 +77,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `free-music-studio` | v1.12 · 엔진 0.4.0 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 승인 빌드 3회 중 1회, `free-music-studio-jma2o97ob`) | 음악 엔진 더 넣기 1차(HeartMuLa·Stable Audio 3·LeVo 2, 상업용·개인용 두 묶음) + 미배포였던 `/downloads` 로그인 검사 제외(`9d0d6fae9`) |
 | `free-music-studio` | v1.11 · 엔진 0.3.0 설치 파일 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `free-music-studio-3jjuvdkqi`) | 원클릭 다운로드 센터(설치 파일 106.7MB·`engine-latest.json`·윈도우 경고 안내·[설치한 엔진 켜기]) + 미배포였던 「ACE-Step 음악 모델 구성」 제목(`6fc4b7ac3`) |
 | `free-music-studio` | v1.10 · 엔진 0.2.0 · 2026-11-04 ([역할: music], 빌드 1회, `free-music-studio-pre6r21xo`) | 비상업용 YuE2·재생바·실패 이유 표시·구성 안내·프리셋 안내 |
 | `free-music-studio` | v1.09 · 엔진 0.1.6 · 2026-11-04 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회, `free-music-studio-astk6ny4p`) | 로드맵 3단계 작업 대기열(`d6880119a`) + 프리셋 지운 뒤 안내(`ea6bba1d9`). 가짜 음악 엔진으로 API·운영 화면 확인 |

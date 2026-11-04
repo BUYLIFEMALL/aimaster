@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.12 · 엔진 0.4.0 음악 엔진 더 넣기 1차 배포
+- **지시**: 주인님 「공개된 건 써도 된다는 얘기야」「다 넣고 개인용과 상업용으로 나누면 되잖아」 → 플랜 [`free-music-studio/docs/PLAN_20261104_MORE_ENGINES.md`](../free-music-studio/docs/PLAN_20261104_MORE_ENGINES.md)(1~3차, 빌드 3회 승인) → 「진행해」.
+- **한 일(1차)**: 엔진 공통 실행 틀 `engine/src/pyengines.mjs`·`pyengines-catalog.json`·`src/py/*.py`, 상업용 HeartMuLa 3B(Apache 2.0)·Stable Audio 3 Medium(조건부, 회원 본인 Hugging Face 토큰 — `user_api_keys` provider `huggingface`), 개인용 LeVo 2(학술·연구·교육용). 그래픽 메모리 한 번에 한 엔진(`exclusiveRun`), 받은 모델 지우기. 사이트: 곡 만들기·PC 검사 「상업용」·「개인용」 두 묶음, 개인용 엔진별 동의, 설정 토큰 칸, 대기열·보관함 엔진 표시. 설치 파일 0.4.0.
+- **커밋/배포**: `82e09d18e`(플랜) 등 이번 커밋들, 배포 `free-music-studio-jma2o97ob` Ready, DB v1.12. 미배포였던 `/downloads` 공개(`9d0d6fae9`) 함께 → 엔진 실행 프로그램 새 버전 알림 동작.
+- **확인**: 웹 시험 48·엔진 51(PowerShell — Git Bash는 tar가 달라 도구 시험 1개 실패), tsc·build, 윈도우 판 맞춤(HeartMuLa·Stable Audio 3 바이너리만으로 성공), 미니PC 설치 → 0.4.0 준비됨·엔진 5개·「이 PC에서는 어려움」 이유, ego lite 운영 화면(설정 토큰 칸·엔진 두 묶음). **못 한 것**: 그래픽카드 실물(미니PC는 내장 그래픽) — 마스터PC 대기. LeVo 2 원본 빌드 패키지(`flashy`·`argbind`) 확인은 자동 권한 검사가 막아 실물로.
+- **다음 첫 단계**: 마스터PC 실물 결과를 받아 고칠 점 반영 → 2차(DiffRhythm 2·InspireMusic·MiniMax Music 3). 공용 `integration_catalog`에 `huggingface` 한 줄은 주인님 승인 뒤.
+
 ## 2026-11-04 ✅ [역할: music] Claude Code(윈도우(미니PC)) · 세션 claude-win-20261024-music — `free-music-studio` v1.11 · 엔진 0.3.0 설치 파일 배포
 - 주인님 「사용자들은 쉽게 해야 할 듯」 → 설치 파일. `free-music-studio/desktop/`(Electron 44.9.2·electron-builder 26.18.0, NSIS 한 번 클릭·관리자 권한 없음): 작업 표시줄 🎵 아이콘·상태 창(연결 코드·상태·저장 폴더·기록·다시 켜기·끄기), 한 번만 실행, PC 켤 때 자동 실행(`--hidden`), 엔진이 꺼지면 3번까지 다시 켬, 예전 PowerShell 엔진 정리, `freemusic-engine://` 주소, `engine-latest.json`으로 새 버전 알림. 엔진 0.3.0: uv 0.9.29·ffmpeg 8.1.3 LGPL을 처음 켤 때 받기(SHA-256), 실행 환경 실측 6.1GB + uv 보관 4.3GB로 크기·필요 공간 고침.
 - 사이트 v1.11 원클릭 다운로드 센터(`free-music-studio-3jjuvdkqi` Ready, 화면·DB v1.11). 설치 파일은 git에 넣지 않고 `public/downloads/`에 복사해 배포(`.vercelignore`로 `desktop/` 제외). 만드는 법: `desktop/`에서 `npm run dist` → `release/` exe를 `public/downloads/`로 복사 → `engine-latest.json`의 버전·크기·SHA-256 갱신.

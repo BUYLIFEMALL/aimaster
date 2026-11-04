@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-04 PowerShell로 버전 한 줄만 바꿨는데 설치 파일의 한글 프로그램 이름이 깨짐 (`free-music-studio/desktop` 엔진 0.4.0, [역할: music])
+- **증상**: `(Get-Content package.json -Raw) -replace …`로 `"version"`만 바꾸고 `npm run dist` → 빌드는 성공했지만 `git diff`에 `productName`·`shortcutName`·`description`의 한글이 `AI 臾대즺?뚯븙…`으로 바뀌어 있었다(바로 가기·제어판 이름이 깨진 설치 파일).
+- **원인**: 윈도우 PowerShell 5.1의 `Get-Content`는 BOM 없는 UTF-8 파일을 시스템 기본(cp949)으로 읽는다. 다시 쓸 때 깨진 글자가 그대로 저장된다(`Set-Content -Encoding utf8NoBOM`은 5.1에 없음).
+- **해결**: 그 파일을 커밋본(`git show HEAD:<경로> > <경로>`)으로 되돌리고 `node -e`로 한 줄만 바꿔 다시 빌드, 실행 파일 `VersionInfo.ProductName`으로 한글 이름 확인.
+- **다음부터**: 한글이 든 파일(JSON·설정·문서)은 PowerShell `Get-Content`/`Set-Content`로 고치지 않는다 — Edit 도구나 `node`로. 빌드 전 `git diff`로 의도한 줄만 바뀌었는지 본다.
+
 ## 2026-11-04 Supabase 저장소 `remove()`가 오류 없이 0개를 지움 — 지우기 규칙만 있고 읽기 규칙이 없음 (`labs/mall-builder`, Lab DB, [역할: mall-builder])
 - **증상**: 운영자 「안 쓰는 사진 지우기」에서 `storage.from(bucket).remove([path])`가 `error: null`, `data: []`로 끝나고 파일은 그대로였다(화면은 「0장을 지웠습니다」로 성공처럼 보임).
 - **원인**: 공개 버킷이라 `storage.objects`에 지우기(delete) 규칙만 만들고 읽기(select) 규칙은 없었다. 저장소의 지우기는 지운 줄을 다시 읽어 돌려주므로, 읽기 규칙이 없으면 지울 대상이 안 보여 조용히 0개가 된다.
