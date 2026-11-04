@@ -19,6 +19,13 @@ const TONE: Record<QueueStatus, string> = {
 };
 
 const lengthLabel = (s: number) => (s < 60 ? `${s}초` : s % 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s / 60}분`);
+/** 곡을 만드는 데 걸린 시간(엔진이 일을 시작한 때부터, 처음 받는 모델 시간 포함) */
+const elapsedLabel = (from: string, to?: string) => {
+  const s = Math.max(0, Math.round(((to ? new Date(to).getTime() : Date.now()) - new Date(from).getTime()) / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return h ? `${h}시간 ${m}분` : m ? `${m}분 ${s % 60}초` : `${s}초`;
+};
 const time = (iso?: string) => (iso ? new Date(iso).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "");
 
 export default function QueuePage() {
@@ -74,6 +81,15 @@ export default function QueuePage() {
           <span title="곡을 넣을 때 요청한 길이입니다. 엔진에 따라 실제 곡 길이는 조금 다를 수 있습니다.">요청 길이 {lengthLabel(j.track.duration_sec)}</span> · 넣은 시각 {time(j.createdAt)}
           {j.finishedAt ? ` · 끝난 시각 ${time(j.finishedAt)}` : ""}
         </span>
+        {j.startedAt && (j.status === "running" || j.status === "done") && (
+          <span
+            className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-bold ${j.status === "running" ? "bg-sky-500/15 text-sky-200" : "bg-violet-500/15 text-violet-200"}`}
+            title="엔진이 이 곡을 만들기 시작한 때부터 잰 시간입니다. 그 엔진을 처음 쓸 때는 모델 받는 시간도 들어 있습니다."
+          >
+            <Clock className="h-3 w-3" />
+            {j.status === "running" ? `지금까지 ${elapsedLabel(j.startedAt)}` : `걸린 시간 ${elapsedLabel(j.startedAt, j.finishedAt)}`}
+          </span>
+        )}
         <span className="ml-auto flex flex-wrap items-center gap-1.5">
           {(j.status === "queued" || j.status === "running") && (
             <button type="button" disabled={busy === j.id} onClick={() => act(j.id, () => cancelJob(j.id))} className="inline-flex items-center gap-1 rounded-lg border border-slate-600 px-2.5 py-1.5 text-[11px] text-slate-300 hover:bg-slate-900 disabled:opacity-40">
