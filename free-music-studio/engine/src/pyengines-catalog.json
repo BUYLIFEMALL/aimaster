@@ -72,9 +72,9 @@
       ],
       "weights": [
         { "repo": "lglg666/SongGeneration-Runtime", "revision": "cc258cc694a63114c61684cc26d0583b8ad777d0", "dir": "{src}" },
-        { "repo": "lglg666/SongGeneration-v2-medium", "revision": "7d91660ebfa041e29bace194f5631e775796f600", "dir": "songgeneration_base_full", "_dir": "v2-medium을 원본 검사(지원 이름 4개)를 지나는 이름으로 — 그래픽 메모리 조건이 base-full과 같음" }
+        { "repo": "lglg666/SongGeneration-base-full", "revision": "19ebdb6090e4df5c1e211ffb9588f9c8d98c9279", "dir": "songgeneration_base_full", "_dir": "원본 levo-demo/LeVo 653cbcf(데모 사본, 첫 커밋 하나)가 지원하는 v1 모델. 0.6.1까지 쓴 v2-medium(2026-03)은 이 코드와 구조가 달라 「Error(s) in loading state_dict for LmModel」(2026-11-04 마스터PC) — 같은 폴더에 덮어써짐" }
       ],
-      "weightsGb": 20.9,
+      "weightsGb": 26.4,
       "runtimeGb": 7,
       "runner": "run_levo2.py"
     },

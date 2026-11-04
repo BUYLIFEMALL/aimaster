@@ -475,7 +475,7 @@ export const MUSIC_ENGINES: MusicEngineInfo[] = [
     kind: "vocal",
     desc: "자연스러운 노래로 평가받는 모델. 중국어·영어 중심. 학술·연구·교육 목적만.",
     terms: "LeVo 2(SongGeneration) 라이선스는 학술·연구·교육 목적만 허용하고 어떤 상업·제작 용도도 금지합니다. 판매·수익 영상·납품에 쓸 수 없습니다.",
-    firstGb: 28,
+    firstGb: 33,
   },
 ];
 export const engineInfo = (id: MusicEngineId | undefined) => MUSIC_ENGINES.find((e) => e.id === (id ?? "acestep")) ?? MUSIC_ENGINES[0];
