@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 📌 [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — **ego lite 작업 규칙: 한 작업 = 작업 공간 하나, 끝나면 닫기 (모든 Claude Code 세션)**
+- 주인님 지시: 「가급적 한 작업공간에서 작업하고 작업이 끝나면 해당 작업창은 닫는 걸로」「인수 인계 문서에 남겨놔」. 원인: 상가 v1.31 작업에서 SQL·수집 확인·화면 확인마다 `taskSpace("새 이름")`으로 새 공간을 열고 중간마다 `handOff()`해 공간 9개가 쌓임(handOff한 공간은 다시 못 써서 새 공간을 엶).
+- 규칙: 같은 일은 `taskSpace(<id>)`로 같은 공간·같은 탭을 다시 쓰고, 끝나면 `task.finish({ keep: [] })`. handOff는 로그인 등 주인님 손이 필요할 때만, 이어 쓸 때는 `takeOverTaskSpace(id)`. 마칠 때 `listTaskSpaces()`로 내 공간 정리(다른 세션 것 제외). 상세: 루트 `CLAUDE.md` 「메인 지침 — ego lite」 끝.
+
 ## 2026-11-04 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`blog-neighbor-care` v1.15 배포: 관리자·시험 계정 30일 열외 + 12월 모델 교체**
 - 맥미니 요청서 §9(11-26 전 필수) 처리. 열외 회원의 30일 보관 기한만 트리거로 9999-12-31(표 18개)·감시 정리 한 줄 열외 → 정리 RPC 12개·조회 숨김 모두 풀림, 화면 「무기한 보관」. 운영 SQL 적용 전 대조(감시 함수는 줄 끝 CR만 다름) → 적용 → 열외 자료 87줄 변환·일반 회원 0줄. 모델은 `web-crawler`와 같은 파일 + 옛 값 변환
 - 커밋 `0a3a8c9f1`, 배포 `blog-neighbor-care-3focphnt6`(빌드 1회), DB v1.15·확장 릴리스 OK, 시험 단위 351·열외 DB 6 통과. 운영 작업 기록 4건 「무기한 보관」 확인
