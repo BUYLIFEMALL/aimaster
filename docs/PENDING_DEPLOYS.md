@@ -21,6 +21,8 @@
 
 
 
+- `free-music-studio` — 앨범 그림 플랫폼 고르기(Gemini 나노바나나 / GPT Image / Replicate FLUX 2, 회원 본인 키, 설정에 Replicate 키 칸) (2026-11-05, [역할: music] `claude-win-20261024-music`, `45cf886cd`, 사이트만·SQL 없음, 배포 때 v1.25) — 배포 뒤 세 플랫폼 그림 1장씩 확인
+
 - `coupang-ops` — 텔레그램 끊기, 다른 프로그램 봇 빌려 쓰기 제거 (2026-11-01, [역할: ecommerce-image], `8479b2009`, 실제 끊기 내 PC에서 통과) · 페이지 설명 위너 문구 제거(`ebd28e0e9`)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
 
