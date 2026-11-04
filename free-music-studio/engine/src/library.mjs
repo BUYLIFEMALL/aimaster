@@ -77,22 +77,29 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
   const saveIndex = () => writeFile(indexFile, JSON.stringify(index, null, 2));
   const saveSettings = () => writeFile(settingsFile, JSON.stringify({ libraryDir: dir }, null, 2));
   /**
-   * 곡 파일 경로 — 기록된 자리에 없으면 지금 저장 폴더와 그 한 단계 아래 폴더(모델 폴더 제외)에서 같은 파일 이름을 찾아 기록을 고친다
-   * (회원이 탐색기로 곡을 옮겨 정리한 경우, 2026-11-04 마스터PC E:\AI-Musc → Song·Best 등)
+   * 곡 파일 경로 — 기록된 자리에 없으면 지금 저장 폴더와 그 아래 세 단계 폴더(모델 폴더·숨김 폴더 제외)에서 같은 파일 이름을 찾아 기록을 고친다
+   * (회원이 탐색기로 곡을 장르별 폴더로 옮겨 정리한 경우, 2026-11-04 마스터PC E:\AI-Musc → Song\Best 등)
    */
   const resolve = async (id) => {
     const p = index[id];
     if (!p || (await exists(p))) return p ?? null;
     const name = path.basename(p);
-    const subs = (await readdir(dir, { withFileTypes: true }).catch(() => []))
-      .filter((d) => d.isDirectory() && !d.name.startsWith(".") && !HEAVY_ENTRIES.includes(d.name))
-      .map((d) => path.join(dir, d.name));
-    for (const folder of [dir, ...subs]) {
-      const moved = path.join(folder, name);
-      if (moved === p || !(await exists(moved))) continue;
-      index[id] = moved;
-      await saveIndex();
-      return moved;
+    let level = [dir];
+    for (let depth = 0; depth <= 3 && level.length; depth++) {
+      for (const folder of level) {
+        const moved = path.join(folder, name);
+        if (moved === p || !(await exists(moved))) continue;
+        index[id] = moved;
+        await saveIndex();
+        return moved;
+      }
+      const next = [];
+      for (const folder of level) {
+        for (const d of await readdir(folder, { withFileTypes: true }).catch(() => [])) {
+          if (d.isDirectory() && !d.name.startsWith(".") && !HEAVY_ENTRIES.includes(d.name)) next.push(path.join(folder, d.name));
+        }
+      }
+      level = next;
     }
     return null;
   };

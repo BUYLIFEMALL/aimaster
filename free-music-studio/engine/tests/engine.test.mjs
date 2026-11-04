@@ -136,8 +136,14 @@ test("보관함: 탐색기로 저장 폴더에 옮긴 곡도 같은 파일 이�
     await rename(path.join(song, "가을 노래.flac"), path.join(best, "가을 노래.flac"));
     assert.deepEqual(await lib.list(), [id]);
     assert.equal(lib.pathOf(id), path.join(best, "가을 노래.flac"));
+    // 장르 폴더 안의 폴더(세 단계 아래)도 찾는다
+    const deep = path.join(root, "Song", "발라드", "2026-11");
+    await mkdir(deep, { recursive: true });
+    await rename(path.join(best, "가을 노래.flac"), path.join(deep, "가을 노래.flac"));
+    assert.deepEqual(await lib.list(), [id]);
+    assert.equal(lib.pathOf(id), path.join(deep, "가을 노래.flac"));
     await mkdir(path.join(root, "engines"), { recursive: true });
-    await rename(path.join(best, "가을 노래.flac"), path.join(root, "engines", "가을 노래.flac"));
+    await rename(path.join(deep, "가을 노래.flac"), path.join(root, "engines", "가을 노래.flac"));
     assert.deepEqual(await lib.list(), []);
   } finally {
     await rm(data, { recursive: true, force: true });
