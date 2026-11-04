@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-04 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`blog-neighbor-care` v1.16 배포: 단계 A 화면 정리**
+- 메뉴 7 → 4(🏠 오늘의 소통 첫 화면 · 👥 이웃(후보 찾기 탭) · 📊 내 블로그 · ⚙️ 설정), 옛 `/reader`·`/candidates`·`/`는 새 화면으로 307 연결. 실행 허용·일일 상한과 AI 모델은 설정 한 곳, 작업별 모델은 「고급」. 기기 허용 칸은 저장된 허용을 체크해 보여 주고 보이는 그대로 저장. Gemini 3개, 매뉴얼 20 → 3+3 단계. DB 변경 없음
+- 커밋 `587d08f6d`, 배포 `blog-neighbor-care-3bof0lg0q`(빌드 1회), DB v1.16·확장 릴리스 OK, 시험 355 통과, 운영 화면 확인
+- **맥미니 할 일**: 확장 ZIP 다시 받기 → 덮어쓰기 → 다시 로드(팝업 v1.16) → 🏠 오늘의 소통에서 이미 만든 문장으로 공감 또는 댓글 1건 실행(AI 비용 없음) → 클릭·동의 횟수 실측. 다음 단계 C(완전 자동)는 개발 플랜 먼저. 상세 [`blog-neighbor-care/docs/IMPROVEMENTS.md`](../blog-neighbor-care/docs/IMPROVEMENTS.md) 맨 위
+- https://blog-neighbor-care.buylife.xyz/today
+
 ## 2026-11-04 📌 [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — **ego lite 작업 규칙: 한 작업 = 작업 공간 하나, 끝나면 닫기 (모든 Claude Code 세션)**
 - 주인님 지시: 「가급적 한 작업공간에서 작업하고 작업이 끝나면 해당 작업창은 닫는 걸로」「인수 인계 문서에 남겨놔」. 원인: 상가 v1.31 작업에서 SQL·수집 확인·화면 확인마다 `taskSpace("새 이름")`으로 새 공간을 열고 중간마다 `handOff()`해 공간 9개가 쌓임(handOff한 공간은 다시 못 써서 새 공간을 엶).
 - 규칙: 같은 일은 `taskSpace(<id>)`로 같은 공간·같은 탭을 다시 쓰고, 끝나면 `task.finish({ keep: [] })`. handOff는 로그인 등 주인님 손이 필요할 때만, 이어 쓸 때는 `takeOverTaskSpace(id)`. 마칠 때 `listTaskSpaces()`로 내 공간 정리(다른 세션 것 제외). 상세: 루트 `CLAUDE.md` 「메인 지침 — ego lite」 끝.

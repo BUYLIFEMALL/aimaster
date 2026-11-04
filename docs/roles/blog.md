@@ -169,7 +169,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-11-04 · 이웃 소통 v1.15 배포(30일 열외 + 12월 모델 교체, claude-win-blog)
+- 마지막 갱신: 2026-11-04 · 이웃 소통 v1.16 배포(단계 A 화면 정리, claude-win-blog)
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -273,6 +273,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-04 이웃 소통 v1.16 배포 — 단계 A 화면 정리(메뉴 4개·설정 한 곳·기기 허용 저장값 표시·Gemini 3개·매뉴얼 3+3). 시험 355·DB·ZIP OK. 맥미니 실물 확인 대기.
 - 2026-11-04 이웃 소통 v1.15 배포 — 맥미니 요청서 §9: 관리자·시험 계정 30일 열외(운영 SQL, 열외 자료 87줄 무기한, 화면 「무기한 보관」) + 12월 모델 교체. 시험 351·열외 DB 6·ZIP·DB OK. 맥미니 캡처 확인 대기.
 - 2026-11-04 이웃 소통 v1.14 배포 — 맥미니 요청서대로 댓글 0개 글 멈춤 수정, 원인별 팝업 문구. 시험 348·DB·ZIP OK. 맥미니 실물 재시험 대기. 빌드 2회(1회 초과, 교훈 기록).
 - 2026-11-01 주인님 결정: 작업실·콘텐츠 제작·올인원 비공개 유지. 권한 있는 회원도 404로 막히며 이동 안내 띠는 보이지 않음(사용자가 적어 그대로 둠).
@@ -400,7 +401,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
-- 이웃 소통 단계 A(정리: 중복 칸 하나로·모델 설정 1곳·메뉴 4개·「고급」 접기·매뉴얼 축약, DB 변경 없음) → v1.16. 기준 `blog-neighbor-care/docs/PLAN_20261104_SIMPLIFY_FLOW.md` §4·§7, 빌드는 주인님 승인 먼저.
+- 이웃 소통 단계 C(오늘의 소통 — 완전 자동 운영) 개발 플랜을 주인님께 먼저. 기준 `blog-neighbor-care/docs/PLAN_20261104_SIMPLIFY_FLOW.md` §3-3·§4, 맥미니 v1.16 실물 확인 결과 반영.
 - 주인님 승인 후 `BNC_FEED_READ_ENABLED`·`BNC_FEED_READ_POLICY_REFERENCE` 등록·재배포 → 새 ZIP 설치 → Edge에서 이웃 1명 검수.
 - 이웃 소통 묶음 배포 승인 시 SQL 10개 적용 → 환경변수 확인(`BNC_SERVER_FEED_ENABLED`는 넣지 않음) → 새 ZIP 설치 → Edge에서 이웃 1명으로 탭 닫고 15분 뒤 저장 확인. 인수인계: `docs/HANDOFF.md` 2026-11-01 「회원 PC 확장」 항목.
 - 이웃 소통 묶음 배포 승인 시 SQL 10개 순차 적용 → 환경변수 확인 → 회원 키로 cron 호출 1회·RSS 1건 실제 검수. 인수인계: `docs/HANDOFF.md` 2026-11-01 항목.

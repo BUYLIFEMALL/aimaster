@@ -81,6 +81,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `blog-neighbor-care` | v1.16 · 2026-11-04 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-3bof0lg0q`) | 단계 A 화면 정리(메뉴 4개·실행 허용/모델 설정 한 곳·기기 허용 저장값 표시·Gemini 3개·매뉴얼 3+3) `587d08f6d`. DB 변경 없음, DB/ZIP OK |
 | `real_estate_sales` | v1.49 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-kocrxxfxc`) | 서울 분양권 계약일순 재정렬 |
 | `real_estate_sales` | v1.48 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-l6lj3bimi`) | 「지금 조회하기」 시간 예산(`6d89f342f`, 운영 220초에 끝까지 확인) + 분양권(SilvTrade) 다섯째 유형 |
 | `blog-neighbor-care` | v1.15 · 2026-11-04 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-3focphnt6`) | 30일 보관 열외(운영 SQL `20261104120000` 적용, 열외 자료 87줄 무기한) + 12월 모델 교체 묶음 B(`web-crawler`와 같은 파일) `0a3a8c9f1`. DB/ZIP OK. 위 「12월 모델 교체 B」·「30일 보관 열외」 줄의 `blog-neighbor-care` 몫 처리 완료 |
