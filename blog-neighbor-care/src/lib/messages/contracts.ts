@@ -1,9 +1,10 @@
 import {object,only,uuid,text,strings,hash,bad,type ObjectValue} from '../analysis/contracts';
 import {isAnalysisSelection} from '../analysis/modelSelection';
+import {currentAiModel} from '../analysis/models';
 import {parsePostUrl} from '../material-preview';
 export type MessageBundle={id:string;kind:'request'|'comment'|'reply';input:ObjectValue;profile:unknown;posts:{id:string;title:string;body:string}[];previousTexts:string[];expiresAt:string};
 export function prepareMessage(raw:unknown){
- if(!object(raw))return bad(); const value=raw;
+ if(!object(raw))return bad(); const value=typeof raw.model==='string'?{...raw,model:currentAiModel(raw.model)}:raw;
  if(!object(value)||!only(value,['id','kind','provider','model','profileId','profileRevision','accountId','neighborId','candidateId','sourceId','post','originalComment','facts','rightsConfirmed','externalAiConfirmed'])||
   !uuid(value.id)||!['request','comment','reply'].includes(String(value.kind))||!isAnalysisSelection({provider:value.provider as "openai"|"anthropic"|"gemini",model:value.model as string})||!uuid(value.profileId)||!uuid(value.accountId)||!Number.isSafeInteger(value.profileRevision)||Number(value.profileRevision)<1||value.externalAiConfirmed!==true||value.rightsConfirmed!==true)bad();
  const input:ObjectValue={provider:value.provider,model:value.model,profileId:value.profileId,profileRevision:value.profileRevision,accountId:value.accountId,facts:strings(value.facts,10,300),rightsConfirmed:true,externalAiConfirmed:true};

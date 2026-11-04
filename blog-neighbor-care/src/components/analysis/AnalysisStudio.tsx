@@ -6,7 +6,7 @@ import { CandidateSearch } from './CandidateSearch';
 import { CandidateBodyFile, CandidateFileImport } from './CandidateFileImport';
 import {reviseCandidateSource} from '../../lib/analysis/candidateFiles';
 import { selectionForProvider, isAnalysisSelection } from '../../lib/analysis/modelSelection';
-import { analysis, request, blankPreferences, date, stateLabels, pendingIds, rememberPending, AnalysisResponseError, type Preferences, type Profile, type AnalysisJob, type JobSummary, type Material } from '../../lib/analysis/client';
+import { analysis, request, blankPreferences, date, retention, isUnlimitedRetention, stateLabels, pendingIds, rememberPending, AnalysisResponseError, type Preferences, type Profile, type AnalysisJob, type JobSummary, type Material } from '../../lib/analysis/client';
 
 type PostInput = { url: string; title: string; body: string; rightsConfirmed: boolean };
 const blankPost = (): PostInput => ({ url: '', title: '', body: '', rightsConfirmed: false });
@@ -123,7 +123,7 @@ export function AnalysisStudio({ userId, mode }: { userId: string; mode: 'profil
       {mode === 'profile' ? <>
         <p>같은 본인 블로그에서 전달한 글 1~20개를 선택합니다. 글 10개 미만이면 잠정 초안입니다.</p>
         {materials.length === 0 && <div className="empty"><h3>받은 글이 아직 없어요.</h3><p>목록을 확인하거나 내 글 연결 화면에서 본문을 전달해 주세요.</p><Link className="primary" href="/reader">내 글 연결하기 ↗</Link></div>}
-        <div className="material-list">{materials.map(material => <label className="material" key={material.id}><input type="checkbox" disabled={busy} checked={materialIds.includes(material.id)} onChange={e => { setMaterialIds(ids => e.target.checked ? [...ids, material.id] : ids.filter(x => x !== material.id)); setConfirmed(false); }} /><span><strong>{material.title}</strong><small>{material.blog_id} · 보관 기한 {date(material.expires_at)}</small></span></label>)}</div>
+        <div className="material-list">{materials.map(material => <label className="material" key={material.id}><input type="checkbox" disabled={busy} checked={materialIds.includes(material.id)} onChange={e => { setMaterialIds(ids => e.target.checked ? [...ids, material.id] : ids.filter(x => x !== material.id)); setConfirmed(false); }} /><span><strong>{material.title}</strong><small>{material.blog_id} · {retention(material.expires_at)}</small></span></label>)}</div>
         <PreferenceFields value={preferences} onChange={value => { setPreferences(value); setConfirmed(false); }} disabled={busy} />
       </> : <>
         <label className="field">확인한 내 프로필<select disabled={busy} value={profileId} onChange={e => { setProfileId(e.target.value); setConfirmed(false); }}><option value="">프로필을 선택해 주세요</option>{checkedProfiles.map(p => <option key={p.id} value={p.id}>{date(p.created_at)} · 확인본 {p.revision}</option>)}</select></label>
@@ -149,7 +149,7 @@ export function AnalysisStudio({ userId, mode }: { userId: string; mode: 'profil
       <small>모델 변경·페이지 열기·새로고침만으로 AI를 호출하지 않습니다.</small>
     </section><section className="panel result-panel"><div className="section-head"><h2>{mode === 'profile' ? '프로필 확인·수정' : '후보 평가 결과'}</h2>{job && <span className="badge">{stateLabels[job.state]}</span>}</div>
       {!job && <div className="empty"><h3>저장된 결과를 열어 주세요.</h3><p>아래 이전 분석 목록에서 선택하거나 왼쪽에서 새 분석을 요청할 수 있습니다.</p></div>}
-      {job && <><p>{job.provider} · {job.model}<br /><small>보관 기한 {date(job.expiresAt)} · 수정·재조회로 연장되지 않습니다.</small></p>
+      {job && <><p>{job.provider} · {job.model}<br /><small>{isUnlimitedRetention(job.expiresAt) ? '무기한 보관' : `보관 기한 ${date(job.expiresAt)} · 수정·재조회로 연장되지 않습니다.`}</small></p>
         {job.state === 'queued' && <div className="notice"><p>아직 실행 대기 상태입니다. 키 등록·입력 조건을 확인하세요. 이 대기를 취소한 후 새 분석을 직접 요청할 수 있습니다.</p><button disabled={busy} onClick={() => run(async () => { await analysis('cancel', { id: job.id }); await open(job.id); await load(); setMessage('실행 전 대기를 취소했습니다.'); })}>이 대기 취소</button></div>}
         {(job.state === 'running' || job.state === 'uncertain') && <div className="notice"><strong>{stateLabels[job.state]}</strong><p>실제 호출·과금 여부가 확실하지 않을 수 있습니다. 같은 요청을 자동으로 다시 실행하지 않습니다. 위의 결과 상태 확인 버튼을 이용하세요.</p></div>}
         {job.kind === 'profile' && job.state === 'succeeded' && profile && <>
@@ -172,7 +172,7 @@ export function AnalysisStudio({ userId, mode }: { userId: string; mode: 'profil
           <div className="section-head"><b>{selection.length}명 선택</b><small>실제 이웃 신청 없음</small></div><button className="primary" disabled={busy || job.profileStale} onClick={() => run(async () => { await analysis('select_candidates', { id: job.id, blogIds: selection }); await open(job.id); setMessage('선택한 후보를 저장했습니다. 이웃 신청·공감·댓글은 실행하지 않았습니다.'); })}>선택한 후보 저장</button>
         </>}
       </>}
-      <div className="divider" /><h3>이전 분석</h3><div className="history">{shownJobs.length === 0 && <p>목록에 표시할 분석이 없습니다.</p>}{shownJobs.map(item => <button disabled={busy} key={item.id} onClick={() => run(() => open(item.id))}><span>{date(item.created_at)}<small>{item.id.slice(0, 8)} · 보관 기한 {date(item.expires_at)}</small></span><span className="badge">{stateLabels[item.state]}</span></button>)}</div>
+      <div className="divider" /><h3>이전 분석</h3><div className="history">{shownJobs.length === 0 && <p>목록에 표시할 분석이 없습니다.</p>}{shownJobs.map(item => <button disabled={busy} key={item.id} onClick={() => run(() => open(item.id))}><span>{date(item.created_at)}<small>{item.id.slice(0, 8)} · {retention(item.expires_at)}</small></span><span className="badge">{stateLabels[item.state]}</span></button>)}</div>
     </section></div>
   </>;
 }

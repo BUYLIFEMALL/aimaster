@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import { APP_VERSION } from '@/lib/version';
+import { retention } from '@/lib/analysis/client';
 type Device = { id: string; blog_id: string; device_name: string; revoked_at: string | null; expires_at: string };
 type Material = { id: string; title: string; body?: string; blog_id: string; post_id: string; expires_at: string };
 async function member(operation: string, payload: Record<string, unknown> = {}) {
@@ -62,7 +63,7 @@ export default function ReaderConnection() {
       <h3>받은 글</h3>{materials.length === 0 && <p>받은 글이 없습니다. 확장에서 전달 후 새로고침하세요.</p>}
       <ul>{materials.map(m => <li key={m.id}><button disabled={busy} onClick={() => run(async () => { const r = await member('material', { id: m.id }); setSelected(r.data); setMessage('받은 본문을 열었습니다.'); })}>{m.title}</button></li>)}</ul>
       {selected && <article><h3>{selected.title}</h3><a href={`https://blog.naver.com/${selected.blog_id}/${selected.post_id}`} target="_blank" rel="noreferrer">원문 열기</a>
-        <p>보관 만료: {new Date(selected.expires_at).toLocaleString('ko-KR')}</p><pre>{selected.body}</pre></article>}</section>
+        <p>{retention(selected.expires_at,'보관 만료:')}</p><pre>{selected.body}</pre></article>}</section>
     <p role="status" aria-live="polite">{message}</p>
     <style>{`.reader{max-width:900px;margin:40px auto;padding:0 20px 60px;line-height:1.7}.reader header{background:#edf8f0;color:#203b31;padding:28px;border-radius:4px}.reader h1{font-size:28px}.reader section{margin:22px 0;padding:26px;background:white;border:1px solid #d6e0e8;border-radius:4px}.reader h2{font-size:21px}.reader input:not([type=checkbox]){display:block;width:100%;max-width:400px;padding:12px;border:1px solid #acbecb;border-radius:8px;font:inherit}.reader button,.reader a.primary{display:inline-block;padding:11px 18px;margin:10px 10px 10px 0;border:1px solid #aebfca;border-radius:9px;background:white;color:#203447;cursor:pointer;font:inherit;text-decoration:none}.reader .primary{background:linear-gradient(#21b276,#138554);color:white;border:0;box-shadow:0 5px 0 #0b5c39;transition:transform .15s}.reader .primary:hover{transform:translateY(-1.5px)}.reader .primary:active{transform:translateY(4px);box-shadow:0 1px 0 #0b5c39}.reader button:disabled{opacity:.5;cursor:default}.reader :focus-visible{outline:3px solid #f4a238;outline-offset:3px}.reader .check{display:flex;gap:9px;align-items:start;margin:16px 0}.reader .check input{margin-top:8px}.reader pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:20px;background:#f4f7fa}.reader code{overflow-wrap:anywhere}.reader li{margin:10px 0}@media(max-width:600px){.reader{margin:18px auto;padding:0 12px 40px}.reader section{padding:18px}.reader h1{font-size:24px}}`}</style>
   </div>;

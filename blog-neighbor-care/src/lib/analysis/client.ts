@@ -11,6 +11,9 @@ export const blankPreferences = (): Preferences => ({ requiredTopics: [], exclud
 export const stateLabels: Record<JobSummary['state'], string> = { queued: '실행 대기', running: '분석 중', uncertain: '결과 확인 필요', succeeded: '결과 저장됨', cancelled: '대기 취소됨' };
 export const lines = (value: string) => value.split('\n').map(s => s.trim()).filter(Boolean);
 export function date(value: string) { return new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }); }
+/** 관리자·시험 계정(30일 정리 열외)은 DB가 보관 기한을 9999-12-31로 둔다 → 「무기한 보관」. */
+export function isUnlimitedRetention(value: string) { const t = Date.parse(value); return Number.isFinite(t) && new Date(t).getUTCFullYear() >= 9999; }
+export function retention(value: string, label = '보관 기한') { return isUnlimitedRetention(value) ? '무기한 보관' : `${label} ${date(value)}`; }
 export class AnalysisResponseError extends Error {
   constructor(message: string, readonly status: number, readonly jobId?: string, readonly needKey = false) { super(message); }
 }

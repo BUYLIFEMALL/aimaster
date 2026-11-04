@@ -19,8 +19,7 @@ export type AiModel =
   | "claude-sonnet-5"
   | "claude-opus-5"
   | "gemini-3.5-flash-lite"
-  | "gemini-3.7-flash"
-  | "gemini-2.5-pro"
+  | "gemini-3.8-flash"
   | "sonar"
   | "sonar-pro";
 
@@ -42,8 +41,7 @@ export const AI_MODEL_OPTIONS: AiModelOption[] = [
   { value: "claude-opus-5", label: "고급형 (Claude Opus 5, 복잡한 페이지 구조에 강함)", provider: "anthropic" },
 
   { value: "gemini-3.5-flash-lite", label: "가성비 (Gemini 3.5 Flash Lite, 가장 빠르고 저렴 · 추천)", provider: "gemini" },
-  { value: "gemini-3.7-flash", label: "균형형 (Gemini 3.7 Flash)", provider: "gemini" },
-  { value: "gemini-2.5-pro", label: "고급형 (Gemini 2.5 Pro, 복잡한 페이지 구조에 강함)", provider: "gemini" },
+  { value: "gemini-3.8-flash", label: "균형형 (Gemini 3.8 Flash, 복잡한 페이지 구조에 강함)", provider: "gemini" },
 
   { value: "sonar", label: "가성비 (Sonar, 빠르고 저렴 · 추천)", provider: "perplexity" },
   { value: "sonar-pro", label: "고급형 (Sonar Pro)", provider: "perplexity" },
@@ -67,7 +65,21 @@ export const AI_MODEL_PROVIDER_SHORT_LABELS: Record<AiModelProvider, string> = {
 
 export const AI_MODEL_PROVIDER_ORDER: AiModelProvider[] = ["openai", "anthropic", "gemini", "perplexity"];
 
+/** 종료·자동 연결되는 옛 모델 → 대체 모델(2026-12-01 Gemini 2.5 종료). 저장된 작업의 옛 값도 새 모델로 호출한다. */
+const RETIRED_AI_MODEL: Record<string, AiModel> = {
+  "gemini-2.5-pro": "gemini-3.8-flash",
+  "gemini-2.5-flash": "gemini-3.8-flash",
+  "gemini-2.5-flash-lite": "gemini-3.5-flash-lite",
+  "gemini-3.7-flash": "gemini-3.8-flash",
+};
+
+/** 저장된 모델 값을 지금 쓸 수 있는 값으로(옛 값은 대체 모델). */
+export function currentAiModel(model: string): string {
+  return RETIRED_AI_MODEL[model] ?? model;
+}
+
 /** 선택된 모델을 실제로 호출하려면 이 provider의 API 키가 등록되어 있어야 한다. */
 export function getAiModelProvider(model: string | null | undefined): AiModelProvider {
-  return AI_MODEL_OPTIONS.find((o) => o.value === model)?.provider ?? "openai";
+  const current = model ? currentAiModel(model) : model;
+  return AI_MODEL_OPTIONS.find((o) => o.value === current)?.provider ?? "openai";
 }

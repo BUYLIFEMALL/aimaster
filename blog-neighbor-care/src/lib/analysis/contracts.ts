@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { parsePostUrl } from '../material-preview';
-import { AI_MODEL_OPTIONS } from './models';
+import { AI_MODEL_OPTIONS, currentAiModel } from './models';
 
 export type ObjectValue = Record<string, unknown>;
 export const object = (v: unknown): v is ObjectValue => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -33,10 +33,10 @@ export function preferences(v: unknown) {
 export function generation(kind: string, v: unknown) {
   if (!object(v) || !only(v,kind==='profile' ? ['id','provider','model','externalAiConfirmed','materialIds','preferences'] :
     ['id','provider','model','externalAiConfirmed','profileId','profileRevision','posts','rightsConfirmed'])) bad();
-  const p=v as ObjectValue;
+  const p=v as ObjectValue,model=typeof p.model==='string'?currentAiModel(p.model):p.model;
   if (!uuid(p.id) || p.externalAiConfirmed!==true || !['openai','anthropic','gemini'].includes(p.provider as string) ||
-    !AI_MODEL_OPTIONS.some(x=>x.provider===p.provider && x.value===p.model)) bad();
-  const base={provider:p.provider as 'openai'|'anthropic'|'gemini',model:p.model as string,externalAiConfirmed:true};
+    !AI_MODEL_OPTIONS.some(x=>x.provider===p.provider && x.value===model)) bad();
+  const base={provider:p.provider as 'openai'|'anthropic'|'gemini',model:model as string,externalAiConfirmed:true};
   if(kind==='profile') {
     if(!Array.isArray(p.materialIds) || p.materialIds.length<1 || p.materialIds.length>20 || !p.materialIds.every(uuid) || new Set(p.materialIds).size!==p.materialIds.length) bad();
     return {id:p.id as string,kind,input:{...base,materialIds:[...p.materialIds as string[]].sort(),preferences:preferences(p.preferences)}};

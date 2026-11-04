@@ -1,6 +1,6 @@
 {
   "name": "blog-neighbor-care",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -26,7 +26,8 @@
     "test:extension-schedule-database": "node --import tsx tests/extension-schedule-database.mjs",
     "test:messages-database": "node --import tsx tests/messages-database.mjs",
     "test:context-read-database": "node --import tsx tests/context-read-database.mjs",
-    "test:monitor-database": "node --import tsx tests/monitor-database.mjs"
+    "test:monitor-database": "node --import tsx tests/monitor-database.mjs",
+    "test:retention-exempt-database": "node --import tsx tests/retention-exempt-database.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",

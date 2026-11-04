@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import {freshRequestObservation,type RequestStatus} from '../../lib/execution/requestStatus';
+import {retention} from '../../lib/analysis/client';
 type Job={id:string;state:string;kind:string;neighbor_id:string;actor_id?:string;post_id?:string;parent_comment_id?:string;body:string;created_at:string;expires_at:string};
 const states:Record<string,string>={draft:'초안',ready:'검토 완료 · 실행 전',claimed:'실행 준비 중',armed:'등록 허가 발급됨',succeeded:'성공 확인',uncertain:'결과 불확실 · 재실행 금지',failed_no_effect:'미실행 확인',skipped:'중단됨'};
 const kinds:Record<string,string>={request:'이웃 신청',like:'공감',comment:'댓글',reply:'답글'};
@@ -39,7 +40,7 @@ export function WorkRecords(){
   {jobs?.length===0&&<p>보관 중인 작업이 없습니다.</p>}
   {jobs&&jobs.length>0&&<ul className="history">{jobs.map(job=>{const relation=relations.find(r=>r.jobId===job.id),fresh=relation&&freshRequestObservation(relation.checkedAt,clock);
    const label=relation?(relation.state==='not_requested'?relation.state:fresh?relation.state:'unknown'):'unknown';
-   return <li key={job.id}><h3>{kinds[job.kind]||job.kind} · {job.neighbor_id}</h3><p>{states[job.state]||job.state}</p><small>자료 보관 기한 {new Date(job.expires_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}</small>
+   return <li key={job.id}><h3>{kinds[job.kind]||job.kind} · {job.neighbor_id}</h3><p>{states[job.state]||job.state}</p><small>{retention(job.expires_at,'자료 보관 기한')}</small>
    {job.kind==='request'&&<div className="notice"><strong>{relationLabels[label]}</strong><p>서버에 저장된 관계 확인 기록입니다. 조회만으로 네이버에 접속하지 않으며, 5분이 지난 기록은 현재 상태로 표시하지 않습니다.</p>
     {relation?.requestedAt&&<small>신청 확인 시각: {new Date(relation.requestedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}</small>}
     {fresh&&relation?.cancellationSuggested&&label==='pending'&&<p>신청 확인 후 7일 이상 대기 중입니다. 네이버에서 현재 상태를 확인한 뒤 취소를 검토하세요. 자동으로 취소하지 않습니다.</p>}

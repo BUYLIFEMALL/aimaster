@@ -1,4 +1,5 @@
 import { openAIGenerationParams } from './openaiRequestParams';
+import { currentAiModel } from './models';
 export type Provider = 'openai'|'anthropic'|'gemini';
 type FailureReason = 'http_rejected' | 'transport' | 'response_empty' | 'response_too_large' | 'response_json' | 'response_incomplete' | 'output_invalid' | 'output_json';
 export type ProviderCode = 'billing_required' | 'authentication_required' | 'model_unavailable' | 'rate_limited' | 'permission_denied' | 'request_invalid' | 'provider_unavailable';
@@ -29,7 +30,9 @@ async function rejectionCode(response: Response): Promise<ProviderCode | undefin
   } catch { /* Untrusted error text stays in memory and is never emitted. */ }
   finally { await reader.cancel().catch(()=>{}); }
 }
-export async function generateJson(provider:Provider, model:string, key:string, system:string, user:string, fetcher:typeof fetch=fetch, schema?:Record<string,unknown>):Promise<unknown> {
+export async function generateJson(provider:Provider, storedModel:string, key:string, system:string, user:string, fetcher:typeof fetch=fetch, schema?:Record<string,unknown>):Promise<unknown> {
+  // Saved jobs/monitors may still hold a retired model id: call its replacement.
+  const model=currentAiModel(storedModel);
   let url:string,headers:Record<string,string>,body:unknown;
   if(provider==='openai') {
     url='https://api.openai.com/v1/chat/completions';headers={authorization:`Bearer ${key}`};
