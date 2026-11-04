@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-04 공공데이터포털에서 승인됐는데도 403 SERVICE_KEY_IS_NOT_REGISTERED — 옛 서비스 주소를 부름 (`real_estate_sales`, [역할: realty])
+- **증상**: 연립다세대 매매(15126467)가 10-31 [승인]인데 예약 수집의 빌라 매매만 계속 403(24시간 13번). 같은 키로 아파트·오피스텔은 정상. 문서에는 「승인 반영 대기」로 4일째 남아 있었음.
+- **원인**: 코드가 옛 서비스 `RTMSDataSvcRHTrade`를 불렀다. 이 데이터의 현재 주소는 `RTMSDataSvcRHTrade2/getRTMSDataSvcRHTrade2`이고, 승인은 새 서비스에만 연결된다. 옛 주소도 살아 있어 404가 아니라 「키 미등록」 403을 돌려줘 승인 문제처럼 보였다.
+- **해결**: `real_estate_sales/src/lib/publicdata/molit.ts` 빌라 매매를 `RHTrade2`로(미배포 대기, 다음 배포 때 함께). 키 없이 주소를 불러 없는 주소는 400, 있는 주소는 403으로 갈리는 것으로 정식 경로를 찾았다(무료).
+- **다음부터 확인**: 공공데이터포털 API가 「승인」인데 403이면 기다리지 말고 데이터 상세 페이지(`data.go.kr/data/<번호>/openapi.do`)의 End Point를 코드 주소와 먼저 대조한다(끝에 `2` 같은 판 번호). `vercel env pull`은 비밀 값을 가린 값(11글자)으로 내려주므로 운영 키 직접 시험에 쓰지 않는다.
+
 ## 2026-11-04 PowerShell로 버전 한 줄만 바꿨는데 설치 파일의 한글 프로그램 이름이 깨짐 (`free-music-studio/desktop` 엔진 0.4.0, [역할: music])
 - **증상**: `(Get-Content package.json -Raw) -replace …`로 `"version"`만 바꾸고 `npm run dist` → 빌드는 성공했지만 `git diff`에 `productName`·`shortcutName`·`description`의 한글이 `AI 臾대즺?뚯븙…`으로 바뀌어 있었다(바로 가기·제어판 이름이 깨진 설치 파일).
 - **원인**: 윈도우 PowerShell 5.1의 `Get-Content`는 BOM 없는 UTF-8 파일을 시스템 기본(cp949)으로 읽는다. 다시 쓸 때 깨진 글자가 그대로 저장된다(`Set-Content -Encoding utf8NoBOM`은 5.1에 없음).
