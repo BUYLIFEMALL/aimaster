@@ -11,6 +11,7 @@ import soundfile as sf
 import torch
 from diffusers import ComponentsManager, ModularPipeline
 from diffusers.hooks.group_offloading import apply_group_offloading
+from huggingface_hub import snapshot_download
 
 TAG = re.compile(r"^\s*\[([^\]]+)\]\s*$")
 VOCAL_WORDS = re.compile(r"vocal|voice|singer|sing|보컬|목소리|가수|노래", re.I)
@@ -46,20 +47,27 @@ def main():
         sys.exit(2)
     seed = int(job.get("seed") or 0) or torch.seed() % (2**31)
     vram = float(job.get("vramGb") or 0)
-    repo = job["repo"]
+    # 부품 목록(modular_model_index.json)에는 저장소 이름이 적혀 있어, 그대로 두면 diffusers가 나눠 저장된 transformer를
+    # 불러올 때 인터넷에 판 정보를 물어 오프라인 실행에서 「Failed to create component transformer」로 빠진다(2026-11-04 마스터PC).
+    # 받아 둔 폴더(refs/main = 고정 판)를 찾아 모든 부품을 그 폴더에서 불러온다.
+    local = snapshot_download(job["repo"], local_files_only=True)
 
     stage("MiniMax Music 3 · 모델 올리는 중")
     if vram >= 24:
-        pipe = ModularPipeline.from_pretrained(repo)
-        pipe.load_components(dtype=torch.bfloat16)
+        pipe = ModularPipeline.from_pretrained(local)
+        pipe.load_components(dtype=torch.bfloat16, pretrained_model_name_or_path=local)
         pipe.to("cuda")
     else:
         manager = ComponentsManager()
         manager.enable_auto_cpu_offload(device="cuda")
-        pipe = ModularPipeline.from_pretrained(repo, components_manager=manager)
-        pipe.load_components(dtype=torch.bfloat16)
-        if vram < 22:
-            apply_group_offloading(pipe.language_model, onload_device=torch.device("cuda"), offload_type="leaf_level", use_stream=True)
+        pipe = ModularPipeline.from_pretrained(local, components_manager=manager)
+        pipe.load_components(dtype=torch.bfloat16, pretrained_model_name_or_path=local)
+    missing = [n for n in ("language_model", "transformer", "vocoder", "tokenizer") if getattr(pipe, n, None) is None]
+    if missing:
+        print(f"FMS_ERROR MiniMax Music 3 모델 부품을 불러오지 못했습니다({', '.join(missing)}). 「내 PC 엔진」에서 이 모델을 지우고 다시 받아 주세요.", flush=True)
+        sys.exit(2)
+    if vram < 22:
+        apply_group_offloading(pipe.language_model, onload_device=torch.device("cuda"), offload_type="leaf_level", use_stream=True)
 
     lyrics = model_lyrics(job.get("lyrics"))
     prompt = model_prompt(job.get("style"), lyrics)
