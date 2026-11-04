@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Cpu, Loader2, RefreshCw, ShieldAlert, Sparkles, XCircle } from "lucide-react";
-import { EngineError, MUSIC_ENGINES, getSystemReport, hasSystemCheck, removeEngineModel, setQualityTier, type CheckStatus, type MusicEngineId, type SystemReport } from "@/lib/engine";
+import { EngineError, MUSIC_ENGINES, tooLittleVram, getSystemReport, hasSystemCheck, removeEngineModel, setQualityTier, type CheckStatus, type MusicEngineId, type SystemReport } from "@/lib/engine";
 
 // 「받은 모델 지우기」가 되는 추가 엔진(엔진 0.4.0 pyengines)
 const PY_ENGINE_IDS = ["heartmula", "stableaudio3", "levo2", "minimax3"];
@@ -148,6 +148,11 @@ function EngineCheck({ engine }: { engine: Engine }) {
   const rec = report.options.find((o) => o.recommended);
   const chosen = report.options.find((o) => o.id === pick) ?? rec;
   const sys = report.system;
+  /** 사이트 기준으로 이 PC 그래픽 메모리가 모자란 엔진이면 필요한 GB(옛 엔진이 「된다」고 알려도 막음) */
+  const vramShort = (id: string) => {
+    const m = MUSIC_ENGINES.find((x) => x.id === id);
+    return m && tooLittleVram(m, sys.vramGb) ? m.minVramGb : 0;
+  };
 
   return (
     <div className="space-y-4">
@@ -255,6 +260,8 @@ function EngineCheck({ engine }: { engine: Engine }) {
                     </span>
                     {noKorean(e.id) ? (
                       <span className="text-[11px] text-rose-300">한국어 가사를 부르지 못해 곡 만들기에서 뺐습니다 · 받아 둔 모델은 지워 주세요</span>
+                    ) : vramShort(e.id) ? (
+                      <span className="text-[11px] text-slate-500">이 PC에서는 어려움 — 그래픽 메모리 {vramShort(e.id)}GB 이상 PC 전용입니다(이 PC {sys.vramGb}GB){e.installed ? " · 받아 둔 모델은 지워 주세요" : ""}</span>
                     ) : e.selected ? (
                       <span className="rounded-full border border-emerald-500/40 px-2 py-0.5 text-[11px] font-bold text-emerald-300">기본</span>
                     ) : e.supported === false ? (

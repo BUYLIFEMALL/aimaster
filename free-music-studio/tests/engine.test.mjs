@@ -92,6 +92,11 @@ test("음악 엔진 목록(v1.12): 상업용·개인용, 엔진이 알린 것만
   assert.deepEqual(availableEngines(null).map((e) => e.id), ["acestep"]);
   // 한국어를 못 부르는 노래 엔진(LeVo 2)은 엔진이 알려도 선택지에서 뺀다(주인님 2026-11-04)
   assert.deepEqual(availableEngines({ features: ["queue", "yue2", "levo2"] }).map((e) => e.id), ["acestep", "yue2"]);
+  // MiniMax Music 3은 24GB 이상 전용(주인님 2026-11-05) — 옛 엔진이 알려도 16GB면 뺌, 메모리를 모르면 막지 않음
+  const mm = (vramGb) => availableEngines({ features: ["queue", "minimax3"], quality: { vramGb } }).map((e) => e.id);
+  assert.deepEqual(mm(16), ["acestep"]);
+  assert.deepEqual(mm(24), ["acestep", "minimax3"]);
+  assert.deepEqual(mm(null), ["acestep", "minimax3"]);
   assert.equal(licenseOfEngine("levo2"), "noncommercial");
   assert.equal(licenseOfEngine("stableaudio3"), "commercial");
   assert.equal(consentKey("yue2"), "fms-yue2-noncommercial-consent"); // 예전 동의 그대로 이어짐

@@ -30,6 +30,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음. 단점(지금): 엔진 앱 전이라 실제 노래 생성은 아직 안 됨.
 
 ## 4. 버전
+- 미배포 대기(v1.21): **MiniMax Music 3은 그래픽 메모리 24GB 이상 PC 전용**(주인님 2026-11-05 결정 — 마스터PC 5080 16GB에서 0.6.5로 부품은 다 올라왔지만 3분 곡이 1시간 17분 넘게 끝나지 않아 취소, 한국어 발음은 못 들어 봄). 엔진 목록 `minVramGb` 12 → 24, 사이트 `MUSIC_ENGINES.minVramGb` + `tooLittleVram`으로 옛 엔진이 「된다」고 알려도 16GB면 곡 만들기·「사용할 엔진」에서 막음(받아 둔 PC는 지우기 안내). 다시 살리려면 음질이 HeartMuLa보다 확실히 좋을 때 8비트·4비트로 줄여 16GB에 통째로 올리기를 시험
 - v1.20 · 엔진 0.6.5(배포 2026-11-04, `free-music-studio-9yy4h3z4u`, 주인님 「진행해」 빌드 1회): MiniMax Music 3 받아 둔 고정 판 폴더(`HF_HUB_CACHE/models--MiniMaxAI--MiniMax-Music3/snapshots/<판>`)를 직접 찾기 — 0.6.4의 `snapshot_download(local_files_only=True)`가 `allow`로 골라 받은 모델을 「64개 없음」으로 막음(`ace21838e`). 남은 일: 마스터PC 0.6.5 설치 → 실패한 MiniMax 작업 [다시 하기]로 한국어·걸린 시간 확인
 - **규칙(주인님 2026-11-04 「앞으로도 한글지원 안되는 모델은 선택지에서 제외해」「기본적으로 한글이 되는 모델이어야지」)**: 노래 엔진은 한국어 가사를 불러야 선택지에 넣는다. 사이트 `MUSIC_ENGINES`의 `korean`("yes"/"no"/"untested") — "no"는 `availableEngines`에서 빠지고(지난 곡 이름 표시·받은 모델 지우기 버튼만 남김), "untested"는 곡 만들기에 🧪 안내. 새 노래 엔진은 마스터PC에서 한국어 한 곡을 시험한 뒤 "yes"로 바꾼다. 연주곡 엔진(Stable Audio 3)은 해당 없음.
 - v1.19 · 엔진 0.6.4(배포 2026-11-04, `free-music-studio-gf8b7pan9`, 주인님 「배포해」 빌드 1회): MiniMax Music 3 부품을 받아 둔 폴더에서 불러오기(오프라인에서 transformer를 못 불러온 채 1시간 반 헛돎, `docs/ERROR_LESSONS.md` 2026-11-04) · 손으로 옮긴 곡을 저장 폴더 세 단계 아래까지 찾아 「모든 음악」 재생 유지(`library.mjs` resolve) · 대기열 「요청 길이」·「걸린 시간」 배지 · 아래 한국어 규칙. 남은 일: 마스터PC 0.6.4 설치 → MiniMax 60초 한국어 곡 시험(16GB는 나눠 올리기라 느림 — 한국어가 되면 8비트로 줄여 16GB에 통째로 올리기 검토)

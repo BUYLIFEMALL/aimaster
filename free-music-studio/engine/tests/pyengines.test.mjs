@@ -73,8 +73,9 @@ test("MiniMax Music 3 — 원본 코드 없이 정식 패키지, diffusers용 �
   assert.ok(isInstalledState({ status: "installed", commit: "none", weights: weightsKey(e), runtime: true }, e));
   const job = buildPyJob(e, { track: { style_prompt: "k-pop ballad", lyrics: "[Verse]\n가을", duration_sec: 999 } }, { p, out: "C:/o.wav", vramGb: 16 });
   assert.deepEqual({ style: job.style, lyrics: job.lyrics, durationSec: job.durationSec, repo: job.repo }, { style: "k-pop ballad", lyrics: "[Verse]\n가을", durationSec: 300, repo: "MiniMaxAI/MiniMax-Music3" });
-  assert.equal(pySupport(e, { ...win, vramGb: 16 }).ok, true);
-  assert.equal(pySupport(e, { ...win, vramGb: 8 }).ok, false);
+  // 24GB 이상 전용(2026-11-05 — 16GB는 3분 곡이 1시간 넘게 걸림)
+  assert.equal(pySupport(e, { ...win, vramGb: 24 }).ok, true);
+  assert.equal(pySupport(e, { ...win, vramGb: 16 }).ok, false);
 });
 
 test("되는 PC: 윈도우 + NVIDIA + 그래픽 메모리", () => {

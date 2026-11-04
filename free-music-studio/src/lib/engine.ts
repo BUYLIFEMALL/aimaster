@@ -446,7 +446,12 @@ export type MusicEngineInfo = {
    * "no"는 고르기 목록에서 뺀다(지난 곡 이름 표시용으로만 남김), "untested"는 마스터PC 시험 전 안내.
    */
   korean?: "yes" | "no" | "untested";
+  /** 이보다 그래픽 메모리가 작은 PC에서는 고르기 목록에서 뺀다(엔진 목록과 같은 값 — 옛 엔진이 「된다」고 알려도 사이트에서 막음) */
+  minVramGb?: number;
 };
+
+/** 이 PC 그래픽 메모리로 그 엔진을 쓰기 어려운가(값을 모르면 막지 않음) */
+export const tooLittleVram = (e: MusicEngineInfo, vramGb: number | null | undefined) => !!e.minVramGb && vramGb != null && vramGb < e.minVramGb;
 
 /** 엔진 목록(엔진 쪽 engine/src/pyengines-catalog.json·yue2와 같은 분류) */
 export const MUSIC_ENGINES: MusicEngineInfo[] = [
@@ -468,7 +473,8 @@ export const MUSIC_ENGINES: MusicEngineInfo[] = [
     name: "MiniMax Music 3",
     license: "commercial",
     kind: "vocal",
-    desc: "가사 정확도 평가 1위 모델. 노래 최대 5분. 상업용(조건부). 그래픽 메모리 24GB 미만은 나눠 올려 느립니다.",
+    desc: "가사 정확도 평가 1위 모델. 노래 최대 5분. 상업용(조건부). 그래픽 메모리 24GB 이상 PC 전용(16GB에서는 3분 곡이 1시간 넘게 걸림).",
+    minVramGb: 24,
     terms: "MiniMax-Music3 커뮤니티 라이선스: 상업용으로 쓸 때 영상·서비스 설명에 「MiniMax-Music3」로 만들었음을 표시하고, 공개할 때 AI로 만든 곡임을 밝혀 주세요(연매출 2천만 달러 초과 시 MiniMax 허가 필요).",
     firstGb: 35,
     korean: "untested",
@@ -490,7 +496,7 @@ export const licenseOfEngine = (e: MusicEngineId): TrackLicense => engineInfo(e)
 
 /** 이 PC 엔진에서 고를 수 있는 엔진(ACE-Step은 늘, 나머지는 엔진이 「된다」고 알린 것만, 한국어를 못 부르는 노래 엔진은 빼고) */
 export function availableEngines(status: EngineStatus | null): MusicEngineInfo[] {
-  return MUSIC_ENGINES.filter((e) => e.korean !== "no" && (e.id === "acestep" || !!status?.features?.includes(e.id)));
+  return MUSIC_ENGINES.filter((e) => e.korean !== "no" && !tooLittleVram(e, status?.quality?.vramGb) && (e.id === "acestep" || !!status?.features?.includes(e.id)));
 }
 
 /** 이 PC 엔진이 YuE2를 쓸 수 있는가(엔진 0.2.0+ · 윈도우 NVIDIA 8GB+) */
