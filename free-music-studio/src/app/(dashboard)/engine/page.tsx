@@ -6,6 +6,7 @@ import { Cpu, Download, ShieldCheck, Clock, Link2, CheckCircle2, AlertCircle, Un
 import { useEngine } from "@/components/engine/useEngine";
 import { FolderPanel } from "@/components/engine/FolderPanel";
 import { PcCheckPanel } from "@/components/engine/PcCheckPanel";
+import { StageProgress, parseProgress } from "@/components/engine/StageProgress";
 import { EngineError, forgetEngine, pairEngine } from "@/lib/engine";
 
 // 내 PC 엔진 — PC 검사·음악 모델 고르기(v1.07) · 상태 확인·연결 코드(3단계). 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
@@ -116,6 +117,7 @@ export default function EnginePage() {
             <p>
               <span className="text-slate-500">상태</span> {status?.stage}
             </p>
+            {parseProgress(status?.stage) && <StageProgress className="sm:col-span-3" stage={status?.stage} />}
             {status?.quality && (
               <p className="sm:col-span-3">
                 <span className="text-slate-500">음질</span> 🎚️ {status.quality.label}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ListOrdered, Loader2, Play, RotateCcw, Trash2, X, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { useQueue } from "@/components/engine/useQueue";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
+import { StageProgress } from "@/components/engine/StageProgress";
 import { EngineError, LICENSE_LABEL, QUEUE_LABEL, activeCount, engineInfo, cancelJob, dismissJob, fetchLibraryFile, rerunJob, type QueueJob, type QueueStatus } from "@/lib/engine";
 import { KIND_LABEL } from "@/lib/tracks";
 
@@ -96,7 +97,7 @@ export default function QueuePage() {
           )}
         </span>
       </div>
-      {j.status === "running" && <p className="text-[11px] text-teal-200/80">{j.stage}</p>}
+      {j.status === "running" && <StageProgress stage={j.stage} />}
       {j.error && <p className="text-[11px] text-rose-300/90">이유: {j.error}</p>}
       {j.status === "interrupted" && <p className="text-[11px] text-amber-300/80">엔진이 꺼져 만들다 멈췄습니다. [다시 하기]를 누르면 같은 내용으로 다시 만듭니다.</p>}
       {j.status === "done" && (
