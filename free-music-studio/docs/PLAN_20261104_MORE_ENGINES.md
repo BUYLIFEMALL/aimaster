@@ -57,6 +57,11 @@
 
 마스터PC에서 안 되는 모델(그래픽 메모리 부족, RTX 50 호환 문제)은 목록에서 「이 PC에서는 어려움」으로 남기고 다음 모델로 넘어간다. 3차의 불안정한 모델은 시험 결과를 보고 드린 뒤 남길지 정한다.
 
+**2차 진행 상태(2026-11-04, 주인님 「2차 진행해」):** 가~다 ✅ 코드 반영(미배포 — 마스터PC 1차 LeVo 2·Stable Audio 3 결과를 본 뒤 남은 빌드 1회로 함께 배포, 엔진 0.6.0)
+- **MiniMax Music 3 → 넣음, 상업용(조건부).** LICENSE 원문(HF 판 `fbdf52f` = 최신 `1b525cc`, 그 사이는 설명 문서만 바뀜): 상업 서비스 화면에 「MiniMax-Music3」 표시, 연매출 2천만 달러 초과 시 별도 허가(주인님 「연매출 2000만 달러 넘어갈일 절대 없어」), 이용 정책 11항 공개할 때 AI 생성 표시. 원본 코드 없이 정식 diffusers **0.41.0**(10-06, MiniMax 들어 있음) + transformers **5.19.0**(같은 날) — 윈도우 판 맞춤 49개 성공. 모델은 diffusers용 구성만 받음(57GB → 약 28.5GB, `allow`). 그래픽 메모리 24GB 미만은 공식 낮은 메모리 방식(자동 CPU 오프로딩, 22GB 미만은 언어 모델 층마다) — 마스터PC 16GB는 느릴 수 있음. 결과 44.1kHz 스테레오. 구간 표시는 소문자 한 줄, 노래인데 설명에 목소리가 없으면 리드 보컬 문구를 덧붙임(문서 Tips). `minVramGb` 12.
+- **DiffRhythm 2 → 3차로 미룸.** Apache 2.0, 한국어 발음 변환은 있으나 불러올 때 `espeak-ng`(윈도우 MSI)와 `pyopenjtalk`(윈도우 바이너리 없음, C++ 빌드 필요)가 꼭 필요 — 회원 PC 설치가 어려움. 우회(`espeakng-loader` 0.2.4 윈도우 휠 + `pyopenjtalk` 대체 모듈, 일본어 제외)는 가능, 보컬이 약하다고 논문 스스로 밝혀 MiniMax 결과 뒤 결정.
+- **InspireMusic → 보류.** 공식 Hugging Face 저장소(FunAudioLLM)가 내려가고 남이 올린 복사본만 있음, GitHub은 `QwenAudio/FunMusic`로 옮겨 2025-05 이후 멈춤 — 믿을 수 있는 받을 곳이 없음. 연주곡은 Stable Audio 3가 있음.
+
 **진행 상태(2026-11-04):** 1차 가~바 ✅ 배포 v1.12 `free-music-studio-jma2o97ob`, 엔진 0.4.0 — 마 단계(마스터PC 실물)만 남음.
 - 원문 확인 결과: HeartMuLa 코드·가중치 Apache 2.0(LICENSE·모델 카드) → 상업용. Stable Audio 3 Medium `stable-audio-community`, 저장소 잠김(`gated: auto`, 약관 동의 즉시 허용) → 회원 본인 Hugging Face 토큰 필요, 상업용(조건부). LeVo 2 `levo-demo/LeVo` LICENSE 「academic, research and education purposes … refrain from using it for any commercial or production purposes」 → 개인용.
 - 고정 판: heartlib `5858ca8`(10-08), stable-audio-3 `77e0398`(10-11, 최신 11-02는 2주 안 돼 제외), LeVo `653cbcf`(06-29). 판을 안 정한 패키지는 `--exclude-newer 2026-10-20`.

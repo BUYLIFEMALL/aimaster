@@ -58,15 +58,22 @@ export function stepArgs(step, p, catalog = CATALOG) {
   return [...args, ...step.args.map((a) => fillPath(a, p))];
 }
 
-/** 모델 받기 목록(fms_download.py에 넘김) — dir 없는 것은 HF_HOME 보관 폴더로 */
+/** 모델 받기 목록(fms_download.py에 넘김) — dir 없는 것은 HF_HOME 보관 폴더로, allow가 있으면 그 파일만(MiniMax: diffusers용만 받아 57GB → 28.5GB) */
 export function weightsPlan(engine, p) {
-  return engine.weights.map((w) => ({ repo: w.repo, revision: w.revision, ...(w.dir ? { dir: path.isAbsolute(fillPath(w.dir, p)) ? fillPath(w.dir, p) : path.join(p.models, w.dir) } : {}) }));
+  return engine.weights.map((w) => ({
+    repo: w.repo,
+    revision: w.revision,
+    ...(w.dir ? { dir: path.isAbsolute(fillPath(w.dir, p)) ? fillPath(w.dir, p) : path.join(p.models, w.dir) } : {}),
+    ...(w.allow ? { allow: w.allow } : {}),
+  }));
 }
 
 /** 설치가 끝났는지(install.json의 판이 목록과 같아야) */
 export function isInstalledState(state, engine) {
-  return !!state && state.status === "installed" && state.commit === engine.source.commit && state.weights === weightsKey(engine);
+  return !!state && state.status === "installed" && state.commit === sourceCommit(engine) && state.weights === weightsKey(engine);
 }
+/** 원본 코드 판 — 정식 패키지만으로 도는 엔진(MiniMax Music 3, 0.6.0)은 원본 코드가 없다 */
+export const sourceCommit = (engine) => engine.source?.commit ?? "none";
 export const weightsKey = (engine) => engine.weights.map((w) => `${w.repo}@${w.revision}`).join(",");
 
 /**
@@ -129,6 +136,7 @@ export function buildPyJob(engine, job, { p, out, vramGb }) {
   }
   const durationSec = Math.min(Math.max(Number(t.duration_sec) || 120, 10), engine.maxSec);
   if (engine.id === "heartmula") return { ...base, style: heartTags(t.style_prompt), lyrics: t.lyrics ?? "", durationSec, modelDir: path.join(p.models, "ckpt") };
+  if (engine.id === "minimax3") return { ...base, style: String(t.style_prompt ?? "").trim(), lyrics: String(t.lyrics ?? ""), durationSec, repo: engine.weights[0].repo };
   return { ...base, style: String(t.style_prompt ?? "").trim(), lyrics: "", durationSec };
 }
 
@@ -272,10 +280,10 @@ export async function ensurePyEngine(dataDir, engine, { onStage = () => {}, sign
   await mkdir(p.root, { recursive: true });
   let state = (await readState(p)) ?? {};
   if (isInstalledState(state, engine) && existsSync(p.python)) return p;
-  if (state.commit !== engine.source.commit) state = { commit: engine.source.commit };
+  if (state.commit !== sourceCommit(engine)) state = { commit: sourceCommit(engine) };
   const save = (patch) => writeFile(p.stateFile, JSON.stringify((state = { ...state, ...patch }), null, 2));
 
-  if (!state.source || !existsSync(path.join(p.src))) {
+  if (engine.source && (!state.source || !existsSync(path.join(p.src)))) {
     await fetchSource(engine, p, { onStage, signal });
     await save({ source: true, runtime: false });
   }
@@ -330,7 +338,7 @@ export async function runPyEngine(ctx, job, signal, stage) {
   stage(`${engine.name} 켜는 중`);
   try {
     await run(p.python, [path.join(PY_DIR, engine.runner), jobFile], {
-      cwd: p.src,
+      cwd: engine.source ? p.src : p.root,
       signal,
       log,
       // 모델은 받아 둔 것만 쓴다(만드는 중에는 인터넷에 묻지 않음)

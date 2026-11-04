@@ -5,16 +5,37 @@ import { buildPyJob, checkWav, heartTags, isInstalledState, levoDescriptions, le
 
 const win = { platform: "win32", nvidia: true };
 
-test("목록: 1차 엔진 3개, 분류·고정 판이 있다", () => {
+test("목록: 1차 엔진 3개 + 2차 MiniMax Music 3, 분류·고정 판이 있다", () => {
   const ids = pyCatalog().engines.map((e) => e.id);
-  assert.deepEqual(ids, ["heartmula", "stableaudio3", "levo2"]);
+  assert.deepEqual(ids, ["heartmula", "stableaudio3", "levo2", "minimax3"]);
   for (const e of pyCatalog().engines) {
     assert.ok(["commercial", "noncommercial"].includes(e.license), e.id);
-    assert.match(e.source.commit, /^[0-9a-f]{40}$/, e.id);
+    if (e.source) assert.match(e.source.commit, /^[0-9a-f]{40}$/, e.id);
     for (const w of e.weights) assert.match(w.revision, /^[0-9a-f]{40}$/, `${e.id} ${w.repo}`);
   }
   assert.equal(pyEngine("levo2").license, "noncommercial");
   assert.equal(pyEngine("stableaudio3").hfToken, true);
+});
+
+test("MiniMax Music 3 — 원본 코드 없이 정식 패키지, diffusers용 구성만 받기, 작업 정보", () => {
+  const e = pyEngine("minimax3");
+  const p = pyPaths("C:/d", e);
+  assert.equal(e.source, undefined);
+  assert.equal(e.license, "commercial");
+  assert.match(e.licenseCondition, /MiniMax-Music3/);
+  const [torch, pkgs] = e.steps.map((s) => stepArgs(s, p));
+  assert.ok(torch.includes("--extra-index-url"));
+  assert.ok(pkgs.includes("diffusers==0.41.0") && pkgs.includes("transformers==5.19.0"));
+  assert.ok(!pkgs.includes("-e"), "원본 코드 설치 없음");
+  const [plan] = weightsPlan(e, p);
+  assert.equal(plan.dir, undefined, "보관 폴더(HF_HOME)로 — 파이프라인이 저장소 이름으로 찾음");
+  assert.ok(plan.allow.includes("transformer/*") && !plan.allow.some((a) => /qwen_7B|flowmatching|dav/.test(a)));
+  // 설치 기록: 원본 판이 없으면 "none"으로 비교
+  assert.ok(isInstalledState({ status: "installed", commit: "none", weights: weightsKey(e) }, e));
+  const job = buildPyJob(e, { track: { style_prompt: "k-pop ballad", lyrics: "[Verse]\n가을", duration_sec: 999 } }, { p, out: "C:/o.wav", vramGb: 16 });
+  assert.deepEqual({ style: job.style, lyrics: job.lyrics, durationSec: job.durationSec, repo: job.repo }, { style: "k-pop ballad", lyrics: "[Verse]\n가을", durationSec: 300, repo: "MiniMaxAI/MiniMax-Music3" });
+  assert.equal(pySupport(e, { ...win, vramGb: 16 }).ok, true);
+  assert.equal(pySupport(e, { ...win, vramGb: 8 }).ok, false);
 });
 
 test("되는 PC: 윈도우 + NVIDIA + 그래픽 메모리", () => {

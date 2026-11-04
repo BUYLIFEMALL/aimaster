@@ -5,7 +5,7 @@ import { AlertCircle, CheckCircle2, Cpu, Loader2, RefreshCw, ShieldAlert, Sparkl
 import { EngineError, getSystemReport, hasSystemCheck, removeEngineModel, setQualityTier, type CheckStatus, type MusicEngineId, type SystemReport } from "@/lib/engine";
 
 // 「받은 모델 지우기」가 되는 추가 엔진(엔진 0.4.0 pyengines)
-const PY_ENGINE_IDS = ["heartmula", "stableaudio3", "levo2"];
+const PY_ENGINE_IDS = ["heartmula", "stableaudio3", "levo2", "minimax3"];
 import { collectBrowserPc, judgeBrowserPc, type PreCheck } from "@/lib/pcCheck";
 import type { useEngine } from "./useEngine";
 

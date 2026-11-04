@@ -423,7 +423,7 @@ export type QueueJob = {
 // ── 음악 엔진 고르기(엔진 0.2.0+) ──────────────────────────────
 // ACE-Step = 상업용 사용 가능(기본), YuE2 = 비상업용(CC BY-NC 4.0 — 수익 영상·판매 불가, 2026-11-04 주인님 결정: 회원도 쓰되 구분 표시)
 // v1.12(엔진 0.4.0): 공개된 모델을 더 넣고 「상업용」·「개인용」 두 묶음으로 나눔(2026-11-04 주인님: 「다 넣고 개인용과 상업용으로 나누면 되잖아」)
-export type MusicEngineId = "acestep" | "yue2" | "heartmula" | "stableaudio3" | "levo2";
+export type MusicEngineId = "acestep" | "yue2" | "heartmula" | "stableaudio3" | "levo2" | "minimax3";
 export type TrackLicense = "commercial" | "noncommercial";
 export const LICENSE_LABEL: Record<TrackLicense, string> = { commercial: "상업용", noncommercial: "비상업용" };
 
@@ -457,6 +457,15 @@ export const MUSIC_ENGINES: MusicEngineInfo[] = [
     firstGb: 15,
     hfToken: true,
     gatedUrl: "https://huggingface.co/stabilityai/stable-audio-3-medium",
+  },
+  {
+    id: "minimax3",
+    name: "MiniMax Music 3",
+    license: "commercial",
+    kind: "vocal",
+    desc: "가사 정확도 평가 1위 모델. 노래 최대 5분. 상업용(조건부). 그래픽 메모리 24GB 미만은 나눠 올려 느립니다.",
+    terms: "MiniMax-Music3 커뮤니티 라이선스: 상업용으로 쓸 때 영상·서비스 설명에 「MiniMax-Music3」로 만들었음을 표시하고, 공개할 때 AI로 만든 곡임을 밝혀 주세요(연매출 2천만 달러 초과 시 MiniMax 허가 필요).",
+    firstGb: 35,
   },
   { id: "yue2", name: "YuE2", license: "noncommercial", kind: "vocal", desc: "노래 음질이 좋은 모델입니다. 개인 감상·비수익 용도만(CC BY-NC 4.0).", terms: "YuE2로 만든 곡은 비상업용입니다. 유튜브 수익 영상·광고·판매·납품에 쓰면 저작권 조건(CC BY-NC 4.0) 위반입니다.", firstGb: 8 },
   {

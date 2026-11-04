@@ -1,5 +1,6 @@
 # AI 무료음악 자동화 (`free-music-studio`) — 에이전트 작업 지침
 
+> **미배포 대기: 2차 엔진 MiniMax Music 3(상업용 조건부) 코드 반영 — 엔진 0.6.0·v1.15로 마스터PC 1차 결과 뒤 배포(플랜 `docs/PLAN_20261104_MORE_ENGINES.md` 2차 진행 상태)**
 > 상태: **v1.14·엔진 0.5.0 배포(2026-11-04) — 모델 저장 공간 관리(안 쓰는 모델 지우기·모델 폴더를 다른 드라이브로)** · v1.13·엔진 0.4.1 추가 엔진 설치 실패(torch 판 맞추기) 수정, 마스터PC HeartMuLa 실물 진행 중 · **v1.12 배포 완료(2026-11-04) — 음악 엔진 더 넣기 1차(엔진 0.4.0): 상업용 HeartMuLa·Stable Audio 3(조건부) / 개인용 LeVo 2, 엔진 고르기 「상업용」·「개인용」 두 묶음** — 마스터PC 실물 대기, 2차·3차 남음([`docs/PLAN_20261104_MORE_ENGINES.md`](docs/PLAN_20261104_MORE_ENGINES.md)) · v1.11 엔진 설치 파일(엔진 0.3.0, `desktop/`) · v1.10 비상업용 YuE2(마스터PC 실물: 주인님 「음질·음악적 필 모두 YuE2가 좋다」) — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지. 주인님 지시: **음악 퀄리티 최고 수준 방향**. 다음: 마스터PC 설치 파일 실물(주인님), 다음 엔진 후보 HeartMuLa 라이선스 확인([`docs/RESEARCH_20261104_MUSIC_MODELS.md`](docs/RESEARCH_20261104_MUSIC_MODELS.md)), 4단계 나머지(홈·2단 만들기·내 곡에서 바로 커버·휴지통). 로드맵: [`docs/PLAN_20261103_FULL_ROADMAP.md`](docs/PLAN_20261103_FULL_ROADMAP.md)
 > 담당: [역할: music] Claude Code(윈도우(미니PC)). 작업 전 루트 `CLAUDE.md`·`AGENTS.md`, `docs/roles/music.md`, 이 플랜을 읽는다.
 

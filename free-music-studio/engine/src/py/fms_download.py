@@ -1,6 +1,6 @@
 # 모델 받기 — 엔진(pyengines.mjs)이 그 모델의 실행 환경 파이썬으로 띄운다.
 # 사용: python fms_download.py <weights.json>
-# weights.json: [{"repo": "...", "revision": "고정 판", "dir": "받을 폴더(없으면 HF_HOME 보관 폴더)"}]
+# weights.json: [{"repo": "...", "revision": "고정 판", "dir": "받을 폴더(없으면 HF_HOME 보관 폴더)", "allow": ["받을 파일 무늬"(없으면 전부)]}]
 # 회원 본인 Hugging Face 토큰이 필요하면 엔진이 HF_TOKEN 환경 변수로 넘긴다(우리 서버로 보내지 않음).
 import json
 import os
@@ -22,6 +22,8 @@ def main():
         kwargs = {"repo_id": w["repo"], "revision": w["revision"], "token": token}
         if w.get("dir"):
             kwargs["local_dir"] = w["dir"]
+        if w.get("allow"):
+            kwargs["allow_patterns"] = w["allow"]  # 필요한 파일만(MiniMax Music 3: diffusers용 구성만)
         try:
             snapshot_download(**kwargs)
         except Exception as e:  # 잠긴 모델(약관 동의 전)·토큰 오류를 한국어로 알린다
