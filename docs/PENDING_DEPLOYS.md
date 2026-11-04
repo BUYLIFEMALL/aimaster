@@ -28,6 +28,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `free-music-studio` | 엔진 0.6.2: LeVo 2 모델을 원본 코드가 지원하는 v1 `SongGeneration-base-full`로(v2-medium은 `LmModel` 불러오기 실패, 회원 피해 버그) — 설치 파일과 함께 | `4ba8bbb1f` | 2026-11-04 · [역할: music] `claude-win-20261024-music` | `docs/ERROR_LESSONS.md` 같은 날 | v1.17, **빌드 승인 대기**(승인되면 바로, 버전 표시와 함께) |
 | `free-music-studio` | 좌측 메뉴·휴대폰 상단 버전 표시 크고 밝게(주인님 「버전 표시 잘보이게 해줘 다음 배포에 반영하고」) | `9b90e3463` | 2026-11-04 · [역할: music] `claude-win-20261024-music` | `free-music-studio/src/components/layout/Sidebar.tsx` | v1.17, 다음 배포 때 함께 |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
 | `banana-canvas` | E5-4 한글 이름·주소 가리기(「한글 이름·주소도」, 한국어 글자 읽기 모델 13MB 브라우저 첫 1회) | `1dd57ac12` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` E5-4 | v1.43, 운영에서 송장 사진으로 확인 |

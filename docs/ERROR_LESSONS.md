@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-04 원본 코드보다 새 모델을 붙여 「Error(s) in loading state_dict for LmModel」 (`free-music-studio` LeVo 2, 엔진 0.6.2, [역할: music])
+- **증상**: LFS 파일을 고친 뒤 마스터PC LeVo 2가 `RuntimeError: Error(s) in loading state_dict for LmModel`(화면 실패 이유에 바로 표시됨 — 0.6.0 `pyErrorCause` 효과).
+- **원인**: 고정한 원본 `levo-demo/LeVo` `653cbcf`는 첫 커밋 하나뿐인 데모 사본이고, 지원 이름이 `songgeneration_base/base_new/base_full/large`(v1 모델). 1차에 v2-medium(2026-03)을 `songgeneration_base_full` 폴더 이름으로 넣어 원본의 이름 검사만 지나게 했는데, 구조가 v1과 달라 불러오기 실패(`strict=False`라도 크기가 다른 층은 실패). 공식 `tencent-ailab/SongGeneration`은 사라지고 v2 코드는 개인 사본뿐.
+- **해결**: 모델을 v1 `lglg666/SongGeneration-base-full`(판 `19ebdb6`, 11.32GB, 2025-10)로 — 원본이 정식 지원하는 이름·구조. 같은 폴더에 덮어써짐(받기 기록 판이 바뀌어 다시 받음).
+- **다음부터**: 원본 코드의 이름 검사를 「이름만 맞춰」 지나게 하지 않는다. 모델 카드의 지원 코드 판과 원본 코드가 지원하는 모델 목록이 같은지 넣기 전에 확인한다. 판단은 「실물 확인 필요」로 남긴 곳부터 의심한다.
+
 ## 2026-11-04 (바로잡음) LeVo 2의 진짜 원인은 GitHub 압축 안의 Git LFS 자리표시 글 (`free-music-studio` 엔진 0.6.1, [역할: music] · 원인 확인 [역할: realty])
 - **바로잡을 점**: 아래 「Weights only load failed」 항목의 원인 판단은 절반만 맞았다. `Unsupported operand 118`은 `tools/new_prompt.pt`가 **133바이트 LFS 자리표시 글**(`version https://git-lfs…`, 첫 글자 `v`=118)이었기 때문이다. 원본을 `github.com/<repo>/archive/<commit>.zip`으로 받으면 LFS로 둔 파일(LeVo `.gitattributes`: `*.pt`)은 진짜 내용 대신 자리표시 글만 들어간다. 0.6.0의 환경 변수로 첫 오류가 사라지자 `invalid load key, 'v'`가 드러났다. 0.6.0 주석 「공식 Runtime에서 받은 파일」도 틀렸다(Runtime에는 `tools/` 없음).
 - **해결**: 주인님 마스터PC는 미디어 서버(`media.githubusercontent.com/media/<repo>/<commit>/<경로>`)에서 진짜 파일(15,383,404바이트, sha256 `23357f8e…7f0f`)로 바꿔 확인값 일치. 엔진 0.6.1: 원본을 푼 뒤 1KB 미만 파일 중 LFS 자리표시 글을 찾아 미디어 서버에서 받고 자리표시 글의 `oid`·`size`로 확인(`pyengines.mjs` `parseLfsPointer`·`fixLfsFiles`, 이미 설치된 PC도 `install.json` `lfs`로 한 번 점검). 저장소 목록 확인: LeVo는 `tools/new_prompt.pt` 하나뿐, Stable Audio 3·heartlib은 없음.
