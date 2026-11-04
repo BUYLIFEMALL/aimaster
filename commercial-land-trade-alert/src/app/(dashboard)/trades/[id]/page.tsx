@@ -61,7 +61,7 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
 
       <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-3">
         <Item label="거래 금액" value={formatManwon(t.amount_manwon)} />
-        <Item label={t.kind === "building" ? "건물면적" : "거래면적"} value={formatArea(t.area_m2)} />
+        <Item label={t.kind === "land" ? "거래면적" : "건물면적"} value={formatArea(t.area_m2)} />
         <Item label="평당가" value={formatManwon(t.price_per_pyeong)} />
         {t.plot_m2 && <Item label="대지면적" value={formatArea(t.plot_m2)} />}
         {t.floor && <Item label="층" value={`${t.floor}층`} />}

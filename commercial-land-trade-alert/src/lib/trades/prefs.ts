@@ -45,7 +45,7 @@ interface Matchable {
 export function matchesPrefs(t: Matchable, p: Prefs): boolean {
   if (t.cancelled) return false;
   if (!p.kinds.includes(t.kind)) return false;
-  if ((t.kind === "building" ? p.excluded_uses : p.excluded_jimoks).includes(t.category)) return false;
+  if ((t.kind === "land" ? p.excluded_jimoks : p.excluded_uses).includes(t.category)) return false;
   if (t.is_share && !p.include_share) return false;
   if (p.min_amount !== null && t.amount_manwon < p.min_amount) return false;
   if (p.max_amount !== null && t.amount_manwon > p.max_amount) return false;
@@ -70,7 +70,7 @@ export function formatArea(v: number | null | undefined): string {
   return `${Number(v).toLocaleString("ko-KR", { maximumFractionDigits: 2 })}㎡ (${(Number(v) / 3.3058).toLocaleString("ko-KR", { maximumFractionDigits: 1 })}평)`;
 }
 
-export const kindLabel = (k: string) => (k === "building" ? "상가·건물" : "토지");
+export const kindLabel = (k: string) => (k === "building" ? "상가·건물" : k === "factory" ? "공장·창고" : "토지");
 
 export function alertText(trades: { kind: string; sgg_nm: string; umd_nm: string; category: string; amount_manwon: number; area_m2: number | null; deal_date: string; is_share: boolean }[], siteUrl: string) {
   const lines = trades.map((t) => {
@@ -82,5 +82,5 @@ export function alertText(trades: { kind: string; sgg_nm: string; umd_nm: string
 
 export function kakaoAlertText(trades: { sgg_nm: string; umd_nm: string; kind: string; category: string; amount_manwon: number }[]) {
   const t = trades[0];
-  return `[상가·건물·토지] 새 실거래 ${trades.length}건\n${t.sgg_nm} ${t.umd_nm} ${kindLabel(t.kind)}(${t.category}) ${formatManwon(t.amount_manwon)}${trades.length > 1 ? ` 외 ${trades.length - 1}건` : ""}`.slice(0, 200);
+  return `[상가·건물·토지·공장] 새 실거래 ${trades.length}건\n${t.sgg_nm} ${t.umd_nm} ${kindLabel(t.kind)}(${t.category}) ${formatManwon(t.amount_manwon)}${trades.length > 1 ? ` 외 ${trades.length - 1}건` : ""}`.slice(0, 200);
 }

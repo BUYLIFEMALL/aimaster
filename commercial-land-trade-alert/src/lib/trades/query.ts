@@ -16,7 +16,7 @@ const quoted = (list: string[]) => `(${list.map((v) => `"${v.replace(/"/g, "")}"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function applyTradeFilter(query: any, filter: TradeFilter, codes: string[], prefs: Prefs) {
   let q = query.in("sgg_cd", codes.length ? codes : [""]);
-  if (filter.kind === "building" || filter.kind === "land") q = q.eq("kind", filter.kind);
+  if (filter.kind === "building" || filter.kind === "land" || filter.kind === "factory") q = q.eq("kind", filter.kind);
   if (filter.sgg) q = q.eq("sgg_cd", filter.sgg);
   if (filter.category) q = q.eq("category", filter.category);
   if (filter.q) q = q.ilike("umd_nm", `%${filter.q.replace(/[%_,()]/g, "")}%`);

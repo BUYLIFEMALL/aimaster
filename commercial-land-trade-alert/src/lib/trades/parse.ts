@@ -1,6 +1,9 @@
-// 국토부 상업업무용(NrgTrade)·토지(LandTrade) 응답을 저장 형태로 바꾼다. 순수 함수만 둔다(시험 대상).
+// 국토부 상업업무용(NrgTrade)·토지(LandTrade)·공장창고(InduTrade) 응답을 저장 형태로 바꾼다. 순수 함수만 둔다(시험 대상).
 
-export type TradeKind = "building" | "land";
+export type TradeKind = "building" | "land" | "factory";
+
+/** 상업업무용과 공장·창고는 건물 자료라 같은 칸을 읽는다(공장·창고 칸 이름은 첫 수집 원본으로 대조, 2026-11-04 플랜) */
+export const isBuildingKind = (k: string) => k === "building" || k === "factory";
 
 export interface TradeRow {
   trade_key: string;
@@ -58,7 +61,8 @@ function parseOne(kind: TradeKind, raw: Raw, sggCd: string, sggNm: string): Omit
   const d = num(raw.dealDay);
   if (amount === null || !y || !m || !d) return null;
   const jibun = text(raw.jibun);
-  const area = kind === "building" ? num(raw.buildingAr) : num(raw.dealArea);
+  const bld = isBuildingKind(kind);
+  const area = bld ? num(raw.buildingAr) : num(raw.dealArea);
   return {
     kind,
     sgg_cd: sggCd,
@@ -68,13 +72,13 @@ function parseOne(kind: TradeKind, raw: Raw, sggCd: string, sggNm: string): Omit
     jibun_masked: jibun === "" || jibun.includes("*"),
     deal_date: `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
     amount_manwon: amount,
-    category: text(kind === "building" ? raw.buildingUse : raw.jimok),
-    building_type: kind === "building" ? text(raw.buildingType) || null : null,
+    category: text(bld ? raw.buildingUse : raw.jimok),
+    building_type: bld ? text(raw.buildingType) || null : null,
     land_use: text(raw.landUse) || null,
     area_m2: area,
-    plot_m2: kind === "building" ? num(raw.plottageAr) : null,
+    plot_m2: bld ? num(raw.plottageAr) : null,
     floor: text(raw.floor) || null,
-    build_year: kind === "building" ? num(raw.buildYear) : null,
+    build_year: bld ? num(raw.buildYear) : null,
     is_share: text(raw.shareDealingType).includes("지분"),
     dealing_type: text(raw.dealingGbn) || null,
     cancelled: text(raw.cdealType) !== "",

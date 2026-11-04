@@ -138,3 +138,19 @@ test("알림 문구에 지역·금액·지분이 들어간다", () => {
   assert.match(t, /강남구 역삼동 토지\(대\) 2,000만/);
   assert.match(t, /지분/);
 });
+
+test("공장·창고(InduTrade) 줄은 건물 칸으로 읽고 라벨·조건·키가 따로 간다", async () => {
+  const { kindLabel } = await import("../src/lib/trades/prefs.ts");
+  const [r] = parseTrades("factory", [{ ...NRG, buildingUse: "공장", buildingAr: 1200, plottageAr: 3000 }], "41590", "화성시");
+  assert.equal(r.kind, "factory");
+  assert.equal(r.category, "공장");
+  assert.equal(r.area_m2, 1200, "면적은 건물면적");
+  assert.equal(r.plot_m2, 3000, "대지면적");
+  assert.equal(r.building_type, "일반");
+  assert.ok(r.trade_key.startsWith("factory|"), "건물 줄과 키가 겹치지 않음");
+  assert.equal(kindLabel("factory"), "공장·창고");
+  assert.equal(matchesPrefs(r, DEFAULT_PREFS), false, "기본 조건에는 공장·창고가 꺼져 있음");
+  assert.equal(matchesPrefs(r, { ...DEFAULT_PREFS, kinds: ["factory"] }), true);
+  assert.equal(matchesPrefs(r, { ...DEFAULT_PREFS, kinds: ["factory"], excluded_uses: ["공장"] }), false, "건물 용도 제외가 공장·창고에도 적용");
+  assert.match(alertText([r], "https://x"), /공장·창고\(공장\)/);
+});

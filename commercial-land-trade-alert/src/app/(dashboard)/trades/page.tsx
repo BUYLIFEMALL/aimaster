@@ -106,6 +106,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Promi
           <option value="">상가·건물 + 토지</option>
           <option value="building">상가·건물</option>
           <option value="land">토지</option>
+          <option value="factory">공장·창고</option>
         </select>
         <select name="sgg" defaultValue={filter.sgg} aria-label="지역" className="mx-input min-h-[40px] py-2 text-sm">
           <option value="">모든 실거래 지역</option>

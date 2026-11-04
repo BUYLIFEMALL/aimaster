@@ -11,7 +11,7 @@ type Admin = any;
 
 export const THIS_PROGRAM_SLUG = "commercial-land-trade-alert";
 
-const SERVICE: Record<TradeKind, string> = { building: "NrgTrade", land: "LandTrade" };
+const SERVICE: Record<TradeKind, string> = { building: "NrgTrade", land: "LandTrade", factory: "InduTrade" };
 const NUM_OF_ROWS = 1000;
 const MAX_BACKFILL_MONTHS = 10; // 최근 2달 + 10달 = 12개월
 const LAND_DAILY_GUARD = 900; // 토지 자료 하루 한도 1,000건에 여유를 둔다
@@ -63,7 +63,7 @@ async function saveTrades(admin: Admin, rows: TradeRow[]) {
 
 /** 호출 수를 하루 단위로 센다. 토지가 한도에 가까우면 그날은 토지를 건너뛴다 */
 export class Usage {
-  private counts: Record<string, number> = { building: 0, land: 0 };
+  private counts: Record<string, number> = { building: 0, land: 0, factory: 0 };
   private constructor(private admin: Admin, private day: string) {}
   static async load(admin: Admin, now: Date) {
     const u = new Usage(admin, kstDay(now));
@@ -95,7 +95,7 @@ export async function collectRegion(admin: Admin, region: { sgg_cd: string; sgg_
 
   const errors: string[] = [];
   let saved = 0;
-  for (const kind of ["building", "land"] as TradeKind[]) {
+  for (const kind of ["building", "land", "factory"] as TradeKind[]) {
     if (kind === "land" && usage.landFull()) {
       errors.push("토지 자료 하루 호출 한도에 가까워 다음에 이어서 받습니다");
       continue;

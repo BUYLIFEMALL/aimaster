@@ -45,8 +45,8 @@ export async function savePrefsAction(_prev: PrefsState, formData: FormData): Pr
   if ([minEok, maxEok, minArea, maxArea].some((v) => Number.isNaN(v))) return { error: "금액과 면적은 숫자로 적어 주세요." };
   if (minEok !== null && maxEok !== null && minEok > maxEok) return { error: "최소 금액이 최대 금액보다 큽니다." };
   if (minArea !== null && maxArea !== null && minArea > maxArea) return { error: "최소 면적이 최대 면적보다 큽니다." };
-  const kinds = formData.getAll("kinds").map(String).filter((k) => k === "building" || k === "land");
-  if (!kinds.length) return { error: "상가·건물과 토지 중 하나는 골라 주세요." };
+  const kinds = formData.getAll("kinds").map(String).filter((k) => k === "building" || k === "land" || k === "factory");
+  if (!kinds.length) return { error: "상가·건물, 토지, 공장·창고 중 하나는 골라 주세요." };
   const pickedUses = formData.getAll("uses").map(String);
   const pickedJimoks = formData.getAll("jimoks").map(String);
 

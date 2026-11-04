@@ -34,13 +34,15 @@ export function ConditionsForm({ prefs }: { prefs: Prefs }) {
     <form action={action} className="space-y-4">
       <section className="mx-card">
         <h2 className="mx-section-title mb-3">무엇을 볼까요?</h2>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Check name="kinds" value="building" label="🏢 상가·건물" checked={prefs.kinds.includes("building")} />
           <Check name="kinds" value="land" label="🌳 토지" checked={prefs.kinds.includes("land")} />
+          <Check name="kinds" value="factory" label="🏭 공장·창고" checked={prefs.kinds.includes("factory")} />
         </div>
       </section>
       <section className="mx-card">
-        <h2 className="mx-section-title mb-3">건물 용도</h2>
+        <h2 className="mx-section-title mb-1">건물 용도</h2>
+        <p className="mb-3 text-xs text-mx-muted">체크를 끈 용도는 상가·건물과 공장·창고 알림에서 모두 빠집니다. 목록에 없는 용도(공장·창고 등)는 늘 받습니다.</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
           {BUILDING_USES.map((u) => (
             <Check key={u} name="uses" value={u} label={u} checked={!prefs.excluded_uses.includes(u)} />
