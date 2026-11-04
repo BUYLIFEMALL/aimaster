@@ -49,4 +49,4 @@
 2. 내 PC 서버: `cd labs/mall-builder && npx next dev -p 3210`. DB 변경은 추가만(확인 창 방지).
 
 ## 주인님께 여쭐 것
-- (선택) `buylife.xyz` DMARC 추가 여부 — 넣는다면 `p=none`으로(메일 알림에는 필요 없음, 2026-11-04)
+- (없음) — `buylife.xyz` DMARC는 2026-11-04 주인님 결정으로 지금은 넣지 않음(필요해지면 `p=none`부터)
