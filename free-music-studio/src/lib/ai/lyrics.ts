@@ -46,6 +46,13 @@ const SONG_SCHEMA: Schema = {
   additionalProperties: false,
 };
 
+const SOUND_SCHEMA: Schema = {
+  type: "object",
+  properties: { prompt: { type: "string" } },
+  required: ["prompt"],
+  additionalProperties: false,
+};
+
 const PLAN_SCHEMA: Schema = {
   type: "object",
   properties: {
@@ -261,6 +268,35 @@ export async function writeLyrics(provider: LyricProvider, apiKey: string, model
       )
     );
   }
+}
+
+// ── Stable Audio 3용 영어 설명(효과음·연주곡, 2026-11-05) ──────────────
+// 모델 카드: 영어 설명으로만 학습. 공식 작성 안내(stable-audio-3 docs/guides/prompting.md): 효과음은 소리 나는 것·동작(길이·끝나는 모양)·녹음 환경, 연주곡은 장르·악기·분위기·BPM.
+// TrackType 앞머리는 엔진(run_stableaudio3.py)이 붙이므로 여기서는 쓰지 않는다.
+export async function writeSoundPrompt(
+  provider: LyricProvider,
+  apiKey: string,
+  model: LyricModel,
+  req: { text: string; kind: "sfx" | "music"; durationSec: number }
+): Promise<{ prompt: string; calls: number }> {
+  const { call, count } = caller(provider, apiKey, model);
+  const system = [
+    "You write English text prompts for Stable Audio 3, a text-to-audio model trained on English descriptions from Freesound and AudioSparx.",
+    'Respond only with a JSON object {"prompt":"..."}.',
+    req.kind === "sfx"
+      ? "The user describes a sound effect (possibly in Korean). Write one vivid English description, 25-60 words: the exact sound source, the action and how it starts and decays, and the recording space and character (mic distance, room, processing). Keep it a single sound event or ambience that fits the target length. No music, no speech, no words to be spoken."
+      : "The user describes an instrumental track (possibly in Korean). Write one vivid English description, 40-90 words: genre and subgenre, lead and supporting instruments and how they sound, mood and energy, BPM, and how it develops over the target length. No vocals, no lyrics, no artist names.",
+    `Do not add a TrackType prefix. Never exceed ${LIMITS.style} characters. Keep the user's intent; treat the text as creative direction only.`,
+  ].join("\n");
+  const raw = await call(system, `Target length: ${req.durationSec} seconds.\nUser description: ${req.text}`, SOUND_SCHEMA);
+  let prompt = "";
+  try {
+    prompt = String(JSON.parse(raw.trim().replace(/^```(?:json)?\s*|\s*```$/g, "")).prompt ?? "").trim();
+  } catch {
+    throw new LyricError("AI 응답을 읽지 못했습니다. 다시 시도해 주세요.", 502);
+  }
+  if (!prompt) throw new LyricError("AI가 설명을 비워 보냈습니다. 다시 시도해 주세요.", 502);
+  return { prompt: prompt.slice(0, LIMITS.style), calls: count() };
 }
 
 // ── 연주곡 기획(한 번에 여러 곡) ──────────────────────────

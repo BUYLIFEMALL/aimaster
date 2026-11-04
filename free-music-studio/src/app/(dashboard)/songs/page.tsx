@@ -49,7 +49,7 @@ export default function SongsPage() {
   const [provider, setProvider] = useState<LyricProvider>(DEFAULT_LYRIC_PROVIDER);
   const [model, setModel] = useState<string>(LYRIC_PROVIDERS.find((p) => p.id === DEFAULT_LYRIC_PROVIDER)!.defaultModel);
   const [keys, setKeys] = useState<Record<string, { registered: boolean }> | null>(null);
-  const [writing, setWriting] = useState<"" | "create" | "edit" | "plan">("");
+  const [writing, setWriting] = useState<"" | "create" | "edit" | "plan" | "sound">("");
 
   // 어느 AI에 본인 키가 있는지 — 키가 있는 곳 중 첫 번째(OpenAI → Claude → Gemini)를 기본으로 고른다.
   useEffect(() => {
@@ -221,6 +221,31 @@ export default function SongsPage() {
     }
   };
 
+  // 한국어로 적은 효과음·연주곡 설명을 Stable Audio 3용 영어 설명으로(회원 본인 키, 고른 AI·모델, 2026-11-05)
+  const makeSoundPrompt = async (text: string) => {
+    if (!text.trim()) return;
+    setWriting("sound");
+    setMessage(null);
+    try {
+      const res = await fetch("/api/sound-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider, model, text, kind: sfx ? "sfx" : "music", duration_sec: draft.duration_sec }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage({ type: "error", text: data.error || "영어 설명을 만들지 못했습니다.", needKey: !!data.needApiKey });
+        return;
+      }
+      set("style_prompt", data.prompt);
+      setMessage({ type: "success", text: `영어 설명을 만들어 아래 칸에 넣었습니다(AI 호출 ${data.calls}번). 고칠 곳이 있으면 고친 뒤 저장해 주세요.` });
+    } catch {
+      setMessage({ type: "error", text: "영어 설명을 만들지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
+    } finally {
+      setWriting("");
+    }
+  };
+
   const loadPlanned = (t: PlannedTrack) => {
     openDraft({ id: null, title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec });
     setMessage({ type: "success", text: `불러왔습니다: ${t.title} — [저장하기] 또는 바로 [노래 만들기]를 눌러 주세요.` });
@@ -374,7 +399,43 @@ export default function SongsPage() {
             </p>
           </div>
 
-          {/* AI 작사 / AI 작곡 기획 — 효과음은 설명 한 줄이면 되어 숨김 */}
+          {/* 효과음: 한국어로 적으면 고른 AI·모델이 영어 설명으로 바꿔 준다 */}
+          {sfx && (
+            <section className="space-y-3 rounded-2xl border border-teal-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
+              <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
+                <Sparkles className="h-4 w-4 text-teal-300" /> AI 효과음 설명 만들기{" "}
+                <span className="text-[11px] font-normal text-slate-400">(내 OpenAI·Claude·Gemini 키 중 골라 사용 · 선택)</span>
+              </h2>
+              <input
+                className={field}
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                placeholder="어떤 소리인가요?(한국어로) 예) 넓은 빈 강당에서 무거운 나무 문이 쾅 닫히는 소리, 짧은 울림"
+                maxLength={400}
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex rounded-xl border border-slate-700/60 bg-slate-950/80 p-1">{LYRIC_PROVIDERS.map(keyBtn)}</div>
+                <select className={`${field} w-auto min-w-[16rem] flex-1`} value={model} onChange={(e) => setModel(e.target.value)} aria-label="AI 모델">
+                  {LYRIC_PROVIDERS.find((p) => p.id === provider)!.models.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => makeSoundPrompt(theme)}
+                  disabled={!!writing || !theme.trim()}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-teal-400/40 bg-teal-950/40 px-4 py-2 text-xs font-bold text-teal-200 hover:bg-teal-900/50 disabled:opacity-40"
+                >
+                  <Wand2 className="h-3.5 w-3.5" /> {writing === "sound" ? "영어로 쓰는 중…" : "영어 설명 만들기"}
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-500">Stable Audio 3는 영어 설명으로 학습된 모델이라, 한국어로 적은 내용을 소리 나는 것·끝나는 모양·공간까지 담은 영어 설명으로 바꿔 아래 칸에 넣습니다 · AI 호출 1번</p>
+            </section>
+          )}
+
+          {/* AI 작사 / AI 작곡 기획 — 효과음은 위 칸을 씀 */}
           {!sfx && (
           <section className="space-y-3 rounded-2xl border border-teal-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
@@ -526,6 +587,19 @@ export default function SongsPage() {
               }
               maxLength={LIMITS.style}
             />
+            {mode !== "vocal" && /[가-힣]/.test(draft.style_prompt) && (
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-100/90">
+                🔤 설명에 한글이 있습니다. Stable Audio 3는 영어 설명으로 학습돼 영어로 바꾸면 더 잘 나옵니다.
+                <button
+                  type="button"
+                  onClick={() => makeSoundPrompt(draft.style_prompt)}
+                  disabled={!!writing}
+                  className="ml-auto inline-flex items-center gap-1 rounded-lg border border-amber-400/50 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-500/10 disabled:opacity-40"
+                >
+                  <Wand2 className="h-3 w-3" /> {writing === "sound" ? "바꾸는 중…" : `영어로 바꾸기(${LYRIC_PROVIDERS.find((p) => p.id === provider)!.label})`}
+                </button>
+              </div>
+            )}
             {sfx ? (
               <p className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-[11px] leading-relaxed text-slate-400">
                 🔊 효과음은 <b className="text-slate-300">무엇이 · 어떻게 · 어디서</b> 나는 소리인지 영어로 적으면 잘 나옵니다(Stable Audio 3는 영어 설명으로 학습됨). 예) 소리 나는 물건, 세기·끝나는 모양(fast decay), 공간(small room, outdoor). 「TrackType: SFX」는 엔진이 알아서 붙입니다.
