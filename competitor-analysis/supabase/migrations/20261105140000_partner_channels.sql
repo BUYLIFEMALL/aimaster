@@ -19,10 +19,22 @@ create table public.competitor_partner_channels (
   -- 주제 매칭 점수(0~100)와 이유 — 기준 미만은 애초에 저장하지 않는다(주인님 「매칭되는 사람만」).
   match_score int not null default 0 check (match_score between 0 and 100),
   match_reasons text not null default '' check (length(match_reasons) <= 300),
+  -- 자동 스캔(회원 PC 확장)이 공개 페이지에서 읽은 값 — 플랜 PLAN_20261105_PARTNER_FINDER.md 단계 1·2.
+  display_name text check (display_name is null or length(display_name) <= 100),
+  public_id text check (public_id is null or length(public_id) <= 100),
+  phones_mobile text[] not null default '{}' check (cardinality(phones_mobile) <= 5),
+  phones_landline text[] not null default '{}' check (cardinality(phones_landline) <= 5),
+  emails text[] not null default '{}' check (cardinality(emails) <= 5),
+  primary_contact text check (primary_contact is null or length(primary_contact) <= 200),
+  primary_type text check (primary_type is null or primary_type in ('mobile','landline','email')),
+  scan_status text not null default 'pending' check (scan_status in ('pending','scanning','done','none','stopped')),
+  scanned_at timestamptz,
+  profile_match_score int not null default 0 check (profile_match_score between 0 and 60),
   created_at timestamptz not null default now(),
   unique (user_id, channel_type, name, url)
 );
 create index competitor_partner_channels_owner_idx on public.competitor_partner_channels(user_id, created_at desc);
+create index competitor_partner_channels_scan_idx on public.competitor_partner_channels(user_id, scan_status);
 create index competitor_partner_channels_score_idx on public.competitor_partner_channels(user_id, match_score desc);
 create index competitor_partner_channels_created_idx on public.competitor_partner_channels(created_at);
 
@@ -45,7 +57,8 @@ alter table public.competitor_partner_channels enable row level security;
 revoke all on public.competitor_partner_channels from public, anon, authenticated;
 grant select, insert, delete on public.competitor_partner_channels to authenticated;
 -- 회원이 고칠 수 있는 것은 직접 확인해 적는 연락처 칸뿐(이름·주소·만든 시각은 못 바꿈).
-grant update (public_phone, public_email, contact_note) on public.competitor_partner_channels to authenticated;
+-- 회원이 고칠 수 있는 것: 직접 적는 연락처·메모, 오탐을 지우는 스캔 결과 칸(이름·주소·점수·만든 시각은 못 바꿈). 스캔 결과 저장은 서버(service_role)가.
+grant update (public_phone, public_email, contact_note, phones_mobile, phones_landline, emails, primary_contact, primary_type) on public.competitor_partner_channels to authenticated;
 grant all on public.competitor_partner_channels to service_role;
 create policy competitor_partner_channels_owner_select on public.competitor_partner_channels
   for select to authenticated using ((select auth.uid()) = user_id

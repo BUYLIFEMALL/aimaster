@@ -1,5 +1,7 @@
 export type ApiKeyProvider = "serpapi" | "perplexity" | "openai" | "anthropic" | "naver_client_id" | "naver_client_secret" | "naver_ads_api_key" | "naver_ads_secret_key" | "naver_ads_customer_id";
 export type PartnerChannelType = "blog" | "local" | "cafe" | "shop";
+export type PartnerScanStatus = "pending" | "scanning" | "done" | "none" | "stopped";
+export type PartnerContactType = "mobile" | "landline" | "email";
 export type ResultType = "organic" | "ad" | "paa" | "local";
 export type SerpEngine = "google" | "naver";
 export type CompetitorSourceKind = "track" | "upload"; // (미사용, 확장 여지로만 남김)
@@ -200,6 +202,16 @@ export interface Database {
           contact_note: string | null;
           match_score: number;
           match_reasons: string;
+          display_name: string | null;
+          public_id: string | null;
+          phones_mobile: string[];
+          phones_landline: string[];
+          emails: string[];
+          primary_contact: string | null;
+          primary_type: PartnerContactType | null;
+          scan_status: PartnerScanStatus;
+          scanned_at: string | null;
+          profile_match_score: number;
           created_at: string;
         };
         Insert: {
@@ -217,12 +229,27 @@ export interface Database {
           contact_note?: string | null;
           match_score?: number;
           match_reasons?: string;
+          display_name?: string | null;
+          public_id?: string | null;
+          phones_mobile?: string[];
+          phones_landline?: string[];
+          emails?: string[];
+          primary_contact?: string | null;
+          primary_type?: PartnerContactType | null;
+          scan_status?: PartnerScanStatus;
+          scanned_at?: string | null;
+          profile_match_score?: number;
           created_at?: string;
         };
         Update: {
           public_phone?: string | null;
           public_email?: string | null;
           contact_note?: string | null;
+          phones_mobile?: string[];
+          phones_landline?: string[];
+          emails?: string[];
+          primary_contact?: string | null;
+          primary_type?: PartnerContactType | null;
         };
         Relationships: [];
       };

@@ -42,6 +42,7 @@
 
 ## 4. 남은 작업 플랜 (순서대로)
 ### 단계 1 — DB 보강 (맥미니가 초안 수정 가능, 적용은 윈도우·주인님 승인)
+> ✅ **초안 반영 완료(2026-11-05 맥미니)** — 아래 칸 모두 마이그레이션 초안·`types/database.types.ts`에 추가, `tsc` 통과. 운영 적용은 아직(주인님 승인 `df64e86f` 뒤 윈도우). 다음 첫 단계 = 단계 2(확장).
 `20261105140000_partner_channels.sql`(아직 미적용이라 같은 파일 수정)에 칸 추가:
 - `display_name`(공개 이름·닉네임), `public_id`(채널에 공개된 아이디, 예: 블로그 주소의 아이디)
 - `phones_mobile text[]`·`phones_landline text[]`·`emails text[]`(여러 개, 각 최대 5), `primary_contact`(우선순위로 고른 대표값), `primary_type`('mobile'|'landline'|'email')
