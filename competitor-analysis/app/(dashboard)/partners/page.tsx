@@ -27,7 +27,7 @@ export default async function PartnersPage() {
   ]);
   const agreed = !!consent && consent.notice_version >= PARTNER_NOTICE_VERSION;
   const list = (rows ?? []) as PartnerRow[];
-  const withContact = list.filter((r) => r.public_phone || r.public_email).length;
+  const withContact = list.filter((r) => r.primary_contact || r.public_phone || r.public_email).length;
   const keywords = new Set(list.map((r) => r.keyword)).size;
 
   return (
@@ -45,7 +45,7 @@ export default async function PartnersPage() {
         <>
           <KpiGrid>
             <KpiCard icon="📋" label="담은 채널" value={list.length} />
-            <KpiCard icon="📇" label="공개 연락처 적음" value={withContact} tone="green" />
+            <KpiCard icon="📇" label="공개 연락처 있음" value={withContact} tone="green" />
             <KpiCard icon="🔑" label="키워드" value={keywords} tone="muted" />
           </KpiGrid>
           <PartnerSearchForm />
@@ -82,7 +82,7 @@ export default async function PartnersPage() {
                     </div>
                     {r.match_reasons && <p className="text-xs text-mx-success">✔ {r.match_reasons}</p>}
                     <p className="text-xs text-mx-text">
-                      {r.scan_status === "done" && r.primary_contact ? <>📇 <b>{r.primary_contact}</b> <span className="text-mx-muted">({r.primary_type === "mobile" ? "핸드폰" : r.primary_type === "landline" ? "일반전화" : "이메일"}){r.display_name ? ` · ${r.display_name}` : ""}{[...r.phones_mobile, ...r.phones_landline, ...r.emails].length > 1 ? ` · 그 밖 ${[...r.phones_mobile, ...r.phones_landline, ...r.emails].length - 1}개` : ""}</span></>
+                      {r.scan_status === "done" && r.primary_contact ? <>📇 <b>{r.primary_contact}</b> <span className="text-mx-muted">({r.primary_type === "mobile" ? "핸드폰" : r.primary_type === "landline" ? "일반전화" : "이메일"}){r.display_name ? ` · ${r.display_name.replace(/\s*[:|\-–]\s*(네이버\s*(블로그|카페|플레이스|스마트스토어|쇼핑)|NAVER.*|네이버)\s*$/i, "")}` : ""}{[...r.phones_mobile, ...r.phones_landline, ...r.emails].length > 1 ? ` · 그 밖 ${[...r.phones_mobile, ...r.phones_landline, ...r.emails].length - 1}개` : ""}</span></>
                         : r.scan_status === "none" ? <span className="text-mx-muted">공개 연락처 없음</span>
                         : r.scan_status === "scanning" ? <span className="text-mx-muted">스캔 중…</span>
                         : <span className="text-mx-muted">스캔 대기 — 확장 팝업에서 「스캔 시작」</span>}

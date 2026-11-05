@@ -33,6 +33,9 @@ export async function start() {
   if (!inWindow()) return set({ ...(await get()), running: false, message: "지금은 동작 시간대(09~22시) 밖입니다." });
   const win = await chrome.windows.getLastFocused();
   const tab = await chrome.tabs.create({ windowId: win.id, url: "about:blank", active: true });
+  // 팝업에서 시작하면 원래 탭이 앞에 남는 경우가 있어 스캔 탭과 창을 확실히 앞으로(숨은 탭에서 읽지 않기 위해).
+  await chrome.tabs.update(tab.id, { active: true }).catch(() => {});
+  await chrome.windows.update(win.id, { focused: true }).catch(() => {});
   await set({ running: true, queue: [], tabId: tab.id, done: 0, message: "스캔 준비 중" });
   await chrome.alarms.create(ALARM, { delayInMinutes: 0.05 });
 }

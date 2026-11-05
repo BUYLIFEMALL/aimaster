@@ -18,6 +18,12 @@ const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const list = (v: unknown, ok: RegExp, max = 5) =>
   Array.isArray(v) ? v.map((x) => String(x).trim()).filter((x) => x && x.length <= 200 && ok.test(x)).slice(0, max) : [];
 
+/** 페이지 제목 꼬리(「 : 네이버 블로그」·「 - 네이버 플레이스」 등) 떼기. */
+function cleanName(v: string): string | null {
+  const t = v.replace(/\s*[:|\-–]\s*(네이버\s*(블로그|카페|플레이스|스마트스토어|쇼핑)|NAVER.*|네이버)\s*$/i, "").trim().slice(0, 100);
+  return t || null;
+}
+
 function todayStartKst(): string {
   const now = new Date(Date.now() + 9 * 3600_000);
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - 9 * 3600_000).toISOString();
@@ -56,7 +62,7 @@ export async function POST(req: Request) {
     const primary = mobile[0] ? ["mobile", mobile[0]] : landline[0] ? ["landline", landline[0]] : emails[0] ? ["email", emails[0]] : null;
     const status = body.status === "stopped" ? "pending" : primary ? "done" : "none"; // 중지면 다음에 다시 스캔
     const { error } = await db.from("competitor_partner_channels").update({
-      display_name: typeof body.display_name === "string" ? body.display_name.trim().slice(0, 100) || null : null,
+      display_name: typeof body.display_name === "string" ? cleanName(body.display_name) : null,
       public_id: typeof body.public_id === "string" ? body.public_id.trim().slice(0, 100) || null : null,
       phones_mobile: mobile, phones_landline: landline, emails,
       primary_type: (primary?.[0] as "mobile" | "landline" | "email" | undefined) ?? null, primary_contact: primary?.[1] ?? null,

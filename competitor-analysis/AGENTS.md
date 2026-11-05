@@ -181,3 +181,4 @@ production dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY, 소스 c80a44af 푸시·DB v1
   3. 「스캔 시작」 뒤 스캔 탭이 앞에 오지 않음(팝업에서 시작하면 원래 탭이 앞에 남음) → `start()`에서 `chrome.tabs.update(tab.id,{active:true})` + `chrome.windows.update(win.id,{focused:true})`, 팝업 문구 「열린 스캔 탭을 앞에 두세요」.
   4. (이미 커밋 `70e8d7202`) 위쪽 안내 문구 정정.
 - 고친 뒤: 확장은 manifest·ZIP·DB 버전 함께(핵심 원칙 10) — 윈도우 빌드·배포(빌드 1회 주인님 승인).
+- **고칠 점 1~3 반영(같은 날 맥미니, 미배포 대기)**: KPI 「공개 연락처 있음」이 확장이 읽은 대표 연락처도 셈 · 이름 꼬리 「 : 네이버 블로그」 등을 서버 저장 때(`route.ts` `cleanName`)와 목록 표시 때 모두 뗌 · `start()`가 스캔 탭·창을 앞으로 + 팝업 안내 문구. 맥미니 `tsc` 0·확장 문법 OK. **확장 파일이 바뀌었으니 배포 때 버전 v1.11 + manifest·ZIP·DB 함께(핵심 원칙 10)**.
