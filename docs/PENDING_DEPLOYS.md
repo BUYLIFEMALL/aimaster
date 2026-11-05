@@ -65,7 +65,6 @@
 | `ai-slide-builder` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `ai-slide-builder/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
-| `competitor-analysis` | 경쟁사 분석 화면 안내 문구 정정(「다른 회원이 조사한 회사 정보 재사용」 → 본인 30일 안 조사만) | `87b773ef2` | 2026-10-23 · Claude Code(윈도우) | `competitor-analysis/AGENTS.md` 2026-10-23 v1.09 절 | 버전 +0.01 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
@@ -80,6 +79,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `competitor-analysis` | v1.10 · 2026-11-05 (`competitor-analysis-nh5csc4q9`) | 경쟁사 분석 화면 안내 문구 정정 `87b773ef2` (제휴 타깃 찾기 v1.10과 함께) |
 | `real_estate_sales` | v1.53 · 2026-11-05 ([역할: realty] `claude-win-realty-docs`, RQ-A4 0단계 R-ONE 진단 빌드 1회) | 주소 리포트 지도 가운데 📍 핀(`d46717d97`) |
 | `blog-neighbor-care` | v1.18 · 2026-11-05 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-g3h6ns5bk`) | 단계 C-2 자동 운영(운영 SQL `20261105090000`) + 맥미니 글 제목 표시(`3256ee05b`). DB/ZIP OK |
 | `real_estate_sales` | v1.51 · 2026-11-05 ([역할: realty] `claude-win-realty-docs`, RQ-B5 0단계 빌드 1회) | 저장 리포트 등기부 칸(`f7d15a34e`) |

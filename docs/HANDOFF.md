@@ -1,5 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-05 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`competitor-analysis` v1.10 배포: 제휴 타깃 찾기(맥미니 초안) 윈도우 마무리**
+- 한 일:
+  - 격리 DB 시험 8개, 단위 시험 8개를 추가했습니다(`6c2b8ff3e`).
+  - 주인님 승인으로 운영 DB에 적용했습니다(ref esgxyikcnnvmlhygjkth, ego SQL 편집기). 표 2개가 RLS 켜진 상태로 생겼고, 정책 5개·함수 2개·매시 11분 정리 작업이 들어갔습니다.
+  - 확장 ZIP을 만들고 「확장 내려받기」 칸과 설치 3단계 안내를 넣었습니다(`aaf743ac4`). 이 칸은 동의한 뒤의 화면에만 보입니다.
+  - 배포 `competitor-analysis-nh5csc4q9`가 Ready입니다. 미배포 대기였던 `87b773ef2`도 함께 나갔습니다.
+  - DB 버전과 확장 버전을 v1.10으로 맞추고, 확장 다운로드 주소를 넣었습니다.
+- 검수:
+  - `check-extension-release`가 OK입니다.
+  - ZIP 주소가 200으로 열립니다.
+  - 운영 화면에 v1.10이 보이고, 동의 전 고지가 나옵니다.
+  - 확장 API는 동의 전에 거부합니다(403).
+  - 이메일 수집 기본값은 꺼짐으로 확정했습니다(주인님 승인).
+- 못 한 것: 「동의하고 시작하기」는 회원 책임 동의라 대신 누르지 않았습니다. 확장이 로그인 쿠키로 서버를 부르는지와 실제 스캔은 맥미니 실물 확인으로 넘깁니다.
+- 다음 첫 단계: 맥미니가 ego로 다음을 확인합니다.
+  1. 시험 계정으로 동의합니다.
+  2. 확장을 설치합니다.
+  3. 「공동구매」를 찾고 상한 10곳으로 스캔합니다.
+  4. 결과를 확인합니다.
+  - 쿠키 호출이 실패하면 `blog-neighbor-care`의 기기 연결 방식으로 바꿉니다.
+  - 화면 위 안내 「연락처는 … 직접 적어 주세요」는 자동 스캔이 생겨 맞지 않으므로 다음 배포 때 고칩니다.
+  - 상세: `competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md` §4 단계 5
+
 ## 2026-11-05 🔨 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`competitor-analysis` 제휴 타깃 찾기 단계 1~3 초안 완료(미배포·DB 미적용·푸시 안 함)**
 - 커밋 `d4fc15161`: 크롬 확장 `competitor-analysis/extension/`(공개 연락처 추출 핸드폰>일반전화>이메일·30~45초 간격·보안문자/제한이면 그날 중지) + 확장 전용 서버 `app/api/partners/extension/route.ts` + 목록·CSV에 대표 연락처. 단계 1 DB 보강 `4254ae0f9`. 맥미니 `tsc` 통과, 추출 함수 node 시험 통과.
 - **다음 첫 단계**: [`competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md`](../competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md) §4 단계 2 「남은 것」(로그인 쿠키 호출 확인·업체/쇼핑 공개 페이지 실물 확인·탭 전환 잠시 멈춤·ZIP) → 단계 4 엑셀 → 단계 5 윈도우(DB 승인 `df64e86f`·시험·빌드 승인·배포).
