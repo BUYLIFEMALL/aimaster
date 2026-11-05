@@ -114,7 +114,7 @@ export function PartnerSearchForm() {
           </label>
         ))}
       </div>
-      <p className="text-xs text-mx-muted">네이버 공식 검색 API(회원님 본인 키)로 찾습니다. 업체는 한 번에 최대 5곳씩 나옵니다. 연락처는 검색 결과에 없으니, 채널을 열어 공개된 연락처를 확인해 적어 주세요.</p>
+      <p className="text-xs text-mx-muted">네이버 공식 검색 API(회원님 본인 키)로 찾고, 주제에 맞는 채널만 담습니다. 업체는 한 번에 최대 5곳씩 나옵니다. 연락처는 확장이 회원님 PC에서 공개 페이지를 읽어 자동으로 채웁니다.</p>
       {message && (
         <p className={`rounded-lg border px-3 py-2 text-sm ${message.ok ? "border-mx-success text-mx-success" : "border-mx-danger text-mx-danger"}`}>
           {message.text} {message.needsKey && <Link href="/settings" className="underline">설정으로 가기 →</Link>}
