@@ -21,7 +21,6 @@
 
 
 
-- `free-music-studio` — 앨범 그림 플랫폼 고르기(Gemini 나노바나나 / GPT Image / Replicate FLUX 2, 회원 본인 키, 설정에 Replicate 키 칸) (2026-11-05, [역할: music] `claude-win-20261024-music`, `45cf886cd`, 사이트만·SQL 없음, 배포 때 v1.25) — 배포 뒤 세 플랫폼 그림 1장씩 확인
 
 - `coupang-ops` — 텔레그램 끊기, 다른 프로그램 봇 빌려 쓰기 제거 (2026-11-01, [역할: ecommerce-image], `8479b2009`, 실제 끊기 내 PC에서 통과) · 페이지 설명 위너 문구 제거(`ebd28e0e9`)
 - `commercial-land-trade-alert` — 쿠팡 봇을 봇 고르기·빌려 쓰기에서 제외 (2026-11-01, [역할: realty], 서버 코드만, 다음 배포 때 함께)
@@ -89,6 +88,7 @@
 | `real_estate_sales` | v1.49 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-kocrxxfxc`) | 서울 분양권 계약일순 재정렬 |
 | `real_estate_sales` | v1.48 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-l6lj3bimi`) | 「지금 조회하기」 시간 예산(`6d89f342f`, 운영 220초에 끝까지 확인) + 분양권(SilvTrade) 다섯째 유형 |
 | `blog-neighbor-care` | v1.15 · 2026-11-04 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-3focphnt6`) | 30일 보관 열외(운영 SQL `20261104120000` 적용, 열외 자료 87줄 무기한) + 12월 모델 교체 묶음 B(`web-crawler`와 같은 파일) `0a3a8c9f1`. DB/ZIP OK. 위 「12월 모델 교체 B」·「30일 보관 열외」 줄의 `blog-neighbor-care` 몫 처리 완료 |
+| `free-music-studio` | v1.25 · 엔진 0.6.8 설치 파일 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회 + DB 버전 칸, `free-music-studio-nw3x9l49i`) | 앨범 그림 플랫폼 고르기(`45cf886cd`) + 곡 표지 — 「모든 음악」 표지·MP3에 표지 넣기(`5b1635a19`) |
 | `free-music-studio` | v1.24 · 엔진 0.6.7 설치 파일 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 SQL 1회 + 빌드 1회, `free-music-studio-hgctyhc6i`) | 앨범 그림 만들기(`6e18009f6`, SQL `20261105_song_art_prompt.sql` 먼저 실행·확인) + 기획 버튼 이름 「이 곡으로 생성하기」(`f763d7e84`) |
 | `free-music-studio` | v1.23 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-jokdxocpj`, 사이트만) | 효과음 영어 설명 버튼이 설명 칸이 비면 곡 제목으로 만들기(`69191c1a3`) |
 | `free-music-studio` | v1.22 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-j4e06dkvq`, 사이트만) | 효과음·연주곡 한국어 → 영어 설명(`70fcdb9a0`) |

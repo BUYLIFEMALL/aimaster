@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-05 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.25 · 엔진 0.6.8 배포: 앨범 그림 플랫폼 고르기 + 곡 표지(「모든 음악」 표지·MP3에 표지)**
+- 한 일: 플랫폼 3개(Gemini·GPT Image·FLUX 2, 회원 본인 키) `45cf886cd` + 엔진 0.6.8 곡 표지 `5b1635a19`(같은 이름 그림 = 표지, `/library/<id>/art`, MP3 ID3 표지, 지우기·옮기기 동반). 설치 파일 `public/downloads/AI-Free-Music-Engine-Setup-0.6.8.exe`(106.7MB)·`engine-latest.json`.
+- 검수: tsc 0·웹 시험 50·엔진 시험 68(PowerShell, Git Bash에서는 tar 차이로 도구 받기 시험 1개 실패 — 환경 문제), 실제 ffmpeg 표지 확인, 운영 ego 화면 v1.25·플랫폼 버튼 3개, 설치 파일 주소 200. 배포 `free-music-studio-nw3x9l49i` Ready, DB `programs.version` v1.25.
+- 못 한 것: 이 PC 계정 곡 0개라 표지 작은 그림은 화면 확인 못 함 → 마스터PC 엔진 0.6.8 설치 뒤 확인. 세 플랫폼 실제 그림은 회원 키 비용이라 주인님 확인.
+- 다음 첫 단계: 마스터PC 확인 결과 받기 → 4단계 나머지(홈·곡 만들기 2단·내 곡 바로 커버·휴지통) 플랜 → 엔진 3차 DiffRhythm 2. 상세 `free-music-studio/AGENTS.md` §4 v1.25
+
+https://free-music-studio.buylife.xyz/library
+
 ## 2026-11-05 📌 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **세션 마감(크레딧 부족) — `competitor-analysis` 「🤝 제휴 타깃 찾기」 작업 플랜·인수인계 (다음 세션 필독)**
 - **이 문서 하나로 이어감**: [`competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md`](../competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md) — 주인님 결정 10개, 지키는 선, 한 일(커밋 `0ed58941e`·`0f695bb87`·`586f0742c`·`fbb6243f4`, 매칭 판정·키워드 추천 포함), 남은 단계 1~6(DB 보강 → **공개 연락처 자동 스캔 확장** → 서버 연결 → 엑셀 → 윈도우 배포 → 유튜브·인스타·쓰레드 확장), 주인님 결정 4개, 다른 작업 상태표.
 - 상태: 웹 코드 초안만, **미배포·DB 미적용·확장 없음·푸시 안 함**. 맥미니 `tsc` 통과.
