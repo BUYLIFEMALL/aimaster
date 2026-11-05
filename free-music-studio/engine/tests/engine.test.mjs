@@ -45,7 +45,8 @@ test("폴더 고르기: 하위 폴더만·숨김 제외·이름 순, 새 폴더 
     await rm(base, { recursive: true, force: true });
   }
 });
-import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { mp3Args } from "../src/gateway.mjs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -164,6 +165,39 @@ test("보관함: 앨범 그림은 저장 폴더에 「곡 제목.png」, 같은 
   } finally {
     await rm(data, { recursive: true, force: true });
   }
+});
+
+test("보관함: 같은 이름 그림이 곡 표지, 지우면 표지도 지우고 폴더를 옮기면 표지도 따라간다(0.6.8)", async () => {
+  const data = await mkdtemp(path.join(tmpdir(), "fms-cover-"));
+  try {
+    const lib = createLibrary(data, { defaultDir: path.join(data, "Song") });
+    await lib.init();
+    const id = "11111111-2222-4333-8444-555555555555";
+    const id2 = "11111111-2222-4333-8444-666666666666";
+    await lib.save(id, Buffer.from([1, 2]), "가을 노래", "flac");
+    await lib.save(id2, Buffer.from([1, 2]), "겨울 노래", "flac");
+    assert.equal(await lib.artOf(id), null);
+    await lib.saveArt(Buffer.from([0x89, 0x50]), "가을 노래", "png");
+    assert.equal(path.basename(await lib.artOf(id)), "가을 노래.png");
+    assert.equal(await lib.artOf(id2), null);
+    const r = await lib.setDir(path.join(data, "New"), { move: true });
+    assert.equal(r.moved, 2);
+    assert.equal(await lib.artOf(id), path.join(data, "New", "가을 노래.png"));
+    await lib.remove(id);
+    assert.equal(await stat(path.join(data, "New", "가을 노래.png")).then(() => true, () => false), false);
+  } finally {
+    await rm(data, { recursive: true, force: true });
+  }
+});
+
+test("MP3 인자: 표지 있으면 attached_pic, 원음이 MP3면 소리 복사, webp는 png로", () => {
+  const plain = mp3Args("a.flac", "o.mp3");
+  assert.ok(plain.includes("libmp3lame") && !plain.includes("attached_pic"));
+  const withArt = mp3Args("a.flac", "o.mp3", "a.png");
+  assert.ok(withArt.includes("attached_pic") && withArt.includes("1:v") && withArt[withArt.indexOf("-c:v") + 1] === "copy");
+  const mp3 = mp3Args("a.mp3", "o.mp3", "a.webp");
+  assert.equal(mp3[mp3.indexOf("-codec:a") + 1], "copy");
+  assert.equal(mp3[mp3.indexOf("-c:v") + 1], "png");
 });
 
 test("장치: NVIDIA 윈도우는 고품질(cuda, 언어 모델 켬)", () => {

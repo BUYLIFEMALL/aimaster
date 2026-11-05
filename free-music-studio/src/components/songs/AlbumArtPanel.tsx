@@ -60,7 +60,7 @@ export function AlbumArtPanel({ title, style, art, onArtChange }: { title: strin
     setMsg(null);
     try {
       const where = await saveArtToLibrary(title, image.base64, image.mimeType);
-      setMsg({ ok: true, text: `내 PC에 저장했습니다${where ? `: ${where}` : ""}` });
+      setMsg({ ok: true, text: `내 PC에 저장했습니다${where ? `: ${where}` : ""} — 같은 제목의 곡 표지가 되고, 「모든 음악」에서 MP3로 받으면 표지가 들어갑니다(엔진 0.6.8+).` });
     } catch (e) {
       setMsg({ ok: false, text: e instanceof EngineError ? e.message : "내 PC에 저장하지 못했습니다." });
     } finally {

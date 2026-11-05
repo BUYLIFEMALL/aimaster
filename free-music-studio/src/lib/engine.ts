@@ -382,11 +382,26 @@ export async function listLibrary(): Promise<Set<string>> {
   return (await listLibraryFormats()).ids;
 }
 
-/** 보관함 곡 번호와 곡마다 원음 형식(0.1.4+, 옛 엔진은 모두 mp3) */
-export async function listLibraryFormats(): Promise<{ ids: Set<string>; formats: Record<string, string> }> {
+/** 보관함 곡 번호와 곡마다 원음 형식(0.1.4+, 옛 엔진은 모두 mp3), 표지가 있는 곡(0.6.8+, 옛 엔진은 빈 목록) */
+export async function listLibraryFormats(): Promise<{ ids: Set<string>; formats: Record<string, string>; arts: Set<string> }> {
   const res = await call("/library");
   const data = await res.json();
-  return { ids: new Set(Array.isArray(data?.ids) ? data.ids : []), formats: data?.formats && typeof data.formats === "object" ? data.formats : {} };
+  return {
+    ids: new Set(Array.isArray(data?.ids) ? data.ids : []),
+    formats: data?.formats && typeof data.formats === "object" ? data.formats : {},
+    arts: new Set(Array.isArray(data?.arts) ? data.arts : []),
+  };
+}
+
+/** 곡 표지를 보여 주고 MP3에 넣는 엔진인가(0.6.8+) */
+export function hasCover(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("cover");
+}
+
+/** 보관함 곡의 표지 그림을 브라우저 안 주소로(0.6.8+). 다 쓰면 URL.revokeObjectURL. */
+export async function fetchLibraryArt(id: string): Promise<string> {
+  const res = await call(`/library/${id}/art`, {}, 30_000);
+  return URL.createObjectURL(await res.blob());
 }
 
 /** 보관함 음원을 브라우저 안 주소로. 기본은 원음(FLAC 등), format "mp3"면 엔진이 320kbps로 바꿔 준다. */

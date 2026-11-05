@@ -47,6 +47,18 @@ export function extOfAudioRef(file) {
   }
 }
 
+/** 앨범 표지 형식(0.6.8) — 곡 파일과 같은 폴더·같은 이름의 그림이 그 곡의 표지다(「가을 노래.flac」 ↔ 「가을 노래.png」). */
+export const ART_EXTS = ["png", "jpg", "webp"];
+export const ART_TYPES = { png: "image/png", jpg: "image/jpeg", webp: "image/webp" };
+
+/** 곡 파일 경로 → 표지 그림 경로(없으면 null) */
+export async function artNextTo(songPath) {
+  if (!songPath) return null;
+  const base = songPath.slice(0, songPath.length - path.extname(songPath).length);
+  for (const ext of ART_EXTS) if (await exists(`${base}.${ext}`)) return `${base}.${ext}`;
+  return null;
+}
+
 async function uniquePath(dir, name, ext = "mp3") {
   let p = path.join(dir, `${name}.${ext}`);
   for (let n = 2; await exists(p); n++) p = path.join(dir, `${name} (${n}).${ext}`);
@@ -160,6 +172,10 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
     pathOf(id) {
       return index[id] ?? null;
     },
+    /** 곡의 표지 그림 경로(0.6.8, 없으면 null) */
+    async artOf(id) {
+      return artNextTo(await resolve(id));
+    },
     /** 파일이 있으면 { size, stream, ext }, 없으면 null */
     async open(id) {
       const p = await resolve(id);
@@ -174,7 +190,11 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
 
     async remove(id) {
       const p = index[id];
-      if (p) await rm(p, { force: true });
+      if (p) {
+        const art = await artNextTo(p);
+        await rm(p, { force: true });
+        if (art) await rm(art, { force: true }); // 곡을 지우면 그 곡의 표지도
+      }
       delete index[id];
       await saveIndex();
     },
@@ -201,9 +221,12 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
           const name = isTrackId(base) ? safeFileName(typeof titles[id] === "string" ? titles[id] : "") : base;
           const to = await uniquePath(target, name, ext);
           try {
+            const art = await artNextTo(p);
             await moveFile(p, to);
             index[id] = to;
             moved++;
+            // 표지도 곡과 같은 이름으로 따라 옮긴다(0.6.8)
+            if (art) await moveFile(art, to.slice(0, to.length - path.extname(to).length) + path.extname(art)).catch(() => {});
           } catch {
             failed++;
           }

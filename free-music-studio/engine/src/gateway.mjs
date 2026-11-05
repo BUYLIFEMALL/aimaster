@@ -2,19 +2,33 @@
 // 짝짓기 토큰을 확인한 뒤 내부 ACE-Step 서버로 그대로 넘긴다(파일 업로드 포함, 본문을 해석하지 않음).
 import http from "node:http";
 import { bearer, corsHeaders, isAllowedOrigin, newPairCode, newToken, sameSecret } from "./security.mjs";
-import { AUDIO_TYPES, extOfAudioRef, isTrackId } from "./library.mjs";
+import { ART_TYPES, AUDIO_TYPES, extOfAudioRef, isTrackId } from "./library.mjs";
 import { pickFolder, revealFolder } from "./folderDialog.mjs";
 import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
-import { mkdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { spawn } from "node:child_process";
 import path from "node:path";
 
-/** FLAC 원음 → MP3 320kbps(ffmpeg). 끝나면 true. */
-function toMp3(src, dest) {
+/** ffmpeg 인자 — FLAC 원음 → MP3 320kbps, 표지가 있으면 ID3 표지로 넣는다(0.6.8). 원음이 이미 MP3면 소리는 그대로 복사. */
+export function mp3Args(src, dest, art = null) {
+  const already = path.extname(src).toLowerCase() === ".mp3";
+  const audio = already ? ["-codec:a", "copy"] : ["-codec:a", "libmp3lame", "-b:a", "320k", "-ar", "48000"];
+  if (!art) return ["-y", "-hide_banner", "-loglevel", "error", "-i", src, ...audio, dest];
+  const cover = path.extname(art).toLowerCase() === ".webp" ? "png" : "copy"; // ID3는 webp를 못 담아 png로
+  return [
+    "-y", "-hide_banner", "-loglevel", "error", "-i", src, "-i", art,
+    "-map", "0:a", "-map", "1:v", ...audio,
+    "-c:v", cover, "-id3v2_version", "3", "-metadata:s:v", "title=Album cover", "-metadata:s:v", "comment=Cover (front)", "-disposition:v", "attached_pic",
+    dest,
+  ];
+}
+
+/** MP3 만들기(ffmpeg). 끝나면 true. */
+function toMp3(src, dest, art = null) {
   return new Promise((resolve) => {
     const tmp = dest + ".part.mp3";
-    const child = spawn("ffmpeg", ["-y", "-hide_banner", "-loglevel", "error", "-i", src, "-codec:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", tmp], { windowsHide: true });
+    const child = spawn("ffmpeg", mp3Args(src, tmp, art), { windowsHide: true });
     child.on("error", () => resolve(false));
     child.on("close", async (code) => {
       if (code !== 0) return resolve(false);
@@ -172,7 +186,19 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
   if (req.method === "GET" && !rest) {
     const ids = await lib.list();
     const formats = Object.fromEntries(ids.map((id) => [id, path.extname(lib.pathOf(id) ?? "").slice(1).toLowerCase() || "mp3"]));
-    return json(res, 200, { ids, formats, dir: lib.dir }, origin);
+    const arts = [];
+    for (const id of ids) if (await lib.artOf(id)) arts.push(id); // 표지가 있는 곡(0.6.8)
+    return json(res, 200, { ids, formats, arts, dir: lib.dir }, origin);
+  }
+
+  // 곡 표지 그림(0.6.8) — GET /library/<id>/art
+  const artMatch = req.method === "GET" ? /^([0-9a-f-]{36})\/art$/.exec(rest) : null;
+  if (artMatch && isTrackId(artMatch[1])) {
+    const art = await lib.artOf(artMatch[1]);
+    if (!art) return json(res, 404, { error: "이 곡의 표지 그림이 없습니다." }, origin);
+    const s = await stat(art);
+    res.writeHead(200, { "content-type": ART_TYPES[path.extname(art).slice(1).toLowerCase()] ?? "image/png", "content-length": s.size, ...corsHeaders(origin) });
+    return createReadStream(art).pipe(res);
   }
 
   // 저장 폴더: 고르기 창(PC에 뜸) → 바꾸기(기존 노래 옮기기 선택) · 탐색기로 열기
@@ -252,14 +278,20 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
     const f = await lib.open(rest);
     if (!f) return json(res, 404, { error: "이 PC에 이 곡의 음원이 없습니다." }, origin);
     // MP3로 달라고 하면 무손실 원음에서 320kbps로 바꿔 준다(한 번 바꾼 것은 다시 씀).
-    if (url.searchParams.get("format") === "mp3" && f.ext !== "mp3") {
+    // 표지가 있으면 MP3 안에 넣는다(0.6.8) — 표지를 바꾸면 파일 시각이 달라져 새로 만든다.
+    const art = url.searchParams.get("format") === "mp3" ? await lib.artOf(rest) : null;
+    if (url.searchParams.get("format") === "mp3" && f.ext !== "mp3" && !ctx.ffmpeg) {
       f.stream.destroy();
-      if (!ctx.ffmpeg) return json(res, 501, { error: "이 PC에 MP3 변환 도구(ffmpeg)가 없어 FLAC 원음만 받을 수 있습니다." }, origin);
-      const cached = path.join(ctx.mp3CacheDir, rest + ".mp3");
+      return json(res, 501, { error: "이 PC에 MP3 변환 도구(ffmpeg)가 없어 FLAC 원음만 받을 수 있습니다." }, origin);
+    }
+    if (url.searchParams.get("format") === "mp3" && (f.ext !== "mp3" || art) && ctx.ffmpeg) {
+      f.stream.destroy();
+      const artTime = art ? Math.round((await stat(art)).mtimeMs) : 0;
+      const cached = path.join(ctx.mp3CacheDir, `${rest}${art ? `-c${artTime}` : ""}.mp3`);
       const have = await stat(cached).then(() => true, () => false);
       if (!have) {
         await mkdir(ctx.mp3CacheDir, { recursive: true });
-        if (!(await toMp3(lib.pathOf(rest), cached))) return json(res, 500, { error: "MP3로 바꾸지 못했습니다." }, origin);
+        if (!(await toMp3(lib.pathOf(rest), cached, art))) return json(res, 500, { error: "MP3로 바꾸지 못했습니다." }, origin);
       }
       const s = await stat(cached);
       res.writeHead(200, { "content-type": "audio/mpeg", "content-length": s.size, ...corsHeaders(origin) });
@@ -270,7 +302,7 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
   }
   if (req.method === "DELETE") {
     await lib.remove(rest);
-    await rm(path.join(ctx.mp3CacheDir, rest + ".mp3"), { force: true });
+    for (const f of await readdir(ctx.mp3CacheDir).catch(() => [])) if (f.startsWith(rest)) await rm(path.join(ctx.mp3CacheDir, f), { force: true });
     return json(res, 200, { ok: true }, origin);
   }
   return json(res, 404, { error: "없는 주소입니다." }, origin);

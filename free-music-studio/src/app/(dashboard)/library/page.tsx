@@ -24,6 +24,7 @@ import {
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
+import { CoverThumb } from "@/components/library/CoverThumb";
 import { usePlayer } from "@/components/player/PlayerProvider";
 import {
   EngineError,
@@ -31,6 +32,7 @@ import {
   hasFolderPicker,
   hasLibrary,
   listLibraryFormats,
+  hasCover,
   revealLibraryFolder,
 } from "@/lib/engine";
 import { KIND_LABEL, type Track } from "@/lib/tracks";
@@ -44,6 +46,7 @@ const smallSelect =
 export default function LibraryPage() {
   const engine = useEngine();
   const libOk = engine.paired && hasLibrary(engine.status);
+  const showCovers = libOk && hasCover(engine.status);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [projects, setProjects] = useState<Collection[]>([]);
   const [playlists, setPlaylists] = useState<Collection[]>([]);
@@ -53,6 +56,7 @@ export default function LibraryPage() {
   const [exempt, setExempt] = useState(false);
   const [onPc, setOnPc] = useState<Set<string> | null>(null);
   const [formats, setFormats] = useState<Record<string, string>>({});
+  const [arts, setArts] = useState<Set<string>>(new Set()); // 표지가 있는 곡(엔진 0.6.8+)
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
@@ -95,6 +99,7 @@ export default function LibraryPage() {
       .then((r) => {
         setOnPc(r.ids);
         setFormats(r.formats);
+        setArts(r.arts);
       })
       .catch(() => setOnPc(null));
   }, [libOk, tracks.length]);
@@ -391,6 +396,7 @@ export default function LibraryPage() {
                 return (
                   <li key={t.id} className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                      {showCovers && <CoverThumb trackId={t.id} has={arts.has(t.id)} title={t.title} />}
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-slate-100">
                           {inPlaylist && <span className="mr-1.5 text-slate-500">{i + 1}.</span>}
@@ -424,7 +430,7 @@ export default function LibraryPage() {
                           {player?.current?.key === t.id && player.playing ? "멈춤" : "듣기"}
                         </button>
                         {libOk && here !== false && (
-                          <DownloadButtons trackId={t.id} title={t.title} ext={formats[t.id] ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} onError={setMessage} />
+                          <DownloadButtons trackId={t.id} title={t.title} ext={formats[t.id] ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} cover={arts.has(t.id)} onError={setMessage} />
                         )}
                         {inPlaylist ? (
                           <>
