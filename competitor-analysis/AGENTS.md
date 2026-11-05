@@ -170,3 +170,14 @@ production dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY, 소스 c80a44af 푸시·DB v1
 - **키워드 추천 추가(같은 날, 주인님 「어떤 키워드로 검색할지 모르는 사람이 많으니 메인·연관·많이 검색하는 키워드·카테고리 추천」)**: `lib/partners/suggest.ts`(기준 `blog-keyword/src/lib/kw/naver.ts`의 자동완성·검색광고 키워드도구) + `suggestPartnerTermsAction`. 화면: 추천 주제 버튼 15개(`STARTER_TOPICS`, `lib/partners/notice.ts`) · 「🔮 키워드 추천 받기」 → ① 메인 ② 연관(자동완성 ㄱ~ㅎ, 무료) ③ 많이 검색하는 키워드(검색광고 키 있을 때 월간 검색량 순, 없으면 등록 안내) ④ 카테고리(업체·쇼핑 실제 분류 빈도, 검색 키 필요). 칩 누르면 그 키워드로 찾기, ＋는 보조 단어에 더하기. 설정에 검색광고 키 3칸(선택, 공용 이름 `naver_ads_*`). 아무것도 저장하지 않음·AI 호출 없음.
 
 - **미배포 대기(2026-11-05 맥미니)**: 제휴 타깃 찾기 안내 문구 2곳을 자동 스캔에 맞게 정정(「연락처 직접 적기」 → 「확장이 공개 연락처 자동으로 읽어 옴」) — `app/(dashboard)/partners/page.tsx`·`components/partners/PartnerClient.tsx`. 다음 배포 때 버전 +0.01.
+
+## 2026-11-05 v1.10 맥미니 실물 확인 결과 + 다음 할 일 (Claude Code 맥미니 `claude-mac-20261101-blog`, 크레딧 소진으로 다른 계정이 이어 받음)
+- **실물 확인(ego, 시험 계정 `buylifemall@naver.com`)**: 네이버 검색 키·검색광고 키 등록됨 · 책임 동의 완료 · 확장 설치(원본 폴더 `competitor-analysis/extension` 로드) · 「공공구매」(주인님 오타) 찾기 → 50곳 중 매칭 1곳 담김 · 스캔 1곳 성공 → 목록에 「📇 010-6296-7940 (핸드폰) · 광주행정사 : 네이버 블로그」(블로그 안쪽 틀 프로필 글자에서 읽음).
+- **확정**: 확장이 **회원 로그인 쿠키로 서버 호출 가능**(기기 연결 방식 불필요) · 스캔 탭이 뒤에 있으면 「잠시 멈춤」 설계대로 · 끝나면 「모두 마쳤습니다 · 오늘 1곳」.
+- **아직 못 한 것**: 「공동구매」(정확한 키워드)로 찾기 → 10곳 스캔 확인. 주인님이 「스캔 시작」 후 새 `about:blank` 탭을 앞에 둬야 함(아래 고칠 점 3).
+- **고칠 점(미배포 대기에 추가, 다음 배포 때 버전 +0.01)**:
+  1. KPI 「공개 연락처 적음」이 손으로 적은 연락처만 셈 → `primary_contact`(확장이 읽은 값)도 세기 — `app/(dashboard)/partners/page.tsx`.
+  2. 공개 이름이 페이지 제목 그대로(「광주행정사 : 네이버 블로그」) → 「 : 네이버 블로그」 같은 꼬리 떼기 — `extension/background.mjs` `display_name`(또는 서버 `route.ts`에서 정리).
+  3. 「스캔 시작」 뒤 스캔 탭이 앞에 오지 않음(팝업에서 시작하면 원래 탭이 앞에 남음) → `start()`에서 `chrome.tabs.update(tab.id,{active:true})` + `chrome.windows.update(win.id,{focused:true})`, 팝업 문구 「열린 스캔 탭을 앞에 두세요」.
+  4. (이미 커밋 `70e8d7202`) 위쪽 안내 문구 정정.
+- 고친 뒤: 확장은 manifest·ZIP·DB 버전 함께(핵심 원칙 10) — 윈도우 빌드·배포(빌드 1회 주인님 승인).
