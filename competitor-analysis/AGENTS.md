@@ -147,7 +147,18 @@ production dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY, 소스 c80a44af 푸시·DB v1
 - **미배포 대기**: 경쟁사 분석 화면 안내 문구 정정(`87b773ef2`) — 「다른 회원이 조사한 회사 정보 재사용」이 v1.08 이후 사실과 달라 「본인 30일 안 조사만」으로. 다음 배포 때 버전 +0.01.
 - 남은 확인: 텔레그램 알림 실제 수신, 등록 칩의 접근성 이름이 종류(`title`)로 읽히는 점(화면엔 키워드가 보임) — 급하지 않음.
 
-## 2026-11-05 v1.10 초안 — 「🤝 제휴 타깃 찾기」 (Claude Code 맥미니, **미배포·DB 미적용**)
+## 2026-11-05 v1.10 배포 완료 (Claude Code 윈도우 `claude-win-blog`)
+- 아래 맥미니 초안을 윈도우가 마무리했습니다.
+  - 시험을 추가했습니다: `npm run test:partners-db` 8개, `npm run test:partners` 8개.
+  - 주인님 승인으로 운영 DB에 적용했습니다.
+  - 확장 ZIP을 만들고 내려받기 칸을 넣었습니다(동의 뒤 화면).
+  - 배포 `competitor-analysis-nh5csc4q9`가 Ready이고, DB 버전·확장 버전이 v1.10, `check-extension-release`가 OK입니다.
+  - 이메일 수집 기본값은 꺼짐으로 확정했습니다.
+- 남은 일: 맥미니 실물 확인(동의 → 확장 설치 → 10곳 스캔, 쿠키 호출 확인)입니다. 다음 배포 때는 위쪽 안내 문구를 자동 스캔에 맞게 고칩니다.
+- 상세: [`docs/PLAN_20261105_PARTNER_FINDER.md`](docs/PLAN_20261105_PARTNER_FINDER.md) §4 단계 5
+- 링크: https://competitor-analysis.buylife.xyz/partners
+
+## 2026-11-05 v1.10 초안 — 「🤝 제휴 타깃 찾기」 (Claude Code 맥미니, **미배포·DB 미적용** → 위 절에서 배포 완료)
 - **무엇**: 키워드(예: 공동구매)로 그 주제의 네이버 블로그·업체(플레이스)·카페·쇼핑몰 채널을 **회원 본인 네이버 검색 키로 공식 검색 API**에서 찾아 담고, 회원이 채널 공개 페이지를 열어 **직접 확인한** 비즈니스 전화·이메일을 적어 두는 참고용 목록. CSV 내려받기. 주인님 「본인 비즈니스·채널 홍보하려고 연락처를 공개한 사람과 그런 사람을 찾는 사람을 연결」「개인 참고용·본인 책임 명시」「기본 엔진 먼저, 잘되면 유튜브·인스타·쓰레드 확장」.
 - **근거·지정**: 마케팅 수집 예외 지침 §4(공개 비즈니스 연락처만·공개 목적 범위·회원 책임 고지) · 최상위 규칙 §8 지정 목록 2026-11-05 줄 · 플랜 [`../docs/analysis-biz-contact-finder-20261105/PLAN.md`](../docs/analysis-biz-contact-finder-20261105/PLAN.md) · 타당성 [`../docs/analysis-cafe-recruit-20261105/FEASIBILITY_PUBLIC_CONTACT_20261105.md`](../docs/analysis-cafe-recruit-20261105/FEASIBILITY_PUBLIC_CONTACT_20261105.md).
 - **지키는 선**: 서버는 채널 페이지를 긁지 않음(공식 API만, 이메일 자동수집 프로그램 ❌ — 정보통신망법 제50조의2) · 연락처는 회원이 직접 확인해 적는 값만 · 숨긴 정보·탐지 회피·동의 없는 광고 발송 ❌ · 켤 때 고지 동의(`lib/partners/notice.ts`, 문구 바꾸면 `PARTNER_NOTICE_VERSION` 올림) · 회원 본인 소유·30일(관리자·시험 계정 열외).
