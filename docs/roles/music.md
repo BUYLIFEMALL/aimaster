@@ -16,7 +16,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `free-music-studio` | 묶음 1 「내 곡에서 바로 커버」 `2673573a5` 미배포 대기 | 운영 DB `20261105_tracks_parent.sql` 적용 승인(배포 전에 꼭) | `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md` |
+| `free-music-studio` | 묶음 1 「내 곡에서 바로 커버」 `2673573a5` + 2-1 환경설정 `3f9613f4c` 미배포 대기 | 다음 음악 배포 때 함께(운영 DB `parent_id` 칸은 2026-11-05 적용 완료) | `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md` |
 | `music` v1.49 | 30일 정리 결과 대조 | 2026-11-04 03:00 정리 뒤 남은 행 0개(다른 회원 4행 삭제)·두 계정 자료 유지 확인 | `music/AGENTS.md` 2026-11-03 |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
 | `lyric-video-studio` v1.11 | Lyricbi L-2 LP판 회전 → L-3 무료 사진 배경 → L-4 꾸밈 확장 → L-5 렌더 진단(배포 1회) | **다음 작업 대기** — 주인님이 시작을 지시하실 때(2026-11-03 보류 지시) | `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md` |
@@ -25,6 +25,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-05 | `free-music-studio` | 운영 DB(ref `esgxyikcnnvmlhygjkth`)에 원곡 번호 칸 `parent_id`·색인 추가(채팅 승인, ego lite SQL 편집기) | 없음(DB) |
 | 2026-11-05 | `free-music-studio` | 원본 boks-music(beta.5) 명령 67개 전체 대조 → 묶음 1~6 플랜, 묶음 1 「내 곡에서 바로 커버」 구현 | 미배포 대기 |
 | 2026-11-05 | `free-music-studio` v1.25 | 엔진 0.6.8: 앨범 그림 플랫폼 고르기(Gemini·GPT Image·FLUX 2) + 곡 표지(「모든 음악」 작은 그림·MP3에 표지) | 배포 |
 | 2026-11-05 | `free-music-studio` v1.18~v1.24 | 엔진 0.6.3~0.6.7: LeVo 2 실행 환경·MiniMax Music 3 불러오기·효과음 모드·영어 설명·앨범 그림 만들기(Gemini) — 상세 `free-music-studio/AGENTS.md` §4 | 배포 |
@@ -74,4 +75,4 @@
 4. AI 무료음악 자동화 4단계 나머지 — 홈 화면·곡 만들기 2단·내 곡에서 바로 커버·휴지통(재생바는 v1.10에서 끝)
 
 ## 주인님께 여쭐 것
-- `free-music-studio` 운영 DB에 원곡 번호 칸 추가(`free-music-studio/supabase/migrations/20261105_tracks_parent.sql`, 칸 추가만·삭제 없음) 적용 승인 — 「내 곡에서 바로 커버」 배포 전 필요
+- (없음 — 원곡 번호 칸 SQL은 2026-11-05 채팅 승인으로 적용 완료)

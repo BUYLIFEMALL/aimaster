@@ -30,7 +30,7 @@
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
 | `free-music-studio` | 환경설정 2-1: 추천 구성 카드 엔진 전체 + 시스템 정보 표 | `3f9613f4c` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 음악 배포 때 함께. Compute Capability·BF16 칸은 엔진 0.6.9 설치 파일 뒤에 보임 |
-| `free-music-studio` | 내 곡에서 바로 커버(「모든 음악」 「커버 →」, 원곡 번호 `parent_id`) | `2673573a5` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md` 2절 | **배포 전에 운영 DB에 `20261105_tracks_parent.sql` 먼저 적용**(안 하면 목록 API 실패) · 다음 음악 배포 때(+0.01) |
+| `free-music-studio` | 내 곡에서 바로 커버(「모든 음악」 「커버 →」, 원곡 번호 `parent_id`) | `2673573a5` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md` 2절 | 운영 DB `20261105_tracks_parent.sql` **적용 완료**(2026-11-05 채팅 승인, `parent_id uuid` 칸 확인) · 다음 음악 배포 때(+0.01) |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |
 | `commercial-land-trade-alert` | 실거래 목록 「분류」 거르기에 공장·창고 용도(공장·창고시설·자동차 관련시설) 추가, 종류 전체 선택 이름 「모든 종류」(v1.31 운영 확인 중 발견) | 이 커밋 바로 뒤 `fix(commercial-land-trade-alert)` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `commercial-land-trade-alert/AGENTS.md` v1.31 | 다음 상가 배포 때 함께(+0.01) |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
