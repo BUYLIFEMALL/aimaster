@@ -93,11 +93,12 @@ await check('PU05 scan report: e-mails dropped while collection is off, primary 
     channel('a1', 'member-a', { scan_status: 'scanning' }), channel('b1', 'member-b', { scan_status: 'scanning' })] });
   globalThis.partnerDb = db;
   const route = await load('app/api/partners/extension/route.ts', routeMocks({ allowed: true, user: { id: 'member-a' } }));
-  const report = { op: 'scan_report', id: 'a1', mobile: ['<script>', '010-2345-6789'], landline: ['02-345-6789'], emails: ['x@y.kr'], primary_contact: 'x@y.kr', profile_match_score: 999 };
+  const report = { op: 'scan_report', id: 'a1', display_name: '광주행정사 : 네이버 블로그', mobile: ['<script>', '010-2345-6789'], landline: ['02-345-6789'], emails: ['x@y.kr'], primary_contact: 'x@y.kr', profile_match_score: 999 };
   assert.equal((await (await post(route, report)).json()).status, 'done');
   const a1 = db.rows.competitor_partner_channels.find(r => r.id === 'a1');
   assert.deepEqual(a1.emails, []); assert.deepEqual(a1.phones_mobile, ['010-2345-6789']);
   assert.equal(a1.primary_type, 'mobile'); assert.equal(a1.primary_contact, '010-2345-6789'); assert.equal(a1.profile_match_score, 60);
+  assert.equal(a1.display_name, '광주행정사', 'the page title suffix is removed');
   await post(route, { ...report, id: 'b1' });
   assert.equal(db.rows.competitor_partner_channels.find(r => r.id === 'b1').scan_status, 'scanning', 'a foreign id changes nothing');
   db.rows.competitor_partner_consents[0].collect_email = true;
@@ -149,5 +150,16 @@ await check('PU08 only channels at or above the chosen match score are saved, al
   assert.deepEqual(globalThis.partnerCalls[0][0], { clientId: 'own-id', clientSecret: 'own-secret' });
   const saved = globalThis.partnerDb.log[0].payload;
   assert.equal(saved.length, 1); assert.equal(saved[0].user_id, 'member-a'); assert.equal(saved[0].name, '공동구매 맘카페');
+});
+await check('PU09 Excel file: valid ZIP with 6 parts, text cells keep leading zeros, Korean and XML-unsafe characters escaped', async () => {
+  const { buildXlsx } = await load('lib/partners/xlsx.ts', {});
+  const bytes = buildXlsx([['채널', '연락처', '메모'], ['광주행정사', '010-2345-6789', 'a<b & "c"\u0001'], ['우리가게', '0504-123-4567', '']], '제휴 타깃');
+  const buf = Buffer.from(bytes);
+  assert.equal(buf.readUInt32LE(0), 0x04034b50); assert.equal(buf.readUInt32LE(buf.length - 22), 0x06054b50);
+  assert.equal(buf.readUInt16LE(buf.length - 22 + 10), 6);
+  const text = buf.toString('utf8');
+  assert.ok(text.includes('t="inlineStr"') && text.includes('>010-2345-6789<') && text.includes('a&lt;b &amp; &quot;c&quot;<'));
+  const out = process.env.PARTNER_XLSX_OUT;
+  if (out) (await import('node:fs')).writeFileSync(out, buf);
 });
 console.log(`# ${n} checks passed`);

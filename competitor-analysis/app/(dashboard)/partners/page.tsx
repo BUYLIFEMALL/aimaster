@@ -5,6 +5,7 @@ import { KpiCard, KpiGrid } from "@/components/dashboard/KpiCard";
 import { ContactForm, EmailToggle, PartnerCsvButton, PartnerNotice, PartnerSearchForm, type PartnerRow } from "@/components/partners/PartnerClient";
 import { CHANNEL_LABELS, PARTNER_NOTICE_VERSION } from "@/lib/partners/notice";
 import { deletePartnerAction } from "@/lib/actions/partners";
+import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -52,7 +53,7 @@ export default async function PartnersPage() {
           <div className="mx-card space-y-2 text-sm text-mx-text">
             <p className="font-bold">🧩 자동 스캔 확장 (회원님 PC에서 공개 연락처 읽기)</p>
             <p className="text-xs text-mx-muted">1. 내려받아 압축을 풉니다 → 2. 크롬 주소창에 chrome://extensions → 「개발자 모드」 켜기 → 「압축해제된 확장 프로그램을 로드」로 푼 폴더 선택 → 3. 이 화면에 로그인한 채 확장 팝업에서 「시작」. 새 버전이 나오면 다시 받아 같은 폴더에 덮어쓰고 새로고침합니다.</p>
-            <a href="/downloads/competitor-analysis-extension-latest.zip" download className="mx-btn-ghost inline-block px-3 text-xs">⬇️ 확장 내려받기 (v1.10)</a>
+            <a href="/downloads/competitor-analysis-extension-latest.zip" download className="mx-btn-ghost inline-block px-3 text-xs">⬇️ 확장 내려받기 ({APP_VERSION})</a>
           </div>
           <div className="mx-card"><EmailToggle on={!!consent?.collect_email} /></div>
           <div className="mx-card">
