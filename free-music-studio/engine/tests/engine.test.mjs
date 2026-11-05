@@ -277,7 +277,8 @@ test("PC 검사: CPU PC는 주의, 메모리 4GB·공간 부족은 설치 불가
 });
 
 test("사양 읽기: nvidia-smi 결과에서 이름·그래픽 메모리·드라이버", async () => {
-  const fakeExec = async (cmd) => {
+  const fakeExec = async (cmd, args) => {
+    if (cmd === "nvidia-smi" && args[0] === "--query-gpu=compute_cap") return { stdout: "12.0\n" };
     if (cmd === "nvidia-smi") return { stdout: "NVIDIA GeForce RTX 5080, 16303, 581.57\n" };
     if (cmd === "powershell.exe") return { stdout: "Microsoft Windows 11 Pro\n" };
     throw new Error("없음");
@@ -290,4 +291,5 @@ test("사양 읽기: nvidia-smi 결과에서 이름·그래픽 메모리·드라
   assert.deepEqual([sys.gpu, sys.gpuVendor, sys.vramGb, sys.driver], ["NVIDIA GeForce RTX 5080", "NVIDIA", 15.9, "581.57"]);
   assert.deepEqual([sys.os, sys.cpu, sys.cores, sys.ramGb, sys.freeGb], ["Microsoft Windows 11 Pro", "AMD Ryzen 9", 2, 32, 100]);
   assert.deepEqual(sys.installedModels, []);
+  assert.deepEqual([sys.computeCapability, sys.bf16], ["12.0", true]); // 0.6.9 원본 host-profile 참고
 });

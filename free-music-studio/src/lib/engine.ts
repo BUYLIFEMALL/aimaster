@@ -59,7 +59,25 @@ export type QualityOption = EngineQuality & {
 };
 /** 엔진 GET /system — PC 정밀 검사 결과(engine/src/device.mjs checkItems·qualityOptions) */
 export type SystemReport = {
-  system: { os: string; cpu: string; gpu: string; vramGb: number | null; ramGb: number | null; freeGb: number | null; freePath: string; installedModels: string[] };
+  system: {
+    os: string;
+    cpu: string;
+    gpu: string;
+    vramGb: number | null;
+    ramGb: number | null;
+    freeGb: number | null;
+    freePath: string;
+    installedModels: string[];
+    // 엔진 inspectSystem이 함께 보내는 칸(옛 엔진엔 없을 수 있음) — 시스템 정보 표(원본 host-profile 참고)
+    cores?: number | null;
+    driver?: string;
+    gpuVendor?: string;
+    platform?: string;
+    arch?: string;
+    ffmpeg?: boolean;
+    computeCapability?: string; // 0.6.9+
+    bf16?: boolean | null; // 0.6.9+
+  };
   check: { verdict: CheckStatus; headline: string; items: CheckItem[] };
   options: QualityOption[];
   selected: string;

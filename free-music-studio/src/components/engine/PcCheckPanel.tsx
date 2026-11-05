@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Cpu, Loader2, RefreshCw, ShieldAlert, Sparkles, XCircle } from "lucide-react";
-import { EngineError, MUSIC_ENGINES, tooLittleVram, getSystemReport, hasSystemCheck, removeEngineModel, setQualityTier, type CheckStatus, type MusicEngineId, type SystemReport } from "@/lib/engine";
+import { EngineError, MUSIC_ENGINES, tooLittleVram, getSystemReport, hasSystemCheck, removeEngineModel, setQualityTier, type CheckStatus, type MusicEngineId, type QualityOption, type SystemReport } from "@/lib/engine";
 
 // 「받은 모델 지우기」가 되는 추가 엔진(엔진 0.4.0 pyengines)
 const PY_ENGINE_IDS = ["heartmula", "stableaudio3", "levo2", "minimax3"];
@@ -48,6 +48,59 @@ function Items({ items }: { items: { label: string; value: string; status: Check
         );
       })}
     </ul>
+  );
+}
+
+/** 추천 구성 카드 줄 [이름, 값, 아직 없는 기능인가] — 원본 compatibility.mjs의 Music·Cover·Stem·가사 정렬·영상 항목 */
+function recommendedItems(rec: QualityOption, report: SystemReport, mode: string, ffmpeg: boolean): [string, string, boolean][] {
+  const yue2 = report.engines.find((e) => e.id === "yue2");
+  const yue2Text = !yue2 ? "" : yue2.supported === false ? "이 PC에서는 어려움" : `${yue2.profile || "YuE2"}${yue2.installed ? " · 받아 둠" : ""}`;
+  return [
+    ["음악(상업용)", `ACE-Step ${rec.dit.replace("acestep-", "")}`, false],
+    ["곡 구성 계획", rec.lm ? rec.lm.replace("acestep-5Hz-", "") : "쓰지 않음", false],
+    ...(yue2Text ? ([["노래(개인용)", yue2Text, false]] as [string, string, boolean][]) : []),
+    ["커버·부분 수정", "ACE-Step 원곡 따라 만들기", false],
+    ["생성 단계", `${rec.steps}단계${rec.offload ? " · 일부 CPU 사용" : ""}`, false],
+    ["MP3·표지 넣기", ffmpeg ? "ffmpeg 준비됨" : "ffmpeg 없음 — 원음만", !ffmpeg],
+    ["음원 분리(Stem)", "다음 단계에서 추가", true],
+    ["가사 시간 맞추기", "다음 단계에서 추가", true],
+    ["영상 만들기", "브라우저 그래픽 가속 — 다음 단계", true],
+    ["저장 형식", "무손실 FLAC 원음 · MP3 320k", false],
+    ["처음 받을 모델", rec.installed ? "받아 둠" : `약 ${rec.diskGb}GB`, false],
+    ["동작 방식", mode, false],
+  ];
+}
+
+const DEVICE_NAME: Record<string, string> = { cuda: "NVIDIA CUDA", mps: "Apple Metal", cpu: "CPU" };
+
+/** 시스템 정보 표 — 원본 host-profile.mjs가 보여 주는 칸들(엔진 /system 값 그대로) */
+function SystemTable({ sys, device }: { sys: SystemReport["system"]; device: string }) {
+  const rows: [string, string][] = [
+    ["운영체제", sys.os],
+    ["CPU", `${sys.cpu}${sys.cores ? ` · ${sys.cores}코어` : ""}`],
+    ["메모리", sys.ramGb != null ? `${sys.ramGb}GB` : "확인 불가"],
+    ["그래픽카드", sys.gpu || "확인 불가"],
+    ["제조사", sys.gpuVendor || "확인 불가"],
+    ["그래픽 메모리", sys.vramGb != null ? `${sys.vramGb}GB` : "확인 불가"],
+    ["드라이버", sys.driver || "확인 불가"],
+    ...(sys.computeCapability ? ([["Compute Capability", sys.computeCapability]] as [string, string][]) : []),
+    ...(sys.bf16 != null ? ([["BF16", sys.bf16 ? "하드웨어 지원" : "지원하지 않음"]] as [string, string][]) : []),
+    ["플랫폼", [sys.platform, sys.arch].filter(Boolean).join(" · ") || "확인 불가"],
+    ["음악 엔진 장치", DEVICE_NAME[device] ?? (device || "확인 불가")],
+    ["여유 공간", sys.freeGb != null ? `${sys.freeGb}GB${sys.freePath ? ` (${sys.freePath})` : ""}` : "확인 불가"],
+  ];
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-bold text-slate-200">🖥️ 시스템 정보</p>
+      <dl className="grid gap-x-6 gap-y-1.5 rounded-xl border border-slate-800 p-4 text-xs sm:grid-cols-2 lg:grid-cols-3">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-3 border-b border-slate-800/80 pb-1.5">
+            <dt className="shrink-0 text-slate-500">{k}</dt>
+            <dd className="min-w-0 break-all text-right font-semibold text-slate-200">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }
 
@@ -162,23 +215,23 @@ function EngineCheck({ engine }: { engine: Engine }) {
         <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/40 to-[#0a0f1d] p-4">
           <p className="text-[11px] font-bold tracking-wide text-emerald-300">이 PC에 맞는 추천 구성</p>
           <p className="mt-1 text-sm font-bold text-slate-100">✨ {rec.name}</p>
+          <p className="mt-0.5 text-[11px] text-slate-400">{[sys.gpu, sys.vramGb != null ? `그래픽 메모리 ${sys.vramGb}GB` : ""].filter(Boolean).join(" · ") || "그래픽카드 정보 없음"}</p>
+          {/* 원본 boks-music compatibility.mjs의 구성 항목(음악·커버·음원 분리·가사 정렬·영상)을 우리 엔진 기준으로 */}
           <dl className="mt-3 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-2">
-            {[
-              ["음악 모델", rec.dit.replace("acestep-", "")],
-              ["언어 모델(곡 구성 계획)", rec.lm ? rec.lm.replace("acestep-5Hz-", "") : "쓰지 않음"],
-              ["생성 단계", `${rec.steps}단계${rec.offload ? " · 일부 CPU 사용" : ""}`],
-              ["저장 형식", "무손실 FLAC 원음 · MP3 320k"],
-              ["처음 받을 모델", rec.installed ? "받아 둠" : `약 ${rec.diskGb}GB`],
-              ["동작 방식", engine.status?.mode ?? ""],
-            ].map(([k, v]) => (
+            {recommendedItems(rec, report, engine.status?.mode ?? "", !!(sys.ffmpeg ?? engine.status?.quality?.ffmpeg)).map(([k, v, later]) => (
               <div key={k} className="flex justify-between gap-3 border-b border-slate-800/80 pb-1.5">
                 <dt className="text-slate-500">{k}</dt>
-                <dd className="text-right font-semibold text-slate-200">{v}</dd>
+                <dd className={`text-right font-semibold ${later ? "text-slate-500" : "text-slate-200"}`}>{v}</dd>
               </div>
             ))}
           </dl>
+          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
+            그래픽 메모리 여유와 함께 돌아가는 기능을 생각한 추천입니다. 곡 길이에 따른 실제 메모리 사용량과 음질은 받은 뒤 만들어 봐야 알 수 있습니다.
+          </p>
         </div>
       )}
+
+      <SystemTable sys={sys} device={engine.status?.device ?? ""} />
 
       <Items items={report.check.items} />
 

@@ -62,6 +62,12 @@ export async function inspectSystem({ storageDir, checkpointsDir, ffmpeg }, deps
       const { stdout } = await run("nvidia-smi", ["--query-gpu=name,memory.total,driver_version", "--format=csv,noheader,nounits"], { windowsHide: true, timeout: 10000 });
       const [name, mib, driver] = String(stdout).trim().split(/\r?\n/)[0].split(",").map((s) => s.trim());
       Object.assign(sys, { gpu: name, gpuVendor: "NVIDIA", vramGb: round1(Number(mib) / 1024), driver });
+      // 원본 host-profile.mjs: compute capability 8.0 이상이면 BF16 하드웨어 지원(0.6.9)
+      try {
+        const { stdout: cc } = await run("nvidia-smi", ["--query-gpu=compute_cap", "--format=csv,noheader"], { windowsHide: true, timeout: 5000 });
+        const cap = String(cc).trim().split(/\r?\n/)[0].trim();
+        if (/^\d+(\.\d+)?$/.test(cap)) Object.assign(sys, { computeCapability: cap, bf16: Number.parseFloat(cap) >= 8 });
+      } catch {}
     } catch {
       try {
         const { stdout } = await run("powershell.exe", ["-NoProfile", "-Command", "(Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name) -join ', '"], { windowsHide: true, timeout: 10000 });
