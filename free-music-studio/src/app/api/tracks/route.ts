@@ -8,7 +8,7 @@ import { isRetentionExempt } from "@/lib/retentionExempt";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const COLUMNS = "id, song_id, project_id, title, style_prompt, lyrics, duration_sec, device, kind, license, created_at";
+const COLUMNS = "id, song_id, project_id, title, style_prompt, lyrics, duration_sec, device, kind, license, parent_id, created_at";
 
 // 「모든 음악」 목록 — 서비스 키로 읽으므로 user_id를 코드에서 직접 건다(멀티테넌시 원칙 2).
 export async function GET() {
@@ -34,6 +34,11 @@ export async function POST(request: Request) {
   if (value.song_id) {
     const { data: own } = await admin.from(SONGS_TABLE).select("id").eq("id", value.song_id).eq("user_id", access.user.id).maybeSingle();
     if (!own) value.song_id = null;
+  }
+  // 원곡도 본인 곡일 때만 연결한다
+  if (value.parent_id) {
+    const { data: own } = await admin.from(TRACKS_TABLE).select("id").eq("id", value.parent_id).eq("user_id", access.user.id).maybeSingle();
+    if (!own) value.parent_id = null;
   }
   const { data, error } = await admin
     .from(TRACKS_TABLE)

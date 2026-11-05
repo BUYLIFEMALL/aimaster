@@ -40,6 +40,15 @@ test("곡 기록: 종류 — 기본은 노래 만들기, 커버·부분 수정�
   assert.equal(parseTrackInput({ ...ok, kind: "remix" }).ok, false);
 });
 
+test("곡 기록: 원곡 번호 — 커버·부분 수정만, uuid, 자기 자신은 안 됨", () => {
+  const parent = "9a8b7c6d-1a2b-4c3d-8e9f-0123456789ab";
+  assert.equal(parseTrackInput(ok).value.parent_id, null);
+  assert.equal(parseTrackInput({ ...ok, kind: "cover", duration_sec: 120, parent_id: parent }).value.parent_id, parent);
+  assert.equal(parseTrackInput({ ...ok, parent_id: parent }).ok, false); // 새 곡 만들기에는 원곡이 없음
+  assert.equal(parseTrackInput({ ...ok, kind: "cover", duration_sec: 120, parent_id: "x" }).ok, false);
+  assert.equal(parseTrackInput({ ...ok, kind: "cover", duration_sec: 120, parent_id: id }).ok, false);
+});
+
 test("곡 기록: 길이·장치는 정해진 값만", () => {
   assert.equal(parseTrackInput({ ...ok, duration_sec: 45 }).ok, false);
   assert.equal(parseTrackInput({ ...ok, device: "xpu" }).ok, false);

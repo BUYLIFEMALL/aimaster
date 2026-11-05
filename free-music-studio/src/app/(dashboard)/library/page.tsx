@@ -20,6 +20,7 @@ import {
   ListPlus,
   PlayCircle,
   Pencil,
+  Palette,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -35,7 +36,7 @@ import {
   hasCover,
   revealLibraryFolder,
 } from "@/lib/engine";
-import { KIND_LABEL, type Track } from "@/lib/tracks";
+import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
 import type { Collection, CollectionKind } from "@/lib/collections";
 
 const DEVICE_LABEL: Record<string, string> = { cuda: "그래픽카드", mps: "Apple 맥", cpu: "CPU" };
@@ -431,6 +432,21 @@ export default function LibraryPage() {
                         </button>
                         {libOk && here !== false && (
                           <DownloadButtons trackId={t.id} title={t.title} ext={formats[t.id] ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} cover={arts.has(t.id)} onError={setMessage} />
+                        )}
+                        {libOk && here !== false && t.license !== "noncommercial" && (
+                          <Link
+                            href={`/import?from=${t.id}`}
+                            onClick={() => {
+                              const src: CoverSource = { id: t.id, title: t.title, style_prompt: t.style_prompt, lyrics: t.lyrics, kind: t.kind };
+                              try {
+                                sessionStorage.setItem(COVER_SOURCE_KEY, JSON.stringify(src));
+                              } catch {}
+                            }}
+                            className={`${btn} border-sky-500/40 text-sky-300 hover:bg-sky-950/50`}
+                            title="이 곡의 멜로디로 새 스타일 커버를 만듭니다(파일을 다시 고르지 않음)"
+                          >
+                            <Palette className="h-3.5 w-3.5" /> 커버 →
+                          </Link>
                         )}
                         {inPlaylist ? (
                           <>

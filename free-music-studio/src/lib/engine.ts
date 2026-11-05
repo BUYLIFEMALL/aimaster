@@ -433,7 +433,7 @@ export async function deleteFromLibrary(id: string): Promise<void> {
 // 엔진이 차례로 만들고 보관함에 저장한다. 끝난 작업의 「모든 음악」 기록은 사이트가 남긴다(QueueSync).
 
 export type QueueStatus = "queued" | "running" | "done" | "failed" | "cancelled" | "interrupted";
-export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" };
+export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint"; parent_id?: string | null };
 export type QueueJob = {
   id: string;
   kind: QueueTrack["kind"];
@@ -621,10 +621,10 @@ export async function enqueueEdit(
   source: File,
   opts: EditOptions,
   sourceSec: number,
-  info: { title: string; device: string },
+  info: { title: string; device: string; parentId?: string | null },
   quality?: EngineQuality | null
 ): Promise<QueueJob> {
-  const track: QueueTrack = { id: crypto.randomUUID(), song_id: null, style_prompt: opts.style_prompt, lyrics: opts.lyrics, duration_sec: Math.round(sourceSec), device: info.device, kind: opts.mode };
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: null, style_prompt: opts.style_prompt, lyrics: opts.lyrics, duration_sec: Math.round(sourceSec), device: info.device, kind: opts.mode, parent_id: info.parentId ?? null };
   const form = new FormData();
   form.append("meta", JSON.stringify({ kind: opts.mode, title: info.title, track, fields: buildEditFields(opts, sourceSec, quality) }));
   form.append("src_audio", source, source.name);

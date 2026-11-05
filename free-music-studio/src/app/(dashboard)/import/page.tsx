@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Upload, Wand2, Loader2, AlertCircle, ShieldAlert, Scissors, Palette } from "lucide-react";
+import { Upload, Wand2, Loader2, AlertCircle, ShieldAlert, Scissors, Palette, X } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { EngineError, enqueueEdit, fetchLibraryFile, hasLibrary, hasQueue, saveToLibrary, startEditTask, waitForTask, type EditOptions } from "@/lib/engine";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { LIMITS } from "@/lib/songs";
-import { SOURCE_MAX_SEC, SOURCE_MIN_SEC } from "@/lib/tracks";
+import { COVER_SOURCE_KEY, SOURCE_MAX_SEC, SOURCE_MIN_SEC, type CoverSource } from "@/lib/tracks";
 
 const MAX_BYTES = 60 * 1024 * 1024; // 엔진 연결 문 업로드 상한
 const field =
@@ -56,6 +56,62 @@ export default function ImportPage() {
   const [results, setResults] = useState<Result[]>([]);
   const cancelled = useRef(false);
   const urls = useRef<string[]>([]);
+  // 「모든 음악」의 「커버 →」로 온 경우: 원곡은 엔진 보관함 파일을 그대로 쓴다(원본 boks-music cover())
+  const [source, setSource] = useState<CoverSource | null>(null);
+  const [loadingSource, setLoadingSource] = useState(false);
+
+  useEffect(() => {
+    const from = new URLSearchParams(window.location.search).get("from");
+    if (!from) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(COVER_SOURCE_KEY) || "null") as CoverSource | null;
+      if (saved?.id === from) setSource(saved);
+    } catch {
+      /* 저장 공간을 못 쓰면 파일 고르기로 */
+    }
+  }, []);
+
+  const sourceReady = engine.paired && hasLibrary(status);
+  useEffect(() => {
+    if (!source || !sourceReady || file) return;
+    let stop = false;
+    setLoadingSource(true);
+    (async () => {
+      try {
+        const { url, ext } = await fetchLibraryFile(source.id);
+        const blob = await (await fetch(url)).blob();
+        URL.revokeObjectURL(url);
+        if (stop) return;
+        await pick(new File([blob], `${source.title}.${ext}`, { type: blob.type }));
+        setMode("cover");
+        setTitle(`${source.title} · Cover`.slice(0, LIMITS.title));
+        setStyle(source.style_prompt);
+        setLyrics(source.lyrics);
+        setRights(source.kind === "text2music"); // 이 프로그램으로 만든 곡은 회원 본인 곡
+      } catch (e) {
+        if (!stop) setError(e instanceof EngineError ? e.message : "보관함에서 원곡을 불러오지 못했습니다. 파일을 직접 골라 주세요.");
+      } finally {
+        if (!stop) setLoadingSource(false);
+      }
+    })();
+    return () => {
+      stop = true;
+    };
+  }, [source, sourceReady]); // eslint-disable-line react-hooks/exhaustive-deps -- 원곡이 정해질 때 한 번
+
+  const clearSource = () => {
+    setSource(null);
+    setFile(null);
+    setTitle("");
+    try {
+      sessionStorage.removeItem(COVER_SOURCE_KEY);
+    } catch {}
+    window.history.replaceState(null, "", "/import");
+  };
+  const nameOf = () => {
+    const base = title.trim() || "가져온 음악";
+    return (source && mode === "cover" ? base : `${base} (${mode === "cover" ? "커버" : "부분 수정"})`).slice(0, LIMITS.title);
+  };
 
   useEffect(() => {
     cancelled.current = false;
@@ -109,8 +165,8 @@ export default function ImportPage() {
           ? { mode, style_prompt: style, lyrics, strength }
           : { mode, style_prompt: style, lyrics, start: range[0], end: range[1] };
       if (queueMode) {
-        const name = `${title.trim() || "가져온 음악"} (${mode === "cover" ? "커버" : "부분 수정"})`.slice(0, LIMITS.title);
-        await enqueueEdit(file, opts, sourceSec, { title: name, device: status.device }, status.quality);
+        const name = nameOf();
+        await enqueueEdit(file, opts, sourceSec, { title: name, device: status.device, parentId: source?.id }, status.quality);
         setQueuedNote(`「${name}」 작업을 대기열에 넣었습니다. 엔진이 차례로 만들고, 다 되면 「모든 음악」에 저절로 기록됩니다.`);
         return;
       }
@@ -118,13 +174,13 @@ export default function ImportPage() {
       setBusy("run");
       const out = await waitForTask(taskId, () => cancelled.current);
       setBusy("fetch");
-      const name = `${title.trim() || "가져온 음악"} (${mode === "cover" ? "커버" : "부분 수정"})`.slice(0, LIMITS.title);
+      const name = nameOf();
       const id = crypto.randomUUID();
       await saveToLibrary(id, out, name);
       const res = await fetch("/api/tracks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, song_id: null, title: name, style_prompt: style, lyrics, duration_sec: Math.round(sourceSec), device: status.device, kind: mode }),
+        body: JSON.stringify({ id, song_id: null, title: name, style_prompt: style, lyrics, duration_sec: Math.round(sourceSec), device: status.device, kind: mode, parent_id: source?.id ?? null }),
       }).catch(() => null);
       const { url, ext } = await fetchLibraryFile(id);
       urls.current.push(url);
@@ -174,6 +230,21 @@ export default function ImportPage() {
         {/* 1. 원곡 */}
         <div className="space-y-2">
           <p className="text-xs font-bold text-slate-200">1. 원곡 파일 고르기</p>
+          {source ? (
+            <div className="flex items-center gap-3 rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-4 text-xs">
+              {loadingSource ? <Loader2 className="h-5 w-5 shrink-0 animate-spin text-emerald-300" /> : <Palette className="h-5 w-5 shrink-0 text-emerald-300" />}
+              <span className="min-w-0 flex-1">
+                <span className="block text-[11px] text-emerald-300/80">원곡의 멜로디에서 시작 — 보관함 파일을 그대로 씁니다</span>
+                <span className="block truncate font-semibold text-slate-100">
+                  {source.title}
+                  {file && !loadingSource ? ` · ${clock(sourceSec)}` : loadingSource ? " · 내 PC 보관함에서 불러오는 중…" : !sourceReady ? " · 엔진이 연결되면 불러옵니다" : ""}
+                </span>
+              </span>
+              <button type="button" onClick={clearSource} disabled={!!busy} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-900 hover:text-slate-200" aria-label="원곡 취소">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
           <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-600 bg-slate-950/60 p-4 text-xs text-slate-300 hover:border-emerald-500/60">
             <Upload className="h-5 w-5 text-emerald-300" />
             <span className="min-w-0 flex-1 truncate">
@@ -182,6 +253,7 @@ export default function ImportPage() {
             <span className="rounded-lg border border-slate-600 px-3 py-1.5 font-semibold">파일 고르기</span>
             <input type="file" accept="audio/*" className="hidden" onChange={(e) => pick(e.target.files?.[0] ?? null)} />
           </label>
+          )}
         </div>
 
         {/* 2. 방식 */}
