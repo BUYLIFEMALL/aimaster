@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-05 🔨 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`competitor-analysis` 제휴 타깃 찾기 단계 1~3 초안 완료(미배포·DB 미적용·푸시 안 함)**
+- 커밋 `d4fc15161`: 크롬 확장 `competitor-analysis/extension/`(공개 연락처 추출 핸드폰>일반전화>이메일·30~45초 간격·보안문자/제한이면 그날 중지) + 확장 전용 서버 `app/api/partners/extension/route.ts` + 목록·CSV에 대표 연락처. 단계 1 DB 보강 `4254ae0f9`. 맥미니 `tsc` 통과, 추출 함수 node 시험 통과.
+- **다음 첫 단계**: [`competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md`](../competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md) §4 단계 2 「남은 것」(로그인 쿠키 호출 확인·업체/쇼핑 공개 페이지 실물 확인·탭 전환 잠시 멈춤·ZIP) → 단계 4 엑셀 → 단계 5 윈도우(DB 승인 `df64e86f`·시험·빌드 승인·배포).
+
 ## 2026-11-05 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.25 · 엔진 0.6.8 배포: 앨범 그림 플랫폼 고르기 + 곡 표지(「모든 음악」 표지·MP3에 표지)**
 - 한 일: 플랫폼 3개(Gemini·GPT Image·FLUX 2, 회원 본인 키) `45cf886cd` + 엔진 0.6.8 곡 표지 `5b1635a19`(같은 이름 그림 = 표지, `/library/<id>/art`, MP3 ID3 표지, 지우기·옮기기 동반). 설치 파일 `public/downloads/AI-Free-Music-Engine-Setup-0.6.8.exe`(106.7MB)·`engine-latest.json`.
 - 검수: tsc 0·웹 시험 50·엔진 시험 68(PowerShell, Git Bash에서는 tar 차이로 도구 받기 시험 1개 실패 — 환경 문제), 실제 ffmpeg 표지 확인, 운영 ego 화면 v1.25·플랫폼 버튼 3개, 설치 파일 주소 200. 배포 `free-music-studio-nw3x9l49i` Ready, DB `programs.version` v1.25.
