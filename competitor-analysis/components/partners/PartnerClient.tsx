@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { agreePartnerNoticeAction, searchPartnersAction, saveContactAction, suggestPartnerTermsAction, setCollectEmailAction } from "@/lib/actions/partners";
+import { buildXlsx } from "@/lib/partners/xlsx";
 import { CHANNEL_LABELS, PARTNER_NOTICE_LINES, STARTER_TOPICS } from "@/lib/partners/notice";
 import type { Suggestions } from "@/lib/partners/suggest";
 
@@ -211,18 +212,35 @@ export function ContactForm({ row }: { row: PartnerRow }) {
 
 const cell = (v: string) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
 
-export function PartnerCsvButton({ rows }: { rows: PartnerRow[] }) {
-  function download() {
+function exportTable(rows: PartnerRow[]): string[][] {
     const head = ["키워드", "매칭 점수", "매칭 이유", "대표 연락처", "대표 종류", "핸드폰", "일반전화", "이메일", "공개 이름", "종류", "이름", "주소(링크)", "요약", "분류", "위치", "공개 전화", "공개 이메일", "메모", "담은 날"];
     const body = rows.map((r) => [r.keyword, String(r.match_score), r.match_reasons, r.primary_contact ?? "", r.primary_type === "mobile" ? "핸드폰" : r.primary_type === "landline" ? "일반전화" : r.primary_type === "email" ? "이메일" : "", r.phones_mobile.join(" / "), r.phones_landline.join(" / "), r.emails.join(" / "), r.display_name ?? "", CHANNEL_LABELS[r.channel_type], r.name, r.url, r.summary, r.category, r.address,
       r.public_phone ?? "", r.public_email ?? "", r.contact_note ?? "", new Date(r.created_at).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })]);
-    const csv = "﻿" + [head, ...body].map((l) => l.map(cell).join(",")).join("\r\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-    const a = document.createElement("a");
-    a.href = url; a.download = `제휴타깃_${new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" })}.csv`; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return [head, ...body];
+}
+
+function save(blob: Blob, ext: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `제휴타깃_${new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" })}.${ext}`; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export function PartnerCsvButton({ rows }: { rows: PartnerRow[] }) {
+  function csv() {
+    const text = "﻿" + exportTable(rows).map((l) => l.map(cell).join(",")).join("\r\n");
+    save(new Blob([text], { type: "text/csv;charset=utf-8" }), "csv");
   }
-  return <button type="button" onClick={download} disabled={rows.length === 0} className="mx-btn-ghost px-3 text-xs">⬇️ CSV 내려받기</button>;
+  function xlsx() {
+    const bytes = buildXlsx(exportTable(rows), "제휴타깃");
+    save(new Blob([bytes as BlobPart], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "xlsx");
+  }
+  return (
+    <span className="flex gap-2">
+      <button type="button" onClick={xlsx} disabled={rows.length === 0} className="mx-btn-ghost px-3 text-xs">⬇️ 엑셀 내려받기</button>
+      <button type="button" onClick={csv} disabled={rows.length === 0} className="mx-btn-ghost px-3 text-xs">CSV</button>
+    </span>
+  );
 }
 
 export function EmailToggle({ on }: { on: boolean }) {

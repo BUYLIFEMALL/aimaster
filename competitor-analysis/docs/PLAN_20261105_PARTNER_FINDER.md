@@ -169,3 +169,10 @@ CSV는 이미 있습니다. 엑셀(.xlsx) 내려받기를 추가합니다. 대�
 - 플랜(분석 폴더) [`../../docs/analysis-biz-contact-finder-20261105/PLAN.md`](../../docs/analysis-biz-contact-finder-20261105/PLAN.md)
 - 타당성 조사(공식 API는 연락처 안 줌·제50조의2) [`../../docs/analysis-cafe-recruit-20261105/FEASIBILITY_PUBLIC_CONTACT_20261105.md`](../../docs/analysis-cafe-recruit-20261105/FEASIBILITY_PUBLIC_CONTACT_20261105.md)
 - 지침: [마케팅 수집 예외](../../docs/MARKETING_AUTOMATION_EXCEPTION_POLICY.md) §3·§4·§5 · [최상위 규칙 §8](../../docs/TOP_RULE_PERSONAL_ACCOUNT_API.md) · [봇 탐지 원칙](../../docs/PLATFORM_PATTERNS.md) §20 · [자동화 최소 설정](../../docs/AUTOMATION_MINIMAL_SETUP_POLICY.md)
+
+
+## 진행 기록 (2026-11-05 맥미니 오후)
+- 단계 2·3 실물 확인: 확장 쿠키 호출 ✅, 블로그 1곳 핸드폰 읽기 ✅ (`competitor-analysis/AGENTS.md` 「v1.10 맥미니 실물 확인 결과」).
+- 고칠 점 1~3 반영 `df911339e`(연락처 숫자·이름 꼬리·스캔 탭 앞으로).
+- **단계 4 엑셀 ✅ 초안**: `lib/partners/xlsx.ts` + 「⬇️ 엑셀 내려받기」. 실제 엑셀에서 열기는 윈도우 확인.
+- 다음 배포 = **v1.11**(확장 파일 바뀜 → manifest·ZIP·DB 함께), 빌드 1회 주인님 승인.
