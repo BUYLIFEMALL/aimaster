@@ -19,7 +19,7 @@ export default async function PartnersPage() {
     supabase.from("competitor_partner_consents").select("notice_version").eq("user_id", user.id).maybeSingle(),
     supabase
       .from("competitor_partner_channels")
-      .select("id, keyword, channel_type, name, url, summary, category, address, public_phone, public_email, contact_note, match_score, match_reasons, created_at")
+      .select("id, keyword, channel_type, name, url, summary, category, address, public_phone, public_email, contact_note, match_score, match_reasons, display_name, primary_contact, primary_type, scan_status, phones_mobile, phones_landline, emails, created_at")
       .eq("user_id", user.id)
       .order("match_score", { ascending: false })
       .order("created_at", { ascending: false })
@@ -75,6 +75,12 @@ export default async function PartnersPage() {
                       </form>
                     </div>
                     {r.match_reasons && <p className="text-xs text-mx-success">✔ {r.match_reasons}</p>}
+                    <p className="text-xs text-mx-text">
+                      {r.scan_status === "done" && r.primary_contact ? <>📇 <b>{r.primary_contact}</b> <span className="text-mx-muted">({r.primary_type === "mobile" ? "핸드폰" : r.primary_type === "landline" ? "일반전화" : "이메일"}){r.display_name ? ` · ${r.display_name}` : ""}{[...r.phones_mobile, ...r.phones_landline, ...r.emails].length > 1 ? ` · 그 밖 ${[...r.phones_mobile, ...r.phones_landline, ...r.emails].length - 1}개` : ""}</span></>
+                        : r.scan_status === "none" ? <span className="text-mx-muted">공개 연락처 없음</span>
+                        : r.scan_status === "scanning" ? <span className="text-mx-muted">스캔 중…</span>
+                        : <span className="text-mx-muted">스캔 대기 — 확장 팝업에서 「스캔 시작」</span>}
+                    </p>
                     {(r.summary || r.category || r.address) && (
                       <p className="text-xs text-mx-muted">{[r.category, r.address, r.summary].filter(Boolean).join(" · ")}</p>
                     )}

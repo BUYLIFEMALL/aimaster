@@ -177,6 +177,8 @@ export interface PartnerRow {
   summary: string; category: string; address: string;
   public_phone: string | null; public_email: string | null; contact_note: string | null;
   match_score: number; match_reasons: string; created_at: string;
+  display_name: string | null; primary_contact: string | null; primary_type: "mobile" | "landline" | "email" | null;
+  scan_status: "pending" | "scanning" | "done" | "none" | "stopped"; phones_mobile: string[]; phones_landline: string[]; emails: string[];
 }
 
 export function ContactForm({ row }: { row: PartnerRow }) {
@@ -211,8 +213,8 @@ const cell = (v: string) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` :
 
 export function PartnerCsvButton({ rows }: { rows: PartnerRow[] }) {
   function download() {
-    const head = ["키워드", "매칭 점수", "매칭 이유", "종류", "이름", "주소(링크)", "요약", "분류", "위치", "공개 전화", "공개 이메일", "메모", "담은 날"];
-    const body = rows.map((r) => [r.keyword, String(r.match_score), r.match_reasons, CHANNEL_LABELS[r.channel_type], r.name, r.url, r.summary, r.category, r.address,
+    const head = ["키워드", "매칭 점수", "매칭 이유", "대표 연락처", "대표 종류", "핸드폰", "일반전화", "이메일", "공개 이름", "종류", "이름", "주소(링크)", "요약", "분류", "위치", "공개 전화", "공개 이메일", "메모", "담은 날"];
+    const body = rows.map((r) => [r.keyword, String(r.match_score), r.match_reasons, r.primary_contact ?? "", r.primary_type === "mobile" ? "핸드폰" : r.primary_type === "landline" ? "일반전화" : r.primary_type === "email" ? "이메일" : "", r.phones_mobile.join(" / "), r.phones_landline.join(" / "), r.emails.join(" / "), r.display_name ?? "", CHANNEL_LABELS[r.channel_type], r.name, r.url, r.summary, r.category, r.address,
       r.public_phone ?? "", r.public_email ?? "", r.contact_note ?? "", new Date(r.created_at).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })]);
     const csv = "﻿" + [head, ...body].map((l) => l.map(cell).join(",")).join("\r\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));

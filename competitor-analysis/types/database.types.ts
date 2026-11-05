@@ -250,6 +250,12 @@ export interface Database {
           emails?: string[];
           primary_contact?: string | null;
           primary_type?: PartnerContactType | null;
+          // 아래는 서버(서비스 키, 확장 결과 저장)만 바꾼다 — 회원 권한(DB grant)에는 없음.
+          display_name?: string | null;
+          public_id?: string | null;
+          scan_status?: PartnerScanStatus;
+          scanned_at?: string | null;
+          profile_match_score?: number;
         };
         Relationships: [];
       };

@@ -50,6 +50,7 @@
 - 연락처 칸은 회원 수정 허용 유지(오탐 지우기). 승인 요청함 `df64e86f`(DB 표 추가 승인)에 이 보강도 포함해 보고.
 
 ### 단계 2 — 크롬 확장 새로 만들기 (`competitor-analysis/extension/`, 맥미니 작성 가능)
+> ✅ **1차 초안 완료(2026-11-05 맥미니)** — `extension/extract.mjs`(핸드폰>일반전화(050 포함)>이메일, 종류별 5개, 예시 번호·그림 파일 오탐 제외, 멈춤 신호 `isBlocked`; node로 예시 문장 시험 통과) · `background.mjs`(같은 창 새 탭 하나, 페이지마다 30~45초 알람, 09~22시, 보안문자·제한·로그인 요구면 그날 중지, 탭 닫으면 중지, 화면 보이는 글자만 `innerText`) · `popup.html/js`(시작·멈추기·상태) · `manifest.json`(이름 「키워드·경쟁사 분석 자동화」 v1.10). **남은 것**: 기기 연결(지금은 회원 로그인 쿠키로 서버 호출 — 동작 확인 필요, 안 되면 `blog-neighbor-care` 연결 코드 방식으로), 업체·쇼핑몰은 상세 페이지 주소가 공개 페이지인지 실물 확인, 탭 전환 시 잠시 멈춤, ZIP·다운로드 버튼.
 **가져다 쓸 코드**: `blog-neighbor-care/extension/`
 - 기기 연결·동의 기억: `background.mjs`, `popup.*`
 - 같은 창 전용 탭 순회: `target-traversal.mjs`(보일 때만 진행, 탭 전환은 끄지 말고 잠시 멈춤 — C-2 개선과 같게)
@@ -83,6 +84,7 @@
 **읽지 않는 것**: 로그인해야만 보이는 영역, 숨긴 값, 내부 API 우회 응답. 시스템이 「사이트 접근 우회」로 자동 차단한 내부 API 탐색은 다시 하지 않음
 
 ### 단계 3 — 서버 연결 (맥미니 초안, 윈도우 시험)
+> ✅ **초안 완료** — `app/api/partners/extension/route.ts`: `next_batch`(대기 채널 점수 순 10개·하루 300곳, 「스캔 중」 표시) · `scan_report`(공개 이름·아이디·연락처 저장, 대표 연락처 서버에서 다시 계산·형식 검사, 중지면 대기로) · `scan_stop`. 동의 없으면 거부. 목록·CSV에 대표 연락처·종류·전체 연락처 표시. `tsc` 통과.
 `/api/partners/extension`(확장 전용, `checkProgramAccessApi`·기기 토큰, `force-dynamic`·`force-no-store`):
 
 | 동작 | 하는 일 |
