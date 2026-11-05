@@ -6,13 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchChannels, NaverSearchError, type ChannelType } from "@/lib/naver/search";
 import { PARTNER_NOTICE_VERSION } from "@/lib/partners/notice";
+import { DEFAULT_MIN_SCORE, parseTerms, scoreChannel } from "@/lib/partners/match";
 
 // 제휴 타깃 찾기(v1.10 초안). 회원 본인 네이버 검색 키로 공식 검색 API만 부른다(페이지를 긁지 않음).
 // 연락처는 회원이 그 채널의 공개 페이지에서 직접 확인해 적는 값만 저장한다(마케팅 예외 지침 §4).
 
 const TYPES: ChannelType[] = ["blog", "local", "cafe", "shop"];
 
-export interface PartnerActionState { error?: string; added?: number; skipped?: number; needsKey?: boolean }
+export interface PartnerActionState { error?: string; added?: number; skipped?: number; unmatched?: number; needsKey?: boolean }
 
 export async function agreePartnerNoticeAction(): Promise<PartnerActionState> {
   const user = await requireProgramAccess();
@@ -38,6 +39,9 @@ export async function searchPartnersAction(formData: FormData): Promise<PartnerA
 
   const keyword = String(formData.get("keyword") ?? "").trim().slice(0, 60);
   if (!keyword) return { error: "찾을 키워드를 입력해 주세요(예: 공동구매)." };
+  const { main, extras } = parseTerms(keyword, String(formData.get("extra_terms") ?? ""));
+  const minScoreRaw = Number(formData.get("min_score") ?? DEFAULT_MIN_SCORE);
+  const minScore = Number.isFinite(minScoreRaw) ? Math.min(100, Math.max(0, Math.round(minScoreRaw))) : DEFAULT_MIN_SCORE;
   const types = TYPES.filter((t) => formData.get(`type_${t}`) === "on");
   if (types.length === 0) return { error: "찾을 채널 종류를 하나 이상 골라 주세요." };
 
@@ -51,25 +55,36 @@ export async function searchPartnersAction(formData: FormData): Promise<PartnerA
 
   let added = 0;
   let skipped = 0;
+  let unmatched = 0;
   for (const type of types) {
     let hits;
     try {
       hits = await searchChannels({ clientId, clientSecret }, type, keyword, 50);
     } catch (e) {
-      return { error: e instanceof NaverSearchError ? e.message : "검색 중 문제가 생겼습니다.", added, skipped };
+      return { error: e instanceof NaverSearchError ? e.message : "검색 중 문제가 생겼습니다.", added, skipped, unmatched };
     }
-    if (hits.length === 0) continue;
+    // 주제 매칭 판정: 기준 점수 미만은 저장하지 않는다(맞지 않는 채널은 의미 없음).
+    const matched = hits
+      .map((h) => ({ h, m: scoreChannel({ name: h.name, category: h.category, texts: h.texts, hitCount: h.hit_count }, main, extras) }))
+      .filter(({ m }) => m.score >= minScore);
+    unmatched += hits.length - matched.length;
+    if (matched.length === 0) continue;
+    const rows = matched.map(({ h, m }) => ({
+      user_id: user.id, keyword, channel_type: h.channel_type, name: h.name, url: h.url,
+      summary: h.summary, category: h.category, address: h.address,
+      match_score: m.score, match_reasons: m.reasons.join(" · ").slice(0, 300),
+    }));
     const { data, error } = await supabase
       .from("competitor_partner_channels")
-      .upsert(hits.map((h) => ({ ...h, user_id: user.id, keyword })), { onConflict: "user_id,channel_type,name,url", ignoreDuplicates: true })
+      .upsert(rows, { onConflict: "user_id,channel_type,name,url", ignoreDuplicates: true })
       .select("id");
-    if (error) return { error: "결과를 저장하지 못했습니다.", added, skipped };
+    if (error) return { error: "결과를 저장하지 못했습니다.", added, skipped, unmatched };
     added += data?.length ?? 0;
-    skipped += hits.length - (data?.length ?? 0);
+    skipped += rows.length - (data?.length ?? 0);
   }
 
   revalidatePath("/partners");
-  return { added, skipped };
+  return { added, skipped, unmatched };
 }
 
 const PHONE = /^[0-9+()\-\s]{7,40}$/;

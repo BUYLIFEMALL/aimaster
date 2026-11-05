@@ -24,6 +24,10 @@ export interface ChannelHit {
   summary: string;
   category: string;
   address: string;
+  /** 같은 채널이 이 키워드 검색 결과에 나온 횟수(매칭 신호). */
+  hit_count: number;
+  /** 그 채널로 나온 글 제목·요약들(매칭 판정용, 최대 5개). */
+  texts: string[];
 }
 
 const API_PATH: Record<ChannelType, string> = { blog: "blog", local: "local", cafe: "cafearticle", shop: "shop" };
@@ -63,18 +67,18 @@ type RawItem = Record<string, unknown>;
 function toHit(type: ChannelType, it: RawItem): ChannelHit | null {
   if (type === "blog") {
     const name = strip(it.bloggername); const url = safeUrl(it.bloggerlink);
-    return name && url ? { channel_type: type, name, url, summary: strip(it.title), category: "", address: "" } : null;
+    return name && url ? { channel_type: type, name, url, summary: strip(it.title), category: "", address: "", hit_count: 1, texts: [strip(it.title), strip(it.description)].filter(Boolean) } : null;
   }
   if (type === "cafe") {
     const name = strip(it.cafename); const url = safeUrl(it.cafeurl);
-    return name && url ? { channel_type: type, name, url, summary: strip(it.title), category: "", address: "" } : null;
+    return name && url ? { channel_type: type, name, url, summary: strip(it.title), category: "", address: "", hit_count: 1, texts: [strip(it.title), strip(it.description)].filter(Boolean) } : null;
   }
   if (type === "local") {
     const name = strip(it.title);
-    return name ? { channel_type: type, name, url: safeUrl(it.link), summary: strip(it.description), category: strip(it.category), address: strip(it.roadAddress) || strip(it.address) } : null;
+    return name ? { channel_type: type, name, url: safeUrl(it.link), summary: strip(it.description), category: strip(it.category), address: strip(it.roadAddress) || strip(it.address), hit_count: 1, texts: [strip(it.title), strip(it.description), strip(it.category)].filter(Boolean) } : null;
   }
   const name = strip(it.mallName);
-  return name ? { channel_type: type, name, url: safeUrl(it.link), summary: strip(it.title), category: [it.category1, it.category2].map(strip).filter(Boolean).join(" > "), address: "" } : null;
+  return name ? { channel_type: type, name, url: safeUrl(it.link), summary: strip(it.title), category: [it.category1, it.category2].map(strip).filter(Boolean).join(" > "), address: "", hit_count: 1, texts: [strip(it.title)].filter(Boolean) } : null;
 }
 
 /** 한 종류 검색 → 채널 단위로 합친 목록(같은 이름·주소는 한 줄). */
@@ -88,15 +92,16 @@ export async function searchChannels(auth: NaverAuth, type: ChannelType, keyword
   if (!r.ok) throw classify(r.status, LABEL[type]);
   let items: RawItem[] = [];
   try { items = (JSON.parse(r.text) as { items?: RawItem[] }).items ?? []; } catch { throw new NaverSearchError("http", "네이버 응답을 해석하지 못했습니다."); }
-  const seen = new Set<string>();
-  const out: ChannelHit[] = [];
+  // 같은 채널(이름+주소)은 한 줄로 합치고, 나온 횟수와 글 제목·요약을 모은다(매칭 판정에 씀).
+  const byKey = new Map<string, ChannelHit>();
   for (const it of items) {
     const hit = toHit(type, it);
     if (!hit) continue;
     const key = `${hit.name.toLowerCase()}|${hit.url}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(hit);
+    const prev = byKey.get(key);
+    if (!prev) { byKey.set(key, hit); continue; }
+    prev.hit_count += 1;
+    for (const t of hit.texts) if (prev.texts.length < 5 && !prev.texts.includes(t)) prev.texts.push(t);
   }
-  return out;
+  return Array.from(byKey.values());
 }

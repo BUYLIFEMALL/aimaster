@@ -19,8 +19,9 @@ export default async function PartnersPage() {
     supabase.from("competitor_partner_consents").select("notice_version").eq("user_id", user.id).maybeSingle(),
     supabase
       .from("competitor_partner_channels")
-      .select("id, keyword, channel_type, name, url, summary, category, address, public_phone, public_email, contact_note, created_at")
+      .select("id, keyword, channel_type, name, url, summary, category, address, public_phone, public_email, contact_note, match_score, match_reasons, created_at")
       .eq("user_id", user.id)
+      .order("match_score", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(500),
   ]);
@@ -34,7 +35,7 @@ export default async function PartnersPage() {
       <PageHero
         badge="🤝 제휴 타깃 찾기"
         title="키워드로 그 주제 채널 찾기"
-        description="공동구매처럼 원하는 주제로 활동하는 블로그·업체·카페·쇼핑몰을 찾고, 그 채널이 홍보하려고 공개해 둔 연락처를 확인해 정리합니다."
+        description="공동구매처럼 원하는 주제로 활동하는 블로그·업체·카페·쇼핑몰 가운데 주제에 실제로 맞는 곳만 골라 담고, 그 채널이 홍보하려고 공개해 둔 연락처를 정리합니다."
         tip="연락처는 검색 결과에 나오지 않습니다. 채널 이름을 눌러 공개 페이지를 열고, 공개돼 있는 전화·이메일만 적어 주세요."
       />
 
@@ -67,11 +68,13 @@ export default async function PartnersPage() {
                         <span className="font-semibold text-mx-text">{r.name}</span>
                       )}
                       <span className="text-xs text-mx-muted">#{r.keyword}</span>
+                      <span className="rounded bg-mx-surface px-2 py-0.5 text-xs font-semibold text-mx-success" title={r.match_reasons}>매칭 {r.match_score}점</span>
                       <form action={deletePartnerAction} className="ml-auto">
                         <input type="hidden" name="id" value={r.id} />
                         <button type="submit" className="text-xs text-mx-muted hover:text-mx-danger">삭제</button>
                       </form>
                     </div>
+                    {r.match_reasons && <p className="text-xs text-mx-success">✔ {r.match_reasons}</p>}
                     {(r.summary || r.category || r.address) && (
                       <p className="text-xs text-mx-muted">{[r.category, r.address, r.summary].filter(Boolean).join(" · ")}</p>
                     )}

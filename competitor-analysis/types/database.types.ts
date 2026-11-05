@@ -198,6 +198,8 @@ export interface Database {
           public_phone: string | null;
           public_email: string | null;
           contact_note: string | null;
+          match_score: number;
+          match_reasons: string;
           created_at: string;
         };
         Insert: {
@@ -213,6 +215,8 @@ export interface Database {
           public_phone?: string | null;
           public_email?: string | null;
           contact_note?: string | null;
+          match_score?: number;
+          match_reasons?: string;
           created_at?: string;
         };
         Update: {

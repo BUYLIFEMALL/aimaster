@@ -16,10 +16,14 @@ create table public.competitor_partner_channels (
   public_phone text check (public_phone is null or length(public_phone) between 7 and 40),
   public_email text check (public_email is null or (length(public_email) <= 200 and public_email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$')),
   contact_note text check (contact_note is null or length(contact_note) <= 300),
+  -- 주제 매칭 점수(0~100)와 이유 — 기준 미만은 애초에 저장하지 않는다(주인님 「매칭되는 사람만」).
+  match_score int not null default 0 check (match_score between 0 and 100),
+  match_reasons text not null default '' check (length(match_reasons) <= 300),
   created_at timestamptz not null default now(),
   unique (user_id, channel_type, name, url)
 );
 create index competitor_partner_channels_owner_idx on public.competitor_partner_channels(user_id, created_at desc);
+create index competitor_partner_channels_score_idx on public.competitor_partner_channels(user_id, match_score desc);
 create index competitor_partner_channels_created_idx on public.competitor_partner_channels(created_at);
 
 -- 켤 때 고지 동의(공개 비즈니스 연락처만·공개 목적 범위·회원 참고용·회원 책임). 문구가 바뀌면 notice_version을 올려 다시 받는다.

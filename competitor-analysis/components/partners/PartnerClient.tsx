@@ -50,7 +50,7 @@ export function PartnerSearchForm() {
     try {
       const r = await searchPartnersAction(new FormData(form));
       if (r.error) setMessage({ ok: false, text: r.error, needsKey: r.needsKey });
-      else setMessage({ ok: true, text: `새 채널 ${r.added ?? 0}곳을 담았습니다${r.skipped ? ` · 이미 있던 ${r.skipped}곳은 건너뜀` : ""}.` });
+      else setMessage({ ok: true, text: `주제에 맞는 새 채널 ${r.added ?? 0}곳을 담았습니다${r.skipped ? ` · 이미 있던 ${r.skipped}곳은 건너뜀` : ""}${r.unmatched ? ` · 주제와 맞지 않는 ${r.unmatched}곳은 버림` : ""}.` });
       router.refresh();
     } finally { setPending(false); }
   }
@@ -64,6 +64,15 @@ export function PartnerSearchForm() {
           {pending ? "찾는 중..." : "찾기"}
         </button>
       </div>
+      <input name="extra_terms" maxLength={200} placeholder="보조 단어(쉼표로, 선택) — 예: 공구, 체험단, 협찬, 도매" className="input w-full" />
+      <label className="flex flex-wrap items-center gap-2 text-sm text-mx-text">
+        매칭 기준
+        <select name="min_score" defaultValue="40" className="input-sm min-h-[40px] w-56">
+          <option value="60">엄격 — 주제가 확실한 채널만(60점↑)</option>
+          <option value="40">보통 — 추천(40점↑)</option>
+          <option value="20">넓게 — 조금이라도 맞으면(20점↑)</option>
+        </select>
+      </label>
       <div className="flex flex-wrap gap-4 text-sm text-mx-text">
         {(Object.keys(CHANNEL_LABELS) as (keyof typeof CHANNEL_LABELS)[]).map((t) => (
           <label key={t} className="flex items-center gap-1.5">
@@ -84,7 +93,8 @@ export function PartnerSearchForm() {
 export interface PartnerRow {
   id: string; keyword: string; channel_type: keyof typeof CHANNEL_LABELS; name: string; url: string;
   summary: string; category: string; address: string;
-  public_phone: string | null; public_email: string | null; contact_note: string | null; created_at: string;
+  public_phone: string | null; public_email: string | null; contact_note: string | null;
+  match_score: number; match_reasons: string; created_at: string;
 }
 
 export function ContactForm({ row }: { row: PartnerRow }) {
@@ -119,8 +129,8 @@ const cell = (v: string) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` :
 
 export function PartnerCsvButton({ rows }: { rows: PartnerRow[] }) {
   function download() {
-    const head = ["키워드", "종류", "이름", "주소(링크)", "요약", "분류", "위치", "공개 전화", "공개 이메일", "메모", "담은 날"];
-    const body = rows.map((r) => [r.keyword, CHANNEL_LABELS[r.channel_type], r.name, r.url, r.summary, r.category, r.address,
+    const head = ["키워드", "매칭 점수", "매칭 이유", "종류", "이름", "주소(링크)", "요약", "분류", "위치", "공개 전화", "공개 이메일", "메모", "담은 날"];
+    const body = rows.map((r) => [r.keyword, String(r.match_score), r.match_reasons, CHANNEL_LABELS[r.channel_type], r.name, r.url, r.summary, r.category, r.address,
       r.public_phone ?? "", r.public_email ?? "", r.contact_note ?? "", new Date(r.created_at).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })]);
     const csv = "﻿" + [head, ...body].map((l) => l.map(cell).join(",")).join("\r\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
