@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-05 🔨 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`competitor-analysis` v1.11 준비 완료(미배포·빌드 승인 대기)**
+- 고칠 점 1~3 `df911339e`(연락처 숫자에 확장이 읽은 값 포함·이름 꼬리 「 : 네이버 블로그」 떼기·스캔 탭 자동으로 앞에) + 엑셀(.xlsx) 내려받기 `e645c227a`(패키지 없는 생성기 `lib/partners/xlsx.ts`) + 안내 문구 `70e8d7202`. 맥미니 `tsc` 0, 엑셀 구조 검증 통과. DB 변경 없음.
+- **윈도우 다음 첫 단계**: 주인님 빌드 승인 확인 → 버전 v1.11(`lib/version.ts`·확장 manifest·ZIP·DB `programs.version`/`extension_version`) → 시험 `npm run test:partners`·`test:partners-db` → 빌드·배포 → `check-extension-release` → 내려받은 엑셀을 실제 엑셀에서 열어 확인 → 맥미니에 「공동구매」 10곳 스캔 확인 요청.
+
 ## 2026-11-05 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`competitor-analysis` v1.10 제휴 타깃 찾기 맥미니 실물 확인(크레딧 소진으로 다른 계정이 이어 받음)**
 - 확장이 회원 로그인 쿠키로 서버 호출 ✅ · 블로그 1곳 스캔 → 핸드폰 번호 정확히 읽어 대표 연락처 저장 ✅. 미확인: 「공동구매」 10곳 스캔.
 - **다음 첫 단계**: [`competitor-analysis/AGENTS.md`](../competitor-analysis/AGENTS.md) 맨 아래 「2026-11-05 v1.10 맥미니 실물 확인 결과」의 고칠 점 1~3(연락처 KPI·이름 꼬리·스캔 탭 앞으로) → 윈도우 빌드 승인·배포 → 10곳 스캔 확인. 남은 큰 일: 엑셀(.xlsx) 내려받기, 유튜브·인스타·쓰레드 확장(플랜 `competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md` §4).
