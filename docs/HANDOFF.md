@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-05 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`competitor-analysis` v1.10 제휴 타깃 찾기 맥미니 실물 확인(크레딧 소진으로 다른 계정이 이어 받음)**
+- 확장이 회원 로그인 쿠키로 서버 호출 ✅ · 블로그 1곳 스캔 → 핸드폰 번호 정확히 읽어 대표 연락처 저장 ✅. 미확인: 「공동구매」 10곳 스캔.
+- **다음 첫 단계**: [`competitor-analysis/AGENTS.md`](../competitor-analysis/AGENTS.md) 맨 아래 「2026-11-05 v1.10 맥미니 실물 확인 결과」의 고칠 점 1~3(연락처 KPI·이름 꼬리·스캔 탭 앞으로) → 윈도우 빌드 승인·배포 → 10곳 스캔 확인. 남은 큰 일: 엑셀(.xlsx) 내려받기, 유튜브·인스타·쓰레드 확장(플랜 `competitor-analysis/docs/PLAN_20261105_PARTNER_FINDER.md` §4).
+- 기타 대기: blog-neighbor-care v1.17 공감 실물 확인 · naver-cafe-recruit 모드 A 결정·첫 배포 승인 `b8a029ff` · koms 진행 여부 · 쌓인 커밋 푸시(주인님 「푸시해」 대기).
+
 ## 2026-11-05 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`competitor-analysis` v1.10 배포: 제휴 타깃 찾기(맥미니 초안) 윈도우 마무리**
 - 한 일:
   - 격리 DB 시험 8개, 단위 시험 8개를 추가했습니다(`6c2b8ff3e`).
