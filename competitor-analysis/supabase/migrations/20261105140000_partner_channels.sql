@@ -42,6 +42,8 @@ create index competitor_partner_channels_created_idx on public.competitor_partne
 create table public.competitor_partner_consents (
   user_id uuid primary key references auth.users(id) on delete cascade,
   notice_version int not null check (notice_version >= 1),
+  -- 이메일 자동수집은 정보통신망법 제50조의2 위험 → 기본 꺼짐, 회원이 켤 때만(주인님 결정 전 추천안).
+  collect_email boolean not null default false,
   agreed_at timestamptz not null default now()
 );
 

@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   const op = String(body.op ?? "");
   const db = createAdminClient();
 
-  const { data: consent } = await db.from("competitor_partner_consents").select("notice_version").eq("user_id", userId).maybeSingle();
+  const { data: consent } = await db.from("competitor_partner_consents").select("notice_version, collect_email").eq("user_id", userId).maybeSingle();
   if (!consent || consent.notice_version < PARTNER_NOTICE_VERSION) return reply({ error: "프로그램 화면에서 이용 안내에 먼저 동의해 주세요." }, 403);
 
   if (op === "next_batch") {
@@ -46,13 +46,13 @@ export async function POST(req: Request) {
       .order("match_score", { ascending: false }).limit(Math.min(BATCH, remaining));
     const items = rows ?? [];
     if (items.length) await db.from("competitor_partner_channels").update({ scan_status: "scanning" }).eq("user_id", userId).in("id", items.map((r) => r.id));
-    return reply({ items, remaining });
+    return reply({ items, remaining, collectEmail: consent.collect_email });
   }
 
   if (op === "scan_report") {
     const id = String(body.id ?? "");
     if (!id) return reply({ error: "대상을 확인해 주세요." }, 400);
-    const mobile = list(body.mobile, PHONE), landline = list(body.landline, PHONE), emails = list(body.emails, EMAIL);
+    const mobile = list(body.mobile, PHONE), landline = list(body.landline, PHONE), emails = consent.collect_email ? list(body.emails, EMAIL) : [];
     const primary = mobile[0] ? ["mobile", mobile[0]] : landline[0] ? ["landline", landline[0]] : emails[0] ? ["email", emails[0]] : null;
     const status = body.status === "stopped" ? "pending" : primary ? "done" : "none"; // 중지면 다음에 다시 스캔
     const { error } = await db.from("competitor_partner_channels").update({

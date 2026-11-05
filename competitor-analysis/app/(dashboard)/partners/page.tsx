@@ -2,7 +2,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/layout/PageHero";
 import { KpiCard, KpiGrid } from "@/components/dashboard/KpiCard";
-import { ContactForm, PartnerCsvButton, PartnerNotice, PartnerSearchForm, type PartnerRow } from "@/components/partners/PartnerClient";
+import { ContactForm, EmailToggle, PartnerCsvButton, PartnerNotice, PartnerSearchForm, type PartnerRow } from "@/components/partners/PartnerClient";
 import { CHANNEL_LABELS, PARTNER_NOTICE_VERSION } from "@/lib/partners/notice";
 import { deletePartnerAction } from "@/lib/actions/partners";
 
@@ -16,7 +16,7 @@ export default async function PartnersPage() {
   const supabase = await createClient();
 
   const [{ data: consent }, { data: rows }] = await Promise.all([
-    supabase.from("competitor_partner_consents").select("notice_version").eq("user_id", user.id).maybeSingle(),
+    supabase.from("competitor_partner_consents").select("notice_version, collect_email").eq("user_id", user.id).maybeSingle(),
     supabase
       .from("competitor_partner_channels")
       .select("id, keyword, channel_type, name, url, summary, category, address, public_phone, public_email, contact_note, match_score, match_reasons, display_name, primary_contact, primary_type, scan_status, phones_mobile, phones_landline, emails, created_at")
@@ -49,6 +49,7 @@ export default async function PartnersPage() {
             <KpiCard icon="🔑" label="키워드" value={keywords} tone="muted" />
           </KpiGrid>
           <PartnerSearchForm />
+          <div className="mx-card"><EmailToggle on={!!consent?.collect_email} /></div>
           <div className="mx-card">
             <div className="mb-3 flex items-center justify-between gap-2">
               <p className="text-sm font-bold text-mx-text">📋 담은 채널 ({list.length})</p>

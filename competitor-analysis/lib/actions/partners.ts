@@ -138,3 +138,13 @@ export async function suggestPartnerTermsAction(keywordInput: string): Promise<{
   const ads = adsKey && adsSecret && adsCustomer ? { apiKey: adsKey, secretKey: adsSecret, customerId: adsCustomer } : null;
   return { data: await suggestTerms(keyword, search, ads) };
 }
+
+/** 이메일 자동수집 켜기/끄기(기본 꺼짐). 정보통신망법 제50조의2 위험을 화면에 알리고 회원이 켠다. */
+export async function setCollectEmailAction(on: boolean): Promise<PartnerActionState> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const { error } = await supabase.from("competitor_partner_consents").update({ collect_email: !!on }).eq("user_id", user.id);
+  if (error) return { error: "저장하지 못했습니다." };
+  revalidatePath("/partners");
+  return {};
+}

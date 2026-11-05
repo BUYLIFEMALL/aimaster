@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { agreePartnerNoticeAction, searchPartnersAction, saveContactAction, suggestPartnerTermsAction } from "@/lib/actions/partners";
+import { agreePartnerNoticeAction, searchPartnersAction, saveContactAction, suggestPartnerTermsAction, setCollectEmailAction } from "@/lib/actions/partners";
 import { CHANNEL_LABELS, PARTNER_NOTICE_LINES, STARTER_TOPICS } from "@/lib/partners/notice";
 import type { Suggestions } from "@/lib/partners/suggest";
 
@@ -223,4 +223,20 @@ export function PartnerCsvButton({ rows }: { rows: PartnerRow[] }) {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return <button type="button" onClick={download} disabled={rows.length === 0} className="mx-btn-ghost px-3 text-xs">⬇️ CSV 내려받기</button>;
+}
+
+export function EmailToggle({ on }: { on: boolean }) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  async function toggle(next: boolean) {
+    if (next && !confirm("이메일 자동수집은 정보통신망법 제50조의2(이메일 무단 자동수집 금지) 위반 위험이 있습니다. 본인 책임으로 켜시겠습니까?")) return;
+    setPending(true);
+    try { await setCollectEmailAction(next); router.refresh(); } finally { setPending(false); }
+  }
+  return (
+    <label className="flex items-center gap-2 text-sm text-mx-text">
+      <input type="checkbox" checked={on} disabled={pending} onChange={(e) => toggle(e.target.checked)} />
+      이메일도 모으기 <span className="text-xs text-mx-muted">(기본 꺼짐 · 핸드폰·일반전화는 항상 모음 · 법적 위험 안내 후 본인 책임)</span>
+    </label>
+  );
 }

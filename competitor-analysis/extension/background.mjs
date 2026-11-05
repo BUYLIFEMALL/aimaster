@@ -56,11 +56,19 @@ async function step() {
     if (!s.queue.length) {
       const batch = await api("next_batch");
       if (!batch.items?.length) return stop(batch.reason === "daily_cap" ? "오늘 스캔 상한에 닿았습니다." : "스캔할 채널을 모두 마쳤습니다.");
-      s = { ...s, queue: batch.items };
+      s = { ...s, queue: batch.items, collectEmail: !!batch.collectEmail };
+    }
+    // 스캔 탭이 그 창 맨 앞에 없거나 창이 최소화면 끄지 않고 잠시 멈춤(1분 뒤 다시 확인) — 숨은 탭에서 읽지 않는다.
+    const tab = await chrome.tabs.get(s.tabId).catch(() => null);
+    const win = tab ? await chrome.windows.get(tab.windowId).catch(() => null) : null;
+    if (!tab || !tab.active || !win || win.state === "minimized") {
+      if (!tab) return stop("스캔 탭이 없어 멈췄습니다.");
+      await set({ ...s, message: "잠시 멈춤 — 스캔 탭을 앞에 두면 이어갑니다" });
+      return chrome.alarms.create(ALARM, { delayInMinutes: 1 });
     }
     const [item, ...rest] = s.queue;
     await set({ ...s, queue: rest, message: `스캔 중: ${item.name}` });
-    await chrome.tabs.update(s.tabId, { url: item.url, active: true });
+    await chrome.tabs.update(s.tabId, { url: item.url });
     await new Promise((r) => setTimeout(r, 6000)); // 페이지가 다 그려질 때까지
     const [{ result: text }] = await chrome.scripting.executeScript({ target: { tabId: s.tabId, allFrames: false }, func: readPage });
     if (isBlocked(text)) {
@@ -72,7 +80,7 @@ async function step() {
     const profileScore = kw && text.replace(/\s+/g, "").includes(kw) ? 40 : 0;
     await api("scan_report", {
       id: item.id, display_name: (text.split("\n")[0] || item.name).slice(0, 100), public_id: publicIdFrom(item.url),
-      mobile: c.mobile, landline: c.landline, emails: c.emails, profile_match_score: profileScore,
+      mobile: c.mobile, landline: c.landline, emails: s.collectEmail ? c.emails : [], profile_match_score: profileScore,
     });
     const now = await get();
     await set({ ...now, done: (now.done || 0) + 1 });

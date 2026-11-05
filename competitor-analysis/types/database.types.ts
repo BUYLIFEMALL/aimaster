@@ -260,9 +260,9 @@ export interface Database {
         Relationships: [];
       };
       competitor_partner_consents: {
-        Row: { user_id: string; notice_version: number; agreed_at: string };
-        Insert: { user_id: string; notice_version: number; agreed_at?: string };
-        Update: { notice_version?: number; agreed_at?: string };
+        Row: { user_id: string; notice_version: number; collect_email: boolean; agreed_at: string };
+        Insert: { user_id: string; notice_version: number; collect_email?: boolean; agreed_at?: string };
+        Update: { notice_version?: number; collect_email?: boolean; agreed_at?: string };
         Relationships: [];
       };
       user_tracked_competitors: {
