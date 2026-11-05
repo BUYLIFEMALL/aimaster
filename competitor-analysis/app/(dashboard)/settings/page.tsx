@@ -36,6 +36,12 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
       "경쟁사 리서치와 분석 리포트를 만드는 AI 키 — Perplexity/OpenAI는 필수, Anthropic은 리포트를 HTML로 변환하는 선택 기능",
     providers: ["perplexity", "openai", "anthropic"],
   },
+  {
+    title: "🤝 제휴 타깃 찾기 (네이버 검색 API)",
+    description:
+      "키워드로 그 주제 블로그·업체·카페·쇼핑몰을 찾는 네이버 공식 검색 키 — 무료(하루 한도), 다른 AIMaster 프로그램에 등록했다면 그대로 쓰입니다",
+    providers: ["naver_client_id", "naver_client_secret"],
+  },
 ];
 
 const HELP_LINKS: Partial<
@@ -50,6 +56,16 @@ const HELP_LINKS: Partial<
   perplexity: { url: "https://www.perplexity.ai/settings/api", label: "Perplexity 키 발급받기" },
   openai: { url: "https://platform.openai.com/api-keys", label: "OpenAI 키 발급받기" },
   anthropic: { url: "https://console.anthropic.com/settings/keys", label: "Anthropic 키 발급받기" },
+  naver_client_id: {
+    url: "https://developers.naver.com/apps/#/register",
+    label: "네이버 검색 API 키 발급받기 (네이버 개발자 센터)",
+    highlight: "무료 · 하루 호출 한도 있음",
+    description: "사용 API에 「검색」을 넣고 만든 애플리케이션의 Client ID를 붙여 넣습니다",
+  },
+  naver_client_secret: {
+    url: "https://developers.naver.com/apps/#/list",
+    label: "내 애플리케이션에서 Client Secret 확인",
+  },
 };
 
 export default async function SettingsPage() {

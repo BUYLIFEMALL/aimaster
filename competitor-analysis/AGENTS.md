@@ -146,3 +146,11 @@ production dpl_2fSGbqZK3PrGWSSy85dyG8m2BmXt READY, 소스 c80a44af 푸시·DB v1
 - 실제 확장 1회(주인님 승인, 관리자 계정·본인 SerpApi·OpenAI 키): 「가을 계절상품」 네이버 → 연관 6·롱테일 14·평균 관련도 73%·작업 지시문 정상, 등록 버튼으로 2개 등록 확인. 시험 계정에는 SerpApi 키가 없어 회원 계정 실시험은 못 함.
 - **미배포 대기**: 경쟁사 분석 화면 안내 문구 정정(`87b773ef2`) — 「다른 회원이 조사한 회사 정보 재사용」이 v1.08 이후 사실과 달라 「본인 30일 안 조사만」으로. 다음 배포 때 버전 +0.01.
 - 남은 확인: 텔레그램 알림 실제 수신, 등록 칩의 접근성 이름이 종류(`title`)로 읽히는 점(화면엔 키워드가 보임) — 급하지 않음.
+
+## 2026-11-05 v1.10 초안 — 「🤝 제휴 타깃 찾기」 (Claude Code 맥미니, **미배포·DB 미적용**)
+- **무엇**: 키워드(예: 공동구매)로 그 주제의 네이버 블로그·업체(플레이스)·카페·쇼핑몰 채널을 **회원 본인 네이버 검색 키로 공식 검색 API**에서 찾아 담고, 회원이 채널 공개 페이지를 열어 **직접 확인한** 비즈니스 전화·이메일을 적어 두는 참고용 목록. CSV 내려받기. 주인님 「본인 비즈니스·채널 홍보하려고 연락처를 공개한 사람과 그런 사람을 찾는 사람을 연결」「개인 참고용·본인 책임 명시」「기본 엔진 먼저, 잘되면 유튜브·인스타·쓰레드 확장」.
+- **근거·지정**: 마케팅 수집 예외 지침 §4(공개 비즈니스 연락처만·공개 목적 범위·회원 책임 고지) · 최상위 규칙 §8 지정 목록 2026-11-05 줄 · 플랜 [`../docs/analysis-biz-contact-finder-20261105/PLAN.md`](../docs/analysis-biz-contact-finder-20261105/PLAN.md) · 타당성 [`../docs/analysis-cafe-recruit-20261105/FEASIBILITY_PUBLIC_CONTACT_20261105.md`](../docs/analysis-cafe-recruit-20261105/FEASIBILITY_PUBLIC_CONTACT_20261105.md).
+- **지키는 선**: 서버는 채널 페이지를 긁지 않음(공식 API만, 이메일 자동수집 프로그램 ❌ — 정보통신망법 제50조의2) · 연락처는 회원이 직접 확인해 적는 값만 · 숨긴 정보·탐지 회피·동의 없는 광고 발송 ❌ · 켤 때 고지 동의(`lib/partners/notice.ts`, 문구 바꾸면 `PARTNER_NOTICE_VERSION` 올림) · 회원 본인 소유·30일(관리자·시험 계정 열외).
+- **바뀐 파일**: `lib/naver/search.ts`(신규, `blog-keyword/src/lib/kw/naver.ts` 방식: API HUB 먼저 → 401/403/404면 옛 주소, blog·local(최대 5)·cafearticle·shop) · `lib/actions/partners.ts`(동의·찾기·연락처 저장·삭제) · `lib/partners/notice.ts` · `components/partners/PartnerClient.tsx` · `app/(dashboard)/partners/page.tsx` · 메뉴 `components/layout/Sidebar.tsx`(🤝) · 설정 네이버 키 묶음(`app/(dashboard)/settings/page.tsx`, `lib/apiKeyLabels.ts`, `lib/actions/settings.ts` — 공용 이름 `naver_client_id`·`naver_client_secret`, 다른 프로그램에 등록한 키 그대로) · `types/database.types.ts` · DB 초안 `supabase/migrations/20261105140000_partner_channels.sql`(표 `competitor_partner_channels`·`competitor_partner_consents`, 회원 RLS, 연락처 칸만 수정 허용, 30일 조회 차단+열외, 매시 11분 정리).
+- **검사**: 맥미니 `tsc --noEmit` 통과(0). **빌드·시험 미실행**(맥미니 esbuild·SWC가 윈도우용).
+- **윈도우 할 일**: [`docs/INSTRUCTION_20261105_PARTNER_FINDER.md`](docs/INSTRUCTION_20261105_PARTNER_FINDER.md).

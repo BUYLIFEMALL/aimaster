@@ -1,4 +1,5 @@
-export type ApiKeyProvider = "serpapi" | "perplexity" | "openai" | "anthropic";
+export type ApiKeyProvider = "serpapi" | "perplexity" | "openai" | "anthropic" | "naver_client_id" | "naver_client_secret";
+export type PartnerChannelType = "blog" | "local" | "cafe" | "shop";
 export type ResultType = "organic" | "ad" | "paa" | "local";
 export type SerpEngine = "google" | "naver";
 export type CompetitorSourceKind = "track" | "upload"; // (미사용, 확장 여지로만 남김)
@@ -181,6 +182,50 @@ export interface Database {
           summary?: string | null;
           created_at?: string;
         };
+        Relationships: [];
+      };
+      competitor_partner_channels: {
+        Row: {
+          id: string;
+          user_id: string;
+          keyword: string;
+          channel_type: PartnerChannelType;
+          name: string;
+          url: string;
+          summary: string;
+          category: string;
+          address: string;
+          public_phone: string | null;
+          public_email: string | null;
+          contact_note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          keyword: string;
+          channel_type: PartnerChannelType;
+          name: string;
+          url?: string;
+          summary?: string;
+          category?: string;
+          address?: string;
+          public_phone?: string | null;
+          public_email?: string | null;
+          contact_note?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          public_phone?: string | null;
+          public_email?: string | null;
+          contact_note?: string | null;
+        };
+        Relationships: [];
+      };
+      competitor_partner_consents: {
+        Row: { user_id: string; notice_version: number; agreed_at: string };
+        Insert: { user_id: string; notice_version: number; agreed_at?: string };
+        Update: { notice_version?: number; agreed_at?: string };
         Relationships: [];
       };
       user_tracked_competitors: {

@@ -18,6 +18,7 @@ const FLOW_STEPS = [
 
 const SECONDARY_ITEMS = [
   { href: "/competitors", icon: "🏢", label: "내 경쟁사", description: "키워드 전체에서 모은 경쟁사" },
+  { href: "/partners", icon: "🤝", label: "제휴 타깃 찾기", description: "키워드로 그 주제 채널·공개 연락처" },
 ];
 
 // "API키등록·플랫폼연동"은 플랫폼 표준 메뉴명이다(2026-09-13).

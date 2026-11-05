@@ -5,7 +5,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiKeyProvider } from "@/types/database.types";
 
-const VALID_PROVIDERS: ApiKeyProvider[] = ["serpapi", "perplexity", "openai", "anthropic"];
+const VALID_PROVIDERS: ApiKeyProvider[] = ["serpapi", "perplexity", "openai", "anthropic", "naver_client_id", "naver_client_secret"];
 
 export interface SaveApiKeyState {
   error?: string;
