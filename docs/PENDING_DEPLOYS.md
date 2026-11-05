@@ -29,6 +29,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `free-music-studio` | 내 곡에서 바로 커버(「모든 음악」 「커버 →」, 원곡 번호 `parent_id`) | `2673573a5` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md` 2절 | **배포 전에 운영 DB에 `20261105_tracks_parent.sql` 먼저 적용**(안 하면 목록 API 실패) · 다음 음악 배포 때(+0.01) |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |
 | `commercial-land-trade-alert` | 실거래 목록 「분류」 거르기에 공장·창고 용도(공장·창고시설·자동차 관련시설) 추가, 종류 전체 선택 이름 「모든 종류」(v1.31 운영 확인 중 발견) | 이 커밋 바로 뒤 `fix(commercial-land-trade-alert)` | 2026-11-04 · [역할: realty] `claude-win-realty-docs` | `commercial-land-trade-alert/AGENTS.md` v1.31 | 다음 상가 배포 때 함께(+0.01) |
 | `banana-canvas` · `shop-detail-page` | 무료 지우기 회색 얼룩 수정(조각 자리에만 붙이기, 공용 `browser-free-erase`) | `d2181359e` | 2026-11-03 · [역할: ecommerce-image] `claude-win-sdp` | `banana-canvas/docs/IMPROVEMENT_BACKLOG.md` | 바나나 v1.43·상세페이지 +0.01, 배포 뒤 같은 배너 전후 비교 |
@@ -79,6 +80,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `competitor-analysis` | v1.11 · 2026-11-05 (`competitor-analysis-ov4f44ody`) | 맥미니 v1.10 실물 확인 뒤 고칠 점 3개 `df911339e`, 엑셀 내려받기 `e645c227a`, 위쪽 안내 문구 `70e8d7202`(모두 맥미니 작성) |
 | `competitor-analysis` | v1.10 · 2026-11-05 (`competitor-analysis-nh5csc4q9`) | 경쟁사 분석 화면 안내 문구 정정 `87b773ef2` (제휴 타깃 찾기 v1.10과 함께) |
 | `real_estate_sales` | v1.53 · 2026-11-05 ([역할: realty] `claude-win-realty-docs`, RQ-A4 0단계 R-ONE 진단 빌드 1회) | 주소 리포트 지도 가운데 📍 핀(`d46717d97`) |
 | `blog-neighbor-care` | v1.18 · 2026-11-05 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-g3h6ns5bk`) | 단계 C-2 자동 운영(운영 SQL `20261105090000`) + 맥미니 글 제목 표시(`3256ee05b`). DB/ZIP OK |

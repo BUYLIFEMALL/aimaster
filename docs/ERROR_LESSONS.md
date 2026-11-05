@@ -5,6 +5,7 @@
 - 원인: Monaco 편집기는 보이는 줄만 화면에 그린다. 클립보드 붙여 넣기와 실행 단축키 사이에 순서 보장이 없음.
 - 해결: `window.monaco.editor.getEditors()[0]`의 `setValue(sql)` → `getValue()===sql`·`hasTextFocus()` 확인 → 클릭 없이 Ctrl+Enter. 결과는 「Success」 문구·결과 표로 확인하고, 적용 전후 표·함수 수를 같은 방식으로 대조.
 - 다음부터: 운영 SQL은 이 방식으로만 넣고, 「화면에 글자가 보이는가」로 들어갔는지 판단하지 않는다.
+- 보강(같은 날 `competitor-analysis` v1.11, [역할: blog]): SQL 편집기 탭을 **새로 연 직후** 편집기가 생기자마자 Ctrl+Enter를 보냈더니, 오류도 결과도 없이 실행이 안 됐다(결과 표 빈칸, DB는 그대로). 편집기가 생긴 뒤 몇 초 더 기다리고 실행하자 바로 반영됐다. 다음부터는 새로 연 편집기에서 실행할 때 3~4초 기다리고, **결과 표가 비면 「적용됨」으로 보지 말고** 조회나 `check-extension-release` 같은 검사로 실제 값을 확인한다. 같은 값을 넣는 UPDATE처럼 다시 해도 결과가 같은 문장만 다시 실행한다.
 
 ## 2026-11-05 이 PC npm이 SheetJS(xlsx) CDN 주소 패키지를 거부 — `allow-remote=none` (`naver-cafe-recruit`, [역할: blog])
 - 증상: `npm install` 전체가 「Fetching packages of type remote have been disabled / Refusing to fetch xlsx@https://cdn.sheetjs.com/...」로 실패.

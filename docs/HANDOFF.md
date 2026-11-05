@@ -1,5 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-05 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`competitor-analysis` v1.11 배포: 맥미니 고칠 점 3개 + 엑셀 내려받기**
+- 한 일:
+  - 맥미니 커밋 `df911339e`·`e645c227a`·`70e8d7202`를 검토했습니다.
+  - 버전 표기를 맞췄습니다. 확장 팝업과 내려받기 버튼에 「v1.10」이 직접 적혀 있던 것을 고쳤고, 버튼은 `APP_VERSION`을 쓰게 했습니다.
+  - 확장 ZIP을 v1.11로 다시 만들었습니다.
+  - 시험을 추가했습니다: 이름 꼬리 떼기, 엑셀 파일 구조(`af382a3c8`).
+  - 주인님 승인으로 빌드 1회 배포했고 `competitor-analysis-ov4f44ody`가 Ready입니다.
+  - DB `version`·`extension_version`을 v1.11로 맞췄습니다. DB 표 변경은 없습니다.
+- 검수:
+  - 단위 시험 9개, DB 시험 8개, 기존 시험 2묶음, `tsc`, 빌드가 통과했습니다.
+  - `check-extension-release`가 OK입니다(DB·확장·ZIP 모두 v1.11).
+  - **만든 엑셀 파일을 이 PC의 실제 엑셀 16에서 열었습니다.** 한글 시트 이름·한글 칸, 전화번호 앞자리 0(`010-…`, `0504-…`), 특수문자, 굵은 머리글이 모두 정상입니다.
+  - 운영 화면에 v1.11과 새 안내 문구가 보입니다. 관리자 계정은 동의 전이라 목록·엑셀 버튼은 보지 못했습니다.
+- 다음 첫 단계: 맥미니가 시험 계정으로 다음을 확인합니다.
+  1. 확장을 v1.11로 다시 받아 덮어씁니다.
+  2. 「공동구매」를 찾고 10곳을 스캔합니다.
+  3. 스캔 탭이 자동으로 앞에 오는지, 이름 꼬리가 떼어졌는지, 연락처 숫자가 맞는지 확인합니다.
+  4. 엑셀을 내려받아 확인합니다.
+  - 요청함 `5b5606d1`은 맥미니가 올린 항목이므로 맥미니 세션이 닫습니다.
+
+## 2026-11-05 🔨 [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` 원본(boks-music) 전체 대조 + 묶음 1 「내 곡에서 바로 커버」(미배포 대기)**
+- 주인님이 원본 소개 영상 화면을 보여 주시고 「원래 프로그램 소스 안에 기능 다 구현되어 있어」「소스 자세하게 분석한 후에 필요한 기능 참고해서 구현해봐」. 원본 로컬 사본 `D:/PDS/Program_dev/free-music-src/repo`를 beta.5(`7bedda7`)로 맞추고 명령 67개를 우리 기능과 대조 → `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md`(묶음 1~6 + 로드맵 6~8, YouTube 가져오기 3개만 제외).
+- 묶음 1 구현 `2673573a5`: 「모든 음악」 「커버 →」 → 「가져온 음악」이 엔진 보관함 원곡을 받아 커버, 제목 「· Cover」, 스타일·가사 자동, `free_music_tracks.parent_id`. 엔진 변경 없음. tsc 0 · 시험 51개 통과.
+- **남은 일**: 운영 DB에 `free-music-studio/supabase/migrations/20261105_tracks_parent.sql` 적용(주인님 승인 대기) — **적용 전에 배포하면 「모든 음악」 목록 API가 없는 칸을 읽어 실패**. 다음 첫 단계: 묶음 2(환경설정, 엔진 0.6.9).
+
 ## 2026-11-05 🔨 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`competitor-analysis` v1.11 준비 완료(미배포·빌드 승인 대기)**
 - 고칠 점 1~3 `df911339e`(연락처 숫자에 확장이 읽은 값 포함·이름 꼬리 「 : 네이버 블로그」 떼기·스캔 탭 자동으로 앞에) + 엑셀(.xlsx) 내려받기 `e645c227a`(패키지 없는 생성기 `lib/partners/xlsx.ts`) + 안내 문구 `70e8d7202`. 맥미니 `tsc` 0, 엑셀 구조 검증 통과. DB 변경 없음.
 - **윈도우 다음 첫 단계**: 주인님 빌드 승인 확인 → 버전 v1.11(`lib/version.ts`·확장 manifest·ZIP·DB `programs.version`/`extension_version`) → 시험 `npm run test:partners`·`test:partners-db` → 빌드·배포 → `check-extension-release` → 내려받은 엑셀을 실제 엑셀에서 열어 확인 → 맥미니에 「공동구매」 10곳 스캔 확인 요청.
