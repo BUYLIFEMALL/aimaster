@@ -106,6 +106,9 @@ await check('PU05 scan report: e-mails dropped while collection is off, primary 
   assert.equal(a1.primary_type, 'email'); assert.deepEqual(a1.emails, ['Shop@brand.kr']);
   await post(route, { op: 'scan_report', id: 'a1', status: 'stopped' });
   assert.equal(a1.scan_status, 'pending', 'a stopped scan goes back to the queue without a retry');
+  await post(route, { op: 'scan_report', id: 'a1', status: 'skipped', mobile: ['010-1111-2222'] });
+  assert.equal(a1.scan_status, 'stopped', 'a skipped page (non-naver link or read failure) is not picked again');
+  assert.equal(a1.primary_contact, null, 'a skipped page stores no contact');
 });
 
 await check('PU06 daily cap of 300 scanned pages (Korean day) stops the batch', async () => {

@@ -58,7 +58,9 @@ export async function POST(req: Request) {
   if (op === "scan_report") {
     const id = String(body.id ?? "");
     if (!id) return reply({ error: "대상을 확인해 주세요." }, 400);
-    const mobile = list(body.mobile, PHONE), landline = list(body.landline, PHONE), emails = consent.collect_email ? list(body.emails, EMAIL) : [];
+    const skipped = body.status === "skipped" || body.status === "stopped"; // 읽지 못한 페이지의 연락처는 받지 않는다
+    const mobile = skipped ? [] : list(body.mobile, PHONE), landline = skipped ? [] : list(body.landline, PHONE);
+    const emails = !skipped && consent.collect_email ? list(body.emails, EMAIL) : [];
     const primary = mobile[0] ? ["mobile", mobile[0]] : landline[0] ? ["landline", landline[0]] : emails[0] ? ["email", emails[0]] : null;
     // stopped(보안문자 등) → 다음에 다시 · skipped(네이버 밖 주소·읽기 실패) → 「stopped」로 저장해 다시 고르지 않음(목록에 직접 확인 안내).
     const status = body.status === "stopped" ? "pending" : body.status === "skipped" ? "stopped" : primary ? "done" : "none";
