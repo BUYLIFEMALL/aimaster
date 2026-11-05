@@ -60,7 +60,8 @@ export async function POST(req: Request) {
     if (!id) return reply({ error: "대상을 확인해 주세요." }, 400);
     const mobile = list(body.mobile, PHONE), landline = list(body.landline, PHONE), emails = consent.collect_email ? list(body.emails, EMAIL) : [];
     const primary = mobile[0] ? ["mobile", mobile[0]] : landline[0] ? ["landline", landline[0]] : emails[0] ? ["email", emails[0]] : null;
-    const status = body.status === "stopped" ? "pending" : primary ? "done" : "none"; // 중지면 다음에 다시 스캔
+    // stopped(보안문자 등) → 다음에 다시 · skipped(네이버 밖 주소·읽기 실패) → 「stopped」로 저장해 다시 고르지 않음(목록에 직접 확인 안내).
+    const status = body.status === "stopped" ? "pending" : body.status === "skipped" ? "stopped" : primary ? "done" : "none";
     const { error } = await db.from("competitor_partner_channels").update({
       display_name: typeof body.display_name === "string" ? cleanName(body.display_name) : null,
       public_id: typeof body.public_id === "string" ? body.public_id.trim().slice(0, 100) || null : null,

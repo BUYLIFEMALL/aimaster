@@ -19,6 +19,10 @@ async function api(op, payload = {}) {
   return data;
 }
 
+// 확장이 읽을 수 있는 주소(manifest host_permissions와 같게). 그 밖(업체 자체 홈페이지·오픈채팅 등)은 열지 않고 건너뛴다.
+const READABLE = ["blog.naver.com", "m.blog.naver.com", "cafe.naver.com", "m.cafe.naver.com", "smartstore.naver.com", "m.place.naver.com", "map.naver.com"];
+function readable(url) { try { const u = new URL(url); return u.protocol === "https:" && READABLE.includes(u.hostname); } catch { return false; } }
+
 function inWindow() { const h = new Date().getHours(); return h >= 9 && h < 22; }
 const nextDelayMin = () => 0.5 + Math.random() * 0.25; // 30~45초
 
@@ -71,9 +75,22 @@ async function step() {
     }
     const [item, ...rest] = s.queue;
     await set({ ...s, queue: rest, message: `스캔 중: ${item.name}` });
+    // 네이버 밖 주소는 열지 않고 건너뜀(한 곳 때문에 전체가 멈추지 않게).
+    if (!readable(item.url)) {
+      await api("scan_report", { id: item.id, status: "skipped" });
+      return chrome.alarms.create(ALARM, { delayInMinutes: 0.05 });
+    }
     await chrome.tabs.update(s.tabId, { url: item.url });
     await new Promise((r) => setTimeout(r, 6000)); // 페이지가 다 그려질 때까지
-    const [{ result: text }] = await chrome.scripting.executeScript({ target: { tabId: s.tabId, allFrames: false }, func: readPage });
+    let text = "";
+    try {
+      const [{ result }] = await chrome.scripting.executeScript({ target: { tabId: s.tabId, allFrames: false }, func: readPage });
+      text = String(result || "");
+    } catch {
+      // 그 페이지만 읽지 못함(이동·권한 등) → 건너뛰고 다음으로.
+      await api("scan_report", { id: item.id, status: "skipped" });
+      return chrome.alarms.create(ALARM, { delayInMinutes: nextDelayMin() });
+    }
     if (isBlocked(text)) {
       await api("scan_report", { id: item.id, status: "stopped" });
       return stop("네이버가 확인(보안문자·제한)을 요청해 오늘 스캔을 멈췄습니다. 우회하지 않습니다.");

@@ -85,6 +85,7 @@ export default async function PartnersPage() {
                     <p className="text-xs text-mx-text">
                       {r.scan_status === "done" && r.primary_contact ? <>📇 <b>{r.primary_contact}</b> <span className="text-mx-muted">({r.primary_type === "mobile" ? "핸드폰" : r.primary_type === "landline" ? "일반전화" : "이메일"}){r.display_name ? ` · ${r.display_name.replace(/\s*[:|\-–]\s*(네이버\s*(블로그|카페|플레이스|스마트스토어|쇼핑)|NAVER.*|네이버)\s*$/i, "")}` : ""}{[...r.phones_mobile, ...r.phones_landline, ...r.emails].length > 1 ? ` · 그 밖 ${[...r.phones_mobile, ...r.phones_landline, ...r.emails].length - 1}개` : ""}</span></>
                         : r.scan_status === "none" ? <span className="text-mx-muted">공개 연락처 없음</span>
+                        : r.scan_status === "stopped" ? <span className="text-mx-muted">네이버 밖 주소라 자동으로 읽지 않음 — 링크를 열어 직접 확인해 아래에 적어 주세요</span>
                         : r.scan_status === "scanning" ? <span className="text-mx-muted">스캔 중…</span>
                         : <span className="text-mx-muted">스캔 대기 — 확장 팝업에서 「스캔 시작」</span>}
                     </p>
