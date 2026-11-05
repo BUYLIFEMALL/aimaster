@@ -42,6 +42,11 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
       "키워드로 그 주제 블로그·업체·카페·쇼핑몰을 찾는 네이버 공식 검색 키 — 무료(하루 한도), 다른 AIMaster 프로그램에 등록했다면 그대로 쓰입니다",
     providers: ["naver_client_id", "naver_client_secret"],
   },
+  {
+    title: "📈 많이 검색하는 키워드 추천 (네이버 검색광고, 선택)",
+    description: "제휴 타깃 찾기의 키워드 추천에서 월간 검색량 순으로 보여 줄 때만 씁니다 — 무료(광고비 없음), 등록 안 해도 다른 추천은 동작합니다",
+    providers: ["naver_ads_api_key", "naver_ads_secret_key", "naver_ads_customer_id"],
+  },
 ];
 
 const HELP_LINKS: Partial<
@@ -61,6 +66,11 @@ const HELP_LINKS: Partial<
     label: "네이버 검색 API 키 발급받기 (네이버 개발자 센터)",
     highlight: "무료 · 하루 호출 한도 있음",
     description: "사용 API에 「검색」을 넣고 만든 애플리케이션의 Client ID를 붙여 넣습니다",
+  },
+  naver_ads_api_key: {
+    url: "https://manage.searchad.naver.com/customers/",
+    label: "검색광고 API 키 발급 (도구 → API 사용 관리)",
+    highlight: "무료 · 광고 집행 없이 키만 발급",
   },
   naver_client_secret: {
     url: "https://developers.naver.com/apps/#/list",

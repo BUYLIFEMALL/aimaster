@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { agreePartnerNoticeAction, searchPartnersAction, saveContactAction } from "@/lib/actions/partners";
-import { CHANNEL_LABELS, PARTNER_NOTICE_LINES } from "@/lib/partners/notice";
+import { agreePartnerNoticeAction, searchPartnersAction, saveContactAction, suggestPartnerTermsAction } from "@/lib/actions/partners";
+import { CHANNEL_LABELS, PARTNER_NOTICE_LINES, STARTER_TOPICS } from "@/lib/partners/notice";
+import type { Suggestions } from "@/lib/partners/suggest";
 
 export function PartnerNotice() {
   const router = useRouter();
@@ -42,6 +43,26 @@ export function PartnerSearchForm() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string; needsKey?: boolean } | null>(null);
+  const [keyword, setKeyword] = useState("");
+  const [extra, setExtra] = useState("");
+  const [sugg, setSugg] = useState<Suggestions | null>(null);
+  const [suggPending, setSuggPending] = useState(false);
+  const [suggError, setSuggError] = useState<string | null>(null);
+
+  async function loadSuggestions(topic?: string) {
+    const k = (topic ?? keyword).trim();
+    if (topic) setKeyword(topic);
+    setSuggPending(true); setSuggError(null);
+    try {
+      const r = await suggestPartnerTermsAction(k);
+      if (r.error) { setSuggError(r.error); setSugg(null); } else setSugg(r.data ?? null);
+    } finally { setSuggPending(false); }
+  }
+
+  function addExtra(term: string) {
+    const parts = extra.split(",").map((t) => t.trim()).filter(Boolean);
+    if (!parts.includes(term)) setExtra([...parts, term].join(", "));
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,12 +80,25 @@ export function PartnerSearchForm() {
     <form onSubmit={onSubmit} className="mx-card space-y-3">
       <p className="text-sm font-bold text-mx-text">🔎 키워드로 채널 찾기</p>
       <div className="flex flex-wrap gap-2">
-        <input name="keyword" required maxLength={60} placeholder="주제 키워드 (예: 공동구매)" className="input min-w-[200px] flex-1" />
+        <input name="keyword" required maxLength={60} value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="주제 키워드 (예: 공동구매)" className="input min-w-[200px] flex-1" />
+        <button type="button" onClick={() => loadSuggestions()} disabled={suggPending} className="mx-btn-ghost min-h-[48px] px-4">
+          {suggPending ? "추천 중..." : "🔮 키워드 추천 받기"}
+        </button>
         <button type="submit" disabled={pending} className="mx-btn-primary min-h-[48px] px-5">
           {pending ? "찾는 중..." : "찾기"}
         </button>
       </div>
-      <input name="extra_terms" maxLength={200} placeholder="보조 단어(쉼표로, 선택) — 예: 공구, 체험단, 협찬, 도매" className="input w-full" />
+      <div className="space-y-1">
+        <p className="text-xs text-mx-muted">어떤 키워드로 찾을지 모르겠다면 주제를 눌러 보세요 — 추천 키워드가 나옵니다.</p>
+        <div className="flex flex-wrap gap-1.5">
+          {STARTER_TOPICS.map((t) => (
+            <button key={t} type="button" onClick={() => loadSuggestions(t)} className="rounded-full border border-mx-border px-3 py-1 text-xs text-mx-text hover:border-mx-success">{t}</button>
+          ))}
+        </div>
+      </div>
+      {suggError && <p className="text-sm text-mx-danger">{suggError}</p>}
+      {sugg && <SuggestionPanel sugg={sugg} onUse={(k) => setKeyword(k)} onAdd={addExtra} />}
+      <input name="extra_terms" maxLength={200} value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="보조 단어(쉼표로, 선택) — 예: 공구, 체험단, 협찬, 도매" className="input w-full" />
       <label className="flex flex-wrap items-center gap-2 text-sm text-mx-text">
         매칭 기준
         <select name="min_score" defaultValue="40" className="input-sm min-h-[40px] w-56">
@@ -87,6 +121,54 @@ export function PartnerSearchForm() {
         </p>
       )}
     </form>
+  );
+}
+
+function Chip({ text, hint, onUse, onAdd }: { text: string; hint?: string; onUse: () => void; onAdd: () => void }) {
+  return (
+    <span className="inline-flex items-center overflow-hidden rounded-full border border-mx-border text-xs">
+      <button type="button" onClick={onUse} title="이 키워드로 찾기" className="px-2.5 py-1 text-mx-text hover:bg-mx-surface">{text}{hint && <span className="ml-1 text-mx-muted">{hint}</span>}</button>
+      <button type="button" onClick={onAdd} title="보조 단어에 더하기" className="border-l border-mx-border px-2 py-1 text-mx-success hover:bg-mx-surface">＋</button>
+    </span>
+  );
+}
+
+function SuggestionPanel({ sugg, onUse, onAdd }: { sugg: Suggestions; onUse: (k: string) => void; onAdd: (k: string) => void }) {
+  const fmt = (n: number) => (n >= 10000 ? `${Math.round(n / 1000) / 10}만` : n.toLocaleString("ko-KR"));
+  return (
+    <div className="space-y-3 rounded-lg border border-mx-border p-3">
+      <p className="text-xs text-mx-muted">키워드를 누르면 그 키워드로 찾고, ＋를 누르면 보조 단어(매칭 판정)에 더합니다.</p>
+      <div>
+        <p className="mb-1 text-xs font-bold text-mx-text">① 메인 키워드</p>
+        <Chip text={sugg.main} onUse={() => onUse(sugg.main)} onAdd={() => onAdd(sugg.main)} />
+      </div>
+      <div>
+        <p className="mb-1 text-xs font-bold text-mx-text">② 연관 키워드 (네이버 자동완성)</p>
+        <div className="flex flex-wrap gap-1.5">
+          {sugg.related.length === 0 ? <span className="text-xs text-mx-muted">추천이 없습니다.</span> : sugg.related.map((k) => <Chip key={k} text={k} onUse={() => onUse(k)} onAdd={() => onAdd(k)} />)}
+        </div>
+      </div>
+      <div>
+        <p className="mb-1 text-xs font-bold text-mx-text">③ 많이 검색하는 키워드 (월간 검색량 순)</p>
+        {sugg.popularNeedsKey ? (
+          <p className="text-xs text-mx-muted">설정에서 네이버 검색광고 키(무료)를 등록하면 검색량 순으로 추천합니다. <Link href="/settings" className="underline">설정 →</Link></p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {sugg.popular.length === 0 ? <span className="text-xs text-mx-muted">추천이 없습니다.</span> : sugg.popular.map((k) => <Chip key={k.keyword} text={k.keyword} hint={fmt(k.total)} onUse={() => onUse(k.keyword)} onAdd={() => onAdd(k.keyword)} />)}
+          </div>
+        )}
+      </div>
+      <div>
+        <p className="mb-1 text-xs font-bold text-mx-text">④ 카테고리 (그 주제 업체·쇼핑몰의 실제 분류)</p>
+        {sugg.categoriesNeedKey ? (
+          <p className="text-xs text-mx-muted">설정에서 네이버 검색 키를 등록하면 카테고리를 추천합니다. <Link href="/settings" className="underline">설정 →</Link></p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {sugg.categories.length === 0 ? <span className="text-xs text-mx-muted">추천이 없습니다.</span> : sugg.categories.map((c) => <Chip key={c.text} text={c.text} hint={`${c.count}`} onUse={() => onUse(c.text)} onAdd={() => onAdd(c.text)} />)}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

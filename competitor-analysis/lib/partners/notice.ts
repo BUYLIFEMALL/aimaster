@@ -9,3 +9,9 @@ export const PARTNER_NOTICE_LINES = [
 ] as const;
 
 export const CHANNEL_LABELS = { blog: "블로그", local: "업체(플레이스)", cafe: "카페", shop: "쇼핑몰" } as const;
+
+/** 처음 고를 주제(키워드를 몰라도 누를 수 있게). 제휴·홍보 성격의 주제 위주. */
+export const STARTER_TOPICS = [
+  "공동구매", "체험단", "협찬", "도매", "위탁판매", "스마트스토어", "인플루언서", "맘카페",
+  "공구 진행", "브랜드 협업", "제품 리뷰", "유튜브 협찬", "인스타 공구", "지역 맛집", "뷰티 체험",
+] as const;

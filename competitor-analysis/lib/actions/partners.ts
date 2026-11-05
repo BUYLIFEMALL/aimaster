@@ -7,6 +7,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { searchChannels, NaverSearchError, type ChannelType } from "@/lib/naver/search";
 import { PARTNER_NOTICE_VERSION } from "@/lib/partners/notice";
 import { DEFAULT_MIN_SCORE, parseTerms, scoreChannel } from "@/lib/partners/match";
+import { suggestTerms, type Suggestions } from "@/lib/partners/suggest";
 
 // 제휴 타깃 찾기(v1.10 초안). 회원 본인 네이버 검색 키로 공식 검색 API만 부른다(페이지를 긁지 않음).
 // 연락처는 회원이 그 채널의 공개 페이지에서 직접 확인해 적는 값만 저장한다(마케팅 예외 지침 §4).
@@ -118,4 +119,22 @@ export async function deletePartnerAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (id) await supabase.from("competitor_partner_channels").delete().eq("id", id).eq("user_id", user.id);
   revalidatePath("/partners");
+}
+
+/** 키워드 추천: 메인·연관(자동완성)·많이 검색하는 키워드(검색광고, 선택)·카테고리(업체·쇼핑 분류). 아무것도 저장하지 않는다. */
+export async function suggestPartnerTermsAction(keywordInput: string): Promise<{ error?: string; data?: Suggestions }> {
+  const user = await requireProgramAccess();
+  const supabase = await createClient();
+  const keyword = String(keywordInput ?? "").trim().slice(0, 60);
+  if (!keyword) return { error: "추천받을 주제를 먼저 입력하거나 아래 추천 주제를 눌러 주세요." };
+  const [clientId, clientSecret, adsKey, adsSecret, adsCustomer] = await Promise.all([
+    resolveApiKey(supabase, user.id, "naver_client_id"),
+    resolveApiKey(supabase, user.id, "naver_client_secret"),
+    resolveApiKey(supabase, user.id, "naver_ads_api_key"),
+    resolveApiKey(supabase, user.id, "naver_ads_secret_key"),
+    resolveApiKey(supabase, user.id, "naver_ads_customer_id"),
+  ]);
+  const search = clientId && clientSecret ? { clientId, clientSecret } : null;
+  const ads = adsKey && adsSecret && adsCustomer ? { apiKey: adsKey, secretKey: adsSecret, customerId: adsCustomer } : null;
+  return { data: await suggestTerms(keyword, search, ads) };
 }

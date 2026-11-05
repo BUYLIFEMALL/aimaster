@@ -1,4 +1,4 @@
-export type ApiKeyProvider = "serpapi" | "perplexity" | "openai" | "anthropic" | "naver_client_id" | "naver_client_secret";
+export type ApiKeyProvider = "serpapi" | "perplexity" | "openai" | "anthropic" | "naver_client_id" | "naver_client_secret" | "naver_ads_api_key" | "naver_ads_secret_key" | "naver_ads_customer_id";
 export type PartnerChannelType = "blog" | "local" | "cafe" | "shop";
 export type ResultType = "organic" | "ad" | "paa" | "local";
 export type SerpEngine = "google" | "naver";
