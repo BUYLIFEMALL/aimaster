@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import { searchChannels, NaverSearchError, type ChannelType } from "@/lib/naver/search";
 import { PARTNER_NOTICE_VERSION } from "@/lib/partners/notice";
-import { DEFAULT_MIN_SCORE, parseTerms, scoreChannel } from "@/lib/partners/match";
+import { CANDIDATE_MARGIN, DEFAULT_MIN_SCORE, parseTerms, scoreChannel } from "@/lib/partners/match";
 import { suggestTerms, type Suggestions } from "@/lib/partners/suggest";
 
 // 제휴 타깃 찾기(v1.10 초안). 회원 본인 네이버 검색 키로 공식 검색 API만 부른다(페이지를 긁지 않음).
@@ -14,7 +14,7 @@ import { suggestTerms, type Suggestions } from "@/lib/partners/suggest";
 
 const TYPES: ChannelType[] = ["blog", "local", "cafe", "shop"];
 
-export interface PartnerActionState { error?: string; added?: number; skipped?: number; unmatched?: number; needsKey?: boolean }
+export interface PartnerActionState { error?: string; added?: number; skipped?: number; unmatched?: number; candidates?: number; needsKey?: boolean }
 
 export async function agreePartnerNoticeAction(): Promise<PartnerActionState> {
   const user = await requireProgramAccess();
@@ -57,6 +57,7 @@ export async function searchPartnersAction(formData: FormData): Promise<PartnerA
   let added = 0;
   let skipped = 0;
   let unmatched = 0;
+  let candidates = 0;
   for (const type of types) {
     let hits;
     try {
@@ -64,16 +65,18 @@ export async function searchPartnersAction(formData: FormData): Promise<PartnerA
     } catch (e) {
       return { error: e instanceof NaverSearchError ? e.message : "검색 중 문제가 생겼습니다.", added, skipped, unmatched };
     }
-    // 주제 매칭 판정: 기준 점수 미만은 저장하지 않는다(맞지 않는 채널은 의미 없음).
+    // 주제 매칭 판정: 기준 미만은 저장하지 않되, 기준-20점까지는 「후보」로 담아 스캔(화면 점수)으로 최종 판정한다.
+    const floor = Math.max(20, minScore - CANDIDATE_MARGIN);
     const matched = hits
       .map((h) => ({ h, m: scoreChannel({ name: h.name, category: h.category, texts: h.texts, hitCount: h.hit_count }, main, extras) }))
-      .filter(({ m }) => m.score >= minScore);
+      .filter(({ m }) => m.score >= floor);
+    candidates += matched.filter(({ m }) => m.score < minScore).length;
     unmatched += hits.length - matched.length;
     if (matched.length === 0) continue;
     const rows = matched.map(({ h, m }) => ({
       user_id: user.id, keyword, channel_type: h.channel_type, name: h.name, url: h.url,
       summary: h.summary, category: h.category, address: h.address,
-      match_score: m.score, match_reasons: m.reasons.join(" · ").slice(0, 300),
+      match_score: m.score, match_reasons: [...m.reasons, `기준 ${minScore}점`].join(" · ").slice(-300),
     }));
     const { data, error } = await supabase
       .from("competitor_partner_channels")
@@ -85,7 +88,7 @@ export async function searchPartnersAction(formData: FormData): Promise<PartnerA
   }
 
   revalidatePath("/partners");
-  return { added, skipped, unmatched };
+  return { added, skipped, unmatched, candidates };
 }
 
 const PHONE = /^[0-9+()\-\s]{7,40}$/;

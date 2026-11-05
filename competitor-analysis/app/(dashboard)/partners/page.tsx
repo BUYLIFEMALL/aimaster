@@ -1,3 +1,4 @@
+import { verdict } from "@/lib/partners/match";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { PageHero } from "@/components/layout/PageHero";
@@ -20,14 +21,18 @@ export default async function PartnersPage() {
     supabase.from("competitor_partner_consents").select("notice_version, collect_email").eq("user_id", user.id).maybeSingle(),
     supabase
       .from("competitor_partner_channels")
-      .select("id, keyword, channel_type, name, url, summary, category, address, public_phone, public_email, contact_note, match_score, match_reasons, display_name, primary_contact, primary_type, scan_status, phones_mobile, phones_landline, emails, created_at")
+      .select("id, keyword, channel_type, name, url, summary, category, address, public_phone, public_email, contact_note, match_score, profile_match_score, match_reasons, display_name, primary_contact, primary_type, scan_status, phones_mobile, phones_landline, emails, created_at")
       .eq("user_id", user.id)
       .order("match_score", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(500),
   ]);
   const agreed = !!consent && consent.notice_version >= PARTNER_NOTICE_VERSION;
-  const list = (rows ?? []) as PartnerRow[];
+  // 최종 점수(검색 + 화면) 높은 순 — 매칭 → 후보(스캔 전) → 주제 약함
+  const order = { matched: 0, candidate: 1, weak: 2 } as const;
+  const list = ((rows ?? []) as PartnerRow[])
+    .map((r) => ({ ...r, ...verdict(r) }))
+    .sort((a, b) => order[a.verdict] - order[b.verdict] || b.total - a.total);
   const withContact = list.filter((r) => r.primary_contact || r.public_phone || r.public_email).length;
   const keywords = new Set(list.map((r) => r.keyword)).size;
 
@@ -75,7 +80,13 @@ export default async function PartnersPage() {
                         <span className="font-semibold text-mx-text">{r.name}</span>
                       )}
                       <span className="text-xs text-mx-muted">#{r.keyword}</span>
-                      <span className="rounded bg-mx-surface px-2 py-0.5 text-xs font-semibold text-mx-success" title={r.match_reasons}>매칭 {r.match_score}점</span>
+                      {r.verdict === "matched" ? (
+                        <span className="rounded bg-mx-surface px-2 py-0.5 text-xs font-semibold text-mx-success" title={r.match_reasons}>✅ 매칭 {r.total}점</span>
+                      ) : r.verdict === "candidate" ? (
+                        <span className="rounded bg-mx-surface px-2 py-0.5 text-xs font-semibold text-mx-muted" title={`${r.match_reasons} — 스캔하면 채널 화면에서 주제가 몇 번 나오는지로 최종 판정`}>후보 {r.total}점 · 스캔 전</span>
+                      ) : (
+                        <span className="rounded bg-mx-surface px-2 py-0.5 text-xs text-mx-muted" title={`${r.match_reasons} — 기준 ${r.bar}점에 못 미침`}>주제 약함 {r.total}점</span>
+                      )}
                       <form action={deletePartnerAction} className="ml-auto">
                         <input type="hidden" name="id" value={r.id} />
                         <button type="submit" className="text-xs text-mx-muted hover:text-mx-danger">삭제</button>

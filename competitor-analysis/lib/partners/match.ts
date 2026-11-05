@@ -3,6 +3,25 @@
 // 기준 점수 미만 채널은 저장하지 않는다. 스캔 단계(확장)가 프로필·소개글의 주제 단어로 점수를 더한다.
 
 export const DEFAULT_MIN_SCORE = 40;
+/** 검색 단계에서 기준보다 이만큼 낮아도 「후보」로 담고, 스캔(화면 점수)으로 최종 판정한다. 블로그 검색은 글 한 편만 보여 줘 처음 점수가 낮기 때문. */
+export const CANDIDATE_MARGIN = 20;
+const BAR_TAG = /기준 (\d{1,3})점/;
+
+/** 매칭 이유 끝에 적어 둔 「기준 N점」(옛 줄은 기본값). */
+export function barOf(reasons: string): number {
+  const m = BAR_TAG.exec(reasons ?? "");
+  return m ? Number(m[1]) : DEFAULT_MIN_SCORE;
+}
+
+export type Verdict = "matched" | "candidate" | "weak";
+/** 최종 판정: 검색 점수 + 화면 점수 ≥ 기준 → 매칭, 아직 스캔 전이면 후보, 스캔했는데 모자라면 주제 약함. */
+export function verdict(r: { match_score: number; profile_match_score?: number | null; match_reasons: string; scan_status: string }): { verdict: Verdict; total: number; bar: number } {
+  const bar = barOf(r.match_reasons);
+  const total = Math.min(100, r.match_score + (r.profile_match_score ?? 0));
+  if (total >= bar) return { verdict: "matched", total, bar };
+  const scanned = r.scan_status === "done" || r.scan_status === "none";
+  return { verdict: scanned ? "weak" : "candidate", total, bar };
+}
 
 export interface MatchInput {
   name: string;
@@ -60,11 +79,20 @@ export function scoreChannel(input: MatchInput, main: string, extras: string[]):
   return { score: Math.min(100, score), reasons };
 }
 
-/** 스캔 단계(확장): 프로필·소개글에 주제·보조 단어가 있으면 더한다(가장 강한 신호). */
+/** 정규화한 글에서 주제가 몇 번 나오는지. */
+export function countTopic(text: string, term: string): number {
+  const t = normalize(term);
+  if (!t) return 0;
+  return normalize(text).split(t).length - 1;
+}
+
+/** 스캔 단계(확장과 같은 규칙): 채널 화면에 주제가 3번 이상 = 그 주제로 꾸준히 활동(+40), 1~2번 = +10. 보조 단어 개당 10(최대 20). */
 export function scoreProfile(profileText: string, main: string, extras: string[]): MatchResult {
   let score = 0;
   const reasons: string[] = [];
-  if (has(profileText, main)) { score += 40; reasons.push("프로필·소개에 주제"); }
+  const n = countTopic(profileText, main);
+  if (n >= 3) { score += 40; reasons.push(`화면에 주제 ${n}회`); }
+  else if (n >= 1) { score += 10; reasons.push(`화면에 주제 ${n}회`); }
   const extraHits = extras.filter((t) => has(profileText, t));
   if (extraHits.length > 0) { score += Math.min(20, extraHits.length * 10); reasons.push(`프로필 보조 단어: ${extraHits.slice(0, 3).join("·")}`); }
   return { score, reasons };

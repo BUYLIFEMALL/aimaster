@@ -97,7 +97,10 @@ async function step() {
     }
     const c = extractContacts(text);
     const kw = String(item.keyword || "").replace(/\s+/g, "");
-    const profileScore = kw && text.replace(/\s+/g, "").includes(kw) ? 40 : 0;
+    // lib/partners/match.ts scoreProfile과 같은 규칙: 화면에 주제 3번 이상 +40, 1~2번 +10.
+    const norm = (v) => v.toLowerCase().replace(/[\s·.,!?~\-_/()[\]"'#]+/g, "");
+    const times = kw ? norm(text).split(norm(kw)).length - 1 : 0;
+    const profileScore = times >= 3 ? 40 : times >= 1 ? 10 : 0;
     await api("scan_report", {
       id: item.id, display_name: (text.split("\n")[0] || item.name).slice(0, 100), public_id: publicIdFrom(item.url),
       mobile: c.mobile, landline: c.landline, emails: s.collectEmail ? c.emails : [], profile_match_score: profileScore,

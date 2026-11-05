@@ -42,7 +42,12 @@ await check('PU01 topic matching: repeated hits, name, category and extra words 
   assert.equal(strong.score, 80, 'hits 30 + name 30 + extras 20 (the posts do not contain the topic itself)'); assert.ok(strong.reasons.includes('채널 이름에 주제'));
   const weak = m.scoreChannel({ name: '여행 일기', category: '', texts: ['제주 맛집'], hitCount: 1 }, main, extras);
   assert.ok(weak.score < m.DEFAULT_MIN_SCORE, 'an unrelated channel is not kept at the default bar');
-  assert.equal(m.scoreProfile('공동구매 문의는 카톡', main, extras).score, 40);
+  assert.equal(m.scoreProfile('공동구매 문의는 카톡', main, extras).score, 10, 'one mention on the page is a weak signal');
+  assert.equal(m.scoreProfile('공동구매 오픈 / 공동 구매 후기 / 공동구매 일정', main, []).score, 40, 'three or more mentions = active in the topic');
+  assert.equal(m.verdict({ match_score: 20, profile_match_score: 40, match_reasons: '글에 주제 · 기준 40점', scan_status: 'done' }).verdict, 'matched');
+  assert.equal(m.verdict({ match_score: 20, profile_match_score: 0, match_reasons: '글에 주제 · 기준 40점', scan_status: 'pending' }).verdict, 'candidate');
+  assert.equal(m.verdict({ match_score: 20, profile_match_score: 10, match_reasons: '글에 주제 · 기준 40점', scan_status: 'none' }).verdict, 'weak');
+  assert.equal(m.verdict({ match_score: 50, match_reasons: '옛 줄', scan_status: 'pending' }).bar, 40, 'old rows use the default bar');
 });
 
 await check('PU02 contact extraction: mobile > landline (050 included) > e-mail, sample numbers and image names dropped, max 5 each', async () => {
