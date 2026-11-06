@@ -7,6 +7,8 @@ import { canSaveToFile, exportLyricVideo, exportLyricVideoToFile, MAX_EXPORT_SEC
 import { sizeFor } from "@/lib/design";
 import { YoutubeUploadCard } from "@/components/studio/YoutubeUploadCard";
 import { formatTime, isSynced } from "@/lib/lyrics";
+import { formatDiag, preflightWarnings, probeEncoders, stageOf, type DiagEntry, type DiagLevel } from "@/lib/render/diagnostics";
+import { APP_VERSION } from "@/lib/version";
 
 const safeName = (s: string) => s.replace(/[\\/:*?"<>|]/g, "_").trim().slice(0, 80);
 
@@ -22,6 +24,12 @@ export function ExportView() {
   useEffect(() => () => { abort.current?.abort(); }, []);
   useEffect(() => () => { if (result?.url) URL.revokeObjectURL(result.url); }, [result]);
 
+  // L-5 렌더 진단 — 이 PC가 고를 인코더를 미리 살펴보고, 만드는 동안 단계·실패를 기록한다(「진단 복사」로 문의할 때 붙여 넣기)
+  const [enc, setEnc] = useState<{ video: string | null; audio: string | null; hw: boolean | null } | null>(null);
+  const [diag, setDiag] = useState<DiagEntry[]>([]), [copied, setCopied] = useState(false);
+  const diagStart = useRef(0), lastStage = useRef("");
+  const note = (level: DiagLevel, text: string) => setDiag((l) => [...l, { sec: diagStart.current ? (performance.now() - diagStart.current) / 1000 : 0, level, text }]);
+
   const { W, H } = sizeFor(d.aspect);
   const synced = s.lines.filter(isSynced).length, dur = s.audio?.buffer.duration ?? 0;
   const maxSec = toFile ? MAX_FILE_EXPORT_SECONDS : MAX_EXPORT_SECONDS;
@@ -34,6 +42,19 @@ export function ExportView() {
   const ready = checks.every((c) => c.ok);
   const running = !!prog && !result && !error;
   const estMb = Math.round((dur * (8 + 0.16)) / 8);
+  useEffect(() => { let alive = true; void probeEncoders(W, H, d.fps).then((r) => alive && setEnc(r)).catch(() => {}); return () => { alive = false; }; }, [W, H, d.fps]);
+  const deviceMemoryGb = typeof navigator !== "undefined" ? (navigator as Navigator & { deviceMemory?: number }).deviceMemory : undefined;
+  const warns = enc ? preflightWarnings({ durationSec: dur, toFile, canSaveToFile: fileOk, deviceMemoryGb, video: enc.video, audio: enc.audio }) : [];
+  const diagHeader = () => [
+    `AI 가사영상 자동화 ${APP_VERSION} · 렌더 진단`,
+    `브라우저: ${typeof navigator !== "undefined" ? navigator.userAgent : "-"}`,
+    `PC: 코어 ${typeof navigator !== "undefined" ? navigator.hardwareConcurrency : "-"}개 · 메모리 약 ${deviceMemoryGb ?? "?"}GB`,
+    `인코더: 영상 ${enc?.video ?? "없음"}(${enc?.hw === true ? "그래픽 가속 가능" : enc?.hw === false ? "그래픽 가속 없음" : "?"}) · 소리 ${enc?.audio ?? "없음"}`,
+    `영상: ${W}×${H} ${d.fps}fps · ${formatTime(dur, false)} · ${toFile ? "파일로 바로 저장" : "메모리에 모으기"} · 프리셋 ${d.presetId}${d.vinyl ? " · LP판" : ""}${d.bgPhoto ? " · 사진 배경" : ""}`,
+    ...warns.map((w) => `주의: ${w}`),
+  ];
+  const onProg = (p: ExportProgress) => { setProg(p); const st = stageOf(p.status); if (st !== lastStage.current) { lastStage.current = st; note("info", `${p.pct}% ${st}`); } };
+  const copyDiag = async () => { try { await navigator.clipboard.writeText(formatDiag(diagHeader(), diag)); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { setCopied(false); } };
 
   async function run() {
     if (!s.audio || !ready) return;
@@ -47,18 +68,21 @@ export function ExportView() {
     setError(""); setResult(null); setProg({ pct: 0, status: "준비 중…" });
     const ctrl = new AbortController(); abort.current = ctrl;
     const started = performance.now();
+    diagStart.current = started; lastStage.current = ""; setDiag([{ sec: 0, level: "info", text: `시작 · ${file ? "파일로 바로 저장" : "메모리에 모으기"}` }]);
     try {
       if (file) {
-        await exportLyricVideoToFile({ scene: s.scene, audio: s.audio.buffer, signal: ctrl.signal, onProgress: setProg, file });
+        await exportLyricVideoToFile({ scene: s.scene, audio: s.audio.buffer, signal: ctrl.signal, onProgress: onProg, file });
         setResult({ url: "", size: 0, name, savedTo: file.name });
       } else {
-        const blob = await exportLyricVideo({ scene: s.scene, audio: s.audio.buffer, signal: ctrl.signal, onProgress: setProg });
+        const blob = await exportLyricVideo({ scene: s.scene, audio: s.audio.buffer, signal: ctrl.signal, onProgress: onProg });
         setResult({ url: URL.createObjectURL(blob), size: blob.size, name, blob });
       }
-      setProg({ pct: 100, status: `완료 · ${Math.round((performance.now() - started) / 1000)}초 걸림` });
+      const took = (performance.now() - started) / 1000;
+      setProg({ pct: 100, status: `완료 · ${Math.round(took)}초 걸림` });
+      note("info", `완료 · ${took.toFixed(1)}초 · 재생 시간의 ${(dur / Math.max(0.1, took)).toFixed(2)}배 속도`);
     } catch (e) {
-      if (e instanceof DOMException && e.name === "AbortError") { setProg(null); setError("영상 만들기를 취소했습니다."); }
-      else setError(e instanceof Error ? e.message : "영상을 만들지 못했습니다. 다시 시도해 주세요.");
+      if (e instanceof DOMException && e.name === "AbortError") { setProg(null); setError("영상 만들기를 취소했습니다."); note("warn", "회원이 취소함"); }
+      else { setError(e instanceof Error ? e.message : "영상을 만들지 못했습니다. 다시 시도해 주세요."); note("error", `실패: ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`); }
     } finally { abort.current = null; }
   }
 
@@ -85,7 +109,13 @@ export function ExportView() {
               <small>{prog.pct}% · {prog.status}</small>
             </div>
           )}
-          {error && <div className="notice error-box">{error}</div>}
+          {!running && warns.length > 0 && <div className="notice warning">{warns.map((w) => <div key={w}>⚠️ {w}</div>)}</div>}
+          {error && <div className="notice error-box">{error} <small>— 아래 「렌더 진단 기록」을 복사해 문의에 붙여 주시면 원인을 빨리 찾을 수 있습니다.</small></div>}
+          <details className="notice">
+            <summary style={{ cursor: "pointer", fontWeight: 700 }}>🩺 렌더 진단 기록{diag.length ? ` (${diag.length})` : ""}</summary>
+            <pre style={{ whiteSpace: "pre-wrap", fontSize: 11, margin: "8px 0", maxHeight: 220, overflow: "auto" }}>{formatDiag(diagHeader(), diag)}</pre>
+            <button type="button" className="chip" onClick={() => void copyDiag()}>{copied ? "✓ 복사했습니다" : "📋 진단 복사"}</button>
+          </details>
           {result?.savedTo && <div className="notice success">💾 「{result.savedTo}」로 저장했습니다. 고른 폴더에서 열어 확인해 주세요. 가사 시간표와 디자인은 위쪽 「💾 저장」으로 보관함에 남길 수 있습니다.</div>}
           {result && !result.savedTo && (
             <div className="stack result">
