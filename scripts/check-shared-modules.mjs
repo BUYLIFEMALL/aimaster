@@ -252,6 +252,12 @@ const MODULES = [
     copies: ["music-video-studio/src/components/edit/Composition.tsx"],
   },
   {
+    // 영상 합치기 렌더 단계 기록(v1.23 ?render=trace) — Composition.tsx가 가져오므로 사본도 같이 둔다(사본 쪽은 켜지 않아 아무 일 안 함). 2026-11-06 기준·사본 어긋남 정리
+    id: "video-edit-render-trace",
+    source: "ai-video-studio/lib/edit/renderTrace.ts",
+    copies: ["music-video-studio/src/lib/edit/renderTrace.ts"],
+  },
+  {
     // AI 동영상(장면 사진 → 5~10초 영상, 회원 본인 키): 모델·단가·길이 목록. 2026-10-22 원스톱 v1.23~v1.25에서 만들어 ai-image-studio를 기준으로 등록, Shots에 사본
     id: "ai-video-models",
     source: "ai-video-studio/lib/video/videoModels.ts",

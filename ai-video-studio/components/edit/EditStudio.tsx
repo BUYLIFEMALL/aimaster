@@ -23,8 +23,8 @@ import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatu
 import { takeClipHandoff } from "@/lib/clip/handoff";
 import { toEdl, type Piece } from "@/lib/clip/clipPlan";
 import {
-  CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
-  type CaptionPosition, type CaptionSize, type CaptionStyle, type ClipSource, type EditAspect, type EditClip, type EditProject, type EditQuality, type MusicSource, type SavedProject, type Transition,
+  CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, EDIT_LANG_NAMES, EDIT_LANGS, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
+  type CaptionPosition, type CaptionSize, type CaptionStyle, type ClipSource, type EditAspect, type EditClip, type EditLang, type EditProject, type EditQuality, type MusicSource, type SavedProject, type Transition,
 } from "@/lib/edit/timeline";
 
 type Song = { ref: string; title: string; model: string; durationS: number | null; instrumental: boolean; url: string | null; tooBig: boolean };
@@ -100,6 +100,10 @@ export function EditStudio() {
   /** 아직 저장소에 올리지 않은 내레이션 음성(장면 번호 → 파일) */
   const voiceBlobs = useRef(new Map<string, Blob>());
   const resultBlob = useRef<Blob | null>(null);
+  // V2 언어판(2026-11-06): 바꿀 언어·권리 확인·번역 전 원문(되돌리기용 — 음성은 저장된 것만 되살린다)
+  const [langPick, setLangPick] = useState<EditLang>("en");
+  const [langRights, setLangRights] = useState(false);
+  const [langOrig, setLangOrig] = useState<{ lang?: EditLang; clips: EditClip[] } | null>(null);
 
   const patch = (p: Partial<EditProject>) => setProject((cur) => ({ ...cur, ...p }));
   const patchClip = (id: string, p: Partial<EditClip>) => setProject((cur) => ({ ...cur, clips: cur.clips.map((c) => (c.id === id ? { ...c, ...p } : c)) }));
@@ -291,7 +295,7 @@ export function EditStudio() {
     setError("");
     setBusy({ name: clip.name, msg: "내레이션 음성 만드는 중(본인 키)" });
     try {
-      const res = await fetch("/api/edit/voice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, model: voiceSet.model, voice: voiceSet.voice, speed: voiceSet.speed }) });
+      const res = await fetch("/api/edit/voice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, model: voiceSet.model, voice: voiceSet.voice, speed: voiceSet.speed, lang: project.lang ?? "ko" }) });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error ?? "음성을 만들지 못했습니다.");
       const blob = b64ToBlob(j.audio, j.mime);
@@ -323,6 +327,54 @@ export function EditStudio() {
     voiceBlobs.current.delete(clipId);
     patchClip(clipId, { voice: null });
     setResult(null);
+  }
+
+  // ── V2 언어판 ──
+  /** 장면 자막·내레이션을 고른 언어로 옮긴다(본인 키). 내레이션 음성은 비워 두고 3단계에서 그 언어로 다시 만든다 */
+  async function makeLangEdition() {
+    const items = project.clips.filter((c) => c.caption.trim() || c.narration?.trim()).map((c) => ({ id: c.id, caption: c.caption.trim(), narration: (c.narration ?? "").trim() }));
+    if (!items.length) { setError("옮길 자막이나 내레이션이 있는 장면이 없습니다. 2단계에서 먼저 적어 주세요."); return; }
+    if (!langRights) { setError("내가 만들었거나 권리를 가진 영상인지 먼저 확인해 주세요."); return; }
+    setError(""); setNotice("");
+    setBusy({ name: EDIT_LANG_NAMES[langPick], msg: "자막·내레이션 번역하는 중(본인 키)" });
+    try {
+      const res = await fetch("/api/edit/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lang: langPick, items, title: title || project.clips[0]?.name || "", rights: true }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error ?? "번역하지 못했습니다.");
+      const byId = new Map((j.items as { id: string; caption: string; narration: string }[]).map((t) => [t.id, t]));
+      if (!langOrig) setLangOrig({ lang: project.lang, clips: project.clips });
+      setProject((cur) => ({
+        ...cur,
+        lang: langPick,
+        clips: cur.clips.map((c) => {
+          const t = byId.get(c.id);
+          if (!t) return c;
+          // 원문 음성은 되돌리기용으로 남겨 두고(blob 주소를 지우지 않음) 이 판에서는 뺀다
+          return { ...c, caption: t.caption, narration: t.narration, voice: null };
+        }),
+      }));
+      voiceBlobs.current.clear();
+      setResult(null);
+      setNotice(`${EDIT_LANG_NAMES[langPick]}판으로 바꿨습니다. 3단계 「아직 없는 장면 모두 만들기」로 ${EDIT_LANG_NAMES[langPick]} 내레이션을 만든 뒤 영상을 만드세요. 원본 소리를 끄려면 5단계에서 「영상 원래 소리」를 끄세요.`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "번역하지 못했습니다.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  /** 번역 전 원문으로 되돌린다. 저장소에 올라간 음성만 되살리고, 올리지 않았던 음성은 다시 만들어야 한다 */
+  function restoreLangOrig() {
+    if (!langOrig) return;
+    const orig = langOrig;
+    setProject((cur) => {
+      cur.clips.forEach((c) => { if (c.voice) URL.revokeObjectURL(c.voice.src); });
+      return { ...cur, lang: orig.lang, clips: cur.clips.map((c) => { const o = orig.clips.find((x) => x.id === c.id); return o ? { ...c, caption: o.caption, narration: o.narration, voice: o.voice?.path ? o.voice : null } : c; }) };
+    });
+    voiceBlobs.current.clear();
+    setLangOrig(null);
+    setResult(null);
+    setNotice("번역 전 원문으로 되돌렸습니다. 저장하지 않았던 내레이션 음성은 다시 만들어 주세요.");
   }
 
   // ── 저장·불러오기 ──
@@ -405,7 +457,8 @@ export function EditStudio() {
       // 이전 화면의 파일 주소 정리
       setProject((cur) => { cur.clips.forEach((c) => { URL.revokeObjectURL(c.src); if (c.voice) URL.revokeObjectURL(c.voice.src); }); if (cur.music) URL.revokeObjectURL(cur.music.src); return cur; });
       voiceBlobs.current.clear();
-      setProject({ clips, aspect: saved.aspect, quality: saved.quality, transition: saved.transition, captionPosition: saved.captionPosition, captionStyle: saved.captionStyle, captionSize: saved.captionSize, clipAudio: saved.clipAudio, music });
+      setProject({ clips, aspect: saved.aspect, quality: saved.quality, transition: saved.transition, captionPosition: saved.captionPosition, captionStyle: saved.captionStyle, captionSize: saved.captionSize, clipAudio: saved.clipAudio, music, lang: saved.lang });
+      setLangOrig(null);
       setEditId(j.id);
       setTitle(j.title);
       setResult(null);
@@ -747,6 +800,31 @@ export function EditStudio() {
             })}
           </ol>
         )}
+      </section>
+
+      {/* V2 언어판(2026-11-06): 자막·내레이션을 다른 언어로 — 본인 영상에만, 실행 기록 30일 */}
+      <section className={card}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-base font-semibold text-zinc-100">🌐 언어판 만들기 (선택 · 본인 키)</h2>
+          {project.lang && project.lang !== "ko" && <span className="rounded-full border border-sky-500/40 bg-sky-500/10 px-2 py-0.5 text-[11px] text-sky-200">지금 {EDIT_LANG_NAMES[project.lang]}판</span>}
+        </div>
+        <p className="text-xs text-zinc-400">같은 영상으로 영어·일본어·중국어·베트남어판을 만듭니다. 2단계의 자막·내레이션 문장을 AI(본인 Claude·Gemini·OpenAI 키)로 옮기고, 내레이션은 3단계에서 그 언어 목소리로 다시 만듭니다.</p>
+        <div className="flex flex-wrap items-center gap-2">
+          {EDIT_LANGS.filter((l) => l !== "ko").map((l) => (
+            <button key={l} type="button" disabled={isBusy} className={chip(langPick === l)} onClick={() => setLangPick(l)}>{EDIT_LANG_NAMES[l]}</button>
+          ))}
+        </div>
+        <label className="flex items-start gap-2 text-xs text-zinc-200">
+          <input type="checkbox" checked={langRights} disabled={isBusy} onChange={(e) => setLangRights(e.target.checked)} className="mt-0.5" />
+          <span>이 영상과 문장은 제가 만들었거나 권리를 가진 콘텐츠입니다. (실행할 때마다 제목과 시각이 내 기록으로 남고 30일 뒤 지워집니다)</span>
+        </label>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" className={smallBtn} disabled={isBusy || !langRights || !project.clips.length} onClick={() => void makeLangEdition()}>
+            🌐 {EDIT_LANG_NAMES[langPick]}판으로 바꾸기
+          </button>
+          {langOrig && <button type="button" className={smallBtn} disabled={isBusy} onClick={restoreLangOrig}>번역 전 원문으로 되돌리기</button>}
+        </div>
+        <p className="text-[11px] text-zinc-500">일본어·중국어 자막은 그 언어 글꼴로 그려지고, 문장 부호 단위로 나뉩니다. 번역 비용은 본인 계정에 청구됩니다(장면 20개에 몇 원 수준). 다른 사람의 영상·대사를 옮기는 데 쓰지 마세요.</p>
       </section>
 
       {/* 3단계: 내레이션 목소리 */}

@@ -64,11 +64,11 @@ export async function synthesize(o: { provider: TtsProvider; key: string; model:
 }
 
 /** OpenAI·Gemini 음성의 낱말 시각: 회원 본인 OpenAI 키로 받아쓰기(whisper-1, 낱말 시각) → 대본 낱말에 맞춤. 실패하면 null(글자 수 비례로 대신함) */
-export async function wordStarts(key: string, audio: { bytes: Buffer; mime: string }, text: string): Promise<number[] | null> {
+export async function wordStarts(key: string, audio: { bytes: Buffer; mime: string }, text: string, lang = "ko"): Promise<number[] | null> {
   try {
     const fd = new FormData();
     fd.append("file", new Blob([new Uint8Array(audio.bytes)], { type: audio.mime }), audio.mime === "audio/wav" ? "voice.wav" : "voice.mp3");
-    fd.append("model", "whisper-1"); fd.append("response_format", "verbose_json"); fd.append("timestamp_granularities[]", "word"); fd.append("language", "ko");
+    fd.append("model", "whisper-1"); fd.append("response_format", "verbose_json"); fd.append("timestamp_granularities[]", "word"); fd.append("language", lang);
     const res = await fetch("https://api.openai.com/v1/audio/transcriptions", { method: "POST", headers: { Authorization: `Bearer ${key}` }, body: fd, cache: "no-store", signal: AbortSignal.timeout(45_000) });
     if (!res.ok) return null;
     const d = (await res.json()) as { words?: { word: string; start: number }[] };

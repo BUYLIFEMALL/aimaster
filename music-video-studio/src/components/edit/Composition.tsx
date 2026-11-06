@@ -4,13 +4,29 @@
 //  사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`. 함께 쓰는 기준: `video-edit-timeline`·`video-edit-voice`]
 // 영상 합치기 — Remotion 구성(그리기 층). 시간 계산은 lib/edit/timeline.ts(순수 함수)에 두고 여기서는 그리기만 한다.
 // 브라우저 렌더 제약(A-0 확인): 영상·소리는 @remotion/media의 <Video>·<Audio>, 한글은 SVG <text> + @remotion/google-fonts.
+import { useLayoutEffect } from "react";
 import { AbsoluteFill, Img, Sequence, interpolate, useCurrentFrame } from "remotion";
 import { Audio, Video } from "@remotion/media";
-import { loadFont } from "@remotion/google-fonts/NotoSansKR";
-import { CAPTION_SIZE_SCALE, FPS, captionMaxChars, dimensions, duckRanges, layout, musicVolume, sceneCaptions, segmentOpacity, wrapCaption, type CaptionStyle, type EditProject, type Segment } from "@/lib/edit/timeline";
+import { loadFont as loadNotoKR } from "@remotion/google-fonts/NotoSansKR";
+import { loadFont as loadNotoJP } from "@remotion/google-fonts/NotoSansJP";
+import { loadFont as loadNotoSC } from "@remotion/google-fonts/NotoSansSC";
+import { markFrameStart } from "@/lib/edit/renderTrace";
+import { CAPTION_SIZE_SCALE, FPS, captionMaxChars, dimensions, duckRanges, layout, musicVolume, sceneCaptions, segmentOpacity, wrapCaption, type CaptionStyle, type EditLang, type EditProject, type Segment } from "@/lib/edit/timeline";
 
-// 굵기 하나만 미리 불러온다(Noto Sans KR은 파일이 많이 나뉘어 있음)
-const { fontFamily } = loadFont("normal", { weights: ["900"], subsets: ["korean", "latin"] });
+// 굵기 하나만 미리 불러온다(Noto Sans KR은 파일이 많이 나뉘어 있음). 한국어·영어·베트남어는 KR 글꼴 하나로 되고,
+// V2 언어판(2026-11-06) 일본어·중국어 자막은 그 언어판을 만들 때만 JP·SC 글꼴을 더 불러온다
+const notoKR = loadNotoKR("normal", { weights: ["900"], subsets: ["korean", "latin", "latin-ext", "vietnamese"] });
+const FONT_LOADERS: Record<EditLang, () => { fontFamily: string }> = {
+  ko: () => notoKR,
+  en: () => notoKR,
+  vi: () => notoKR,
+  ja: () => loadNotoJP("normal", { weights: ["900"], subsets: ["japanese", "latin"] }),
+  zh: () => loadNotoSC("normal", { weights: ["900"], subsets: ["chinese-simplified", "latin"] }),
+};
+const loadedFonts: Partial<Record<EditLang, string>> = {};
+function fontFor(lang: EditLang = "ko"): string {
+  return (loadedFonts[lang] ??= FONT_LOADERS[lang]().fontFamily);
+}
 
 export type EditCompositionProps = { project: EditProject };
 
@@ -18,8 +34,9 @@ const FILL: Record<CaptionStyle, string> = { band: "#ffffff", yellow: "#ffe14d",
 
 function Caption({ text, project, width, height }: { text: string; project: EditProject; width: number; height: number }) {
   const scale = CAPTION_SIZE_SCALE[project.captionSize ?? "m"];
-  const lines = wrapCaption(text, Math.round(captionMaxChars(project.aspect) / scale));
+  const lines = wrapCaption(text, Math.round(captionMaxChars(project.aspect, project.lang) / scale));
   if (!lines.length) return null;
+  const fontFamily = fontFor(project.lang);
   const size = Math.round(Math.min(width, height) * (project.aspect === "16:9" ? 0.075 : 0.06) * scale);
   const lineH = Math.round(size * 1.3);
   const blockH = lineH * lines.length;
@@ -44,7 +61,7 @@ function Scene({ seg, project, width, height }: { seg: Segment; project: EditPro
   const frame = useCurrentFrame();
   // 내레이션 음성이 있으면 말하는 속도에 맞춘 자막, 없으면 장면 자막 한 줄
   // 겹쳐 바꾸기에서 뒤 장면과 겹치는 동안에는 이 장면 자막을 숨긴다(자막 두 줄이 겹치지 않게)
-  const caption = frame < seg.durationInFrames - seg.overlapOut ? sceneCaptions(seg.clip, seg.durationInFrames).find((c) => frame >= c.from && frame < c.to) : undefined;
+  const caption = frame < seg.durationInFrames - seg.overlapOut ? sceneCaptions(seg.clip, seg.durationInFrames, project.lang).find((c) => frame >= c.from && frame < c.to) : undefined;
   // 내레이션에 맞춰 늘린 장면(hold)은 영상을 반복 재생 — 뒤 자르기가 있으면 남은 구간만 반복
   const held = (seg.clip.hold ?? 0) > 0;
   const trimAfter = held && seg.clip.trimEnd > 0 ? Math.round((seg.clip.duration - seg.clip.trimEnd) * FPS) : undefined;
@@ -67,6 +84,9 @@ export function EditComposition({ project }: EditCompositionProps) {
   const { segments, totalFrames } = layout(project);
   // 내레이션이 나오는 동안 배경음악을 줄인다(설정에서 끌 수 있음)
   const ducks = project.music && project.music.duck !== false ? duckRanges(project) : [];
+  // v1.23 ?render=trace: 장면이 바뀐 시각(렌더 중 trace일 때만 기록, 그 밖에는 아무 일 안 함)
+  const frame = useCurrentFrame();
+  useLayoutEffect(() => markFrameStart(frame), [frame]);
   return (
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
       {segments.map((seg) => (

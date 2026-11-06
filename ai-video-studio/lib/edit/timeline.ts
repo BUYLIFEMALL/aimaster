@@ -12,6 +12,11 @@ export type CaptionStyle = "band" | "yellow" | "outline" | "pop";
 export type Transition = "none" | "fade" | "crossfade";
 export type CaptionSize = "s" | "m" | "l";
 export const CAPTION_SIZE_NAMES: Record<CaptionSize, string> = { s: "작게", m: "보통", l: "크게" };
+/** V2 언어판(2026-11-06): 자막·내레이션 언어. 글꼴(Composition)·자막 나누기·내레이션 받아쓰기 언어가 이 값을 따른다 */
+export type EditLang = "ko" | "en" | "ja" | "zh" | "vi";
+export const EDIT_LANG_NAMES: Record<EditLang, string> = { ko: "한국어", en: "영어", ja: "일본어", zh: "중국어(간체)", vi: "베트남어" };
+export const EDIT_LANGS = Object.keys(EDIT_LANG_NAMES) as EditLang[];
+export const isEditLang = (v: unknown): v is EditLang => typeof v === "string" && (EDIT_LANGS as string[]).includes(v);
 export const CAPTION_SIZE_SCALE: Record<CaptionSize, number> = { s: 0.8, m: 1, l: 1.25 };
 
 /** 다시 불러올 수 있는 출처(갤러리 생성 번호·AI 음악 스튜디오 곡 번호). 내 PC 파일은 서버에 올리지 않아 다시 넣어야 한다 */
@@ -88,11 +93,22 @@ export interface EditProject {
   /** 넣은 영상의 원래 소리(AI 클립은 대부분 소리 없음) */
   clipAudio: boolean;
   music: EditMusic | null;
+  /** 자막·내레이션 언어(비우면 한국어) */
+  lang?: EditLang;
 }
 
-/** 자막 한 줄 최대 글자 수(화면 비율별) — SVG 글자는 자동 줄바꿈이 없어서 직접 나눈다 */
-export function captionMaxChars(aspect: EditAspect): number {
-  return aspect === "16:9" ? 24 : aspect === "1:1" ? 18 : 14;
+/** 자막 한 줄 최대 글자 수(화면 비율별) — SVG 글자는 자동 줄바꿈이 없어서 직접 나눈다. 영어·베트남어는 글자가 좁아 1.6배 */
+export function captionMaxChars(aspect: EditAspect, lang?: EditLang): number {
+  const base = aspect === "16:9" ? 24 : aspect === "1:1" ? 18 : 14;
+  return lang === "en" || lang === "vi" ? Math.round(base * 1.6) : base;
+}
+
+/** 띄어쓰기가 없는 일본어·중국어 문장을 문장 부호 뒤, 그리고 16자 단위로 나눈다(자막 조각·내레이션 시각 비례에 씀. 한 조각은 wrapCaption이 다시 줄로 나눈다) */
+export function cjkTokens(text: string): string[] {
+  const parts = text.replace(/\s+/g, "").split(/(?<=[。、，．！？!?,])/).filter(Boolean);
+  const out: string[] = [];
+  for (const p of parts) for (let i = 0; i < p.length; i += 16) out.push(p.slice(i, i + 16));
+  return out;
 }
 
 /** 띄어쓰기 기준으로 줄을 나누고, 너무 긴 낱말은 글자 수로 자른다. 최대 3줄 */
@@ -261,19 +277,21 @@ export function outputFileName(now = new Date()): string {
 }
 
 /** 장면 안 자막 구간(프레임, 장면 시작 기준). 내레이션 음성이 있으면 말하는 속도에 맞춰 나누고, 없으면 자막 한 줄을 장면 내내 보여 준다 */
-export function sceneCaptions(clip: EditClip, durationInFrames: number): { text: string; from: number; to: number }[] {
+export function sceneCaptions(clip: EditClip, durationInFrames: number, lang?: EditLang): { text: string; from: number; to: number }[] {
   const narration = (clip.narration ?? "").trim();
   const voice = clip.voice;
   if (voice && narration) {
-    const toks = tokensOf(narration);
-    let starts = voice.starts && voice.starts.length === toks.length ? voice.starts : null;
+    // 일본어·중국어는 띄어쓰기가 없어 문장 부호·14자 조각으로 나누고 글자 수 비례로 시각을 준다
+    const cjk = lang === "ja" || lang === "zh";
+    const toks = cjk ? cjkTokens(narration) : tokensOf(narration);
+    let starts = !cjk && voice.starts && voice.starts.length === toks.length ? voice.starts : null;
     if (!starts) {
       // 받아쓰기 시각이 없으면 글자 수 비례로 나눈다
       const total = toks.reduce((n, w) => n + w.length, 0) || 1;
       let acc = 0;
       starts = toks.map((w) => { const s = (acc / total) * voice.duration; acc += w.length; return s; });
     }
-    const chunks = timedCaptionChunks(narration, starts) ?? [];
+    const chunks = cjk ? toks.map((text, i) => ({ text, start: starts![i] })) : (timedCaptionChunks(narration, starts) ?? []);
     const out: { text: string; from: number; to: number }[] = [];
     chunks.forEach((c, i) => {
       const from = Math.min(durationInFrames, Math.max(0, Math.round(c.start * FPS)));
@@ -314,6 +332,7 @@ export interface SavedProject {
   clips: SavedClip[];
   aspect: EditAspect; quality: EditQuality; transition: Transition; captionPosition: CaptionPosition; captionStyle: CaptionStyle; captionSize: CaptionSize; clipAudio: boolean;
   music: { name: string; volume: number; fadeOut: boolean; source: MusicSource; duck?: boolean } | null;
+  lang?: EditLang;
 }
 
 /** 저장용으로 바꾼다. voicePaths: 장면 번호 → 저장소에 올라갈 음성 경로 */
@@ -327,6 +346,7 @@ export function toSaved(p: EditProject, voicePaths: Record<string, string>): Sav
     })),
     aspect: p.aspect, quality: p.quality, transition: p.transition, captionPosition: p.captionPosition, captionStyle: p.captionStyle, captionSize: p.captionSize ?? "m", clipAudio: p.clipAudio,
     music: p.music ? { name: p.music.name.slice(0, 120), volume: p.music.volume, fadeOut: p.music.fadeOut, source: p.music.source ?? { kind: "local" }, duck: p.music.duck !== false } : null,
+    ...(p.lang && p.lang !== "ko" ? { lang: p.lang } : {}),
   };
 }
 
@@ -367,6 +387,7 @@ export function sanitizeSaved(raw: unknown, userPrefix: string): SavedProject | 
     captionStyle: (STYLE_SET.has(r.captionStyle as string) ? r.captionStyle : "band") as CaptionStyle,
     captionSize: (SIZE_SET.has(r.captionSize as string) ? r.captionSize : "m") as CaptionSize,
     clipAudio: r.clipAudio === true,
+    ...(isEditLang(r.lang) && r.lang !== "ko" ? { lang: r.lang } : {}),
     music: m && typeof m === "object" ? {
       name: str(m.name, 120), volume: num(m.volume, 0, 1, 0.8), fadeOut: m.fadeOut !== false, duck: m.duck !== false,
       source: ms?.kind === "ams" && typeof ms.ref === "string" && /^[0-9a-f-]{36}:\d{1,2}$/i.test(ms.ref) ? { kind: "ams", ref: ms.ref } : { kind: "local" },

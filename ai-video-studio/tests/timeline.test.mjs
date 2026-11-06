@@ -1,6 +1,37 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { FPS, MAX_CLIPS, captionMaxChars, wrapCaption, clipSeconds, dimensions, fadeOpacity, layout, musicVolume, outputFileName, totalSeconds, validate } from "../lib/edit/timeline.ts";
+import { FPS, MAX_CLIPS, captionMaxChars, cjkTokens, sceneCaptions, sanitizeSaved, toSaved, wrapCaption, clipSeconds, dimensions, fadeOpacity, layout, musicVolume, outputFileName, totalSeconds, validate } from "../lib/edit/timeline.ts";
+
+// V2 언어판(2026-11-06)
+test("언어판: 영어·베트남어는 한 줄 글자 수 1.6배, 일본어·중국어는 그대로", () => {
+  assert.equal(captionMaxChars("9:16"), 14);
+  assert.equal(captionMaxChars("9:16", "en"), 22);
+  assert.equal(captionMaxChars("16:9", "vi"), 38);
+  assert.equal(captionMaxChars("9:16", "ja"), 14);
+});
+
+test("언어판: 일본어 문장은 문장 부호 뒤·16자 단위로 나뉜다", () => {
+  assert.deepEqual(cjkTokens("今日は、折りたたみ扇風機の話をします。軽さが一番の魅力です"), ["今日は、", "折りたたみ扇風機の話をします。", "軽さが一番の魅力です"]);
+  assert.deepEqual(cjkTokens("あ".repeat(30)), ["あ".repeat(16), "あ".repeat(14)]);
+});
+
+test("언어판: 일본어 내레이션 자막은 조각마다 글자 수 비례 시각, 받아쓰기 시각은 쓰지 않는다", () => {
+  const c = { id: "a", src: "", name: "a", duration: 10, trimStart: 0, trimEnd: 0, caption: "", narration: "今日は、軽い扇風機です。", voice: { src: "", duration: 4, starts: [0, 1, 2], mime: "audio/mpeg" } };
+  const caps = sceneCaptions(c, 10 * FPS, "ja");
+  assert.deepEqual(caps.map((x) => x.text), ["今日は、", "軽い扇風機です。"]);
+  assert.equal(caps[0].from, 0);
+  assert.equal(caps[1].from, Math.round((4 / 12) * 4 * FPS));
+  // 한국어는 그대로 띄어쓰기 기준
+  assert.equal(sceneCaptions({ ...c, narration: "가 나 다", voice: { ...c.voice, starts: [0, 1, 2] } }, 10 * FPS).length, 1);
+});
+
+test("언어판: 저장 형식에 언어가 남고(한국어는 생략) 서버 검사가 이상한 값을 버린다", () => {
+  const base = { clips: [], aspect: "9:16", quality: "720p", transition: "fade", captionPosition: "bottom", captionStyle: "band", clipAudio: false, music: null };
+  assert.equal(toSaved({ ...base, lang: "ja" }, {}).lang, "ja");
+  assert.equal("lang" in toSaved({ ...base, lang: "ko" }, {}), false);
+  assert.equal(sanitizeSaved({ ...toSaved({ ...base, lang: "zh" }, {}) }, "u/").lang, "zh");
+  assert.equal(sanitizeSaved({ ...toSaved(base, {}), lang: "fr" }, "u/").lang, undefined);
+});
 
 const clip = (id, duration, trimStart = 0, trimEnd = 0, caption = "") => ({ id, src: `blob:${id}`, name: id, duration, trimStart, trimEnd, caption });
 const project = (clips) => ({ clips, aspect: "9:16", quality: "720p", transition: "fade", captionPosition: "bottom", captionStyle: "band", music: null });

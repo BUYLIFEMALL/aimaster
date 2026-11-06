@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi, getUserApiKey, logProgramUsage } from "@/lib/access";
 import { TTS_MODELS, TTS_VOICES, isElevenVoiceId, ttsModelById } from "@/lib/edit/voice";
 import { VoiceError, synthesize, wordStarts } from "@/lib/edit/tts";
+import { isEditLang, type EditLang } from "@/lib/edit/timeline";
+
+// V2 언어판(2026-11-06): 언어별 읽기 지시. 일본어·중국어는 낱말 시각을 맞추지 않고(띄어쓰기 없음) 글자 수 비례로 자막을 나눈다
+const TONES: Record<EditLang, string> = {
+  ko: "또렷하고 자연스러운 한국어 내레이션.",
+  en: "Clear, natural English narration for a short video.",
+  ja: "短い動画のための、はっきりした自然な日本語ナレーション。",
+  zh: "为短视频配音，清晰自然的普通话旁白。",
+  vi: "Giọng thuyết minh tiếng Việt rõ ràng, tự nhiên cho video ngắn.",
+};
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -21,19 +31,20 @@ export async function POST(request: Request) {
     ? (isElevenVoiceId(body.voice) ? body.voice : "")
     : (TTS_VOICES[model.provider].some((v) => v.id === body.voice) ? body.voice : TTS_VOICES[model.provider][0].id);
   const speed = typeof body.speed === "number" && Number.isFinite(body.speed) ? Math.min(1.5, Math.max(0.7, body.speed)) : 1;
+  const lang: EditLang = isEditLang(body.lang) ? body.lang : "ko";
 
   const key = await getUserApiKey(user.id, model.provider);
   if (!key) {
     return NextResponse.json({ error: `${NAMES[model.provider]} API 키가 없습니다. API키등록·플랫폼연동에서 본인 키를 등록하거나 다른 음성 모델을 골라 주세요.`, needKey: true }, { status: 400 });
   }
   try {
-    const audio = await synthesize({ provider: model.provider, key, model: model.id, voice, text, speed, tone: "또렷하고 자연스러운 한국어 내레이션." });
+    const audio = await synthesize({ provider: model.provider, key, model: model.id, voice, text, speed, tone: TONES[lang] });
     let starts = audio.words ?? null;
-    if (!starts) {
+    if (!starts && lang !== "ja" && lang !== "zh") {
       const openaiKey = model.provider === "openai" ? key : await getUserApiKey(user.id, "openai");
-      if (openaiKey) starts = await wordStarts(openaiKey, audio, text);
+      if (openaiKey) starts = await wordStarts(openaiKey, audio, text, lang);
     }
-    await logProgramUsage(user.id, "edit_voice", 1, { model: model.id, chars: text.length, timed: Boolean(starts) });
+    await logProgramUsage(user.id, "edit_voice", 1, { model: model.id, chars: text.length, timed: Boolean(starts), lang });
     return NextResponse.json(
       { audio: audio.bytes.toString("base64"), mime: audio.mime, starts },
       { headers: { "Cache-Control": "private, no-store" } },

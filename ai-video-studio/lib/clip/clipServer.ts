@@ -71,20 +71,22 @@ function jsonOf(text: string): unknown {
   try { return a >= 0 && b > a ? JSON.parse(text.slice(a, b + 1)) : null; } catch { return null; }
 }
 
-/** AI 구간 고르기 1회(재시도 없음). 문장 번호로 받아 코드가 15~45초로 고친다 */
-export async function pickClips(userId: string, segs: Seg[]): Promise<{ picks: Pick[]; model: string }> {
+/**
+ * 회원 키로 저가 모델에 JSON 답을 한 번 묻는다(재시도 없음). 구간 고르기(V1)와 언어판 번역(V2)이 함께 쓴다.
+ * what: 오류 문구에 들어갈 일 이름(예: 「구간 고르기」)
+ */
+export async function askJson(userId: string, what: string, system: string, prompt: string, maxTokens = 1500): Promise<{ json: unknown; model: string }> {
   let chosen: { provider: string; model: string; key: string } | null = null;
   for (const m of PICK_MODELS) {
     const key = await getUserApiKey(userId, m.provider);
     if (key) { chosen = { ...m, key }; break; }
   }
-  if (!chosen) throw new ClipError(400, "구간 고르기에는 본인 Claude·Gemini·OpenAI 키 중 하나가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요.", true);
-  const { system, prompt } = pickPrompt(segs);
+  if (!chosen) throw new ClipError(400, `${what}에는 본인 Claude·Gemini·OpenAI 키 중 하나가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요.`, true);
   const opts = { method: "POST", cache: "no-store" as const, signal: AbortSignal.timeout(60_000) };
   let text = "";
   let res: Response | null = null;
   if (chosen.provider === "anthropic") {
-    res = await fetch("https://api.anthropic.com/v1/messages", { ...opts, headers: { "x-api-key": chosen.key, "anthropic-version": "2023-06-01", "content-type": "application/json" }, body: JSON.stringify({ model: chosen.model, max_tokens: 1500, system, messages: [{ role: "user", content: prompt }] }) }).catch(() => null);
+    res = await fetch("https://api.anthropic.com/v1/messages", { ...opts, headers: { "x-api-key": chosen.key, "anthropic-version": "2023-06-01", "content-type": "application/json" }, body: JSON.stringify({ model: chosen.model, max_tokens: maxTokens, system, messages: [{ role: "user", content: prompt }] }) }).catch(() => null);
     if (res?.ok) text = ((await res.json()).content ?? []).map((c: { text?: string }) => c.text ?? "").join("");
   } else if (chosen.provider === "gemini") {
     res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${chosen.model}:generateContent`, { ...opts, headers: { "x-goog-api-key": chosen.key, "content-type": "application/json" }, body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).catch(() => null);
@@ -93,13 +95,20 @@ export async function pickClips(userId: string, segs: Seg[]): Promise<{ picks: P
     res = await fetch("https://api.openai.com/v1/chat/completions", { ...opts, headers: { Authorization: `Bearer ${chosen.key}`, "content-type": "application/json" }, body: JSON.stringify({ model: chosen.model, response_format: { type: "json_object" }, messages: [{ role: "system", content: system }, { role: "user", content: prompt }] }) }).catch(() => null);
     if (res?.ok) text = (await res.json()).choices?.[0]?.message?.content ?? "";
   }
-  if (!res) throw new ClipError(504, "구간 고르기가 늦어지고 있습니다. 잠시 뒤 다시 눌러 주세요.");
+  if (!res) throw new ClipError(504, `${what}가 늦어지고 있습니다. 잠시 뒤 다시 눌러 주세요.`);
   if (res.status === 401 || res.status === 403 || res.status === 400) throw new ClipError(400, `${chosen.provider} 키를 확인해 주세요(키가 틀렸거나 사용이 막혀 있습니다).`, true);
   if (res.status === 429) throw new ClipError(429, "AI 사용 한도에 걸렸습니다. 잠시 뒤 다시 시도해 주세요.");
   if (!res.ok) throw new ClipError(502, "AI가 응답하지 않았습니다. 잠시 뒤 다시 시도해 주세요.");
-  const picks = parsePicks(jsonOf(text), segs);
+  return { json: jsonOf(text), model: chosen.model };
+}
+
+/** AI 구간 고르기 1회(재시도 없음). 문장 번호로 받아 코드가 15~45초로 고친다 */
+export async function pickClips(userId: string, segs: Seg[]): Promise<{ picks: Pick[]; model: string }> {
+  const { system, prompt } = pickPrompt(segs);
+  const { json, model } = await askJson(userId, "구간 고르기", system, prompt);
+  const picks = parsePicks(json, segs);
   if (!picks.length) throw new ClipError(502, "AI가 구간을 고르지 못했습니다. 다시 눌러 주시거나 직접 구간을 골라 주세요.");
-  return { picks, model: chosen.model };
+  return { picks, model };
 }
 
 /** 화면에서 보낸 문장 목록 검사 */
