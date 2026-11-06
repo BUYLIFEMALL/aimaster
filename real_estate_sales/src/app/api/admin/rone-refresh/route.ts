@@ -6,6 +6,7 @@ import { refreshCommercialRent } from "@/lib/realestate/commercialRentData";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
+export const preferredRegion = "icn1"; // R-ONE 해외 호출 차단 대비(2026-11-06)
 
 // RQ-A4 1단계(2026-11-06): 관리자가 분기마다 한 번 부른다 — R-ONE 표 8개 → rone_commercial_rent, 좌표 없는 상권을 geocode개까지 채움.
 // ?geocode=60(최대 150) · ?only=geocode 는 R-ONE을 다시 받지 않고 좌표만 이어서 채운다.

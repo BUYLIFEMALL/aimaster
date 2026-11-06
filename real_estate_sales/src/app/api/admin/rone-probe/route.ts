@@ -1,9 +1,12 @@
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+// R-ONE이 해외 서버 호출을 막는지 가리려고 서울 지역에서 실행(2026-11-06)
+export const preferredRegion = "icn1";
 
 // RQ-A4 0단계 사전 검증(2026-11-05, 플랜 docs/PLAN_20261105_RQ_A4_COMMERCIAL_RENT.md).
 // 한국부동산원 R-ONE Open API를 운영 인증키(RONE_API_KEY, 공공 무료 자료)로 불러 상업용부동산 임대동향 표 번호·상권 코드·값을 찾는다.
@@ -53,7 +56,9 @@ export async function GET(req: Request) {
         }
       }
     }
-    return NextResponse.json({ service, http: res.status, ms: Date.now() - started, body });
+    // 키 값 대신 길이·지문(sha256 앞 8자리)만 — 발급 키와 같은 값인지 대조용
+    const keyCheck = { length: key.length, sha8: createHash("sha256").update(key).digest("hex").slice(0, 8) };
+    return NextResponse.json({ service, http: res.status, ms: Date.now() - started, region: process.env.VERCEL_REGION ?? null, keyCheck, body });
   } catch (e) {
     return NextResponse.json({ service, error: e instanceof Error ? e.message : String(e) }, { status: 502 });
   }
