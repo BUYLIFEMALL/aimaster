@@ -106,3 +106,95 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #f43f5e;
 }
+
+
+/* ==========================================================================
+   51. 유튜브 쇼츠 크리에이터 레드 스튜디오 스타일 (v1.28)
+   아이코닉 쇼츠 레드 (#EA3323) & 3D 엠보싱 버튼 규격
+   ========================================================================== */
+
+:root {
+  --shorts-red: #ea3323;
+  --shorts-red-hover: #dc2626;
+  --shorts-slate: #0f172a;
+  --shorts-surface: #1e293b;
+  --shorts-gold: #f59e0b;
+}
+
+/* 쇼츠 크리에이터 스튜디오 배경 패턴 */
+.bg-shorts-studio-pattern {
+  background-color: #0b0f19;
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(234, 51, 35, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(245, 158, 11, 0.06) 0%, transparent 40%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+}
+
+/* 3D 엠보싱 쇼츠 레드 버튼 (.btn-3d-red / .btn-3d-shorts) */
+.btn-3d-red,
+.btn-3d-shorts {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 18px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #ea3323 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 0 0 #991b1b, 0 8px 16px rgba(234, 51, 35, 0.35) !important;
+  border: 1px solid #f87171 !important;
+  cursor: pointer !important;
+  transform: translateY(0) !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+}
+
+.btn-3d-red:hover,
+.btn-3d-shorts:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #ea3323 100%) !important;
+  box-shadow: 0 5px 0 0 #991b1b, 0 10px 20px rgba(234, 51, 35, 0.45) !important;
+  transform: translateY(-1.5px) !important;
+}
+
+.btn-3d-red:active,
+.btn-3d-shorts:active {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  box-shadow: 0 1px 0 0 #991b1b, 0 2px 4px rgba(234, 51, 35, 0.2) !important;
+  transform: translateY(3px) !important;
+}
+
+/* 3D 엠보싱 골드 버튼 (.btn-3d-gold) */
+.btn-3d-gold {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 18px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 0 0 #92400e, 0 8px 16px rgba(245, 158, 11, 0.35) !important;
+  border: 1px solid #fbbf24 !important;
+  cursor: pointer !important;
+  transform: translateY(0) !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+}
+
+.btn-3d-gold:hover {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  box-shadow: 0 5px 0 0 #92400e, 0 10px 20px rgba(245, 158, 11, 0.45) !important;
+  transform: translateY(-1.5px) !important;
+}
+
+.btn-3d-gold:active {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  box-shadow: 0 1px 0 0 #92400e, 0 2px 4px rgba(245, 158, 11, 0.2) !important;
+  transform: translateY(3px) !important;
+}

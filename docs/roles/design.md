@@ -21,6 +21,7 @@
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
+| 2026-11-06 | `ai-video-studio` `v1.28` | 1안(51. 유튜브 쇼츠 크리에이터 레드 스튜디오 스타일) 공식 채택, 9:16 모바일 뷰파인더 덱 목업(LIVE REC 00:00:04:18, 4K UHD, 60 FPS) & 4단계 시네마틱 파이프라인 배너 & 3D 엠보싱 쇼츠 레드 버튼(`.btn-3d-red`) & 5단계 표준 로그인 탑재, 단위테스트 82/82 100% 통과 및 프로덕션 배포 완료 | ✅ 프로덕션 배포 완료 (`dpl_2vqjT6bQeZaAsKjDej2cBnAdTatV`, https://ai-video-studio.buylife.xyz) |
 | 2026-11-06 | 전체 지침 | [주인님 지시] 디자인 UI 시안 생성 지침 공식 등록 (쇼케이스 상단 종합 비교표 필수, 1440px 라이트박스 팝업, 순수 영문 URL 1순위 제공, D:\\Antigravity\\Design 폴더별 100% 자산화) | AGENTS.md, GEMINI.md, DESIGN.md 반영 |
 | 2026-11-06 | `shop-detail-page` `v1.42` | 48. 하이퍼 이커머스 셀러 스튜디오 스타일 채택, 4단계 파이프라인 배너, 3D 엠보싱 로열블루 버튼 및 5단계 표준 로그인 적용 | ✅ 프로덕션 배포 완료 (`dpl_E1GFe4mcEbVctye1a4b3sWdBsJNZ`, https://shop-detail-page.buylife.xyz) |
 | 2026-11-06 | `music-video-studio` `v1.27` | 45. 시네마틱 네온 MV 비주얼라이저 스튜디오 스타일 채택, 16:9 뷰파인더 덱 목업 탑재, 3D 엠보싱 마젠타 버튼 및 5단계 표준 로그인 적용 | ✅ 프로덕션 배포 완료 (`dpl_9uuXECD4PJybgqVuAqpXe8616MSj`, https://music-video-studio.buylife.xyz) |
