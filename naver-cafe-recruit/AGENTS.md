@@ -35,10 +35,11 @@
 - [ ] 첫 실물 초대 1건 — 주인님 지시로 맥미니에 요청([`docs/REQUEST_20261106_MACMINI_INVITE_TEST.md`](docs/REQUEST_20261106_MACMINI_INVITE_TEST.md)), 받을 아이디는 주인님이 맥미니 채팅에서 지정 → 결과 `docs/INVITE_TEST_20261106.md` → 윈도우가 `invite.mjs` 판정 규칙 확정
   - 1회차(2026-11-06 맥미니, 초대 0건): PC 카페 첫 화면의 「초대」가 `href="#"` + `inviteMember()`(카페 틀을 `/CafeInviteCheck.nhn?m=check&clubid=`로 옮김)라 `findInvite`가 링크를 못 찾아 시작 단계에서 멈추는 구조. 그 주소를 위쪽 탭에 직접 열면 빈 화면.
   - [x] 윈도우 수정(2026-11-06, **미배포 대기** — 다음 배포 때 v1.03으로 manifest·ZIP·DB 함께): `findInvite(hrefs, page)`에 메뉴형(`how:"menu"`) 추가(`a.link_invite` 존재 + 틀 주소 `MyCafeIntro.nhn?clubid=`에서 카페 번호, `firstClubId`), 초대 단계는 탭 주소 변경 대신 카페 첫 화면에서 「초대」 메뉴를 MAIN world로 실제 클릭(`openInviteMenu`, 사람마다 첫 화면으로 되돌린 뒤), 틀 판별 `CafeInvite(Check)?.nhn`, 버튼·칸을 못 찾으면 틀 글자 앞 160자를 멈춤 문구에 포함. 시험 EX11 추가(15개 통과). 맥미니 2회차는 공유 폴더 `extension/`을 직접 로드(배포 없음).
-- [ ] 모드 C(카페 홍보 글) 연결 — `naver-cafe-poster` 게시 재사용 방식 결정
+- [ ] 모드 C(카페 홍보 글) 연결 — `naver-cafe-poster` 게시 재사용 방식 결정. **공개 전 필수 결정**: 설정 화면에 「📣 C. 카페 홍보 글」 선택지가 보이지만 실제 게시는 연결되지 않았으므로, 공개(v1.03) 때 선택지를 숨기거나 연결한다(2026-11-06 소개문에서는 C를 뺐음).
 - [ ] 모드 B 자동 채우기: `blog-neighbor-care` 서로이웃 가져오기
 - [x] 빌드(주인님 승인, 2회) · Vercel 프로젝트·환경변수(`CRON_SECRET` 포함) · 도메인 `naver-cafe-recruit.buylife.xyz` — 2026-11-06
-- [ ] 공개: `programs.is_active=true`·`detail_sections`·썸네일 · 비교표·분석표(EXT-MKT-08·10) 갱신 · VIP 자동 부여 확인 — 첫 실물 초대 확인 뒤
+- [ ] 공개: `programs.is_active=true`·썸네일 · 비교표·분석표(EXT-MKT-08·10) 갱신 · VIP 자동 부여 확인 — 첫 실물 초대 확인 뒤
+  - [x] 2026-11-06 소개 문안 DB 반영(비공개 상태, 버전 변경 없음): `short_desc` 55자, `description` 6단락(보이는 글자 529자 — 아는 사람 승인·확장 초대·A-1 명단+초대링크·상한/제한·키 없음/책임, 미연결 C 모드는 제외), `detail_sections` 특징 4·순서 4(메뉴 순서)·추천 대상 3. 이전 값 백업 `docs/evidence/program-description-backup-20261106.json`. 썸네일은 이미지 생성 비용이라 주인님 승인 뒤(`scripts/generate-program-thumbnail.mjs`, PLATFORM_PATTERNS §13).
 - [x] 작은 수정: 좌측 메뉴 묶음 이름 「4단계 포스팅 파이프라인」(원본 복사) → 「3단계 모집 순서」 — **미배포 대기**(다음 배포 때 함께, 버전은 그때 v1.02)
 - [x] 보관 기간: 30일 확정(2026-11-05 주인님 「30일 기준으로 만들어도 되는 프로그램이야」), 연장 없음
 
