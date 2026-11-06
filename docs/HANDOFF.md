@@ -9,14 +9,14 @@
 - **남은 작업 정리 보고**: 미배포 약 47개 프로그램 목록·카테고리표는 채팅으로 보고(기준 `docs/PENDING_DEPLOYS.md`).
 - **비용**: Vercel 빌드 11회 + Lab 1회(중복). AI 호출 0.
 
-## 2026-11-06 🔄 [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261106-ytreply — **미배포 대기 묶음 연속 배포 4개 중 3개 완료(쓰레드 쇼핑제휴 v1.86 · 인스타 댓글자동화 v1.37 · 쓰레드 댓글자동화 v1.29), 4번 쓰레드 포스팅 v1.34 진행 중**
+## 2026-11-06 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261106-ytreply — **미배포 대기 묶음 연속 배포 4개 완료(쓰레드 쇼핑제휴 v1.86 · 인스타 댓글자동화 v1.37 · 쓰레드 댓글자동화 v1.29 · 쓰레드 포스팅 v1.34)**
 - 배경: 주인님이 남은 작업 목록에서 「배포 상태 확인 후 다음 작업」을 지시 → 다른 세션이 맡지 않은 단일 프로그램 배포 묶음 4개를 추천 → 「순서대로 진행해」(빌드 4회 승인). 앞서 같은 세션이 유튜브 댓글자동화 v1.33도 같은 방식으로 배포함(아래 항목).
 - 1/4 `threads-affiliate-poster` v1.86(`threads-affiliate-poster-6yhtciacn`): 12월 모델 교체 A `0caadc5ee`(`o3` 삭제·저장값 `gpt-5.6-sol`) + 30일 보관 열외 `fea3571a8`. tsc·시험 15·build, DB v1.86, ego 새 글 화면 v1.86·`o3` 없음. 버전 `ed4f1d5b7`, 문서 `4ce60540f`·`2094356cf`.
 - 2/4 `instagram-comment-reply` v1.37(`instagram-comment-reply-hzh5ddbf6`): 설정 「다음 확인 예정」·바로가기 `24562d6aa` + 모델 교체 B `3de8c5d73`. tsc·시험 45·build, DB v1.37, ego 설정 화면 v1.37·옛 Gemini 없음·바로가기 표시. 버전 `ea26cb038`, 문서 `b6525e308`·`f6e0ad833`.
 - 3/4 `threads-comment-reply` v1.29(`threads-comment-reply-xoux3tg1t`): 모델 교체 B `ac6cc6736`. tsc·시험 45·build, DB v1.29, ego 설정 화면 v1.29·선택지 11개·옛 값 없음. 버전 `6571daf5d`.
-- 4/4 `threads` v1.34: 30일 보관 열외 `567567979`(공유 버킷 `post-images` 보호). 버전 커밋 `596e9c8a6`, tsc·build 통과, **배포 직전**(팀 빌드 겹침 확인 뒤 실행). 끝나면 이 항목을 ✅로 바꾸고 배포 이름·DB·화면 확인을 적는다.
+- 4/4 `threads` v1.34(`threads-j36heo93t`, 운영 주소 `auto-threads-posting.buylife.xyz`): 30일 보관 열외 `567567979`(공유 버킷 `post-images` 보호). tsc·build, 정리 주소 `/api/cleanup-images` 가짜 토큰 401, DB(slug `auto-threads-posting`) v1.34, ego 대시보드 v1.34. 버전 `596e9c8a6`.
 - 방법(다음 세션도 같은 절차): 작업 중 표·미커밋 확인 → `version.ts` +0.01 → tsc·시험·로컬 build → 팀 `buylife`에 BUILDING/QUEUED 없음 확인(메인 사이트 자동 빌드가 돌면 끝날 때까지 대기) → `vercel deploy --prod --yes --scope buylife` → `vercel inspect` Ready·운영 주소 → 가짜 토큰으로 예약 주소 401 → `deploy.mjs <폴더> --version-only --set-version`(DB·비교표) → ego 작업 공간 하나(107) 재사용해 화면 버전·선택지 확인 → 문서. 공용 문서는 다른 세션 미커밋 줄이 섞여 있어 「백업(스크래치) → HEAD로 → `--begin` → 내 줄만 → safe-commit → 백업 복원」 순서로 내 줄만 커밋(교훈 `docs/ERROR_LESSONS.md` 2026-11-06 맨 위).
-- 비용: Vercel 빌드 3회 완료(승인 4회 중), AI 호출 없음. 남은 확인: 각 프로그램 다음 30일 정리 회차 뒤 예외 계정 자료 유지. ego lite 새 버전 알림이 떠 있음(업그레이드는 주인님 승인 뒤).
+- 비용: Vercel 빌드 4회(승인 4회 모두 사용), AI 호출 없음. 남은 확인: 각 프로그램 다음 30일 정리 회차 뒤 예외 계정 자료 유지. ego lite 새 버전 알림이 떠 있음(업그레이드는 주인님 승인 뒤).
 - 링크: https://threads-affiliate-poster.buylife.xyz/ · https://instagram-comment-reply.buylife.xyz/ · https://threads-comment-reply.buylife.xyz/ · https://threads.buylife.xyz/
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 「🎙️ 해설 교차편집」 구현(미배포, `ai-video-studio` v1.29 묶음)**
 - `/narrate`(`42f743503`): 내 해설 녹음 1개(3분 이하) + 내 촬영본 2~10개 → 권리 체크 → 실행 기록 `/api/clip/rights`(tool `narration-cut`) → V1과 같은 길로 소리 뽑기·본인 OpenAI 키 받아쓰기 → 문장이 20개 넘으면 짧은 이웃끼리 합침(`limitSegs`) → 문장마다 장면(`planCrossCut`: 장면 길이는 문장 시각, 촬영본 번갈아·이어 쓰기·끝이면 처음·짧으면 반복) → 장면별 촬영본 바꾸기 → 영상 합치기로 넘김(해설은 소리 칸 100%, 촬영본 소리 끔, 9:16). 좌측 메뉴 🎙️ NEW. 시험 93개·tsc·로컬 빌드 통과.

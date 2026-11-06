@@ -41,7 +41,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `threads/` (앞선 3개 끝) | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개 중 4번째)** — 쓰레드 포스팅 v1.34(30일 열외) 배포 직전. 쇼핑제휴 v1.86·인스타 댓글 v1.37·쓰레드 댓글 v1.29는 끝(루트 HANDOFF 맨 위) |
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-06 | 음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI, 요청함 `c234b28c` 「진행해」 결정) — 구현·시험·미배포 대기, 배포 승인 뒤 v1.22 + OpenAI 실제 확인 |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |
 | `free-music-studio/` | [역할: music] Claude Code(윈도우(미니PC), 크롬) · 세션 `claude-win-20261024-music` | 2026-11-03 | v1.06 커버·AI 3사·최고 품질 배포 완료 — 다음 운영 화면 확인·작업 대기열 |
