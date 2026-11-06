@@ -256,7 +256,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 <div>
                   <div className="text-xs font-black text-white flex items-center gap-1">
                     <span>로컬 렌더러 받기</span>
-                    <span className="rounded bg-amber-400/20 px-1 text-[9px] font-bold text-amber-300">최신 v1.25</span>
+                    <span className="rounded bg-amber-400/20 px-1 text-[9px] font-bold text-amber-300">최신 v1.26</span>
                   </div>
                   <div className="text-[10px] text-gray-400">내 PC 가속 렌더러 & 확장 ZIP</div>
                 </div>
@@ -328,7 +328,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     내 PC 하드웨어 가속
                   </span>
                   <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300 border border-cyan-500/20">
-                    최신 공식판 v1.25
+                    최신 공식판 v1.26
                   </span>
                 </div>
                 <h3 className="mt-2 text-xl font-extrabold text-white flex items-center gap-2">
