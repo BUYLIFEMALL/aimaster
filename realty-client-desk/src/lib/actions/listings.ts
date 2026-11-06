@@ -180,6 +180,10 @@ export async function optOutAction(_prev: { done?: string; error?: string }, fd:
   const { data: c } = await admin.from(CLIENTS).select("id, ad_optout_at").eq("optout_token", token).maybeSingle();
   if (!c) return { error: "이 링크로 처리할 수 있는 수신 기록이 없어요. 이미 삭제된 정보일 수 있어요." };
   const at = c.ad_optout_at ?? new Date().toISOString();
-  if (!c.ad_optout_at) await admin.from(CLIENTS).update({ ad_optout_at: at, updated_at: at }).eq("id", c.id);
+  if (!c.ad_optout_at) {
+    // 저장이 실패했는데 「처리됐어요」를 보이면 안 된다(처리 결과 안내, 2026-11-06)
+    const { error } = await admin.from(CLIENTS).update({ ad_optout_at: at, updated_at: at }).eq("id", c.id);
+    if (error) return { error: "수신거부를 저장하지 못했어요. 잠시 뒤 다시 눌러 주시거나 문자를 보낸 사무소에 전화로 말씀해 주세요." };
+  }
   return { done: at };
 }
