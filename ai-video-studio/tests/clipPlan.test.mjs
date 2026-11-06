@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildPieces, cleanSegments, encodeWav, findSilences, fixPick, parsePicks, piecesSeconds, splitCaption, toSrt } from "../lib/clip/clipPlan.ts";
+import { buildPieces, cleanSegments, encodeWav, findSilences, fixPick, parsePicks, piecesSeconds, splitCaption, toEdl, toSrt } from "../lib/clip/clipPlan.ts";
 
 // 2026-11-06 사전 검증 영상(2분 6초)의 실제 문장 경계 일부
 const SEGS = [
@@ -71,6 +71,15 @@ test("긴 문장 자막은 띄어쓰기 기준으로 나누고, 조각 시간은
 test("SRT는 완성 영상 기준 시각(조각을 이어 붙인 시각)", () => {
   const srt = toSrt([{ start: 10, end: 12.5, caption: "첫째" }, { start: 20, end: 21, caption: "둘째" }]);
   assert.equal(srt, "1\n00:00:00,000 --> 00:00:02,500\n첫째\n\n2\n00:00:02,500 --> 00:00:03,500\n둘째\n");
+});
+
+test("컷 목록(EDL): 원본 시각·이어 붙인 시각·파일 이름", () => {
+  const edl = toEdl([{ name: "talk.mp4", start: 22, end: 41 }, { name: "talk.mp4", start: 55.5, end: 70 }], "선풍기 쇼츠");
+  const lines = edl.split("\n");
+  assert.equal(lines[0], "TITLE: 선풍기 쇼츠");
+  assert.equal(lines[3], "001  AX       AA/V  C        00:00:22:00 00:00:41:00 00:00:00:00 00:00:19:00");
+  assert.equal(lines[4], "* FROM CLIP NAME: talk.mp4");
+  assert.equal(lines[6], "002  AX       AA/V  C        00:00:55:15 00:01:10:00 00:00:19:00 00:00:33:15");
 });
 
 test("무음 찾기: 소리 1초 · 무음 2초 · 소리 1초", () => {

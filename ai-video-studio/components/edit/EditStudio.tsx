@@ -21,7 +21,7 @@ import { preferSoftwareDecoding } from "@/lib/edit/softDecode";
 import { preferCpuCanvas } from "@/lib/edit/cpuCanvas";
 import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
 import { takeClipHandoff } from "@/lib/clip/handoff";
-import type { Piece } from "@/lib/clip/clipPlan";
+import { toEdl, type Piece } from "@/lib/clip/clipPlan";
 import {
   CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
   type CaptionPosition, type CaptionSize, type CaptionStyle, type ClipSource, type EditAspect, type EditClip, type EditProject, type EditQuality, type MusicSource, type SavedProject, type Transition,
@@ -212,6 +212,17 @@ export function EditStudio() {
       if (ok) setNotice(`「긴 영상 → 쇼츠」에서 고른 구간을 장면 ${Math.min(MAX_CLIPS, h.pieces.length)}개로 넣었습니다. 자막·배경음악을 확인한 뒤 MP4를 만드세요.`);
     });
   }, [params, addVideo]);
+
+  // v1.28(V2) 컷 목록(EDL) 내려받기
+  function downloadEdl() {
+    const cuts = project.clips.filter((c) => c.kind !== "image").map((c) => ({ name: c.name, start: c.trimStart, end: Math.max(c.trimStart, c.duration - c.trimEnd) }));
+    const url = URL.createObjectURL(new Blob([toEdl(cuts, title || "영상 합치기")], { type: "text/plain" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(title || "ai-video-edit").replace(/[\\/:*?"<>|]+/g, "_")}.edl`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
   function onFiles(files: FileList | null) {
     const list = Array.from(files ?? []).filter((f) => f.type.startsWith("video/"));
@@ -869,7 +880,12 @@ export function EditStudio() {
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-950/60 p-3">
-          <p className="text-sm text-zinc-300">완성 길이 <b className="text-white">{sec(total)}</b> · {width}×{height} · 렌더 비용 <b className="text-white">0원</b>(내 PC)</p>
+          <p className="text-sm text-zinc-300">완성 길이 <b className="text-white">{sec(total)}</b> · {width}×{height} · 렌더 비용 <b className="text-white">0원</b>(내 PC)
+            {/* v1.28(V2) 손편집 도구로 넘기는 컷 목록 — 영상 장면만(사진 장면은 원본 시각이 없어 뺌) */}
+            {project.clips.some((c) => c.kind !== "image") && (
+              <button type="button" className="ml-2 text-xs text-sky-300 underline hover:text-sky-200" title="프리미어·다빈치 리졸브에서 가져오면 컷이 맞춰집니다(원본 영상을 같은 폴더에). 캡컷은 SRT 자막만 가져올 수 있습니다." onClick={downloadEdl}>컷 목록(EDL)</button>
+            )}
+          </p>
           {!canRender ? (
             <p className="text-xs text-amber-200">렌더는 PC(크롬·엣지 최신 버전)에서 해 주세요. 휴대폰에서는 미리보기만 됩니다.</p>
           ) : render ? (

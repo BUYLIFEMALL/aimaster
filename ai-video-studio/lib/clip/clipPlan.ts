@@ -163,6 +163,31 @@ const srtTime = (t: number) => {
   return `${p(Math.floor(ms / 3_600_000))}:${p(Math.floor(ms / 60_000) % 60)}:${p(Math.floor(ms / 1000) % 60)},${p(ms % 1000, 3)}`;
 };
 
+/** 컷 목록 한 줄 — 원본 파일 이름과 그 파일 안의 시작·끝(초) */
+export type Cut = { name: string; start: number; end: number };
+
+const edlTc = (t: number, fps: number) => {
+  const f = Math.max(0, Math.round(t * fps));
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(Math.floor(f / (fps * 3600)))}:${p(Math.floor(f / (fps * 60)) % 60)}:${p(Math.floor(f / fps) % 60)}:${p(f % fps)}`;
+};
+
+/**
+ * v1.28(V2) 컷 목록(CMX3600 EDL) — 프리미어·다빈치 리졸브 등이 가져오는 표준 형식. 원본 영상 파일을 같은 폴더에 두고 가져오면 컷이 다시 맞춰진다.
+ * 캡컷 프로젝트 파일은 비공개·최근판 암호화라 만들지 않는다(캡컷은 SRT 자막 가져오기만 지원).
+ */
+export function toEdl(cuts: Cut[], title: string, fps = 30): string {
+  const lines = [`TITLE: ${title.replace(/[\r\n]+/g, " ").slice(0, 60) || "AIMaster"}`, "FCM: NON-DROP FRAME", ""];
+  let rec = 0;
+  cuts.forEach((c, i) => {
+    const d = Math.max(0, c.end - c.start);
+    lines.push(`${String(i + 1).padStart(3, "0")}  AX       AA/V  C        ${edlTc(c.start, fps)} ${edlTc(c.end, fps)} ${edlTc(rec, fps)} ${edlTc(rec + d, fps)}`);
+    lines.push(`* FROM CLIP NAME: ${c.name.replace(/[\r\n]+/g, " ")}`, "");
+    rec += d;
+  });
+  return lines.join("\n");
+}
+
 /** 완성 영상 기준 SRT(조각을 이어 붙인 시각) */
 export function toSrt(pieces: Piece[]): string {
   let t = 0;

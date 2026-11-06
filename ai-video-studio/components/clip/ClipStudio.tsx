@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Download, Loader2, Scissors, Sparkles, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
-  MAX_CLIP_S, MAX_SOURCE_S, MIN_CLIP_S, buildPieces, cleanSegments, encodeWav, findSilences, piecesSeconds, toSrt,
+  MAX_CLIP_S, MAX_SOURCE_S, MIN_CLIP_S, buildPieces, cleanSegments, encodeWav, findSilences, piecesSeconds, toEdl, toSrt,
   type Pick, type Seg, type Silence,
 } from "@/lib/clip/clipPlan";
 import { setClipHandoff } from "@/lib/clip/handoff";
@@ -124,11 +124,14 @@ export function ClipStudio() {
     void v.play();
   }
 
-  function downloadSrt() {
-    const url = URL.createObjectURL(new Blob([toSrt(pieces)], { type: "application/x-subrip" }));
+  // v1.28(V2) 자막(SRT)·컷 목록(EDL) 내려받기 — 손편집 도구로 넘기는 출구
+  function download(kind: "srt" | "edl") {
+    const base = (file?.name ?? "shorts").replace(/\.[^.]+$/, "");
+    const text = kind === "srt" ? toSrt(pieces) : toEdl(pieces.map((p) => ({ name: file?.name ?? "video.mp4", start: p.start, end: p.end })), `${base} 쇼츠`);
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${(file?.name ?? "shorts").replace(/\.[^.]+$/, "")}-쇼츠.srt`;
+    a.download = `${base}-쇼츠.${kind}`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -219,7 +222,8 @@ export function ClipStudio() {
           <p className="text-xs text-zinc-400">완성 길이 약 {sec(piecesSeconds(pieces))} · 장면 {pieces.length}개 · 자막은 문장 단위(세로 9:16, 원본 소리 그대로)</p>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={mainBtn} disabled={!!busy} onClick={toEdit}><Scissors className="h-4 w-4" aria-hidden="true" /> 영상 합치기에서 세로 MP4 만들기</button>
-            <button type="button" className={smallBtn} onClick={downloadSrt}><Download className="h-3.5 w-3.5" aria-hidden="true" /> 자막 파일(SRT)</button>
+            <button type="button" className={smallBtn} onClick={() => download("srt")}><Download className="h-3.5 w-3.5" aria-hidden="true" /> 자막 파일(SRT)</button>
+            <button type="button" className={smallBtn} title="프리미어·다빈치 리졸브에서 가져오면 컷이 맞춰집니다(원본 영상을 같은 폴더에). 캡컷은 SRT 자막만 가져올 수 있습니다." onClick={() => download("edl")}><Download className="h-3.5 w-3.5" aria-hidden="true" /> 컷 목록(EDL)</button>
           </div>
           <p className="text-[11px] text-zinc-500">영상 합치기 화면에서 자막 모양·배경음악을 바꾸고 「MP4 만들기」를 누르면 됩니다. 새로고침하면 넘긴 영상이 사라지니 이 탭에서 이어서 해 주세요.</p>
         </section>
