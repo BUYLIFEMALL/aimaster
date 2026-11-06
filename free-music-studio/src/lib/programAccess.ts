@@ -88,8 +88,7 @@ export async function checkProgramAccess(
   userId: string,
   programSlug: string
 ): Promise<ProgramAccessResult> {
-  // 2026-11-06(free-music-studio 사본만): 순차 4회 조회를 두 묶음 동시 조회로 — 판정 결과는 같고 첫 화면 응답이 빨라진다.
-  // 루트 기준(lib/access/checkProgramAccess.ts)과 다른 프로그램 사본은 아직 순차(백로그 IMPROVEMENT_BACKLOG.md B-1, 주인님 결정 뒤 전체 반영).
+  // 2026-11-06 주인님 결정(요청함 A-7): 순차 4회 조회를 두 묶음 동시 조회로 — 판정 결과는 같고 첫 화면 응답이 빨라진다(기준 free-music-studio).
   const [{ data: profile }, { data: program }] = await Promise.all([
     supabase
       .from("profiles")

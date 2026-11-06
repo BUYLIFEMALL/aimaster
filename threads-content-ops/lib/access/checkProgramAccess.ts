@@ -90,39 +90,33 @@ export async function checkProgramAccess(
 ): Promise<ProgramAccessResult> {
   // 독립 운영 모드(강의용 설치 키트, 2026-10-18): 수강생 본인 사이트라 로그인한 본인은 바로 사용한다(등급·구독·핸드폰 판정 없음).
   if (IS_STANDALONE) return { allowed: true, reason: "no_restriction", programId: null };
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin, is_suspended, phone, grade:member_grades(sort_order)")
-    .eq("id", userId)
-    .maybeSingle();
-
-  const { data: program } = await supabase
-    .from("programs")
-    .select("id, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
-    .eq("slug", programSlug)
-    .eq("is_active", true)
-    .single();
+  // 2026-11-06 주인님 결정(요청함 A-7): 순차 4회 조회를 두 묶음 동시 조회로 — 판정 결과는 같고 첫 화면 응답이 빨라진다(기준 free-music-studio).
+  const [{ data: profile }, { data: program }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("is_admin, is_suspended, phone, grade:member_grades(sort_order)")
+      .eq("id", userId)
+      .maybeSingle(),
+    supabase
+      .from("programs")
+      .select("id, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
+      .eq("slug", programSlug)
+      .eq("is_active", true)
+      .single(),
+  ]);
 
   if (!program) {
     return { allowed: false, reason: "not_found", programId: null };
   }
 
-  const { data: subs } = await supabase
-    .from("subscriptions")
-    .select("status, expires_at")
-    .eq("user_id", userId)
-    .eq("program_id", program.id);
+  const [{ data: subs }, { data: grant }] = await Promise.all([
+    supabase.from("subscriptions").select("status, expires_at").eq("user_id", userId).eq("program_id", program.id),
+    supabase.from("user_program_access").select("expires_at").eq("user_id", userId).eq("program_id", program.id).maybeSingle(),
+  ]);
   const hasActiveSubscription = (subs ?? []).some(
     (s: { status: string; expires_at: string | null }) =>
       s.status === "active" && isNotExpired(s.expires_at)
   );
-
-  const { data: grant } = await supabase
-    .from("user_program_access")
-    .select("expires_at")
-    .eq("user_id", userId)
-    .eq("program_id", program.id)
-    .maybeSingle();
 
   const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade;
   const requiredGrade = Array.isArray(program.required_grade) ? program.required_grade[0] : program.required_grade;
