@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ⏸ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — **음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI) 구현 · 미배포(v1.22 빌드 승인 대기)**
+- 배경: 요청함 `c234b28c`(OpenAI 키만 있는 시험 계정 또는 시험 동안 Gemini 안 쓰는 방법)에 주인님 「진행해」 → 시험 계정 키를 지우지 않고 회원 설정 기능으로 해결. 플랜 `ai-work-workspace/docs/PLAN_20261106_STT_ENGINE_CHOICE.md`.
+- 구현: 회의록 설정 메뉴(슬라이더)에 「음성 파일 받아쓰기 엔진」(Gemini·OpenAI 키 둘 다일 때만) — 자동(Gemini 우선)/OpenAI, 회원 설정 `meeting_stt_engine`(모든 기기 공통). 서버 `memberSttMode(preferred)`·`memberSttModes()`·`userMeetingPrefs().sttEngine`·`meetingStatus.sttModes/sttEngine`, Google 직접 업로드 파일은 Gemini 고정. 매뉴얼 한 줄.
+- 검수: `memberStt.test.ts` 7개(새 2건)·연결부 49개 통과, 타입 검사·로컬 빌드 통과(로컬 Docker `aww-pg-test`가 꺼져 있어 첫 빌드·시험이 55432 연결 실패 → `docker start` 뒤 통과. 코드 문제 아님).
+- 배포: **미배포** — 주인님 빌드 1회 승인 뒤 v1.22로 미배포 `376c55c7a`·`a80274b4c`와 함께. 배포 뒤 ego에서 시험 계정 설정 「OpenAI」 → 15초 WAV → 시각 없는 문장 묶음 확인 → 「자동」 복귀. 같은 역할의 형제 세션(`f7e54ae87`)은 U10 플랜 담당.
+- 링크(배포 전 현재 v1.21): https://ai-work-workspace.buylife.xyz/
+
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V5 「내 영상 일부 지우기」 + `video-to-gif` v1.26 · `shorts-onestop-studio` v1.44 배포**
 - V5(`video-to-gif/erase`): 영상 1개(60초·100MB)를 넣고 사각형(최대 3곳)을 그리면 ffmpeg.wasm `delogo`로 주변 화소를 메운 MP4. 권리 체크 2개 필수, 실행마다 `own_content_rights_log`(program `video-to-gif`, tool `erase`)에 회원 세션으로 기록(넣기 RLS 정책 운영 적용, 지문 `a4127c10ae4b01b9`). 코드 `d71f6be9e`, 계산 시험 6개, 네이티브 ffmpeg로 필터 확인. 「워터마크 제거」 표현·자동 프리셋 없음.
 - 배포(주인님 채팅 승인 빌드 3회 중 2회): `video-to-gif` v1.26 `video-to-ddad3w65y`(V4 녹화 + V5, 렌더러·확장 ZIP v1.26, DB `extension_version` 맞춤, `check-extension-release` OK) · `shorts-onestop-studio` v1.44 `shorts-onestop-studio-4gt4hlp2d`(V3 1단계 + 맥미니 30일 열외). 운영에서 시험 계정으로 V5 지우기 1회 확인(기록 줄 생성). V4 실제 녹화·V3 AI 대본·V1 소리는 남음.
