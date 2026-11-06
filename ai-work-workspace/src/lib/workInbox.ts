@@ -61,3 +61,50 @@ export async function sendToWorkInbox(item: WorkInboxItem): Promise<{ id: string
   if (error || !data) throw new Error("업무 워크스페이스로 보내지 못했습니다. 잠시 후 다시 시도해 주세요.");
   return { id: data.id as string };
 }
+
+/** U9: 받는 프로그램이 읽는 항목(회원 본인 + 자기 slug 줄만) */
+export interface ReceivedWorkInboxItem {
+  id: string;
+  sourceSlug: string;
+  kind: WorkInboxKind;
+  title: string;
+  bodyMd: string;
+  createdAt: string;
+  importedAt: string | null;
+}
+
+/** U9: 받은편지함 목록(최근 순, 가져가지 않은 것만이 기본). 반드시 로그인 회원 본인 id와 자기 프로그램 slug로 부른다 */
+export async function listReceivedWorkInbox(userId: string, targetSlug: string, opts: { includeImported?: boolean; limit?: number } = {}): Promise<ReceivedWorkInboxItem[]> {
+  if (!/^[0-9a-f-]{36}$/i.test(userId) || !/^[a-z0-9-]{2,60}$/.test(targetSlug)) throw new Error("받은편지함을 읽을 수 없습니다.");
+  let query = createAdminClient()
+    .from("work_inbox")
+    .select("id,source_slug,kind,title,body_md,created_at,imported_at")
+    .eq("user_id", userId)
+    .eq("target_slug", targetSlug)
+    .order("created_at", { ascending: false })
+    .limit(Math.min(Math.max(opts.limit ?? 30, 1), 100));
+  if (!opts.includeImported) query = query.is("imported_at", null);
+  const { data, error } = await query;
+  if (error) throw new Error("받은편지함을 읽지 못했습니다. 잠시 후 다시 시도해 주세요.");
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    sourceSlug: r.source_slug as string,
+    kind: r.kind as WorkInboxKind,
+    title: r.title as string,
+    bodyMd: (r.body_md as string) ?? "",
+    createdAt: r.created_at as string,
+    importedAt: (r.imported_at as string | null) ?? null,
+  }));
+}
+
+/** U9: 가져감 표시(가져가 만든 것의 id를 ref로). 회원 본인 + 자기 slug 줄만 바뀐다 */
+export async function markWorkInboxImported(userId: string, targetSlug: string, id: string, ref = ""): Promise<void> {
+  if (!/^[0-9a-f-]{36}$/i.test(userId) || !/^[a-z0-9-]{2,60}$/.test(targetSlug) || !/^[0-9a-f-]{36}$/i.test(id)) throw new Error("받은 항목을 확인할 수 없습니다.");
+  const { error } = await createAdminClient()
+    .from("work_inbox")
+    .update({ imported_at: new Date().toISOString(), imported_ref: ref.slice(0, 200) || null })
+    .eq("user_id", userId)
+    .eq("target_slug", targetSlug)
+    .eq("id", id);
+  if (error) throw new Error("가져감 표시를 하지 못했습니다.");
+}

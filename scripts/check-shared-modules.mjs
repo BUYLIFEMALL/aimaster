@@ -711,7 +711,8 @@ const MODULES = [
     id: "work-inbox-client",
     // 2026-10-25 U8: 업무 워크스페이스 「받은 업무」(공용 표 work_inbox)로 보내기. 사용 안내 docs/WORK_INBOX.md
     source: "ai-work-workspace/src/lib/workInbox.ts",
-    copies: ["ai-task-planner/src/lib/workInbox.ts"],
+    // 2026-11-06 U9: 음성 분석·슬라이드·번역·문서 챗봇 사본 추가(받기 함수 listReceivedWorkInbox·markWorkInboxImported 포함)
+    copies: ["ai-task-planner/src/lib/workInbox.ts", "ai-audio-analyzer/src/lib/workInbox.ts", "ai-slide-builder/src/lib/workInbox.ts", "document-translator/src/lib/workInbox.ts", "ai-doc-chatbot/src/lib/workInbox.ts"],
   },
   {
     id: "youtube-golden-engine-test",
