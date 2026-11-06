@@ -1,6 +1,6 @@
 # AI 영상 스튜디오 — 개선 제안 (IMPROVEMENTS)
 
-> **배포 승인 대기(2026-11-06, `claude-win-video`)**: V1 「✂️ 긴 영상 → 쇼츠」(받아쓰기·AI 구간 고르기·무음 줄이기·영상 합치기 연결·SRT). 플랜·결과 [`PLAN_20261106_V1_LONG_TO_SHORTS.md`](PLAN_20261106_V1_LONG_TO_SHORTS.md). 배포 때 v1.27. 다음 후보: 말하는 사람 따라가는 세로 맞춤, 낱말 단위 자막(오차 보정 뒤), 매뉴얼에 안내 추가.
+> **배포 완료(2026-11-06 v1.27, `claude-win-video`)**: V1 「✂️ 긴 영상 → 쇼츠」(받아쓰기·AI 구간 고르기·무음 줄이기·영상 합치기 연결·SRT). 플랜·결과 [`PLAN_20261106_V1_LONG_TO_SHORTS.md`](PLAN_20261106_V1_LONG_TO_SHORTS.md). 배포 때 v1.27. 다음 후보: 말하는 사람 따라가는 세로 맞춤, 낱말 단위 자막(오차 보정 뒤), 매뉴얼에 안내 추가.
 
 > 기준 v1.01 (2026-10-23, Claude Code 윈도우) · https://ai-video-studio.buylife.xyz
 
