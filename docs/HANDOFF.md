@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 🟠 [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-imgdeploy·u10deploy·blogdeploy(같은 대화) — **남은 작업 정리 + 이미지·디자인 11개 배포 + 쇼핑몰 빌더 D14 Lab 배포 + 블로그 6개 배포 준비(빌드 전 멈춤) — 블로그 전담 세션 필독**
+- **이미지·디자인 11개 배포(완료)**: 위 항목 「이미지·디자인 미배포 묶음 11개」 참고. 빌드 11회, 모두 Ready·DB 버전 맞춤.
+- **쇼핑몰 빌더 D14(완료, ⚠ 중복)**: 17:33 Lab 배포 `mnqfblzbm`. 전담 mall-builder 세션도 17:42에 같은 커밋을 배포(`qjphj5kxw`) → 빌드 1회 낭비. 기록 `docs/ERROR_LESSONS.md` 맨 위(다음부터 ⓐ~ⓓ).
+- **U10 1차(워크스페이스 v1.22·INSTA v1.72·쓰레드 v2.23)**: 승인을 워크스페이스 세션(`aimaster-da`)에 전달. 그 세션 답: 배포 명령이 자동 모드 분류기에 막혀 주인님이 그 창에서 직접 실행할 명령을 드림, INSTA·쓰레드는 그 창에서 주인님 확인 뒤 진행. 제가 올려 둔 버전: `insta_auto_poster` v1.72·`threads-content-ops` v2.23(커밋 `fb2c950b6`, 코드 변경 없음). ⚠ 운영 DB `ai-work-workspace`만 v1.22로 먼저 바뀜(라이브 v1.21) — 그 세션 배포 시 자동 일치.
+- **블로그 6개 배포 — 준비 완료, 빌드 0회에서 멈춤(블로그 전담 세션이 배포)**: 주인님 채팅 승인(빌드 6회). 대상 `ai-auto-blog` v1.87 · `tistory-auto-blog` v1.96 · `naver-blog-seo-studio` v2.26 · `blog-workroom` v1.17 · `blog-content-maker` v1.15 · `blog-keyword` v1.12. 내용: **12월 모델 교체 A(12-11 호출 실패 — 기한 12-10)** 3개 + 모델 교체 B·C + 30일 열외. 로컬 tsc 6개 통과. 버전·확장 manifest·ZIP 커밋 완료(`chore(blog): version +0.01 for 6 blog programs…`, 확장 4개 v1.87/v1.96/v2.26/v1.15 ZIP 재생성). 멈춘 이유: ERROR_LESSONS ⓓ 「전담 세션이 있는 프로그램은 전담이 아닌 세션이 배포하지 않음」. **다음 첫 단계(블로그 세션)**: 팀 빌드 0건 확인 → `node scripts/deploy.mjs <폴더> --go` 6개 순서대로 → 「✔ 이번 배포」 확인 뒤 `--version-only --set-version` → 확장 4개는 `programs.extension_version`·`extension_download_url`도 같은 SQL로, `node scripts/check-extension-release.mjs <slug>` OK 확인 → `docs/PENDING_DEPLOYS.md` 묶음 줄 정리. 주인님 승인은 이미 있음(빌드 6회).
+- **⚠ 공용 스테이징에 옛 내용(17:5x)**: 여러 세션이 같은 시각 커밋하면서 스테이징에 최근 커밋들의 옛 버전이 남음(작업 폴더=HEAD, 스테이징만 옛 내용). 블로그 6개 경로는 `git reset -q HEAD -- <내 경로>`로 맞춤(작업 폴더 무변경). **남은 다른 세션 경로**: `smartstore-register`(version.ts·manifest·ZIP v1.24/v1.25), `threads/src/lib/version.ts`, `naver-cafe-recruit/AGENTS.md`, `ai-video-studio`(EditStudio·Sidebar·handoff 등) — 각 세션이 자기 경로를 HEAD로 맞춰야 함. 경로 없는 `git commit` 금지(되돌림 커밋이 됨).
+- **남은 작업 정리 보고**: 미배포 약 47개 프로그램 목록·카테고리표는 채팅으로 보고(기준 `docs/PENDING_DEPLOYS.md`).
+- **비용**: Vercel 빌드 11회 + Lab 1회(중복). AI 호출 0.
+
 ## 2026-11-06 🔄 [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261106-ytreply — **미배포 대기 묶음 연속 배포 4개 중 3개 완료(쓰레드 쇼핑제휴 v1.86 · 인스타 댓글자동화 v1.37 · 쓰레드 댓글자동화 v1.29), 4번 쓰레드 포스팅 v1.34 진행 중**
 - 배경: 주인님이 남은 작업 목록에서 「배포 상태 확인 후 다음 작업」을 지시 → 다른 세션이 맡지 않은 단일 프로그램 배포 묶음 4개를 추천 → 「순서대로 진행해」(빌드 4회 승인). 앞서 같은 세션이 유튜브 댓글자동화 v1.33도 같은 방식으로 배포함(아래 항목).
 - 1/4 `threads-affiliate-poster` v1.86(`threads-affiliate-poster-6yhtciacn`): 12월 모델 교체 A `0caadc5ee`(`o3` 삭제·저장값 `gpt-5.6-sol`) + 30일 보관 열외 `fea3571a8`. tsc·시험 15·build, DB v1.86, ego 새 글 화면 v1.86·`o3` 없음. 버전 `ed4f1d5b7`, 문서 `4ce60540f`·`2094356cf`.
@@ -9,7 +18,6 @@
 - 방법(다음 세션도 같은 절차): 작업 중 표·미커밋 확인 → `version.ts` +0.01 → tsc·시험·로컬 build → 팀 `buylife`에 BUILDING/QUEUED 없음 확인(메인 사이트 자동 빌드가 돌면 끝날 때까지 대기) → `vercel deploy --prod --yes --scope buylife` → `vercel inspect` Ready·운영 주소 → 가짜 토큰으로 예약 주소 401 → `deploy.mjs <폴더> --version-only --set-version`(DB·비교표) → ego 작업 공간 하나(107) 재사용해 화면 버전·선택지 확인 → 문서. 공용 문서는 다른 세션 미커밋 줄이 섞여 있어 「백업(스크래치) → HEAD로 → `--begin` → 내 줄만 → safe-commit → 백업 복원」 순서로 내 줄만 커밋(교훈 `docs/ERROR_LESSONS.md` 2026-11-06 맨 위).
 - 비용: Vercel 빌드 3회 완료(승인 4회 중), AI 호출 없음. 남은 확인: 각 프로그램 다음 30일 정리 회차 뒤 예외 계정 자료 유지. ego lite 새 버전 알림이 떠 있음(업그레이드는 주인님 승인 뒤).
 - 링크: https://threads-affiliate-poster.buylife.xyz/ · https://instagram-comment-reply.buylife.xyz/ · https://threads-comment-reply.buylife.xyz/ · https://threads.buylife.xyz/
-
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 「🎙️ 해설 교차편집」 구현(미배포, `ai-video-studio` v1.29 묶음)**
 - `/narrate`(`42f743503`): 내 해설 녹음 1개(3분 이하) + 내 촬영본 2~10개 → 권리 체크 → 실행 기록 `/api/clip/rights`(tool `narration-cut`) → V1과 같은 길로 소리 뽑기·본인 OpenAI 키 받아쓰기 → 문장이 20개 넘으면 짧은 이웃끼리 합침(`limitSegs`) → 문장마다 장면(`planCrossCut`: 장면 길이는 문장 시각, 촬영본 번갈아·이어 쓰기·끝이면 처음·짧으면 반복) → 장면별 촬영본 바꾸기 → 영상 합치기로 넘김(해설은 소리 칸 100%, 촬영본 소리 끔, 9:16). 좌측 메뉴 🎙️ NEW. 시험 93개·tsc·로컬 빌드 통과.
 - 확인 못 한 것: 실제 받아쓰기·렌더(배포 뒤 시험 계정, 받아쓰기 3분 약 25원). 배포: 미배포 대기(언어판과 함께 v1.29, 빌드 승인 1회 남음).
