@@ -9,6 +9,7 @@ import type { QuoteOrigin, QuoteStatus } from "@/lib/quotes";
 import type { LedgerKind } from "@/lib/credit";
 import { priceLine, viewerOf, type GradePrice, type PriceContext, type VolumeTier } from "@/lib/pricing";
 import { readDoc, type BlocksDoc, type ShowcaseSettings } from "@/lib/blocks";
+import { emptyStats, type Stats } from "@/lib/stats";
 import { cache } from "react";
 
 export type Store = {
@@ -699,6 +700,13 @@ export async function getStoreReviews(storeId: string): Promise<StoreReview[]> {
     .select("id, product_id, order_item_id, rating, body, is_hidden, is_deleted, reply, replied_at, created_at, customer:mall_builder_store_customers(name), product:mall_builder_products(name)")
     .eq("store_id", storeId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(300);
   return (data ?? []) as unknown as StoreReview[];
+}
+
+/** 통계(D14) — DB 함수가 운영자만 허용. 실패하면 빈 통계 */
+export async function getStats(storeId: string, from: Date, to: Date): Promise<Stats> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_stats", { p_store_id: storeId, p_from: from.toISOString(), p_to: to.toISOString() });
+  return data ? { ...emptyStats(), ...(data as Partial<Stats>) } : emptyStats();
 }
 
 export type Faq = { id: string; category: string; question: string; answer: string; sort: number; is_published: boolean; created_at: string };
