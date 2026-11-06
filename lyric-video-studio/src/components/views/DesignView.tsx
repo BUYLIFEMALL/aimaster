@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useStudio } from "@/components/studio/StudioContext";
 import { Preview, StudioBar, Transport } from "@/components/studio/parts";
 import { PresetThumb } from "@/components/studio/PresetThumb";
+import { PhotoPicker } from "@/components/studio/PhotoPicker";
 import { FONT_IDS, FONTS, HIGHLIGHTS, presetsFor, ROMANS, SPECTRUMS, type Aspect, type Design } from "@/lib/design";
 import { allSynced } from "@/lib/lyrics";
 
@@ -75,6 +76,7 @@ export function DesignView() {
               <Toggle on={d.progress} label="재생 막대 표시" onChange={(v) => set({ progress: v })} />
             </div>
           </section>
+          <PhotoPicker />
         </aside>
       </div>
       <div className="actions" style={{ justifyContent: "space-between" }}>

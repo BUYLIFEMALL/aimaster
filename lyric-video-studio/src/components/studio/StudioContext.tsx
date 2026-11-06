@@ -29,6 +29,8 @@ interface Studio {
   audio: AudioState | null; audioBusy: string; loadAudio(file: File, sunoVariantId?: string | null): Promise<void>;
   sunoVariantId: string | null; restoreNote: string;
   cover: CoverState | null; loadCover(file: File): Promise<void>; clearCover(): void;
+  /** 배경 사진 받는 중·실패 안내(없으면 빈 문자열) */
+  photoNote: string;
   player: HTMLAudioElement | null;
   projectId: string | null; dirty: boolean; savedNames: { audioName?: string; coverName?: string };
   save(): Promise<void>; open(item: SavedItem): void; reset(): void;
@@ -72,8 +74,27 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const setArtist = (v: string) => { setArtistRaw(v); touch(); };
   const setLines = useCallback((next: LyricLine[] | ((prev: LyricLine[]) => LyricLine[])) => { setLinesRaw(next); setDirty(true); }, []);
   const setDesign = useCallback((patch: Partial<Design>) => { setDesignRaw((d) => normalizeDesign({ ...d, ...patch })); setDirty(true); }, []);
-  // 프리셋을 바꿔도 회원이 정한 글자 크기·프레임레이트는 그대로 둔다
-  const applyPreset = useCallback((p: Preset) => { setDesignRaw((d) => ({ ...p.design, size: d.size, fps: d.fps })); setDirty(true); }, []);
+  // 프리셋을 바꿔도 회원이 정한 글자 크기·프레임레이트·배경 사진은 그대로 둔다
+  const applyPreset = useCallback((p: Preset) => { setDesignRaw((d) => ({ ...p.design, size: d.size, fps: d.fps, bgPhoto: d.bgPhoto })); setDirty(true); }, []);
+
+  // 배경 사진은 우리 서버를 거쳐 받는다(다른 사이트 그림을 캔버스에 바로 그리면 MP4로 내보낼 수 없음)
+  const [photo, setPhoto] = useState<{ key: string; img: HTMLImageElement } | null>(null), [photoNote, setPhotoNote] = useState("");
+  const photoUrl = design.bgPhoto?.url ?? "";
+  useEffect(() => {
+    if (!photoUrl) { setPhoto(null); setPhotoNote(""); return; }
+    let alive = true; setPhotoNote("배경 사진을 받는 중…");
+    (async () => {
+      try {
+        const res = await fetch(`/api/photos/file?url=${encodeURIComponent(photoUrl)}`, { cache: "no-store" });
+        if (!res.ok) throw new Error(((await res.json().catch(() => ({}))) as { error?: string }).error ?? "배경 사진을 받지 못했습니다.");
+        const url = URL.createObjectURL(await res.blob()); urls.current.push(url);
+        const img = new Image();
+        await new Promise<void>((ok, bad) => { img.onload = () => ok(); img.onerror = () => bad(new Error("배경 사진을 읽지 못했습니다.")); img.src = url; });
+        if (alive) { setPhoto({ key: photoUrl, img }); setPhotoNote(""); }
+      } catch (e) { if (alive) { setPhoto(null); setPhotoNote(e instanceof Error ? e.message : "배경 사진을 받지 못했습니다."); } }
+    })();
+    return () => { alive = false; };
+  }, [photoUrl]);
 
   const loadAudio = useCallback(async (file: File, sunoId: string | null = null) => {
     setAudioBusy("음악을 읽는 중…");
@@ -133,8 +154,9 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const scene = useMemo<Scene>(() => ({
     title, artist, lines: timeline(lines, audio?.buffer.duration ?? Infinity), duration: audio?.buffer.duration ?? 0, design,
     cover: cover?.img ?? null, coverKey: cover?.key ?? "", audio: audio?.source ?? null,
-  }), [title, artist, lines, design, audio, cover]);
+    photo: photo && photo.key === design.bgPhoto?.url ? photo.img : null, photoKey: photo?.key ?? "",
+  }), [title, artist, lines, design, audio, cover, photo]);
 
-  const value: Studio = { title, artist, lines, design, setTitle, setArtist, setLines, setDesign, applyPreset, audio, audioBusy, loadAudio, sunoVariantId, restoreNote, cover, loadCover, clearCover, player, projectId, dirty, savedNames, save, open, reset, scene };
+  const value: Studio = { title, artist, lines, design, setTitle, setArtist, setLines, setDesign, applyPreset, audio, audioBusy, loadAudio, sunoVariantId, restoreNote, cover, loadCover, clearCover, photoNote, player, projectId, dirty, savedNames, save, open, reset, scene };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

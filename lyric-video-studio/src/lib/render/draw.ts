@@ -16,6 +16,9 @@ export interface Scene {
   /** 커버가 바뀌면 바뀌는 값(흐린 배경 캐시 키) */
   coverKey: string;
   audio: AudioSource | null;
+  /** 무료 사진 배경(디자인 bgPhoto를 우리 서버로 받아 둔 그림) */
+  photo?: (CanvasImageSource & { width: number; height: number }) | null;
+  photoKey?: string;
 }
 export interface DrawCache { backdrop?: { key: string; canvas: HTMLCanvasElement }; vinyl?: { key: string; canvas: HTMLCanvasElement } }
 
@@ -52,7 +55,11 @@ function background(ctx: CanvasRenderingContext2D, W: number, H: number, sc: Sce
   const d = sc.design;
   const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, d.bg1); g.addColorStop(1, d.bg2);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  if (sc.cover && d.coverBackdrop) {
+  if (sc.photo && d.bgPhoto) { // 사진 배경이 있으면 흐린 커버 배경 대신 쓴다 — 글자가 보이게 어둡게 덮음
+    coverFit(ctx, sc.photo, 0, 0, W, H);
+    const shade = ctx.createLinearGradient(0, 0, 0, H); shade.addColorStop(0, "rgba(0,0,0,0.42)"); shade.addColorStop(1, "rgba(0,0,0,0.6)");
+    ctx.fillStyle = shade; ctx.fillRect(0, 0, W, H);
+  } else if (sc.cover && d.coverBackdrop) {
     const key = `${W}x${H}:${sc.coverKey}`;
     if (cache.backdrop?.key !== key) {
       const c = document.createElement("canvas"); c.width = W; c.height = H;
@@ -300,6 +307,12 @@ export function drawFrame(ctx: CanvasRenderingContext2D, W: number, H: number, s
       drawSpectrum(ctx, sc, t, W * 0.15, H - 290 * u, W * 0.7, 90 * u, u);
       drawProgress(ctx, sc, t, W * 0.1, H - 160 * u, W * 0.8, u);
     }
+  }
+  if (sc.photo && d.bgPhoto) { // 사진 작가·출처(제공처 권장 표기)
+    ctx.save(); ctx.globalAlpha = 0.55; ctx.fillStyle = "#ffffff"; ctx.font = `400 ${Math.round(16 * u)}px "Noto Sans KR", "Malgun Gothic", sans-serif`;
+    ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+    ctx.fillText(`Photo${d.bgPhoto.author ? ` · ${d.bgPhoto.author}` : ""} · ${d.bgPhoto.source === "pixabay" ? "Pixabay" : "Pexels"}`, W - 18 * u, H - 12 * u, W * 0.4);
+    ctx.restore();
   }
   ctx.restore();
 }

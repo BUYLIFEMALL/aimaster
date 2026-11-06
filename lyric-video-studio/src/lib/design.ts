@@ -33,7 +33,21 @@ export interface Design {
   roman: Roman;
   /** 커버 뒤에서 도는 LP판(배치 「커버 + 가사」에서만) */
   vinyl: boolean;
+  /** 무료 사진 배경(회원 본인 Pixabay·Pexels 키로 고른 사진 — 주소·작가만 저장, 파일은 서버에 두지 않음) */
+  bgPhoto: BgPhoto | null;
   fps: 24 | 30;
+}
+
+export interface BgPhoto { url: string; preview: string; pageUrl: string; author: string; source: "pixabay" | "pexels" }
+
+const PHOTO_HOST = /^https:\/\/(cdn\.pixabay\.com\/photo\/|pixabay\.com\/get\/|images\.pexels\.com\/photos\/)/;
+const PAGE_HOST = /^https:\/\/(pixabay\.com|www\.pexels\.com)\//;
+function bgPhotoOf(v: unknown): BgPhoto | null {
+  const p = (v && typeof v === "object" ? v : null) as Partial<BgPhoto> | null;
+  if (!p || typeof p.url !== "string" || typeof p.preview !== "string" || typeof p.pageUrl !== "string") return null;
+  if (p.url.length > 2000 || !PHOTO_HOST.test(p.url) || !PHOTO_HOST.test(p.preview) || !PAGE_HOST.test(p.pageUrl)) return null;
+  if (p.source !== "pixabay" && p.source !== "pexels") return null;
+  return { url: p.url, preview: p.preview, pageUrl: p.pageUrl.slice(0, 500), author: typeof p.author === "string" ? p.author.slice(0, 100) : "", source: p.source };
 }
 
 export const FONTS: Record<FontId, { label: string; family: string; weight: number; css: string }> = {
@@ -67,7 +81,7 @@ export const SPECTRUMS: { id: SpectrumKind; label: string }[] = [
 
 const BASE: Omit<Design, "presetId" | "aspect"> = {
   layout: "panel", bg1: "#141028", bg2: "#06060c", coverBackdrop: true, text: "#ffffff", accent: "#a78bfa", font: "noto",
-  highlight: "color", context: 2, align: "left", size: 1, spectrum: "bars", progress: true, showTitle: true, ambient: 0.6, roman: "off", vinyl: false, fps: 30,
+  highlight: "color", context: 2, align: "left", size: 1, spectrum: "bars", progress: true, showTitle: true, ambient: 0.6, roman: "off", vinyl: false, bgPhoto: null, fps: 30,
 };
 
 export interface Preset { id: string; name: string; desc: string; design: Design }
@@ -120,6 +134,7 @@ export function normalizeDesign(raw: unknown): Design {
     ambient: num(d.ambient, 0, 1, base.ambient),
     roman: pick(d.roman, ["off", "above", "below"], "off"),
     vinyl: typeof d.vinyl === "boolean" ? d.vinyl : base.vinyl,
+    bgPhoto: bgPhotoOf(d.bgPhoto),
     fps: d.fps === 24 ? 24 : 30,
   };
 }
