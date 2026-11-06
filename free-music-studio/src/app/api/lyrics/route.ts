@@ -48,6 +48,7 @@ export async function POST(request: Request) {
       theme: theme || "자연스럽게 노래로 불리도록 다듬기",
       genre: str(b.genre, 60),
       mood: str(b.mood, 60),
+      fixedStyle: str(b.fixed_style, LIMITS.style),
       language: b.language === "en" ? "en" : "ko",
       durationSec: (DURATIONS as readonly number[]).includes(duration) ? duration : DEFAULT_DURATION,
       refine: b.refine !== false,

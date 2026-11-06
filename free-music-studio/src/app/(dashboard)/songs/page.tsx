@@ -16,6 +16,7 @@ import type { Collection } from "@/lib/collections";
 import { ProjectTracks } from "@/components/songs/ProjectTracks";
 import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult } from "@/components/songs/LyricResultDialog";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
+import { LYRIC_GENRES, LYRIC_MOODS, MAX_MOODS, toggleMood } from "@/lib/lyricTags";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string; project_id: string | null };
 /** 곡 만들기에서 보는 프로젝트 — 전체 / 프로젝트 없음 / 프로젝트 번호 */
@@ -51,7 +52,7 @@ export default function SongsPage() {
 
   const [theme, setTheme] = useState("");
   const [genre, setGenre] = useState("");
-  const [mood, setMood] = useState("");
+  const [moods, setMoods] = useState<string[]>([]);
   const [language, setLanguage] = useState<"ko" | "en">("ko");
   const [refine, setRefine] = useState(true);
   const [banned, setBanned] = useState("");
@@ -278,7 +279,8 @@ export default function SongsPage() {
           mode,
           theme,
           genre,
-          mood,
+          mood: moods.join(", "),
+          fixed_style: draft.style_prompt.trim() || undefined,
           refine,
           recent_titles: songs.slice(0, 10).map((s) => s.title),
           current: mode === "edit" ? base ?? { title: draft.title, style_prompt: draft.style_prompt, lyrics: draft.lyrics } : undefined,
@@ -603,10 +605,55 @@ export default function SongsPage() {
               maxLength={300}
             />
             {!instrumental && (
-              <div className="grid gap-2 sm:grid-cols-3">
-                <input className={field} value={genre} onChange={(e) => setGenre(e.target.value)} placeholder="장르 예) 시티팝" maxLength={60} />
-                <input className={field} value={mood} onChange={(e) => setMood(e.target.value)} placeholder="분위기 예) 따뜻한" maxLength={60} />
-                <select className={field} value={language} onChange={(e) => setLanguage(e.target.value as "ko" | "en")}>
+              <div className="space-y-3">
+                {/* 장르 — 하나만(다시 누르면 해제) */}
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-slate-300">
+                    장르 <span className="font-normal text-slate-500">하나 고르기 · 아래 스타일 프리셋도 이 장르만 보입니다 · 다시 누르면 해제</span>
+                  </p>
+                  <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="장르">
+                    {LYRIC_GENRES.map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        role="radio"
+                        aria-checked={genre === g}
+                        onClick={() => setGenre(genre === g ? "" : g)}
+                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${genre === g ? "border-emerald-400 bg-emerald-600 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-emerald-500/60"}`}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* 분위기 — 여러 개(최대 3개) */}
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-slate-300">
+                    분위기{" "}
+                    <span className="font-normal text-slate-500">
+                      여러 개 고르기 · 최대 {MAX_MOODS}개{moods.length ? ` (${moods.length}/${MAX_MOODS})` : ""}
+                    </span>
+                  </p>
+                  <div className="flex flex-wrap gap-1.5" aria-label="분위기">
+                    {LYRIC_MOODS.map((m) => {
+                      const on = moods.includes(m);
+                      const full = !on && moods.length >= MAX_MOODS;
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          aria-pressed={on}
+                          disabled={full}
+                          onClick={() => setMoods((v) => toggleMood(v, m))}
+                          className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-35 ${on ? "border-sky-400 bg-sky-600 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-sky-500/60"}`}
+                        >
+                          {m}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <select className={`${field} sm:w-60`} value={language} onChange={(e) => setLanguage(e.target.value as "ko" | "en")}>
                   <option value="ko">한국어 가사</option>
                   <option value="en">영어 가사</option>
                 </select>
@@ -699,7 +746,8 @@ export default function SongsPage() {
                 history={lyricResults}
                 busy={!!writing}
                 onApply={(r) => {
-                  setDraft((d) => ({ ...d, title: r.title || d.title, style_prompt: r.style_prompt || d.style_prompt, lyrics: r.lyrics }));
+                  // 스타일 칸이 이미 있으면(프리셋을 골랐거나 직접 씀) 그대로 두고 가사·제목만 — 장르·스타일은 아래 프리셋이 정한다(2026-11-06)
+                  setDraft((d) => ({ ...d, title: r.title || d.title, style_prompt: d.style_prompt.trim() ? d.style_prompt : r.style_prompt || d.style_prompt, lyrics: r.lyrics }));
                   vocalLyrics.current = r.lyrics;
                   setResultOpen(false);
                   setMessage({ type: "success", text: draft.id ? "가사를 적용했습니다. 자동으로 저장됩니다." : "가사를 적용했습니다. 확인한 뒤 [저장하기]를 눌러 주세요." });
@@ -787,7 +835,7 @@ export default function SongsPage() {
                 ))}
               </select>
             </div>
-            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} />}
+            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={instrumental ? "" : genre} onGenre={instrumental ? undefined : setGenre} />}
             <textarea
               className={`${field} min-h-[70px] font-mono text-xs`}
               value={draft.style_prompt}

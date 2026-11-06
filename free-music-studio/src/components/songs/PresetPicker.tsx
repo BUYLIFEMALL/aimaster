@@ -8,7 +8,11 @@ const field =
   "rounded-xl border border-slate-700/60 bg-slate-950/80 px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden";
 
 /** 스타일 프리셋 — 분류 목록에서 고르거나 한 쪽 6개씩 넘겨 보며 누르면 스타일 칸이 채워진다. 지금 스타일을 「내 프리셋」으로 저장. */
-export function PresetPicker({ mode, style, onPick }: { mode: PresetMode; style: string; onPick: (prompt: string) => void }) {
+/**
+ * genre: 위 AI 작사에서 고른 장르(프리셋 분류 이름) — 있으면 카드에 그 장르(와 내 프리셋)만 보인다(2026-11-06, 장르를 한 번만 고르게).
+ * onGenre: 프리셋을 고르면 그 프리셋의 장르를 위로 알린다(내 프리셋은 장르를 바꾸지 않음).
+ */
+export function PresetPicker({ mode, style, onPick, genre = "", onGenre }: { mode: PresetMode; style: string; onPick: (prompt: string) => void; genre?: string; onGenre?: (category: string) => void }) {
   const [mine, setMine] = useState<UserPreset[]>([]);
   const [chosen, setChosen] = useState("");
   const [page, setPage] = useState(0);
@@ -30,7 +34,10 @@ export function PresetPicker({ mode, style, onPick }: { mode: PresetMode; style:
 
   const list = useMemo(() => presetsFor(mode, mine), [mode, mine]);
   const categories = useMemo(() => presetCategories(list), [list]);
-  const pages = pageCount(list.length);
+  // 카드는 고른 장르만(내 프리셋은 늘 함께), 드롭다운은 전체 그대로
+  const cards = useMemo(() => (genre && categories.includes(genre) ? list.filter((p) => p.category === genre || p.category === MY_PRESET_CATEGORY) : list), [list, categories, genre]);
+  useEffect(() => setPage(0), [genre]);
+  const pages = pageCount(cards.length);
   const shown = Math.min(page, pages - 1);
 
   const pick = (id: string) => {
@@ -38,6 +45,7 @@ export function PresetPicker({ mode, style, onPick }: { mode: PresetMode; style:
     if (!p) return;
     setChosen(id);
     onPick(p.prompt);
+    if (p.category !== MY_PRESET_CATEGORY) onGenre?.(p.category);
   };
 
   const save = async () => {
@@ -75,7 +83,9 @@ export function PresetPicker({ mode, style, onPick }: { mode: PresetMode; style:
       <div className="flex flex-wrap items-center gap-2">
         <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
           <Palette className="h-3.5 w-3.5 text-emerald-300" /> 스타일 프리셋
-          <span className="font-normal text-slate-500">{mode === "instrumental" ? "연주곡용" : "노래용"} {list.length}개</span>
+          <span className="font-normal text-slate-500">
+            {mode === "instrumental" ? "연주곡용" : "노래용"} {cards === list ? `${list.length}개` : `「${genre}」 ${cards.length}개 / 전체 ${list.length}개`}
+          </span>
         </span>
         <select
           aria-label="프리셋 고르기"
@@ -83,7 +93,10 @@ export function PresetPicker({ mode, style, onPick }: { mode: PresetMode; style:
           value={list.some((p) => p.id === chosen) ? chosen : ""}
           onChange={(e) => {
             pick(e.target.value);
-            const i = list.findIndex((p) => p.id === e.target.value);
+            // 드롭다운으로 고르면 장르가 그 프리셋 장르로 바뀌므로, 바뀐 카드 목록 기준으로 쪽을 찾는다
+            const p = list.find((x) => x.id === e.target.value);
+            const after = p && p.category !== MY_PRESET_CATEGORY ? list.filter((x) => x.category === p.category || x.category === MY_PRESET_CATEGORY) : cards;
+            const i = after.findIndex((x) => x.id === e.target.value);
             if (i >= 0) setPage(Math.floor(i / PRESET_PAGE_SIZE));
           }}
         >
@@ -142,7 +155,7 @@ export function PresetPicker({ mode, style, onPick }: { mode: PresetMode; style:
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="grid min-w-0 flex-1 grid-cols-2 gap-1.5 sm:grid-cols-3">
-          {list.slice(shown * PRESET_PAGE_SIZE, shown * PRESET_PAGE_SIZE + PRESET_PAGE_SIZE).map((p) => {
+          {cards.slice(shown * PRESET_PAGE_SIZE, shown * PRESET_PAGE_SIZE + PRESET_PAGE_SIZE).map((p) => {
             const own = p.category === MY_PRESET_CATEGORY;
             return (
               <div key={p.id} className="relative">

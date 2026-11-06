@@ -13,6 +13,8 @@ export type LyricRequest = {
   theme: string;
   genre: string;
   mood: string;
+  /** 회원이 프리셋 등으로 이미 정한 스타일 — 있으면 그 스타일에 맞춰 가사를 쓰고 스타일은 그대로 돌려준다 */
+  fixedStyle?: string;
   language: "ko" | "en";
   durationSec: number;
   refine: boolean;
@@ -108,6 +110,7 @@ function brief(req: LyricRequest) {
     request: req.theme,
     genre: req.genre || undefined,
     mood: req.mood || undefined,
+    ...(req.fixedStyle ? { fixedStyle: req.fixedStyle, fixedStyleRule: "The member already chose this style. Write lyrics and structure that fit its genre, tempo and vocal; return style_prompt exactly as given." } : {}),
     lyricLanguage: req.language === "en" ? "English" : "Korean",
     targetLength: targetLengthText(req.durationSec),
     ...(req.mode === "edit" && req.current
