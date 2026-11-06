@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V5 「내 영상 일부 지우기」 + `video-to-gif` v1.26 · `shorts-onestop-studio` v1.44 배포**
+- V5(`video-to-gif/erase`): 영상 1개(60초·100MB)를 넣고 사각형(최대 3곳)을 그리면 ffmpeg.wasm `delogo`로 주변 화소를 메운 MP4. 권리 체크 2개 필수, 실행마다 `own_content_rights_log`(program `video-to-gif`, tool `erase`)에 회원 세션으로 기록(넣기 RLS 정책 운영 적용, 지문 `a4127c10ae4b01b9`). 코드 `d71f6be9e`, 계산 시험 6개, 네이티브 ffmpeg로 필터 확인. 「워터마크 제거」 표현·자동 프리셋 없음.
+- 배포(주인님 채팅 승인 빌드 3회 중 2회): `video-to-gif` v1.26 `video-to-ddad3w65y`(V4 녹화 + V5, 렌더러·확장 ZIP v1.26, DB `extension_version` 맞춤, `check-extension-release` OK) · `shorts-onestop-studio` v1.44 `shorts-onestop-studio-4gt4hlp2d`(V3 1단계 + 맥미니 30일 열외). 운영에서 시험 계정으로 V5 지우기 1회 확인(기록 줄 생성). V4 실제 녹화·V3 AI 대본·V1 소리는 남음.
+- 보류: `ai-video-studio` v1.28(EDL `944338e0c`·정리 `7adc0e000`)은 다른 세션(디자인 3시안)이 같은 폴더를 미커밋 작업 중(이미 `version.ts` v1.28)이라 배포하지 않음 — 그 세션의 배포에 함께 나가거나 작업 종료 뒤 배포(빌드 승인 1회 남음).
+- 문서: `video-to-gif/docs/IMPROVEMENTS.md`·`shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위, 플랜 `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8, 역할 `docs/roles/video.md`. 다음: V2 언어판(공용 `video-edit-composition` 기준·사본 정리 → 글꼴 추가).
+- 링크: https://video-to-gif.buylife.xyz/erase · https://shorts-onestop-studio.buylife.xyz/
+
 ## 2026-11-06 ✅ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — **U9 연계 운영 확인 통과(워크스페이스 v1.21 · 음성 분석 v1.15 · 번역 v1.23 · 슬라이드 · 문서 챗봇)**
 - 확인(ego lite 작업 공간 87, 시험 계정 `buylifemall@naver.com`, 끝나고 닫음): 워크스페이스 페이지 「작업」→「📨 다른 프로그램으로 보내기」로 슬라이드·번역·문서 챗봇에 보냄 → 슬라이드 「받은 원고」 고르기(원문 칸 591자), 번역 「받은 문서」 원문 열기, 문서 챗봇 「문서로 등록」 색인 1조각(시험 계정 Upstage 키 1회) 모두 정상. 음성 분석은 24초 한국어 회의 WAV(윈도우 음성 합성) → 실행 과제 3건·받아쓰기 6문장(시험 계정 Gemini 키 1회) → 「업무 워크스페이스로 보내기」 → 받은 업무 「회의」 항목 → 페이지로 만들기(요약·할 일 체크 상자 3개·핵심 질문·화자별 정리·전체 받아쓰기, 한국어 소제목).
 - 미배포 대기: `376c55c7a` 왼쪽 메뉴 버전 v1.21 표시(운영 메뉴에 v1.20 보임, 기능 문제 없음) — 다음 배포(v1.22) 때.
