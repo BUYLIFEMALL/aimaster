@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261106-ytreply — **`youtube-auto-reply` v1.33 배포: 미배포 대기 2건(30일 보관 열외 + 12월 모델 교체 B) 묶음**
+- 배경: 주인님이 남은 작업 목록에서 「youtube-auto-reply 30일 열외 + 모델 교체 B」 줄을 골라 「진행해」. 두 커밋은 맥미니가 2026-11-03에 작성(`e3f93b8d7`·`5e994cd8f`).
+- 내용: 30일 정리가 예외 회원(관리자·시험 계정)을 건너뛰고 목록을 못 읽으면 멈춤 · 답글 모델 옛 Gemini(2.5-pro·3.6·3.7-flash) 선택지 삭제 + 저장된 옛 값을 `gemini-3.8-flash`로 변환 호출. 버전 커밋 `371ad8a30`.
+- 검수: tsc·권한 시험 8개·로컬 build 통과, 배포 `youtube-auto-reply-fbnk0jg9l` Ready·운영 주소 연결, 정리 주소 가짜 토큰 401, DB v1.33(도우미), ego lite 시험 계정 설정 화면 v1.33·모델 선택지 11개에 옛 값 없음(작업 공간 106, 닫음).
+- 문서: `youtube-auto-reply/AGENTS.md` v1.33, `docs/IMPROVEMENTS.md`, `docs/PENDING_DEPLOYS.md`(B·30일 열외 줄 ✅, 배포 기록), 30일 열외 플랜 §6, 모델 교체 플랜 §7, 비교표 버전. 남은 확인: 다음 정리 회차 뒤 예외 계정 댓글 유지. 비용: Vercel 빌드 1회(승인).
+- 링크: https://youtube-auto-reply.buylife.xyz/
+
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 「🌐 언어판 만들기」 구현 + 공용 그리기 기준·사본 정리(미배포, `ai-video-studio` v1.29 예정)**
 - 공용 정리: v1.23부터 어긋났던 `video-edit-composition` 기준·사본의 원인(`renderTrace` 가져오기)을 `video-edit-render-trace` 모듈로 등록해 `music-video-studio/src/lib/edit/renderTrace.ts` 사본을 두고 `--sync` → `check-shared-modules` 전부 OK. `music-video-studio` tsc·시험 33개 통과(동작 불변, 미배포·급하지 않음).
 - V2 언어판(`3a550fe12`): 영상 합치기 2단계 아래 「🌐 언어판 만들기」 — 영어·일본어·중국어(간체)·베트남어, 권리 체크 → `/api/edit/translate`(회원 키 Claude→Gemini→OpenAI, `askJson` 공용화, `own_content_rights_log` tool `lang`) → 자막·내레이션 교체, 음성은 3단계에서 그 언어로(`/api/edit/voice` `lang`: 읽기 지시·받아쓰기 언어, 일본어·중국어는 낱말 시각 생략), 언어별 글꼴(JP·SC는 그 언어판일 때만), 일본어·중국어 자막 문장 부호·16자 조각, 영어·베트남어 한 줄 1.6배, 저장 형식 `lang`, 되돌리기. 시험 89개·tsc·로컬 빌드 통과.
