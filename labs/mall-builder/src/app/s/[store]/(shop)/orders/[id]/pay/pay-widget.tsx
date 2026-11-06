@@ -13,6 +13,8 @@ export default function PayWidget(props: {
   customerName: string;
   successPath: string;
   failPath: string;
+  /** 결제 기한(ISO) — 지나면 결제창을 열지 않는다 */
+  deadline?: string | null;
 }) {
   const widgets = useRef<TossPaymentsWidgets | null>(null);
   const [ready, setReady] = useState(false);
@@ -44,6 +46,11 @@ export default function PayWidget(props: {
 
   async function pay() {
     if (!widgets.current) return;
+    // 기한이 지났으면 결제창을 열지 않는다(자동 취소된 주문은 서버가 승인하지 않으므로 카드 정보를 넣어도 소용없다)
+    if (props.deadline && Date.now() > new Date(props.deadline).getTime()) {
+      setError("결제 기한이 지나 이 주문은 결제할 수 없습니다(자동으로 취소됩니다). 상품을 다시 담아 주문해 주세요.");
+      return;
+    }
     setPaying(true);
     setError("");
     try {
@@ -55,8 +62,13 @@ export default function PayWidget(props: {
         failUrl: window.location.origin + props.failPath,
       });
     } catch (e) {
-      // 결제창을 닫은 경우 등 — 화면에 남아 다시 누를 수 있다
-      setError(e instanceof Error ? e.message : String(e));
+      // 결제창을 닫은 경우 등 — 화면에 남아 다시 누를 수 있다(PC는 취소해도 실패 주소로 가지 않고 여기로 온다)
+      const code = (e as { code?: string } | null)?.code ?? "";
+      setError(
+        code === "USER_CANCEL" || code === "PAY_PROCESS_CANCELED"
+          ? "결제를 취소했습니다. 다시 결제하려면 아래 버튼을 눌러 주세요. 결제하지 않으면 기한이 지나 주문이 자동으로 취소됩니다."
+          : e instanceof Error ? e.message : String(e),
+      );
       setPaying(false);
     }
   }

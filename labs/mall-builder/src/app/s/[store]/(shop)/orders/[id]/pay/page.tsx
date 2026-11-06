@@ -59,6 +59,7 @@ export default async function PayPage({ params, searchParams }: { params: Promis
         customerName={customer.name}
         successPath={`${base}/pay/success`}
         failPath={`${base}/pay/fail`}
+        deadline={order.pay_deadline_at}
       />
       <Link href={base} className="mt-6 inline-block text-sm underline">결제하지 않고 주문 상세로</Link>
     </main>
