@@ -64,6 +64,7 @@
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
+| `free-music-studio` | AI 작사 분위기 상세 선택: 5묶음 35개(ACE-Step 공식 캡션 단어와 짝), 반대 분위기 경고, 빠르기(1개)·목소리(최대 2개), 영어 태그를 AI 스타일에 반영 | `e759254f5` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | 주인님 「사용 가능한 분위기를 더 알아보고 더 디테일한 선택」 | 다음 음악 배포 v1.29 때. DB 변경 없음 |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
