@@ -310,3 +310,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 시험 계정에서 끊기 → 정말 끊기: 쿠팡 줄만 삭제, 상가·부동산 줄 유지. 화면 「미등록」·「연결하기」, 끊기 버튼 사라짐, 시험 메시지 버튼 비활성. 수정된 `loadTargets`·`deliver`를 직접 실행한 결과 「텔레그램 건너뜀(텔레그램 연결이 없습니다.)」, 오류·발송 없음.
 - ⚠ 운영 v1.17은 옛 코드라 쿠팡 봇이 없으면 부동산 봇으로 빌려 보낸다. 시험 계정은 아침 요약·수시 알림이 텔레그램으로 켜져 있으므로 재등록 또는 배포 전까지 그렇게 나간다.
 - 미확인: 운영 배포본 동작, 빌드.
+
+## 2026-11-06 수시 알림 실제 실행 확인([역할: ecommerce-image] `claude-win-sdp`, 운영 DB 읽기만)
+- 시험 계정 `coupang_ops_prefs.data.urgent`: `runKey` `2026-11-06T09`, 기록 시각 09:00:36(한국), `stop` 0·`inquiries` 0, `lastResult` 「새 건이 없어 보내지 않았습니다.」 → 회원 cron-job.org가 맞는 토큰으로 `/api/cron/coupang-urgent`를 불렀고, 토큰 해시 조회(jsonb 경로)·회차 중복 막기·쿠팡 조회·결과 저장까지 동작함.
+- 미확인: 새 건이 있을 때의 실제 발송(출고중지·문의가 생기면 확인). 플랜 A(A1~A4)는 10-30 완료 상태(위 10-30 항목).
