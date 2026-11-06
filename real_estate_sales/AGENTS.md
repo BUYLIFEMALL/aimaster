@@ -73,6 +73,14 @@
 - **v1.25**: 실거래 목록 주소 거르기 `?district=<시군구5자리>`·`?q=<단지명>`(서버에서 `!inner` 조인으로 거름, 0건이면 이름 앞 두 글자로 다시 찾고 「비슷한 이름으로 찾았어요」, 「전체 보기」, 쪽 이동 때 조건 유지) — 「부동산 실시간 매물 알림」 v1.38 「📈 실거래 보기」가 이 주소로 연다. 감시 지역 화면 경기 44곳을 시 이름으로 묶음(`groupByCity`, 경기에만). 시험 `test:molit` 6개. 커밋 `1d8cd99c5`.
 - 실물(크롬, 시험 계정): 전용면적 표시, `?district=41285&q=백송건영` → 「백송」으로 1건, 매물 알림에서 「📈 실거래 보기」 → 고양시 일산동구 20건, 경기 시 묶음 표시 확인.
 
+## 2026-11-06 v1.54 배포 — RQ-A4 1단계 상권 임대료·공실률 ([역할: realty] `claude-win-realty-docs`, 주인님 승인 11-06)
+- 순수 함수 `src/lib/realestate/commercialRent.ts`(표 8개 번호·응답 읽기·상권별 합치기·권역(leaf 아님) 구분·시도 맞추기·1.5km 안 가까운 상권), 시험 `tests/commercialRent.test.mjs` 4개(전체 47 통과).
+- 서버 `commercialRentData.ts`: R-ONE 표 8개 → 캐시 표 `rone_commercial_rent`(마이그레이션 `20261106000100_rone_commercial_rent_v1_54.sql`, ego SQL 적용, RLS 켜고 정책 없음 = 서버만), 상권 좌표는 브이월드 장소 검색(같은 시·도 주소만)·지난 분기 좌표 재사용. 리포트는 인스턴스당 1시간 기억.
+- 관리자 갱신 `/api/admin/rone-refresh?geocode=60`(최대 150, `&only=geocode`면 좌표만 이어 채움), 서울 지역 `icn1` 실행. 리포트 비주거 칸 아래 「🏷️ 가까운 상권 임대료·공실률」(`CommercialRentSection.tsx`, 상권·시도·전국 열, ㎡당·평당·공실률, 「상권 평균이라 이 건물 값이 아님」).
+- 진단 `/api/admin/rone-probe`에 키 길이·지문(sha256 앞 8자리, 값 아님)·실행 지역 추가.
+- 함께 나감: AI 모델 선택지 정리(PLAN_20261103_MODEL_MIGRATION_DEC, 이 폴더 몫).
+- 배포 2회(빌드 2회, 승인 범위). **R-ONE은 아직 ERROR-290:** 운영 키가 30자(지문 1fcc069b), 정상 발급 키는 32자(지문 84256908) — Vercel 값에서 두 글자가 빠짐. 서울 지역에서도 같아 해외 차단 아님. → 주인님이 `RONE_API_KEY` 32자로 다시 넣고 재배포(빌드 1회, 추가 승인 필요) → 진단에서 지문 84256908·INFO-000 확인 → `/api/admin/rone-refresh` 몇 번(좌표 약 290곳) → 비주거 리포트 화면 확인.
+
 ## 2026-11-05 v1.53 배포 — RQ-A4 0단계 R-ONE 진단 ([역할: realty] `claude-win-realty-docs`, 플랜 `docs/PLAN_20261105_RQ_A4_COMMERCIAL_RENT.md`)
 - 관리자·운영 계정 전용 중계 `/api/admin/rone-probe?service=SttsApi….do&STATBL_ID&CLS_ID&ITM_ID&DTACYCLE_CD&WRTTIME_IDTFR_ID&pIndex&pSize&grep=` — Vercel `RONE_API_KEY`(Secret, Production, 2026-11-05 주인님 등록)로 R-ONE Open API를 불러 그대로 넘김(키 비노출, 서비스 이름·요청 칸 화이트리스트, `grep`은 그 글자가 든 줄만).
 - 함께 나감: 지도 가운데 📍 핀(`d46717d97`).
