@@ -28,6 +28,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `video-to-gif` | V4 「🖥 화면에서 바로 녹화」(최대 15초·소리 없음·서버 전송 없음) → 대기열 | `a0f04a3da` | 2026-11-06 · [역할: video] `claude-win-video` | `video-to-gif/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.26. 화면 공유 창은 주인님이 한 번 골라 주셔야 실제 녹화 확인 |
+| `shorts-onestop-studio` | V3 1단계 「상품 홍보(15초 6비트)」 구성·상품 정보 칸·`#product-name=` 받기 | `ea6bdead1` | 2026-11-06 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.44(음악 담당 🆓→🎙️ `a95613743`도 함께). AI 대본 1회 확인은 비용 승인 뒤 |
 | `free-music-studio` | 환경설정 2-1: 추천 구성 카드 엔진 전체 + 시스템 정보 표 | `3f9613f4c` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 음악 배포 때 함께. Compute Capability·BF16 칸은 엔진 0.6.9 설치 파일 뒤에 보임 |
 | `free-music-studio` | 내 곡에서 바로 커버(「모든 음악」 「커버 →」, 원곡 번호 `parent_id`) | `2673573a5` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md` 2절 | 운영 DB `20261105_tracks_parent.sql` **적용 완료**(2026-11-05 채팅 승인, `parent_id uuid` 칸 확인) · 다음 음악 배포 때(+0.01) |
 | `free-music-studio` | 플레이리스트 보강: 여러 곡 고르기(듣기·담기·새로 만들어 담기·프로젝트로 옮기기·빼기), 끌어서 순서·번호 입력·제목순·되돌리기, 재생 대기열 패널 | `f6753d3a4` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/IMPROVEMENTS.md` 플레이리스트 화면 보강 줄 | 다음 음악 배포 때 함께. DB 변경 없음 |

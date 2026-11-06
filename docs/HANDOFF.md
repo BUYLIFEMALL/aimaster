@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 🔨 [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **영상 묶음 V4·V3 1단계 구현(미배포) — 이커머스 담당 필독(넘기기 형식)**
+- 주인님 「순서대로 진행해」 → V4 → V3 → V1 사전 검증 → V1 → V2·V5.
+- **V4** `video-to-gif`: 「🖥 화면에서 바로 녹화」(`getDisplayMedia`, 화면·창·탭, 최대 15초, 소리 없음) → 녹화본(WEBM)을 기존 대기열로, 녹화 시간을 영상 길이로. 커밋 `a0f04a3da`. 시험 5·tsc·빌드 통과. 플랜 `video-to-gif/docs/PLAN_20261106_V4_SCREEN_RECORD.md`.
+- **V3 1단계** `shorts-onestop-studio`: 구성 「상품 홍보(15초 6비트)」, 상품명·장점 3·혜택 칸, 허위·과장 금지 규칙, 15초 목표 길이, 상품 정보 받기. 커밋 `ea6bdead1`. 시험 39·tsc·빌드 통과. 플랜 `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md`.
+- **[ecommerce-image 담당께] `shop-detail-page` 「쇼츠로 만들기」(E9) 보내는 주소 형식**: `https://shorts-onestop-studio.buylife.xyz/topic#product-name=<상품명>&product-point=<장점>(최대 3번)&product-offer=<혜택>&product-from=<프로그램 이름>` — 모두 `encodeURIComponent`, 상품명 100·장점 60·혜택 80·이름 40자. 원가·도매가·주문 정보는 넣지 않음. 만드는 함수 `shorts-onestop-studio/src/lib/productShorts.ts` `productHandoffHash()`. 상품 사진(`product-image`)은 2단계 — 사진 주소가 공개 주소(CORS 허용)인지 알려 주시면 맞추겠습니다.
+- 배포: 둘 다 **미배포 대기**(`docs/PENDING_DEPLOYS.md`). 확인 못 한 것: 실제 화면 녹화(화면 공유 창은 사람이 골라야 함), 실제 AI 대본 1회(비용 승인 뒤).
+- 다음 첫 단계: V1 사전 검증 페이지 — 비용(받아쓰기+구간 고르기 1회, 수십 원) 승인 받은 뒤.
+
 ## 2026-11-06 🟠 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` 모드 A-1 결정·플랜 + 맥미니 첫 실물 초대 요청 — 맥미니 필독**
 - 주인님 결정: 모드 A는 **A-1**입니다. 닉네임·등급·게시판 명단만 모으고, 모집은 초대링크로 합니다. 아이디는 수집하지 않습니다. 플랜은 `naver-cafe-recruit/docs/PLAN_20261106_MODE_A1.md`에 있고, DB 추가(새 표 `ncr_members`·`invite_link` 칸)는 **주인님 승인을 기다립니다**.
 - **맥미니 할 일**: `naver-cafe-recruit/docs/REQUEST_20261106_MACMINI_INVITE_TEST.md`를 따릅니다.
