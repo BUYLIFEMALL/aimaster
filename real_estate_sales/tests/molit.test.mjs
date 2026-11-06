@@ -238,3 +238,17 @@ test("v1.48: 분양권 — SilvTrade, 전월세 없음, 필지 조회 유형에�
   assert.equal(row.FLR, "12");
   assert.equal(m.molitItemToRow({ aptNm: "x", excluUseAr: "84", dealAmount: "1", dealYear: "2026", dealMonth: "1", dealDay: "1", cdealType: "O" }, "x", {}, "분양권"), null, "해제 거래는 버림");
 });
+
+test("2026-11-06: presaleFirst — 분양권은 맨 앞, 나머지 순서는 그대로(회당 상한 20건에 밀리지 않게)", async () => {
+  const m = await import("../src/lib/publicdata/molit.ts");
+  const rows = [
+    { BLDG_USG: "아파트", CTRT_DAY: "20261105" },
+    { BLDG_USG: "빌라", CTRT_DAY: "20261104" },
+    { BLDG_USG: "분양권", CTRT_DAY: "20261002" },
+    { BLDG_USG: "오피스텔", CTRT_DAY: "20261001" },
+    { BLDG_USG: "분양권", CTRT_DAY: "20260906" },
+  ];
+  assert.deepEqual(m.presaleFirst(rows).map((r) => `${r.BLDG_USG}:${r.CTRT_DAY}`), ["분양권:20261002", "분양권:20260906", "아파트:20261105", "빌라:20261104", "오피스텔:20261001"]);
+  assert.deepEqual(m.presaleFirst([]), []);
+  assert.deepEqual(m.presaleFirst([{ BLDG_USG: "아파트" }]), [{ BLDG_USG: "아파트" }]);
+});

@@ -23,6 +23,14 @@ export const MOLIT_SERVICE: Record<PropertyType, { trade: string; rent?: string 
   "단독/다가구": { trade: "SHTrade", rent: "SHRent" },
   분양권: { trade: "SilvTrade" },
 };
+/**
+ * 분양권 줄을 맨 앞으로(나머지 순서는 그대로). 2026-11-06 강서구 운영 확인: 서울은 열린데이터 최신 200건 뒤로 분양권이 정렬돼
+ * 회당 저장 상한 20건에 영원히 밀렸다(등촌역 10-02 분양권이 한 달 넘게 저장 안 됨). 분양권은 한 지역에 몇 건뿐이라 먼저 저장해도 상한에 부담이 없다
+ */
+export function presaleFirst(rows: SeoulRtmsRow[]): SeoulRtmsRow[] {
+  return [...rows.filter((r) => r.BLDG_USG === PRESALE), ...rows.filter((r) => r.BLDG_USG !== PRESALE)];
+}
+
 /** 전월세 자료가 있는 유형(분양권 제외) */
 export const RENT_TYPES = PROPERTY_TYPES.filter((t) => !!MOLIT_SERVICE[t].rent);
 export const molitUrl = (service: string) => `https://apis.data.go.kr/1613000/RTMSDataSvc${service}/getRTMSDataSvc${service}`;

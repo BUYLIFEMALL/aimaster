@@ -16,7 +16,7 @@ import {
 } from "@/lib/publicdata/client";
 import { priceRank, rankLabel, RANK_AREA_TOLERANCE, RANK_MONTHS, recentMonths, sumCompleteTypes, VOLUME_MONTHS, volumeMonthsToFetch, volumeTrend, ymLabel, type VolumeTrend } from "./insights";
 import { isSeoulDistrict } from "@/lib/publicdata/districts";
-import { DETACHED, PRESALE, RENT_TYPES, detachedName, normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
+import { DETACHED, PRESALE, RENT_TYPES, detachedName, normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, presaleFirst, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { ensureListingAnalysis } from "@/lib/actions/analysis";
@@ -64,13 +64,12 @@ export async function collectDistrict(
     } catch (err) {
       console.error(`${sggNm} 분양권 조회 실패:`, err);
     }
-    // 뒤에 붙인 분양권이 지역당 새 거래 상한(20건)에 밀려 저장되지 않던 문제(2026-11-04 강서구 운영 확인) — 계약일 최신순으로 다시 섞는다
-    trades.sort((a, b) => (normalizeDate(b.CTRT_DAY, year) ?? "").localeCompare(normalizeDate(a.CTRT_DAY, year) ?? ""));
   }
   // 주거 네 유형(아파트·빌라·오피스텔·단독/다가구)만 받는다. 상가·건물·토지는 별도 프로그램
   // 서울 자료의 단독다가구는 건물 이름이 비어 있어 「단독주택」 같은 이름을 채운다(v1.46)
   for (const row of trades) if (!row.BLDG_NM && propertyTypeOf(row.BLDG_USG) === DETACHED) row.BLDG_NM = detachedName("", `${row.MNO}${row.SNO && row.SNO !== "0" ? `-${row.SNO}` : ""}`);
-  const validTrades = trades.filter((row) => row.CTRT_DAY && row.BLDG_NM && propertyTypeOf(row.BLDG_USG));
+  // 분양권은 맨 앞에(2026-11-06): 계약일순으로 섞어도 서울 최신 200건 뒤에 놓여 회당 상한 20건에 계속 밀렸다(v1.49 재정렬로는 해결 안 됨)
+  const validTrades = presaleFirst(trades.filter((row) => row.CTRT_DAY && row.BLDG_NM && propertyTypeOf(row.BLDG_USG)));
 
   // 최대 200건을 매번 한 건씩 존재 여부 조회하던 것을, 한 번의 IN 쿼리로 일괄 확인하도록 변경.
   const dedupKeys = validTrades.map((row) => buildDedupKey(row));
