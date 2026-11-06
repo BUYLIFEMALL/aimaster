@@ -629,3 +629,84 @@ export async function getHomeForEdit(storeId: string): Promise<{ draft: BlocksDo
     publishedAt: data?.published_at ?? null,
   };
 }
+
+// ── 후기·문의·FAQ(D13) ──
+export type ProductReview = { id: string; rating: number; body: string; reply: string | null; replied_at: string | null; created_at: string; author: string; option: string | null; mine: boolean };
+export type ProductInquiry = { id: string; is_secret: boolean; created_at: string; answered_at: string | null; answered: boolean; mine: boolean; title: string; body: string | null; answer: string | null; author: string };
+
+/** 손님에게 보이는 상품 후기(DB 함수가 이름을 가리고 숨긴 것을 뺀다) */
+export async function getProductReviews(productId: string): Promise<{ count: number; average: number | null; items: ProductReview[] }> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_product_reviews", { p_product_id: productId, p_limit: 50 });
+  const d = (data ?? {}) as { count?: number; average?: number | null; items?: ProductReview[] };
+  return { count: d.count ?? 0, average: d.average ?? null, items: d.items ?? [] };
+}
+
+/** 손님에게 보이는 상품 문의(비밀글은 본인·운영자만 내용이 온다) */
+export async function getProductInquiries(productId: string): Promise<{ count: number; items: ProductInquiry[] }> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_product_inquiries", { p_product_id: productId, p_limit: 50 });
+  const d = (data ?? {}) as { count?: number; items?: ProductInquiry[] };
+  return { count: d.count ?? 0, items: d.items ?? [] };
+}
+
+export type MyReview = { id: string; order_item_id: string; rating: number; body: string; reply: string | null; is_deleted: boolean };
+
+/** 내 주문 품목들의 후기(보안 규칙상 본인 것만 읽힌다) — 품목 id → 후기 */
+export async function getMyReviewsByItem(orderItemIds: string[]): Promise<Map<string, MyReview>> {
+  if (!orderItemIds.length) return new Map();
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_reviews").select("id, order_item_id, rating, body, reply, is_deleted").in("order_item_id", orderItemIds);
+  return new Map(((data ?? []) as MyReview[]).filter((r) => !r.is_deleted).map((r) => [r.order_item_id, r]));
+}
+
+export type InquiryRow = {
+  id: string; kind: "product" | "personal"; product_id: string | null; order_id: string | null; title: string; body: string;
+  is_secret: boolean; is_hidden: boolean; is_deleted: boolean; answer: string | null; answered_at: string | null; created_at: string;
+  user_id: string; customer_id: string;
+};
+const INQUIRY_COLUMNS = "id, kind, product_id, order_id, title, body, is_secret, is_hidden, is_deleted, answer, answered_at, created_at, user_id, customer_id";
+
+/** 내 문의(1:1·상품) — 지운 것 제외 */
+export async function getMyInquiries(storeId: string, userId: string): Promise<InquiryRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_inquiries").select(INQUIRY_COLUMNS)
+    .eq("store_id", storeId).eq("user_id", userId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(200);
+  return (data ?? []) as InquiryRow[];
+}
+
+export type StoreInquiry = InquiryRow & { customer: { name: string; phone: string } | null; product: { name: string } | null; order: { order_no: string } | null };
+
+/** 운영자 문의 목록 — 최근 순(지운 것 제외) */
+export async function getStoreInquiries(storeId: string): Promise<StoreInquiry[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_inquiries")
+    .select(`${INQUIRY_COLUMNS}, customer:mall_builder_store_customers(name, phone), product:mall_builder_products(name), order:mall_builder_orders(order_no)`)
+    .eq("store_id", storeId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(300);
+  return (data ?? []) as unknown as StoreInquiry[];
+}
+
+export type StoreReview = {
+  id: string; product_id: string; order_item_id: string; rating: number; body: string; is_hidden: boolean; is_deleted: boolean;
+  reply: string | null; replied_at: string | null; created_at: string;
+  customer: { name: string } | null; product: { name: string } | null;
+};
+
+/** 운영자 후기 목록 — 최근 순(지운 것 제외, 숨긴 것 포함) */
+export async function getStoreReviews(storeId: string): Promise<StoreReview[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_reviews")
+    .select("id, product_id, order_item_id, rating, body, is_hidden, is_deleted, reply, replied_at, created_at, customer:mall_builder_store_customers(name), product:mall_builder_products(name)")
+    .eq("store_id", storeId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(300);
+  return (data ?? []) as unknown as StoreReview[];
+}
+
+export type Faq = { id: string; category: string; question: string; answer: string; sort: number; is_published: boolean; created_at: string };
+
+/** FAQ — 보안 규칙상 손님에게는 공개된 것만, 운영자에게는 전부 */
+export async function getFaqs(storeId: string): Promise<Faq[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_faqs").select("id, category, question, answer, sort, is_published, created_at")
+    .eq("store_id", storeId).order("sort").order("created_at").limit(300);
+  return (data ?? []) as Faq[];
+}

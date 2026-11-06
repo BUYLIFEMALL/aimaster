@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getMyCustomer, getOrder, getStoreBySlug, requireUser } from "@/lib/store";
+import { getMyCustomer, getMyReviewsByItem, getOrder, getStoreBySlug, requireUser } from "@/lib/store";
+import { canReview } from "@/lib/reviews";
+import ReviewForm from "./review-form";
 import { TAX_INVOICE_LABEL, canRequestInvoice } from "@/lib/taxInvoice";
 import { requestTaxInvoiceAction } from "@/lib/tax-invoice-actions";
 import { ORDER_STATUS_LABEL, formatDateTime } from "@/lib/orders";
@@ -32,6 +34,8 @@ export default async function OrderDetailPage({
   if (!found || found.order.user_id !== user.id) notFound();
   const { order, items, events } = found;
   const customer = await getMyCustomer(store.id, user.id);
+  // 후기(D13) — 배송 완료·구매 확정 주문의 품목에만 폼을 보인다
+  const reviews = canReview(order.status, 1, 0, "x") ? await getMyReviewsByItem(items.map((it) => it.id)) : new Map();
   const isBusiness = customer?.approval_status === "approved" && !!customer.grade?.is_business;
   const base = `/s/${store.slug}`;
   const r = order.receiver;
@@ -138,6 +142,9 @@ export default async function OrderDetailPage({
               <br />
               <span className="text-gray-500">{formatWon(it.unit_price)} × {it.qty}</span>
               {it.cancelled_qty > 0 && <span className="ml-1 text-red-600">(취소 {it.cancelled_qty}개)</span>}
+              {canReview(order.status, it.qty, it.cancelled_qty, it.product_id) && (
+                <ReviewForm slug={store.slug} orderId={order.id} orderItemId={it.id} review={reviews.get(it.id) ?? null} />
+              )}
             </span>
             <b>{formatWon(it.unit_price * (it.qty - it.cancelled_qty))}</b>
           </li>

@@ -65,6 +65,7 @@ export default async function MyPage({
         <div className="flex items-center gap-2">
           <Link href={`/s/${store.slug}/orders`} className="flex min-h-11 items-center rounded border px-3 text-sm">주문 내역</Link>
           <Link href={`/s/${store.slug}/quotes`} className="flex min-h-11 items-center rounded border px-3 text-sm">견적 내역</Link>
+          <Link href={`/s/${store.slug}/inquiries`} className="flex min-h-11 items-center rounded border px-3 text-sm">1:1 문의</Link>
           <LogoutButton label="로그아웃" />
         </div>
       </div>

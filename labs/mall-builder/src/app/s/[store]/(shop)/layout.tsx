@@ -43,6 +43,7 @@ export default async function ShopLayout({ children, params }: { children: React
           </form>
           <nav className="flex items-center gap-3 text-sm text-gray-600">
             <Link href={`${base}/search`} className="sm:hidden" aria-label="검색">검색</Link>
+            <Link href={`${base}/faq`} className="hidden sm:inline">FAQ</Link>
             {!user ? (
               <>
                 <Link href={`/login?next=${encodeURIComponent(base)}`}>로그인</Link>
