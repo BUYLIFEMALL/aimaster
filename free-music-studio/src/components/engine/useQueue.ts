@@ -12,6 +12,7 @@ async function recordFinished(jobs: QueueJob[]): Promise<boolean> {
   let changed = false;
   for (const job of jobs) {
     if (job.status !== "done" || job.recorded || recording.has(job.id)) continue;
+    if (job.kind === "stems") continue; // Stem 분리 결과는 곡이 아니라 PC 「Stem」 폴더의 WAV — 「모든 음악」에 기록하지 않는다
     recording.add(job.id);
     try {
       const res = await fetch("/api/tracks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(trackRecordOf(job)) });

@@ -64,7 +64,7 @@ export default function QueuePage() {
       <div className="flex flex-wrap items-center gap-2">
         {i !== undefined && <span className="font-mono text-slate-500">{i + 1}.</span>}
         <span className="font-semibold text-slate-100">{j.title}</span>
-        {KIND_LABEL[j.kind] && <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400">{KIND_LABEL[j.kind]}</span>}
+        {(j.kind === "stems" ? "Stem 분리" : KIND_LABEL[j.kind]) && <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400">{j.kind === "stems" ? "Stem 분리" : KIND_LABEL[j.kind]}</span>}
         {j.engine && j.engine !== "acestep" && (
           <span
             className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${engineInfo(j.engine).license === "noncommercial" ? "bg-amber-500/15 text-amber-200" : "bg-emerald-500/15 text-emerald-200"}`}
@@ -101,12 +101,12 @@ export default function QueuePage() {
               <RotateCcw className="h-3 w-3" /> 다시 하기
             </button>
           )}
-          {j.status === "done" && !audio[j.id] && (
+          {j.status === "done" && j.kind !== "stems" && !audio[j.id] && (
             <button type="button" disabled={busy === j.id} onClick={() => play(j)} className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-950/40 disabled:opacity-40">
               <Play className="h-3 w-3" /> 듣기
             </button>
           )}
-          {j.status === "done" && <DownloadButtons trackId={j.track.id} title={j.title} ext={j.result?.ext ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} onError={setError} />}
+          {j.status === "done" && j.kind !== "stems" && <DownloadButtons trackId={j.track.id} title={j.title} ext={j.result?.ext ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} onError={setError} />}
           {!(j.status === "queued" || j.status === "running") && (
             <button type="button" aria-label="목록에서 지우기" title="목록에서만 지웁니다(만든 음원은 보관함에 그대로)" disabled={busy === j.id} onClick={() => act(j.id, () => dismissJob(j.id))} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-900 hover:text-rose-300 disabled:opacity-40">
               <Trash2 className="h-3.5 w-3.5" />
@@ -117,7 +117,12 @@ export default function QueuePage() {
       {j.status === "running" && <StageProgress stage={j.stage} />}
       {j.error && <p className="text-[11px] text-rose-300/90">이유: {j.error}</p>}
       {j.status === "interrupted" && <p className="text-[11px] text-amber-300/80">엔진이 꺼져 만들다 멈췄습니다. [다시 하기]를 누르면 같은 내용으로 다시 만듭니다.</p>}
-      {j.status === "done" && (
+      {j.status === "done" && j.kind === "stems" && (
+        <p className="text-[11px] text-emerald-300/80">
+          ✔ 노래 저장 폴더 「Stem」에 저장 · <Link href="/library" className="underline underline-offset-2">모든 음악</Link>에서 원곡 「…」 → 「Stem 분리」로 듣고 내려받기
+        </p>
+      )}
+      {j.status === "done" && j.kind !== "stems" && (
         <p className={`text-[11px] ${j.recorded ? "text-emerald-300/80" : "text-slate-500"}`}>
           {j.recorded ? (
             <>

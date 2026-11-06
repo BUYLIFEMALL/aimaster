@@ -234,6 +234,10 @@ export async function pyInstalled(dataDir, engine) {
   return isInstalledState(await readState(pyPaths(dataDir, engine)), engine) && existsSync(pyPaths(dataDir, engine).python);
 }
 
+export function runPy(cmd, args, opts) {
+  return run(cmd, args, opts);
+}
+
 function run(cmd, args, { cwd, env, signal, log, onLine } = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, { cwd, env: { ...process.env, ...PYTHON_UTF8_ENV, ...env }, windowsHide: true });
@@ -354,13 +358,17 @@ export async function ensurePyEngine(dataDir, engine, { onStage = () => {}, sign
     if (engine.overrides) await writeFile(path.join(p.root, "overrides.txt"), engine.overrides.join("\n") + "\n");
     const stopDl = watchGrowth(uvCacheDir(), (b) => onStage(progressText(`${engine.name} 필요한 구성 받는 중(처음 한 번)`, b, engine.runtimeGb)), 5000);
     try {
-      for (const step of engine.steps) await run("uv", stepArgs(step, p), { cwd: p.root, signal, log });
+      // engine.catalog: 음악 엔진 목록 밖 도구(Stem 분리 0.6.9)는 자기 저장소·날짜 제한을 쓴다
+      for (const step of engine.steps) await run("uv", stepArgs(step, p, engine.catalog ?? CATALOG), { cwd: p.root, signal, log });
     } finally {
       stopDl();
     }
     await save({ runtime: true, runtimeRev: engine.runtimeRev ?? 0 });
   }
-  if (state.weights !== weightsKey(engine)) {
+  if (!engine.weights.length) {
+    // 받을 모델이 없는 도구(Stem 분리는 실행 스크립트가 처음 쓸 때 받음)
+    if (state.status !== "installed" || state.weights !== "") await save({ weights: "", status: "installed", installedAt: new Date().toISOString() });
+  } else if (state.weights !== weightsKey(engine)) {
     if (engine.hfToken && !hfToken) throw new Error(`${engine.name} 모델은 회원 본인 Hugging Face 토큰이 있어야 받을 수 있습니다. 사이트 「설정」에 토큰을 등록하고, ${engine.gatedUrl} 에서 약관에 동의한 뒤 다시 만들어 주세요.`);
     const plan = weightsPlan(engine, p);
     const planFile = path.join(p.root, "weights.json");

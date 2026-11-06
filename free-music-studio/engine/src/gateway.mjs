@@ -228,6 +228,24 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
     }
   }
 
+  // Stem 분리 결과(0.6.9) — GET /library/<id>/stems → { stems: [{ id, mode, createdAt, dir, files:[{label,size,missing}] }] }
+  //   GET /library/<id>/stems/<stemId>/<n> → n번째 트랙 WAV · DELETE /library/<id>/stems/<stemId> → 지우기(「Stem」 폴더 안 파일만)
+  const stemMatch = /^([0-9a-f-]{36})\/stems(?:\/([0-9a-f-]{36})(?:\/(\d+))?)?$/.exec(rest);
+  if (stemMatch && isTrackId(stemMatch[1]) && ctx.stems) {
+    const [, sourceId, stemId, n] = stemMatch;
+    if (req.method === "GET" && !stemId) return json(res, 200, { stems: await ctx.stems.listFor(sourceId) }, origin);
+    if (req.method === "GET" && stemId && n !== undefined) {
+      const f = await ctx.stems.fileOf(stemId, Number(n));
+      if (!f) return json(res, 404, { error: "Stem 파일이 없습니다(옮기거나 지웠을 수 있음)." }, origin);
+      const s = await stat(f.file);
+      res.writeHead(200, { "content-type": "audio/wav", "content-length": s.size, ...corsHeaders(origin) });
+      return createReadStream(f.file).pipe(res);
+    }
+    if (req.method === "DELETE" && stemId && n === undefined) {
+      return (await ctx.stems.remove(stemId)) ? json(res, 200, { ok: true }, origin) : json(res, 404, { error: "그 분리 결과를 찾지 못했습니다." }, origin);
+    }
+  }
+
   // 곡 표지 그림(0.6.8) — GET /library/<id>/art
   const artMatch = req.method === "GET" ? /^([0-9a-f-]{36})\/art$/.exec(rest) : null;
   if (artMatch && isTrackId(artMatch[1])) {
@@ -450,7 +468,7 @@ async function readRaw(req, max) {
   return Buffer.concat(chunks);
 }
 
-const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master"]);
+const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master", "stems", "align"]);
 const AUDIO_EXT = /\.(mp3|wav|flac|ogg|m4a|aac|opus)$/i;
 
 /** 대기열에 넣을 기록 정보 검사 — 곡 번호는 사이트가 만든 uuid(보관함 파일 이름) */
@@ -494,6 +512,24 @@ async function handleQueue(req, res, url, origin, ctx, json) {
         }
         const license = body.license === "noncommercial" ? "noncommercial" : "commercial"; // 원곡 사용 범위를 따른다
         return json(res, 200, { job: await q.add({ ...meta, task: { sourceId, options }, engine: "master", license }) }, origin);
+      }
+      // Stem 분리(0.6.9) — task { sourceId, mode: "two"|"multi" } · 결과는 곡이 아니라 노래 저장 폴더 「Stem」의 WAV(GET /library/<id>/stems)
+      if (meta?.kind === "stems") {
+        const sourceId = body?.task?.sourceId;
+        if (!ctx.stems) return json(res, 501, { error: "이 엔진은 Stem 분리를 할 수 없습니다." }, origin);
+        if (!isTrackId(sourceId) || !(await ctx.library.fileOf(sourceId))) return json(res, 400, { error: "이 PC 보관함에 원곡 음원이 없습니다." }, origin);
+        const mode = body.task.mode === "multi" ? "multi" : "two";
+        return json(res, 200, { job: await q.add({ ...meta, task: { sourceId, mode }, engine: "stems", license: body.license === "noncommercial" ? "noncommercial" : "commercial" }) }, origin);
+      }
+      // 가사 자동 맞추기(0.6.9) — task { sourceId, lyrics, previousTiming } · 결과 { sourceId, timing }를 사이트가 곡 기록에 저장
+      if (meta?.kind === "align") {
+        const sourceId = body?.task?.sourceId;
+        const lyrics = body?.task?.lyrics;
+        if (!ctx.lyrics) return json(res, 501, { error: "이 엔진은 가사 자동 맞추기를 할 수 없습니다." }, origin);
+        if (!isTrackId(sourceId) || !(await ctx.library.fileOf(sourceId))) return json(res, 400, { error: "이 PC 보관함에 원곡 음원이 없습니다." }, origin);
+        if (typeof lyrics !== "string" || !lyrics.trim() || lyrics.length > 10000) return json(res, 400, { error: "가사가 올바르지 않습니다(10,000자까지)." }, origin);
+        const previousTiming = body.task.previousTiming && typeof body.task.previousTiming === "object" ? body.task.previousTiming : null;
+        return json(res, 200, { job: await q.add({ ...meta, task: { sourceId, lyrics, previousTiming }, engine: "align", license: body.license === "noncommercial" ? "noncommercial" : "commercial" }) }, origin);
       }
       if (!meta || meta.kind !== "text2music" || !body.task || typeof body.task !== "object") return json(res, 400, { error: "작업 내용이 올바르지 않습니다." }, origin);
       // 음악 엔진: acestep(상업용, 기본) | yue2·추가 엔진(새 곡 만들기만, 0.4.0) — 분류는 엔진 쪽 목록이 정한다

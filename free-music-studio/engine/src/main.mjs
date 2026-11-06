@@ -19,6 +19,8 @@ import { createQueue } from "./queue.mjs";
 import { createRunner } from "./runner.mjs";
 import { masterFile } from "./mastering.mjs";
 import { createVideoStudio } from "./video.mjs";
+import { createStems, stemDevice } from "./stems.mjs";
+import { createLyricAligner } from "./lyricAlign.mjs";
 import { newToken } from "./security.mjs";
 import { ensureTools, useTools } from "./tools.mjs";
 import { runYue2, yue2Installed, yue2MissingBytes, yue2Paths, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
@@ -348,10 +350,19 @@ async function masterRun(job, signal, stage) {
   }
 }
 
+// Stem 분리(0.6.9, 원본 boks-music) — NVIDIA 4GB 이상이면 그래픽카드(ACE-Step을 잠시 멈춤), 아니면 CPU
+const stemDev = () => stemDevice({ platform: process.platform, nvidia: device.device === "cuda", vramGb });
+const stems = createStems({ dataDir: () => heavyDir, library, recordFile: path.join(dataDir, "stems.json"), getDevice: stemDev, log: logLine });
+const lyricAligner = createLyricAligner({ dataDir: () => heavyDir, library, stems, getDevice: stemDev, log: logLine });
+function stemsRun(job, signal, stage) {
+  const run = () => (job.kind === "align" ? lyricAligner.run(job, signal, stage) : stems.run(job, signal, stage));
+  return stemDev().device === "cuda" ? exclusiveRun("Stem 분리", path.join(dataDir, "stems-log.txt"), "Stem 분리", stage, run) : run();
+}
+
 const queue = createQueue({
   file: path.join(dataDir, "queue.json"),
   run: (job, signal, stage) =>
-    job.kind === "master" ? masterRun(job, signal, stage) : job.engine === "yue2" ? yue2Run(job, signal, stage) : job.engine === "acestep" || !job.engine ? aceRun(job, signal, stage) : pyRun(job, signal, stage),
+    job.kind === "stems" || job.kind === "align" ? stemsRun(job, signal, stage) : job.kind === "master" ? masterRun(job, signal, stage) : job.engine === "yue2" ? yue2Run(job, signal, stage) : job.engine === "acestep" || !job.engine ? aceRun(job, signal, stage) : pyRun(job, signal, stage),
   // ACE-Step 작업은 ACE-Step이 준비돼야, 다른 엔진 작업은 ACE-Step을 켜거나 구성을 바꾸는 중이 아니면 된다
   canRun: (job) => {
     if (job.engine && job.engine !== "acestep") return !restarting && !aceStarting;
@@ -376,7 +387,7 @@ let pendingPairCode = "";
 const showPairCode = (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`);
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", "art", "cover", "waveform", "safe-delete", ...(ffmpeg ? ["master", "video"] : []), ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", "art", "cover", "waveform", "safe-delete", ...(ffmpeg ? ["master", "video"] : []), ...(stemDev().ok ? ["stems", ...(ffmpeg ? ["align"] : [])] : []), ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
   systemReport,
   // 엔진 이름 → 분류(없는 엔진·이 PC에서 안 되는 엔진은 null)
   engineLicense: (id) => (id === "yue2" ? (yue2.ok ? YUE2_LICENSE : null) : pyOk.includes(id) ? pyEngine(id).license : null),
@@ -394,6 +405,8 @@ const gateway = createGateway({
   queueSourceDir,
   library,
   video,
+  stems,
+  lyrics: lyricAligner,
   get ffmpeg() {
     return ffmpeg;
   },

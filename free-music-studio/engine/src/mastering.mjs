@@ -84,7 +84,7 @@ function run(ffmpeg, args, { signal, stage, label, duration }) {
 }
 
 /** 파일 정보(ffmpeg -i는 출력 파일이 없어 실패 코드로 끝나므로 출력만 읽는다) */
-function probe(ffmpeg, file) {
+export function probe(ffmpeg, file) {
   return new Promise((resolve) => {
     let out = "";
     const child = spawn(ffmpeg, ["-hide_banner", "-nostdin", "-i", file], { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });

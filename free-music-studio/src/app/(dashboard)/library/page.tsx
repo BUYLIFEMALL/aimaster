@@ -22,6 +22,7 @@ import {
   Music2,
   Undo2,
   SlidersHorizontal,
+  Layers,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -31,6 +32,7 @@ import { TrackOrderList } from "@/components/library/TrackOrderList";
 import { TrackDetailPanel } from "@/components/library/TrackDetailPanel";
 import { TrackMenu } from "@/components/library/TrackMenu";
 import { MasteringDialog } from "@/components/library/MasteringDialog";
+import { StemDialog } from "@/components/library/StemDialog";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
 import { FILTER_LABEL, SORT_LABEL, filterTracks, sortTracks, type TrackFilter, type TrackSort } from "@/lib/trackFilters";
 import { daysLeft } from "@/lib/trash";
@@ -47,6 +49,8 @@ import {
   hasWaveform,
   hasMastering,
   enqueueMaster,
+  hasStems,
+  enqueueStems,
   revealLibraryFolder,
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
@@ -79,6 +83,7 @@ export default function LibraryPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set()); // 여러 곡 고르기(원본 전체 선택 → 빼기·옮기기)
   const [detailId, setDetailId] = useState<string | null>(null); // 오른쪽 곡 상세 패널
   const [mastering, setMastering] = useState<Track | null>(null); // 마스터링 설정 창
+  const [stemFor, setStemFor] = useState<Track | null>(null); // Stem 분리 창
   const [artVersion, setArtVersion] = useState<Record<string, number>>({}); // 표지를 바꾼 곡은 작은 그림도 다시 받는다
   const [filter, setFilter] = useState<TrackFilter>("all");
   const [sort, setSort] = useState<TrackSort>("newest");
@@ -795,6 +800,12 @@ export default function LibraryPage() {
                               disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasMastering(engine.status) ? "엔진 0.6.9 이상(ffmpeg 포함)이 필요합니다" : false,
                               onClick: () => setMastering(t),
                             },
+                            {
+                              label: "Stem 분리 · 보컬/반주·악기별",
+                              icon: <Layers className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasStems(engine.status) ? "엔진 0.6.9 이상(윈도우)이 필요합니다" : false,
+                              onClick: () => setStemFor(t),
+                            },
                             { label: "스타일 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.style_prompt ? false : "스타일이 없습니다", onClick: () => copy(t.style_prompt, "스타일") },
                             { label: "가사 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.lyrics.trim() ? false : "가사 없는 곡입니다", onClick: () => copy(t.lyrics, "가사") },
                             {
@@ -856,6 +867,17 @@ export default function LibraryPage() {
                   setMessage(e instanceof EngineError ? e.message : "마스터링을 시작하지 못했습니다.");
                   setMastering(null);
                 }
+              }}
+            />
+          )}
+          {stemFor && (
+            <StemDialog
+              track={stemFor}
+              onClose={() => setStemFor(null)}
+              onStart={async (mode) => {
+                await enqueueStems(stemFor, mode);
+                setNotice(`「${stemFor.title}」 Stem 분리를 대기열에 넣었습니다. 끝나면 이 곡 「…」 → 「Stem 분리」에서 듣고 내려받을 수 있습니다(작업 대기열 화면에서 진행 확인).`);
+                setStemFor(null);
               }}
             />
           )}

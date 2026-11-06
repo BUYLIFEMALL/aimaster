@@ -475,7 +475,7 @@ export async function deleteFromLibrary(id: string): Promise<{ skipped: string[]
 // 엔진이 차례로 만들고 보관함에 저장한다. 끝난 작업의 「모든 음악」 기록은 사이트가 남긴다(QueueSync).
 
 export type QueueStatus = "queued" | "running" | "done" | "failed" | "cancelled" | "interrupted";
-export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master"; parent_id?: string | null };
+export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master" | "stems"; parent_id?: string | null };
 export type QueueJob = {
   id: string;
   kind: QueueTrack["kind"];
@@ -716,6 +716,34 @@ export async function markJobRecorded(id: string) {
 /** 끝난 작업 → 「모든 음악」 기록 본문(/api/tracks) */
 export function trackRecordOf(job: QueueJob) {
   return { ...job.track, title: job.title, license: job.license ?? licenseOfEngine(job.engine ?? "acestep") };
+}
+
+// ── Stem 분리(엔진 0.6.9+, 원본 boks-music runner.py stems) ─────────────
+export type StemMode = "two" | "multi";
+export const STEM_MODE_LABEL: Record<StemMode, string> = { two: "2트랙 — 보컬 / 반주", multi: "6트랙 — 보컬·드럼·베이스·기타·피아노·그 외" };
+export type StemBatch = { id: string; mode: StemMode; createdAt: string; dir: string; device: string; files: { label: string; size: number; missing: boolean }[] };
+
+/** 이 엔진이 Stem 분리를 할 수 있는가(0.6.9+, 윈도우) */
+export function hasStems(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("stems");
+}
+/** 보관함 곡을 Stem 분리 대기열에 넣는다 — 결과는 곡이 아니라 노래 저장 폴더 「Stem」의 WAV */
+export async function enqueueStems(source: { id: string; title: string; style_prompt: string; lyrics: string; duration_sec: number; device: string; song_id: string | null; license: "commercial" | "noncommercial" }, mode: StemMode): Promise<QueueJob> {
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: source.song_id, style_prompt: source.style_prompt, lyrics: source.lyrics, duration_sec: source.duration_sec, device: source.device, kind: "stems", parent_id: source.id };
+  const title = `${source.title} (${mode === "multi" ? "6트랙" : "2트랙"} Stem)`.slice(0, 80);
+  const res = await call("/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "stems", title, track, task: { sourceId: source.id, mode }, license: source.license }) });
+  return (await res.json()).job;
+}
+export async function listStems(sourceId: string): Promise<StemBatch[]> {
+  return (await (await call(`/library/${sourceId}/stems`)).json()).stems ?? [];
+}
+/** n번째 트랙 WAV를 브라우저 안 주소로(다 쓰면 URL.revokeObjectURL) */
+export async function fetchStemFile(sourceId: string, stemId: string, n: number): Promise<string> {
+  const res = await call(`/library/${sourceId}/stems/${stemId}/${n}`, {}, 300_000);
+  return URL.createObjectURL(await res.blob());
+}
+export async function deleteStems(sourceId: string, stemId: string) {
+  await call(`/library/${sourceId}/stems/${stemId}`, { method: "DELETE" });
 }
 
 // ── 플레이리스트 영상(엔진 0.6.9+, 원본 boks-music video-render) ─────────────
