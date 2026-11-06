@@ -167,7 +167,7 @@ export default function GuidePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-white">
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col selection:bg-indigo-500 selection:text-white">
       {/* 1. 상단 글로벌 네비게이션 헤더 */}
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -182,20 +182,20 @@ export default function GuidePage() {
             <span className="text-slate-700">|</span>
             <a
               href="https://www.buylife.xyz"
-              className="text-xs text-slate-400 hover:text-amber-400 transition-colors hidden sm:inline"
+              className="text-xs text-slate-400 hover:text-indigo-400 transition-colors hidden sm:inline"
             >
               AIMaster 메인
             </a>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              크리에이티브 아틀리에 가이드
+            <span className="text-[11px] font-semibold text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-indigo-400" />
+              피그마 프로 캔버스 아틀리에 가이드
             </span>
             <Link
               href="/"
-              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 hover:brightness-110 transition-all shadow-md shadow-amber-500/20"
+              className="px-4 py-2 btn-3d-indigo text-xs flex items-center justify-center cursor-pointer"
             >
               지금 만들기
             </Link>
@@ -208,14 +208,14 @@ export default function GuidePage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-72 bg-gradient-to-tr from-amber-500/10 via-yellow-500/5 to-transparent blur-3xl pointer-events-none" />
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-5 shadow-inner">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-indigo-500/30 text-indigo-400 text-xs font-semibold mb-5 shadow-inner">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
             <span>19개 직군 123종 전문 그래픽 템플릿 & 매직 에디터 가이드북</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
             아이디어가 즉시 상업용 비주얼로! <br />
-            <span className="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-indigo-400 via-pink-300 to-indigo-300 bg-clip-text text-transparent">
               AI 올인원 그래픽 자동화 마스터 가이드
             </span>
           </h1>
@@ -228,15 +228,15 @@ export default function GuidePage() {
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-400 font-medium">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60">
-              <CheckCircle2 className="w-4 h-4 text-amber-400" />
+              <CheckCircle2 className="w-4 h-4 text-indigo-400" />
               <span>본인 Gemini 키 무제한 연동</span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60">
-              <CheckCircle2 className="w-4 h-4 text-amber-400" />
+              <CheckCircle2 className="w-4 h-4 text-indigo-400" />
               <span>123종 프리셋 즉시 사용</span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60">
-              <CheckCircle2 className="w-4 h-4 text-amber-400" />
+              <CheckCircle2 className="w-4 h-4 text-indigo-400" />
               <span>상업용 무료 라이선스</span>
             </div>
           </div>
@@ -249,7 +249,7 @@ export default function GuidePage() {
         <section className="space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Zap className="w-4 h-4" /> 5-Step Pipeline
               </span>
               <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
@@ -269,10 +269,10 @@ export default function GuidePage() {
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-extrabold text-amber-400/80 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                      <span className="text-xs font-extrabold text-indigo-400/80 bg-indigo-500/10 px-2 py-0.5 rounded border border-amber-500/20">
                         STEP {st.num}
                       </span>
-                      <div className="w-8 h-8 rounded-lg bg-slate-700/60 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
+                      <div className="w-8 h-8 rounded-lg bg-slate-700/60 flex items-center justify-center text-indigo-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
                         <IconComp className="w-4 h-4" />
                       </div>
                     </div>
@@ -302,12 +302,12 @@ export default function GuidePage() {
         </section>
 
         {/* 파트 2: 본인 Gemini API 키 발급 & 연동 안내 */}
-        <section className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-800/90 to-slate-850/90 border border-amber-500/30 relative overflow-hidden shadow-xl">
-          <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <section className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-800/90 to-slate-850/90 border border-indigo-500/30 relative overflow-hidden shadow-xl">
+          <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3 max-w-xl">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold">
                 <Key className="w-3.5 h-3.5" />
                 <span>최상위 절대 규칙 준수 — 본인 API 키 직접 연동</span>
               </div>
@@ -335,7 +335,7 @@ export default function GuidePage() {
                 href="/"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600/70 transition-colors"
               >
-                <Key className="w-3.5 h-3.5 text-amber-400" />
+                <Key className="w-3.5 h-3.5 text-indigo-400" />
                 <span>스튜디오에서 키 입력하기</span>
               </Link>
             </div>
@@ -343,7 +343,7 @@ export default function GuidePage() {
 
           <div className="mt-6 pt-6 border-t border-slate-700/60 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div className="flex items-start gap-2.5">
-              <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 font-bold text-[11px] mt-0.5">
+              <div className="w-5 h-5 rounded-full bg-amber-500/20 text-indigo-400 flex items-center justify-center flex-shrink-0 font-bold text-[11px] mt-0.5">
                 1
               </div>
               <div className="text-slate-300">
@@ -352,7 +352,7 @@ export default function GuidePage() {
               </div>
             </div>
             <div className="flex items-start gap-2.5">
-              <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 font-bold text-[11px] mt-0.5">
+              <div className="w-5 h-5 rounded-full bg-amber-500/20 text-indigo-400 flex items-center justify-center flex-shrink-0 font-bold text-[11px] mt-0.5">
                 2
               </div>
               <div className="text-slate-300">
@@ -361,7 +361,7 @@ export default function GuidePage() {
               </div>
             </div>
             <div className="flex items-start gap-2.5">
-              <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 font-bold text-[11px] mt-0.5">
+              <div className="w-5 h-5 rounded-full bg-amber-500/20 text-indigo-400 flex items-center justify-center flex-shrink-0 font-bold text-[11px] mt-0.5">
                 3
               </div>
               <div className="text-slate-300">
@@ -376,7 +376,7 @@ export default function GuidePage() {
         <section className="space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Palette className="w-4 h-4" /> 123 Presets Catalog
               </span>
               <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
@@ -414,7 +414,7 @@ export default function GuidePage() {
                   className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700/80 space-y-6"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
                       <GrpIcon className="w-5 h-5" />
                     </div>
                     <div>
@@ -430,7 +430,7 @@ export default function GuidePage() {
                         className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-amber-500/40 transition-colors"
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold text-amber-400">{sub.name}</span>
+                          <span className="text-xs font-bold text-indigo-400">{sub.name}</span>
                           <span className="text-[10px] font-semibold text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
                             {sub.count}종 템플릿
                           </span>
@@ -453,7 +453,7 @@ export default function GuidePage() {
               <Brush className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+              <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
                 Magic Inpainting Masterclass
               </span>
               <h2 className="text-lg sm:text-xl font-bold text-white">
@@ -498,7 +498,7 @@ export default function GuidePage() {
         {/* 파트 5: 자주 묻는 질문 (FAQ) 아코디언 */}
         <section className="space-y-6">
           <div>
-            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
               <HelpCircle className="w-4 h-4" /> FAQ
             </span>
             <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
@@ -522,7 +522,7 @@ export default function GuidePage() {
                       {faq.q}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-amber-400 flex-shrink-0 transition-transform duration-200 ${
+                      className={`w-4 h-4 text-indigo-400 flex-shrink-0 transition-transform duration-200 ${
                         isOpen ? "rotate-180" : ""
                       }`}
                     />
@@ -539,7 +539,7 @@ export default function GuidePage() {
         </section>
 
         {/* 파트 6: 즉시 시작 CTA 배너 */}
-        <section className="text-center py-10 px-6 rounded-2xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border border-amber-500/30 space-y-4">
+        <section className="text-center py-10 px-6 rounded-2xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border border-indigo-500/30 space-y-4">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-slate-950 mx-auto shadow-lg shadow-amber-500/30">
             <Sparkles className="w-6 h-6" />
           </div>

@@ -2,10 +2,53 @@
 
 @layer base {
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard Variable", "Pretendard", "Noto Sans KR", sans-serif;
     color: #0f172a;
     background-color: #f8fafc;
   }
+}
+
+/* 3D 엠보싱 버튼 규격 (60번 피그마 프로 비주얼 아틀리에) */
+.btn-3d-indigo {
+  background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+  box-shadow: 0 4px 0 #3730a3, 0 8px 20px rgba(99, 102, 241, 0.35);
+  color: #fff !important;
+  font-weight: 800;
+  border: 1px solid #818cf8;
+  border-radius: 12px;
+  transition: all 0.15s ease;
+}
+.btn-3d-indigo:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 #3730a3, 0 10px 24px rgba(99, 102, 241, 0.45);
+}
+.btn-3d-indigo:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #3730a3, 0 3px 10px rgba(99, 102, 241, 0.3);
+}
+
+.btn-3d-pink {
+  background: linear-gradient(180deg, #ec4899 0%, #db2777 100%);
+  box-shadow: 0 4px 0 #9d174d, 0 8px 20px rgba(236, 72, 153, 0.35);
+  color: #fff !important;
+  font-weight: 800;
+  border: 1px solid #f472b6;
+  border-radius: 12px;
+  transition: all 0.15s ease;
+}
+.btn-3d-pink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 #9d174d, 0 10px 24px rgba(236, 72, 153, 0.45);
+}
+.btn-3d-pink:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #9d174d, 0 3px 10px rgba(236, 72, 153, 0.3);
+}
+
+/* 캔버스 모눈 그리드 */
+.canvas-grid {
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

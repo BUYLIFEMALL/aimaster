@@ -560,33 +560,33 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
       {/* 2. 템플릿 탐색 컬럼 (2번째 열) */}
       <div className="w-80 bg-white border-r border-slate-200 flex flex-col h-full flex-shrink-0 z-10">
         {/* 상단 AI 매직 에디터 바로가기 배너 */}
-        <div className="p-3 border-b border-slate-100 bg-gradient-to-r from-amber-500/10 to-orange-500/10">
+        <div className="p-3 border-b border-slate-100 bg-gradient-to-r from-indigo-500/10 to-pink-500/10">
           <button
             onClick={() => setMode(mode === "EDIT" ? "CREATE" : "EDIT")}
             className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition-all ${
               mode === "EDIT"
-                ? "bg-amber-500 text-white border-amber-600 shadow-sm"
-                : "bg-white text-slate-800 border-amber-200/80 hover:bg-amber-50"
+                ? "bg-gradient-to-r from-indigo-600 to-pink-600 text-white border-indigo-700 shadow-sm"
+                : "bg-white text-slate-800 border-indigo-200/80 hover:bg-indigo-50/50"
             }`}
           >
             <div className="flex items-center gap-2">
               <div
                 className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                  mode === "EDIT" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-600"
+                  mode === "EDIT" ? "bg-white/20 text-white" : "bg-indigo-100 text-indigo-600"
                 }`}
               >
                 <Wand2 className="w-4 h-4" />
               </div>
               <div className="text-left">
                 <div className="text-xs font-bold">AI 매직 에디터</div>
-                <div className={`text-[10px] ${mode === "EDIT" ? "text-amber-100" : "text-slate-500"}`}>
+                <div className={`text-[10px] ${mode === "EDIT" ? "text-indigo-100" : "text-slate-500"}`}>
                   브러시로 영역을 선택하고 편집
                 </div>
               </div>
             </div>
             <span
               className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                mode === "EDIT" ? "bg-white text-amber-600" : "bg-amber-100 text-amber-700"
+                mode === "EDIT" ? "bg-white text-indigo-700" : "bg-indigo-100 text-indigo-700"
               }`}
             >
               {mode === "EDIT" ? "ON" : "OFF"}
@@ -603,7 +603,7 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
               placeholder="123종 템플릿 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-amber-500"
+              className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
             />
           </div>
           <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 px-0.5">
@@ -623,19 +623,19 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
                 onClick={() => setSelectedTemplate(tpl)}
                 className={`w-full text-left p-2.5 rounded-xl border transition-all flex items-start gap-2.5 ${
                   isSelected
-                    ? "bg-amber-50/70 border-amber-300 shadow-xs"
+                    ? "bg-indigo-50/70 border-indigo-300 shadow-xs"
                     : "bg-white border-slate-200/70 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
                 <div
                   className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    isSelected ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-600"
+                    isSelected ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600"
                   }`}
                 >
                   <IconComponent className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className={`text-xs font-bold truncate ${isSelected ? "text-amber-900" : "text-slate-800"}`}>
+                  <div className={`text-xs font-bold truncate ${isSelected ? "text-indigo-950" : "text-slate-800"}`}>
                     {tpl.title}
                   </div>
                   <div className="text-[10.5px] text-slate-500 line-clamp-1 mt-0.5">{tpl.description}</div>
@@ -648,11 +648,46 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
 
       {/* 3. 중앙 작업 영역 (입력 및 세부 설정) */}
       <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-5 bg-slate-50/50">
+        {/* 4단계 그래픽 파이프라인 인디케이터 배너 (60번 피그마 프로 비주얼 아틀리에) */}
+        <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-900 border border-indigo-500/30 rounded-2xl p-4 text-white shadow-lg shadow-indigo-950/20 mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+              <span className="text-xs font-black tracking-wider uppercase text-indigo-300">
+                🎨 FIGMA PRO VISUAL GRAPHIC PIPELINE
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-slate-300 font-medium">
+              <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-bold">
+                123 PRESETS LOADED
+              </span>
+              <span>Gemini & Claude Multi-Engine</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div className="bg-indigo-600/30 border border-indigo-400/40 rounded-xl p-2.5">
+              <div className="text-[10px] text-indigo-300 font-black">STEP 01</div>
+              <div className="font-bold text-white text-xs mt-0.5">123종 프리셋 탐색</div>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-2.5">
+              <div className="text-[10px] text-slate-400 font-black">STEP 02</div>
+              <div className="font-bold text-slate-200 text-xs mt-0.5">필드 변수 튜닝</div>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-2.5">
+              <div className="text-[10px] text-slate-400 font-black">STEP 03</div>
+              <div className="font-bold text-slate-200 text-xs mt-0.5">스마트 인페인팅</div>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-2.5">
+              <div className="text-[10px] text-slate-400 font-black">STEP 04</div>
+              <div className="font-bold text-slate-200 text-xs mt-0.5">벡터/HD 에셋 추출</div>
+            </div>
+          </div>
+        </div>
         {/* 템플릿 헤더 정보 */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-xs">
                 <SelectedIcon className="w-5 h-5" />
               </div>
               <div>
@@ -668,10 +703,10 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
           {/* 💡 활용 팁 & 레퍼런스 가이드 아코디언 */}
           {selectedTemplate.usage && (
             <div className="p-3.5 bg-amber-50/60 border border-amber-200/60 rounded-xl text-xs space-y-1">
-              <div className="font-bold text-amber-900 flex items-center gap-1.5">
+              <div className="font-bold text-indigo-900 flex items-center gap-1.5">
                 <span>💡</span> 활용 팁 & 레퍼런스 가이드
               </div>
-              <div className="text-amber-800/90 whitespace-pre-line text-[11px] leading-relaxed">
+              <div className="text-indigo-800/90 whitespace-pre-line text-[11px] leading-relaxed">
                 {selectedTemplate.usage}
               </div>
             </div>
@@ -698,7 +733,7 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
               <button
                 onClick={() => setMode("EDIT")}
                 className={`px-3 py-1 rounded-md transition-colors ${
-                  mode === "EDIT" ? "bg-white text-amber-600 shadow-xs font-bold" : "text-slate-500 hover:text-slate-800"
+                  mode === "EDIT" ? "bg-white text-indigo-600 shadow-xs font-bold" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 편집 모드
@@ -717,7 +752,7 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
                 onClick={() => setModelTier("standard")}
                 className={`p-2.5 rounded-xl border text-left transition-all ${
                   modelTier === "standard"
-                    ? "bg-amber-50/70 border-amber-400 shadow-xs text-amber-900"
+                    ? "bg-indigo-50/70 border-indigo-400 shadow-xs text-indigo-900"
                     : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
@@ -732,14 +767,14 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
                 onClick={() => setModelTier("pro")}
                 className={`p-2.5 rounded-xl border text-left transition-all ${
                   modelTier === "pro"
-                    ? "bg-amber-50/70 border-amber-400 shadow-xs text-amber-900"
+                    ? "bg-indigo-50/70 border-indigo-400 shadow-xs text-indigo-900"
                     : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <div className="font-bold text-xs flex items-center gap-1.5">
-                  <Crown className="w-3.5 h-3.5 text-amber-600" />
+                  <Crown className="w-3.5 h-3.5 text-indigo-600" />
                   <span>✨ 나노바나나2</span>
-                  <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-1 rounded">Pro</span>
+                  <span className="text-[10px] font-bold text-indigo-600 bg-indigo-100 px-1 rounded">Pro</span>
                 </div>
                 <div className="text-[10.5px] text-slate-400 mt-0.5">초고화질 2K/4K, 인페인팅 최적화</div>
               </button>
@@ -851,7 +886,7 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-              <Wand2 className="w-4 h-4 text-amber-600" />
+              <Wand2 className="w-4 h-4 text-indigo-600" />
               <span>AI 입력 도우미</span>
             </div>
 
@@ -978,7 +1013,7 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
             <button
               onClick={handleGenerate}
               disabled={isGenerating}
-              className="flex-1 py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-50"
+              className="flex-1 py-3 px-4 btn-3d-indigo text-xs flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg shadow-indigo-500/20"
             >
               {isGenerating ? (
                 <>
@@ -1013,7 +1048,7 @@ export default function AllInOneGraphicApp({ userEmail }: { userEmail?: string |
             <div className="flex items-center gap-1.5">
               <button
                 onClick={handleDownload}
-                className="p-1.5 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                className="p-1.5 text-slate-600 hover:text-indigo-600 hover:bg-amber-50 rounded-lg transition-colors"
                 title="다운로드"
               >
                 <Download className="w-4 h-4" />
