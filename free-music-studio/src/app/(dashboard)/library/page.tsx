@@ -20,6 +20,7 @@ import {
   Pencil,
   Palette,
   Music2,
+  Undo2,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -30,6 +31,7 @@ import { TrackDetailPanel } from "@/components/library/TrackDetailPanel";
 import { TrackMenu } from "@/components/library/TrackMenu";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
 import { FILTER_LABEL, SORT_LABEL, filterTracks, sortTracks, type TrackFilter, type TrackSort } from "@/lib/trackFilters";
+import { daysLeft } from "@/lib/trash";
 
 const STATE_KEY = "fms.libraryView"; // 원본처럼 보던 화면·검색·필터를 탭 안에서 기억(sessionStorage)
 import { usePlayer } from "@/components/player/PlayerProvider";
@@ -81,7 +83,7 @@ export default function LibraryPage() {
   useEffect(() => {
     try {
       const s = JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null");
-      if (s?.view?.type === "all" || ((s?.view?.type === "project" || s?.view?.type === "playlist") && typeof s.view.id === "string")) setView(s.view);
+      if (s?.view?.type === "all" || s?.view?.type === "trash" || ((s?.view?.type === "project" || s?.view?.type === "playlist") && typeof s.view.id === "string")) setView(s.view);
       if (typeof s?.query === "string") setQuery(s.query);
       if (s?.filter in FILTER_LABEL) setFilter(s.filter);
       if (s?.sort in SORT_LABEL) setSort(s.sort);
@@ -121,9 +123,20 @@ export default function LibraryPage() {
     const data = await res.json();
     setProjects(data.projects ?? []);
     setPlaylists(data.playlists ?? []);
+    setTrashCount(data.trashCount ?? 0);
     setCollectionsLoaded(true);
   }, []);
   const [collectionsLoaded, setCollectionsLoaded] = useState(false);
+  // 휴지통(원본 boks-music trash.mjs, MIT) — 휴지통 화면을 열 때 읽는다
+  const [trash, setTrash] = useState<Track[]>([]);
+  const [trashCount, setTrashCount] = useState(0);
+  const loadTrash = useCallback(async () => {
+    const res = await fetch("/api/tracks?trash=1").catch(() => null);
+    if (res?.ok) setTrash((await res.json()).tracks ?? []);
+  }, []);
+  useEffect(() => {
+    if (view.type === "trash") void loadTrash();
+  }, [view, loadTrash]);
 
   const load = useCallback(async () => {
     try {
@@ -172,7 +185,7 @@ export default function LibraryPage() {
     view.type === "project" ? projects.find((p) => p.id === view.id) ?? null : view.type === "playlist" ? playlists.find((p) => p.id === view.id) ?? null : null;
   // 기억해 둔 프로젝트·플레이리스트가 그사이 지워졌으면 「모든 음악」으로
   useEffect(() => {
-    if (collectionsLoaded && view.type !== "all" && !current) setView({ type: "all" });
+    if (collectionsLoaded && (view.type === "project" || view.type === "playlist") && !current) setView({ type: "all" });
   }, [collectionsLoaded, view, current]);
 
   const shown = useMemo(() => {
@@ -181,12 +194,14 @@ export default function LibraryPage() {
     else if (view.type === "playlist") {
       const byId = new Map(tracks.map((t) => [t.id, t]));
       list = order.map((id) => byId.get(id)).filter((t): t is Track => !!t);
-    } else list = tracks;
+    } else if (view.type === "trash") list = trash;
+    else list = tracks;
     const q = query.trim().toLowerCase();
     if (q) list = list.filter((t) => `${t.title} ${t.style_prompt} ${t.lyrics}`.toLowerCase().includes(q));
     list = filterTracks(list, filter, (id) => arts.has(id));
+    if (view.type === "trash" && sort === "newest") return list; // 휴지통은 넣은 순서(최근 넣은 것부터) 그대로
     return sortTracks(list, view.type === "playlist" || sort !== "manual" ? sort : "newest");
-  }, [tracks, view, order, query, filter, sort, arts]);
+  }, [tracks, trash, view, order, query, filter, sort, arts]);
   // 플레이리스트는 「플레이리스트 순서」로 보고 걸러 내지 않을 때만 끌어서 순서를 바꿀 수 있다
   const canReorder = view.type === "playlist" && sort === "manual" && filter === "all" && !query.trim();
   const narrowed = !!query.trim() || filter !== "all";
@@ -204,24 +219,59 @@ export default function LibraryPage() {
   };
 
 
-  const remove = async (t: Track) => {
-    const here = onPc?.has(t.id);
-    if (!confirm(here ? `「${t.title}」을 목록과 이 PC 보관함에서 지울까요? 되돌릴 수 없습니다.` : `「${t.title}」을 목록에서 지울까요?`)) return;
-    setBusy(t.id);
+  // 지우기 = 휴지통으로(되살릴 수 있음, 30일 뒤 자동 비움 — 관리자·시험 계정 제외). 완전 삭제는 휴지통에서.
+  const moveToTrash = async (ids: string[]) => {
     setMessage(null);
-    try {
-      const kept = here ? (await deleteFromLibrary(t.id)).skipped : [];
-      const res = await fetch(`/api/tracks/${t.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      if (kept.length) setNotice(`목록에서 지웠습니다. 보관함 폴더 밖에 있는 파일이라 안전을 위해 PC에서는 지우지 않았습니다: ${kept.join(", ")}`);
-      setTracks((list) => list.filter((x) => x.id !== t.id));
-      setOrder((o) => o.filter((x) => x !== t.id));
-      loadCollections();
-    } catch (e) {
-      setMessage(e instanceof EngineError ? e.message : "지우지 못했습니다.");
-    } finally {
-      setBusy(null);
+    const res = await fetch("/api/tracks/trash", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return setMessage(data.error || "휴지통으로 옮기지 못했습니다.");
+    const gone = new Set(ids);
+    setTracks((list) => list.filter((x) => !gone.has(x.id)));
+    setSelected(new Set());
+    if (detailId && gone.has(detailId)) setDetailId(null);
+    setNotice(`${data.trashed}곡을 휴지통으로 옮겼습니다. 휴지통에서 되살릴 수 있고, ${exempt ? "이 계정은 자동으로 비우지 않습니다" : "30일 뒤 자동으로 비워집니다"}.`);
+    loadCollections();
+  };
+  const remove = (t: Track) => moveToTrash([t.id]);
+
+  const restoreFromTrash = async (ids: string[], projectId: string | null = null) => {
+    setMessage(null);
+    const res = await fetch("/api/tracks/trash", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids, restore: true, project_id: projectId }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return setMessage(data.error || "되살리지 못했습니다.");
+    setTrash((list) => list.filter((x) => !ids.includes(x.id)));
+    setSelected(new Set());
+    setNotice(`${data.restored}곡을 되살렸습니다.${projectId ? ` 원래 프로젝트가 없던 곡은 「${projects.find((p) => p.id === projectId)?.name ?? ""}」에 넣었습니다.` : ""}`);
+    load();
+    loadCollections();
+  };
+
+  // 완전 삭제 — 곡 기록을 지우고, 이 PC에 음원이 있으면 엔진이 보관함 안의 파일만 지운다(0.6.9 안전 규칙)
+  const purge = async (ids: string[]) => {
+    const list = trash.filter((t) => ids.includes(t.id));
+    const onThisPc = list.filter((t) => libOk && onPc?.has(t.id)).length;
+    if (!confirm(`${list.length}곡을 완전히 지울까요? 되돌릴 수 없습니다.${onThisPc ? ` 이 PC 보관함의 음원 ${onThisPc}개도 함께 지웁니다.` : ""}`)) return;
+    setMessage(null);
+    const kept: string[] = [];
+    let done = 0;
+    for (const t of list) {
+      setBusy(t.id);
+      try {
+        if (libOk && onPc?.has(t.id)) kept.push(...(await deleteFromLibrary(t.id)).skipped);
+        const res = await fetch(`/api/tracks/${t.id}`, { method: "DELETE" });
+        if (!res.ok) throw new Error();
+        done++;
+      } catch (e) {
+        setMessage(e instanceof EngineError ? e.message : `「${t.title}」을 지우지 못했습니다.`);
+        break;
+      }
     }
+    setBusy(null);
+    const removedIds = new Set(list.slice(0, done).map((t) => t.id));
+    setTrash((l) => l.filter((x) => !removedIds.has(x.id)));
+    setSelected(new Set());
+    setNotice(`${done}곡을 완전히 지웠습니다.${kept.length ? ` 보관함 폴더 밖 파일은 안전을 위해 남겼습니다: ${kept.join(", ")}` : ""}`);
+    loadCollections();
   };
 
   // ── 프로젝트·플레이리스트 ─────────────────────────────
@@ -248,11 +298,15 @@ export default function LibraryPage() {
 
   const deleteCurrent = async () => {
     if (!current) return;
-    const what = current.kind === "project" ? "프로젝트를 지울까요? 곡은 지워지지 않고 묶음만 풀립니다." : "플레이리스트를 지울까요? 곡은 지워지지 않습니다.";
+    const what = current.kind === "project" ? "프로젝트를 지울까요? 이 프로젝트의 곡은 휴지통으로 옮겨집니다(휴지통에서 되살릴 수 있음)." : "플레이리스트를 지울까요? 곡은 지워지지 않습니다.";
     if (!confirm(`「${current.name}」 ${what}`)) return;
     const res = await fetch(`/api/collections/${current.id}`, { method: "DELETE" });
-    if (!res.ok) return setMessage("지우지 못했습니다.");
-    if (current.kind === "project") setTracks((list) => list.map((t) => (t.project_id === current.id ? { ...t, project_id: null } : t)));
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return setMessage(data.error || "지우지 못했습니다.");
+    if (current.kind === "project") {
+      setTracks((list) => list.filter((t) => t.project_id !== current.id));
+      setNotice(`「${current.name}」 프로젝트를 지우고 ${data.trashed ?? 0}곡을 휴지통으로 옮겼습니다.`);
+    }
     setView({ type: "all" });
     loadCollections();
   };
@@ -416,6 +470,7 @@ export default function LibraryPage() {
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
         <CollectionsNav
           total={tracks.length}
+          trashCount={trashCount}
           projects={projects}
           playlists={playlists}
           view={view}
@@ -452,7 +507,7 @@ export default function LibraryPage() {
               </>
             ) : (
               <h2 className="text-sm font-bold text-slate-100">
-                {current ? `${current.kind === "project" ? "📁" : "🎶"} ${current.name}` : "🎧 모든 음악"}{" "}
+                {current ? `${current.kind === "project" ? "📁" : "🎶"} ${current.name}` : view.type === "trash" ? "🗑 휴지통" : "🎧 모든 음악"}{" "}
                 <span className="font-normal text-slate-500">{shown.length}곡</span>
               </h2>
             )}
@@ -537,7 +592,7 @@ export default function LibraryPage() {
             <p className="text-xs text-slate-500">불러오는 중…</p>
           ) : shown.length === 0 ? (
             <div className="rounded-2xl border border-slate-800 bg-[#0a0f1d] p-8 text-center text-xs text-slate-400">
-              {tracks.length === 0 ? (
+              {tracks.length === 0 && view.type !== "trash" ? (
                 <>
                   아직 만든 노래가 없습니다.{" "}
                   <Link href="/songs" className="font-semibold text-emerald-300 underline underline-offset-2">
@@ -545,6 +600,8 @@ export default function LibraryPage() {
                   </Link>
                   에서 첫 노래를 만들어 보세요.
                 </>
+              ) : view.type === "trash" && !narrowed ? (
+                `휴지통이 비었습니다. 지운 곡은 여기로 와서 ${exempt ? "직접 비울 때까지" : "30일 동안"} 되살릴 수 있습니다.`
               ) : narrowed ? (
                 "조건에 맞는 노래가 없습니다. 검색어나 「보기」를 바꿔 보세요."
               ) : view.type === "project" ? (
@@ -569,7 +626,31 @@ export default function LibraryPage() {
                 전체 선택
               </label>
               <span>{chosen.length ? `${chosen.length}곡 고름` : "곡 왼쪽 칸을 눌러 여러 곡을 고를 수 있습니다."}</span>
-              {chosen.length > 0 && (
+              {chosen.length > 0 && view.type === "trash" && (
+                <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                  <button type="button" onClick={() => restoreFromTrash(chosen)} className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}>
+                    <Undo2 className="h-3.5 w-3.5" /> 되살리기
+                  </button>
+                  {/* 원래 프로젝트가 지워진 곡은 되살릴 프로젝트를 고를 수 있다(원본 「복원할 프로젝트」) */}
+                  {projects.length > 0 && trash.some((t) => selected.has(t.id) && !t.project_id) && (
+                    <select value="" onChange={(e) => e.target.value && restoreFromTrash(chosen, e.target.value)} className={smallSelect} aria-label="되살려서 넣을 프로젝트">
+                      <option value="">📁 되살려서 프로젝트에 넣기</option>
+                      {projects.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  <button type="button" onClick={() => purge(chosen)} disabled={!!busy} className={`${btn} border-rose-500/40 text-rose-300 hover:bg-rose-950/50`}>
+                    <Trash2 className="h-3.5 w-3.5" /> 완전 삭제
+                  </button>
+                  <button type="button" onClick={() => setSelected(new Set())} className={`${btn} border-slate-700 text-slate-400`}>
+                    고르기 취소
+                  </button>
+                </div>
+              )}
+              {chosen.length > 0 && view.type !== "trash" && (
                 <div className="ml-auto flex flex-wrap items-center gap-1.5">
                   {playable.some((t) => selected.has(t.id)) && (
                     <button type="button" onClick={playChosen} className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}>
@@ -604,6 +685,9 @@ export default function LibraryPage() {
                       <X className="h-3.5 w-3.5" /> 이 플레이리스트에서 빼기
                     </button>
                   )}
+                  <button type="button" onClick={() => moveToTrash(chosen)} className={`${btn} border-rose-500/30 text-rose-300 hover:bg-rose-950/50`}>
+                    <Trash2 className="h-3.5 w-3.5" /> 휴지통으로
+                  </button>
                   <button type="button" onClick={() => setSelected(new Set())} className={`${btn} border-slate-700 text-slate-400`}>
                     고르기 취소
                   </button>
@@ -653,6 +737,13 @@ export default function LibraryPage() {
                           )}
                           {durationLabel(t.duration_sec)} · {DEVICE_LABEL[t.device] ?? t.device} · {new Date(t.created_at).toLocaleString("ko-KR")}
                           {here === false && <span className="text-amber-300/80"> · 이 PC에 음원 없음(다른 PC에서 만들었거나 지운 곡)</span>}
+                          {t.trashed_at && (
+                            <span className="text-rose-300/80">
+                              {" "}
+                              · 휴지통에 넣음 {new Date(t.trashed_at).toLocaleDateString("ko-KR")}
+                              {exempt ? "" : ` · ${daysLeft(t.trashed_at)}일 뒤 자동 비움`}
+                            </span>
+                          )}
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center gap-1.5">
@@ -676,7 +767,10 @@ export default function LibraryPage() {
                         )}
                         <TrackMenu
                           label={t.title}
-                          items={[
+                          items={view.type === "trash" ? [
+                            { label: "되살리기", icon: <Undo2 className="h-3.5 w-3.5" />, onClick: () => void restoreFromTrash([t.id]) },
+                            { label: "완전 삭제", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void purge([t.id]) },
+                          ] : [
                             { label: "곡 상세 · 제목/가사 수정", icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => setDetailId(t.id) },
                             {
                               label: "이 곡으로 커버 만들기",
@@ -699,7 +793,7 @@ export default function LibraryPage() {
                               onClick: () => void revealLibraryFolder().catch(() => setMessage("폴더를 열지 못했습니다.")),
                             },
                             { label: "이 플레이리스트에서 빼기", icon: <X className="h-3.5 w-3.5" />, hidden: !inPlaylist, onClick: () => void removeFromPlaylist([t.id]) },
-                            { label: "곡 지우기", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, hidden: inPlaylist, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void remove(t) },
+                            { label: "휴지통으로", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, hidden: inPlaylist, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void remove(t) },
                           ]}
                         />
                       </div>

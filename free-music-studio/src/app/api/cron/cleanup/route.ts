@@ -33,5 +33,11 @@ export async function GET(request: Request) {
     if (error) return NextResponse.json({ error: `${table}: ${error.message}`, removed }, { status: 500 });
     removed[table] = count ?? 0;
   }
+  // 휴지통에 넣은 지 30일 지난 곡도 비운다(2026-11-06, 원본 boks-music 휴지통) — 관리자·시험 계정은 뺀다
+  let trash = admin.from(TRACKS_TABLE).delete({ count: "exact" }).lt("trashed_at", cutoff);
+  if (exempt) trash = trash.not("user_id", "in", exempt);
+  const { error: trashError, count: trashCount } = await trash;
+  if (trashError) return NextResponse.json({ error: `trash: ${trashError.message}`, removed }, { status: 500 });
+  removed.trash = trashCount ?? 0;
   return NextResponse.json({ ok: true, removed });
 }

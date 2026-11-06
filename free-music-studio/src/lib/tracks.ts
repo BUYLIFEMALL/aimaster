@@ -18,7 +18,7 @@ export type TrackInput = {
   parent_id: string | null;
 };
 
-export type Track = TrackInput & { created_at: string; project_id: string | null };
+export type Track = TrackInput & { created_at: string; project_id: string | null; /** 휴지통에 넣은 시각(2026-11-06), 아니면 null */ trashed_at?: string | null };
 
 /** 「모든 음악」 → 「가져온 음악」으로 커버 원곡을 넘기는 자리(sessionStorage, 파일은 엔진 보관함에서 다시 받음) */
 export const COVER_SOURCE_KEY = "fms.coverSource";

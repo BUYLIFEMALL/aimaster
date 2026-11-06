@@ -8,15 +8,19 @@ import { isRetentionExempt } from "@/lib/retentionExempt";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const COLUMNS = "id, song_id, project_id, title, style_prompt, lyrics, duration_sec, device, kind, license, parent_id, created_at";
+const COLUMNS = "id, song_id, project_id, title, style_prompt, lyrics, duration_sec, device, kind, license, parent_id, created_at, trashed_at";
 
 // 「모든 음악」 목록 — 서비스 키로 읽으므로 user_id를 코드에서 직접 건다(멀티테넌시 원칙 2).
-export async function GET() {
+// 휴지통 곡은 빼고, ?trash=1이면 휴지통 곡만(넣은 순서 최신부터, 2026-11-06).
+export async function GET(request: Request) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const admin = createAdminClient();
+  const inTrash = new URL(request.url).searchParams.get("trash") === "1";
+  const base = admin.from(TRACKS_TABLE).select(COLUMNS).eq("user_id", access.user.id);
+  const list = inTrash ? base.not("trashed_at", "is", null).order("trashed_at", { ascending: false }) : base.is("trashed_at", null).order("created_at", { ascending: false });
   const [{ data, error }, retentionExempt] = await Promise.all([
-    admin.from(TRACKS_TABLE).select(COLUMNS).eq("user_id", access.user.id).order("created_at", { ascending: false }).limit(500),
+    list.limit(500),
     isRetentionExempt(admin, access.user.id),
   ]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Library, FolderClosed, ListMusic, Plus } from "lucide-react";
+import { Library, FolderClosed, ListMusic, Plus, Trash2 } from "lucide-react";
 import type { Collection, CollectionKind } from "@/lib/collections";
 
-export type View = { type: "all" } | { type: "project" | "playlist"; id: string };
+export type View = { type: "all" } | { type: "trash" } | { type: "project" | "playlist"; id: string };
 
 /** 「모든 음악」 왼쪽 — 모든 음악 / 프로젝트 / 플레이리스트 목록과 새로 만들기(원본 앱 PROJECTS·PLAYLISTS). */
 export function CollectionsNav({
   total,
+  trashCount = 0,
   projects,
   playlists,
   view,
@@ -16,6 +17,7 @@ export function CollectionsNav({
   onCreate,
 }: {
   total: number;
+  trashCount?: number;
   projects: Collection[];
   playlists: Collection[];
   view: View;
@@ -94,6 +96,13 @@ export function CollectionsNav({
       </button>
       {group("project", "프로젝트", projects)}
       {group("playlist", "플레이리스트", playlists)}
+      <div className="border-t border-slate-800 pt-2">
+        <button type="button" onClick={() => onView({ type: "trash" })} className={item(view.type === "trash")}>
+          <Trash2 className="h-3.5 w-3.5 shrink-0 text-rose-300" />
+          <span className="flex-1">휴지통</span>
+          <span className="text-[10px] text-slate-500">{trashCount}</span>
+        </button>
+      </div>
     </nav>
   );
 }
