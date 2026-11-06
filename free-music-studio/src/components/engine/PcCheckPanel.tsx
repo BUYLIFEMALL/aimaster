@@ -62,7 +62,7 @@ function recommendedItems(rec: QualityOption, report: SystemReport, mode: string
     ["커버·부분 수정", "ACE-Step 원곡 따라 만들기", false],
     ["생성 단계", `${rec.steps}단계${rec.offload ? " · 일부 CPU 사용" : ""}`, false],
     ["MP3·표지 넣기", ffmpeg ? "ffmpeg 준비됨" : "ffmpeg 없음 — 원음만", !ffmpeg],
-    ["음원 분리(Stem)", "다음 단계에서 추가", true],
+    ["음원 분리(Stem)", "곧 추가(보컬·반주 / 6트랙)", true],
     ["가사 시간 맞추기", "다음 단계에서 추가", true],
     ["영상 만들기", "브라우저 그래픽 가속 — 다음 단계", true],
     ["저장 형식", "무손실 FLAC 원음 · MP3 320k", false],
@@ -225,8 +225,46 @@ function EngineCheck({ engine }: { engine: Engine }) {
               </div>
             ))}
           </dl>
+          {/* 필요 공간 합계 — 원본 recommended-installation의 requiredDiskGB처럼 받기 전에 여유 공간과 견준다 */}
+          {(() => {
+            const need = rec.installed ? 0 : rec.diskGb;
+            const short = need > 0 && sys.freeGb != null && sys.freeGb < need + 5;
+            return (
+              <p className={`mt-3 rounded-lg px-3 py-2 text-[11px] font-semibold ${short ? "bg-rose-950/50 text-rose-200" : "bg-slate-950/60 text-slate-300"}`}>
+                💾 필요 공간 합계 {need ? `약 ${need}GB` : "0GB(받아 둠)"} · 여유 공간 {sys.freeGb != null ? `${sys.freeGb}GB` : "확인 불가"}
+                {short ? " — 공간이 모자랍니다. 아래 「저장 공간」에서 안 쓰는 모델을 지우거나 모델 폴더를 다른 드라이브로 옮겨 주세요." : ""}
+              </p>
+            );
+          })()}
+          {rec.id !== current && rec.supported && (
+            <button
+              type="button"
+              onClick={() => {
+                setPick(rec.id);
+                void (async () => {
+                  setApplying(true);
+                  setMessage(null);
+                  try {
+                    await setQualityTier(rec.id);
+                    setMessage({ type: "success", text: "추천 구성으로 바꿨습니다. 음악 엔진을 다시 켜는 중입니다(1~2분). 모델은 첫 곡을 만들 때 한 번에 받습니다." });
+                    setWaitingRestart(true);
+                    await engine.refresh();
+                    await load();
+                  } catch (e) {
+                    setMessage({ type: "error", text: e instanceof EngineError ? e.message : "구성을 바꾸지 못했습니다." });
+                  } finally {
+                    setApplying(false);
+                  }
+                })();
+              }}
+              disabled={applying || changing}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
+            >
+              {applying || changing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} 추천 구성으로 한 번에 맞추기
+            </button>
+          )}
           <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-            그래픽 메모리 여유와 함께 돌아가는 기능을 생각한 추천입니다. 곡 길이에 따른 실제 메모리 사용량과 음질은 받은 뒤 만들어 봐야 알 수 있습니다.
+            그래픽 메모리 여유와 함께 돌아가는 기능을 생각한 추천입니다. 모델은 첫 곡을 만들 때 받고, 곡 길이에 따른 실제 메모리 사용량과 음질은 받은 뒤 만들어 봐야 알 수 있습니다.
           </p>
         </div>
       )}
