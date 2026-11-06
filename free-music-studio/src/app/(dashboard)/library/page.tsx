@@ -150,9 +150,10 @@ export default function LibraryPage() {
     setBusy(t.id);
     setMessage(null);
     try {
-      if (here) await deleteFromLibrary(t.id);
+      const kept = here ? (await deleteFromLibrary(t.id)).skipped : [];
       const res = await fetch(`/api/tracks/${t.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
+      if (kept.length) setNotice(`목록에서 지웠습니다. 보관함 폴더 밖에 있는 파일이라 안전을 위해 PC에서는 지우지 않았습니다: ${kept.join(", ")}`);
       setTracks((list) => list.filter((x) => x.id !== t.id));
       setOrder((o) => o.filter((x) => x !== t.id));
       loadCollections();

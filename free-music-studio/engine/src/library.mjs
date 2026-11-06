@@ -3,7 +3,7 @@
 // 파일 이름은 곡 제목이고, 곡 번호(사이트 DB id, uuid) → 파일 경로는 데이터 폴더의 목록 파일에 둔다.
 // 0.1.1 때 `데이터 폴더\library\<uuid>.mp3`로 저장한 곡도 시작할 때 목록에 넣어 그대로 쓴다.
 import { createReadStream } from "node:fs";
-import { access, copyFile, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { access, copyFile, lstat, mkdir, readFile, readdir, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { HEAVY_ENTRIES } from "./storage.mjs";
@@ -65,6 +65,36 @@ async function uniquePath(dir, name, ext = "mp3") {
   return p;
 }
 
+/** child가 root 안(root 자신 제외)인가 — 대소문자를 가리지 않는 윈도우도 맞춘다 */
+export function isInside(root, child) {
+  const norm = (p) => (process.platform === "win32" ? path.resolve(p).toLowerCase() : path.resolve(p));
+  const rel = path.relative(norm(root), norm(child));
+  return !!rel && !rel.startsWith("..") && !path.isAbsolute(rel);
+}
+
+/**
+ * 지워도 되는 곡·표지 파일인가 — 원본 boks-music `electron/trash.mjs`(MIT)의 안전 규칙을 우리 보관함에 맞춤(2026-11-06).
+ * 보관함 폴더(지금·예전에 쓴 폴더) 안이고, 모델 폴더 아래가 아니며, 음원·그림 확장자이고, 파일 자신도 위 폴더도 바로가기(링크)가 아니어야 한다.
+ */
+export async function isOwnedFile(p, roots, exts = [...AUDIO_EXTS, ...ART_EXTS]) {
+  if (typeof p !== "string" || !path.isAbsolute(p)) return false;
+  if (!exts.includes(path.extname(p).slice(1).toLowerCase())) return false;
+  const root = roots.find((r) => isInside(r, p));
+  if (!root) return false;
+  const rel = path.relative(path.resolve(root), path.resolve(p)).split(path.sep);
+  if (rel.slice(0, -1).some((part) => HEAVY_ENTRIES.includes(part) || part.startsWith("."))) return false;
+  try {
+    if ((await lstat(p)).isSymbolicLink()) return false;
+    // 위 폴더가 연결 폴더(정션·링크)면 실제 위치가 보관함 밖일 수 있다
+    const real = await realpath(p);
+    const realRoot = await realpath(root).catch(() => path.resolve(root));
+    if (!isInside(realRoot, real)) return false;
+  } catch {
+    return false;
+  }
+  return true;
+}
+
 async function moveFile(from, to) {
   try {
     await rename(from, to);
@@ -83,11 +113,16 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
   const indexFile = path.join(dataDir, "library-index.json");
   const legacyDir = path.join(dataDir, "library");
   let dir = defaultDir;
+  /** 저장 폴더로 써 온 폴더들 — 지울 수 있는 곳은 여기 안뿐이다(0.6.9) */
+  let knownDirs = [defaultDir];
   /** @type {Record<string, string>} 곡 번호 → 파일 전체 경로 */
   let index = {};
 
+  const remember = (d) => {
+    if (!knownDirs.some((k) => path.resolve(k).toLowerCase() === path.resolve(d).toLowerCase())) knownDirs = [...knownDirs, d].slice(-20);
+  };
   const saveIndex = () => writeFile(indexFile, JSON.stringify(index, null, 2));
-  const saveSettings = () => writeFile(settingsFile, JSON.stringify({ libraryDir: dir }, null, 2));
+  const saveSettings = () => writeFile(settingsFile, JSON.stringify({ libraryDir: dir, knownDirs }, null, 2));
   /**
    * 곡 파일 경로 — 기록된 자리에 없으면 지금 저장 폴더와 그 아래 세 단계 폴더(모델 폴더·숨김 폴더 제외)에서 같은 파일 이름을 찾아 기록을 고친다
    * (회원이 탐색기로 곡을 장르별 폴더로 옮겨 정리한 경우, 2026-11-04 마스터PC E:\AI-Musc → Song\Best 등)
@@ -127,7 +162,9 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
       try {
         const s = JSON.parse(await readFile(settingsFile, "utf8"));
         if (typeof s.libraryDir === "string" && path.isAbsolute(s.libraryDir)) dir = s.libraryDir;
+        if (Array.isArray(s.knownDirs)) for (const d of s.knownDirs) if (typeof d === "string" && path.isAbsolute(d)) remember(d);
       } catch {}
+      remember(dir);
       try {
         index = JSON.parse(await readFile(indexFile, "utf8")) ?? {};
       } catch {
@@ -188,15 +225,26 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
       }
     },
 
+    /**
+     * 곡을 지운다. 보관함 밖·모델 폴더·링크 같은 파일은 지우지 않고 목록에서만 뺀 뒤 skipped로 알려 준다(0.6.9).
+     * 결과: { removed: 지운 파일 수, skipped: 남겨 둔 파일 경로들 }
+     */
     async remove(id) {
-      const p = index[id];
-      if (p) {
-        const art = await artNextTo(p);
-        await rm(p, { force: true });
-        if (art) await rm(art, { force: true }); // 곡을 지우면 그 곡의 표지도
+      const p = (await resolve(id)) ?? index[id];
+      const roots = [...knownDirs, legacyDir];
+      const r = { removed: 0, skipped: /** @type {string[]} */ ([]) };
+      if (p && (await exists(p))) {
+        const art = await artNextTo(p); // 곡을 지우면 그 곡의 표지도
+        for (const f of art ? [p, art] : [p]) {
+          if (await isOwnedFile(f, roots)) {
+            await rm(f, { force: true });
+            r.removed++;
+          } else r.skipped.push(f);
+        }
       }
       delete index[id];
       await saveIndex();
+      return r;
     },
 
     /**
@@ -234,6 +282,7 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
         await saveIndex();
       }
       dir = target;
+      remember(target);
       await saveSettings();
       return { dir, moved, failed };
     },

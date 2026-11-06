@@ -443,8 +443,11 @@ export async function downloadFromLibrary(id: string, title: string, format?: "m
   setTimeout(() => URL.revokeObjectURL(f.url), 60_000);
 }
 
-export async function deleteFromLibrary(id: string): Promise<void> {
-  await call(`/library/${id}`, { method: "DELETE" });
+/** 보관함에서 지우기 — 엔진 0.6.9부터 보관함 밖·모델 폴더·링크 파일은 지우지 않고 skipped로 돌려준다(옛 엔진은 빈 배열) */
+export async function deleteFromLibrary(id: string): Promise<{ skipped: string[] }> {
+  const res = await call(`/library/${id}`, { method: "DELETE" });
+  const data = await res.json().catch(() => ({}));
+  return { skipped: Array.isArray(data?.skipped) ? data.skipped.filter((s: unknown) => typeof s === "string") : [] };
 }
 
 // ── 작업 대기열(엔진 0.1.6+) ─────────────────────────────────

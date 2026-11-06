@@ -301,9 +301,10 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
     return f.stream.pipe(res);
   }
   if (req.method === "DELETE") {
-    await lib.remove(rest);
+    const r = await lib.remove(rest);
     for (const f of await readdir(ctx.mp3CacheDir).catch(() => [])) if (f.startsWith(rest)) await rm(path.join(ctx.mp3CacheDir, f), { force: true });
-    return json(res, 200, { ok: true }, origin);
+    // skipped: 보관함 밖·모델 폴더·링크라서 지우지 않고 남긴 파일(0.6.9)
+    return json(res, 200, { ok: true, removed: r.removed, skipped: r.skipped }, origin);
   }
   return json(res, 404, { error: "없는 주소입니다." }, origin);
 }

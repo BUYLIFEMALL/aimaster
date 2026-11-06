@@ -190,6 +190,45 @@ test("보관함: 같은 이름 그림이 곡 표지, 지우면 표지도 지우�
   }
 });
 
+test("보관함 지우기 안전(0.6.9): 보관함 밖·모델 폴더·음원 아닌 파일은 남기고, 예전 저장 폴더 곡은 지운다", async () => {
+  const data = await mkdtemp(path.join(tmpdir(), "fms-safe-"));
+  try {
+    const root = path.join(data, "Song");
+    const lib = createLibrary(data, { defaultDir: root });
+    await lib.init();
+    const [a, b, c, d] = ["a", "b", "c", "d"].map((x) => `${x.repeat(8)}-1a2b-4c3d-8e9f-0123456789ab`);
+    // 예전 폴더(Song)에 저장한 뒤 새 폴더로 바꿔도(옮기지 않음) 예전 곡은 지울 수 있다
+    const old = await lib.save(a, Buffer.from("fLaC"), "예전 곡", "flac");
+    await lib.setDir(path.join(data, "New"));
+    const r1 = await lib.remove(a);
+    assert.deepEqual(r1, { removed: 1, skipped: [] });
+    assert.equal(await stat(old).then(() => true, () => false), false);
+
+    // 목록 파일이 보관함 밖을 가리키면 지우지 않는다
+    const outside = path.join(data, "중요한 문서.mp3");
+    await writeFile(outside, "keep");
+    const idx = path.join(data, "library-index.json");
+    const index = JSON.parse(await readFile(idx, "utf8"));
+    const heavy = path.join(data, "New", "engines", "모델.mp3");
+    await mkdir(path.dirname(heavy), { recursive: true });
+    await writeFile(heavy, "keep");
+    const notAudio = path.join(data, "New", "설정.json");
+    await writeFile(notAudio, "{}");
+    Object.assign(index, { [b]: outside, [c]: heavy, [d]: notAudio });
+    await writeFile(idx, JSON.stringify(index));
+    const again = createLibrary(data, { defaultDir: root });
+    await again.init();
+    for (const [id, f] of [[b, outside], [c, heavy], [d, notAudio]]) {
+      const r = await again.remove(id);
+      assert.equal(r.removed, 0);
+      assert.deepEqual(r.skipped, [f]);
+      assert.equal(await readFile(f, "utf8").then(() => true), true);
+    }
+  } finally {
+    await rm(data, { recursive: true, force: true });
+  }
+});
+
 test("MP3 인자: 표지 있으면 attached_pic, 원음이 MP3면 소리 복사, webp는 png로", () => {
   const plain = mp3Args("a.flac", "o.mp3");
   assert.ok(plain.includes("libmp3lame") && !plain.includes("attached_pic"));
