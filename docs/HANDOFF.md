@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` v1.01 첫 배포(비공개)**
+- Vercel 프로젝트 `naver-cafe-recruit`(팀 buylife)를 만들고 도메인 `naver-cafe-recruit.buylife.xyz`를 연결했습니다. 운영 환경변수 6개(Supabase 3·주소 2·새 `CRON_SECRET`)는 주인님 채팅 허락 뒤 등록했고, 값은 출력하지 않았습니다.
+- 첫 배포(`f76s5b038`)는 프레임워크가 「Other」로 잡혀 ZIP만 열리고 화면·API가 404였습니다. Next.js로 바꾼 뒤 재배포(`krzqcvoj2`)해 Ready가 됐습니다(`docs/ERROR_LESSONS.md` 2026-11-06).
+- DB `programs`에 `extension_version` v1.01과 `extension_download_url`을 기록했습니다. `is_active=false`를 유지해 아직 비공개입니다.
+- 검수:
+  - `check-extension-release` OK
+  - `/` → 로그인으로 이동, `/login` 200, ZIP 200
+  - 확장 API는 다른 사이트 요청 403, 로그인 없는 요청은 「로그인이 필요합니다」
+  - 크론은 키 없이 부르면 401
+  - ego(로그인 상태)에서 오늘의 모집·가이드에 v1.01, 내려받기 버튼, 설치 3단계 확인
+- 남은 일: 시험 계정으로 아는 아이디 1명에게 실제 초대(아이디 필요) → 판정 규칙 확정 → 공개. 모드 A는 주인님 결정 대기. 좌측 메뉴 묶음 이름 「4단계 포스팅 파이프라인」은 원본에서 복사된 문구라 고칠 대상입니다.
+
+https://naver-cafe-recruit.buylife.xyz/dashboard
+
 ## 2026-11-06 🔨 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` 확장 모드 B 초대 + 확장용 서버 라우트(미배포, v1.01)**
 - 맥미니 실물 확인(`naver-cafe-recruit/docs/DOM_CHECK_20261105.md`)대로 확장을 만들었습니다(커밋 `5a44d3251`). 동작 순서는 다음과 같습니다.
   1. 회원이 연 내 카페 탭의 「초대」 메뉴 링크에서 카페 번호를 찾습니다.

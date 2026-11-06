@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-06 CLI로 만든 새 Vercel 프로젝트에 첫 배포했더니 ZIP만 열리고 화면·API는 404 — 프레임워크가 「Other」 (`naver-cafe-recruit` v1.01, [역할: blog])
+- **증상**: `vercel project add` → `vercel link` → `vercel deploy --prod` 결과는 Ready였습니다. 그런데 `public/downloads/*.zip`만 200이고 `/`·`/login`·`/api/*`는 404였습니다. 빌드 기록에는 `next build`가 정상으로 남아 있었습니다.
+- **원인**: CLI로 만든 프로젝트는 Framework Preset이 「Other」(출력 폴더 `public`)로 잡혔습니다. 그래서 Next.js 결과물 대신 `public` 폴더만 올라갔습니다.
+- **해결**: `vercel api "/v9/projects/<이름>?teamId=<팀>" --method PATCH --input <{"framework":"nextjs"} 파일>`로 프레임워크를 바꾸고 다시 배포했습니다(빌드 1회 추가, 주인님 승인). Vercel MCP `update_project`는 이 프로젝트를 404로 못 찾아 CLI로 했습니다.
+- **다음부터**: 새 프로젝트를 만든 직후, 첫 배포 전에 `vercel project inspect <이름> --scope buylife`로 Framework Preset이 Next.js인지 확인합니다. 배포 뒤에는 ZIP뿐 아니라 화면 주소(`/login`)도 200인지 봅니다. 환경변수 등록·운영 배포는 Claude Code 자동 권한 검사가 막을 수 있으니, 주인님 채팅 허락을 받고 다시 실행합니다.
+
 ## 2026-11-06 다른 프로그램 창에서 연 바나나 「🧽 무료 지우기」가 그림을 받지 못함 — `/erase`의 COOP 헤더가 opener를 끊음 (`banana-canvas` v1.43, [역할: ecommerce-image])
 - **증상**: 썸네일 v2.01 「무료 지우기」 → 바나나 `/erase?from=thumbnail` 창은 열리는데 사진 0장, 썸네일 쪽도 「보냈습니다」가 안 뜸. 같은 약속을 쓰는 `/tools?from=insta`(누끼·가리기)는 정상.
 - **원인**: `banana-canvas/next.config.ts`가 `/erase`에만 `Cross-Origin-Opener-Policy: same-origin`(+COEP, 여러 줄 계산용 교차 출처 격리)을 붙임 → 다른 주소(썸네일·인스타)에서 연 창은 브라우저가 `window.opener`를 `null`로 끊어 「준비됨」·그림 메시지를 주고받을 수 없음. 시험은 모두 순수 함수·로컬이라 못 잡음.
