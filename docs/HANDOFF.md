@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`competitor-analysis` v1.12 배포: 매칭 후보·스캔 최종 판정·네이버 밖 주소 건너뛰기(맥미니 작성)**
+- 한 일: 맥미니 커밋 `c0025551d`·`90b6871f9`·`a3943b872`를 검토했습니다. 버전 v1.12(앱·확장 manifest·팝업)와 확장 ZIP을 만들었습니다(`43b6a5bcb`). 주인님 채팅 승인으로 빌드 1회 배포했고, DB `version`·`extension_version`을 v1.12로 맞췄습니다. DB 표 변경은 없습니다.
+- 검수: 단위 시험 9개·DB 시험 8개, `tsc`, 로컬 빌드가 통과했습니다. `check-extension-release`가 OK입니다(DB·확장·ZIP v1.12). ego로 운영 화면에 v1.12가 보이는 것을 확인했습니다(관리자 계정은 동의 전 화면).
+- 다음 첫 단계: 맥미니가 확장 v1.12를 다시 받아 덮어쓴 뒤 「공동구매」를 다시 찾고 → 후보 개수 → 스캔 → 매칭/주제 약함 판정과 업체 「네이버 밖 주소」 표시를 확인합니다. 상세: [`competitor-analysis/AGENTS.md`](../competitor-analysis/AGENTS.md) 「v1.12 배포 완료」.
+
 ## 2026-11-05 🔨 [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`competitor-analysis` v1.12 준비 완료(미배포) — 빌드 1회 주인님 채팅 승인(「진행해」) — 윈도우 배포 요청**
 - 묶음 3건: 네이버 밖 주소(업체 홈페이지·오픈채팅)·읽기 실패는 건너뛰고 스캔 계속 `c0025551d` · 건너뛴 곳 연락처 저장 안 함 + 시험 `90b6871f9` · **매칭 후보 + 스캔 최종 판정**(블로그가 대부분 떨어지던 문제) — 커밋은 바로 아래 줄 `git log -1 -- competitor-analysis/lib/partners/match.ts`. 맥미니 `tsc` 0, DB 변경 없음.
 - **윈도우 다음 첫 단계**: v1.12(`lib/version.ts`·확장 manifest·팝업 표기·ZIP·DB `version`/`extension_version`) → `npm run test:partners`(PU01 기대값 바뀜·skipped 줄 추가)·`test:partners-db` → 빌드·배포 → `check-extension-release` → 맥미니에 실물 확인 요청(「공동구매」 다시 찾기 → 후보 개수 → 스캔 → 매칭/주제 약함 판정·업체 「네이버 밖 주소」 표시).
