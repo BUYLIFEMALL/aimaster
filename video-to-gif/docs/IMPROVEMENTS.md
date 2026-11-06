@@ -1,5 +1,7 @@
 # 36번 상세페이지 GIF 자동화 (`video-to-gif`) 개선 제안서 (IMPROVEMENTS.md)
 
+> **미배포 대기(2026-11-06, `claude-win-video`)**: V4 「🖥 화면에서 바로 녹화」 — 화면 전체·창·탭을 최대 15초 녹화해 대기열에 넣음(소리 없음, 서버 전송 없음, 녹화 시간을 영상 길이로 사용, 휴대폰은 안내 문구). `lib/screenRecord.ts`(+시험 5개)·`components/ScreenRecorder.tsx`·`ConverterWorkspace.tsx` `addFiles`·매뉴얼 FAQ. 플랜 [`PLAN_20261106_V4_SCREEN_RECORD.md`](PLAN_20261106_V4_SCREEN_RECORD.md). 배포 때 v1.26으로 올리고, 화면 공유 창은 주인님이 한 번 골라 주셔야 실제 녹화 확인 가능. 다음 후보: 녹화 화면에서 사각형 직접 그려 자르기.
+
 > **작성일**: 2026-10-19  
 > **작성자**: Antigravity CLI (agy, 윈도우)  
 > **규격**: `docs/IMPROVEMENT_HANDOFF_POLICY.md` 및 `DESIGN.md` 10번 3대 필수 항목 준수  

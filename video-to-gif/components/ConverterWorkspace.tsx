@@ -26,6 +26,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { createZip, uniqueNames } from "@/lib/zip";
 import { APP_VERSION } from "@/lib/version";
 import TrimBar from "@/components/TrimBar";
+import ScreenRecorder from "@/components/ScreenRecorder";
 import { CANDIDATES, MAX_OUTPUT_BYTES, canSinglePass, nextCandidateIndex, progressRatio, runLadder } from "@/lib/gifLadder";
 import { LocalRendererPool, checkRendererUpdate, detectLocalRenderer, localSlots, type RendererStatus, type RendererUpdate } from "@/lib/localRenderer";
 import { ACCEPT, pickFiles, skippedNote } from "@/lib/videoFiles";
@@ -82,7 +83,8 @@ function readVideoInfo(file: File): Promise<{ duration?: number; thumbnail?: str
     video.onloadedmetadata = () => {
       duration = Number.isFinite(video.duration) ? video.duration : undefined;
       aspect = video.videoWidth && video.videoHeight ? video.videoHeight / video.videoWidth : undefined;
-      video.currentTime = duration ? Math.min(0.1, duration / 2) : 0;
+      // v1.26: 길이를 모르는 영상(화면 녹화본 등)은 0초로 옮기면 seeked가 안 와서 썸네일이 비므로 0.1초로 옮긴다
+      video.currentTime = duration ? Math.min(0.1, duration / 2) : 0.1;
     };
     video.onseeked = () => {
       try {
@@ -184,7 +186,8 @@ export default function ConverterWorkspace() {
   const rendererReady = renderer !== "checking" && renderer.kind === "ready" && !rendererUpdate?.blocked;
   const rendererOs = renderer !== "checking" && "os" in renderer ? renderer.os : "unknown";
 
-  function addFiles(files: FileList | null) {
+  // v1.26(V4): 화면 녹화본은 knownDuration(녹화한 초)을 함께 받는다 — 녹화본(WEBM)은 길이 정보가 비어 있는 경우가 많다.
+  function addFiles(files: FileList | File[] | null, knownDuration?: number) {
     if (!files) return;
     // v1.18: 영상 형식만, 200MB 이하, 중복 아님, 20개 안 — 뺀 파일은 이유별로 한 줄 안내
     const picked = pickFiles(Array.from(files), jobs, MAX_FILE_BYTES, Math.max(0, MAX_FILES - jobs.length));
@@ -199,13 +202,15 @@ export default function ConverterWorkspace() {
         size: file.size,
         status: "ready" as const,
         progress: 0,
+        duration: knownDuration,
         trimStart: "",
         trimEnd: ""
       })),
     ].slice(0, MAX_FILES));
     // v1.11: 영상 길이를 읽어 구간 입력 옆에 보여 준다(같은 File 객체로 같은 줄을 찾음). v1.12: 첫 장면 썸네일도 함께.
     for (const file of incoming) {
-      void readVideoInfo(file).then(({ duration, thumbnail, aspect }) => {
+      void readVideoInfo(file).then(({ duration: readDuration, thumbnail, aspect }) => {
+        const duration = readDuration ?? knownDuration;
         if (duration === undefined && thumbnail === undefined) return;
         setJobs((current) =>
           current.map((j) => (j.file === file ? { ...j, duration, thumbnail, aspect } : j))
@@ -688,6 +693,13 @@ export default function ConverterWorkspace() {
               }}
             />
           </label>
+          {/* v1.26(V4): 다른 녹화 프로그램 없이 화면을 바로 녹화해 대기열에 넣는다 */}
+          <div className="-mt-3">
+            <ScreenRecorder
+              onRecorded={(file, seconds) => addFiles([file], seconds)}
+              disabled={jobs.length >= MAX_FILES}
+            />
+          </div>
           {addNote && (
             <p role="status" className="-mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-200">
               ⚠️ {addNote}
