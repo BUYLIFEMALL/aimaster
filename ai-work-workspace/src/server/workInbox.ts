@@ -14,6 +14,8 @@ import { inboxRowCsv } from "./workInboxCsv";
 import { uncheckedTodos, pageAsTask, type PlannerTask } from "./workInboxPlannerItems";
 import { sendToWorkInbox } from "@/lib/workInbox";
 import { exemptInFilter } from "./retentionExempt";
+import { mdSource } from "@/litpage/server/ai/context.ts";
+import { pageToMarkdown } from "@/litpage/server/ai/prompts.ts";
 import type { BlockRecord, CollectionRecord, SpaceRecord, SpaceViewRecord, UserRootRecord, UserSettingsRecord } from "#shared/records.ts";
 
 const APP_ORIGIN = "https://ai-work-workspace.buylife.xyz";
@@ -22,6 +24,14 @@ export const WORK_INBOX_RETENTION_DAYS = 30;
 const SETTINGS_KEY = "aww_work_inbox_db"; // 「📨 받은 업무 표」 데이터베이스 블록 id(회원 설정에 저장)
 const INBOX_DB_TITLE = "📨 받은 업무 표";
 const TARGET = "ai-work-workspace"; // U8-B: 받는 곳이 워크스페이스인 줄만 이 화면에서 다룬다
+
+/** U9: 페이지를 보낼 수 있는 프로그램(받는 화면이 있는 곳만) */
+const SEND_TARGETS: Record<string, { name: string; url: string }> = {
+  "ai-slide-builder": { name: "AI 슬라이드", url: "https://ai-slide-builder.buylife.xyz" },
+  "document-translator": { name: "AI 문서번역", url: "https://document-translator.buylife.xyz/translator" },
+  "ai-doc-chatbot": { name: "AI 문서 챗봇", url: "https://ai-doc-chatbot.buylife.xyz/documents" },
+};
+const SEND_MAX_CHARS = 199_000;
 
 export interface WorkInboxRow {
   id: string;
@@ -184,6 +194,22 @@ export const workInboxHandlers: Record<string, Handler> = {
         .catch((e) => { throw new ApiError(e instanceof Error ? e.message : "할 일 플래너로 보내지 못했습니다.", 502); });
     }
     return { count: tasks.length, plannerUrl: "https://ai-task-planner.buylife.xyz/dashboard" };
+  },
+
+  /** U9 「다른 프로그램으로 보내기」: 이 페이지 본문(회원이 읽을 수 있는 내용만, 마크다운)을 슬라이드·번역·문서 챗봇의 받은편지함으로 */
+  async workInboxSendPage(ctx, { pageId, target }) {
+    const userId = uid(ctx);
+    const dest = SEND_TARGETS[String(target ?? "")];
+    if (!dest) throw new ApiError("보낼 프로그램을 확인할 수 없습니다.", 400);
+    const page = getRecord<BlockRecord>("block", String(pageId ?? ""));
+    if (!page || page.alive === false || !memberSpaceIds(userId).has(page.space_id)) throw new ApiError("보낼 페이지를 찾지 못했습니다.", 404);
+    const body = pageToMarkdown(page.id, mdSource(userId), { includeTitle: false, maxChars: SEND_MAX_CHARS }).markdown.trim();
+    if (!body) throw new ApiError("이 페이지에 보낼 내용이 없습니다.", 400);
+    const space = memberSpace(userId);
+    const title = (page.properties?.title ?? []).map((d) => d[0]).join("").trim().slice(0, 200) || "제목 없는 페이지";
+    await sendToWorkInbox({ userId, sourceSlug: "ai-work-workspace", targetSlug: String(target), kind: "document", title, bodyMd: body, sourceUrl: `${APP_ORIGIN}${pageUrl(space, page.id)}` })
+      .catch((e) => { throw new ApiError(e instanceof Error ? e.message : `${dest.name}(으)로 보내지 못했습니다.`, 502); });
+    return { name: dest.name, url: dest.url };
   },
 
   /** 삭제(본인 줄만) */

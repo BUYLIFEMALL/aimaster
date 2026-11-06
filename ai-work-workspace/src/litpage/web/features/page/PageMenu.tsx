@@ -280,12 +280,19 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
       ] },
       { items: [item(t('lp.page.appearance_layout', 'Appearance & layout'), 'textFormat', { keywords: ['font', 'serif', 'mono', 'small text', 'full width', 'contents list', 'page discussions', 'inline comments', 'customize page', 'style'], submenu: appearance })] },
       { items: [item(t('lp.page.use_in_ai', 'Use in AI'), 'aiFace', { keywords: ['skill', 'agent', 'instructions'], submenu: useWithAi })] },
-      // U8-B: AI 할 일 플래너 「받은 할 일」로 보내기(src/server/workInbox.ts workInboxSendToPlanner)
-      { items: [item('📨 할 일 플래너로 보내기', 'arrowTurnUpRight', { keywords: ['할 일', '플래너', 'todo', 'planner'], submenu: () => ({
-        width: 280, role: 'menu', className: 'nc-page-submenu', sections: [{ items: [
-          { label: '체크 안 된 할 일 항목 보내기', description: '이 페이지의 체크하지 않은 체크 상자 항목(최대 30개)을 하나씩', onSelect: () => void sendToPlanner(pageId, 'todos') },
-          { label: '이 페이지를 할 일 하나로', description: '표 행이면 마감일·우선순위도 함께', onSelect: () => void sendToPlanner(pageId, 'page') },
-        ] }],
+      // U8-B·U9: 다른 AIMaster 프로그램의 받은편지함으로 보내기(src/server/workInbox.ts workInboxSendToPlanner·workInboxSendPage)
+      { items: [item('📨 다른 프로그램으로 보내기', 'arrowTurnUpRight', { keywords: ['할 일', '플래너', 'todo', 'planner', '슬라이드', '번역', '챗봇', 'slide', 'translate', 'chatbot'], submenu: () => ({
+        width: 300, role: 'menu', className: 'nc-page-submenu', sections: [
+          { items: [
+            { label: '할 일 플래너: 체크 안 된 할 일 항목', description: '이 페이지의 체크하지 않은 체크 상자 항목(최대 30개)을 하나씩', onSelect: () => void sendToPlanner(pageId, 'todos') },
+            { label: '할 일 플래너: 이 페이지를 할 일 하나로', description: '표 행이면 마감일·우선순위도 함께', onSelect: () => void sendToPlanner(pageId, 'page') },
+          ] },
+          { items: [
+            { label: 'AI 슬라이드: 발표 원고로', description: '슬라이드 프로그램 「받은 원고」에서 원문 칸에 넣을 수 있습니다', onSelect: () => void sendPage(pageId, 'ai-slide-builder') },
+            { label: 'AI 문서번역: 번역할 원문으로', description: '번역 프로그램 「받은 문서」에서 새 번역 작업으로 엽니다', onSelect: () => void sendPage(pageId, 'document-translator') },
+            { label: 'AI 문서 챗봇: 질문할 문서로', description: '챗봇 「내 문서」에서 등록하면 이 내용을 근거로 답합니다', onSelect: () => void sendPage(pageId, 'ai-doc-chatbot') },
+          ] },
+        ],
       }) })] },
       { items: [
         // toggles suggest mode (features/comments/suggest.ts listens); "Stop" while suggesting
@@ -343,6 +350,16 @@ async function sendToPlanner(pageId: string, mode: 'todos' | 'page') {
     useUI.getState().toast(`할 일 ${r.count}개를 AI 할 일 플래너 「받은 할 일」로 보냈습니다.`, { label: '플래너 열기', run: () => window.open(r.plannerUrl, '_blank', 'noopener') });
   } catch (e: any) {
     useUI.getState().toast(e?.message ?? '할 일 플래너로 보내지 못했습니다.');
+  }
+}
+
+// U9: 이 페이지를 슬라이드·번역·문서 챗봇의 받은편지함으로 보내기
+async function sendPage(pageId: string, target: 'ai-slide-builder' | 'document-translator' | 'ai-doc-chatbot') {
+  try {
+    const r = await api<{ name: string; url: string }>('workInboxSendPage', { pageId, target });
+    useUI.getState().toast(`이 페이지를 ${r.name}(으)로 보냈습니다.`, { label: '열기', run: () => window.open(r.url, '_blank', 'noopener') });
+  } catch (e: any) {
+    useUI.getState().toast(e?.message ?? '보내지 못했습니다.');
   }
 }
 
