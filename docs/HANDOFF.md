@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 🔨 [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V1 「긴 영상 → 쇼츠」 구현(미배포, 빌드 승인 대기)**
+- 사전 검증(약 22원, 시험 계정 본인 키): 받아쓰기 98.4%, 문장 경계 정확, 낱말 시각 최대 0.7초 오차, 끝부분 없는 말 1개, AI 구간 1개가 15초 규칙 어김 → 모두 코드로 보정. 결과·플랜 `ai-video-studio/docs/PLAN_20261106_V1_LONG_TO_SHORTS.md`.
+- 구현 `54f631c7d`: 새 화면 `/clip`, 서버 `api/clip/{upload,transcribe,pick}`(회원 본인 키, 소리 파일은 받아쓰기 직후 삭제, 재시도 없음), 영상 합치기 `/edit?from=clip`이 구간을 9:16 장면으로 펼침. DB 변경 없음.
+- 검수: 시험 81개(새 9개)·tsc·빌드 통과, 크롬 실제 창에서 브라우저 소리 뽑기(16kHz·무음 11곳 일치) 확인. 미확인: 로그인 회원 화면에서 끝까지(배포 뒤 1회).
+- 다음 첫 단계: 빌드 1회 승인 → v1.27 배포 → 시험 계정으로 받아쓰기부터 MP4까지 확인. 그 뒤 V2·V5.
+
 ## 2026-11-06 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` v1.02 배포: 모드 A-1 명단·초대링크 + 메뉴 이름 — 맥미니 필독**
 - 주인님 빌드 승인 1회로 배포 `naver-cafe-recruit-clnz3qy1q`가 Ready입니다. DB `version`·`extension_version`을 v1.02로 맞췄고, `check-extension-release`는 OK, v1.02 ZIP은 200입니다.
 - 확장 API의 새 작업 `members_add`는 로그인 없이 부르면 「로그인이 필요합니다」로 막힙니다.
