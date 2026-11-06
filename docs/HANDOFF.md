@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — **U10 1차 배포·운영 확인: 콘텐츠 캘린더 + INSTA·Threads 보내기**
+- 주인님 승인: 요청함 `7427701f`(플랜 결정 — 1번 다른 역할 폴더 버튼·라우트만, 나머지 추천안) · `b6fb9b4b`(빌드 3회) + 채팅 「계속 진행해」.
+- 배포(순차, 팀 빌드 확인 뒤 하나씩): 워크스페이스 v1.22 `ai-work-workspace-3saw5d3qw` → INSTA v1.72 `insta-auto-poster-7wfm8e3y9` → Threads v2.23, 모두 Ready·DB 버전 맞춤.
+- 운영 확인(ego 작업 공간 112, 시험 계정, 끝나고 닫음): INSTA 시험 글(이미지 첨부, AI 없음) 임시저장 → 2027-01-15 예약으로 수정 → 「📨 업무 워크스페이스로 보내기」 → 받은 업무 「📅 콘텐츠 캘린더에 넣기」 → 캘린더 처음 자동 생성(달력·상태별·전체 보기), 행 날짜·채널 인스타그램·상태 예약됨·보낸 프로그램·원본 링크 정상. 초안 항목엔 캘린더 버튼 없음(설계). Threads 기존 발행 글(10-21) 보내기 → 캘린더 행 Threads·발행 완료·발행 주소 정상. 왼쪽 메뉴 v1.22 표시 확인. 시험 INSTA 글은 삭제(예약 대기 0).
+- 발견·수정(미배포 `fcf2dc894`): 쇼핑제휴 Threads 글은 첫 줄 「(광고)…」가 제목이 됨 → 그 줄을 건너뛰도록. 다음 Threads 배포 때.
+- 남은 일: U10 2차(교육용 블로그·네이버 에이전트·분석 3개·웹 크롤러) — 1차 결과 보신 뒤 「2차 진행」. 시험 계정 콘텐츠 캘린더(행 2개 + 예시 1개)는 시연용으로 둠.
+- 비용: Vercel 빌드 3회(승인 범위), AI 호출 0.
+- 링크: https://ai-work-workspace.buylife.xyz/inbox · https://auto-instagram-posting.buylife.xyz/posts · https://threads-content-ops.buylife.xyz/threads-content-ops?tab=manage
+
+
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 각색 강도 구현(미배포, `shorts-onestop-studio` v1.45 예정) — V2·V5 구현 전부 끝**
 - `9c4c1de96`: 「📜 내 대본으로 장면 만들기」에 「✨ AI로 다듬기」 — 강도 3단(맞춤법만 / 문장 다듬기 / 구성까지 새로), 「제가 직접 쓴 대본입니다」 체크 뒤 회원 본인 키 1회(`/api/ai/rewrite`, `src/lib/rewrite.ts` 강도별 규칙·줄 수 검사), 줄 수 그대로, 「다듬기 전으로」 되돌리기. 실행은 `usage` `script_rewrite`로 기록(공용 `own_content_rights_log`는 `program` 제약상 이 프로그램을 받지 않음). 시험 42개·tsc·로컬 빌드 통과.
 - V2·V5 묶음 현황: V5 지우기(배포 v1.26) · V2 컷 목록(배포 v1.28) · 언어판·해설 교차편집(미배포 `ai-video-studio` v1.29) · 각색 강도(미배포 `shorts-onestop-studio` v1.45). 플랜 `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8.
