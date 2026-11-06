@@ -14,7 +14,8 @@ const config: NextConfig = {
       // 격리된 페이지가 띄우는 작업자·계산 파일도 COEP가 있어야 크롬이 막지 않는다(없으면 작업자 스크립트가 차단됨). 운영(Vercel)은 /_next/static/immutable/chunks/ 경로라 static 전체에 둔다. 스크립트 파일의 COEP는 다른 페이지에 영향 없음
       { source: "/_next/static/:path*", headers: [{ key: "Cross-Origin-Embedder-Policy", value: "credentialless" }] },
       { source: "/ort/:path*", headers: [{ key: "Cross-Origin-Embedder-Policy", value: "credentialless" }] },
-      { source: "/erase", headers: [
+      // 다른 프로그램(?from=썸네일·인스타·상세)이 연 창은 빼야 한다 — COOP same-origin이면 브라우저가 window.opener를 끊어 그림을 주고받지 못함(2026-11-06 운영 확인). 이때는 한 줄 계산(freeEraseThreads 1)으로 동작
+      { source: "/erase", missing: [{ type: "query", key: "from" }], headers: [
         { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
         { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
       ] },
