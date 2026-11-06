@@ -18,7 +18,8 @@ export const isSfxLyrics = (lyrics: string) => lyrics.trim().toLowerCase() === S
 export const LIMITS = { title: 80, style: 400, lyrics: 4000 } as const;
 
 /** art_prompt: 앨범 그림 설명(영어, 선택, 2026-11-05) — AI 작곡 기획이 준 것을 저장해 앨범 그림 만들기에 쓴다 */
-export type SongInput = { title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string };
+export type SongInput = { title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string; project_id: string | null };
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const ART_LIMIT = 1000;
 
 export type Song = SongInput & { id: string; created_at: string; updated_at: string };
@@ -41,5 +42,9 @@ export function parseSongInput(body: unknown): { ok: true; value: SongInput } | 
   const art = typeof b.art_prompt === "string" ? b.art_prompt.trim() : "";
   if (art.length > ART_LIMIT) return { ok: false, error: `앨범 그림 설명은 ${ART_LIMIT}자까지 쓸 수 있습니다.` };
 
-  return { ok: true, value: { title, style_prompt: style, lyrics, duration_sec: duration, art_prompt: art } };
+  // 초안의 프로젝트(2026-11-06, 원본 boks-music 프로젝트 안에서 만들기) — 본인 프로젝트인지는 API가 확인한다
+  const project = b.project_id ?? null;
+  if (project !== null && (typeof project !== "string" || !UUID_RE.test(project))) return { ok: false, error: "프로젝트가 올바르지 않습니다." };
+
+  return { ok: true, value: { title, style_prompt: style, lyrics, duration_sec: duration, art_prompt: art, project_id: project as string | null } };
 }

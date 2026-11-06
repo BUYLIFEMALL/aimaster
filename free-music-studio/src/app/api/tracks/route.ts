@@ -30,10 +30,12 @@ export async function POST(request: Request) {
   const parsed = parseTrackInput(await request.json().catch(() => null));
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const admin = createAdminClient();
-  const value = { ...parsed.value };
+  const value: typeof parsed.value & { project_id?: string | null } = { ...parsed.value };
   if (value.song_id) {
-    const { data: own } = await admin.from(SONGS_TABLE).select("id").eq("id", value.song_id).eq("user_id", access.user.id).maybeSingle();
+    const { data: own } = await admin.from(SONGS_TABLE).select("id, project_id").eq("id", value.song_id).eq("user_id", access.user.id).maybeSingle();
     if (!own) value.song_id = null;
+    // 초안이 프로젝트에 속해 있으면 만든 곡도 그 프로젝트로(2026-11-06, 원본 boks-music 프로젝트 안에서 만들기)
+    else if (own.project_id) value.project_id = own.project_id;
   }
   // 원곡도 본인 곡일 때만 연결한다
   if (value.parent_id) {

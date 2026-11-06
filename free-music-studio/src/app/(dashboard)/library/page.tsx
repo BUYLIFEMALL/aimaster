@@ -19,6 +19,7 @@ import {
   PlayCircle,
   Pencil,
   Palette,
+  Music2,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -460,6 +461,11 @@ export default function LibraryPage() {
                 <button type="button" onClick={startQueue} className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}>
                   <PlayCircle className="h-3.5 w-3.5" /> 전체 이어 듣기
                 </button>
+              )}
+              {current?.kind === "project" && (
+                <Link href={`/songs?project=${current.id}`} className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}>
+                  <Music2 className="h-3.5 w-3.5" /> 이 프로젝트에서 새 곡 만들기
+                </Link>
               )}
               {current && renaming === null && (
                 <>

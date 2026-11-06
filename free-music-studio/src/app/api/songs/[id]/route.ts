@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseSongInput, SONGS_TABLE } from "@/lib/songs";
+import { isOwnProject } from "@/lib/ownProject";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const COLUMNS = "id, title, style_prompt, lyrics, duration_sec, art_prompt, created_at, updated_at";
+const COLUMNS = "id, title, style_prompt, lyrics, duration_sec, art_prompt, project_id, created_at, updated_at";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -17,7 +18,9 @@ export async function PATCH(request: Request, { params }: Ctx) {
   const { id } = await params;
   const parsed = parseSongInput(await request.json().catch(() => null));
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  const { data, error } = await createAdminClient()
+  const admin = createAdminClient();
+  if (!(await isOwnProject(admin, access.user.id, parsed.value.project_id))) return NextResponse.json({ error: "프로젝트를 찾지 못했습니다." }, { status: 404 });
+  const { data, error } = await admin
     .from(SONGS_TABLE)
     .update({ ...parsed.value, updated_at: new Date().toISOString() })
     .eq("id", id)

@@ -9,11 +9,16 @@ import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseB
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
 import { presetsFor } from "@/lib/presets";
+import type { Collection } from "@/lib/collections";
+import { ProjectTracks } from "@/components/songs/ProjectTracks";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
 
-type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string };
+type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string; project_id: string | null };
+/** 곡 만들기에서 보는 프로젝트 — 전체 / 프로젝트 없음 / 프로젝트 번호 */
+type ProjectView = "all" | "none" | string;
+const PROJECT_VIEW_KEY = "fms.songsProject";
 
-const EMPTY: Draft = { id: null, title: "", style_prompt: "", lyrics: "", duration_sec: DEFAULT_DURATION, art_prompt: "" };
+const EMPTY: Draft = { id: null, title: "", style_prompt: "", lyrics: "", duration_sec: DEFAULT_DURATION, art_prompt: "", project_id: null };
 
 const LYRIC_HINT = "[Verse]\n첫 번째 소절\n\n[Chorus]\n후렴 소절";
 const BANNED_KEY = "fms.bannedWords";
@@ -106,6 +111,32 @@ export default function SongsPage() {
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((d) => ({ ...d, [key]: value }));
 
+  // ── 프로젝트 안에서 만들기(원본 boks-music App.tsx, MIT) ─────────────
+  // 위에서 프로젝트를 고르면 그 프로젝트의 초안만 보이고, 새 곡·기획 저장은 그 프로젝트로, 만든 곡도 서버가 그 프로젝트로 넣는다.
+  const [projects, setProjects] = useState<Collection[]>([]);
+  const [projectView, setProjectViewState] = useState<ProjectView>("all");
+  const viewProjectId = projectView !== "all" && projectView !== "none" ? projectView : null;
+  const setProjectView = (v: ProjectView) => {
+    setProjectViewState(v);
+    try {
+      sessionStorage.setItem(PROJECT_VIEW_KEY, v);
+    } catch {}
+  };
+  useEffect(() => {
+    fetch("/api/collections")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { projects?: Collection[] } | null) => d && setProjects(d.projects ?? []))
+      .catch(() => {});
+    const linked = new URLSearchParams(window.location.search).get("project");
+    try {
+      const v = linked && /^[0-9a-f-]{36}$/.test(linked) ? linked : sessionStorage.getItem(PROJECT_VIEW_KEY);
+      if (v) setProjectViewState(v);
+      if (linked) window.history.replaceState(null, "", "/songs");
+    } catch {}
+  }, []);
+  const shownSongs = songs.filter((s) => (projectView === "all" ? true : projectView === "none" ? !s.project_id : s.project_id === projectView));
+  const projectName = (id: string | null) => (id ? projects.find((p) => p.id === id)?.name ?? "지운 프로젝트" : "프로젝트 없음");
+
   // ── 자동 저장(원본 boks-music App.tsx, MIT: 입력이 멈추고 1.2초 뒤 저장) ─────────
   // 저장해 둔 곡은 서버에 조용히 고쳐 쓰고, 아직 저장 안 한 새 곡은 이 브라우저에 임시로 두었다가 다시 오면 되살린다.
   const savedSnap = useRef(JSON.stringify(EMPTY));
@@ -191,7 +222,7 @@ export default function SongsPage() {
         setMessage({ type: "error", text: data.error || "저장하지 못했습니다." });
         return;
       }
-      const next = { id: data.song.id, title: data.song.title, style_prompt: data.song.style_prompt, lyrics: data.song.lyrics, duration_sec: data.song.duration_sec, art_prompt: data.song.art_prompt ?? "" };
+      const next = { id: data.song.id, title: data.song.title, style_prompt: data.song.style_prompt, lyrics: data.song.lyrics, duration_sec: data.song.duration_sec, art_prompt: data.song.art_prompt ?? "", project_id: data.song.project_id ?? null };
       savedSnap.current = JSON.stringify(next);
       try {
         localStorage.removeItem(NEW_DRAFT_KEY);
@@ -304,7 +335,7 @@ export default function SongsPage() {
   };
 
   const loadPlanned = (t: PlannedTrack) => {
-    openDraft({ id: null, title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec, art_prompt: t.art ?? "" });
+    openDraft({ id: null, title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec, art_prompt: t.art ?? "", project_id: viewProjectId });
     setMessage({ type: "success", text: `「${t.title}」을 넣었습니다 — 아래 「내 PC로 노래 만들기」에서 엔진을 고르고 [대기열에 넣기]를 눌러 주세요.` });
     // 「이 곡으로 생성하기」(주인님 2026-11-05) — 만들기 칸으로 바로 내려간다
     setTimeout(() => document.getElementById("generate-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
@@ -318,7 +349,7 @@ export default function SongsPage() {
       const res = await fetch("/api/songs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec, art_prompt: t.art ?? "" }),
+        body: JSON.stringify({ title: t.title, style_prompt: t.style, lyrics: INSTRUMENTAL_LYRICS, duration_sec: draft.duration_sec, art_prompt: t.art ?? "", project_id: viewProjectId }),
       }).catch(() => null);
       if (res?.ok) done++;
     }
@@ -382,30 +413,52 @@ export default function SongsPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+      {/* 프로젝트 고르기 — 원본처럼 프로젝트를 열고 그 안에서 만든다 */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-[#0a0f1d] px-4 py-3 text-xs">
+        <span className="font-bold text-slate-200">📁 프로젝트</span>
+        <select
+          value={projectView}
+          onChange={(e) => setProjectView(e.target.value)}
+          aria-label="볼 프로젝트"
+          className="min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-400 focus:outline-hidden"
+        >
+          <option value="all">전체 초안</option>
+          <option value="none">프로젝트 없음</option>
+          {projects.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+        <span className="text-[11px] text-slate-500">
+          {viewProjectId ? "새 곡·기획 저장은 이 프로젝트로, 만든 곡도 이 프로젝트의 「모든 음악」에 들어갑니다." : "프로젝트를 고르면 그 안에서 바로 만들 수 있습니다."}
+        </span>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[240px_1fr] 2xl:grid-cols-[240px_1fr_300px]">
         {/* 내 곡 목록 */}
         <aside className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4">
           <button
             type="button"
-            onClick={() => openDraft({ ...EMPTY, lyrics: sfx ? SFX_LYRICS : instrumental ? INSTRUMENTAL_LYRICS : "", duration_sec: sfx ? DEFAULT_SFX_DURATION : DEFAULT_DURATION })}
+            onClick={() => openDraft({ ...EMPTY, project_id: viewProjectId, lyrics: sfx ? SFX_LYRICS : instrumental ? INSTRUMENTAL_LYRICS : "", duration_sec: sfx ? DEFAULT_SFX_DURATION : DEFAULT_DURATION })}
             className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-2.5 text-xs font-bold text-white hover:brightness-110"
           >
             <Plus className="h-4 w-4" /> 새 곡
           </button>
           <p className="px-1 pt-2 text-[11px] font-semibold text-slate-400">
-            내 곡 {songs.length}개 · {exempt ? "보관 기한 없음(관리자·시험 계정)" : "30일 보관"}
+            {projectView === "all" ? "내 곡" : projectName(viewProjectId)} {shownSongs.length}개 · {exempt ? "보관 기한 없음(관리자·시험 계정)" : "30일 보관"}
           </p>
           {loading ? (
             <p className="px-1 text-xs text-slate-500">불러오는 중…</p>
-          ) : songs.length === 0 ? (
-            <p className="px-1 text-xs text-slate-500">아직 저장한 곡이 없습니다.</p>
+          ) : shownSongs.length === 0 ? (
+            <p className="px-1 text-xs text-slate-500">{songs.length ? "이 프로젝트에 저장한 곡이 없습니다. 「새 곡」으로 시작하세요." : "아직 저장한 곡이 없습니다."}</p>
           ) : (
             <ul className="max-h-[60vh] space-y-1 overflow-y-auto">
-              {songs.map((s) => (
+              {shownSongs.map((s) => (
                 <li key={s.id}>
                   <button
                     type="button"
-                    onClick={() => openDraft({ id: s.id, title: s.title, style_prompt: s.style_prompt, lyrics: s.lyrics, duration_sec: s.duration_sec, art_prompt: s.art_prompt ?? "" })}
+                    onClick={() => openDraft({ id: s.id, title: s.title, style_prompt: s.style_prompt, lyrics: s.lyrics, duration_sec: s.duration_sec, art_prompt: s.art_prompt ?? "", project_id: s.project_id ?? null })}
                     className={`w-full rounded-lg px-3 py-2 text-left text-xs transition-colors ${
                       draft.id === s.id ? "bg-emerald-950/50 text-emerald-200" : "text-slate-300 hover:bg-slate-900"
                     }`}
@@ -623,6 +676,23 @@ export default function SongsPage() {
 
           {/* 곡 편집 */}
           <section className="space-y-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
+            {projects.length > 0 && (
+              <label className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                📁 이 곡의 프로젝트
+                <select
+                  value={draft.project_id ?? ""}
+                  onChange={(e) => set("project_id", e.target.value || null)}
+                  className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-[11px] text-slate-200 focus:border-emerald-400 focus:outline-hidden"
+                >
+                  <option value="">없음</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <div className="grid gap-2 sm:grid-cols-[1fr_140px]">
               <input className={field} value={draft.title} onChange={(e) => set("title", e.target.value)} placeholder="곡 제목" maxLength={LIMITS.title} />
               <select className={field} value={draft.duration_sec} onChange={(e) => set("duration_sec", Number(e.target.value))} aria-label="목표 길이">
@@ -727,6 +797,11 @@ export default function SongsPage() {
           <div id="generate-panel" className="scroll-mt-6">
             <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} />
           </div>
+        </div>
+
+        {/* 오른쪽 — 이 프로젝트의 곡 카드(원본 곡 만들기 2단의 오른쪽). 좁은 화면에서는 아래로 */}
+        <div className="lg:col-span-2 2xl:col-span-1">
+          <ProjectTracks projectId={viewProjectId} view={projectView} label={projectView === "all" ? "최근 만든 곡" : projectName(viewProjectId)} />
         </div>
       </div>
     </div>

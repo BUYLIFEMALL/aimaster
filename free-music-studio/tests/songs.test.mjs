@@ -13,6 +13,14 @@ test("정상 입력은 앞뒤 공백·줄바꿈을 정리해 통과", () => {
   assert.equal(r.value.duration_sec, 30);
 });
 
+test("초안의 프로젝트: 없으면 null, uuid만 받음", () => {
+  const base = { title: "곡", duration_sec: DEFAULT_DURATION };
+  assert.equal(parseSongInput(base).value.project_id, null);
+  const id = "3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
+  assert.equal(parseSongInput({ ...base, project_id: id }).value.project_id, id);
+  assert.equal(parseSongInput({ ...base, project_id: "abc" }).ok, false);
+});
+
 test("제목이 없으면 거절", () => {
   assert.equal(parseSongInput({ ...ok, title: "  " }).ok, false);
 });
