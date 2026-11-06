@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ⏸ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` 확장: PC 카페 첫 화면의 링크 없는 「초대」 메뉴를 찾아 틀 안에서 초대 화면을 열도록 수정(`5b3f05ab9`, 미배포)** — 맥미니 1회차 결과 반영
+- **한 일**: `findInvite(hrefs, page)`에 메뉴형 추가(`a.link_invite` 존재 + 틀 주소 `MyCafeIntro.nhn?clubid=`에서 카페 번호, `firstClubId`), 초대 단계는 탭 주소 변경 대신 카페 첫 화면에서 「초대」 메뉴를 MAIN world로 실제 클릭(`openInviteMenu`, 사람마다 첫 화면으로 되돌린 뒤), 틀 판별 `CafeInvite(Check)?.nhn`, 버튼·칸을 못 찾으면 틀 글자 앞 160자를 멈춤 문구에 넣어 다음 기록에 쓰게 함. 시험 EX11 추가 → 15개 통과, 확장 문법 확인. 요청 문서에 「2회차」 순서(공유 폴더 `extension/` 직접 로드, 배포 없음)와 `AGENTS.md` 미배포 대기 기록.
+- **배포**: 미배포 대기(다음 배포 때 v1.03으로 manifest·ZIP·DB 함께). 맥미니 재시험은 공유 폴더를 직접 로드하므로 빌드 불필요.
+- **다음**: 맥미니 2회차(`naver-cafe-recruit/docs/REQUEST_20261106_MACMINI_INVITE_TEST.md` 「2회차」) → 결과 문구로 `classify` 확정 → 명단 모으기 확인 → 공개 준비. 비용 없음.
+
 ## 2026-11-06 ⏸ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`naver-cafe-recruit` 첫 실물 초대 시험: 초대 0건, 확장이 PC 카페 첫 화면에서 「초대」 메뉴를 못 찾는 구조 확인(`7dbf99ecc`)**
 - ego에 확장 v1.02 로드, 설정(B 켜짐·상한 1)·`buylifemall` 승인까지 정상. 카페 첫 화면의 「초대」는 `a.link_invite href="#" onclick="inviteMember()"` → `moveIframePage('/CafeInviteCheck.nhn?m=check&clubid=30954788')`라 `findInvite(hrefs)`가 0건 → 초대 단계 진입 불가. 위쪽 탭 주소로 `CafeInviteCheck.nhn`을 직접 열면 빈 화면. 판정 문구(`classify`) 실측 없음, 명단 모으기(「추가」 절)는 미진행. 상세·윈도우 전달 사항: `naver-cafe-recruit/docs/INVITE_TEST_20261106.md` §5.
 - 다음: 윈도우가 초대 메뉴 찾기·틀 안 이동을 고친 뒤 맥미니가 같은 작업 공간(10번)에서 1건 재시험. 비용 없음.
