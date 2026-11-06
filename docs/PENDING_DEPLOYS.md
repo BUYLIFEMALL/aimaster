@@ -64,6 +64,8 @@
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
+| `free-music-studio` | 가사를 고치면 지난 가사 시간을 옮김(그대로인 줄 유지·고친 줄은 「확인 필요」, 원본 `remapLyricTiming`) | `e72880915` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/PLAN_20261106_ORIGINAL_PORT_ALL.md` 8번 | 다음 음악 배포 v1.27 때. DB 변경 없음 |
+| `free-music-studio` | 내 PC 앨범 그림(원본 이식 마지막): stable-diffusion.cpp + Z-Image Turbo·FLUX.2 klein 4B(Apache-2.0) 8개 판, 앨범 그림 플랫폼 「내 PC(무료)」, 회원 AI 키로 영어 설명문, 엔진 화면 그림 모델 패널, 대기열 종류 `art` | `73f8daf04` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/PLAN_20261106_LOCAL_ALBUM_ART.md` | **엔진 0.7.0 설치 파일**과 함께(빌드 승인 필요) · v1.27 때. DB 변경 없음. 실물 그림 시험은 아직(이 PC에서 실행 파일 받기가 자동 차단) |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
