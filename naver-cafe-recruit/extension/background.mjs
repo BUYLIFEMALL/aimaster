@@ -17,6 +17,8 @@ async function api(operation, payload) {
     body: JSON.stringify({ operation, payload }),
   });
   const body = await res.json().catch(() => ({}));
+  // 401 = 우리 프로그램(buylife.xyz) 로그인 풀림 — 네이버 로그인과 헷갈리지 않게 따로 알린다(2026-11-06 맥미니 2회차).
+  if (res.status === 401) throw new Error("프로그램(naver-cafe-recruit.buylife.xyz) 로그인이 풀렸습니다. 프로그램에 다시 로그인한 뒤 시작해 주세요.");
   if (!res.ok) throw new Error(body.error || `서버 응답 ${res.status}`);
   return body.data;
 }
@@ -51,8 +53,9 @@ function openInviteMenu(framePath) {
 }
 
 // 초대 틀(CafeInviteCheck.nhn → CafeInvite.nhn) 안에서만 동작한다. 그 밖의 틀은 { here:false }.
+// 바깥 문서 주소(?iframe_url_utf8=…CafeInvite.nhn…)에도 같은 글자가 들어가므로 맨 위 창은 건너뛰고 경로로만 판별한다(2026-11-06 맥미니 2회차).
 async function inviteInFrame(naverId) {
-  if (!/CafeInvite(Check)?\.nhn/i.test(location.href)) return { here: false };
+  if (window.top === window || !/\/CafeInvite(Check)?\.nhn$/i.test(location.pathname)) return { here: false };
   const seen = () => (document.body?.innerText || "").replace(/\s+/g, " ").slice(0, 160); // 못 찾았을 때 기록용(판정 규칙 보정)
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const jitter = (a, b) => a + Math.random() * (b - a);
@@ -62,11 +65,13 @@ async function inviteInFrame(naverId) {
   window.alert = (m) => { window.__ncrMsgs.push(String(m)); };
   window.confirm = (m) => { window.__ncrMsgs.push(String(m)); return true; };
 
-  const idTab = byText("아이디");
+  const visible = (sel) => [...document.querySelectorAll(sel)].find((el) => el.offsetParent !== null);
+  // 실측 구조(INVITE_TEST_20261106 §2회차): 탭 li.invite_type_list_id > a, 입력 input._naverIdList, 버튼 btn_input_add(아이디 추가)·btn_invite(초대하기).
+  const idTab = visible("li.invite_type_list_id a") || byText("아이디");
   if (!idTab) return { here: true, error: `「아이디」 버튼을 찾지 못했습니다. (틀 ${location.pathname} · 화면: ${seen()})` };
   idTab.click();
   await sleep(jitter(900, 1500));
-  const input = document.querySelector("input._naverIdList");
+  const input = visible("input._naverIdList") || document.querySelector("input._naverIdList");
   if (!input) return { here: true, error: `아이디 입력 칸을 찾지 못했습니다. (화면: ${seen()})` };
   input.focus();
   input.value = "";
@@ -77,7 +82,10 @@ async function inviteInFrame(naverId) {
   }
   input.dispatchEvent(new Event("change", { bubbles: true }));
   await sleep(jitter(700, 1300));
-  const send = byText("초대하기");
+  // 「아이디 추가」가 있으면 눌러 목록에 올린 뒤 보낸다(입력만 하고 바로 「초대하기」를 누르면 빈 목록일 수 있음).
+  const add = visible("button.btn_input_add") || byText("아이디 추가");
+  if (add) { add.click(); await sleep(jitter(800, 1400)); }
+  const send = visible("button.btn_invite") || byText("초대하기");
   if (!send) return { here: true, error: `「초대하기」 버튼을 찾지 못했습니다. (화면: ${seen()})` };
   const before = document.body.innerText;
   send.click();
