@@ -4,7 +4,7 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { GeminiImageError, generateGeminiImage } from "@/lib/ai/geminiImage";
 import { getNanoBananaConfig } from "@/lib/ai/nanoBananaModels";
 import { ART_PROMPT_LIMIT, albumArtPrompt } from "@/lib/albumArt";
-import { ART_PROVIDERS, toArtModel, toArtProvider } from "@/lib/albumArtModels";
+import { ART_PROVIDERS, replicateInput, toArtModel, toArtProvider } from "@/lib/albumArtModels";
 import { ArtError, openaiImage, replicateImage } from "@/lib/ai/artProviders";
 import { LIMITS } from "@/lib/songs";
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const prompt = albumArtPrompt({ title, style, art });
   try {
     if (provider === "openai") return NextResponse.json(await openaiImage(apiKey, model, prompt));
-    if (provider === "replicate") return NextResponse.json(await replicateImage(apiKey, model, prompt));
+    if (provider === "replicate") return NextResponse.json(await replicateImage(apiKey, model, prompt, replicateInput(model)));
     const config = getNanoBananaConfig(model);
     const image = await generateGeminiImage({
       apiKey,
