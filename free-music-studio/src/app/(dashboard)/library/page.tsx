@@ -13,7 +13,6 @@ import {
   AlertCircle,
   HardDrive,
   Loader2,
-  ChevronDown,
   FolderOpen,
   X,
   ListPlus,
@@ -27,6 +26,7 @@ import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { CoverThumb } from "@/components/library/CoverThumb";
 import { TrackOrderList } from "@/components/library/TrackOrderList";
 import { TrackDetailPanel } from "@/components/library/TrackDetailPanel";
+import { TrackMenu } from "@/components/library/TrackMenu";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
 import { FILTER_LABEL, SORT_LABEL, filterTracks, sortTracks, type TrackFilter, type TrackSort } from "@/lib/trackFilters";
 
@@ -66,7 +66,6 @@ export default function LibraryPage() {
   const [arts, setArts] = useState<Set<string>>(new Set()); // 표지가 있는 곡(엔진 0.6.8+)
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
-  const [open, setOpen] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null); // 잘 된 일 안내(초록)
   const [renaming, setRenaming] = useState<string | null>(null);
@@ -669,44 +668,34 @@ export default function LibraryPage() {
                         {libOk && here !== false && (
                           <DownloadButtons trackId={t.id} title={t.title} ext={formats[t.id] ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} cover={arts.has(t.id)} onError={setMessage} />
                         )}
-                        {libOk && here !== false && t.license !== "noncommercial" && (
-                          <Link
-                            href={`/import?from=${t.id}`}
-                            onClick={() => {
-                              const src: CoverSource = { id: t.id, title: t.title, style_prompt: t.style_prompt, lyrics: t.lyrics, kind: t.kind };
-                              try {
-                                sessionStorage.setItem(COVER_SOURCE_KEY, JSON.stringify(src));
-                              } catch {}
-                            }}
-                            className={`${btn} border-sky-500/40 text-sky-300 hover:bg-sky-950/50`}
-                            title="이 곡의 멜로디로 새 스타일 커버를 만듭니다(파일을 다시 고르지 않음)"
-                          >
-                            <Palette className="h-3.5 w-3.5" /> 커버 →
-                          </Link>
-                        )}
-                        {inPlaylist ? (
-                          <button type="button" onClick={() => removeFromPlaylist([t.id])} className={`${btn} border-slate-700 text-slate-400`} title="플레이리스트에서만 빼고 곡은 그대로 둡니다">
-                            <X className="h-3.5 w-3.5" /> 빼기
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => remove(t)}
-                            disabled={busy === t.id}
-                            className={`${btn} border-rose-500/30 text-rose-300 hover:bg-rose-950/50`}
-                            aria-label="지우기"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => setOpen(open === t.id ? null : t.id)}
-                          className={`${btn} border-slate-700 text-slate-400 hover:bg-slate-900`}
-                          aria-label="가사·스타일 보기"
-                        >
-                          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open === t.id ? "rotate-180" : ""}`} />
-                        </button>
+                        <TrackMenu
+                          label={t.title}
+                          items={[
+                            { label: "곡 상세 · 제목/가사 수정", icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => setDetailId(t.id) },
+                            {
+                              label: "이 곡으로 커버 만들기",
+                              icon: <Palette className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : t.license === "noncommercial" ? "개인용 엔진 곡은 커버를 만들 수 없습니다" : false,
+                              onClick: () => {
+                                const src: CoverSource = { id: t.id, title: t.title, style_prompt: t.style_prompt, lyrics: t.lyrics, kind: t.kind };
+                                try {
+                                  sessionStorage.setItem(COVER_SOURCE_KEY, JSON.stringify(src));
+                                } catch {}
+                                router.push(`/import?from=${t.id}`);
+                              },
+                            },
+                            { label: "스타일 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.style_prompt ? false : "스타일이 없습니다", onClick: () => copy(t.style_prompt, "스타일") },
+                            { label: "가사 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.lyrics.trim() ? false : "가사 없는 곡입니다", onClick: () => copy(t.lyrics, "가사") },
+                            {
+                              label: "저장 폴더 열기",
+                              icon: <FolderOpen className="h-3.5 w-3.5" />,
+                              hidden: !libOk || !hasFolderPicker(engine.status),
+                              onClick: () => void revealLibraryFolder().catch(() => setMessage("폴더를 열지 못했습니다.")),
+                            },
+                            { label: "이 플레이리스트에서 빼기", icon: <X className="h-3.5 w-3.5" />, hidden: !inPlaylist, onClick: () => void removeFromPlaylist([t.id]) },
+                            { label: "곡 지우기", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, hidden: inPlaylist, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void remove(t) },
+                          ]}
+                        />
                       </div>
                     </div>
 
@@ -737,24 +726,6 @@ export default function LibraryPage() {
                       </label>
                     </div>
 
-                    {open === t.id && (
-                      <div className="space-y-1 rounded-xl bg-slate-950/60 p-3 text-xs text-slate-300">
-                        <div className="flex flex-wrap gap-1.5 pb-1">
-                          {t.style_prompt && (
-                            <button type="button" onClick={() => copy(t.style_prompt, "스타일")} className={`${btn} border-slate-700 text-slate-300 hover:bg-slate-900`}>
-                              <Copy className="h-3.5 w-3.5" /> 스타일 복사
-                            </button>
-                          )}
-                          {t.lyrics && (
-                            <button type="button" onClick={() => copy(t.lyrics, "가사")} className={`${btn} border-slate-700 text-slate-300 hover:bg-slate-900`}>
-                              <Copy className="h-3.5 w-3.5" /> 가사 복사
-                            </button>
-                          )}
-                        </div>
-                        {t.style_prompt && <p className="font-mono text-[11px] text-teal-300/80">{t.style_prompt}</p>}
-                        <p className="whitespace-pre-wrap leading-relaxed">{t.lyrics || "(가사 없음)"}</p>
-                      </div>
-                    )}
                   </>
                 );
               }}
