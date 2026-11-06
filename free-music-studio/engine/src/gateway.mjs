@@ -112,12 +112,16 @@ export function createGateway(ctx) {
     const isSystem = key === "GET /system" || key === "POST /quality" || !!removeMatch;
     const isQueue = !!ctx.queue && (url.pathname === "/queue" || url.pathname.startsWith("/queue/"));
     const isStorage = !!ctx.storage && ["GET /storage", "POST /storage/remove", "POST /storage/move"].includes(key);
-    if (!target && !isLibrary && !isSystem && !isQueue && !isStorage) return json(res, 404, { error: "없는 주소입니다." }, origin);
-    const token = bearer(req.headers.authorization);
+    const isVideo = !!ctx.video && /^\/videos?(\/|$)/.test(url.pathname);
+    if (!target && !isLibrary && !isSystem && !isQueue && !isStorage && !isVideo) return json(res, 404, { error: "없는 주소입니다." }, origin);
+    // 영상 재생(<video>)은 머리글을 못 붙여 주소의 t=토큰도 받는다(GET 파일만, 0.6.9)
+    const fileView = req.method === "GET" && /^\/videos\/[0-9a-f-]{36}\/file$/.test(url.pathname);
+    const token = bearer(req.headers.authorization) ?? (fileView ? url.searchParams.get("t") : null);
     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
       return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
     }
     if (isLibrary) return handleLibrary(req, res, url, origin, ctx, json);
+    if (isVideo) return handleVideo(req, res, url, origin, ctx, json);
     // 작업 대기열 — 엔진이 준비 중이어도 넣어 둘 수 있다(준비되면 차례로 만든다)
     if (isQueue) return handleQueue(req, res, url, origin, ctx, json);
     // 저장 공간(0.5.0) — GET /storage 항목·크기·남은 공간 · POST /storage/remove { id } · POST /storage/move { path, mode: "move"|"fresh" }
@@ -340,6 +344,110 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
     return json(res, 200, { ok: true, removed: r.removed, skipped: r.skipped }, origin);
   }
   return json(res, 404, { error: "없는 주소입니다." }, origin);
+}
+
+/**
+ * 플레이리스트 영상(0.6.9, video.mjs) — 토큰 확인을 마친 요청만 온다.
+ *  POST   /video                     { title, template, tracks:[{id,title}], options } → { session } (음원 분석 시작)
+ *  GET    /video/<sid>               → 작업 상태(분석 → 화면이 그림 → 담기 → 완성)
+ *  GET    /video/<sid>/analysis/<i>  → i번째 곡 분석(JSON, 화면이 스펙트럼을 그림)
+ *  POST   /video/<sid>/chunk         H.264 조각(본문 그대로, X-Offset: 지금까지 보낸 크기) → { written }
+ *  POST   /video/<sid>/finish        { frames, written, hardware, codec } → 담기·반복·검증 시작
+ *  POST   /video/<sid>/cancel
+ *  GET    /videos                    → { videos, dir } 이 PC에서 만든 영상(회원 PC에만 기록)
+ *  GET    /videos/<vid>/file         → 영상 파일(Range 지원)
+ *  POST   /videos/reveal             → 영상 폴더 열기
+ *  DELETE /videos/<vid>?file=1       → 목록에서 지우기(file=1이면 파일도)
+ */
+async function handleVideo(req, res, url, origin, ctx, json) {
+  const v = ctx.video;
+  const parts = url.pathname.split("/").filter(Boolean);
+  const uuid = (s) => typeof s === "string" && /^[0-9a-f-]{36}$/.test(s);
+  try {
+    if (parts[0] === "videos") {
+      if (req.method === "GET" && parts.length === 1) return json(res, 200, { videos: await v.list(), dir: v.outDir }, origin);
+      if (req.method === "POST" && parts[1] === "reveal" && parts.length === 2) {
+        await mkdir(v.outDir, { recursive: true });
+        await revealFolder(v.outDir);
+        return json(res, 200, { ok: true }, origin);
+      }
+      if (!uuid(parts[1])) return json(res, 404, { error: "없는 주소입니다." }, origin);
+      if (req.method === "GET" && parts[2] === "file" && parts.length === 3) {
+        const file = await v.fileOf(parts[1]);
+        if (!file) return json(res, 404, { error: "영상 파일이 없습니다(옮기거나 지웠을 수 있음)." }, origin);
+        const size = (await stat(file)).size;
+        const type = file.toLowerCase().endsWith(".mov") ? "video/quicktime" : "video/mp4";
+        const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? "");
+        if (m && (m[1] || m[2])) {
+          const start = m[1] ? Number(m[1]) : Math.max(0, size - Number(m[2]));
+          const end = m[1] && m[2] ? Math.min(size - 1, Number(m[2])) : size - 1;
+          if (start > end || start >= size) {
+            res.writeHead(416, { "content-range": `bytes */${size}`, ...corsHeaders(origin) });
+            return res.end();
+          }
+          res.writeHead(206, { "content-type": type, "content-length": end - start + 1, "content-range": `bytes ${start}-${end}/${size}`, "accept-ranges": "bytes", ...corsHeaders(origin) });
+          return createReadStream(file, { start, end }).pipe(res);
+        }
+        res.writeHead(200, { "content-type": type, "content-length": size, "accept-ranges": "bytes", ...corsHeaders(origin) });
+        return createReadStream(file).pipe(res);
+      }
+      if (req.method === "DELETE" && parts.length === 2) {
+        const r = await v.remove(parts[1], { removeFile: url.searchParams.get("file") === "1" });
+        return r.ok ? json(res, 200, r, origin) : json(res, r.status, { error: r.error }, origin);
+      }
+      return json(res, 404, { error: "없는 주소입니다." }, origin);
+    }
+
+    // /video …
+    if (req.method === "POST" && parts.length === 1) {
+      const body = await readSmall(req, 256 * 1024).catch(() => null);
+      const r = await v.start(body);
+      return r.ok ? json(res, 200, { session: r.session }, origin) : json(res, r.status, { error: r.error }, origin);
+    }
+    const sid = parts[1];
+    if (!uuid(sid)) return json(res, 404, { error: "없는 주소입니다." }, origin);
+    if (req.method === "GET" && parts.length === 2) {
+      const s = v.get(sid);
+      return s ? json(res, 200, { session: s }, origin) : json(res, 404, { error: "그 영상 작업을 찾지 못했습니다(엔진을 다시 켰으면 처음부터 만들어 주세요)." }, origin);
+    }
+    if (req.method === "GET" && parts[2] === "analysis" && parts.length === 4) {
+      const text = await v.analysis(sid, Number(parts[3]));
+      if (text === null) return json(res, 404, { error: "곡 분석이 없습니다." }, origin);
+      res.writeHead(200, { "content-type": "application/json; charset=utf-8", ...corsHeaders(origin) });
+      return res.end(text);
+    }
+    if (req.method === "POST" && parts[2] === "chunk" && parts.length === 3) {
+      const offset = Number(req.headers["x-offset"]);
+      if (!Number.isSafeInteger(offset) || offset < 0) return json(res, 400, { error: "조각 위치가 올바르지 않습니다." }, origin);
+      const bytes = await readRaw(req, 32 * 1024 * 1024).catch(() => null);
+      if (!bytes?.length) return json(res, 400, { error: "조각이 비었거나 너무 큽니다(32MB까지)." }, origin);
+      const r = await v.append(sid, offset, bytes);
+      return r.ok ? json(res, 200, { written: r.written }, origin) : json(res, r.status, { error: r.error, written: r.written }, origin);
+    }
+    if (req.method === "POST" && parts[2] === "finish" && parts.length === 3) {
+      const body = await readSmall(req).catch(() => null);
+      const r = await v.finish(sid, { frames: body?.frames, written: body?.written, hardware: body?.hardware === true, codec: body?.codec });
+      return r.ok ? json(res, 200, { session: r.session }, origin) : json(res, r.status, { error: r.error }, origin);
+    }
+    if (req.method === "POST" && parts[2] === "cancel" && parts.length === 3) {
+      await v.cancel(sid);
+      return json(res, 200, { ok: true }, origin);
+    }
+  } catch (e) {
+    return json(res, 500, { error: e instanceof Error ? e.message : "영상 요청을 처리하지 못했습니다." }, origin);
+  }
+  return json(res, 404, { error: "없는 주소입니다." }, origin);
+}
+
+async function readRaw(req, max) {
+  let size = 0;
+  const chunks = [];
+  for await (const c of req) {
+    size += c.length;
+    if (size > max) throw new Error("too large");
+    chunks.push(c);
+  }
+  return Buffer.concat(chunks);
 }
 
 const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master"]);

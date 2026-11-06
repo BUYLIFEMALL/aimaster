@@ -18,6 +18,7 @@ import { createLibrary } from "./library.mjs";
 import { createQueue } from "./queue.mjs";
 import { createRunner } from "./runner.mjs";
 import { masterFile } from "./mastering.mjs";
+import { createVideoStudio } from "./video.mjs";
 import { newToken } from "./security.mjs";
 import { ensureTools, useTools } from "./tools.mjs";
 import { runYue2, yue2Installed, yue2MissingBytes, yue2Paths, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
@@ -368,12 +369,14 @@ const queue = createQueue({
   log: (e) => logLine(`⚠ 대기열 오류: ${e instanceof Error ? e.message : e}`),
 });
 await queue.load();
+// 플레이리스트 영상(0.6.9) — 화면이 그린 H.264 조각을 받아 ffmpeg로 담는다(그래픽카드 음악 작업과 따로)
+const video = createVideoStudio({ dataDir, library, getFfmpeg: () => ffmpeg, log: logLine });
 let gatewayOpen = false;
 let pendingPairCode = "";
 const showPairCode = (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`);
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", "art", "cover", "waveform", "safe-delete", ...(ffmpeg ? ["master"] : []), ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", "art", "cover", "waveform", "safe-delete", ...(ffmpeg ? ["master", "video"] : []), ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
   systemReport,
   // 엔진 이름 → 분류(없는 엔진·이 PC에서 안 되는 엔진은 null)
   engineLicense: (id) => (id === "yue2" ? (yue2.ok ? YUE2_LICENSE : null) : pyOk.includes(id) ? pyEngine(id).license : null),
@@ -390,6 +393,7 @@ const gateway = createGateway({
   queue,
   queueSourceDir,
   library,
+  video,
   get ffmpeg() {
     return ffmpeg;
   },

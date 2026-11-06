@@ -15,9 +15,9 @@ export function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Authorization, Content-Type",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, Range, X-Offset",
     "Access-Control-Max-Age": "600",
-    "Access-Control-Expose-Headers": "x-audio-format",
+    "Access-Control-Expose-Headers": "x-audio-format, content-range, accept-ranges",
     Vary: "Origin",
   };
 }
