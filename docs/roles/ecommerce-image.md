@@ -33,6 +33,7 @@
 - 공용 `browser-free-erase`·`nukki-handoff`는 `shop-detail-page`(쇼핑몰 담당)도 사본을 쓰므로, 기준을 고치면 쇼핑몰 담당에 알린다.
 
 ## 최근 완료 (최근 10개)
+- 2026-11-06 운영 확인(ego, 관리자): 인스타 v1.71 새 글 → 「🙈 가리기」 → 바나나 `/tools` 그림 받음 → 「한글 이름·주소도」 켜고 가짜 송장 6줄(이름 2·주소 1·숫자 3) 모두 가림(9초) → 「↩ 인스타에 넣기」로 그 장 새 이미지 저장 ✅. 썸네일 「🧽 무료 지우기」는 **바나나 `/erase` COOP 헤더가 opener를 끊어 실패** → `9d388621a` 수정(배포 대기, 빌드 1회 승인 필요). 시험 이미지 2장이 관리자 `insta-post-images` 폴더에 남음(글은 저장 안 함)
 - 2026-11-06 배포 묶음 6개(주인님 「진행해」, 빌드 6회): `banana-canvas` v1.43 · `shop-detail-page` v1.41 · `thumbnail-master` v2.01(화면 「v2.0」을 규칙 형식으로, DB v1.20→v2.01) · `insta_auto_poster` v1.71 · `trending-product-finder` v1.36(DB/ext/ZIP OK) · `coupang-ops` v1.18. 시험·tsc 모두 통과, 6곳 운영 응답 확인. 남은 일: 로그인 화면에서 E5-5 보내기·되돌려 넣기, 한글 이름·주소 가리기 실사진 확인
 - 2026-11-03 `trending-product-finder` v1.35: 매일 예약 마켓별(쿠팡·네이버 각각 시각·키워드), 겹치면 나중 마켓이 10분 뒤 재시도, 저장 때 겹침 안내(선택은 막지 않음). ✅ `l1cvtpead`
 - 2026-11-03 `trending-product-finder` v1.34: **스마트스토어 상품소싱기**(네이버 쇼핑 구매·리뷰 거르기) — 쿠팡 확장에 마켓 선택(자동 검색·매일 예약·일시정지·저장 공용), `/naver-reviews`, 운영 DB `market`·`purchases`·`sellers`·`mall_name`. ego 실검수 「접이식 캠핑의자」 56개 저장(구매 있음 29·가격비교 26·광고 16). ✅ `kl5zo2n5q`
