@@ -77,8 +77,9 @@ export function listItems(s) {
     items.push({ id: "yue2", engine: "yue2", label: "YuE2 모델·실행 도구", paths: [s.yue2Root], removable: !busy, inUse: busy, note: busy ? "이 엔진으로 만드는 작업이 끝난 뒤 지울 수 있습니다." : "지우면 YuE2를 다시 고를 때 처음부터 받습니다." });
   }
   for (const e of s.pyEngines.filter((e) => e.exists)) {
-    const busy = s.busy.has(e.id);
-    items.push({ id: `py:${e.id}`, engine: e.id, label: `${e.name} 모델·실행 환경`, paths: [e.root], removable: !busy, inUse: busy, note: busy ? "이 엔진으로 만드는 작업이 끝난 뒤 지울 수 있습니다." : `지우면 ${e.name}을(를) 다시 고를 때 처음부터 받습니다.` });
+    // busyKeys: Stem·가사 분석 도구(0.6.9)는 대기열 작업 종류(stems·align)로 쓰는 중인지 본다
+    const busy = (e.busyKeys ?? [e.id]).some((k) => s.busy.has(k));
+    items.push({ id: `py:${e.id}`, engine: e.id, label: e.label ?? `${e.name} 모델·실행 환경`, paths: [e.root], removable: !busy, inUse: busy, note: busy ? "이 엔진으로 만드는 작업이 끝난 뒤 지울 수 있습니다." : e.note ?? `지우면 ${e.name}을(를) 다시 고를 때 처음부터 받습니다.` });
   }
   if (s.uvCacheExists) items.push({ id: "uv-cache", engine: "", label: "설치 패키지 보관함", paths: [s.uvCache], removable: !s.working, inUse: s.working, note: s.working ? "곡을 만드는(설치하는) 중에는 지울 수 없습니다." : "엔진을 설치할 때 받은 패키지 묶음입니다. 지워도 지금 엔진은 그대로 쓰이고, 다음에 새 엔진을 설치할 때만 다시 받습니다." });
   if (s.oldUvCache && s.oldUvCacheExists) items.push({ id: "uv-cache-old", engine: "", label: "예전 설치 패키지 보관함(처음 폴더)", paths: [s.oldUvCache], removable: !s.working, inUse: s.working, note: "모델 저장 폴더를 바꾸기 전에 쓰던 보관함입니다. 지워도 됩니다." });

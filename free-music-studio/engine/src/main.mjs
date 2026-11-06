@@ -216,7 +216,19 @@ async function storageItemsNow() {
     profile,
     yue2Root: yue2Paths(heavyDir).root,
     yue2Exists: existsSync(yue2Paths(heavyDir).root),
-    pyEngines: pyCatalog().engines.map((e) => ({ id: e.id, name: e.name, root: pyPaths(heavyDir, e).root, exists: existsSync(pyPaths(heavyDir, e).root) })),
+    pyEngines: [
+      ...pyCatalog().engines.map((e) => ({ id: e.id, name: e.name, root: pyPaths(heavyDir, e).root, exists: existsSync(pyPaths(heavyDir, e).root) })),
+      // Stem 분리·가사 자동 맞추기 도구(0.6.9) — 지우면 다음에 쓸 때 다시 받는다
+      ...[
+        ["stems-cuda", "Stem 분리 실행 환경(그래픽카드)", ["stems", "align"]],
+        ["stems-cpu", "Stem 분리 실행 환경(CPU)", ["stems", "align"]],
+        ["stems-models", "Stem 분리 모델(2·6트랙)", ["stems", "align"]],
+        ["lyrics-cuda", "가사 자동 맞추기 실행 환경(그래픽카드)", ["align"]],
+        ["lyrics-cpu", "가사 자동 맞추기 실행 환경(CPU)", ["align"]],
+        ["lyrics-models", "가사 자동 맞추기 모델(Qwen3 정렬·받아쓰기)", ["align"]],
+      ].map(([id, label, busyKeys]) => ({ id, name: label, label, busyKeys, root: path.join(heavyDir, "engines", id), exists: existsSync(path.join(heavyDir, "engines", id)), note: "지우면 다음에 이 기능을 쓸 때 다시 받습니다." })),
+      { id: "vocal-cache", name: "가사 분석용 보컬", label: "가사 분석용 보컬 보관(최대 5GB)", busyKeys: ["align"], root: path.join(heavyDir, "vocal-cache"), exists: existsSync(path.join(heavyDir, "vocal-cache")), note: "한 번 분리한 보컬을 다시 쓰려고 둔 것입니다. 지우면 다음 자동 맞추기 때 다시 분리합니다." },
+    ],
     uvCache: uv,
     uvCacheExists: existsSync(uv),
     oldUvCache: custom && path.resolve(defaultUvCache) !== path.resolve(uv) ? defaultUvCache : "",
