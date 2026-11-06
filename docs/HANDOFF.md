@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — **실거래 v1.55 배포: 분양권이 회당 상한 20건에 밀려 0건이던 원인 확정·고침 + R-ONE 상권 좌표 보강**
+- **원인 확정**: 시험 계정 강서구 조회(40건, 분양권 0) 뒤 국토부 실거래가 공개시스템을 ego에서 키 없이 동별 조회(`/pt/gis/ptDanjiList.do`·`ptDtl.do`) → 등촌동 「힐스테이트 등촌역」 10-02 분양권·09-06 입주권이 있는데 저장 안 됨. 서울 열린데이터 최신 200건 뒤로 분양권이 정렬돼 매 회차 20건 상한에 탈락(v1.49 재정렬로는 해결 불가). 종로구 0건은 실제 거래 없음(공개시스템도 0).
+- **고침·배포**: `molit.ts presaleFirst`(분양권을 저장 후보 맨 앞, `b40baa1ae`), 시험 49 통과. 주인님 「진행해」로 v1.55 배포(`real-estate-sales-qaq2mxs93`, DB v1.55). 제 배포 명령은 자동 권한 검사에 두 번 막혀 **주인님이 `! node scripts/deploy.mjs real_estate_sales --go`로 실행**.
+- **배포 뒤 확인**: 좌표 다시 찾기 1회 347→387/417, 조회 1회로 **분양권 첫 저장(등촌역 10-02 · 84.71㎡ · 17.1억 · 8층 = 공개시스템과 동일)**, 목록 화면 「분양권·공시가 대상 아님」 확인. ⚠ 확인 조회가 관리자 계정으로 돌아감(ego 새 작업 공간이 관리자 로그인) — 관리자 키 AI 분석 20건.
+- **문서**: `real_estate_sales/AGENTS.md` 2026-11-06 v1.55·분양권 절, `docs/ERROR_LESSONS.md` 2026-11-06(드문 유형이 회당 상한에 굶는 문제), `docs/PENDING_DEPLOYS.md` 내보낸 기록, `docs/roles/realty.md`.
+- **남은 일**: 비주거 리포트 상권 칸 실화면(상가 임장 기록 필요), 분양권 `STDG_CD` 빈칸 개선 후보, 고객관리 `5cc894781`·상가 v1.31 거르기 미배포 대기.
+- **비용**: 빌드 1회(승인 범위). AI: 시험 계정 키 조회 1회(40건 분석) + 관리자 키 조회 1회(20건 분석, 위 주의). 브이월드·R-ONE 무료.
+- https://real-estate-sales.buylife.xyz
+
 ## 2026-11-06 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-u10deploy — **주인님 채팅 승인 5건 처리: 쇼핑몰 빌더 D14 Lab 배포 + U10 승인을 워크스페이스 세션에 전달**
 - **주인님 승인(채팅 「배포상태 확인하고 진행해」)**: 요청함 a9bb8ecb(워크스페이스 v1.22 빌드)·b6fb9b4b(U10 1차 빌드 3회)·7427701f(U10 플랜 결정 5건, 추천안 (가))·89901683(쇼핑몰 빌더 D14 Lab 빌드)·d85f856f(음악 엔진 0.7.0 실물 확인 — 주인님 5080 PC 몫).
 - **한 일**: `labs/mall-builder` D14 통계 Lab 배포(`dev-mall-builder-mnqfblzbm`, https://dev-mall-builder.vercel.app, DB 0034는 이미 Lab 적용). `insta_auto_poster` v1.72·`threads-content-ops` v2.23 버전 파일만 올려 커밋(코드 변경 없음). U10 배포 3개는 담당 `claude-win-20261025-workspace`가 작업 중 표에 있어 `deploy.mjs`가 막음 → 그 세션에 SendMessage로 승인·현황 전달, 배포·확인·요청함 닫기는 그 세션이 함.
