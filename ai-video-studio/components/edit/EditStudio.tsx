@@ -20,6 +20,8 @@ import { tweakVideoEncoder } from "@/lib/edit/encoderTweak";
 import { preferSoftwareDecoding } from "@/lib/edit/softDecode";
 import { preferCpuCanvas } from "@/lib/edit/cpuCanvas";
 import { detectPcRenderer, PC_RENDERER_GUIDE_URL, runPcJob, type PcRendererStatus } from "@/lib/pcRenderer";
+import { takeClipHandoff } from "@/lib/clip/handoff";
+import type { Piece } from "@/lib/clip/clipPlan";
 import {
   CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
   type CaptionPosition, type CaptionSize, type CaptionStyle, type ClipSource, type EditAspect, type EditClip, type EditProject, type EditQuality, type MusicSource, type SavedProject, type Transition,
@@ -126,7 +128,7 @@ export function EditStudio() {
   }, []);
 
   /** 영상 하나 넣기 — 길이 읽기 → (내 PC 영상만) 앞부분 시험 렌더(R1) → 멈추면 소프트웨어로 다시 인코딩 */
-  const addVideo = useCallback(async (getBlob: () => Promise<Blob>, name: string, opts: { caption?: string; source: ClipSource; trusted: boolean; base?: Partial<EditClip> }) => {
+  const addVideo = useCallback(async (getBlob: () => Promise<Blob>, name: string, opts: { caption?: string; source: ClipSource; trusted: boolean; base?: Partial<EditClip>; pieces?: Piece[] }) => {
     setError("");
     setBusy({ name, msg: "영상 받는 중" });
     let url = "";
@@ -163,6 +165,16 @@ export function EditStudio() {
         }
       }
       const clip: EditClip = { id: newId(), src: url, name, duration, trimStart: 0, trimEnd: 0, caption: opts.caption ?? "", narration: "", voice: null, source: opts.source, ...opts.base };
+      if (opts.pieces?.length) {
+        // v1.27(V1) 긴 영상 → 쇼츠: 같은 영상의 구간(문장·자막)마다 장면 하나, 세로·원본 소리·장면 사이 효과 없음
+        const pieceClips = opts.pieces.slice(0, MAX_CLIPS).map((p): EditClip => ({
+          ...clip, id: newId(), name: `${name} ${Math.floor(p.start / 60)}:${String(Math.floor(p.start % 60)).padStart(2, "0")}`,
+          trimStart: Math.max(0, p.start), trimEnd: Math.max(0, duration - Math.min(duration, p.end)), caption: p.caption,
+        }));
+        setProject((cur) => ({ ...cur, clips: pieceClips, aspect: "9:16", transition: "none", clipAudio: true, captionPosition: "bottom" }));
+        setResult(null);
+        return true;
+      }
       setProject((cur) => (cur.clips.length >= MAX_CLIPS ? cur : { ...cur, clips: [...cur.clips, clip] }));
       setResult(null);
       return true;
@@ -189,6 +201,17 @@ export function EditStudio() {
     const g = gallery.find((x) => x.id === id);
     if (g) addGallery(g);
   }, [params, gallery, addGallery]);
+
+  // v1.27(V1) 「긴 영상 → 쇼츠」에서 넘긴 영상·구간(/edit?from=clip, 같은 탭 메모리)
+  useEffect(() => {
+    if (params?.get("from") !== "clip" || autoAdded.current) return;
+    autoAdded.current = true;
+    const h = takeClipHandoff();
+    if (!h) { setError("넘겨받은 영상이 없습니다(새로고침하면 사라집니다). 「긴 영상 → 쇼츠」에서 다시 넘겨 주세요."); return; }
+    void addVideo(async () => h.file, h.name, { source: { kind: "local" }, trusted: false, pieces: h.pieces }).then((ok) => {
+      if (ok) setNotice(`「긴 영상 → 쇼츠」에서 고른 구간을 장면 ${Math.min(MAX_CLIPS, h.pieces.length)}개로 넣었습니다. 자막·배경음악을 확인한 뒤 MP4를 만드세요.`);
+    });
+  }, [params, addVideo]);
 
   function onFiles(files: FileList | null) {
     const list = Array.from(files ?? []).filter((f) => f.type.startsWith("video/"));
