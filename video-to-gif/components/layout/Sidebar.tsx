@@ -22,7 +22,8 @@ import {
   Terminal,
   Copy,
   Check,
-  Cpu
+  Cpu,
+  Eraser
 } from "lucide-react";
 
 const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
@@ -42,6 +43,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
 
   const isDashboard = pathname === "/dashboard" || pathname === "/";
   const isGuide = pathname === "/guide";
+  const isErase = pathname === "/erase";
 
   return (
     <>
@@ -179,6 +181,35 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 </div>
               </div>
             </nav>
+          </div>
+
+          {/* V5(2026-11-06): 내 영상 편집 도구 */}
+          <div className="border-t border-[#30363d] pt-4">
+            <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+              내 영상 편집 도구
+            </div>
+            <Link
+              href="/erase"
+              onClick={() => setMobileOpen(false)}
+              className={`group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all ${
+                isErase
+                  ? "border border-amber-500/40 bg-gradient-to-r from-amber-500/20 to-transparent text-amber-300 shadow-sm"
+                  : "text-gray-300 hover:bg-[#1f2937] hover:text-white"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  <Eraser className="h-4 w-4" />
+                </span>
+                <div>
+                  <div className="font-bold">🧽 내 영상 일부 지우기</div>
+                  <div className="text-[10px] text-gray-400 font-normal">내 로고·글자를 주변 화면으로 메우기</div>
+                </div>
+              </div>
+              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/30">
+                NEW
+              </span>
+            </Link>
           </div>
 
           {/* 사용 매뉴얼 가이드 메뉴 그룹 (DESIGN.md 9번 필수 원칙) */}
