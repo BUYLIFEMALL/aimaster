@@ -475,7 +475,7 @@ export async function deleteFromLibrary(id: string): Promise<{ skipped: string[]
 // 엔진이 차례로 만들고 보관함에 저장한다. 끝난 작업의 「모든 음악」 기록은 사이트가 남긴다(QueueSync).
 
 export type QueueStatus = "queued" | "running" | "done" | "failed" | "cancelled" | "interrupted";
-export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master" | "stems"; parent_id?: string | null };
+export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master" | "stems" | "align"; parent_id?: string | null };
 export type QueueJob = {
   id: string;
   kind: QueueTrack["kind"];
@@ -487,7 +487,7 @@ export type QueueJob = {
   startedAt?: string;
   finishedAt?: string;
   error?: string;
-  result?: { trackId: string; ext: string };
+  result?: { trackId: string; ext: string; sourceId?: string; timing?: unknown; review?: number };
   recorded: boolean;
   engine?: MusicEngineId; // 엔진 0.2.0+
   license?: TrackLicense;
@@ -744,6 +744,19 @@ export async function fetchStemFile(sourceId: string, stemId: string, n: number)
 }
 export async function deleteStems(sourceId: string, stemId: string) {
   await call(`/library/${sourceId}/stems/${stemId}`, { method: "DELETE" });
+}
+
+// ── 가사 자동 맞추기(엔진 0.6.9+, 원본 boks-music lyric-alignment) ─────────────
+/** 이 엔진이 가사 시간을 자동으로 맞출 수 있는가(0.6.9+, 윈도우·ffmpeg) */
+export function hasAlign(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("align");
+}
+/** 보관함 곡의 가사 시간 자동 맞추기를 대기열에 넣는다 — 끝나면 사이트가 곡 기록의 가사 시간에 저장(직접 맞춘 시작점은 유지) */
+export async function enqueueAlign(source: { id: string; title: string; style_prompt: string; lyrics: string; duration_sec: number; device: string; song_id: string | null; license: "commercial" | "noncommercial"; lyric_timing?: unknown }): Promise<QueueJob> {
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: source.song_id, style_prompt: source.style_prompt, lyrics: source.lyrics, duration_sec: source.duration_sec, device: source.device, kind: "align", parent_id: source.id };
+  const title = `${source.title} (가사 시간)`.slice(0, 80);
+  const res = await call("/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "align", title, track, task: { sourceId: source.id, lyrics: source.lyrics, previousTiming: source.lyric_timing ?? null }, license: source.license }) });
+  return (await res.json()).job;
 }
 
 // ── 플레이리스트 영상(엔진 0.6.9+, 원본 boks-music video-render) ─────────────

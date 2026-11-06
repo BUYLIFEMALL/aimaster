@@ -4,8 +4,10 @@
 // 우리 화면에 맞춰 옮김(2026-11-06). 직접 맞추기는 lyric-video-studio처럼 「들으면서 줄마다 찍기」 + 줄마다 ±0.2초 조정.
 // 저장은 곡 기록의 lyric_timing(jsonb). 가사를 고치면 지문이 바뀌어 지난 시간 정보는 「없음」이 된다.
 import { useEffect, useMemo, useState } from "react";
-import { Download, FileUp, Loader2, Minus, Play, Plus, RotateCcw, Save, Timer } from "lucide-react";
+import { Download, FileUp, Loader2, Minus, Play, Plus, RotateCcw, Save, Timer, Wand2 } from "lucide-react";
 import { usePlayer } from "@/components/player/PlayerProvider";
+import { useEngine } from "@/components/engine/useEngine";
+import { EngineError, enqueueAlign, hasAlign } from "@/lib/engine";
 import {
   automaticDisplayEnds,
   checkCues,
@@ -34,6 +36,7 @@ function download(text: string, name: string, type: string) {
 
 export function LyricTimingPanel({ track, onPc, onPlay, onSaved }: { track: Track; onPc: boolean; onPlay: () => void; onSaved: (t: Track) => void }) {
   const player = usePlayer();
+  const engine = useEngine(30000);
   const lines = useMemo(() => lyricLines(track.lyrics || ""), [track.lyrics]);
   const [hash, setHash] = useState("");
   const [editing, setEditing] = useState(false);
@@ -84,6 +87,20 @@ export function LyricTimingPanel({ track, onPc, onPlay, onSaved }: { track: Trac
       if (await save(timing, plan.matches ? undefined : plan.lyrics)) setNote({ ok: true, text: `${file.name}에서 ${plan.cues.length}줄의 시간을 불러왔습니다${plan.matches ? "" : "(곡 가사도 파일 가사로 바꿈)"}.` });
     } catch (e) {
       setNote({ ok: false, text: e instanceof Error ? e.message : "파일을 읽지 못했습니다." });
+    }
+  };
+
+  // 자동 맞추기(원본 lyric-alignment) — 내 PC 엔진 대기열에서 보컬 분리 → Qwen 정렬. 직접 맞춘 시작점은 그대로 남는다.
+  const autoAlign = async () => {
+    setBusy(true);
+    setNote(null);
+    try {
+      await enqueueAlign(track);
+      setNote({ ok: true, text: "자동 맞추기를 대기열에 넣었습니다. 처음에는 분리·분석 프로그램과 모델(약 6~10GB)을 받습니다. 끝나면 이 곡의 가사 시간에 저장되고, 확인이 필요한 줄은 「확인 필요」로 표시됩니다." });
+    } catch (e) {
+      setNote({ ok: false, text: e instanceof EngineError ? e.message : "대기열에 넣지 못했습니다." });
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -141,6 +158,15 @@ export function LyricTimingPanel({ track, onPc, onPlay, onSaved }: { track: Trac
           </label>
           <button type="button" onClick={startEdit} disabled={!onPc || busy} className={btn} title={onPc ? "" : "이 PC에 음원이 있어야 들으면서 맞출 수 있습니다"}>
             <Timer className="h-3.5 w-3.5" /> 직접 맞추기
+          </button>
+          <button
+            type="button"
+            onClick={autoAlign}
+            disabled={!onPc || busy || !hasAlign(engine.status)}
+            className={btn}
+            title={!onPc ? "이 PC에 음원이 있어야 합니다" : !hasAlign(engine.status) ? "엔진 0.6.9 이상(윈도우)이 필요합니다" : "보컬만 분리해 가사 줄마다 시작점을 찾습니다(한국어·영어, 10분 이하)"}
+          >
+            <Wand2 className="h-3.5 w-3.5" /> 자동 맞추기
           </button>
           {timed && (
             <>

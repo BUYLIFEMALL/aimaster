@@ -15,8 +15,13 @@ async function recordFinished(jobs: QueueJob[]): Promise<boolean> {
     if (job.kind === "stems") continue; // Stem 분리 결과는 곡이 아니라 PC 「Stem」 폴더의 WAV — 「모든 음악」에 기록하지 않는다
     recording.add(job.id);
     try {
-      const res = await fetch("/api/tracks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(trackRecordOf(job)) });
-      if (res.ok) {
+      // 가사 자동 맞추기 — 새 곡이 아니라 원곡 기록의 가사 시간을 바꾼다
+      const res =
+        job.kind === "align"
+          ? await fetch(`/api/tracks/${job.result?.sourceId ?? job.track.parent_id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lyric_timing: job.result?.timing }) })
+          : await fetch("/api/tracks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(trackRecordOf(job)) });
+      // 가사 맞추기 결과를 받을 곡이 없거나(지움) 형식이 맞지 않으면 다시 시도하지 않는다
+      if (res.ok || (job.kind === "align" && (res.status === 400 || res.status === 404))) {
         await markJobRecorded(job.id);
         changed = true;
       }
