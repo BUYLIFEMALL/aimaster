@@ -4,17 +4,17 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-06 `claude-win-video` (`ai-video-studio` v1.27 배포, V1 운영 확인)
+- 마지막 갱신: 2026-11-06 `claude-win-video` (V2·V5 플랜, 결정 대기)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 없음(V2·V5 플랜 작성 전) | — | — |
+| — | 없음(V2·V5 결정 대기) | — | — |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `shorts-onestop-studio`·`ai-video-studio`·`video-to-gif` | V2(내 촬영본 다시 편집)·V5(내 로고 지우기) 플랜 | 플랜 보고 뒤 진행 말씀(V5는 ffmpeg 코어 라이선스 확인 포함) | `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` §2 |
+| `ai-video-studio`·`shorts-onestop-studio`·`video-to-gif` | V2·V5 구현 | 결정 4가지(V5 엔진·실행 기록 저장·V2 순서·V5 위치) | `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §4 |
 | `video-to-gif` · `shorts-onestop-studio` | V4 · V3 1단계 미배포 대기 | 다음 배포 때(빌드 승인) | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
@@ -57,9 +57,9 @@
 
 ## 다음 첫 단계
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
-2. V2·V5 플랜 작성(V1 엔진 재사용, V2·V5 공통 장치 4가지 — 권리 체크·회원 파일만·실행 기록 30일·고지)
+2. V2·V5 결정을 받으면 플랜 §4 순서로 구현(V2는 컷 목록 내보내기부터)
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
 - 서버 지역(`regions`)을 DB 가까이 옮기는 전체 프로그램 공통 제안 검토 여부
-- V2·V5 진행 여부(플랜 보고 뒤)
+- V2·V5 결정 4가지(플랜 `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §4)
