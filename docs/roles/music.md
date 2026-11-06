@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-06 (`claude-win-20261024-music` — 가사영상 L-2 LP판 회전 구현, 미배포 대기)
+- 마지막 갱신: 2026-11-06 (`claude-win-20261024-music` — 가사영상 v1.12 배포, 다음 무료음악 C-3)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -17,13 +17,12 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
-| `lyric-video-studio` v1.11 | L-3 무료 사진 배경 → L-4 꾸밈 확장 → L-5 렌더 진단 → 배포 1회(v1.12, L-2 포함) | 주인님 「가사영상 L-2 시작해」(11-06) — L-2 끝, 다음 L-3 | `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md` |
 | `playlist-channel-studio` v1.34 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-11-06 | `lyric-video-studio` | Lyricbi L-2 LP판 회전(`b9fd747bd`, 시험 22·tsc·ego 화면 확인) | 미배포 대기(L-5 뒤 v1.12) |
+| 2026-11-06 | `lyric-video-studio` v1.12 | Lyricbi L-2 LP판·L-3 무료 사진 배경·L-4 꾸밈 확장(+글꼴 미리 받기 수정)·L-5 렌더 진단·`?remix=` — 시험 28·빌드, ego 운영 확인(사진 검색·MP4 2.5MB) | 배포 |
 | 2026-11-06 | 공용 권한 판정(56개 프로그램) | 주인님 결정 A-7: 순차 조회 4회 → 두 묶음 동시 조회, 무료음악과 글자까지 같은 사본만 스크립트로(`d1e710d68`), 루트·작업 중 4곳·모양 다른 파일은 `docs/ACCESS_CHECK_PARALLEL_20261106.md` 목록 | 미배포 대기(각 프로그램 다음 배포) |
 | 2026-11-06 | `free-music-studio` v1.29 | 엔진 0.7.1 설치 파일 + 분위기 상세(5묶음 35개·빠르기·목소리)·가사 언어 50개·앨범 그림 모델 9개 추가·그림 모델 독립 폴더(`\AIMaster\ImageModels`) 배포, 운영 DB v1.29, ego 화면 확인 | 배포 |
 | 2026-11-06 | `free-music-studio` v1.28 | AI 작사 장르 버튼(프리셋과 양방향 연결)·분위기 최대 3개·프리셋 스타일 유지 + 권한 판정 동시 조회 배포, 운영 DB v1.28, ego 화면 확인 | 배포 |
