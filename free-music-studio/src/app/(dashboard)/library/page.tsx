@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Library,
   Play,
@@ -87,6 +88,19 @@ export default function LibraryPage() {
     } catch {}
     restored.current = true;
   }, []);
+  // 홈·좌측 메뉴에서 넘어온 프로젝트·플레이리스트(?view=project:<id>)는 기억해 둔 화면보다 먼저 연다(이미 이 화면에 있어도)
+  const params = useSearchParams();
+  const router = useRouter();
+  useEffect(() => {
+    const linked = /^(project|playlist):([0-9a-f-]{36})$/.exec(params.get("view") ?? "");
+    if (!linked) return;
+    setView({ type: linked[1] as "project" | "playlist", id: linked[2] });
+    setSort(linked[1] === "playlist" ? "manual" : "newest");
+    setQuery("");
+    setFilter("all");
+    setSelected(new Set());
+    router.replace("/library");
+  }, [params, router]);
   useEffect(() => {
     if (!restored.current) return;
     try {

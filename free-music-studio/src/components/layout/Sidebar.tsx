@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION, APP_NAME } from "@/lib/version";
-import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library, Upload, ListOrdered } from "lucide-react";
+import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library, Upload, ListOrdered, Home } from "lucide-react";
+import { SidebarCollections } from "./SidebarCollections";
 import { activeCount } from "@/lib/engine";
 import { useQueue } from "@/components/engine/useQueue";
 import { NewVersionNotice } from "./NewVersionNotice";
@@ -30,7 +31,7 @@ const UTILITY_ITEMS = [
 function Brand({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="border-b border-[#1e293b] p-5">
-      <Link href="/songs" onClick={onNavigate} className="flex items-center gap-3 group">
+      <Link href="/home" onClick={onNavigate} className="flex items-center gap-3 group">
         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-600 to-rose-500 text-white shadow-lg shadow-emerald-500/20 transition-transform group-hover:scale-105">
           <Music2 size={20} className="text-white" />
           <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-400 text-[8px] font-bold text-black ring-2 ring-[#0a0e1a]">
@@ -77,6 +78,18 @@ function NavBody({ userEmail, onNavigate, queued = 0 }: SidebarProps & { onNavig
           <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-xs shadow-emerald-400" />
         </div>
 
+        {/* 홈(원본 boks-music 첫 화면) */}
+        <Link
+          href="/home"
+          onClick={onNavigate}
+          className={`mb-1 flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-all ${
+            isActive("/home") ? "border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 to-teal-950/30 text-emerald-200" : "text-slate-200 hover:bg-[#0e1424]"
+          }`}
+        >
+          <Home size={15} className={isActive("/home") ? "text-emerald-400" : "text-slate-400"} />
+          <span>홈</span>
+        </Link>
+
         {/* 핵심 작업 흐름: 앰프 데크 원형/사각 스텝퍼 */}
         <div className="relative space-y-1">
           {FLOW_STEPS.map(({ step, href, label, description, icon: Icon }, index) => {
@@ -122,6 +135,8 @@ function NavBody({ userEmail, onNavigate, queued = 0 }: SidebarProps & { onNavig
             );
           })}
         </div>
+
+        <SidebarCollections onNavigate={onNavigate} />
 
         {/* 구분선 아래: 연동/유틸리티 */}
         <div className="mt-4 border-t border-[#1e293b] pt-3">
@@ -183,7 +198,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
 
       {/* 모바일: 56px 상단 슬림 헤더 (sticky top-0 z-40) */}
       <div className="md:hidden sticky top-0 z-40 h-14 flex items-center justify-between px-4 border-b border-[#1e293b] bg-[#0a0e1a]/95 backdrop-blur-md">
-        <Link href="/songs" className="flex items-center gap-2.5">
+        <Link href="/home" className="flex items-center gap-2.5">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-emerald-500 via-teal-600 to-rose-500 text-white shadow-xs">
             <Music2 size={15} />
           </div>

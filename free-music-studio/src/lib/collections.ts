@@ -7,6 +7,9 @@ export const PLAYLIST_ITEMS_TABLE = "free_music_playlist_items";
 export type CollectionKind = "project" | "playlist";
 export type Collection = { id: string; kind: CollectionKind; name: string; created_at: string; count: number };
 
+/** 「모든 음악」의 그 프로젝트·플레이리스트 화면 주소(홈·좌측 메뉴에서 씀) */
+export const libraryHref = (kind: CollectionKind, id: string) => `/library?view=${kind}:${id}`;
+
 export const NAME_MAX = 40;
 export const PLAYLIST_MAX = 300;
 
