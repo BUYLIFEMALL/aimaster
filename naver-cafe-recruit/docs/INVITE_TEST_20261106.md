@@ -40,3 +40,15 @@
 - 웹 설정: 상한 1 · B 켜짐, 승인 1명(`buylifemall`). 시험이 끝나면 상한을 원래(20)로 되돌릴지 주인님께 여쭌다.
 - 캡처: 맥미니 임시 폴더(`ncr-settings.png`·`ncr-targets.png`·`cafe-home.png`), 문구는 위에 그대로 옮김.
 - 비용: 없음.
+
+## 2회차 (2026-11-06 저녁, 진행 중)
+- 확장: 설치돼 있던 `~/Downloads/naver-cafe-recruit-extension-v1.02`(id `nkneaeehonnhndoichbhmipcbmjepene`)를 공유 폴더 `naver-cafe-recruit/extension`(윈도우 `5b3f05ab9` 포함)과 똑같이 맞춘 뒤 `developerPrivate.reload`로 새로고침 — 사용 중, 오류 0. (폴더 선택 창 자동 입력이 Orca 창으로 새어 중단하고 이 방법으로 바꿈.)
+- 에이전트가 확장 메시지로 시작하면 활성 탭 판정이 주인님의 다른 창(`www.buylife.xyz` 탭)으로 잡혀 「초대할 내 카페 화면(cafe.naver.com)을 연 상태에서 눌러 주세요.」 → 주인님이 카페 탭에서 아이콘으로 직접 「이 카페로 초대 시작」.
+- **결과: 확장 상태 `inviteHow:"menu"`, `cafeId:"30954788"`, `framePath:"/CafeInviteCheck.nhn?m=check&clubid=30954788"`(새 `findInvite`가 초대 메뉴·카페 번호를 찾음 ✅) → 그 뒤 「멈췄습니다: 로그인이 필요합니다.」**. 이 문구는 네이버가 아니라 우리 서버 `/api/recruit/extension`의 401(`{"error":"로그인이 필요합니다."}`). 같은 시각 사이트 화면·메인·`competitor-analysis`도 모두 로그인 화면 → **AIMaster 로그인이 풀린 상태**(오늘 두 번째, 17:2x 로그인 → 18시 전후 풀림). 카페 틀은 대문(`MyCafeIntro.nhn`) 그대로, **초대 0건**.
+- 참고(윈도우): 서버 401로 멈출 때 문구가 「멈췄습니다: 로그인이 필요합니다.」뿐이라 네이버 로그인으로 오해하기 쉬움 → 「프로그램(buylife.xyz) 로그인이 풀렸습니다」처럼 구분하면 좋겠다(코드는 손대지 않음). 로그인 풀림 원인은 미확인(같은 브라우저에서 짧은 시간에 두 번).
+- **2회차 두 번째 시도(주인님 재로그인 뒤 아이콘으로 「이 카페로 초대 시작」)**: 사이트 로그인 정상. 카페 틀이 초대 화면으로 이동 ✅ — 바깥 주소 `https://cafe.naver.com/buylife?iframe_url_utf8=%2FCafeInvite.nhn%253Fm%3Dview%2526clubid%3D30954788`, 틀 `https://cafe.naver.com/CafeInvite.nhn?m=view&clubid=30954788`.
+  - 확장 멈춤 문구 원문: 「「아이디」 버튼을 찾지 못했습니다. (틀 /buylife · 화면: 게시판 목록 바로가기 본문 바로가기 웹 접근성이 좋은 모바일 웹에서 사용하겠습니까? 바이라이프 |쇼핑몰|폐쇄몰|공동구매중개|AI자동화|MAKE|n8n|MCP 카페홈 이웃 가입카페 새글 내소식 채팅 사용자 링크 바이라이프 내정보 보기 네이버톡 새 창 알림 서비스 더보기 전체글보기 카페 캘) 보내지 않았고 멈췄습니다.」
+  - **원인(추정이 아니라 확인)**: `inviteInFrame`의 판별 `/CafeInvite\.nhn/i.test(location.href)`가 **바깥 문서에서도 참**(바깥 주소의 `iframe_url_utf8` 값에 `CafeInvite.nhn` 글자가 그대로 있음, 실측 `true`) → 바깥 문서가 `here:true`로 「아이디」 버튼을 못 찾아 `error`를 냈고, `results.find(x => x?.here)`가 그 결과를 먼저 골라 멈춤. 판별을 `location.pathname`(바깥은 `/buylife`) 기준으로 바꾸거나 `window.top === window`이면 건너뛰어야 함.
+  - **틀 안 실행 흔적**: 틀의 `alert`가 확장 함수로 바뀌어 있고(`(m) => { window.__ncrMsgs.push(String(m)); }`) **입력 칸에 `buylifemall`이 입력된 상태**, `__ncrMsgs` = `[]`(알림·확인창 0건), 화면에 결과 줄 없음. 즉 틀 안 쪽도 동시에 돌아 아이디 입력까지는 했음. **「초대하기」를 눌렀는지는 확인 불가** — 결과 불확실이므로 다시 보내지 않음. 프로그램 「보낸 결과」는 「오늘 0/20건 · 아직 보낸 초대가 없습니다」(확장이 `sent_mark`를 안 보냄). 받는 계정 `buylifemall`의 네이버 「내소식」에 초대 알림이 왔는지로 확인 필요(주인님).
+  - 초대 화면 구조(판정·입력 규칙용, 실측): 탭 `li.invite_type_list_link`(초대링크)·`li.invite_type_list_qr`(QR 코드)·`li.invite_type_list_id`(아이디) 각각 안에 `a[href="#"]`, 안내 「영리 목적의 광고를 전송하면 정보통신망법에 따라 처벌 받을 수 있습니다.」「카페 초대」「초대할 사람의 네이버 아이디를 입력하세요.」「내소식으로 초대알림이 전송됩니다.」「한 달에 최대 300명까지 초대할 수 있습니다.」, 입력 `input.layer_input._naverIdList`(placeholder 「아이디를 입력하세요.」), 버튼 `button.btn_input_add`(아이디 추가)·`button.btn_invite`(초대하기)·`button.btn_invite_close`(닫기). 「아이디」 찾기가 `button, a, [role=button]` 중 글자가 정확히 「아이디」인 것이라 `a` 로 맞을 수 있음. **「아이디 추가」 버튼이 따로 있음** — 입력 뒤 「아이디 추가」를 눌러 목록에 올려야 「초대하기」가 그 아이디를 보내는지 확인 필요(현재 확장은 입력만 하고 바로 「초대하기」).
+  - 초대링크 버튼(요청 7번)·명단 모으기(「추가」 절)는 결과 불확실 상태라 진행하지 않음. 하루 상한은 20(주인님 지시로 이미 되돌림).
