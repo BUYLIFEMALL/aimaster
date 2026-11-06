@@ -82,3 +82,4 @@
 | — | 남음 | ~~`blog-neighbor-care`(윈도우 blog 세션)~~ 11-04 완료, 배포는 각 프로그램 다음 배포 때. **묶음 A 5개 중 `real_estate_sales`는 v1.42로 배포됨** — `ai-auto-blog`·`tistory-auto-blog`·`naver-blog-seo-studio`(MAC 배포 요청에 함께)와 `threads-affiliate-poster`는 12-05에 배포 여부 점검 | — |
 - 2026-11-06 (윈도우 `claude-win-20261106-ytreply`): 묶음 B 중 `youtube-auto-reply` `5e994cd8f` → **v1.33 배포 완료**(30일 열외와 함께). 운영 설정 화면에서 옛 Gemini 선택지 없음 확인. 묶음 B 나머지 11개는 그대로 다음 배포 때.
 - 2026-11-06 (윈도우 `claude-win-20261106-ytreply`): 묶음 A 중 `threads-affiliate-poster` `0caadc5ee` → **v1.86 배포 완료**. 묶음 A 남은 것: `ai-auto-blog`·`tistory-auto-blog`·`naver-blog-seo-studio`(12-10 전 필수).
+- 2026-11-06 (윈도우 `claude-win-20261106-ytreply`): 묶음 B 중 `instagram-comment-reply` `3de8c5d73` → **v1.37 배포 완료**.

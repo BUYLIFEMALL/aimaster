@@ -297,3 +297,8 @@ App Review는 "앱에 등록되지 않은 제3자에게 권한을 확장할 때"
 - **검수**: tsc 0·로컬 build(린트 포함)·공용 사본 점검 일치, 커밋 `b4696e1e6`(27개 파일, 파일 삭제 0), 배포 `instagram-comment-reply-1k2h264nv` Ready·운영 주소 연결, 화면·DB 버전 v1.36. 운영 주소: `sync-comments` 무인증·`Bearer undefined` 401, `dispatch-member` 무인증·가짜 토큰 401, `/login` 200. 크롬(관리자): 설정 v1.36·「⏰ 실행 상태: AIMaster 기본(Vercel) 실행 중 · 모니터링 켜짐」·실행 방식 칸 표시, 대시보드 그래프 제목 16px·가로 넘침 없음. **운영 DB: 배포 직후 Vercel 예약 호출이 실제로 실행됨**(모니터링을 켜 둔 유일한 회원 = 관리자, 12시간 주기, `last_run_at` 2026-10-23 12:10:37 KST 갱신, 새 댓글 0개라 AI 호출 0).
 - **못 한 것**: 시험 회원(`buylifemall@naver.com`)으로 시작·중지·실행 방식 바꾸기 실제 조작은 하지 않음 — 크롬이 관리자로 로그인돼 있고, 관리자가 켜 둔 모니터링을 바꾸지 않기 위해. 같은 코드의 시작 시각·중지 저장은 `threads-comment-reply` v1.27에서 시험 회원으로 확인됨. 관리자 계정은 `started_at`이 2026-08-26(9시간 밀림 버그 이전 값 그대로)이라 영향 없음.
 - **비용**: Vercel 빌드 1회(승인 범위), AI 호출 0회, 외부 서비스 0. 배포 뒤 Vercel 예약 호출 5분마다(켠 회원 1명, 소량).
+
+## 2026-11-06 v1.37 ✅ 배포 — 미배포 대기 2건 묶음: 설정 「다음 확인 예정」·바로가기 + 12월 모델 교체 B (Claude Code 윈도우 · 세션 `claude-win-20261106-ytreply`, 연속 배포 2/4)
+- 함께 나감: `24562d6aa`(10-23) 모니터링 설정에 「다음 확인 예정」 시각(`lib/schedule.ts` `nextMonitoringAt`)과 「실행 방식 바꾸기 ↓」 바로가기 · `3de8c5d73`(맥미니 11-03) 답글 모델 선택지에서 12-01 종료 `gemini-2.5-pro`·`3.6-flash`·`3.7-flash` 삭제 → `gemini-3.8-flash`, 저장된 옛 값은 `currentReplyModel()`로 변환 호출(`lib/ai/models.ts`, DM 앱 `lib/dmApp/ai/reply.ts`도). 버전 커밋 `ea26cb038`.
+- 검수: tsc·시험 45개(comment-inbox 게시 공용)·로컬 build 통과. 배포 `instagram-comment-reply-hzh5ddbf6` Ready·운영 주소 연결, 예약 실행 주소 `sync-comments` 가짜 토큰 401, `/login` 200, DB v1.37. ego lite(작업 공간 107, 시험 계정) 설정 화면: v1.37, 모델 선택지 11개에 옛 값 없음, 「다음 확인 예정」·「실행 방식 바꾸기」 표시 확인.
+- 비용: Vercel 빌드 1회(승인 4회 중 2회).
