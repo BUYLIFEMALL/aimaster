@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -36,9 +37,17 @@ export default async function DashboardPage() {
           <Link href="/results" className="rounded-xl border px-4 py-2">📊 결과·엑셀</Link>
         </div>
       </section>
-      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
-        <p className="font-semibold">🧩 확장 프로그램(초대 실행) 준비 중</p>
-        <p className="mt-1">실제 초대·카페 활동 회원 모으기는 회원 PC의 확장 프로그램이 내 로그인 브라우저에서 합니다. 네이버 초대 화면을 실물로 확인한 뒤 연결합니다. 지금은 사람 모으기·승인·기록까지 쓸 수 있습니다.</p>
+      <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-950">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="font-semibold">🧩 확장 프로그램 {APP_VERSION} — 초대는 내 브라우저에서</p>
+          <a href={`/downloads/naver-cafe-recruit-extension-${APP_VERSION}.zip`} download className="rounded-xl bg-[#03c75a] px-4 py-2 font-bold text-white">⬇️ 확장 내려받기</a>
+        </div>
+        <ol className="mt-3 list-decimal space-y-1 pl-5">
+          <li>내려받은 ZIP을 새 폴더에 풀고, 브라우저 주소창에 <code>chrome://extensions</code>(엣지는 <code>edge://extensions</code>)를 엽니다.</li>
+          <li>「개발자 모드」를 켜고 「압축해제된 확장 프로그램 로드」로 그 폴더를 고릅니다.</li>
+          <li>네이버에 직접 로그인한 뒤 초대 메뉴가 보이는 내 카페를 열고, 확장 아이콘 → 「이 카페로 초대 시작」을 누릅니다.</li>
+        </ol>
+        <p className="mt-2 text-xs text-emerald-800">승인한 사람에게만 1~2분에 한 명씩, 하루 상한 안에서 보냅니다. 로그인·보안 확인·제한 안내가 뜨거나 결과가 확실하지 않으면 멈추고 다시 보내지 않습니다.</p>
       </section>
     </>}
   </div>;

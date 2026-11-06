@@ -5,7 +5,7 @@ const STEPS = [
   { icon: "⚙️", title: "1단계 · 모집 방식 고르기", body: "「⚙️ 모집 방식·설정」에서 아는 사람·카페 홍보 글·카페 활동 회원 중 쓸 방식을 켭니다. 하루 상한(기본 20, 최대 25)과 동작 시간대(기본 09:00~22:00)를 확인하고 저장합니다." },
   { icon: "👥", title: "2단계 · 초대할 사람 모으기", body: "「👥 초대할 사람 모으기·승인」에 서로이웃·지인의 네이버 아이디나 블로그 주소를 붙여 넣습니다. 카페 활동 회원 방식을 켰다면 확장이 내 로그인 브라우저에서 모아 넣습니다." },
   { icon: "✅", title: "3단계 · 목록 한 번에 승인", body: "빼고 싶은 사람만 「제외」를 누르고 「이 목록 승인」을 한 번 누릅니다. 승인한 사람만 초대합니다." },
-  { icon: "🧩", title: "4단계 · 확장이 초대", body: "내가 네이버에 직접 로그인한 브라우저에서 확장이 하루 상한·시간대 안에서 사람처럼 초대합니다. 결과는 「📊 보낸 결과」에 남고 엑셀로 내려받을 수 있습니다. (확장 연결은 준비 중)" },
+  { icon: "🧩", title: "4단계 · 확장이 초대", body: "내가 네이버에 직접 로그인한 브라우저에서 확장이 하루 상한·시간대 안에서 사람처럼 초대합니다. 「🏠 오늘의 모집」에서 확장을 내려받아 설치하고, 초대 메뉴가 보이는 내 카페를 연 채 확장의 「이 카페로 초대 시작」을 누릅니다. 1~2분에 한 명씩 보내고, 결과는 「📊 보낸 결과」에 남아 엑셀로 내려받을 수 있습니다." },
 ];
 const FAQ = [
   ["비밀번호를 프로그램에 넣나요?", "아니요. 프로그램은 로그인을 대신하지 않습니다. 내가 직접 로그인한 브라우저에서만 동작합니다."],
@@ -23,7 +23,7 @@ export default function GuidePage() {
     </div>
     <ol className="grid gap-3">{STEPS.map(s => <li key={s.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="font-bold text-slate-900">{s.icon} {s.title}</p><p className="mt-1 text-sm text-slate-600">{s.body}</p></li>)}</ol>
     <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">💡 아는 사람(서로이웃·지인) 초대부터 시작하면 가장 안전합니다. 카페 활동 회원 방식은 책임 고지에 동의해야 켜집니다.</div>
-    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">⚠️ 네이버 초대는 카페 운영진만 할 수 있습니다. 내가 운영하는 카페가 아니면 초대 단계에서 건너뜁니다.</div>
+    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">⚠️ 카페 왼쪽 정보에 「초대」 메뉴가 보이는 카페에서만 초대할 수 있습니다(운영진이거나 멤버 초대를 허용한 카페). 네이버 안내대로 한 달 최대 300명이며, 영리 목적의 광고성 초대는 정보통신망법에 따라 처벌받을 수 있습니다.</div>
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="font-bold text-slate-900">자주 묻는 질문</h2>
       <dl className="mt-2 divide-y text-sm">{FAQ.map(([q, a]) => <div key={q} className="py-2"><dt className="font-semibold">{q}</dt><dd className="mt-1 text-slate-600">{a}</dd></div>)}</dl></section>
   </div>;
