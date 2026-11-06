@@ -475,7 +475,7 @@ export async function deleteFromLibrary(id: string): Promise<{ skipped: string[]
 // 엔진이 차례로 만들고 보관함에 저장한다. 끝난 작업의 「모든 음악」 기록은 사이트가 남긴다(QueueSync).
 
 export type QueueStatus = "queued" | "running" | "done" | "failed" | "cancelled" | "interrupted";
-export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint"; parent_id?: string | null };
+export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master"; parent_id?: string | null };
 export type QueueJob = {
   id: string;
   kind: QueueTrack["kind"];
@@ -654,6 +654,32 @@ export async function enqueueSong(
     headers: { "Content-Type": "application/json" },
     // engine은 ACE-Step이 아닐 때만 보낸다(옛 엔진은 모르는 칸을 그냥 무시하지만, 상업용이 기본). 토큰은 엔진 메모리에만(대기열 파일에 안 남음)
     body: JSON.stringify({ kind: "text2music", title: info.title, track, task: buildTaskBody(song, info.device, quality), ...(engine !== "acestep" ? { engine } : {}), ...(hfToken ? { hfToken } : {}) }),
+  });
+  return (await res.json()).job;
+}
+
+// ── 마스터링(엔진 0.6.9+, 원본 boks-music mastering.mjs) ─────────────
+export type MasterOptions = { targetLufs: -14 | -12 | -10 | -8; truePeak: -2 | -1 | -0.5 | 0; character: "balanced" | "gentle" | "punchy" };
+export const MASTER_DEFAULTS: MasterOptions = { targetLufs: -10, truePeak: -1, character: "balanced" };
+export const MASTER_LUFS_LABEL: Record<MasterOptions["targetLufs"], string> = { [-14]: "-14 LUFS · 유튜브·스포티파이 기준", [-12]: "-12 LUFS · 조금 크게", [-10]: "-10 LUFS · 기본(요즘 음원 크기)", [-8]: "-8 LUFS · 아주 크게" };
+export const MASTER_CHARACTER_LABEL: Record<MasterOptions["character"], string> = { balanced: "균형(기본)", gentle: "부드럽게 — 강약 살림", punchy: "강하게 — 단단한 소리" };
+
+/** 이 엔진이 마스터링을 할 수 있는가(0.6.9+, ffmpeg 있음) */
+export function hasMastering(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("master");
+}
+
+/** 보관함 곡을 마스터링 대기열에 넣는다 — 결과는 새 곡(「제목 (마스터링)」, 원곡 번호 연결, 사용 범위는 원곡 그대로) */
+export async function enqueueMaster(
+  source: { id: string; title: string; style_prompt: string; lyrics: string; duration_sec: number; device: string; license: "commercial" | "noncommercial"; song_id: string | null },
+  options: MasterOptions
+): Promise<QueueJob> {
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: source.song_id, style_prompt: source.style_prompt, lyrics: source.lyrics, duration_sec: source.duration_sec, device: source.device, kind: "master", parent_id: source.id };
+  const title = `${source.title} (마스터링)`.slice(0, 80);
+  const res = await call("/queue", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "master", title, track, task: { sourceId: source.id, options }, license: source.license }),
   });
   return (await res.json()).job;
 }

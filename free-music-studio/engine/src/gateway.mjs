@@ -6,6 +6,7 @@ import { ART_TYPES, AUDIO_TYPES, extOfAudioRef, isTrackId } from "./library.mjs"
 import { pickFolder, revealFolder } from "./folderDialog.mjs";
 import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
 import { audioWaveform } from "./waveform.mjs";
+import { validateMasteringOptions } from "./mastering.mjs";
 import { mkdir, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { spawn } from "node:child_process";
@@ -341,7 +342,7 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
   return json(res, 404, { error: "없는 주소입니다." }, origin);
 }
 
-const QUEUE_KINDS = new Set(["text2music", "cover", "repaint"]);
+const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master"]);
 const AUDIO_EXT = /\.(mp3|wav|flac|ogg|m4a|aac|opus)$/i;
 
 /** 대기열에 넣을 기록 정보 검사 — 곡 번호는 사이트가 만든 uuid(보관함 파일 이름) */
@@ -372,6 +373,20 @@ async function handleQueue(req, res, url, origin, ctx, json) {
     if (req.method === "POST" && parts.length === 1) {
       const body = await readSmall(req, 256 * 1024).catch(() => null);
       const meta = parseQueueMeta(body);
+      // 마스터링(0.6.9) — task { sourceId: 원곡 번호(이 PC 보관함), options } · 결과는 새 곡(kind master)
+      if (meta?.kind === "master") {
+        const sourceId = body?.task?.sourceId;
+        if (!isTrackId(sourceId) || !(await ctx.library.fileOf(sourceId))) return json(res, 400, { error: "이 PC 보관함에 원곡 음원이 없습니다." }, origin);
+        if (!ctx.ffmpeg) return json(res, 501, { error: "이 PC에 ffmpeg가 없어 마스터링할 수 없습니다. 엔진을 다시 켜면 받습니다." }, origin);
+        let options;
+        try {
+          options = validateMasteringOptions(body.task.options ?? {});
+        } catch (e) {
+          return json(res, 400, { error: e instanceof Error ? e.message : "마스터링 설정이 올바르지 않습니다." }, origin);
+        }
+        const license = body.license === "noncommercial" ? "noncommercial" : "commercial"; // 원곡 사용 범위를 따른다
+        return json(res, 200, { job: await q.add({ ...meta, task: { sourceId, options }, engine: "master", license }) }, origin);
+      }
       if (!meta || meta.kind !== "text2music" || !body.task || typeof body.task !== "object") return json(res, 400, { error: "작업 내용이 올바르지 않습니다." }, origin);
       // 음악 엔진: acestep(상업용, 기본) | yue2·추가 엔진(새 곡 만들기만, 0.4.0) — 분류는 엔진 쪽 목록이 정한다
       const engine = body.engine === undefined ? "acestep" : body.engine;

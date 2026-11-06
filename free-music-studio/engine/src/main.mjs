@@ -17,6 +17,7 @@ import { createGateway, GATEWAY_PORT } from "./gateway.mjs";
 import { createLibrary } from "./library.mjs";
 import { createQueue } from "./queue.mjs";
 import { createRunner } from "./runner.mjs";
+import { masterFile } from "./mastering.mjs";
 import { newToken } from "./security.mjs";
 import { ensureTools, useTools } from "./tools.mjs";
 import { runYue2, yue2Installed, yue2MissingBytes, yue2Paths, yue2Support, YUE2_LICENSE } from "./yue2.mjs";
@@ -323,9 +324,33 @@ async function moveModels(target, mode) {
   return { ok: true, dir: to };
 }
 
+/**
+ * 마스터링 작업(0.6.9, 원본 boks-music mastering.mjs) — 보관함의 원곡을 ffmpeg로만 처리해(그래픽카드 안 씀)
+ * 24bit WAV 새 곡으로 저장하고, 원곡 표지가 있으면 같이 붙인다.
+ */
+async function masterRun(job, signal, stage) {
+  if (!ffmpeg) throw new Error("이 PC에 ffmpeg가 없어 마스터링할 수 없습니다.");
+  const src = await library.fileOf(job.task?.sourceId);
+  if (!src) throw new Error("이 PC 보관함에 원곡 음원이 없습니다(옮기거나 지웠을 수 있음).");
+  const outDir = path.join(dataDir, "tmp", `master-${job.id}`);
+  try {
+    const r = await masterFile({ src, outDir, options: job.task.options }, { signal, stage });
+    stage("보관함에 저장하는 중");
+    await library.save(job.track.id, await readFile(r.file), job.title, "wav");
+    const art = await library.artOf(job.task.sourceId);
+    if (art) await library.setArt(job.track.id, await readFile(art), path.extname(art).slice(1).toLowerCase()).catch(() => {});
+    const m = r.metadata;
+    logLine(`🎚 마스터링: ${job.title} — ${m.before.integratedLufs} → ${m.after.integratedLufs} LUFS, True Peak ${m.after.truePeakDbtp} dBTP${m.compressorApplied ? ", 압축 적용" : ""}`);
+    return { trackId: job.track.id, ext: "wav", engine: "master", license: job.license, mastering: m };
+  } finally {
+    await rm(outDir, { recursive: true, force: true }).catch(() => {});
+  }
+}
+
 const queue = createQueue({
   file: path.join(dataDir, "queue.json"),
-  run: (job, signal, stage) => (job.engine === "yue2" ? yue2Run(job, signal, stage) : job.engine === "acestep" || !job.engine ? aceRun(job, signal, stage) : pyRun(job, signal, stage)),
+  run: (job, signal, stage) =>
+    job.kind === "master" ? masterRun(job, signal, stage) : job.engine === "yue2" ? yue2Run(job, signal, stage) : job.engine === "acestep" || !job.engine ? aceRun(job, signal, stage) : pyRun(job, signal, stage),
   // ACE-Step 작업은 ACE-Step이 준비돼야, 다른 엔진 작업은 ACE-Step을 켜거나 구성을 바꾸는 중이 아니면 된다
   canRun: (job) => {
     if (job.engine && job.engine !== "acestep") return !restarting && !aceStarting;
@@ -348,7 +373,7 @@ let pendingPairCode = "";
 const showPairCode = (code) => logLine(`\n  🔑 연결 코드: ${code}  (사이트 「내 PC 엔진」 화면에 입력)\n`);
 const gateway = createGateway({
   version: VERSION,
-  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", "art", "cover", "waveform", "safe-delete", ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
+  getState: () => ({ ...state, paired: tokens.size > 0, features: ["library", "folder", "browse", "quality", "system", "queue", "engines", "pyengines", "storage", "art", "cover", "waveform", "safe-delete", ...(ffmpeg ? ["master"] : []), ...(yue2.ok ? ["yue2"] : []), ...pyOk], libraryDir: library.dir, modelsDir: heavyDir, quality: { ...profile, vramGb, ffmpeg } }),
   systemReport,
   // 엔진 이름 → 분류(없는 엔진·이 PC에서 안 되는 엔진은 null)
   engineLicense: (id) => (id === "yue2" ? (yue2.ok ? YUE2_LICENSE : null) : pyOk.includes(id) ? pyEngine(id).license : null),

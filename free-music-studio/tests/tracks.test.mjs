@@ -2,6 +2,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { parseTrackInput, parseTrackPatch } from "../src/lib/tracks.ts";
 
+test("곡 기록: 마스터링본 — 원곡 번호 필수, 원곡 길이(1초~), 비상업용 원곡이면 비상업용 그대로", () => {
+  const base = { id: "7f2b8c1e-1a2b-4c3d-8e9f-0123456789ab", kind: "master", device: "cpu", duration_sec: 180, parent_id: "8f2b8c1e-1a2b-4c3d-8e9f-0123456789ab" };
+  assert.equal(parseTrackInput(base).ok, true);
+  assert.equal(parseTrackInput({ ...base, duration_sec: 3 }).ok, true);
+  assert.equal(parseTrackInput({ ...base, license: "noncommercial" }).ok, true);
+  assert.equal(parseTrackInput({ ...base, parent_id: undefined }).ok, false);
+  assert.equal(parseTrackInput({ ...base, kind: "cover", license: "noncommercial" }).ok, false);
+});
+
 test("곡 기록 고치기: 보낸 칸만, 제목은 비울 수 없고 길이 제한, 빈 요청은 거절", () => {
   assert.deepEqual(parseTrackPatch({ title: "  새 제목 " }), { ok: true, value: { title: "새 제목" } });
   assert.deepEqual(parseTrackPatch({ lyrics: "" }), { ok: true, value: { lyrics: "" } });

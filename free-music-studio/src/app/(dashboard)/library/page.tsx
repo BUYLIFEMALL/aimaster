@@ -21,6 +21,7 @@ import {
   Palette,
   Music2,
   Undo2,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -29,6 +30,7 @@ import { CoverThumb } from "@/components/library/CoverThumb";
 import { TrackOrderList } from "@/components/library/TrackOrderList";
 import { TrackDetailPanel } from "@/components/library/TrackDetailPanel";
 import { TrackMenu } from "@/components/library/TrackMenu";
+import { MasteringDialog } from "@/components/library/MasteringDialog";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
 import { FILTER_LABEL, SORT_LABEL, filterTracks, sortTracks, type TrackFilter, type TrackSort } from "@/lib/trackFilters";
 import { daysLeft } from "@/lib/trash";
@@ -43,6 +45,8 @@ import {
   listLibraryFormats,
   hasCover,
   hasWaveform,
+  hasMastering,
+  enqueueMaster,
   revealLibraryFolder,
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
@@ -74,6 +78,7 @@ export default function LibraryPage() {
   const [renaming, setRenaming] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set()); // 여러 곡 고르기(원본 전체 선택 → 빼기·옮기기)
   const [detailId, setDetailId] = useState<string | null>(null); // 오른쪽 곡 상세 패널
+  const [mastering, setMastering] = useState<Track | null>(null); // 마스터링 설정 창
   const [artVersion, setArtVersion] = useState<Record<string, number>>({}); // 표지를 바꾼 곡은 작은 그림도 다시 받는다
   const [filter, setFilter] = useState<TrackFilter>("all");
   const [sort, setSort] = useState<TrackSort>("newest");
@@ -784,6 +789,12 @@ export default function LibraryPage() {
                                 router.push(`/import?from=${t.id}`);
                               },
                             },
+                            {
+                              label: "마스터링",
+                              icon: <SlidersHorizontal className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasMastering(engine.status) ? "엔진 0.6.9 이상(ffmpeg 포함)이 필요합니다" : false,
+                              onClick: () => setMastering(t),
+                            },
                             { label: "스타일 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.style_prompt ? false : "스타일이 없습니다", onClick: () => copy(t.style_prompt, "스타일") },
                             { label: "가사 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.lyrics.trim() ? false : "가사 없는 곡입니다", onClick: () => copy(t.lyrics, "가사") },
                             {
@@ -831,6 +842,22 @@ export default function LibraryPage() {
               }}
             />
             </>
+          )}
+          {mastering && (
+            <MasteringDialog
+              title={mastering.title}
+              onClose={() => setMastering(null)}
+              onStart={async (o) => {
+                try {
+                  await enqueueMaster(mastering, o);
+                  setMastering(null);
+                  setNotice(`「${mastering.title}」 마스터링을 대기열에 넣었습니다. 끝나면 「${mastering.title} (마스터링)」 새 곡으로 이 목록에 들어옵니다(작업 대기열 화면에서 진행 확인).`);
+                } catch (e) {
+                  setMessage(e instanceof EngineError ? e.message : "마스터링을 시작하지 못했습니다.");
+                  setMastering(null);
+                }
+              }}
+            />
           )}
           {(() => {
             const d = detailId ? tracks.find((t) => t.id === detailId) : null;
