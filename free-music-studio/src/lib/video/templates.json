@@ -1,0 +1,1011 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "albumblur",
+    "name": "앨범 블러",
+    "description": "흐린 앨범아트 위로 떠 있는 앨범에 유리 반사가 스치고, 궤도선이 흔들립니다",
+    "order": 1,
+    "renderer": "canvas",
+    "scene": "albumblur",
+    "maxResolution": 2160,
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "reflection",
+      "wave",
+      "double-wave",
+      "area",
+      "mirror-area",
+      "ribbon"
+    ],
+    "recommendedSpectrum": "wave"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "bloodmoon",
+    "name": "블러드 문",
+    "description": "붉은 개기일식의 코로나가 천천히 돌고 달 둘레의 빛살이 음악에 뻗으며, 가사는 칼날에 베이듯 나타났다 갈라져 흩어집니다",
+    "order": 23,
+    "renderer": "canvas",
+    "scene": "bloodmoon",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "radial-bars",
+      "ring",
+      "double-ring",
+      "radial-dots"
+    ],
+    "recommendedSpectrum": "radial-bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "boombox",
+    "name": "붐박스",
+    "description": "붐박스 스피커가 비트에 튀어나오고 형광 표시창에 곡 제목이 흐르며, 곡이 바뀌면 버튼이 눌리고 셋리스트에 줄이 그어집니다 (경음악 전용)",
+    "order": 29,
+    "renderer": "canvas",
+    "scene": "boombox",
+    "maxResolution": 2160,
+    "modes": [
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "blocks",
+      "mirror",
+      "dots",
+      "wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "cassette",
+    "name": "카세트 테이프",
+    "description": "테이프가 실제로 감기며 릴이 돌고, 곡마다 카세트가 빠졌다 들어갑니다. J-카드에 전체 곡 목록",
+    "order": 8,
+    "renderer": "canvas",
+    "scene": "cassette",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "blocks",
+      "bars",
+      "dots",
+      "mirror",
+      "round-bars",
+      "wave",
+      "area"
+    ],
+    "recommendedSpectrum": "blocks"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "cinematic",
+    "name": "시네마 플로우",
+    "description": "필름 그레인과 빛 번짐 속, 카메라가 움직이는 장면 위에 크게 떠오르는 가사",
+    "order": 5,
+    "renderer": "canvas",
+    "scene": "cinematic",
+    "maxResolution": 2160,
+    "requiresBackground": true,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "reflection",
+      "wave",
+      "double-wave",
+      "area",
+      "mirror-area",
+      "ribbon"
+    ],
+    "recommendedSpectrum": "wave"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "coverflow",
+    "name": "커버 플로우",
+    "description": "앨범 커버가 늘어선 3D 캐러셀이 곡마다 한 칸씩 미끄러지고, 광택 바닥에 비칩니다 (경음악 전용)",
+    "order": 20,
+    "renderer": "canvas",
+    "scene": "coverflow",
+    "maxResolution": 2160,
+    "modes": [
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "reflection",
+      "mirror",
+      "round-bars",
+      "bars",
+      "wave"
+    ],
+    "recommendedSpectrum": "reflection"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "crt",
+    "name": "브라운관 TV",
+    "description": "주사선이 흐르는 둥근 브라운관, 곡이 바뀌면 다이얼이 돌고 채널 노이즈가 지나갑니다",
+    "order": 9,
+    "renderer": "canvas",
+    "scene": "crt",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "blocks",
+      "dots",
+      "mirror",
+      "round-bars",
+      "wave",
+      "double-wave",
+      "area"
+    ],
+    "recommendedSpectrum": "mirror"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "fisheye",
+    "name": "골드 어안",
+    "description": "사진을 금빛 어안 렌즈로 휘어 천천히 다가가고 렌즈 반사가 미끄러지며, 가사는 초점이 당겨지듯 또렷해지고 아래 가운데에 가는 파형이 흐릅니다",
+    "order": 27,
+    "renderer": "canvas",
+    "scene": "fisheye",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": true,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "wave",
+      "double-wave",
+      "ribbon",
+      "mirror",
+      "bars"
+    ],
+    "recommendedSpectrum": "wave"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "forge",
+    "name": "용광로 각인",
+    "description": "가사가 그을린 철판에 찍히는 순간 하얗게 달아올라 불티를 튀기고 주황·진홍으로 식으며, 철판이 한 줄씩 밀려 올라갑니다",
+    "order": 22,
+    "renderer": "canvas",
+    "scene": "forge",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "graffiti",
+    "name": "그래피티 월",
+    "description": "콘크리트 벽에 스텐실로 곡 제목을 찍고, 가사가 스프레이로 그려지며 페인트가 흘러내리다 다음 줄 전에 롤러가 지나가며 덮습니다",
+    "order": 26,
+    "renderer": "canvas",
+    "scene": "graffiti",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "blocks",
+      "mirror",
+      "dots"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "heartmonitor",
+    "name": "하트 모니터",
+    "description": "장밋빛 심전도 선이 화면을 쓸며 박동과 하트를 그리고 스캔 빔이 가사를 새기며, 곡 사이에는 평선 뒤 심장이 다시 뜁니다",
+    "order": 31,
+    "renderer": "canvas",
+    "scene": "heartmonitor",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "inkbleed",
+    "name": "잉크 번짐",
+    "description": "잉크 방울이 떨어진 자리부터 가사가 번져 나와 또렷해졌다가, 물에 풀리듯 흐려지며 옅은 자국으로 남습니다",
+    "order": 37,
+    "renderer": "canvas",
+    "scene": "inkbleed",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "karaoke",
+    "name": "노래방",
+    "description": "노래방처럼 두 줄 가사가 번갈아 놓이고, 부르는 만큼 색이 칠해지며 카운트다운 점이 사라집니다",
+    "order": 16,
+    "renderer": "canvas",
+    "scene": "karaoke",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": true,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "wave",
+      "double-wave",
+      "area"
+    ],
+    "recommendedSpectrum": "mirror"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "kinetic",
+    "name": "키네틱 타이포",
+    "description": "굵은 가사 단어가 하나씩 튀어나오고, 줄이 바뀌면 색 블록이 화면을 밀어냅니다",
+    "order": 15,
+    "renderer": "canvas",
+    "scene": "kinetic",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "blocks",
+      "bars",
+      "round-bars",
+      "mirror",
+      "dots",
+      "wave",
+      "double-wave",
+      "area"
+    ],
+    "recommendedSpectrum": "blocks"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "loveletter",
+    "name": "러브 레터",
+    "description": "촛불이 일렁이는 책상에서 만년필이 가사를 한 줄씩 써 내려가고, 곡이 끝나면 편지가 접혀 봉투에 담기고 하트 밀랍 인장이 찍힙니다",
+    "order": 30,
+    "renderer": "canvas",
+    "scene": "loveletter",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "neon",
+    "name": "네온 사인",
+    "description": "벽돌 벽의 네온 가사가 깜빡이며 켜지고, 젖은 바닥에 일렁이며 비칩니다",
+    "order": 14,
+    "renderer": "canvas",
+    "scene": "neon",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "round-bars",
+      "bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "round-bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "nightdrive",
+    "name": "나이트 드라이브",
+    "description": "빛줄기가 뒤로 흐르는 야간 도로를 달리다 곡마다 터널을 지나 색이 바뀌고, 트랙 번호가 굴러가며 서브우퍼가 저음에 울립니다 (경음악 전용)",
+    "order": 28,
+    "renderer": "canvas",
+    "scene": "nightdrive",
+    "maxResolution": 2160,
+    "modes": [
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "blocks",
+      "mirror",
+      "wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "paper",
+    "name": "페이퍼 플레이어",
+    "description": "종이 위 플레이어 카드, 커버 뒤에서 레코드가 나와 돕니다",
+    "order": 4,
+    "renderer": "canvas",
+    "scene": "paper",
+    "maxResolution": 2160,
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "round-bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "phone",
+    "name": "스마트폰 플레이어",
+    "description": "기울어진 스마트폰 화면에서 가사가 흐르고, 곡마다 폰이 다른 각도로 돌아섭니다",
+    "order": 13,
+    "renderer": "canvas",
+    "scene": "phone",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "round-bars",
+      "bars",
+      "mirror",
+      "dots",
+      "wave",
+      "mirror-area"
+    ],
+    "recommendedSpectrum": "round-bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "photo",
+    "name": "포토 스테이지",
+    "description": "블라인드 빛이 흐르는 사진이 천천히 다가오고, 앨범에서 CD가 나와 돕니다",
+    "order": 2,
+    "renderer": "canvas",
+    "scene": "photo",
+    "maxResolution": 2160,
+    "requiresBackground": true,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "reflection",
+      "wave",
+      "double-wave",
+      "area",
+      "mirror-area",
+      "ribbon"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "polaroid",
+    "name": "폴라로이드 보드",
+    "description": "곡마다 폴라로이드가 떨어져 코르크보드에 붙고, 메모지에 가사가 쓰입니다",
+    "order": 10,
+    "renderer": "canvas",
+    "scene": "polaroid",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "dots",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "wave"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "radio",
+    "name": "빈티지 라디오",
+    "description": "곡마다 다이얼 위 방송국으로 바늘이 미끄러지고, 매직아이가 음악에 반응합니다 (경음악 전용)",
+    "order": 18,
+    "renderer": "canvas",
+    "scene": "radio",
+    "maxResolution": 2160,
+    "modes": [
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "round-bars",
+      "bars",
+      "mirror",
+      "dots",
+      "wave",
+      "area",
+      "mirror-area"
+    ],
+    "recommendedSpectrum": "round-bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "rainwindow",
+    "name": "비 오는 창가",
+    "description": "김 서린 창에 빗방울이 흘러내리고, 손가락으로 닦아낸 자리에 가사가 나타납니다",
+    "order": 11,
+    "renderer": "canvas",
+    "scene": "rainwindow",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": true,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "wave",
+      "double-wave",
+      "round-bars",
+      "bars",
+      "dots",
+      "mirror"
+    ],
+    "recommendedSpectrum": "wave"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "rockstage",
+    "name": "록 콘서트 무대",
+    "description": "연기 속 무빙 라이트가 곡마다 새 조명 큐로 교차하며 훑고, 무대 뒤 LED 화면이 다음 곡 목록으로 넘어갑니다 (경음악 전용)",
+    "order": 24,
+    "renderer": "canvas",
+    "scene": "rockstage",
+    "maxResolution": 2160,
+    "modes": [
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "rose",
+    "name": "장미 개화",
+    "description": "가사가 한 줄씩 넘어갈 때마다 장미가 바깥 꽃잎부터 피어나 마지막 줄에 만개하고, 꽃잎 위 이슬이 음악에 반짝입니다",
+    "order": 32,
+    "renderer": "canvas",
+    "scene": "rose",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "wave"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "sakura",
+    "name": "벚꽃 길",
+    "description": "벚꽃잎이 돌풍에 휘날리고 가사 글자가 꽃잎처럼 내려앉으며, 곡이 바뀌면 꽃잎 바람이 화면을 쓸고 지나갑니다",
+    "order": 33,
+    "renderer": "canvas",
+    "scene": "sakura",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "round-bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "silentfilm",
+    "name": "무성영화",
+    "description": "깜빡이는 흑백 필름에 긁힘과 먼지가 스치고, 필름이 한 칸 미끄러지며 아르데코 자막 카드로 가사가 넘어갑니다",
+    "order": 34,
+    "renderer": "canvas",
+    "scene": "silentfilm",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "spectrum",
+    "name": "사운드 갤러리",
+    "description": "돌아가는 앨범 원반에서 음악 세기만큼 고리가 퍼지고, 저음에 빛이 커집니다",
+    "order": 6,
+    "renderer": "canvas",
+    "scene": "spectrum",
+    "maxResolution": 2160,
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "reflection",
+      "wave",
+      "double-wave",
+      "area",
+      "mirror-area",
+      "ribbon",
+      "ring",
+      "radial-bars",
+      "double-ring",
+      "radial-dots",
+      "ellipse"
+    ],
+    "recommendedSpectrum": "ring"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "streetlamp",
+    "name": "눈 내리는 가로등",
+    "description": "홀로 선 가로등 불빛 속에서만 눈송이와 가사가 빛나고, 지난 줄은 눈 쌓인 바닥으로 가라앉아 눈에 덮입니다",
+    "order": 35,
+    "renderer": "canvas",
+    "scene": "streetlamp",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "subway",
+    "name": "지하철 노선도",
+    "description": "곡이 역이 되는 노선도 위를 열차가 달리고, 안내 표시기에 이번 곡과 다음 곡이 흐릅니다 (경음악 전용)",
+    "order": 21,
+    "renderer": "canvas",
+    "scene": "subway",
+    "maxResolution": 2160,
+    "modes": [
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "blocks",
+      "dots",
+      "bars",
+      "round-bars",
+      "mirror"
+    ],
+    "recommendedSpectrum": "blocks"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "swiss",
+    "name": "스위스 포스터",
+    "description": "그리드 포스터의 색 블록이 줄마다 미끄러지고, 큰 가사와 전체 곡 목록이 함께 보입니다",
+    "order": 17,
+    "renderer": "canvas",
+    "scene": "swiss",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "wave",
+      "double-wave",
+      "area",
+      "mirror-area"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "tracklist",
+    "name": "플레이리스트 보드",
+    "description": "돌아가는 CD와 1번부터 흐르는 곡 목록 (경음악 전용)",
+    "order": 7,
+    "renderer": "canvas",
+    "scene": "tracklist",
+    "maxResolution": 2160,
+    "modes": [
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "ring",
+      "radial-bars",
+      "double-ring",
+      "radial-dots"
+    ],
+    "recommendedSpectrum": "radial-bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "typewriter",
+    "name": "타자기",
+    "description": "활자가 한 글자씩 종이에 찍히며 캐리지가 옆으로 밀리고, 줄 끝에서 캐리지가 돌아가 종이가 한 줄 올라갑니다",
+    "order": 36,
+    "renderer": "canvas",
+    "scene": "typewriter",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "vhs",
+    "name": "VHS 캠코더",
+    "description": "캠코더 뷰파인더에 REC가 깜빡이고 테이프 카운터가 흐르며, 줄이 바뀔 때 트래킹 노이즈가 화면을 찢고 자막이 RGB로 갈라집니다",
+    "order": 25,
+    "renderer": "canvas",
+    "scene": "vhs",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "round-bars",
+      "mirror",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "vinyl",
+    "name": "바이닐 라운지",
+    "description": "램프 빛줄기 속에서 레코드가 슬리브에서 나와 돌고, 톤암이 내려앉습니다",
+    "order": 3,
+    "renderer": "canvas",
+    "scene": "vinyl",
+    "maxResolution": 2160,
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "ring",
+      "radial-bars",
+      "double-ring",
+      "radial-dots"
+    ],
+    "recommendedSpectrum": "ring"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "vumeter",
+    "name": "스튜디오 콘솔",
+    "description": "VU 미터 바늘이 음악에 맞춰 흔들리고, 곡이 바뀌면 채널 페이더가 교차해 올라갑니다 (경음악 전용)",
+    "order": 19,
+    "renderer": "canvas",
+    "scene": "vumeter",
+    "maxResolution": 2160,
+    "modes": [
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "bars",
+      "blocks",
+      "mirror",
+      "dots",
+      "area",
+      "mirror-area",
+      "wave",
+      "double-wave"
+    ],
+    "recommendedSpectrum": "bars"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "water",
+    "name": "물결 반사",
+    "description": "수면 위로 떠오른 앨범과 가사가 물결에 일렁이며 비치고, 저음에 파문이 퍼집니다",
+    "order": 12,
+    "renderer": "canvas",
+    "scene": "water",
+    "maxResolution": 2160,
+    "modes": [
+      "vocal",
+      "instrumental"
+    ],
+    "requiresBackground": false,
+    "aspects": [
+      "16:9",
+      "9:16"
+    ],
+    "spectra": [
+      "round-bars",
+      "bars",
+      "mirror",
+      "blocks",
+      "dots",
+      "wave"
+    ],
+    "recommendedSpectrum": "round-bars"
+  }
+]
