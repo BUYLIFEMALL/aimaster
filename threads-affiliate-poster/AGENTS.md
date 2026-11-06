@@ -660,3 +660,8 @@ F-004(P1)를 운영 설정/코드/조건부 위험과 구분해 기록했습니�
 ## 2026-11-03 v1.85 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
 - 함께 나감: 이미지 `87b12267e`. 버전 커밋 `d9448b5bb`, 배포 `threads-affiliate-poster-dg55pgkc0` Ready, DB v1.85. tsc(시험 있으면 npm test) 통과.
 - 실제 시험(시험 계정 본인 키, 재시도 없음): 호출 시험 안 함(요청서 범위 밖).
+
+## 2026-11-06 v1.86 ✅ 배포 — 미배포 대기 2건 묶음: 12월 모델 교체 A(`o3` 삭제) + 30일 보관 열외 (Claude Code 윈도우 · 세션 `claude-win-20261106-ytreply`, 주인님 「순서대로 진행해」 연속 배포 1/4)
+- 함께 나감(맥미니 11-03 작성): `0caadc5ee` 글 생성·떡상 분석 모델 선택지에서 12-11 종료되는 `o3` 삭제, 저장·전송된 옛 값은 `gpt-5.6-sol`로 읽음(`src/lib/ai/models.ts` `RETIRED_AI_MODEL`) · `fea3571a8` 30일 글·미디어 정리(`api/cron/cleanup-media`)가 예외 회원(`profiles.retention_exempt`)을 건너뛰고 목록을 못 읽으면 503(`src/lib/retentionExempt.ts`). 버전 커밋 `ed4f1d5b7`.
+- 검수: tsc·시험 15개(openai-params 8·affiliate-clients 7)·로컬 build 통과. 배포 `threads-affiliate-poster-6yhtciacn` Ready·운영 주소 연결, 정리 주소 가짜 토큰 401, `/login` 200, DB v1.86. ego lite(작업 공간 107) 새 글 화면: 메뉴 v1.86, 모델 선택지 8개에 `o3` 없음.
+- 남은 확인: 다음 정리 회차 뒤 관리자·시험 계정 글·미디어 유지. 비용: Vercel 빌드 1회(승인 4회 중 1회).

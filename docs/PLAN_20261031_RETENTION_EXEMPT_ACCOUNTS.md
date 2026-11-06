@@ -61,7 +61,7 @@
 | 2026-11-03 | `naver-blog-agent` | `27795e295` | 미배포 대기 | 글감 목록·글감 불러오기의 만료 확인 풂. **남은 일: 비공개 사진 30일 기한**(서버 `privatePhotos.ts` + 화면 `privatePhotoInput.ts`가 「정확히 30일」을 검사 — 함께 바꿔야 함) |
 | 2026-11-03 | `ai-auto-blog`·`naver-blog-auto-poster_web`·`_app` | — | 수정 불필요 | 조회 숨김 없음 / 서버 30일 정리 없음. `blog-neighbor-care`는 윈도우 blog 세션 몫(미확인) |
 | 2026-11-03 | `threads-content-ops` | `657b44c3c` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
-| 2026-11-03 | `threads-affiliate-poster` | `fea3571a8` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
+| 2026-11-03 | `threads-affiliate-poster` | `fea3571a8` | ✅ v1.86 배포(2026-11-06) | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
 | 2026-11-03 | `threads` | `567567979` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
 | 2026-11-03 | `shop-detail-page` | `668f6532a` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
 | 2026-11-03 | `ai-image-studio` | `21f22863d` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
