@@ -123,7 +123,7 @@ export function InboxBoard() {
             <li>📄 문서 번역 — 번역본</li>
             <li>📊 AI 슬라이드·문서 챗봇 — 정리 자료</li>
           </ul>
-          <p className="aww-inbox-hint">위 프로그램들과의 연결은 차례로 열립니다(보낸 항목은 30일 동안 보관).</p>
+          <p className="aww-inbox-hint">위 프로그램의 결과 화면에서 보내면 이곳에 모입니다(보낸 항목은 30일 동안 보관).</p>
         </div>
       ) : (
         <div className="aww-inbox-grid">

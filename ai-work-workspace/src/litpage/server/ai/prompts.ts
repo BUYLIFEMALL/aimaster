@@ -431,6 +431,19 @@ export function pageToMarkdown(rootId: string, src: MdSource, opts: SerializeOpt
         case 'button':
         case 'table_row':
           break;
+        case 'meeting_notes':
+        case 'transcription': {
+          // AI meeting notes: title, then the summary / notes / transcript sections at the same depth — the section
+          // blocks are untitled containers, so indenting their children would read as code blocks in Markdown.
+          if (text) lines.push('', `${pad}**${text}**`);
+          for (const sid of b.content ?? []) {
+            const section = src.block(sid);
+            if (!section || section.alive === false) continue;
+            seen.add(sid);
+            walk(section.content, depth);
+          }
+          break;
+        }
         default:
           if (text) lines.push(pad + text);
           walk(b.content, depth + 1);

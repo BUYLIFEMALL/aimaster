@@ -12,6 +12,7 @@ import { storeFile } from "@/litpage/server/content/files.ts";
 import { compactId } from "#shared/ids.ts";
 import { inboxRowCsv } from "./workInboxCsv";
 import { uncheckedTodos, pageAsTask, type PlannerTask } from "./workInboxPlannerItems";
+import { cleanPageMarkdownForSend } from "./workInboxSendMarkdown";
 import { sendToWorkInbox } from "@/lib/workInbox";
 import { exemptInFilter } from "./retentionExempt";
 import { mdSource } from "@/litpage/server/ai/context.ts";
@@ -203,7 +204,7 @@ export const workInboxHandlers: Record<string, Handler> = {
     if (!dest) throw new ApiError("보낼 프로그램을 확인할 수 없습니다.", 400);
     const page = getRecord<BlockRecord>("block", String(pageId ?? ""));
     if (!page || page.alive === false || !memberSpaceIds(userId).has(page.space_id)) throw new ApiError("보낼 페이지를 찾지 못했습니다.", 404);
-    const body = pageToMarkdown(page.id, mdSource(userId), { includeTitle: false, maxChars: SEND_MAX_CHARS }).markdown.trim();
+    const body = cleanPageMarkdownForSend(pageToMarkdown(page.id, mdSource(userId), { includeTitle: false, maxChars: SEND_MAX_CHARS }).markdown);
     if (!body) throw new ApiError("이 페이지에 보낼 내용이 없습니다.", 400);
     const space = memberSpace(userId);
     const title = (page.properties?.title ?? []).map((d) => d[0]).join("").trim().slice(0, 200) || "제목 없는 페이지";

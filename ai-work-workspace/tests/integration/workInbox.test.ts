@@ -3,8 +3,35 @@ import { describe, expect, it } from "vitest";
 import { inboxRowCsv } from "@/server/workInboxCsv";
 import { validateWorkInboxItem } from "@/lib/workInbox";
 import { uncheckedTodos, pageAsTask } from "@/server/workInboxPlannerItems";
+import { cleanPageMarkdownForSend } from "@/server/workInboxSendMarkdown";
+import { pageToMarkdown, type MdBlock, type MdSource } from "@/litpage/server/ai/prompts.ts";
 
 describe("work inbox", () => {
+  it("U9: meeting notes serialize without section indent, and the sent markdown drops citations / internal labels", () => {
+    const B = (id: string, type: string, extra: Record<string, unknown> = {}): MdBlock => ({ id, type, alive: true, ...extra });
+    const recs: Record<string, MdBlock> = {
+      p: B("p", "page", { content: ["m", "db", "sub"] }),
+      m: B("m", "meeting_notes", { properties: { title: [["주간 회의"]] }, content: ["s1", "s2"] }),
+      s1: B("s1", "text", { format: { meeting_section: "summary" }, content: ["h", "li"] }),
+      h: B("h", "sub_sub_header", { properties: { title: [["할 일"]] } }),
+      li: B("li", "bulleted_list", { properties: { title: [["초안 작성 "], ["1", [["a", "#mtg-cite-07fb34f6-0269-4d6b-834a-1834052be9dc"]]]] } }),
+      s2: B("s2", "text", { format: { meeting_section: "transcript" }, content: ["t"] }),
+      t: B("t", "text", { properties: { title: [["회의를 시작합니다"]] } }),
+      db: B("db", "collection_view_page", { collection_id: "c" }),
+      sub: B("sub", "page"),
+    };
+    const src: MdSource = {
+      block: (id) => recs[id],
+      pageTitle: (id) => (id === "sub" ? "" : id === "db" ? "Untitled database" : "주간 회의"),
+      userName: () => "",
+      collection: (id) => (id === "c" ? { name: "", schema: {}, rows: [B("r1", "page"), B("r2", "page")] } : undefined),
+    };
+    const raw = pageToMarkdown("p", src, { includeTitle: false }).markdown;
+    expect(raw).toContain("**주간 회의**\n\n### 할 일\n- 초안 작성 [1](#mtg-cite-07fb34f6-0269-4d6b-834a-1834052be9dc)\n회의를 시작합니다");
+    expect(raw).not.toMatch(/^ {2,}/m);
+    expect(cleanPageMarkdownForSend(raw)).toBe("**주간 회의**\n\n### 할 일\n- 초안 작성\n회의를 시작합니다\n\n(표: 제목 없는 표, 2행)\n\n(하위 페이지: 제목 없음)");
+  });
+
   it("builds a one-row CSV with Korean headers, kind label and simple data values", () => {
     const csv = inboxRowCsv({
       title: '보고서, "초안"',
