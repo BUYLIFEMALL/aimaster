@@ -17,6 +17,7 @@ const EMPTY: Draft = { id: null, title: "", style_prompt: "", lyrics: "", durati
 
 const LYRIC_HINT = "[Verse]\n첫 번째 소절\n\n[Chorus]\n후렴 소절";
 const BANNED_KEY = "fms.bannedWords";
+const NEW_DRAFT_KEY = "fms.unsavedDraft"; // 아직 저장 안 한 새 곡(이 브라우저에만)
 
 const field =
   "w-full rounded-xl border border-slate-700/60 bg-slate-950/80 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden focus:ring-1 focus:ring-emerald-400";
@@ -105,7 +106,53 @@ export default function SongsPage() {
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((d) => ({ ...d, [key]: value }));
 
+  // ── 자동 저장(원본 boks-music App.tsx, MIT: 입력이 멈추고 1.2초 뒤 저장) ─────────
+  // 저장해 둔 곡은 서버에 조용히 고쳐 쓰고, 아직 저장 안 한 새 곡은 이 브라우저에 임시로 두었다가 다시 오면 되살린다.
+  const savedSnap = useRef(JSON.stringify(EMPTY));
+  const [autoSaved, setAutoSaved] = useState<{ at: Date; ok: boolean } | null>(null);
+  const restoredNew = useRef(false);
+  useEffect(() => {
+    if (restoredNew.current) return;
+    restoredNew.current = true;
+    try {
+      const d = JSON.parse(localStorage.getItem(NEW_DRAFT_KEY) ?? "null") as Draft | null;
+      if (d && !d.id && (d.title || d.style_prompt || d.lyrics)) {
+        setDraft({ ...EMPTY, ...d, id: null });
+        setMode(modeOf(d.lyrics ?? ""));
+        setMessage({ type: "success", text: "저장하지 않은 채 두고 간 새 곡을 되살렸습니다." });
+      }
+    } catch {}
+  }, []);
+  useEffect(() => {
+    const snap = JSON.stringify(draft);
+    if (snap === savedSnap.current) return;
+    const t = window.setTimeout(async () => {
+      if (!draft.id) {
+        try {
+          if (draft.title || draft.style_prompt || draft.lyrics.trim()) localStorage.setItem(NEW_DRAFT_KEY, snap);
+        } catch {}
+        return;
+      }
+      if (!draft.title.trim()) return; // 제목이 빈 동안은 저장하지 않는다(서버 검사에 걸림)
+      const { id, ...body } = draft;
+      const res = await fetch(`/api/songs/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);
+      if (res?.ok) {
+        savedSnap.current = snap;
+        setSongs((list) => list.map((s) => (s.id === id ? { ...s, title: draft.title } : s)));
+      }
+      setAutoSaved({ at: new Date(), ok: !!res?.ok });
+    }, 1200);
+    return () => window.clearTimeout(t);
+  }, [draft]);
+
   const openDraft = (d: Draft) => {
+    savedSnap.current = JSON.stringify(d);
+    setAutoSaved(null);
+    if (!d.id) {
+      try {
+        localStorage.removeItem(NEW_DRAFT_KEY);
+      } catch {}
+    }
     setDraft(d);
     setMode(modeOf(d.lyrics));
     vocalLyrics.current = modeOf(d.lyrics) === "vocal" ? d.lyrics : "";
@@ -144,8 +191,13 @@ export default function SongsPage() {
         setMessage({ type: "error", text: data.error || "저장하지 못했습니다." });
         return;
       }
-      setDraft({ id: data.song.id, title: data.song.title, style_prompt: data.song.style_prompt, lyrics: data.song.lyrics, duration_sec: data.song.duration_sec, art_prompt: data.song.art_prompt ?? "" });
-      setMessage({ type: "success", text: "곡을 저장했습니다." });
+      const next = { id: data.song.id, title: data.song.title, style_prompt: data.song.style_prompt, lyrics: data.song.lyrics, duration_sec: data.song.duration_sec, art_prompt: data.song.art_prompt ?? "" };
+      savedSnap.current = JSON.stringify(next);
+      try {
+        localStorage.removeItem(NEW_DRAFT_KEY);
+      } catch {}
+      setDraft(next);
+      setMessage({ type: "success", text: draft.id ? "곡을 저장했습니다." : "곡을 저장했습니다. 이제부터는 고칠 때마다 자동으로 저장됩니다." });
       load();
     } catch {
       setMessage({ type: "error", text: "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
@@ -645,8 +697,17 @@ export default function SongsPage() {
                 disabled={saving || !draft.title.trim()}
                 className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
               >
-                <Save className="h-4 w-4" /> {saving ? "저장 중…" : "저장하기"}
+                <Save className="h-4 w-4" /> {saving ? "저장 중…" : draft.id ? "지금 저장" : "저장하기"}
               </button>
+              <span className="text-[11px] text-slate-500" aria-live="polite">
+                {draft.id
+                  ? autoSaved
+                    ? autoSaved.ok
+                      ? `자동 저장됨 ${autoSaved.at.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
+                      : "자동 저장 실패 — 「지금 저장」을 눌러 주세요"
+                    : "고치면 자동으로 저장됩니다"
+                  : "처음 한 번 저장하면 그 뒤로는 자동 저장 · 저장 전 내용도 이 브라우저에 임시 보관"}
+              </span>
               {draft.id && (
                 <button
                   type="button"
