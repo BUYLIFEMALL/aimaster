@@ -3,6 +3,39 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { findInvite, newLines, classify, isBlocked } from '../extension/invite.mjs';
 import { EXTENSION_OPERATIONS, allowedOrigin } from '../src/lib/extensionApi.ts';
+import { boardFromUrl, parseGrade, cleanRows, cafeNameFromTitle } from '../extension/roster.mjs';
+import { OPERATIONS, rpcFor } from '../src/lib/recruitApi.ts';
+
+test('EX08 A-1 board address: new /cafes/<n>/menus/<n> and old ArticleList clubid/menuid; other pages are not boards', () => {
+  assert.deepEqual(boardFromUrl('https://cafe.naver.com/f-e/cafes/30954788/menus/173'), { cafeId: '30954788', boardId: '173' });
+  assert.deepEqual(boardFromUrl('https://cafe.naver.com/buylife?iframe_url=/ArticleList.nhn%3Fsearch.clubid=30954788%26search.menuid=173%26search.boardtype=L'), { cafeId: '30954788', boardId: '173' });
+  assert.equal(boardFromUrl('https://cafe.naver.com/f-e/cafes/30954788/articles/12'), null, 'an article page is not a board list');
+  assert.equal(boardFromUrl('https://open.kakao.com/o/x'), null);
+});
+
+test('EX09 A-1 rows: grade text, trimmed nicknames once, notices/own/too-long dropped, at most 50, nickname+grade only', () => {
+  assert.equal(parseGrade('멤버등급 : 새싹멤버'), '새싹멤버');
+  assert.equal(parseGrade(''), undefined);
+  const rows = cleanRows([{ nickname: ' 꽃님이 ', member_grade: '새싹' }, { nickname: '꽃님이' }, { nickname: '바이라이프', notice: true }, { nickname: '나' }, { nickname: 'x'.repeat(41) }, { nickname: '' }], '나');
+  assert.deepEqual(rows, [{ nickname: '꽃님이', member_grade: '새싹' }]);
+  assert.equal(cleanRows(Array.from({ length: 60 }, (_, i) => ({ nickname: `n${i}` }))).length, 50);
+  assert.equal(cafeNameFromTitle('바이라이프 : 네이버 카페'), '바이라이프');
+});
+
+test('EX10 A-1 server checks: extension may add roster rows (no ID fields); web may list the roster and save a Naver invite link', () => {
+  const ok = { cafe_id: '30954788', board_id: '173', cafe_name: '바이라이프', rows: [{ nickname: '꽃님이', member_grade: '새싹' }] };
+  assert.equal(EXTENSION_OPERATIONS.members_add(ok), true);
+  assert.equal(EXTENSION_OPERATIONS.members_add({ ...ok, rows: [{ nickname: '꽃님이', naver_id: 'flower' }] }), false, 'no ID column');
+  assert.equal(EXTENSION_OPERATIONS.members_add({ ...ok, rows: Array.from({ length: 51 }, (_, i) => ({ nickname: `n${i}` })) }), false);
+  assert.equal(EXTENSION_OPERATIONS.members_add({ ...ok, cafe_id: 'buylife' }), false);
+  assert.equal(OPERATIONS.members_list({}), true);
+  assert.equal(OPERATIONS.invite_link_save({ invite_link: 'https://cafe.naver.com/buylife?invite=x' }), true);
+  assert.equal(OPERATIONS.invite_link_save({ invite_link: '' }), true, 'empty clears the link');
+  assert.equal(OPERATIONS.invite_link_save({ invite_link: 'https://evil.example/x' }), false);
+  assert.equal(Object.hasOwn(OPERATIONS, 'members_add'), false, 'the web cannot add roster rows');
+  assert.equal(rpcFor('members_add'), 'ncr_member_dispatch');
+  assert.equal(rpcFor('next_target'), 'ncr_dispatch', 'existing operations keep the existing function');
+});
 
 // 실물 화면 문구: docs/DOM_CHECK_20261105.md §6
 const STATIC = '카페 초대\n초대할 사람의 네이버 아이디를 입력하세요.\n내소식으로 초대알림이 전송됩니다.\n한 달에 최대 300명까지 초대할 수 있습니다.\n영리 목적의 광고를 전송하면 정보통신망법에 따라 처벌 받을 수 있습니다.';

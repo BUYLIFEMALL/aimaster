@@ -1,9 +1,10 @@
-// 네이버 카페 회원 모집 자동화 — 확장(모드 B 「아는 사람」 초대).
+// 네이버 카페 회원 모집 자동화 — 확장(모드 B 「아는 사람」 초대 + 모드 A-1 게시판 작성자 명단).
 // 회원이 직접 로그인한 브라우저에서, 회원이 열어 둔 내 카페 탭으로, 웹에서 승인한 사람에게만 초대한다.
 // 서버는 네이버에 접속하지 않는다: 확장이 「다음 대상」을 묻고(next_target) 화면에서 본 결과만 적는다(sent_mark).
 // 속도: 사람 간격 60~120초(크롬 알람) · 하루 상한·시간대·이미 보낸 사람은 서버가 거른다.
 // 멈춤: 로그인 풀림·보안문자·제한 문구·모르는 화면·결과 불확실 → 멈추고 알림(우회·자동 재시도 없음).
 import { findInvite, newLines, classify, isBlocked } from "./invite.mjs";
+import { boardFromUrl, parseGrade, cleanRows, cafeNameFromTitle } from "./roster.mjs";
 
 const BASE = "https://naver-cafe-recruit.buylife.xyz";
 const ALARM = "cafe-invite-step";
@@ -129,13 +130,85 @@ async function step() {
   }
 }
 
-chrome.alarms.onAlarm.addListener((a) => { if (a.name === ALARM) step(); });
-chrome.tabs.onRemoved.addListener(async (id) => { const s = await get(); if (s.running && s.tabId === id) stop("카페 탭을 닫아 멈췄습니다."); });
+// ── 모드 A-1: 게시판 작성자 명단 모으기(닉네임·등급만) ─────────────────────
+// 회원이 연 게시판 목록 화면에서 시작 → 한 페이지씩 읽어 보내고 30~45초 뒤 다음 페이지(최대 10페이지).
+const COLLECT = "cafe-collect-step";
+const MAX_PAGES = 10;
+const getC = async () => (await chrome.storage.local.get("collect")).collect ?? { running: false, message: "" };
+const setC = (collect) => chrome.storage.local.set({ collect });
+async function stopC(message) { await chrome.alarms.clear(COLLECT); await setC({ ...(await getC()), running: false, message }); }
+
+function readWriters() {
+  const out = { url: location.href, title: document.title, text: (document.body?.innerText || "").slice(0, 8000), rows: [] };
+  const push = (nickEl, root) => {
+    const tr = root.closest("tr, li");
+    const notice = !!tr && (/notice/i.test(tr.className) || !!tr.querySelector("[class*=notice], [class*=Notice]"));
+    const grade = root.querySelector("[class*=LevelIcon] .blind, [class*=level] .blind");
+    out.rows.push({ nickname: nickEl.textContent || "", member_grade: grade ? grade.textContent : "", notice });
+  };
+  for (const w of document.querySelectorAll(".ArticleBoardWriterInfo")) { const n = w.querySelector(".nickname"); if (n) push(n, w); } // 새 구조
+  if (!out.rows.length) for (const td of document.querySelectorAll("td.p-nick, td.td_name")) { const n = td.querySelector("a, .m-tcol-c"); if (n) push(n, td); } // 옛 구조
+  const active = document.querySelector("[class*=agination] [aria-current='page'], [class*=agination] .on, .prev-next .on");
+  out.page = active ? Number(active.textContent.trim()) || 1 : 1;
+  return out;
+}
+function goToPage(target) {
+  for (const box of document.querySelectorAll("[class*=agination], .prev-next")) {
+    const el = [...box.querySelectorAll("a, button")].find((e) => e.textContent.trim() === String(target));
+    if (el) { el.click(); return true; }
+  }
+  return false;
+}
+
+async function readBoard(tabId) {
+  const frames = await chrome.scripting.executeScript({ target: { tabId, allFrames: true }, func: readWriters });
+  return frames.map((f) => ({ ...f.result, frameId: f.frameId })).sort((a, b) => b.rows.length - a.rows.length)[0];
+}
+
+export async function startCollect() {
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (!tab?.url || !/^https:\/\/cafe\.naver\.com\//.test(tab.url)) return setC({ running: false, message: "명단을 모을 카페 게시판 목록 화면을 연 상태에서 눌러 주세요." });
+  await setC({ running: true, tabId: tab.id, pages: 0, total: 0, cafeName: cafeNameFromTitle(tab.title), message: "명단 읽는 중" });
+  await chrome.alarms.create(COLLECT, { delayInMinutes: 0.02 });
+}
+
+async function collectStep() {
+  const c = await getC();
+  if (!c.running) return;
+  try {
+    const tab = await chrome.tabs.get(c.tabId).catch(() => null);
+    if (!tab) return stopC("카페 탭을 닫아 멈췄습니다.");
+    const win = await chrome.windows.get(tab.windowId).catch(() => null);
+    if (!tab.active || !win || win.state === "minimized") { await setC({ ...c, message: "잠시 멈춤 — 카페 탭을 앞에 두면 이어갑니다" }); return chrome.alarms.create(COLLECT, { delayInMinutes: 1 }); }
+    const page = await readBoard(c.tabId);
+    if (!page || isBlocked(page.text, tab.url)) return stopC("네이버가 로그인·확인을 요청해 멈췄습니다. 우회하지 않습니다.");
+    const board = boardFromUrl(page.url) || boardFromUrl(tab.url);
+    const rows = cleanRows(page.rows.map((r) => ({ ...r, member_grade: parseGrade(r.member_grade) })));
+    if (!board || !rows.length) return stopC(c.pages ? `모두 읽었습니다. ${c.pages}페이지 · ${c.total}명` : "이 화면에서 글쓴이 칸을 찾지 못했습니다. 게시판 목록 화면(글 목록)에서 눌러 주세요.");
+    const r = await api("members_add", { cafe_id: board.cafeId, board_id: board.boardId, cafe_name: c.cafeName, rows });
+    if (r.ok === false) return stopC(`오늘 명단 상한(${r.cap}명)에 닿아 멈췄습니다.`);
+    const pages = c.pages + 1, total = c.total + r.added + r.updated;
+    if (pages >= MAX_PAGES) return stopC(`${pages}페이지까지 읽었습니다 · 이번에 ${total}명(새로 ${r.added}명 포함)`);
+    const [{ result: moved }] = await chrome.scripting.executeScript({ target: { tabId: c.tabId, frameIds: [page.frameId] }, func: goToPage, args: [page.page + 1] });
+    if (!moved) return stopC(`마지막 페이지까지 읽었습니다 · ${pages}페이지 · ${total}명`);
+    await setC({ ...c, pages, total, message: `${pages}페이지 읽음 · ${total}명 · 다음 페이지 대기` });
+    await chrome.alarms.create(COLLECT, { delayInMinutes: 0.5 + Math.random() * 0.25 }); // 30~45초
+  } catch (e) {
+    return stopC(`멈췄습니다: ${e.message}`);
+  }
+}
+
+chrome.alarms.onAlarm.addListener((a) => { if (a.name === ALARM) step(); if (a.name === COLLECT) collectStep(); });
+chrome.tabs.onRemoved.addListener(async (id) => {
+  const s = await get(); if (s.running && s.tabId === id) stop("카페 탭을 닫아 멈췄습니다.");
+  const c = await getC(); if (c.running && c.tabId === id) stopC("카페 탭을 닫아 멈췄습니다.");
+});
 chrome.runtime.onMessage.addListener((msg, _sender, send) => {
   (async () => {
     if (msg?.type === "start") await start();
-    if (msg?.type === "stop") await stop("회원님이 멈췄습니다.");
-    send(await get());
+    if (msg?.type === "stop") { await stop("회원님이 멈췄습니다."); await stopC("회원님이 멈췄습니다."); }
+    if (msg?.type === "collect") await startCollect();
+    send({ ...(await get()), collect: await getC() });
   })();
   return true;
 });

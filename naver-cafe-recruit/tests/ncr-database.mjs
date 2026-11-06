@@ -84,5 +84,48 @@ try {
     assert.match(errorOf(() => sql(`select ncr_dispatch(${q(user)},'targets_list','{}');`, 'authenticated')), /permission denied/i);
     assert.match(errorOf(() => sql('select ncr_cleanup();', 'anon')), /permission denied/i);
   });
+  const mcall = (u, op, p = {}) => JSON.parse(sql(`select ncr_member_dispatch(${q(u)},${q(op)},${q(JSON.stringify(p))}::jsonb);`, 'service_role'));
+  const page = (rows) => ({ cafe_id: '30954788', cafe_name: '바이라이프', board_id: '173', board_name: '☕일상TALK', rows });
+  await check('NC09 A-1 roster needs extract mode + consent; nicknames are stored once per cafe, no IDs', () => {
+    assert.match(errorOf(() => mcall(user, 'members_add', page([{ nickname: '꽃님이', member_grade: '새싹' }]))), /NCR_EXTRACT_NOT_ENABLED/);
+    call(user, 'settings_save', { ...always, mode_extract: true, consent: true });
+    const r = mcall(user, 'members_add', page([{ nickname: '꽃님이', member_grade: '새싹' }, { nickname: ' 바다 ', member_grade: '우수' }, { nickname: '' }, { nickname: 'x'.repeat(41) }]));
+    assert.deepEqual([r.added, r.updated, r.skipped], [2, 0, 2]);
+    const again = mcall(user, 'members_add', { ...page([{ nickname: '꽃님이', member_grade: '우수' }]), board_id: '200', board_name: '자유' });
+    assert.deepEqual([again.added, again.updated], [0, 1]);
+    const list = mcall(user, 'members_list').members;
+    assert.equal(list.length, 2);
+    const flower = list.find(m => m.nickname === '꽃님이');
+    assert.equal(flower.member_grade, '우수'); assert.equal(flower.board_name, '자유');
+    assert.equal(list.find(m => m.nickname === '바다').nickname, '바다', 'spaces trimmed');
+    assert.equal(sql(`select count(*) from information_schema.columns where table_name='ncr_members' and column_name ~ 'naver_id|member_no|phone|email';`), '0');
+  });
+  await check('NC10 roster input limits: numeric cafe id, at most 50 rows per page, 3,000 rows per day', () => {
+    assert.match(errorOf(() => mcall(user, 'members_add', { ...page([]), cafe_id: 'buylife' })), /NCR_INPUT/);
+    assert.match(errorOf(() => mcall(user, 'members_add', page(Array.from({ length: 51 }, (_, i) => ({ nickname: `n${i}` }))))), /NCR_INPUT/);
+    sql(`insert into ncr_members(user_id,cafe_id,nickname) select ${q(user)},'1','bulk'||g from generate_series(1,2999) g;`);
+    const capped = mcall(user, 'members_add', page([{ nickname: '새사람1' }, { nickname: '새사람2' }]));
+    assert.equal(capped.ok, false); assert.equal(capped.reason, 'daily_cap');
+    sql(`delete from ncr_members where cafe_id='1';`);
+  });
+  await check('NC11 invite link: only Naver cafe addresses; it shows up in settings_get; other members see no roster', () => {
+    assert.match(errorOf(() => mcall(user, 'invite_link_save', { invite_link: 'https://evil.example/x' })), /NCR_INPUT/);
+    mcall(user, 'invite_link_save', { invite_link: 'https://cafe.naver.com/buylife?invite=abc' });
+    assert.equal(call(user, 'settings_get').invite_link, 'https://cafe.naver.com/buylife?invite=abc');
+    assert.equal(call(user, 'settings_get').mode_extract, true, 'saving the link keeps the other settings');
+    mcall(other, 'invite_link_save', { invite_link: '' });
+    assert.equal(call(other, 'settings_get').invite_link, null);
+    assert.equal(mcall(other, 'members_list').members.length, 0);
+  });
+  await check('NC12 roster expiry 30 days (admin exempt), daily cleanup, no direct access for members', () => {
+    call(admin, 'settings_save', { ...always, mode_extract: true, consent: true });
+    mcall(admin, 'members_add', page([{ nickname: '관리자쪽' }]));
+    assert.equal(sql(`select expires_at='9999-12-31 00:00:00+00' from ncr_members where nickname='관리자쪽';`), 't');
+    sql(`update ncr_members set expires_at=now()-interval '1 minute' where user_id=${q(user)};`);
+    assert.equal(JSON.parse(sql('select ncr_member_cleanup();', 'service_role')).membersRemoved, 2);
+    assert.equal(sql(`select count(*) from ncr_members where nickname='관리자쪽';`), '1');
+    assert.match(errorOf(() => sql('select * from ncr_members;', 'authenticated')), /permission denied/i);
+    assert.match(errorOf(() => sql(`select ncr_member_dispatch(${q(user)},'members_list','{}');`, 'authenticated')), /permission denied/i);
+  });
   console.log(`ncr database: ${n} passed`);
 } finally { execFileSync('docker', ['rm', '-f', container], { stdio: 'ignore', windowsHide: true }); }

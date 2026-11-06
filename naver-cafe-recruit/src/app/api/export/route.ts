@@ -1,6 +1,7 @@
 import * as XLSX from "xlsx";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { rpcFor } from "@/lib/recruitApi";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,6 +30,15 @@ const SENT_COLUMNS: [string, string][] = [
   ["결과", "result"],
   ["사유", "detail"],
   ["보낸 시각", "sent_at"],
+];
+const MEMBER_COLUMNS: [string, string][] = [
+  ["카페", "cafe_name"],
+  ["카페 번호", "cafe_id"],
+  ["게시판", "board_name"],
+  ["닉네임", "nickname"],
+  ["등급", "member_grade"],
+  ["처음 본 시각", "first_seen_at"],
+  ["마지막 본 시각", "last_seen_at"],
 ];
 const LABELS: Record<string, string> = {
   extract: "카페 활동 회원", known: "아는 사람",
@@ -63,16 +73,18 @@ export async function GET() {
   }
   const admin = createAdminClient();
   const call = async (operation: string) => {
-    const { data, error } = await admin.rpc("ncr_dispatch", { p_user_id: access.user.id, p_operation: operation, p_payload: {} });
+    const { data, error } = await admin.rpc(rpcFor(operation), { p_user_id: access.user.id, p_operation: operation, p_payload: {} });
     if (error) throw new Error("자료를 불러오지 못했습니다.");
     return data as Row;
   };
 
   let targets: Row[] = [];
   let sent: Row[] = [];
+  let members: Row[] = [];
   try {
     targets = ((await call("targets_list")).targets as Row[]) ?? [];
     sent = ((await call("sent_list")).sent as Row[]) ?? [];
+    members = ((await call("members_list")).members as Row[]) ?? [];
   } catch (e) {
     return Response.json({ error: e instanceof Error ? e.message : "자료를 불러오지 못했습니다." }, { status: 500 });
   }
@@ -80,6 +92,7 @@ export async function GET() {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, sheetOf(targets, TARGET_COLUMNS), "모은 대상");
   XLSX.utils.book_append_sheet(workbook, sheetOf(sent, SENT_COLUMNS), "보낸 기록");
+  XLSX.utils.book_append_sheet(workbook, sheetOf(members, MEMBER_COLUMNS), "활동 회원 명단");
   const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
 
   const day = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });

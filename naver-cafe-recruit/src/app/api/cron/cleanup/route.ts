@@ -8,7 +8,9 @@ export const fetchCache = "force-no-store";
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET?.trim();
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return Response.json({ error: "unauthorized" }, { status: 401 });
-  const { data, error } = await createAdminClient().rpc("ncr_cleanup");
-  if (error) return Response.json({ error: "cleanup_failed" }, { status: 503 });
-  return Response.json({ data });
+  const db = createAdminClient();
+  const { data, error } = await db.rpc("ncr_cleanup");
+  const members = await db.rpc("ncr_member_cleanup"); // 모드 A-1 명단(2026-11-06)
+  if (error || members.error) return Response.json({ error: "cleanup_failed" }, { status: 503 });
+  return Response.json({ data: { ...(data as object), ...(members.data as object) } });
 }

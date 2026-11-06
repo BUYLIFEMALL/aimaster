@@ -31,7 +31,16 @@ export const OPERATIONS: Record<string, (p: Payload) => boolean> = {
   target_skip: p => Object.keys(p).length === 1 && uuid(p.id),
   targets_review_all: p => Object.keys(p).length === 0,
   sent_list: p => Object.keys(p).length === 0,
+  // 모드 A-1(2026-11-06): 카페 활동 회원 명단 보기 · 내 카페 초대링크 저장 → ncr_member_dispatch
+  members_list: p => Object.keys(p).length === 0,
+  invite_link_save: p => Object.keys(p).length === 1 && typeof p.invite_link === "string"
+    && (p.invite_link === "" || INVITE_LINK.test(p.invite_link)),
 };
+
+export const INVITE_LINK = /^https:\/\/(cafe\.naver\.com|naver\.me|m\.cafe\.naver\.com)\/\S{0,280}$/;
+/** 명단·초대링크 작업은 새 함수(ncr_member_dispatch)로, 나머지는 기존 ncr_dispatch로. */
+export const MEMBER_OPERATIONS = new Set(["members_add", "members_list", "invite_link_save"]);
+export const rpcFor = (operation: string) => (MEMBER_OPERATIONS.has(operation) ? "ncr_member_dispatch" : "ncr_dispatch");
 
 const MESSAGES: Record<string, [number, string]> = {
   NCR_EXTRACT_CONSENT_REQUIRED: [409, "「카페 활동 회원」 방식을 켜려면 책임 고지에 동의해 주세요."],

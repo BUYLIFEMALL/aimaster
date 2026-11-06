@@ -3,6 +3,27 @@
 import { useEffect, useRef, useState } from "react";
 import { recruit, hhmm, toMinute, type Settings } from "./call";
 
+// 내 카페 초대링크: 카페 왼쪽 「초대」 → 「초대링크」 → 「초대링크 복사」 값을 붙여 넣는다. 아이디 없이 모집하는 방법.
+function InviteLinkCard({ initial }: { initial: string }) {
+  const [link, setLink] = useState(initial), [msg, setMsg] = useState(""), [busy, setBusy] = useState(false);
+  async function save() {
+    setBusy(true); setMsg("저장 중…");
+    try { await recruit("invite_link_save", { invite_link: link.trim() }); setMsg(link.trim() ? "초대링크를 저장했습니다." : "초대링크를 지웠습니다."); }
+    catch (e) { setMsg(e instanceof Error ? e.message : "저장 결과를 확인하지 못했습니다."); }
+    finally { setBusy(false); }
+  }
+  return <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 className="text-lg font-bold text-slate-900">🔗 내 카페 초대링크</h2>
+    <p className="mt-1 text-sm text-slate-600">카페 왼쪽 정보의 「초대」 → 「초대링크」 → 「초대링크 복사」로 얻은 주소를 붙여 넣으세요. 홍보 글·블로그·카톡에 넣으면 아이디 없이도 내 카페로 초대할 수 있습니다.</p>
+    <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+      <input className="flex-1 rounded-lg border px-3 py-2 text-sm" placeholder="https://cafe.naver.com/…" value={link} onChange={e => setLink(e.target.value)} />
+      <button disabled={busy} onClick={() => void save()} className="rounded-xl border border-[#03c75a] px-4 py-2 text-sm font-bold text-[#029a45] disabled:opacity-50">초대링크 저장</button>
+      {link.trim() && <button onClick={() => void navigator.clipboard.writeText(link.trim()).then(() => setMsg("복사했습니다."))} className="rounded-xl border px-4 py-2 text-sm">복사</button>}
+    </div>
+    {msg && <p role="status" className="mt-2 text-sm text-slate-700">{msg}</p>}
+  </section>;
+}
+
 export function SettingsForm() {
   const [s, setS] = useState<Settings | null>(null), [form, setForm] = useState({ known: true, promo: true, extract: false, consent: false, cap: 20, start: "09:00", end: "22:00" });
   const [msg, setMsg] = useState(""), [busy, setBusy] = useState(false); const lock = useRef(false);
@@ -32,7 +53,7 @@ export function SettingsForm() {
       <label className="mt-3 flex gap-3 text-sm"><input type="checkbox" className="mt-1" checked={form.promo} onChange={e => setForm({ ...form, promo: e.target.checked })} />
         <span><b>📣 C. 카페 홍보 글</b> — 초대 대신, 내가 가입한 카페 게시판에 내 카페 소개 글을 올립니다(「네이버 카페 포스팅 자동화」와 같은 방식, 카페 규칙 안에서).</span></label>
       <label className="mt-3 flex gap-3 text-sm"><input type="checkbox" className="mt-1" checked={form.extract} onChange={e => setForm({ ...form, extract: e.target.checked })} />
-        <span><b>🔎 A. 카페 활동 회원</b> — 내가 운영·가입한 카페의 공유 가능한 글 작성자 중에서 고릅니다. 내가 로그인한 브라우저에서만 확장이 읽습니다. <span className="text-amber-700">기본 꺼짐</span></span></label>
+        <span><b>🔎 A. 카페 활동 회원 명단</b> — 내가 가입한 카페의 게시판 목록에서 글쓴이 닉네임·등급만 모아 엑셀로 받습니다(아이디는 모으지 않습니다). 실제 모집은 아래 「내 카페 초대링크」를 홍보 글·블로그에 넣어서 합니다. 내가 로그인한 브라우저에서만 확장이 읽습니다. <span className="text-amber-700">기본 꺼짐</span></span></label>
       {form.extract && !s.extract_consent_at && <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
         <p className="font-semibold">⚠️ 책임 고지 (A 방식을 켤 때 한 번)</p>
         <p className="mt-1">네이버 이용약관 위반·계정 제재·법적 책임 등 이 방식 사용으로 생기는 결과는 회원 본인 책임입니다. 프로그램은 회원 본인 로그인 상태에서만, 하루 상한·동작 시간대 안에서, 네이버 제한 안내가 뜨면 그날 멈추도록 동작합니다. 이메일·전화번호는 모으지 않습니다.</p>
@@ -49,6 +70,7 @@ export function SettingsForm() {
       </div>
       <p className="mt-3 text-xs text-slate-500">네이버 초대 제한(계정당 하루 50건)의 절반 이하로 시작합니다. 제한 안내(권한 없음·한도 초과 등)가 뜨면 그날은 더 보내지 않고, 같은 사람에게 같은 카페 초대를 두 번 보내지 않습니다. 오늘 보낸 초대: {s.used_today}건.</p>
     </section>
+    <InviteLinkCard initial={s.invite_link ?? ""} />
     <div className="flex items-center gap-3"><button disabled={busy} onClick={() => void save()} className="rounded-xl bg-[#03c75a] px-5 py-3 font-bold text-white shadow disabled:opacity-50">설정 저장</button>
       {msg && <p role="status" className="text-sm text-slate-700">{msg}</p>}</div>
   </div>;

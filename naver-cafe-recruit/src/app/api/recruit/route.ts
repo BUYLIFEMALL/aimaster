@@ -1,6 +1,6 @@
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { OPERATIONS, errorReply, type Payload } from "@/lib/recruitApi";
+import { OPERATIONS, errorReply, rpcFor, type Payload } from "@/lib/recruitApi";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const { operation, payload = {} } = input as { operation?: unknown; payload?: unknown };
   if (typeof operation !== "string" || !Object.hasOwn(OPERATIONS, operation)) return reply({ error: "화면에서 할 수 없는 작업입니다." }, 403);
   if (!payload || typeof payload !== "object" || Array.isArray(payload) || !OPERATIONS[operation](payload as Payload)) return reply({ error: "입력값을 확인해 주세요." }, 400);
-  const { data, error } = await createAdminClient().rpc("ncr_dispatch", { p_user_id: access.user.id, p_operation: operation, p_payload: payload });
+  const { data, error } = await createAdminClient().rpc(rpcFor(operation), { p_user_id: access.user.id, p_operation: operation, p_payload: payload });
   if (error) { const [status, message] = errorReply(error.message); return reply({ error: message }, status); }
   return reply({ data });
 }

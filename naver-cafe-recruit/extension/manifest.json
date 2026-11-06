@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "네이버 카페 회원 모집 자동화",
-  "description": "회원님이 직접 로그인한 브라우저에서, 웹에서 승인한 아는 사람에게만 내 카페 초대를 하루 상한 안에서 보냅니다.",
-  "version": "1.1.0",
-  "version_name": "v1.01",
+  "description": "회원님이 직접 로그인한 브라우저에서, 웹에서 승인한 아는 사람에게만 내 카페 초대를 하루 상한 안에서 보내고, 가입한 카페 게시판의 글쓴이 닉네임·등급 명단을 모읍니다.",
+  "version": "1.2.0",
+  "version_name": "v1.02",
   "background": { "service_worker": "background.mjs", "type": "module" },
   "action": { "default_popup": "popup.html", "default_title": "카페 초대" },
   "permissions": ["storage", "tabs", "scripting", "alarms"],
