@@ -2,6 +2,7 @@ import { formatWon } from "@/lib/format";
 import { ymLabel } from "@/lib/realestate/insights";
 import { riskBand } from "@/lib/realestate/report";
 import { NonResSection, ReportMap } from "@/components/report/NonResSection";
+import { CommercialRentSection } from "@/components/report/CommercialRentSection";
 import type { AddressReport } from "@/lib/realestate/reportData";
 
 // B1 리포트 본문(2026-11-03). B2부터 「리포트 보기」와 「저장한 리포트」가 함께 쓴다 — 저장본은 거래 목록(trades) 없이 숫자만 담는다.
@@ -26,6 +27,7 @@ export function ReportBody({ r, nonResidential = false }: { r: ReportSnapshot; n
     <>
       {r.point && <ReportMap point={r.point} />}
       {r.nonres ? <NonResSection n={r.nonres} /> : nonResidential && <p className="mx-card px-4 py-3 text-sm text-mx-muted">상가·건물·토지 거래를 불러오지 못했어요. 아래 공시지가·용도지역·건물 정보만 보여 드려요.</p>}
+      {r.commercialRent && <CommercialRentSection c={r.commercialRent} />}
 
       <div className="mx-card p-5">
         <h2 className="mx-section-title">💰 실거래 (매매)</h2>

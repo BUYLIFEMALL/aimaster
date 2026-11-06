@@ -6,6 +6,8 @@ import { ensureLandInfo } from "@/lib/realestate/collect";
 import { recentMonths } from "@/lib/realestate/insights";
 import { dongFromPnu, jibunFromPnu, NONRES_BUILDING_MONTHS, NONRES_LAND_MONTHS, summarizeNonRes, type NonResReport } from "@/lib/realestate/nonres";
 import { molitItems } from "@/lib/publicdata/molit";
+import { loadCommercialRentNearby } from "@/lib/realestate/commercialRentData";
+import type { RentNearby } from "@/lib/realestate/commercialRent";
 import { buildingFacts, jeonseRatio, lotDeals, mainZones, REPORT_MONTHS, summarize, type BuildingFacts, type DealSummary, type LotTarget, type ReportDeal } from "@/lib/realestate/report";
 
 // B1 주소 리포트(2026-11-03): 한 필지의 공공 자료를 모은다. 공공 무료 키 예외(§8) — 회원 본인 키가 있으면 그 키.
@@ -37,6 +39,8 @@ export interface AddressReport {
   nonres?: NonResReport | null;
   /** RQ-B5 지도 좌표(경도 x, 위도 y). 이전 저장본에는 없음 */
   point?: { x: number; y: number } | null;
+  /** RQ-A4(v1.54~): 비주거 필지의 가까운 상권 임대료·공실률(R-ONE). 이전 저장본에는 없음 */
+  commercialRent?: RentNearby | null;
   errors: string[];
 }
 
@@ -102,6 +106,7 @@ export async function buildAddressReport(input: ReportInput, keys?: PublicDataKe
     input.nonResidential ? nonResReport(input, keys, now, errors) : Promise.resolve(null),
     input.point ? Promise.resolve(input.point) : input.addressText ? vworldGeocode(input.addressText, keys).catch(() => null) : Promise.resolve(null),
   ]);
+  const commercialRent = input.nonResidential ? await loadCommercialRentNearby(point, input.sggCd) : null;
   const area = input.area ?? sale.latest?.area ?? null;
   const assessed = prices === null ? "대상 아님" : area ? pickAssessedPrice(prices, String(area), input.floor ?? sale.latest?.floor ?? "") : null;
 
@@ -118,6 +123,7 @@ export async function buildAddressReport(input: ReportInput, keys?: PublicDataKe
     building: buildingFacts(titles as Record<string, unknown>[], now, recap as Record<string, unknown>[]),
     nonres,
     point,
+    commercialRent,
     errors,
   };
 }
