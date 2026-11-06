@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { ValidationStatus, PromptFormat, GptParkInputs } from "@/lib/types";
 import { parseUploadedFile } from "@/lib/fileParser";
+import WorkInboxPicker from "./WorkInboxPicker";
 
 interface EditorSectionProps {
   slideData: string;
@@ -516,6 +517,8 @@ ${sourceText || "주제 및 목차에 맞춰 최고 품질의 대기업 임원 �
               </div>
             )}
           </div>
+
+          <WorkInboxPicker disabled={activity !== "idle"} onPick={(text) => setSourceText(text)} />
 
           <textarea
             value={sourceText}
