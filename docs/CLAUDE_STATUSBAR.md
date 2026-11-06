@@ -84,3 +84,4 @@ cmp ~/.claude/statusline-extra.js ~/.claude/statusline-extra.js.good && echo sam
 ## 2026-11-06 `5h 제한없음` → `5h 100%` ([역할: ecommerce-image] `claude-win-sdp`, 주인님 「이런경우 100%로 표시해」)
 - 조치(원본 세 곳 같은 문구, 백업 `statusline-extra.js.before-5h-100-20261106`): 5시간 한도가 없는 경우(위와 같은 조건)를 `5h 100%`(남은 양 100%, 남은 시간 없음)로 표시. 실제 입력값 시험 결과 `Opus 5.5·medium | 5h 100% | weekly 25% (1h 24m) | context 67%`.
 - 다음부터: 남은 시간 없이 `5h 100%`만 보이면 5시간 한도가 없는 상태다. 맥미니는 `node scripts/install-statusbars.mjs --only claude`를 한 번 실행해야 반영된다.
+- 맥미니 적용(2026-11-06, [역할: mac-mini] `claude-mac-20261101-blog`): 저장소 원본 `e5585bee0` 확인 → `install-statusbars.mjs --only claude` 실행(자동 백업)·`.good` 갱신(cmp 동일), `grep -c "5h 100%"` = 1. 실제 입력값 출력 `Opus 5.5·medium | 5h 94% (1h 36m) | weekly 25% (1h 19m) | context 74%`(입력에 5시간 창이 없어 초기화 전 캐시 값을 이어 씀 — 캐시가 끝나면 `5h 100%`).
