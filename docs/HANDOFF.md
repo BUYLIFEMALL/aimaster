@@ -4,6 +4,13 @@
 - ego에 확장 v1.02 로드, 설정(B 켜짐·상한 1)·`buylifemall` 승인까지 정상. 카페 첫 화면의 「초대」는 `a.link_invite href="#" onclick="inviteMember()"` → `moveIframePage('/CafeInviteCheck.nhn?m=check&clubid=30954788')`라 `findInvite(hrefs)`가 0건 → 초대 단계 진입 불가. 위쪽 탭 주소로 `CafeInviteCheck.nhn`을 직접 열면 빈 화면. 판정 문구(`classify`) 실측 없음, 명단 모으기(「추가」 절)는 미진행. 상세·윈도우 전달 사항: `naver-cafe-recruit/docs/INVITE_TEST_20261106.md` §5.
 - 다음: 윈도우가 초대 메뉴 찾기·틀 안 이동을 고친 뒤 맥미니가 같은 작업 공간(10번)에서 1건 재시험. 비용 없음.
 
+## 2026-11-06 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-imgdeploy — **이미지·디자인 미배포 묶음 11개 배포(주인님 승인 빌드 11회)**
+- **한 일**: 미배포로 모아 둔 작은 수정을 11개 프로그램에 한 번에 내보냄. 버전 +0.01(커밋 `chore(image-design): version +0.01 for 11 programs`), 팀 빌드 0건 확인 → 한 번에 하나씩 `node scripts/deploy.mjs <폴더> --go` → 모두 Ready·운영 주소 연결 → `--version-only --set-version`으로 DB `programs.version` 맞춤(프로그램 비교표 버전 칸도 도우미가 고침).
+- **배포 버전**: `ai-image-studio` v1.32 · `style-dna-analyzer` v1.39 · `portrait-photo` v1.44 · `four-cut-comics` v1.37 · `allinone-graphic` v1.11 · `persona-style-studio` v1.11 · `photo-remake-studio` v1.13 · `react-ui-showcase`(DB slug `ai-web-ui`) v1.08 · `ui-canvas` v1.15 · `fashion-style` v1.14 · `landing-architect` v1.15
+- **함께 나간 대기 항목**: 30일 보관 열외(4개) · 12월 모델 교체 C(8개) · 메뉴 계정 위치 `22c6cda35`(3개) · 30일 정리 기록(portrait-photo·four-cut-comics) · API 키 문구 `b16550ad4`(6개). `docs/PENDING_DEPLOYS.md` 「내보낸 기록」에 한 줄, 묶음 줄 3개에 「함께 나감」 표시.
+- **확인한 것**: 로컬 `tsc --noEmit` 11개 통과, 배포 11개 Ready, 운영 주소 11개 200/307(작업 화면·로그인으로 이동) 정상. **못 한 것**: 메뉴 계정 위치·휴대폰 폭 화면 확인(3개)과 다음 30일 정리 시각에 관리자 「30일 자동 정리」 표에 portrait-photo·four-cut-comics 줄이 생기는지 확인.
+- **비용**: Vercel 빌드 11회(주인님 승인 범위), AI 호출 0.
+- **다음 첫 단계**: 위 「못 한 것」 화면 확인. 프로그램 폴더 `docs/IMPROVEMENTS.md`의 「미배포 대기」 표시는 다음에 그 폴더를 맡는 세션이 「v○ 배포됨(11-06)」으로 정리.
 
 ## 2026-11-06 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261106-ytreply — **`youtube-auto-reply` v1.33 배포: 미배포 대기 2건(30일 보관 열외 + 12월 모델 교체 B) 묶음**
 - 배경: 주인님이 남은 작업 목록에서 「youtube-auto-reply 30일 열외 + 모델 교체 B」 줄을 골라 「진행해」. 두 커밋은 맥미니가 2026-11-03에 작성(`e3f93b8d7`·`5e994cd8f`).
