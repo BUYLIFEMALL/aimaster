@@ -1,6 +1,6 @@
 # naver-cafe-recruit — 네이버 카페 회원 모집 자동화 (개발 중, v1.01 뼈대)
 
-> 상태(2026-11-06 윈도우 `claude-win-blog`): **확장 모드 B 초대 + 확장용 서버 라우트 완료(미배포).** 다음: 첫 배포 승인(요청함 `b8a029ff`) → Vercel 프로젝트·`CRON_SECRET`·도메인 → 첫 실물 초대 1건(승인) · 모드 A 주인님 결정 대기.
+> 상태(2026-11-06 윈도우 `claude-win-blog`): **v1.01 첫 배포 완료(비공개 `is_active=false`).** Vercel 프로젝트 `naver-cafe-recruit`·도메인·환경변수 6개, 배포 `naver-cafe-recruit-krzqcvoj2`(첫 배포는 프레임워크 「Other」라 404 → Next.js로 고쳐 재배포), DB 확장 버전·다운로드 주소, `check-extension-release` OK, ego 화면 확인. 다음: 시험 계정으로 아는 아이디 1명 실제 초대 → 판정 규칙 확정 → 공개 · 모드 A 주인님 결정 대기.
 > 이전 상태(2026-11-05 윈도우 `claude-win-blog`): **운영 DB 적용 + 웹 뼈대(v1.01) 완료, 미배포·확장 미구현.** `programs`에 비공개(`is_active=false`)로 등록·요금제 3단계. 다음: 맥미니 ego로 네이버 초대·카페 화면 실물 확인([`docs/REQUEST_20261105_MACMINI_DOM.md`](docs/REQUEST_20261105_MACMINI_DOM.md)) → 확장 → 빌드(주인님 승인)·Vercel 프로젝트·도메인. 플랜 [`docs/PLAN_20261105_NEW.md`](docs/PLAN_20261105_NEW.md) · 외부 원본 분석 [`../docs/analysis-cafe-recruit-20261105/DETAIL.md`](../docs/analysis-cafe-recruit-20261105/DETAIL.md).
 > 공통 지침은 루트 [`CLAUDE.md`](../CLAUDE.md)·[`AGENTS.md`](../AGENTS.md)를 함께 읽는다(회원 본인 계정·본인 키 최상위 규칙, 마케팅 수집 예외 지침).
 
@@ -34,7 +34,9 @@
 - [ ] 첫 실물 시험(배포 뒤, 주인님 승인): 시험 계정이 아는 아이디 1명 초대 → 실제 성공·제한 문구로 `invite.mjs` 판정 규칙 확정
 - [ ] 모드 C(카페 홍보 글) 연결 — `naver-cafe-poster` 게시 재사용 방식 결정
 - [ ] 모드 B 자동 채우기: `blog-neighbor-care` 서로이웃 가져오기
-- [ ] 빌드(주인님 승인) · Vercel 프로젝트 생성·환경변수(`CRON_SECRET` 포함) · 도메인 `naver-cafe-recruit.buylife.xyz` · `programs.is_active=true`·`detail_sections`·썸네일 · 비교표·분석표(EXT-MKT-08·10) 갱신 · VIP 자동 부여 확인
+- [x] 빌드(주인님 승인, 2회) · Vercel 프로젝트·환경변수(`CRON_SECRET` 포함) · 도메인 `naver-cafe-recruit.buylife.xyz` — 2026-11-06
+- [ ] 공개: `programs.is_active=true`·`detail_sections`·썸네일 · 비교표·분석표(EXT-MKT-08·10) 갱신 · VIP 자동 부여 확인 — 첫 실물 초대 확인 뒤
+- [ ] 작은 수정(미배포 대기로 모음): 좌측 메뉴 묶음 이름 「4단계 포스팅 파이프라인」(원본 `naver-cafe-poster` 복사) → 「3단계 모집 순서」
 - [x] 보관 기간: 30일 확정(2026-11-05 주인님 「30일 기준으로 만들어도 되는 프로그램이야」), 연장 없음
 
 ## 6. 타 프로그램 연계·병합 아이디어
