@@ -137,7 +137,7 @@ export default async function AdminOrderDetailPage({
       </ul>
 
       {(PARTIAL_CANCEL_STATUSES as readonly string[]).includes(order.status) && items.some((it) => it.qty > it.cancelled_qty) && (
-        <PartialCancelForm items={items} isCredit={order.is_credit} action={partialCancelAction.bind(null, store.slug, order.id)} />
+        <PartialCancelForm items={items} isCredit={order.is_credit} isCard={order.is_card} action={partialCancelAction.bind(null, store.slug, order.id)} />
       )}
 
       <section className="mt-6 text-sm">
