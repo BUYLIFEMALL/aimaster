@@ -16,7 +16,7 @@ import type { Collection } from "@/lib/collections";
 import { ProjectTracks } from "@/components/songs/ProjectTracks";
 import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult } from "@/components/songs/LyricResultDialog";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
-import { LYRIC_GENRES, LYRIC_MOODS, MAX_MOODS, toggleMood } from "@/lib/lyricTags";
+import { LYRIC_GENRES, MAX_MOODS, MAX_VOCALS, MOOD_GROUPS, TEMPOS, VOCALS, lyricMoodPayload, moodConflict, toggleMany, toggleMood } from "@/lib/lyricTags";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string; project_id: string | null };
 /** 곡 만들기에서 보는 프로젝트 — 전체 / 프로젝트 없음 / 프로젝트 번호 */
@@ -53,6 +53,9 @@ export default function SongsPage() {
   const [theme, setTheme] = useState("");
   const [genre, setGenre] = useState("");
   const [moods, setMoods] = useState<string[]>([]);
+  const [tempo, setTempo] = useState("");
+  const [vocals, setVocals] = useState<string[]>([]);
+  const moodTags = lyricMoodPayload({ moods, tempo, vocals }).tags;
   const [language, setLanguage] = useState<"ko" | "en">("ko");
   const [refine, setRefine] = useState(true);
   const [banned, setBanned] = useState("");
@@ -279,7 +282,7 @@ export default function SongsPage() {
           mode,
           theme,
           genre,
-          mood: moods.join(", "),
+          ...lyricMoodPayload({ moods, tempo, vocals }),
           fixed_style: draft.style_prompt.trim() || undefined,
           refine,
           recent_titles: songs.slice(0, 10).map((s) => s.title),
@@ -634,25 +637,83 @@ export default function SongsPage() {
                       여러 개 고르기 · 최대 {MAX_MOODS}개{moods.length ? ` (${moods.length}/${MAX_MOODS})` : ""}
                     </span>
                   </p>
-                  <div className="flex flex-wrap gap-1.5" aria-label="분위기">
-                    {LYRIC_MOODS.map((m) => {
-                      const on = moods.includes(m);
-                      const full = !on && moods.length >= MAX_MOODS;
+                  <div className="space-y-1.5" aria-label="분위기">
+                    {MOOD_GROUPS.map((g) => (
+                      <div key={g.id} className="flex flex-wrap items-center gap-1.5">
+                        <span className="w-28 shrink-0 text-[11px] text-slate-400">{g.label}</span>
+                        {g.moods.map(({ ko: m, en }) => {
+                          const on = moods.includes(m);
+                          const full = !on && moods.length >= MAX_MOODS;
+                          return (
+                            <button
+                              key={m}
+                              type="button"
+                              aria-pressed={on}
+                              disabled={full}
+                              title={en}
+                              onClick={() => setMoods((v) => toggleMood(v, m))}
+                              className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-35 ${on ? "border-sky-400 bg-sky-600 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-sky-500/60"}`}
+                            >
+                              {m}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                  {moodConflict(moods) && <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] leading-relaxed text-amber-200">⚠️ {moodConflict(moods)}</p>}
+                </div>
+                {/* 빠르기·리듬(하나) */}
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-slate-300">
+                    빠르기·리듬 <span className="font-normal text-slate-500">하나 고르기 · 다시 누르면 해제</span>
+                  </p>
+                  <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="빠르기">
+                    {TEMPOS.map(({ ko: t, en }) => (
+                      <button
+                        key={t}
+                        type="button"
+                        role="radio"
+                        aria-checked={tempo === t}
+                        title={en}
+                        onClick={() => setTempo(tempo === t ? "" : t)}
+                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${tempo === t ? "border-violet-400 bg-violet-600 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-violet-500/60"}`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* 목소리(최대 2개) */}
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-slate-300">
+                    목소리 <span className="font-normal text-slate-500">최대 {MAX_VOCALS}개 · 예) 여성 보컬 + 숨소리 섞인</span>
+                  </p>
+                  <div className="flex flex-wrap gap-1.5" aria-label="목소리">
+                    {VOCALS.map(({ ko: v, en }) => {
+                      const on = vocals.includes(v);
                       return (
                         <button
-                          key={m}
+                          key={v}
                           type="button"
                           aria-pressed={on}
-                          disabled={full}
-                          onClick={() => setMoods((v) => toggleMood(v, m))}
-                          className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-35 ${on ? "border-sky-400 bg-sky-600 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-sky-500/60"}`}
+                          disabled={!on && vocals.length >= MAX_VOCALS}
+                          title={en}
+                          onClick={() => setVocals((s) => toggleMany(s, v, MAX_VOCALS))}
+                          className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-35 ${on ? "border-rose-400 bg-rose-600 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-rose-500/60"}`}
                         >
-                          {m}
+                          {v}
                         </button>
                       );
                     })}
                   </div>
                 </div>
+                {moodTags && (
+                  <p className="text-[11px] text-slate-400">
+                    AI에게 함께 보낼 영어 태그: <span className="font-mono text-teal-300/80">{moodTags}</span>
+                    {draft.style_prompt.trim() ? " · 스타일 칸이 이미 있어 가사 분위기에만 반영합니다" : " · 스타일 칸에도 들어갑니다"}
+                  </p>
+                )}
                 <select className={`${field} sm:w-60`} value={language} onChange={(e) => setLanguage(e.target.value as "ko" | "en")}>
                   <option value="ko">한국어 가사</option>
                   <option value="en">영어 가사</option>

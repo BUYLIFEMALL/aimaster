@@ -16,3 +16,25 @@ test("분위기: 켜고 끄기, 최대 3개, 합친 글자는 서버 한도(60�
   const longest = [...LYRIC_MOODS].sort((a, b) => b.length - a.length).slice(0, MAX_MOODS).join(", ");
   assert.ok(longest.length <= 60);
 });
+
+import { MOOD_GROUPS, TEMPOS, VOCALS, lyricMoodPayload, moodConflict, toggleMany } from "../src/lib/lyricTags.ts";
+
+test("분위기 5묶음·이름 겹침 없음, 모든 항목에 영어 태그", () => {
+  const all = MOOD_GROUPS.flatMap((g) => g.moods);
+  assert.equal(MOOD_GROUPS.length, 5);
+  assert.equal(new Set(all.map((m) => m.ko)).size, all.length);
+  for (const t of [...all, ...TEMPOS, ...VOCALS]) assert.match(t.en, /^[a-z][a-z -]+$/);
+});
+
+test("반대 분위기(밝은+슬픈, 잔잔한+강렬한)는 경고, 같은 쪽은 조용", () => {
+  assert.match(moodConflict(["신나는", "우울한"]), /밝고 신나는.*슬프고 그리운|슬프고 그리운.*밝고 신나는/);
+  assert.match(moodConflict(["잔잔한", "웅장한"]), /따뜻하고 잔잔한/);
+  assert.equal(moodConflict(["따뜻한", "그리운", "다정한"]), "");
+});
+
+test("보낼 값: 한국어 분위기(60자 안) + 영어 태그(분위기·빠르기·목소리)", () => {
+  const p = lyricMoodPayload({ moods: ["따뜻한", "그리운"], tempo: "느린", vocals: ["여성 보컬", "숨소리 섞인"] });
+  assert.equal(p.mood, "따뜻한, 그리운");
+  assert.equal(p.tags, "warm, nostalgic, slow tempo, female vocal, breathy vocal");
+  assert.deepEqual(toggleMany(["a", "b"], "c", 2), ["a", "b"]);
+});

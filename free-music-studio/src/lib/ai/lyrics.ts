@@ -15,6 +15,8 @@ export type LyricRequest = {
   mood: string;
   /** 회원이 프리셋 등으로 이미 정한 스타일 — 있으면 그 스타일에 맞춰 가사를 쓰고 스타일은 그대로 돌려준다 */
   fixedStyle?: string;
+  /** 회원이 버튼으로 고른 영어 태그(분위기·빠르기·목소리, ACE-Step 캡션 단어) */
+  tags?: string;
   language: "ko" | "en";
   durationSec: number;
   refine: boolean;
@@ -110,6 +112,7 @@ function brief(req: LyricRequest) {
     request: req.theme,
     genre: req.genre || undefined,
     mood: req.mood || undefined,
+    ...(req.tags ? { soundTags: req.tags, soundTagsRule: req.fixedStyle ? "Reflect these tags in the lyrics' emotion and delivery only." : "Include every one of these tags in style_prompt and keep them consistent with the lyrics." } : {}),
     ...(req.fixedStyle ? { fixedStyle: req.fixedStyle, fixedStyleRule: "The member already chose this style. Write lyrics and structure that fit its genre, tempo and vocal; return style_prompt exactly as given." } : {}),
     lyricLanguage: req.language === "en" ? "English" : "Korean",
     targetLength: targetLengthText(req.durationSec),
