@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ⏸ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`naver-cafe-recruit` 초대 2회차: 초대 메뉴 찾기·틀 이동 ✅, 바깥 문서 오판으로 멈춤, 틀 안 아이디 입력까지 — 발송 여부 불확실(다시 보내지 않음) (`ac02c8489`)**
+- 바깥 주소 `?iframe_url_utf8=…CafeInvite.nhn…` 때문에 `inviteInFrame`의 `location.href` 판별이 바깥에서도 참 → 「「아이디」 버튼을 찾지 못했습니다. (틀 /buylife …)」. 틀 안은 동시에 돌아 `buylifemall` 입력, 알림 0건. 초대 화면에 「아이디 추가」 버튼이 따로 있음. 첫 시도는 AIMaster 로그인 풀림(서버 401 「로그인이 필요합니다.」, 오늘 두 번째)으로 멈춤. 상세: `naver-cafe-recruit/docs/INVITE_TEST_20261106.md` 「2회차」. 다음: 주인님이 `buylifemall` 내소식에서 초대 알림 여부 확인 → 윈도우 판별 수정 → 3회차.
+
 ## 2026-11-06 ✅ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — **U10 1차 배포·운영 확인: 콘텐츠 캘린더 + INSTA·Threads 보내기**
 - 주인님 승인: 요청함 `7427701f`(플랜 결정 — 1번 다른 역할 폴더 버튼·라우트만, 나머지 추천안) · `b6fb9b4b`(빌드 3회) + 채팅 「계속 진행해」.
 - 배포(순차, 팀 빌드 확인 뒤 하나씩): 워크스페이스 v1.22 `ai-work-workspace-3saw5d3qw` → INSTA v1.72 `insta-auto-poster-7wfm8e3y9` → Threads v2.23, 모두 Ready·DB 버전 맞춤.
