@@ -157,9 +157,16 @@ export function FolderBrowser({
       </div>
 
       {children}
+      {/* 백로그 C-4: 폴더를 눌러 들어가기만 하면 바뀐 줄 아는 일이 있어, 마지막에 버튼을 한 번 더 눌러야 한다는 것을 바로 위에 알린다 */}
+      {listing && !atRoot && !same && (
+        <p className="text-[11px] leading-relaxed text-amber-200/90">
+          👉 폴더를 눌러 들어가기만 해서는 바뀌지 않습니다. 원하는 폴더에 들어간 뒤 아래 <b>[{confirmLabel}]</b>를 눌러야 바뀝니다.
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={() => listing && onConfirm(listing.path)} disabled={disabled || !listing || atRoot || same} className={`${btn} bg-emerald-600 text-white hover:brightness-110`}>
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} {confirmLabel}
+          {listing && !atRoot && !same && <span className="max-w-[14rem] truncate font-normal opacity-90">— {listing.path.split(/[\\/]/).filter(Boolean).pop()}</span>}
         </button>
         <button type="button" onClick={onClose} disabled={busy} className={`${btn} border border-slate-700 text-slate-400 hover:bg-slate-900`}>
           닫기
