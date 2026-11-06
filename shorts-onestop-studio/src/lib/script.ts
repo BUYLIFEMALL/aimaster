@@ -20,6 +20,8 @@ export const FORMATS = {
   tips: { label: "꿀팁 모음", guide: "몰랐던 실용 팁 위주. 카드마다 바로 써먹을 팁 하나" },
   compare: { label: "비교·대결", guide: "두 선택지나 전후를 대비. 카드마다 비교 기준 하나" },
   story: { label: "스토리", guide: "발단→전개→반전→결말로 이어지는 한 편의 이야기. 카드가 순서대로 이어져야 함" },
+  // v1.44(V3) 상품 홍보 쇼츠: 인트로 + 카드 4 + 아웃트로 = 6비트(src/lib/productShorts.ts)
+  product: { label: "상품 홍보(15초 6비트)", guide: "판매자 상품 홍보 쇼츠. 인트로=쓴 뒤의 결과 장면을 먼저, 카드1=쓰기 전 불편, 카드2=상품 등장, 카드3=쓰는 모습, 카드4=달라진 결과, 아웃트로=처음 장면으로 자연스럽게 이어지는 한 줄 + 구매 안내" },
 } as const;
 export type Format = keyof typeof FORMATS;
 

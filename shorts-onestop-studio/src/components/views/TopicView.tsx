@@ -8,7 +8,8 @@ import { modelName } from "@/lib/models";
 import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scriptFromLines, type Format, type ShortsScript, type Tone } from "@/lib/script";
 import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
-import { takeRefHandoff } from "@/lib/refHandoff";
+import { takeProductHandoff, takeRefHandoff } from "@/lib/refHandoff";
+import { PRODUCT_CARDS, PRODUCT_LIMITS } from "@/lib/productShorts";
 import { refBlockHeader, refBlocks, removeRefBlock, shortSource } from "@/lib/refBlocks";
 
 // v1.31 참고 자료와 그대로 겹치는 장면 표시(브라우저 안에서 다시 검사 — 고치면 바로 사라짐)
@@ -20,7 +21,7 @@ type Guide = Item<{ text: string }>;
 const CAT_EMOJI: Record<string, string> = { "건강·운동": "💪", "자기계발·생산성": "📈", "돈·재테크": "💰", "요리·레시피": "🍳", "여행": "✈️", "심리·인간관계": "🧠", "IT·AI": "🤖", "뷰티·패션": "💄", "생활 꿀팁": "🏠", "동기부여": "🔥", "상식·잡학": "📚", "운세·꿈풀이": "🔮", "미스터리": "🕵️", "반전 상식": "😲" };
 
 /** 목표 길이별 기본 카드 수(주제에 숫자가 있거나 직접 고르면 그 값 유지) */
-const LENGTH_CARDS: Record<number, number> = { 30: 3, 45: 4, 60: 5 };
+const LENGTH_CARDS: Record<number, number> = { 15: PRODUCT_CARDS, 30: 3, 45: 4, 60: 5 };
 
 export function TopicView() {
   const [mode, setMode] = useState<"ai" | "manual">("ai");
@@ -46,6 +47,13 @@ export function TopicView() {
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null);
   // v1.31 참고 자료 전체 베끼기 검사(선택) · 대본을 만들 때 쓴 검사 대상 글(장면 노란 테두리용)
   const [guardAll, setGuardAll] = useState(false), [guardRef, setGuardRef] = useState("");
+  // v1.44(V3) 상품 홍보: 판매자가 적은 상품명·장점 3개·혜택(다른 프로그램이 주소 # 뒤로 넘기면 채워짐)
+  const [product, setProduct] = useState({ name: "", points: ["", "", ""], offer: "" });
+  const isProduct = format === "product";
+  function chooseProductFormat() {
+    setFormat("product"); setCards(PRODUCT_CARDS); setSeconds(15);
+    setTouched((t) => ({ ...t, format: true, cards: true }));
+  }
 
   const guide = useMemo(() => guides.find((g) => g.title === category), [guides, category]);
   useEffect(() => { setGuideText(guide?.data.text ?? ""); }, [guide]);
@@ -64,6 +72,15 @@ export function TopicView() {
       setReference((cur) => (cur.trim() ? `${cur.trim()}\n\n${block}` : block).slice(0, 12000));
       setMode("ai");
       setMsg({ text: `${from ? `「${from}」` : "다른 프로그램"}에서 넘긴 쇼츠 대사를 참고 자료에 넣었습니다. 주제를 고르고 대본을 만들면 흐름만 참고하고 문장은 새로 씁니다.`, ok: true });
+      if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+    // v1.44(V3) 다른 프로그램(상세페이지 등)이 넘긴 상품 정보 → 상품 홍보 구성으로 채움(형식: src/lib/productShorts.ts 맨 위)
+    const got = takeProductHandoff(window.location.hash);
+    if (got) {
+      setProduct({ name: got.product.name, points: [...got.product.points, "", "", ""].slice(0, 3), offer: got.product.offer });
+      setTopic(`${got.product.name} 15초 홍보 쇼츠`.slice(0, 120));
+      setMode("ai"); chooseProductFormat();
+      setMsg({ text: `${got.from ? `「${got.from}」` : "다른 프로그램"}에서 넘긴 상품 정보를 채웠습니다. 장점·혜택을 확인한 뒤 「대본 만들기」를 누르세요.`, ok: true });
       if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
   }, [loadGuides]);
@@ -111,7 +128,9 @@ export function TopicView() {
   async function makeScript() {
     setBusy("대본을 쓰는 중… (보통 10~40초)"); setMsg(null);
     try {
-      const r = await api<{ script: ShortsScript; copied?: string[] }>("/api/ai/script", { body: { topic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined, guardAll } });
+      const productBody = isProduct ? { name: product.name, points: product.points, offer: product.offer } : undefined;
+      const sendTopic = isProduct && topic.trim().length < 4 ? `${product.name.trim()} 홍보 쇼츠` : topic;
+      const r = await api<{ script: ShortsScript; copied?: string[] }>("/api/ai/script", { body: { topic: sendTopic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined, guardAll, product: productBody } });
       setScript(r.script); setItemId(null); setGuardRef(guardText(reference, guardAll));
       // v1.30 레퍼런스 쇼츠와 그대로 겹치는 구절이 남았으면 다듬기에서 고치도록 알린다
       setMsg(r.copied?.length
@@ -208,11 +227,22 @@ export function TopicView() {
               <h2>② 대본 옵션 <small>— 주제 문구에 맞춰 자동으로 골라 두었어요. 바꾸면 그대로 유지됩니다.</small></h2>
               <div className="field-grid">
                 <label>말투<select value={tone} onChange={(e) => { setTone(e.target.value as Tone); setTouched((t) => ({ ...t, tone: true })); }}>{Object.entries(TONES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
-                <label>구성<select value={format} onChange={(e) => { setFormat(e.target.value as Format); setTouched((t) => ({ ...t, format: true })); }}>{Object.entries(FORMATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
-                <label>목표 길이<select value={seconds} onChange={(e) => { const v = Number(e.target.value); setSeconds(v); if (v && !touched.cards) setCards(LENGTH_CARDS[v]); }}><option value={0}>제한 없음</option>{[30, 45, 60].map((v) => <option key={v} value={v}>약 {v}초</option>)}</select></label>
-                <label>카드 수<select value={cards} onChange={(e) => { setCards(Number(e.target.value)); setTouched((t) => ({ ...t, cards: true })); }}>{Array.from({ length: MAX_CARDS - MIN_CARDS + 1 }, (_, i) => MIN_CARDS + i).map((n) => <option key={n} value={n}>{n}장</option>)}</select></label>
+                <label>구성<select value={format} onChange={(e) => { const f = e.target.value as Format; if (f === "product") { chooseProductFormat(); return; } setFormat(f); setTouched((t) => ({ ...t, format: true })); if (seconds === 15) setSeconds(0); }}>{Object.entries(FORMATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
+                <label>목표 길이<select value={seconds} onChange={(e) => { const v = Number(e.target.value); setSeconds(v); if (v && !touched.cards) setCards(LENGTH_CARDS[v]); }}><option value={0}>제한 없음</option>{(isProduct ? [15, 30] : [30, 45, 60]).map((v) => <option key={v} value={v}>약 {v}초</option>)}</select></label>
+                <label>카드 수<select value={cards} disabled={isProduct} title={isProduct ? "상품 홍보는 6비트(인트로·카드 4장·아웃트로)로 고정입니다" : undefined} onChange={(e) => { setCards(Number(e.target.value)); setTouched((t) => ({ ...t, cards: true })); }}>{Array.from({ length: MAX_CARDS - MIN_CARDS + 1 }, (_, i) => MIN_CARDS + i).map((n) => <option key={n} value={n}>{n}장</option>)}</select></label>
               </div>
-              <div className="actions"><button className="primary" disabled={topic.trim().length < 4 || !!busy} onClick={() => void makeScript()}><Sparkles size={14} />대본 만들기</button><Busy on={busy.startsWith("대본")} label={busy} /></div>
+              {isProduct && (
+                <div className="stack" style={{ gap: 8 }}>
+                  <h3 style={{ margin: 0 }}>🛍 상품 정보 <small className="muted">— 적은 내용만 사실로 씁니다. 없는 효능·가격·판매량은 지어내지 않습니다.</small></h3>
+                  <label>상품명<input value={product.name} maxLength={PRODUCT_LIMITS.name} onChange={(e) => setProduct((p) => ({ ...p, name: e.target.value }))} placeholder="예: 접이식 휴대용 선풍기" /></label>
+                  <div className="grid2">{product.points.map((pt, i) => (
+                    <label key={i}>장점 {i + 1}{i === 0 ? "" : " (선택)"}<input value={pt} maxLength={PRODUCT_LIMITS.point} onChange={(e) => setProduct((p) => ({ ...p, points: p.points.map((v, j) => (j === i ? e.target.value : v)) }))} placeholder={["예: 무게 300g, 가방에 쏙", "예: USB-C로 어디서나 충전", "예: 밤에도 조용한 3단 바람"][i]} /></label>
+                  ))}</div>
+                  <label>혜택·구매 안내 (선택 — 아웃트로에 그대로 씀)<input value={product.offer} maxLength={PRODUCT_LIMITS.offer} onChange={(e) => setProduct((p) => ({ ...p, offer: e.target.value }))} placeholder="예: 프로필 링크에서 오늘 출발 상품 확인" /></label>
+                  <small className="muted">구성: 결과 먼저 → 쓰기 전 → 상품 등장 → 쓰는 모습 → 달라진 결과 → 처음 장면으로 이어지는 마무리</small>
+                </div>
+              )}
+              <div className="actions"><button className="primary" disabled={(isProduct ? !product.name.trim() : topic.trim().length < 4) || !!busy} onClick={() => void makeScript()}><Sparkles size={14} />대본 만들기</button><Busy on={busy.startsWith("대본")} label={busy} /></div>
             </section>
           </>
         ) : (

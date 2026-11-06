@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { MAIN_SITE, APP_NAME } from "@/lib/version";
-import { hasStashedRefHandoff, stashRefHandoff } from "@/lib/refHandoff";
+import { hasStashedRefHandoff, stashProductHandoff, stashRefHandoff } from "@/lib/refHandoff";
 
 export function LoginForm() {
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
@@ -12,7 +12,9 @@ export function LoginForm() {
 
   // v1.33 다른 프로그램이 넘긴 대사가 주소 # 뒤에 있으면 보관(로그인 뒤 주제 화면에서 꺼냄)
   useEffect(() => {
-    if (stashRefHandoff(window.location.hash)) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    // v1.44 상품 정보(#product-name=…)도 보관
+    const hash = window.location.hash;
+    if (stashRefHandoff(hash) || stashProductHandoff(hash)) window.history.replaceState(null, "", window.location.pathname + window.location.search);
   }, []);
 
   async function login(event: React.FormEvent<HTMLFormElement>) {

@@ -1,6 +1,7 @@
 // v1.33 다른 프로그램이 넘긴 레퍼런스 대사(주소 # 뒤)를 로그인 화면을 거쳐도 잃지 않게 — 이 탭 저장소(sessionStorage)에 잠깐 보관
 // v1.34 보낸 프로그램 이름도 함께 보관
 import { readRefHandoff, readRefHandoffFrom } from "./reference";
+import { readProductHandoff, type ProductInfo } from "./productShorts";
 
 const KEY = "onestop-ref-handoff";
 
@@ -18,13 +19,39 @@ export function stashRefHandoff(hash: string): boolean {
   return true;
 }
 
-/** 로그인 직후 주제 화면으로 보낼지 */
+/** 로그인 직후 주제 화면으로 보낼지(레퍼런스 대사 또는 v1.44 상품 정보) */
 export function hasStashedRefHandoff(): boolean {
   try {
-    return !!sessionStorage.getItem(KEY);
+    return !!sessionStorage.getItem(KEY) || !!sessionStorage.getItem(PRODUCT_KEY);
   } catch {
     return false;
   }
+}
+
+// v1.44(V3) 다른 프로그램이 넘긴 상품 정보(#product-name=…)도 같은 방식으로 보관
+const PRODUCT_KEY = "onestop-product-handoff";
+
+/** 로그인 화면: 주소 # 뒤에 상품 정보가 있으면 보관(있었으면 true) */
+export function stashProductHandoff(hash: string): boolean {
+  if (!readProductHandoff(hash)) return false;
+  try {
+    sessionStorage.setItem(PRODUCT_KEY, hash);
+  } catch {
+    /* 저장소를 못 쓰는 브라우저 — 이 경우 상품 정보는 넘어가지 않음 */
+  }
+  return true;
+}
+
+/** 주제 화면: 주소 # 뒤 상품 정보를 먼저, 없으면 보관분 — 꺼낸 보관분은 바로 지움 */
+export function takeProductHandoff(hash: string): { product: ProductInfo; from: string } | null {
+  let stored = "";
+  try {
+    stored = sessionStorage.getItem(PRODUCT_KEY) ?? "";
+    sessionStorage.removeItem(PRODUCT_KEY);
+  } catch {
+    /* 무시 */
+  }
+  return readProductHandoff(hash) ?? (stored ? readProductHandoff(stored) : null);
 }
 
 function parseStored(raw: string): RefHandoff {
