@@ -29,6 +29,30 @@ export default function SpeechReportView({ data, onReset }: SpeechReportViewProp
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedDoc, setCopiedDoc] = useState(false);
   const [copiedTrans, setCopiedTrans] = useState(false);
+  // U9-A: 업무 워크스페이스 「받은 업무」로 보내기
+  const [inboxState, setInboxState] = useState<"idle" | "sending" | "sent">("idle");
+  const [inboxMessage, setInboxMessage] = useState("");
+  const [inboxUrl, setInboxUrl] = useState("");
+
+  const handleSendToWorkspace = async () => {
+    setInboxState("sending");
+    setInboxMessage("");
+    try {
+      const res = await fetch("/api/work-inbox", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ result: data }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || "업무 워크스페이스로 보내지 못했습니다.");
+      setInboxState("sent");
+      setInboxUrl(json.inboxUrl || "");
+      setInboxMessage("업무 워크스페이스 「받은 업무」로 보냈습니다. 그곳에서 페이지로 만들 수 있습니다.");
+    } catch (e) {
+      setInboxState("idle");
+      setInboxMessage(e instanceof Error ? e.message : "업무 워크스페이스로 보내지 못했습니다.");
+    }
+  };
 
   // 화자별 발언 횟수 계산
   const speakerCounts = data.fullTranscription.reduce((acc, cur) => {
@@ -189,14 +213,38 @@ ${data.overallInsights}
             <Activity size={14} className="text-[#00f0ff]" />
             <span>전체 대화 핵심 요약</span>
           </h3>
-          <button
-            type="button"
-            onClick={onReset}
-            className="text-xs text-[#00f0ff] hover:underline font-semibold"
-          >
-            새 오디오 분석
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSendToWorkspace}
+              disabled={inboxState !== "idle"}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#00f0ff]/15 text-[#00f0ff] border border-[#00f0ff]/40 hover:bg-[#00f0ff]/25 disabled:opacity-60 flex items-center gap-1.5"
+            >
+              <Share2 size={13} />
+              <span>{inboxState === "sending" ? "보내는 중…" : inboxState === "sent" ? "보냈습니다" : "📨 업무 워크스페이스로 보내기"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={onReset}
+              className="text-xs text-[#00f0ff] hover:underline font-semibold"
+            >
+              새 오디오 분석
+            </button>
+          </div>
         </div>
+        {inboxMessage && (
+          <p className={`text-xs font-medium ${inboxState === "sent" ? "text-emerald-400" : "text-rose-400"}`}>
+            {inboxMessage}
+            {inboxState === "sent" && inboxUrl && (
+              <>
+                {" "}
+                <a href={inboxUrl} target="_blank" rel="noopener noreferrer" className="underline font-bold">
+                  받은 업무 열기
+                </a>
+              </>
+            )}
+          </p>
+        )}
         <p className="text-xs text-slate-300 leading-relaxed font-medium">
           {data.summary}
         </p>
