@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `video-to-gif` → `ai-video-studio`·`shorts-onestop-studio` | V5 내 영상 일부 지우기 → V2 언어판(공용 그리기 글꼴 추가 뒤)·해설 교차편집·각색 강도 | 언어판은 음악 담당의 `music-video-studio` Composition 사본 미커밋 수정 커밋 대기 | `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8 |
+| `video-to-gif` → `ai-video-studio`·`shorts-onestop-studio` | V5 내 영상 일부 지우기 → V2 언어판(공용 그리기 글꼴 추가 뒤)·해설 교차편집·각색 강도 | 언어판은 공용 그리기 기준·사본 어긋남(v1.23 `renderTrace`) 정리 뒤 글꼴 추가 | `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8 |
 | `video-to-gif` · `shorts-onestop-studio` | V4 · V3 1단계 미배포 대기 | 다음 배포 때(빌드 승인) | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |

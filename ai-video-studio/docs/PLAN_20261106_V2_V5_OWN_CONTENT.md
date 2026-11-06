@@ -57,4 +57,4 @@
 ## 8. 진행(2026-11-06)
 - ✅ V2 컷 목록(EDL) 내보내기 `944338e0c` — 「긴 영상 → 쇼츠」·영상 합치기에 단추(미배포).
 - ✅ 실행 기록 표 `own_content_rights_log` — 운영 DB에 적용(주인님 크롬 SQL 편집기, 붙여 넣은 글 지문 원본과 같음 `a38979d29e114785`), 서버 읽기 200·비로그인 401 확인. 30일 정리 `/api/cron/cleanup`에 추가 `7adc0e000`(미배포).
-- ⏸ V2 언어판: 자막 그리기(공용 `video-edit-composition`)가 `NotoSansKR`(korean·latin)만 불러와 일본어·중국어·베트남어 자막 글자가 깨질 수 있음 → 기준 파일에 언어별 글꼴(`NotoSansJP`·`NotoSansSC`, latin-ext·vietnamese) 추가가 먼저 필요. **사본 `music-video-studio/src/components/edit/Composition.tsx`에 음악 담당의 미커밋 수정이 있어** 지금 `--sync`하면 덮어씀 → 음악 담당이 그 수정을 커밋한 뒤 기준을 고치고 사본을 맞춘다(사본을 직접 고치지 않음). 그 전까지 순서를 바꿔 **V5(`video-to-gif` 내 영상 일부 지우기)**를 먼저 한다.
+- ⏸ V2 언어판: 자막 그리기(공용 `video-edit-composition`)가 `NotoSansKR`(korean·latin)만 불러와 일본어·중국어·베트남어 자막 글자가 깨질 수 있음 → 기준 파일에 언어별 글꼴(`NotoSansJP`·`NotoSansSC`, latin-ext·vietnamese) 추가가 먼저 필요. **기준과 사본이 v1.23부터 이미 어긋나 있음**(기준에만 렌더 기록 `renderTrace` 가져오기가 있고, 사본 `music-video-studio`에는 그 파일이 없음 — `check-shared-modules` DIFF, 정정: 처음엔 「음악 담당 미커밋 수정」으로 잘못 적었음) → 글꼴을 넣으려면 먼저 이 어긋남을 정리(렌더 기록 가져오기를 사본에서도 쓸 수 있게 하거나 기준에서 분리)하고 `--sync` 뒤 `music-video-studio` 시험·빌드까지 해야 함. 그 전까지 순서를 바꿔 **V5(`video-to-gif` 내 영상 일부 지우기)**를 먼저 한다.
