@@ -63,4 +63,5 @@
 - ⏸ `ai-video-studio` EDL·정리 배포(v1.28): 디자인 세션이 같은 폴더를 작업 중(미커밋, `version.ts` v1.28)이라 보류 — 그 세션 배포에 함께 나감.
 - ✅ 공용 정리(2026-11-06): 기준·사본 어긋남의 원인이던 `renderTrace.ts`를 공용 모듈 `video-edit-render-trace`로 등록해 `music-video-studio`에도 사본을 둠 → `--sync` 뒤 `check-shared-modules` 전부 OK, `music-video-studio` tsc·시험 33개 통과(미배포, 급하지 않음).
 - ✅ V2 언어판(미배포, 다음 `ai-video-studio` 배포 v1.29): 영상 합치기 「🌐 언어판 만들기」 — 영어·일본어·중국어(간체)·베트남어, 권리 체크 → `/api/edit/translate`(회원 키 Claude→Gemini→OpenAI, `own_content_rights_log` tool `lang`) → 자막·내레이션 교체, 음성은 3단계에서 그 언어로 다시(`/api/edit/voice` `lang`), 언어별 글꼴(JP·SC는 그 언어판일 때만), 일본어·중국어 자막은 문장 부호·16자 조각, 되돌리기. 시험 89개·빌드 통과. 상세 `docs/IMPROVEMENTS.md` 맨 위.
-- 다음: 해설 교차편집(`ai-video-studio`) → 각색 강도(`shorts-onestop-studio`). 배포는 v1.29 묶음으로(빌드 승인 1회 남음).
+- ✅ V2 해설 교차편집(미배포, v1.29 묶음) `42f743503`: `/narrate` — 해설 녹음 1개 + 촬영본 2~10개, 권리 체크·실행 기록(tool `narration-cut`), 받아쓰기(V1 길), 문장마다 장면(`planCrossCut`·`limitSegs` 20개 상한), 장면별 촬영본 바꾸기, 영상 합치기로 넘김(해설은 소리 칸 100%, 촬영본 소리 끔). 시험 93개·빌드 통과. 상세 `docs/IMPROVEMENTS.md` 맨 위.
+- 다음: 각색 강도(`shorts-onestop-studio`). 배포는 `ai-video-studio` v1.29 묶음으로(빌드 승인 1회 남음).

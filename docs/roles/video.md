@@ -4,24 +4,24 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-06 `claude-win-video` (V2 언어판 구현·공용 그리기 기준·사본 정리 완료, 미배포 v1.29 예정. 다음은 해설 교차편집)
+- 마지막 갱신: 2026-11-06 `claude-win-video` (V2 언어판·해설 교차편집 구현, 미배포 v1.29 예정. 다음은 각색 강도)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 없음(다음: V2 해설 교차편집) | — | — |
+| `shorts-onestop-studio` | V2 각색 강도(내 대본 AI 다듬기 3단) | 2026-11-06 | 조사 중 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio`·`shorts-onestop-studio` | V2 해설 교차편집·각색 강도 | — (순서대로 진행) | `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8 |
-| `ai-video-studio` · `music-video-studio` | V2 언어판(v1.29 예정) · 공용 사본 동기화 미배포 | 빌드 승인(남은 1회는 `ai-video-studio`에, `music-video-studio`는 급하지 않아 다음 배포 때) | `docs/PENDING_DEPLOYS.md` |
+| `ai-video-studio` · `music-video-studio` | V2 언어판·해설 교차편집(v1.29 예정) · 공용 사본 동기화 미배포 | 빌드 승인(남은 1회는 `ai-video-studio`에, `music-video-studio`는 급하지 않아 다음 배포 때) | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-06 | `ai-video-studio` V2 해설 교차편집 | `/narrate` — 해설 녹음+촬영본 → 받아쓰기 → 문장마다 컷 배치 → 영상 합치기(해설 소리 칸), 실행 기록 `narration-cut`, 시험 93개·빌드 통과 `42f743503` | 미배포(v1.29) |
 | 2026-11-06 | `ai-video-studio` V2 언어판 | 「🌐 언어판 만들기」(영·일·중·베, 회원 키 번역, 언어별 글꼴, 권리 기록) + 공용 `renderTrace` 사본 등록으로 기준·사본 어긋남 해소, 시험 89개·빌드 통과 | 미배포(v1.29) |
 | 2026-11-06 | `ai-video-studio` v1.28 | EDL·실행 기록 정리는 디자인 세션의 v1.28 배포(`ai-video-studio-j0ao4kzka`)에 함께 나감, DB 버전 v1.28로 맞춤 | 배포(다른 세션) |
 | 2026-11-06 | `video-to-gif` v1.26 · `shorts-onestop-studio` v1.44 | 승인 빌드 2회(`video-to-ddad3w65y`·`shorts-onestop-studio-4gt4hlp2d`) — V4+V5 / V3 1단계 배포, DB·확장 ZIP 버전 맞춤, 운영에서 V5 지우기 1회 확인 | 배포 |
@@ -62,8 +62,8 @@
 
 ## 다음 첫 단계
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
-2. V2 해설 교차편집(`ai-video-studio`: 내 해설 녹음 1개 + 촬영본 여러 개 → 받아쓰기 → 문장마다 컷 배치) → 각색 강도(`shorts-onestop-studio`)
-4. `ai-video-studio` v1.29(V2 언어판) 배포(빌드 승인 1회 남음) → 시험 계정으로 언어판 번역·일본어 글꼴 1회 확인(회원 키 몇 원). V1 소리·V3 대본·V4 녹화 확인도 남음
+2. V2 각색 강도(`shorts-onestop-studio` 「내 대본으로 만들기」에 AI 다듬기 3단: 맞춤법만·문장 다듬기·구성까지 새로, 회원 키)
+4. `ai-video-studio` v1.29(V2 언어판·해설 교차편집) 배포(빌드 승인 1회 남음) → 시험 계정으로 언어판 번역·일본어 글꼴·해설 교차편집 받아쓰기 각 1회 확인(회원 키 몇십 원). V1 소리·V3 대본·V4 녹화 확인도 남음
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
