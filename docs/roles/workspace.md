@@ -9,21 +9,20 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 없음(U10 1차 (가) 구현 완료: 워크스페이스 `cc4f4eabe`+`b98de2641` · 인스타 `b98de2641` · Threads `7caa31152`, 모두 미배포 — 빌드 승인 대기) | — | — |
+| — | 없음 | — | — |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-work-workspace` | 미배포 `376c55c7a`(왼쪽 메뉴 버전 v1.21 표시)·`a80274b4c`(보낸 마크다운 정리·빈 화면 문구)·`cc4f4eabe`+`b98de2641`(U10 콘텐츠 캘린더 템플릿·캘린더에 넣기·slug) | 다음 워크스페이스 배포 때 함께(v1.22) — 인스타·Threads보다 먼저 | `ai-work-workspace/docs/IMPROVEMENTS.md` |
-| `insta_auto_poster` | 미배포 `b98de2641` U10 「업무 워크스페이스로 보내기」 | 워크스페이스 v1.22 뒤 v1.72 빌드 1회 승인 | `insta_auto_poster/docs/IMPROVEMENTS.md` 맨 위 |
-| `threads-content-ops` | 미배포 `7caa31152` U10 「업무 워크스페이스로 보내기」 | 워크스페이스 v1.22 뒤 v2.23 빌드 1회 승인 | `threads-content-ops/docs/IMPROVEMENTS.md` 맨 위 |
-| U10 2차 | 발행 2개(교육용 블로그·네이버 에이전트)·분석 3개·수집 1개 | 1차 운영 확인 뒤 주인님 「2차 진행」 | `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §4 |
-| `ai-work-workspace` | 음성 받아쓰기 엔진 회원 선택 → v1.22 **Ready(17:47)**. 남음: 배포 기록 정리(미배포 표 3줄·IMPROVEMENTS·AGENTS) + OpenAI 실제 받아쓰기 확인(시험 WAV 준비됨) | 형제 세션과 겹치지 않게 git status 확인 뒤 | `ai-work-workspace/docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md` |
+| `threads-content-ops` | 미배포 `fcf2dc894` 받은 업무 제목에서 「(광고)」 줄 건너뛰기(U10 운영 확인에서 발견) | 다음 Threads 배포 때(v2.24) | `threads-content-ops/docs/IMPROVEMENTS.md` 맨 위 |
+| U10 2차 | 발행 2개(교육용 블로그·네이버 에이전트)·분석 3개·수집 1개 | 1차 결과 보신 뒤 주인님 「2차 진행」 | `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §4 |
+| `ai-work-workspace` | 음성 받아쓰기 엔진 회원 선택 — v1.22 배포됨. 남음: OpenAI 실제 받아쓰기 확인(시험 WAV 준비됨), IMPROVEMENTS·AGENTS 기록(미배포 표는 U10 세션이 「내보낸 기록」으로 옮김) | 형제 세션과 겹치지 않게 git status 확인 뒤 | `ai-work-workspace/docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md` |
 | `ai-doc-chatbot`(다른 역할 폴더) | 문서 카드가 30일 예외 계정에도 「30일 뒤 자동 삭제」로 표시 — 실제 삭제 대상인지 확인 | 그 폴더 담당 또는 주인님 허락 | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 확인 중 발견」 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-06 | `ai-work-workspace` v1.22 · `insta_auto_poster` v1.72 · `threads-content-ops` v2.23 | U10 1차: 「📅 콘텐츠 캘린더」 템플릿 + 받은 업무 「캘린더에 넣기」 + INSTA·Threads 「업무 워크스페이스로 보내기」. ego 운영 확인 — INSTA 예약 글·Threads 발행 글이 캘린더 행으로 정상 | 배포 3회 |
 | 2026-11-06 | `ai-work-workspace` v1.22 | 요청함 `c234b28c` 주인님 「진행해」 → 음성 파일 받아쓰기 엔진 회원 선택(설정 메뉴, 자동/OpenAI) 구현. 시험 7+49 통과·타입 검사·로컬 빌드 | Ready 17:47(빌드는 형제 세션/주인님) |
 | 2026-11-06 | `ai-work-workspace` v1.21 외 4개 | U9 연계: 워크스페이스 → 슬라이드·번역·문서 챗봇 보내기, 음성 분석 → 회의록 페이지. ego 운영 확인 통과(챗봇 색인 1회·음성 분석 1회) | 배포 5회 |
 | 2026-11-03 | `ai-work-workspace` v1.20 | U6-B 음성 파일 받아쓰기(Gemini Google 직접 업로드 100MB·OpenAI 4MB) + 30일 예외 회원 제외 + 요약 중 자동 갱신 등 미배포 5건. 운영 크롬: Gemini 받아쓰기(시각 포함 4문장)·새로고침 없는 요약 통과 | 배포 1회 |

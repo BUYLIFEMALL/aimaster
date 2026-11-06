@@ -3,7 +3,7 @@
 - 작성: 2026-11-06 · [역할: workspace] Claude Code(윈도우) `claude-win-20261025-workspace`
 - 상위: 로드맵 [PLAN_20261024_EXPANSION_ROADMAP.md](PLAN_20261024_EXPANSION_ROADMAP.md) §3-2·§5 U10, 공용 표 안내 [`docs/WORK_INBOX.md`](../../docs/WORK_INBOX.md), 아이디어 표 IDEA-AWW-01, 앞 단위 [PLAN_20261106_U9_LINKS.md](PLAN_20261106_U9_LINKS.md)
 - 대상: ① AIMaster 운영(공용 DB `esgxyikcnnvmlhygjkth`). Lab 아님.
-- 상태: **구현 중 — 2026-11-06 주인님 결정 1번(다른 역할 폴더에 버튼·라우트만) 「진행해」, 나머지는 추천안으로 진행(1차 (가)·`document`+구조 데이터·유튜브/ghost-scraper 제외·현황판 U11). 워크스페이스 쪽 `cc4f4eabe`+`b98de2641`, 인스타 `b98de2641`, Threads `7caa31152`(모두 미배포) — 1차 (가) 구현 완료, 빌드 3회 승인 대기(워크스페이스 v1.22 → INSTA v1.72 → Threads v2.23).**
+- 상태: **1차 (가) 배포·운영 확인 완료(2026-11-06): 워크스페이스 v1.22 · INSTA v1.72 · Threads v2.23 — ego 시험 계정으로 INSTA 예약 글·Threads 발행 글이 콘텐츠 캘린더 행으로 정상. 2차는 주인님 「2차 진행」 대기.** (이전 상태: 구현 중 — 2026-11-06 주인님 결정 1번(다른 역할 폴더에 버튼·라우트만) 「진행해」, 나머지는 추천안으로 진행(1차 (가)·`document`+구조 데이터·유튜브/ghost-scraper 제외·현황판 U11). 워크스페이스 쪽 `cc4f4eabe`+`b98de2641`, 인스타 `b98de2641`, Threads `7caa31152`(모두 미배포) — 1차 (가) 구현 완료, 빌드 3회 승인 대기(워크스페이스 v1.22 → INSTA v1.72 → Threads v2.23).**
 
 ## 1. 목표
 회원이 여러 자동화 프로그램에서 만든 **발행 기록·분석 결과·수집 결과를 워크스페이스 한곳에 모아 본다.** 발행 기록은 「📅 콘텐츠 캘린더」 표(캘린더·보드 보기)에 쌓이고, 분석·수집 결과는 지금처럼 페이지·표 행으로 받는다. 프로그램끼리 서로의 API를 부르지 않고 공용 표 `public.work_inbox` 하나만 쓰는 U7~U9 방식 그대로다. **DB 변경 없음.**

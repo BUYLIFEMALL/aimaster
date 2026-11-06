@@ -3,7 +3,7 @@
 > **✅ v1.68로 배포됨 (2026-10-23, Claude Code 윈도우)** (예전 표시: 미배포 대기, 운영 v1.67). 커밋 `4bebfb016`.
 > - 「🔤」로 바꾸기 전 검색어를 한글이 있을 때만 기억(원래 영어였던 검색어로 「한국어로 다시 찾기」가 뜨던 틈). 배포 뒤 「zzqqxv」→🔤→검색 0장일 때 버튼이 안 뜨는지 확인.
 
-> **🟡 미배포 대기 (운영 v1.71 그대로) — U10 「📨 업무 워크스페이스로 보내기」 (2026-11-06, [역할: workspace] Claude Code 윈도우, 커밋 `b98de2641`, 주인님 허락 「다른 역할 폴더에 보내기 버튼·라우트만」)**
+> **✅ v1.72로 배포됨(2026-11-06, `insta-auto-poster-7wfm8e3y9`, ego 시험 계정: 예약 글 → 워크스페이스 콘텐츠 캘린더 행 확인, 시험 글 삭제) (예전 표시: 미배포 대기, 운영 v1.71) — U10 「📨 업무 워크스페이스로 보내기」 (2026-11-06, [역할: workspace] Claude Code 윈도우, 커밋 `b98de2641`, 주인님 허락 「다른 역할 폴더에 보내기 버튼·라우트만」)**
 > - 게시글 상세(`/posts/[id]`) 맨 아래 버튼 → `POST /api/work-inbox`(`checkProgramAccessApi` → 회원 본인 `insta_posts` 행을 서버가 다시 읽음) → 공용 표 `work_inbox`에 `kind: document` + 구조 데이터 `{채널: 인스타그램, 상태, 예약일|발행일(한국 시간), 발행 주소}` → 워크스페이스 「받은 업무」에서 「📅 콘텐츠 캘린더에 넣기」. 보낸 프로그램 값은 `programs.slug` `auto-instagram-posting`. 독립 설치본(`IS_STANDALONE`)은 버튼 숨김·라우트 404.
 > - 새 파일: `src/lib/workInbox.ts`(공용 기준 코드 `work-inbox-client` **사본 — 직접 고치지 말고** 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`), `src/lib/posts/workInboxContent.ts`(순수), `src/components/posts/SendToWorkspaceButton.tsx`, `tests/workInboxContent.test.mjs`(`npm run test:work-inbox` 4개 통과). `src/types/database.types.ts`에 공용 표 `work_inbox` 형식 추가(관리자 클라이언트가 `Database` 형식이라 필요). tsc 0.
 > - **다음 배포자**: 버전 +0.01(v1.72)·DB `programs.version`, 배포 뒤 시험 계정으로 게시글 하나 보내기 → 워크스페이스 받은 업무 → 캘린더에 넣기까지 확인(AI 호출 없음). 초안 글은 날짜가 없어 캘린더 버튼은 안 뜨고 문서로만 받음(설계). 플랜: `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md`.
