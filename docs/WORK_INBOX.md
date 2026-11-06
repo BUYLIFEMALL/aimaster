@@ -35,15 +35,22 @@
 | 프로그램 | 버전 | 보내는 것 | 코드 |
 |---|---|---|---|
 | `ai-task-planner` | v1.11 (2026-10-25) | 할 일 하나(`task`, 표 행 데이터: 예정일·우선순위·분류·상태·예상 시간(분)·집중 시간(분)) · 하루 성과 보고(`document`) | `ai-task-planner/src/app/api/work-inbox/route.ts`, 내용 `src/lib/planner/inbox.ts` |
+| `ai-audio-analyzer` | v1.15 (2026-11-06, U9-A) | 음성 분석 결과 → 회의록(`meeting`: 요약·할 일 체크 상자·핵심 질문·주제·화자·받아쓰기). 서버가 분석 결과 구조를 검사해 마크다운을 만듦 | `ai-audio-analyzer/src/app/api/work-inbox/route.ts`, 내용 `src/lib/workInboxMeeting.ts`, 시험 `tests/workInboxMeeting.test.mts` |
+| `document-translator` | v1.23 (2026-11-06, U9-C) | 번역문(`document`, 제목 「(번역) 원제목 — 언어」) | `document-translator/src/app/api/work-inbox/route.ts` |
 
 ## 3-2. 받는 프로그램
 | 받는 곳(`target_slug`) | 화면 | 코드 |
 |---|---|---|
 | `ai-work-workspace`(기본) | 좌측 「📨 받은 업무」 | `ai-work-workspace/src/server/workInbox.ts` |
-| `ai-task-planner` | 대시보드 「📥 받은 할 일」(워크스페이스 페이지 「⋯」 → 「📨 할 일 플래너로 보내기」에서 보냄) | `ai-task-planner/src/app/api/work-inbox/received/route.ts` |
+| `ai-task-planner` | 대시보드 「📥 받은 할 일」(워크스페이스 페이지 「⋯」 → 「📨 다른 프로그램으로 보내기」 → 할 일 플래너) | `ai-task-planner/src/app/api/work-inbox/received/route.ts` |
+| `ai-slide-builder` | 원문 칸 위 「📥 업무 워크스페이스에서 받은 원고」 — 고르면 원문 칸에 넣고 가져감 표시(AI 호출 없음) | `ai-slide-builder/src/app/api/work-inbox/received/route.ts`, 화면 `src/components/studio/WorkInboxPicker.tsx` |
+| `document-translator` | 번역 화면 「📥 업무 워크스페이스에서 받은 문서」 — 새 번역 원문으로 열기(작업 중이면 저장·새 번역 뒤) | `document-translator/src/app/api/work-inbox/received/route.ts`, 화면 `src/components/Studio.tsx` |
+| `ai-doc-chatbot` | 「내 문서」 「📥 업무 워크스페이스에서 받은 문서」 → 「문서로 등록」(`.md` 파일로 기존 올리기 흐름, 회원 본인 Upstage 키로 색인). 색인 성공 뒤에만 가져감 표시(`action: "open"` → `"done"`) | `ai-doc-chatbot/src/app/api/work-inbox/received/route.ts`, 화면 `src/app/(dashboard)/documents/page.tsx` |
+- 워크스페이스에서 보내는 쪽: 페이지 「⋯」 → 「📨 다른 프로그램으로 보내기」(`ai-work-workspace/src/server/workInbox.ts` `workInboxSendPage`, 회원이 읽을 수 있는 내용만 마크다운으로, 최대 19만 9천 자).
+- 받는 프로그램 공통 함수: 기준 코드의 `listReceivedWorkInbox(userId, slug)`·`markWorkInboxImported(userId, slug, id, ref)`.
 - 다른 프로그램으로 보내려면 `sendToWorkInbox({ ..., targetSlug: "<받는 slug>" })`. 받는 쪽은 서버에서 `user_id` + `target_slug` 조건을 꼭 붙인다.
 
 ## 4. 주의
 - 본문에 비밀 키·다른 회원 정보를 넣지 않습니다.
 - 워크스페이스 화면의 보낸 프로그램 이름 표(`ai-work-workspace/src/app/inbox/InboxBoard.tsx`의 `SOURCE`)에 새 slug를 추가하면 이름이 한국어로 보입니다(없으면 slug 그대로).
-- 연계 순서(로드맵): U8 `ai-task-planner` → U9 `ai-audio-analyzer`·`ai-doc-chatbot`·`document-translator`·`ai-slide-builder` → U10 발행·분석·수집 프로그램.
+- 연계 순서(로드맵): U8 `ai-task-planner` ✅ → U9 `ai-audio-analyzer`·`ai-doc-chatbot`·`document-translator`·`ai-slide-builder` ✅(2026-11-06 배포) → U10 발행·분석·수집 프로그램.
