@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { createBatchJobsAction } from "@/lib/actions/register";
 import { REGISTER_MODES } from "@/lib/smartstore/fields";
+import { ExtensionPresence } from "@/components/ExtensionPresence";
 
 export type BatchRow = { id: string; title: string; price: number | null; salePrice: number | null; category: string | null; reviewed: boolean; updated: string };
 
@@ -59,6 +60,7 @@ export function BatchRegister({ rows }: { rows: BatchRow[] }) {
             </label>
           )}
           <p className="text-[11px] text-slate-500">상품마다 마지막에 보낸 입력(카테고리 검색어·옵션·태그·주요정보·상품속성·추가상품)을 그대로 씁니다. 처음 보내는 상품은 기본값만 들어갑니다. 「입력만」과 예약구매는 한 상품 화면에서 보내 주세요. 확장은 한 상품씩 차례로 처리합니다.</p>
+          <ExtensionPresence />
           <button type="submit" disabled={pending || picked.length === 0} className="slw-primary w-full disabled:opacity-50">{pending ? "작업 만드는 중…" : `고른 ${picked.length}개 상품 연속 보내기`}</button>
           {state.error && <p className="text-sm font-bold text-rose-700">⚠️ {state.error}</p>}
           {state.created && (

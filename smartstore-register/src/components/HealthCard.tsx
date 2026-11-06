@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getLatestHealthAction, requestHealthCheckAction, type HealthView } from "@/lib/actions/health";
+import { ExtensionPresence } from "@/components/ExtensionPresence";
 
 /** 판매자센터 화면 점검 카드 — 확장이 7일마다(또는 「지금 점검」) 상품 등록 화면을 읽기만 해서 확장이 쓰는 칸이 그대로 있는지 확인 */
 export function HealthCard({ initial }: { initial: HealthView | null }) {
@@ -42,6 +43,7 @@ export function HealthCard({ initial }: { initial: HealthView | null }) {
       <button type="button" onClick={run} disabled={busy} className="mt-2 text-xs font-bold text-emerald-700 hover:underline disabled:opacity-50">
         {busy ? "확장이 점검하는 중…" : "지금 점검 →"}
       </button>
+      <ExtensionPresence compact />
       <p className="mt-1 text-[10px] text-slate-400">확장이 7일마다 자동으로 점검합니다. 판매자센터에는 아무것도 입력·저장하지 않습니다.</p>
     </div>
   );

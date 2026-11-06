@@ -5,6 +5,7 @@ import { createJobAction } from "@/lib/actions/register";
 import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
 import { AttributePicker } from "@/components/AttributePicker";
+import { ExtensionPresence } from "@/components/ExtensionPresence";
 
 export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", initialPrice = null, initialSalePrice = null, benefitNote = "", defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "", categoryPath = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; initialPrice?: number | null; initialSalePrice?: number | null; benefitNote?: string; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string; categoryPath?: string }) {
   const [state, action, pending] = useActionState(createJobAction, {});
@@ -88,6 +89,7 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
           <span>이미 등록한 상품이면 <b>한 번 더 등록합니다</b>(같은 상품이 판매자센터에 하나 더 생깁니다). 처음 올리는 상품이면 체크하지 않아도 됩니다.</span>
         </label>
       )}
+      <ExtensionPresence />
       <button type="submit" disabled={pending} className="slw-primary w-full">{pending ? "작업 만드는 중…" : "🧩 확장으로 보내기"}</button>
       {state?.ok && <p role="status" className="text-xs font-bold text-emerald-700">✅ 작업을 만들었습니다. 스마트스토어센터에 로그인된 크롬에서 확장이 순서대로 채웁니다.</p>}
       {state?.error && <p role="alert" className="text-xs font-bold text-rose-700">{state.error}</p>}
