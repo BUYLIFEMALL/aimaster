@@ -41,6 +41,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `ai-work-workspace/`·`ai-audio-analyzer/`·`ai-slide-builder/`·`document-translator/`·`ai-doc-chatbot/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-06 | U9 연계(받은편지함 보내기·받기 버튼) — 플랜 `ai-work-workspace/docs/PLAN_20261106_U9_LINKS.md`, 주인님 승인(빌드 5회). 음성 분석·문서 챗봇 폴더는 주인님 허락으로 이 세션이 수정 |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |
 | `free-music-studio/` | [역할: music] Claude Code(윈도우(미니PC), 크롬) · 세션 `claude-win-20261024-music` | 2026-11-03 | v1.06 커버·AI 3사·최고 품질 배포 완료 — 다음 운영 화면 확인·작업 대기열 |
 | `shorts-viral-studio/` | [역할: design] Antigravity(윈도우, 웨일) · 세션 `agy-win-shorts-viral-v2` | 2026-10-30 | 쇼츠 떡상 분석 및 대본 자동화 v2.0 리뉴얼 — 4대 화면 3시안(12뷰) 쇼케이스 및 라이트박스 팝업 제작 중 |
