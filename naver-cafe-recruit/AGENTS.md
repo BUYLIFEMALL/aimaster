@@ -39,7 +39,8 @@
 - [ ] 모드 B 자동 채우기: `blog-neighbor-care` 서로이웃 가져오기
 - [x] 빌드(주인님 승인, 2회) · Vercel 프로젝트·환경변수(`CRON_SECRET` 포함) · 도메인 `naver-cafe-recruit.buylife.xyz` — 2026-11-06
 - [ ] 공개: `programs.is_active=true`·썸네일 · 비교표·분석표(EXT-MKT-08·10) 갱신 · VIP 자동 부여 확인 — 첫 실물 초대 확인 뒤
-  - [x] 2026-11-06 소개 문안 DB 반영(비공개 상태, 버전 변경 없음): `short_desc` 55자, `description` 6단락(보이는 글자 529자 — 아는 사람 승인·확장 초대·A-1 명단+초대링크·상한/제한·키 없음/책임, 미연결 C 모드는 제외), `detail_sections` 특징 4·순서 4(메뉴 순서)·추천 대상 3. 이전 값 백업 `docs/evidence/program-description-backup-20261106.json`. 썸네일은 이미지 생성 비용이라 주인님 승인 뒤(`scripts/generate-program-thumbnail.mjs`, PLATFORM_PATTERNS §13).
+  - [x] 2026-11-06 소개 문안 DB 반영(비공개 상태, 버전 변경 없음): `short_desc` 55자, `description` 6단락(보이는 글자 529자 — 아는 사람 승인·확장 초대·A-1 명단+초대링크·상한/제한·키 없음/책임, 미연결 C 모드는 제외), `detail_sections` 특징 4·순서 4(메뉴 순서)·추천 대상 3. 이전 값 백업 `docs/evidence/program-description-backup-20261106.json`.
+  - [x] 2026-11-06 썸네일 생성·반영(주인님 채팅 승인, `gemini-3-pro-image-preview` 1회, 관리자 Gemini 키): 카페 운영자가 노트북으로 회원 카드 목록을 보는 실사, 초대 봉투·사람 아이콘 오버레이, 확대본 6장에서 글자·상표 없음 확인. `programs.thumbnail_url` = `catalog/naver-cafe-recruit-thumbnail.jpg?v=1793954921047`.
 - [x] 작은 수정: 좌측 메뉴 묶음 이름 「4단계 포스팅 파이프라인」(원본 복사) → 「3단계 모집 순서」 — **미배포 대기**(다음 배포 때 함께, 버전은 그때 v1.02)
 - [x] 보관 기간: 30일 확정(2026-11-05 주인님 「30일 기준으로 만들어도 되는 프로그램이야」), 연장 없음
 
