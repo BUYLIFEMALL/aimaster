@@ -12,7 +12,7 @@ import { AdminShell, NoPermission } from "../../admin-shell";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { getCardPayment } from "@/lib/card-payments";
 import { CARD_STATUS_LABEL } from "@/lib/payment";
-import { recheckCardAction } from "@/lib/order-actions";
+import { recheckCardAction, refundRemainingAction } from "@/lib/order-actions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -52,7 +52,7 @@ export default async function AdminOrderDetailPage({
 
       <section className="mt-6 rounded-lg border p-4">
         <h3 className="mb-3 text-sm font-semibold">처리</h3>
-        <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="staff" backPath={here} />
+        <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="staff" backPath={here} isCard={order.is_card} />
         {["confirmed", "cancelled", "returned"].includes(order.status) && <p className="text-sm text-gray-500">끝난 주문입니다.</p>}
       </section>
 
@@ -78,11 +78,19 @@ export default async function AdminOrderDetailPage({
                   </p>
                   {card.error && <p className="text-xs text-red-600">{card.error}</p>}
                   {card.receipt_url && <a href={card.receipt_url} target="_blank" rel="noreferrer" className="text-xs text-blue-700 underline">영수증</a>}
-                  {(card.status === "requested" || card.status === "unknown") && (
-                    <form action={recheckCardAction.bind(null, store.slug, order.id)} className="mt-2">
+                  {(card.status === "requested" || card.status === "unknown" || card.error) && (
+                    <form action={recheckCardAction.bind(null, store.slug, order.id, "staff")} className="mt-2">
                       <button className="min-h-10 rounded border px-4 text-sm" data-card-recheck>결제 다시 확인(토스 조회)</button>
                     </form>
                   )}
+                  {(order.status === "cancelled" || order.status === "returned") &&
+                    (card.status === "done" || card.status === "partial_canceled") &&
+                    card.amount > card.canceled_amount && (
+                      <form action={refundRemainingAction.bind(null, store.slug, order.id)} className="mt-2" data-card-refund-remaining>
+                        <p className="text-xs text-red-700">끝난 주문인데 환불하지 않은 카드 결제 {formatWon(card.amount - card.canceled_amount)}이 남아 있습니다.</p>
+                        <button className="mt-1 min-h-10 rounded border border-red-200 px-4 text-sm text-red-700">남은 결제 금액 환불</button>
+                      </form>
+                    )}
                 </>
               ) : (
                 <p className="text-gray-500">아직 결제창에서 결제하지 않았습니다.</p>

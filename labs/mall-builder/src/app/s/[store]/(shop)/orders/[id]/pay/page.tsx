@@ -6,6 +6,7 @@ import { formatWon } from "@/lib/products";
 import { formatDateTime } from "@/lib/orders";
 import { orderName } from "@/lib/payment";
 import PayWidget from "./pay-widget";
+import { getCardPayment } from "@/lib/card-payments";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,6 +23,9 @@ export default async function PayPage({ params, searchParams }: { params: Promis
   const { order, items } = found;
   const base = `/s/${store.slug}/orders/${order.id}`;
   if (!order.is_card || order.status !== "pending_payment") redirect(base);
+  // 앞서 한 결제를 확인하는 중이면 결제창을 다시 열지 않는다(먼저 들어온 결제가 실제로 됐을 수 있음) — 주문 상세의 「결제 확인하기」로
+  const prev = await getCardPayment(order.id);
+  if (prev && (prev.status === "requested" || prev.status === "unknown")) redirect(base);
 
   const supabase = await createClient();
   const [{ data: pay }, customer] = await Promise.all([

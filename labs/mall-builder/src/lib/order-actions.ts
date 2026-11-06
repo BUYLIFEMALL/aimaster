@@ -48,11 +48,39 @@ export async function partialCancelAction(slug: string, orderId: string, form: F
   back(error ? `error=${encodeURIComponent(error.message)}` : "ok=partial");
 }
 
-/** 운영자: 결과가 불확실한 카드 결제를 토스에 다시 물어 맞춘다(0028 mall_builder_card_recheck) */
-export async function recheckCardAction(slug: string, orderId: string) {
+const TOSS_STATUS_LABEL: Record<string, string> = {
+  DONE: "결제 완료",
+  CANCELED: "전액 환불",
+  PARTIAL_CANCELED: "일부 환불",
+  ABORTED: "승인 실패(결제되지 않음)",
+  EXPIRED: "기한 만료(결제되지 않음)",
+  IN_PROGRESS: "결제 진행 중",
+  READY: "결제 전",
+  WAITING_FOR_DEPOSIT: "입금 대기",
+};
+
+/** 결과가 불확실한 카드 결제를 토스에 다시 물어 맞춘다 — 운영자 또는 그 주문의 손님(0029 mall_builder_card_recheck) */
+export async function recheckCardAction(slug: string, orderId: string, who: "staff" | "customer" = "staff") {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("mall_builder_card_recheck", { p_order_id: orderId });
   revalidatePath(`/s/${slug}`, "layout");
-  const status = (data as { toss_status?: string } | null)?.toss_status ?? "";
-  redirect(`/s/${slug}/admin/orders/${orderId}?${error ? `error=${encodeURIComponent(error.message)}` : `ok=1&msg=${encodeURIComponent(`토스 결제 상태: ${status || "알 수 없음"}`)}`}`);
+  const r = (data ?? {}) as { toss_status?: string; note?: string; mismatch?: boolean };
+  const label = TOSS_STATUS_LABEL[r.toss_status ?? ""] ?? r.toss_status ?? "알 수 없음";
+  const msg = r.mismatch
+    ? "카드사 기록이 이 주문과 맞지 않습니다. 쇼핑몰이 확인합니다."
+    : r.note === "refund_needed"
+      ? `카드사 상태: ${label} — 주문이 이미 끝나 「남은 결제 금액 환불」이 필요합니다.`
+      : r.note === "refund_mismatch"
+        ? `카드사 상태: ${label} — 환불 기록이 다릅니다(아래 빨간 글씨 확인).`
+        : `카드사 상태: ${label}`;
+  const back = who === "customer" ? `/s/${slug}/orders/${orderId}` : `/s/${slug}/admin/orders/${orderId}`;
+  redirect(`${back}?${error ? `error=${encodeURIComponent(error.message)}` : `ok=1&msg=${encodeURIComponent(msg)}`}`);
+}
+
+/** 운영자: 결제는 됐는데 취소·반품으로 끝난 카드 주문의 남은 결제 금액 환불(0029 mall_builder_card_refund_remaining) */
+export async function refundRemainingAction(slug: string, orderId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_card_refund_remaining", { p_order_id: orderId, p_note: "" });
+  revalidatePath(`/s/${slug}`, "layout");
+  redirect(`/s/${slug}/admin/orders/${orderId}?${error ? `error=${encodeURIComponent(error.message)}` : `ok=1&msg=${encodeURIComponent(String(data ?? "환불했습니다."))}`}`);
 }

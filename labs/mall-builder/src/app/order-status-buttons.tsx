@@ -12,20 +12,29 @@ const CONFIRM: Partial<Record<OrderStatus, string>> = {
   confirmed: "구매를 확정할까요? 확정 뒤에는 취소·반품을 요청할 수 없습니다.",
 };
 
+// 카드 주문(D11): 운영자 취소·반품 승인은 카드 환불과 함께 된다
+const CARD_CONFIRM: Partial<Record<OrderStatus, string>> = {
+  cancelled: "이 주문을 취소할까요? 재고가 되돌려지고, 결제된 카드 금액은 바로 환불됩니다.",
+  returned: "반품을 승인할까요? 재고가 되돌려지고, 결제된 카드 금액은 바로 환불됩니다.",
+};
+
 export default function OrderStatusButtons({
   slug,
   orderId,
   status,
   role,
   backPath,
+  isCard = false,
 }: {
   slug: string;
   orderId: string;
   status: OrderStatus;
   role: ActorRole;
   backPath: string;
+  /** 카드 주문이면 「입금 확인」을 숨긴다 — 결제 완료는 손님 결제창 승인으로만(0029 감시 트리거도 막음) */
+  isCard?: boolean;
 }) {
-  const actions = nextActions(role, status);
+  const actions = nextActions(role, status).filter((a) => !(isCard && status === "pending_payment" && a.to === "paid"));
   if (!actions.length) return null;
   return (
     <div className="space-y-3" data-status-actions>
@@ -34,7 +43,7 @@ export default function OrderStatusButtons({
           key={a.to}
           action={changeOrderStatusAction.bind(null, slug, orderId, a.to, backPath)}
           onSubmit={(e) => {
-            const msg = CONFIRM[a.to];
+            const msg = (isCard && role === "staff" && status !== "pending_payment" && CARD_CONFIRM[a.to]) || CONFIRM[a.to];
             if (msg && !window.confirm(msg)) e.preventDefault();
           }}
           className="flex flex-wrap items-end gap-2"
