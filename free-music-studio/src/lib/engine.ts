@@ -475,7 +475,7 @@ export async function deleteFromLibrary(id: string): Promise<{ skipped: string[]
 // 엔진이 차례로 만들고 보관함에 저장한다. 끝난 작업의 「모든 음악」 기록은 사이트가 남긴다(QueueSync).
 
 export type QueueStatus = "queued" | "running" | "done" | "failed" | "cancelled" | "interrupted";
-export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master" | "stems" | "align"; parent_id?: string | null };
+export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master" | "stems" | "align" | "art"; parent_id?: string | null };
 export type QueueJob = {
   id: string;
   kind: QueueTrack["kind"];
@@ -487,7 +487,7 @@ export type QueueJob = {
   startedAt?: string;
   finishedAt?: string;
   error?: string;
-  result?: { trackId: string; ext: string; sourceId?: string; timing?: unknown; review?: number };
+  result?: { trackId: string; ext: string; sourceId?: string; timing?: unknown; review?: number; variantId?: string; model?: string; seconds?: number };
   recorded: boolean;
   engine?: MusicEngineId; // 엔진 0.2.0+
   license?: TrackLicense;
@@ -757,6 +757,67 @@ export async function enqueueAlign(source: { id: string; title: string; style_pr
   const title = `${source.title} (가사 시간)`.slice(0, 80);
   const res = await call("/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "align", title, track, task: { sourceId: source.id, lyrics: source.lyrics, previousTiming: source.lyric_timing ?? null }, license: source.license }) });
   return (await res.json()).job;
+}
+
+// ── 내 PC 앨범 그림(엔진 0.7.0+, 원본 boks-music image-engine) ─────────────
+export type ImageVariant = {
+  id: string;
+  family: string;
+  familyName: string;
+  quant: string;
+  note: string;
+  minVramGB: number;
+  recVramGB: number;
+  steps: number;
+  modelBytes: number;
+  weightsGB: number;
+  status: "available" | "slow" | "unavailable";
+  reason: string;
+  installed: boolean;
+  downloadBytes: number;
+  recommended?: boolean;
+  familyRecommended?: boolean;
+};
+export type ImageModelState = {
+  build: { id: string; label: string } | null;
+  reason: string;
+  hardware: { gpuGB: number; ramGB: number; diskGB: number; shared: boolean; unknownVram: boolean };
+  recommendedId: string | null;
+  families: { id: string; name: string; vendor: string; license: string; parameters: string; description: string; variants: ImageVariant[] }[];
+  engineInstalled: boolean;
+  installed: string[];
+  defaultId: string | null;
+};
+/** 이 엔진이 내 PC에서 앨범 그림을 그릴 수 있는가(0.7.0+) */
+export function hasLocalArt(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("local-art");
+}
+export async function getImageModels(): Promise<ImageModelState> {
+  return (await call("/image-models")).json();
+}
+export async function setDefaultImageModel(id: string) {
+  await call(`/image-models/${encodeURIComponent(id)}/default`, { method: "POST" });
+}
+export async function removeImageModel(id: string) {
+  await call(`/image-models/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+/** 내 PC 그림 작업을 대기열에 넣는다 — 처음이면 엔진·모델을 받는다. 결과 PNG는 fetchLocalArt(작업 번호) */
+export async function enqueueLocalArt(info: { title: string; songId: string | null; style: string; lyrics: string }, prompt: string, variantId?: string): Promise<QueueJob> {
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: info.songId, style_prompt: info.style, lyrics: info.lyrics, duration_sec: 0, device: "", kind: "art" };
+  const res = await call("/queue", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "art", title: `${info.title || "앨범 그림"} (그림)`.slice(0, 80), track, task: { prompt, ...(variantId ? { variantId } : {}) } }),
+  });
+  return (await res.json()).job;
+}
+/** 그린 그림을 base64로(하루 보관) */
+export async function fetchLocalArt(jobId: string): Promise<{ base64: string; mimeType: string }> {
+  const buf = await (await call(`/image-art/${jobId}`, {}, 60_000)).arrayBuffer();
+  let s = "";
+  const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return { base64: btoa(s), mimeType: "image/png" };
 }
 
 // ── 플레이리스트 영상(엔진 0.6.9+, 원본 boks-music video-render) ─────────────

@@ -6,6 +6,7 @@ import { Cpu, Download, ShieldCheck, Clock, Link2, CheckCircle2, AlertCircle, Un
 import { useEngine } from "@/components/engine/useEngine";
 import { FolderPanel } from "@/components/engine/FolderPanel";
 import { StoragePanel } from "@/components/engine/StoragePanel";
+import { ImageModelPanel } from "@/components/engine/ImageModelPanel";
 import { PcCheckPanel } from "@/components/engine/PcCheckPanel";
 import { StageProgress, parseProgress } from "@/components/engine/StageProgress";
 import { EngineError, forgetEngine, pairEngine } from "@/lib/engine";
@@ -178,6 +179,7 @@ export default function EnginePage() {
 
       {paired && <FolderPanel status={status} onChanged={engine.refresh} />}
       {paired && <StoragePanel status={status} onChanged={engine.refresh} />}
+      {paired && <ImageModelPanel status={status} />}
 
       <section className="space-y-3 rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-[#0b1a18] to-[#0a0f1d] p-5">
         <div className="flex flex-wrap items-center gap-2">

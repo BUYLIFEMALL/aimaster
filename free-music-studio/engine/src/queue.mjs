@@ -115,7 +115,7 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       const prev = q.get(id);
       if (!prev || !(prev.status === "interrupted" || prev.status === "failed")) throw new Error("다시 할 수 있는 작업이 아닙니다.");
       // 마스터링은 원곡을 보관함에서 다시 읽으므로 따로 둔 원곡 사본이 없어도 다시 할 수 있다(0.6.9)
-      if (prev.kind !== "text2music" && prev.kind !== "master" && prev.kind !== "stems" && prev.kind !== "align" && !prev.source) throw new Error("원곡 파일이 남아 있지 않아 다시 할 수 없습니다. 가져온 음악 화면에서 다시 올려 주세요.");
+      if (prev.kind !== "text2music" && prev.kind !== "master" && prev.kind !== "stems" && prev.kind !== "align" && prev.kind !== "art" && !prev.source) throw new Error("원곡 파일이 남아 있지 않아 다시 할 수 없습니다. 가져온 음악 화면에서 다시 올려 주세요.");
       jobs = jobs.filter((j) => j !== prev);
       const job = { ...prev, id: randomUUID(), track: { ...prev.track, id: newTrackId }, status: "queued", stage: STATUS_LABEL.queued, createdAt: new Date().toISOString(), recorded: false };
       for (const k of ["startedAt", "finishedAt", "error", "result"]) delete job[k];

@@ -875,7 +875,7 @@ export default function SongsPage() {
           </section>
 
           {/* 앨범 그림(노래·연주곡만 — 효과음은 표지가 필요 없음) */}
-          {!sfx && <AlbumArtPanel title={draft.title} style={draft.style_prompt} art={draft.art_prompt} onArtChange={(v) => set("art_prompt", v)} />}
+          {!sfx && <AlbumArtPanel title={draft.title} style={draft.style_prompt} lyrics={draft.lyrics} songId={draft.id} art={draft.art_prompt} onArtChange={(v) => set("art_prompt", v)} ai={{ provider, model }} />}
 
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
           <div id="generate-panel" className="scroll-mt-6">

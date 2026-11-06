@@ -1,6 +1,6 @@
 {
   "name": "free-music-engine-desktop",
-  "version": "0.6.9",
+  "version": "0.7.0",
   "private": true,
   "description": "AI 무료음악 자동화 엔진 — 작업 표시줄 아이콘·자동 실행·설치 파일(엔진 코드는 ../engine 그대로)",
   "main": "main.cjs",

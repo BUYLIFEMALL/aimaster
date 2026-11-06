@@ -7,7 +7,8 @@ import { pickFolder, revealFolder } from "./folderDialog.mjs";
 import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
 import { audioWaveform } from "./waveform.mjs";
 import { validateMasteringOptions } from "./mastering.mjs";
-import { mkdir, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { cleanArtPrompt, findImageVariant } from "./imageArt.mjs";
+import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { spawn } from "node:child_process";
 import path from "node:path";
@@ -113,7 +114,8 @@ export function createGateway(ctx) {
     const isQueue = !!ctx.queue && (url.pathname === "/queue" || url.pathname.startsWith("/queue/"));
     const isStorage = !!ctx.storage && ["GET /storage", "POST /storage/remove", "POST /storage/move"].includes(key);
     const isVideo = !!ctx.video && /^\/videos?(\/|$)/.test(url.pathname);
-    if (!target && !isLibrary && !isSystem && !isQueue && !isStorage && !isVideo) return json(res, 404, { error: "없는 주소입니다." }, origin);
+    const isImage = !!ctx.imageArt && /^\/image-(models|art)(\/|$)/.test(url.pathname);
+    if (!target && !isLibrary && !isSystem && !isQueue && !isStorage && !isVideo && !isImage) return json(res, 404, { error: "없는 주소입니다." }, origin);
     // 영상 재생(<video>)은 머리글을 못 붙여 주소의 t=토큰도 받는다(GET 파일만, 0.6.9)
     const fileView = req.method === "GET" && /^\/videos\/[0-9a-f-]{36}\/file$/.test(url.pathname);
     const token = bearer(req.headers.authorization) ?? (fileView ? url.searchParams.get("t") : null);
@@ -122,6 +124,7 @@ export function createGateway(ctx) {
     }
     if (isLibrary) return handleLibrary(req, res, url, origin, ctx, json);
     if (isVideo) return handleVideo(req, res, url, origin, ctx, json);
+    if (isImage) return handleImage(req, res, url, origin, ctx, json);
     // 작업 대기열 — 엔진이 준비 중이어도 넣어 둘 수 있다(준비되면 차례로 만든다)
     if (isQueue) return handleQueue(req, res, url, origin, ctx, json);
     // 저장 공간(0.5.0) — GET /storage 항목·크기·남은 공간 · POST /storage/remove { id } · POST /storage/move { path, mode: "move"|"fresh" }
@@ -468,7 +471,41 @@ async function readRaw(req, max) {
   return Buffer.concat(chunks);
 }
 
-const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master", "stems", "align"]);
+const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master", "stems", "align", "art"]);
+
+/**
+ * 내 PC 앨범 그림(0.7.0)
+ *  GET    /image-models               → 판 목록·상태·추천·받아 둔 판·기본 판
+ *  POST   /image-models/<id>/default  → 기본 판으로
+ *  DELETE /image-models/<id>          → 받아 둔 판 지우기(다른 판이 같이 쓰는 파일은 남김)
+ *  GET    /image-art/<작업 번호>        → 그린 PNG(하루 보관)
+ */
+async function handleImage(req, res, url, origin, ctx, json) {
+  const parts = url.pathname.split("/").filter(Boolean);
+  const id = decodeURIComponent(parts[1] || "");
+  try {
+    if (parts[0] === "image-art" && req.method === "GET" && /^[0-9a-f-]{36}$/.test(id)) {
+      const buf = await readFile(ctx.imageArt.resultFile(id)).catch(() => null);
+      if (!buf) return json(res, 404, { error: "그린 그림이 없습니다(하루 지나면 지워집니다)." }, origin);
+      res.writeHead(200, { ...corsHeaders(origin), "content-type": "image/png", "content-length": buf.length, "cache-control": "no-store" });
+      return res.end(buf);
+    }
+    if (parts[0] === "image-models") {
+      if (req.method === "GET" && parts.length === 1) return json(res, 200, await ctx.imageArt.state(), origin);
+      if (req.method === "POST" && parts.length === 3 && parts[2] === "default") {
+        await ctx.imageArt.setDefault(id);
+        return json(res, 200, { ok: true }, origin);
+      }
+      if (req.method === "DELETE" && parts.length === 2) {
+        if (ctx.queue?.list().some((j) => j.kind === "art" && (j.status === "queued" || j.status === "running"))) return json(res, 409, { error: "그림 작업이 끝난 뒤에 지울 수 있습니다." }, origin);
+        return (await ctx.imageArt.remove(id)) ? json(res, 200, { ok: true }, origin) : json(res, 404, { error: "없는 그림 모델입니다." }, origin);
+      }
+    }
+    return json(res, 404, { error: "없는 주소입니다." }, origin);
+  } catch (e) {
+    return json(res, 400, { error: e instanceof Error ? e.message : "그림 모델을 처리하지 못했습니다." }, origin);
+  }
+}
 const AUDIO_EXT = /\.(mp3|wav|flac|ogg|m4a|aac|opus)$/i;
 
 /** 대기열에 넣을 기록 정보 검사 — 곡 번호는 사이트가 만든 uuid(보관함 파일 이름) */
@@ -530,6 +567,18 @@ async function handleQueue(req, res, url, origin, ctx, json) {
         if (typeof lyrics !== "string" || !lyrics.trim() || lyrics.length > 10000) return json(res, 400, { error: "가사가 올바르지 않습니다(10,000자까지)." }, origin);
         const previousTiming = body.task.previousTiming && typeof body.task.previousTiming === "object" ? body.task.previousTiming : null;
         return json(res, 200, { job: await q.add({ ...meta, task: { sourceId, lyrics, previousTiming }, engine: "align", license: body.license === "noncommercial" ? "noncommercial" : "commercial" }) }, origin);
+      }
+      // 내 PC 앨범 그림(0.7.0) — task { prompt(영어), variantId? } · 결과 PNG는 GET /image-art/<작업 번호>
+      if (meta?.kind === "art") {
+        if (!ctx.imageArt) return json(res, 501, { error: "이 엔진은 내 PC 그림을 그릴 수 없습니다." }, origin);
+        let prompt;
+        try {
+          prompt = cleanArtPrompt(body?.task?.prompt);
+        } catch (e) {
+          return json(res, 400, { error: e.message }, origin);
+        }
+        const variantId = typeof body.task.variantId === "string" && findImageVariant(body.task.variantId) ? body.task.variantId : undefined;
+        return json(res, 200, { job: await q.add({ ...meta, task: { prompt, variantId }, engine: "art", license: "commercial" }) }, origin);
       }
       if (!meta || meta.kind !== "text2music" || !body.task || typeof body.task !== "object") return json(res, 400, { error: "작업 내용이 올바르지 않습니다." }, origin);
       // 음악 엔진: acestep(상업용, 기본) | yue2·추가 엔진(새 곡 만들기만, 0.4.0) — 분류는 엔진 쪽 목록이 정한다

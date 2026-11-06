@@ -64,7 +64,7 @@ export default function QueuePage() {
       <div className="flex flex-wrap items-center gap-2">
         {i !== undefined && <span className="font-mono text-slate-500">{i + 1}.</span>}
         <span className="font-semibold text-slate-100">{j.title}</span>
-        {(j.kind === "stems" ? "Stem 분리" : j.kind === "align" ? "가사 시간" : KIND_LABEL[j.kind]) && <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400">{j.kind === "stems" ? "Stem 분리" : j.kind === "align" ? "가사 시간" : KIND_LABEL[j.kind]}</span>}
+        {(() => { const label = j.kind === "stems" ? "Stem 분리" : j.kind === "align" ? "가사 시간" : j.kind === "art" ? "내 PC 그림" : KIND_LABEL[j.kind as keyof typeof KIND_LABEL]; return label ? <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400">{label}</span> : null; })()}
         {j.engine && j.engine !== "acestep" && (
           <span
             className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${engineInfo(j.engine).license === "noncommercial" ? "bg-amber-500/15 text-amber-200" : "bg-emerald-500/15 text-emerald-200"}`}
@@ -101,12 +101,12 @@ export default function QueuePage() {
               <RotateCcw className="h-3 w-3" /> 다시 하기
             </button>
           )}
-          {j.status === "done" && j.kind !== "stems" && j.kind !== "align" && !audio[j.id] && (
+          {j.status === "done" && j.kind !== "stems" && j.kind !== "align" && j.kind !== "art" && !audio[j.id] && (
             <button type="button" disabled={busy === j.id} onClick={() => play(j)} className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-950/40 disabled:opacity-40">
               <Play className="h-3 w-3" /> 듣기
             </button>
           )}
-          {j.status === "done" && j.kind !== "stems" && j.kind !== "align" && <DownloadButtons trackId={j.track.id} title={j.title} ext={j.result?.ext ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} onError={setError} />}
+          {j.status === "done" && j.kind !== "stems" && j.kind !== "align" && j.kind !== "art" && <DownloadButtons trackId={j.track.id} title={j.title} ext={j.result?.ext ?? "mp3"} ffmpeg={!!engine.status?.quality?.ffmpeg} onError={setError} />}
           {!(j.status === "queued" || j.status === "running") && (
             <button type="button" aria-label="목록에서 지우기" title="목록에서만 지웁니다(만든 음원은 보관함에 그대로)" disabled={busy === j.id} onClick={() => act(j.id, () => dismissJob(j.id))} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-900 hover:text-rose-300 disabled:opacity-40">
               <Trash2 className="h-3.5 w-3.5" />
@@ -122,12 +122,17 @@ export default function QueuePage() {
           ✔ 노래 저장 폴더 「Stem」에 저장 · <Link href="/library" className="underline underline-offset-2">모든 음악</Link>에서 원곡 「…」 → 「Stem 분리」로 듣고 내려받기
         </p>
       )}
+      {j.status === "done" && j.kind === "art" && (
+        <p className="text-[11px] text-emerald-300/80">
+          ✔ 내 PC에서 그렸습니다{j.result?.model ? ` · ${j.result.model}` : ""}{typeof j.result?.seconds === "number" ? ` · ${j.result.seconds}초` : ""} · 곡 만들기 화면의 「앨범 그림 만들기」에서 미리 보고 저장합니다(하루 보관)
+        </p>
+      )}
       {j.status === "done" && j.kind === "align" && (
         <p className="text-[11px] text-emerald-300/80">
           ✔ 원곡의 가사 시간에 저장{typeof j.result?.review === "number" && j.result.review > 0 ? ` · 확인 필요 ${j.result.review}줄` : ""} · <Link href="/library" className="underline underline-offset-2">모든 음악</Link> 곡 상세 「가사 시간」에서 확인
         </p>
       )}
-      {j.status === "done" && j.kind !== "stems" && j.kind !== "align" && (
+      {j.status === "done" && j.kind !== "stems" && j.kind !== "align" && j.kind !== "art" && (
         <p className={`text-[11px] ${j.recorded ? "text-emerald-300/80" : "text-slate-500"}`}>
           {j.recorded ? (
             <>
