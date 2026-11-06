@@ -470,3 +470,8 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 
 ## 2026-10-31 미배포 대기 — 마켓 등록에 쿠팡 추가 (Claude Code 윈도우 `claude-win-sdp`)
 - `lib/markets.ts` 쿠팡 항목·`pickCoupangResult`·상태 라벨, `MarketRegisterPanel`, 상품 화면이 `coupang_ops_jobs`(RLS 본인 행) 최근 상태 표시. tsc 통과. 다음 배포 때 v1.41로 함께 내보내고 크롬 확인.
+
+## 2026-11-06 v1.42 배포 확인·DB 버전 맞춤 ([역할: ecommerce-image] `claude-win-sdp`)
+- 다른 세션 커밋 `98c54b278`(「하이퍼 이커머스 셀러 스튜디오」 전면 리뉴얼, 파일 10개)이 16:40께 운영 배포됨(Vercel `shop-detail-page-3l5gu4djr` Ready)인데 DB `programs.version`이 v1.41로 남아 있어 `deploy.mjs --version-only --set-version`으로 v1.42, 비교표 2곳 v1.42(`c3b7a1bb3`).
+- `docs/PENDING_DEPLOYS.md` 「내보낸 기록」 줄은 넣지 못함 — 작업 파일에 여러 세션의 미커밋 줄이 섞여 있고 HEAD 줄 일부가 빠져 있어, 커밋하면 남의 기록을 되돌릴 위험(충돌로 중단). 배포한 세션이 기록하거나 다음 정리 때 추가.
+- 미확인: 리뉴얼 화면의 운영 동작(상품 만들기·검토·🛒 마켓 등록 연결).
