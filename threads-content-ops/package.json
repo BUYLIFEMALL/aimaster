@@ -1,6 +1,6 @@
 {
   "name": "threads-content-ops",
-  "version": "1.9.4",
+  "version": "2.23.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3051",

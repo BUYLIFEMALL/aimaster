@@ -504,8 +504,18 @@ function VariantCard({ userId, schedulerReady, option, accountId, viralId, engin
     }
   };
 
-  return <li className="rounded-xl border border-neutral-200 p-4">
-    <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">{option.type}</span><span className={`text-xs ${over ? "font-bold text-rose-600" : "text-neutral-500"}`}>{finalBody.length}/{THREADS_LIMIT}자{product ? " (고지·링크 포함)" : ""} · 목표 450~480자{over ? " — Threads 글자 수를 넘습니다. 본문을 줄여 주세요" : ""}</span></div>
+  return <li className="rounded-2xl border-2 border-neutral-200/90 bg-white p-5 shadow-sm">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 pb-3">
+      <div className="flex items-center gap-2">
+        <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-black text-rose-700 border border-rose-200">{option.type}</span>
+        {hook && <span className="text-xs font-extrabold text-neutral-800 truncate max-w-[280px]">“{hook}”</span>}
+      </div>
+      <div className="flex items-center gap-2">
+        <span className={`text-xs font-black px-2.5 py-0.5 rounded-full border ${over ? "bg-rose-100 text-rose-700 border-rose-300 animate-pulse" : finalBody.length > 450 ? "bg-amber-100 text-amber-800 border-amber-300" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>
+          {finalBody.length} / {THREADS_LIMIT}자 {over ? "— 500자 초과 방지!" : `(${THREADS_LIMIT - finalBody.length}자 안전 여유)`}
+        </span>
+      </div>
+    </div>
     {hook && <p className="mt-2 text-sm font-semibold text-neutral-900">“{hook}”</p>}
     {option.whyItWorks && <p className="mt-1 text-xs text-neutral-500">💡 {option.whyItWorks}</p>}
     {product && <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900">{disclosureFor(product.source_type)} <span className="font-normal text-amber-700">(첫 줄에 자동으로 붙습니다)</span></p>}
@@ -552,11 +562,11 @@ function VariantCard({ userId, schedulerReady, option, accountId, viralId, engin
       <div className="space-y-2">
         <p className="text-xs font-bold text-neutral-700">최종 발행 방식 선택</p>
         <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-          <button type="button" onClick={() => void finalize("draft")} disabled={working !== null || finalState !== null || rewriting !== null || imaging !== null || !body.trim() || !accountId || (saved && !finalState)} className={`flex w-full flex-col items-center gap-1 rounded-2xl p-4 text-base font-black text-[#ffffff] shadow-sm transition disabled:cursor-not-allowed ${saved ? "bg-emerald-600 disabled:bg-emerald-600" : "bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50"}`}>
+          <button type="button" onClick={() => void finalize("draft")} disabled={working !== null || finalState !== null || rewriting !== null || imaging !== null || !body.trim() || !accountId || (saved && !finalState)} className={`btn-3d-threads flex w-full flex-col items-center gap-1 rounded-2xl p-4 text-base font-black text-white shadow-sm transition disabled:cursor-not-allowed ${saved ? "bg-emerald-600 disabled:bg-emerald-600" : "disabled:opacity-50"}`}>
             <span className="flex items-center gap-2"><span className="text-xl">📁</span><span>{saved ? "✓ 저장됨" : working === "draft" ? "저장 중…" : "💾 임시저장하기"}</span>{!saved && <span className="rounded-full border border-neutral-700 bg-neutral-800 px-1.5 py-0.5 text-[10px] font-bold text-neutral-200">기본값</span>}</span>
             <span className="text-[11px] font-normal text-neutral-200">{saved ? "콘텐츠 보관함에 저장했습니다" : "보관함에 저장 (나중에 언제든 수정·발행 가능)"}</span>
           </button>
-          <button type="button" onClick={() => void finalize("now")} disabled={working !== null || finalState !== null || rewriting !== null || imaging !== null || !body.trim() || !accountId || over} className="flex w-full flex-col items-center gap-1 rounded-2xl border-2 border-neutral-300 bg-white p-4 text-base font-black text-neutral-900 shadow-sm transition hover:border-neutral-400 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" onClick={() => void finalize("now")} disabled={working !== null || finalState !== null || rewriting !== null || imaging !== null || !body.trim() || !accountId || over} className="btn-3d-amber flex w-full flex-col items-center gap-1 rounded-2xl p-4 text-base font-black text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50">
             <span className="flex items-center gap-2"><span className="text-xl">🚀</span><span>{working === "now" ? "발행 중…" : "⚡ 즉시 Threads에 포스팅하기"}</span></span>
             <span className="text-[11px] font-normal text-neutral-500">{over ? "글자 수가 넘어 발행할 수 없습니다. 본문을 줄여 주세요" : "현재 글과 이미지·영상 그대로 연동 계정에 즉시 발행"}</span>
           </button>
