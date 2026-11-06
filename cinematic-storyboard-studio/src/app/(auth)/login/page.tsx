@@ -1,19 +1,22 @@
 "use client";
 
+// 🔐 로그인 페이지 UI 레퍼런스 레이아웃 표준 규격 (2026-11-01 주인님 절대 지시)
+// 1. [맨 위] 프로그램 고유 로고 (64px 심볼 아이콘 + 레드 그라데이션)
+// 2. [그 밑] 프로그램 영문명 (알약 캡슐 뱃지: AIMASTER CINEMATIC STORYBOARD)
+// 3. [그 밑] 프로그램 한글명 (AI 시네마틱 스토리보드)
+// 4. [중앙] 로그인/회원가입 폼 카드 + 3D 엠보싱 레드 버튼 (로그인 →)
+// 5. [맨 아래] 약관 문구 1행 축소 처리 (진행 시 이용약관 및 개인정보 처리방침에 동의합니다.)
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signInAction } from "@/lib/actions/auth";
-import { Clapperboard, Lock, Mail, ArrowRight, ShieldCheck, CheckCircle2, UserPlus, LogIn, ExternalLink } from "lucide-react";
-import { APP_NAME, APP_VERSION } from "@/lib/version";
+import { Clapperboard, Mail, Lock, ArrowRight } from "lucide-react";
 
-const MAIN_SITE_URL = "https://www.buylife.xyz";
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
 
 function LoginCard() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "";
-  const initialTab = searchParams.get("tab") === "signup" ? "signup" : "login";
-
-  const [activeTab, setActiveTab] = useState<"login" | "signup">(initialTab);
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
@@ -36,228 +39,153 @@ function LoginCard() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* 상단 브랜딩 영역 */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/25 mb-3 ring-1 ring-amber-400/30">
-          <Clapperboard className="w-7 h-7" />
-        </div>
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-semibold mb-2">
-          <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-          <span>AIMaster 통합 계정</span>
-        </div>
-        <div className="flex items-center justify-center gap-2">
-          <h1 className="text-xl font-extrabold text-white tracking-tight">{APP_NAME}</h1>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
-            {APP_VERSION}
-          </span>
-        </div>
-        <p className="text-xs text-slate-400 mt-1.5">
-          하나의 계정으로 시네마틱 영상 기획부터 씬별 스토리보드·영상 프롬프트까지 한 번에 자동화하세요
-        </p>
-      </div>
-
-      {/* 2탭 세그먼트 컨트롤 (로그인 / 회원가입) */}
-      <div className="bg-[#0f172a]/80 p-1.5 rounded-xl border border-slate-700/60 grid grid-cols-2 gap-1 mb-4 backdrop-blur-md">
+    <div className="rounded-2xl border border-[#283342] bg-[#141a23] p-7 shadow-2xl backdrop-blur-md">
+      {/* 2단 탭 세그먼트 */}
+      <div className="mb-6 flex rounded-xl bg-[#090d13] p-1 border border-[#283342]">
         <button
           type="button"
           onClick={() => {
-            setActiveTab("login");
+            setMode("login");
             setError(null);
           }}
-          className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            activeTab === "login"
-              ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+          className={`flex-1 rounded-lg py-2.5 text-center text-xs font-bold transition-all duration-200 cursor-pointer ${
+            mode === "login"
+              ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-md shadow-red-600/30"
+              : "text-gray-400 hover:text-white"
           }`}
         >
-          <LogIn className="w-3.5 h-3.5" />
-          <span>로그인</span>
+          로그인
         </button>
         <button
           type="button"
           onClick={() => {
-            setActiveTab("signup");
+            setMode("signup");
             setError(null);
           }}
-          className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            activeTab === "signup"
-              ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+          className={`flex-1 rounded-lg py-2.5 text-center text-xs font-bold transition-all duration-200 cursor-pointer ${
+            mode === "signup"
+              ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-md shadow-red-600/30"
+              : "text-gray-400 hover:text-white"
           }`}
         >
-          <UserPlus className="w-3.5 h-3.5" />
-          <span>회원가입</span>
+          회원가입
         </button>
       </div>
 
-      {/* 카드 서피스 */}
-      <div className="bg-[#0e1422]/90 backdrop-blur-xl rounded-2xl border border-amber-500/20 p-6 sm:p-7 shadow-2xl shadow-black/80">
-        {error && (
-          <div className="mb-5 rounded-xl bg-rose-500/10 border border-rose-500/30 p-3.5 text-xs text-rose-300 font-medium">
-            {error}
-          </div>
-        )}
+      {error && (
+        <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-center text-xs font-semibold text-red-300">
+          {error}
+        </div>
+      )}
 
-        {activeTab === "login" ? (
-          /* 로그인 탭 */
+      {mode === "signup" ? (
+        <div className="space-y-4 text-center py-2">
+          <p className="text-xs leading-relaxed text-gray-300">
+            이 프로그램은 AIMaster 통합 계정과 권한을 그대로 사용합니다.
+            <br />
+            AIMaster에서 회원가입 후 즉시 이용하실 수 있습니다.
+          </p>
+          <a
+            href={`${MAIN_SITE_URL}/register`}
+            className="btn-3d-red flex w-full items-center justify-center gap-1.5 rounded-xl py-3 text-xs font-black no-underline"
+          >
+            <span>AIMaster 통합 회원가입</span>
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input type="hidden" name="redirect" value={redirectTo} />
           <div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input type="hidden" name="redirect" value={redirectTo} />
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">이메일 주소</label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    placeholder="buylifemall@naver.com"
-                    className="w-full pl-[42px] pr-4 py-2.5 bg-slate-900/70 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:bg-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all outline-hidden"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-slate-300">비밀번호</label>
-                  <a
-                    href={`${MAIN_SITE_URL}/forgot-password`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[11px] text-amber-400 hover:text-amber-300 transition-colors"
-                  >
-                    비밀번호를 잊으셨나요?
-                  </a>
-                </div>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="password"
-                    name="password"
-                    required
-                    placeholder="비밀번호를 입력하세요"
-                    className="w-full pl-[42px] pr-4 py-2.5 bg-slate-900/70 border border-slate-700/80 rounded-xl text-xs text-white placeholder:text-slate-500 focus:bg-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all outline-hidden"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-              >
-                {isPending ? (
-                  <span>로그인 확인 중...</span>
-                ) : (
-                  <>
-                    <span>로그인하고 스토리보드 스튜디오 시작</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </form>
-
-            <div className="mt-5 pt-5 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-              <span>아직 계정이 없으신가요?</span>
-              <button
-                type="button"
-                onClick={() => setActiveTab("signup")}
-                className="text-amber-400 font-semibold hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                무료 회원가입 안내 보기 ➔
-              </button>
+            <label className="mb-1.5 block text-xs font-bold text-gray-300">
+              이메일 주소
+            </label>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                <Mail className="h-4 w-4" />
+              </span>
+              <input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="director@buylife.xyz"
+                className="w-full rounded-xl border border-[#283342] bg-[#090d13] py-2.5 pl-10 pr-4 text-xs text-white placeholder-gray-500 transition-all focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/30"
+              />
             </div>
           </div>
-        ) : (
-          /* 회원가입 탭 */
-          <div className="space-y-4">
-            <div className="rounded-xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/30 p-4">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400 shrink-0 mt-0.5">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-white mb-1">
-                    AIMaster 통합 단일 계정 안내
-                  </h3>
-                  <p className="text-[11px] text-slate-300 leading-relaxed">
-                    AIMaster는 전 서브프로그램 단일 계정(Single Sign-On) 체계로 운영됩니다. 메인 플랫폼에서 한 번만 가입하시면 추가 절차 없이 시네마틱 스토리보드 스튜디오를 즉시 이용하실 수 있습니다.
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            <div className="space-y-2.5 pt-1">
-              <div className="flex items-center gap-2.5 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>시네마틱 영상 기획·씬별 스토리보드·영상 프롬프트 무제한 자동화</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>회원 본인 API 키 연동 격리 보관 (데이터 30일 보관 원칙)</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-xs text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>스토리보드 외 17개 이상 모든 AIMaster 자동화 프로그램 동시 접근</span>
-              </div>
-            </div>
-
-            <a
-              href={`${MAIN_SITE_URL}/register`}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full mt-3 py-3.5 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>AIMaster에서 무료 회원가입하기</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
-
-            <div className="mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-              <span>이미 계정이 있으신가요?</span>
-              <button
-                type="button"
-                onClick={() => setActiveTab("login")}
-                className="text-amber-400 font-semibold hover:text-amber-300 transition-colors cursor-pointer"
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-xs font-bold text-gray-300">
+                비밀번호
+              </label>
+              <a
+                href="#forgot-password"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setError("비밀번호 재설정은 AIMaster 메인 사이트에서 가능합니다.");
+                }}
+                className="text-[11px] font-semibold text-red-400 hover:text-red-300 hover:underline"
               >
-                로그인 화면으로 돌아가기 ➔
-              </button>
+                비밀번호 찾기?
+              </a>
+            </div>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                <Lock className="h-4 w-4" />
+              </span>
+              <input
+                name="password"
+                type="password"
+                required
+                autoComplete="current-password"
+                placeholder="••••••••••••"
+                className="w-full rounded-xl border border-[#283342] bg-[#090d13] py-2.5 pl-10 pr-4 text-xs text-white placeholder-gray-500 transition-all focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/30"
+              />
             </div>
           </div>
-        )}
-      </div>
 
-      {/* 하단 약관 및 링크 */}
-      <div className="mt-6 text-center space-y-2">
-        <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400">
+          {/* 3D 엠보싱 헐리우드 레드 실행 버튼 */}
+          <button
+            type="submit"
+            disabled={isPending}
+            className="btn-3d-red mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl py-3 text-sm font-black disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isPending ? (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <>
+                <span>로그인</span>
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </button>
+        </form>
+      )}
+
+      {/* 5단계 맨 아래: 약관 문구 1행 축소 처리 */}
+      <div className="mt-6 text-center border-t border-[#283342]/60 pt-4">
+        <p className="whitespace-nowrap text-[11px] text-gray-400">
+          진행 시{" "}
           <a
             href={`${MAIN_SITE_URL}/terms`}
             target="_blank"
             rel="noreferrer"
-            className="hover:text-slate-200 transition-colors"
+            className="font-bold text-gray-300 underline hover:text-white"
           >
             이용약관
           </a>
-          <span>•</span>
+          {" 및 "}
           <a
             href={`${MAIN_SITE_URL}/privacy`}
             target="_blank"
             rel="noreferrer"
-            className="hover:text-slate-200 transition-colors"
+            className="font-bold text-gray-300 underline hover:text-white"
           >
-            개인정보처리방침
+            개인정보 처리방침
           </a>
-          <span>•</span>
-          <a
-            href="mailto:buylifemall@gmail.com"
-            className="hover:text-slate-200 transition-colors"
-          >
-            고객지원
-          </a>
-        </div>
-        <p className="text-[10px] text-slate-500">
-          © 2026 AIMaster. All rights reserved.
+          에 동의합니다.
         </p>
       </div>
     </div>
@@ -266,16 +194,38 @@ function LoginCard() {
 
 export default function LoginPage() {
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 bg-[#0b0f17] text-white selection:bg-amber-500/30 selection:text-amber-200"
-      style={{
-        backgroundImage: "radial-gradient(rgba(245, 158, 11, 0.12) 1px, transparent 1px)",
-        backgroundSize: "24px 24px",
-      }}
-    >
-      <Suspense fallback={<div className="text-xs text-slate-400">화면을 불러오는 중...</div>}>
-        <LoginCard />
-      </Suspense>
+    <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12 bg-[#090d13] text-[#f0f6fc] overflow-hidden">
+      {/* 헐리우드 뷰파인더 앰비언트 글로우 배경 */}
+      <div className="absolute -top-32 -left-32 h-[450px] w-[450px] rounded-full bg-red-600/15 blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 h-[450px] w-[450px] rounded-full bg-amber-500/15 blur-[120px] pointer-events-none" />
+
+      {/* 5단계 표준 규격 컨테이너 */}
+      <div className="relative z-10 w-full max-w-[440px]">
+        {/* 1단계 ~ 3단계: 로고, 영문 알약 뱃지, 한글 타이틀 */}
+        <div className="mb-7 flex flex-col items-center text-center">
+          {/* 1. 64px 라운드 스퀘어 로고 (레드 그라데이션 + 글로우) */}
+          <div className="mb-3.5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-amber-600 text-white shadow-xl shadow-red-600/30 border border-red-400/40 glow-red">
+            <Clapperboard className="h-8 w-8 text-white drop-shadow" />
+          </div>
+
+          {/* 2. 영문명 알약 캡슐 뱃지 */}
+          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-red-500/40 bg-red-500/10 px-4 py-1 text-[11px] font-extrabold uppercase tracking-wider text-red-400">
+            <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
+            <span>AIMASTER CINEMATIC STORYBOARD</span>
+          </div>
+
+          {/* 3. 한글 타이틀 및 보조 문구 */}
+          <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+            AI 시네마틱 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-amber-300 to-yellow-200">스토리보드</span>
+          </h1>
+          <p className="mt-1 text-xs text-gray-400">AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
+        </div>
+
+        {/* 4단계: 로그인 카드 */}
+        <Suspense fallback={<div className="h-64 rounded-2xl bg-[#141a23] animate-pulse" />}>
+          <LoginCard />
+        </Suspense>
+      </div>
     </div>
   );
 }

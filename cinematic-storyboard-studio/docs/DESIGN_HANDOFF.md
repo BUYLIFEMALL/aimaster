@@ -1,49 +1,42 @@
-# 시네마틱 스토리보드 자동화 (cinematic-storyboard-studio) — 디자인 & 로그인 2탭 개편 인수인계서
+# AI 시네마틱 스토리보드 자동화 (`cinematic-storyboard-studio`) 디자인 리뉴얼 인수인계서 (v1.19)
 
-> **작업 일시**: 2026-10-17
-> **담당 CLI**: Antigravity (`agy`)
-> **버전**: `v1.06` ➔ **`v1.07`**
-> **적용 디자인 템플릿**: **크리에이티브 아틀리에 스타일 (Creative Atelier Style · 시네마틱 아틀리에)**
-> **공식 서비스 URL**: `https://cinematic-storyboard-studio.buylife.xyz`
-> **로그인 URL**: `https://cinematic-storyboard-studio.buylife.xyz/login`
-
----
-
-## 1. 개요 및 목적
-주인님의 전체 서브프로그램 로그인/회원가입 표준 2탭 레이아웃(`threads-comment-reply` 표준 규격) 통일 지침에 따라, `cinematic-storyboard-studio`의 로그인 라우트를 2탭 세그먼트 표준 레이아웃으로 전면 개편하고 기존 구형 라이트 박스로 인한 테마 불일치를 완벽히 해소했습니다.
+> **프로그램명**: AI 시네마틱 스토리보드 자동화 (`cinematic-storyboard-studio`)  
+> **버전**: `v1.19.0` (2차 전면 리뉴얼 완료)  
+> **채택 시안**: **1안 — 57. 헐리우드 9컷 시네마틱 디렉터스 뷰파인더 스타일**  
+> **영구 아카이빙 폴더**: `D:\Antigravity\Design\57_hollywood_9cut_directors_viewfinder`  
+> **완료 일자**: 2026-11-06  
+> **담당 에이전트**: Antigravity (`agy`, 세션: `agy-win-mvs-v2`)  
 
 ---
 
-## 2. 디자인 명세 및 컬러 토큰
-- **배경 테마**: `#0b0f17` (다크 차콜) + 24px 간격 앰버 골드 모눈 격자 (`radial-gradient(rgba(245, 158, 11, 0.12) 1px, transparent 1px)`)
-- **카드 서피스**: `#0e1422`/90 다크 글래스모피즘, `border-amber-500/20`, `shadow-2xl shadow-black/80`
-- **시그니처 포인트**:
-  - 상단 시네마틱 앰버 `Clapperboard` 슬레이트 심볼 (`from-amber-500 to-orange-500`, `ring-1 ring-amber-400/30`)
-  - `AIMaster 통합 계정` 알약 뱃지 (`bg-amber-500/10 border-amber-500/30 text-amber-300`)
-  - 2탭 세그먼트 컨트롤: `bg-[#0f172a]/80`, 활성 탭 `from-amber-500 to-orange-500` 그라디언트
-  - 인풋 필드: 좌측 아이콘(Mail, Lock), `pl-[42px]` 인셋 패딩, 포커스 시 `border-amber-500` 및 `ring-amber-500/20`
-  - 액션 버튼: `from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600` 풀위드
-  - 회원가입 탭: 단일 계정(SSO) 안내 박스, 시네마틱 스토리보드 혜택 체크리스트 3종, `AIMaster에서 무료 회원가입하기` 링크 버튼
-  - 푸터: 이용약관 · 개인정보처리방침 · 고객지원 통합 링크
+## 1. 개요 및 변경 목적
+- **목적**: 2026-10-29 숏폼/영상 도메인 톤앤매너 지침(어두운 다크 톤 지양, 헐리우드/쇼츠 아이코닉 레드 `#EF4444`/`#DC2626` & 골드 `#F59E0B`의 생동감 넘치는 크리에이터 스튜디오 감성) 및 2026-11-01 로그인 5단계 수직 레이아웃 표준 규격을 완벽 준수하여 전면 개편.
+- **채택안 특징**:
+  - LIVE 🔴 REC 실시간 타임코드 뷰파인더 덱 & 4단계 시네마틱 원스톱 파이프라인 인디케이터 배너 (① 이미지·시놉시스 입력 → ② 9컷 시퀀스 콘티 기획 → ③ 2K 마스터 시트 렌더 → ④ 영상 AI 프롬프트 연동)
+  - 3D 엠보싱 헐리우드 레드 버튼(`.btn-3d-red`, `.btn-3d-shorts`) & 시네마틱 골드 버튼(`.btn-3d-gold`)
+  - 2026-11-01 로그인 5단계 수직 레이아웃 표준 규격 준수 (64px 레드 글로우 로고 + `AIMASTER CINEMATIC STORYBOARD` 알약 뱃지 + 볼드 한글명 + 3D 레드 버튼 + 1행 축소 약관)
+  - 9컷 시퀀스 뷰파인더 브래킷 덱 및 2K UHD 마스터 시트 원클릭 ZIP 분할 다운로드
 
 ---
 
-## 3. 변경 파일 목록
-- `cinematic-storyboard-studio/src/lib/version.ts`: `v1.07` 갱신 및 `MAIN_SITE` export
-- `cinematic-storyboard-studio/package.json`: version `1.07.0`
-- `cinematic-storyboard-studio/src/app/(auth)/login/page.tsx`: 표준 2탭 세그먼트 레이아웃 전면 구현
-- `cinematic-storyboard-studio/docs/PLAN_20261017_LOGIN_RENEWAL.md`: 작업 기획 플랜 문서
-- `cinematic-storyboard-studio/docs/IMPROVEMENT_HANDOFF_20261017.md`: 개선사항 및 인수인계 문서
-- `cinematic-storyboard-studio/docs/DESIGN_HANDOFF.md`: 본 디자인 완료 인수인계서
-- `scripts/verify_edge_cinematic_login_v107.cjs`: Microsoft Edge 실세션 검수 스크립트
+## 2. 배포 및 검증 결과
+- **공식 운영 도메인**: [https://cinematic-storyboard-studio.buylife.xyz](https://cinematic-storyboard-studio.buylife.xyz)
+- **Vercel 프로덕션 보조 링크**: [https://cinematic-storyboard-studio-ldmufeco9-buylife.vercel.app](https://cinematic-storyboard-studio-ldmufeco9-buylife.vercel.app)
+- **배포 ID**: `dpl_6MkrHSfBnVZ56chuejUx2YZBKbAz`
+- **통합 쇼케이스 URL**: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+- **독립 비교표 URL**: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
+- **로컬 영구 자산 경로**: `D:\Antigravity\Design\57_hollywood_9cut_directors_viewfinder`
 
 ---
 
-## 4. 빌드 및 배포 검증
-- **로컬 빌드**: `npm run build` (Turbopack) 성공 (`Compiled successfully in 5.6s`, `Finished TypeScript in 3.2s`)
-- **Vercel 프로덕션 배포**: `dpl_8nu2zeo6scLrYuhk4pgXFeq6PtG9` 성공 (`READY`, `Aliased https://cinematic-storyboard-studio.buylife.xyz`)
-- **DB 버전 동기화**: `programs.version = 'v1.07'`, `app_url = 'https://cinematic-storyboard-studio.buylife.xyz'` 확인 완료
-- **Microsoft Edge 실세션 검수 캡처 확인**:
-  1. `edge_cinematic_login_desktop_v107.png` (데스크톱 1280x900 로그인 탭)
-  2. `edge_cinematic_signup_desktop_v107.png` (데스크톱 1280x900 회원가입 탭)
-  3. `edge_cinematic_login_mobile_v107.png` (모바일 390x844 로그인 탭)
+## 3. 핵심 수정 파일
+1. `src/app/globals.css`:
+   - 헐리우드 레드/골드 변수, `.btn-3d-red`, `.btn-3d-shorts`, `.btn-3d-gold` 3D 엠보싱 버튼 클래스, `.rec-pulse`, `.glow-red`, 뷰파인더 코너 브래킷 스타일 추가
+2. `src/app/(auth)/login/page.tsx`:
+   - 2026-11-01 5단계 수직 레이아웃 표준 규격으로 전면 개편
+3. `src/components/studio/StudioWorkspace.tsx`:
+   - LIVE 🔴 REC 타임코드 뷰파인더 배너, 4단계 파이프라인 인디케이터, 3D 엠보싱 레드 콘티 렌더 버튼 및 골드 마스터 저장 버튼 탑재
+4. `src/app/(dashboard)/guide/page.tsx`:
+   - 헐리우드 뷰파인더 헤더 배너 및 3D 엠보싱 레드 CTA 버튼 정렬
+5. `package.json` & `src/lib/version.ts`:
+   - `1.19.0` / `v1.19` 버전 업

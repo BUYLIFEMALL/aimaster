@@ -233,43 +233,101 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
 
   const stepLabel = step === "upload" ? t.stepUpload : step === "analyze" ? t.stepAnalyze : step === "render" ? t.stepRender : step === "prompts" ? t.stepPrompts : "";
   const analysis = project?.analysis ?? null;
-  const card = "rounded-2xl border border-slate-800 bg-[#131926] p-5 shadow-xl";
+  const card = "rounded-3xl border border-[#283342] bg-[#141a23] p-6 shadow-2xl relative";
   const h4 = "mb-1 text-xs font-bold uppercase tracking-wider text-slate-400";
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 pb-12">
-      {/* 헤더 */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-black text-slate-100">
-            <Clapperboard size={22} className="text-amber-500" />
-            {t.title}
-          </h1>
-          <p className="mt-1 text-sm text-slate-400">{t.subtitle}</p>
+    <div className="mx-auto max-w-5xl space-y-6 pb-12 text-[#f0f6fc]">
+      {/* 1. 상단 히어로 디렉터스 뷰파인더 배너 */}
+      <div className="director-hero rounded-3xl p-6 sm:p-7 border border-red-500/40 relative overflow-hidden">
+        <div className="viewfinder-corner-tl" />
+        <div className="viewfinder-corner-tr" />
+        <div className="viewfinder-corner-bl" />
+        <div className="viewfinder-corner-br" />
+
+        {/* 실시간 REC 타임코드 헤더 바 */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#283342]/80 pb-3 font-mono text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
+            <span className="font-extrabold text-red-400 tracking-wider">LIVE 🔴 REC STANDBY</span>
+            <span className="text-gray-400 font-mono">00:01:24:18</span>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-4 text-gray-400">
+            <span className="text-red-400 font-bold">4K DCI · 2.39:1 ANAMORPHIC</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="text-amber-400 font-semibold">9-SHOT SEQUENCER</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="text-emerald-400 font-semibold">PRO 2K GEMINI ENGINE</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {project && (
-            <button
-              type="button"
-              onClick={reset}
-              className="rounded-xl border border-slate-700 bg-[#182030] px-3.5 py-1.5 text-xs font-bold text-slate-300 transition hover:bg-[#222c42]"
-            >
-              {t.newProject}
-            </button>
-          )}
-          <div className="flex rounded-xl border border-slate-800 bg-[#0e131f] p-1 text-xs font-bold">
-            {(["ko", "en"] as Lang[]).map((l) => (
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/10 px-3.5 py-1 text-xs font-extrabold text-red-300">
+            <Sparkles className="h-3.5 w-3.5 text-red-400" />
+            헐리우드 시네마틱 디렉터스 콘솔
+          </div>
+          <div className="flex items-center gap-2">
+            {project && (
               <button
-                key={l}
                 type="button"
-                onClick={() => setLang(l)}
-                className={`rounded-lg px-3 py-1.5 transition ${
-                  lang === l ? "bg-amber-500 text-slate-950 shadow" : "text-slate-400 hover:text-slate-200"
-                }`}
+                onClick={reset}
+                className="rounded-xl border border-slate-700 bg-[#182030] px-3.5 py-1.5 text-xs font-bold text-slate-300 transition hover:bg-[#222c42]"
               >
-                {l === "ko" ? "한국어" : "English"}
+                {t.newProject}
               </button>
-            ))}
+            )}
+            <div className="flex rounded-xl border border-[#283342] bg-[#090d13] p-1 text-xs font-bold">
+              {(["ko", "en"] as Lang[]).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLang(l)}
+                  className={`rounded-lg px-3 py-1 transition cursor-pointer ${
+                    lang === l ? "bg-red-600 text-white shadow" : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  {l === "ko" ? "한국어" : "English"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-snug">
+              영화·광고 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-amber-300 to-yellow-200">9컷 시네마틱 스토리보드</span>를 완성하세요
+            </h1>
+            <p className="mt-1.5 text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+              레퍼런스 이미지와 핵심 시놉시스만으로 9컷 황금 시퀀스 콘티와 2K 마스터 시트, 영상 생성용 AI 프롬프트까지 원스톱으로 디렉팅합니다.
+            </p>
+          </div>
+          <Link
+            href="/guide"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-bold text-red-300 hover:bg-red-500/20 transition-all shrink-0"
+          >
+            <Clapperboard className="h-4 w-4" />
+            <span>📖 9컷 연출 가이드</span>
+          </Link>
+        </div>
+
+        {/* 4단계 원스톱 파이프라인 인디케이터 배너 */}
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t border-[#283342]/70 text-[11px]">
+          <div className="flex items-center gap-2 rounded-xl bg-[#090d13]/70 p-2.5 border border-[#283342]">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-400 font-black">1</span>
+            <span className="font-bold text-gray-300">이미지·시놉시스 입력</span>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-[#090d13]/70 p-2.5 border border-[#283342]">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 font-black">2</span>
+            <span className="font-bold text-gray-300">9컷 시퀀스 콘티 기획</span>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-[#090d13]/70 p-2.5 border border-[#283342]">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-400 font-black">3</span>
+            <span className="font-bold text-gray-300">2K 마스터 시트 렌더</span>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-[#090d13]/70 p-2.5 border border-[#283342]">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-black">4</span>
+            <span className="font-bold text-gray-300">영상 AI 프롬프트 연동</span>
           </div>
         </div>
       </div>
@@ -399,12 +457,12 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
               type="button"
               onClick={() => run(project && (project.status === "rendered" || project.status === "prompts") ? "render" : null)}
               disabled={busy || (!project && (!preview || preview.startsWith("http")))}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 py-3 text-sm font-bold text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.25)] transition hover:from-amber-400 hover:to-amber-500 disabled:bg-slate-800 disabled:text-slate-400 disabled:shadow-none"
+              className="btn-3d-red flex w-full items-center justify-center gap-2 py-3.5 text-sm font-black disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             >
               {busy ? <Loader2 size={18} className="animate-spin" /> : <Wand2 size={18} />}
               {busy ? stepLabel : project && project.status !== "created" && project.status !== "analyzed" ? t.rerender : project?.status === "analyzed" ? t.retry : t.generate}
             </button>
-            {busy && <p className="text-center text-xs text-amber-400">{stepLabel}</p>}
+            {busy && <p className="text-center text-xs text-red-400 font-bold">{stepLabel}</p>}
           </div>
         </div>
       </section>
@@ -414,9 +472,14 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
         <div ref={resultRef} className="space-y-6">
           {project?.masterUrl && (
             <section className={card}>
+              <div className="viewfinder-corner-tl" />
+              <div className="viewfinder-corner-tr" />
+              <div className="viewfinder-corner-bl" />
+              <div className="viewfinder-corner-br" />
+
               <h2 className="mb-3 flex items-center gap-2 text-sm font-black text-slate-100">
-                <ImagePlus size={16} className="text-amber-500" />
-                {t.master}
+                <ImagePlus size={16} className="text-red-500" />
+                <span>{t.master} (2K UHD 헐리우드 마스터 시트)</span>
               </h2>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={project.masterUrl} alt="master contact sheet" className="w-full rounded-2xl border border-slate-800 shadow-2xl" />
@@ -427,22 +490,22 @@ export function StudioWorkspace({ projectId }: { projectId?: string }) {
                     const b = await (await fetch(project.masterUrl!)).blob();
                     download(`${safeName(project.title)}_master.jpg`, b);
                   }}
-                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#182030] px-4 py-2 text-xs font-bold text-slate-200 transition hover:bg-[#222c42]"
+                  className="btn-3d-gold flex items-center gap-1.5 px-4 py-2.5 text-xs font-black cursor-pointer"
                 >
-                  <Download size={14} className="text-amber-400" /> {t.saveImage}
+                  <Download size={14} className="text-slate-950" /> {t.saveImage}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSplitOpen(true)}
-                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#182030] px-4 py-2 text-xs font-bold text-slate-200 transition hover:bg-[#222c42]"
+                  className="btn-3d-red flex items-center gap-1.5 px-4 py-2.5 text-xs font-black cursor-pointer"
                 >
-                  <Scissors size={14} className="text-amber-400" /> {t.splitImage}
+                  <Scissors size={14} className="text-white" /> {t.splitImage}
                 </button>
                 <button
                   type="button"
                   onClick={() => run("render")}
                   disabled={busy}
-                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#182030] px-4 py-2 text-xs font-bold text-slate-200 transition hover:bg-[#222c42] disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#182030] px-4 py-2.5 text-xs font-bold text-slate-200 transition hover:bg-[#222c42] disabled:opacity-50 cursor-pointer"
                 >
                   <RefreshCw size={14} /> {t.rerender}
                 </button>

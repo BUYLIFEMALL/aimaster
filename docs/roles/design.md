@@ -5,23 +5,23 @@
 - 카테고리: 전체(디자인)
 - 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
 - 핵심 배포 원칙 (2026-10-29 주인님 지시): 작업한 내용의 실제 배포는 비용 절감을 위해 꼭 당장 필요한 것(긴급/치명 오류)이 아니면 로컬 검수 완료 상태로 모아두었다가 **한 번에 묶음(Batch)으로 반영**한다. 급한 것만 최소한으로 단독 반영.
-- 마지막 갱신: 2026-11-06 19:10 (agy-win-mvs-v2)
-- 최근 업데이트: 2026-11-06 19:10 (cinematic-storyboard-studio 4대 화면 3시안(12뷰) 쇼케이스 및 상단 종합 비교표, 1장짜리 비교 보드 제작 완료 및 시안 선택 제안)
+- 마지막 갱신: 2026-11-06 22:25 (agy-win-mvs-v2)
+- 최근 업데이트: 2026-11-06 22:25 (cinematic-storyboard-studio v1.19 1안: 57. 헐리우드 9컷 시네마틱 디렉터스 뷰파인더 스타일 전면 리뉴얼 및 Vercel 프로덕션 배포, 라이브 검수 완료)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `cinematic-storyboard-studio` | AI 시네마틱 스토리보드 4대 화면 3시안(12뷰) 쇼케이스 및 상단 종합 비교표 제작 완료 | 2026-11-06 | 1440px 라이트박스 쇼케이스 완료 (`http://localhost:3800/showcase.html`), 주인님 시안 선택 대기 |
+| `allinone-graphic` | 4대 화면 3시안(12뷰) 쇼케이스 및 상단 종합 비교표 제작 준비 | 2026-11-06 | 착수 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `cinematic-storyboard-studio` | 4대 화면 3시안 중 확정안 선정 | 주인님 시안 선택 | `CINEMATIC_STORYBOARD_12VIEWS_PROPOSAL.md` |
 | `threads-content-ops` | 4대 화면 3시안 중 확정안 선정 | 주인님 시안 선택 | `THREADS_CONTENT_OPS_12VIEWS_PROPOSAL.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-06 | `cinematic-storyboard-studio` `v1.19` | 1안(57. 헐리우드 9컷 시네마틱 디렉터스 뷰파인더 스타일) 공식 채택, LIVE 🔴 REC 실시간 타임코드 뷰파인더 덱 & 4단계 파이프라인 배너, 3D 엠보싱 헐리우드 레드 버튼(`.btn-3d-red`, `.btn-3d-shorts`) & 5단계 표준 로그인 탑재, 단위테스트 23/23 통과 및 Vercel 프로덕션 배포 완료 | ✅ 프로덕션 배포 완료 (`dpl_6MkrHSfBnVZ56chuejUx2YZBKbAz`, https://cinematic-storyboard-studio.buylife.xyz) |
 | 2026-11-06 | `video-to-gif` `v1.27` | 1안(54. 시네마틱 헐리우드 네온 REC 렌더러 스타일) 공식 채택, LIVE 🔴 REC 타임코드 뷰파인더 덱 & 4단계 파이프라인 배너, 원클릭 마켓 최적화 프리셋 칩, 3D 엠보싱 헐리우드 레드 버튼(`.btn-3d-red`, `.btn-3d-shorts`) & 5단계 표준 로그인 탑재, 로컬 빌드 및 Vercel 프로덕션 배포 완료 | ✅ 프로덕션 배포 완료 (`dpl_6NfgPdQE296T4hkytWnDzhrSF8GP`, https://video-to-gif.buylife.xyz) |
 | 2026-11-06 | `ai-video-studio` `v1.28` | 1안(51. 유튜브 쇼츠 크리에이터 레드 스튜디오 스타일) 공식 채택, 9:16 모바일 뷰파인더 덱 목업(LIVE REC 00:00:04:18, 4K UHD, 60 FPS) & 4단계 시네마틱 파이프라인 배너 & 3D 엠보싱 쇼츠 레드 버튼(`.btn-3d-red`) & 5단계 표준 로그인 탑재, 단위테스트 82/82 100% 통과 및 프로덕션 배포 완료 | ✅ 프로덕션 배포 완료 (`dpl_2vqjT6bQeZaAsKjDej2cBnAdTatV`, https://ai-video-studio.buylife.xyz) |
 | 2026-11-06 | 전체 지침 | [주인님 지시] 디자인 UI 시안 생성 지침 공식 등록 (쇼케이스 상단 종합 비교표 필수, 1440px 라이트박스 팝업, 순수 영문 URL 1순위 제공, D:\\Antigravity\\Design 폴더별 100% 자산화) | AGENTS.md, GEMINI.md, DESIGN.md 반영 |

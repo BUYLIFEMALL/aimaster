@@ -139,30 +139,33 @@ export default function GuidePage() {
       : GLOSSARY;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-10 pb-16">
+    <div className="mx-auto max-w-5xl space-y-10 pb-16 text-[#f0f6fc]">
       {/* 1. 헤더 히어로 배너 */}
-      <section className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-[#131926] via-[#0f1420] to-[#0b0f17] p-8 shadow-2xl">
-        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
+      <section className="director-hero relative overflow-hidden rounded-3xl border border-red-500/40 p-8 shadow-2xl">
+        <div className="viewfinder-corner-tl" />
+        <div className="viewfinder-corner-tr" />
+        <div className="viewfinder-corner-bl" />
+        <div className="viewfinder-corner-br" />
+
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-amber-400">
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3.5 py-1 text-xs font-bold text-red-400">
               <Film size={14} />
-              <span>크리에이티브 아틀리에 · 영화 제작 가이드북</span>
+              <span>헐리우드 디렉터스 뷰파인더 · 영화 제작 가이드북</span>
             </div>
-            <h1 className="text-2xl font-black tracking-tight text-slate-100 sm:text-3xl">
-              📖 시네마틱 스토리보드 스튜디오 완벽 활용 매뉴얼
+            <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+              📖 시네마틱 스토리보드 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-amber-300 to-yellow-200">완벽 연출 가이드</span>
             </h1>
-            <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
+            <p className="max-w-2xl text-sm leading-relaxed text-slate-300">
               단 한 장의 레퍼런스 이미지에서 출발하여 구도·조명·감정선을 정밀 분석하고, 3:2 비율의 9컷 마스터 콘택트 시트 렌더링부터 Runway·Kling·Luma 맞춤 영상 AI 프롬프트까지 원스톱으로 완성하는 파이프라인 가이드입니다.
             </p>
           </div>
           <Link
             href="/studio"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3.5 text-sm font-bold text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.3)] transition hover:from-amber-400 hover:to-amber-500 hover:shadow-[0_0_25px_rgba(245,158,11,0.45)]"
+            className="btn-3d-red inline-flex items-center gap-2 px-6 py-3.5 text-xs font-black shrink-0 no-underline cursor-pointer"
           >
-            <Sparkles size={16} />
             <span>스튜디오 시작하기</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={14} />
           </Link>
         </div>
       </section>
