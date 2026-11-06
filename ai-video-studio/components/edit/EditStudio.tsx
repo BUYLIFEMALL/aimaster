@@ -132,7 +132,7 @@ export function EditStudio() {
   }, []);
 
   /** 영상 하나 넣기 — 길이 읽기 → (내 PC 영상만) 앞부분 시험 렌더(R1) → 멈추면 소프트웨어로 다시 인코딩 */
-  const addVideo = useCallback(async (getBlob: () => Promise<Blob>, name: string, opts: { caption?: string; source: ClipSource; trusted: boolean; base?: Partial<EditClip>; pieces?: Piece[] }) => {
+  const addVideo = useCallback(async (getBlob: () => Promise<Blob>, name: string, opts: { caption?: string; source: ClipSource; trusted: boolean; base?: Partial<EditClip>; pieces?: Piece[]; collect?: (clip: EditClip) => void }) => {
     setError("");
     setBusy({ name, msg: "영상 받는 중" });
     let url = "";
@@ -179,6 +179,8 @@ export function EditStudio() {
         setResult(null);
         return true;
       }
+      // V2 해설 교차편집: 형식만 맞춘 장면을 돌려주고 목록에는 넣지 않는다(받는 쪽이 배치해서 넣음)
+      if (opts.collect) { opts.collect(clip); return true; }
       setProject((cur) => (cur.clips.length >= MAX_CLIPS ? cur : { ...cur, clips: [...cur.clips, clip] }));
       setResult(null);
       return true;
@@ -211,7 +213,31 @@ export function EditStudio() {
     if (params?.get("from") !== "clip" || autoAdded.current) return;
     autoAdded.current = true;
     const h = takeClipHandoff();
-    if (!h) { setError("넘겨받은 영상이 없습니다(새로고침하면 사라집니다). 「긴 영상 → 쇼츠」에서 다시 넘겨 주세요."); return; }
+    if (!h) { setError("넘겨받은 영상이 없습니다(새로고침하면 사라집니다). 「긴 영상 → 쇼츠」나 「해설 교차편집」에서 다시 넘겨 주세요."); return; }
+    if (h.kind === "narrate") {
+      // V2 해설 교차편집: 촬영본마다 형식을 맞춘 뒤 장면 배치대로 넣고, 해설은 소리 칸(음량 100%·줄이기 없음)에 깐다
+      void (async () => {
+        const bases: (EditClip | undefined)[] = [];
+        for (let i = 0; i < h.footage.length; i++) {
+          const f = h.footage[i];
+          const ok = await addVideo(async () => f, f.name, { source: { kind: "local" }, trusted: false, collect: (clip) => { bases[i] = clip; } });
+          if (!ok) return;
+        }
+        const clips = h.scenes.slice(0, MAX_CLIPS).flatMap((s, i): EditClip[] => {
+          const b = bases[s.file];
+          if (!b) return [];
+          return [{ ...b, id: newId(), name: `${i + 1}. ${b.name}`, trimStart: s.trimStart, trimEnd: s.trimEnd, hold: s.hold, caption: s.caption, narration: "", voice: null }];
+        });
+        if (!clips.length) { setError("촬영본을 넣지 못했습니다. 다른 영상으로 다시 시도해 주세요."); return; }
+        setProject((cur) => {
+          if (cur.music) URL.revokeObjectURL(cur.music.src);
+          return { ...cur, clips, aspect: "9:16", transition: "none", clipAudio: false, captionPosition: "bottom", music: { src: URL.createObjectURL(h.narration), name: h.narration.name, volume: 1, fadeOut: false, duck: false, source: { kind: "local" } } };
+        });
+        setResult(null);
+        setNotice(`「해설 교차편집」에서 장면 ${clips.length}개와 해설을 넣었습니다. 해설은 소리 칸에 깔려 있고 촬영본 소리는 꺼 두었습니다. 자막 모양을 확인한 뒤 MP4를 만드세요.`);
+      })();
+      return;
+    }
     void addVideo(async () => h.file, h.name, { source: { kind: "local" }, trusted: false, pieces: h.pieces }).then((ok) => {
       if (ok) setNotice(`「긴 영상 → 쇼츠」에서 고른 구간을 장면 ${Math.min(MAX_CLIPS, h.pieces.length)}개로 넣었습니다. 자막·배경음악을 확인한 뒤 MP4를 만드세요.`);
     });

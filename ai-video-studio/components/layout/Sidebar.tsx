@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Clapperboard, Film, KeyRound, Layers, LogOut, Menu, X, Scissors, Sparkles } from "lucide-react";
+import { BookOpen, Clapperboard, Film, KeyRound, Layers, LogOut, Menu, Mic, X, Scissors, Sparkles } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
 import { signOutAction } from "@/lib/actions/auth";
 
@@ -33,6 +33,15 @@ const MAIN_ITEMS = [
     badgeIcon: "🎯",
     label: "긴 영상 → 쇼츠",
     description: "내 긴 영상에서 AI가 쇼츠 구간을 골라 세로로",
+    badge: "NEW",
+    badgeColor: "border-sky-500/40 bg-sky-500/10 text-sky-300"
+  },
+  {
+    href: "/narrate",
+    icon: Mic,
+    badgeIcon: "🎙️",
+    label: "해설 교차편집",
+    description: "내 해설 녹음 + 촬영본 여러 개 → 문장마다 컷 배치",
     badge: "NEW",
     badgeColor: "border-sky-500/40 bg-sky-500/10 text-sky-300"
   },
@@ -121,7 +130,7 @@ function NavBody({ userEmail, onNavigate }: { userEmail: string; onNavigate?: ()
                 <div className="flex items-center justify-between gap-1.5">
                   <p className={`flex items-center gap-2 text-sm font-bold ${isActive ? "text-white" : "text-slate-200 group-hover:text-white"}`}>
                     <span className="text-base" aria-hidden="true">
-                      {href === "/create" ? "🎬" : href === "/edit" ? "✂️" : href === "/clip" ? "🎯" : href === "/library" ? "🏆" : "💡"}
+                      {href === "/create" ? "🎬" : href === "/edit" ? "✂️" : href === "/clip" ? "🎯" : href === "/narrate" ? "🎙️" : href === "/library" ? "🏆" : "💡"}
                     </span>
                     {label}
                   </p>
