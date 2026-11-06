@@ -28,7 +28,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `ai-video-studio` | V2 「🌐 언어판 만들기」(영·일·중·베 — 회원 키 번역 `/api/edit/translate`, 언어별 글꼴, 음성 `lang`, `own_content_rights_log` tool `lang`) + 공용 `renderTrace` 모듈 등록 | `3a550fe12` | 2026-11-06 · [역할: video] `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.29(빌드 승인 1회 남음). 배포 뒤 시험 계정으로 번역·일본어 글꼴 1회 확인 |
+| `ai-video-studio` | V2 「🌐 언어판 만들기」(영·일·중·베 — 회원 키 번역 `/api/edit/translate`, 언어별 글꼴, 음성 `lang`, `own_content_rights_log` tool `lang`) + 공용 `renderTrace` 모듈 등록 · V2 「🎙️ 해설 교차편집」 `/narrate`(해설 녹음+촬영본 → 받아쓰기 → 문장마다 컷 배치 → 영상 합치기, tool `narration-cut`) | `3a550fe12`, `42f743503` | 2026-11-06 · [역할: video] `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.29(빌드 승인 1회 남음). 배포 뒤 시험 계정으로 번역·일본어 글꼴·해설 받아쓰기 각 1회 확인 |
 | `music-video-studio` | 공용 사본 동기화(`timeline`·`Composition` + 새 사본 `renderTrace.ts`) — 동작 불변 | `3a550fe12` | 2026-11-06 · [역할: video] `claude-win-video` | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 급하지 않음, 그 프로그램 다음 배포 때 함께(v1.28) |
 | `realty-client-desk` | 수신거부 저장 실패 시 「처리됐어요」 대신 오류 문구 | `5cc894781` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `realty-client-desk/AGENTS.md` 5. 남은 일 | 배포 뒤 버전 +0.01 |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |

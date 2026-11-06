@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 「🎙️ 해설 교차편집」 구현(미배포, `ai-video-studio` v1.29 묶음)**
+- `/narrate`(`42f743503`): 내 해설 녹음 1개(3분 이하) + 내 촬영본 2~10개 → 권리 체크 → 실행 기록 `/api/clip/rights`(tool `narration-cut`) → V1과 같은 길로 소리 뽑기·본인 OpenAI 키 받아쓰기 → 문장이 20개 넘으면 짧은 이웃끼리 합침(`limitSegs`) → 문장마다 장면(`planCrossCut`: 장면 길이는 문장 시각, 촬영본 번갈아·이어 쓰기·끝이면 처음·짧으면 반복) → 장면별 촬영본 바꾸기 → 영상 합치기로 넘김(해설은 소리 칸 100%, 촬영본 소리 끔, 9:16). 좌측 메뉴 🎙️ NEW. 시험 93개·tsc·로컬 빌드 통과.
+- 확인 못 한 것: 실제 받아쓰기·렌더(배포 뒤 시험 계정, 받아쓰기 3분 약 25원). 배포: 미배포 대기(언어판과 함께 v1.29, 빌드 승인 1회 남음).
+- 문서: `ai-video-studio/docs/IMPROVEMENTS.md` 맨 위, 플랜 §8, `docs/roles/video.md`. 다음: V2 각색 강도(`shorts-onestop-studio`).
+- 링크(배포 뒤): https://ai-video-studio.buylife.xyz/narrate
+
 ## 2026-11-06 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`competitor-analysis` v1.12 운영 실물 확인 완료(`533548e27`)**
 - 관리자 계정으로 동의(주인님 선택) → 「공동구매」 45곳(매칭 5·후보 40·버림 3) → 확장 스캔 5곳: 업체 2곳(`open.kakao.com`·`pocket.oopy.io`)은 「네이버 밖 주소라 자동으로 읽지 않음」으로 건너뛰고 스캔 계속 ✅ · 최종 판정 90/75(후보 35→매칭)/60/50점 + 「주제 약함 20점」(에어컨설팅) ✅ · 연락처 3건(일반전화 2·핸드폰 1). 상세: `competitor-analysis/AGENTS.md` 「v1.12 운영 실물 확인」. 남은 후보 38곳은 스캔 안 함. 비용: 네이버 검색 API(본인 키, 무료 한도 안).
 - 같은 날 카페 모집 하루 상한 1→20 되돌림(주인님 「20으로 해」). 다음: `blog-neighbor-care` v1.18 실물 확인.
