@@ -1,7 +1,7 @@
 // RQ-A4 1단계 상권 임대료·공실률(2026-11-06)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mergeRentRows, pickNearby, pickPlace, roneRows } from "../src/lib/realestate/commercialRent.ts";
+import { geocodeQueries, mergeRentRows, pickNearby, pickPlace, roneRows } from "../src/lib/realestate/commercialRent.ts";
 
 const R = (area, val, q = "202603") => ({ WRTTIME_IDTFR_ID: q, WRTTIME_DESC: "2026년 3분기", CLS_FULLNM: area, DTA_VAL: val });
 
@@ -26,6 +26,13 @@ test("표 여러 개를 상권별 한 줄로 합치고 최근 분기만 남긴�
   assert.equal(g["부산>사상역"].leaf, true);
   assert.equal(g["부산>사상역"].rent.small, undefined); // 빈 값은 넣지 않음
   assert.equal(g["전국"].leaf, false);
+});
+
+test("장소 검색어 후보: 나눈 이름·시도 붙이기·옛 시내", () => {
+  assert.deepEqual(geocodeQueries("부산>사상역"), ["사상역", "부산 사상역"]);
+  assert.deepEqual(geocodeQueries("인천>석남/가정중앙시장"), ["석남/가정중앙시장", "석남", "가정중앙시장", "인천 석남"]);
+  assert.deepEqual(geocodeQueries("서울>도심>시청"), ["시청", "서울 시청"]);
+  assert.deepEqual(geocodeQueries("전남광주>전남>목포구도심"), ["목포구도심", "전남 목포구도심", "목포역", "전남 목포"]);
 });
 
 test("장소 검색은 같은 시·도 주소만 고른다", () => {

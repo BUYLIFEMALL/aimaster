@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { vworldAuthParams } from "@/lib/publicdata/client";
-import { mergeRentRows, pickNearby, pickPlace, RONE_TABLES, roneRows, sidoOfArea, type RentArea, type RentNearby, type RoneRow } from "@/lib/realestate/commercialRent";
+import { geocodeQueries, mergeRentRows, pickNearby, pickPlace, RONE_TABLES, roneRows, sidoOfArea, type RentArea, type RentNearby, type RoneRow } from "@/lib/realestate/commercialRent";
 
 // RQ-A4 1단계(2026-11-06): R-ONE 상권 임대료·공실률 — 분기 캐시 표 rone_commercial_rent.
 // 키는 운영 공용 RONE_API_KEY(공공 무료 자료 §8), 좌표는 공용 브이월드 키. 관리자 갱신 주소 /api/admin/rone-refresh.
@@ -25,10 +25,18 @@ async function fetchRoneTable(id: string): Promise<RoneRow[]> {
   return rows;
 }
 
-/** 브이월드 장소 검색으로 상권 이름 → 좌표. 같은 시·도 주소만 받는다 */
-async function geocodeArea(name: string, sido: string): Promise<{ lat: number; lng: number } | null> {
+/** 상권 → 좌표: 검색어 후보(geocodeQueries)를 차례로 장소 검색, 같은 시·도 주소가 나오면 멈춘다 */
+async function geocodeArea(area: string): Promise<{ lat: number; lng: number } | null> {
+  for (const q of geocodeQueries(area)) {
+    const p = await searchPlace(q, sidoOfArea(area));
+    if (p) return p;
+  }
+  return null;
+}
+
+async function searchPlace(query: string, sido: string): Promise<{ lat: number; lng: number } | null> {
   const { key, domain } = vworldAuthParams();
-  const qs = new URLSearchParams({ service: "search", request: "search", version: "2.0", crs: "EPSG:4326", size: "10", page: "1", query: name, type: "place", format: "json", errorformat: "json", key, domain });
+  const qs = new URLSearchParams({ service: "search", request: "search", version: "2.0", crs: "EPSG:4326", size: "10", page: "1", query, type: "place", format: "json", errorformat: "json", key, domain });
   const res = await fetch(`https://api.vworld.kr/req/search?${qs}`, { cache: "no-store" });
   if (!res.ok) return null;
   const j = (await res.json().catch(() => null)) as { response?: { result?: { items?: { address?: { parcel?: string; road?: string }; point?: { x?: string; y?: string } }[] } } } | null;
@@ -47,7 +55,7 @@ export interface RefreshResult {
 }
 
 /** R-ONE 표 8개를 받아 최근 분기를 저장하고, 좌표 없는 상권을 geocodeLimit개까지 채운다(여러 번 불러 나눠 채움) */
-export async function refreshCommercialRent(geocodeLimit = 60, skipFetch = false): Promise<RefreshResult> {
+export async function refreshCommercialRent(geocodeLimit = 60, skipFetch = false, retryMissing = false): Promise<RefreshResult> {
   const started = Date.now();
   const db = createAdminClient() as unknown as Loose;
   const tables: RefreshResult["tables"] = [];
@@ -79,15 +87,19 @@ export async function refreshCommercialRent(geocodeLimit = 60, skipFetch = false
   const notFound: string[] = [];
   let remaining = 0;
   if (quarter) {
-    const { data: todo } = await db.from(TABLE).select("area, name").eq("quarter", quarter).eq("leaf", true).is("geocode_tried_at", null);
+    // 처음 찾기는 아직 안 해 본 곳, retryMissing이면 해 봤지만 못 찾은 곳(좌표 없음)
+    const base = db.from(TABLE).select("area, name").eq("quarter", quarter).eq("leaf", true);
+    const { data: todo } = retryMissing ? await base.not("geocode_tried_at", "is", null).is("lat", null) : await base.is("geocode_tried_at", null);
     const list = (todo ?? []) as { area: string; name: string }[];
     remaining = Math.max(0, list.length - geocodeLimit);
     for (const r of list.slice(0, geocodeLimit)) {
-      const p = await geocodeArea(r.name, sidoOfArea(r.area)).catch(() => null);
+      const p = await geocodeArea(r.area).catch(() => null);
       if (p) geocoded++;
       else notFound.push(r.area);
-      await db.from(TABLE).update({ lat: p?.lat ?? null, lng: p?.lng ?? null, geocode_tried_at: new Date().toISOString() }).eq("area", r.area).is("geocode_tried_at", null);
+      // 같은 상권 이름은 모든 분기에 함께(지난 분기 좌표 재사용과 맞춤)
+      await db.from(TABLE).update({ lat: p?.lat ?? null, lng: p?.lng ?? null, geocode_tried_at: new Date().toISOString() }).eq("area", r.area);
     }
+    if (retryMissing) remaining = 0; // 다시 찾기는 한 번 돌면 끝(못 찾은 곳은 계속 못 찾으므로)
   }
   return { quarter, areas, tables, geocoded, notFound, remaining, ms: Date.now() - started };
 }

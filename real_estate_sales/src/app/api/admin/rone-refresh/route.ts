@@ -9,7 +9,7 @@ export const maxDuration = 300;
 export const preferredRegion = "icn1"; // R-ONE 해외 호출 차단 대비(2026-11-06)
 
 // RQ-A4 1단계(2026-11-06): 관리자가 분기마다 한 번 부른다 — R-ONE 표 8개 → rone_commercial_rent, 좌표 없는 상권을 geocode개까지 채움.
-// ?geocode=60(최대 150) · ?only=geocode 는 R-ONE을 다시 받지 않고 좌표만 이어서 채운다.
+// ?geocode=60(최대 150) · ?only=geocode 는 R-ONE을 다시 받지 않고 좌표만 이어서 채운다 · ?retry=missing&geocode=150 은 못 찾은 곳만 다시.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Loose = { from: (t: string) => any };
 
@@ -23,7 +23,8 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const limit = Math.min(150, Math.max(0, Number(url.searchParams.get("geocode") ?? 60) || 0));
   try {
-    return NextResponse.json(await refreshCommercialRent(limit, url.searchParams.get("only") === "geocode"));
+    const retry = url.searchParams.get("retry") === "missing"; // 못 찾은 곳만 검색어 후보로 다시(R-ONE은 다시 받지 않음)
+    return NextResponse.json(await refreshCommercialRent(limit, retry || url.searchParams.get("only") === "geocode", retry));
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 502 });
   }

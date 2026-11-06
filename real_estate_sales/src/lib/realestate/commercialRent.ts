@@ -112,6 +112,23 @@ const SIDO_ADDR: Record<string, string[]> = {
 /** 상권 「서울>강남>강남대로」의 시·도 부분 */
 export const sidoOfArea = (area: string) => area.split(">")[0];
 
+// 「목포구도심」「포항원도심」처럼 도시 이름 + 이 말로 끝나면 옛 시내 — 그 도시 역·이름으로 찾는다
+const OLD_TOWN = /(구도심|원도심|구시가지|시가지|도심|중심)$/;
+
+/** 장소 검색어 후보(앞에서부터 찾고, 찾으면 멈춤). 이름만 → 「/」로 나눈 이름 → 「시도 + 이름」 → 옛 시내면 「도시 역」·「도시」 */
+export function geocodeQueries(area: string): string[] {
+  const parts = area.split(">");
+  const sido = parts[0].replace(/^전남광주$/, parts.length > 2 ? parts[1] : "광주");
+  const name = parts.at(-1)!;
+  const out = [name];
+  const pieces = name.split("/").map((s) => s.trim()).filter(Boolean);
+  if (pieces.length > 1) out.push(...pieces);
+  out.push(`${sido} ${pieces[0]}`);
+  const base = pieces[0].replace(OLD_TOWN, "");
+  if (base && base !== pieces[0] && base.length >= 2) out.push(`${base}역`, `${sido} ${base}`);
+  return [...new Set(out)];
+}
+
 /** 브이월드 장소 검색 결과 중 같은 시·도에 있는 첫 곳 */
 export function pickPlace(items: { address?: string; x: number; y: number }[], sido: string): { lat: number; lng: number } | null {
   const keys = SIDO_ADDR[sido] ?? [sido];
