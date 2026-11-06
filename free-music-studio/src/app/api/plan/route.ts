@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { toLyricLanguage } from "@/lib/lyricLanguages";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { LyricError, planInstrumentals } from "@/lib/ai/lyrics";
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
       count,
       durationSec: (DURATIONS as readonly number[]).includes(duration) ? duration : DEFAULT_DURATION,
       bannedWords: cleanBannedWords(b.banned_words),
-      language: b.language === "en" ? "en" : "ko",
+      language: toLyricLanguage(b.language),
       // 나눠 기획할 때 앞 묶음 제목(겹침 방지)과 「21-40 of 40」 표시 — 화면이 보낸다
       used: Array.isArray(b.used) ? b.used.filter((t): t is string => typeof t === "string").map((t) => t.slice(0, LIMITS.title)).slice(0, PLAN_TOTAL_MAX) : [],
       batch: typeof b.batch === "string" ? b.batch.slice(0, 40) : undefined,

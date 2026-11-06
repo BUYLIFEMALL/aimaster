@@ -108,9 +108,9 @@ export type TaskState = { state: "running" } | { state: "done"; file: string } |
 
 // ── 순수 함수(시험 tests/engine.test.mjs) ─────────────────────────
 
-/** 가사에 한글이 있으면 한국어로 부른다. 없으면 영어. */
-export function vocalLanguage(lyrics: string): "ko" | "en" {
-  return /[가-힣]/.test(lyrics) ? "ko" : "en";
+/** 엔진(ACE-Step)에 보낼 가사 언어 — 가사 글자로 판단(한글이면 한국어, 일본어·중국어·스페인어 등 50개, 모르면 영어). lib/lyricLanguages.ts */
+export function vocalLanguage(lyrics: string): string {
+  return detectLyricLanguage(lyrics);
 }
 
 /**
@@ -901,4 +901,5 @@ export async function revealVideoFolder() {
 export async function fetchAudio(file: string): Promise<string> {
   const res = await call(file, {}, 120_000);
   return URL.createObjectURL(await res.blob());
-}
+}import { detectLyricLanguage } from "./lyricLanguages";
+

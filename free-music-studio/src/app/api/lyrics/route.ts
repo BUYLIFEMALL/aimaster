@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { toLyricLanguage } from "@/lib/lyricLanguages";
 import { checkProgramAccessApi } from "@/lib/access";
 import { getUserApiKey } from "@/lib/apiKeys";
 import { LyricError, writeLyrics } from "@/lib/ai/lyrics";
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
       mood: str(b.mood, 60),
       tags: str(b.tags, 300),
       fixedStyle: str(b.fixed_style, LIMITS.style),
-      language: b.language === "en" ? "en" : "ko",
+      language: toLyricLanguage(b.language),
       durationSec: (DURATIONS as readonly number[]).includes(duration) ? duration : DEFAULT_DURATION,
       refine: b.refine !== false,
       bannedWords: cleanBannedWords(b.banned_words),

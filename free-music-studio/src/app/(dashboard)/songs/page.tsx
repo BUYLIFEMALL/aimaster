@@ -16,6 +16,7 @@ import type { Collection } from "@/lib/collections";
 import { ProjectTracks } from "@/components/songs/ProjectTracks";
 import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult } from "@/components/songs/LyricResultDialog";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
+import { DEFAULT_LYRIC_LANGUAGE, LYRIC_LANGUAGES, isBestLanguage } from "@/lib/lyricLanguages";
 import { LYRIC_GENRES, MAX_MOODS, MAX_VOCALS, MOOD_GROUPS, TEMPOS, VOCALS, lyricMoodPayload, moodConflict, toggleMany, toggleMood } from "@/lib/lyricTags";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string; project_id: string | null };
@@ -56,7 +57,7 @@ export default function SongsPage() {
   const [tempo, setTempo] = useState("");
   const [vocals, setVocals] = useState<string[]>([]);
   const moodTags = lyricMoodPayload({ moods, tempo, vocals }).tags;
-  const [language, setLanguage] = useState<"ko" | "en">("ko");
+  const [language, setLanguage] = useState<string>(DEFAULT_LYRIC_LANGUAGE);
   const [refine, setRefine] = useState(true);
   const [banned, setBanned] = useState("");
   const [planCount, setPlanCount] = useState(3);
@@ -714,10 +715,27 @@ export default function SongsPage() {
                     {draft.style_prompt.trim() ? " · 스타일 칸이 이미 있어 가사 분위기에만 반영합니다" : " · 스타일 칸에도 들어갑니다"}
                   </p>
                 )}
-                <select className={`${field} sm:w-60`} value={language} onChange={(e) => setLanguage(e.target.value as "ko" | "en")}>
-                  <option value="ko">한국어 가사</option>
-                  <option value="en">영어 가사</option>
-                </select>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select className={`${field} sm:w-60`} value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="가사 언어">
+                    <optgroup label="잘 부르는 언어(추천)">
+                      {LYRIC_LANGUAGES.filter((l) => l.best).map((l) => (
+                        <option key={l.code} value={l.code}>
+                          {l.ko} 가사
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="그 밖의 언어(발음이 덜 자연스러울 수 있음)">
+                      {LYRIC_LANGUAGES.filter((l) => !l.best).map((l) => (
+                        <option key={l.code} value={l.code}>
+                          {l.ko} 가사
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+                  <span className="text-[11px] text-slate-500">
+                    {isBestLanguage(language) ? "음악 엔진(ACE-Step)이 잘 부르는 언어입니다." : "엔진이 지원하지만 발음·음정이 덜 자연스러울 수 있어요. 짧게 먼저 들어 보세요."} 50개 언어 지원 · 노래를 만들 때 가사 글자로 언어를 알아냅니다
+                  </span>
+                </div>
               </div>
             )}
             <input

@@ -1,3 +1,4 @@
+import { languageEnglishName } from "@/lib/lyricLanguages";
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import type { LyricModel, LyricProvider } from "@/lib/lyricModels";
@@ -17,7 +18,8 @@ export type LyricRequest = {
   fixedStyle?: string;
   /** 회원이 버튼으로 고른 영어 태그(분위기·빠르기·목소리, ACE-Step 캡션 단어) */
   tags?: string;
-  language: "ko" | "en";
+  /** 가사 언어 코드(lib/lyricLanguages.ts, 기본 ko) */
+  language: string;
   durationSec: number;
   refine: boolean;
   bannedWords: string[];
@@ -29,7 +31,7 @@ export type LyricRequest = {
 export type LyricResult = { title: string; style_prompt: string; lyrics: string; calls: number };
 
 /** used: 앞 묶음에서 이미 쓴 제목(원본 titlesAlreadyUsed) · batch: 「21-40 of 40」 같은 묶음 표시 */
-export type PlanRequest = { theme: string; style: string; count: number; durationSec: number; bannedWords: string[]; language: "ko" | "en"; used?: string[]; batch?: string };
+export type PlanRequest = { theme: string; style: string; count: number; durationSec: number; bannedWords: string[]; language: string; used?: string[]; batch?: string };
 
 /** 공급사 오류 — 화면에 보여 줄 문장과 상태 번호 */
 export class LyricError extends Error {
@@ -114,7 +116,7 @@ function brief(req: LyricRequest) {
     mood: req.mood || undefined,
     ...(req.tags ? { soundTags: req.tags, soundTagsRule: req.fixedStyle ? "Reflect these tags in the lyrics' emotion and delivery only." : "Include every one of these tags in style_prompt and keep them consistent with the lyrics." } : {}),
     ...(req.fixedStyle ? { fixedStyle: req.fixedStyle, fixedStyleRule: "The member already chose this style. Write lyrics and structure that fit its genre, tempo and vocal; return style_prompt exactly as given." } : {}),
-    lyricLanguage: req.language === "en" ? "English" : "Korean",
+    lyricLanguage: languageEnglishName(req.language),
     targetLength: targetLengthText(req.durationSec),
     ...(req.mode === "edit" && req.current
       ? { currentTitle: req.current.title, currentStyle: req.current.style_prompt, existingLyrics: req.current.lyrics }
@@ -328,7 +330,7 @@ export async function planInstrumentals(provider: LyricProvider, apiKey: string,
     request: req.theme,
     styleHint: req.style || undefined,
     tracks: req.count,
-    titleLanguage: req.language === "en" ? "English" : "Korean",
+    titleLanguage: languageEnglishName(req.language),
     targetLength: targetLengthText(req.durationSec),
     ...(req.bannedWords.length ? { bannedWords: req.bannedWords } : {}),
     ...(req.used?.length ? { titlesAlreadyUsed: req.used } : {}),

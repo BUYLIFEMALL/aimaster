@@ -102,3 +102,23 @@ test("음악 엔진 목록(v1.12): 상업용·개인용, 엔진이 알린 것만
   assert.equal(consentKey("yue2"), "fms-yue2-noncommercial-consent"); // 예전 동의 그대로 이어짐
   assert.equal(engineInfo(undefined).id, "acestep");
 });
+
+test("가사 언어 판단 — 글자·자주 쓰는 낱말로 ACE-Step 50개 언어 중 하나(모르면 영어)", async () => {
+  const { detectLyricLanguage, LYRIC_LANGUAGES, toLyricLanguage } = await import("../src/lib/lyricLanguages.ts");
+  assert.equal(LYRIC_LANGUAGES.length, 50);
+  const cases = {
+    "[Verse]\n雨の午後に君を思う": "ja",
+    "[Chorus]\n我爱你 在雨中": "zh",
+    "Я люблю тебя под дождём": "ru",
+    "Te quiero, mi amor, eres mi corazón": "es",
+    "Je t'aime, mon amour, dans la nuit et le jour": "fr",
+    "Ich liebe dich und du bist mein Herz": "de",
+    "Anh yêu em dưới cơn mưa": "vi",
+    "ฉันรักเธอ": "th",
+    "Aku cinta kamu dengan sepenuh hati": "id",
+    "비 오는 오후 I love you": "ko",
+  };
+  for (const [lyrics, code] of Object.entries(cases)) assert.equal(vocalLanguage(lyrics), code, lyrics);
+  assert.equal(toLyricLanguage("ja"), "ja");
+  assert.equal(toLyricLanguage("xx"), "ko");
+});
