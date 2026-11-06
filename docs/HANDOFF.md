@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 각색 강도 구현(미배포, `shorts-onestop-studio` v1.45 예정) — V2·V5 구현 전부 끝**
+- `9c4c1de96`: 「📜 내 대본으로 장면 만들기」에 「✨ AI로 다듬기」 — 강도 3단(맞춤법만 / 문장 다듬기 / 구성까지 새로), 「제가 직접 쓴 대본입니다」 체크 뒤 회원 본인 키 1회(`/api/ai/rewrite`, `src/lib/rewrite.ts` 강도별 규칙·줄 수 검사), 줄 수 그대로, 「다듬기 전으로」 되돌리기. 실행은 `usage` `script_rewrite`로 기록(공용 `own_content_rights_log`는 `program` 제약상 이 프로그램을 받지 않음). 시험 42개·tsc·로컬 빌드 통과.
+- V2·V5 묶음 현황: V5 지우기(배포 v1.26) · V2 컷 목록(배포 v1.28) · 언어판·해설 교차편집(미배포 `ai-video-studio` v1.29) · 각색 강도(미배포 `shorts-onestop-studio` v1.45). 플랜 `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8.
+- 남은 것: 배포 승인(빌드 2회 — 승인 남은 1회 + 추가 1회) → 순차 배포 → 시험 계정으로 언어판·해설 교차편집·각색 강도 각 1회 확인(회원 키 몇십 원).
+- 링크(배포 뒤): https://shorts-onestop-studio.buylife.xyz/topic
+
 ## 2026-11-06 🟠 [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-imgdeploy·u10deploy·blogdeploy(같은 대화) — **남은 작업 정리 + 이미지·디자인 11개 배포 + 쇼핑몰 빌더 D14 Lab 배포 + 블로그 6개 배포 준비(빌드 전 멈춤) — 블로그 전담 세션 필독**
 - **이미지·디자인 11개 배포(완료)**: 위 항목 「이미지·디자인 미배포 묶음 11개」 참고. 빌드 11회, 모두 Ready·DB 버전 맞춤.
 - **쇼핑몰 빌더 D14(완료, ⚠ 중복)**: 17:33 Lab 배포 `mnqfblzbm`. 전담 mall-builder 세션도 17:42에 같은 커밋을 배포(`qjphj5kxw`) → 빌드 1회 낭비. 기록 `docs/ERROR_LESSONS.md` 맨 위(다음부터 ⓐ~ⓓ).

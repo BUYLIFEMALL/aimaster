@@ -28,6 +28,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `shorts-onestop-studio` | V2 각색 강도 — 내 대본 「✨ AI로 다듬기」 3단(맞춤법만·문장 다듬기·구성까지 새로), 회원 키 1회 `/api/ai/rewrite`, 줄 수 유지, 되돌리기, `usage` `script_rewrite` | `9c4c1de96` | 2026-11-06 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.45(빌드 승인 필요). 배포 뒤 시험 계정으로 다듬기 1회 확인 |
 | `ai-video-studio` | V2 「🌐 언어판 만들기」(영·일·중·베 — 회원 키 번역 `/api/edit/translate`, 언어별 글꼴, 음성 `lang`, `own_content_rights_log` tool `lang`) + 공용 `renderTrace` 모듈 등록 · V2 「🎙️ 해설 교차편집」 `/narrate`(해설 녹음+촬영본 → 받아쓰기 → 문장마다 컷 배치 → 영상 합치기, tool `narration-cut`) | `3a550fe12`, `42f743503` | 2026-11-06 · [역할: video] `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.29(빌드 승인 1회 남음). 배포 뒤 시험 계정으로 번역·일본어 글꼴·해설 받아쓰기 각 1회 확인 |
 | `music-video-studio` | 공용 사본 동기화(`timeline`·`Composition` + 새 사본 `renderTrace.ts`) — 동작 불변 | `3a550fe12` | 2026-11-06 · [역할: video] `claude-win-video` | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 급하지 않음, 그 프로그램 다음 배포 때 함께(v1.28) |
 | `realty-client-desk` | 수신거부 저장 실패 시 「처리됐어요」 대신 오류 문구 | `5cc894781` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `realty-client-desk/AGENTS.md` 5. 남은 일 | 배포 뒤 버전 +0.01 |
