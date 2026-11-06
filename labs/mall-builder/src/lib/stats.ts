@@ -5,7 +5,7 @@ export const PAY_METHOD_LABEL: Record<string, string> = { card: "카드", credit
 export const MAX_RANGE_DAYS = 400;
 
 export type Stats = {
-  summary: { orders: number; sales: number; avg_order: number; cancelled_count: number; cancelled_amount: number; pending_count: number; all_orders: number; new_customers: number; total_customers: number; buyers: number };
+  summary: { orders: number; sales: number; avg_order: number; cancelled_count: number; cancelled_amount: number; pending_count: number; all_orders: number; new_customers: number; total_customers: number; buyers: number; guest_orders?: number };
   daily: { day: string; orders: number; sales: number }[];
   by_status: { status: string; count: number }[];
   pay_method: { method: string; count: number; amount: number }[];

@@ -49,6 +49,7 @@ export default async function AdminOrdersPage({
                 <span className="min-w-0 flex-1 truncate">
                   {o.first_item}
                   {o.item_count > 1 && ` 외 ${o.item_count - 1}건`} · {o.receiver.receiver} · 입금자 {o.depositor}
+                  {o.is_guest && <span className="ml-1 rounded bg-amber-50 px-1.5 text-xs text-amber-800" data-guest-badge>비회원</span>}
                 </span>
                 <b>{formatWon(o.total)}</b>
                 <span className="rounded bg-gray-100 px-2 py-0.5 text-xs">{ORDER_STATUS_LABEL[o.status]}</span>

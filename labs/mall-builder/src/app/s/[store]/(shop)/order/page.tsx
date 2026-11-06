@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCart, getCreditLedger, getMyAddresses, getMyCustomer, getPriceContexts, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
+import { getCart, getCreditLedger, getCurrentUser, getMyAddresses, getMyCustomer, getPriceContexts, getShippingPolicies, getStoreBySlug, requireUser, type Store } from "@/lib/store";
+import { guestOrderEnabled } from "@/lib/guest";
+import { loadGuestCart } from "@/lib/guest-store";
+import GuestOrderForm from "./guest-order-form";
 import { cartTotals, priceLine } from "@/lib/pricing";
 import { regionOfZip, type Region } from "@/lib/shipping";
 import { formatWon } from "@/lib/products";
@@ -15,8 +18,9 @@ export const fetchCache = "force-no-store";
 export default async function OrderPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const base = `/s/${slug}`;
-  const user = await requireUser(`${base}/order`);
   const store = await getStoreBySlug(slug);
+  if (!(await getCurrentUser()) && guestOrderEnabled(store.settings)) return <GuestOrderPage store={store} />;
+  const user = await requireUser(`${base}/order`);
   const customer = await getMyCustomer(store.id, user.id);
   if (!customer) redirect(`${base}/join?next=${encodeURIComponent(`${base}/order`)}`);
   const [rows, policies, addresses] = await Promise.all([getCart(store.id, user.id), getShippingPolicies(store.id), getMyAddresses(customer.id)]);
@@ -77,6 +81,42 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
           card={card}
         />
       )}
+    </main>
+  );
+}
+
+// 비회원 주문서(D15) — 쿠키 장바구니를 같은 가격 엔진으로(보는 사람 = 비회원), 지역별 합계는 미리 계산해 주소에 맞춰 바꾼다
+async function GuestOrderPage({ store }: { store: Store }) {
+  const base = `/s/${store.slug}`;
+  const [rows, policies] = await Promise.all([loadGuestCart(store.id, store.slug), getShippingPolicies(store.id)]);
+  const ctxOf = await getPriceContexts(store.id, rows.map((r) => r.product.id));
+  const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty, ctxOf(r.product.id)) }));
+  if (!lines.length || lines.some((l) => !l.price.orderable)) redirect(`${base}/cart`);
+  const shipLines = lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: true }));
+  const totalsByRegion = Object.fromEntries(
+    (["mainland", "jeju", "island"] as Region[]).map((r) => {
+      const t = cartTotals(shipLines, policies, r);
+      return [r, { subtotal: t.subtotal, shipping: t.shipping, total: t.total }];
+    }),
+  ) as Record<Region, { subtotal: number; shipping: number; total: number }>;
+  const info = readBusinessInfo(store.business_info);
+  const bankText = info.bank_name && info.bank_account
+    ? `${info.bank_name} ${info.bank_account}${info.bank_holder ? ` (예금주 ${info.bank_holder})` : ""} — 주문 후 입금해 주세요.`
+    : "입금 계좌는 주문 후 안내됩니다.";
+
+  return (
+    <main className="mx-auto max-w-3xl px-4 py-8">
+      <h1 className="text-xl font-bold">주문서 <span className="text-sm font-normal text-gray-500">(비회원)</span></h1>
+      <ul className="mt-6 divide-y border-y text-sm">
+        {lines.map((l) => (
+          <li key={l.index} className="flex justify-between gap-4 py-3" data-order-line>
+            <span>{l.product.name}{l.variant && <span className="text-gray-500"> · {l.variant.key}</span>} × {l.qty}</span>
+            <b>{formatWon(l.price.lineTotal)}</b>
+          </li>
+        ))}
+      </ul>
+      <Link href={`${base}/cart`} className="mt-2 inline-block text-sm underline">장바구니로 돌아가기</Link>
+      <GuestOrderForm slug={store.slug} totalsByRegion={totalsByRegion} bankText={bankText} loginHref={`/login?next=${encodeURIComponent(`${base}/cart`)}`} />
     </main>
   );
 }

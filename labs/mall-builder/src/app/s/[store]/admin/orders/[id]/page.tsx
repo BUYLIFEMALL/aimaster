@@ -100,6 +100,11 @@ export default async function AdminOrderDetailPage({
           )}
         </div>
         <div className="rounded border p-4">
+          {order.is_guest && (
+            <p className="mb-2 rounded bg-amber-50 px-2 py-1 text-amber-900" data-guest-info>
+              <b>비회원 주문</b> · {order.guest_name} · {order.guest_phone}{order.guest_email && ` · ${order.guest_email}`}
+            </p>
+          )}
           <p className="font-medium">받는 분</p>
           <p className="mt-1">{r.receiver} · {r.phone}</p>
           <p>({r.zip}) {r.addr1} {r.addr2}</p>

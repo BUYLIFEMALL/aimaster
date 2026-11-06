@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCart, getMyAddresses, getMyCustomer, getPriceContexts, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
+import { getCart, getCurrentUser, getMyAddresses, getMyCustomer, getPriceContexts, getShippingPolicies, getStoreBySlug, requireUser } from "@/lib/store";
+import { guestOrderEnabled } from "@/lib/guest";
+import GuestCart from "./guest-cart";
 import { cartTotals, priceLine, MAX_QTY } from "@/lib/pricing";
 import { regionOfZip } from "@/lib/shipping";
 import { formatWon } from "@/lib/products";
@@ -22,8 +24,10 @@ export default async function CartPage({
 }) {
   const { store: slug } = await params;
   const { error } = await searchParams;
-  const user = await requireUser(`/s/${slug}/cart`);
   const store = await getStoreBySlug(slug);
+  // 비회원 주문을 켠 몰은 로그인 없이 쿠키 장바구니(D15)
+  if (!(await getCurrentUser()) && guestOrderEnabled(store.settings)) return <GuestCart store={store} error={error} />;
+  const user = await requireUser(`/s/${slug}/cart`);
   const customer = await getMyCustomer(store.id, user.id);
   if (!customer) redirect(`/s/${slug}/join?next=${encodeURIComponent(`/s/${slug}/cart`)}`);
   const [rows, policies, addresses] = await Promise.all([getCart(store.id, user.id), getShippingPolicies(store.id), getMyAddresses(customer.id)]);

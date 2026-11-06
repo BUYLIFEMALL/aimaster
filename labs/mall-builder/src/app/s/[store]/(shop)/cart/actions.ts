@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { priceLine } from "@/lib/pricing";
 import { getPriceContext, type ProductRow } from "@/lib/store";
 import type { Variant } from "@/lib/options";
+import { addLine, guestOrderEnabled, removeLine, setLineQty } from "@/lib/guest";
+import { loadGuestCart, readGuestCart, writeGuestCart } from "@/lib/guest-store";
 
 // 보안 규칙(본인 줄만·가입한 몰에만·같은 몰 상품만)을 그대로 거친다. 담을 때도 가격 엔진으로 다시 검사한다
 
@@ -14,8 +16,8 @@ export type AddResult = { ok: true; count: number } | { ok: false; error: string
 async function context(slug: string) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
-  const { data: store } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();
-  return { supabase, user: data.user, storeId: (store?.id as string | undefined) ?? null };
+  const { data: store } = await supabase.from("mall_builder_stores").select("id, settings").eq("slug", slug).maybeSingle();
+  return { supabase, user: data.user, storeId: (store?.id as string | undefined) ?? null, guestOk: guestOrderEnabled(store?.settings) };
 }
 
 async function loadProduct(supabase: Awaited<ReturnType<typeof createClient>>, storeId: string, productId: string, variantId: string | null) {
@@ -39,9 +41,11 @@ async function loadProduct(supabase: Awaited<ReturnType<typeof createClient>>, s
 
 /** 상품 상세에서 담기 — 같은 상품·옵션이 있으면 수량을 더한다 */
 export async function addToCartAction(slug: string, productId: string, variantId: string | null, qty: number): Promise<AddResult> {
-  const { supabase, user, storeId } = await context(slug);
+  const { supabase, user, storeId, guestOk } = await context(slug);
   const here = `/s/${slug}/p/${productId}`;
   if (!storeId) return { ok: false, error: "몰을 찾을 수 없습니다." };
+  // 비회원 주문을 켠 몰(D15): 로그인 없이 쿠키 장바구니에 담는다(보는 사람 = 비회원으로 가격 검사)
+  if (!user && guestOk) return addToGuestCart(supabase, slug, storeId, productId, variantId, qty);
   if (!user) return { ok: false, error: "로그인 후 담을 수 있습니다.", goto: `/login?next=${encodeURIComponent(here)}` };
   const { data: customer } = await supabase.from("mall_builder_store_customers").select("id").eq("store_id", storeId).eq("user_id", user.id).maybeSingle();
   if (!customer) return { ok: false, error: "이 몰에 가입한 뒤 담을 수 있습니다.", goto: `/s/${slug}/join?next=${encodeURIComponent(here)}` };
@@ -81,6 +85,40 @@ export async function updateQtyAction(slug: string, itemId: string, form: FormDa
   if (!check.orderable) back(slug, check.errors[0]);
   const { error } = await supabase.from("mall_builder_cart_items").update({ qty }).eq("id", itemId).eq("user_id", user!.id);
   back(slug, error?.message);
+}
+
+async function addToGuestCart(
+  supabase: Awaited<ReturnType<typeof createClient>>, slug: string, storeId: string, productId: string, variantId: string | null, qty: number,
+): Promise<AddResult> {
+  const loaded = await loadProduct(supabase, storeId, productId, variantId);
+  if (!loaded) return { ok: false, error: "상품을 찾을 수 없습니다." };
+  const lines = await readGuestCart(slug);
+  const added = addLine(lines, productId, variantId, qty);
+  if (!added.ok) return { ok: false, error: added.error };
+  const check = priceLine(loaded.product, loaded.variant, added.qty, await getPriceContext(storeId, productId));
+  if (!check.orderable) return { ok: false, error: added.qty > qty ? `${check.errors[0]} (장바구니에 이미 ${added.qty - qty}개)` : check.errors[0] };
+  await writeGuestCart(slug, added.lines);
+  revalidatePath(`/s/${slug}`, "layout");
+  return { ok: true, count: added.lines.length };
+}
+
+/** 비회원 장바구니 수량 바꾸기 — 같은 가격 엔진으로 검사 */
+export async function updateGuestQtyAction(slug: string, index: number, form: FormData) {
+  const qty = Number(form.get("qty"));
+  const { storeId } = await context(slug);
+  if (!storeId) back(slug, "몰을 찾을 수 없습니다.");
+  const rows = await loadGuestCart(storeId!, slug);
+  const row = rows.find((r) => r.index === index);
+  if (!row) back(slug, "장바구니에 없는 상품입니다.");
+  const check = priceLine(row!.product, row!.variant, qty, await getPriceContext(storeId!, row!.product.id));
+  if (!check.orderable) back(slug, check.errors[0]);
+  await writeGuestCart(slug, setLineQty(await readGuestCart(slug), index, qty));
+  back(slug);
+}
+
+export async function removeGuestLineAction(slug: string, index: number) {
+  await writeGuestCart(slug, removeLine(await readGuestCart(slug), index));
+  back(slug);
 }
 
 export async function removeItemAction(slug: string, itemId: string) {

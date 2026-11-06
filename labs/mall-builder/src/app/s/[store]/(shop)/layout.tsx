@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { getCartCount, getCategoryRows, getCurrentUser, getMyCustomer, getStoreBySlug, isStoreStaff } from "@/lib/store";
 import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
 import { buildCategoryTree } from "@/lib/categories";
+import { guestOrderEnabled } from "@/lib/guest";
+import { readGuestCart } from "@/lib/guest-store";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,9 @@ export default async function ShopLayout({ children, params }: { children: React
   const [user, staff, categoryRows] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id)]);
   const customer = user ? await getMyCustomer(store.id, user.id) : null;
   const cartCount = customer && user ? await getCartCount(store.id, user.id) : 0;
+  // 비회원 주문을 켠 몰(D15): 로그인 전에도 장바구니(쿠키)·주문 조회
+  const guestOk = !user && guestOrderEnabled(store.settings);
+  const guestCartCount = guestOk ? (await readGuestCart(store.slug)).length : 0;
   // 손님 메뉴에는 보이는 카테고리만(운영자로 보고 있어도 손님과 같게)
   const topCategories = buildCategoryTree(categoryRows, false);
   const info = readBusinessInfo(store.business_info);
@@ -46,6 +51,12 @@ export default async function ShopLayout({ children, params }: { children: React
             <Link href={`${base}/faq`} className="hidden sm:inline">FAQ</Link>
             {!user ? (
               <>
+                {guestOk && (
+                  <>
+                    <Link href={`${base}/cart`} data-cart-link>장바구니{guestCartCount ? ` ${guestCartCount}` : ""}</Link>
+                    <Link href={`${base}/guest`}>주문 조회</Link>
+                  </>
+                )}
                 <Link href={`/login?next=${encodeURIComponent(base)}`}>로그인</Link>
                 <Link href={`${base}/join`}>가입</Link>
               </>

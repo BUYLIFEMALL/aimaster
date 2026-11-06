@@ -57,7 +57,7 @@ export default async function AdminStatsPage({ params, searchParams }: { params:
       </p>
 
       <section className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4" data-summary>
-        <Card label="매출" value={formatWon(s.sales)} sub={`주문 ${s.orders}건 · 평균 ${formatWon(s.avg_order)}`} />
+        <Card label="매출" value={formatWon(s.sales)} sub={`주문 ${s.orders}건 · 평균 ${formatWon(s.avg_order)}${s.guest_orders ? ` · 비회원 ${s.guest_orders}건` : ""}`} />
         <Card label="구매 손님" value={`${s.buyers}명`} sub={`새 가입 ${s.new_customers}명 · 전체 ${s.total_customers}명`} />
         <Card label="취소·반품" value={`${s.cancelled_count}건`} sub={formatWon(s.cancelled_amount)} />
         <Card label="입금 대기" value={`${s.pending_count}건`} sub={`기간 전체 주문 ${s.all_orders}건`} />

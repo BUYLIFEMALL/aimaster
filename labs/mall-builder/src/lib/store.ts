@@ -19,10 +19,11 @@ export type Store = {
   name: string;
   status: "active" | "suspended";
   business_info: unknown; // readBusinessInfo()로 읽는다
+  settings: unknown; // guestOrderEnabled() 등으로 읽는다
   created_at: string;
 };
 
-const STORE_COLUMNS = "id, owner_id, slug, name, status, business_info, created_at";
+const STORE_COLUMNS = "id, owner_id, slug, name, status, business_info, settings, created_at";
 
 export async function getCurrentUser() {
   const supabase = await createClient();

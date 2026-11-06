@@ -8,6 +8,8 @@ import NotifyForm, { type NotifyStatus } from "./notify-form";
 import EmailForm, { type EmailStatus } from "./email-form";
 import PaymentForm, { type PaymentStatus } from "./payment-form";
 import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form";
+import GuestForm from "./guest-form";
+import { guestOrderEnabled } from "@/lib/guest";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { digits } from "@/lib/notify";
 
@@ -108,6 +110,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       <SettingsForm slug={store.slug} name={store.name} info={readBusinessInfo(store.business_info)} />
       <div className="mt-6">
         <PaymentForm slug={store.slug} status={payment} />
+      </div>
+      <div className="mt-6">
+        <GuestForm slug={store.slug} enabled={guestOrderEnabled(store.settings)} />
       </div>
       <div className="mt-6">
         <DepositForm slug={store.slug} status={deposit} />

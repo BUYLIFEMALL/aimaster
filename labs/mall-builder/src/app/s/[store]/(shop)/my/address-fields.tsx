@@ -24,8 +24,9 @@ function loadScript(): Promise<void> {
 
 const input = "mt-0.5 w-full rounded border px-2 py-1.5 text-sm";
 
-export default function AddressFields({ zip, addr1 }: { zip: string; addr1: string }) {
-  const [z, setZ] = useState(zip);
+export default function AddressFields({ zip, addr1, onZip }: { zip: string; addr1: string; /** 우편번호가 바뀔 때(비회원 주문서가 배송비 지역을 다시 계산) */ onZip?: (zip: string) => void }) {
+  const [z, setZRaw] = useState(zip);
+  const setZ = (v: string) => { setZRaw(v); onZip?.(v); };
   const [a, setA] = useState(addr1);
   const [error, setError] = useState("");
   const box = useRef<HTMLButtonElement | null>(null);
