@@ -28,8 +28,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `shorts-onestop-studio` | V2 각색 강도 — 내 대본 「✨ AI로 다듬기」 3단(맞춤법만·문장 다듬기·구성까지 새로), 회원 키 1회 `/api/ai/rewrite`, 줄 수 유지, 되돌리기, `usage` `script_rewrite` | `9c4c1de96` | 2026-11-06 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.45(빌드 승인 필요). 배포 뒤 시험 계정으로 다듬기 1회 확인 |
-| `ai-video-studio` | V2 「🌐 언어판 만들기」(영·일·중·베 — 회원 키 번역 `/api/edit/translate`, 언어별 글꼴, 음성 `lang`, `own_content_rights_log` tool `lang`) + 공용 `renderTrace` 모듈 등록 · V2 「🎙️ 해설 교차편집」 `/narrate`(해설 녹음+촬영본 → 받아쓰기 → 문장마다 컷 배치 → 영상 합치기, tool `narration-cut`) | `3a550fe12`, `42f743503` | 2026-11-06 · [역할: video] `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.29(빌드 승인 1회 남음). 배포 뒤 시험 계정으로 번역·일본어 글꼴·해설 받아쓰기 각 1회 확인 |
 | `music-video-studio` | 공용 사본 동기화(`timeline`·`Composition` + 새 사본 `renderTrace.ts`) — 동작 불변 | `3a550fe12` | 2026-11-06 · [역할: video] `claude-win-video` | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 급하지 않음, 그 프로그램 다음 배포 때 함께(v1.28) |
 | `realty-client-desk` | 수신거부 저장 실패 시 「처리됐어요」 대신 오류 문구 | `5cc894781` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `realty-client-desk/AGENTS.md` 5. 남은 일 | 배포 뒤 버전 +0.01 |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |
@@ -88,6 +86,8 @@
 | `video-to-gif` | v1.26 · 2026-11-06 ([역할: video] `claude-win-video`, 주인님 채팅 승인 빌드 3회 중 1회, `video-to-ddad3w65y`) | V4 화면에서 바로 녹화 `a0f04a3da` + V5 내 영상 일부 지우기 `d71f6be9e`, 렌더러·확장 ZIP v1.26, DB `version`·`extension_version` v1.26(`check-extension-release` OK). 운영에서 시험 계정으로 V5 실제 지우기 1회 확인(3초 영상, 기록 줄 들어감). V4 실제 녹화는 화면 공유 창을 주인님이 골라야 해서 남음 |
 | `shorts-onestop-studio` | v1.44 · 2026-11-06 ([역할: video] `claude-win-video`, 주인님 채팅 승인 빌드 3회 중 2회, `shorts-onestop-studio-4gt4hlp2d`) | V3 1단계 상품 홍보 쇼츠 `ea6bdead1` + 30일 열외 `c720528f6`(맥미니 몫, 함께 나감). 시험 39개·tsc 통과, 크롬 시험 계정 대시보드 v1.44 확인. AI 대본 1회 확인은 회원 키 비용이라 남음 |
 | `ai-video-studio` | v1.27 · 2026-11-06 ([역할: video] `claude-win-video`, 승인 빌드 1회, `ai-video-studio-bg1c1uy1t` Ready, DB 버전 맞춤) | V1 「✂️ 긴 영상 → 쇼츠」 `54f631c7d` + 30일 정리 예외 회원(`lib/retentionExempt.ts`) — 운영에서 관리자 계정 본인 키로 받아쓰기·구간 고르기·영상 합치기·MP4(17.9초) 끝까지 확인 |
+| `ai-video-studio` | v1.29 · 2026-11-06 ([역할: video] `claude-win-video`, 주인님 「배포진행해」 승인 빌드, `ai-video-studio-op4n162e7` Ready, DB v1.29) | V2 언어판 만들기 `3a550fe12` + 해설 교차편집 `/narrate` `42f743503`. 시험 93개·tsc·로컬 build. 운영 주소 200. 번역·일본어 글꼴·해설 받아쓰기 실제 확인은 시험 계정 회원 키 비용이라 남음 |
+| `shorts-onestop-studio` | v1.45 · 2026-11-06 ([역할: video] `claude-win-video`, 같은 승인 빌드, `shorts-onestop-studio-f1i2zbcg1` Ready, DB v1.45) | V2 각색 강도 「✨ AI로 다듬기」 `9c4c1de96`. 시험 42개·tsc·로컬 build. 운영 주소 200. 다듬기 1회 실제 확인은 회원 키 비용이라 남음 |
 | `ai-work-workspace` | v1.21 · 2026-11-06 ([역할: workspace] U9, `ai-work-workspace-iajw3o5s8` Ready, DB 버전 맞춤) | U9 「📨 다른 프로그램으로 보내기」(슬라이드·번역·문서 챗봇), 요약 소제목 한국어화 `297efb419`, 휴지통 안내 한국어화 `1551c9041` |
 | `ai-doc-chatbot` | v1.09 · 2026-11-06 ([역할: workspace] U9-D, `ai-doc-chatbot-cee17egz5` Ready, DB 버전 맞춤) | 받은 문서 등록(새 기능), 모델 교체 묶음 C `3be5e593d` |
 | `document-translator` | v1.23 · 2026-11-06 ([역할: workspace] U9-C, `document-translator-n5hiahhbz` Ready, DB 버전 맞춤) | 없음(새 기능만: 받은 문서 열기·번역문 보내기) |
