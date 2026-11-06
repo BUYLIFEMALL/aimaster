@@ -42,7 +42,7 @@ export async function saveDepositAction(slug: string, _prev: DepositState, form:
     if (parsed.value !== null) return { error: null, message: "저장했습니다. cron-job.org API 키를 등록하면 자동 취소가 시작됩니다.", hours: hoursText };
     return {
       error: null,
-      message: sync.active ? "자동 취소를 껐습니다. 주문 알림은 계속 보냅니다." : "자동 취소를 껐습니다. 새 주문에는 입금 기한이 붙지 않습니다.",
+      message: sync.active ? "자동 취소를 껐습니다. 다른 자동 작업(주문 알림·자동 배송 완료·구매 확정)은 계속합니다." : "자동 취소를 껐습니다. 새 주문에는 입금 기한이 붙지 않습니다.",
       hours: hoursText,
     };
   } catch (e) {

@@ -7,16 +7,21 @@ import DepositForm, { type DepositStatus } from "./deposit-form";
 import NotifyForm, { type NotifyStatus } from "./notify-form";
 import EmailForm, { type EmailStatus } from "./email-form";
 import PaymentForm, { type PaymentStatus } from "./payment-form";
+import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { digits } from "@/lib/notify";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-async function depositStatus(storeId: string): Promise<DepositStatus> {
+async function depositStatus(storeId: string): Promise<DepositStatus & { auto: AutoProgressStatus }> {
   const supabase = await createClient();
   const [{ data: row }, { data: key }] = await Promise.all([
-    supabase.from("mall_builder_store_schedulers").select("deposit_hours, job_id, paused, last_run_at, last_cancelled, total_cancelled").eq("store_id", storeId).maybeSingle(),
+    supabase
+      .from("mall_builder_store_schedulers")
+      .select("deposit_hours, job_id, paused, last_run_at, last_cancelled, total_cancelled, auto_deliver_days, auto_confirm_days, last_auto_progressed, total_auto_progressed")
+      .eq("store_id", storeId)
+      .maybeSingle(),
     supabase.rpc("mall_builder_scheduler_api_key", { p_store_id: storeId }),
   ]);
   return {
@@ -27,6 +32,16 @@ async function depositStatus(storeId: string): Promise<DepositStatus> {
     lastRunAt: row?.last_run_at ?? null,
     lastCancelled: row?.last_cancelled ?? 0,
     totalCancelled: row?.total_cancelled ?? 0,
+    auto: {
+      deliverDays: row?.auto_deliver_days ?? null,
+      confirmDays: row?.auto_confirm_days ?? null,
+      hasCronKey: Boolean(key),
+      linked: row?.job_id != null,
+      paused: row?.paused ?? false,
+      lastRunAt: row?.last_run_at ?? null,
+      lastProgressed: row?.last_auto_progressed ?? 0,
+      totalProgressed: row?.total_auto_progressed ?? 0,
+    },
   };
 }
 
@@ -96,6 +111,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <DepositForm slug={store.slug} status={deposit} />
+      </div>
+      <div className="mt-6">
+        <AutoProgressForm slug={store.slug} status={deposit.auto} />
       </div>
       <div className="mt-6">
         <NotifyForm slug={store.slug} status={notify} />

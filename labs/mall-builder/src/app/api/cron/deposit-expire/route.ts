@@ -1,5 +1,5 @@
 // 몰 운영자 본인 cron-job.org가 부르는 실행 주소(주문 알림이 켜져 있으면 1분, 아니면 10분마다) —
-// 머리글의 몰 전용 토큰으로 그 몰만 처리한다: 기한 지난 입금 대기 주문 자동 취소(D8) → 알림 대기 줄 문자 발송(0025) → 메일 발송(0026, Resend).
+// 머리글의 몰 전용 토큰으로 그 몰만 처리한다: 기한 지난 입금 대기 주문 자동 취소(D8) → 자동 배송 완료·구매 확정(D12) → 알림 대기 줄 문자 발송(0025) → 메일 발송(0026, Resend).
 // 로그인 세션 없이 공개 키로 DB 함수만 부른다(서비스 키 없음). 토큰이 없거나 틀리면 401.
 // 주소 이름은 D8 때 그대로 둔다 — 이미 등록된 운영자 cron-job.org 작업이 이 주소를 찾아 다시 쓰기 때문(바꾸면 작업이 둘로 늘어남).
 import { createClient } from "@supabase/supabase-js";
@@ -25,6 +25,10 @@ async function run(request: Request) {
     return Response.json({ error: "failed" }, { status: 500 });
   }
 
+  // 자동 배송 완료·구매 확정(D12) — 꺼져 있으면 DB 함수가 0건으로 끝난다. 실패해도 자동 취소·알림 발송은 계속한다
+  const progress = await supabase.rpc("mall_builder_auto_progress", { p_token_hash: hash });
+  const auto = progress.error ? { error: "auto_progress_failed" as const } : progress.data;
+
   // 자동 취소가 만든 「자동 취소 → 손님」 알림까지 이번에 함께 보낸다
   const sms = await sendChannel(hash, async () => {
     const claim = await supabase.rpc("mall_builder_notify_claim", { p_token_hash: hash, p_limit: 50 });
@@ -39,8 +43,8 @@ async function run(request: Request) {
     const c = claim.data as { items: EmailItem[]; credentials?: EmailCredentials | null; reason?: string };
     return { reason: c.reason, results: c.items.length ? await sendEmailsClaimed(c.items, c.credentials ?? null, origin) : [] };
   });
-  const failed = sms.error || email.error;
-  return Response.json({ ...(data as object), notify: sms, email }, { status: failed ? 500 : 200 });
+  const failed = sms.error || email.error || progress.error;
+  return Response.json({ ...(data as object), auto, notify: sms, email }, { status: failed ? 500 : 200 });
 
   /** 꺼내기 → 보내기 → 결과 기록. 꺼내기 실패면 error */
   async function sendChannel(
