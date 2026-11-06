@@ -1,6 +1,7 @@
 // U7 업무 받은편지함: 표 행 CSV 만들기와 보내기 검사(공용 표 호출 없이 순수 함수만)
 import { describe, expect, it } from "vitest";
-import { inboxRowCsv } from "@/server/workInboxCsv";
+import { inboxRowCsv, calendarRowCsv, calendarStatus, isCalendarItem } from "@/server/workInboxCsv";
+import { TEMPLATES } from "@/litpage/server/content/catalog.ts";
 import { validateWorkInboxItem } from "@/lib/workInbox";
 import { uncheckedTodos, pageAsTask } from "@/server/workInboxPlannerItems";
 import { cleanPageMarkdownForSend } from "@/server/workInboxSendMarkdown";
@@ -67,6 +68,36 @@ describe("work inbox", () => {
     const csvColl = { schema: { a: { name: "받은 날", type: "date" }, b: { name: "예정일", type: "text" }, c: { name: "우선순위", type: "text" }, d: { name: "메모", type: "text" } } } as any;
     const csvRow = B("r2", "page", { parent_table: "collection", properties: { title: [["보고"]], a: [["‣", [["d", { type: "date", start_date: "2026-10-24" }]]]], b: [["2026-11-02"]], c: [["낮음"]], d: [["2026-01-01"]] } });
     expect(pageAsTask(csvRow, csvColl)).toEqual({ title: "보고", data: { 예정일: "2026-11-02", 우선순위: "낮음" } });
+  });
+
+  it("U10: calendar row CSV headers equal the content-calendar template columns, and only posts with channel+date qualify", () => {
+    const tpl = TEMPLATES.find((t) => t.id === "content-calendar");
+    expect(tpl).toBeTruthy();
+    const spec = tpl!.build();
+    const names = Object.values(spec.db!.schema).map((p) => p.name);
+    const csv = calendarRowCsv({
+      title: "신제품 소개",
+      source_slug: "insta_auto_poster",
+      kind: "document",
+      created_at: "2026-11-06T10:00:00.000Z",
+      source_url: "https://insta-auto-poster.buylife.xyz/posts/1",
+      data: { 채널: "인스타그램", 상태: "published", 발행일: "2026-11-05T09:30:00+09:00", "발행 주소": "https://www.instagram.com/p/x" },
+      body_md: "\n첫 줄 요약\n둘째 줄",
+    });
+    const [head, row] = csv.trim().split("\n");
+    expect(head.split(",")).toEqual(names);
+    expect(spec.db!.views[0].type).toBe("calendar");
+    expect(Object.values(spec.db!.schema).filter((p) => p.type === "date")).toHaveLength(1);
+    expect(row).toBe("신제품 소개,2026-11-05,인스타그램,발행 완료,https://www.instagram.com/p/x,인스타 포스팅 자동화,https://insta-auto-poster.buylife.xyz/posts/1,첫 줄 요약");
+    // 모르는 채널은 「기타」, 예약 글은 예약일·예약됨
+    const r2 = calendarRowCsv({ title: "t", source_slug: "x", kind: "document", created_at: "2026-11-06T10:00:00.000Z", source_url: null, data: { 채널: "카카오", 상태: "scheduled", 예약일: "2026-11-10" } }).trim().split("\n")[1];
+    expect(r2).toBe("t,2026-11-10,기타,예약됨,,x,,");
+    expect(calendarStatus("failed")).toBe("실패");
+    expect(calendarStatus(undefined)).toBe("초안");
+    expect(isCalendarItem({ 채널: "Threads", 예약일: "2026-11-10" })).toBe(true);
+    expect(isCalendarItem({ 채널: "Threads" })).toBe(false);
+    expect(isCalendarItem({ 발행일: "2026-11-10" })).toBe(false);
+    expect(isCalendarItem(null)).toBe(false);
   });
 
   it("validates items before sending", () => {

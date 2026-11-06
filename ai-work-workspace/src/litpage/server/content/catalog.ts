@@ -71,6 +71,47 @@ export const TEMPLATES: TemplateDef[] = [
     }),
   },
   {
+    // U10(2026-11-06): 다른 AIMaster 발행 프로그램의 발행 기록이 「📨 받은 업무」→「📅 콘텐츠 캘린더에 넣기」로 쌓이는 표.
+    // 열 이름은 src/server/workInboxCsv.ts calendarRowCsv의 CSV 머리글과 같아야 한다(mergeCsv가 이름으로 맞춤).
+    // 날짜 열은 하나만 둔다 — 달력 보기는 첫 번째 날짜 열을 쓴다.
+    id: 'content-calendar',
+    name: '콘텐츠 캘린더',
+    description: '블로그·Threads·인스타그램에 올린 글과 예약 글을 달력 한 장에서 봅니다. 다른 AIMaster 프로그램에서 보낸 발행 기록이 「받은 업무」를 거쳐 여기에 쌓입니다.',
+    icon: '📅',
+    cover: '/covers/gradient-4.svg',
+    category: 'work',
+    tags: ['발행', '일정', '블로그', 'SNS'],
+    creator: 'Workspace',
+    featured: true,
+    build: () => ({
+      type: 'collection_view_page',
+      icon: '📅',
+      cover: '/covers/gradient-4.svg',
+      db: {
+        name: '콘텐츠 캘린더',
+        description: '채널별 발행·예약 글. 받은 업무의 「📅 콘텐츠 캘린더에 넣기」가 행을 추가합니다.',
+        schema: {
+          title: { name: '제목', type: 'title' },
+          cDat: { name: '날짜', type: 'date' },
+          cChn: { name: '채널', type: 'select', options: [{ value: '네이버 블로그', color: 'green' }, { value: '블로그', color: 'blue' }, { value: 'Threads', color: 'gray' }, { value: '인스타그램', color: 'pink' }, { value: '유튜브', color: 'red' }, { value: '기타', color: 'default' }] },
+          cSta: { name: '상태', type: 'status', options: ['초안', '예약됨', '발행 완료', '실패'] },
+          cUrl: { name: '발행 주소', type: 'url' },
+          cSrc: { name: '보낸 프로그램', type: 'select', options: ['네이버 블로그 에이전트', '블로그 포스팅 자동화', 'Threads 콘텐츠 운영', '인스타 포스팅 자동화', '직접 입력'] },
+          cLnk: { name: '원본 링크', type: 'url' },
+          cMem: { name: '메모', type: 'text' },
+        },
+        rows: [
+          { values: { title: '(예시) 신제품 소개 글', cDat: { date: dayOffset(-2) }, cChn: '네이버 블로그', cSta: '발행 완료', cSrc: '직접 입력', cMem: '예시 행입니다. 지워도 됩니다.' }, icon: '📝' },
+        ],
+        views: [
+          { type: 'calendar', name: '달력', visible: ['cChn', 'cSta'] },
+          { type: 'board', name: '상태별', groupBy: 'cSta', visible: ['cDat', 'cChn'] },
+          { type: 'table', name: '전체', sort: [{ property: 'cDat', direction: 'descending' }] },
+        ],
+      },
+    }),
+  },
+  {
     id: 'project-tracker',
     name: '프로젝트 관리',
     description: '아이디어부터 출시까지 프로젝트의 상태·우선순위·진행률을 한눈에 봅니다.',

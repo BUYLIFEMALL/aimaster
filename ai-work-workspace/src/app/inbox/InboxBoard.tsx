@@ -8,10 +8,17 @@ interface Item {
   kind: string;
   title: string;
   body_md: string;
+  data?: Record<string, unknown> | null;
   source_url: string | null;
   created_at: string;
   imported_at: string | null;
   imported_url: string | null;
+}
+
+/** U10: 발행 기록(채널 + 발행일/예약일)이면 「📅 콘텐츠 캘린더에 넣기」를 보인다(서버 isCalendarItem과 같은 조건) */
+function isCalendarItem(data: Item["data"]): boolean {
+  if (!data) return false;
+  return typeof data["채널"] === "string" && !!(data["채널"] as string).trim() && (typeof data["발행일"] === "string" || typeof data["예약일"] === "string");
 }
 
 const KIND: Record<string, { icon: string; label: string }> = {
@@ -31,6 +38,15 @@ const SOURCE: Record<string, string> = {
   "document-translator": "문서 번역",
   "ai-slide-builder": "AI 슬라이드",
   "ai-work-workspace": "업무 워크스페이스",
+  // U10 발행·분석·수집
+  "naver-blog-agent": "네이버 블로그 에이전트",
+  "ai-auto-blog": "블로그 포스팅 자동화",
+  "threads-content-ops": "Threads 콘텐츠 운영",
+  "insta_auto_poster": "인스타 포스팅 자동화",
+  "competitor-analysis": "경쟁사 분석",
+  "longtail-keyword-expander": "롱테일 키워드",
+  "blog-keyword": "블로그 키워드",
+  "web-crawler": "웹 크롤러",
 };
 
 async function rpc<T>(name: string, body: Record<string, unknown> = {}): Promise<T> {
@@ -70,7 +86,7 @@ export function InboxBoard() {
   const shown = useMemo(() => (items ?? []).filter((i) => !onlyNew || !i.imported_at), [items, onlyNew]);
   const sel = shown.find((i) => i.id === selId) ?? shown[0] ?? null;
 
-  const act = async (kind: "page" | "row" | "delete") => {
+  const act = async (kind: "page" | "row" | "calendar" | "delete") => {
     if (!sel || busy) return;
     if (kind === "delete" && !window.confirm(`「${sel.title}」을(를) 받은 업무에서 지울까요?`)) return;
     setBusy(kind);
@@ -80,8 +96,9 @@ export function InboxBoard() {
         await rpc("workInboxDelete", { id: sel.id });
         setNotice({ text: "받은 업무에서 지웠습니다." });
       } else {
-        const r = await rpc<{ url: string }>(kind === "page" ? "workInboxImportPage" : "workInboxImportRow", { id: sel.id });
-        setNotice({ text: kind === "page" ? "「내 페이지」에 새 페이지를 만들었습니다." : "「📨 받은 업무 표」에 행을 넣었습니다.", url: r.url });
+        const cmd = kind === "page" ? "workInboxImportPage" : kind === "row" ? "workInboxImportRow" : "workInboxImportCalendar";
+        const r = await rpc<{ url: string }>(cmd, { id: sel.id });
+        setNotice({ text: kind === "page" ? "「내 페이지」에 새 페이지를 만들었습니다." : kind === "row" ? "「📨 받은 업무 표」에 행을 넣었습니다." : "「📅 콘텐츠 캘린더」에 넣었습니다.", url: r.url });
       }
       await load();
     } catch (e) {
@@ -174,11 +191,19 @@ export function InboxBoard() {
                 <button type="button" className="aww-3d-btn green" disabled={!!busy} onClick={() => void act("row")}>
                   {busy === "row" ? "넣는 중…" : "📊 표에 행으로 넣기"}
                 </button>
+                {isCalendarItem(sel.data) && (
+                  <button type="button" className="aww-3d-btn blue" disabled={!!busy} onClick={() => void act("calendar")}>
+                    {busy === "calendar" ? "넣는 중…" : "📅 콘텐츠 캘린더에 넣기"}
+                  </button>
+                )}
                 <button type="button" className="aww-3d-btn red" disabled={!!busy} onClick={() => void act("delete")}>
                   {busy === "delete" ? "지우는 중…" : "🗑 삭제"}
                 </button>
               </div>
-              <p className="aww-inbox-hint">페이지는 「내 페이지」 맨 위에 생기고, 행은 「📨 받은 업무 표」(처음 한 번 자동 생성)에 들어갑니다.</p>
+              <p className="aww-inbox-hint">
+                페이지는 「내 페이지」 맨 위에 생기고, 행은 「📨 받은 업무 표」(처음 한 번 자동 생성)에 들어갑니다.
+                {isCalendarItem(sel.data) && " 발행 기록은 「📅 콘텐츠 캘린더」(처음 한 번 템플릿으로 자동 생성, 달력·상태별 보기)에 넣을 수 있습니다."}
+              </p>
             </article>
           )}
         </div>

@@ -10,7 +10,8 @@ import { extraHandlers } from "@/litpage/server/api/extra.ts";
 import { getRecord, putRecord } from "@/litpage/server/db.ts";
 import { storeFile } from "@/litpage/server/content/files.ts";
 import { compactId } from "#shared/ids.ts";
-import { inboxRowCsv } from "./workInboxCsv";
+import { inboxRowCsv, isCalendarItem, calendarRowCsv } from "./workInboxCsv";
+import { handlers as templateHandlers } from "@/litpage/server/api/modules/templates.ts";
 import { uncheckedTodos, pageAsTask, type PlannerTask } from "./workInboxPlannerItems";
 import { cleanPageMarkdownForSend } from "./workInboxSendMarkdown";
 import { sendToWorkInbox } from "@/lib/workInbox";
@@ -25,6 +26,8 @@ export const WORK_INBOX_RETENTION_DAYS = 30;
 const SETTINGS_KEY = "aww_work_inbox_db"; // 「📨 받은 업무 표」 데이터베이스 블록 id(회원 설정에 저장)
 const INBOX_DB_TITLE = "📨 받은 업무 표";
 const TARGET = "ai-work-workspace"; // U8-B: 받는 곳이 워크스페이스인 줄만 이 화면에서 다룬다
+const CAL_SETTINGS_KEY = "aww_content_calendar_db"; // U10: 「📅 콘텐츠 캘린더」 데이터베이스 블록 id(회원 설정)
+const CAL_TEMPLATE_ID = "content-calendar"; // litpage/server/content/catalog.ts
 
 /** U9: 페이지를 보낼 수 있는 프로그램(받는 화면이 있는 곳만) */
 const SEND_TARGETS: Record<string, { name: string; url: string }> = {
@@ -176,6 +179,39 @@ export const workInboxHandlers: Record<string, Handler> = {
     }
     await markImported(userId, row.id, dbId);
     return { pageId: dbId, url: pageUrl(space, dbId), recordMap };
+  },
+
+  /** U10 「📅 콘텐츠 캘린더에 넣기」: 발행 기록(채널·날짜가 있는 항목)을 회원의 콘텐츠 캘린더 표에 한 줄 추가.
+   *  표가 없으면 템플릿 'content-calendar'로 「내 페이지」에 처음 한 번 만든다(달력·상태별·전체 보기 포함). */
+  async workInboxImportCalendar(ctx, { id }) {
+    const userId = uid(ctx);
+    const row = await loadRow(userId, id);
+    if (!isCalendarItem(row.data)) throw new ApiError("채널과 날짜(발행일·예약일)가 있는 발행 기록만 캘린더에 넣을 수 있습니다.", 400);
+    const space = memberSpace(userId);
+    const csv = calendarRowCsv(row);
+    const settings = getRecord<UserSettingsRecord>("user_settings", userId);
+    const savedId = (settings?.settings as Record<string, unknown> | undefined)?.[CAL_SETTINGS_KEY];
+    const saved = typeof savedId === "string" ? getRecord<BlockRecord>("block", savedId) : undefined;
+    let dbId: string;
+    if (saved && saved.alive !== false && saved.space_id === space.id && saved.type === "collection_view_page") {
+      dbId = saved.id;
+    } else {
+      const t = templateHandlers.getTemplate(ctx, { templateId: CAL_TEMPLATE_ID, spaceId: space.id }) as { pageId?: string } | undefined;
+      if (!t?.pageId) throw new ApiError("콘텐츠 캘린더를 만들지 못했습니다. 다시 시도해 주세요.", 500);
+      dbId = t.pageId;
+      if (settings) {
+        putRecord("user_settings", {
+          ...settings,
+          version: (settings.version ?? 0) + 1,
+          settings: { ...settings.settings, [CAL_SETTINGS_KEY]: dbId },
+        } as UserSettingsRecord);
+      }
+    }
+    const name = "콘텐츠캘린더.csv";
+    const file = storeFile(name, csv, userId, space.id, "text/csv", { private: true });
+    const r = await extraHandlers.mergeCsv(ctx, { blockId: dbId, url: file.url, name });
+    await markImported(userId, row.id, dbId);
+    return { pageId: dbId, url: pageUrl(space, dbId), recordMap: r?.recordMap };
   },
 
   /** U8-B 「할 일 플래너로 보내기」: mode "todos" = 체크 안 된 할 일 항목들, "page" = 이 페이지를 할 일 하나로. 회원 본인 공간의 페이지만 */
