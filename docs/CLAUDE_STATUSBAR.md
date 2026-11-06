@@ -74,3 +74,8 @@ cmp ~/.claude/statusline-extra.js ~/.claude/statusline-extra.js.good && echo sam
 - 원인: Claude Code 2.1.314가 넘긴 `rate_limits`에 `seven_day`만 있고 `five_hour`가 없음(한도 서버가 5시간 창을 안 보냄, 실행 파일 안의 상태바 칸 정의는 그대로). 게다가 스크립트가 받은 한도를 캐시에 통째로 덮어써 기억해 둔 5시간 값도 지워짐. `.claude.json`의 `cachedUsageUtilization`도 모든 계정 폴더에 없음.
 - 조치(`statusline-extra.js`·`.good`·`scripts/install-statusbars.mjs` 원본 세 곳, 백업 `statusline-extra.js.before-5h-20261106`): ① 5시간 값이 빠져 오면 초기화 전인 마지막 5시간 값을 캐시에서 이어 씀 ② 그것도 없으면 칸을 지우지 않고 `5h --`로 고정 형식 유지.
 - 다음부터: `5h --`가 보이면 서버가 5시간 창을 안 보내는 상태 — `%TEMP%/last-agy-statusline.json`의 `rate_limits` 키부터 본다. Claude Code 재시작·`/usage`로 계정 쪽 확인.
+
+## 2026-11-06 `5h --` → `5h 제한없음` ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「5시간 리밋표시가 왜 이렇게 나오지?」)
+- 확인: Claude Code가 `/usage`에 쓰는 계정 사용량 조회(`GET https://api.anthropic.com/api/oauth/usage`, 회원 본인 로그인 토큰)를 한 번 불러 보니 `five_hour: null`, 한도 목록 `limits`에도 주간 한도(`weekly_all`·`weekly_scoped`)만 있음 → **값이 빠진 게 아니라 이 계정에 지금 5시간 한도 자체가 없다.**
+- 조치(원본 세 곳 같은 문구, 백업 `statusline-extra.js.before-5h-nolimit-20261106`): `rate_limits`는 왔는데 `five_hour`가 없고 초기화 전 캐시 값도 없으면 `5h --` 대신 `5h 제한없음`으로 표시. 5시간 값이 다시 오면 자동으로 `5h 남은% (남은 시간)`으로 돌아간다.
+- 다음부터: `5h 제한없음`이 보이면 정상이다. 의심되면 위 조회 결과의 `five_hour`·`limits`를 본다(토큰 값은 출력·기록하지 않는다).
