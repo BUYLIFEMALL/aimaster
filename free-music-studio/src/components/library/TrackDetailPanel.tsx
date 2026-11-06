@@ -9,6 +9,7 @@ import { isInstrumental } from "@/lib/trackFilters";
 import { LIMITS } from "@/lib/songs";
 import { KIND_LABEL, type Track } from "@/lib/tracks";
 import { usePlayer } from "@/components/player/PlayerProvider";
+import { LyricTimingPanel } from "./LyricTimingPanel";
 
 const ART_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const ART_MAX = 9 * 1024 * 1024;
@@ -259,6 +260,9 @@ export function TrackDetailPanel({
               ))}
           </div>
         )}
+
+        {/* 가사 시간(원본 LyricTimingEditor·LRC/SRT, 2026-11-06) */}
+        {!instrumental && <LyricTimingPanel track={track} onPc={onPc} onPlay={onPlay} onSaved={onSaved} />}
 
         {/* 스타일·가사 */}
         <div className="space-y-1.5">

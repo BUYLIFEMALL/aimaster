@@ -1,6 +1,7 @@
 // 「모든 음악」 — 내 PC 엔진으로 만든 노래 한 곡의 기록. 음원 파일은 회원 PC 엔진 보관 폴더에
 // 같은 id(uuid) 이름으로 있고, 서버에는 글 정보만 남긴다(플랜 §3, 30일 정리 대상).
 import { DURATIONS, LIMITS } from "./songs";
+import { parseLyricTiming, type LyricTiming } from "./lyricTiming";
 
 export const TRACKS_TABLE = "free_music_tracks";
 
@@ -18,7 +19,15 @@ export type TrackInput = {
   parent_id: string | null;
 };
 
-export type Track = TrackInput & { created_at: string; project_id: string | null; /** 휴지통에 넣은 시각(2026-11-06), 아니면 null */ trashed_at?: string | null };
+export type Track = TrackInput & {
+  created_at: string;
+  project_id: string | null;
+  /** 휴지통에 넣은 시각(2026-11-06), 아니면 null */
+  trashed_at?: string | null;
+  /** 가사 시간(2026-11-06, 원본 lyric-timing) */
+  lyric_timing?: LyricTiming | null;
+};
+export type TrackPatch = { project_id?: string | null; title?: string; lyrics?: string; lyric_timing?: LyricTiming | null };
 
 /** 「모든 음악」 → 「가져온 음악」으로 커버 원곡을 넘기는 자리(sessionStorage, 파일은 엔진 보관함에서 다시 받음) */
 export const COVER_SOURCE_KEY = "fms.coverSource";
@@ -43,9 +52,18 @@ export const SOURCE_MAX_SEC = 600;
  * 곡 기록 고치기(PATCH) — 프로젝트·제목·가사 중 보낸 칸만. 원본 boks-music `updateTrackText`(MIT)처럼 제목은 비울 수 없다(2026-11-06).
  * project_id는 형식만 보고, 본인 프로젝트인지는 API가 확인한다.
  */
-export function parseTrackPatch(body: unknown): { ok: true; value: { project_id?: string | null; title?: string; lyrics?: string } } | { ok: false; error: string } {
+export function parseTrackPatch(body: unknown): { ok: true; value: TrackPatch } | { ok: false; error: string } {
   const b = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
-  const value: { project_id?: string | null; title?: string; lyrics?: string } = {};
+  const value: TrackPatch = {};
+  // 가사 시간(2026-11-06) — null이면 지운다
+  if ("lyric_timing" in b) {
+    if (b.lyric_timing === null) value.lyric_timing = null;
+    else {
+      const t = parseLyricTiming(b.lyric_timing);
+      if (!t) return { ok: false, error: "가사 시간 정보가 올바르지 않습니다." };
+      value.lyric_timing = t;
+    }
+  }
   if ("project_id" in b) {
     if (b.project_id !== null && (typeof b.project_id !== "string" || !UUID.test(b.project_id))) return { ok: false, error: "프로젝트가 올바르지 않습니다." };
     value.project_id = b.project_id as string | null;

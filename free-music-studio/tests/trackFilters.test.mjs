@@ -19,6 +19,16 @@ test("필터: 연주곡은 가사가 비었거나 태그만, 보컬·커버·그
   assert.equal(filterTracks(rows, "all", () => true), rows);
 });
 
+test("필터: 가사 시간 없음(연주곡 제외)·LRC 확인 필요", () => {
+  const timed = [
+    { ...rows[0], lyric_timing: { cues: [{ start: 1, status: "manual" }] } },
+    { ...rows[2], lyric_timing: { cues: [{ start: null, status: "review" }] } },
+    rows[1],
+  ];
+  assert.deepEqual(filterTracks(timed, "noTiming", () => true).map((t) => t.id), ["c"]);
+  assert.deepEqual(filterTracks(timed, "timingReview", () => true).map((t) => t.id), ["c"]);
+});
+
 test("정렬: 최신·오래된·제목(숫자 크기)·길이, manual은 그대로", () => {
   const ids = (s) => sortTracks(rows, s).map((t) => t.id);
   assert.deepEqual(ids("newest"), ["b", "c", "a"]);
