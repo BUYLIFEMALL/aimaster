@@ -80,3 +80,4 @@
 | 11-03 | B 12개 완료 | 댓글 3종 · `web-crawler` · `ai-mastering-studio` · `playlist-channel-studio` · `blog-content-maker` · `blog-workroom` · `emotion-writer` · `ghost-scraper` · `ai-webtoon-studio` · `ebook-studio` | tsc 12개 통과, 옛 저장값 변환 코드로 확인. 시험 3개는 맥에서 못 돌림(윈도우 배포 때) |
 | 11-04 | B `blog-neighbor-care` 배포 | v1.15 `0a3a8c9f1`(윈도우 blog 세션) — `web-crawler`와 같은 모델 파일 + 입력 검사·호출에서 옛 값 변환, 시험 통과 | 운영 배포 완료 |
 | — | 남음 | ~~`blog-neighbor-care`(윈도우 blog 세션)~~ 11-04 완료, 배포는 각 프로그램 다음 배포 때. **묶음 A 5개 중 `real_estate_sales`는 v1.42로 배포됨** — `ai-auto-blog`·`tistory-auto-blog`·`naver-blog-seo-studio`(MAC 배포 요청에 함께)와 `threads-affiliate-poster`는 12-05에 배포 여부 점검 | — |
+- 2026-11-06 (윈도우 `claude-win-20261106-ytreply`): 묶음 B 중 `youtube-auto-reply` `5e994cd8f` → **v1.33 배포 완료**(30일 열외와 함께). 운영 설정 화면에서 옛 Gemini 선택지 없음 확인. 묶음 B 나머지 11개는 그대로 다음 배포 때.

@@ -248,3 +248,8 @@ youtube-auto-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발/�
 ## 2026-10-23 v1.31 — 모아 둔 화면 수정 배포 (Claude Code 윈도우 · 세션 `claude-win-20261023-deploy3`)
 - 함께 나감: 「⏸ 모니터링 중지」 즉시 화면 반영(`52b8adb5a`) · 설정 「다음 확인 예정」(`lib/schedule.ts` `nextMonitoringAt`)·「실행 방식 바꾸기 ↓」 바로가기(`24562d6aa`). 버전 커밋 `cff21dc83`.
 - 검수: tsc·로컬 build, 배포 `youtube-auto-reply-dpgbgdpq6` Ready·운영 주소 연결, 화면·DB 버전 v1.31, 실행 주소 가짜 토큰 401·`/login` 200, 크롬(시험 회원) 설정 화면 바로가기 확인. 비용: Vercel 빌드 1회(승인).
+
+## 2026-11-06 v1.33 — 미배포 대기 2건 묶음 배포: 30일 보관 열외 + 12월 모델 교체 B (Claude Code 윈도우 · 세션 `claude-win-20261106-ytreply`, 주인님 「진행해」)
+- 함께 나감(둘 다 맥미니 작성, 2026-11-03): ① `e3f93b8d7` 30일 정리(`app/api/cron/cleanup-comments/route.ts`)가 예외 회원(`profiles.retention_exempt`, 관리자·시험 계정)의 댓글을 건너뜀, 예외 목록을 못 읽으면 500으로 정리 전체 중단(`lib/retentionExempt.ts`) ② `5e994cd8f` 답글 모델 선택지에서 `gemini-2.5-pro`·`3.6-flash`·`3.7-flash` 삭제 → `gemini-3.8-flash`, 저장된 옛 값은 `currentReplyModel()`로 새 모델로 바꿔 호출(12-01 Gemini 2.5 종료 대비). 버전 커밋 `371ad8a30`.
+- 검수: tsc·권한 시험 8개·로컬 build 통과(런타임 시험은 로컬 서버 필요라 생략). 배포 `youtube-auto-reply-fbnk0jg9l` Ready·운영 주소 연결, 정리 실행 주소 가짜 토큰 401, `/login` 200. DB `programs.version` v1.33(`deploy.mjs --set-version`). ego lite(시험 계정) 설정 화면: 메뉴 v1.33, 모델 선택지 11개에 옛 Gemini 값 없음(화면 캡처는 탭이 가려져 시간 초과 — DOM 값으로 확인).
+- 남은 확인: 다음 30일 정리 시각 뒤 관리자·시험 계정 댓글이 남아 있는지(예외 동작), 옛 값을 저장한 회원의 실제 답글 생성 1회(회원 키 비용이라 생기면 확인). 비용: Vercel 빌드 1회(승인 범위).

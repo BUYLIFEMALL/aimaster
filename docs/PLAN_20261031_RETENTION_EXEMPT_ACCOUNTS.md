@@ -74,7 +74,7 @@
 | 2026-11-03 | `smartstore-register` | `e619be285` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
 | 2026-11-03 | `style-dna-analyzer` | `dd305ff4e` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
 | 2026-11-03 | `trending-product-finder` | `e7c031b6f` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
-| 2026-11-03 | `youtube-auto-reply` | `e3f93b8d7` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
+| 2026-11-03 | `youtube-auto-reply` | `e3f93b8d7` | ✅ v1.33 배포(2026-11-06) | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
 | 2026-11-03 | `thumbnail-master` | `16eb5d6e2` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
 | 2026-11-03 | `reverse-prompt` | `a253ae63d` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
 | 2026-11-03 | `portrait-photo` | `0fef47e81` | 미배포 대기 | 정리에서 예외 회원 제외(못 읽으면 멈춤) [역할: mac-mini] |
