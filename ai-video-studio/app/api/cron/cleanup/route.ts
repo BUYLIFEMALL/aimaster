@@ -76,6 +76,21 @@ export async function GET(request: Request) {
       for (const p of promptRows) addCleanupCount(counts, p.user_id, "prompts");
     }
   }
+  // v1.28 본인 사용판 실행 기록(own_content_rights_log, V2·V5 공용 — video-to-gif 줄도 여기서): 30일 지난 줄만. 표가 아직 없으면 건너뛴다
+  const { data: rights } = await admin
+    .from("own_content_rights_log")
+    .select("id, user_id")
+    .lt("expires_at", new Date().toISOString()).not("user_id", "in", exemptFilter)
+    .limit(1000);
+  let removedRights = 0;
+  const rightsRows = (rights ?? []) as { id: string; user_id: string }[];
+  if (rightsRows.length) {
+    const { error: dr } = await admin.from("own_content_rights_log").delete().in("id", rightsRows.map((r) => r.id));
+    if (!dr) {
+      removedRights = rightsRows.length;
+      for (const r of rightsRows) addCleanupCount(counts, r.user_id, "logs");
+    }
+  }
   const loggedUsers = await logCleanupUsage(admin, PROGRAM_SLUG, counts);
-  return NextResponse.json({ ok: true, scanned: rows.length, removed, removedEdits, removedPrompts, loggedUsers });
+  return NextResponse.json({ ok: true, scanned: rows.length, removed, removedEdits, removedPrompts, removedRights, loggedUsers });
 }
