@@ -156,3 +156,8 @@
 - 함께 나감: 「🔤 영어로」 사전 194개 보강·붙여 쓴 말 두 글자 이상만 나눔(`93b2aac56`), 영어 결과 0장이면 「한국어로 다시 찾기」(`d4dcd0384`), 한글 있을 때만 그 버튼(`4bebfb016`). 공용 기준 코드 `photo-keywords`의 기준 파일.
 - 검수: 공용 코드 일치, tsc 0, 로컬 build, 사전 변환(미용실 창업→hair salon startup, 비용 정리→organize), 배포 `threads-lylvmfbc8` Ready, DB v1.32. 크롬(시험 회원): 새 글 → 무료 사진 → 「미용실 창업」 → 🔤 → hair salon startup, 메뉴 v1.32. 실제 사진 검색은 하지 않음(무료지만 필요 없음).
 - 비용: Vercel 빌드 1회(제안 범위).
+
+## 2026-11-06 v1.34 ✅ 배포 — 30일 보관 열외(공유 버킷 `post-images` 보호) (Claude Code 윈도우 · 세션 `claude-win-20261106-ytreply`, 연속 배포 4/4)
+- 함께 나감: `567567979`(맥미니 11-03) 30일 게시 이미지 정리(`src/lib/postImageCleanup.ts`, 실행 주소 `/api/cleanup-images`)가 예외 회원(`profiles.retention_exempt`, 관리자·시험 계정)의 파일을 건너뛰고 목록을 못 읽으면 멈춤(`src/lib/retentionExempt.ts`). 버전 커밋 `596e9c8a6`.
+- 검수: tsc·로컬 build 통과(자동 시험 없음). 배포 `threads-j36heo93t` Ready·운영 주소 `auto-threads-posting.buylife.xyz` 연결, 정리 주소 가짜 토큰 401, `/login` 200, DB(slug `auto-threads-posting`) v1.34. ego lite(작업 공간 107, 시험 계정) 대시보드 v1.34.
+- 남은 확인: 다음 정리 회차 뒤 관리자·시험 계정 이미지 유지. 공유 버킷을 같이 쓰는 `threads-affiliate-poster`(v1.86)도 같은 날 배포됨, `ai-auto-blog`·`tistory-auto-blog`는 블로그 묶음 배포 때. 비용: Vercel 빌드 1회(승인 4회 중 4회).

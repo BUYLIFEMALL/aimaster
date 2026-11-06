@@ -19,7 +19,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-11-06 | 쓰레드 쇼핑제휴 v1.86 · 인스타 댓글자동화 v1.37 · 쓰레드 댓글자동화 v1.29 (연속 배포 1~3/4) | 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기) 배포·DB·ego 화면 확인(세션 `claude-win-20261106-ytreply`), 4번 쓰레드 포스팅 v1.34는 진행 중 | ✅ `threads-affiliate-poster-6yhtciacn` · `instagram-comment-reply-hzh5ddbf6` · `threads-comment-reply-xoux3tg1t` |
+| 2026-11-06 | 쓰레드 쇼핑제휴 v1.86 · 인스타 댓글자동화 v1.37 · 쓰레드 댓글자동화 v1.29 · 쓰레드 포스팅 v1.34 (연속 배포 4/4) | 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기) 배포·DB·ego 화면 확인(세션 `claude-win-20261106-ytreply`), 쓰레드 포스팅 v1.34(30일 열외)까지 4/4 완료 | ✅ `threads-affiliate-poster-6yhtciacn` · `instagram-comment-reply-hzh5ddbf6` · `threads-comment-reply-xoux3tg1t` · `threads-j36heo93t` |
 | 2026-11-06 | 유튜브 댓글자동화 v1.33 | 미배포 대기 2건(30일 열외·모델 교체 B) 묶음 배포·DB·ego 화면 확인(세션 `claude-win-20261106-ytreply`) | ✅ `youtube-auto-reply-fbnk0jg9l` |
 | 2026-10-31 | 임장 사진 관리(플랜·검증 페이지) | RQ-G 등록, `realty`로 인계(세션 `claude-win-20261029-statusbar`) | 없음 |
 | 2026-10-31 | 부동산 카테고리(플랜만) | 기존 3개·임장 플랜 검토, 플랜 작성, 결정 5건 대기(세션 `claude-win-20261029-statusbar`) | 없음 |
