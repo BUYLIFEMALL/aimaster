@@ -39,6 +39,32 @@ const KINDS: TrackKind[] = ["text2music", "cover", "repaint"];
 export const SOURCE_MIN_SEC = 10;
 export const SOURCE_MAX_SEC = 600;
 
+/**
+ * 곡 기록 고치기(PATCH) — 프로젝트·제목·가사 중 보낸 칸만. 원본 boks-music `updateTrackText`(MIT)처럼 제목은 비울 수 없다(2026-11-06).
+ * project_id는 형식만 보고, 본인 프로젝트인지는 API가 확인한다.
+ */
+export function parseTrackPatch(body: unknown): { ok: true; value: { project_id?: string | null; title?: string; lyrics?: string } } | { ok: false; error: string } {
+  const b = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
+  const value: { project_id?: string | null; title?: string; lyrics?: string } = {};
+  if ("project_id" in b) {
+    if (b.project_id !== null && (typeof b.project_id !== "string" || !UUID.test(b.project_id))) return { ok: false, error: "프로젝트가 올바르지 않습니다." };
+    value.project_id = b.project_id as string | null;
+  }
+  if ("title" in b) {
+    const title = typeof b.title === "string" ? b.title.trim() : "";
+    if (!title) return { ok: false, error: "제목을 입력해 주세요." };
+    if (title.length > LIMITS.title) return { ok: false, error: `제목은 ${LIMITS.title}자까지입니다.` };
+    value.title = title;
+  }
+  if ("lyrics" in b) {
+    if (typeof b.lyrics !== "string") return { ok: false, error: "가사가 올바르지 않습니다." };
+    if (b.lyrics.length > LIMITS.lyrics) return { ok: false, error: `가사는 ${LIMITS.lyrics}자까지입니다.` };
+    value.lyrics = b.lyrics;
+  }
+  if (!Object.keys(value).length) return { ok: false, error: "바꿀 내용이 없습니다." };
+  return { ok: true, value };
+}
+
 /** 생성 직후 화면이 보내는 기록을 검사한다. id는 브라우저가 만든 uuid(엔진 파일 이름과 같음). */
 export function parseTrackInput(body: unknown): { ok: true; value: TrackInput } | { ok: false; error: string } {
   const b = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;

@@ -209,6 +209,28 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
     pathOf(id) {
       return index[id] ?? null;
     },
+    /**
+     * 이 곡의 표지를 바꾼다(0.6.9, 원본 「앨범아트 업로드」) — 곡 파일 옆 같은 이름 그림을 새 그림으로. 저장한 경로를 돌려준다.
+     * 옛 표지는 보관함 안의 그림일 때만 지운다.
+     */
+    async setArt(id, bytes, ext = "png") {
+      const song = await resolve(id);
+      if (!song) return null;
+      const base = song.slice(0, song.length - path.extname(song).length);
+      const roots = [...knownDirs, legacyDir];
+      for (const e of ART_EXTS) {
+        const old = `${base}.${e}`;
+        if ((await exists(old)) && (await isOwnedFile(old, roots, ART_EXTS))) await rm(old, { force: true });
+      }
+      const target = `${base}.${ART_EXTS.includes(ext) ? ext : "png"}`;
+      await writeFile(`${target}.part`, bytes);
+      await rename(`${target}.part`, target);
+      return target;
+    },
+    /** 실제로 있는 곡 파일 경로(옮겨 둔 곳도 찾음, 없으면 null) — 0.6.9 파형 */
+    async fileOf(id) {
+      return isTrackId(id) ? resolve(id) : null;
+    },
     /** 곡의 표지 그림 경로(0.6.8, 없으면 null) */
     async artOf(id) {
       return artNextTo(await resolve(id));

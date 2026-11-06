@@ -1,6 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseTrackInput } from "../src/lib/tracks.ts";
+import { parseTrackInput, parseTrackPatch } from "../src/lib/tracks.ts";
+
+test("곡 기록 고치기: 보낸 칸만, 제목은 비울 수 없고 길이 제한, 빈 요청은 거절", () => {
+  assert.deepEqual(parseTrackPatch({ title: "  새 제목 " }), { ok: true, value: { title: "새 제목" } });
+  assert.deepEqual(parseTrackPatch({ lyrics: "" }), { ok: true, value: { lyrics: "" } });
+  assert.deepEqual(parseTrackPatch({ project_id: null }), { ok: true, value: { project_id: null } });
+  assert.equal(parseTrackPatch({ title: "   " }).ok, false);
+  assert.equal(parseTrackPatch({ title: "가".repeat(81) }).ok, false);
+  assert.equal(parseTrackPatch({ lyrics: "가".repeat(4001) }).ok, false);
+  assert.equal(parseTrackPatch({ project_id: "abc" }).ok, false);
+  assert.equal(parseTrackPatch({}).ok, false);
+  assert.equal(parseTrackPatch(null).ok, false);
+});
 
 const id = "3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
 const ok = { id, song_id: null, title: " 비 오는 오후 ", style_prompt: "city pop", lyrics: "[Verse]\r\n창가", duration_sec: 30, device: "cpu" };

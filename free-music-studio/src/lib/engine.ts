@@ -416,6 +416,27 @@ export function hasCover(status: EngineStatus | null): boolean {
   return !!status?.features?.includes("cover");
 }
 
+/** 곡 파형을 줄 수 있는 엔진인가(0.6.9+) */
+export function hasWaveform(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("waveform");
+}
+
+/** 이 곡의 표지를 바꾼다(엔진 0.6.9+, 원본 「앨범아트 업로드」) — 화면이 1:1·형식·크기를 먼저 확인한다 */
+export async function setTrackArt(id: string, file: Blob): Promise<void> {
+  const buf = new Uint8Array(await file.arrayBuffer());
+  let bin = "";
+  for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+  await call(`/library/${id}/art`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ base64: btoa(bin), mimeType: file.type || "image/png" }) }, 60_000);
+}
+
+/** 보관함 곡의 파형 — peaks(1600칸, 0~1)·duration(초). 엔진 0.6.9+ */
+export async function getWaveform(id: string): Promise<{ peaks: number[]; duration: number }> {
+  const res = await call(`/library/${id}/waveform`, {}, 150_000);
+  const data = await res.json().catch(() => ({}));
+  if (!Array.isArray(data?.peaks)) throw new EngineError(data?.error || "파형을 읽지 못했습니다.");
+  return { peaks: data.peaks.map((v: unknown) => (typeof v === "number" ? v : 0)), duration: Number(data.duration) || 0 };
+}
+
 /** 보관함 곡의 표지 그림을 브라우저 안 주소로(0.6.8+). 다 쓰면 URL.revokeObjectURL. */
 export async function fetchLibraryArt(id: string): Promise<string> {
   const res = await call(`/library/${id}/art`, {}, 30_000);

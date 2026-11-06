@@ -25,6 +25,7 @@ import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { CoverThumb } from "@/components/library/CoverThumb";
 import { TrackOrderList } from "@/components/library/TrackOrderList";
+import { TrackDetailPanel } from "@/components/library/TrackDetailPanel";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
 import { FILTER_LABEL, SORT_LABEL, filterTracks, sortTracks, type TrackFilter, type TrackSort } from "@/lib/trackFilters";
 
@@ -37,6 +38,7 @@ import {
   hasLibrary,
   listLibraryFormats,
   hasCover,
+  hasWaveform,
   revealLibraryFolder,
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
@@ -68,6 +70,8 @@ export default function LibraryPage() {
   const [notice, setNotice] = useState<string | null>(null); // 잘 된 일 안내(초록)
   const [renaming, setRenaming] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set()); // 여러 곡 고르기(원본 전체 선택 → 빼기·옮기기)
+  const [detailId, setDetailId] = useState<string | null>(null); // 오른쪽 곡 상세 패널
+  const [artVersion, setArtVersion] = useState<Record<string, number>>({}); // 표지를 바꾼 곡은 작은 그림도 다시 받는다
   const [filter, setFilter] = useState<TrackFilter>("all");
   const [sort, setSort] = useState<TrackSort>("newest");
   const restored = useRef(false);
@@ -610,12 +614,17 @@ export default function LibraryPage() {
                       />
                       {tools.grip}
                       {tools.badge}
-                      {showCovers && <CoverThumb trackId={t.id} has={arts.has(t.id)} title={t.title} />}
+                      {showCovers && <CoverThumb trackId={t.id} has={arts.has(t.id)} title={t.title} version={artVersion[t.id] ?? 0} />}
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => setDetailId(t.id)}
+                          className={`block max-w-full truncate text-left text-sm font-semibold hover:text-emerald-300 hover:underline ${detailId === t.id ? "text-emerald-300" : "text-slate-100"}`}
+                          title="곡 상세 보기"
+                        >
                           {inPlaylist && !tools.badge && <span className="mr-1.5 text-slate-500">{i + 1}.</span>}
                           {t.title}
-                        </p>
+                        </button>
                         <p className="mt-0.5 truncate text-[11px] text-slate-500">
                           {KIND_LABEL[t.kind] && <span className="mr-1 rounded bg-sky-900/60 px-1.5 py-0.5 text-sky-200">{KIND_LABEL[t.kind]}</span>}
                           {t.license === "noncommercial" && (
@@ -738,6 +747,29 @@ export default function LibraryPage() {
             />
             </>
           )}
+          {(() => {
+            const d = detailId ? tracks.find((t) => t.id === detailId) : null;
+            if (!d) return null;
+            return (
+              <TrackDetailPanel
+                track={d}
+                parentTitle={d.parent_id ? tracks.find((t) => t.id === d.parent_id)?.title ?? null : null}
+                hasArt={arts.has(d.id)}
+                artVersion={artVersion[d.id] ?? 0}
+                onPc={!!libOk && !!onPc?.has(d.id)}
+                canWave={hasWaveform(engine.status)}
+                canSetArt={hasWaveform(engine.status)}
+                onClose={() => setDetailId(null)}
+                onPlay={() => playOne(d)}
+                onSaved={(u) => setTracks((list) => list.map((x) => (x.id === u.id ? u : x)))}
+                onArtChanged={() => {
+                  setArts((s) => new Set(s).add(d.id));
+                  setArtVersion((v) => ({ ...v, [d.id]: (v[d.id] ?? 0) + 1 }));
+                }}
+                onCopy={copy}
+              />
+            );
+          })()}
         </div>
       </div>
     </div>

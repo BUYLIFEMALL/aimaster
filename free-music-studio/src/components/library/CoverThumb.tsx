@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Music2 } from "lucide-react";
 import { fetchLibraryArt } from "@/lib/engine";
 
-export function CoverThumb({ trackId, has, title }: { trackId: string; has: boolean; title: string }) {
+export function CoverThumb({ trackId, has, title, version = 0 }: { trackId: string; has: boolean; title: string; version?: number }) {
   const box = useRef<HTMLDivElement>(null);
   const [src, setSrc] = useState("");
 
@@ -31,7 +31,7 @@ export function CoverThumb({ trackId, has, title }: { trackId: string; has: bool
       if (url) URL.revokeObjectURL(url);
       setSrc("");
     };
-  }, [trackId, has]);
+  }, [trackId, has, version]); // version: 표지를 바꾸면 올라가 다시 받는다
 
   return (
     <div ref={box} className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-800 bg-slate-900">

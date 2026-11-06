@@ -229,6 +229,24 @@ test("보관함 지우기 안전(0.6.9): 보관함 밖·모델 폴더·음원 �
   }
 });
 
+test("보관함 표지 바꾸기(0.6.9): 곡 옆 같은 이름으로, 옛 표지(다른 형식)는 지움, 없는 곡은 null", async () => {
+  const data = await mkdtemp(path.join(tmpdir(), "fms-setart-"));
+  try {
+    const lib = createLibrary(data, { defaultDir: path.join(data, "Song") });
+    await lib.init();
+    const id = "12121212-2222-4333-8444-555555555555";
+    await lib.save(id, Buffer.from([1]), "봄 노래", "flac");
+    await lib.saveArt(Buffer.from([0x89]), "봄 노래", "png");
+    const p = await lib.setArt(id, Buffer.from([0xff, 0xd8]), "jpg");
+    assert.equal(path.basename(p), "봄 노래.jpg");
+    assert.equal(await lib.artOf(id), p);
+    assert.equal(await stat(path.join(data, "Song", "봄 노래.png")).then(() => true, () => false), false);
+    assert.equal(await lib.setArt("99999999-2222-4333-8444-555555555555", Buffer.from([1])), null);
+  } finally {
+    await rm(data, { recursive: true, force: true });
+  }
+});
+
 test("MP3 인자: 표지 있으면 attached_pic, 원음이 MP3면 소리 복사, webp는 png로", () => {
   const plain = mp3Args("a.flac", "o.mp3");
   assert.ok(plain.includes("libmp3lame") && !plain.includes("attached_pic"));

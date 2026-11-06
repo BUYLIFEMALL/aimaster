@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { TRACKS_TABLE } from "@/lib/tracks";
+import { TRACKS_TABLE, parseTrackPatch } from "@/lib/tracks";
 import { COLLECTIONS_TABLE, isUuid } from "@/lib/collections";
 
 export const dynamic = "force-dynamic";
@@ -9,13 +9,14 @@ export const fetchCache = "force-no-store";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-// 프로젝트 지정·해제 — { project_id: uuid | null }. 본인 프로젝트만 받는다.
+// 곡 기록 고치기 — { project_id?: uuid | null, title?, lyrics? } 보낸 칸만. 프로젝트는 본인 것만 받는다.
 export async function PATCH(request: Request, { params }: Ctx) {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   const { id } = await params;
-  const body = await request.json().catch(() => null);
-  const projectId = body?.project_id ?? null;
+  const parsed = parseTrackPatch(await request.json().catch(() => null));
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const projectId = parsed.value.project_id ?? null;
   const admin = createAdminClient();
   if (projectId !== null) {
     if (!isUuid(projectId)) return NextResponse.json({ error: "프로젝트가 올바르지 않습니다." }, { status: 400 });
@@ -30,7 +31,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
   }
   const { data, error } = await admin
     .from(TRACKS_TABLE)
-    .update({ project_id: projectId })
+    .update(parsed.value)
     .eq("id", id)
     .eq("user_id", access.user.id)
     .select("id")

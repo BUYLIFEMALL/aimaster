@@ -5,6 +5,7 @@ import { bearer, corsHeaders, isAllowedOrigin, newPairCode, newToken, sameSecret
 import { ART_TYPES, AUDIO_TYPES, extOfAudioRef, isTrackId } from "./library.mjs";
 import { pickFolder, revealFolder } from "./folderDialog.mjs";
 import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
+import { audioWaveform } from "./waveform.mjs";
 import { mkdir, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { spawn } from "node:child_process";
@@ -189,6 +190,37 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
     const arts = [];
     for (const id of ids) if (await lib.artOf(id)) arts.push(id); // 표지가 있는 곡(0.6.8)
     return json(res, 200, { ids, formats, arts, dir: lib.dir }, origin);
+  }
+
+  // 곡 표지 바꾸기(0.6.9) — POST /library/<id>/art { base64, mimeType } (사이트가 1:1·형식·크기를 먼저 확인)
+  const setArtMatch = req.method === "POST" ? /^([0-9a-f-]{36})\/art$/.exec(rest) : null;
+  if (setArtMatch && isTrackId(setArtMatch[1])) {
+    const body = await readSmall(req, 12 * 1024 * 1024).catch(() => null);
+    const mime = typeof body?.mimeType === "string" ? body.mimeType : "image/png";
+    const ext = mime === "image/jpeg" ? "jpg" : mime === "image/webp" ? "webp" : "png";
+    const bytes = typeof body?.base64 === "string" ? Buffer.from(body.base64, "base64") : null;
+    if (!bytes?.length || bytes.length > 9 * 1024 * 1024) return json(res, 400, { error: "그림 파일이 올바르지 않습니다(9MB까지)." }, origin);
+    try {
+      const saved = await lib.setArt(setArtMatch[1], bytes, ext);
+      if (!saved) return json(res, 404, { error: "이 PC에 이 곡의 음원이 없어 표지를 붙일 수 없습니다." }, origin);
+      return json(res, 200, { ok: true, path: saved }, origin);
+    } catch {
+      return json(res, 500, { error: "표지를 저장하지 못했습니다. 디스크 공간을 확인해 주세요." }, origin);
+    }
+  }
+
+  // 곡 파형(0.6.9) — GET /library/<id>/waveform → { peaks(1600칸, 0~1), duration }
+  const waveMatch = req.method === "GET" ? /^([0-9a-f-]{36})\/waveform$/.exec(rest) : null;
+  if (waveMatch && isTrackId(waveMatch[1])) {
+    const p = await lib.fileOf(waveMatch[1]);
+    if (!p) return json(res, 404, { error: "이 PC에 이 곡의 음원이 없습니다." }, origin);
+    try {
+      // 바꾼 WAV는 MP3 변환 보관 폴더 안 임시 폴더에 잠깐 두고 지운다
+      const w = await audioWaveform(p, { ffmpeg: ctx.ffmpeg ? "ffmpeg" : null, tmpDir: ctx.mp3CacheDir });
+      return json(res, 200, { peaks: w.peaks.map((v) => Math.round(v * 1000) / 1000), duration: w.duration }, origin);
+    } catch (e) {
+      return json(res, 422, { error: e instanceof Error ? e.message : "파형을 읽지 못했습니다." }, origin);
+    }
   }
 
   // 곡 표지 그림(0.6.8) — GET /library/<id>/art
