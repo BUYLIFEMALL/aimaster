@@ -30,7 +30,7 @@ const STATUS_BADGE_CLASSES: Record<string, string> = {
   analyzing: "bg-blue-50 text-blue-700 border-blue-200",
   analyzed: "bg-indigo-50 text-indigo-700 border-indigo-200",
   generating: "bg-amber-50 text-amber-700 border-amber-200",
-  completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  completed: "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold",
   error: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
@@ -62,11 +62,10 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     .eq("product_id", product.id)
     .eq("language", product.language);
 
-  // 마켓 등록 결과(회원 본인 작업 기록만, RLS). 표가 없거나 읽기 실패면 결과 없이 보여 준다.
+  // 마켓 등록 결과(회원 본인 작업 기록만, RLS)
   const marketResults: MarketResult[] = [];
   for (const market of MARKETS) {
     if (market.jobsTable === "coupang_ops_jobs") {
-      // 생성 타입에 없는 표라 행 모양을 직접 적는다
       const { data: coupangJobs } = await (supabase.from("coupang_ops_jobs" as never) as unknown as { select: (c: string) => { eq: (k: string, v: string) => { in: (k: string, v: string[]) => { order: (k: string, o: { ascending: boolean }) => { limit: (n: number) => Promise<{ data: { status: string; seller_product_id: number | null; updated_at: string }[] | null }> } } } } })
         .select("status, seller_product_id, updated_at")
         .eq("product_id", product.id)
@@ -98,70 +97,121 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-10">
-      {/* 상단 네비게이션 */}
-      <Link
-        href="/products"
-        className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors mb-5"
-      >
-        <span>←</span>
-        <span>상품 목록으로 돌아가기</span>
-      </Link>
-
-      {/* 상품 요약 헤더 카드 */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs mb-6 flex flex-col sm:flex-row gap-5 items-start sm:items-center">
-        {product.source_image_url && (
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-2xs bg-slate-50">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageSrc(product.source_image_url)}
-              alt={product.product_label ?? product.name ?? ""}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 truncate tracking-tight">
-              {product.product_label || product.name || "(이름 없음)"}
-            </h1>
-            <span
-              className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                STATUS_BADGE_CLASSES[product.status] ?? "bg-slate-100 text-slate-600 border-slate-200"
-              }`}
-            >
-              {STATUS_LABELS[product.status] ?? product.status}
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-            {product.category && (
-              <span className="font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                카테고리: {product.category}
-              </span>
-            )}
-            <span>등록일: {new Date(product.created_at).toLocaleDateString()}</span>
-            <span>언어: {product.language?.toUpperCase() ?? "KO"}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 15단 섹션 생성 및 관리 컨테이너 */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-7 shadow-2xs">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-6 pb-4 border-b border-slate-100">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8 space-y-6">
+      
+      {/* 1. 상단 내비게이션 & 파이프라인 인디케이터 배너 */}
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/products"
+            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors inline-flex items-center gap-1"
+          >
+            <span>←</span>
+            <span>목록으로</span>
+          </Link>
+          <div className="h-4 w-px bg-slate-300 hidden sm:block"></div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg">🎨</span>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight">{preset.label} 섹션 스튜디오</h2>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                {(templates ?? []).length} SECTIONS
+              <span className="text-sm font-black text-slate-900 truncate max-w-xs sm:max-w-md">
+                {product.product_label || product.name || "(이름 없음)"}
+              </span>
+              <span
+                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  STATUS_BADGE_CLASSES[product.status] ?? "bg-slate-100 text-slate-600 border-slate-200"
+                }`}
+              >
+                {STATUS_LABELS[product.status] ?? product.status}
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-1">
-              {preset.description}. 마음에 들지 않는 섹션은 개별 재생성하거나 직접 업로드할 수 있습니다.
+            <p className="text-[11px] text-slate-500">
+              규격: <span className="font-bold text-blue-700">{preset.label}</span> · 총 {(templates ?? []).length}섹션
             </p>
           </div>
         </div>
 
+        {/* 4단계 워크플로우 인디케이터 뱃지 */}
+        <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+          <span className="text-slate-500">1.기본정보</span>
+          <span>›</span>
+          <span className="text-slate-500">2.소구점</span>
+          <span>›</span>
+          <span className="text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md font-extrabold animate-pulse">
+            3.섹션 생성 & 편집
+          </span>
+          <span>›</span>
+          <span className="text-slate-500">4.롱이미지 병합</span>
+        </div>
+      </div>
+
+      {/* 2. 상품 요약 카드 */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
+        <div className="flex items-center gap-4 min-w-0">
+          {product.source_image_url ? (
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-xs bg-slate-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageSrc(product.source_image_url)}
+                alt={product.product_label ?? product.name ?? ""}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-slate-100 border border-slate-200 flex flex-col items-center justify-center text-slate-400 shrink-0">
+              <span className="text-2xl">🛍️</span>
+              <span className="text-[9px]">사진 없음</span>
+            </div>
+          )}
+
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-black text-slate-900 truncate tracking-tight">
+              {product.product_label || product.name || "(이름 없음)"}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500">
+              {product.category && (
+                <span className="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                  카테고리: {product.category}
+                </span>
+              )}
+              <span>등록일: {new Date(product.created_at).toLocaleDateString()}</span>
+              <span>언어: {product.language?.toUpperCase() ?? "KO"}</span>
+              {product.reviewed_at && (
+                <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 text-[10px]">
+                  ✅ 검토 완료
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 상단 롱이미지 병합 바로가기 안내 */}
+        <div className="w-full sm:w-auto flex flex-col sm:items-end gap-1.5 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+          <span className="text-[11px] font-bold text-slate-500">
+            15섹션 완성을 위해 아래에서 이미지를 생성하세요.
+          </span>
+          <span className="text-[10px] text-slate-400">
+            섹션 완성이 끝나면 하단에서 원클릭으로 롱이미지가 병합됩니다.
+          </span>
+        </div>
+      </div>
+
+      {/* 3. 15단 섹션 스튜디오 에디터 컨테이너 */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-7 shadow-sm space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🎨</span>
+              <h2 className="text-lg font-black text-slate-900 tracking-tight">{preset.label} 섹션 스튜디오</h2>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-800 border border-blue-200">
+                {(templates ?? []).length} SECTIONS
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              {preset.description}. 마음에 들지 않는 섹션은 개별 재생성하거나 직접 이미지를 업로드할 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        {/* 메인 섹션 그리드 */}
         <SectionImageGrid
           productId={product.id}
           language={product.language}
@@ -171,15 +221,24 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           initialModel={product.default_image_model as ImageModelKey}
           threadsDraft={threadsDraftText(product)}
         />
+        
+        {/* 배송 안내 카드 */}
         <ShippingNoticeCard />
+        
+        {/* HTML 복사 및 다운로드 패널 */}
         <HtmlExportPanel productId={product.id} />
+        
+        {/* 카피라이팅 톤앤매너 패널 */}
         <CopyTonePanel productId={product.id} />
+        
+        {/* 오픈마켓 연계 등록 패널 */}
         <MarketRegisterPanel
           productId={product.id}
           initialReviewedAt={product.reviewed_at}
           results={marketResults}
         />
       </div>
+
     </div>
   );
 }
