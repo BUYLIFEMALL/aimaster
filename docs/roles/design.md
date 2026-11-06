@@ -11,12 +11,13 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `ai-video-studio` | AI 비디오 생성기(/create) 4대 화면 3시안(12뷰) 쇼케이스 제작 완료 | 2026-11-06 | 1440px 라이트박스 쇼케이스 완료 (`http://localhost:3800/showcase.html`), 주인님 시안 선택 대기 |
+| `video-to-gif` | AI 영상렌더 스튜디오 4대 화면 3시안(12뷰) 쇼케이스 및 상단 종합 비교표 제작 완료 | 2026-11-06 | 1440px 라이트박스 쇼케이스 완료 (`http://localhost:3800/showcase.html`), 주인님 시안 선택 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | 4대 화면 3시안 중 확정안 선정 | 주인님 시안 선택 | `ai-video-studio/docs/UI_12VIEWS_PROPOSAL.md` |
+| `video-to-gif` | 4대 화면 3시안 중 확정안 선정 | 주인님 시안 선택 | `VIDEO_TO_GIF_12VIEWS_PROPOSAL.md` |
+| `detail-page-12p` | 4대 화면 3시안 쇼케이스 제작 착수 여부 | 후속 진행 | `DESIGN.md` |
 | `threads-content-ops` | 4대 화면 3시안 중 확정안 선정 | 주인님 시안 선택 | `THREADS_CONTENT_OPS_12VIEWS_PROPOSAL.md` |
 
 ## 최근 완료 (최근 10개)
