@@ -80,3 +80,7 @@ cmp ~/.claude/statusline-extra.js ~/.claude/statusline-extra.js.good && echo sam
 - 조치(원본 세 곳 같은 문구, 백업 `statusline-extra.js.before-5h-nolimit-20261106`): `rate_limits`는 왔는데 `five_hour`가 없고 초기화 전 캐시 값도 없으면 `5h --` 대신 `5h 제한없음`으로 표시. 5시간 값이 다시 오면 자동으로 `5h 남은% (남은 시간)`으로 돌아간다.
 - 다음부터: `5h 제한없음`이 보이면 정상이다. 의심되면 위 조회 결과의 `five_hour`·`limits`를 본다(토큰 값은 출력·기록하지 않는다).
 - 2026-11-06 맥미니 적용([역할: mac-mini] `claude-mac-20261101-blog`, 주인님 「왜 상태바에 5시간 리밋 표시가 안보여」): 맥미니 `~/.claude/statusline-extra.js`가 10-20 버전이라 5시간 값이 빠져 오면 칸 자체가 사라졌다 → `node scripts/install-statusbars.mjs --only claude`로 최신 설치(자동 백업 `.bak-<시각>`), `.good`도 같은 파일로 갱신. 실제 입력값(`rate_limits`에 `seven_day`만) 시험 결과 `5h 94% (1h 40m)`(초기화 전 캐시 값) 표시 확인. **다른 장비도 윈도우에서 스크립트를 고치면 맥미니에서 같은 명령을 한 번 실행해야 반영된다**(SMB 저장소 원본만 바뀌고 `~/.claude`는 장비마다 따로).
+
+## 2026-11-06 `5h 제한없음` → `5h 100%` ([역할: ecommerce-image] `claude-win-sdp`, 주인님 「이런경우 100%로 표시해」)
+- 조치(원본 세 곳 같은 문구, 백업 `statusline-extra.js.before-5h-100-20261106`): 5시간 한도가 없는 경우(위와 같은 조건)를 `5h 100%`(남은 양 100%, 남은 시간 없음)로 표시. 실제 입력값 시험 결과 `Opus 5.5·medium | 5h 100% | weekly 25% (1h 24m) | context 67%`.
+- 다음부터: 남은 시간 없이 `5h 100%`만 보이면 5시간 한도가 없는 상태다. 맥미니는 `node scripts/install-statusbars.mjs --only claude`를 한 번 실행해야 반영된다.
