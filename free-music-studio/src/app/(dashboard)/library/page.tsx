@@ -14,8 +14,6 @@ import {
   Loader2,
   ChevronDown,
   FolderOpen,
-  ArrowUp,
-  ArrowDown,
   X,
   ListPlus,
   PlayCircle,
@@ -26,6 +24,8 @@ import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { CoverThumb } from "@/components/library/CoverThumb";
+import { TrackOrderList } from "@/components/library/TrackOrderList";
+import { appendIds, withoutIds } from "@/lib/trackOrder";
 import { usePlayer } from "@/components/player/PlayerProvider";
 import {
   EngineError,
@@ -62,7 +62,9 @@ export default function LibraryPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null); // 잘 된 일 안내(초록)
   const [renaming, setRenaming] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set()); // 여러 곡 고르기(원본 전체 선택 → 빼기·옮기기)
 
   const loadCollections = useCallback(async () => {
     const res = await fetch("/api/collections").catch(() => null);
@@ -212,33 +214,74 @@ export default function LibraryPage() {
     return data.track_ids as string[];
   };
 
-  const addToPlaylist = async (t: Track, playlistId: string) => {
+  // 플레이리스트에 담기 — 이미 담긴 곡은 건너뛰고 뒤에 덧붙인다. 지금 보는 플레이리스트면 화면 순서도 바로 바꾼다.
+  const addToPlaylist = async (trackIds: string[], playlistId: string) => {
     const cur = await fetch(`/api/collections/${playlistId}/items`).then((r) => (r.ok ? r.json() : { track_ids: [] }));
     const ids: string[] = cur.track_ids ?? [];
-    if (ids.includes(t.id)) return setMessage("이미 담긴 곡입니다.");
-    const saved = await saveOrder(playlistId, [...ids, t.id]);
-    if (saved) setMessage(null);
+    const next = appendIds(ids, trackIds);
+    const name = playlists.find((p) => p.id === playlistId)?.name ?? "플레이리스트";
+    if (next.length === ids.length) return setMessage(trackIds.length > 1 ? "고른 곡이 모두 이미 담겨 있습니다." : "이미 담긴 곡입니다.");
+    const saved = await saveOrder(playlistId, next);
+    if (!saved) return;
+    if (view.type === "playlist" && view.id === playlistId) setOrder(saved);
+    setNotice(`「${name}」에 ${next.length - ids.length}곡을 담았습니다.`);
   };
 
-  const moveInPlaylist = async (id: string, dir: -1 | 1 | 0) => {
+  // 원본 「플레이리스트 추가」 창의 「새로 만들어 추가」 — 이름만 묻고 바로 담는다(화면은 그대로).
+  const addToNewPlaylist = async (trackIds: string[]) => {
+    const name = window.prompt("새 플레이리스트 이름", "")?.trim();
+    if (!name) return;
+    const res = await fetch("/api/collections", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "playlist", name }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return setMessage(data.error || "만들지 못했습니다.");
+    const saved = await saveOrder(data.collection.id, trackIds);
+    if (saved) setNotice(`새 플레이리스트 「${name}」에 ${saved.length}곡을 담았습니다.`);
+  };
+
+  const pickPlaylist = (value: string, trackIds: string[]) => {
+    if (value === "__new") void addToNewPlaylist(trackIds);
+    else if (value) void addToPlaylist(trackIds, value);
+  };
+
+  const removeFromPlaylist = async (trackIds: string[]) => {
     if (view.type !== "playlist") return;
-    const ids = [...order];
-    const i = ids.indexOf(id);
-    if (dir === 0) ids.splice(i, 1);
-    else {
-      const j = i + dir;
-      if (j < 0 || j >= ids.length) return;
-      [ids[i], ids[j]] = [ids[j], ids[i]];
-    }
+    const ids = withoutIds(order, trackIds);
     setOrder(ids);
     const saved = await saveOrder(view.id, ids);
     if (saved) setOrder(saved);
+    setSelected(new Set());
+  };
+
+  const reorderPlaylist = async (ids: string[]) => {
+    if (view.type !== "playlist") return false;
+    const saved = await saveOrder(view.id, ids);
+    if (!saved) return false;
+    setOrder(saved);
+    return true;
+  };
+
+  const moveSelectedToProject = async (projectId: string | null) => {
+    const list = tracks.filter((t) => selected.has(t.id) && t.project_id !== projectId);
+    for (const t of list) await setProject(t, projectId);
+    const name = projectId ? projects.find((p) => p.id === projectId)?.name : null;
+    (list.length ? setNotice : setMessage)(list.length ? `${list.length}곡을 ${name ? `「${name}」 프로젝트로 옮겼습니다` : "프로젝트에서 뺐습니다"}.` : "옮길 곡이 없습니다.");
   };
 
   // ── 이어 듣기(재생바) ─────────────────────────────────
   const playable = shown.filter((t) => libOk && onPc?.has(t.id));
   const startQueue = () => player?.playList(playable.map(toPlayer));
   const playOne = (t: Track) => player?.playList(playable.map(toPlayer), t.id);
+  const shownIds = shown.map((t) => t.id);
+  const chosen = shownIds.filter((id) => selected.has(id));
+  const allChosen = shownIds.length > 0 && chosen.length === shownIds.length;
+  const playChosen = () => player?.playList(playable.filter((t) => selected.has(t.id)).map(toPlayer));
+  const toggleOne = (id: string) =>
+    setSelected((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
 
   const btn = "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold disabled:opacity-40";
 
@@ -300,6 +343,14 @@ export default function LibraryPage() {
           </button>
         </p>
       )}
+      {notice && (
+        <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3 text-xs font-semibold text-emerald-200">
+          ✅ {notice}
+          <button type="button" onClick={() => setNotice(null)} className="ml-auto" aria-label="닫기">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </p>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
         <CollectionsNav
@@ -310,6 +361,7 @@ export default function LibraryPage() {
           onView={(v) => {
             setView(v);
             setRenaming(null);
+            setSelected(new Set());
           }}
           onCreate={createCollection}
         />
@@ -390,17 +442,85 @@ export default function LibraryPage() {
               )}
             </div>
           ) : (
-            <ul className="space-y-2">
-              {shown.map((t, i) => {
+            <>
+            {/* 여러 곡 고르기 — 원본 「전체 선택 → 목록에서 빼기·프로젝트로 옮기기」, 「선택 재생」 */}
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-[11px] text-slate-400">
+              <label className="flex cursor-pointer items-center gap-1.5 font-semibold text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={allChosen}
+                  onChange={() => setSelected(allChosen ? new Set() : new Set(shownIds))}
+                  className="h-4 w-4 accent-emerald-500"
+                />
+                전체 선택
+              </label>
+              <span>{chosen.length ? `${chosen.length}곡 고름` : "곡 왼쪽 칸을 눌러 여러 곡을 고를 수 있습니다."}</span>
+              {chosen.length > 0 && (
+                <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                  {playable.some((t) => selected.has(t.id)) && (
+                    <button type="button" onClick={playChosen} className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}>
+                      <PlayCircle className="h-3.5 w-3.5" /> 고른 곡 듣기
+                    </button>
+                  )}
+                  <select value="" onChange={(e) => pickPlaylist(e.target.value, chosen)} className={smallSelect} aria-label="고른 곡을 플레이리스트에 담기">
+                    <option value="">🎶 플레이리스트에 담기</option>
+                    {playlists.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                    <option value="__new">＋ 새 플레이리스트 만들어 담기</option>
+                  </select>
+                  <select
+                    value=""
+                    onChange={(e) => e.target.value && moveSelectedToProject(e.target.value === "__none" ? null : e.target.value)}
+                    className={smallSelect}
+                    aria-label="고른 곡을 프로젝트로 옮기기"
+                  >
+                    <option value="">📁 프로젝트로 옮기기</option>
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                    <option value="__none">프로젝트에서 빼기</option>
+                  </select>
+                  {view.type === "playlist" && (
+                    <button type="button" onClick={() => removeFromPlaylist(chosen)} className={`${btn} border-rose-500/30 text-rose-300 hover:bg-rose-950/50`}>
+                      <X className="h-3.5 w-3.5" /> 이 플레이리스트에서 빼기
+                    </button>
+                  )}
+                  <button type="button" onClick={() => setSelected(new Set())} className={`${btn} border-slate-700 text-slate-400`}>
+                    고르기 취소
+                  </button>
+                </div>
+              )}
+            </div>
+            {view.type === "playlist" && query.trim() && <p className="text-[11px] text-slate-500">찾는 중에는 순서를 바꿀 수 없습니다. 검색어를 지우면 끌어서 바꿀 수 있습니다.</p>}
+            <TrackOrderList
+              items={shown}
+              editable={view.type === "playlist" && !query.trim()}
+              onOrder={reorderPlaylist}
+              rowClassName="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4"
+              renderRow={(t, i, tools) => {
                 const here = onPc ? onPc.has(t.id) : null;
                 const inPlaylist = view.type === "playlist";
                 return (
-                  <li key={t.id} className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4">
+                  <>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(t.id)}
+                        onChange={() => toggleOne(t.id)}
+                        aria-label={`${t.title} 고르기`}
+                        className="h-4 w-4 shrink-0 accent-emerald-500"
+                      />
+                      {tools.grip}
+                      {tools.badge}
                       {showCovers && <CoverThumb trackId={t.id} has={arts.has(t.id)} title={t.title} />}
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-slate-100">
-                          {inPlaylist && <span className="mr-1.5 text-slate-500">{i + 1}.</span>}
+                          {inPlaylist && !tools.badge && <span className="mr-1.5 text-slate-500">{i + 1}.</span>}
                           {t.title}
                         </p>
                         <p className="mt-0.5 truncate text-[11px] text-slate-500">
@@ -449,17 +569,9 @@ export default function LibraryPage() {
                           </Link>
                         )}
                         {inPlaylist ? (
-                          <>
-                            <button type="button" onClick={() => moveInPlaylist(t.id, -1)} disabled={i === 0} className={`${btn} border-slate-700 text-slate-400`} aria-label="위로">
-                              <ArrowUp className="h-3.5 w-3.5" />
-                            </button>
-                            <button type="button" onClick={() => moveInPlaylist(t.id, 1)} disabled={i === shown.length - 1} className={`${btn} border-slate-700 text-slate-400`} aria-label="아래로">
-                              <ArrowDown className="h-3.5 w-3.5" />
-                            </button>
-                            <button type="button" onClick={() => moveInPlaylist(t.id, 0)} className={`${btn} border-slate-700 text-slate-400`}>
-                              <X className="h-3.5 w-3.5" /> 빼기
-                            </button>
-                          </>
+                          <button type="button" onClick={() => removeFromPlaylist([t.id])} className={`${btn} border-slate-700 text-slate-400`} title="플레이리스트에서만 빼고 곡은 그대로 둡니다">
+                            <X className="h-3.5 w-3.5" /> 빼기
+                          </button>
                         ) : (
                           <button
                             type="button"
@@ -495,26 +607,18 @@ export default function LibraryPage() {
                           ))}
                         </select>
                       </label>
-                      {playlists.length > 0 && (
-                        <label className="flex items-center gap-1.5">
-                          <ListPlus className="h-3.5 w-3.5" /> 플레이리스트에 담기
-                          <select
-                            value=""
-                            onChange={(e) => {
-                              if (e.target.value) addToPlaylist(t, e.target.value);
-                              e.target.value = "";
-                            }}
-                            className={smallSelect}
-                          >
-                            <option value="">고르기</option>
-                            {playlists.map((p) => (
-                              <option key={p.id} value={p.id}>
-                                {p.name}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                      )}
+                      <label className="flex items-center gap-1.5">
+                        <ListPlus className="h-3.5 w-3.5" /> 플레이리스트에 담기
+                        <select value="" onChange={(e) => pickPlaylist(e.target.value, [t.id])} className={smallSelect}>
+                          <option value="">고르기</option>
+                          {playlists.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                            </option>
+                          ))}
+                          <option value="__new">＋ 새로 만들어 담기</option>
+                        </select>
+                      </label>
                     </div>
 
                     {open === t.id && (
@@ -535,10 +639,11 @@ export default function LibraryPage() {
                         <p className="whitespace-pre-wrap leading-relaxed">{t.lyrics || "(가사 없음)"}</p>
                       </div>
                     )}
-                  </li>
+                  </>
                 );
-              })}
-            </ul>
+              }}
+            />
+            </>
           )}
         </div>
       </div>

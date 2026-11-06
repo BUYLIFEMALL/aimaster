@@ -23,6 +23,10 @@ interface PlayerValue {
   duration: number;
   repeat: RepeatMode;
   shuffle: boolean;
+  /** 지금 재생 목록(화면이 넘겨준 순서) — 대기열 패널 */
+  queue: PlayerTrack[];
+  /** 대기열에서 고른 곡으로 바로 */
+  jump: (key: string) => void;
   /** 재생 목록을 정하고 그중 한 곡(없으면 첫 곡)부터 */
   playList: (list: PlayerTrack[], startKey?: string) => void;
   /** 지금 곡이면 멈춤·이어 듣기 */
@@ -54,6 +58,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [repeat, setRepeat] = useState<RepeatMode>("off");
   const [shuffle, setShuffle] = useState(false);
+  const [queue, setQueue] = useState<PlayerTrack[]>([]);
 
   useEffect(() => {
     try {
@@ -173,8 +178,14 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       duration,
       repeat,
       shuffle,
+      queue,
+      jump: (key) => {
+        const t = list.current.find((x) => x.key === key);
+        if (t && t.key !== current?.key) void start(t, current);
+      },
       playList: (items, startKey) => {
         list.current = items;
+        setQueue(items);
         const t = items.find((x) => x.key === startKey) ?? items[0];
         if (!t) return;
         const a = audio.current;
@@ -203,7 +214,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setCurrent(null);
       },
     }),
-    [current, playing, loading, error, time, duration, repeat, shuffle, start, step]
+    [current, playing, loading, error, time, duration, repeat, shuffle, queue, start, step]
   );
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
