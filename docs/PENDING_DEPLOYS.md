@@ -28,6 +28,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `real_estate_sales` | 분양권이 회당 저장 상한 20건에 영원히 밀리던 문제 — 분양권 줄을 상한 계산 맨 앞으로(`presaleFirst`). 11-06 강서구 운영 확인: 공개시스템에 등촌역 10-02 분양권·09-06 입주권이 있는데 서울 열린데이터 최신 200건 뒤에 놓여 v1.49 재정렬로도 저장 안 됨 | 이 줄 커밋(`fix(real_estate_sales): presale rows first`) | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` 2026-11-06 분양권 | 배포 뒤 시험 계정 강서구 「지금 조회하기」 1회 → DB `property_type='분양권'` 줄·`raw_data` 칸(aptNm·excluUseAr·floor) 대조 |
 | `real_estate_sales` | R-ONE 상권 좌표 보강: 검색어 후보(「/」 나눔·「시도 + 이름」·옛 시내 → 도시 역), 갱신 주소 `?retry=missing` | `1c8b800a3` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` 2026-11-06 | 배포 뒤 `/api/admin/rone-refresh?retry=missing&geocode=150` 1회(못 찾은 70곳) |
 | `realty-client-desk` | 수신거부 저장 실패 시 「처리됐어요」 대신 오류 문구 | `5cc894781` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `realty-client-desk/AGENTS.md` 5. 남은 일 | 배포 뒤 버전 +0.01 |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |
