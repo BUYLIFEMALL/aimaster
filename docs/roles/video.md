@@ -4,17 +4,17 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-06 `claude-win-video` (V2·V5 플랜, 결정 대기)
+- 마지막 갱신: 2026-11-06 `claude-win-video` (V2 컷 목록·실행 기록 표 완료, 언어판은 공용 그리기 글꼴 문제로 보류)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 없음(V2·V5 결정 대기) | — | — |
+| — | 없음(다음: V5) | — | — |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio`·`shorts-onestop-studio`·`video-to-gif` | V2·V5 구현 | 결정 4가지(V5 엔진·실행 기록 저장·V2 순서·V5 위치) | `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §4 |
+| `video-to-gif` → `ai-video-studio`·`shorts-onestop-studio` | V5 내 영상 일부 지우기 → V2 언어판(공용 그리기 글꼴 추가 뒤)·해설 교차편집·각색 강도 | 언어판은 음악 담당의 `music-video-studio` Composition 사본 미커밋 수정 커밋 대기 | `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8 |
 | `video-to-gif` · `shorts-onestop-studio` | V4 · V3 1단계 미배포 대기 | 다음 배포 때(빌드 승인) | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
@@ -22,6 +22,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-06 | `ai-video-studio` V2 일부 | 컷 목록(EDL) 내보내기 `944338e0c`, 실행 기록 표 `own_content_rights_log` 운영 적용·30일 정리 `7adc0e000` | 미배포 |
 | 2026-11-06 | `ai-video-studio` v1.27 | V1 「긴 영상 → 쇼츠」 배포 `ai-video-studio-bg1c1uy1t` — 운영에서 받아쓰기·구간 3개·영상 합치기·MP4 17.9초 끝까지 확인(관리자 계정 본인 키) | 배포 |
 | 2026-11-06 | V1 사전 검증 | 한국어 리뷰 2분 6초: 받아쓰기 98.4%·문장 경계 정확·낱말 시각 최대 0.7초 오차·구간 3개(준비 멘트 제외), 실제 비용 약 22원 | —(저장소 밖) |
 | 2026-11-06 | `shorts-onestop-studio` V3 1단계 | 상품 홍보(15초 6비트) 구성·상품 정보 칸·과장 금지 규칙·`#product-name=` 받기 `ea6bdead1` | 미배포 대기(v1.44) |
@@ -57,9 +58,9 @@
 
 ## 다음 첫 단계
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
-2. V2·V5 결정을 받으면 플랜 §4 순서로 구현(V2는 컷 목록 내보내기부터)
+2. V5부터 구현(`video-to-gif`, ffmpeg.wasm `delogo`, 권리 체크·`own_content_rights_log` 기록) → V2 언어판은 공용 `video-edit-composition` 글꼴 추가 뒤
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
 - 서버 지역(`regions`)을 DB 가까이 옮기는 전체 프로그램 공통 제안 검토 여부
-- V2·V5 결정 4가지(플랜 `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §4)
+- (없음 — V2·V5 결정 2026-11-06 받음)

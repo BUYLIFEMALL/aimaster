@@ -53,3 +53,8 @@
 
 ## 7. 주인님 결정(2026-11-06 채팅)
 - 결정 1 V5 엔진: **ffmpeg.wasm `delogo`**(추천안) · 결정 2 실행 기록: **새 표 `avs_rights_log`**(추천안, 추가만 하는 DB 변경 승인) · 결정 3 V2 순서: **작은 것부터**(컷 목록 → 언어판 → 해설 교차편집 → 각색 강도) · 결정 4 V5 위치: `video-to-gif`(플랜 기본값).
+
+## 8. 진행(2026-11-06)
+- ✅ V2 컷 목록(EDL) 내보내기 `944338e0c` — 「긴 영상 → 쇼츠」·영상 합치기에 단추(미배포).
+- ✅ 실행 기록 표 `own_content_rights_log` — 운영 DB에 적용(주인님 크롬 SQL 편집기, 붙여 넣은 글 지문 원본과 같음 `a38979d29e114785`), 서버 읽기 200·비로그인 401 확인. 30일 정리 `/api/cron/cleanup`에 추가 `7adc0e000`(미배포).
+- ⏸ V2 언어판: 자막 그리기(공용 `video-edit-composition`)가 `NotoSansKR`(korean·latin)만 불러와 일본어·중국어·베트남어 자막 글자가 깨질 수 있음 → 기준 파일에 언어별 글꼴(`NotoSansJP`·`NotoSansSC`, latin-ext·vietnamese) 추가가 먼저 필요. **사본 `music-video-studio/src/components/edit/Composition.tsx`에 음악 담당의 미커밋 수정이 있어** 지금 `--sync`하면 덮어씀 → 음악 담당이 그 수정을 커밋한 뒤 기준을 고치고 사본을 맞춘다(사본을 직접 고치지 않음). 그 전까지 순서를 바꿔 **V5(`video-to-gif` 내 영상 일부 지우기)**를 먼저 한다.
