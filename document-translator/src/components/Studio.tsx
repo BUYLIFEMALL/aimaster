@@ -199,6 +199,7 @@ export function Workspace({
     [reverseOpen, setReverseOpen] = useState(false);
   const [saveConsent, setSaveConsent] = useState(false),
     [copyStatus, setCopyStatus] = useState("");
+  const [received, setReceived] = useState<{ id: string; title: string }[]>([]);
   const runRef = useRef<Run | null>(null),
     controller = useRef<AbortController | null>(null),
     generation = useRef(0),
@@ -317,6 +318,12 @@ export function Workspace({
       );
     }
   }, []);
+  useEffect(() => {
+    if (screen !== "translator") return;
+    api<{ items: { id: string; title: string }[] }>("/api/work-inbox/received")
+      .then((r) => setReceived(r.items))
+      .catch(() => setReceived([]));
+  }, [screen]);
   useEffect(() => {
     if (screen === "history") void loadHistory();
     if (screen === "glossary") void loadGlossaries();
@@ -670,6 +677,51 @@ export function Workspace({
       setError("복사를 허용하지 않는 브라우저입니다. 다운로드로 저장해주세요.");
     }
   }
+  // U9-C: 업무 워크스페이스에서 받은 문서 → 새 번역 원문 / 번역문 → 워크스페이스 「받은 업무」
+  async function pickReceived(id: string) {
+    if (busy) return;
+    if (dirty) {
+      setError("지금 작업을 저장하거나 「＋ 새 번역」을 누른 뒤 받은 문서를 열어주세요.");
+      return;
+    }
+    setBusy("받은 문서 열기");
+    setError("");
+    try {
+      const item = await api<{ title: string; bodyMd: string }>("/api/work-inbox/received", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      setReceived((old) => old.filter((r) => r.id !== id));
+      setDoc({ ...emptyState(), sourceText: item.bodyMd, filename: item.title.slice(0, 180) });
+      setTitle(item.title.slice(0, 120) || "새 번역 작업");
+      setSelectedProject(null);
+      setSavedSignature("");
+      setNotice("업무 워크스페이스에서 받은 문서를 원문에 넣었습니다. 언어와 예상 호출 수를 확인한 뒤 번역을 실행해주세요.");
+      setMobileTab("source");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "받은 문서를 열지 못했습니다.");
+    } finally {
+      setBusy("");
+    }
+  }
+  async function sendTranslation() {
+    if (busy || !doc.translationText) return;
+    setBusy("업무 워크스페이스로 보내기");
+    setError("");
+    try {
+      await api<{ ok: boolean }>("/api/work-inbox", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, text: doc.translationText, targetLanguage: doc.options.targetLanguage }),
+      });
+      setNotice("번역문을 업무 워크스페이스 「받은 업무」로 보냈습니다. https://ai-work-workspace.buylife.xyz/inbox 에서 페이지로 만들 수 있습니다.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "업무 워크스페이스로 보내지 못했습니다.");
+    } finally {
+      setBusy("");
+    }
+  }
   function exportBackup() {
     download(
       JSON.stringify(makeBackup(title, doc), null, 2),
@@ -878,6 +930,15 @@ export function Workspace({
       >
         복사
       </button>
+      {which === "translation" && (
+        <button
+          disabled={!doc.translationText || Boolean(busy)}
+          onClick={() => void sendTranslation()}
+          aria-label="번역문을 업무 워크스페이스로 보내기"
+        >
+          📨 워크스페이스로 보내기
+        </button>
+      )}
       <details>
         <summary>{which === "source" ? "원문 저장" : "번역문 저장"}</summary>
         <div>
@@ -934,6 +995,18 @@ export function Workspace({
           <p role="status" className="muted">
             {copyStatus}
           </p>
+        )}
+        {screen === "translator" && received.length > 0 && (
+          <details className="banner info">
+            <summary>📥 업무 워크스페이스에서 받은 문서 ({received.length})</summary>
+            <div className="panel-tools">
+              {received.map((r) => (
+                <button key={r.id} disabled={Boolean(busy)} onClick={() => void pickReceived(r.id)}>
+                  {r.title}
+                </button>
+              ))}
+            </div>
+          </details>
         )}
         <input
           ref={fileRef}
