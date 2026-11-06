@@ -3,7 +3,15 @@
 ## 미배포 대기
 - `376c55c7a` 왼쪽 메뉴 버전 표시 v1.21(v1.21 배포 때 `AimasterSidebar.tsx` 값을 빠뜨려 운영 메뉴에 v1.20이 보임 — 2026-11-06 운영 확인에서도 그대로). 다음 배포(v1.22) 때 함께.
 - `a80274b4c` 보낸 마크다운 정리(회의록 근거 링크 제거·구역 들여쓰기 없음·표/페이지 표시 한국어) + 받은 업무 빈 화면 문구(2026-11-06, 아래 「U9 확인 중 발견」). 다음 배포(v1.22) 때 함께.
+- (이번 커밋) 음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI, 아래 「받아쓰기 엔진 선택」). 다음 배포(v1.22) 때 함께 — 배포 뒤 시험 계정으로 OpenAI 실제 받아쓰기 확인이 다음 단계.
 - (배포됨) `297efb419` 요약 소제목 한국어화·`1551c9041` 휴지통 안내 한국어화 → v1.21(2026-11-06)로 나감.
+
+## 받아쓰기 엔진 선택 (2026-11-06, 미배포 — 플랜 `docs/PLAN_20261106_STT_ENGINE_CHOICE.md`)
+- 배경: v1.20 OpenAI 경로를 실제로 못 본 이유가 「Gemini 키가 있으면 무조건 Gemini」였음. 요청함 `c234b28c`에 주인님 「진행해」 → 시험 계정 키를 지우지 않고 회원 설정 기능으로 해결.
+- 서버: `memberSttMode(preferred)`(OpenAI를 골랐고 OpenAI 키가 있으면 OpenAI, 그 외 Gemini → OpenAI), `memberSttModes()`; `userMeetingPrefs().sttEngine`(`user_settings.settings.meeting_stt_engine`); `audio.ts`의 `sttProvider`·`sttMaxBytes`·`transcribeUploaded`가 선택을 따름(Google 직접 업로드 파일은 Gemini 고정); `meetingStatus`에 `sttModes`·`sttEngine` 추가.
+- 화면: 회의록 설정 메뉴(슬라이더)에 「음성 파일 받아쓰기 엔진」 — Gemini·OpenAI 키가 둘 다 있을 때만 보임, 하위 「자동 (Gemini 우선)」/「OpenAI」, 저장은 `savePref('meeting_stt_engine')` + `transactions.flush()`(다음 올리기가 바로 반영). OpenAI 선택 상태에서 4MB 초과 파일 안내는 「자동으로 바꾸면 100MB」로. 매뉴얼 음성 단락 한 줄.
+- 시험: `memberStt.test.ts` 7개(새 2건 포함) 통과, 연결부 49개 통과(로컬 Docker `aww-pg-test`가 꺼져 있어 첫 실행은 2파일 연결 실패 → `docker start aww-pg-test` 뒤 전부 통과 — 로컬 빌드도 같은 이유로 첫 회 실패 뒤 통과), 타입 검사·로컬 빌드 통과.
+- 배포 뒤 확인할 것: 시험 계정 설정 「OpenAI」 → 15초 WAV → 시각 없는 몇 문장 묶음으로 받아써지는지 → 「자동」으로 되돌리기. 배포 전까지 OpenAI 실제 경로는 여전히 자동 시험으로만 확인된 상태.
 
 ## U9 운영 확인 (2026-11-06, 시험 계정 `buylifemall@naver.com`, ego lite)
 - **보내기 3곳 통과**: 페이지 「작업」(⋯) → 「📨 다른 프로그램으로 보내기」 하위 메뉴에 할 일 플래너 2개 + 슬라이드·번역·문서 챗봇 3개가 보임. 「회의록 10월 24일」을 세 곳으로 보냄.

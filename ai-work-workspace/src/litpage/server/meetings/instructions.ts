@@ -46,11 +46,13 @@ export function autoPrompt(): string {
   return AUTO_PROMPT;
 }
 
-export function userMeetingPrefs(userId: string): { pages: string[]; defaultKey: string } {
+export function userMeetingPrefs(userId: string): { pages: string[]; defaultKey: string; sttEngine: 'auto' | 'openai' } {
   const s = (getRecord<UserSettingsRecord>('user_settings', userId)?.settings ?? {}) as Record<string, unknown>;
   const pages = Array.isArray(s.meeting_instructions) ? (s.meeting_instructions as unknown[]).filter((x): x is string => typeof x === 'string').slice(0, 50) : [];
   const def = typeof s.meeting_default_instructions === 'string' ? s.meeting_default_instructions : AUTO;
-  return { pages, defaultKey: def };
+  // 2026-11-06: 음성 파일 받아쓰기 엔진 선택(화면 설정 메뉴 savePref('meeting_stt_engine')) — 'openai'만 뜻이 있고 나머지는 자동(Gemini 우선)
+  const sttEngine = s.meeting_stt_engine === 'openai' ? 'openai' : 'auto';
+  return { pages, defaultKey: def, sttEngine };
 }
 
 export interface ResolvedInstructions {

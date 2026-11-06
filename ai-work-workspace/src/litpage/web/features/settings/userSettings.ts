@@ -52,6 +52,8 @@ export interface UserPrefs {
   email_workspace_digest?: boolean;
   meeting_auto_share?: boolean;
   meeting_auto_consent?: boolean;
+  /** 2026-11-06: 음성 파일 받아쓰기 엔진 — 'openai'면 Gemini 키가 있어도 OpenAI(서버 meetings/instructions.ts userMeetingPrefs가 읽음) */
+  meeting_stt_engine?: 'auto' | 'openai';
   meeting_default_db?: string;
   developer_mode?: boolean;
   ai_instructions?: string;

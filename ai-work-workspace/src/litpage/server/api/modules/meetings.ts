@@ -21,7 +21,7 @@ import {
 import { summarize } from '../../meetings/summary.ts';
 import { after } from 'next/server';
 import { ALLOWED_LABEL, attachGeminiAudio, deleteAudio, startGeminiAudioUpload, sttMaxBytes, sttProvider, transcribeUploaded, uploadAudio } from '../../meetings/audio.ts';
-import { memberSttMode } from '../../meetings/memberStt.ts';
+import { memberSttMode, memberSttModes } from '../../meetings/memberStt.ts';
 import { AUTO, BUILTINS, CUSTOM_TEMPLATE, userMeetingPrefs } from '../../meetings/instructions.ts';
 
 type Handler = (ctx: Ctx, body: any) => any;
@@ -113,9 +113,10 @@ export const handlers: Record<string, Handler> = {
       storeAudioLocally: spaceSetting<boolean>(space, 'meeting_store_audio_locally', false) === true,
       transcriptDeletion: spaceSetting<string>(space, 'meeting_transcript_deletion', 'never'),
       usedTodayMs: usedTodayMs(uid), dailyLimitMs: dailyLimitMs(), resetInMs: msUntilReset(),
-      aiConfigured: aiConfigured(), sttProvider: sttProvider()?.label ?? null, audioTypes: ALLOWED_LABEL,
+      aiConfigured: aiConfigured(), sttProvider: sttProvider(prefs.sttEngine)?.label ?? null, audioTypes: ALLOWED_LABEL,
       // 이식판 U6-B: 회원 키로 정한 받아쓰기 방식(gemini: Google 직접 업로드 / openai: 우리 서버 경유)과 최대 크기
-      sttMode: memberSttMode(), sttMaxBytes: sttMaxBytes(),
+      // 2026-11-06: 회원이 고른 엔진(sttEngine, 설정 메뉴)을 반영한 값. sttModes는 키가 있는 엔진 목록(둘 다면 설정 칸 표시)
+      sttMode: memberSttMode(prefs.sttEngine), sttMaxBytes: sttMaxBytes(prefs.sttEngine), sttModes: memberSttModes(), sttEngine: prefs.sttEngine,
       defaultInstructions: prefs.defaultKey,
     };
   },

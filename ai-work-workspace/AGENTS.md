@@ -29,6 +29,7 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| (미배포, v1.22 예정) | 2026-11-06 | 음성 파일 받아쓰기 엔진 회원 선택 — 회의록 설정 메뉴 「음성 파일 받아쓰기 엔진」(Gemini·OpenAI 키 둘 다일 때만) 자동(Gemini 우선)/OpenAI, 회원 설정 `meeting_stt_engine`, 서버 `memberSttMode(preferred)`·`meetingStatus.sttModes/sttEngine`. 요청함 `c234b28c` 「진행해」 결정, 플랜 `docs/PLAN_20261106_STT_ENGINE_CHOICE.md`. 앞선 미배포 `376c55c7a`·`a80274b4c`와 함께 배포 예정 |
 | v1.19 | 2026-10-25 | v1.19 — U8-B 할 일 플래너로 보내기: 페이지 「⋯」 → 「📨 할 일 플래너로 보내기」(체크 안 된 할 일 항목 최대 30개 / 이 페이지를 할 일 하나로 — 표 행이면 마감일·우선순위), 서버 명령 `workInboxSendToPlanner`(회원 본인 공간 페이지만), 공용 표 `work_inbox.target_slug` 열 추가(주인님 승인, 운영 적용 `20261025000100`), 받은 업무는 받는 곳이 워크스페이스인 줄만, 기준 코드 `targetSlug` 선택값, 표 「받은 날」 한국 날짜(`c6d4ca3ba`), 표 행 「OPEN」→「열기」, 매뉴얼 카드 — `b121bdfde`, 배포 `ai-work-workspace-ho0fq9vle`. 미배포: `94719d8da`(표 행 페이지의 글자형 우선순위·날짜 칸 읽기) |
 | v1.18 | 2026-10-25 | v1.18 — U7 업무 받은편지함: 공용 표 `public.work_inbox`(주인님 승인, RLS 본인만, insert는 각 프로그램 서버만, 30일 자동 삭제를 운영 정리 작업에 추가) + 「📨 받은 업무」 화면 `/inbox`(좌측 메뉴·새 항목 수, 목록·미리보기, 3D 버튼 「페이지로 만들기」(원본 importFiles 재사용)·「표에 행으로 넣기」(처음 「📨 받은 업무 표」 자동 생성 후 mergeCsv로 추가, 표 위치는 회원 설정에 저장)·「삭제」) + 보내기 기준 코드 `src/lib/workInbox.ts`·안내 `docs/WORK_INBOX.md` + 매뉴얼 구역 — `2697c16ba`, 배포 `ai-work-workspace-lvwfm67rq` |
 | v1.17 | 2026-10-24 | v1.17 — 보기·속성·자동화 종류 메뉴 이름(공용 엔진 이름을 화면 표시 지점에서만 `tx()`), AI 채팅 검색 범위·통화·날짜 형식 이름 한국어 — `fe3e8e33f`(주인님 승인 추가 빌드) |

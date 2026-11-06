@@ -22,11 +22,27 @@ const API_ORIGIN = 'https://generativelanguage.googleapis.com';
 const UPLOAD_URL_PREFIX = `${API_ORIGIN}/upload/`;
 const FILE_URI_PREFIX = `${API_ORIGIN}/v1beta/files/`;
 
-/** 회원이 가진 키로 정한 받아쓰기 방식: Gemini 우선, 없으면 OpenAI, 둘 다 없으면 null */
-export function memberSttMode(): SttMode | null {
+/** 회원이 고를 수 있는 엔진 값(회원 설정 user_settings.settings.meeting_stt_engine): 'auto' = Gemini 우선 */
+export type SttEngineChoice = 'auto' | 'openai';
+
+/**
+ * 회원이 가진 키로 정한 받아쓰기 방식: Gemini 우선, 없으면 OpenAI, 둘 다 없으면 null.
+ * 2026-11-06: 회원이 설정 메뉴에서 「OpenAI」를 골랐고 OpenAI 키가 있으면 Gemini 키가 있어도 OpenAI를 쓴다
+ * (키가 둘 다 있는 회원이 어느 회사에 요금을 낼지 고르게 — 플랜 docs/PLAN_20261106_STT_ENGINE_CHOICE.md).
+ */
+export function memberSttMode(preferred: SttEngineChoice | null | undefined = 'auto'): SttMode | null {
+  if (preferred === 'openai' && openaiConfig()) return 'openai';
   if (geminiKey()) return 'gemini';
   if (openaiConfig()) return 'openai';
   return null;
+}
+
+/** 이 회원이 쓸 수 있는 엔진 목록(설정 메뉴는 둘 다 있을 때만 선택 칸을 보여 준다) */
+export function memberSttModes(): SttMode[] {
+  const out: SttMode[] = [];
+  if (geminiKey()) out.push('gemini');
+  if (openaiConfig()) out.push('openai');
+  return out;
 }
 
 export class SttError extends Error {}

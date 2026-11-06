@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { withMemberAiKeys } from '../../src/litpage/server/ai/providers/config.ts';
 import {
-  isAllowedFileRef, isAllowedOrigin, memberSttMode, parseGeminiSegments, textToSegments,
+  isAllowedFileRef, isAllowedOrigin, memberSttMode, memberSttModes, parseGeminiSegments, textToSegments,
 } from '../../src/litpage/server/meetings/memberStt.ts';
 
 describe('받아쓰기 방식 선택(회원 본인 키)', () => {
@@ -10,6 +10,13 @@ describe('받아쓰기 방식 선택(회원 본인 키)', () => {
     expect(withMemberAiKeys({ geminiKey: 'g-key', openaiKey: 'o-key' }, () => memberSttMode())).toBe('gemini');
     expect(withMemberAiKeys({ openaiKey: 'o-key' }, () => memberSttMode())).toBe('openai');
     expect(withMemberAiKeys({ anthropicKey: 'a-key' }, () => memberSttMode())).toBeNull();
+  });
+  it('회원이 OpenAI를 골랐으면 Gemini 키가 있어도 OpenAI, OpenAI 키가 없으면 선택을 무시하고 Gemini', () => {
+    expect(withMemberAiKeys({ geminiKey: 'g-key', openaiKey: 'o-key' }, () => memberSttMode('openai'))).toBe('openai');
+    expect(withMemberAiKeys({ geminiKey: 'g-key', openaiKey: 'o-key' }, () => memberSttMode('auto'))).toBe('gemini');
+    expect(withMemberAiKeys({ geminiKey: 'g-key' }, () => memberSttMode('openai'))).toBe('gemini');
+    expect(withMemberAiKeys({ geminiKey: 'g-key', openaiKey: 'o-key' }, () => memberSttModes())).toEqual(['gemini', 'openai']);
+    expect(withMemberAiKeys({ anthropicKey: 'a-key' }, () => memberSttModes())).toEqual([]);
   });
 });
 

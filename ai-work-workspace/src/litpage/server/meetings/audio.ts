@@ -20,9 +20,10 @@ import {
 } from './model.ts';
 // 이식판 U6-B: 회원 본인 키 받아쓰기(Gemini 우선·OpenAI 보조)
 import {
-  GEMINI_MAX_BYTES, SERVER_UPLOAD_MAX_BYTES, SttError, deleteGeminiFile, geminiFileUri, isAllowedFileRef, isAllowedOrigin, memberSttMode,
+  GEMINI_MAX_BYTES, SERVER_UPLOAD_MAX_BYTES, SttError, deleteGeminiFile, geminiFileUri, isAllowedFileRef, isAllowedOrigin, memberSttMode, type SttEngineChoice,
   startGeminiUpload, transcribeWithGemini, transcribeWithOpenAi, type SttMode,
 } from './memberStt.ts';
+import { userMeetingPrefs } from './instructions.ts';
 
 export interface SttProvider {
   id: string;
@@ -43,18 +44,18 @@ const MEMBER_PROVIDERS: Record<SttMode, SttProvider> = {
   openai: { id: 'member-openai', label: 'OpenAI', transcribe: async (i) => ({ segments: await transcribeWithOpenAi(i) }) },
 };
 
-/** 등록된 제공자(원본 시험용)가 있으면 그것, 없으면 회원 본인 키 제공자(Gemini 우선·OpenAI 보조), 둘 다 없으면 null. */
-export function sttProvider(): SttProvider | null {
+/** 등록된 제공자(원본 시험용)가 있으면 그것, 없으면 회원 본인 키 제공자(Gemini 우선·OpenAI 보조, 회원이 OpenAI를 골랐으면 OpenAI), 둘 다 없으면 null. */
+export function sttProvider(preferred?: SttEngineChoice): SttProvider | null {
   const id = process.env.NC_STT_PROVIDER?.trim();
   if (id) return providers.get(id) ?? null;
   if (providers.size === 1) return [...providers.values()][0];
-  const mode = memberSttMode();
+  const mode = memberSttMode(preferred);
   return mode ? MEMBER_PROVIDERS[mode] : null;
 }
 
 /** 이 회원이 올릴 수 있는 음성 파일 최대 크기(Gemini는 Google 직접 업로드, OpenAI는 우리 서버 경유) */
-export function sttMaxBytes(): number {
-  return memberSttMode() === 'gemini' ? GEMINI_MAX_BYTES : SERVER_UPLOAD_MAX_BYTES;
+export function sttMaxBytes(preferred?: SttEngineChoice): number {
+  return memberSttMode(preferred) === 'gemini' ? GEMINI_MAX_BYTES : SERVER_UPLOAD_MAX_BYTES;
 }
 
 /** Google에 직접 올린 음성의 표식(files 표가 아니라 회원 Gemini 파일 저장소에 있다) */
@@ -190,7 +191,8 @@ export async function transcribeUploaded(blockId: string, userId: string): Promi
   const st = stateOf(b);
   const audio = st.audio;
   if (!audio || audio.status === 'deleted') throw new MeetingError('no_audio', '음성을 복구할 수 없습니다. 이 PC에 저장된 녹음이 만료됐을 수 있습니다.', 400);
-  const provider = sttProvider();
+  // 2026-11-06: 우리 서버에 올린 파일은 회원이 고른 엔진(설정 메뉴)으로 받아쓴다. Google에 올린 파일은 아래에서 Gemini 고정.
+  const provider = sttProvider(userMeetingPrefs(userId).sttEngine);
   const fail = (message: string, code = 'transcribe') => {
     recordState(userId, meetingBlock(blockId), { state: 'error', error: { code, message, time: Date.now() }, audio: { ...audio, status: 'failed' } }, 'transcribeFailed');
     return { status: 'error' as const, error: message };

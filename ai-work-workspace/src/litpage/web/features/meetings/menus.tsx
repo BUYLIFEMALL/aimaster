@@ -16,7 +16,7 @@ import { LANGUAGES } from './speech.ts';
 import { autoConsentPref, consentEnforced, copyConsent, playConsent } from './consent.ts';
 import { deleteRecordings, downloadRecording, listRecordings } from './localAudio.ts';
 import { meetingState, pauseMeeting, startMeeting, stopMeeting, liveState } from './session.ts';
-import { noSttReason, sttProviderOf } from './capabilities.ts';
+import { noSttReason, setSttEngine, sttEngineChoiceOf, sttProviderOf } from './capabilities.ts';
 import { useState } from 'react';
 
 function merge(r: { recordMap?: any }) {
@@ -69,13 +69,16 @@ export function pickAudio(blockId: string) {
     const toast = useUI.getState().toast;
     try {
       // 회원 키가 바뀌었을 수 있어 매번 새로 묻는다(Gemini 키 → Google 직접 업로드, OpenAI 키만 → 4MB 이하 서버 경유)
-      const status = await api<{ sttMode?: 'gemini' | 'openai' | null; sttMaxBytes?: number }>('meetingStatus', { spaceId: b?.space_id });
+      // 2026-11-06: sttMode는 회원이 설정 메뉴에서 고른 엔진(meeting_stt_engine)까지 반영된 값
+      const status = await api<{ sttMode?: 'gemini' | 'openai' | null; sttMaxBytes?: number; sttModes?: ('gemini' | 'openai')[] }>('meetingStatus', { spaceId: b?.space_id });
       if (!status?.sttMode) return toast(noSttReason());
       const max = status.sttMaxBytes ?? 4 * MB;
       if (f.size > max) {
         return toast(status.sttMode === 'gemini'
           ? t('lp.meetings.aww_audio_too_large_gemini', '음성 파일은 100MB까지 받아쓸 수 있습니다. 나눠서 올려 주세요.')
-          : t('lp.meetings.aww_audio_too_large_openai', 'OpenAI 키로는 4MB 이하(약 4분) 음성 파일만 받아쓸 수 있습니다. 더 긴 파일은 본인 Gemini 키를 등록해 주세요.'));
+          : status.sttModes?.includes('gemini')
+            ? t('lp.meetings.aww_audio_too_large_openai_switch', 'OpenAI 엔진으로는 4MB 이하(약 4분) 음성 파일만 받아쓸 수 있습니다. 설정 메뉴 「음성 파일 받아쓰기 엔진」을 「자동」으로 바꾸면 Gemini로 100MB까지 받아씁니다.')
+            : t('lp.meetings.aww_audio_too_large_openai', 'OpenAI 키로는 4MB 이하(약 4분) 음성 파일만 받아쓸 수 있습니다. 더 긴 파일은 본인 Gemini 키를 등록해 주세요.'));
       }
       toast(t('lp.meetings.uploading_audio', 'Uploading audio'));
       let r: { status: string; error?: string; autoSummary?: boolean; recordMap: any };
@@ -157,6 +160,7 @@ export interface SettingsContext {
 export async function openSettingsMenu(anchor: HTMLElement, block: BlockRecord, ctx: SettingsContext) {
   const recordings = ctx.storeLocally ? await listRecordings(block.id) : [];
   const stt = await sttProviderOf(block.space_id);
+  const sttChoice = await sttEngineChoiceOf(block.space_id);
   const st = meetingState(block);
   const live = liveState(block.id);
   const recording = live.status === 'recording';
@@ -184,6 +188,25 @@ export async function openSettingsMenu(anchor: HTMLElement, block: BlockRecord, 
   }
   const sections: MenuSectionDef[] = [];
   if (actions.length) sections.push({ title: t('lp.meetings.actions', 'Actions'), items: actions });
+  // 2026-11-06: Gemini·OpenAI 키가 둘 다 있는 회원만 음성 파일 받아쓰기 엔진을 고른다(회원 설정, 모든 기기 공통)
+  if (MEETINGS_AUDIO_OPEN && ctx.canEdit && ctx.enabled && sttChoice && sttChoice.modes.includes('gemini') && sttChoice.modes.includes('openai')) {
+    const engine = sttChoice.engine;
+    const ENGINES: { key: 'auto' | 'openai'; label: string; description: string }[] = [
+      { key: 'auto', label: t('lp.meetings.aww_stt_engine_auto', '자동 (Gemini 우선)'), description: t('lp.meetings.aww_stt_engine_auto_desc', '100MB까지 · 화자·시각 표시') },
+      { key: 'openai', label: t('lp.meetings.aww_stt_engine_openai', 'OpenAI'), description: t('lp.meetings.aww_stt_engine_openai_desc', '4MB 이하(약 4분) · 시각 없음') },
+    ];
+    sections.push({
+      items: [{
+        label: t('lp.meetings.aww_stt_engine', '음성 파일 받아쓰기 엔진'),
+        icon: 'upload',
+        right: <span className="nc-menu-right-label">{ENGINES.find((e) => e.key === engine)?.label ?? ENGINES[0].label}</span>,
+        submenu: () => ({
+          width: 260,
+          sections: [{ items: ENGINES.map((e) => ({ label: e.label, description: e.description, checked: e.key === engine, onSelect: () => void setSttEngine(block.space_id, e.key) })) }],
+        }),
+      }],
+    });
+  }
   sections.push({
     items: [{
       label: t('lp.meetings.language', 'Language'),
