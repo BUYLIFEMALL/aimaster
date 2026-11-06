@@ -9,12 +9,13 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 없음(U10 워크스페이스 쪽은 `cc4f4eabe`로 구현·시험·커밋 완료, 미배포. 보내는 프로그램 쪽은 결정 대기) | — | — |
+| `insta_auto_poster` → `threads-content-ops` | U10 1차 (가) 보내는 프로그램 쪽 — 인스타 완료(`b98de2641`, 미배포), Threads 진행 | 2026-11-06 | 구현 중(주인님 1번 허락, 나머지 추천안) |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-work-workspace` | 미배포 `376c55c7a`(왼쪽 메뉴 버전 v1.21 표시)·`a80274b4c`(보낸 마크다운 정리·빈 화면 문구)·`cc4f4eabe`(U10 콘텐츠 캘린더 템플릿·캘린더에 넣기) | 다음 워크스페이스 배포 때 함께(v1.22) | `ai-work-workspace/docs/IMPROVEMENTS.md` |
+| `ai-work-workspace` | 미배포 `376c55c7a`(왼쪽 메뉴 버전 v1.21 표시)·`a80274b4c`(보낸 마크다운 정리·빈 화면 문구)·`cc4f4eabe`+`b98de2641`(U10 콘텐츠 캘린더 템플릿·캘린더에 넣기·slug) | 다음 워크스페이스 배포 때 함께(v1.22) — 인스타·Threads보다 먼저 | `ai-work-workspace/docs/IMPROVEMENTS.md` |
+| `insta_auto_poster` | 미배포 `b98de2641` U10 「업무 워크스페이스로 보내기」 | 워크스페이스 v1.22 뒤 v1.72 빌드 1회 승인 | `insta_auto_poster/docs/IMPROVEMENTS.md` 맨 위 |
 | `ai-work-workspace` | 음성 받아쓰기 엔진 회원 선택(자동/OpenAI) → OpenAI 실제 확인 | 구현·시험·로컬 빌드 완료(미배포). 주인님 v1.22 빌드 승인 → 배포 → 시험 계정 설정 「OpenAI」로 실제 확인 | `ai-work-workspace/docs/PLAN_20261106_STT_ENGINE_CHOICE.md`, 요청함 `c234b28c`(「진행해」로 닫음) |
 | `ai-doc-chatbot`(다른 역할 폴더) | 문서 카드가 30일 예외 계정에도 「30일 뒤 자동 삭제」로 표시 — 실제 삭제 대상인지 확인 | 그 폴더 담당 또는 주인님 허락 | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 확인 중 발견」 |
 
