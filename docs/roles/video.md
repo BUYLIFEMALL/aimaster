@@ -4,17 +4,17 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-06 `claude-win-video` (V4·V3 1단계 구현, 미배포)
+- 마지막 갱신: 2026-11-06 `claude-win-video` (V1 긴 영상 → 쇼츠 구현, 빌드 승인 대기)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 없음(V1 구현 플랜 보고 뒤 대기) | — | — |
+| — | 없음(V1 배포 빌드 승인 대기) | — | — |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | V1 「긴 영상 → 쇼츠」 구현 → V2·V5 | 사전 검증 완료(2026-11-06, 약 22원) — 구현 플랜 보고, 진행 말씀 대기 | `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` |
+| `ai-video-studio` | V1 배포(v1.27) → 시험 계정 끝까지 확인 → V2·V5 | 빌드 1회 승인 | `ai-video-studio/docs/PLAN_20261106_V1_LONG_TO_SHORTS.md` §3 |
 | `video-to-gif` · `shorts-onestop-studio` | V4 · V3 1단계 미배포 대기 | 다음 배포 때(빌드 승인) | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
@@ -22,6 +22,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-06 | `ai-video-studio` V1 | 「긴 영상 → 쇼츠」: 받아쓰기·AI 구간 고르기·무음 줄이기·영상 합치기 연결·SRT `54f631c7d`(시험 81·빌드 통과, 브라우저 소리 뽑기 크롬 확인) | 미배포(빌드 승인 대기) |
 | 2026-11-06 | V1 사전 검증 | 한국어 리뷰 2분 6초: 받아쓰기 98.4%·문장 경계 정확·낱말 시각 최대 0.7초 오차·구간 3개(준비 멘트 제외), 실제 비용 약 22원 | —(저장소 밖) |
 | 2026-11-06 | `shorts-onestop-studio` V3 1단계 | 상품 홍보(15초 6비트) 구성·상품 정보 칸·과장 금지 규칙·`#product-name=` 받기 `ea6bdead1` | 미배포 대기(v1.44) |
 | 2026-11-06 | `video-to-gif` V4 | 화면에서 바로 녹화(최대 15초) → 대기열 `a0f04a3da` | 미배포 대기(v1.26) |
@@ -56,9 +57,9 @@
 
 ## 다음 첫 단계
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
-2. V1 구현: `ai-video-studio/docs/PLAN_20261106_V1_LONG_TO_SHORTS.md` §2 순서대로(사전 검증 결과 §1)
+2. V1 배포 승인 받으면 `node scripts/deploy.mjs ai-video-studio --go`(v1.27) → 시험 계정으로 받아쓰기부터 MP4까지 1회 → V2·V5 플랜
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
 - 서버 지역(`regions`)을 DB 가까이 옮기는 전체 프로그램 공통 제안 검토 여부
-- V1 구현 시작 여부(플랜 `ai-video-studio/docs/PLAN_20261106_V1_LONG_TO_SHORTS.md`)
+- V1 배포 빌드 1회 승인(대량 수정이라 바로 배포 대상)
