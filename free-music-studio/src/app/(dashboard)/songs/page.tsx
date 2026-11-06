@@ -14,6 +14,7 @@ import { PresetPicker } from "@/components/songs/PresetPicker";
 import { presetsFor } from "@/lib/presets";
 import type { Collection } from "@/lib/collections";
 import { ProjectTracks } from "@/components/songs/ProjectTracks";
+import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult } from "@/components/songs/LyricResultDialog";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string; project_id: string | null };
@@ -254,8 +255,18 @@ export default function SongsPage() {
 
   const ai = { provider, model, language, banned_words: parseBannedInput(banned), duration_sec: draft.duration_sec };
 
-  // 가사 채우기(create) 또는 지금 가사 다듬기(edit)
-  const writeLyrics = async (mode: "create" | "edit") => {
+  // AI 가사 결과 창(원본 boks-music, MIT) — 결과는 바로 덮어쓰지 않고 창에서 고른다. 최근 20개는 이 브라우저에.
+  const [lyricResults, setLyricResults] = useState<LyricResult[]>([]);
+  const [shownResult, setShownResult] = useState<LyricResult | null>(null);
+  const [resultOpen, setResultOpen] = useState(false);
+  useEffect(() => setLyricResults(loadLyricResults()), []);
+  const keepResults = (list: LyricResult[]) => {
+    setLyricResults(list);
+    saveLyricResults(list);
+  };
+
+  // 가사 채우기(create) 또는 다듬기(edit) — base를 주면 그 결과를 다듬는다(결과 창 「AI 수정」)
+  const writeLyrics = async (mode: "create" | "edit", base?: { title: string; style_prompt: string; lyrics: string }) => {
     setWriting(mode);
     setMessage(null);
     try {
@@ -270,7 +281,7 @@ export default function SongsPage() {
           mood,
           refine,
           recent_titles: songs.slice(0, 10).map((s) => s.title),
-          current: mode === "edit" ? { title: draft.title, style_prompt: draft.style_prompt, lyrics: draft.lyrics } : undefined,
+          current: mode === "edit" ? base ?? { title: draft.title, style_prompt: draft.style_prompt, lyrics: draft.lyrics } : undefined,
         }),
       });
       const data = await res.json();
@@ -278,10 +289,11 @@ export default function SongsPage() {
         setMessage({ type: "error", text: data.error || "가사를 만들지 못했습니다.", needKey: !!data.needApiKey });
         return;
       }
-      // 화면 칸에만 채운다 — 회원이 고친 뒤 직접 저장한다.
-      setDraft((d) => ({ ...d, title: data.title || d.title, style_prompt: data.style_prompt || d.style_prompt, lyrics: data.lyrics }));
-      vocalLyrics.current = data.lyrics;
-      setMessage({ type: "success", text: `${mode === "edit" ? "가사를 다듬었습니다" : "가사를 채웠습니다"}(AI 호출 ${data.calls}번). 확인한 뒤 [저장하기]를 눌러 주세요.` });
+      // 결과 창에 띄운다 — 회원이 [현재 가사 적용]을 눌러야 입력 칸이 바뀐다.
+      const r: LyricResult = { id: crypto.randomUUID(), at: new Date().toISOString(), mode, title: data.title || base?.title || draft.title, style_prompt: data.style_prompt || base?.style_prompt || "", lyrics: data.lyrics, calls: data.calls ?? 1 };
+      keepResults([r, ...loadLyricResults().filter((x) => x.id !== r.id)]);
+      setShownResult(r);
+      setResultOpen(true);
     } catch {
       setMessage({ type: "error", text: "가사를 만들지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
     } finally {
@@ -667,7 +679,44 @@ export default function SongsPage() {
                 >
                   <Wand2 className="h-3.5 w-3.5" /> {writing === "edit" ? "다듬는 중…" : "지금 가사 다듬기"}
                 </button>
+                {lyricResults.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShownResult(lyricResults[0]);
+                      setResultOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-900"
+                  >
+                    최근 AI 가사 {lyricResults.length}
+                  </button>
+                )}
               </div>
+            )}
+            {resultOpen && (
+              <LyricResultDialog
+                result={shownResult}
+                history={lyricResults}
+                busy={!!writing}
+                onApply={(r) => {
+                  setDraft((d) => ({ ...d, title: r.title || d.title, style_prompt: r.style_prompt || d.style_prompt, lyrics: r.lyrics }));
+                  vocalLyrics.current = r.lyrics;
+                  setResultOpen(false);
+                  setMessage({ type: "success", text: draft.id ? "가사를 적용했습니다. 자동으로 저장됩니다." : "가사를 적용했습니다. 확인한 뒤 [저장하기]를 눌러 주세요." });
+                }}
+                onRefine={(r) => void writeLyrics("edit", r)}
+                onRedo={(r) => {
+                  keepResults(lyricResults.filter((x) => x.id !== r.id));
+                  void writeLyrics("create");
+                }}
+                onLater={() => setResultOpen(false)}
+                onPick={setShownResult}
+                onDelete={(r) => {
+                  const rest = lyricResults.filter((x) => x.id !== r.id);
+                  keepResults(rest);
+                  if (shownResult?.id === r.id) setShownResult(rest[0] ?? null);
+                }}
+              />
             )}
 
             {instrumental && plan.length > 0 && (
