@@ -79,21 +79,19 @@ export async function analysisOf(samples, duration, { signal } = {}) {
   return { fps: ANALYSIS_FPS, frameCount, encoding: "u8-bins-i8-wave", data: out.toString("base64") };
 }
 
-/** 완성 영상 검증 — 코덱·크기·프레임 수·재생 시간(원본 기준 그대로) */
-export function checkVideoInfo(info, { width, height, fps, frames, duration, repeat }) {
+/** 완성 영상 검증 — 코덱·크기·프레임 수·재생 시간(원본 기준 그대로). 문제가 없으면 null, 있으면 어긋난 값 설명 */
+export function videoInfoProblem(info, { width, height, fps, frames, duration, repeat }) {
   const video = info.tracks.find((t) => t.type === "video");
   const audio = info.tracks.find((t) => t.type === "audio");
-  return (
-    video?.codec === "h264" &&
-    video.width === width &&
-    video.height === height &&
-    audio?.codec === "aac" &&
-    video.frames === frames &&
-    Math.abs(video.frameRate - fps) <= 0.001 &&
-    Math.abs(video.averageFrameRate - fps) <= 0.001 &&
-    Math.abs(info.duration - duration) <= 0.15 + repeat * 0.025
-  );
+  if (video?.codec !== "h264") return `영상 코덱 ${video?.codec ?? "없음"}`;
+  if (audio?.codec !== "aac") return `소리 코덱 ${audio?.codec ?? "없음"}`;
+  if (video.width !== width || video.height !== height) return `크기 ${video.width}×${video.height}(기대 ${width}×${height})`;
+  if (video.frames !== frames) return `프레임 ${video.frames}개(기대 ${frames}개)`;
+  if (!(Math.abs(video.frameRate - fps) <= 0.001) || !(Math.abs(video.averageFrameRate - fps) <= 0.001)) return `초당 프레임 ${video.frameRate?.toFixed?.(3)}/${video.averageFrameRate?.toFixed?.(3)}(기대 ${fps})`;
+  if (!(Math.abs(info.duration - duration) <= 0.15 + repeat * 0.025)) return `길이 ${info.duration.toFixed(3)}초(기대 ${duration.toFixed(3)}초)`;
+  return null;
 }
+export const checkVideoInfo = (info, want) => videoInfoProblem(info, want) === null;
 
 function runFfmpeg(ffmpeg, args, { signal } = {}) {
   return new Promise((resolve, reject) => {
@@ -141,9 +139,9 @@ async function freeName(dir, title, ext) {
 /**
  * 영상 작업 — 한 번에 하나(그림·인코딩은 화면, 음원·담기는 엔진이 무거움).
  * @param {{ dataDir: string, library: ReturnType<typeof import("./library.mjs").createLibrary>, getFfmpeg: () => boolean,
- *           ffmpegPath?: string, log?: (s: string) => void, now?: () => number }} p
+ *           ffmpegPath?: string, log?: (s: string) => void, now?: () => number, keepWork?: boolean }} p
  */
-export function createVideoStudio({ dataDir, library, getFfmpeg, ffmpegPath = "ffmpeg", log = () => {}, now = Date.now }) {
+export function createVideoStudio({ dataDir, library, getFfmpeg, ffmpegPath = "ffmpeg", log = () => {}, now = Date.now, keepWork = false }) {
   const listFile = path.join(dataDir, "videos.json");
   /** @type {Map<string, any>} */
   const sessions = new Map();
@@ -185,7 +183,7 @@ export function createVideoStudio({ dataDir, library, getFfmpeg, ffmpegPath = "f
   const cleanup = async (s) => {
     s.stream?.destroy();
     s.stream = null;
-    await rm(s.work, { recursive: true, force: true, maxRetries: 20, retryDelay: 200 }).catch(() => {});
+    if (!keepWork) await rm(s.work, { recursive: true, force: true, maxRetries: 20, retryDelay: 200 }).catch(() => {}); // keepWork: 시험 때 작업 폴더 남기기
   };
   const fail = async (s, e) => {
     if (s.status === "cancelled") return;
@@ -274,8 +272,10 @@ export function createVideoStudio({ dataDir, library, getFfmpeg, ffmpegPath = "f
     const candidate = path.join(s.work, `final.${format}`);
     s.stage = "그림 담는 중";
     s.progress = 90;
-    await runFfmpeg(ffmpeg, [...common, "-f", "h264", "-framerate", String(fps), "-i", streamPath, "-c:v", "copy", "-an", rawVideo], { signal });
-    await rm(streamPath, { force: true });
+    // -framerate만으로는 브라우저 하드웨어 인코더가 적은 시간 정보(VUI)를 따라가 「초당 120만 프레임」으로 담겼다
+    // (2026-11-06 ego 실측) — 입력 -r로 프레임 간격을 고정하고 시각을 새로 만든다
+    await runFfmpeg(ffmpeg, [...common, "-fflags", "+genpts", "-f", "h264", "-r", String(fps), "-i", streamPath, "-c:v", "copy", "-an", rawVideo], { signal });
+    if (!keepWork) await rm(streamPath, { force: true });
     // 반복하는 부분은 그림만 — AAC 앞부분 지연이 반복 주기를 바꾸지 않게
     await runFfmpeg(ffmpeg, [...common, "-i", rawVideo, "-map", "0:v:0", "-c:v", "copy", "-an", cycle], { signal });
     await rm(rawVideo, { force: true });
@@ -296,7 +296,8 @@ export function createVideoStudio({ dataDir, library, getFfmpeg, ffmpegPath = "f
     s.stage = "완성 영상 확인 중";
     s.progress = 98;
     const info = await readMp4Info(candidate);
-    if (!checkVideoInfo(info, { ...s.options, frames, duration })) throw new Error("완성 영상의 코덱·크기·프레임 수·재생시간 검증에 실패했습니다.");
+    const problem = videoInfoProblem(info, { ...s.options, frames, duration });
+    if (problem) throw new Error(`완성 영상의 코덱·크기·프레임 수·재생시간 검증에 실패했습니다(${problem}).`);
     signal.throwIfAborted();
     await mkdir(outDir(), { recursive: true });
     const out = await freeName(outDir(), s.title, format);

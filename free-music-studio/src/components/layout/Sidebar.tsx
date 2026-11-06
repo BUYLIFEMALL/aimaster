@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_VERSION, APP_NAME } from "@/lib/version";
-import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library, Upload, ListOrdered, Home } from "lucide-react";
+import { Music2, Cpu, KeyRound, LogOut, Menu, X, BookOpen, ExternalLink, Library, Upload, ListOrdered, Home, Clapperboard } from "lucide-react";
 import { SidebarCollections } from "./SidebarCollections";
 import { activeCount } from "@/lib/engine";
 import { useQueue } from "@/components/engine/useQueue";
@@ -21,6 +21,7 @@ const FLOW_STEPS = [
   { step: 3, href: "/queue", label: "작업 대기열", description: "쌓아 둔 작업을 차례로 만들기", icon: ListOrdered },
   { step: 4, href: "/library", label: "모든 음악", description: "만든 노래 다시 듣기·내려받기", icon: Library },
   { step: 5, href: "/import", label: "가져온 음악", description: "내 음원으로 커버·부분 수정", icon: Upload },
+  { step: 6, href: "/video", label: "영상 만들기", description: "플레이리스트 유튜브 영상(MP4)", icon: Clapperboard },
 ];
 
 const UTILITY_ITEMS = [

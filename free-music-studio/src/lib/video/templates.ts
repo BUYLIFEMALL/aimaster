@@ -1,4 +1,5 @@
-[
+// 원본 boks-music ideo-templates/*/template.json(MIT, © 2026 boksajang) 37개를 하나로 묶은 정적 목록(2026-11-06). 원본과 맞춰 둔다.
+export const TEMPLATE_LIST = [
   {
     "schemaVersion": 1,
     "id": "albumblur",
@@ -1008,4 +1009,4 @@
     ],
     "recommendedSpectrum": "round-bars"
   }
-]
+];

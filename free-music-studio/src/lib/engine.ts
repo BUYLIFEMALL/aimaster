@@ -718,6 +718,83 @@ export function trackRecordOf(job: QueueJob) {
   return { ...job.track, title: job.title, license: job.license ?? licenseOfEngine(job.engine ?? "acestep") };
 }
 
+// ── 플레이리스트 영상(엔진 0.6.9+, 원본 boks-music video-render) ─────────────
+export type VideoSessionStatus = "analyzing" | "rendering" | "finishing" | "done" | "failed" | "cancelled";
+export type VideoChapter = { start: number; title: string; trackId: string };
+export type VideoRecord = {
+  id: string;
+  title: string;
+  file: string;
+  createdAt: string;
+  size: number;
+  duration: number;
+  width: number;
+  height: number;
+  fps: number;
+  format: "mp4" | "mov";
+  repeat: number;
+  template: string;
+  trackIds: string[];
+  chapters: VideoChapter[];
+  loudness: string;
+  encoder: { encoder: string; hardware: boolean; codec: string };
+  missing?: boolean;
+};
+export type VideoSession = {
+  id: string;
+  title: string;
+  status: VideoSessionStatus;
+  stage: string;
+  progress: number;
+  error: string | null;
+  options: { width: number; height: number; fps: number; repeat: number; format: "mp4" | "mov"; normalize: boolean };
+  tracks: { id: string; title: string; duration: number | null }[];
+  timing: { cycleDuration: number; cycleFrames: number; alignedCycleDuration: number; duration: number; frames: number } | null;
+  bitrate: number | null;
+  written: number;
+  video: VideoRecord | null;
+};
+
+/** 이 엔진이 플레이리스트 영상을 만들 수 있는가(0.6.9+, ffmpeg 있음) */
+export function hasVideo(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("video");
+}
+export async function startVideo(body: { title: string; template: string; tracks: { id: string; title: string }[]; options: Record<string, unknown> }): Promise<VideoSession> {
+  const res = await call("/video", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  return (await res.json()).session;
+}
+export async function getVideoSession(id: string): Promise<VideoSession> {
+  return (await (await call(`/video/${id}`)).json()).session;
+}
+export async function getVideoAnalysis(id: string, index: number): Promise<unknown> {
+  return (await call(`/video/${id}/analysis/${index}`, {}, 60_000)).json();
+}
+/** 그림 조각 올리기 — offset은 지금까지 보낸 크기 */
+export async function uploadVideoChunk(id: string, offset: number, bytes: Uint8Array): Promise<number> {
+  const res = await call(`/video/${id}/chunk`, { method: "POST", headers: { "Content-Type": "application/octet-stream", "X-Offset": String(offset) }, body: bytes as BodyInit }, 120_000);
+  return (await res.json()).written;
+}
+export async function finishVideo(id: string, report: { frames: number; written: number; hardware: boolean; codec: string }): Promise<VideoSession> {
+  const res = await call(`/video/${id}/finish`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(report) });
+  return (await res.json()).session;
+}
+export async function cancelVideo(id: string) {
+  await call(`/video/${id}/cancel`, { method: "POST" });
+}
+export async function listVideos(): Promise<{ videos: VideoRecord[]; dir: string }> {
+  return (await call("/videos")).json();
+}
+/** <video>로 바로 재생하는 주소(머리글을 못 붙여 연결 토큰을 주소에 — 내 PC 127.0.0.1에서만 쓰임) */
+export function videoFileUrl(id: string): string {
+  return `${ENGINE_URL}/videos/${id}/file?t=${encodeURIComponent(getToken() ?? "")}`;
+}
+export async function deleteVideo(id: string, removeFile: boolean): Promise<{ fileRemoved: boolean }> {
+  return (await call(`/videos/${id}${removeFile ? "?file=1" : ""}`, { method: "DELETE" })).json();
+}
+export async function revealVideoFolder() {
+  await call("/videos/reveal", { method: "POST" });
+}
+
 /** 완성 음원을 받아 브라우저 안 주소(blob:)로 돌려준다. 재생·내려받기에 같이 쓴다. */
 export async function fetchAudio(file: string): Promise<string> {
   const res = await call(file, {}, 120_000);
