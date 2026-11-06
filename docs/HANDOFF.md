@@ -63,12 +63,13 @@
 - 문서: `ai-video-studio/docs/IMPROVEMENTS.md`·`music-video-studio/docs/IMPROVEMENTS.md` 맨 위, 플랜 §8, `docs/SHARED_MODULES.md`, 역할 `docs/roles/video.md`. 다음: V2 해설 교차편집 → 각색 강도.
 - 링크(배포 뒤): https://ai-video-studio.buylife.xyz/edit
 
-## 2026-11-06 ⏸ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — **음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI) 구현 · 미배포(v1.22 빌드 승인 대기)**
+## 2026-11-06 🔄 [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — **음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI) 구현 → v1.22 Ready · 모델 교체 7개 배포 준비(배포 명령 차단으로 주인님 실행 대기)**
 - 배경: 요청함 `c234b28c`(OpenAI 키만 있는 시험 계정 또는 시험 동안 Gemini 안 쓰는 방법)에 주인님 「진행해」 → 시험 계정 키를 지우지 않고 회원 설정 기능으로 해결. 플랜 `ai-work-workspace/docs/PLAN_20261106_STT_ENGINE_CHOICE.md`.
 - 구현: 회의록 설정 메뉴(슬라이더)에 「음성 파일 받아쓰기 엔진」(Gemini·OpenAI 키 둘 다일 때만) — 자동(Gemini 우선)/OpenAI, 회원 설정 `meeting_stt_engine`(모든 기기 공통). 서버 `memberSttMode(preferred)`·`memberSttModes()`·`userMeetingPrefs().sttEngine`·`meetingStatus.sttModes/sttEngine`, Google 직접 업로드 파일은 Gemini 고정. 매뉴얼 한 줄.
 - 검수: `memberStt.test.ts` 7개(새 2건)·연결부 49개 통과, 타입 검사·로컬 빌드 통과(로컬 Docker `aww-pg-test`가 꺼져 있어 첫 빌드·시험이 55432 연결 실패 → `docker start` 뒤 통과. 코드 문제 아님).
-- 배포: **미배포** — 주인님 빌드 1회 승인 뒤 v1.22로 미배포 `376c55c7a`·`a80274b4c`와 함께. 배포 뒤 ego에서 시험 계정 설정 「OpenAI」 → 15초 WAV → 시각 없는 문장 묶음 확인 → 「자동」 복귀. 같은 역할의 형제 세션(`f7e54ae87`)은 U10 플랜 담당.
-- 링크(배포 전 현재 v1.21): https://ai-work-workspace.buylife.xyz/
+- 배포: **v1.22 Ready 17:47**(`ai-work-workspace-3saw5d3qw`, 운영 주소 연결, DB v1.22 일치) — 주인님 「배포상태 확인후 진행해」 승인. 이 세션의 `deploy.mjs` 호출은 자동 모드 분류기에 막혀 빌드는 형제 세션/주인님 `!`로 나감. 배포 기록 정리(미배포 표 3줄·IMPROVEMENTS·AGENTS)와 OpenAI 실제 받아쓰기 확인은 **남음** — 상세·절차 `ai-work-workspace/docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md`.
+- 모델 교체 B·C + ghost-scraper FREE 삭제(주인님 「진행해」): 7개 버전 +0.01 커밋·타입 검사 통과, **배포 미실행**(명령 차단) — 주인님이 `! node scripts/deploy.mjs <폴더> --go`를 한 줄씩. 인스타·쓰레드 U10 1차 2개는 다른 세션 전달분이라 이 대화 승인 대기.
+- 링크(v1.22 운영): https://ai-work-workspace.buylife.xyz/
 
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V5 「내 영상 일부 지우기」 + `video-to-gif` v1.26 · `shorts-onestop-studio` v1.44 배포**
 - V5(`video-to-gif/erase`): 영상 1개(60초·100MB)를 넣고 사각형(최대 3곳)을 그리면 ffmpeg.wasm `delogo`로 주변 화소를 메운 MP4. 권리 체크 2개 필수, 실행마다 `own_content_rights_log`(program `video-to-gif`, tool `erase`)에 회원 세션으로 기록(넣기 RLS 정책 운영 적용, 지문 `a4127c10ae4b01b9`). 코드 `d71f6be9e`, 계산 시험 6개, 네이티브 ffmpeg로 필터 확인. 「워터마크 제거」 표현·자동 프리셋 없음.
