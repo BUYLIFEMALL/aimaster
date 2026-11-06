@@ -539,8 +539,8 @@ export default function ConverterWorkspace() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-8 space-y-8 text-[#f0f6fc]">
-      {/* 1. 상단 히어로 스튜디오 배너 (시네마틱 뷰파인더 프레임 적용) */}
-      <div className="studio-hero rounded-3xl p-6 sm:p-8 border border-amber-500/30 relative overflow-hidden">
+      {/* 1. 상단 히어로 스튜디오 배너 (시네마틱 헐리우드 REC 뷰파인더 적용) */}
+      <div className="studio-hero rounded-3xl p-6 sm:p-8 border border-red-500/40 relative overflow-hidden">
         {/* 뷰파인더 코너 브래킷 */}
         <div className="viewfinder-corner-tl" />
         <div className="viewfinder-corner-tr" />
@@ -548,30 +548,30 @@ export default function ConverterWorkspace() {
         <div className="viewfinder-corner-br" />
 
         {/* 상단 시네마틱 타임코드 & 상태 바 */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#30363d]/60 pb-3 font-mono text-[11px]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#283342]/80 pb-3 font-mono text-[11px]">
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="font-bold text-red-400">REC STANDBY</span>
-            <span className="text-gray-400">00:00:00:00</span>
+            <span className="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
+            <span className="font-extrabold text-red-400 tracking-wider">LIVE 🔴 REC STANDBY</span>
+            <span className="text-gray-400 font-mono">00:00:00:00</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4 text-gray-400">
-            <span className="text-amber-400 font-bold">4K/FHD DUAL-ENGINE</span>
+            <span className="text-red-400 font-bold">4K/FHD DUAL-ENGINE</span>
             <span className="hidden sm:inline">|</span>
-            <span className="text-cyan-400 font-semibold">10-STEP LADDER</span>
+            <span className="text-amber-400 font-semibold">10-STEP LADDER</span>
             <span className="hidden sm:inline">|</span>
             <span className="text-emerald-400 font-semibold">100% PRIVATE WASM</span>
           </div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
-            <Sparkles className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/10 px-3.5 py-1 text-xs font-extrabold text-red-300">
+            <Sparkles className="h-3.5 w-3.5 text-red-400" />
             AI 영상렌더 스튜디오 {APP_VERSION}
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/guide"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-1.5 text-xs font-bold text-red-300 hover:bg-red-500/20 transition-colors shadow-sm"
             >
               <BookOpen className="h-3.5 w-3.5" />
               <span>📖 연동 & 사용 매뉴얼 보기</span>
@@ -582,7 +582,7 @@ export default function ConverterWorkspace() {
         <div className="mt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-snug">
-              영상을 <span className="text-amber-400">초고속 고화질 렌더링</span>으로 즉시 변환하세요
+              영상을 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-amber-300 to-yellow-200">초고속 고화질 렌더링</span>으로 즉시 변환하세요
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
               무설치 브라우저 WASM 엔진부터 3배 빠른 내 PC 하드웨어 가속까지 완벽 지원합니다.
@@ -592,6 +592,26 @@ export default function ConverterWorkspace() {
           <div className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-300 shrink-0">
             <ShieldCheck className="h-4 w-4" />
             <span>100% Client-Side Engine</span>
+          </div>
+        </div>
+
+        {/* 4단계 원스톱 파이프라인 인디케이터 배너 */}
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t border-[#283342]/70 text-[11px]">
+          <div className="flex items-center gap-2 rounded-xl bg-[#090d13]/70 p-2.5 border border-[#283342]">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-400 font-black">1</span>
+            <span className="font-bold text-gray-300">영상 파일 드롭</span>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-[#090d13]/70 p-2.5 border border-[#283342]">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 font-black">2</span>
+            <span className="font-bold text-gray-300">0.1초 구간 자르기</span>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-[#090d13]/70 p-2.5 border border-[#283342]">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-400 font-black">3</span>
+            <span className="font-bold text-gray-300">마켓별 최적 프리셋</span>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-[#090d13]/70 p-2.5 border border-[#283342]">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-black">4</span>
+            <span className="font-bold text-gray-300">초고속 렌더 & 다운</span>
           </div>
         </div>
       </div>
@@ -911,21 +931,96 @@ export default function ConverterWorkspace() {
         </div>
 
         {/* 우측: 변환 옵션 설정 패널 */}
-        <aside className="h-fit rounded-3xl border border-[#30363d] bg-[#161b22] p-6 shadow-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-[#30363d] pb-4">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-amber-400" />
-              <span>변환 옵션 설정</span>
+        <aside className="h-fit rounded-3xl border border-[#283342] bg-[#141a23] p-6 shadow-2xl space-y-6 backdrop-blur-md">
+          <div className="flex items-center justify-between border-b border-[#283342] pb-4">
+            <h2 className="text-base font-extrabold text-white flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-red-400" />
+              <span>시네마틱 렌더 설정</span>
             </h2>
-            <span className="text-[11px] text-amber-400 font-semibold">스튜디오 모드</span>
+            <span className="rounded-full bg-red-500/15 border border-red-500/30 px-2.5 py-0.5 text-[10px] text-red-300 font-extrabold tracking-wider">
+              REC RECORDER
+            </span>
           </div>
 
           <div className="space-y-5">
+            {/* 0. 오픈마켓 원클릭 최적화 프리셋 */}
+            <div>
+              <div className="mb-2 flex items-center justify-between text-xs font-bold text-gray-300">
+                <span className="flex items-center gap-1.5 text-amber-300">
+                  <ShoppingBag className="h-3.5 w-3.5" />
+                  <span>원클릭 마켓 최적화 프리셋</span>
+                </span>
+                <span className="text-[10px] text-gray-400">클릭 즉시 적용</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWidth(860);
+                    setFps(40);
+                  }}
+                  className={`rounded-xl border p-2 text-left transition-all ${
+                    width === 860 && fps === 40
+                      ? "border-amber-400 bg-amber-500/20 text-white shadow-sm"
+                      : "border-[#283342] bg-[#090d13] text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  <div className="font-extrabold text-amber-300">스마트스토어 20MB</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">860px · 40fps 최적</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWidth(780);
+                    setFps(40);
+                  }}
+                  className={`rounded-xl border p-2 text-left transition-all ${
+                    width === 780 && fps === 40
+                      ? "border-red-400 bg-red-500/20 text-white shadow-sm"
+                      : "border-[#283342] bg-[#090d13] text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  <div className="font-extrabold text-red-300">쿠팡 10MB 이하</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">780px · 40fps 최적</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWidth(560);
+                    setFps(50);
+                  }}
+                  className={`rounded-xl border p-2 text-left transition-all ${
+                    width === 560 && fps === 50
+                      ? "border-cyan-400 bg-cyan-500/20 text-white shadow-sm"
+                      : "border-[#283342] bg-[#090d13] text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  <div className="font-extrabold text-cyan-300">고화질 50FPS GIF</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">560px · 초당 50장</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWidth(480);
+                    setFps(40);
+                  }}
+                  className={`rounded-xl border p-2 text-left transition-all ${
+                    width === 480 && fps === 40
+                      ? "border-emerald-400 bg-emerald-500/20 text-white shadow-sm"
+                      : "border-[#283342] bg-[#090d13] text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  <div className="font-extrabold text-emerald-300">초경량 5MB</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">480px · 빠른 로딩</div>
+                </button>
+              </div>
+            </div>
+
             {/* 1. 프레임레이트 */}
             <div>
               <div className="mb-2 flex items-center justify-between text-xs font-bold text-gray-300">
                 <span>프레임레이트 (FPS)</span>
-                <span className="text-amber-400">{fps} fps</span>
+                <span className="text-amber-400 font-extrabold">{fps} fps</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {([40, 50] as const).map((value) => (
@@ -934,11 +1029,11 @@ export default function ConverterWorkspace() {
                     onClick={() => setFps(value)}
                     className={`rounded-xl border px-3 py-2.5 text-xs font-bold transition-all ${
                       fps === value
-                        ? "border-amber-400 bg-amber-500/20 text-amber-300 shadow-sm"
-                        : "border-[#30363d] bg-[#0d1117] text-gray-400 hover:text-gray-200"
+                        ? "border-red-400 bg-red-500/20 text-red-200 shadow-sm"
+                        : "border-[#283342] bg-[#090d13] text-gray-400 hover:text-gray-200"
                     }`}
                   >
-                    {value} fps {value === 40 ? "(추천)" : "(고화질)"}
+                    {value} fps {value === 40 ? "(표준 추천)" : "(고화질 스튜디오)"}
                   </button>
                 ))}
               </div>
@@ -954,7 +1049,7 @@ export default function ConverterWorkspace() {
                 <span className="text-amber-300 font-extrabold">{width} px</span>
               </div>
               <input
-                className="w-full accent-amber-400 cursor-pointer"
+                className="w-full accent-red-500 cursor-pointer"
                 type="range"
                 min="160"
                 max="860"
@@ -968,8 +1063,8 @@ export default function ConverterWorkspace() {
                   onClick={() => setWidth(560)}
                   className={`rounded-lg border px-2 py-1 font-semibold transition-colors ${
                     width === 560
-                      ? "border-amber-400/80 bg-amber-500/20 text-amber-300"
-                      : "border-[#30363d] bg-[#0d1117] text-gray-400 hover:text-gray-200"
+                      ? "border-red-400/80 bg-red-500/20 text-red-200"
+                      : "border-[#283342] bg-[#090d13] text-gray-400 hover:text-gray-200"
                   }`}
                 >
                   스탠다드 560px
@@ -979,8 +1074,8 @@ export default function ConverterWorkspace() {
                   onClick={() => setWidth(780)}
                   className={`rounded-lg border px-2 py-1 font-semibold transition-colors ${
                     width === 780
-                      ? "border-amber-400/80 bg-amber-500/20 text-amber-300"
-                      : "border-[#30363d] bg-[#0d1117] text-gray-400 hover:text-gray-200"
+                      ? "border-red-400/80 bg-red-500/20 text-red-200"
+                      : "border-[#283342] bg-[#090d13] text-gray-400 hover:text-gray-200"
                   }`}
                 >
                   HD 780px
@@ -990,8 +1085,8 @@ export default function ConverterWorkspace() {
                   onClick={() => setWidth(860)}
                   className={`rounded-lg border px-2 py-1 font-semibold transition-colors ${
                     width === 860
-                      ? "border-amber-400/80 bg-amber-500/20 text-amber-300"
-                      : "border-[#30363d] bg-[#0d1117] text-gray-400 hover:text-gray-200"
+                      ? "border-red-400/80 bg-red-500/20 text-red-200"
+                      : "border-[#283342] bg-[#090d13] text-gray-400 hover:text-gray-200"
                   }`}
                 >
                   와이드 860px
@@ -1000,8 +1095,8 @@ export default function ConverterWorkspace() {
             </div>
 
             {/* 3. 자동 8MiB 사다리 안내 배너 */}
-            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs leading-relaxed text-amber-200">
-              <div className="font-bold flex items-center gap-1.5 text-amber-300 mb-1">
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs leading-relaxed text-red-200">
+              <div className="font-bold flex items-center gap-1.5 text-red-300 mb-1">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <span>8MiB 지능형 사다리 자동 적용</span>
               </div>
@@ -1011,7 +1106,7 @@ export default function ConverterWorkspace() {
             {/* v1.20: 내 PC 고속 변환 상태 */}
             <div
               className={`rounded-2xl border p-3.5 text-xs leading-relaxed ${
-                rendererReady ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" : "border-[#30363d] bg-[#0d1117] text-gray-300"
+                rendererReady ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" : "border-[#283342] bg-[#090d13] text-gray-300"
               }`}
             >
               <div className={`mb-1 flex items-center gap-1.5 font-bold ${rendererReady ? "text-emerald-300" : "text-gray-200"}`}>
@@ -1020,7 +1115,7 @@ export default function ConverterWorkspace() {
                 <button
                   type="button"
                   onClick={() => void checkRenderer()}
-                  className="ml-auto rounded-md border border-[#30363d] px-1.5 py-0.5 text-[10px] font-semibold text-gray-400 hover:text-white"
+                  className="ml-auto rounded-md border border-[#283342] px-1.5 py-0.5 text-[10px] font-semibold text-gray-400 hover:text-white"
                 >
                   다시 확인
                 </button>
@@ -1098,28 +1193,28 @@ export default function ConverterWorkspace() {
               {rendererNote && <p className="mt-1.5 text-amber-200">⚠️ {rendererNote}</p>}
             </div>
 
-            {/* 4. 변환 실행 버튼 */}
+            {/* 4. 3D 엠보싱 헐리우드 레드 변환 실행 버튼 */}
             <button
               onClick={start}
               disabled={isConverting || !jobs.some((job) => job.status === "ready")}
-              className="w-full rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3.5 font-black text-slate-950 transition-all hover:from-amber-400 hover:to-amber-500 disabled:cursor-not-allowed disabled:opacity-40 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+              className="btn-3d-red w-full cursor-pointer rounded-2xl py-3.5 text-sm font-black disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isConverting ? (
                 <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   <span>{rendererReady ? "⚡ 내 PC로 변환 중..." : "WASM 변환 인코딩 중..."}</span>
                 </>
               ) : (
                 <>
-                  <Play className="h-4 w-4 fill-slate-950" />
-                  <span>변환 시작 ({jobs.filter((j) => j.status === "ready").length}개 대기)</span>
+                  <Play className="h-4 w-4 fill-white" />
+                  <span>초고속 렌더 시작 ({jobs.filter((j) => j.status === "ready").length}개 대기)</span>
                 </>
               )}
             </button>
             {jobs.filter((j) => j.status === "done").length >= 2 && (
               <button
                 onClick={() => void downloadAllZip()}
-                className="mt-2 w-full rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-bold text-amber-300 hover:bg-amber-500/20 transition-colors flex items-center justify-center gap-2"
+                className="btn-3d-gold mt-2 w-full cursor-pointer rounded-2xl py-3 text-sm font-black flex items-center justify-center gap-2"
               >
                 <Download className="h-4 w-4" />
                 <span>📦 완료된 GIF 전체 ZIP ({jobs.filter((j) => j.status === "done").length}개)</span>

@@ -1,13 +1,17 @@
 "use client";
 
-// 로그인 화면 — 모든 프로그램 같은 레이아웃(2026-10-01 주인님 지시, 기준: ai-auto-blog/app/auth/auth-form.tsx).
-// 로그인 처리는 이 프로그램의 signInAction(lib/actions/auth.ts)을 그대로 쓴다(로그인 후 ?redirect 경로로 이동).
-// 회원가입은 AIMaster에서만 받는다 — 탭에서 AIMaster 회원가입 페이지로 안내.
+// 🔐 로그인 페이지 UI 레퍼런스 레이아웃 표준 규격 (2026-11-01 주인님 절대 지시)
+// 1. [맨 위] 프로그램 고유 로고 (64px 심볼 아이콘 + 레드 그라데이션)
+// 2. [그 밑] 프로그램 영문명 (알약 캡슐 뱃지: AIMASTER VIDEO TO GIF)
+// 3. [그 밑] 프로그램 한글명 (AI 영상렌더 스튜디오)
+// 4. [중앙] 로그인/회원가입 폼 카드 + 3D 엠보싱 레드 버튼 (로그인 →)
+// 5. [맨 아래] 약관 문구 1행 축소 처리 (진행 시 이용약관 및 개인정보 처리방침에 동의합니다.)
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signInAction } from "@/lib/actions/auth";
+import { Film, Mail, Lock, ArrowRight } from "lucide-react";
 
-const MAIN_SITE_URL = "https://www.buylife.xyz";
+const MAIN_SITE_URL = process.env.NEXT_PUBLIC_MAIN_SITE_URL ?? "https://www.buylife.xyz";
 
 function LoginCard() {
   const searchParams = useSearchParams();
@@ -22,7 +26,6 @@ function LoginCard() {
     setIsPending(true);
     const formData = new FormData(event.currentTarget);
     try {
-      // 성공하면 서버 함수가 redirect()로 이동시키고, 실패하면 { error }를 돌려준다.
       const result = await signInAction({}, formData);
       if (result?.error) setError(result.error);
     } finally {
@@ -31,15 +34,20 @@ function LoginCard() {
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
-      <div className="mb-6 flex rounded-xl bg-[#e8effd]/60 p-1">
+    <div className="rounded-2xl border border-[#283342] bg-[#141a23] p-7 shadow-2xl backdrop-blur-md">
+      {/* 2단 탭 세그먼트 */}
+      <div className="mb-6 flex rounded-xl bg-[#090d13] p-1 border border-[#283342]">
         <button
           type="button"
           onClick={() => {
             setMode("login");
             setError(null);
           }}
-          className={`flex-1 rounded-lg py-2.5 text-center text-xs font-semibold transition-all duration-200 ${mode === "login" ? "bg-[#005acc] text-white shadow-sm" : "text-zinc-600 hover:text-zinc-900"}`}
+          className={`flex-1 rounded-lg py-2.5 text-center text-xs font-bold transition-all duration-200 ${
+            mode === "login"
+              ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-md shadow-red-600/30"
+              : "text-gray-400 hover:text-white"
+          }`}
         >
           로그인
         </button>
@@ -49,40 +57,47 @@ function LoginCard() {
             setMode("signup");
             setError(null);
           }}
-          className={`flex-1 rounded-lg py-2.5 text-center text-xs font-semibold transition-all duration-200 ${mode === "signup" ? "bg-[#005acc] text-white shadow-sm" : "text-zinc-600 hover:text-zinc-900"}`}
+          className={`flex-1 rounded-lg py-2.5 text-center text-xs font-bold transition-all duration-200 ${
+            mode === "signup"
+              ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-md shadow-red-600/30"
+              : "text-gray-400 hover:text-white"
+          }`}
         >
           회원가입
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-3 text-center text-xs font-medium text-red-600">{error}</div>
+        <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-center text-xs font-semibold text-red-300">
+          {error}
+        </div>
       )}
 
       {mode === "signup" ? (
-        <div className="space-y-4 text-center">
-          <p className="text-sm text-zinc-600">
-            이 프로그램은 AIMaster 계정과 구독 권한을 그대로 사용합니다.
+        <div className="space-y-4 text-center py-2">
+          <p className="text-xs leading-relaxed text-gray-300">
+            이 프로그램은 AIMaster 통합 계정과 권한을 그대로 사용합니다.
             <br />
-            AIMaster에서 회원가입 후 이 프로그램을 구독하면 이용할 수 있습니다.
+            AIMaster에서 회원가입 후 즉시 이용하실 수 있습니다.
           </p>
           <a
             href={`${MAIN_SITE_URL}/register`}
-            className="block w-full rounded-xl bg-[#005acc] py-3 text-sm font-semibold text-white no-underline shadow-sm transition-all hover:bg-[#004bb9]"
+            className="btn-3d-red flex w-full items-center justify-center gap-1.5 rounded-xl py-3 text-xs font-black no-underline"
           >
-            AIMaster 회원가입 하러가기
+            <span>AIMaster 통합 회원가입</span>
+            <ArrowRight className="h-4 w-4" />
           </a>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input type="hidden" name="redirect" value={redirectTo} />
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-xs font-semibold text-zinc-700">
+            <label htmlFor="email" className="mb-1.5 block text-xs font-bold text-gray-300">
               이메일 주소
             </label>
             <div className="relative">
-              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="h-[18px] w-[18px]"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H4.5A2.25 2.25 0 0 1 2.25 17.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5H4.5a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                <Mail className="h-4 w-4" />
               </span>
               <input
                 id="email"
@@ -90,30 +105,31 @@ function LoginCard() {
                 type="email"
                 required
                 autoComplete="email"
-                placeholder="developer@example.com"
-                className="w-full rounded-xl border border-zinc-200/80 bg-zinc-50 py-3 pl-10 pr-4 text-sm text-zinc-800 placeholder-zinc-400 transition-all focus:border-[#005acc] focus:outline-none focus:ring-1 focus:ring-[#005acc]/20"
+                placeholder="creator@example.com"
+                className="w-full rounded-xl border border-[#283342] bg-[#090d13] py-2.5 pl-10 pr-4 text-xs text-white placeholder-gray-500 transition-all focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/30"
               />
             </div>
           </div>
+
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <label htmlFor="password" className="text-xs font-semibold text-zinc-700">
+              <label htmlFor="password" className="text-xs font-bold text-gray-300">
                 비밀번호
               </label>
               <a
                 href="#forgot-password"
-                onClick={(event) => {
-                  event.preventDefault();
-                  setError("비밀번호 재설정 기능은 준비 중입니다.");
+                onClick={(e) => {
+                  e.preventDefault();
+                  setError("비밀번호 재설정은 AIMaster 메인 사이트에서 가능합니다.");
                 }}
-                className="text-xs font-semibold text-[#005acc] hover:underline"
+                className="text-[11px] font-semibold text-red-400 hover:text-red-300 hover:underline"
               >
                 비밀번호 찾기?
               </a>
             </div>
             <div className="relative">
-              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="h-[18px] w-[18px]"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                <Lock className="h-4 w-4" />
               </span>
               <input
                 id="password"
@@ -122,56 +138,88 @@ function LoginCard() {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-zinc-200/80 bg-zinc-50 py-3 pl-10 pr-4 text-sm text-zinc-800 placeholder-zinc-400 transition-all focus:border-[#005acc] focus:outline-none focus:ring-1 focus:ring-[#005acc]/20"
+                className="w-full rounded-xl border border-[#283342] bg-[#090d13] py-2.5 pl-10 pr-4 text-xs text-white placeholder-gray-500 transition-all focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/30"
               />
             </div>
           </div>
+
+          {/* 3D 엠보싱 레드 실행 버튼 */}
           <button
             type="submit"
             disabled={isPending}
-            className={`flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#005acc] py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#004bb9] focus:outline-none ${isPending ? "cursor-not-allowed opacity-80" : ""}`}
+            className="btn-3d-red mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl py-3 text-sm font-black disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? (
-              <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <>
-                로그인
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                <span>로그인</span>
+                <ArrowRight className="h-4 w-4" />
               </>
             )}
           </button>
         </form>
       )}
 
-      <p className="mt-8 text-center text-[10.5px] leading-5 tracking-wide text-zinc-400">
-        계속 진행함으로써 귀하는 당사의{" "}
-        <a href={`${MAIN_SITE_URL}/terms`} target="_blank" rel="noreferrer" className="font-medium text-zinc-600 hover:text-zinc-800 hover:underline">
-          이용약관
-        </a>{" "}
-        및{" "}
-        <a href={`${MAIN_SITE_URL}/privacy`} target="_blank" rel="noreferrer" className="font-medium text-zinc-600 hover:text-zinc-800 hover:underline">
-          개인정보 처리방침
-        </a>
-        에 동의하게 됩니다.
-      </p>
+      {/* 5단계 맨 아래: 약관 문구 1행 축소 처리 */}
+      <div className="mt-6 text-center border-t border-[#283342]/60 pt-4">
+        <p className="whitespace-nowrap text-[11px] text-gray-400">
+          진행 시{" "}
+          <a
+            href={`${MAIN_SITE_URL}/terms`}
+            target="_blank"
+            rel="noreferrer"
+            className="font-bold text-gray-300 underline hover:text-white"
+          >
+            이용약관
+          </a>
+          {" 및 "}
+          <a
+            href={`${MAIN_SITE_URL}/privacy`}
+            target="_blank"
+            rel="noreferrer"
+            className="font-bold text-gray-300 underline hover:text-white"
+          >
+            개인정보 처리방침
+          </a>
+          에 동의합니다.
+        </p>
+      </div>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12" style={{
-        backgroundColor: "#fafbfc",
-        backgroundImage:
-          "linear-gradient(to right, rgba(0, 90, 204, 0.028) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 90, 204, 0.028) 1px, transparent 1px), radial-gradient(circle at 50% 50%, transparent 20%, #f1f6fc 95%)",
-        backgroundSize: "24px 24px, 24px 24px, 100% 100%",
-      }}>
-      <div className="w-full max-w-[440px]">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <h1 className="mb-1 text-3xl font-extrabold tracking-tight text-[#005acc]">상세페이지 GIF 자동화</h1>
-          <p className="text-sm font-medium text-zinc-500">AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
+    <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12 bg-[#090d13] text-[#f0f6fc] overflow-hidden">
+      {/* 헐리우드 네온 REC 앰비언트 글로우 배경 */}
+      <div className="absolute -top-32 -left-32 h-[450px] w-[450px] rounded-full bg-red-600/15 blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 h-[450px] w-[450px] rounded-full bg-amber-500/15 blur-[120px] pointer-events-none" />
+
+      {/* 5단계 표준 규격 컨테이너 */}
+      <div className="relative z-10 w-full max-w-[440px]">
+        {/* 1단계 ~ 3단계: 로고, 영문 알약 뱃지, 한글 타이틀 */}
+        <div className="mb-7 flex flex-col items-center text-center">
+          {/* 1. 64px 라운드 스퀘어 로고 (레드 그라데이션 + 글로우) */}
+          <div className="mb-3.5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-amber-600 text-white shadow-xl shadow-red-600/30 border border-red-400/40 glow-red">
+            <Film className="h-8 w-8 text-white drop-shadow" />
+          </div>
+
+          {/* 2. 영문명 알약 캡슐 뱃지 */}
+          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-red-500/40 bg-red-500/10 px-4 py-1 text-[11px] font-extrabold uppercase tracking-wider text-red-400">
+            <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
+            <span>AIMASTER VIDEO TO GIF</span>
+          </div>
+
+          {/* 3. 한글 타이틀 및 보조 문구 */}
+          <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+            AI 영상렌더 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-amber-300 to-yellow-200">스튜디오</span>
+          </h1>
+          <p className="mt-1 text-xs text-gray-400">AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
         </div>
-        <Suspense>
+
+        {/* 4단계: 로그인 카드 */}
+        <Suspense fallback={<div className="h-64 rounded-2xl bg-[#141a23] animate-pulse" />}>
           <LoginCard />
         </Suspense>
       </div>

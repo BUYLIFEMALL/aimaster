@@ -1,78 +1,42 @@
-# 36번 AI 영상렌더 스튜디오 (`video-to-gif`) 디자인 개발완료 및 기준 템플릿 보고서 (DESIGN_HANDOFF.md)
+# video-to-gif (AI 영상렌더 스튜디오) 디자인 리뉴얼 인수인계서 (v1.27)
 
-> **작성일**: 2026-10-24 (v1.25 리뉴얼 및 12번 공식 템플릿 등록)  
-> **작성자**: Antigravity CLI (agy, 윈도우)  
-> **적용 버전**: `v1.25`  
-> **공식 서비스 링크**: https://video-to-gif.buylife.xyz (대시보드: `/dashboard`)  
-> **독립 비주얼 가이드북 링크**: https://video-to-gif.buylife.xyz/guide  
-> **적용 공식 템플릿**: **12. 시네마틱 렌더 스튜디오 스타일 (Cinematic Render Studio Style)** — 공식 마스터 기준 구현체  
-
----
-
-## 1. 디자인 컨셉 및 스타일 가이드
-
-- **프로그램 성격 분석**:
-  - 기존의 단순 이커머스용 GIF 변환기에서 **초고화질 비디오 트랜스코딩, WebCodecs GPU 가속, 내 PC 로컬 렌더러(Local Renderer Host) 연동, 10단계 화질 사다리 압축을 지원하는 전문 영상 렌더링/변환 스튜디오**로 업그레이드됨.
-  - 이에 따라 전문 영상 편집실(NLE Suite)의 프로페셔널한 감성과 초보자도 1초 만에 조작할 수 있는 직관적 UI를 융합.
-- **배경색 및 메인 테마**:
-  - 딥 옵시디언 블랙 (`#090d13`) 및 다크 서피스 (`#161b22`, `--surface-hover: #1f2937`, 테두리 `#30363d`).
-  - 프리미어 프로·다빈치 리졸브 등 전문 NLE 툴과 유사한 딥 다크 환경을 구축하여 장시간 작업 시 시각적 피로도를 극소화.
-- **브랜드 및 포인트 컬러**:
-  - `--brand: #f59e0b` (시네마틱 앰버 골드): 주 액센트, 레코드/렌더링 강조, 활성 탭
-  - `--brand-cyan: #06b6d4`: GPU WebCodecs 초고속 하드웨어 가속, 4K/60fps 뱃지
-  - `--brand-emerald: #10b981`: 로컬 렌더러 정상 연결 배지, 렌더링 성공 통과 표시
-  - `--brand-rose: #f43f5e`: 뷰파인더 REC 인디케이터, 긴급 알림
-  - `--foreground: #f0f6fc`: 최상의 명도 대비를 자랑하는 클린 슬레이트 화이트
+> **프로그램명**: AI 영상렌더 스튜디오 (`video-to-gif`)  
+> **버전**: `v1.27.0` (2차 전면 리뉴얼)  
+> **채택 시안**: **1안 — 54. 시네마틱 헐리우드 네온 REC 렌더러 스타일**  
+> **영구 아카이빙 폴더**: `D:\Antigravity\Design\54_cinematic_hollywood_neon_rec`  
+> **완료 일자**: 2026-11-06  
+> **담당 에이전트**: Antigravity (`agy`, 세션: `agy-win-mvs-v2`)  
 
 ---
 
-## 2. 시그니처 컴포넌트 및 레이아웃 구조
-
-### 1) 로컬 렌더러 다운로드 센터 & 실시간 진단기 (`components/LocalRendererHub.tsx`)
-- **최상단 전진 배치 원칙 준수**: 메인 랜딩 페이지 히어로 직하단, 대시보드 워크스페이스 상단, 사이드바 하단에 공통 탑재.
-- **실시간 내 PC 연결 상태 진단**:
-  - `http://127.0.0.1:48123/status` 자동 핑 체크를 통해 내 PC 로컬 호스트 설치/구동 여부 실시간 판별.
-  - **초록색 `● 내 PC 로컬 렌더러 연결됨`** vs **주황색 `○ 로컬 렌더러 미연결 (브라우저 WASM 모드로 동작 중)`** 배지 실시간 토글.
-- **OS별 원클릭 다운로드 센터**:
-  - `[🪟 Windows (.bat / Node)]`, `[🍎 macOS / Linux (.sh)]`, `[🧩 크롬 브라우저 확장프로그램]` 원클릭 다운로드 버튼 제공.
-  - 복잡한 콘솔 없이 누구나 3단계(다운로드 ➔ 압축해제 ➔ 더블클릭)로 1초 만에 실행할 수 있는 초간단 비주얼 안내 카드 탑재.
-
-### 2) 시네마틱 비주얼 헤더 & 타임라인 콘솔 (`components/PageHero.tsx` & `ConverterWorkspace.tsx`)
-- **뷰파인더 코너 브래킷 & REC 타임코드 인디케이터**:
-  - 모서리 L자형 뷰파인더 프레임, 깜빡이는 레드 `● REC [00:00:24:18] 4K HDR 60FPS` 레코딩 연출.
-- **NLE 비디오 에디터 타임라인 트랙 콘솔 인터랙티브 목업**:
-  - V1 비디오 트랙(시네마틱 클립), A1 오디오 파형 트랙, 키프레임 마커, 실시간 LUFS 오디오 미터 연출.
-- **10단계 화질 사다리 5열 인포그래픽**:
-  - 1단계(원본 유지)부터 10단계(초고압축)까지 가로폭, FPS, 팔레트 색상수가 계단식으로 변환되는 로직을 직관적인 칩 형태로 시각화.
-
-### 3) 초보자 친화적 좌측 사이드바 (`components/layout/Sidebar.tsx`)
-- 최상단 `AI 영상렌더 스튜디오 v1.25` 앰버 칩 배지.
-- **파이프라인 넘버링 메뉴**:
-  - `1. 영상 소스 등록` (최대 20개 일괄 큐)
-  - `2. 해상도·화질 세팅` (4K/FHD/GIF/MP4 프리셋)
-  - `3. 고속 렌더링 시작` (로컬 GPU 및 WASM 가속)
-- **로컬 렌더러 다운로드 & 진단기 미니 위젯** 사이드바 하단 고정.
-- **`📖 연동 & 사용 매뉴얼` (`/guide`)** 골드 칩 강조.
-
-### 4) 초보자 눈높이의 비주얼 사용 매뉴얼 (`app/guide/page.tsx`)
-- **Step 1~4 시각화 카드**:
-  - Step 1: 영상 소스 준비 및 등록 (MP4, MOV, WebM 등)
-  - Step 2: 렌더링 목적 설정 (쇼츠/릴스용 고화질 MP4 vs 상세페이지용 8MiB 초경량 GIF)
-  - Step 3: 로컬 GPU 렌더러 연동 (10배 빠른 하드웨어 가속)
-  - Step 4: 10단계 사다리 압축 및 원클릭 다운로드
-- **1초 복사 명령어 블록 & 로컬 렌더러 설치 트러블슈팅 가이드**.
-- **FAQ 6종 골드 아코디언 인터랙션**.
+## 1. 개요 및 변경 목적
+- **목적**: 2026-10-29 숏폼/영상 도메인 톤앤매너 지침(어두운 다크 톤 지양, 헐리우드/쇼츠 아이코닉 레드 `#EF4444`/`#DC2626` & 골드 `#F59E0B`의 생동감 넘치는 크리에이터 스튜디오 감성) 및 2026-11-01 로그인 5단계 수직 레이아웃 표준 규격을 완벽 준수하여 전면 개편.
+- **채택안 특징**:
+  - LIVE 🔴 REC 타임코드 뷰파인더 덱 & 4단계 원스톱 파이프라인 인디케이터 배너
+  - 스마트스토어(20MB), 쿠팡(10MB 이하), 고화질 50FPS, 초경량 5MB 마켓 최적화 원클릭 프리셋 칩
+  - 3D 엠보싱 헐리우드 레드 버튼(`.btn-3d-red`, `.btn-3d-shorts`) & 시네마틱 골드 버튼(`.btn-3d-gold`)
+  - 로그인 페이지 5단계 수직 레이아웃 완벽 이식 (64px 레드 글로우 로고 + `AIMASTER VIDEO TO GIF` 알약 뱃지 + 볼드 한글명 + 3D 레드 버튼 + 1행 축소 약관)
 
 ---
 
-## 3. 다른 프로그램으로의 이식 및 재사용 가이드
+## 2. 배포 및 검증 결과
+- **공식 운영 도메인**: [https://video-to-gif.buylife.xyz](https://video-to-gif.buylife.xyz)
+- **Vercel 프로덕션 보조 링크**: [https://video-to-d5kv04j2z-buylife.vercel.app](https://video-to-d5kv04j2z-buylife.vercel.app)
+- **배포 ID**: `dpl_6NfgPdQE296T4hkytWnDzhrSF8GP`
+- **통합 쇼케이스 URL**: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+- **독립 비교표 URL**: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
+- **로컬 영구 자산 경로**: `D:\Antigravity\Design\54_cinematic_hollywood_neon_rec`
 
-- **적용 추천 대상 프로그램**:
-  - 비디오 변환기, 유튜브 쇼츠 생성기, 미디어 인코더/디코더, WebCodecs GPU 가속 툴, 로컬 데스크톱 연동이 필요한 자동화 프로그램.
-- **이식 시 핵심 파일**:
-  - `components/LocalRendererHub.tsx` (로컬 렌더러 진단/다운로드 센터)
-  - `components/PageHero.tsx` (시네마틱 뷰파인더 및 타임라인 목업)
-  - `components/layout/Sidebar.tsx` (사이드바 파이프라인 메뉴 및 미니 위젯)
-- **컬러 토큰**:
-  - 배경: `#090d13`, 카드 서피스: `#161b22`, 테두리: `#30363d`
-  - 포인트: 앰버 `#f59e0b`, 사이언 `#06b6d4`, 에메랄드 `#10b981`
+---
+
+## 3. 핵심 수정 파일
+1. `video-to-gif/app/globals.css`:
+   - 헐리우드 레드/골드 변수, `.btn-3d-red`, `.btn-3d-shorts`, `.btn-3d-gold` 3D 엠보싱 버튼 클래스, `.rec-pulse`, `.glow-red`, 뷰파인더 브래킷 글로우 스타일 추가
+2. `video-to-gif/app/login/page.tsx`:
+   - 2026-11-01 5단계 수직 레이아웃 표준 규격으로 전면 개편
+3. `video-to-gif/components/ConverterWorkspace.tsx`:
+   - LIVE 🔴 REC 타임코드 배너, 4단계 파이프라인 인디케이터, 마켓별 원클릭 프리셋 칩, 3D 엠보싱 레드/골드 액션 버튼 탑재
+4. `video-to-gif/app/page.tsx`:
+   - 랜딩 히어로 CTA 버튼 및 앰비언트 글로우 헐리우드 레드 & 쇼츠 네온 포인트 정렬
+5. `video-to-gif/package.json` & `video-to-gif/lib/version.ts`:
+   - `1.27.0` / `v1.27` 버전 업

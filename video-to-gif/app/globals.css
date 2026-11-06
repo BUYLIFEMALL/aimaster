@@ -3,12 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #0d1117;
-  --surface: #161b22;
-  --surface-hover: #1f2937;
-  --border: #30363d;
+  --background: #090d13;
+  --surface: #141a23;
+  --surface-hover: #1c2430;
+  --border: #283342;
   --foreground: #f0f6fc;
   --foreground-muted: #8b949e;
+  --brand-red: #ef4444;
+  --brand-red-dark: #dc2626;
   --brand: #f59e0b;
   --brand-gold: #fbbf24;
   --brand-emerald: #10b981;
@@ -38,42 +40,80 @@ button, input, select, textarea {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d1117;
+  background: #090d13;
 }
 ::-webkit-scrollbar-thumb {
-  background: #30363d;
+  background: #283342;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #484f58;
+  background: #3b495c;
+}
+
+/* 3D 엠보싱 헐리우드 레드 버튼 (2026-10-29 숏폼/영상 스튜디오 지침) */
+.btn-3d-red, .btn-3d-shorts {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 4px 0 #991b1b, 0 8px 20px rgba(239, 68, 68, 0.4);
+  color: #ffffff;
+  font-weight: 800;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid #f87171;
+}
+.btn-3d-red:hover:not(:disabled), .btn-3d-shorts:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 5px 0 #991b1b, 0 10px 24px rgba(239, 68, 68, 0.55);
+  transform: translateY(-1px);
+}
+.btn-3d-red:active:not(:disabled), .btn-3d-shorts:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #991b1b, 0 3px 10px rgba(239, 68, 68, 0.3);
+}
+
+/* 3D 엠보싱 시네마틱 골드 버튼 */
+.btn-3d-gold {
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 0 #92400e, 0 8px 20px rgba(245, 158, 11, 0.35);
+  color: #090d13;
+  font-weight: 800;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid #fbbf24;
+}
+.btn-3d-gold:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 5px 0 #92400e, 0 10px 24px rgba(245, 158, 11, 0.5);
+  transform: translateY(-1px);
+}
+.btn-3d-gold:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #92400e, 0 3px 10px rgba(245, 158, 11, 0.25);
 }
 
 /* Hero Studio Banner */
 .studio-hero {
-  background: radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
-              linear-gradient(135deg, rgba(22, 27, 34, 0.98) 0%, rgba(13, 17, 23, 0.95) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.8), 0 0 32px -8px rgba(245, 158, 11, 0.2);
+  background: radial-gradient(circle at 10% 20%, rgba(239, 68, 68, 0.18) 0%, transparent 45%),
+              radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.15) 0%, transparent 45%),
+              linear-gradient(135deg, rgba(20, 26, 35, 0.98) 0%, rgba(9, 13, 19, 0.96) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.85), 0 0 32px -8px rgba(239, 68, 68, 0.25);
 }
 
 /* KPI Card */
 .kpi-card {
-  background: rgba(22, 27, 34, 0.85);
-  border: 1px solid #30363d;
+  background: rgba(20, 26, 35, 0.85);
+  border: 1px solid #283342;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   backdrop-filter: blur(8px);
 }
 .kpi-card:hover {
-  border-color: rgba(245, 158, 11, 0.5);
+  border-color: rgba(239, 68, 68, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -10px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 12px 28px -10px rgba(239, 68, 68, 0.25);
 }
 
 /* Focus Card */
 .focus-card {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #141a23;
+  border: 1px solid #283342;
   border-radius: 1rem;
 }
 
@@ -82,42 +122,42 @@ button, input, select, textarea {
   position: absolute;
   top: 10px;
   left: 10px;
-  width: 14px;
-  height: 14px;
-  border-top: 2px solid rgba(245, 158, 11, 0.6);
-  border-left: 2px solid rgba(245, 158, 11, 0.6);
+  width: 16px;
+  height: 16px;
+  border-top: 2.5px solid rgba(239, 68, 68, 0.8);
+  border-left: 2.5px solid rgba(239, 68, 68, 0.8);
 }
 .viewfinder-corner-tr {
   position: absolute;
   top: 10px;
   right: 10px;
-  width: 14px;
-  height: 14px;
-  border-top: 2px solid rgba(245, 158, 11, 0.6);
-  border-right: 2px solid rgba(245, 158, 11, 0.6);
+  width: 16px;
+  height: 16px;
+  border-top: 2.5px solid rgba(239, 68, 68, 0.8);
+  border-right: 2.5px solid rgba(239, 68, 68, 0.8);
 }
 .viewfinder-corner-bl {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  width: 14px;
-  height: 14px;
-  border-bottom: 2px solid rgba(245, 158, 11, 0.6);
-  border-left: 2px solid rgba(245, 158, 11, 0.6);
+  width: 16px;
+  height: 16px;
+  border-bottom: 2.5px solid rgba(239, 68, 68, 0.8);
+  border-left: 2.5px solid rgba(239, 68, 68, 0.8);
 }
 .viewfinder-corner-br {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  width: 14px;
-  height: 14px;
-  border-bottom: 2px solid rgba(245, 158, 11, 0.6);
-  border-right: 2px solid rgba(245, 158, 11, 0.6);
+  width: 16px;
+  height: 16px;
+  border-bottom: 2.5px solid rgba(239, 68, 68, 0.8);
+  border-right: 2.5px solid rgba(239, 68, 68, 0.8);
 }
 
 /* Film Perforation Texture (상하단 필름 구멍 효과) */
 .film-perforations-top {
-  background-image: radial-gradient(#30363d 35%, transparent 36%);
+  background-image: radial-gradient(#283342 35%, transparent 36%);
   background-size: 16px 8px;
   background-repeat: repeat-x;
   height: 8px;
@@ -135,7 +175,22 @@ button, input, select, textarea {
   animation: laser-sweep 2.5s ease-in-out infinite;
 }
 
+/* REC Dot Pulse */
+@keyframes rec-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
+}
+.rec-pulse {
+  animation: rec-dot 1.2s ease-in-out infinite;
+}
+
 /* Neon Glow Accents */
+.glow-red {
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.6));
+}
+.glow-gold {
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5));
+}
 .glow-amber {
   filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4));
 }
