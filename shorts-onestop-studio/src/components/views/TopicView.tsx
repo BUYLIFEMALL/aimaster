@@ -11,6 +11,7 @@ import { guardText, hasCopy } from "@/lib/reference";
 import { takeProductHandoff, takeRefHandoff } from "@/lib/refHandoff";
 import { PRODUCT_CARDS, PRODUCT_LIMITS } from "@/lib/productShorts";
 import { refBlockHeader, refBlocks, removeRefBlock, shortSource } from "@/lib/refBlocks";
+import { REWRITE_LEVELS, type RewriteLevel } from "@/lib/rewrite";
 
 // v1.31 참고 자료와 그대로 겹치는 장면 표시(브라우저 안에서 다시 검사 — 고치면 바로 사라짐)
 const COPY_STYLE = { outline: "2px solid #f5c542", outlineOffset: 2, borderRadius: 12 } as const;
@@ -43,6 +44,8 @@ export function TopicView() {
   const [seconds, setSeconds] = useState(0); // 목표 길이(0 = 제한 없음)
   const [guides, setGuides] = useState<Guide[]>([]), [useGuide, setUseGuide] = useState(false), [guideText, setGuideText] = useState(""), [guideOpen, setGuideOpen] = useState(false);
   const [manual, setManual] = useState(""), [firstIntro, setFirstIntro] = useState(true), [lastOutro, setLastOutro] = useState(true);
+  // v1.45(V2) 각색 강도: 내 대본을 본인 키로 다듬기 — 강도 3단, 직접 쓴 대본 확인, 다듬기 전 원문(되돌리기)
+  const [rewriteLevel, setRewriteLevel] = useState<RewriteLevel>("medium"), [ownScript, setOwnScript] = useState(false), [manualBefore, setManualBefore] = useState<string | null>(null);
   const [script, setScript] = useState<ShortsScript | null>(null), [itemId, setItemId] = useState<string | null>(null);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null);
   // v1.31 참고 자료 전체 베끼기 검사(선택) · 대본을 만들 때 쓴 검사 대상 글(장면 노란 테두리용)
@@ -136,6 +139,19 @@ export function TopicView() {
       setMsg(r.copied?.length
         ? { text: `대본이 완성됐지만 참고 자료와 그대로 겹치는 구절이 ${r.copied.length}개 남았습니다. 아래 「③ 대본 다듬기」의 노란 테두리 장면을 다른 표현으로 고쳐 주세요: 「${r.copied.slice(0, 3).join("」, 「")}」` }
         : { text: "대본이 완성됐습니다. 아래에서 고친 뒤 보관함에 저장하세요.", ok: true });
+    } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
+  }
+
+  // v1.45(V2) 각색 강도: 줄 수는 그대로, 고른 강도만큼만 다듬는다(본인 키 1회)
+  async function rewriteManual() {
+    const lines = manual.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    if (lines.length < MIN_CARDS) { setMsg({ text: `대본이 ${MIN_CARDS}줄 이상 필요합니다.` }); return; }
+    setBusy(`대본을 다듬는 중… (${REWRITE_LEVELS[rewriteLevel].label})`); setMsg(null);
+    try {
+      const r = await api<{ lines: string[]; model: string }>("/api/ai/rewrite", { body: { lines, level: rewriteLevel, topic, own: ownScript } });
+      if (manualBefore === null) setManualBefore(manual);
+      setManual(r.lines.join("\n"));
+      setMsg({ text: `${REWRITE_LEVELS[rewriteLevel].label}으로 다듬었습니다(${modelName(r.model)}). 내용을 확인한 뒤 「장면 만들기」를 누르세요. 마음에 안 들면 「다듬기 전으로」.`, ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
 
@@ -251,7 +267,22 @@ export function TopicView() {
             <label>주제(제목)<input value={topic} maxLength={120} onChange={(e) => setTopic(e.target.value)} placeholder="예: 내가 회사를 그만둔 진짜 이유" /></label>
             <label>대본 — 한 줄 = 한 장면(빈 줄은 무시, 카드 {MIN_CARDS}~{MAX_CARDS}장)<textarea rows={9} value={manual} onChange={(e) => setManual(e.target.value)} placeholder={"첫 줄은 인트로 내레이션\n두 번째 줄부터 장면마다 한 줄씩\n…\n마지막 줄은 아웃트로 내레이션"} /></label>
             <div className="row"><label className="row" style={{ gap: 6, fontWeight: 500 }}><input type="checkbox" checked={firstIntro} onChange={(e) => setFirstIntro(e.target.checked)} />첫 줄을 인트로로</label><label className="row" style={{ gap: 6, fontWeight: 500 }}><input type="checkbox" checked={lastOutro} onChange={(e) => setLastOutro(e.target.checked)} />마지막 줄을 아웃트로로</label></div>
-            <div className="actions"><button className="primary" disabled={!manual.trim()} onClick={makeManual}><FileText size={14} />장면 만들기</button></div>
+            <div className="stack" style={{ gap: 8, padding: 12, borderRadius: 12, border: "1px solid var(--line, #2a2a33)" }}>
+              <strong>✨ AI로 다듬기 <small className="muted">(선택 · 본인 키 · 줄 수는 그대로)</small></strong>
+              <div className="row" style={{ flexWrap: "wrap", gap: 6 }}>
+                {(Object.keys(REWRITE_LEVELS) as RewriteLevel[]).map((l) => (
+                  <button key={l} type="button" className={`chip ${rewriteLevel === l ? "on" : ""}`} title={REWRITE_LEVELS[l].desc} disabled={!!busy} onClick={() => setRewriteLevel(l)}>{REWRITE_LEVELS[l].label}</button>
+                ))}
+              </div>
+              <small className="muted">{REWRITE_LEVELS[rewriteLevel].desc}</small>
+              <label className="row" style={{ gap: 6, fontWeight: 500 }}><input type="checkbox" checked={ownScript} disabled={!!busy} onChange={(e) => setOwnScript(e.target.checked)} />제가 직접 쓴 대본입니다(다른 사람의 대사·자막을 바꾸는 데 쓰지 않습니다).</label>
+              <div className="actions">
+                <button type="button" disabled={!manual.trim() || !ownScript || !!busy} onClick={() => void rewriteManual()}><Wand2 size={14} />{REWRITE_LEVELS[rewriteLevel].label}으로 다듬기</button>
+                {manualBefore !== null && <button type="button" disabled={!!busy} onClick={() => { setManual(manualBefore); setManualBefore(null); setMsg({ text: "다듬기 전 원문으로 되돌렸습니다.", ok: true }); }}>다듬기 전으로</button>}
+                <Busy on={busy.startsWith("대본을 다듬")} label={busy} />
+              </div>
+            </div>
+            <div className="actions"><button className="primary" disabled={!manual.trim() || !!busy} onClick={makeManual}><FileText size={14} />장면 만들기</button></div>
           </section>
         )}
 
