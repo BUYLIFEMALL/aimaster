@@ -787,6 +787,11 @@ export type ImageModelState = {
   engineInstalled: boolean;
   installed: string[];
   defaultId: string | null;
+  /** 그림 모델 폴더(0.7.1+) — 기본은 모델 저장 폴더 안 */
+  dir?: string;
+  isDefault?: boolean;
+  moving?: { done: number; total: number } | null;
+  moveError?: string;
 };
 /** 이 엔진이 내 PC에서 앨범 그림을 그릴 수 있는가(0.7.0+) */
 export function hasLocalArt(status: EngineStatus | null): boolean {
@@ -797,6 +802,10 @@ export async function getImageModels(): Promise<ImageModelState> {
 }
 export async function setDefaultImageModel(id: string) {
   await call(`/image-models/${encodeURIComponent(id)}/default`, { method: "POST" });
+}
+/** 그림 모델만 다른 폴더로(0.7.1+) — 고른 폴더 안 「FreeMusicImageModels」. 뒤에서 옮기므로 getImageModels().moving으로 지켜본다 */
+export async function moveImageModelsFolder(path: string, mode: "move" | "fresh"): Promise<{ dir: string }> {
+  return (await call("/image-models/folder", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path, mode }) })).json();
 }
 export async function removeImageModel(id: string) {
   await call(`/image-models/${encodeURIComponent(id)}`, { method: "DELETE" });

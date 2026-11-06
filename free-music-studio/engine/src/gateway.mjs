@@ -479,6 +479,7 @@ const QUEUE_KINDS = new Set(["text2music", "cover", "repaint", "master", "stems"
  *  POST   /image-models/<id>/default  → 기본 판으로
  *  DELETE /image-models/<id>          → 받아 둔 판 지우기(다른 판이 같이 쓰는 파일은 남김)
  *  GET    /image-art/<작업 번호>        → 그린 PNG(하루 보관)
+ *  POST   /image-models/folder        { path, mode: "move"|"fresh" } → 그림 모델만 다른 폴더로(0.7.1, 뒤에서 옮김 — GET의 moving)
  */
 async function handleImage(req, res, url, origin, ctx, json) {
   const parts = url.pathname.split("/").filter(Boolean);
@@ -492,6 +493,11 @@ async function handleImage(req, res, url, origin, ctx, json) {
     }
     if (parts[0] === "image-models") {
       if (req.method === "GET" && parts.length === 1) return json(res, 200, await ctx.imageArt.state(), origin);
+      if (req.method === "POST" && parts.length === 2 && parts[1] === "folder") {
+        const body = await readSmall(req).catch(() => null);
+        if (!ctx.moveImageModels) return json(res, 501, { error: "이 엔진은 그림 모델 폴더를 바꿀 수 없습니다." }, origin);
+        return json(res, 200, await ctx.moveImageModels(typeof body?.path === "string" ? body.path : "", body?.mode), origin);
+      }
       if (req.method === "POST" && parts.length === 3 && parts[2] === "default") {
         await ctx.imageArt.setDefault(id);
         return json(res, 200, { ok: true }, origin);

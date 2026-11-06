@@ -65,3 +65,29 @@ test("받아 둔 것이 없으면 상태는 「받지 않음」, 지우기는 �
   assert.equal((await art.state()).defaultId, null);
   await assert.rejects(art.setDefault("없는 판"), /없는 그림 모델/);
 });
+
+test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 FreeMusicImageModels로 옮기고 예전 것은 지움, 안쪽·같은 폴더는 거절", async () => {
+  const { mkdir, writeFile, readFile, stat } = await import("node:fs/promises");
+  const base = await mkdtemp(path.join(os.tmpdir(), "fms-artmove-"));
+  const models = path.join(base, "models");
+  let custom = "";
+  const art = createImageArt({ dataDir: () => models, getCustomDir: () => custom, getSystem: async () => ({ platform: "win32", arch: "x64", gpuVendor: "NVIDIA", vramGb: 8, ramGb: 16, freeGb: 200 }) });
+  const oldRoot = art.paths().root;
+  await mkdir(path.join(oldRoot, "models", "text-encoders"), { recursive: true });
+  await writeFile(path.join(oldRoot, "models", "text-encoders", "a.gguf"), "x".repeat(1000));
+  await writeFile(path.join(oldRoot, "install-state.json"), JSON.stringify({ engine: { executable: path.join(oldRoot, "runtime", "sd-cli.exe") } }));
+  await assert.rejects(art.moveTo(path.join(oldRoot, "sub"), "move", { saveDir: async () => {} }), /안쪽/);
+  await assert.rejects(art.moveTo("상대경로", "move", { saveDir: async () => {} }), /경로가 올바르지/);
+  const target = path.join(base, "D-drive");
+  const r = await art.moveTo(target, "move", { saveDir: async (d) => (custom = d) });
+  assert.equal(r.dir, path.join(target, "FreeMusicImageModels"));
+  for (let i = 0; i < 100 && art.isMoving(); i++) await new Promise((ok) => setTimeout(ok, 20));
+  assert.equal(art.paths().root, r.dir);
+  assert.equal((await readFile(path.join(r.dir, "models", "text-encoders", "a.gguf"), "utf8")).length, 1000);
+  assert.equal(await stat(oldRoot).then(() => true, () => false), false);
+  const rec = JSON.parse(await readFile(path.join(r.dir, "install-state.json"), "utf8"));
+  assert.deepEqual(rec.engine, { exeRel: path.join("runtime", "sd-cli.exe") }); // 0.7.0의 전체 경로 기록을 상대 경로로
+  const st = await art.state();
+  assert.equal(st.isDefault, false);
+  assert.equal(st.dir, r.dir);
+});

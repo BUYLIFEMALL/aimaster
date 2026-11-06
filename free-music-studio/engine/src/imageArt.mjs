@@ -7,6 +7,7 @@ import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/p
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { downloadVerified, hashFile } from "./download.mjs";
+import { copyTree, freeBytes, isInside, removeBestEffort, sizeOf } from "./storage.mjs";
 
 const HF = "https://huggingface.co";
 const GH = "https://github.com/leejet/stable-diffusion.cpp/releases/download";
@@ -188,11 +189,14 @@ const exists = (f) => stat(f).then((s) => s.isFile(), () => false);
 const tarExe = () => (process.platform === "win32" ? path.join(process.env.SystemRoot || "C:\\Windows", "System32", "tar.exe") : "/usr/bin/tar");
 
 /**
- * @param {{ dataDir: () => string, getSystem: () => Promise<object>, log?: (s:string)=>void, spawnImpl?: typeof spawn }} p
+ * 그림 모델 폴더(0.7.1): 기본은 모델 저장 폴더 안 engines/image-sdcpp, 회원이 고르면 그 폴더 안 「FreeMusicImageModels」(getCustomDir).
+ * @param {{ dataDir: () => string, getCustomDir?: () => string, getSystem: () => Promise<object>, log?: (s:string)=>void, spawnImpl?: typeof spawn }} p
  */
-export function createImageArt({ dataDir, getSystem, log = () => {}, spawnImpl = spawn }) {
+export const IMAGE_DIR_NAME = "FreeMusicImageModels";
+export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, log = () => {}, spawnImpl = spawn }) {
+  const defaultRoot = () => path.join(dataDir(), "engines", "image-sdcpp");
   const paths = () => {
-    const root = path.join(dataDir(), "engines", "image-sdcpp");
+    const root = getCustomDir() || defaultRoot();
     return { root, runtime: path.join(root, "runtime"), receipt: path.join(root, "install-state.json"), models: path.join(root, "models"), downloads: path.join(root, "downloads"), results: path.join(root, "results") };
   };
   const modelFile = (f) => path.join(paths().models, f.folder, f.filename);
@@ -212,11 +216,14 @@ export function createImageArt({ dataDir, getSystem, log = () => {}, spawnImpl =
     await rename(tmp, f);
   };
 
+  const exeOf = (receipt) => (receipt.engine?.exeRel ? path.join(paths().root, receipt.engine.exeRel) : receipt.engine?.executable || "");
+
   /** 받아 둔 엔진·판(크기가 맞는 파일만, 확인값은 그릴 때 한 번) */
   async function inspect(system) {
     const receipt = await readReceipt();
     const build = imageEngineBuild(system);
-    const engineInstalled = !!(receipt.engine?.release === IMAGE_ENGINE_RELEASE && receipt.engine.build === build.id && receipt.engine.executable && (await exists(receipt.engine.executable)));
+    const exe = exeOf(receipt);
+    const engineInstalled = !!(receipt.engine?.release === IMAGE_ENGINE_RELEASE && receipt.engine.build === build.id && exe && (await exists(exe)));
     const presentFiles = [];
     const installed = [];
     const seen = new Map();
@@ -239,7 +246,16 @@ export function createImageArt({ dataDir, getSystem, log = () => {}, spawnImpl =
   async function state() {
     const system = await getSystem();
     const s = await inspect(system);
-    return { ...localImageChoices(system, s), engineInstalled: s.engineInstalled, installed: s.installed, defaultId: s.receipt.defaultId || null };
+    return {
+      ...localImageChoices(system, s),
+      engineInstalled: s.engineInstalled,
+      installed: s.installed,
+      defaultId: s.receipt.defaultId || null,
+      dir: paths().root,
+      isDefault: !getCustomDir(),
+      moving: moving ? { ...moving } : null,
+      moveError,
+    };
   }
 
   async function findExecutable(dir) {
@@ -296,7 +312,7 @@ export function createImageArt({ dataDir, getSystem, log = () => {}, spawnImpl =
       if (!exe) throw new Error("그림 엔진 실행 파일을 찾지 못했습니다. 다시 시도해 주세요.");
       stage("그림 엔진 실행 확인 중");
       probe(exe);
-      engine = { release: IMAGE_ENGINE_RELEASE, build: build.id, executable: exe, installedAt: new Date().toISOString() };
+      engine = { release: IMAGE_ENGINE_RELEASE, build: build.id, exeRel: path.relative(p.root, exe), installedAt: new Date().toISOString() };
       // 모델 받기가 실패해도 엔진을 다시 받지 않게 바로 기록(원본)
       await writeReceipt({ ...(await readReceipt()), engine, variants: s.receipt.variants || [] });
       log(`🖼 그림 엔진 설치: ${build.label} ${IMAGE_ENGINE_RELEASE} → ${exe}`);
@@ -364,7 +380,7 @@ export function createImageArt({ dataDir, getSystem, log = () => {}, spawnImpl =
       verified[key] = s.mtimeMs;
     }
     await writeReceipt({ ...(await readReceipt()), verified });
-    const exe = (await readReceipt()).engine.executable;
+    const exe = exeOf(await readReceipt());
     const cpu = (await readReceipt()).engine.build === "win-cpu";
     const p = paths();
     const scratch = path.join(p.models, ".render");
@@ -433,5 +449,54 @@ export function createImageArt({ dataDir, getSystem, log = () => {}, spawnImpl =
     }
   }
 
-  return { paths, state, install, remove, setDefault, run, resultFile };
+  /**
+   * 그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 「FreeMusicImageModels」로. move: 받은 엔진·모델을 복사한 뒤 예전 것을 지움 / fresh: 예전 것을 지우고 다음에 그릴 때 새로 받음.
+   * 바로 답하고 뒤에서 옮긴다(state().moving). forbid: 고르면 안 되는 폴더(모델 저장 폴더의 옮겨 다니는 항목 등).
+   */
+  let moving = null;
+  let moveError = "";
+  async function moveTo(target, mode, { saveDir, busy = () => false, forbid = [] }) {
+    if (moving) throw new Error("이미 옮기는 중입니다.");
+    if (busy()) throw new Error("그림을 그리는 중입니다. 끝난 뒤 바꿔 주세요.");
+    if (mode !== "move" && mode !== "fresh") throw new Error("옮기기 방식이 올바르지 않습니다.");
+    if (typeof target !== "string" || !target.trim() || !path.isAbsolute(target.trim())) throw new Error("폴더 경로가 올바르지 않습니다.");
+    const from = paths().root;
+    const to = path.join(path.resolve(target.trim()), IMAGE_DIR_NAME);
+    if (path.resolve(from) === to) throw new Error("지금 쓰는 폴더와 같습니다.");
+    if (isInside(to, from) || isInside(from, to)) throw new Error("지금 그림 모델 폴더 안쪽(또는 바깥쪽)은 고를 수 없습니다. 다른 폴더를 골라 주세요.");
+    for (const f of forbid) if (isInside(to, f)) throw new Error("모델 저장 폴더가 옮겨 다니는 곳 안쪽은 고를 수 없습니다. 다른 폴더를 골라 주세요.");
+    await mkdir(to, { recursive: true });
+    const has = await stat(from).then((s) => s.isDirectory(), () => false);
+    const total = mode === "move" && has ? await sizeOf(from) : 0;
+    const free = await freeBytes(to);
+    if (total && free != null && free < total + 1024 ** 3) throw new Error(`그 드라이브 남은 공간이 모자랍니다(필요 약 ${Math.ceil(total / 1024 ** 3) + 1}GB, 남은 ${Math.floor(free / 1024 ** 3)}GB).`);
+    moving = { done: 0, total };
+    moveError = "";
+    log(`🖼 그림 모델 폴더 바꾸기: ${from} → ${to} (${mode === "move" ? "옮기기" : "새로 받기"})`);
+    (async () => {
+      try {
+        if (mode === "move" && has) {
+          await copyTree(from, to, { skip: new Set([".render"]), onBytes: (n) => (moving.done += n) });
+          // 엔진 0.7.0 기록은 실행 파일을 전체 경로로 적었다 — 새 폴더 기준 상대 경로로 바꿔 다시 받지 않게
+          const rf = path.join(to, "install-state.json");
+          const r = await readFile(rf, "utf8").then(JSON.parse, () => null);
+          if (r?.engine?.executable && !r.engine.exeRel && isInside(r.engine.executable, from)) {
+            const { executable, ...engine } = r.engine;
+            await writeFile(rf, JSON.stringify({ ...r, engine: { ...engine, exeRel: path.relative(from, executable) } }, null, 1));
+          }
+        }
+        await saveDir(to);
+        if (has) await removeBestEffort(from);
+        log(`✔ 그림 모델 폴더: ${to}`);
+      } catch (e) {
+        moveError = `그림 모델 폴더를 옮기지 못했습니다 — 예전 폴더를 그대로 씁니다. ${e instanceof Error ? e.message : e}`;
+        log(`⚠ ${moveError}`);
+      } finally {
+        moving = null;
+      }
+    })();
+    return { ok: true, dir: to };
+  }
+
+  return { paths, state, install, remove, setDefault, run, resultFile, moveTo, isMoving: () => !!moving };
 }
