@@ -3,7 +3,7 @@
 - 작성: 2026-11-06 · [역할: workspace] Claude Code(윈도우) `claude-win-20261025-workspace`
 - 상위: 로드맵 [PLAN_20261024_EXPANSION_ROADMAP.md](PLAN_20261024_EXPANSION_ROADMAP.md) §3-2·§5 U9, 공용 표 안내 [`docs/WORK_INBOX.md`](../../docs/WORK_INBOX.md)
 - 대상: ① AIMaster 운영(공용 DB `esgxyikcnnvmlhygjkth`). Lab 아님.
-- 상태: **플랜 — 주인님 결정 대기(아래 §7). 코드 변경 없음.**
+- 상태: **완료 — 2026-11-06 4개 프로그램 구현·배포(워크스페이스 v1.21·음성 분석 v1.15·번역 v1.23·슬라이드·문서 챗봇) 및 운영 확인 통과(ego, 시험 계정). 결과·발견: `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 운영 확인」.** (처음 상태: 플랜 — 주인님 결정 대기)
 
 ## 1. 목표
 워크스페이스와 업무 도구 4개를 공용 표 `public.work_inbox` 하나로 잇는다. 프로그램끼리 서로의 API를 부르지 않는 AIMaster 규칙은 그대로 지킨다.
