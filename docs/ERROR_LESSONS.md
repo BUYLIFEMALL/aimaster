@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-06 브라우저 하드웨어 인코더(WebCodecs H.264)로 만든 영상이 「초당 1,200,000프레임」으로 담김 (`free-music-studio` 엔진 0.6.9 플레이리스트 영상, [역할: music])
+- **증상**: ego에서 1440프레임을 그려 Annex-B H.264로 올리고 `ffmpeg -f h264 -framerate 24 -i visual.h264 -c:v copy`로 담았더니, 프레임 수는 맞는데 MP4 머리 정보의 초당 프레임이 1,200,000/평균 690.7, 길이 2.08초로 나와 검증에 실패했습니다. 같은 코드를 libx264로 만든 조각으로 시험할 때는 통과해서 자동 시험으로는 잡히지 않았습니다.
+- **원인**: 하드웨어 인코더가 조각 안(VUI)에 적은 시간 정보가 이상한데, 원시 H.264 읽기에서 `-framerate`보다 그 시간 정보가 우선 쓰였습니다.
+- **해결**: 입력 쪽에 `-fflags +genpts -r <fps>`를 줘서 프레임 간격을 고정하고 시각을 새로 만들게 했습니다(`free-music-studio/engine/src/video.mjs` assemble). 실제 조각으로 네 방법을 비교해 `genpts`·`setts` 둘만 정확히 24fps·60초였고, B프레임에도 안전한 `genpts`를 골랐습니다.
+- **다음부터**: 브라우저(WebCodecs) 인코딩 결과를 ffmpeg로 담는 기능은 **실제 브라우저 하드웨어 인코더 조각으로 한 번은 끝까지 시험**합니다(libx264 대체 조각만으로는 이 문제가 안 보임). 담은 뒤에는 프레임 수뿐 아니라 초당 프레임·길이까지 검증하고, 실패 이유에 어긋난 값을 적어 둡니다(`videoInfoProblem`).
+
 ## 2026-11-06 Supabase SQL 편집기에서 Ctrl+Enter를 보냈는데 마이그레이션이 적용되지 않음 — 「destructive operations」 확인 창 (`naver-cafe-recruit` v1.02, [역할: blog])
 - **증상**: ego로 `setValue` → Ctrl+Enter를 보냈습니다. 결과 표에는 직전 조회 결과가 그대로 남았고, 새 화면에서 조회해 보니 표·함수가 하나도 생기지 않았습니다. 오류 문구도 없었습니다.
 - **원인**: SQL에 `drop trigger if exists`(처음 만드는 트리거를 위한 한 줄)가 있어서, Supabase가 「Potential issue detected — This query includes destructive operations」 확인 창을 띄우고 실행을 멈췄습니다.
