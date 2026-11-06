@@ -139,10 +139,10 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               <span>{OVERVIEW_ITEM.label}</span>
             </Link>
 
-            {/* 4단계 플로우 위저드 스텝퍼 */}
+            {/* 3단계 플로우 위저드 스텝퍼 */}
             <div className="pt-2 pb-1">
               <p className="px-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                4단계 포스팅 파이프라인
+                3단계 모집 순서
               </p>
             </div>
 
