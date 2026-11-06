@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-u10deploy — **주인님 채팅 승인 5건 처리: 쇼핑몰 빌더 D14 Lab 배포 + U10 승인을 워크스페이스 세션에 전달**
+- **주인님 승인(채팅 「배포상태 확인하고 진행해」)**: 요청함 a9bb8ecb(워크스페이스 v1.22 빌드)·b6fb9b4b(U10 1차 빌드 3회)·7427701f(U10 플랜 결정 5건, 추천안 (가))·89901683(쇼핑몰 빌더 D14 Lab 빌드)·d85f856f(음악 엔진 0.7.0 실물 확인 — 주인님 5080 PC 몫).
+- **한 일**: `labs/mall-builder` D14 통계 Lab 배포(`dev-mall-builder-mnqfblzbm`, https://dev-mall-builder.vercel.app, DB 0034는 이미 Lab 적용). `insta_auto_poster` v1.72·`threads-content-ops` v2.23 버전 파일만 올려 커밋(코드 변경 없음). U10 배포 3개는 담당 `claude-win-20261025-workspace`가 작업 중 표에 있어 `deploy.mjs`가 막음 → 그 세션에 SendMessage로 승인·현황 전달, 배포·확인·요청함 닫기는 그 세션이 함.
+- **⚠ 주의**: 막힌 배포 직후 제 실수로 `--version-only --set-version`이 먼저 돌아 운영 DB `programs.version`(ai-work-workspace)만 v1.22, 라이브는 v1.21. 워크스페이스 세션이 v1.22를 배포하면 자동으로 맞음. 교훈: 배포 성공 줄(「✔ 이번 배포」)을 확인한 뒤에만 `--set-version`을 실행.
+- **남은 일**: 쇼핑몰 빌더 통계 화면(`/s/<몰>/admin/stats`) 운영자 계정 확인, U10 배포 3개(워크스페이스 세션), 음악 엔진 0.7.0 실물 확인(주인님).
+- **비용**: Lab 빌드 1회(승인 범위). AI 호출 0.
+
 ## 2026-11-06 ⏸ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` 확장: PC 카페 첫 화면의 링크 없는 「초대」 메뉴를 찾아 틀 안에서 초대 화면을 열도록 수정(`5b3f05ab9`, 미배포)** — 맥미니 1회차 결과 반영
 - **한 일**: `findInvite(hrefs, page)`에 메뉴형 추가(`a.link_invite` 존재 + 틀 주소 `MyCafeIntro.nhn?clubid=`에서 카페 번호, `firstClubId`), 초대 단계는 탭 주소 변경 대신 카페 첫 화면에서 「초대」 메뉴를 MAIN world로 실제 클릭(`openInviteMenu`, 사람마다 첫 화면으로 되돌린 뒤), 틀 판별 `CafeInvite(Check)?.nhn`, 버튼·칸을 못 찾으면 틀 글자 앞 160자를 멈춤 문구에 넣어 다음 기록에 쓰게 함. 시험 EX11 추가 → 15개 통과, 확장 문법 확인. 요청 문서에 「2회차」 순서(공유 폴더 `extension/` 직접 로드, 배포 없음)와 `AGENTS.md` 미배포 대기 기록.
 - **배포**: 미배포 대기(다음 배포 때 v1.03으로 manifest·ZIP·DB 함께). 맥미니 재시험은 공유 폴더를 직접 로드하므로 빌드 불필요.
