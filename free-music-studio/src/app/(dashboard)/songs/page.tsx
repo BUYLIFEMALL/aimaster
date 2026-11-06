@@ -14,6 +14,8 @@ import { PresetPicker } from "@/components/songs/PresetPicker";
 import { presetsFor } from "@/lib/presets";
 import type { Collection } from "@/lib/collections";
 import { ProjectTracks } from "@/components/songs/ProjectTracks";
+import { QuickCoverPanel } from "@/components/songs/QuickCoverPanel";
+import type { Track } from "@/lib/tracks";
 import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult } from "@/components/songs/LyricResultDialog";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
 import { DEFAULT_LYRIC_LANGUAGE, LYRIC_LANGUAGES, isBestLanguage } from "@/lib/lyricLanguages";
@@ -44,6 +46,11 @@ export default function SongsPage() {
   const [loading, setLoading] = useState(true);
   const [exempt, setExempt] = useState(false);
   const [draft, setDraft] = useState<Draft>(EMPTY);
+  const [coverSrc, setCoverSrc] = useState<Track | null>(null); // C-3 오른쪽 곡 카드 「커버」로 고른 원곡
+  const openCover = (t: Track) => {
+    setCoverSrc(t);
+    setTimeout(() => document.getElementById("quick-cover")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
   const [mode, setMode] = useState<Mode>("vocal");
   const instrumental = mode === "instrumental";
   const sfx = mode === "sfx";
@@ -1005,6 +1012,11 @@ export default function SongsPage() {
           {!sfx && <AlbumArtPanel title={draft.title} style={draft.style_prompt} lyrics={draft.lyrics} songId={draft.id} art={draft.art_prompt} onArtChange={(v) => set("art_prompt", v)} ai={{ provider, model }} />}
 
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
+          {coverSrc && (
+            <div id="quick-cover" className="scroll-mt-6">
+              <QuickCoverPanel source={coverSrc} onClose={() => setCoverSrc(null)} />
+            </div>
+          )}
           <div id="generate-panel" className="scroll-mt-6">
             <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} />
           </div>
@@ -1012,7 +1024,7 @@ export default function SongsPage() {
 
         {/* 오른쪽 — 이 프로젝트의 곡 카드(원본 곡 만들기 2단의 오른쪽). 좁은 화면에서는 아래로 */}
         <div className="lg:col-span-2 2xl:col-span-1">
-          <ProjectTracks projectId={viewProjectId} view={projectView} label={projectView === "all" ? "최근 만든 곡" : projectName(viewProjectId)} />
+          <ProjectTracks projectId={viewProjectId} view={projectView} label={projectView === "all" ? "최근 만든 곡" : projectName(viewProjectId)} onCover={openCover} />
         </div>
       </div>
     </div>

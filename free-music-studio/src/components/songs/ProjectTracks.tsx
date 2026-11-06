@@ -4,7 +4,7 @@
 // 표지·제목·길이·종류와 바로 듣기. 대기열이 곡을 기록하면 1분마다 새로 읽는다.
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Pause, Play } from "lucide-react";
+import { Palette, Pause, Play } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { usePlayer } from "@/components/player/PlayerProvider";
 import { CoverThumb } from "@/components/library/CoverThumb";
@@ -16,7 +16,7 @@ import { KIND_LABEL, type Track } from "@/lib/tracks";
 const SHOW = 12;
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
-export function ProjectTracks({ projectId, view, label }: { projectId: string | null; view: string; label: string }) {
+export function ProjectTracks({ projectId, view, label, onCover }: { projectId: string | null; view: string; label: string; onCover?: (t: Track) => void }) {
   const engine = useEngine();
   const player = usePlayer();
   const libOk = engine.paired && hasLibrary(engine.status);
@@ -73,6 +73,19 @@ export function ProjectTracks({ projectId, view, label }: { projectId: string | 
                     {t.license === "noncommercial" ? " · 비상업용" : ""}
                   </p>
                 </div>
+                {onCover && (
+                  // 이 곡으로 바로 커버(C-3) — 조건은 「모든 음악」의 「이 곡으로 커버 만들기」와 같음
+                  <button
+                    type="button"
+                    disabled={!here || t.license === "noncommercial"}
+                    onClick={() => onCover(t)}
+                    aria-label={`${t.title}으로 커버 만들기`}
+                    title={!here ? "이 PC에 음원이 있어야 합니다" : t.license === "noncommercial" ? "개인용 엔진 곡은 커버를 만들 수 없습니다" : "이 곡으로 커버 만들기"}
+                    className="shrink-0 rounded-full border border-fuchsia-500/40 p-2 text-fuchsia-200 hover:bg-fuchsia-950/40 disabled:opacity-30"
+                  >
+                    <Palette className="h-3.5 w-3.5" />
+                  </button>
+                )}
                 <button
                   type="button"
                   disabled={!here}
