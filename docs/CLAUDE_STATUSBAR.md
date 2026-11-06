@@ -68,3 +68,9 @@ cmp ~/.claude/statusline-extra.js ~/.claude/statusline-extra.js.good && echo sam
 - 원인으로 본 것: `~/.claude/settings.json`이 세션 도중 바뀐 뒤(11:39) Claude Code가 상태바 호출을 멈춤. 명령을 직접 돌리면 0.2초에 정상 출력.
 - 확인: `%TEMP%/last-agy-statusline.json`은 **agy와 함께 쓰는 파일**이라 시각만 보지 말고 `model.display_name`·`session_id`가 이 세션인지 본다.
 - 해결: 설정 JSON 형식 확인 → `touch ~/.claude/settings.json`(내용 그대로, 수정 시각만) → 몇 초 뒤 기록 파일의 모델·세션 id가 이 세션으로 바뀌면 복구. 그래도 안 되면 Claude Code 재시작. 상세: `docs/ERROR_LESSONS.md` 2026-10-24.
+
+## 2026-11-06 5시간 칸이 사라지던 문제 ([역할: realty] `claude-win-realty-docs`, 주인님 「보이던게 안보인다」)
+- 증상: 상태바에서 `5h` 칸이 통째로 사라지고 `weekly`만 보임. Orca 상태바도 Claude는 한 값만 표시.
+- 원인: Claude Code 2.1.314가 넘긴 `rate_limits`에 `seven_day`만 있고 `five_hour`가 없음(한도 서버가 5시간 창을 안 보냄, 실행 파일 안의 상태바 칸 정의는 그대로). 게다가 스크립트가 받은 한도를 캐시에 통째로 덮어써 기억해 둔 5시간 값도 지워짐. `.claude.json`의 `cachedUsageUtilization`도 모든 계정 폴더에 없음.
+- 조치(`statusline-extra.js`·`.good`·`scripts/install-statusbars.mjs` 원본 세 곳, 백업 `statusline-extra.js.before-5h-20261106`): ① 5시간 값이 빠져 오면 초기화 전인 마지막 5시간 값을 캐시에서 이어 씀 ② 그것도 없으면 칸을 지우지 않고 `5h --`로 고정 형식 유지.
+- 다음부터: `5h --`가 보이면 서버가 5시간 창을 안 보내는 상태 — `%TEMP%/last-agy-statusline.json`의 `rate_limits` 키부터 본다. Claude Code 재시작·`/usage`로 계정 쪽 확인.
