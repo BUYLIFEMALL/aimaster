@@ -1,5 +1,7 @@
 # 뮤직비디오 자동화 (music-video-studio) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+> **미배포 대기(2026-11-06, 영상 담당 `claude-win-video`, 급하지 않음 — 다음 배포 때 함께)**: 공용 기준 코드 사본 동기화 `video-edit-timeline`·`video-edit-composition` + 새 사본 `src/lib/edit/renderTrace.ts`(`video-edit-render-trace`). 뮤직비디오 동작은 그대로이며(렌더 기록은 켜지지 않음, 언어 값 없으면 한국어 글꼴·기존 자막 나누기), 자막 글꼴 `NotoSansKR`에 latin-ext·vietnamese 부분집합이 더해졌다. tsc·시험 33개 통과. 배경: `ai-video-studio` V2 언어판(`ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8).
+
 > v1.15(2026-10-23) 「최종 뮤직비디오 만들기」 배포. 다음 개선 후보: ~~가사 시간표로 장면 길이 맞추기~~ ✅ v1.18(시간 가사가 아닌 곡은 고르게 나눔 — 실제 Lyria 시간 가사 곡으로는 아직 운영 시험 전, 시험 계정에 그런 곡이 없음), ~~BPM 기반 장면 전환~~ ✅ v1.19(브라우저 박자 분석, 박자 흐린 곡은 그대로 둠), 완성본 회원 저장소 보관(현재는 내려받기만), 장면별 카메라 움직임(팬·줌) 선택.
 
 > ~~미배포 대기~~ ✅ 2026-10-23 배포됨: `/music?ams=`로 들어오면 그 곡을 자동으로 가져옴(가사가 바뀌면 확인) — 커밋 `5b9dba1af`. 세 프로그램이 함께 배포돼야 동작(AI 음악 스튜디오 → 원스톱·뮤직비디오). 다음 배포 때 함께(버전 +0.01).

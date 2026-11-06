@@ -1,5 +1,7 @@
 # AI 영상 스튜디오 — 개선 제안 (IMPROVEMENTS)
 
+> **미배포 대기(2026-11-06, `claude-win-video`)**: V2 「🌐 언어판 만들기」 — 영상 합치기 2단계 아래 칸에서 영어·일본어·중국어(간체)·베트남어를 고르고 권리 체크 뒤 「○○판으로 바꾸기」를 누르면 장면 자막·내레이션을 회원 본인 키(Claude `claude-haiku-4-5` → Gemini → OpenAI 순, `lib/clip/clipServer.ts askJson` 공용화)로 번역해 바꾸고(`/api/edit/translate`, 최대 20장면, 실행마다 `own_content_rights_log` program `ai-video-studio` tool `lang` 기록 — 실패 시 시작 안 함), 음성은 비워 3단계에서 그 언어로 다시 만든다(`/api/edit/voice`에 `lang` — 언어별 읽기 지시, 받아쓰기 언어, 일본어·중국어는 낱말 시각 생략). 「번역 전 원문으로 되돌리기」(저장된 음성만 되살림). 그리기(`Composition.tsx`, 공용 기준)는 언어별 글꼴 — 한국어·영어·베트남어는 `NotoSansKR`(latin-ext·vietnamese 추가), 일본어 `NotoSansJP`, 중국어 `NotoSansSC`를 그 언어판일 때만 불러옴. 자막 나누기: 영어·베트남어 한 줄 1.6배, 일본어·중국어는 문장 부호·16자 조각(`cjkTokens`). 저장 형식에 `lang`(한국어는 생략). 공용 정리: `renderTrace.ts`를 `video-edit-render-trace`로 등록해 사본을 `music-video-studio`에 두어 v1.23부터 어긋났던 `Composition` 기준·사본을 맞춤(`check-shared-modules` 전부 OK). 시험 89개(`timeline` 4개·`translate` 3개 추가)·tsc·로컬 빌드 통과, `music-video-studio` tsc·시험 33개 통과. 플랜 [`PLAN_20261106_V2_V5_OWN_CONTENT.md`](PLAN_20261106_V2_V5_OWN_CONTENT.md) §2·§8. **다음 배포 v1.29**. 실제 번역·일본어 글꼴 그리기 확인은 배포 뒤 시험 계정(회원 키 비용 몇 원).
+
 > **배포 완료(2026-11-06 v1.27, `claude-win-video`)**: V1 「✂️ 긴 영상 → 쇼츠」(받아쓰기·AI 구간 고르기·무음 줄이기·영상 합치기 연결·SRT). 플랜·결과 [`PLAN_20261106_V1_LONG_TO_SHORTS.md`](PLAN_20261106_V1_LONG_TO_SHORTS.md). 배포 때 v1.27. 다음 후보: 말하는 사람 따라가는 세로 맞춤, 낱말 단위 자막(오차 보정 뒤), 매뉴얼에 안내 추가.
 
 > 기준 v1.01 (2026-10-23, Claude Code 윈도우) · https://ai-video-studio.buylife.xyz
