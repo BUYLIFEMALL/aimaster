@@ -35,12 +35,25 @@ async function stop(message) {
 // ── 페이지 안에서 도는 함수(chrome.scripting) ──────────────────────────────
 function readLinks() {
   const hrefs = [...document.querySelectorAll("a[href]")].map((a) => a.href);
-  return { hrefs, title: document.title, text: (document.body?.innerText || "").slice(0, 20000) };
+  // PC 카페 첫 화면의 「초대」 메뉴는 href="#" + onclick="inviteMember()…" (링크 주소 없음). 카페 번호는 틀 주소(MyCafeIntro.nhn?clubid=)에서.
+  const menu = document.querySelector('a.link_invite, a[onclick*="inviteMember"]');
+  const frameSrcs = [...document.querySelectorAll("iframe[src]")].map((f) => f.src);
+  const cafeId = /clubid=(\d{1,15})/i.exec(menu?.getAttribute("onclick") || "")?.[1] || null;
+  return { hrefs, frameSrcs, inviteMenu: !!menu, cafeId, title: document.title, text: (document.body?.innerText || "").slice(0, 20000) };
 }
 
-// 초대 틀(CafeInvite.nhn) 안에서만 동작한다. 그 밖의 틀은 { here:false }.
+// 카페 첫 화면(위쪽 문서)에서 「초대」 메뉴를 사람처럼 눌러 카페 틀을 초대 화면으로 옮긴다. MAIN world.
+function openInviteMenu(framePath) {
+  const a = document.querySelector('a.link_invite, a[onclick*="inviteMember"]');
+  if (a) { a.click(); return "click"; }
+  if (typeof moveIframePage === "function") { moveIframePage(framePath); return "move"; } // eslint-disable-line no-undef
+  return null;
+}
+
+// 초대 틀(CafeInviteCheck.nhn → CafeInvite.nhn) 안에서만 동작한다. 그 밖의 틀은 { here:false }.
 async function inviteInFrame(naverId) {
-  if (!/CafeInvite\.nhn/i.test(location.href)) return { here: false };
+  if (!/CafeInvite(Check)?\.nhn/i.test(location.href)) return { here: false };
+  const seen = () => (document.body?.innerText || "").replace(/\s+/g, " ").slice(0, 160); // 못 찾았을 때 기록용(판정 규칙 보정)
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const jitter = (a, b) => a + Math.random() * (b - a);
   const byText = (label) => [...document.querySelectorAll("button, a, [role=button]")].find((el) => (el.textContent || "").trim() === label && el.offsetParent !== null);
@@ -50,11 +63,11 @@ async function inviteInFrame(naverId) {
   window.confirm = (m) => { window.__ncrMsgs.push(String(m)); return true; };
 
   const idTab = byText("아이디");
-  if (!idTab) return { here: true, error: "「아이디」 버튼을 찾지 못했습니다." };
+  if (!idTab) return { here: true, error: `「아이디」 버튼을 찾지 못했습니다. (틀 ${location.pathname} · 화면: ${seen()})` };
   idTab.click();
   await sleep(jitter(900, 1500));
   const input = document.querySelector("input._naverIdList");
-  if (!input) return { here: true, error: "아이디 입력 칸을 찾지 못했습니다." };
+  if (!input) return { here: true, error: `아이디 입력 칸을 찾지 못했습니다. (화면: ${seen()})` };
   input.focus();
   input.value = "";
   for (const ch of naverId) { // 사람처럼 한 글자씩
@@ -65,7 +78,7 @@ async function inviteInFrame(naverId) {
   input.dispatchEvent(new Event("change", { bubbles: true }));
   await sleep(jitter(700, 1300));
   const send = byText("초대하기");
-  if (!send) return { here: true, error: "「초대하기」 버튼을 찾지 못했습니다." };
+  if (!send) return { here: true, error: `「초대하기」 버튼을 찾지 못했습니다. (화면: ${seen()})` };
   const before = document.body.innerText;
   send.click();
   await sleep(3500);
@@ -80,9 +93,9 @@ export async function start() {
   try { [{ result: page }] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: readLinks }); }
   catch { return set({ running: false, message: "이 화면을 읽지 못했습니다. 카페 첫 화면에서 다시 눌러 주세요." }); }
   if (isBlocked(page.text, tab.url)) return set({ running: false, message: "네이버 로그인·확인이 필요합니다. 직접 로그인한 뒤 다시 눌러 주세요." });
-  const invite = findInvite(page.hrefs);
-  if (!invite) return set({ running: false, message: "이 카페에서 「초대」 메뉴를 찾지 못했습니다. 초대 메뉴가 보이는 카페에서 눌러 주세요." });
-  await set({ running: true, tabId: tab.id, cafeId: invite.cafeId, inviteHref: invite.href, cafeName: page.title.slice(0, 60), done: 0, message: "초대 준비 중" });
+  const invite = findInvite(page.hrefs, page);
+  if (!invite) return set({ running: false, message: "이 카페에서 「초대」 메뉴를 찾지 못했습니다. 초대 메뉴가 보이는 카페 첫 화면에서 눌러 주세요." });
+  await set({ running: true, tabId: tab.id, cafeId: invite.cafeId, inviteHow: invite.how, inviteHref: invite.href, framePath: invite.framePath, cafeHome: tab.url, cafeName: page.title.slice(0, 60), done: 0, message: "초대 준비 중" });
   await chrome.alarms.create(ALARM, { delayInMinutes: 0.05 });
 }
 
@@ -103,8 +116,17 @@ async function step() {
     if (next.phase !== "invite") return stop(`승인한 사람에게 모두 보냈습니다. (오늘 ${next.used}/${next.cap})`);
 
     await set({ ...s, message: `초대 중: ${next.naver_id}` });
-    await chrome.tabs.update(s.tabId, { url: s.inviteHref });
-    await new Promise((r) => setTimeout(r, 6000)); // 화면과 초대 틀이 다 그려질 때까지
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    if (s.inviteHow === "menu") {
+      // 메뉴형: 카페 첫 화면으로 돌아간 뒤(사람마다 새 초대 화면) 「초대」 메뉴를 눌러 카페 틀을 초대 화면으로 옮긴다.
+      const cur = await chrome.tabs.get(s.tabId);
+      if (cur.url !== s.cafeHome) { await chrome.tabs.update(s.tabId, { url: s.cafeHome }); await sleep(5000); }
+      const [{ result: opened }] = await chrome.scripting.executeScript({ target: { tabId: s.tabId }, world: "MAIN", func: openInviteMenu, args: [s.framePath] });
+      if (!opened) return stop("카페 첫 화면에서 「초대」 메뉴를 누르지 못해 멈췄습니다. 보내지 않았습니다.");
+    } else {
+      await chrome.tabs.update(s.tabId, { url: s.inviteHref });
+    }
+    await sleep(6000); // 화면과 초대 틀이 다 그려질 때까지
     const now = await chrome.tabs.get(s.tabId);
     const [{ result: top }] = await chrome.scripting.executeScript({ target: { tabId: s.tabId }, func: readLinks });
     if (isBlocked(top.text, now.url)) return stop("네이버가 로그인·확인을 요청해 멈췄습니다. 직접 로그인한 뒤 다시 시작해 주세요. 우회하지 않습니다.");

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { findInvite, newLines, classify, isBlocked } from '../extension/invite.mjs';
+import { findInvite, firstClubId, newLines, classify, isBlocked } from '../extension/invite.mjs';
 import { EXTENSION_OPERATIONS, allowedOrigin } from '../src/lib/extensionApi.ts';
 import { boardFromUrl, parseGrade, cleanRows, cafeNameFromTitle } from '../extension/roster.mjs';
 import { OPERATIONS, rpcFor } from '../src/lib/recruitApi.ts';
@@ -43,8 +43,25 @@ const STATIC = '카페 초대\n초대할 사람의 네이버 아이디를 입력
 test('EX01 invite menu: the cafe number comes from the sidebar invite link; cafes without it are skipped', () => {
   const r = findInvite(['https://cafe.naver.com/buylife?iframe_url=/ArticleList.nhn%3Fsearch.clubid=30954788', 'https://cafe.naver.com/buylife?iframe_url=/CafeInviteCheck.nhn%3Fm=check%26clubid=30954788']);
   assert.equal(r.cafeId, '30954788');
+  assert.equal(r.how, 'href');
   assert.match(r.href, /CafeInviteCheck/);
   assert.equal(findInvite(['https://cafe.naver.com/buylife', 'https://open.kakao.com/x']), null);
+});
+
+// 2026-11-06 맥미니 실측(docs/INVITE_TEST_20261106.md §2): PC 카페 첫 화면의 「초대」는 href="#" + inviteMember() → 틀 이동, 링크 주소 없음.
+test('EX11 invite menu without a link (PC cafe home): menu present + cafe number from the frame address; no menu or no number → skipped', () => {
+  const hrefs = ['https://cafe.naver.com/buylife', 'https://cafe.naver.com/buylife#'];
+  const page = { inviteMenu: true, cafeId: null, frameSrcs: ['https://cafe.naver.com/MyCafeIntro.nhn?clubid=30954788'] };
+  const r = findInvite(hrefs, page);
+  assert.equal(r.how, 'menu');
+  assert.equal(r.cafeId, '30954788');
+  assert.equal(r.href, null);
+  assert.equal(r.framePath, '/CafeInviteCheck.nhn?m=check&clubid=30954788');
+  assert.equal(findInvite(hrefs, { inviteMenu: false, frameSrcs: page.frameSrcs }), null, 'no invite menu → not a cafe we may invite into');
+  assert.equal(findInvite(hrefs, { inviteMenu: true, frameSrcs: [] }), null, 'no cafe number anywhere');
+  assert.equal(findInvite(['https://cafe.naver.com/buylife?iframe_url=/ArticleList.nhn%3Fsearch.clubid=30954788'], { inviteMenu: true }).cafeId, '30954788', 'falls back to board links');
+  assert.equal(firstClubId(['https://cafe.naver.com/x', 'https://cafe.naver.com/ArticleList.nhn?search.clubid=12&x=1']), '12');
+  assert.equal(firstClubId(['%E0%A4%A']), null, 'broken encoding does not throw');
 });
 
 test('EX02 the always-visible guide text (300 per month, advertising warning) never decides the result', () => {
