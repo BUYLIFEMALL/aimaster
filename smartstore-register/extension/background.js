@@ -1132,6 +1132,9 @@ async function runHealth(check) {
     let ready = false;
     for (let s = 0; s < 45 && !ready; s++) {
       await wait(1000);
+      // 로그인이 풀리면 로그인 화면(다른 주소)으로 넘어가 확장 명령이 돌지 않는다 → 45초 기다리지 말고 바로 알린다(2026-11-06 자동 점검 2회 실패 원인)
+      const now = await chrome.tabs.get(tabId).catch(() => null);
+      if (/nid\.naver\.com|accounts\.commerce\.naver\.com|\/login/.test(now?.url || '')) throw new Error('판매자센터 로그인이 풀려 있습니다. 판매자센터에 로그인한 뒤 「지금 점검」을 눌러 주세요.');
       const r = await run(tabId, 'ready').catch(() => ({ ok: false }));
       if (r.error) throw new Error(r.error);
       ready = !!r.ok;
