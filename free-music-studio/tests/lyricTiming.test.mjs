@@ -11,6 +11,7 @@ import {
   parseLyricTiming,
   parseLyricTimingFile,
   planLyricTimingImport,
+  remapLyricTiming,
   srtToLrc,
   toLrc,
   toSrt,
@@ -76,4 +77,34 @@ test("상태·검사·내보내기·저장 모양", async () => {
   assert.equal(toSrt(cues), "1\n00:00:01,000 --> 00:00:10,000\n가을\n");
   assert.deepEqual(parseLyricTiming(timing)?.cues.length, 2);
   assert.equal(parseLyricTiming({ ...timing, lyricsHash: "abc" }), null);
+});
+
+test("가사 고친 뒤: 그대로인 줄은 시간 유지, 고친 줄은 확인 필요, 새 줄은 시작 없음, 지운 줄은 빠짐(원본 remapLyricTiming)", () => {
+  const H = "a".repeat(64);
+  const old = {
+    lyricsHash: "b".repeat(64),
+    duration: 60,
+    status: "manual",
+    cues: automaticDisplayEnds(
+      [
+        { lineId: "line-1", text: "가을 바람이", start: 1, end: null, status: "manual" },
+        { lineId: "line-2", text: "불어오면", start: 5, end: null, status: "manual" },
+        { lineId: "line-3", text: "노래해", start: 9, end: null, status: "automatic" },
+        { lineId: "line-4", text: "지울 줄", start: 13, end: null, status: "manual" },
+      ],
+      60
+    ),
+  };
+  const r = remapLyricTiming(old, "가을 바람이\n불어오는 밤\n새로 넣은 줄입니다 여기\n노래해", H);
+  assert.deepEqual([r.kept, r.changed, r.added, r.removed], [2, 1, 1, 1]);
+  const c = r.timing.cues;
+  assert.equal(r.timing.lyricsHash, H);
+  assert.equal(r.timing.status, "review");
+  assert.deepEqual(c.map((x) => [x.text, x.start, x.status]), [
+    ["가을 바람이", 1, "manual"],
+    ["불어오는 밤", 5, "review"],
+    ["새로 넣은 줄입니다 여기", null, "review"],
+    ["노래해", 9, "automatic"],
+  ]);
+  assert.equal(remapLyricTiming(old, "완전히 다른 가사", H).timing, null);
 });

@@ -264,3 +264,109 @@ export function parseLyricTiming(v: unknown): LyricTiming | null {
   }
   return { lyricsHash: t.lyricsHash, duration: t.duration, status: okStatus(t.status) ? t.status : "manual", cues };
 }
+
+/**
+ * 가사를 고친 뒤 지난 가사 시간 옮기기(원본 lyric-timing.mjs `remapLyricTiming`).
+ * 그대로인 줄은 시간을 지키고, 고친 줄은 「확인 필요」(review), 새 줄은 시작 없음. 남은 줄이 없으면 timing은 null.
+ * 다른 점: 원본의 unmatched 상태는 우리 형식에 없어 「시작 없는 review」로 둔다. lyricsHash는 부르는 쪽이 계산해 넘긴다.
+ */
+export function remapLyricTiming(
+  timing: LyricTiming,
+  lyrics: string,
+  lyricsHash: string
+): { timing: LyricTiming | null; kept: number; changed: number; added: number; removed: number } {
+  const old = timing?.cues || [];
+  const lines = lyricLines(lyrics);
+  if (!old.length) return { timing: null, kept: 0, changed: 0, added: lines.length, removed: 0 };
+  const key = (t: string) => String(t || "").replace(/\s+/g, "");
+  const n = old.length;
+  const m = lines.length;
+  const table = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) table[i][j] = key(old[i].text) === key(lines[j].text) ? table[i + 1][j + 1] + 1 : Math.max(table[i + 1][j], table[i][j + 1]);
+  const pairs: [number, number][] = [];
+  for (let i = 0, j = 0; i < n && j < m; ) {
+    if (key(old[i].text) === key(lines[j].text)) {
+      pairs.push([i, j]);
+      i++;
+      j++;
+    } else if (table[i + 1][j] >= table[i][j + 1]) i++;
+    else j++;
+  }
+  const from = new Array<number>(m).fill(-1);
+  const edited = new Set<number>();
+  for (const [i, j] of pairs) from[j] = i;
+  const anchors: [number, number][] = [[-1, -1], ...pairs, [n, m]];
+  // 지킨 두 줄 사이: 양쪽 줄 수가 같으면 차례로 고친 줄, 다르면 새 줄이 가장 닮은 옛 줄의 시작을 이어받는다(차례대로)
+  const grams = (t: string) => {
+    const v = key(t);
+    return v.length < 2 ? [v] : Array.from({ length: v.length - 1 }, (_, k) => v.slice(k, k + 2));
+  };
+  const alike = (a: string, b: string) => {
+    const p = key(a);
+    const q = key(b);
+    if (Math.min(p.length, q.length) >= 2 && (p.includes(q) || q.includes(p))) return 0.9;
+    const x = grams(a);
+    const pool = grams(b);
+    const total = x.length + pool.length;
+    let shared = 0;
+    for (const g of x) {
+      const at = pool.indexOf(g);
+      if (at >= 0) {
+        shared++;
+        pool.splice(at, 1);
+      }
+    }
+    return (2 * shared) / total;
+  };
+  for (let k = 0; k + 1 < anchors.length; k++) {
+    const [i0, j0] = anchors[k];
+    const [i1, j1] = anchors[k + 1];
+    if (i1 - i0 === j1 - j0) {
+      for (let d = 1; i0 + d < i1; d++) {
+        from[j0 + d] = i0 + d;
+        edited.add(j0 + d);
+      }
+      continue;
+    }
+    for (let i = i0 + 1, j = j0 + 1; i < i1 && j < j1; ) {
+      let best = -1;
+      let score = 0.5;
+      for (let c = j; c < j1; c++) {
+        const v = alike(old[i].text, lines[c].text);
+        if (v > score) {
+          score = v;
+          best = c;
+        }
+      }
+      if (best < 0) {
+        i++;
+        continue;
+      }
+      from[best] = i;
+      edited.add(best);
+      i++;
+      j = best + 1;
+    }
+  }
+  let kept = 0;
+  let changed = 0;
+  let added = 0;
+  const cues: Cue[] = lines.map((line, j) => {
+    const i = from[j];
+    if (i < 0) {
+      added++;
+      return { lineId: line.lineId, text: line.text, start: null, end: null, status: "review" };
+    }
+    if (!edited.has(j)) {
+      kept++;
+      return { ...old[i], lineId: line.lineId, text: line.text };
+    }
+    changed++;
+    return { ...old[i], lineId: line.lineId, text: line.text, status: "review" };
+  });
+  const removed = n - kept - changed;
+  if (!kept && !changed) return { timing: null, kept, changed, added, removed };
+  const ended = automaticDisplayEnds(cues, timing.duration);
+  const review = ended.some((c) => c.status === "review" || c.start === null);
+  return { timing: { lyricsHash, duration: timing.duration, status: review ? "review" : timing.status, cues: ended }, kept, changed, added, removed };
+}

@@ -8,6 +8,7 @@ import { EngineError, fetchLibraryArt, getWaveform, setTrackArt } from "@/lib/en
 import { isInstrumental } from "@/lib/trackFilters";
 import { LIMITS } from "@/lib/songs";
 import { KIND_LABEL, type Track } from "@/lib/tracks";
+import { hashLyrics, remapLyricTiming, type LyricTiming } from "@/lib/lyricTiming";
 import { usePlayer } from "@/components/player/PlayerProvider";
 import { LyricTimingPanel } from "./LyricTimingPanel";
 
@@ -121,12 +122,25 @@ export function TrackDetailPanel({
     setBusy("save");
     setNote(null);
     try {
-      const res = await fetch(`/api/tracks/${track.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, lyrics }) });
+      // 가사를 고치면 지난 가사 시간에서 그대로인 줄은 지키고 고친 줄만 「확인 필요」로(원본 remapLyricTiming)
+      let timing: LyricTiming | null | undefined;
+      let timingNote = "";
+      const t = track.lyric_timing;
+      if (t && lyrics !== track.lyrics && t.lyricsHash === (await hashLyrics(track.lyrics))) {
+        const r = remapLyricTiming(t, lyrics, await hashLyrics(lyrics));
+        timing = r.timing;
+        timingNote = r.timing ? ` 가사 시간은 ${r.kept}줄 그대로, ${r.changed + r.added}줄은 「확인 필요」입니다.` : " 가사가 모두 바뀌어 가사 시간을 지웠습니다.";
+      }
+      const res = await fetch(`/api/tracks/${track.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, lyrics, ...(timing !== undefined ? { lyric_timing: timing } : {}) }),
+      });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "저장하지 못했습니다.");
-      onSaved({ ...track, title: title.trim(), lyrics });
+      onSaved({ ...track, title: title.trim(), lyrics, ...(timing !== undefined ? { lyric_timing: timing } : {}) });
       setEditing(false);
-      setNote({ ok: true, text: "제목·가사를 저장했습니다. 내 PC의 음원 파일 이름은 그대로입니다." });
+      setNote({ ok: true, text: `제목·가사를 저장했습니다. 내 PC의 음원 파일 이름은 그대로입니다.${timingNote}` });
     } catch (e) {
       setNote({ ok: false, text: e instanceof Error ? e.message : "저장하지 못했습니다." });
     } finally {
