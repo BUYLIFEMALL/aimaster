@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 🔨 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` 모드 A-1 구현(v1.02, DB 운영 적용 완료·앱 미배포)**
+- 주인님 DB 승인으로 운영 DB(ref esgxyikcnnvmlhygjkth)에 추가했습니다(기존 함수는 그대로).
+  - 새 표 `ncr_members`(닉네임·등급·게시판, 30일)
+  - `ncr_settings.invite_link` 칸
+  - 새 함수 `ncr_member_dispatch`·`ncr_member_cleanup`
+- 커밋 `85500afaf`에 다음을 넣었습니다.
+  - 확장의 「이 게시판 작성자 명단 모으기」: 게시판 목록에서 닉네임·등급만 읽고, 30~45초마다 다음 페이지로 최대 10페이지까지 읽습니다.
+  - 설정의 「🔗 내 카페 초대링크」
+  - 결과 화면의 「🔎 카페 활동 회원 명단」과 엑셀 시트
+- 검수: 단위 시험 14개, 격리 DB 시험 12개 통과, tsc 0, 로컬 빌드 통과, ZIP v1.02.
+- **앱은 아직 배포 전입니다(빌드 1회 승인 대기).** 배포 전에는 운영 화면이 v1.01이고, 새 DB는 쓰이지 않습니다.
+- 추정인 부분: 옛 카페 구조의 글쓴이 칸과 다음 페이지 버튼 위치는 실물로 확인하지 못했습니다. 배포 뒤 맥미니 확인이 필요합니다.
+- 다음 첫 단계: 빌드 승인 → `deploy.mjs naver-cafe-recruit --go` → `extension_version`을 v1.02로 갱신 → `check-extension-release` → 맥미니에 명단 모으기 확인을 요청합니다(초대 시험과 같은 차례).
+
 ## 2026-11-06 🔨 [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **영상 묶음 V4·V3 1단계 구현(미배포) — 이커머스 담당 필독(넘기기 형식)**
 - 주인님 「순서대로 진행해」 → V4 → V3 → V1 사전 검증 → V1 → V2·V5.
 - **V4** `video-to-gif`: 「🖥 화면에서 바로 녹화」(`getDisplayMedia`, 화면·창·탭, 최대 15초, 소리 없음) → 녹화본(WEBM)을 기존 대기열로, 녹화 시간을 영상 길이로. 커밋 `a0f04a3da`. 시험 5·tsc·빌드 통과. 플랜 `video-to-gif/docs/PLAN_20261106_V4_SCREEN_RECORD.md`.

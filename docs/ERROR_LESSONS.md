@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-06 Supabase SQL 편집기에서 Ctrl+Enter를 보냈는데 마이그레이션이 적용되지 않음 — 「destructive operations」 확인 창 (`naver-cafe-recruit` v1.02, [역할: blog])
+- **증상**: ego로 `setValue` → Ctrl+Enter를 보냈습니다. 결과 표에는 직전 조회 결과가 그대로 남았고, 새 화면에서 조회해 보니 표·함수가 하나도 생기지 않았습니다. 오류 문구도 없었습니다.
+- **원인**: SQL에 `drop trigger if exists`(처음 만드는 트리거를 위한 한 줄)가 있어서, Supabase가 「Potential issue detected — This query includes destructive operations」 확인 창을 띄우고 실행을 멈췄습니다.
+- **해결**: Ctrl+Enter 3초 뒤 `[role="dialog"]` 안의 「Run query」 버튼을 누르게 해서 적용했습니다. 확인 조회는 **페이지를 새로 연 뒤** 했습니다(같은 화면에서는 직전 결과 표가 남아 오판할 수 있음).
+- **다음부터**: `drop`·`delete`·`truncate`가 들어간 SQL은 이 확인 창이 뜬다고 보고 처리합니다. 창 문구를 기록에 남기고, 의도한 SQL일 때만 누릅니다. 적용 여부는 결과 표가 아니라 새로 연 화면의 조회로 판단합니다.
+
 ## 2026-11-06 CLI로 만든 새 Vercel 프로젝트에 첫 배포했더니 ZIP만 열리고 화면·API는 404 — 프레임워크가 「Other」 (`naver-cafe-recruit` v1.01, [역할: blog])
 - **증상**: `vercel project add` → `vercel link` → `vercel deploy --prod` 결과는 Ready였습니다. 그런데 `public/downloads/*.zip`만 200이고 `/`·`/login`·`/api/*`는 404였습니다. 빌드 기록에는 `next build`가 정상으로 남아 있었습니다.
 - **원인**: CLI로 만든 프로젝트는 Framework Preset이 「Other」(출력 폴더 `public`)로 잡혔습니다. 그래서 Next.js 결과물 대신 `public` 폴더만 올라갔습니다.
