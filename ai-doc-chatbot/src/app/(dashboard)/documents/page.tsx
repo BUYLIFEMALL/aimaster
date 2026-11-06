@@ -113,6 +113,14 @@ export default function DocumentsPage() {
   const [savingCategory, setSavingCategory] = useState<string | null>(null);
   const [limits, setLimits] = useState({ direct: 4 * 1024 * 1024, max: 50 * 1024 * 1024 });
   const fileRef = useRef<HTMLInputElement>(null);
+  const [received, setReceived] = useState<{ id: string; title: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/work-inbox/received", { cache: "no-store" })
+      .then((x) => (x.ok ? x.json() : { items: [] }))
+      .then((d) => setReceived(Array.isArray(d.items) ? d.items : []))
+      .catch(() => setReceived([]));
+  }, []);
 
   const load = useCallback(async () => {
     const d = await fetch("/api/documents", { cache: "no-store" }).then((x) => x.json()).catch(() => ({}));
@@ -167,10 +175,12 @@ export default function DocumentsPage() {
     return res ?? { error: "연결이 끊겼습니다. 다시 시도해 주세요." };
   }
 
-  async function upload(files: FileList | null) {
-    if (!files?.length) return;
+  /** 올린 파일 중 저장(또는 큰 문서 비동기 읽기 시작)까지 간 개수를 돌려준다(U9-D 받은 문서 가져감 표시에 사용) */
+  async function upload(files: FileList | File[] | null): Promise<number> {
+    if (!files?.length) return 0;
     setError(null);
     setDone(null);
+    let succeeded = 0;
     for (const f of Array.from(files)) {
       if (f.size > limits.max) {
         setError({ text: `「${f.name}」은 ${Math.round(limits.max / 1024 / 1024)}MB를 넘습니다. 나눠서 올려 주세요.` });
@@ -195,17 +205,42 @@ export default function DocumentsPage() {
       if ("error" in result) {
         setError({ text: `「${f.name}」: ${result.error}`, needKey: result.needKey });
       } else if ("requestId" in result) {
-        const next = [...loadPending(), { requestId: result.requestId, name: f.name, size: f.size, startedAt: Date.now() }];
+        succeeded++;
+        const next =[...loadPending(), { requestId: result.requestId, name: f.name, size: f.size, startedAt: Date.now() }];
         savePending(next);
         setPending(next);
         setDone(`「${f.name}」은 100쪽이 넘어 오래 걸리는 방식으로 읽는 중입니다. 아래 「읽는 중인 큰 문서」에서 진행 상황을 볼 수 있고, 이 화면을 닫았다가 다시 와도 이어서 확인합니다.`);
       } else {
+        succeeded++;
         setDone(`「${f.name}」을 ${result.chunkCount}개 조각으로 저장했습니다(${Math.round((Date.now() - started) / 1000)}초). 이제 채팅에서 이 문서를 근거로 답합니다.${result.truncated ? TRUNCATED_NOTE : ""}`);
       }
       await load();
     }
     setBusy(null);
     if (fileRef.current) fileRef.current.value = "";
+    return succeeded;
+  }
+
+  // U9-D: 업무 워크스페이스에서 받은 문서 → .md 파일로 만들어 기존 「문서 올리기」로 색인(회원 본인 Upstage 키), 성공하면 가져감 표시
+  async function importReceived(item: { id: string; title: string }) {
+    if (busy) return;
+    setError(null);
+    setDone(null);
+    setBusy(`「${item.title}」 받은 문서 여는 중…`);
+    const opened = await fetch("/api/work-inbox/received", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, action: "open" }) })
+      .then(async (x) => ({ ok: x.ok, d: await x.json().catch(() => ({})) }))
+      .catch(() => ({ ok: false, d: { error: "연결이 끊겼습니다." } }));
+    if (!opened.ok) {
+      setBusy(null);
+      setError({ text: `「${item.title}」: ${opened.d.error ?? "받은 문서를 열지 못했습니다."}` });
+      return;
+    }
+    const safeName = String(opened.d.title ?? item.title).replace(/[\\/:*?"<>|\n\r]+/g, " ").trim().slice(0, 150) || "받은 문서";
+    const file = new File([String(opened.d.bodyMd ?? "")], `${safeName}.md`, { type: "text/markdown" });
+    if ((await upload([file])) > 0) {
+      await fetch("/api/work-inbox/received", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, action: "done" }) }).catch(() => null);
+      setReceived((list) => list.filter((r) => r.id !== item.id));
+    }
   }
 
   async function remove(id: string, name: string) {
@@ -253,6 +288,23 @@ export default function DocumentsPage() {
         {error && <div className="mt-3"><ErrorNote message={error.text} needKey={error.needKey} /></div>}
         {done && <p role="status" className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">{done}</p>}
       </Card>
+
+      {received.length > 0 && (
+        <Card>
+          <p className="mb-1 text-sm font-bold text-slate-200">📥 업무 워크스페이스에서 받은 문서 ({received.length})</p>
+          <p className="mb-3 text-xs text-slate-400">「문서로 등록」을 누르면 회원님 Upstage 키로 내용을 나눠 저장합니다(다른 문서 올리기와 같음).</p>
+          <ul className="space-y-2">
+            {received.map((r) => (
+              <li key={r.id} className="flex items-center justify-between gap-3 rounded-xl border border-[#2d3448] px-3 py-2">
+                <span className="min-w-0 truncate text-sm text-slate-200">{r.title}</span>
+                <button type="button" disabled={!!busy} onClick={() => void importReceived(r)} className={`${BTN_PRIMARY} shrink-0`}>
+                  문서로 등록
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       {pending.length > 0 && (
         <Card>
