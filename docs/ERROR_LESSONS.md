@@ -9,7 +9,7 @@
 ## 2026-11-06 다른 프로그램 창에서 연 바나나 「🧽 무료 지우기」가 그림을 받지 못함 — `/erase`의 COOP 헤더가 opener를 끊음 (`banana-canvas` v1.43, [역할: ecommerce-image])
 - **증상**: 썸네일 v2.01 「무료 지우기」 → 바나나 `/erase?from=thumbnail` 창은 열리는데 사진 0장, 썸네일 쪽도 「보냈습니다」가 안 뜸. 같은 약속을 쓰는 `/tools?from=insta`(누끼·가리기)는 정상.
 - **원인**: `banana-canvas/next.config.ts`가 `/erase`에만 `Cross-Origin-Opener-Policy: same-origin`(+COEP, 여러 줄 계산용 교차 출처 격리)을 붙임 → 다른 주소(썸네일·인스타)에서 연 창은 브라우저가 `window.opener`를 `null`로 끊어 「준비됨」·그림 메시지를 주고받을 수 없음. 시험은 모두 순수 함수·로컬이라 못 잡음.
-- **해결**: `/erase` 헤더 규칙에 `missing: [{ type: "query", key: "from" }]` — 다른 프로그램이 연 창(`?from=`)만 격리를 빼고(한 줄 계산 `freeEraseThreads()` 1로 자동), 바나나에서 직접 열면 그대로 격리. 로컬 `next start`로 두 경우 헤더 비교 확인. 커밋 `9d388621a`(배포 대기).
+- **해결**: `/erase` 헤더 규칙에 `missing: [{ type: "query", key: "from" }]` — 다른 프로그램이 연 창(`?from=`)만 격리를 빼고(한 줄 계산 `freeEraseThreads()` 1로 자동), 바나나에서 직접 열면 그대로 격리. 로컬 `next start`로 두 경우 헤더 비교 확인. 커밋 `9d388621a`, v1.44 배포·운영 썸네일 왕복 확인(2026-11-06).
 - **다음부터**: `postMessage`·`window.opener`로 창끼리 주고받는 화면에 COOP/COEP를 붙이지 않는다(붙여야 하면 넘겨받는 경로만 빼기). 창끼리 넘기기 기능은 운영 주소 두 창에서 실제로 왕복해 봐야 완료다(`*.buylife.xyz`끼리만 동작해 로컬로는 확인 불가).
 
 ## 2026-11-05 Supabase SQL 편집기에 긴 마이그레이션을 붙여 넣고 「들어갔는지」 화면 글자로 확인하다 실패 — 화면에 보이는 줄만 그려짐 (`naver-cafe-recruit` 운영 DB 적용, [역할: blog])
