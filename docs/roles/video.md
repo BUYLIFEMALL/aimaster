@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-06 `claude-win-video` (V5 내 영상 일부 지우기 구현·미배포, 다음은 V2 언어판 — 공용 그리기 정리 뒤)
+- 마지막 갱신: 2026-11-06 `claude-win-video` (`video-to-gif` v1.26 V4+V5 · `shorts-onestop-studio` v1.44 V3 배포, `ai-video-studio` v1.28은 디자인 세션 작업 중이라 보류, 다음은 V2 언어판)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,14 +15,15 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-video-studio`·`shorts-onestop-studio` | V2 언어판(공용 그리기 글꼴 추가 뒤)·해설 교차편집·각색 강도 | 언어판은 공용 그리기 기준·사본 어긋남(v1.23 `renderTrace`) 정리 뒤 글꼴 추가 | `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8 |
-| `video-to-gif` · `shorts-onestop-studio` · `ai-video-studio` | V4+V5(v1.26) · V3 1단계(v1.44) · EDL+정리(v1.28) 미배포 대기 | 빌드 승인(3회) | `docs/PENDING_DEPLOYS.md` |
+| `ai-video-studio` | EDL `944338e0c`+실행 기록 정리 `7adc0e000` 미배포 — 다른 세션(디자인, 로그인·제작 화면 3시안)이 같은 폴더를 작업 중이고 `version.ts`를 v1.28로 올려 둠 → 그 세션의 v1.28 배포에 함께 나가거나, 작업이 끝난 뒤 배포(승인 빌드 3회 중 1회 남음) | 디자인 세션 작업 종료 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-11-06 | `video-to-gif` V5 | 「🧽 내 영상 일부 지우기」 `/erase` — ffmpeg.wasm `delogo`, 사각형 최대 3곳, 60초·100MB, 권리 체크 2개, `own_content_rights_log` 기록(넣기 정책 운영 적용) `d71f6be9e` | 미배포 대기(v1.26) |
+| 2026-11-06 | `video-to-gif` v1.26 · `shorts-onestop-studio` v1.44 | 승인 빌드 2회(`video-to-ddad3w65y`·`shorts-onestop-studio-4gt4hlp2d`) — V4+V5 / V3 1단계 배포, DB·확장 ZIP 버전 맞춤, 운영에서 V5 지우기 1회 확인 | 배포 |
+| 2026-11-06 | `video-to-gif` V5 | 「🧽 내 영상 일부 지우기」 `/erase` — ffmpeg.wasm `delogo`, 사각형 최대 3곳, 60초·100MB, 권리 체크 2개, `own_content_rights_log` 기록(넣기 정책 운영 적용) `d71f6be9e` | v1.26 배포 |
 | 2026-11-06 | `ai-video-studio` V2 일부 | 컷 목록(EDL) 내보내기 `944338e0c`, 실행 기록 표 `own_content_rights_log` 운영 적용·30일 정리 `7adc0e000` | 미배포 |
 | 2026-11-06 | `ai-video-studio` v1.27 | V1 「긴 영상 → 쇼츠」 배포 `ai-video-studio-bg1c1uy1t` — 운영에서 받아쓰기·구간 3개·영상 합치기·MP4 17.9초 끝까지 확인(관리자 계정 본인 키) | 배포 |
 | 2026-11-06 | V1 사전 검증 | 한국어 리뷰 2분 6초: 받아쓰기 98.4%·문장 경계 정확·낱말 시각 최대 0.7초 오차·구간 3개(준비 멘트 제외), 실제 비용 약 22원 | —(저장소 밖) |
@@ -60,7 +61,7 @@
 ## 다음 첫 단계
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
 2. V2 언어판: 공용 `video-edit-composition` 기준·사본 어긋남(`renderTrace`) 정리 → 글꼴(`NotoSansJP`·`NotoSansSC`·vietnamese) 추가 → `--sync` → `music-video-studio` 시험. 그다음 해설 교차편집 → 각색 강도
-4. 미배포 3건(`video-to-gif` v1.26 V4+V5 · `shorts-onestop-studio` v1.44 · `ai-video-studio` v1.28) 빌드 승인 뒤 순차 배포 → 시험 계정으로 V1 소리·V3 대본·V4 녹화·V5 지우기 확인
+4. `ai-video-studio` v1.28(EDL·실행 기록 정리)은 디자인 세션 작업이 끝난 뒤 배포(빌드 승인 1회 남음) → 시험 계정으로 V1 소리·V3 대본·V4 녹화 확인은 여전히 남음
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
