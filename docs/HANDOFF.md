@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`lyric-video-studio` v1.12 배포(Lyricbi L-2~L-5 + `?remix=`)**
+- 주인님 「추천대로 진행해」 → L-2 LP판 회전·L-3 무료 사진 배경(회원 본인 Pixabay·Pexels 키, 공용 `free-photo-search`·`photo-keywords` 사본 추가)·L-4 꾸밈 확장(강조·소리 반응·글꼴 3·프리셋 4, **한글 웹 글꼴을 실제 가사 글자로 미리 받게 고침 — MP4 앞부분 기본 글꼴 섞임 해결**)·L-5 렌더 진단(인코더 미리 살핌·메모리 어림·단계 기록·진단 복사)·`?remix=`(음악(SUNO) 리믹스 결과, 회원 본인 것만).
+- 검수: 시험 28·tsc·로컬 빌드·공용 사본 검사. 배포 `lyric-video-studio-635kgahoz` Ready(주인님이 `!`로 실행 — 자동 권한 판정이 운영 배포를 막음), DB v1.12. ego 시험 계정 운영 확인: 등록된 Pixabay 키 재사용(✓)·검색 12장·사진 배경·LP판·작가 표시, 8초 시험 곡 MP4 2.5MB 오류 없이(재생 대비 3.65배, H.264 High 그래픽 가속·AAC) — 결과 영상에 사진 배경·LP판 담김 확인.
+- 남은 일: 음악(SUNO) 리믹스 카드의 「🎬 가사 영상 만들기 →」 링크 켜기(플레이리스트 쪽 `?remix=`도 배포된 뒤, `music/docs/PLAN_20261022_REMIX_SHORTCUTS.md`). 다음 작업은 무료음악 C-3 → C-2 → C-4.
+- 링크: https://lyric-video-studio.buylife.xyz/design
+
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **`ai-video-studio` v1.29 · `shorts-onestop-studio` v1.45 배포**
 - 주인님 「배포진행해」 승인, 순차 빌드 2회 모두 Ready, DB 버전 맞춤, 운영 주소 200.
 - `ai-video-studio` v1.29: V2 언어판 `3a550fe12` + 해설 교차편집 `/narrate` `42f743503` (`ai-video-studio-op4n162e7`). `shorts-onestop-studio` v1.45: V2 각색 강도 `9c4c1de96` (`shorts-onestop-studio-f1i2zbcg1`).
