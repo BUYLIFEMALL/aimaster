@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 🟠 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` 모드 A-1 결정·플랜 + 맥미니 첫 실물 초대 요청 — 맥미니 필독**
+- 주인님 결정: 모드 A는 **A-1**입니다. 닉네임·등급·게시판 명단만 모으고, 모집은 초대링크로 합니다. 아이디는 수집하지 않습니다. 플랜은 `naver-cafe-recruit/docs/PLAN_20261106_MODE_A1.md`에 있고, DB 추가(새 표 `ncr_members`·`invite_link` 칸)는 **주인님 승인을 기다립니다**.
+- **맥미니 할 일**: `naver-cafe-recruit/docs/REQUEST_20261106_MACMINI_INVITE_TEST.md`를 따릅니다.
+  - 운영 v1.01 확장을 설치하고, 주인님이 맥미니 채팅으로 정해 주는 아이디 1명에게 실제 초대를 보냅니다.
+  - 성공·실패·제한 문구를 `docs/INVITE_TEST_20261106.md`에 그대로 기록합니다.
+  - 초대링크 버튼 화면은 관찰만 합니다.
+  - 이 폴더의 코드는 고치지 않습니다.
+- 미배포 대기: 좌측 메뉴 묶음 이름 수정 `e0dd9a52c`(다음 배포 때 v1.02).
+
 ## 2026-11-06 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **`naver-cafe-recruit` v1.01 첫 배포(비공개)**
 - Vercel 프로젝트 `naver-cafe-recruit`(팀 buylife)를 만들고 도메인 `naver-cafe-recruit.buylife.xyz`를 연결했습니다. 운영 환경변수 6개(Supabase 3·주소 2·새 `CRON_SECRET`)는 주인님 채팅 허락 뒤 등록했고, 값은 출력하지 않았습니다.
 - 첫 배포(`f76s5b038`)는 프레임워크가 「Other」로 잡혀 ZIP만 열리고 화면·API가 404였습니다. Next.js로 바꾼 뒤 재배포(`krzqcvoj2`)해 Ready가 됐습니다(`docs/ERROR_LESSONS.md` 2026-11-06).
