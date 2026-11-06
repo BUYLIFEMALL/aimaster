@@ -4,6 +4,7 @@ import { FONTS, type Design } from "@/lib/design";
 import { formatTime, lineAt, type LyricLine } from "@/lib/lyrics";
 import { romanize } from "@/lib/romanize";
 import { smoothBandsAt, waveAt, type AudioSource } from "@/lib/render/spectrum";
+import { vinylAngle } from "@/lib/vinyl";
 
 export interface Scene {
   title: string; artist: string;
@@ -16,7 +17,7 @@ export interface Scene {
   coverKey: string;
   audio: AudioSource | null;
 }
-export interface DrawCache { backdrop?: { key: string; canvas: HTMLCanvasElement } }
+export interface DrawCache { backdrop?: { key: string; canvas: HTMLCanvasElement }; vinyl?: { key: string; canvas: HTMLCanvasElement } }
 
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
@@ -87,6 +88,41 @@ function drawCover(ctx: CanvasRenderingContext2D, sc: Scene, x: number, y: numbe
     ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = fontOf(d, s * 0.42, 900); ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillText(Array.from(sc.title.trim() || "♪")[0], x + s / 2, y + s / 2);
   }
+  ctx.restore();
+}
+
+/** 커버 뒤에서 도는 LP판 — 홈은 크기마다 한 번 그려 두고, 커버를 넣은 라벨만 재생 시간 각도로 돌린다(빛 반사는 고정이라 도는 느낌이 난다) */
+function drawVinyl(ctx: CanvasRenderingContext2D, sc: Scene, t: number, cx: number, cy: number, R: number, u: number, cache: DrawCache) {
+  const d = sc.design, TAU = Math.PI * 2, key = String(Math.round(R));
+  if (cache.vinyl?.key !== key) {
+    const size = Math.ceil(R * 2), c = document.createElement("canvas"); c.width = size; c.height = size;
+    const x = c.getContext("2d")!, m = size / 2;
+    const g = x.createRadialGradient(m, m, R * 0.3, m, m, R); g.addColorStop(0, "#1c1c21"); g.addColorStop(1, "#08080a");
+    x.fillStyle = g; x.beginPath(); x.arc(m, m, R, 0, TAU); x.fill();
+    x.lineWidth = Math.max(1, R * 0.004);
+    for (let r = R * 0.37, i = 0; r < R * 0.97; r += R * 0.017, i++) { // 홈: 밝기를 조금씩 달리해 실제 판처럼
+      x.strokeStyle = `rgba(255,255,255,${0.03 + 0.035 * ((i * 7) % 5) / 4})`;
+      x.beginPath(); x.arc(m, m, r, 0, TAU); x.stroke();
+    }
+    cache.vinyl = { key, canvas: c };
+  }
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 30 * u; ctx.shadowOffsetY = 10 * u;
+  ctx.drawImage(cache.vinyl.canvas, cx - R, cy - R);
+  ctx.shadowColor = "transparent";
+  const sheen = ctx.createConicGradient(-Math.PI / 4, cx, cy); // 고정된 빛 반사 두 줄기
+  sheen.addColorStop(0, "rgba(255,255,255,0)"); sheen.addColorStop(0.07, "rgba(255,255,255,0.11)"); sheen.addColorStop(0.14, "rgba(255,255,255,0)");
+  sheen.addColorStop(0.5, "rgba(255,255,255,0)"); sheen.addColorStop(0.57, "rgba(255,255,255,0.07)"); sheen.addColorStop(0.64, "rgba(255,255,255,0)"); sheen.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = sheen; ctx.beginPath(); ctx.arc(cx, cy, R * 0.97, 0, TAU); ctx.arc(cx, cy, R * 0.35, 0, TAU, true); ctx.fill();
+  const lr = R * 0.33; // 라벨(커버)
+  ctx.translate(cx, cy); ctx.rotate(vinylAngle(t));
+  ctx.save(); ctx.beginPath(); ctx.arc(0, 0, lr, 0, TAU); ctx.clip();
+  if (sc.cover) coverFit(ctx, sc.cover, -lr, -lr, lr * 2, lr * 2);
+  else { const lg = ctx.createLinearGradient(-lr, -lr, lr, lr); lg.addColorStop(0, d.accent); lg.addColorStop(1, d.bg2); ctx.fillStyle = lg; ctx.fillRect(-lr, -lr, lr * 2, lr * 2); }
+  ctx.restore();
+  ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2.5 * u; ctx.lineCap = "round"; // 라벨 위 표시(도는 것이 보이게)
+  ctx.beginPath(); ctx.arc(0, 0, lr * 0.8, -0.35, 0.35); ctx.stroke();
+  ctx.fillStyle = "#08080a"; ctx.beginPath(); ctx.arc(0, 0, Math.max(3 * u, R * 0.045), 0, TAU); ctx.fill();
   ctx.restore();
 }
 
@@ -237,6 +273,7 @@ export function drawFrame(ctx: CanvasRenderingContext2D, W: number, H: number, s
   if (d.aspect === "landscape") {
     if (d.layout === "panel") {
       const s = Math.min(H * 0.46, W * 0.27), cx = W * 0.08, cy = H * 0.5 - s / 2 - H * 0.08;
+      if (d.vinyl) drawVinyl(ctx, sc, t, cx + s * 0.98, cy + s / 2, s * 0.43, u, cache); // 라벨이 절반쯤 보이게, 오른쪽 끝 약 W 0.445 — 가사 칸(W 0.46)과 안 겹침
       drawCover(ctx, sc, cx, cy, s, u);
       if (d.showTitle) drawTitle(ctx, sc, cx, cy + s + 56 * u, s, "left", u);
       drawSpectrum(ctx, sc, t, cx, cy + s + (d.showTitle ? 110 : 40) * u, s, 70 * u, u);
@@ -250,7 +287,8 @@ export function drawFrame(ctx: CanvasRenderingContext2D, W: number, H: number, s
     }
   } else {
     if (d.layout === "panel") {
-      const s = W * 0.6, cx = (W - s) / 2, cy = H * 0.1;
+      const s = W * 0.6, cx = (W - s) / 2 - (d.vinyl ? s * 0.2 : 0), cy = H * 0.1; // LP판을 켜면 커버를 왼쪽으로(판까지 합쳐 가운데)
+      if (d.vinyl) drawVinyl(ctx, sc, t, cx + s * 0.98, cy + s / 2, s * 0.43, u, cache);
       drawCover(ctx, sc, cx, cy, s, u);
       if (d.showTitle) drawTitle(ctx, sc, W / 2, cy + s + 70 * u, W * 0.84, "center", u, 1.1);
       drawLyrics(ctx, sc, t, W * 0.07, H * 0.67, W * 0.86, 62 * u * size, u);

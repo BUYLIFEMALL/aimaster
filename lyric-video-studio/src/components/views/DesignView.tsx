@@ -46,7 +46,10 @@ export function DesignView() {
             </div>
           </section>
           <section className="card stack">
-            <div><div className="panel-label">배치</div><Chips value={d.layout} onPick={(v) => set({ layout: v })} items={[{ id: "panel", label: "커버 + 가사" }, { id: "center", label: "가사 가운데" }]} /></div>
+            <div>
+              <div className="panel-label">배치</div><Chips value={d.layout} onPick={(v) => set({ layout: v })} items={[{ id: "panel", label: "커버 + 가사" }, { id: "center", label: "가사 가운데" }]} />
+              {d.layout === "panel" && <div className="toggles" style={{ marginTop: 8 }}><Toggle on={d.vinyl} label="💿 커버 뒤 LP판 회전" onChange={(v) => set({ vinyl: v })} /></div>}
+            </div>
             <div><div className="panel-label">현재 줄 강조</div><Chips value={d.highlight} onPick={(v) => set({ highlight: v })} items={HIGHLIGHTS} /></div>
             <div><div className="panel-label">노래방 로마자 발음 <span className="muted">(한글 가사 → saranghae)</span></div><Chips value={d.roman} onPick={(v) => set({ roman: v })} items={ROMANS} /></div>
             <div className="field-grid two">

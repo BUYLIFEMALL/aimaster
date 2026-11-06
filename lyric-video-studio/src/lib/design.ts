@@ -31,6 +31,8 @@ export interface Design {
   ambient: number;
   /** 노래방 로마자 발음 표기 — 지금 부르는 줄 위·아래에 작게(한글 줄만) */
   roman: Roman;
+  /** 커버 뒤에서 도는 LP판(배치 「커버 + 가사」에서만) */
+  vinyl: boolean;
   fps: 24 | 30;
 }
 
@@ -65,7 +67,7 @@ export const SPECTRUMS: { id: SpectrumKind; label: string }[] = [
 
 const BASE: Omit<Design, "presetId" | "aspect"> = {
   layout: "panel", bg1: "#141028", bg2: "#06060c", coverBackdrop: true, text: "#ffffff", accent: "#a78bfa", font: "noto",
-  highlight: "color", context: 2, align: "left", size: 1, spectrum: "bars", progress: true, showTitle: true, ambient: 0.6, roman: "off", fps: 30,
+  highlight: "color", context: 2, align: "left", size: 1, spectrum: "bars", progress: true, showTitle: true, ambient: 0.6, roman: "off", vinyl: false, fps: 30,
 };
 
 export interface Preset { id: string; name: string; desc: string; design: Design }
@@ -117,6 +119,7 @@ export function normalizeDesign(raw: unknown): Design {
     showTitle: typeof d.showTitle === "boolean" ? d.showTitle : base.showTitle,
     ambient: num(d.ambient, 0, 1, base.ambient),
     roman: pick(d.roman, ["off", "above", "below"], "off"),
+    vinyl: typeof d.vinyl === "boolean" ? d.vinyl : base.vinyl,
     fps: d.fps === 24 ? 24 : 30,
   };
 }
