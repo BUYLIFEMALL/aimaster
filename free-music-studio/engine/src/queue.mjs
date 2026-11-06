@@ -10,6 +10,7 @@ import path from "node:path";
 export const STATUS_LABEL = { queued: "대기 중", running: "만드는 중", done: "완료", failed: "실패", cancelled: "취소됨", interrupted: "중단됨" };
 const FINISHED = new Set(["done", "failed", "cancelled", "interrupted"]);
 export const KEEP_FINISHED = 100;
+export const KEEP_DAYS = 30;
 export const MAX_QUEUED = 50;
 
 /** 화면에 보낼 모양 — 생성 요청 원문(task)과 원곡 파일 경로는 빼고 기록용 정보만 */
@@ -22,7 +23,7 @@ export function publicJob(j) {
  * @param {{ file: string, run: (job: object, signal: AbortSignal, stage: (s: string) => void) => Promise<object>,
  *           canRun?: (job: object) => boolean, onFinished?: (job: object) => Promise<void> | void, log?: (e: unknown) => void }} opts
  */
-export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, log = () => {} }) {
+export function createQueue({ file, run, canRun = () => true, onFinished = () => {}, onDrop = () => {}, log = () => {}, now = Date.now }) {
   let jobs = [];
   let working = false;
   let controller = null;
@@ -37,10 +38,14 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
   };
   const save = () => (saving = saving.catch(() => {}).then(saveNow));
 
-  const trim = () => {
+  // 끝난 작업은 100개까지, 그리고 끝난 지 30일 지난 기록은 지운다(0.6.9, 원본 boks-music `store.mjs pruneJobs` 규칙, MIT).
+  // 사이트에 아직 기록하지 않은 완성 작업은 남긴다. 지운 작업의 원곡 사본은 onDrop으로 부르는 쪽이 지운다.
+  const trim = (now = Date.now()) => {
+    const old = (j) => FINISHED.has(j.status) && !(j.status === "done" && !j.recorded) && now - Date.parse(j.finishedAt ?? j.createdAt ?? "") > KEEP_DAYS * 864e5;
     const finished = jobs.filter((j) => FINISHED.has(j.status));
-    if (finished.length <= KEEP_FINISHED) return;
-    const drop = new Set(finished.slice(0, finished.length - KEEP_FINISHED).map((j) => j.id));
+    const drop = new Set([...finished.slice(0, Math.max(0, finished.length - KEEP_FINISHED)), ...jobs.filter(old)].map((j) => j.id));
+    if (!drop.size) return;
+    for (const j of jobs) if (drop.has(j.id)) Promise.resolve(onDrop(j)).catch(() => {});
     jobs = jobs.filter((j) => !drop.has(j.id));
   };
 
@@ -56,6 +61,7 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
       for (const j of jobs) {
         if (j.status === "running") Object.assign(j, { status: "interrupted", stage: STATUS_LABEL.interrupted, finishedAt: new Date().toISOString() });
       }
+      trim(now()); // 엔진을 켤 때 30일 지난 기록 정리
       await save();
     },
 
@@ -165,7 +171,7 @@ export function createQueue({ file, run, canRun = () => true, onFinished = () =>
           } finally {
             controller = null;
           }
-          trim();
+          trim(now());
           await save();
           try {
             await onFinished(job);

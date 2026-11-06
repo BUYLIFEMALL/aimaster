@@ -338,6 +338,8 @@ const queue = createQueue({
     logLine(`🎵 대기열: ${job.title} — ${job.stage}${job.error ? ` (${job.error})` : ""}`);
     if (job.status === "failed") logLine(`   자세한 이유는 음악 엔진 기록 파일에 있습니다: ${aceLogFile}`);
   },
+  // 오래돼 정리한 작업(0.6.9: 30일·100개)의 원곡 사본도 지운다
+  onDrop: (job) => (job.source?.file ? rm(path.join(queueSourceDir, path.basename(job.source.file)), { force: true }) : undefined),
   log: (e) => logLine(`⚠ 대기열 오류: ${e instanceof Error ? e.message : e}`),
 });
 await queue.load();

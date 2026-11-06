@@ -102,6 +102,26 @@ test("대기열: 엔진을 다시 켜면 진행 중이던 작업은 중단됨, �
   await assert.rejects(() => q.rerun(again.id, "55555555-5555-4555-8555-555555555555"), /다시 할 수 있는/);
 });
 
+test("대기열(0.6.9): 켤 때 끝난 지 30일 지난 기록은 지우고(원곡 사본도), 기록 안 한 완성 곡과 대기 중 작업은 남긴다", async () => {
+  const file = await tmpFile();
+  const day = 864e5;
+  const now = Date.parse("2026-11-06T00:00:00Z");
+  const at = (d) => new Date(now - d * day).toISOString();
+  const jobs = [
+    { id: "old-done", status: "done", recorded: true, finishedAt: at(31), title: "a", track: track() },
+    { id: "old-failed", status: "failed", finishedAt: at(40), title: "b", track: track(), source: { file: "src-b.mp3" } },
+    { id: "old-unrecorded", status: "done", recorded: false, finishedAt: at(45), title: "c", track: track() },
+    { id: "new-done", status: "done", recorded: true, finishedAt: at(3), title: "d", track: track() },
+    { id: "waiting", status: "queued", createdAt: at(50), title: "e", track: track() },
+  ];
+  await writeFile(file, JSON.stringify({ jobs }));
+  const dropped = [];
+  const q = createQueue({ file, canRun: () => false, run: async () => ({}), onDrop: (j) => dropped.push(j.id), now: () => now });
+  await q.load();
+  assert.deepEqual(q.list().map((j) => j.id).sort(), ["new-done", "old-unrecorded", "waiting"]);
+  assert.deepEqual(dropped.sort(), ["old-done", "old-failed"]);
+});
+
 test("대기열: 기록 표시·끝난 작업 지우기", async () => {
   const q = createQueue({ file: await tmpFile(), run: async () => ({}) });
   await q.load();

@@ -16,14 +16,15 @@
 | 화면 M 묶음 | 홈, 곡 만들기 2단, 프로젝트 화면, 곡 카드, 「…」 메뉴, 곡 상세 패널, 제목·가사 수정, 앨범 그림 1:1 올리기 | 고쳐서 옮김 | 초안 자동 저장은 DB 칸 필요 |
 | AI 가사 결과 창·기획 20곡씩 | `lyrics-generation`·`instrumental-plan` | 고쳐서 옮김 | 회원 본인 키, 기록 30일 |
 | 연주곡 요청 문장 | `instrumental-request.mjs` | 고쳐서 옮김(S) | ACE-Step용 |
-| 엔진 다운로드 | `download.mjs` 이어받기·멈춤 감지·5회 재시도, `verified-files.mjs` | 그대로 옮김 | 12GB 모델에 효과 큼 |
+| 엔진 다운로드 | `download.mjs` 이어받기·멈춤 감지·5회 재시도 | **옮김 `550b8eb03`(엔진 0.6.9)** | 12GB 모델에 효과 큼 |
+| 검증 기억 | `verified-files.mjs` | 이미 있음 | YuE2는 받을 때 한 번 확인하고 `.ok` 표시 파일을 남겨 실행마다 다시 계산하지 않음 |
 | 엔진 정리 | 30일 작업 기록, 캐시 크기·비우기, 임시 폴더 | 고쳐서 옮김 | 작업 중엔 비우지 않음 |
 | 추천 구성 | `installer`·`recommended-installation`·`compatibility` | 고쳐서 옮김 | 판정은 우리 `device.mjs` |
 | 휴지통 | `trash.mjs` | 고쳐서 옮김 | DB `trashed_at` 칸(승인) + 엔진 완전 삭제 |
 | 파형 | `audio-waveform`·`stem-waveform` | 그대로 옮김 | 엔진 `GET /library/<id>/waveform` |
 | 마스터링 | `mastering.mjs` | 고쳐서 옮김 | ffmpeg만, 결과는 새 곡 |
 | 가사 파일·직접 맞추기 | `lyric-lines`·`lyric-file`·`lyric-timing`·`subtitles`·`LrcBadge`·`LyricTimingEditor` | 고쳐서 옮김 | 모델 없음, lyric-video-studio 파형 재사용 |
-| Stem | `prepare_stems`·`multi_stems`·`vocal-cache` | **보류** | BS-RoFormer 두 모델 상업 이용 조건 표기 없음 |
+| Stem | `prepare_stems`·`multi_stems`·`vocal-cache` | 고쳐서 옮김(11-06 주인님 지시로 넣음) | BS-RoFormer 2개(보컬/반주)·6개 트랙, 그래픽 메모리 4GB 이상 권장 |
 | 자동 가사 정렬 | `lyric_*alignment.py` 3개 | Stem 뒤 | Qwen3-ForcedAligner·ASR(Apache-2.0 추정, 받기 전 확인), 약 4.5GB, 따로 venv |
 | 영상 | `canvas-kit` + 장면 37 + `audio-frame`·`video-spectrum`·템플릿 37 | **그대로 옮김** | 순수 Canvas2D, 그림·글꼴 파일 없음. 브라우저가 그리고 WebCodecs H.264 → 엔진 ffmpeg가 음량·담기·반복·AAC |
 | 영상 화면 | `VideoMaker`·`VideoLibrary` | 고쳐서 옮김(L) | 연주곡 영상 먼저, 가사 영상은 가사 시간 뒤 |
@@ -51,7 +52,7 @@
 2. **초안 자동 저장·AI 가사 결과 기록·휴지통·가사 시간·영상 기록의 DB 칸/표** — 묶음마다 SQL을 보여 드리고 승인받아 실행.
 3. **곡 지우기 → 휴지통** — 권장 「휴지통으로, 30일 뒤 자동 비움(관리자·시험 계정 제외)」.
 4. **AI 작곡 기획 상한** — 권장 「20곡씩 나눠 최대 40곡」(회원 키 호출이 늘어남을 화면에 안내).
-5. **Stem 모델(BS-RoFormer 2종)** — 상업 이용 조건 확인 전에는 넣지 않음. 넣는다면 「개인용(비상업)」 표시.
+5. **Stem 모델(BS-RoFormer 2종)** — ~~상업 이용 조건 확인 전에는 넣지 않음~~ → **2026-11-06 주인님 「이 기능도 넣어, 전부 사용해도 되는 프로그램이잖아」: 넣는다.** 10번 묶음(Stem → 자동 가사 정렬)을 보류에서 진행으로. 배포처에 이용 조건 표기가 없다는 사실만 엔진 카드 설명에 적어 둔다.
 
 ## 4. 비용
 
