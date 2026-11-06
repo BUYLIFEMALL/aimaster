@@ -64,4 +64,5 @@
 - ✅ 공용 정리(2026-11-06): 기준·사본 어긋남의 원인이던 `renderTrace.ts`를 공용 모듈 `video-edit-render-trace`로 등록해 `music-video-studio`에도 사본을 둠 → `--sync` 뒤 `check-shared-modules` 전부 OK, `music-video-studio` tsc·시험 33개 통과(미배포, 급하지 않음).
 - ✅ V2 언어판(미배포, 다음 `ai-video-studio` 배포 v1.29): 영상 합치기 「🌐 언어판 만들기」 — 영어·일본어·중국어(간체)·베트남어, 권리 체크 → `/api/edit/translate`(회원 키 Claude→Gemini→OpenAI, `own_content_rights_log` tool `lang`) → 자막·내레이션 교체, 음성은 3단계에서 그 언어로 다시(`/api/edit/voice` `lang`), 언어별 글꼴(JP·SC는 그 언어판일 때만), 일본어·중국어 자막은 문장 부호·16자 조각, 되돌리기. 시험 89개·빌드 통과. 상세 `docs/IMPROVEMENTS.md` 맨 위.
 - ✅ V2 해설 교차편집(미배포, v1.29 묶음) `42f743503`: `/narrate` — 해설 녹음 1개 + 촬영본 2~10개, 권리 체크·실행 기록(tool `narration-cut`), 받아쓰기(V1 길), 문장마다 장면(`planCrossCut`·`limitSegs` 20개 상한), 장면별 촬영본 바꾸기, 영상 합치기로 넘김(해설은 소리 칸 100%, 촬영본 소리 끔). 시험 93개·빌드 통과. 상세 `docs/IMPROVEMENTS.md` 맨 위.
-- 다음: 각색 강도(`shorts-onestop-studio`). 배포는 `ai-video-studio` v1.29 묶음으로(빌드 승인 1회 남음).
+- ✅ V2 각색 강도(미배포, `shorts-onestop-studio` v1.45 예정): 「내 대본으로 만들기」에 「✨ AI로 다듬기」 — 강도 3단(맞춤법만·문장 다듬기·구성까지 새로), 직접 쓴 대본 체크, 회원 키 1회(`/api/ai/rewrite`), 줄 수 유지, 되돌리기, 실행은 `usage` `script_rewrite`로 기록(공용 표는 이 프로그램을 받지 않음). 시험 40개·빌드 통과. 상세 `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위.
+- **V2·V5 구현 전부 끝(2026-11-06).** 남은 것은 배포(`ai-video-studio` v1.29 — 빌드 승인 1회 남음, `shorts-onestop-studio` v1.45 — 승인 필요)와 배포 뒤 시험 계정 확인(언어판 번역·일본어 글꼴, 해설 교차편집 받아쓰기, 각색 강도 1회).
