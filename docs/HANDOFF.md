@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ⏸ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **`naver-cafe-recruit` 첫 실물 초대 시험: 초대 0건, 확장이 PC 카페 첫 화면에서 「초대」 메뉴를 못 찾는 구조 확인(`7dbf99ecc`)**
+- ego에 확장 v1.02 로드, 설정(B 켜짐·상한 1)·`buylifemall` 승인까지 정상. 카페 첫 화면의 「초대」는 `a.link_invite href="#" onclick="inviteMember()"` → `moveIframePage('/CafeInviteCheck.nhn?m=check&clubid=30954788')`라 `findInvite(hrefs)`가 0건 → 초대 단계 진입 불가. 위쪽 탭 주소로 `CafeInviteCheck.nhn`을 직접 열면 빈 화면. 판정 문구(`classify`) 실측 없음, 명단 모으기(「추가」 절)는 미진행. 상세·윈도우 전달 사항: `naver-cafe-recruit/docs/INVITE_TEST_20261106.md` §5.
+- 다음: 윈도우가 초대 메뉴 찾기·틀 안 이동을 고친 뒤 맥미니가 같은 작업 공간(10번)에서 1건 재시험. 비용 없음.
+
+
 ## 2026-11-06 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261106-ytreply — **`youtube-auto-reply` v1.33 배포: 미배포 대기 2건(30일 보관 열외 + 12월 모델 교체 B) 묶음**
 - 배경: 주인님이 남은 작업 목록에서 「youtube-auto-reply 30일 열외 + 모델 교체 B」 줄을 골라 「진행해」. 두 커밋은 맥미니가 2026-11-03에 작성(`e3f93b8d7`·`5e994cd8f`).
 - 내용: 30일 정리가 예외 회원(관리자·시험 계정)을 건너뛰고 목록을 못 읽으면 멈춤 · 답글 모델 옛 Gemini(2.5-pro·3.6·3.7-flash) 선택지 삭제 + 저장된 옛 값을 `gemini-3.8-flash`로 변환 호출. 버전 커밋 `371ad8a30`.
