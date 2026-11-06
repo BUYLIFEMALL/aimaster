@@ -9,13 +9,15 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `insta_auto_poster` → `threads-content-ops` | U10 1차 (가) 보내는 프로그램 쪽 — 인스타 완료(`b98de2641`, 미배포), Threads 진행 | 2026-11-06 | 구현 중(주인님 1번 허락, 나머지 추천안) |
+| — | 없음(U10 1차 (가) 구현 완료: 워크스페이스 `cc4f4eabe`+`b98de2641` · 인스타 `b98de2641` · Threads `7caa31152`, 모두 미배포 — 빌드 승인 대기) | — | — |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-work-workspace` | 미배포 `376c55c7a`(왼쪽 메뉴 버전 v1.21 표시)·`a80274b4c`(보낸 마크다운 정리·빈 화면 문구)·`cc4f4eabe`+`b98de2641`(U10 콘텐츠 캘린더 템플릿·캘린더에 넣기·slug) | 다음 워크스페이스 배포 때 함께(v1.22) — 인스타·Threads보다 먼저 | `ai-work-workspace/docs/IMPROVEMENTS.md` |
 | `insta_auto_poster` | 미배포 `b98de2641` U10 「업무 워크스페이스로 보내기」 | 워크스페이스 v1.22 뒤 v1.72 빌드 1회 승인 | `insta_auto_poster/docs/IMPROVEMENTS.md` 맨 위 |
+| `threads-content-ops` | 미배포 `7caa31152` U10 「업무 워크스페이스로 보내기」 | 워크스페이스 v1.22 뒤 v2.23 빌드 1회 승인 | `threads-content-ops/docs/IMPROVEMENTS.md` 맨 위 |
+| U10 2차 | 발행 2개(교육용 블로그·네이버 에이전트)·분석 3개·수집 1개 | 1차 운영 확인 뒤 주인님 「2차 진행」 | `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §4 |
 | `ai-work-workspace` | 음성 받아쓰기 엔진 회원 선택(자동/OpenAI) → OpenAI 실제 확인 | 구현·시험·로컬 빌드 완료(미배포). 주인님 v1.22 빌드 승인 → 배포 → 시험 계정 설정 「OpenAI」로 실제 확인 | `ai-work-workspace/docs/PLAN_20261106_STT_ENGINE_CHOICE.md`, 요청함 `c234b28c`(「진행해」로 닫음) |
 | `ai-doc-chatbot`(다른 역할 폴더) | 문서 카드가 30일 예외 계정에도 「30일 뒤 자동 삭제」로 표시 — 실제 삭제 대상인지 확인 | 그 폴더 담당 또는 주인님 허락 | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 확인 중 발견」 |
 
@@ -43,5 +45,5 @@
 2. 워크스페이스 v1.22 배포 때 미배포(메뉴 버전·보낸 마크다운·엔진 선택·U10 캘린더)를 함께 내보내고 운영 확인
 
 ## 주인님께 여쭐 것
-- U10 플랜 결정 5건(`ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §8): 다른 역할 폴더(인스타·Threads·블로그 2개·분석 3개·크롤러)에 「보내기 버튼·라우트」만 넣는 허락 / 1차 범위(추천: 워크스페이스 + 인스타·Threads, 빌드 3회) / 종류 값 `document`+구조 데이터 / 유튜브·ghost-scraper 제외 / 현황판은 연결 보기 없으면 U11로
+- U10 1차 (가) 배포 승인 — 빌드 3회 순차: 워크스페이스 v1.22(받아쓰기 엔진 선택 포함, 다른 세션이 이미 여쭌 건과 같음) → INSTA v1.72 → Threads v2.23. 승인되면 순서대로 배포하고 시험 계정으로 인스타·Threads 글 1건씩 → 받은 업무 → 콘텐츠 캘린더까지 확인(AI 호출 없음)
 - v1.22 배포(Vercel 빌드 1회) 승인 — 받아쓰기 엔진 선택 + 미배포 2건 묶음. 승인되면 배포 뒤 OpenAI 실제 받아쓰기(시험 계정 키, 15초 1회)까지 확인합니다

@@ -6,6 +6,11 @@
 > **프로그램**: `threads-content-ops` (현행 `v1.97`)  
 > **목적**: 작업 중 발견된 오류, UX 불편점, 기능/성능 개선사항을 체계적으로 누적 관리하여 모든 CLI(Antigravity, Codex, Claude Code)가 단절 없이 이어받아 개발할 수 있도록 함.
 
+> **🟡 미배포 대기 (운영 v2.22 그대로) — U10 「📨 업무 워크스페이스로 보내기」 (2026-11-06, [역할: workspace] Claude Code 윈도우, 커밋 `7caa31152`, 주인님 허락 「다른 역할 폴더에 보내기 버튼·라우트만」)**
+> - 보관함(`?tab=manage`) 글 카드 발행 상태 아래 버튼 → `POST /api/threads-content-ops/work-inbox`(새 `lib/access/checkProgramAccessApi.ts` — 기존 `checkProgramAccess`를 감싼 API용 판, redirect 없음 → 회원 본인 `tco_posts` 행을 서버가 다시 읽음) → 공용 표 `work_inbox`에 `kind: document` + 구조 데이터 `{채널: Threads, 상태, 예약일|발행일(한국 시간), 발행 주소}` → 워크스페이스 「받은 업무」에서 「📅 콘텐츠 캘린더에 넣기」. 제목은 본문 첫 줄 60자. 독립 설치본(`IS_STANDALONE`)은 버튼 숨김·라우트 404.
+> - 새 파일: `lib/workInbox.ts`(공용 기준 코드 `work-inbox-client` **사본 — 직접 고치지 말고** 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`), `lib/supabase/admin.ts`(사본이 쓰는 이름 → `service.ts` 재내보내기), `lib/workInboxContent.ts`(순수), `app/threads-content-ops/SendToWorkspaceButton.tsx`, `tests/work-inbox-content.test.cjs`(`npm test`에 포함, 3개 통과). tsc 0.
+> - **다음 배포자**: 버전 +0.01(v2.23)·DB `programs.version`, 배포 뒤 시험 계정으로 글 하나 보내기 → 워크스페이스 받은 업무 → 캘린더에 넣기까지 확인(AI 호출 없음). 초안은 날짜가 없어 캘린더 버튼은 안 뜨고 문서로만 받음(설계). 플랜: `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md`.
+
 ---
 
 ## 1. 개선 과제 총괄 요약표
