@@ -49,14 +49,36 @@ export async function listSunoTracks(userId: string): Promise<SunoTrack[]> {
 
 type VariantRow = { id: string; suno_audio_id: string | null; audio_url: string; image_url: string | null; music_tracks: { title: string; prompt_text: string; task_id: string | null; mode: string } | null };
 
+const REMIX_MODE: Record<string, string> = { cover: "커버", add_vocals: "보컬 추가", add_instrumental: "반주 추가", mashup: "매시업" };
+
 async function ownVariant(userId: string, variantId: string): Promise<VariantRow> {
-  const { data, error } = await createAdminClient()
+  const db = createAdminClient();
+  const { data, error } = await db
     .from("music_track_variants")
     .select("id, suno_audio_id, audio_url, image_url, music_tracks!music_track_variants_track_id_fkey(title, prompt_text, task_id, mode)")
     .eq("id", variantId).eq("user_id", userId).maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) throw new UserError(404, "곡을 찾지 못했습니다. 음악(SUNO) 자동화에서 내가 만든 곡만 가져올 수 있습니다.");
-  return data as unknown as VariantRow;
+  if (data) return data as unknown as VariantRow;
+  // 음악(SUNO) 리믹스 결과(?remix=) — 회원 본인 것만. 반주 추가·연주곡은 가사가 없어 시간 가사를 받지 않는다
+  const { data: rv, error: rvErr } = await db
+    .from("music_track_remix_variants").select("id, remix_id, suno_audio_id, audio_url, image_url")
+    .eq("id", variantId).eq("user_id", userId).maybeSingle();
+  if (rvErr) throw new Error(rvErr.message);
+  if (rv) {
+    const { data: rm, error: rmErr } = await db
+      .from("music_track_remixes").select("task_id, mode, source_title, lyrics, instrumental")
+      .eq("id", rv.remix_id).eq("user_id", userId).maybeSingle();
+    if (rmErr) throw new Error(rmErr.message);
+    if (rm) {
+      const vocal = !rm.instrumental && rm.mode !== "add_instrumental";
+      const name = REMIX_MODE[rm.mode as string] ?? "리믹스";
+      return {
+        id: rv.id, suno_audio_id: vocal ? rv.suno_audio_id : null, audio_url: rv.audio_url, image_url: rv.image_url,
+        music_tracks: { title: `${(rm.source_title as string) || "제목 없음"} (${name})`, prompt_text: vocal ? (rm.lyrics as string) ?? "" : "", task_id: vocal ? rm.task_id : null, mode: "remix" },
+      };
+    }
+  }
+  throw new UserError(404, "곡을 찾지 못했습니다. 음악(SUNO) 자동화에서 내가 만든 곡만 가져올 수 있습니다.");
 }
 
 /** 변주 하나의 음악·커버 서명 주소와 가사 글 */

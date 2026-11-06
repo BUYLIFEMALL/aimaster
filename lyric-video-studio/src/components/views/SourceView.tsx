@@ -19,9 +19,9 @@ export function SourceView() {
   const synced = s.lines.filter(isSynced).length;
   const [autoSuno, setAutoSuno] = useState<string | null>(null);
   const [autoAms, setAutoAms] = useState<{ id: string; index: number } | null>(null);
-  useEffect(() => { // 음악(SUNO) 자동화 곡 카드에서 ?suno=<변주 id>로 들어온 경우 한 번만 가져오고 주소에서 지운다
+  useEffect(() => { // 음악(SUNO) 자동화 곡 카드에서 ?suno=<변주 id>(리믹스 결과는 ?remix=<리믹스 변주 id>)로 들어온 경우 한 번만 가져오고 주소에서 지운다
     const q = new URLSearchParams(window.location.search);
-    const id = q.get("suno");
+    const id = q.get("suno") ?? q.get("remix");
     if (id && /^[0-9a-f-]{36}$/i.test(id)) { setAutoSuno(id); window.history.replaceState(null, "", "/source"); }
     // v1.10 AI 음악 스튜디오 곡 카드에서 ?ams=<생성 번호>&i=<곡 순서>로 들어온 경우
     const ams = q.get("ams"), i = Number(q.get("i") ?? "0");
