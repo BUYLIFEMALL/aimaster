@@ -3,11 +3,11 @@
 
 export type Aspect = "landscape" | "portrait";
 export type Layout = "panel" | "center";
-export type Highlight = "color" | "box" | "outline" | "marker" | "underline" | "bar" | "karaoke";
-export type SpectrumKind = "none" | "bars" | "mirror" | "wave";
+export type Highlight = "color" | "box" | "outline" | "marker" | "underline" | "bar" | "karaoke" | "dot" | "bracket";
+export type SpectrumKind = "none" | "bars" | "mirror" | "wave" | "dots" | "lines";
 export type Align = "left" | "center";
 export type Roman = "off" | "above" | "below";
-export type FontId = "noto" | "gowun" | "dohyeon" | "blackhan" | "myeongjo" | "pen";
+export type FontId = "noto" | "gowun" | "dohyeon" | "blackhan" | "myeongjo" | "pen" | "jua" | "gaegu" | "songmyung";
 
 export interface Design {
   presetId: string;
@@ -57,6 +57,9 @@ export const FONTS: Record<FontId, { label: string; family: string; weight: numb
   blackhan: { label: "검은고딕 — 묵직한 강조", family: "Black Han Sans", weight: 400, css: "Black+Han+Sans" },
   myeongjo: { label: "나눔명조 — 우아한 명조", family: "Nanum Myeongjo", weight: 700, css: "Nanum+Myeongjo:wght@400;700;800" },
   pen: { label: "나눔손글씨 펜 — 손글씨", family: "Nanum Pen Script", weight: 400, css: "Nanum+Pen+Script" },
+  jua: { label: "주아 — 둥글고 귀여운", family: "Jua", weight: 400, css: "Jua" },
+  gaegu: { label: "개구 — 또박또박 손글씨", family: "Gaegu", weight: 700, css: "Gaegu:wght@400;700" },
+  songmyung: { label: "송명 — 붓 느낌 명조", family: "Song Myung", weight: 400, css: "Song+Myung" },
 };
 export const FONT_IDS = Object.keys(FONTS) as FontId[];
 export const GOOGLE_FONTS_HREF = `https://fonts.googleapis.com/css2?${FONT_IDS.map((k) => `family=${FONTS[k].css}`).join("&")}&display=swap`;
@@ -69,6 +72,8 @@ export const HIGHLIGHTS: { id: Highlight; label: string; hint: string }[] = [
   { id: "underline", label: "밑줄 긋기", hint: "부르는 동안 밑줄이 그어집니다" },
   { id: "bar", label: "앞 막대", hint: "줄 앞에 막대를 세웁니다" },
   { id: "karaoke", label: "노래방 채움", hint: "왼쪽부터 색이 차오릅니다" },
+  { id: "dot", label: "앞 점", hint: "줄 앞에 동그란 점이 켜집니다" },
+  { id: "bracket", label: "모서리 괄호", hint: "줄의 네 모서리에 괄호를 그립니다" },
 ];
 
 export const ROMANS: { id: Roman; label: string }[] = [
@@ -76,7 +81,7 @@ export const ROMANS: { id: Roman; label: string }[] = [
 ];
 
 export const SPECTRUMS: { id: SpectrumKind; label: string }[] = [
-  { id: "none", label: "없음" }, { id: "bars", label: "막대" }, { id: "mirror", label: "가운데 대칭" }, { id: "wave", label: "파형" },
+  { id: "none", label: "없음" }, { id: "bars", label: "막대" }, { id: "mirror", label: "가운데 대칭" }, { id: "wave", label: "파형" }, { id: "dots", label: "점 막대" }, { id: "lines", label: "가는 선" },
 ];
 
 const BASE: Omit<Design, "presetId" | "aspect"> = {
@@ -93,10 +98,14 @@ export const PRESETS: Preset[] = [
   preset("neon-karaoke", "landscape", "네온 노래방", "형광 노란 글자가 왼쪽부터 차오름", { layout: "center", font: "blackhan", align: "center", highlight: "karaoke", accent: "#facc15", text: "#f0abfc", bg1: "#2e0a3a", bg2: "#07020c", spectrum: "mirror", context: 1, size: 1.1 }),
   preset("paper-day", "landscape", "밝은 종이", "밝은 바탕에 어두운 글자, 형광펜", { bg1: "#f7f1e3", bg2: "#e8dcc2", text: "#2b2118", accent: "#f59e0b", highlight: "marker", font: "gowun", ambient: 0.25, coverBackdrop: false }),
   preset("ocean-box", "landscape", "오션 박스", "청록 채운 박스로 현재 줄 강조", { bg1: "#062a33", bg2: "#020d12", accent: "#2dd4bf", highlight: "box", font: "dohyeon", spectrum: "wave" }),
+  preset("lp-lounge", "landscape", "LP 라운지", "도는 LP판, 붓 명조, 모서리 괄호", { vinyl: true, font: "songmyung", highlight: "bracket", accent: "#f59e0b", bg1: "#2a1a10", bg2: "#0b0705", spectrum: "lines", ambient: 0.4 }),
+  preset("pastel-pop", "landscape", "파스텔 팝", "밝은 분홍 바탕, 둥근 글씨, 점 막대", { layout: "center", align: "center", font: "jua", highlight: "dot", accent: "#ec4899", text: "#3b1d2e", bg1: "#fde2ec", bg2: "#e9d5ff", spectrum: "dots", ambient: 0.3, coverBackdrop: false, context: 1, size: 1.1 }),
   preset("mono-minimal", "landscape", "모노 미니멀", "흑백, 장식 없이 큰 글자", { layout: "center", align: "center", bg1: "#161616", bg2: "#000000", accent: "#ffffff", text: "#9ca3af", highlight: "color", spectrum: "none", ambient: 0.15, context: 2, size: 1.15, coverBackdrop: false }),
   preset("v-stage", "portrait", "세로 스테이지", "쇼츠용 — 위 커버, 아래 가사", { context: 1, align: "center" }),
   preset("v-neon", "portrait", "세로 네온", "쇼츠용 노래방 채움", { font: "blackhan", align: "center", highlight: "karaoke", accent: "#facc15", text: "#f0abfc", bg1: "#2e0a3a", bg2: "#07020c", spectrum: "mirror", context: 1 }),
   preset("v-paper", "portrait", "세로 종이", "밝은 바탕, 손글씨", { bg1: "#f7f1e3", bg2: "#e8dcc2", text: "#2b2118", accent: "#ea580c", highlight: "marker", font: "pen", align: "center", ambient: 0.25, coverBackdrop: false, context: 1, size: 1.15 }),
+  preset("v-lp", "portrait", "세로 LP", "쇼츠용 — 도는 LP판과 가는 선", { vinyl: true, align: "center", highlight: "bracket", accent: "#f59e0b", bg1: "#2a1a10", bg2: "#0b0705", font: "songmyung", spectrum: "lines", context: 1 }),
+  preset("v-diary", "portrait", "세로 일기장", "밝은 종이, 또박또박 손글씨, 앞 점", { layout: "center", align: "center", font: "gaegu", highlight: "dot", accent: "#0ea5e9", text: "#1f2937", bg1: "#f8fafc", bg2: "#e0f2fe", spectrum: "dots", ambient: 0.2, coverBackdrop: false, context: 2, size: 1.1 }),
   preset("v-cinema", "portrait", "세로 시네마", "흐린 커버 위 명조 자막", { layout: "center", font: "myeongjo", align: "center", highlight: "underline", accent: "#fbbf24", bg1: "#1a1208", bg2: "#050403", spectrum: "none", context: 2 }),
 ];
 

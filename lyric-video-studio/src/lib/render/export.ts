@@ -1,6 +1,6 @@
 "use client";
 import { sizeFor } from "@/lib/design";
-import { drawFrame, ensureFonts, type DrawCache, type Scene } from "@/lib/render/draw";
+import { drawFrame, ensureFonts, sceneText, type DrawCache, type Scene } from "@/lib/render/draw";
 import { assertWebCodecs, encodeMp4, encodeMp4ToFile, MP4_AUDIO_RATE, type EncodeOptions, type ExportProgress } from "@/lib/render/mp4Encoder";
 
 // 브라우저 안에서 가사 영상 MP4 만들기(1080p, H.264 + AAC/Opus) — 서버 렌더 비용 없음.
@@ -35,7 +35,7 @@ async function prepare(o: { scene: Scene; audio: AudioBuffer; onProgress: (p: Ex
   const total = o.audio.duration;
   if (total > max) throw new Error(`곡이 너무 깁니다(${Math.round(total / 60)}분). ${max / 60}분 이하 곡으로 만들어 주세요.`);
   o.onProgress({ pct: 1, status: "글꼴 준비 중…" });
-  await ensureFonts(o.scene.design);
+  await ensureFonts(o.scene.design, sceneText(o.scene));
   const cache: DrawCache = {};
   return {
     width: W, height: H, fps: o.scene.design.fps, total, audio: o.audio, pctFrom: 3,

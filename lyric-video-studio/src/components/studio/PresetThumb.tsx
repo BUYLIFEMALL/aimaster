@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useStudio } from "./StudioContext";
-import { drawFrame, ensureFonts, type DrawCache, type Scene } from "@/lib/render/draw";
+import { drawFrame, ensureFonts, sceneText, type DrawCache, type Scene } from "@/lib/render/draw";
 import type { Preset } from "@/lib/design";
 import type { LyricLine } from "@/lib/lyrics";
 
@@ -19,7 +19,8 @@ export function PresetThumb({ preset }: { preset: Preset }) {
   const portrait = preset.design.aspect === "portrait";
   const W = portrait ? 180 : 320, H = portrait ? 320 : 180;
 
-  useEffect(() => { let alive = true; void ensureFonts(preset.design).then(() => alive && setFonts((n) => n + 1)); return () => { alive = false; }; }, [preset.design]);
+  const text = sceneText({ title: scene.title || "곡 제목", artist: scene.artist || "아티스트", lines: scene.lines.length > 0 ? scene.lines : SAMPLE });
+  useEffect(() => { let alive = true; void ensureFonts(preset.design, text).then(() => alive && setFonts((n) => n + 1)); return () => { alive = false; }; }, [preset.design, text]);
 
   useEffect(() => {
     const c = ref.current; const ctx = c?.getContext("2d"); if (!ctx) return;

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, Save, SkipBack } from "lucide-react";
 import { useStudio } from "./StudioContext";
-import { drawFrame, ensureFonts, type DrawCache } from "@/lib/render/draw";
+import { drawFrame, ensureFonts, sceneText, type DrawCache } from "@/lib/render/draw";
 import { sizeFor } from "@/lib/design";
 import { formatTime } from "@/lib/lyrics";
 import { toMsg, type Msg } from "@/components/ui/api";
@@ -48,7 +48,8 @@ export function Preview({ maxWidth }: { maxWidth?: number }) {
   const ref = useRef<HTMLCanvasElement>(null), cache = useRef<DrawCache>({});
   const [fontsReady, setFontsReady] = useState(0);
   const { W, H } = sizeFor(design.aspect), pw = W / 2, ph = H / 2;
-  useEffect(() => { let alive = true; void ensureFonts(design).then(() => alive && setFontsReady((n) => n + 1)); return () => { alive = false; }; }, [design]);
+  const text = sceneText(scene); // 가사 글자가 바뀌면 그 글자의 글꼴 묶음도 받는다
+  useEffect(() => { let alive = true; void ensureFonts(design, text).then(() => alive && setFontsReady((n) => n + 1)); return () => { alive = false; }; }, [design, text]);
   useEffect(() => {
     const c = ref.current; if (!c) return;
     const ctx = c.getContext("2d"); if (!ctx) return;

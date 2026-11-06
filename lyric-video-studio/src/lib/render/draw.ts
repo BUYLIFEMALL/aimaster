@@ -36,13 +36,21 @@ function rgba(hex: string, a: number) {
 }
 const fontOf = (d: Design, px: number, weight?: number) => `${weight ?? FONTS[d.font].weight} ${Math.round(px)}px "${FONTS[d.font].family}", "Noto Sans KR", "Malgun Gothic", sans-serif`;
 
-/** 화면에 쓸 글꼴을 미리 받아 둔다(받지 못해도 기본 글꼴로 그려진다) */
-export async function ensureFonts(d: Design): Promise<void> {
+/** 영상에 나올 글자(제목·아티스트·가사) — 글꼴을 이 글자로 미리 받는다 */
+export function sceneText(sc: Pick<Scene, "title" | "artist" | "lines">): string {
+  return [sc.title, sc.artist, ...sc.lines.map((l) => l.text)].join(" ");
+}
+
+/** 화면에 쓸 글꼴을 미리 받아 둔다(받지 못해도 기본 글꼴로 그려진다).
+ *  한글 웹 글꼴은 글자 묶음별로 나뉘어 있어, 실제로 쓸 글자(text)를 넘겨야 그 글자들의 묶음까지 받는다 — 안 그러면 MP4 앞부분 글자가 기본 글꼴로 섞여 나옴 */
+export async function ensureFonts(d: Design, text = ""): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return;
   const f = FONTS[d.font];
+  const sample = Array.from(new Set(Array.from(`가나다ABC0123456789:${text}`))).slice(0, 4000).join("");
   await Promise.all([
-    document.fonts.load(`${f.weight} 64px "${f.family}"`, "가나다ABC"),
-    document.fonts.load(`700 64px "Noto Sans KR"`, "가나다ABC"),
+    document.fonts.load(`${f.weight} 64px "${f.family}"`, sample),
+    document.fonts.load(`700 64px "Noto Sans KR"`, sample),
+    document.fonts.load(`400 64px "Noto Sans KR"`, sample),
   ].map((p) => p.catch(() => undefined)));
 }
 
@@ -150,6 +158,21 @@ function drawSpectrum(ctx: CanvasRenderingContext2D, sc: Scene, t: number, x: nu
     pts.forEach((v, i) => { const px = x + (i / (pts.length - 1)) * w, py = y + h / 2 - clamp(v * 1.6, -1, 1) * (h / 2); if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py); });
     ctx.stroke(); ctx.restore(); return;
   }
+  if (d.spectrum === "dots" || d.spectrum === "lines") { // 점 막대: 칸마다 점을 쌓음 / 가는 선: 끝이 둥근 얇은 막대
+    const n = d.spectrum === "dots" ? 28 : 56, bands = smoothBandsAt(sc.audio, t, n), bw = w / n;
+    if (d.spectrum === "dots") {
+      const r = Math.min(bw * 0.32, 5 * u), step = r * 2.6, rows = Math.max(1, Math.floor(h / step));
+      for (let i = 0; i < n; i++) {
+        const k = Math.max(1, Math.round(bands[i] * rows)), cx = x + i * bw + bw / 2;
+        for (let j = 0; j < k; j++) { ctx.globalAlpha = 0.45 + 0.55 * ((j + 1) / rows); ctx.beginPath(); ctx.arc(cx, y + h - r - j * step, r, 0, Math.PI * 2); ctx.fill(); }
+      }
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.lineCap = "round"; ctx.lineWidth = Math.max(1.5 * u, bw * 0.28);
+      for (let i = 0; i < n; i++) { const cx = x + i * bw + bw / 2, bh = Math.max(3 * u, bands[i] * h); ctx.beginPath(); ctx.moveTo(cx, y + (h + bh) / 2); ctx.lineTo(cx, y + (h - bh) / 2); ctx.stroke(); }
+    }
+    ctx.restore(); return;
+  }
   const n = d.spectrum === "mirror" ? 24 : 40, bands = smoothBandsAt(sc.audio, t, n);
   const cols = d.spectrum === "mirror" ? n * 2 : n, bw = w / cols, gap = bw * 0.32;
   for (let i = 0; i < cols; i++) {
@@ -237,6 +260,19 @@ function drawLyrics(ctx: CanvasRenderingContext2D, sc: Scene, t: number, rx: num
       if (d.highlight === "box") { ctx.fillStyle = d.accent; ctx.beginPath(); ctx.roundRect(boxX - padX, top - padY, maxRowW + padX * 2, blockH + padY * 2, 14 * u); ctx.fill(); }
       if (d.highlight === "outline") { ctx.strokeStyle = d.accent; ctx.lineWidth = 3 * u; ctx.beginPath(); ctx.roundRect(boxX - padX, top - padY, maxRowW + padX * 2, blockH + padY * 2, 14 * u); ctx.stroke(); }
       if (d.highlight === "bar") { ctx.fillStyle = d.accent; ctx.beginPath(); ctx.roundRect(boxX - 30 * u, top, 8 * u, blockH, 4 * u); ctx.fill(); }
+      if (d.highlight === "dot") { // 줄 앞 점 — 켜질 때 살짝 커짐
+        const r = 9 * u * (0.7 + 0.3 * ease(clamp((t - tl[i].start) / 0.25)));
+        ctx.fillStyle = d.accent; ctx.beginPath(); ctx.arc(boxX - 26 * u, top + rowH / 2, r, 0, Math.PI * 2); ctx.fill();
+      }
+      if (d.highlight === "bracket") { // 네 모서리 괄호
+        const x0 = boxX - padX, y0 = top - padY, x1 = boxX + maxRowW + padX, y1 = top + blockH + padY, L = Math.min(26 * u, (y1 - y0) / 2);
+        ctx.strokeStyle = d.accent; ctx.lineWidth = 4 * u; ctx.lineCap = "round"; ctx.beginPath();
+        ctx.moveTo(x0, y0 + L); ctx.lineTo(x0, y0); ctx.lineTo(x0 + L, y0);
+        ctx.moveTo(x1 - L, y0); ctx.lineTo(x1, y0); ctx.lineTo(x1, y0 + L);
+        ctx.moveTo(x0, y1 - L); ctx.lineTo(x0, y1); ctx.lineTo(x0 + L, y1);
+        ctx.moveTo(x1 - L, y1); ctx.lineTo(x1, y1); ctx.lineTo(x1, y1 - L);
+        ctx.stroke();
+      }
       if (d.highlight === "marker" || d.highlight === "underline") {
         let used = 0; const total = blk.widths.reduce((a, b) => a + b, 0) || 1;
         blk.rows.forEach((_, r) => {
