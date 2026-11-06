@@ -64,8 +64,6 @@
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
-| `free-music-studio` | 권한 판정 사본 두 묶음 동시 조회(곡 목록 등 첫 응답 속도, 판정 동일) | `ac1c214aa` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/IMPROVEMENT_BACKLOG.md` B-1 | 다음 음악 배포 v1.28 때 함께. DB 변경 없음. 루트·다른 프로그램 반영은 주인님 결정(A-7) |
-| `free-music-studio` | AI 작사 장르 버튼(노래용 프리셋 분류 = 아래 프리셋 카드와 양방향 연결)·분위기 여러 개(최대 3)·프리셋 스타일이 있으면 AI 작사가 스타일을 덮지 않음 | `cd32da0a6` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | 주인님 캡처 요청(장르 직접 입력 대신 버튼, 분위기 다중선택, 프리셋과 충돌 검토) | 다음 음악 배포 v1.28 때. DB 변경 없음 |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
@@ -116,6 +114,7 @@
 | `real_estate_sales` | v1.49 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-kocrxxfxc`) | 서울 분양권 계약일순 재정렬 |
 | `real_estate_sales` | v1.48 · 2026-11-04 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회, `real-estate-sales-l6lj3bimi`) | 「지금 조회하기」 시간 예산(`6d89f342f`, 운영 220초에 끝까지 확인) + 분양권(SilvTrade) 다섯째 유형 |
 | `blog-neighbor-care` | v1.15 · 2026-11-04 ([역할: blog] 윈도우 `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-3focphnt6`) | 30일 보관 열외(운영 SQL `20261104120000` 적용, 열외 자료 87줄 무기한) + 12월 모델 교체 묶음 B(`web-crawler`와 같은 파일) `0a3a8c9f1`. DB/ZIP OK. 위 「12월 모델 교체 B」·「30일 보관 열외」 줄의 `blog-neighbor-care` 몫 처리 완료 |
+| `free-music-studio` | v1.28 · 2026-11-06 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회 + DB 버전 칸, `free-music-studio-7ub4cjh77`, 사이트만) | AI 작사 장르 버튼·분위기 여러 개·프리셋 스타일 유지(`cd32da0a6`) + 권한 판정 동시 조회(`ac1c214aa`) |
 | `free-music-studio` | v1.27 · 엔진 0.7.0 설치 파일 · 2026-11-06 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회 + DB 버전 칸) | 내 PC 앨범 그림(원본 이식 마지막, `73f8daf04`) + 가사 고칠 때 가사 시간 옮기기(`e72880915`) |
 | `free-music-studio` | v1.26 · 엔진 0.6.9 설치 파일 · 2026-11-06 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회 + DB 버전 칸) | 원본 이식 1~10번 전부 — 재생바·필터(`09bfef101`), 받기 이어받기·작업 기록 정리·추천 구성 합계(`550b8eb03` `a6a31e78f` `51264756e`), 곡 상세(`4fb0783a3`), 홈·프로젝트 안 만들기(`0d320ff44` `7e0859a1e` `413a27da5` `633d73a21`), AI 기획 40곡·가사 결과 창(`b6c32440a` `4dd3ad948`), 휴지통(`d8a673b82`), 마스터링(`d189230f6`), 가사 시간(`70564b7a6`), 플레이리스트 영상(`6c29f99d6` `afe641f78` `4d1e13eba`), Stem·가사 자동 맞추기(`58f67d6e9` `bfe38736e` `2362e0343`) + 보관함 안전 지우기(`08c5ec312`)·플레이리스트 보강(`f6753d3a4`)·내 곡 커버(`2673573a5`)·추천 구성 카드(`3f9613f4c`) |
 | `free-music-studio` | v1.25 · 엔진 0.6.8 설치 파일 · 2026-11-05 ([역할: music] `claude-win-20261024-music`, 주인님 「진행해」 빌드 1회 + DB 버전 칸, `free-music-studio-nw3x9l49i`) | 앨범 그림 플랫폼 고르기(`45cf886cd`) + 곡 표지 — 「모든 음악」 표지·MP3에 표지 넣기(`5b1635a19`) |
