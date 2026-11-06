@@ -20,7 +20,7 @@ import { createRunner } from "./runner.mjs";
 import { masterFile } from "./mastering.mjs";
 import { createVideoStudio } from "./video.mjs";
 import { createStems, stemDevice } from "./stems.mjs";
-import { createImageArt } from "./imageArt.mjs";
+import { createImageArt, defaultImageDir, settleImageDir } from "./imageArt.mjs";
 import { createLyricAligner } from "./lyricAlign.mjs";
 import { newToken } from "./security.mjs";
 import { ensureTools, useTools } from "./tools.mjs";
@@ -380,7 +380,16 @@ const imageSystem = async () => {
   if (!sysCache || Date.now() - sysCache.at > 60_000) sysCache = { at: Date.now(), sys: await inspectSystem({ storageDir: heavyDir, checkpointsDir, ffmpeg }) };
   return sysCache.sys;
 };
-let imageDir = startSettings.imageDir || ""; // 그림 모델 폴더(0.7.1, 비면 모델 저장 폴더 안)
+// 그림 모델 폴더(0.7.1) — 음악 모델과 따로 관리하는 독립 폴더(이미지 자동화 등 다른 프로그램도 같이 쓸 수 있게). 처음 켤 때 한 번 정해 고정.
+let imageDir = (
+  await settleImageDir({
+    current: startSettings.imageDir || "",
+    legacy: path.join(heavyDir, "engines", "image-sdcpp"),
+    target: defaultImageDir({ modelsDir: startSettings.modelsDir || "", fallback: dataDir }),
+    save: (dir) => saveEngineSettings({ imageDir: dir }),
+    log: logLine,
+  })
+).dir;
 const imageArt = createImageArt({ dataDir: () => heavyDir, getCustomDir: () => imageDir, getSystem: imageSystem, log: logLine });
 /** POST /image-models/folder — 그림 모델만 다른 폴더(드라이브)로 */
 const moveImageModels = (target, mode) =>

@@ -189,10 +189,62 @@ const exists = (f) => stat(f).then((s) => s.isFile(), () => false);
 const tarExe = () => (process.platform === "win32" ? path.join(process.env.SystemRoot || "C:\\Windows", "System32", "tar.exe") : "/usr/bin/tar");
 
 /**
- * 그림 모델 폴더(0.7.1): 기본은 모델 저장 폴더 안 engines/image-sdcpp, 회원이 고르면 그 폴더 안 「FreeMusicImageModels」(getCustomDir).
+ * 그림 모델 폴더(0.7.1): 엔진이 켤 때 정한 독립 폴더(settleImageDir, 기본 AIMasterImageModels) 또는 회원이 고른 폴더 안 「AIMaster-ImageModels」(getCustomDir). 둘 다 없을 때만 모델 저장 폴더 안 engines/image-sdcpp.
  * @param {{ dataDir: () => string, getCustomDir?: () => string, getSystem: () => Promise<object>, log?: (s:string)=>void, spawnImpl?: typeof spawn }} p
  */
-export const IMAGE_DIR_NAME = "FreeMusicImageModels";
+export const IMAGE_DIR_NAME = "AIMaster-ImageModels";
+
+/**
+ * 그림 모델 기본 폴더(2026-11-06 주인님 「이미지 모델은 나중에 이미지 자동화에서 사용할 수 있으니 따로 폴더를 관리」) —
+ * 음악 모델 폴더 밖의 독립 폴더. 음악 모델 폴더를 다른 드라이브로 옮겨 둔 PC면 그 드라이브의 \AIMaster\ImageModels, 아니면 %LOCALAPPDATA%\AIMaster\ImageModels.
+ * 처음 한 번 정해 설정(imageDir)에 고정한다 — 나중에 음악 모델 폴더를 옮겨도 따라가지 않는다.
+ */
+export function defaultImageDir({ modelsDir = "", localAppData = process.env.LOCALAPPDATA || "", fallback = "" } = {}) {
+  if (modelsDir) return path.join(path.parse(path.resolve(modelsDir)).root, "AIMaster", "ImageModels");
+  return path.join(localAppData || fallback, "AIMaster", "ImageModels");
+}
+
+/** 엔진 0.7.0 기록은 실행 파일을 전체 경로로 적었다 — 새 폴더(root) 기준 상대 경로로 바꿔 옮긴 뒤에도 다시 받지 않게 */
+export async function relativizeReceipt(root, oldRoot) {
+  const rf = path.join(root, "install-state.json");
+  const r = await readFile(rf, "utf8").then(JSON.parse, () => null);
+  if (r?.engine?.executable && !r.engine.exeRel && isInside(r.engine.executable, oldRoot)) {
+    const { executable, ...engine } = r.engine;
+    await writeFile(rf, JSON.stringify({ ...r, engine: { ...engine, exeRel: path.relative(oldRoot, executable) } }, null, 1));
+  }
+}
+
+/**
+ * 엔진을 켤 때 한 번 — 그림 모델 폴더가 정해져 있지 않으면 기본 폴더로 정하고, 예전 자리(모델 저장 폴더 안 engines/image-sdcpp)에 받아 둔 것이 있으면
+ * 같은 드라이브일 때만 옮긴다(이름 바꾸기라 바로 끝남). 드라이브가 다르거나 실패하면 예전 자리를 그대로 쓴다(회원이 화면에서 옮길 수 있음).
+ * @returns {Promise<{ dir: string, moved: boolean, kept: boolean }>}
+ */
+export async function settleImageDir({ current, legacy, target, save, log = () => {} }) {
+  if (current) return { dir: current, moved: false, kept: false };
+  const hasLegacy = await stat(legacy).then((s) => s.isDirectory(), () => false);
+  const hasTarget = await stat(target).then(() => true, () => false);
+  if (hasLegacy && !hasTarget) {
+    try {
+      await mkdir(path.dirname(target), { recursive: true });
+      await rename(legacy, target);
+      await relativizeReceipt(target, legacy);
+      await save(target);
+      log(`🖼 그림 모델을 독립 폴더로 옮겼습니다: ${legacy} → ${target}`);
+      return { dir: target, moved: true, kept: false };
+    } catch (e) {
+      log(`🖼 그림 모델은 예전 자리를 그대로 씁니다(${legacy}) — 「내 PC 엔진」 화면에서 다른 폴더로 옮길 수 있습니다. ${e instanceof Error ? e.message : e}`);
+      return { dir: "", moved: false, kept: true };
+    }
+  }
+  try {
+    await mkdir(target, { recursive: true });
+    await save(target);
+    return { dir: target, moved: false, kept: false };
+  } catch (e) {
+    log(`🖼 그림 모델 기본 폴더를 만들지 못해 모델 저장 폴더 안을 씁니다. ${e instanceof Error ? e.message : e}`);
+    return { dir: "", moved: false, kept: false };
+  }
+}
 export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, log = () => {}, spawnImpl = spawn }) {
   const defaultRoot = () => path.join(dataDir(), "engines", "image-sdcpp");
   const paths = () => {
@@ -450,7 +502,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
   }
 
   /**
-   * 그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 「FreeMusicImageModels」로. move: 받은 엔진·모델을 복사한 뒤 예전 것을 지움 / fresh: 예전 것을 지우고 다음에 그릴 때 새로 받음.
+   * 그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 「AIMaster-ImageModels」로. move: 받은 엔진·모델을 복사한 뒤 예전 것을 지움 / fresh: 예전 것을 지우고 다음에 그릴 때 새로 받음.
    * 바로 답하고 뒤에서 옮긴다(state().moving). forbid: 고르면 안 되는 폴더(모델 저장 폴더의 옮겨 다니는 항목 등).
    */
   let moving = null;
@@ -477,13 +529,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
       try {
         if (mode === "move" && has) {
           await copyTree(from, to, { skip: new Set([".render"]), onBytes: (n) => (moving.done += n) });
-          // 엔진 0.7.0 기록은 실행 파일을 전체 경로로 적었다 — 새 폴더 기준 상대 경로로 바꿔 다시 받지 않게
-          const rf = path.join(to, "install-state.json");
-          const r = await readFile(rf, "utf8").then(JSON.parse, () => null);
-          if (r?.engine?.executable && !r.engine.exeRel && isInside(r.engine.executable, from)) {
-            const { executable, ...engine } = r.engine;
-            await writeFile(rf, JSON.stringify({ ...r, engine: { ...engine, exeRel: path.relative(from, executable) } }, null, 1));
-          }
+          await relativizeReceipt(to, from);
         }
         await saveDir(to);
         if (has) await removeBestEffort(from);

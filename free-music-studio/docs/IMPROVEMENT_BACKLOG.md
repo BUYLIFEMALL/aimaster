@@ -29,4 +29,5 @@
 
 ## D. 다른 프로그램과 연계
 - [ ] D-1 만든 곡 → `lyric-video-studio`(가사 영상)·`playlist-channel-studio`·`music-video-studio`로 넘기기(음원은 회원 PC 파일 선택 — 서버에 음원을 올리지 않는 원칙 유지). 가사 시간(LRC)은 이미 내보내기가 있어 가사 영상 쪽에서 불러오기만 맞추면 됨
+- [ ] D-3 **그림 모델 공용 폴더** — 엔진 0.7.1부터 그림 모델은 음악 모델 밖 독립 폴더(`\AIMaster\ImageModels`, 설정 `imageDir`). 이미지 자동화(`ai-image-studio`)가 「내 PC 그림」을 넣으면 이 폴더·`install-state.json` 형식을 같이 읽게(주인님 2026-11-06 방향, 그쪽 `docs/IMPROVEMENTS.md`에 메모)
 - [ ] D-2 이미지 자동화 기준 프로그램(`ai-image-studio`)의 모델이 바뀌면 `lib/albumArtModels.ts` 이름만 따라 갱신(연동 부분만, 프롬프트는 공유하지 않음)

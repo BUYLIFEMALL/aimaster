@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { IMAGE_ENGINE_BUILDS, checkPng, cleanArtPrompt, createImageArt, imageEngineBuild, imageVariants, localImageChoices } from "../src/imageArt.mjs";
+import { IMAGE_ENGINE_BUILDS, checkPng, cleanArtPrompt, createImageArt, defaultImageDir, imageEngineBuild, imageVariants, localImageChoices, settleImageDir } from "../src/imageArt.mjs";
 
 test("내 PC 그림 목록 — 두 가족 8개 판, 모든 파일은 고정 주소·크기·SHA-256", () => {
   const all = imageVariants();
@@ -66,7 +66,7 @@ test("받아 둔 것이 없으면 상태는 「받지 않음」, 지우기는 �
   await assert.rejects(art.setDefault("없는 판"), /없는 그림 모델/);
 });
 
-test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 FreeMusicImageModels로 옮기고 예전 것은 지움, 안쪽·같은 폴더는 거절", async () => {
+test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 AIMaster-ImageModels로 옮기고 예전 것은 지움, 안쪽·같은 폴더는 거절", async () => {
   const { mkdir, writeFile, readFile, stat } = await import("node:fs/promises");
   const base = await mkdtemp(path.join(os.tmpdir(), "fms-artmove-"));
   const models = path.join(base, "models");
@@ -80,7 +80,7 @@ test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 FreeMusicImage
   await assert.rejects(art.moveTo("상대경로", "move", { saveDir: async () => {} }), /경로가 올바르지/);
   const target = path.join(base, "D-drive");
   const r = await art.moveTo(target, "move", { saveDir: async (d) => (custom = d) });
-  assert.equal(r.dir, path.join(target, "FreeMusicImageModels"));
+  assert.equal(r.dir, path.join(target, "AIMaster-ImageModels"));
   for (let i = 0; i < 100 && art.isMoving(); i++) await new Promise((ok) => setTimeout(ok, 20));
   assert.equal(art.paths().root, r.dir);
   assert.equal((await readFile(path.join(r.dir, "models", "text-encoders", "a.gguf"), "utf8")).length, 1000);
@@ -90,4 +90,31 @@ test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 FreeMusicImage
   const st = await art.state();
   assert.equal(st.isDefault, false);
   assert.equal(st.dir, r.dir);
+});
+
+test("그림 모델 독립 폴더 — 음악 모델 폴더를 옮긴 PC는 그 드라이브 \AIMaster\ImageModels, 아니면 LOCALAPPDATA 아래", () => {
+  assert.equal(defaultImageDir({ modelsDir: "D:\AI무료음악\모델" }), path.join("D:\\", "AIMaster", "ImageModels"));
+  assert.equal(defaultImageDir({ modelsDir: "", localAppData: "C:\Users\a\AppData\Local" }), path.join("C:\Users\a\AppData\Local", "AIMaster", "ImageModels"));
+});
+
+test("엔진을 켤 때 — 정해진 폴더가 있으면 그대로, 예전 자리에 받아 둔 것은 새 폴더로 옮기고 실행 파일 기록을 상대 경로로", async () => {
+  const { mkdir, writeFile, readFile, stat } = await import("node:fs/promises");
+  const base = await mkdtemp(path.join(os.tmpdir(), "fms-settle-"));
+  const saved = [];
+  const save = async (d) => saved.push(d);
+  assert.deepEqual(await settleImageDir({ current: "X:\keep", legacy: "", target: "", save }), { dir: "X:\keep", moved: false, kept: false });
+  const legacy = path.join(base, "models", "engines", "image-sdcpp");
+  await mkdir(path.join(legacy, "runtime"), { recursive: true });
+  await writeFile(path.join(legacy, "install-state.json"), JSON.stringify({ engine: { executable: path.join(legacy, "runtime", "sd-cli.exe") }, variants: ["flux2-klein-4b:q4_0"] }));
+  const target = path.join(base, "AIMaster", "ImageModels");
+  const r = await settleImageDir({ current: "", legacy, target, save });
+  assert.deepEqual(r, { dir: target, moved: true, kept: false });
+  assert.deepEqual(saved, [target]);
+  assert.equal(await stat(legacy).then(() => true, () => false), false);
+  const rec = JSON.parse(await readFile(path.join(target, "install-state.json"), "utf8"));
+  assert.deepEqual(rec.engine, { exeRel: path.join("runtime", "sd-cli.exe") });
+  // 받아 둔 것이 없으면 기본 폴더를 만들고 정한다
+  const fresh = path.join(base, "fresh", "AIMaster", "ImageModels");
+  assert.equal((await settleImageDir({ current: "", legacy: path.join(base, "없음"), target: fresh, save })).dir, fresh);
+  assert.equal(await stat(fresh).then((s) => s.isDirectory()), true);
 });

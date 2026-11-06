@@ -39,3 +39,9 @@
 ## 2026-10-23 ⏸ 미배포 대기(정리 기록) — Claude Code(윈도우), 커밋 `8ad8ea2e5` · `f53021369`
 - 생성 기록 30일 정리가 회원별 `usage_logs` `cleanup_expired`(images=이미지가 있던 기록 수) 기록 — 공용 `cleanup-usage-log` 사본. 공용 사본 `cleanupUsageLog.ts`는 직접 고치지 말 것(기준 `four-cut-comics/src/lib/cleanupUsageLog.ts`, `--sync`). 메인 관리자 「운영 상태」 정리 기록 진행률에 들어감. 기록 실패해도 정리는 계속.
 - 작은 소스 수정이라 배포하지 않음 — **다음에 이 프로그램을 배포하는 CLI가 함께 내보내고 버전 +0.01**, 이 항목을 「배포됨(버전)」으로 바꾸고 `docs/PENDING_DEPLOYS.md` 줄도 정리.
+
+
+## 2026-11-06 다른 프로그램 연계 메모 — 내 PC 그림 모델 공용 폴더 ([역할: music], 주인님 「이미지 모델은 나중에 이미지 자동화에서 사용할수 있으니 따로 폴더를 관리」)
+- AI 무료음악 엔진 0.7.1부터 회원 PC 그림 모델(stable-diffusion.cpp + Z-Image Turbo·FLUX.2 klein 4B, Apache-2.0)을 음악 모델과 따로 **독립 폴더**에 둔다: 기본 `<음악 모델 폴더 드라이브>\AIMaster\ImageModels`(음악 모델 폴더가 기본이면 `%LOCALAPPDATA%\AIMaster\ImageModels`), 회원이 고르면 `<고른 폴더>\AIMaster-ImageModels`. 위치는 엔진 설정 `%LOCALAPPDATA%\FreeMusicEngine\engine-settings.json`의 `imageDir`.
+- 폴더 구조: `install-state.json`(엔진 `exeRel` 상대 경로·받은 판 `variants`·기본 판 `defaultId`), `runtime/master-956-1b0ba10/<빌드>/sd-cli.exe`, `models/<가족>/…gguf`·`models/text-encoders/…`. 판 목록·SHA-256은 `free-music-studio/engine/src/imageArt.mjs` `IMAGE_FAMILIES`.
+- 이 프로그램에 「내 PC(무료) 그림」을 넣을 때는 같은 폴더·같은 기록 형식을 읽어 **모델을 다시 받지 않게** 하는 것을 권장(검토 대기).

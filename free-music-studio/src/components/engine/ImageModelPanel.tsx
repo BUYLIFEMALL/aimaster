@@ -107,8 +107,8 @@ export function ImageModelPanel({ status }: { status: EngineStatus | null }) {
           {/* 저장 폴더 — 그림 모델은 판 하나에 5~20GB라 남은 공간이 넉넉한 드라이브에 따로 둘 수 있다(0.7.1+) */}
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/50 px-3 py-2.5 text-xs">
             <span className="text-slate-400">저장 폴더</span>
-            <code className="min-w-0 flex-1 break-all font-mono text-[11px] text-slate-200">{state.dir ?? "모델 저장 폴더 안(엔진 0.7.1부터 따로 고를 수 있음)"}</code>
-            {state.isDefault && <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-300">모델 저장 폴더 안</span>}
+            <code className="min-w-0 flex-1 break-all font-mono text-[11px] text-slate-200">{state.dir ?? "모델 저장 폴더 안(엔진 0.7.1부터 독립 폴더)"}</code>
+            {state.isDefault && <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-300">예전 자리(모델 저장 폴더 안)</span>}
             {canMove && (
               <button
                 type="button"
@@ -127,7 +127,7 @@ export function ImageModelPanel({ status }: { status: EngineStatus | null }) {
             <FolderBrowser
               start={state.dir ?? ""}
               current={state.dir}
-              title="📁 그림 모델을 둘 폴더 고르기 — 고른 폴더 안에 「FreeMusicImageModels」 폴더를 만들어 그 안에만 둡니다"
+              title="📁 그림 모델을 둘 폴더 고르기 — 고른 폴더 안에 「AIMaster-ImageModels」 폴더를 만들어 그 안에만 둡니다"
               confirmLabel="이 폴더로 바꾸기"
               busy={applying}
               onConfirm={applyFolder}
