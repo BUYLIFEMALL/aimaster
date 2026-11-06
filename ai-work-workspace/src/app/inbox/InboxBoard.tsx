@@ -42,7 +42,7 @@ const SOURCE: Record<string, string> = {
   "naver-blog-agent": "네이버 블로그 에이전트",
   "ai-auto-blog": "블로그 포스팅 자동화",
   "threads-content-ops": "Threads 콘텐츠 운영",
-  "insta_auto_poster": "인스타 포스팅 자동화",
+  "auto-instagram-posting": "INSTA 포스팅 자동화",
   "competitor-analysis": "경쟁사 분석",
   "longtail-keyword-expander": "롱테일 키워드",
   "blog-keyword": "블로그 키워드",

@@ -77,10 +77,10 @@ describe("work inbox", () => {
     const names = Object.values(spec.db!.schema).map((p) => p.name);
     const csv = calendarRowCsv({
       title: "신제품 소개",
-      source_slug: "insta_auto_poster",
+      source_slug: "auto-instagram-posting",
       kind: "document",
       created_at: "2026-11-06T10:00:00.000Z",
-      source_url: "https://insta-auto-poster.buylife.xyz/posts/1",
+      source_url: "https://auto-instagram-posting.buylife.xyz/posts/1",
       data: { 채널: "인스타그램", 상태: "published", 발행일: "2026-11-05T09:30:00+09:00", "발행 주소": "https://www.instagram.com/p/x" },
       body_md: "\n첫 줄 요약\n둘째 줄",
     });
@@ -88,7 +88,7 @@ describe("work inbox", () => {
     expect(head.split(",")).toEqual(names);
     expect(spec.db!.views[0].type).toBe("calendar");
     expect(Object.values(spec.db!.schema).filter((p) => p.type === "date")).toHaveLength(1);
-    expect(row).toBe("신제품 소개,2026-11-05,인스타그램,발행 완료,https://www.instagram.com/p/x,인스타 포스팅 자동화,https://insta-auto-poster.buylife.xyz/posts/1,첫 줄 요약");
+    expect(row).toBe("신제품 소개,2026-11-05,인스타그램,발행 완료,https://www.instagram.com/p/x,INSTA 포스팅 자동화,https://auto-instagram-posting.buylife.xyz/posts/1,첫 줄 요약");
     // 모르는 채널은 「기타」, 예약 글은 예약일·예약됨
     const r2 = calendarRowCsv({ title: "t", source_slug: "x", kind: "document", created_at: "2026-11-06T10:00:00.000Z", source_url: null, data: { 채널: "카카오", 상태: "scheduled", 예약일: "2026-11-10" } }).trim().split("\n")[1];
     expect(r2).toBe("t,2026-11-10,기타,예약됨,,x,,");

@@ -96,7 +96,7 @@ export const TEMPLATES: TemplateDef[] = [
           cChn: { name: '채널', type: 'select', options: [{ value: '네이버 블로그', color: 'green' }, { value: '블로그', color: 'blue' }, { value: 'Threads', color: 'gray' }, { value: '인스타그램', color: 'pink' }, { value: '유튜브', color: 'red' }, { value: '기타', color: 'default' }] },
           cSta: { name: '상태', type: 'status', options: ['초안', '예약됨', '발행 완료', '실패'] },
           cUrl: { name: '발행 주소', type: 'url' },
-          cSrc: { name: '보낸 프로그램', type: 'select', options: ['네이버 블로그 에이전트', '블로그 포스팅 자동화', 'Threads 콘텐츠 운영', '인스타 포스팅 자동화', '직접 입력'] },
+          cSrc: { name: '보낸 프로그램', type: 'select', options: ['네이버 블로그 에이전트', '블로그 포스팅 자동화', 'Threads 콘텐츠 운영', 'INSTA 포스팅 자동화', '직접 입력'] },
           cLnk: { name: '원본 링크', type: 'url' },
           cMem: { name: '메모', type: 'text' },
         },

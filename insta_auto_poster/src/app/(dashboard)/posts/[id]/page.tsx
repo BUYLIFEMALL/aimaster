@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { deletePostAction, publishNowAction } from "@/lib/actions/posts";
 import { DeleteButton } from "@/components/posts/DeleteButton";
 import { PublishButton } from "@/components/posts/PublishButton";
+import { SendToWorkspaceButton } from "@/components/posts/SendToWorkspaceButton";
 import { isPublishStuck } from "@/lib/posts/publishStatus";
+import { IS_STANDALONE } from "@/lib/deployment";
 
 // 캐러셀(카드뉴스, 최대 4장)은 이미지마다 컨테이너 생성+FINISHED 대기를 순차로 반복해서
 // 기본 실행 시간 제한(수십 초)을 넘길 수 있다. 넉넉하게 늘려 정상 처리 도중 강제 종료되지
@@ -152,6 +154,13 @@ export default async function PostDetailPage({
           <DeleteButton variant="solid" />
         </form>
       </div>
+
+      {/* U10: 발행 기록을 업무 워크스페이스 「받은 업무」로(독립 설치본은 AIMaster 연결이 없어 숨김) */}
+      {!IS_STANDALONE && (
+        <div className="mt-4">
+          <SendToWorkspaceButton postId={post.id} />
+        </div>
+      )}
 
       {isEditable && post.status !== "scheduled" && !account && (
         <p className="mt-2 text-xs text-red-600">

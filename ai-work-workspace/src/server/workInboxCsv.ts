@@ -51,7 +51,7 @@ const PROGRAM_LABEL: Record<string, string> = {
   "naver-blog-agent": "네이버 블로그 에이전트",
   "ai-auto-blog": "블로그 포스팅 자동화",
   "threads-content-ops": "Threads 콘텐츠 운영",
-  "insta_auto_poster": "인스타 포스팅 자동화",
+  "auto-instagram-posting": "INSTA 포스팅 자동화", // programs.slug(폴더 insta_auto_poster)
 };
 
 /** 보낸 쪽 상태 값(영어·한국어 섞임) → 캘린더 상태 선택지 */
