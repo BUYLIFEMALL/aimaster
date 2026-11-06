@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 「🌐 언어판 만들기」 구현 + 공용 그리기 기준·사본 정리(미배포, `ai-video-studio` v1.29 예정)**
+- 공용 정리: v1.23부터 어긋났던 `video-edit-composition` 기준·사본의 원인(`renderTrace` 가져오기)을 `video-edit-render-trace` 모듈로 등록해 `music-video-studio/src/lib/edit/renderTrace.ts` 사본을 두고 `--sync` → `check-shared-modules` 전부 OK. `music-video-studio` tsc·시험 33개 통과(동작 불변, 미배포·급하지 않음).
+- V2 언어판(`3a550fe12`): 영상 합치기 2단계 아래 「🌐 언어판 만들기」 — 영어·일본어·중국어(간체)·베트남어, 권리 체크 → `/api/edit/translate`(회원 키 Claude→Gemini→OpenAI, `askJson` 공용화, `own_content_rights_log` tool `lang`) → 자막·내레이션 교체, 음성은 3단계에서 그 언어로(`/api/edit/voice` `lang`: 읽기 지시·받아쓰기 언어, 일본어·중국어는 낱말 시각 생략), 언어별 글꼴(JP·SC는 그 언어판일 때만), 일본어·중국어 자막 문장 부호·16자 조각, 영어·베트남어 한 줄 1.6배, 저장 형식 `lang`, 되돌리기. 시험 89개·tsc·로컬 빌드 통과.
+- 확인 못 한 것: 실제 번역·일본어 글꼴 그리기(배포 뒤 시험 계정, 회원 키 몇 원). 배포: 미배포 대기(작은 수정 묶음, 빌드 승인 1회 남음 → v1.29).
+- 문서: `ai-video-studio/docs/IMPROVEMENTS.md`·`music-video-studio/docs/IMPROVEMENTS.md` 맨 위, 플랜 §8, `docs/SHARED_MODULES.md`, 역할 `docs/roles/video.md`. 다음: V2 해설 교차편집 → 각색 강도.
+- 링크(배포 뒤): https://ai-video-studio.buylife.xyz/edit
+
 ## 2026-11-06 ⏸ [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — **음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI) 구현 · 미배포(v1.22 빌드 승인 대기)**
 - 배경: 요청함 `c234b28c`(OpenAI 키만 있는 시험 계정 또는 시험 동안 Gemini 안 쓰는 방법)에 주인님 「진행해」 → 시험 계정 키를 지우지 않고 회원 설정 기능으로 해결. 플랜 `ai-work-workspace/docs/PLAN_20261106_STT_ENGINE_CHOICE.md`.
 - 구현: 회의록 설정 메뉴(슬라이더)에 「음성 파일 받아쓰기 엔진」(Gemini·OpenAI 키 둘 다일 때만) — 자동(Gemini 우선)/OpenAI, 회원 설정 `meeting_stt_engine`(모든 기기 공통). 서버 `memberSttMode(preferred)`·`memberSttModes()`·`userMeetingPrefs().sttEngine`·`meetingStatus.sttModes/sttEngine`, Google 직접 업로드 파일은 Gemini 고정. 매뉴얼 한 줄.

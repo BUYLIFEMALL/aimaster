@@ -28,6 +28,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-video-studio` | V2 「🌐 언어판 만들기」(영·일·중·베 — 회원 키 번역 `/api/edit/translate`, 언어별 글꼴, 음성 `lang`, `own_content_rights_log` tool `lang`) + 공용 `renderTrace` 모듈 등록 | `3a550fe12` | 2026-11-06 · [역할: video] `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.29(빌드 승인 1회 남음). 배포 뒤 시험 계정으로 번역·일본어 글꼴 1회 확인 |
+| `music-video-studio` | 공용 사본 동기화(`timeline`·`Composition` + 새 사본 `renderTrace.ts`) — 동작 불변 | `3a550fe12` | 2026-11-06 · [역할: video] `claude-win-video` | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 급하지 않음, 그 프로그램 다음 배포 때 함께(v1.28) |
 | `real_estate_sales` | 분양권이 회당 저장 상한 20건에 영원히 밀리던 문제 — 분양권 줄을 상한 계산 맨 앞으로(`presaleFirst`). 11-06 강서구 운영 확인: 공개시스템에 등촌역 10-02 분양권·09-06 입주권이 있는데 서울 열린데이터 최신 200건 뒤에 놓여 v1.49 재정렬로도 저장 안 됨 | 이 줄 커밋(`fix(real_estate_sales): presale rows first`) | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` 2026-11-06 분양권 | 배포 뒤 시험 계정 강서구 「지금 조회하기」 1회 → DB `property_type='분양권'` 줄·`raw_data` 칸(aptNm·excluUseAr·floor) 대조 |
 | `real_estate_sales` | R-ONE 상권 좌표 보강: 검색어 후보(「/」 나눔·「시도 + 이름」·옛 시내 → 도시 역), 갱신 주소 `?retry=missing` | `1c8b800a3` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` 2026-11-06 | 배포 뒤 `/api/admin/rone-refresh?retry=missing&geocode=150` 1회(못 찾은 70곳) |
 | `realty-client-desk` | 수신거부 저장 실패 시 「처리됐어요」 대신 오류 문구 | `5cc894781` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `realty-client-desk/AGENTS.md` 5. 남은 일 | 배포 뒤 버전 +0.01 |
