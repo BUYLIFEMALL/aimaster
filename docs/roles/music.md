@@ -16,7 +16,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `free-music-studio` | 묶음 1 「내 곡에서 바로 커버」 `2673573a5` + 2-1 환경설정 `3f9613f4c` + 플레이리스트 보강 `f6753d3a4` + 보관함 안전 `08c5ec312`(엔진 0.6.9) + 원본 이식 1번 묶음 `09bfef101` 미배포 대기 | 다음 음악 배포 때 함께(운영 DB `parent_id` 칸은 2026-11-05 적용 완료) | `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md` |
+| `free-music-studio` | 묶음 1 「내 곡에서 바로 커버」 `2673573a5` + 2-1 환경설정 `3f9613f4c` + 플레이리스트 보강 `f6753d3a4` + 보관함 안전 `08c5ec312`(엔진 0.6.9) + 원본 이식 1번 묶음 `09bfef101` + 2번 묶음 `550b8eb03`·`a6a31e78f`·`51264756e` 미배포 대기 | 다음 음악 배포 때 함께(운영 DB `parent_id` 칸은 2026-11-05 적용 완료) | `free-music-studio/docs/PLAN_20261105_ORIGINAL_PARITY.md` |
 | `music` v1.49 | 30일 정리 결과 대조 | 2026-11-04 03:00 정리 뒤 남은 행 0개(다른 회원 4행 삭제)·두 계정 자료 유지 확인 | `music/AGENTS.md` 2026-11-03 |
 | `music-video-studio` v1.26 | 미배포 대기 `fde4c94bf`(분석 결과만 있어도 장면 이미지 먼저) | 다음 배포 때 함께(v1.27) | `music-video-studio/AGENTS.md` v1.26 |
 | `lyric-video-studio` v1.11 | Lyricbi L-2 LP판 회전 → L-3 무료 사진 배경 → L-4 꾸밈 확장 → L-5 렌더 진단(배포 1회) | **다음 작업 대기** — 주인님이 시작을 지시하실 때(2026-11-03 보류 지시) | `lyric-video-studio/docs/PLAN_20261024_LYRICBI_L1_L5.md` |
@@ -65,7 +65,7 @@
 | 2026-10-24 | `music-video-studio` v1.24 | AI 이미지 스튜디오 이미지를 참고로 | 배포 |
 
 ## 다음 첫 단계
-0. `free-music-studio` 원본 전체 이식 — **2번 묶음(엔진 0.6.9: 이어받기·검증 기억·30일 작업 기록·캐시 비우기·추천 구성)** → 3(파형·곡 상세) → 4(홈·2단·「…」 메뉴, DB 칸) → 5(AI 가사 결과 창) → 6(휴지통) → 7(마스터링) → 8(가사 파일) → 9(영상) → 10(Stem·자동 정렬) — `free-music-studio/docs/PLAN_20261106_ORIGINAL_PORT_ALL.md`(옛 `PLAN_20261105_ORIGINAL_PARITY.md`를 대신함). 원본 소스 `D:/PDS/Program_dev/free-music-src/repo`(beta.5)를 묶음마다 먼저 읽음. (주인님 확인 대기) 마스터PC 엔진 0.6.8 표지·MP3 표지, GPT Image·FLUX 2 그림
+0. `free-music-studio` 원본 전체 이식 — 1·2번 끝(미배포) → **3번 묶음(엔진 파형 `GET /library/<id>/waveform` + 곡 상세 패널·제목/가사 수정·앨범 그림 1:1 올리기)** → 4(홈·2단·「…」 메뉴, DB 칸) → 5(AI 가사 결과 창) → 6(휴지통) → 7(마스터링) → 8(가사 파일) → 9(영상) → 10(Stem·자동 정렬) — `free-music-studio/docs/PLAN_20261106_ORIGINAL_PORT_ALL.md`(옛 `PLAN_20261105_ORIGINAL_PARITY.md`를 대신함). 원본 소스 `D:/PDS/Program_dev/free-music-src/repo`(beta.5)를 묶음마다 먼저 읽음. (주인님 확인 대기) 마스터PC 엔진 0.6.8 표지·MP3 표지, GPT Image·FLUX 2 그림
 1. 2026-11-04 03:00(KST) 뒤 음악(SUNO) 30일 정리 결과 대조(다른 회원 4행 삭제·관리자·시험 계정 자료 유지·`cleanup_expired` 새 줄)
 2. (끝) 마스터PC 엔진 0.1.11로 대기열 실물 확인 — 완성·자동 기록·취소·중단됨 모두 정상(2026-11-04). 그 과정에서 엔진 0.1.7~0.1.11 수정(기록 파일·빈 번호·남은 음악 엔진 정리·실패 이유 표시·UTF-8)
 3. (끝) 마스터PC YuE2 첫 실물 성공 — 주인님 「음질·음악적 필 모두 YuE2가 좋다」
@@ -77,4 +77,4 @@
 4. AI 무료음악 자동화 4단계 나머지 — 홈 화면·곡 만들기 2단·내 곡에서 바로 커버·휴지통(재생바는 v1.10에서 끝)
 
 ## 주인님께 여쭐 것
-- AI 무료음악 원본 이식 결정 5가지(권장안으로 진행 중, 다르면 지시): CLI 구독 작사 안 함 / DB 칸·표는 묶음마다 SQL 승인 / 곡 지우기 → 휴지통 30일 / AI 작곡 기획 20곡씩 최대 40곡 / Stem 모델(BS-RoFormer)은 상업 조건 확인 전 보류 — `free-music-studio/docs/PLAN_20261106_ORIGINAL_PORT_ALL.md` 3절
+- AI 무료음악 원본 이식 결정 5가지(권장안으로 진행 중, 다르면 지시): CLI 구독 작사 안 함 / DB 칸·표는 묶음마다 SQL 승인 / 곡 지우기 → 휴지통 30일 / AI 작곡 기획 20곡씩 최대 40곡 (Stem은 2026-11-06 주인님 「넣어」로 결정 끝) — `free-music-studio/docs/PLAN_20261106_ORIGINAL_PORT_ALL.md` 3절
