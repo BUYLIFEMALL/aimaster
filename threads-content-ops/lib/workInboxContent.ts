@@ -22,7 +22,9 @@ const STATUS_LABEL: Record<string, string> = { draft: "초안", scheduled: "예�
 
 export function threadsPostInboxContent(post: ThreadsPostForInbox): { title: string; bodyMd: string; data: Record<string, string> } {
   const body = (post.body ?? "").trim();
-  const firstLine = body.split("\n").map((l) => l.trim()).find(Boolean) ?? "";
+  // 쇼핑제휴 글 맨 위 「(광고)…」 표시 줄은 제목으로 쓰지 않는다(본문에는 그대로 둠). 2026-11-06 운영 확인에서 발견
+  const lines = body.split("\n").map((l) => l.trim()).filter(Boolean);
+  const firstLine = lines.find((l) => !/^\(광고\)/.test(l)) ?? lines[0] ?? "";
   const title = (firstLine.slice(0, 60) || "제목 없는 글").slice(0, 200);
 
   const published = kstDate(post.published_at);

@@ -24,6 +24,13 @@ test("발행 완료 글: 제목은 본문 첫 줄 60자, 캘린더 데이터에 
   assert.equal(c.bodyMd, "오늘의 한 줄\n둘째 줄\n\n---\n\n## 발행 정보\n\n- 상태: 발행 완료\n- 발행일: 2026-11-05\n- 발행 주소: https://www.threads.net/@a/post/x");
 });
 
+test("쇼핑제휴 글: 「(광고)」 표시 줄은 건너뛰고 다음 줄을 제목으로", () => {
+  const c = threadsPostInboxContent({ id: "p4", body: "(광고)쿠팡파트너스 활동으로 수수료를 받을 수 있음\n\n🍁바닥 한기 순삭 텐트\n본문", status: "published", scheduled_at: null, published_at: null, permalink: null, created_at: "2026-11-04T00:00:00.000Z" });
+  assert.equal(c.title, "🍁바닥 한기 순삭 텐트");
+  assert.match(c.bodyMd, /^\(광고\)/);
+  assert.equal(threadsPostInboxContent({ id: "p5", body: "(광고)만 있는 글", status: "draft", scheduled_at: null, published_at: null, permalink: null, created_at: "2026-11-04T00:00:00.000Z" }).title, "(광고)만 있는 글");
+});
+
 test("예약 글: 예약일만 · 본문 없으면 제목 대체 · 초안은 날짜 키 없음", () => {
   const s = threadsPostInboxContent({ id: "p2", body: "", status: "scheduled", scheduled_at: "2026-11-10T01:00:00.000Z", published_at: null, permalink: null, created_at: "2026-11-04T00:00:00.000Z" });
   assert.equal(s.title, "제목 없는 글");
