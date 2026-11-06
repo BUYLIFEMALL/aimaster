@@ -19,6 +19,8 @@ export const RONE_TABLES: { id: string; kind: RentKind; item: "rent" | "vacancy"
 
 /** 이 거리 안의 상권만 「가까운 상권」으로 보여 준다(넘으면 시·도 값) */
 export const NEAR_KM = 1.5;
+/** NEAR_KM 안에 없을 때 「가장 가까운 상권(참고)」으로 보여 줄 최대 거리(교외: 일산 백석동 → 마두역 2.4km, 2026-11-06 #20) */
+export const NEAREST_KM = 10;
 
 export interface RoneRow {
   WRTTIME_IDTFR_ID?: string;
@@ -148,31 +150,36 @@ export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; ln
 export interface RentNearby {
   quarter: string;
   quarterLabel: string;
-  /** 가까운 상권(없으면 null) */
+  /** 가까운 상권(NEAR_KM 안, 없으면 null) */
   near: (Pick<RentArea, "area" | "name" | "rent" | "vacancy"> & { km: number }) | null;
+  /** near가 없을 때 NEAREST_KM 안에서 가장 가까운 상권(참고용, 없으면 null). near가 있으면 항상 null */
+  nearest: (Pick<RentArea, "area" | "name" | "rent" | "vacancy"> & { km: number }) | null;
   sido: Pick<RentArea, "area" | "rent" | "vacancy"> | null;
   nation: Pick<RentArea, "rent" | "vacancy"> | null;
 }
 
-/** 필지 좌표·시군구 코드로 가까운 상권(NEAR_KM 안)·시도·전국 값을 고른다 */
+/** 필지 좌표·시군구 코드로 가까운 상권(NEAR_KM 안)·시도·전국 값을 고른다. NEAR_KM 안에 없으면 NEAREST_KM 안 가장 가까운 상권을 참고로 */
 export function pickNearby(rows: RentArea[], point: { x: number; y: number } | null | undefined, sggCd: string): RentNearby | null {
   if (!rows.length) return null;
   const pt = point ? { lat: point.y, lng: point.x } : null;
   const sidoNames = SIDO_NAMES[sggCd.slice(0, 2)] ?? [];
-  let near: RentNearby["near"] = null;
+  let nearest: RentNearby["nearest"] = null;
   if (pt) {
     for (const r of rows) {
       if (r.depth < 2 || r.lat == null || r.lng == null) continue;
       const km = distanceKm(pt, { lat: r.lat, lng: r.lng });
-      if (km <= NEAR_KM && (!near || km < near.km)) near = { area: r.area, name: r.name, rent: r.rent, vacancy: r.vacancy, km: Math.round(km * 10) / 10 };
+      if (km <= NEAREST_KM && (!nearest || km < nearest.km)) nearest = { area: r.area, name: r.name, rent: r.rent, vacancy: r.vacancy, km: Math.round(km * 10) / 10 };
     }
   }
+  const near = nearest && nearest.km <= NEAR_KM ? nearest : null;
+  if (near) nearest = null;
   const sidoRow = rows.find((r) => r.depth === 1 && sidoNames.includes(r.area)) ?? null;
   const nationRow = rows.find((r) => r.depth === 1 && r.area === "전국") ?? null;
   return {
     quarter: rows[0].quarter,
     quarterLabel: rows[0].quarter_label,
     near,
+    nearest,
     sido: sidoRow ? { area: sidoRow.area, rent: sidoRow.rent, vacancy: sidoRow.vacancy } : null,
     nation: nationRow ? { rent: nationRow.rent, vacancy: nationRow.vacancy } : null,
   };

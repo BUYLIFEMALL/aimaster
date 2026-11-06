@@ -31,6 +31,20 @@ export function presaleFirst(rows: SeoulRtmsRow[]): SeoulRtmsRow[] {
   return [...rows.filter((r) => r.BLDG_USG === PRESALE), ...rows.filter((r) => r.BLDG_USG !== PRESALE)];
 }
 
+/**
+ * 동 코드가 빈 줄에 「동 이름 → 코드」 표로 채운다(채운 줄 수 반환). #21(2026-11-06): 서울 분양권은 국토부 자료라 동 코드가 없고
+ * 서울은 LEGAL_DONG 표에도 없어 PNU·주소 리포트가 안 됐다 — 이미 저장된 서울 줄(열린데이터가 준 코드)에서 빌려 채운다(collect.ts).
+ */
+export function fillDongCodes(rows: SeoulRtmsRow[], codes: Record<string, string>): number {
+  let n = 0;
+  for (const r of rows) {
+    if (r.STDG_CD || !r.STDG_NM) continue;
+    const code = codes[r.STDG_NM];
+    if (code && /^\d{5}$/.test(code)) { r.STDG_CD = code; n++; }
+  }
+  return n;
+}
+
 /** 전월세 자료가 있는 유형(분양권 제외) */
 export const RENT_TYPES = PROPERTY_TYPES.filter((t) => !!MOLIT_SERVICE[t].rent);
 export const molitUrl = (service: string) => `https://apis.data.go.kr/1613000/RTMSDataSvc${service}/getRTMSDataSvc${service}`;

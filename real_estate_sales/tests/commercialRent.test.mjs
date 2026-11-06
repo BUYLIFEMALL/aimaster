@@ -53,7 +53,15 @@ test("가까운 상권(1.5km 안)·시도·전국을 고른다", () => {
   assert.ok(n.near.km < 1);
   assert.equal(n.sido.area, "부산");
   assert.equal(n.nation.rent.large, 26.7);
-  const far = pickNearby(rows, { x: 129.2, y: 35.3 }, "26530");
+  assert.equal(n.nearest, null); // 반경 안에 있으면 참고 상권은 비움
+  // #20(2026-11-06): 1.5km 밖이지만 10km 안이면 가장 가까운 상권을 참고로(서면 ≈ 4km)
+  const far = pickNearby(rows, { x: 129.1, y: 35.17 }, "26530");
   assert.equal(far.near, null);
+  assert.equal(far.nearest.name, "서면");
+  assert.ok(far.nearest.km > 1.5 && far.nearest.km < 10);
+  const veryFar = pickNearby(rows, { x: 129.5, y: 35.6 }, "26530");
+  assert.equal(veryFar.near, null);
+  assert.equal(veryFar.nearest, null); // 10km 밖이면 없음
   assert.equal(pickNearby(rows, null, "29110")?.sido, null); // 광주는 표에 없음
+  assert.equal(pickNearby(rows, null, "29110")?.nearest, null);
 });

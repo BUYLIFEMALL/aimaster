@@ -13,10 +13,11 @@ import {
   fetchMolitTrades,
   fetchMolitTradeCount,
   type PublicDataKeys,
+  type SeoulRtmsRow,
 } from "@/lib/publicdata/client";
 import { priceRank, rankLabel, RANK_AREA_TOLERANCE, RANK_MONTHS, recentMonths, sumCompleteTypes, VOLUME_MONTHS, volumeMonthsToFetch, volumeTrend, ymLabel, type VolumeTrend } from "./insights";
 import { isSeoulDistrict } from "@/lib/publicdata/districts";
-import { DETACHED, PRESALE, RENT_TYPES, detachedName, normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, presaleFirst, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
+import { DETACHED, PRESALE, RENT_TYPES, detachedName, fillDongCodes, normalizeDealTypes, normalizePropertyTypes, pickAssessedPrice, pickRentComparable, presaleFirst, PROPERTY_TYPES, propertyTypeOf, rentToListing, seoulRentToComparables, type PropertyType, type RentComparable } from "@/lib/publicdata/molit";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { ensureListingAnalysis } from "@/lib/actions/analysis";
@@ -45,6 +46,16 @@ async function findExistingKeys(supabase: AdminClient, keys: string[]): Promise<
   return found;
 }
 
+/** 동 코드가 빈 서울 줄에, 같은 구의 저장된 줄(raw_data의 STDG_NM·STDG_CD)에서 코드를 빌려 채운다. 못 찾으면 그대로(빈칸) */
+async function borrowSeoulDongCodes(supabase: AdminClient, sggCd: string, rows: SeoulRtmsRow[]) {
+  const names = [...new Set(rows.filter((r) => !r.STDG_CD && r.STDG_NM).map((r) => r.STDG_NM))];
+  if (!names.length) return;
+  const { data } = await loose(supabase).from("real_estate_listings").select("name:raw_data->>STDG_NM, code:raw_data->>STDG_CD").eq("sgg_cd", sggCd).in("raw_data->>STDG_NM", names).neq("raw_data->>STDG_CD", "").limit(300);
+  const codes: Record<string, string> = {};
+  for (const d of (data ?? []) as { name: string | null; code: string | null }[]) if (d.name && d.code && !codes[d.name]) codes[d.name] = d.code;
+  fillDongCodes(rows, codes);
+}
+
 export async function collectDistrict(
   supabase: AdminClient,
   sggCd: string,
@@ -70,6 +81,8 @@ export async function collectDistrict(
   for (const row of trades) if (!row.BLDG_NM && propertyTypeOf(row.BLDG_USG) === DETACHED) row.BLDG_NM = detachedName("", `${row.MNO}${row.SNO && row.SNO !== "0" ? `-${row.SNO}` : ""}`);
   // 분양권은 맨 앞에(2026-11-06): 계약일순으로 섞어도 서울 최신 200건 뒤에 놓여 회당 상한 20건에 계속 밀렸다(v1.49 재정렬로는 해결 안 됨)
   const validTrades = presaleFirst(trades.filter((row) => row.CTRT_DAY && row.BLDG_NM && propertyTypeOf(row.BLDG_USG)));
+  // #21(2026-11-06): 서울 분양권(국토부)은 동 코드가 없어 PNU·주소 리포트가 안 된다 — 이미 저장된 서울 줄(열린데이터)에서 같은 동 이름의 코드를 빌려 채운다(중복 키는 동 이름만 써서 영향 없음)
+  if (seoul) await borrowSeoulDongCodes(supabase, sggCd, validTrades);
 
   // 최대 200건을 매번 한 건씩 존재 여부 조회하던 것을, 한 번의 IN 쿼리로 일괄 확인하도록 변경.
   const dedupKeys = validTrades.map((row) => buildDedupKey(row));

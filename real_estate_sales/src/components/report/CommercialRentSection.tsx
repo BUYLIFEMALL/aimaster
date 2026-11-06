@@ -9,6 +9,7 @@ const perPyeong = (v?: number) => (v == null ? "" : ` (평당 약 ${(Math.round(
 export function CommercialRentSection({ c }: { c: RentNearby }) {
   const cols = [
     ...(c.near ? [{ head: `${c.near.name} (${c.near.km}km)`, v: c.near }] : []),
+    ...(c.nearest ? [{ head: `${c.nearest.name} (${c.nearest.km}km·참고)`, v: c.nearest }] : []), // #20: 반경 안에 없으면 가장 가까운 상권을 참고로
     ...(c.sido ? [{ head: `${c.sido.area} 평균`, v: c.sido }] : []),
     ...(c.nation ? [{ head: "전국 평균", v: c.nation }] : []),
   ];
@@ -20,6 +21,8 @@ export function CommercialRentSection({ c }: { c: RentNearby }) {
       <p className="text-sm text-mx-text">
         {c.near ? (
           <>이 필지에서 <b>{c.near.km}km</b> 떨어진 상권 「<b>{c.near.area.replaceAll(">", " › ")}</b>」 기준이에요.</>
+        ) : c.nearest ? (
+          <>{NEAR_KM}km 안에는 조사 상권이 없어요. 가장 가까운 상권 「<b>{c.nearest.area.replaceAll(">", " › ")}</b>」(<b>{c.nearest.km}km</b>)을 참고로, 시·도·전국 평균과 함께 보여 드려요.</>
         ) : (
           <>{NEAR_KM}km 안에 조사 상권이 없어 시·도와 전국 평균만 보여 드려요.</>
         )}
