@@ -10,7 +10,9 @@ import ViralCategoryManager, { type ViralCategory } from "./ViralCategoryManager
 import { CategoryChip } from "./ViralCollector";
 import { moveDrafts, runDraftAction } from "./web-actions";
 import { FreePhotoPicker } from "./FreePhotoPicker";
+import SendToWorkspaceButton from "./SendToWorkspaceButton";
 import { MAX_MEDIA, type PostMedia } from "@/threads-content-ops/lib/media";
+import { IS_STANDALONE } from "@/threads-content-ops/lib/deployment";
 
 type Account = { id: string; username: string | null };
 type Draft = {
@@ -160,6 +162,8 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
     {(draft.status === "failed" || draft.status === "publishing") && draft.error_message && <p role="alert" className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">{draft.error_message}</p>}
     {draft.status === "scheduled" && draft.scheduled_at && <p className="mt-3 flex items-center gap-1 text-xs font-semibold text-amber-800"><CalendarClock size={13} />{new Date(draft.scheduled_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} 예약</p>}
     {draft.status === "published" && <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800"><span className="font-semibold">✓ 포스팅완료{draft.published_at ? ` · ${new Date(draft.published_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}` : ""}</span>{link ? <a className="inline-flex items-center gap-1 font-bold underline" href={link} target="_blank" rel="noopener noreferrer"><ExternalLink size={13} />게시글 보기</a> : <span>Threads 계정에서 게시글을 확인하세요.</span>}</div>}
+    {/* U10(2026-11-06): 발행 기록을 업무 워크스페이스 「받은 업무」로(독립 설치본은 AIMaster 연결이 없어 숨김) */}
+    {!IS_STANDALONE && <SendToWorkspaceButton postId={draft.id} />}
     {isDraft && <div className="mt-3 rounded-lg border border-neutral-200 bg-white p-3">
       <label htmlFor={`schedule-${draft.id}`} className="mb-2 block text-xs text-neutral-500">예약 발행 시간 <span className="text-neutral-400">· 예약 시각 후 1분 안에 자동으로 발행됩니다.</span></label>
       <div className="flex flex-col gap-2 sm:flex-row"><input id={`schedule-${draft.id}`} disabled={busy} className="min-w-0 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-xs text-neutral-900" type="datetime-local" value={scheduledAt} min={localDateTime(new Date(Date.now() + 5 * 60_000))} onChange={(event) => setScheduledAt(event.target.value)} /><button type="button" className={buttonClass} disabled={busy || !canPost || !scheduledAt} onClick={() => void submit("schedule", "예약 대기열에 넣었습니다.")}>{pending === "schedule" ? "예약 중…" : "예약하기"}</button></div>
