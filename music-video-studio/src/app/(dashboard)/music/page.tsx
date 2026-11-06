@@ -64,7 +64,40 @@ export default function MusicPage() {
 
   return (
     <div className="space-y-6">
-      <StepHeader step={1} title="음악·가사 기획" desc="AI 음악 스튜디오에서 내 곡을 가져오거나 내 음악 파일을 올리고, 주제와 장르로 AI가 가사와 Suno 스타일을 쓰거나 이미 있는 가사를 직접 붙여 넣습니다." />
+      <StepHeader step="STEP 01" title="음악·가사 기획 및 AI 작사 스튜디오" desc="외국어 없이 직관적인 4단계 워크플로우로 나만의 고화질 시네마틱 뮤직비디오를 자동 완성합니다." />
+
+      {/* 4단계 직관적 MV 파이프라인 인디케이터 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-[#0c1020]/80 border border-slate-800 text-xs font-bold shadow-xl">
+        <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-rose-600/20 border border-rose-500/40 text-rose-300">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-rose-600 text-white text-[11px] font-black shadow-md">1</span>
+          <div className="min-w-0">
+            <div className="text-white font-black leading-tight truncate">음악·가사 기획</div>
+            <div className="text-[10px] text-rose-300/80 font-normal truncate">주제/장르 AI 작사</div>
+          </div>
+        </div>
+        <Link href="/storyboard" className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/80 text-slate-400 hover:border-slate-700 hover:text-slate-300 transition-all">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-slate-300 text-[11px] font-black">2</span>
+          <div className="min-w-0">
+            <div className="font-bold leading-tight truncate">스토리보드</div>
+            <div className="text-[10px] text-slate-500 font-normal truncate">장면별 시각 묘사</div>
+          </div>
+        </Link>
+        <Link href="/scenes" className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/80 text-slate-400 hover:border-slate-700 hover:text-slate-300 transition-all">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-slate-300 text-[11px] font-black">3</span>
+          <div className="min-w-0">
+            <div className="font-bold leading-tight truncate">영상 씬 렌더링</div>
+            <div className="text-[10px] text-slate-500 font-normal truncate">Omni Flash 생성</div>
+          </div>
+        </Link>
+        <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/80 text-slate-400">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-slate-300 text-[11px] font-black">4</span>
+          <div className="min-w-0">
+            <div className="font-bold leading-tight truncate">타임라인 완성</div>
+            <div className="text-[10px] text-slate-500 font-normal truncate">합성 MP4 내보내기</div>
+          </div>
+        </div>
+      </div>
+
 
       <SongCard />
 

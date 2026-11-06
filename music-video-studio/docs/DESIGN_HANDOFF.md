@@ -1,77 +1,68 @@
-# 뮤직비디오 자동화 (music-video-studio) — UI/UX 디자인 개발완료 보고서 (DESIGN_HANDOFF)
+# 뮤직비디오 자동화 (music-video-studio) — UI/UX 2차 디자인 리뉴얼 완료 보고서 (DESIGN_HANDOFF)
 
-> **작업 일시**: 2026-10-18  
-> **담당 에이전트**: Antigravity (윈도우)  
-> **적용 버전**: `v1.11`  
-> **공식 디자인 템플릿 명칭**: **사이버 네온 다크 콘솔 스타일 — 뮤직비디오 앰프 데크 에디션 (Cyber Neon Dark Console Style — Music Video Deck Edition)**  
+> **작업 일시**: 2026-11-06  
+> **담당 에이전트**: Antigravity (`agy`, 윈도우)  
+> **적용 버전**: `v1.27`  
+> **채택 디자인 템플릿**: **45. 시네마틱 네온 MV 비주얼라이저 스튜디오 스타일 (Cinematic Neon MV Visualizer Studio Style)**  
 > **공식 서비스 URL**: https://music-video-studio.buylife.xyz  
-> **검수 브라우저**: Microsoft Edge (포그라운드 실세션 검수, 일반 회원 테스트 계정 `buylifemall@naver.com`)
+> **배포 Deployment ID**: `dpl_9uuXECD4PJybgqVuAqpXe8616MSj` (Ready, Aliased)  
+> **12개 뷰 쇼케이스 웹서버**: `http://localhost:3800/showcase.html`  
+> **종합 비교표 페이지**: `http://localhost:3800/comparison.html`  
+> **영구 디자인 자산 보존 경로**: `D:\Antigravity\Design\45_Cinematic_Neon_MV_Visualizer_Studio` (채택) / `46_...` / `47_...`
 
 ---
 
-## 1. 디자인 리뉴얼 개요 및 목적
-- **목적**: 기존의 불완전한 라이트/다크 혼합 UI를 탈피하고, 신디사이저·오디오 앰프 랙을 조작하는 듯한 몰입감 높은 **사이버 네온 다크 콘솔 스타일**로 전면 리뉴얼하여 음악/비디오 창작자에게 최적화된 전문 프로덕션 환경을 제공함.
-- **주요 해결 과제**:
-  1. 페이지별로 불일치하던 배경색을 퓨어 딥 블랙(`#060911`) 및 다크 네이비(`#0a0f1d`)로 통일.
-  2. 모바일(375px) 뷰포트에서 상단 56px 슬림 네온 헤더 + 슬라이딩 드로어 메뉴 구축으로 쾌적한 반응형 사용성 확보.
-  3. 초보 창작자도 즉시 따라 할 수 있는 **비주얼 연동 & 사용 매뉴얼 (`/guide`)** 신설.
-  4. 본인 Gemini API 키 연동 및 Veo 과금 예상 비용 안내의 투명성 강화.
+## 1. 리뉴얼 배경 및 핵심 사용자 지시
+- **배경**: 사용자의 직관적이고 쉬운 UI 개편 요구 ("https://music-video-studio.buylife.xyz/music 바꿔야할것 같다 디자인 URL 좀더 쉽고 직관적으로 보이게 만들어줘", "우선 하나씩 시안 만든후에 보여줘", "1안으로 진행해").
+- **해결 방안**:
+  1. 전문 프로 오디오 용어로 난해했던 인터페이스를 탈피하고, **누구나 한눈에 이해할 수 있는 4단계 원스톱 MV 제작 파이프라인 인디케이터 배너**를 전 화면 상단에 배치.
+  2. 씬 제작 및 렌더링 화면(`/scenes`)에 **16:9 영화관 시네마틱 뷰파인더 덱 목업 (LIVE 🔴 REC 타임코드 00:01:24:18, 4K UHD, 60 FPS)**을 탑재하여 즉각적인 현장감과 직관성 부여.
+  3. 클릭감이 극대화된 **3D 엠보싱 마젠타/앰버/시안 액션 버튼 (`.btn-3d-magenta`, `.btn-3d-amber`, `.btn-3d-cyan`)** 적용.
+  4. 로그인 화면(`/login`)을 **5단계 수직 레이아웃 표준 규격**(64px 로고 + 알약 영문 뱃지 + 볼드 한글 타이틀 + 3D 마젠타 버튼 + 1행 축소 약관)으로 전면 개편.
 
 ---
 
-## 2. 디자인 시스템 및 컴포넌트 명세
+## 2. 4대 화면 3시안 쇼케이스 및 1안(45번 템플릿) 채택 내역
 
-### 1) 컬러 팔레트 (Color Palette)
-- **Background**:
-  - Main Body: `#060911` (Pure Deep Space Black)
-  - Card & Console: `#0a0f1d` ~ `#070b14` (Dark Glassmorphism with Slate/Cyan Border)
-  - Sub Surface: `#05070f` (Ultra Deep Black)
-- **Primary / Brand**:
-  - Neon Cyan: `#00f2fe` / `#22d3ee` (랙 마운트 라인, 인디케이터, 테두리 글로우)
-  - Neon Pink & Magenta: `#f43f5e` / `#ec4899` (메인 CTA 액션, 앰프 노브 하이라이트)
-  - Studio Violet: `#8b5cf6` / `#a855f7` (그라디언트 브릿지)
-- **Status & Badges**:
-  - Success: Emerald (`#10b981`, `bg-emerald-950/40 text-emerald-300`)
-  - Warning: Amber (`#f59e0b`, `bg-amber-950/30 text-amber-300`)
-  - Error: Rose (`#f43f5e`, `bg-rose-950/40 text-rose-300`)
-
-### 2) 핵심 컴포넌트 리뉴얼 내역
-- **사이드바 (Rackmount Pipeline Console)**:
-  - 데스크톱: 좌측 256px 고정 앰프 랙 스타일, 3단계 파이프라인 시각화, `v1.11 NEON DECK` 배지, 회원 계정 정보 위젯.
-  - 모바일(375px): 상단 56px 슬림 헤더(로고, 버전 배지, 햄버거 버튼), 탭 오버레이 드로어, 닫기 애니메이션.
-  - 신규 메뉴: `📖 연동 & 사용 매뉴얼` (`/guide`) 추가.
-- **공통 UI (`src/components/studio/ui.tsx`)**:
-  - `Card`: 다크 글래스모피즘 + 미세한 시안 테두리 글로우.
-  - `INPUT` & `SELECT`: 다크 인풋(`bg-slate-950/80 border-slate-700/60 text-slate-100 focus:border-cyan-400`).
-  - `BTN_PRIMARY`: 앰프 파워 버튼 감성의 핑크-로즈 네온 그라디언트 + 호버 글로우.
-  - `BTN_GHOST`: 시안-슬레이트 미세 테두리 다크 고스트 버튼.
-- **3단계 씬 제작 (`/scenes`)**:
-  - Veo 모델 선택 랙, 클립 길이, 종횡비 셀렉터, 심리스 루프 온오프 토글.
-  - 사전 예상 API 비용(달러 및 원화) 안내 박스.
-  - 씬별 프리뷰 카드 (SCENE 번호 뱃지, 미디어 캔버스, 가사 큐, 비주얼 프롬프트 뷰어).
-- **비주얼 가이드북 (`/guide`)**:
-  - 히어로 배너 (네온 블러 오라).
-  - 4단계 파이프라인 비주얼 카드 (1단계 기획 ~ 4단계 Veo 렌더링).
-  - Suno AI 음악 프롬프트 치트시트 & Google Veo 루프 영상 제작 팁.
-  - FAQ 5종 아코디언.
+| 구분 | 1안 (채택안) | 2안 (영구 자산화) | 3안 (영구 자산화) |
+| :--- | :--- | :--- | :--- |
+| **템플릿 번호 및 명칭** | **45. 시네마틱 네온 MV 비주얼라이저 스튜디오** | 46. 크리에이티브 아티스트 MV 아틀리에 | 47. 하이퍼 사이버네틱 비디오 신디사이저 |
+| **컬러 테마** | 딥 시네마틱 블랙 (`#0B0F17`) & 네온 마젠타 (`#F43F5E`) & 사이버 시안 | 웜 오프화이트 (`#FAF9F6`) & 뮤티드 인디고 (`#4F46E5`) & 로즈골드 | 매트 카본 슬레이트 (`#050811`) & 하이퍼 라임 (`#10B981`) & 네온 퍼플 |
+| **핵심 컴포넌트** | 16:9 영화관 뷰파인더 덱, 4단계 파이프라인, 3D 마젠타 버튼 | 씬별 무드보드 갤러리 타일, 캘리그래피 캔버스 | 24채널 오디오-비디오 스펙트럼, BPM 비트 노브 |
+| **채택 상태** | **사용자 최종 승인 채택 및 배포 완료 (`v1.27`)** | 템플릿 영구 아카이빙 (`D:\Antigravity\Design\46_...`) | 템플릿 영구 아카이빙 (`D:\Antigravity\Design\47_...`) |
 
 ---
 
-## 3. Microsoft Edge 포그라운드 실세션 검수 결과
+## 3. 구현 세부 내역
 
-| 구분 | 화면 경로 | 검증 항목 | 결과 | 아티팩트 파일명 |
-|---|---|---|---|---|
-| 데스크톱 | `/music` | 1단계 음악 기획, 사이드바 네온 랙, 가사 에디터, 인풋 다크 테마 | ✅ 통과 | `edge_music_video_desktop_music_v111.png` |
-| 데스크톱 | `/storyboard` | 2단계 스토리보드 분할 뷰, 화풍 선택, 씬 분할 카드 | ✅ 통과 | `edge_music_video_desktop_storyboard_v111.png` |
-| 데스크톱 | `/scenes` | 3단계 씬 렌더링 콘솔, Veo 엔진 셀렉터, 씬별 프리뷰 카드 | ✅ 통과 | `edge_music_video_desktop_scenes_v111.png` |
-| 데스크톱 | `/guide` | 신설 비주얼 가이드북, 4단계 카드, 치트시트, FAQ 아코디언 | ✅ 통과 | `edge_music_video_desktop_guide_v111.png` |
-| 데스크톱 | `/settings` | API 키 설정 콘솔 다크 일체화, 마스킹 키 표시, 연동 매뉴얼 팝업 | ✅ 통과 | `edge_music_video_desktop_settings_v111.png` |
-| 모바일 | `/music` | 375px 모바일 뷰, 56px 상단 슬림 네온 헤더, 햄버거 버튼 | ✅ 통과 | `edge_music_video_mobile_music_v111.png` |
-| 모바일 | Drawer | 모바일 슬라이딩 드로어 메뉴 오픈, 네온 네비게이션 동작 | ✅ 통과 | `edge_music_video_mobile_drawer_v111.png` |
-| 모바일 | `/guide` | 모바일 375px 반응형 가이드북 카드 및 FAQ 터치 인터랙션 | ✅ 통과 | `edge_music_video_mobile_guide_v111.png` |
+### 1) 스타일 및 글로벌 디자인 토큰 (`globals.css`)
+- 3D 엠보싱 버튼 클래스 3종 추가:
+  - `.btn-3d-magenta`: `bg-gradient-to-r from-rose-600 via-pink-600 to-rose-500 shadow-[0_5px_0_0_#9f1239]`
+  - `.btn-3d-amber`: `bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_5px_0_0_#9a3412]`
+  - `.btn-3d-cyan`: `bg-gradient-to-r from-cyan-500 to-blue-600 shadow-[0_5px_0_0_#0e7490]`
+- 네온 마젠타 커스텀 스크롤바 적용.
+
+### 2) 4단계 직관적 파이프라인 배너 (`src/components/studio/ui.tsx`, `music/page.tsx`, `storyboard/page.tsx`, `scenes/page.tsx`)
+- `1단계 음악 & 가사 등록` ➔ `2단계 씬 콘티 기획` ➔ `3단계 AI 비디오 렌더` ➔ `4단계 최종 타임라인 완성`
+- 현재 진행 중인 스텝은 펄스 애니메이션 + 네온 뱃지로 직관적 표시.
+
+### 3) 16:9 영화관 시네마틱 뷰파인더 덱 (`scenes/page.tsx`)
+- 실시간 타임코드 디스플레이 (`REC 🔴 00:01:24:18`, `4K UHD`, `60 FPS`, `HDR HIGH DYNAMIC`).
+- 오디오 파형 반응형 비주얼라이저 바 12열 내장.
+- Veo 모델 사전 생성 비용 안내 박스 완벽 보존.
+
+### 4) 로그인 5단계 표준 규격 레이아웃 (`login/page.tsx`)
+- 1단계: 68px 라운드 스퀘어 네온 마젠타 스튜디오 로고.
+- 2단계: `AIMASTER MUSIC VIDEO STUDIO` 고대비 둥근 알약 뱃지.
+- 3단계: `AI 뮤직비디오 스튜디오` 볼드 타이틀 + 서브 안내 카피.
+- 4단계: 로그인/회원가입 2단 탭 폼 + 3D 마젠타 실행 버튼 (`로그인 →`).
+- 5단계: `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 링크.
 
 ---
 
-## 4. 인수인계 및 다음 작업자 가이드
-- **버전 일치 확인**: `src/lib/version.ts`(`v1.11`), `package.json`(`1.11.0`), Supabase DB `programs.version`(`v1.11`).
-- **공용 모듈 사본 주의**: `geminiImage.ts` 및 `nanoBananaModels.ts`는 공용 기준 코드 사본이므로 직접 수정하지 않고, 호출부에서 확장하여 사용합니다.
+## 4. 빌드 및 배포 검증 결과
+
+1. **단위 테스트**: `npm test --prefix music-video-studio` ➔ **33개 테스트 전체 통과 (0 fail)**.
+2. **프로덕션 빌드**: `npm run build --prefix music-video-studio` ➔ **Next.js Turbopack 2.1s 빌드 성공 (무결성 100%)**.
+3. **Vercel 프로덕션 배포**: `vercel deploy --prod` ➔ **배포 ID `dpl_9uuXECD4PJybgqVuAqpXe8616MSj` (Ready, Aliased)**.
+4. **라이브 검증**: `https://music-video-studio.buylife.xyz/login` ➔ **HTTP 200 정상 응답 및 5단계 표준 로그인 UI 확인**.
