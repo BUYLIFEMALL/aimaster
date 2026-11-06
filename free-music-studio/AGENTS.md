@@ -1,6 +1,6 @@
 # AI 무료음악 자동화 (`free-music-studio`) — 에이전트 작업 지침
 
-> 상태: **v1.14·엔진 0.5.0 배포(2026-11-04) — 모델 저장 공간 관리(안 쓰는 모델 지우기·모델 폴더를 다른 드라이브로)** · v1.13·엔진 0.4.1 추가 엔진 설치 실패(torch 판 맞추기) 수정, 마스터PC HeartMuLa 실물 진행 중 · **v1.12 배포 완료(2026-11-04) — 음악 엔진 더 넣기 1차(엔진 0.4.0): 상업용 HeartMuLa·Stable Audio 3(조건부) / 개인용 LeVo 2, 엔진 고르기 「상업용」·「개인용」 두 묶음** — 마스터PC 실물 대기, 2차·3차 남음([`docs/PLAN_20261104_MORE_ENGINES.md`](docs/PLAN_20261104_MORE_ENGINES.md)) · v1.11 엔진 설치 파일(엔진 0.3.0, `desktop/`) · v1.10 비상업용 YuE2(마스터PC 실물: 주인님 「음질·음악적 필 모두 YuE2가 좋다」) — https://free-music-studio.buylife.xyz , 프로그램 등록 `new·coming` 배지. 주인님 지시: **음악 퀄리티 최고 수준 방향**. 다음: 마스터PC 설치 파일 실물(주인님), 다음 엔진 후보 HeartMuLa 라이선스 확인([`docs/RESEARCH_20261104_MUSIC_MODELS.md`](docs/RESEARCH_20261104_MUSIC_MODELS.md)), 4단계 나머지(홈·2단 만들기·내 곡에서 바로 커버·휴지통). 로드맵: [`docs/PLAN_20261103_FULL_ROADMAP.md`](docs/PLAN_20261103_FULL_ROADMAP.md)
+> 상태: **v1.27·엔진 0.7.0 배포(2026-11-06) — 원본 boks-music 이식 전부 끝(내 PC 앨범 그림·가사 시간 옮기기까지)**. 남은 일은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md). 주인님 확인 대기: 마스터PC(RTX 5080) 엔진 0.7.0 실물(내 PC 그림 첫 1장·Stem·가사 자동 맞추기·영상·마스터링). 필수 문서 6종: `AGENTS.md`·`README.md`·`docs/IMPROVEMENTS.md`·`docs/IMPROVEMENT_BACKLOG.md`·`docs/DESIGN_HANDOFF.md`·`docs/PLAN_*.md`(2026-11-06 채움).
 > 담당: [역할: music] Claude Code(윈도우(미니PC)). 작업 전 루트 `CLAUDE.md`·`AGENTS.md`, `docs/roles/music.md`, 이 플랜을 읽는다.
 
 ## 꼭 지킬 것
@@ -22,12 +22,18 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 | 화면 | 주소 | 내용 |
 |---|---|---|
 | 곡 만들기 | `/songs` | 노래/연주곡, 곡 제목·길이(30초~5분, 기본 3분)·스타일 프리셋·스타일·가사 저장(표 `free_music_songs`, 회원별 RLS), 내 프리셋(`free_music_presets`), AI 작사(OpenAI·Claude·Gemini, 다듬기·금지어) / AI 작곡 기획(연주곡 여러 곡), 생성 개수 1~4 |
-| 내 PC 엔진 | `/engine` | 엔진 상태(지금 「준비 중」)·다운로드 센터·3단계 설치·PC별 속도표(사전 검증 결과) |
-| API키등록·플랫폼연동 | `/settings` | `user_api_keys` provider `anthropic` |
-| 연동 & 사용 매뉴얼 | `/guide` | 4단계 카드·팁·주의·FAQ(기본판, 8단계에서 완성) |
-- API: `/api/songs`(GET·POST), `/api/songs/[id]`(PATCH·DELETE, `user_id` 조건), `/api/lyrics`(POST), `/api/cron/cleanup`(매일 03:40 KST, 30일·`retention_exempt` 제외).
-- 입력 규칙 한 곳: `src/lib/songs.ts`(시험 `tests/songs.test.mjs`), 모델 목록 `src/lib/lyricModels.ts`.
-- 장점: 생성 비용 0, 음원이 서버에 안 남음. 단점(지금): 엔진 앱 전이라 실제 노래 생성은 아직 안 됨.
+| 홈 | `/home` | 프로젝트 카드(곡 수)·최근 음악(v1.26) |
+| 내 PC 엔진 | `/engine` | 연결 코드·원클릭 다운로드 센터(새 버전 알림)·PC 검사·추천 구성·음악 모델 구성·저장 폴더·모델 저장 공간·내 PC 앨범 그림 모델(0.7.0) |
+| 작업 대기열 | `/queue` | 곡·커버·부분 수정·마스터링·Stem·가사 시간·내 PC 그림 작업, 진행 막대·걸린 시간·취소·다시 하기·완료 자동 기록 |
+| 모든 음악 | `/library` | 필터·정렬·표지·재생, 「…」 메뉴(커버·마스터링·Stem 분리·휴지통), 곡 상세(파형·표지·제목/가사 수정·가사 시간 LRC/SRT·자동 맞추기), 플레이리스트, 휴지통 30일 |
+| 가져온 음악 | `/import` | 내 음원으로 커버·부분 수정, 권리 확인 |
+| 영상 만들기 | `/video` | 플레이리스트 영상 템플릿 37개·미리보기·가사 영상·반복·챕터·만든 영상 목록(v1.26) |
+| API키등록·플랫폼연동 | `/settings` | `user_api_keys` openai·anthropic·gemini·replicate·huggingface |
+| 연동 & 사용 매뉴얼 | `/guide` | 단계 카드·팁·주의·FAQ |
+- 웹 API(전부 `checkProgramAccessApi()` + `user_id`): `/api/songs`·`/api/presets`·`/api/tracks`(+`/trash`)·`/api/collections`·`/api/lyrics`·`/api/plan`·`/api/sound-prompt`·`/api/album-art`(+`/prompt`)·`/api/settings/*`·`/api/cron/cleanup`(30일, `retention_exempt` 제외).
+- 엔진(`engine/src`, 127.0.0.1:47821): `gateway.mjs`(경로), `main.mjs`(엔진 켜기·기능 표시 `features`), `queue.mjs`, `library.mjs`, `acestep.mjs`·`yue2.mjs`·`pyengines.mjs`(음악 엔진), `mastering.mjs`, `stems.mjs`·`lyricAlign.mjs`, `video.mjs`, `imageArt.mjs`, `storage.mjs`, `download.mjs`(이어받기). 사이트 쪽 호출은 `src/lib/engine.ts` 한 곳.
+- 입력 규칙 한 곳: `src/lib/songs.ts`·`tracks.ts`·`lyricTiming.ts`·`video/videoOptions.ts`(시험 `tests/`), 모델 목록 `src/lib/lyricModels.ts`·`albumArtModels.ts`, 엔진 목록 `engine.ts MUSIC_ENGINES`(한국어 못 부르는 노래 엔진은 선택지 제외).
+- 장점: 생성 비용 0, 음원이 서버에 안 남음, 상업용/비상업용 구분 표시. 한계: Stem·정렬·그림은 윈도우(NVIDIA 권장), 모델 받기 5~35GB, 설치 파일 미서명.
 
 ## 4. 버전
 - v1.27 · 엔진 0.7.0(배포 2026-11-06, 주인님 「진행해」 빌드 1회 + DB 버전 칸): **내 PC 앨범 그림**(`73f8daf04`, 원본 boks-music `image-catalog`·`image-engine` 이식, 기능 "local-art") — stable-diffusion.cpp(MIT) 실행 파일(NVIDIA CUDA 12 / Vulkan / CPU / 애플 Metal) + Z-Image Turbo 5개 판·FLUX.2 klein 4B 3개 판(Apache-2.0, 글 이해 모델 Qwen3-4B 공용), 엔진 `imageArt.mjs`(판 상태·추천·받기·확인·그리기, 결과 하루 보관), 대기열 종류 `art`, `GET /image-models`·`POST …/<id>/default`·`DELETE …/<id>`·`GET /image-art/<작업>`, 저장 공간 `image-sdcpp`. 사이트: 앨범 그림 플랫폼 「내 PC(무료)」(`AlbumArtPanel`), 영어 설명문 자동 작성 `/api/album-art/prompt`(회원 본인 키, `writeArtPrompt`), 엔진 화면 「내 PC 앨범 그림 모델」 패널(`ImageModelPanel`). **가사 시간 옮기기**(`e72880915`, 원본 `remapLyricTiming`) — 곡 상세에서 가사를 고치면 그대로인 줄의 시간 유지·고친 줄은 「확인 필요」. 설치 파일 `AI-Free-Music-Engine-Setup-0.7.0.exe` sha256 `1499f459…55af`. 시험 엔진 96·사이트 78·tsc 통과. 플랜 `docs/PLAN_20261106_LOCAL_ALBUM_ART.md`. **남은 확인(주인님):** 마스터PC에서 내 PC 그림 실물 1장(이 PC는 실행 파일 받기가 자동 차단돼 미확인).
@@ -65,13 +71,13 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 
 ## 5. 대기
 **2026-11-03 전체 단계별 플랜: [`docs/PLAN_20261103_FULL_ROADMAP.md`](docs/PLAN_20261103_FULL_ROADMAP.md)** — 1단계 PC 검사·모델 고르기(v1.07) → 2 만들기 강화(프리셋·연주곡 기획) → 3 작업 대기열 → 4 화면 개편(홈·카드·재생바·내 곡 커버) → 5 앨범 커버 그림 → 6 마스터링 → 7 가사 시간 맞추기 → 8 영상 만들기(원본 장면 37종) → 9 설치 파일. 원본 코드는 MIT·원작자 허락으로 직접 옮겨 씀(원작자 이름 없이). 요청 기능 목록은 `docs/IMPROVEMENTS.md` 2026-11-03 「주인님 요청」 줄.
-플랜 §4 2~8단계. 다음: 1단계 배포(승인 필요) → 2단계 엔진 앱 0.1. 사전 검증 맥미니 결과 대기(`docs/MAC_REQUEST_20261103_PREVALIDATION.md`).
+**2026-11-06: 로드맵 1~9단계와 원본 boks-music 이식 1~10번 + 내 PC 앨범 그림까지 전부 배포 끝(v1.27·엔진 0.7.0).** 남은 것은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) — A 주인님 확인(마스터PC 실물·시험 폴더 삭제·서명 인증서·DB 표 승인), B 로직(공용 권한 코드 4회 조회 속도·ACE-Step 취소), C 화면(디자인 리뉴얼·매뉴얼 보강), D 연계.
 
 ## 6. 연계 아이디어
-만든 곡 → `lyric-video-studio`(가사 영상)·`playlist-channel-studio`(플레이리스트)·`music-video-studio`로 넘기기(음원은 회원 PC 파일 선택 방식).
+만든 곡·LRC → `lyric-video-studio`(가사 영상)·`playlist-channel-studio`(플레이리스트)·`music-video-studio`로 넘기기(음원은 회원 PC 파일 선택 방식). 백로그 D.
 
 ## 7. UI
-에메랄드·틸 계열 어두운 화면(`music-video-studio` 네온 덱 구조 그대로, 색만 교체). 8단계에서 디자인 문서 작성.
+에메랄드·틸 계열 어두운 화면(`music-video-studio` 옛 네온 덱 구조, 색만 교체) — 기능 구현 모습이며 디자인 리뉴얼 전. 현재 토큰·구조·리뉴얼 때 주의점은 [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md)(2026-11-06), 리뉴얼은 디자인 세션 몫.
 
 ## 작업 기록
 - 2026-11-03 기획: 원본 분석, 이름·구조·모델 결정, 플랜 작성. 외부 분석표 `EXT-MUS-08`.
