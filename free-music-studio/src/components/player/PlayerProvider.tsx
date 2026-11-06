@@ -2,11 +2,12 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { fetchLibraryAudio } from "@/lib/engine";
-import { nextRepeat, pickNext, pickPrev, type RepeatMode } from "@/lib/playerOrder";
+import { nextRepeat, type RepeatMode } from "@/lib/playerOrder";
+import { createPlaybackQueue, currentQueueId, selectQueueTrack, setQueueShuffle, stepPlaybackQueue, type PlaybackQueue } from "@/lib/playbackQueue";
 
 // 화면 아래 재생바 — ai-music-studio `PlayerProvider`(v1.11~1.12) 방식을 가져옴(2026-11-04).
 // 다른 점: 곡은 회원 PC 엔진 보관함에 있어 재생할 때 받아 온다(브라우저 안 주소, 최근 20곡만 기억).
-// 반복·무작위 설정은 이 브라우저에만 기억한다. 재생 목록은 화면이 넘겨준 곡 순서 그대로.
+// 반복·무작위 설정은 이 브라우저에만 기억한다. 다음 곡 고르기는 원본 boks-music `playback-queue.mjs`(MIT) 규칙(2026-11-06, lib/playbackQueue.ts).
 export interface PlayerTrack {
   /** 곡 번호(보관함 파일 이름) */
   key: string;
@@ -27,6 +28,9 @@ interface PlayerValue {
   queue: PlayerTrack[];
   /** 대기열에서 고른 곡으로 바로 */
   jump: (key: string) => void;
+  /** 음량 0~1(이 브라우저에 기억) */
+  volume: number;
+  setVolume: (v: number) => void;
   /** 재생 목록을 정하고 그중 한 곡(없으면 첫 곡)부터 */
   playList: (list: PlayerTrack[], startKey?: string) => void;
   /** 지금 곡이면 멈춤·이어 듣기 */
@@ -48,8 +52,8 @@ export const usePlayer = () => useContext(PlayerContext);
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const audio = useRef<HTMLAudioElement | null>(null);
   const list = useRef<PlayerTrack[]>([]);
+  const pq = useRef<PlaybackQueue | null>(null);
   const urls = useRef(new Map<string, string>());
-  const history = useRef<string[]>([]);
   const [current, setCurrent] = useState<PlayerTrack | null>(null);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,19 +63,27 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [repeat, setRepeat] = useState<RepeatMode>("off");
   const [shuffle, setShuffle] = useState(false);
   const [queue, setQueue] = useState<PlayerTrack[]>([]);
+  const [volume, setVolume] = useState(1);
+  const modeLoaded = useRef(false);
+  const volumeRef = useRef(1);
+  volumeRef.current = volume;
 
   useEffect(() => {
     try {
-      const m = JSON.parse(localStorage.getItem(MODE_KEY) ?? "{}") as { repeat?: RepeatMode; shuffle?: boolean };
+      const m = JSON.parse(localStorage.getItem(MODE_KEY) ?? "{}") as { repeat?: RepeatMode; shuffle?: boolean; volume?: number };
       if (m.repeat === "off" || m.repeat === "all" || m.repeat === "one") setRepeat(m.repeat);
       if (typeof m.shuffle === "boolean") setShuffle(m.shuffle);
+      if (typeof m.volume === "number" && m.volume >= 0 && m.volume <= 1) setVolume(m.volume);
     } catch {}
+    modeLoaded.current = true;
   }, []);
   useEffect(() => {
+    if (audio.current) audio.current.volume = volume;
+    if (!modeLoaded.current) return;
     try {
-      localStorage.setItem(MODE_KEY, JSON.stringify({ repeat, shuffle }));
+      localStorage.setItem(MODE_KEY, JSON.stringify({ repeat, shuffle, volume }));
     } catch {}
-  }, [repeat, shuffle]);
+  }, [repeat, shuffle, volume]);
 
   const urlOf = useCallback(async (key: string) => {
     const have = urls.current.get(key);
@@ -87,9 +99,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const start = useCallback(
-    async (t: PlayerTrack, from: PlayerTrack | null) => {
+    async (t: PlayerTrack) => {
       const a = audio.current ?? (audio.current = new Audio());
-      if (from && from.key !== t.key) history.current = [...history.current, from.key].slice(-50);
+      a.volume = volumeRef.current;
       setCurrent(t);
       setError("");
       setLoading(true);
@@ -111,28 +123,34 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     [urlOf]
   );
 
+  // 대기열 순서(섞은 순서 포함)를 바꾸면 패널에 보이는 목록도 그 순서로
+  const commitQueue = useCallback((q: PlaybackQueue | null) => {
+    pq.current = q;
+    const byKey = new Map(list.current.map((t) => [t.key, t]));
+    setQueue(q ? q.order.map((k) => byKey.get(k)).filter((t): t is PlayerTrack => !!t) : []);
+  }, []);
+
   const step = useCallback(
     (dir: 1 | -1, ended = false) => {
-      const items = list.current;
-      const keys = items.map((t) => t.key);
-      const key = current?.key ?? null;
-      let n: number | null;
-      if (dir === 1) n = pickNext(keys, key, { repeat, shuffle, ended });
-      else {
-        n = pickPrev(keys, key, { repeat, shuffle, history: history.current });
-        if (n != null && shuffle) {
-          const at = history.current.lastIndexOf(items[n].key);
-          history.current = history.current.slice(0, Math.max(0, at));
-        }
-      }
-      if (n != null && items[n]) void start(items[n], dir === 1 ? current : null);
-      else {
+      const q = pq.current;
+      const next = q ? stepPlaybackQueue(q, { direction: dir, ended }) : null;
+      const t = next ? list.current.find((x) => x.key === currentQueueId(next)) : null;
+      if (next && t) {
+        if (next.order !== q?.order) commitQueue(next);
+        else pq.current = next;
+        void start(t);
+      } else {
         audio.current?.pause();
         setPlaying(false);
       }
     },
-    [current, repeat, shuffle, start]
+    [start, commitQueue]
   );
+
+  // 반복 설정이 바뀌면 지금 대기열에도 바로 적용
+  useEffect(() => {
+    if (pq.current) pq.current = { ...pq.current, repeat };
+  }, [repeat]);
 
   useEffect(() => {
     const a = audio.current ?? (audio.current = new Audio());
@@ -160,6 +178,44 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     return () => a.removeEventListener("ended", onEnd);
   }, [step]);
 
+  // 단축키 — 원본 boks-music `App.tsx`(MIT): Space 재생/멈춤, ←/→ 5초(Shift 15초). 글 입력 중·창이 열려 있으면 동작하지 않는다.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const a = audio.current;
+      if (!current || !a || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+      const el = e.target as HTMLElement | null;
+      if (el?.closest("input, textarea, select, [contenteditable='true'], [role='dialog']") || document.querySelector("dialog[open], [role='dialog']")) return;
+      if (e.code === "Space" && !(el instanceof HTMLButtonElement)) {
+        e.preventDefault();
+        if (a.paused) void a.play();
+        else a.pause();
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        const d = (e.shiftKey ? 15 : 5) * (e.key === "ArrowLeft" ? -1 : 1);
+        a.currentTime = Math.max(0, Math.min(a.duration || 0, a.currentTime + d));
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [current]);
+
+  // 키보드·이어폰 미디어 키와 윈도우 미디어 창(mediaSession)
+  useEffect(() => {
+    const ms = typeof navigator !== "undefined" ? navigator.mediaSession : undefined;
+    if (!ms) return;
+    ms.metadata = current ? new MediaMetadata({ title: current.title, artist: "AI 무료음악", album: current.subtitle }) : null;
+    const set = (a: MediaSessionAction, h: MediaSessionActionHandler | null) => {
+      try {
+        ms.setActionHandler(a, h);
+      } catch {}
+    };
+    set("play", current ? () => void audio.current?.play() : null);
+    set("pause", current ? () => audio.current?.pause() : null);
+    set("nexttrack", current ? () => step(1) : null);
+    set("previoustrack", current ? () => step(-1) : null);
+    set("seekto", current ? (d) => { if (audio.current && d.seekTime != null) audio.current.currentTime = d.seekTime; } : null);
+  }, [current, step]);
+
   useEffect(
     () => () => {
       audio.current?.pause();
@@ -179,13 +235,15 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       repeat,
       shuffle,
       queue,
+      volume,
+      setVolume: (v) => setVolume(Math.max(0, Math.min(1, v))),
       jump: (key) => {
         const t = list.current.find((x) => x.key === key);
-        if (t && t.key !== current?.key) void start(t, current);
+        if (!t || t.key === current?.key || !pq.current) return;
+        pq.current = selectQueueTrack(pq.current, key);
+        void start(t);
       },
       playList: (items, startKey) => {
-        list.current = items;
-        setQueue(items);
         const t = items.find((x) => x.key === startKey) ?? items[0];
         if (!t) return;
         const a = audio.current;
@@ -194,7 +252,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
           else a.pause();
           return;
         }
-        void start(t, current);
+        list.current = items;
+        // 고른 곡부터 — 섞어 듣기면 그 곡을 맨 앞에 두고 나머지를 섞는다(원본 규칙)
+        let q = selectQueueTrack(createPlaybackQueue(items.map((x) => x.key), { repeat }), t.key);
+        if (shuffle) q = setQueueShuffle(q, true);
+        commitQueue(q);
+        void start(t);
       },
       toggle: () => {
         const a = audio.current;
@@ -208,13 +271,16 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         if (audio.current) audio.current.currentTime = s;
       },
       cycleRepeat: () => setRepeat((m) => nextRepeat(m)),
-      toggleShuffle: () => setShuffle((v) => !v),
+      toggleShuffle: () => {
+        if (pq.current) commitQueue(setQueueShuffle(pq.current, !shuffle));
+        setShuffle(!shuffle);
+      },
       close: () => {
         audio.current?.pause();
         setCurrent(null);
       },
     }),
-    [current, playing, loading, error, time, duration, repeat, shuffle, queue, start, step]
+    [current, playing, loading, error, time, duration, repeat, shuffle, queue, volume, start, step, commitQueue]
   );
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ListMusic, Loader2, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward, Volume2, X } from "lucide-react";
+import { ListMusic, Loader2, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward, Volume2, VolumeX, X } from "lucide-react";
 import { usePlayer } from "./PlayerProvider";
 
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
@@ -79,6 +79,17 @@ export function MiniPlayer() {
           <span className="w-10 text-right text-[11px] tabular-nums text-slate-500">{mmss(p.time)}</span>
           <input type="range" min={0} max={p.duration || 0} step={0.5} value={Math.min(p.time, p.duration || 0)} onChange={(e) => p.seek(Number(e.target.value))} aria-label="재생 위치" className="h-6 min-w-0 flex-1 accent-emerald-400" />
           <span className="w-10 text-[11px] tabular-nums text-slate-500">{mmss(p.duration)}</span>
+        </div>
+        <div className="hidden shrink-0 items-center gap-1 lg:flex" title="음량 · 단축키: Space 재생/멈춤, ←→ 5초(Shift 15초)">
+          <button
+            type="button"
+            onClick={() => p.setVolume(p.volume > 0 ? 0 : 1)}
+            aria-label={p.volume > 0 ? "소리 끄기" : "소리 켜기"}
+            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+          >
+            {p.volume > 0 ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          </button>
+          <input type="range" min={0} max={1} step={0.05} value={p.volume} onChange={(e) => p.setVolume(Number(e.target.value))} aria-label="음량" className="h-6 w-20 accent-emerald-400" />
         </div>
         <button
           type="button"

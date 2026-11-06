@@ -8,6 +8,7 @@ import { DEFAULT_LYRIC_PROVIDER, LYRIC_PROVIDERS, type LyricProvider } from "@/l
 import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseBannedInput, type PlannedTrack } from "@/lib/lyricRules";
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
+import { presetsFor } from "@/lib/presets";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string };
@@ -116,12 +117,15 @@ export default function SongsPage() {
     if (next === mode) return;
     const from = mode;
     setMode(next);
+    // 원본 boks-music(MIT) 규칙: 다른 종류 전용 프리셋 문장을 그대로 둔 스타일은 비우고, 직접 고친 스타일은 남긴다
+    const presetLeft = from !== "sfx" && presetsFor(from, []).some((p) => p.prompt === draft.style_prompt.trim());
+    if (presetLeft) setMessage({ type: "success", text: `${from === "vocal" ? "노래" : "연주곡"}용 프리셋 스타일을 비웠습니다. ${next === "sfx" ? "소리 설명" : "새 프리셋"}을 골라 주세요.` });
     setDraft((d) => {
       if (from === "vocal") vocalLyrics.current = d.lyrics;
       const lyrics = next === "vocal" ? vocalLyrics.current : next === "sfx" ? SFX_LYRICS : INSTRUMENTAL_LYRICS;
       const list: readonly number[] = next === "sfx" ? SFX_DURATIONS : MUSIC_DURATIONS;
       const duration_sec = list.includes(d.duration_sec) ? d.duration_sec : next === "sfx" ? DEFAULT_SFX_DURATION : DEFAULT_DURATION;
-      return { ...d, lyrics, duration_sec };
+      return { ...d, lyrics, duration_sec, ...(presetLeft ? { style_prompt: "" } : {}) };
     });
   };
 
@@ -591,6 +595,11 @@ export default function SongsPage() {
               }
               maxLength={LIMITS.style}
             />
+            {draft.style_prompt.length > LIMITS.style * 0.8 && (
+              <p className={`text-[11px] ${draft.style_prompt.length >= LIMITS.style ? "text-amber-300" : "text-slate-500"}`}>
+                스타일 {draft.style_prompt.length}/{LIMITS.style}자 — {draft.style_prompt.length >= LIMITS.style ? "한도에 닿아 더 쓰면 잘립니다. 줄이면 생성할 수 있습니다." : "한도에 가까워졌습니다."}
+              </p>
+            )}
             {mode !== "vocal" && /[가-힣]/.test(draft.style_prompt) && (
               <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-100/90">
                 🔤 설명에 한글이 있습니다. Stable Audio 3는 영어 설명으로 학습돼 영어로 바꾸면 더 잘 나옵니다.

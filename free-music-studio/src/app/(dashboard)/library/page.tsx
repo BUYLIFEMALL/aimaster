@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Library,
@@ -26,6 +26,9 @@ import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { CoverThumb } from "@/components/library/CoverThumb";
 import { TrackOrderList } from "@/components/library/TrackOrderList";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
+import { FILTER_LABEL, SORT_LABEL, filterTracks, sortTracks, type TrackFilter, type TrackSort } from "@/lib/trackFilters";
+
+const STATE_KEY = "fms.libraryView"; // 원본처럼 보던 화면·검색·필터를 탭 안에서 기억(sessionStorage)
 import { usePlayer } from "@/components/player/PlayerProvider";
 import {
   EngineError,
@@ -65,6 +68,34 @@ export default function LibraryPage() {
   const [notice, setNotice] = useState<string | null>(null); // 잘 된 일 안내(초록)
   const [renaming, setRenaming] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set()); // 여러 곡 고르기(원본 전체 선택 → 빼기·옮기기)
+  const [filter, setFilter] = useState<TrackFilter>("all");
+  const [sort, setSort] = useState<TrackSort>("newest");
+  const restored = useRef(false);
+
+  // 보던 화면 되살리기 → 바뀔 때마다 기억
+  useEffect(() => {
+    try {
+      const s = JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null");
+      if (s?.view?.type === "all" || ((s?.view?.type === "project" || s?.view?.type === "playlist") && typeof s.view.id === "string")) setView(s.view);
+      if (typeof s?.query === "string") setQuery(s.query);
+      if (s?.filter in FILTER_LABEL) setFilter(s.filter);
+      if (s?.sort in SORT_LABEL) setSort(s.sort);
+    } catch {}
+    restored.current = true;
+  }, []);
+  useEffect(() => {
+    if (!restored.current) return;
+    try {
+      sessionStorage.setItem(STATE_KEY, JSON.stringify({ view, query, filter, sort }));
+    } catch {}
+  }, [view, query, filter, sort]);
+
+  // 잘 된 일 안내는 잠깐 보이고 사라진다(원본 3초, 긴 안내는 조금 더)
+  useEffect(() => {
+    if (!notice) return;
+    const t = window.setTimeout(() => setNotice(null), notice.length > 60 ? 8000 : 3000);
+    return () => window.clearTimeout(t);
+  }, [notice]);
 
   const loadCollections = useCallback(async () => {
     const res = await fetch("/api/collections").catch(() => null);
@@ -72,7 +103,9 @@ export default function LibraryPage() {
     const data = await res.json();
     setProjects(data.projects ?? []);
     setPlaylists(data.playlists ?? []);
+    setCollectionsLoaded(true);
   }, []);
+  const [collectionsLoaded, setCollectionsLoaded] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -119,6 +152,10 @@ export default function LibraryPage() {
 
   const current: Collection | null =
     view.type === "project" ? projects.find((p) => p.id === view.id) ?? null : view.type === "playlist" ? playlists.find((p) => p.id === view.id) ?? null : null;
+  // 기억해 둔 프로젝트·플레이리스트가 그사이 지워졌으면 「모든 음악」으로
+  useEffect(() => {
+    if (collectionsLoaded && view.type !== "all" && !current) setView({ type: "all" });
+  }, [collectionsLoaded, view, current]);
 
   const shown = useMemo(() => {
     let list: Track[];
@@ -128,8 +165,13 @@ export default function LibraryPage() {
       list = order.map((id) => byId.get(id)).filter((t): t is Track => !!t);
     } else list = tracks;
     const q = query.trim().toLowerCase();
-    return q ? list.filter((t) => `${t.title} ${t.style_prompt} ${t.lyrics}`.toLowerCase().includes(q)) : list;
-  }, [tracks, view, order, query]);
+    if (q) list = list.filter((t) => `${t.title} ${t.style_prompt} ${t.lyrics}`.toLowerCase().includes(q));
+    list = filterTracks(list, filter, (id) => arts.has(id));
+    return sortTracks(list, view.type === "playlist" || sort !== "manual" ? sort : "newest");
+  }, [tracks, view, order, query, filter, sort, arts]);
+  // 플레이리스트는 「플레이리스트 순서」로 보고 걸러 내지 않을 때만 끌어서 순서를 바꿀 수 있다
+  const canReorder = view.type === "playlist" && sort === "manual" && filter === "all" && !query.trim();
+  const narrowed = !!query.trim() || filter !== "all";
 
   // 듣기는 화면 아래 재생바 하나로 — 지금 보이는(이 PC에 있는) 곡 순서가 재생 목록이 된다.
   const player = usePlayer();
@@ -363,6 +405,9 @@ export default function LibraryPage() {
             setView(v);
             setRenaming(null);
             setSelected(new Set());
+            // 플레이리스트는 담은 순서가 기본, 다른 화면에는 그 순서가 없다
+            if (v.type === "playlist") setSort("manual");
+            else if (sort === "manual") setSort("newest");
           }}
           onCreate={createCollection}
         />
@@ -420,6 +465,49 @@ export default function LibraryPage() {
               placeholder="제목·스타일·가사로 찾기"
               className="w-full bg-transparent py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden"
             />
+            {query && (
+              <button type="button" onClick={() => setQuery("")} aria-label="검색어 지우기" className="text-slate-500 hover:text-slate-200">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+            <label className="flex items-center gap-1.5">
+              보기
+              <select value={filter} onChange={(e) => setFilter(e.target.value as TrackFilter)} className={smallSelect}>
+                {(Object.keys(FILTER_LABEL) as TrackFilter[])
+                  .filter((f) => f !== "noArt" || showCovers)
+                  .map((f) => (
+                    <option key={f} value={f}>
+                      {FILTER_LABEL[f]}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="flex items-center gap-1.5">
+              정렬
+              <select value={sort} onChange={(e) => setSort(e.target.value as TrackSort)} className={smallSelect}>
+                {(Object.keys(SORT_LABEL) as TrackSort[])
+                  .filter((s) => s !== "manual" || view.type === "playlist")
+                  .map((s) => (
+                    <option key={s} value={s}>
+                      {SORT_LABEL[s]}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            {narrowed && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setFilter("all");
+                }}
+                className="underline underline-offset-2 hover:text-slate-300"
+              >
+                조건 지우기
+              </button>
+            )}
           </div>
 
           {loading ? (
@@ -434,6 +522,8 @@ export default function LibraryPage() {
                   </Link>
                   에서 첫 노래를 만들어 보세요.
                 </>
+              ) : narrowed ? (
+                "조건에 맞는 노래가 없습니다. 검색어나 「보기」를 바꿔 보세요."
               ) : view.type === "project" ? (
                 "이 프로젝트에 넣은 곡이 없습니다. 「모든 음악」에서 곡의 「프로젝트」 칸을 바꿔 넣으세요."
               ) : view.type === "playlist" ? (
@@ -497,10 +587,12 @@ export default function LibraryPage() {
                 </div>
               )}
             </div>
-            {view.type === "playlist" && query.trim() && <p className="text-[11px] text-slate-500">찾는 중에는 순서를 바꿀 수 없습니다. 검색어를 지우면 끌어서 바꿀 수 있습니다.</p>}
+            {view.type === "playlist" && !canReorder && shown.length > 1 && (
+              <p className="text-[11px] text-slate-500">검색·보기 조건을 지우고 정렬을 「플레이리스트 순서」로 두면 끌어서 순서를 바꿀 수 있습니다.</p>
+            )}
             <TrackOrderList
               items={shown}
-              editable={view.type === "playlist" && !query.trim()}
+              editable={canReorder}
               onOrder={reorderPlaylist}
               rowClassName="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4"
               renderRow={(t, i, tools) => {
