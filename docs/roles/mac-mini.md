@@ -1,24 +1,24 @@
 # 맥미니(맥용 프로그램 개발·실물 테스트)
 
-- 담당: Claude Code(맥미니) · 세션 `claude-mac-20261024-maccheck` (이전: `claude-mac-20261023-ecommerce`)
+- 담당: Claude Code(맥미니) · 세션 `claude-mac-20261101-blog` (이전: `claude-mac-20261024-maccheck`·`claude-mac-20261023-ecommerce`)
 - Claude 계정: 맥미니 전용 보조 계정 `mtoptop001@gmail.com`(2026-11-01 전환, Orca 프로필 `94205dc1-…`) · 기존 보조 계정 `rainbowi77777@gmail.com` — 권한·역할 동일
 - 맡은 폴더: 주인님이 배정한 폴더(분야 전담 아님 — `docs/MAC_MINI_AGENT_PLAYBOOK.md` §0)
 - 카테고리: 맥용 프로그램
 - 주력 업무: 맥용 개발·맥 실물 시험. `npm`·빌드·배포는 윈도우 세션에 요청
-- 마지막 갱신: 2026-11-05 (claude-mac-20261101-blog, 이번 로그인 계정 `buylifemall@gmail.com`)
+- 마지막 갱신: 2026-11-06 (claude-mac-20261101-blog, 이번 로그인 계정 `buylifemall@gmail.com`)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `competitor-analysis` 제휴 타깃 찾기 | v1.12 준비(미배포): 네이버 밖 주소·읽기 실패는 건너뛰고 스캔 계속 `c0025551d`, 건너뛴 곳 연락처 저장 안 함 + 시험 `90b6871f9` | 2026-11-05 | 빌드 승인·「공동구매」 매칭 가점 결정 대기 |
+| `naver-cafe-recruit` 첫 실물 초대(요청 `docs/REQUEST_20261106_MACMINI_INVITE_TEST.md`) | 받는 아이디 `buylifemall` 초대 1건 → 결과 문구 → v1.02 명단 모으기 → `docs/INVITE_TEST_20261106.md` | 2026-11-06 | ego에 확장 v1.02 설치 완료(id `nkneaeehonnhndoichbhmipcbmjepene`). **사이트 로그인이 풀려 멈춤** — 주인님이 `buylifemall@gmail.com`으로 로그인 뒤 「계속」 |
+| `competitor-analysis` v1.12 실물 확인(윈도우 배포 뒤) | ego 확장 v1.12 설치됨 → 「공동구매」 다시 찾기 → 후보 개수 → 스캔 → 「매칭/주제 약함」·업체 「네이버 밖 주소」 표시 | 2026-11-06 | 위 초대 시험 뒤 순서대로(로그인 필요) |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `blog-neighbor-care` v1.18 | 자동 운영(C-2) 맥 실물 확인 — 새 ZIP 덮어쓰기 → 시작하기 저장(공감만·상한 1) → `/run` → 공감 1건 → 탭 전환·일시정지 → 클릭·동의 횟수 실측 | 주인님 ego 조작(09~22시) | 루트 HANDOFF 2026-11-05 「v1.18 배포」 |
+| `blog-neighbor-care` v1.18 | 자동 운영(C-2) 맥 실물 확인 — 새 ZIP 덮어쓰기(ego에 v1.18 이미 설치) → 시작하기 3단계 → 자동 공감 1건 → 다른 탭으로 옮길 때 끄지 않고 잠시 멈춤 → 전체 일시정지 | 초대 시험·v1.12 확인 뒤 순서대로(09~22시, 로그인 필요) | 루트 HANDOFF 2026-11-05 「v1.18 배포」 |
 | `competitor-analysis` 매칭 | 「공동구매」 담긴 채널 3곳뿐 — 추천: 채널 이름·소개에 주제 있으면 가점 | 주인님 선택 | `competitor-analysis/AGENTS.md` 맨 아래 |
 | 카톡 자동발송 `koms`(외부 분석 M15) | **작업 진행 대기 목록**(주인님 2026-11-05 「작업 진행 대기리스트에 올려」) — 카카오톡 PC 프로그램 조작이라 데스크톱 앱 방식, 개인 카톡 대량 발송이라 수신 동의·계정 정지 위험, `kakao_auto_poster`(공식 발송)와 겹침 | 진행 순서·범위 주인님 지정 | `docs/analysis-programdev-batch-20261027/REPORT.md` M15 |
-| `naver-cafe-recruit`(새 카페 회원 모집, EXT-MKT-08·09·10) | **착수 — 플랜·AGENTS·DB 초안 2개 만듦**(주인님 「3방식 모두·본인 로그인 상태」). 윈도우: DB 적용·뼈대·빌드 | 이름·하루 상한 20 확정(보관 30일은 확정) | `naver-cafe-recruit/docs/INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` |
 | `naver-blog-allinone` v1.60 | 이미지 종료 모델 교체 확인(이미지 1장, 1달러 미만) | 시험 계정 OpenAI 키 등록(요청함 58e1d618) | `docs/DEPLOY_REQUEST_20261103_BLOG.md` |
 | 30일 열외 26개(블로그 5 + 블로그 밖 21) | 코드 반영 끝, 배포만 남음 | 각 프로그램 다음 배포(윈도우) — 쓰레드 3개는 먼저 배포하면 좋음 | `docs/PENDING_DEPLOYS.md` |
 | 12월 모델 교체 묶음 A 4개 | `gpt-5`·`o3` 12-11 호출 실패 | 12-05 점검 — 다른 배포가 없으면 주인님께 배포 여쭘 | `docs/PLAN_20261103_MODEL_MIGRATION_DEC.md` §6 |
@@ -58,7 +58,7 @@
 | 2026-10-24 | `video-to-gif` v1.21 | 배포 요청 → 윈도우 `claude-win-sdp`가 처리 | 배포 |
 
 ## 다음 첫 단계
-0. `competitor-analysis` v1.12 빌드 승인 → 윈도우 배포 → 업체 2곳 「네이버 밖 주소」 표시·스캔 계속 확인 / `blog-neighbor-care` v1.18 자동 운영 실물 확인
+0. (로그인 뒤 「계속」) 카페 모집 초대 1건 → 명단 모으기 → 기록 → 작업 공간 10번 닫기 → `competitor-analysis` v1.12 실물 확인 → `blog-neighbor-care` v1.18 실물 확인
 1. 시험 계정 OpenAI 키가 등록되면 올인원 이미지 1장 시험(비용 1달러 미만, 실행 전 알림)
 2. 12-05 묶음 A 배포 여부 점검
 3. 블로그 밖 프로그램의 「30일 지난 자료 화면 숨김」 조사(아직 안 함)
