@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **`ai-video-studio` v1.29 · `shorts-onestop-studio` v1.45 배포**
+- 주인님 「배포진행해」 승인, 순차 빌드 2회 모두 Ready, DB 버전 맞춤, 운영 주소 200.
+- `ai-video-studio` v1.29: V2 언어판 `3a550fe12` + 해설 교차편집 `/narrate` `42f743503` (`ai-video-studio-op4n162e7`). `shorts-onestop-studio` v1.45: V2 각색 강도 `9c4c1de96` (`shorts-onestop-studio-f1i2zbcg1`).
+- 남은 일: 시험 계정으로 번역·일본어 글꼴·해설 받아쓰기·다듬기 각 1회 실제 확인(회원 키 비용). `music-video-studio` 공용 사본 동기화는 다음 배포 때.
+
 ## 2026-11-06 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — **실거래 v1.56 배포: 상권 칸 가장 가까운 상권(참고) + 서울 분양권 동 코드**
 - **배포**: 주인님 「진행해」 빌드 1회 `real-estate-sales-gxb5ow2c4`(Ready, 이번엔 자동 권한 검사에 막히지 않음), DB v1.56(ego SQL).
 - **운영 확인(시험 계정, 로그인 이메일 먼저 확인)**: 백석동 임장 기록을 잠시 「상가」로 열어 리포트 → 「1.5km 안에는 조사 상권이 없어요. 가장 가까운 상권 「경기 › 마두역」(2.4km)…」 + 「마두역 (2.4KM·참고)」 열(마두역은 오피스만 조사돼 오피스 10.3천 원·공실 8.6%, 나머지 「-」). 확인 뒤 유형 원복. 표 머리글의 km가 「KM」로 대문자(표 머리글 꾸밈) — 작은 표기 문제.
