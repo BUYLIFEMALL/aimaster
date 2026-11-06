@@ -1,6 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BANNED_LIMIT, cleanBannedWords, findBannedWords, isInstrumentalLyrics, parseBannedInput, parsePlan, targetLengthText } from "../src/lib/lyricRules.ts";
+import { BANNED_LIMIT, cleanBannedWords, findBannedWords, isInstrumentalLyrics, parseBannedInput, parsePlan, planChunks, targetLengthText } from "../src/lib/lyricRules.ts";
+
+test("기획 나누기: 20곡씩, 최대 40곡", () => {
+  assert.deepEqual(planChunks(7), [7]);
+  assert.deepEqual(planChunks(20), [20]);
+  assert.deepEqual(planChunks(30), [20, 10]);
+  assert.deepEqual(planChunks(40), [20, 20]);
+  assert.deepEqual(planChunks(99), [20, 20]);
+  assert.deepEqual(planChunks(0), [1]);
+});
+
+test("기획 검사: 앞 묶음에서 쓴 제목과 겹치면 거절", () => {
+  const raw = JSON.stringify({ tracks: [{ title: "새벽 피아노", style: "instrumental, piano" }] });
+  assert.equal(parsePlan(raw, 1, [], ["다른 곡"])[0].title, "새벽 피아노");
+  assert.throws(() => parsePlan(raw, 1, [], ["새벽 피아노"]), /겹칩니다/);
+});
 import { LIMITS } from "../src/lib/songs.ts";
 
 test("금지어: 쉼표·줄바꿈으로 나누고 빈 칸·중복(대소문자) 빼기", () => {

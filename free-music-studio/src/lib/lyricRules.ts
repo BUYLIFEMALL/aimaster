@@ -10,7 +10,17 @@ export const isInstrumentalLyrics = (lyrics: string) => lyrics.trim().toLowerCas
 export const SFX_LYRICS = "[SFX]";
 
 export const BANNED_LIMIT = 30;
-export const PLAN_MAX = 10;
+/** 한 번 요청에 기획하는 곡 수(원본 PLAN_CHUNK) — 더 많으면 화면이 나눠서 이어 부른다(2026-11-06 주인님: 20곡씩 최대 40곡) */
+export const PLAN_MAX = 20;
+export const PLAN_TOTAL_MAX = 40;
+
+/** 큰 기획을 나눈 묶음 크기들 — 예) 45 → [20, 20](최대 40), 7 → [7] */
+export function planChunks(total: number): number[] {
+  const n = Math.min(PLAN_TOTAL_MAX, Math.max(1, Math.floor(total) || 1));
+  const out: number[] = [];
+  for (let left = n; left > 0; left -= PLAN_MAX) out.push(Math.min(PLAN_MAX, left));
+  return out;
+}
 
 const fold = (text: string) => text.normalize("NFC").toLowerCase();
 
@@ -47,7 +57,7 @@ export function targetLengthText(seconds: number): string {
 export type PlannedTrack = { title: string; style: string; art: string };
 
 /** 연주곡 기획 응답 검사 — 곡 수, 제목 겹침·금지어, 스타일 길이. 틀리면 한국어 오류를 던진다. */
-export function parsePlan(raw: string, count: number, banned: string[] = []): PlannedTrack[] {
+export function parsePlan(raw: string, count: number, banned: string[] = [], used: string[] = []): PlannedTrack[] {
   let value: { tracks?: unknown };
   try {
     value = JSON.parse(raw.trim().replace(/^```(?:json)?\s*|\s*```$/g, ""));
@@ -56,7 +66,7 @@ export function parsePlan(raw: string, count: number, banned: string[] = []): Pl
   }
   const tracks = Array.isArray(value?.tracks) ? (value.tracks as Record<string, unknown>[]) : null;
   if (!tracks || tracks.length !== count) throw new Error(`연주곡 ${count}곡의 기획이 필요합니다(받은 수: ${tracks?.length ?? 0}).`);
-  const seen = new Set<string>();
+  const seen = new Set<string>(used.map(fold)); // 앞 묶음에서 이미 쓴 제목과도 겹치면 안 된다(원본 titlesAlreadyUsed)
   return tracks.map((t, i) => {
     const title = typeof t?.title === "string" ? t.title.trim() : "";
     const style = typeof t?.style === "string" ? t.style.trim() : "";

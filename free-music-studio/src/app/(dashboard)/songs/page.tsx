@@ -5,7 +5,10 @@ import Link from "next/link";
 import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2, Mic, Piano, AudioLines, Wand2, ListMusic, Download } from "lucide-react";
 import { DEFAULT_DURATION, DEFAULT_SFX_DURATION, LIMITS, MUSIC_DURATIONS, SFX_DURATIONS, isSfxLyrics, type Song } from "@/lib/songs";
 import { DEFAULT_LYRIC_PROVIDER, LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
-import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseBannedInput, type PlannedTrack } from "@/lib/lyricRules";
+import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseBannedInput, planChunks, type PlannedTrack } from "@/lib/lyricRules";
+
+/** 기획 곡 수 고르기 — 1~10, 그 뒤로 15·20·30·40(주인님 2026-11-06: 20곡씩 최대 40곡) */
+const PLAN_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40];
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
 import { presetsFor } from "@/lib/presets";
@@ -286,25 +289,50 @@ export default function SongsPage() {
     }
   };
 
+  // 원본 boks-music `instrumental-plan.mjs`(MIT)처럼 20곡씩 나눠 기획하고, 앞 묶음 제목을 넘겨 겹치지 않게 한다(최대 40곡).
+  // 서버 한 번 호출의 시간 한도 때문에 나누는 일은 화면이 하고, 중간에 취소할 수 있다(이미 받은 곡은 남긴다).
+  const planStop = useRef<AbortController | null>(null);
+  const [planStage, setPlanStage] = useState("");
   const planTracks = async () => {
     setWriting("plan");
     setMessage(null);
+    const stop = (planStop.current = new AbortController());
+    const chunks = planChunks(planCount);
+    const got: PlannedTrack[] = [];
+    let calls = 0;
     try {
-      const res = await fetch("/api/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...ai, theme, style: draft.style_prompt, count: planCount }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setMessage({ type: "error", text: data.error || "연주곡을 기획하지 못했습니다.", needKey: !!data.needApiKey });
-        return;
+      for (const size of chunks) {
+        const from = got.length + 1;
+        setPlanStage(chunks.length > 1 ? `기획 중 (${from}~${from + size - 1} / ${planCount}곡)` : `${size}곡 기획 중`);
+        const res = await fetch("/api/plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: stop.signal,
+          body: JSON.stringify({
+            ...ai,
+            theme,
+            style: draft.style_prompt,
+            count: size,
+            used: got.map((t) => t.title),
+            ...(chunks.length > 1 ? { batch: `tracks ${from}-${from + size - 1} of ${planCount}` } : {}),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setMessage({ type: "error", text: `${data.error || "연주곡을 기획하지 못했습니다."}${got.length ? ` (앞서 받은 ${got.length}곡은 남겼습니다)` : ""}`, needKey: !!data.needApiKey });
+          return;
+        }
+        got.push(...data.tracks);
+        calls += data.calls ?? 1;
+        setPlan([...got]);
       }
-      setPlan(data.tracks);
-      setMessage({ type: "success", text: `연주곡 ${data.tracks.length}곡을 기획했습니다(AI 호출 ${data.calls}번). 곡마다 [이 곡으로 생성하기]를 누르거나 [모두 내 곡에 저장]을 눌러 주세요.` });
-    } catch {
-      setMessage({ type: "error", text: "연주곡을 기획하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
+      setMessage({ type: "success", text: `연주곡 ${got.length}곡을 기획했습니다(AI 호출 ${calls}번). 곡마다 [이 곡으로 생성하기]를 누르거나 [모두 내 곡에 저장]을 눌러 주세요.` });
+    } catch (e) {
+      const aborted = (e as Error).name === "AbortError";
+      setMessage({ type: aborted ? "success" : "error", text: aborted ? `기획을 멈췄습니다${got.length ? ` — 받은 ${got.length}곡은 남겼습니다` : ""}.` : "연주곡을 기획하지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
     } finally {
+      planStop.current = null;
+      setPlanStage("");
       setWriting("");
     }
   };
@@ -593,7 +621,7 @@ export default function SongsPage() {
             {instrumental ? (
               <div className="flex flex-wrap items-center gap-2">
                 <select className={`${field} w-auto`} value={planCount} onChange={(e) => setPlanCount(Number(e.target.value))} aria-label="기획할 곡 수">
-                  {Array.from({ length: PLAN_MAX }, (_, i) => i + 1).map((n) => (
+                  {PLAN_COUNTS.map((n) => (
                     <option key={n} value={n}>
                       {n}곡 기획
                     </option>
@@ -605,9 +633,16 @@ export default function SongsPage() {
                   disabled={!!writing || !theme.trim()}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-teal-400/40 bg-teal-950/40 px-4 py-2 text-xs font-bold text-teal-200 hover:bg-teal-900/50 disabled:opacity-40"
                 >
-                  <ListMusic className="h-3.5 w-3.5" /> {writing === "plan" ? "기획하는 중… (최대 1분)" : "AI 작곡 기획"}
+                  <ListMusic className="h-3.5 w-3.5" /> {writing === "plan" ? `${planStage || "기획하는 중"}…` : "AI 작곡 기획"}
                 </button>
-                <span className="text-[11px] text-slate-500">스타일 칸에 적은 내용은 참고로 함께 보냅니다 · AI 호출 1번</span>
+                {writing === "plan" && (
+                  <button type="button" onClick={() => planStop.current?.abort()} className="rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-900">
+                    멈추기
+                  </button>
+                )}
+                <span className="text-[11px] text-slate-500">
+                  스타일 칸에 적은 내용은 참고로 함께 보냅니다 · 회원님 키로 AI 호출 {planChunks(planCount).length}번{planCount > PLAN_MAX ? "(20곡씩 나눠서)" : ""}
+                </span>
               </div>
             ) : (
               <div className="flex flex-wrap items-center gap-2">

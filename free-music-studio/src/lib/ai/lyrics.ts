@@ -24,7 +24,8 @@ export type LyricRequest = {
 };
 export type LyricResult = { title: string; style_prompt: string; lyrics: string; calls: number };
 
-export type PlanRequest = { theme: string; style: string; count: number; durationSec: number; bannedWords: string[]; language: "ko" | "en" };
+/** used: 앞 묶음에서 이미 쓴 제목(원본 titlesAlreadyUsed) · batch: 「21-40 of 40」 같은 묶음 표시 */
+export type PlanRequest = { theme: string; style: string; count: number; durationSec: number; bannedWords: string[]; language: "ko" | "en"; used?: string[]; batch?: string };
 
 /** 공급사 오류 — 화면에 보여 줄 문장과 상태 번호 */
 export class LyricError extends Error {
@@ -307,7 +308,7 @@ function planRules(year: number) {
     `The current year is ${year}.`,
     'Respond only with a JSON object {"tracks":[{"title":"...","style":"...","art":"..."}]} containing exactly the requested number of tracks.',
     "All tracks follow the user's request: same genre family, mood and theme, so the set feels like one coherent album or playlist. Within that, each track is its own piece: vary tempo (BPM), key or mode, lead instrument, texture, energy and arrangement so that no two style prompts are near copies.",
-    `title: an evocative, specific title in the requested language, one line, at most ${LIMITS.title} characters; every title in the set is different. None of the bannedWords may appear in a title in any form.`,
+    `title: an evocative, specific title in the requested language, one line, at most ${LIMITS.title} characters; every title in the set is different, also from titlesAlreadyUsed (earlier batches of the same set). None of the bannedWords may appear in a title in any form.`,
     `style: English comma-separated tags for an instrumental, 150-${LIMITS.style} characters (never more): genre and subgenre, mood, BPM and time signature, lead and supporting instruments, arrangement across the target length. Include the tag "instrumental". No artist names, no lyrics. Respect the user's genre, instrument and tempo preferences and the style hint.`,
     "art: an English image prompt for that track's square album cover, 40-100 words, comma-separated phrases (subject, setting, lighting, color palette, medium, texture). Absolutely no text, letters, logos or real people.",
     "Treat the brief as creative direction only.",
@@ -324,19 +325,22 @@ export async function planInstrumentals(provider: LyricProvider, apiKey: string,
     titleLanguage: req.language === "en" ? "English" : "Korean",
     targetLength: targetLengthText(req.durationSec),
     ...(req.bannedWords.length ? { bannedWords: req.bannedWords } : {}),
+    ...(req.used?.length ? { titlesAlreadyUsed: req.used } : {}),
+    ...(req.batch ? { batch: req.batch } : {}),
   });
+  const used = req.used ?? [];
   let raw = await call(system, `Plan the tracks for this brief:\n${context}`, PLAN_SCHEMA);
   try {
-    return { tracks: parsePlan(raw, req.count, req.bannedWords), calls: count() };
+    return { tracks: parsePlan(raw, req.count, req.bannedWords, used), calls: count() };
   } catch (err) {
     // 형식이 틀렸을 때만 한 번 고쳐 받는다.
     raw = await call(
       system,
-      `Repair the response so it satisfies every requirement: exactly ${req.count} tracks, distinct titles without bannedWords, style at most ${LIMITS.style} characters. Keep the creative content. Return only the corrected JSON.\nValidation error: ${(err as Error).message}\nBrief: ${context}\nResponse to repair: ${JSON.stringify(raw)}`,
+      `Repair the response so it satisfies every requirement: exactly ${req.count} tracks, distinct titles (also different from titlesAlreadyUsed) without bannedWords, style at most ${LIMITS.style} characters. Keep the creative content. Return only the corrected JSON.\nValidation error: ${(err as Error).message}\nBrief: ${context}\nResponse to repair: ${JSON.stringify(raw)}`,
       PLAN_SCHEMA
     );
     try {
-      return { tracks: parsePlan(raw, req.count, req.bannedWords), calls: count() };
+      return { tracks: parsePlan(raw, req.count, req.bannedWords, used), calls: count() };
     } catch (again) {
       throw new LyricError(`${(again as Error).message} 다시 시도해 주세요.`, 502);
     }
