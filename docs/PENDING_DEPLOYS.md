@@ -28,6 +28,8 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `real_estate_sales` | R-ONE 상권 좌표 보강: 검색어 후보(「/」 나눔·「시도 + 이름」·옛 시내 → 도시 역), 갱신 주소 `?retry=missing` | `1c8b800a3` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `real_estate_sales/AGENTS.md` 2026-11-06 | 배포 뒤 `/api/admin/rone-refresh?retry=missing&geocode=150` 1회(못 찾은 70곳) |
+| `realty-client-desk` | 수신거부 저장 실패 시 「처리됐어요」 대신 오류 문구 | `5cc894781` | 2026-11-06 · [역할: realty] `claude-win-realty-docs` | `realty-client-desk/AGENTS.md` 5. 남은 일 | 배포 뒤 버전 +0.01 |
 | `video-to-gif` | V4 「🖥 화면에서 바로 녹화」(최대 15초·소리 없음·서버 전송 없음) → 대기열 | `a0f04a3da` | 2026-11-06 · [역할: video] `claude-win-video` | `video-to-gif/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.26. 화면 공유 창은 주인님이 한 번 골라 주셔야 실제 녹화 확인 |
 | `shorts-onestop-studio` | V3 1단계 「상품 홍보(15초 6비트)」 구성·상품 정보 칸·`#product-name=` 받기 | `ea6bdead1` | 2026-11-06 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 배포 때 v1.44(음악 담당 🆓→🎙️ `a95613743`도 함께). AI 대본 1회 확인은 비용 승인 뒤 |
 | `free-music-studio` | 환경설정 2-1: 추천 구성 카드 엔진 전체 + 시스템 정보 표 | `3f9613f4c` | 2026-11-05 · [역할: music] `claude-win-20261024-music` | `free-music-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 음악 배포 때 함께. Compute Capability·BF16 칸은 엔진 0.6.9 설치 파일 뒤에 보임 |
@@ -87,6 +89,7 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 |---|---|---|
+| `real_estate_sales` | v1.54 · 2026-11-06 ([역할: realty] `claude-win-realty-docs`, RQ-A4 1단계, 빌드 6회 중 4회는 R-ONE 키 다시 넣기) | 없음(새 기능만) |
 | `banana-canvas` | v1.44 · 2026-11-06 ([역할: ecommerce-image] `claude-win-sdp`, 주인님 「배포해」 긴급 빌드 1회, `banana-canvas-oakuwdwo6`) | 다른 프로그램(?from=)이 연 「🧽 무료 지우기」 창의 COOP/COEP 빼기 `9d388621a`. 운영 헤더 확인(직접 열면 격리·?from=이면 없음), ego 썸네일 A안 → 문구 찾기 3곳 → 지우기 → 「↩ 썸네일에 넣기」 → 새 버전 v2 「무료 지우기(내 PC)」 저장 확인 |
 | `coupang-ops` | v1.18 · 2026-11-06 ([역할: ecommerce-image] `claude-win-sdp`, 주인님 「진행해」 묶음 6회 중 6번째, `coupang-9797mmz5z`) | 텔레그램 끊기·봇 빌려 쓰기 제거 `8479b2009` · 위너 문구 제거 `ebd28e0e9` · 30일 열외 `a4a3b1857`. 시험 131·tsc 통과, DB v1.18 |
 | `trending-product-finder` | v1.36 · 2026-11-06 ([역할: ecommerce-image] `claude-win-sdp`, 같은 묶음 5번째, `trending-product-finder-lqxue64z0`) | 마켓 큰 버튼·확장 새 버전 알림·이 PC 목록 잠금 `19e1aed3b`·`ddfa8359e` · 30일 열외 `e7c031b6f`. 시험 43·tsc, DB/ext/ZIP v1.36 OK, `/api/extension/version` v1.36 응답 |
