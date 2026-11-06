@@ -249,3 +249,8 @@ threads-comment-reply는 AIMaster 저장소 안의 서브프로젝트다. 개발
 ## 2026-10-23 v1.28 — 모아 둔 화면 수정 배포 (Claude Code 윈도우 · 세션 `claude-win-20261023-deploy3`)
 - 함께 나감: 「⏸ 모니터링 중지」 즉시 화면 반영(`52b8adb5a`) · 설정 「다음 확인 예정」(`lib/schedule.ts` `nextMonitoringAt`)·「실행 방식 바꾸기 ↓」 바로가기(`24562d6aa`). 버전 커밋 `cff21dc83`.
 - 검수: tsc·로컬 build, 배포 `threads-comment-reply-ku5b09w90` Ready·운영 주소 연결, 화면·DB 버전 v1.28, 실행 주소 가짜 토큰 401·`/login` 200, 크롬(시험 회원) 설정 화면 바로가기 확인. 비용: Vercel 빌드 1회(승인).
+
+## 2026-11-06 v1.29 ✅ 배포 — 12월 모델 교체 B (Claude Code 윈도우 · 세션 `claude-win-20261106-ytreply`, 연속 배포 3/4)
+- 함께 나감: `ac6cc6736`(맥미니 11-03) 답글 모델 선택지에서 12-01 종료 `gemini-2.5-pro`·`3.6-flash`·`3.7-flash` 삭제 → `gemini-3.8-flash`, 저장된 옛 값은 `currentReplyModel()`로 변환 호출(`lib/ai/models.ts`). 버전 커밋 `6571daf5d`.
+- 검수: tsc·시험 45개(comment-inbox 공용)·로컬 build 통과. 배포 `threads-comment-reply-xoux3tg1t` Ready·운영 주소 연결, 예약 실행 주소 가짜 토큰 401, `/login` 200, DB v1.29. ego lite(작업 공간 107, 시험 계정) 설정 화면: v1.29, 모델 선택지 11개에 옛 값 없음·`gemini-3.8-flash` 있음.
+- 비용: Vercel 빌드 1회(승인 4회 중 3회).
