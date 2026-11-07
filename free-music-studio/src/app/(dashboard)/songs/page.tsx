@@ -12,7 +12,7 @@ const PLAN_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40];
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
 import { presetsFor } from "@/lib/presets";
-import type { Collection } from "@/lib/collections";
+import { COLLECTIONS_CHANGED, type Collection } from "@/lib/collections";
 import { ProjectTracks } from "@/components/songs/ProjectTracks";
 import { QuickCoverPanel } from "@/components/songs/QuickCoverPanel";
 import type { Track } from "@/lib/tracks";
@@ -139,17 +139,37 @@ export default function SongsPage() {
     } catch {}
   };
   useEffect(() => {
-    fetch("/api/collections")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { projects?: Collection[] } | null) => d && setProjects(d.projects ?? []))
-      .catch(() => {});
+    const loadProjects = () =>
+      fetch("/api/collections")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: { projects?: Collection[] } | null) => d && setProjects(d.projects ?? []))
+        .catch(() => {});
+    loadProjects();
+    // 좌측 메뉴에서 순서를 바꾸거나 여기서 새로 만들면 다시 읽는다(v1.31)
+    window.addEventListener(COLLECTIONS_CHANGED, loadProjects);
     const linked = new URLSearchParams(window.location.search).get("project");
     try {
       const v = linked && /^[0-9a-f-]{36}$/.test(linked) ? linked : sessionStorage.getItem(PROJECT_VIEW_KEY);
       if (v) setProjectViewState(v);
       if (linked) window.history.replaceState(null, "", "/songs");
     } catch {}
+    return () => window.removeEventListener(COLLECTIONS_CHANGED, loadProjects);
   }, []);
+  // 곡 만들기에서 바로 새 프로젝트(백로그 C-5) — 만들면 그 프로젝트를 고른 상태가 된다
+  const [newProject, setNewProject] = useState<string | null>(null);
+  const [projectError, setProjectError] = useState("");
+  const createProject = async () => {
+    const name = newProject?.trim();
+    if (!name) return;
+    setProjectError("");
+    const res = await fetch("/api/collections", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "project", name }) }).catch(() => null);
+    const data = await res?.json().catch(() => ({}));
+    if (!res?.ok || !data?.collection) return setProjectError(data?.error || "프로젝트를 만들지 못했습니다.");
+    setProjects((list) => [...list, data.collection]);
+    setProjectView(data.collection.id);
+    setNewProject(null);
+    window.dispatchEvent(new Event(COLLECTIONS_CHANGED));
+  };
   const shownSongs = songs.filter((s) => (projectView === "all" ? true : projectView === "none" ? !s.project_id : s.project_id === projectView));
   const projectName = (id: string | null) => (id ? projects.find((p) => p.id === id)?.name ?? "지운 프로젝트" : "프로젝트 없음");
 
@@ -483,6 +503,38 @@ export default function SongsPage() {
             </option>
           ))}
         </select>
+        {newProject === null ? (
+          <button
+            type="button"
+            onClick={() => (setNewProject(""), setProjectError(""))}
+            className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-950/40"
+          >
+            <Plus className="h-3.5 w-3.5" /> 새 프로젝트
+          </button>
+        ) : (
+          <span className="inline-flex items-center gap-1.5">
+            <input
+              autoFocus
+              value={newProject}
+              onChange={(e) => setNewProject(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.nativeEvent.isComposing) void createProject();
+                if (e.key === "Escape") setNewProject(null);
+              }}
+              maxLength={40}
+              placeholder="새 프로젝트 이름"
+              aria-label="새 프로젝트 이름"
+              className="w-44 rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden"
+            />
+            <button type="button" onClick={() => void createProject()} disabled={!newProject.trim()} className="rounded-lg bg-emerald-700 px-2.5 py-1.5 text-[11px] font-semibold text-white disabled:opacity-40">
+              만들기
+            </button>
+            <button type="button" onClick={() => setNewProject(null)} className="text-[11px] text-slate-400 underline">
+              취소
+            </button>
+          </span>
+        )}
+        {projectError && <span className="text-[11px] font-semibold text-rose-300">{projectError}</span>}
         <span className="text-[11px] text-slate-500">
           {viewProjectId ? "새 곡·기획 저장은 이 프로젝트로, 만든 곡도 이 프로젝트의 「모든 음악」에 들어갑니다." : "프로젝트를 고르면 그 안에서 바로 만들 수 있습니다."}
         </span>
