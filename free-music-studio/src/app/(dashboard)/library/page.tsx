@@ -23,6 +23,7 @@ import {
   Undo2,
   SlidersHorizontal,
   Layers,
+  Clapperboard,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -54,6 +55,7 @@ import {
   revealLibraryFolder,
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
+import { openLyricVideo } from "@/lib/lyricVideoHandoff";
 import { COLLECTIONS_CHANGED, TRACK_DRAG_TYPE, type Collection, type CollectionKind } from "@/lib/collections";
 
 const DEVICE_LABEL: Record<string, string> = { cuda: "그래픽카드", mps: "Apple 맥", cpu: "CPU" };
@@ -822,6 +824,16 @@ export default function LibraryPage() {
                                   sessionStorage.setItem(COVER_SOURCE_KEY, JSON.stringify(src));
                                 } catch {}
                                 router.push(`/import?from=${t.id}`);
+                              },
+                            },
+                            {
+                              // 만든 곡 → 가사 영상(D-1): 제목·가사·가사 시간은 가사 영상이 DB에서, 음원은 이 창이 엔진에서 받아 건넴
+                              label: "가사 영상 만들기",
+                              icon: <Clapperboard className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !t.lyrics.trim() ? "가사 없는 곡입니다" : false,
+                              onClick: () => {
+                                if (openLyricVideo({ id: t.id, title: t.title }, setMessage))
+                                  setNotice(t.lyric_timing ? "가사 영상 창을 열었습니다. 맞춰 둔 가사 시간과 음악 파일이 함께 들어갑니다." : "가사 영상 창을 열었습니다. 가사 시간은 그 화면 「가사 싱크」에서 맞추거나, 먼저 곡 상세 「가사 시간」에서 맞춰 두면 바로 들어갑니다.");
                               },
                             },
                             {
