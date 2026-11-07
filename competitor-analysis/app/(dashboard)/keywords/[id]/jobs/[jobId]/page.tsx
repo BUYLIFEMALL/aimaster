@@ -4,6 +4,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { CompetitorToggle } from "@/components/keywords/CompetitorToggle";
 import { ReportButton } from "@/components/keywords/ReportButton";
+import { SendToWorkspaceButton } from "@/components/keywords/SendToWorkspaceButton";
 import type { ResultType } from "@/types/database.types";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { CopyButton } from "@/components/ui/CopyButton";
@@ -98,6 +99,7 @@ export default async function JobDetailPage({ params }: PageProps) {
           </div>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-mx-text">{analysis.summary_text}</p>
           <ReportButton analysisId={analysis.id} hasReport={!!analysis.html_report} />
+          <SendToWorkspaceButton analysisId={analysis.id} />
           {analysis.html_report && (
             <div className="overflow-hidden rounded-xl border border-mx-border bg-white">
               <iframe srcDoc={analysis.html_report} className="h-[600px] w-full" sandbox="" title="HTML 리포트" />

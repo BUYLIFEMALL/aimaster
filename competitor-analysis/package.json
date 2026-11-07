@@ -11,6 +11,7 @@
     "test:runtime": "node tests/runtime.mjs",
     "build:verify": "node tests/local.mjs build",
     "test:retention": "node tests/retention.mjs",
+    "test:work-inbox": "node tests/work-inbox-content.mjs",
     "test:expansion": "node tests/expansion.mjs",
     "test:partners": "node tests/partners.mjs",
     "test:partners-db": "node tests/partners-database.mjs"
