@@ -17,7 +17,7 @@ import { ProjectTracks } from "@/components/songs/ProjectTracks";
 import { QuickCoverPanel } from "@/components/songs/QuickCoverPanel";
 import type { Track } from "@/lib/tracks";
 import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult } from "@/components/songs/LyricResultDialog";
-import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
+import { SongAlbumChooser } from "@/components/albums/SongAlbumChooser";
 import { DEFAULT_LYRIC_LANGUAGE, LYRIC_LANGUAGES, isBestLanguage } from "@/lib/lyricLanguages";
 import { LYRIC_GENRES, MAX_MOODS, MAX_VOCALS, MOOD_GROUPS, TEMPOS, VOCALS, lyricMoodPayload, moodConflict, toggleMany, toggleMood } from "@/lib/lyricTags";
 
@@ -1139,7 +1139,8 @@ export default function SongsPage() {
           </section>
 
           {/* 앨범 그림(노래·연주곡만 — 효과음은 표지가 필요 없음) */}
-          {!sfx && <AlbumArtPanel title={draft.title} style={draft.style_prompt} lyrics={draft.lyrics} songId={draft.id} art={draft.art_prompt} onArtChange={(v) => set("art_prompt", v)} ai={{ provider, model }} />}
+          {/* 앨범 그림 만들기는 좌측 「앨범」 메뉴로(v1.35) — 여기서는 만들어 둔 앨범에서 고르기 */}
+          {!sfx && <SongAlbumChooser title={draft.title} art={draft.art_prompt} />}
 
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
           {coverSrc && (

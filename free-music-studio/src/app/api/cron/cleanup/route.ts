@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { exemptInFilter, loadRetentionExemptIds } from "@/lib/retentionExempt";
 import { SONGS_TABLE } from "@/lib/songs";
 import { TRACKS_TABLE } from "@/lib/tracks";
+import { ALBUMS_TABLE } from "@/lib/albums";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -24,9 +25,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 86_400_000).toISOString();
-  // 곡 기록(「모든 음악」)과 가사 초안을 각각 지운다. 음원 파일은 회원 PC에 있어 서버가 지우지 않는다.
+  // 곡 기록(「모든 음악」)과 가사 초안, 앨범 기록(v1.35)을 각각 지운다. 음원·그림 파일은 회원 PC에 있어 서버가 지우지 않는다.
   const removed: Record<string, number> = {};
-  for (const table of [TRACKS_TABLE, SONGS_TABLE]) {
+  for (const table of [TRACKS_TABLE, SONGS_TABLE, ALBUMS_TABLE]) {
     let query = admin.from(table).delete({ count: "exact" }).lt("created_at", cutoff);
     if (exempt) query = query.not("user_id", "in", exempt);
     const { error, count } = await query;

@@ -10,6 +10,8 @@ import { HEAVY_ENTRIES } from "./storage.mjs";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const exists = (p) => access(p).then(() => true, () => false);
+/** 앨범 그림 폴더(0.7.3) — 노래 저장 폴더 안 */
+export const ALBUMS_DIR = "Albums";
 
 /** 곡 번호 검사 — 경로 조작을 막으려고 uuid 모양만 받는다. */
 export function isTrackId(id) {
@@ -198,6 +200,40 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
       return target;
     },
 
+    // ── 앨범 그림(0.7.3, 2026-11-07 주인님 「음악 앨범 메뉴」) ─────────────────────
+    // 곡과 따로 만드는 앨범 그림을 노래 저장 폴더 안 「Albums/<앨범 번호>.<확장자>」에 둔다(서버에는 올리지 않음).
+    // 앨범 번호는 사이트 DB의 번호(uuid)라 이름에 경로 글자가 들어올 수 없다.
+    async albumFile(id) {
+      if (!isTrackId(id)) return null;
+      for (const ext of ["png", "jpg", "webp"]) {
+        const f = path.join(dir, ALBUMS_DIR, `${id}.${ext}`);
+        if (await exists(f)) return f;
+      }
+      return null;
+    },
+    async saveAlbum(id, bytes, ext = "png") {
+      if (!isTrackId(id)) throw new Error("앨범 번호가 올바르지 않습니다.");
+      const e = ["png", "jpg", "webp"].includes(ext) ? ext : "png";
+      const folder = path.join(dir, ALBUMS_DIR);
+      await mkdir(folder, { recursive: true });
+      const target = path.join(folder, `${id}.${e}`);
+      await writeFile(`${target}.part`, bytes);
+      await rename(`${target}.part`, target);
+      // 같은 앨범의 다른 형식 그림은 지운다(바꿔 그린 경우)
+      for (const other of ["png", "jpg", "webp"]) if (other !== e) await rm(path.join(folder, `${id}.${other}`), { force: true });
+      return target;
+    },
+    async listAlbums() {
+      const names = await readdir(path.join(dir, ALBUMS_DIR)).catch(() => []);
+      return [...new Set(names.map((n) => /^([0-9a-f-]{36})\.(png|jpg|webp)$/i.exec(n)?.[1]?.toLowerCase()).filter((id) => id && isTrackId(id)))];
+    },
+    async removeAlbum(id) {
+      const f = await this.albumFile(id);
+      if (!f) return false;
+      await rm(f, { force: true });
+      return true;
+    },
+
     /** 파일이 실제로 있는 곡 번호만 */
     async list() {
       const ids = [];
@@ -302,6 +338,16 @@ export function createLibrary(dataDir, { defaultDir = defaultLibraryDir() } = {}
           }
         }
         await saveIndex();
+        // 앨범 그림(0.7.3)도 새 폴더의 「Albums」로 따라 옮긴다
+        const fromAlbums = path.join(dir, ALBUMS_DIR);
+        const toAlbums = path.join(target, ALBUMS_DIR);
+        if (path.resolve(fromAlbums) !== path.resolve(toAlbums)) {
+          for (const n of await readdir(fromAlbums).catch(() => [])) {
+            if (!/^[0-9a-f-]{36}\.(png|jpg|webp)$/i.test(n)) continue;
+            await mkdir(toAlbums, { recursive: true });
+            await moveFile(path.join(fromAlbums, n), path.join(toAlbums, n)).catch(() => {});
+          }
+        }
       }
       dir = target;
       remember(target);

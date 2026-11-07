@@ -200,6 +200,33 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
     return json(res, 200, { ids, formats, arts, dir: lib.dir }, origin);
   }
 
+  // 앨범 그림(0.7.3) — GET /library/albums → { ids } · GET/POST/DELETE /library/albums/<앨범 번호>
+  if (rest === "albums" && req.method === "GET") return json(res, 200, { ids: await lib.listAlbums() }, origin);
+  const albumMatch = /^albums\/([0-9a-f-]{36})$/.exec(rest);
+  if (albumMatch && isTrackId(albumMatch[1])) {
+    const id = albumMatch[1];
+    if (req.method === "GET") {
+      const f = await lib.albumFile(id);
+      if (!f) return json(res, 404, { error: "이 PC에 이 앨범 그림이 없습니다." }, origin);
+      const s = await stat(f);
+      res.writeHead(200, { "content-type": ART_TYPES[path.extname(f).slice(1).toLowerCase()] ?? "image/png", "content-length": s.size, ...corsHeaders(origin) });
+      return createReadStream(f).pipe(res);
+    }
+    if (req.method === "POST") {
+      const body = await readSmall(req, 12 * 1024 * 1024).catch(() => null);
+      const mime = typeof body?.mimeType === "string" ? body.mimeType : "image/png";
+      const ext = mime === "image/jpeg" ? "jpg" : mime === "image/webp" ? "webp" : "png";
+      const bytes = typeof body?.base64 === "string" ? Buffer.from(body.base64, "base64") : null;
+      if (!bytes?.length || bytes.length > 9 * 1024 * 1024) return json(res, 400, { error: "그림 파일이 올바르지 않습니다(9MB까지)." }, origin);
+      try {
+        return json(res, 200, { ok: true, path: await lib.saveAlbum(id, bytes, ext) }, origin);
+      } catch {
+        return json(res, 500, { error: "앨범 그림을 저장하지 못했습니다. 디스크 공간을 확인해 주세요." }, origin);
+      }
+    }
+    if (req.method === "DELETE") return json(res, 200, { ok: true, removed: await lib.removeAlbum(id) }, origin);
+  }
+
   // 곡 표지 바꾸기(0.6.9) — POST /library/<id>/art { base64, mimeType } (사이트가 1:1·형식·크기를 먼저 확인)
   const setArtMatch = req.method === "POST" ? /^([0-9a-f-]{36})\/art$/.exec(rest) : null;
   if (setArtMatch && isTrackId(setArtMatch[1])) {

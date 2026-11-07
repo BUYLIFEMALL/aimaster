@@ -24,6 +24,8 @@ import {
   SlidersHorizontal,
   Layers,
   Clapperboard,
+  ImagePlus,
+  Images,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -51,11 +53,15 @@ import {
   hasMastering,
   enqueueMaster,
   hasStems,
+  hasAlbums,
+  setTrackArt,
   enqueueStems,
   revealLibraryFolder,
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
 import { openLyricVideo } from "@/lib/lyricVideoHandoff";
+import { AlbumPicker } from "@/components/albums/AlbumPicker";
+import { albumsHref } from "@/lib/albums";
 import { COLLECTIONS_CHANGED, TRACK_DRAG_TYPE, TRACKS_DROPPED, type Collection, type CollectionKind, type TracksDropped } from "@/lib/collections";
 
 const DEVICE_LABEL: Record<string, string> = { cuda: "그래픽카드", mps: "Apple 맥", cpu: "CPU" };
@@ -86,6 +92,7 @@ export default function LibraryPage() {
   const [detailId, setDetailId] = useState<string | null>(null); // 오른쪽 곡 상세 패널
   const [mastering, setMastering] = useState<Track | null>(null); // 마스터링 설정 창
   const [stemFor, setStemFor] = useState<Track | null>(null); // Stem 분리 창
+  const [coverFor, setCoverFor] = useState<Track | null>(null); // 앨범에서 표지 고르기(v1.35)
   const [artVersion, setArtVersion] = useState<Record<string, number>>({}); // 표지를 바꾼 곡은 작은 그림도 다시 받는다
   const [filter, setFilter] = useState<TrackFilter>("all");
   const [sort, setSort] = useState<TrackSort>("newest");
@@ -849,6 +856,19 @@ export default function LibraryPage() {
                                   setNotice(t.lyric_timing ? "가사 영상 창을 열었습니다. 맞춰 둔 가사 시간과 음악 파일이 함께 들어갑니다." : "가사 영상 창을 열었습니다. 가사 시간은 그 화면 「가사 싱크」에서 맞추거나, 먼저 곡 상세 「가사 시간」에서 맞춰 두면 바로 들어갑니다.");
                               },
                             },
+                            // 앨범(v1.35, 주인님 「곡을 다 만들고 곡제목,가사를 베이스로 이미지 앨범을 만들게 하거나 이미 만들어놓은 앨범이미지에서 선택해서 사용」)
+                            {
+                              label: "앨범 그림 만들기 · 곡 제목·가사로",
+                              icon: <ImagePlus className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 표지로 넣을 수 있습니다" : false,
+                              onClick: () => router.push(albumsHref({ track: t.id })),
+                            },
+                            {
+                              label: "앨범에서 표지 고르기",
+                              icon: <Images className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasAlbums(engine.status) ? "엔진 0.7.3 이상이 필요합니다" : false,
+                              onClick: () => setCoverFor(t),
+                            },
                             {
                               label: "마스터링",
                               icon: <SlidersHorizontal className="h-3.5 w-3.5" />,
@@ -922,6 +942,20 @@ export default function LibraryPage() {
                   setMessage(e instanceof EngineError ? e.message : "마스터링을 시작하지 못했습니다.");
                   setMastering(null);
                 }
+              }}
+            />
+          )}
+          {coverFor && (
+            <AlbumPicker
+              title={`「${coverFor.title}」 표지로 쓸 앨범 그림 고르기`}
+              onClose={() => setCoverFor(null)}
+              onPick={async (album, image) => {
+                const t = coverFor;
+                await setTrackArt(t.id, image);
+                setArts((s) => new Set(s).add(t.id));
+                setArtVersion((v) => ({ ...v, [t.id]: (v[t.id] ?? 0) + 1 }));
+                setNotice(`「${album.title}」 그림을 「${t.title}」 표지로 넣었습니다. MP3로 받으면 표지가 들어갑니다.`);
+                setCoverFor(null);
               }}
             />
           )}

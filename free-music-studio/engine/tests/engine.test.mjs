@@ -167,6 +167,34 @@ test("보관함: 앨범 그림은 저장 폴더에 「곡 제목.png」, 같은 
   }
 });
 
+test("보관함: 앨범 그림(0.7.3) — Albums/<번호>에 저장·바꾸기·목록·지우기, 번호가 아니면 거절, 폴더를 옮기면 따라간다", async () => {
+  const data = await mkdtemp(path.join(tmpdir(), "fms-album-"));
+  try {
+    const lib = createLibrary(data, { defaultDir: path.join(data, "Song") });
+    await lib.init();
+    const a = "aaaaaaaa-2222-4333-8444-555555555555";
+    assert.deepEqual(await lib.listAlbums(), []);
+    const f = await lib.saveAlbum(a, Buffer.from([0x89, 0x50]), "png");
+    assert.equal(f, path.join(data, "Song", "Albums", `${a}.png`));
+    // 다른 형식으로 다시 그리면 예전 그림은 지운다
+    await lib.saveAlbum(a, Buffer.from([0xff, 0xd8]), "jpg");
+    assert.equal(path.basename(await lib.albumFile(a)), `${a}.jpg`);
+    assert.equal(await stat(f).then(() => true, () => false), false);
+    assert.deepEqual(await lib.listAlbums(), [a]);
+    await assert.rejects(lib.saveAlbum("../../evil", Buffer.from([1]), "png"));
+    assert.equal(await lib.albumFile("../x"), null);
+    // 앨범 그림은 곡 목록에 섞이지 않는다
+    assert.deepEqual(await lib.list(), []);
+    await lib.setDir(path.join(data, "New"), { move: true });
+    assert.equal(await lib.albumFile(a), path.join(data, "New", "Albums", `${a}.jpg`));
+    assert.equal(await lib.removeAlbum(a), true);
+    assert.equal(await lib.removeAlbum(a), false);
+    assert.deepEqual(await lib.listAlbums(), []);
+  } finally {
+    await rm(data, { recursive: true, force: true });
+  }
+});
+
 test("보관함: 같은 이름 그림이 곡 표지, 지우면 표지도 지우고 폴더를 옮기면 표지도 따라간다(0.6.8)", async () => {
   const data = await mkdtemp(path.join(tmpdir(), "fms-cover-"));
   try {

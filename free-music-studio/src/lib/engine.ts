@@ -429,6 +429,37 @@ export async function setTrackArt(id: string, file: Blob): Promise<void> {
   await call(`/library/${id}/art`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ base64: btoa(bin), mimeType: file.type || "image/png" }) }, 60_000);
 }
 
+// ── 앨범 그림(엔진 0.7.3, v1.35) — 노래 저장 폴더 안 Albums/<앨범 번호> ──────────────
+/** 앨범 그림을 내 PC에 보관하는 엔진인가(0.7.3+) */
+export function hasAlbums(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("albums");
+}
+/** 이 PC에 그림이 있는 앨범 번호 */
+export async function listAlbumImages(): Promise<string[]> {
+  const res = await call("/library/albums");
+  const data = await res.json().catch(() => null);
+  return Array.isArray(data?.ids) ? data.ids.filter((x: unknown): x is string => typeof x === "string") : [];
+}
+/** 앨범 그림 저장(같은 앨범이면 바꿈) */
+export async function saveAlbumImage(id: string, base64: string, mimeType: string): Promise<void> {
+  await call(`/library/albums/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ base64, mimeType }) }, 60_000);
+}
+/** 앨범 그림 파일(Blob) — 화면에 보이거나 곡 표지로 복사할 때 */
+export async function fetchAlbumImage(id: string): Promise<Blob> {
+  const res = await call(`/library/albums/${id}`, {}, 30_000);
+  return res.blob();
+}
+export async function deleteAlbumImage(id: string): Promise<void> {
+  await call(`/library/albums/${id}`, { method: "DELETE" });
+}
+/** Blob → base64(엔진에 그림을 넘길 때) */
+export async function blobToBase64(file: Blob): Promise<string> {
+  const buf = new Uint8Array(await file.arrayBuffer());
+  let bin = "";
+  for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
 /** 보관함 곡의 파형 — peaks(1600칸, 0~1)·duration(초). 엔진 0.6.9+ */
 export async function getWaveform(id: string): Promise<{ peaks: number[]; duration: number }> {
   const res = await call(`/library/${id}/waveform`, {}, 150_000);

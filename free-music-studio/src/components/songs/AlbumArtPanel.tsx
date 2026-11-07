@@ -26,6 +26,8 @@ export function AlbumArtPanel({
   art,
   onArtChange,
   ai,
+  saveAction,
+  heading = "앨범 그림 만들기",
 }: {
   title: string;
   style: string;
@@ -35,6 +37,9 @@ export function AlbumArtPanel({
   onArtChange: (v: string) => void;
   /** 영어 설명문 자동 작성에 쓸 회원 AI(곡 만들기 화면의 AI 작사 선택과 같음) */
   ai?: { provider: LyricProvider; model: string };
+  /** 저장 버튼을 바꿔 쓴다(앨범 화면: 앨범 보관함에 저장). run은 결과 안내 문구를 돌려준다 */
+  saveAction?: { label: string; ready: boolean; notReady: string; run: (img: { base64: string; mimeType: string }) => Promise<string> };
+  heading?: string;
 }) {
   const { paired, status } = useEngine(10000);
   const [busy, setBusy] = useState<"" | "make" | "save" | "prompt">("");
@@ -69,6 +74,7 @@ export function AlbumArtPanel({
   const info = provider === "local" ? null : ART_PROVIDERS.find((p) => p.id === provider)!;
   const localRow = local?.families.flatMap((f) => f.variants).find((v) => v.id === localId);
   const hasHangul = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(art);
+  const savedHint = saveAction ? `마음에 들면 [${saveAction.label}]을 눌러 주세요.` : canSave ? "마음에 들면 [내 PC 노래 폴더에 저장]을 눌러 주세요." : "[그림 받기]로 내려받을 수 있습니다.";
 
   // 곡 제목·스타일·가사로 영어 설명문(회원 AI 키 1회, 재시도 없음).
   // 칸에 한글로 장면을 적었으면 그 장면을 영어로 바꾼다(v1.35, 주인님 「한글로 상황을 묘사하면 영어로 변환」). 만든 영어 설명을 돌려준다.
@@ -126,7 +132,7 @@ export function AlbumArtPanel({
         polling.current = null;
       });
       setImage(await fetchLocalArt(job.id));
-      setMsg({ ok: true, text: canSave ? "내 PC에서 그림을 만들었습니다(무료). 마음에 들면 [내 PC 노래 폴더에 저장]을 눌러 주세요." : "그림을 만들었습니다. [그림 받기]로 내려받을 수 있습니다." });
+      setMsg({ ok: true, text: `내 PC에서 그림을 만들었습니다(무료). ${savedHint}` });
     } catch (e) {
       setMsg({ ok: false, text: e instanceof Error ? e.message : "앨범 그림을 만들지 못했습니다." });
     } finally {
@@ -151,7 +157,7 @@ export function AlbumArtPanel({
         return;
       }
       setImage({ base64: data.base64, mimeType: data.mimeType || "image/png" });
-      setMsg({ ok: true, text: canSave ? "그림을 만들었습니다. 마음에 들면 [내 PC 노래 폴더에 저장]을 눌러 주세요." : "그림을 만들었습니다. [그림 받기]로 내려받을 수 있습니다." });
+      setMsg({ ok: true, text: `그림을 만들었습니다. ${savedHint}` });
     } catch {
       setMsg({ ok: false, text: "앨범 그림을 만들지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
     } finally {
@@ -164,10 +170,15 @@ export function AlbumArtPanel({
     setBusy("save");
     setMsg(null);
     try {
+      // 앨범 화면(v1.35)은 노래 폴더 대신 앨범 보관함에 저장한다
+      if (saveAction) {
+        setMsg({ ok: true, text: await saveAction.run(image) });
+        return;
+      }
       const where = await saveArtToLibrary(title, image.base64, image.mimeType);
       setMsg({ ok: true, text: `내 PC에 저장했습니다${where ? `: ${where}` : ""} — 같은 제목의 곡 표지가 되고, 「모든 음악」에서 MP3로 받으면 표지가 들어갑니다(엔진 0.6.8+).` });
     } catch (e) {
-      setMsg({ ok: false, text: e instanceof EngineError ? e.message : "내 PC에 저장하지 못했습니다." });
+      setMsg({ ok: false, text: e instanceof Error && e.message ? e.message : "내 PC에 저장하지 못했습니다." });
     } finally {
       setBusy("");
     }
@@ -180,7 +191,7 @@ export function AlbumArtPanel({
   return (
     <section className="space-y-3 rounded-2xl border border-fuchsia-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
       <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
-        <ImageIcon className="h-4 w-4 text-fuchsia-300" /> 앨범 그림 만들기{" "}
+        <ImageIcon className="h-4 w-4 text-fuchsia-300" /> {heading}{" "}
         <span className="text-[11px] font-normal text-slate-400">(내 Gemini·OpenAI·Replicate 키 또는 내 PC 그래픽카드(무료) · 정사각형 1장 · 선택)</span>
       </h2>
       <textarea
@@ -287,7 +298,20 @@ export function AlbumArtPanel({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt={`${title} 앨범 그림`} className="h-48 w-48 rounded-xl border border-slate-700 object-cover" />
           <div className="flex flex-col gap-2">
-            {canSave ? (
+            {saveAction ? (
+              saveAction.ready ? (
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={!!busy}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
+                >
+                  <FolderDown className="h-3.5 w-3.5" /> {busy === "save" ? "저장 중…" : saveAction.label}
+                </button>
+              ) : (
+                <p className="max-w-xs text-[11px] leading-relaxed text-amber-200/90">{saveAction.notReady}</p>
+              )
+            ) : canSave ? (
               <button
                 type="button"
                 onClick={save}
