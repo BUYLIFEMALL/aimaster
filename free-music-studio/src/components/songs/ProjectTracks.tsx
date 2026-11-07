@@ -79,7 +79,7 @@ export function ProjectTracks({ projectId, view, label, onCover }: { projectId: 
                     type="button"
                     disabled={!here || t.license === "noncommercial"}
                     onClick={() => onCover(t)}
-                    aria-label={`${t.title}으로 커버 만들기`}
+                    aria-label={`「${t.title}」 곡으로 커버 만들기`}
                     title={!here ? "이 PC에 음원이 있어야 합니다" : t.license === "noncommercial" ? "개인용 엔진 곡은 커버를 만들 수 없습니다" : "이 곡으로 커버 만들기"}
                     className="shrink-0 rounded-full border border-fuchsia-500/40 p-2 text-fuchsia-200 hover:bg-fuchsia-950/40 disabled:opacity-30"
                   >
