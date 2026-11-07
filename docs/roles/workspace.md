@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-06 18:00 (claude-win-20261025-workspace — v1.22 Ready, 배포 기록 정리·OpenAI 확인·모델 교체 7개 배포 남음, 인수인계 `IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md`)
+- 마지막 갱신: 2026-11-07 [역할: workspace] Claude Code(윈도우) `claude-win-20261025-workspace` — U10 2차 구현 완료(미배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,13 +15,14 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `threads-content-ops` | 미배포 `fcf2dc894` 받은 업무 제목에서 「(광고)」 줄 건너뛰기(U10 운영 확인에서 발견) | 다음 Threads 배포 때(v2.24) | `threads-content-ops/docs/IMPROVEMENTS.md` 맨 위 |
-| U10 2차 | 발행 2개(교육용 블로그·네이버 에이전트)·분석 3개·수집 1개 | 1차 결과 보신 뒤 주인님 「2차 진행」 | `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §4 |
+| U10 2차 배포 | 6개 프로그램 「업무 워크스페이스로 보내기」 구현 완료·미배포(`ai-auto-blog`·`naver-blog-agent`·`competitor-analysis`·`web-crawler`·`blog-keyword` + 워크스페이스 이름표) | 각 프로그램 다음 배포 때 함께, 또는 주인님 묶음 배포 승인(빌드 최대 6회) | `docs/PENDING_DEPLOYS.md` 2026-11-07 줄 |
 | `ai-work-workspace` | 음성 받아쓰기 엔진 회원 선택 — v1.22 배포됨. 남음: OpenAI 실제 받아쓰기 확인(시험 WAV 준비됨), IMPROVEMENTS·AGENTS 기록(미배포 표는 U10 세션이 「내보낸 기록」으로 옮김) | 형제 세션과 겹치지 않게 git status 확인 뒤 | `ai-work-workspace/docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md` |
 | `ai-doc-chatbot`(다른 역할 폴더) | 문서 카드가 30일 예외 계정에도 「30일 뒤 자동 삭제」로 표시 — 실제 삭제 대상인지 확인 | 그 폴더 담당 또는 주인님 허락 | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 확인 중 발견」 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-07 | U10 2차 6개 프로그램 | 보내기 버튼·라우트 구현, 시험·tsc 통과, 커밋 `c44499682`·`18cfb01d5`·`82c25c802`·`34ed724a1`·`21ba04b80`·`acb6e98d7`·`3c175bcce`(모두 미배포) | 비용 없음 |
 | 2026-11-06 | `ai-work-workspace` v1.22 · `insta_auto_poster` v1.72 · `threads-content-ops` v2.23 | U10 1차: 「📅 콘텐츠 캘린더」 템플릿 + 받은 업무 「캘린더에 넣기」 + INSTA·Threads 「업무 워크스페이스로 보내기」. ego 운영 확인 — INSTA 예약 글·Threads 발행 글이 캘린더 행으로 정상 | 배포 3회 |
 | 2026-11-06 | `ai-work-workspace` v1.22 | 요청함 `c234b28c` 주인님 「진행해」 → 음성 파일 받아쓰기 엔진 회원 선택(설정 메뉴, 자동/OpenAI) 구현. 시험 7+49 통과·타입 검사·로컬 빌드 | Ready 17:47(빌드는 형제 세션/주인님) |
 | 2026-11-06 | `ai-work-workspace` v1.21 외 4개 | U9 연계: 워크스페이스 → 슬라이드·번역·문서 챗봇 보내기, 음성 분석 → 회의록 페이지. ego 운영 확인 통과(챗봇 색인 1회·음성 분석 1회) | 배포 5회 |
@@ -40,9 +41,9 @@
 | 2026-10-24 | `ai-work-workspace` v1.07 | 로그인·회원가입 화면을 공식 표준 2탭으로 교체 + 회원가입 버튼 404 수정(`/signup` → `/register`) | 배포 |
 
 ## 다음 첫 단계
-1. U10 플랜(`ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md`) §8 결정이 오면 §4 순서로 보내는 프로그램(인스타·Threads → 블로그 2개 → 분석·수집 4개) 진행
-2. 워크스페이스 v1.22 배포 때 미배포(메뉴 버전·보낸 마크다운·엔진 선택·U10 캘린더)를 함께 내보내고 운영 확인
+1. U10 2차 배포 승인이 오면 `docs/PENDING_DEPLOYS.md` 2026-11-07 줄 순서대로 한 개씩 배포 → 시험 계정으로 각 버튼 → 받은 업무 → 캘린더(블로그 2개)·페이지(분석 3)·표 행(크롤러) 확인
+2. 유튜브 발행 기록(U10 범위 밖)은 video 역할과 저장 열 확인 뒤 다음 단위
 
 ## 주인님께 여쭐 것
-- U10 1차 (가) 배포 승인 — 빌드 3회 순차: 워크스페이스 v1.22(받아쓰기 엔진 선택 포함, 다른 세션이 이미 여쭌 건과 같음) → INSTA v1.72 → Threads v2.23. 승인되면 순서대로 배포하고 시험 계정으로 인스타·Threads 글 1건씩 → 받은 업무 → 콘텐츠 캘린더까지 확인(AI 호출 없음)
+- U10 2차 배포 승인 — 미배포 6개(블로그 포스팅·네이버 블로그 에이전트·키워드·경쟁사 분석·웹 크롤러·블로그 키워드 + 워크스페이스 이름표)를 묶어 순차 배포할지(빌드 최대 6회), 각 프로그램 다음 배포 때 함께 나가게 둘지
 - 모델 교체 7개(`web-crawler`·`ghost-scraper`·`ai-webtoon-studio`·`ebook-studio`·`ai-prompt-studio`·`vinyl-lp-studio`·`personality-suite`) 배포 — 이 세션은 `deploy.mjs`가 분류기에 막혀 주인님이 `! node scripts/deploy.mjs <폴더> --go`를 한 줄씩 돌려 주시거나 배포 권한 규칙 추가. 인스타·쓰레드 U10 1차 2개도 맡을지 확인 부탁드립니다
