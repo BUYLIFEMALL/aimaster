@@ -189,10 +189,10 @@ const exists = (f) => stat(f).then((s) => s.isFile(), () => false);
 const tarExe = () => (process.platform === "win32" ? path.join(process.env.SystemRoot || "C:\\Windows", "System32", "tar.exe") : "/usr/bin/tar");
 
 /**
- * 그림 모델 폴더(0.7.1): 엔진이 켤 때 정한 독립 폴더(settleImageDir, 기본 AIMasterImageModels) 또는 회원이 고른 폴더 안 「AIMaster-ImageModels」(getCustomDir). 둘 다 없을 때만 모델 저장 폴더 안 engines/image-sdcpp.
+ * 그림 모델 폴더(0.7.1): 엔진이 켤 때 정한 독립 폴더(settleImageDir, 기본 AIMasterImageModels) 또는 회원이 고른 폴더 안 「ImageModels」(getCustomDir, 0.7.1은 「AIMaster-ImageModels」). 둘 다 없을 때만 모델 저장 폴더 안 engines/image-sdcpp.
  * @param {{ dataDir: () => string, getCustomDir?: () => string, getSystem: () => Promise<object>, log?: (s:string)=>void, spawnImpl?: typeof spawn }} p
  */
-export const IMAGE_DIR_NAME = "AIMaster-ImageModels";
+export const IMAGE_DIR_NAME = "ImageModels"; // 0.7.2: 「AIMaster-ImageModels」 → 「ImageModels」(주인님 2026-11-07 「그냥 ImageModels 로 바꿔줘」). 이미 옮긴 폴더는 설정에 전체 경로가 있어 그대로 쓴다
 
 /**
  * 그림 모델 기본 폴더(2026-11-06 주인님 「이미지 모델은 나중에 이미지 자동화에서 사용할 수 있으니 따로 폴더를 관리」) —
@@ -502,7 +502,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
   }
 
   /**
-   * 그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 「AIMaster-ImageModels」로. move: 받은 엔진·모델을 복사한 뒤 예전 것을 지움 / fresh: 예전 것을 지우고 다음에 그릴 때 새로 받음.
+   * 그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 「ImageModels」로(0.7.1은 「AIMaster-ImageModels」). move: 받은 엔진·모델을 복사한 뒤 예전 것을 지움 / fresh: 예전 것을 지우고 다음에 그릴 때 새로 받음.
    * 바로 답하고 뒤에서 옮긴다(state().moving). forbid: 고르면 안 되는 폴더(모델 저장 폴더의 옮겨 다니는 항목 등).
    */
   let moving = null;

@@ -803,7 +803,7 @@ export async function getImageModels(): Promise<ImageModelState> {
 export async function setDefaultImageModel(id: string) {
   await call(`/image-models/${encodeURIComponent(id)}/default`, { method: "POST" });
 }
-/** 그림 모델만 다른 폴더로(0.7.1+) — 고른 폴더 안 「FreeMusicImageModels」. 뒤에서 옮기므로 getImageModels().moving으로 지켜본다 */
+/** 그림 모델만 다른 폴더로(0.7.1+) — 고른 폴더 안 「ImageModels」(엔진 0.7.2, 0.7.1은 「AIMaster-ImageModels」). 뒤에서 옮기므로 getImageModels().moving으로 지켜본다 */
 export async function moveImageModelsFolder(path: string, mode: "move" | "fresh"): Promise<{ dir: string }> {
   return (await call("/image-models/folder", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path, mode }) })).json();
 }

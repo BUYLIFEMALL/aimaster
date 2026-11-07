@@ -127,7 +127,7 @@ export function ImageModelPanel({ status }: { status: EngineStatus | null }) {
             <FolderBrowser
               start={state.dir ?? ""}
               current={state.dir}
-              title="📁 그림 모델을 둘 폴더 고르기 — 고른 폴더 안에 「AIMaster-ImageModels」 폴더를 만들어 그 안에만 둡니다"
+              title="📁 그림 모델을 둘 폴더 고르기 — 고른 폴더 안에 「ImageModels」 폴더를 만들어(엔진 0.7.2부터, 0.7.1은 「AIMaster-ImageModels」) 그 안에만 둡니다"
               confirmLabel="이 폴더로 바꾸기"
               busy={applying}
               onConfirm={applyFolder}

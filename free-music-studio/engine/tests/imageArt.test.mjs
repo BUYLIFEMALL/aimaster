@@ -66,7 +66,7 @@ test("받아 둔 것이 없으면 상태는 「받지 않음」, 지우기는 �
   await assert.rejects(art.setDefault("없는 판"), /없는 그림 모델/);
 });
 
-test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 AIMaster-ImageModels로 옮기고 예전 것은 지움, 안쪽·같은 폴더는 거절", async () => {
+test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 ImageModels로(0.7.2) 옮기고 예전 것은 지움, 안쪽·같은 폴더는 거절", async () => {
   const { mkdir, writeFile, readFile, stat } = await import("node:fs/promises");
   const base = await mkdtemp(path.join(os.tmpdir(), "fms-artmove-"));
   const models = path.join(base, "models");
@@ -80,7 +80,7 @@ test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 AIMaster-Image
   await assert.rejects(art.moveTo("상대경로", "move", { saveDir: async () => {} }), /경로가 올바르지/);
   const target = path.join(base, "D-drive");
   const r = await art.moveTo(target, "move", { saveDir: async (d) => (custom = d) });
-  assert.equal(r.dir, path.join(target, "AIMaster-ImageModels"));
+  assert.equal(r.dir, path.join(target, "ImageModels"));
   for (let i = 0; i < 100 && art.isMoving(); i++) await new Promise((ok) => setTimeout(ok, 20));
   assert.equal(art.paths().root, r.dir);
   assert.equal((await readFile(path.join(r.dir, "models", "text-encoders", "a.gguf"), "utf8")).length, 1000);
