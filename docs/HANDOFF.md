@@ -1,5 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-07 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **맥미니 Codex 인수인계 문서 작성**
+- 주인님 「맥미니 codex에서 나누어서」 → [`docs/MAC_MINI_HANDOFF_20261107_CLAUDE_TO_CODEX.md`](MAC_MINI_HANDOFF_20261107_CLAUDE_TO_CODEX.md): 이웃 소통 v1.18 공감 1건(⏸ 일시정지·주인님 참관 때), 카페 모집 4회차(윈도우 `new Event` 수정 대기, `kkuleomi24`), ego 사용법·브라우저 지정 주의. 역할 파일 갱신. 푸시 안 함, 비용 없음.
+
 ## 2026-11-07 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.31 배포(순서 바꾸기·대기열에서 바로 정리)**
 - 주인님 요청 4개: 프로젝트 순서·플레이리스트 순서(좌측 메뉴·「모든 음악」 왼쪽, ⠿ 끌기), 프로젝트 안 곡 순서(「직접 정한 순서」), 작업 대기열 끝난 작업에서 프로젝트 고르기·플레이리스트에 담기. 운영 SQL `20261107_collection_order.sql`(칸 2개 추가만, ego SQL 편집기 실행·칸 확인), 커밋 `3c005e4cf`, 배포 `free-music-studio-l07odi38r` Ready, DB v1.31.
 - ego 시험 계정 확인: Classic을 마우스로 맨 위로 끌기 → 새로고침 뒤 「모든 음악」·좌측 메뉴 모두 유지 → 원래 자리로 되돌림. 프로젝트를 열면 정렬 「직접 정한 순서」. 대기열 정리 칸은 이 PC 엔진에 끝난 작업이 없어 못 봄(마스터PC 확인 필요).
