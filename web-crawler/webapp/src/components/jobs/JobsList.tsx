@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/jobs/StatusBadge";
+import { SendToWorkspaceButton } from "@/components/jobs/SendToWorkspaceButton";
 import { resumeJobAction, cancelJobAction } from "@/lib/actions/jobs";
 import type { Database, JobStatus } from "@/types/database.types";
 
@@ -125,6 +126,7 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
                   엑셀 다운로드
                 </a>
               )}
+              {job.status === "completed" && <SendToWorkspaceButton jobId={job.id} />}
             </div>
           </li>
         ))}

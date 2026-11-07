@@ -1,5 +1,10 @@
 # 개선사항 원장 — 웹 크롤링 자동화 (web-crawler, 웹앱 `webapp/`)
 
+## 2026-11-07 🟡 미배포 대기 — 완료 작업 「📨 워크스페이스로」 (U10 2차, [역할: workspace] Claude Code 윈도우, 주인님 결정 1번 「버튼·라우트만」)
+- 작업 목록(`webapp/src/components/jobs/JobsList.tsx`) 완료 작업마다 버튼(`SendToWorkspaceButton.tsx`) → `POST /api/work-inbox`(출처 확인 → `checkProgramAccessApi` → 회원 본인 `web_crawler_jobs` 다시 읽기, 완료 상태만 → 공용 사본 `src/lib/workInbox.ts`(`work-inbox-client`, **직접 고치지 말 것** — 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `--sync`)). 종류 `link`(워크스페이스에서 「표에 행으로 넣기」), 구조 데이터 `{ 주소, 행 수, 수집 항목, 완료일 }`.
+- 결과 엑셀은 비공개 저장소의 10분 임시 주소라 받은 업무에 넣지 않고 작업 목록 주소로 안내(`src/lib/workInboxContent.ts`). 개인정보 경고가 있는 작업은 본문에 경고 문구.
+- 형식 정의 `src/types/database.types.ts`에 `work_inbox` 추가. 검수: `npm run test:work-inbox` 3개(새 `tests/` 폴더), tsc 0. 다음 배포 때 함께(버전 +0.01·DB).
+
 > ※ `web-crawler/.gitignore`가 `docs/`를 제외하므로 이 원장은 폴더 최상위에 둔다.
 > 2026-10-17 Claude Code(맥미니)가 `naver-blog-seo-studio` v1.69 작업 중 타 프로그램 탐색(원칙 ⑫)으로 선제 기록. 2026-10-17 디자인 리뉴얼 v1.07(스마트 매트릭스 다크)에서 #1·#2 구현, 현황판 폴더 표기 정정 완료.
 

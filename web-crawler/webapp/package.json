@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:work-inbox": "node --test tests/work-inbox-content.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
