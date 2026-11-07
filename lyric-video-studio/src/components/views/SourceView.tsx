@@ -5,6 +5,7 @@ import { useStudio } from "@/components/studio/StudioContext";
 import { FileDrop, StudioBar } from "@/components/studio/parts";
 import { SunoImportCard } from "@/components/studio/SunoImportCard";
 import { AmsImportCard } from "@/components/studio/AmsImportCard";
+import { FmsImportCard } from "@/components/studio/FmsImportCard";
 import { Message } from "@/components/ui/Message";
 import { useConfirm } from "@/components/ui/Confirm";
 import type { Msg } from "@/components/ui/api";
@@ -19,6 +20,7 @@ export function SourceView() {
   const synced = s.lines.filter(isSynced).length;
   const [autoSuno, setAutoSuno] = useState<string | null>(null);
   const [autoAms, setAutoAms] = useState<{ id: string; index: number } | null>(null);
+  const [autoFms, setAutoFms] = useState<string | null>(null);
   useEffect(() => { // 음악(SUNO) 자동화 곡 카드에서 ?suno=<변주 id>(리믹스 결과는 ?remix=<리믹스 변주 id>)로 들어온 경우 한 번만 가져오고 주소에서 지운다
     const q = new URLSearchParams(window.location.search);
     const id = q.get("suno") ?? q.get("remix");
@@ -26,6 +28,9 @@ export function SourceView() {
     // v1.10 AI 음악 스튜디오 곡 카드에서 ?ams=<생성 번호>&i=<곡 순서>로 들어온 경우
     const ams = q.get("ams"), i = Number(q.get("i") ?? "0");
     if (ams && /^[0-9a-f-]{36}$/i.test(ams) && Number.isInteger(i) && i >= 0 && i <= 9) { setAutoAms({ id: ams, index: i }); window.history.replaceState(null, "", "/source"); }
+    // v1.13 AI 무료음악 자동화 「모든 음악」 곡 메뉴에서 ?fms=<곡 번호>로 들어온 경우(음원은 그 창이 건네줌)
+    const fms = q.get("fms");
+    if (fms && /^[0-9a-f-]{36}$/i.test(fms)) { setAutoFms(fms); window.history.replaceState(null, "", "/source"); }
   }, []);
 
   async function onAudio(f: File) {
@@ -61,6 +66,7 @@ export function SourceView() {
       <StudioBar />
       <div className="page-heading"><p className="eyebrow">STEP 1</p><h1>🎵 음악·가사 넣기</h1><p>음악 파일과 가사를 넣습니다. 파일은 이 컴퓨터 브라우저에서만 쓰이고 서버로 올라가지 않습니다.</p></div>
       <AmsImportCard request={autoAms} />
+      <FmsImportCard trackId={autoFms} />
       <SunoImportCard autoVariant={autoSuno} />
       <div className="grid2">
         <section className="card stack">
