@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-07 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.35 · 엔진 0.7.3: 좌측 「앨범」 메뉴 배포**
+- 주인님 「음악 앨범 매뉴를 좌측에」「앨범만 만들고 곡은 안만들수 있는 상황이니 별도의 기능」「곡을 만들때 어울리는 앨범을 선택… 곡을 다 만들고 곡제목,가사를 베이스로… 만들어놓은 앨범이미지에서 선택」「진행해」. 플랜 `free-music-studio/docs/PLAN_20261107_ALBUMS.md`
+- `/albums`: 앨범 그림 만들기(기존 `AlbumArtPanel` + `saveAction`)·모아 보기·받기·이름·지우기. DB `free_music_albums`(이름·그림 설명, owner-only RLS, 30일 정리 포함) — 운영 SQL `20261107_albums.sql` ego SQL 편집기 실행·조회 확인(칸 5·RLS·정책 1). 그림은 PC 노래 폴더 `Albums/<id>`(엔진 `GET/POST/DELETE /library/albums`, 기능 "albums", 폴더 옮기면 함께)
+- 곡 만들기 그림 칸 → 「만들어 둔 앨범에서 고르기」(「곡 제목.png」), 「모든 음악」 곡 메뉴 「앨범 그림 만들기 · 곡 제목·가사로」(`/albums?track=`, 저장하면 표지로도)·「앨범에서 표지 고르기」. 함께 나간 미배포분: 맨 왼쪽 메뉴 끌어 놓기·곡 수 반영(`d52f9c6d5`), 한글 그림 설명 → 영어(`86e23f16f`)
+- 커밋 `a27721c84`·`4dd895ef3`, 배포 `free-music-studio-5n4lrl12d`(주인님 실행, 빌드 1회). 설치 파일 0.7.3 sha256 `a712a3e4…75f7`. 시험 엔진 100·사이트 94·tsc·로컬 빌드. ego 운영 확인: v1.35·「02 앨범」·`/api/albums` 200
+- 남은 일: DB 버전 칸(`--version-only --set-version`, 주인님), 마스터PC 0.7.3 실물(앨범 저장·표지), 앨범 2단계(그림으로 곡 만들기)
+- 링크: https://free-music-studio.buylife.xyz/albums
+
 ## 2026-11-07 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **D-1 만든 곡 → 가사 영상: `lyric-video-studio` v1.13 · `free-music-studio` v1.34 배포**
 - 무료음악 「모든 음악」 곡 메뉴 「가사 영상 만들기」 → 가사 영상 `/source?fms=<곡 번호>` 새 창. 제목·가사·가사 시간은 가사 영상 서버가 `free_music_tracks`에서 회원 본인 곡만 읽음(`/api/fms/song`, 로그인 없이 401 확인), 음원은 무료음악 창이 내 PC 엔진에서 받아 `postMessage`로 건넴(서버 업로드 없음, 30초 안 오면 직접 넣기 안내). 커밋 `9077d9d62`·`9a8b9482f`, 배포 `lyric-video-studio-1fzjrs9so`·`free-music-studio-jq0kml3wg` Ready, DB v1.13·v1.34.
 - ego 확인: v1.34, 곡 메뉴에 「가사 영상 만들기」(이 PC는 음원이 없어 막힘 — 설계대로). 실제 음원 건네기는 마스터PC 확인 필요. 남은 D-1: `playlist-channel-studio`·`music-video-studio` 연결.
