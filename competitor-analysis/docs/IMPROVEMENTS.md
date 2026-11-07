@@ -3,7 +3,8 @@
 ## 2026-11-07 🟡 미배포 대기 — 분석 결과 「📨 업무 워크스페이스로 보내기」 (U10 2차, [역할: workspace] Claude Code 윈도우, 주인님 결정 1번 「버튼·라우트만」)
 - 결과 화면(`app/(dashboard)/keywords/[id]/jobs/[jobId]/page.tsx`) 분석 리포트 아래 버튼(`components/keywords/SendToWorkspaceButton.tsx`) → `POST /api/work-inbox`(출처 확인 → `checkProgramAccessApi` → 회원 본인 `competitor_analyses`(30일 안)·키워드·검색결과 상위 10개 다시 읽기 → 공용 사본 `lib/workInbox.ts`(`work-inbox-client`, **직접 고치지 말 것** — 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `--sync`)).
 - 내용 `lib/workInboxContent.ts`: 제목 「경쟁사 분석 — 키워드 (분석일)」, 요약 + 상위 검색결과 링크(http(s)만), 구조 데이터 `{ 키워드, 분석일, 검색결과 수 }` — 캘린더 대상이 아니라 워크스페이스에서 「페이지로 만들기」. 형식 정의 `types/database.types.ts`에 `work_inbox` 추가. 유료 호출 없음.
-- 검수: `npm run test:work-inbox` 3개, tsc 0. 다음 배포 때 함께(버전 +0.01·DB·확장 ZIP 버전 맞춤 — 확장 코드는 바뀌지 않음).
+- 같은 날 보탬 — 「🌱 키워드 확장」 결과 화면(`app/(dashboard)/expand/[id]/runs/[runId]/page.tsx`)에도 같은 버튼(`type: "expand"`): 라우트가 회원 본인 `longtail_runs`(30일 안)·씨드·연관(관련도)·롱테일을 읽어 「키워드 확장 — 씨드 (날짜)」 페이지 내용으로(`expandInboxContent`). 옛 `longtail-keyword-expander`는 병합돼 이동 안내만 보이므로 거기에는 넣지 않음.
+- 검수: `npm run test:work-inbox` 4개, `test:expansion` 통과, tsc 0. 다음 배포 때 함께(버전 +0.01·DB·확장 ZIP 버전 맞춤 — 확장 코드는 바뀌지 않음).
 
 ## 2026-10-16 Claude Code(맥미니) — 디자인 리뉴얼 사전 분석 중 발견
 

@@ -27,4 +27,17 @@ ok('no results and empty keyword', () => {
   assert.ok(c.bodyMd.includes('(분석 내용 없음)') && !c.bodyMd.includes('상위 검색결과'));
 });
 
+const { expandInboxContent } = await import('data:text/javascript;base64,' + Buffer.from(out.outputFiles[0].text).toString('base64'));
+ok('keyword expansion: instructions, direct and related longtails', () => {
+  const c = expandInboxContent({ seedKeyword: '캠핑', executedAt: '2026-11-06T16:30:00Z', summaryText: '이렇게 쓰세요',
+    related: [{ id: 'r1', keyword: '캠핑 의자', relevance_score: 0.82 }, { id: 'r2', keyword: '캠핑장', relevance_score: null }],
+    expansions: [{ keyword: '캠핑 초보', related_id: null }, { keyword: '경량 캠핑 의자', related_id: 'r1' }] });
+  assert.equal(c.title, '키워드 확장 — 캠핑 (2026-11-07)');
+  assert.ok(c.bodyMd.includes('## 작업 지시문\n이렇게 쓰세요'));
+  assert.ok(c.bodyMd.includes('## 씨드 직속 롱테일\n- 캠핑 초보'));
+  assert.ok(c.bodyMd.includes('- 캠핑 의자 (관련도 82%) → 경량 캠핑 의자'));
+  assert.ok(c.bodyMd.includes('- 캠핑장\n') || c.bodyMd.endsWith('- 캠핑장'));
+  assert.deepEqual({ ...c.data }, { 키워드: '캠핑', '연관 키워드 수': 2, '롱테일 수': 2, 분석일: '2026-11-07' });
+});
+
 console.log(`work-inbox content: ${n} passed`);

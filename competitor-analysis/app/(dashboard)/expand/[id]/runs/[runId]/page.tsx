@@ -6,6 +6,7 @@ import { KpiCard } from "@/components/dashboard/KpiCard";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { CsvButton, type CsvRow } from "@/components/expand/CsvButton";
 import { SendToAnalysis } from "@/components/expand/SendToAnalysis";
+import { SendToWorkspaceButton } from "@/components/keywords/SendToWorkspaceButton";
 import { formatDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -95,6 +96,8 @@ export default async function RunDetailPage({ params }: PageProps) {
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-mx-text">{run.summary_text}</p>
         </div>
       )}
+
+      <SendToWorkspaceButton analysisId={run.id} type="expand" />
 
       <SendToAnalysis
         seedId={seed.id}

@@ -3,7 +3,8 @@
 import { useState } from "react";
 
 // U10 2차(2026-11-07): 분석 결과 → 「📨 업무 워크스페이스로 보내기」. 서버(/api/work-inbox)가 회원 본인 분석을 읽어 보낸다.
-export function SendToWorkspaceButton({ analysisId }: { analysisId: string }) {
+// type "expand"는 키워드 확장(옛 롱테일) 실행 결과.
+export function SendToWorkspaceButton({ analysisId, type = "analysis" }: { analysisId: string; type?: "analysis" | "expand" }) {
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
   const [inboxUrl, setInboxUrl] = useState("");
@@ -16,7 +17,7 @@ export function SendToWorkspaceButton({ analysisId }: { analysisId: string }) {
       const res = await fetch("/api/work-inbox", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: analysisId }),
+        body: JSON.stringify({ id: analysisId, type }),
       });
       const json = (await res.json().catch(() => ({}))) as { error?: string; inboxUrl?: string };
       if (!res.ok) throw new Error(json.error || "업무 워크스페이스로 보내지 못했습니다.");
