@@ -53,7 +53,7 @@
 ## 4. 주의
 - 본문에 비밀 키·다른 회원 정보를 넣지 않습니다.
 - 워크스페이스 화면의 보낸 프로그램 이름 표(`ai-work-workspace/src/app/inbox/InboxBoard.tsx`의 `SOURCE`)에 새 slug를 추가하면 이름이 한국어로 보입니다(없으면 slug 그대로).
-- 연계 순서(로드맵): U8 `ai-task-planner` ✅ → U9 `ai-audio-analyzer`·`ai-doc-chatbot`·`document-translator`·`ai-slide-builder` ✅(2026-11-06 배포) → U10 발행·분석·수집 프로그램(플랜 `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md`, 주인님 결정 대기).
+- 연계 순서(로드맵): U8 `ai-task-planner` ✅ → U9 `ai-audio-analyzer`·`ai-doc-chatbot`·`document-translator`·`ai-slide-builder` ✅(2026-11-06 배포) → U10 발행·분석·수집 프로그램(플랜 `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md`) — 1차 인스타·Threads ✅(2026-11-06 배포), 2차 `ai-auto-blog`·`naver-blog-agent`·`competitor-analysis`(분석+키워드 확장)·`web-crawler-saas`·`blog-keyword` 구현 완료·미배포(2026-11-07).
 
 ## 5. 발행 기록 → 「📅 콘텐츠 캘린더」 (U10, 2026-11-06 워크스페이스 쪽 구현·미배포)
 - 발행 프로그램(블로그·Threads·인스타)은 종류를 늘리지 않고 **`kind: "document"` + `data`에 아래 키**로 보낸다. 워크스페이스 받은 업무에 `채널`과 `발행일`(또는 `예약일`)이 있으면 「📅 콘텐츠 캘린더에 넣기」 버튼이 보인다.

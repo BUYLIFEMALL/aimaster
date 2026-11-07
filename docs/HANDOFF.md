@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-07 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — **U10 2차: 6개 프로그램 「업무 워크스페이스로 보내기」 구현(미배포)**
+- 주인님 「진행해」(결정 1번 범위: 다른 역할 폴더에 버튼·`/api/work-inbox` 라우트만). 공통 모양: 출처 확인 → `checkProgramAccessApi` → 회원 본인 행 다시 읽기(브라우저 본문 안 씀) → 공용 사본 `work-inbox-client` → 「받은 업무 열기」 링크. AI·유료 호출 없음.
+- `ai-auto-blog` `c44499682`: 글 보기 버튼, 채널 네이버 블로그·예약일(네이버 입력일/작성일) — 발행은 회원이 직접 눌러 「발행 완료」로 보내지 않음. `naver-blog-agent` `18cfb01d5`: 보관함 버튼, 예약·발행 글은 캘린더 날짜·발행 주소, 형식 정의에 `Relationships: []`·`work_inbox`. `competitor-analysis` `82c25c802`·`34ed724a1`: 경쟁사 분석 결과 + 「🌱 키워드 확장」 결과(옛 롱테일은 병합돼 이동 안내만이라 여기로). `web-crawler` `21ba04b80`: 완료 작업, 종류 link(엑셀 임시 주소 대신 작업 목록 링크). `blog-keyword` `acb6e98d7`: 결과 막대, 본문 = 기존 `toMarkdown`. 워크스페이스 이름표 `3c175bcce`(실제 slug `web-crawler-saas`).
+- 검수: 프로그램마다 새 순수 함수 시험(3~4개)·기존 시험·tsc 0. **화면·운영 확인은 배포 뒤**. 발견: `ai-auto-blog` `test:security`의 카테고리 시험 6개가 v1.84 회원별 카테고리 전환 뒤로 낡음(이번 변경과 무관, blog 역할 몫 — `ai-auto-blog/docs/IMPROVEMENTS.md` 맨 위).
+- 배포: 모두 미배포 대기(`docs/PENDING_DEPLOYS.md`). 받을 곳(워크스페이스 v1.22)은 이미 배포돼 있어 각 프로그램 다음 배포 때 함께 나가면 바로 동작. 다음 첫 단계: 배포 승인 받으면 순차 배포 → 시험 계정으로 각 버튼 → 받은 업무 → 캘린더/페이지 확인.
+- 링크: https://ai-work-workspace.buylife.xyz/inbox
+
+
+
+
 ## 2026-11-07 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` 내 PC 엔진 화면·작업 대기열 음악/이미지 나누기 배포**
 - 「내 PC 엔진」을 ⚙️ 공통 / 🎵 음악용 / 🖼 이미지용 구역으로, 음악 모델 저장 공간 표는 음악 모델·음악 편집 도구·설치 보관 파일 묶음(`lib/storageGroups.ts`, 그림 모델은 이미지용에서), 작업 대기열을 🎵 음악 작업 / 🖼 그림 작업으로(대기 번호는 전체 순서). 커밋 `5c35a91a7`·`25c3a04b9`, 배포 `free-music-studio-80x3j7x6t` Ready.
 - 버전을 올리지 않고 배포해 v1.33 그대로(다음 배포 때 v1.34). ego 확인: 엔진 화면 세 구역 표시. 저장 공간 묶음·대기열 묶음은 이 PC에 모델 표·끝난 작업이 없어 못 봄(마스터PC 확인).
