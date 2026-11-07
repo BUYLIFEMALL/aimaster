@@ -719,8 +719,8 @@ const MODULES = [
     source: "ai-work-workspace/src/lib/workInbox.ts",
     // 2026-11-06 U9: 음성 분석·슬라이드·번역·문서 챗봇 사본 추가(받기 함수 listReceivedWorkInbox·markWorkInboxImported 포함)
     // 2026-11-06 U10: 발행 프로그램 사본(인스타) 추가
-    // 2026-11-07 U10 2차: 블로그 포스팅 자동화·네이버 블로그 에이전트·키워드·경쟁사 분석·웹 크롤러 사본 추가
-    copies: ["ai-task-planner/src/lib/workInbox.ts", "ai-audio-analyzer/src/lib/workInbox.ts", "ai-slide-builder/src/lib/workInbox.ts", "document-translator/src/lib/workInbox.ts", "ai-doc-chatbot/src/lib/workInbox.ts", "insta_auto_poster/src/lib/workInbox.ts", "threads-content-ops/lib/workInbox.ts", "ai-auto-blog/lib/workInbox.ts", "naver-blog-agent/src/lib/workInbox.ts", "competitor-analysis/lib/workInbox.ts", "web-crawler/webapp/src/lib/workInbox.ts"],
+    // 2026-11-07 U10 2차: 블로그 포스팅 자동화·네이버 블로그 에이전트·키워드·경쟁사 분석·웹 크롤러·블로그 키워드 사본 추가
+    copies: ["ai-task-planner/src/lib/workInbox.ts", "ai-audio-analyzer/src/lib/workInbox.ts", "ai-slide-builder/src/lib/workInbox.ts", "document-translator/src/lib/workInbox.ts", "ai-doc-chatbot/src/lib/workInbox.ts", "insta_auto_poster/src/lib/workInbox.ts", "threads-content-ops/lib/workInbox.ts", "ai-auto-blog/lib/workInbox.ts", "naver-blog-agent/src/lib/workInbox.ts", "competitor-analysis/lib/workInbox.ts", "web-crawler/webapp/src/lib/workInbox.ts", "blog-keyword/src/lib/workInbox.ts"],
   },
   {
     id: "youtube-golden-engine-test",

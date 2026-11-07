@@ -4,6 +4,7 @@ import { BookMarked, Download, ExternalLink, FileText, Loader2, Play, Sparkles }
 import { FEATURE_INFO, type AnalysisResult, type Feature } from "@/lib/kw/types";
 import { seoHandoffUrl, TREND_CATEGORIES, TREND_LINKS } from "@/lib/kw/links";
 import { toCsv, toMarkdown } from "@/lib/kw/export";
+import { SendToWorkspaceButton } from "@/components/kw/SendToWorkspaceButton";
 import { cleanKeyword } from "@/lib/kw/util";
 import { CopyButton, ResultView } from "./ResultView";
 import { PromptLibrary } from "./PromptLibrary";
@@ -265,6 +266,7 @@ export function Workbench({ initialReportId }: { initialReportId?: string }) {
                   {seoHandoffUrl(reportId) && !["discover", "surge", "benchmark"].includes(result.kind) && (
                     <a className="kw-mini" href={seoHandoffUrl(reportId) ?? undefined} target="_blank" rel="noreferrer noopener" title="이 기록 번호만 넘깁니다. SEO 스튜디오가 내 기록을 다시 읽어 실측 값과 AI 추정 값을 나눠 보여 줍니다."><ExternalLink size={12} />SEO 스튜디오로 보내기</a>
                   )}
+                  {reportId && <SendToWorkspaceButton reportId={reportId} />}
                   {toCsv(result) && (
                     <button type="button" className="kw-mini" onClick={() => download(`${fileBase}.csv`, toCsv(result) ?? "", "text/csv;charset=utf-8")}><Download size={12} />CSV</button>
                   )}
