@@ -14,6 +14,58 @@ body {
   overflow-x: hidden;
 }
 
+/* 3D 엠보싱 버튼 규격 (2026-10-24 디자인 표준 지침) */
+.btn-3d-emerald {
+  background: linear-gradient(180deg, #10B981 0%, #059669 100%);
+  border: 1px solid #047857;
+  box-shadow: 0 4px 0 #064E3B, 0 6px 14px rgba(16, 185, 129, 0.35);
+  color: #ffffff !important;
+  font-weight: 800;
+  transition: all 0.15s ease;
+}
+.btn-3d-emerald:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 5.5px 0 #064E3B, 0 8px 18px rgba(16, 185, 129, 0.45);
+}
+.btn-3d-emerald:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #064E3B;
+}
+
+.btn-3d-cyan {
+  background: linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);
+  border: 1px solid #0369A1;
+  box-shadow: 0 4px 0 #075985, 0 6px 14px rgba(14, 165, 233, 0.35);
+  color: #ffffff !important;
+  font-weight: 800;
+  transition: all 0.15s ease;
+}
+.btn-3d-cyan:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 5.5px 0 #075985, 0 8px 18px rgba(14, 165, 233, 0.45);
+}
+.btn-3d-cyan:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #075985;
+}
+
+.btn-3d-gold {
+  background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+  border: 1px solid #B45309;
+  box-shadow: 0 4px 0 #92400E, 0 6px 14px rgba(245, 158, 11, 0.35);
+  color: #ffffff !important;
+  font-weight: 800;
+  transition: all 0.15s ease;
+}
+.btn-3d-gold:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 5.5px 0 #92400E, 0 8px 18px rgba(245, 158, 11, 0.45);
+}
+.btn-3d-gold:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #92400E;
+}
+
 /* 사이버 네온 다크 스크롤바 */
 ::-webkit-scrollbar {
   width: 6px;
