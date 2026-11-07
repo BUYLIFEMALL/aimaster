@@ -6,6 +6,14 @@
 
 ---
 
+## 2026-11-07 🟡 미배포 대기 — 「📨 업무 워크스페이스로 보내기」 (U10 2차, [역할: workspace] Claude Code 윈도우)
+- 글 보기(`app/posts/[id]/page.tsx`) 관리 버튼 줄에 버튼(`components/SendToWorkspaceButton.tsx`, 독립 설치본은 숨김) → `POST /api/work-inbox`(출처 확인 → `checkProgramAccessApi` → 회원 본인 `blog_posts` 다시 읽기 → 공용 사본 `lib/workInbox.ts`(`work-inbox-client`, **직접 고치지 말 것** — 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `--sync`)). 연결 파일 `lib/supabase/admin.ts`(사본이 부르는 경로, 기존 서버 클라이언트 재내보내기).
+- 내용: `utils/workInboxContent.ts` — 제목, 본문(요약 첫 줄 + HTML → 마크다운, 이미지·이미지 프롬프트 구역 제외), 구조 데이터 `{ 채널: 네이버 블로그, 상태: draft|failed, 예약일 }`. 이 프로그램은 네이버 발행을 회원이 직접 누르고 발행 주소가 없어 「발행 완료」로 보내지 않는다 — 날짜는 네이버 입력일(없으면 작성일), 워크스페이스 캘린더에서 회원이 상태를 고친다.
+- 검수: `npm run test:work-inbox` 4개, `test:extension-api` 38, tsc 0, 새 파일 eslint 0. 다음 배포 때 함께(버전 +0.01·DB·확장 ZIP 버전 맞춤, 화면에서 버튼 → 워크스페이스 받은 업무 → 캘린더 넣기 확인).
+- 발견(기존, 이번 변경과 무관): `npm run test:security`의 카테고리 시험 6개가 실패 — v1.84에서 카테고리를 회원별(관리자 분기 제거)로 바꾼 뒤 시험이 옛 「관리자만 변경」 기대값으로 남아 있음. 시험 기대값을 새 규칙으로 고쳐야 함(blog 역할).
+
+---
+
 ## 1. 프로그램 로직 및 비즈니스 기능 개선 과제
 
 1. **실시간 트렌드 키워드 크롤러 및 토픽 추천 확장**:

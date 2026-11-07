@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { getBlogBasePath } from '@/blog/utils/basePath'
 import { stripImageGenerationSchema, removeImagePromptSection } from '@/blog/utils/stripImageSchema'
 import NaverCategoryPicker from '@/blog/components/NaverCategoryPicker'
+import SendToWorkspaceButton from '@/blog/components/SendToWorkspaceButton'
 import type { NaverCategory } from '@/blog/utils/naverCategory'
 
 import { APP_TITLE, EXTENSION_ENABLED, MAIN_SITE_URL } from '@/lib/deployment'
@@ -519,6 +520,7 @@ export default function PostDetailPage() {
                 >
                   {handoffState === 'sending' ? '⏳ 보내는 중...' : handoffState === 'sent' ? '✓ 네이버 입력기로 보냄' : '🧩 네이버 입력기로 보내기'}
                 </button>}
+                {EXTENSION_ENABLED && <SendToWorkspaceButton postId={post.id} />}
                 <Link
                   href={`${getBlogBasePath()}/posts/${post.id}/edit`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 text-xs font-semibold rounded-lg border border-slate-200 transition-all cursor-pointer no-underline shadow-sm"

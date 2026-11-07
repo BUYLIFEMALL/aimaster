@@ -13,6 +13,7 @@
     "test:extension-api": "node --test tests/extension-api.test.cjs",
     "test:shorts": "node --test tests/shorts-collection.test.cjs",
     "test:generation": "node --test tests/generation-rules.test.cjs",
+    "test:work-inbox": "node --test tests/work-inbox-content.test.cjs",
     "test:extension": "node --test tests/extension-engine.test.cjs tests/extension-worker.test.cjs tests/extension-adapter.test.cjs tests/extension-page.test.cjs"
   },
   "dependencies": {
