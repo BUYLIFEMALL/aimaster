@@ -150,7 +150,20 @@ function DraftCard({ draft, categories, categoryId, account, busy, onRun }: {
       <label htmlFor={`draft-body-${draft.id}`} className="mb-2 block text-xs font-semibold text-neutral-700">본문 수정</label>
       <textarea id={`draft-body-${draft.id}`} ref={bodyRef} disabled={busy} className="min-h-28 w-full resize-none overflow-hidden rounded-lg border border-neutral-300 bg-white p-3 text-sm leading-relaxed text-neutral-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:bg-neutral-100" maxLength={5000} value={body} onChange={(event) => setBody(event.target.value)} />
     </div> : <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-neutral-900">{body}</p>}
-    {isDraft && <p className={`mt-2 text-xs ${length > 500 ? "font-semibold text-rose-700" : "text-neutral-500"}`}>{length} / 500자{length > 500 ? " · 본문을 줄여야 발행·예약할 수 있습니다." : editing ? " · 지금 발행하거나 예약하면 수정한 본문도 함께 저장됩니다." : ""}</p>}
+    {isDraft && (
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+          length > 500
+            ? "bg-rose-50 text-rose-700 border-rose-300 animate-pulse"
+            : length > 450
+            ? "bg-amber-50 text-amber-800 border-amber-300"
+            : "bg-emerald-50 text-emerald-700 border-emerald-200"
+        }`}>
+          {length} / 500자 {length > 500 ? "— 500자 초과 방지!" : `(${500 - length}자 안전 여유)`}
+        </span>
+        {editing && <span className="text-[11px] text-neutral-400">발행/예약 시 수정한 본문이 함께 저장됩니다</span>}
+      </div>
+    )}
     {media.length > 0 && <div className="mt-3">
       <p className="text-xs text-neutral-500">첨부 미디어 {media.length}개 (이미지 {media.filter((item) => item.type === "IMAGE").length} · 영상 {media.filter((item) => item.type === "VIDEO").length})</p>
       <div className="mt-2 flex gap-2 overflow-x-auto">{media.map((item, index) => item.type === "VIDEO"

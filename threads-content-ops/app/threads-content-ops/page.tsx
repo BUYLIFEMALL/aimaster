@@ -108,6 +108,41 @@ export default async function ThreadsContentOpsPage({ searchParams }: { searchPa
           회원별 독립 계정 연동 · 6대 페르소나 AI 글생성 · 예약/즉시 발행 · 쇼핑제휴 머니타이징
         </p>
       </header>
+      {/* 4단계 바이럴 파이프라인 인디케이터 배너 (42. Threads 오리지널 바이럴 인텔리전스 랩 스타일) */}
+      <div className="rounded-2xl border border-neutral-900 bg-gradient-to-r from-neutral-950 via-neutral-900 to-black p-4 text-white shadow-lg shadow-black/20">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-xs font-black tracking-wider uppercase text-amber-300">
+              🧵 THREADS VIRAL PIPELINE 4-STEP
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] text-neutral-400 font-medium">
+            <span className="rounded-full bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 text-amber-300 font-bold">
+              500자 안전 제한 준수
+            </span>
+            <span>Meta Graph API 24H 자동화</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+          <div className="bg-amber-400/10 border border-amber-400/30 rounded-xl p-2.5">
+            <div className="text-[10px] text-amber-300 font-black">STEP 01</div>
+            <div className="font-bold text-white text-xs mt-0.5">떡상 글감 탐색</div>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-2.5">
+            <div className="text-[10px] text-neutral-400 font-black">STEP 02</div>
+            <div className="font-bold text-neutral-200 text-xs mt-0.5">500자 페르소나 기획</div>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-2.5">
+            <div className="text-[10px] text-neutral-400 font-black">STEP 03</div>
+            <div className="font-bold text-neutral-200 text-xs mt-0.5">1:1 피드 뷰 검수</div>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-2.5">
+            <div className="text-[10px] text-neutral-400 font-black">STEP 04</div>
+            <div className="font-bold text-neutral-200 text-xs mt-0.5">정시 자동/예약 발행</div>
+          </div>
+        </div>
+      </div>
       {tab === "dashboard" && <OperationsDashboard accounts={accounts ?? []} posts={posts ?? []} postCounts={postCounts} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} sources={(contentSources ?? []).map((source) => ({ source_type: source.source_type, status: source.status }))} />}
       {tab === "create" && (accounts?.length ? <AttentionComposer userId={user.id} schedulerReady={schedulerReady} operationAccountIds={(operationProfiles ?? []).filter((profile) => [profile.topic, profile.personality, profile.tone, profile.target_audience, profile.forbidden_topics, profile.forbidden_expressions].some((value) => typeof value === "string" && value.trim())).map((profile) => profile.account_id)} accounts={accounts} products={(contentSources ?? []).filter((source) => (PRODUCT_SOURCE_TYPES as readonly string[]).includes(source.source_type) && source.status !== "archived" && source.source_url).map((source) => ({ id: source.id, source_type: source.source_type, title: source.title ?? "", summary: source.summary ?? "", source_url: source.source_url, price: Number((source.metadata as { price?: unknown } | null)?.price) > 0 ? Number((source.metadata as { price?: unknown }).price) : null }))} viralCandidates={usableViral} initialViralId={searchParams.viral} configuredProviders={(credentials ?? []).map((credential) => credential.provider)} /> : <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-center"><h2 className="text-lg font-bold text-neutral-900">Threads 계정을 먼저 연결하세요</h2><p className="mt-2 text-sm text-neutral-600">계정 연결 후 본인 AI API 키로 고몰입 초안을 만들 수 있습니다.</p></div>)}
       {tab === "manage" && scheduler && <SchedulePublishingControl initial={scheduler} />}
