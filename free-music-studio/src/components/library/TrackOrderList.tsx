@@ -100,6 +100,7 @@ export function TrackOrderList<T extends Row>({
   const startDrag = (e: PointerEvent<HTMLButtonElement>, id: string) => {
     if (!editable || e.button !== 0) return;
     e.preventDefault();
+    e.currentTarget.focus(); // 눌러 둔 뒤 ↑↓ 키로도 옮길 수 있게(v1.31 확인 중 발견)
     const pointer = e.pointerId;
     pointerY.current = e.clientY;
     draftRef.current = order;

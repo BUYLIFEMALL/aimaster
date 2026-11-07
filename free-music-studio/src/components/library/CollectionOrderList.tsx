@@ -58,6 +58,7 @@ export function CollectionOrderList({
     if (e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
+    e.currentTarget.focus(); // 눌러 둔 뒤 ↑↓ 키로도 옮길 수 있게(preventDefault가 초점을 막으므로)
     const pointer = e.pointerId;
     draftRef.current = order;
     setDraft(order);
