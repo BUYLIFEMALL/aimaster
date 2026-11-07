@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-07 ⏸ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **카페 모집 초대 3회차(kkuleomi24) 원인 확정 → 윈도우 수정 요청**
+- 결과: 초대 0건(받는 쪽 알림 없음, 「보낸 결과」 0/20). 확장 멈춤 「초대 화면을 찾지 못해 멈췄습니다…보내지 않았습니다.」
+- **원인(재현 확인)**: 카페 초대 틀(`/CafeInvite.nhn`)이 `window.Event`를 객체로 덮어 `extension/background.mjs` `inviteInFrame`의 `new Event("change")`가 `TypeError` → 「초대하기」 전에 끝남. 또 「아이디 추가」는 빈 입력 칸을 하나 더 만드는 버튼(목록 추가 아님) → 클릭 빼야 함.
+- **윈도우 [역할: blog] 요청**: `createEvent("HTMLEvents")` 또는 `new InputEvent`로 교체, 함수 `try/catch`로 오류 문구 반환, 「아이디 추가」 클릭 제거(미배포 공유 폴더로). 고친 뒤 맥미니가 4회차(같은 `kkuleomi24`, 주인님 결정). 상세 [`naver-cafe-recruit/docs/INVITE_TEST_20261106.md`](../naver-cafe-recruit/docs/INVITE_TEST_20261106.md) 「## 3회차」. 커밋 `2343a5d73`·`ecec82be6`. 카페 설정 시간대 09~22 복원.
+- 이웃 소통 v1.18: 확장을 블로그 `buylifemall`에 연결(만료 12-06). 자동 운영 「공감만·상한 1·자동·09:00~23:00·통합 동의」로 켜 둠 — 22시 이후라 공감 1건 미실행, 다음 단계 주인님 결정 대기.
+- 비용 없음.
+
 ## 2026-11-07 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.30 배포(C-2 매뉴얼 카드·C-3 바로 커버·C-4 폴더 안내)**
 - 배포 `free-music-studio-56o9p7pm2` Ready(주인님 `!` 실행, 빌드 1회), DB `programs.version` v1.29 → v1.30, 프로그램 비교표 버전 갱신. ego 시험 계정 화면 확인: 매뉴얼 「익숙해지면 더 해 볼 수 있는 것」 카드, 곡 만들기 오른쪽 곡 카드마다 🎨 커버 버튼, 사이드바 v1.30.
 - 미배포 대기(작은 수정): 커버 버튼 읽기용 이름 조사 고침(`ProjectTracks.tsx`). 새 백로그 C-5 곡 만들기 화면에서 프로젝트 바로 만들기(주인님 질문 — 지금은 홈·「모든 음악」 왼쪽에서만 만들 수 있음).
