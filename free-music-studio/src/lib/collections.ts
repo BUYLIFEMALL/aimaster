@@ -10,6 +10,9 @@ export type Collection = { id: string; kind: CollectionKind; name: string; creat
 /** 묶음 순서·이름이 바뀌었다는 화면 안 알림 — 좌측 메뉴 등 다른 목록이 다시 읽는다(v1.31) */
 export const COLLECTIONS_CHANGED = "fms:collections-changed";
 
+/** 곡 줄을 왼쪽 프로젝트·플레이리스트로 끌어 놓을 때 싣는 자료 종류(곡 번호 JSON 배열, v1.32) */
+export const TRACK_DRAG_TYPE = "application/x-fms-tracks";
+
 /** 「모든 음악」의 그 프로젝트·플레이리스트 화면 주소(홈·좌측 메뉴에서 씀) */
 export const libraryHref = (kind: CollectionKind, id: string) => `/library?view=${kind}:${id}`;
 

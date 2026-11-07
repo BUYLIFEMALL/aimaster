@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type DragEvent } from "react";
 import { Library, FolderClosed, ListMusic, Plus, Trash2 } from "lucide-react";
-import type { Collection, CollectionKind } from "@/lib/collections";
+import { TRACK_DRAG_TYPE, type Collection, type CollectionKind } from "@/lib/collections";
 import { CollectionOrderList } from "@/components/library/CollectionOrderList";
 
 export type View = { type: "all" } | { type: "trash" } | { type: "project" | "playlist"; id: string };
@@ -16,6 +16,7 @@ export function CollectionsNav({
   view,
   onView,
   onCreate,
+  onDropTracks,
 }: {
   total: number;
   trashCount?: number;
@@ -24,8 +25,35 @@ export function CollectionsNav({
   view: View;
   onView: (v: View) => void;
   onCreate: (kind: CollectionKind, name: string) => Promise<boolean>;
+  /** 곡 줄을 끌어 이 묶음에 놓았을 때(v1.32) — 프로젝트는 옮기기, 플레이리스트는 담기 */
+  onDropTracks?: (kind: CollectionKind, id: string, trackIds: string[]) => void;
 }) {
   const [adding, setAdding] = useState<CollectionKind | null>(null);
+  const [dropOn, setDropOn] = useState("");
+  const dropProps = (kind: CollectionKind, id: string) =>
+    onDropTracks
+      ? {
+          onDragOver: (e: DragEvent) => {
+            if (!e.dataTransfer.types.includes(TRACK_DRAG_TYPE)) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = kind === "project" ? "move" : "copy";
+            if (dropOn !== id) setDropOn(id);
+          },
+          onDragLeave: () => setDropOn((d) => (d === id ? "" : d)),
+          onDrop: (e: DragEvent) => {
+            setDropOn("");
+            let ids: unknown;
+            try {
+              ids = JSON.parse(e.dataTransfer.getData(TRACK_DRAG_TYPE));
+            } catch {
+              return;
+            }
+            if (!Array.isArray(ids) || !ids.length) return;
+            e.preventDefault();
+            onDropTracks(kind, id, ids.filter((x): x is string => typeof x === "string"));
+          },
+        }
+      : {};
   const [name, setName] = useState("");
 
   const submit = async () => {
@@ -80,7 +108,13 @@ export function CollectionsNav({
           const Icon = kind === "project" ? FolderClosed : ListMusic;
           const active = view.type === kind && view.id === c.id;
           return (
-            <button type="button" onClick={() => onView({ type: kind, id: c.id })} className={item(active)}>
+            <button
+              type="button"
+              onClick={() => onView({ type: kind, id: c.id })}
+              title={onDropTracks ? (kind === "project" ? "곡을 끌어다 놓으면 이 프로젝트로 옮깁니다" : "곡을 끌어다 놓으면 이 플레이리스트에 담습니다") : undefined}
+              className={`${item(active)} ${dropOn === c.id ? "ring-2 ring-emerald-400 bg-emerald-900/50" : ""}`}
+              {...dropProps(kind, c.id)}
+            >
               <Icon className={`h-3.5 w-3.5 shrink-0 ${kind === "project" ? "text-amber-300" : "text-sky-300"}`} />
               <span className="min-w-0 flex-1 truncate">{c.name}</span>
               <span className="text-[10px] text-slate-500">{c.count}</span>

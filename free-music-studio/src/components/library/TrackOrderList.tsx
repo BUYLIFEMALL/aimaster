@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { ArrowDownAZ, ArrowUpAZ, GripVertical, Undo2 } from "lucide-react";
 import { moveTo, sameOrder, sortByTitle } from "@/lib/trackOrder";
 
@@ -14,7 +14,10 @@ export function TrackOrderList<T extends Row>({
   onOrder,
   rowClassName,
   renderRow,
+  onRowDragStart,
 }: {
+  /** 줄 전체를 끌어 다른 곳(왼쪽 프로젝트·플레이리스트)에 놓기 — 손잡이 끌기(순서)와는 따로(v1.32) */
+  onRowDragStart?: (e: DragEvent<HTMLLIElement>, item: T) => void;
   items: T[];
   editable: boolean;
   /** 새 순서 저장 — 실패하면 false */
@@ -241,7 +244,12 @@ export function TrackOrderList<T extends Row>({
             </button>
           ) : null;
           return (
-            <li key={t.id} data-track-id={t.id} className={`${rowClassName} ${dragging === t.id ? "border-emerald-400/70 opacity-80 shadow-lg shadow-emerald-500/10" : ""}`}>
+            <li
+              key={t.id}
+              data-track-id={t.id}
+              draggable={!!onRowDragStart && !dragging}
+              onDragStart={onRowDragStart ? (e) => onRowDragStart(e, t) : undefined}
+              className={`${rowClassName} ${dragging === t.id ? "border-emerald-400/70 opacity-80 shadow-lg shadow-emerald-500/10" : ""}`}>
               {renderRow(t, i, { badge, grip })}
             </li>
           );

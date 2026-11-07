@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -54,7 +54,7 @@ import {
   revealLibraryFolder,
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
-import { COLLECTIONS_CHANGED, type Collection, type CollectionKind } from "@/lib/collections";
+import { COLLECTIONS_CHANGED, TRACK_DRAG_TYPE, type Collection, type CollectionKind } from "@/lib/collections";
 
 const DEVICE_LABEL: Record<string, string> = { cuda: "그래픽카드", mps: "Apple 맥", cpu: "CPU" };
 const durationLabel = (s: number) => (s < 60 ? `${s}초` : s % 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s / 60}분`);
@@ -395,6 +395,23 @@ export default function LibraryPage() {
     return true;
   };
 
+  // 곡 줄을 왼쪽 프로젝트·플레이리스트로 끌어 놓기(v1.32, 주인님 「여기에도 프로젝트 이동, 플레이리스트 추가 기능 넣어줘」)
+  // 고른 곡 가운데 하나를 끌면 고른 곡 모두, 아니면 그 곡 하나.
+  const rowDragStart = (e: DragEvent<HTMLLIElement>, t: Track) => {
+    const ids = selected.has(t.id) && selected.size > 1 ? [...selected] : [t.id];
+    e.dataTransfer.setData(TRACK_DRAG_TYPE, JSON.stringify(ids));
+    e.dataTransfer.setData("text/plain", ids.length > 1 ? `${ids.length}곡` : t.title);
+    e.dataTransfer.effectAllowed = "copyMove";
+  };
+  const dropTracks = async (kind: CollectionKind, id: string, ids: string[]) => {
+    if (kind === "playlist") return addToPlaylist(ids, id);
+    const list = tracks.filter((t) => ids.includes(t.id) && t.project_id !== id);
+    for (const t of list) await setProject(t, id);
+    const name = projects.find((p) => p.id === id)?.name ?? "프로젝트";
+    if (list.length) setNotice(`${list.length}곡을 「${name}」 프로젝트로 옮겼습니다.`);
+    else setNotice(`이미 「${name}」 프로젝트에 있는 곡입니다.`);
+  };
+
   const moveSelectedToProject = async (projectId: string | null) => {
     const list = tracks.filter((t) => selected.has(t.id) && t.project_id !== projectId);
     for (const t of list) await setProject(t, projectId);
@@ -471,7 +488,8 @@ export default function LibraryPage() {
       )}
 
       {message && (
-        <p className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-xs font-semibold text-rose-300">
+        // 안내는 화면 아래에 떠서 보인다 — 아래로 내려 끌어 놓아도 결과가 보이게(v1.32)
+        <p role="alert" className="fixed bottom-24 left-1/2 z-50 flex w-[min(36rem,90vw)] -translate-x-1/2 items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-950/95 p-3 text-xs font-semibold text-rose-200 shadow-xl">
           <AlertCircle className="h-4 w-4 shrink-0" /> {message}
           <button type="button" onClick={() => setMessage(null)} className="ml-auto" aria-label="닫기">
             <X className="h-3.5 w-3.5" />
@@ -479,7 +497,7 @@ export default function LibraryPage() {
         </p>
       )}
       {notice && (
-        <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3 text-xs font-semibold text-emerald-200">
+        <p role="status" className="fixed bottom-24 left-1/2 z-50 flex w-[min(36rem,90vw)] -translate-x-1/2 items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/95 p-3 text-xs font-semibold text-emerald-200 shadow-xl">
           ✅ {notice}
           <button type="button" onClick={() => setNotice(null)} className="ml-auto" aria-label="닫기">
             <X className="h-3.5 w-3.5" />
@@ -503,6 +521,7 @@ export default function LibraryPage() {
             else if (sort === "manual") setSort("newest");
           }}
           onCreate={createCollection}
+          onDropTracks={view.type === "trash" ? undefined : dropTracks}
         />
 
         <div className="min-w-0 space-y-4">
@@ -645,7 +664,7 @@ export default function LibraryPage() {
                 />
                 전체 선택
               </label>
-              <span>{chosen.length ? `${chosen.length}곡 고름` : "곡 왼쪽 칸을 눌러 여러 곡을 고를 수 있습니다."}</span>
+              <span>{chosen.length ? `${chosen.length}곡 고름 · 고른 곡 하나를 끌어 왼쪽 프로젝트·플레이리스트에 놓으면 모두 옮겨집니다` : "곡 왼쪽 칸을 눌러 여러 곡을 고를 수 있습니다. 곡 줄을 끌어 왼쪽 프로젝트·플레이리스트에 놓으면 옮기거나 담습니다."}</span>
               {chosen.length > 0 && view.type === "trash" && (
                 <div className="ml-auto flex flex-wrap items-center gap-1.5">
                   <button type="button" onClick={() => restoreFromTrash(chosen)} className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}>
@@ -721,6 +740,7 @@ export default function LibraryPage() {
               items={shown}
               editable={canReorder}
               onOrder={reorderPlaylist}
+              onRowDragStart={view.type === "trash" ? undefined : rowDragStart}
               rowClassName="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4"
               renderRow={(t, i, tools) => {
                 const here = onPc ? onPc.has(t.id) : null;
