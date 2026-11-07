@@ -13,6 +13,11 @@ export const COLLECTIONS_CHANGED = "fms:collections-changed";
 /** 곡 줄을 왼쪽 프로젝트·플레이리스트로 끌어 놓을 때 싣는 자료 종류(곡 번호 JSON 배열, v1.32) */
 export const TRACK_DRAG_TYPE = "application/x-fms-tracks";
 
+/** 좌측 메뉴의 프로젝트·플레이리스트에 곡을 놓았다는 화면 안 알림 — 「모든 음악」이 받아 옮기기·담기를 한다(v1.35)
+ *  detail: { kind, id, ids } */
+export const TRACKS_DROPPED = "fms:tracks-dropped";
+export type TracksDropped = { kind: CollectionKind; id: string; ids: string[] };
+
 /** 「모든 음악」의 그 프로젝트·플레이리스트 화면 주소(홈·좌측 메뉴에서 씀) */
 export const libraryHref = (kind: CollectionKind, id: string) => `/library?view=${kind}:${id}`;
 

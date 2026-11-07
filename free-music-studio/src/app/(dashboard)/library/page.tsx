@@ -56,7 +56,7 @@ import {
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
 import { openLyricVideo } from "@/lib/lyricVideoHandoff";
-import { COLLECTIONS_CHANGED, TRACK_DRAG_TYPE, type Collection, type CollectionKind } from "@/lib/collections";
+import { COLLECTIONS_CHANGED, TRACK_DRAG_TYPE, TRACKS_DROPPED, type Collection, type CollectionKind, type TracksDropped } from "@/lib/collections";
 
 const DEVICE_LABEL: Record<string, string> = { cuda: "그래픽카드", mps: "Apple 맥", cpu: "CPU" };
 const durationLabel = (s: number) => (s < 60 ? `${s}초` : s % 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s / 60}분`);
@@ -337,7 +337,8 @@ export default function LibraryPage() {
     const res = await fetch(`/api/tracks/${t.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ project_id: projectId }) });
     if (!res.ok) return setMessage((await res.json().catch(() => ({}))).error || "프로젝트를 바꾸지 못했습니다.");
     setTracks((list) => list.map((x) => (x.id === t.id ? { ...x, project_id: projectId } : x)));
-    loadCollections();
+    // 이 화면 왼쪽 목록과 좌측 메뉴 곡 수를 함께 다시 읽는다(v1.35 — 좌측 메뉴 숫자가 그대로이던 문제)
+    window.dispatchEvent(new Event(COLLECTIONS_CHANGED));
   };
 
   const saveOrder = async (playlistId: string, ids: string[]) => {
@@ -347,7 +348,7 @@ export default function LibraryPage() {
       setMessage(data.error || "플레이리스트를 저장하지 못했습니다.");
       return null;
     }
-    loadCollections();
+    window.dispatchEvent(new Event(COLLECTIONS_CHANGED));
     return data.track_ids as string[];
   };
 
@@ -413,6 +414,18 @@ export default function LibraryPage() {
     if (list.length) setNotice(`${list.length}곡을 「${name}」 프로젝트로 옮겼습니다.`);
     else setNotice(`이미 「${name}」 프로젝트에 있는 곡입니다.`);
   };
+  // 좌측 메뉴(화면 맨 왼쪽)의 프로젝트·플레이리스트에 놓은 곡도 같은 방법으로 옮기거나 담는다(v1.35)
+  const dropRef = useRef(dropTracks);
+  dropRef.current = dropTracks;
+  useEffect(() => {
+    if (view.type === "trash") return;
+    const onDropped = (e: Event) => {
+      const d = (e as CustomEvent<TracksDropped>).detail;
+      if (d?.ids?.length) void dropRef.current(d.kind, d.id, d.ids);
+    };
+    window.addEventListener(TRACKS_DROPPED, onDropped);
+    return () => window.removeEventListener(TRACKS_DROPPED, onDropped);
+  }, [view.type]);
 
   const moveSelectedToProject = async (projectId: string | null) => {
     const list = tracks.filter((t) => selected.has(t.id) && t.project_id !== projectId);
