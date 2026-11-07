@@ -2,6 +2,7 @@
 
 // 작업 대기열 「끝난 작업」에서 바로 정리하기(v1.31, 주인님 「여기에서 바로 프로젝트로 이동 시키는 기능과 플레이리스트로 이동 시키는 기능을 넣어줘」).
 // 프로젝트 고르기(곡 하나는 프로젝트 하나 — 「모든 음악」 곡 메뉴와 같은 PATCH) · 플레이리스트에 담기(이미 담겼으면 건너뜀, 뒤에 덧붙임).
+import { useEffect, useRef, useState } from "react";
 import { FolderClosed, ListMusic } from "lucide-react";
 import { COLLECTIONS_CHANGED, type Collection } from "@/lib/collections";
 import { appendIds } from "@/lib/trackOrder";
@@ -28,28 +29,39 @@ export function QueueFiling({
   onNotice: (text: string) => void;
   onError: (text: string) => void;
 }) {
+  // 결과는 고른 칸 바로 옆에도 잠깐 보인다(맨 위 안내는 아래쪽 「끝난 작업」에서 안 보여 「반응이 없다」 — 2026-11-07 주인님)
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
+  const timer = useRef(0);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  const show = (ok: boolean, text: string) => {
+    setResult({ ok, text });
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setResult(null), 5000);
+    (ok ? onNotice : onError)(text);
+  };
+
   const moveProject = async (value: string) => {
     const next = value || null;
     const res = await fetch(`/api/tracks/${trackId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ project_id: next }) }).catch(() => null);
-    if (!res?.ok) return onError((await res?.json().catch(() => ({})))?.error || "프로젝트를 바꾸지 못했습니다.");
+    if (!res?.ok) return show(false, (await res?.json().catch(() => ({})))?.error || "프로젝트를 바꾸지 못했습니다.");
     onProject(next);
     window.dispatchEvent(new Event(COLLECTIONS_CHANGED));
     const name = projects.find((p) => p.id === next)?.name;
-    onNotice(name ? `「${name}」 프로젝트로 옮겼습니다.` : "프로젝트에서 뺐습니다.");
+    show(true, name ? `「${name}」 프로젝트로 옮겼습니다.` : "프로젝트에서 뺐습니다.");
   };
 
   const addToPlaylist = async (playlistId: string) => {
     if (!playlistId) return;
     const name = playlists.find((p) => p.id === playlistId)?.name ?? "플레이리스트";
     const cur = await fetch(`/api/collections/${playlistId}/items`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-    if (!cur) return onError("플레이리스트를 읽지 못했습니다.");
+    if (!cur) return show(false, "플레이리스트를 읽지 못했습니다.");
     const ids: string[] = cur.track_ids ?? [];
     const next = appendIds(ids, [trackId]);
-    if (next.length === ids.length) return onNotice(`「${name}」에 이미 담긴 곡입니다.`);
+    if (next.length === ids.length) return show(true, `「${name}」에 이미 담긴 곡입니다.`);
     const res = await fetch(`/api/collections/${playlistId}/items`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ track_ids: next }) }).catch(() => null);
-    if (!res?.ok) return onError((await res?.json().catch(() => ({})))?.error || "플레이리스트에 담지 못했습니다.");
+    if (!res?.ok) return show(false, (await res?.json().catch(() => ({})))?.error || "플레이리스트에 담지 못했습니다.");
     window.dispatchEvent(new Event(COLLECTIONS_CHANGED));
-    onNotice(`「${name}」에 담았습니다.`);
+    show(true, `「${name}」에 담았습니다(${next.length}곡째).`);
   };
 
   const off = busy || projectId === undefined;
@@ -77,6 +89,12 @@ export function QueueFiling({
           ))}
         </select>
       </label>
+      {result && (
+        <span role="status" className={`rounded-md px-2 py-0.5 text-[11px] font-semibold ${result.ok ? "bg-emerald-500/15 text-emerald-200" : "bg-rose-500/15 text-rose-200"}`}>
+          {result.ok ? "✔ " : "⚠ "}
+          {result.text}
+        </span>
+      )}
     </span>
   );
 }
