@@ -325,6 +325,23 @@ export default function QueuePage() {
   };
 
   // 원고 복사
+  // U10 2차: 원고의 발행 기록을 업무 워크스페이스 「받은 업무」로 보낸다(서버가 본인 원고를 다시 읽음).
+  const [sendingInboxId, setSendingInboxId] = useState<string | null>(null);
+  const handleSendToWorkspace = async (id: string) => {
+    if (sendingInboxId) return;
+    setSendingInboxId(id);
+    try {
+      const res = await fetch("/api/work-inbox", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) throw new Error(json.error || "업무 워크스페이스로 보내지 못했습니다.");
+      notify("업무 워크스페이스 「받은 업무」로 보냈습니다. 그곳(https://ai-work-workspace.buylife.xyz/inbox)에서 콘텐츠 캘린더에 넣거나 페이지로 만들 수 있습니다.");
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "업무 워크스페이스로 보내지 못했습니다.");
+    } finally {
+      setSendingInboxId(null);
+    }
+  };
+
   const handleCopyPost = (post: SavedPostItem) => {
     let formatted = post.content || "";
     const images = post.images || [];
@@ -1129,6 +1146,16 @@ export default function QueuePage() {
                         <span>{post.status === "queued" ? "대기 재요청" : "발행 전송"}</span>
                       </button>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={() => void handleSendToWorkspace(post.id)}
+                      disabled={sendingInboxId === post.id}
+                      className="px-3 py-1.5 rounded-xl border border-violet-200 hover:bg-violet-50 text-xs font-semibold text-violet-700 transition-colors cursor-pointer disabled:opacity-60"
+                      title="이 원고의 발행 기록을 업무 워크스페이스 「받은 업무」로 보냅니다(콘텐츠 캘린더에 넣을 수 있음)"
+                    >
+                      {sendingInboxId === post.id ? "보내는 중..." : "📨 워크스페이스로"}
+                    </button>
 
                     {post.post_url && (
                       <a

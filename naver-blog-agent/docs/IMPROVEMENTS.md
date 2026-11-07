@@ -1,5 +1,11 @@
 # 네이버 블로그 에이전트(naver-blog-agent) 개선사항 및 추가 고도화 제안
 
+## 2026-11-07 🟡 미배포 대기 — 보관함 「📨 워크스페이스로」 (U10 2차, [역할: workspace] Claude Code 윈도우, 주인님 결정 1번 「버튼·라우트만」)
+- 보관함(`src/app/(dashboard)/queue/page.tsx`) 원고마다 「📨 워크스페이스로」 → `POST /api/work-inbox`(출처 확인 → `checkProgramAccessApi` → 회원 본인 `nba_posts` 다시 읽기 → 공용 사본 `src/lib/workInbox.ts`(`work-inbox-client`, **직접 고치지 말 것** — 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`)). 결과 안내는 기존 `notify`.
+- 내용 `src/lib/workInboxContent.ts`: 본문 `[SECTION - …]` → `## …`, `[IMAGE INSERT - n]` 제외, 태그·발행 정보. 구조 데이터 `{ 채널: 네이버 블로그, 상태, 예약일(queued·예약일 때) | 발행일(published), 발행 주소 }` — 날짜가 있으면 워크스페이스에서 「콘텐츠 캘린더에 넣기」. 「발행 전 준비(prepared)」·초안은 날짜가 없어 페이지로만(위 P1 「준비 모드 발행 결과 미기록」이 해결되면 함께 좋아짐).
+- 형식 정의 `src/types/database.types.ts`: `work_inbox` 표 형식 추가 + 전체 허용 항목에 `Relationships: []`(supabase-js 2.117 형식 조건 — 없으면 공용 사본의 조회가 `never`). 전체 `tsc` 오류 0 확인.
+- 검수: `npm run test:work-inbox` 4개, queue-filter 3·post-save 19·extension-results 16, tsc 0. **다음 배포 때 함께**(버전 +0.01·DB·확장 ZIP 맞춤, 보관함 버튼 → 워크스페이스 받은 업무 → 캘린더 확인). 이 폴더 담당은 blog 역할 — 결정 1번 범위(버튼·라우트·형식 정의)만 손댐.
+
 ## 2026-10-23 인계 ④ 실제 비공개 발행 1건 완료 + 준비 모드 발행 결과 미기록 (P1 제안/미구현)
 
 - **결과(운영 v2.14, 블로그 전담 세션 `claude-win-20261023-seo-bg`)**: 원고 `ee52e188`(「[검수용 v1.75] 2026년 이미지 2장·발행 전 준비 확인」, buylifemall, 비공개)을 주인님이 웨일 보관함에서 「발행 전송」 → 확장 준비 12/12 `prepared`(17:27~17:29, 오류 0) → 주인님이 네이버 탭에서 직접 최종 발행. 글 주소 https://blog.naver.com/buylifemall/224451486747 . 로그인 없는 요청은 본문 없이 비공개 안내만 받음(비공개 확인), 사진 2장(대표·본문)은 주인님이 로그인 화면에서 확인. 주인님 승인으로 이 1행만 `status=published`·`post_url`·`published_at`을 조건부(id·user_id·`prepared`·주소 없음) 갱신(DB ref esgxyikcnnvmlhygjkth, 1행). 첫 「발행 전송」 클릭은 다른 카드 위치를 누른 것으로 보여 서버에 접수되지 않았고(DB 무변경), 두 번째에 접수됐다.
