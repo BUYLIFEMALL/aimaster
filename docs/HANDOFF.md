@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-07 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **D-1 만든 곡 → 가사 영상: `lyric-video-studio` v1.13 · `free-music-studio` v1.34 배포**
+- 무료음악 「모든 음악」 곡 메뉴 「가사 영상 만들기」 → 가사 영상 `/source?fms=<곡 번호>` 새 창. 제목·가사·가사 시간은 가사 영상 서버가 `free_music_tracks`에서 회원 본인 곡만 읽음(`/api/fms/song`, 로그인 없이 401 확인), 음원은 무료음악 창이 내 PC 엔진에서 받아 `postMessage`로 건넴(서버 업로드 없음, 30초 안 오면 직접 넣기 안내). 커밋 `9077d9d62`·`9a8b9482f`, 배포 `lyric-video-studio-1fzjrs9so`·`free-music-studio-jq0kml3wg` Ready, DB v1.13·v1.34.
+- ego 확인: v1.34, 곡 메뉴에 「가사 영상 만들기」(이 PC는 음원이 없어 막힘 — 설계대로). 실제 음원 건네기는 마스터PC 확인 필요. 남은 D-1: `playlist-channel-studio`·`music-video-studio` 연결.
+
 ## 2026-11-07 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — **U10 2차: 6개 프로그램 「업무 워크스페이스로 보내기」 구현(미배포)**
 - 주인님 「진행해」(결정 1번 범위: 다른 역할 폴더에 버튼·`/api/work-inbox` 라우트만). 공통 모양: 출처 확인 → `checkProgramAccessApi` → 회원 본인 행 다시 읽기(브라우저 본문 안 씀) → 공용 사본 `work-inbox-client` → 「받은 업무 열기」 링크. AI·유료 호출 없음.
 - `ai-auto-blog` `c44499682`: 글 보기 버튼, 채널 네이버 블로그·예약일(네이버 입력일/작성일) — 발행은 회원이 직접 눌러 「발행 완료」로 보내지 않음. `naver-blog-agent` `18cfb01d5`: 보관함 버튼, 예약·발행 글은 캘린더 날짜·발행 주소, 형식 정의에 `Relationships: []`·`work_inbox`. `competitor-analysis` `82c25c802`·`34ed724a1`: 경쟁사 분석 결과 + 「🌱 키워드 확장」 결과(옛 롱테일은 병합돼 이동 안내만이라 여기로). `web-crawler` `21ba04b80`: 완료 작업, 종류 link(엑셀 임시 주소 대신 작업 목록 링크). `blog-keyword` `acb6e98d7`: 결과 막대, 본문 = 기존 `toMarkdown`. 워크스페이스 이름표 `3c175bcce`(실제 slug `web-crawler-saas`).
