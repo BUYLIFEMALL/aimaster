@@ -243,7 +243,13 @@ export default function QueuePage() {
                 기다리는 작업이 없습니다. <Link href="/songs" className="text-emerald-300 underline underline-offset-2">곡 만들기</Link>에서 [대기열에 넣기]를 눌러 주세요.
               </p>
             ) : (
-              <ol className="space-y-2">{active.map((j, i) => row(j, i))}</ol>
+              /* 번호는 엔진이 만드는 전체 순서 그대로(묶음으로 나눠도 바뀌지 않음) */
+              byKind(active.map((j, i) => ({ j, i }))).map((g) => (
+                <div key={g.key} className="space-y-2">
+                  <KindHeading kind={g.key} count={g.list.length} />
+                  <ol className="space-y-2">{g.list.map(({ j, i }) => row(j, i))}</ol>
+                </div>
+              ))
             )}
           </section>
           {finished.length > 0 && (
@@ -252,11 +258,37 @@ export default function QueuePage() {
                 <CheckCircle2 className="h-4 w-4 text-emerald-300" /> 끝난 작업 {finished.length}개
                 <span className="text-[11px] font-normal text-slate-400">최근 100개까지 남습니다</span>
               </h2>
-              <ul className="space-y-2">{finished.map((j) => row(j))}</ul>
+              {byKind(finished.map((j) => ({ j }))).map((g) => (
+                <div key={g.key} className="space-y-2">
+                  <KindHeading kind={g.key} count={g.list.length} />
+                  <ul className="space-y-2">{g.list.map(({ j }) => row(j))}</ul>
+                </div>
+              ))}
             </section>
           )}
         </>
       )}
     </div>
+  );
+}
+
+// 음악 작업 / 그림 작업으로 나눠 보이기(2026-11-07 주인님 「여기도 음악과 이미지를 그룹 분리해서 표시해줘」).
+// 그림은 내 PC 앨범 그림(kind "art")뿐, Stem 분리·가사 시간은 음악 작업에 둔다. 빈 묶음은 뺀다.
+type KindGroup = "music" | "image";
+function byKind<T extends { j: QueueJob }>(list: T[]): { key: KindGroup; list: T[] }[] {
+  const groups: { key: KindGroup; list: T[] }[] = [
+    { key: "music", list: list.filter((x) => x.j.kind !== "art") },
+    { key: "image", list: list.filter((x) => x.j.kind === "art") },
+  ];
+  return groups.filter((g) => g.list.length > 0);
+}
+
+function KindHeading({ kind, count }: { kind: KindGroup; count: number }) {
+  return (
+    <p className={`flex items-center gap-2 pt-1 text-xs font-bold ${kind === "image" ? "text-fuchsia-200" : "text-emerald-200"}`}>
+      {kind === "image" ? "🖼 그림 작업" : "🎵 음악 작업"}
+      <span className="font-normal text-slate-500">{count}개</span>
+      <span className={`h-px flex-1 bg-gradient-to-r ${kind === "image" ? "from-fuchsia-400/50" : "from-emerald-400/50"} to-transparent`} />
+    </p>
   );
 }
