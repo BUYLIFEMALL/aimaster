@@ -68,23 +68,31 @@ export function AlbumArtPanel({
   useEffect(() => () => void (polling.current && window.clearInterval(polling.current)), []);
   const info = provider === "local" ? null : ART_PROVIDERS.find((p) => p.id === provider)!;
   const localRow = local?.families.flatMap((f) => f.variants).find((v) => v.id === localId);
+  const hasHangul = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(art);
 
-  // 곡 제목·스타일·가사로 영어 설명문(회원 AI 키 1회, 재시도 없음)
-  const writePrompt = async () => {
+  // 곡 제목·스타일·가사로 영어 설명문(회원 AI 키 1회, 재시도 없음).
+  // 칸에 한글로 장면을 적었으면 그 장면을 영어로 바꾼다(v1.35, 주인님 「한글로 상황을 묘사하면 영어로 변환」). 만든 영어 설명을 돌려준다.
+  const writePrompt = async (): Promise<string | null> => {
     setBusy("prompt");
     setMsg(null);
+    const idea = hasHangul ? art.trim() : "";
     try {
       const res = await fetch("/api/album-art/prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, style, lyrics, provider: ai?.provider, model: ai?.model }),
+        body: JSON.stringify({ title, style, lyrics, idea, provider: ai?.provider, model: ai?.model }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return setMsg({ ok: false, text: data.error || "그림 설명을 만들지 못했습니다.", needKey: !!data.needApiKey });
+      if (!res.ok) {
+        setMsg({ ok: false, text: data.error || "그림 설명을 만들지 못했습니다.", needKey: !!data.needApiKey });
+        return null;
+      }
       onArtChange(data.prompt);
-      setMsg({ ok: true, text: `영어 그림 설명을 만들어 칸에 넣었습니다(AI 호출 ${data.calls}번). 고친 뒤 [앨범 그림 만들기]를 눌러 주세요.` });
+      setMsg({ ok: true, text: `${idea ? "한글 설명을 영어로 바꿔" : "영어 그림 설명을 만들어"} 칸에 넣었습니다(AI 호출 ${data.calls}번). 고친 뒤 [앨범 그림 만들기]를 눌러 주세요.` });
+      return data.prompt as string;
     } catch {
       setMsg({ ok: false, text: "그림 설명을 만들지 못했습니다. 잠시 뒤 다시 시도해 주세요." });
+      return null;
     } finally {
       setBusy("");
     }
@@ -92,12 +100,15 @@ export function AlbumArtPanel({
 
   // 내 PC 그림 — 대기열에 넣고 끝날 때까지 지켜본다(처음이면 엔진·모델 받기까지)
   const makeLocal = async () => {
-    if (!art.trim()) return setMsg({ ok: false, text: "내 PC 그림 모델은 영어 설명만 읽습니다. [AI로 영어 설명 만들기]를 누르거나 영어로 적어 주세요." });
+    if (!art.trim()) return setMsg({ ok: false, text: "그림 설명을 적어 주세요(한글도 됩니다). 비워 두려면 [AI로 영어 설명 만들기]를 눌러 주세요." });
+    // 한글로 적었으면 먼저 영어로 바꾼 뒤 그린다(내 PC 모델은 영어만 읽음)
+    const prompt = hasHangul ? await writePrompt() : art;
+    if (!prompt) return;
     setBusy("make");
     setMsg(null);
     setStage("대기열에 넣는 중");
     try {
-      const job = await enqueueLocalArt({ title, songId, style, lyrics }, art, localId || undefined);
+      const job = await enqueueLocalArt({ title, songId, style, lyrics }, prompt, localId || undefined);
       await new Promise<void>((resolve, reject) => {
         polling.current = window.setInterval(async () => {
           try {
@@ -177,7 +188,7 @@ export function AlbumArtPanel({
         value={art}
         onChange={(e) => onArtChange(e.target.value)}
         maxLength={ART_PROMPT_LIMIT}
-        placeholder={provider === "local" ? "그림 설명(영어만 — 내 PC 모델은 영어만 읽습니다). [AI로 영어 설명 만들기]로 곡 제목·가사에서 자동으로 만들 수 있습니다." : "그림 설명(영어 권장, 선택) — 비워 두면 곡 제목·스타일로 만듭니다. AI 작곡 기획으로 만든 곡은 자동으로 채워집니다."}
+        placeholder={provider === "local" ? "그림 장면을 한글로 적어도 됩니다(예: 노을 진 시골 기차역, 따뜻한 수채화). 그릴 때 AI가 영어로 바꿉니다. 비워 두고 [AI로 영어 설명 만들기]를 누르면 곡 제목·가사로 만듭니다." : "그림 설명(영어 권장, 선택) — 비워 두면 곡 제목·스타일로 만듭니다. AI 작곡 기획으로 만든 곡은 자동으로 채워집니다."}
       />
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="그림 플랫폼">
@@ -244,8 +255,8 @@ export function AlbumArtPanel({
       )}
       <div className="flex flex-wrap items-center gap-2">
         {provider === "local" && (
-          <button type="button" onClick={writePrompt} disabled={!!busy || !(title.trim() || style.trim() || lyrics.trim())} className="inline-flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-950/40 px-4 py-2 text-xs font-bold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">
-            {busy === "prompt" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} AI로 영어 설명 만들기
+          <button type="button" onClick={() => void writePrompt()} disabled={!!busy || !(hasHangul || title.trim() || style.trim() || lyrics.trim())} className="inline-flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-950/40 px-4 py-2 text-xs font-bold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">
+            {busy === "prompt" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} {hasHangul ? "한글 설명을 영어로 바꾸기" : "AI로 영어 설명 만들기"}
           </button>
         )}
         <button

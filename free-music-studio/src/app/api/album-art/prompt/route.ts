@@ -4,6 +4,7 @@ import { getUserApiKey } from "@/lib/apiKeys";
 import { LyricError, writeArtPrompt } from "@/lib/ai/lyrics";
 import { LYRIC_PROVIDERS, toLyricModel, toLyricProvider } from "@/lib/lyricModels";
 import { LIMITS } from "@/lib/songs";
+import { ART_PROMPT_LIMIT } from "@/lib/albumArt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -19,7 +20,9 @@ export async function POST(request: Request) {
   const title = str(b.title, LIMITS.title);
   const style = str(b.style, LIMITS.style);
   const lyrics = str(b.lyrics, LIMITS.lyrics);
-  if (!title && !style && !lyrics) return NextResponse.json({ error: "곡 제목이나 스타일, 가사가 있어야 그림 설명을 만들 수 있습니다." }, { status: 400 });
+  // 회원이 한글로 적은 그림 장면 — 영어로 바꿔 살린다(v1.35)
+  const idea = str(b.idea, ART_PROMPT_LIMIT);
+  if (!idea && !title && !style && !lyrics) return NextResponse.json({ error: "그림 설명이나 곡 제목·스타일·가사가 있어야 그림 설명을 만들 수 있습니다." }, { status: 400 });
 
   const provider = toLyricProvider(b.provider);
   const label = LYRIC_PROVIDERS.find((p) => p.id === provider)!.label;
@@ -32,7 +35,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    return NextResponse.json(await writeArtPrompt(provider, apiKey, toLyricModel(provider, b.model), { title, style, lyrics }));
+    return NextResponse.json(await writeArtPrompt(provider, apiKey, toLyricModel(provider, b.model), { title, style, lyrics, idea }));
   } catch (err) {
     if (err instanceof LyricError) return NextResponse.json({ error: err.message }, { status: err.status });
     const name = (err as Error).name;
