@@ -14,7 +14,7 @@ export const FILTER_LABEL: Record<TrackFilter, string> = {
   timingReview: "LRC 확인 필요",
 };
 export const SORT_LABEL: Record<TrackSort, string> = {
-  manual: "플레이리스트 순서",
+  manual: "직접 정한 순서",
   newest: "최신순",
   oldest: "오래된 순",
   title: "제목순",

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { COLLECTIONS_TABLE, PLAYLIST_ITEMS_TABLE, parseCollectionName, parseKind } from "@/lib/collections";
+import { COLLECTIONS_TABLE, PLAYLIST_ITEMS_TABLE, parseCollectionName, parseCollectionOrder, parseKind } from "@/lib/collections";
 import { TRACKS_TABLE } from "@/lib/tracks";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,8 @@ export async function GET() {
   const admin = createAdminClient();
   const uid = access.user.id;
   const [cols, tracks, items] = await Promise.all([
-    admin.from(COLLECTIONS_TABLE).select("id, kind, name, created_at").eq("user_id", uid).order("created_at").limit(200),
+    // 회원이 정한 순서(position) → 순서를 정한 적 없는 묶음은 만든 순서로 뒤에(v1.31)
+    admin.from(COLLECTIONS_TABLE).select("id, kind, name, created_at").eq("user_id", uid).order("position", { ascending: true, nullsFirst: false }).order("created_at").limit(200),
     admin.from(TRACKS_TABLE).select("id, project_id, trashed_at").eq("user_id", uid).limit(5000),
     admin.from(PLAYLIST_ITEMS_TABLE).select("playlist_id, track_id").eq("user_id", uid).limit(20000),
   ]);
@@ -44,4 +45,21 @@ export async function POST(request: Request) {
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ collection: { ...data, count: 0 } });
+}
+
+// 프로젝트·플레이리스트 순서 바꾸기(v1.31) — { kind, ids }: 그 종류의 묶음 번호를 새 순서대로. 본인 묶음만 바뀐다.
+export async function PATCH(request: Request) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+  const body = await request.json().catch(() => null);
+  const kind = parseKind(body?.kind);
+  const ids = parseCollectionOrder(body?.ids);
+  if (!kind || !ids) return NextResponse.json({ error: "순서가 올바르지 않습니다." }, { status: 400 });
+  const admin = createAdminClient();
+  const results = await Promise.all(
+    ids.map((id, position) => admin.from(COLLECTIONS_TABLE).update({ position }).eq("id", id).eq("user_id", access.user.id).eq("kind", kind)),
+  );
+  const error = results.find((r) => r.error)?.error;
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }

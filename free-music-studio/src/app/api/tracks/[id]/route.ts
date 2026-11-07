@@ -31,7 +31,8 @@ export async function PATCH(request: Request, { params }: Ctx) {
   }
   const { data, error } = await admin
     .from(TRACKS_TABLE)
-    .update(parsed.value)
+    // 프로젝트를 바꾸면 그 프로젝트 안 자리(v1.31)는 비운다 — 새 프로젝트에서는 맨 위에 보인다
+    .update("project_id" in parsed.value ? { ...parsed.value, project_position: null } : parsed.value)
     .eq("id", id)
     .eq("user_id", access.user.id)
     .select("id")

@@ -7,7 +7,9 @@ import { useQueue } from "@/components/engine/useQueue";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { StageProgress } from "@/components/engine/StageProgress";
 import { EngineError, LICENSE_LABEL, QUEUE_LABEL, activeCount, engineInfo, cancelJob, dismissJob, fetchLibraryFile, rerunJob, type QueueJob, type QueueStatus } from "@/lib/engine";
-import { KIND_LABEL } from "@/lib/tracks";
+import { KIND_LABEL, type Track } from "@/lib/tracks";
+import { COLLECTIONS_CHANGED, type Collection } from "@/lib/collections";
+import { QueueFiling } from "@/components/engine/QueueFiling";
 
 const TONE: Record<QueueStatus, string> = {
   queued: "border-slate-600 text-slate-300",
@@ -55,6 +57,34 @@ export default function QueuePage() {
       urls.current.push(url);
       setAudio((a) => ({ ...a, [job.id]: url }));
     });
+
+  // 끝난 곡을 바로 프로젝트·플레이리스트로(v1.31) — 묶음 목록과 곡마다 지금 프로젝트
+  const [projects, setProjects] = useState<Collection[]>([]);
+  const [playlists, setPlaylists] = useState<Collection[]>([]);
+  const [projectOf, setProjectOf] = useState<Record<string, string | null>>({});
+  const [notice, setNotice] = useState("");
+  const recordedCount = jobs.filter((j) => j.recorded).length;
+  useEffect(() => {
+    const loadCols = () =>
+      fetch("/api/collections")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => d && (setProjects(d.projects ?? []), setPlaylists(d.playlists ?? [])))
+        .catch(() => {});
+    loadCols();
+    window.addEventListener(COLLECTIONS_CHANGED, loadCols);
+    return () => window.removeEventListener(COLLECTIONS_CHANGED, loadCols);
+  }, []);
+  useEffect(() => {
+    fetch("/api/tracks")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { tracks?: Track[] } | null) => d && setProjectOf(Object.fromEntries((d.tracks ?? []).map((t) => [t.id, t.project_id]))))
+      .catch(() => {});
+  }, [recordedCount]);
+  useEffect(() => {
+    if (!notice) return;
+    const t = window.setTimeout(() => setNotice(""), 3000);
+    return () => window.clearTimeout(t);
+  }, [notice]);
 
   const active = jobs.filter((j) => j.status === "queued" || j.status === "running");
   const finished = jobs.filter((j) => !(j.status === "queued" || j.status === "running")).reverse();
@@ -133,15 +163,27 @@ export default function QueuePage() {
         </p>
       )}
       {j.status === "done" && j.kind !== "stems" && j.kind !== "align" && j.kind !== "art" && (
-        <p className={`text-[11px] ${j.recorded ? "text-emerald-300/80" : "text-slate-500"}`}>
+        <div className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] ${j.recorded ? "text-emerald-300/80" : "text-slate-500"}`}>
           {j.recorded ? (
             <>
-              ✔ 내 PC 보관함에 저장 · <Link href="/library" className="underline underline-offset-2">모든 음악</Link>에 기록됨
+              <span>
+                ✔ 내 PC 보관함에 저장 · <Link href="/library" className="underline underline-offset-2">모든 음악</Link>에 기록됨
+              </span>
+              <QueueFiling
+                trackId={j.track.id}
+                projectId={projectOf[j.track.id]}
+                projects={projects}
+                playlists={playlists}
+                busy={busy === j.id}
+                onProject={(p) => setProjectOf((m) => ({ ...m, [j.track.id]: p }))}
+                onNotice={setNotice}
+                onError={setError}
+              />
             </>
           ) : (
             "내 PC 보관함에 저장 · 모든 음악에 기록하는 중…"
           )}
-        </p>
+        </div>
       )}
       {audio[j.id] && <audio controls autoPlay src={audio[j.id]} className="w-full" />}
     </li>
@@ -184,6 +226,11 @@ export default function QueuePage() {
           {error && (
             <p className="flex items-center gap-2 text-xs font-semibold text-rose-300">
               <AlertCircle className="h-4 w-4" /> {error}
+            </p>
+          )}
+          {notice && (
+            <p role="status" className="sticky top-2 z-10 flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/80 px-3 py-2 text-xs font-semibold text-emerald-200">
+              <CheckCircle2 className="h-4 w-4" /> {notice}
             </p>
           )}
           <section className="space-y-2">

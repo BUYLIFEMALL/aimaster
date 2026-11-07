@@ -7,6 +7,9 @@ export const PLAYLIST_ITEMS_TABLE = "free_music_playlist_items";
 export type CollectionKind = "project" | "playlist";
 export type Collection = { id: string; kind: CollectionKind; name: string; created_at: string; count: number };
 
+/** 묶음 순서·이름이 바뀌었다는 화면 안 알림 — 좌측 메뉴 등 다른 목록이 다시 읽는다(v1.31) */
+export const COLLECTIONS_CHANGED = "fms:collections-changed";
+
 /** 「모든 음악」의 그 프로젝트·플레이리스트 화면 주소(홈·좌측 메뉴에서 씀) */
 export const libraryHref = (kind: CollectionKind, id: string) => `/library?view=${kind}:${id}`;
 
@@ -26,6 +29,13 @@ export function parseCollectionName(v: unknown): { ok: true; value: string } | {
 
 export function parseKind(v: unknown): CollectionKind | null {
   return v === "project" || v === "playlist" ? v : null;
+}
+
+/** 프로젝트·플레이리스트 목록 순서 — uuid만, 중복 없이 200개까지(목록 조회 한도와 같음) */
+export function parseCollectionOrder(v: unknown): string[] | null {
+  if (!Array.isArray(v) || v.length > 200) return null;
+  const ids = [...new Set(v.filter(isUuid))];
+  return ids.length === v.length ? ids : null;
 }
 
 /** 플레이리스트 곡 순서 — uuid만, 중복 제거, 최대 300곡 */

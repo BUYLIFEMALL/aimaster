@@ -1,9 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseCollectionName, parseKind, parseTrackOrder } from "../src/lib/collections.ts";
+import { parseCollectionName, parseCollectionOrder, parseKind, parseTrackOrder } from "../src/lib/collections.ts";
 
 const a = "3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
 const b = "4f2b8c1e-1a2b-4c3d-8e9f-0123456789ab";
+
+test("묶음 순서(v1.31): uuid만·중복 없이·200개까지", () => {
+  assert.deepEqual(parseCollectionOrder([b, a]), [b, a]);
+  assert.deepEqual(parseCollectionOrder([]), []);
+  assert.equal(parseCollectionOrder([a, a]), null);
+  assert.equal(parseCollectionOrder([a, "x"]), null);
+  assert.equal(parseCollectionOrder("a"), null);
+  assert.equal(parseCollectionOrder(Array.from({ length: 201 }, () => a)), null);
+});
 
 test("묶음 이름: 공백 정리, 빈 이름·40자 초과 거절", () => {
   assert.deepEqual(parseCollectionName("  JAZZ   No.1 "), { ok: true, value: "JAZZ No.1" });

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Library, FolderClosed, ListMusic, Plus, Trash2 } from "lucide-react";
 import type { Collection, CollectionKind } from "@/lib/collections";
+import { CollectionOrderList } from "@/components/library/CollectionOrderList";
 
 export type View = { type: "all" } | { type: "trash" } | { type: "project" | "playlist"; id: string };
 
@@ -73,17 +74,20 @@ export function CollectionsNav({
         </div>
       )}
       {list.length === 0 && adding !== kind && <p className="px-3 text-[11px] text-slate-600">아직 없습니다. + 로 만드세요.</p>}
-      {list.map((c) => {
-        const Icon = kind === "project" ? FolderClosed : ListMusic;
-        const active = view.type === kind && view.id === c.id;
-        return (
-          <button key={c.id} type="button" onClick={() => onView({ type: kind, id: c.id })} className={item(active)}>
-            <Icon className={`h-3.5 w-3.5 shrink-0 ${kind === "project" ? "text-amber-300" : "text-sky-300"}`} />
-            <span className="min-w-0 flex-1 truncate">{c.name}</span>
-            <span className="text-[10px] text-slate-500">{c.count}</span>
-          </button>
-        );
-      })}
+      {/* ⠿ 손잡이로 순서 바꾸기(v1.31) — 저장하면 이 화면·좌측 메뉴가 함께 다시 읽는다 */}
+      <CollectionOrderList kind={kind} list={list}>
+        {(c) => {
+          const Icon = kind === "project" ? FolderClosed : ListMusic;
+          const active = view.type === kind && view.id === c.id;
+          return (
+            <button type="button" onClick={() => onView({ type: kind, id: c.id })} className={item(active)}>
+              <Icon className={`h-3.5 w-3.5 shrink-0 ${kind === "project" ? "text-amber-300" : "text-sky-300"}`} />
+              <span className="min-w-0 flex-1 truncate">{c.name}</span>
+              <span className="text-[10px] text-slate-500">{c.count}</span>
+            </button>
+          );
+        }}
+      </CollectionOrderList>
     </div>
   );
 

@@ -54,7 +54,7 @@ import {
   revealLibraryFolder,
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
-import type { Collection, CollectionKind } from "@/lib/collections";
+import { COLLECTIONS_CHANGED, type Collection, type CollectionKind } from "@/lib/collections";
 
 const DEVICE_LABEL: Record<string, string> = { cuda: "그래픽카드", mps: "Apple 맥", cpu: "CPU" };
 const durationLabel = (s: number) => (s < 60 ? `${s}초` : s % 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s / 60}분`);
@@ -107,7 +107,7 @@ export default function LibraryPage() {
     const linked = /^(project|playlist):([0-9a-f-]{36})$/.exec(params.get("view") ?? "");
     if (!linked) return;
     setView({ type: linked[1] as "project" | "playlist", id: linked[2] });
-    setSort(linked[1] === "playlist" ? "manual" : "newest");
+    setSort("manual");
     setQuery("");
     setFilter("all");
     setSelected(new Set());
@@ -168,6 +168,12 @@ export default function LibraryPage() {
     load();
     loadCollections();
   }, [load, loadCollections]);
+  // 프로젝트·플레이리스트 순서를 바꾸면(이 화면 왼쪽·좌측 메뉴) 다시 읽는다(v1.31)
+  useEffect(() => {
+    const reload = () => void loadCollections();
+    window.addEventListener(COLLECTIONS_CHANGED, reload);
+    return () => window.removeEventListener(COLLECTIONS_CHANGED, reload);
+  }, [loadCollections]);
 
   // 엔진이 연결되면 이 PC 보관함에 어떤 곡이 있는지 한 번 확인한다.
   useEffect(() => {
@@ -181,9 +187,9 @@ export default function LibraryPage() {
       .catch(() => setOnPc(null));
   }, [libOk, tracks.length]);
 
-  // 플레이리스트를 고르면 곡 순서를 불러온다.
+  // 플레이리스트·프로젝트(v1.31)를 고르면 곡 순서를 불러온다.
   useEffect(() => {
-    if (view.type !== "playlist") return;
+    if (view.type !== "playlist" && view.type !== "project") return;
     setOrder([]);
     fetch(`/api/collections/${view.id}/items`)
       .then((r) => (r.ok ? r.json() : { track_ids: [] }))
@@ -200,8 +206,11 @@ export default function LibraryPage() {
 
   const shown = useMemo(() => {
     let list: Track[];
-    if (view.type === "project") list = tracks.filter((t) => t.project_id === view.id);
-    else if (view.type === "playlist") {
+    if (view.type === "project") {
+      // 정한 순서대로, 아직 자리가 없는 곡(방금 넣은 곡)은 맨 위에
+      const pos = new Map(order.map((id, i) => [id, i]));
+      list = tracks.filter((t) => t.project_id === view.id).sort((a, b) => (pos.get(a.id) ?? -1) - (pos.get(b.id) ?? -1));
+    } else if (view.type === "playlist") {
       const byId = new Map(tracks.map((t) => [t.id, t]));
       list = order.map((id) => byId.get(id)).filter((t): t is Track => !!t);
     } else if (view.type === "trash") list = trash;
@@ -210,10 +219,11 @@ export default function LibraryPage() {
     if (q) list = list.filter((t) => `${t.title} ${t.style_prompt} ${t.lyrics}`.toLowerCase().includes(q));
     list = filterTracks(list, filter, (id) => arts.has(id));
     if (view.type === "trash" && sort === "newest") return list; // 휴지통은 넣은 순서(최근 넣은 것부터) 그대로
-    return sortTracks(list, view.type === "playlist" || sort !== "manual" ? sort : "newest");
+    const ordered = view.type === "playlist" || view.type === "project";
+    return sortTracks(list, ordered || sort !== "manual" ? sort : "newest");
   }, [tracks, trash, view, order, query, filter, sort, arts]);
-  // 플레이리스트는 「플레이리스트 순서」로 보고 걸러 내지 않을 때만 끌어서 순서를 바꿀 수 있다
-  const canReorder = view.type === "playlist" && sort === "manual" && filter === "all" && !query.trim();
+  // 플레이리스트·프로젝트는 「직접 정한 순서」로 보고 걸러 내지 않을 때만 끌어서 순서를 바꿀 수 있다
+  const canReorder = (view.type === "playlist" || view.type === "project") && sort === "manual" && filter === "all" && !query.trim();
   const narrowed = !!query.trim() || filter !== "all";
 
   // 듣기는 화면 아래 재생바 하나로 — 지금 보이는(이 PC에 있는) 곡 순서가 재생 목록이 된다.
@@ -378,7 +388,7 @@ export default function LibraryPage() {
   };
 
   const reorderPlaylist = async (ids: string[]) => {
-    if (view.type !== "playlist") return false;
+    if (view.type !== "playlist" && view.type !== "project") return false;
     const saved = await saveOrder(view.id, ids);
     if (!saved) return false;
     setOrder(saved);
@@ -488,8 +498,8 @@ export default function LibraryPage() {
             setView(v);
             setRenaming(null);
             setSelected(new Set());
-            // 플레이리스트는 담은 순서가 기본, 다른 화면에는 그 순서가 없다
-            if (v.type === "playlist") setSort("manual");
+            // 플레이리스트·프로젝트는 직접 정한 순서가 기본, 다른 화면에는 그 순서가 없다
+            if (v.type === "playlist" || v.type === "project") setSort("manual");
             else if (sort === "manual") setSort("newest");
           }}
           onCreate={createCollection}
@@ -576,7 +586,7 @@ export default function LibraryPage() {
               정렬
               <select value={sort} onChange={(e) => setSort(e.target.value as TrackSort)} className={smallSelect}>
                 {(Object.keys(SORT_LABEL) as TrackSort[])
-                  .filter((s) => s !== "manual" || view.type === "playlist")
+                  .filter((s) => s !== "manual" || view.type === "playlist" || view.type === "project")
                   .map((s) => (
                     <option key={s} value={s}>
                       {SORT_LABEL[s]}
@@ -704,8 +714,8 @@ export default function LibraryPage() {
                 </div>
               )}
             </div>
-            {view.type === "playlist" && !canReorder && shown.length > 1 && (
-              <p className="text-[11px] text-slate-500">검색·보기 조건을 지우고 정렬을 「플레이리스트 순서」로 두면 끌어서 순서를 바꿀 수 있습니다.</p>
+            {(view.type === "playlist" || view.type === "project") && !canReorder && shown.length > 1 && (
+              <p className="text-[11px] text-slate-500">검색·보기 조건을 지우고 정렬을 「직접 정한 순서」로 두면 끌어서 순서를 바꿀 수 있습니다.</p>
             )}
             <TrackOrderList
               items={shown}

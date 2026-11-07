@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, FolderClosed, ListMusic } from "lucide-react";
-import { libraryHref, type Collection, type CollectionKind } from "@/lib/collections";
+import { COLLECTIONS_CHANGED, libraryHref, type Collection, type CollectionKind } from "@/lib/collections";
+import { CollectionOrderList } from "@/components/library/CollectionOrderList";
 
 const FOLD_KEY = "fms.sidebarFold";
 
@@ -22,10 +23,15 @@ export function SidebarCollections({ onNavigate }: { onNavigate?: () => void }) 
     } catch {}
   }, []);
   useEffect(() => {
-    fetch("/api/collections")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { projects?: Collection[]; playlists?: Collection[] } | null) => d && setLists({ project: d.projects ?? [], playlist: d.playlists ?? [] }))
-      .catch(() => {});
+    const load = () =>
+      fetch("/api/collections")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: { projects?: Collection[]; playlists?: Collection[] } | null) => d && setLists({ project: d.projects ?? [], playlist: d.playlists ?? [] }))
+        .catch(() => {});
+    load();
+    // 다른 화면에서 순서·이름을 바꾸면 다시 읽는다(v1.31)
+    window.addEventListener(COLLECTIONS_CHANGED, load);
+    return () => window.removeEventListener(COLLECTIONS_CHANGED, load);
   }, [pathname]);
 
   const toggle = (k: CollectionKind) =>
@@ -48,15 +54,17 @@ export function SidebarCollections({ onNavigate }: { onNavigate?: () => void }) 
           <span className="ml-auto font-mono normal-case text-slate-500">{list.length}</span>
         </button>
         {!fold[k] && (
-          <div className="space-y-0.5 pb-1">
+          <div className="pb-1">
             {list.length === 0 && <p className="px-3 py-1 text-[11px] text-slate-600">아직 없습니다</p>}
-            {list.map((c) => (
-              <Link key={c.id} href={libraryHref(k, c.id)} onClick={onNavigate} className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-slate-300 hover:bg-[#0e1424] hover:text-white">
-                <Icon size={13} className={k === "project" ? "shrink-0 text-amber-300" : "shrink-0 text-sky-300"} />
-                <span className="min-w-0 flex-1 truncate">{c.name}</span>
-                <span className="font-mono text-[10px] text-slate-500">{c.count}</span>
-              </Link>
-            ))}
+            <CollectionOrderList kind={k} list={list} onSaved={(next) => setLists((l) => ({ ...l, [k]: next }))}>
+              {(c) => (
+                <Link href={libraryHref(k, c.id)} onClick={onNavigate} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-slate-300 hover:bg-[#0e1424] hover:text-white">
+                  <Icon size={13} className={k === "project" ? "shrink-0 text-amber-300" : "shrink-0 text-sky-300"} />
+                  <span className="min-w-0 flex-1 truncate">{c.name}</span>
+                  <span className="font-mono text-[10px] text-slate-500">{c.count}</span>
+                </Link>
+              )}
+            </CollectionOrderList>
           </div>
         )}
       </div>
