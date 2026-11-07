@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HardDrive, FolderCog, RefreshCw, Trash2, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { EngineError, gb, getStorage, hasStorage, moveModelsFolder, removeStorageItem, type EngineStatus, type StorageReport } from "@/lib/engine";
+import { groupStorageItems, storageGroupOf } from "@/lib/storageGroups";
 import { FolderBrowser } from "./FolderBrowser";
 import { StageProgress } from "./StageProgress";
 
@@ -90,7 +91,7 @@ export function StoragePanel({ status, onChanged }: { status: EngineStatus | nul
   return (
     <section className="space-y-3 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-5">
       <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
-        <HardDrive className="h-4 w-4 text-sky-300" /> 모델 저장 공간
+        <HardDrive className="h-4 w-4 text-sky-300" /> 음악 모델 저장 공간
       </h2>
 
       {!supported ? (
@@ -178,9 +179,17 @@ export function StoragePanel({ status, onChanged }: { status: EngineStatus | nul
                       </td>
                     </tr>
                   )}
-                  {[...report.items]
-                    .sort((a, b) => b.bytes - a.bytes)
-                    .map((it) => (
+                  {/* 음악 모델·음악 편집 도구·그림 모델·설치 보관 파일로 묶어서(2026-11-07) */}
+                  {groupStorageItems(report.items).filter((g) => g.key !== "image").map((g) => [
+                    <tr key={`g:${g.key}`} className="border-t border-slate-700 bg-slate-900/50">
+                      <td className="px-3 py-2">
+                        <span className="text-[12px] font-bold text-slate-100">{g.title}</span>
+                        <span className="ml-2 text-[11px] text-slate-500">{g.desc}</span>
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2 text-right font-mono text-[11px] font-bold text-slate-300">{gb(g.bytes)}</td>
+                      <td colSpan={2} className="px-3 py-2 text-[11px] text-slate-500">{g.items.length}개</td>
+                    </tr>,
+                    ...g.items.map((it) => (
                       <tr key={it.id} className="border-t border-slate-800 align-top">
                         <td className="px-3 py-2.5">
                           <p className="font-semibold text-slate-100">{it.label}</p>
@@ -204,10 +213,16 @@ export function StoragePanel({ status, onChanged }: { status: EngineStatus | nul
                           )}
                         </td>
                       </tr>
-                    ))}
+                    )),
+                  ])}
                 </tbody>
               </table>
             </div>
+          )}
+          {report && report.items.some((it) => storageGroupOf(it.id) === "image") && (
+            <p className="text-[11px] text-slate-500">
+              🖼 그림 모델({gb(report.items.filter((it) => storageGroupOf(it.id) === "image").reduce((n, it) => n + it.bytes, 0))})은 음악 모델과 다른 폴더에 있어, 아래 「🖼 이미지용」에서 따로 관리합니다.
+            </p>
           )}
           {loading && !report && (
             <p className="flex items-center gap-2 text-xs text-slate-400">

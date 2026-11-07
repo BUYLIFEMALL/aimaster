@@ -96,6 +96,8 @@ export default function EnginePage() {
         </div>
       </div>
 
+      {/* 화면을 공통 / 음악용 / 이미지용으로 나눔(2026-11-07 주인님 「페이지 전체에서 음악용 / 이미지용 을 나누어놔 헷갈려」) */}
+      <GroupHeading emoji="⚙️" title="공통 — 엔진 설치·연결" desc="음악·그림 모두 이 엔진 하나로 만듭니다" tone="slate" />
       <PcCheckPanel engine={engine} />
 
       {/* 연결 상태·짝짓기 */}
@@ -176,10 +178,6 @@ export default function EnginePage() {
           </p>
         )}
       </section>
-
-      {paired && <FolderPanel status={status} onChanged={engine.refresh} />}
-      {paired && <StoragePanel status={status} onChanged={engine.refresh} />}
-      {paired && <ImageModelPanel status={status} />}
 
       <section className="space-y-3 rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-[#0b1a18] to-[#0a0f1d] p-5">
         <div className="flex flex-wrap items-center gap-2">
@@ -272,8 +270,12 @@ export default function EnginePage() {
         </ol>
       </section>
 
+      <GroupHeading emoji="🎵" title="음악용" desc="노래 저장 폴더 · 음악 모델 · 만드는 시간" tone="emerald" />
+      {paired && <FolderPanel status={status} onChanged={engine.refresh} />}
+      {paired && <StoragePanel status={status} onChanged={engine.refresh} />}
+
       <section className="space-y-3 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-5">
-        <h2 className="text-sm font-bold text-slate-100">내 PC에서 얼마나 걸리나요?</h2>
+        <h2 className="text-sm font-bold text-slate-100">노래를 만드는 데 얼마나 걸리나요?</h2>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[480px] text-left text-xs">
             <thead className="text-slate-400">
@@ -300,6 +302,30 @@ export default function EnginePage() {
           엔진 곡은 「모든 음악」에 「비상업용」으로 표시됩니다. 커버는 회원님이 권리를 가진 곡으로만 만들 수 있습니다.
         </p>
       </section>
+
+      <GroupHeading emoji="🖼" title="이미지용" desc="내 PC 앨범 그림 — 음악 모델과 다른 폴더에 따로 둡니다" tone="fuchsia" />
+      {paired ? (
+        <ImageModelPanel status={status} />
+      ) : (
+        <p className="rounded-xl border border-slate-800 bg-[#0a0f1d] px-4 py-3 text-xs text-slate-500">위 「내 PC 엔진 연결」을 마치면 그림 모델을 고르고 받을 수 있습니다.</p>
+      )}
+    </div>
+  );
+}
+
+/** 공통 / 음악용 / 이미지용 구역 머리 */
+function GroupHeading({ emoji, title, desc, tone }: { emoji: string; title: string; desc: string; tone: "slate" | "emerald" | "fuchsia" }) {
+  const line = { slate: "from-slate-500/60", emerald: "from-emerald-400/70", fuchsia: "from-fuchsia-400/70" }[tone];
+  const text = { slate: "text-slate-200", emerald: "text-emerald-200", fuchsia: "text-fuchsia-200" }[tone];
+  return (
+    <div className="pt-4">
+      <h2 className={`flex flex-wrap items-baseline gap-x-2 text-base font-extrabold tracking-tight ${text}`}>
+        <span>
+          {emoji} {title}
+        </span>
+        <span className="text-[11px] font-normal text-slate-500">{desc}</span>
+      </h2>
+      <div className={`mt-2 h-px bg-gradient-to-r ${line} to-transparent`} />
     </div>
   );
 }
