@@ -73,33 +73,62 @@ function recommendedItems(rec: QualityOption, report: SystemReport, mode: string
 
 const DEVICE_NAME: Record<string, string> = { cuda: "NVIDIA CUDA", mps: "Apple Metal", cpu: "CPU" };
 
-/** 시스템 정보 표 — 원본 host-profile.mjs가 보여 주는 칸들(엔진 /system 값 그대로) */
-function SystemTable({ sys, device }: { sys: SystemReport["system"]; device: string }) {
-  const rows: [string, string][] = [
-    ["운영체제", sys.os],
-    ["CPU", `${sys.cpu}${sys.cores ? ` · ${sys.cores}코어` : ""}`],
-    ["메모리", sys.ramGb != null ? `${sys.ramGb}GB` : "확인 불가"],
-    ["그래픽카드", sys.gpu || "확인 불가"],
-    ["제조사", sys.gpuVendor || "확인 불가"],
-    ["그래픽 메모리", sys.vramGb != null ? `${sys.vramGb}GB` : "확인 불가"],
-    ["드라이버", sys.driver || "확인 불가"],
-    ...(sys.computeCapability ? ([["Compute Capability", sys.computeCapability]] as [string, string][]) : []),
-    ...(sys.bf16 != null ? ([["BF16", sys.bf16 ? "하드웨어 지원" : "지원하지 않음"]] as [string, string][]) : []),
-    ["플랫폼", [sys.platform, sys.arch].filter(Boolean).join(" · ") || "확인 불가"],
-    ["음악 엔진 장치", DEVICE_NAME[device] ?? (device || "확인 불가")],
-    ["여유 공간", sys.freeGb != null ? `${sys.freeGb}GB${sys.freePath ? ` (${sys.freePath})` : ""}` : "확인 불가"],
+/** 시스템 정보 + 점검 결과를 한 목록으로(2026-11-08 주인님 「중복되는 내용은 하나로 합쳐서」).
+ *  점검 줄(상태 표시·설명)은 그대로 두고, 시스템 표에만 있던 칸(제조사·Compute Capability·BF16·플랫폼·음악 엔진 장치)은 관련 줄 바로 뒤에 넣는다.
+ *  「드라이버」는 「그래픽 드라이버」, 「여유 공간」은 「저장 공간」 줄과 합친다. 원본 host-profile.mjs 칸은 모두 남는다. */
+type Row = { label: string; value: string; status?: CheckStatus; note?: string };
+function SystemChecks({ sys, device, items }: { sys: SystemReport["system"]; device: string; items: { label: string; value: string; status: CheckStatus; note: string }[] }) {
+  const free = sys.freeGb != null ? `여유 ${sys.freeGb}GB${sys.freePath ? ` (${sys.freePath})` : ""}` : "확인 불가";
+  const extra: Record<string, Row[]> = {
+    그래픽카드: [{ label: "제조사", value: sys.gpuVendor || "확인 불가" }],
+    "그래픽 드라이버": [
+      ...(sys.computeCapability ? [{ label: "Compute Capability", value: sys.computeCapability }] : []),
+      ...(sys.bf16 != null ? [{ label: "BF16", value: sys.bf16 ? "하드웨어 지원" : "지원하지 않음" }] : []),
+    ],
+  };
+  const rows: Row[] = [];
+  for (const i of items) {
+    rows.push({ ...i, value: i.label === "저장 공간" && sys.freeGb != null ? free : i.value });
+    rows.push(...(extra[i.label] ?? []));
+  }
+  // 점검 목록에 빠진 칸이 있어도 시스템 값은 다 보이게
+  const rest: Row[] = [
+    { label: "운영체제", value: sys.os },
+    { label: "CPU", value: `${sys.cpu}${sys.cores ? ` · ${sys.cores}코어` : ""}` },
+    { label: "메모리", value: sys.ramGb != null ? `${sys.ramGb}GB` : "확인 불가" },
+    { label: "그래픽카드", value: sys.gpu || "확인 불가" },
+    ...extra.그래픽카드,
+    { label: "그래픽 메모리", value: sys.vramGb != null ? `${sys.vramGb}GB` : "확인 불가" },
+    { label: "그래픽 드라이버", value: sys.driver || "확인 불가" },
+    ...extra["그래픽 드라이버"],
+    { label: "저장 공간", value: free },
+    { label: "플랫폼", value: [sys.platform, sys.arch].filter(Boolean).join(" · ") || "확인 불가" },
+    { label: "음악 엔진 장치", value: DEVICE_NAME[device] ?? (device || "확인 불가") },
   ];
+  const seen = new Set(rows.map((r) => r.label));
+  for (const r of rest) {
+    if (seen.has(r.label)) continue;
+    seen.add(r.label);
+    rows.push(r);
+  }
   return (
     <div className="space-y-2">
-      <p className="text-xs font-bold text-slate-200">🖥️ 시스템 정보</p>
-      <dl className="grid gap-x-6 gap-y-1.5 rounded-xl border border-slate-800 p-4 text-xs sm:grid-cols-2 lg:grid-cols-3">
-        {rows.map(([k, v]) => (
-          <div key={k} className="flex justify-between gap-3 border-b border-slate-800/80 pb-1.5">
-            <dt className="shrink-0 text-slate-500">{k}</dt>
-            <dd className="min-w-0 break-all text-right font-semibold text-slate-200">{v}</dd>
-          </div>
-        ))}
-      </dl>
+      <p className="text-xs font-bold text-slate-200">🖥️ 시스템 정보·점검</p>
+      <ul className="grid rounded-xl border border-slate-800 sm:grid-cols-2">
+        {rows.map((r) => {
+          const t = r.status ? TONE[r.status] : null;
+          return (
+            <li key={r.label} className="flex items-start gap-2.5 border-b border-slate-800/80 px-4 py-2.5 text-xs">
+              {t ? <t.Icon className={`mt-0.5 h-4 w-4 shrink-0 ${t.text}`} /> : <span className="mx-[5px] mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-600" aria-hidden />}
+              <span className="w-28 shrink-0 font-semibold text-slate-400">{r.label}</span>
+              <span className="min-w-0 flex-1 break-all text-slate-200">
+                {r.value}
+                {r.note && <span className="mt-0.5 block text-[11px] text-slate-500">{r.note}</span>}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -270,9 +299,7 @@ function EngineCheck({ engine }: { engine: Engine }) {
         </div>
       )}
 
-      <SystemTable sys={sys} device={engine.status?.device ?? ""} />
-
-      <Items items={report.check.items} />
+      <SystemChecks sys={sys} device={engine.status?.device ?? ""} items={report.check.items} />
 
       <div className="space-y-2">
         <label htmlFor="quality-tier" className="text-xs font-bold text-slate-200">🎚️ ACE-Step 음악 모델 구성 <span className="font-normal text-slate-500">(YuE2는 곡 만들기 화면에서 고릅니다)</span></label>
