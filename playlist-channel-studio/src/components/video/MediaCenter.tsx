@@ -3,6 +3,7 @@
 import { ReferenceNotePanel } from "./ReferenceNotePanel";
 import { SunoImportPanel } from "./SunoImportPanel";
 import { AmsImportPanel } from "./AmsImportPanel";
+import { FmsImportPanel } from "./FmsImportPanel";
 import { useState, useRef } from "react";
 import {
   Upload,
@@ -291,6 +292,8 @@ export function MediaCenter({
           {/* v1.19 음악(SUNO) 자동화 곡 여러 개 + 시간 가사 가져오기 */}
           {/* v1.27 AI 음악 스튜디오에서 보낸 곡(?ams=) */}
           <AmsImportPanel setTracks={setTracks} />
+          {/* v1.35 AI 무료음악 자동화에서 보낸 곡(?fms=) — 음원은 무료음악 창이 브라우저 안에서 건넴 */}
+          <FmsImportPanel setTracks={setTracks} />
           <SunoImportPanel setTracks={setTracks} hasBg={!!bgMedia} setBgMedia={setBgMedia} />
 
           {/* 오디오 파일 드롭존 */}

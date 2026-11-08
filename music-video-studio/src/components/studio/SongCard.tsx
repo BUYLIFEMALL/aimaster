@@ -12,6 +12,12 @@ import { Waveform, decodePeaks } from "@/components/studio/Waveform";
 // 가져온 곡은 제목·스타일·가사를 프로젝트에 채워 다음 단계(스토리보드)가 그 가사로 장면을 나눈다.
 const AMS_URL = "https://ai-music-studio.buylife.xyz";
 const MAX_FILE = 50 * 1024 * 1024;
+// v1.28 AI 무료음악 자동화 「모든 음악」 곡 메뉴 「뮤직비디오 만들기」(/music?fms=<곡 번호>) — 제목·스타일·가사·가사 시간은 서버(회원 본인 곡만),
+// 음원은 회원 PC 엔진에만 있어 그 창이 브라우저 안에서 건넨다(서버로 올리지 않음). 순서: 이 창 → 「mvs-ready」 → 무료음악 창 → 「fms-audio」
+const FMS_ORIGINS = ["https://free-music-studio.buylife.xyz", "https://free-music-studio.vercel.app"];
+const FMS_WAIT_MS = 180_000;
+type SongFill = { title: string; style: string; lyrics: string; timedLyrics: string };
+type FmsSong = SongFill & { id: string; durationS: number | null; instrumental: boolean };
 
 interface AmsSongItem { ref: string; title: string; model: string; durationS: number | null; instrumental: boolean; createdAt: string; style: string; lyrics: string; timedLyrics?: string; audioUrl: string | null }
 
@@ -102,7 +108,7 @@ export function SongCard() {
     setList(null); setError("");
   };
 
-  const upload = async (file: File | undefined) => {
+  const upload = async (file: File | undefined, fill?: SongFill) => {
     if (!file) return;
     setError("");
     if (!file.type.startsWith("audio/") && !/\.(mp3|m4a|wav|ogg|aac|flac)$/i.test(file.name)) { setError("mp3·m4a·wav·ogg·aac·flac 음악 파일만 올릴 수 있습니다."); return; }
@@ -113,7 +119,7 @@ export function SongCard() {
       const durationS = await audioDuration(url);
       const saved = await saveLocalSong(file);
       setObjectUrl(url);
-      setSong({ source: "file", title: file.name.replace(/\.[^.]+$/, "").slice(0, 80), fileName: file.name.slice(0, 120), durationS });
+      setSong({ source: "file", title: (fill?.title || file.name.replace(/\.[^.]+$/, "")).slice(0, 80), fileName: file.name.slice(0, 120), durationS }, fill);
       if (!saved) setError("이 브라우저에 파일을 보관하지 못했습니다(시크릿 창 등). 지금은 들을 수 있지만 새로고침하면 다시 올려야 합니다.");
     } finally { setBusy(""); }
   };
@@ -124,11 +130,46 @@ export function SongCard() {
     setSong(null);
   };
 
+  // v1.28 무료음악 곡 받기 — 곡 정보를 확인하고 「준비됨」을 알린 뒤 음원이 오면 파일 올리기와 같은 길로 넣는다(제목·스타일·가사·가사 시간 함께)
+  const linkFms = (id: string) => {
+    window.history.replaceState(null, "", window.location.pathname);
+    setBusy("file"); setError("");
+    fetch(`/api/music/fms?id=${id}`, { cache: "no-store" })
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) throw new Error(d.error || "곡을 불러오지 못했습니다.");
+        const s = d.song as FmsSong;
+        const current = latest.current;
+        if (s.lyrics && current.lyrics.trim() && s.lyrics !== current.lyrics && !window.confirm("지금 가사와 만들어 둔 스토리보드가 AI 무료음악 자동화에서 보낸 곡의 가사로 바뀝니다. 가져올까요?")) { setBusy(""); return; }
+        if (!window.opener) throw new Error(`이 창이 무료음악 화면에서 열리지 않아 음악 파일을 받을 수 없습니다. 노래 저장 폴더의 「${s.title}」 파일을 [내 음악 파일 올리기]로 넣어 주세요.`);
+        const fill: SongFill = { title: s.title, style: s.style, lyrics: s.lyrics, timedLyrics: s.timedLyrics };
+        const onMessage = (e: MessageEvent) => {
+          if (!FMS_ORIGINS.includes(e.origin) || e.source !== window.opener) return;
+          const m = e.data as { type?: string; id?: string; name?: string; blob?: Blob } | null;
+          if (m?.type !== "fms-audio" || m.id !== id || !(m.blob instanceof Blob)) return;
+          window.removeEventListener("message", onMessage);
+          window.clearTimeout(timer);
+          const type = m.blob.type && m.blob.type !== "application/octet-stream" ? m.blob.type : "audio/mpeg";
+          void upload(new File([m.blob], m.name || `${s.title}.mp3`, { type }), fill);
+        };
+        window.addEventListener("message", onMessage);
+        const timer = window.setTimeout(() => {
+          window.removeEventListener("message", onMessage);
+          setBusy("");
+          setError(`음악 파일이 오지 않았습니다. 노래 저장 폴더의 「${s.title}」 파일을 [내 음악 파일 올리기]로 넣어 주세요.`);
+        }, FMS_WAIT_MS);
+        for (const o of FMS_ORIGINS) window.opener.postMessage({ type: "mvs-ready", id }, o);
+      })
+      .catch((e) => { setBusy(""); setError((e as Error).message); });
+  };
+
   // v1.14 AI 음악 스튜디오 곡 카드 링크(/music?ams=<생성 번호>:<곡 순서>)로 들어오면 그 곡을 바로 가져온다(한 번만, 주소에서 값 지움)
   const linked = useRef(false);
   useEffect(() => {
     if (linked.current) return;
     linked.current = true;
+    const fmsId = new URLSearchParams(window.location.search).get("fms");
+    if (fmsId && /^[0-9a-f-]{36}$/i.test(fmsId)) { linkFms(fmsId); return; }
     const ref = new URLSearchParams(window.location.search).get("ams");
     if (!ref || !/^[0-9a-f-]{36}:\d{1,2}$/i.test(ref)) return;
     window.history.replaceState(null, "", window.location.pathname);

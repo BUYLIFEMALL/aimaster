@@ -73,3 +73,9 @@ export function timedLyricsFromAms(instrumental: boolean, lyricsOut: string | nu
 export function timingLyrics(p: { timedLyrics?: string; lyrics: string }): string {
   return p.timedLyrics || p.lyrics;
 }
+
+/** v1.28 AI 무료음악 자동화 가사 시간 줄 → 「[시작:끝] 가사」 형식(위 Lyria 시간 가사와 같아 장면 시각 맞추기가 그대로 읽음). 줄이 없으면 "" */
+export function timedLyricsFromLines(lines: { start: number; end: number; text: string }[] | null | undefined): string {
+  if (!lines?.length) return "";
+  return lines.map((l) => `[${l.start.toFixed(2)}:${l.end.toFixed(2)}] ${l.text}`).join("\n").slice(0, 6000);
+}

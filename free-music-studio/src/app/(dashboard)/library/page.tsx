@@ -26,6 +26,8 @@ import {
   Clapperboard,
   ImagePlus,
   Images,
+  MonitorPlay,
+  Film,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -60,6 +62,7 @@ import {
 } from "@/lib/engine";
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
 import { openLyricVideo } from "@/lib/lyricVideoHandoff";
+import { openVideoWithSongs, PLAYLIST_MAX } from "@/lib/videoHandoff";
 import { AlbumPicker } from "@/components/albums/AlbumPicker";
 import { albumsHref } from "@/lib/albums";
 import { COLLECTIONS_CHANGED, TRACK_DRAG_TYPE, TRACKS_DROPPED, type Collection, type CollectionKind, type TracksDropped } from "@/lib/collections";
@@ -449,6 +452,12 @@ export default function LibraryPage() {
   const chosen = shownIds.filter((id) => selected.has(id));
   const allChosen = shownIds.length > 0 && chosen.length === shownIds.length;
   const playChosen = () => player?.playList(playable.filter((t) => selected.has(t.id)).map(toPlayer));
+  // 고른 곡 → 플레이리스트 영상(D-1 나머지): 목록 순서대로 최대 20곡, 음원은 이 창이 엔진에서 받아 건넴
+  const playlistVideoChosen = () => {
+    const list = playable.filter((t) => selected.has(t.id));
+    if (openVideoWithSongs("playlist", list.map((t) => ({ id: t.id, title: t.title })), setMessage))
+      setNotice(`플레이리스트 영상 창을 열었습니다. 곡 ${Math.min(list.length, PLAYLIST_MAX)}개와 맞춰 둔 가사 시간이 함께 들어갑니다${list.length > PLAYLIST_MAX ? ` (앞 ${PLAYLIST_MAX}곡만)` : ""}.`);
+  };
   const toggleOne = (id: string) =>
     setSelected((s) => {
       const n = new Set(s);
@@ -718,6 +727,11 @@ export default function LibraryPage() {
                       <PlayCircle className="h-3.5 w-3.5" /> 고른 곡 듣기
                     </button>
                   )}
+                  {playable.some((t) => selected.has(t.id)) && (
+                    <button type="button" onClick={playlistVideoChosen} className={`${btn} border-sky-500/40 text-sky-300 hover:bg-sky-950/50`}>
+                      <MonitorPlay className="h-3.5 w-3.5" /> 고른 곡으로 플레이리스트 영상
+                    </button>
+                  )}
                   <select value="" onChange={(e) => pickPlaylist(e.target.value, chosen)} className={smallSelect} aria-label="고른 곡을 플레이리스트에 담기">
                     <option value="">🎶 플레이리스트에 담기</option>
                     {playlists.map((p) => (
@@ -854,6 +868,25 @@ export default function LibraryPage() {
                               onClick: () => {
                                 if (openLyricVideo({ id: t.id, title: t.title }, setMessage))
                                   setNotice(t.lyric_timing ? "가사 영상 창을 열었습니다. 맞춰 둔 가사 시간과 음악 파일이 함께 들어갑니다." : "가사 영상 창을 열었습니다. 가사 시간은 그 화면 「가사 싱크」에서 맞추거나, 먼저 곡 상세 「가사 시간」에서 맞춰 두면 바로 들어갑니다.");
+                              },
+                            },
+                            // 만든 곡 → 플레이리스트 영상·뮤직비디오(D-1 나머지, 2026-11-08)
+                            {
+                              label: "플레이리스트 영상 만들기",
+                              icon: <MonitorPlay className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
+                              onClick: () => {
+                                if (openVideoWithSongs("playlist", [{ id: t.id, title: t.title }], setMessage))
+                                  setNotice("플레이리스트 영상 창을 열었습니다. 여러 곡을 넣으려면 곡 왼쪽 칸을 골라 「고른 곡으로 플레이리스트 영상」을 눌러 주세요.");
+                              },
+                            },
+                            {
+                              label: "뮤직비디오 만들기",
+                              icon: <Film className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
+                              onClick: () => {
+                                if (openVideoWithSongs("musicVideo", [{ id: t.id, title: t.title }], setMessage))
+                                  setNotice("뮤직비디오 창을 열었습니다. 곡 제목·스타일·가사(맞춰 둔 가사 시간 포함)와 음악 파일이 함께 들어갑니다.");
                               },
                             },
                             // 앨범(v1.35, 주인님 「곡을 다 만들고 곡제목,가사를 베이스로 이미지 앨범을 만들게 하거나 이미 만들어놓은 앨범이미지에서 선택해서 사용」)

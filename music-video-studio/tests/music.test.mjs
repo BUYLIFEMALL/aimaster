@@ -363,3 +363,14 @@ test("화풍 분석 결과는 프로젝트에 저장·복원된다", () => {
   assert.equal(restored.artStyle, "reference");
   assert.equal(restored.styleProfile.prompt, DRAWN.prompt);
 });
+
+test("v1.28 무료음악 가사 시간 → [시작:끝] 형식 → 장면 맞추기가 그대로 읽음", async () => {
+  const { fmsTimedLines } = await import("../src/lib/music/fmsLyrics.ts");
+  const { timedLyricsFromLines } = await import("../src/lib/music/sceneTiming.ts");
+  const { amsTimedLines } = await import("../src/lib/music/amsLyrics.ts");
+  const lines = fmsTimedLines({ cues: [{ text: "첫 줄", start: 1.5 }, { text: "", start: 3 }, { text: "둘째 줄", start: 4.25, end: 7 }] }, 30);
+  const raw = timedLyricsFromLines(lines);
+  assert.equal(raw, "[1.50:4.25] 첫 줄\n[4.25:7.00] 둘째 줄");
+  assert.deepEqual(amsTimedLines(raw), [{ start: 1.5, end: 4.25, text: "첫 줄" }, { start: 4.25, end: 7, text: "둘째 줄" }]);
+  assert.equal(timedLyricsFromLines(null), "");
+});

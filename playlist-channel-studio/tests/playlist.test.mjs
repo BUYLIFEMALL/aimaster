@@ -109,3 +109,10 @@ test("프롬프트: 당해 연도·형식·한국인 규칙이 들어간다", ()
   assert.ok(th.includes("Korean"));
   assert.ok(th.includes("더 어둡게"));
 });
+
+test("v1.35 무료음악 가사 시간 → 곡별 가사 줄(끝 시각 없으면 다음 줄 시작·마지막은 곡 길이)", async () => {
+  const { fmsTimedLines } = await import("../src/lib/fmsLyrics.ts");
+  assert.deepEqual(fmsTimedLines({ cues: [{ text: "가", start: 2 }, { text: "나", start: 5 }] }, 9), [{ start: 2, end: 5, text: "가" }, { start: 5, end: 9, text: "나" }]);
+  assert.equal(fmsTimedLines({ cues: [{ text: "시간 없음", start: null }] }, 9), null);
+  assert.equal(fmsTimedLines(null, null), null);
+});

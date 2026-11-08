@@ -212,6 +212,10 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 - 검수: tsc·시험 23개·build, 배포 Ready, DB v1.26. 크롬(시험 회원): API 200·빈 목록(시험 회원·관리자 모두 썸네일 프로젝트는 있으나 만든 그림 0개 — DB 확인). 시험 회원은 유튜브 미연결이라 업로드 양식 자체가 안 보임. **그림이 있는 계정의 화면 확인은 남음**(관리자 로그인 + 썸네일 1장 필요). 비용: Vercel 빌드 1회.
 - **2026-10-21 관리자 화면 확인 완료**: 주인님 승인으로 「AI 썸네일·SEO 자동화」에서 관리자 본인 Gemini 키로 A안 1장(`gemini-3-pro-image`, 1K, 1회 — 화면 버튼은 2장을 만들어 API로 A만 요청)과 전략 글 1회를 만든 뒤, 고르기 목록 1장 → 고르기 → 1280×720·171KB 미리보기·지정 체크·「↩ 고른 썸네일 빼기」 확인. 실제 유튜브 업로드·지정은 하지 않음(지정 함수는 v1.23에서 200 확인).
 
+## 2026-11-08 v1.35 — AI 무료음악 자동화 곡 가져오기(?fms=) (Claude Code 윈도우 · 음악 담당 `claude-win-20261024-music`)
+- 주인님 「D-1 나머지 진행해」: 무료음악 「모든 음악」의 「플레이리스트 영상 만들기」·「고른 곡으로 플레이리스트 영상」으로 `/video?fms=<곡 번호>,…`(최대 20곡)가 열리면 `FmsImportPanel`이 `/api/fms/songs`(공용 DB `free_music_tracks` 읽기만, 회원 user_id로 거름)에서 제목·가사 시간을 받고, 무료음악 창에 `pcs-ready`를 보내 곡마다 음원(`fms-audio`, 브라우저 안 postMessage)을 받아 모두 오면 클릭 없이 목록 끝에 넣는다(3분 지나면 받은 곡만, 나머지는 직접 넣기 안내). 가사 시간 변환 `src/lib/fmsLyrics.ts`는 가사 영상 v1.13 사본. 외부 AI 호출 없음.
+- 검수: 시험 29(가사 시간 1개 추가)·tsc. 배포는 무료음악 v1.40과 함께.
+
 ## 2026-10-23 v1.27 — AI 음악 스튜디오 곡 가져오기(?ams=) + 미배포 대기 1건 내보냄 (Claude Code 윈도우)
 - `/video?ams=<생성 번호>:<곡 순서>,…`(최대 20곡)로 들어오면 미디어 센터 맨 위 「🎧 AI 음악 스튜디오에서 보낸 곡」 패널(`src/components/video/AmsImportPanel.tsx`)이 곡 목록을 보여 주고, 회원이 「곡 N개 추가」를 누르면 목록 끝에 넣는다. 서버 `src/lib/amsTracks.ts` + `GET /api/ams/songs?refs=` — 회원 본인 행만, 비공개 저장소 서명 주소. Lyria 시간 가사는 `src/lib/amsLyrics.ts`(공용 모듈 `ams-timed-lyrics` 사본, 기준 lyric-video-studio)로 곡 가사 층에 연결. 외부 AI 호출 없음.
 - 함께 내보낸 대기: 좌측 메뉴 계정·로그아웃 위치(`22c6cda35`).
