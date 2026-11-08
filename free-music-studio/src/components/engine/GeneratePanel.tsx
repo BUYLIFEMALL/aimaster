@@ -232,15 +232,16 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
           <p className="text-[11px] font-semibold text-slate-300">🎛️ 음악 엔진</p>
           {(
             [
-              { license: "commercial", title: "💼 상업용 — 수익 영상·판매에도 쓸 수 있음" },
-              { license: "noncommercial", title: "🏠 개인용 — 개인 감상·비수익만" },
+              // 2026-11-08 주인님 「노래곡과 연주곡 기준으로 구분해」 — 상업용·개인용은 카드 배지로. 둘 다 되는 엔진(ACE-Step)은 두 묶음에 모두
+              { kind: "vocal", title: "🎤 노래곡 — 가사를 부르는 곡", tone: "text-fuchsia-300" },
+              { kind: "instrumental", title: "🎹 연주곡 — 노래 없는 배경음악", tone: "text-sky-300" },
             ] as const
           ).map((g) => {
-            const list = engines.filter((e) => e.license === g.license);
+            const list = engines.filter((e) => e.kind === g.kind || e.kind === "both");
             if (!list.length) return null;
             return (
-              <div key={g.license} className="space-y-1.5">
-                <p className={`text-[11px] font-bold ${g.license === "commercial" ? "text-emerald-300" : "text-amber-300"}`}>{g.title}</p>
+              <div key={g.kind} className="space-y-1.5">
+                <p className={`text-[11px] font-bold ${g.tone}`}>{g.title}</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {list.map((o) => (
                     <button
