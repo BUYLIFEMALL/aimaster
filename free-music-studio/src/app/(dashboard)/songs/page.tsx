@@ -104,17 +104,36 @@ export default function SongsPage() {
       .catch(() => {});
   }, []);
 
-  // 금지어는 이 브라우저에 기억해 둔다(다음에 와도 그대로).
+  // 금지어는 회원 계정에 저장(A-4, 2026-11-08 — 다른 PC·브라우저에서도 그대로). 계정에 없고 이 브라우저에 옛 값이 있으면 한 번 옮긴다.
+  const bannedTimer = useRef<number | null>(null);
+  const saveBanned = (v: string) =>
+    fetch("/api/settings/banned-words", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ words: parseBannedInput(v) }) }).catch(() => {});
   useEffect(() => {
+    let local = "";
     try {
-      setBanned(localStorage.getItem(BANNED_KEY) ?? "");
+      local = localStorage.getItem(BANNED_KEY) ?? "";
     } catch {}
+    fetch("/api/settings/banned-words", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const words: string[] = Array.isArray(d?.words) ? d.words : [];
+        if (words.length) setBanned(words.join(", "));
+        else if (local.trim()) {
+          setBanned(local);
+          void saveBanned(local);
+        }
+      })
+      .catch(() => setBanned(local));
+    return () => void (bannedTimer.current && window.clearTimeout(bannedTimer.current));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const changeBanned = (v: string) => {
     setBanned(v);
     try {
       localStorage.setItem(BANNED_KEY, v);
     } catch {}
+    if (bannedTimer.current) window.clearTimeout(bannedTimer.current);
+    bannedTimer.current = window.setTimeout(() => void saveBanned(v), 800);
   };
 
   const load = useCallback(async () => {

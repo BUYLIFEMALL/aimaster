@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   const parsed = parseTrackInput(await request.json().catch(() => null));
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const admin = createAdminClient();
-  const value: typeof parsed.value & { project_id?: string | null } = { ...parsed.value };
+  const value: typeof parsed.value & { project_id?: string | null; lyric_timing?: unknown } = { ...parsed.value };
   if (value.song_id) {
     const { data: own } = await admin.from(SONGS_TABLE).select("id, project_id").eq("id", value.song_id).eq("user_id", access.user.id).maybeSingle();
     if (!own) value.song_id = null;
@@ -43,8 +43,19 @@ export async function POST(request: Request) {
   }
   // 원곡도 본인 곡일 때만 연결한다
   if (value.parent_id) {
-    const { data: own } = await admin.from(TRACKS_TABLE).select("id").eq("id", value.parent_id).eq("user_id", access.user.id).maybeSingle();
+    const { data: own } = await admin
+      .from(TRACKS_TABLE)
+      .select("id, project_id, lyrics, lyric_timing")
+      .eq("id", value.parent_id)
+      .eq("user_id", access.user.id)
+      .maybeSingle();
     if (!own) value.parent_id = null;
+    else {
+      // B-8(2026-11-08 마스터PC): 마스터링·커버로 만든 새 곡도 원곡과 같은 프로젝트로
+      if (!value.project_id && own.project_id) value.project_id = own.project_id;
+      // 마스터링은 소리·박자가 같아 원곡의 가사 시간을 그대로 이어 받는다(가사가 같을 때만 — 커버는 박자가 달라 잇지 않음)
+      if (value.kind === "master" && own.lyric_timing && (own.lyrics ?? "") === (value.lyrics ?? "")) value.lyric_timing = own.lyric_timing;
+    }
   }
   const { data, error } = await admin
     .from(TRACKS_TABLE)
