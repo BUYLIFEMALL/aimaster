@@ -392,11 +392,11 @@ export function AlbumArtPanel({
           )}
         </p>
       )}
-      {image && (
-        <div className={split ? "space-y-3" : "flex flex-wrap items-end gap-4"}>
+      {!split && image && (
+        <div className={split ? "flex flex-col items-center gap-3 border-t border-slate-800 pt-5" : "flex flex-wrap items-end gap-4"}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt={`${title} 앨범 그림`} className={split ? "aspect-square w-full max-w-xl rounded-2xl border border-slate-700 object-cover shadow-2xl" : "h-48 w-48 rounded-xl border border-slate-700 object-cover"} />
-          <div className={split ? "flex flex-wrap gap-2" : "flex flex-col gap-2"}>
+          <img src={src} alt={`${title} 앨범 그림`} className={split ? "aspect-square w-full max-w-2xl rounded-2xl border border-slate-700 object-cover shadow-2xl" : "h-48 w-48 rounded-xl border border-slate-700 object-cover"} />
+          <div className={split ? "flex flex-wrap justify-center gap-2" : "flex flex-col gap-2"}>
             {saveAction ? (
               saveAction.ready ? (
                 <button
@@ -436,6 +436,49 @@ export function AlbumArtPanel({
       )}
       </div>
       </div>
+      {/* 2026-11-08 주인님 「생성된 이미지 보여주는 영역을 가운데 중간으로」 — 두 칸 보기면 그림은 두 칸 아래 가운데에 크게 */}
+      {split && image && (
+        <div className={split ? "flex flex-col items-center gap-3 border-t border-slate-800 pt-5" : "flex flex-wrap items-end gap-4"}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt={`${title} 앨범 그림`} className={split ? "aspect-square w-full max-w-2xl rounded-2xl border border-slate-700 object-cover shadow-2xl" : "h-48 w-48 rounded-xl border border-slate-700 object-cover"} />
+          <div className={split ? "flex flex-wrap justify-center gap-2" : "flex flex-col gap-2"}>
+            {saveAction ? (
+              saveAction.ready ? (
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={!!busy}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
+                >
+                  <FolderDown className="h-3.5 w-3.5" /> {busy === "save" ? "저장 중…" : saveAction.label}
+                </button>
+              ) : (
+                <p className="max-w-xs text-[11px] leading-relaxed text-amber-200/90">{saveAction.notReady}</p>
+              )
+            ) : canSave ? (
+              <button
+                type="button"
+                onClick={save}
+                disabled={!!busy}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:brightness-110 disabled:opacity-40"
+              >
+                <FolderDown className="h-3.5 w-3.5" /> {busy === "save" ? "저장 중…" : "내 PC 노래 폴더에 저장"}
+              </button>
+            ) : (
+              <p className="max-w-xs text-[11px] leading-relaxed text-slate-400">
+                내 PC 노래 폴더에 바로 넣으려면 엔진 0.6.7 이상이 연결돼 있어야 합니다(
+                <Link href="/engine" className="underline underline-offset-2">
+                  내 PC 엔진
+                </Link>
+                ).
+              </p>
+            )}
+            <a href={src} download={`${(title || "앨범 그림").replace(/[\\/:*?"<>|]/g, "_")}.${ext}`} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-900">
+              <Download className="h-3.5 w-3.5" /> 그림 받기
+            </a>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
