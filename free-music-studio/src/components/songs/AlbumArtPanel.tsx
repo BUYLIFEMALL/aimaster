@@ -143,13 +143,16 @@ export function AlbumArtPanel({
 
   const make = async () => {
     if (provider === "local") return makeLocal();
+    // 한글로 적었으면 먼저 영어로 바꿔 그린다(그림 모델은 영어 설명을 가장 잘 따른다)
+    const prompt = hasHangul ? await writePrompt() : art;
+    if (hasHangul && !prompt) return;
     setBusy("make");
     setMsg(null);
     try {
       const res = await fetch("/api/album-art", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, style, art, provider, model }),
+        body: JSON.stringify({ title, style, art: prompt, provider, model }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -199,7 +202,7 @@ export function AlbumArtPanel({
         value={art}
         onChange={(e) => onArtChange(e.target.value)}
         maxLength={ART_PROMPT_LIMIT}
-        placeholder={provider === "local" ? "그림 장면을 한글로 적어도 됩니다(예: 노을 진 시골 기차역, 따뜻한 수채화). 그릴 때 AI가 영어로 바꿉니다. 비워 두고 [AI로 영어 설명 만들기]를 누르면 곡 제목·가사로 만듭니다." : "그림 설명(영어 권장, 선택) — 비워 두면 곡 제목·스타일로 만듭니다. AI 작곡 기획으로 만든 곡은 자동으로 채워집니다."}
+        placeholder="그림 장면을 한글로 적어도 됩니다(예: 노을 진 시골 기차역, 따뜻한 수채화). [한글 설명을 영어로 바꾸기]를 누르거나 그대로 그리면 AI가 영어로 바꿔 그립니다. 비워 두고 [AI로 영어 설명 만들기]를 누르면 곡 제목·가사로 만듭니다."
       />
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="그림 플랫폼">
@@ -265,11 +268,10 @@ export function AlbumArtPanel({
         </p>
       )}
       <div className="flex flex-wrap items-center gap-2">
-        {provider === "local" && (
-          <button type="button" onClick={() => void writePrompt()} disabled={!!busy || !(hasHangul || title.trim() || style.trim() || lyrics.trim())} className="inline-flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-950/40 px-4 py-2 text-xs font-bold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">
+        {/* 영어 변환은 모든 그림 플랫폼에서(2026-11-08 주인님 「왜 영어 변환 기능이 없어」 — 예전엔 내 PC만) */}
+        <button type="button" onClick={() => void writePrompt()} disabled={!!busy || !(hasHangul || title.trim() || style.trim() || lyrics.trim())} className="inline-flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-950/40 px-4 py-2 text-xs font-bold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">
             {busy === "prompt" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} {hasHangul ? "한글 설명을 영어로 바꾸기" : "AI로 영어 설명 만들기"}
-          </button>
-        )}
+        </button>
         <button
           type="button"
           onClick={make}
