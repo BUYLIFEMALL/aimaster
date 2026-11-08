@@ -551,8 +551,9 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
               moving.done = total;
             } catch (e) {
               await mkdir(to, { recursive: true });
-              // 실제 rename이 EXDEV를 반환하면 복사 공간을 다시 검사한다.
-              if (e.code !== "EXDEV") throw e;
+              // 실제 rename이 실패하면(EXDEV, 윈도우에서 파일을 연 프로그램이 있으면 EPERM·EBUSY 등) 원래의 복사 방식으로 —
+              // 복사 공간을 다시 검사한다(2026-11-08 윈도우 검수 보완, 예전엔 EXDEV 말고는 실패로 끝남)
+              log(`… 폴더 이름 바꾸기가 안 돼(${e.code || e.message}) 복사로 옮깁니다.`);
               await checkCopySpace();
             }
           }

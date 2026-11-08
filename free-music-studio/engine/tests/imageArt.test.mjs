@@ -139,7 +139,7 @@ test("B-3 그래픽 메모리 — nvidia-smi 출력 읽기·시작 전 사용량
 });
 
 // C-14: 실제 임시 파일로 복사 생략, 목적지 보존, 실패 복구를 검증한다.
-for (const scenario of ["rename", "merge", "EXDEV", "save-fail", "rollback-fail"]) {
+for (const scenario of ["rename", "merge", "EXDEV", "EPERM", "save-fail", "rollback-fail"]) {
   test(`그림 폴더 이동 안전성: ${scenario}`, async (t) => {
     const fs = await import("node:fs/promises");
     const base = await fs.mkdtemp(path.join(os.tmpdir(), "fms-art-fastmove-"));
@@ -163,6 +163,7 @@ for (const scenario of ["rename", "merge", "EXDEV", "save-fail", "rollback-fail"
       renameImpl: async (a, b) => {
         attempts++;
         if (scenario === "EXDEV") throw Object.assign(new Error("다른 파일시스템"), { code: "EXDEV" });
+        if (scenario === "EPERM") throw Object.assign(new Error("파일을 연 프로그램이 있음"), { code: "EPERM" }); // 윈도우 잠김 → 복사로
         if (scenario === "rollback-fail" && attempts === 2) throw new Error("복구 차단");
         return fs.rename(a, b);
       },
@@ -191,7 +192,7 @@ for (const scenario of ["rename", "merge", "EXDEV", "save-fail", "rollback-fail"
         assert.equal(attempts, 0);
         assert.equal(await fs.readFile(path.join(to, "keep.txt"), "utf8"), "keep");
       }
-      if (scenario === "EXDEV") assert.equal(attempts, 1);
+      if (scenario === "EXDEV" || scenario === "EPERM") assert.equal(attempts, 1);
     }
   });
 }
