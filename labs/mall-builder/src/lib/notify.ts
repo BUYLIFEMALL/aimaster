@@ -14,7 +14,13 @@ export type NotifyKind = (typeof NOTIFY_KINDS)[number]["key"];
 export const NOTIFY_KIND_LABEL: Record<string, string> = {
   ...Object.fromEntries(NOTIFY_KINDS.map((k) => [k.key, k.label])),
   test: "시험 문자",
+  customer_restock: "재입고 → 손님",
 };
+
+/** 재입고 알림(D16) 문구 속 {{site}}를 사이트 주소로(DB 트리거는 사이트 주소를 모른다) */
+export function fillSite(text: string, origin: string): string {
+  return text.split("{{site}}").join(origin.replace(/\/+$/, ""));
+}
 
 /** 기록 표시용 종류 이름 — 메일 줄은 kind 앞에 email_이 붙어 있다(0026) */
 export function kindLabel(kind: string): string {

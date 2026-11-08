@@ -9,6 +9,7 @@ import EmailForm, { type EmailStatus } from "./email-form";
 import PaymentForm, { type PaymentStatus } from "./payment-form";
 import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form";
 import GuestForm from "./guest-form";
+import RestockForm, { type RestockStatus } from "./restock-form";
 import { guestOrderEnabled } from "@/lib/guest";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { digits } from "@/lib/notify";
@@ -83,6 +84,15 @@ async function emailStatus(storeId: string, deposit: DepositStatus): Promise<Ema
   };
 }
 
+async function restockStatus(storeId: string): Promise<RestockStatus> {
+  const supabase = await createClient();
+  const [{ data: row }, { count }] = await Promise.all([
+    supabase.from("mall_builder_store_notify_settings").select("restock_sms, restock_email").eq("store_id", storeId).maybeSingle(),
+    supabase.from("mall_builder_restock_requests").select("id", { count: "exact", head: true }).eq("store_id", storeId).eq("status", "waiting"),
+  ]);
+  return { sms: Boolean(row?.restock_sms), email: Boolean(row?.restock_email), waiting: count ?? 0 };
+}
+
 async function paymentStatus(storeId: string): Promise<PaymentStatus> {
   const supabase = await createClient();
   const [{ data: row }, { data: secret }] = await Promise.all([
@@ -98,11 +108,12 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/settings`);
   if (!staff) return <NoPermission />;
   const deposit = await depositStatus(store.id);
-  const [notify, email, log, payment] = await Promise.all([
+  const [notify, email, log, payment, restock] = await Promise.all([
     notifyStatus(store.id, deposit),
     emailStatus(store.id, deposit),
     loadNotifyLog(store.id),
     paymentStatus(store.id),
+    restockStatus(store.id),
   ]);
 
   return (
@@ -125,6 +136,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <EmailForm slug={store.slug} status={email} />
+      </div>
+      <div className="mt-6">
+        <RestockForm slug={store.slug} status={restock} />
       </div>
       <section className="mt-6">
         <h3 className="mb-2 text-sm font-semibold">최근 알림 기록</h3>

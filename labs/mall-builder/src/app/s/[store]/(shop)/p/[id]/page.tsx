@@ -65,6 +65,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
         moq={product.moq}
         orderUnit={product.order_unit}
         maxQty={product.max_qty}
+        memberPhone={customer?.phone ?? null}
         ctx={ctx}
         basePrice={product.base_price}
         listPrice={product.list_price}

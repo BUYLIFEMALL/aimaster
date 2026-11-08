@@ -38,14 +38,19 @@ export async function syncStoreJob(supabase: SupabaseClient, storeId: string, sl
   const [{ data: key, error: keyError }, { data: sched }, { data: notify }] = await Promise.all([
     supabase.rpc("mall_builder_scheduler_api_key", { p_store_id: storeId }),
     supabase.from("mall_builder_store_schedulers").select("deposit_hours, auto_deliver_days, auto_confirm_days").eq("store_id", storeId).maybeSingle(),
-    supabase.from("mall_builder_store_notify_settings").select("kinds, email_kinds").eq("store_id", storeId).maybeSingle(),
+    supabase.from("mall_builder_store_notify_settings").select("kinds, email_kinds, restock_sms, restock_email").eq("store_id", storeId).maybeSingle(),
   ]);
   if (keyError) throw new Error(keyError.message);
   const depositOn = sched?.deposit_hours != null;
   // 자동 배송 완료·구매 확정(D12)도 같은 작업이 처리하므로 켜져 있으면 작업을 켠다
   const autoOn = sched?.auto_deliver_days != null || sched?.auto_confirm_days != null;
   // 문자·메일 알림 중 하나라도 켜져 있으면 1분 주기
-  const notifyOn = ((notify?.kinds as string[] | undefined) ?? []).length > 0 || ((notify?.email_kinds as string[] | undefined) ?? []).length > 0;
+  // 재입고 알림(D16)도 같은 대기 줄이라 켜져 있으면 1분 주기
+  const notifyOn =
+    ((notify?.kinds as string[] | undefined) ?? []).length > 0 ||
+    ((notify?.email_kinds as string[] | undefined) ?? []).length > 0 ||
+    Boolean(notify?.restock_sms) ||
+    Boolean(notify?.restock_email);
   const hasKey = Boolean(key);
   const url = expireUrl(origin, slug);
 

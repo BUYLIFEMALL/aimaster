@@ -7,6 +7,7 @@ import { isVariantOrderable, variantKey, type OptionGroup, type Variant } from "
 import { discountRate } from "@/lib/products";
 import { priceLine, MAX_QTY, type PriceContext, type PricingProduct } from "@/lib/pricing";
 import { addToCartAction } from "../../cart/actions";
+import { requestRestockAction } from "./restock-actions";
 
 export default function ProductDetail({
   slug,
@@ -28,7 +29,9 @@ export default function ProductDetail({
   moq,
   orderUnit,
   maxQty,
+  memberPhone,
 }: {
+  memberPhone: string | null;
   moq: number;
   orderUnit: number;
   maxQty: number | null;
@@ -75,11 +78,21 @@ export default function ProductDetail({
   const rate = graded || line.priceHidden ? 0 : discountRate(basePrice, listPrice);
   const soldOut = status === "sold_out";
 
-  // 이 단의 이 값이 고를 수 있는지 — 앞 단에서 고른 값과 이어지는 조합 중 하나라도 주문 가능하면 고를 수 있다
-  const valueAvailable = (level: number, value: string) =>
-    variants.some(
-      (v) => v.values[level] === value && picked.every((p, i) => i >= level || !p || v.values[i] === p) && isVariantOrderable(v, stockByOption),
-    );
+  // 이 단의 이 값과 앞 단에서 고른 값으로 이어지는 조합들
+  const combos = (level: number, value: string) =>
+    variants.filter((v) => v.values[level] === value && picked.every((p, i) => i >= level || !p || v.values[i] === p));
+  // 판매하는 조합이 있으면 고를 수 있다(재고가 없어도 골라서 재입고 알림을 신청할 수 있게)
+  const valueSelectable = (level: number, value: string) => combos(level, value).some((v) => v.is_active);
+  // 주문 가능한 조합이 하나라도 있어야 「품절」 표시가 빠진다
+  const valueAvailable = (level: number, value: string) => combos(level, value).some((v) => isVariantOrderable(v, stockByOption));
+
+  // 재입고 알림(D16): 상품 전체 품절, 재고 0, 또는 고른 옵션 품절이면 신청할 수 있다
+  const wholeOut =
+    soldOut ||
+    (status === "on_sale" && stockByOption &&
+      (groups.length > 0 ? variants.length > 0 && !variants.some((v) => isVariantOrderable(v, true)) : stock <= 0));
+  const variantOut = !wholeOut && status === "on_sale" && stockByOption && variant !== null && variant.is_active && variant.stock <= 0;
+  const restockTarget: { variantId: string | null } | null = wholeOut ? { variantId: null } : variantOut ? { variantId: variant!.id } : null;
 
   const add = () => {
     setMessage(null);
@@ -142,7 +155,7 @@ export default function ProductDetail({
                 const ok = valueAvailable(level, value);
                 const extra = level === groups.length - 1 ? byKey.get(variantKey([...picked.slice(0, level), value]))?.extra_price : undefined;
                 return (
-                  <option key={value} value={value} disabled={!ok}>
+                  <option key={value} value={value} disabled={!valueSelectable(level, value)}>
                     {value}
                     {extra ? ` (${extra > 0 ? "+" : ""}${extra.toLocaleString("ko-KR")}원)` : ""}
                     {!ok ? " - 품절" : ""}
@@ -198,6 +211,15 @@ export default function ProductDetail({
         >
           {pending ? "담는 중…" : "장바구니 담기"}
         </button>
+        {restockTarget && (
+          <RestockBox
+            key={restockTarget.variantId ?? "whole"}
+            slug={slug}
+            productId={productId}
+            variantId={restockTarget.variantId}
+            memberPhone={memberPhone}
+          />
+        )}
         {message && (
           <p className={`mt-3 text-sm ${message.ok ? "text-green-700" : "text-red-600"}`} data-cart-message>
             {message.text}
@@ -210,6 +232,56 @@ export default function ProductDetail({
           </p>
         )}
       </div>
+    </div>
+  );
+}
+
+// 재입고 알림 신청 상자(D16) — 회원은 가입 번호를 미리 채운다. 동의 체크가 있어야 신청된다
+function RestockBox({ slug, productId, variantId, memberPhone }: { slug: string; productId: string; variantId: string | null; memberPhone: string | null }) {
+  const [open, setOpen] = useState(false);
+  const [phone, setPhone] = useState(memberPhone ?? "");
+  const [agree, setAgree] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [pending, startTransition] = useTransition();
+  const submit = () => {
+    setResult(null);
+    startTransition(async () => setResult(await requestRestockAction(slug, productId, variantId, phone, agree)));
+  };
+  if (!open) {
+    return (
+      <button type="button" onClick={() => setOpen(true)} className="mt-3 min-h-12 w-full rounded border border-gray-900 text-gray-900" data-restock-open>
+        🔔 재입고 알림 신청{variantId ? "(선택한 옵션)" : ""}
+      </button>
+    );
+  }
+  return (
+    <div className="mt-3 rounded border p-3" data-restock-box>
+      <p className="text-sm font-semibold">재입고 알림 신청{variantId ? " — 선택한 옵션" : ""}</p>
+      <p className="mt-1 text-xs text-gray-500">다시 입고되면 이 번호로 문자를 한 번 보내 드립니다(회원은 메일도).</p>
+      <input
+        type="tel"
+        inputMode="numeric"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder="010-1234-5678"
+        maxLength={13}
+        className="mt-2 w-full rounded border px-3 py-2"
+        data-restock-phone
+      />
+      <label className="mt-2 flex items-start gap-2 text-xs text-gray-600">
+        <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5" data-restock-agree />
+        재입고 알림을 위해 핸드폰 번호를 수집·이용하는 데 동의합니다. 신청은 90일 뒤 만료되고, 알림이 끝난 뒤 30일이 지나면 번호를 지웁니다.
+      </label>
+      <button
+        type="button"
+        onClick={submit}
+        disabled={pending || !agree || !phone.trim()}
+        className="mt-2 min-h-11 w-full rounded bg-gray-900 text-white disabled:opacity-50"
+        data-restock-submit
+      >
+        {pending ? "신청 중…" : "알림 신청하기"}
+      </button>
+      {result && <p className={`mt-2 text-sm ${result.ok ? "text-green-700" : "text-red-600"}`} data-restock-message>{result.message}</p>}
     </div>
   );
 }

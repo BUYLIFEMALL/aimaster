@@ -7,6 +7,10 @@ import LogoutButton from "@/app/logout-button";
 import { APPROVAL_LABEL } from "@/lib/business";
 import BusinessForm from "./business-form";
 import AddressFields from "./address-fields";
+import { createClient } from "@/lib/supabase/server";
+import { formatDateTime } from "@/lib/orders";
+import { RESTOCK_SELECT, RESTOCK_STATUS_LABEL, restockLabel, type RestockRow } from "@/lib/restock";
+import { cancelRestockAction } from "@/lib/restock-actions";
 import { deleteAddressAction, leaveStoreAction, makeDefaultAddressAction, saveAddressAction, updateProfileAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -57,6 +61,16 @@ export default async function MyPage({
   if (!customer) redirect(`/s/${slug}/join?next=${encodeURIComponent(`/s/${slug}/my`)}`);
   const addresses = await getMyAddresses(customer.id);
   const credit = customer.credit_limit > 0 ? await getCreditLedger(customer.id) : null;
+  // 내 재입고 알림 신청(D16) — 보안 규칙이 내 것만 돌려준다
+  const supabase = await createClient();
+  const { data: restockData } = await supabase
+    .from("mall_builder_restock_requests")
+    .select(RESTOCK_SELECT)
+    .eq("store_id", store.id)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  const restocks = (restockData ?? []) as unknown as RestockRow[];
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -163,6 +177,28 @@ export default async function MyPage({
           <AddressForm slug={store.slug} address={null} />
         </div>
       </section>
+
+      {restocks.length > 0 && (
+        <section className="mt-6" data-my-restock>
+          <h2 className="mb-3 font-semibold">재입고 알림 신청 ({restocks.filter((r) => r.status === "waiting").length}건 대기)</h2>
+          <ul className="divide-y rounded border text-sm">
+            {restocks.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center gap-2 px-3 py-2">
+                <span className={`rounded px-1.5 text-xs ${r.status === "waiting" ? "bg-amber-50 text-amber-800" : "bg-gray-100 text-gray-500"}`}>
+                  {RESTOCK_STATUS_LABEL[r.status] ?? r.status}
+                </span>
+                <Link href={`/s/${store.slug}/p/${r.product_id}`} className="underline">{restockLabel(r)}</Link>
+                <span className="text-xs text-gray-400">{formatDateTime(r.created_at)}</span>
+                {r.status === "waiting" && (
+                  <form action={cancelRestockAction.bind(null, store.slug, r.id, "my")} className="ml-auto">
+                    <button className="rounded border px-2 py-1 text-xs">취소</button>
+                  </form>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="mt-10 border-t pt-4 text-sm text-gray-500">
         <p className="mb-2">이 몰에서만 탈퇴합니다. 로그인 계정과 다른 몰 가입 정보는 그대로 남습니다.</p>

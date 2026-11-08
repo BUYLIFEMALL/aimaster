@@ -1,7 +1,7 @@
 // 실행: node --test tests/   — 솔라피는 실제로 부르지 않고 가짜 발송 함수로 확인
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkMobile, checkSenderPhone, classifySendError, maskPhone, parseKinds, sendClaimed } from "../src/lib/notify.ts";
+import { checkMobile, checkSenderPhone, classifySendError, fillSite, kindLabel, maskPhone, parseKinds, sendClaimed } from "../src/lib/notify.ts";
 
 const CREDS = { api_key: "k", api_secret: "s", sender_phone: "0212345678" };
 const ITEMS = [
@@ -47,4 +47,12 @@ test("키가 없으면 보내지 않고 실패로 기록(발송 함수 안 부�
 test("알 수 없는 오류는 「확인 필요」(다시 보내지 않음)", () => {
   assert.equal(classifySendError(new Error("boom")).result, "unknown");
   assert.equal(classifySendError(Object.assign(new Error("x"), { _tag: "ApiKeyError" })).result, "failed");
+});
+
+test("재입고 알림 문구의 {{site}}를 사이트 주소로 바꾼다(D16)", () => {
+  const body = "[몰] 「상품」이(가) 다시 입고되었습니다. {{site}}/s/m/p/1";
+  assert.equal(fillSite(body, "https://dev-mall-builder.vercel.app/"), "[몰] 「상품」이(가) 다시 입고되었습니다. https://dev-mall-builder.vercel.app/s/m/p/1");
+  assert.equal(fillSite("주소 없음", "https://x"), "주소 없음");
+  assert.equal(kindLabel("customer_restock"), "재입고 → 손님");
+  assert.equal(kindLabel("email_customer_restock"), "재입고 → 손님");
 });
