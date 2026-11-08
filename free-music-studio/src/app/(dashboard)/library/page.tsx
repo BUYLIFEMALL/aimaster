@@ -937,8 +937,8 @@ export default function LibraryPage() {
                   const playing = player?.current?.key === t.id;
                   const canPlay = libOk && here !== false;
                   return (
-                    <div key={t.id} className={`group overflow-hidden rounded-2xl border bg-[#0a0f1d] transition-colors ${selected.has(t.id) ? "border-emerald-400/70" : playing ? "border-emerald-500/50" : "border-slate-800 hover:border-slate-600"}`}>
-                      <div className="relative">
+                    <div key={t.id} className={`group rounded-2xl border bg-[#0a0f1d] transition-colors ${selected.has(t.id) ? "border-emerald-400/70" : playing ? "border-emerald-500/50" : "border-slate-800 hover:border-slate-600"}`}>
+                      <div className="relative overflow-hidden rounded-t-2xl">{/* 2026-11-08 카드 전체에 overflow-hidden이 있어 「…」 메뉴 창이 잘려 안 보이던 것 — 표지만 자른다 */}
                         <CoverThumb trackId={t.id} has={showCovers && arts.has(t.id)} title={t.title} version={artVersion[t.id] ?? 0} large />
                         <input
                           type="checkbox"
