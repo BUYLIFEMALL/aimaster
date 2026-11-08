@@ -389,3 +389,11 @@ test("0.7.4 B-7 원음 FLAC에 표지 넣기 인자 — 소리는 복사, 표지
   const w = flacCoverArgs("s.flac", "o.flac", "c.WEBP");
   assert.equal(w[w.indexOf("-c:v") + 1], "png");
 });
+
+test("0.7.6 waitHealthy: 켜는 중에 음악 엔진이 꺼지면 3분을 채우지 않고 바로 exited", async () => {
+  const { waitHealthy: wait } = await import("../src/acestep.mjs");
+  const t0 = Date.now();
+  const r = await wait(1, { timeoutMs: 60_000, alive: () => false });
+  assert.equal(r, "exited");
+  assert.ok(Date.now() - t0 < 1000);
+});

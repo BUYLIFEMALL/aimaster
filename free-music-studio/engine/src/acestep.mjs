@@ -248,9 +248,11 @@ export function killStaleAcestep(keep = []) {
   return pids;
 }
 
-export async function waitHealthy(port, { timeoutMs = 180_000 } = {}) {
+export async function waitHealthy(port, { timeoutMs = 180_000, alive } = {}) {
   const until = Date.now() + timeoutMs;
   while (Date.now() < until) {
+    // 0.7.6: 켜는 중에 꺼졌으면 3분을 채우지 않고 바로 알린다(마스터PC 2026-11-08 「멈췄습니다(코드 2)」 뒤 3분 기다림)
+    if (alive && !alive()) return "exited";
     try {
       const r = await fetch(`http://127.0.0.1:${port}/health`);
       if (r.ok) return true;
