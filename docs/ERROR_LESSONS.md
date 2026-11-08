@@ -1,11 +1,5 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
-## 2026-11-08 [역할: mac-mini] A-6 공유 의존성·명령 실행 범위와 Mac 패키지 오류
-- 작업: `codex-mac-20261107-test-analysis`. 루트에서 npm install을 잘못 실행해 Mac 선택 패키지3개 추가·Win2개 제거. 루트 추적 package/lock 변경 없음 확인 후 lock의 정확한 URL·SHA512로 Win2개 복구, 새 Mac3개만 제거·node_modules lock 복구. desktop Windows 의존성은 사전 보관본 복구(electron.exe PE 확인), Mac 의존성은 desktop/.mac-build/macos에 분리.
-- 루트 `node --test`를 입력 없이 오실행해 전체 시험 탐색 시작 → 해당 루트 PID와 자식12개 종료. 출력의 중단·실패를 회귀 또는 전체 통과로 보고하지 않음. 필요한 시험은 `node --test scripts/mac-after-pack.test.cjs`처럼 파일을 명시(2/2 통과). 상대 경로 수정도 작업 위치 불일치로 한번 실패해 절대 경로로 교정.
-- 예방: 모든 패키지 명령은 도구 workdir를 desktop 절대 경로로 지정, 실행 전 cwd/package 확인. 여러 명령은 실패 시 중단. 공유 node_modules는 장비별 보관·작업 후 복구. 테스트는 입력이 아닌 명시 파일 인자로 실행.
-- Mac 빌드: 아이콘256px 거절 → mac1024px. ready 전 SIGTRAP → Mac afterPack에서 Electron Helper4종 경로·바이너리·plist 이름 통일, 최종 DMG 재설치 기동 확인. 설치 성공과 Intel 음악 생성 미지원 판정은 구분한다. 상세: `free-music-studio/docs/MAC_MINI_DMG_PROMPT_20261108.md`.
-
 ## 2026-11-08 새 프로그램이 VIP 등급 표에서 빠져 VIP 회원(152명)이 못 씀 — 「VIP 자동 부여」 정책이 프리미엄처럼 장치로 안 돼 있었음 (`free-music-studio`, [역할: music])
 - 증상: VIP 회원 `whykim@hanmail.net`이 무료음악 자동화를 못 씀(다른 프로그램 사용기간은 85개). 운영 DB: 이 프로그램은 `grade_program_access`에 프리미엄 등급만 체크, VIP 회원 152명 중 사용기간 0명.
 - 원인: 새 프로그램 첫 공개 때 프리미엄 등급만 자동 체크(`0055`)되고, VIP는 「잊지 말고 체크」라는 사람 규칙(`docs/ADMIN_POLICY_GUIDELINES.md`)뿐이었다. 11-03 공개 때 체크를 놓침.
