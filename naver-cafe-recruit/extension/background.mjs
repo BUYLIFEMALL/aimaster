@@ -64,6 +64,9 @@ async function inviteInFrame(naverId) {
   window.__ncrMsgs = [];
   window.alert = (m) => { window.__ncrMsgs.push(String(m)); };
   window.confirm = (m) => { window.__ncrMsgs.push(String(m)); return true; };
+  // 예외가 나도 결과를 비우지 않고 실제 문구를 돌려준다(빈 결과는 「초대 화면을 찾지 못해」로 잘못 보였음 — 4회차 전 수정).
+  let before = "", clicked = false;
+  try {
 
   const visible = (sel) => [...document.querySelectorAll(sel)].find((el) => el.offsetParent !== null);
   // 실측 구조(INVITE_TEST_20261106 §2회차): 탭 li.invite_type_list_id > a, 입력 input._naverIdList, 버튼 btn_input_add(아이디 추가)·btn_invite(초대하기).
@@ -80,17 +83,23 @@ async function inviteInFrame(naverId) {
     input.dispatchEvent(new InputEvent("input", { bubbles: true, data: ch, inputType: "insertText" }));
     await sleep(jitter(90, 220));
   }
-  input.dispatchEvent(new Event("change", { bubbles: true }));
+  // 이 틀은 window.Event가 객체로 덮여 있어 new Event가 「not a constructor」를 낸다(3회차 실측) → 옛 방식으로 만든다.
+  const changeEv = document.createEvent("HTMLEvents");
+  changeEv.initEvent("change", true, false);
+  input.dispatchEvent(changeEv);
   await sleep(jitter(700, 1300));
-  // 「아이디 추가」가 있으면 눌러 목록에 올린 뒤 보낸다(입력만 하고 바로 「초대하기」를 누르면 빈 목록일 수 있음).
-  const add = visible("button.btn_input_add") || byText("아이디 추가");
-  if (add) { add.click(); await sleep(jitter(800, 1400)); }
+  // 「아이디 추가」는 빈 입력칸을 하나 더 만드는 버튼이라 누르지 않는다(3회차 실측). 첫 칸의 아이디가 그대로 초대 대상이다.
   const send = visible("button.btn_invite") || byText("초대하기");
   if (!send) return { here: true, error: `「초대하기」 버튼을 찾지 못했습니다. (화면: ${seen()})` };
-  const before = document.body.innerText;
+  before = document.body.innerText;
   send.click();
+  clicked = true;
   await sleep(3500);
   return { here: true, clicked: true, msgs: window.__ncrMsgs, before, after: document.body.innerText };
+  } catch (e) {
+    // 누르기 전 오류면 보내지 않은 것, 누른 뒤 오류면 결과 불확실로 처리된다(아래 step의 classify).
+    return { here: true, clicked, error: `초대 화면에서 오류가 났습니다: ${e?.message || e} (화면: ${seen()})`, msgs: window.__ncrMsgs, before, after: document.body?.innerText || "" };
+  }
 }
 
 // ── 실행 흐름 ───────────────────────────────────────────────────────────
