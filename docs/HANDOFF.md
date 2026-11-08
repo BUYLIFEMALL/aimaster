@@ -1,7 +1,26 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
-## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.43: 곡 즐겨찾기**
+## 2026-11-08 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-banana-canvas-v2 — **`banana-canvas` v1.45: 68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 2안 공식 채택 및 프로덕션 배포 완료**
+- **주인님 지시**: 「2안으로 진행해」 (4대 화면 3시안 쇼케이스 종합 비교표 2안 확정).
+- **공식 채택 디자인**: **68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 (Creative Atelier Paper Pop Edition)**.
+- **핵심 구현 내역**:
+  1. **컬러 & 서피스 토큰**: 웜 페이퍼 소프트 크림(`#FAF8F5`) 베이스 & 밀크 페이퍼 서피스(`#F3EFEA`), 퓨어 화이트 카드(`#FFFFFF`), 바나나 팝 옐로우(`#EAB308`/`#FACC15`) & 엠보싱 섀도우, 2px 블랙 솔리드 라인 아웃라인.
+  2. **3D 엠보싱 팝 버튼**: `.btn-3d.btn-3d-pop` (2단 옐로우 그라데이션 + 2px 솔리드 보더 + 4px 하단 블랙 섀도우) 전역 장착.
+  3. **4단계 아뜰리에 파이프라인 배너**: `.atelier-pipeline-banner` (STEP 01 캔버스 기획 ➔ STEP 02 정밀 마스크 ➔ STEP 03 Nano Banana AI 렌더 ➔ STEP 04 무손실 4K 마스터 익스포트).
+  4. **2026-11-01 5단계 로그인 표준 규격 탑재**: 64px 라운드 스퀘어 심볼 로고 🍌, 알약 캡슐 영문 뱃지(`• AIMASTER BANANA CANVAS`), 24px 볼드 메인 타이틀, 2단 탭 세그먼트 로그인/회원가입 카드, 1행 축소 약관(`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`, nowrap) 완비.
+  5. **쇼케이스 & 자산화**: 포트 3800 쇼케이스(`http://localhost:3800/showcase.html` 및 `comparison.html`) 및 3대 시안 전체 영구 자산화(`D:\Antigravity\Design\68_creative_atelier_paper_pop\banana-canvas`).
+- **검증 및 배포 결과**:
+  - 단위 테스트 80/80 100% 무결 통과, Next.js Turbopack 빌드 성공.
+  - Vercel 프로덕션 배포 완료 (`dpl_GtgjmKKtLGNPqZeLStrmBnySPeRg`, Ready), DB 버전 `v1.44 → v1.45` 갱신.
+  - 라이브 도메인(`https://banana-canvas.buylife.xyz/login`) HTTP 200 및 5단계 표준 규격 검증 완료.
+- **5대 결과물 링크 세트**:
+  1. 공식 운영 도메인: [https://banana-canvas.buylife.xyz](https://banana-canvas.buylife.xyz)
+  2. Vercel 배포 보조 링크: [https://banana-canvas-9lx1o19vm-buylife.vercel.app](https://banana-canvas-9lx1o19vm-buylife.vercel.app)
+  3. 관리자 dev-docs 결과함: [https://www.buylife.xyz/admin/dev-docs/requests](https://www.buylife.xyz/admin/dev-docs/requests)
+  4. 브라우저 쇼케이스 HTML: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html) (종합 비교표: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html))
+  5. 로컬 영구 자산 폴더: `D:\Antigravity\Design\68_creative_atelier_paper_pop\banana-canvas`
+
 - 주인님 「즐겨찾기 기능을 만들어줘」「곡마다 찾기가 힘들어」: 곡 카드 ☆/★, 왼쪽 「즐겨찾기」 보기·개수, 즐겨찾기 곡 기록은 30일 정리에서 뺌(blog-keyword 선례). 운영 DB `free_music_tracks.favorite`(주인님 허락 뒤 ego SQL 실행·확인 — 첫 시도는 자동 권한 검사에서 막힘).
 - 배포 `free-music-studio-5h2bc7x2o`(Ready), DB v1.43, 커밋 `919c5f39a`. 함께: 음악앨범 내 PC 그림 걸린 시간 표시. ego 운영 확인: 별 누르기 → 즐겨찾기 1·보기 1곡 → 새로고침 뒤 유지 → 되돌림. 시험 102.
 - 남은 미배포: 엔진 0.7.5(그림 그래픽 메모리, 설치 파일 아직), 플레이리스트 패널 문구. 비용: Vercel 빌드 1회.
@@ -53,6 +72,23 @@
 - 내용: 앨범 그림 「한글 설명을 영어로 바꾸기 / AI로 영어 설명 만들기」 버튼을 Gemini·GPT·Replicate·내 PC 모두에서 표시, 한글로 그리면 먼저 영어로 바꿈 · 앨범 화면을 「1. 앨범 그림 만들기 / 2. 내 앨범 / 3. 내 PC 그림 모델」로(그림 모델은 엔진 화면에서 이동) · 곡 만들기 「앨범 화면에서 이 곡 그림 만들기」가 가사·스타일까지 넘김 · 설정 요금 안내 줄넘김.
 - 확인(ego, 운영): 화면 v1.38, 앨범 1·2·3 구성, Gemini 선택 상태에서 영어 변환 버튼 보임, 곡 만들기 세 버튼, 엔진 화면 `/albums#image-models` 안내 링크·옛 「이미지용」 없음. AI 호출은 하지 않음.
 - 남은 일: 마스터PC에서 엔진 0.7.3으로 앨범 저장 → 「이 그림으로 곡 만들기」 실제 확인(주인님). 비용: Vercel 빌드 1회.
+
+## 2026-11-08 📸 [역할: design] Antigravity(윈도우) · 세션 `agy-win-banana-canvas-v2` — **`banana-canvas` (AI 바나나 캔버스) 4대 화면 3시안(12뷰) 쇼케이스 및 독립 비교표 완결 (포트 3800)**
+- **작업 개요**: `banana-canvas` (AI 바나나 캔버스)의 4대 핵심 화면(메인/상세/가이드/설정) × 3대 시안 = 총 12개 뷰를 1440px 고해상도로 무결성 렌더링 및 개별 캡처 완료.
+- **3대 시안 구성**:
+  - **시안 1 (62번, 추천)**: **나노 뉴럴 아트 캔버스 랩 스타일** — 차세대 Gemini Nano / Banana 멀티모달 비전 신경망 아트 랩. 4단계 신경망 파이프라인 배너, 듀얼 뷰파인더 덱, 3D 엠보싱 골든 바나나 버튼 (`.btn-3d-gold`), 20종 프리셋 그리드.
+  - **시안 2 (68번, 자산화)**: **크리에이티브 아뜰리에 페이퍼 팝 스타일** — 경쾌한 아트 매거진 & 팝 아티스트 작업실 감성, 웜 페이퍼 소프트 크림, 팝 아트 컷아웃 카드, 3D 엠보싱 팝 옐로우 잉크 버튼 (`.btn-3d-pop`).
+  - **시안 3 (69번, 자산화)**: **사이버펑크 네온 픽셀 스튜디오 스타일** — 레트로-퓨처리즘 디지털 픽셀 아트 스튜디오. 고대비 CRT 주사선 & 픽셀 그리드 HUD, GPU 연산 스트림 뷰파인더, 3D 엠보싱 사이버 네온 버튼 (`.btn-3d-neon`).
+- **공통 탑재**: 2026-11-01 5단계 표준 로그인 폼 (64px 둥근 스퀘어 로고, 알약 영문 뱃지, 한글명 타이틀, 로그인 카드) 및 1행 축소 약관 (`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`)
+- **쇼케이스 인프라**:
+  - 단일 통합 인터랙티브 쇼케이스 웹서버 구동: `http://localhost:3800/showcase.html`
+  - 상단 종합 비교표 및 독립 비교 매트릭스 페이지: `http://localhost:3800/comparison.html`
+  - 1440px 고화질 원본 라이트박스 팝업 모달 탑재 (좌우 이동, ESC 닫기)
+- **독립 자산 영구 보존**:
+  - `D:\Antigravity\Design\62_nano_neural_art_canvas_lab\banana-canvas` (캡처본 4종, README.md)
+  - `D:\Antigravity\Design\68_creative_atelier_paper_pop\banana-canvas` (캡처본 4종, README.md)
+  - `D:\Antigravity\Design\69_cyberpunk_neon_pixel_studio\banana-canvas` (캡처본 4종, README.md)
+- **다음 단계**: 관리자(주인님) 시안 확정 대기 (1안 추천) ➔ 확정 시 `banana-canvas` 실제 코드베이스 전면 리뉴얼 및 배포 착수.
 
 ## 2026-11-08 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-portrait-photo-v2` — **`portrait-photo` (AI 인물사진 스튜디오) v1.45: 1안 61번 어도비 다크 데스크 리뉴얼 및 5단계 표준 로그인 탑재 공식 배포 완료**
 - **작업 내용 (주인님 1안 공식 확정 지시 반영)**:

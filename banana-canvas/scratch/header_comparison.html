@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>banana-canvas 사이드바 헤더 검증</title>
+<style>
+  body { font-family: system-ui, -apple-system, 'Malgun Gothic', sans-serif; background: #fafaf9; padding: 40px; margin: 0; color: #1c1917; }
+  .wrapper { display: flex; gap: 30px; align-items: flex-start; }
+  .sidebar { width: 256px; background: white; border: 1px solid #e7e5e4; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+  .brand { border-bottom: 1px solid #e7e5e4; padding: 20px; }
+  .brand-row { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+  .icon { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #fef08a; font-size: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .name { font-size: 14px; font-weight: 900; color: #1c1917; line-height: 1.3; }
+  .badge-3d { display: inline-block; border-radius: 6px; border: 1px solid #fde047; background: #fef9c3; padding: 1px 6px; font-family: monospace; font-size: 10px; font-weight: 800; color: #854d0e; }
+  .badge-nano { font-size: 10px; font-weight: bold; color: #b45309; background: rgba(254, 243, 199, 0.8); padding: 2px 6px; border-radius: 9999px; border: 1px solid #fde68a; }
+  .tag { font-size: 12px; font-weight: bold; margin-bottom: 8px; }
+  .tag.bad { color: #dc2626; }
+  .tag.good { color: #059669; }
+</style>
+</head>
+<body>
+  <h2>AI 바나나 캔버스 사이드바 불필요 문구(Nano Studio) 삭제 검증</h2>
+  <div class="wrapper">
+    <div>
+      <div class="tag bad">❌ 수정 전 (불필요한 Nano Studio 문구 노출)</div>
+      <div class="sidebar">
+        <div class="brand">
+          <a class="brand-row" href="#">
+            <div class="icon">🍌</div>
+            <div style="min-width: 0; flex: 1;">
+              <strong class="name" style="display: block;">AI 바나나 캔버스 자동화</strong>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                <span class="badge-3d">v1.42 PRO</span>
+                <span class="badge-nano">Nano Studio</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="tag good">✅ 수정 후 (Nano Studio 삭제 ➔ 깔끔한 버전 뱃지만 유지)</div>
+      <div class="sidebar">
+        <div class="brand">
+          <a class="brand-row" href="#">
+            <div class="icon">🍌</div>
+            <div style="min-width: 0; flex: 1;">
+              <strong class="name" style="display: block;">AI 바나나 캔버스 자동화</strong>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                <span class="badge-3d">v1.42 PRO</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

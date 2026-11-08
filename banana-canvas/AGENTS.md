@@ -1,3 +1,11 @@
+> **✅ v1.45 (2026-11-08, Antigravity 윈도우 `agy-win-banana-canvas-v2`, [역할: design]) — 🎨 68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 전면 리뉴얼 및 2026-11-01 로그인 5단계 표준 규격 적용:**
+> ① **공식 디자인 템플릿**: **68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 (Creative Atelier Paper Pop Edition)** 채택 (4대 화면 3시안 쇼케이스 종합 비교표 2안 확정).
+> ② **테마 & 토큰**: 웜 페이퍼 소프트 크림(`#FAF8F5`) 베이스 & 밀크 페이퍼 서피스(`#F3EFEA`), 바나나 팝 옐로우(`#EAB308`/`#FACC15`) & 엠보싱 섀도우, 2px 블랙 솔리드 라인 아웃라인.
+> ③ **3D 엠보싱 팝 버튼**: `.btn-3d.btn-3d-pop` (2단 옐로우 그라데이션 + 2px 솔리드 보더 + 4px 하단 블랙 섀도우) 전역 적용.
+> ④ **4단계 워크플로우 배너**: `.atelier-pipeline-banner` (STEP 01 캔버스 기획 ➔ STEP 02 정밀 마스크 ➔ STEP 03 Nano Banana AI 렌더 ➔ STEP 04 무손실 4K 마스터 익스포트).
+> ⑤ **2026-11-01 5단계 로그인 표준 규격**: 64px 라운드 스퀘어 심볼 로고 🍌, 알약 캡슐 영문 뱃지(`• AIMASTER BANANA CANVAS`), 24px 볼드 메인 타이틀, 2단 탭 세그먼트 로그인/회원가입 카드, 1행 축소 약관(`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`) 탑재.
+> ⑥ 쇼케이스 포트 3800 서빙(`http://localhost:3800/showcase.html` 및 `comparison.html`) 및 영구 보존(`D:\Antigravity\Design\68_creative_atelier_paper_pop\banana-canvas`).
+
 > **✅ v1.42 (2026-10-26, Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image]) — E5-3:** ① 상세페이지 「✂ 누끼」로 연 창에 **「↩ 상세페이지에 넣기」** — 결과를 `nukki-handoff` 결과 메시지(`NUKKI_MSG_RESULT`, 섹션 키·10MB)로 되돌려 보내면 상세페이지가 그 섹션에 새 버전으로 저장 ② 얼굴 가리기 「숫자가 많은 자리만」(기본 켬) — 공용 `browser-free-erase`에 글자 읽기 모델 `rec`(PP-OCRv4 rec 10.9MB) 추가, 글자 목록에서 뽑은 숫자 클래스(`REC_DIGIT_CLASSES`)로 숫자 4개 이상·절반 이상인 자리만 남김(`keepNumberBoxes`), 한글은 읽지 못함 ③ `/tools?tab=face`로 바로 열기(주문 리포트·라벨·서류 바로가기용). 커밋 `38180d0d9`, 배포 `banana-canvas-cjvc8de5q`. 플랜 [PLAN_20261026_E5C_NUKKI_RETURN_DIGITS_LINKS](docs/PLAN_20261026_E5C_NUKKI_RETURN_DIGITS_LINKS.md)
 
 > **✅ v1.41 (2026-10-26, Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image]) — E5-2 무료 이미지 도구 보강:** ① 얼굴 가리기 탭 「🔢 글자 자리 가리기」(공용 `browser-free-erase`의 `detectTextBoxes` 재사용 — 글자를 읽지 않아 모든 글자 자리를 가림, 필요 없는 네모는 눌러서 빼기) ② 「🖼 사진 일괄 손질로 보내기」(`src/lib/freeTools/toBatch.ts`, IndexedDB `bnc-handoff` 임시 보관 10분, `/batch?from=tools`가 꺼내면 바로 삭제), 첫 모델 준비 MB 단계·60초 안내 ③ 새 공용 모듈 **`nukki-handoff`**(기준 `src/lib/nukkiHandoff.ts`, 사본 `shop-detail-page/lib/nukkiHandoff.ts`) — 상세페이지 섹션 「✂ 누끼」가 `/tools?from=shop-detail` 창을 열고, 이 화면이 「준비됨」을 보내면 그림을 받는다(허용 주소만). 커밋 `6d7575a5f`, 배포 `banana-canvas-ir04pepnx`. 플랜 [PLAN_20261026_E5B_FREE_TOOLS_FOLLOWUP](docs/PLAN_20261026_E5B_FREE_TOOLS_FOLLOWUP.md)
@@ -11,8 +19,8 @@
 # AI 바나나 캔버스 자동화 (`banana-canvas`) — AI 에이전트 인수인계 지침
 
 > **공식 서비스 URL**: https://banana-canvas.buylife.xyz  
-> **공식 디자인 템플릿**: **크리에이티브 아틀리에 스타일 — 바나나 팝 차콜 변형 (Creative Atelier Style — Banana Pop Charcoal Edition)**  
-> **현재 버전**: `v1.11` (2026-10-19 깨진 사진은 서버에 올리기 전에 안내)  
+> **공식 디자인 템플릿**: **68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 (Creative Atelier Paper Pop Edition)**  
+> **현재 버전**: `v1.45` (2026-11-08 68번 크리에이티브 아뜰리에 페이퍼 팝 공식 채택 및 배포 완료)  
 > **담당 CLI**: Antigravity (윈도우)
 
 ---

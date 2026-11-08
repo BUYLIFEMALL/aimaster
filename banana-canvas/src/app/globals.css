@@ -1,33 +1,125 @@
-/* v1.38 프리미엄 3D 나노바나나 스튜디오 스타일 (Premium 3D Nano Banana Studio) — DESIGN.md 카탈로그 11번 고도화
-   밝고 맑은 럭셔리 소프트 크림 글래스 + 바나나 골드 엠보싱 3D 버튼 + 트로피컬 에메랄드 리프 포인트. 가독성 7:1 이상 */
+/* v1.45 68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 (Creative Atelier Paper Pop Style) — DESIGN.md 카탈로그 68번 공식 채택
+   감각적인 팝 아티스트 아틀리에 & 웜 페이퍼 소프트 크림 + 바나나 팝 옐로우 + 볼드 잉크 3D 엠보싱 팝 버튼. 가독성 7:1 이상 */
 :root {
-  --background: #fbf9f2;   /* 맑고 화사한 소프트 크림 글래스 바탕 */
-  --foreground: #1c1917;   /* 깊은 에스프레소 잉크(선명한 고대비 본문) */
-  --brand: #fbbf24;        /* 리치 바나나 골드 옐로 */
-  --brand-deep: #f59e0b;   /* 딥 앰버 골드 (입체 엠보싱) */
-  --brand-ink: #1c1917;    /* 골드 바탕 위 잉크 글자 */
-  --brand-text: #854d0e;   /* 크림 바탕 위 골드브라운 (대비 확보) */
-  --leaf: #10b981;         /* 프레시 트로피컬 에메랄드 */
-  --leaf-soft: #ecfdf5;
-  --leaf-ink: #065f46;
-  --card: #ffffff;         /* 퓨어 화이트 글래스 카드 */
-  --card2: #fefaf0;        /* 부드러운 밀크 앰비언트 칸·칩 */
-  --stage: #fdfaf3;        /* 프리미엄 결과 무대 */
-  --line: #f1e4b8;         /* 은은한 샴페인 골드 테두리 */
-  --line-strong: #d9b85c;
-  --muted: #57534e;        /* 부드럽고 선명한 보조 텍스트 (대비 7:1 이상) */
-  --warn: #d97706;
-  --danger: #dc2626;
-  --ok: #10b981;
-  --pop: 0 4px 16px -2px rgba(217, 119, 6, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.04); /* 프리미엄 3D 소프트 섀도우 */
-  --grad-banana: linear-gradient(135deg, #fef08a 0%, #fcd34d 45%, #f59e0b 100%);
-  --grad-leaf: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
-  --grad-coral: linear-gradient(135deg, #fca5a5 0%, #f87171 50%, #ef4444 100%);
-  --grad-mint: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
-  --grad-cream: linear-gradient(135deg, #ffffff 0%, #fefcf3 100%);
-  --grad-ink: linear-gradient(135deg, #292524 0%, #1c1917 100%);
-  --hl: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --background: #FAF8F5;   /* 웜 페이퍼 소프트 크림 바탕 */
+  --foreground: #1C1917;   /* 볼드 딥 에스프레소 잉크 */
+  --brand: #EAB308;        /* 바나나 팝 옐로우 */
+  --brand-deep: #CA8A04;   /* 딥 앰버 팝 */
+  --brand-ink: #1C1917;    /* 옐로우 바탕 위 잉크 텍스트 */
+  --brand-text: #854D0E;   /* 크림 위 골드브라운 */
+  --leaf: #10B981;         /* 프레시 아틀리에 에메랄드 */
+  --leaf-soft: #ECFDF5;
+  --leaf-ink: #065F46;
+  --accent: #F43F5E;       /* 팝 코랄 핑크 */
+  --cyan: #0284C7;         /* 아틀리에 스카이 블루 */
+  --card: #FFFFFF;         /* 클린 화이트 아틀리에 캔버스 카드 */
+  --card2: #F3EFEA;        /* 소프트 크림 페이퍼 서피스 */
+  --stage: #F8F5EE;        /* 프리미엄 캔버스 무대 */
+  --line: #E5DFD7;         /* 은은한 웜 페이퍼 보더 */
+  --line-strong: #A8A29E;
+  --muted: #78716C;        /* 부드러운 웜 슬레이트 보조 텍스트 */
+  --warn: #D97706;
+  --danger: #EF4444;
+  --ok: #10B981;
+  --pop: 0 4px 0 #1C1917, 0 8px 16px rgba(28, 25, 23, 0.08); /* 팝 아틀리에 시그니처 섀도우 */
+  --grad-banana: linear-gradient(135deg, #FEF08A 0%, #FACC15 45%, #EAB308 100%);
+  --grad-leaf: linear-gradient(135deg, #34D399 0%, #10B981 50%, #059669 100%);
+  --grad-coral: linear-gradient(135deg, #FCA5A5 0%, #F87171 50%, #EF4444 100%);
+  --grad-mint: linear-gradient(135deg, #A7F3D0 0%, #6EE7B7 100%);
+  --grad-cream: linear-gradient(135deg, #FFFFFF 0%, #FAF8F5 100%);
+  --grad-ink: linear-gradient(135deg, #292524 0%, #1C1917 100%);
+  --hl: inset 0 1px 0 rgba(255, 255, 255, 0.8);
   color-scheme: light;
+}
+
+/* 3D 엠보싱 팝 옐로우 잉크 버튼 규격 (2안 68번 시그니처) */
+.btn-3d {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  user-select: none;
+}
+.btn-3d-pop, .btn-3d-yellow, .btn-3d-banana {
+  background: linear-gradient(180deg, #FACC15 0%, #EAB308 100%);
+  color: #1C1917;
+  border: 2px solid #1C1917;
+  box-shadow: 0 4px 0 #1C1917, 0 6px 14px rgba(234, 179, 8, 0.25);
+}
+.btn-3d-pop:hover, .btn-3d-yellow:hover, .btn-3d-banana:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #1C1917, 0 10px 20px rgba(234, 179, 8, 0.35);
+  background: linear-gradient(180deg, #FDE047 0%, #FACC15 100%);
+}
+.btn-3d-pop:active, .btn-3d-yellow:active, .btn-3d-banana:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #1C1917;
+}
+
+/* 4단계 아틀리에 파이프라인 배너 규격 (시안 2 68번) */
+.atelier-pipeline-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #FFFFFF;
+  border: 2px solid #1C1917;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 0 #1C1917;
+  overflow-x: auto;
+}
+.atelier-pipeline-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #78716C;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.atelier-pipeline-step span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #F3EFEA;
+  color: #78716C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  border: 1px solid #E5DFD7;
+}
+.atelier-pipeline-step.active {
+  color: #1C1917;
+  background: #FEF08A;
+  border: 1px solid #1C1917;
+}
+.atelier-pipeline-step.active span {
+  background: #EAB308;
+  color: #1C1917;
+  border-color: #1C1917;
+}
+.atelier-pipeline-step.done {
+  color: #10B981;
+}
+.atelier-pipeline-step.done span {
+  background: #10B981;
+  color: #FFFFFF;
+  border-color: #10B981;
+}
+.atelier-pipeline-arrow {
+  color: #A8A29E;
+  font-size: 13px;
+  font-weight: 900;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }

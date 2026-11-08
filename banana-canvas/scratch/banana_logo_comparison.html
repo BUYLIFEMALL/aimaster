@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>바나나 로고 시안 비교</title>
+<style>
+  body { font-family: system-ui, -apple-system, sans-serif; background: #fafaf9; padding: 40px; margin: 0; }
+  .grid { display: flex; gap: 24px; align-items: flex-start; }
+  .box { background: white; border: 1px solid #e7e5e4; border-radius: 12px; padding: 20px; width: 220px; text-align: center; }
+  .tag { font-size: 11px; font-weight: 800; margin-bottom: 12px; color: #78350f; }
+
+  /* 기존: 노란 배경 + 노란 이모지 */
+  .icon-old {
+    width: 44px; height: 44px; border-radius: 14px; margin: 0 auto 10px;
+    background: linear-gradient(135deg, #fef08a 0%, #fcd34d 40%, #f59e0b 100%);
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.6);
+    border: 1px solid #fde047;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+
+  /* 시안 1: 딥 웜 차콜 서피스 + 골드 림 + 3D 바나나 SVG (DESIGN.md 지침 원칙) */
+  .icon-opt1 {
+    width: 44px; height: 44px; border-radius: 14px; margin: 0 auto 10px;
+    background: linear-gradient(145deg, #292524 0%, #1c1917 100%);
+    box-shadow: 0 4px 14px rgba(28, 25, 23, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    border: 1.5px solid #f59e0b;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* 시안 2: 바나나 잎 딥 에메랄드 서피스 + 골든 바나나 SVG */
+  .icon-opt2 {
+    width: 44px; height: 44px; border-radius: 14px; margin: 0 auto 10px;
+    background: linear-gradient(145deg, #065f46 0%, #047857 50%, #064e3b 100%);
+    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    border: 1.5px solid #10b981;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* 시안 3: 클린 크림 서피스 + 딥 앰버 먹선 테두리 + 고대비 바나나 SVG */
+  .icon-opt3 {
+    width: 44px; height: 44px; border-radius: 14px; margin: 0 auto 10px;
+    background: linear-gradient(145deg, #ffffff 0%, #fffbeb 100%);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2), inset 0 2px 0 #ffffff;
+    border: 2px solid #f59e0b;
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+  <h2>바나나 로고 시안 비교 (시인성 및 대비 개선)</h2>
+  <div class="grid">
+    <div class="box">
+      <div class="tag" style="color: #dc2626;">❌ 현재 (노란 바탕에 노란 이모지 ➔ 안 보임)</div>
+      <div class="icon-old">🍌</div>
+      <div style="font-size: 13px; font-weight: bold;">AI 바나나 캔버스</div>
+    </div>
+
+    <div class="box">
+      <div class="tag" style="color: #059669;">★ 시안 1: 딥 웜 차콜 + 골든 엠블럼 (추천)</div>
+      <div class="icon-opt1">
+        <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+          <!-- 바나나 잎/꼭지 -->
+          <path d="M26 4C28 2.5 29.5 2 30 2.5C30.5 3 30 4.5 28.5 6.5L26 4Z" fill="#22c55e" stroke="#15803d" stroke-width="1.2"/>
+          <!-- 메인 바나나 바디 -->
+          <path d="M6.5 27.5C13 29.5 22.5 25.5 27.5 17C30 12.8 30 7.5 28.5 5C26 6.5 21 8.5 16.5 12.5C11 17.5 7.5 22.5 6.5 27.5Z" fill="url(#b1)" stroke="#b45309" stroke-width="1.5" stroke-linejoin="round"/>
+          <!-- 하이라이트 -->
+          <path d="M10 24.5C14.5 25.5 21.5 23 25.5 16C27.5 12.5 27.5 9 26.5 7C24.5 8.5 20.5 10.5 16.5 14.5C12.5 18.5 10.5 22 10 24.5Z" fill="#fef08a" opacity="0.85"/>
+          <!-- 팁 -->
+          <path d="M6.5 27.5C5.8 28.2 4.8 29.2 5.2 29.8C5.8 30.2 6.8 29.2 7.5 28.5" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="b1" x1="6" y1="5" x2="29" y2="28" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#fef08a"/>
+              <stop offset="40%" stop-color="#facc15"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: bold;">AI 바나나 캔버스</div>
+    </div>
+
+    <div class="box">
+      <div class="tag" style="color: #0284c7;">시안 2: 에메랄드 잎 바탕 + 골든 바나나</div>
+      <div class="icon-opt2">
+        <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+          <path d="M26 4C28 2.5 29.5 2 30 2.5C30.5 3 30 4.5 28.5 6.5L26 4Z" fill="#86efac" stroke="#15803d" stroke-width="1.2"/>
+          <path d="M6.5 27.5C13 29.5 22.5 25.5 27.5 17C30 12.8 30 7.5 28.5 5C26 6.5 21 8.5 16.5 12.5C11 17.5 7.5 22.5 6.5 27.5Z" fill="url(#b2)" stroke="#78350f" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M10 24.5C14.5 25.5 21.5 23 25.5 16C27.5 12.5 27.5 9 26.5 7C24.5 8.5 20.5 10.5 16.5 14.5C12.5 18.5 10.5 22 10 24.5Z" fill="#ffffff" opacity="0.9"/>
+          <path d="M6.5 27.5C5.8 28.2 4.8 29.2 5.2 29.8C5.8 30.2 6.8 29.2 7.5 28.5" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="b2" x1="6" y1="5" x2="29" y2="28" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#fef08a"/>
+              <stop offset="50%" stop-color="#facc15"/>
+              <stop offset="100%" stop-color="#eab308"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: bold;">AI 바나나 캔버스</div>
+    </div>
+
+    <div class="box">
+      <div class="tag" style="color: #d97706;">시안 3: 클린 크림 + 골드 보더 + 앰버 바나나</div>
+      <div class="icon-opt3">
+        <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+          <path d="M26 4C28 2.5 29.5 2 30 2.5C30.5 3 30 4.5 28.5 6.5L26 4Z" fill="#22c55e" stroke="#15803d" stroke-width="1.2"/>
+          <path d="M6.5 27.5C13 29.5 22.5 25.5 27.5 17C30 12.8 30 7.5 28.5 5C26 6.5 21 8.5 16.5 12.5C11 17.5 7.5 22.5 6.5 27.5Z" fill="url(#b3)" stroke="#78350f" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M10 24.5C14.5 25.5 21.5 23 25.5 16C27.5 12.5 27.5 9 26.5 7C24.5 8.5 20.5 10.5 16.5 14.5C12.5 18.5 10.5 22 10 24.5Z" fill="#fef08a" opacity="0.95"/>
+          <path d="M6.5 27.5C5.8 28.2 4.8 29.2 5.2 29.8C5.8 30.2 6.8 29.2 7.5 28.5" stroke="#78350f" stroke-width="2.2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="b3" x1="6" y1="5" x2="29" y2="28" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#fde047"/>
+              <stop offset="50%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#d97706"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: bold;">AI 바나나 캔버스</div>
+    </div>
+  </div>
+</body>
+</html>

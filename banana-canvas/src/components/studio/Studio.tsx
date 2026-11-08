@@ -327,6 +327,29 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
 
   return (
     <div className="bc">
+      {/* 68. 크리에이티브 아뜰리에 4단계 마스터 파이프라인 배너 */}
+      <div className="atelier-pipeline-banner" aria-label="아뜰리에 워크플로우 4단계">
+        <div className="atelier-pipeline-step">
+          <span className="badge">STEP 01</span>
+          <span>캔버스 기획 &amp; 원본 업로드</span>
+        </div>
+        <span className="atelier-pipeline-arrow" aria-hidden>➔</span>
+        <div className="atelier-pipeline-step">
+          <span className="badge">STEP 02</span>
+          <span>정밀 마스크 &amp; 템플릿 그래픽</span>
+        </div>
+        <span className="atelier-pipeline-arrow" aria-hidden>➔</span>
+        <div className="atelier-pipeline-step">
+          <span className="badge">STEP 03</span>
+          <span>Nano Banana AI 디퓨전 렌더</span>
+        </div>
+        <span className="atelier-pipeline-arrow" aria-hidden>➔</span>
+        <div className="atelier-pipeline-step">
+          <span className="badge">STEP 04</span>
+          <span>무손실 4K 마스터 익스포트</span>
+        </div>
+      </div>
+
       {error && (
         <div className="lp-alert" role="alert">
           <span>{error.text}{error.needKey && <> <a href="/settings" style={{ textDecoration: "underline" }}>API키등록·플랫폼연동 열기</a></>}</span>
@@ -420,7 +443,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
             <AspectPick value={genAspect} onChange={(a) => setGenAspect(a as Aspect)} />
             <div className="bc-btns">
               <button type="button" className="bc-suggest" disabled={disabled || !idea.trim()} onClick={() => void suggest("generate", setIdea)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
-              <button type="button" className="primary" disabled={disabled || !idea.trim()} onClick={() => void run("generate", { prompt: idea, category, aspect: genAspect })}><Wand2 size={14} />이미지 생성</button>
+              <button type="button" className="primary btn-3d btn-3d-pop" disabled={disabled || !idea.trim()} onClick={() => void run("generate", { prompt: idea, category, aspect: genAspect })}><Wand2 size={14} />이미지 생성</button>
             </div>
           </Card>
 
@@ -476,7 +499,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
             <PresetRow kind="restore" presets={presets} onChange={setPresets} disabled={disabled} onError={(text) => setError({ text, needKey: false })}
               current={(): RestorePreset => ({ repair: repairOn, colorize: colorizeOn, upscale: restoreUp, aspect: restoreAspect, prompt: restoreNote })}
               onApply={(x) => { const r = x as RestorePreset; setRepairOn(r.repair); setColorizeOn(r.colorize); setRestoreUp(r.upscale); setRestoreAspect(r.aspect); setRestoreNote(r.prompt); }} />
-            <button type="button" className="primary" disabled={disabled || noBase}
+            <button type="button" className="primary btn-3d btn-3d-pop" disabled={disabled || noBase}
               onClick={() => void run("restore", { repair: repairOn, colorize: colorizeOn, upscale: restoreUp, aspect: restoreAspect, prompt: restoreNote })}>사진 복원하기</button>
           </Card>
 
@@ -505,7 +528,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
             <textarea rows={3} value={custom} maxLength={600} onChange={(e) => setCustom(e.target.value)} placeholder="추가 요청 (예: 배경에 은하수를 추가해줘)" disabled={disabled || noBase} aria-label="추가 요청" />
             <div className="bc-btns">
               <button type="button" className="bc-suggest" disabled={disabled || noBase || !editReady} onClick={() => void suggest("edit", setCustom)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
-              <button type="button" className="primary" disabled={disabled || noBase || !editReady}
+              <button type="button" className="primary btn-3d btn-3d-pop" disabled={disabled || noBase || !editReady}
                 onClick={() => void run("edit", { processes, style: style || undefined, prompt: custom, upscale: processes.includes("upscale") ? upscaleF : 0 })}>편집 실행</button>
             </div>
           </Card>
@@ -543,7 +566,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
             <AspectPick value={synthAspect} onChange={setSynthAspect} withOriginal />
             <div className="bc-btns">
               <button type="button" className="bc-suggest" disabled={disabled || noBase || !sources.length} onClick={() => void suggest("synthesis", setSynthPrompt)}><Sparkles size={14} />{busy === "suggest" ? "제안 중…" : "프롬프트 제안"}</button>
-              <button type="button" className="primary" disabled={disabled || noBase || !sources.length || !synthPrompt.trim()} onClick={() => void run("synthesis", { prompt: synthPrompt, aspect: synthAspect, sourceNotes: sources.map((s) => sourceNotes[s.path] ?? ""), background: synthBg })}>합성 실행</button>
+              <button type="button" className="primary btn-3d btn-3d-pop" disabled={disabled || noBase || !sources.length || !synthPrompt.trim()} onClick={() => void run("synthesis", { prompt: synthPrompt, aspect: synthAspect, sourceNotes: sources.map((s) => sourceNotes[s.path] ?? ""), background: synthBg })}>합성 실행</button>
             </div>
           </Card>
 
@@ -552,7 +575,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
               <input type="number" min={1} max={120} value={age} onChange={(e) => setAge(e.target.value)} placeholder="현재 나이 (예: 25)" disabled={disabled || noBase} aria-label="현재 나이" />
             </div>
             <AspectPick value={albumAspect} onChange={(a) => setAlbumAspect(a as Aspect)} options={["16:9", "9:16", "1:1"]} />
-            <button type="button" className="primary" disabled={disabled || noBase || !age.trim()} onClick={() => void run("lifealbum", { age: Number(age), aspect: albumAspect })}>앨범 제작 실행</button>
+            <button type="button" className="primary btn-3d btn-3d-pop" disabled={disabled || noBase || !age.trim()} onClick={() => void run("lifealbum", { age: Number(age), aspect: albumAspect })}>앨범 제작 실행</button>
           </Card>
 
           <Card id="card-comic" icon="💬" title="만화 패널" hint="사진을 만화 한 컷으로 바꾸고 대사를 넣습니다." needsImage locked={noBase}>
@@ -566,7 +589,7 @@ export function Studio({ fromId, fromIndex, importUrl, initialIdea, ideaSource }
               current={(): ComicPreset => ({ comicStyle, comicLang, aspect: comicAspect })}
               onApply={(x) => { const c = x as ComicPreset; setComicStyle(c.comicStyle); setComicLang(c.comicLang); setComicAspect(c.aspect); }} />
             <textarea rows={2} value={comicText} maxLength={300} onChange={(e) => setComicText(e.target.value)} placeholder="대사나 캡션 (비워 두면 글자 없이)" disabled={disabled || noBase} aria-label="만화 대사" />
-            <button type="button" className="primary" disabled={disabled || noBase} onClick={() => void run("comic", { comicStyle, comicLang, comicText, aspect: comicAspect })}>만화 패널 생성</button>
+            <button type="button" className="primary btn-3d btn-3d-pop" disabled={disabled || noBase} onClick={() => void run("comic", { comicStyle, comicLang, comicText, aspect: comicAspect })}>만화 패널 생성</button>
           </Card>
         </div>
 
