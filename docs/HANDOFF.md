@@ -1,6 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.41 + 운영 DB(VIP 자동 체크 0057·글 AI 설정 표)**
+- 배포 `free-music-studio-pxzbf20u3`(Ready), DB v1.41. 함께 나감: 플랫폼별 글 AI 모델을 설정에서 계정에 저장(새 표 `free_music_preferences`, 본인만 RLS, 기준 naver-blog-agent), 음악앨범 「영어 설명 AI」 플랫폼 버튼(키 없으면 「API 미등록」), 곡 만들기도 저장 모델 사용, 메뉴명 「음악앨범」, PC 검사 시스템 정보 하늘색 상자.
+- 운영 DB(ref `esgxyikcnnvmlhygjkth`, 주인님 「니가 할수 있는건 니가 해」): `free-music-studio/supabase/migrations/20261108_ai_preferences.sql`, 루트 `supabase/migrations/0057_vip_grade_autocheck_new_programs.sql` 실행·확인(공개 78개 처리됨). 무료음악 VIP 체크로 VIP 152명 부여(가입일+1년).
+- 확인(ego, 운영): 설정 「AI 글 모델 (플랫폼별)」 칸·세 플랫폼 「연동됨」, 저장 API 200 후 다시 읽기 일치, 음악앨범 플랫폼 버튼·「모델은 설정에서」, 메뉴 「음악앨범」. 시험 101.
+- 마스터PC 실물 확인(주인님, 오늘): 앨범→곡 만들기·뮤직비디오/플레이리스트로 보내기·MP3 표지·Stem·마스터링·가사 자동 맞추기·영상 MP4 모두 됨 — 백로그 A-1 기록. 새 후보 B-7(FLAC 표지)·B-8(파생 곡 프로젝트·가사 시간).
+- 남은 일: 미배포 `playlist-channel-studio` 패널 문구 1건. 결정 대기: B-2 취소 방식, 공용 권한 판정 속도 개선. 비용: Vercel 빌드 1회, AI 호출 없음.
+
 ## 2026-11-08 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — **상가 v1.32 · 고객관리 v1.10 미배포 대기분 배포**
 
 - 상가(`commercial-land-trade-alert`) v1.32: 실거래 목록 분류 거르기에 공장·창고 용도·「모든 종류」(`ccaa2decb`). 확장 1.32.0·ZIP·DB(version·extension_version) `check-extension-release` OK. 배포 `commercial-land-trade-alert-ig89sem6g`.
