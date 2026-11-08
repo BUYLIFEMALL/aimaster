@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCategoryRows, getStaffStore, getStoreProducts } from "@/lib/store";
 import { PRODUCT_STATUS, discountRate, formatWon } from "@/lib/products";
+import { createClient } from "@/lib/supabase/server";
 import { AdminShell, NoPermission } from "../admin-shell";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,11 @@ export default async function ProductsPage({ params }: { params: Promise<{ store
   if (!staff) return <NoPermission />;
   const [products, categoryRows] = await Promise.all([getStoreProducts(store.id), getCategoryRows(store.id)]);
   const categoryName = new Map(categoryRows.map((c) => [c.id, c.name]));
+  // 재입고 알림 대기 인원(D16) — 상품별(옵션 신청 포함) 합계
+  const supabase = await createClient();
+  const { data: waitingRows } = await supabase.from("mall_builder_restock_requests").select("product_id").eq("store_id", store.id).eq("status", "waiting").limit(5000);
+  const waiting = new Map<string, number>();
+  for (const r of waitingRows ?? []) waiting.set(r.product_id as string, (waiting.get(r.product_id as string) ?? 0) + 1);
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/products">
@@ -48,6 +54,11 @@ export default async function ProductsPage({ params }: { params: Promise<{ store
                     <div className="flex items-center gap-2">
                       <span className={`rounded px-1.5 py-0.5 text-xs ${STATUS_TONE[p.status]}`}>{PRODUCT_STATUS[p.status]}</span>
                       <span className="truncate font-medium">{p.name}</span>
+                      {(waiting.get(p.id) ?? 0) > 0 && (
+                        <span className="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-xs text-amber-800" data-restock-waiting>
+                          🔔 알림 대기 {waiting.get(p.id)}
+                        </span>
+                      )}
                     </div>
                     <p className="mt-1 text-sm">
                       <b>{formatWon(p.base_price)}</b>

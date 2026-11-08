@@ -1,7 +1,8 @@
 // 주문 알림 기록 목록(운영자 화면 전용) — 받는 번호는 뒤 4자리, 메일은 앞 두 글자만 보인다
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/orders";
-import { kindLabel, maskEmail, maskPhone, NOTIFY_STATUS_LABEL } from "@/lib/notify";
+import { headers } from "next/headers";
+import { fillSite, kindLabel, maskEmail, maskPhone, NOTIFY_STATUS_LABEL } from "@/lib/notify";
 
 type Row = {
   id: string;
@@ -26,7 +27,11 @@ export async function loadNotifyLog(storeId: string, orderId?: string, limit = 2
     .limit(limit);
   if (orderId) q = q.eq("order_id", orderId);
   const { data } = await q;
-  return (data ?? []) as Row[];
+  // 재입고 문구의 {{site}}는 발송 순간 실제 주소로 바뀐다(D16) — 기록 화면도 지금 접속 주소로 보여 준다
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const origin = host ? `${h.get("x-forwarded-proto") ?? "https"}://${host}` : "";
+  return ((data ?? []) as Row[]).map((r) => (origin ? { ...r, body: fillSite(r.body, origin) } : r));
 }
 
 const STATUS_COLOR: Record<string, string> = { sent: "text-green-700", failed: "text-red-600", unknown: "text-amber-700", expired: "text-gray-500" };
