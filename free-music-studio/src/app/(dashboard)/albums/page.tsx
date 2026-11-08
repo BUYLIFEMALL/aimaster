@@ -225,28 +225,31 @@ export default function AlbumsPage() {
                   {a.title}
                 </p>
                 {a.orphan && <p className="text-[10px] text-slate-500">기록이 30일 정리로 지워진 그림입니다.</p>}
-                <div className="flex flex-wrap gap-1">
-                  {a.onPc && (
-                    <Link
-                      href={songFromAlbumHref(a.id, a.title)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-fuchsia-600 px-2 py-1 text-[11px] font-bold text-white hover:bg-fuchsia-500"
-                      title="AI가 이 그림을 보고 곡 주제·장르·분위기·스타일을 채우고, 그림은 그 곡 표지가 됩니다"
-                    >
-                      <Music2 className="h-3 w-3" /> 이 그림으로 곡 만들기
-                    </Link>
-                  )}
-                  {thumbs[a.id] && (
-                    <a href={thumbs[a.id]} download={`${a.title.replace(/[\\/:*?"<>|]/g, "_")}.png`} className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-900" title="그림 받기">
-                      <Download className="h-3 w-3" /> 받기
+                {/* 2026-11-08 주인님 그림 표시 — 좁은 썸네일 카드에서 받기·이름·지우기가 세로로 쌓이던 것 → 곡 만들기 한 줄 + 아이콘 한 줄 */}
+                {a.onPc && (
+                  <Link
+                    href={songFromAlbumHref(a.id, a.title)}
+                    className="flex w-full items-center justify-center gap-1 rounded-lg bg-fuchsia-600 px-2 py-1.5 text-[11px] font-bold text-white hover:bg-fuchsia-500"
+                    title="AI가 이 그림을 보고 곡 주제·장르·분위기·스타일을 채우고, 그림은 그 곡 표지가 됩니다"
+                  >
+                    <Music2 className="h-3 w-3 shrink-0" /> <span className="truncate">곡 만들기</span>
+                  </Link>
+                )}
+                <div className="flex items-center justify-between gap-1">
+                  {thumbs[a.id] ? (
+                    <a href={thumbs[a.id]} download={`${a.title.replace(/[\\/:*?"<>|]/g, "_")}.png`} className="inline-flex flex-1 items-center justify-center rounded-lg border border-slate-700 py-1.5 text-slate-300 hover:bg-slate-900" title="그림 받기" aria-label={`${a.title} 그림 받기`}>
+                      <Download className="h-3.5 w-3.5" />
                     </a>
+                  ) : (
+                    <span className="flex-1" />
                   )}
                   {!a.orphan && (
-                    <button type="button" onClick={() => void rename(a)} className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-900">
-                      <Pencil className="h-3 w-3" /> 이름
+                    <button type="button" onClick={() => void rename(a)} className="inline-flex flex-1 items-center justify-center rounded-lg border border-slate-700 py-1.5 text-slate-300 hover:bg-slate-900" title="이름 바꾸기" aria-label={`${a.title} 이름 바꾸기`}>
+                      <Pencil className="h-3.5 w-3.5" />
                     </button>
                   )}
-                  <button type="button" onClick={() => void remove(a)} className="inline-flex items-center gap-1 rounded-lg border border-rose-500/30 px-2 py-1 text-[11px] text-rose-300 hover:bg-rose-950/40">
-                    <Trash2 className="h-3 w-3" /> 지우기
+                  <button type="button" onClick={() => void remove(a)} className="inline-flex flex-1 items-center justify-center rounded-lg border border-rose-500/30 py-1.5 text-rose-300 hover:bg-rose-950/40" title="지우기" aria-label={`${a.title} 지우기`}>
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </li>
