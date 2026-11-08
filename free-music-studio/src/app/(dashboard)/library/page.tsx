@@ -28,6 +28,7 @@ import {
   Images,
   MonitorPlay,
   Film,
+  Star,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -226,6 +227,7 @@ export default function LibraryPage() {
       const byId = new Map(tracks.map((t) => [t.id, t]));
       list = order.map((id) => byId.get(id)).filter((t): t is Track => !!t);
     } else if (view.type === "trash") list = trash;
+    else if (view.type === "favorites") list = tracks.filter((t) => t.favorite);
     else list = tracks;
     const q = query.trim().toLowerCase();
     if (q) list = list.filter((t) => `${t.title} ${t.style_prompt} ${t.lyrics}`.toLowerCase().includes(q));
@@ -341,6 +343,17 @@ export default function LibraryPage() {
     }
     setView({ type: "all" });
     loadCollections();
+  };
+
+  // 즐겨찾기(2026-11-08 주인님 「곡마다 찾기가 힘들어」) — 바로 바꿔 보여 주고, 저장에 실패하면 되돌린다
+  const toggleFavorite = async (t: Track) => {
+    const next = !t.favorite;
+    setTracks((list) => list.map((x) => (x.id === t.id ? { ...x, favorite: next } : x)));
+    const res = await fetch(`/api/tracks/${t.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ favorite: next }) }).catch(() => null);
+    if (!res?.ok) {
+      setTracks((list) => list.map((x) => (x.id === t.id ? { ...x, favorite: !next } : x)));
+      setMessage((await res?.json().catch(() => ({})))?.error || "즐겨찾기를 바꾸지 못했습니다. 잠시 뒤 다시 눌러 주세요.");
+    }
   };
 
   const setProject = async (t: Track, projectId: string | null) => {
@@ -540,6 +553,7 @@ export default function LibraryPage() {
         <CollectionsNav
           total={tracks.length}
           trashCount={trashCount}
+          favoriteCount={tracks.filter((t) => t.favorite).length}
           projects={projects}
           playlists={playlists}
           view={view}
@@ -577,7 +591,7 @@ export default function LibraryPage() {
               </>
             ) : (
               <h2 className="text-sm font-bold text-slate-100">
-                {current ? `${current.kind === "project" ? "📁" : "🎶"} ${current.name}` : view.type === "trash" ? "🗑 휴지통" : "🎧 모든 음악"}{" "}
+                {current ? `${current.kind === "project" ? "📁" : "🎶"} ${current.name}` : view.type === "trash" ? "🗑 휴지통" : view.type === "favorites" ? "⭐ 즐겨찾기" : "🎧 모든 음악"}{" "}
                 <span className="font-normal text-slate-500">{shown.length}곡</span>
               </h2>
             )}
@@ -794,6 +808,18 @@ export default function LibraryPage() {
                       {tools.grip}
                       {tools.badge}
                       {showCovers && <CoverThumb trackId={t.id} has={arts.has(t.id)} title={t.title} version={artVersion[t.id] ?? 0} />}
+                      {!t.trashed_at && (
+                        <button
+                          type="button"
+                          onClick={() => void toggleFavorite(t)}
+                          className="shrink-0 rounded-lg p-1 hover:bg-slate-800"
+                          title={t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기 — 왼쪽 「즐겨찾기」에 모아 봅니다"}
+                          aria-label={t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기"}
+                          aria-pressed={!!t.favorite}
+                        >
+                          <Star className={`h-4 w-4 ${t.favorite ? "fill-amber-300 text-amber-300" : "text-slate-500"}`} />
+                        </button>
+                      )}
                       <div className="min-w-0 flex-1">
                         <button
                           type="button"

@@ -29,6 +29,8 @@ export async function GET(request: Request) {
   const removed: Record<string, number> = {};
   for (const table of [TRACKS_TABLE, SONGS_TABLE, ALBUMS_TABLE]) {
     let query = admin.from(table).delete({ count: "exact" }).lt("created_at", cutoff);
+    // 즐겨찾기한 곡 기록은 남긴다(2026-11-08, blog-keyword와 같은 규칙) — 휴지통에 넣은 곡은 아래 휴지통 규칙대로
+    if (table === TRACKS_TABLE) query = query.eq("favorite", false);
     if (exempt) query = query.not("user_id", "in", exempt);
     const { error, count } = await query;
     if (error) return NextResponse.json({ error: `${table}: ${error.message}`, removed }, { status: 500 });

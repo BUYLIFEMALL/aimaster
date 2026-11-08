@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, type DragEvent } from "react";
-import { Library, FolderClosed, ListMusic, Plus, Trash2 } from "lucide-react";
+import { Library, FolderClosed, ListMusic, Plus, Star, Trash2 } from "lucide-react";
 import { TRACK_DRAG_TYPE, type Collection, type CollectionKind } from "@/lib/collections";
 import { CollectionOrderList } from "@/components/library/CollectionOrderList";
 
-export type View = { type: "all" } | { type: "trash" } | { type: "project" | "playlist"; id: string };
+export type View = { type: "all" } | { type: "favorites" } | { type: "trash" } | { type: "project" | "playlist"; id: string };
 
 /** 「모든 음악」 왼쪽 — 모든 음악 / 프로젝트 / 플레이리스트 목록과 새로 만들기(원본 앱 PROJECTS·PLAYLISTS). */
 export function CollectionsNav({
   total,
   trashCount = 0,
+  favoriteCount = 0,
   projects,
   playlists,
   view,
@@ -20,6 +21,8 @@ export function CollectionsNav({
 }: {
   total: number;
   trashCount?: number;
+  /** 즐겨찾기한 곡 수(2026-11-08) */
+  favoriteCount?: number;
   projects: Collection[];
   playlists: Collection[];
   view: View;
@@ -131,6 +134,12 @@ export function CollectionsNav({
         <Library className="h-3.5 w-3.5 shrink-0 text-emerald-300" />
         <span className="flex-1">모든 음악</span>
         <span className="text-[10px] text-slate-500">{total}</span>
+      </button>
+      {/* 즐겨찾기(2026-11-08 주인님 「곡마다 찾기가 힘들어」) */}
+      <button type="button" onClick={() => onView({ type: "favorites" })} className={item(view.type === "favorites")}>
+        <Star className="h-3.5 w-3.5 shrink-0 fill-amber-300 text-amber-300" />
+        <span className="flex-1">즐겨찾기</span>
+        <span className="text-[10px] text-slate-500">{favoriteCount}</span>
       </button>
       {group("project", "프로젝트", projects)}
       {group("playlist", "플레이리스트", playlists)}

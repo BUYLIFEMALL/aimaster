@@ -8,7 +8,7 @@ import { isRetentionExempt } from "@/lib/retentionExempt";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const COLUMNS = "id, song_id, project_id, title, style_prompt, lyrics, duration_sec, device, kind, license, parent_id, created_at, trashed_at, lyric_timing";
+const COLUMNS = "id, song_id, project_id, title, style_prompt, lyrics, duration_sec, device, kind, license, parent_id, created_at, trashed_at, lyric_timing, favorite";
 
 // 「모든 음악」 목록 — 서비스 키로 읽으므로 user_id를 코드에서 직접 건다(멀티테넌시 원칙 2).
 // 휴지통 곡은 빼고, ?trash=1이면 휴지통 곡만(넣은 순서 최신부터, 2026-11-06).

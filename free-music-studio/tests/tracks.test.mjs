@@ -75,3 +75,10 @@ test("곡 기록: 길이·장치는 정해진 값만", () => {
   assert.equal(parseTrackInput({ ...ok, device: "xpu" }).ok, false);
   assert.equal(parseTrackInput(null).ok, false);
 });
+
+test("즐겨찾기(2026-11-08) — 참·거짓만 받고 다른 칸은 그대로", () => {
+  assert.deepEqual(parseTrackPatch({ favorite: true }), { ok: true, value: { favorite: true } });
+  assert.deepEqual(parseTrackPatch({ favorite: false }), { ok: true, value: { favorite: false } });
+  assert.equal(parseTrackPatch({ favorite: "yes" }).ok, false);
+  assert.equal(parseTrackPatch({ favorite: 1 }).ok, false);
+});

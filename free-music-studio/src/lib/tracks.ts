@@ -24,10 +24,12 @@ export type Track = TrackInput & {
   project_id: string | null;
   /** 휴지통에 넣은 시각(2026-11-06), 아니면 null */
   trashed_at?: string | null;
+  /** 즐겨찾기(2026-11-08) — 30일 정리에서 빠짐 */
+  favorite?: boolean;
   /** 가사 시간(2026-11-06, 원본 lyric-timing) */
   lyric_timing?: LyricTiming | null;
 };
-export type TrackPatch = { project_id?: string | null; title?: string; lyrics?: string; lyric_timing?: LyricTiming | null };
+export type TrackPatch = { favorite?: boolean; project_id?: string | null; title?: string; lyrics?: string; lyric_timing?: LyricTiming | null };
 
 /** 「모든 음악」 → 「가져온 음악」으로 커버 원곡을 넘기는 자리(sessionStorage, 파일은 엔진 보관함에서 다시 받음) */
 export const COVER_SOURCE_KEY = "fms.coverSource";
@@ -55,6 +57,11 @@ export const SOURCE_MAX_SEC = 600;
 export function parseTrackPatch(body: unknown): { ok: true; value: TrackPatch } | { ok: false; error: string } {
   const b = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
   const value: TrackPatch = {};
+  // 즐겨찾기(2026-11-08)
+  if ("favorite" in b) {
+    if (typeof b.favorite !== "boolean") return { ok: false, error: "즐겨찾기 값이 올바르지 않습니다." };
+    value.favorite = b.favorite;
+  }
   // 가사 시간(2026-11-06) — null이면 지운다
   if ("lyric_timing" in b) {
     if (b.lyric_timing === null) value.lyric_timing = null;
