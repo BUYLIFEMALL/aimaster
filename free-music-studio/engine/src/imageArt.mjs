@@ -178,17 +178,9 @@ export function smallerImageVariant(id, installed = []) {
   return fam.slice(0, fam.findIndex((x) => x.id === id)).reverse().find((x) => installed.includes(x.id)) || null;
 }
 
-/**
- * 그릴 판 — 작업이 고른 판 → 기본으로 정한 판 → 받아 둔 판 중 추천 판 → 받아 둔 판 중 「메모리 빠듯」 아닌 판 → 받아 둔 첫 판 → 추천 판.
- * 0.7.9: 권장보다 메모리가 작은 PC에서 받아 둔 BF16이 맨 앞이라 먼저 골라져 실패하던 것(마스터PC 16GB, 2026-11-09). 사이트 pickLocalArtVariant와 같은 규칙.
- */
+/** 그릴 판 — 작업이 고른 판 → 기본으로 정한 판 → 받아 둔 판 → 추천 판 */
 export function pickImageVariant(requested, st = {}) {
-  if (requested) return requested;
-  if (st.defaultId) return st.defaultId;
-  const installed = st.installed || [];
-  const rows = (st.families || []).flatMap((f) => f.variants || []);
-  if (st.recommendedId && installed.includes(st.recommendedId)) return st.recommendedId;
-  return installed.find((id) => { const r = rows.find((x) => x.id === id); return r && r.status === "available" && !r.tight; }) || installed[0] || st.recommendedId;
+  return requested || st.defaultId || st.installed?.[0] || st.recommendedId;
 }
 
 export function imageFailMessage(code, tail, quant = "") {

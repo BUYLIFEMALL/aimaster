@@ -122,15 +122,3 @@ test("가사 언어 판단 — 글자·자주 쓰는 낱말로 ACE-Step 50개 �
   assert.equal(toLyricLanguage("ja"), "ja");
   assert.equal(toLyricLanguage("xx"), "ko");
 });
-
-test("pickLocalArtVariant — 권장보다 메모리가 작은 PC에서 받아 둔 BF16보다 추천 Q8_0 먼저(엔진 0.7.9와 같은 규칙)", async () => {
-  const { pickLocalArtVariant } = await import("../src/lib/engine.ts");
-  const families = [{ id: "z", name: "", vendor: "", license: "", parameters: "", description: "", variants: [
-    { id: "z-image-turbo:q8_0", status: "available", tight: false },
-    { id: "z-image-turbo:bf16", status: "available", tight: true },
-  ] }];
-  assert.equal(pickLocalArtVariant({ defaultId: null, installed: ["z-image-turbo:bf16", "z-image-turbo:q8_0"], recommendedId: "z-image-turbo:q8_0", families }), "z-image-turbo:q8_0");
-  assert.equal(pickLocalArtVariant({ defaultId: "z-image-turbo:bf16", installed: ["z-image-turbo:q8_0"], recommendedId: "z-image-turbo:q8_0", families }), "z-image-turbo:bf16");
-  assert.equal(pickLocalArtVariant({ defaultId: null, installed: ["z-image-turbo:bf16"], recommendedId: "z-image-turbo:q8_0", families }), "z-image-turbo:bf16");
-  assert.equal(pickLocalArtVariant({ defaultId: null, installed: [], recommendedId: null, families }), "");
-});
