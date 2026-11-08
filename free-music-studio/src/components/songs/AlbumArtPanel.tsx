@@ -350,7 +350,7 @@ export function AlbumArtPanel({
                     {v.quant}
                     {v.recommended ? " · 추천" : v.familyRecommended ? " · 이 모델 추천" : ""}
                     {v.installed ? " · 받아 둠" : ` · 받기 ${gbText(v.downloadBytes)}`}
-                    {v.status === "slow" ? " · 느림" : v.status === "unavailable" ? " · 못 씀" : ""}
+                    {v.status === "slow" ? " · 느림" : v.status === "unavailable" ? " · 못 씀" : v.tight ? " · 메모리 빠듯" : ""}
                   </option>
                 ))}
               </optgroup>

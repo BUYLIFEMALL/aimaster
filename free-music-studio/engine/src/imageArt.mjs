@@ -139,8 +139,14 @@ export function localImageChoices(system = {}, { installed = [], engineInstalled
     else if (hw.shared ? hw.ramGB * 0.75 < v.weightsGB * 1.2 : hw.gpuGB + hw.ramGB * 0.6 < v.weightsGB * 1.2) (status = "unavailable"), (reason = `메모리가 부족합니다. 그래픽 메모리와 시스템 메모리를 합쳐도 모델(${v.weightsGB.toFixed(1)}GB)을 올릴 수 없습니다.`);
     else if (build.id === "win-cpu") (status = "slow"), (reason = "그래픽카드 가속 없이 CPU로 그려 한 장에 몇 분 이상 걸릴 수 있습니다.");
     else if (hw.gpuGB < v.minVramGB) (status = "slow"), (reason = hw.unknownVram ? `그래픽 메모리 크기를 알 수 없어 4GB로 보았습니다. 권장 최소 ${v.minVramGB}GB보다 작으면 느리게 그립니다.` : `그래픽 메모리(${hw.gpuGB.toFixed(0)}GB)가 권장 최소 ${v.minVramGB}GB보다 작아 일부를 시스템 메모리로 옮기며 느리게 그립니다.`);
+    // 0.7.8: 최소는 넘지만 권장보다 작으면 메모리가 모자라 실패할 수 있다(마스터PC 16GB · Z-Image BF16 「sampling failed」, 2026-11-09)
+    let tight = false;
+    if (status === "available" && !hw.shared && build.id !== "win-cpu" && hw.gpuGB < v.recVramGB) {
+      tight = true;
+      reason = `그래픽 메모리(${hw.gpuGB.toFixed(0)}GB)가 권장 ${v.recVramGB}GB보다 작아 메모리가 모자라 실패할 수 있습니다. 실패하면 한 단계 작은 판을 골라 주세요.`;
+    }
     const { files, ...rest } = v;
-    return { ...rest, status, reason, installed: isInstalled, downloadBytes: isInstalled ? 0 : needBytes };
+    return { ...rest, status, reason, tight, installed: isInstalled, downloadBytes: isInstalled ? 0 : needBytes };
   });
   // 추천: 가족마다 권장 그래픽 메모리가 맞는 가장 높은 판, 전체는 Z-Image 먼저(원본)
   const pick = (fam) => [...rows].filter((r) => r.family === fam && r.status === "available" && hw.gpuGB >= r.recVramGB).pop() || rows.find((r) => r.family === fam && r.status === "available");
@@ -157,6 +163,13 @@ export function localImageChoices(system = {}, { installed = [], engineInstalled
     recommendedId: recommended?.id || null,
     families: IMAGE_FAMILIES.map((f) => ({ id: f.id, name: f.name, vendor: f.vendor, license: f.license, parameters: f.parameters, description: f.description, variants: rows.filter((r) => r.family === f.id) })),
   };
+}
+
+/** 그림 엔진 실패 문장 — 그래픽 메모리 부족이면 한국어로 이유와 해결(0.7.8), 아니면 마지막 두 줄 */
+export function imageFailMessage(code, tail, quant = "") {
+  const oom = /out of memory|cudaMalloc failed|failed to allocate|ErrorOutOfDeviceMemory|alloc_buffer.*failed|not enough memory/i.test(tail);
+  if (oom) return `그래픽 메모리가 모자라 그리지 못했습니다(코드 ${code}). ${quant ? `지금 판(${quant})보다 ` : ""}한 단계 작은 판(예: Q8_0)을 고르거나, 그래픽 메모리를 쓰는 다른 프로그램을 닫고 다시 그려 주세요.`;
+  return `그림 엔진이 실패했습니다(코드 ${code}). ${tail.split(/\r?\n/).filter(Boolean).slice(-2).join(" ")}`.trim();
 }
 
 /** PNG 머리·크기 확인(원본 validatePng 대신 간단히) */
@@ -411,7 +424,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
    * 대기열 작업 실행 — job.task { prompt(영어), variantId? }. 처음이면 엔진·모델을 받는다. 결과는 results/<작업 번호>.png
    * 엔진이 한글 경로에서 죽어(0xC0000409, 원본 실측) 모델 폴더 안에서 ASCII 상대 경로로 돌린다.
    */
-  async function run(job, signal, stage) {
+  async function run(job, signal, stage, jobLog = () => {}) {
     const prompt = cleanArtPrompt(job.task?.prompt);
     const st = await state();
     const id = job.task?.variantId || st.defaultId || st.installed[0] || st.recommendedId;
@@ -467,6 +480,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
       const read = (d) => {
         watch();
         const t = String(d);
+        jobLog(t); // 0.7.8: 그림 엔진 출력 전부를 image-log.txt에(실패 안내가 가리키는 파일)
         tail = (tail + t).slice(-6000);
         for (const part of t.split(/[\r\n]+/)) {
           const m = /(\d+)\/(\d+)\s*-\s*[\d.]+\s*(?:s\/it|it\/s)/.exec(part);
@@ -483,7 +497,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
         if (hung) return reject(new Error(`그림 엔진이 ${quietMs / 60000}분 동안 응답하지 않아 멈췄습니다.`));
         if (code !== 0) {
           log(tail);
-          return reject(new Error(`그림 엔진이 실패했습니다(코드 ${code}). ${tail.split(/\r?\n/).filter(Boolean).slice(-2).join(" ")}`.trim()));
+          return reject(new Error(imageFailMessage(code, tail, v.quant)));
         }
         resolve();
       });

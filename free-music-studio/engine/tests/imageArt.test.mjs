@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { IMAGE_ENGINE_BUILDS, checkPng, cleanArtPrompt, createImageArt, defaultImageDir, imageEngineBuild, imageVariants, localImageChoices, settleImageDir } from "../src/imageArt.mjs";
+import { IMAGE_ENGINE_BUILDS, checkPng, cleanArtPrompt, imageFailMessage, createImageArt, defaultImageDir, imageEngineBuild, imageVariants, localImageChoices, settleImageDir } from "../src/imageArt.mjs";
 
 test("내 PC 그림 목록 — 두 가족 8개 판, 모든 파일은 고정 주소·크기·SHA-256", () => {
   const all = imageVariants();
@@ -196,3 +196,22 @@ for (const scenario of ["rename", "merge", "EXDEV", "EPERM", "save-fail", "rollb
     }
   });
 }
+
+test("0.7.8 16GB NVIDIA: Z-Image BF16은 쓸 수 있지만 「메모리 빠듯」 경고, Q8_0은 경고 없음·추천", () => {
+  const nv = localImageChoices({ platform: "win32", arch: "x64", gpuVendor: "NVIDIA", vramGb: 15.9, ramGb: 32, freeGb: 500 });
+  const z = nv.families.find((f) => f.id === "z-image-turbo").variants;
+  const bf16 = z.find((v) => v.quant === "BF16");
+  const q8 = z.find((v) => v.quant === "Q8_0");
+  assert.equal(bf16.status, "available");
+  assert.equal(bf16.tight, true);
+  assert.match(bf16.reason, /권장 18GB보다 작아/);
+  assert.equal(q8.tight, false);
+  assert.equal(q8.reason, "");
+  assert.notEqual(nv.recommendedId, bf16.id);
+});
+
+test("0.7.8 그림 엔진 실패 문장: 메모리 부족이면 한국어 안내, 아니면 마지막 두 줄", () => {
+  const oom = imageFailMessage(1, "ggml_backend_cuda_buffer_type_alloc_buffer: allocating 2400 MiB on device 0: cudaMalloc failed: out of memory\n[E] sampling for image 1/1 failed after 14.99s", "BF16");
+  assert.match(oom, /그래픽 메모리가 모자라.*BF16.*Q8_0/);
+  assert.equal(imageFailMessage(1, "a\nb\nc\n"), "그림 엔진이 실패했습니다(코드 1). b c");
+});

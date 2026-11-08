@@ -809,6 +809,8 @@ export type ImageVariant = {
   downloadBytes: number;
   recommended?: boolean;
   familyRecommended?: boolean;
+  /** 엔진 0.7.8: 최소는 넘지만 권장 그래픽 메모리보다 작음(실패할 수 있음, reason에 안내) */
+  tight?: boolean;
 };
 export type ImageModelState = {
   build: { id: string; label: string } | null;

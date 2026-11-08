@@ -165,6 +165,7 @@ export function ImageModelPanel({ status }: { status: EngineStatus | null }) {
                       {v.recommended && <span className="ml-1 rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] font-bold text-emerald-200">추천</span>}
                       {state.defaultId === v.id && <span className="ml-1 rounded bg-fuchsia-900/60 px-1.5 py-0.5 text-[10px] font-bold text-fuchsia-200">기본</span>}
                       {v.status === "slow" && <span className="ml-1 text-amber-300/80">· 느림: {v.reason}</span>}
+                      {v.status === "available" && v.tight && <span className="ml-1 text-amber-300/80">· 메모리 빠듯: {v.reason}</span>}
                       {v.status === "unavailable" && <span className="ml-1">· 못 씀: {v.reason}</span>}
                     </span>
                     {v.status !== "unavailable" && state.defaultId !== v.id && (
