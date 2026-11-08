@@ -187,7 +187,9 @@ export async function ensureInstalled(dataDir, { onStage = () => {}, log = () =>
  * 음악 모델(약 10GB)은 첫 생성 요청 때 ACE-Step이 스스로 받는다.
  */
 export function launch(dir, { port, apiKey, device, profile }, log = () => {}) {
-  const child = spawn("uv", ["run", "acestep-api"], {
+  // 0.7.6: --no-sync — 설치 때 이미 uv sync를 끝냈으니 켤 때마다 다시 맞추지 않는다.
+  // (마스터PC 2026-11-08: 켤 때 flash-attn 휠을 GitHub에서 다시 확인하다 504로 「코드 2」 종료 → 대기열 멈춤)
+  const child = spawn("uv", ["run", "--no-sync", "acestep-api"], {
     cwd: dir,
     windowsHide: true,
     env: {

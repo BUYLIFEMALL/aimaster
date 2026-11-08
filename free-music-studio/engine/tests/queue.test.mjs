@@ -23,6 +23,7 @@ test("남은 음악 엔진 찾기: 실행 명령에 acestep-api가 있는 프로
   assert.deepEqual(staleAcestepPids(procs), [101, 102, 103]);
   assert.deepEqual(staleAcestepPids(procs, [102]), [101, 103]);
   assert.deepEqual(staleAcestepPids({ ProcessId: 5, CommandLine: "uv run acestep-api" }), [5]); // 하나뿐이면 배열이 아님
+  assert.deepEqual(staleAcestepPids([{ ProcessId: 7, CommandLine: "uv run --no-sync acestep-api" }]), [7]); // 0.7.6 실행 명령
   assert.deepEqual(staleAcestepPids(null), []);
 });
 
