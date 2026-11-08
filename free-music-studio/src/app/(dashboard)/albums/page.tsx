@@ -29,6 +29,14 @@ export default function AlbumsPage() {
   const [panelKey, setPanelKey] = useState(0);
   // 썸네일을 누르면 크게 보기(2026-11-08 주인님 「클릭하면 확대해서 보여줄수 있도록」) — Esc·바깥 누르면 닫힘
   const [zoom, setZoom] = useState<string | null>(null);
+  // 내 앨범 페이지(2026-11-08 주인님 「스크롤바 만들지 말고 그냥 죽 나열」「많아지면 페이지 번호를 넘겨 1 / 2 / 3 …」) — 한 페이지 12개(한 줄 4 × 3줄)
+  const ALBUM_PAGE = 12;
+  const [albumPage, setAlbumPage] = useState(1);
+  const albumPages = Math.max(1, Math.ceil(albums.length / ALBUM_PAGE));
+  useEffect(() => {
+    if (albumPage > albumPages) setAlbumPage(albumPages);
+  }, [albumPage, albumPages]);
+  const pageAlbums = albums.slice((albumPage - 1) * ALBUM_PAGE, albumPage * ALBUM_PAGE);
   useEffect(() => {
     if (!zoom) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setZoom(null);
@@ -206,8 +214,9 @@ export default function AlbumsPage() {
         ) : albums.length === 0 ? (
           <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-xs text-slate-500">아직 앨범이 없습니다. 위에서 그림을 만들고 [앨범에 저장]을 눌러 주세요.</p>
         ) : (
+          <>
           <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-            {albums.map((a) => (
+            {pageAlbums.map((a) => (
               <li key={a.id} className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-3">
                 <div className="aspect-square overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
                   {thumbs[a.id] ? (
@@ -255,6 +264,31 @@ export default function AlbumsPage() {
               </li>
             ))}
           </ul>
+          {albumPages > 1 && (
+            <nav aria-label="내 앨범 페이지" className="flex flex-wrap items-center justify-center gap-1 pt-2">
+              <button type="button" disabled={albumPage === 1} onClick={() => setAlbumPage((p) => p - 1)} className="rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:bg-slate-900 disabled:opacity-30">
+                ‹ 이전
+              </button>
+              {Array.from({ length: albumPages }, (_, k) => k + 1).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setAlbumPage(n)}
+                  aria-current={n === albumPage ? "page" : undefined}
+                  className={`min-w-8 rounded-lg px-2.5 py-1 text-xs font-bold ${n === albumPage ? "bg-fuchsia-600 text-white" : "border border-slate-700 text-slate-300 hover:bg-slate-900"}`}
+                >
+                  {n}
+                </button>
+              ))}
+              <button type="button" disabled={albumPage === albumPages} onClick={() => setAlbumPage((p) => p + 1)} className="rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:bg-slate-900 disabled:opacity-30">
+                다음 ›
+              </button>
+              <span className="ml-2 text-[11px] text-slate-500">
+                {albums.length}개 중 {(albumPage - 1) * ALBUM_PAGE + 1}~{Math.min(albumPage * ALBUM_PAGE, albums.length)}
+              </span>
+            </nav>
+          )}
+          </>
         )}
       </section>
       </div>
