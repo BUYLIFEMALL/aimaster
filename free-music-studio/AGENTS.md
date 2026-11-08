@@ -36,6 +36,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음, 상업용/비상업용 구분 표시. 한계: Stem·정렬·그림은 윈도우(NVIDIA 권장), 모델 받기 5~35GB, 설치 파일 미서명.
 
 ## 4. 버전
+- 2026-11-08 [역할: mac-mini] 검수 도구 준비: `scripts/compare-lyric-timing.mjs`·명시 시험7/7, 같은 음원 자동 원본과 수동 정답만 비교(운영 로직 변경 없음). 엔진0.7.7·icn1 배포 완료 재확인, 로그인 목록 속도/수동 정답 자료만 윈도우 후속 요청 `dc7d150f`. 실제 정확도·로그인 속도는 아직 미측정. 상세 `docs/IMPROVEMENTS.md` 맨 위.
 - 2026-11-08 [역할: mac-mini] 잔여5항목 순차 처리: B-4 수동 정답 자료 대기, C-1 기존 v1.33 리뉴얼 완료 표시 정정, C-14 같은 파일시스템 rename·저장 실패 복구 코드/시험15개 통과(미배포·Windows 실물 필요), C-12 운영 DB 서울 확인·icn1 권장 검토 완료(설정 미변경), B-5/6 원본 지원 대기. A-6 포함 환경 의존 항목은 주인님 지시로 환경 준비 후 재개. 상세 `docs/IMPROVEMENTS.md` 맨 위.
 - 2026-11-08 [역할: mac-mini] A-6 부분 완료: **0.7.5 x64 DMG** 제작·설치·앱 실행·사이트 연결 확인. Intel 맥은 기존 엔진에서 미지원(생성 미실행), Apple Silicon 미검수라 Mac 공개 보류. Windows desktop/node_modules 복구 완료, exe 작업 재개 가능. 결과·파일·해시: `docs/MAC_MINI_DMG_PROMPT_20261108.md` 「결과」.
 - v1.50(2026-11-08, 주인님 「메뉴표를 눌러도 팝업되는게 없어 확인후 조치해」·「배포해」, 사이트만): 「모든 음악」 카드 보기에서 「…」 곡 메뉴가 안 뜨던 오류 — 카드 전체의 `overflow-hidden`이 카드 밖으로 펼쳐지는 메뉴 창을 잘라 냄 → 카드에서 빼고 표지 칸만 `overflow-hidden rounded-t-2xl`(목록 보기는 원래 정상).
