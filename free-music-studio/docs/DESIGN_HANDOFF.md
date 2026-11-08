@@ -1,5 +1,7 @@
 # AI 무료음악 자동화 (`free-music-studio`) — 디자인 핸드오프 (DESIGN_HANDOFF.md)
 
+> 2026-11-08 맥미니 재대조: v1.33 채택·배포 완료 기록으로 C-1 완료 표시 복구. 아래 24트랙·6단계 배너 설명은 당시 시안 기록이며, 현행 v1.45에서는 해당 목업을 제거하고 실제 엔진·대기열·마지막 결과를 보여 주는 `StudioStatusBar`로 교체됨(프로그램 AGENTS v1.45).
+
 > **공식 적용 템플릿**: **63. 사이버 DAW 네온 스튜디오 덱 스타일 (Cyber DAW Neon Studio Deck Style)**  
 > **적용 버전**: `v1.33`  
 > **기준 프로그램**: `free-music-studio` (AI 무료음악 자동화, 로컬 GPU 무제한 음악 DAW 스튜디오)  

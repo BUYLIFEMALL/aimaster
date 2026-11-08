@@ -92,9 +92,11 @@ test("그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 ImageModels로
   assert.equal(st.dir, r.dir);
 });
 
-test("그림 모델 독립 폴더 — 음악 모델 폴더를 옮긴 PC는 그 드라이브 \AIMaster\ImageModels, 아니면 LOCALAPPDATA 아래", () => {
-  assert.equal(defaultImageDir({ modelsDir: "D:\AI무료음악\모델" }), path.join("D:\\", "AIMaster", "ImageModels"));
-  assert.equal(defaultImageDir({ modelsDir: "", localAppData: "C:\Users\a\AppData\Local" }), path.join("C:\Users\a\AppData\Local", "AIMaster", "ImageModels"));
+test("그림 모델 독립 폴더 — 모델이 있는 파일시스템 루트, 아니면 LOCALAPPDATA 아래", () => {
+  const modelsDir = process.platform === "win32" ? "D:\\AI무료음악\\모델" : "/Volumes/모델/음악";
+  assert.equal(defaultImageDir({ modelsDir }), path.join(process.platform === "win32" ? "D:\\" : "/", "AIMaster", "ImageModels"));
+  const localAppData = process.platform === "win32" ? "C:\\Users\\a\\AppData\\Local" : "/Users/a/Library/Application Support";
+  assert.equal(defaultImageDir({ modelsDir: "", localAppData }), path.join(localAppData, "AIMaster", "ImageModels"));
 });
 
 test("엔진을 켤 때 — 정해진 폴더가 있으면 그대로, 예전 자리에 받아 둔 것은 새 폴더로 옮기고 실행 파일 기록을 상대 경로로", async () => {
@@ -135,3 +137,61 @@ test("B-3 그래픽 메모리 — nvidia-smi 출력 읽기·시작 전 사용량
   await new Promise((r) => setTimeout(r, 20));
   assert.equal(await none.stop(), null);
 });
+
+// C-14: 실제 임시 파일로 복사 생략, 목적지 보존, 실패 복구를 검증한다.
+for (const scenario of ["rename", "merge", "EXDEV", "save-fail", "rollback-fail"]) {
+  test(`그림 폴더 이동 안전성: ${scenario}`, async (t) => {
+    const fs = await import("node:fs/promises");
+    const base = await fs.mkdtemp(path.join(os.tmpdir(), "fms-art-fastmove-"));
+    t.after(() => fs.rm(base, { recursive: true, force: true }));
+    const from = path.join(base, "이전 그림");
+    const target = path.join(base, "새 폴더");
+    const to = path.join(target, "ImageModels");
+    await fs.mkdir(path.join(from, "models"), { recursive: true });
+    await fs.mkdir(path.join(from, ".render"), { recursive: true });
+    await fs.writeFile(path.join(from, "models", "model.gguf"), "model-data");
+    await fs.writeFile(path.join(from, ".render", "temporary.png"), "scratch");
+    const before = await fs.stat(path.join(from, "models", "model.gguf"));
+    if (scenario === "merge") {
+      await fs.mkdir(to, { recursive: true });
+      await fs.writeFile(path.join(to, "keep.txt"), "keep");
+    }
+    let custom = from;
+    let attempts = 0;
+    const art = createImageArt({
+      dataDir: () => base, getCustomDir: () => custom, getSystem: async () => ({}),
+      renameImpl: async (a, b) => {
+        attempts++;
+        if (scenario === "EXDEV") throw Object.assign(new Error("다른 파일시스템"), { code: "EXDEV" });
+        if (scenario === "rollback-fail" && attempts === 2) throw new Error("복구 차단");
+        return fs.rename(a, b);
+      },
+    });
+    await art.moveTo(target, "move", { saveDir: async (d) => {
+      if (scenario.endsWith("fail")) throw new Error("설정 저장 실패");
+      custom = d;
+    } });
+    for (let i = 0; i < 250 && art.isMoving(); i++) await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.equal(art.isMoving(), false, "이동이 끝나야 한다");
+    const state = await art.state();
+    if (scenario.endsWith("fail")) {
+      assert.equal(custom, from);
+      const actual = scenario === "rollback-fail" ? to : from;
+      assert.equal(await fs.readFile(path.join(actual, "models", "model.gguf"), "utf8"), "model-data");
+      assert.match(state.moveError, /설정 저장 실패/);
+      if (scenario === "rollback-fail") assert.ok(state.moveError.includes(to) && state.moveError.includes("자동 복구하지 못했습니다"));
+      else assert.equal((await fs.stat(path.join(from, "models", "model.gguf"))).ino, before.ino);
+    } else {
+      assert.equal(custom, to);
+      assert.equal(await fs.readFile(path.join(to, "models", "model.gguf"), "utf8"), "model-data");
+      assert.equal(await fs.stat(from).then(() => true, () => false), false);
+      assert.equal(await fs.stat(path.join(to, ".render")).then(() => true, () => false), false);
+      if (scenario === "rename") assert.equal((await fs.stat(path.join(to, "models", "model.gguf"))).ino, before.ino, "같은 파일을 이름만 바꿔야 한다");
+      if (scenario === "merge") {
+        assert.equal(attempts, 0);
+        assert.equal(await fs.readFile(path.join(to, "keep.txt"), "utf8"), "keep");
+      }
+      if (scenario === "EXDEV") assert.equal(attempts, 1);
+    }
+  });
+}

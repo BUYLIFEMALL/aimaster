@@ -3,7 +3,7 @@
 // 다른 점: 받기는 우리 download.mjs(이어받기·재시도), 처음 그릴 때 엔진·모델을 받음(Stem과 같은 방식), 결과는 대기열 작업 번호로
 // 데이터 폴더에 두고 화면이 받아 미리 본 뒤 곡 표지로 저장한다. 파일 크기·SHA-256은 원본이 2026-10-11 확인한 값 그대로.
 import { execFile, spawn, spawnSync } from "node:child_process";
-import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, rmdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { downloadVerified, hashFile } from "./download.mjs";
@@ -245,7 +245,7 @@ export async function settleImageDir({ current, legacy, target, save, log = () =
     return { dir: "", moved: false, kept: false };
   }
 }
-export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, log = () => {}, spawnImpl = spawn, execFileImpl = execFile }) {
+export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, log = () => {}, spawnImpl = spawn, execFileImpl = execFile, renameImpl = rename }) {
   const defaultRoot = () => path.join(dataDir(), "engines", "image-sdcpp");
   const paths = () => {
     const root = getCustomDir() || defaultRoot();
@@ -509,7 +509,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
   }
 
   /**
-   * 그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 「ImageModels」로(0.7.1은 「AIMaster-ImageModels」). move: 받은 엔진·모델을 복사한 뒤 예전 것을 지움 / fresh: 예전 것을 지우고 다음에 그릴 때 새로 받음.
+   * 그림 모델 폴더 바꾸기(0.7.1) — 고른 폴더 안 「ImageModels」로(0.7.1은 「AIMaster-ImageModels」). move: 같은 파일시스템의 빈 목적지는 이름 변경, 나머지는 복사 후 원본 정리 / fresh: 예전 것을 지우고 다음에 그릴 때 새로 받음.
    * 바로 답하고 뒤에서 옮긴다(state().moving). forbid: 고르면 안 되는 폴더(모델 저장 폴더의 옮겨 다니는 항목 등).
    */
   let moving = null;
@@ -527,22 +527,51 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
     await mkdir(to, { recursive: true });
     const has = await stat(from).then((s) => s.isDirectory(), () => false);
     const total = mode === "move" && has ? await sizeOf(from) : 0;
-    const free = await freeBytes(to);
-    if (total && free != null && free < total + 1024 ** 3) throw new Error(`그 드라이브 남은 공간이 모자랍니다(필요 약 ${Math.ceil(total / 1024 ** 3) + 1}GB, 남은 ${Math.floor(free / 1024 ** 3)}GB).`);
+    // 드라이브 문자 대신 파일시스템 ID로 판단(같은 드라이브 아래 별도 마운트도 구분).
+    const canRename = mode === "move" && has &&
+      (await stat(from)).dev === (await stat(to)).dev && (await readdir(to)).length === 0;
+    const checkCopySpace = async () => {
+      const free = await freeBytes(to);
+      if (total && free != null && free < total + 1024 ** 3) throw new Error(`그 드라이브 남은 공간이 모자랍니다(필요 약 ${Math.ceil(total / 1024 ** 3) + 1}GB, 남은 ${Math.floor(free / 1024 ** 3)}GB).`);
+    };
+    if (!canRename) await checkCopySpace();
     moving = { done: 0, total };
     moveError = "";
     log(`🖼 그림 모델 폴더 바꾸기: ${from} → ${to} (${mode === "move" ? "옮기기" : "새로 받기"})`);
     (async () => {
+      let renamed = false;
       try {
         if (mode === "move" && has) {
-          await copyTree(from, to, { skip: new Set([".render"]), onBytes: (n) => (moving.done += n) });
+          if (canRename) {
+            // 빈 목적지만 제거한다. 기존 모델·다른 파일이 있으면 복사 경로를 쓴다.
+            await rmdir(to);
+            try {
+              await renameImpl(from, to);
+              renamed = true;
+              moving.done = total;
+            } catch (e) {
+              await mkdir(to, { recursive: true });
+              // 실제 rename이 EXDEV를 반환하면 복사 공간을 다시 검사한다.
+              if (e.code !== "EXDEV") throw e;
+              await checkCopySpace();
+            }
+          }
+          if (!renamed) await copyTree(from, to, { skip: new Set([".render"]), onBytes: (n) => (moving.done += n) });
           await relativizeReceipt(to, from);
         }
         await saveDir(to);
-        if (has) await removeBestEffort(from);
-        log(`✔ 그림 모델 폴더: ${to}`);
+        if (renamed) {
+          // 렌더 임시 파일은 복사 경로와 동일하게 새 폴더에 남기지 않는다.
+          await removeBestEffort(path.join(to, ".render"));
+        } else if (has) await removeBestEffort(from);
+        log(`✔ 그림 모델 폴더: ${to}${renamed ? " (파일 복사 없이 이동)" : ""}`);
       } catch (e) {
-        moveError = `그림 모델 폴더를 옮기지 못했습니다 — 예전 폴더를 그대로 씁니다. ${e instanceof Error ? e.message : e}`;
+        let recovery = "예전 폴더를 그대로 씁니다.";
+        if (renamed) {
+          try { await renameImpl(to, from); }
+          catch (rollbackError) { recovery = `자동 복구하지 못했습니다. 모델 파일은 ${to}에 보관되어 있습니다. ${rollbackError.message}`; }
+        }
+        moveError = `그림 모델 폴더를 옮기지 못했습니다 — ${recovery} ${e instanceof Error ? e.message : e}`;
         log(`⚠ ${moveError}`);
       } finally {
         moving = null;
