@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-08 [역할: mac-mini] 무료음악 잔여5항목 순차 처리·환경 준비 후 재개
+- 주인님 지시 반영: 가사 수동 정답/Apple Silicon 등은 환경 대기. 디자인 v1.33 완료 누락 정정. 같은 파일시스템 그림 모델 이동은 rename·실패 복구 구현, 명시 시험15/15 통과(미배포·Windows 실물 필요). DB 서울 확인, 함수 icn1 권장 검토 완료·설정 미변경. YuE2/LeVo 원본 지원 대기 유지.
+- 상세·윈도우 후속: `free-music-studio/docs/IMPROVEMENTS.md` 맨 위. 실제 회원 파일 이동·생성·npm·빌드·배포·DB 쓰기·푸시 없음. 비용 없음.
+
 ## 2026-11-08 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-shorts-viral-v2 — **`shorts-viral-studio` v2.00: 1안(24. 유튜브 쇼츠 크리에이터 레드 & 화이트 스튜디오 스타일) 공식 채택 및 프로덕션 배포 완료**
 - **주인님 지시**: 「1번 디자인 시작 작업해」 (4대 화면 3시안 쇼케이스 종합 비교표 1안 확정).
 - **공식 채택 디자인**: **24. 유튜브 쇼츠 크리에이터 레드 & 화이트 스튜디오 스타일 (YouTube Shorts Creator Red & White Studio Edition)**.
