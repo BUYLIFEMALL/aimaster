@@ -70,6 +70,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `free-music-studio` | v1.45 · 2026-11-08 ([역할: music] `claude-win-20261024-music`, 주인님 「함께 배포해」 빌드 1회(`free-music-studio-onmi87hsx`, 버전 파일 누락으로 v1.44 표시) + 「진행해」 빌드 1회(`free-music-studio-cosz73vyi`, DB v1.45), 사이트만) | 모든 음악 카드 보기·곡 메뉴 바로 가기 + 곡 만들기 머리 가짜 뷰파인더 → 실제 상태 줄 + PC 검사 「음악 생성 미지원」 문구 + 앨범 화풍 버튼(기본 실사 사진) + 엔진 목록 노래곡·연주곡 묶음 |
 |---|---|---|
 | `free-music-studio` · `playlist-channel-studio` · `music-video-studio` | v1.40 · v1.35 · v1.28 · 2026-11-08 ([역할: music] `claude-win-20261024-music`, 주인님 「D-1 나머지 진행해」「다음작업 하는거와 같이 배포해」, 빌드 3회 차례로, `free-music-studio-bs7rxiobi`·`playlist-channel-studio-b9iwkkr5y`·`music-video-studio-3k4jdnfc4` Ready, DB 세 곳 맞춤 — 뮤직비디오 DB는 v1.26이었음) | D-1 나머지(무료음악 곡 → 플레이리스트 영상·뮤직비디오, 커밋 `04fa2070a`) + 뮤직비디오 대기 3줄: 「공용 사본 동기화(`timeline`·`Composition` + 새 사본 `renderTrace.ts`) …」 · 「참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들…」 · 「문구 정정: 최종 합치기 「추가 비용 없음」, 이미지 유료 안내, 설정 단가 $0.10, 곡 고르는 단계, …」 |
 | `lyric-video-studio` | v1.12 · 2026-11-06 ([역할: music] `claude-win-20261024-music`, 플랜 승인 빌드 2회 중 2회째, `lyric-video-studio-635kgahoz` Ready, DB v1.12) | Lyricbi L-2 LP판 `b9fd747bd` · L-3 무료 사진 배경 `15f0808e9` · L-4 꾸밈 확장·글꼴 미리 받기 수정 `0b1ab7066` · L-5 렌더 진단 `75fb47c35` · `?remix=` 리믹스 결과 `fa3799a63`(2026-10-22부터 대기) |
