@@ -21,6 +21,7 @@
   4. 브라우저 쇼케이스 HTML: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html) (종합 비교표: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html))
   5. 로컬 영구 자산 폴더: `D:\Antigravity\Design\68_creative_atelier_paper_pop\banana-canvas`
 
+## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.43: 곡 즐겨찾기**
 - 주인님 「즐겨찾기 기능을 만들어줘」「곡마다 찾기가 힘들어」: 곡 카드 ☆/★, 왼쪽 「즐겨찾기」 보기·개수, 즐겨찾기 곡 기록은 30일 정리에서 뺌(blog-keyword 선례). 운영 DB `free_music_tracks.favorite`(주인님 허락 뒤 ego SQL 실행·확인 — 첫 시도는 자동 권한 검사에서 막힘).
 - 배포 `free-music-studio-5h2bc7x2o`(Ready), DB v1.43, 커밋 `919c5f39a`. 함께: 음악앨범 내 PC 그림 걸린 시간 표시. ego 운영 확인: 별 누르기 → 즐겨찾기 1·보기 1곡 → 새로고침 뒤 유지 → 되돌림. 시험 102.
 - 남은 미배포: 엔진 0.7.5(그림 그래픽 메모리, 설치 파일 아직), 플레이리스트 패널 문구. 비용: Vercel 빌드 1회.
