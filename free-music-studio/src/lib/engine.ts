@@ -475,8 +475,9 @@ export async function fetchLibraryArt(id: string): Promise<string> {
 }
 
 /** 보관함 음원을 브라우저 안 주소로. 기본은 원음(FLAC 등), format "mp3"면 엔진이 320kbps로 바꿔 준다. */
-export async function fetchLibraryFile(id: string, format?: "mp3"): Promise<{ url: string; ext: string }> {
-  const res = await call(`/library/${id}${format ? "?format=mp3" : ""}`, {}, 300_000);
+export async function fetchLibraryFile(id: string, format?: "mp3", opts: { cover?: boolean } = {}): Promise<{ url: string; ext: string }> {
+  // cover: 원음 내려받기에 표지를 넣어 달라(엔진 0.7.4+, B-7 — 옛 엔진은 무시하고 원음 그대로)
+  const res = await call(`/library/${id}${format ? "?format=mp3" : opts.cover ? "?cover=1" : ""}`, {}, 300_000);
   const ext = format ?? res.headers.get("x-audio-format") ?? "mp3";
   return { url: URL.createObjectURL(await res.blob()), ext };
 }
@@ -487,7 +488,7 @@ export async function fetchLibraryAudio(id: string): Promise<string> {
 
 /** 보관함 곡을 파일로 내려받는다(원음 또는 MP3 320kbps). */
 export async function downloadFromLibrary(id: string, title: string, format?: "mp3"): Promise<void> {
-  const f = await fetchLibraryFile(id, format);
+  const f = await fetchLibraryFile(id, format, { cover: !format });
   const a = document.createElement("a");
   a.href = f.url;
   a.download = `${title}.${f.ext}`;

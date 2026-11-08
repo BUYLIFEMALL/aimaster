@@ -46,7 +46,7 @@ test("폴더 고르기: 하위 폴더만·숨김 제외·이름 순, 새 폴더 
   }
 });
 import { mkdir, mkdtemp, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
-import { mp3Args } from "../src/gateway.mjs";
+import { flacCoverArgs, mp3Args } from "../src/gateway.mjs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -377,4 +377,15 @@ test("사양 읽기: nvidia-smi 결과에서 이름·그래픽 메모리·드라
   assert.deepEqual([sys.os, sys.cpu, sys.cores, sys.ramGb, sys.freeGb], ["Microsoft Windows 11 Pro", "AMD Ryzen 9", 2, 32, 100]);
   assert.deepEqual(sys.installedModels, []);
   assert.deepEqual([sys.computeCapability, sys.bf16], ["12.0", true]); // 0.6.9 원본 host-profile 참고
+});
+
+test("0.7.4 B-7 원음 FLAC에 표지 넣기 인자 — 소리는 복사, 표지는 앞표지 그림 칸, webp는 png로", () => {
+  const a = flacCoverArgs("s.flac", "o.flac", "c.png");
+  assert.deepEqual(a.slice(a.indexOf("-map"), a.indexOf("-map") + 4), ["-map", "0:a", "-map", "1:v"]);
+  assert.equal(a[a.indexOf("-c:a") + 1], "copy");
+  assert.equal(a[a.indexOf("-c:v") + 1], "copy");
+  assert.equal(a[a.indexOf("-disposition:v") + 1], "attached_pic");
+  assert.equal(a.at(-1), "o.flac");
+  const w = flacCoverArgs("s.flac", "o.flac", "c.WEBP");
+  assert.equal(w[w.indexOf("-c:v") + 1], "png");
 });

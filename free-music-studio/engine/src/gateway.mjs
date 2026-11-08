@@ -27,11 +27,24 @@ export function mp3Args(src, dest, art = null) {
   ];
 }
 
-/** MP3 만들기(ffmpeg). 끝나면 true. */
-function toMp3(src, dest, art = null) {
+/**
+ * ffmpeg 인자 — FLAC 원음에 표지를 넣는다(0.7.4, B-7). 소리는 그대로 복사하고 표지 그림만 FLAC 그림 칸(앞표지)에 넣는다.
+ * FLAC 그림 칸은 png·jpeg만 받아 webp는 png로 바꾼다.
+ */
+export function flacCoverArgs(src, dest, art) {
+  const cover = path.extname(art).toLowerCase() === ".webp" ? "png" : "copy";
+  return [
+    "-y", "-hide_banner", "-loglevel", "error", "-i", src, "-i", art,
+    "-map", "0:a", "-map", "1:v", "-c:a", "copy",
+    "-c:v", cover, "-disposition:v", "attached_pic", "-metadata:s:v", "title=Album cover", "-metadata:s:v", "comment=Cover (front)",
+    dest,
+  ];
+}
+
+/** ffmpeg로 임시 파일에 만든 뒤 이름을 바꾼다. 끝나면 true. */
+function runFfmpeg(args, tmp, dest) {
   return new Promise((resolve) => {
-    const tmp = dest + ".part.mp3";
-    const child = spawn("ffmpeg", mp3Args(src, tmp, art), { windowsHide: true });
+    const child = spawn("ffmpeg", args, { windowsHide: true });
     child.on("error", () => resolve(false));
     child.on("close", async (code) => {
       if (code !== 0) return resolve(false);
@@ -44,6 +57,11 @@ function toMp3(src, dest, art = null) {
     });
   });
 }
+
+/** MP3 만들기(ffmpeg). 끝나면 true. */
+const toMp3 = (src, dest, art = null) => runFfmpeg(mp3Args(src, dest + ".part.mp3", art), dest + ".part.mp3", dest);
+/** 표지 넣은 FLAC 만들기(ffmpeg). 끝나면 true. */
+const toFlacWithCover = (src, dest, art) => runFfmpeg(flacCoverArgs(src, dest + ".part.flac", art), dest + ".part.flac", dest);
 
 export const GATEWAY_PORT = 47821;
 const MAX_BODY = 60 * 1024 * 1024; // 커버 원곡 업로드 상한
@@ -381,6 +399,23 @@ async function handleLibrary(req, res, url, origin, ctx, json) {
       const s = await stat(cached);
       res.writeHead(200, { "content-type": "audio/mpeg", "content-length": s.size, ...corsHeaders(origin) });
       return createReadStream(cached).pipe(res);
+    }
+    // 원음 내려받기(?cover=1, 0.7.4 B-7): FLAC이고 표지가 있으면 표지를 넣은 FLAC을 한 번 만들어 다시 쓴다(재생·보내기는 원음 그대로)
+    if (url.searchParams.get("cover") === "1" && f.ext === "flac" && ctx.ffmpeg) {
+      const flacArt = await lib.artOf(rest);
+      if (flacArt) {
+        f.stream.destroy();
+        const artTime = Math.round((await stat(flacArt)).mtimeMs);
+        const cached = path.join(ctx.mp3CacheDir, `${rest}-c${artTime}.flac`);
+        const have = await stat(cached).then(() => true, () => false);
+        if (!have) {
+          await mkdir(ctx.mp3CacheDir, { recursive: true });
+          if (!(await toFlacWithCover(lib.pathOf(rest), cached, flacArt))) return json(res, 500, { error: "FLAC에 표지를 넣지 못했습니다. [MP3]로 받거나 잠시 뒤 다시 시도해 주세요." }, origin);
+        }
+        const s = await stat(cached);
+        res.writeHead(200, { "content-type": AUDIO_TYPES.flac ?? "audio/flac", "content-length": s.size, "x-audio-format": "flac", ...corsHeaders(origin) });
+        return createReadStream(cached).pipe(res);
+      }
     }
     res.writeHead(200, { "content-type": AUDIO_TYPES[f.ext] ?? "audio/mpeg", "content-length": f.size, "x-audio-format": f.ext, ...corsHeaders(origin) });
     return f.stream.pipe(res);
