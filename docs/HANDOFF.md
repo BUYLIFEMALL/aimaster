@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.36: 앨범 2단계 「이 그림으로 곡 만들기」 배포**
+- 주인님 「앨범 2단계 진행해」. 플랜 `free-music-studio/docs/PLAN_20261107_ALBUMS.md` 2단계
+- 앨범 카드 「이 그림으로 곡 만들기」(`/songs?album=&name=`) 또는 곡 만들기 「그림으로 곡 만들기」 → 브라우저가 앨범 그림을 768px JPEG로 줄여 `/api/albums/read` → 회원 본인 AI 키(곡 만들기에서 고른 Claude·OpenAI·Gemini 모델, 1번·재시도 없음, 서버 저장 없음)가 제목·주제·장르·분위기·빠르기·목소리·영어 스타일을 돌려줌(`lib/albumRead.ts`가 화면 선택지 밖 값을 버림, 이미 적은 제목·스타일은 덮지 않음) → 같은 그림을 그 곡 표지(「곡 제목.png」)로
+- 커밋 `1495825ae`, 배포 `free-music-studio-7gv3q0mcd` Ready(빌드 1회, 제가 실행), DB v1.36. 시험 사이트 99·tsc·로컬 빌드. ego 운영 확인: v1.36·버튼 보임·시험 그림(밤바다·달) → 200 「달빛이 내려앉은 고요한 바다」 발라드·잔잔한/그리운/몽환적인·느린·여성 보컬(Claude Haiku 5.5, 관리자 키 1번)
+- 남은 일: 마스터PC 엔진 0.7.3에서 실제 앨범 그림으로 확인(주인님), 엔진은 바뀌지 않음
+- 링크: https://free-music-studio.buylife.xyz/albums
+
 ## 2026-11-07 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.35 · 엔진 0.7.3: 좌측 「앨범」 메뉴 배포**
 - 주인님 「음악 앨범 매뉴를 좌측에」「앨범만 만들고 곡은 안만들수 있는 상황이니 별도의 기능」「곡을 만들때 어울리는 앨범을 선택… 곡을 다 만들고 곡제목,가사를 베이스로… 만들어놓은 앨범이미지에서 선택」「진행해」. 플랜 `free-music-studio/docs/PLAN_20261107_ALBUMS.md`
 - `/albums`: 앨범 그림 만들기(기존 `AlbumArtPanel` + `saveAction`)·모아 보기·받기·이름·지우기. DB `free_music_albums`(이름·그림 설명, owner-only RLS, 30일 정리 포함) — 운영 SQL `20261107_albums.sql` ego SQL 편집기 실행·조회 확인(칸 5·RLS·정책 1). 그림은 PC 노래 폴더 `Albums/<id>`(엔진 `GET/POST/DELETE /library/albums`, 기능 "albums", 폴더 옮기면 함께)
