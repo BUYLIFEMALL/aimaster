@@ -845,6 +845,21 @@ export async function removeImageModel(id: string) {
   await call(`/image-models/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 /** 내 PC 그림 작업을 대기열에 넣는다 — 처음이면 엔진·모델을 받는다. 결과 PNG는 fetchLocalArt(작업 번호) */
+/**
+ * 처음 고를 내 PC 그림 판 — 기본으로 정한 판 → 받아 둔 판 중 추천 판 → 받아 둔 판 중 「메모리 빠듯」 아닌 판 → 받아 둔 첫 판 → 추천 판.
+ * 엔진 0.7.9 pickImageVariant와 같은 규칙(권장보다 메모리가 작은 PC에서 받아 둔 BF16이 먼저 골라져 실패하던 것, 2026-11-09).
+ */
+export function pickLocalArtVariant(s: Pick<ImageModelState, "defaultId" | "installed" | "recommendedId" | "families">): string {
+  if (s.defaultId) return s.defaultId;
+  if (s.recommendedId && s.installed.includes(s.recommendedId)) return s.recommendedId;
+  const rows = s.families.flatMap((f) => f.variants);
+  const ok = s.installed.find((id) => {
+    const r = rows.find((x) => x.id === id);
+    return !!r && r.status === "available" && !r.tight;
+  });
+  return ok || s.installed[0] || s.recommendedId || "";
+}
+
 export async function enqueueLocalArt(info: { title: string; songId: string | null; style: string; lyrics: string }, prompt: string, variantId?: string): Promise<QueueJob> {
   const track: QueueTrack = { id: crypto.randomUUID(), song_id: info.songId, style_prompt: info.style, lyrics: info.lyrics, duration_sec: 0, device: "", kind: "art" };
   const res = await call("/queue", {
