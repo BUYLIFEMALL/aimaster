@@ -1,6 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **B-2 취소 개선(엔진 0.7.4 미배포)·루트 권한 판정 동시 조회·GPT Image/FLUX 2 확인**
+- B-2: ACE-Step 고정 판에 취소 주소가 없어(원본 `acestep/api` 확인) 「만드는 중」 취소 뒤 다음 작업이 「앞 작업 정리 중」으로 그 곡이 끝나길 기다렸다 보냄(`engine/src/runner.mjs`, 엔진 시험 102 — PowerShell 기준). 엔진 다음 판(0.7.4) 때 함께, 커밋 `3e57d0623`.
+- 공용 권한 판정(주인님 「루트만 고쳐 두고 각 프로그램은 다음에 손댈 때」): 루트 `lib/access/checkProgramAccess.ts` 두 묶음 동시 조회, 커밋 `254a238d9`, 메인 빌드 `aimaster-l28vln62o` Ready, 로그인 상태 프로그램 상세 「지금 바로 이용하기」 확인. 사본은 `docs/ACCESS_CHECK_PARALLEL_20261106.md` 목록대로 각 프로그램 다음 배포 때.
+- 그림 플랫폼: 운영 `/api/album-art`로 GPT Image 2.5 Flare·FLUX 2 dev 1장씩 200(시험 계정 키). 첫 시도는 브라우저 실행 대기(15초) 초과로 결과를 못 받아 GPT Image 1회 추가 호출 — 비용 리포트에 반영.
+- 못 한 것: `D:ms-stem-test`(13.0GB) 삭제는 보호 경로라 막힘 → 주인님 직접. 추가 음악 엔진(Stable Audio 3·LeVo 2)은 마스터PC 실물 필요.
+
 ## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.41 + 운영 DB(VIP 자동 체크 0057·글 AI 설정 표)**
 - 배포 `free-music-studio-pxzbf20u3`(Ready), DB v1.41. 함께 나감: 플랫폼별 글 AI 모델을 설정에서 계정에 저장(새 표 `free_music_preferences`, 본인만 RLS, 기준 naver-blog-agent), 음악앨범 「영어 설명 AI」 플랫폼 버튼(키 없으면 「API 미등록」), 곡 만들기도 저장 모델 사용, 메뉴명 「음악앨범」, PC 검사 시스템 정보 하늘색 상자.
 - 운영 DB(ref `esgxyikcnnvmlhygjkth`, 주인님 「니가 할수 있는건 니가 해」): `free-music-studio/supabase/migrations/20261108_ai_preferences.sql`, 루트 `supabase/migrations/0057_vip_grade_autocheck_new_programs.sql` 실행·확인(공개 78개 처리됨). 무료음악 VIP 체크로 VIP 152명 부여(가입일+1년).
