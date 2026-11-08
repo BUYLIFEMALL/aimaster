@@ -230,3 +230,13 @@ test("새 sd-cli 메모리 부족 문장(마스터PC 2026-11-08 실제 기록)�
   assert.match(msg, /512MB가 필요했는데 432MB만 남아/);
   assert.match(msg, /BF16.*Q8_0/);
 });
+
+test("0.7.9 메모리 부족 재시도 판 — 같은 가족의 받아 둔 바로 아래 판, 없으면 null", async () => {
+  const { smallerImageVariant, isImageOom } = await import("../src/imageArt.mjs");
+  assert.equal(smallerImageVariant("z-image-turbo:bf16", ["z-image-turbo:q8_0", "z-image-turbo:q4_k"])?.id, "z-image-turbo:q8_0");
+  assert.equal(smallerImageVariant("z-image-turbo:bf16", ["z-image-turbo:q4_k", "flux2-klein-4b:q8_0"])?.id, "z-image-turbo:q4_k");
+  assert.equal(smallerImageVariant("z-image-turbo:bf16", ["flux2-klein-4b:q8_0"]), null);
+  assert.equal(smallerImageVariant("z-image-turbo:q3_k", ["z-image-turbo:q3_k"]), null);
+  assert.equal(isImageOom("[W] model manager cannot make enough memory available on CUDA0"), true);
+  assert.equal(isImageOom("[E] generate failed"), false);
+});

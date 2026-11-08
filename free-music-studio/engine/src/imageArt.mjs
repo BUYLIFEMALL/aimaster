@@ -166,9 +166,25 @@ export function localImageChoices(system = {}, { installed = [], engineInstalled
 }
 
 /** 그림 엔진 실패 문장 — 그래픽 메모리 부족이면 한국어로 이유와 해결(0.7.8), 아니면 마지막 두 줄 */
+// 2026-11-09: 새 sd-cli는 「cannot make enough memory available … need 512.00 MB device … available 431.62 MB」·「failed during allocated capacity check」로 알린다(마스터PC 16GB · BF16)
+const OOM_RE = /out of memory|cudaMalloc failed|failed to allocate|ErrorOutOfDeviceMemory|alloc_buffer.*failed|not enough memory|cannot make enough memory available|allocated capacity check/i;
+export const isImageOom = (tail) => OOM_RE.test(String(tail || ""));
+
+/** 메모리 부족으로 실패하면 다시 그릴 판 — 같은 가족에서 받아 둔 바로 아래 판(0.7.9, 없으면 null) */
+export function smallerImageVariant(id, installed = []) {
+  const v = findImageVariant(id);
+  if (!v) return null;
+  const fam = imageVariants().filter((x) => x.family === v.family);
+  return fam.slice(0, fam.findIndex((x) => x.id === id)).reverse().find((x) => installed.includes(x.id)) || null;
+}
+
+/** 그릴 판 — 작업이 고른 판 → 기본으로 정한 판 → 받아 둔 판 → 추천 판 */
+export function pickImageVariant(requested, st = {}) {
+  return requested || st.defaultId || st.installed?.[0] || st.recommendedId;
+}
+
 export function imageFailMessage(code, tail, quant = "") {
-  // 2026-11-09: 새 sd-cli는 「cannot make enough memory available … need 512.00 MB device … available 431.62 MB」·「failed during allocated capacity check」로 알린다(마스터PC 16GB · BF16)
-  const oom = /out of memory|cudaMalloc failed|failed to allocate|ErrorOutOfDeviceMemory|alloc_buffer.*failed|not enough memory|cannot make enough memory available|allocated capacity check/i.test(tail);
+  const oom = isImageOom(tail);
   const m = tail.match(/need ([\d.]+) MB device.*?available ([\d.]+) MB/i);
   const short = m ? ` 한 단계에 ${Math.round(+m[1])}MB가 필요했는데 ${Math.round(+m[2])}MB만 남아 있었습니다.` : "";
   if (oom) return `그래픽 메모리가 모자라 그리지 못했습니다(코드 ${code}).${short} ${quant ? `지금 판(${quant})보다 ` : ""}한 단계 작은 판(예: Q8_0)을 고르거나, 그래픽 메모리를 쓰는 다른 프로그램을 닫고 다시 그려 주세요.`;
@@ -428,9 +444,26 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
    * 엔진이 한글 경로에서 죽어(0xC0000409, 원본 실측) 모델 폴더 안에서 ASCII 상대 경로로 돌린다.
    */
   async function run(job, signal, stage, jobLog = () => {}) {
+    try {
+      return await runOnce(job, signal, stage, jobLog);
+    } catch (e) {
+      // 0.7.9: 메모리 부족이면 같은 가족의 받아 둔 한 단계 작은 판으로 한 번만 다시 그린다(마스터PC 16GB · BF16, 2026-11-09)
+      if (!e?.oom || signal?.aborted) throw e;
+      const next = smallerImageVariant(e.variantId, (await state()).installed);
+      if (!next) throw e;
+      const from = findImageVariant(e.variantId);
+      log(`🖼 그래픽 메모리 부족 → ${next.familyName} ${next.quant}로 다시 그립니다`);
+      jobLog(`\n# 그래픽 메모리 부족 — ${from.quant} 대신 ${next.quant}로 다시 그림\n`);
+      stage(`메모리 부족 — ${next.quant}로 다시 그리는 중`);
+      const r = await runOnce(job, signal, stage, jobLog, next.id);
+      return { ...r, model: `${r.model} (메모리 부족으로 ${from.quant} 대신)`, fallbackFrom: from.id };
+    }
+  }
+
+  async function runOnce(job, signal, stage, jobLog, forceId = "") {
     const prompt = cleanArtPrompt(job.task?.prompt);
     const st = await state();
-    const id = job.task?.variantId || st.defaultId || st.installed[0] || st.recommendedId;
+    const id = forceId || pickImageVariant(job.task?.variantId, st);
     const v = findImageVariant(id);
     if (!v) throw new Error(st.reason || "이 PC에서 쓸 수 있는 그림 모델이 없습니다.");
     if (!st.installed.includes(id)) await install(id, { signal, stage });
@@ -500,7 +533,7 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
         if (hung) return reject(new Error(`그림 엔진이 ${quietMs / 60000}분 동안 응답하지 않아 멈췄습니다.`));
         if (code !== 0) {
           log(tail);
-          return reject(new Error(imageFailMessage(code, tail, v.quant)));
+          return reject(Object.assign(new Error(imageFailMessage(code, tail, v.quant)), { oom: isImageOom(tail), variantId: id }));
         }
         resolve();
       });
