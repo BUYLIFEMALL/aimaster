@@ -21,7 +21,7 @@ const FLOW_STEPS = [
   { step: 3, href: "/library", label: "모든 음악", description: "만든 노래 다시 듣기·내려받기", icon: Library },
   { step: 4, href: "/import", label: "가져온 음악", description: "내 음원으로 커버·부분 수정", icon: Upload },
   // 앨범은 음악을 만든 뒤 표지를 꾸미는 단계라 영상 만들기 바로 앞으로(2026-11-08 주인님 그림 지시)
-  { step: 5, href: "/albums", label: "앨범", description: "앨범 그림 만들기·모아 두기", icon: Images },
+  { step: 5, href: "/albums", label: "음악앨범", description: "앨범 그림 만들기·모아 두기", icon: Images },
   { step: 6, href: "/video", label: "영상 만들기", description: "플레이리스트 유튜브 영상(MP4)", icon: Clapperboard },
   // 엔진은 처음 한 번 연결하고 나면 자주 가지 않아 맨 아래로(2026-11-07 주인님 「위치 이동시켜줘」)
   { step: 7, href: "/engine", label: "내 PC 엔진", description: "키 없이 내 PC에서 노래 생성", icon: Cpu },

@@ -302,11 +302,11 @@ export default function EnginePage() {
         </p>
       </section>
 
-      {/* 그림 모델은 좌측 「앨범」 화면으로 옮김(2026-11-08 주인님 「앨범 만들기 좌측으로 따로 빼기로 한거 마저」) */}
+      {/* 그림 모델은 좌측 「음악앨범」 화면으로 옮김(2026-11-08 주인님 「앨범 만들기 좌측으로 따로 빼기로 한거 마저」) */}
       <p className="rounded-xl border border-fuchsia-500/20 bg-[#0a0f1d] px-4 py-3 text-xs text-slate-400">
         🖼 내 PC 앨범 그림 모델(받기·기본 판·지우기·폴더)은 좌측{" "}
         <Link href="/albums#image-models" className="font-semibold text-fuchsia-300 underline underline-offset-2">
-          「앨범」 화면
+          「음악앨범」 화면
         </Link>
         에서 관리합니다.
       </p>

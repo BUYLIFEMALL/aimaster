@@ -124,7 +124,7 @@ export default function AlbumsPage() {
             <Images className="h-5 w-5" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-bold tracking-tight text-slate-100">🖼 앨범</h1>
+            <h1 className="text-xl font-bold tracking-tight text-slate-100">🖼 음악앨범</h1>
             <p className="mt-0.5 text-xs text-slate-400">
               앨범 그림만 전문으로 만드는 곳입니다. AI 그림(Gemini·OpenAI·Replicate) 또는 내 PC(무료)로 그려 모아 두고, 곡 만들기·「모든 음악」에서 골라 표지로 씁니다. 그림 파일은 회원님 PC 노래 저장 폴더 안 「Albums」에만 있습니다(서버로 올리지 않음).
             </p>
