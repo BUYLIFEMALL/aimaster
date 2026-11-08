@@ -215,3 +215,18 @@ test("0.7.8 그림 엔진 실패 문장: 메모리 부족이면 한국어 안내
   assert.match(oom, /그래픽 메모리가 모자라.*BF16.*Q8_0/);
   assert.equal(imageFailMessage(1, "a\nb\nc\n"), "그림 엔진이 실패했습니다(코드 1). b c");
 });
+
+test("새 sd-cli 메모리 부족 문장(마스터PC 2026-11-08 실제 기록)도 한국어 안내 + 필요·남은 양", () => {
+  const tail = [
+    "[W] model manager memory on CUDA0: reported free 431.62 MB / total 16275.44 MB, tracked weights 11742.99 MB / other runtime 0.00 MB / current runtime 698.00 MB --- model_manager.cpp:1753",
+    "[E] z_image segment 1/1 (graph) failed during allocated capacity check --- ggml_runner.cpp:899",
+    "[W] model manager cannot make enough memory available on CUDA0: need 512.00 MB device / 698.00 MB budget, available 431.62 MB device / unlimited budget --- model_manager.cpp:1962",
+    "[E] diffusion model compute failed --- diffusion_engine.cpp:2620",
+    "[E] sampling for image 1/1 failed after 27.89s --- image.cpp:907",
+    "[E] generate failed --- main.cpp:939",
+  ].join("\n");
+  const msg = imageFailMessage(1, tail, "BF16");
+  assert.match(msg, /그래픽 메모리가 모자라/);
+  assert.match(msg, /512MB가 필요했는데 432MB만 남아/);
+  assert.match(msg, /BF16.*Q8_0/);
+});

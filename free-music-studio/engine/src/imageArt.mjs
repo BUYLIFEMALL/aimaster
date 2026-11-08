@@ -167,8 +167,11 @@ export function localImageChoices(system = {}, { installed = [], engineInstalled
 
 /** 그림 엔진 실패 문장 — 그래픽 메모리 부족이면 한국어로 이유와 해결(0.7.8), 아니면 마지막 두 줄 */
 export function imageFailMessage(code, tail, quant = "") {
-  const oom = /out of memory|cudaMalloc failed|failed to allocate|ErrorOutOfDeviceMemory|alloc_buffer.*failed|not enough memory/i.test(tail);
-  if (oom) return `그래픽 메모리가 모자라 그리지 못했습니다(코드 ${code}). ${quant ? `지금 판(${quant})보다 ` : ""}한 단계 작은 판(예: Q8_0)을 고르거나, 그래픽 메모리를 쓰는 다른 프로그램을 닫고 다시 그려 주세요.`;
+  // 2026-11-09: 새 sd-cli는 「cannot make enough memory available … need 512.00 MB device … available 431.62 MB」·「failed during allocated capacity check」로 알린다(마스터PC 16GB · BF16)
+  const oom = /out of memory|cudaMalloc failed|failed to allocate|ErrorOutOfDeviceMemory|alloc_buffer.*failed|not enough memory|cannot make enough memory available|allocated capacity check/i.test(tail);
+  const m = tail.match(/need ([\d.]+) MB device.*?available ([\d.]+) MB/i);
+  const short = m ? ` 한 단계에 ${Math.round(+m[1])}MB가 필요했는데 ${Math.round(+m[2])}MB만 남아 있었습니다.` : "";
+  if (oom) return `그래픽 메모리가 모자라 그리지 못했습니다(코드 ${code}).${short} ${quant ? `지금 판(${quant})보다 ` : ""}한 단계 작은 판(예: Q8_0)을 고르거나, 그래픽 메모리를 쓰는 다른 프로그램을 닫고 다시 그려 주세요.`;
   return `그림 엔진이 실패했습니다(코드 ${code}). ${tail.split(/\r?\n/).filter(Boolean).slice(-2).join(" ")}`.trim();
 }
 
