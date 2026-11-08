@@ -63,7 +63,7 @@
 
   <div class="card">
     <label><input type="checkbox" id="auto" /> PC 켤 때 자동 실행</label>
-    <div class="stage">창의 X는 숨기기만 합니다. 엔진은 작업 표시줄 오른쪽 아래 🎵 아이콘에서 계속 돌아갑니다. 완전히 끄려면 [끄기]를 누르세요.</div>
+    <div class="stage" id="trayNote">창의 X는 숨기기만 합니다. 엔진은 작업 표시줄 오른쪽 아래 🎵 아이콘에서 계속 돌아갑니다. 완전히 끄려면 [끄기]를 누르세요.</div>
   </div>
 
   <div class="card">
@@ -78,15 +78,16 @@
   window.engine.onState((s) => {
     $("ver").textContent = `엔진 ${s.version}`;
     const st = s.status;
-    const text = !s.running ? "꺼짐" : !st ? "켜는 중" : st.ready ? "준비됨" : "준비 중";
+    const text = !s.running ? "꺼짐" : !st ? "켜는 중" : st.ready ? "준비됨" : st.stage === "미지원" ? "미지원" : "준비 중";
     $("badge").textContent = text;
-    $("badge").className = "badge " + (text === "준비됨" ? "ok" : text === "꺼짐" ? "off" : "wait");
+    $("badge").className = "badge " + (text === "준비됨" ? "ok" : ["꺼짐", "미지원"].includes(text) ? "off" : "wait");
     $("stage").textContent = st ? `${st.stage || ""}${st.error ? " — " + st.error : ""}${st.mode ? " · " + st.mode : ""}` : s.running ? "엔진을 켜고 있습니다…" : "엔진이 꺼져 있습니다. [엔진 다시 켜기]를 눌러 주세요.";
     $("msg").hidden = !s.message;
     $("msg").textContent = s.message || "";
     $("code").textContent = s.pairCode || "······";
     $("pairCard").hidden = !!(st && st.paired && !s.pairCode);
     $("auto").checked = !!s.autoStart;
+    if (s.platform === "darwin") $("trayNote").textContent = "창의 X는 숨기기만 합니다. 엔진은 화면 위 메뉴 막대의 🎵 아이콘에서 계속 돌아갑니다. 완전히 끄려면 [끄기]를 누르세요.";
     $("update").hidden = !s.latest;
     if (s.latest) $("newVer").textContent = s.latest.version;
     const log = $("log");

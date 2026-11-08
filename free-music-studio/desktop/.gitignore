@@ -1,2 +1,5 @@
 node_modules/
 release/
+
+# 맥 빌드 중 보존한 윈도우 의존성과 맥용 의존성
+.mac-build/

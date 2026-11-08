@@ -40,4 +40,14 @@
 - 맥미니 `npm install`로 `desktop/node_modules`가 맥용이 되어 윈도우 설치 파일을 만들 수 없습니다. 끝나면 ACTIVE_WORK 줄을 지워 알려 주세요 — 윈도우가 다시 `npm install` 뒤 0.7.5 exe를 만듭니다.
 
 ## 결과
-(맥미니 세션이 적는다)
+### 2026-11-08 Codex 맥미니 A-6 검수 결과
+- 세션: `codex-mac-20261107-test-analysis` · 주인님 「진행해」로 기존 음악 담당과 desktop 범위 분리 승인. 사이트 v1.43, 윈도우 담당의 엔진 버전 변경을 반영해 **0.7.5**로 제작.
+- 파일: `desktop/release/AI-Free-Music-Engine-0.7.5-mac-x64.dmg` · **110,894,973바이트(110.89MB)** · SHA256 `7f09e12c6af52f51bad272eb6e0b93324df1b8979836fc7b3ab8a4a189ac05cd` · `hdiutil verify` 정상. 서명·공증 없음, 로컬 제작본 실행에서는 보안 확인 창이 나타나지 않음(다른 기기의 Gatekeeper 통과를 보장하지 않음).
+- 설치: `/Applications/FreeMusicEngine.app`. 최종 DMG 설치본 실행 후 **4.14초에 로컬 상태 서버 응답**, 한국어 상태 창 정상. **음악 엔진 준비 완료 시간은 측정 불가**: ready=false·stage=미지원.
+- 사이트 연결: 로컬 상태 `paired=true` 확인. 주인님 제공 v1.43 PC 검사 화면과 로컬 장비 일치: macOS 15.8.1, Intel i7-8700B 3.20GHz·12논리코어, RAM64GB, 여유233GB, MP3 도구 있음, darwin x64. GPU·그래픽 메모리·장치는 확인 불가. 검수용 ego 작업 공간은 종료(기존 사용자 탭은 유지).
+- **프롬프트 정정**: 「Intel CPU로 느리게 생성」은 현재 코드와 다름. 기존 `engine/src/device.mjs`가 Intel 맥을 명시적으로 거부한다. 이번에는 그 제한을 변경하지 않음. 10초 생성은 실행하지 않았으며, Apple Silicon/MPS·arm64 패키지·자동 시작은 미검수.
+- 실패와 수정: 256px 아이콘의 `Icon must be at least 512x512` → mac 전용 1024px 생성. 패키지 앱이 ready 전 SIGTRAP 종료 → Mac afterPack에서 Electron Helper 4종의 폴더·실행 파일·CFBundleExecutable 이름을 일치시켜 수정. mac 데이터 경로·SIGTERM 종료·open-url 처리·미지원 표시도 보완. 참고: https://github.com/electron-userland/electron-builder/issues/9771 (외부 코드 복사 없음).
+- 검증: Mac helper 보정/멱등성 및 Windows no-op 명시 시험 **2/2 통과**, 문법 검사 통과, 최종 패키지 엔진 소스39개가 공유 원본과 일치, 진단용 코드 제거 확인. 최종 DMG 재설치·실행 통과. 전체 저장소 시험 통과를 뜻하지 않음.
+- 공유 환경 복구: Windows `desktop/node_modules`를 원래대로 돌려놓고 electron.exe PE 확인. Mac 의존성·실패한 옛 DMG는 ignored `.mac-build/`에 분리, DMG 볼륨 연결 해제. npm install을 잘못 루트에서 한 번 실행한 건은 추적 파일 변경 없이 원래 Windows 선택 의존성 무결성 검증·복구. 루트 `node --test` 오실행은 해당 프로세스 트리 종료, 전체 시험 결과로 채택하지 않음(`docs/ERROR_LESSONS.md`).
+- 남은 일: **DMG 제작·앱 실행·연결 검수만 완료**, Mac 음악 생성 지원 완료 아님. Intel 지원 방침/Apple Silicon 실물 확보 후 검수와 다운로드 공개 범위를 결정. 윈도우 담당은 기존 Windows 의존성으로 0.7.5 exe 작업 재개 가능. Mac 버튼·engine-latest.json 등록·매뉴얼·사이트 배포는 그 결정 후 담당 세션에서 처리. 「설치할 수 없습니다」는 설치 성공과 혼동되므로 「음악 생성 미지원」 문구 개선 제안(사이트 코드는 이번 변경 안 함).
+- 자동화 수치: 설치·앱 실행·로그인·연결 **4단계 분류**(로그인·보안 확인은 사용자), 이 장비는 미지원이므로 매일 조작·생성 동의 횟수 측정 불가. 비용: 외부 유료 API·배포 없음.

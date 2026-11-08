@@ -11,7 +11,9 @@ const SITE = "https://free-music-studio.buylife.xyz";
 const LATEST_URL = `${SITE}/downloads/engine-latest.json`;
 const PORT = 47821;
 const STATUS_URL = `http://127.0.0.1:${PORT}/status`;
-const DATA_DIR = path.join(process.env.LOCALAPPDATA || path.join(require("node:os").homedir(), "AppData", "Local"), "FreeMusicEngine");
+const DATA_DIR = process.env.FMS_DATA_DIR || (process.platform === "win32"
+  ? path.join(process.env.LOCALAPPDATA || path.join(require("node:os").homedir(), "AppData", "Local"), "FreeMusicEngine")
+  : path.join(require("node:os").homedir(), "Library", "Application Support", "FreeMusicEngine"));
 const ENGINE_DIR = app.isPackaged ? path.join(process.resourcesPath, "engine") : path.join(__dirname, "..", "engine");
 const ICON = app.isPackaged ? path.join(process.resourcesPath, "icon.png") : path.join(__dirname, "build", "icon.png");
 
@@ -48,7 +50,7 @@ function setAutoStart(on) {
 }
 
 function push(state) {
-  win?.webContents.send("state", { ...shell_, autoStart: autoStart(), version: app.getVersion(), ...state });
+  win?.webContents.send("state", { ...shell_, autoStart: autoStart(), version: app.getVersion(), platform: process.platform, ...state });
   updateTray();
 }
 
@@ -77,6 +79,7 @@ async function getStatus() {
  * 회원 PC의 다른 Node 프로그램을 끄지 않도록: node.exe + 명령이 src/main.mjs로 끝남 + 그 실행 폴더에 엔진 파일(src/acestep.mjs)이 있을 때만.
  */
 function killManualEngines() {
+  if (process.platform !== "win32") return [];
   const ps =
     "Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | " +
     `Where-Object { $_.ProcessId -ne ${child?.pid ?? 0} -and $_.CommandLine -match 'src[\\\\/]main\\.mjs"?\\s*$' } | ` +
@@ -100,7 +103,8 @@ function killManualEngines() {
 
 function killTree(c) {
   if (!c || c.exitCode != null) return;
-  spawnSync("taskkill", ["/PID", String(c.pid), "/T", "/F"], { windowsHide: true });
+  if (process.platform === "win32") spawnSync("taskkill", ["/PID", String(c.pid), "/T", "/F"], { windowsHide: true });
+  else c.kill("SIGTERM");
 }
 
 async function startEngine() {
@@ -246,6 +250,8 @@ ipcMain.handle("action", async (_e, name, value) => {
 });
 
 app.on("second-instance", () => showWindow());
+// macOS는 사이트의 freemusic-engine:// 실행 요청을 open-url로 전달한다.
+app.on("open-url", (event) => { event.preventDefault(); void app.whenReady().then(showWindow); });
 app.on("before-quit", () => {
   quitting = true;
   killTree(child);

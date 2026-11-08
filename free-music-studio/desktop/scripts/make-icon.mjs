@@ -5,7 +5,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const S = 256;
+const SCALE = process.argv.includes("--mac") ? 4 : 1;
+const S = 256 * SCALE;
 const px = Buffer.alloc(S * S * 4);
 /** 겹쳐 칠하기(a: 0~1) */
 const put = (x, y, [r, g, b], a = 1) => {
@@ -20,8 +21,8 @@ const put = (x, y, [r, g, b], a = 1) => {
 const fill = (sdf, color, box = [0, 0, S - 1, S - 1]) => {
   for (let y = box[1]; y <= box[3]; y++)
     for (let x = box[0]; x <= box[2]; x++) {
-      const d = sdf(x + 0.5, y + 0.5);
-      if (d < 0.5) put(x, y, typeof color === "function" ? color(x, y) : color, Math.min(1, 0.5 - d));
+      const d = sdf((x + 0.5) / SCALE, (y + 0.5) / SCALE) * SCALE;
+      if (d < 0.5) put(x, y, typeof color === "function" ? color(x / SCALE, y / SCALE) : color, Math.min(1, 0.5 - d));
     }
 };
 const lerp = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
@@ -49,7 +50,7 @@ const box = (x0, y0, x1, y1) => (x, y) => Math.max(x0 - x, x - x1, y0 - y, y - y
 // 두 색을 바로 섞으면 가운데가 회색으로 탁해져 가운데에 보라를 넣는다
 const PINK = [244, 114, 182], VIOLET = [139, 92, 246], TEAL = [20, 184, 166];
 const grad = (t) => (t < 0.5 ? lerp(PINK, VIOLET, t * 2) : lerp(VIOLET, TEAL, (t - 0.5) * 2));
-fill(roundRect(8, 8, 248, 248, 58), (x, y) => grad(Math.min(1, ((x + y) / (2 * S)) * 1.1)));
+fill(roundRect(8, 8, 248, 248, 58), (x, y) => grad(Math.min(1, ((x + y) / (2 * 256)) * 1.1)));
 // 2) 흰 이음표(♫): 기울어진 머리 두 개 + 기둥 두 개 + 굵은 띠
 const WHITE = [255, 255, 255];
 fill(band(92, 62, 186, 44, 26), WHITE);
@@ -88,7 +89,7 @@ ihdr[9] = 6;
 const raw = Buffer.alloc((S * 4 + 1) * S);
 for (let y = 0; y < S; y++) px.copy(raw, y * (S * 4 + 1) + 1, y * S * 4, (y + 1) * S * 4);
 const png = Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", ihdr), chunk("IDAT", deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]);
-const out = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "build", "icon.png");
+const out = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "build", SCALE === 1 ? "icon.png" : "icon-mac.png");
 mkdirSync(path.dirname(out), { recursive: true });
 writeFileSync(out, png);
 console.log(`아이콘 저장: ${out} (${png.length} 바이트)`);
