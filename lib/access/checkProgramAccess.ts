@@ -87,39 +87,34 @@ export async function checkProgramAccess(
   userId: string,
   programSlug: string
 ): Promise<ProgramAccessResult> {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin, is_suspended, phone, grade:member_grades(sort_order)")
-    .eq("id", userId)
-    .maybeSingle();
-
-  const { data: program } = await supabase
-    .from("programs")
-    .select("id, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
-    .eq("slug", programSlug)
-    .eq("is_active", true)
-    .single();
+  // 2026-11-06 주인님 결정(요청함 A-7) · 2026-11-08 「루트만 고쳐 두고 각 프로그램은 다음에 손댈 때」 — 순차 4회 조회를 두 묶음 동시 조회로.
+  // 판정 순서·결과는 그대로(evaluateProgramAccess). 기준 free-music-studio/src/lib/programAccess.ts, 사본 목록 docs/ACCESS_CHECK_PARALLEL_20261106.md
+  const [{ data: profile }, { data: program }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("is_admin, is_suspended, phone, grade:member_grades(sort_order)")
+      .eq("id", userId)
+      .maybeSingle(),
+    supabase
+      .from("programs")
+      .select("id, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
+      .eq("slug", programSlug)
+      .eq("is_active", true)
+      .single(),
+  ]);
 
   if (!program) {
     return { allowed: false, reason: "not_found", programId: null };
   }
 
-  const { data: subs } = await supabase
-    .from("subscriptions")
-    .select("status, expires_at")
-    .eq("user_id", userId)
-    .eq("program_id", program.id);
+  const [{ data: subs }, { data: grant }] = await Promise.all([
+    supabase.from("subscriptions").select("status, expires_at").eq("user_id", userId).eq("program_id", program.id),
+    supabase.from("user_program_access").select("expires_at").eq("user_id", userId).eq("program_id", program.id).maybeSingle(),
+  ]);
   const hasActiveSubscription = (subs ?? []).some(
     (s: { status: string; expires_at: string | null }) =>
       s.status === "active" && isNotExpired(s.expires_at)
   );
-
-  const { data: grant } = await supabase
-    .from("user_program_access")
-    .select("expires_at")
-    .eq("user_id", userId)
-    .eq("program_id", program.id)
-    .maybeSingle();
 
   const userGrade = Array.isArray(profile?.grade) ? profile?.grade[0] : profile?.grade;
   const requiredGrade = Array.isArray(program.required_grade) ? program.required_grade[0] : program.required_grade;

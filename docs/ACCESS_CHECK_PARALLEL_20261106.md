@@ -67,7 +67,7 @@
 - `youtube-auto-reply/lib/programAccess.ts`
 - `youtube-viral-studio/src/lib/programAccess.ts`
 ## 이번에 건너뛴 파일 (다른 세션 작업 중 또는 메인 사이트)
-- `lib/access/checkProgramAccess.ts` — 루트 메인 사이트 기준. 고쳐서 푸시하면 메인 사이트 빌드가 바로 돌아 비용이 생기므로, 메인 사이트를 다음에 고칠 때 같은 블록으로 바꾼다.
+- ✅ 2026-11-08 반영(주인님 「루트만 고쳐 두고 각 프로그램은 다음에 손댈 때」): `lib/access/checkProgramAccess.ts` 두 묶음 동시 조회로 — 메인 빌드 1회. 각 프로그램 사본은 그 프로그램을 다음에 손댈 때 같은 블록으로. (옛 메모) `lib/access/checkProgramAccess.ts` — 루트 메인 사이트 기준. 고쳐서 푸시하면 메인 사이트 빌드가 바로 돌아 비용이 생기므로, 메인 사이트를 다음에 고칠 때 같은 블록으로 바꾼다.
 - `ai-work-workspace/`·`instagram-comment-reply/`·`threads-comment-reply/`·`shorts-viral-studio/` — 2026-11-06 작업 중 표에 다른 세션 줄이 있어 손대지 않음. 그 세션이 끝난 뒤 같은 방식으로.
 
 ## 모양이 달라 손으로 바꿀 후보
