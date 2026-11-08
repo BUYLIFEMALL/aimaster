@@ -206,7 +206,7 @@ export default function AlbumsPage() {
         ) : albums.length === 0 ? (
           <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-xs text-slate-500">아직 앨범이 없습니다. 위에서 그림을 만들고 [앨범에 저장]을 눌러 주세요.</p>
         ) : (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
+          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
             {albums.map((a) => (
               <li key={a.id} className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-3">
                 <div className="aspect-square overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
@@ -229,27 +229,27 @@ export default function AlbumsPage() {
                 {a.onPc && (
                   <Link
                     href={songFromAlbumHref(a.id, a.title)}
-                    className="flex w-full items-center justify-center gap-1 rounded-lg bg-fuchsia-600 px-2 py-1.5 text-[11px] font-bold text-white hover:bg-fuchsia-500"
+                    className="flex w-full items-center justify-center gap-1 rounded-lg bg-fuchsia-600 px-2 py-2 text-xs font-bold text-white hover:bg-fuchsia-500"
                     title="AI가 이 그림을 보고 곡 주제·장르·분위기·스타일을 채우고, 그림은 그 곡 표지가 됩니다"
                   >
-                    <Music2 className="h-3 w-3 shrink-0" /> <span className="truncate">곡 만들기</span>
+                    <Music2 className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">이 그림으로 곡 만들기</span>
                   </Link>
                 )}
                 <div className="flex items-center justify-between gap-1">
                   {thumbs[a.id] ? (
-                    <a href={thumbs[a.id]} download={`${a.title.replace(/[\\/:*?"<>|]/g, "_")}.png`} className="inline-flex flex-1 items-center justify-center rounded-lg border border-slate-700 py-1.5 text-slate-300 hover:bg-slate-900" title="그림 받기" aria-label={`${a.title} 그림 받기`}>
-                      <Download className="h-3.5 w-3.5" />
+                    <a href={thumbs[a.id]} download={`${a.title.replace(/[\\/:*?"<>|]/g, "_")}.png`} className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-slate-700 py-1.5 text-[11px] text-slate-300 hover:bg-slate-900" title="그림 받기" aria-label={`${a.title} 그림 받기`}>
+                      <Download className="h-3.5 w-3.5" /> 받기
                     </a>
                   ) : (
                     <span className="flex-1" />
                   )}
                   {!a.orphan && (
-                    <button type="button" onClick={() => void rename(a)} className="inline-flex flex-1 items-center justify-center rounded-lg border border-slate-700 py-1.5 text-slate-300 hover:bg-slate-900" title="이름 바꾸기" aria-label={`${a.title} 이름 바꾸기`}>
-                      <Pencil className="h-3.5 w-3.5" />
+                    <button type="button" onClick={() => void rename(a)} className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-slate-700 py-1.5 text-[11px] text-slate-300 hover:bg-slate-900" title="이름 바꾸기" aria-label={`${a.title} 이름 바꾸기`}>
+                      <Pencil className="h-3.5 w-3.5" /> 이름
                     </button>
                   )}
-                  <button type="button" onClick={() => void remove(a)} className="inline-flex flex-1 items-center justify-center rounded-lg border border-rose-500/30 py-1.5 text-rose-300 hover:bg-rose-950/40" title="지우기" aria-label={`${a.title} 지우기`}>
-                    <Trash2 className="h-3.5 w-3.5" />
+                  <button type="button" onClick={() => void remove(a)} className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-rose-500/30 py-1.5 text-[11px] text-rose-300 hover:bg-rose-950/40" title="지우기" aria-label={`${a.title} 지우기`}>
+                    <Trash2 className="h-3.5 w-3.5" /> 지우기
                   </button>
                 </div>
               </li>
