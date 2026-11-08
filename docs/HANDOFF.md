@@ -1,6 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-11-08 ✅ [역할: realty] Claude Code(윈도우) · 세션 claude-win-realty-docs — **상가 v1.32 · 고객관리 v1.10 미배포 대기분 배포**
+
+- 상가(`commercial-land-trade-alert`) v1.32: 실거래 목록 분류 거르기에 공장·창고 용도·「모든 종류」(`ccaa2decb`). 확장 1.32.0·ZIP·DB(version·extension_version) `check-extension-release` OK. 배포 `commercial-land-trade-alert-ig89sem6g`.
+- 고객관리(`realty-client-desk`) v1.10: 수신거부 저장 실패 때 오류 문구(`5cc894781`). 배포 `realty-client-desk-nfg5h9rro`, DB v1.10.
+- 검사: 시험 59·24개 통과, tsc 통과, 운영 주소 200. 로그인 뒤 화면 확인은 못 함. 주의: `deploy.mjs --set-version`은 `extension_version`을 고치지 않아 따로 맞춤.
+- 남은 일: 부동산 미배포 대기 없음. 상세 `docs/roles/realty.md`.
+
 ## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **D-1 나머지: 무료음악 곡 → 플레이리스트 영상·뮤직비디오 (`free-music-studio` v1.40 · `playlist-channel-studio` v1.35 · `music-video-studio` v1.28)**
 - 무료음악 「모든 음악」 곡 메뉴 「플레이리스트 영상 만들기」·「뮤직비디오 만들기」, 여러 곡 고르면 「고른 곡으로 플레이리스트 영상」(최대 20곡). 받는 창이 제목·(스타일·가사)·가사 시간을 공용 DB `free_music_tracks`에서 읽고(읽기만, 회원 user_id), 준비 신호(`pcs-ready`·`mvs-ready`)를 보내면 무료음악 창이 엔진에서 받은 음원을 `fms-audio` postMessage로 건넴(가사 영상 v1.34와 같은 방식, 서버로 음원 안 올림). 플레이리스트는 음원이 모두 오면 클릭 없이 목록 끝에 추가, 뮤직비디오는 「내 음악 파일 올리기」와 같은 길로 넣고 가사 시간은 `[시작:끝] 가사` 형식.
 - 커밋 `04fa2070a`. 시험: 무료음악 99·플레이리스트 29(+1)·뮤직비디오 34(+1), tsc 셋. 배포 3회 차례로 Ready, DB 세 곳 맞춤(뮤직비디오는 v1.26 → v1.28, 디자인 리뉴얼 v1.27이 DB에 안 올라가 있었음 — 대기 3줄 함께 나감).
@@ -15,6 +22,25 @@
 - 내용: 앨범 그림 「한글 설명을 영어로 바꾸기 / AI로 영어 설명 만들기」 버튼을 Gemini·GPT·Replicate·내 PC 모두에서 표시, 한글로 그리면 먼저 영어로 바꿈 · 앨범 화면을 「1. 앨범 그림 만들기 / 2. 내 앨범 / 3. 내 PC 그림 모델」로(그림 모델은 엔진 화면에서 이동) · 곡 만들기 「앨범 화면에서 이 곡 그림 만들기」가 가사·스타일까지 넘김 · 설정 요금 안내 줄넘김.
 - 확인(ego, 운영): 화면 v1.38, 앨범 1·2·3 구성, Gemini 선택 상태에서 영어 변환 버튼 보임, 곡 만들기 세 버튼, 엔진 화면 `/albums#image-models` 안내 링크·옛 「이미지용」 없음. AI 호출은 하지 않음.
 - 남은 일: 마스터PC에서 엔진 0.7.3으로 앨범 저장 → 「이 그림으로 곡 만들기」 실제 확인(주인님). 비용: Vercel 빌드 1회.
+
+## 2026-11-08 📸 [역할: design] Antigravity(윈도우) · 세션 `agy-win-portrait-photo-v2` — **`portrait-photo` (AI 인물사진 스튜디오) v1.45: 61번 어도비 다크 데스크 리뉴얼 및 5단계 표준 로그인 탑재 (로컬 빌드·테스트 통과)**
+- **작업 내용**:
+  - `DESIGN.md` 61번 어도비 하이퍼 크리에이티브 다크 데스크 스타일(딥 차콜 슬레이트 & 앰버 골드 테마) 공식 적용.
+  - **4단계 스튜디오 파이프라인 배너 탑재**: `01. 원본 얼굴 업로드 ➔ 02. 안면 비례 3분할 튜닝 ➔ 03. 공식 규격 및 조명 렌더링 ➔ 04. 4K 마스터 인화 내보내기` 시각화.
+  - **3D 엠보싱 앰버 버튼 적용**: `.btn-3d.btn-3d-amber` 적용 (스튜디오 원클릭 생성 및 로그인 버튼).
+  - **2026-11-01 5단계 수직 레이아웃 표준 로그인 페이지 탑재**:
+    1. [맨 위] 64px 둥근 라운드 스퀘어 카메라 로고 (그라데이션 & 섀도우)
+    2. [그 밑] `AIMASTER PORTRAIT PHOTO STUDIO` 알약 캡슐 뱃지
+    3. [그 밑] `AI 인물사진 스튜디오` 볼드 메인 타이틀 & 안내 카피
+    4. [중앙] `max-w-[440px]` 2단 탭 폼 카드 (로그인 / 회원가입)
+    5. [맨 아래] `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 링크
+  - **버전 갱신**: `package.json`, `src/lib/version.ts`, `AGENTS.md` v1.45 맞춤.
+- **검증**: `npm run build` Turbopack 빌드 성공, `npm test` 47개 테스트 전원 통과 완료.
+- **인프라 & 쇼케이스**:
+  - 단일 통합 쇼케이스 웹서버 (`http://localhost:3800/showcase.html` 및 `http://localhost:3800/comparison.html`)
+  - `D:\Antigravity\Design\61_adobe_hyper_creative_dark_desk\portrait-photo` (1안 추천)
+  - `D:\Antigravity\Design\66_라이카_미니멀_아날로그_포토_랩_스타일\portrait-photo` (2안 자산화)
+  - `D:\Antigravity\Design\67_사이버_네온_뷰티_뉴럴_레티나_스타일\portrait-photo` (3안 자산화)
 
 ## 2026-11-08 📸 [역할: design] Antigravity(윈도우) · 세션 `agy-win-portrait-photo-v2` — **`portrait-photo` (AI 인물사진 스튜디오) 4대 화면 3시안(12뷰) 쇼케이스 및 독립 비교표 완결 (포트 3800)**
 - **작업 개요**: `portrait-photo` (AI 인물사진 스튜디오)의 4대 핵심 화면(메인/상세/가이드/설정) × 3대 시안 = 총 12개 뷰를 1440px 고해상도로 무결성 렌더링 및 개별 캡처 완료.
