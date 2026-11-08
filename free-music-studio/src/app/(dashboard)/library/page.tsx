@@ -837,7 +837,13 @@ export default function LibraryPage() {
                 />
                 전체 선택
               </label>
-              <span>{chosen.length ? `${chosen.length}곡 고름 · 고른 곡 하나를 끌어 왼쪽 프로젝트·플레이리스트에 놓으면 모두 옮겨집니다` : "곡 왼쪽 칸을 눌러 여러 곡을 고를 수 있습니다. 곡 줄을 끌어 왼쪽 프로젝트·플레이리스트에 놓으면 옮기거나 담습니다."}</span>
+              <span>{view.type === "trash" ? (chosen.length ? `${chosen.length}곡 고름` : "곡 왼쪽 칸을 눌러 고르면 「고른 곡 완전 삭제」·「되살리기」를 할 수 있습니다.") : chosen.length ? `${chosen.length}곡 고름 · 고른 곡 하나를 끌어 왼쪽 프로젝트·플레이리스트에 놓으면 모두 옮겨집니다` : "곡 왼쪽 칸을 눌러 여러 곡을 고를 수 있습니다. 곡 줄을 끌어 왼쪽 프로젝트·플레이리스트에 놓으면 옮기거나 담습니다."}</span>
+              {/* 휴지통 비우기(2026-11-08 주인님 「휴지통에 있는 곡 전체 지우기 기능과 선택 지우기 기능」) — 곡을 고르지 않아도 늘 보인다. 확인 창은 purge가 띄운다 */}
+              {view.type === "trash" && chosen.length === 0 && trash.length > 0 && (
+                <button type="button" onClick={() => purge(trash.map((t) => t.id))} disabled={!!busy} className={`${btn} ml-auto border-rose-500/40 text-rose-300 hover:bg-rose-950/50`}>
+                  <Trash2 className="h-3.5 w-3.5" /> 휴지통 비우기 (전체 {trash.length}곡)
+                </button>
+              )}
               {chosen.length > 0 && view.type === "trash" && (
                 <div className="ml-auto flex flex-wrap items-center gap-1.5">
                   <button type="button" onClick={() => restoreFromTrash(chosen)} className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}>
@@ -855,7 +861,7 @@ export default function LibraryPage() {
                     </select>
                   )}
                   <button type="button" onClick={() => purge(chosen)} disabled={!!busy} className={`${btn} border-rose-500/40 text-rose-300 hover:bg-rose-950/50`}>
-                    <Trash2 className="h-3.5 w-3.5" /> 완전 삭제
+                    <Trash2 className="h-3.5 w-3.5" /> 고른 곡 완전 삭제 ({chosen.length}곡)
                   </button>
                   <button type="button" onClick={() => setSelected(new Set())} className={`${btn} border-slate-700 text-slate-400`}>
                     고르기 취소
