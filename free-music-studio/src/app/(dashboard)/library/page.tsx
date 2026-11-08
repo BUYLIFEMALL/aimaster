@@ -356,6 +356,21 @@ export default function LibraryPage() {
     }
   };
 
+  // 고른 곡 여러 개를 한 번에 즐겨찾기에 넣기/빼기(2026-11-08 — 고른 곡 도구 줄에서 찾으셔서)
+  const setFavoriteMany = async (ids: string[], value: boolean) => {
+    const targets = tracks.filter((t) => ids.includes(t.id) && !!t.favorite !== value);
+    if (!targets.length) return setNotice(value ? "고른 곡이 이미 모두 즐겨찾기에 있습니다." : "고른 곡 중 즐겨찾기한 곡이 없습니다.");
+    setTracks((list) => list.map((x) => (targets.some((t) => t.id === x.id) ? { ...x, favorite: value } : x)));
+    const results = await Promise.all(
+      targets.map((t) => fetch(`/api/tracks/${t.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ favorite: value }) }).then((r) => r.ok, () => false)),
+    );
+    const failed = targets.filter((_, i) => !results[i]);
+    if (failed.length) {
+      setTracks((list) => list.map((x) => (failed.some((t) => t.id === x.id) ? { ...x, favorite: !value } : x)));
+      setMessage(`${failed.length}곡은 즐겨찾기를 바꾸지 못했습니다. 잠시 뒤 다시 해 주세요.`);
+    } else setNotice(value ? `${targets.length}곡을 즐겨찾기에 넣었습니다. 왼쪽 「즐겨찾기」에서 모아 볼 수 있습니다.` : `${targets.length}곡을 즐겨찾기에서 뺐습니다.`);
+  };
+
   const setProject = async (t: Track, projectId: string | null) => {
     const res = await fetch(`/api/tracks/${t.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ project_id: projectId }) });
     if (!res.ok) return setMessage((await res.json().catch(() => ({}))).error || "프로젝트를 바꾸지 못했습니다.");
@@ -774,6 +789,16 @@ export default function LibraryPage() {
                       <X className="h-3.5 w-3.5" /> 이 플레이리스트에서 빼기
                     </button>
                   )}
+                  {chosen.some((id) => !tracks.find((t) => t.id === id)?.favorite) && (
+                    <button type="button" onClick={() => void setFavoriteMany(chosen, true)} className={`${btn} border-amber-400/40 text-amber-200 hover:bg-amber-950/40`}>
+                      <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" /> 즐겨찾기에 넣기
+                    </button>
+                  )}
+                  {chosen.some((id) => tracks.find((t) => t.id === id)?.favorite) && (
+                    <button type="button" onClick={() => void setFavoriteMany(chosen, false)} className={`${btn} border-slate-600 text-slate-300 hover:bg-slate-900`}>
+                      <Star className="h-3.5 w-3.5" /> 즐겨찾기에서 빼기
+                    </button>
+                  )}
                   <button type="button" onClick={() => moveToTrash(chosen)} className={`${btn} border-rose-500/30 text-rose-300 hover:bg-rose-950/50`}>
                     <Trash2 className="h-3.5 w-3.5" /> 휴지통으로
                   </button>
@@ -812,12 +837,12 @@ export default function LibraryPage() {
                         <button
                           type="button"
                           onClick={() => void toggleFavorite(t)}
-                          className="shrink-0 rounded-lg p-1 hover:bg-slate-800"
+                          className={`shrink-0 rounded-lg border p-1.5 transition-colors ${t.favorite ? "border-amber-400/50 bg-amber-950/40" : "border-slate-700 hover:border-amber-400/50 hover:bg-amber-950/30"}`}
                           title={t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기 — 왼쪽 「즐겨찾기」에 모아 봅니다"}
                           aria-label={t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기"}
                           aria-pressed={!!t.favorite}
                         >
-                          <Star className={`h-4 w-4 ${t.favorite ? "fill-amber-300 text-amber-300" : "text-slate-500"}`} />
+                          <Star className={`h-5 w-5 ${t.favorite ? "fill-amber-300 text-amber-300" : "text-amber-200/70"}`} />
                         </button>
                       )}
                       <div className="min-w-0 flex-1">
@@ -873,6 +898,7 @@ export default function LibraryPage() {
                             { label: "되살리기", icon: <Undo2 className="h-3.5 w-3.5" />, onClick: () => void restoreFromTrash([t.id]) },
                             { label: "완전 삭제", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void purge([t.id]) },
                           ] : [
+                            { label: t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기에 넣기", icon: <Star className={`h-3.5 w-3.5 ${t.favorite ? "" : "fill-amber-300 text-amber-300"}`} />, onClick: () => void toggleFavorite(t) },
                             { label: "곡 상세 · 제목/가사 수정", icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => setDetailId(t.id) },
                             {
                               label: "이 곡으로 커버 만들기",

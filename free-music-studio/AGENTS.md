@@ -37,6 +37,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 
 ## 4. 버전
 - 2026-11-08 [역할: mac-mini] A-6 부분 완료: **0.7.5 x64 DMG** 제작·설치·앱 실행·사이트 연결 확인. Intel 맥은 기존 엔진에서 미지원(생성 미실행), Apple Silicon 미검수라 Mac 공개 보류. Windows desktop/node_modules 복구 완료, exe 작업 재개 가능. 결과·파일·해시: `docs/MAC_MINI_DMG_PROMPT_20261108.md` 「결과」.
+- 미배포 대기(2026-11-08): 즐겨찾기 찾기 쉽게(주인님 「즐겨찾기 어떻게 사용하는거지? 추가 안되는데?」 — 별은 정상 동작(ego로 Ballad 프로젝트에서 확인), 곡을 체크해 도구 줄에서 찾으심): 고른 곡 도구 줄 「⭐ 즐겨찾기에 넣기」·「즐겨찾기에서 빼기」(여러 곡 한 번에), 곡 메뉴(…) 「즐겨찾기에 넣기/빼기」, 카드 별을 크게·테두리
 - 미배포 대기(2026-11-08, **엔진 0.7.5 설치 파일 — 맥미니 A-6 작업이 끝난 뒤 윈도우에서**): 주인님 「엔진 0.7.5 만들어서 같이 배포해」 — `engine/src/main.mjs` VERSION 0.7.5(B-3 그래픽 메모리). 윈도우 설치 파일 만들기가 실패: 맥미니(Codex)가 같은 `desktop/`에서 dmg 작업 중이라 `node_modules`가 맥용으로 바뀌어 `electron-builder.cmd`가 없음. 맥미니가 끝나면 `npm install`(윈도우) → `npm run dist` → 다운로드 폴더·`engine-latest.json` → 사이트 배포(v1.44)
 - v1.43(2026-11-08, 주인님 「즐겨찾기 기능을 만들어줘」 DB 칸 허락, 사이트만 — 엔진 0.7.5는 아직): 운영 DB `free_music_tracks.favorite` 실행·확인 후 배포
   - 곡 즐겨찾기(주인님 「즐겨찾기 기능을 만들어줘」「곡마다 찾기가 힘들어」) — `free_music_tracks.favorite`(`supabase/migrations/20261108_track_favorite.sql`, 다른 프로그램과 같은 favorite 칸), 곡 카드 제목 앞 ☆/★ 버튼(누르면 바로 바뀌고 실패하면 되돌림), 왼쪽 목록 「즐겨찾기」 보기·개수, 즐겨찾기한 곡 기록은 30일 정리에서 뺌(blog-keyword 선례). 시험 102
