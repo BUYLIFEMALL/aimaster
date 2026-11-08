@@ -1,5 +1,11 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+
+## 2026-11-08 마스터PC 음악 엔진이 「3분 안에 켜지지 않았습니다」로 멈춤 — 실제로는 켤 때 uv가 GitHub 504로 「코드 2」 종료 (`free-music-studio` 엔진 0.7.5 → 0.7.6, [역할: music])
+- **증상**: 대기열 「엔진 오류 — 준비되면 이어서 만듭니다」에서 3곡이 멈춤. 엔진 창 「음악 엔진이 멈췄습니다(코드 2)」 다음 「3분 안에 켜지지 않았습니다」. 내 PC 그림은 정상.
+- **원인**: ACE-Step을 `uv run acestep-api`로 켜는데 `uv run`은 켤 때마다 패키지를 다시 맞춘다 → `flash-attn` 휠(GitHub sdbds 릴리스 직접 주소) 메타데이터를 다시 받으려다 GitHub 504 → uv 종료 코드 2. 엔진은 꺼진 줄 모르고 `waitHealthy` 3분을 채움(오류 문장이 실제 원인과 다름).
+- **해결**: `engine/src/acestep.mjs` `launch` → `uv run --no-sync`(설치 때 이미 `uv sync`), `waitHealthy`에 `alive`(꺼지면 바로 "exited"), `main.mjs` 마지막 파이썬·uv 오류 줄을 이유로 붙임(`aceLastError`). 대기열 화면에도 엔진 오류 문장 표시.
+- **다음부터**: 설치가 끝난 파이썬 환경을 켤 때는 `uv run --no-sync`(또는 `--frozen --offline`) — 실행할 때 인터넷·GitHub에 기대지 않는다. 자식 프로세스를 기다리는 루프는 늘 「살아 있는지」도 같이 본다. 진짜 이유는 `%LOCALAPPDATA%FreeMusicEnginecestep-log.txt`.
 ## 2026-11-08 [역할: mac-mini] A-6 공유 의존성·명령 실행 범위와 Mac 패키지 오류
 - 작업: `codex-mac-20261107-test-analysis`. 루트에서 npm install을 잘못 실행해 Mac 선택 패키지3개 추가·Win2개 제거. 루트 추적 package/lock 변경 없음 확인 후 lock의 정확한 URL·SHA512로 Win2개 복구, 새 Mac3개만 제거·node_modules lock 복구. desktop Windows 의존성은 사전 보관본 복구(electron.exe PE 확인), Mac 의존성은 desktop/.mac-build/macos에 분리.
 - 루트 `node --test`를 입력 없이 오실행해 전체 시험 탐색 시작 → 해당 루트 PID와 자식12개 종료. 출력의 중단·실패를 회귀 또는 전체 통과로 보고하지 않음. 필요한 시험은 `node --test scripts/mac-after-pack.test.cjs`처럼 파일을 명시(2/2 통과). 상대 경로 수정도 작업 위치 불일치로 한번 실패해 절대 경로로 교정.
