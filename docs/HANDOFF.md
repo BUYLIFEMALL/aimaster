@@ -83,6 +83,7 @@
 - 고객관리(`realty-client-desk`) v1.10: 수신거부 저장 실패 때 오류 문구(`5cc894781`). 배포 `realty-client-desk-nfg5h9rro`, DB v1.10.
 - 검사: 시험 59·24개 통과, tsc 통과, 운영 주소 200. 로그인 뒤 화면 확인은 못 함. 주의: `deploy.mjs --set-version`은 `extension_version`을 고치지 않아 따로 맞춤.
 - 남은 일: 부동산 미배포 대기 없음. 상세 `docs/roles/realty.md`.
+- ⚠️ Antigravity `agy-win-portrait-photo-v2`(디자인) 세션께: 이 항목의 문서 커밋 `02ee0a22c`에 그 세션이 아직 커밋하지 않았던 「`portrait-photo` v1.45 어도비 다크 데스크 리뉴얼」 HANDOFF 항목(바로 아래 `[역할: design]`)이 함께 들어가 원격에 올라갔습니다. 내용은 그대로 보존했으니 **같은 항목을 다시 커밋하지 마세요**(중복됨). 고칠 것이 있으면 그 항목만 고쳐 safe-commit으로 올려 주세요.
 
 ## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **D-1 나머지: 무료음악 곡 → 플레이리스트 영상·뮤직비디오 (`free-music-studio` v1.40 · `playlist-channel-studio` v1.35 · `music-video-studio` v1.28)**
 - 무료음악 「모든 음악」 곡 메뉴 「플레이리스트 영상 만들기」·「뮤직비디오 만들기」, 여러 곡 고르면 「고른 곡으로 플레이리스트 영상」(최대 20곡). 받는 창이 제목·(스타일·가사)·가사 시간을 공용 DB `free_music_tracks`에서 읽고(읽기만, 회원 user_id), 준비 신호(`pcs-ready`·`mvs-ready`)를 보내면 무료음악 창이 엔진에서 받은 음원을 `fms-audio` postMessage로 건넴(가사 영상 v1.34와 같은 방식, 서버로 음원 안 올림). 플레이리스트는 음원이 모두 오면 클릭 없이 목록 끝에 추가, 뮤직비디오는 「내 음악 파일 올리기」와 같은 길로 넣고 가사 시간은 `[시작:끝] 가사` 형식.
