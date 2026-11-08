@@ -1,6 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.39: 좌측 메뉴 「앨범」 위치 이동 배포**
+- 배포 `free-music-studio-gz0ft7kor`(Ready), DB v1.39, 커밋 `9eb572b0c`·`473d5f9d7`. 메뉴 순서: 곡 만들기 → 작업 대기열 → 모든 음악 → 가져온 음악 → 앨범 → 영상 만들기 → 내 PC 엔진. 주인님이 배포 도중 「다음 작업과 같이 배포」로 바꾸셨으나 이미 끝난 뒤였음. 비용: Vercel 빌드 1회.
+
 ## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.38: 앨범 메뉴 분리·영어 변환 버튼 배포**
 - 배포 `free-music-studio-5l2etqqw4`(Ready), DB `programs.version` v1.38, 커밋 `7fd75984d`(미배포 대기였던 `221ef18b5`·`8b024b23c`·`fe5ce644a` 함께).
 - 내용: 앨범 그림 「한글 설명을 영어로 바꾸기 / AI로 영어 설명 만들기」 버튼을 Gemini·GPT·Replicate·내 PC 모두에서 표시, 한글로 그리면 먼저 영어로 바꿈 · 앨범 화면을 「1. 앨범 그림 만들기 / 2. 내 앨범 / 3. 내 PC 그림 모델」로(그림 모델은 엔진 화면에서 이동) · 곡 만들기 「앨범 화면에서 이 곡 그림 만들기」가 가사·스타일까지 넘김 · 설정 요금 안내 줄넘김.
