@@ -4,7 +4,7 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { createQueue } from "../src/queue.mjs";
-import { createRunner, parseTaskState } from "../src/runner.mjs";
+import { createRunner, orphanFinished, parseTaskState } from "../src/runner.mjs";
 import { PYTHON_UTF8_ENV, pickFreePort, staleAcestepPids } from "../src/acestep.mjs";
 
 test("음악 엔진 글자: 파이썬을 UTF-8 모드로(한국어 윈도우 cp949 오류 방지)", () => {
@@ -161,4 +161,47 @@ test("실행: 맡기기 → 확인 → 보관함 저장(가짜 음악 엔진)", 
   assert.equal(saved[0][3], "flac");
   assert.equal(r.ext, "flac");
   assert.ok(stages.includes("보관함에 저장하는 중"));
+});
+
+test("B-2 취소한 곡이 음악 엔진에서 끝났는가 — 목록에 없거나 상태가 0이 아니면 끝", () => {
+  assert.equal(orphanFinished({ data: [{ task_id: "t", status: 0 }] }, "t"), false);
+  assert.equal(orphanFinished({ data: [{ task_id: "t", status: 1 }] }, "t"), true);
+  assert.equal(orphanFinished({ data: [{ task_id: "t", status: 2 }] }, "t"), true);
+  assert.equal(orphanFinished({ data: [] }, "t"), true);
+  assert.equal(orphanFinished(null, "t"), true);
+});
+
+test("B-2 「만드는 중」에 취소하면 다음 작업은 「앞 작업 정리 중」으로 그 곡이 끝나길 기다린 뒤 보낸다", async () => {
+  const calls = [];
+  let orphanPolls = 0;
+  const fetchImpl = async (url, init = {}) => {
+    const p = url.replace(/^http:\/\/127\.0\.0\.1:\d+/, "");
+    const body = init.body && typeof init.body === "string" ? JSON.parse(init.body) : null;
+    calls.push(p + (body?.task_id_list ? `:${body.task_id_list[0]}` : ""));
+    if (p === "/release_task") return new Response(JSON.stringify({ data: { task_id: calls.filter((c) => c === "/release_task").length === 1 ? "t1" : "t2" } }));
+    if (p === "/query_result") {
+      const id = body.task_id_list[0];
+      if (id === "t1") return new Response(JSON.stringify({ data: [{ task_id: "t1", status: ++orphanPolls < 3 ? 0 : 1 }] }));
+      return new Response(JSON.stringify({ data: [{ task_id: "t2", status: 1, result: JSON.stringify([{ file: "/v1/audio?path=y.mp3" }]) }] }));
+    }
+    return new Response(new Uint8Array([1]));
+  };
+  const run = createRunner({ port: 1, key: "k", library: { save: async () => {} }, sourceDir: os.tmpdir(), pollMs: 5, fetchImpl });
+  // 첫 작업: 만드는 중에 취소
+  const ac = new AbortController();
+  const first = run({ kind: "text2music", title: "첫 곡", track: track(), task: { prompt: "pop" } }, ac.signal, () => {});
+  setTimeout(() => ac.abort(), 2);
+  await assert.rejects(first);
+  // 두 번째 작업: 앞 작업(t1)이 끝날 때까지 기다린 뒤 보낸다
+  const stages = [];
+  orphanPolls = 0;
+  await run({ kind: "text2music", title: "둘째 곡", track: track(), task: { prompt: "pop" } }, new AbortController().signal, (s) => stages.push(s));
+  assert.ok(stages.some((s) => s.startsWith("앞 작업 정리 중")), "앞 작업 정리 중 표시");
+  const secondRelease = calls.lastIndexOf("/release_task");
+  const lastOrphanPoll = calls.lastIndexOf("/query_result:t1");
+  assert.ok(lastOrphanPoll >= 0 && lastOrphanPoll < secondRelease, "앞 작업 확인이 보내기보다 먼저");
+  // 세 번째 작업은 더 기다리지 않는다
+  const stages3 = [];
+  await run({ kind: "text2music", title: "셋째 곡", track: track(), task: { prompt: "pop" } }, new AbortController().signal, (s) => stages3.push(s));
+  assert.ok(!stages3.some((s) => s.startsWith("앞 작업 정리 중")));
 });

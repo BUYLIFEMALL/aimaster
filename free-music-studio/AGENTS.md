@@ -36,6 +36,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음, 상업용/비상업용 구분 표시. 한계: Stem·정렬·그림은 윈도우(NVIDIA 권장), 모델 받기 5~35GB, 설치 파일 미서명.
 
 ## 4. 버전
+- 미배포 대기(2026-11-08, **엔진 다음 판 0.7.4**): B-2 「만드는 중」 취소 뒤 다음 작업이 「앞 작업 정리 중 · 취소한 곡을 음악 엔진이 마저 끝내는 중(○분 ○초)」으로 기다렸다 보냄 — ACE-Step(고정 판 `ca1e85f`)에 취소 주소가 없어 취소해도 끝까지 만들기 때문(주인님 「앞 작업 정리 중 표시」 선택). `engine/src/runner.mjs` `orphanFinished`·`waitOrphan`(최대 20분, 목록에 없으면 끝난 것으로), 시험 2개(엔진 102, PowerShell 기준 — Git Bash에서는 tools 시험이 Git의 tar 때문에 실패)
 - v1.41(2026-11-08, 주인님 「니가 할수 있는건 니가 해」, 사이트만): 미배포 대기 3건 함께 배포. 운영 DB에 `free_music_preferences` 표(본인만 RLS)와 루트 `0057`(새 프로그램 첫 공개 때 VIP 자동 체크)을 ego SQL 편집기에서 실행·확인
   - 글 AI 플랫폼별 모델을 설정에서 골라 계정에 저장(주인님 「AI로 영어 설명 만들기 누르니 클로드를 찾던데 다른 플랫폼도」「여기서 플랫폼별 모델을 선택 저장」「해당 위치에서는 버튼으로 플랫폼만」「등록안된 플랫폼은 API등록 안되었다고 표시」「다른 자동화에 다 구현」) — 기준 naver-blog-agent `nba_generation_preferences`. 새 표 `free_music_preferences`(`supabase/migrations/20261108_ai_preferences.sql`, 본인만 RLS, 30일 삭제 대상 아님), API `/api/settings/ai-models`, `lib/aiModelChoice.ts`, 설정 `AiModelsCard`(#ai-models), 음악앨범 「영어 설명 AI」 플랫폼 버튼(키 없으면 「API 미등록」), 곡 만들기도 저장 모델 사용. 표가 없으면 기본 모델로 동작. 시험 101
   - 좌측 메뉴명 「앨범」 → 「음악앨범」(주인님 「음악앨범으로 이름 바꿔」「메뉴명」) — 앨범 화면 제목·매뉴얼·곡 만들기·엔진·그림 모델·대기열 안내의 메뉴 가리키는 말도 함께

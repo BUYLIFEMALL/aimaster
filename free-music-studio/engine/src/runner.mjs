@@ -34,6 +34,19 @@ export function parseTaskState(body, taskId) {
   return { state: "done", file };
 }
 
+/**
+ * 취소한 작업이 음악 엔진에서 끝났는가(B-2, 2026-11-08) — ACE-Step에는 작업을 멈추는 주소가 없어 취소해도 끝까지 만든다.
+ * 목록에 없으면(엔진을 다시 켜 기록이 사라짐) 끝난 것으로 본다. status 0만 「아직 만드는 중」.
+ */
+export function orphanFinished(body, taskId) {
+  const list = body?.data;
+  const item = Array.isArray(list) ? list.find((d) => d && d.task_id === taskId) : null;
+  return !item || Number(item.status) !== 0;
+}
+
+/** 앞 작업 정리를 기다리는 최대 시간 — 넘으면 그냥 보낸다(음악 엔진이 차례로 처리) */
+const ORPHAN_MAX_MS = 20 * 60_000;
+
 const sleep = (ms, signal) =>
   new Promise((resolve, reject) => {
     const t = setTimeout(resolve, ms);
@@ -51,6 +64,24 @@ const sleep = (ms, signal) =>
 export function createRunner({ port, key, library, sourceDir, pollMs = POLL_MS, maxWaitMs = MAX_WAIT_MS, fetchImpl = fetch, watch }) {
   const base = `http://127.0.0.1:${port}`;
   const auth = { authorization: `Bearer ${key}` };
+  // 「만드는 중」에 취소된 작업 — 음악 엔진이 아직 만들고 있으니, 다음 작업은 이것이 끝날 때까지 「앞 작업 정리 중」으로 기다린다
+  let orphan = null;
+
+  async function waitOrphan(signal, stage) {
+    if (!orphan) return;
+    const { taskId, at } = orphan;
+    for (;;) {
+      const r = await fetchImpl(`${base}/query_result`, { method: "POST", headers: { ...auth, "content-type": "application/json" }, body: JSON.stringify({ task_id_list: [taskId] }), signal }).catch((e) => {
+        if (signal?.aborted) throw e;
+        return null;
+      });
+      if (!r || orphanFinished(await r.json().catch(() => null), taskId) || Date.now() - at > ORPHAN_MAX_MS) break;
+      const sec = Math.round((Date.now() - at) / 1000);
+      stage(`앞 작업 정리 중 · 취소한 곡을 음악 엔진이 마저 끝내는 중(${Math.floor(sec / 60)}분 ${sec % 60}초) — 끝나면 바로 시작합니다`);
+      await sleep(pollMs, signal);
+    }
+    orphan = null;
+  }
 
   async function release(job) {
     let res;
@@ -91,11 +122,13 @@ export function createRunner({ port, key, library, sourceDir, pollMs = POLL_MS, 
   }
 
   async function runInner(job, signal, stage, downloading) {
+    await waitOrphan(signal, stage);
     stage("음악 엔진에 보내는 중");
     const taskId = await release(job);
     stage(downloading() || "만드는 중");
     const started = Date.now();
     let file = "";
+    try {
     for (;;) {
       await sleep(pollMs, signal);
       const r = await fetchImpl(`${base}/query_result`, { method: "POST", headers: { ...auth, "content-type": "application/json" }, body: JSON.stringify({ task_id_list: [taskId] }), signal });
@@ -108,6 +141,11 @@ export function createRunner({ port, key, library, sourceDir, pollMs = POLL_MS, 
       const sec = Math.round((Date.now() - started) / 1000);
       stage(downloading() || `만드는 중 · ${Math.floor(sec / 60)}분 ${sec % 60}초 지남`);
       if (Date.now() - started > maxWaitMs) throw new Error("너무 오래 걸려 기다리기를 멈췄습니다. 엔진 창에 오류가 있는지 확인해 주세요.");
+    }
+    } catch (e) {
+      // 취소면 음악 엔진은 계속 만들고 있다 — 다음 작업이 기다리도록 기억
+      if (signal?.aborted) orphan = { taskId, at: Date.now() };
+      throw e;
     }
     stage("보관함에 저장하는 중");
     const audio = await fetchImpl(`${base}${file}`, { headers: auth, signal });
