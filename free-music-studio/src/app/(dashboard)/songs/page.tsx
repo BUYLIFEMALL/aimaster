@@ -1162,7 +1162,7 @@ export default function SongsPage() {
 
           {/* 앨범 그림(노래·연주곡만 — 효과음은 표지가 필요 없음) */}
           {/* 앨범 그림 만들기는 좌측 「앨범」 메뉴로(v1.35) — 여기서는 만들어 둔 앨범에서 고르기 */}
-          {!sfx && <SongAlbumChooser title={draft.title} art={draft.art_prompt} ai={{ provider, model }} onRead={fillFromAlbum} start={startAlbum} />}
+          {!sfx && <SongAlbumChooser title={draft.title} art={draft.art_prompt} style={draft.style_prompt} lyrics={instrumental ? "" : draft.lyrics} ai={{ provider, model }} onRead={fillFromAlbum} start={startAlbum} />}
 
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
           {coverSrc && (

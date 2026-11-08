@@ -6,7 +6,6 @@ import { Cpu, Download, ShieldCheck, Clock, Link2, CheckCircle2, AlertCircle, Un
 import { useEngine } from "@/components/engine/useEngine";
 import { FolderPanel } from "@/components/engine/FolderPanel";
 import { StoragePanel } from "@/components/engine/StoragePanel";
-import { ImageModelPanel } from "@/components/engine/ImageModelPanel";
 import { PcCheckPanel } from "@/components/engine/PcCheckPanel";
 import { StageProgress, parseProgress } from "@/components/engine/StageProgress";
 import { EngineError, forgetEngine, pairEngine } from "@/lib/engine";
@@ -97,7 +96,7 @@ export default function EnginePage() {
       </div>
 
       {/* 화면을 공통 / 음악용 / 이미지용으로 나눔(2026-11-07 주인님 「페이지 전체에서 음악용 / 이미지용 을 나누어놔 헷갈려」) */}
-      <GroupHeading emoji="⚙️" title="공통 — 엔진 설치·연결" desc="음악·그림 모두 이 엔진 하나로 만듭니다" tone="slate" />
+      <GroupHeading emoji="⚙️" title="공통 — 엔진 설치·연결" desc="음악·앨범 그림 모두 이 엔진 하나로 만듭니다" tone="slate" />
       <PcCheckPanel engine={engine} />
 
       {/* 연결 상태·짝짓기 */}
@@ -303,12 +302,14 @@ export default function EnginePage() {
         </p>
       </section>
 
-      <GroupHeading emoji="🖼" title="이미지용" desc="내 PC 앨범 그림 — 음악 모델과 다른 폴더에 따로 둡니다" tone="fuchsia" />
-      {paired ? (
-        <ImageModelPanel status={status} />
-      ) : (
-        <p className="rounded-xl border border-slate-800 bg-[#0a0f1d] px-4 py-3 text-xs text-slate-500">위 「내 PC 엔진 연결」을 마치면 그림 모델을 고르고 받을 수 있습니다.</p>
-      )}
+      {/* 그림 모델은 좌측 「앨범」 화면으로 옮김(2026-11-08 주인님 「앨범 만들기 좌측으로 따로 빼기로 한거 마저」) */}
+      <p className="rounded-xl border border-fuchsia-500/20 bg-[#0a0f1d] px-4 py-3 text-xs text-slate-400">
+        🖼 내 PC 앨범 그림 모델(받기·기본 판·지우기·폴더)은 좌측{" "}
+        <Link href="/albums#image-models" className="font-semibold text-fuchsia-300 underline underline-offset-2">
+          「앨범」 화면
+        </Link>
+        에서 관리합니다.
+      </p>
     </div>
   );
 }

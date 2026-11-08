@@ -33,11 +33,16 @@ export function mergeAlbums(rows: Album[], pcIds: string[] | null): (Album & { o
 }
 
 /** 앨범 화면 주소 — 곡 제목·가사·그림 설명을 채워 열고(곡을 다 만든 뒤), 저장하면 그 곡 표지로도(track) */
-export function albumsHref(fill: { title?: string; art?: string; track?: string } = {}): string {
+/** 곡 만들기 → 앨범 화면으로 넘기는 곡 가사·스타일(주소에 넣기엔 길어 이 브라우저 sessionStorage에, v1.38) */
+export const ALBUM_SONG_KEY = "fms:album-from-song";
+export type AlbumSongContext = { style: string; lyrics: string };
+
+export function albumsHref(fill: { title?: string; art?: string; track?: string; fromSong?: boolean } = {}): string {
   const q = new URLSearchParams();
   if (fill.title) q.set("title", fill.title.slice(0, ALBUM_TITLE_MAX));
   if (fill.art) q.set("art", fill.art.slice(0, ART_PROMPT_LIMIT));
   if (fill.track) q.set("track", fill.track);
+  if (fill.fromSong) q.set("from", "song");
   const s = q.toString();
   return s ? `/albums?${s}` : "/albums";
 }

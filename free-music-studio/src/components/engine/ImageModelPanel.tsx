@@ -102,7 +102,7 @@ export function ImageModelPanel({ status }: { status: EngineStatus | null }) {
         <>
           <p className="text-xs leading-relaxed text-slate-400">
             {state.build ? `실행 방식 ${state.build.label}` : state.reason} · 그래픽 메모리 {state.hardware.gpuGB}GB{state.hardware.unknownVram ? "(확인 불가, 4GB로 봄)" : ""} · 메모리 {state.hardware.ramGB}GB · 남은 공간 {state.hardware.diskGB}GB.
-            곡 만들기 화면의 「앨범 그림 만들기」에서 <b className="text-slate-200">내 PC (무료)</b>를 고르면 처음 한 번 엔진·모델을 받고 그립니다. 추천 판은 이 PC 사양으로 고른 것입니다.
+            좌측 「앨범」 화면 그림 만들기에서 <b className="text-slate-200">내 PC (무료)</b>를 고르면 처음 한 번 엔진·모델을 받고 그립니다. 추천 판은 이 PC 사양으로 고른 것입니다.
           </p>
           {/* 저장 폴더 — 그림 모델은 판 하나에 5~20GB라 남은 공간이 넉넉한 드라이브에 따로 둘 수 있다(0.7.1+) */}
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/50 px-3 py-2.5 text-xs">

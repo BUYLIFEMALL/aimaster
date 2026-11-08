@@ -154,7 +154,7 @@ export default function QueuePage() {
       )}
       {j.status === "done" && j.kind === "art" && (
         <p className="text-[11px] text-emerald-300/80">
-          ✔ 내 PC에서 그렸습니다{j.result?.model ? ` · ${j.result.model}` : ""}{typeof j.result?.seconds === "number" ? ` · ${j.result.seconds}초` : ""} · 곡 만들기 화면의 「앨범 그림 만들기」에서 미리 보고 저장합니다(하루 보관)
+          ✔ 내 PC에서 그렸습니다{j.result?.model ? ` · ${j.result.model}` : ""}{typeof j.result?.seconds === "number" ? ` · ${j.result.seconds}초` : ""} · 좌측 「앨범」 화면에서 미리 보고 저장합니다(하루 보관)
         </p>
       )}
       {j.status === "done" && j.kind === "align" && (

@@ -9,9 +9,10 @@ import { songFromAlbumHref } from "@/lib/albumRead";
 import { useSearchParams } from "next/navigation";
 import { Download, ImageIcon, Images, Music2, Pencil, Trash2 } from "lucide-react";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
+import { ImageModelPanel } from "@/components/engine/ImageModelPanel";
 import { useAlbums, type AlbumItem } from "@/components/albums/useAlbums";
 import { deleteAlbumImage, saveAlbumImage, setTrackArt } from "@/lib/engine";
-import { ALBUM_TITLE_MAX } from "@/lib/albums";
+import { ALBUM_SONG_KEY, ALBUM_TITLE_MAX, type AlbumSongContext } from "@/lib/albums";
 import type { Track } from "@/lib/tracks";
 
 const field =
@@ -26,6 +27,15 @@ export default function AlbumsPage() {
   const [track, setTrack] = useState<Track | null>(null);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [panelKey, setPanelKey] = useState(0);
+  // 곡 만들기 「앨범 화면에서 이 곡 그림 만들기」로 왔을 때(?from=song) — 그 곡 스타일·가사(v1.38)
+  const [songCtx, setSongCtx] = useState<AlbumSongContext | null>(null);
+  useEffect(() => {
+    if (params.get("from") !== "song") return;
+    try {
+      const v = JSON.parse(sessionStorage.getItem(ALBUM_SONG_KEY) ?? "null") as AlbumSongContext | null;
+      if (v && (v.style || v.lyrics)) setSongCtx({ style: String(v.style ?? ""), lyrics: String(v.lyrics ?? "") });
+    } catch {}
+  }, [params]);
 
   // 곡을 다 만든 뒤 들어온 경우 — 그 곡의 제목·가사로 채운다
   useEffect(() => {
@@ -116,7 +126,7 @@ export default function AlbumsPage() {
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-bold tracking-tight text-slate-100">🖼 앨범</h1>
             <p className="mt-0.5 text-xs text-slate-400">
-              곡과 따로 앨범 그림을 만들어 모아 둡니다. 곡 만들기나 「모든 음악」 곡 메뉴에서 골라 표지로 씁니다. 그림 파일은 회원님 PC 노래 저장 폴더 안 「Albums」에 있습니다.
+              앨범 그림만 전문으로 만드는 곳입니다. AI 그림(Gemini·OpenAI·Replicate) 또는 내 PC(무료)로 그려 모아 두고, 곡 만들기·「모든 음악」에서 골라 표지로 씁니다. 그림 파일은 회원님 PC 노래 저장 폴더 안 「Albums」에만 있습니다(서버로 올리지 않음).
             </p>
           </div>
           <span className="text-xs text-slate-400">앨범 {albums.length}개</span>
@@ -132,7 +142,15 @@ export default function AlbumsPage() {
         </p>
       )}
 
-      <section className="space-y-3">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      {/* 1. 그림 만들기 — 영상 만들기 화면처럼 번호 단계 두 칸(2026-11-08 주인님 「영상 만들기 메뉴처럼」) */}
+      <section className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+        <h2 className="text-sm font-bold text-slate-100">1. 앨범 그림 만들기</h2>
+        {songCtx && !track && (
+          <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3 text-xs text-emerald-200">
+            <Music2 className="h-4 w-4" /> 곡 만들기에서 보낸 {title ? `「${title}」의 ` : ""}가사·스타일로 그림 설명을 만듭니다. 저장하면 곡 만들기 「만들어 둔 앨범에서 고르기」로 표지에 넣을 수 있습니다.
+          </p>
+        )}
         {track && (
           <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3 text-xs text-emerald-200">
             <Music2 className="h-4 w-4" /> 「{track.title}」의 제목·가사로 앨범 그림을 만듭니다. 저장하면 이 곡 표지로도 들어갑니다.
@@ -146,19 +164,20 @@ export default function AlbumsPage() {
           key={panelKey}
           heading="새 앨범 그림 만들기"
           title={title}
-          style={track?.style_prompt ?? ""}
-          lyrics={track?.lyrics ?? ""}
+          style={track?.style_prompt ?? songCtx?.style ?? ""}
+          lyrics={track?.lyrics ?? songCtx?.lyrics ?? ""}
           songId={track?.id ?? null}
           art={art}
           onArtChange={setArt}
           saveAction={saveAction}
         />
-        {(title || art) && (
+        {(title || art || songCtx) && (
           <button
             type="button"
             onClick={() => {
               setTitle("");
               setArt("");
+              setSongCtx(null);
               setPanelKey((k) => k + 1);
             }}
             className="text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-300"
@@ -168,9 +187,10 @@ export default function AlbumsPage() {
         )}
       </section>
 
-      <section className="space-y-3">
+      {/* 2. 내 앨범 */}
+      <section className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
         <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
-          <ImageIcon className="h-4 w-4 text-fuchsia-300" /> 내 앨범
+          2. 내 앨범 <span className="text-[11px] font-normal text-slate-400">받기 · 이름 · 지우기 · 이 그림으로 곡 만들기</span>
         </h2>
         {notice && <p className={`text-xs ${notice.ok ? "text-emerald-300" : "text-rose-300"}`}>{notice.text}</p>}
         {error && <p className="text-xs text-rose-300">{error}</p>}
@@ -179,7 +199,7 @@ export default function AlbumsPage() {
         ) : albums.length === 0 ? (
           <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-xs text-slate-500">아직 앨범이 없습니다. 위에서 그림을 만들고 [앨범에 저장]을 눌러 주세요.</p>
         ) : (
-          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {albums.map((a) => (
               <li key={a.id} className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-3">
                 <div className="aspect-square overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
@@ -223,6 +243,24 @@ export default function AlbumsPage() {
               </li>
             ))}
           </ul>
+        )}
+      </section>
+      </div>
+
+      {/* 내 PC 그림 모델 — 「내 PC 엔진」 화면 「이미지용」에서 옮김(2026-11-08 주인님 「앨범 만들기 좌측으로 따로 빼기로 한거 마저」) */}
+      <section id="image-models" className="scroll-mt-6 space-y-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
+          <ImageIcon className="h-4 w-4 text-fuchsia-300" /> 3. 내 PC 그림 모델 <span className="text-[11px] font-normal text-slate-400">「내 PC (무료)」로 그릴 때 쓰는 모델 · 음악 모델과 다른 폴더</span>
+        </h2>
+        {engine.paired ? (
+          <ImageModelPanel status={engine.status} />
+        ) : (
+          <p className="rounded-xl border border-slate-800 bg-[#0a0f1d] px-4 py-3 text-xs text-slate-500">
+            「내 PC 엔진」 화면에서 엔진 연결을 마치면 그림 모델을 고르고 받을 수 있습니다.{" "}
+            <Link href="/engine" className="text-fuchsia-300 underline underline-offset-2">
+              내 PC 엔진으로 가기
+            </Link>
+          </p>
         )}
       </section>
     </div>

@@ -9,7 +9,7 @@ import { ImageIcon, Images, Loader2, Plus, Wand2 } from "lucide-react";
 import { AlbumPicker } from "@/components/albums/AlbumPicker";
 import { useEngine } from "@/components/engine/useEngine";
 import { blobToBase64, fetchAlbumImage, hasAlbums, hasArt, saveArtToLibrary } from "@/lib/engine";
-import { albumsHref } from "@/lib/albums";
+import { ALBUM_SONG_KEY, albumsHref } from "@/lib/albums";
 import type { AlbumRead } from "@/lib/albumRead";
 
 /** AI에 보낼 그림 — 긴 변 768px JPEG로 줄인다(요청 크기·AI 비용을 줄임) */
@@ -28,6 +28,9 @@ async function shrinkForAi(image: Blob): Promise<string> {
 type Props = {
   title: string;
   art: string;
+  /** 앨범 화면으로 넘길 곡 스타일·가사(그 곡에 맞는 그림을 앨범 화면에서 만들도록, v1.38) */
+  style: string;
+  lyrics: string;
   /** 곡 만들기 화면에서 고른 AI(가사와 같은 제공자·모델) */
   ai: { provider: string; model: string };
   /** 그림에서 읽은 값으로 곡 칸 채우기 */
@@ -36,7 +39,7 @@ type Props = {
   start?: { id: string; name: string } | null;
 };
 
-export function SongAlbumChooser({ title, art, ai, onRead, start }: Props) {
+export function SongAlbumChooser({ title, art, style, lyrics, ai, onRead, start }: Props) {
   const { paired, status } = useEngine(10000);
   const canSave = paired && hasArt(status);
   const [open, setOpen] = useState<"" | "cover" | "read">("");
@@ -112,7 +115,7 @@ export function SongAlbumChooser({ title, art, ai, onRead, start }: Props) {
         <ImageIcon className="h-4 w-4 text-fuchsia-300" /> 앨범 그림(표지) <span className="text-[11px] font-normal text-slate-400">(선택)</span>
       </h2>
       <p className="text-[11px] leading-relaxed text-slate-400">
-        좌측 「앨범」에서 만들어 둔 그림 가운데 이 곡에 어울리는 것을 고르면 곡 표지가 됩니다. 「그림으로 곡 만들기」를 누르면 AI가 그림을 보고 곡 주제·장르·분위기·스타일을 채웁니다(위에서 고른 AI 키로 1번 호출).
+        그림은 좌측 「앨범」 화면에서 만듭니다. 만들어 둔 앨범에서 고르면 곡 표지가 되고, 「앨범 화면에서 이 곡 그림 만들기」는 이 곡 제목·가사·스타일을 앨범 화면으로 보냅니다. 「그림으로 곡 만들기」를 누르면 AI가 그림을 보고 곡 주제·장르·분위기·스타일을 채웁니다(위에서 고른 AI 키로 1번 호출).
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <button
@@ -133,8 +136,15 @@ export function SongAlbumChooser({ title, art, ai, onRead, start }: Props) {
         >
           <Images className="h-3.5 w-3.5" /> 만들어 둔 앨범에서 고르기
         </button>
-        <Link href={albumsHref({ title, art })} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-900">
-          <Plus className="h-3.5 w-3.5" /> 새 앨범 그림 만들기{art.trim() ? "(이 곡 그림 설명으로)" : ""}
+        <Link
+          href={albumsHref({ title, art, fromSong: true })}
+          onClick={() => {
+            try {
+              sessionStorage.setItem(ALBUM_SONG_KEY, JSON.stringify({ style, lyrics }));
+            } catch {}
+          }}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-900">
+          <Plus className="h-3.5 w-3.5" /> 앨범 화면에서 이 곡 그림 만들기
         </Link>
         {picked && (
           // eslint-disable-next-line @next/next/no-img-element
