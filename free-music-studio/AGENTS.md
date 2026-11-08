@@ -36,6 +36,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음, 상업용/비상업용 구분 표시. 한계: Stem·정렬·그림은 윈도우(NVIDIA 권장), 모델 받기 5~35GB, 설치 파일 미서명.
 
 ## 4. 버전
+- 미배포 대기(2026-11-08, **엔진 0.7.5 설치 파일 — 맥미니 A-6 작업이 끝난 뒤 윈도우에서**): 주인님 「엔진 0.7.5 만들어서 같이 배포해」 — `engine/src/main.mjs` VERSION 0.7.5(B-3 그래픽 메모리). 윈도우 설치 파일 만들기가 실패: 맥미니(Codex)가 같은 `desktop/`에서 dmg 작업 중이라 `node_modules`가 맥용으로 바뀌어 `electron-builder.cmd`가 없음. 맥미니가 끝나면 `npm install`(윈도우) → `npm run dist` → 다운로드 폴더·`engine-latest.json` → 사이트 배포(v1.44)
 - v1.43(2026-11-08, 주인님 「즐겨찾기 기능을 만들어줘」 DB 칸 허락, 사이트만 — 엔진 0.7.5는 아직): 운영 DB `free_music_tracks.favorite` 실행·확인 후 배포
   - 곡 즐겨찾기(주인님 「즐겨찾기 기능을 만들어줘」「곡마다 찾기가 힘들어」) — `free_music_tracks.favorite`(`supabase/migrations/20261108_track_favorite.sql`, 다른 프로그램과 같은 favorite 칸), 곡 카드 제목 앞 ☆/★ 버튼(누르면 바로 바뀌고 실패하면 되돌림), 왼쪽 목록 「즐겨찾기」 보기·개수, 즐겨찾기한 곡 기록은 30일 정리에서 뺌(blog-keyword 선례). 시험 102
   - B-3 내 PC 앨범 그림 — 음악앨범 완료 안내에 「모델 · ○초」(지금 엔진에서도 보임), 엔진 0.7.5부터(설치 파일 아직) 「그래픽 메모리 최대 ○GB」(`engine/src/imageArt.mjs` `watchVram`·`parseNvidiaMemUsed`, NVIDIA일 때 1.5초마다 nvidia-smi, 시작 전 사용량을 뺀 최대값, 실패·취소 때도 측정 멈춤), 대기열 완료 줄에도 표시. 엔진 시험 104·사이트 101. 엔진 0.7.5 판은 아직 안 만듦

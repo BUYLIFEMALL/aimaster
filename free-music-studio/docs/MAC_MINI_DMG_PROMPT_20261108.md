@@ -35,5 +35,9 @@
 - dmg를 `free-music-studio/public/downloads/`에 두고 `engine-latest.json`에 맥 항목(`mac: { url, sizeMb, sha256 }`) 추가 → 「내 PC 엔진」 다운로드 센터에 맥 버튼(운영체제 자동 판별) → 사이트 배포(빌드 1회, 주인님 승인 범위).
 - 매뉴얼(`/guide`) 설치 안내에 맥(「확인되지 않은 개발자」 → 우클릭 열기) 추가.
 
+## 윈도우 음악 세션 메모 (2026-11-08 17:40)
+- 엔진 버전이 **0.7.5**로 올라갔습니다(`engine/src/main.mjs`, 그림 그래픽 메모리 표시). 작업 중인 `desktop/package.json`의 `version`도 0.7.5로 맞춰 두었으니 dmg는 0.7.5로 만들어 주세요. 이 파일은 맥미니 세션이 커밋합니다(윈도우는 손대지 않음).
+- 맥미니 `npm install`로 `desktop/node_modules`가 맥용이 되어 윈도우 설치 파일을 만들 수 없습니다. 끝나면 ACTIVE_WORK 줄을 지워 알려 주세요 — 윈도우가 다시 `npm install` 뒤 0.7.5 exe를 만듭니다.
+
 ## 결과
 (맥미니 세션이 적는다)
