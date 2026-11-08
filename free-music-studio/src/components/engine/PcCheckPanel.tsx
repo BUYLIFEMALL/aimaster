@@ -212,16 +212,17 @@ function EngineCheck({ engine }: { engine: Engine }) {
       <Verdict status={report.check.verdict} headline={report.check.headline} sub={[sys.gpu, sys.vramGb != null ? `그래픽 메모리 ${sys.vramGb}GB` : "", sys.ramGb ? `메모리 ${sys.ramGb}GB` : ""].filter(Boolean).join(" · ")} />
 
       {rec && (
-        <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/40 to-[#0a0f1d] p-4">
-          <p className="text-[11px] font-bold tracking-wide text-emerald-300">이 PC에 맞는 추천 구성</p>
-          <p className="mt-1 text-sm font-bold text-slate-100">✨ {rec.name}</p>
-          <p className="mt-0.5 text-[11px] text-slate-400">{[sys.gpu, sys.vramGb != null ? `그래픽 메모리 ${sys.vramGb}GB` : ""].filter(Boolean).join(" · ") || "그래픽카드 정보 없음"}</p>
+        <div className="rounded-xl border-2 border-indigo-400/60 bg-gradient-to-br from-indigo-900/70 via-indigo-950/80 to-violet-950/70 p-4 shadow-lg shadow-indigo-950/40">
+          {/* 잘 보이게 다른 상자와 다른 남보라 배경(2026-11-08 주인님 「잘보이게 박스 배경색을 다른 색으로」) */}
+          <p className="text-[11px] font-bold tracking-wide text-indigo-200">이 PC에 맞는 추천 구성</p>
+          <p className="mt-1 text-sm font-bold text-white">✨ {rec.name}</p>
+          <p className="mt-0.5 text-[11px] text-indigo-200/80">{[sys.gpu, sys.vramGb != null ? `그래픽 메모리 ${sys.vramGb}GB` : ""].filter(Boolean).join(" · ") || "그래픽카드 정보 없음"}</p>
           {/* 원본 boks-music compatibility.mjs의 구성 항목(음악·커버·음원 분리·가사 정렬·영상)을 우리 엔진 기준으로 */}
           <dl className="mt-3 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-2">
             {recommendedItems(rec, report, engine.status?.mode ?? "", !!(sys.ffmpeg ?? engine.status?.quality?.ffmpeg)).map(([k, v, later]) => (
-              <div key={k} className="flex justify-between gap-3 border-b border-slate-800/80 pb-1.5">
-                <dt className="text-slate-500">{k}</dt>
-                <dd className={`text-right font-semibold ${later ? "text-slate-500" : "text-slate-200"}`}>{v}</dd>
+              <div key={k} className="flex justify-between gap-3 border-b border-indigo-300/20 pb-1.5">
+                <dt className="text-indigo-200/80">{k}</dt>
+                <dd className={`text-right font-semibold ${later ? "text-indigo-300/60" : "text-white"}`}>{v}</dd>
               </div>
             ))}
           </dl>
@@ -230,7 +231,7 @@ function EngineCheck({ engine }: { engine: Engine }) {
             const need = rec.installed ? 0 : rec.diskGb;
             const short = need > 0 && sys.freeGb != null && sys.freeGb < need + 5;
             return (
-              <p className={`mt-3 rounded-lg px-3 py-2 text-[11px] font-semibold ${short ? "bg-rose-950/50 text-rose-200" : "bg-slate-950/60 text-slate-300"}`}>
+              <p className={`mt-3 rounded-lg px-3 py-2 text-[11px] font-semibold ${short ? "bg-rose-950/50 text-rose-200" : "bg-indigo-950/70 text-indigo-100"}`}>
                 💾 필요 공간 합계 {need ? `약 ${need}GB` : "0GB(받아 둠)"} · 여유 공간 {sys.freeGb != null ? `${sys.freeGb}GB` : "확인 불가"}
                 {short ? " — 공간이 모자랍니다. 아래 「저장 공간」에서 안 쓰는 모델을 지우거나 모델 폴더를 다른 드라이브로 옮겨 주세요." : ""}
               </p>
@@ -263,7 +264,7 @@ function EngineCheck({ engine }: { engine: Engine }) {
               {applying || changing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} 추천 구성으로 한 번에 맞추기
             </button>
           )}
-          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
+          <p className="mt-3 text-[11px] leading-relaxed text-indigo-200/70">
             그래픽 메모리 여유와 함께 돌아가는 기능을 생각한 추천입니다. 모델은 첫 곡을 만들 때 받고, 곡 길이에 따른 실제 메모리 사용량과 음질은 받은 뒤 만들어 봐야 알 수 있습니다.
           </p>
         </div>
