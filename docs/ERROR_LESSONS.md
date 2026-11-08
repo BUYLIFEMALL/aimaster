@@ -1,5 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
+## 2026-11-08 새 프로그램이 VIP 등급 표에서 빠져 VIP 회원(152명)이 못 씀 — 「VIP 자동 부여」 정책이 프리미엄처럼 장치로 안 돼 있었음 (`free-music-studio`, [역할: music])
+- 증상: VIP 회원 `whykim@hanmail.net`이 무료음악 자동화를 못 씀(다른 프로그램 사용기간은 85개). 운영 DB: 이 프로그램은 `grade_program_access`에 프리미엄 등급만 체크, VIP 회원 152명 중 사용기간 0명.
+- 원인: 새 프로그램 첫 공개 때 프리미엄 등급만 자동 체크(`0055`)되고, VIP는 「잊지 말고 체크」라는 사람 규칙(`docs/ADMIN_POLICY_GUIDELINES.md`)뿐이었다. 11-03 공개 때 체크를 놓침.
+- 해결: VIP 체크(트리거가 152명에게 가입일+1년 부여) + 루트 `supabase/migrations/0057_vip_grade_autocheck_new_programs.sql`(첫 공개 때 VIP 자동 체크, 프리미엄 배지는 기존 장치가 효력 정지). 공개 78개 모두 VIP 체크됨 확인.
+- 다음부터: 「일반 회원이 쓸 수 있나」는 시험 계정 등급부터 본다 — `buylifemall@naver.com`은 지금 **프리미엄 등급**이라 일반·VIP 대표가 아니다. 등급만으로는 열리지 않고 사용기간이 있어야 한다(판정 규칙 2026-09-29).
+- 함께: Supabase SQL 편집기 확인 창 버튼 이름은 「Run query」(11-06 아래 항목과 같은 창). 「Run this query」로 찾아 두 번 헛돌았다 — 실행 전에 아래 항목을 먼저 읽을 것. 줄바꿈(CRLF)이 달라 편집기 내용 비교가 어긋나므로 \r을 빼고 비교한다.
+
 ## 2026-11-06 여러 세션이 같은 분에 커밋하자 공용 스테이징에 「방금 커밋한 파일들의 옛 내용」이 남음 — 경로 없는 커밋이면 되돌림 커밋이 됨 ([역할: 미지정] 세션 `claude-win-blogdeploy` 발견)
 - 증상: 블로그 6개를 `commit-paths.mjs`로 커밋한 직후 `git status`가 `MM`/`RD`로 보이고, `git diff --cached`에 34파일(내 블로그 20개 + smartstore·threads·naver-cafe-recruit·ai-video-studio)이 「HEAD보다 옛 내용」으로 올라가 있었다. 작업 폴더는 HEAD와 같았다. 인덱스 14829 / HEAD 14834(영상 세션의 진행 중 삭제 5개 차이).
 - 원인(추정): 17:51~17:52 사이 realty·video·workspace 세션의 커밋 도우미가 연달아 돌면서, 한 도우미가 맞춘 스테이징을 다른 도우미가 앞 시점 사본 기준으로 덮음(블랙박스 `.git/aimaster-index-log.txt`).

@@ -175,3 +175,9 @@ select email, phone from profiles where phone is not null and phone<>'' and phon
 - **2026-10-31 변경(주인님 지시: 「가입일 기준에서 일반등급 전환시 기준으로 바꿔줘」):** 일반은 `access_start_basis='grant'`로 **등급 전환일 + 14일**이다(`supabase/migrations/0051_normal_grade_from_conversion.sql`). 위 두 줄의 가입일 기준은 옛 기록이다. 기존 권한의 만료일은 바꾸지 않았다. 달라진 주의점: [지금 등급 회원 전원에 적용]이나 일반 등급 프로그램 체크를 새로 켜면, 그 권한이 없는 기존 일반 회원에게 **오늘부터 14일**짜리 유효한 권한이 생긴다.
 - 관리자 화면: 접근 권한 관리(`/admin/access-matrix`)의 「등급별 자동 부여 · 사용기간」에 **일반 행도 표시**(전에는 일반·실버를 수동 부여라 숨김, 실버는 계속 숨김 — `app/admin/access-matrix/page.tsx`)하고, 각 행에 기간 기준(「가입일부터」/「등급 지정일부터」)을 표시(`components/admin/GradeAccessPolicy.tsx`).
 - 검수: 트랜잭션 rollback 시험(10월 17일 가입 일반 회원을 빈 등급→일반 → 81개, 만료 10월 31일), 실제 적용 후 기존 회원 변화 없음 확인.
+
+## 2026-11-08 VIP 등급 새 프로그램 자동 포함(`0057`, 주인님 지시: 「VIP등급의 경우 프리미엄을 제외하고 새로운 프로그램이 등록되면 자동으로 권한 부여」 「앞으로도 새로 신규 프로그램등록되면」)
+- 프로그램이 **처음 공개될 때 한 번** VIP 등급(`member_grades.slug='vip'`)에 자동 체크 → 기존 트리거 `grade_program_access_sync`가 VIP 회원 전원에게 사용기간(가입일+1년) 부여. 0055(프리미엄)와 같은 방식, 표시 칸 `programs.vip_autochecked`.
+- 프리미엄 배지 프로그램은 기존 장치(`programs_premium_badge`·`user_program_access_premium_guard`)가 VIP 부여분도 효력 정지 — 「프리미엄 제외」 그대로.
+- 관리자가 VIP 체크를 해제한 프로그램은 비공개 뒤 재공개해도 다시 켜지 않는다. 적용 2026-11-08(ego SQL 편집기), 공개 78개 모두 처리됨·VIP 체크됨 확인.
+- 계기: `free-music-studio`(11-03 공개)가 VIP에서 빠져 VIP 152명이 못 씀 → 같은 날 손으로 체크(`docs/ERROR_LESSONS.md` 2026-11-08).
