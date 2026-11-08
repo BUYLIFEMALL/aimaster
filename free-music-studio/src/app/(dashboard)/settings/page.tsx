@@ -233,8 +233,11 @@ export default function SettingsPage() {
       <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs text-amber-200">
         <p className="flex items-start gap-2.5">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-          <span className="leading-relaxed">
-            AI 작사 요금은 회원님이 고른 AI(OpenAI·Claude·Gemini) 계정에 직접 청구됩니다(가사 1곡 기준 균형 모델 약 $0.01~0.03, Gemini 무료 등급은 0원). 음악 생성·커버·부분 다시 만들기는 내 PC 엔진에서 돌아가 요금이 없습니다.
+          {/* 가독성 줄넘김(2026-11-08 주인님 지시) */}
+          <span className="block space-y-1 leading-relaxed">
+            <span className="block">AI 작사 요금은 회원님이 고른 AI(OpenAI·Claude·Gemini) 계정에 직접 청구됩니다</span>
+            <span className="block">(가사 1곡 기준 균형 모델 약 $0.01~0.03, Gemini 무료 등급은 0원).</span>
+            <span className="block">음악 생성·커버·부분 다시 만들기는 내 PC 엔진에서 돌아가 요금이 없습니다.</span>
           </span>
         </p>
       </div>
