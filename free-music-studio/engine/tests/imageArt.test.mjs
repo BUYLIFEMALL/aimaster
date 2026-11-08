@@ -118,3 +118,20 @@ test("엔진을 켤 때 — 정해진 폴더가 있으면 그대로, 예전 자�
   assert.equal((await settleImageDir({ current: "", legacy: path.join(base, "없음"), target: fresh, save })).dir, fresh);
   assert.equal(await stat(fresh).then((s) => s.isDirectory()), true);
 });
+
+test("B-3 그래픽 메모리 — nvidia-smi 출력 읽기·시작 전 사용량을 뺀 최대값(GB)", async () => {
+  const { parseNvidiaMemUsed, watchVram } = await import("../src/imageArt.mjs");
+  assert.equal(parseNvidiaMemUsed("5321\n812\n"), 5321);
+  assert.equal(parseNvidiaMemUsed(" 1024 MiB"), 1024);
+  assert.equal(parseNvidiaMemUsed(""), null);
+  assert.equal(parseNvidiaMemUsed("N/A"), null);
+  const seq = [1000, 4000, 9192, 6000];
+  let i = 0;
+  const fake = (cmd, args, opts, cb) => cb(null, String(seq[Math.min(i++, seq.length - 1)]));
+  const w = watchVram(fake, 5);
+  await new Promise((r) => setTimeout(r, 60));
+  assert.equal(await w.stop(), 8); // (9192 - 1000) MiB = 8.0GB
+  const none = watchVram((c, a, o, cb) => cb(new Error("없음")), 5);
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(await none.stop(), null);
+});

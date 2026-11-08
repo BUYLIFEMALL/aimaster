@@ -519,7 +519,7 @@ export type QueueJob = {
   startedAt?: string;
   finishedAt?: string;
   error?: string;
-  result?: { trackId: string; ext: string; sourceId?: string; timing?: unknown; review?: number; variantId?: string; model?: string; seconds?: number };
+  result?: { trackId: string; ext: string; sourceId?: string; timing?: unknown; review?: number; variantId?: string; model?: string; seconds?: number; vramPeakGb?: number };
   recorded: boolean;
   engine?: MusicEngineId; // 엔진 0.2.0+
   license?: TrackLicense;

@@ -128,13 +128,18 @@ export function AlbumArtPanel({
     setStage("대기열에 넣는 중");
     try {
       const job = await enqueueLocalArt({ title, songId, style, lyrics }, prompt, localId || undefined);
+      // 끝난 작업의 결과(모델·걸린 시간·그래픽 메모리 최대 사용량 — B-3, 메모리는 엔진 0.7.5+)
+      let done: { model?: string; seconds?: number; vramPeakGb?: number } | null = null;
       await new Promise<void>((resolve, reject) => {
         polling.current = window.setInterval(async () => {
           try {
             const j = (await listQueue()).find((x) => x.id === job.id);
             if (!j) return reject(new Error("작업이 사라졌습니다."));
             setStage(j.stage || "");
-            if (j.status === "done") resolve();
+            if (j.status === "done") {
+              done = (j as { result?: typeof done }).result ?? null;
+              resolve();
+            }
             else if (j.status !== "queued" && j.status !== "running") reject(new Error(j.error || `그림을 그리지 못했습니다(${j.stage}).`));
           } catch (e) {
             if (e instanceof EngineError) reject(e);
@@ -145,7 +150,9 @@ export function AlbumArtPanel({
         polling.current = null;
       });
       setImage(await fetchLocalArt(job.id));
-      setMsg({ ok: true, text: `내 PC에서 그림을 만들었습니다(무료). ${savedHint}` });
+      const r = done as { model?: string; seconds?: number; vramPeakGb?: number } | null;
+      const info = [r?.model, typeof r?.seconds === "number" ? `${r.seconds}초` : "", typeof r?.vramPeakGb === "number" ? `그래픽 메모리 최대 ${r.vramPeakGb}GB` : ""].filter(Boolean).join(" · ");
+      setMsg({ ok: true, text: `내 PC에서 그림을 만들었습니다(무료${info ? ` · ${info}` : ""}). ${savedHint}` });
     } catch (e) {
       setMsg({ ok: false, text: e instanceof Error ? e.message : "앨범 그림을 만들지 못했습니다." });
     } finally {

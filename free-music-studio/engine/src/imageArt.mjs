@@ -2,7 +2,7 @@
 // stable-diffusion.cpp(MIT) 실행 파일 + 모델 두 가족(Z-Image Turbo·FLUX.2 klein 4B, Apache-2.0)으로 정사각형 PNG 1장.
 // 다른 점: 받기는 우리 download.mjs(이어받기·재시도), 처음 그릴 때 엔진·모델을 받음(Stem과 같은 방식), 결과는 대기열 작업 번호로
 // 데이터 폴더에 두고 화면이 받아 미리 본 뒤 곡 표지로 저장한다. 파일 크기·SHA-256은 원본이 2026-10-11 확인한 값 그대로.
-import { spawn, spawnSync } from "node:child_process";
+import { execFile, spawn, spawnSync } from "node:child_process";
 import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -245,7 +245,7 @@ export async function settleImageDir({ current, legacy, target, save, log = () =
     return { dir: "", moved: false, kept: false };
   }
 }
-export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, log = () => {}, spawnImpl = spawn }) {
+export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, log = () => {}, spawnImpl = spawn, execFileImpl = execFile }) {
   const defaultRoot = () => path.join(dataDir(), "engines", "image-sdcpp");
   const paths = () => {
     const root = getCustomDir() || defaultRoot();
@@ -445,6 +445,8 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
     const started = Date.now();
     log(`🖼 내 PC 그림: ${v.familyName} ${v.quant} 1024×1024`);
     stage("그림 모델 불러오는 중");
+    // 그래픽 메모리 최대 사용량(B-3) — NVIDIA 그래픽카드로 그릴 때만
+    const vram = !cpu && String((await readReceipt()).engine?.build ?? "").includes("cuda") ? watchVram(execFileImpl) : null;
     await new Promise((resolve, reject) => {
       if (signal?.aborted) return reject(signal.reason);
       const child = spawnImpl(exe, args, { cwd: p.models, windowsHide: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, PATH: `${path.dirname(exe)}${path.delimiter}${process.env.PATH || ""}` } });
@@ -485,6 +487,9 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
         }
         resolve();
       });
+    }).catch(async (e) => {
+      await vram?.stop(); // 실패·취소 때도 측정을 멈춘다
+      throw e;
     });
     const rendered = path.join(scratch, name);
     try {
@@ -494,9 +499,11 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
       await sweep();
       await writeFile(resultFile(job.id), buf);
       const seconds = Math.round((Date.now() - started) / 100) / 10;
-      log(`🖼 내 PC 그림 완료: ${seconds}초 (${width}px)`);
-      return { variantId: id, model: `${v.familyName} ${v.quant}`, seconds, seed };
+      const vramPeakGb = vram ? await vram.stop() : null;
+      log(`🖼 내 PC 그림 완료: ${seconds}초 (${width}px)${vramPeakGb != null ? ` · 그래픽 메모리 최대 ${vramPeakGb}GB` : ""}`);
+      return { variantId: id, model: `${v.familyName} ${v.quant}`, seconds, seed, ...(vramPeakGb != null ? { vramPeakGb } : {}) };
     } finally {
+      void vram?.stop();
       await rm(rendered, { force: true }).catch(() => {});
     }
   }
@@ -545,4 +552,48 @@ export function createImageArt({ dataDir, getCustomDir = () => "", getSystem, lo
   }
 
   return { paths, state, install, remove, setDefault, run, resultFile, moveTo, isMoving: () => !!moving };
+}
+
+
+/** nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits 출력 → 첫 그래픽카드 사용량(MiB). 못 읽으면 null (B-3, 0.7.5) */
+export function parseNvidiaMemUsed(text) {
+  const first = String(text ?? "").split(/\r?\n/).map((l) => l.trim()).find(Boolean);
+  const m = first ? /\d+(?:\.\d+)?/.exec(first) : null;
+  const n = m ? Number(m[0]) : NaN;
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+/**
+ * 그리는 동안 그래픽 메모리 최대 사용량을 잰다(B-3, 0.7.5) — 시작 전 사용량을 뺀 값(GB, 소수 1자리).
+ * NVIDIA가 아니거나 nvidia-smi가 없으면 stop()이 null을 돌려준다(그림 그리기에는 영향 없음).
+ */
+export function watchVram(execFileImpl, everyMs = 1500) {
+  const read = () =>
+    new Promise((resolve) => {
+      try {
+        execFileImpl("nvidia-smi", ["--query-gpu=memory.used", "--format=csv,noheader,nounits"], { windowsHide: true, timeout: 5000 }, (err, out) => resolve(err ? null : parseNvidiaMemUsed(out)));
+      } catch {
+        resolve(null);
+      }
+    });
+  let base = null;
+  let peak = null;
+  let stopped = false;
+  const ready = read().then((v) => {
+    base = v;
+    peak = v;
+  });
+  const timer = setInterval(async () => {
+    const v = await read();
+    if (!stopped && v != null && (peak == null || v > peak)) peak = v;
+  }, everyMs);
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(timer);
+      await ready;
+      if (base == null || peak == null) return null;
+      return Math.round(Math.max(0, peak - base) / 102.4) / 10;
+    },
+  };
 }
