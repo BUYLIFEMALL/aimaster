@@ -14,7 +14,7 @@ const field =
  * onGenre: 프리셋을 고르면 그 프리셋의 장르를 위로 알린다(내 프리셋은 장르를 바꾸지 않음).
  */
 /** tags: 위에서 고른 영어 태그 — 프리셋을 고르면 스타일 칸 끝에 붙인다(노래만) */
-export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = "" }: { mode: PresetMode; style: string; onPick: (prompt: string) => void; genre?: string; onGenre?: (category: string) => void; tags?: string }) {
+export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = "", subTag = "" }: { mode: PresetMode; style: string; onPick: (prompt: string) => void; genre?: string; onGenre?: (category: string) => void; tags?: string; subTag?: string }) {
   // 프리셋으로 마지막에 넣은 스타일 — 이 글 그대로면 직접 쓴 글이 아니므로 다시 묻지 않는다
   const [lastSet, setLastSet] = useState("");
   const [mine, setMine] = useState<UserPreset[]>([]);
@@ -48,7 +48,9 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
   const pick = (id: string): boolean => {
     const p = list.find((x) => x.id === id);
     if (!p) return false;
-    const next = withTags(p.prompt, tags, LIMITS.style);
+    // 세부 장르 태그는 같은 장르(또는 내 프리셋)일 때만 — 다른 분류의 프리셋에 붙이면 장르가 섞인다(장르가 바뀌면 세부 장르도 비워짐)
+    const sameGenre = p.category === MY_PRESET_CATEGORY || p.category === genre;
+    const next = withTags(p.prompt, [sameGenre ? subTag : "", tags].filter(Boolean).join(", "), LIMITS.style);
     if (next.trim() !== style.trim() && style.trim() !== lastSet.trim() && needsStyleConfirm(style, list) && !confirm(`스타일 칸에 직접 쓴 내용이 있습니다. 「${p.name}」 프리셋으로 바꿀까요?
 바꾸면 지금 스타일 글은 사라집니다(남기려면 먼저 「내 프리셋으로 저장」). 주제·분위기·가사 등 다른 칸은 그대로입니다.`)) return false;
     setChosen(id);

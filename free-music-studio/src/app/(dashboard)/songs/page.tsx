@@ -1051,7 +1051,7 @@ export default function SongsPage() {
                 ))}
               </select>
             </div>
-            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={instrumental ? "" : genre} onGenre={instrumental ? undefined : setGenre} tags={instrumental ? "" : moodTags} />}
+            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={instrumental ? "" : genre} onGenre={instrumental ? undefined : setGenre} tags={instrumental ? "" : lyricMoodPayload({ moods, tempo, vocals }).tags} subTag={instrumental ? "" : (subGenresOf(genre).find((s) => s.ko === subGenre)?.en ?? "")} />}
             <textarea
               className={`${field} min-h-[70px] font-mono text-xs`}
               value={draft.style_prompt}
