@@ -238,6 +238,13 @@ export default function QueuePage() {
               <Clock className="h-4 w-4 text-teal-300" /> 대기·진행 {activeCount(jobs)}개
               <span className="text-[11px] font-normal text-slate-400">{engine.ready ? `엔진 준비됨 · ${engine.status?.mode}` : `엔진 ${engine.status?.stage ?? ""} — 준비되면 이어서 만듭니다`}</span>
             </h2>
+            {/* 엔진 오류 문장도 여기서 보이게(2026-11-08 주인님 「엔진 오류 확인해줘」 — 예전엔 「내 PC 엔진」 화면에만 있었음) */}
+            {!engine.ready && engine.status?.error && (
+              <p className="rounded-xl border border-rose-500/30 bg-rose-950/30 px-3.5 py-2.5 text-[11px] leading-relaxed text-rose-200">
+                ⚠ 엔진 오류: {engine.status.error}
+                <span className="mt-1 block text-rose-200/70">작업 표시줄 오른쪽 트레이의 엔진 아이콘 → 「엔진 다시 켜기」를 누르면 음악 엔진을 다시 준비하고, 기다리던 곡을 이어서 만듭니다.</span>
+              </p>
+            )}
             {active.length === 0 ? (
               <p className="rounded-xl border border-slate-800 bg-slate-950/40 px-4 py-6 text-center text-xs text-slate-500">
                 기다리는 작업이 없습니다. <Link href="/songs" className="text-emerald-300 underline underline-offset-2">곡 만들기</Link>에서 [대기열에 넣기]를 눌러 주세요.
