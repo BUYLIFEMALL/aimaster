@@ -29,6 +29,8 @@ import {
   MonitorPlay,
   Film,
   Star,
+  LayoutGrid,
+  List as ListIcon,
 } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { CollectionsNav, type View } from "@/components/library/CollectionsNav";
@@ -36,7 +38,7 @@ import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { CoverThumb } from "@/components/library/CoverThumb";
 import { TrackOrderList } from "@/components/library/TrackOrderList";
 import { TrackDetailPanel } from "@/components/library/TrackDetailPanel";
-import { TrackMenu } from "@/components/library/TrackMenu";
+import { TrackMenu, type MenuItem } from "@/components/library/TrackMenu";
 import { MasteringDialog } from "@/components/library/MasteringDialog";
 import { StemDialog } from "@/components/library/StemDialog";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
@@ -92,6 +94,19 @@ export default function LibraryPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null); // 잘 된 일 안내(초록)
   const [renaming, setRenaming] = useState<string | null>(null);
+  // 보기 방식(2026-11-08 주인님 「앨범 이미지가 크게 보는 방식도」 — 원본 boks-music 카드 격자) — 이 브라우저에 기억
+  const [layout, setLayoutState] = useState<"list" | "grid">("list");
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("fms:library-layout") === "grid") setLayoutState("grid");
+    } catch {}
+  }, []);
+  const setLayout = (v: "list" | "grid") => {
+    setLayoutState(v);
+    try {
+      localStorage.setItem("fms:library-layout", v);
+    } catch {}
+  };
   const [selected, setSelected] = useState<Set<string>>(new Set()); // 여러 곡 고르기(원본 전체 선택 → 빼기·옮기기)
   const [detailId, setDetailId] = useState<string | null>(null); // 오른쪽 곡 상세 패널
   const [mastering, setMastering] = useState<Track | null>(null); // 마스터링 설정 창
@@ -496,6 +511,96 @@ export default function LibraryPage() {
 
   const btn = "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold disabled:opacity-40";
 
+  // 곡 메뉴(…) 항목 — 한 줄 보기와 카드 보기가 함께 쓴다(2026-11-08 카드 보기 추가 때 한 줄 보기 안에서 옮김, 동작 같음)
+  const menuFor = (t: Track, here: boolean | null): MenuItem[] => {
+    const inPlaylist = view.type === "playlist";
+    return view.type === "trash" ? [
+                            { label: "되살리기", icon: <Undo2 className="h-3.5 w-3.5" />, onClick: () => void restoreFromTrash([t.id]) },
+                            { label: "완전 삭제", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void purge([t.id]) },
+                          ] : [
+                            { label: t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기에 넣기", icon: <Star className={`h-3.5 w-3.5 ${t.favorite ? "" : "fill-amber-300 text-amber-300"}`} />, onClick: () => void toggleFavorite(t) },
+                            { label: "곡 상세 · 제목/가사 수정", icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => setDetailId(t.id) },
+                            { label: "가사 시간 조정 · LRC/SRT 불러오기", icon: <Pencil className="h-3.5 w-3.5" />, hidden: !t.lyrics.trim(),onClick: () => setDetailId(t.id) },
+                            { label: "표지 올리기 · 내 PC 그림", icon: <ImagePlus className="h-3.5 w-3.5" />, onClick: () => setDetailId(t.id) },
+                            {
+                              label: "이 곡으로 커버 만들기",
+                              icon: <Palette className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : t.license === "noncommercial" ? "개인용 엔진 곡은 커버를 만들 수 없습니다" : false,
+                              onClick: () => {
+                                const src: CoverSource = { id: t.id, title: t.title, style_prompt: t.style_prompt, lyrics: t.lyrics, kind: t.kind };
+                                try {
+                                  sessionStorage.setItem(COVER_SOURCE_KEY, JSON.stringify(src));
+                                } catch {}
+                                router.push(`/import?from=${t.id}`);
+                              },
+                            },
+                            {
+                              // 만든 곡 → 가사 영상(D-1): 제목·가사·가사 시간은 가사 영상이 DB에서, 음원은 이 창이 엔진에서 받아 건넴
+                              label: "가사 영상 만들기",
+                              icon: <Clapperboard className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !t.lyrics.trim() ? "가사 없는 곡입니다" : false,
+                              onClick: () => {
+                                if (openLyricVideo({ id: t.id, title: t.title }, setMessage))
+                                  setNotice(t.lyric_timing ? "가사 영상 창을 열었습니다. 맞춰 둔 가사 시간과 음악 파일이 함께 들어갑니다." : "가사 영상 창을 열었습니다. 가사 시간은 그 화면 「가사 싱크」에서 맞추거나, 먼저 곡 상세 「가사 시간」에서 맞춰 두면 바로 들어갑니다.");
+                              },
+                            },
+                            // 만든 곡 → 플레이리스트 영상·뮤직비디오(D-1 나머지, 2026-11-08)
+                            {
+                              label: "플레이리스트 영상 만들기",
+                              icon: <MonitorPlay className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
+                              onClick: () => {
+                                if (openVideoWithSongs("playlist", [{ id: t.id, title: t.title }], setMessage))
+                                  setNotice("플레이리스트 영상 창을 열었습니다. 여러 곡을 넣으려면 곡 왼쪽 칸을 골라 「고른 곡으로 플레이리스트 영상」을 눌러 주세요.");
+                              },
+                            },
+                            {
+                              label: "뮤직비디오 만들기",
+                              icon: <Film className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
+                              onClick: () => {
+                                if (openVideoWithSongs("musicVideo", [{ id: t.id, title: t.title }], setMessage))
+                                  setNotice("뮤직비디오 창을 열었습니다. 곡 제목·스타일·가사(맞춰 둔 가사 시간 포함)와 음악 파일이 함께 들어갑니다.");
+                              },
+                            },
+                            // 앨범(v1.35, 주인님 「곡을 다 만들고 곡제목,가사를 베이스로 이미지 앨범을 만들게 하거나 이미 만들어놓은 앨범이미지에서 선택해서 사용」)
+                            {
+                              label: "앨범 그림 만들기 · 곡 제목·가사로",
+                              icon: <ImagePlus className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 표지로 넣을 수 있습니다" : false,
+                              onClick: () => router.push(albumsHref({ track: t.id })),
+                            },
+                            {
+                              label: "앨범에서 표지 고르기",
+                              icon: <Images className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasAlbums(engine.status) ? "엔진 0.7.3 이상이 필요합니다" : false,
+                              onClick: () => setCoverFor(t),
+                            },
+                            {
+                              label: "마스터링",
+                              icon: <SlidersHorizontal className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasMastering(engine.status) ? "엔진 0.6.9 이상(ffmpeg 포함)이 필요합니다" : false,
+                              onClick: () => setMastering(t),
+                            },
+                            {
+                              label: "Stem 분리 · 보컬/반주·악기별",
+                              icon: <Layers className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasStems(engine.status) ? "엔진 0.6.9 이상(윈도우)이 필요합니다" : false,
+                              onClick: () => setStemFor(t),
+                            },
+                            { label: "스타일 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.style_prompt ? false : "스타일이 없습니다", onClick: () => copy(t.style_prompt, "스타일") },
+                            { label: "가사 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.lyrics.trim() ? false : "가사 없는 곡입니다", onClick: () => copy(t.lyrics, "가사") },
+                            {
+                              label: "저장 폴더 열기",
+                              icon: <FolderOpen className="h-3.5 w-3.5" />,
+                              hidden: !libOk || !hasFolderPicker(engine.status),
+                              onClick: () => void revealLibraryFolder().catch(() => setMessage("폴더를 열지 못했습니다.")),
+                            },
+                            { label: "이 플레이리스트에서 빼기", icon: <X className="h-3.5 w-3.5" />, hidden: !inPlaylist, onClick: () => void removeFromPlaylist([t.id]) },
+                            { label: "휴지통으로", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, hidden: inPlaylist, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void remove(t) },
+                          ];
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-[#0a0f1d] via-[#0b1a18] to-[#070b14] p-6 shadow-xl">
@@ -611,6 +716,14 @@ export default function LibraryPage() {
               </h2>
             )}
             <div className="ml-auto flex flex-wrap gap-1.5">
+              <div className="flex overflow-hidden rounded-lg border border-slate-700" role="group" aria-label="보기 방식">
+                <button type="button" onClick={() => setLayout("list")} className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold ${layout === "list" ? "bg-emerald-600 text-white" : "text-slate-300 hover:bg-slate-800"}`} aria-pressed={layout === "list"}>
+                  <ListIcon className="h-3.5 w-3.5" /> 목록
+                </button>
+                <button type="button" onClick={() => setLayout("grid")} className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold ${layout === "grid" ? "bg-emerald-600 text-white" : "text-slate-300 hover:bg-slate-800"}`} aria-pressed={layout === "grid"}>
+                  <LayoutGrid className="h-3.5 w-3.5" /> 카드
+                </button>
+              </div>
               {playable.length > 1 && (
                 <button type="button" onClick={startQueue} className={`${btn} border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/50`}>
                   <PlayCircle className="h-3.5 w-3.5" /> 전체 이어 듣기
@@ -811,6 +924,71 @@ export default function LibraryPage() {
             {(view.type === "playlist" || view.type === "project") && !canReorder && shown.length > 1 && (
               <p className="text-[11px] text-slate-500">검색·보기 조건을 지우고 정렬을 「직접 정한 순서」로 두면 끌어서 순서를 바꿀 수 있습니다.</p>
             )}
+            {layout === "grid" && (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                {shown.map((t) => {
+                  const here = onPc ? onPc.has(t.id) : null;
+                  const playing = player?.current?.key === t.id;
+                  const canPlay = libOk && here !== false;
+                  return (
+                    <div key={t.id} className={`group overflow-hidden rounded-2xl border bg-[#0a0f1d] transition-colors ${selected.has(t.id) ? "border-emerald-400/70" : playing ? "border-emerald-500/50" : "border-slate-800 hover:border-slate-600"}`}>
+                      <div className="relative">
+                        <CoverThumb trackId={t.id} has={showCovers && arts.has(t.id)} title={t.title} version={artVersion[t.id] ?? 0} large />
+                        <input
+                          type="checkbox"
+                          checked={selected.has(t.id)}
+                          onChange={() => toggleOne(t.id)}
+                          aria-label={`${t.title} 고르기`}
+                          className="absolute left-2 top-2 h-4 w-4 accent-emerald-500"
+                        />
+                        {!t.trashed_at && (
+                          <button
+                            type="button"
+                            onClick={() => void toggleFavorite(t)}
+                            className="absolute right-2 top-2 rounded-lg bg-black/50 p-1.5 backdrop-blur hover:bg-black/70"
+                            title={t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기"}
+                            aria-label={t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기"}
+                            aria-pressed={!!t.favorite}
+                          >
+                            <Star className={`h-4 w-4 ${t.favorite ? "fill-amber-300 text-amber-300" : "text-white/80"}`} />
+                          </button>
+                        )}
+                        {canPlay && (
+                          <button
+                            type="button"
+                            onClick={() => playOne(t)}
+                            className={`absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur transition-opacity hover:bg-emerald-600 ${playing ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus:opacity-100"}`}
+                            aria-label={`${t.title} 듣기`}
+                          >
+                            <PlayCircle className="h-7 w-7" />
+                          </button>
+                        )}
+                        <span className="absolute bottom-2 left-2 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
+                          {KIND_LABEL[t.kind] || "원곡"}
+                        </span>
+                        <span className="absolute bottom-2 right-2 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white">{durationLabel(t.duration_sec)}</span>
+                      </div>
+                      <div className="space-y-1.5 p-3">
+                        <button type="button" onClick={() => setDetailId(t.id)} className="block w-full truncate text-left text-sm font-bold text-slate-100 hover:text-emerald-300" title="곡 상세 보기">
+                          {t.title}
+                        </button>
+                        <p className="truncate text-[11px] text-slate-500" title={t.style_prompt}>{t.style_prompt || "스타일 없음"}</p>
+                        <p className="truncate text-[10px] text-slate-600">
+                          {t.license === "noncommercial" && <span className="mr-1 rounded bg-amber-500/15 px-1 font-semibold text-amber-200">비상업용</span>}
+                          {here === false ? <span className="text-amber-300/80">이 PC에 음원 없음 · </span> : null}
+                          생성 {new Date(t.created_at).toLocaleDateString("ko-KR")}
+                        </p>
+                        <div className="flex items-center justify-between pt-1">
+                          {t.trashed_at ? <span className="text-[10px] text-rose-300/80">휴지통</span> : <span />}
+                          <TrackMenu label={t.title} items={menuFor(t, here)} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {layout === "list" && (
             <TrackOrderList
               items={shown}
               editable={canReorder}
@@ -894,89 +1072,7 @@ export default function LibraryPage() {
                         )}
                         <TrackMenu
                           label={t.title}
-                          items={view.type === "trash" ? [
-                            { label: "되살리기", icon: <Undo2 className="h-3.5 w-3.5" />, onClick: () => void restoreFromTrash([t.id]) },
-                            { label: "완전 삭제", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void purge([t.id]) },
-                          ] : [
-                            { label: t.favorite ? "즐겨찾기에서 빼기" : "즐겨찾기에 넣기", icon: <Star className={`h-3.5 w-3.5 ${t.favorite ? "" : "fill-amber-300 text-amber-300"}`} />, onClick: () => void toggleFavorite(t) },
-                            { label: "곡 상세 · 제목/가사 수정", icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => setDetailId(t.id) },
-                            {
-                              label: "이 곡으로 커버 만들기",
-                              icon: <Palette className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : t.license === "noncommercial" ? "개인용 엔진 곡은 커버를 만들 수 없습니다" : false,
-                              onClick: () => {
-                                const src: CoverSource = { id: t.id, title: t.title, style_prompt: t.style_prompt, lyrics: t.lyrics, kind: t.kind };
-                                try {
-                                  sessionStorage.setItem(COVER_SOURCE_KEY, JSON.stringify(src));
-                                } catch {}
-                                router.push(`/import?from=${t.id}`);
-                              },
-                            },
-                            {
-                              // 만든 곡 → 가사 영상(D-1): 제목·가사·가사 시간은 가사 영상이 DB에서, 음원은 이 창이 엔진에서 받아 건넴
-                              label: "가사 영상 만들기",
-                              icon: <Clapperboard className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !t.lyrics.trim() ? "가사 없는 곡입니다" : false,
-                              onClick: () => {
-                                if (openLyricVideo({ id: t.id, title: t.title }, setMessage))
-                                  setNotice(t.lyric_timing ? "가사 영상 창을 열었습니다. 맞춰 둔 가사 시간과 음악 파일이 함께 들어갑니다." : "가사 영상 창을 열었습니다. 가사 시간은 그 화면 「가사 싱크」에서 맞추거나, 먼저 곡 상세 「가사 시간」에서 맞춰 두면 바로 들어갑니다.");
-                              },
-                            },
-                            // 만든 곡 → 플레이리스트 영상·뮤직비디오(D-1 나머지, 2026-11-08)
-                            {
-                              label: "플레이리스트 영상 만들기",
-                              icon: <MonitorPlay className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
-                              onClick: () => {
-                                if (openVideoWithSongs("playlist", [{ id: t.id, title: t.title }], setMessage))
-                                  setNotice("플레이리스트 영상 창을 열었습니다. 여러 곡을 넣으려면 곡 왼쪽 칸을 골라 「고른 곡으로 플레이리스트 영상」을 눌러 주세요.");
-                              },
-                            },
-                            {
-                              label: "뮤직비디오 만들기",
-                              icon: <Film className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
-                              onClick: () => {
-                                if (openVideoWithSongs("musicVideo", [{ id: t.id, title: t.title }], setMessage))
-                                  setNotice("뮤직비디오 창을 열었습니다. 곡 제목·스타일·가사(맞춰 둔 가사 시간 포함)와 음악 파일이 함께 들어갑니다.");
-                              },
-                            },
-                            // 앨범(v1.35, 주인님 「곡을 다 만들고 곡제목,가사를 베이스로 이미지 앨범을 만들게 하거나 이미 만들어놓은 앨범이미지에서 선택해서 사용」)
-                            {
-                              label: "앨범 그림 만들기 · 곡 제목·가사로",
-                              icon: <ImagePlus className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 표지로 넣을 수 있습니다" : false,
-                              onClick: () => router.push(albumsHref({ track: t.id })),
-                            },
-                            {
-                              label: "앨범에서 표지 고르기",
-                              icon: <Images className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasAlbums(engine.status) ? "엔진 0.7.3 이상이 필요합니다" : false,
-                              onClick: () => setCoverFor(t),
-                            },
-                            {
-                              label: "마스터링",
-                              icon: <SlidersHorizontal className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasMastering(engine.status) ? "엔진 0.6.9 이상(ffmpeg 포함)이 필요합니다" : false,
-                              onClick: () => setMastering(t),
-                            },
-                            {
-                              label: "Stem 분리 · 보컬/반주·악기별",
-                              icon: <Layers className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasStems(engine.status) ? "엔진 0.6.9 이상(윈도우)이 필요합니다" : false,
-                              onClick: () => setStemFor(t),
-                            },
-                            { label: "스타일 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.style_prompt ? false : "스타일이 없습니다", onClick: () => copy(t.style_prompt, "스타일") },
-                            { label: "가사 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.lyrics.trim() ? false : "가사 없는 곡입니다", onClick: () => copy(t.lyrics, "가사") },
-                            {
-                              label: "저장 폴더 열기",
-                              icon: <FolderOpen className="h-3.5 w-3.5" />,
-                              hidden: !libOk || !hasFolderPicker(engine.status),
-                              onClick: () => void revealLibraryFolder().catch(() => setMessage("폴더를 열지 못했습니다.")),
-                            },
-                            { label: "이 플레이리스트에서 빼기", icon: <X className="h-3.5 w-3.5" />, hidden: !inPlaylist, onClick: () => void removeFromPlaylist([t.id]) },
-                            { label: "휴지통으로", icon: <Trash2 className="h-3.5 w-3.5" />, danger: true, hidden: inPlaylist, disabled: busy === t.id ? "지우는 중입니다" : false, onClick: () => void remove(t) },
-                          ]}
+                          items={menuFor(t, here)}
                         />
                       </div>
                     </div>
@@ -1012,6 +1108,7 @@ export default function LibraryPage() {
                 );
               }}
             />
+            )}
             </>
           )}
           {mastering && (

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Music2 } from "lucide-react";
 import { fetchLibraryArt } from "@/lib/engine";
 
-export function CoverThumb({ trackId, has, title, version = 0 }: { trackId: string; has: boolean; title: string; version?: number }) {
+export function CoverThumb({ trackId, has, title, version = 0, large = false }: { trackId: string; has: boolean; title: string; version?: number; large?: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const [src, setSrc] = useState("");
 
@@ -34,12 +34,12 @@ export function CoverThumb({ trackId, has, title, version = 0 }: { trackId: stri
   }, [trackId, has, version]); // version: 표지를 바꾸면 올라가 다시 받는다
 
   return (
-    <div ref={box} className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-800 bg-slate-900">
+    <div ref={box} className={large ? "flex aspect-square w-full items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 to-slate-950" : "flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-800 bg-slate-900"}>
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt={`${title} 표지`} className="h-full w-full object-cover" />
       ) : (
-        <Music2 className="h-5 w-5 text-slate-600" aria-hidden />
+        <Music2 className={large ? "h-12 w-12 text-slate-700" : "h-5 w-5 text-slate-600"} aria-hidden />
       )}
     </div>
   );
