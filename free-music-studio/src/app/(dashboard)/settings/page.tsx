@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Key, CheckCircle2, AlertCircle, Trash2, ShieldCheck } from "lucide-react";
 import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+import { AiModelsCard } from "@/components/settings/AiModelsCard";
 
 type KeyState = Record<string, { registered: boolean; maskedKey?: string }>;
 
@@ -215,6 +216,8 @@ export default function SettingsPage() {
         placeholder="AIza 로 시작하는 본인 Gemini API 키 입력"
         {...common}
       />
+      {/* 플랫폼별 모델 저장(2026-11-08) — 곡 만들기·앨범 화면은 플랫폼만 고름 */}
+      <AiModelsCard keys={keys} />
       <KeyCard
         provider="huggingface"
         title="Hugging Face 토큰 (Stable Audio 3)"

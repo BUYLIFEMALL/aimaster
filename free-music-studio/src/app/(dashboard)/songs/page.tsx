@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2, Mic, Piano, AudioLines, Wand2, ListMusic, Download } from "lucide-react";
 import { DEFAULT_DURATION, DEFAULT_SFX_DURATION, LIMITS, MUSIC_DURATIONS, SFX_DURATIONS, isSfxLyrics, type Song } from "@/lib/songs";
 import { DEFAULT_LYRIC_PROVIDER, LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
+import { loadAiPrefs, type AiPrefs } from "@/lib/aiModelChoice";
 import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseBannedInput, planChunks, type PlannedTrack } from "@/lib/lyricRules";
 
 /** 기획 곡 수 고르기 — 1~10, 그 뒤로 15·20·30·40(주인님 2026-11-06: 20곡씩 최대 40곡) */
@@ -75,6 +76,15 @@ export default function SongsPage() {
   const [model, setModel] = useState<string>(LYRIC_PROVIDERS.find((p) => p.id === DEFAULT_LYRIC_PROVIDER)!.defaultModel);
   const [keys, setKeys] = useState<Record<string, { registered: boolean }> | null>(null);
   const [writing, setWriting] = useState<"" | "create" | "edit" | "plan" | "sound">("");
+
+  // 플랫폼별 모델은 설정 화면에 저장한 것(2026-11-08) — 플랫폼이 정해지거나 바뀌면 그 모델로 맞춘다(이 화면에서 모델을 따로 바꿔도 됨)
+  const [aiPrefs, setAiPrefs] = useState<AiPrefs | null>(null);
+  useEffect(() => {
+    void loadAiPrefs().then(setAiPrefs);
+  }, []);
+  useEffect(() => {
+    if (aiPrefs) setModel(aiPrefs.models[provider]);
+  }, [aiPrefs, provider]);
 
   // 어느 AI에 본인 키가 있는지 — 키가 있는 곳 중 첫 번째(OpenAI → Claude → Gemini)를 기본으로 고른다.
   useEffect(() => {

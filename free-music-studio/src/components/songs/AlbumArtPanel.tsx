@@ -10,7 +10,8 @@ import { ImageIcon, Loader2, FolderDown, Download, Sparkles } from "lucide-react
 import { useEngine } from "@/components/engine/useEngine";
 import { EngineError, enqueueLocalArt, fetchLocalArt, getImageModels, hasArt, hasLocalArt, listQueue, saveArtToLibrary, type ImageModelState } from "@/lib/engine";
 import { ART_PROMPT_LIMIT } from "@/lib/albumArt";
-import type { LyricProvider } from "@/lib/lyricModels";
+import { LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
+import { loadAiPrefs, modelLabel, saveAiPrefs, usableProvider, type AiPrefs } from "@/lib/aiModelChoice";
 
 const field =
   "w-full rounded-xl border border-slate-700/60 bg-slate-950/80 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden focus:ring-1 focus:ring-emerald-400";
@@ -55,12 +56,24 @@ export function AlbumArtPanel({
   const [localId, setLocalId] = useState("");
   const [stage, setStage] = useState("");
   const polling = useRef<number | null>(null);
+  // 영어 설명 AI — 곡 만들기에서 넘겨받지 않으면(앨범 화면) 여기서 플랫폼 버튼만 고르고, 모델은 설정 화면에서 저장한 것(2026-11-08 주인님)
+  const [prefs, setPrefs] = useState<AiPrefs | null>(null);
+  const [textProvider, setTextProvider] = useState<LyricProvider | null>(null);
   useEffect(() => {
     fetch("/api/settings/api-keys")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => d?.keys && setKeys(d.keys))
       .catch(() => {});
+    void loadAiPrefs().then(setPrefs);
   }, []);
+  useEffect(() => {
+    if (prefs && !textProvider) setTextProvider(usableProvider(prefs.textProvider, keys));
+  }, [prefs, keys, textProvider]);
+  const textAi = ai ?? (textProvider && prefs ? { provider: textProvider, model: prefs.models[textProvider] } : null);
+  const pickText = (p: LyricProvider) => {
+    setTextProvider(p);
+    if (prefs) void saveAiPrefs(prefs, { textProvider: p }).then(setPrefs).catch(() => {});
+  };
   useEffect(() => {
     if (!localOk) return setLocal(null);
     getImageModels()
@@ -86,7 +99,7 @@ export function AlbumArtPanel({
       const res = await fetch("/api/album-art/prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, style, lyrics, idea, provider: ai?.provider, model: ai?.model }),
+        body: JSON.stringify({ title, style, lyrics, idea, provider: textAi?.provider, model: textAi?.model }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -266,6 +279,35 @@ export function AlbumArtPanel({
                   ? `${localRow.familyName} ${localRow.quant} — ${localRow.note}. ${localRow.installed ? "받아 두어 바로 그립니다." : `처음 한 번 ${gbText(localRow.downloadBytes)}를 받습니다(저장 공간 ${local.hardware.diskGB}GB 남음).`}${localRow.reason ? ` ${localRow.reason}` : ""} 그래픽카드 ${local.build?.label}${local.hardware.gpuGB ? ` ${local.hardware.gpuGB}GB` : ""}.`
                   : "그림 모델을 골라 주세요."}
         </p>
+      )}
+      {!ai && (
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+          <span className="font-semibold text-slate-400">영어 설명 AI</span>
+          {LYRIC_PROVIDERS.map((p) => {
+            const noKey = keys !== null && !keys[p.id]?.registered;
+            const on = textProvider === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => pickText(p.id)}
+                title={noKey ? `${p.label} API 키가 등록되지 않았습니다. 설정 화면에서 등록해 주세요.` : `설정에 저장한 모델: ${prefs ? modelLabel(p.id, prefs.models[p.id]) : ""}`}
+                className={`rounded-lg px-2.5 py-1 font-bold transition-colors ${on ? "bg-sky-600 text-white" : noKey ? "border border-slate-800 text-slate-500 hover:bg-slate-900" : "border border-slate-700 text-slate-300 hover:bg-slate-800"}`}
+              >
+                {p.label}
+                {noKey && <span className={`ml-1 font-normal ${on ? "text-rose-100" : "text-rose-300"}`}>· API 미등록</span>}
+              </button>
+            );
+          })}
+          {textProvider && prefs && (
+            <span className="text-slate-500">
+              {modelLabel(textProvider, prefs.models[textProvider])} ·{" "}
+              <Link href="/settings#ai-models" className="underline underline-offset-2 hover:text-slate-300">
+                모델은 설정에서
+              </Link>
+            </span>
+          )}
+        </div>
       )}
       <div className="flex flex-wrap items-center gap-2">
         {/* 영어 변환은 모든 그림 플랫폼에서(2026-11-08 주인님 「왜 영어 변환 기능이 없어」 — 예전엔 내 PC만) */}
