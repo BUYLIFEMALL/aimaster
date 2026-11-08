@@ -215,7 +215,7 @@ src/components/studio/*       StudioWorkspace(흐름) · ContentTabs(Suno/가사
 ## 2026-11-08 v1.35 — AI 무료음악 자동화 곡 가져오기(?fms=) (Claude Code 윈도우 · 음악 담당 `claude-win-20261024-music`)
 - 주인님 「D-1 나머지 진행해」: 무료음악 「모든 음악」의 「플레이리스트 영상 만들기」·「고른 곡으로 플레이리스트 영상」으로 `/video?fms=<곡 번호>,…`(최대 20곡)가 열리면 `FmsImportPanel`이 `/api/fms/songs`(공용 DB `free_music_tracks` 읽기만, 회원 user_id로 거름)에서 제목·가사 시간을 받고, 무료음악 창에 `pcs-ready`를 보내 곡마다 음원(`fms-audio`, 브라우저 안 postMessage)을 받아 모두 오면 클릭 없이 목록 끝에 넣는다(3분 지나면 받은 곡만, 나머지는 직접 넣기 안내). 가사 시간 변환 `src/lib/fmsLyrics.ts`는 가사 영상 v1.13 사본. 외부 AI 호출 없음.
 - 검수: 시험 29(가사 시간 1개 추가)·tsc. 배포 `playlist-channel-studio-b9iwkkr5y` Ready·DB v1.35, ego 운영 확인(`?fms=` 패널이 곡을 읽음).
-- 미배포 대기(2026-11-08): 무료음악 창이 아닌 곳에서 열었을 때 「받는 중」 줄 숨김(「직접 넣기」 안내와 엇갈려 보이던 것)
+- v1.36 배포(2026-11-08, 주인님 「같이 배포해」): 무료음악 창이 아닌 곳에서 열었을 때 「받는 중」 줄 숨김(「직접 넣기」 안내와 엇갈려 보이던 것)
 
 ## 2026-10-23 v1.27 — AI 음악 스튜디오 곡 가져오기(?ams=) + 미배포 대기 1건 내보냄 (Claude Code 윈도우)
 - `/video?ams=<생성 번호>:<곡 순서>,…`(최대 20곡)로 들어오면 미디어 센터 맨 위 「🎧 AI 음악 스튜디오에서 보낸 곡」 패널(`src/components/video/AmsImportPanel.tsx`)이 곡 목록을 보여 주고, 회원이 「곡 N개 추가」를 누르면 목록 끝에 넣는다. 서버 `src/lib/amsTracks.ts` + `GET /api/ams/songs?refs=` — 회원 본인 행만, 비공개 저장소 서명 주소. Lyria 시간 가사는 `src/lib/amsLyrics.ts`(공용 모듈 `ams-timed-lyrics` 사본, 기준 lyric-video-studio)로 곡 가사 층에 연결. 외부 AI 호출 없음.
