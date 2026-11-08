@@ -239,7 +239,11 @@ function EngineCheck({ engine }: { engine: Engine }) {
 
   return (
     <div className="space-y-4">
-      <Verdict status={report.check.verdict} headline={report.check.headline} sub={[sys.gpu, sys.vramGb != null ? `그래픽 메모리 ${sys.vramGb}GB` : "", sys.ramGb ? `메모리 ${sys.ramGb}GB` : ""].filter(Boolean).join(" · ")} />
+      <Verdict
+        status={report.check.verdict}
+        // 엔진이 이미 설치·연결된 상태에서 「설치할 수 없습니다」는 설치 실패로 오해됨(2026-11-08 맥미니 Intel 맥 검수 제안) → 「음악 생성 미지원」
+        headline={report.check.verdict === "fail" ? "엔진은 연결됐지만, 이 PC에서는 음악 생성을 지원하지 않습니다" : report.check.headline}
+        sub={[sys.gpu, sys.vramGb != null ? `그래픽 메모리 ${sys.vramGb}GB` : "", sys.ramGb ? `메모리 ${sys.ramGb}GB` : ""].filter(Boolean).join(" · ")} />
 
       {rec && (
         <div className="rounded-xl border-2 border-indigo-400/60 bg-gradient-to-br from-indigo-900/70 via-indigo-950/80 to-violet-950/70 p-4 shadow-lg shadow-indigo-950/40">
