@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 [역할: mac-mini] 로그인 실제 곡 목록5회 측정 완료·환경 의존 항목 현재 목록 제외
+- ego lite·시험 계정·GET /api/tracks5회 모두200·실제 곡12개. 첫 응답평균189.06ms/범위172.7~212ms, 본문 완료평균192.98ms. Mac 측정이며 배포 전 동일 조건 인증 기준이 없어 전후 개선율 미산출. 작업 공간15 종료.
+- 가사 수정 전 원본은 일반12곡/휴지통8곡 미확인, 전체 추가 비교 미완료. 주인님 지시로 Apple Silicon·가사 추가·YuE2/LeVo는 현재 목록 제외·환경/원본 준비 후 재개 보관. dc7d150f 결과 보고·처리. 상세 free-music-studio/docs/IMPROVEMENTS.md 맨 위. 운영 데이터/생성/배포/푸시 없음, 비용 없음.
+
 ## 2026-11-09 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-fms-thumb — **`free-music-studio` 프로그램 카탈로그 공식 썸네일 생성 및 등록 완료**
 - **주인님 지시**: 「https://free-music-studio.buylife.xyz/ 프로그램 기능에 맞는 썸네일 생성 해서 등록 해줘」
 - **썸네일 기획 & 생성 규격**:
