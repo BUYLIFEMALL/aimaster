@@ -23,6 +23,7 @@ export function FmsImportPanel({ setTracks }: { setTracks: React.Dispatch<React.
   const files = useRef(new Map<string, File>());
   const done = useRef(false);
   const [timedOut, setTimedOut] = useState(false);
+  const [noOpener, setNoOpener] = useState(false); // 무료음악 창에서 열리지 않음 — 음원이 올 수 없어 기다리지 않는다
 
   // 1) 주소에서 곡 번호를 읽고 곡 정보를 받은 뒤 무료음악 창에 「준비됨」을 알린다
   useEffect(() => {
@@ -44,7 +45,7 @@ export function FmsImportPanel({ setTracks }: { setTracks: React.Dispatch<React.
       .then(async (r) => { const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.error ?? "곡을 불러오지 못했습니다."); setSongs(d.songs); })
       .then(() => {
         if (window.opener) for (const o of FMS_ORIGINS) window.opener.postMessage({ type: "pcs-ready", ids: list }, o);
-        else setReport({ ok: false, text: "이 창이 무료음악 화면에서 열리지 않아 음악 파일을 받을 수 없습니다. 노래 저장 폴더의 파일을 아래 「오디오 파일」 칸에 직접 넣어 주세요." });
+        else { setNoOpener(true); setReport({ ok: false, text: "이 창이 무료음악 화면에서 열리지 않아 음악 파일을 받을 수 없습니다. 노래 저장 폴더의 파일을 아래 「오디오 파일」 칸에 직접 넣어 주세요." }); }
       })
       .catch((e) => { setSongs([]); setReport({ ok: false, text: e instanceof Error ? e.message : "곡을 불러오지 못했습니다." }); });
     return () => { window.removeEventListener("message", onMessage); window.clearTimeout(timer); };
@@ -75,7 +76,7 @@ export function FmsImportPanel({ setTracks }: { setTracks: React.Dispatch<React.
   }, [songs, allIn, timedOut, wanted, setTracks]);
 
   if (!ids.length) return null;
-  const waiting = songs && !done.current && wanted.length > 0 && !allIn && !timedOut;
+  const waiting = songs && !noOpener && !done.current && wanted.length > 0 && !allIn && !timedOut;
   return (
     <div className="bg-[#181818] border border-[#272727] rounded-2xl p-4 space-y-3" data-fms-panel>
       <div className="text-sm font-bold text-white">🎵 AI 무료음악 자동화에서 보낸 곡</div>
@@ -85,7 +86,7 @@ export function FmsImportPanel({ setTracks }: { setTracks: React.Dispatch<React.
           {songs.map((s) => (
             <li key={s.id} className="flex flex-wrap items-center gap-2">
               <span className="font-semibold">{s.title}</span>
-              {s.error ? <span className="text-red-300">{s.error}</span> : got[s.id] ? <span className="text-emerald-300">음악 받음</span> : <span className="text-[#888]">음악 받는 중…</span>}
+              {s.error ? <span className="text-red-300">{s.error}</span> : got[s.id] ? <span className="text-emerald-300">음악 받음</span> : noOpener ? null : <span className="text-[#888]">음악 받는 중…</span>}
               {!s.error && (s.timedLines?.length ? <span className="text-sky-300">가사 시간 {s.timedLines.length}줄</span> : <span className="text-[#888]">가사 시간 없음</span>)}
             </li>
           ))}
