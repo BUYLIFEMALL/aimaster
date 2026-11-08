@@ -70,6 +70,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `free-music-studio` | v1.47 · 엔진 0.7.7 설치 파일 · 2026-11-08 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-24um9ziw4`, DB v1.47) | 그림 모델 폴더 옮기기(맥미니 `09ff772c1` 이름 바꾸기 + 윈도우 보완 `b5daa5679` 실패 시 복사) + 함수 지역 서울 `icn1`(`/api/tracks` 0.24~0.29초 → 0.07초) |
 | `free-music-studio` | v1.46 · 엔진 0.7.6 설치 파일 · 2026-11-08 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-avwzzm4dr` — 배포 명령은 코드 1로 끝났지만 빌드는 진행돼 Ready, 다시 배포하지 않음, DB v1.46) | 엔진 0.7.6(ACE-Step `uv run --no-sync` — GitHub 504로 마스터PC 음악 엔진 「코드 2」 종료, 켜는 중 꺼짐 즉시 감지·오류 줄 표시) + 대기열 엔진 오류 문장 + 휴지통 비우기·고른 곡 완전 삭제 |
 | `free-music-studio` | v1.45 · 2026-11-08 ([역할: music] `claude-win-20261024-music`, 주인님 「함께 배포해」 빌드 1회(`free-music-studio-onmi87hsx`, 버전 파일 누락으로 v1.44 표시) + 「진행해」 빌드 1회(`free-music-studio-cosz73vyi`, DB v1.45), 사이트만) | 모든 음악 카드 보기·곡 메뉴 바로 가기 + 곡 만들기 머리 가짜 뷰파인더 → 실제 상태 줄 + PC 검사 「음악 생성 미지원」 문구 + 앨범 화풍 버튼(기본 실사 사진) + 엔진 목록 노래곡·연주곡 묶음 |
 |---|---|---|
