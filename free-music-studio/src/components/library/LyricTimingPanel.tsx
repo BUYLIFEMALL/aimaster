@@ -4,7 +4,7 @@
 // 우리 화면에 맞춰 옮김(2026-11-06). 직접 맞추기는 lyric-video-studio처럼 「들으면서 줄마다 찍기」 + 줄마다 ±0.2초 조정.
 // 저장은 곡 기록의 lyric_timing(jsonb). 가사를 고치면 지문이 바뀌어 지난 시간 정보는 「없음」이 된다.
 import { useEffect, useMemo, useState } from "react";
-import { Download, FileUp, Loader2, Minus, Play, Plus, RotateCcw, Save, Timer, Wand2 } from "lucide-react";
+import { Download, FileUp, Loader2, Play, Save, Timer, Wand2 } from "lucide-react";
 import { usePlayer } from "@/components/player/PlayerProvider";
 import { useEngine } from "@/components/engine/useEngine";
 import { EngineError, enqueueAlign, hasAlign } from "@/lib/engine";
@@ -182,7 +182,7 @@ export function LyricTimingPanel({ track, onPc, onPlay, onSaved }: { track: Trac
       )}
       {editing && (
         <div className="space-y-2 rounded-xl border border-teal-500/30 bg-teal-950/20 p-3">
-          <p className="text-[11px] leading-relaxed text-teal-100/80">곡을 재생하고, 각 줄을 부르기 시작할 때 「이 줄 시작」을 누르세요. 끝은 다음 줄 시작으로 정해집니다. 줄마다 ±0.2초로 고칠 수 있습니다.</p>
+          <p className="text-[11px] leading-relaxed text-teal-100/80">곡을 재생하고, 각 줄을 부르기 시작할 때 「이 줄 시작」을 누르세요. 끝은 다음 줄 시작으로 정해집니다. 한 줄만 고치려면 그 줄의 「여기부터」를 누른 뒤(그 줄 1.5초 전으로 돌아감) 부르기 시작할 때 「이 줄 시작」, 조금 어긋나면 「−0.2초」·「+0.2초」.</p>
           <div className="flex flex-wrap items-center gap-1.5">
             <button type="button" onClick={onPlay} className={btn}>
               <Play className="h-3.5 w-3.5" /> {isCurrent && player?.playing ? "멈춤" : "재생"}
@@ -197,11 +197,13 @@ export function LyricTimingPanel({ track, onPc, onPlay, onSaved }: { track: Trac
               <li key={c.lineId} className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] ${i === at ? "bg-teal-900/40" : ""}`}>
                 <span className="w-16 shrink-0 tabular-nums text-slate-400">{t2(c.start)}</span>
                 <span className={`min-w-0 flex-1 truncate ${c.start === null ? "text-slate-500" : "text-slate-200"}`}>{c.text}</span>
-                <button type="button" aria-label="0.2초 앞으로" disabled={c.start === null} onClick={() => nudge(i, -0.2)} className="rounded p-0.5 text-slate-400 hover:text-white disabled:opacity-30">
-                  <Minus className="h-3 w-3" />
+                {/* 2026-11-08 주인님 「글자 버튼으로 바꿔줘」 — 아이콘만 있던 −·+·↺를 글자로, 확인 필요 줄 표시 */}
+                {c.status === "review" && <span className="shrink-0 rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-200">확인 필요</span>}
+                <button type="button" aria-label="0.2초 앞으로" disabled={c.start === null} onClick={() => nudge(i, -0.2)} className="rounded border border-slate-700 px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 hover:bg-slate-800 hover:text-white disabled:opacity-30 shrink-0">
+                  −0.2초
                 </button>
-                <button type="button" aria-label="0.2초 뒤로" disabled={c.start === null} onClick={() => nudge(i, 0.2)} className="rounded p-0.5 text-slate-400 hover:text-white disabled:opacity-30">
-                  <Plus className="h-3 w-3" />
+                <button type="button" aria-label="0.2초 뒤로" disabled={c.start === null} onClick={() => nudge(i, 0.2)} className="rounded border border-slate-700 px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 hover:bg-slate-800 hover:text-white disabled:opacity-30 shrink-0">
+                  +0.2초
                 </button>
                 <button
                   type="button"
@@ -210,9 +212,9 @@ export function LyricTimingPanel({ track, onPc, onPlay, onSaved }: { track: Trac
                     setAt(i);
                     if (isCurrent && c.start !== null) player.seek(Math.max(0, c.start - 1.5));
                   }}
-                  className="rounded p-0.5 text-slate-400 hover:text-white"
+                  className="shrink-0 rounded border border-teal-500/50 px-1.5 py-0.5 text-[10px] font-bold text-teal-200 hover:bg-teal-900/50"
                 >
-                  <RotateCcw className="h-3 w-3" />
+                  여기부터
                 </button>
               </li>
             ))}
