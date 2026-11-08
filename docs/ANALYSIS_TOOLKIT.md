@@ -10,7 +10,8 @@
 |---|---|---|---|
 | 핵심 | **REA** (`rea-agents`) | 분석 총괄 — EXE·패키지·Electron·.NET·APK·웹 번들 분석, 근거(Evidence) 정리, 재구현 점검표 | 6.4.0 설치·연결 |
 | 엔진 | **Ghidra** | C/C++ 등 네이티브 EXE를 코드(의사 C)로 풀기 — REA가 내부에서 사용 | 12.1.4 |
-| 엔진 필수 | **Java 21 (Temurin JDK)** | Ghidra 실행에 필요 | 21.0.12 |
+| 엔진 필수 | **Java 21 (Temurin JDK)** | Ghidra 실행에 필요 | 21.0.13 (2026-11-08 재설치 — 21.0.12가 지워져 있었음, §2-2) |
+| 분석+재구현 | **Craft Anything** (`craft-anything-cli`) | 웹사이트·앱·게임을 분석하고 코딩 에이전트가 새 프로젝트로 다시 만든 뒤 원본과 비교(클린룸/딥 모드), 도구 320개를 CLI·MCP로 제공 | 0.5.0 설치·Claude Code 연결(2026-11-08, §2-7) |
 | .NET | **ILSpy 명령줄판** (`ilspycmd`) | C#(.NET) EXE/DLL을 C# 소스로 복원 — REA는 .NET 구조만 보여 줘서 필요 | 9.1.0 |
 | .NET 필수 | **.NET 8 SDK** | `ilspycmd` 설치·실행에 필요 | 8.0.426 |
 | 판별 | **Detect It Easy** (DIE) | EXE가 무엇으로 만들어졌는지(C++/.NET/Electron/Python/압축 포장) 판별 — 분석 방법을 고르는 첫 단계 | 3.21 |
@@ -52,6 +53,7 @@
   [Environment]::SetEnvironmentVariable('GHIDRA_INSTALL_DIR','C:\Tools\ghidra_12.1.4_PUBLIC','User')
   [Environment]::SetEnvironmentVariable('JAVA_HOME','C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot','User')
   ```
+- **2026-11-08 Java 재설치**: 위 `jdk-21.0.12.101-hotspot` 폴더가 지워져 있었다(REA MCP가 세션 시작 때 연결 시간 초과). winget은 내려받기 504로 실패해 공식 릴리스를 직접 받음 — `gh release download jdk-21.0.13+9 -R adoptium/temurin21-binaries -p "OpenJDK21U-jdk_x64_windows_hotspot_21.0.13_9.msi*"` → SHA-256 `9dcbb8eb…91dc5` 대조·서명 확인 → `msiexec /i … /qn` → `C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot`. 사용자 `JAVA_HOME` 갱신, REA 등록 7곳(`~/.claude.json`, `~/.claude-account2/.claude.json`, Orca `claude-profiles/*/home/.claude.json` 2곳, Orca `codex-accounts/*/home/config.toml`, `~/.gemini/config/mcp_config.json`, `~/.gemini/settings.json`)의 폴더 이름도 바꿈(각 `.before-jdk-20261108` 백업). **Java를 올리거나 지우면 이 7곳의 `JAVA_HOME`도 같이 바꾼다** — 안 바꾸면 REA MCP가 조용히 연결 실패한다.
 - REA가 요구하는 버전: Ghidra 12.1.x + 64비트 JDK 21 이상. Ghidra를 새 버전으로 바꾸면 환경변수와 `rea setup`을 다시 한다.
 - 동작 확인: `rea analyze <exe> --provider ghidra --format json > out.json` (whoami.exe 사본 36초, 함수 341).
 
@@ -82,6 +84,21 @@
 - 계정별 브라우저: 메인 `buylifemall@gmail.com` → 크롬, 보조 `buylifemall1@gmail.com` → 엣지(deviceId 표: `docs/AI_AGENT_AUTONOMOUS_DEV_WORKFLOW.md` 8-1-2).
 - 웹사이트 분석은 이 확장(실제 화면·네트워크·콘솔) + REA `analyze-web-bundle`을 함께 쓴다(핵심 원칙 14).
 
+### 2-7. Craft Anything (분석 + AI 재구현, 2026-11-08 주인님 지시로 설치)
+- 주소: https://github.com/storytold/craft-anything (MIT 또는 Apache-2.0, Rust, 초기 시험판) · 커뮤니티 https://getartcraft.com
+- 하는 일: 대상(웹사이트·데스크톱 앱·게임·파일)을 **연구 → 새 프로젝트 만들기(코딩 에이전트, Claude Code 우선 지원) → 원본과 비교 → 보완** 4단계로 진행. 화면은 「간단」(무엇을 만들까요)·「고급」(함수·문자열·의사 C·호출 그래프 등 작업대) 두 가지.
+  - **클린룸(기본)**: 원본 내부(코드·파일·페이지 소스)를 읽지 않고 보이는 화면만 사용. **딥**: 코드·파일까지 읽음(개인 용도) — 남의 상용 프로그램은 핵심 원칙 21대로 기능·동작만 파악하고 코드는 옮기지 않는다.
+- 설치: 릴리스 `craft-anything-0.5.0-windows-x64.msi`(57MB) → `SHA256SUMS.txt`와 대조(`48a85388…6254`)·서명 확인(Learning Machines Inc) → `msiexec /i … /qn`. 위치 `C:\Program Files\Craft Anything\` — 앱 `craft-anything.exe`, 명령줄 `craft-anything-cli.exe`.
+- Claude Code 연결: `craft-anything-cli setup --client claude_code --dry-run` 확인 → `--yes`. 이번에는 이 Orca 계정 폴더(`claude-profiles/468f6e2e-…/home/.claude.json`, 백업 `.claude.json.before-craft-anything-20261108`)에 `mcpServers.craft-anything`와 스킬 `craft-anything`이 들어감. **다른 계정 폴더·Codex·Antigravity·Gemini는 아직 미연결** — 필요하면 그 세션에서 `setup --client <codex|antigravity|gemini_cli>` 실행. 연결 뒤 Claude Code 재시작해야 도구가 보인다.
+- 엔진 경로(프로그램 자체 설정 `%APPDATA%\craft-anything\config.toml`, 환경변수가 아니라 설정값으로 찾음):
+  ```powershell
+  craft-anything-cli settings-set --key engines.ghidra.install_dir --value '"C:/Tools/ghidra_12.1.4_PUBLIC"'
+  craft-anything-cli settings-set --key engines.ghidra.java_home --value '"C:/Program Files/Eclipse Adoptium/jdk-21.0.13.9-hotspot"'
+  craft-anything-cli settings-set --key engines.tools.java --value '"C:/Program Files/Eclipse Adoptium/jdk-21.0.13.9-hotspot/bin/java.exe"'
+  ```
+- 점검: `craft-anything-cli doctor` → 2026-11-08 `healthy: true`(Ghidra·Java·Ghidra-Java·크롬·ILSpy·MCP 자체 시험 정상, 나머지 adb·Frida 등은 선택). AI 백엔드(그림·3D, 회원 본인 fal.ai 키)는 설정하지 않음.
+- 주의: 만든 프로젝트의 의존성 설치(`npm`·`cargo`)는 내 PC에서 실제로 실행되므로 처음 보는 명령은 승인 카드에서 확인한다(`ask_before_running: true` 기본값 유지).
+
 ## 3. 필요할 때만 설치 (아직 미설치)
 
 | 이름 | 언제 | 주소 / 설치 |
@@ -107,7 +124,8 @@
 5. `winget install --id horsicq.DIE-engine -e` · `winget install --id 7zip.7zip -e`
 6. (새 터미널) `rea setup --client claude_code --dry-run` → 확인 후 `--yes` (메인·보조 계정 각각)
 7. Claude Code 재시작 → `claude mcp list`에서 `rea ✔ Connected`, `rea doctor --client claude_code` healthy 확인
-8. 이 문서 1번 표의 상태·버전을 갱신
+8. (선택) Craft Anything — §2-7 순서대로 MSI 설치 → `setup --client claude_code` → 엔진 경로 `settings-set` 3줄 → `doctor`
+9. 이 문서 1번 표의 상태·버전을 갱신
 
 ## 5. 분석 작업 흐름 (도구 고르는 순서)
 1. 파일을 `D:\PDS` 등에서 **새 빈 폴더로 복사**(원본·실행 금지).
