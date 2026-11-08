@@ -112,15 +112,16 @@ function SystemChecks({ sys, device, items }: { sys: SystemReport["system"]; dev
     rows.push(r);
   }
   return (
-    <div className="space-y-2">
-      <p className="text-xs font-bold text-slate-200">🖥️ 시스템 정보·점검</p>
-      <ul className="grid rounded-xl border border-slate-800 sm:grid-cols-2">
+    // 하늘색 상자 — 위 추천 구성(남보라)·아래 쓸 수 있는 구성(초록)과 구분(2026-11-08 주인님 「여기도 박스 색상 구분해줘」)
+    <div className="space-y-2.5 rounded-2xl border-2 border-sky-400/50 bg-gradient-to-br from-sky-950/70 via-slate-950/80 to-cyan-950/60 p-4">
+      <p className="text-xs font-bold text-sky-200">🖥️ 시스템 정보·점검</p>
+      <ul className="grid rounded-xl border border-sky-500/25 bg-slate-950/40 sm:grid-cols-2">
         {rows.map((r) => {
           const t = r.status ? TONE[r.status] : null;
           return (
-            <li key={r.label} className="flex items-start gap-2.5 border-b border-slate-800/80 px-4 py-2.5 text-xs">
+            <li key={r.label} className="flex items-start gap-2.5 border-b border-sky-500/15 px-4 py-2.5 text-xs">
               {t ? <t.Icon className={`mt-0.5 h-4 w-4 shrink-0 ${t.text}`} /> : <span className="mx-[5px] mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-600" aria-hidden />}
-              <span className="w-28 shrink-0 font-semibold text-slate-400">{r.label}</span>
+              <span className="w-28 shrink-0 font-semibold text-sky-300/80">{r.label}</span>
               <span className="min-w-0 flex-1 break-all text-slate-200">
                 {r.value}
                 {r.note && <span className="mt-0.5 block text-[11px] text-slate-500">{r.note}</span>}
