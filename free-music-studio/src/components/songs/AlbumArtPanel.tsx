@@ -257,6 +257,41 @@ export function AlbumArtPanel({
         maxLength={ART_PROMPT_LIMIT}
         placeholder="그림 장면을 한글로 적어도 됩니다(예: 노을 진 시골 기차역 — 화풍은 위 버튼으로). [한글 설명을 영어로 바꾸기]를 누르거나 그대로 그리면 AI가 영어로 바꿔 그립니다. 비워 두고 [AI로 영어 설명 만들기]를 누르면 곡 제목·가사로 만듭니다."
       />
+      {!ai && (
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+          <span className="font-semibold text-slate-400">영어 설명 AI</span>
+          {LYRIC_PROVIDERS.map((p) => {
+            const noKey = keys !== null && !keys[p.id]?.registered;
+            const on = textProvider === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => pickText(p.id)}
+                title={noKey ? `${p.label} API 키가 등록되지 않았습니다. 설정 화면에서 등록해 주세요.` : `설정에 저장한 모델: ${prefs ? modelLabel(p.id, prefs.models[p.id]) : ""}`}
+                className={`rounded-lg px-2.5 py-1 font-bold transition-colors ${on ? "bg-sky-600 text-white" : noKey ? "border border-slate-800 text-slate-500 hover:bg-slate-900" : "border border-slate-700 text-slate-300 hover:bg-slate-800"}`}
+              >
+                {p.label}
+                {noKey && <span className={`ml-1 font-normal ${on ? "text-rose-100" : "text-rose-300"}`}>· API 미등록</span>}
+              </button>
+            );
+          })}
+          {textProvider && prefs && (
+            <span className="text-slate-500">
+              {modelLabel(textProvider, prefs.models[textProvider])} ·{" "}
+              <Link href="/settings#ai-models" className="underline underline-offset-2 hover:text-slate-300">
+                모델은 설정에서
+              </Link>
+            </span>
+          )}
+        </div>
+      )}
+      {/* 2026-11-08 주인님 그림 표시 「순서만 바꾸기」·「좌측에 생성 프롬프트」 — 설명 → 영어 설명 AI → 그림 플랫폼·모델 → 그리기·결과 */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" onClick={() => void writePrompt()} disabled={!!busy || !(hasHangul || title.trim() || style.trim() || lyrics.trim())} className="inline-flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-950/40 px-4 py-2 text-xs font-bold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">
+            {busy === "prompt" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} {hasHangul ? "한글 설명을 영어로 바꾸기" : "AI로 영어 설명 만들기"}
+        </button>
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="그림 플랫폼">
           {ART_PROVIDERS.map((p) => {
@@ -320,40 +355,7 @@ export function AlbumArtPanel({
                   : "그림 모델을 골라 주세요."}
         </p>
       )}
-      {!ai && (
-        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-          <span className="font-semibold text-slate-400">영어 설명 AI</span>
-          {LYRIC_PROVIDERS.map((p) => {
-            const noKey = keys !== null && !keys[p.id]?.registered;
-            const on = textProvider === p.id;
-            return (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => pickText(p.id)}
-                title={noKey ? `${p.label} API 키가 등록되지 않았습니다. 설정 화면에서 등록해 주세요.` : `설정에 저장한 모델: ${prefs ? modelLabel(p.id, prefs.models[p.id]) : ""}`}
-                className={`rounded-lg px-2.5 py-1 font-bold transition-colors ${on ? "bg-sky-600 text-white" : noKey ? "border border-slate-800 text-slate-500 hover:bg-slate-900" : "border border-slate-700 text-slate-300 hover:bg-slate-800"}`}
-              >
-                {p.label}
-                {noKey && <span className={`ml-1 font-normal ${on ? "text-rose-100" : "text-rose-300"}`}>· API 미등록</span>}
-              </button>
-            );
-          })}
-          {textProvider && prefs && (
-            <span className="text-slate-500">
-              {modelLabel(textProvider, prefs.models[textProvider])} ·{" "}
-              <Link href="/settings#ai-models" className="underline underline-offset-2 hover:text-slate-300">
-                모델은 설정에서
-              </Link>
-            </span>
-          )}
-        </div>
-      )}
       <div className="flex flex-wrap items-center gap-2">
-        {/* 영어 변환은 모든 그림 플랫폼에서(2026-11-08 주인님 「왜 영어 변환 기능이 없어」 — 예전엔 내 PC만) */}
-        <button type="button" onClick={() => void writePrompt()} disabled={!!busy || !(hasHangul || title.trim() || style.trim() || lyrics.trim())} className="inline-flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-950/40 px-4 py-2 text-xs font-bold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">
-            {busy === "prompt" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} {hasHangul ? "한글 설명을 영어로 바꾸기" : "AI로 영어 설명 만들기"}
-        </button>
         <button
           type="button"
           onClick={make}
