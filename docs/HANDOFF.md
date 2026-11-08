@@ -1,5 +1,30 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-08 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-shorts-viral-v2 — **`shorts-viral-studio` v2.00: 1안(24. 유튜브 쇼츠 크리에이터 레드 & 화이트 스튜디오 스타일) 공식 채택 및 프로덕션 배포 완료**
+- **주인님 지시**: 「1번 디자인 시작 작업해」 (4대 화면 3시안 쇼케이스 종합 비교표 1안 확정).
+- **공식 채택 디자인**: **24. 유튜브 쇼츠 크리에이터 레드 & 화이트 스튜디오 스타일 (YouTube Shorts Creator Red & White Studio Edition)**.
+- **핵심 구현 내역**:
+  1. **컬러 & 서피스 토큰**: 클린 화이트 (`#FFFFFF`) 베이스 & 라이트 슬레이트 서피스 (`#F8FAFC`), 아이코닉 유튜브 레드 (`#FF0000` / `#D90429`), 2026-10-29 숏폼 톤앤매너 지침(침침한 다크 지양, 생동감 넘치는 크리에이터 레드 스튜디오) 부합.
+  2. **3D 엠보싱 유튜브 레드 버튼**: `.btn-3d-yt-red` (2단 수직 레드 그라데이션 + 1px 화이트 하이라이트 보더 + 4px 하단 솔리드 섀도우) 전역 장착.
+  3. **상시 9:16 모바일 쇼츠 뷰파인더 덱 목업**: `.phone-viewfinder-deck` (실시간 3초 후킹 자막, 14.2배 V/S Ratio 초대박 펄스 배지, 반응 인터랙션 목업).
+  4. **2026-11-01 5단계 로그인 표준 규격 탑재**: 64px 라운드 스퀘어 심볼 로고 🎬, 알약 캡슐 영문 뱃지(`• AIMASTER SHORTS VIRAL STUDIO`), 24px 볼드 메인 타이틀, 2단 탭 세그먼트 로그인/회원가입 카드, 1행 축소 약관(`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`, nowrap) 완비.
+  5. **쇼케이스 & 자산화**: 포트 3800 쇼케이스(`http://localhost:3800/showcase.html`) 및 3대 시안 전체 영구 자산화(`D:\Antigravity\Design\24_유튜브_쇼츠_크리에이터_레드_화이트_스튜디오_스타일\shorts-viral-studio`).
+- **검증 및 배포 결과**:
+  - 단위 테스트 17/17 100% 무결 통과, Next.js Turbopack 빌드 성공 (2.6s).
+  - Vercel 프로덕션 배포 완료 (`dpl_HbgXQvvWjcmQHkG32qhTUCQh1rqA`, Ready), DB 버전 `v1.16 → v2.00` 갱신.
+  - 라이브 도메인(`https://shorts-viral-studio.buylife.xyz/login`) HTTP 200, Playwright 브라우저 실세션 검수 완료 (`HAS SHORTS VIRAL STUDIO: true`, `HAS v2.00: true`, `HAS TERMS 1 LINE: true`).
+- **5대 결과물 링크 세트**:
+  1. 공식 운영 도메인: [https://shorts-viral-studio.buylife.xyz](https://shorts-viral-studio.buylife.xyz)
+  2. Vercel 배포 보조 링크: [https://shorts-viral-studio-ij5iruyml-buylife.vercel.app](https://shorts-viral-studio-ij5iruyml-buylife.vercel.app)
+  3. 관리자 dev-docs 결과함: [https://www.buylife.xyz/admin/dev-docs/requests](https://www.buylife.xyz/admin/dev-docs/requests)
+  4. 브라우저 쇼케이스 HTML: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+  5. 로컬 영구 자산 폴더: `D:\Antigravity\Design\24_유튜브_쇼츠_크리에이터_레드_화이트_스튜디오_스타일\shorts-viral-studio`
+
+## 2026-11-08 [역할: mac-mini] Codex · A-6 무료음악 DMG 0.7.5 설치·실행 확인, Intel 생성 미지원
+- x64 DMG 110.89MB 제작·검증·응용 프로그램 설치·4.14초 로컬 상태 응답·사이트 연결(paired=true) 확인. ready=false/미지원은 기존 Intel 제한이며 10초 곡은 실행하지 않음. Apple Silicon 미검수·Mac 공개 보류.
+- Mac 아이콘1024px, Electron Helper 이름 보정으로 SIGTRAP 해결, 플랫폼 경로·종료·미지원 표시 수정. 명시 시험2/2 통과, 최종 패키지 소스39개 일치. Windows desktop 의존성 원복 완료로 exe 작업 재개 가능.
+- 결과·SHA256·윈도우 후속·작업 중 실수 복구: `free-music-studio/docs/MAC_MINI_DMG_PROMPT_20261108.md` 결과. 사이트·DB·푸시 없음. 비용: 외부 유료 API·배포 없음.
+
 
 ## 2026-11-08 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-banana-canvas-v2 — **`banana-canvas` v1.45: 68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 2안 공식 채택 및 프로덕션 배포 완료**
 - **주인님 지시**: 「2안으로 진행해」 (4대 화면 3시안 쇼케이스 종합 비교표 2안 확정).
