@@ -38,3 +38,23 @@ test("보낼 값: 한국어 분위기(60자 안) + 영어 태그(분위기·빠�
   assert.equal(p.tags, "warm, nostalgic, slow tempo, female vocal, breathy vocal");
   assert.deepEqual(toggleMany(["a", "b"], "c", 2), ["a", "b"]);
 });
+
+import { GENRE_GROUPS, genreLabel, subGenresOf } from "../src/lib/lyricTags.ts";
+
+test("세부 장르: 대분류마다 3개 이상, 이름 겹침 없음, 영어 태그, 노래 프리셋 분류는 모두 대분류에 있다", () => {
+  assert.ok(GENRE_GROUPS.length >= 12);
+  const all = GENRE_GROUPS.flatMap((g) => g.subs);
+  assert.equal(new Set(all.map((s) => s.ko)).size, all.length);
+  for (const g of GENRE_GROUPS) assert.ok(g.subs.length >= 3, g.ko);
+  for (const s of all) assert.match(s.en, /^[a-z0-9][a-z0-9 &'-]+$/, s.ko);
+  for (const p of PRESETS.filter((x) => x.mode === "vocal")) assert.ok(LYRIC_GENRES.includes(p.category), p.category);
+});
+
+test("세부 장르 보낼 값: 장르 글은 「대분류 · 세부」(60자 안), 영어 태그 맨 앞, 다른 대분류의 세부는 무시", () => {
+  assert.equal(genreLabel("K-POP", "아이돌 댄스"), "K-POP · 아이돌 댄스");
+  assert.equal(genreLabel("K-POP", "보사노바"), "K-POP");
+  assert.equal(subGenresOf("없는장르").length, 0);
+  assert.equal(lyricMoodPayload({ moods: ["신나는"], tempo: "", vocals: [], genre: "K-POP", sub: "아이돌 댄스" }).tags, "k-pop idol dance, energetic");
+  assert.equal(lyricMoodPayload({ moods: [], tempo: "", vocals: [], genre: "발라드", sub: "아이돌 댄스" }).tags, "");
+  for (const g of GENRE_GROUPS) for (const s of g.subs) assert.ok(genreLabel(g.ko, s.ko).length <= 60);
+});

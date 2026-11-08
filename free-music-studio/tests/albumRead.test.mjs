@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { albumReadRules, parseAlbumImage, parseAlbumRead, songFromAlbumHref } from "../src/lib/albumRead.ts";
 import { LYRIC_GENRES, LYRIC_MOODS } from "../src/lib/lyricTags.ts";
 
-const ok = (o) => JSON.stringify({ title: "", theme: "", genre: "", moods: [], tempo: "", vocals: [], style_prompt: "", ...o });
+const ok = (o) => JSON.stringify({ title: "", theme: "", genre: "", sub_genre: "", moods: [], tempo: "", vocals: [], style_prompt: "", ...o });
 
 test("앨범 2단계(v1.36): 화면 선택지 안의 값만 남긴다", () => {
   const r = parseAlbumRead(
@@ -53,4 +53,11 @@ test("지시문에 선택지와 올해가 들어가고, 곡 만들기 주소에 
   assert.ok(rules.includes(JSON.stringify(LYRIC_GENRES)));
   const href = songFromAlbumHref("3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab", "가을 기차");
   assert.equal(href, "/songs?album=3f2b8c1e-1a2b-4c3d-8e9f-0123456789ab&name=%EA%B0%80%EC%9D%84+%EA%B8%B0%EC%B0%A8");
+});
+
+test("그림 읽기 세부 장르: 고른 대분류 안의 것만 남긴다", () => {
+  const a = parseAlbumRead(ok({ theme: "여름 바다", genre: "K-POP", sub_genre: "청량 K-POP" }));
+  assert.equal(a.sub_genre, "청량 K-POP");
+  const b = parseAlbumRead(ok({ theme: "여름 바다", genre: "K-POP", sub_genre: "보사노바" }));
+  assert.equal(b.sub_genre, "");
 });

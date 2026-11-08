@@ -22,7 +22,7 @@ import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult
 import { SongAlbumChooser } from "@/components/albums/SongAlbumChooser";
 import { ALBUM_QUERY, type AlbumRead } from "@/lib/albumRead";
 import { DEFAULT_LYRIC_LANGUAGE, LYRIC_LANGUAGES, isBestLanguage } from "@/lib/lyricLanguages";
-import { LYRIC_GENRES, MAX_MOODS, MAX_VOCALS, MOOD_GROUPS, TEMPOS, VOCALS, lyricMoodPayload, moodConflict, toggleMany, toggleMood } from "@/lib/lyricTags";
+import { LYRIC_GENRES, MAX_MOODS, MAX_VOCALS, MOOD_GROUPS, TEMPOS, VOCALS, genreLabel, lyricMoodPayload, moodConflict, subGenresOf, toggleMany, toggleMood } from "@/lib/lyricTags";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string; project_id: string | null };
 /** 곡 만들기에서 보는 프로젝트 — 전체 / 프로젝트 없음 / 프로젝트 번호 */
@@ -62,11 +62,17 @@ export default function SongsPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string; needKey?: boolean } | null>(null);
 
   const [theme, setTheme] = useState("");
-  const [genre, setGenre] = useState("");
+  const [genre, setGenreState] = useState("");
+  // 세부 장르(2026-11-09) — 대분류가 바뀌면 비운다(같은 대분류의 프리셋을 고를 때는 그대로)
+  const [subGenre, setSubGenre] = useState("");
+  const setGenre = (g: string) => {
+    if (g !== genre) setSubGenre("");
+    setGenreState(g);
+  };
   const [moods, setMoods] = useState<string[]>([]);
   const [tempo, setTempo] = useState("");
   const [vocals, setVocals] = useState<string[]>([]);
-  const moodTags = lyricMoodPayload({ moods, tempo, vocals }).tags;
+  const moodTags = lyricMoodPayload({ moods, tempo, vocals, genre, sub: subGenre }).tags;
   const [language, setLanguage] = useState<string>(DEFAULT_LYRIC_LANGUAGE);
   const [refine, setRefine] = useState(true);
   const [banned, setBanned] = useState("");
@@ -321,7 +327,10 @@ export default function SongsPage() {
   // 앨범 2단계(v1.36): 그림에서 읽은 값으로 곡 칸을 채운다 — 이미 적어 둔 제목·스타일은 덮지 않는다
   const fillFromAlbum = (r: AlbumRead) => {
     if (r.theme) setTheme(r.theme);
-    if (r.genre) setGenre(r.genre);
+    if (r.genre) {
+      setGenreState(r.genre);
+      setSubGenre(r.sub_genre);
+    }
     if (r.moods.length) setMoods(r.moods);
     if (r.tempo) setTempo(r.tempo);
     if (r.vocals.length && !instrumental) setVocals(r.vocals);
@@ -361,8 +370,8 @@ export default function SongsPage() {
           ...ai,
           mode,
           theme,
-          genre,
-          ...lyricMoodPayload({ moods, tempo, vocals }),
+          genre: genreLabel(genre, subGenre),
+          ...lyricMoodPayload({ moods, tempo, vocals, genre, sub: subGenre }),
           fixed_style: draft.style_prompt.trim() || undefined,
           refine,
           recent_titles: songs.slice(0, 10).map((s) => s.title),
@@ -738,6 +747,25 @@ export default function SongsPage() {
                       </button>
                     ))}
                   </div>
+                  {/* 세부 장르 — 대분류를 고르면 열림, 하나만(장르를 섞으면 결과가 흐려짐) */}
+                  {subGenresOf(genre).length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-950/20 px-2 py-1.5" role="radiogroup" aria-label={`${genre} 세부 장르`}>
+                      <span className="mr-1 text-[11px] text-emerald-300/80">세부 장르</span>
+                      {subGenresOf(genre).map((s) => (
+                        <button
+                          key={s.ko}
+                          type="button"
+                          role="radio"
+                          aria-checked={subGenre === s.ko}
+                          onClick={() => setSubGenre(subGenre === s.ko ? "" : s.ko)}
+                          title={s.en}
+                          className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors ${subGenre === s.ko ? "border-emerald-300 bg-emerald-500 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-emerald-500/60"}`}
+                        >
+                          {s.ko}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {/* 분위기 — 여러 개(최대 3개) */}
                 <div className="space-y-1.5">
