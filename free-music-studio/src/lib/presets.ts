@@ -137,3 +137,12 @@ export function parsePresetInput(body: unknown): { ok: true; value: { name: stri
   if (prompt.length > PRESET_LIMITS.prompt) return { ok: false, error: `스타일은 ${PRESET_LIMITS.prompt}자까지 저장할 수 있습니다.` };
   return { ok: true, value: { name, prompt, mode } };
 }
+
+/**
+ * 프리셋을 누르기 전에 물어볼지(2026-11-09 주인님 「그렇게 물어보게 고쳐줘」) — 스타일 칸에 글이 있고,
+ * 그 글이 어떤 프리셋 글과도 같지 않으면(직접 쓰거나 고친 글) 덮어쓰기 전에 묻는다. 프리셋끼리 바꿀 때는 묻지 않는다.
+ */
+export function needsStyleConfirm(style: string, list: readonly Pick<Preset, "prompt">[]): boolean {
+  const s = style.trim();
+  return !!s && !list.some((p) => p.prompt.trim() === s);
+}

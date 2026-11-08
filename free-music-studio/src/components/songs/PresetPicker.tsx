@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Palette, Plus, X } from "lucide-react";
-import { MY_PRESET_CATEGORY, PRESET_LIMITS, PRESET_PAGE_SIZE, pageCount, presetCategories, presetsFor, type PresetMode, type UserPreset } from "@/lib/presets";
+import { MY_PRESET_CATEGORY, PRESET_LIMITS, PRESET_PAGE_SIZE, needsStyleConfirm, pageCount, presetCategories, presetsFor, type PresetMode, type UserPreset } from "@/lib/presets";
 
 const field =
   "rounded-xl border border-slate-700/60 bg-slate-950/80 px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden";
@@ -40,12 +40,16 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre }: { mod
   const pages = pageCount(cards.length);
   const shown = Math.min(page, pages - 1);
 
-  const pick = (id: string) => {
+  /** 고르면 true — 직접 쓴 스타일을 덮어쓰기 전에 묻고, 아니요면 그대로 둔다 */
+  const pick = (id: string): boolean => {
     const p = list.find((x) => x.id === id);
-    if (!p) return;
+    if (!p) return false;
+    if (p.prompt.trim() !== style.trim() && needsStyleConfirm(style, list) && !confirm(`스타일 칸에 직접 쓴 내용이 있습니다. 「${p.name}」 프리셋으로 바꿀까요?
+바꾸면 지금 스타일 글은 사라집니다(남기려면 먼저 「내 프리셋으로 저장」). 주제·분위기·가사 등 다른 칸은 그대로입니다.`)) return false;
     setChosen(id);
     onPick(p.prompt);
     if (p.category !== MY_PRESET_CATEGORY) onGenre?.(p.category);
+    return true;
   };
 
   const save = async () => {
@@ -92,7 +96,7 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre }: { mod
           className={`${field} min-w-0 flex-1`}
           value={list.some((p) => p.id === chosen) ? chosen : ""}
           onChange={(e) => {
-            pick(e.target.value);
+            if (!pick(e.target.value)) return;
             // 드롭다운으로 고르면 장르가 그 프리셋 장르로 바뀌므로, 바뀐 카드 목록 기준으로 쪽을 찾는다
             const p = list.find((x) => x.id === e.target.value);
             const after = p && p.category !== MY_PRESET_CATEGORY ? list.filter((x) => x.category === p.category || x.category === MY_PRESET_CATEGORY) : cards;

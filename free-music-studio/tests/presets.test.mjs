@@ -37,3 +37,13 @@ test("내 프리셋 저장 입력 검사", () => {
   assert.equal(parsePresetInput({ name: "a", prompt: "x".repeat(PRESET_LIMITS.prompt + 1) }).ok, false);
   assert.equal(parsePresetInput({ name: "a", prompt: "x", mode: "weird" }).value.mode, "vocal");
 });
+
+import { needsStyleConfirm } from "../src/lib/presets.ts";
+
+test("프리셋 덮어쓰기 확인: 직접 쓴 스타일만 묻고, 빈 칸·프리셋 글이면 묻지 않음", () => {
+  const list = [{ prompt: "Pop ballad, expressive lead vocals" }, { prompt: "Rock song" }];
+  assert.equal(needsStyleConfirm("", list), false);
+  assert.equal(needsStyleConfirm("   ", list), false);
+  assert.equal(needsStyleConfirm(" Rock song ", list), false);
+  assert.equal(needsStyleConfirm("Rock song, 140 BPM", list), true);
+});
