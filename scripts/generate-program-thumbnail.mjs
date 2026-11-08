@@ -48,9 +48,11 @@ const geminiKey = keyRow.api_key;
 // 모델이 선택하게 해 성별 고정관념이 썸네일에 반복되지 않도록 한다.
 const inclusivePrompt = `${prompt}\n\nCatalog thumbnail people policy: If people appear and the requested subject does not explicitly require a particular gender, do not default to one gender. Choose the most natural representation for the service: Korean/East Asian women, men, a mixed-gender group, or no people when people are unnecessary. Avoid gender stereotypes. Keep the requested subject and photorealistic 16:9 catalog-thumbnail composition.`;
 
-// 나노바나나 프로(Gemini 3 Pro Image) 우선, 없으면 나노바나나(2.5 Flash Image)로 폴백.
+// 나노바나나 프로(Gemini 3 Pro Image) 우선, 없으면 나노바나나(2.5/3.1 Flash Image)로 폴백.
 const MODEL_CANDIDATES = [
+  "gemini-3-pro-image",
   "gemini-3-pro-image-preview",
+  "gemini-3.1-flash-image",
   "gemini-2.5-flash-image",
 ];
 

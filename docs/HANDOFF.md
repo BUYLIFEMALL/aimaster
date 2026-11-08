@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-fms-thumb — **`free-music-studio` 프로그램 카탈로그 공식 썸네일 생성 및 등록 완료**
+- **주인님 지시**: 「https://free-music-studio.buylife.xyz/ 프로그램 기능에 맞는 썸네일 생성 해서 등록 해줘」
+- **썸네일 기획 & 생성 규격**:
+  - 비율: 16:9 와이드 시네마틱 스튜디오 (1920×1080급).
+  - 테마: 63. 사이버 DAW 네온 스튜디오 덱 스타일 (디지털 오디오 워크스테이션 멀티트랙 파형, 스펙트럼 비주얼라이저, 모니터 스피커, 헤드폰, 앰비언트 사이안 블루 & 퍼플 네온 백라이트).
+  - 지침 준수: `docs/IMAGE_PROMPT_RULES.md` (글자·로고·텍스트·워터마크 완전 제거 순수 비주얼).
+- **반영 및 등록 결과**:
+  1. Supabase Storage `program-images` 버킷 업로드: `catalog/free-music-studio-thumbnail.jpg` (HTTP 200, 726,548 bytes 확인).
+  2. 공용 DB `programs` 테이블 갱신: `thumbnail_url` = `https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/free-music-studio-thumbnail.jpg?v=...` (메인 사이트 `www.buylife.xyz` 카탈로그 카드 즉시 노출).
+  3. 로컬 및 프로그램 자산 보존: `free-music-studio/public/free-music-studio-thumbnail.jpg`, `D:\Antigravity\Design\63_사이버_DAW_네온_스튜디오_덱_스타일\free-music-studio\free-music-studio-thumbnail.jpg`.
+- **썸네일 공개 URL**: [https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/free-music-studio-thumbnail.jpg](https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/public/program-images/catalog/free-music-studio-thumbnail.jpg)
+
 ## 2026-11-08 [역할: mac-mini] 실행 가능 가사 비교 도구 완료·윈도우 잔여 요청 등록
 - 주인님 지시로 가사 시간 비교 CLI·시험7/7 준비(자동 원본/수동 정답 동일 음원 검증·부분 비교/추정 누락 구분). 운영 코드·데이터 변경 없음. 엔진0.7.7·icn1 배포 완료 기록 확인해 중복 배포 요청 제외.
 - 윈도우 음악 담당에게 로그인 목록 속도5회·수정 전 자동 원본/수동 정답 확보 후 CLI 비교를 요청함 dc7d150f에 등록. 공유 절차: `free-music-studio/docs/IMPROVEMENTS.md` 맨 위. Apple Silicon/원본 지원 대기 유지. 유료 API·빌드·배포·푸시 없음, 비용 없음.
