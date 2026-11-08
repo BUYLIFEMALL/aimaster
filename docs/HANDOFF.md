@@ -1,6 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
 
+## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.42 · 엔진 0.7.4 배포(B-2·B-7·B-8·A-4)**
+- 배포 `free-music-studio-7qq6fm8vv`(Ready), DB v1.42, 설치 파일 `AI-Free-Music-Engine-Setup-0.7.4.exe`(106.8MB, `engine-latest.json` 0.7.4). 커밋 `308038c28`(엔진·설치 파일 정보·맥미니 프롬프트)·v1.42 커밋.
+- 엔진 0.7.4: B-2 취소 뒤 「앞 작업 정리 중」, B-7 원음 FLAC 내려받기에 표지(`?cover=1`, 실제 ffmpeg로 png·webp 확인). 사이트: B-8 파생 곡 원곡 프로젝트·마스터링 가사 시간 잇기, A-4 금지어 계정 저장(운영 DB `free_music_preferences.banned_words` 실행·확인). A-5는 11-04에 이미 등록. A-3 코드 서명은 주인님 「안 함」.
+- 맥미니 dmg(A-6): 전달 프롬프트 `free-music-studio/docs/MAC_MINI_DMG_PROMPT_20261108.md` — 맥미니 실행 대기.
+- 확인: 엔진 시험 103(PowerShell)·사이트 101, 운영 engine-latest 0.7.4·exe 응답, 금지어 API 저장·읽기. 마스터PC 실물(새 엔진 설치 후 취소·FLAC 표지)은 주인님. 비용: Vercel 빌드 1회.
+
 ## 2026-11-08 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **B-2 취소 개선(엔진 0.7.4 미배포)·루트 권한 판정 동시 조회·GPT Image/FLUX 2 확인**
 - B-2: ACE-Step 고정 판에 취소 주소가 없어(원본 `acestep/api` 확인) 「만드는 중」 취소 뒤 다음 작업이 「앞 작업 정리 중」으로 그 곡이 끝나길 기다렸다 보냄(`engine/src/runner.mjs`, 엔진 시험 102 — PowerShell 기준). 엔진 다음 판(0.7.4) 때 함께, 커밋 `3e57d0623`.
 - 공용 권한 판정(주인님 「루트만 고쳐 두고 각 프로그램은 다음에 손댈 때」): 루트 `lib/access/checkProgramAccess.ts` 두 묶음 동시 조회, 커밋 `254a238d9`, 메인 빌드 `aimaster-l28vln62o` Ready, 로그인 상태 프로그램 상세 「지금 바로 이용하기」 확인. 사본은 `docs/ACCESS_CHECK_PARALLEL_20261106.md` 목록대로 각 프로그램 다음 배포 때.
