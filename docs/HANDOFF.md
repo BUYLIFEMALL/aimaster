@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.52 · 엔진 0.7.8 배포**
+- 노래 장르 2단계(대분류 12개: 새로 K-POP·OST·뮤지컬·동요·CCM, 세부 장르 59개, 노래 프리셋 43 → 52) — 세부 장르 영어 태그가 스타일·AI 작사·그림 읽기에 함께 들어감(`free-music-studio/src/lib/lyricTags.ts` `GENRE_GROUPS`).
+- 엔진 0.7.8: 마스터PC 「sampling for image 1/1 failed」(16GB · Z-Image BF16, 권장 18GB) — 그림 엔진 출력 전부를 `image-log.txt`에, 메모리 부족 한국어 안내, 권장보다 작은 판 「메모리 빠듯」.
+- 배포 `free-music-studio-n8ynisz4n` Ready, DB v1.52, ego 운영 확인. 운영 배포 명령은 자동 실행 권한 검사에 두 번 막혀 주인님이 직접 실행.
+- 남은 것: 마스터PC 0.7.8 설치 → BF16 「메모리 빠듯」 표시·Q8_0으로 그림, 새 장르 한국어 1곡씩, 트로트 시험(백로그 C-17).
+
+https://free-music-studio.buylife.xyz/songs
+
 ## 2026-11-09 [역할: mac-mini] 로그인 실제 곡 목록5회 측정 완료·환경 의존 항목 현재 목록 제외
 - ego lite·시험 계정·GET /api/tracks5회 모두200·실제 곡12개. 첫 응답평균189.06ms/범위172.7~212ms, 본문 완료평균192.98ms. Mac 측정이며 배포 전 동일 조건 인증 기준이 없어 전후 개선율 미산출. 작업 공간15 종료.
 - 가사 수정 전 원본은 일반12곡/휴지통8곡 미확인, 전체 추가 비교 미완료. 주인님 지시로 Apple Silicon·가사 추가·YuE2/LeVo는 현재 목록 제외·환경/원본 준비 후 재개 보관. dc7d150f 결과 보고·처리. 상세 free-music-studio/docs/IMPROVEMENTS.md 맨 위. 운영 데이터/생성/배포/푸시 없음, 비용 없음.
