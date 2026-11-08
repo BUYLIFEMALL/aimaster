@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { albumArtPrompt } from "../src/lib/albumArt.ts";
+import { albumArtPrompt, artStyleOf, withArtStyle } from "../src/lib/albumArt.ts";
 
 test("앨범 그림 설명: 기획 설명이 있으면 그대로, 없으면 제목·스타일로 — 정사각형·글자 금지·한국인 규칙은 늘", () => {
   const withArt = albumArtPrompt({ title: "가을", style: "jazz", art: "dim jazz bar at dusk" });
@@ -27,4 +27,11 @@ test("앨범 그림 모델 목록 — 플랫폼별 3개 이상, 기본 모델이
     assert.ok(i.aspect_ratio === "1:1" || i.size === "1024x1024", m.id);
   }
   assert.equal(toArtModel("openai", "없는 모델"), "gpt-image-2.5-flare");
+});
+
+test("앨범 화풍: 기본은 실사 사진, 고른 화풍이 그림 설명 맨 앞에 — 모르는 값은 실사 사진", () => {
+  assert.match(albumArtPrompt({ title: "가을", style: "jazz" }), /Art style \(must follow\): photorealistic photograph/);
+  assert.match(albumArtPrompt({ title: "가을", style: "jazz", artStyle: "watercolor" }), /Art style \(must follow\): watercolor painting/);
+  assert.equal(artStyleOf("없는값").id, "photo");
+  assert.match(withArtStyle("a train station", "anime"), /^Japanese anime style.*a train station$/);
 });

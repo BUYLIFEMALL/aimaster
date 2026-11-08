@@ -35,7 +35,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    return NextResponse.json(await writeArtPrompt(provider, apiKey, toLyricModel(provider, b.model), { title, style, lyrics, idea }));
+    return NextResponse.json(await writeArtPrompt(provider, apiKey, toLyricModel(provider, b.model), { title, style, lyrics, idea, artStyle: str(b.artStyle, 20) }));
   } catch (err) {
     if (err instanceof LyricError) return NextResponse.json({ error: err.message }, { status: err.status });
     const name = (err as Error).name;

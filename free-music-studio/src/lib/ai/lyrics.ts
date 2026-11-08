@@ -1,4 +1,5 @@
 import { languageEnglishName } from "@/lib/lyricLanguages";
+import { artStyleOf } from "@/lib/albumArt";
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ALBUM_READ_SCHEMA, albumReadRules, parseAlbumRead, type AlbumRead } from "@/lib/albumRead";
@@ -370,7 +371,7 @@ export async function writeArtPrompt(
   provider: LyricProvider,
   apiKey: string,
   model: LyricModel,
-  req: { title: string; style: string; lyrics: string; idea?: string }
+  req: { title: string; style: string; lyrics: string; idea?: string; artStyle?: string }
 ): Promise<{ prompt: string; calls: number }> {
   const { call, count } = caller(provider, apiKey, model);
   const system = [
@@ -379,7 +380,9 @@ export async function writeArtPrompt(
     ...(req.idea
       ? ["The field `idea` is the scene the member wants, often written in Korean. Keep its subject, setting, mood and every detail faithfully, translate it into English and enrich it with lighting, color palette and art medium. Use the song fields only as secondary context."]
       : []),
-    "Describe a single concrete scene or composition that captures the song's mood: subject, setting, lighting, color palette, camera or art medium, and texture. Choose a style that fits the genre.",
+    "Describe a single concrete scene or composition that captures the song's mood: subject, setting, lighting, color palette, camera or art medium, and texture.",
+    // 화풍은 회원이 고른 것(기본 실사 사진, 2026-11-08 주인님) — 장르에 맞춰 바꾸지 않는다
+    `The art style is fixed by the member: ${artStyleOf(req.artStyle).en}. Write the whole prompt in that style and never switch to another medium.`,
     "Absolutely no text, letters, typography, logos, watermarks, signatures or frames in the image. Do not describe people with recognizable real identities; if people appear, they are Korean.",
     "Write in English, 60 to 140 words, as one paragraph of comma-separated descriptive phrases using plain ASCII characters only.",
     'Respond only with a JSON object {"prompt":"..."}.',

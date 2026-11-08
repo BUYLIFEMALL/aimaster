@@ -9,7 +9,7 @@ import Link from "next/link";
 import { ImageIcon, Loader2, FolderDown, Download, Sparkles } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { EngineError, enqueueLocalArt, fetchLocalArt, getImageModels, hasArt, hasLocalArt, listQueue, saveArtToLibrary, type ImageModelState } from "@/lib/engine";
-import { ART_PROMPT_LIMIT } from "@/lib/albumArt";
+import { ART_PROMPT_LIMIT, ART_STYLES, DEFAULT_ART_STYLE, withArtStyle, type ArtStyleId } from "@/lib/albumArt";
 import { LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
 import { loadAiPrefs, modelLabel, saveAiPrefs, usableProvider, type AiPrefs } from "@/lib/aiModelChoice";
 
@@ -56,6 +56,20 @@ export function AlbumArtPanel({
   const [localId, setLocalId] = useState("");
   const [stage, setStage] = useState("");
   const polling = useRef<number | null>(null);
+  // 화풍(기본 실사 사진) — 이 브라우저에 기억
+  const [artStyle, setArtStyleState] = useState<ArtStyleId>(DEFAULT_ART_STYLE);
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem("fms:art-style");
+      if (v && ART_STYLES.some((s) => s.id === v)) setArtStyleState(v as ArtStyleId);
+    } catch {}
+  }, []);
+  const pickStyle = (v: ArtStyleId) => {
+    setArtStyleState(v);
+    try {
+      localStorage.setItem("fms:art-style", v);
+    } catch {}
+  };
   // 영어 설명 AI — 곡 만들기에서 넘겨받지 않으면(앨범 화면) 여기서 플랫폼 버튼만 고르고, 모델은 설정 화면에서 저장한 것(2026-11-08 주인님)
   const [prefs, setPrefs] = useState<AiPrefs | null>(null);
   const [textProvider, setTextProvider] = useState<LyricProvider | null>(null);
@@ -99,7 +113,7 @@ export function AlbumArtPanel({
       const res = await fetch("/api/album-art/prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, style, lyrics, idea, provider: textAi?.provider, model: textAi?.model }),
+        body: JSON.stringify({ title, style, lyrics, idea, artStyle, provider: textAi?.provider, model: textAi?.model }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -127,7 +141,7 @@ export function AlbumArtPanel({
     setMsg(null);
     setStage("대기열에 넣는 중");
     try {
-      const job = await enqueueLocalArt({ title, songId, style, lyrics }, prompt, localId || undefined);
+      const job = await enqueueLocalArt({ title, songId, style, lyrics }, withArtStyle(prompt, artStyle), localId || undefined);
       // 끝난 작업의 결과(모델·걸린 시간·그래픽 메모리 최대 사용량 — B-3, 메모리는 엔진 0.7.5+)
       let done: { model?: string; seconds?: number; vramPeakGb?: number } | null = null;
       await new Promise<void>((resolve, reject) => {
@@ -172,7 +186,7 @@ export function AlbumArtPanel({
       const res = await fetch("/api/album-art", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, style, art: prompt, provider, model }),
+        body: JSON.stringify({ title, style, art: prompt, artStyle, provider, model }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -217,12 +231,31 @@ export function AlbumArtPanel({
         <ImageIcon className="h-4 w-4 text-fuchsia-300" /> {heading}{" "}
         <span className="text-[11px] font-normal text-slate-400">(내 Gemini·OpenAI·Replicate 키 또는 내 PC 그래픽카드(무료) · 정사각형 1장 · 선택)</span>
       </h2>
+      <div>
+        <p className="mb-1.5 text-[11px] font-bold text-slate-400">
+          화풍 <span className="font-normal text-slate-500">· 기본은 실사 사진 · AI 영어 설명과 그림 모두 이 화풍으로 만듭니다</span>
+        </p>
+        <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="앨범 화풍">
+          {ART_STYLES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              role="radio"
+              aria-checked={artStyle === s.id}
+              onClick={() => pickStyle(s.id)}
+              className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold transition-colors ${artStyle === s.id ? "border-fuchsia-400 bg-fuchsia-600 text-white" : "border-slate-700 text-slate-300 hover:border-fuchsia-400/60"}`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <textarea
         className={`${field} min-h-[60px] text-xs`}
         value={art}
         onChange={(e) => onArtChange(e.target.value)}
         maxLength={ART_PROMPT_LIMIT}
-        placeholder="그림 장면을 한글로 적어도 됩니다(예: 노을 진 시골 기차역, 따뜻한 수채화). [한글 설명을 영어로 바꾸기]를 누르거나 그대로 그리면 AI가 영어로 바꿔 그립니다. 비워 두고 [AI로 영어 설명 만들기]를 누르면 곡 제목·가사로 만듭니다."
+        placeholder="그림 장면을 한글로 적어도 됩니다(예: 노을 진 시골 기차역 — 화풍은 위 버튼으로). [한글 설명을 영어로 바꾸기]를 누르거나 그대로 그리면 AI가 영어로 바꿔 그립니다. 비워 두고 [AI로 영어 설명 만들기]를 누르면 곡 제목·가사로 만듭니다."
       />
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="그림 플랫폼">

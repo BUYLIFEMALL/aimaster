@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `${info.keyName} API 키가 없습니다. [API키등록·플랫폼연동]에서 본인 키를 먼저 등록하거나 다른 플랫폼을 골라 주세요.`, needApiKey: true }, { status: 400 });
   }
 
-  const prompt = albumArtPrompt({ title, style, art });
+  const prompt = albumArtPrompt({ title, style, art, artStyle: b.artStyle });
   try {
     if (provider === "openai") return NextResponse.json(await openaiImage(apiKey, model, prompt));
     if (provider === "replicate") return NextResponse.json(await replicateImage(apiKey, model, prompt, replicateInput(model)));
