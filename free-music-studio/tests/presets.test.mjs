@@ -47,3 +47,13 @@ test("프리셋 덮어쓰기 확인: 직접 쓴 스타일만 묻고, 빈 칸·�
   assert.equal(needsStyleConfirm(" Rock song ", list), false);
   assert.equal(needsStyleConfirm("Rock song, 140 BPM", list), true);
 });
+
+import { withTags } from "../src/lib/presets.ts";
+
+test("프리셋 + 고른 태그: 끝에 붙이고, 이미 있는 태그는 빼고, 한도 넘으면 뒤 태그부터 뺌", () => {
+  assert.equal(withTags("K-pop idol dance track, 124 BPM", "", 400), "K-pop idol dance track, 124 BPM");
+  assert.equal(withTags("K-pop idol dance track", "energetic, choir, mid-tempo", 400), "K-pop idol dance track, energetic, choir, mid-tempo");
+  assert.equal(withTags("Rock song, Energetic", "energetic, choir", 400), "Rock song, Energetic, choir");
+  assert.equal(withTags("abc", "dddd, eeee", 9), "abc, dddd");
+  assert.ok(withTags("x".repeat(395), "choir, energetic", 400).length <= 400);
+});

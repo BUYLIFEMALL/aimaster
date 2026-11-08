@@ -146,3 +146,19 @@ export function needsStyleConfirm(style: string, list: readonly Pick<Preset, "pr
   const s = style.trim();
   return !!s && !list.some((p) => p.prompt.trim() === s);
 }
+
+/**
+ * 프리셋 글 끝에 위에서 고른 태그(세부 장르·분위기·빠르기·목소리)를 붙인다(2026-11-09 주인님 「그렇게 자동으로 붙이게 고쳐줘」).
+ * 이미 들어 있는 태그는 다시 붙이지 않고, 한도(max)를 넘으면 뒤쪽 태그부터 뺀다.
+ */
+export function withTags(prompt: string, tags: string, max: number): string {
+  const base = prompt.trim();
+  const have = base.toLowerCase();
+  const add = [...new Set(tags.split(",").map((t) => t.trim()).filter(Boolean))].filter((t) => !have.includes(t.toLowerCase()));
+  while (add.length) {
+    const out = `${base}, ${add.join(", ")}`;
+    if (out.length <= max) return out;
+    add.pop();
+  }
+  return base.slice(0, max);
+}

@@ -849,7 +849,7 @@ export default function SongsPage() {
                 {moodTags && (
                   <p className="text-[11px] text-slate-400">
                     AI에게 함께 보낼 영어 태그: <span className="font-mono text-teal-300/80">{moodTags}</span>
-                    {draft.style_prompt.trim() ? " · 스타일 칸이 이미 있어 가사 분위기에만 반영합니다" : " · 스타일 칸에도 들어갑니다"}
+                    {draft.style_prompt.trim() ? " · 아래 스타일 프리셋을 고르면 스타일 칸 끝에 붙습니다(지금 스타일 칸 그대로 「가사 채우기」를 하면 가사 분위기에만 반영)" : " · 스타일 칸에도 들어갑니다 · 스타일 프리셋을 고르면 그 끝에 붙습니다"}
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-2">
@@ -1051,7 +1051,7 @@ export default function SongsPage() {
                 ))}
               </select>
             </div>
-            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={instrumental ? "" : genre} onGenre={instrumental ? undefined : setGenre} />}
+            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={instrumental ? "" : genre} onGenre={instrumental ? undefined : setGenre} tags={instrumental ? "" : moodTags} />}
             <textarea
               className={`${field} min-h-[70px] font-mono text-xs`}
               value={draft.style_prompt}
