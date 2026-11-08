@@ -181,21 +181,17 @@ export default function AlbumsPage() {
           art={art}
           onArtChange={setArt}
           saveAction={saveAction}
+          onReset={
+            title || art || songCtx
+              ? () => {
+                  setTitle("");
+                  setArt("");
+                  setSongCtx(null);
+                  setPanelKey((k) => k + 1);
+                }
+              : undefined
+          }
         />
-        {(title || art || songCtx) && (
-          <button
-            type="button"
-            onClick={() => {
-              setTitle("");
-              setArt("");
-              setSongCtx(null);
-              setPanelKey((k) => k + 1);
-            }}
-            className="text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-300"
-          >
-            새로 시작하기
-          </button>
-        )}
       </section>
 
       {/* 2. 내 앨범 */}

@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ART_PROVIDERS, DEFAULT_ART_PROVIDER, type ArtProvider } from "@/lib/albumArtModels";
 import Link from "next/link";
-import { ImageIcon, Loader2, FolderDown, Download, Sparkles } from "lucide-react";
+import { ImageIcon, Loader2, FolderDown, Download, Sparkles, RotateCcw } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
 import { EngineError, enqueueLocalArt, fetchLocalArt, getImageModels, hasArt, hasLocalArt, listQueue, saveArtToLibrary, type ImageModelState } from "@/lib/engine";
 import { ART_PROMPT_LIMIT, ART_STYLES, DEFAULT_ART_STYLE, withArtStyle, type ArtStyleId } from "@/lib/albumArt";
@@ -31,6 +31,7 @@ export function AlbumArtPanel({
   heading = "앨범 그림 만들기",
   split = false,
   beforePrompt,
+  onReset,
 }: {
   title: string;
   style: string;
@@ -47,6 +48,8 @@ export function AlbumArtPanel({
   split?: boolean;
   /** 왼쪽 칸 맨 위에 넣을 것(앨범 이름 칸 등) */
   beforePrompt?: ReactNode;
+  /** 「새로 시작하기」 버튼(음악앨범 화면) — 그림 아래 버튼 줄 맨 오른쪽 */
+  onReset?: () => void;
 }) {
   const { paired, status } = useEngine(10000);
   const [busy, setBusy] = useState<"" | "make" | "save" | "prompt">("");
@@ -378,6 +381,11 @@ export function AlbumArtPanel({
           {busy === "make" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />} {busy === "make" ? (provider === "local" ? stage || "그리는 중…" : "그리는 중…(최대 2분)") : image ? "다시 그리기" : "🖼 앨범 그림 만들기"}
         </button>
         <span className="text-[11px] text-slate-500">{provider === "local" ? "내 PC에서 그립니다 · 비용 없음 · 다른 음악 작업과 차례로(작업 대기열)" : "글자·로고 없이, 사람이 나오면 한국인으로 그립니다 · AI 호출 1번(재시도 없음)"}</span>
+        {!image && onReset && (
+          <button type="button" onClick={onReset} disabled={!!busy} className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-900 disabled:opacity-40" title="앨범 이름·그림 설명·그린 그림을 비우고 처음부터">
+            <RotateCcw className="h-3.5 w-3.5" /> 새로 시작하기
+          </button>
+        )}
       </div>
       {msg && (
         <p className={`text-[11px] ${msg.ok ? "text-emerald-300" : "text-rose-300"}`}>
@@ -396,7 +404,7 @@ export function AlbumArtPanel({
         <div className={split ? "flex flex-col items-center gap-3 border-t border-slate-800 pt-5" : "flex flex-wrap items-end gap-4"}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt={`${title} 앨범 그림`} className={split ? "aspect-square w-full max-w-2xl rounded-2xl border border-slate-700 object-cover shadow-2xl" : "h-48 w-48 rounded-xl border border-slate-700 object-cover"} />
-          <div className={split ? "flex flex-wrap justify-center gap-2" : "flex flex-col gap-2"}>
+          <div className={split ? "flex w-full max-w-2xl flex-wrap items-center gap-2" : "flex flex-col gap-2"}>
             {saveAction ? (
               saveAction.ready ? (
                 <button
@@ -431,6 +439,11 @@ export function AlbumArtPanel({
             <a href={src} download={`${(title || "앨범 그림").replace(/[\\/:*?"<>|]/g, "_")}.${ext}`} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-900">
               <Download className="h-3.5 w-3.5" /> 그림 받기
             </a>
+            {onReset && (
+              <button type="button" onClick={onReset} disabled={!!busy} className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-900 disabled:opacity-40" title="앨범 이름·그림 설명·그린 그림을 비우고 처음부터">
+                <RotateCcw className="h-3.5 w-3.5" /> 새로 시작하기
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -441,7 +454,7 @@ export function AlbumArtPanel({
         <div className={split ? "flex flex-col items-center gap-3 border-t border-slate-800 pt-5" : "flex flex-wrap items-end gap-4"}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt={`${title} 앨범 그림`} className={split ? "aspect-square w-full max-w-2xl rounded-2xl border border-slate-700 object-cover shadow-2xl" : "h-48 w-48 rounded-xl border border-slate-700 object-cover"} />
-          <div className={split ? "flex flex-wrap justify-center gap-2" : "flex flex-col gap-2"}>
+          <div className={split ? "flex w-full max-w-2xl flex-wrap items-center gap-2" : "flex flex-col gap-2"}>
             {saveAction ? (
               saveAction.ready ? (
                 <button
@@ -476,6 +489,11 @@ export function AlbumArtPanel({
             <a href={src} download={`${(title || "앨범 그림").replace(/[\\/:*?"<>|]/g, "_")}.${ext}`} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-900">
               <Download className="h-3.5 w-3.5" /> 그림 받기
             </a>
+            {onReset && (
+              <button type="button" onClick={onReset} disabled={!!busy} className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-900 disabled:opacity-40" title="앨범 이름·그림 설명·그린 그림을 비우고 처음부터">
+                <RotateCcw className="h-3.5 w-3.5" /> 새로 시작하기
+              </button>
+            )}
           </div>
         </div>
       )}
