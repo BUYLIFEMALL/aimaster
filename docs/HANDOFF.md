@@ -30,8 +30,8 @@
 - 확인(ego, 운영): 화면 v1.38, 앨범 1·2·3 구성, Gemini 선택 상태에서 영어 변환 버튼 보임, 곡 만들기 세 버튼, 엔진 화면 `/albums#image-models` 안내 링크·옛 「이미지용」 없음. AI 호출은 하지 않음.
 - 남은 일: 마스터PC에서 엔진 0.7.3으로 앨범 저장 → 「이 그림으로 곡 만들기」 실제 확인(주인님). 비용: Vercel 빌드 1회.
 
-## 2026-11-08 📸 [역할: design] Antigravity(윈도우) · 세션 `agy-win-portrait-photo-v2` — **`portrait-photo` (AI 인물사진 스튜디오) v1.45: 61번 어도비 다크 데스크 리뉴얼 및 5단계 표준 로그인 탑재 (로컬 빌드·테스트 통과)**
-- **작업 내용**:
+## 2026-11-08 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-portrait-photo-v2` — **`portrait-photo` (AI 인물사진 스튜디오) v1.45: 1안 61번 어도비 다크 데스크 리뉴얼 및 5단계 표준 로그인 탑재 공식 배포 완료**
+- **작업 내용 (주인님 1안 공식 확정 지시 반영)**:
   - `DESIGN.md` 61번 어도비 하이퍼 크리에이티브 다크 데스크 스타일(딥 차콜 슬레이트 & 앰버 골드 테마) 공식 적용.
   - **4단계 스튜디오 파이프라인 배너 탑재**: `01. 원본 얼굴 업로드 ➔ 02. 안면 비례 3분할 튜닝 ➔ 03. 공식 규격 및 조명 렌더링 ➔ 04. 4K 마스터 인화 내보내기` 시각화.
   - **3D 엠보싱 앰버 버튼 적용**: `.btn-3d.btn-3d-amber` 적용 (스튜디오 원클릭 생성 및 로그인 버튼).
@@ -41,8 +41,16 @@
     3. [그 밑] `AI 인물사진 스튜디오` 볼드 메인 타이틀 & 안내 카피
     4. [중앙] `max-w-[440px]` 2단 탭 폼 카드 (로그인 / 회원가입)
     5. [맨 아래] `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 링크
-  - **버전 갱신**: `package.json`, `src/lib/version.ts`, `AGENTS.md` v1.45 맞춤.
-- **검증**: `npm run build` Turbopack 빌드 성공, `npm test` 47개 테스트 전원 통과 완료.
+  - **버전 갱신**: `package.json`, `src/lib/version.ts`, `AGENTS.md` v1.45 및 DB `programs.version` 동기화 완료.
+- **배포 및 검증**:
+  - `npm run build` Turbopack 빌드 성공, `npm test` 47개 테스트 전원 무결 통과.
+  - Vercel 프로덕션 배포 완료 (`dpl_4XZxhoCqe28fxpuJZm9aktKxVtgx`, Ready).
+  - 라이브 도메인 검수: `https://portrait-photo.buylife.xyz/login` 200 OK 및 5단계 표준 레이아웃 정상 렌더링 확인.
+- **인프라 & 쇼케이스 자산**:
+  - 단일 통합 쇼케이스 웹서버 (`http://localhost:3800/showcase.html` 및 `http://localhost:3800/comparison.html`)
+  - `D:\Antigravity\Design\61_adobe_hyper_creative_dark_desk\portrait-photo` (⭐ **1안 공식 채택 영구 보존**)
+  - `D:\Antigravity\Design\66_라이카_미니멀_아날로그_포토_랩_스타일\portrait-photo` (2안 자산화)
+  - `D:\Antigravity\Design\67_사이버_네온_뷰티_뉴럴_레티나_스타일\portrait-photo` (3안 자산화)
 - **인프라 & 쇼케이스**:
   - 단일 통합 쇼케이스 웹서버 (`http://localhost:3800/showcase.html` 및 `http://localhost:3800/comparison.html`)
   - `D:\Antigravity\Design\61_adobe_hyper_creative_dark_desk\portrait-photo` (1안 추천)
@@ -97,7 +105,11 @@
 - 배포: 모두 미배포 대기(`docs/PENDING_DEPLOYS.md`). 받을 곳(워크스페이스 v1.22)은 이미 배포돼 있어 각 프로그램 다음 배포 때 함께 나가면 바로 동작. 다음 첫 단계: 배포 승인 받으면 순차 배포 → 시험 계정으로 각 버튼 → 받은 업무 → 캘린더/페이지 확인.
 - 링크: https://ai-work-workspace.buylife.xyz/inbox
 
+## 2026-11-07 ✅ [역할: mac-mini] Codex · 세션 `codex-mac-20261107-test-analysis` — 지정 글 공감 1건 현재 탭 실행 성공 / 자동 순회 완주는 미검수
 
+- 주인님 지정 `buylifeacademy/223268943950`, 로그인 `buylifemall`. 작업 `6f932d4b-8b6a-4e77-927a-c287d0f5e989`를 회원 앱 API로 초안 등록·웹 검토 완료. 최초 자동 조작은 탭 가시성 오류로 등록 전 중단(ready·관찰없음·공감false); 주인님이 확장 「현재 탭 실행 연결」 직접 클릭 후 정독·공감 성공. 11:20 KST 프로그램 succeeded/확장 done·succeeded/네이버 새로고침 aria-pressed=true 모두 확인. 오늘 공감1·댓글0·신청0·대기0·불확정0.
+- 최종 전체 일시정지·공감 상한1·댓글끔. 종료 시각 23→22시 복구(09~22시·60분·revision3) 후 일시정지 재확인, 작업 공간13 닫음. 상한30/댓글켬은 결정 대기. 상세 `blog-neighbor-care/AGENTS.md` 맨 위.
+- 자동화 완주 미검수: 등록된 새 글 대상 이웃0·monitor=null. 다음은 이웃 대상/감시 설정 연결 확인. 설정 화면3단계, 이번 회원 실행 클릭1회(팝업 여는 조작 별도), 현재탭 범위 확인1·시간대 복구 통합동의 체크1 추가. 정상 매일0회 검증 아님. 코드·직접DB/운영SQL·AI·빌드·배포·푸시0, 비용 없음.
 
 
 ## 2026-11-07 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` 내 PC 엔진 화면·작업 대기열 음악/이미지 나누기 배포**
@@ -110,7 +122,12 @@
 - **주인님 확인 필요(디자인 세션 몫, 고치지 않음)**: v1.33 곡 만들기 머리의 6단계 띠가 옛 순서(02 내 PC 로컬 엔진)라 좌측 메뉴(06 엔진)와 다름. 머리 문구 「24트랙 DAW 스템 믹싱」「무손실 24bit FLAC」「4K 비디오」「로컬 GPU 100% 무료 무제한」과 움직이는 파형은 실제 기능이 아님(Stem은 2·6트랙 분리만, 믹싱 없음, 그래픽카드 없는 PC는 CPU).
 - 남은 일: 마스터PC에서 엔진 0.7.2 설치 → 「다른 폴더로 바꾸기」로 `E:\AI_Image\ImageModels`, 대기열 정리 칸·끌어 놓기 실제 사용 확인.
 
+## 2026-11-07 🟠 [역할: mac-mini] Codex · 세션 `codex-mac-20261107-test-analysis` — 이웃 소통 v1.18 제어 검수 통과 / 공감 1건은 대상 준비 대기
 
+- 주인님 ego lite 지정·진행 승인 후 10:40~10:48 KST 실제 확인: 공감만·상한 1·자동 모드·기존 통합 동의로 재개 → 같은 창 다른 탭에서 순회 연결 유지하며 「잠시 멈춤」 → 전체 일시정지 반영 통과. 공감·댓글·신청 0건, 불확정 0건.
+- 실행 대상 없음: 준비한 글 자료/작업 기록 모두 비어 있음. 실제 공감 1건·글 정독 중 탭 이동/복귀는 미완료. 새 글 감시/대상 준비부터 이어갈 것. 기록: `blog-neighbor-care/AGENTS.md` 맨 위 및 역할 파일.
+- 측정: 설정 화면 3단계(최초 설정 재수행 미검수), 이번 핵심 조작 2번(재개/일시정지), 추가 동의 0번(기존 1회 재사용). 현재 전체 일시정지·상한 1·댓글 끔·09~23시. 22시 복구 필요, 상한 30/댓글 켬은 주인님 결정. 관찰 공간 모두 닫음. 카페 초대 미실행·코드/AI/빌드/배포/푸시 0, 비용 없음.
+- 문서 커밋 `7665a2cee`(프로그램 지침·역할 파일). 직후 공용 인덱스 읽기 오류 1회(`index file corrupt`) → 임의 복구 없이 읽기 재조회: 인덱스/HEAD 모두 14,896개, HEAD는 다른 세션 커밋 `404525e16`으로 바뀜. 동시 변경 중 일시 읽기 오류 가능성은 있으나 원인 확정 아님. 협업 규칙에 따라 추가 Git 쓰기는 중단했고 이 HANDOFF 항목은 로컬 저장 상태. 요청함 결과 `d5f2b134-da4b-4f69-9e88-a420ff5a344c`.
 
 
 ## 2026-11-07 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261101-blog — **맥미니 Codex 인수인계 문서 작성**
@@ -169,7 +186,6 @@
 - 비용: Vercel 빌드 3회(승인 범위), AI 호출 0.
 - 링크: https://ai-work-workspace.buylife.xyz/inbox · https://auto-instagram-posting.buylife.xyz/posts · https://threads-content-ops.buylife.xyz/threads-content-ops?tab=manage
 
-
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 각색 강도 구현(미배포, `shorts-onestop-studio` v1.45 예정) — V2·V5 구현 전부 끝**
 - `9c4c1de96`: 「📜 내 대본으로 장면 만들기」에 「✨ AI로 다듬기」 — 강도 3단(맞춤법만 / 문장 다듬기 / 구성까지 새로), 「제가 직접 쓴 대본입니다」 체크 뒤 회원 본인 키 1회(`/api/ai/rewrite`, `src/lib/rewrite.ts` 강도별 규칙·줄 수 검사), 줄 수 그대로, 「다듬기 전으로」 되돌리기. 실행은 `usage` `script_rewrite`로 기록(공용 `own_content_rights_log`는 `program` 제약상 이 프로그램을 받지 않음). 시험 42개·tsc·로컬 빌드 통과.
 - V2·V5 묶음 현황: V5 지우기(배포 v1.26) · V2 컷 목록(배포 v1.28) · 언어판·해설 교차편집(미배포 `ai-video-studio` v1.29) · 각색 강도(미배포 `shorts-onestop-studio` v1.45). 플랜 `ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8.
@@ -185,15 +201,6 @@
 - **남은 작업 정리 보고**: 미배포 약 47개 프로그램 목록·카테고리표는 채팅으로 보고(기준 `docs/PENDING_DEPLOYS.md`).
 - **비용**: Vercel 빌드 11회 + Lab 1회(중복). AI 호출 0.
 
-## 2026-11-06 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-20261106-ytreply — **미배포 대기 묶음 연속 배포 4개 완료(쓰레드 쇼핑제휴 v1.86 · 인스타 댓글자동화 v1.37 · 쓰레드 댓글자동화 v1.29 · 쓰레드 포스팅 v1.34)**
-- 배경: 주인님이 남은 작업 목록에서 「배포 상태 확인 후 다음 작업」을 지시 → 다른 세션이 맡지 않은 단일 프로그램 배포 묶음 4개를 추천 → 「순서대로 진행해」(빌드 4회 승인). 앞서 같은 세션이 유튜브 댓글자동화 v1.33도 같은 방식으로 배포함(아래 항목).
-- 1/4 `threads-affiliate-poster` v1.86(`threads-affiliate-poster-6yhtciacn`): 12월 모델 교체 A `0caadc5ee`(`o3` 삭제·저장값 `gpt-5.6-sol`) + 30일 보관 열외 `fea3571a8`. tsc·시험 15·build, DB v1.86, ego 새 글 화면 v1.86·`o3` 없음. 버전 `ed4f1d5b7`, 문서 `4ce60540f`·`2094356cf`.
-- 2/4 `instagram-comment-reply` v1.37(`instagram-comment-reply-hzh5ddbf6`): 설정 「다음 확인 예정」·바로가기 `24562d6aa` + 모델 교체 B `3de8c5d73`. tsc·시험 45·build, DB v1.37, ego 설정 화면 v1.37·옛 Gemini 없음·바로가기 표시. 버전 `ea26cb038`, 문서 `b6525e308`·`f6e0ad833`.
-- 3/4 `threads-comment-reply` v1.29(`threads-comment-reply-xoux3tg1t`): 모델 교체 B `ac6cc6736`. tsc·시험 45·build, DB v1.29, ego 설정 화면 v1.29·선택지 11개·옛 값 없음. 버전 `6571daf5d`.
-- 4/4 `threads` v1.34(`threads-j36heo93t`, 운영 주소 `auto-threads-posting.buylife.xyz`): 30일 보관 열외 `567567979`(공유 버킷 `post-images` 보호). tsc·build, 정리 주소 `/api/cleanup-images` 가짜 토큰 401, DB(slug `auto-threads-posting`) v1.34, ego 대시보드 v1.34. 버전 `596e9c8a6`.
-- 방법(다음 세션도 같은 절차): 작업 중 표·미커밋 확인 → `version.ts` +0.01 → tsc·시험·로컬 build → 팀 `buylife`에 BUILDING/QUEUED 없음 확인(메인 사이트 자동 빌드가 돌면 끝날 때까지 대기) → `vercel deploy --prod --yes --scope buylife` → `vercel inspect` Ready·운영 주소 → 가짜 토큰으로 예약 주소 401 → `deploy.mjs <폴더> --version-only --set-version`(DB·비교표) → ego 작업 공간 하나(107) 재사용해 화면 버전·선택지 확인 → 문서. 공용 문서는 다른 세션 미커밋 줄이 섞여 있어 「백업(스크래치) → HEAD로 → `--begin` → 내 줄만 → safe-commit → 백업 복원」 순서로 내 줄만 커밋(교훈 `docs/ERROR_LESSONS.md` 2026-11-06 맨 위).
-- 비용: Vercel 빌드 4회(승인 4회 모두 사용), AI 호출 없음. 남은 확인: 각 프로그램 다음 30일 정리 회차 뒤 예외 계정 자료 유지. ego lite 새 버전 알림이 떠 있음(업그레이드는 주인님 승인 뒤).
-- 링크: https://threads-affiliate-poster.buylife.xyz/ · https://instagram-comment-reply.buylife.xyz/ · https://threads-comment-reply.buylife.xyz/ · https://threads.buylife.xyz/
 ## 2026-11-06 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — **V2 「🎙️ 해설 교차편집」 구현(미배포, `ai-video-studio` v1.29 묶음)**
 - `/narrate`(`42f743503`): 내 해설 녹음 1개(3분 이하) + 내 촬영본 2~10개 → 권리 체크 → 실행 기록 `/api/clip/rights`(tool `narration-cut`) → V1과 같은 길로 소리 뽑기·본인 OpenAI 키 받아쓰기 → 문장이 20개 넘으면 짧은 이웃끼리 합침(`limitSegs`) → 문장마다 장면(`planCrossCut`: 장면 길이는 문장 시각, 촬영본 번갈아·이어 쓰기·끝이면 처음·짧으면 반복) → 장면별 촬영본 바꾸기 → 영상 합치기로 넘김(해설은 소리 칸 100%, 촬영본 소리 끔, 9:16). 좌측 메뉴 🎙️ NEW. 시험 93개·tsc·로컬 빌드 통과.
 - 확인 못 한 것: 실제 받아쓰기·렌더(배포 뒤 시험 계정, 받아쓰기 3분 약 25원). 배포: 미배포 대기(언어판과 함께 v1.29, 빌드 승인 1회 남음).

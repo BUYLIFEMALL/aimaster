@@ -1,6 +1,23 @@
-# AI 인물사진 자동화 (portrait-photo) — 작업 지침 (v1.30)
+# AI 인물사진 스튜디오 (portrait-photo) — 작업 지침 (v1.45)
 
 > 먼저 루트 `CLAUDE.md`·`docs/HANDOFF.md`·`docs/ERROR_LESSONS.md`를 읽는다. 이어받을 때는 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md), 설계 배경은 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md).
+
+## 2026-11-08 v1.45 리뉴얼: 61번 어도비 하이퍼 크리에이티브 다크 데스크 스타일 & 5단계 표준 로그인 반영
+- **디자인 표준 리뉴얼**: `DESIGN.md` 61번 어도비 하이퍼 크리에이티브 다크 데스크 스타일(딥 차콜 슬레이트 & 앰버 골드 테마) 적용.
+- **4단계 스튜디오 파이프라인 배너 탑재**: `01. 원본 얼굴 업로드 ➔ 02. 안면 비례 3분할 튜닝 ➔ 03. 공식 규격 및 조명 렌더링 ➔ 04. 4K 마스터 인화 내보내기` 시각화.
+- **3D 엠보싱 앰버 버튼 적용**: `.btn-3d.btn-3d-amber` 적용 (스튜디오 실행 및 로그인 폼).
+- **2026-11-01 5단계 수직 레이아웃 표준 로그인 페이지 탑재**:
+  1. [맨 위] 64px 둥근 라운드 스퀘어 카메라 로고 (그라데이션 & 섀도우)
+  2. [그 밑] `AIMASTER PORTRAIT PHOTO STUDIO` 알약 캡슐 뱃지
+  3. [그 밑] `AI 인물사진 스튜디오` 볼드 메인 타이틀 & 서브 안내 카피
+  4. [중앙] `max-w-[440px]` 2단 탭 폼 카드 (로그인 / 회원가입)
+  5. [맨 아래] `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 링크
+- **공식 쇼케이스 및 영구 자산화**:
+  - 단일 통합 쇼케이스 웹서버 (`http://localhost:3800/showcase.html` 및 `http://localhost:3800/comparison.html`)
+  - `D:\Antigravity\Design\61_adobe_hyper_creative_dark_desk\portrait-photo` (1안 추천)
+  - `D:\Antigravity\Design\66_라이카_미니멀_아날로그_포토_랩_스타일\portrait-photo` (2안 자산화)
+  - `D:\Antigravity\Design\67_사이버_네온_뷰티_뉴럴_레티나_스타일\portrait-photo` (3안 자산화)
+- **검증**: `npm run build` Turbopack 빌드 성공, `npm test` 47개 테스트 전원 통과.
 
 ## 한 줄 요약
 인물 사진 1장 + 촬영 목적(증명사진·비즈니스·SNS·시네마틱·자유) 프리셋 + 조명·카메라·배경·포즈·복장·피부 질감·필름 룩·보정 4종 → 회원 **본인 Gemini 키**로 인물 사진 1장을 만든다. 후처리(좌우 반전 입력, 배경 순백 정리, 413×531 증명사진 JPEG, 밝기·노출·대비, 가이드선)는 모두 브라우저에서 한다. 사진·결과는 **서버에 저장하지 않고** 브라우저 IndexedDB(최근 20장)에만 둔다. 참고 원본은 AI Studio "Cinematic Portrait Studio 2"이며 코드·문구·브랜드(크레딧·링크)는 복제하지 않았다.

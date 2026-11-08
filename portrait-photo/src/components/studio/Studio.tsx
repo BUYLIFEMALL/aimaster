@@ -733,6 +733,25 @@ export function Studio({ userId }: { userId: string }) {
 
   return (
     <div className="studio">
+      {/* 4단계 스튜디오 파이프라인 배너 (시안 1 61번 어도비 하이퍼 크리에이티브 다크 데스크 규격) */}
+      <div className="studio-pipeline-banner">
+        <div className={`studio-pipeline-step ${previewUrl ? "done" : "active"}`}>
+          <span>{previewUrl ? "✔" : "01"}</span> 01. 원본 얼굴 업로드
+        </div>
+        <div className="studio-pipeline-arrow">➔</div>
+        <div className={`studio-pipeline-step ${previewUrl && !shown && !busy ? "active" : shown ? "done" : ""}`}>
+          <span>{shown ? "✔" : "02"}</span> 02. 안면 비례 3분할 튜닝
+        </div>
+        <div className="studio-pipeline-arrow">➔</div>
+        <div className={`studio-pipeline-step ${busy ? "active" : shown ? "done" : ""}`}>
+          <span>{shown ? "✔" : "03"}</span> 03. 공식 규격 및 조명 렌더링
+        </div>
+        <div className="studio-pipeline-arrow">➔</div>
+        <div className={`studio-pipeline-step ${shown && !busy ? "active" : ""}`}>
+          <span>04</span> 04. 4K 마스터 인화 내보내기
+        </div>
+      </div>
+
       <div className="notice st-own">
         <label className="check">
           <input type="checkbox" checked={confirmOwn} onChange={(e) => setConfirmOwn(e.target.checked)} />
@@ -1065,8 +1084,8 @@ export function Studio({ userId }: { userId: string }) {
                 </div>
               </div>
             )}
-            <button type="button" className="primary st-generate" onClick={generate} disabled={busy || !file} aria-describedby="st-generate-why">
-              {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중</> : <><Sparkles size={16} />인물 사진 만들기</>}
+            <button type="button" className="btn-3d btn-3d-amber st-generate" onClick={generate} disabled={busy || !file} aria-describedby="st-generate-why" style={{ height: "48px", fontSize: "14px" }}>
+              {busy ? <><Loader2 size={16} className="ls-spin" />만드는 중…</> : <><Sparkles size={16} />⚡ 4K 무손실 인물사진 생성 및 인화 (1회 실행)</>}
             </button>
             {!busy && (!file || !confirmOwn) && (
               <p id="st-generate-why" className="st-generate-why">{!file ? "① 인물 사진 칸에 사진을 먼저 올려 주세요." : "위 「본인 사진·사용 동의」에 체크해야 만들 수 있어요."}</p>
