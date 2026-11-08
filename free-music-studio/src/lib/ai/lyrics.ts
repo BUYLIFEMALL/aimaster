@@ -1,6 +1,7 @@
 import { languageEnglishName } from "@/lib/lyricLanguages";
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import { ALBUM_READ_SCHEMA, albumReadRules, parseAlbumRead, type AlbumRead } from "@/lib/albumRead";
 import type { LyricModel, LyricProvider } from "@/lib/lyricModels";
 import { LIMITS } from "@/lib/songs";
 import { findBannedWords, parsePlan, targetLengthText, type PlannedTrack } from "@/lib/lyricRules";
@@ -143,7 +144,10 @@ function httpError(provider: string, status: number): LyricError {
 const REFUSED = "AI가 이 주제로는 쓰지 않았습니다. 주제를 바꿔 주세요.";
 const TOO_LONG = "응답이 너무 길어 끝까지 받지 못했습니다. 길이나 곡 수를 줄여 다시 시도해 주세요.";
 
-async function viaClaude(apiKey: string, model: LyricModel, system: string, user: string, schema: Schema): Promise<string> {
+/** 그림 한 장(앨범 2단계 「이 그림으로 곡 만들기」) — base64 */
+type Picture = { data: string; mime: "image/jpeg" | "image/png" | "image/webp" };
+
+async function viaClaude(apiKey: string, model: LyricModel, system: string, user: string, schema: Schema, image?: Picture): Promise<string> {
   const client = new Anthropic({ apiKey, timeout: TIMEOUT_MS, maxRetries: 0 });
   try {
     const res = await client.beta.messages.create({
@@ -153,7 +157,12 @@ async function viaClaude(apiKey: string, model: LyricModel, system: string, user
       fallbacks: "default",
       output_config: { effort: "low", format: { type: "json_schema", schema } },
       system,
-      messages: [{ role: "user", content: user }],
+      messages: [
+        {
+          role: "user",
+          content: image ? [{ type: "image", source: { type: "base64", media_type: image.mime, data: image.data } }, { type: "text", text: user }] : user,
+        },
+      ],
     });
     if (res.stop_reason === "refusal") throw new LyricError(REFUSED, 400);
     if (res.stop_reason === "max_tokens") throw new LyricError(TOO_LONG, 502);
@@ -168,7 +177,7 @@ async function viaClaude(apiKey: string, model: LyricModel, system: string, user
   }
 }
 
-async function viaOpenAI(apiKey: string, model: LyricModel, system: string, user: string, schema: Schema): Promise<string> {
+async function viaOpenAI(apiKey: string, model: LyricModel, system: string, user: string, schema: Schema, image?: Picture): Promise<string> {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
@@ -176,7 +185,7 @@ async function viaOpenAI(apiKey: string, model: LyricModel, system: string, user
       model,
       messages: [
         { role: "system", content: system },
-        { role: "user", content: user },
+        { role: "user", content: image ? [{ type: "image_url", image_url: { url: `data:${image.mime};base64,${image.data}` } }, { type: "text", text: user }] : user },
       ],
       response_format: { type: "json_schema", json_schema: { name: "result", strict: true, schema } },
       max_completion_tokens: 8000,
@@ -192,13 +201,13 @@ async function viaOpenAI(apiKey: string, model: LyricModel, system: string, user
   return choice?.message?.content ?? "";
 }
 
-async function viaGemini(apiKey: string, model: LyricModel, system: string, user: string): Promise<string> {
+async function viaGemini(apiKey: string, model: LyricModel, system: string, user: string, image?: Picture): Promise<string> {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
-      contents: [{ role: "user", parts: [{ text: user }] }],
+      contents: [{ role: "user", parts: [...(image ? [{ inline_data: { mime_type: image.mime, data: image.data } }] : []), { text: user }] }],
       generationConfig: { responseMimeType: "application/json", maxOutputTokens: 12000 },
     }),
     cache: "no-store",
@@ -212,18 +221,18 @@ async function viaGemini(apiKey: string, model: LyricModel, system: string, user
   return c?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
 }
 
-type Caller = (system: string, user: string, schema: Schema) => Promise<string>;
+type Caller = (system: string, user: string, schema: Schema, image?: Picture) => Promise<string>;
 
 function caller(provider: LyricProvider, apiKey: string, model: LyricModel): { call: Caller; count: () => number } {
   let n = 0;
-  const call: Caller = async (system, user, schema) => {
+  const call: Caller = async (system, user, schema, image) => {
     n++;
     const raw =
       provider === "openai"
-        ? await viaOpenAI(apiKey, model, system, user, schema)
+        ? await viaOpenAI(apiKey, model, system, user, schema, image)
         : provider === "gemini"
-          ? await viaGemini(apiKey, model, system, user)
-          : await viaClaude(apiKey, model, system, user, schema);
+          ? await viaGemini(apiKey, model, system, user, image)
+          : await viaClaude(apiKey, model, system, user, schema, image);
     if (!raw.trim()) throw new LyricError("AI 응답이 비었습니다. 잠시 뒤 다시 시도해 주세요.", 502);
     return raw;
   };
@@ -389,4 +398,16 @@ export async function writeArtPrompt(
   }
   if (prompt.split(" ").length < 8) throw new LyricError("AI가 그림 설명을 만들지 못했습니다. 다시 시도해 주세요.", 502);
   return { prompt: prompt.slice(0, 900), calls: count() };
+}
+
+// ── 앨범 그림 → 곡 만들기 칸(앨범 2단계, v1.36) ──────────────
+// 회원 본인 키로 한 번만 부른다(재시도 없음). 결과는 화면 선택지 안의 값만 남긴다(parseAlbumRead).
+export async function readAlbumImage(provider: LyricProvider, apiKey: string, model: LyricModel, image: Picture): Promise<AlbumRead & { calls: number }> {
+  const { call, count } = caller(provider, apiKey, model);
+  const raw = await call(albumReadRules(new Date().getFullYear()), "Read this album cover and plan the song.", ALBUM_READ_SCHEMA as unknown as Schema, image);
+  try {
+    return { ...parseAlbumRead(raw), calls: count() };
+  } catch (err) {
+    throw new LyricError((err as Error).message, 502);
+  }
 }

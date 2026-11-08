@@ -18,6 +18,7 @@ import { QuickCoverPanel } from "@/components/songs/QuickCoverPanel";
 import type { Track } from "@/lib/tracks";
 import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult } from "@/components/songs/LyricResultDialog";
 import { SongAlbumChooser } from "@/components/albums/SongAlbumChooser";
+import { ALBUM_QUERY, type AlbumRead } from "@/lib/albumRead";
 import { DEFAULT_LYRIC_LANGUAGE, LYRIC_LANGUAGES, isBestLanguage } from "@/lib/lyricLanguages";
 import { LYRIC_GENRES, MAX_MOODS, MAX_VOCALS, MOOD_GROUPS, TEMPOS, VOCALS, lyricMoodPayload, moodConflict, toggleMany, toggleMood } from "@/lib/lyricTags";
 
@@ -286,6 +287,27 @@ export default function SongsPage() {
   };
 
   const ai = { provider, model, language, banned_words: parseBannedInput(banned), duration_sec: draft.duration_sec };
+
+  // 앨범 2단계(v1.36): 그림에서 읽은 값으로 곡 칸을 채운다 — 이미 적어 둔 제목·스타일은 덮지 않는다
+  const fillFromAlbum = (r: AlbumRead) => {
+    if (r.theme) setTheme(r.theme);
+    if (r.genre) setGenre(r.genre);
+    if (r.moods.length) setMoods(r.moods);
+    if (r.tempo) setTempo(r.tempo);
+    if (r.vocals.length && !instrumental) setVocals(r.vocals);
+    setDraft((d) => ({ ...d, title: d.title.trim() ? d.title : r.title, style_prompt: d.style_prompt.trim() ? d.style_prompt : r.style_prompt }));
+  };
+  // 앨범 화면 「이 그림으로 곡 만들기」로 왔을 때(?album=<번호>&name=<이름>) — 한 번 읽고 주소에서 지운다
+  const [startAlbum, setStartAlbum] = useState<{ id: string; name: string } | null>(null);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const id = q.get(ALBUM_QUERY);
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return;
+    setStartAlbum({ id, name: (q.get("name") ?? "").slice(0, 60) || "앨범" });
+    q.delete(ALBUM_QUERY);
+    q.delete("name");
+    window.history.replaceState(null, "", `${window.location.pathname}${q.toString() ? `?${q}` : ""}`);
+  }, []);
 
   // AI 가사 결과 창(원본 boks-music, MIT) — 결과는 바로 덮어쓰지 않고 창에서 고른다. 최근 20개는 이 브라우저에.
   const [lyricResults, setLyricResults] = useState<LyricResult[]>([]);
@@ -1140,7 +1162,7 @@ export default function SongsPage() {
 
           {/* 앨범 그림(노래·연주곡만 — 효과음은 표지가 필요 없음) */}
           {/* 앨범 그림 만들기는 좌측 「앨범」 메뉴로(v1.35) — 여기서는 만들어 둔 앨범에서 고르기 */}
-          {!sfx && <SongAlbumChooser title={draft.title} art={draft.art_prompt} />}
+          {!sfx && <SongAlbumChooser title={draft.title} art={draft.art_prompt} ai={{ provider, model }} onRead={fillFromAlbum} start={startAlbum} />}
 
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
           {coverSrc && (

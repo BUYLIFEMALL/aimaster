@@ -5,6 +5,7 @@
 // ?title=&art=&track= — 곡을 다 만든 뒤 「앨범 그림 만들기(곡 제목·가사로)」로 열리면 채워 두고, 저장하면 그 곡 표지로도 넣는다.
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { songFromAlbumHref } from "@/lib/albumRead";
 import { useSearchParams } from "next/navigation";
 import { Download, ImageIcon, Images, Music2, Pencil, Trash2 } from "lucide-react";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
@@ -196,6 +197,15 @@ export default function AlbumsPage() {
                 </p>
                 {a.orphan && <p className="text-[10px] text-slate-500">기록이 30일 정리로 지워진 그림입니다.</p>}
                 <div className="flex flex-wrap gap-1">
+                  {a.onPc && (
+                    <Link
+                      href={songFromAlbumHref(a.id, a.title)}
+                      className="inline-flex items-center gap-1 rounded-lg bg-fuchsia-600 px-2 py-1 text-[11px] font-bold text-white hover:bg-fuchsia-500"
+                      title="AI가 이 그림을 보고 곡 주제·장르·분위기·스타일을 채우고, 그림은 그 곡 표지가 됩니다"
+                    >
+                      <Music2 className="h-3 w-3" /> 이 그림으로 곡 만들기
+                    </Link>
+                  )}
                   {thumbs[a.id] && (
                     <a href={thumbs[a.id]} download={`${a.title.replace(/[\\/:*?"<>|]/g, "_")}.png`} className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-900" title="그림 받기">
                       <Download className="h-3 w-3" /> 받기
