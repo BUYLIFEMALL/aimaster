@@ -3,7 +3,7 @@
 // 앨범 그림 만들기(2026-11-05 주인님 「앨범 그림 만들기 기능도 넣어줘」) — 회원 본인 Gemini·OpenAI·Replicate 키로 정사각형 1장,
 // 또는 「내 PC(무료)」(엔진 0.7.0+, 원본 boks-music image-engine — 키 없이 회원 PC 그래픽카드로, 2026-11-06 주인님 결정).
 // 그림은 서버에 남기지 않고 내 PC 노래 저장 폴더(엔진 0.6.7+)에 「곡 제목.png」로 넣거나 바로 받는다.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ART_PROVIDERS, DEFAULT_ART_PROVIDER, type ArtProvider } from "@/lib/albumArtModels";
 import Link from "next/link";
 import { ImageIcon, Loader2, FolderDown, Download, Sparkles } from "lucide-react";
@@ -29,6 +29,8 @@ export function AlbumArtPanel({
   ai,
   saveAction,
   heading = "앨범 그림 만들기",
+  split = false,
+  beforePrompt,
 }: {
   title: string;
   style: string;
@@ -41,6 +43,10 @@ export function AlbumArtPanel({
   /** 저장 버튼을 바꿔 쓴다(앨범 화면: 앨범 보관함에 저장). run은 결과 안내 문구를 돌려준다 */
   saveAction?: { label: string; ready: boolean; notReady: string; run: (img: { base64: string; mimeType: string }) => Promise<string> };
   heading?: string;
+  /** 두 칸(왼쪽 생성 프롬프트 · 오른쪽 이미지 모델 선택과 큰 결과 그림) — 음악앨범 화면 */
+  split?: boolean;
+  /** 왼쪽 칸 맨 위에 넣을 것(앨범 이름 칸 등) */
+  beforePrompt?: ReactNode;
 }) {
   const { paired, status } = useEngine(10000);
   const [busy, setBusy] = useState<"" | "make" | "save" | "prompt">("");
@@ -231,6 +237,10 @@ export function AlbumArtPanel({
         <ImageIcon className="h-4 w-4 text-fuchsia-300" /> {heading}{" "}
         <span className="text-[11px] font-normal text-slate-400">(내 Gemini·OpenAI·Replicate 키 또는 내 PC 그래픽카드(무료) · 정사각형 1장 · 선택)</span>
       </h2>
+      {/* 2026-11-08 주인님 「좌측에 생성 프롬프트」「우측에 이미지 모델 선택 섹션」「생성되는 이미지는 크게」 — split이면 두 칸(음악앨범 화면) */}
+      <div className={split ? "grid gap-5 lg:grid-cols-2" : "space-y-3"}>
+      <div className="space-y-3">
+      {beforePrompt}
       <div>
         <p className="mb-1.5 text-[11px] font-bold text-slate-400">
           화풍 <span className="font-normal text-slate-500">· 기본은 실사 사진 · AI 영어 설명과 그림 모두 이 화풍으로 만듭니다</span>
@@ -292,6 +302,9 @@ export function AlbumArtPanel({
             {busy === "prompt" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} {hasHangul ? "한글 설명을 영어로 바꾸기" : "AI로 영어 설명 만들기"}
         </button>
       </div>
+      </div>
+      <div className={split ? "space-y-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4" : "space-y-3"}>
+      {split && <h3 className="text-xs font-bold text-slate-200">🎨 이미지 모델 선택 · 그리기</h3>}
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="그림 플랫폼">
           {ART_PROVIDERS.map((p) => {
@@ -380,10 +393,10 @@ export function AlbumArtPanel({
         </p>
       )}
       {image && (
-        <div className="flex flex-wrap items-end gap-4">
+        <div className={split ? "space-y-3" : "flex flex-wrap items-end gap-4"}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt={`${title} 앨범 그림`} className="h-48 w-48 rounded-xl border border-slate-700 object-cover" />
-          <div className="flex flex-col gap-2">
+          <img src={src} alt={`${title} 앨범 그림`} className={split ? "aspect-square w-full max-w-xl rounded-2xl border border-slate-700 object-cover shadow-2xl" : "h-48 w-48 rounded-xl border border-slate-700 object-cover"} />
+          <div className={split ? "flex flex-wrap gap-2" : "flex flex-col gap-2"}>
             {saveAction ? (
               saveAction.ready ? (
                 <button
@@ -421,6 +434,8 @@ export function AlbumArtPanel({
           </div>
         </div>
       )}
+      </div>
+      </div>
     </section>
   );
 }

@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { songFromAlbumHref } from "@/lib/albumRead";
 import { useSearchParams } from "next/navigation";
-import { Download, ImageIcon, Images, Music2, Pencil, Trash2 } from "lucide-react";
+import { Download, ImageIcon, Images, Music2, Pencil, Trash2, X } from "lucide-react";
 import { AlbumArtPanel } from "@/components/songs/AlbumArtPanel";
 import { ImageModelPanel } from "@/components/engine/ImageModelPanel";
 import { useAlbums, type AlbumItem } from "@/components/albums/useAlbums";
@@ -27,6 +27,14 @@ export default function AlbumsPage() {
   const [track, setTrack] = useState<Track | null>(null);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [panelKey, setPanelKey] = useState(0);
+  // 썸네일을 누르면 크게 보기(2026-11-08 주인님 「클릭하면 확대해서 보여줄수 있도록」) — Esc·바깥 누르면 닫힘
+  const [zoom, setZoom] = useState<string | null>(null);
+  useEffect(() => {
+    if (!zoom) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setZoom(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [zoom]);
   // 곡 만들기 「앨범 화면에서 이 곡 그림 만들기」로 왔을 때(?from=song) — 그 곡 스타일·가사(v1.38)
   const [songCtx, setSongCtx] = useState<AlbumSongContext | null>(null);
   useEffect(() => {
@@ -142,7 +150,7 @@ export default function AlbumsPage() {
         </p>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <div className="space-y-5">
       {/* 1. 그림 만들기 — 영상 만들기 화면처럼 번호 단계 두 칸(2026-11-08 주인님 「영상 만들기 메뉴처럼」) */}
       <section className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
         <h2 className="text-sm font-bold text-slate-100">1. 앨범 그림 만들기</h2>
@@ -156,12 +164,15 @@ export default function AlbumsPage() {
             <Music2 className="h-4 w-4" /> 「{track.title}」의 제목·가사로 앨범 그림을 만듭니다. 저장하면 이 곡 표지로도 들어갑니다.
           </p>
         )}
-        <label className="block space-y-1">
-          <span className="text-xs font-bold text-slate-300">앨범 이름</span>
-          <input className={field} value={title} maxLength={ALBUM_TITLE_MAX} onChange={(e) => setTitle(e.target.value)} placeholder="예: 가을 기차 여행" />
-        </label>
         <AlbumArtPanel
           key={panelKey}
+          split
+          beforePrompt={
+            <label className="block space-y-1">
+              <span className="text-xs font-bold text-slate-300">앨범 이름</span>
+              <input className={field} value={title} maxLength={ALBUM_TITLE_MAX} onChange={(e) => setTitle(e.target.value)} placeholder="예: 가을 기차 여행" />
+            </label>
+          }
           heading="새 앨범 그림 만들기"
           title={title}
           style={track?.style_prompt ?? songCtx?.style ?? ""}
@@ -199,13 +210,15 @@ export default function AlbumsPage() {
         ) : albums.length === 0 ? (
           <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-xs text-slate-500">아직 앨범이 없습니다. 위에서 그림을 만들고 [앨범에 저장]을 눌러 주세요.</p>
         ) : (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
             {albums.map((a) => (
               <li key={a.id} className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-3">
                 <div className="aspect-square overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
                   {thumbs[a.id] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={thumbs[a.id]} alt={a.title} className="h-full w-full object-cover" />
+                    <button type="button" onClick={() => setZoom(a.id)} className="block h-full w-full cursor-zoom-in" title="크게 보기">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={thumbs[a.id]} alt={a.title} className="h-full w-full object-cover transition-transform duration-200 hover:scale-105" />
+                    </button>
                   ) : (
                     <span className="flex h-full items-center justify-center p-3 text-center text-[11px] text-slate-500">
                       {a.onPc === false ? "이 PC에 그림이 없습니다(다른 PC에서 만들었거나 지움)" : "그림을 읽는 중…"}
@@ -246,6 +259,32 @@ export default function AlbumsPage() {
         )}
       </section>
       </div>
+
+      {zoom && thumbs[zoom] && (() => {
+        const z = albums.find((a) => a.id === zoom);
+        return (
+          <div role="dialog" aria-modal="true" aria-label="앨범 그림 크게 보기" onClick={() => setZoom(null)} className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
+            <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-3xl space-y-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={thumbs[zoom]} alt={z?.title ?? "앨범 그림"} className="max-h-[80vh] w-full rounded-2xl border border-slate-700 object-contain" />
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="mr-auto truncate text-sm font-bold text-slate-100">{z?.title}</p>
+                {z?.onPc && (
+                  <Link href={songFromAlbumHref(z.id, z.title)} className="inline-flex items-center gap-1 rounded-lg bg-fuchsia-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-fuchsia-500">
+                    <Music2 className="h-3.5 w-3.5" /> 이 그림으로 곡 만들기
+                  </Link>
+                )}
+                <a href={thumbs[zoom]} download={`${(z?.title ?? "앨범").replace(/[\\/:*?"<>|]/g, "_")}.png`} className="inline-flex items-center gap-1 rounded-lg border border-slate-600 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900">
+                  <Download className="h-3.5 w-3.5" /> 받기
+                </a>
+                <button type="button" onClick={() => setZoom(null)} className="inline-flex items-center gap-1 rounded-lg border border-slate-600 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900">
+                  <X className="h-3.5 w-3.5" /> 닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 내 PC 그림 모델 — 「내 PC 엔진」 화면 「이미지용」에서 옮김(2026-11-08 주인님 「앨범 만들기 좌측으로 따로 빼기로 한거 마저」) */}
       <section id="image-models" className="scroll-mt-6 space-y-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
