@@ -36,6 +36,7 @@ Next.js 16(App Router)·React 19·Tailwind 4·Supabase(공용 DB)·`@anthropic-a
 - 장점: 생성 비용 0, 음원이 서버에 안 남음, 상업용/비상업용 구분 표시. 한계: Stem·정렬·그림은 윈도우(NVIDIA 권장), 모델 받기 5~35GB, 설치 파일 미서명.
 
 ## 4. 버전
+- 2026-11-09 [역할: mac-mini] 로그인 목록실측: ego lite·시험계정·GET /api/tracks5회 모두200·곡12개, 첫 응답평균189.06ms/본문 완료192.98ms. 전후 동일 조건 기준 없어 개선율 미산출. 가사 수정 전 원본은 현재 일반/휴지통 목록 미확인, 전체 추가 비교 미완료. 주인님 지시로 Apple Silicon·가사 추가 자료·YuE2/LeVo는 현재 작업 목록 제외/환경 준비 후 재개로 보관. 상세 docs/IMPROVEMENTS.md 맨 위.
 - 2026-11-08 [역할: mac-mini] 검수 도구 준비: `scripts/compare-lyric-timing.mjs`·명시 시험7/7, 같은 음원 자동 원본과 수동 정답만 비교(운영 로직 변경 없음). 엔진0.7.7·icn1 배포 완료 재확인, 로그인 목록 속도/수동 정답 자료만 윈도우 후속 요청 `dc7d150f`. 실제 정확도·로그인 속도는 아직 미측정. 상세 `docs/IMPROVEMENTS.md` 맨 위.
 - 2026-11-08 [역할: mac-mini] 잔여5항목 순차 처리: B-4 수동 정답 자료 대기, C-1 기존 v1.33 리뉴얼 완료 표시 정정, C-14 같은 파일시스템 rename·저장 실패 복구 코드/시험15개 통과(미배포·Windows 실물 필요), C-12 운영 DB 서울 확인·icn1 권장 검토 완료(설정 미변경), B-5/6 원본 지원 대기. A-6 포함 환경 의존 항목은 주인님 지시로 환경 준비 후 재개. 상세 `docs/IMPROVEMENTS.md` 맨 위.
 - 2026-11-08 [역할: mac-mini] A-6 부분 완료: **0.7.5 x64 DMG** 제작·설치·앱 실행·사이트 연결 확인. Intel 맥은 기존 엔진에서 미지원(생성 미실행), Apple Silicon 미검수라 Mac 공개 보류. Windows desktop/node_modules 복구 완료, exe 작업 재개 가능. 결과·파일·해시: `docs/MAC_MINI_DMG_PROMPT_20261108.md` 「결과」.
