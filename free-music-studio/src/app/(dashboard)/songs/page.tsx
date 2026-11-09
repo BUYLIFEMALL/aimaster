@@ -749,8 +749,8 @@ export default function SongsPage() {
                   </div>
                   {/* 세부 장르 — 대분류를 고르면 열림, 하나만(장르를 섞으면 결과가 흐려짐) */}
                   {subGenresOf(genre).length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-950/20 px-2 py-1.5" role="radiogroup" aria-label={`${genre} 세부 장르`}>
-                      <span className="mr-1 text-[11px] text-emerald-300/80">세부 장르</span>
+                    <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-teal-500/25 bg-teal-950/20 px-2 py-1.5" role="radiogroup" aria-label={`${genre} 세부 장르`}>
+                      <span className="mr-1 text-[11px] text-teal-200/80">└ 「{genre}」 세부 장르 하나</span>
                       {subGenresOf(genre).map((s) => (
                         <button
                           key={s.ko}
@@ -759,8 +759,9 @@ export default function SongsPage() {
                           aria-checked={subGenre === s.ko}
                           onClick={() => setSubGenre(subGenre === s.ko ? "" : s.ko)}
                           title={s.en}
-                          className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors ${subGenre === s.ko ? "border-emerald-300 bg-emerald-500 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-emerald-500/60"}`}
+                          className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors ${subGenre === s.ko ? "border-teal-300 bg-teal-900/80 text-teal-50 ring-1 ring-teal-300/60" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-teal-400/60"}`}
                         >
+                          {subGenre === s.ko ? "✓ " : ""}
                           {s.ko}
                         </button>
                       ))}

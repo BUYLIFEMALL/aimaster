@@ -23,8 +23,8 @@ export const GENRE_GROUPS: readonly GenreGroup[] = [
   { ko: "소울·펑크", subs: [{ ko: "소울", en: "soul" }, { ko: "네오 소울", en: "neo soul" }, { ko: "모타운", en: "motown" }, { ko: "펑크(Funk)", en: "funk" }] },
   { ko: "포크·어쿠스틱", subs: [{ ko: "어쿠스틱", en: "acoustic pop" }, { ko: "인디 포크", en: "indie folk" }, { ko: "포크 록", en: "folk rock" }, { ko: "컨트리", en: "country" }, { ko: "블루그래스", en: "bluegrass" }] },
   { ko: "월드·라틴", subs: [{ ko: "라틴 팝", en: "latin pop" }, { ko: "레게", en: "reggae" }, { ko: "레게톤", en: "reggaeton" }, { ko: "플라멩코", en: "flamenco" }, { ko: "아프로비트", en: "afrobeats" }, { ko: "J-POP", en: "j-pop" }] },
-  { ko: "OST·뮤지컬", subs: [{ ko: "드라마 OST", en: "korean drama ost ballad" }, { ko: "애니메이션 주제가", en: "anime theme song" }, { ko: "뮤지컬 넘버", en: "musical theatre" }, { ko: "시네마틱 팝", en: "cinematic pop" }] },
-  { ko: "동요·CCM", subs: [{ ko: "동요", en: "children's song" }, { ko: "CCM·워십", en: "contemporary worship" }, { ko: "가스펠", en: "gospel" }] },
+  { ko: "영화·드라마·무대", subs: [{ ko: "드라마 OST", en: "korean drama ost ballad" }, { ko: "애니메이션 주제가", en: "anime theme song" }, { ko: "뮤지컬 넘버", en: "musical theatre" }, { ko: "시네마틱 팝", en: "cinematic pop" }] },
+  { ko: "어린이·종교 음악", subs: [{ ko: "동요", en: "children's song" }, { ko: "CCM·워십", en: "contemporary worship" }, { ko: "가스펠", en: "gospel" }] },
 ];
 
 /** 노래 장르(대분류) — 화면 버튼·그림 읽기 선택지 */
