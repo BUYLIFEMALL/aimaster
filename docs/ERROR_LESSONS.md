@@ -1,6 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-09 다른 프로그램 창으로 파일을 건네는(postMessage) 연계가 쇼츠 원스톱에서만 안 됨 — 받는 쪽의 `Cross-Origin-Opener-Policy: same-origin` 헤더가 opener를 끊음 (`free-music-studio` D-4 → `shorts-onestop-studio` v1.46, [역할: music])
+- 증상: 무료음악 「쇼츠 배경음악으로」로 연 쇼츠 창이 「이 창이 무료음악에서 열리지 않아…」 — `window.opener`가 null
+- 원인: 쇼츠 원스톱 `next.config.ts`가 모든 화면에 COOP same-origin(+COEP credentialless, 무료 음성 여러 줄 계산용)을 보냄. COOP same-origin 문서는 다른 출처가 연 창이면 opener가 끊긴다. 받는 쪽 코드·계약은 맞았지만 코드 시험·tsc로는 안 보이고 실물에서만 드러남
+- 해결 방향: 받기 전용 화면(`/fms-bgm`)만 헤더에서 빼고, 받은 파일을 올린 뒤 원래 화면으로 넘김(상세 `free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md` 11절)
+- 다음부터: 다른 프로그램 창과 `window.opener`/postMessage로 주고받는 연계를 설계하기 전에 받는 쪽 응답 헤더를 먼저 본다 — `curl -sI https://<받는 곳>/<경로> | grep -i cross-origin-opener`. `same-origin`이면 그 경로에선 안 된다(받기 전용 경로를 헤더에서 빼거나 다른 방식). 배포 전 실물 1회(두 창 실제 열기)로 확인한다
+
 ## 2026-11-09 「다른 세션의 미커밋 변경」인 줄 알았던 파일이 실은 내 커밋을 남의 커밋이 되돌린 것 (`free-music-studio`, [역할: music])
 - 증상: 작업 폴더에 `AlbumArtPanel.tsx`·엔진 `imageArt.mjs` 등이 「변경됨」으로 남아 다른 세션 작업으로 보고 배포에서 뺐다(v1.59를 `git archive`로 커밋된 코드만 배포)
 - 원인: 이 세션이 02:57 커밋한 `8f622ea34`를 03:03 다른 세션의 디자인 커밋 `16328c462`(trending-product-finder)가 옛 내용으로 덮어 올렸다(공용 스테이징 경합 — 2026-11-06 같은 유형). 작업 폴더에는 원래 내용이 남아 「변경됨」으로 보였다. 결과적으로 v1.59 사이트에서 그 기능이 빠졌다
