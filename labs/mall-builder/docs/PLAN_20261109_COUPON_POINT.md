@@ -2,7 +2,7 @@
 
 - 대상: Lab `labs/mall-builder` (DB `AIMaster_dev` ref `rjjtjakljjxsgjelqgek`, 운영 DB는 건드리지 않음)
 - 근거: [로드맵 2차 후보](../../../docs/mall/ROADMAP_AND_VARIANTS.md) 「쿠폰·포인트」, 주인님 「이하 순서대로 진행해」(2026-11-09)
-- 상태: **결정 대기** — 아래 「결정 항목」 답을 받은 뒤 구현
+- 상태: **결정 완료(2026-11-09 주인님 채팅)** — 결정 1~5 모두 추천안, Lab 빌드 1회 승인. 구현 중
 
 ## 1. 지금 구조에서 확인한 것
 - 주문 금액: `mall_builder_orders.subtotal`(상품) + `shipping_fee` = `total`. 주문 DB 함수 `mall_builder_place_order`(최신 0028)가 다시 계산하고, 화면의 `p_expected_total`과 다르면 막는다. 화면 계산은 `src/lib/pricing.ts`(바꾸면 둘 다 바꿈).
