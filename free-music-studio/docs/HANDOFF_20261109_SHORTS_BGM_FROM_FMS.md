@@ -101,3 +101,13 @@
 - `src/lib/videoHandoff.ts` `TARGETS.shorts.path` `/render` → `/fms-bgm`(해시·준비 신호·음원 형식 그대로). tsc·시험 129개 통과.
 - 쇼츠 v1.47은 배포됨, 운영 `/fms-bgm` 응답에 COOP 헤더 없음 확인(`curl -sI`).
 - 남은 일: 무료음악 v1.61 배포(주인님 「배포해」) → 마스터PC에서 「쇼츠 배경음악으로」 실물 1회.
+
+## 14. D-6 이미지 스토리 쇼츠(shots) 받는 쪽 끝 — 보내는 쪽을 붙여 주세요 (2026-11-09 [역할: video], 미배포)
+
+- 커밋 `5c15584c5`. shots는 교차 출처 격리 헤더가 없어 `window.opener`가 그대로 살아 있다(쇼츠 원스톱처럼 따로 뺄 필요 없음).
+- **보내는 쪽에 넣을 한 줄**(`src/lib/videoHandoff.ts` `TARGETS`):
+  `shots: { origin: "https://shots.buylife.xyz", path: "/fms-bgm", readyType: "shs-ready", hash: true, mp3: true }`
+- 받는 주소: `https://shots.buylife.xyz/fms-bgm#fms=<곡 번호>`(곡 1개, `?fms=`도 받음). 준비 신호 `shs-ready {ids:[id]}`를 두 무료음악 출처로 보내고, `fms-audio {id,name,blob}`를 출처·`e.source === window.opener` 확인 뒤 받는다. 15MB 상한.
+- 받은 뒤: 회원이 넣을 영상을 고른다(최근 30개) → shots-bgm `<회원>/<영상>-fms-<uuid>.mp3`에 일회용 주소로 바로 올림 → `shorts_bgm_tracks`에 「<곡 제목> (AI 무료음악)」으로 저장하고 그 영상의 선택 곡으로 → `/scripts/<영상>`으로 이동. DB 구조 변경 없음.
+- 버튼 문구 제안: 「이미지 스토리 쇼츠 배경음악으로」.
+- 남은 일: shots 배포(빌드 1회, 주인님 승인) → 운영에서 흉내 시험 → 무료음악 쪽 연결·배포 → 마스터PC 실물 1회.
