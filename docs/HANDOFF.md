@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ⏳ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — 카페 회원 모집(naver-cafe-recruit) 초대 시험 4~6회차 지원
+- **원인**: 4회차 「결과 확인 못 함」은 확장이 입력칸에 blur를 보내지 않아 네이버가 거절 사유를 화면 알림 대신 입력칸 아래에만 넣었기 때문(원본 `CafeInvite.nhn`의 `inviteNaverIds()`·`showErrorMsg` 확인).
+- **수정(커밋 `7a85de294`, 미배포)**: `extension/invite.mjs` `judgeResponse()` — 「초대하기」가 보낸 `CafeInvitationByIdAjax` 응답 JSON으로 판정(성공/거절 사유/권한 없음/오류). `extension/background.mjs` — 글자마다 keyup·change·blur, 누르기 전 보안문자 창이면 멈춤, 응답 가로채기는 `finally`에서 원래대로 되돌림. 시험 EX12·EX13 추가, `npm test` 17개 통과.
+- **확인**: 5회차 기록 「네이버: 이미 카페 멤버입니다.」로 판정 경로가 실물에서 동작함을 확인. 성공 응답은 아직 미확인.
+- **DB(운영 `esgxyik…`, 주인님 승인)**: 4회차·5회차 failed 기록 각 1줄 삭제, 원문은 `naver-cafe-recruit/docs/REQUEST_20261106_MACMINI_INVITE_TEST.md` 「5회차」「6회차 준비」 절에 보존(`94cf42a15`). 대상 kkuleomi24는 `reviewed` 유지.
+- **남은 일·다음 첫 단계**: 맥미니 6회차 결과 → 성공 판정 확정 → 빌드 승인 후 v1.03 배포(ZIP·DB 버전 함께) → 명단 2~3페이지·초대링크 확인 → 공개 전환. 요청함 `993cf0d5`는 맥미니 몫. 비용 없음(빌드·유료 호출 0).
+
 ## 2026-11-09 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-atp-v2 — AI 할 일·성과 관리 플래너(ai-task-planner) v1.13 전면 리뉴얼 및 2026-11-01 5단계 표준 로그인 폼 탑재 배포
 - **채택 시안**: 시안 2 (74. 퀀트 타임트래커 다크 터미널 스타일 — 옵시디언 딥블랙 `#070A12` & 네온 에메랄드 `#10B981` / 사이안 `#06B6D4` HUD)
 - **개편 내역**:
