@@ -22,7 +22,7 @@ export interface PostSpec {
 export const POST_SPECS: Record<PostKind, PostSpec> = {
   lipsync: {
     kind: "lipsync", name: "립싱크", emoji: "👄", endpoint: "fal-ai/kling-video/lipsync/audio-to-video",
-    desc: "영상 속 사람의 입 모양을 내가 올린 목소리(2~60초, 5MB 이하)에 맞춥니다. 얼굴이 정면으로 잘 보이는 2~10초 영상에 맞습니다.",
+    desc: "영상 속 사람의 입 모양을 내가 올린 목소리(MP3·WAV, 2~60초, 3MB 이하)에 맞춥니다. 얼굴이 정면으로 잘 보이는 2~10초 영상에 맞습니다.",
     minSeconds: 2, maxSeconds: 10,
   },
   upscale: {
