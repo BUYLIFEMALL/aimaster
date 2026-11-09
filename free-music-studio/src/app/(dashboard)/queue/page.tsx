@@ -35,6 +35,8 @@ export default function QueuePage() {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [audio, setAudio] = useState<Record<string, string>>({});
+  // 2026-11-09 주인님 「플레이중인 곡은 상태바 색상을 다른 색으로 눈에 띄게」 — 지금 소리 나는 곡(작업 번호)
+  const [playing, setPlaying] = useState<string | null>(null);
   const urls = useRef<string[]>([]);
   useEffect(() => () => urls.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
@@ -90,7 +92,7 @@ export default function QueuePage() {
   const finished = jobs.filter((j) => !(j.status === "queued" || j.status === "running")).reverse();
 
   const row = (j: QueueJob, i?: number) => (
-    <li key={j.id} className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/60 p-3.5 text-xs">
+    <li key={j.id} className={`space-y-2 rounded-xl border p-3.5 text-xs transition-colors ${playing === j.id ? "border-emerald-400/70 bg-emerald-950/30" : "border-slate-800 bg-slate-950/60"}`}>
       <div className="flex flex-wrap items-center gap-2">
         {i !== undefined && <span className="font-mono text-slate-500">{i + 1}.</span>}
         <span className="font-semibold text-slate-100">{j.title}</span>
@@ -185,7 +187,17 @@ export default function QueuePage() {
           )}
         </div>
       )}
-      {audio[j.id] && <audio controls autoPlay src={audio[j.id]} className="w-full" />}
+      {audio[j.id] && (
+        <audio
+          controls
+          autoPlay
+          src={audio[j.id]}
+          onPlay={() => setPlaying(j.id)}
+          onPause={() => setPlaying((p) => (p === j.id ? null : p))}
+          onEnded={() => setPlaying((p) => (p === j.id ? null : p))}
+          className={`w-full rounded-full transition-shadow ${playing === j.id ? "ring-2 ring-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.45)] [&::-webkit-media-controls-panel]:bg-emerald-300" : ""}`}
+        />
+      )}
     </li>
   );
 
