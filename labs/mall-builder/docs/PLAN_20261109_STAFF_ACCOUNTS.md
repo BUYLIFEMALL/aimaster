@@ -2,7 +2,7 @@
 
 - 대상: Lab `labs/mall-builder` (DB `AIMaster_dev` ref `rjjtjakljjxsgjelqgek`)
 - 근거: [로드맵 2차 후보](../../../docs/mall/ROADMAP_AND_VARIANTS.md) 「부계정 직원」(개인정보 접속기록 의무 고려), 주인님 「순서대로 진행해」(2026-11-09)
-- 상태: **결정 대기**
+- 상태: **결정 완료(2026-11-09 주인님 채팅)** — 결정 1~4 추천안(메뉴 묶음 6개+설정·직원은 대표만 · 화면+민감 DB 함수 · 링크+이메일 일치 · 접속 기록 1년·대표만 열람), Lab 빌드 1회 승인
 
 ## 1. 지금 구조
 - 운영자 표 `mall_builder_store_staff`(몰·사용자·역할). 역할 칸은 이미 `owner / manager / staff` 세 값을 받지만, 지금은 몰을 만든 대표(owner)만 들어가고 직원을 넣는 길이 없음.
