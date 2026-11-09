@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2, Mic, Piano, AudioLines, Wand2, ListMusic, Download } from "lucide-react";
+import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2, Mic, Piano, AudioLines, Wand2, ListMusic, Download, X } from "lucide-react";
 import { DEFAULT_DURATION, DEFAULT_SFX_DURATION, LIMITS, MUSIC_DURATIONS, SFX_DURATIONS, isSfxLyrics, type Song } from "@/lib/songs";
 import { DEFAULT_LYRIC_PROVIDER, LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
 import { loadAiPrefs, type AiPrefs } from "@/lib/aiModelChoice";
@@ -70,6 +70,7 @@ export default function SongsPage() {
     setGenreState(g);
   };
   const [moods, setMoods] = useState<string[]>([]);
+  const [moodTab, setMoodTab] = useState<string>(MOOD_GROUPS[0].id);
   const [tempo, setTempo] = useState("");
   const [vocals, setVocals] = useState<string[]>([]);
   const moodTags = lyricMoodPayload({ moods, tempo, vocals, genre, sub: subGenre }).tags;
@@ -522,7 +523,7 @@ export default function SongsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="studio-wide space-y-6">
       {/* 머리 — 2026-11-08 주인님 「1번 지워」: 동작하지 않던 목업(가짜 배지·6단계 탭·24트랙 뷰파인더) 삭제 → 이어서 「실제 상태로 바꾸기」로 엔진·대기열·마지막 곡 */}
       <div className="flex items-center gap-3">
         <span className="rounded-xl border border-emerald-500/40 bg-emerald-500/15 p-2.5 text-emerald-400">
@@ -605,7 +606,8 @@ export default function SongsPage() {
         </span>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr] 2xl:grid-cols-[240px_1fr_300px]">
+      {/* 2026-11-09 주인님 「세로로 너무 길다」 — 넓은 화면(2xl)은 가운데를 두 칸으로: 왼쪽 AI 작사 설정, 오른쪽 곡 편집·생성 */}
+      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] 2xl:grid-cols-[220px_minmax(0,1fr)_minmax(0,1fr)]">
         {/* 내 곡 목록 */}
         <aside className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4">
           <button
@@ -647,7 +649,8 @@ export default function SongsPage() {
           )}
         </aside>
 
-        <div className="space-y-6">
+        <div className="space-y-6 2xl:contents">
+          <div className="space-y-6">
           {/* 노래 / 연주곡 */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="곡 종류">
@@ -782,10 +785,44 @@ export default function SongsPage() {
                       여러 개 고르기 · 최대 {MAX_MOODS}개{moods.length ? ` (${moods.length}/${MAX_MOODS})` : ""}
                     </span>
                   </p>
+                  {/* 2026-11-09 주인님 「세로로 너무 길다」 — 그룹 5개를 탭으로(한 번에 한 그룹), 고른 분위기는 위에 따로 */}
+                  {moods.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-[11px] text-slate-500">고른 분위기</span>
+                      {moods.map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setMoods((v) => toggleMood(v, m))}
+                          title="누르면 빠집니다"
+                          className="inline-flex items-center gap-1 rounded-full border border-sky-400 bg-sky-600 px-2.5 py-0.5 text-[11px] font-semibold text-white hover:brightness-110"
+                        >
+                          {m} <X className="h-3 w-3" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-1 border-b border-slate-800" role="tablist" aria-label="분위기 묶음">
+                    {MOOD_GROUPS.map((g) => {
+                      const n = g.moods.filter((x) => moods.includes(x.ko)).length;
+                      return (
+                        <button
+                          key={g.id}
+                          type="button"
+                          role="tab"
+                          aria-selected={moodTab === g.id}
+                          onClick={() => setMoodTab(g.id)}
+                          className={`-mb-px rounded-t-lg border-b-2 px-2.5 py-1 text-[11px] font-semibold transition-colors ${moodTab === g.id ? "border-sky-400 text-sky-200" : "border-transparent text-slate-400 hover:text-slate-200"}`}
+                        >
+                          {g.label}
+                          {n > 0 && <span className="ml-1 rounded-full bg-sky-600 px-1.5 text-[10px] text-white">{n}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <div className="space-y-1.5" aria-label="분위기">
-                    {MOOD_GROUPS.map((g) => (
-                      <div key={g.id} className="flex flex-wrap items-center gap-1.5">
-                        <span className="w-28 shrink-0 text-[11px] text-slate-400">{g.label}</span>
+                    {MOOD_GROUPS.filter((g) => g.id === moodTab).map((g) => (
+                      <div key={g.id} className="flex flex-wrap items-center gap-1.5" role="tabpanel">
                         {g.moods.map(({ ko: m, en }) => {
                           const on = moods.includes(m);
                           const full = !on && moods.length >= MAX_MOODS;
@@ -1029,6 +1066,8 @@ export default function SongsPage() {
           </section>
           )}
 
+          </div>
+          <div className="space-y-6">
           {/* 곡 편집 */}
           <section className="space-y-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
             {projects.length > 0 && (
@@ -1167,10 +1206,11 @@ export default function SongsPage() {
           <div id="generate-panel" className="scroll-mt-6">
             <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} />
           </div>
+          </div>
         </div>
 
         {/* 오른쪽 — 이 프로젝트의 곡 카드(원본 곡 만들기 2단의 오른쪽). 좁은 화면에서는 아래로 */}
-        <div className="lg:col-span-2 2xl:col-span-1">
+        <div className="lg:col-span-2 2xl:col-start-2 2xl:col-span-2">
           <ProjectTracks projectId={viewProjectId} view={projectView} label={projectView === "all" ? "최근 만든 곡" : projectName(viewProjectId)} onCover={openCover} />
         </div>
       </div>

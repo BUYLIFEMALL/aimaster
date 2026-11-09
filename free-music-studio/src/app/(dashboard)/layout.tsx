@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <Sidebar userEmail={user.email} />
         <main className="min-w-0 flex-1 overflow-y-auto bg-[#060911]">
           {/* 아래 재생바에 가리지 않게 아래 여백 */}
-          <div className="mx-auto max-w-6xl p-4 pb-24 sm:p-6 sm:pb-24 md:p-8 md:pb-24">{children}</div>
+          <div className="mx-auto max-w-6xl has-[.studio-wide]:max-w-[1760px] p-4 pb-24 sm:p-6 sm:pb-24 md:p-8 md:pb-24">{children}</div>
         </main>
       </div>
       <MiniPlayer />

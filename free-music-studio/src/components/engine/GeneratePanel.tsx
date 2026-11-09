@@ -237,36 +237,37 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
               { kind: "instrumental", title: "🎹 연주곡 — 노래 없는 배경음악", tone: "text-sky-300" },
             ] as const
           ).map((g) => {
-            const list = engines.filter((e) => e.kind === g.kind || e.kind === "both");
-            // 둘 다 되는 엔진(ACE-Step)은 두 묶음에 나오지만, 켜진 표시는 지금 곡(가사 있음=노래곡)의 묶음에만 — 엔진이 2개 골라진 것처럼 보이던 것(2026-11-09)
+            // 둘 다 되는 엔진(ACE-Step)은 지금 곡 종류(가사 있음=노래곡) 묶음에만 — 엔진이 2개 골라진 것처럼 보이던 것(2026-11-09)
             const activeKind = song.lyrics.trim() ? "vocal" : "instrumental";
+            const list = engines.filter((e) => e.kind === g.kind || (e.kind === "both" && g.kind === activeKind));
             if (!list.length) return null;
             return (
-              <div key={g.kind} className="space-y-1.5">
-                <p className={`text-[11px] font-bold ${g.tone}`}>{g.title}</p>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {list.map((o) => (
+              <div key={g.kind} className="flex flex-wrap items-center gap-1.5">
+                <span className={`w-full text-[11px] font-bold sm:w-auto sm:pr-1 ${g.tone}`}>{g.title}</span>
+                {/* 2026-11-09 주인님 「세로로 너무 길다」 — 큰 카드 → 한 줄 버튼(설명은 마우스를 올리면, 고른 엔진 설명은 아래 한 줄) */}
+                {list.map((o) => {
+                  const on = engineToUse === o.id;
+                  return (
                     <button
                       key={o.id}
                       type="button"
                       onClick={() => setMusicEngine(o.id)}
-                      aria-pressed={engineToUse === o.id && (o.kind !== "both" || g.kind === activeKind)}
-                      className={`rounded-xl border p-3 text-left transition ${engineToUse === o.id && (o.kind !== "both" || g.kind === activeKind) ? (o.license === "commercial" ? "border-emerald-400/70 bg-emerald-500/10" : "border-amber-400/70 bg-amber-500/10") : "border-slate-700/60 hover:border-slate-500"}`}
+                      aria-pressed={on}
+                      title={o.desc}
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold transition ${on ? (o.license === "commercial" ? "border-emerald-400/70 bg-emerald-500/15 text-emerald-50" : "border-amber-400/70 bg-amber-500/15 text-amber-50") : "border-slate-700/60 text-slate-200 hover:border-slate-500"}`}
                     >
-                      <span className="flex flex-wrap items-center gap-1.5 text-xs font-bold text-slate-100">
-                        {o.name}
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${o.license === "commercial" ? "bg-emerald-500/20 text-emerald-200" : "bg-amber-500/20 text-amber-200"}`}>
-                          {o.terms && o.license === "commercial" ? "상업용(조건)" : LICENSE_LABEL[o.license]}
-                        </span>
-                        <span className="rounded-full bg-slate-700/60 px-2 py-0.5 text-[10px] font-semibold text-slate-300">{o.kind === "vocal" ? "🎤 노래" : o.kind === "instrumental" ? "🎹 연주곡" : "🎤 노래 · 🎹 연주곡"}</span>
+                      {on ? "✓ " : ""}
+                      {o.name}
+                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${o.license === "commercial" ? "bg-emerald-500/20 text-emerald-200" : "bg-amber-500/20 text-amber-200"}`}>
+                        {o.terms && o.license === "commercial" ? "상업용(조건)" : LICENSE_LABEL[o.license]}
                       </span>
-                      <span className="mt-1 block text-[11px] leading-relaxed text-slate-400">{o.desc}</span>
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             );
           })}
+          {picked && <p className="text-[11px] leading-relaxed text-slate-400">✓ {picked.name} — {picked.desc}</p>}
           {koreanStyle && (
             <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5 text-[11px] leading-relaxed text-amber-100/90">
               🔤 {picked.name}은(는) 영어 설명으로 학습된 모델이라 한글 설명은 결과가 나빠질 수 있습니다. 설명을 영어로 바꿔 주세요{sfxMode ? "" : "(연주곡은 위 「AI 작곡 기획」이 한국어 주제를 영어 스타일로 만들어 줍니다)"}.
