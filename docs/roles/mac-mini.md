@@ -173,3 +173,12 @@
 
 ## 카페6회차 준비 요청
 - 사용자 kkuleomi24 탈퇴 후 재초대1건 지시. 5회차 failed d4ab5da4가 재선택 차단하므로 Windows 원문 보존·정확한1건 재시험 준비/필요기록처리 승인 확인 요청. 맥 DB/재승인/발송 없음.6회차 시작 전 처리완료 인계 필요.
+
+## 카페6회차 재확인
+- ego 공간17 관리자gmail 정상·sent_list200,5회차failed d4ab5da4 잔존 확인. Windows da2c3523 미해소·초대/next_target0. 공간17 handOff, 재확인보고97c7d0b1. 기록처리완료 뒤같은공간 재개.
+
+## 카페6회차 실행 준비 완료
+- Windows 삭제완료 인계·공간17 sent=[]/kkuleomi24 reviewed·관리자gmail 확인. da2c3523 처리. 확장judgeResponse/blur 새로고침·p2카페 handOff, 사용자직접시작1회 대기. 아직6회차발송0.
+
+## 무료음악→쇼츠 BGM 실물 시험 대기(2026-11-09)
+- 주인님 전달2번: 경로변경 배포 후 MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md대로. 쇼츠v1.47배포/무료음악237314dc8는v1.61미배포기록, 시작조건대기. 최신경로/fms-bgm#fms=→/render 기준. ego시험계정·엔진/실제음원·기존대본 확인 후전달/저장/MP4소리 검수, 아직실행0. 카페6회차공간17사용자직접시작대기보존.
