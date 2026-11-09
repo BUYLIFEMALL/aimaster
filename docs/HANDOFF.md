@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 [역할: mac-mini] 무료음악→쇼츠 BGM 실물 시험 배포 조건 대기
+- 사용자2번전달 확인: 쇼츠v1.47 받기전용/fms-bgm 배포완료, 무료음악 경로수정237314dc8는AGENTS상v1.61미배포. 배포 뒤 최신/fms-bgm#fms=→/render 흐름으로 실제곡전달/기존대본BGM저장/짧은MP4소리 검수. 요청문결과·역할대기기록.
+- 이번전달/업로드/렌더/AI0. 카페6회차는공간17사용자직접시작대기보존. 추가비용없음.
+
 ## 2026-11-09 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — 쇼츠 v1.47 배포(D-4 받는 쪽 수정 + V7)
 
 - 배포: `shorts-onestop-studio-1w4ozq084` Ready, 운영 https://shorts-onestop-studio.buylife.xyz , DB `programs.version` v1.47(빌드 1회, 주인님 채팅 승인).
