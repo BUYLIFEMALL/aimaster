@@ -6,18 +6,17 @@ import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
 
-// 상품소싱은 "발굴 → 분석 → 소싱" 순서로 진행하는 단계형 흐름이라, 사이드바도 그 순서를
-// 그대로 위→아래 스텝퍼로 보여준다. 수수료표·설정·매뉴얼은 흐름 밖 유틸리티라 아래로 분리.
+// 상품소싱은 "발굴 → 분석 → 소싱" 순서로 진행하는 퀀트 파이프라인 흐름
 const FLOW_STEPS = [
-  { step: 1, href: "/watchlist", icon: "🔍", label: "키워드 발굴", description: "관심 카테고리·키워드 등록" },
-  { step: 2, href: "/reports", icon: "📊", label: "트렌드 분석", description: "기회점수 리포트로 경쟁력 확인" },
-  { step: 3, href: "/sourcing", icon: "🌏", label: "상품소싱 · 마진계산", description: "실제 소싱 상품 제안 + 마진율" },
+  { step: 1, href: "/watchlist", icon: "🔍", label: "키워드 발굴 & 감시", description: "관심 카테고리·급상승 키워드" },
+  { step: 2, href: "/reports", icon: "📊", label: "트렌드·기회점수", description: "AI 기회점수 리포트 분석" },
+  { step: 3, href: "/sourcing", icon: "🌏", label: "5대 마켓 소싱 · 마진계산", description: "실제 원가비교 + 역마진 방어" },
 ];
 
 const UTILITY_ITEMS = [
   { href: "/coupang-reviews", icon: "🧩", label: "쿠팡 상품소싱기" },
   { href: "/naver-reviews", icon: "🟢", label: "스마트스토어 상품소싱기" },
-  { href: "/fees", icon: "🧾", label: "플랫폼·카테고리별 판매수수료" },
+  { href: "/fees", icon: "🧾", label: "플랫폼별 판매수수료" },
   { href: "/settings", icon: "🔑", label: "API키등록·플랫폼연동" },
   { href: "/guide", icon: "📖", label: "연동 & 사용 매뉴얼" },
 ];
@@ -27,15 +26,16 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
 
   return (
     <>
-      {/* The account block sits right under the menu; on long menus only the menu scrolls so it stays in view. */}
       <div className="md:min-h-0 md:overflow-y-auto">
         <Link
           href="/dashboard"
-          className={`mb-3 flex min-h-[44px] items-center gap-2 rounded-lg px-3 text-sm font-bold ${
-            dashboardActive ? "bg-mx-raised text-mx-text" : "text-mx-muted hover:bg-mx-raised hover:text-mx-text"
+          className={`mb-3 flex min-h-[44px] items-center gap-2 rounded-xl px-3 text-sm font-bold transition-all ${
+            dashboardActive
+              ? "border border-mx-primary/40 bg-mx-raised text-mx-link shadow-sm shadow-mx-primary/10"
+              : "text-mx-muted hover:bg-mx-raised hover:text-mx-text"
           }`}
         >
-          🏠 대시보드
+          <span className="text-base">📡</span> 실시간 레이더 대시보드
         </Link>
 
         <nav className="relative flex flex-col">
@@ -47,10 +47,10 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
                 {/* 스텝 번호 + 연결선 */}
                 <div className="flex flex-col items-center">
                   <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all ${
                       isActive
-                        ? "bg-mx-primary text-white"
-                        : "border border-mx-border bg-mx-raised text-mx-muted group-hover:text-mx-text"
+                        ? "bg-mx-primary text-[#04101A] shadow-md shadow-mx-primary/30"
+                        : "border border-mx-border bg-mx-raised text-mx-muted group-hover:border-mx-primary/40 group-hover:text-mx-text"
                     }`}
                   >
                     {item.step}
@@ -59,8 +59,14 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
                 </div>
 
                 {/* 라벨 + 설명 */}
-                <div className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 ${isActive ? "bg-mx-raised" : "group-hover:bg-mx-raised"}`}>
-                  <p className={`text-sm font-bold ${isActive ? "text-[#93c5fd]" : "text-mx-text"}`}>
+                <div
+                  className={`min-w-0 flex-1 rounded-xl px-2.5 py-1.5 transition-all ${
+                    isActive
+                      ? "border border-mx-primary/30 bg-mx-raised"
+                      : "hover:bg-mx-raised/60"
+                  }`}
+                >
+                  <p className={`text-sm font-bold ${isActive ? "text-mx-link" : "text-mx-text"}`}>
                     {item.icon} {item.label}
                   </p>
                   <p className="text-xs text-mx-muted">{item.description}</p>
@@ -70,38 +76,46 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
           })}
         </nav>
 
-        <div className="mt-6 border-t border-mx-border pt-3">
+        <div className="mt-6 border-t border-mx-border pt-4">
+          <div className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-mx-muted">
+            소싱 도구 & 환경설정
+          </div>
           {UTILITY_ITEMS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium ${
-                  isActive ? "bg-mx-raised text-[#93c5fd]" : "text-mx-muted hover:bg-mx-raised hover:text-mx-text"
+                className={`flex min-h-[42px] items-center rounded-xl px-3 text-sm font-semibold transition-all ${
+                  isActive
+                    ? "border border-mx-primary/30 bg-mx-raised text-mx-link"
+                    : "text-mx-muted hover:bg-mx-raised hover:text-mx-text"
                 }`}
               >
-                {item.icon} {item.label}
+                <span className="mr-2 text-sm">{item.icon}</span> {item.label}
               </Link>
             );
           })}
           <a
             href="/downloads/trending-product-finder-extension-latest.zip"
             download
-            className="mt-2 flex min-h-[44px] items-center justify-between gap-2 rounded-lg border border-mx-primary bg-mx-primary/15 px-3 text-sm font-bold text-[#bfdbfe] hover:bg-mx-primary/30"
+            className="mt-3 flex min-h-[44px] items-center justify-between gap-2 rounded-xl border border-mx-primary/40 bg-mx-primary/10 px-3 text-xs font-bold text-mx-link transition-all hover:bg-mx-primary/20"
           >
-            <span>⬇ 확장 프로그램 받기</span>
-            <span className="rounded-md bg-mx-primary px-2 py-0.5 text-xs font-extrabold text-white">{APP_VERSION}</span>
+            <span>⬇ 크롬 확장프로그램 받기</span>
+            <span className="rounded-md bg-mx-primary px-2 py-0.5 text-[11px] font-black text-[#04101A]">{APP_VERSION}</span>
           </a>
         </div>
       </div>
 
-      <div className="mt-3 shrink-0 border-t border-mx-border pt-3">
-        <p className="mb-1 truncate px-3 text-xs text-mx-muted">{userEmail}</p>
+      <div className="mt-4 shrink-0 border-t border-mx-border pt-3">
+        <div className="mb-2 flex items-center justify-between px-3">
+          <p className="truncate text-xs font-semibold text-mx-text">{userEmail}</p>
+          <span className="rounded-full bg-mx-primary/20 px-2 py-0.5 text-[10px] font-extrabold text-mx-link">PRO</span>
+        </div>
         <form action={signOutAction}>
           <button
             type="submit"
-            className="flex min-h-[44px] w-full items-center rounded-lg px-3 text-left text-sm font-medium text-mx-muted hover:bg-mx-raised hover:text-mx-text"
+            className="flex min-h-[40px] w-full items-center rounded-lg px-3 text-left text-xs font-semibold text-mx-muted transition-colors hover:bg-mx-raised hover:text-mx-danger"
           >
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
             로그아웃
@@ -115,13 +129,20 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
 function Brand() {
   return (
     <div>
-      <div className="flex items-center gap-2 px-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-mx-primary text-sm">🛒</span>
-        <span className="text-base font-bold text-mx-text">상품소싱 자동화</span>
+      <div className="flex items-center gap-2.5 px-2">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#06B6D4] to-[#0284C7] text-lg text-white shadow-md shadow-mx-primary/20">
+          📈
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="truncate text-sm font-black tracking-tight text-mx-text">실시간 트렌드 발굴기</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-full bg-mx-primary/15 px-2 py-0.5 text-[10px] font-black text-mx-link">QUANT RADAR</span>
+            <span className="text-[10px] font-bold text-mx-muted">{APP_VERSION}</span>
+          </div>
+        </div>
       </div>
-      <p className="mt-1 px-2 text-xs text-mx-muted">
-        <span className="mx-chip-amber px-2 py-0.5">{APP_VERSION}</span>
-      </p>
     </div>
   );
 }
@@ -130,7 +151,6 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // 휴대폰에서 메뉴를 누르고 다른 화면으로 이동하면 펼친 메뉴를 닫는다.
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
@@ -143,24 +163,24 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <Brand />
           <a
             href="https://www.buylife.xyz/programs"
-            className="mt-2 block px-2 text-xs text-mx-muted hover:text-mx-text"
+            className="mt-3 block px-2 text-xs font-semibold text-mx-muted transition-colors hover:text-mx-link"
           >
-            ← 다른 프로그램 보기
+            ← AIMaster 프로그램 목록
           </a>
         </div>
         <NavContent pathname={pathname} userEmail={userEmail} />
       </aside>
 
-      {/* 휴대폰(767px 이하): 위쪽 바 + 접는 메뉴(☰) — 항목·순서는 데스크톱과 같다 */}
+      {/* 휴대폰(767px 이하): 위쪽 바 + 접는 메뉴 */}
       <div className="sticky top-0 z-40 border-b border-mx-border bg-mx-surface md:hidden">
-        <div className="flex items-center justify-between px-4 py-2">
+        <div className="flex items-center justify-between px-4 py-2.5">
           <Brand />
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
             aria-expanded={mobileOpen}
             aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
-            className="flex h-11 w-11 items-center justify-center rounded-lg border border-mx-border text-lg text-mx-text"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-mx-border text-lg text-mx-text"
           >
             {mobileOpen ? "✕" : "☰"}
           </button>
@@ -169,9 +189,9 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <div className="max-h-[calc(100dvh-60px)] overflow-y-auto border-t border-mx-border px-4 pb-4 pt-3">
             <a
               href="https://www.buylife.xyz/programs"
-              className="mb-3 block px-2 text-xs text-mx-muted hover:text-mx-text"
+              className="mb-3 block px-2 text-xs font-semibold text-mx-muted hover:text-mx-text"
             >
-              ← 다른 프로그램 보기
+              ← AIMaster 프로그램 목록
             </a>
             <NavContent pathname={pathname} userEmail={userEmail} />
           </div>

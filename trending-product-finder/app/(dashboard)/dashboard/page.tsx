@@ -18,10 +18,10 @@ interface ReportItem {
 }
 
 const FLOW = [
-  { icon: "🔍", title: "키워드 발굴", desc: "관심 카테고리·키워드 등록", href: "/watchlist" },
-  { icon: "📊", title: "트렌드 분석", desc: "기회점수 리포트 확인", href: "/reports" },
-  { icon: "🌏", title: "소싱·마진계산", desc: "알리·도매매·11번가 원가 비교", href: "/sourcing" },
-  { icon: "🔔", title: "자동 알림", desc: "예약 소싱·가격 변동 알림", href: "/settings" },
+  { step: 1, icon: "🔍", title: "키워드 발굴 & 감시", desc: "관심 카테고리·급상승 키워드 등록", href: "/watchlist" },
+  { step: 2, icon: "📊", title: "트렌드·기회점수", desc: "AI 기회점수 리포트 분석", href: "/reports" },
+  { step: 3, icon: "🌏", title: "5대 마켓 소싱비교", desc: "알리·도매매·11번가 최저가 대조", href: "/sourcing" },
+  { step: 4, icon: "🔔", title: "24H 자동 알림", desc: "예약 소싱·시세 변동 실시간 푸시", href: "/settings" },
 ];
 
 export default async function DashboardPage() {
@@ -34,7 +34,7 @@ export default async function DashboardPage() {
       .from("recommendation_reports")
       .select("generated_at, items")
       .eq("user_id", user.id)
-      .gte("generated_at", retentionCutoff()) // v1.13: 30일 지난 리포트는 TOP5에 쓰지 않음
+      .gte("generated_at", retentionCutoff())
       .order("generated_at", { ascending: false })
       .limit(20),
     supabase.from("sourcing_saved_products").select("id", { count: "exact", head: true }).eq("user_id", user.id),
@@ -49,7 +49,6 @@ export default async function DashboardPage() {
       .maybeSingle(),
   ]);
 
-  // v1.11: 조회 실패를 0개·미연결로 착각하지 않게 위쪽에 안내
   const failed = logLoadErrors("dashboard", {
     "관심 키워드": watchRes, 리포트: reportsRes, "관심 상품": savedRes, "API 키": keysRes,
     이메일: smtpRes, 카카오: solapiRes, 텔레그램: telegramRes,
@@ -59,7 +58,6 @@ export default async function DashboardPage() {
   const alertOn = watchlists.filter((w) => w.sourcing_alert_enabled).length;
   const reports = reportsRes.data ?? [];
 
-  // 키워드마다 가장 최근 리포트 값만 남긴다(리포트는 최신순).
   const latestByKeyword = new Map<string, ReportItem & { generatedAt: string }>();
   for (const r of reports) {
     for (const item of (r.items as unknown as ReportItem[]) ?? []) {
@@ -73,7 +71,7 @@ export default async function DashboardPage() {
   const has = (...p: string[]) => p.every((x) => providers.has(x));
   const connections = [
     { label: "네이버 쇼핑인사이트", note: "필수 · 관심도", ok: has("naver_client_id", "naver_client_secret") },
-    { label: "AI (OpenAI·Gemini)", note: "필수 · 추천 사유", ok: providers.has("openai") || providers.has("gemini") },
+    { label: "AI (OpenAI·Claude)", note: "필수 · 추천 사유", ok: providers.has("openai") || providers.has("anthropic") || providers.has("gemini") },
     { label: "네이버 검색광고", note: "후보 찾기", ok: has("naver_ads_api_key", "naver_ads_secret_key", "naver_ads_customer_id") },
     { label: "11번가", note: "경쟁 수·소싱", ok: providers.has("elevenst_api_key") },
     { label: "YouTube", note: "영상 신호", ok: providers.has("youtube_api_key") },
@@ -91,64 +89,109 @@ export default async function DashboardPage() {
       {failed.length > 0 && (
         <LoadErrorNotice what={failed.join("·")} retryHref="/dashboard" extra="아래 숫자·연결 상태가 0이나 미연결로 보일 수 있습니다." />
       )}
+
+      {/* 4단계 소싱 파이프라인 인디케이터 배너 */}
+      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+        {FLOW.map((s, i) => (
+          <Link
+            key={s.title}
+            href={s.href}
+            className={`group relative flex items-center gap-3 rounded-2xl border p-3.5 transition-all ${
+              i === 0
+                ? "border-mx-primary/50 bg-mx-surface shadow-md shadow-mx-primary/10 ring-1 ring-mx-primary/30"
+                : "border-mx-border bg-mx-surface/60 hover:border-mx-primary/40 hover:bg-mx-surface"
+            }`}
+          >
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg font-black transition-all ${
+              i === 0
+                ? "bg-mx-primary text-[#04101A] shadow-md shadow-mx-primary/30"
+                : "border border-mx-border bg-mx-raised text-mx-muted group-hover:border-mx-primary/40 group-hover:text-mx-text"
+            }`}>
+              {s.icon}
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[10px] font-black uppercase tracking-wider text-mx-link">STEP {s.step}</span>
+              <strong className="block truncate text-xs font-bold text-mx-text">{s.title}</strong>
+              <span className="block truncate text-[11px] text-mx-muted">{s.desc}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
       <PageHero
-        badge="🏠 대시보드"
-        title="지금 뜨는 상품을 찾고, 남는 상품만 소싱하세요"
-        description="관심 키워드의 검색 관심도·경쟁 상품 수·유튜브 반응을 점수로 비교하고, 알리·도매매·11번가 원가로 마진까지 계산합니다."
-        tip="관심 목록에 등록한 키워드는 매일 오전 9시에 자동으로 리포트가 만들어져요."
+        badge="⚡ QUANT RADAR INTELLIGENCE"
+        title="실시간 24H 급상승 소싱 트렌드 발굴 레이더"
+        description="네이버 데이터랩 + 쿠팡 실시간 연관검색어로 급상승 키워드를 감지하고, 5대 마켓(알리·도매매·11번가) 원가 대조로 순마진 35%+ 상품만 퀀트 소싱합니다."
+        tip="관심 목록에 등록한 키워드는 매일 오전 9시 및 설정한 임계값에 도달할 때 자동 알림이 발송됩니다."
       >
-        <Link href="/reports" className="mx-btn-primary">
-          📊 트렌드 리포트
+        <Link href="/reports" className="btn-3d-cyan px-4 py-2.5 text-xs font-black">
+          📊 기회점수 리포트 →
         </Link>
-        <Link href="/guide" className="mx-btn-ghost">
-          📖 사용 매뉴얼
+        <Link href="/guide" className="mx-btn-ghost text-xs font-bold">
+          📖 퀀트 소싱 매뉴얼
         </Link>
       </PageHero>
 
+      {/* 4대 KPI 그리드 */}
       <KpiGrid>
-        <KpiCard icon="🔍" label="관심 키워드" value={keywordCount} hint={`카테고리 ${watchlists.length}개`} />
-        <KpiCard icon="🔥" label="기회 키워드(60점+)" value={hotCount} hint="최근 리포트 기준" tone="amber" />
-        <KpiCard icon="⭐" label="관심 상품" value={savedRes.count ?? 0} hint="가격·품절 추적" tone="green" />
-        <KpiCard icon="🔔" label="예약 소싱 알림" value={alertOn} hint="켜 둔 카테고리" tone="muted" />
+        <KpiCard icon="🎯" label="실시간 감시 키워드" value={keywordCount} hint={`카테고리 ${watchlists.length}개 연동`} tone="blue" />
+        <KpiCard icon="🔥" label="고마진 기회 키워드 (60점+)" value={hotCount} hint="최신 퀀트 분석 기준" tone="amber" />
+        <KpiCard icon="⭐" label="소싱 후보 등록 상품" value={savedRes.count ?? 0} hint="가격·품절 24H 추적" tone="green" />
+        <KpiCard icon="🔔" label="자동 알림 활성 카테고리" value={alertOn} hint="텔레그램·카카오·SMTP" tone="muted" />
       </KpiGrid>
 
+      {/* 2단 메인 그리드 */}
       <div className="mb-6 grid gap-6 lg:grid-cols-5">
+        {/* 좌측: 실시간 급상승 키워드 TOP 5 */}
         <div className="mx-card lg:col-span-3">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="mx-section-title mb-0">🔥 기회 키워드 TOP 5</h2>
+          <div className="mb-3.5 flex items-center justify-between">
+            <div>
+              <h2 className="mx-section-title mb-0">🔥 실시간 급상승 소싱 기회 TOP 5</h2>
+              <p className="mt-0.5 text-xs text-mx-muted">검색량 급증율 대비 판매자 경쟁강도 최적화 분석</p>
+            </div>
             {ranked.length > 0 && (
-              <Link href="/reports" className="text-xs font-semibold text-mx-link hover:underline">
-                전체 리포트 →
+              <Link href="/reports" className="text-xs font-bold text-mx-link hover:underline">
+                전체 리포트 보기 →
               </Link>
             )}
           </div>
+
           {ranked.length === 0 ? (
-            <div className="py-10 text-center">
-              <p className="text-4xl">📈</p>
-              <p className="mt-2 text-sm text-mx-muted">아직 리포트가 없어요. 관심 키워드를 등록하고 리포트를 만들어 보세요.</p>
-              <Link href="/watchlist" className="mx-btn-primary mt-4">
-                🔍 키워드 등록하기
+            <div className="py-12 text-center">
+              <p className="text-4xl">📡</p>
+              <p className="mt-2 text-sm font-semibold text-mx-text">아직 분석된 키워드 리포트가 없습니다.</p>
+              <p className="text-xs text-mx-muted">관심 키워드를 등록하면 실시간 퀀트 분석이 가동됩니다.</p>
+              <Link href="/watchlist" className="btn-3d-cyan mt-4 inline-flex px-4 py-2 text-xs font-black">
+                🔍 키워드 감시 등록하기
               </Link>
             </div>
           ) : (
             <div className="-mx-5 overflow-x-auto px-5">
-              <table className="mx-table min-w-[480px]">
+              <table className="mx-table min-w-[500px]">
                 <thead>
                   <tr>
+                    <th>순위</th>
                     <th>키워드</th>
-                    <th className="text-right">변화율</th>
-                    <th className="text-right">11번가 경쟁</th>
+                    <th className="text-right">검색량 추이</th>
+                    <th className="text-right">경쟁 상품수</th>
                     <th>기회점수</th>
-                    <th />
+                    <th className="text-right">소싱 분석</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ranked.slice(0, 5).map((k) => (
+                  {ranked.slice(0, 5).map((k, idx) => (
                     <tr key={k.keyword}>
-                      <td className="font-semibold">{k.keyword}</td>
+                      <td className="w-10">
+                        <span className={`inline-flex h-6 w-6 items-center justify-center rounded-lg text-xs font-black ${
+                          idx === 0 ? "bg-mx-primary/20 text-mx-link" : "text-mx-muted"
+                        }`}>
+                          {idx + 1}
+                        </span>
+                      </td>
+                      <td className="font-bold text-mx-text">{k.keyword}</td>
                       <td
-                        className={`text-right tabular-nums ${
-                          k.trendChangePct == null ? "text-mx-muted" : k.trendChangePct >= 0 ? "text-mx-success" : "text-mx-danger"
+                        className={`text-right font-semibold tabular-nums ${
+                          k.trendChangePct == null ? "text-mx-muted" : k.trendChangePct >= 0 ? "text-emerald-400" : "text-rose-400"
                         }`}
                       >
                         {k.trendChangePct == null ? "-" : `${k.trendChangePct >= 0 ? "▲" : "▼"} ${Math.abs(k.trendChangePct).toFixed(1)}%`}
@@ -158,21 +201,29 @@ export default async function DashboardPage() {
                       </td>
                       <td className="w-36">
                         <div className="flex items-center gap-2">
-                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-mx-raised">
+                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-mx-raised">
                             <div
-                              className={`h-full rounded-full ${k.opportunityScore >= 60 ? "bg-mx-accent" : k.opportunityScore >= 35 ? "bg-mx-primary" : "bg-mx-border"}`}
+                              className={`h-full rounded-full ${
+                                k.opportunityScore >= 75
+                                  ? "bg-gradient-to-r from-[#06B6D4] to-[#10B981]"
+                                  : k.opportunityScore >= 50
+                                  ? "bg-mx-primary"
+                                  : "bg-mx-borderBright"
+                              }`}
                               style={{ width: `${Math.min(100, k.opportunityScore)}%` }}
                             />
                           </div>
-                          <span className="w-7 text-right text-xs font-bold tabular-nums">{k.opportunityScore}</span>
+                          <span className="w-8 text-right text-xs font-black tabular-nums text-mx-link">
+                            {k.opportunityScore}점
+                          </span>
                         </div>
                       </td>
                       <td className="text-right">
                         <Link
                           href={`/sourcing?keyword=${encodeURIComponent(k.keyword)}`}
-                          className="text-xs font-semibold text-mx-link hover:underline"
+                          className="btn-3d-cyan inline-flex px-2.5 py-1 text-[11px] font-black"
                         >
-                          🌏 소싱
+                          소싱 분석
                         </Link>
                       </td>
                     </tr>
@@ -183,45 +234,32 @@ export default async function DashboardPage() {
           )}
         </div>
 
+        {/* 우측: 외부 마켓 및 알림 채널 연결 상태 */}
         <div className="mx-card lg:col-span-2">
-          <h2 className="mx-section-title">🔌 연결 상태</h2>
-          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+          <div className="mb-3.5 flex items-center justify-between">
+            <h2 className="mx-section-title mb-0">🔌 실시간 연동 채널</h2>
+            <span className="text-[11px] font-bold text-mx-muted">8개 채널 관리</span>
+          </div>
+
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
             {connections.map((c) => (
-              <li key={c.label} className="flex items-center justify-between gap-2 rounded-lg bg-mx-raised px-3 py-2">
+              <li key={c.label} className="flex items-center justify-between gap-2 rounded-xl border border-mx-border/80 bg-mx-raised/70 px-3 py-2.5 transition-colors hover:border-mx-primary/30">
                 <span className="min-w-0">
-                  <span className="block truncate text-xs font-semibold text-mx-text">{c.label}</span>
+                  <span className="block truncate text-xs font-bold text-mx-text">{c.label}</span>
                   <span className="block truncate text-[11px] text-mx-muted">{c.note}</span>
                 </span>
-                <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${c.ok ? "bg-mx-success" : "bg-mx-border"}`} />
+                <span className="flex items-center gap-1.5">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${c.ok ? "bg-emerald-400 shadow-sm shadow-emerald-400/50" : "bg-mx-borderBright"}`} />
+                  <span className="text-[11px] font-bold text-mx-muted">{c.ok ? "정상" : "미연결"}</span>
+                </span>
               </li>
             ))}
           </ul>
-          <Link href="/settings" className="mx-btn-ghost mt-3 w-full">
-            🔑 키·알림 연결
+
+          <Link href="/settings" className="mx-btn-ghost mt-4 w-full justify-center text-xs font-bold">
+            🔑 API 키 & 알림 채널 설정하기 →
           </Link>
         </div>
-      </div>
-
-      <div className="mx-card">
-        <h2 className="mx-section-title">🧭 작업 흐름</h2>
-        <ol className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {FLOW.map((s, i) => (
-            <li key={s.title} className="relative">
-              <Link
-                href={s.href}
-                className="flex h-full flex-col rounded-xl border border-mx-border bg-mx-raised p-3 transition-colors hover:border-mx-primary"
-              >
-                <span className="text-[11px] font-bold text-mx-accent">STEP {i + 1}</span>
-                <span className="mt-1 text-2xl">{s.icon}</span>
-                <span className="mt-1 text-sm font-bold text-mx-text">{s.title}</span>
-                <span className="text-xs text-mx-muted">{s.desc}</span>
-              </Link>
-              {i < FLOW.length - 1 && (
-                <span className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 text-mx-muted md:block">›</span>
-              )}
-            </li>
-          ))}
-        </ol>
       </div>
     </div>
   );

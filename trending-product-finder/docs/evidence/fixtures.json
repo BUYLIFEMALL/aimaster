@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-16T18:54:55.247Z",
+  "checked_at": "2026-11-06T03:45:21.425Z",
   "browser": "Microsoft Edge (visible)",
   "mode": "actual pages/components with synthetic DB/auth/actions only in tests",
   "checks": [
@@ -12,32 +12,9 @@
       "passed": true
     },
     {
-      "name": "실제 리포트 정렬·카테고리·결측값·AI요약/사유",
-      "passed": true
-    },
-    {
-      "name": "리포트 카테고리 owner필터·소싱 링크6",
-      "passed": true
-    },
-    {
-      "name": "8열 리포트 1440/375·가로 스크롤",
-      "passed": true
-    },
-    {
-      "name": "빈 대시보드·리포트·빈 카테고리 UUID 조회0",
-      "passed": true
-    },
-    {
-      "name": "실제 소싱 계산기 검색 없이 마진8,460원·28.2%",
-      "passed": true
-    },
-    {
-      "name": "계산기375px·키워드 사전 입력·검색/저장 미실행",
-      "passed": true
-    },
-    {
-      "name": "합성 실제 컴포넌트·외부 API/DB/발송·페이지 오류0",
-      "passed": true
+      "name": "FAILED",
+      "passed": false,
+      "error": "page.evaluate: TypeError: Cannot destructure property 'searchParams' of 'undefined' as it is undefined.\n    at Object.ReportsPage [as reports] (http://127.0.0.1:63182/app.js:13160:32)\n    at window.renderFixture (http://127.0.0.1:63182/app.js:14838:266)\n    at eval (eval at evaluate (:290:30), <anonymous>:1:17)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
     }
   ],
   "errors": [],
