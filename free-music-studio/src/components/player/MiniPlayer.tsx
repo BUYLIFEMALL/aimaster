@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ListMusic, Loader2, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward, Volume2, VolumeX, X } from "lucide-react";
-import { usePlayer } from "./PlayerProvider";
+import { ListMusic, Loader2, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward, SlidersHorizontal, Volume2, VolumeX, X } from "lucide-react";
+import { PLAYBACK_RATES, usePlayer } from "./PlayerProvider";
+import { Visualizer, VISUALIZER_MODES } from "./Visualizer";
+import { EQ_FREQUENCIES, EQ_MAX, EQ_MIN, EQ_PRESETS, hzLabel } from "@/lib/playerEq";
 
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 const REPEAT_LABEL = { off: "반복 끔", all: "목록 반복", one: "한 곡 반복" } as const;
@@ -11,6 +13,7 @@ const REPEAT_LABEL = { off: "반복 끔", all: "목록 반복", one: "한 곡 �
 export function MiniPlayer() {
   const p = usePlayer();
   const [queueOpen, setQueueOpen] = useState(false);
+  const [eqOpen, setEqOpen] = useState(false);
   if (!p?.current) return null;
   const on = "text-emerald-300 bg-emerald-400/10";
   const off = "text-slate-500 hover:bg-slate-800 hover:text-white";
@@ -48,6 +51,56 @@ export function MiniPlayer() {
             );
           })}
         </ol>
+      </aside>
+    )}
+    {eqOpen && (
+      <aside aria-label="이퀄라이저" className="fixed bottom-16 right-4 z-30 w-[min(92vw,26rem)] space-y-3 rounded-2xl border border-slate-700 bg-[#0a0e1a]/95 p-4 shadow-2xl backdrop-blur">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-bold text-white">🎚 이퀄라이저</p>
+          <select
+            aria-label="이퀄라이저 프리셋"
+            value={EQ_PRESETS.find((x) => x.gains.every((g, i) => g === p.eq[i]))?.name ?? ""}
+            onChange={(e) => {
+              const pr = EQ_PRESETS.find((x) => x.name === e.target.value);
+              if (pr) p.setEq(pr.gains);
+            }}
+            className="ml-auto rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-[11px] text-slate-200"
+          >
+            <option value="">직접 맞춤</option>
+            {EQ_PRESETS.map((x) => (
+              <option key={x.name} value={x.name}>
+                {x.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={() => { p.setEq(EQ_FREQUENCIES.map(() => 0)); p.setPreamp(0); }} className="rounded-md px-2 py-1 text-[11px] text-slate-400 hover:text-white">
+            초기화
+          </button>
+        </div>
+        <label className="flex items-center gap-2 text-[11px] text-slate-400">
+          프리앰프
+          <input type="range" min={EQ_MIN} max={EQ_MAX} step={1} value={p.preamp} onChange={(e) => p.setPreamp(Number(e.target.value))} className="h-5 flex-1 accent-emerald-400" />
+          <span className="w-12 text-right tabular-nums text-slate-300">{p.preamp > 0 ? "+" : ""}{p.preamp}dB</span>
+        </label>
+        <div className="grid grid-cols-8 gap-1">
+          {EQ_FREQUENCIES.map((f, i) => (
+            <label key={f} className="flex flex-col items-center gap-1 text-[10px] text-slate-400">
+              <span className="tabular-nums text-slate-300">{p.eq[i] > 0 ? "+" : ""}{p.eq[i]}</span>
+              <input
+                type="range"
+                min={EQ_MIN}
+                max={EQ_MAX}
+                step={1}
+                value={p.eq[i]}
+                onChange={(e) => p.setEqBand(i, Number(e.target.value))}
+                aria-label={`${hzLabel(f)}Hz`}
+                className="h-24 w-5 accent-emerald-400 [writing-mode:vertical-lr] [direction:rtl]"
+              />
+              <span>{hzLabel(f)}</span>
+            </label>
+          ))}
+        </div>
+        <p className="text-[10px] text-slate-500">이 브라우저에 기억합니다 · 소리를 너무 키우면 찢어질 수 있어요(프리앰프를 낮추세요)</p>
       </aside>
     )}
     <div role="region" aria-label="재생바" className="fixed inset-x-0 bottom-0 z-30 border-t border-[#1e293b] bg-[#0a0e1a]/95 backdrop-blur md:left-64">
@@ -91,6 +144,39 @@ export function MiniPlayer() {
           </button>
           <input type="range" min={0} max={1} step={0.05} value={p.volume} onChange={(e) => p.setVolume(Number(e.target.value))} aria-label="음량" className="h-6 w-20 accent-emerald-400" />
         </div>
+        {/* 백로그 D-10: 시각화(누르면 모양 바꾸기)·재생 속도·이퀄라이저 */}
+        <button
+          type="button"
+          onClick={p.cycleVis}
+          title={`시각화 · ${VISUALIZER_MODES.find((x) => x.id === p.visMode)?.label} — 눌러서 바꾸기`}
+          aria-label="시각화 모양 바꾸기"
+          className="hidden h-8 w-24 shrink-0 overflow-hidden rounded-md bg-black/30 xl:block"
+        >
+          <Visualizer analyser={p.analyser} mode={p.visMode} active={p.playing} />
+        </button>
+        <select
+          value={p.rate}
+          onChange={(e) => p.setRate(Number(e.target.value))}
+          aria-label="재생 속도"
+          title="재생 속도"
+          className="hidden shrink-0 rounded-md border border-slate-700 bg-slate-950 px-1 py-1 text-[11px] text-slate-300 md:block"
+        >
+          {PLAYBACK_RATES.map((r) => (
+            <option key={r} value={r}>
+              {r}×
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={() => setEqOpen((v) => !v)}
+          aria-pressed={eqOpen}
+          aria-label="이퀄라이저"
+          title="이퀄라이저"
+          className={`shrink-0 rounded-full p-2 ${eqOpen || p.eq.some((g) => g !== 0) || p.preamp !== 0 ? on : off}`}
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+        </button>
         <button
           type="button"
           onClick={() => setQueueOpen((v) => !v)}
@@ -105,6 +191,7 @@ export function MiniPlayer() {
           type="button"
           onClick={() => {
             setQueueOpen(false);
+            setEqOpen(false);
             p.close();
           }}
           aria-label="재생바 닫기"

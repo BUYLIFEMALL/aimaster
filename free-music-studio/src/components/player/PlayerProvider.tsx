@@ -4,6 +4,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { fetchLibraryAudio } from "@/lib/engine";
 import { nextRepeat, type RepeatMode } from "@/lib/playerOrder";
 import { createPlaybackQueue, currentQueueId, selectQueueTrack, setQueueShuffle, stepPlaybackQueue, type PlaybackQueue } from "@/lib/playbackQueue";
+import { EQ_FREQUENCIES, EQ_MAX, EQ_MIN, normalizeGains } from "@/lib/playerEq";
+import { VISUALIZER_MODES, type VisualizerMode } from "./Visualizer";
+
+/** 재생 속도 선택지(백로그 D-10 — 뮤직 플레이어 기능) */
+export const PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 2] as const;
 
 // 화면 아래 재생바 — ai-music-studio `PlayerProvider`(v1.11~1.12) 방식을 가져옴(2026-11-04).
 // 다른 점: 곡은 회원 PC 엔진 보관함에 있어 재생할 때 받아 온다(브라우저 안 주소, 최근 20곡만 기억).
@@ -41,6 +46,18 @@ interface PlayerValue {
   cycleRepeat: () => void;
   toggleShuffle: () => void;
   close: () => void;
+  // 백로그 D-10(2026-11-09): 뮤직 플레이어의 이퀄라이저 8밴드·프리앰프·재생 속도·시각화(소리 경로는 처음 재생할 때 한 번 만든다)
+  eq: number[];
+  setEqBand: (i: number, db: number) => void;
+  setEq: (gains: number[]) => void;
+  preamp: number;
+  setPreamp: (db: number) => void;
+  rate: number;
+  setRate: (r: number) => void;
+  visMode: VisualizerMode;
+  cycleVis: () => void;
+  /** 시각화용 분석기(소리 경로를 못 만들었으면 null — 그래도 재생은 됨) */
+  analyser: AnalyserNode | null;
 }
 
 const MODE_KEY = "fms-player-mode";
@@ -64,13 +81,28 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [shuffle, setShuffle] = useState(false);
   const [queue, setQueue] = useState<PlayerTrack[]>([]);
   const [volume, setVolume] = useState(1);
+  const [eq, setEqState] = useState<number[]>(() => EQ_FREQUENCIES.map(() => 0));
+  const [preamp, setPreampState] = useState(0);
+  const [rate, setRateState] = useState(1);
+  const [visMode, setVisMode] = useState<VisualizerMode>("bars");
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+  const graph = useRef<{ ctx: AudioContext; pre: GainNode; filters: BiquadFilterNode[] } | null>(null);
+  const graphTried = useRef(false);
+  const eqRef = useRef(eq);
+  eqRef.current = eq;
+  const preampRef = useRef(preamp);
+  preampRef.current = preamp;
   const modeLoaded = useRef(false);
   const volumeRef = useRef(1);
   volumeRef.current = volume;
 
   useEffect(() => {
     try {
-      const m = JSON.parse(localStorage.getItem(MODE_KEY) ?? "{}") as { repeat?: RepeatMode; shuffle?: boolean; volume?: number };
+      const m = JSON.parse(localStorage.getItem(MODE_KEY) ?? "{}") as { repeat?: RepeatMode; shuffle?: boolean; volume?: number; eq?: unknown; preamp?: unknown; rate?: unknown; vis?: unknown };
+      if (m.eq !== undefined) setEqState(normalizeGains(m.eq));
+      if (typeof m.preamp === "number" && m.preamp >= EQ_MIN && m.preamp <= EQ_MAX) setPreampState(m.preamp);
+      if (typeof m.rate === "number" && (PLAYBACK_RATES as readonly number[]).includes(m.rate)) setRateState(m.rate);
+      if (VISUALIZER_MODES.some((x) => x.id === m.vis)) setVisMode(m.vis as VisualizerMode);
       if (m.repeat === "off" || m.repeat === "all" || m.repeat === "one") setRepeat(m.repeat);
       if (typeof m.shuffle === "boolean") setShuffle(m.shuffle);
       if (typeof m.volume === "number" && m.volume >= 0 && m.volume <= 1) setVolume(m.volume);
@@ -81,9 +113,62 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     if (audio.current) audio.current.volume = volume;
     if (!modeLoaded.current) return;
     try {
-      localStorage.setItem(MODE_KEY, JSON.stringify({ repeat, shuffle, volume }));
+      localStorage.setItem(MODE_KEY, JSON.stringify({ repeat, shuffle, volume, eq, preamp, rate, vis: visMode }));
     } catch {}
-  }, [repeat, shuffle, volume]);
+  }, [repeat, shuffle, volume, eq, preamp, rate, visMode]);
+
+  // 이퀄라이저·프리앰프·속도 적용
+  useEffect(() => {
+    graph.current?.filters.forEach((f, i) => (f.gain.value = eq[i] ?? 0));
+  }, [eq]);
+  useEffect(() => {
+    if (graph.current) graph.current.pre.gain.value = Math.pow(10, preamp / 20);
+  }, [preamp]);
+  useEffect(() => {
+    const a = audio.current;
+    if (a) {
+      a.playbackRate = rate;
+      a.defaultPlaybackRate = rate;
+    }
+  }, [rate]);
+
+  /**
+   * 소리 경로(audio → 프리앰프 → EQ 8밴드 → 분석기 → 출력)를 한 번만 만든다(같은 <audio>에 소스를 두 번 만들 수 없음 — 뮤직 플레이어 engine.ts 방식).
+   * 음원은 엔진에서 받아 만든 blob 주소(같은 출처)라 소리가 막히지 않는다. 만들지 못하면 그냥 재생한다.
+   */
+  const ensureGraph = useCallback((a: HTMLAudioElement) => {
+    if (graphTried.current) {
+      if (graph.current?.ctx.state === "suspended") void graph.current.ctx.resume().catch(() => undefined);
+      return;
+    }
+    graphTried.current = true;
+    try {
+      const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = new Ctor();
+      const source = ctx.createMediaElementSource(a);
+      const pre = ctx.createGain();
+      pre.gain.value = Math.pow(10, preampRef.current / 20);
+      const filters = EQ_FREQUENCIES.map((f, i) => {
+        const b = ctx.createBiquadFilter();
+        b.type = "peaking";
+        b.frequency.value = f;
+        b.Q.value = 1.4;
+        b.gain.value = eqRef.current[i] ?? 0;
+        return b;
+      });
+      const an = ctx.createAnalyser();
+      an.fftSize = 2048;
+      an.smoothingTimeConstant = 0.8;
+      let node: AudioNode = source.connect(pre);
+      for (const f of filters) node = node.connect(f);
+      node.connect(an);
+      an.connect(ctx.destination);
+      graph.current = { ctx, pre, filters };
+      setAnalyser(an);
+    } catch {
+      graph.current = null;
+    }
+  }, []);
 
   const urlOf = useCallback(async (key: string) => {
     const have = urls.current.get(key);
@@ -102,6 +187,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     async (t: PlayerTrack) => {
       const a = audio.current ?? (audio.current = new Audio());
       a.volume = volumeRef.current;
+      ensureGraph(a);
       setCurrent(t);
       setError("");
       setLoading(true);
@@ -112,6 +198,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
           setTime(0);
           setDuration(0);
         } else a.currentTime = 0;
+        a.playbackRate = a.defaultPlaybackRate;
         await a.play().catch(() => setPlaying(false));
       } catch {
         setError("이 곡의 음원을 내 PC 엔진에서 불러오지 못했습니다. 엔진이 켜져 있는지 확인해 주세요.");
@@ -120,7 +207,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     },
-    [urlOf]
+    [urlOf, ensureGraph]
   );
 
   // 대기열 순서(섞은 순서 포함)를 바꾸면 패널에 보이는 목록도 그 순서로
@@ -279,8 +366,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         audio.current?.pause();
         setCurrent(null);
       },
+      eq,
+      setEqBand: (i, db) => setEqState((g) => g.map((v, k) => (k === i ? normalizeGains([...g.slice(0, i), db])[i] : v))),
+      setEq: (gains) => setEqState(normalizeGains(gains)),
+      preamp,
+      setPreamp: (db) => setPreampState(Math.max(EQ_MIN, Math.min(EQ_MAX, Math.round(db)))),
+      rate,
+      setRate: (r) => setRateState((PLAYBACK_RATES as readonly number[]).includes(r) ? r : 1),
+      visMode,
+      cycleVis: () => setVisMode((m) => VISUALIZER_MODES[(VISUALIZER_MODES.findIndex((x) => x.id === m) + 1) % VISUALIZER_MODES.length].id),
+      analyser,
     }),
-    [current, playing, loading, error, time, duration, repeat, shuffle, queue, volume, start, step, commitQueue]
+    [current, playing, loading, error, time, duration, repeat, shuffle, queue, volume, start, step, commitQueue, eq, preamp, rate, visMode, analyser]
   );
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
