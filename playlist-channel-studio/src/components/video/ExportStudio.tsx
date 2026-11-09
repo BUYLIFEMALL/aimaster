@@ -11,7 +11,7 @@ import {
   Sparkles,
   ArrowLeft
 } from "lucide-react";
-import { Track, StudioSettings, ExportSettings } from "@/types/playlist";
+import { Track, StudioSettings, ExportSettings, type StickerItem } from "@/types/playlist";
 import { exportVideoMp4, RenderProgress } from "@/lib/render/video-exporter";
 import { YoutubeUploadCard } from "./YoutubeUploadCard";
 
@@ -22,6 +22,7 @@ interface ExportStudioProps {
   extraBgs: string[];
   logoUrl: string | null;
   gifUrl: string | null;
+  stickers: StickerItem[];
   settings: StudioSettings;
   exportSettings: ExportSettings;
   setExportSettings: React.Dispatch<React.SetStateAction<ExportSettings>>;
@@ -38,6 +39,7 @@ export function ExportStudio({
   extraBgs,
   logoUrl,
   gifUrl,
+  stickers,
   settings,
   exportSettings,
   setExportSettings,
@@ -98,7 +100,8 @@ export function ExportStudio({
           setStatusText(p.status);
         },
         gifUrl,
-        extraBgs
+        extraBgs,
+        stickers
       );
 
       setLastBlob(blob);

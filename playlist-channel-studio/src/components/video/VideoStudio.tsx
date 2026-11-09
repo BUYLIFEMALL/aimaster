@@ -11,7 +11,7 @@ import { EditorStudio } from "./EditorStudio";
 import { ExportStudio } from "./ExportStudio";
 import { HelpModal } from "./HelpModal";
 import { PlaylistGuideView } from "./PlaylistGuideView";
-import type { Track, StudioSettings, ExportSettings } from "@/types/playlist";
+import type { Track, StudioSettings, ExportSettings, StickerItem } from "@/types/playlist";
 import { DEFAULT_SETTINGS, DEFAULT_EXPORT_SETTINGS } from "@/data/presets";
 
 type Tab = "media" | "editor" | "export" | "guide";
@@ -36,6 +36,7 @@ export function VideoStudio({ userId }: { userId: string }) {
   const [extraBgs, setExtraBgs] = useState<{ url: string; name: string }[]>([]);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [gifUrl, setGifUrl] = useState<string | null>(null);
+  const [stickers, setStickers] = useState<StickerItem[]>([]); // P-6 추가 스티커
   const [settings, setSettings] = useState<StudioSettings>(DEFAULT_SETTINGS);
   // P-5 「시작값으로 저장」한 설정이 있으면 처음 열 때 적용
   useEffect(() => {
@@ -86,6 +87,8 @@ export function VideoStudio({ userId }: { userId: string }) {
             setLogoUrl={setLogoUrl}
             gifUrl={gifUrl}
             setGifUrl={setGifUrl}
+            stickers={stickers}
+            setStickers={setStickers}
             exportSettings={exportSettings}
             setExportSettings={setExportSettings}
             onEnterStudio={() => setTab("editor")}
@@ -99,6 +102,8 @@ export function VideoStudio({ userId }: { userId: string }) {
             extraBgs={extraBgs.map((b) => b.url)}
             logoUrl={logoUrl}
             gifUrl={gifUrl}
+            stickers={stickers}
+            setStickers={setStickers}
             settings={settings}
             setSettings={setSettings}
             onExportClick={() => setTab("export")}
@@ -115,6 +120,7 @@ export function VideoStudio({ userId }: { userId: string }) {
             extraBgs={extraBgs.map((b) => b.url)}
             logoUrl={logoUrl}
             gifUrl={gifUrl}
+            stickers={stickers}
             settings={settings}
             exportSettings={exportSettings}
             setExportSettings={setExportSettings}

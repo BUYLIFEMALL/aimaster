@@ -24,7 +24,7 @@ import {
   Settings2,
   Maximize2
 } from "lucide-react";
-import { Track, StudioSettings, VisualizerType, FilterType, ColorPreset } from "@/types/playlist";
+import { Track, StudioSettings, VisualizerType, FilterType, ColorPreset, type StickerItem } from "@/types/playlist";
 import {
   VISUALIZER_OPTIONS,
   COLOR_PRESET_OPTIONS,
@@ -61,6 +61,8 @@ interface EditorStudioProps {
   extraBgs: string[];
   logoUrl: string | null;
   gifUrl: string | null;
+  stickers: StickerItem[];
+  setStickers: (fn: (s: StickerItem[]) => StickerItem[]) => void;
   settings: StudioSettings;
   setSettings: React.Dispatch<React.SetStateAction<StudioSettings>>;
   onExportClick: () => void;
@@ -78,6 +80,8 @@ export function EditorStudio({
   extraBgs,
   logoUrl,
   gifUrl,
+  stickers,
+  setStickers,
   settings,
   setSettings,
   onExportClick,
@@ -115,6 +119,10 @@ export function EditorStudio({
   const bgVideoRef = useRef<HTMLVideoElement | null>(null);
   const logoImgRef = useRef<HTMLImageElement | null>(null);
   const gifImgRef = useRef<HTMLImageElement | null>(null);
+  // P-6 추가 스티커 그림(번호 → 그림)
+  const stickerImgs = useRef<Map<string, HTMLImageElement>>(new Map());
+  const stickersRef = useRef<StickerItem[]>(stickers);
+  stickersRef.current = stickers;
   const particleSystemRef = useRef<ParticleSystem>(new ParticleSystem());
 
   // Load Background Image(s) — P-3 이미지 배경 + 추가 배경을 순서대로
@@ -172,6 +180,18 @@ export function EditorStudio({
       logoImgRef.current = null;
     }
   }, [logoUrl]);
+
+  // P-6 추가 스티커 그림 불러오기(빠진 것은 지움)
+  useEffect(() => {
+    const m = stickerImgs.current;
+    for (const id of [...m.keys()]) if (!stickers.some((s) => s.id === id)) m.delete(id);
+    for (const s of stickers) {
+      if (m.has(s.id)) continue;
+      const img = new Image();
+      img.src = s.url;
+      img.onload = () => m.set(s.id, img);
+    }
+  }, [stickers]);
 
   // Load GIF Image
   useEffect(() => {
@@ -395,6 +415,16 @@ export function EditorStudio({
           ctx.shadowBlur = settings.gifShadowSize;
         }
         ctx.drawImage(gifImgRef.current, gX, gY, gSize, gSize);
+        ctx.restore();
+      }
+      // P-6 추가 스티커
+      for (const st of stickersRef.current) {
+        const img = stickerImgs.current.get(st.id);
+        if (!img) continue;
+        const sSize = (st.size / 100) * 150;
+        ctx.save();
+        ctx.globalAlpha = st.opacity / 100;
+        ctx.drawImage(img, (st.x / 100) * width, (st.y / 100) * height, sSize, sSize);
         ctx.restore();
       }
 
@@ -993,6 +1023,41 @@ export function EditorStudio({
           {/* GIF 스티커 배치 */}
           <div className="space-y-3 pt-3 border-t border-[#272727]">
             <h4 className="text-xs font-bold text-[#aaaaaa]">GIF 스티커 배치</h4>
+            {/* P-6(2026-11-09) 추가 스티커 배치 — ① 준비에서 「추가 스티커」를 넣으면 나타남 */}
+            {stickers.map((st, i) => (
+              <div key={st.id} className="space-y-1.5 rounded-xl border border-[#272727] bg-[#121212] p-2">
+                <div className="flex items-center gap-2 text-[11px] font-bold text-[#aaaaaa]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={st.url} alt="" className="h-6 w-6 object-contain" /> 추가 스티커 {i + 1}
+                </div>
+                {(
+                  [
+                    ["x", "X 위치", 0, 100, "%"],
+                    ["y", "Y 위치", 0, 100, "%"],
+                    ["size", "크기", 20, 200, "%"],
+                    ["opacity", "투명도", 10, 100, "%"],
+                  ] as const
+                ).map(([k, label, min, max, unit]) => (
+                  <label key={k} className="block text-[10px] text-[#aaaaaa]">
+                    <span className="flex justify-between">
+                      <span>{label}</span>
+                      <span className="font-mono text-white">
+                        {st[k]}
+                        {unit}
+                      </span>
+                    </span>
+                    <input
+                      type="range"
+                      min={min}
+                      max={max}
+                      value={st[k]}
+                      onChange={(e) => setStickers((s) => s.map((x) => (x.id === st.id ? { ...x, [k]: Number(e.target.value) } : x)))}
+                      className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]"
+                    />
+                  </label>
+                ))}
+              </div>
+            ))}
             <label className="flex items-center gap-2 text-xs font-bold text-[#aaaaaa] cursor-pointer">
               <input
                 type="checkbox"

@@ -49,6 +49,10 @@ export type ColorPreset =
   | 'PASTEL'
   | 'MONO';
 
+/** P-6 스티커 여러 개(2026-11-09) — 첫 스티커(gifUrl·gif* 설정) 말고 더 붙이는 GIF/PNG. 그림 주소가 브라우저 임시 주소라 설정 저장에는 넣지 않는다 */
+export type StickerItem = { id: string; url: string; x: number; y: number; size: number; opacity: number };
+export const MAX_EXTRA_STICKERS = 3;
+
 /** P-6 파티클 전체에 더하는 흐름 방향 */
 export type ParticleWind = 'none' | 'left' | 'right' | 'up' | 'down';
 

@@ -22,7 +22,7 @@ import {
   Wand2,
   GripVertical
 } from "lucide-react";
-import { Track, ExportSettings } from "@/types/playlist";
+import { Track, ExportSettings, MAX_EXTRA_STICKERS, type StickerItem } from "@/types/playlist";
 import { isSynced, parseLyrics, type LyricLine } from "@/lib/lyrics";
 
 // v1.17 곡별 가사 파일 읽기 — UTF-8로 깨지면 메모장 옛 저장(EUC-KR)으로 다시 읽는다
@@ -48,6 +48,8 @@ interface MediaCenterProps {
   setLogoUrl: (url: string | null) => void;
   gifUrl: string | null;
   setGifUrl: (url: string | null) => void;
+  stickers: StickerItem[];
+  setStickers: (fn: (s: StickerItem[]) => StickerItem[]) => void;
   exportSettings: ExportSettings;
   setExportSettings: React.Dispatch<React.SetStateAction<ExportSettings>>;
   onEnterStudio: () => void;
@@ -67,6 +69,8 @@ export function MediaCenter({
   setLogoUrl,
   gifUrl,
   setGifUrl,
+  stickers,
+  setStickers,
   exportSettings,
   setExportSettings,
   onEnterStudio,
@@ -84,6 +88,7 @@ export function MediaCenter({
   const bgInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const gifInputRef = useRef<HTMLInputElement>(null);
+  const stickerInputRef = useRef<HTMLInputElement>(null);
 
   // Format seconds to MM:SS or HH:MM:SS
   const formatTime = (seconds: number) => {
@@ -610,6 +615,50 @@ export function MediaCenter({
                     <span className="text-xs font-bold text-[#aaaaaa] group-hover:text-white transition-colors">
                       GIF 추가
                     </span>
+                  </div>
+                )}
+              </div>
+              {/* P-6(2026-11-09) 추가 스티커 — 최대 3개 더(위치·크기는 ② 편집의 「GIF 스티커 배치」에서) */}
+              <div className="space-y-1 pt-1">
+                <div className="flex items-center justify-between text-[10px] font-bold text-[#aaaaaa]">
+                  <span>추가 스티커 {stickers.length}/{MAX_EXTRA_STICKERS}</span>
+                  <button
+                    type="button"
+                    disabled={stickers.length >= MAX_EXTRA_STICKERS}
+                    onClick={() => stickerInputRef.current?.click()}
+                    className="rounded-md border border-[#272727] px-1.5 py-0.5 text-[#aaaaaa] hover:border-[#ff0000] hover:text-white disabled:opacity-40"
+                  >
+                    + 추가
+                  </button>
+                  <input
+                    ref={stickerInputRef}
+                    type="file"
+                    accept="image/gif,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!f) return;
+                      setStickers((s) => (s.length >= MAX_EXTRA_STICKERS ? s : [...s, { id: crypto.randomUUID(), url: URL.createObjectURL(f), x: 8 + s.length * 28, y: 8, size: 70, opacity: 100 }]));
+                    }}
+                  />
+                </div>
+                {stickers.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {stickers.map((st) => (
+                      <div key={st.id} className="relative h-10 w-10 rounded-lg border border-[#272727] bg-[#181818] p-0.5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={st.url} alt="추가 스티커" className="h-full w-full object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => setStickers((s) => s.filter((x) => x.id !== st.id))}
+                          className="absolute -right-1 -top-1 rounded-full bg-red-600 p-0.5 text-white"
+                          title="스티커 빼기"
+                        >
+                          <Trash2 className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

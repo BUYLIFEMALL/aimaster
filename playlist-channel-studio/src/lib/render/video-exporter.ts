@@ -91,7 +91,8 @@ async function renderVideoMp4(
   exportSettings: ExportSettings,
   onProgress: (p: RenderProgress) => void,
   gifUrl: string | null = null, // v1.21 GIF 스티커(미리보기에만 있던 것)
-  extraBgs: string[] = [] // P-3 추가 배경 이미지(이미지 배경일 때만)
+  extraBgs: string[] = [], // P-3 추가 배경 이미지(이미지 배경일 때만)
+  stickers: { url: string; x: number; y: number; size: number; opacity: number }[] = [] // P-6 추가 스티커
 ): Promise<Blob | null> {
   if (tracks.length === 0) {
     throw new Error('렌더링할 오디오 트랙이 없습니다.');
@@ -270,6 +271,8 @@ async function renderVideoMp4(
   const frequencyAt = createSpectrumReader(passes, fps);
   // v1.21 (IMP-PLS-008) GIF 스티커 — 장면을 미리 나눠 두고 시각에 맞춰 그린다(미리보기와 같은 위치·크기·투명도·그림자)
   const gif = gifUrl ? await loadGifSticker(gifUrl).catch(() => null) : null;
+  // P-6 추가 스티커 — 같은 방식으로 장면을 미리 나눠 둔다(움직이는 GIF·고정 PNG 모두)
+  const extraStickers = (await Promise.all(stickers.map(async (s) => ({ s, g: await loadGifSticker(s.url).catch(() => null) })))).filter((x) => x.g);
   const unit = Math.min(width, height) / 1080; // 미리보기 캔버스가 1080p 기준이라 720p는 비율로 줄인다
   const renderStart = performance.now();
   for (let frameIdx = 0; frameIdx < totalVideoFrames; frameIdx++) {
@@ -385,6 +388,13 @@ async function renderVideoMp4(
       const gY = settings.gifCentered ? (height - gSize) / 2 : (settings.gifY / 100) * height;
       if (settings.gifShadowEnabled) { ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = settings.gifShadowSize * unit; }
       ctx.drawImage(gif.frameAt(timeMs), gX, gY, gSize, gSize);
+      ctx.restore();
+    }
+    for (const { s, g } of extraStickers) {
+      const sSize = (s.size / 100) * 150 * unit;
+      ctx.save();
+      ctx.globalAlpha = s.opacity / 100;
+      ctx.drawImage(g!.frameAt(timeMs), (s.x / 100) * width, (s.y / 100) * height, sSize, sSize);
       ctx.restore();
     }
 
