@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.55 · 엔진 0.8.0 배포**
+
+- 주인님 「배포해」, 빌드 1회 `free-music-studio-iaz2z33n8`, DB v1.55. 엔진 0.8.0: **YuE2 커버(원곡 멜로디 받아 적기, B-5)** — SheetSage2 `/transcribe` → ABC → `/synth` cot melody, 실행 도구 YuE2-Studio v3.4.0 → v3.8.5(판 기록·CUDA 보존·결과 세 조각), 커버 모델은 처음 커버 때 약 1GB. 사이트: 가져온 음악 커버 엔진 고르기(`yue2cover` 기능일 때), 매뉴얼 카드, 음악 스타일 (Caption)(C-27), 앨범 칸 왼쪽(C-28), AI 가사 불러오기(C-29). 시험 엔진 121·사이트 111·tsc·로컬 빌드, ego 운영 확인. **남은 일: 마스터PC에서 0.8.0 설치 뒤 YuE2 새 곡(실행 도구 판 올림)·YuE2 커버 한국어 1곡 확인.** 플랜 `free-music-studio/docs/PLAN_20261109_YUE2_COVER.md`.
+
+
+
+
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.54 배포**
 
 - 주인님 「배포해」, 빌드 1회 `free-music-studio-7nqh67ugp`, DB v1.54, 사이트만. C-22 장르 대분류 이름(영화·드라마·무대, 어린이·종교 음악)·세부 장르 청록 구분, C-23 태그를 바꾼 뒤엔 남은 스타일을 고정하지 않음, C-24 ACE-Step 카드 한 번만 켜짐, C-25 「🎼 Style 태그」 제목·프리셋 우선 안내, C-26 곡 만들기 세로 줄이기(2xl 두 칸 배치·이 화면 최대 1760px, 분위기 탭, 엔진 한 줄 버튼). 시험 109·tsc·로컬 빌드, ego 운영 확인(폭 1741px 두 칸, 높이 2,507px). 남은 안: AI 작사 옵션 한 줄·앨범 상자 설명 접기·단계 접기(백로그 C-26). 상세 `free-music-studio/AGENTS.md`.

@@ -70,6 +70,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `free-music-studio` | v1.55 · 엔진 0.8.0 설치 파일 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-iaz2z33n8`, DB v1.55) | YuE2 커버(원곡 멜로디 받아 적기, B-5, `b5d95ab04`·`9a84413ed`) + 음악 스타일 (Caption)·앨범 칸 왼쪽·AI 가사 불러오기(C-27~29). ego 운영 확인·engine-latest 0.8.0 |
 | `free-music-studio` | v1.54 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-7nqh67ugp`, DB v1.54, 사이트만) | 장르 이름·세부 장르 구분(C-22), 남은 스타일 고정 해제(C-23), 엔진 카드 한 번만(C-24), Style 태그 제목(C-25), 곡 만들기 두 칸·분위기 탭·엔진 한 줄(C-26). ego 운영 확인 |
 | `free-music-studio` | v1.53 · 엔진 0.7.9 설치 파일 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-ck7t1tkep`, DB v1.53) | 엔진 0.7.9 그림 메모리 부족 인식 보강·작은 판 자동 재시도·「메모리 빠듯」 판 뒤로(`c392c79ce`·`7192c3af4`·`8f622ea34`) + 프리셋 덮어쓰기 확인·고른 태그 자동 붙이기(`573f9008b`·`98fa32206`·`c378f2e94`). ego 운영 확인: v1.53·engine-latest 0.7.9·설치 파일 받기 |
 | `free-music-studio` | v1.52 · 엔진 0.7.8 설치 파일 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님이 직접 배포 명령 실행(자동 실행 권한 검사가 운영 배포를 막아서), 빌드 1회, `free-music-studio-n8ynisz4n`, DB v1.52) | 노래 장르 2단계(대분류 12·세부 59, 커밋 `66226d497`) + 엔진 0.7.8 그림 엔진 기록 파일·메모리 부족 안내·「메모리 빠듯」(`bc814eef6`·`256edaab6`). ego 운영 확인: v1.52·장르 12개·K-POP 세부 5개·영어 태그 표시·프리셋 3개, engine-latest 0.7.8·설치 파일 받기 |
