@@ -8,6 +8,10 @@ import { EngineError, enqueueEdit, fetchLibraryFile, hasLibrary, hasQueue, hasYu
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { LIMITS } from "@/lib/songs";
 import { COVER_SOURCE_KEY, SOURCE_MAX_SEC, SOURCE_MIN_SEC, type CoverSource } from "@/lib/tracks";
+import type { Collection } from "@/lib/collections";
+
+// C-33(2026-11-09 주인님 「cover 카테고리에서 따로 관리할꺼야」): 만든 곡을 넣을 프로젝트 — 마지막에 고른 것을 기억, 처음엔 이름이 Cover인 프로젝트
+const PROJECT_KEY = "fms.importProject";
 
 const MAX_BYTES = 60 * 1024 * 1024; // 엔진 연결 문 업로드 상한
 const field =
@@ -50,6 +54,29 @@ export default function ImportPage() {
   const [strength, setStrength] = useState(0.6);
   // 커버 엔진(엔진 0.8.0, B-5): ACE-Step = 원곡 소리를 바탕으로(상업용) / YuE2 = 원곡 멜로디를 악보로 받아 적어 새로 부름(비상업)
   const [coverEngine, setCoverEngine] = useState<"acestep" | "yue2">("acestep");
+  const [projects, setProjects] = useState<Collection[]>([]);
+  const [projectId, setProjectId] = useState("");
+  useEffect(() => {
+    fetch("/api/collections")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { projects?: Collection[] } | null) => {
+        const list = d?.projects ?? [];
+        setProjects(list);
+        let saved: string | null = null;
+        try {
+          saved = localStorage.getItem(PROJECT_KEY);
+        } catch {}
+        if (saved !== null) setProjectId(saved === "" || list.some((p) => p.id === saved) ? saved : "");
+        else setProjectId(list.find((p) => p.name.trim().toLowerCase() === "cover")?.id ?? "");
+      })
+      .catch(() => {});
+  }, []);
+  const pickProject = (id: string) => {
+    setProjectId(id);
+    try {
+      localStorage.setItem(PROJECT_KEY, id);
+    } catch {}
+  };
   const [range, setRange] = useState<[number, number]>([0, 10]);
   const [rights, setRights] = useState(false);
   const [busy, setBusy] = useState<"" | "upload" | "run" | "fetch">("");
@@ -169,7 +196,7 @@ export default function ImportPage() {
           : { mode, style_prompt: style, lyrics, start: range[0], end: range[1] };
       if (queueMode) {
         const name = nameOf();
-        await enqueueEdit(file, opts, sourceSec, { title: name, device: status.device, parentId: source?.id, engine: yue2Cover ? "yue2" : "acestep" }, status.quality);
+        await enqueueEdit(file, opts, sourceSec, { title: name, device: status.device, parentId: source?.id, engine: yue2Cover ? "yue2" : "acestep", projectId: projectId || null }, status.quality);
         setQueuedNote(`「${name}」 작업을 대기열에 넣었습니다. 엔진이 차례로 만들고, 다 되면 「모든 음악」에 저절로 기록됩니다.`);
         return;
       }
@@ -183,7 +210,7 @@ export default function ImportPage() {
       const res = await fetch("/api/tracks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, song_id: null, title: name, style_prompt: style, lyrics, duration_sec: Math.round(sourceSec), device: status.device, kind: mode, parent_id: source?.id ?? null }),
+        body: JSON.stringify({ id, song_id: null, title: name, style_prompt: style, lyrics, duration_sec: Math.round(sourceSec), device: status.device, kind: mode, parent_id: source?.id ?? null, ...(projectId ? { project_id: projectId } : {}) }),
       }).catch(() => null);
       const { url, ext } = await fetchLibraryFile(id);
       urls.current.push(url);
@@ -340,7 +367,26 @@ export default function ImportPage() {
         {/* 3. 새 스타일·가사 */}
         <div className="space-y-2">
           <p className="text-xs font-bold text-slate-200">3. 새 스타일·가사</p>
-          <input className={field} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="곡 제목" maxLength={LIMITS.title - 8} />
+          <div className="flex flex-wrap items-center gap-2">
+            <input className={`${field} min-w-0 flex-1`} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="곡 제목" maxLength={LIMITS.title - 8} />
+            <label className="flex shrink-0 items-center gap-1.5 text-[11px] text-slate-400">
+              📁 넣을 프로젝트
+              <select
+                value={projectId}
+                onChange={(e) => pickProject(e.target.value)}
+                aria-label="넣을 프로젝트"
+                title="완성된 곡이 「모든 음악」의 이 프로젝트에 들어갑니다(마지막에 고른 것을 기억)"
+                className="rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-2 text-xs text-slate-200 focus:border-emerald-400 focus:outline-hidden"
+              >
+                <option value="">{source ? "원곡과 같은 프로젝트" : "프로젝트 없음"}</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
           <textarea
             className={`${field} min-h-[60px] font-mono text-xs`}
             value={style}

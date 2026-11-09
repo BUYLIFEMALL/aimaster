@@ -8,6 +8,8 @@ export const TRACKS_TABLE = "free_music_tracks";
 export type TrackInput = {
   id: string;
   song_id: string | null;
+  /** 처음 기록할 때 넣을 프로젝트(C-33, 2026-11-09 「가져온 음악」 커버) — 본인 프로젝트인지는 API가 확인 */
+  project_id?: string | null;
   title: string;
   style_prompt: string;
   lyrics: string;
@@ -103,8 +105,10 @@ export function parseTrackInput(body: unknown): { ok: true; value: TrackInput } 
   const kind = (b.kind === undefined ? "text2music" : b.kind) as TrackKind;
   const license = (b.license === undefined ? "commercial" : b.license) as TrackLicense;
   const parentId = typeof b.parent_id === "string" && b.parent_id ? b.parent_id : null;
+  const projectId = typeof b.project_id === "string" && b.project_id ? b.project_id : null;
 
   if (!UUID.test(id)) return { ok: false, error: "곡 번호가 올바르지 않습니다." };
+  if (projectId && !UUID.test(projectId)) return { ok: false, error: "프로젝트가 올바르지 않습니다." };
   if (songId && !UUID.test(songId)) return { ok: false, error: "곡 번호가 올바르지 않습니다." };
   if (parentId && (!UUID.test(parentId) || parentId === id || kind === "text2music")) return { ok: false, error: "원곡 번호가 올바르지 않습니다." };
   if (title.length > LIMITS.title) return { ok: false, error: `곡 제목은 ${LIMITS.title}자까지 쓸 수 있습니다.` };
@@ -124,5 +128,5 @@ export function parseTrackInput(body: unknown): { ok: true; value: TrackInput } 
   if (!durationOk) return { ok: false, error: "곡 길이가 올바르지 않습니다." };
   if (!DEVICES.includes(device)) return { ok: false, error: "만든 장치 정보가 올바르지 않습니다." };
 
-  return { ok: true, value: { id, song_id: songId, title, style_prompt: style, lyrics, duration_sec: duration, device, kind, license, parent_id: parentId } };
+  return { ok: true, value: { id, song_id: songId, title, style_prompt: style, lyrics, duration_sec: duration, device, kind, license, parent_id: parentId, ...(projectId ? { project_id: projectId } : {}) } };
 }

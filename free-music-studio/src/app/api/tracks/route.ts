@@ -3,6 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SONGS_TABLE } from "@/lib/songs";
 import { parseTrackInput, TRACKS_TABLE } from "@/lib/tracks";
+import { COLLECTIONS_TABLE } from "@/lib/collections";
 import { isRetentionExempt } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
@@ -35,11 +36,16 @@ export async function POST(request: Request) {
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const admin = createAdminClient();
   const value: typeof parsed.value & { project_id?: string | null; lyric_timing?: unknown } = { ...parsed.value };
+  // C-33(2026-11-09): 회원이 고른 프로젝트 — 본인 프로젝트가 아니면 빼고, 아래 초안·원곡 프로젝트를 따른다
+  if (value.project_id) {
+    const { data: proj } = await admin.from(COLLECTIONS_TABLE).select("id").eq("id", value.project_id).eq("user_id", access.user.id).eq("kind", "project").maybeSingle();
+    if (!proj) delete value.project_id;
+  }
   if (value.song_id) {
     const { data: own } = await admin.from(SONGS_TABLE).select("id, project_id").eq("id", value.song_id).eq("user_id", access.user.id).maybeSingle();
     if (!own) value.song_id = null;
     // 초안이 프로젝트에 속해 있으면 만든 곡도 그 프로젝트로(2026-11-06, 원본 boks-music 프로젝트 안에서 만들기)
-    else if (own.project_id) value.project_id = own.project_id;
+    else if (own.project_id && !value.project_id) value.project_id = own.project_id;
   }
   // 원곡도 본인 곡일 때만 연결한다
   if (value.parent_id) {

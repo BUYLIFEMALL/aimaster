@@ -507,7 +507,7 @@ export async function deleteFromLibrary(id: string): Promise<{ skipped: string[]
 // 엔진이 차례로 만들고 보관함에 저장한다. 끝난 작업의 「모든 음악」 기록은 사이트가 남긴다(QueueSync).
 
 export type QueueStatus = "queued" | "running" | "done" | "failed" | "cancelled" | "interrupted";
-export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master" | "stems" | "align" | "art"; parent_id?: string | null };
+export type QueueTrack = { id: string; song_id: string | null; style_prompt: string; lyrics: string; duration_sec: number; device: string; kind: "text2music" | "cover" | "repaint" | "master" | "stems" | "align" | "art"; parent_id?: string | null; project_id?: string | null };
 export type QueueJob = {
   id: string;
   kind: QueueTrack["kind"];
@@ -726,10 +726,10 @@ export async function enqueueEdit(
   source: File,
   opts: EditOptions,
   sourceSec: number,
-  info: { title: string; device: string; parentId?: string | null; engine?: "acestep" | "yue2" },
+  info: { title: string; device: string; parentId?: string | null; engine?: "acestep" | "yue2"; projectId?: string | null },
   quality?: EngineQuality | null
 ): Promise<QueueJob> {
-  const track: QueueTrack = { id: crypto.randomUUID(), song_id: null, style_prompt: opts.style_prompt, lyrics: opts.lyrics, duration_sec: Math.round(sourceSec), device: info.device, kind: opts.mode, parent_id: info.parentId ?? null };
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: null, style_prompt: opts.style_prompt, lyrics: opts.lyrics, duration_sec: Math.round(sourceSec), device: info.device, kind: opts.mode, parent_id: info.parentId ?? null, ...(info.projectId ? { project_id: info.projectId } : {}) };
   const form = new FormData();
   // 엔진 0.8.0: 커버는 YuE2도(원곡 멜로디 받아 적기, 비상업) — ACE-Step일 때는 옛 엔진과 같게 engine 칸을 보내지 않는다
   form.append("meta", JSON.stringify({ kind: opts.mode, title: info.title, track, fields: buildEditFields(opts, sourceSec, quality), ...(info.engine === "yue2" ? { engine: "yue2" } : {}) }));
