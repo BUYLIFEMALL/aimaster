@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 무료음악 연계 작업 묶음 배포(v1.60 · AI 음악 스튜디오 v1.15)
+- 무료음악 v1.60(`free-music-studio-q1aru42a0`): 그림 기본 판 복구, D-4 쇼츠 원스톱 배경음악 보내기(받는 쪽 쇼츠 v1.46 — 영상 담당), D-8 댄스·월드 프리셋 200 + 시대 가요 8, 재생 중 강조(대기열·모든 음악), D-9 참고곡 → 음악 스타일(회원 Gemini 키), D-10 EQ·시각화·속도, D-11 유료 모델 비교 링크
+- AI 음악 스튜디오 v1.15(`ai-music-studio-cakibiq6t`): `/compare?fms=` 무료음악 초안 미리 채우기 — ego 확인
+- 남은 확인: 마스터PC에서 재생 강조·EQ 소리·시각화·「쇼츠 배경음악으로」(맥미니 시험 `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md`도 이제 시작 가능), 참고곡 실제 Gemini 1회(승인 대기). 위임: D-6 이미지 스토리 쇼츠(영상 담당, `free-music-studio/docs/HANDOFF_20261109_SHOTS_BGM_FROM_FMS.md`)
+- https://free-music-studio.buylife.xyz/songs
+
 ## 2026-11-09 ⏳ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — 카페 회원 모집(naver-cafe-recruit) 초대 시험 4~6회차 지원
 - **원인**: 4회차 「결과 확인 못 함」은 확장이 입력칸에 blur를 보내지 않아 네이버가 거절 사유를 화면 알림 대신 입력칸 아래에만 넣었기 때문(원본 `CafeInvite.nhn`의 `inviteNaverIds()`·`showErrorMsg` 확인).
 - **수정(커밋 `7a85de294`, 미배포)**: `extension/invite.mjs` `judgeResponse()` — 「초대하기」가 보낸 `CafeInvitationByIdAjax` 응답 JSON으로 판정(성공/거절 사유/권한 없음/오류). `extension/background.mjs` — 글자마다 keyup·change·blur, 누르기 전 보안문자 창이면 멈춤, 응답 가로채기는 `finally`에서 원래대로 되돌림. 시험 EX12·EX13 추가, `npm test` 17개 통과.

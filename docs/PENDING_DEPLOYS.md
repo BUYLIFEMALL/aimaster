@@ -72,6 +72,8 @@
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 | `ai-task-planner` | v1.13 · 2026-11-09 ([역할: design] Antigravity, 74번 퀀트 타임트래커 다크 터미널 테마 리뉴얼 & 5단계 표준 로그인 탑재, `ai-task-planner-g459ejx1a`, DB v1.13) | 공용 기준 코드 `work-inbox-client` 사본 동기화, 74번 다크 옵시디언/에메랄드 HUD, 5단계 표준 로그인 폼, 27개 단위테스트 PASS, live 200 검증 |
+| `free-music-studio` | v1.60 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」, `free-music-studio-q1aru42a0`, DB v1.60, 사이트만) | 그림 기본 판 복구·쇼츠 배경음악 보내기(D-4)·댄스·월드 프리셋(D-8)·재생 강조 2곳·참고곡 스타일(D-9)·EQ·시각화·속도(D-10)·유료 모델 비교 링크(D-11). 재생 관련 실물은 마스터PC 확인 대기 |
+| `ai-music-studio` | v1.15 · 2026-11-09 ([역할: music], 같은 묶음, `ai-music-studio-cakibiq6t`, DB v1.15) | `/compare`·`/create` `?fms=` 무료음악 초안 미리 채우기(D-11). ego 운영 확인 |
 | `free-music-studio` | v1.59 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「기존에 작업했던것과 함께 묶어서 배포해」, `free-music-studio-6ck2jt91u`, DB v1.59, 사이트만, 커밋된 코드만 `git archive`로 배포) | 곡 만들기 화면 메뉴 먹통 수정(`useEffect` 무한 반복), 「작업 대기열」 링크. ego 운영 확인 |
 | `free-music-studio` | v1.58 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「연주곡 분류 세분화 작업하고 모았다가 배포해」, `free-music-studio-mntb6juwx`, DB v1.58, 사이트만 — 실수로 같은 코드 빌드 2회) | 연주곡 장르 2단계(9개·세부 49개, AI 작곡 기획·프리셋 연동), 단계 막대·AI 작사 접기(C-36), 넓은 화면 배치(C-35). ego 운영 확인 |
 | `ai-image-studio` | v1.34 · 2026-11-09 ([역할: music], 같은 묶음, `ai-image-studio-lsnyhsput`, DB v1.34) | 「내 PC (무료)」로 그린 그림 갤러리 자동 저장(`/api/local-result`, 작업 종류 `image_local`)·갤러리 필터. ego 운영 확인 |

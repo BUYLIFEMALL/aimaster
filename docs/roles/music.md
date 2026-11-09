@@ -5,12 +5,12 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-09 `claude-win-20261024-music` (역할 파일 정리 — 끝난 항목 정리, 최근 완료 10개로)
+- 마지막 갱신: 2026-11-09 `claude-win-20261024-music` (무료음악 v1.60 · AI 음악 스튜디오 v1.15 배포 — 연계 D-4·D-8~D-11)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 진행 중인 개발 없음 | — | 무료음악 v1.59 · 이미지 v1.34 · 플레이리스트 v1.38까지 배포 끝, 미배포 대기 0 |
+| — | 진행 중인 개발 없음 | — | 무료음악 v1.60 · AI 음악 스튜디오 v1.15 배포 끝, 미배포 대기 0 — 재생 관련 실물은 마스터PC 확인 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -21,11 +21,13 @@
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) | 백로그 「보관」 B-6 |
 | `free-music-studio` | B-4 가사 시간 맞추기 추가 비교 | 수동 정답 자료 준비 | 백로그 「보관」 B-4 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
-| `free-music-studio` | 내 PC 그림 기본 판 고르기 복구분 배포(v1.60) | 미배포 대기 — 다른 세션 커밋 `16328c462`가 되돌린 이 세션 작업을 복구 커밋함, 다음 배포 때 함께 | `free-music-studio/docs/IMPROVEMENT_HANDOFF_20261109.md` 4절 |
+| `free-music-studio` | D-6 이미지 스토리 쇼츠 배경음악(영상 담당 위임) — 받는 쪽 끝나면 보내는 쪽 붙임 | 영상 담당 | `free-music-studio/docs/HANDOFF_20261109_SHOTS_BGM_FROM_FMS.md` |
+| `free-music-studio` | 마스터PC 실물: 재생 강조·EQ·시각화·쇼츠 보내기, 참고곡 Gemini 1회 | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.60 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-09 | `free-music-studio` v1.60 · `ai-music-studio` v1.15 | 연계 D-4 보내는 쪽·D-8 댄스·월드 프리셋·D-9 참고곡 스타일·D-10 EQ·시각화·속도·D-11 유료 모델 비교 + 재생 강조 2곳 + 그림 기본 판 복구 | 배포 |
 | 2026-11-09 | `free-music-studio` v1.59 | 곡 만들기 화면 왼쪽 메뉴·모든 화면 이동 먹통 수정(`MultiVersionPanel` `useEffect` 무한 반복 → `useMemo`, v1.57부터 있던 버그) + 「작업 대기열」 링크. 재발 방지 `docs/ERROR_LESSONS.md` 2026-11-09 | 배포(커밋된 코드만) |
 | 2026-11-09 | `free-music-studio` v1.58 | 연주곡 장르 2단계(9개·세부 49개, AI 작곡 기획·프리셋 연동) + 단계 막대·AI 작사 접기(C-36) + 넓은 화면 배치(C-35) | 배포 |
 | 2026-11-09 | `ai-image-studio` v1.34 | 「내 PC (무료)」로 그린 그림 갤러리 자동 저장(`/api/local-result`) | 배포 |
