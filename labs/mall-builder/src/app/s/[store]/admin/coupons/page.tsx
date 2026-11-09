@@ -90,19 +90,22 @@ export default async function AdminCouponsPage({ params, searchParams }: { param
           </div>
           <fieldset className="space-y-1">
             <legend className="text-xs text-gray-500">적용 대상</legend>
-            <label className="mr-3"><input type="radio" name="target" value="all" defaultChecked /> 전체 상품</label>
-            <details className="mt-1">
-              <summary className="cursor-pointer"><label><input type="radio" name="target" value="category" /> 카테고리 고르기</label></summary>
-              <div className="mt-1 flex flex-wrap gap-2 pl-5">
-                {categories.map((c) => <label key={c.id}><input type="checkbox" name="category_ids" value={c.id} /> {c.name}</label>)}
+            <div className="flex flex-wrap gap-3">
+              <label><input type="radio" name="target" value="all" defaultChecked /> 전체 상품</label>
+              <label><input type="radio" name="target" value="category" /> 아래에서 고른 카테고리</label>
+              <label><input type="radio" name="target" value="product" /> 아래에서 고른 상품</label>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="max-h-32 overflow-y-auto rounded border p-2" data-target-categories>
+                <p className="mb-1 text-xs text-gray-500">카테고리</p>
+                {categories.length === 0 && <p className="text-xs text-gray-400">카테고리가 없습니다.</p>}
+                {categories.map((c) => <label key={c.id} className="block"><input type="checkbox" name="category_ids" value={c.id} /> {c.name}</label>)}
               </div>
-            </details>
-            <details>
-              <summary className="cursor-pointer"><label><input type="radio" name="target" value="product" /> 상품 고르기</label></summary>
-              <div className="mt-1 max-h-40 space-y-0.5 overflow-y-auto pl-5">
+              <div className="max-h-32 overflow-y-auto rounded border p-2" data-target-products>
+                <p className="mb-1 text-xs text-gray-500">상품</p>
                 {products.map((p) => <label key={p.id} className="block"><input type="checkbox" name="product_ids" value={p.id} /> {p.name}</label>)}
               </div>
-            </details>
+            </div>
           </fieldset>
           <label className="flex items-center gap-2"><input type="checkbox" name="allow_business" /> 사업자 등급가와 같이 쓰기 <span className="text-xs text-gray-500">(끄면 승인 사업자는 이 쿠폰을 쓸 수 없음)</span></label>
           <p className="text-xs text-gray-500">가입 축하는 몰에 새로 가입할 때, 생일은 손님이 마이페이지에 생일을 넣어 두면 그날 자동으로 발급됩니다. 주문 한 건에 쿠폰은 1장, 배송비에는 적용되지 않습니다.</p>
@@ -136,17 +139,17 @@ export default async function AdminCouponsPage({ params, searchParams }: { param
                 <details className="mt-2">
                   <summary className="cursor-pointer text-xs text-blue-700">발급하기</summary>
                   <form action={issueCouponAction.bind(null, store.slug, c.id)} className="mt-2 space-y-2 rounded bg-gray-50 p-3 text-sm" data-issue-form>
-                    <label className="mr-3"><input type="radio" name="scope" value="all" defaultChecked /> 가입 손님 전체</label>
-                    <label className="mr-3">
-                      <input type="radio" name="scope" value="grade" /> 등급{" "}
-                      <select name="grade_id" className="rounded border px-1 py-0.5">{grades.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}</select>
-                    </label>
-                    <details>
-                      <summary className="cursor-pointer"><label><input type="radio" name="scope" value="customers" /> 손님 고르기</label></summary>
-                      <div className="mt-1 max-h-40 space-y-0.5 overflow-y-auto pl-5">
-                        {customers.map((u) => <label key={u.id} className="block"><input type="checkbox" name="customer_ids" value={u.id} /> {u.name} <span className="text-xs text-gray-500">{u.grade?.name}</span></label>)}
-                      </div>
-                    </details>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <label><input type="radio" name="scope" value="all" defaultChecked /> 가입 손님 전체</label>
+                      <label>
+                        <input type="radio" name="scope" value="grade" /> 등급{" "}
+                        <select name="grade_id" className="rounded border px-1 py-0.5">{grades.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}</select>
+                      </label>
+                      <label><input type="radio" name="scope" value="customers" /> 아래에서 고른 손님</label>
+                    </div>
+                    <div className="max-h-40 overflow-y-auto rounded border bg-white p-2" data-issue-customers>
+                      {customers.map((u) => <label key={u.id} className="block"><input type="checkbox" name="customer_ids" value={u.id} /> {u.name} <span className="text-xs text-gray-500">{u.grade?.name}</span></label>)}
+                    </div>
                     <button className="rounded bg-gray-900 px-3 py-1 text-white">발급</button>
                   </form>
                 </details>
