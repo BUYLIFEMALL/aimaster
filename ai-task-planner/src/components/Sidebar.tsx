@@ -32,10 +32,29 @@ export function Sidebar({ email, screen, navigate, busy }: { email: string; scre
     <>
       <header className="sidebar-brand">
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span className="brand-mark" style={{ marginBottom: 0 }}>✓</span>
+          <span
+            className="brand-mark"
+            style={{
+              marginBottom: 0,
+              background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
+              border: "1px solid rgba(52, 211, 153, 0.4)",
+              fontSize: "16px",
+            }}
+          >
+            ⏱️
+          </span>
           <div>
             <strong>{APP_NAME}</strong>
-            <small>{APP_VERSION}</small>
+            <small
+              style={{
+                color: "#10B981",
+                background: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
+              }}
+            >
+              {APP_VERSION}
+            </small>
           </div>
         </div>
         <a href={`${MAIN_SITE}/programs`} style={{ marginTop: "12px" }}>← 다른 프로그램 보기</a>
@@ -79,7 +98,18 @@ export function Sidebar({ email, screen, navigate, busy }: { email: string; scre
       <aside className="sidebar">{menu}</aside>
       <div className="mobile-bar">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span className="brand-mark" style={{ width: "24px", height: "24px", fontSize: "14px", marginBottom: 0 }}>✓</span>
+          <span
+            className="brand-mark"
+            style={{
+              width: "28px",
+              height: "28px",
+              fontSize: "14px",
+              marginBottom: 0,
+              background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+            }}
+          >
+            ⏱️
+          </span>
           <strong>{APP_NAME}</strong>
         </div>
         <button onClick={() => setOpen(!open)} aria-label={open ? "메뉴 닫기" : "메뉴 열기"} aria-expanded={open}>

@@ -39,8 +39,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
       {/* 1. 상단 히어로 헤더 */}
       <div
         style={{
-          background: "linear-gradient(135deg, #161d2b 0%, #1e293b 100%)",
-          border: "1px solid #253046",
+          background: "linear-gradient(135deg, #0F1523 0%, #151D30 100%)",
+          border: "1px solid #1E293B",
           borderRadius: "16px",
           padding: "36px 32px",
           marginBottom: "28px",
@@ -52,7 +52,7 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
           <span
             style={{
-              background: "linear-gradient(135deg, #4f46e5, #6366f1)",
+              background: "linear-gradient(135deg, #059669, #10B981)",
               color: "#ffffff",
               width: "36px",
               height: "36px",
@@ -68,9 +68,9 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
           </span>
           <span
             style={{
-              background: "rgba(99, 102, 241, 0.15)",
-              color: "#818cf8",
-              border: "1px solid rgba(99, 102, 241, 0.3)",
+              background: "rgba(16, 185, 129, 0.15)",
+              color: "#34D399",
+              border: "1px solid rgba(16, 185, 129, 0.3)",
               padding: "4px 10px",
               borderRadius: "20px",
               fontSize: "12px",
@@ -110,7 +110,7 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
             onClick={onStartPlanning}
             style={{
               marginTop: "22px",
-              background: "#4f46e5",
+              background: "#059669",
               color: "#ffffff",
               border: "none",
               borderRadius: "8px",
@@ -140,8 +140,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
           {/* Step 1 */}
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "20px 18px",
               position: "relative",
@@ -153,14 +153,14 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
                 width: "28px",
                 height: "28px",
                 borderRadius: "50%",
-                background: "rgba(99, 102, 241, 0.2)",
-                color: "#818cf8",
+                background: "rgba(16, 185, 129, 0.2)",
+                color: "#34D399",
                 display: "grid",
                 placeItems: "center",
                 fontSize: "12px",
                 fontWeight: 800,
                 marginBottom: "12px",
-                border: "1px solid rgba(99, 102, 241, 0.4)"
+                border: "1px solid rgba(16, 185, 129, 0.4)"
               }}
             >
               1
@@ -176,8 +176,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
           {/* Step 2 */}
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "20px 18px",
               position: "relative",
@@ -212,8 +212,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
           {/* Step 3 */}
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "20px 18px",
               position: "relative",
@@ -248,8 +248,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
           {/* Step 4 */}
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "20px 18px",
               position: "relative",
@@ -284,8 +284,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
           {/* Step 5 */}
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "20px 18px",
               position: "relative",
@@ -331,8 +331,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "14px" }}>
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "18px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)"
@@ -349,8 +349,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
 
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "18px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)"
@@ -367,8 +367,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
 
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "18px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)"
@@ -385,8 +385,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
 
           <div
             style={{
-              background: "#161d2b",
-              border: "1px solid #253046",
+              background: "#0F1523",
+              border: "1px solid #1E293B",
               borderRadius: "12px",
               padding: "18px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)"
@@ -419,7 +419,7 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
             { icon: "📥", title: "워크스페이스에서 받기", body: "AI 업무 워크스페이스 페이지의 「⋯」 → 「📨 할 일 플래너로 보내기」로 보낸 할 일은 대시보드 위 「📥 받은 할 일」 칸에 나타납니다. 「➕ 할 일로 추가」를 누르면 목록에 들어갑니다(예정일이 없으면 지금 고른 날짜)." },
             { icon: "⚠️", title: "알아 두세요", body: "같은 항목을 다시 보내면 새 항목이 하나 더 생깁니다. 받은 업무함에서 가져가지 않은 항목은 30일 뒤 자동으로 지워집니다(만든 페이지·표는 남음)." }
           ].map(card => (
-            <div key={card.title} style={{ background: "#161d2b", border: "1px solid #253046", borderRadius: "12px", padding: "18px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)" }}>
+            <div key={card.title} style={{ background: "#0F1523", border: "1px solid #1E293B", borderRadius: "12px", padding: "18px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)" }}>
               <span style={{ fontSize: "20px", display: "block", marginBottom: "8px" }}>{card.icon}</span>
               <strong style={{ fontSize: "14px", color: "#ffffff", display: "block", marginBottom: "6px" }}>{card.title}</strong>
               <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>{card.body}</p>
@@ -447,8 +447,8 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
               <div
                 key={idx}
                 style={{
-                  background: "#161d2b",
-                  border: "1px solid #253046",
+                  background: "#0F1523",
+                  border: "1px solid #1E293B",
                   borderRadius: "10px",
                   overflow: "hidden",
                   transition: "all 0.2s ease"
@@ -473,7 +473,7 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
                   }}
                 >
                   <span>{faq.q}</span>
-                  <span style={{ color: "#818cf8", fontSize: "18px", transition: "transform 0.2s ease", transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>
+                  <span style={{ color: "#34D399", fontSize: "18px", transition: "transform 0.2s ease", transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>
                     ▼
                   </span>
                 </button>
@@ -484,7 +484,7 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
                       fontSize: "13px",
                       color: "#94a3b8",
                       lineHeight: 1.7,
-                      borderTop: "1px solid #1e293b",
+                      borderTop: "1px solid #151D30",
                       paddingTop: "14px"
                     }}
                   >
@@ -501,7 +501,7 @@ export function TaskPlannerGuideView({ onStartPlanning }: { onStartPlanning?: ()
       <div
         style={{
           background: "linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%)",
-          border: "1px solid rgba(99, 102, 241, 0.3)",
+          border: "1px solid rgba(16, 185, 129, 0.3)",
           borderRadius: "14px",
           padding: "24px 28px",
           display: "flex",

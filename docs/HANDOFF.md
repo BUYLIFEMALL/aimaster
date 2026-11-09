@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-atp-v2 — AI 할 일·성과 관리 플래너(ai-task-planner) v1.13 전면 리뉴얼 및 2026-11-01 5단계 표준 로그인 폼 탑재 배포
+- **채택 시안**: 시안 2 (74. 퀀트 타임트래커 다크 터미널 스타일 — 옵시디언 딥블랙 `#070A12` & 네온 에메랄드 `#10B981` / 사이안 `#06B6D4` HUD)
+- **개편 내역**:
+  1. **5단계 표준 로그인 규격 전면 탑재**: 68px 에메랄드 심볼 로고(`⏱️`), 영문 알약 뱃지(`AIMASTER AI TASK PLANNER`), 한글 볼드 타이틀, 2단 탭(로그인/회원가입) & 3D 엠보싱 에메랄드 버튼(`.btn-3d-emerald`), 1행 축소 약관 동의 완비
+  2. **퀀트 다크 터미널 팔레트 전면 적용**: `globals.css` 및 `overview.css`의 모든 컴포넌트·사이드바·헤더·차트·타이머 다이얼을 74번 다크 옵시디언 & 네온 에메랄드 글로우로 통합
+  3. **버전 범프 & 동기화**: `v1.12` → `v1.13` (`src/lib/version.ts`, `package.json`, Supabase DB `programs.version`)
+  4. **무결성 검증**: 단위테스트 27/27 100% 통과, Next.js 16 프로덕션 빌드 성공
+  5. **Vercel 프로덕션 배포**: `https://ai-task-planner-g459ejx1a-buylife.vercel.app` (Ready), `https://ai-task-planner.buylife.xyz` 도메인 연결 완료
+  6. **Playwright 실세션 검증**: `https://ai-task-planner.buylife.xyz/login` 실접속 200 OK, 5단계 표준 요소 전원 PASS 검증, 캡처본 `docs/evidence_login_v113.png` 저장
+- **확인 주소**: https://ai-task-planner.buylife.xyz
+
 ## 2026-11-09 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — 쇼츠 원스톱 v1.46 무료음악 곡을 배경음악으로 받기 배포(무료음악 백로그 D-4, 음악 담당 위임)
 - 한 일: `/render#fms=<곡 번호>`로 열리면 무료음악 창에 `sos-ready` → `fms-audio`(MP3) 받아 기존 배경음악 올리기로 넣음(출처 2곳·`e.source === window.opener` 확인, 대본 여러 개면 「이 대본에 넣기」, 3분 안 오면 직접 넣기 안내). `/api/media/bgm` 상한 10MB → 15MB(버킷 30MB, DB 변경 없음)
 - 검수: tsc·시험 42 통과, 배포 `shorts-onestop-studio-jukcy51cw` Ready·DB v1.46, ego 운영 화면(시험 계정)에서 v1.46·직접 넣기 안내·15MB 문구 확인
