@@ -215,7 +215,7 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
         <span aria-live="polite">
           {shown + 1} / {pages} 쪽
         </span>
-        {note ? <span className={note.ok ? "text-emerald-300" : "text-rose-300"}>{note.text}</span> : <span>누르면 아래 스타일 칸이 바뀝니다. 고친 뒤 저장할 수 있습니다.</span>}
+        {note ? <span className={note.ok ? "text-emerald-300" : "text-rose-300"}>{note.text}</span> : <span>누르면 아래 Style 태그가 「프리셋 글 + 위에서 고른 태그」로 바뀝니다(프리셋이 앞이라 우선). 고친 뒤 저장할 수 있습니다.</span>}
       </p>
     </div>
   );

@@ -1059,6 +1059,15 @@ export default function SongsPage() {
               </select>
             </div>
             {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={instrumental ? "" : genre} onGenre={instrumental ? undefined : setGenre} tags={instrumental ? "" : lyricMoodPayload({ moods, tempo, vocals }).tags} subTag={instrumental ? "" : (subGenresOf(genre).find((s) => s.ko === subGenre)?.en ?? "")} />}
+            {/* 2026-11-09 주인님 「박스 위에 Style 태그 제목」「프리셋이 우선한다는 내용」 */}
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-1">
+              <p className="text-sm font-bold text-teal-200">{sfx ? "🔊 효과음 설명" : "🎼 Style 태그"}</p>
+              <span className="text-[11px] leading-relaxed text-slate-400">
+                {sfx
+                  ? "음악 엔진이 그대로 읽는 소리 설명(영어)"
+                  : "음악 엔진이 그대로 읽는 곡 설명(영어) · 앞에 있는 단어일수록 크게 반영됩니다 · 프리셋을 고르면 프리셋 글이 앞에, 위에서 고른 태그가 뒤에 붙어 프리셋이 우선합니다"}
+              </span>
+            </div>
             <textarea
               className={`${field} min-h-[70px] font-mono text-xs`}
               value={draft.style_prompt}
