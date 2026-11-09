@@ -73,3 +73,9 @@
 - **6절 「제목 서버 조회」는 만들지 않음** — 보내 주는 `name`(곡 제목.mp3)을 배경음악 이름으로 씀. 그러니 `name`에 곡 제목을 꼭 넣어 주세요.
 - 대본이 여러 개면 회원이 「이 대본에 넣기」로 고른 뒤 올림(AI 음악 링크와 같은 방식). 대본이 없으면 「먼저 대본을 만든 뒤 다시 보내 주세요」.
 - 실물 시험(보내는 쪽 배포 뒤): **맥미니에 요청함** — `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md`(주인님 지시 「테스트해볼 건 맥미니에게 전달」).
+
+## 10. 보내는 쪽 완료 — 미배포 대기 (2026-11-09 [역할: music])
+
+- `src/lib/videoHandoff.ts`: `TARGETS.shorts = { origin: SHORTS_URL, path: "/render", readyType: "sos-ready", hash: true, mp3: true }` — 받는 쪽이 해시(`#fms=`)로 읽으므로 받는 곳마다 주소 형식을 고르게 함(다른 세 곳은 그대로 `?fms=`), 음원은 MP3 320k(`fetchLibraryFile(id, "mp3")`), `name`은 `<곡 제목>.mp3`.
+- 「모든 음악」 곡 메뉴에 「쇼츠 배경음악으로」(뮤직비디오 아래).
+- tsc·시험 통과. **무료음악 다음 배포(v1.60)에 함께 나간다** — 맥미니 실물 시험(`shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md`)은 그 배포 뒤.

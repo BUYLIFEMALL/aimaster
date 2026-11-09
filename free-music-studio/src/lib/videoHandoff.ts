@@ -6,15 +6,19 @@ import { fetchLibraryFile } from "@/lib/engine";
 
 export const PLAYLIST_VIDEO_URL = "https://playlist-channel-studio.buylife.xyz";
 export const MUSIC_VIDEO_URL = "https://music-video-studio.buylife.xyz";
+/** 쇼츠 원스톱 배경음악(백로그 D-4, 받는 쪽 v1.46 — 영상 담당, docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md 9절) */
+export const SHORTS_URL = "https://shorts-onestop-studio.buylife.xyz";
 /** 플레이리스트 영상에 한 번에 보낼 수 있는 곡 수(받는 쪽 주소·서버 조회 상한과 같음) */
 export const PLAYLIST_MAX = 20;
 const WAIT_MS = 180_000;
 const safeName = (s: string) => s.replace(/[\\/:*?"<>|]/g, "_").trim().slice(0, 60) || "free-music";
 
-type Target = { origin: string; path: string; readyType: string };
+/** hash: 곡 번호를 #fms=로(쇼츠는 주소를 바꿔 쓰므로 해시로 받음) · mp3: 원음 대신 MP3 320k로(받는 쪽 업로드 상한 15MB) */
+type Target = { origin: string; path: string; readyType: string; hash?: boolean; mp3?: boolean };
 const TARGETS = {
   playlist: { origin: PLAYLIST_VIDEO_URL, path: "/video", readyType: "pcs-ready" },
   musicVideo: { origin: MUSIC_VIDEO_URL, path: "/music", readyType: "mvs-ready" },
+  shorts: { origin: SHORTS_URL, path: "/render", readyType: "sos-ready", hash: true, mp3: true },
 } satisfies Record<string, Target>;
 
 /**
@@ -26,10 +30,10 @@ export function openVideoWithSongs(
   tracks: { id: string; title: string }[],
   onError: (text: string) => void,
 ): boolean {
-  const t = TARGETS[kind];
+  const t: Target = TARGETS[kind];
   const list = tracks.slice(0, kind === "playlist" ? PLAYLIST_MAX : 1);
   if (!list.length) return false;
-  const win = window.open(`${t.origin}${t.path}?fms=${list.map((x) => x.id).join(",")}`, "_blank");
+  const win = window.open(`${t.origin}${t.path}${t.hash ? "#" : "?"}fms=${list.map((x) => x.id).join(",")}`, "_blank");
   if (!win) {
     onError("새 창이 막혔습니다. 브라우저 주소창 오른쪽의 팝업 허용을 누른 뒤 다시 눌러 주세요.");
     return false;
@@ -66,7 +70,7 @@ export function openVideoWithSongs(
   void (async () => {
     for (const tr of list) {
       try {
-        const { url, ext } = await fetchLibraryFile(tr.id);
+        const { url, ext } = await fetchLibraryFile(tr.id, t.mp3 ? "mp3" : undefined);
         const blob = await fetch(url).then((r) => r.blob());
         URL.revokeObjectURL(url);
         files.set(tr.id, { blob, name: `${safeName(tr.title)}.${ext}` });

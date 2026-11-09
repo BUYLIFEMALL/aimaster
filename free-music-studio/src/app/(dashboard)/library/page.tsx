@@ -563,6 +563,16 @@ export default function LibraryPage() {
                                   setNotice("뮤직비디오 창을 열었습니다. 곡 제목·스타일·가사(맞춰 둔 가사 시간 포함)와 음악 파일이 함께 들어갑니다.");
                               },
                             },
+                            // 백로그 D-4(2026-11-09): 쇼츠 원스톱 배경음악으로 — MP3 320k를 브라우저 안에서 건넴(받는 쪽 v1.46)
+                            {
+                              label: "쇼츠 배경음악으로",
+                              icon: <Clapperboard className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
+                              onClick: () => {
+                                if (openVideoWithSongs("shorts", [{ id: t.id, title: t.title }], setMessage))
+                                  setNotice("AI 쇼츠 원스톱 창을 열었습니다. MP3로 바꿔 배경음악으로 넣습니다(대본이 여러 개면 그 창에서 넣을 대본을 고르세요).");
+                              },
+                            },
                             // 앨범(v1.35, 주인님 「곡을 다 만들고 곡제목,가사를 베이스로 이미지 앨범을 만들게 하거나 이미 만들어놓은 앨범이미지에서 선택해서 사용」)
                             {
                               label: "앨범 그림 만들기 · 곡 제목·가사로",
