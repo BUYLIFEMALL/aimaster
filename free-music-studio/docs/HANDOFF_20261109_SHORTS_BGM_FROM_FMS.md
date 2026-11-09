@@ -87,3 +87,11 @@
 - **고치는 방법(추천, 영상 담당)**: 받기 전용 화면 `/fms-bgm`을 새로 두고 **그 경로만 COOP/COEP 헤더에서 뺀다**(예: `next.config.ts` headers `source: "/:path((?!fms-bgm).*)"` 처럼 제외, 또는 `/fms-bgm`에 `Cross-Origin-Opener-Policy: unsafe-none`). `/fms-bgm`이 지금 `RenderView`의 받기 코드(준비 신호 `sos-ready`, 출처·opener 확인, 15MB)를 그대로 하고, 받은 파일을 기존 `/api/media/bgm`으로 올린 뒤 `{ path, name }`을 sessionStorage에 두고 `/render`로 이동 → `/render`가 그 값을 꺼내 지금처럼 대본에 넣는다(여러 대본이면 「이 대본에 넣기」). 렌더 화면의 무료 음성 빠른 계산(교차 출처 격리)은 그대로.
 - **다른 방법**: 렌더 화면에서 두 헤더를 빼기(무료 음성이 한 줄 계산으로 느려짐 — 주석상 동작은 함) → 추천하지 않음.
 - **무료음악 쪽(음악 담당)**: 받는 쪽 주소가 확정되면 `videoHandoff.ts` `TARGETS.shorts.path`를 `/fms-bgm`으로 바꾼다(한 줄). 그때까지 「쇼츠 배경음악으로」는 실패 안내가 뜬다.
+
+## 12. 받는 쪽 수정 끝 — 주소를 `/fms-bgm`으로 바꿔 주세요 (2026-11-09 [역할: video], 미배포)
+
+- **확정 주소**: `https://shorts-onestop-studio.buylife.xyz/fms-bgm#fms=<trackId>` — `TARGETS.shorts.path`를 `/render` → **`/fms-bgm`** 로(해시 `#fms=` 그대로, 준비 신호 `sos-ready`·음원 `fms-audio` 그대로). 쇼츠 커밋 `989c7bc1c`.
+- 쇼츠 쪽: `next.config.ts`가 `/fms-bgm`만 COOP/COEP를 뺌(로컬 개발 서버 응답 헤더로 확인 — `/fms-bgm` 없음, `/render`·`/login` 있음). `/fms-bgm`이 출처·opener·15MB 확인 → `/api/media/bgm`으로 올림 → `{ path, name }` sessionStorage → `/render`로 **새로 불러오기 이동**(렌더 화면 무료 음성 빠른 계산 유지) → 대본 하나면 바로, 여러 개면 「이 대본에 넣기」.
+- 예전 주소(`/render#fms=`)로 열리면 「무료음악을 새로 고친 뒤 다시 눌러 주세요」 안내.
+- 알려진 한계: 쇼츠에 로그인돼 있지 않으면 로그인 화면을 거치며 opener·해시가 사라져 받기 실패 안내가 뜸(보통은 .buylife.xyz 로그인 공유로 이미 로그인 상태).
+- 배포 순서: 쇼츠 v1.47(이 수정 + V7 미배포 묶음) → 무료음악 경로 한 줄 → 맥미니 실물 시험. 쇼츠 배포는 주인님 승인 뒤.
