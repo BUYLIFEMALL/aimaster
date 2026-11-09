@@ -41,6 +41,7 @@ import { TrackOrderList } from "@/components/library/TrackOrderList";
 import { TrackDetailPanel } from "@/components/library/TrackDetailPanel";
 import { TrackMenu, type MenuItem } from "@/components/library/TrackMenu";
 import { MasteringDialog } from "@/components/library/MasteringDialog";
+import { isInstrumentalLyrics } from "@/lib/lyricRules";
 import { StemDialog } from "@/components/library/StemDialog";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
 import { FILTER_LABEL, SORT_LABEL, filterTracks, sortTracks, type TrackFilter, type TrackSort } from "@/lib/trackFilters";
@@ -58,6 +59,7 @@ import {
   hasWaveform,
   hasMastering,
   enqueueMaster,
+  hasMasterTone,
   hasStems,
   hasAlbums,
   setTrackArt,
@@ -1163,6 +1165,9 @@ export default function LibraryPage() {
           {mastering && (
             <MasteringDialog
               title={mastering.title}
+              style={mastering.style_prompt}
+              instrumental={isInstrumentalLyrics(mastering.lyrics ?? "")}
+              toneOk={hasMasterTone(engine.status)}
               onClose={() => setMastering(null)}
               onStart={async (o) => {
                 try {

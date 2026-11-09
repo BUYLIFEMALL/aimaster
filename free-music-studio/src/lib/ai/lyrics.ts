@@ -6,6 +6,7 @@ import { ALBUM_READ_SCHEMA, albumReadRules, parseAlbumRead, type AlbumRead } fro
 import type { LyricModel, LyricProvider } from "@/lib/lyricModels";
 import { LIMITS } from "@/lib/songs";
 import { parseRefStyle, refStyleRules, type RefStyle } from "@/lib/refStyle";
+import { aiMasterPrompt, cleanAiMaster, type AiMasterSuggestion } from "@/lib/masterPresets";
 import { findBannedWords, parsePlan, targetLengthText, type PlannedTrack } from "@/lib/lyricRules";
 
 // AI 작사·연주곡 기획 — 회원이 고른 공급사(OpenAI·Claude·Gemini)의 본인 키로 부른다(SDK 재시도 없음 — 회원 키 이중 과금 방지).
@@ -60,6 +61,30 @@ const SOUND_SCHEMA: Schema = {
   type: "object",
   properties: { prompt: { type: "string" } },
   required: ["prompt"],
+  additionalProperties: false,
+};
+
+const NUM = { type: "number" };
+const MASTER_SCHEMA: Schema = {
+  type: "object",
+  properties: {
+    tone: {
+      type: "object",
+      properties: {
+        eq: { type: "object", properties: { low: NUM, mid: NUM, high: NUM, q: NUM }, required: ["low", "mid", "high", "q"], additionalProperties: false },
+        saturation: { type: "object", properties: { drive: NUM, harmonics: NUM }, required: ["drive", "harmonics"], additionalProperties: false },
+        compressor: { anyOf: [{ type: "null" }, { type: "object", properties: { threshold: NUM, ratio: NUM, attack: NUM, release: NUM }, required: ["threshold", "ratio", "attack", "release"], additionalProperties: false }] },
+        width: NUM,
+      },
+      required: ["eq", "saturation", "compressor", "width"],
+      additionalProperties: false,
+    },
+    targetLufs: NUM,
+    truePeak: NUM,
+    character: { type: "string", enum: ["balanced", "gentle", "punchy"] },
+    explanation: { type: "string" },
+  },
+  required: ["tone", "targetLufs", "truePeak", "character", "explanation"],
   additionalProperties: false,
 };
 
@@ -476,4 +501,26 @@ export async function styleFromAudio(apiKey: string, model: LyricModel, req: { w
   } catch (err) {
     throw new LyricError(`${(err as Error).message} 다시 시도해 주세요.`, 502);
   }
+}
+
+/** 원하는 소리 글 → 마스터링 소리 색깔·음량(AI 마스터링 스튜디오 「AI 설정 제안」을 옮김, 회원 본인 키, 1번 호출) */
+export async function suggestMastering(
+  provider: LyricProvider,
+  apiKey: string,
+  model: LyricModel,
+  req: { request: string; title?: string; style?: string; instrumental?: boolean }
+): Promise<AiMasterSuggestion & { calls: number }> {
+  const { call, count } = caller(provider, apiKey, model);
+  const p = aiMasterPrompt(req.request, new Date().getFullYear(), { title: req.title, style: req.style, instrumental: req.instrumental });
+  const raw = await call(p.system, p.user, MASTER_SCHEMA);
+  let parsed: unknown = null;
+  try {
+    const s = raw.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+    parsed = JSON.parse(s.slice(s.indexOf("{"), s.lastIndexOf("}") + 1));
+  } catch {
+    throw new LyricError("AI 응답을 읽지 못했습니다. 다시 시도해 주세요.", 502);
+  }
+  const out = cleanAiMaster(parsed);
+  if (!out) throw new LyricError("AI가 설정값을 만들지 못했습니다. 원하는 소리를 조금 더 자세히 적어 다시 시도해 주세요.", 502);
+  return { ...out, calls: count() };
 }

@@ -8,15 +8,65 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 
 export const MASTER_DEFAULTS = { targetLufs: -10, truePeak: -1, character: "balanced" };
-export const MASTER_LUFS = [-14, -12, -10, -8];
+export const MASTER_LUFS = [-18, -16, -14, -12, -10, -8];
 export const MASTER_PEAKS = [-2, -1, -0.5, 0];
 export const MASTER_CHARACTERS = ["balanced", "gentle", "punchy"];
+
+// 소리 색깔(0.8.2, AI 마스터링 스튜디오 ai-mastering-studio의 처리 단계를 ffmpeg로 옮김 — 같은 저장소 코드):
+// 입력 피크를 -9 dBTP로 맞춘 뒤 3밴드 EQ(100Hz 쉘프·1.5kHz 피킹·8kHz 쉘프) → 아날로그 포화(웨이브셰이퍼 곡선·원음 섞기)
+// → 압축 → 스테레오 폭(M/S). 그 뒤는 지금처럼 정밀 음량 맞추기·True Peak 확인.
+export const TONE_RANGES = {
+  eq: { low: [-12, 12], mid: [-12, 12], high: [-12, 12], q: [0.1, 5] },
+  saturation: { drive: [0, 10], harmonics: [0, 100] },
+  compressor: { threshold: [-40, 0], ratio: [1, 10], attack: [1, 100], release: [10, 500] },
+  width: [0, 200],
+};
+const PRE_PEAK_DB = -9;
+const clampNum = (v, [lo, hi], name) => {
+  const n = Number(v);
+  if (!Number.isFinite(n)) throw new Error(`소리 색깔 값(${name})이 올바르지 않습니다.`);
+  return Math.round(Math.min(hi, Math.max(lo, n)) * 100) / 100;
+};
+
+/** 소리 색깔 설정 확인(없으면 null) */
+export function validateTone(v) {
+  if (v == null) return null;
+  if (typeof v !== "object" || Array.isArray(v)) throw new Error("소리 색깔 설정이 올바르지 않습니다.");
+  const R = TONE_RANGES;
+  const g = (o, k) => (o && typeof o === "object" ? o[k] : undefined);
+  const eq = { low: clampNum(g(v.eq, "low") ?? 0, R.eq.low, "저음"), mid: clampNum(g(v.eq, "mid") ?? 0, R.eq.mid, "중음"), high: clampNum(g(v.eq, "high") ?? 0, R.eq.high, "고음"), q: clampNum(g(v.eq, "q") ?? 1, R.eq.q, "Q") };
+  const saturation = { drive: clampNum(g(v.saturation, "drive") ?? 0, R.saturation.drive, "포화"), harmonics: clampNum(g(v.saturation, "harmonics") ?? 0, R.saturation.harmonics, "배음") };
+  const compressor = v.compressor == null ? null : { threshold: clampNum(g(v.compressor, "threshold"), R.compressor.threshold, "압축 기준"), ratio: clampNum(g(v.compressor, "ratio"), R.compressor.ratio, "압축 비율"), attack: clampNum(g(v.compressor, "attack"), R.compressor.attack, "어택"), release: clampNum(g(v.compressor, "release"), R.compressor.release, "릴리스") };
+  return { eq, saturation, compressor, width: clampNum(v.width ?? 100, R.width, "스테레오 폭") };
+}
+
+/** 소리 색깔 → ffmpeg 필터 목록(입력 피크 dBTP·스테레오 여부를 받아 만든다). 바꿀 것이 없으면 [] */
+export function toneFilters(tone, { inputPeakDbtp, stereo }) {
+  if (!tone) return [];
+  const out = [];
+  const { eq, saturation: s, compressor: c, width } = tone;
+  if (eq.low) out.push(`lowshelf=g=${eq.low}:f=100:t=s:w=1`);
+  if (eq.mid) out.push(`equalizer=f=1500:t=q:w=${eq.q}:g=${eq.mid}`);
+  if (eq.high) out.push(`highshelf=g=${eq.high}:f=8000:t=s:w=1`);
+  if (s.drive > 0 && s.harmonics > 0) {
+    const d = s.drive, m = s.harmonics / 100, G = 1 + d * 0.1, M = 1 / (1 + d * 0.05);
+    // 원본 곡선 y = (3+d)·x·20°/(π + d·|x|), 입력은 -1~1로 자름(웨이브셰이퍼와 같게), 원음 (1-0.4m) + 포화음 m
+    const x = `clip(val(ch)*${G}\\,-1\\,1)`; // 필터 그래프 안 쉼표는 \, 로
+    out.push(`aeval=exprs=${(1 - 0.4 * m).toFixed(4)}*val(ch)+${(m * M).toFixed(4)}*${3 + d}*${x}*0.3490659/(PI+${d}*abs(${x})):c=same`);
+  }
+  if (c) out.push(`acompressor=threshold=${10 ** (c.threshold / 20)}:ratio=${c.ratio}:attack=${c.attack}:release=${c.release}:makeup=1:knee=4:link=maximum:detection=rms`);
+  if (stereo && width !== 100) out.push(`extrastereo=m=${width / 100}:c=false`);
+  if (!out.length) return [];
+  const pre = Math.round((PRE_PEAK_DB - inputPeakDbtp) * 100) / 100;
+  return Math.abs(pre) >= 0.05 ? [`volume=${pre}dB`, ...out] : out;
+}
 
 export function validateMasteringOptions(value = {}) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("마스터링 설정이 올바르지 않습니다.");
   const o = { targetLufs: value.targetLufs ?? MASTER_DEFAULTS.targetLufs, truePeak: value.truePeak ?? MASTER_DEFAULTS.truePeak, character: value.character ?? MASTER_DEFAULTS.character };
   if (!MASTER_LUFS.includes(o.targetLufs) || !MASTER_PEAKS.includes(o.truePeak) || !MASTER_CHARACTERS.includes(o.character)) throw new Error("지원하지 않는 마스터링 설정입니다.");
-  return o;
+  const tone = validateTone(value.tone);
+  return tone ? { ...o, tone } : o;
 }
 
 /** loudnorm(print_format=json) 결과 — 마지막 블록 */
@@ -47,7 +97,8 @@ export function parseMediaInfo(text) {
   const duration = d ? Number(d[1]) * 3600 + Number(d[2]) * 60 + Number(d[3]) : NaN;
   const sampleRate = a ? Number(a[2]) : NaN;
   const bits = a && /pcm_s24|s24|s32/.test(a[0]) ? (/pcm_s24/.test(a[0]) ? 24 : null) : null;
-  return { duration, sampleRate, codec: a ? a[1].trim() : "", bits };
+  const stereo = a ? /stereo|\b2 channels/.test(a[0]) : false;
+  return { duration, sampleRate, codec: a ? a[1].trim() : "", bits, stereo };
 }
 
 function run(ffmpeg, args, { signal, stage, label, duration }) {
@@ -116,12 +167,17 @@ export async function masterFile({ src, outDir, options: input, ffmpeg = "ffmpeg
   const loudnorm = `loudnorm=I=${options.targetLufs}:TP=${options.truePeak - 0.15}:LRA=50:print_format=json`;
   const analyze = async (file, filter, label) => parseLoudness(await run(ffmpeg, [...common, "-i", file, "-map", "0:a:0", "-vn", "-af", filter, "-progress", "pipe:1", "-nostats", "-f", "null", "-"], { ...ctx, label }));
   try {
-    const before = await analyze(src, loudnorm, "원곡 음량·피크 재는 중");
-    const plan = masteringPlan(before, options);
-    const prepared = plan.compressor ? await analyze(src, `${plan.compressor},${loudnorm}`, "압축 뒤 음량 재는 중") : before;
+    const raw = await analyze(src, loudnorm, "원곡 음량·피크 재는 중");
+    // 소리 색깔(0.8.2) — 있으면 그 결과를 다시 재서 아래 음량 맞추기의 기준으로 쓴다. 압축을 고른 소리 색깔이면 자동 압축은 하지 않는다
+    const tone = toneFilters(options.tone, { inputPeakDbtp: raw.truePeakDbtp, stereo: info.stereo });
+    const before = tone.length ? await analyze(src, [...tone, loudnorm].join(","), "소리 색깔 적용 뒤 음량 재는 중") : raw;
+    const auto = masteringPlan(before, options);
+    const plan = options.tone?.compressor && tone.length ? { ...auto, compressor: "", compressorApplied: false } : auto;
+    const head = [...tone, plan.compressor].filter(Boolean).join(",");
+    const prepared = plan.compressor ? await analyze(src, `${head},${loudnorm}`, "압축 뒤 음량 재는 중") : before;
     const norm = `loudnorm=I=${options.targetLufs}:TP=${options.truePeak - 0.15}:LRA=${plan.lra}:measured_I=${prepared.integratedLufs}:measured_TP=${prepared.truePeakDbtp}:measured_LRA=${prepared.loudnessRange}:measured_thresh=${prepared.threshold}:offset=${prepared.offset}:linear=true:print_format=json`;
     const limit = 10 ** ((options.truePeak - 0.15) / 20);
-    const filter = [plan.compressor, norm, "aresample=192000", `alimiter=limit=${limit}:level=false:attack=5:release=80:latency=true`, `aresample=${sampleRate}`].filter(Boolean).join(",");
+    const filter = [head, norm, "aresample=192000", `alimiter=limit=${limit}:level=false:attack=5:release=80:latency=true`, `aresample=${sampleRate}`].filter(Boolean).join(",");
     await run(ffmpeg, [...common, "-i", src, "-map", "0:a:0", "-vn", "-map_metadata", "-1", "-af", filter, "-c:a", "pcm_s24le", "-ar", String(sampleRate), "-progress", "pipe:1", "-nostats", candidate], { ...ctx, label: "음량 맞추기·리미터 처리 중" });
     let after = await analyze(candidate, loudnorm, "결과 음량·True Peak 확인 중");
     let guardReductionDb = 0;
@@ -142,8 +198,9 @@ export async function masterFile({ src, outDir, options: input, ffmpeg = "ffmpeg
       file: final,
       metadata: {
         options,
-        before,
+        before: raw,
         after,
+        toneApplied: tone.length > 0,
         compressorApplied: plan.compressorApplied,
         guardReductionDb,
         sampleRate,

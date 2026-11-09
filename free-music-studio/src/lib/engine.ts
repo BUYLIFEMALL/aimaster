@@ -691,10 +691,16 @@ export async function enqueueSong(
 }
 
 // ── 마스터링(엔진 0.6.9+, 원본 boks-music mastering.mjs) ─────────────
-export type MasterOptions = { targetLufs: -14 | -12 | -10 | -8; truePeak: -2 | -1 | -0.5 | 0; character: "balanced" | "gentle" | "punchy" };
+// 엔진 0.8.2+: 소리 색깔(tone, AI 마스터링 스튜디오의 EQ·포화·압축·폭)·-16·-18 LUFS — 프리셋은 src/lib/masterPresets.ts
+export type MasterOptions = { targetLufs: MasterLufs; truePeak: -2 | -1 | -0.5 | 0; character: "balanced" | "gentle" | "punchy"; tone?: MasterTone };
 export const MASTER_DEFAULTS: MasterOptions = { targetLufs: -10, truePeak: -1, character: "balanced" };
-export const MASTER_LUFS_LABEL: Record<MasterOptions["targetLufs"], string> = { [-14]: "-14 LUFS · 유튜브·스포티파이 기준", [-12]: "-12 LUFS · 조금 크게", [-10]: "-10 LUFS · 기본(요즘 음원 크기)", [-8]: "-8 LUFS · 아주 크게" };
+export const MASTER_LUFS_LABEL: Record<MasterOptions["targetLufs"], string> = { [-18]: "-18 LUFS · 클래식·명상(강약 최대)", [-16]: "-16 LUFS · 팟캐스트·잔잔한 곡", [-14]: "-14 LUFS · 유튜브·스포티파이 기준", [-12]: "-12 LUFS · 조금 크게", [-10]: "-10 LUFS · 기본(요즘 음원 크기)", [-8]: "-8 LUFS · 아주 크게" };
 export const MASTER_CHARACTER_LABEL: Record<MasterOptions["character"], string> = { balanced: "균형(기본)", gentle: "부드럽게 — 강약 살림", punchy: "강하게 — 단단한 소리" };
+
+/** 소리 색깔·-16/-18 LUFS를 받는가(엔진 0.8.2+) */
+export function hasMasterTone(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("master-tone");
+}
 
 /** 이 엔진이 마스터링을 할 수 있는가(0.6.9+, ffmpeg 있음) */
 export function hasMastering(status: EngineStatus | null): boolean {
@@ -965,5 +971,6 @@ export async function revealVideoFolder() {
 export async function fetchAudio(file: string): Promise<string> {
   const res = await call(file, {}, 120_000);
   return URL.createObjectURL(await res.blob());
-}import { detectLyricLanguage } from "./lyricLanguages";
+}import type { MasterLufs, MasterTone } from "@/lib/masterPresets";
+import { detectLyricLanguage } from "./lyricLanguages";
 
