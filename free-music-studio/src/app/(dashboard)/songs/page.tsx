@@ -1217,7 +1217,7 @@ export default function SongsPage() {
             </div>
           )}
           <div id="generate-panel" className="scroll-mt-6">
-            <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} />
+            <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} multi={{ ai: { provider, model }, tags: moodTags }} />
           </div>
           </div>
         </div>

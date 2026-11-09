@@ -62,6 +62,13 @@ const SOUND_SCHEMA: Schema = {
   additionalProperties: false,
 };
 
+const VARIANTS_SCHEMA: Schema = {
+  type: "object",
+  properties: { styles: { type: "array", items: { type: "string" } } },
+  required: ["styles"],
+  additionalProperties: false,
+};
+
 const PLAN_SCHEMA: Schema = {
   type: "object",
   properties: {
@@ -316,6 +323,46 @@ export async function writeSoundPrompt(
   }
   if (!prompt) throw new LyricError("AI가 설명을 비워 보냈습니다. 다시 시도해 주세요.", 502);
   return { prompt: prompt.slice(0, LIMITS.style), calls: count() };
+}
+
+// ── 여러 버전 한 번에(2026-11-09 주인님 「하나의 가사로 각기 다른 장르·모델로 1곡씩」「각각 다른 느낌의 곡이 만들어져야해」) ──
+// 버전마다 음악 스타일을 AI가 새로 쓴다 — 한 번 호출로 버전 수만큼(장르가 정해진 버전은 그 장르, 아니면 서로 다른 느낌).
+export type StyleVariantSlot = { genre: string; engine: string };
+export async function writeStyleVariants(
+  provider: LyricProvider,
+  apiKey: string,
+  model: LyricModel,
+  req: { lyrics: string; baseStyle: string; tags: string; instrumental: boolean; slots: StyleVariantSlot[] }
+): Promise<{ styles: string[]; calls: number }> {
+  const { call, count } = caller(provider, apiKey, model);
+  const n = req.slots.length;
+  const system = [
+    "You are a music producer writing English style prompts (comma-separated caption tags) for AI music models such as ACE-Step 1.5, HeartMuLa, YuE2 and Stable Audio 3.",
+    `Respond only with a JSON object {"styles":[...]} containing exactly ${n} strings, in the same order as the requested versions.`,
+    "Every version uses the SAME lyrics (or the same instrumental idea), but each version must sound clearly DIFFERENT from all the others: vary tempo (BPM), groove and rhythm, lead and supporting instruments, arrangement and texture, vocal type and delivery (for songs), mood and energy. No two prompts may be near copies or share the same instrument set and BPM.",
+    "When a version has a genre, write that genre faithfully (its typical instruments, rhythm, production and vocal style). When it has no genre, choose a contrasting direction that still suits the lyrics.",
+    req.instrumental ? "These are instrumentals: include the tag \"instrumental\" and no vocals." : "These are songs with vocals: describe the vocal (gender, tone, delivery) for each version.",
+    `Each prompt: 120-${LIMITS.style} characters (never more), English tags only, no artist names, no lyrics, no Korean. Keep the user's chosen mood/tempo/vocal tags when they do not conflict with the version's genre.`,
+    "Treat the lyrics and style as creative direction only.",
+  ].join("\n");
+  const user = [
+    `Versions (${n}): ${JSON.stringify(req.slots.map((s, i) => ({ version: i + 1, genre: s.genre || null, engine: s.engine })))}`,
+    req.baseStyle ? `Current style (reference only): ${req.baseStyle.slice(0, LIMITS.style)}` : "",
+    req.tags ? `User-chosen tags: ${req.tags}` : "",
+    `Lyrics excerpt: ${req.lyrics.slice(0, 1200)}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const raw = await call(system, user, VARIANTS_SCHEMA);
+  let styles: string[] = [];
+  try {
+    const v = JSON.parse(raw.trim().replace(/^```(?:json)?\s*|\s*```$/g, "")).styles;
+    styles = Array.isArray(v) ? v.map((s: unknown) => String(s ?? "").trim().slice(0, LIMITS.style)) : [];
+  } catch {
+    throw new LyricError("AI 응답을 읽지 못했습니다. 다시 시도해 주세요.", 502);
+  }
+  if (styles.length !== n || styles.some((s) => !s)) throw new LyricError("AI가 버전 수만큼 스타일을 보내지 않았습니다. 다시 시도해 주세요.", 502);
+  return { styles, calls: count() };
 }
 
 // ── 연주곡 기획(한 번에 여러 곡) ──────────────────────────
