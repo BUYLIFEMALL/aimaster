@@ -40,3 +40,15 @@
 ## 5. 디자인·사용 편의
 
 - 현재 대기 항목 없음(새로 발견하면 여기에 추가).
+
+---
+
+## 쇼츠 넘기기 상품 사진 주소 형식 — 영상 담당 질문에 대한 답 (2026-11-10, ecommerce-image)
+
+질문 근거: `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3(V3 2단계 `product-image`), `docs/roles/video.md` 대기 표.
+
+- **상세페이지 사진은 공개 주소가 아니다.** 버킷 `shop-detail-images`는 v1.15(2026-10-21)부터 비공개다(`supabase/migrations/20261021_private_bucket_v1_15.sql`). DB에는 옛 공개 주소 모양(`.../storage/v1/object/public/shop-detail-images/<회원id>/products/...`)이 "식별자"로만 남아 있고, 이 주소로는 열리지 않는다. 화면은 `/api/image?p=<경로>`(로그인·본인 폴더 확인 후 1시간 서명 주소로 넘김, `lib/imageSrc.ts`)를 거친다.
+- **그래서 넘기는 값은 서명 주소로 한다.** 「쇼츠로 만들기」를 누를 때 상세페이지 서버가 그 회원 본인 경로로 `createSignedUrl(path, 3600)`을 만들어 `product-image=<encodeURIComponent(서명 주소)>`로 넘긴다. 모양: `https://esgxyikcnnvmlhygjkth.supabase.co/storage/v1/object/sign/shop-detail-images/<회원id>/products/<파일>?token=…` (https, 최대 1개, 대표 사진).
+- **CORS 확인**: 저장소 서명 주소는 `Access-Control-Allow-Origin: *`로 응답한다(2026-11-10 `curl -H "Origin: https://shorts-onestop-studio.buylife.xyz"`로 확인). 캔버스에서 `img.crossOrigin = "anonymous"`로 불러오면 캔버스가 오염되지 않는다.
+- **쇼츠 쪽에서 지킬 것**: 서명 주소는 1시간 뒤 만료되므로 받자마자 내려받아 쇼츠의 회원 본인 폴더에 복사해 두고 그 사본을 쓴다(만료 주소를 프로젝트에 저장하지 않음). 주소 경로의 `<회원id>`가 로그인한 회원 id와 다르면 쓰지 않는다(다른 회원 사진 차단). 허용 호스트는 `esgxyikcnnvmlhygjkth.supabase.co`의 `/storage/v1/object/sign/shop-detail-images/`로 좁힌다.
+- **상세페이지 쪽 남은 일**: [ ] 상품 화면에 「🎬 쇼츠로 만들기」 버튼(상품명·장점·혜택 + 대표 사진 서명 주소, 함수 모양은 `shorts-onestop-studio/src/lib/productShorts.ts` `productHandoffHash()`와 맞춤). 쇼츠 2단계가 준비되면 함께 만든다(작은 수정 → 미배포 대기로 모음).
