@@ -4,7 +4,7 @@ import { MY_PRESET_CATEGORY, PRESETS, PRESET_LIMITS, pageCount, parsePresetInput
 import { LIMITS } from "../src/lib/songs.ts";
 
 test("프리셋: 노래 43개·연주곡 42개, id는 겹치지 않고 스타일은 저장 한도 안", () => {
-  assert.equal(PRESETS.filter((p) => p.mode === "vocal").length, 52);
+  assert.equal(PRESETS.filter((p) => p.mode === "vocal").length, 60); // D-8 시대별 한국 가요 8개
   assert.equal(PRESETS.filter((p) => p.mode === "instrumental").length, 42);
   assert.equal(new Set(PRESETS.map((p) => p.id)).size, PRESETS.length);
   for (const p of PRESETS) assert.ok(p.prompt.length > 0 && p.prompt.length <= LIMITS.style, p.id);
@@ -18,7 +18,7 @@ test("프리셋: 내 프리셋은 같은 모드에서만 맨 앞에 보인다", 
   const vocal = presetsFor("vocal", mine);
   assert.equal(vocal[0].id, "my:a");
   assert.equal(vocal[0].category, MY_PRESET_CATEGORY);
-  assert.equal(vocal.length, 53);
+  assert.equal(vocal.length, 61);
   assert.ok(!vocal.some((p) => p.id === "my:b"));
   assert.equal(presetCategories(vocal)[0], MY_PRESET_CATEGORY);
 });

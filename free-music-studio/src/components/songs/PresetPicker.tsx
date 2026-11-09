@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Palette, Plus, X } from "lucide-react";
 import { LIMITS } from "@/lib/songs";
 import { MY_PRESET_CATEGORY, PRESET_LIMITS, PRESET_PAGE_SIZE, needsStyleConfirm, pageCount, withTags, presetCategories, presetsFor, type PresetMode, type UserPreset } from "@/lib/presets";
+import { DANCE_CATEGORY_PREFIX, dancePresetsFor, isDanceCategory } from "@/lib/dancePresets";
 
 const field =
   "rounded-xl border border-slate-700/60 bg-slate-950/80 px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden";
@@ -23,6 +24,9 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState("");
   const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null);
+  // 백로그 D-8: 댄스·월드 계열(분류 이름)과 이름 찾기 — 둘 다 비면 위 장르를 따른다
+  const [dance, setDance] = useState("");
+  const [q, setQ] = useState("");
 
   const loadMine = useCallback(() => {
     fetch("/api/presets")
@@ -36,11 +40,17 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
     setChosen("");
   }, [mode]);
 
-  const list = useMemo(() => presetsFor(mode, mine), [mode, mine]);
+  const list = useMemo(() => [...presetsFor(mode, mine), ...dancePresetsFor(mode)], [mode, mine]);
   const categories = useMemo(() => presetCategories(list), [list]);
-  // 카드는 고른 장르만(내 프리셋은 늘 함께), 드롭다운은 전체 그대로
-  const cards = useMemo(() => (genre && categories.includes(genre) ? list.filter((p) => p.category === genre || p.category === MY_PRESET_CATEGORY) : list), [list, categories, genre]);
-  useEffect(() => setPage(0), [genre]);
+  const danceCategories = useMemo(() => categories.filter(isDanceCategory), [categories]);
+  // 카드: 이름 찾기 → 고른 댄스·월드 계열 → 고른 장르(내 프리셋은 늘 함께) → 전체. 드롭다운은 전체 그대로
+  const cards = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (s) return list.filter((p) => `${p.name} ${p.description} ${p.category} ${p.prompt}`.toLowerCase().includes(s));
+    if (dance) return list.filter((p) => p.category === dance);
+    return genre && categories.includes(genre) ? list.filter((p) => p.category === genre || p.category === MY_PRESET_CATEGORY) : list.filter((p) => !isDanceCategory(p.category));
+  }, [list, categories, genre, dance, q]);
+  useEffect(() => setPage(0), [genre, dance, q]);
   const pages = pageCount(cards.length);
   const shown = Math.min(page, pages - 1);
 
@@ -56,7 +66,12 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
     setChosen(id);
     setLastSet(next);
     onPick(next);
-    if (p.category !== MY_PRESET_CATEGORY) onGenre?.(p.category);
+    // 댄스·월드는 장르 칩에 없는 분류라 위 장르를 바꾸지 않고 계열만 고른다
+    if (isDanceCategory(p.category)) setDance(p.category);
+    else {
+      setDance("");
+      if (p.category !== MY_PRESET_CATEGORY) onGenre?.(p.category);
+    }
     return true;
   };
 
@@ -96,7 +111,7 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
         <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
           <Palette className="h-3.5 w-3.5 text-emerald-300" /> 스타일 프리셋
           <span className="font-normal text-slate-500">
-            {mode === "instrumental" ? "연주곡용" : "노래용"} {cards === list ? `${list.length}개` : `「${genre}」 ${cards.length}개 / 전체 ${list.length}개`}
+            {mode === "instrumental" ? "연주곡용" : "노래용"} {q.trim() ? `찾은 ${cards.length}개 / 전체 ${list.length}개` : dance ? `「${dance.slice(DANCE_CATEGORY_PREFIX.length)}」 ${cards.length}개 / 전체 ${list.length}개` : genre && categories.includes(genre) ? `「${genre}」 ${cards.length}개 / 전체 ${list.length}개` : `${cards.length}개 + 댄스·월드 ${list.length - cards.length}개`}
           </span>
         </span>
         <select
@@ -134,6 +149,24 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
         >
           <Plus className="h-3.5 w-3.5" /> 내 프리셋으로 저장
         </button>
+      </div>
+
+      {/* 백로그 D-8: 댄스·월드 200개(음악 자동화에서 옮김) 계열 고르기 + 이름 찾기 */}
+      <div className="flex flex-wrap items-center gap-2">
+        <select aria-label="댄스·월드 계열" className={`${field} w-auto min-w-[11rem]`} value={dance} onChange={(e) => { setDance(e.target.value); setQ(""); }}>
+          <option value="">🕺 댄스·월드 계열 고르기</option>
+          {danceCategories.map((c) => (
+            <option key={c} value={c}>
+              {c.slice(DANCE_CATEGORY_PREFIX.length)} ({list.filter((p) => p.category === c).length})
+            </option>
+          ))}
+        </select>
+        <input aria-label="프리셋 이름 찾기" className={`${field} min-w-0 flex-1`} value={q} onChange={(e) => setQ(e.target.value)} placeholder="프리셋 찾기 예) 하우스, 아마피아노, 128" />
+        {(dance || q) && (
+          <button type="button" onClick={() => { setDance(""); setQ(""); }} className="rounded-lg px-2 py-1.5 text-[11px] text-slate-400 hover:text-slate-200">
+            장르 따라 보기
+          </button>
+        )}
       </div>
 
       {naming && (

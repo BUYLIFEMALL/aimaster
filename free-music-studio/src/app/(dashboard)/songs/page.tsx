@@ -14,6 +14,7 @@ import { GeneratePanel } from "@/components/engine/GeneratePanel";
 import { MultiVersionPanel } from "@/components/engine/MultiVersionPanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
 import { presetsFor } from "@/lib/presets";
+import { dancePresetsFor } from "@/lib/dancePresets";
 import { COLLECTIONS_CHANGED, type Collection } from "@/lib/collections";
 import { ProjectTracks } from "@/components/songs/ProjectTracks";
 import { QuickCoverPanel } from "@/components/songs/QuickCoverPanel";
@@ -297,7 +298,7 @@ export default function SongsPage() {
     setGenreState("");
     setSubGenre("");
     // 원본 boks-music(MIT) 규칙: 다른 종류 전용 프리셋 문장을 그대로 둔 스타일은 비우고, 직접 고친 스타일은 남긴다
-    const presetLeft = from !== "sfx" && presetsFor(from, []).some((p) => p.prompt === draft.style_prompt.trim());
+    const presetLeft = from !== "sfx" && [...presetsFor(from, []), ...dancePresetsFor(from)].some((p) => p.prompt === draft.style_prompt.trim());
     if (presetLeft) setMessage({ type: "success", text: `${from === "vocal" ? "노래" : "연주곡"}용 프리셋 스타일을 비웠습니다. ${next === "sfx" ? "소리 설명" : "새 프리셋"}을 골라 주세요.` });
     setDraft((d) => {
       if (from === "vocal") vocalLyrics.current = d.lyrics;
