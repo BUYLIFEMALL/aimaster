@@ -378,6 +378,9 @@ export default function ImportPage() {
           </button>
           {busy && <span className="font-mono text-xs text-teal-200">{clock(elapsed)} 지남</span>}
           {!busy && !rights && file && <span className="text-[11px] text-slate-500">권리 확인에 체크해야 시작할 수 있습니다.</span>}
+          {/* 2026-11-09 마스터PC: YuE2 커버에 가사가 없어 버튼이 꺼졌는데 이유가 안 보이던 것 */}
+          {!busy && rights && file && yue2Cover && !lyrics.trim() && <span className="text-[11px] font-semibold text-amber-300">YuE2 커버는 새 가사를 넣어야 시작할 수 있습니다(원곡 멜로디에 얹어 부를 가사).</span>}
+          {!busy && rights && file && !style.trim() && !lyrics.trim() && !yue2Cover && <span className="text-[11px] text-slate-500">새 스타일이나 새 가사 중 하나를 넣어 주세요.</span>}
         </div>
 
         {error && (
