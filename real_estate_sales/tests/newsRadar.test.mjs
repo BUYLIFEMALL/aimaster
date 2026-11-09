@@ -85,3 +85,23 @@ test("RQ-C 알림은 지역을 번갈아(서초구 몰림 방지)", () => {
   assert.match(msg, /종로 0/);
   assert.match(msg, /동탄 0/);
 });
+
+test("RQ-C 제목에 지역 이름 있는 기사를 앞에(요약에만 있으면 뒤로)", () => {
+  const t = regionTerms("11650", "서초구");
+  const recent = "Sun, 08 Nov 2026 10:00:00 +0900";
+  const out = pickCandidates([{ category: "개발", items: [
+    { title: "'빌라 전셋값 1억 뛰었다' 세제 개편", link: "https://a.com/1", description: "조은희 의원(서울 서초구 갑)안은", pubDate: recent },
+    { title: "서초구 반포 재건축 분양", link: "https://a.com/2", description: "", pubDate: recent },
+  ] }], t, new Date("2026-11-09T00:00:00Z"));
+  assert.deepEqual(out.map((c) => c.link), ["https://a.com/2", "https://a.com/1"]);
+});
+
+test("RQ-C 처음 켠 날은 건수와 화면 링크만", () => {
+  const items = [{ sggNm: "서초구", category: "개발", title: "제목 A", link: "https://a.com/1" }, { sggNm: "종로구", category: "교통", title: "제목 B", link: "https://a.com/2" }];
+  const msg = buildNewsMessage(items, { withLinks: true, pageUrl: "https://x/news", firstRun: true });
+  assert.match(msg, /오늘의 지역 소식 2건/);
+  assert.match(msg, /처음 켜서 지난 3일 기사/);
+  assert.match(msg, /서초구, 종로구/);
+  assert.doesNotMatch(msg, /제목 A/);
+  assert.doesNotMatch(msg, /https:\/\/a\.com/);
+});

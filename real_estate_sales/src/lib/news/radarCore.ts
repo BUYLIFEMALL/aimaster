@@ -134,7 +134,9 @@ export function pickCandidates(
       });
     }
   }
-  return out;
+  // 개선 후보 2(2026-11-09 첫 실측): 「의원(서울 서초구 갑)안」처럼 요약에만 지나가듯 나온 기사보다 제목에 지역 이름이 있는 기사를 앞에(같은 무리 안 순서는 그대로)
+  const inTitle = (c: NewsCandidate) => mentionsRegion(c.title, terms);
+  return [...out.filter(inTitle), ...out.filter((c) => !inTitle(c))];
 }
 
 /** 한국 시각 날짜 「2026-11-09」와 시(0~23) */
@@ -161,9 +163,14 @@ export function interleaveByRegion<T extends { sggNm: string }>(items: T[]): T[]
 }
 
 /** 알림 글: 분류별 건수 + 지역별 제목 몇 개와 원문 링크. withLinks=false는 알림톡(짧게) */
-export function buildNewsMessage(items: DigestItem[], opts: { withLinks: boolean; aiSummary?: string | null; pageUrl: string; maxItems?: number }): string {
+export function buildNewsMessage(items: DigestItem[], opts: { withLinks: boolean; aiSummary?: string | null; pageUrl: string; maxItems?: number; firstRun?: boolean }): string {
   const counts = NEWS_CATEGORIES.map((c) => [c, items.filter((i) => i.category === c).length] as const).filter(([, n]) => n > 0);
   const head = `📰 오늘의 지역 소식 ${items.length}건\n${counts.map(([c, n]) => `${c} ${n}`).join(" · ")}`;
+  // 개선 후보 3: 처음 켠 날은 지난 3일치가 한꺼번에(첫 실측 106건) → 건수와 화면 링크만
+  if (opts.firstRun) {
+    const regions = [...new Set(items.map((i) => i.sggNm))];
+    return `${head}\n\n지역 뉴스를 처음 켜서 지난 3일 기사를 모았어요(${regions.join(", ")}). 목록은 화면에서 보세요.\n내일부터는 새 기사만 아침에 보내 드려요.\n\n전체 보기: ${opts.pageUrl}\n출처: 각 언론사, 네이버 검색`.slice(0, opts.withLinks ? 3900 : 950);
+  }
   const parts = [head];
   if (opts.aiSummary) parts.push(`🤖 요약\n${opts.aiSummary.trim()}`);
   const shown = interleaveByRegion(items).slice(0, opts.maxItems ?? (opts.withLinks ? 8 : 4));

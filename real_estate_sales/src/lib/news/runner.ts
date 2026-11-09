@@ -26,7 +26,7 @@ async function userKey(supabase: AdminClient, userId: string, provider: string):
 export interface NewsRunResult { userId: string; regions: number; saved: number; sent: boolean; error?: string }
 
 /** 한 회원 처리 — 뉴스 화면의 「지금 받아 보기」에서도 같은 함수를 쓴다(notify=false면 알림 없이 저장만) */
-export async function runNewsForUser(supabase: AdminClient, userId: string, opts: { now?: Date; notify?: boolean; aiSummary?: boolean } = {}): Promise<NewsRunResult> {
+export async function runNewsForUser(supabase: AdminClient, userId: string, opts: { now?: Date; notify?: boolean; aiSummary?: boolean; firstRun?: boolean } = {}): Promise<NewsRunResult> {
   const now = opts.now ?? new Date();
   const [clientId, clientSecret] = await Promise.all([userKey(supabase, userId, "naver_client_id"), userKey(supabase, userId, "naver_client_secret")]);
   if (!clientId || !clientSecret) return { userId, regions: 0, saved: 0, sent: false, error: "네이버 검색 키가 없습니다." };
@@ -87,11 +87,11 @@ export async function runNewsForUser(supabase: AdminClient, userId: string, opts
     }
   }
 
-  const sent = await sendNewsNotification(supabase, userId, items, aiSummary);
+  const sent = await sendNewsNotification(supabase, userId, items, aiSummary, opts.firstRun === true);
   return { userId, regions: regions.length, saved: inserted.length, sent };
 }
 
-async function sendNewsNotification(supabase: AdminClient, userId: string, items: DigestItem[], aiSummary: string | null): Promise<boolean> {
+async function sendNewsNotification(supabase: AdminClient, userId: string, items: DigestItem[], aiSummary: string | null, firstRun: boolean): Promise<boolean> {
   const [{ data: telegramLink }, { data: solapiAccount }, { data: kakaoTemplate }, { data: profile }] = await Promise.all([
     supabase.from("user_telegram_links").select("bot_token, chat_id").eq("user_id", userId).eq("program_slug", "real-estate-sales").maybeSingle(),
     supabase.from("user_solapi_accounts").select("api_key, api_secret, sender_phone, kakao_pf_id, rcs_brand_id").eq("user_id", userId).maybeSingle(),
@@ -101,7 +101,7 @@ async function sendNewsNotification(supabase: AdminClient, userId: string, items
   let sentAny = false;
   if (telegramLink?.bot_token && telegramLink?.chat_id) {
     try {
-      await sendTelegramMessage({ botToken: telegramLink.bot_token, chatId: telegramLink.chat_id, text: buildNewsMessage(items, { withLinks: true, aiSummary, pageUrl: NEWS_PAGE_URL }) });
+      await sendTelegramMessage({ botToken: telegramLink.bot_token, chatId: telegramLink.chat_id, text: buildNewsMessage(items, { withLinks: true, aiSummary, pageUrl: NEWS_PAGE_URL, firstRun }) });
       sentAny = true;
     } catch (err) {
       console.error(`지역 뉴스 텔레그램 실패 (user ${userId}):`, err);
@@ -109,7 +109,7 @@ async function sendNewsNotification(supabase: AdminClient, userId: string, items
   }
   if (solapiAccount?.kakao_pf_id && kakaoTemplate?.template_id && profile?.phone) {
     try {
-      await sendAlimtalk(solapiAccount, profile.phone, { templateId: kakaoTemplate.template_id, variables: { 내용: buildNewsMessage(items, { withLinks: false, aiSummary, pageUrl: NEWS_PAGE_URL }) } });
+      await sendAlimtalk(solapiAccount, profile.phone, { templateId: kakaoTemplate.template_id, variables: { 내용: buildNewsMessage(items, { withLinks: false, aiSummary, pageUrl: NEWS_PAGE_URL, firstRun }) } });
       sentAny = true;
     } catch (err) {
       console.error(`지역 뉴스 알림톡 실패 (user ${userId}):`, err);
@@ -131,7 +131,8 @@ export async function runNewsRadar(supabase: AdminClient, eligible: (userIds: st
     // 먼저 「오늘 보냄」으로 적어 두어, 처리 중 시간이 끝나도 다음 회차에 같은 알림을 두 번 보내지 않는다(결과 불확실하면 다시 하지 않음)
     await loose(supabase).from("real_estate_user_preferences").update({ news_sent_on: kstDateHour(now).date }).eq("user_id", p.user_id);
     try {
-      results.push(await runNewsForUser(supabase, p.user_id, { now, notify: true, aiSummary: p.news_ai_summary }));
+      // 한 번도 보낸 적 없는 회원(news_sent_on 비어 있음)은 첫 회차 — 건수만 알린다
+      results.push(await runNewsForUser(supabase, p.user_id, { now, notify: true, aiSummary: p.news_ai_summary, firstRun: !p.news_sent_on }));
     } catch (err) {
       console.error(`지역 뉴스 처리 실패 (user ${p.user_id}):`, err);
       results.push({ userId: p.user_id, regions: 0, saved: 0, sent: false, error: err instanceof Error ? err.message : String(err) });
