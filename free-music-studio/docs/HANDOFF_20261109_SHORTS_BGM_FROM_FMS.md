@@ -24,11 +24,11 @@
 
 ## 3. 주고받는 순서(계약)
 
-1. 무료음악 「모든 음악」 곡 메뉴 → **「쇼츠 배경음악으로」** → 새 창 `https://shorts-onestop-studio.buylife.xyz/render#fms=<trackId>` 를 연다(클릭 안에서 바로 열어야 새 창이 막히지 않음).
-2. 쇼츠 창이 열리면 주소의 `#fms=<trackId>`를 읽고, `window.opener`에게 **`{ type: "sos-ready", ids: [trackId] }`** 를 보낸다(받는 곳 출처는 `https://free-music-studio.buylife.xyz`, `https://free-music-studio.vercel.app` 두 개 — `FmsImportCard.tsx`의 `FMS_ORIGINS`와 같게).
+1. 무료음악 「모든 음악」 곡 메뉴 → **「쇼츠 배경음악으로」** → 새 창 `https://shorts-onestop-studio.buylife.xyz/render?fms=<trackId>` 를 연다(다른 세 곳과 같이 `?fms=` 쿼리, 클릭 안에서 바로 열어야 새 창이 막히지 않음).
+2. 쇼츠 창이 열리면 주소의 `?fms=<trackId>`를 **대본을 열기 전에** 읽어 두고(주의: `RenderView.tsx`의 `open()`이 `window.history.replaceState(null, "", `/render?id=…`)`로 주소를 바꿔 써서 나중에 읽으면 사라짐 — 같은 파일 79~81줄 `?ams=`를 `pendingAms`에 먼저 담는 방식과 같게), `window.opener`에게 **`{ type: "sos-ready", ids: [trackId] }`** 를 보낸다(받는 곳 출처는 `https://free-music-studio.buylife.xyz`, `https://free-music-studio.vercel.app` 두 개 — `FmsImportCard.tsx`의 `FMS_ORIGINS`와 같게).
 3. 무료음악 창이 엔진에서 **MP3 320k**(`fetchLibraryFile(id, "mp3")`)를 받아 **`{ type: "fms-audio", id, name, blob }`** 를 보낸다.
 4. 쇼츠 창은 `message`를 받을 때 **`e.origin`이 위 두 출처이고 `e.source === window.opener`인지 꼭 확인**한다(가사영상 `FmsImportCard.tsx` 32줄과 같게). 다른 메시지는 버린다.
-5. 받은 `blob`을 **기존 배경음악 올리기 통로 그대로** 올린다: `/api/media/bgm`(일회용 업로드 주소, 회원 폴더 `<user_id>/bgm/`) → 기존 배경음악과 똑같이 선택된 상태로 둔다. 이름은 `<곡 제목>.mp3`.
+5. 받은 `blob`을 `new File([blob], name, { type: "audio/mpeg" })`로 만들어 **기존 `uploadBgm(file)`(같은 파일 163줄) 그대로** 올린다(`/api/media/bgm` 일회용 업로드 주소, 회원 폴더 `<user_id>/bgm/`). 대본이 하나면 바로 넣고, 여러 개면 AI 음악 스튜디오 곡과 같이 「이 대본에 넣기」 줄(`amsWaiting` 263~267줄과 같은 모양)을 보여 회원이 고른 대본에 넣는다. 대본이 없으면 「먼저 대본을 만들어 주세요」.
 6. 제목 표시가 필요하면 서버에서 공용 DB `free_music_tracks`를 **회원 `user_id`로 거른 읽기만** 한다(`lyric-video-studio/src/lib/fms.ts`의 `getFmsSong` 사본, 휴지통 곡 제외). 쓰기 없음.
 7. 3분(180초) 안에 음원이 오지 않으면 「무료음악 창에서 PC 엔진이 켜져 있는지 확인하거나, 파일을 직접 넣어 주세요」로 안내하고 기존 파일 올리기를 그대로 쓰게 한다.
 
@@ -36,14 +36,14 @@
 
 | 항목 | 사실 | 추천 |
 |---|---|---|
-| 업로드 크기 상한 | 지금 `/api/media/bgm` 상한 10MB. MP3 320k는 3분 약 7MB, 4분 약 9.6MB, **5분 약 12MB** | 무료음악 곡은 최대 5분이므로 상한을 12MB로 올리거나, 쇼츠 쪽이 받은 뒤 필요한 앞부분만 잘라 올림. 버킷 설정(크기·형식 제한)도 함께 확인 |
+| 업로드 크기 상한 | 지금 `/api/media/bgm` 확인값 10MB(`src/app/api/media/bgm/route.ts`). **버킷 `shorts-onestop-studio` 자체 상한은 30MB·`audio/mpeg` 허용(마이그레이션 `0027`) — DB 변경 불필요.** MP3 320k는 5분 약 12MB | 확인값을 AI 음악 스튜디오 곡과 같은 **15MB**로 올리고, `uploadBgm` 오류 문구의 「10MB」도 함께 고침(코드만) |
 | 서버 보관 | 무료음악 자체는 음원을 서버에 안 올리지만, 쇼츠는 이미 회원이 직접 올린 배경음악을 회원 폴더에 보관함(30일 정리) | 회원이 「쇼츠 배경음악으로」를 눌러 직접 고른 것이므로 기존 수동 올리기와 같은 취급으로 봄 — 30일 정리·관리자/시험 계정 예외 규칙 그대로 |
 | 곡 여러 개 | 쇼츠는 배경음악 1곡 | 1곡만(`TARGETS`에서 1곡으로 제한) |
 
 ## 5. 나눠 맡기
 
-- **영상 담당(쇼츠 원스톱)**: 3절 2·4·5·6·7번 받는 쪽 구현, 렌더 화면에 「🎵 무료음악에서 받는 중…」 표시, 시험·tsc·버전 v1.46·배포·운영 확인.
-- **음악 담당(무료음악)**: 보내는 쪽 — `videoHandoff.ts` `TARGETS`에 `shorts: { origin: "https://shorts-onestop-studio.buylife.xyz", path: "/render", readyType: "sos-ready" }` 추가(1곡, MP3로 받기), 「모든 음악」 곡 메뉴에 「쇼츠 배경음악으로」. **영상 담당이 받는 쪽 주소·신호 이름을 확정해 알려 주면** 음악 담당이 바로 붙인다(같은 폴더 동시 작업 금지 — 각자 자기 폴더만). 받는 쪽 배포가 먼저 나가야 메뉴가 의미 있다.
+- **영상 담당(쇼츠 원스톱)**: 3절 2·4·5·6·7번 받는 쪽 구현, 렌더 화면에 「🎵 무료음악에서 받는 중…」 표시, 시험·tsc·버전 v1.46·배포·운영 확인. (주인님 2026-11-09 「이것도 영상담당에게 맡길께」 — 음악 담당이 받는 쪽을 시작하려다 멈춤, 코드 수정 없음)
+- **음악 담당(무료음악)**: 보내는 쪽 — `videoHandoff.ts` `TARGETS`에 `shorts: { origin: "https://shorts-onestop-studio.buylife.xyz", path: "/render", readyType: "sos-ready" }` 추가(1곡, MP3로 받기), 「모든 음악」 곡 메뉴에 「쇼츠 배경음악으로」. **영상 담당이 받는 쪽 주소·신호 이름을 확정해 알려 주면** 음악 담당이 바로 붙인다(같은 폴더 동시 작업 금지 — 각자 자기 폴더만. 음악 담당은 같은 시기에 무료음악 프리셋 작업(D-8)으로 이 폴더를 고치므로 무료음악 쪽은 음악 담당이 붙인다). 받는 쪽 배포가 먼저 나가야 메뉴가 의미 있다.
 - 신호 이름·경로를 바꾸고 싶으면 바꿔도 된다 — 바꾼 값을 이 문서 3절에 고치고 음악 담당에게 알린다.
 
 ## 6. 검수 방법
