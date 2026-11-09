@@ -79,3 +79,11 @@
 - `src/lib/videoHandoff.ts`: `TARGETS.shorts = { origin: SHORTS_URL, path: "/render", readyType: "sos-ready", hash: true, mp3: true }` — 받는 쪽이 해시(`#fms=`)로 읽으므로 받는 곳마다 주소 형식을 고르게 함(다른 세 곳은 그대로 `?fms=`), 음원은 MP3 320k(`fetchLibraryFile(id, "mp3")`), `name`은 `<곡 제목>.mp3`.
 - 「모든 음악」 곡 메뉴에 「쇼츠 배경음악으로」(뮤직비디오 아래).
 - tsc·시험 통과. **무료음악 다음 배포(v1.60)에 함께 나간다** — 맥미니 실물 시험(`shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md`)은 그 배포 뒤.
+
+## 11. ⚠ 실물 실패 — 쇼츠 창이 무료음악 창과의 연결(opener)을 잃음 (2026-11-09 [역할: music] 마스터PC 주인님 확인)
+
+- **증상**: 무료음악 v1.60 「쇼츠 배경음악으로」 → 쇼츠 `/render`가 열리지만 「이 창이 AI 무료음악 자동화에서 열리지 않아 음악 파일을 받을 수 없습니다」. 음원이 안 들어감.
+- **원인**: 쇼츠 원스톱 `next.config.ts` 11~12줄이 모든 화면에 `Cross-Origin-Opener-Policy: same-origin`·`Cross-Origin-Embedder-Policy: credentialless`를 보낸다(v1.42 무료 음성 여러 줄 계산 — 교차 출처 격리). COOP same-origin 문서는 다른 출처(무료음악)가 연 창이어도 `window.opener`가 null이 되어 postMessage 건네기가 원천적으로 불가능하다. 가사영상·플레이리스트·뮤직비디오·LP·썸네일·shots는 이 헤더가 없어 같은 방식이 된다.
+- **고치는 방법(추천, 영상 담당)**: 받기 전용 화면 `/fms-bgm`을 새로 두고 **그 경로만 COOP/COEP 헤더에서 뺀다**(예: `next.config.ts` headers `source: "/:path((?!fms-bgm).*)"` 처럼 제외, 또는 `/fms-bgm`에 `Cross-Origin-Opener-Policy: unsafe-none`). `/fms-bgm`이 지금 `RenderView`의 받기 코드(준비 신호 `sos-ready`, 출처·opener 확인, 15MB)를 그대로 하고, 받은 파일을 기존 `/api/media/bgm`으로 올린 뒤 `{ path, name }`을 sessionStorage에 두고 `/render`로 이동 → `/render`가 그 값을 꺼내 지금처럼 대본에 넣는다(여러 대본이면 「이 대본에 넣기」). 렌더 화면의 무료 음성 빠른 계산(교차 출처 격리)은 그대로.
+- **다른 방법**: 렌더 화면에서 두 헤더를 빼기(무료 음성이 한 줄 계산으로 느려짐 — 주석상 동작은 함) → 추천하지 않음.
+- **무료음악 쪽(음악 담당)**: 받는 쪽 주소가 확정되면 `videoHandoff.ts` `TARGETS.shorts.path`를 `/fms-bgm`으로 바꾼다(한 줄). 그때까지 「쇼츠 배경음악으로」는 실패 안내가 뜬다.
