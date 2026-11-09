@@ -72,6 +72,23 @@ export default function SongsPage() {
   };
   const [moods, setMoods] = useState<string[]>([]);
   const [moodTab, setMoodTab] = useState<string>(MOOD_GROUPS[0].id);
+  // C-26 6번(2026-11-09 주인님 「진행해」): AI 작사 칸 접기(브라우저에 기억) + 맨 위 단계 막대
+  const [planFolded, setPlanFolded] = useState(false);
+  useEffect(() => {
+    try {
+      setPlanFolded(localStorage.getItem("fms.planFolded") === "1");
+    } catch {}
+  }, []);
+  const foldPlan = (v: boolean) => {
+    setPlanFolded(v);
+    try {
+      localStorage.setItem("fms.planFolded", v ? "1" : "0");
+    } catch {}
+  };
+  const goStep = (id: string) => {
+    if (id === "step-plan" && planFolded) foldPlan(false);
+    window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 30);
+  };
   const [tempo, setTempo] = useState("");
   const [vocals, setVocals] = useState<string[]>([]);
   const moodTags = lyricMoodPayload({ moods, tempo, vocals, genre, sub: subGenre }).tags;
@@ -607,6 +624,26 @@ export default function SongsPage() {
         </span>
       </div>
 
+      {/* C-26 6번 단계 막대 — 누르면 그 칸으로 이동 */}
+      <nav aria-label="곡 만들기 단계" className="flex flex-wrap items-center gap-1.5 rounded-xl border border-slate-800 bg-[#0a0f1d] px-3 py-2 text-[11px]">
+        {(
+          [
+            ["step-plan", "1 기획", instrumental ? "AI 작곡 기획" : "주제·장르·분위기·AI 작사"],
+            ["step-lyrics", "2 가사·스타일", "제목·프리셋·음악 스타일·가사"],
+            ["step-cover", "3 표지", "앨범 그림"],
+            ["generate-panel", "4 만들기", "내 PC로 노래 만들기·여러 버전"],
+          ] as const
+        ).map(([id, label, hint], i) => (
+          <span key={id} className="flex items-center gap-1.5">
+            {i > 0 && <span className="text-slate-600">→</span>}
+            <button type="button" onClick={() => goStep(id)} title={hint} className="rounded-lg border border-slate-700 px-2.5 py-1 font-semibold text-slate-200 hover:border-emerald-500/60 hover:text-emerald-200">
+              {label}
+            </button>
+          </span>
+        ))}
+        <span className="ml-auto text-slate-500">{planFolded ? "1 기획은 접혀 있습니다" : ""}</span>
+      </nav>
+
       {/* 2026-11-09 주인님 「세로로 너무 길다」 — 넓은 화면(2xl)은 가운데를 두 칸으로: 왼쪽 AI 작사 설정, 오른쪽 곡 편집·생성 */}
       <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] 2xl:grid-cols-[220px_minmax(0,1fr)_minmax(0,1fr)]">
         {/* 내 곡 목록 */}
@@ -725,11 +762,20 @@ export default function SongsPage() {
 
           {/* AI 작사 / AI 작곡 기획 — 효과음은 위 칸을 씀 */}
           {!sfx && (
-          <section className="space-y-3 rounded-2xl border border-teal-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
+          <section id="step-plan" className="scroll-mt-6 space-y-3 rounded-2xl border border-teal-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
+            <h2 className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-100">
               <Sparkles className="h-4 w-4 text-teal-300" /> {instrumental ? "AI 작곡 기획" : "AI 작사"}{" "}
               <span className="text-[11px] font-normal text-slate-400">(내 OpenAI·Claude·Gemini 키 중 골라 사용 · 선택)</span>
+              <button type="button" onClick={() => foldPlan(!planFolded)} aria-expanded={!planFolded} className="ml-auto rounded-lg border border-slate-700 px-2 py-0.5 text-[11px] font-semibold text-slate-300 hover:text-white">
+                {planFolded ? "▸ 펼치기" : "▾ 접기"}
+              </button>
             </h2>
+            {planFolded && (
+              <p className="truncate text-[11px] text-slate-400">
+                {[theme.trim() && `주제: ${theme.trim()}`, genre && genreLabel(genre, subGenre), moods.join("·"), tempo, vocals.join("·")].filter(Boolean).join(" · ") || "아직 고른 것이 없습니다"}
+              </p>
+            )}
+            <div className={planFolded ? "hidden" : "space-y-3"}>
             <input
               className={field}
               value={theme}
@@ -1075,13 +1121,14 @@ export default function SongsPage() {
                 </ol>
               </div>
             )}
+            </div>
           </section>
           )}
 
           {/* 앨범 그림(노래·연주곡만 — 효과음은 표지가 필요 없음) — 좌측 「음악앨범」에서 만들고 여기서는 고르기(v1.35) */}
-          {!sfx && <SongAlbumChooser title={draft.title} art={draft.art_prompt} style={draft.style_prompt} lyrics={instrumental ? "" : draft.lyrics} ai={{ provider, model }} onRead={fillFromAlbum} start={startAlbum} />}
+          {!sfx && <div id="step-cover" className="scroll-mt-6"><SongAlbumChooser title={draft.title} art={draft.art_prompt} style={draft.style_prompt} lyrics={instrumental ? "" : draft.lyrics} ai={{ provider, model }} onRead={fillFromAlbum} start={startAlbum} /></div>}
           </div>
-          <div className="space-y-6 2xl:col-start-3 2xl:row-start-1">
+          <div id="step-lyrics" className="scroll-mt-6 space-y-6 2xl:col-start-3 2xl:row-start-1">
           {/* 곡 편집 */}
           <section className="space-y-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
             {projects.length > 0 && (
