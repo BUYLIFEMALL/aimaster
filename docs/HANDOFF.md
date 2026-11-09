@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — ai-video-studio v1.30 배포(백로그 3차 + 개선 4건)
+- 배포: 주인님 「진행해」 승인 빌드 1회, `ai-video-studio-a8imcacg9` Ready, DB v1.30. 백로그 3차(장면 맞춤·후처리 3종·내 영상 올리기)가 함께 나감
+- 개선 4건 `a077f865c`: 업스케일 배율을 실제 크기로 1920×1080 안에 맞춤 / 배경 제거 안내 / 올리다 멈춘 파일 정리(화면 취소 + 매일 정리, `lib/uploadOrphans.ts`) / 편집본·내 프롬프트 예외 계정 「보관 기간 제한 없음」
+- 검수: 시험 102·tsc·린트, 운영 로그인 200·정리 주소 401(비밀값 없이 막힘), ego 화면 v1.30·보관함 「보관 기간 제한 없음」 25곳·D-n 0곳
+- 남음: `music-video-studio` 사본 동기화는 그 프로그램 다음 배포 때 / 업스케일 새 배율의 실제 생성 1회는 다음 후처리 사용 때 / 무료음악 → `shots` 실물 시험(음악 쪽 v1.61·v1.62 배포 완료로 지금 가능, 마스터 PC)
+- 문서: `ai-video-studio/AGENTS.md` v1.30, `ai-video-studio/docs/IMPROVEMENTS.md` 11-10
+
+https://ai-video-studio.buylife.xyz
+
 ## 2026-11-09 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — shots v1.46 배포(D-6 무료음악 곡 받기)
 
 - 배포 `shots-q0kp69yjy` Ready, 운영 https://shots.buylife.xyz , DB v1.46(빌드 1회, 주인님 채팅 승인). 30일 열외 `ab4595846`도 함께 나감.
