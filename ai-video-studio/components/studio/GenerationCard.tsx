@@ -8,7 +8,7 @@ import { PROVIDERS } from "@/lib/providers/catalog";
 import { isSlow } from "@/lib/promptPolish";
 import { PcQuickTools } from "./PcQuickTools";
 import { PostPanel } from "./PostPanel";
-import { postKindOf } from "@/lib/postprocess";
+import { isUploadModel, postKindOf } from "@/lib/postprocess";
 
 function elapsed(from: string) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(from).getTime()) / 1000));
@@ -20,7 +20,7 @@ function daysLeft(iso: string) {
 }
 
 export function GenerationCard({ gen, onDeleted, onCreated }: { gen: ClientGeneration; onDeleted?: (id: string) => void; onCreated?: (g: ClientGeneration) => void }) {
-  const post = postKindOf(gen.model);
+  const post = postKindOf(gen.model) || isUploadModel(gen.model);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);

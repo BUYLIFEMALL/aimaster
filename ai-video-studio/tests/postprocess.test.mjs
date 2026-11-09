@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { postBlocked, postCostUsd, postInput, postKindOf, postModelId, sourceHeight } from "../lib/postprocess.ts";
+import { isUploadModel, postBlocked, postCostUsd, postInput, postKindOf, postModelId, sourceHeight, uploadAspect, uploadSeconds, UPLOAD_MODEL } from "../lib/postprocess.ts";
 
 test("후처리 모델 이름 — post:<종류>만 후처리로 본다", () => {
   assert.equal(postKindOf(postModelId("lipsync")), "lipsync");
@@ -30,4 +30,18 @@ test("fal 입력 — 업스케일은 결과가 1080p가 되는 배율·H264, 배
   assert.equal(postInput("upscale", { videoUrl: "v", resolution: "480p" }).upscale_factor, 2.25);
   assert.deepEqual(postInput("bgremove", { videoUrl: "v", color: "White" }), { video_url: "v", background_color: "White", output_container_and_codec: "mp4_h264", preserve_audio: true });
   assert.deepEqual(postInput("lipsync", { videoUrl: "v", audioUrl: "a" }), { video_url: "v", audio_url: "a" });
+});
+
+test("내 영상 올리기 — 길이는 올림(립싱크 10초 제한을 미리 막음), 비율은 9:16·16:9에 가까울 때만", () => {
+  assert.equal(uploadSeconds(10.0), 10);
+  assert.equal(uploadSeconds(10.04), 10);
+  assert.equal(uploadSeconds(10.4), 11);
+  assert.equal(uploadSeconds(0.3), 1);
+  assert.equal(postBlocked("lipsync", uploadSeconds(10.4)) !== null, true);
+  assert.equal(uploadAspect(1920, 1080), "16:9");
+  assert.equal(uploadAspect(1080, 1920), "9:16");
+  assert.equal(uploadAspect(1080, 1080), null);
+  assert.equal(uploadAspect(0, 0), null);
+  assert.equal(isUploadModel(UPLOAD_MODEL), true);
+  assert.equal(postKindOf(UPLOAD_MODEL), null);
 });

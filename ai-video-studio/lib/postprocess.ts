@@ -77,3 +77,17 @@ export function postInput(kind: PostKind, o: { videoUrl: string; audioUrl?: stri
 export function isBgColor(v: unknown): v is BgColor {
   return v === "Green" || v === "White" || v === "Black";
 }
+
+// ── 2026-11-09 내 영상 올리기(후처리용) — 회원 본인 파일만, 권리 확인 필수. 행 자체가 실행 기록(파일 이름·권리 확인·시각)이고 30일 규칙을 따른다
+export const UPLOAD_MODEL = "upload:file";
+export const UPLOAD_MAX_BYTES = 45 * 1024 * 1024; // 버킷 50MB 안
+export const UPLOAD_MAX_SECONDS = 60;
+export const isUploadModel = (model: string) => model === UPLOAD_MODEL;
+/** 정수 칸(duration_s)에 넣을 길이 — 올림(10.4초를 11초로 적어 립싱크 10초 제한을 미리 막는다) */
+export const uploadSeconds = (s: number) => Math.max(1, Math.ceil(s - 0.05));
+/** 가로·세로 크기로 비율 칸 값 — 9:16·16:9에 가까울 때만, 나머지(정사각 등)는 null */
+export function uploadAspect(w: number, h: number): "16:9" | "9:16" | null {
+  if (!(w > 0 && h > 0)) return null;
+  const r = w / h;
+  return r >= 1.3 ? "16:9" : r <= 0.77 ? "9:16" : null;
+}

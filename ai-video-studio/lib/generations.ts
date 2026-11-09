@@ -5,10 +5,10 @@ import type { VideoJob } from "@/lib/video/videoModels";
 import { checkVideoJob, submitVideoJob, VideoGenError } from "@/lib/video/videoProviders";
 import type { ClientGeneration, ClientOutput, GenerationRow, OutputFile } from "@/lib/generationTypes";
 import { uniquePaths, urlMap, withDownload } from "@/lib/signedUrls";
-import { POST_SPECS, postKindOf } from "@/lib/postprocess";
+import { POST_SPECS, isUploadModel, postKindOf } from "@/lib/postprocess";
 
 /** 후처리 결과 행(model "post:<종류>")의 화면 이름 */
-const postName = (model: string) => { const k = postKindOf(model); return k ? `${POST_SPECS[k].emoji} ${POST_SPECS[k].name} (fal)` : null; };
+const postName = (model: string) => { if (isUploadModel(model)) return "📁 내가 올린 영상"; const k = postKindOf(model); return k ? `${POST_SPECS[k].emoji} ${POST_SPECS[k].name} (fal)` : null; };
 
 export type { GenerationRow } from "@/lib/generationTypes";
 

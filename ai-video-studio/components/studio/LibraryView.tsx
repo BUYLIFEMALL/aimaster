@@ -6,6 +6,7 @@ import { Loader2, RefreshCw } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { GenerationCard } from "./GenerationCard";
 import { EditsSection } from "./EditsSection";
+import { UploadVideoCard } from "./UploadVideoCard";
 
 type Filter = "all" | "completed" | "running" | "failed";
 
@@ -35,6 +36,12 @@ export function LibraryView() {
       setLoading(false);
     }
   }, []);
+
+  // 2026-11-09 새로 생긴 카드(올린 영상·후처리 접수)를 맨 앞에 넣고, 진행 중이면 상태 확인을 다시 건다
+  const added = (n: ClientGeneration) => {
+    setItems((prev) => [n, ...(prev ?? []).filter((r) => r.id !== n.id)]);
+    if (n.status === "running") { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(load, 8000); }
+  };
 
   useEffect(() => {
     load();
@@ -73,6 +80,8 @@ export function LibraryView() {
 
       <EditsSection />
 
+      <UploadVideoCard onCreated={added} />
+
       <div className="flex flex-wrap gap-2" role="group" aria-label="상태 거르기">
         {FILTERS.map((f) => (
           <button key={f.key} type="button" onClick={() => setFilter(f.key)} aria-pressed={filter === f.key}
@@ -106,7 +115,7 @@ export function LibraryView() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {shown.map((g) => (
           <div key={g.id} className="flex flex-col gap-1">
-            <GenerationCard gen={g} onDeleted={(id) => setItems((prev) => (prev ?? []).filter((r) => r.id !== id))} onCreated={(n) => { setItems((prev) => [n, ...(prev ?? []).filter((r) => r.id !== n.id)]); if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(load, 8000); }} />
+            <GenerationCard gen={g} onDeleted={(id) => setItems((prev) => (prev ?? []).filter((r) => r.id !== id))} onCreated={added} />
           </div>
         ))}
       </div>
