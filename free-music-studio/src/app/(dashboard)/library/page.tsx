@@ -599,6 +599,16 @@ export default function LibraryPage() {
                                   setNotice("AI 쇼츠 원스톱 창을 열었습니다. MP3로 바꿔 배경음악으로 넣습니다(대본이 여러 개면 그 창에서 넣을 대본을 고르세요).");
                               },
                             },
+                            // 백로그 D-6(2026-11-09): AI 이미지 스토리 쇼츠(shots) — 그 창에서 넣을 영상을 고르면 그 영상의 배경음악으로 저장
+                            {
+                              label: "이미지 스토리 쇼츠 배경음악으로",
+                              icon: <Clapperboard className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
+                              onClick: () => {
+                                if (openVideoWithSongs("shots", [{ id: t.id, title: t.title }], setMessage))
+                                  setNotice("AI 이미지 스토리 쇼츠 창을 열었습니다. MP3로 바꿔 보내면 그 창에서 곡을 넣을 영상을 고르세요(최근 영상 30개).");
+                              },
+                            },
                             // 앨범(v1.35, 주인님 「곡을 다 만들고 곡제목,가사를 베이스로 이미지 앨범을 만들게 하거나 이미 만들어놓은 앨범이미지에서 선택해서 사용」)
                             {
                               label: "앨범 그림 만들기 · 곡 제목·가사로",

@@ -10,6 +10,8 @@ export const MUSIC_VIDEO_URL = "https://music-video-studio.buylife.xyz";
 export const SHORTS_URL = "https://shorts-onestop-studio.buylife.xyz";
 /** LP 턴테이블 영상(백로그 D-5, 2026-11-09) — 곡 + 표지 그림을 함께 */
 export const LP_URL = "https://lp-turntable.buylife.xyz";
+/** 백로그 D-6(2026-11-09): AI 이미지 스토리 쇼츠(shots) 받기 전용 화면 /fms-bgm — 받는 쪽 shots v1.46(영상 담당), 인수인계서 14절 */
+export const SHOTS_URL = "https://shots.buylife.xyz";
 /** 플레이리스트 영상에 한 번에 보낼 수 있는 곡 수(받는 쪽 주소·서버 조회 상한과 같음) */
 export const PLAYLIST_MAX = 20;
 const WAIT_MS = 180_000;
@@ -21,6 +23,7 @@ const TARGETS = {
   playlist: { origin: PLAYLIST_VIDEO_URL, path: "/video", readyType: "pcs-ready" },
   musicVideo: { origin: MUSIC_VIDEO_URL, path: "/music", readyType: "mvs-ready" },
   shorts: { origin: SHORTS_URL, path: "/fms-bgm", readyType: "sos-ready", hash: true, mp3: true },
+  shots: { origin: SHOTS_URL, path: "/fms-bgm", readyType: "shs-ready", hash: true, mp3: true },
   lp: { origin: LP_URL, path: "/", readyType: "lps-ready", hash: true, mp3: true, cover: true },
 } satisfies Record<string, Target>;
 

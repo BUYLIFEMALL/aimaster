@@ -113,3 +113,7 @@
 - 남은 일: shots 배포(빌드 1회, 주인님 승인) → 운영에서 흉내 시험 → 무료음악 쪽 연결·배포 → 마스터PC 실물 1회.
 
 - ✅ 2026-11-09 shots v1.46 배포(`shots-q0kp69yjy`). 운영에서 무료음악 출처 흉내 시험 통과(준비 신호·곡 받기·저장·선택·이동, 시험 곡은 지움). 이제 보내는 쪽을 붙이면 됩니다.
+## 15. shots 보내는 쪽 붙임 (2026-11-09 [역할: music], 미배포 — v1.62 묶음)
+
+- `videoHandoff.ts` `TARGETS.shots = { origin: "https://shots.buylife.xyz", path: "/fms-bgm", readyType: "shs-ready", hash: true, mp3: true }`, 「모든 음악」 곡 메뉴 「이미지 스토리 쇼츠 배경음악으로」(영상 담당 제안 문구 그대로). tsc·시험 134 통과.
+- 배포 순서: shots v1.46(영상 담당) → 무료음악 v1.62 → 마스터PC 실물 1회.
