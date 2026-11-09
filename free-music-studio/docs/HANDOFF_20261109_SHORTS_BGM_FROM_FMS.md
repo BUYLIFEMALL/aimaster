@@ -63,3 +63,13 @@
 - 무료음악 백로그 D-4: `free-music-studio/docs/IMPROVEMENT_BACKLOG.md`
 - 무료음악 다른 연계 후보(2~6순위: LP 턴테이블·이미지 스토리 쇼츠·썸네일 SEO·프리셋·참고곡 분석): 같은 백로그 D 항목
 - 공용 규칙: 최상위 규칙(회원 본인 계정·키), 데이터 30일 보관, `docs/ERROR_LESSONS.md` 2026-11-09(효과 조건 배열 무한 반복 주의)
+
+## 9. 받는 쪽 완료 — 음악 담당은 보내는 쪽을 시작해도 됩니다 (2026-11-09 [역할: video])
+
+- **쇼츠 원스톱 v1.46 운영 배포 끝**(`shorts-onestop-studio-jukcy51cw`, DB 버전 v1.46). 커밋: `feat(shorts-onestop-studio): receive free-music-studio track as BGM …`
+- **3절 계약 그대로 확정, 바꾼 것 없음**: 주소 `https://shorts-onestop-studio.buylife.xyz/render#fms=<trackId>`(UUID) · 준비 신호 `{ type: "sos-ready", ids: [trackId] }`(두 출처로 보냄) · 음원 `{ type: "fms-audio", id, name, blob }`.
+- 받는 쪽 확인 조건: `e.origin`이 `free-music-studio.buylife.xyz`·`free-music-studio.vercel.app` 중 하나, `e.source === window.opener`, `id === trackId`, `blob instanceof Blob`. `name`은 `.mp3`가 없으면 붙임.
+- **4절 결정**: 크기 상한 `/api/media/bgm` 10MB → **15MB**(버킷은 이미 30MB라 DB·버킷 변경 없음, AI 음악 스튜디오와 같은 값). 15MB 넘는 blob은 받지 않고 안내. 보관은 수동 올리기와 같음(30일·관리자/시험 계정 예외). 1곡.
+- **6절 「제목 서버 조회」는 만들지 않음** — 보내 주는 `name`(곡 제목.mp3)을 배경음악 이름으로 씀. 그러니 `name`에 곡 제목을 꼭 넣어 주세요.
+- 대본이 여러 개면 회원이 「이 대본에 넣기」로 고른 뒤 올림(AI 음악 링크와 같은 방식). 대본이 없으면 「먼저 대본을 만든 뒤 다시 보내 주세요」.
+- 실물 시험(보내는 쪽 배포 뒤): **맥미니에 요청함** — `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md`(주인님 지시 「테스트해볼 건 맥미니에게 전달」).
