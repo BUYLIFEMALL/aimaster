@@ -23,6 +23,13 @@ import { refHandoffHash } from "@/lib/reference";
 import { APP_NAME } from "@/lib/version";
 import type { AmsPick } from "@/lib/amsSongs";
 
+// v1.46 AI 무료음악 자동화 「쇼츠 배경음악으로」(/render#fms=<곡 번호>) — 음원은 회원 PC 엔진에만 있으므로
+// 이 창을 연 무료음악 창이 브라우저 안에서 건네준다. 순서: 이 창 → 「sos-ready」 → 무료음악 창 → 「fms-audio」(파일).
+// 기준: lyric-video-studio FmsImportCard.tsx(출처·보낸 창 확인 방식 같음)
+const FMS_ORIGINS = ["https://free-music-studio.buylife.xyz", "https://free-music-studio.vercel.app"];
+const FMS_WAIT_MS = 180_000;
+const FMS_MAX_BYTES = 15 * 1024 * 1024; // /api/media/bgm 상한과 같게
+
 // v1.36 대본을 넘길 AI 썸네일·SEO 자동화 「SEO 전략」 화면(v1.10~가 주소 # 뒤 대본을 받음)
 const THUMBNAIL_SEO_URL = "https://thumbnail-master.buylife.xyz/seo";
 /** 넘길 대본 글 — 주제 + 장면 제목·내레이션 순서대로 */
@@ -48,6 +55,10 @@ export function RenderView() {
   const pendingAms = useRef<string | null>(null);
   // v1.40 대본이 여러 개일 때 넣을 대본을 고를 때까지 기다리는 곡 번호
   const [amsWaiting, setAmsWaiting] = useState<string | null>(null);
+  // v1.46 무료음악에서 받은 음원(대본에 넣기 전까지 메모리에만), 대본이 여러 개일 때 고르기 대기, 받는 중 안내
+  const [fmsFile, setFmsFile] = useState<File | null>(null);
+  const [fmsWaiting, setFmsWaiting] = useState(false);
+  const [fmsNote, setFmsNote] = useState("");
   const [playing, setPlaying] = useState(false), [t, setT] = useState(0.9);
   const canvas = useRef<HTMLCanvasElement>(null); const tRef = useRef(0.9);
   const [exp, setExp] = useState<ExportProgress | null>(null), [file, setFile] = useState<{ url: string; name: string; mb: number; blob: Blob } | null>(null);
@@ -166,7 +177,7 @@ export function RenderView() {
     try {
       const r = await api<{ path: string; token: string }>("/api/media/bgm", { body: { name: file.name, size: file.size } });
       const { error } = await createClient().storage.from("shorts-onestop-studio").uploadToSignedUrl(r.path, r.token, file, { contentType: file.type || "audio/mpeg" });
-      if (error) throw new Error("업로드에 실패했습니다. 파일 형식(mp3·m4a·wav·ogg·aac)과 크기(10MB 이하)를 확인해 주세요.");
+      if (error) throw new Error("업로드에 실패했습니다. 파일 형식(mp3·m4a·wav·ogg·aac)과 크기(15MB 이하)를 확인해 주세요.");
       setA({ bgm: { path: r.path, name: file.name, volume: a.bgm?.volume ?? 0.35 } });
       setMsg({ text: `「${file.name}」을 배경음악으로 올렸습니다. 목소리가 나올 때는 자동으로 작게 깔립니다.`, ok: true });
     } catch (e) { setMsg(e instanceof Error && !(e as { needKey?: boolean }).needKey ? { text: e.message } : toMsg(e)); } finally { setBusy(""); }
@@ -208,6 +219,49 @@ export function RenderView() {
     if (list.length > 1) setAmsWaiting(ref);
     else applyAms(ref);
   }, [item?.id, !!script, !!list]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // v1.46 무료음악 창에 「준비됨」을 알리고 음원을 기다린다(주소 #fms=<곡 번호>로 열렸을 때 한 번)
+  useEffect(() => {
+    const id = /^#fms=([0-9a-f-]{36})$/i.exec(window.location.hash)?.[1];
+    if (!id) return;
+    const opener = window.opener as Window | null;
+    if (!opener) { setFmsNote("이 창이 AI 무료음악 자동화에서 열리지 않아 음악 파일을 받을 수 없습니다. 아래 「음악 파일 올리기」로 직접 넣어 주세요."); return; }
+    const onMessage = (e: MessageEvent) => {
+      if (!FMS_ORIGINS.includes(e.origin) || e.source !== opener) return;
+      const d = e.data as { type?: string; id?: string; name?: string; blob?: Blob } | null;
+      if (d?.type !== "fms-audio" || d.id !== id || !(d.blob instanceof Blob)) return;
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(timer);
+      if (d.blob.size > FMS_MAX_BYTES) { setFmsNote("받은 음악 파일이 15MB가 넘어 배경음악으로 쓸 수 없습니다. 짧은 곡을 고르거나 파일을 잘라 직접 넣어 주세요."); return; }
+      const base = (d.name || "무료음악").replace(/[\\/:*?"<>|]/g, "").slice(0, 80);
+      const name = /\.(mp3|m4a|wav|ogg|aac)$/i.test(base) ? base : `${base}.mp3`;
+      const type = d.blob.type && d.blob.type !== "application/octet-stream" ? d.blob.type : "audio/mpeg";
+      setFmsFile(new File([d.blob], name, { type }));
+      setFmsNote("");
+    };
+    const timer = window.setTimeout(() => {
+      window.removeEventListener("message", onMessage);
+      setFmsNote("음악 파일이 오지 않았습니다. 무료음악 창에서 PC 엔진이 켜져 있는지 확인하거나, 아래 「음악 파일 올리기」로 파일을 직접 넣어 주세요.");
+    }, FMS_WAIT_MS);
+    window.addEventListener("message", onMessage);
+    setFmsNote("🎵 AI 무료음악 자동화에서 음악 파일을 받는 중…");
+    for (const o of FMS_ORIGINS) opener.postMessage({ type: "sos-ready", ids: [id] }, o);
+    return () => { window.removeEventListener("message", onMessage); window.clearTimeout(timer); };
+  }, []);
+
+  // 받은 음원을 대본에 넣는다 — 대본이 하나면 바로, 여러 개면 「작업할 대본」에서 고른 뒤(AI 음악과 같은 방식)
+  async function applyFms() {
+    const f = fmsFile; if (!f || !item || !script) return;
+    setFmsFile(null); setFmsWaiting(false);
+    await uploadBgm(f);
+  }
+  useEffect(() => {
+    if (!fmsFile || fmsWaiting || !list) return;
+    if (!list.length) { setFmsFile(null); setMsg({ text: "AI 무료음악 자동화 곡을 넣을 대본이 없습니다. 먼저 ① 주제에서 대본을 만든 뒤 다시 보내 주세요." }); return; }
+    if (!item || !script) return;
+    if (list.length > 1) setFmsWaiting(true);
+    else void applyFms();
+  }, [fmsFile, item?.id, !!script, !!list]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function makeMp4() {
     if (!script || exp) return;
@@ -265,6 +319,12 @@ export function RenderView() {
             <button type="button" className="primary" disabled={!!busy || !item} onClick={() => applyAms(amsWaiting)}><Music size={14} />이 대본에 넣기</button>
             <button type="button" onClick={() => setAmsWaiting(null)}>넣지 않기</button>
           </div>}
+          {fmsWaiting && fmsFile && <div className="row" style={{ marginTop: 10, alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+            <small style={{ flex: "1 1 240px" }}>🎵 AI 무료음악 자동화에서 「{fmsFile.name}」을 받았습니다. 위 「작업할 대본」에서 넣을 대본을 고른 뒤 눌러 주세요. 지금 대본: 「{item?.title}」</small>
+            <button type="button" className="primary" disabled={!!busy || !item} onClick={() => void applyFms()}><Music size={14} />이 대본에 넣기</button>
+            <button type="button" onClick={() => { setFmsWaiting(false); setFmsFile(null); }}>넣지 않기</button>
+          </div>}
+          {fmsNote && <small className="muted" style={{ display: "block", marginTop: 10 }}>{fmsNote}</small>}
         </section>}
         {script && tl && (
           <div className="atelier">
@@ -337,7 +397,7 @@ export function RenderView() {
               <section className="card stack">
                 <h2>🎵 ③ 배경음악</h2>
                 {a.bgm ? <div className="list-item"><div><strong>🎵 {a.bgm.name}</strong><small>목소리가 나올 때 35%로 자동으로 작아집니다</small></div><button type="button" className="danger" onClick={() => setA({ bgm: undefined })}><Trash2 size={13} />빼기</button></div>
-                  : <p className="muted">내 PC의 음악 파일(mp3·m4a·wav·ogg·aac, 10MB 이하)을 올리거나, AI 음악 스튜디오에서 내가 만든 곡을 고르세요. 저작권이 있는 음악은 쓰지 마시고, 무료 음원(예: 유튜브 오디오 보관함)을 권장합니다.</p>}
+                  : <p className="muted">내 PC의 음악 파일(mp3·m4a·wav·ogg·aac, 15MB 이하)을 올리거나, AI 음악 스튜디오에서 내가 만든 곡을 고르세요. AI 무료음악 자동화 「모든 음악」의 「쇼츠 배경음악으로」로 보낸 곡도 여기에 들어옵니다. 저작권이 있는 음악은 쓰지 마시고, 무료 음원(예: 유튜브 오디오 보관함)을 권장합니다.</p>}
                 <div className="row">
                   <label className="button" style={{ fontWeight: 600 }}><Upload size={14} />{a.bgm ? "다른 음악 올리기" : "음악 파일 올리기"}<input type="file" accept=".mp3,.m4a,.wav,.ogg,.aac,audio/*" hidden onChange={(e) => void uploadBgm(e.target.files?.[0])} /></label>
                   <button type="button" onClick={() => void openAms()}><Music size={14} />{ams ? "곡 목록 닫기" : "AI 음악 스튜디오 내 곡에서 고르기"}</button>
