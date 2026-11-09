@@ -21,7 +21,7 @@
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) | 백로그 「보관」 B-6 |
 | `free-music-studio` | B-4 가사 시간 맞추기 추가 비교 | 수동 정답 자료 준비 | 백로그 「보관」 B-4 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
-| `free-music-studio` | 다른 세션 미커밋 변경(`AlbumArtPanel.tsx` `pickLocalArtVariant`·엔진 `imageArt.mjs`) | 그 세션이 마무리·배포 — v1.59는 이 변경을 빼고 커밋된 코드만 배포함 | `docs/HANDOFF.md` 2026-11-09 |
+| `free-music-studio` | 내 PC 그림 기본 판 고르기 복구분 배포(v1.60) | 미배포 대기 — 다른 세션 커밋 `16328c462`가 되돌린 이 세션 작업을 복구 커밋함, 다음 배포 때 함께 | `free-music-studio/docs/IMPROVEMENT_HANDOFF_20261109.md` 4절 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |

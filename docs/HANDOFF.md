@@ -4,6 +4,7 @@
 - 운영: free-music-studio v1.59(엔진 0.8.1) · ai-image-studio v1.34 · playlist-channel-studio v1.38, 미배포 대기 0. 역할 파일 `docs/roles/music.md` 정리(48줄)
 - 이어받기 문서: `free-music-studio/docs/IMPROVEMENT_HANDOFF_20261109.md`(메뉴 먹통 원인·재발 방지, 다른 세션 미커밋 변경 `AlbumArtPanel.tsx`·`imageArt.mjs`가 있을 때 커밋된 코드만 배포하는 법, 남은 대기 C-17·A-6·B-6·B-4·D-2)
 - 다음 첫 단계: `node scripts/dev-requests.mjs list --role music` → 위 문서 → 백로그
+- 정정: 「다른 세션 미커밋 변경」으로 적은 파일은 이 세션 커밋 `8f622ea34`를 다른 세션 디자인 커밋 `16328c462`(03:03)가 되돌린 것 → 복구 커밋, 다음 배포 v1.60에서 운영 반영(v1.59 사이트에는 빠져 있음)
 
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 곡 만들기 화면 왼쪽 메뉴 먹통 원인 찾아 수정 → v1.59 배포 완료(`free-music-studio-6ck2jt91u`, ego 운영 확인)
 - 원인: `free-music-studio/src/components/engine/MultiVersionPanel.tsx`의 `useEffect` 조건 `[engines]`가 그릴 때마다 새 배열 → 상태 갱신 무한 반복 → Next.js 화면 이동이 끝나지 않음(v1.57부터). 해결: `engines`를 `useMemo`로 고정. 상세·재발 방지: `docs/ERROR_LESSONS.md` 2026-11-09 맨 위
