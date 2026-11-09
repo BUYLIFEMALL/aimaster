@@ -27,6 +27,8 @@ import {
 import { Track, StudioSettings, VisualizerType, FilterType, ColorPreset } from "@/types/playlist";
 import {
   VISUALIZER_OPTIONS,
+  COLOR_PRESET_OPTIONS,
+  PARTICLE_WIND_OPTIONS,
   FILTER_OPTIONS,
   OVERLAY_OPTIONS,
   PARTY_OPTIONS,
@@ -475,6 +477,17 @@ export function EditorStudio({
                 </button>
               ))}
             </div>
+            {/* P-6(2026-11-09) 스펙트럼 컬러 팔레트 */}
+            <label className="flex items-center justify-between gap-2 text-[11px] font-bold text-[#aaaaaa]">
+              <span className="shrink-0">컬러 팔레트</span>
+              <select value={settings.colorPreset} onChange={(e) => setSettings((prev) => ({ ...prev, colorPreset: e.target.value as ColorPreset }))} className="w-full rounded-lg border border-[#272727] bg-[#121212] px-2 py-1.5 text-[11px] font-bold text-white" aria-label="스펙트럼 컬러 팔레트">
+                {COLOR_PRESET_OPTIONS.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           {/* 배경 필터 & 비네팅 */}
@@ -641,6 +654,67 @@ export function EditorStudio({
                   onChange={(e) => setSettings((prev) => ({ ...prev, overlayColor: e.target.value }))}
                   className="w-20 px-2 py-1 text-[11px] font-mono font-bold border border-[#272727] rounded-lg bg-[#121212] text-white"
                 />
+              </div>
+            </div>
+
+            {/* P-6(2026-11-09) 파티클 확장 — 팔레트·흐름 방향·꼬리·최대 개수·자동 줄이기 */}
+            <div className="space-y-2.5 pt-2">
+              <label className="flex items-center justify-between gap-2 text-[11px] font-bold text-[#aaaaaa]">
+                <span className="shrink-0">효과 팔레트</span>
+                <select value={settings.overlayColorPreset} onChange={(e) => setSettings((prev) => ({ ...prev, overlayColorPreset: e.target.value as ColorPreset }))} className="w-full rounded-lg border border-[#272727] bg-[#121212] px-2 py-1.5 text-[11px] font-bold text-white" aria-label="파티클 컬러 팔레트">
+                  {COLOR_PRESET_OPTIONS.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.id === "DEFAULT" ? "효과마다 기본 색" : c.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="space-y-1">
+                <span className="text-[11px] font-bold text-[#aaaaaa]">흐름 방향</span>
+                <div className="grid grid-cols-5 gap-1">
+                  {PARTICLE_WIND_OPTIONS.map((w) => (
+                    <button
+                      key={w.id}
+                      type="button"
+                      onClick={() => setSettings((prev) => ({ ...prev, particleWind: w.id }))}
+                      className={`rounded-lg border px-1 py-1.5 text-[10px] font-bold ${settings.particleWind === w.id ? "bg-red-950/60 border-red-800 text-[#ff4e45]" : "bg-[#212121] border-[#272727] text-[#aaaaaa] hover:text-white"}`}
+                    >
+                      {w.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-[11px] font-bold text-[#aaaaaa]">
+                  <span>최대 동시 개수</span>
+                  <span className="font-mono text-white">{settings.particleMax}개</span>
+                </div>
+                <input
+                  type="range"
+                  min="100"
+                  max="800"
+                  step="50"
+                  value={settings.particleMax}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, particleMax: Number(e.target.value) }))}
+                  className="w-full h-1.5 bg-[#272727] rounded-lg appearance-none cursor-pointer accent-[#ff0000]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSettings((prev) => ({ ...prev, particleTrail: !prev.particleTrail }))}
+                  className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border ${settings.particleTrail ? "bg-red-950/60 border-red-800 text-[#ff4e45]" : "bg-[#212121] border-[#272727] text-[#aaaaaa] hover:text-white"}`}
+                >
+                  꼬리(트레일)
+                </button>
+                <button
+                  type="button"
+                  title="미리보기가 버벅이면 파티클 수를 저절로 줄였다가, 빨라지면 되돌립니다(MP4 결과에는 영향 없음)"
+                  onClick={() => setSettings((prev) => ({ ...prev, particleAutoReduce: !prev.particleAutoReduce }))}
+                  className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border ${settings.particleAutoReduce ? "bg-red-950/60 border-red-800 text-[#ff4e45]" : "bg-[#212121] border-[#272727] text-[#aaaaaa] hover:text-white"}`}
+                >
+                  무거우면 자동 줄이기
+                </button>
               </div>
             </div>
           </div>

@@ -140,6 +140,11 @@ export class ParticleSystem {
   maxParticles = 400;
   private lastMs: number | null = null;
   private pending: Partial<Record<ParticleKey, number>> = {};
+  // P-6 자동 줄이기: 실제 화면 간격(ms)의 이동 평균이 길면(느리면) 개수를 줄이고, 빨라지면 되돌린다.
+  // MP4 내보내기는 프레임을 쉬지 않고 그려 간격이 짧으므로 줄이지 않는다(미리보기에서만 동작).
+  private wallLast: number | null = null;
+  private frameMs = 16;
+  reduce = 1;
 
   updateAndDraw(ctx: CanvasRenderingContext2D, width: number, height: number, settings: StudioSettings, timeMs: number) {
     const active = PARTICLE_KEYS.filter((k) => settings[k]);
@@ -155,7 +160,20 @@ export class ParticleSystem {
 
     const unit = Math.min(width, height) / 1080; // 단위 → 화면 px
     const w = width / unit, h = height / unit; // 화면 크기를 단위로
-    const density = settings.overlayDensity / 100;
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+    if (this.wallLast !== null) {
+      const gap = Math.min(200, now - this.wallLast);
+      this.frameMs = this.frameMs * 0.9 + gap * 0.1;
+      if (settings.particleAutoReduce && this.frameMs > 28) this.reduce = Math.max(0.35, this.reduce - 0.02);
+      else if (this.frameMs < 20 || !settings.particleAutoReduce) this.reduce = Math.min(1, this.reduce + 0.01);
+    }
+    this.wallLast = now;
+    this.maxParticles = Math.round(Math.max(100, Math.min(800, settings.particleMax || 400)) * this.reduce);
+    const density = (settings.overlayDensity / 100) * this.reduce;
+    // P-6 흐름(바람) — 모든 파티클에 같은 방향으로 더함(단위/초)
+    const WIND = 140;
+    const windX = settings.particleWind === "left" ? -WIND : settings.particleWind === "right" ? WIND : 0;
+    const windY = settings.particleWind === "up" ? -WIND : settings.particleWind === "down" ? WIND : 0;
     const speed = settings.overlaySpeed / 100;
     const sizeScale = settings.overlaySize / 100;
 
@@ -178,12 +196,28 @@ export class ParticleSystem {
       p.age += dt;
       if (spec.gravity) p.vy += spec.gravity * dt;
       const sway = spec.sway ? Math.sin((p.age * spec.sway[1] + p.phase) * Math.PI * 2) * spec.sway[0] : 0;
-      p.x += (p.vx + sway) * speed * dt;
-      p.y += p.vy * speed * dt;
+      p.x += (p.vx + sway + windX) * speed * dt;
+      p.y += (p.vy + windY) * speed * dt;
       p.spin += p.spinSpeed * dt;
       const out = p.x < -300 || p.x > w + 300 || p.y < -300 || p.y > h + 300;
       if (p.age >= p.life || out) continue;
       keep.push(p);
+      if (settings.particleTrail) {
+        // P-6 꼬리 — 지나온 방향으로 옅게 끌리는 선
+        const tx = (p.vx + windX) * speed * 0.12, ty = (p.vy + windY) * speed * 0.12;
+        if (Math.abs(tx) + Math.abs(ty) > 1) {
+          ctx.save();
+          ctx.globalAlpha *= 0.35 * this.fade(p);
+          ctx.strokeStyle = p.color;
+          ctx.lineWidth = Math.max(1, p.size * unit * 0.5);
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(p.x * unit, p.y * unit);
+          ctx.lineTo((p.x - tx) * unit, (p.y - ty) * unit);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
       this.draw(ctx, p, unit, h);
     }
     this.particles = keep;

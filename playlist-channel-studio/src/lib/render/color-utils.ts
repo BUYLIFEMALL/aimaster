@@ -54,6 +54,16 @@ export function getPresetColor(
       const hue = ((timeMs * 0.05) + (t * 360)) % 360;
       return `hsl(${hue}, 100%, 60%)`;
     }
+    case 'PASTEL': {
+      // P-6 파스텔 — 부드럽게 흐르는 연한 색
+      const hue = ((timeMs * 0.02) + (t * 300)) % 360;
+      return `hsl(${hue}, 70%, 80%)`;
+    }
+    case 'MONO': {
+      // P-6 모노 — 흰색에서 회색으로
+      const v = Math.round(255 - 120 * t);
+      return `rgb(${v}, ${v}, ${v})`;
+    }
     case 'DEFAULT':
     default:
       return primaryColor;

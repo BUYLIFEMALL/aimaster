@@ -23,7 +23,11 @@ export type VisualizerType =
   | 'WAVEFORM'
   | 'FILLED_WAVE'
   | 'RADIAL_WAVE'
-  | 'SPECTRUM_DUAL';
+  | 'SPECTRUM_DUAL'
+  // P-6(2026-11-09)
+  | 'OSCILLOSCOPE'
+  | 'MIRROR_GLOW'
+  | 'DOT_MATRIX';
 
 export type FilterType =
   | 'NONE'
@@ -40,7 +44,13 @@ export type ColorPreset =
   | 'NEON_ICE'
   | 'SUNSET'
   | 'FOREST'
-  | 'VIBRANT';
+  | 'VIBRANT'
+  // P-6
+  | 'PASTEL'
+  | 'MONO';
+
+/** P-6 파티클 전체에 더하는 흐름 방향 */
+export type ParticleWind = 'none' | 'left' | 'right' | 'up' | 'down';
 
 export interface ParticleItem {
   id: string;
@@ -150,6 +160,11 @@ export interface StudioSettings {
   overlayColor: string;
   overlayColorPreset: ColorPreset;
   waterDirection: 'down' | 'up' | 'left' | 'right';
+  // P-6 파티클 공통: 흐름(바람) 방향·꼬리·최대 동시 개수·무거우면 자동 줄이기
+  particleWind: ParticleWind;
+  particleTrail: boolean;
+  particleMax: number; // 100~800
+  particleAutoReduce: boolean;
 
   // Trendy FX & Motions
   filmGrain: boolean;

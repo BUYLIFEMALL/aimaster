@@ -11,6 +11,30 @@ export const VISUALIZER_OPTIONS = [
   { type: 'FILLED_WAVE' as VisualizerType, label: '필드 웨이브', icon: 'Activity' },
   { type: 'RADIAL_WAVE' as VisualizerType, label: '라디알 웨이브', icon: 'Radio' },
   { type: 'SPECTRUM_DUAL' as VisualizerType, label: '듀얼 스펙트럼', icon: 'SplitVertical' },
+  // P-6(2026-11-09)
+  { type: 'OSCILLOSCOPE' as VisualizerType, label: '오실로스코프', icon: 'Activity' },
+  { type: 'MIRROR_GLOW' as VisualizerType, label: '미러 글로우', icon: 'Sparkles' },
+  { type: 'DOT_MATRIX' as VisualizerType, label: '도트 매트릭스', icon: 'Grid3x3' },
+];
+
+/** P-6 컬러 팔레트(스펙트럼·파티클 각각) */
+export const COLOR_PRESET_OPTIONS: { id: ColorPreset; label: string }[] = [
+  { id: 'DEFAULT', label: '단색(직접 고른 색)' },
+  { id: 'NEON_ICE', label: '네온 아이스' },
+  { id: 'SUNSET', label: '선셋' },
+  { id: 'FOREST', label: '포레스트' },
+  { id: 'VIBRANT', label: '무지개(흐름)' },
+  { id: 'PASTEL', label: '파스텔' },
+  { id: 'MONO', label: '모노(흑백)' },
+];
+
+/** P-6 파티클 흐름 방향 */
+export const PARTICLE_WIND_OPTIONS: { id: StudioSettings['particleWind']; label: string }[] = [
+  { id: 'none', label: '그대로' },
+  { id: 'left', label: '← 왼쪽' },
+  { id: 'right', label: '오른쪽 →' },
+  { id: 'up', label: '↑ 위' },
+  { id: 'down', label: '↓ 아래' },
 ];
 
 export const FILTER_OPTIONS = [
@@ -148,6 +172,10 @@ export const DEFAULT_SETTINGS: StudioSettings = {
   overlayColor: '#ffffff',
   overlayColorPreset: 'DEFAULT',
   waterDirection: 'down',
+  particleWind: 'none',
+  particleTrail: false,
+  particleMax: 400,
+  particleAutoReduce: true,
 
   filmGrain: false,
   filmGrainIntensity: 30,

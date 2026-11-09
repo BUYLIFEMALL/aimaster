@@ -329,6 +329,70 @@ export function drawSpectrumVisualizer(
       }
       break;
     }
+    case 'OSCILLOSCOPE': {
+      // P-6 오실로스코프 — 주파수 세기로 만든 촘촘한 파형 한 줄(밝은 선 + 옅은 잔상)
+      const pts: [number, number][] = [];
+      const n = Math.max(64, count * 4);
+      for (let i = 0; i < n; i++) {
+        const lv = levels[Math.min(count - 1, Math.floor((i / n) * count))];
+        const y = Math.sin(i * 0.55 + timeMs / 90) * lv * amp * 0.55 + Math.sin(i * 0.17 - timeMs / 240) * lv * amp * 0.2;
+        pts.push([left + (span * i) / (n - 1), cy + y]);
+      }
+      ctx.strokeStyle = color(0, 1);
+      ctx.shadowColor = ctx.strokeStyle;
+      ctx.shadowBlur = 16;
+      ctx.globalAlpha = opacity * 0.3;
+      ctx.lineWidth = Math.max(2, settings.barThickness * 2.4);
+      ctx.beginPath();
+      smoothPath(ctx, pts);
+      ctx.stroke();
+      ctx.globalAlpha = opacity;
+      ctx.lineWidth = Math.max(1, settings.barThickness * 0.7);
+      ctx.beginPath();
+      smoothPath(ctx, pts);
+      ctx.stroke();
+      break;
+    }
+    case 'MIRROR_GLOW': {
+      // P-6 미러 글로우 — 가운데 선을 기준으로 위아래 대칭, 강한 빛번짐
+      const pts: [number, number][] = [];
+      for (let i = 0; i < count; i++) pts.push([left + (span * i) / (count - 1), Math.max(2, levels[i] * amp * 0.75)]);
+      const g = ctx.createLinearGradient(left, 0, left + span, 0);
+      for (let k = 0; k <= 4; k++) g.addColorStop(k / 4, color(k, 5));
+      ctx.fillStyle = g;
+      ctx.shadowColor = color(2, 5);
+      ctx.shadowBlur = 28;
+      ctx.beginPath();
+      ctx.moveTo(left, cy);
+      smoothPath(ctx, pts.map(([x, h]) => [x, cy - h] as [number, number]), false);
+      ctx.lineTo(left + span, cy);
+      smoothPath(ctx, [...pts].reverse().map(([x, h]) => [x, cy + h] as [number, number]), false);
+      ctx.closePath();
+      ctx.globalAlpha = opacity * 0.85;
+      ctx.fill();
+      break;
+    }
+    case 'DOT_MATRIX': {
+      // P-6 도트 매트릭스 — 세기만큼 점이 켜지는 격자(꺼진 점은 아주 옅게)
+      const rows = 14;
+      const slot = span / count;
+      const dot = Math.max(1.5, Math.min(slot, (amp * 1.1) / rows) * 0.32);
+      ctx.shadowBlur = 6;
+      for (let i = 0; i < count; i++) {
+        const lit = Math.round(Math.min(1, levels[i]) * rows);
+        const x = left + slot * i + slot / 2;
+        for (let r = 0; r < rows; r++) {
+          const y = cy - (r + 0.5) * ((amp * 1.1) / rows);
+          ctx.fillStyle = color(r, rows);
+          ctx.shadowColor = ctx.fillStyle;
+          ctx.globalAlpha = opacity * (r < lit ? 1 : 0.08);
+          ctx.beginPath();
+          ctx.arc(x, y, dot, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      break;
+    }
   }
 
   ctx.restore();
