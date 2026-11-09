@@ -46,5 +46,4 @@
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-06 | 음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI, 요청함 `c234b28c` 「진행해」 결정) — 구현·시험·미배포 대기, 배포 승인 뒤 v1.22 + OpenAI 실제 확인 |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261101-blog` (2026-11-01 Codex 크레딧 소진으로 주인님 지시 인수) | 2026-11-01 | 담당만 인수, 지금 수정 없음. 올인원·BLOG 병합은 맥미니 재대조 결과 기준. 설치 v2.21 → v2.22 업데이트·옛 연결 8개 정리 잔여 |
-| `shorts-onestop-studio/` | [역할: video] Claude Code(윈도우, ego) · 세션 `claude-win-video` | 2026-11-09 | v1.46 무료음악 곡을 배경음악으로 받기(무료음악 백로그 D-4, 플랜 `shorts-onestop-studio/docs/PLAN_20261109_FMS_BGM.md`) — 구현·배포, 실물 시험은 맥미니에 요청 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-11-06 | v1.12 배포 끝(L-2~L-5·`?remix=`) — 남은 것: 음악(SUNO) 리믹스 카드 링크 켜기(플레이리스트 `?remix=` 뒤) |

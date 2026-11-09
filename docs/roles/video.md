@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-06 `claude-win-video` (`ai-video-studio` v1.29 · `shorts-onestop-studio` v1.45 배포 완료 — 남은 일은 시험 계정 실제 확인)
+- 마지막 갱신: 2026-11-09 `claude-win-video` (`shorts-onestop-studio` v1.46 무료음악 곡 배경음악 받기 배포 — 실물 시험은 맥미니, 보내는 쪽은 음악 담당)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,6 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
+| `shorts-onestop-studio` v1.46 | 무료음악 곡 → 배경음악 실물 시험 | 음악 담당 보내는 쪽 배포 → 맥미니 시험 결과 | `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md` |
 | `music-video-studio` | 공용 사본 동기화 미배포 | 급하지 않음 — 다음 배포 때 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
@@ -21,6 +22,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-09 | `shorts-onestop-studio` 무료음악 곡 받기(무료음악 백로그 D-4) | `/render#fms=` → `sos-ready` → `fms-audio` 받아 배경음악으로(출처·보낸 창 확인), 업로드 상한 15MB, tsc·시험 42 통과, ego 운영 확인 | v1.46 배포(`shorts-onestop-studio-jukcy51cw`) |
 | 2026-11-06 | `shorts-onestop-studio` V2 각색 강도 | 내 대본 「✨ AI로 다듬기」 3단(맞춤법만·문장 다듬기·구성까지 새로), 회원 키 1회, 줄 수 유지, 되돌리기, 시험 40개·빌드 통과 | v1.45 배포(`shorts-onestop-studio-f1i2zbcg1`) |
 | 2026-11-06 | `ai-video-studio` V2 해설 교차편집 | `/narrate` — 해설 녹음+촬영본 → 받아쓰기 → 문장마다 컷 배치 → 영상 합치기(해설 소리 칸), 실행 기록 `narration-cut`, 시험 93개·빌드 통과 `42f743503` | v1.29 배포(`ai-video-studio-op4n162e7`) |
 | 2026-11-06 | `ai-video-studio` V2 언어판 | 「🌐 언어판 만들기」(영·일·중·베, 회원 키 번역, 언어별 글꼴, 권리 기록) + 공용 `renderTrace` 사본 등록으로 기준·사본 어긋남 해소, 시험 89개·빌드 통과 | v1.29 배포(`ai-video-studio-op4n162e7`) |

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — 쇼츠 원스톱 v1.46 무료음악 곡을 배경음악으로 받기 배포(무료음악 백로그 D-4, 음악 담당 위임)
+- 한 일: `/render#fms=<곡 번호>`로 열리면 무료음악 창에 `sos-ready` → `fms-audio`(MP3) 받아 기존 배경음악 올리기로 넣음(출처 2곳·`e.source === window.opener` 확인, 대본 여러 개면 「이 대본에 넣기」, 3분 안 오면 직접 넣기 안내). `/api/media/bgm` 상한 10MB → 15MB(버킷 30MB, DB 변경 없음)
+- 검수: tsc·시험 42 통과, 배포 `shorts-onestop-studio-jukcy51cw` Ready·DB v1.46, ego 운영 화면(시험 계정)에서 v1.46·직접 넣기 안내·15MB 문구 확인
+- 남은 일: 음악 담당이 보내는 쪽(「쇼츠 배경음악으로」) 배포 → 맥미니 실물 시험(`shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md`). 받는 쪽 완료 알림은 `free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md` 9절
+- https://shorts-onestop-studio.buylife.xyz/render
+
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 하루 마무리 인수인계
 - 운영: free-music-studio v1.59(엔진 0.8.1) · ai-image-studio v1.34 · playlist-channel-studio v1.38, 미배포 대기 0. 역할 파일 `docs/roles/music.md` 정리(48줄)
 - 이어받기 문서: `free-music-studio/docs/IMPROVEMENT_HANDOFF_20261109.md`(메뉴 먹통 원인·재발 방지, 다른 세션 미커밋 변경 `AlbumArtPanel.tsx`·`imageArt.mjs`가 있을 때 커밋된 코드만 배포하는 법, 남은 대기 C-17·A-6·B-6·B-4·D-2)
