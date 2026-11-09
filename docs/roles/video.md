@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` 백로그 3차 | 장면 맞춤 + 후처리 3종 구현 끝(`9397fb311`·`82ed32bca`) | 실제 fal 생성 시험 비용 승인(약 $0.81) → 배포 승인 | `ai-video-studio/docs/PLAN_20261109_POSTPROCESS_FIT.md` |
+| `ai-video-studio` 백로그 3차 | 장면 맞춤 + 후처리 3종 + 내 영상 올리기 구현·실제 시험 끝(`9397fb311`·`82ed32bca`·`f983f30e8`, 약 $0.69) | 배포(모았다가, v1.30) | `ai-video-studio/docs/PLAN_20261109_POSTPROCESS_FIT.md` |
 | `shorts-onestop-studio` V7 | 장면 구간·48시간 클릭률 안내·해시태그 3단 구현 끝(`a97a9de74`) | 배포 승인(빌드 1회) — 미배포 대기 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` v1.46 | 무료음악 곡 → 배경음악 실물 시험 | 음악 담당 보내는 쪽 배포 → 맥미니 시험 결과 | `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
