@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-09 `claude-win-20261024-music` (v1.52·엔진 0.7.8 배포)
+- 마지막 갱신: 2026-11-09 `claude-win-20261024-music` (v1.58 연주곡 장르 세분화 · 이미지 v1.34 · 플레이리스트 v1.38 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -19,6 +19,7 @@
 | `playlist-channel-studio` v1.34 | Spectrum P-6 확장 묶음(대기 4번) | 실제 속도 보고 범위 결정 | `playlist-channel-studio/docs/PLAN_20261024_SPECTRUM_P1_P6.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-09 연주곡 장르 2단계(9개·세부 49개) + 미배포 묶음 배포: free-music-studio v1.58 · ai-image-studio v1.34(내 PC 그림 갤러리 저장) · playlist-channel-studio v1.38(스티커 여러 개), 각각 ego 운영 확인
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
 | 2026-11-09 | `free-music-studio` v1.52·엔진 0.7.8 | 노래 장르 2단계(대분류 12·세부 59, K-POP·OST·뮤지컬·동요·CCM 새로) + 그림 엔진 기록 파일·메모리 부족 안내·「메모리 빠듯」, ego 운영 확인 | 배포 |

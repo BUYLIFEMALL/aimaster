@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 연주곡 분류 세분화 + 미배포 3개 프로그램 순차 배포
+- 연주곡 장르 2단계: 대분류 9개(연주곡 프리셋 분류와 같은 이름) + 세부 49개(`free-music-studio/src/lib/lyricTags.ts` `INSTRUMENTAL_GENRE_GROUPS`), AI 작곡 기획(`/api/plan` `genre`)·프리셋 카드 연동, 시험 118·tsc 통과
+- 배포(순차, 각각 ego 운영 확인): free-music-studio v1.58(`mntb6juwx`, 실수로 같은 코드 빌드 2회) → ai-image-studio v1.34(`lsnyhsput`, 내 PC 그림 갤러리 저장) → playlist-channel-studio v1.38(`qyf2jm7xn`, 스티커 여러 개)
+- 남은 일: C-17 트로트(주인님 대기), B-6 공식 코드 404 대기, A-6 맥 대기. 다음 첫 단계: 마스터PC에서 연주곡 장르를 골라 AI 작곡 기획 1회 실물 확인
+- https://free-music-studio.buylife.xyz/songs
+
 ## 2026-11-09 [역할: mac-mini] 카페6회차 탈퇴 후 재초대 지시·Windows 준비 요청
 - 사용자 kkuleomi24 탈퇴 후 재초대1건 지시.5회차failed d4ab5da4는 동일대상 재선택 차단, Windows 원문 보존·해당1건 재시험 준비/필요처리 승인 확인 요청 da2c3523. 기존4회차 삭제승인을5회차로 확대 안 함.
 - 맥 DB/삭제/재승인/우회발송 없음, 공간16 이미 종료·6회차 시작0. 처리완료 인계 뒤 계정/기록/확장 확인→사용자 직접시작. 비용 없음.

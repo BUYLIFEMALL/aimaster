@@ -27,7 +27,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `playlist-channel-studio` (운영 v1.35) | 무료음악 곡 가져오기 패널: 무료음악 창이 아닌 곳에서 열었을 때 「받는 중」 줄을 숨김(「직접 넣기」 안내와 엇갈려 보이던 것, 운영 확인 중 발견) | (이번 커밋) | 2026-11-08 · [역할: music] `claude-win-20261024-music` | `playlist-channel-studio/AGENTS.md` v1.35 | 다음 배포 때 함께 |
+| `playlist-channel-studio` (운영 v1.35) | 무료음악 곡 가져오기 패널: 무료음악 창이 아닌 곳에서 열었을 때 「받는 중」 줄을 숨김(「직접 넣기」 안내와 엇갈려 보이던 것, 운영 확인 중 발견) | (이번 커밋) | 2026-11-08 · [역할: music] `claude-win-20261024-music` | `playlist-channel-studio/AGENTS.md` v1.35 | ✅ 11-09 v1.37에 함께 나감(이 줄은 기록용) |
 | **권한 판정 동시 조회 56개**(목록: `docs/ACCESS_CHECK_PARALLEL_20261106.md`) | 회원 권한 판정의 순차 조회 4회 → 두 묶음 동시 조회(판정 순서·결과 그대로, 첫 화면만 빨라짐). 주인님 결정 A-7 | `d1e710d68` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `docs/ACCESS_CHECK_PARALLEL_20261106.md` | 그 프로그램 다음 배포 때 함께(급하지 않음, 따로 배포 안 함). 배포한 세션은 문서 목록에서 그 줄에 ✅ |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |
 | **12월 모델 교체 묶음 A (12-11 호출 실패 — 기한 있음)** `ai-auto-blog` `142cb45ec` · `tistory-auto-blog` `7eb961fbd` · `naver-blog-seo-studio` `6103af9a8` · ~~`real_estate_sales` `7b55bd09d`~~(✅ v1.42 배포에 실림, 11-03 realty 세션) · `threads-affiliate-poster` `0caadc5ee` | `gpt-5`·`o3`·`gemini-2.5` 선택지 삭제 + 저장된 옛 값을 대체 모델로 읽기(`gpt-5`/`o3`→`gpt-5.6-sol`, 2.5→`3.8-flash`). tsc 통과, SEO 시험 158 통과 | 각 프로그램 줄 | 2026-11-03 · [역할: mac-mini] Claude Code(맥미니) | `docs/PLAN_20261103_MODEL_MIGRATION_DEC.md` | **12-05까지 다른 배포가 없으면 12-10 전에 이 5개만 배포 여쭘**(주인님 11-03). ⚠ MAC 7개 배포(요청 63ff201b)는 11-03 08:32~08:45에 `claude-win-sdp`가 이미 끝냈고 이 교체 커밋(10:24~)보다 먼저라 **실리지 않음** — 블로그·티스토리·SEO·threads·blog-keyword 모두 아직 미배포(11-03 14:31 배포 시각 대조, `claude-win-20261103-deploy`) · ✅ 11-06 `threads-affiliate-poster` v1.86 배포(`claude-win-20261106-ytreply`) — 남은 A: 블로그·티스토리·SEO 3개 |
@@ -71,6 +71,9 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `free-music-studio` | v1.58 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「연주곡 분류 세분화 작업하고 모았다가 배포해」, `free-music-studio-mntb6juwx`, DB v1.58, 사이트만 — 실수로 같은 코드 빌드 2회) | 연주곡 장르 2단계(9개·세부 49개, AI 작곡 기획·프리셋 연동), 단계 막대·AI 작사 접기(C-36), 넓은 화면 배치(C-35). ego 운영 확인 |
+| `ai-image-studio` | v1.34 · 2026-11-09 ([역할: music], 같은 묶음, `ai-image-studio-lsnyhsput`, DB v1.34) | 「내 PC (무료)」로 그린 그림 갤러리 자동 저장(`/api/local-result`, 작업 종류 `image_local`)·갤러리 필터. ego 운영 확인 |
+| `playlist-channel-studio` | v1.38 · 2026-11-09 ([역할: music], 같은 묶음, `playlist-channel-studio-qyf2jm7xn`, DB v1.38) | P-6 추가 스티커 최대 3개(미리보기·MP4). ego 운영 확인 「추가 스티커 0/3」 |
 | `free-music-studio` | v1.57 · 엔진 0.8.1 설치 파일 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「한번에 배포하자」, `free-music-studio-8463te21e`, DB v1.57) | 넣을 프로젝트(C-33), 여러 버전 한 번에(C-34), 엔진 0.8.1 이미지 자동화 연결(D-3) |
 | `ai-image-studio` | v1.33 · 2026-11-09 ([역할: music], 같은 묶음, `ai-image-studio-l5k8gtx08`, DB v1.33) | 「내 PC (무료)」 카드(D-3) + 대기분 30일 정리 예외 회원 건너뛰기 |
 | `playlist-channel-studio` | v1.37 · 2026-11-09 ([역할: music], 같은 묶음, `playlist-channel-studio-8dl5sxxkf`, DB v1.37) | P-6 스펙트럼 3종·컬러 팔레트·파티클 확장 + 대기분(받는 중 숨김·모델 칸) |
