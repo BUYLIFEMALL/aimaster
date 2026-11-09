@@ -2,7 +2,7 @@
 
 - 대상: Lab `labs/mall-builder` (DB `AIMaster_dev` ref `rjjtjakljjxsgjelqgek`)
 - 근거: [로드맵 2차 후보](../../../docs/mall/ROADMAP_AND_VARIANTS.md) 「폐쇄몰」, 버전 계열 V-C 폐쇄몰(회원 전용·복지몰), 주인님 「진행해」(2026-11-09)
-- 상태: **결정 대기**
+- 상태: **결정 완료(2026-11-09 주인님 채팅)** — 결정 1~4 추천안(승인제+초대 코드 각각 켜고 끔 · 몰 공용 코드 1개 · 승인 전엔 안내·로그인·가입만 · 기존 가입자 그대로 허용), Lab 빌드 1회 승인
 
 ## 1. 지금 구조
 - 상품·옵션 읽기 규칙은 `mall_builder_product_visible()` 한 함수를 거침(사업자 전용 판단은 `mall_builder_shop_viewer()`). → 여기에 「폐쇄몰이면 승인 회원만」을 더하면 **DB 단계에서** 상품이 숨겨짐(화면만 가리는 것이 아님).
