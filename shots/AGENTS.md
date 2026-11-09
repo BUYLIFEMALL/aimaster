@@ -225,3 +225,8 @@
 - 플랜 `docs/PLAN_20261029_DUP4_UPLOAD_CLAIM.md`. `src/lib/uploadGuard.ts`(새) `claimDecision`·`needsCheck`·`isUncertainFailure` — 올리는 중이면 거절, 이미 올림·결과 불확실이면 회원 확인(`confirmResend=1`)이 있어야 진행. 두 액션이 조건부 update(`status ≠ posting` 또는 10분 지난 `posting`)로 선점, 0행이면 거절.
 - 업로드를 보낸 뒤 연결 오류·5xx(인스타는 연결 오류만)면 `failed`로 바꾸지 않고 `posting`으로 남겨 자동 재발송을 막음 → 10분 뒤 배지 「확인 필요」, 다시 올리기는 확인 창을 거침. DB 구조·공용 `youtube-upload-client` 변경 없음.
 - 검수: 시험 14개(`uploadGuard` 5개 추가)·tsc·eslint·build. 실제 업로드 시험은 안 함(외부 게시). 커밋 `7da2cb688`. 다음 Shots 배포 때 v1.45로 함께 내보낸다.
+
+## 2026-11-09 D-6 — AI 무료음악 곡을 배경음악으로 받기 (Claude Code 윈도우, 영상 담당 `claude-win-video`, **미배포** — 다음 배포 v1.46)
+- 받기 화면 `/fms-bgm`(`src/app/(dashboard)/fms-bgm/page.tsx` → `src/components/music/FmsBgmReceiver.tsx`): 무료음악 창이 `#fms=<곡 번호>`로 열면 `shs-ready`를 보내고 `fms-audio`(MP3)를 받는다(출처·`window.opener` 확인, 15MB). 회원이 최근 영상 30개 중 하나를 고르면 `src/lib/actions/fmsBgm.ts`가 일회용 업로드 주소 → 브라우저가 shots-bgm `<회원>/<영상>-fms-<uuid>.mp3`에 바로 올림 → 파일 확인 뒤 `shorts_bgm_tracks` 저장·선택 → 영상 화면으로. 순수 함수 `src/lib/fmsBgm.ts`, 시험 `tests/fmsBgm.test.mjs`(전체 17개).
+- 이 프로그램은 교차 출처 격리 헤더가 없어 쇼츠 원스톱(D-4)처럼 경로를 따로 뺄 필요가 없다. 로그인이 풀려 있으면 로그인 화면을 거치며 곡 번호가 사라진다(원스톱과 같은 한계).
+- 계약: `free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md` §14. 커밋 `5c15584c5`.
