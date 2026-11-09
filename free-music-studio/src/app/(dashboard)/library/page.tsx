@@ -67,6 +67,7 @@ import {
 import { COVER_SOURCE_KEY, KIND_LABEL, type CoverSource, type Track } from "@/lib/tracks";
 import { openLyricVideo } from "@/lib/lyricVideoHandoff";
 import { openVideoWithSongs, PLAYLIST_MAX } from "@/lib/videoHandoff";
+import { seoHandoffUrl } from "@/lib/seoHandoff";
 import { AlbumPicker } from "@/components/albums/AlbumPicker";
 import { albumsHref } from "@/lib/albums";
 import { COLLECTIONS_CHANGED, TRACK_DRAG_TYPE, TRACKS_DROPPED, type Collection, type CollectionKind, type TracksDropped } from "@/lib/collections";
@@ -562,6 +563,18 @@ export default function LibraryPage() {
                               onClick: () => {
                                 if (openVideoWithSongs("musicVideo", [{ id: t.id, title: t.title }], setMessage))
                                   setNotice("뮤직비디오 창을 열었습니다. 곡 제목·스타일·가사(맞춰 둔 가사 시간 포함)와 음악 파일이 함께 들어갑니다.");
+                              },
+                            },
+                            // 백로그 D-7(2026-11-09): 유튜브 제목·설명·태그·썸네일 — AI 썸네일·SEO 「SEO 전략」에 곡 정보를 넘김(음원 필요 없음)
+                            {
+                              label: "유튜브 제목·설명·썸네일 만들기",
+                              icon: <MonitorPlay className="h-3.5 w-3.5" />,
+                              disabled: false,
+                              onClick: () => {
+                                const win = window.open(seoHandoffUrl(t), "_blank");
+                                if (win) win.opener = null; // 받는 창이 이 창을 건드리지 못하게(「noopener」 옵션은 창을 열어도 null을 돌려줘 막힘으로 오판)
+                                if (!win) setMessage("새 창이 막혔습니다. 브라우저 주소창 오른쪽의 팝업 허용을 누른 뒤 다시 눌러 주세요.");
+                                else setNotice("AI 썸네일·SEO 창을 열었습니다. 곡 제목·스타일·가사가 대본 칸에 들어가 있습니다 — 「SEO 전략 3가지 만들기」를 누르세요(회원님 AI 키).");
                               },
                             },
                             // 백로그 D-5(2026-11-09): LP 턴테이블 영상으로 — 음원(MP3)·표지 그림·제목을 함께
