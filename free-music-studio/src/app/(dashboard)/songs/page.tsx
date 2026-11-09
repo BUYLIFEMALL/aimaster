@@ -13,6 +13,7 @@ const PLAN_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40];
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
 import { MultiVersionPanel } from "@/components/engine/MultiVersionPanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
+import { RefStyleButton } from "@/components/songs/RefStyleButton";
 import { presetsFor } from "@/lib/presets";
 import { dancePresetsFor } from "@/lib/dancePresets";
 import { COLLECTIONS_CHANGED, type Collection } from "@/lib/collections";
@@ -1170,6 +1171,8 @@ export default function SongsPage() {
             {/* 2026-11-09 주인님 「박스 위에 Style 태그 제목」「프리셋이 우선한다는 내용」 */}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-1">
               <p className="text-sm font-bold text-teal-200">{sfx ? "🔊 효과음 설명" : "🎼 음악 스타일 (Caption)"}</p>
+              {/* 백로그 D-9: 참고곡 파일로 스타일 채우기(회원 Gemini 키, 파일 저장 안 함) */}
+              {!sfx && <RefStyleButton instrumental={instrumental} model={provider === "gemini" ? model : ""} style={draft.style_prompt} onStyle={(s) => set("style_prompt", s)} />}
               <span className="text-[11px] leading-relaxed text-slate-400">
                 {sfx
                   ? "음악 엔진이 그대로 읽는 소리 설명(영어)"

@@ -5,6 +5,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { ALBUM_READ_SCHEMA, albumReadRules, parseAlbumRead, type AlbumRead } from "@/lib/albumRead";
 import type { LyricModel, LyricProvider } from "@/lib/lyricModels";
 import { LIMITS } from "@/lib/songs";
+import { parseRefStyle, refStyleRules, type RefStyle } from "@/lib/refStyle";
 import { findBannedWords, parsePlan, targetLengthText, type PlannedTrack } from "@/lib/lyricRules";
 
 // AI 작사·연주곡 기획 — 회원이 고른 공급사(OpenAI·Claude·Gemini)의 본인 키로 부른다(SDK 재시도 없음 — 회원 키 이중 과금 방지).
@@ -209,7 +210,8 @@ async function viaOpenAI(apiKey: string, model: LyricModel, system: string, user
   return choice?.message?.content ?? "";
 }
 
-async function viaGemini(apiKey: string, model: LyricModel, system: string, user: string, image?: Picture): Promise<string> {
+// 첨부는 그림 또는 소리(audio/wav — 참고곡 스타일 D-9, 소리를 듣는 건 Gemini만이라 이 함수만 받음)
+async function viaGemini(apiKey: string, model: LyricModel, system: string, user: string, image?: { data: string; mime: string }): Promise<string> {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
@@ -461,5 +463,17 @@ export async function readAlbumImage(provider: LyricProvider, apiKey: string, mo
     return { ...parseAlbumRead(raw), calls: count() };
   } catch (err) {
     throw new LyricError((err as Error).message, 502);
+  }
+}
+
+// ── 참고곡 → 음악 스타일(백로그 D-9, 2026-11-09) ──────────
+// 브라우저가 줄인 60초 모노 WAV를 회원 Gemini 키로 한 번 보낸다(소리를 듣는 건 Gemini만). 음원은 저장하지 않는다. 재시도 없음(이중 과금 방지).
+export async function styleFromAudio(apiKey: string, model: LyricModel, req: { wavBase64: string; instrumental: boolean }): Promise<RefStyle & { calls: number }> {
+  const raw = await viaGemini(apiKey, model, refStyleRules(req.instrumental), "Describe the musical style of the attached reference excerpt as JSON.", { data: req.wavBase64, mime: "audio/wav" });
+  if (!raw.trim()) throw new LyricError("AI 응답이 비었습니다. 잠시 뒤 다시 시도해 주세요.", 502);
+  try {
+    return { ...parseRefStyle(raw, req.instrumental), calls: 1 };
+  } catch (err) {
+    throw new LyricError(`${(err as Error).message} 다시 시도해 주세요.`, 502);
   }
 }
