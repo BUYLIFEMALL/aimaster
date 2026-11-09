@@ -11,6 +11,8 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   data_go_kr_service_key: "공공데이터포털 서비스키 (선택 — 비우면 공용 키 사용, 서울 밖은 아파트·연립다세대·오피스텔 「매매·전월세 실거래가 자료」 활용신청 필요)",
   vworld_api_key: "브이월드 인증키 (선택 — 도메인과 함께 등록)",
   vworld_domain: "브이월드에 등록한 도메인 (선택 — 브이월드 키와 함께 등록)",
+  naver_client_id: "네이버 검색 Client ID (지역 뉴스 — 다른 프로그램에 등록했다면 그대로 쓰여요)",
+  naver_client_secret: "네이버 검색 Client Secret (지역 뉴스)",
 };
 
 export async function getUserApiKey(

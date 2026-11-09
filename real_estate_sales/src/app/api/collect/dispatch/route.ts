@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { currentKstHour, isCollectDue, isWithinActiveHours } from "@/lib/publicdata/schedule";
 import { collectDistrict, findUnmatchedListingIds, notifyUserForListings } from "@/lib/realestate/collect";
 import { programAccessUserIds } from "@/lib/accessBatch";
+import { runNewsRadar } from "@/lib/news/runner";
 
 /** 핸드폰 번호 필수 정책(2026-10-12): 번호가 없는 회원(관리자 제외)의 예약·자동 작업은 실행하지 않는다. 루트 lib/utils/phone.ts 와 같은 규칙. */
 async function phoneRegisteredUserIds(client: unknown, userIds: string[]): Promise<Set<string>> {
@@ -82,7 +83,7 @@ async function dispatch() {
   );
 
   if (dueRows.length === 0) {
-    return { processed: 0, summary: [] };
+    return { processed: 0, summary: [], news: await runNewsStep(supabase, now, Date.now() + 200_000) };
   }
 
   // 지역별 "이 지역을 원하는 사용자 중 가장 빠른 주기" — 그보다 최근에 이미 수집됐으면
@@ -151,7 +152,26 @@ async function dispatch() {
     await notifyUserForListings(supabase, row.user_id, row.sgg_nm, unmatchedIds, { deadline: startedAt + 240_000 });
   }
 
-  return { processed: dueRows.length, summary };
+  return { processed: dueRows.length, summary, news: await runNewsStep(supabase, now, startedAt + 270_000) };
+}
+
+/** RQ-C(2026-11-09): 지역 뉴스 — 켠 회원만 아침 8시 이후 하루 1번. 실거래 수집과 같은 정지·핸드폰·권한 판정 */
+async function runNewsStep(supabase: ReturnType<typeof createAdminClient>, now: Date, deadline: number) {
+  try {
+    return await runNewsRadar(
+      supabase,
+      async (ids) => {
+        const { data: suspended } = await supabase.from("profiles").select("id").in("id", ids.length ? ids : [""]).eq("is_suspended", true);
+        const blocked = new Set((suspended ?? []).map((p) => p.id));
+        const [phoneOk, accessOk] = await Promise.all([phoneRegisteredUserIds(supabase, ids), programAccessUserIds(supabase, "real-estate-sales", ids, now)]);
+        return new Set(ids.filter((id) => !blocked.has(id) && phoneOk.has(id) && accessOk.has(id)));
+      },
+      { now, deadline },
+    );
+  } catch (err) {
+    console.error("지역 뉴스 단계 실패:", err);
+    return [];
+  }
 }
 
 export async function GET(request: NextRequest) {

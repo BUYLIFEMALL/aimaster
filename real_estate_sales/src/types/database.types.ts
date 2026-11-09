@@ -6,7 +6,9 @@ export type ApiKeyProvider =
   | "seoul_opendata_api_key"
   | "data_go_kr_service_key"
   | "vworld_api_key"
-  | "vworld_domain";
+  | "vworld_domain"
+  | "naver_client_id"
+  | "naver_client_secret";
 
 export type Json =
   | string

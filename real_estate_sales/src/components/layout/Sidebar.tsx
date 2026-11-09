@@ -24,6 +24,8 @@ const UTILITY_ITEMS = [
 const ONSITE_ITEM = { href: "/onsite", icon: "📷", label: "임장 노트" };
 // B1(2026-11-03): 한 필지의 실거래·전세·공시가·토지·건물 정보를 한 장으로
 const REPORT_ITEM = { href: "/report", icon: "📄", label: "주소 리포트" };
+// RQ-C(2026-11-09): 관심 지역 개발·교통·학교·규제 뉴스
+const NEWS_ITEM = { href: "/news", icon: "📰", label: "지역 뉴스" };
 
 function NavContent({ pathname, userEmail }: { pathname: string | null; userEmail: string }) {
   return (
@@ -70,7 +72,7 @@ function NavContent({ pathname, userEmail }: { pathname: string | null; userEmai
 
 
         <div className="mt-6 border-t border-mx-border pt-3">
-          {[ONSITE_ITEM, REPORT_ITEM, ...UTILITY_ITEMS].map((item) => {
+          {[ONSITE_ITEM, REPORT_ITEM, NEWS_ITEM, ...UTILITY_ITEMS].map((item) => {
             const isActive = pathname?.startsWith(item.href);
             return (
               <Link

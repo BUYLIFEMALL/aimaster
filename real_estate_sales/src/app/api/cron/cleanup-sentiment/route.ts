@@ -59,12 +59,22 @@ export async function GET(request: NextRequest) {
   let savedQuery = admin.from("real_estate_saved_reports" as never).delete().lt("created_at" as never, cutoff as never);
   if (exemptIds.length) savedQuery = savedQuery.not("user_id" as never, "in", `(${exemptIds.join(",")})`);
   const { data: savedReports } = await savedQuery.select("id, user_id");
+  // RQ-C 지역 뉴스(2026-11-09 결정 3): 뉴스 90일, AI 요약 1년. 관리자·시험 계정은 뺀다
+  const newsCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+  let newsQuery = admin.from("real_estate_news_items" as never).delete().lt("created_at" as never, newsCutoff as never);
+  if (exemptIds.length) newsQuery = newsQuery.not("user_id" as never, "in", `(${exemptIds.join(",")})`);
+  const { data: newsItems } = await newsQuery.select("id, user_id");
+  let digestQuery = admin.from("real_estate_news_digests" as never).delete().lt("created_at" as never, cutoff as never);
+  if (exemptIds.length) digestQuery = digestQuery.not("user_id" as never, "in", `(${exemptIds.join(",")})`);
+  const { data: newsDigests } = await digestQuery.select("id, user_id");
   // 정리 기록 — 회원별 지운 지역 분위기(sentiments)·매물 분석(analyses) 수
   const counts: CleanupCounts = new Map();
   for (const r of (savedReports ?? []) as unknown as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "saved_reports");
   for (const r of (data ?? []) as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "sentiments");
   for (const r of (analyses ?? []) as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "analyses");
   if (!removeResult.error) for (const r of onsiteRows) addCleanupCount(counts, r.user_id, "onsite");
+  for (const r of (newsItems ?? []) as unknown as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "news");
+  for (const r of (newsDigests ?? []) as unknown as { user_id: string | null }[]) addCleanupCount(counts, r.user_id, "news_digests");
   const loggedOwners = await logCleanupUsage(admin, "real-estate-sales", counts);
   return NextResponse.json({ deleted: data?.length ?? 0, deletedAnalyses: analyses?.length ?? 0, deletedOnsite: removeResult.error ? 0 : onsiteRows.length, cutoff, retentionDays: RETENTION_DAYS, loggedOwners });
 }

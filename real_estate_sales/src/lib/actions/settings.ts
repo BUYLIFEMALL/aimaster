@@ -19,6 +19,8 @@ const VALID_PROVIDERS: ApiKeyProvider[] = [
   "data_go_kr_service_key",
   "vworld_api_key",
   "vworld_domain",
+  "naver_client_id",
+  "naver_client_secret",
 ];
 
 export async function saveApiKeyAction(

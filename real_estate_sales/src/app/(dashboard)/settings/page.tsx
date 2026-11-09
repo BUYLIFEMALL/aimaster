@@ -24,6 +24,8 @@ const PUBLIC_DATA_PROVIDERS: ApiKeyProvider[] = [
   "vworld_api_key",
   "vworld_domain",
 ];
+// RQ-C(2026-11-09): 지역 뉴스용 네이버 검색 키(회원 본인 것, 공용 user_api_keys라 블로그 키워드 등에서 등록했다면 그대로 보임)
+const NAVER_PROVIDERS: ApiKeyProvider[] = ["naver_client_id", "naver_client_secret"];
 
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
 // 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
@@ -105,6 +107,27 @@ export default async function SettingsPage() {
         <div className="rounded-2xl border border-mx-border bg-mx-surface p-5">
           <div className="space-y-3">
             {PUBLIC_DATA_PROVIDERS.map((provider) => (
+              <ApiKeyRow
+                key={provider}
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <h2 className="text-lg font-medium text-mx-text">📰 네이버 검색 키 (지역 뉴스)</h2>
+          <p className="text-sm text-mx-muted">
+            「📰 지역 뉴스」가 관심 지역 소식을 찾을 때 씁니다. 네이버 API HUB(또는 예전 개발자센터)에서 검색 API를 신청한 본인 키를 넣어 주세요. 운영자 키로 대신 찾지 않아요.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-mx-border bg-mx-surface p-5">
+          <div className="space-y-3">
+            {NAVER_PROVIDERS.map((provider) => (
               <ApiKeyRow
                 key={provider}
                 provider={provider}
