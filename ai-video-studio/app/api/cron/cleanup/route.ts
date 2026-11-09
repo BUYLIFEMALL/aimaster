@@ -3,7 +3,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { BUCKET, RETENTION_DAYS, type GenerationRow } from "@/lib/generations";
 import { addCleanupCount, logCleanupUsage, type CleanupCounts } from "@/lib/cleanupUsageLog";
 import { PROGRAM_SLUG } from "@/lib/access";
-import { retentionExemptFilter } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
+import { loadRetentionExemptIds, retentionExemptFilter } from "@/lib/retentionExempt"; // 30일 삭제 예외 회원(2026-11-03)
+import { isOrphanUpload, isUuid, UPLOAD_FILE_NAME, type FolderFile } from "@/lib/uploadOrphans";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -91,6 +92,28 @@ export async function GET(request: Request) {
       for (const r of rightsRows) addCleanupCount(counts, r.user_id, "logs");
     }
   }
+  // v1.30 내 영상 올리기 중 멈춘 파일(보관함 줄 없음): 판정 규칙은 lib/uploadOrphans.ts. 예외 회원 폴더는 건드리지 않는다. 한 번에 최대 100개
+  const exemptIds = await loadRetentionExemptIds(admin);
+  let removedOrphans = 0;
+  const { data: userDirs } = await admin.storage.from(BUCKET).list("", { limit: 1000 });
+  for (const dir of (userDirs ?? []).filter((d) => d.id === null && isUuid(d.name) && !exemptIds.has(d.name))) {
+    if (removedOrphans >= 100) break;
+    const { data: subs } = await admin.storage.from(BUCKET).list(dir.name, { limit: 1000 });
+    const folderIds = (subs ?? []).filter((s) => s.id === null && isUuid(s.name)).map((s) => s.name);
+    if (!folderIds.length) continue;
+    const { data: known, error: ke } = await admin.from("avs_generations").select("id").eq("user_id", dir.name).in("id", folderIds);
+    if (ke) continue; // 줄을 못 읽으면 지우지 않는다
+    const has = new Set(((known ?? []) as { id: string }[]).map((k) => k.id));
+    for (const fid of folderIds) {
+      if (has.has(fid) || removedOrphans >= 100) continue;
+      const { data: files } = await admin.storage.from(BUCKET).list(`${dir.name}/${fid}`, { limit: 5 });
+      if (!isOrphanUpload(fid, (files ?? []) as FolderFile[], false)) continue;
+      const { error: re } = await admin.storage.from(BUCKET).remove([`${dir.name}/${fid}/${UPLOAD_FILE_NAME}`]);
+      if (re) continue;
+      removedOrphans++;
+      addCleanupCount(counts, dir.name, "videos");
+    }
+  }
   const loggedUsers = await logCleanupUsage(admin, PROGRAM_SLUG, counts);
-  return NextResponse.json({ ok: true, scanned: rows.length, removed, removedEdits, removedPrompts, removedRights, loggedUsers });
+  return NextResponse.json({ ok: true, scanned: rows.length, removed, removedEdits, removedPrompts, removedRights, removedOrphans, loggedUsers });
 }

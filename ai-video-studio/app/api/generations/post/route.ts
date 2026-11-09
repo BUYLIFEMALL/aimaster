@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { BUCKET, markFailed, toClient, type GenerationRow } from "@/lib/generations";
 import { isHost, isJobId } from "@/lib/video/videoParse";
 import { isRetentionExempt } from "@/lib/retentionExempt";
-import { POST_SPECS, isBgColor, postBlocked, postCostUsd, postInput, postModelId, type PostKind } from "@/lib/postprocess";
+import { POST_SPECS, isBgColor, postBlocked, postCostUsd, postInput, postModelId, videoSize, type PostKind } from "@/lib/postprocess";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -53,7 +53,9 @@ export async function POST(request: Request) {
 
   // 업스케일한 영상은 1080p로 기록되므로 두 번 키우지 않는다
   const resolution = source.options?.resolution;
-  const blocked = postBlocked(k, source.duration_s, resolution);
+  // 화면이 읽은 실제 영상 크기(업스케일 배율을 1920×1080 안으로 맞추는 데만 쓴다 — 없으면 해상도 칸으로 계산)
+  const size = videoSize(body.size);
+  const blocked = postBlocked(k, source.duration_s, resolution, size);
   if (blocked) return NextResponse.json({ error: blocked }, { status: 400 });
   const audio = k === "lipsync" ? parseAudio(body.audio) : null;
   if (k === "lipsync" && !audio) return NextResponse.json({ error: "립싱크할 목소리 파일(MP3·WAV, 3MB 이하)을 넣어 주세요." }, { status: 400 });
@@ -105,7 +107,7 @@ export async function POST(request: Request) {
     const res = await fetch(`https://queue.fal.run/${spec.endpoint}`, {
       method: "POST",
       headers: { Authorization: `Key ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify(postInput(k, { videoUrl, audioUrl, color, resolution })),
+      body: JSON.stringify(postInput(k, { videoUrl, audioUrl, color, resolution, size })),
       cache: "no-store",
       signal: AbortSignal.timeout(45_000),
     });

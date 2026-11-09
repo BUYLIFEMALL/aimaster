@@ -79,7 +79,7 @@ export const MINE_DAYS = 30;
 export interface BoardPresetRow extends BoardPreset { sortOrder: number; published: boolean }
 
 /** 내 프롬프트(본인만) */
-export interface MinePrompt { id: string; title: string; idea: string; styleId: string | null; cameraId: string | null; createdAt: string; expiresAt: string }
+export interface MinePrompt { id: string; title: string; idea: string; styleId: string | null; cameraId: string | null; createdAt: string; /** 30일 삭제 예외 회원은 null(기간 제한 없음) */ expiresAt: string | null }
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 const text = (v: unknown) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim() : "");

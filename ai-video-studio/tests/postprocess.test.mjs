@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isUploadModel, postBlocked, postCostUsd, postInput, postKindOf, postModelId, sourceHeight, uploadAspect, uploadSeconds, UPLOAD_MODEL } from "../lib/postprocess.ts";
+import { isUploadModel, postBlocked, postCostUsd, postInput, postKindOf, postModelId, sourceHeight, uploadAspect, uploadSeconds, upscaleFactor, videoSize, UPLOAD_MODEL } from "../lib/postprocess.ts";
 
 test("후처리 모델 이름 — post:<종류>만 후처리로 본다", () => {
   assert.equal(postKindOf(postModelId("lipsync")), "lipsync");
@@ -30,6 +30,24 @@ test("fal 입력 — 업스케일은 결과가 1080p가 되는 배율·H264, 배
   assert.equal(postInput("upscale", { videoUrl: "v", resolution: "480p" }).upscale_factor, 2.25);
   assert.deepEqual(postInput("bgremove", { videoUrl: "v", color: "White" }), { video_url: "v", background_color: "White", output_container_and_codec: "mp4_h264", preserve_audio: true });
   assert.deepEqual(postInput("lipsync", { videoUrl: "v", audioUrl: "a" }), { video_url: "v", audio_url: "a" });
+});
+
+test("업스케일 배율 — 실제 크기가 있으면 결과를 1920×1080(세로 1080×1920) 안으로 맞춘다", () => {
+  assert.equal(upscaleFactor("720p", { w: 1280, h: 720 }), 1.5);
+  assert.equal(upscaleFactor("720p", { w: 720, h: 1280 }), 1.5);
+  // 세로로 긴 립싱크 결과 720×1440 — 짧은 쪽만 보면 1.5(1080×2160, 1080p 넘는 단가)
+  const f = upscaleFactor("720p", { w: 720, h: 1440 });
+  assert.equal(f, 1.33);
+  assert.ok(Math.round(1440 * f) <= 1920);
+  assert.equal(upscaleFactor("720p", { w: 1080, h: 1080 }), 1);
+  assert.match(postBlocked("upscale", 5, "720p", { w: 1080, h: 1080 }), /1080p/);
+  assert.match(postBlocked("upscale", 5, "720p", { w: 1920, h: 1080 }), /1080p/);
+  assert.equal(postBlocked("upscale", 5, "720p", { w: 720, h: 1440 }), null);
+  assert.equal(postInput("upscale", { videoUrl: "v", resolution: "720p", size: { w: 720, h: 1440 } }).upscale_factor, 1.33);
+  assert.equal(videoSize({ w: 720, h: 1440 }).h, 1440);
+  assert.equal(videoSize({ w: 0, h: 1440 }), null);
+  assert.equal(videoSize("x"), null);
+  assert.equal(videoSize({ w: 7.5, h: 10 }), null);
 });
 
 test("내 영상 올리기 — 길이는 올림(립싱크 10초 제한을 미리 막음), 비율은 9:16·16:9에 가까울 때만", () => {

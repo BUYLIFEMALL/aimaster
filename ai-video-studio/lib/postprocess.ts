@@ -27,12 +27,12 @@ export const POST_SPECS: Record<PostKind, PostSpec> = {
   },
   upscale: {
     kind: "upscale", name: "업스케일 1080p", emoji: "🔍", endpoint: "fal-ai/topaz/upscale/video",
-    desc: "720p 영상을 1080p로 선명하게 키웁니다(Topaz). 이미 1080p인 영상은 키우지 않습니다.",
+    desc: "720p 영상을 1080p로 선명하게 키웁니다(Topaz). 결과는 1920×1080(세로 영상은 1080×1920) 안으로 맞춥니다. 이미 1080p인 영상은 키우지 않습니다.",
     minSeconds: 1, maxSeconds: 30,
   },
   bgremove: {
     kind: "bgremove", name: "배경 제거", emoji: "✂️", endpoint: "bria/video/background-removal",
-    desc: "인물·물건만 남기고 배경을 한 가지 색으로 바꿉니다(30초 미만). 초록을 고르면 편집 프로그램에서 크로마키로 다른 배경을 넣을 수 있습니다.",
+    desc: "인물·물건만 남기고 배경을 한 가지 색으로 바꿉니다(30초 미만). 초록을 고르면 편집 프로그램에서 크로마키로 다른 배경을 넣을 수 있습니다. AI가 남길 주인공을 스스로 고르므로, 사람이나 물건 하나가 뚜렷하게 보이는 영상에 맞습니다(물건이 여러 개면 일부가 지워질 수 있습니다).",
     minSeconds: 1, maxSeconds: 29,
   },
 };
@@ -49,6 +49,21 @@ export function sourceHeight(resolution: unknown): number {
   return m ? Number(m[1]) : 720;
 }
 
+export type VideoSize = { w: number; h: number };
+/** 화면·요청에서 받은 실제 영상 크기 — 숫자가 이상하면 null(해상도 칸으로 계산) */
+export function videoSize(v: unknown): VideoSize | null {
+  const o = v as { w?: unknown; h?: unknown } | null;
+  const w = Number(o?.w), h = Number(o?.h);
+  return Number.isInteger(w) && Number.isInteger(h) && w >= 16 && h >= 16 && w <= 8192 && h <= 8192 ? { w, h } : null;
+}
+
+/** 업스케일 배율 — 결과가 1920×1080(세로 영상은 1080×1920) 안에 들어가게 한다.
+ *  짧은 쪽만 보면 세로로 긴 영상(예 720×1440)이 1080×2160이 되어 1080p 넘는 단가(초당 $0.08)가 붙는다(2026-11-10 개선). 소수 둘째 자리 내림. */
+export function upscaleFactor(resolution: unknown, size?: VideoSize | null): number {
+  const f = size ? Math.min(1080 / Math.min(size.w, size.h), 1920 / Math.max(size.w, size.h)) : 1080 / sourceHeight(resolution);
+  return Math.floor(f * 100) / 100;
+}
+
 /** 예상 비용(USD, 회원 fal 키) — 화면은 「약」으로 안내 */
 export function postCostUsd(kind: PostKind, seconds: number): number {
   const s = Math.max(1, Math.ceil(seconds));
@@ -59,18 +74,18 @@ export function postCostUsd(kind: PostKind, seconds: number): number {
 }
 
 /** 이 영상에 이 후처리를 할 수 있는가 — 안 되면 이유(화면·서버 같은 판정) */
-export function postBlocked(kind: PostKind, seconds: number, resolution?: unknown): string | null {
+export function postBlocked(kind: PostKind, seconds: number, resolution?: unknown, size?: VideoSize | null): string | null {
   const spec = POST_SPECS[kind];
   if (seconds < spec.minSeconds) return `${spec.name}은(는) ${spec.minSeconds}초 이상 영상만 됩니다.`;
   if (seconds > spec.maxSeconds) return `${spec.name}은(는) ${spec.maxSeconds}초 이하 영상만 됩니다. 영상 합치기에서 잘라 쓴 뒤 해 주세요.`;
-  if (kind === "upscale" && sourceHeight(resolution) >= 1080) return "이미 1080p 이상인 영상이라 키우지 않습니다.";
+  if (kind === "upscale" && (size ? upscaleFactor(resolution, size) <= 1.05 : sourceHeight(resolution) >= 1080)) return "이미 1080p 크기인 영상이라 키우지 않습니다.";
   return null;
 }
 
 /** fal에 보낼 입력 — 영상·소리는 1시간짜리 서명 주소 */
-export function postInput(kind: PostKind, o: { videoUrl: string; audioUrl?: string; color?: BgColor; resolution?: unknown }): Record<string, unknown> {
+export function postInput(kind: PostKind, o: { videoUrl: string; audioUrl?: string; color?: BgColor; resolution?: unknown; size?: VideoSize | null }): Record<string, unknown> {
   if (kind === "lipsync") return { video_url: o.videoUrl, audio_url: o.audioUrl };
-  if (kind === "upscale") return { video_url: o.videoUrl, upscale_factor: Math.round((1080 / sourceHeight(o.resolution)) * 100) / 100, H264_output: true };
+  if (kind === "upscale") return { video_url: o.videoUrl, upscale_factor: upscaleFactor(o.resolution, o.size), H264_output: true };
   return { video_url: o.videoUrl, background_color: o.color ?? "Green", output_container_and_codec: "mp4_h264", preserve_audio: true };
 }
 

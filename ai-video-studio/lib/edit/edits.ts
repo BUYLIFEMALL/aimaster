@@ -86,7 +86,7 @@ export async function saveEdit(userId: string, input: { id?: unknown; title?: un
 }
 
 /** 내 편집 목록(갤러리 「편집본」·불러오기 목록) */
-export async function listEdits(userId: string) {
+export async function listEdits(userId: string, exempt = false) {
   const admin = createAdminClient();
   const { data, error } = await admin.from("avs_edits")
     .select("id, title, project, output_path, output_bytes, duration_s, created_at, updated_at")
@@ -104,7 +104,8 @@ export async function listEdits(userId: string) {
       id: r.id, title: r.title, clips: r.project?.clips?.length ?? 0, aspect: r.project?.aspect ?? "9:16",
       outputBytes: r.output_bytes, durationS: r.duration_s, url, downloadUrl,
       createdAt: r.created_at, updatedAt: r.updated_at,
-      expiresAt: new Date(new Date(r.created_at).getTime() + 30 * 86_400_000).toISOString(),
+      // 30일 삭제 예외 회원(관리자·시험 계정)은 삭제 예정일 없음(2026-11-10)
+      expiresAt: exempt ? null : new Date(new Date(r.created_at).getTime() + 30 * 86_400_000).toISOString(),
     };
   }));
 }

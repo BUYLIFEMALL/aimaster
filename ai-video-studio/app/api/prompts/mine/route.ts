@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi, logProgramUsage } from "@/lib/access";
 import { addMine, deleteMine, PromptError } from "@/lib/promptStore";
+import { createAdminClient } from "@/lib/supabase/server";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -14,7 +16,7 @@ export async function POST(request: Request) {
   const { user, errorResponse } = await checkProgramAccessApi();
   if (errorResponse) return errorResponse;
   try {
-    const saved = await addMine(user.id, await request.json().catch(() => ({})));
+    const saved = await addMine(user.id, await request.json().catch(() => ({})), await isRetentionExempt(createAdminClient(), user.id));
     await logProgramUsage(user.id, "prompt_save", 1);
     return NextResponse.json({ prompt: saved }, { headers: NO_STORE });
   } catch (e) {

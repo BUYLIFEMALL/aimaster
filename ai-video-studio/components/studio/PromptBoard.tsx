@@ -395,7 +395,7 @@ export function PromptBoard() {
                     <span>{m.title}</span>
                   </h2>
                   <span className="shrink-0 rounded-full border border-slate-700 bg-slate-800/80 px-2.5 py-0.5 text-[10px] font-bold text-slate-400">
-                    보관 D-{daysLeft(m.expiresAt)}
+                    {m.expiresAt ? `보관 D-${daysLeft(m.expiresAt)}` : "보관 기간 제한 없음"}
                   </span>
                 </header>
                 <div className="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-3.5">

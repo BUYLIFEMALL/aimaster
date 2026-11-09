@@ -58,5 +58,13 @@ export async function POST(request: Request) {
     const { data: fresh } = await admin.from("avs_generations").select("*").eq("id", id);
     return NextResponse.json({ generations: await toClient(admin, (fresh ?? []) as GenerationRow[], await isRetentionExempt(admin, user.id)) }, { headers: { "Cache-Control": "private, no-store" } });
   }
+  // v1.30 올리기 실패 뒤 화면이 부른다 — 보관함 줄이 없는 내 올리기 파일만 지운다(창을 닫은 경우는 매일 정리가 맡음)
+  if (body.step === "cancel") {
+    const id = String(body.id ?? "");
+    if (!UUID.test(id)) return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
+    const { data: row } = await admin.from("avs_generations").select("id").eq("id", id).maybeSingle();
+    if (!row) await admin.storage.from(BUCKET).remove([`${user.id}/${id}/video.mp4`]);
+    return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "private, no-store" } });
+  }
   return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
 }

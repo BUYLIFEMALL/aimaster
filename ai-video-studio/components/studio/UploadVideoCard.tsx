@@ -30,6 +30,7 @@ export function UploadVideoCard({ onCreated }: { onCreated: (g: ClientGeneration
   async function upload(file: File | undefined) {
     if (!file) return;
     setMsg(null);
+    let startedId: string | null = null; // 올리기 시작 뒤 실패하면 남은 파일을 지운다(v1.30)
     try {
       if (!rights) throw new Error("먼저 「내가 찍었거나 권리를 가진 영상입니다」에 체크해 주세요.");
       if (!/\.mp4$/i.test(file.name)) throw new Error("MP4 영상만 올릴 수 있습니다.");
@@ -40,6 +41,7 @@ export function UploadVideoCard({ onCreated }: { onCreated: (g: ClientGeneration
       const start = await fetch("/api/generations/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ step: "start", name: file.name, size: file.size, rights: true }) });
       const s = await start.json().catch(() => ({}));
       if (!start.ok) throw new Error(s.error || "업로드를 시작하지 못했습니다.");
+      startedId = s.id;
       const { error } = await createClient().storage.from(BUCKET_NAME).uploadToSignedUrl(s.path, s.token, file, { contentType: "video/mp4" });
       if (error) throw new Error("영상을 올리지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
       const fin = await fetch("/api/generations/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ step: "finish", id: s.id, name: file.name, seconds: meta.seconds, width: meta.width, height: meta.height, rights: true }) });
@@ -47,9 +49,11 @@ export function UploadVideoCard({ onCreated }: { onCreated: (g: ClientGeneration
       if (!fin.ok) throw new Error(f.error || "보관함에 저장하지 못했습니다.");
       const created = (f.generations as ClientGeneration[] | undefined)?.[0];
       if (created) onCreated(created);
+      startedId = null;
       setMsg({ ok: true, text: `「${file.name}」을 보관함에 넣었습니다. 카드의 「✨ 후처리」에서 립싱크·업스케일·배경 제거를 할 수 있습니다.` });
     } catch (e) {
       setMsg({ text: e instanceof Error ? e.message : "영상을 올리지 못했습니다." });
+      if (startedId) void fetch("/api/generations/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ step: "cancel", id: startedId }) }).catch(() => {});
     } finally {
       setBusy("");
     }

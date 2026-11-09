@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
 import type { ClientGeneration } from "@/lib/generationTypes";
-import { BG_COLORS, POST_KINDS, POST_SPECS, postBlocked, postCostUsd, type BgColor, type PostKind } from "@/lib/postprocess";
+import { BG_COLORS, POST_KINDS, POST_SPECS, postBlocked, postCostUsd, videoSize, type BgColor, type PostKind, type VideoSize } from "@/lib/postprocess";
 
 const MAX_AUDIO = 3 * 1024 * 1024;
 
@@ -26,6 +26,9 @@ export function PostPanel({ gen, onCreated }: { gen: ClientGeneration; onCreated
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const resolution = gen.options?.resolution;
+  // 실제 영상 크기 — 업스케일 배율을 1920×1080 안으로 맞추는 데 쓴다(못 읽으면 해상도 칸으로 계산)
+  const [size, setSize] = useState<VideoSize | null>(null);
+  const videoUrl = gen.outputs?.[0]?.url ?? null;
 
   async function run() {
     if (!kind) return;
@@ -43,7 +46,7 @@ export function PostPanel({ gen, onCreated }: { gen: ClientGeneration; onCreated
       const res = await fetch("/api/generations/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sourceId: gen.id, kind, color, audio: audioData }),
+        body: JSON.stringify({ sourceId: gen.id, kind, color, audio: audioData, size }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "후처리를 접수하지 못했습니다.");
@@ -67,9 +70,13 @@ export function PostPanel({ gen, onCreated }: { gen: ClientGeneration; onCreated
     );
   }
 
-  const blocked = kind ? postBlocked(kind, gen.duration_s, resolution) : null;
+  const blocked = kind ? postBlocked(kind, gen.duration_s, resolution, size) : null;
   return (
     <div className="space-y-2 rounded-xl border border-sky-500/20 bg-sky-500/5 p-3">
+      {videoUrl && !size && (
+        <video src={videoUrl} preload="metadata" muted className="hidden" aria-hidden="true"
+          onLoadedMetadata={(e) => setSize(videoSize({ w: e.currentTarget.videoWidth, h: e.currentTarget.videoHeight }))} />
+      )}
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold text-sky-200">✨ 후처리 — 내 fal 키로 1건, 결과는 새 영상으로 저장(원본은 그대로)</p>
         <button type="button" onClick={() => { setOpen(false); setKind(null); setError(null); }} className="text-[11px] text-zinc-400 hover:text-zinc-200">닫기</button>
@@ -77,7 +84,7 @@ export function PostPanel({ gen, onCreated }: { gen: ClientGeneration; onCreated
       <div className="grid gap-1.5">
         {POST_KINDS.map((k) => {
           const s = POST_SPECS[k];
-          const why = postBlocked(k, gen.duration_s, resolution);
+          const why = postBlocked(k, gen.duration_s, resolution, size);
           return (
             <button key={k} type="button" disabled={!!why || busy} title={why ?? s.desc} onClick={() => setKind(k)}
               className={`rounded-lg border px-2.5 py-1.5 text-left text-xs disabled:opacity-40 ${kind === k ? "border-sky-400 bg-sky-500/15 text-white" : "border-zinc-700 text-zinc-300 hover:border-zinc-500"}`}>

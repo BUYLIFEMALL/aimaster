@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi, logProgramUsage } from "@/lib/access";
 import { EditError, listEdits, saveEdit } from "@/lib/edit/edits";
+import { createAdminClient } from "@/lib/supabase/server";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -12,7 +14,7 @@ export async function GET() {
   const { user, errorResponse } = await checkProgramAccessApi();
   if (errorResponse) return errorResponse;
   try {
-    return NextResponse.json({ edits: await listEdits(user.id) }, { headers: NO_STORE });
+    return NextResponse.json({ edits: await listEdits(user.id, await isRetentionExempt(createAdminClient(), user.id)) }, { headers: NO_STORE });
   } catch (e) {
     return NextResponse.json({ error: e instanceof EditError ? e.message : "편집 목록을 불러오지 못했습니다." }, { status: e instanceof EditError ? e.status : 500 });
   }

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Download, Layers, Trash2 } from "lucide-react";
 
-type EditItem = { id: string; title: string; clips: number; aspect: string; outputBytes: number | null; durationS: number | null; url: string | null; downloadUrl: string | null; updatedAt: string; expiresAt: string };
+type EditItem = { id: string; title: string; clips: number; aspect: string; outputBytes: number | null; durationS: number | null; url: string | null; downloadUrl: string | null; updatedAt: string; expiresAt: string | null };
 
 export function EditsSection() {
   const [items, setItems] = useState<EditItem[] | null>(null);
@@ -44,7 +44,7 @@ export function EditsSection() {
             ) : (
               <p className="rounded-lg border border-dashed border-zinc-800 p-4 text-center text-xs text-zinc-500">완성 영상은 아직 저장하지 않았습니다(편집 내용만 저장).</p>
             )}
-            <p className="text-[11px] text-zinc-500">영상 {e.clips}개{e.durationS ? ` · ${e.durationS}초` : ""}{e.outputBytes ? ` · ${(e.outputBytes / 1_048_576).toFixed(1)}MB` : ""} · 자동 삭제 D-{days(e.expiresAt)}</p>
+            <p className="text-[11px] text-zinc-500">영상 {e.clips}개{e.durationS ? ` · ${e.durationS}초` : ""}{e.outputBytes ? ` · ${(e.outputBytes / 1_048_576).toFixed(1)}MB` : ""}{e.expiresAt ? ` · 자동 삭제 D-${days(e.expiresAt)}` : " · 보관 기간 제한 없음"}</p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <Link href={`/edit?edit=${e.id}`} className="inline-flex items-center gap-1 text-xs font-medium text-sky-300 hover:underline"><Layers className="h-3.5 w-3.5" aria-hidden="true" /> 편집 열기</Link>
               {e.downloadUrl && <a href={e.downloadUrl} className="inline-flex items-center gap-1 text-xs font-medium text-sky-300 hover:underline"><Download className="h-3.5 w-3.5" aria-hidden="true" /> 내려받기</a>}

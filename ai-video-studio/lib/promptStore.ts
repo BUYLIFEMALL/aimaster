@@ -13,7 +13,8 @@ export class PromptError extends Error {
 }
 
 type MineRow = { id: string; title: string; idea: string; style_id: string | null; camera_id: string | null; created_at: string; expires_at: string };
-const toMine = (r: MineRow): MinePrompt => ({ id: r.id, title: r.title, idea: r.idea, styleId: r.style_id, cameraId: r.camera_id, createdAt: r.created_at, expiresAt: r.expires_at });
+// 30일 삭제 예외 회원(관리자·시험 계정)은 만료일이 지나도 지워지지 않으므로 화면에도 숨기지 않고 기간을 보여 주지 않는다(2026-11-10)
+const toMine = (r: MineRow, exempt = false): MinePrompt => ({ id: r.id, title: r.title, idea: r.idea, styleId: r.style_id, cameraId: r.camera_id, createdAt: r.created_at, expiresAt: exempt ? null : r.expires_at });
 
 /** 게시판 예시 — 관리자는 숨긴 것까지. 표가 없거나 읽기 실패·비어 있으면 코드 속 예비 목록 */
 export async function listPresets(includeHidden: boolean): Promise<{ presets: BoardPresetRow[]; source: "db" | "code" }> {
@@ -41,24 +42,26 @@ export async function savePreset(raw: unknown): Promise<BoardPresetRow> {
 }
 
 /** 내 프롬프트 목록(본인만, 만료 전, 새것부터) */
-export async function listMine(userId: string): Promise<MinePrompt[]> {
-  const { data, error } = await createAdminClient()
+export async function listMine(userId: string, exempt = false): Promise<MinePrompt[]> {
+  let q = createAdminClient()
     .from("avs_user_prompts")
     .select("id, title, idea, style_id, camera_id, created_at, expires_at")
-    .eq("user_id", userId)
-    .gt("expires_at", new Date().toISOString())
-    .order("created_at", { ascending: false })
-    .limit(MAX_MINE);
+    .eq("user_id", userId);
+  if (!exempt) q = q.gt("expires_at", new Date().toISOString());
+  const { data, error } = await q.order("created_at", { ascending: false }).limit(MAX_MINE);
   if (error) { console.error("[promptStore] mine", error.message); return []; }
-  return ((data ?? []) as MineRow[]).map(toMine);
+  return ((data ?? []) as MineRow[]).map((r) => toMine(r, exempt));
 }
 
 /** 내 프롬프트 저장(회원당 MAX_MINE개까지) */
-export async function addMine(userId: string, raw: unknown): Promise<MinePrompt> {
+export async function addMine(userId: string, raw: unknown, exempt = false): Promise<MinePrompt> {
   const v = sanitizeMineInput(raw);
   if (!v.ok) throw new PromptError(400, v.error);
   const admin = createAdminClient();
-  const { count } = await admin.from("avs_user_prompts").select("id", { count: "exact", head: true }).eq("user_id", userId).gt("expires_at", new Date().toISOString());
+  // 예외 회원은 만료 지난 것도 목록에 남으므로 전체 개수로 센다
+  let countQ = admin.from("avs_user_prompts").select("id", { count: "exact", head: true }).eq("user_id", userId);
+  if (!exempt) countQ = countQ.gt("expires_at", new Date().toISOString());
+  const { count } = await countQ;
   if ((count ?? 0) >= MAX_MINE) throw new PromptError(400, `내 프롬프트는 ${MAX_MINE}개까지 저장됩니다. 안 쓰는 것을 지운 뒤 다시 저장해 주세요.`);
   const expires = new Date(Date.now() + MINE_DAYS * 86_400_000).toISOString();
   const { data, error } = await admin
@@ -67,7 +70,7 @@ export async function addMine(userId: string, raw: unknown): Promise<MinePrompt>
     .select("id, title, idea, style_id, camera_id, created_at, expires_at")
     .single();
   if (error || !data) throw new PromptError(500, "저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
-  return toMine(data as MineRow);
+  return toMine(data as MineRow, exempt);
 }
 
 /** 내 프롬프트 지우기(본인 줄만) */
