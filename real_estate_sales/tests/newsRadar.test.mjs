@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildNewsMessage, buildQueries, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms } from "../src/lib/news/radarCore.ts";
+import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms } from "../src/lib/news/radarCore.ts";
 
 test("RQ-C 지역 이름: 시+구, 서울 구, 흔한 구 이름", () => {
   assert.deepEqual(regionTerms("41285", "고양시 일산동구"), { query: "고양시 일산동구", anyOf: ["일산동구", "고양"], alsoNeed: null });
@@ -72,4 +72,16 @@ test("RQ-C 알림 글: 건수·출처·알림톡 길이", () => {
   const at = buildNewsMessage(items, { withLinks: false, pageUrl: "https://x/news", aiSummary: "- 요약" });
   assert.ok(at.length <= 950);
   assert.doesNotMatch(at, /https:\/\/a\.com/);
+});
+
+test("RQ-C 알림은 지역을 번갈아(서초구 몰림 방지)", () => {
+  const items = [
+    ...Array.from({ length: 5 }, (_, i) => ({ sggNm: "서초구", category: "개발", title: `서초 ${i}`, link: `https://a.com/s${i}` })),
+    { sggNm: "종로구", category: "교통", title: "종로 0", link: "https://a.com/j0" },
+    { sggNm: "동탄구", category: "규제", title: "동탄 0", link: "https://a.com/d0" },
+  ];
+  assert.deepEqual(interleaveByRegion(items).map((i) => i.title), ["서초 0", "종로 0", "동탄 0", "서초 1", "서초 2", "서초 3", "서초 4"]);
+  const msg = buildNewsMessage(items, { withLinks: false, pageUrl: "https://x/news" });
+  assert.match(msg, /종로 0/);
+  assert.match(msg, /동탄 0/);
 });

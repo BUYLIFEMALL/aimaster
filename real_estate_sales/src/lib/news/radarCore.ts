@@ -150,13 +150,23 @@ export function isNewsDue(sentOn: string | null | undefined, now = new Date()): 
 
 export interface DigestItem { sggNm: string; category: NewsCategory; title: string; link: string }
 
+/** 첫 실측(2026-11-09) 서초구 66건이 몰려 알림 앞 8건이 한 지역만 보이던 문제 → 지역을 번갈아 하나씩(지역 안 순서는 그대로) */
+export function interleaveByRegion<T extends { sggNm: string }>(items: T[]): T[] {
+  const groups = new Map<string, T[]>();
+  for (const it of items) groups.set(it.sggNm, [...(groups.get(it.sggNm) ?? []), it]);
+  const lists = [...groups.values()];
+  const out: T[] = [];
+  for (let i = 0; out.length < items.length; i++) for (const l of lists) if (l[i]) out.push(l[i]);
+  return out;
+}
+
 /** 알림 글: 분류별 건수 + 지역별 제목 몇 개와 원문 링크. withLinks=false는 알림톡(짧게) */
 export function buildNewsMessage(items: DigestItem[], opts: { withLinks: boolean; aiSummary?: string | null; pageUrl: string; maxItems?: number }): string {
   const counts = NEWS_CATEGORIES.map((c) => [c, items.filter((i) => i.category === c).length] as const).filter(([, n]) => n > 0);
   const head = `📰 오늘의 지역 소식 ${items.length}건\n${counts.map(([c, n]) => `${c} ${n}`).join(" · ")}`;
   const parts = [head];
   if (opts.aiSummary) parts.push(`🤖 요약\n${opts.aiSummary.trim()}`);
-  const shown = items.slice(0, opts.maxItems ?? (opts.withLinks ? 8 : 4));
+  const shown = interleaveByRegion(items).slice(0, opts.maxItems ?? (opts.withLinks ? 8 : 4));
   parts.push(shown.map((i) => `• [${i.sggNm}·${i.category}] ${i.title}${opts.withLinks ? `\n${i.link}` : ""}`).join("\n"));
   if (items.length > shown.length) parts.push(`…외 ${items.length - shown.length}건`);
   parts.push(`전체 보기: ${opts.pageUrl}\n출처: 각 언론사, 네이버 검색`);
