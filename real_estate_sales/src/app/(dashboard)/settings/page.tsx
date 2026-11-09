@@ -35,6 +35,8 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
   { guideId: "eb8f5eaf-6ef7-46b8-9b05-994e944fe69a", label: "SOLAPI(카카오톡 알림톡/친구톡) API 키 발급받기" },
   { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
+  // RQ-C 지역 뉴스(2026-11-09): blog-keyword와 같은 매뉴얼 글을 재사용
+  { guideId: "8f201233-b2f6-4da0-851c-f045bdb5f9c7", label: "네이버 검색 API 키 발급받기 (지역 뉴스)" },
 ];
 
 export default async function SettingsPage() {
