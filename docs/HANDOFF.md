@@ -1,11 +1,28 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 [역할: mac-mini] 카페4회차 사용자 시작1회·결과 불확실 중단
+- Event 수정 확장 실제 바이트 일치·관리자 정상·kkuleomi24 승인 확인 후 사용자 직접 시작. 입력→초대 클릭 뒤 새 안내 없음. 확장 「kkuleomi24 초대 결과를 확인하지 못해 멈췄습니다. 다시 보내지 않습니다.」, sent failed/detail 「결과 확인 못 함(새 안내 없음)」·used_today0. 성공 확인0이며 실제 도착은 불확실.
+- 재전송 금지, 받는 쪽 내소식 확인 요청·Windows 클릭 후 응답/판정 점검 필요. 결과 미확정으로 명단/링크 조건부 작업 미실행. 상세 INVITE_TEST_20261106.md 4회차. 코드/배포/푸시 없음·비용 없음.
+
+## 2026-11-09 [역할: mac-mini] 카페4회차 수정 확장 설치 확인·사용자 직접 시작 대기
+- 새 확장 fldoibnbadonbeedheiiefonhjbiefjh v1.02 활성, 설치 background.mjs 바이트 SHA256이 SMB 공유 코드와 일치(createEvent 수정 포함). 구형 확장 꺼짐 유지. kkuleomi24 reviewed·buylifemall skipped.
+- 공간16 p3 바이라이프 카페·네이버 buylifemall@naver.com 확인 후 handOff. 사용자가 확장 아이콘→이 카페로 초대 시작을 직접 누를 단계. 아직 실제 초대0·명단0·링크 미검수, 불확실 시 재전송 금지.
+
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.55 · 엔진 0.8.0 배포**
 
 - 주인님 「배포해」, 빌드 1회 `free-music-studio-iaz2z33n8`, DB v1.55. 엔진 0.8.0: **YuE2 커버(원곡 멜로디 받아 적기, B-5)** — SheetSage2 `/transcribe` → ABC → `/synth` cot melody, 실행 도구 YuE2-Studio v3.4.0 → v3.8.5(판 기록·CUDA 보존·결과 세 조각), 커버 모델은 처음 커버 때 약 1GB. 사이트: 가져온 음악 커버 엔진 고르기(`yue2cover` 기능일 때), 매뉴얼 카드, 음악 스타일 (Caption)(C-27), 앨범 칸 왼쪽(C-28), AI 가사 불러오기(C-29). 시험 엔진 121·사이트 111·tsc·로컬 빌드, ego 운영 확인. **남은 일: 마스터PC에서 0.8.0 설치 뒤 YuE2 새 곡(실행 도구 판 올림)·YuE2 커버 한국어 1곡 확인.** 플랜 `free-music-studio/docs/PLAN_20261109_YUE2_COVER.md`.
 
+## 2026-11-09 [역할: mac-mini] 카페4회차 관리자 로그인 확인·권한 정상
+- 관리자 buylifemall@gmail.com 화면 확인, dashboard 정상·설정/결과 읽기HTTP200. kkuleomi24 승인1·sent=[]·오늘0. 요청993cf0d5 처리, DB 변경 없음.
+- 공간16 p3 다운로드 확장은 꺼짐. 공유 extension 폴더 선택 창 열고 handOff, 사용자 선택 후 새 확장 경로 확인→카페 사용자 직접 시작. 실제 초대0·명단0·링크 미검수.
 
+## 2026-11-09 [역할: mac-mini] 카페4회차 권한403·소개404 확인으로 중단
+- 공간16 재개: dashboard→메인 /programs/naver-cafe-recruit 404, 읽기 targets_list HTTP403 「이 프로그램의 이용 권한이 필요합니다.」. 로그인401과 구분, 정확한 계정·프로그램 등록·검수 기간 원인은 Windows 확인 필요. 맥 DB/코드 변경 없음.
+- 다운로드 확장 사용안함·공유 확장 로드 미완료. 현재 승인/미전송 조회 불가, 초대0·명단0·링크 미검수. 권한 복구→공유 확장 설치→승인 확인→사용자 직접 시작으로 재개. 상세 INVITE_TEST_20261106.md 4회차.
 
+## 2026-11-09 [역할: mac-mini] 카페4회차 준비 재개·ego 공간16 사용자 인계
+- 요청문2af0ce758/수정907ba047b 확인 후 준비. 설치된v1.02는 다운로드 폴더이므로 공유 코드가 자동 반영되지 않음. 구형 확장 사용안함→공유 폴더 압축해제 로드 선택 창 열고 공간16 handOff. 사이트 로그인도 풀려 사용자 직접 폴더 선택/로그인 대기.
+- 같은 공간16을 완료 통보 후 이어서 승인 대상kkuleomi24 미전송·계정·실행 조건 확인. 아직 초대0·명단0·링크 미검수, 새 공간/중복 발송 없음. 상세 naver-cafe-recruit/docs/INVITE_TEST_20261106.md 4회차. 이번 코드/배포/푸시 없음·비용 없음.
 
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.54 배포**
 
