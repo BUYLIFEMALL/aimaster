@@ -73,6 +73,16 @@
 - **v1.25**: 실거래 목록 주소 거르기 `?district=<시군구5자리>`·`?q=<단지명>`(서버에서 `!inner` 조인으로 거름, 0건이면 이름 앞 두 글자로 다시 찾고 「비슷한 이름으로 찾았어요」, 「전체 보기」, 쪽 이동 때 조건 유지) — 「부동산 실시간 매물 알림」 v1.38 「📈 실거래 보기」가 이 주소로 연다. 감시 지역 화면 경기 44곳을 시 이름으로 묶음(`groupByCity`, 경기에만). 시험 `test:molit` 6개. 커밋 `1d8cd99c5`.
 - 실물(크롬, 시험 계정): 전용면적 표시, `?district=41285&q=백송건영` → 「백송」으로 1건, 매물 알림에서 「📈 실거래 보기」 → 고양시 일산동구 20건, 경기 시 묶음 표시 확인.
 
+## 2026-11-09 v1.57 (코드 완료·배포 대기) — RQ-C 지역 뉴스 레이더 ([역할: realty] `claude-win-realty-docs`, 주인님 「추천대로 해」)
+- 플랜: [docs/PLAN_20261109_RQ_C_NEWS_RADAR.md](docs/PLAN_20261109_RQ_C_NEWS_RADAR.md) (결정 6건 추천대로: 뉴스만·AI 요약 기본 꺼짐·뉴스 90일/요약 1년·아침 8시·지역 5곳·이름 「📰 지역 뉴스」).
+- 사전 검증(ego, 네이버 뉴스 최신순, 비용 없음): 「강서구 재건축」에 고양 능곡 기사, 「일산동구 학교 신설」에 시장 문자 기사처럼 **다른 지역 기사가 많이 섞임** → 제목·요약에 지역 이름이 있는 기사만 남기고, 「중구」처럼 흔한 이름은 시·도 이름도 있어야 통과(`regionTerms`·`mentionsRegion`).
+- 코드(`67116e868`): `src/lib/news/radarCore.ts`(순수 함수 — 검색어 4분류×2, 지역 거르기, 링크 정규화, 같은 제목 묶기, 3일 넘은 기사 제외, 웹 주소만, 알림 글), `naverNews.ts`(blog-keyword `naverSearch`와 같은 API HUB → 옛 주소 순서, 회원 키만), `runner.ts`(회원별 검색·저장·알림, 키 오류·한도면 그 회원 그날 멈춤, 「오늘 보냄」을 먼저 적어 두 번 보내지 않음, 회차당 10명), `src/lib/ai/newsDigest.ts`(회원 Claude 키, 재시도 0), 화면 `/news`·메뉴 「📰 지역 뉴스」, 설정 「📰 네이버 검색 키」 칸(`naver_client_id`·`naver_client_secret`, 공용 `user_api_keys`라 다른 프로그램에 등록한 키가 그대로 보임), 예약 `/api/collect/dispatch` 끝에 뉴스 단계(같은 정지·핸드폰·권한 판정), 정리 `cleanup-sentiment`에 뉴스 90일·요약 1년(`retention_exempt` 제외).
+- 네이버 키 읽기는 공용 사본 `naver-member-api-keys`를 들이지 않고 이 프로그램의 기존 `user_api_keys` 읽기를 썼다(같은 표·같은 규칙, 같은 이름의 `apiKeys.ts`가 이미 있어 사본을 두면 겹침).
+- 시험: `tests/newsRadar.test.mjs` 7개 추가, 전체 57개 통과, `tsc`·로컬 `npm run build` 통과(`/news` 생성).
+- DB(운영 `esgxyik…`): `supabase/migrations/20261109000100_news_radar_v1_57.sql` — 표 `real_estate_news_items`·`real_estate_news_digests`(본인 읽기 RLS, 넣기는 서버만), `real_estate_user_preferences`에 `news_enabled`·`news_ai_summary`·`news_sent_on`, `programs.version` v1.57. **ego SQL 편집기에 넣어 두었으나 실행 단계가 Claude Code 자동 권한 검사(운영 반영)에 막혀 주인님 실행 대기.** 마지막 줄 확인용 조회 결과가 items·digests 이름, pref_cols 3, version v1.57이면 정상.
+- 배포: SQL 적용 뒤 `node scripts/deploy.mjs real_estate_sales --go`(빌드 1회, 승인된 플랜 범위). 배포 뒤 확인: 시험 계정 `/news` 화면, 「🔎 지금 받아 보기」로 실제 네이버 응답·거르기 결과, 다음 날 아침 텔레그램 도착.
+- 남은 것: 연동 매뉴얼에 네이버 검색 키 매뉴얼 링크(platform_guides에 맞는 글 확인 뒤), 블로그 글 포함 여부는 2차 검토.
+
 ## 2026-11-06 v1.56 배포 — 상권 칸 가장 가까운 상권(참고) #20 + 서울 분양권 동 코드 #21 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회)
 - 배포 `real-estate-sales-gxb5ow2c4`(Ready), DB v1.56(마이그레이션 `20261106000300_version_v1_56.sql`). 코드 `6f49a396e`.
 - 운영 확인(시험 계정, 로그인 이메일 먼저 확인): 백석동 임장 기록을 잠시 「상가」로 열어 리포트 → 「가장 가까운 상권 「경기 › 마두역」(2.4km)을 참고로…」 문구 + 「마두역 (2.4KM·참고)」 열(오피스 10.3천 원·공실 8.6%, 조사 안 된 유형은 「-」). 확인 뒤 유형 원복. 작은 표기: 표 머리글이 대문자로 바뀌어 km → KM(`mx-table th` 꾸밈) — 고칠지는 다음 작은 수정 때.
