@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-ssr-v2 — AI 스마트스토어 상품 자동등록기(smartstore-register) v1.26 전면 리뉴얼 및 2026-11-01 5단계 표준 로그인 폼 탑재 배포
+- **채택 시안**: 시안 3 (78. 미니멀 스마트스토어 아틀리에 스타일 — 클린 크림 페이퍼 `#F8FAFC` & 세이지 그린 `#10B981` / 모던 챠콜 `#0F172A`)
+- **개편 내역**:
+  1. **5단계 표준 로그인 규격 전면 탑재**: 68px 세이지 그린 심볼 로고(`🛒`), 영문 알약 뱃지(`AIMASTER SMARTSTORE REGISTER`), 한글 볼드 타이틀, 2단 탭(로그인/회원가입) & 3D 엠보싱 세이지 버튼(`.btn-3d-sage`), 1행 축소 약관 동의 완비
+  2. **미니멀 세이지 아틀리에 테마 전면 적용**: `globals.css` 및 전체 카드/인풋/버튼을 78번 클린 페이퍼 & 세이지 그린 입체 엠보싱(`.btn-3d-sage`, `.btn-3d`, `.slw-primary`)으로 통일하여 장시간 셀러 업무 피로도 최소화
+  3. **버전 범프 & 동기화**: `v1.25` → `v1.26` (`src/lib/version.ts`, `package.json`, Supabase DB `programs.version`), 확장 v1.26 ZIP 아카이브 자동 생성
+  4. **무결성 검증**: 단위테스트 27/27 100% 통과, Next.js 16.4.3 프로덕션 빌드 성공
+  5. **Vercel 프로덕션 배포**: `https://smartstore-register-q8zk4ex4r-buylife.vercel.app` (Ready), `https://smartstore-register.buylife.xyz` 도메인 연결 완료
+  6. **Playwright 실세션 검증**: `https://smartstore-register.buylife.xyz/login` 실접속 200 OK, 5단계 표준 요소 전원 PASS 검증, 캡처본 `docs/evidence_login_v126.png` 저장
+- **확인 주소**: https://smartstore-register.buylife.xyz
+
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 무료음악 연계 작업 묶음 배포(v1.60 · AI 음악 스튜디오 v1.15)
 - 무료음악 v1.60(`free-music-studio-q1aru42a0`): 그림 기본 판 복구, D-4 쇼츠 원스톱 배경음악 보내기(받는 쪽 쇼츠 v1.46 — 영상 담당), D-8 댄스·월드 프리셋 200 + 시대 가요 8, 재생 중 강조(대기열·모든 음악), D-9 참고곡 → 음악 스타일(회원 Gemini 키), D-10 EQ·시각화·속도, D-11 유료 모델 비교 링크
 - AI 음악 스튜디오 v1.15(`ai-music-studio-cakibiq6t`): `/compare?fms=` 무료음악 초안 미리 채우기 — ego 확인
