@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/store";
 import { createClient } from "@/lib/supabase/server";
+import LogoutButton from "@/app/logout-button";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ function Fail({ message, email }: { message: string; email?: string }) {
       <h1 className="text-xl font-bold">초대를 수락하지 못했습니다</h1>
       <p className="mt-2 text-sm text-gray-600">{message}</p>
       {email && <p className="mt-3 rounded bg-gray-50 px-3 py-2 text-sm">지금 로그인한 계정: <b>{email}</b></p>}
+      {email && <div className="mt-3"><LogoutButton label="로그아웃하고 초대받은 계정으로 로그인" /></div>}
       <Link href="/" className="mt-6 inline-block text-sm text-blue-700 underline">처음 화면으로</Link>
     </main>
   );
