@@ -1,6 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-09 곡 만들기 화면에서 왼쪽 메뉴가 전부 안 눌림 — `useEffect` 조건에 「그릴 때마다 새로 만드는 배열」을 넣어 상태 갱신이 끝없이 반복됨 (`free-music-studio` v1.57~v1.58, [역할: music])
+- 증상: 곡 만들기(`/songs`)에서만 왼쪽 메뉴·화면 안 링크·`router.push`까지 모든 화면 이동이 안 됨(주소 그대로, 오류 표시 없음). 다른 화면에서는 정상. 마스터PC·윈도우 모두 재현
+- 원인: `components/engine/MultiVersionPanel.tsx`에서 `const engines = queueMode ? availableEngines(status) : []`(그릴 때마다 새 배열)를 `useEffect(() => setConsents(...), [engines])`의 조건으로 씀 → 그림 → 효과 실행 → 상태 바뀜 → 다시 그림 → 배열 또 새로 생김 … 끝없이 반복. 운영판(React 운영 모드)은 경고 없이 이 갱신을 계속 처리하고, Next.js의 화면 이동(낮은 우선순위 전환)은 매번 끊겨 영원히 끝나지 않음. v1.57(C-34, 「여러 버전 한 번에」 첫 도입) 때부터 있었다 — 그때도 생성 칸이 매번 새로 만든 엔진 배열을 넘겼음
+- 찾은 방법: 운영 화면에서는 오류가 안 보여 오래 걸림(덮는 요소 없음, 서버 응답 정상, React 루트에 끝나지 않는 전환 작업만 남음). **개발 서버(`next dev`)로 같은 화면을 열자 「Maximum update depth exceeded」 경고가 바로 쏟아져** 원인이 드러남
+- 해결: `engines`를 `useMemo(() => ..., [queueMode, status])`로 고정(엔진 상태가 바뀔 때만 새로 만듦). 개발 서버에서 경고 0건·곡→앨범→대기열→곡→모든 음악 이동 확인
+- 다음부터: (1) `useEffect`·`useMemo`·`useCallback`의 조건 배열에 `.filter()`·`.map()`·`[]`·`{}`·함수 결과처럼 **그릴 때마다 새로 생기는 값**을 넣지 않는다 — 넣어야 하면 그 값을 `useMemo`로 고정하거나 문자열 키(`ids.join(",")`)로 바꾼다. 효과 안에서 `setState`를 부르면 특히 위험 (2) 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 그 화면을 한 번 열어 브라우저 콘솔에 「Maximum update depth」 경고가 없는지 본다(운영판에서는 이 경고가 숨는다) (3) 「특정 화면에서만 메뉴·링크가 안 된다」는 신고는 먼저 이 반복 갱신을 의심한다. 개발 서버 띄우기: 루트 `.env.local`을 `process.loadEnvFile`로 읽어 `next dev` 실행(`--env-file`은 Next가 자식 프로세스에서 거부), 로그인은 운영 사이트의 `sb-` 쿠키를 localhost에 옮김. `next dev`는 프로그램 `AGENTS.md` 끝에 안내 블록을 덧붙이므로 끝나면 지운다
+
 ## 2026-11-09 배포 결과 줄을 다시 보려고 `deploy.mjs --go`를 한 번 더 실행해 같은 코드가 두 번 빌드됨 (`free-music-studio` v1.58, [역할: music])
 - 증상: 첫 실행 출력을 `tail`로 잘라 배포 주소 줄이 안 보이자 같은 명령을 다시 돌림 → Vercel에 같은 코드 배포 2개(`1amnrv8jp`·`mntb6juwx`), 빌드 1회 낭비
 - 원인: `deploy.mjs --go`는 실행할 때마다 새 빌드를 만든다. 결과를 「다시 보는」 명령이 아니다

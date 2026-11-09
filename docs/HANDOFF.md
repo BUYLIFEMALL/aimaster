@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 곡 만들기 화면 왼쪽 메뉴 먹통 원인 찾아 수정(미배포 → 배포 승인 대기)
+- 원인: `free-music-studio/src/components/engine/MultiVersionPanel.tsx`의 `useEffect` 조건 `[engines]`가 그릴 때마다 새 배열 → 상태 갱신 무한 반복 → Next.js 화면 이동이 끝나지 않음(v1.57부터). 해결: `engines`를 `useMemo`로 고정. 상세·재발 방지: `docs/ERROR_LESSONS.md` 2026-11-09 맨 위
+- 검수: 개발 서버(내 PC, 운영 DB·주인님 세션)에서 경고 0건, 곡→앨범→대기열→곡→모든 음악 이동 성공. tsc·시험 118 통과. 함께 대기: 상태 카드 「작업 대기열」 링크(`f1489f5e5`). 다음 배포 v1.59
+- https://free-music-studio.buylife.xyz/songs
+
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 연주곡 분류 세분화 + 미배포 3개 프로그램 순차 배포
 - 연주곡 장르 2단계: 대분류 9개(연주곡 프리셋 분류와 같은 이름) + 세부 49개(`free-music-studio/src/lib/lyricTags.ts` `INSTRUMENTAL_GENRE_GROUPS`), AI 작곡 기획(`/api/plan` `genre`)·프리셋 카드 연동, 시험 118·tsc 통과
 - 배포(순차, 각각 ego 운영 확인): free-music-studio v1.58(`mntb6juwx`, 실수로 같은 코드 빌드 2회) → ai-image-studio v1.34(`lsnyhsput`, 내 PC 그림 갤러리 저장) → playlist-channel-studio v1.38(`qyf2jm7xn`, 스티커 여러 개)
