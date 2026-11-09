@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.54 배포**
+
+- 주인님 「배포해」, 빌드 1회 `free-music-studio-7nqh67ugp`, DB v1.54, 사이트만. C-22 장르 대분류 이름(영화·드라마·무대, 어린이·종교 음악)·세부 장르 청록 구분, C-23 태그를 바꾼 뒤엔 남은 스타일을 고정하지 않음, C-24 ACE-Step 카드 한 번만 켜짐, C-25 「🎼 Style 태그」 제목·프리셋 우선 안내, C-26 곡 만들기 세로 줄이기(2xl 두 칸 배치·이 화면 최대 1760px, 분위기 탭, 엔진 한 줄 버튼). 시험 109·tsc·로컬 빌드, ego 운영 확인(폭 1741px 두 칸, 높이 2,507px). 남은 안: AI 작사 옵션 한 줄·앨범 상자 설명 접기·단계 접기(백로그 C-26). 상세 `free-music-studio/AGENTS.md`.
+
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.53 · 엔진 0.7.9 배포**
 
 - 주인님 「배포해」, 빌드 1회 `free-music-studio-ck7t1tkep`, DB v1.53. 엔진 0.7.9: BF16 그림 실패(그래픽 메모리 부족) — 새 메모리 부족 문장 인식·필요/남은 양 안내, 한 단계 작은 판으로 자동 재시도, 처음 고를 판에서 「메모리 빠듯」 뒤로(C-21). 사이트: 프리셋 덮어쓰기 확인(C-19)·고른 태그 자동 붙이기(C-20). 설치 파일 `AI-Free-Music-Engine-Setup-0.7.9.exe` sha256 `0e6a9ebe…9f4a`. 시험 엔진 116·사이트 109·tsc, ego 운영 화면 v1.53·0.7.9 확인. 남은 일: 마스터PC 0.7.9 설치 뒤 BF16 → Q8_0 재시도 확인. 상세 `free-music-studio/AGENTS.md`.
