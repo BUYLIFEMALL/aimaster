@@ -56,6 +56,46 @@ export function VinylStudio({ userEmail }: VinylStudioProps) {
     }));
   }, [config]);
 
+  // 무료음악 백로그 D-5(2026-11-09): AI 무료음악 자동화 「LP 턴테이블 영상으로」(/#fms=<곡 번호>) — 음원·표지는 회원 PC 엔진에만 있어
+  // 이 창을 연 무료음악 창이 브라우저 안에서 건넨다. 순서: 이 창 → 「lps-ready」 → 무료음악 창 → 「fms-audio」(음원·표지·제목). 서버로 올리지 않음.
+  const [fmsNote, setFmsNote] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => {
+    const id = /^#fms=([0-9a-f-]{36})$/i.exec(window.location.hash)?.[1];
+    if (!id) return;
+    const ORIGINS = ["https://free-music-studio.buylife.xyz", "https://free-music-studio.vercel.app"];
+    if (!window.opener) {
+      setFmsNote({ ok: false, text: "이 창이 AI 무료음악 자동화에서 열리지 않아 곡을 받을 수 없습니다. 음악·커버 파일을 직접 넣어 주세요." });
+      return;
+    }
+    setFmsNote({ ok: true, text: "AI 무료음악 자동화에서 곡과 표지를 받는 중…" });
+    const onMessage = (e: MessageEvent) => {
+      if (!ORIGINS.includes(e.origin) || e.source !== window.opener) return;
+      const d = e.data as { type?: string; id?: string; name?: string; title?: string; blob?: Blob; cover?: Blob } | null;
+      if (d?.type !== "fms-audio" || d.id !== id || !(d.blob instanceof Blob)) return;
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(timer);
+      const name = d.name || "free-music.mp3";
+      setAudioFile(new File([d.blob], /\.(mp3|wav|flac|m4a|ogg)$/i.test(name) ? name : `${name}.mp3`, { type: d.blob.type && d.blob.type !== "application/octet-stream" ? d.blob.type : "audio/mpeg" }));
+      const title = (d.title || name.replace(/\.[a-z0-9]+$/i, "")).slice(0, 80);
+      setConfig((c) => ({ ...c, title: c.title || title }));
+      const hasCover = d.cover instanceof Blob && d.cover.size > 0;
+      if (hasCover) processCoverFile(new File([d.cover as Blob], "cover.png", { type: (d.cover as Blob).type || "image/png" }));
+      setFmsNote({ ok: true, text: `「${title}」을 받았습니다 — 음악은 배경 음악으로${hasCover ? ", 표지는 LP 커버로" : "(표지 그림이 없어 커버는 직접 넣거나 AI로 만들어 주세요)"} 들어갔습니다. 「음악 포함 MP4」로 내보내세요.` });
+    };
+    window.addEventListener("message", onMessage);
+    const timer = window.setTimeout(() => {
+      window.removeEventListener("message", onMessage);
+      setFmsNote({ ok: false, text: "곡이 오지 않았습니다. 무료음악 창에서 내 PC 엔진이 켜져 있는지 확인하거나, 음악·커버 파일을 직접 넣어 주세요." });
+    }, 180_000);
+    for (const o of ORIGINS) window.opener.postMessage({ type: "lps-ready", ids: [id] }, o);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(timer);
+    };
+    // 처음 한 번만
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // 모달 및 드로어 상태
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
@@ -257,6 +297,11 @@ export function VinylStudio({ userEmail }: VinylStudioProps) {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = "";
+    processCoverFile(file);
+  };
+
+  // 올린 그림(또는 AI 무료음악 자동화에서 받은 표지)을 디스크 질감으로 바꿔 커버로 쓴다
+  const processCoverFile = (file: File) => {
 
     setState((prev) => ({
       ...prev,
@@ -490,6 +535,14 @@ export function VinylStudio({ userEmail }: VinylStudioProps) {
           {/* 우측 턴테이블 뷰어 및 내보내기 디스플레이 */}
           <TurntableDisplay state={state} onReset={handleReset} />
         </>
+      )}
+
+      {fmsNote && (
+        <div role="status" className={`fixed right-4 top-4 z-50 max-w-sm rounded-xl border px-4 py-3 text-xs shadow-2xl backdrop-blur ${fmsNote.ok ? "border-amber-400/40 bg-[#141620]/95 text-amber-100" : "border-rose-400/40 bg-[#141620]/95 text-rose-200"}`}>
+          <p className="font-bold">🎵 AI 무료음악 자동화에서 보낸 곡</p>
+          <p className="mt-1 leading-relaxed">{fmsNote.text}</p>
+          <button type="button" onClick={() => setFmsNote(null)} className="mt-2 text-[11px] text-slate-400 hover:text-white">닫기</button>
+        </div>
       )}
 
       {/* 모달 컴포넌트들 */}

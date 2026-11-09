@@ -2,23 +2,26 @@
 // 가사 영상(lyricVideoHandoff.ts)과 같은 방식: 받는 창이 제목·가사·가사 시간을 공용 DB에서 읽고(회원 본인 곡만),
 // 음원은 회원 PC 엔진에만 있으므로 이 창이 엔진에서 받아 브라우저 안에서 그 창으로 건넨다(postMessage — 서버로 올리지 않음).
 // 순서: 받는 창 → 「<준비 신호>」({ ids }) → 이 창 → 곡마다 「fms-audio」({ id, name, blob }).
-import { fetchLibraryFile } from "@/lib/engine";
+import { fetchLibraryArt, fetchLibraryFile } from "@/lib/engine";
 
 export const PLAYLIST_VIDEO_URL = "https://playlist-channel-studio.buylife.xyz";
 export const MUSIC_VIDEO_URL = "https://music-video-studio.buylife.xyz";
 /** 쇼츠 원스톱 배경음악(백로그 D-4, 받는 쪽 v1.46 — 영상 담당, docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md 9절) */
 export const SHORTS_URL = "https://shorts-onestop-studio.buylife.xyz";
+/** LP 턴테이블 영상(백로그 D-5, 2026-11-09) — 곡 + 표지 그림을 함께 */
+export const LP_URL = "https://lp-turntable.buylife.xyz";
 /** 플레이리스트 영상에 한 번에 보낼 수 있는 곡 수(받는 쪽 주소·서버 조회 상한과 같음) */
 export const PLAYLIST_MAX = 20;
 const WAIT_MS = 180_000;
 const safeName = (s: string) => s.replace(/[\\/:*?"<>|]/g, "_").trim().slice(0, 60) || "free-music";
 
 /** hash: 곡 번호를 #fms=로(쇼츠는 주소를 바꿔 쓰므로 해시로 받음) · mp3: 원음 대신 MP3 320k로(받는 쪽 업로드 상한 15MB) */
-type Target = { origin: string; path: string; readyType: string; hash?: boolean; mp3?: boolean };
+type Target = { origin: string; path: string; readyType: string; hash?: boolean; mp3?: boolean; /** 표지 그림도 함께(없으면 음원만) */ cover?: boolean };
 const TARGETS = {
   playlist: { origin: PLAYLIST_VIDEO_URL, path: "/video", readyType: "pcs-ready" },
   musicVideo: { origin: MUSIC_VIDEO_URL, path: "/music", readyType: "mvs-ready" },
   shorts: { origin: SHORTS_URL, path: "/render", readyType: "sos-ready", hash: true, mp3: true },
+  lp: { origin: LP_URL, path: "/", readyType: "lps-ready", hash: true, mp3: true, cover: true },
 } satisfies Record<string, Target>;
 
 /**
@@ -38,7 +41,7 @@ export function openVideoWithSongs(
     onError("새 창이 막혔습니다. 브라우저 주소창 오른쪽의 팝업 허용을 누른 뒤 다시 눌러 주세요.");
     return false;
   }
-  const files = new Map<string, { blob: Blob; name: string }>();
+  const files = new Map<string, { blob: Blob; name: string; title: string; cover?: Blob }>();
   const sent = new Set<string>();
   let ready = false;
   let pending = list.length;
@@ -46,7 +49,7 @@ export function openVideoWithSongs(
     if (!ready || win.closed) return;
     for (const [id, f] of files) {
       if (sent.has(id)) continue;
-      win.postMessage({ type: "fms-audio", id, name: f.name, blob: f.blob }, t.origin);
+      win.postMessage({ type: "fms-audio", id, name: f.name, blob: f.blob, title: f.title, ...(f.cover ? { cover: f.cover } : {}) }, t.origin);
       sent.add(id);
     }
     if (pending === 0) stop();
@@ -73,7 +76,18 @@ export function openVideoWithSongs(
         const { url, ext } = await fetchLibraryFile(tr.id, t.mp3 ? "mp3" : undefined);
         const blob = await fetch(url).then((r) => r.blob());
         URL.revokeObjectURL(url);
-        files.set(tr.id, { blob, name: `${safeName(tr.title)}.${ext}` });
+        // 표지(받는 곳이 원할 때만, 없거나 못 받으면 음원만 보냄)
+        let cover: Blob | undefined;
+        if (t.cover) {
+          try {
+            const art = await fetchLibraryArt(tr.id);
+            cover = await fetch(art).then((r) => r.blob());
+            URL.revokeObjectURL(art);
+          } catch {
+            cover = undefined;
+          }
+        }
+        files.set(tr.id, { blob, name: `${safeName(tr.title)}.${ext}`, title: tr.title, cover });
       } catch {
         failed.push(tr.title);
       }

@@ -24,6 +24,7 @@ import {
   SlidersHorizontal,
   Layers,
   Clapperboard,
+  Disc3,
   ImagePlus,
   Images,
   MonitorPlay,
@@ -561,6 +562,16 @@ export default function LibraryPage() {
                               onClick: () => {
                                 if (openVideoWithSongs("musicVideo", [{ id: t.id, title: t.title }], setMessage))
                                   setNotice("뮤직비디오 창을 열었습니다. 곡 제목·스타일·가사(맞춰 둔 가사 시간 포함)와 음악 파일이 함께 들어갑니다.");
+                              },
+                            },
+                            // 백로그 D-5(2026-11-09): LP 턴테이블 영상으로 — 음원(MP3)·표지 그림·제목을 함께
+                            {
+                              label: "LP 턴테이블 영상으로",
+                              icon: <Disc3 className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : false,
+                              onClick: () => {
+                                if (openVideoWithSongs("lp", [{ id: t.id, title: t.title }], setMessage))
+                                  setNotice("LP 턴테이블 창을 열었습니다. 표지 그림은 LP 커버로, 음악은 배경 음악으로 들어갑니다 — 그 창에서 「음악 포함 MP4」를 만드세요.");
                               },
                             },
                             // 백로그 D-4(2026-11-09): 쇼츠 원스톱 배경음악으로 — MP3 320k를 브라우저 안에서 건넴(받는 쪽 v1.46)
