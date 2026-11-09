@@ -397,3 +397,19 @@ test("0.7.6 waitHealthy: 켜는 중에 음악 엔진이 꺼지면 3분을 채우
   assert.equal(r, "exited");
   assert.ok(Date.now() - t0 < 1000);
 });
+
+// 0.8.1(D-3): 이미지 자동화는 그림 주소만
+import { IMAGE_SITE, imageSiteAllows } from "../src/security.mjs";
+test("이미지 자동화 — 연결 허용, 그림 주소만 쓸 수 있음", () => {
+  assert.equal(isAllowedOrigin(IMAGE_SITE), true);
+  assert.equal(isAllowedOrigin("https://ai-image-studio.buylife.xyz.evil.com"), false);
+  const job = "0f8fad5b-d9cb-469f-a165-70867728950e";
+  assert.equal(imageSiteAllows("GET", "/image-models"), true);
+  assert.equal(imageSiteAllows("POST", "/image-models/z-image-turbo:q8_0/default"), true);
+  assert.equal(imageSiteAllows("GET", `/image-art/${job}`), true);
+  assert.equal(imageSiteAllows("GET", "/queue"), true);
+  assert.equal(imageSiteAllows("POST", "/queue"), true);
+  assert.equal(imageSiteAllows("POST", `/queue/${job}/cancel`), true);
+  assert.equal(imageSiteAllows("DELETE", `/queue/${job}`), true);
+  for (const [m, p] of [["GET", "/library"], ["DELETE", "/library/x"], ["POST", "/queue/edit"], ["POST", "/storage/remove"], ["POST", "/image-models/folder"], ["DELETE", "/image-models/z-image-turbo:q8_0"], ["POST", "/quality"], ["GET", "/system"]]) assert.equal(imageSiteAllows(m, p), false, `${m} ${p}`);
+});

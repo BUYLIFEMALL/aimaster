@@ -1,7 +1,7 @@
 // 연결 문 — 우리 사이트(브라우저)가 부르는 유일한 입구. 허용 주소만 받고, 생성 관련 요청은
 // 짝짓기 토큰을 확인한 뒤 내부 ACE-Step 서버로 그대로 넘긴다(파일 업로드 포함, 본문을 해석하지 않음).
 import http from "node:http";
-import { bearer, corsHeaders, isAllowedOrigin, newPairCode, newToken, sameSecret } from "./security.mjs";
+import { bearer, corsHeaders, IMAGE_SITE, imageSiteAllows, isAllowedOrigin, newPairCode, newToken, sameSecret } from "./security.mjs";
 import { ART_TYPES, AUDIO_TYPES, extOfAudioRef, isTrackId } from "./library.mjs";
 import { pickFolder, revealFolder } from "./folderDialog.mjs";
 import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
@@ -140,11 +140,14 @@ export function createGateway(ctx) {
     if (!token || ![...ctx.tokens].some((t) => sameSecret(t, token))) {
       return json(res, 401, { error: "PC 연결이 필요합니다.", needPair: true }, origin);
     }
+    // 0.8.1: 이미지 자동화는 그림 기능만(보관함·지우기·저장 공간 등은 음악 사이트에서만)
+    const imageOnly = origin === IMAGE_SITE;
+    if (imageOnly && !imageSiteAllows(req.method, url.pathname)) return json(res, 403, { error: "이미지 자동화에서는 내 PC 그림 기능만 쓸 수 있습니다." }, origin);
     if (isLibrary) return handleLibrary(req, res, url, origin, ctx, json);
     if (isVideo) return handleVideo(req, res, url, origin, ctx, json);
     if (isImage) return handleImage(req, res, url, origin, ctx, json);
     // 작업 대기열 — 엔진이 준비 중이어도 넣어 둘 수 있다(준비되면 차례로 만든다)
-    if (isQueue) return handleQueue(req, res, url, origin, ctx, json);
+    if (isQueue) return handleQueue(req, res, url, origin, ctx, json, imageOnly);
     // 저장 공간(0.5.0) — GET /storage 항목·크기·남은 공간 · POST /storage/remove { id } · POST /storage/move { path, mode: "move"|"fresh" }
     if (isStorage) {
       try {
@@ -595,7 +598,7 @@ function parseQueueMeta(m) {
  *  POST   /queue/<id>/recorded   사이트가 「모든 음악」 기록을 남김
  *  DELETE /queue/<id>            끝난 작업을 목록에서 지우기
  */
-async function handleQueue(req, res, url, origin, ctx, json) {
+async function handleQueue(req, res, url, origin, ctx, json, imageOnly = false) {
   const q = ctx.queue;
   const parts = url.pathname.split("/").filter(Boolean); // ["queue", id?, action?]
   if (req.method === "GET" && parts.length === 1) return json(res, 200, { jobs: q.list() }, origin);
@@ -604,6 +607,7 @@ async function handleQueue(req, res, url, origin, ctx, json) {
     if (req.method === "POST" && parts.length === 1) {
       const body = await readSmall(req, 256 * 1024).catch(() => null);
       const meta = parseQueueMeta(body);
+      if (imageOnly && meta?.kind !== "art") return json(res, 403, { error: "이미지 자동화에서는 그림 작업만 넣을 수 있습니다." }, origin);
       // 마스터링(0.6.9) — task { sourceId: 원곡 번호(이 PC 보관함), options } · 결과는 새 곡(kind master)
       if (meta?.kind === "master") {
         const sourceId = body?.task?.sourceId;
