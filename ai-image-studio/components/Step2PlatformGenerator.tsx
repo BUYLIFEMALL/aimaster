@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PROVIDERS_REGISTRY } from "@/lib/providers/registry";
 import { OptionFormRenderer } from "./OptionFormRenderer";
 import { ImageResultViewer } from "./ImageResultViewer";
+import { LocalPcImagePanel } from "./LocalPcImagePanel";
 import { Layers, Sliders, Image as ImageIcon, AlertCircle, RefreshCw, Key, RotateCcw } from "lucide-react";
 
 interface Step2PlatformGeneratorProps {
@@ -13,6 +14,8 @@ interface Step2PlatformGeneratorProps {
   ideaSource?: string;
   initialNegativePrompt?: string;
 }
+
+const LOCAL_ID = "local-pc";
 
 export function Step2PlatformGenerator({ initialPrompt = "", initialNegativePrompt = "", ideaSource }: Step2PlatformGeneratorProps) {
   const [selectedProviderId, setSelectedProviderId] = useState<string>("openai");
@@ -61,6 +64,8 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
   const currentProvider = PROVIDERS_REGISTRY.find((p) => p.id === selectedProviderId) || PROVIDERS_REGISTRY[0];
   const currentModel = currentProvider.models.find((m) => m.id === selectedModelId) || currentProvider.models[0];
 
+  // D-3(2026-11-09): 「내 PC(무료)」 — 회원 PC의 AI 무료음악 엔진으로 그림(키·요금 없음, 서버 생성 API를 거치지 않음)
+  const isLocal = selectedProviderId === LOCAL_ID;
   const hasKey = registeredKeys.includes(currentProvider.apiKeyProvider);
 
   useEffect(() => {
@@ -75,6 +80,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
 
   const handleProviderChange = (providerId: string) => {
     setSelectedProviderId(providerId);
+    if (providerId === LOCAL_ID) return;
     const prov = PROVIDERS_REGISTRY.find((p) => p.id === providerId);
     if (prov && prov.models.length > 0) {
       setSelectedModelId(prov.models[0].id);
@@ -195,10 +201,23 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => handleProviderChange(LOCAL_ID)}
+              className={`relative flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
+                isLocal ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/10" : "border-zinc-800 bg-zinc-950/60 hover:border-zinc-700 hover:bg-zinc-900"
+              }`}
+            >
+              <div className="flex items-center justify-between w-full mb-1.5">
+                <span className="text-sm font-bold text-white">내 PC (무료)</span>
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/30">키 불필요</span>
+              </div>
+              <p className="text-xs text-zinc-300 line-clamp-2 leading-normal">내 PC 그래픽카드로 그립니다 — Z-Image Turbo·FLUX.2 klein(상업용 가능), 요금 없음</p>
+            </button>
           </div>
         </div>
 
-        {!loadingKeys && !hasKey && (
+        {!isLocal && !loadingKeys && !hasKey && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-amber-500/10 border border-amber-500/30 p-4 text-sm text-amber-300">
             <div className="flex items-center gap-2.5">
               <Key className="h-5 w-5 shrink-0 text-amber-400" />
@@ -218,6 +237,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
         {/* Model Selector & Form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div className="space-y-4">
+            {!isLocal && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-bold text-zinc-200">생성 모델 선택</label>
@@ -246,6 +266,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
                 <span className="text-amber-400">선택 모델 특성:</span> {currentModel.description}
               </div>
             </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-sm font-bold text-zinc-200">최종 프롬프트 (Prompt)</label>
@@ -270,7 +291,10 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
             </div>
           </div>
 
-          {/* Dynamic Options */}
+          {/* Dynamic Options — 내 PC면 그 자리에 내 PC 패널 */}
+          {isLocal ? (
+            <LocalPcImagePanel prompt={prompt} />
+          ) : (
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-5 space-y-4">
             <div className="flex items-center gap-2 border-b border-zinc-800 pb-3 text-sm font-bold text-white">
               <Sliders className="h-5 w-5 text-amber-400" />
@@ -282,6 +306,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
               onChange={handleOptionChange}
             />
           </div>
+          )}
         </div>
 
         {error && (
@@ -310,6 +335,7 @@ export function Step2PlatformGenerator({ initialPrompt = "", initialNegativeProm
 
           {(() => {
             const isReadyToGenerate = Boolean(prompt.trim() && hasKey && !generating);
+            if (isLocal) return <span className="text-xs text-emerald-300">「내 PC로 그리기(무료)」는 위 내 PC 칸에 있습니다.</span>;
             return (
               <button
                 onClick={handleGenerate}

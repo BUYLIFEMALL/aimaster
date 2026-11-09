@@ -1,3 +1,5 @@
+> **미배포 대기(2026-11-09, [역할: music] `claude-win-20261024-music`, 주인님 「D-3 진행해」→「1안으로 진행해」): 「내 PC(무료)」 플랫폼** — 이미지 생성 단계에 카드 추가. 회원 PC의 「AI 무료음악 엔진」(그림도 그림, 0.8.1+)에 브라우저가 직접 연결(연결 코드 6자리, 토큰은 이 사이트 localStorage)해 받아 둔 판(Z-Image Turbo·FLUX.2 klein, Apache-2.0 상업용 가능)으로 그림 — 키·요금 없음, 서버 생성 API(`/api/generate`)를 거치지 않음, 모델은 음악 프로그램과 같은 `ImageModels` 폴더를 그대로 씀(D-3 공용 폴더). 엔진은 이 사이트에 그림 주소만 허용. 코드: `lib/localEngine.ts`, `components/LocalPcImagePanel.tsx`, `Step2PlatformGenerator.tsx`(카드·패널). 생성 기록·갤러리 저장은 아직 없음(결과는 PNG 받기). tsc·로컬 빌드. 버전은 실제 배포 때 v1.33. 엔진 0.8.1 설치 파일은 AI 무료음악 자동화 배포 때 함께.
+
 # AI 이미지 스튜디오 (ai-image-studio) — AI 에이전트 인수인계 문서 (AGENTS.md)
 
 > **공식 서비스 URL**: [https://ai-image-studio.buylife.xyz](https://ai-image-studio.buylife.xyz)  
