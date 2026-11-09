@@ -947,7 +947,7 @@ export default function LibraryPage() {
                   const playing = player?.current?.key === t.id;
                   const canPlay = libOk && here !== false;
                   return (
-                    <div key={t.id} className={`group rounded-2xl border bg-[#0a0f1d] transition-colors ${selected.has(t.id) ? "border-emerald-400/70" : playing ? "border-emerald-500/50" : "border-slate-800 hover:border-slate-600"}`}>
+                    <div key={t.id} className={`group rounded-2xl border transition-colors ${playing && player?.playing ? "bg-emerald-950/50 shadow-[0_0_20px_rgba(52,211,153,0.25)]" : "bg-[#0a0f1d]"} ${selected.has(t.id) ? "border-emerald-400/70" : playing ? (player?.playing ? "border-emerald-400/80" : "border-emerald-500/50") : "border-slate-800 hover:border-slate-600"}`}>
                       <div className="relative overflow-hidden rounded-t-2xl">{/* 2026-11-08 카드 전체에 overflow-hidden이 있어 「…」 메뉴 창이 잘려 안 보이던 것 — 표지만 자른다 */}
                         <CoverThumb trackId={t.id} has={showCovers && arts.has(t.id)} title={t.title} version={artVersion[t.id] ?? 0} large />
                         <input
@@ -1010,7 +1010,16 @@ export default function LibraryPage() {
               editable={canReorder}
               onOrder={reorderPlaylist}
               onRowDragStart={view.type === "trash" ? undefined : rowDragStart}
-              rowClassName="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4"
+              // 2026-11-09 주인님 「곡 재생 중일 때는 배경 색을 바꿔줘 — 어떤 게 플레이 중인지 쉽게 확인」: 재생 중 = 초록 배경·테두리, 멈춘 현재 곡 = 초록 테두리만
+              rowClassName={(t) =>
+                `space-y-2 rounded-2xl border p-4 transition-colors ${
+                  player?.current?.key === t.id
+                    ? player.playing
+                      ? "border-emerald-400/80 bg-emerald-950/50 shadow-[0_0_20px_rgba(52,211,153,0.25)]"
+                      : "border-emerald-500/50 bg-[#0a0f1d]"
+                    : "border-slate-800 bg-[#0a0f1d]"
+                }`
+              }
               renderRow={(t, i, tools) => {
                 const here = onPc ? onPc.has(t.id) : null;
                 const inPlaylist = view.type === "playlist";

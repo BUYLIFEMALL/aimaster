@@ -22,7 +22,8 @@ export function TrackOrderList<T extends Row>({
   editable: boolean;
   /** 새 순서 저장 — 실패하면 false */
   onOrder: (ids: string[]) => Promise<boolean>;
-  rowClassName: string;
+  /** 줄 모양 — 글자면 모든 줄 같게, 함수면 줄마다(2026-11-09 재생 중인 곡 강조) */
+  rowClassName: string | ((item: T) => string);
   renderRow: (item: T, index: number, tools: { badge: ReactNode; grip: ReactNode }) => ReactNode;
 }) {
   const ids = items.map((t) => t.id);
@@ -249,7 +250,7 @@ export function TrackOrderList<T extends Row>({
               data-track-id={t.id}
               draggable={!!onRowDragStart && !dragging}
               onDragStart={onRowDragStart ? (e) => onRowDragStart(e, t) : undefined}
-              className={`${rowClassName} ${dragging === t.id ? "border-emerald-400/70 opacity-80 shadow-lg shadow-emerald-500/10" : ""}`}>
+              className={`${typeof rowClassName === "function" ? rowClassName(t) : rowClassName} ${dragging === t.id ? "border-emerald-400/70 opacity-80 shadow-lg shadow-emerald-500/10" : ""}`}>
               {renderRow(t, i, { badge, grip })}
             </li>
           );
