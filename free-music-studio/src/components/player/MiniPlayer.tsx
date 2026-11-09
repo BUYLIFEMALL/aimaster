@@ -163,7 +163,7 @@ export function MiniPlayer() {
         >
           {PLAYBACK_RATES.map((r) => (
             <option key={r} value={r}>
-              {r}×
+              속도 {r}×
             </option>
           ))}
         </select>
@@ -173,9 +173,10 @@ export function MiniPlayer() {
           aria-pressed={eqOpen}
           aria-label="이퀄라이저"
           title="이퀄라이저"
-          className={`shrink-0 rounded-full p-2 ${eqOpen || p.eq.some((g) => g !== 0) || p.preamp !== 0 ? on : off}`}
+          className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-bold ${eqOpen || p.eq.some((g) => g !== 0) || p.preamp !== 0 ? on : off}`}
         >
-          <SlidersHorizontal className="h-4 w-4" />
+          {/* 2026-11-09 주인님 「저음강조는 어디에 있지」 — 아이콘만으로는 찾기 어려워 「EQ」 글자를 붙임(바꿔 둔 상태면 초록) */}
+          <SlidersHorizontal className="h-4 w-4" /> EQ
         </button>
         <button
           type="button"
