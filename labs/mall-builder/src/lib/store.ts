@@ -166,13 +166,31 @@ export async function getProductGradePriceInputs(productId: string): Promise<Rec
 /** 상품 여러 개의 가격 문맥(장바구니·주문서) — 상품 id를 주면 그 상품의 문맥 */
 export async function getPriceContexts(storeId: string, productIds: string[]): Promise<(productId: string) => PriceContext> {
   const shopper = await getShopper(storeId);
-  const [prices, tiers] = await Promise.all([getGradePriceMap(storeId, shopper.gradeId, productIds), getTierMap(productIds)]);
+  const [prices, tiers, groups] = await Promise.all([getGradePriceMap(storeId, shopper.gradeId, productIds), getTierMap(productIds), getOpenGroupPrices(productIds)]);
   return (productId) => ({
     viewer: shopper.viewer,
     gradePrice: prices.get(productId) ?? null,
     gradeName: shopper.gradeName ?? undefined,
     tiers: tiers.get(productId) ?? [],
+    groupPrice: groups.get(productId) ?? null,
   });
+}
+
+/** 진행 중인 공동구매가(D21) — 상품 → 가격. 기간 안·진행 중만(DB 주문 함수와 같은 조건) */
+async function getOpenGroupPrices(productIds: string[]): Promise<Map<string, number>> {
+  const map = new Map<string, number>();
+  if (!productIds.length) return map;
+  const supabase = await createClient();
+  const nowIso = new Date().toISOString();
+  const { data } = await supabase
+    .from("mall_builder_group_buys")
+    .select("product_id, group_price")
+    .in("product_id", productIds)
+    .eq("status", "active")
+    .lte("starts_at", nowIso)
+    .gt("ends_at", nowIso);
+  for (const r of (data ?? []) as { product_id: string; group_price: number }[]) map.set(r.product_id, Number(r.group_price));
+  return map;
 }
 
 /** 손님 화면 가격 문맥(상품 하나) — 가격 엔진 priceLine의 네 번째 인자 */

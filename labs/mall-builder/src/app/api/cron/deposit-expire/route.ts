@@ -35,6 +35,9 @@ async function run(request: Request) {
   // 쿠폰·포인트(D17·D18) — 생일 쿠폰 발급, 기간 지난 포인트 소멸, 7일 안 소멸 예정 문자(아래 문자 발송에 함께 나감). 여러 번 불려도 같은 결과
   const benefits = await supabase.rpc("mall_builder_benefits_run", { p_token_hash: hash });
 
+  // 공동구매(D21) — 마감 지난 공동구매 판정(성공·실패, 참여 손님 문자는 아래 발송에 함께). 취소·환불은 운영자 버튼
+  const groupBuy = await supabase.rpc("mall_builder_group_buy_run", { p_token_hash: hash });
+
   // 재입고 알림 문구 속 {{site}}는 이 사이트 주소로 바꿔 보낸다(DB는 사이트 주소를 모른다)
   const origin = new URL(request.url).origin;
   // 자동 취소가 만든 「자동 취소 → 손님」 알림까지 이번에 함께 보낸다
@@ -51,7 +54,7 @@ async function run(request: Request) {
     return { reason: c.reason, results: c.items.length ? await sendEmailsClaimed(c.items.map((i) => ({ ...i, body: fillSite(i.body, origin) })), c.credentials ?? null, origin) : [] };
   });
   const failed = sms.error || email.error || progress.error;
-  return Response.json({ ...(data as object), auto, restock: restock.error ? { error: "restock_cleanup_failed" } : restock.data, benefits: benefits.error ? { error: "benefits_failed" } : benefits.data, notify: sms, email }, { status: failed ? 500 : 200 });
+  return Response.json({ ...(data as object), auto, restock: restock.error ? { error: "restock_cleanup_failed" } : restock.data, benefits: benefits.error ? { error: "benefits_failed" } : benefits.data, groupBuy: groupBuy.error ? { error: "group_buy_failed" } : groupBuy.data, notify: sms, email }, { status: failed ? 500 : 200 });
 
   /** 꺼내기 → 보내기 → 결과 기록. 꺼내기 실패면 error */
   async function sendChannel(

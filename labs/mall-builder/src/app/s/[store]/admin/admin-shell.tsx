@@ -19,6 +19,7 @@ const MENU = [
   { href: "/faq", label: "FAQ" },
   { href: "/categories", label: "카테고리" },
   { href: "/products", label: "상품" },
+  { href: "/group-buys", label: "공동구매" },
   { href: "/restock", label: "재입고 알림" },
   { href: "/shipping", label: "배송비" },
   { href: "/photos", label: "사진 정리" },

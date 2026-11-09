@@ -27,7 +27,8 @@ export type VolumeTier = { min_qty: number; discount_type: "rate" | "amount" | "
 /** 보는 사람 — 비로그인 / 일반(가입·로그인) / 사업자 승인 대기 / 승인 사업자 */
 export type Viewer = "guest" | "consumer" | "pending" | "business";
 export type GradePrice = { price: number | null; discount_rate: number | null } | null;
-export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string; tiers?: VolumeTier[] };
+/** groupPrice: 진행 중인 공동구매가(D21) — 있으면 등급가·수량 할인 대신 이 가격(+ 옵션 추가금). DB 0041 v2와 같은 규칙 */
+export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string; tiers?: VolumeTier[]; groupPrice?: number | null };
 
 export type PriceLine = {
   visible: boolean; // false면 목록·상세에 보이지 않는 상품(사업자 전용)
@@ -67,15 +68,20 @@ export function priceLine(product: PricingProduct, variant: Variant | null, qty:
   let unitPrice = Math.max(0, Math.floor(base));
   const breakdown = [{ label: "판매가", amount: product.base_price }];
   if (extra) breakdown.push({ label: "옵션 추가금", amount: extra });
-  const gp = ctx.gradePrice;
+  const gp = ctx.groupPrice != null ? null : ctx.gradePrice;
   if (gp && (gp.price != null || gp.discount_rate != null)) {
     // 금액 지정은 옵션 추가금을 그대로 더하고, 할인율은 (판매가 + 추가금)에 적용
     const graded = gp.price != null ? gp.price + extra : Math.floor((base * (100 - (gp.discount_rate as number))) / 100);
     unitPrice = Math.max(0, Math.floor(graded));
     if (unitPrice !== base) breakdown.push({ label: `등급가${ctx.gradeName ? `(${ctx.gradeName})` : ""}`, amount: unitPrice - base });
   }
+  // 공동구매가(D21) — 등급가·수량 할인 대신
+  if (ctx.groupPrice != null) {
+    unitPrice = Math.max(0, Math.floor(ctx.groupPrice + extra));
+    if (unitPrice !== base) breakdown.push({ label: "공동구매가", amount: unitPrice - base });
+  }
   // 4. 수량 구간 할인 — 수량 이상인 구간 중 가장 큰 구간 하나만, 등급가 다음에
-  const tier = (ctx.tiers ?? []).filter((t) => Number.isInteger(qty) && qty >= t.min_qty).sort((a, b) => b.min_qty - a.min_qty)[0];
+  const tier = ctx.groupPrice != null ? undefined : (ctx.tiers ?? []).filter((t) => Number.isInteger(qty) && qty >= t.min_qty).sort((a, b) => b.min_qty - a.min_qty)[0];
   if (tier) {
     const before = unitPrice;
     if (tier.discount_type === "rate") unitPrice = Math.floor((unitPrice * (100 - tier.value)) / 100);

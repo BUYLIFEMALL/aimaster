@@ -8,6 +8,8 @@ import ProductBoards from "./product-boards";
 import { getDownloadableCoupons, getMyCoupons } from "@/lib/benefits-store";
 import { couponEligible, couponLabel } from "@/lib/benefits";
 import { downloadCouponAction } from "@/lib/benefit-actions";
+import { createClient } from "@/lib/supabase/server";
+import { GROUP_BUY_STATUS_LABEL, progressPercent, remainingLabel, type GroupBuyInfo } from "@/lib/groupBuy";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +50,9 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
   const forThis = downloadable.filter((c) => couponEligible(c, { productId: product.id, categoryIds: product.category_ids }));
   const received = new Set(mine.map((i) => i.coupon.id));
   const here = `${base}/p/${product.id}`;
+  // 공동구매(D21) 진행 막대 — 진행 중이거나 판정이 끝난 가장 최근 것
+  const { data: gbData } = await (await createClient()).rpc("mall_builder_group_buy_info", { p_product_id: product.id });
+  const gb = (gbData ?? null) as GroupBuyInfo | null;
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -83,6 +88,29 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
         groups={product.option_groups ?? []}
         variants={variants.map(({ id, key, values, extra_price, stock, sku, is_active }) => ({ id, key, values, extra_price, stock, sku, is_active }))}
       />
+
+      {gb && (gb.open || gb.status !== "active") && (
+        <section className="mt-6 rounded-lg border-2 border-orange-300 bg-orange-50 p-4 text-sm" data-group-buy>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded bg-orange-600 px-2 py-0.5 text-xs font-bold text-white">공동구매</span>
+            <b>{gb.title}</b>
+            <span className="text-orange-800">{gb.open ? remainingLabel(gb.ends_at) : GROUP_BUY_STATUS_LABEL[gb.status]}</span>
+            <span className="ml-auto text-base font-bold text-orange-700">{Number(gb.group_price).toLocaleString("ko-KR")}원</span>
+          </div>
+          <div className="mt-3 h-3 overflow-hidden rounded-full bg-orange-100" aria-label="공동구매 진행률">
+            <div className="h-full rounded-full bg-orange-500" style={{ width: `${progressPercent(gb.achieved_qty, gb.target_qty)}%` }} />
+          </div>
+          <p className="mt-1 text-xs text-orange-900" data-group-buy-progress>
+            {gb.achieved_qty.toLocaleString("ko-KR")}개 / 목표 {gb.target_qty.toLocaleString("ko-KR")}개 ({progressPercent(gb.achieved_qty, gb.target_qty)}%)
+            {gb.max_per_customer ? ` · 1인 최대 ${gb.max_per_customer}개` : ""}
+          </p>
+          {gb.open && (
+            <p className="mt-2 text-xs text-gray-600">
+              결제가 끝난 수량만 셉니다. 마감까지 목표를 채우지 못하면 주문이 모두 취소되고 결제 금액은 환불됩니다. 공동구매 상품은 다른 상품과 따로 주문해 주세요.
+            </p>
+          )}
+        </section>
+      )}
 
       {forThis.length > 0 && (
         <section className="mt-6 space-y-2" data-product-coupons>
