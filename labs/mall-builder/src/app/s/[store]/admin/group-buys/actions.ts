@@ -58,5 +58,5 @@ export async function cancelAllGroupBuyAction(slug: string, groupId: string) {
   const r = data as { cancelled: number; bank_refunds: { order_no: string; amount: number }[]; errors: { order_no: string; error: string }[] };
   const refunds = r.bank_refunds.length ? ` 무통장 환불할 주문 ${r.bank_refunds.length}건: ${r.bank_refunds.map((x) => `${x.order_no}(${x.amount.toLocaleString("ko-KR")}원)`).join(", ")}.` : "";
   if (r.errors.length) go(slug, `${r.cancelled}건 취소, ${r.errors.length}건 실패: ${r.errors.map((x) => `${x.order_no} — ${x.error}`).join(" / ")}.${refunds}`);
-  go(slug, null, `미달 주문 ${r.cancelled}건을 취소했습니다(카드는 환불 완료).${refunds}`);
+  go(slug, null, `미달 주문 ${r.cancelled}건을 취소했습니다(카드 결제 주문은 함께 자동 환불).${refunds}`);
 }
