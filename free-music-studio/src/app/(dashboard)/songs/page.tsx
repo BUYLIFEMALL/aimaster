@@ -896,39 +896,34 @@ export default function SongsPage() {
                     {styleStale ? " · 음악 스타일 칸을 채운 뒤 고른 것이 바뀌었습니다 — 「가사 채우기」를 하면 AI가 이 태그로 스타일도 새로 만듭니다(지금 스타일을 지키려면 프리셋을 다시 고르거나 음악 스타일 칸을 고쳐 주세요)" : draft.style_prompt.trim() ? " · 아래 스타일 프리셋을 고르면 음악 스타일 칸 끝에 붙습니다(지금 음악 스타일 칸 그대로 「가사 채우기」를 하면 가사 분위기에만 반영)" : " · 음악 스타일 칸에도 들어갑니다 · 스타일 프리셋을 고르면 그 끝에 붙습니다"}
                   </p>
                 )}
-                <div className="flex flex-wrap items-center gap-2">
-                  <select className={`${field} sm:w-60`} value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="가사 언어">
-                    <optgroup label="잘 부르는 언어(추천)">
-                      {LYRIC_LANGUAGES.filter((l) => l.best).map((l) => (
-                        <option key={l.code} value={l.code}>
-                          {l.ko} 가사
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="그 밖의 언어(발음이 덜 자연스러울 수 있음)">
-                      {LYRIC_LANGUAGES.filter((l) => !l.best).map((l) => (
-                        <option key={l.code} value={l.code}>
-                          {l.ko} 가사
-                        </option>
-                      ))}
-                    </optgroup>
-                  </select>
-                  <span className="text-[11px] text-slate-500">
-                    {isBestLanguage(language) ? "음악 엔진(ACE-Step)이 잘 부르는 언어입니다." : "엔진이 지원하지만 발음·음정이 덜 자연스러울 수 있어요. 짧게 먼저 들어 보세요."} 50개 언어 지원 · 노래를 만들 때 가사 글자로 언어를 알아냅니다
-                  </span>
-                </div>
               </div>
             )}
-            <input
-              className={field}
-              value={banned}
-              onChange={(e) => changeBanned(e.target.value)}
-              placeholder="금지어(쉼표로 구분, 선택) 예) 사랑, 눈물 — 제목·가사에 넣지 않습니다"
-              maxLength={600}
-            />
+            {/* 2026-11-09 주인님 「4·5번 진행해」(C-26 4번) — 가사 언어 · AI 회사 · 모델을 한 줄로, 금지어는 「고급」에 접기 */}
             <div className="flex flex-wrap items-center gap-2">
+              {!instrumental && <select
+                className={`${field} w-auto`}
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                aria-label="가사 언어"
+                title="음악 엔진(ACE-Step)은 50개 언어를 지원하고, 노래를 만들 때 가사 글자로 언어를 알아냅니다. 「추천」 언어가 가장 자연스럽습니다."
+              >
+                <optgroup label="잘 부르는 언어(추천)">
+                  {LYRIC_LANGUAGES.filter((l) => l.best).map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.ko} 가사
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="그 밖의 언어(발음이 덜 자연스러울 수 있음)">
+                  {LYRIC_LANGUAGES.filter((l) => !l.best).map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.ko} 가사
+                    </option>
+                  ))}
+                </optgroup>
+              </select>}
               <div className="flex rounded-xl border border-slate-700/60 bg-slate-950/80 p-1">{LYRIC_PROVIDERS.map(keyBtn)}</div>
-              <select className={`${field} w-auto min-w-[16rem] flex-1`} value={model} onChange={(e) => setModel(e.target.value)}>
+              <select className={`${field} w-auto min-w-[14rem] flex-1`} value={model} onChange={(e) => setModel(e.target.value)} aria-label="AI 모델">
                 {LYRIC_PROVIDERS.find((p) => p.id === provider)!.models.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.label}
@@ -936,6 +931,20 @@ export default function SongsPage() {
                 ))}
               </select>
             </div>
+            {!instrumental && !isBestLanguage(language) && <p className="text-[11px] text-amber-300/90">엔진이 지원하지만 발음·음정이 덜 자연스러울 수 있어요. 짧게 먼저 들어 보세요.</p>}
+            <details className="group rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-1.5" open={undefined}>
+              <summary className="cursor-pointer select-none text-[11px] font-semibold text-slate-400 hover:text-slate-200">
+                고급 설정{parseBannedInput(banned).length ? ` · 금지어 ${parseBannedInput(banned).length}개` : " · 금지어"}
+              </summary>
+              <input
+                className={`${field} mt-2`}
+                value={banned}
+                onChange={(e) => changeBanned(e.target.value)}
+                placeholder="금지어(쉼표로 구분, 선택) 예) 사랑, 눈물 — 제목·가사에 넣지 않습니다"
+                maxLength={600}
+                aria-label="금지어"
+              />
+            </details>
 
             {instrumental ? (
               <div className="flex flex-wrap items-center gap-2">

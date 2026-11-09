@@ -111,8 +111,9 @@ export function parseTrackInput(body: unknown): { ok: true; value: TrackInput } 
   if (style.length > LIMITS.style || lyrics.length > LIMITS.lyrics) return { ok: false, error: "스타일·가사가 너무 깁니다." };
   if (!KINDS.includes(kind)) return { ok: false, error: "곡 종류가 올바르지 않습니다." };
   if (!LICENSES.includes(license)) return { ok: false, error: "사용 범위(상업용·비상업용)가 올바르지 않습니다." };
-  // YuE2는 지금 새 곡 만들기만 한다(그 곡을 마스터링한 결과는 원곡처럼 비상업용으로 남는다)
-  if (license === "noncommercial" && kind !== "text2music" && kind !== "master") return { ok: false, error: "비상업용 엔진은 새 곡 만들기만 할 수 있습니다." };
+  // YuE2는 새 곡 만들기·커버(엔진 0.8.0, 원곡 멜로디 받아 적기)를 한다 — 마스터링본은 원곡처럼 비상업용. 부분 수정은 YuE2에 없다
+  // (2026-11-09 마스터PC: YuE2 커버 2곡이 이 검사에 막혀 「모든 음악」 기록이 안 남던 것)
+  if (license === "noncommercial" && kind === "repaint") return { ok: false, error: "비상업용 엔진은 부분 수정을 할 수 없습니다." };
   if (kind === "master" && !parentId) return { ok: false, error: "마스터링본은 원곡 번호가 있어야 합니다." };
   const durationOk =
     kind === "text2music"

@@ -8,7 +8,8 @@ test("곡 기록: 마스터링본 — 원곡 번호 필수, 원곡 길이(1초~)
   assert.equal(parseTrackInput({ ...base, duration_sec: 3 }).ok, true);
   assert.equal(parseTrackInput({ ...base, license: "noncommercial" }).ok, true);
   assert.equal(parseTrackInput({ ...base, parent_id: undefined }).ok, false);
-  assert.equal(parseTrackInput({ ...base, kind: "cover", license: "noncommercial" }).ok, false);
+  assert.equal(parseTrackInput({ ...base, kind: "cover", license: "noncommercial" }).ok, true); // 엔진 0.8.0 YuE2 커버
+  assert.equal(parseTrackInput({ ...base, kind: "repaint", license: "noncommercial" }).ok, false);
 });
 
 test("곡 기록 고치기: 보낸 칸만, 제목은 비울 수 없고 길이 제한, 빈 요청은 거절", () => {
@@ -38,7 +39,7 @@ test("곡 기록: 사용 범위 — 기본 상업용, 비상업용(YuE2)은 새 
   assert.equal(parseTrackInput(ok).value.license, "commercial");
   assert.equal(parseTrackInput({ ...ok, license: "noncommercial" }).value.license, "noncommercial");
   assert.equal(parseTrackInput({ ...ok, license: "free" }).ok, false);
-  assert.equal(parseTrackInput({ ...ok, license: "noncommercial", kind: "cover", duration_sec: 120 }).ok, false);
+  assert.equal(parseTrackInput({ ...ok, license: "noncommercial", kind: "cover", duration_sec: 120 }).ok, true); // 엔진 0.8.0 YuE2 커버
 });
 
 test("곡 기록: 제목이 비면 「제목 없는 노래」", () => {

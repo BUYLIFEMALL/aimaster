@@ -44,6 +44,7 @@ export function SongAlbumChooser({ title, art, style, lyrics, ai, onRead, start 
   const canSave = paired && hasArt(status);
   const [open, setOpen] = useState<"" | "cover" | "read">("");
   const [reading, setReading] = useState(false);
+  const [help, setHelp] = useState(false);
   const [picked, setPicked] = useState<{ name: string; url: string } | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string; needKey?: boolean } | null>(null);
   useEffect(() => () => void (picked && URL.revokeObjectURL(picked.url)), [picked]);
@@ -113,10 +114,18 @@ export function SongAlbumChooser({ title, art, style, lyrics, ai, onRead, start 
     <section className="space-y-3 rounded-2xl border border-fuchsia-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
       <h2 className="flex items-center gap-2 text-sm font-bold text-slate-100">
         <ImageIcon className="h-4 w-4 text-fuchsia-300" /> 앨범 그림(표지) <span className="text-[11px] font-normal text-slate-400">(선택)</span>
+        {/* 2026-11-09 주인님 「4·5번 진행해」(C-26 5번) — 긴 설명은 ⓘ 도움말로(누르면 펼침), 버튼은 한 줄 */}
+        <button
+          type="button"
+          onClick={() => setHelp((v) => !v)}
+          aria-expanded={help}
+          title="그림은 좌측 「음악앨범」 화면에서 만듭니다. 만들어 둔 앨범에서 고르면 곡 표지가 되고, 「앨범 화면에서 이 곡 그림 만들기」는 이 곡 제목·가사·스타일을 앨범 화면으로 보냅니다. 「그림으로 곡 만들기」를 누르면 AI가 그림을 보고 곡 주제·장르·분위기·스타일을 채웁니다(위에서 고른 AI 키로 1번 호출)."
+          className="rounded-full border border-slate-600 px-1.5 text-[10px] font-bold text-slate-400 hover:border-fuchsia-400/60 hover:text-fuchsia-200"
+        >
+          ⓘ 도움말
+        </button>
       </h2>
-      <p className="text-[11px] leading-relaxed text-slate-400">
-        그림은 좌측 「음악앨범」 화면에서 만듭니다. 만들어 둔 앨범에서 고르면 곡 표지가 되고, 「앨범 화면에서 이 곡 그림 만들기」는 이 곡 제목·가사·스타일을 앨범 화면으로 보냅니다. 「그림으로 곡 만들기」를 누르면 AI가 그림을 보고 곡 주제·장르·분위기·스타일을 채웁니다(위에서 고른 AI 키로 1번 호출).
-      </p>
+      {help && <p className="text-[11px] leading-relaxed text-slate-400">그림은 좌측 「음악앨범」 화면에서 만듭니다. 만들어 둔 앨범에서 고르면 곡 표지가 되고, 「앨범 화면에서 이 곡 그림 만들기」는 이 곡 제목·가사·스타일을 앨범 화면으로 보냅니다. 「그림으로 곡 만들기」를 누르면 AI가 그림을 보고 곡 주제·장르·분위기·스타일을 채웁니다(위에서 고른 AI 키로 1번 호출).</p>}
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -131,10 +140,10 @@ export function SongAlbumChooser({ title, art, style, lyrics, ai, onRead, start 
           type="button"
           onClick={() => setOpen("cover")}
           disabled={!canSave || reading}
-          title={canSave ? undefined : "내 PC 엔진을 연결해야 노래 폴더에 표지를 넣을 수 있습니다"}
+          title={canSave ? "만들어 둔 앨범에서 골라 이 곡 표지로" : "내 PC 엔진을 연결해야 노래 폴더에 표지를 넣을 수 있습니다"}
           className="inline-flex items-center gap-1.5 rounded-xl border border-fuchsia-400/40 bg-fuchsia-950/40 px-4 py-2 text-xs font-bold text-fuchsia-200 hover:bg-fuchsia-900/50 disabled:opacity-40"
         >
-          <Images className="h-3.5 w-3.5" /> 만들어 둔 앨범에서 고르기
+          <Images className="h-3.5 w-3.5" /> 앨범에서 고르기
         </button>
         <Link
           href={albumsHref({ title, art, fromSong: true })}
@@ -143,8 +152,9 @@ export function SongAlbumChooser({ title, art, style, lyrics, ai, onRead, start 
               sessionStorage.setItem(ALBUM_SONG_KEY, JSON.stringify({ style, lyrics }));
             } catch {}
           }}
+          title="앨범 화면에서 이 곡 그림 만들기 — 이 곡 제목·가사·스타일을 앨범 화면으로 보냅니다"
           className="inline-flex items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-900">
-          <Plus className="h-3.5 w-3.5" /> 앨범 화면에서 이 곡 그림 만들기
+          <Plus className="h-3.5 w-3.5" /> 이 곡 그림 만들기
         </Link>
         {picked && (
           // eslint-disable-next-line @next/next/no-img-element
