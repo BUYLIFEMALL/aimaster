@@ -7,7 +7,7 @@ import { validateInvoiceEmail } from "@/lib/taxInvoice";
 
 export type PlaceOrderState = { error: string | null; depositor: string; memo: string };
 
-// 금액·재고·외상 한도는 DB 함수 mall_builder_place_order(6칸)가 다시 계산·검사한다(화면 금액은 「확인용」으로만 보낸다)
+// 금액·재고·외상 한도는 DB 함수 mall_builder_place_order_v2(0038, 쿠폰·포인트 포함)가 다시 계산·검사한다(화면 금액은 「확인용」으로만 보낸다)
 // 장바구니 비우기는 함수 밖에서 손님 권한으로 한다 — DB 함수에 지우기를 넣으면 적용 확인 창이 막힘(docs/mall/LESSONS_LEARNED.md)
 export async function placeOrderAction(slug: string, _prev: PlaceOrderState, form: FormData): Promise<PlaceOrderState> {
   const values = { depositor: String(form.get("depositor") ?? ""), memo: String(form.get("memo") ?? "") };
@@ -19,13 +19,18 @@ export async function placeOrderAction(slug: string, _prev: PlaceOrderState, for
   const supabase = await createClient();
   const { data: store } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();
   if (!store) return { ...values, error: "몰을 찾을 수 없습니다." };
-  const { data, error } = await supabase.rpc("mall_builder_place_order", {
+  // 쿠폰·포인트(D17·D18): 화면 값은 고른 것만 넘기고 할인액은 DB 함수가 다시 계산·검사한다
+  const couponIssueId = String(form.get("coupon_issue_id") ?? "") || null;
+  const points = Math.max(0, Math.floor(Number(form.get("points") ?? 0)) || 0);
+  const { data, error } = await supabase.rpc("mall_builder_place_order_v2", {
     p_store_id: store.id,
     p_address_id: addressId,
     p_depositor: values.depositor,
     p_memo: values.memo,
     p_expected_total: Number.isFinite(expected) ? expected : -1,
     p_pay_method: payMethod,
+    p_coupon_issue_id: couponIssueId,
+    p_points: points,
   });
   if (error) return { ...values, error: error.message };
   const row = (data as { order_id: string; order_no: string }[] | null)?.[0];

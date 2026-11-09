@@ -71,6 +71,10 @@ export type OrderRow = {
   subtotal: number;
   shipping_fee: number;
   total: number;
+  /** 쿠폰 할인·사용 포인트·구매 확정 적립(D17·D18). total은 현금(입금·카드·외상)으로 내는 금액 */
+  coupon_discount: number;
+  point_used: number;
+  points_earned: number;
   receiver: { label: string; receiver: string; phone: string; zip: string; addr1: string; addr2: string; region: string };
   depositor: string;
   bank: { bank_name: string | null; bank_account: string | null; bank_holder: string | null };
@@ -108,7 +112,7 @@ export const PARTIAL_CANCEL_STATUSES = ["pending_payment", "paid", "preparing"] 
 
 export type OrderEventRow = { id: string; from_status: OrderStatus | null; to_status: OrderStatus; actor_role: string; note: string; created_at: string };
 
-export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, receiver, depositor, bank, memo, courier, tracking_no, is_credit, is_card, tax_invoice, pay_deadline_at, created_at, is_guest, guest_name, guest_phone, guest_email";
+export const ORDER_COLUMNS = "id, order_no, status, subtotal, shipping_fee, total, coupon_discount, point_used, points_earned, receiver, depositor, bank, memo, courier, tracking_no, is_credit, is_card, tax_invoice, pay_deadline_at, created_at, is_guest, guest_name, guest_phone, guest_email";
 
 /** 입금 기한 안내 등 날짜를 한국 시간으로 */
 export function formatDateTime(iso: string): string {

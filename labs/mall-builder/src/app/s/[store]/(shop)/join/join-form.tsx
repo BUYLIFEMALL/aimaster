@@ -17,6 +17,19 @@ export default function JoinForm({ slug, next, storeName }: { slug: string; next
         <span className="text-sm font-medium">휴대폰</span>
         <input name="phone" defaultValue={state.phone} required inputMode="tel" placeholder="010-1234-5678" className="mt-1 w-full rounded border px-3 py-2" />
       </label>
+      <div className="block">
+        <span className="text-sm font-medium">생일 <span className="text-xs font-normal text-gray-500">(선택 — 생일 쿠폰을 받습니다)</span></span>
+        <span className="mt-1 flex gap-2">
+          <select name="birth_m" defaultValue="" className="rounded border px-3 py-2" data-join-birth-month>
+            <option value="">월</option>
+            {Array.from({ length: 12 }, (_, i) => <option key={i} value={i + 1}>{i + 1}월</option>)}
+          </select>
+          <select name="birth_d" defaultValue="" className="rounded border px-3 py-2">
+            <option value="">일</option>
+            {Array.from({ length: 31 }, (_, i) => <option key={i} value={i + 1}>{i + 1}일</option>)}
+          </select>
+        </span>
+      </div>
       <div className="space-y-2 rounded border bg-gray-50 p-3 text-sm">
         <label className="flex items-start gap-2">
           <input type="checkbox" name="agree_terms" className="mt-1" />

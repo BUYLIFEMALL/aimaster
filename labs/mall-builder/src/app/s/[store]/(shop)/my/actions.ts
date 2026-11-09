@@ -1,5 +1,6 @@
 "use server";
 
+import { parseBirthMd } from "@/lib/benefits";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -45,8 +46,11 @@ export async function joinAction(slug: string, next: string, _prev: JoinState, f
   if (form.get("agree_terms") !== "on") return { ...values, error: "이용약관과 개인정보 수집·이용에 동의해 주세요." };
   const v = validateCustomer(raw);
   if (!v.ok) return { ...values, error: v.error };
+  const birth = parseBirthMd(form.get("birth_m"), form.get("birth_d"));
+  if (!birth.ok) return { ...values, error: birth.error };
   const { supabase, userId, storeId } = await signedIn(slug);
-  const { error } = await supabase.from("mall_builder_store_customers").insert({ ...v.value, store_id: storeId, user_id: userId });
+  // 가입하면 「가입 축하」 쿠폰이 DB 트리거로 자동 발급된다(D17)
+  const { error } = await supabase.from("mall_builder_store_customers").insert({ ...v.value, birth_md: birth.value, store_id: storeId, user_id: userId });
   // 이미 가입한 경우(23505)는 그대로 통과
   if (error && error.code !== "23505") return { ...values, error: "가입하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
   revalidatePath(`/s/${slug}`, "layout");
@@ -56,8 +60,11 @@ export async function joinAction(slug: string, next: string, _prev: JoinState, f
 export async function updateProfileAction(slug: string, form: FormData) {
   const v = validateCustomer({ name: form.get("name"), phone: form.get("phone"), marketing_agree: form.get("marketing_agree") });
   if (!v.ok) back(slug, { error: v.error });
+  // 생일(선택, D17 생일 쿠폰) — 월·일만
+  const birth = parseBirthMd(form.get("birth_m"), form.get("birth_d"));
+  if (!birth.ok) back(slug, { error: birth.error });
   const { supabase, customerId } = await myCustomer(slug);
-  const { error } = await supabase.from("mall_builder_store_customers").update(v.value).eq("id", customerId);
+  const { error } = await supabase.from("mall_builder_store_customers").update({ ...v.value, birth_md: birth.value }).eq("id", customerId);
   back(slug, error ? { error: error.message } : { ok: "내 정보를 저장했습니다." });
 }
 

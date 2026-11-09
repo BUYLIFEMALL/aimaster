@@ -4,9 +4,11 @@ import { formatWon } from "@/lib/products";
 import type { OrderItemRow } from "@/lib/orders";
 
 // 운영자 부분 취소(D5) — 품목마다 「취소할 수량」 칸. 보내기 전에 한 번 더 묻는다(되돌릴 수 없음)
-export default function PartialCancelForm({ items, action, isCredit, isCard = false }: { items: OrderItemRow[]; action: (form: FormData) => Promise<void>; isCredit: boolean; isCard?: boolean }) {
+export default function PartialCancelForm({ items, action, isCredit, isCard = false, usedBenefits = false }: { items: OrderItemRow[]; action: (form: FormData) => Promise<void>; isCredit: boolean; isCard?: boolean; usedBenefits?: boolean }) {
   // 카드 주문은 줄어든 금액이 카드로 자동 환불된다(D11) — 「직접 환불」 안내는 무통장 주문에만
-  const tail = isCard ? " 줄어든 금액은 카드로 바로 환불됩니다." : isCredit ? " 외상 장부에서도 되돌립니다." : " 입금된 주문이면 차액은 직접 환불해 주세요.";
+  const tail = (isCard ? " 줄어든 금액은 카드로 바로 환불됩니다." : isCredit ? " 외상 장부에서도 되돌립니다." : " 입금된 주문이면 차액은 직접 환불해 주세요.") +
+    // 쿠폰·포인트를 쓴 주문(D17·D18): 현금(입금·카드·외상)부터 돌려주고 남으면 포인트로
+    (usedBenefits ? " 쿠폰·포인트를 쓴 주문이라 현금부터 돌려주고, 남는 금액은 포인트로 돌려줍니다." : "");
   return (
     <form
       action={action}

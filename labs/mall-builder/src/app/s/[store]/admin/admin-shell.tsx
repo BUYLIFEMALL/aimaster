@@ -9,6 +9,7 @@ const MENU = [
   { href: "/orders", label: "주문" },
   { href: "/quotes", label: "견적" },
   { href: "/customers", label: "손님" },
+  { href: "/coupons", label: "쿠폰·포인트" },
   { href: "/stats", label: "통계" },
   { href: "/settings", label: "쇼핑몰 정보" },
   { href: "/home", label: "첫 화면" },

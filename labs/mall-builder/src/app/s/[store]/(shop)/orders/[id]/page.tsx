@@ -154,7 +154,10 @@ export default async function OrderDetailPage({
       <section className="ml-auto mt-4 max-w-sm space-y-1 text-sm" data-order-amounts>
         <p className="flex justify-between"><span>상품 금액</span><span>{formatWon(order.subtotal)}</span></p>
         <p className="flex justify-between"><span>배송비{REGION_LABEL[r.region] ? ` (${REGION_LABEL[r.region]})` : ""}</span><span>{formatWon(order.shipping_fee)}</span></p>
+        {order.coupon_discount > 0 && <p className="flex justify-between text-red-600" data-coupon-line><span>쿠폰 할인</span><span>−{formatWon(order.coupon_discount)}</span></p>}
+        {order.point_used > 0 && <p className="flex justify-between text-red-600" data-points-line><span>포인트 사용</span><span>−{formatWon(order.point_used)}</span></p>}
         <p className="flex justify-between border-t pt-1 text-base font-bold"><span>결제 금액</span><span>{formatWon(order.total)}</span></p>
+        {order.points_earned > 0 && <p className="text-right text-xs text-gray-500" data-points-earned>구매 확정 적립 {order.points_earned.toLocaleString("ko-KR")}점</p>}
       </section>
 
       {(order.tax_invoice || (isBusiness && canRequestInvoice(order))) && (

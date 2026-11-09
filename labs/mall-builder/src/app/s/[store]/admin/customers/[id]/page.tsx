@@ -6,6 +6,9 @@ import { APPROVAL_LABEL } from "@/lib/business";
 import { formatDateTime } from "@/lib/orders";
 import { AdminShell, NoPermission } from "../../admin-shell";
 import { creditEntryAction, reviewBusinessAction, setCreditLimitAction } from "../actions";
+import { getPointBalance, getPointLedger, getMyCoupons } from "@/lib/benefits-store";
+import { POINT_KIND_LABEL } from "@/lib/benefits";
+import { adjustPointsAction } from "@/lib/benefit-actions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -15,16 +18,22 @@ export default async function AdminCustomerPage({
   searchParams,
 }: {
   params: Promise<{ store: string; id: string }>;
-  searchParams: Promise<{ error?: string; ok?: string }>;
+  searchParams: Promise<{ error?: string; ok?: string; msg?: string }>;
 }) {
   const { store: slug, id } = await params;
-  const { error, ok } = await searchParams;
+  const { error, ok, msg } = await searchParams;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/customers/${id}`);
   if (!staff) return <NoPermission />;
   const c = await getStoreCustomer(store.id, id);
   if (!c) notFound();
-  const [certUrl, ledger] = await Promise.all([getCertUrl(c.cert_path), getCreditLedger(c.id)]);
+  const [certUrl, ledger, pointBalance, points, coupons] = await Promise.all([
+    getCertUrl(c.cert_path),
+    getCreditLedger(c.id),
+    getPointBalance(c.id),
+    getPointLedger(c.id, 20),
+    getMyCoupons(c.id),
+  ]);
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/customers">
@@ -36,7 +45,7 @@ export default async function AdminCustomerPage({
         <Link href={`/s/${store.slug}/admin/quotes/new?customer=${c.id}`} className="ml-auto rounded border px-3 py-1 text-sm" data-send-quote>견적 보내기</Link>
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-review-error>{error}</p>}
-      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{ok === "approved" ? "승인했습니다." : ok === "rejected" ? "반려했습니다." : ok === "credit" ? "외상 한도를 저장했습니다." : "장부에 기록했습니다."}</p>}
+      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg ? msg : ok === "approved" ? "승인했습니다." : ok === "rejected" ? "반려했습니다." : ok === "credit" ? "외상 한도를 저장했습니다." : "장부에 기록했습니다."}</p>}
 
       <section className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
         <div className="rounded border p-4">
@@ -97,6 +106,31 @@ export default async function AdminCustomerPage({
           </form>
         </section>
       )}
+
+      <section className="mt-6 space-y-3 rounded-lg border p-4 text-sm" data-points-admin>
+        <h3 className="font-semibold">
+          포인트 <span className="ml-1 text-base" data-point-balance>{pointBalance.toLocaleString("ko-KR")}점</span>
+          <span className="ml-2 text-xs font-normal text-gray-500">쿠폰 {coupons.filter((i) => !i.used_at).length}장 보유 · {coupons.filter((i) => i.used_at).length}장 사용{c.birth_md ? ` · 생일 ${c.birth_md}` : ""}</span>
+        </h3>
+        <form action={adjustPointsAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2">
+          <select name="sign" className="rounded border px-2 py-1.5"><option value="plus">지급(+)</option><option value="minus">차감(−)</option></select>
+          <input name="amount" inputMode="numeric" required placeholder="점수" className="w-28 rounded border px-2 py-1.5" />
+          <input name="note" required maxLength={100} placeholder="사유(손님 내역에 보입니다)" className="w-64 rounded border px-2 py-1.5" />
+          <button className="min-h-10 rounded bg-gray-900 px-4 text-white">포인트 반영</button>
+        </form>
+        {points.length > 0 && (
+          <ul className="divide-y rounded border" data-point-ledger>
+            {points.map((e) => (
+              <li key={e.id} className="flex flex-wrap gap-2 px-3 py-1.5">
+                <span className="w-12 text-xs text-gray-500">{POINT_KIND_LABEL[e.kind] ?? e.kind}</span>
+                <b className={e.amount < 0 ? "text-red-600" : ""}>{e.amount > 0 ? "+" : ""}{e.amount.toLocaleString("ko-KR")}</b>
+                <span className="flex-1 text-gray-600">{e.note}</span>
+                <span className="text-xs text-gray-400">{formatDateTime(e.created_at)}{e.remaining > 0 && e.expires_at ? ` · ${new Date(e.expires_at).toLocaleDateString("ko-KR")} 소멸` : ""}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {c.approval_status === "pending" && (
         <section className="mt-6 flex flex-wrap items-end gap-3 rounded-lg border p-4" data-review>

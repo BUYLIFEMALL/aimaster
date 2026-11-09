@@ -10,6 +10,8 @@ import { formatWon } from "@/lib/products";
 import { readBusinessInfo } from "@/lib/businessInfo";
 import { createClient } from "@/lib/supabase/server";
 import OrderForm from "./order-form";
+import { getMyCoupons, getPointBalance, getPointSettings, getProductCategoryMap, usableCoupons } from "@/lib/benefits-store";
+import { couponLabel } from "@/lib/benefits";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -43,6 +45,20 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
   // 외상: 승인 사업자이고 한도가 있을 때만 결제 방법에 보인다(DB 함수가 한 번 더 검사)
   const isBusiness = customer.approval_status === "approved" && !!customer.grade?.is_business;
   const credit = isBusiness && customer.credit_limit > 0 ? { limit: customer.credit_limit, balance: (await getCreditLedger(customer.id)).balance } : undefined;
+  // 쿠폰·포인트(D17·D18) — 장바구니 주문에만. 실제 할인은 DB 함수가 다시 계산
+  const [issues, pointSettings, pointBalance, catMap] = await Promise.all([
+    getMyCoupons(customer.id),
+    getPointSettings(store.id),
+    getPointBalance(customer.id),
+    getProductCategoryMap(lines.map((l) => l.product.id)),
+  ]);
+  const benefits = {
+    coupons: usableCoupons(issues).map((i) => ({ issueId: i.id, name: i.coupon.name, label: couponLabel(i.coupon), expiresAt: i.expires_at, coupon: i.coupon })),
+    lines: lines.map((l) => ({ productId: l.product.id, categoryIds: catMap.get(l.product.id) ?? [], lineTotal: l.price.lineTotal })),
+    isBusiness,
+    points: pointSettings.enabled ? { settings: pointSettings, balance: pointBalance } : null,
+    gradeRate: customer.grade?.point_rate != null ? Number(customer.grade.point_rate) : null,
+  };
   const bankText =
     info.bank_name && info.bank_account
       ? `${info.bank_name} ${info.bank_account}${info.bank_holder ? ` (예금주 ${info.bank_holder})` : ""} — 주문 후 입금해 주세요.`
@@ -79,6 +95,7 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
           credit={credit}
           invoice={isBusiness ? { defaultEmail: user.email ?? "" } : undefined}
           card={card}
+          benefits={benefits}
         />
       )}
     </main>

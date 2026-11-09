@@ -5,6 +5,9 @@ import { describePolicy } from "@/lib/shipping";
 import { buildCategoryTree, categoryPath, flattenTree } from "@/lib/categories";
 import ProductDetail from "./product-detail";
 import ProductBoards from "./product-boards";
+import { getDownloadableCoupons, getMyCoupons } from "@/lib/benefits-store";
+import { couponEligible, couponLabel } from "@/lib/benefits";
+import { downloadCouponAction } from "@/lib/benefit-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +43,11 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
   const firstCategory = product.category_ids.find((cid) => visibleIds.has(cid));
   const path = firstCategory ? categoryPath(categoryRows, firstCategory) : [];
   const base = `/s/${store.slug}`;
+  // 받을 수 있는 쿠폰(D17) — 이 상품에 쓸 수 있는 「손님이 받기」 쿠폰만
+  const [downloadable, mine] = await Promise.all([getDownloadableCoupons(store.id), customer ? getMyCoupons(customer.id) : Promise.resolve([])]);
+  const forThis = downloadable.filter((c) => couponEligible(c, { productId: product.id, categoryIds: product.category_ids }));
+  const received = new Set(mine.map((i) => i.coupon.id));
+  const here = `${base}/p/${product.id}`;
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -75,6 +83,27 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
         groups={product.option_groups ?? []}
         variants={variants.map(({ id, key, values, extra_price, stock, sku, is_active }) => ({ id, key, values, extra_price, stock, sku, is_active }))}
       />
+
+      {forThis.length > 0 && (
+        <section className="mt-6 space-y-2" data-product-coupons>
+          {forThis.map((c) => (
+            <div key={c.id} className="flex flex-wrap items-center gap-2 rounded border border-dashed border-red-300 bg-red-50/40 px-3 py-2 text-sm">
+              <span className="font-semibold text-red-700">쿠폰</span>
+              <b>{c.name}</b>
+              <span className="text-gray-600">{couponLabel(c)}</span>
+              {!customer ? (
+                <Link href={`/login?next=${encodeURIComponent(here)}`} className="ml-auto rounded border px-3 py-1 text-xs">로그인하고 받기</Link>
+              ) : received.has(c.id) ? (
+                <span className="ml-auto text-xs text-gray-500">받음</span>
+              ) : (
+                <form action={downloadCouponAction.bind(null, store.slug, c.id, here)} className="ml-auto">
+                  <button className="rounded bg-gray-900 px-3 py-1 text-xs text-white" data-coupon-download>쿠폰 받기</button>
+                </form>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
 
       {product.description && (
         <section className="mt-12 border-t pt-8">

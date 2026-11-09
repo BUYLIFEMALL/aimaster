@@ -63,7 +63,12 @@ export default async function AdminOrderDetailPage({
             {order.is_card ? "카드 결제" : order.is_credit ? "외상(후불) — 장부에 기록됨" : "무통장"}
             {!order.is_card && <> · 입금자명 <b>{order.depositor}</b></>}
           </p>
-          <p>결제 금액 <b>{formatWon(order.total)}</b> (상품 {formatWon(order.subtotal)} + 배송비 {formatWon(order.shipping_fee)})</p>
+          <p>
+            결제 금액 <b>{formatWon(order.total)}</b> (상품 {formatWon(order.subtotal)} + 배송비 {formatWon(order.shipping_fee)}
+            {order.coupon_discount > 0 && <> − 쿠폰 {formatWon(order.coupon_discount)}</>}
+            {order.point_used > 0 && <> − 포인트 {formatWon(order.point_used)}</>})
+          </p>
+          {order.points_earned > 0 && <p className="text-xs text-gray-500" data-points-earned>구매 확정 적립 {order.points_earned.toLocaleString("ko-KR")}점</p>}
           {order.pay_deadline_at && order.status === "pending_payment" && (
             <p className="text-red-700" data-pay-deadline>{order.is_card ? "결제 기한" : "입금 기한"} {formatDateTime(order.pay_deadline_at)} — 지나면 자동 취소</p>
           )}
@@ -150,7 +155,7 @@ export default async function AdminOrderDetailPage({
       </ul>
 
       {(PARTIAL_CANCEL_STATUSES as readonly string[]).includes(order.status) && items.some((it) => it.qty > it.cancelled_qty) && (
-        <PartialCancelForm items={items} isCredit={order.is_credit} isCard={order.is_card} action={partialCancelAction.bind(null, store.slug, order.id)} />
+        <PartialCancelForm items={items} isCredit={order.is_credit} isCard={order.is_card} usedBenefits={order.coupon_discount > 0 || order.point_used > 0} action={partialCancelAction.bind(null, store.slug, order.id)} />
       )}
 
       <section className="mt-6 text-sm">

@@ -12,6 +12,9 @@ import { formatDateTime } from "@/lib/orders";
 import { RESTOCK_SELECT, RESTOCK_STATUS_LABEL, restockLabel, type RestockRow } from "@/lib/restock";
 import { cancelRestockAction } from "@/lib/restock-actions";
 import { deleteAddressAction, leaveStoreAction, makeDefaultAddressAction, saveAddressAction, updateProfileAction } from "./actions";
+import { expiringSoon, getMyCoupons, getPointBalance, getPointLedger, getPointSettings } from "@/lib/benefits-store";
+import { couponLabel, POINT_KIND_LABEL } from "@/lib/benefits";
+import { redeemCouponAction } from "@/lib/benefit-actions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -71,6 +74,17 @@ export default async function MyPage({
     .order("created_at", { ascending: false })
     .limit(30);
   const restocks = (restockData ?? []) as unknown as RestockRow[];
+  // 쿠폰·포인트(D17·D18)
+  const [coupons, pointSettings, pointBalance, pointLedger] = await Promise.all([
+    getMyCoupons(customer.id),
+    getPointSettings(store.id),
+    getPointBalance(customer.id),
+    getPointLedger(customer.id, 30),
+  ]);
+  const now = Date.now();
+  const usable = coupons.filter((i) => !i.used_at && i.coupon.is_active && (!i.expires_at || Date.parse(i.expires_at) > now));
+  const soon = expiringSoon(pointLedger, now);
+  const [birthM, birthD] = (customer.birth_md ?? "-").split("-");
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -97,6 +111,19 @@ export default async function MyPage({
           <label className="block">
             <span className="text-xs text-gray-500">휴대폰</span>
             <input name="phone" defaultValue={customer.phone} required inputMode="tel" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+          </label>
+          <label className="block">
+            <span className="text-xs text-gray-500">생일(선택 — 생일 쿠폰을 받습니다)</span>
+            <span className="mt-0.5 flex gap-2">
+              <select name="birth_m" defaultValue={birthM ? String(Number(birthM)) : ""} className="rounded border px-2 py-1.5 text-sm" data-birth-month>
+                <option value="">월</option>
+                {Array.from({ length: 12 }, (_, i) => <option key={i} value={i + 1}>{i + 1}월</option>)}
+              </select>
+              <select name="birth_d" defaultValue={birthD ? String(Number(birthD)) : ""} className="rounded border px-2 py-1.5 text-sm" data-birth-day>
+                <option value="">일</option>
+                {Array.from({ length: 31 }, (_, i) => <option key={i} value={i + 1}>{i + 1}일</option>)}
+              </select>
+            </span>
           </label>
           <label className="flex items-center gap-2 text-sm sm:col-span-2">
             <input type="checkbox" name="marketing_agree" defaultChecked={customer.marketing_agree} /> 할인·신상품 소식 받기
@@ -147,6 +174,58 @@ export default async function MyPage({
           </>
         )}
       </section>
+
+      <section className="mt-6 rounded-lg border p-4" data-my-coupons>
+        <h2 className="mb-3 font-semibold">내 쿠폰 ({usable.length}장)</h2>
+        <form action={redeemCouponAction.bind(null, store.slug)} className="mb-3 flex gap-2">
+          <input name="code" maxLength={20} placeholder="쿠폰 코드 입력" className="w-48 rounded border px-2 py-1.5 text-sm uppercase" data-coupon-code />
+          <button className="rounded border px-3 text-sm">등록</button>
+        </form>
+        {usable.length === 0 ? (
+          <p className="text-sm text-gray-500">쓸 수 있는 쿠폰이 없습니다.</p>
+        ) : (
+          <ul className="divide-y rounded border text-sm">
+            {usable.map((i) => (
+              <li key={i.id} className="flex flex-wrap items-center gap-2 px-3 py-2">
+                <b>{i.coupon.name}</b>
+                <span className="text-gray-600">{couponLabel(i.coupon)}</span>
+                <span className="ml-auto text-xs text-gray-500">{i.expires_at ? `${new Date(i.expires_at).toLocaleDateString("ko-KR")}까지` : "기한 없음"}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {coupons.length > usable.length && (
+          <p className="mt-2 text-xs text-gray-500">사용했거나 기간이 끝난 쿠폰 {coupons.length - usable.length}장</p>
+        )}
+      </section>
+
+      {(pointSettings.enabled || pointBalance > 0 || pointLedger.length > 0) && (
+        <section className="mt-6 rounded-lg border p-4" data-my-points>
+          <h2 className="mb-1 font-semibold">포인트 <span className="ml-1" data-my-point-balance>{pointBalance.toLocaleString("ko-KR")}점</span></h2>
+          {pointSettings.enabled && (
+            <p className="text-xs text-gray-500">
+              구매 확정 때 결제 금액의 {customer.grade?.point_rate ?? pointSettings.earn_rate}% 적립 · {pointSettings.min_use.toLocaleString("ko-KR")}점 이상 모이면 주문서에서 사용 · 적립 후 {pointSettings.expire_months}개월 뒤 소멸
+            </p>
+          )}
+          {soon.points > 0 && (
+            <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800" data-points-expiring>
+              {soon.points.toLocaleString("ko-KR")}점이 {soon.first ? new Date(soon.first).toLocaleDateString("ko-KR") : "곧"} 소멸됩니다.
+            </p>
+          )}
+          {pointLedger.length > 0 && (
+            <ul className="mt-3 divide-y rounded border text-sm">
+              {pointLedger.map((e) => (
+                <li key={e.id} className="flex flex-wrap gap-2 px-3 py-1.5">
+                  <span className="w-12 text-xs text-gray-500">{POINT_KIND_LABEL[e.kind] ?? e.kind}</span>
+                  <b className={e.amount < 0 ? "text-red-600" : ""}>{e.amount > 0 ? "+" : ""}{e.amount.toLocaleString("ko-KR")}</b>
+                  <span className="flex-1 text-gray-600">{e.note}</span>
+                  <span className="text-xs text-gray-400">{formatDateTime(e.created_at)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       <section className="mt-6">
         <h2 className="mb-3 font-semibold">배송지 ({addresses.length})</h2>
