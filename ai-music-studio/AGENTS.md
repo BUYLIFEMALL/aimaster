@@ -5,7 +5,7 @@
 - 현재 버전: **v1.01** (2026-10-23 첫 배포, Claude Code 윈도우)
 - 루트 `../CLAUDE.md`를 메인 지침으로 함께 읽는다(회원 본인 키, 권한 판정, 버전, 배포 비용, 한국어 진행 안내 등).
 
-- **미배포 대기(2026-11-09, [역할: music] `claude-win-20261024-music`, 무료음악 백로그 D-11, 주인님 「이것도 니가 담당해서 해」)**: 「나란히 비교」(`/compare`)·「만들기」(`/create`)가 `?fms=<무료음악 초안 번호>`를 받아 회원 본인 `free_music_songs`(읽기만)의 제목·스타일·가사·길이로 미리 채움(`lib/preset.ts` `presetFromFmsDraft`, `lib/fmsPreset.ts`, 효과음 초안 제외, 자동 생성 없음). 무료음악 「🎛 여러 버전 한 번에」 아래 「💳 같은 가사로 유료 AI 모델과 비교하기」에서 들어옴. 시험 54·tsc. 다음 배포 때 v1.15
+- **v1.15 배포(2026-11-09, `ai-music-studio-cakibiq6t`, DB v1.15, ego 운영 확인 — `/compare?fms=` 미리 채우기 동작) · [역할: music] `claude-win-20261024-music`, 무료음악 백로그 D-11, 주인님 「이것도 니가 담당해서 해」)**: 「나란히 비교」(`/compare`)·「만들기」(`/create`)가 `?fms=<무료음악 초안 번호>`를 받아 회원 본인 `free_music_songs`(읽기만)의 제목·스타일·가사·길이로 미리 채움(`lib/preset.ts` `presetFromFmsDraft`, `lib/fmsPreset.ts`, 효과음 초안 제외, 자동 생성 없음). 무료음악 「🎛 여러 버전 한 번에」 아래 「💳 같은 가사로 유료 AI 모델과 비교하기」에서 들어옴. 시험 54·tsc. 다음 배포 때 v1.15
 
 ## 1. 사용 목적·대상
 - **목적**: 여러 음악 생성 AI(Google Lyria·ElevenLabs·Suno·MiniMax·Stable Audio·ACE-Step)를 한 화면에서 골라 노래·배경음악을 만들고, 같은 설명으로 최대 3개 모델을 나란히 비교한다. **음악 모델 연동의 레퍼런스(기준) 프로그램**(이미지의 `ai-image-studio`와 같은 역할, 주인님 지시 「ai-image-studio처럼」).
