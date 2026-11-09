@@ -73,6 +73,8 @@
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 | `smartstore-register` | v1.26 · 2026-11-09 ([역할: design] Antigravity, 78번 미니멀 스마트스토어 아틀리에 테마 리뉴얼 & 5단계 표준 로그인 탑재, `smartstore-register-q8zk4ex4r`, DB v1.26) | 클린 페이퍼 & 세이지 그린 테마 전면 적용, 3D 엠보싱 세이지 버튼(`.btn-3d-sage`), 5단계 표준 로그인 폼 & 1행 약관 동의, 27개 단위테스트 PASS, live 200 검증 |
 | `ai-task-planner` | v1.13 · 2026-11-09 ([역할: design] Antigravity, 74번 퀀트 타임트래커 다크 터미널 테마 리뉴얼 & 5단계 표준 로그인 탑재, `ai-task-planner-g459ejx1a`, DB v1.13) | 공용 기준 코드 `work-inbox-client` 사본 동기화, 74번 다크 옵시디언/에메랄드 HUD, 5단계 표준 로그인 폼, 27개 단위테스트 PASS, live 200 검증 |
+| `free-music-studio` | v1.61 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」, `free-music-studio-azusqsp7t`, DB v1.61, 사이트만) | 유튜브 SEO 넘기기(D-7)·LP 턴테이블 보내기(D-5)·쇼츠 받는 주소 `/fms-bgm`(D-4 마무리)·EQ·속도 글자. 실물은 마스터PC 확인 대기 |
+| `vinyl-lp-studio` | v1.15 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」, `vinyl-lp-studio-nsnpkbv8e`, DB v1.15) | 무료음악에서 곡·표지·제목 받기(D-5) |
 | `free-music-studio` | v1.60 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」, `free-music-studio-q1aru42a0`, DB v1.60, 사이트만) | 그림 기본 판 복구·쇼츠 배경음악 보내기(D-4)·댄스·월드 프리셋(D-8)·재생 강조 2곳·참고곡 스타일(D-9)·EQ·시각화·속도(D-10)·유료 모델 비교 링크(D-11). 재생 관련 실물은 마스터PC 확인 대기 |
 | `ai-music-studio` | v1.15 · 2026-11-09 ([역할: music], 같은 묶음, `ai-music-studio-cakibiq6t`, DB v1.15) | `/compare`·`/create` `?fms=` 무료음악 초안 미리 채우기(D-11). ego 운영 확인 |
 | `free-music-studio` | v1.59 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「기존에 작업했던것과 함께 묶어서 배포해」, `free-music-studio-6ck2jt91u`, DB v1.59, 사이트만, 커밋된 코드만 `git archive`로 배포) | 곡 만들기 화면 메뉴 먹통 수정(`useEffect` 무한 반복), 「작업 대기열」 링크. ego 운영 확인 |
