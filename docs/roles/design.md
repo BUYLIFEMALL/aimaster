@@ -5,22 +5,23 @@
 - 카테고리: 전체(디자인)
 - 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
 - 핵심 배포 원칙 (2026-10-29 주인님 지시): 작업한 내용의 실제 배포는 비용 절감을 위해 꼭 당장 필요한 것(긴급/치명 오류)이 아니면 로컬 검수 완료 상태로 모아두었다가 **한 번에 묶음(Batch)으로 반영**한다. 급한 것만 최소한으로 단독 반영.
-- 마지막 갱신: 2026-11-09 17:05 (agy-win-atp-v2)
-- 최근 업데이트: 2026-11-09 17:05 (ai-task-planner AI 할 일·성과 관리 플래너 v1.13: 2안 74. 퀀트 타임트래커 다크 터미널 스타일 공식 채택 전면 개편, 2026-11-01 5단계 표준 로그인 폼 & 1행 약관 탑재, .btn-3d-emerald 3D 엠보싱 에메랄드 버튼 적용, 27/27 단위테스트 통과, Vercel 프로덕션 배포 및 실세션 검수 완료)
+- 마지막 갱신: 2026-11-09 17:48 (agy-win-ssr-v2)
+- 최근 업데이트: 2026-11-09 17:48 (smartstore-register AI 스마트스토어 상품 자동등록기 4대 화면 3시안 12뷰 1440px 캡처 및 http://localhost:3800/showcase.html 단일 통합 쇼케이스 & comparison.html 구축 완비, D:\Antigravity\Design 영구 아카이빙 완료)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| 전체 프로그램 | 다음 디자인 UI 고도화 대상 프로그램 선정 및 4대 화면 3시안 작업 대기 | 2026-11-09 | 대기 중 |
+| `smartstore-register` | 4대 화면 3시안(12뷰) 쇼케이스 제작 완료 후 주인님 공식 시안 선택 승인 대기 | 2026-11-09 | 승인 대기 중 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| 미지정 | 다음 디자인 리뉴얼 대상 프로그램 지시 | 주인님 다음 작업 프로그램 선정 | `docs/PROGRAM_CAPABILITY_MAP.md` |
+| `smartstore-register` | 76/77/78번 3대 시안 중 공식 채택안 확정 | 주인님 번호 선택 지시 (1안/2안/3안) | `http://localhost:3800/showcase.html` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-09 | `smartstore-register` `v1.25` | 4대 화면 3시안(12개 뷰) 1440px 고화질 캡처 및 `http://localhost:3800/showcase.html` 단일 통합 쇼케이스 & `comparison.html` 종합 비교 매트릭스 표 구축, `D:\Antigravity\Design` 3대 독립 폴더(76/77/78번) 영구 자산 아카이빙 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3800`) |
 | 2026-11-09 | `ai-task-planner` `v1.13` | 2안(74. 퀀트 타임트래커 다크 터미널 스타일) 공식 채택 전면 개편, 2026-11-01 5단계 표준 로그인 폼 & 1행 약관 개편, 3D 엠보싱 에메랄드 버튼(`.btn-3d-emerald`) & 24H 뽀모도로 다이얼 HUD 탑재, 단위테스트 27/27 100% 통과, Vercel 프로덕션 배포 및 라이브 검수 완료 | ✅ 프로덕션 배포 완료 (`dpl_GKjseLNe1f2TwQoe1nwqNNWmzc3A`, https://ai-task-planner.buylife.xyz) |
 | 2026-11-09 | `ai-task-planner` `v1.12` | 4대 화면 3시안(12개 뷰) 1440px 고화질 캡처 및 `http://localhost:3800/showcase.html` 단일 통합 쇼케이스 & `comparison.html` 종합 비교 매트릭스 표 구축, `D:\Antigravity\Design` 3대 독립 폴더(73/74/75번) 영구 자산 아카이빙 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3800`) |
 | 2026-11-09 | `trending-product-finder` `v1.37` | 1안(70. 퀀트 이커머스 인텔리전스 레이더 덱 스타일) 공식 채택 전면 개편, 2026-11-01 5단계 표준 로그인 폼 & 1행 약관 개편, 4단계 파이프라인 배너 & 3D 엠보싱 사이안 버튼(`.btn-3d-cyan`) 탑재, 단위테스트 43/43 & 권한테스트 15/15 100% 통과, Vercel 프로덕션 배포 및 라이브 검수 완료 | ✅ 프로덕션 배포 완료 (`dpl_6uqyP6eFeFHJEPjwAxfh4KVzf1N3`, https://trending-product-finder.buylife.xyz) |

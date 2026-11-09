@@ -41,6 +41,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `smartstore-register/` | [역할: design] Antigravity(윈도우, 크롬) · 세션 `agy-win-ssr-v2` | 2026-11-09 | AI 스마트스토어 상품 자동등록기 4대 화면 3시안(12뷰) 쇼케이스 및 종합 비교표 제작 |
 | `ai-video-studio/` | [역할: video] Claude Code(윈도우, ego) · 세션 `claude-win-video` | 2026-11-09 | 백로그 3차 — 9:16 맞춤(공용 `video-edit-composition` 기준 수정) + 후처리 3종(fal 립싱크·업스케일·배경 제거), 플랜 `ai-video-studio/docs/PLAN_20261109_POSTPROCESS_FIT.md` |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-06 | 음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI, 요청함 `c234b28c` 「진행해」 결정) — 구현·시험·미배포 대기, 배포 승인 뒤 v1.22 + OpenAI 실제 확인 |
