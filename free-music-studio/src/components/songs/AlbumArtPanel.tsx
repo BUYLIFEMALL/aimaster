@@ -8,7 +8,7 @@ import { ART_PROVIDERS, DEFAULT_ART_PROVIDER, type ArtProvider } from "@/lib/alb
 import Link from "next/link";
 import { ImageIcon, Loader2, FolderDown, Download, Sparkles, RotateCcw } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
-import { EngineError, enqueueLocalArt, fetchLocalArt, getImageModels, hasArt, hasLocalArt, listQueue, saveArtToLibrary, type ImageModelState } from "@/lib/engine";
+import { EngineError, enqueueLocalArt, fetchLocalArt, getImageModels, hasArt, hasLocalArt, listQueue, pickLocalArtVariant, saveArtToLibrary, type ImageModelState } from "@/lib/engine";
 import { ART_PROMPT_LIMIT, ART_STYLES, DEFAULT_ART_STYLE, withArtStyle, type ArtStyleId } from "@/lib/albumArt";
 import { LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
 import { loadAiPrefs, modelLabel, saveAiPrefs, usableProvider, type AiPrefs } from "@/lib/aiModelChoice";
@@ -102,7 +102,7 @@ export function AlbumArtPanel({
     getImageModels()
       .then((s) => {
         setLocal(s);
-        setLocalId((v) => v || s.defaultId || s.installed[0] || s.recommendedId || "");
+        setLocalId((v) => v || pickLocalArtVariant(s));
       })
       .catch(() => setLocal(null));
   }, [localOk, provider]);

@@ -240,3 +240,18 @@ test("0.7.9 메모리 부족 재시도 판 — 같은 가족의 받아 둔 바�
   assert.equal(isImageOom("[W] model manager cannot make enough memory available on CUDA0"), true);
   assert.equal(isImageOom("[E] generate failed"), false);
 });
+
+test("0.7.9 처음 고를 판 — 기본 판 → 받아 둔 추천 판 → 「메모리 빠듯」 아닌 받아 둔 판 → 받아 둔 첫 판 → 추천 판", async () => {
+  const { pickImageVariant } = await import("../src/imageArt.mjs");
+  const families = [{ variants: [
+    { id: "z-image-turbo:q8_0", status: "available", tight: false },
+    { id: "z-image-turbo:bf16", status: "available", tight: true },
+    { id: "flux2-klein-4b:bf16", status: "available", tight: false },
+  ] }];
+  assert.equal(pickImageVariant("z-image-turbo:bf16", { families }), "z-image-turbo:bf16"); // 작업이 고른 판
+  assert.equal(pickImageVariant("", { defaultId: "z-image-turbo:bf16", installed: ["z-image-turbo:q8_0"], families }), "z-image-turbo:bf16"); // 직접 정한 기본
+  assert.equal(pickImageVariant("", { installed: ["z-image-turbo:bf16", "z-image-turbo:q8_0"], recommendedId: "z-image-turbo:q8_0", families }), "z-image-turbo:q8_0");
+  assert.equal(pickImageVariant("", { installed: ["z-image-turbo:bf16", "flux2-klein-4b:bf16"], recommendedId: "z-image-turbo:q8_0", families }), "flux2-klein-4b:bf16");
+  assert.equal(pickImageVariant("", { installed: ["z-image-turbo:bf16"], recommendedId: "z-image-turbo:q8_0", families }), "z-image-turbo:bf16");
+  assert.equal(pickImageVariant("", { installed: [], recommendedId: "z-image-turbo:q8_0", families }), "z-image-turbo:q8_0");
+});

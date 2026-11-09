@@ -6,7 +6,7 @@
 
 | 프로그램 | 운영 버전 | 배포 주소(이번) | 미배포 대기 |
 |---|---|---|---|
-| `free-music-studio` | v1.59 · 엔진 설치 파일 0.8.1 | `free-music-studio-6ck2jt91u` | 없음 |
+| `free-music-studio` | v1.59 · 엔진 설치 파일 0.8.1 | `free-music-studio-6ck2jt91u` | 1건 — 내 PC 그림 기본 판 고르기 복구(4절 정정), 다음 v1.60 |
 | `ai-image-studio` | v1.34 | `ai-image-studio-lsnyhsput` | 없음 |
 | `playlist-channel-studio` | v1.38 | `playlist-channel-studio-qyf2jm7xn` | 없음 |
 
@@ -30,7 +30,10 @@
 - **재발 방지**: `useEffect`·`useMemo`·`useCallback` 조건 배열에 매번 새로 생기는 배열·객체·함수 결과를 넣지 않는다. 큰 화면 변경 뒤에는 배포 전에 `next dev`로 열어 브라우저 콘솔의 「Maximum update depth exceeded」 경고를 확인한다(운영판에서는 숨음).
 - **내 PC 개발 서버 띄우는 법**(운영 DB): `process.loadEnvFile("D:/Antigravity/AIMaster/.env.local")` 뒤 `next dev -p 3107`을 자식 프로세스로 실행(`--env-file`은 Next가 거부). 로그인은 운영 사이트의 `sb-` 쿠키를 localhost에 옮김. `next dev`가 이 폴더 `AGENTS.md` 끝에 안내 블록을 덧붙이므로 끝나면 지운다.
 
-## 4. 배포할 때 주의 — 다른 세션의 미커밋 변경
+## 4. 배포할 때 주의 — 미커밋 변경
+
+> **같은 날 정정: 이 5개 파일은 다른 세션 작업이 아니었다. 코드 4개(`AlbumArtPanel.tsx`·엔진 `imageArt.mjs`·`engine/tests/imageArt.test.mjs`·`tests/engine.test.mjs`)는 **이 세션이 02:57에 커밋한 `8f622ea34`(내 PC 그림 기본 판 고르기)를 03:03 다른 세션의 디자인 커밋 `16328c462`(trending-product-finder 시안)가 옛 내용으로 되돌린 것**이고, 작업 폴더에는 원래 내용이 남아 있었다. 같은 날 복구 커밋함(엔진 시험 122·tsc 통과). `desktop/build/icon.png`는 01:29 엔진 설치 파일을 만들 때 `desktop/scripts/make-icon.mjs`가 다시 만든 부산물이라 커밋하지 않고 둔다. **v1.59는 되돌려진 판으로 배포돼 사이트의 「내 PC 그림 기본 판 고르기」가 빠져 있다 — 다음 배포 v1.60에서 돌아옴**(엔진 쪽은 0.7.9~0.8.1 설치 파일이 작업 폴더에서 만들어져 이미 들어 있음)**
+
 
 - 이 폴더에 **다른 세션의 미커밋 변경**이 있다: `src/components/songs/AlbumArtPanel.tsx`(`pickLocalArtVariant` 사용), `engine/src/imageArt.mjs`, `engine/tests/imageArt.test.mjs`, `tests/engine.test.mjs`, `desktop/build/icon.png`. 내 PC 그림 모델 고르기 관련으로 보이며, 아직 운영에 없다. **건드리지 말고 그 세션이 마무리하게 둔다.**
 - `scripts/deploy.mjs`는 작업 폴더를 그대로 올리므로, 이 변경이 남아 있는 동안 배포하면 섞여 나간다. v1.59는 커밋된 코드만 꺼내 배포했다:
