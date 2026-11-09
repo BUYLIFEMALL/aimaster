@@ -11,6 +11,7 @@ import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseB
 /** 기획 곡 수 고르기 — 1~10, 그 뒤로 15·20·30·40(주인님 2026-11-06: 20곡씩 최대 40곡) */
 const PLAN_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40];
 import { GeneratePanel } from "@/components/engine/GeneratePanel";
+import { MultiVersionPanel } from "@/components/engine/MultiVersionPanel";
 import { PresetPicker } from "@/components/songs/PresetPicker";
 import { presetsFor } from "@/lib/presets";
 import { COLLECTIONS_CHANGED, type Collection } from "@/lib/collections";
@@ -609,7 +610,7 @@ export default function SongsPage() {
       {/* 2026-11-09 주인님 「세로로 너무 길다」 — 넓은 화면(2xl)은 가운데를 두 칸으로: 왼쪽 AI 작사 설정, 오른쪽 곡 편집·생성 */}
       <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] 2xl:grid-cols-[220px_minmax(0,1fr)_minmax(0,1fr)]">
         {/* 내 곡 목록 */}
-        <aside className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4">
+        <aside className="space-y-2 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4 2xl:row-span-2">
           <button
             type="button"
             onClick={() => openDraft({ ...EMPTY, project_id: viewProjectId, lyrics: sfx ? SFX_LYRICS : instrumental ? INSTRUMENTAL_LYRICS : "", duration_sec: sfx ? DEFAULT_SFX_DURATION : DEFAULT_DURATION })}
@@ -650,7 +651,8 @@ export default function SongsPage() {
         </aside>
 
         <div className="space-y-6 2xl:contents">
-          <div className="space-y-6">
+          {/* 2026-11-09 주인님 「앨범 그림을 위에 빈자리에」「내 PC로 노래 만들기와 여러 버전 한 번에를 한 행으로 좌우로 나란히」 — 넓은 화면: 첫 줄 AI 작사+앨범 | 곡 편집, 둘째 줄 생성 | 여러 버전 */}
+          <div className="space-y-6 2xl:col-start-2 2xl:row-start-1">
           {/* 노래 / 연주곡 */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex rounded-xl border border-slate-700/60 bg-slate-950/80 p-1" role="tablist" aria-label="곡 종류">
@@ -1076,8 +1078,10 @@ export default function SongsPage() {
           </section>
           )}
 
+          {/* 앨범 그림(노래·연주곡만 — 효과음은 표지가 필요 없음) — 좌측 「음악앨범」에서 만들고 여기서는 고르기(v1.35) */}
+          {!sfx && <SongAlbumChooser title={draft.title} art={draft.art_prompt} style={draft.style_prompt} lyrics={instrumental ? "" : draft.lyrics} ai={{ provider, model }} onRead={fillFromAlbum} start={startAlbum} />}
           </div>
-          <div className="space-y-6">
+          <div className="space-y-6 2xl:col-start-3 2xl:row-start-1">
           {/* 곡 편집 */}
           <section className="space-y-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-[#0a0f1d] to-[#070b14] p-5">
             {projects.length > 0 && (
@@ -1204,26 +1208,27 @@ export default function SongsPage() {
           </section>
           </div>
 
-          {/* 앨범 그림(노래·연주곡만 — 효과음은 표지가 필요 없음) */}
-          {/* 앨범 그림 만들기는 좌측 「음악앨범」 메뉴로(v1.35) — 여기서는 만들어 둔 앨범에서 고르기 */}
-          {/* 2026-11-09 주인님 「왼쪽에 여유공간이 있으니 앨범 섹션을 왼쪽으로, 내 노래 만들기 섹션하고 가로로」 — 넓은 화면(2xl) 두 번째 줄: 앨범(왼쪽) | 생성(오른쪽) */}
-          {!sfx && <div className="2xl:col-start-2"><SongAlbumChooser title={draft.title} art={draft.art_prompt} style={draft.style_prompt} lyrics={instrumental ? "" : draft.lyrics} ai={{ provider, model }} onRead={fillFromAlbum} start={startAlbum} /></div>}
-
           {/* 내 PC 엔진으로 생성 — 지금 화면의 가사·스타일 그대로(저장 전에도 가능) */}
-          <div className="space-y-6 2xl:col-start-3">
+          <div className="space-y-6 2xl:col-start-2 2xl:row-start-2">
           {coverSrc && (
             <div id="quick-cover" className="scroll-mt-6">
               <QuickCoverPanel source={coverSrc} onClose={() => setCoverSrc(null)} />
             </div>
           )}
           <div id="generate-panel" className="scroll-mt-6">
-            <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} multi={{ ai: { provider, model }, tags: moodTags }} />
+            <GeneratePanel title={draft.title} songId={draft.id} song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} />
           </div>
           </div>
+          {/* 여러 버전 한 번에 — 생성 칸 오른쪽에 나란히(효과음 제외) */}
+          {!sfx && (
+            <div className="2xl:col-start-3 2xl:row-start-2">
+              <MultiVersionPanel song={{ style_prompt: draft.style_prompt, lyrics: draft.lyrics, duration_sec: draft.duration_sec }} title={draft.title} songId={draft.id} ai={{ provider, model }} tags={moodTags} />
+            </div>
+          )}
         </div>
 
         {/* 오른쪽 — 이 프로젝트의 곡 카드(원본 곡 만들기 2단의 오른쪽). 좁은 화면에서는 아래로 */}
-        <div className="lg:col-span-2 2xl:col-start-2 2xl:col-span-2">
+        <div className="lg:col-span-2 2xl:col-start-2 2xl:col-span-2 2xl:row-start-3">
           <ProjectTracks projectId={viewProjectId} view={projectView} label={projectView === "all" ? "최근 만든 곡" : projectName(viewProjectId)} onCover={openCover} />
         </div>
       </div>

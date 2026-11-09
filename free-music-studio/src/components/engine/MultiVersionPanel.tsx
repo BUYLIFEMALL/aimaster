@@ -4,33 +4,19 @@
 // 엔진 × 장르 조합 → AI가 버전마다 서로 다른 느낌의 음악 스타일을 한 번 호출로 씀 → 버전마다 엔진 대기열에 넣는다.
 import { useEffect, useState } from "react";
 import { Layers, Loader2 } from "lucide-react";
-import { consentKey, enqueueSong, fetchHfToken, type EngineStatus, type MusicEngineInfo, type SongForEngine } from "@/lib/engine";
+import { availableEngines, consentKey, engineInfo, enqueueSong, fetchHfToken, hasQueue, type MusicEngineInfo, type SongForEngine } from "@/lib/engine";
+import { useEngine } from "./useEngine";
 import { LYRIC_GENRES } from "@/lib/lyricTags";
 import { presetCategories, presetsFor } from "@/lib/presets";
 import { isInstrumentalLyrics } from "@/lib/lyricRules";
 import { MULTI_MAX, buildSlots, slotCount, versionTitle } from "@/lib/multiVersion";
 
-export function MultiVersionPanel({
-  song,
-  title,
-  songId,
-  status,
-  engines,
-  current,
-  ai,
-  tags,
-  onQueued,
-}: {
-  song: SongForEngine;
-  title: string;
-  songId: string | null;
-  status: EngineStatus;
-  engines: MusicEngineInfo[];
-  current: MusicEngineInfo;
-  ai: { provider: string; model: string };
-  tags: string;
-  onQueued: (n: number) => void;
-}) {
+// 2026-11-09 주인님 「내 PC로 노래 만들기와 여러 버전 한 번에를 한 행으로 좌우로 나란히 바로 보이게」 — 생성 칸 밖의 독립 카드
+export function MultiVersionPanel({ song, title, songId, ai, tags }: { song: SongForEngine; title: string; songId: string | null; ai: { provider: string; model: string }; tags: string }) {
+  const { status, paired } = useEngine();
+  const queueMode = paired && hasQueue(status);
+  const engines: MusicEngineInfo[] = queueMode ? availableEngines(status) : [];
+  const current = engineInfo("acestep");
   const instrumental = isInstrumentalLyrics(song.lyrics);
   const kindOk = (e: MusicEngineInfo) => e.kind === "both" || e.kind === (instrumental ? "instrumental" : "vocal");
   const list = engines.filter(kindOk);
@@ -51,10 +37,11 @@ export function MultiVersionPanel({
   const total = slotCount(pickedEngines.length, pickedGenres.length);
   const tooMany = total > MULTI_MAX;
   const needConsent = pickedEngines.filter((id) => !consents[id]).map((id) => engines.find((e) => e.id === id)?.name ?? id);
-  const canRun = !busy && total >= 2 && !tooMany && !needConsent.length && !!(song.lyrics.trim() || song.style_prompt.trim());
+  const canRun = queueMode && !!status && !busy && total >= 2 && !tooMany && !needConsent.length && !!(song.lyrics.trim() || song.style_prompt.trim());
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
   const run = async () => {
+    if (!status) return;
     setMsg(null);
     const chosen = pickedEngines.map((id) => list.find((e) => e.id === id)!).filter(Boolean);
     const slots = buildSlots(chosen, pickedGenres, current);
@@ -77,7 +64,6 @@ export function MultiVersionPanel({
         await enqueueSong({ ...song, style_prompt: data.styles[i] }, { title: versionTitle(title, s, show), songId, device: status.device }, status.quality, s.engine as MusicEngineInfo["id"], engines.find((e) => e.id === s.engine)?.hfToken ? token : null);
         n++;
       }
-      onQueued(n);
       setMsg({ ok: true, text: `${n}곡을 대기열에 넣었습니다(AI 호출 1번). 버전마다 스타일이 달라 서로 다른 느낌으로 만들어집니다.` });
     } catch (e) {
       setMsg({ ok: false, text: e instanceof Error ? e.message : "여러 버전을 넣지 못했습니다." });
@@ -89,13 +75,14 @@ export function MultiVersionPanel({
   const chip = (on: boolean) => `rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${on ? "border-violet-400 bg-violet-600 text-white" : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-violet-500/60"}`;
 
   return (
-    <details className="rounded-xl border border-violet-500/25 bg-violet-950/10 px-3 py-2">
-      <summary className="flex cursor-pointer select-none items-center gap-1.5 text-xs font-bold text-violet-200">
-        <Layers className="h-3.5 w-3.5" /> 🎛 여러 버전 한 번에 <span className="font-normal text-slate-400">— 같은 가사로 엔진·장르마다 1곡씩, 최대 {MULTI_MAX}곡</span>
-      </summary>
-      <div className="mt-3 space-y-3 text-xs">
+    <section className="space-y-3 rounded-2xl border border-violet-500/25 bg-gradient-to-b from-[#0f0a1d] to-[#070b14] p-5">
+      <h2 className="flex flex-wrap items-center gap-1.5 text-sm font-bold text-violet-100">
+        <Layers className="h-4 w-4 text-violet-300" /> 🎛 여러 버전 한 번에 <span className="text-[11px] font-normal text-slate-400">같은 가사로 엔진·장르마다 1곡씩, 최대 {MULTI_MAX}곡</span>
+      </h2>
+      {!queueMode && <p className="text-[11px] text-amber-300">내 PC 엔진을 연결하면 쓸 수 있습니다(대기열이 있는 엔진).</p>}
+      <div className="space-y-3 text-xs">
         <div className="space-y-1.5">
-          <p className="text-[11px] text-slate-400">엔진(여러 개 · 안 고르면 위에서 고른 {current.name})</p>
+          <p className="text-[11px] text-slate-400">엔진(여러 개 · 안 고르면 {current.name})</p>
           <div className="flex flex-wrap gap-1.5">
             {list.map((e) => (
               <button key={e.id} type="button" onClick={() => toggle(pickedEngines, setPickedEngines, e.id)} className={chip(pickedEngines.includes(e.id))} title={e.desc}>
@@ -129,6 +116,6 @@ export function MultiVersionPanel({
         </div>
         {msg && <p className={`text-[11px] font-semibold ${msg.ok ? "text-emerald-300" : "text-rose-300"}`}>{msg.text}</p>}
       </div>
-    </details>
+    </section>
   );
 }

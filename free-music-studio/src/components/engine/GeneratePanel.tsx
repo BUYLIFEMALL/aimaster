@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Cpu, Loader2, AlertCircle, Wand2, ListPlus, CheckCircle2 } from "lucide-react";
 import { useEngine } from "./useEngine";
 import { DownloadButtons } from "./DownloadButtons";
-import { MultiVersionPanel } from "./MultiVersionPanel";
 import { isSfxLyrics } from "@/lib/songs";
 import {
   EngineError,
@@ -41,7 +40,7 @@ function estimate(device: string, durationSec: number) {
 }
 
 /** 곡 만들기 화면 아래 칸 — 지금 편집 중인 가사·스타일로 내 PC 엔진에 노래를 맡긴다. */
-export function GeneratePanel({ song, title, songId, multi }: { song: SongForEngine; title: string; songId: string | null; multi?: { ai: { provider: string; model: string }; tags: string } }) {
+export function GeneratePanel({ song, title, songId }: { song: SongForEngine; title: string; songId: string | null }) {
   const engine = useEngine();
   const { status, checking, online, paired, ready } = engine;
   const [busy, setBusy] = useState<"" | "start" | "run" | "fetch">("");
@@ -356,11 +355,6 @@ export function GeneratePanel({ song, title, songId, multi }: { song: SongForEng
           </span>
         )}
       </div>
-
-      {/* 2026-11-09 여러 버전 한 번에(엔진 × 장르, 최대 8곡, 버전마다 AI가 다른 느낌의 스타일) */}
-      {queueMode && !sfxMode && multi && status && (
-        <MultiVersionPanel song={song} title={title} songId={songId} status={status} engines={allEngines} current={picked} ai={multi.ai} tags={multi.tags} onQueued={(n) => setQueued((q) => q + n)} />
-      )}
 
       {queueMode && queued > 0 && (
         <p className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-emerald-300">
