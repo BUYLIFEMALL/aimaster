@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — 쇼츠 v1.47 배포(D-4 받는 쪽 수정 + V7)
+
+- 배포: `shorts-onestop-studio-1w4ozq084` Ready, 운영 https://shorts-onestop-studio.buylife.xyz , DB `programs.version` v1.47(빌드 1회, 주인님 채팅 승인).
+- 함께 나감: D-4 받기 전용 `/fms-bgm`(`989c7bc1c`, 이 경로만 COOP/COEP 없음 → `window.opener` 유지 → 회원 폴더에 올린 뒤 sessionStorage로 `/render`), V7 장면 구간·48시간 안내·해시태그 3단(`a97a9de74`).
+- 확인: 운영 응답 헤더(`/fms-bgm` 없음, `/render` 있음), ego 시험 계정으로 `/fms-bgm` 화면 v1.47·안내 문구.
+- **다음 첫 단계(음악 담당)**: `free-music-studio`의 `TARGETS.shorts.path`를 `/fms-bgm`으로 바꾸기 — 근거 `free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md` §12. 그 뒤 맥미니 실물 시험(`shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md`).
+- 남은 확인(회원 키 소액): 운영에서 「업로드 문구 만들기」 1회로 해시태그 3단 표시.
+
 ## 2026-11-09 ✅ [역할: design] Antigravity(윈도우) · 세션 agy-win-ssr-v2 — AI 스마트스토어 상품 자동등록기(smartstore-register) v1.26 전면 리뉴얼 및 2026-11-01 5단계 표준 로그인 폼 탑재 배포
 - **채택 시안**: 시안 3 (78. 미니멀 스마트스토어 아틀리에 스타일 — 클린 크림 페이퍼 `#F8FAFC` & 세이지 그린 `#10B981` / 모던 챠콜 `#0F172A`)
 - **개편 내역**:
