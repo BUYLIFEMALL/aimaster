@@ -39,3 +39,20 @@ test("곡 번호 형식 검사", () => {
   assert.equal(isGenerationId("x' or 1=1"), false);
   assert.equal(isGenerationId(undefined), false);
 });
+
+import { presetFromFmsDraft } from "../lib/preset.ts";
+
+test("무료음악 초안 → 미리 채우기(D-11): 노래·연주곡·효과음·길이", () => {
+  const v = presetFromFmsDraft({ title: "달빛 산책", style_prompt: "city pop, 108 BPM", lyrics: "[Verse]\r\n가사", duration_sec: 180 });
+  assert.equal(v.title, "달빛 산책");
+  assert.equal(v.prompt, "city pop, 108 BPM");
+  assert.equal(v.lyrics, "[Verse]\n가사");
+  assert.equal(v.instrumental, false);
+  assert.equal(v.durationS, 180);
+  assert.equal(v.modelKey, null);
+  const i = presetFromFmsDraft({ title: "x", style_prompt: "lo-fi", lyrics: "[Instrumental]", duration_sec: 999 });
+  assert.equal(i.instrumental, true);
+  assert.equal(i.lyrics, "");
+  assert.equal(i.durationS, 300);
+  assert.equal(presetFromFmsDraft({ title: "비", style_prompt: "rain", lyrics: "[SFX]", duration_sec: 30 }), null);
+});

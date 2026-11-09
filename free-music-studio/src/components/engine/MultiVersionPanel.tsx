@@ -116,6 +116,17 @@ export function MultiVersionPanel({ song, title, songId, ai, tags }: { song: Son
           </button>
         </div>
         {msg && <p className={`text-[11px] font-semibold ${msg.ok ? "text-emerald-300" : "text-rose-300"}`}>{msg.text}</p>}
+        {/* 백로그 D-11(2026-11-09): 같은 가사·스타일로 유료 AI 모델(AI 음악 스튜디오 「나란히 비교」)과 들어 보기 — 자동 생성 없음 */}
+        <p className="border-t border-violet-500/15 pt-2 text-[11px] text-slate-400">
+          {songId ? (
+            <a href={`https://ai-music-studio.buylife.xyz/compare?fms=${songId}`} target="_blank" rel="noreferrer" className="font-semibold text-violet-200 underline-offset-2 hover:underline">
+              💳 같은 가사로 유료 AI 모델과 비교하기 →
+            </a>
+          ) : (
+            <span>💳 유료 AI 모델과 비교하려면 먼저 이 곡을 저장해 주세요.</span>
+          )}{" "}
+          AI 음악 스튜디오에서 Lyria·ElevenLabs 등을 나란히 들어 봅니다(회원님 키·유료, 만들기를 누를 때만).
+        </p>
       </div>
     </section>
   );
