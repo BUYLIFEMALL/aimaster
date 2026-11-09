@@ -22,6 +22,7 @@ import type { YoutubeUpload } from "@/lib/script";
 import { refHandoffHash } from "@/lib/reference";
 import { APP_NAME } from "@/lib/version";
 import type { AmsPick } from "@/lib/amsSongs";
+import { HASHTAG_TIERS, keepTiers, type HashtagTier } from "@/lib/seoTiers";
 
 // v1.46 AI 무료음악 자동화 「쇼츠 배경음악으로」(/render#fms=<곡 번호>) — 음원은 회원 PC 엔진에만 있으므로
 // 이 창을 연 무료음악 창이 브라우저 안에서 건네준다. 순서: 이 창 → 「sos-ready」 → 무료음악 창 → 「fms-audio」(파일).
@@ -38,6 +39,13 @@ const scriptPlain = (s: ShortsScript) =>
     .map((t) => t.trim())
     .filter(Boolean)
     .join("\n\n");
+/** v1.47 V7 장면 구간 표시 「0:04」 */
+const clock = (sec: number) => { const s = Math.max(0, Math.round(sec)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+const TIER_LABEL: Record<HashtagTier, { name: string; hint: string; bg: string; fg: string }> = {
+  popular: { name: "🔥 인기", hint: "넓은 주제 — 노출은 많지만 경쟁도 많음", bg: "rgba(229,72,77,0.14)", fg: "#e5484d" },
+  mid: { name: "📈 중간", hint: "분야 단위 — 노출과 경쟁의 중간", bg: "rgba(217,119,6,0.14)", fg: "#d97706" },
+  niche: { name: "🎯 니치", hint: "이 영상에만 맞는 구체적인 태그 — 찾는 사람에게 잘 걸림", bg: "rgba(22,163,74,0.14)", fg: "#16a34a" },
+};
 const label = (s: ShortsScript, i: number) => (i === 0 ? "인트로" : i === s.cards.length + 1 ? "아웃트로" : `카드 ${i}`);
 function setVoice(s: ShortsScript, i: number, v: Voice | undefined): ShortsScript {
   const c = structuredClone(s); const n = c.cards.length;
@@ -373,7 +381,7 @@ export function RenderView() {
                 <small className="muted">{a.provider === "browser" ? "무료 음성은 요금이 없습니다(이 브라우저가 계산)." : "장면마다 짧은 요청 1회씩(본인 키 요금, 가벼운 모델 기준 소액)."} 내레이션을 고치면 그 장면은 「다시 만들기」가 필요해요.</small>
                 <div className="list">{vs.map((v, i) => (
                   <div key={i} className="list-item">
-                    <div style={{ minWidth: 0 }}><strong>{label(script, i)}</strong><small style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.text}</small></div>
+                    <div style={{ minWidth: 0 }}><strong>{label(script, i)}{tl.segs[i] && <span className="muted" style={{ fontWeight: 400, fontSize: 12, marginLeft: 6 }} title="영상 안에서 이 장면이 나오는 구간(음성이 없으면 글자 수로 어림)">{clock(tl.segs[i].start)}–{clock(tl.segs[i].start + tl.segs[i].dur)}</span>}</strong><small style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.text}</small></div>
                     <div className="actions" style={{ flexShrink: 0 }}>
                       {v.voice && audio.gone.has(v.voice.path) ? <span className="badge" title="만든 지 30일이 지나 자동 삭제되었습니다">🗑️ 30일 지나 삭제됨</span> : v.voice ? <span className="badge brand">✅ {v.voice.dur.toFixed(1)}초</span> : raw[i] ? <span className="badge">⚠️ 내레이션 바뀜</span> : <span className="badge">음성 없음</span>}
                       {v.voice && <button type="button" aria-label="듣기" onClick={() => playOne(v.voice)}><Play size={13} /></button>}
@@ -427,10 +435,19 @@ export function RenderView() {
               <section className="card stack">
                 <h2>🔎 ⑤ 업로드 문구(SEO)</h2>
                 {!script.seo ? <p className="muted">대본을 바탕으로 쇼츠 제목 후보 5개·설명란·해시태그·검색 태그를 만듭니다(본인 AI 키 1회). ⑥에서 유튜브에 바로 올리거나 복사해 붙여 넣으세요.</p> : <>
-                  <div><small className="muted">제목 후보(누르면 복사)</small><div className="list" style={{ marginTop: 6 }}>{script.seo.titles.map((t, i) => <button key={i} type="button" className="list-item" style={{ textAlign: "left", width: "100%" }} onClick={() => void copy(t, "제목")}><span>{t}</span><Copy size={13} /></button>)}</div></div>
+                  <div><small className="muted">제목 후보(누르면 복사)</small><div className="list" style={{ marginTop: 6 }}>{script.seo.titles.map((t, i) => <button key={i} type="button" className="list-item" style={{ textAlign: "left", width: "100%" }} onClick={() => void copy(t, "제목")}><span>{t}</span><Copy size={13} /></button>)}</div>
+                    <small className="muted" style={{ display: "block", marginTop: 6 }}>💡 하나로 올린 뒤 48시간이 지나면 YouTube Studio 「분석」에서 노출 클릭률(CTR)을 확인하세요. 비슷한 영상보다 낮으면 다른 제목 후보나 썸네일로 바꿔 보세요(제목·썸네일은 올린 뒤에도 바꿀 수 있습니다).</small></div>
                   <label>설명란<textarea rows={5} value={script.seo.description} maxLength={1500} onChange={(e) => setSeo({ description: e.target.value })} /></label>
                   {/* 입력 중 띄어쓰기·쉼표가 지워지지 않게, 칸을 벗어날 때 나눠서 저장한다 */}
-                  <label>해시태그(띄어쓰기로 구분)<input key={`h-${script.seo.hashtags.join(" ")}`} defaultValue={script.seo.hashtags.join(" ")} onBlur={(e) => setSeo({ hashtags: e.target.value.split(/\s+/).filter(Boolean).map((h) => (h.startsWith("#") ? h : `#${h}`)).slice(0, 10) })} /></label>
+                  <label>해시태그(띄어쓰기로 구분)<input key={`h-${script.seo.hashtags.join(" ")}`} defaultValue={script.seo.hashtags.join(" ")} onBlur={(e) => { const hashtags = e.target.value.split(/\s+/).filter(Boolean).map((h) => (h.startsWith("#") ? h : `#${h}`)).slice(0, 10); setSeo({ hashtags, hashtagTiers: keepTiers(script.seo?.hashtagTiers, hashtags) }); }} /></label>
+                  {/* v1.47 V7 해시태그 3단 — 누르면 그 태그 복사 */}
+                  {script.seo.hashtagTiers && <div className="stack" style={{ gap: 6 }}>
+                    {HASHTAG_TIERS.filter((k) => script.seo!.hashtagTiers![k]?.length).map((k) => <div key={k} className="row" style={{ alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                      <small title={TIER_LABEL[k].hint} style={{ minWidth: 64, fontWeight: 700 }}>{TIER_LABEL[k].name}</small>
+                      {script.seo!.hashtagTiers![k].map((h) => <button key={h} type="button" title={`${TIER_LABEL[k].hint} · 누르면 복사`} onClick={() => void copy(h, "해시태그")} style={{ background: TIER_LABEL[k].bg, color: TIER_LABEL[k].fg, border: "none", borderRadius: 999, padding: "3px 10px", fontSize: 12, fontWeight: 600 }}>{h}</button>)}
+                    </div>)}
+                    <small className="muted">인기·중간·니치를 섞어 쓰면 넓게 노출되면서도 찾는 사람에게 잘 걸립니다. 단계는 AI가 추정한 것이며 실제 게시물 수를 조회한 값은 아닙니다.</small>
+                  </div>}
                   <label>검색 태그(쉼표로 구분)<input key={`t-${script.seo.tags.join(",")}`} defaultValue={script.seo.tags.join(", ")} onBlur={(e) => setSeo({ tags: e.target.value.split(/\s*,\s*/).filter(Boolean).slice(0, 20) })} /></label>
                   <div className="actions">
                     <button type="button" onClick={() => void copy(`${script.seo!.description}

@@ -122,9 +122,12 @@ export function seoPrompt(o: { topic: string; category: string; outline: string 
     `만들 것:
 - titles: 쇼츠 제목 후보 5개(각 40자 이내, 핵심 검색어를 앞쪽에, 서로 다른 각도: 질문형·숫자형·결과형 등). 연도가 필요하면 당해 연도만.
 - description: 설명란 문구(3~5줄, 첫 줄에 핵심 요약과 검색어, 이어서 영상 내용 요약, 마지막에 구독·저장 유도 한 줄). 해시태그는 넣지 말 것.
-- hashtags: 해시태그 6~8개(# 포함, #shorts 1개 포함, 나머지는 한국어 위주).
+- hashtagTiers: 해시태그를 세 단계로 나눠 모두 7~9개(# 포함, 한국어 위주, 서로 겹치지 않게).
+  - popular(인기) 2~3개: 많은 사람이 쓰는 넓은 주제 태그. #shorts 1개를 여기에 포함.
+  - mid(중간) 2~3개: 분야 단위 태그(예: 주제가 속한 분야·대상).
+  - niche(니치) 2~3개: 이 영상 내용에만 맞는 구체적인 태그(경쟁이 적어 찾는 사람에게 잘 걸림).
 - tags: 검색 태그 10~15개(# 없이, 짧은 검색어, 한국어 위주에 필요하면 영어 1~2개).`,
-    `JSON 형식: {"titles":[""],"description":"","hashtags":["#"],"tags":[""]}`,
+    `JSON 형식: {"titles":[""],"description":"","hashtagTiers":{"popular":["#"],"mid":["#"],"niche":["#"]},"tags":[""]}`,
   ].filter(Boolean).join("\n\n");
   return { system, prompt };
 }

@@ -21,6 +21,9 @@ const CATEGORIES = [
 ];
 const PRIVACY_LABEL: Record<YoutubeUpload["privacy"], string> = { private: "비공개", unlisted: "일부 공개", public: "공개" };
 
+/** v1.47 V7 올린 뒤 운영 안내 */
+const CTR_TIP = " 48시간 뒤 YouTube Studio 「분석」에서 노출 클릭률(CTR)을 확인하고, 낮으면 ⑤의 다른 제목 후보나 썸네일로 바꿔 보세요.";
+
 export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploaded }: { projectId: string | null; script: ShortsScript; blob: Blob | null; disabled: boolean; onUploaded: (rec: YoutubeUpload) => Promise<void> }) {
   const [status, setStatus] = useState<Status | null>(null);
   const [form, setForm] = useState(() => ({ ...defaults(script), privacy: "private" as YoutubeUpload["privacy"], categoryId: "22", schedule: false, publishAt: "" }));
@@ -61,7 +64,7 @@ export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploade
       if (form.schedule && !publishAt) throw new Error("예약 공개 날짜와 시각을 정해 주세요.");
       const rec = await uploadToYoutube({ blob, title: form.title, description: form.description, tags: form.tags, privacy: form.privacy, categoryId: form.categoryId, publishAt, channel: status?.channelTitle ?? null, onPct: setPct, projectId });
       await onUploaded(rec);
-      setMsg({ text: publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${PRIVACY_LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`, ok: true });
+      setMsg({ text: `${publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${PRIVACY_LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`}${CTR_TIP}`, ok: true });
     } catch (e) {
       setMsg(e instanceof Error && !(e as { needKey?: boolean }).needKey ? { text: e.message } : toMsg(e));
       if (e instanceof Error && /연결|만료|권한|Client ID/.test(e.message)) void check();

@@ -1,5 +1,6 @@
 // 발행 계획·SEO 데이터 구조(서버·화면 공용, P7). 업로드 시간대는 일반적인 시청 시간대를 바탕으로 한 추천값이다(조회수 보장 아님).
 import { CATEGORIES, isFormat, type Format } from "@/lib/script";
+import { asHashtag, readTiers, type HashtagTiers } from "@/lib/seoTiers";
 
 export const STAGES = {
   start: { label: "채널 시작 (구독 0~100)", guide: "분야 반응을 시험하는 단계. 검색되는 질문형·정보형 주제를 넓게 시험하고, 같은 형식을 반복해 시청 습관을 만든다." },
@@ -79,13 +80,15 @@ export function cleanTopics(raw: unknown): { title: string; hook: string; format
 }
 
 /** 업로드 문구(SEO) */
-export interface Seo { titles: string[]; description: string; hashtags: string[]; tags: string[]; model?: string }
+export interface Seo { titles: string[]; description: string; hashtags: string[]; tags: string[]; hashtagTiers?: HashtagTiers; model?: string }
 export function normalizeSeo(raw: Record<string, unknown>, model: string): Seo | null {
   const arr = (v: unknown, n: number, len: number) => (Array.isArray(v) ? v : []).map((x) => String(x ?? "").trim().slice(0, len)).filter(Boolean).slice(0, n);
   const titles = arr(raw.titles, 5, 100);
   const description = String(raw.description ?? "").trim().slice(0, 1500);
-  const hashtags = arr(raw.hashtags, 10, 30).map((h) => (h.startsWith("#") ? h : `#${h}`).replace(/\s+/g, ""));
   const tags = arr(raw.tags, 20, 40).map((t) => t.replace(/^#/, ""));
   if (!titles.length || !description) return null;
-  return { titles, description, hashtags, tags, model };
+  // v1.47 V7: 3단이 오면 그것으로 해시태그 목록을 만들고, 안 오면 예전처럼 hashtags만 쓴다(예전 저장분 호환)
+  const tiered = readTiers(raw.hashtagTiers);
+  if (tiered) return { titles, description, hashtags: tiered.hashtags, tags, hashtagTiers: tiered.tiers, model };
+  return { titles, description, hashtags: arr(raw.hashtags, 10, 30).map(asHashtag), tags, model };
 }
