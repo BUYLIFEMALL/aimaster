@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 [역할: mac-mini] 카페5회차 확장 반영 확인·대상 지정 대기
+- Windows7a85de294·요청문5회차 확인. ego 공간16 새 확장 새로고침, 실제 background/invite SHA256 공유 코드 일치·judgeResponse 확인. 이번 발송/네이버 요청0, handOff.
+- 새 비회원 아이디1명 또는 kkuleomi24 재시도 선택을 사용자에게 질문. 기존 failed 보존·재승인/재전송 금지. kkuleomi24 선택이면 Windows 기록 처리 결정부터 필요. 상세 INVITE_TEST_20261106.md 5회차. 비용 없음.
+
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`free-music-studio` v1.56 배포**
 
 - 주인님 「배포해」, 빌드 1회 `free-music-studio-f9pn077r1`, DB v1.56, 사이트만. **YuE2 커버가 「모든 음악」에 기록 안 되던 버그(C-31)** — `parseTrackInput`의 옛 규칙(비상업은 새 곡·마스터링만)이 비상업 커버를 거절 → 부분 수정만 막도록. 실패한 기록은 다음 화면에서 다시 기록됨. 함께: C-26 4·5번(AI 작사 옵션·금지어 고급 접기·앨범 칸 도움말, C-32), YuE2 커버 가사 필수 안내·버튼 꺼진 이유(C-30). 시험 111·tsc·로컬 빌드, ego 운영 확인. 제안 C-33(커버를 만들 때 넣을 프로젝트 고르기 — 주인님 「cover 카테고리에서 따로 관리」). 교훈: 엔진에 새 기능(비상업 커버)을 넣을 때 사이트의 기록 검사(`parseTrackInput`)도 같이 봐야 함.
