@@ -238,6 +238,8 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
             ] as const
           ).map((g) => {
             const list = engines.filter((e) => e.kind === g.kind || e.kind === "both");
+            // 둘 다 되는 엔진(ACE-Step)은 두 묶음에 나오지만, 켜진 표시는 지금 곡(가사 있음=노래곡)의 묶음에만 — 엔진이 2개 골라진 것처럼 보이던 것(2026-11-09)
+            const activeKind = song.lyrics.trim() ? "vocal" : "instrumental";
             if (!list.length) return null;
             return (
               <div key={g.kind} className="space-y-1.5">
@@ -248,8 +250,8 @@ export function GeneratePanel({ song, title, songId }: { song: SongForEngine; ti
                       key={o.id}
                       type="button"
                       onClick={() => setMusicEngine(o.id)}
-                      aria-pressed={engineToUse === o.id}
-                      className={`rounded-xl border p-3 text-left transition ${engineToUse === o.id ? (o.license === "commercial" ? "border-emerald-400/70 bg-emerald-500/10" : "border-amber-400/70 bg-amber-500/10") : "border-slate-700/60 hover:border-slate-500"}`}
+                      aria-pressed={engineToUse === o.id && (o.kind !== "both" || g.kind === activeKind)}
+                      className={`rounded-xl border p-3 text-left transition ${engineToUse === o.id && (o.kind !== "both" || g.kind === activeKind) ? (o.license === "commercial" ? "border-emerald-400/70 bg-emerald-500/10" : "border-amber-400/70 bg-amber-500/10") : "border-slate-700/60 hover:border-slate-500"}`}
                     >
                       <span className="flex flex-wrap items-center gap-1.5 text-xs font-bold text-slate-100">
                         {o.name}

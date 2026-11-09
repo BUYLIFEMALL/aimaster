@@ -73,6 +73,12 @@ export default function SongsPage() {
   const [tempo, setTempo] = useState("");
   const [vocals, setVocals] = useState<string[]>([]);
   const moodTags = lyricMoodPayload({ moods, tempo, vocals, genre, sub: subGenre }).tags;
+  // 스타일 칸이 마지막으로 바뀐 때의 태그 — 그 뒤에 장르·분위기·빠르기·목소리를 바꿨으면 남은 스타일은 고정하지 않고 AI가 새로 만든다
+  // (예전 곡의 「Pop ballad…」가 남아 뮤지컬 넘버를 골라도 발라드 스타일로 나오던 것, 2026-11-09)
+  const [styleTags, setStyleTags] = useState("");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => setStyleTags(moodTags), [draft.style_prompt]);
+  const styleStale = !!draft.style_prompt.trim() && styleTags !== moodTags;
   const [language, setLanguage] = useState<string>(DEFAULT_LYRIC_LANGUAGE);
   const [refine, setRefine] = useState(true);
   const [banned, setBanned] = useState("");
@@ -372,7 +378,7 @@ export default function SongsPage() {
           theme,
           genre: genreLabel(genre, subGenre),
           ...lyricMoodPayload({ moods, tempo, vocals, genre, sub: subGenre }),
-          fixed_style: draft.style_prompt.trim() || undefined,
+          fixed_style: styleStale ? undefined : draft.style_prompt.trim() || undefined,
           refine,
           recent_titles: songs.slice(0, 10).map((s) => s.title),
           current: mode === "edit" ? base ?? { title: draft.title, style_prompt: draft.style_prompt, lyrics: draft.lyrics } : undefined,
@@ -850,7 +856,7 @@ export default function SongsPage() {
                 {moodTags && (
                   <p className="text-[11px] text-slate-400">
                     AI에게 함께 보낼 영어 태그: <span className="font-mono text-teal-300/80">{moodTags}</span>
-                    {draft.style_prompt.trim() ? " · 아래 스타일 프리셋을 고르면 스타일 칸 끝에 붙습니다(지금 스타일 칸 그대로 「가사 채우기」를 하면 가사 분위기에만 반영)" : " · 스타일 칸에도 들어갑니다 · 스타일 프리셋을 고르면 그 끝에 붙습니다"}
+                    {styleStale ? " · 스타일 칸을 채운 뒤 고른 것이 바뀌었습니다 — 「가사 채우기」를 하면 AI가 이 태그로 스타일도 새로 만듭니다(지금 스타일을 지키려면 프리셋을 다시 고르거나 스타일 칸을 고쳐 주세요)" : draft.style_prompt.trim() ? " · 아래 스타일 프리셋을 고르면 스타일 칸 끝에 붙습니다(지금 스타일 칸 그대로 「가사 채우기」를 하면 가사 분위기에만 반영)" : " · 스타일 칸에도 들어갑니다 · 스타일 프리셋을 고르면 그 끝에 붙습니다"}
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-2">
