@@ -20,7 +20,7 @@ type Target = { origin: string; path: string; readyType: string; hash?: boolean;
 const TARGETS = {
   playlist: { origin: PLAYLIST_VIDEO_URL, path: "/video", readyType: "pcs-ready" },
   musicVideo: { origin: MUSIC_VIDEO_URL, path: "/music", readyType: "mvs-ready" },
-  shorts: { origin: SHORTS_URL, path: "/render", readyType: "sos-ready", hash: true, mp3: true },
+  shorts: { origin: SHORTS_URL, path: "/fms-bgm", readyType: "sos-ready", hash: true, mp3: true },
   lp: { origin: LP_URL, path: "/", readyType: "lps-ready", hash: true, mp3: true, cover: true },
 } satisfies Record<string, Target>;
 
