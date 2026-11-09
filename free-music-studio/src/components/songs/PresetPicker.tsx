@@ -51,7 +51,7 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
     // 세부 장르 태그는 같은 장르(또는 내 프리셋)일 때만 — 다른 분류의 프리셋에 붙이면 장르가 섞인다(장르가 바뀌면 세부 장르도 비워짐)
     const sameGenre = p.category === MY_PRESET_CATEGORY || p.category === genre;
     const next = withTags(p.prompt, [sameGenre ? subTag : "", tags].filter(Boolean).join(", "), LIMITS.style);
-    if (next.trim() !== style.trim() && style.trim() !== lastSet.trim() && needsStyleConfirm(style, list) && !confirm(`스타일 칸에 직접 쓴 내용이 있습니다. 「${p.name}」 프리셋으로 바꿀까요?
+    if (next.trim() !== style.trim() && style.trim() !== lastSet.trim() && needsStyleConfirm(style, list) && !confirm(`음악 스타일 칸에 직접 쓴 내용이 있습니다. 「${p.name}」 프리셋으로 바꿀까요?
 바꾸면 지금 스타일 글은 사라집니다(남기려면 먼저 「내 프리셋으로 저장」). 주제·분위기·가사 등 다른 칸은 그대로입니다.`)) return false;
     setChosen(id);
     setLastSet(next);
@@ -130,7 +130,7 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
           disabled={!style.trim()}
           onClick={() => setNaming((v) => !v)}
           className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-emerald-500/30 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-950/40 disabled:opacity-40"
-          title={style.trim() ? "지금 스타일 칸 내용을 저장합니다" : "스타일 칸을 먼저 채워 주세요"}
+          title={style.trim() ? "지금 음악 스타일 칸 내용을 저장합니다" : "음악 스타일 칸을 먼저 채워 주세요"}
         >
           <Plus className="h-3.5 w-3.5" /> 내 프리셋으로 저장
         </button>
@@ -215,7 +215,7 @@ export function PresetPicker({ mode, style, onPick, genre = "", onGenre, tags = 
         <span aria-live="polite">
           {shown + 1} / {pages} 쪽
         </span>
-        {note ? <span className={note.ok ? "text-emerald-300" : "text-rose-300"}>{note.text}</span> : <span>누르면 아래 Style 태그가 「프리셋 글 + 위에서 고른 태그」로 바뀝니다(프리셋이 앞이라 우선). 고친 뒤 저장할 수 있습니다.</span>}
+        {note ? <span className={note.ok ? "text-emerald-300" : "text-rose-300"}>{note.text}</span> : <span>누르면 아래 음악 스타일(Caption)이 「프리셋 글 + 위에서 고른 태그」로 바뀝니다(프리셋이 앞이라 우선). 고친 뒤 저장할 수 있습니다.</span>}
       </p>
     </div>
   );

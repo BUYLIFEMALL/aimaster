@@ -133,7 +133,7 @@ export function parsePresetInput(body: unknown): { ok: true; value: { name: stri
   const mode: PresetMode = b.mode === "instrumental" ? "instrumental" : "vocal";
   if (!name) return { ok: false, error: "프리셋 이름을 적어 주세요." };
   if (name.length > PRESET_LIMITS.name) return { ok: false, error: `프리셋 이름은 ${PRESET_LIMITS.name}자까지 쓸 수 있습니다.` };
-  if (!prompt) return { ok: false, error: "저장할 스타일이 비어 있습니다. 스타일 칸을 먼저 채워 주세요." };
+  if (!prompt) return { ok: false, error: "저장할 스타일이 비어 있습니다. 음악 스타일 칸을 먼저 채워 주세요." };
   if (prompt.length > PRESET_LIMITS.prompt) return { ok: false, error: `스타일은 ${PRESET_LIMITS.prompt}자까지 저장할 수 있습니다.` };
   return { ok: true, value: { name, prompt, mode } };
 }

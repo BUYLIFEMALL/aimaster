@@ -893,7 +893,7 @@ export default function SongsPage() {
                 {moodTags && (
                   <p className="text-[11px] text-slate-400">
                     AI에게 함께 보낼 영어 태그: <span className="font-mono text-teal-300/80">{moodTags}</span>
-                    {styleStale ? " · 스타일 칸을 채운 뒤 고른 것이 바뀌었습니다 — 「가사 채우기」를 하면 AI가 이 태그로 스타일도 새로 만듭니다(지금 스타일을 지키려면 프리셋을 다시 고르거나 스타일 칸을 고쳐 주세요)" : draft.style_prompt.trim() ? " · 아래 스타일 프리셋을 고르면 스타일 칸 끝에 붙습니다(지금 스타일 칸 그대로 「가사 채우기」를 하면 가사 분위기에만 반영)" : " · 스타일 칸에도 들어갑니다 · 스타일 프리셋을 고르면 그 끝에 붙습니다"}
+                    {styleStale ? " · 음악 스타일 칸을 채운 뒤 고른 것이 바뀌었습니다 — 「가사 채우기」를 하면 AI가 이 태그로 스타일도 새로 만듭니다(지금 스타일을 지키려면 프리셋을 다시 고르거나 음악 스타일 칸을 고쳐 주세요)" : draft.style_prompt.trim() ? " · 아래 스타일 프리셋을 고르면 음악 스타일 칸 끝에 붙습니다(지금 음악 스타일 칸 그대로 「가사 채우기」를 하면 가사 분위기에만 반영)" : " · 음악 스타일 칸에도 들어갑니다 · 스타일 프리셋을 고르면 그 끝에 붙습니다"}
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-2">
@@ -960,7 +960,7 @@ export default function SongsPage() {
                   </button>
                 )}
                 <span className="text-[11px] text-slate-500">
-                  스타일 칸에 적은 내용은 참고로 함께 보냅니다 · 회원님 키로 AI 호출 {planChunks(planCount).length}번{planCount > PLAN_MAX ? "(20곡씩 나눠서)" : ""}
+                  음악 스타일 칸에 적은 내용은 참고로 함께 보냅니다 · 회원님 키로 AI 호출 {planChunks(planCount).length}번{planCount > PLAN_MAX ? "(20곡씩 나눠서)" : ""}
                 </span>
               </div>
             ) : (
@@ -1100,7 +1100,7 @@ export default function SongsPage() {
             {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={instrumental ? "" : genre} onGenre={instrumental ? undefined : setGenre} tags={instrumental ? "" : lyricMoodPayload({ moods, tempo, vocals }).tags} subTag={instrumental ? "" : (subGenresOf(genre).find((s) => s.ko === subGenre)?.en ?? "")} />}
             {/* 2026-11-09 주인님 「박스 위에 Style 태그 제목」「프리셋이 우선한다는 내용」 */}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-1">
-              <p className="text-sm font-bold text-teal-200">{sfx ? "🔊 효과음 설명" : "🎼 Style 태그"}</p>
+              <p className="text-sm font-bold text-teal-200">{sfx ? "🔊 효과음 설명" : "🎼 음악 스타일 (Caption)"}</p>
               <span className="text-[11px] leading-relaxed text-slate-400">
                 {sfx
                   ? "음악 엔진이 그대로 읽는 소리 설명(영어)"
@@ -1115,8 +1115,8 @@ export default function SongsPage() {
                 sfx
                   ? "어떤 소리인가요?(영어로) 예) A heavy wooden door slamming shut in a large empty hall, short reverb tail"
                   : instrumental
-                    ? "스타일(영어 태그) 예) instrumental, lo-fi jazz piano, soft brushed drums, upright bass, 80 BPM"
-                    : "스타일(영어 태그) 예) warm Korean city pop, soft electric piano, female vocal, 92 BPM"
+                    ? "음악 스타일(Caption, 영어) 예) instrumental, lo-fi jazz piano, soft brushed drums, upright bass, 80 BPM"
+                    : "음악 스타일(Caption, 영어) 예) warm Korean city pop, soft electric piano, female vocal, 92 BPM"
               }
               maxLength={LIMITS.style}
             />
@@ -1144,7 +1144,7 @@ export default function SongsPage() {
               </p>
             ) : instrumental ? (
               <p className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-[11px] leading-relaxed text-slate-400">
-                🎹 연주곡은 가사 없이 만듭니다(가사 칸에 <code className="text-slate-300">{INSTRUMENTAL_LYRICS}</code>로 저장). 악기·템포·분위기는 위 스타일 칸에 적어 주세요.
+                🎹 연주곡은 가사 없이 만듭니다(가사 칸에 <code className="text-slate-300">{INSTRUMENTAL_LYRICS}</code>로 저장). 악기·템포·분위기는 위 음악 스타일 칸에 적어 주세요.
               </p>
             ) : (
               <>
