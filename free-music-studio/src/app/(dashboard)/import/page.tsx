@@ -345,14 +345,15 @@ export default function ImportPage() {
             className={`${field} min-h-[60px] font-mono text-xs`}
             value={style}
             onChange={(e) => setStyle(e.target.value)}
-            placeholder="새 스타일(영어 태그) 예) acoustic guitar ballad, soft female vocal"
+            placeholder="새 음악 스타일(Caption, 영어) 예) acoustic guitar ballad, soft female vocal"
             maxLength={LIMITS.style}
           />
           <textarea
             className={`${field} min-h-[140px] leading-relaxed`}
             value={lyrics}
             onChange={(e) => setLyrics(e.target.value)}
-            placeholder={"새 가사(선택) — 비워 두면 원곡 분위기대로\n[Verse]\n..."}
+            // 2026-11-09 마스터PC 화면: YuE2 커버는 가사가 필수인데 「(선택)」으로 보이던 것
+            placeholder={yue2Cover ? "새 가사(필수) — 원곡과 같은 구간·비슷한 글자 수로\n[Verse]\n첫 소절\n\n[Chorus]\n후렴" : "새 가사(선택) — 비워 두면 원곡 분위기대로\n[Verse]\n..."}
             maxLength={LIMITS.lyrics}
           />
         </div>
