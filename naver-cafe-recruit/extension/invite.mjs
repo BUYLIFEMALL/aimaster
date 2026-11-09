@@ -55,6 +55,30 @@ export function classify(messages) {
   if (SENT.test(text)) return { result: "sent", detail: firstLine(text, SENT) };
   return { result: "uncertain", detail: text ? `결과 확인 못 함: ${text.slice(0, 120)}` : "결과 확인 못 함(새 안내 없음)" };
 }
+/**
+ * 「초대하기」가 보낸 네이버 요청(/CafeInvitationByIdAjax.nhn)의 응답으로 결과를 정한다(4회차 뒤 추가).
+ * 근거: 네이버 초대 화면 원본 inviteNaverIds() — message 없음=권한 없음, message.error+status "500"=오류 알림,
+ * result.success=false=사유(result.message, 「아이디:사유」 형태면 입력칸 아래 표시), success=true=「초대했습니다.」 후 창 닫음.
+ * 응답을 못 봤으면 null(문구 판정 classify로 넘김). 성공 화면 문구는 아직 실물 미확인 — 응답 값으로만 판정한다.
+ */
+export function judgeResponse(net) {
+  if (!net) return null;
+  if (net.status !== 200) return { result: "uncertain", detail: `결과 확인 못 함: 네이버 응답 HTTP ${net.status}` };
+  let res;
+  try { res = JSON.parse(String(net.body || "")); } catch { return { result: "uncertain", detail: `결과 확인 못 함: 응답을 읽지 못함 ${String(net.body || "").slice(0, 80)}` }; }
+  const m = res?.message;
+  if (!m) return { result: "limited", detail: "네이버: 권한이 없습니다(카페 초대 권한·로그인 확인)" };
+  if (m.error && String(m.status) === "500") {
+    const msg = String(m.error.msg || "오류").slice(0, 150);
+    return { result: LIMITED.test(msg) ? "limited" : "failed", detail: `네이버 오류: ${msg}`, stop: true };
+  }
+  if (m.result?.success === true) return { result: "sent", detail: "네이버 응답: 초대 성공" };
+  if (m.result && m.result.success === false) {
+    const msg = String(m.result.message || "").split(", ").map((p) => p.includes(":") ? p.split(":").slice(1).join(":") : p).join(" / ").slice(0, 150);
+    return { result: LIMITED.test(msg) ? "limited" : "failed", detail: `네이버: ${msg || "초대하지 못함(사유 없음)"}` };
+  }
+  return { result: "uncertain", detail: "결과 확인 못 함: 네이버 응답 형식이 다름" };
+}
 function firstLine(text, re) { return (text.split("\n").find((l) => re.test(l)) || text).slice(0, 180); }
 
 // 멈춤 신호(보안문자·로그인 요구·제한). 뜨면 그날 중지 — 우회하지 않는다(PLATFORM_PATTERNS §20).

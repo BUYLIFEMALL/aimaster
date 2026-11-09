@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { findInvite, firstClubId, newLines, classify, isBlocked } from '../extension/invite.mjs';
+import { findInvite, firstClubId, newLines, classify, judgeResponse, isBlocked } from '../extension/invite.mjs';
 import { EXTENSION_OPERATIONS, allowedOrigin } from '../src/lib/extensionApi.ts';
 import { boardFromUrl, parseGrade, cleanRows, cafeNameFromTitle } from '../extension/roster.mjs';
 import { OPERATIONS, rpcFor } from '../src/lib/recruitApi.ts';
@@ -114,4 +114,35 @@ test('EX07 manifest: program name, version matches lib/version.ts, only the prog
   assert.equal(m.name, '네이버 카페 회원 모집 자동화');
   assert.equal(m.version_name, v);
   assert.deepEqual(m.host_permissions, ['https://naver-cafe-recruit.buylife.xyz/*', 'https://cafe.naver.com/*']);
+});
+
+// 4회차 뒤(2026-11-09): 네이버 초대 화면 원본 inviteNaverIds() 응답 분기 기준 판정
+test('EX12 Naver invite response: explicit success / explicit refusal / limit / error / no permission / unknown', () => {
+  const ok = (body) => ({ status: 200, body: JSON.stringify(body) });
+  assert.equal(judgeResponse(null), null, 'no response seen -> fall back to text classify');
+  assert.equal(judgeResponse(ok({ message: { result: { success: true } } })).result, 'sent');
+  const no = judgeResponse(ok({ message: { result: { success: false, message: 'kkuleomi24:이미 가입한 회원입니다.' } } }));
+  assert.equal(no.result, 'failed'); assert.match(no.detail, /이미 가입한 회원/); assert.doesNotMatch(no.detail, /kkuleomi24:/);
+  assert.equal(judgeResponse(ok({ message: { result: { success: false, message: '이번 달 초대 가능 인원을 초과했습니다.' } } })).result, 'limited');
+  const err = judgeResponse(ok({ message: { status: '500', error: { msg: '잠시 후 다시 시도해 주세요.' } } }));
+  assert.equal(err.result, 'failed'); assert.equal(err.stop, true);
+  assert.equal(judgeResponse(ok({})).result, 'limited', 'no message = no permission -> stop the day');
+  assert.equal(judgeResponse({ status: 0, body: '' }).result, 'uncertain', 'network failure is never success');
+  assert.equal(judgeResponse({ status: 200, body: '<html>' }).result, 'uncertain');
+  assert.equal(judgeResponse(ok({ message: { foo: 1 } })).result, 'uncertain');
+  assert.ok(judgeResponse(ok({ message: { result: { success: false, message: 'x'.repeat(500) } } })).detail.length <= 200);
+});
+
+test('EX13 invite frame code: no Event constructor, keyup+blur so Naver shows the reason, captcha stops before click, request hook restored', () => {
+  const src = readFileSync(new URL('../extension/background.mjs', import.meta.url), 'utf8');
+  const fn = src.slice(src.indexOf('async function inviteInFrame'), src.indexOf('// ── 실행 흐름'));
+  assert.doesNotMatch(fn, /new Event\(/, 'window.Event is overwritten in the invite frame (round 3)');
+  assert.match(fn, /createEvent\("HTMLEvents"\)/);
+  assert.match(fn, /fire\("keyup"\)/); assert.match(fn, /input\.blur\(\)/);
+  assert.doesNotMatch(fn, /btn_input_add[^\n]*click|addIdInvitationBlock\(/, '"아이디 추가" is never pressed');
+  assert.ok(fn.indexOf('captcha_layer') < fn.indexOf('send.click()'), 'captcha check happens before the click');
+  assert.match(fn, /#cafe_invitation_id_layer button\.btn_invite/, 'invite button is taken from the ID layer, not link/QR layers');
+  assert.match(fn, /finally \{ XP\.open = origOpen; XP\.send = origSend; \}/, 'request observer is always removed');
+  assert.doesNotMatch(fn, /fetch\(|CafeInvitationByIdAjax\.nhn\?/, 'never calls the Naver invite API directly');
+  assert.match(src, /judgeResponse\(r\.net\) \|\| classify\(/, 'response decides first, text only as fallback');
 });

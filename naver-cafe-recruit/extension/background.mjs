@@ -3,7 +3,7 @@
 // 서버는 네이버에 접속하지 않는다: 확장이 「다음 대상」을 묻고(next_target) 화면에서 본 결과만 적는다(sent_mark).
 // 속도: 사람 간격 60~120초(크롬 알람) · 하루 상한·시간대·이미 보낸 사람은 서버가 거른다.
 // 멈춤: 로그인 풀림·보안문자·제한 문구·모르는 화면·결과 불확실 → 멈추고 알림(우회·자동 재시도 없음).
-import { findInvite, newLines, classify, isBlocked } from "./invite.mjs";
+import { findInvite, newLines, classify, judgeResponse, isBlocked } from "./invite.mjs";
 import { boardFromUrl, parseGrade, cleanRows, cafeNameFromTitle } from "./roster.mjs";
 
 const BASE = "https://naver-cafe-recruit.buylife.xyz";
@@ -65,7 +65,7 @@ async function inviteInFrame(naverId) {
   window.alert = (m) => { window.__ncrMsgs.push(String(m)); };
   window.confirm = (m) => { window.__ncrMsgs.push(String(m)); return true; };
   // 예외가 나도 결과를 비우지 않고 실제 문구를 돌려준다(빈 결과는 「초대 화면을 찾지 못해」로 잘못 보였음 — 4회차 전 수정).
-  let before = "", clicked = false;
+  let before = "", clicked = false, net = null;
   try {
 
   const visible = (sel) => [...document.querySelectorAll(sel)].find((el) => el.offsetParent !== null);
@@ -78,27 +78,44 @@ async function inviteInFrame(naverId) {
   if (!input) return { here: true, error: `아이디 입력 칸을 찾지 못했습니다. (화면: ${seen()})` };
   input.focus();
   input.value = "";
+  // 이 틀은 window.Event가 객체로 덮여 있어 new Event가 「not a constructor」를 낸다(3회차 실측) → 옛 방식으로 만든다.
+  const fire = (type, bubbles = true) => { const ev = document.createEvent("HTMLEvents"); ev.initEvent(type, bubbles, false); input.dispatchEvent(ev); };
   for (const ch of naverId) { // 사람처럼 한 글자씩
     input.value += ch;
     input.dispatchEvent(new InputEvent("input", { bubbles: true, data: ch, inputType: "insertText" }));
+    fire("keyup"); // 네이버 onkeyup: 아이디 형식 검사
     await sleep(jitter(90, 220));
   }
-  // 이 틀은 window.Event가 객체로 덮여 있어 new Event가 「not a constructor」를 낸다(3회차 실측) → 옛 방식으로 만든다.
-  const changeEv = document.createEvent("HTMLEvents");
-  changeEv.initEvent("change", true, false);
-  input.dispatchEvent(changeEv);
+  fire("change");
+  // 네이버 onblur가 입력칸에 name=<아이디>를 붙여야 서버 사유(「아이디:사유」)가 그 칸 아래에 보인다(4회차 원인: blur가 없어 사유가 어디에도 안 보임).
+  input.blur();
+  if (!input.getAttribute("name")) fire("blur", false);
   await sleep(jitter(700, 1300));
+  // 보안문자 창이 보이면 누르지 않고 멈춘다(우회하지 않음).
+  if (visible("#cafe_invitation_captcha_layer") || visible("#captchaUserValue")) return { here: true, error: "네이버가 보안문자 입력을 요구했습니다." };
   // 「아이디 추가」는 빈 입력칸을 하나 더 만드는 버튼이라 누르지 않는다(3회차 실측). 첫 칸의 아이디가 그대로 초대 대상이다.
-  const send = visible("button.btn_invite") || byText("초대하기");
+  // btn_invite는 초대링크·QR 창에도 있으므로 아이디 창 안에서 찾는다.
+  const send = visible("#cafe_invitation_id_layer button.btn_invite") || byText("초대하기");
   if (!send) return { here: true, error: `「초대하기」 버튼을 찾지 못했습니다. (화면: ${seen()})` };
+  // 「초대하기」가 보내는 네이버 요청의 응답만 지켜본다(직접 보내지 않음, 끝나면 원래대로 되돌림).
+  const XP = XMLHttpRequest.prototype, origOpen = XP.open, origSend = XP.send;
+  XP.open = function (m, u, ...rest) { this.__ncrUrl = String(u); return origOpen.call(this, m, u, ...rest); };
+  XP.send = function (...a) {
+    if (/CafeInvitationByIdAjax/i.test(this.__ncrUrl || "")) this.addEventListener("loadend", () => { net = { status: this.status, body: String(this.responseText || "").slice(0, 1000) }; });
+    return origSend.apply(this, a);
+  };
   before = document.body.innerText;
-  send.click();
-  clicked = true;
-  await sleep(3500);
-  return { here: true, clicked: true, msgs: window.__ncrMsgs, before, after: document.body.innerText };
+  try {
+    send.click();
+    clicked = true;
+    for (let t = 0; t < 50 && !net; t++) await sleep(300); // 응답을 최대 15초 기다림
+    await sleep(1200); // 응답 뒤 알림창·사유 표시까지
+  } finally { XP.open = origOpen; XP.send = origSend; }
+  const captcha = !!(visible("#cafe_invitation_captcha_layer") || visible("#captchaUserValue"));
+  return { here: true, clicked: true, net, captcha, msgs: window.__ncrMsgs, before, after: document.body.innerText };
   } catch (e) {
     // 누르기 전 오류면 보내지 않은 것, 누른 뒤 오류면 결과 불확실로 처리된다(아래 step의 classify).
-    return { here: true, clicked, error: `초대 화면에서 오류가 났습니다: ${e?.message || e} (화면: ${seen()})`, msgs: window.__ncrMsgs, before, after: document.body?.innerText || "" };
+    return { here: true, clicked, net, error: `초대 화면에서 오류가 났습니다: ${e?.message || e} (화면: ${seen()})`, msgs: window.__ncrMsgs, before, after: document.body?.innerText || "" };
   }
 }
 
@@ -153,11 +170,15 @@ async function step() {
     if (!r) return stop("초대 화면을 찾지 못해 멈췄습니다(네이버 화면이 바뀌었을 수 있습니다). 보내지 않았습니다.");
     if (!r.clicked) return stop(`${r.error} 보내지 않았고 멈췄습니다.`);
 
-    const verdict = classify([...(r.msgs || []), ...newLines(r.before, r.after)]);
+    // 누른 뒤 보안문자가 뜨면 결과 불확실로 기록하고 멈춘다(우회하지 않음).
+    // 판정 순서: 네이버 응답 값(judgeResponse) → 응답을 못 봤을 때만 새 문구(classify).
+    const verdict = r.captcha ? { result: "uncertain", detail: "결과 확인 못 함: 누른 뒤 보안문자 요구" }
+      : judgeResponse(r.net) || classify([...(r.msgs || []), ...newLines(r.before, r.after)]);
     const result = verdict.result === "uncertain" ? "failed" : verdict.result;
     const mark = await api("sent_mark", { cafe_id: s.cafeId, naver_id: next.naver_id, result, detail: verdict.detail });
     const done = (s.done || 0) + (result === "sent" ? 1 : 0);
     if (verdict.result === "limited") return stop(`네이버 제한 안내가 떠 오늘은 멈췄습니다: ${verdict.detail}`);
+    if (verdict.stop) return stop(`${next.naver_id}: ${verdict.detail} — 멈췄습니다. 다시 보내지 않습니다.`);
     if (verdict.result === "uncertain") {
       await set({ ...(await get()), done });
       return stop(`${next.naver_id} 초대 결과를 확인하지 못해 멈췄습니다. 다시 보내지 않습니다. 「보낸 결과」와 네이버 화면을 확인해 주세요.`);
