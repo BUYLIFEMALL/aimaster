@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import tsx --test tests/songs.test.mjs tests/access.test.mjs tests/engine.test.mjs tests/tracks.test.mjs tests/collections.test.mjs tests/pcCheck.test.mjs tests/presets.test.mjs tests/lyricRules.test.mjs tests/queue.test.mjs tests/albumArt.test.mjs tests/trackOrder.test.mjs tests/trackFilters.test.mjs tests/playbackQueue.test.mjs tests/trash.test.mjs tests/lyricTiming.test.mjs tests/videoOptions.test.mjs tests/lyricTags.test.mjs tests/storageGroups.test.mjs tests/albums.test.mjs tests/albumRead.test.mjs tests/aiModelChoice.test.mjs"
+    "test": "node --import tsx --test tests/songs.test.mjs tests/access.test.mjs tests/engine.test.mjs tests/tracks.test.mjs tests/collections.test.mjs tests/pcCheck.test.mjs tests/presets.test.mjs tests/lyricRules.test.mjs tests/queue.test.mjs tests/albumArt.test.mjs tests/trackOrder.test.mjs tests/trackFilters.test.mjs tests/playbackQueue.test.mjs tests/trash.test.mjs tests/lyricTiming.test.mjs tests/videoOptions.test.mjs tests/lyricTags.test.mjs tests/storageGroups.test.mjs tests/albums.test.mjs tests/albumRead.test.mjs tests/aiModelChoice.test.mjs tests/yue2-cover.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

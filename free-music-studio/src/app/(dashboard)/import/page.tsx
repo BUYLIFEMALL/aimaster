@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Upload, Wand2, Loader2, AlertCircle, ShieldAlert, Scissors, Palette, X } from "lucide-react";
 import { useEngine } from "@/components/engine/useEngine";
-import { EngineError, enqueueEdit, fetchLibraryFile, hasLibrary, hasQueue, saveToLibrary, startEditTask, waitForTask, type EditOptions } from "@/lib/engine";
+import { EngineError, enqueueEdit, fetchLibraryFile, hasLibrary, hasQueue, hasYue2Cover, saveToLibrary, startEditTask, waitForTask, type EditOptions } from "@/lib/engine";
 import { DownloadButtons } from "@/components/engine/DownloadButtons";
 import { LIMITS } from "@/lib/songs";
 import { COVER_SOURCE_KEY, SOURCE_MAX_SEC, SOURCE_MIN_SEC, type CoverSource } from "@/lib/tracks";
@@ -48,6 +48,8 @@ export default function ImportPage() {
   const [style, setStyle] = useState("");
   const [lyrics, setLyrics] = useState("");
   const [strength, setStrength] = useState(0.6);
+  // 커버 엔진(엔진 0.8.0, B-5): ACE-Step = 원곡 소리를 바탕으로(상업용) / YuE2 = 원곡 멜로디를 악보로 받아 적어 새로 부름(비상업)
+  const [coverEngine, setCoverEngine] = useState<"acestep" | "yue2">("acestep");
   const [range, setRange] = useState<[number, number]>([0, 10]);
   const [rights, setRights] = useState(false);
   const [busy, setBusy] = useState<"" | "upload" | "run" | "fetch">("");
@@ -150,8 +152,9 @@ export default function ImportPage() {
 
   // 엔진 0.1.6+: 원곡을 엔진에 올려 대기열에 넣는다(엔진이 준비 중이어도 되고, 탭을 닫아도 계속 만든다)
   const queueMode = engine.paired && hasQueue(status);
+  const yue2Cover = mode === "cover" && coverEngine === "yue2" && queueMode && hasYue2Cover(status);
   const canStart =
-    (queueMode || (ready && hasLibrary(status))) && !!file && rights && !busy && (style.trim() || lyrics.trim()) && (mode === "cover" || range[1] > range[0]);
+    (queueMode || (ready && hasLibrary(status))) && !!file && rights && !busy && (style.trim() || lyrics.trim()) && (mode === "cover" || range[1] > range[0]) && (!yue2Cover || !!lyrics.trim());
   const [queuedNote, setQueuedNote] = useState("");
 
   const start = async () => {
@@ -166,7 +169,7 @@ export default function ImportPage() {
           : { mode, style_prompt: style, lyrics, start: range[0], end: range[1] };
       if (queueMode) {
         const name = nameOf();
-        await enqueueEdit(file, opts, sourceSec, { title: name, device: status.device, parentId: source?.id }, status.quality);
+        await enqueueEdit(file, opts, sourceSec, { title: name, device: status.device, parentId: source?.id, engine: yue2Cover ? "yue2" : "acestep" }, status.quality);
         setQueuedNote(`「${name}」 작업을 대기열에 넣었습니다. 엔진이 차례로 만들고, 다 되면 「모든 음악」에 저절로 기록됩니다.`);
         return;
       }
@@ -267,7 +270,38 @@ export default function ImportPage() {
               <Scissors className="h-4 w-4" /> 일부만 다시 만들기
             </button>
           </div>
-          {mode === "cover" ? (
+          {mode === "cover" && queueMode && hasYue2Cover(status) && (
+            <div className="flex flex-wrap items-center gap-1.5" role="radiogroup" aria-label="커버 엔진">
+              <span className="text-[11px] text-slate-400">커버 엔진</span>
+              {(
+                [
+                  { id: "acestep", label: "ACE-Step · 원곡 소리 바탕", badge: "상업용", tone: "bg-emerald-500/20 text-emerald-200" },
+                  { id: "yue2", label: "YuE2 · 원곡 멜로디 받아 적기", badge: "비상업용", tone: "bg-amber-500/20 text-amber-200" },
+                ] as const
+              ).map((o) => (
+                <button
+                  key={o.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={coverEngine === o.id}
+                  onClick={() => setCoverEngine(o.id)}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold transition ${coverEngine === o.id ? "border-emerald-400/70 bg-emerald-500/15 text-emerald-50" : "border-slate-700/60 text-slate-300 hover:border-slate-500"}`}
+                >
+                  {coverEngine === o.id ? "✓ " : ""}
+                  {o.label}
+                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${o.tone}`}>{o.badge}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {mode === "cover" && yue2Cover ? (
+            <div className="space-y-1.5 rounded-xl border border-amber-500/30 bg-amber-950/20 p-3 text-[11px] leading-relaxed text-amber-100/90">
+              <p className="font-semibold text-amber-200">🎼 YuE2 커버 — 원곡의 노래 멜로디를 악보로 받아 적은 뒤, 그 멜로디로 새 가사·새 스타일을 부릅니다</p>
+              <p>· <b>새로 부를 가사가 꼭 필요합니다.</b> 원곡과 글자 수·구간이 비슷할수록 멜로디에 잘 맞습니다([Verse]·[Chorus]로 원곡 구간에 맞춰 주세요).</p>
+              <p>· 노래 소리가 또렷한 원곡일수록 잘 받아 적습니다. 받아 적기가 틀리면 커버에도 그대로 나옵니다. 5분 이하를 권장합니다.</p>
+              <p>· <b>비상업용(CC BY-NC)</b> — 개인 감상·비수익 용도만. 처음 쓸 때 받아 적기 모델(약 1GB)을 받습니다.</p>
+            </div>
+          ) : mode === "cover" ? (
             <div className="space-y-1 rounded-xl bg-slate-950/50 p-3">
               <label className="flex items-center justify-between text-xs text-slate-300">
                 원곡을 얼마나 따를까요? <span className="font-mono text-emerald-300">{Math.round(strength * 100)}%</span>

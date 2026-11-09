@@ -716,17 +716,23 @@ export async function enqueueMaster(
   return (await res.json()).job;
 }
 
+/** 이 엔진이 YuE2 커버(원곡 멜로디 받아 적기)를 할 수 있는가(0.8.0+, 윈도우 + NVIDIA 8GB 이상) */
+export function hasYue2Cover(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("yue2cover");
+}
+
 /** 가져온 음악 커버·부분 수정을 대기열에 넣는다(원곡 파일은 회원 PC 엔진으로만, 60MB까지). */
 export async function enqueueEdit(
   source: File,
   opts: EditOptions,
   sourceSec: number,
-  info: { title: string; device: string; parentId?: string | null },
+  info: { title: string; device: string; parentId?: string | null; engine?: "acestep" | "yue2" },
   quality?: EngineQuality | null
 ): Promise<QueueJob> {
   const track: QueueTrack = { id: crypto.randomUUID(), song_id: null, style_prompt: opts.style_prompt, lyrics: opts.lyrics, duration_sec: Math.round(sourceSec), device: info.device, kind: opts.mode, parent_id: info.parentId ?? null };
   const form = new FormData();
-  form.append("meta", JSON.stringify({ kind: opts.mode, title: info.title, track, fields: buildEditFields(opts, sourceSec, quality) }));
+  // 엔진 0.8.0: 커버는 YuE2도(원곡 멜로디 받아 적기, 비상업) — ACE-Step일 때는 옛 엔진과 같게 engine 칸을 보내지 않는다
+  form.append("meta", JSON.stringify({ kind: opts.mode, title: info.title, track, fields: buildEditFields(opts, sourceSec, quality), ...(info.engine === "yue2" ? { engine: "yue2" } : {}) }));
   form.append("src_audio", source, source.name);
   const res = await call("/queue/edit", { method: "POST", body: form }, 180_000);
   return (await res.json()).job;
@@ -845,6 +851,21 @@ export async function removeImageModel(id: string) {
   await call(`/image-models/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 /** 내 PC 그림 작업을 대기열에 넣는다 — 처음이면 엔진·모델을 받는다. 결과 PNG는 fetchLocalArt(작업 번호) */
+/**
+ * 처음 고를 내 PC 그림 판 — 기본으로 정한 판 → 받아 둔 판 중 추천 판 → 받아 둔 판 중 「메모리 빠듯」 아닌 판 → 받아 둔 첫 판 → 추천 판.
+ * 엔진 0.7.9 pickImageVariant와 같은 규칙(권장보다 메모리가 작은 PC에서 받아 둔 BF16이 먼저 골라져 실패하던 것, 2026-11-09).
+ */
+export function pickLocalArtVariant(s: Pick<ImageModelState, "defaultId" | "installed" | "recommendedId" | "families">): string {
+  if (s.defaultId) return s.defaultId;
+  if (s.recommendedId && s.installed.includes(s.recommendedId)) return s.recommendedId;
+  const rows = s.families.flatMap((f) => f.variants);
+  const ok = s.installed.find((id) => {
+    const r = rows.find((x) => x.id === id);
+    return !!r && r.status === "available" && !r.tight;
+  });
+  return ok || s.installed[0] || s.recommendedId || "";
+}
+
 export async function enqueueLocalArt(info: { title: string; songId: string | null; style: string; lyrics: string }, prompt: string, variantId?: string): Promise<QueueJob> {
   const track: QueueTrack = { id: crypto.randomUUID(), song_id: info.songId, style_prompt: info.style, lyrics: info.lyrics, duration_sec: 0, device: "", kind: "art" };
   const res = await call("/queue", {
