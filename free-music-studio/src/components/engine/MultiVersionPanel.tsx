@@ -2,7 +2,7 @@
 
 // 여러 버전 한 번에(2026-11-09 주인님 「하나의 가사로 각기 다른 모델·장르로 1곡씩」「최대 8곡」「AI 스타일을 새로 쓰게」「각각 다른 느낌의 곡이 만들어져야해」)
 // 엔진 × 장르 조합 → AI가 버전마다 서로 다른 느낌의 음악 스타일을 한 번 호출로 씀 → 버전마다 엔진 대기열에 넣는다.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Layers, Loader2 } from "lucide-react";
 import { availableEngines, consentKey, engineInfo, enqueueSong, fetchHfToken, hasQueue, type MusicEngineInfo, type SongForEngine } from "@/lib/engine";
 import { useEngine } from "./useEngine";
@@ -15,7 +15,8 @@ import { MULTI_MAX, buildSlots, slotCount, versionTitle } from "@/lib/multiVersi
 export function MultiVersionPanel({ song, title, songId, ai, tags }: { song: SongForEngine; title: string; songId: string | null; ai: { provider: string; model: string }; tags: string }) {
   const { status, paired } = useEngine();
   const queueMode = paired && hasQueue(status);
-  const engines: MusicEngineInfo[] = queueMode ? availableEngines(status) : [];
+  // 2026-11-09 주인님 「좌측 메뉴 링크가 다 안 걸려」 — 그릴 때마다 새 배열이면 아래 useEffect(setConsents)가 끝없이 돌아 화면 이동이 막혔다. 엔진 상태가 바뀔 때만 새로 만든다
+  const engines: MusicEngineInfo[] = useMemo(() => (queueMode && status ? availableEngines(status) : []), [queueMode, status]);
   const current = engineInfo("acestep");
   const instrumental = isInstrumentalLyrics(song.lyrics);
   const kindOk = (e: MusicEngineInfo) => e.kind === "both" || e.kind === (instrumental ? "instrumental" : "vocal");
