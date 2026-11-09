@@ -993,9 +993,10 @@ export default function SongsPage() {
                       setShownResult(lyricResults[0]);
                       setResultOpen(true);
                     }}
+                    title="AI 작사로 만든 결과(최대 20개, 이 브라우저에만 저장)를 다시 보고 골라 적용합니다 · AI를 다시 부르지 않아 비용 없음"
                     className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-900"
                   >
-                    최근 AI 가사 {lyricResults.length}
+                    AI 가사 불러오기 {lyricResults.length}
                   </button>
                 )}
               </div>
