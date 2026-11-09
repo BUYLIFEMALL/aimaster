@@ -85,7 +85,8 @@ test("받기 목록 — 주소는 고정 버전(태그·커밋)이고 확인값�
     assert.ok(item.bytes > 0);
     assert.ok(!/\/main\/|latest/.test(item.url), item.url);
   }
-  for (const m of c.models) assert.ok(m.url.includes(c.modelRevision), m.filename);
+  // 커버 받아 적기 모델(엔진 0.8.0)은 커버 리비전, 나머지는 노래 모델 리비전 — 둘 다 고정 커밋
+  for (const m of c.models) assert.ok(m.url.includes(c.cover.files.includes(m.filename) ? c.cover.revision : c.modelRevision), m.filename);
 });
 
 test("연주곡 — 가사를 비우고 연주곡 지시문(cot off), 노래는 cot full", () => {

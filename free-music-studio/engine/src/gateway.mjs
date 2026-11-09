@@ -676,7 +676,10 @@ async function handleQueue(req, res, url, origin, ctx, json) {
       await mkdir(ctx.queueSourceDir, { recursive: true });
       await writeFile(path.join(ctx.queueSourceDir, saved), Buffer.from(await file.arrayBuffer()));
       const fields = Object.fromEntries(Object.entries(meta.fields).map(([k, v]) => [k, String(v)]));
-      return json(res, 200, { job: await q.add({ ...parsed, fields, source: { file: saved, name } }) }, origin);
+      // 엔진 0.8.0: 커버는 YuE2도(원곡 멜로디 받아 적기, 비상업) — 그 밖에는 ACE-Step
+      if (meta.engine === "yue2" && (parsed.kind !== "cover" || !ctx.engineLicense?.("yue2"))) return json(res, 400, { error: "YuE2는 이 PC에서 커버만 할 수 있습니다(윈도우 + NVIDIA 8GB 이상)." }, origin);
+      const engine = meta.engine === "yue2" ? { engine: "yue2", license: ctx.engineLicense("yue2") } : {};
+      return json(res, 200, { job: await q.add({ ...parsed, fields, source: { file: saved, name }, ...engine }) }, origin);
     }
 
     const id = parts[1];

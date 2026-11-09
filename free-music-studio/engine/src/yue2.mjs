@@ -1,7 +1,7 @@
 // 비상업용 음악 엔진 YuE2(yue2.cpp) — 원본 기능을 옮김(2026-11-04, electron/native-engine.mjs).
 // 받기(고정 주소·SHA-256 확인) → yue-server.exe 실행(실행마다 빈 번호) → /synth → /job 확인 → 결과(JSON + 48kHz 24bit WAV) → 보관함 저장.
 // 모델은 CC BY-NC 4.0(비상업). 회원 PC가 공식 저장소에서 직접 받고, 우리 서버에는 두지 않는다.
-import { existsSync } from "node:fs";
+import fs, { existsSync } from "node:fs";
 import { copyFile, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { spawn, spawnSync } from "node:child_process";
 import path from "node:path";
@@ -39,7 +39,30 @@ export function yue2Support({ platform, nvidia, vramGb, driver }, catalog = CATA
 export function yue2Paths(dataDir) {
   const root = path.join(dataDir, "yue2");
   const runtimeDir = path.join(root, "runtime");
-  return { root, runtimeDir, modelsDir: path.join(root, "models"), exe: path.join(runtimeDir, CATALOG.runtime.executable), cudaDll: path.join(runtimeDir, CATALOG.runtime.cudaSubdir, "ggml-cuda.dll") };
+  return { root, runtimeDir, modelsDir: path.join(root, "models"), exe: path.join(runtimeDir, CATALOG.runtime.executable), cudaDll: path.join(runtimeDir, CATALOG.runtime.cudaSubdir, "ggml-cuda.dll"), versionFile: path.join(runtimeDir, ".version") };
+}
+
+/** 받아 둔 실행 도구가 지금 목록의 판인가(엔진 0.8.0 — 판을 올리면 다시 받는다. 판 기록이 없던 옛 설치는 v3.4.0) */
+export function yue2RuntimeCurrent(dataDir, catalog = CATALOG) {
+  const p = yue2Paths(dataDir);
+  if (!existsSync(p.exe) || !existsSync(p.cudaDll)) return false;
+  try {
+    return fs.readFileSync(p.versionFile, "utf8").trim() === String(catalog.runtime.version ?? "");
+  } catch {
+    return false;
+  }
+}
+
+/** 커버(원곡 멜로디 받아 적기)에 필요한 파일 — SheetSage2와 같은 폴더의 MERT(엔진 0.8.0) */
+export function yue2CoverNeeds(catalog = CATALOG) {
+  const names = catalog.cover?.files ?? [];
+  return catalog.models.filter((m) => names.includes(m.filename));
+}
+
+/** 커버용 파일을 모두 받았는가 */
+export function yue2CoverReady(dataDir, catalog = CATALOG) {
+  const p = yue2Paths(dataDir);
+  return yue2CoverNeeds(catalog).every((m) => existsSync(path.join(p.modelsDir, `${m.filename}.ok`)));
 }
 
 /** 이 구성에 필요한 파일들(받을 것) */
@@ -51,7 +74,7 @@ export function yue2Needs(profile, catalog = CATALOG) {
 /** 받은 파일이 모두 있는가(크기 + 확인 표시 파일) */
 export async function yue2Installed(dataDir, profile) {
   const p = yue2Paths(dataDir);
-  if (!existsSync(p.exe) || !existsSync(p.cudaDll) || !CATALOG.cuda.files.every((f) => existsSync(path.join(p.runtimeDir, f)))) return false;
+  if (!yue2RuntimeCurrent(dataDir) || !CATALOG.cuda.files.every((f) => existsSync(path.join(p.runtimeDir, f)))) return false;
   for (const m of yue2Needs(profile)) {
     const s = await stat(path.join(p.modelsDir, m.filename)).catch(() => null);
     if (!s || s.size !== m.bytes || !existsSync(path.join(p.modelsDir, `${m.filename}.ok`))) return false;
@@ -63,7 +86,7 @@ export async function yue2Installed(dataDir, profile) {
 export async function yue2MissingBytes(dataDir, profile) {
   const p = yue2Paths(dataDir);
   let total = 0;
-  if (!existsSync(p.exe)) total += CATALOG.runtime.bytes;
+  if (!yue2RuntimeCurrent(dataDir)) total += CATALOG.runtime.bytes;
   if (!CATALOG.cuda.files.every((f) => existsSync(path.join(p.runtimeDir, f)))) total += CATALOG.cuda.bytes;
   for (const m of yue2Needs(profile)) if (!existsSync(path.join(p.modelsDir, `${m.filename}.ok`))) total += m.bytes;
   return total;
@@ -81,7 +104,7 @@ export async function ensureYue2(dataDir, profile, { onStage = () => {}, signal,
   let base = 0;
   const progress = (label) => (done) => onStage(`YuE2 받는 중 · ${label} · ${gbText(base + done)} / ${gbText(need)}`);
 
-  if (!existsSync(p.exe) || !existsSync(p.cudaDll)) {
+  if (!yue2RuntimeCurrent(dataDir)) {
     const zip = path.join(p.root, "runtime.zip");
     await downloadVerified(CATALOG.runtime, zip, { onProgress: progress("실행 도구"), signal, fetchImpl });
     base += CATALOG.runtime.bytes;
@@ -92,8 +115,14 @@ export async function ensureYue2(dataDir, profile, { onStage = () => {}, signal,
     untar(zip, tmp);
     const exe = await findFile(tmp, CATALOG.runtime.executable);
     if (!exe) throw new Error("실행 도구 안에서 yue-server.exe를 찾지 못했습니다.");
+    // 판을 올릴 때 이미 받은 CUDA 라이브러리(약 390MB)는 새 폴더로 옮겨 다시 받지 않는다
+    for (const f of CATALOG.cuda.files) {
+      const old = path.join(p.runtimeDir, f);
+      if (existsSync(old) && !existsSync(path.join(path.dirname(exe), f))) await rename(old, path.join(path.dirname(exe), f)).catch(() => copyFile(old, path.join(path.dirname(exe), f)));
+    }
     await rm(p.runtimeDir, { recursive: true, force: true });
     await rename(path.dirname(exe), p.runtimeDir);
+    await writeFile(p.versionFile, String(CATALOG.runtime.version ?? ""));
     await rm(tmp, { recursive: true, force: true });
     await rm(zip, { force: true });
   }
@@ -123,6 +152,21 @@ export async function ensureYue2(dataDir, profile, { onStage = () => {}, signal,
   }
 }
 
+/** 커버용 받아 적기 모델 받기(처음 커버할 때 한 번, 약 1GB) */
+export async function ensureYue2Cover(dataDir, { onStage = () => {}, signal, fetchImpl } = {}) {
+  const p = yue2Paths(dataDir);
+  await mkdir(p.modelsDir, { recursive: true });
+  const need = yue2CoverNeeds().filter((m) => !existsSync(path.join(p.modelsDir, `${m.filename}.ok`)));
+  const total = need.reduce((a, m) => a + m.bytes, 0);
+  let base = 0;
+  for (const m of need) {
+    const dest = path.join(p.modelsDir, m.filename);
+    await downloadVerified(m, dest, { onProgress: (done) => onStage(`YuE2 커버 모델 받는 중 · ${m.filename} · ${gbText(base + done)} / ${gbText(total)}`), signal, fetchImpl });
+    await writeFile(`${dest}.ok`, m.sha256);
+    base += m.bytes;
+  }
+}
+
 // ── 결과 읽기(순수 함수 — 시험) ─────────────────────────────
 
 /** 결과는 multipart 두 조각: JSON(다시 만들기 정보) + WAV. 서버가 준 파일 이름은 쓰지 않는다. */
@@ -144,8 +188,22 @@ export function parseYue2Multipart(buffer, contentType) {
     parts.push({ type, data: buffer.subarray(headerEnd + 4, next) });
     pos = next + 2;
   }
-  if (parts.length !== 2 || parts[0].type !== "application/json" || !["audio/wav", "audio/mpeg"].includes(parts[1].type)) throw new Error("YuE2 결과 형식이 예상과 다릅니다.");
-  return { replay: JSON.parse(parts[0].data.toString("utf8")), audio: parts[1].data, ext: parts[1].type === "audio/wav" ? "wav" : "mp3" };
+  // v3.8.5부터 곡마다 세 조각(JSON · 소리 · 소리 원본 데이터 latents)이 온다 — latents(octet-stream)는 쓰지 않는다
+  const used = parts.filter((x) => x.type !== "application/octet-stream");
+  if (used.length !== 2 || used[0].type !== "application/json" || !["audio/wav", "audio/mpeg"].includes(used[1].type)) throw new Error("YuE2 결과 형식이 예상과 다릅니다.");
+  return { replay: JSON.parse(used[0].data.toString("utf8")), audio: used[1].data, ext: used[1].type === "audio/wav" ? "wav" : "mp3" };
+}
+
+/** 받아 적기 결과 {"abc":"X:1..."} → 악보 글. 비었으면 오류 */
+export function parseYue2Transcription(text) {
+  let abc = "";
+  try {
+    abc = String(JSON.parse(String(text ?? ""))?.abc ?? "");
+  } catch {
+    throw new Error("원곡 멜로디 받아 적기 결과를 읽지 못했습니다.");
+  }
+  if (!/^X:\s*\d/m.test(abc) || !/^K:/m.test(abc)) throw new Error("원곡에서 멜로디를 받아 적지 못했습니다. 노래 소리가 또렷한 원곡으로 다시 해 주세요.");
+  return abc;
 }
 
 /** WAV가 비어 있거나 무음이 아닌지 — 길이(초)를 돌려준다 */
@@ -183,11 +241,13 @@ export function parseYue2Progress(line) {
 /** 가사가 비었거나 「[Instrumental]」이면 연주곡 */
 export const isInstrumental = (lyrics) => !String(lyrics ?? "").trim() || /^\[instrumental\]$/i.test(String(lyrics).trim());
 
-/** 곡 만들기 요청 본문(원본과 같은 칸). 연주곡은 원본처럼 가사를 비우고 연주곡 지시문을 붙인다(cot off). */
-export function buildYue2Synth({ style, lyrics, seed, durationSec }) {
+/** 곡 만들기 요청 본문(원본과 같은 칸). 연주곡은 원본처럼 가사를 비우고 연주곡 지시문을 붙인다(cot off).
+ *  abc(받아 적은 원곡 멜로디)가 있으면 커버 — 원본 권장대로 cot "melody", 반주는 새 스타일로 자유롭게(엔진 0.8.0) */
+export function buildYue2Synth({ style, lyrics, seed, durationSec, abc }) {
   const sd = Number.isInteger(seed) ? seed : Math.floor(Math.random() * 2 ** 31);
   const common = { seed: sd, lm_seed: sd, lm_batch_size: 1, synth_batch_size: 1, output_format: "wav24" };
   const s = String(style ?? "").trim();
+  if (abc) return { style: s.slice(0, YUE2_STYLE_MAX), lyrics: String(lyrics ?? "").slice(0, YUE2_LYRICS_MAX), abc: String(abc), cot: "melody", ...common };
   if (isInstrumental(lyrics)) {
     const secs = [120, 180, 240, 300].reduce((a, b) => (Math.abs(b - (durationSec || 180)) < Math.abs(a - (durationSec || 180)) ? b : a));
     const minutes = { 120: "two", 180: "three", 240: "four", 300: "five" }[secs];
@@ -217,9 +277,16 @@ const killTree = (child) => {
  * @param {{ dataDir: string, profile: object, library: { save: Function }, log?: (s: string) => void }} ctx
  */
 export async function runYue2(ctx, job, signal, stage) {
-  const { dataDir, profile, library, log = () => {} } = ctx;
+  const { dataDir, profile, library, log = () => {}, sourceDir } = ctx;
   if (!(await yue2Installed(dataDir, profile))) {
     await ensureYue2(dataDir, profile, { onStage: stage, signal });
+  }
+  const cover = job.kind === "cover";
+  const sourcePath = cover && job.source?.file && sourceDir ? path.join(sourceDir, path.basename(job.source.file)) : null;
+  if (cover) {
+    if (!sourcePath || !existsSync(sourcePath)) throw new Error("원곡 파일이 없습니다. 원곡을 다시 올려 주세요.");
+    if (!String(job.track.lyrics ?? "").trim()) throw new Error("YuE2 커버는 새로 부를 가사가 필요합니다.");
+    if (!yue2CoverReady(dataDir)) await ensureYue2Cover(dataDir, { onStage: stage, signal });
   }
   const p = yue2Paths(dataDir);
   const port = await pickFreePort();
@@ -227,6 +294,7 @@ export async function runYue2(ctx, job, signal, stage) {
   const cudaCache = path.join(p.root, "cuda-cache");
   await mkdir(cudaCache, { recursive: true });
   const args = ["--model", path.join(p.modelsDir, profile.backbone), "--vae", path.join(p.modelsDir, profile.vae), "--host", "127.0.0.1", "--port", String(port), "--max-batch", "1"];
+  if (cover) args.push("--transcriber", path.join(p.modelsDir, CATALOG.cover.transcriber));
   stage("YuE2 켜는 중");
   const child = spawn(p.exe, args, {
     cwd: p.runtimeDir,
@@ -264,16 +332,31 @@ export async function runYue2(ctx, job, signal, stage) {
         await sleep(1000, signal);
       }
     }
-    stage("YuE2 · 곡 만드는 중");
-    const { id } = await (await http("/synth", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(buildYue2Synth({ style: job.track.style_prompt, lyrics: job.track.lyrics, durationSec: job.track.duration_sec })) })).json();
-    if (typeof id !== "string" || !id) throw new Error("YuE2가 작업 번호를 주지 않았습니다.");
-    for (;;) {
-      await sleep(500, signal);
-      const { status } = await (await http(`/job?id=${encodeURIComponent(id)}`)).json();
-      if (status === "done") break;
-      if (status === "failed" || status === "cancelled") throw new Error(status === "cancelled" ? "YuE2 작업이 취소됐습니다." : "YuE2가 곡을 만들지 못했습니다.");
-      if (status !== "running" && status !== "queued") throw new Error(`YuE2 작업 상태를 알 수 없습니다(${status}).`);
+    const waitJob = async (id, failText) => {
+      if (typeof id !== "string" || !id) throw new Error("YuE2가 작업 번호를 주지 않았습니다.");
+      for (;;) {
+        await sleep(500, signal);
+        const { status } = await (await http(`/job?id=${encodeURIComponent(id)}`)).json();
+        if (status === "done") return;
+        if (status === "failed" || status === "cancelled") throw new Error(status === "cancelled" ? "YuE2 작업이 취소됐습니다." : failText);
+        if (status !== "running" && status !== "queued") throw new Error(`YuE2 작업 상태를 알 수 없습니다(${status}).`);
+      }
+    };
+    let abc = "";
+    if (cover) {
+      // 원곡 → 멜로디 악보(ABC, 코드 없이) — 원본 yue2.cpp POST /transcribe
+      stage("YuE2 · 원곡 멜로디 받아 적는 중");
+      const form = new FormData();
+      form.append("audio", new Blob([await readFile(sourcePath)]), path.basename(sourcePath));
+      form.append("melody_only", "1");
+      const t = await (await http("/transcribe", { method: "POST", body: form })).json();
+      await waitJob(t.id, "원곡 멜로디를 받아 적지 못했습니다.");
+      abc = parseYue2Transcription(await (await http(`/job?id=${encodeURIComponent(t.id)}&result=1`)).text());
+      log(`\n# 받아 적은 원곡 멜로디(ABC)\n${abc}\n`);
     }
+    stage(cover ? "YuE2 · 받아 적은 멜로디로 커버 만드는 중" : "YuE2 · 곡 만드는 중");
+    const { id } = await (await http("/synth", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(buildYue2Synth({ style: job.track.style_prompt, lyrics: job.track.lyrics, durationSec: job.track.duration_sec, abc })) })).json();
+    await waitJob(id, "YuE2가 곡을 만들지 못했습니다.");
     const res = await http(`/job?id=${encodeURIComponent(id)}&result=1`);
     const out = parseYue2Multipart(Buffer.from(await res.arrayBuffer()), res.headers.get("content-type"));
     if (out.ext === "wav") checkYue2Wav(out.audio);
