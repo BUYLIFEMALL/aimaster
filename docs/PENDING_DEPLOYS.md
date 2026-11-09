@@ -70,6 +70,9 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `free-music-studio` | v1.57 · 엔진 0.8.1 설치 파일 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「한번에 배포하자」, `free-music-studio-8463te21e`, DB v1.57) | 넣을 프로젝트(C-33), 여러 버전 한 번에(C-34), 엔진 0.8.1 이미지 자동화 연결(D-3) |
+| `ai-image-studio` | v1.33 · 2026-11-09 ([역할: music], 같은 묶음, `ai-image-studio-l5k8gtx08`, DB v1.33) | 「내 PC (무료)」 카드(D-3) + 대기분 30일 정리 예외 회원 건너뛰기 |
+| `playlist-channel-studio` | v1.37 · 2026-11-09 ([역할: music], 같은 묶음, `playlist-channel-studio-8dl5sxxkf`, DB v1.37) | P-6 스펙트럼 3종·컬러 팔레트·파티클 확장 + 대기분(받는 중 숨김·모델 칸) |
 | `free-music-studio` | v1.56 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-f9pn077r1`, DB v1.56, 사이트만) | YuE2 커버 「모든 음악」 기록 거절 버그 수정(C-31), AI 작사 옵션·금지어 접기·앨범 칸 도움말(C-32), YuE2 가사 필수 안내(C-30). ego 운영 확인 |
 | `free-music-studio` | v1.55 · 엔진 0.8.0 설치 파일 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-iaz2z33n8`, DB v1.55) | YuE2 커버(원곡 멜로디 받아 적기, B-5, `b5d95ab04`·`9a84413ed`) + 음악 스타일 (Caption)·앨범 칸 왼쪽·AI 가사 불러오기(C-27~29). ego 운영 확인·engine-latest 0.8.0 |
 | `free-music-studio` | v1.54 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」 빌드 1회, `free-music-studio-7nqh67ugp`, DB v1.54, 사이트만) | 장르 이름·세부 장르 구분(C-22), 남은 스타일 고정 해제(C-23), 엔진 카드 한 번만(C-24), Style 태그 제목(C-25), 곡 만들기 두 칸·분위기 탭·엔진 한 줄(C-26). ego 운영 확인 |
