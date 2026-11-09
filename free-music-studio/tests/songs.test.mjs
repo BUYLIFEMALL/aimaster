@@ -60,3 +60,18 @@ test("AI 작사: 모델은 그 공급사 목록 안에서만, 아니면 그 공�
   assert.equal(toLyricProvider("mistral"), "anthropic");
   assert.equal(toLyricProvider("openai"), "openai");
 });
+
+// 2026-11-10 곡 끝 잘림 — 가사 양으로 필요한 길이 어림
+import { estimateLyricSeconds, lyricLengthAdvice } from "../src/lib/songs.ts";
+test("가사 길이 어림 — 연주곡·빈 가사는 0, 긴 가사는 다음 선택지 추천", () => {
+  assert.equal(estimateLyricSeconds(""), 0);
+  assert.equal(estimateLyricSeconds("[Instrumental]"), 0);
+  const line = "가나다라마바사아자차카타"; // 12자
+  const long = ["[Verse]", ...Array(12).fill(line), "[Chorus]", ...Array(12).fill(line), "[Verse]", ...Array(12).fill(line), "[Chorus]", ...Array(12).fill(line)].join("\n");
+  // 48줄 × 12자 = 576자 → 192초 + 머리말 4개 24초 + 15초 = 231초
+  assert.equal(estimateLyricSeconds(long), 231);
+  assert.deepEqual(lyricLengthAdvice(long, 180), { needed: 231, recommend: 240 });
+  assert.equal(lyricLengthAdvice(long, 240), null);
+  const tooLong = [long, long].join("\n");
+  assert.equal(lyricLengthAdvice(tooLong, 300).recommend, null);
+});

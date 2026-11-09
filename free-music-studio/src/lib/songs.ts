@@ -8,6 +8,26 @@ export const MUSIC_DURATIONS = [30, 60, 120, 180, 240, 300] as const;
 // 효과음(가사 칸 [SFX], Stable Audio 3 전용, 2026-11-05) — 공식 안내 「길이는 소리에 맞게」, 보고서 효과음 평가는 5초
 export const SFX_DURATIONS = [3, 5, 10, 15, 20, 30] as const;
 export const DEFAULT_SFX_DURATION = 5;
+/**
+ * 가사를 다 부르는 데 드는 대략의 길이(초) — 2026-11-10 주인님 「곡 뒷부분이 짤리는」: 고른 길이보다 가사가 길면 음악 모델이 상한에서 끊는다.
+ * 부르는 줄 글자 3자당 1초 + 구간 머리말마다 간주 6초 + 전주·후주 15초(어림값). 연주곡·효과음·빈 가사는 0.
+ */
+export function estimateLyricSeconds(lyrics: string): number {
+  const lines = String(lyrics ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.some((l) => /^\[(instrumental|sfx)\]$/i.test(l))) return 0;
+  const heads = lines.filter((l) => /^\[[^\]]*\]$/.test(l)).length;
+  const chars = lines.filter((l) => !/^\[[^\]]*\]$/.test(l)).join("").replace(/\([^)]*\)|[^\p{L}\p{N}]/gu, "").length;
+  if (!chars) return 0;
+  return Math.round(15 + chars / 3 + heads * 6);
+}
+
+/** 고른 길이에 가사가 다 안 들어갈 것 같으면 { needed, recommend(넉넉한 다음 선택지, 없으면 null) }, 괜찮으면 null */
+export function lyricLengthAdvice(lyrics: string, chosenSec: number): { needed: number; recommend: number | null } | null {
+  const needed = estimateLyricSeconds(lyrics);
+  if (!needed || needed <= chosenSec + 10) return null;
+  return { needed, recommend: MUSIC_DURATIONS.find((d) => d >= needed) ?? null };
+}
+
 /** 곡·효과음 길이 전체(결과 기록 검사용) */
 export const DURATIONS = [...SFX_DURATIONS.filter((d) => d < 30), ...MUSIC_DURATIONS] as const;
 export const DEFAULT_DURATION = 180;

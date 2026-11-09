@@ -22,6 +22,7 @@ import {
   Music2,
   Undo2,
   SlidersHorizontal,
+  FastForward,
   Layers,
   Clapperboard,
   Disc3,
@@ -41,6 +42,7 @@ import { TrackOrderList } from "@/components/library/TrackOrderList";
 import { TrackDetailPanel } from "@/components/library/TrackDetailPanel";
 import { TrackMenu, type MenuItem } from "@/components/library/TrackMenu";
 import { MasteringDialog } from "@/components/library/MasteringDialog";
+import { ExtendDialog } from "@/components/library/ExtendDialog";
 import { isInstrumentalLyrics } from "@/lib/lyricRules";
 import { StemDialog } from "@/components/library/StemDialog";
 import { appendIds, withoutIds } from "@/lib/trackOrder";
@@ -59,6 +61,8 @@ import {
   hasWaveform,
   hasMastering,
   enqueueMaster,
+  enqueueExtend,
+  hasExtend,
   hasMasterTone,
   hasStems,
   hasAlbums,
@@ -114,6 +118,7 @@ export default function LibraryPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set()); // 여러 곡 고르기(원본 전체 선택 → 빼기·옮기기)
   const [detailId, setDetailId] = useState<string | null>(null); // 오른쪽 곡 상세 패널
   const [mastering, setMastering] = useState<Track | null>(null); // 마스터링 설정 창
+  const [extendFor, setExtendFor] = useState<Track | null>(null); // 끝 이어 만들기 창(엔진 0.8.3)
   const [stemFor, setStemFor] = useState<Track | null>(null); // Stem 분리 창
   const [coverFor, setCoverFor] = useState<Track | null>(null); // 앨범에서 표지 고르기(v1.35)
   const [artVersion, setArtVersion] = useState<Record<string, number>>({}); // 표지를 바꾼 곡은 작은 그림도 다시 받는다
@@ -627,6 +632,13 @@ export default function LibraryPage() {
                               icon: <SlidersHorizontal className="h-3.5 w-3.5" />,
                               disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasMastering(engine.status) ? "엔진 0.6.9 이상(ffmpeg 포함)이 필요합니다" : false,
                               onClick: () => setMastering(t),
+                            },
+                            // 끝 이어 만들기(엔진 0.8.3, 2026-11-10) — 길이 상한에 닿아 끝이 잘린 곡을 30·60·90초 이어 그린 새 곡
+                            {
+                              label: "끝 이어 만들기 · 잘린 끝 살리기",
+                              icon: <FastForward className="h-3.5 w-3.5" />,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasExtend(engine.status) ? "엔진 0.8.3 이상(ffmpeg 포함)이 필요합니다" : false,
+                              onClick: () => setExtendFor(t),
                             },
                             {
                               label: "Stem 분리 · 보컬/반주·악기별",
@@ -1187,6 +1199,26 @@ export default function LibraryPage() {
                 } catch (e) {
                   setMessage(e instanceof EngineError ? e.message : "마스터링을 시작하지 못했습니다.");
                   setMastering(null);
+                }
+              }}
+            />
+          )}
+          {extendFor && (
+            <ExtendDialog
+              title={extendFor.title}
+              style={extendFor.style_prompt}
+              lyrics={extendFor.lyrics ?? ""}
+              durationSec={extendFor.duration_sec}
+              onClose={() => setExtendFor(null)}
+              onStart={async (o) => {
+                const t = extendFor;
+                try {
+                  await enqueueExtend(t, o, engine.status?.quality);
+                  setExtendFor(null);
+                  setNotice(`「${t.title}」 끝 이어 만들기를 대기열에 넣었습니다. 끝나면 「${t.title} (이어 만들기)」 새 곡으로 이 목록에 들어옵니다(작업 대기열 화면에서 진행 확인).`);
+                } catch (e) {
+                  setMessage(e instanceof EngineError ? e.message : "끝 이어 만들기를 시작하지 못했습니다.");
+                  setExtendFor(null);
                 }
               }}
             />

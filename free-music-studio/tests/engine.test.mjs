@@ -134,3 +134,17 @@ test("pickLocalArtVariant — 권장보다 메모리가 작은 PC에서 받아 �
   assert.equal(pickLocalArtVariant({ defaultId: null, installed: ["z-image-turbo:bf16"], recommendedId: "z-image-turbo:q8_0", families }), "z-image-turbo:bf16");
   assert.equal(pickLocalArtVariant({ defaultId: null, installed: [], recommendedId: null, families }), "");
 });
+
+// 2026-11-10 끝 이어 만들기(엔진 0.8.3)
+import { extendLyrics, hasExtend, lastLyricSection } from "../src/lib/engine.ts";
+test("끝 이어 만들기 — 마지막 구간 미리 채우기·가사 머리말", () => {
+  assert.equal(lastLyricSection("[Verse]\n하나\n\n[Chorus]\n둘\n셋"), "[Chorus]\n둘\n셋");
+  assert.equal(lastLyricSection("그냥 한 줄"), "그냥 한 줄");
+  assert.equal(lastLyricSection("[Instrumental]"), "");
+  assert.equal(extendLyrics(""), "[Outro]\n[Instrumental]");
+  assert.equal(extendLyrics("고마워 내 사랑"), "[Outro]\n고마워 내 사랑");
+  assert.equal(extendLyrics("[Chorus]\n둘"), "[Chorus]\n둘");
+  assert.equal(hasExtend({ features: ["extend"] }), true);
+  assert.equal(hasExtend({ features: ["master"] }), false);
+  assert.equal(hasExtend(null), false);
+});

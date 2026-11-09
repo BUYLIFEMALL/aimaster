@@ -7,6 +7,7 @@ import { pickFolder, revealFolder } from "./folderDialog.mjs";
 import { browseDir, browseRoots, makeDir } from "./folderBrowse.mjs";
 import { audioWaveform } from "./waveform.mjs";
 import { validateMasteringOptions } from "./mastering.mjs";
+import { EXTEND_SECONDS, prepareExtendSource } from "./ending.mjs";
 import { cleanArtPrompt, findImageVariant } from "./imageArt.mjs";
 import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
@@ -592,6 +593,7 @@ function parseQueueMeta(m) {
 /**
  *  GET    /queue                 → { jobs } 대기열(최근 끝난 작업 포함)
  *  POST   /queue                 { kind:"text2music", title, track, task } → { job }
+ *  POST   /queue                 { kind:"extend", title, track, task:{ sourceId, seconds(30|60|90), fields } } → { job, range }(0.8.3 끝 이어 만들기 — 부분 수정 작업으로 넣음)
  *  POST   /queue/edit            multipart: meta(JSON { kind:"cover"|"repaint", title, track, fields }) + src_audio → { job }
  *  POST   /queue/<id>/cancel     대기 중·만드는 중 취소
  *  POST   /queue/<id>/rerun      { trackId } 중단·실패 작업 다시 하기
@@ -606,6 +608,23 @@ async function handleQueue(req, res, url, origin, ctx, json, imageOnly = false) 
   try {
     if (req.method === "POST" && parts.length === 1) {
       const body = await readSmall(req, 256 * 1024).catch(() => null);
+      // 끝 이어 만들기(0.8.3) — 보관함 원곡 뒤에 빈 소리를 붙여 ACE-Step 부분 수정(원곡 끝 10초 전 ~ 새 끝)으로 넣는다. 결과는 새 곡
+      if (body?.kind === "extend") {
+        const meta = parseQueueMeta({ ...body, kind: "repaint" });
+        const sourceId = body?.task?.sourceId;
+        const fields = body?.task?.fields;
+        if (imageOnly || !meta || !fields || typeof fields !== "object") return json(res, 400, { error: "작업 내용이 올바르지 않습니다." }, origin);
+        if (!EXTEND_SECONDS.includes(Number(body.task.seconds))) return json(res, 400, { error: "이어 만들 길이는 30·60·90초 중에서 골라 주세요." }, origin);
+        const src = isTrackId(sourceId) ? await ctx.library.fileOf(sourceId) : null;
+        if (!src) return json(res, 400, { error: "이 PC 보관함에 원곡 음원이 없습니다." }, origin);
+        if (!ctx.ffmpeg) return json(res, 501, { error: "이 PC에 ffmpeg가 없어 이어 만들 수 없습니다. 엔진을 다시 켜면 받습니다." }, origin);
+        const prep = await prepareExtendSource({ ffmpeg: ctx.ffmpeg, src, dir: ctx.queueSourceDir, seconds: Number(body.task.seconds) });
+        const allowed = ["prompt", "lyrics", "vocal_language", "thinking", "batch_size", "audio_format", "inference_steps"];
+        const clean = Object.fromEntries(allowed.filter((k) => fields[k] !== undefined).map((k) => [k, String(fields[k]).slice(0, 10000)]));
+        const editFields = { ...clean, task_type: "repaint", repainting_start: String(prep.range.start), repainting_end: String(prep.range.end), chunk_mask_mode: "explicit" };
+        const license = body.license === "noncommercial" ? "noncommercial" : "commercial"; // 원곡 사용 범위를 따른다
+        return json(res, 200, { job: await q.add({ ...meta, fields: editFields, source: { file: prep.file, name: path.basename(src) }, license }), range: prep.range }, origin);
+      }
       const meta = parseQueueMeta(body);
       if (imageOnly && meta?.kind !== "art") return json(res, 403, { error: "이미지 자동화에서는 그림 작업만 넣을 수 있습니다." }, origin);
       // 마스터링(0.6.9) — task { sourceId: 원곡 번호(이 PC 보관함), options } · 결과는 새 곡(kind master)

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Music2, Plus, Save, Trash2, Sparkles, AlertCircle, CheckCircle2, Mic, Piano, AudioLines, Wand2, ListMusic, Download, X } from "lucide-react";
-import { DEFAULT_DURATION, DEFAULT_SFX_DURATION, LIMITS, MUSIC_DURATIONS, SFX_DURATIONS, isSfxLyrics, type Song } from "@/lib/songs";
+import { DEFAULT_DURATION, DEFAULT_SFX_DURATION, LIMITS, MUSIC_DURATIONS, SFX_DURATIONS, isSfxLyrics, lyricLengthAdvice, type Song } from "@/lib/songs";
 import { DEFAULT_LYRIC_PROVIDER, LYRIC_PROVIDERS, type LyricProvider } from "@/lib/lyricModels";
 import { loadAiPrefs, type AiPrefs } from "@/lib/aiModelChoice";
 import { INSTRUMENTAL_LYRICS, PLAN_MAX, SFX_LYRICS, isInstrumentalLyrics, parseBannedInput, planChunks, type PlannedTrack } from "@/lib/lyricRules";
@@ -41,7 +41,7 @@ const NEW_DRAFT_KEY = "fms.unsavedDraft"; // 아직 저장 안 한 새 곡(이 �
 const field =
   "w-full rounded-xl border border-slate-700/60 bg-slate-950/80 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-400 focus:outline-hidden focus:ring-1 focus:ring-emerald-400";
 
-const durationLabel = (s: number) => (s < 60 ? `${s}초` : `${s / 60}분`);
+const durationLabel = (s: number) => (s < 60 ? `${s}초` : s % 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s / 60}분`);
 
 /** 곡 종류 — 노래 / 연주곡([Instrumental]) / 효과음([SFX], Stable Audio 3 전용, 2026-11-05) */
 type Mode = "vocal" | "instrumental" | "sfx";
@@ -1167,6 +1167,24 @@ export default function SongsPage() {
                 ))}
               </select>
             </div>
+            {!sfx && !instrumental && (() => {
+              // 2026-11-10: 가사가 고른 길이보다 길면 음악 모델이 끝에서 끊는다 — 만들기 전에 알림
+              const a = lyricLengthAdvice(draft.lyrics, draft.duration_sec);
+              if (!a) return null;
+              return (
+                <p className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] leading-relaxed text-amber-200">
+                  ⚠ 가사를 다 부르려면 약 {durationLabel(a.needed)} 정도가 필요해 보입니다. 지금 길이({durationLabel(draft.duration_sec)})로는 <b>끝이 잘릴 수 있습니다</b> ·{" "}
+                  {a.recommend ? (
+                    <button type="button" onClick={() => set("duration_sec", a.recommend!)} className="font-bold underline underline-offset-2 hover:text-white">
+                      {durationLabel(a.recommend)}로 바꾸기
+                    </button>
+                  ) : (
+                    "가사를 조금 줄여 주세요"
+                  )}
+                  {" "}(HeartMuLa는 4분까지). 이미 잘린 곡은 「모든 음악」 곡 메뉴의 「끝 이어 만들기」로 살릴 수 있습니다.
+                </p>
+              );
+            })()}
             {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={genre} onGenre={setGenre} tags={instrumental ? "" : lyricMoodPayload({ moods, tempo, vocals }).tags} subTag={subGenresOf(genre, instrumental).find((s) => s.ko === subGenre)?.en ?? ""} />}
             {/* 2026-11-09 주인님 「박스 위에 Style 태그 제목」「프리셋이 우선한다는 내용」 */}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-1">

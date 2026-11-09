@@ -722,6 +722,49 @@ export async function enqueueMaster(
   return (await res.json()).job;
 }
 
+/** 이 엔진이 끝 이어 만들기를 할 수 있는가(0.8.3+, ffmpeg 포함) */
+export function hasExtend(status: EngineStatus | null): boolean {
+  return !!status?.features?.includes("extend");
+}
+
+export const EXTEND_SECONDS = [30, 60, 90] as const;
+
+/** 원곡 가사의 마지막 구간([Chorus] 등 마지막 머리말부터) — 이어 만들기 가사 칸에 미리 채운다 */
+export function lastLyricSection(lyrics: string): string {
+  const text = String(lyrics ?? "").trim();
+  const i = text.lastIndexOf("\n[");
+  const tail = (i >= 0 ? text.slice(i + 1) : text).trim();
+  return /^\[(instrumental|sfx)\]$/i.test(tail) ? "" : tail.slice(0, 1500);
+}
+
+/** 이어 만들 가사 — 비우면 연주로 끝맺음, 머리말이 없으면 [Outro]를 붙인다 */
+export function extendLyrics(text: string): string {
+  const t = String(text ?? "").trim();
+  if (!t) return "[Outro]\n[Instrumental]";
+  return /^\[/.test(t) ? t : `[Outro]\n${t}`;
+}
+
+/**
+ * 끝 이어 만들기(0.8.3) — 보관함 곡 끝 뒤로 30·60·90초를 ACE-Step 부분 수정으로 이어 그린 새 곡(원곡은 그대로).
+ * 구간(원곡 끝 10초 전 ~ 새 끝)은 엔진이 원곡 길이를 재서 정한다.
+ */
+export async function enqueueExtend(
+  source: { id: string; title: string; style_prompt: string; lyrics: string; duration_sec: number; device: string; license: "commercial" | "noncommercial"; song_id: string | null },
+  opts: { seconds: (typeof EXTEND_SECONDS)[number]; style_prompt: string; lyrics: string },
+  quality?: EngineQuality | null
+): Promise<QueueJob> {
+  const lyrics = extendLyrics(opts.lyrics);
+  const fields = buildEditFields({ mode: "repaint", style_prompt: opts.style_prompt, lyrics, start: 0, end: 1 }, 2, quality);
+  const track: QueueTrack = { id: crypto.randomUUID(), song_id: source.song_id, style_prompt: opts.style_prompt, lyrics: source.lyrics, duration_sec: Math.round(source.duration_sec + opts.seconds), device: source.device, kind: "repaint", parent_id: source.id };
+  const title = `${source.title} (이어 만들기)`.slice(0, 80);
+  const res = await call("/queue", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "extend", title, track, task: { sourceId: source.id, seconds: opts.seconds, fields }, license: source.license }),
+  }, 60_000);
+  return (await res.json()).job;
+}
+
 /** 이 엔진이 YuE2 커버(원곡 멜로디 받아 적기)를 할 수 있는가(0.8.0+, 윈도우 + NVIDIA 8GB 이상) */
 export function hasYue2Cover(status: EngineStatus | null): boolean {
   return !!status?.features?.includes("yue2cover");
