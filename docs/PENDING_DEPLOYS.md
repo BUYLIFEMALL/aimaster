@@ -71,6 +71,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `free-music-studio` | v1.59 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「기존에 작업했던것과 함께 묶어서 배포해」, `free-music-studio-6ck2jt91u`, DB v1.59, 사이트만, 커밋된 코드만 `git archive`로 배포) | 곡 만들기 화면 메뉴 먹통 수정(`useEffect` 무한 반복), 「작업 대기열」 링크. ego 운영 확인 |
 | `free-music-studio` | v1.58 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「연주곡 분류 세분화 작업하고 모았다가 배포해」, `free-music-studio-mntb6juwx`, DB v1.58, 사이트만 — 실수로 같은 코드 빌드 2회) | 연주곡 장르 2단계(9개·세부 49개, AI 작곡 기획·프리셋 연동), 단계 막대·AI 작사 접기(C-36), 넓은 화면 배치(C-35). ego 운영 확인 |
 | `ai-image-studio` | v1.34 · 2026-11-09 ([역할: music], 같은 묶음, `ai-image-studio-lsnyhsput`, DB v1.34) | 「내 PC (무료)」로 그린 그림 갤러리 자동 저장(`/api/local-result`, 작업 종류 `image_local`)·갤러리 필터. ego 운영 확인 |
 | `playlist-channel-studio` | v1.38 · 2026-11-09 ([역할: music], 같은 묶음, `playlist-channel-studio-qyf2jm7xn`, DB v1.38) | P-6 추가 스티커 최대 3개(미리보기·MP4). ego 운영 확인 「추가 스티커 0/3」 |

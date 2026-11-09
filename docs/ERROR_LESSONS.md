@@ -7,6 +7,7 @@
 - 찾은 방법: 운영 화면에서는 오류가 안 보여 오래 걸림(덮는 요소 없음, 서버 응답 정상, React 루트에 끝나지 않는 전환 작업만 남음). **개발 서버(`next dev`)로 같은 화면을 열자 「Maximum update depth exceeded」 경고가 바로 쏟아져** 원인이 드러남
 - 해결: `engines`를 `useMemo(() => ..., [queueMode, status])`로 고정(엔진 상태가 바뀔 때만 새로 만듦). 개발 서버에서 경고 0건·곡→앨범→대기열→곡→모든 음악 이동 확인
 - 다음부터: (1) `useEffect`·`useMemo`·`useCallback`의 조건 배열에 `.filter()`·`.map()`·`[]`·`{}`·함수 결과처럼 **그릴 때마다 새로 생기는 값**을 넣지 않는다 — 넣어야 하면 그 값을 `useMemo`로 고정하거나 문자열 키(`ids.join(",")`)로 바꾼다. 효과 안에서 `setState`를 부르면 특히 위험 (2) 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 그 화면을 한 번 열어 브라우저 콘솔에 「Maximum update depth」 경고가 없는지 본다(운영판에서는 이 경고가 숨는다) (3) 「특정 화면에서만 메뉴·링크가 안 된다」는 신고는 먼저 이 반복 갱신을 의심한다. 개발 서버 띄우기: 루트 `.env.local`을 `process.loadEnvFile`로 읽어 `next dev` 실행(`--env-file`은 Next가 자식 프로세스에서 거부), 로그인은 운영 사이트의 `sb-` 쿠키를 localhost에 옮김. `next dev`는 프로그램 `AGENTS.md` 끝에 안내 블록을 덧붙이므로 끝나면 지운다
+- 배포할 때 같은 폴더에 다른 세션의 미커밋 변경이 있으면(`deploy.mjs`는 작업 폴더를 그대로 올려 막지 않음) 커밋된 코드만 꺼내 배포한다: `git archive HEAD <폴더> | tar -x -C <스크래치>` → `.vercel/` 복사 → git 제외 파일(예: `public/downloads/*.exe`)도 복사 → 그 폴더에서 `npx vercel deploy --prod --yes --scope buylife` → `node scripts/deploy.mjs <폴더> --version-only --set-version`
 
 ## 2026-11-09 배포 결과 줄을 다시 보려고 `deploy.mjs --go`를 한 번 더 실행해 같은 코드가 두 번 빌드됨 (`free-music-studio` v1.58, [역할: music])
 - 증상: 첫 실행 출력을 `tail`로 잘라 배포 주소 줄이 안 보이자 같은 명령을 다시 돌림 → Vercel에 같은 코드 배포 2개(`1amnrv8jp`·`mntb6juwx`), 빌드 1회 낭비

@@ -1,8 +1,8 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
-## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 곡 만들기 화면 왼쪽 메뉴 먹통 원인 찾아 수정(미배포 → 배포 승인 대기)
+## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 곡 만들기 화면 왼쪽 메뉴 먹통 원인 찾아 수정 → v1.59 배포 완료(`free-music-studio-6ck2jt91u`, ego 운영 확인)
 - 원인: `free-music-studio/src/components/engine/MultiVersionPanel.tsx`의 `useEffect` 조건 `[engines]`가 그릴 때마다 새 배열 → 상태 갱신 무한 반복 → Next.js 화면 이동이 끝나지 않음(v1.57부터). 해결: `engines`를 `useMemo`로 고정. 상세·재발 방지: `docs/ERROR_LESSONS.md` 2026-11-09 맨 위
-- 검수: 개발 서버(내 PC, 운영 DB·주인님 세션)에서 경고 0건, 곡→앨범→대기열→곡→모든 음악 이동 성공. tsc·시험 118 통과. 함께 대기: 상태 카드 「작업 대기열」 링크(`f1489f5e5`). 다음 배포 v1.59
+- 검수: 개발 서버(내 PC, 운영 DB·주인님 세션)에서 경고 0건, 곡→앨범→대기열→곡→모든 음악 이동 성공. tsc·시험 118 통과. 함께 배포: 상태 카드 「작업 대기열」 링크. 같은 폴더의 다른 세션 미커밋 변경(`AlbumArtPanel.tsx`·엔진 `imageArt.mjs`)은 섞지 않으려고 커밋된 코드만 `git archive`로 꺼내 배포 — 그 변경은 아직 운영에 없음
 - https://free-music-studio.buylife.xyz/songs
 
 ## 2026-11-09 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 연주곡 분류 세분화 + 미배포 3개 프로그램 순차 배포
