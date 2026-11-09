@@ -473,7 +473,7 @@ export function EditStudio() {
           const vb = await fetchBlob(vurl);
           voice = { src: URL.createObjectURL(vb), duration: s.voice.duration, starts: s.voice.starts, mime: s.voice.mime, path: s.voice.path };
         }
-        clips.push({ id: s.id, src: URL.createObjectURL(blob), name: s.name, duration: s.duration, trimStart: s.trimStart, trimEnd: s.trimEnd, hold: s.hold ?? 0, caption: s.caption, narration: s.narration, source: s.source, voice });
+        clips.push({ id: s.id, src: URL.createObjectURL(blob), name: s.name, duration: s.duration, trimStart: s.trimStart, trimEnd: s.trimEnd, hold: s.hold ?? 0, ...(s.fit === "blur" ? { fit: "blur" as const } : {}), caption: s.caption, narration: s.narration, source: s.source, voice });
       }
       let music: EditProject["music"] = null;
       if (saved.music && urls.music) {
@@ -777,6 +777,8 @@ export function EditStudio() {
                     <span className="rounded-md bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-300">{i + 1}</span>
                     <p className="min-w-0 flex-1 truncate text-sm text-zinc-200" title={c.name}>{c.name}</p>
                     <span className="text-[11px] text-zinc-500">{sec(sceneSeconds(c))}{(c.hold ?? 0) > 0 ? ` (늘림 +${sec(c.hold ?? 0)})` : ""} / 원본 {sec(c.duration)}</span>
+                    <button type="button" disabled={isBusy} title={c.fit === "blur" ? "지금: 전체 보이기(흐린 배경) — 누르면 꽉 채우기" : "지금: 꽉 채우기(가장자리 잘림) — 누르면 전체 보이기"} onClick={() => patchClip(c.id, { fit: c.fit === "blur" ? undefined : "blur" })}
+                      className={`rounded-lg px-2 py-1 text-[11px] ${c.fit === "blur" ? "bg-sky-500/15 text-sky-300" : "text-zinc-400 hover:bg-zinc-800"} disabled:opacity-30`}>{c.fit === "blur" ? "전체 보이기" : "꽉 채우기"}</button>
                     <button type="button" aria-label="앞으로" disabled={isBusy || i === 0} onClick={() => moveClip(c.id, i - 1)} className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 disabled:opacity-30"><ArrowUp className="h-4 w-4" /></button>
                     <button type="button" aria-label="뒤로" disabled={isBusy || i === project.clips.length - 1} onClick={() => moveClip(c.id, i + 1)} className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 disabled:opacity-30"><ArrowDown className="h-4 w-4" /></button>
                     <button type="button" aria-label="빼기" disabled={isBusy} onClick={() => removeClip(c.id)} className="rounded-lg p-1.5 text-zinc-400 hover:bg-rose-500/10 hover:text-rose-300 disabled:opacity-30"><Trash2 className="h-4 w-4" /></button>
@@ -949,6 +951,13 @@ export function EditStudio() {
           <div className="space-y-2">
             <p className="text-xs font-medium text-zinc-300">화면 비율</p>
             <div className="flex flex-wrap gap-2">{ASPECTS.map((a) => <button key={a.id} type="button" disabled={isBusy} className={chip(project.aspect === a.id)} onClick={() => patch({ aspect: a.id })}>{a.label}</button>)}</div>
+            {/* 2026-11-09 비율이 다른 영상·사진 맞추기 — 모든 장면에 한 번에(장면마다는 장면 카드의 단추) */}
+            <p className="pt-1 text-xs font-medium text-zinc-300">비율이 다른 장면</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" disabled={isBusy || !project.clips.length} className={chip(project.clips.length > 0 && project.clips.every((c) => c.fit !== "blur"))} onClick={() => setProject((cur) => ({ ...cur, clips: cur.clips.map((c) => ({ ...c, fit: undefined })) }))}>꽉 채우기(가장자리 잘림)</button>
+              <button type="button" disabled={isBusy || !project.clips.length} className={chip(project.clips.length > 0 && project.clips.every((c) => c.fit === "blur"))} onClick={() => setProject((cur) => ({ ...cur, clips: cur.clips.map((c) => ({ ...c, fit: "blur" as const })) }))}>전체 보이기(흐린 배경)</button>
+            </div>
+            <p className="text-[11px] text-zinc-500">가로 영상을 세로(9:16)로 넣을 때 「전체 보이기」를 고르면 잘리지 않고 위아래에 같은 영상이 흐리게 깔립니다. 영상을 두 번 그려 만들기가 조금 느려집니다.</p>
           </div>
           <div className="space-y-2">
             <p className="text-xs font-medium text-zinc-300">화질</p>

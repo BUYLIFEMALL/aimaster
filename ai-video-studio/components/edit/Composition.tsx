@@ -30,6 +30,10 @@ function fontFor(lang: EditLang = "ko"): string {
 
 export type EditCompositionProps = { project: EditProject };
 
+// 전체 보이기(흐린 배경)용 — 겹쳐 그리려고 절대 위치
+const FULL = { position: "absolute", inset: 0 } as const;
+const BLUR = "blur(28px) brightness(0.6)";
+
 const FILL: Record<CaptionStyle, string> = { band: "#ffffff", yellow: "#ffe14d", outline: "#ffffff", pop: "#7dd3fc" };
 
 function Caption({ text, project, width, height }: { text: string; project: EditProject; width: number; height: number }) {
@@ -65,13 +69,21 @@ function Scene({ seg, project, width, height }: { seg: Segment; project: EditPro
   // 내레이션에 맞춰 늘린 장면(hold)은 영상을 반복 재생 — 뒤 자르기가 있으면 남은 구간만 반복
   const held = (seg.clip.hold ?? 0) > 0;
   const trimAfter = held && seg.clip.trimEnd > 0 ? Math.round((seg.clip.duration - seg.clip.trimEnd) * FPS) : undefined;
+  const blur = seg.clip.fit === "blur";
   return (
     <AbsoluteFill style={{ opacity: segmentOpacity(frame, seg, project.transition) }}>
       {seg.clip.kind === "image" ? (
-        // 사진 장면: 장면 동안 1.0 → 1.08배로 천천히 확대
-        <Img src={seg.clip.src} style={{ width, height, objectFit: "cover", transform: `scale(${interpolate(frame, [0, seg.durationInFrames], [1, 1.08])})` }} />
+        // 사진 장면: 장면 동안 1.0 → 1.08배로 천천히 확대(전체 보이기면 뒤에 같은 사진을 흐리게 깔고 앞은 잘리지 않게)
+        <>
+          {blur && <Img src={seg.clip.src} style={{ ...FULL, width, height, objectFit: "cover", filter: BLUR }} />}
+          <Img src={seg.clip.src} style={{ ...FULL, width, height, objectFit: blur ? "contain" : "cover", transform: `scale(${interpolate(frame, [0, seg.durationInFrames], [1, 1.08])})` }} />
+        </>
       ) : (
-        <Video src={seg.clip.src} trimBefore={seg.trimBeforeFrames || undefined} trimAfter={trimAfter} muted={!project.clipAudio} loop={seg.clip.loop || held} objectFit="cover" style={{ width, height }} />
+        <>
+          {/* 2026-11-09 전체 보이기: 뒤에 같은 영상(소리 없음)을 꽉 채워 흐리게, 앞 영상은 잘리지 않게 — 영상을 두 번 그려 렌더가 조금 느려짐 */}
+          {blur && <Video src={seg.clip.src} trimBefore={seg.trimBeforeFrames || undefined} trimAfter={trimAfter} muted loop={seg.clip.loop || held} objectFit="cover" style={{ ...FULL, width, height, filter: BLUR }} />}
+          <Video src={seg.clip.src} trimBefore={seg.trimBeforeFrames || undefined} trimAfter={trimAfter} muted={!project.clipAudio} loop={seg.clip.loop || held} objectFit={blur ? "contain" : "cover"} style={{ ...FULL, width, height }} />
+        </>
       )}
       {seg.clip.voice && <Audio src={seg.clip.voice.src} />}
       {caption && <Caption text={caption.text} project={project} width={width} height={height} />}

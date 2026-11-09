@@ -200,3 +200,15 @@ test("v1.07 겹쳐 바꾸기(crossfade): 앞뒤 장면 0.5초 겹침, 짧은 장
   // 저장 형식에 crossfade가 남는다
   assert.equal(sanitizeSaved(toSaved(p, {}), "u/").transition, "crossfade");
 });
+
+// 2026-11-09 비율이 다른 장면 맞추기 — 전체 보이기(흐린 배경)만 저장하고, 기본(꽉 채우기)은 칸을 남기지 않는다
+test("장면 맞춤: blur는 저장·되읽기에서 남고, 그 밖의 값은 버린다", () => {
+  const clip = (id, fit) => ({ id, src: "blob:x", name: id, duration: 4, trimStart: 0, trimEnd: 0, caption: "", ...(fit ? { fit } : {}) });
+  const p = { clips: [clip("a", "blur"), clip("b"), clip("c", "cover")], aspect: "9:16", quality: "720p", transition: "fade", captionPosition: "bottom", captionStyle: "band", captionSize: "m", clipAudio: false, music: null };
+  const saved = toSaved(p, {});
+  assert.equal(saved.clips[0].fit, "blur");
+  assert.equal("fit" in saved.clips[1], false);
+  assert.equal("fit" in saved.clips[2], false);
+  const back = sanitizeSaved({ ...saved, clips: [...saved.clips, { ...saved.clips[1], id: "d", fit: "stretch" }] }, "u/");
+  assert.deepEqual(back.clips.map((c) => c.fit), ["blur", undefined, undefined, undefined]);
+});

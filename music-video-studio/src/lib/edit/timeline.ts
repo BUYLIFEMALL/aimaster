@@ -69,7 +69,10 @@ export interface EditClip {
   voice?: ClipVoice | null;
   /** 남은 구간 뒤로 장면을 더 보여 줄 초(내레이션에 맞추기) — 영상은 반복 재생, 사진은 계속 확대 */
   hold?: number;
+  /** 2026-11-09 화면 비율이 다를 때 — cover(기본): 가운데를 잘라 꽉 채움, blur: 전체를 보이고 남는 곳은 같은 영상을 흐리게 깔기 */
+  fit?: ClipFit;
 }
+export type ClipFit = "cover" | "blur";
 
 export interface EditMusic {
   src: string;
@@ -326,7 +329,7 @@ export function fitAllToVoice<P extends Pick<EditProject, "clips"> & { transitio
 }
 
 // ── 편집 저장 형식(브라우저 blob 주소는 저장하지 않음) ──
-export interface SavedClip { id: string; name: string; duration: number; trimStart: number; trimEnd: number; hold?: number; caption: string; narration: string; source: ClipSource; voice: { path: string; duration: number; starts: number[] | null; mime: string } | null }
+export interface SavedClip { id: string; name: string; duration: number; trimStart: number; trimEnd: number; hold?: number; fit?: "blur"; caption: string; narration: string; source: ClipSource; voice: { path: string; duration: number; starts: number[] | null; mime: string } | null }
 export interface SavedProject {
   v: 1;
   clips: SavedClip[];
@@ -340,7 +343,7 @@ export function toSaved(p: EditProject, voicePaths: Record<string, string>): Sav
   return {
     v: 1,
     clips: p.clips.map((c) => ({
-      id: c.id, name: c.name.slice(0, 120), duration: c.duration, trimStart: c.trimStart, trimEnd: c.trimEnd, hold: holdOf(c), caption: c.caption.slice(0, 200), narration: (c.narration ?? "").slice(0, 1000),
+      id: c.id, name: c.name.slice(0, 120), duration: c.duration, trimStart: c.trimStart, trimEnd: c.trimEnd, hold: holdOf(c), ...(c.fit === "blur" ? { fit: "blur" as const } : {}), caption: c.caption.slice(0, 200), narration: (c.narration ?? "").slice(0, 1000),
       source: c.source ?? { kind: "local" },
       voice: c.voice && (voicePaths[c.id] || c.voice.path) ? { path: voicePaths[c.id] || (c.voice.path as string), duration: c.voice.duration, starts: c.voice.starts, mime: c.voice.mime } : null,
     })),
@@ -371,7 +374,7 @@ export function sanitizeSaved(raw: unknown, userPrefix: string): SavedProject | 
     const v = c.voice as Record<string, unknown> | null | undefined;
     const voicePath = v && typeof v.path === "string" && v.path.startsWith(userPrefix) && !v.path.includes("..") ? v.path : null;
     clips.push({
-      id: str(c.id, 64) || "clip", name: str(c.name, 120), duration: num(c.duration, 0, 600, 0), trimStart: num(c.trimStart, 0, 600, 0), trimEnd: num(c.trimEnd, 0, 600, 0), hold: num(c.hold, 0, MAX_TOTAL_S, 0),
+      id: str(c.id, 64) || "clip", name: str(c.name, 120), duration: num(c.duration, 0, 600, 0), trimStart: num(c.trimStart, 0, 600, 0), trimEnd: num(c.trimEnd, 0, 600, 0), hold: num(c.hold, 0, MAX_TOTAL_S, 0), ...(c.fit === "blur" ? { fit: "blur" as const } : {}),
       caption: str(c.caption, 200), narration: str(c.narration, 1000), source,
       voice: voicePath && v ? { path: voicePath, duration: num(v.duration, 0, 600, 0), starts: Array.isArray(v.starts) ? (v.starts as unknown[]).filter((x): x is number => typeof x === "number").slice(0, 400) : null, mime: v.mime === "audio/wav" ? "audio/wav" : "audio/mpeg" } : null,
     });
