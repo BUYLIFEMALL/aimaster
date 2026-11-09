@@ -36,6 +36,8 @@ export function LocalPcImagePanel({ prompt }: { prompt: string }) {
   const [stage, setStage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ url: string; model?: string; seconds?: number; vram?: number | null } | null>(null);
+  // 2026-11-09 주인님 「진행해」 — 그린 그림을 갤러리에 저장(/api/local-result, 작업 종류 image_local)
+  const [saved, setSaved] = useState<"" | "saving" | "saved" | "failed">("");
   const poll = useRef<number | null>(null);
 
   const refresh = useCallback(async () => {
@@ -75,6 +77,7 @@ export function LocalPcImagePanel({ prompt }: { prompt: string }) {
     if (!prompt.trim()) return setError("그릴 그림의 영어 프롬프트를 입력해 주세요.");
     setError(null);
     setResult(null);
+    setSaved("");
     try {
       const job = await enqueueArt(prompt.trim(), variantId || undefined);
       setJobId(job.id);
@@ -89,6 +92,7 @@ export function LocalPcImagePanel({ prompt }: { prompt: string }) {
             const blob = await fetchArt(job.id);
             setResult({ url: URL.createObjectURL(blob), model: j.result?.model, seconds: j.result?.seconds, vram: j.result?.vramPeakGb });
             setJobId("");
+            void saveToGallery(blob, { model: j.result?.model, seconds: j.result?.seconds, vramPeakGb: j.result?.vramPeakGb ?? undefined });
           } else if (j.status === "failed" || j.status === "cancelled" || j.status === "interrupted") {
             window.clearInterval(poll.current!);
             setError(j.error || (j.status === "cancelled" ? "그리기를 취소했습니다." : "그림을 그리지 못했습니다."));
@@ -103,6 +107,26 @@ export function LocalPcImagePanel({ prompt }: { prompt: string }) {
     } catch (e) {
       if (e instanceof LocalEngineError && e.needPair) setPaired(false);
       setError(e instanceof Error ? e.message : "그리기를 시작하지 못했습니다.");
+    }
+  };
+
+  const saveToGallery = async (blob: Blob, meta: { model?: string; seconds?: number; vramPeakGb?: number }) => {
+    setSaved("saving");
+    try {
+      const dataUrl = await new Promise<string>((ok, bad) => {
+        const r = new FileReader();
+        r.onload = () => ok(String(r.result));
+        r.onerror = () => bad(r.error);
+        r.readAsDataURL(blob);
+      });
+      const res = await fetch("/api/local-result", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ base64: dataUrl.slice(dataUrl.indexOf(",") + 1), prompt: prompt.trim(), ...meta }),
+      });
+      setSaved(res.ok ? "saved" : "failed");
+    } catch {
+      setSaved("failed");
     }
   };
 
@@ -232,6 +256,9 @@ export function LocalPcImagePanel({ prompt }: { prompt: string }) {
               {result.model}
               {result.seconds != null ? ` · ${result.seconds}초` : ""}
               {result.vram != null ? ` · 그래픽 메모리 최대 ${result.vram}GB` : ""}
+            </span>
+            <span className={saved === "failed" ? "text-red-300" : "text-emerald-300"}>
+              {saved === "saving" ? "갤러리에 저장하는 중…" : saved === "saved" ? <a href="/gallery" className="underline">갤러리에 저장됨 →</a> : saved === "failed" ? "갤러리 저장 실패(그림 받기는 됩니다)" : ""}
             </span>
             <a href={result.url} download={`local-pc-${Date.now()}.png`} className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 font-bold text-zinc-950">
               <Download className="h-3.5 w-3.5" /> 그림 받기(PNG)

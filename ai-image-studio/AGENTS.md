@@ -1,3 +1,5 @@
+> **미배포 대기(2026-11-09, [역할: music] `claude-win-20261024-music`, 주인님 「진행해」 — D-3 후속): 「내 PC(무료)」로 그린 그림을 갤러리에 자동 저장** — 새 API `app/api/local-result`(PNG만·4MB 안, 본인 폴더 저장, `usage_logs` 작업 종류 `image_local` → 갤러리에 보이고 관리자 생성 통계에는 안 섞임), 패널은 완성되면 저장하고 「갤러리에 저장됨 →」 표시, 갤러리 이름표·필터 「내 PC (무료)」. tsc·로컬 빌드. 버전은 실제 배포 때 v1.34.
+
 > **v1.33 배포(2026-11-09, `ai-image-studio-l5k8gtx08`, DB v1.33, ego 운영 확인 「내 PC (무료)」 카드, 함께 나간 대기: 30일 정리 예외 회원 건너뛰기) · [역할: music] `claude-win-20261024-music`, 주인님 「D-3 진행해」→「1안으로 진행해」): 「내 PC(무료)」 플랫폼** — 이미지 생성 단계에 카드 추가. 회원 PC의 「AI 무료음악 엔진」(그림도 그림, 0.8.1+)에 브라우저가 직접 연결(연결 코드 6자리, 토큰은 이 사이트 localStorage)해 받아 둔 판(Z-Image Turbo·FLUX.2 klein, Apache-2.0 상업용 가능)으로 그림 — 키·요금 없음, 서버 생성 API(`/api/generate`)를 거치지 않음, 모델은 음악 프로그램과 같은 `ImageModels` 폴더를 그대로 씀(D-3 공용 폴더). 엔진은 이 사이트에 그림 주소만 허용. 코드: `lib/localEngine.ts`, `components/LocalPcImagePanel.tsx`, `Step2PlatformGenerator.tsx`(카드·패널). 생성 기록·갤러리 저장은 아직 없음(결과는 PNG 받기). tsc·로컬 빌드. 엔진 0.8.1 설치 파일은 AI 무료음악 자동화 v1.57로 함께 배포.
 
 # AI 이미지 스튜디오 (ai-image-studio) — AI 에이전트 인수인계 문서 (AGENTS.md)

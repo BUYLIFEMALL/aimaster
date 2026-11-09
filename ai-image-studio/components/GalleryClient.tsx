@@ -48,6 +48,7 @@ const PROVIDER_NAMES: Record<string, string> = {
   replicate: "Replicate (FLUX / Recraft)",
   stability: "Stability AI",
   "image-convert-studio": "이미지 변환 스튜디오", // 변환 스튜디오에서 다시 저장한 그림(image_import)
+  "local-pc": "내 PC (무료)", // 2026-11-09 회원 PC 엔진으로 그린 그림(image_local)
 };
 
 const MODEL_NAMES: Record<string, string> = {
@@ -297,6 +298,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
     { id: "gemini", label: "Google Gemini (Nanobanana)" },
     { id: "replicate", label: "Replicate (FLUX / Recraft / SDXL)" },
     { id: "stability", label: "Stability AI" },
+    { id: "local-pc", label: "내 PC (무료)" },
   ];
 
   const currentModelList = MODEL_FILTER_MAP[selectedProvider] || MODEL_FILTER_MAP.all;
