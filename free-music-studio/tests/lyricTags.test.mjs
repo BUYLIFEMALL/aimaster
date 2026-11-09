@@ -39,7 +39,25 @@ test("보낼 값: 한국어 분위기(60자 안) + 영어 태그(분위기·빠�
   assert.deepEqual(toggleMany(["a", "b"], "c", 2), ["a", "b"]);
 });
 
-import { GENRE_GROUPS, genreLabel, subGenresOf } from "../src/lib/lyricTags.ts";
+import { GENRE_GROUPS, INSTRUMENTAL_GENRE_GROUPS, INSTRUMENTAL_GENRES, genreLabel, instrumentalGenreHint, subGenresOf } from "../src/lib/lyricTags.ts";
+
+test("연주곡 장르: 대분류 = 연주곡 프리셋 분류와 똑같고, 대분류마다 세부 5개 이상, 이름 겹침 없음, 영어 태그", () => {
+  const cats = [...new Set(PRESETS.filter((x) => x.mode === "instrumental").map((p) => p.category))];
+  assert.deepEqual([...INSTRUMENTAL_GENRES].sort(), cats.sort());
+  const all = INSTRUMENTAL_GENRE_GROUPS.flatMap((g) => g.subs);
+  assert.equal(new Set(all.map((s) => s.ko)).size, all.length);
+  for (const g of INSTRUMENTAL_GENRE_GROUPS) assert.ok(g.subs.length >= 5, g.ko);
+  for (const s of all) assert.match(s.en, /^[a-z0-9][a-z0-9 &'-]+$/, s.ko);
+});
+
+test("연주곡 장르 보낼 값: 같은 대분류 이름이라도 세부는 연주곡표에서 찾고, 기획 글에는 영어 태그를 붙인다", () => {
+  assert.equal(subGenresOf("재즈·블루스", true)[0].ko, "재즈 피아노 트리오");
+  assert.equal(genreLabel("재즈·블루스", "스윙", true), "재즈·블루스");
+  assert.equal(instrumentalGenreHint("재즈·블루스", "보사노바 연주"), "재즈·블루스 · 보사노바 연주 (bossa nova instrumental)");
+  assert.equal(instrumentalGenreHint("앰비언트·휴식", ""), "앰비언트·휴식");
+  assert.equal(instrumentalGenreHint("K-POP", "아이돌 댄스"), "");
+  for (const g of INSTRUMENTAL_GENRE_GROUPS) for (const s of g.subs) assert.ok(instrumentalGenreHint(g.ko, s.ko).length <= 80);
+});
 
 test("세부 장르: 대분류마다 3개 이상, 이름 겹침 없음, 영어 태그, 노래 프리셋 분류는 모두 대분류에 있다", () => {
   assert.ok(GENRE_GROUPS.length >= 12);

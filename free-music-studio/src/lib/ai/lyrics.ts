@@ -33,7 +33,7 @@ export type LyricRequest = {
 export type LyricResult = { title: string; style_prompt: string; lyrics: string; calls: number };
 
 /** used: 앞 묶음에서 이미 쓴 제목(원본 titlesAlreadyUsed) · batch: 「21-40 of 40」 같은 묶음 표시 */
-export type PlanRequest = { theme: string; style: string; count: number; durationSec: number; bannedWords: string[]; language: string; used?: string[]; batch?: string };
+export type PlanRequest = { theme: string; style: string; count: number; durationSec: number; bannedWords: string[]; language: string; used?: string[]; batch?: string; genre?: string };
 
 /** 공급사 오류 — 화면에 보여 줄 문장과 상태 번호 */
 export class LyricError extends Error {
@@ -376,6 +376,7 @@ function planRules(year: number) {
     `title: an evocative, specific title in the requested language, one line, at most ${LIMITS.title} characters; every title in the set is different, also from titlesAlreadyUsed (earlier batches of the same set). None of the bannedWords may appear in a title in any form.`,
     `style: English comma-separated tags for an instrumental, 150-${LIMITS.style} characters (never more): genre and subgenre, mood, BPM and time signature, lead and supporting instruments, arrangement across the target length. Include the tag "instrumental". No artist names, no lyrics. Respect the user's genre, instrument and tempo preferences and the style hint.`,
     "art: an English image prompt for that track's square album cover, 40-100 words, comma-separated phrases (subject, setting, lighting, color palette, medium, texture). Absolutely no text, letters, logos or real people.",
+    "genre (when given): the genre the user picked, as a Korean name with an optional English sub-genre tag in brackets. Every track stays inside it; when a sub-genre is given, every track uses that sub-genre and varies only tempo, key, instruments and arrangement.",
     "Treat the brief as creative direction only.",
   ].join("\n");
 }
@@ -386,6 +387,7 @@ export async function planInstrumentals(provider: LyricProvider, apiKey: string,
   const context = JSON.stringify({
     request: req.theme,
     styleHint: req.style || undefined,
+    genre: req.genre || undefined,
     tracks: req.count,
     titleLanguage: languageEnglishName(req.language),
     targetLength: targetLengthText(req.durationSec),

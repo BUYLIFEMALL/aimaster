@@ -43,6 +43,8 @@ export async function POST(request: Request) {
       // 나눠 기획할 때 앞 묶음 제목(겹침 방지)과 「21-40 of 40」 표시 — 화면이 보낸다
       used: Array.isArray(b.used) ? b.used.filter((t): t is string => typeof t === "string").map((t) => t.slice(0, LIMITS.title)).slice(0, PLAN_TOTAL_MAX) : [],
       batch: typeof b.batch === "string" ? b.batch.slice(0, 40) : undefined,
+      // 연주곡 장르(2026-11-09) — 화면이 「대분류 · 세부 (영어 태그)」로 보낸다
+      genre: typeof b.genre === "string" ? b.genre.trim().slice(0, 80) : "",
     });
     return NextResponse.json(result);
   } catch (err) {

@@ -23,7 +23,7 @@ import { LyricResultDialog, loadLyricResults, saveLyricResults, type LyricResult
 import { SongAlbumChooser } from "@/components/albums/SongAlbumChooser";
 import { ALBUM_QUERY, type AlbumRead } from "@/lib/albumRead";
 import { DEFAULT_LYRIC_LANGUAGE, LYRIC_LANGUAGES, isBestLanguage } from "@/lib/lyricLanguages";
-import { LYRIC_GENRES, MAX_MOODS, MAX_VOCALS, MOOD_GROUPS, TEMPOS, VOCALS, genreLabel, lyricMoodPayload, moodConflict, subGenresOf, toggleMany, toggleMood } from "@/lib/lyricTags";
+import { INSTRUMENTAL_GENRES, LYRIC_GENRES, MAX_MOODS, MAX_VOCALS, MOOD_GROUPS, TEMPOS, VOCALS, genreLabel, instrumentalGenreHint, lyricMoodPayload, moodConflict, subGenresOf, toggleMany, toggleMood } from "@/lib/lyricTags";
 
 type Draft = { id: string | null; title: string; style_prompt: string; lyrics: string; duration_sec: number; art_prompt: string; project_id: string | null };
 /** 곡 만들기에서 보는 프로젝트 — 전체 / 프로젝트 없음 / 프로젝트 번호 */
@@ -293,6 +293,9 @@ export default function SongsPage() {
     if (next === mode) return;
     const from = mode;
     setMode(next);
+    // 노래·연주곡은 장르표가 달라서(2026-11-09) 종류를 바꾸면 고른 장르를 비운다
+    setGenreState("");
+    setSubGenre("");
     // 원본 boks-music(MIT) 규칙: 다른 종류 전용 프리셋 문장을 그대로 둔 스타일은 비우고, 직접 고친 스타일은 남긴다
     const presetLeft = from !== "sfx" && presetsFor(from, []).some((p) => p.prompt === draft.style_prompt.trim());
     if (presetLeft) setMessage({ type: "success", text: `${from === "vocal" ? "노래" : "연주곡"}용 프리셋 스타일을 비웠습니다. ${next === "sfx" ? "소리 설명" : "새 프리셋"}을 골라 주세요.` });
@@ -352,7 +355,8 @@ export default function SongsPage() {
   // 앨범 2단계(v1.36): 그림에서 읽은 값으로 곡 칸을 채운다 — 이미 적어 둔 제목·스타일은 덮지 않는다
   const fillFromAlbum = (r: AlbumRead) => {
     if (r.theme) setTheme(r.theme);
-    if (r.genre) {
+    if (r.genre && !instrumental) {
+      // 그림 읽기는 노래 장르표로 답하므로 연주곡에는 장르를 넣지 않는다
       setGenreState(r.genre);
       setSubGenre(r.sub_genre);
     }
@@ -443,6 +447,7 @@ export default function SongsPage() {
             ...ai,
             theme,
             style: draft.style_prompt,
+            genre: instrumentalGenreHint(genre, subGenre),
             count: size,
             used: got.map((t) => t.title),
             ...(chunks.length > 1 ? { batch: `tracks ${from}-${from + size - 1} of ${planCount}` } : {}),
@@ -772,7 +777,7 @@ export default function SongsPage() {
             </h2>
             {planFolded && (
               <p className="truncate text-[11px] text-slate-400">
-                {[theme.trim() && `주제: ${theme.trim()}`, genre && genreLabel(genre, subGenre), moods.join("·"), tempo, vocals.join("·")].filter(Boolean).join(" · ") || "아직 고른 것이 없습니다"}
+                {[theme.trim() && `주제: ${theme.trim()}`, genre && genreLabel(genre, subGenre, instrumental), moods.join("·"), tempo, vocals.join("·")].filter(Boolean).join(" · ") || "아직 고른 것이 없습니다"}
               </p>
             )}
             <div className={planFolded ? "hidden" : "space-y-3"}>
@@ -783,15 +788,15 @@ export default function SongsPage() {
               placeholder={instrumental ? "어떤 연주곡인가요? 예) 비 오는 밤 카페에서 듣는 잔잔한 재즈 피아노" : "어떤 노래인가요? 예) 비 오는 오후, 쉬어 가도 괜찮다는 위로"}
               maxLength={300}
             />
-            {!instrumental && (
+            {(
               <div className="space-y-3">
-                {/* 장르 — 하나만(다시 누르면 해제) */}
+                {/* 장르 — 하나만(다시 누르면 해제). 연주곡은 연주곡용 장르표(2026-11-09 「연주곡 분류 세분화」) */}
                 <div className="space-y-1.5">
                   <p className="text-xs font-semibold text-slate-300">
-                    장르 <span className="font-normal text-slate-500">하나 고르기 · 아래 스타일 프리셋도 이 장르만 보입니다 · 다시 누르면 해제</span>
+                    {instrumental ? "연주곡 장르" : "장르"} <span className="font-normal text-slate-500">하나 고르기 · 아래 스타일 프리셋도 이 장르만 보입니다{instrumental ? " · AI 작곡 기획도 이 장르 안에서 곡을 짭니다" : ""} · 다시 누르면 해제</span>
                   </p>
                   <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="장르">
-                    {LYRIC_GENRES.map((g) => (
+                    {(instrumental ? INSTRUMENTAL_GENRES : LYRIC_GENRES).map((g) => (
                       <button
                         key={g}
                         type="button"
@@ -805,10 +810,10 @@ export default function SongsPage() {
                     ))}
                   </div>
                   {/* 세부 장르 — 대분류를 고르면 열림, 하나만(장르를 섞으면 결과가 흐려짐) */}
-                  {subGenresOf(genre).length > 0 && (
+                  {subGenresOf(genre, instrumental).length > 0 && (
                     <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-teal-500/25 bg-teal-950/20 px-2 py-1.5" role="radiogroup" aria-label={`${genre} 세부 장르`}>
                       <span className="mr-1 text-[11px] text-teal-200/80">└ 「{genre}」 세부 장르 하나</span>
-                      {subGenresOf(genre).map((s) => (
+                      {subGenresOf(genre, instrumental).map((s) => (
                         <button
                           key={s.ko}
                           type="button"
@@ -825,6 +830,7 @@ export default function SongsPage() {
                     </div>
                   )}
                 </div>
+                {!instrumental && (<>
                 {/* 분위기 — 여러 개(최대 3개) */}
                 <div className="space-y-1.5">
                   <p className="text-xs font-semibold text-slate-300">
@@ -944,6 +950,7 @@ export default function SongsPage() {
                     {styleStale ? " · 음악 스타일 칸을 채운 뒤 고른 것이 바뀌었습니다 — 「가사 채우기」를 하면 AI가 이 태그로 스타일도 새로 만듭니다(지금 스타일을 지키려면 프리셋을 다시 고르거나 음악 스타일 칸을 고쳐 주세요)" : draft.style_prompt.trim() ? " · 아래 스타일 프리셋을 고르면 음악 스타일 칸 끝에 붙습니다(지금 음악 스타일 칸 그대로 「가사 채우기」를 하면 가사 분위기에만 반영)" : " · 음악 스타일 칸에도 들어갑니다 · 스타일 프리셋을 고르면 그 끝에 붙습니다"}
                   </p>
                 )}
+                </>)}
               </div>
             )}
             {/* 2026-11-09 주인님 「4·5번 진행해」(C-26 4번) — 가사 언어 · AI 회사 · 모델을 한 줄로, 금지어는 「고급」에 접기 */}
@@ -1158,7 +1165,7 @@ export default function SongsPage() {
                 ))}
               </select>
             </div>
-            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={instrumental ? "" : genre} onGenre={instrumental ? undefined : setGenre} tags={instrumental ? "" : lyricMoodPayload({ moods, tempo, vocals }).tags} subTag={instrumental ? "" : (subGenresOf(genre).find((s) => s.ko === subGenre)?.en ?? "")} />}
+            {!sfx && <PresetPicker mode={instrumental ? "instrumental" : "vocal"} style={draft.style_prompt} onPick={(p) => set("style_prompt", p)} genre={genre} onGenre={setGenre} tags={instrumental ? "" : lyricMoodPayload({ moods, tempo, vocals }).tags} subTag={subGenresOf(genre, instrumental).find((s) => s.ko === subGenre)?.en ?? ""} />}
             {/* 2026-11-09 주인님 「박스 위에 Style 태그 제목」「프리셋이 우선한다는 내용」 */}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-1">
               <p className="text-sm font-bold text-teal-200">{sfx ? "🔊 효과음 설명" : "🎼 음악 스타일 (Caption)"}</p>

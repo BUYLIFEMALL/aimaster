@@ -27,16 +27,41 @@ export const GENRE_GROUPS: readonly GenreGroup[] = [
   { ko: "어린이·종교 음악", subs: [{ ko: "동요", en: "children's song" }, { ko: "CCM·워십", en: "contemporary worship" }, { ko: "가스펠", en: "gospel" }] },
 ];
 
+/**
+ * 연주곡 장르 2단계(2026-11-09 주인님 「연주곡 분류 세분화」) — 대분류 = 연주곡용 스타일 프리셋 분류 9개(프리셋 카드와 함께 움직임),
+ * 세부 장르 = ACE-Step 스타일 태그(영어). 노래 장르와 이름이 같은 대분류(재즈·블루스)도 세부는 연주곡용으로 따로 둔다.
+ */
+export const INSTRUMENTAL_GENRE_GROUPS: readonly GenreGroup[] = [
+  { ko: "재즈·블루스", subs: [{ ko: "재즈 피아노 트리오", en: "jazz piano trio" }, { ko: "스무스 재즈", en: "smooth jazz" }, { ko: "보사노바 연주", en: "bossa nova instrumental" }, { ko: "비밥", en: "bebop" }, { ko: "블루스 기타", en: "blues guitar" }, { ko: "로파이 재즈", en: "lo-fi jazz" }] },
+  { ko: "피아노·클래식", subs: [{ ko: "솔로 피아노", en: "solo piano" }, { ko: "뉴에이지 피아노", en: "new age piano" }, { ko: "현악 사중주", en: "string quartet" }, { ko: "바로크", en: "baroque" }, { ko: "낭만파 클래식", en: "romantic era classical" }] },
+  { ko: "일렉트로닉·비트", subs: [{ ko: "로파이 비트", en: "lo-fi beats" }, { ko: "신스웨이브", en: "synthwave" }, { ko: "칠웨이브", en: "chillwave" }, { ko: "다운템포", en: "downtempo" }, { ko: "트립합", en: "trip hop" }, { ko: "칩튠", en: "chiptune" }] },
+  { ko: "앰비언트·휴식", subs: [{ ko: "앰비언트", en: "ambient" }, { ko: "명상 음악", en: "meditation music" }, { ko: "수면 음악", en: "sleep music" }, { ko: "자연 앰비언트", en: "nature ambient" }, { ko: "드론 앰비언트", en: "drone ambient" }] },
+  { ko: "댄스·클럽", subs: [{ ko: "하우스 연주", en: "house instrumental" }, { ko: "딥 하우스", en: "deep house" }, { ko: "테크노", en: "techno" }, { ko: "트랜스", en: "trance" }, { ko: "드럼 앤 베이스", en: "drum and bass" }, { ko: "퓨처 베이스 연주", en: "future bass instrumental" }] },
+  { ko: "펑크·밴드", subs: [{ ko: "펑크(Funk) 연주", en: "funk instrumental" }, { ko: "퓨전 재즈", en: "jazz fusion" }, { ko: "포스트 록", en: "post-rock" }, { ko: "기타 록 연주", en: "instrumental rock" }, { ko: "서프 록", en: "surf rock" }] },
+  { ko: "오케스트라·영화", subs: [{ ko: "에픽 오케스트라", en: "epic orchestral" }, { ko: "영화 음악", en: "cinematic film score" }, { ko: "게임 음악", en: "video game soundtrack" }, { ko: "동화풍 오케스트라", en: "whimsical orchestral" }, { ko: "트레일러 음악", en: "epic trailer music" }] },
+  { ko: "어쿠스틱·기타", subs: [{ ko: "핑거스타일 기타", en: "fingerstyle guitar" }, { ko: "클래식 기타", en: "classical guitar" }, { ko: "어쿠스틱 포크 연주", en: "acoustic folk instrumental" }, { ko: "컨트리 기타", en: "country guitar" }, { ko: "우쿨렐레", en: "ukulele" }] },
+  { ko: "라틴·리듬", subs: [{ ko: "살사", en: "salsa" }, { ko: "탱고", en: "tango" }, { ko: "플라멩코 기타", en: "flamenco guitar" }, { ko: "삼바", en: "samba" }, { ko: "레게 리듬", en: "reggae instrumental" }, { ko: "아프로비트 연주", en: "afrobeat instrumental" }] },
+];
+export const INSTRUMENTAL_GENRES: readonly string[] = INSTRUMENTAL_GENRE_GROUPS.map((g) => g.ko);
+
 /** 노래 장르(대분류) — 화면 버튼·그림 읽기 선택지 */
 export const LYRIC_GENRES: readonly string[] = GENRE_GROUPS.map((g) => g.ko);
 
 /** 이 대분류의 세부 장르(없으면 []) */
-export const subGenresOf = (genre: string): readonly Tag[] => GENRE_GROUPS.find((g) => g.ko === genre)?.subs ?? [];
+export const subGenresOf = (genre: string, instrumental = false): readonly Tag[] =>
+  (instrumental ? INSTRUMENTAL_GENRE_GROUPS : GENRE_GROUPS).find((g) => g.ko === genre)?.subs ?? [];
 
 /** AI에게 보낼 장르 글(60자 안) — 「K-POP · 아이돌 댄스」 */
-export function genreLabel(genre: string, sub: string): string {
-  const ok = subGenresOf(genre).some((s) => s.ko === sub);
+export function genreLabel(genre: string, sub: string, instrumental = false): string {
+  const ok = subGenresOf(genre, instrumental).some((s) => s.ko === sub);
   return (ok ? `${genre} · ${sub}` : genre).slice(0, 60);
+}
+
+/** AI 작곡 기획에 보낼 연주곡 장르 글(80자 안) — 「재즈·블루스 · 보사노바 연주 (bossa nova instrumental)」, 없는 장르면 "" */
+export function instrumentalGenreHint(genre: string, sub: string): string {
+  if (!INSTRUMENTAL_GENRES.includes(genre)) return "";
+  const en = subGenresOf(genre, true).find((s) => s.ko === sub)?.en;
+  return (genreLabel(genre, sub, true) + (en ? ` (${en})` : "")).slice(0, 80);
 }
 export type MoodGroup = { id: "bright" | "calm" | "sad" | "intense" | "dreamy"; label: string; moods: readonly Tag[] };
 
