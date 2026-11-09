@@ -62,9 +62,10 @@ export function StudioStatusBar() {
       </div>
 
       <div className="min-w-0">
-        <p className="mb-1 flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+        {/* 2026-11-09 주인님 「작업 대기 메뉴 링크가 안 돼」 — 제목도 대기열 화면 링크 */}
+        <Link href="/queue" className="mb-1 flex w-fit items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-emerald-300 hover:underline">
           <ListOrdered className="h-3.5 w-3.5" /> 작업 대기열
-        </p>
+        </Link>
         {!supported ? (
           <p className="text-sm text-slate-500">엔진을 연결하면 보입니다</p>
         ) : running ? (
@@ -85,7 +86,7 @@ export function StudioStatusBar() {
         ) : (
           <p className="text-sm text-slate-500">만드는 중인 곡이 없습니다</p>
         )}
-        {supported && (running || waiting > 0) && (
+        {supported && (
           <Link href="/queue" className="mt-1 inline-block text-[11px] font-bold text-emerald-300 hover:underline">
             대기열 보기 →
           </Link>
