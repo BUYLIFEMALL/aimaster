@@ -39,7 +39,8 @@ export async function placeOrderAction(slug: string, _prev: PlaceOrderState, for
   if (auth.user) await supabase.from("mall_builder_cart_items").delete().eq("store_id", store.id).eq("user_id", auth.user.id);
   // 세금계산서 요청(체크했으면) — 주문은 이미 됐으므로 실패해도 주문 상세에서 다시 요청할 수 있게 안내만
   let invoiceError = "";
-  if (form.get("want_invoice") === "on") {
+  // 카드 결제는 카드 매출전표가 세금계산서를 대신하므로 요청하지 않는다(D19)
+  if (form.get("want_invoice") === "on" && payMethod !== "card") {
     const email = validateInvoiceEmail(form.get("invoice_email"));
     const res = email.ok ? await supabase.rpc("mall_builder_request_tax_invoice", { p_order_id: row.order_id, p_email: email.value }) : null;
     invoiceError = !email.ok ? email.error : res?.error?.message ?? "";

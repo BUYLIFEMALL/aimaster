@@ -7,7 +7,9 @@ import PartialCancelForm from "./partial-cancel-form";
 import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
 import { TAX_INVOICE_LABEL } from "@/lib/taxInvoice";
-import { markTaxInvoiceIssuedAction } from "@/lib/tax-invoice-actions";
+import { amendTaxInvoiceAction, issueTaxInvoiceAction, markTaxInvoiceIssuedAction, recheckTaxInvoiceAction } from "@/lib/tax-invoice-actions";
+import { taxInvoiceButtons } from "@/lib/taxInvoice";
+import { createClient } from "@/lib/supabase/server";
 import { AdminShell, NoPermission } from "../../admin-shell";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { getCardPayment } from "@/lib/card-payments";
@@ -38,6 +40,14 @@ export default async function AdminOrderDetailPage({
   const card = order.is_card ? await getCardPayment(order.id) : null;
   const r = order.receiver;
   const here = `/s/${store.slug}/admin/orders/${order.id}`;
+  // 세금계산서 발행(D19, 볼타) — 키 있음 여부와 버튼, 발행 전이면 미리보기(DB 함수가 실제 보낼 품목을 계산)
+  const taxButtons = order.tax_invoice
+    ? taxInvoiceButtons(order.tax_invoice, order, Boolean(((await (await createClient()).rpc("mall_builder_tax_key_status", { p_store_id: store.id })).data as { has_key?: boolean } | null)?.has_key))
+    : null;
+  type TaxPreview = { items: { name: string; quantity?: number; supplyCost: number; tax: number }[]; supply: number; tax: number; total: number; exempt_lines: number };
+  const taxPreview: TaxPreview | null = taxButtons?.issue
+    ? (((await (await createClient()).rpc("mall_builder_tax_invoice_preview", { p_order_id: order.id })).data as TaxPreview | null) ?? null)
+    : null;
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/orders">
@@ -129,7 +139,59 @@ export default async function AdminOrderDetailPage({
             {order.tax_invoice.issued_at && ` · ${formatDateTime(order.tax_invoice.issued_at)} 발행 완료 표시`}
             {order.tax_invoice.note && ` · ${order.tax_invoice.note}`}
           </p>
-          {order.tax_invoice.status === "requested" && (
+          {order.tax_invoice.provider === "bolta" && (
+            <p className="mt-1 text-xs" data-tax-bolta>
+              볼타{order.tax_invoice.mode === "test" ? "(테스트 키 — 국세청 전송 없음)" : ""} · 공급가액 {Number(order.tax_invoice.supply ?? 0).toLocaleString("ko-KR")}원 · 세액 {Number(order.tax_invoice.tax ?? 0).toLocaleString("ko-KR")}원
+              {order.tax_invoice.nts_id && <> · 국세청 승인번호 <b>{order.tax_invoice.nts_id}</b></>}
+              {order.tax_invoice.terminated && " · 전액 상계(수정 발행) 처리됨"}
+              {order.tax_invoice.error && <span className="block text-red-700">{order.tax_invoice.error}</span>}
+            </p>
+          )}
+          {(order.tax_invoice.amendments ?? []).length > 0 && (
+            <ul className="mt-1 list-disc pl-5 text-xs text-gray-600" data-tax-amendments>
+              {(order.tax_invoice.amendments ?? []).map((a, i) => (
+                <li key={i}>
+                  {formatDateTime(a.at)} 수정 발행 — {a.kind === "termination" ? "계약 해제(전액 상계)" : `공급가액 ${a.supply_diff.toLocaleString("ko-KR")}원 · 세액 ${a.tax_diff.toLocaleString("ko-KR")}원`}
+                  {a.status === "unknown" && <b className="text-red-700"> · 결과 모름 — 볼타 화면에서 확인</b>}
+                </li>
+              ))}
+            </ul>
+          )}
+          {taxButtons?.reason && <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800" data-tax-reason>{taxButtons.reason}</p>}
+          {taxPreview && (
+            <div className="mt-2 rounded bg-gray-50 p-3 text-xs" data-tax-preview>
+              <p className="font-medium">발행할 내용(과세 품목, 쿠폰·포인트 할인 반영) — 공급가액 {taxPreview.supply.toLocaleString("ko-KR")}원 + 세액 {taxPreview.tax.toLocaleString("ko-KR")}원 = {taxPreview.total.toLocaleString("ko-KR")}원</p>
+              <ul className="mt-1 space-y-0.5">
+                {taxPreview.items.map((it, i) => (
+                  <li key={i}>{it.name}{it.quantity ? ` × ${it.quantity}` : ""} — 공급가액 {it.supplyCost.toLocaleString("ko-KR")}원 · 세액 {it.tax.toLocaleString("ko-KR")}원</li>
+                ))}
+              </ul>
+              {taxPreview.exempt_lines > 0 && <p className="mt-1 text-amber-800">면세 품목 {taxPreview.exempt_lines}개는 빠집니다. 계산서는 홈택스에서 발행해 주세요.</p>}
+            </div>
+          )}
+          <div className="mt-2 flex flex-wrap gap-2">
+            {taxButtons?.issue && (
+              <form action={issueTaxInvoiceAction.bind(null, store.slug, order.id)}>
+                <button className="min-h-10 rounded bg-gray-900 px-4 text-white" data-tax-issue>세금계산서 발행(볼타)</button>
+              </form>
+            )}
+            {taxButtons?.recheck && (
+              <form action={recheckTaxInvoiceAction.bind(null, store.slug, order.id)}>
+                <button className="min-h-10 rounded border px-4" data-tax-recheck>상태 다시 확인</button>
+              </form>
+            )}
+            {taxButtons?.amend && (
+              <form action={amendTaxInvoiceAction.bind(null, store.slug, order.id)}>
+                <button className="min-h-10 rounded border border-red-200 px-4 text-red-700" data-tax-amend>
+                  {["cancelled", "returned"].includes(order.status) ? "수정 발행(취소분 전액 상계)" : "수정 발행(줄어든 금액)"}
+                </button>
+              </form>
+            )}
+          </div>
+          {taxButtons?.amend && ["cancelled", "returned"].includes(order.status) && (
+            <p className="mt-1 text-xs text-red-700">이 주문은 취소·반품됐습니다. 발행한 세금계산서를 수정 발행으로 상계해 주세요.</p>
+          )}
+          {taxButtons?.markManual && (
             <form action={markTaxInvoiceIssuedAction.bind(null, store.slug, order.id)} className="mt-2 flex flex-wrap items-end gap-2">
               <label className="block">
                 <span className="text-xs text-gray-500">메모(선택, 예: 홈택스 승인번호)</span>

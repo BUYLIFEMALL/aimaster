@@ -167,6 +167,7 @@ export default async function OrderDetailPage({
             <p className="mt-1">
               <b>{TAX_INVOICE_LABEL[order.tax_invoice.status]}</b> · {order.tax_invoice.company} ({order.tax_invoice.business_no}) · {order.tax_invoice.email}
               {order.tax_invoice.issued_at && ` · ${formatDateTime(order.tax_invoice.issued_at)} 발행`}
+              {order.tax_invoice.nts_id && ` · 국세청 승인번호 ${order.tax_invoice.nts_id}`}
             </p>
           ) : (
             <form action={requestTaxInvoiceAction.bind(null, store.slug, order.id)} className="mt-2 flex flex-wrap items-end gap-2">

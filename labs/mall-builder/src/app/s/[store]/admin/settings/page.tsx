@@ -7,6 +7,7 @@ import DepositForm, { type DepositStatus } from "./deposit-form";
 import NotifyForm, { type NotifyStatus } from "./notify-form";
 import EmailForm, { type EmailStatus } from "./email-form";
 import PaymentForm, { type PaymentStatus } from "./payment-form";
+import TaxForm, { type TaxStatus } from "./tax-form";
 import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form";
 import GuestForm from "./guest-form";
 import RestockForm, { type RestockStatus } from "./restock-form";
@@ -103,17 +104,29 @@ async function paymentStatus(storeId: string): Promise<PaymentStatus> {
   return { clientKey: row?.toss_client_key ?? "", enabled: row?.card_enabled ?? false, hasSecret: Boolean(s.has_secret), secretMode: s.mode ?? "" };
 }
 
+// 세금계산서 발행(볼타, D19) — 키는 있음·종류만, 설정 칸은 운영자만 읽는 표
+async function taxStatus(storeId: string): Promise<TaxStatus> {
+  const supabase = await createClient();
+  const [{ data: row }, { data: k }] = await Promise.all([
+    supabase.from("mall_builder_store_tax_settings").select("manager_email, business_type, business_item").eq("store_id", storeId).maybeSingle(),
+    supabase.rpc("mall_builder_tax_key_status", { p_store_id: storeId }),
+  ]);
+  const s = (k ?? {}) as { has_key?: boolean; mode?: string };
+  return { hasKey: Boolean(s.has_key), mode: s.mode ?? "", managerEmail: row?.manager_email ?? "", businessType: row?.business_type ?? "", businessItem: row?.business_item ?? "" };
+}
+
 export default async function StoreSettingsPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/settings`);
   if (!staff) return <NoPermission />;
   const deposit = await depositStatus(store.id);
-  const [notify, email, log, payment, restock] = await Promise.all([
+  const [notify, email, log, payment, restock, tax] = await Promise.all([
     notifyStatus(store.id, deposit),
     emailStatus(store.id, deposit),
     loadNotifyLog(store.id),
     paymentStatus(store.id),
     restockStatus(store.id),
+    taxStatus(store.id),
   ]);
 
   return (
@@ -121,6 +134,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       <SettingsForm slug={store.slug} name={store.name} info={readBusinessInfo(store.business_info)} />
       <div className="mt-6">
         <PaymentForm slug={store.slug} status={payment} />
+      </div>
+      <div className="mt-6">
+        <TaxForm slug={store.slug} status={tax} />
       </div>
       <div className="mt-6">
         <GuestForm slug={store.slug} enabled={guestOrderEnabled(store.settings)} />

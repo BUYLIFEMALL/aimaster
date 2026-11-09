@@ -109,7 +109,10 @@ export default function OrderForm({
         </label>
       </section>
 
-      {invoice && (
+      {invoice && payMethod === "card" && (
+        <p className="rounded border bg-gray-50 p-3 text-xs text-gray-600" data-invoice-card-note>카드 결제는 카드 매출전표가 세금계산서를 대신합니다. 세금계산서가 필요하면 무통장 입금을 골라 주세요.</p>
+      )}
+      {invoice && payMethod !== "card" && (
         <section className="space-y-2 rounded border p-4 text-sm" data-invoice-request>
           <label className="flex items-center gap-2">
             <input type="checkbox" name="want_invoice" checked={wantInvoice} onChange={(e) => setWantInvoice(e.target.checked)} />
