@@ -8,6 +8,7 @@ import NotifyForm, { type NotifyStatus } from "./notify-form";
 import EmailForm, { type EmailStatus } from "./email-form";
 import PaymentForm, { type PaymentStatus } from "./payment-form";
 import TaxForm, { type TaxStatus } from "./tax-form";
+import ClosedForm, { type ClosedStatus } from "./closed-form";
 import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form";
 import GuestForm from "./guest-form";
 import RestockForm, { type RestockStatus } from "./restock-form";
@@ -115,18 +116,29 @@ async function taxStatus(storeId: string): Promise<TaxStatus> {
   return { hasKey: Boolean(s.has_key), mode: s.mode ?? "", managerEmail: row?.manager_email ?? "", businessType: row?.business_type ?? "", businessItem: row?.business_item ?? "" };
 }
 
+// 폐쇄몰(D20) — 코드·사용 수·입장 대기 수는 운영자 함수로만
+async function closedStatus(storeId: string): Promise<ClosedStatus> {
+  const { data } = await (await createClient()).rpc("mall_builder_closed_status", { p_store_id: storeId });
+  const d = (data ?? {}) as Record<string, unknown>;
+  return {
+    enabled: d.enabled === true, approval: d.approval === true, code: d.code === true, notice: typeof d.notice === "string" ? d.notice : "",
+    inviteCode: typeof d.invite_code === "string" ? d.invite_code : "", inviteUses: Number(d.invite_uses ?? 0), pending: Number(d.pending ?? 0),
+  };
+}
+
 export default async function StoreSettingsPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/settings`);
   if (!staff) return <NoPermission />;
   const deposit = await depositStatus(store.id);
-  const [notify, email, log, payment, restock, tax] = await Promise.all([
+  const [notify, email, log, payment, restock, tax, closed] = await Promise.all([
     notifyStatus(store.id, deposit),
     emailStatus(store.id, deposit),
     loadNotifyLog(store.id),
     paymentStatus(store.id),
     restockStatus(store.id),
     taxStatus(store.id),
+    closedStatus(store.id),
   ]);
 
   return (
@@ -137,6 +149,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <TaxForm slug={store.slug} status={tax} />
+      </div>
+      <div className="mt-6">
+        <ClosedForm slug={store.slug} status={closed} customersHref={`/s/${store.slug}/admin/customers?member=pending`} />
       </div>
       <div className="mt-6">
         <GuestForm slug={store.slug} enabled={guestOrderEnabled(store.settings)} />

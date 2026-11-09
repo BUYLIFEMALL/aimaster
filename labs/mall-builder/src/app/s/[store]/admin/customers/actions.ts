@@ -45,3 +45,12 @@ export async function reviewBusinessAction(slug: string, customerId: string, app
   const q = error ? `error=${encodeURIComponent(error.message)}` : `ok=${approve ? "approved" : "rejected"}`;
   redirect(`/s/${slug}/admin/customers/${customerId}?${q}`);
 }
+
+/** 폐쇄몰(D20) 입장 승인·반려 — 권한·사유 검사와 승인 문자는 DB 함수(0040)가 한다 */
+export async function reviewMemberAction(slug: string, customerId: string, approve: boolean, form: FormData) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_member_review", { p_customer_id: customerId, p_approve: approve, p_reason: String(form.get("reason") ?? "") });
+  revalidatePath(`/s/${slug}`, "layout");
+  const base = `/s/${slug}/admin/customers/${customerId}`;
+  redirect(error ? `${base}?error=${encodeURIComponent(error.message)}` : `${base}?ok=1&msg=${encodeURIComponent(approve ? "입장을 승인했습니다." : "입장을 반려했습니다.")}`);
+}

@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { joinAction, type JoinState } from "../my/actions";
 
-export default function JoinForm({ slug, next, storeName }: { slug: string; next: string; storeName: string }) {
+export default function JoinForm({ slug, next, storeName, closed }: { slug: string; next: string; storeName: string; closed?: { approval: boolean; code: boolean } }) {
   const initial: JoinState = { error: null, name: "", phone: "", marketing_agree: false };
   const [state, formAction, pending] = useActionState(joinAction.bind(null, slug, next), initial);
 
@@ -17,6 +17,12 @@ export default function JoinForm({ slug, next, storeName }: { slug: string; next
         <span className="text-sm font-medium">휴대폰</span>
         <input name="phone" defaultValue={state.phone} required inputMode="tel" placeholder="010-1234-5678" className="mt-1 w-full rounded border px-3 py-2" />
       </label>
+      {closed && (
+        <label className="block" data-join-invite>
+          <span className="text-sm font-medium">초대 코드 {closed.approval ? <span className="text-xs font-normal text-gray-500">(없으면 비워 두세요 — 운영자 승인 뒤 입장)</span> : <span className="text-xs font-normal text-red-600">(필수)</span>}</span>
+          <input name="invite_code" required={!closed.approval} maxLength={20} placeholder="운영자에게 받은 코드" className="mt-1 w-full rounded border px-3 py-2 uppercase" />
+        </label>
+      )}
       <div className="block">
         <span className="text-sm font-medium">생일 <span className="text-xs font-normal text-gray-500">(선택 — 생일 쿠폰을 받습니다)</span></span>
         <span className="mt-1 flex gap-2">

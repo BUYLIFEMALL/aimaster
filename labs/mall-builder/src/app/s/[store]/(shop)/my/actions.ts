@@ -50,11 +50,24 @@ export async function joinAction(slug: string, next: string, _prev: JoinState, f
   if (!birth.ok) return { ...values, error: birth.error };
   const { supabase, userId, storeId } = await signedIn(slug);
   // 가입하면 「가입 축하」 쿠폰이 DB 트리거로 자동 발급된다(D17)
-  const { error } = await supabase.from("mall_builder_store_customers").insert({ ...v.value, birth_md: birth.value, store_id: storeId, user_id: userId });
+  // 폐쇄몰(D20): 초대 코드는 DB 트리거가 확인하고 비워 저장한다(맞으면 바로 입장, 승인제면 대기)
+  const inviteCode = String(form.get("invite_code") ?? "").trim().toUpperCase() || null;
+  const { error } = await supabase.from("mall_builder_store_customers").insert({ ...v.value, birth_md: birth.value, store_id: storeId, user_id: userId, invite_code: inviteCode });
+  if (error && error.code !== "23505" && /초대 코드|회원 전용/.test(error.message)) return { ...values, error: error.message };
   // 이미 가입한 경우(23505)는 그대로 통과
   if (error && error.code !== "23505") return { ...values, error: "가입하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };
   revalidatePath(`/s/${slug}`, "layout");
   redirect(next.startsWith(`/s/${slug}/`) ? next : `/s/${slug}/my`);
+}
+
+/** 폐쇄몰(D20): 입장 대기·반려 손님이 초대 코드로 바로 입장 */
+export async function applyInviteCodeAction(slug: string, form: FormData) {
+  const supabase = await createClient();
+  const { data: store } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();
+  if (!store) back(slug, { error: "몰을 찾을 수 없습니다." });
+  const { error } = await supabase.rpc("mall_builder_member_use_code", { p_store_id: store!.id, p_code: String(form.get("invite_code") ?? "") });
+  revalidatePath(`/s/${slug}`, "layout");
+  back(slug, error ? { error: error.message } : { ok: "초대 코드가 확인되어 입장했습니다." });
 }
 
 export async function updateProfileAction(slug: string, form: FormData) {

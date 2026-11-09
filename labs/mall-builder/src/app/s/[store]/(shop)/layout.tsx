@@ -5,6 +5,8 @@ import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
 import { buildCategoryTree } from "@/lib/categories";
 import { guestOrderEnabled } from "@/lib/guest";
 import { readGuestCart } from "@/lib/guest-store";
+import { headers } from "next/headers";
+import { canEnterClosed, openWhileClosed, readClosed } from "@/lib/closed";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,11 @@ export default async function ShopLayout({ children, params }: { children: React
   const info = readBusinessInfo(store.business_info);
   const missing = missingRequired(info);
   const base = `/s/${store.slug}`;
+  // 폐쇄몰(D20): 승인 전이면 가입·마이페이지 말고는 안내 화면만. 상품·주문은 DB가 따로 막는다(0040)
+  const closed = readClosed(store.settings);
+  const canEnter = canEnterClosed(closed, staff, customer?.member_status);
+  const gated = !canEnter && !openWhileClosed((await headers()).get("x-mb-path"), store.slug);
+  const showShop = canEnter;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -43,12 +50,12 @@ export default async function ShopLayout({ children, params }: { children: React
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
           <Link href={base} className="text-xl font-bold">{store.name}</Link>
           {/* 메뉴 자리: 카테고리(F03)·장바구니(F09)·로그인/마이페이지(F08)가 기능을 만들 때 하나씩 들어온다 */}
-          <form action={`${base}/search`} className="hidden flex-1 sm:block sm:max-w-xs">
+          {showShop && <form action={`${base}/search`} className="hidden flex-1 sm:block sm:max-w-xs">
             <input name="q" placeholder="상품 검색" maxLength={50} className="w-full rounded-full border px-4 py-1.5 text-sm" />
-          </form>
+          </form>}
           <nav className="flex items-center gap-3 text-sm text-gray-600">
-            <Link href={`${base}/search`} className="sm:hidden" aria-label="검색">검색</Link>
-            <Link href={`${base}/faq`} className="hidden sm:inline">FAQ</Link>
+            {showShop && <Link href={`${base}/search`} className="sm:hidden" aria-label="검색">검색</Link>}
+            {showShop && <Link href={`${base}/faq`} className="hidden sm:inline">FAQ</Link>}
             {!user ? (
               <>
                 {guestOk && (
@@ -62,7 +69,7 @@ export default async function ShopLayout({ children, params }: { children: React
               </>
             ) : customer ? (
               <>
-                <Link href={`${base}/cart`} data-cart-link>장바구니{cartCount ? ` ${cartCount}` : ""}</Link>
+                {showShop && <Link href={`${base}/cart`} data-cart-link>장바구니{cartCount ? ` ${cartCount}` : ""}</Link>}
                 <Link href={`${base}/my`}>{customer.name}님 · 마이페이지</Link>
               </>
             ) : (
@@ -70,7 +77,7 @@ export default async function ShopLayout({ children, params }: { children: React
             )}
           </nav>
         </div>
-        {topCategories.length > 0 && (
+        {showShop && topCategories.length > 0 && (
           <nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 pb-2 text-sm">
             {topCategories.map((c) => (
               <Link key={c.id} href={`${base}/c/${c.id}`} className="whitespace-nowrap rounded px-3 py-2 hover:bg-gray-100">
@@ -81,7 +88,37 @@ export default async function ShopLayout({ children, params }: { children: React
         )}
       </header>
 
-      <div className="flex-1">{children}</div>
+      <div className="flex-1">
+        {gated ? (
+          <main className="mx-auto max-w-md px-4 py-16 text-center" data-closed-gate>
+            <p className="text-4xl">🔒</p>
+            <h1 className="mt-3 text-xl font-bold">회원 전용 몰입니다</h1>
+            <p className="mt-2 whitespace-pre-line text-sm text-gray-600">{closed.notice || `${store.name}은(는) 승인된 회원만 상품을 보고 주문할 수 있습니다.`}</p>
+            {customer ? (
+              <p className="mt-4 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800" data-closed-status>
+                {customer.member_status === "rejected"
+                  ? `입장이 반려되었습니다${customer.member_reject_reason ? ` — ${customer.member_reject_reason}` : ""}.`
+                  : "가입 신청을 받았습니다. 운영자가 승인하면 들어올 수 있습니다."}
+                {closed.code && " 초대 코드가 있으면 마이페이지에서 바로 들어올 수 있습니다."}
+              </p>
+            ) : null}
+            <div className="mt-6 flex items-center justify-center gap-3 text-sm">
+              {!user ? (
+                <>
+                  <Link href={`/login?next=${encodeURIComponent(base)}`} className="rounded bg-gray-900 px-4 py-2 text-white">로그인</Link>
+                  <Link href={`${base}/join`} className="rounded border px-4 py-2">{closed.code ? "초대 코드로 가입" : "가입 신청"}</Link>
+                </>
+              ) : customer ? (
+                <Link href={`${base}/my`} className="rounded border px-4 py-2">마이페이지</Link>
+              ) : (
+                <Link href={`${base}/join`} className="rounded bg-gray-900 px-4 py-2 text-white">{closed.code ? "초대 코드로 가입" : "가입 신청"}</Link>
+              )}
+            </div>
+          </main>
+        ) : (
+          children
+        )}
+      </div>
 
       <footer className="border-t bg-gray-50">
         <div className="mx-auto max-w-5xl space-y-3 px-4 py-8 text-xs leading-relaxed text-gray-600">

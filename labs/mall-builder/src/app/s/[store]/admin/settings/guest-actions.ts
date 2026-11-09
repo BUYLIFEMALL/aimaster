@@ -11,6 +11,9 @@ export async function saveGuestSettingAction(slug: string, _prev: GuestSettingSt
   const supabase = await createClient();
   const { data: store } = await supabase.from("mall_builder_stores").select("id, settings").eq("slug", slug).maybeSingle();
   if (!store) return { error: "몰을 찾을 수 없습니다.", message: null };
+  // 폐쇄몰(D20)에서는 비회원 주문을 켤 수 없다(DB 주문 트리거도 막음)
+  const closedOn = (store.settings as { closed?: { enabled?: boolean } } | null)?.closed?.enabled === true;
+  if (on && closedOn) return { error: "폐쇄몰이 켜져 있어 비회원 주문을 켤 수 없습니다. 폐쇄몰을 먼저 꺼 주세요.", message: null };
   const settings = { ...((store.settings as Record<string, unknown> | null) ?? {}), guest_order: on };
   const { data, error } = await supabase.from("mall_builder_stores").update({ settings }).eq("id", store.id).select("id");
   if (error) return { error: error.message, message: null };

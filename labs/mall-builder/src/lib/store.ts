@@ -324,6 +324,8 @@ export type StoreCustomer = {
   reviewed_at: string | null;
   credit_limit: number;
   birth_md: string | null;
+  member_status: "approved" | "pending" | "rejected";
+  member_reject_reason: string | null;
   grade: { name: string; code: string; is_business: boolean; point_rate: number | null } | null;
 };
 
@@ -342,7 +344,7 @@ export async function getCreditLedger(customerId: string): Promise<{ balance: nu
   return { balance: entries[0]?.balance_after ?? 0, entries };
 }
 const CUSTOMER_COLUMNS =
-  "id, store_id, user_id, name, phone, marketing_agree, created_at, kind, grade_id, approval_status, business_no, company, ceo_name, cert_path, reject_reason, applied_at, reviewed_at, credit_limit, birth_md, grade:mall_builder_customer_grades(name, code, is_business, point_rate)";
+  "id, store_id, user_id, name, phone, marketing_agree, created_at, kind, grade_id, approval_status, business_no, company, ceo_name, cert_path, reject_reason, applied_at, reviewed_at, credit_limit, birth_md, member_status, member_reject_reason, grade:mall_builder_customer_grades(name, code, is_business, point_rate)";
 export type CustomerAddress = {
   id: string; label: string; receiver: string; phone: string; zip: string; addr1: string; addr2: string; is_default: boolean;
 };

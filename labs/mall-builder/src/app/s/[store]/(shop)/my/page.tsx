@@ -11,10 +11,11 @@ import { createClient } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/orders";
 import { RESTOCK_SELECT, RESTOCK_STATUS_LABEL, restockLabel, type RestockRow } from "@/lib/restock";
 import { cancelRestockAction } from "@/lib/restock-actions";
-import { deleteAddressAction, leaveStoreAction, makeDefaultAddressAction, saveAddressAction, updateProfileAction } from "./actions";
+import { deleteAddressAction, leaveStoreAction, makeDefaultAddressAction, saveAddressAction, updateProfileAction, applyInviteCodeAction } from "./actions";
 import { expiringSoon, getMyCoupons, getPointBalance, getPointLedger, getPointSettings } from "@/lib/benefits-store";
 import { couponLabel, POINT_KIND_LABEL } from "@/lib/benefits";
 import { redeemCouponAction } from "@/lib/benefit-actions";
+import { readClosed } from "@/lib/closed";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -97,6 +98,21 @@ export default async function MyPage({
           <LogoutButton label="로그아웃" />
         </div>
       </div>
+      {readClosed(store.settings).enabled && customer.member_status !== "approved" && (
+        <section className="mt-4 rounded border border-amber-300 bg-amber-50 p-4 text-sm" data-my-member-status>
+          <p className="font-medium text-amber-900">
+            {customer.member_status === "rejected"
+              ? `입장이 반려되었습니다${customer.member_reject_reason ? ` — ${customer.member_reject_reason}` : ""}`
+              : "입장 대기 중입니다. 운영자가 승인하면 상품을 보고 주문할 수 있습니다."}
+          </p>
+          {readClosed(store.settings).code && (
+            <form action={applyInviteCodeAction.bind(null, store.slug)} className="mt-2 flex gap-2">
+              <input name="invite_code" required maxLength={20} placeholder="초대 코드" className="w-40 rounded border px-2 py-1.5 uppercase" />
+              <button className="rounded bg-gray-900 px-3 text-white">코드로 입장</button>
+            </form>
+          )}
+        </section>
+      )}
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{ok}</p>}
 

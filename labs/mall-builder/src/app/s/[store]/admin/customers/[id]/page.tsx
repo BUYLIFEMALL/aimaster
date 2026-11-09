@@ -9,6 +9,8 @@ import { creditEntryAction, reviewBusinessAction, setCreditLimitAction } from ".
 import { getPointBalance, getPointLedger, getMyCoupons } from "@/lib/benefits-store";
 import { POINT_KIND_LABEL } from "@/lib/benefits";
 import { adjustPointsAction } from "@/lib/benefit-actions";
+import { MEMBER_STATUS_LABEL } from "@/lib/closed";
+import { reviewMemberAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -104,6 +106,26 @@ export default async function AdminCustomerPage({
             </label>
             <button className="min-h-10 rounded bg-gray-900 px-4 text-sm text-white">장부에 기록</button>
           </form>
+        </section>
+      )}
+
+      {c.member_status !== "approved" && (
+        <section className="mt-6 flex flex-wrap items-end gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm" data-member-review>
+          <p className="w-full font-medium text-amber-900">
+            폐쇄몰 {MEMBER_STATUS_LABEL[c.member_status]}{c.member_reject_reason ? ` — ${c.member_reject_reason}` : ""}
+          </p>
+          <form action={reviewMemberAction.bind(null, store.slug, c.id, true)}>
+            <button className="min-h-10 rounded bg-gray-900 px-4 text-white">입장 승인</button>
+          </form>
+          {c.member_status === "pending" && (
+            <form action={reviewMemberAction.bind(null, store.slug, c.id, false)} className="flex flex-wrap items-end gap-2">
+              <label className="block">
+                <span className="text-xs text-gray-500">반려 사유(손님에게 보입니다)</span>
+                <input name="reason" required maxLength={200} className="mt-0.5 w-64 rounded border px-2 py-1.5" />
+              </label>
+              <button className="min-h-10 rounded border border-red-200 px-4 text-red-700">입장 반려</button>
+            </form>
+          )}
         </section>
       )}
 
