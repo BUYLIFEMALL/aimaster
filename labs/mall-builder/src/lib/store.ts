@@ -1,3 +1,4 @@
+import { canSeeMenu, type MyStaff } from "@/lib/staff";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { buildCategoryTree, flattenTree, type CategoryRow } from "@/lib/categories";
@@ -44,7 +45,8 @@ export async function getMyStores(userId: string): Promise<Store[]> {
   const { data: staff } = await supabase
     .from("mall_builder_store_staff")
     .select("store_id")
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .is("removed_at", null);
   const ids = (staff ?? []).map((row) => row.store_id as string);
   if (!ids.length) return [];
   const { data } = await supabase.from("mall_builder_stores").select(STORE_COLUMNS).in("id", ids).order("created_at");
@@ -739,4 +741,12 @@ export async function getFaqs(storeId: string): Promise<Faq[]> {
   const { data } = await supabase.from("mall_builder_faqs").select("id, category, question, answer, sort, is_published, created_at")
     .eq("store_id", storeId).order("sort").order("created_at").limit(300);
   return (data ?? []) as Faq[];
+}
+
+/** 직원 부계정(D22): 손님·주문 상세(개인정보)를 연 기록. 권한이 없어 화면이 막힌 경우는 남기지 않는다 */
+export async function logStaffView(storeId: string, type: "customer" | "order", target: string) {
+  const supabase = await createClient();
+  const me = ((await supabase.rpc("mall_builder_my_staff", { p_store_id: storeId })).data ?? null) as MyStaff;
+  if (!canSeeMenu(type === "customer" ? "/customers" : "/orders", me)) return;
+  await supabase.rpc("mall_builder_staff_log_view", { p_store_id: storeId, p_type: type, p_target: target });
 }

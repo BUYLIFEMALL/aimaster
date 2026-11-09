@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getOrder, getStaffStore } from "@/lib/store";
+import { getOrder, getStaffStore, logStaffView } from "@/lib/store";
 import { ORDER_STATUS_LABEL, PARTIAL_CANCEL_STATUSES, formatDateTime } from "@/lib/orders";
 import { partialCancelAction } from "@/lib/order-actions";
 import PartialCancelForm from "./partial-cancel-form";
@@ -33,6 +33,7 @@ export default async function AdminOrderDetailPage({
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/orders/${id}`);
   if (!staff) return <NoPermission />;
+  await logStaffView(store.id, "order", id);
   const found = await getOrder(store.id, id);
   if (!found) notFound();
   const { order, items, events } = found;

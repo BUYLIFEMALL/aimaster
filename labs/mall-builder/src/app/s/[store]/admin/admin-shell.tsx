@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { getCurrentUser } from "@/lib/store";
 import LogoutButton from "@/app/logout-button";
+import { createClient } from "@/lib/supabase/server";
+import { canSeeMenu, type MyStaff } from "@/lib/staff";
 
 // 운영자 관리 화면 공통 틀 — 메뉴는 기능을 하나씩 만들 때마다 추가한다.
 const MENU = [
@@ -23,10 +25,17 @@ const MENU = [
   { href: "/restock", label: "재입고 알림" },
   { href: "/shipping", label: "배송비" },
   { href: "/photos", label: "사진 정리" },
+  { href: "/staff", label: "직원" },
 ] as const;
 
 export async function AdminShell({ slug, storeName, active, children }: { slug: string; storeName: string; active: string; children: ReactNode }) {
   const user = await getCurrentUser();
+  // 직원 부계정(D22): 내 권한으로 메뉴를 거르고, 권한 없는 화면은 내용 대신 안내(돈·비밀값은 DB도 막음)
+  const supabase = await createClient();
+  const { data: storeRow } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();
+  const me = storeRow ? (((await supabase.rpc("mall_builder_my_staff", { p_store_id: storeRow.id })).data ?? null) as MyStaff) : null;
+  const menu = MENU.filter((m) => canSeeMenu(m.href, me));
+  const allowed = canSeeMenu(active, me);
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
       <div className="flex items-center justify-between gap-2 text-sm text-gray-500">
@@ -35,7 +44,7 @@ export async function AdminShell({ slug, storeName, active, children }: { slug: 
       </div>
       <h1 className="mt-2 text-2xl font-bold">{storeName} 관리</h1>
       <nav className="mt-4 flex gap-2 overflow-x-auto border-b">
-        {MENU.map((m) => (
+        {menu.map((m) => (
           <Link
             key={m.href}
             href={`/s/${slug}/admin${m.href}`}
@@ -50,7 +59,16 @@ export async function AdminShell({ slug, storeName, active, children }: { slug: 
           손님 화면 ↗
         </Link>
       </nav>
-      <div className="mt-6">{children}</div>
+      {me && me.role !== "owner" && <p className="mt-2 text-xs text-gray-500" data-staff-badge>직원 계정으로 보고 있습니다 · 보이는 메뉴만 쓸 수 있습니다</p>}
+      <div className="mt-6">
+        {allowed ? (
+          children
+        ) : (
+          <p className="rounded border border-dashed p-8 text-center text-sm text-gray-600" data-staff-denied>
+            이 메뉴를 쓸 권한이 없습니다. 대표 운영자에게 권한을 요청해 주세요.
+          </p>
+        )}
+      </div>
     </main>
   );
 }

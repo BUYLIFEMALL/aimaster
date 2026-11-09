@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCertUrl, getCreditLedger, getStaffStore, getStoreCustomer } from "@/lib/store";
+import { getCertUrl, getCreditLedger, getStaffStore, logStaffView, getStoreCustomer } from "@/lib/store";
 import CreditLedger from "@/app/credit-ledger";
 import { APPROVAL_LABEL } from "@/lib/business";
 import { formatDateTime } from "@/lib/orders";
@@ -27,6 +27,7 @@ export default async function AdminCustomerPage({
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/customers/${id}`);
   if (!staff) return <NoPermission />;
+  await logStaffView(store.id, "customer", id);
   const c = await getStoreCustomer(store.id, id);
   if (!c) notFound();
   const [certUrl, ledger, pointBalance, points, coupons] = await Promise.all([
