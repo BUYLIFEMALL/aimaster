@@ -39,6 +39,7 @@ export interface ClientOutput extends OutputFile {
 export type ClientGeneration = Omit<GenerationRow, "outputs" | "locked_until" | "provider_meta" | "user_id" | "provider_task_id" | "start_image" | "end_image"> & {
   outputs: ClientOutput[];
   modelName: string;
-  expiresAt: string;
+  /** 자동 삭제 예정 시각 — 30일 삭제 예외 회원(관리자·시험 계정)은 null */
+  expiresAt: string | null;
   startImageUrl: string | null;
 };

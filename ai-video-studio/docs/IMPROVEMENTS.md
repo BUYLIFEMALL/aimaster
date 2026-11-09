@@ -71,3 +71,7 @@
 - **v1.24 (2026-10-25)** 맥 인코더 35초 대기 4단계: `?render=realtime`(인코더 `latencyMode: "realtime"`), trace에 인코더 대기열, 막힘 안내 15초, 정리 묶임 새로고침 안내. 윈도우 운영 확인 끝. **남은 일**: 맥미니 `trace,software`·`trace,realtime` 재측정(§12-1) → 빠른 쪽을 v1.25에서 맥 기본값으로(빌드 별도 승인).
 - **v1.23 (2026-10-25)** 맥 렌더 3단계: `?render=trace|nopace|htmlcanvas` 단계별 시간, 멈추기 3초 보장, 30초 막힘 안내. 윈도우 운영 확인 끝. **남은 일**: 맥미니 재측정(PLAN §10 끝 절차) → 원인 줄 우회 또는 맥은 다른 렌더 길(4단계).
 - **v1.22 (2026-10-25)** 맥 렌더 2단계: 맥은 렌더 중 소프트웨어 디코딩(기본), `?render=hwdecode|softdecode|verbose|software`, 진단 `decode`·`msPerFrame`, 「멈추는 중…」. 윈도우 운영 확인 끝(기본 5.0초·softdecode 5.1초). **남은 일**: 맥미니 재측정(기본 주소 1회 + `?render=hwdecode,verbose` 1회) — 그대로 느리면 3단계(맥은 「⚡ 내 PC 렌더러」 안내 등).
+
+## 2026-11-09 [역할: video] 30일 예외 계정 화면 표시
+- 처리: 보관함 영상 카드 — 관리자·시험 계정(`profiles.retention_exempt`)은 「자동 삭제 D-n」 대신 「보관 기간 제한 없음」(실제 삭제 예외는 원래 `cron/cleanup`에서 처리돼 있었음, 표시만 틀렸음)
+- 남음: 영상 합치기 편집본(`components/studio/EditsSection.tsx`·`lib/edit/edits.ts` expiresAt)과 내 프롬프트(`PromptBoard.tsx` 「보관 D-n」)도 예외 계정에 삭제 예정일을 보여 줌 — 같은 방식(`isRetentionExempt`)으로 고치면 됨. 급하지 않음

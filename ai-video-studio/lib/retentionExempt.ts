@@ -15,3 +15,9 @@ export async function retentionExemptFilter(admin: ExemptAdmin): Promise<string>
   const ids = Array.from(await loadRetentionExemptIds(admin));
   return `(${ids.length ? ids.join(",") : "00000000-0000-0000-0000-000000000000"})`;
 }
+
+/** 화면 표시용 — 이 회원이 30일 삭제 예외인가(못 읽으면 false: 삭제 예정일을 그대로 보여 줄 뿐 지우지는 않음) */
+export async function isRetentionExempt(admin: ExemptAdmin, userId: string): Promise<boolean> {
+  const { data, error } = await admin.from("profiles").select("retention_exempt").eq("id", userId).maybeSingle();
+  return !error && data?.retention_exempt === true;
+}

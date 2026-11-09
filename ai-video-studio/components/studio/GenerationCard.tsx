@@ -7,6 +7,8 @@ import type { ClientGeneration } from "@/lib/generationTypes";
 import { PROVIDERS } from "@/lib/providers/catalog";
 import { isSlow } from "@/lib/promptPolish";
 import { PcQuickTools } from "./PcQuickTools";
+import { PostPanel } from "./PostPanel";
+import { postKindOf } from "@/lib/postprocess";
 
 function elapsed(from: string) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(from).getTime()) / 1000));
@@ -17,7 +19,8 @@ function daysLeft(iso: string) {
   return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000));
 }
 
-export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDeleted?: (id: string) => void }) {
+export function GenerationCard({ gen, onDeleted, onCreated }: { gen: ClientGeneration; onDeleted?: (id: string) => void; onCreated?: (g: ClientGeneration) => void }) {
+  const post = postKindOf(gen.model);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +32,7 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
     return () => clearInterval(t);
   }, [gen.status]);
 
-  const left = daysLeft(gen.expiresAt);
+  const left = gen.expiresAt ? daysLeft(gen.expiresAt) : null;
   const video = gen.outputs[0];
 
   async function remove() {
@@ -106,17 +109,18 @@ export function GenerationCard({ gen, onDeleted }: { gen: ClientGeneration; onDe
               </Link>
             </>
           )}
-          <Link href={`/create?from=${gen.id}`} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
+          {!post && <Link href={`/create?from=${gen.id}`} className="inline-flex w-fit items-center gap-1 whitespace-nowrap text-xs font-medium text-sky-300 hover:underline">
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> 이 설정으로 다시 만들기
-          </Link>
+          </Link>}
         </div>
       )}
       {gen.status === "completed" && video?.url && <PcQuickTools id={gen.id} url={video.url} seconds={gen.duration_s} />}
+      {gen.status === "completed" && video?.url && onCreated && <PostPanel gen={gen} onCreated={onCreated} />}
 
       <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800/80 pt-3 text-[11px] text-zinc-500">
         <span className="whitespace-nowrap">
           {gen.est_cost_usd != null ? `예상 약 $${Number(gen.est_cost_usd).toFixed(2)}` : ""}
-          {gen.status !== "running" ? ` · 자동 삭제 D-${left}` : ""}
+          {gen.status !== "running" ? (left === null ? " · 보관 기간 제한 없음" : ` · 자동 삭제 D-${left}`) : ""}
         </span>
         {gen.status !== "running" &&
           (confirming ? (

@@ -106,7 +106,7 @@ export function LibraryView() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {shown.map((g) => (
           <div key={g.id} className="flex flex-col gap-1">
-            <GenerationCard gen={g} onDeleted={(id) => setItems((prev) => (prev ?? []).filter((r) => r.id !== id))} />
+            <GenerationCard gen={g} onDeleted={(id) => setItems((prev) => (prev ?? []).filter((r) => r.id !== id))} onCreated={(n) => { setItems((prev) => [n, ...(prev ?? []).filter((r) => r.id !== n.id)]); if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(load, 8000); }} />
           </div>
         ))}
       </div>

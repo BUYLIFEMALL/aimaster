@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { PROVIDERS, clampSeconds, estCostUsd, findModel, pickResolution, type AspectRatio } from "@/lib/providers/catalog";
 import { BUCKET, advance, startJob, toClient, type GenerationRow } from "@/lib/generations";
 import { sanitizeReuse } from "@/lib/reuse";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -58,7 +59,7 @@ export async function GET(request: Request) {
       }
       if (changed) rows = await load();
     }
-    return NextResponse.json({ generations: await toClient(admin, rows) }, { headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ generations: await toClient(admin, rows, await isRetentionExempt(admin, user.id)) }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (e) {
     console.error("[generations] 조회 실패:", e);
     return NextResponse.json({ error: "목록을 불러오지 못했습니다." }, { status: 500 });
@@ -153,5 +154,5 @@ export async function POST(request: Request) {
   await logProgramUsage(user.id, "generate_video", 1, { model: model.id, seconds, withEnd, resolution, audio, textOnly: !start });
 
   const { data: fresh } = await admin.from("avs_generations").select("*").eq("id", id);
-  return NextResponse.json({ generations: await toClient(admin, (fresh ?? [created]) as GenerationRow[]) }, { headers: { "Cache-Control": "private, no-store" } });
+  return NextResponse.json({ generations: await toClient(admin, (fresh ?? [created]) as GenerationRow[], await isRetentionExempt(admin, user.id)) }, { headers: { "Cache-Control": "private, no-store" } });
 }

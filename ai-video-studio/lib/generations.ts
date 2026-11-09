@@ -5,6 +5,10 @@ import type { VideoJob } from "@/lib/video/videoModels";
 import { checkVideoJob, submitVideoJob, VideoGenError } from "@/lib/video/videoProviders";
 import type { ClientGeneration, ClientOutput, GenerationRow, OutputFile } from "@/lib/generationTypes";
 import { uniquePaths, urlMap, withDownload } from "@/lib/signedUrls";
+import { POST_SPECS, postKindOf } from "@/lib/postprocess";
+
+/** 후처리 결과 행(model "post:<종류>")의 화면 이름 */
+const postName = (model: string) => { const k = postKindOf(model); return k ? `${POST_SPECS[k].emoji} ${POST_SPECS[k].name} (fal)` : null; };
 
 export type { GenerationRow } from "@/lib/generationTypes";
 
@@ -146,7 +150,7 @@ export async function advance(admin: Admin, row: GenerationRow, apiKey: string |
 
 /** 화면에 넘길 모양 — 저장소 경로를 1시간짜리 서명 주소로 바꾸고 내부 값(잠금·업체 작업 정보)은 뺀다.
  *  v1.21: 목록 전체 경로를 한 번에 서명(예전엔 영상마다 재생·내려받기·시작 사진을 따로 — 60행이면 최대 180번 요청) */
-export async function toClient(admin: Admin, rows: GenerationRow[]): Promise<ClientGeneration[]> {
+export async function toClient(admin: Admin, rows: GenerationRow[], exempt = false): Promise<ClientGeneration[]> {
   const paths = uniquePaths(rows.flatMap((r) => [...(r.outputs ?? []).map((o) => o.path), r.start_image]));
   let urls = new Map<string, string>();
   if (paths.length) {
@@ -164,8 +168,8 @@ export async function toClient(admin: Admin, rows: GenerationRow[]): Promise<Cli
     return {
       ...rest,
       outputs,
-      modelName: modelOf(r)?.name ?? r.model,
-      expiresAt: new Date(new Date(r.created_at).getTime() + RETENTION_DAYS * 86_400_000).toISOString(),
+      modelName: modelOf(r)?.name ?? postName(r.model) ?? r.model,
+      expiresAt: exempt ? null : new Date(new Date(r.created_at).getTime() + RETENTION_DAYS * 86_400_000).toISOString(),
       startImageUrl: (start_image && urls.get(start_image)) || null,
     };
   });
