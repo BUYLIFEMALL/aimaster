@@ -112,13 +112,13 @@ export function MasteringDialog({ title, style, instrumental, toneOk, onClose, o
     }
   }
 
-  const sel = "w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100 focus:border-emerald-400 focus:outline-hidden";
+  const sel = "w-full truncate rounded-xl border border-slate-700 bg-slate-950 py-2 pl-2.5 pr-7 text-[11px] text-slate-100 focus:border-emerald-400 focus:outline-hidden";
   const lufsList = toneOk ? LUFS_CHOICES : OLD_LUFS;
   const providerLabel = prefs ? LYRIC_PROVIDERS.find((p) => p.id === prefs.textProvider)?.label : "";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
-      <div role="dialog" aria-label="마스터링" onClick={(e) => e.stopPropagation()} className="flex max-h-[92vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-700 bg-[#0a0f1d] shadow-2xl">
+      <div role="dialog" aria-label="마스터링" onClick={(e) => e.stopPropagation()} className="flex max-h-[92vh] w-full max-w-3xl flex-col rounded-2xl border border-slate-700 bg-[#0a0f1d] shadow-2xl">
         <div className="flex items-center gap-2 border-b border-slate-800 px-5 py-4">
           <SlidersHorizontal className="h-4 w-4 text-emerald-300" />
           <p className="min-w-0 flex-1 truncate text-sm font-bold text-slate-100">마스터링 — {title}</p>
@@ -151,7 +151,7 @@ export function MasteringDialog({ title, style, instrumental, toneOk, onClose, o
                 <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="찾기 (예: 발라드, 차량)" className="w-36 bg-transparent text-[11px] text-slate-100 outline-hidden placeholder:text-slate-600" />
               </label>
             </div>
-            <div className="grid max-h-56 grid-cols-1 gap-1.5 overflow-y-auto pr-1 sm:grid-cols-2">
+            <div className="grid max-h-[min(22rem,40vh)] grid-cols-1 gap-1.5 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
               {list.map((p) => (
                 <button
                   key={p.id}
@@ -166,7 +166,7 @@ export function MasteringDialog({ title, style, instrumental, toneOk, onClose, o
                   </span>
                 </button>
               ))}
-              {list.length === 0 && <p className="col-span-2 p-3 text-center text-[11px] text-slate-500">맞는 프리셋이 없습니다.</p>}
+              {list.length === 0 && <p className="col-span-full p-3 text-center text-[11px] text-slate-500">맞는 프리셋이 없습니다.</p>}
             </div>
             <p className="text-[11px] text-slate-400">
               {current ? `「${current.name}」 ${current.description}` : presetId === "ai" ? "AI 제안 설정을 쓰는 중입니다." : "직접 조절한 설정을 쓰는 중입니다."}
@@ -212,7 +212,7 @@ export function MasteringDialog({ title, style, instrumental, toneOk, onClose, o
               <select value={o.truePeak} onChange={(e) => setO({ ...o, truePeak: Number(e.target.value) as MasterOptions["truePeak"] })} className={sel}>
                 {PEAK_CHOICES.map((v) => (
                   <option key={v} value={v}>
-                    {v} dBTP{v === -1 ? " · 기본(음원 사이트 권장)" : ""}
+                    {v} dBTP{v === -1 ? " · 기본(사이트 권장)" : ""}
                   </option>
                 ))}
               </select>
