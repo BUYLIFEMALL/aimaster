@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-09 `claude-win-video` (`shorts-onestop-studio` v1.46 무료음악 곡 배경음악 받기 배포 — 실물 시험은 맥미니, 보내는 쪽은 음악 담당)
+- 마지막 갱신: 2026-11-09 `claude-win-video` (쇼츠 원스톱 v1.47·shots v1.46 배포 — 무료음악 곡 받기 받는 쪽 둘 다 끝, 보내는 쪽은 음악 담당)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,14 +15,16 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-video-studio` 백로그 3차 | 장면 맞춤 + 후처리 3종 + 내 영상 올리기 구현·실제 시험 끝(`9397fb311`·`82ed32bca`·`f983f30e8`, 약 $0.69) | 배포(모았다가, v1.30) | `ai-video-studio/docs/PLAN_20261109_POSTPROCESS_FIT.md` |
-| `shorts-onestop-studio` V7 | 장면 구간·48시간 클릭률 안내·해시태그 3단 구현 끝(`a97a9de74`) | 배포 승인(빌드 1회) — 미배포 대기 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` v1.46 | 무료음악 곡 → 배경음악 실물 시험 | 음악 담당 보내는 쪽 배포 → 맥미니 시험 결과 | `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md` |
+| `shots` v1.46 | D-6 무료음악 곡 → 배경음악 받는 쪽 배포·운영 흉내 시험 끝 | 음악 담당 `TARGETS.shots` 연결·배포 → 마스터PC 실물 | `free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md` §14 |
+| `shorts-onestop-studio` v1.47 | 무료음악 곡 → 배경음악 실물 시험(받는 쪽 배포됨) | 무료음악 v1.61 배포(음악 담당) → 맥미니 시험 결과 | `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-09 | `shots` v1.46 무료음악 곡 받기(D-6) | 받기 화면 `/fms-bgm`(`shs-ready`) → 곡 받기 → 영상 고르기 → 회원 폴더 업로드 → 곡 저장·선택 `5c15584c5`, 운영 흉내 시험 통과·시험 곡 삭제·원래 곡 복원 | 빌드 1회 `shots-q0kp69yjy` |
+| 2026-11-09 | `shorts-onestop-studio` v1.47 D-4 수정 + V7 | 받기 전용 `/fms-bgm`(격리 헤더 없음) → sessionStorage → `/render` `989c7bc1c`, V7 장면 구간·48시간 안내·해시태그 3단 `a97a9de74`, 운영 헤더·3단 표시 확인 | 빌드 1회 `shorts-onestop-studio-1w4ozq084` |
 | 2026-11-09 | `shorts-onestop-studio` 무료음악 곡 받기(무료음악 백로그 D-4) | `/render#fms=` → `sos-ready` → `fms-audio` 받아 배경음악으로(출처·보낸 창 확인), 업로드 상한 15MB, tsc·시험 42 통과, ego 운영 확인 | v1.46 배포(`shorts-onestop-studio-jukcy51cw`) |
 | 2026-11-06 | `shorts-onestop-studio` V2 각색 강도 | 내 대본 「✨ AI로 다듬기」 3단(맞춤법만·문장 다듬기·구성까지 새로), 회원 키 1회, 줄 수 유지, 되돌리기, 시험 40개·빌드 통과 | v1.45 배포(`shorts-onestop-studio-f1i2zbcg1`) |
 | 2026-11-06 | `ai-video-studio` V2 해설 교차편집 | `/narrate` — 해설 녹음+촬영본 → 받아쓰기 → 문장마다 컷 배치 → 영상 합치기(해설 소리 칸), 실행 기록 `narration-cut`, 시험 93개·빌드 통과 `42f743503` | v1.29 배포(`ai-video-studio-op4n162e7`) |
