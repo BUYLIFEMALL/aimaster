@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-09 ✅ [역할: video] Claude Code(윈도우) · 세션 claude-win-video — shots v1.46 배포(D-6 무료음악 곡 받기)
+
+- 배포 `shots-q0kp69yjy` Ready, 운영 https://shots.buylife.xyz , DB v1.46(빌드 1회, 주인님 채팅 승인). 30일 열외 `ab4595846`도 함께 나감.
+- 받는 쪽 `/fms-bgm#fms=<곡>`(`5c15584c5`): `shs-ready` → `fms-audio` → 영상 고르기 → shots-bgm 회원 폴더 일회용 업로드 → `shorts_bgm_tracks` 저장·선택 → 영상 화면.
+- 운영 확인(ego, 시험 계정): 무료음악 주소 탭에서 흉내 창으로 시험음 곡 전송 → 저장·「선택됨」·3초 표시·공개 주소 200 → 시험 곡 삭제(파일 지워짐) → 원래 선택 곡 `5ca961b7` 복원.
+- **다음 첫 단계(음악 담당)**: `free-music-studio/src/lib/videoHandoff.ts` `TARGETS`에 `shots` 한 줄 추가·버튼 연결 — `free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md` §14. 그 뒤 마스터PC 실물 1회.
+
 ## 2026-11-09 [역할: mac-mini] 무료음악→쇼츠 BGM 실물 시험 배포 조건 대기
 - 사용자2번전달 확인: 쇼츠v1.47 받기전용/fms-bgm 배포완료, 무료음악 경로수정237314dc8는AGENTS상v1.61미배포. 배포 뒤 최신/fms-bgm#fms=→/render 흐름으로 실제곡전달/기존대본BGM저장/짧은MP4소리 검수. 요청문결과·역할대기기록.
 - 이번전달/업로드/렌더/AI0. 카페6회차는공간17사용자직접시작대기보존. 추가비용없음.
