@@ -200,3 +200,19 @@ test("v1.33 Runway·Vidu 직접 연동: 모델·비율·요청 모양·상태 �
     await assert.rejects(submitVideoJob({ key: "rk", model: r, prompt: "p", startUrl: U, seconds: 5 }), (e) => e.code === "key" && /Runway/.test(e.message));
   } finally { globalThis.fetch = orig; }
 });
+
+test("v1.34 만들기 화면이 보내는 값 이름 = 서버가 읽는 이름(v1.28 리뉴얼 때 어긋나 사진·비율이 안 가던 사고 재발 방지)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const ui = readFileSync(new URL("../components/studio/CreateStudio.tsx", import.meta.url), "utf8");
+  const api = readFileSync(new URL("../app/api/generations/route.ts", import.meta.url), "utf8");
+  const at = ui.indexOf("reuse: { idea");
+  assert.ok(at > 0, "생성 요청 본문을 찾지 못함");
+  const sent = ui.slice(at - 600, at + 60);
+  for (const k of ["model", "prompt", "seconds", "aspectRatio", "resolution", "audio", "startImage", "endImage", "reuse"]) {
+    assert.ok(new RegExp(`\\b${k}\\b`).test(sent), `화면이 ${k}를 보내지 않음`);
+    assert.ok(api.includes(`body.${k}`), `서버가 body.${k}를 읽지 않음`);
+  }
+  assert.ok(!/startImageUrl|endImageUrl/.test(sent), "옛 잘못된 이름");
+  assert.ok(/data\.generations/.test(ui) && /generations:/.test(api), "응답은 generations 배열");
+  assert.ok(/MODELS\.filter\(\(m\) => m\.provider === providerId\)/.test(ui), "모델 고르기 칸");
+});

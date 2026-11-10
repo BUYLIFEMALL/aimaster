@@ -316,25 +316,25 @@ export function CreateStudio({
       const res = await fetch("/api/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // v1.34: 서버(app/api/generations)가 읽는 이름으로 — v1.28 리뉴얼 때 이름이 바뀌어 사진·비율이 전달되지 않던 것 복구(시험 catalog.test.mjs)
         body: JSON.stringify({
-          provider: model.provider,
           model: model.id,
           prompt: finalPrompt,
-          idea,
           seconds: sec,
-          aspect: model.aspects.length ? aspect : undefined,
+          aspectRatio: aspect,
           resolution: pickedRes,
           audio: withAudio,
-          startImageUrl: startImage,
-          endImageUrl: withEnd ? endImage : undefined,
-          sourceFrom: fromId,
+          startImage,
+          endImage: withEnd ? endImage : null,
+          reuse: { idea, styleId, cameraId },
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw Object.assign(new Error(data.error || "영상 생성을 시작하지 못했습니다."), { keys: !data.hasKey });
+      if (!res.ok) throw Object.assign(new Error(data.error || "영상 생성을 시작하지 못했습니다."), { keys: !!data.missingKeys });
+      const gens = (Array.isArray(data.generations) ? data.generations : []) as ClientGeneration[];
       setConfirming(false);
-      setResults((prev) => [data.generation, ...prev]);
-      poll([data.generation.id]);
+      setResults((prev) => [...gens, ...prev]);
+      if (gens.length) poll(gens.map((g) => g.id));
     } catch (e) {
       setError({ text: e instanceof Error ? e.message : "영상 생성을 시작하지 못했습니다.", keys: (e as { keys?: boolean }).keys });
     } finally {
@@ -631,8 +631,31 @@ export function CreateStudio({
               })}
             </div>
 
+            {/* 모델 선택(v1.34 — v1.28 리뉴얼 때 빠져 업체마다 첫 모델만 쓰이던 것을 되살림) */}
+            <div className="grid gap-2 sm:grid-cols-2">
+              {MODELS.filter((m) => m.provider === providerId).map((m) => {
+                const on = modelId === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    aria-pressed={on}
+                    data-model={m.id}
+                    onClick={() => { setModelId(m.id); setConfirming(false); }}
+                    className={`rounded-xl border p-2.5 text-left transition-all ${on ? "border-red-500 bg-red-950/30 shadow-sm" : "border-slate-700 bg-slate-900/60 hover:border-slate-600"}`}
+                  >
+                    <span className="block text-xs font-black text-white">{m.name}</span>
+                    <span className="block text-[11px] leading-snug text-slate-400">
+                      {m.note} · 초당 약 ${m.perSec}{m.needsImage ? " · 시작 사진 필요" : " · 글만으로도 생성"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             {/* 비율 및 길이 설정 */}
             <div className="grid grid-cols-2 gap-4 pt-2">
+              {model.aspects.length > 0 ? (
               <div className="space-y-1.5">
                 <span className="text-xs font-bold text-slate-300">화면 비율</span>
                 <div className="flex gap-2">
@@ -652,6 +675,9 @@ export function CreateStudio({
                   </button>
                 </div>
               </div>
+              ) : (
+                <p className="self-end text-[11px] leading-snug text-slate-400">이 모델은 넣은 시작 사진의 비율을 그대로 따릅니다(세로 영상은 세로 사진).</p>
+              )}
 
               <div className="space-y-1.5">
                 <span className="text-xs font-bold text-slate-300">영상 길이</span>
