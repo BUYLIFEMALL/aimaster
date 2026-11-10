@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getCurrentUser } from "@/lib/store";
+import { getCurrentUser, getMyStores } from "@/lib/store";
+import StoreSwitcher from "./store-switcher";
 import LogoutButton from "@/app/logout-button";
 import { createClient } from "@/lib/supabase/server";
 import { canSeeMenu, type MyStaff } from "@/lib/staff";
@@ -37,13 +38,18 @@ export async function AdminShell({ slug, storeName, active, children }: { slug: 
   const me = storeRow ? (((await supabase.rpc("mall_builder_my_staff", { p_store_id: storeRow.id })).data ?? null) as MyStaff) : null;
   const menu = MENU.filter((m) => canSeeMenu(m.href, me));
   const allowed = canSeeMenu(active, me);
+  // D31 몰 여러 개 — 내가 대표·직원인 몰이 둘 이상이면 「다른 몰로」
+  const myStores = user ? await getMyStores(user.id) : [];
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
       <div className="flex items-center justify-between gap-2 text-sm text-gray-500">
         <Link href="/">← 내 쇼핑몰</Link>
         <span className="truncate" title="지금 로그인한 계정">{user?.email}</span>
       </div>
-      <h1 className="mt-2 text-2xl font-bold">{storeName} 관리</h1>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <h1 className="text-2xl font-bold">{storeName} 관리</h1>
+        {myStores.length > 1 && <StoreSwitcher current={slug} stores={myStores.map((s) => ({ slug: s.slug, name: s.name }))} />}
+      </div>
       <nav className="mt-4 flex gap-2 overflow-x-auto border-b">
         {menu.map((m) => (
           <Link

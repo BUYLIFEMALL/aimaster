@@ -8,6 +8,9 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const user = await requireUser("/");
   const stores = await getMyStores(user.id);
+  // D31 몰 여러 개 — 대표인 몰은 5개까지, 직원으로 들어간 몰도 함께 보인다
+  const owned = stores.filter((s) => s.owner_id === user.id);
+  const MAX_OWNED = 5;
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
@@ -32,7 +35,12 @@ export default async function Home() {
               <li key={store.id} className="rounded-lg border p-4">
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <p className="font-semibold">{store.name}</p>
+                    <p className="font-semibold">
+                      {store.name}
+                      <span className={`ml-2 rounded px-1.5 text-xs font-normal ${store.owner_id === user.id ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600"}`} data-store-role>
+                        {store.owner_id === user.id ? "대표" : "직원"}
+                      </span>
+                    </p>
                     <p className="text-sm text-gray-500">/s/{store.slug}</p>
                   </div>
                   {store.status === "suspended" && (
@@ -50,6 +58,16 @@ export default async function Home() {
               </li>
             ))}
           </ul>
+        )}
+        {stores.length > 0 && (
+          owned.length < MAX_OWNED ? (
+            <details className="mt-4" data-more-store>
+              <summary className="cursor-pointer text-sm font-medium text-blue-700">+ 몰 하나 더 만들기 ({owned.length}/{MAX_OWNED})</summary>
+              <CreateStoreForm sources={owned.map((s) => ({ id: s.id, name: s.name }))} label="새 몰 만들기" />
+            </details>
+          ) : (
+            <p className="mt-4 text-sm text-gray-500">몰은 대표 1명당 {MAX_OWNED}개까지 만들 수 있습니다.</p>
+          )
         )}
       </section>
     </main>

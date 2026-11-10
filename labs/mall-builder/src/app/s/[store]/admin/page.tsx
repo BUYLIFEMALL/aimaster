@@ -9,8 +9,9 @@ import { AdminShell, NoPermission } from "./admin-shell";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export default async function StoreAdminPage({ params }: { params: Promise<{ store: string }> }) {
+export default async function StoreAdminPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
+  const { error: flashError, ok: flashOk, msg: flashMsg } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin`);
   if (!staff) return <NoPermission />;
 
@@ -21,6 +22,8 @@ export default async function StoreAdminPage({ params }: { params: Promise<{ sto
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="">
+      {flashError && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-flash-error>{flashError}</p>}
+      {flashOk && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-flash-ok>{flashMsg || "처리했습니다."}</p>}
       {missing.length > 0 && (
         <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm">
           <p className="font-semibold">손님 화면 바닥글에 꼭 필요한 사업자 정보가 비어 있습니다.</p>
