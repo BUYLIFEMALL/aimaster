@@ -68,6 +68,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `ai-work-workspace` | v1.24 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 U12 플랜 승인 범위 빌드 1회, `ai-work-workspace-52q7nkhlv` Ready, DB v1.24) | U12 업무 비서(새 기능) — ego 시험 계정: 비용 안내·한국어 템플릿·대화·직접 실행 통과 |
 | `shorts-onestop-studio` | v1.48 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 「쇼츠 원스톱도 함께」 승인 빌드 1회, `shorts-onestop-studio-5tr3q3m40` Ready, DB v1.48) | 레퍼런스 받아쓰기 모델 선택 새 기능 + 대기 「문장 다듬기로」 조사 수정 + 30일 열외 줄의 이 프로그램 몫 |
 | `ai-video-studio` | v1.31 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 채팅 승인 빌드 1회, `ai-video-studio-1e670xxcf` Ready, DB v1.31) | 받아쓰기 모델 선택(Gemini 3.8 Flash 기본·Flash Lite·Whisper) 새 기능 + 30일 열외 줄의 이 프로그램 몫 ✅ 표시 |
 | `ai-auto-blog` | v1.87 · 2026-11-10 ([역할: blog] `claude-win-blog`, 주인님 「진행해」 빌드 1회, `ai-auto-blog-owi7ebx36` Ready, DB·확장·ZIP v1.87) | 12월 모델 교체 A `142cb45ec` · U10 2차 「📨 업무 워크스페이스로 보내기」 `c44499682` · 권한 판정 동시 조회 `d1e710d68` · 시험 정리 |
