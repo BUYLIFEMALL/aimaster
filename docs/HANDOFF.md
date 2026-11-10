@@ -1,5 +1,27 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 🎨 [역할: design] Antigravity(윈도우) · 세션 `agy-win-res-v2` — `real_estate_sales` (부동산 실거래 투자분석 자동화) v1.58 4대 화면 3시안 쇼케이스 및 종합 비교표 구축 완료 (주인님 채택 선택 대기)
+- **주인님 지시**: 「1 │ 부동산 실거래 투자분석(real-estate-sales) │ v1.58 ... 진행해」
+- **구축 내역**:
+  1. **4대 핵심 화면 × 3대 프리미엄 시안 (총 12개 뷰) 기획 및 1440px 고해상도 캡처**:
+     - **시안 1 (88. 퀀트 프롭테크 인텔리전스 레이더 덱) 🏆 [1순위 추천]**: 옵시디언 딥블랙(`#080C14`) & 일렉트릭 사이안(`#06B6D4`) & 골드 앰버(`#F59E0B`) HUD, 4단계 프롭테크 파이프라인, 10년 실거래가 차트, 3D 엠보싱 사이안 버튼(`.btn-3d-cyan-radar`).
+     - **시안 2 (89. 네이버 부동산 스마트 매트릭스 저널) ⚡ [2순위 대안]**: 소프트 화이트(`#F8FAFC`) & 네이버 공식 그린(`#03C75A`) & 모던 슬레이트 잉크, 네이버 부동산 호가 대조표, 단지별 매트릭스 테이블, 3D 엠보싱 네이버 그린 버튼(`.btn-3d-naver-green`).
+     - **시안 3 (90. 미니멀 프롭테크 인베스터 아틀리에) 🌿 [3순위 대안]**: 클린 크림 페이퍼(`#FDFCFA`) & 딥 로열 블루(`#2563EB`) & 웜 슬레이트, PB 자산관리 리포트 카드, 미니멀 투자 체크리스트, 3D 엠보싱 로열 블루 버튼(`.btn-3d-investor-blue`).
+  2. **100% 자산화 헌장 준수**: `D:\Antigravity\Design` 밑 3대 독립 폴더(`88_quant_proptech_intelligence_radar/real_estate_sales`, `89_naver_realestate_smart_matrix/real_estate_sales`, `90_minimal_proptech_investor_atelier/real_estate_sales`)에 4대 화면 고화질 캡처본(01_main, 02_detail, 03_guide, 04_settings) 및 `README.md` 영구 아카이빙 완료 (총 15개 파일).
+  3. **단일 통합 쇼케이스 웹서버 표준 포트 제공 (`http://localhost:3800/showcase.html`)**:
+     - 상단 「4대 화면 3시안 한눈에 보는 종합 비교 매트릭스 표」 필수 탑재.
+     - 카드 클릭 시 1440px 고화질 원본 라이트박스 모달 팝업 확대 (100% 원본 크기 토글, 좌우 이전/다음, ESC/배경 클릭 닫기 지원).
+     - 독립 종합 비교표 페이지 `http://localhost:3800/comparison.html` 동시 생성 및 연동.
+  4. **2026-11-01 5단계 표준 로그인 규격 100% 반영**: 68px 프롭테크 심볼 로고 + 알약 뱃지 + 볼드 한글명 + 2단 탭 폼 + 1행 축소 약관 동의(`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`) 전 시안 화면 4에 완비.
+- **5대 확인 링크**:
+  - 🌐 공식 운영 도메인: https://real-estate-sales.buylife.xyz
+  - 🌐 Vercel 프로덕션: https://real-estate-sales.vercel.app
+  - 🎨 브라우저 쇼케이스 HTML: http://localhost:3800/showcase.html
+  - 📊 종합 비교표 단독 뷰어: http://localhost:3800/comparison.html
+  - 📁 로컬 영구 자산 경로: `D:\Antigravity\Design\88_quant_proptech_intelligence_radar\real_estate_sales` (및 89, 90번)
+- **다음 첫 단계**: 주인님 3대 시안 중 채택안(1/2/3안) 지시 접수 후 프로그램 리뉴얼 코드 반영 착수.
+
+
 ## 2026-11-11 🟡 [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D27 AI 견적 보조(구현 완료, 실제 호출 시험은 키 등록 대기, 미배포)
 - **한 일**: 몰 대표 본인 Anthropic 키를 서버에서 암호화(AES-256-GCM, 몰 id 묶음)해 저장 — Lab 환경변수 `MALL_SECRET_KEY` 추가(주인님 승인, 내 PC `.env.local`과 같은 값). DB `0047`, 설정 「AI 견적 보조」, 견적 상세 「AI 단가 제안」(구조화 응답·최소 마진 보정·회신 칸 채우기).
 - **확인**: 시험 198·빌드, DB 권한 시험, 키 없음 안내. 시험 견적 `5a700530…`(aimaster-b2b, 4품목).

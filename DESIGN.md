@@ -762,3 +762,16 @@
 
 - 쇼케이스: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html) · 비교표: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html) (이전 카페 쇼케이스는 `showcase_naver-cafe-poster_20261110.html`)
 - 작성: [역할: blog] Claude Code(윈도우) `claude-win-blog`
+
+## 2026-11-11 부동산 실거래 투자분석 자동화 (`real_estate_sales`) 4대 화면 3시안 자산화
+
+| 템플릿 번호 & 명칭 | 구조 및 시그니처 컴포넌트 | 추천/선정 이유 | 상태 & 영구 자산 경로 |
+|---|---|---|---|
+| **88. 퀀트 프롭테크 인텔리전스 레이더 덱** | 옵시디언 딥블랙(`#080C14`) & 일렉트릭 사이안(`#06B6D4`) & 골드 앰버(`#F59E0B`) HUD, JetBrains Mono 폰트, 4단계 프롭테크 파이프라인 배너, 4대 핵심 투자 KPI 카드, 10년 실거래가 인터랙티브 차트 & 갭투자 매력도 지수 & AI 진단, 3D 엠보싱 사이안 버튼(`.btn-3d-cyan-radar`), 5단계 표준 로그인 폼 | 국토교통부 실거래가 빅데이터와 네이버 부동산 호가를 초당 대조 분석하여 갭투자 기회와 급매물을 포착하는 퀀트 덱 (1순위 추천) | **🏆 1순위 추천 (주인님 선택 대기)** · `D:\Antigravity\Design\88_quant_proptech_intelligence_radar\real_estate_sales` |
+| **89. 네이버 부동산 스마트 매트릭스 저널** | 소프트 화이트(`#F8FAFC`) & 네이버 그린(`#03C75A`) & 모던 슬레이트 잉크, 네이버 부동산 호가 대조표, 단지별 매트릭스 테이블, 갭투자 HUD, 3D 엠보싱 네이버 그린 버튼(`.btn-3d-naver-green`), 5단계 표준 로그인 폼 | 국내 1위 네이버 부동산 친화적 레이아웃으로 익숙하고 쾌적하게 단지별 시세, 전세가율, 실거래 내역을 탐색하는 직관적 저널 (2순위 대안) | **⚡ 2순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\89_naver_realestate_smart_matrix\real_estate_sales` |
+| **90. 미니멀 프롭테크 인베스터 아틀리에** | 클린 크림 페이퍼(`#FDFCFA`) & 딥 로열 블루(`#2563EB`) & 웜 슬레이트, PB 자산관리 리포트 카드, 미니멀 투자 체크리스트, 단정한 타이포그래피, 3D 엠보싱 로열 블루 버튼(`.btn-3d-investor-blue`), 5단계 표준 로그인 폼 | 고급 프라이빗 뱅킹(PB) 자산관리 리포트 감성의 미니멀하고 단정한 타이포그래피 중심 투자 분석 아틀리에 (3순위 대안) | **🌿 3순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\90_minimal_proptech_investor_atelier\real_estate_sales` |
+
+- 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+- 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
+- 작성: [역할: design] Antigravity(윈도우) `agy-win-res-v2`
+
