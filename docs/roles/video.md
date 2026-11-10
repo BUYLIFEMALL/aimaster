@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-10 `claude-win-video` (shorts-onestop-studio v1.48 받아쓰기 모델 선택 배포)
+- 마지막 갱신: 2026-11-11 `claude-win-video` (남은 일 정리 — Claude 모델 교체·insta 메모·낱말 시각 플랜)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -20,6 +20,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | 남은 일 정리 | `ai-video-studio` 구간 고르기 Claude `claude-haiku-5-5`(생각 끔·effort low, 관리자 키 시험 1회 정상, 미배포) · `insta_auto_poster` 담당께 whisper 종료 대비 메모 · 쇼츠 낱말 시각 플랜(2027-01-05 재점검) | 없음 |
 | 2026-11-10 | `shorts-onestop-studio` v1.48 | 레퍼런스 받아쓰기 모델 선택(Gemini 3.8 Flash 기본·Flash Lite·OpenAI gpt-transcribe) + 「문장 다듬기로」 조사, 운영 ego 7.5초 확인, 시험 53 | 빌드 1회 `shorts-onestop-studio-5tr3q3m40` |
 | 2026-11-10 | `ai-video-studio` v1.31 | 받아쓰기 모델 선택(Gemini 3.8 Flash 기본·Flash Lite·Whisper) — Claude는 음성 입력 없음·OpenAI는 시각 주는 모델이 whisper-1뿐(공식 문서), 긴 소리는 5분씩 조용한 곳에서 잘라 Gemini에. 운영 ego: 해설 받아쓰기 22.3초·긴 영상→쇼츠 18.8초 정상. 시험 108 | 빌드 1회 `ai-video-studio-1e670xxcf` |
 | 2026-11-10 | 무료음악 → 쇼츠 5단계(엔진 꺼짐 3분) | 해당 없음으로 닫음 — 엔진이 꺼지면 보내기 메뉴가 꺼져 누를 수 없음(앞단 차단), 이 PC 50곡은 음원이 다른 PC에 있어 엔진 켜져도 메뉴 꺼짐. 엔진 끄지 않음, 비용 0. 시험 요청서 결과 칸 | 없음 |
@@ -74,8 +75,8 @@
 ## 다음 첫 단계
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
 2. V1 소리 확인 남음, V4 녹화는 주인님 확인 (해설 받아쓰기는 11-10 v1.31 Gemini로 확인 끝)
-3. 구간 고르기 Claude 모델 `claude-haiku-4-5` → `claude-haiku-5-5`(ai-video-studio 개선 후보) · 쇼츠 원스톱 음성 자막 낱말 시각(`wordStarts`)은 whisper-1 — 2027-02 전 대안
-4. 미배포 대기 2건: `youtube-viral-studio` 메뉴 이름 그림문자 · `music-video-studio` v1.29 — 각 프로그램 다음 배포 때
+3. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(플랜 `shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`, ElevenLabs는 이미 자체 시각)
+4. 미배포 대기 3건: `youtube-viral-studio` 메뉴 이름 그림문자 · `music-video-studio` v1.29 · `ai-video-studio` Claude 모델 4-5→5-5 — 각 프로그램 다음 배포 때
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것

@@ -27,6 +27,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `ai-video-studio` | 구간 고르기·언어판 번역 Claude 모델 `claude-haiku-4-5`(종료 위험) → `claude-haiku-5-5`, 요청에 생각 끔·effort low(관리자 Claude 키로 같은 요청 1회 시험 200·JSON 정상), 시험 108 | (이 줄과 같은 커밋 묶음) | 2026-11-11 · [역할: video] `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때 함께, 버전 +0.01, 배포 뒤 구간 고르기 1회 확인 |
 | `youtube-viral-studio` | 좌측 메뉴 「협업 크리에이터 찾기」 이름의 중복 그림문자 🤝 제거(아이콘과 겹침, 문구만) | (이 줄과 같은 커밋) | 2026-11-10 · [역할: video] `claude-win-video` | `youtube-viral-studio/AGENTS.md` v1.25 절 | 다음 배포 때 함께, 버전 +0.01 |
 | `music-video-studio` | 공용 `video-edit-composition`·`timeline` 사본 동기화(장면 맞춤 칸 추가, 이 프로그램 동작 변화 없음 — 기준 쪽 `ai-video-studio` v1.30은 11-10 배포됨) | `9397fb311` | 2026-11-09 · [역할: video] `claude-win-video` | `ai-video-studio/docs/PLAN_20261109_POSTPROCESS_FIT.md` | 그 프로그램 다음 배포 때 함께(급하지 않음). 11-10 음악 담당 → 영상 담당 인계 받음, 배포 전 확인 끝(사본 OK·tsc·시험 34). 배포 때 v1.29. `d1e710d68`은 v1.28에 이미 나감 |
 | `playlist-channel-studio` (운영 v1.35) | 무료음악 곡 가져오기 패널: 무료음악 창이 아닌 곳에서 열었을 때 「받는 중」 줄을 숨김(「직접 넣기」 안내와 엇갈려 보이던 것, 운영 확인 중 발견) | (이번 커밋) | 2026-11-08 · [역할: music] `claude-win-20261024-music` | `playlist-channel-studio/AGENTS.md` v1.35 | ✅ 11-09 v1.37에 함께 나감(이 줄은 기록용) |
