@@ -6,7 +6,7 @@
     "dev": "next dev -p 3066",
     "build": "next build",
     "start": "next start",
-    "test": "node --test tests/video.test.ts tests/reference.test.ts tests/refBlocks.test.ts tests/freeTts.test.ts tests/productShorts.test.ts tests/rewrite.test.ts tests/seoTiers.test.ts tests/fmsBgm.test.ts",
+    "test": "node --test tests/video.test.ts tests/reference.test.ts tests/refBlocks.test.ts tests/freeTts.test.ts tests/productShorts.test.ts tests/rewrite.test.ts tests/seoTiers.test.ts tests/fmsBgm.test.ts tests/transcribeModels.test.ts",
     "predev": "node scripts/copy-ort.mjs",
     "prebuild": "node scripts/copy-ort.mjs"
   },

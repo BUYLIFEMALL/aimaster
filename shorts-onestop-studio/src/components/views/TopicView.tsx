@@ -1,5 +1,11 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { TRANSCRIBE_MODELS, defaultTranscribeModel, isTranscribeModel, transcribeModelOf, type TranscribeModelId } from "@/lib/transcribeModels";
+
+// v1.48 레퍼런스 받아쓰기 모델 — 고른 값은 이 브라우저에만 기억
+const TM_KEY = "sos-transcribe-model-v1";
+const tmSubscribe = (cb: () => void) => { window.addEventListener("storage", cb); return () => window.removeEventListener("storage", cb); };
+const tmRead = () => { try { return localStorage.getItem(TM_KEY) ?? ""; } catch { return ""; } };
 import { FileText, Plus, Save, Sparkles, Trash2, Wand2 } from "lucide-react";
 import { Hero } from "@/components/ui/Hero";
 import { Busy, Message } from "@/components/ui/Message";
@@ -48,6 +54,22 @@ export function TopicView() {
   const [rewriteLevel, setRewriteLevel] = useState<RewriteLevel>("medium"), [ownScript, setOwnScript] = useState(false), [manualBefore, setManualBefore] = useState<string | null>(null);
   const [script, setScript] = useState<ShortsScript | null>(null), [itemId, setItemId] = useState<string | null>(null);
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null);
+  const tmSaved = useSyncExternalStore(tmSubscribe, tmRead, () => "");
+  const [tmKeys, setTmKeys] = useState<string[] | null>(null);
+  const [tmPicked, setTmPicked] = useState<TranscribeModelId | null>(null);
+  const tModel = tmPicked ?? defaultTranscribeModel(tmKeys ?? [], tmSaved);
+  useEffect(() => {
+    let alive = true;
+    api<{ keys: Record<string, { hasKey: boolean }> }>("/api/keys")
+      .then((k) => { if (alive) setTmKeys(Object.entries(k.keys ?? {}).filter(([, v]) => v?.hasKey).map(([p]) => p)); })
+      .catch(() => { if (alive) setTmKeys([]); });
+    return () => { alive = false; };
+  }, []);
+  const pickTModel = (v: string) => {
+    if (!isTranscribeModel(v)) return;
+    setTmPicked(v);
+    try { localStorage.setItem(TM_KEY, v); } catch { /* 이번 화면에서만 */ }
+  };
   // v1.31 참고 자료 전체 베끼기 검사(선택) · 대본을 만들 때 쓴 검사 대상 글(장면 노란 테두리용)
   const [guardAll, setGuardAll] = useState(false), [guardRef, setGuardRef] = useState("");
   // v1.44(V3) 상품 홍보: 판매자가 적은 상품명·장점 3개·혜택(다른 프로그램이 주소 # 뒤로 넘기면 채워짐)
@@ -102,7 +124,7 @@ export function TopicView() {
     setReference((await file.text()).slice(0, 12000)); setMsg({ text: `「${file.name}」 내용을 참고 자료로 불러왔습니다.`, ok: true });
   }
 
-  // v1.29 레퍼런스 쇼츠에서 대본 따기 — 영상은 이 브라우저 안에서 소리만 뽑고(공용 browser-video-extract), 본인 OpenAI 키로 받아써 참고 자료에 넣는다
+  // v1.29 레퍼런스 쇼츠에서 대본 따기 — 영상은 이 브라우저 안에서 소리만 뽑고(공용 browser-video-extract), 고른 받아쓰기 모델(v1.48)의 본인 키로 받아써 참고 자료에 넣는다
   async function readVideo(file: File | undefined) {
     if (!file) return;
     setBusy("영상에서 소리를 뽑는 중…"); setMsg(null);
@@ -110,7 +132,7 @@ export function TopicView() {
       const reel = await extractReel(file);
       if (!reel.audio) { setMsg({ text: "이 영상에서 소리를 읽지 못했습니다. mp4(H.264·AAC) 영상으로 다시 시도해 주세요." }); return; }
       setBusy(`말소리를 받아쓰는 중… (${reel.audio.seconds}초 분량, 보통 10~30초)`);
-      const r = await api<{ transcript: string }>("/api/ai/transcribe", { body: { audio: { mimeType: reel.audio.mimeType, data: reel.audio.data } } });
+      const r = await api<{ transcript: string }>("/api/ai/transcribe", { body: { audio: { mimeType: reel.audio.mimeType, data: reel.audio.data }, model: tModel } });
       const block = `${refBlockHeader(file.name)}\n${r.transcript}`;
       setReference((cur) => (cur.trim() ? `${cur.trim()}\n\n${block}` : block).slice(0, 12000));
       setMsg({ text: `「${file.name}」의 말소리를 받아써 참고 자료에 넣었습니다. 주제를 고르고 대본을 만들면 이 흐름을 참고합니다.`, ok: true });
@@ -220,7 +242,9 @@ export function TopicView() {
               </div>
               <div className="row">
                 <label className="button" style={{ fontWeight: 600 }}>📄 파일 불러오기<input type="file" accept=".txt,.md,.markdown,.csv,.json" hidden onChange={(e) => void readFile(e.target.files?.[0])} /></label>
-                <label className="button" style={{ fontWeight: 600 }} title="저장해 둔 쇼츠 영상의 말소리를 본인 OpenAI 키로 받아써 참고 자료에 넣습니다(최대 3분, 영상은 어디에도 올리지 않음)">🎬 레퍼런스 쇼츠에서 대본 따기<input type="file" accept="video/mp4,video/quicktime,video/webm" hidden disabled={!!busy} onChange={(e) => { void readVideo(e.target.files?.[0]); e.target.value = ""; }} /></label>
+                <label className="button" style={{ fontWeight: 600 }} title="저장해 둔 쇼츠 영상의 말소리를 고른 받아쓰기 모델의 본인 키로 받아써 참고 자료에 넣습니다(최대 3분, 영상은 어디에도 올리지 않음)">🎬 레퍼런스 쇼츠에서 대본 따기<input type="file" accept="video/mp4,video/quicktime,video/webm" hidden disabled={!!busy} onChange={(e) => { void readVideo(e.target.files?.[0]); e.target.value = ""; }} /></label>
+                <label className="row" style={{ gap: 6, fontWeight: 500 }} title="레퍼런스 쇼츠 받아쓰기에 쓸 모델(본인 키). Claude는 음성을 받지 못해 없습니다.">받아쓰기<select value={tModel} disabled={!!busy} onChange={(e) => pickTModel(e.target.value)}>{TRANSCRIBE_MODELS.map((m) => <option key={m.id} value={m.id}>{m.name} — {m.note}{tmKeys && !tmKeys.includes(m.provider) ? " (키 없음)" : ""}</option>)}</select></label>
+                {tmKeys && !tmKeys.includes(transcribeModelOf(tModel).provider) && <small className="muted">이 모델은 본인 {transcribeModelOf(tModel).provider === "gemini" ? "Gemini" : "OpenAI"} 키가 필요합니다(설정에서 등록).</small>}
                 {reference && <button type="button" className="link-button" onClick={() => setReference("")}>참고 자료 지우기</button>}
                 {reference && <label className="row" style={{ gap: 6, fontWeight: 500 }} title="켜면 붙여 넣은 기사·블로그 글도 6어절 이상 그대로 옮기지 않게 검사합니다(레퍼런스 쇼츠는 항상 검사)"><input type="checkbox" checked={guardAll} onChange={(e) => setGuardAll(e.target.checked)} />📋 참고 자료 전체도 베끼기 검사</label>}
                 <label className="row" style={{ gap: 6, fontWeight: 500 }}><input type="checkbox" checked={useGuide} disabled={!category} onChange={(e) => setUseGuide(e.target.checked)} />내 지침 사용{category && (guide ? <span className="badge brand">저장됨</span> : <span className="badge">없음</span>)}</label>
