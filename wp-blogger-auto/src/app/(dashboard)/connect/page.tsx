@@ -1,15 +1,24 @@
 import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadWordpressConnection } from "@/lib/wordpressConnect";
+import { loadBloggerAccount, getGoogleApp } from "@/lib/googleConnect";
 import { WordpressConnectCard, type WpInitial } from "@/components/connect/WordpressConnectCard";
+import { BloggerConnectCard, type BloggerInitial } from "@/components/connect/BloggerConnectCard";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export default async function ConnectPage() {
+export default async function ConnectPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await requireProgramAccess();
-  const wp = await loadWordpressConnection(createAdminClient(), user.id);
-  const initial: WpInitial = wp ? { connected: true, accountId: wp.accountId, siteUrl: wp.siteUrl, username: wp.username } : { connected: false };
+  const sp = await searchParams;
+  const admin = createAdminClient();
+  const [wp, bl, app] = await Promise.all([loadWordpressConnection(admin, user.id), loadBloggerAccount(admin, user.id), getGoogleApp(admin, user.id)]);
+
+  const wpInitial: WpInitial = wp ? { connected: true, accountId: wp.accountId, siteUrl: wp.siteUrl, username: wp.username } : { connected: false };
+  const extra = (bl?.extra ?? {}) as { blog_id?: string; blog_name?: string; blog_url?: string };
+  const blInitial: BloggerInitial = bl
+    ? { connected: true, hasApp: !!app, accountId: bl.id, email: bl.username, needsReconnect: bl.needsReconnect, blog: extra.blog_id ? { id: extra.blog_id, name: extra.blog_name ?? "", url: extra.blog_url ?? "" } : null }
+    : { connected: false, hasApp: !!app };
 
   return (
     <div className="space-y-6">
@@ -19,11 +28,8 @@ export default async function ConnectPage() {
         <p className="mt-1 text-sm text-[color:var(--muted)]">한 번만 연결하면 다음부터는 묻지 않고, 다른 AIMaster 프로그램에서도 그대로 씁니다. 연결 정보는 회원님 계정에만 저장됩니다.</p>
       </div>
       <div className="grid gap-5 lg:grid-cols-2">
-        <WordpressConnectCard initial={initial} />
-        <div className="lp-card" style={{ boxShadow: "inset 0 8px 0 var(--blogger), 0 8px 26px rgba(15,42,74,.09)" }}>
-          <h2 className="pt-1 text-lg font-black">🅑 구글 블로그 연결</h2>
-          <p className="mt-2 text-sm text-[color:var(--muted)]">구글 연결 화면은 지금 만드는 중입니다.</p>
-        </div>
+        <WordpressConnectCard initial={wpInitial} />
+        <BloggerConnectCard initial={blInitial} result={{ ok: sp.google === "connected" ? "connected" : undefined, error: sp.google_error }} />
       </div>
     </div>
   );

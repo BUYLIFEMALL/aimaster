@@ -62,6 +62,8 @@
 
 - **2026-11-10 2-2 완료(로컬, 미배포)** — 워드프레스 연결: `src/lib/wordpressConnect.ts`(연결 확인→발행 권한→카테고리→공용 표 저장·읽기·끊기), API `src/app/api/connect/wordpress/route.ts`(GET 현재 연결·카테고리 / POST 연결 / DELETE 끊기, 쓰기는 같은 사이트 요청만), 화면 `components/connect/WordpressConnectCard.tsx`(3칸 입력·연결 확인·카테고리·끊기·401 때 .htaccess 한 줄 안내). 공용 사본 2개 등록(`memberIntegrations`·`safe-fetch`, 내부망 차단), `undici` 7.30.0. tsc·시험 27개·로컬 빌드 통과. 다음: 2-3 구글 블로그 연결.
 
+- **2026-11-11 2-3 완료(로컬, 미배포)** — 구글 블로그 연결: `src/lib/googleConnect.ts`(회원 본인 구글 앱 키만, 동의 주소·코드 교환·블로그 권한 확인·공용 표 저장·토큰 갱신·앱 바뀌면 다시 연결 표시·블로그 목록·고르기·끊기), 경로 `api/oauth/google/start`(무작위 상태값+보안 쿠키)·`callback`(상태값·로그인 회원 대조)·`api/connect/blogger`, 화면 `BloggerConnectCard.tsx`(4단계·리디렉션 주소 복사·결과 안내). 콜백 주소 고정 `https://wp-blogger-auto.buylife.xyz/api/oauth/google/callback` — **회원이 구글 콘솔에 이 주소 추가·Blogger API 켜기 필요(매뉴얼 2-7에 넣을 것)**. tsc·시험 35개·로컬 빌드 통과. 다음: 2-4 원고 만들기.
+
 ## 4. 결정 항목 (주인님)
 1. **운영 DB 적용 승인** — 요청함 `eefe9433`.
 2. **구글 시험 블로그** — 원 플랜 결정 5에서 미정. 주인님 구글 계정에 시험 블로그 1개를 새로 만들지, 기존 블로그를 쓸지.

@@ -1,4 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import { sameOrigin, noStoreJson as json } from "@/lib/requestGuard";
 import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { connectWordpress, loadWordpressConnection, disconnectWordpress, connectErrorView, safeFetchImpl } from "@/lib/wordpressConnect";
@@ -7,15 +8,6 @@ import { listCategories } from "@/lib/publish/wordpress";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const runtime = "nodejs";
-
-const json = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
-
-// 쓰기 요청은 이 사이트 화면에서 보낸 것만(다른 사이트가 회원 쿠키로 대신 보내는 것 차단)
-function sameOrigin(req: NextRequest) {
-  const origin = req.headers.get("origin");
-  if (!origin) return false;
-  try { return new URL(origin).host === (req.headers.get("x-forwarded-host") ?? req.headers.get("host")); } catch { return false; }
-}
 
 /** 현재 연결(비밀번호 없이) + ?categories=1 이면 카테고리 목록 */
 export async function GET(req: NextRequest) {
