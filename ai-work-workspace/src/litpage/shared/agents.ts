@@ -308,7 +308,7 @@ export function cleanConfig(v: any, base?: AgentConfig): AgentConfig {
   }
   const fallback = pick('fallback');
   return {
-    name: str(pick('name'), LIMITS.name).trim() || 'New agent',
+    name: str(pick('name'), LIMITS.name).trim() || '새 에이전트',
     icon: str(pick('icon'), 400) || undefined,
     description: str(pick('description'), LIMITS.description) || undefined,
     instructions_page_id: isId(pick('instructions_page_id')) ? (pick('instructions_page_id') as string) : undefined,
@@ -330,7 +330,7 @@ export function cleanConfig(v: any, base?: AgentConfig): AgentConfig {
   };
 }
 
-export function defaultConfig(name = 'New agent'): AgentConfig {
+export function defaultConfig(name = '새 에이전트'): AgentConfig {
   return {
     name, triggers: [], model: 'auto', fallback: 'auto', grants: [], workspace_access: 'none', web_access: false, web_domains: [], trusted_urls: [],
     allow_all_urls: false, sub_agents: [], people_directory: false, mcp_tool_modes: {}, skip_approvals: false, allow_model_override: true, share_chat_history: false,
