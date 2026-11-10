@@ -6,6 +6,12 @@
 - **남은 일**: Lab 배포(미배포 대기: 초대 실패 화면·직원 안내·하위 도메인·D23·D24, 빌드 승인 필요). 다음 첫 단계: B2B 핵심 3번 빠른 주문(품번·엑셀)·재주문 플랜. 상세 `labs/mall-builder/README.md`.
 - 링크: https://dev-mall-builder.vercel.app (아직 이전 버전)
 
+## 2026-11-10 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **블로그 3개 배포: BLOG v1.87 · 티스토리 v1.96 · SEO v2.26 (12월 모델 교체 A 기한 12-10 처리)**
+- 주인님 「진행해」, 빌드 3회(11-06 승인 6회 범위 안). 작업실·콘텐츠 제작은 백업 카테고리 중지 프로그램이라 뺌. 배포 `ai-auto-blog-owi7ebx36`·`tistory-auto-blog-4qni6ytnu`·`naver-blog-seo-studio-fg5j850xv` 모두 Ready, DB `version`·`extension_version`·ZIP 일치(`check-extension-release` OK), ego 로그인 화면에서 새 버전 표시 확인.
+- 담긴 것: 12월 모델 교체 A(`gpt-5`·`o3`·`gemini-2.5` 선택지 삭제·저장된 옛 값 대체 모델로), 30일 열외(티스토리·SEO), BLOG U10 「업무 워크스페이스로 보내기」, 권한 판정 동시 조회.
+- 배포 전 BLOG 시험 7개 실패 → 원인: v1.84(10-28) 카테고리 회원별 전환 뒤 시험이 옛 「공용·관리자만 수정」 규칙을 기대. 시험만 새 규칙으로 고침(`ai-auto-blog/tests/security.test.cjs`·`shorts-collection.test.cjs`), 시험 BLOG 192·티스토리 175·SEO 160 통과.
+- 주의: 배포 도우미는 `extension_version`을 고치지 않아 별도로 맞춤. 회원 PC 확장은 ZIP 다시 받기 → 덮어쓰기 → 확장 새로고침 필요.
+- 비용: Vercel 빌드 3회, AI 호출 0.
 
 ## 2026-11-10 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — `ai-mastering-studio` v1.16 미배포 3건 묶음 배포 + 음악 작업 목록 정리
 - **한 일**: 주인님 「AI 마스터링 3건 묶음 배포 진행해」 → Gemini 2.5 제거·옛 값 변환 `946660f65`(12-01 종료 대비) · API 키 문구 `b16550ad4` · 권한 판정 동시 조회 `d1e710d68`을 v1.16(`cb0529c1b`)로 빌드 1회 배포 `ai-mastering-studio-bqrif5nxh` Ready, DB v1.15 → v1.16.
