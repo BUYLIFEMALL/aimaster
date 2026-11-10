@@ -1,5 +1,7 @@
 # 네이버 블로그 올인원 자동화(naver-blog-allinone) 개선사항 및 추가 고도화 제안
 
+> **🗂️ 「내 자료함」 연동 안내 — 블로그 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 운영 DB `supabase/migrations/0061_member_assets_video_text.sql`로 이 프로그램의 원고(`aio_posts`)이(가) 공용 자료 목록 `member_assets`에 자동 등록되고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(보관 기간 = 이 프로그램 정리 규칙, 발행된 원고는 「발행 1년」 규칙 대상). **이 프로그램 코드·배포는 바꾸지 않았습니다.** 칸 이름·저장 경로(`{user_id}/…`)·상태 값을 바꾸면 트리거 함수 `member_assets_sync_aio`도 함께 고쳐 주세요(트리거 오류 = 원본 저장 실패). 화면: https://www.buylife.xyz/library · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md` §9
+
 - **프로그램명**: 네이버 블로그 올인원 자동화 (`naver-blog-allinone`)
 - **현재 버전**: `v1.49`
 - **배포 URL**: https://naver-blog-allinone.buylife.xyz

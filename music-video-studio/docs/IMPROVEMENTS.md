@@ -1,5 +1,7 @@
 # 뮤직비디오 자동화 (music-video-studio) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+> **🗂️ 「내 자료함」 연동 안내 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 운영 DB `supabase/migrations/0061_member_assets_video_text.sql`로 이 프로그램의 렌더 결과(`mvs_renders.output_path`)이(가) 공용 자료 목록 `member_assets`에 자동 등록되고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(보관 기간 = 이 프로그램 정리 규칙, 발행된 원고는 「발행 1년」 규칙 대상). **이 프로그램 코드·배포는 바꾸지 않았습니다.** 칸 이름·저장 경로(`{user_id}/…`)·상태 값을 바꾸면 트리거 함수 `member_assets_sync_mvs`도 함께 고쳐 주세요(트리거 오류 = 원본 저장 실패). 화면: https://www.buylife.xyz/library · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md` §9
+
 > **📮 영상 담당께 — 미배포 대기 인계 (2026-11-10, [역할: music] `claude-win-20261024-music`, 주인님 지시 「IMPROVEMENTS.md에 영상 담당께로 남겨줘」)**
 > 1. **남은 미배포 `9397fb311`**(영상 담당 커밋, 11-09): 공용 사본 `video-edit-composition`·`video-edit-timeline` 동기화 — `src/components/edit/Composition.tsx`(+18 −3)·`src/lib/edit/timeline.ts`(+9 −3), 장면 맞춤 칸(꽉 채우기 / 전체 보이기 + 흐린 배경). 기준 `ai-video-studio` v1.30은 11-10 배포됨, 이 프로그램만 남음. `check-shared-modules` 사본 8개 모두 OK(11-10 확인).
 > 2. ~~같은 배포에 함께 나갈 것 `d1e710d68`~~ **정정(2026-11-10, 음악 담당)**: `d1e710d68`(11-06)은 v1.28(11-08) 배포 때 이미 나갔음 — 음악 담당의 착오. 이 프로그램에서 챙길 것 없음.
