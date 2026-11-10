@@ -123,7 +123,7 @@
 | 43 | Threads 포스팅 자동화 | `auto-threads-posting` | 쓰레드 | v1.34 | 운영 | 글감 수집부터 AI 초안, 이미지 첨부, 즉시·예약 게시까지 하는 기본형 Threads 포스팅 도구 |
 | 44 | Threads 댓글자동화 | `threads-comment-reply` | 쓰레드 | v1.29 | 운영 | 내 쓰레드 게시물 댓글에 AI가 링크 포함 답글 초안을 만들고 검토 후 게시하는 도구 |
 | 45 | Threads 쇼핑제휴 자동화 | `threads-affiliate-poster` | 쓰레드 | v1.86 | 운영 | 쿠팡파트너스·알리 등 제휴 링크를 붙인 쓰레드 홍보 글을 AI로 만들어 발행하는 도구 |
-| 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.23 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
+| 46 | Threads 콘텐츠 운영 자동화 | `threads-content-ops` | 쓰레드 | v2.25 | 운영 | 떡상 글감 수집·AI 초안·쇼핑제휴 상품·발행 이력까지 여러 Threads 계정을 운영하는 도구 |
 | 47 | YOUTUBE 트렌드 분석 | `youtube-viral-studio` | 유튜브 | v1.25 | 운영 | 떡상 쇼츠·황금 채널·급상승 영상 발굴과 내 채널·키워드 진단을 한 곳에서 하는 유튜브 분석 도구 + 협업 크리에이터 찾기(공개 연락처 표·CSV, v1.25) (4대 화면 3시안 사전 제시 완료) |
 | 48 | YOUTUBE 플레이리스트 자동화 | `playlist-channel-studio` | 유튜브 | v1.38 | 운영 | 장르만 고르면 제목·Suno 프롬프트·가사·썸네일을 만들고, 음악에 반응하는 1080p 플레이리스트 영상까지 완성하는 도구(2026-10-20 yt-playlist-studio 병합) |
 | 49 | AI 썸네일·SEO 자동화 | `thumbnail-master` | 유튜브 | v2.01 | 운영 | 대본으로 제목·설명·태그 SEO 전략 3가지를 만들고, 타겟별 A/B 문구가 들어간 유튜브 썸네일까지 완성하는 도구(2026-10-20 seo-thumbnail-pro 병합) |
@@ -911,7 +911,7 @@
 #### Threads 콘텐츠 운영 자동화 (`threads-content-ops`)
 - **2026-10-23 v2.18~v2.19**: 보관함 초안 수정 중 무료 사진 추가·빼기, 미디어 저장소를 전용 공개 버킷 `threads-content-ops-media`로(옛 `ai-image-generations` 비공개 전환 대응).
 - **2026-10-23 v2.17**: 작성 탭 글 첨부 미디어에 📷 무료 사진(Pixabay·Pexels, 회원 본인 키, 🔤 영어로·한국어로 다시 찾기), 공용 `free-photo-search`·`photo-keywords` 사본.
-- 주소·폴더: https://threads-content-ops.buylife.xyz · `threads-content-ops/` · v2.23
+- 주소·폴더: https://threads-content-ops.buylife.xyz · `threads-content-ops/` · v2.25
 - **v2.15 (2026-10-23)**: 「Threads AI 기획」(`threads-easy-planner`)의 사진·영상 보고 글쓰기(사진 최대 5장·영상 5컷, OpenAI·Claude·Gemini, 「보이는 것만 쓰기」 안내)와 요일·시간대 추천 주제를 「콘텐츠 생성」에 합침. 기획 앱은 기획만 필요한 회원용으로 **독립 유지**(주인님 결정). 근거 `docs/analysis-threads-consolidation-20261023/REPORT.md`
 - **차별점**: 여러 Threads 계정을 웹에서 운영하며, 떡상 글감 수집부터 AI 초안·쇼핑제휴 상품·검토·발행 이력까지 계정별로 관리하는 운영 도구입니다.
 - **기능**: 떡상한 콘텐츠를 수집해 글감을 모으고, 계정 콘셉트(페르소나 카드)로 주제·시점·말투·타깃 독자를 불러와 AI 초안을 만듭니다. 직접 겪은 경험이나 참고 글도 함께 반영합니다. / 쇼핑제휴 상품은 쿠팡 API 키가 없어도 쿠팡파트너스 링크 생성 결과를 붙여 넣으면 상품명과 사진을 채워 등록할 수 있습니다. / 계정마다 상품과 콘텐츠 보관함, 검토·발행 이력을 따로 관리하고, 발행은 회원이 직접 설정하고 확인한 경우에만 이뤄집니다.
