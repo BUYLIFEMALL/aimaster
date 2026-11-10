@@ -176,6 +176,8 @@ export class RecordMapBuilder {
     const r = role ?? recordRole(table, rec, this.userId);
     if (r === 'none' && table !== 'lit_user') return this;
     if (table === 'lit_user' && isDemoMode() && !this.users.canSeeUser(rec.id)) return this;
+    // 이식판 U13: 같은 워크스페이스·함께 공유된 페이지 사람이 아니면 프로필을 담지 않는다(recordRole이 none)
+    if (table === 'lit_user' && strictUsers && r === 'none') return this;
     // property access: restricted database values / properties are left out
     const value = table === 'lit_user' ? this.users.user(rec) : redactDatabaseRecord(table, rec, this.userId, r);
     const bucket = ((this.map as any)[table] ??= {});

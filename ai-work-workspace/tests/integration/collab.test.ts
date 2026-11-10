@@ -150,3 +150,30 @@ describe('다른 사용자 프로필 공개 범위', () => {
     });
   });
 });
+
+describe('실시간 확인(collabPoll)', () => {
+  it('공유된 페이지면 shared, 상대가 바꾼 내용을 다음 확인 때 받고, 권한 없는 사람은 못 부른다', async () => {
+    const first = await runtime.runRpc('collabPoll', { pageId: page, lsn: 0 }, stranger);
+    expect(first.status).toBe(200);
+    const b = first.body as any;
+    expect(b.shared).toBe(true);
+    expect(b.viewers.some((v: any) => v.userId === stranger.id)).toBe(true);
+    await runtime.runRpc('applyChanges', {
+      transactions: [{ id: crypto.randomUUID(), spaceId: space, operations: [{ pointer: { table: 'block', id: page, spaceId: space }, path: ['properties', 'title'], command: 'set', args: [['함께 고친 제목']] }] }],
+    }, owner);
+    const next = await runtime.runRpc('collabPoll', { pageId: page, lsn: b.lsn }, stranger);
+    expect((next.body as any).recordMap.block?.[page]?.value?.value?.properties?.title).toEqual([['함께 고친 제목']]);
+    expect((next.body as any).lsn).toBeGreaterThan(b.lsn);
+    const denied = await runtime.runRpc('collabPoll', { pageId: page, lsn: 0 }, noAccess);
+    expect(denied.status).toBe(404);
+  });
+
+  it('혼자 쓰는 페이지는 shared가 아니다', async () => {
+    let solo = '';
+    db.withRequestCache(() => {
+      solo = seed.createPage({ spaceId: friendSpace, userId: friend.id, parentId: friendSpace, parentTable: 'space', title: '혼자 문서' }).id;
+    });
+    const r = await runtime.runRpc('collabPoll', { pageId: solo, lsn: 0 }, friend);
+    expect((r.body as any).shared).toBe(false);
+  });
+});

@@ -18,6 +18,7 @@ import { installAutofillHook } from '@/litpage/server/ai/autofillAuto.ts';
 import { workInboxHandlers } from './workInbox';
 import { receiptHandlers } from './receipts';
 import { calendarHandlers } from './calendarSync';
+import { collabHandlers } from './collabPoll';
 import { resolveInvitees, sharingChangeProblem } from './collab';
 import './agentRuns'; // U12: 에이전트 백그라운드 실행을 주인 회원 본인 키로 감싸는 연결(불러오면 바로 설치됨)
 
@@ -107,6 +108,7 @@ const OVERRIDES: Record<string, Handler> = {
   ...receiptHandlers,
   // 구글 캘린더 연동(2026-11-11, src/server/calendarSync.ts)
   ...calendarHandlers,
+  ...collabHandlers,
 };
 
 /** U3: AI 스트림 라우트용 — 초기화와 회원 레코드 준비(RPC와 같은 순서). */

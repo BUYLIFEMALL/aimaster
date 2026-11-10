@@ -92,6 +92,40 @@ export function setPresencePage(pageId: string | null) {
   if (pageId !== currentPage) currentPresenceData = null;
   currentPage = pageId;
   send({ type: 'presence', pageId, data: currentPresenceData });
+  if (!REALTIME_SOCKET && pageId && pageId !== pollPage) schedulePoll(300);
+}
+
+// 이식판 U13(2026-11-11, 주인님 결정 「5초마다 확인」): 웹소켓 대신 열린 페이지를 서버(collabPoll)에 물어
+// 다른 사람이 바꾼 레코드·함께 보는 사람을 받는다. 다른 사람과 공유된 페이지는 5초, 혼자 쓰는 페이지는 60초, 화면이 숨겨지면 쉼.
+let pollTimer: ReturnType<typeof setTimeout> | null = null;
+let pollPage: string | null = null;
+let pollLsn = 0;
+let pollShared = false;
+function schedulePoll(ms: number) {
+  if (pollTimer) clearTimeout(pollTimer);
+  pollTimer = setTimeout(() => void pollOnce(), ms);
+}
+async function pollOnce() {
+  pollTimer = null;
+  const page = currentPage;
+  if (!page) return;
+  if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return schedulePoll(5000);
+  if (page !== pollPage) {
+    pollPage = page;
+    pollLsn = 0;
+  }
+  try {
+    const res: any = await api('collabPoll', { pageId: page, lsn: pollLsn, data: currentPresenceData });
+    if (page === currentPage) {
+      pollLsn = Number(res?.lsn) || pollLsn;
+      pollShared = !!res?.shared;
+      if (res?.recordMap) records.mergeRecordMap(res.recordMap);
+      useUI.getState().setPresence(page, Array.isArray(res?.viewers) ? res.viewers : []);
+    }
+  } catch {
+    /* 다음 차례에 다시 */
+  }
+  schedulePoll(page !== currentPage ? 0 : pollShared ? 5_000 : 60_000);
 }
 
 /** Presence payload for the current page (focused block + text selection), relayed to other viewers. */
