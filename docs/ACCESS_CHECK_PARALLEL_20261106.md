@@ -14,7 +14,7 @@
 - `ai-auto-blog/lib/access/checkProgramAccess.ts`
 - `ai-doc-chatbot/src/lib/programAccess.ts`
 - `ai-influencer-studio/src/lib/programAccess.ts`
-- `ai-mastering-studio/src/lib/programAccess.ts`
+- `ai-mastering-studio/src/lib/programAccess.ts` ✅ v1.16(2026-11-10 배포 `ai-mastering-studio-bqrif5nxh`, 음악 담당)
 - `ai-prompt-studio/src/lib/programAccess.ts`
 - `ai-task-planner/src/lib/programAccess.ts`
 - `ai-webtoon-studio/src/lib/programAccess.ts`
