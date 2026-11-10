@@ -10,6 +10,7 @@ import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
 import { getLikedProgramIds } from "@/lib/programs/likes";
 import { getIsAdmin } from "@/lib/access/getIsAdmin";
 import { getVisibleCategories } from "@/lib/programs/visibleCategories";
+import { canViewInternalForCurrentUser, hideInternalByJoinedCategory } from "@/lib/programs/internalCategories";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -23,12 +24,12 @@ interface PageProps {
   searchParams: Promise<{ q?: string; sort?: string }>;
 }
 
-async function getCategories() {
+async function getCategories(canViewInternal: boolean) {
   const supabase = await createClient();
-  return getVisibleCategories(supabase);
+  return getVisibleCategories(supabase, canViewInternal);
 }
 
-async function getPrograms(query?: string, sort?: string) {
+async function getPrograms(canViewInternal: boolean, query?: string, sort?: string) {
   const supabase = await createClient();
 
   let dbQuery = supabase
@@ -53,7 +54,8 @@ async function getPrograms(query?: string, sort?: string) {
   }
 
   const { data } = await dbQuery;
-  let programs = data ?? [];
+  // 비공개(내부, 예: REA) 카테고리 프로그램은 관리자·내부 열람 계정에게만(docs/REA_CATEGORY_POLICY.md)
+  let programs = hideInternalByJoinedCategory(data ?? [], canViewInternal);
 
   if (sort === "price_low" || sort === "price_high") {
     programs = programs.sort((a, b) => {
@@ -68,12 +70,13 @@ async function getPrograms(query?: string, sort?: string) {
 
 export default async function ProgramsPage({ searchParams }: PageProps) {
   const sp = await searchParams;
+  const supabase = await createClient();
+  const canViewInternal = await canViewInternalForCurrentUser(supabase);
 
   const [programs, categories] = await Promise.all([
-    getPrograms(sp.q, sp.sort),
-    getCategories(),
+    getPrograms(canViewInternal, sp.q, sp.sort),
+    getCategories(canViewInternal),
   ]);
-  const supabase = await createClient();
   const accessByProgramId = await getProgramAccessMap(supabase, programs);
   const isAdmin = await getIsAdmin(supabase);
   const { loggedIn, liked: likedSet } = await getLikedProgramIds(supabase);

@@ -1,4 +1,5 @@
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
+import { isInternalCategory } from "@/lib/programs/internalCategories";
 
 type SupabaseLike = {
   auth: { getUser: () => Promise<{ data: { user: { id: string } | null } }> };
@@ -9,6 +10,8 @@ type AccessProgram = {
   id: string;
   badges?: string[] | null;
   required_grade_id?: string | null;
+  /** 조인한 카테고리(있으면 내부 카테고리 판정에 씀). */
+  category?: { is_public?: boolean | null } | { is_public?: boolean | null }[] | null;
 };
 
 /**
@@ -25,7 +28,7 @@ export async function getProgramAccessMap(
   if (!user || programs.length === 0) return denied;
 
   const [{ data: profile }, { data: subscriptions }, { data: grants }, { data: grades }] = await Promise.all([
-    supabase.from("profiles").select("is_admin, is_suspended, grade:member_grades(sort_order)").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("is_admin, is_suspended, can_view_internal, grade:member_grades(sort_order)").eq("id", user.id).maybeSingle(),
     supabase.from("subscriptions").select("program_id, status, expires_at").eq("user_id", user.id),
     supabase.from("user_program_access").select("program_id, expires_at").eq("user_id", user.id),
     supabase.from("member_grades").select("id, sort_order"),
@@ -59,6 +62,8 @@ export async function getProgramAccessMap(
       individualGrantExpiresAt: grantsByProgram.get(program.id) ?? null,
       userGradeSortOrder: userGrade?.sort_order ?? null,
       requiredGradeSortOrder: program.required_grade_id ? (gradeSortMap.get(program.required_grade_id) ?? null) : null,
+      isInternalProgram: isInternalCategory(program.category),
+      canViewInternal: !!profile?.can_view_internal,
     }).allowed,
   ]));
 }

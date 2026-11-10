@@ -30,6 +30,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
 import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
+import { canViewInternalCategories, hideInternalByJoinedCategory } from "@/lib/programs/internalCategories";
 import { sortByLikes } from "@/lib/programs/likes";
 import { daysRemaining } from "@/lib/utils/format";
 
@@ -42,14 +43,14 @@ async function getHomeData() {
   try {
     const supabase = await createClient();
     const service = createServiceClient();
-    const [{ data: { user } }, { data: programs }, { data: categories }, { count: activeUserCount }, { data: programNotices }] = await Promise.all([
+    const [{ data: { user } }, { data: allPrograms }, { data: allCategories }, { count: activeUserCount }, { data: programNotices }] = await Promise.all([
       supabase.auth.getUser(),
       supabase
         .from("programs")
         .select("*, category:categories(*), pricing_plans(*)")
         .eq("is_active", true)
         .order("sort_order"),
-      supabase.from("categories").select("*").is("parent_id", null).eq("is_public", true).order("sort_order"),
+      supabase.from("categories").select("*").is("parent_id", null).order("sort_order"),
       // 홈페이지의 활성 사용자 수는 홍보용 고정 숫자가 아니라 실제 회원 데이터로
       // 계산한다. 정지 회원은 제외하고, 관리자 포함 전체 활성 계정을 집계한다.
       service.from("profiles").select("id", { count: "exact", head: true }).eq("is_suspended", false),
@@ -63,6 +64,11 @@ async function getHomeData() {
         .order("created_at", { ascending: false })
         .limit(100),
     ]);
+
+    // 비공개(내부, 예: REA) 카테고리와 그 프로그램은 관리자·내부 열람 계정에게만(docs/REA_CATEGORY_POLICY.md)
+    const canViewInternal = await canViewInternalCategories(supabase, user?.id);
+    const programs = hideInternalByJoinedCategory(allPrograms ?? [], canViewInternal);
+    const categories = (allCategories ?? []).filter((c) => canViewInternal || c.is_public !== false);
 
     // 로그인한 회원에게만 "내가 이용 가능한 프로그램 수 / 가장 빠른 만료일"을 보여준다.
     // 판정 규칙은 반드시 lib/access/checkProgramAccess.ts의 evaluateProgramAccess()를
@@ -114,6 +120,8 @@ async function getHomeData() {
           individualGrantExpiresAt: grantMap.get(p.id) ?? null,
           userGradeSortOrder: userGrade?.sort_order ?? null,
           requiredGradeSortOrder: p.required_grade_id ? (gradeSortMap.get(p.required_grade_id) ?? null) : null,
+          isInternalProgram: p.category?.is_public === false,
+          canViewInternal,
         }).allowed
       );
 

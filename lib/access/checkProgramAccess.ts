@@ -28,6 +28,8 @@ export type ProgramAccessReason =
   | "not_found"
   | "suspended"
   | "phone_required"
+  | "internal_viewer"
+  | "internal_only"
   | "none";
 
 export interface ProgramAccessResult {
@@ -37,6 +39,7 @@ export interface ProgramAccessResult {
 }
 
 import { hasRegisteredPhone } from "@/lib/utils/phone";
+import { isInternalCategory } from "@/lib/programs/internalCategories";
 
 export function isNotExpired(expiresAt: string | null): boolean {
   return !expiresAt || new Date(expiresAt) > new Date();
@@ -59,6 +62,10 @@ export function evaluateProgramAccess(input: {
   hasIndividualGrant: boolean;
   userGradeSortOrder: number | null;
   requiredGradeSortOrder: number | null;
+  /** 비공개(내부) 카테고리 프로그램인지 — REA 등(2026-11-11, docs/REA_CATEGORY_POLICY.md). */
+  isInternalProgram?: boolean;
+  /** profiles.can_view_internal — 내부 카테고리 열람 허용 계정(시험 계정). */
+  canViewInternal?: boolean;
 }): { allowed: boolean; reason: ProgramAccessReason } {
   // Beta-test policy (2026-09-29, owner's decision):
   // - "free" badge programs: any signed-in member.
@@ -67,6 +74,10 @@ export function evaluateProgramAccess(input: {
   //   Grade alone no longer opens a program.
   if (input.isSuspended) return { allowed: false, reason: "suspended" };
   if (input.isAdmin) return { allowed: true, reason: "admin" };
+  // 내부(비공개) 카테고리 프로그램은 관리자 + 내부 열람 계정만. FREE·구독·등급보다 먼저 막는다(2026-11-11 주인님 지시).
+  if (input.isInternalProgram) {
+    return input.canViewInternal ? { allowed: true, reason: "internal_viewer" } : { allowed: false, reason: "internal_only" };
+  }
   // 핸드폰 번호 필수 등록 정책: 번호가 없으면 FREE 프로그램을 포함해 모든 프로그램을 쓸 수 없다.
   if (input.hasPhone === false) return { allowed: false, reason: "phone_required" };
   if (input.isFree) return { allowed: true, reason: "no_restriction" };
@@ -92,12 +103,12 @@ export async function checkProgramAccess(
   const [{ data: profile }, { data: program }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("is_admin, is_suspended, phone, grade:member_grades(sort_order)")
+      .select("is_admin, is_suspended, phone, can_view_internal, grade:member_grades(sort_order)")
       .eq("id", userId)
       .maybeSingle(),
     supabase
       .from("programs")
-      .select("id, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
+      .select("id, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order), category:categories(is_public)")
       .eq("slug", programSlug)
       .eq("is_active", true)
       .single(),
@@ -130,6 +141,8 @@ export async function checkProgramAccess(
     individualGrantExpiresAt: grant?.expires_at ?? null,
     userGradeSortOrder: userGrade?.sort_order ?? null,
     requiredGradeSortOrder: requiredGrade?.sort_order ?? null,
+    isInternalProgram: isInternalCategory(program.category),
+    canViewInternal: !!profile?.can_view_internal,
   });
 
   return { ...result, programId: program.id };

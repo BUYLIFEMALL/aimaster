@@ -13,6 +13,7 @@ import { PREMIUM_NOTICE_TITLE, PREMIUM_NOTICE_BODY } from "@/lib/programs/premiu
 import type { MemberGrade, PricingPlan } from "@/types/database.types";
 import { parseDetailSections } from "@/lib/programs/detailSections";
 import { sortPlansByPeriod } from "@/lib/utils/planOrder";
+import { canViewInternalForCurrentUser, isInternalCategory } from "@/lib/programs/internalCategories";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -23,10 +24,15 @@ export async function generateMetadata({ params }: PageProps) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("programs")
-    .select("name, short_desc, thumbnail_url")
+    .select("name, short_desc, thumbnail_url, category:categories(is_public)")
     .eq("slug", slug)
     .single();
   if (!data) return { title: "Not Found" };
+  // 비공개(내부, 예: REA) 카테고리 프로그램은 이름도 내보내지 않고 검색 노출을 막는다(docs/REA_CATEGORY_POLICY.md)
+  if (isInternalCategory(data.category)) {
+    if (!(await canViewInternalForCurrentUser(supabase))) return { title: "Not Found", robots: { index: false, follow: false } };
+    return { title: `${data.name} (내부)`, robots: { index: false, follow: false } };
+  }
 
   const title = data.name;
   const description = data.short_desc || `${data.name} - AI Master 마케팅 자동화 프로그램`;
@@ -54,6 +60,8 @@ export default async function ProgramDetailPage({ params }: PageProps) {
     .single();
 
   if (!program) notFound();
+  // 비공개(내부) 카테고리 프로그램은 관리자·내부 열람 계정이 아니면 「없는 페이지」로 보인다
+  if (isInternalCategory(program.category) && !(await canViewInternalForCurrentUser(supabase))) notFound();
   const sections = parseDetailSections(program.detail_sections);
 
   // 이 프로그램이 연결된 최근 공지(2026-10-20, 관리자 공지의 「관련 프로그램」)

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createServiceClient } from "@/lib/supabase/service";
+import { hideInternalByJoinedCategory } from "@/lib/programs/internalCategories";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://www.buylife.xyz";
@@ -28,10 +29,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 2. 활성화된 모든 프로그램 상세 페이지 (/programs/[slug])
     const { data: programs } = await supabase
       .from("programs")
-      .select("slug, updated_at")
+      .select("slug, updated_at, category:categories(is_public)")
       .eq("is_active", true);
 
-    const programPages: MetadataRoute.Sitemap = (programs ?? []).map((p) => ({
+    // 비공개(내부, 예: REA) 카테고리 프로그램은 검색엔진에 알리지 않는다(docs/REA_CATEGORY_POLICY.md)
+    const programPages: MetadataRoute.Sitemap = hideInternalByJoinedCategory(programs ?? [], false).map((p) => ({
       url: `${baseUrl}/programs/${p.slug}`,
       lastModified: p.updated_at ? new Date(p.updated_at) : now,
       changeFrequency: "weekly",

@@ -9,6 +9,7 @@ import { getProgramAccessMap } from "@/lib/access/getProgramAccessMap";
 import { getLikedProgramIds } from "@/lib/programs/likes";
 import { getIsAdmin } from "@/lib/access/getIsAdmin";
 import { getVisibleCategories } from "@/lib/programs/visibleCategories";
+import { canViewInternalForCurrentUser } from "@/lib/programs/internalCategories";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,20 +23,18 @@ function safeDecode(v: string): string {
   try { return decodeURIComponent(v); } catch { return v; }
 }
 
-async function getCategory(slug: string) {
+// 비공개(내부, 예: REA) 카테고리는 관리자·내부 열람 계정에게만 열린다(docs/REA_CATEGORY_POLICY.md)
+async function getCategory(slug: string, canViewInternal: boolean) {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_public", true)
-    .single();
+  let query = supabase.from("categories").select("*").eq("slug", slug);
+  if (!canViewInternal) query = query.eq("is_public", true);
+  const { data } = await query.single();
   return data;
 }
 
-async function getCategories() {
+async function getCategories(canViewInternal: boolean) {
   const supabase = await createClient();
-  return getVisibleCategories(supabase);
+  return getVisibleCategories(supabase, canViewInternal);
 }
 
 async function getPrograms(categoryId: string, query?: string, sort?: string) {
@@ -80,8 +79,10 @@ async function getPrograms(categoryId: string, query?: string, sort?: string) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   // 2026-10-21: slug에 &가 있는 카테고리(scraping&plan)는 주소에서 %26으로 넘어와 404가 났다 → 디코딩해서 찾는다
   const slug = safeDecode((await params).slug);
-  const category = await getCategory(slug);
+  const canViewInternal = await canViewInternalForCurrentUser(await createClient());
+  const category = await getCategory(slug, canViewInternal);
   if (!category) return { title: "카테고리를 찾을 수 없습니다" };
+  if (category.is_public === false) return { title: `${category.name} (내부)`, robots: { index: false, follow: false } };
 
   return {
     title: `${category.name} 프로그램`,
@@ -98,14 +99,15 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   const slug = safeDecode((await params).slug);
   const sp = await searchParams;
 
-  const category = await getCategory(slug);
+  const supabase = await createClient();
+  const canViewInternal = await canViewInternalForCurrentUser(supabase);
+  const category = await getCategory(slug, canViewInternal);
   if (!category) notFound();
 
   const [programs, categories] = await Promise.all([
     getPrograms(category.id, sp.q, sp.sort),
-    getCategories(),
+    getCategories(canViewInternal),
   ]);
-  const supabase = await createClient();
   const accessByProgramId = await getProgramAccessMap(supabase, programs);
   const isAdmin = await getIsAdmin(supabase);
   const { loggedIn, liked: likedSet } = await getLikedProgramIds(supabase);

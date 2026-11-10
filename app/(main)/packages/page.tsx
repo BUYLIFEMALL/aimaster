@@ -5,6 +5,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import { createClient } from "@/lib/supabase/server";
+import { canViewInternalForCurrentUser, hideInternalByJoinedCategory } from "@/lib/programs/internalCategories";
 import { formatKRW } from "@/lib/utils/format";
 
 export const dynamic = "force-dynamic";
@@ -58,11 +59,13 @@ const PACKAGES = [
 
 export default async function PackagesPage() {
   const supabase = await createClient();
-  const { data: programs } = await supabase
+  const { data: rawPrograms } = await supabase
     .from("programs")
-    .select("id, name, slug, short_desc, pricing_plans(*)")
+    .select("id, name, slug, short_desc, pricing_plans(*), category:categories(is_public)")
     .eq("is_active", true)
     .order("sort_order");
+  // 비공개(내부, 예: REA) 카테고리 프로그램은 관리자·내부 열람 계정에게만(docs/REA_CATEGORY_POLICY.md)
+  const programs = hideInternalByJoinedCategory(rawPrograms ?? [], await canViewInternalForCurrentUser(supabase));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

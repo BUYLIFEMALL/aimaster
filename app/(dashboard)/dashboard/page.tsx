@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Calendar, Clock, Package, Ticket, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { evaluateProgramAccess } from "@/lib/access/checkProgramAccess";
+import { isInternalCategory } from "@/lib/programs/internalCategories";
 import GlassCard from "@/components/ui/GlassCard";
 
 export const metadata = { title: "내 구독" };
@@ -50,7 +51,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
       .eq("user_id", user.id),
     supabase
       .from("programs")
-      .select("id, name, slug, thumbnail_url, app_url, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order)")
+      .select("id, name, slug, thumbnail_url, app_url, badges, required_grade_id, required_grade:member_grades!required_grade_id(sort_order), category:categories(is_public)")
       .eq("is_active", true)
       .order("sort_order", { ascending: true }),
   ]);
@@ -97,6 +98,9 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
       hasIndividualGrant: grantedProgramIds.has(p.id),
       userGradeSortOrder,
       requiredGradeSortOrder: requiredGrade?.sort_order ?? null,
+      // 비공개(내부, 예: REA) 카테고리 프로그램은 관리자·내부 열람 계정에게만(docs/REA_CATEGORY_POLICY.md)
+      isInternalProgram: isInternalCategory(p.category),
+      canViewInternal: !!profile?.can_view_internal,
     }).allowed;
   });
 

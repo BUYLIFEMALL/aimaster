@@ -1,5 +1,6 @@
 import { KeyRound, Sparkles, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { canViewInternalForCurrentUser, hideInternalByJoinedCategory } from "@/lib/programs/internalCategories";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import GuideHub, { GuideRow } from "@/components/guides/GuideHub";
 import type { Program } from "@/types/database.types";
@@ -35,13 +36,15 @@ export default async function GuideListPage() {
         badges,
         is_active,
         sort_order,
-        category:categories(id, name, slug)
+        category:categories(id, name, slug, is_public)
       `)
       .order("sort_order", { ascending: true }),
   ]);
 
   const guideList = (guides ?? []) as GuideRow[];
-  const programList = ((programs ?? []) as unknown as Program[]).filter((p) => p.is_active !== false);
+  // 비공개(내부, 예: REA) 카테고리 프로그램은 관리자·내부 열람 계정에게만(docs/REA_CATEGORY_POLICY.md)
+  const canViewInternal = await canViewInternalForCurrentUser(supabase);
+  const programList = hideInternalByJoinedCategory(((programs ?? []) as unknown as Program[]).filter((p) => p.is_active !== false), canViewInternal);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
