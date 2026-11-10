@@ -37,6 +37,8 @@ export async function http(url: string, opts: HttpOptions = {}): Promise<HttpRes
     res = await fetchImpl(url, { method, headers, body, signal: ctrl.signal, redirect: "follow" });
   } catch (e) {
     clearTimeout(timer);
+    // fetchImpl이 이미 분류한 오류(예: 내부망 주소 차단)는 그대로 넘긴다 — 요청이 나가지 않았다.
+    if (e instanceof PublishError) throw e;
     const code = causeCode(e);
     const aborted = (e as Error)?.name === "AbortError" || ctrl.signal.aborted;
     if (NOT_SENT_CODES.has(code)) {

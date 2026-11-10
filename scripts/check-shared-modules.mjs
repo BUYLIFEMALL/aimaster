@@ -426,7 +426,7 @@ const MODULES = [
     // 회원 연동 정보 공용 저장 — 한 번 연결한 플랫폼 계정(member_platform_accounts)을 모든 프로그램이 함께 사용. 2026-10-20, docs/MEMBER_INTEGRATIONS.md
     id: "member-integrations",
     source: "lib/memberIntegrations.ts",
-    copies: ["coupang-ops/src/lib/memberIntegrations.ts", "commercial-land-trade-alert/src/lib/memberIntegrations.ts", "comment-inbox/lib/memberIntegrations.ts", "threads/src/lib/memberIntegrations.ts", "threads-comment-reply/lib/memberIntegrations.ts", "threads-affiliate-poster/src/lib/memberIntegrations.ts", "threads-content-ops/lib/memberIntegrations.ts", "insta_auto_poster/src/lib/memberIntegrations.ts", "instagram-comment-reply/lib/memberIntegrations.ts", "shots/src/lib/memberIntegrations.ts", "youtube-auto-reply/lib/memberIntegrations.ts", "kakao_auto_poster/src/lib/memberIntegrations.ts", "naver-cafe-poster/src/lib/memberIntegrations.ts", "ai-influencer-studio/src/lib/memberIntegrations.ts", "ai-webtoon-studio/src/lib/memberIntegrations.ts", "shorts-onestop-studio/src/lib/memberIntegrations.ts", "lyric-video-studio/src/lib/memberIntegrations.ts", "playlist-channel-studio/src/lib/memberIntegrations.ts", "realty-listing-alert/lib/memberIntegrations.ts"],
+    copies: ["wp-blogger-auto/src/lib/memberIntegrations.ts", "coupang-ops/src/lib/memberIntegrations.ts", "commercial-land-trade-alert/src/lib/memberIntegrations.ts", "comment-inbox/lib/memberIntegrations.ts", "threads/src/lib/memberIntegrations.ts", "threads-comment-reply/lib/memberIntegrations.ts", "threads-affiliate-poster/src/lib/memberIntegrations.ts", "threads-content-ops/lib/memberIntegrations.ts", "insta_auto_poster/src/lib/memberIntegrations.ts", "instagram-comment-reply/lib/memberIntegrations.ts", "shots/src/lib/memberIntegrations.ts", "youtube-auto-reply/lib/memberIntegrations.ts", "kakao_auto_poster/src/lib/memberIntegrations.ts", "naver-cafe-poster/src/lib/memberIntegrations.ts", "ai-influencer-studio/src/lib/memberIntegrations.ts", "ai-webtoon-studio/src/lib/memberIntegrations.ts", "shorts-onestop-studio/src/lib/memberIntegrations.ts", "lyric-video-studio/src/lib/memberIntegrations.ts", "playlist-channel-studio/src/lib/memberIntegrations.ts", "realty-listing-alert/lib/memberIntegrations.ts"],
   },
   {
     // 인스타그램 게시(피드 1장·캐러셀 2~10장) — 회원 본인 연결값(insta_accounts, 한 번 연결해 여러 프로그램이 함께 사용). 2026-10-19
@@ -565,7 +565,7 @@ const MODULES = [
     // 외부 주소를 서버에서 가져올 때 내부망·사설 주소 차단(리디렉트마다 재검사, DNS 바꿔치기 방지) — 2026-10-19 기준 등록
     id: "safe-fetch",
     source: "ghost-scraper/src/lib/safeFetch.ts",
-    copies: ["insta_auto_poster/src/lib/cardnews/safeFetch.ts", "tistory-auto-blog/utils/safeFetch.ts", "naver-blog-seo-studio/lib/sharedSafeFetch.ts"], // 2026-10-22 BLC-12: 티스토리 글감 URL 수집 · 2026-10-24 D-4: SEO 스튜디오 PDF·유튜브 자료 읽기(기존 lib/safeFetch.ts 자체 코드는 그대로)
+    copies: ["wp-blogger-auto/src/lib/safeFetch.ts", "insta_auto_poster/src/lib/cardnews/safeFetch.ts", "tistory-auto-blog/utils/safeFetch.ts", "naver-blog-seo-studio/lib/sharedSafeFetch.ts"], // 2026-10-22 BLC-12: 티스토리 글감 URL 수집 · 2026-10-24 D-4: SEO 스튜디오 PDF·유튜브 자료 읽기(기존 lib/safeFetch.ts 자체 코드는 그대로)
   },
   {
     // 글 생성 결과의 과거 연도 보정(제목·태그는 올해로, 본문은 최신 정보 표기만). 2026-10-22 BLC-12 등록 — 기준은 블로그 에이전트(v2.09 검증)

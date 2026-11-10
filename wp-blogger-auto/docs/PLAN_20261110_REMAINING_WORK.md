@@ -60,6 +60,8 @@
 - **2026-11-10 디자인 결정 = 2안 89 듀얼 런치패드 미션**(주인님 「2안으로 해」). DESIGN.md 현황판 91번 줄·자산화 절 등록.
 - **2026-11-10 2-1 완료(로컬, 미배포)** — 상단 가로 메뉴 `src/components/layout/TopNav.tsx`(휴대폰 ☰, 다른 프로그램 보기, 계정·로그아웃), 디자인 색 `globals.css`(`lp-*` 클래스), 「오늘의 발행」 `dashboard/page.tsx`(발사대 카드 2개·숫자 4개·발사 순서·최근 결과), 계산 `src/lib/dashboard.ts`, 연결 읽기 `src/lib/connections.ts`(토큰 칸은 읽지 않음), 형식 정의에 `wba_posts`. 나머지 메뉴 5개는 안내 화면. 옛 좌측 메뉴 `Sidebar.tsx` 삭제. tsc 통과·시험 20개 통과. 다음: 2-2 워드프레스 연결.
 
+- **2026-11-10 2-2 완료(로컬, 미배포)** — 워드프레스 연결: `src/lib/wordpressConnect.ts`(연결 확인→발행 권한→카테고리→공용 표 저장·읽기·끊기), API `src/app/api/connect/wordpress/route.ts`(GET 현재 연결·카테고리 / POST 연결 / DELETE 끊기, 쓰기는 같은 사이트 요청만), 화면 `components/connect/WordpressConnectCard.tsx`(3칸 입력·연결 확인·카테고리·끊기·401 때 .htaccess 한 줄 안내). 공용 사본 2개 등록(`memberIntegrations`·`safe-fetch`, 내부망 차단), `undici` 7.30.0. tsc·시험 27개·로컬 빌드 통과. 다음: 2-3 구글 블로그 연결.
+
 ## 4. 결정 항목 (주인님)
 1. **운영 DB 적용 승인** — 요청함 `eefe9433`.
 2. **구글 시험 블로그** — 원 플랜 결정 5에서 미정. 주인님 구글 계정에 시험 블로그 1개를 새로 만들지, 기존 블로그를 쓸지.
