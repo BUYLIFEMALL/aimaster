@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 ✅ [역할: workspace] Claude Code(Admin PC) · 세션 claude-admin-20261110-setup — Admin(마스터) PC 작업 수준 = 맥미니 수준 최상위 지침 등록
+
+- 주인님 지시: Admin PC는 메인 윈도우 PC와 충돌을 피하려고 맥미니 수준으로만 작업. 작업 폴더는 메인 PC 네트워크 공유 `\\GT1_MEGA\d\Antigravity\AIMaster`.
+- 등록: `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위 「🖥️ Admin(마스터) PC 작업 수준」, 상세·인수인계 [`docs/ADMIN_PC_WORK_GUIDE.md`](ADMIN_PC_WORK_GUIDE.md). Admin PC의 모든 CLI는 시작 전에 이 문서를 읽는다.
+- Admin PC Claude Code 하단 상태바 설치(Orca 계정 폴더 `03cb129b-…`, Orca 호출 유지, `.good` 백업). guard 없음 — 사라지면 `node scripts/install-statusbars.mjs --only claude` 다시 실행.
+
 ## 2026-11-10 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 무료음악 v1.63 · 엔진 0.8.3 배포(곡 끝 처리, 마스터링 창)
 
 - 배포 `free-music-studio-mfkwvuha7` Ready, 운영 https://free-music-studio.buylife.xyz , DB v1.63(빌드 1회, 주인님 「진행해」). 미배포 대기 2건(`ce2a729e1` 마스터링 창, `c32b68dcc` 곡 끝 처리 1·2·4)을 함께 내보냄.
