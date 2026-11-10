@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/server";
+import { signMemberAssetByRef } from "@/lib/memberAssets";
 import { BUCKET } from "@/lib/generations";
 import { sanitizeSaved, type SavedProject } from "@/lib/edit/timeline";
 
@@ -144,6 +145,10 @@ export async function loadEdit(userId: string, id: string) {
     const { data: song } = await admin.from("ams_generations").select("outputs, status").eq("id", genId).eq("user_id", userId).maybeSingle();
     const path = (song as { outputs?: { path?: string }[]; status?: string } | null)?.outputs?.[Number(idx)]?.path;
     if (song && (song as { status: string }).status === "completed" && path?.startsWith(`${userId}/`)) music = await signed(admin, AMS_BUCKET, path);
+  } else if (project.music?.source.kind === "library") {
+    // 2026-11-11 「내 자료함」 곡 — 원본이 지워졌거나(보관 기간 만료) 내 자료가 아니면 null → 화면이 다시 고르라고 안내
+    const asset = await signMemberAssetByRef(admin, userId, project.music.source.ref);
+    music = asset && !asset.localOnly ? asset.playUrl : null;
   }
   return { id: data.id as string, title: data.title as string, project, urls: { clips, voices, music } };
 }

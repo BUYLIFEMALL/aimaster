@@ -26,8 +26,17 @@ import {
   CAPTION_SIZE_NAMES, CAPTION_STYLE_NAMES, EDIT_LANG_NAMES, EDIT_LANGS, FPS, MAX_CLIPS, dimensions, fitAllToVoice, fitToVoice, layout, sceneSeconds, outputFileName, toSaved, totalSeconds, validate, voiceOverflow,
   type CaptionPosition, type CaptionSize, type CaptionStyle, type ClipSource, type EditAspect, type EditClip, type EditLang, type EditProject, type EditQuality, type MusicSource, type SavedProject, type Transition,
 } from "@/lib/edit/timeline";
+import { MAX_SONG_BYTES, type LibrarySong } from "@/lib/edit/librarySongs";
 
-type Song = { ref: string; title: string; model: string; durationS: number | null; instrumental: boolean; url: string | null; tooBig: boolean };
+type Song = LibrarySong;
+
+/** 자료함 곡 받기 — 30MB를 넘으면 받기 전에 멈춤(자료함 목록엔 파일 크기가 없어 받을 때 확인) */
+async function fetchSong(url: string): Promise<Blob> {
+  const head = await fetch(url, { method: "HEAD", cache: "no-store" }).catch(() => null);
+  const len = Number(head?.headers.get("content-length") ?? 0);
+  if (len > MAX_SONG_BYTES) throw new Error(`이 곡은 파일이 너무 큽니다(${Math.round(len / 1048576)}MB, 30MB까지). 더 짧은 곡을 골라 주세요.`);
+  return fetchBlob(url);
+}
 type Busy = { name: string; msg: string } | null;
 type RenderState = { progress: number; ctrl: AbortController; startedAt: number; etaMs: number; elapsedMs: number; lastAdvanceAt: number; slowSeen?: boolean; stopping?: boolean } | null;
 type EditItem = { id: string; title: string; clips: number; updatedAt: string };
@@ -922,18 +931,23 @@ export function EditStudio() {
                 onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void setMusic(async () => f, f.name, { kind: "local" }); }} />
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-medium text-zinc-300">🎧 AI 음악 스튜디오 내 곡</p>
+              <p className="text-xs font-medium text-zinc-300">🎧 내 자료함 음악 <span className="font-normal text-zinc-500">(AI 음악 스튜디오·Suno 음악 자동화·무료음악에서 만든 곡)</span></p>
               {songs === null ? (
                 <p className="text-xs text-zinc-500">불러오는 중…</p>
               ) : songs.length === 0 ? (
-                <p className="text-xs text-zinc-500">아직 만든 곡이 없습니다. <a href={songAppUrl} target="_blank" rel="noreferrer" className="text-sky-300 underline">AI 음악 스튜디오</a>에서 곡을 만들면 여기서 바로 고를 수 있습니다.</p>
+                <p className="text-xs text-zinc-500">아직 만든 곡이 없습니다. <a href={songAppUrl} target="_blank" rel="noreferrer" className="text-sky-300 underline">AI 음악 스튜디오</a> 등 음악 프로그램에서 곡을 만들면 여기서 바로 고를 수 있습니다(<a href="https://www.buylife.xyz/library" target="_blank" rel="noreferrer" className="text-sky-300 underline">내 자료함</a>).</p>
               ) : (
                 <ul className="max-h-56 space-y-1 overflow-y-auto">
                   {songs.map((s) => (
                     <li key={s.ref} className="flex items-center gap-2 rounded-lg border border-zinc-800 px-2.5 py-1.5">
-                      <p className="min-w-0 flex-1 truncate text-xs text-zinc-200" title={s.title}>{s.title}</p>
-                      <span className="text-[11px] text-zinc-500">{s.instrumental ? "연주곡" : "노래"}{s.durationS ? ` · ${s.durationS}초` : ""}</span>
-                      <button type="button" disabled={isBusy || !s.url || s.tooBig} onClick={() => s.url && void setMusic(() => fetchBlob(s.url as string), `${s.title} (AI 음악 스튜디오)`, { kind: "ams", ref: s.ref })}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs text-zinc-200" title={s.title}>{s.title}</p>
+                        <p className="text-[11px] text-zinc-500">
+                          {s.source}{s.durationS ? ` · ${s.durationS}초` : ""}
+                          {s.localOnly ? " · 음원이 내 PC에만 있어 여기서 못 고름(무료음악에서 보내 주세요)" : s.external ? " · 임시 주소(약 14일 뒤 재생 안 될 수 있음)" : ""}
+                        </p>
+                      </div>
+                      <button type="button" disabled={isBusy || !s.url} onClick={() => s.url && void setMusic(() => fetchSong(s.url as string), `${s.title} (${s.source})`, { kind: "library", ref: s.ref })}
                         className="rounded-lg border border-sky-500/40 px-2 py-1 text-[11px] text-sky-200 hover:bg-sky-500/10 disabled:opacity-40">고르기</button>
                     </li>
                   ))}

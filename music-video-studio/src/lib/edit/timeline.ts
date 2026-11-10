@@ -21,7 +21,10 @@ export const CAPTION_SIZE_SCALE: Record<CaptionSize, number> = { s: 0.8, m: 1, l
 
 /** 다시 불러올 수 있는 출처(갤러리 생성 번호·AI 음악 스튜디오 곡 번호). 내 PC 파일은 서버에 올리지 않아 다시 넣어야 한다 */
 export type ClipSource = { kind: "gallery"; id: string } | { kind: "local" };
-export type MusicSource = { kind: "ams"; ref: string } | { kind: "local" };
+/** ams = 예전 AI 음악 스튜디오 곡(생성번호:순번, 옛 편집 호환) · library = 「내 자료함」 곡(member_assets sourceRef, 2026-11-11) */
+export type MusicSource = { kind: "ams"; ref: string } | { kind: "library"; ref: string } | { kind: "local" };
+/** 자료함 sourceRef 모양(표 이름:원본 번호:순번) */
+export const isLibraryRef = (v: unknown): v is string => typeof v === "string" && v.length <= 160 && /^[a-z0-9_]{2,60}:[A-Za-z0-9_.-]{1,90}:\d{1,3}$/.test(v);
 
 export interface ClipVoice {
   /** 브라우저 blob: 주소 또는 서명 주소 */
@@ -393,7 +396,8 @@ export function sanitizeSaved(raw: unknown, userPrefix: string): SavedProject | 
     ...(isEditLang(r.lang) && r.lang !== "ko" ? { lang: r.lang } : {}),
     music: m && typeof m === "object" ? {
       name: str(m.name, 120), volume: num(m.volume, 0, 1, 0.8), fadeOut: m.fadeOut !== false, duck: m.duck !== false,
-      source: ms?.kind === "ams" && typeof ms.ref === "string" && /^[0-9a-f-]{36}:\d{1,2}$/i.test(ms.ref) ? { kind: "ams", ref: ms.ref } : { kind: "local" },
+      source: ms?.kind === "ams" && typeof ms.ref === "string" && /^[0-9a-f-]{36}:\d{1,2}$/i.test(ms.ref) ? { kind: "ams", ref: ms.ref }
+        : ms?.kind === "library" && isLibraryRef(ms.ref) ? { kind: "library", ref: ms.ref } : { kind: "local" },
     } : null,
   };
 }
