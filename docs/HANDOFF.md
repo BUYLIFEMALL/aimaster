@@ -1,5 +1,22 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-res-v2` — `real_estate_sales` (부동산 실거래 투자분석 자동화) v1.59 2안(89. 네이버 부동산 스마트 매트릭스 저널) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
+- **주인님 지시**: 「2안으로 진행해」 (89. 네이버 부동산 스마트 매트릭스 저널 스타일 공식 채택 확정).
+- **개편 내역**:
+  1. **89번 네이버 부동산 스마트 매트릭스 저널 테마 전면 탑재**: `globals.css` 및 사이드바(`Sidebar.tsx`), PageHero(`PageHero.tsx`)를 소프트 화이트(`#F8FAFC`) & 퓨어 화이트 카드(`#FFFFFF`) & 네이버 공식 그린(`#03C75A`) 테마로 전면 개편.
+  2. **2026-11-01 5단계 표준 로그인 폼 & 1행 약관 탑재**: 68px 네이버 그린 심볼 로고(`🏢`), `AIMASTER REAL ESTATE SALES` 알약 뱃지, 볼드 타이틀, 2단 탭 폼, 3D 엠보싱 네이버 그린 버튼(`.btn-3d`, `.btn-3d-naver-green`), `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 처리 완비.
+  3. **버전 범프 및 동기화**: `v1.58` → `v1.59` (`src/lib/version.ts`), 사이드바 뱃지 및 테마 일체화.
+  4. **무결성 검증**: `npx tsc --noEmit` 에러 0건 통과, Next.js 16.4.2 프로덕션 빌드 성공.
+  5. **Vercel 프로덕션 배포 완료**: Deployment ID `dpl_ErXyyTBitb7ZHsMWhDuhiY9ib4s4` (`https://real-estate-sales-o74qd4lmb-buylife.vercel.app` Ready, `https://real-estate-sales.buylife.xyz` 도메인 연결 완료).
+  6. **라이브 세션 검증**: `https://real-estate-sales.buylife.xyz/login` 실접속 200 OK, 5단계 표준 요소 및 네이버 그린 스마트 매트릭스 테마 정상 렌더링 확인, 캡처본 `real_estate_sales/docs/evidence_login_v159.png` 저장.
+- **확인 링크**:
+  - 공식 운영 서비스: https://real-estate-sales.buylife.xyz/login
+  - 단일 쇼케이스: http://localhost:3800/showcase.html
+  - 종합 비교표: http://localhost:3800/comparison.html
+  - 영구 자산 경로: `D:\Antigravity\Design\89_naver_realestate_smart_matrix\real_estate_sales`
+- **다음 첫 단계**: 주인님 다음 지시 대기.
+
+
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D28 첫 화면 블록 추가 + 예약 노출(미배포)
 - **한 일**: 주인님 「진행해」·결정 「추천안 4가지 그대로」 → 새 블록 6종(동영상 유튜브·비메오 주소, 탭 상품 2~5탭, 타임세일 남은 시간·끝나면 자동 숨김·가격 그대로, 구매 후기 이름 가림, 카테고리 바로가기 아이콘, 사진 갤러리) + 모든 블록 「보이기 시작·끝」 예약 노출(서버 시각으로 거름, 편집기 목록에 예약/끝남 표시). Lab DB `0048` 읽기 함수(후기) 추가 — 플랜의 「DB 변경 없음」과 다른 점
 - **검수**: 자동 202개·tsc·빌드 통과. ego 화면 시험: 추가→게시→손님 화면(탭 전환·카운트다운·상품 4개씩·카테고리 링크 200), 후기 예약 전후, 휴대폰 390px 가로 넘침 없음. 한계: 같은 ego 창에 주인님 소유 공간(6번)이 앞에 있어 캡처·키 입력 불가 → 날짜 칸은 입력 이벤트로 넣음, 갤러리는 자동 시험만
