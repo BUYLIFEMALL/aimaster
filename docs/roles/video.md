@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-11 `claude-win-video` (남은 일 정리 — Claude 모델 교체·insta 메모·낱말 시각 플랜)
+- 마지막 갱신: 2026-11-11 `claude-win-video` (V1 원본 소리 렌더 확인)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -74,7 +74,7 @@
 
 ## 다음 첫 단계
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
-2. V1 소리 확인 남음, V4 녹화는 주인님 확인 (해설 받아쓰기는 11-10 v1.31 Gemini로 확인 끝)
+2. V4 녹화는 주인님 확인 (V1 소리는 11-11 확인 끝: 원본 소리 켬 MP4 AAC 48k 스테레오·평균 -21.6dB, 원본 -21.4dB)
 3. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(플랜 `shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`, ElevenLabs는 이미 자체 시각)
 4. 미배포 대기 3건: `youtube-viral-studio` 메뉴 이름 그림문자 · `music-video-studio` v1.29 · `ai-video-studio` Claude 모델 4-5→5-5 — 각 프로그램 다음 배포 때
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
