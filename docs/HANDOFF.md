@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — `elevenst-register` v1.02 2단계 배포(비공개)
+- 한 일: 「API키등록·플랫폼연동」 `/connect` — 11번가 키(공용 `elevenst_api_key`)·고정 IP(공용 `fixed_ip_proxy_url`) 저장/지우기, 「연결 시험(읽기만)」 출고지·반품/교환지 주소 조회(거절이면 나가는 IP 표시). 요청 함수 `src/lib/elevenst/client.ts`(Fixie 경유, 헤더 `openapikey`, EUC-KR, 재시도 0).
+- 검수: 시험 11/11·tsc·build, 배포 `elevenst-register-kcgko1l6z` Ready(빌드 1회 승인), DB `programs.version` v1.02(ego SQL), 운영 주소 비로그인 307·로그인 200. **실제 연결 시험은 미확인** — 주인님 11번가 「실서버 IP」 등록 + 관리자 계정 키·고정 IP 저장이 먼저.
+- 다음 첫 단계: 관리자 계정으로 `/connect` 연결 시험 → 키 하나로 Seller API 되는지·`https` 확정 → 3단계 등록 화면.
+- https://elevenst-register.buylife.xyz/connect
+
 ## 2026-11-11 🟡 [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `youtube-viral-studio` v1.27 V6 「📈 내 채널 진짜 지표」(배포 완료, 실제 연결은 구글 클라우드 설정 대기)
 - **한 일**: 회원 본인 구글 앱으로 내 채널 연결(분석+읽기+댓글+업로드 권한 한 번에, 공용 `member_platform_accounts` 재사용) → YouTube Analytics API 보고서 7개(요약·날짜별·잘 된 영상 10·유입·나이/성별·국가·쇼츠/일반)와 숫자 규칙 힌트(AI 없음, 저장 없음). 설정 구글 앱 칸·매뉴얼 카드, 운영 DB `integration_catalog` youtube `analytics` 묶음 추가(승인). 노출수·CTR은 API에 없어 안내만. 인스타 쪽은 `insta_auto_poster/docs/IMPROVEMENTS.md`에 인스타 담당께 요청.
 - **검수**: 시험 38·tsc·빌드, 운영 ego 화면·설정 확인. **배포** 빌드 1회 `youtube-viral-studio-mi4tyfu7t`, DB v1.27.
