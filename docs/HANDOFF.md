@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `naver-blog-agent` v2.28 배포(U10 2차 마지막)
+- **한 일**: 주인님 「순서대로 진행해」로 작업 중 표의 오래된 블로그 줄(`claude-win-20261101-blog`, 11-01 「지금 수정 없음」) 정리 → 버전 v2.28·`build-extension-archive.mjs`로 manifest·ZIP v2.28 → 시험 work-inbox 4·tsc → 배포 Ready → DB `version`·`extension_version` v2.28(확장 칸은 ego SQL) → `check-extension-release` OK. U10 2차 6개 프로그램 모두 배포 끝.
+- **블로그 담당께**: 이 폴더에서 바뀐 것은 버전·ZIP뿐(확장 코드 그대로). 회원 확장은 「ZIP 다시 받기 → 덮어쓰기 → 새로고침」 안내 필요할 수 있음.
+- 링크: https://naver-blog-agent.buylife.xyz
+
+
+
 ## 2026-11-11 🟡 [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — U10 2차 배포: `web-crawler` v1.12·`competitor-analysis` v1.13 완료, `naver-blog-agent` 막힘
 - **한 일**: 주인님 「너가 진행해」(11-11). 대기 확인 결과 `ai-auto-blog`(v1.87, 11-10 blog)·`blog-keyword`(v1.13)는 이미 나감. `web-crawler/webapp` v1.12 배포(시험 3·tsc, DB v1.10→v1.12). `competitor-analysis` v1.13 배포(앱·manifest·팝업·ZIP v1.13, 시험 work-inbox 4·expansion·tsc, DB `version`·`extension_version` v1.13 — `extension_version`은 ego SQL로 갱신, `check-extension-release` OK).
 - **막힌 것**: `naver-blog-agent` — 작업 중 표에 블로그 담당 `claude-win-20261101-blog` 줄(11-01, 「지금 수정 없음」)이 남아 배포 도구가 멈춤. 주인님 확인 대기.
