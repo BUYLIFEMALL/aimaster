@@ -26,13 +26,15 @@ export async function resolveUncertain(admin: AdminDb, userId: string, postId: s
       throw new InputError("글 주소 형식이 올바르지 않습니다(https://로 시작).");
     }
   }
-  const { data: cur } = await admin.from("wba_posts").select("status, updated_at").eq("id", postId).eq("user_id", userId).maybeSingle();
+  const { data: cur } = await admin.from("wba_posts").select("status, updated_at, platform, images").eq("id", postId).eq("user_id", userId).maybeSingle();
   if (!cur) throw new InputError("원고를 찾지 못했습니다.", 404, "not_found");
   if (!canResolve(cur.status, cur.updated_at, now)) throw new InputError("「확인 필요」 상태인 원고만 정리할 수 있습니다.", 409, "not_uncertain");
   const patch =
     b.outcome === "sent"
-      ? { status: "published", remote_id: "manual", remote_url: url, published_at: new Date().toISOString(), error_code: null, error_detail: "회원이 블로그에서 올라간 것을 확인함" }
-      : { status: "failed", remote_id: null, error_code: "not_sent", error_detail: "회원이 블로그에서 올라가지 않은 것을 확인함 — 다시 보낼 수 있습니다" };
+      ? { status: "published", remote_id: "manual", remote_url: url, published_at: new Date().toISOString(), error_code: null, error_detail: "회원이 블로그에서 올라간 것을 확인함",
+          // 구글 블로그에 발행된 글이면 이미지 보관(발행 이미지만 보관 규칙)
+          keep_images: cur.platform === "blogger" && Array.isArray(cur.images) && cur.images.some((i: { status?: string }) => i?.status === "done") }
+      : { status: "failed", remote_id: null, keep_images: false, error_code: "not_sent", error_detail: "회원이 블로그에서 올라가지 않은 것을 확인함 — 다시 보낼 수 있습니다" };
   const { data, error } = await admin.from("wba_posts").update({ ...patch, updated_at: new Date().toISOString() })
     .eq("id", postId).eq("user_id", userId).eq("status", cur.status).eq("updated_at", cur.updated_at).select("id");
   if (error) throw new InputError("저장하지 못했습니다.", 500, "server");

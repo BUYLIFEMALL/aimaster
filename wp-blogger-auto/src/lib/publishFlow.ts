@@ -17,6 +17,11 @@ type Deps = { wp?: WpDeps; blogger?: { fetchImpl?: WpDeps["fetchImpl"]; now?: ()
 
 export type PublishRequest = { mode: PublishMode; scheduledAt?: string; categoryIds?: number[] };
 
+/** 30일 정리에서 이미지를 남길 글: 구글 블로그에 발행·예약된 글(우리 저장소 이미지를 본문이 그대로 씀). 워드프레스는 사이트에 올라가므로 남기지 않음 */
+export function keepPublishedImages(platform: string, status: string, imageCount: number) {
+  return platform === "blogger" && imageCount > 0 && (status === "published" || status === "scheduled");
+}
+
 export function parsePublishRequest(body: unknown): PublishRequest {
   const b = (body ?? {}) as Record<string, unknown>;
   const mode = b.mode === "publish" || b.mode === "schedule" || b.mode === "draft" ? b.mode : null;
@@ -89,17 +94,17 @@ export async function publishPost(admin: AdminDb, userId: string, postId: string
       scheduled_at: result.scheduledAt,
       published_at: result.status === "published" ? new Date((deps.now ?? Date.now)()).toISOString() : null,
       blog_ref: blogRef,
-      // 구글 블로그 글은 우리 저장소 이미지를 그대로 쓰므로 보관(TOP_RULE §8 지정)
-      keep_images: post.platform === "blogger" && images.length > 0,
+      // 구글 블로그에 발행·예약된 글의 이미지만 보관(주인님 2026-11-11 「발행이미지만 보관」, TOP_RULE §8)
+      keep_images: keepPublishedImages(post.platform, result.status, images.length),
     });
     return { ...result, platform: post.platform };
   } catch (e) {
     const pe = e instanceof PublishError ? e : new PublishError(sent ? "uncertain" : "server", "발행 중 알 수 없는 오류가 났습니다.");
     if (pe.partial) {
       // 구글 블로그: 초안은 저장됐지만 예약을 못 건 경우 — 초안으로 기록(다시 보내면 중복)
-      await setRow(admin, userId, postId, { status: "draft", remote_id: pe.partial.remoteId, remote_url: pe.partial.url, keep_images: post.platform === "blogger", error_code: pe.code, error_detail: pe.message.slice(0, 400) });
+      await setRow(admin, userId, postId, { status: "draft", remote_id: pe.partial.remoteId, remote_url: pe.partial.url, keep_images: false, error_code: pe.code, error_detail: pe.message.slice(0, 400) });
     } else if (pe.code === "uncertain") {
-      await setRow(admin, userId, postId, { status: "uncertain", error_code: pe.code, error_detail: pe.message.slice(0, 400), keep_images: post.platform === "blogger" });
+      await setRow(admin, userId, postId, { status: "uncertain", error_code: pe.code, error_detail: pe.message.slice(0, 400), keep_images: false });
     } else {
       // 보내기 전 실패·상대가 명확히 거절 → 원래 상태로(다시 시도 가능)
       await setRow(admin, userId, postId, { status: prevStatus === "failed" ? "failed" : prevStatus, error_code: pe.code, error_detail: pe.message.slice(0, 400) });
@@ -122,7 +127,7 @@ export async function cancelScheduled(admin: AdminDb, userId: string, postId: st
     const { token, account } = await getValidBloggerToken(admin, userId, deps.blogger);
     r = await blRevert(token, String((account.extra as { blog_id?: string }).blog_id ?? ""), data.remote_id, deps.blogger);
   }
-  await setRow(admin, userId, postId, { status: r.status, scheduled_at: null, remote_url: r.url });
+  await setRow(admin, userId, postId, { status: r.status, scheduled_at: null, remote_url: r.url, keep_images: false });
   return r;
 }
 
