@@ -1,6 +1,6 @@
 # AI 11번가 상품 자동등록기 (`elevenst-register`)
 
-> 운영 주소: https://elevenst-register.buylife.xyz (Vercel 프로젝트 `elevenst-register`, 팀 `buylife`) · 현재 **v1.02 비공개**(`programs.is_active=false`, 관리자만 열림)
+> 운영 주소: https://elevenst-register.buylife.xyz (Vercel 프로젝트 `elevenst-register`, 팀 `buylife`) · 현재 **v1.03 비공개**(`programs.is_active=false`, 관리자만 열림)
 > 담당 역할: `ecommerce-image` (`docs/roles/ecommerce-image.md`) · 플랜: `docs/PLAN_20261111_ELEVENST_REGISTER.md`(루트) · 명세: `docs/API_SPEC_NOTES.md`
 > 작업 전 반드시: 11번가 기능은 **11번가 OPEN API 센터 판매자용 명세(로그인 필요)를 먼저 읽고** 구현한다 — 정리본 `docs/API_SPEC_NOTES.md`.
 
@@ -8,7 +8,7 @@
 쇼핑몰 흐름 「1 소싱 → 2 상세페이지 → **3 마켓 등록** → 4 주문 리포트 → 5 발송 라벨」의 세 번째 마켓(스마트스토어·쿠팡 다음). AI 상세페이지 자동화에서 검토 완료한 상품을 11번가 공식 Seller API로 등록한다. 대상: 여러 오픈마켓에 같은 상품을 올리는 판매자.
 
 ## 2. 기술·도구
-Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB), `iconv-lite`(11번가 본문 EUC-KR XML). 뼈대(로그인·권한·사이드바·Supabase 연결·`proxy.ts`)는 `coupang-ops`에서 복사(2026-11-11). 고정 IP는 쿠팡 운영과 같은 회원 본인 Fixie 주소(`user_api_keys.fixed_ip_proxy_url`)를 재사용한다.
+Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB), `iconv-lite`(11번가 본문 EUC-KR XML). 뼈대(로그인·권한·사이드바·Supabase 연결·`proxy.ts`)는 `coupang-ops`에서 복사(2026-11-11). 고정 IP(Fixie)는 쓰지 않는다 — 11번가가 해외 IP를 막아 서울 지역(icn1)에서 직접 부른다(v1.03).
 
 ## 3. 핵심 기능·구조·장단점
 - v1.01(1단계 뼈대): 대시보드 「처음 설정 3단계」(11번가 키·고정 IP를 공용 저장소에서 읽어 준비됨 표시, 11번가 IP 등록 안내) · 연동&사용 매뉴얼 `/guide` · 11번가 본문 도우미 `src/lib/elevenst/xml.ts`(EUC-KR 인코딩·CDATA·EUC-KR에 없는 글자 찾기·응답 태그 읽기, 시험 7개).
@@ -20,6 +20,7 @@ Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB),
 - **v1.01 (2026-11-11)** — 1단계 뼈대. 운영 DB 등록(비공개·이커머스 카테고리·요금제 3단계)·기록 표, Vercel 새 프로젝트·도메인·환경변수 3개(`scripts/add-elevenst-register-vercel-env.mjs`), 첫 배포 `elevenst-register-30emmusx3` Ready(빌드 1회). 시험 7/7·tsc·로컬 build 통과. [역할: ecommerce-image] `claude-win-sdp`.
 
 - **v1.02 (2026-11-11)** — 2단계 배포 `elevenst-register-kcgko1l6z` Ready(빌드 1회, 주인님 승인), DB `programs.version` v1.02.  `/connect` 「API키등록·플랫폼연동」: 11번가 키·고정 IP 저장/지우기(공용 `elevenst_api_key`·`fixed_ip_proxy_url`, 다른 프로그램도 같이 쓴다는 안내), 「연결 시험(읽기만)」 = 출고지 `GET /rest/areaservice/outboundarea` + 반품/교환지 `GET /rest/areaservice/inboundarea`(거절이면 나가는 IP 표시). 요청 함수 `src/lib/elevenst/client.ts`(undici ProxyAgent, 헤더 `openapikey`, EUC-KR, 재시도 0), 주소 응답 `areas.ts`. 시험 11/11·tsc·build 통과. 실제 연결 시험은 주인님 11번가 IP 등록 + 관리자 계정 키·고정 IP 저장 뒤(미확인).
+- **v1.03 (2026-11-11)** — 연결 시험 500 진단: 11번가가 해외 IP(Fixie 미국)를 막음, 한국에서 직접 부르면 키로 조회 성공(`docs/API_SPEC_NOTES.md` §6). 주인님 결정 「1안」: `vercel.json` `regions: ["icn1"]`(서울), 11번가는 Fixie 없이 직접 `https://api.11st.co.kr` 호출, 고정 IP 입력 칸·단계 제거(처음 설정 2단계: 키 → 연결 시험), `undici` 제거. 배포 `elevenst-register-kuna0l35h` Ready(빌드 1회 승인), DB v1.03. ⚠ 서울 서버 IP는 고정이 아님 — 쓰기 API가 등록 IP를 요구하면 국내 고정 IP 방안 재결정.
 
 ## 5. 남은 일
 `docs/IMPROVEMENT_BACKLOG.md` — 다음은 실제 연결 시험(관리자 계정) → 3단계 등록 화면. 연결 시험 전에 주인님이 11번가 「API 관리 › IP 직접 입력 › 실서버 IP」에 Fixie 고정 IP 2개 등록.
