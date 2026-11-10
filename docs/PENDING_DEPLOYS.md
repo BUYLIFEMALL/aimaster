@@ -56,6 +56,7 @@
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
 | `ai-work-workspace` | 캘린더 연동 표 이름이 「제목 없음」으로 보이던 것 → 컬렉션 이름(아이콘 포함)으로 | `ad7dc6995` | 2026-11-11 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` 「캘린더 연동」 | 다음 배포 때(v1.27, ② 구글 연결 확인과 함께) |
+| `ai-work-workspace` | 캘린더: 구글에서 지운 일정 다시 보내면 되살리기(`status: confirmed`), 보내기·가져오기 라디오 이름 분리 | `20269afa9` | 2026-11-11 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` 「캘린더 연동」 | 다음 배포 때(v1.27) |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
