@@ -1,6 +1,7 @@
 # AI 업무 워크스페이스 자동화 — 개선 제안·발견 사항
 
 ## 미배포 대기
+- **(미배포, 큰 변경 — 배포 승인·운영 DB 표 대기) `0d686f9b3` U11 자동화** — 플랜 `docs/PLAN_20261110_U11_AUTOMATION.md`(주인님 결정 5건 권장안). 자동화·버튼 저장 열기(`stagePolicy`), 웹훅·에이전트 동작은 메뉴 「준비 중」 + 서버 `stageBodyBlock` 거절. 값 변경 자동화는 명령 뒤 `after()`에서 `settleAutomations()`로 마무리. 정시 자동화·리마인더 = 회원 cron-job.org 1분(`src/lib/schedulerMember/`, 공용 `member-scheduler` 사본, 회원 주소 `/api/cron/member`, 작업 주인 찾기 `src/server/memberJobs.ts`, 운영 cron은 회원 작업 제외). 자동화 목록 위 「⏰ 정시 실행」 줄(`scheduleLine.tsx`, `/api/scheduler`), 키 화면 cron-job.org 칸(바꾸기·지우기 때 회원 작업 정리), 매뉴얼 `#automation`, 실행 기록·알림 30일 정리(`src/server/automationRetention.ts`). **배포 전 운영 DB**: `supabase/migrations/20261110000000_aww_member_scheduler.sql`. 시험 `tests/integration/automationU11.test.ts` 8개(전체 58)·원본 523·공용 18·tsc·빌드. 운영 확인 남음(플랜 §5). 구글 캘린더는 검토만 `docs/REVIEW_20261110_GOOGLE_CALENDAR.md`.
 - (배포됨 v1.22, 2026-11-06 `ai-work-workspace-3saw5d3qw` — ego에서 메뉴 v1.22 확인) `376c55c7a` 왼쪽 메뉴 버전 표시 v1.21(v1.21 배포 때 `AimasterSidebar.tsx` 값을 빠뜨려 운영 메뉴에 v1.20이 보임 — 2026-11-06 운영 확인에서도 그대로). 다음 배포(v1.22) 때 함께.
 - (배포됨 v1.22) `a80274b4c` 보낸 마크다운 정리(회의록 근거 링크 제거·구역 들여쓰기 없음·표/페이지 표시 한국어) + 받은 업무 빈 화면 문구(2026-11-06, 아래 「U9 확인 중 발견」). 다음 배포(v1.22) 때 함께.
 - (이번 커밋) 음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI, 아래 「받아쓰기 엔진 선택」). 다음 배포(v1.22) 때 함께 — 배포 뒤 시험 계정으로 OpenAI 실제 받아쓰기 확인이 다음 단계.
