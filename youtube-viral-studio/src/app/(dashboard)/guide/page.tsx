@@ -100,6 +100,7 @@ export default function GuidePage() {
       <div className="rounded-3xl border border-amber-500/25 bg-[#131B2A] p-6 shadow-md">
         <h2 className="mb-3 text-sm font-black text-[#FBBF24]">📈 내 채널 진짜 지표 — 채널 주인만 보는 숫자</h2>
         <ol className="space-y-1.5 text-xs text-slate-300">
+          <li>0. 처음이면 <a href="https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d" target="_blank" rel="noopener noreferrer" className="font-bold text-amber-400 underline">내 구글 앱 만들기 매뉴얼</a>을 먼저 따라 합니다(회원 각자 본인 구글 계정·본인 앱).</li>
           <li>1. 구글 클라우드에서 「YouTube Analytics API」와 「YouTube Data API v3」를 사용 설정합니다.</li>
           <li>2. 「사용자 인증 정보」의 OAuth 클라이언트(웹 애플리케이션) 승인된 리디렉션 URI에 <span className="font-mono text-amber-300 break-all">https://youtube-viral-studio.buylife.xyz/api/youtube/my-channel/callback</span> 을 추가합니다.</li>
           <li>3. 🔑 API키등록·플랫폼연동에 클라이언트 ID·보안 비밀을 저장합니다(유튜브 댓글·shots에 이미 등록했다면 생략).</li>

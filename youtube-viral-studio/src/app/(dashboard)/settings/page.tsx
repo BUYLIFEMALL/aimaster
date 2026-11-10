@@ -13,6 +13,7 @@ import {
   Lock,
 } from "lucide-react";
 import { errorMessage } from "@/lib/errors";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 
 export default function SettingsPage() {
   const [keys, setKeys] = useState<Record<string, { registered: boolean; maskedKey?: string }>>({});
@@ -287,6 +288,7 @@ export default function SettingsPage() {
             </form>
           </div>
         ))}
+        <GuideLinkButton guideId="523e7401-7393-44f5-ba45-dd437e10fa2d" label="내 구글 앱 만들기·리디렉션 URI·앱 게시(7일 끊김 방지) 매뉴얼" />
         <p className="text-[11px] text-slate-500">
           * 승인된 리디렉션 URI에 <span className="font-mono text-amber-300 break-all">https://youtube-viral-studio.buylife.xyz/api/youtube/my-channel/callback</span> 을 추가하고, 「YouTube Analytics API」를 사용 설정한 뒤 「내 채널 진짜 지표」 메뉴에서 연결하세요.
         </p>

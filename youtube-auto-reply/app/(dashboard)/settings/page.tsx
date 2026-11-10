@@ -175,7 +175,7 @@ export default async function SettingsPage() {
         <div>
           <h2 className="text-lg font-bold text-yt-text">📱 텔레그램 알림 연동</h2>
           <p className="text-sm text-yt-muted">
-            유튜브 채널 연결이 끊어지면(구글 미검증 앱은 7일마다 만료) 매일 자동 점검 후 텔레그램으로
+            유튜브 채널 연결이 끊어지면(구글 앱이 「테스트 중」이면 7일마다 만료 — 구글 클라우드 「대상 → 앱 게시」로 프로덕션에 올리면 계속 유지, 공용 매뉴얼 「내 구글 앱 만들기」 참고) 매일 자동 점검 후 텔레그램으로
             알려드려요. 또한 새 댓글이 들어와 AI 답글 초안이 만들어지면 원본 댓글과 초안을 함께
             보내드리고, 텔레그램에서 바로 <strong className="text-yt-text">✅ 답변승인 / ⏸ 답변보류 / ❌ 답변제외</strong>를
             선택할 수 있어요(선택 기능). &quot;보류&quot;를 누르면 웹의 &quot;댓글 검토/게시&quot; 화면에 남아있어 나중에

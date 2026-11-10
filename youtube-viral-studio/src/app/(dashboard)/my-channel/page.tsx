@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, ExternalLink, Key, LineChart, Loader2, Plug, RefreshCw } from "lucide-react";
 import { BarChart, ShareChart } from "@/components/analysis/Charts";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { PERIODS, type DayPoint, type Share, type Summary, type TopVideo } from "@/lib/youtube/analytics";
 
 type Status = { state: "no_app" | "not_connected" | "missing_scopes" | "reconnect" | "ok"; channelTitle?: string | null };
@@ -114,6 +115,9 @@ export default function MyChannelPage() {
           <p className="text-xs text-yt-muted">
             구글 앱이 「테스트 중」이면 구글 정책상 7일마다 연결이 끊깁니다. 구글 클라우드 「Google 인증 플랫폼 → 대상」에서 「앱 게시」(프로덕션)로 바꾸면 계속 연결됩니다(브랜딩에 홈페이지·개인정보처리방침·약관 주소 필요, 로고는 비워 두면 심사 없이 게시). 한 번 연결하면 유튜브 댓글 자동화·shots 업로드도 같은 연결을 함께 씁니다.
           </p>
+          <div className="flex flex-wrap gap-2">
+            <GuideLinkButton guideId="523e7401-7393-44f5-ba45-dd437e10fa2d" label="처음이면: 내 구글 앱 만들기·앱 게시 단계별 매뉴얼" />
+          </div>
           {st.state === "no_app" ? (
             <Link href="/settings" className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl">
               <Key className="w-4 h-4" /> 구글 앱 키 등록하러 가기
