@@ -84,6 +84,18 @@ export default function GuidePage() {
         </div>
       </div>
 
+      {/* 2026-11-10 협업 크리에이터 찾기 */}
+      <div className="rounded-3xl border border-amber-500/25 bg-[#131B2A] p-6 shadow-md">
+        <h2 className="mb-3 text-sm font-black text-[#FBBF24]">🤝 협업 크리에이터 찾기 — 함께 일할 유튜버와 공개 연락처</h2>
+        <ol className="space-y-1.5 text-xs text-slate-300">
+          <li>1. 협업할 분야 키워드와 구독자 범위(예: 1천~10만 명)를 고르고 「크리에이터 찾기」를 누릅니다.</li>
+          <li>2. 채널 운영자가 채널·영상 설명에 직접 적어 둔 이메일·전화·SNS 계정·주소·웹사이트가 채널별로 모여 나옵니다. 각 연락처 옆에 어디에 적혀 있었는지 표시됩니다.</li>
+          <li>3. 「CSV 내려받기」로 내 PC에 저장하고, 마음에 드는 채널은 🔖로 보관함에 담습니다(검색 결과 자체는 저장되지 않습니다).</li>
+          <li>4. 유튜브 「채널 정보 → 이메일 주소 보기」(보안문자 확인 뒤 나오는 비즈니스 이메일)는 자동으로 가져오지 않습니다. 각 카드의 「채널 정보에서 직접 보기」 링크로 확인하세요.</li>
+        </ol>
+        <p className="mt-3 text-xs text-slate-400">💡 회원님 YouTube API 무료 할당량만 씁니다(영상 50개 검색 약 102유닛, 하루 기본 10,000유닛). 연락은 협업·광고 제안 목적으로 회원님이 직접 정중하게 해 주세요.</p>
+      </div>
+
       {/* 지표 해석 Do's & Don'ts */}
       <div className="rounded-3xl border border-amber-500/25 bg-[#131B2A] p-6 shadow-md">
         <h2 className="mb-4 text-sm font-black text-[#FBBF24]">⚖️ 지표 해석 실전 원칙 (Do's & Don'ts)</h2>
