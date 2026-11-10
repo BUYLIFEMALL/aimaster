@@ -1,5 +1,7 @@
 # ai-webtoon-studio 개선사항 (IMPROVEMENTS.md)
 
+> **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 인스타 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: **급함**: 게시 직후 사진 삭제 중단 + `src/lib/instagram/posting.ts:151` 정리 조건을 발행 1년 / 나머지 30일로 + 열외 추가 — 인스타 4곳 같은 모양 코드. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: ai-webtoon-studio vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
+
 ## 2026-10-18 디자인 리뉴얼 및 3대 추가개선 제안 (Antigravity CLI, v1.14)
 
 ### 1. 프로그램 로직 및 기능 개선

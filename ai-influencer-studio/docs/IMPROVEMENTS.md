@@ -1,5 +1,7 @@
 # 개선사항 원장 — AI 인플루언서 자동화 (ai-influencer-studio)
 
+> **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 인스타 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: **급함**: 게시 직후 첫 장 빼고 사진 삭제(`src/app/api/instagram/publish/route.ts:45`, `src/lib/instagram/posting.ts:131`) 중단 + `posting.ts:151-165` 정리를 `status<>'published' and created_at<30일` OR `published_at<1년`으로 + 열외(`retention_exempt`) 추가 — 인스타 4곳 같은 모양 코드. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: ai-influencer-studio vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
+
 > 2026-10-17 Claude Code(맥미니)가 `infinite-loop-video` v1.05 작업 중 타 프로그램 탐색(원칙 ⑫)으로 선제 기록. 2026-10-17 디자인 리뉴얼 v1.10(크리에이티브 아틀리에 · 핑크 화보 스튜디오)에서 #1·#2 구현.
 
 | # | 발견일 | 구분 | 내용 | 근거 | 우선순위 | 상태 |

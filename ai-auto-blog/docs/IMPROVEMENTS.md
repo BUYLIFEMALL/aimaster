@@ -1,5 +1,7 @@
 # BLOG(원문)생성 자동화 (ai-auto-blog) 개선사항 및 발전 과제 (IMPROVEMENTS.md)
 
+> **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 블로그 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 실제 발행 칸이 없음(`naver_input_status`는 입력 단계, `published_at`은 생성일) → 확장이 발행 성공(주소·시각)을 돌려주는 칸부터 추가 후 `app/api/cron/cleanup-images/route.ts` 조건을 발행 1년 / 나머지 30일로. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: ai-auto-blog vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
+
 > **🗂️ 「내 자료함」 연동 안내 — 블로그 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 운영 DB `supabase/migrations/0061_member_assets_video_text.sql`로 이 프로그램의 원고(`blog_posts`, 숫자 id → md5 고정 번호)이(가) 공용 자료 목록 `member_assets`에 자동 등록되고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(보관 기간 = 이 프로그램 정리 규칙, 발행된 원고는 「발행 1년」 규칙 대상). **이 프로그램 코드·배포는 바꾸지 않았습니다.** 칸 이름·저장 경로(`{user_id}/…`)·상태 값을 바꾸면 트리거 함수 `member_assets_sync_blog`도 함께 고쳐 주세요(트리거 오류 = 원본 저장 실패). 화면: https://www.buylife.xyz/library · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md` §9
 
 > **최초 작성**: 2026-10-19  

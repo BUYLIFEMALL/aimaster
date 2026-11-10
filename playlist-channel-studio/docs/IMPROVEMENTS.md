@@ -1,5 +1,7 @@
 # 플레이리스트 채널 제작 자동화 (`playlist-channel-studio`) — 개선사항 관리 대장 (IMPROVEMENTS.md)
 
+> **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 음악 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: **정리 코드 자체가 없음**(`playlist_projects` 무기한) → 30일 정리 신설 + 유튜브 업로드 기록 저장 후 업로드 1년. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: playlist-channel-studio vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
+
 > **📥 「내 자료함」에서 가져다 쓰기 요청 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시 「다른 프로그램이 자료함에서 바로 가져다 쓰는 공용 컴포넌트를 만들고, 담당께 요청」)**: 공용 컴포넌트 `member-assets-client`(기준 메인 사이트 `lib/library/memberAssets.ts`)를 만들었습니다. 지금 음악 3종을 `amsTracks.ts`·`sunoTracks.ts`·`fmsTracks.ts`로 따로 읽고 썸네일은 `thumbnailPicks.ts`로 읽는데, `listMemberAssets({ kind: "audio" })`·`({ kind: "image" })` 하나로 합칠 수 있습니다(가사 시간처럼 원본 고유 정보가 필요한 곳은 기존 코드 유지). 사용 순서·주의: `docs/MEMBER_LIBRARY.md` §2~§3(사본 붙이기 → 서버 API `listMemberAssets` → 화면 「내 자료함에서 가져오기」에서 `sourceRef` 저장 → 다시 열 때 `signMemberAssetByRef`). 붙일 때 `scripts/check-shared-modules.mjs`의 `member-assets-client` `copies`와 `docs/SHARED_MODULES.md`에 사본 경로를 추가하고, 버전·배포는 이 프로그램 규칙대로(작은 수정은 모아서 배포). 필수 아님 — 다음에 이 프로그램을 손댈 때 검토해 주세요.
 
 > **규칙 준수**: 모든 CLI는 작업 중 발견한 오류·기능·성능·편의성·디자인 개선사항을 이 문서에 즉시 기록합니다.
