@@ -5,19 +5,20 @@ import 'server-only';
 import { handlers, ApiError, type Ctx } from '@/litpage/server/api/handlers.ts';
 import { extraHandlers } from '@/litpage/server/api/extra.ts';
 import { realtime } from '@/litpage/server/realtime.ts';
-import { blockRole, RecordMapBuilder, recordRole, UserVisibility } from '@/litpage/server/records.ts';
+import { applyTransactions, blockRole, RecordMapBuilder, recordRole, UserVisibility } from '@/litpage/server/records.ts';
 import { redactDatabaseRecord } from '@/litpage/server/propaccess.ts';
 import { getRecord, putRecord, withRequestCache } from '@/litpage/server/db.ts';
 import { createUser, createWorkspace } from '@/litpage/server/seed.ts';
 import { KOREAN_TEAM, KOREAN_WELCOME } from './koreanSeed';
 import { isSpaceMember } from '#shared/permissions.ts';
-import type { SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
+import type { BlockRecord, SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
 import { newId } from '#shared/ids.ts';
 import { stageBlock, stageBodyBlock } from './stagePolicy';
 import { installAutofillHook } from '@/litpage/server/ai/autofillAuto.ts';
 import { workInboxHandlers } from './workInbox';
 import { receiptHandlers } from './receipts';
 import { calendarHandlers } from './calendarSync';
+import { resolveInvitees, sharingChangeProblem } from './collab';
 import './agentRuns'; // U12: 에이전트 백그라운드 실행을 주인 회원 본인 키로 감싸는 연결(불러오면 바로 설치됨)
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
@@ -68,6 +69,31 @@ export function ensureMember(member: Member) {
 
 /** 이식판에서 원본 명령 대신 쓰는 명령(돌려주는 모양은 원본과 같음) */
 const OVERRIDES: Record<string, Handler> = {
+  // U13 협업(2026-11-11): 초대는 AIMaster 회원 + 이 프로그램 이용 권한이 있는 사람만. 내부 사용자를 그 회원 id로 먼저 만든 뒤 원본 명령에 넘긴다
+  async inviteMembers(ctx, input) {
+    if (!ctx.userId) throw new ApiError('Unauthorized', 401);
+    const people = await resolveInvitees(input?.emails, [], ctx.userId);
+    for (const p of people) ensureMember(p);
+    return handlers.inviteMembers(ctx, { ...input, emails: people.map((p) => p.email) });
+  },
+  async invitePagePermissions(ctx, input) {
+    if (!ctx.userId) throw new ApiError('Unauthorized', 401);
+    const people = await resolveInvitees(input?.emails, input?.userIds, ctx.userId);
+    for (const p of people) ensureMember(p);
+    // 워크스페이스 최상위 페이지의 권한 목록이 비어 있으면 「멤버 모두 각자 역할」이라는 뜻 — 사람만 넣으면 멤버·본인이 빠지므로
+    // 화면 공유 메뉴(ShareMenu)처럼 먼저 「멤버 모두 편집 가능」 + 「공유하는 사람 전체 권한」을 넣는다
+    const page = getRecord<BlockRecord>('block', String(input?.pageId ?? ''));
+    if (page && page.parent_table === 'space' && !(page.permissions ?? []).length && blockRole(page.id, ctx.userId) !== 'none') {
+      applyTransactions(ctx.userId, [{
+        id: newId(), spaceId: page.space_id, debug: { userAction: 'invitePagePermissions' },
+        operations: [{ pointer: { table: 'block', id: page.id, spaceId: page.space_id }, path: [], command: 'update', args: { permissions: [
+          { type: 'space_permission', role: 'read_and_write', added_timestamp: Date.now() },
+          { type: 'user_permission', role: 'editor', user_id: ctx.userId, added_timestamp: Date.now() },
+        ] } }],
+      }] as any, ctx.clientId);
+    }
+    return (handlers as Record<string, Handler>).invitePagePermissions(ctx, { ...input, emails: people.map((p) => p.email), userIds: [] });
+  },
   // 한국어 환영 문서·팀 이름으로 워크스페이스를 만든다(원본 handlers.createWorkspace와 같은 결과 모양)
   createWorkspace(ctx, { name, icon }) {
     if (!ctx.userId) throw new ApiError('Unauthorized', 401);
@@ -111,6 +137,13 @@ export async function runRpc(name: string, body: unknown, member: Member, client
     const result = await withRequestCache(async () => {
       if (member.resolveName && !getRecord<UserRecord>('lit_user', member.id)) member = { ...member, name: await member.resolveName() };
       ensureMember(member);
+      if (name === 'applyChanges') {
+        const problem = sharingChangeProblem(input, {
+          block: (id) => getRecord<BlockRecord>('block', id) as any,
+          isMember: (sid, uid) => { const sp = getRecord<SpaceRecord>('space', sid); return !!sp && isSpaceMember(sp, uid); },
+        });
+        if (problem) throw new ApiError(problem, 403);
+      }
       const ctx: Ctx = { userId: member.id, clientId: clientId?.slice(0, 100), secure: true, setCookie: () => {} };
       return handler(ctx, input);
     });

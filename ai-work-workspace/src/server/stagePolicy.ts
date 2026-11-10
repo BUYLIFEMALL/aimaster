@@ -16,13 +16,14 @@ const ACCOUNT_RPCS = new Set([
 
 /** ② 다음 단계로 미룸: 3단계 협업(초대·공유·공개), 2단계 AI, 4단계 에이전트·자동화·개발자 API */
 const LATER_RPCS = new Set([
-  // 3단계: 다른 사람과 공유·초대·공개
-  'inviteMembers', 'setSpaceDomain', 'setMemberRole', 'removeMember', 'resetInviteLink', 'setInviteLinkEnabled', 'joinSpaceByInviteLink',
-  'requestMembers', 'resolveMemberRequest', 'setAllowedEmailDomains', 'upgradeGuests', 'removeGuest', 'setMemberExpiration', 'transferPrivatePages',
+  // 3단계: 다른 사람과 공유·초대·공개 — U13(2026-11-11)에서 회원 초대·페이지 공유·접근 요청·멤버/게스트 관리를 엶(초대 대상은 runtime.ts → collab.ts가 AIMaster 회원·이용 권한 확인).
+  // 계속 닫음: 초대 링크·도메인 자동 합류·팀 링크·공개 페이지/폼/사이트(주인님 결정: 초대 링크는 닫은 채)
+  'setSpaceDomain', 'resetInviteLink', 'setInviteLinkEnabled', 'joinSpaceByInviteLink',
+  'requestMembers', 'resolveMemberRequest', 'setAllowedEmailDomains', 'setMemberExpiration', 'transferPrivatePages',
   'joinWorkspace', 'requestWorkspaceMembership', 'joinTeamByInviteLink', 'getTeamInviteLink', 'resetTeamInviteLink', 'getTeamInvite',
   'requestMembershipByTeamInvite', 'requestJoinTeam',
-  'invitePagePermissions', 'restrictPageAccess', 'restoreInheritedAccess', 'getPublishedPage', 'duplicatePublicPage', 'requestGuestInvite',
-  'requestRestrictedMemberAccess', 'requestPageAccess', 'decideAccessRequest', 'getPublicPages',
+  'getPublishedPage', 'duplicatePublicPage', 'requestGuestInvite',
+  'requestRestrictedMemberAccess', 'getPublicPages',
   'getPublicForm', 'submitFormResponse', 'emailFormResponse', 'setSiteSettings', 'getSite', 'getSiteHome', 'searchSite',
   // 4단계 자동화: U11(2026-11-10)에서 엶 — saveAutomation·setAutomationStatus·deleteAutomation·duplicateAutomation·runButtonServerSteps.
   // 단, 웹훅(바깥 호출, U14 판단)·에이전트(U12) 동작이 든 자동화는 아래 stageBodyBlock이 거절한다.

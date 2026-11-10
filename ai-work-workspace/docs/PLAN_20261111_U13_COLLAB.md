@@ -2,7 +2,7 @@
 
 작성: Claude Code(윈도우) `claude-win-20261025-workspace`. 대상: ① AIMaster 운영 · `ai-work-workspace` v1.27(미배포 대기 2건 있음).
 근거: 주인님 2026-11-11 「초대한 사람 간 공유 기능은 예외 조항으로 진행해」 → `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 2026-11-11 항목. 로드맵 `docs/PLAN_20261024_EXPANSION_ROADMAP.md` U13.
-상태: **플랜 — 주인님 결정 대기**(아래 §6).
+상태: **승인됨(2026-11-11, §6 네 가지 모두 권장안) — 구현 중.**
 
 ## 1. 지금 상태(코드 조사 2026-11-11)
 | 영역 | 지금 | 근거 |

@@ -57,15 +57,19 @@ function uid(ctx: Ctx): string {
   return ctx.userId;
 }
 
-/** 회원이 쓰는 워크스페이스(처음 연결된 것) */
+/** 회원이 쓰는 워크스페이스 — 본인이 소유자인 곳을 먼저(U13: 초대받은 워크스페이스가 있어도 받은 업무·캘린더는 내 워크스페이스로), 없으면 처음 연결된 것 */
 export function memberSpace(userId: string): SpaceRecord {
   const root = getRecord<UserRootRecord>("user_root", userId);
+  let first: SpaceRecord | null = null;
   for (const id of root?.space_views ?? []) {
     const sv = getRecord<SpaceViewRecord>("space_view", id);
     if (!sv || sv.alive === false) continue;
     const space = getRecord<SpaceRecord>("space", sv.space_id);
-    if (space && space.alive !== false) return space;
+    if (!space || space.alive === false) continue;
+    if ((space.permissions ?? []).some((p) => p.user_id === userId && (p.role as string) === "owner")) return space;
+    first ??= space;
   }
+  if (first) return first;
   throw new ApiError("워크스페이스를 찾지 못했습니다. 워크스페이스를 먼저 열어 주세요.", 404);
 }
 

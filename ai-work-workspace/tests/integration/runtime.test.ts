@@ -89,8 +89,8 @@ describe('회원 간 데이터 격리', () => {
 });
 
 describe('1단계 정책', () => {
-  it('다른 사람 초대·공유는 아직 닫혀 있다', async () => {
-    const r = await runtime.runRpc('inviteMembers', { spaceId: aliceSpace, emails: ['bob@example.com'], role: 'editor' }, alice);
+  it('초대 링크로 들어오기는 닫혀 있다(U13: 회원 초대만 엶)', async () => {
+    const r = await runtime.runRpc('joinSpaceByInviteLink', { code: 'x' }, alice);
     expect(r.status).toBe(403);
     expect((r.body as any).message).toContain('준비 중');
   });
