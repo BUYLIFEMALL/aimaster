@@ -42,7 +42,6 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
-| `real_estate_sales/` | [역할: realty] Claude Code(윈도우, ego) · 세션 `claude-win-20261024-realty` | 2026-11-10 | v1.58 배포(지역 뉴스 지역 번갈아 넣기 등 미배포 3건) + 부동산 문서 정리 |
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-10 | U11 자동화 구현·시험 완료 `0d686f9b3`(미배포) — 배포 승인·운영 DB 표 적용 대기 → v1.23 배포·운영 확인. OpenAI 받아쓰기 확인(ego 로그인 대기) |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |
 | `wp-blogger-auto/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-10 | 새 프로그램 「AI 워드프레스·구글블로그 자동화」 — 플랜 `docs/PLAN_20261110_WORDPRESS_BLOGGER_API.md`(결정 완료). 뼈대(카페 모집 공통) → 공용 발행 엔진 → DB 초안 → 화면 |
