@@ -20,13 +20,13 @@
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) | 백로그 「보관」 B-6 |
 | `free-music-studio` | B-4 가사 시간 맞추기 추가 비교 | 수동 정답 자료 준비 | 백로그 「보관」 B-4 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
-| `free-music-studio` | D-6 이미지 스토리 쇼츠 배경음악 — 보내는 쪽 v1.62·받는 쪽 shots v1.46 모두 배포됨, 실제 곡 시험만 남음 | 음원이 있고 음악 생성이 되는 PC(마스터PC)에서 1곡 보내기 — 맥미니는 Intel 맥이라 생성 미지원으로 중단(2026-11-10) | `free-music-studio/docs/HANDOFF_20261109_SHOTS_BGM_FROM_FMS.md` |
 | `free-music-studio` | 마스터PC 실물: 재생 강조·EQ·시각화·쇼츠 보내기, 참고곡 Gemini 1회 | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.60 |
 | `free-music-studio` | 마스터PC 실물: 끝 이어 만들기 이음새, 끊긴 끝 자동 줄이기 로그, AI 설정 제안 1번(회원 키) | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.63 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-10 | `free-music-studio` v1.63 → 쇼츠 원스톱 v1.47 · shots v1.46 | D-4·D-6 무료음악 곡 → 쇼츠 원스톱·shots 배경음악 보내기 — Admin PC 실제 곡 시험 두 갈래 모두 통과(인수인계서 17절, 커밋 `d0055ed43`) | 이미 배포됨 |
 | 2026-11-10 | `free-music-studio` | WAV 원음 FLAC 통일 — 주인님 「안할꺼야」로 대기 목록에서 지움(하지 않음) | 해당 없음 |
 | 2026-11-10 | `free-music-studio` v1.63 · 엔진 0.8.3 | 곡 끝 처리 — 끊긴 끝 3초 자동 줄이기·「끝 이어 만들기」(ACE-Step 부분 수정 30·60·90초)·가사 길이 경고 + 마스터링 창 넓힘 | 배포 |
 | 2026-11-09 | `free-music-studio` v1.60 · `ai-music-studio` v1.15 | 연계 D-4 보내는 쪽·D-8 댄스·월드 프리셋·D-9 참고곡 스타일·D-10 EQ·시각화·속도·D-11 유료 모델 비교 + 재생 강조 2곳 + 그림 기본 판 복구 | 배포 |
