@@ -17,6 +17,13 @@ function titleOf(b: BlockRecord | undefined): string {
   return oneLine(b?.properties?.title) || "제목 없음";
 }
 
+/** 표 제목: 데이터베이스 페이지는 이름을 컬렉션에 둔다(아이콘이 있으면 앞에) */
+function dbTitleOf(b: BlockRecord, c: CollectionRecord): string {
+  const name = oneLine(c.name) || oneLine(b.properties?.title) || "제목 없는 표";
+  const icon = typeof c.icon === "string" && c.icon.length <= 4 ? c.icon : "";
+  return icon ? `${icon} ${name}` : name;
+}
+
 /** 회원 워크스페이스에서 날짜 칸이 있는 표(데이터베이스 페이지) 목록 */
 export function listDateDatabases(userId: string): DateDb[] {
   const out: DateDb[] = [];
@@ -28,7 +35,7 @@ export function listDateDatabases(userId: string): DateDb[] {
       const c = getRecord<CollectionRecord>("collection", b.collection_id);
       if (!c || c.alive === false) continue;
       const dateProps = Object.entries(c.schema ?? {}).filter(([, s]) => s.type === "date").map(([id, s]) => ({ id, name: s.name }));
-      if (dateProps.length) out.push({ id: b.id, title: titleOf(b), dateProps: dateProps.sort((a, z) => Number(DATE_NAME.test(z.name)) - Number(DATE_NAME.test(a.name))) });
+      if (dateProps.length) out.push({ id: b.id, title: dbTitleOf(b, c), dateProps: dateProps.sort((a, z) => Number(DATE_NAME.test(z.name)) - Number(DATE_NAME.test(a.name))) });
     }
   }
   return out;
@@ -55,7 +62,7 @@ export function databaseEvents(userId: string, dbId: string, propId?: string): C
   const prop = propId && own.collection.schema?.[propId]?.type === "date" ? propId : listDateProp(own.collection);
   if (!prop) return [];
   const space = memberSpace(userId);
-  const dbTitle = titleOf(own.block);
+  const dbTitle = dbTitleOf(own.block, own.collection);
   const rows = db.prepare(`SELECT data FROM records WHERE tbl = 'block' AND parent_id = ? AND alive = 1 LIMIT 2000`).all(own.collection.id) as { data: string }[];
   const out: CalEvent[] = [];
   for (const r of rows) {
