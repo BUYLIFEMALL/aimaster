@@ -55,6 +55,8 @@
 - **2026-11-10 1단계 완료** — 주인님 승인 「운영 DB 적용 승인(eefe9433)」. ego lite Supabase SQL 편집기에서 운영(ref `esgxyikcnnvmlhygjkth`)에 `20261110120000_wba_init.sql` + `20261110120100_register_program.sql` 실행(편집기 내용과 파일 글자 단위 일치 확인 뒤, 새 객체에만 걸린 「파괴적 작업」 경고 확인 후 실행). 읽기 확인: `wba_posts` RLS 켜짐·정책 2개(본인 읽기·지우기), 버킷 `wba-images` 공개, `wba_cleanup` 실행 권한 `postgres`·`service_role`만, 연동 항목 `wordpress`·`blogger`, 프로그램 v1.01 비공개·블로그 카테고리, 요금제 3개. 보관 지정은 TOP_RULE §8에 이미 있음.
 - **2026-11-10 결정** — 구글 시험 블로그: **새로 만듦**(4단계 실물 시험 때 주인님 구글 계정으로, 맥미니). 디자인: **시안 2~3개를 보고 결정**(2단계 화면 작업 전에 시안을 먼저 보여 드림). 원고 기본 AI: 질문만 다시 보내 주셔서 권장안(Claude 중가 기본·회원 변경 가능)으로 진행, 다르면 바꿈.
 
+- **2026-11-10 디자인 시안 3개(주인님 「진행해」)** — `D:\Antigravity\Design`의 88 글로벌 프레스 뉴스룸 · 89 듀얼 런치패드 미션 · 90 서프 가든 스튜디오(추천). 각 폴더 `wp-blogger-auto/`에 4대 화면 HTML·PNG·README·`showcase_12views.html`. 보기: http://localhost:3800/showcase.html · http://localhost:3800/comparison.html (이전 카페 쇼케이스는 `showcase_naver-cafe-poster_20261110.html`로 보관). 캡처는 ego가 창이 앞에 있을 때만 찍혀 막혀서, 시안 그림만 임시 프로필 헤드리스 크롬(1440px)으로 떴음(검수 증거 아님). 주인님 선택 뒤 DESIGN.md 카탈로그·현황판 등록.
+
 ## 4. 결정 항목 (주인님)
 1. **운영 DB 적용 승인** — 요청함 `eefe9433`.
 2. **구글 시험 블로그** — 원 플랜 결정 5에서 미정. 주인님 구글 계정에 시험 블로그 1개를 새로 만들지, 기존 블로그를 쓸지.
