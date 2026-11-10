@@ -17,6 +17,7 @@ import { errorMessage } from "@/lib/errors";
 export default function SettingsPage() {
   const [keys, setKeys] = useState<Record<string, { registered: boolean; maskedKey?: string }>>({});
   const [youtubeKeyInput, setYoutubeKeyInput] = useState("");
+  const [googleInputs, setGoogleInputs] = useState<Record<"google_client_id" | "google_client_secret", string>>({ google_client_id: "", google_client_secret: "" });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -237,6 +238,57 @@ export default function SettingsPage() {
         <p className="text-xs text-slate-400 leading-relaxed">
           11대 바이럴 심리 메커니즘 분석 및 새 소재 대본 생성 시 사용되는 Anthropic Claude 키입니다.
           메인 사이트 <b>/api-settings</b>에 등록된 키를 공유하여 사용합니다.
+        </p>
+      </div>
+
+      {/* v1.27 내 채널 진짜 지표 — 회원 본인 구글 OAuth 앱(유튜브 댓글·shots와 같은 키 이름) */}
+      <div className="rounded-3xl border border-amber-500/25 bg-[#131B2A] p-6 shadow-md space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div>
+            <h2 className="text-base font-black text-slate-100">🔗 내 채널 연결용 구글 앱 (선택 · 내 채널 진짜 지표)</h2>
+            <p className="mt-1 text-xs text-slate-400">
+              내 구글 클라우드의 OAuth 클라이언트(웹 애플리케이션) ID·보안 비밀입니다. 유튜브 댓글 자동화·shots에 이미 등록했다면 그대로 씁니다.
+            </p>
+          </div>
+          <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="btn-create-key shrink-0">
+            <span>OAuth 클라이언트 만들기</span>
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
+        {(["google_client_id", "google_client_secret"] as const).map((p) => (
+          <div key={p} className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-300">{p === "google_client_id" ? "클라이언트 ID" : "클라이언트 보안 비밀"}</span>
+              <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold border ${keys[p]?.registered ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-slate-700/40 text-slate-400 border-slate-600"}`}>
+                {keys[p]?.registered ? `● 등록됨 ${keys[p]?.maskedKey ?? ""}` : "○ 미등록"}
+              </span>
+              {keys[p]?.registered && (
+                <button type="button" onClick={() => handleDeleteKey(p)} className="text-[11px] font-bold text-red-300 underline">삭제</button>
+              )}
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveKey(p, googleInputs[p]);
+                setGoogleInputs((g) => ({ ...g, [p]: "" }));
+              }}
+              className="flex flex-col sm:flex-row gap-2"
+            >
+              <input
+                type="password"
+                value={googleInputs[p]}
+                onChange={(e) => setGoogleInputs((g) => ({ ...g, [p]: e.target.value }))}
+                placeholder={p === "google_client_id" ? "…apps.googleusercontent.com" : "GOCSPX-…"}
+                className="flex-1 rounded-xl border border-slate-700 bg-[#0B0F17] px-3.5 py-2.5 font-mono text-xs text-slate-100 outline-none focus:border-amber-400"
+              />
+              <button type="submit" disabled={submitting || !googleInputs[p].trim()} className="btn-3d-gold shrink-0 font-black text-slate-950">
+                저장
+              </button>
+            </form>
+          </div>
+        ))}
+        <p className="text-[11px] text-slate-500">
+          * 승인된 리디렉션 URI에 <span className="font-mono text-amber-300 break-all">https://youtube-viral-studio.buylife.xyz/api/youtube/my-channel/callback</span> 을 추가하고, 「YouTube Analytics API」를 사용 설정한 뒤 「내 채널 진짜 지표」 메뉴에서 연결하세요.
         </p>
       </div>
 

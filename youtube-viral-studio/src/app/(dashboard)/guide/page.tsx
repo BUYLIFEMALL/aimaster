@@ -96,6 +96,19 @@ export default function GuidePage() {
         <p className="mt-3 text-xs text-slate-400">💡 회원님 YouTube API 무료 할당량만 씁니다(영상 50개 검색 약 102유닛, 하루 기본 10,000유닛). 연락은 협업·광고 제안 목적으로 회원님이 직접 정중하게 해 주세요.</p>
       </div>
 
+      {/* 2026-11-11 v1.27 내 채널 진짜 지표 */}
+      <div className="rounded-3xl border border-amber-500/25 bg-[#131B2A] p-6 shadow-md">
+        <h2 className="mb-3 text-sm font-black text-[#FBBF24]">📈 내 채널 진짜 지표 — 채널 주인만 보는 숫자</h2>
+        <ol className="space-y-1.5 text-xs text-slate-300">
+          <li>1. 구글 클라우드에서 「YouTube Analytics API」와 「YouTube Data API v3」를 사용 설정합니다.</li>
+          <li>2. 「사용자 인증 정보」의 OAuth 클라이언트(웹 애플리케이션) 승인된 리디렉션 URI에 <span className="font-mono text-amber-300 break-all">https://youtube-viral-studio.buylife.xyz/api/youtube/my-channel/callback</span> 을 추가합니다.</li>
+          <li>3. 🔑 API키등록·플랫폼연동에 클라이언트 ID·보안 비밀을 저장합니다(유튜브 댓글·shots에 이미 등록했다면 생략).</li>
+          <li>4. 「내 채널 진짜 지표」에서 「내 유튜브 채널 연결」 → 구글 동의 화면에서 허용하면 7·28·90일 지표가 바로 나옵니다.</li>
+        </ol>
+        <p className="mt-3 text-xs text-slate-400">💡 조회수·시청 시간·평균 시청 비율·구독 증감·잘 된 영상·유입 경로·시청자 나이·성별·국가를 보여 주고, 숫자를 바탕으로 다음 할 일 힌트를 적어 줍니다(AI 비용 없음). 숫자는 저장하지 않고 열 때마다 불러옵니다.</p>
+        <p className="mt-1 text-xs text-slate-500">⚠️ 노출수·클릭률(CTR)은 유튜브 분석 API가 제공하지 않아 유튜브 스튜디오에서만 보입니다. 구글 앱이 「테스트」 상태면 7일마다 다시 연결해야 합니다.</p>
+      </div>
+
       {/* 지표 해석 Do's & Don'ts */}
       <div className="rounded-3xl border border-amber-500/25 bg-[#131B2A] p-6 shadow-md">
         <h2 className="mb-4 text-sm font-black text-[#FBBF24]">⚖️ 지표 해석 실전 원칙 (Do's & Don'ts)</h2>

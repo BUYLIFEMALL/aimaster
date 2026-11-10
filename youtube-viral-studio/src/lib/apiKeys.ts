@@ -1,13 +1,16 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type ApiKeyProvider = "youtube_api_key" | "openai" | "gemini" | "anthropic";
+// v1.27: google_client_id·google_client_secret — 내 채널 진짜 지표(회원 본인 구글 OAuth 앱, 유튜브 댓글·shots와 같은 이름이라 한 번 등록하면 함께 씀)
+export type ApiKeyProvider = "youtube_api_key" | "openai" | "gemini" | "anthropic" | "google_client_id" | "google_client_secret";
 
 export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   youtube_api_key: "YouTube Data API v3 키 (필수 - 떡상 영상/채널 수집)",
   openai: "OpenAI API 키 (선택 - 영상 분석 및 스크립트 재구성)",
   gemini: "Google Gemini API 키 (선택 - AI 쇼츠 벤치마킹)",
   anthropic: "Anthropic Claude API 키 (선택 - 훅킹 대본 분석)",
+  google_client_id: "Google OAuth 클라이언트 ID (선택 - 내 채널 진짜 지표)",
+  google_client_secret: "Google OAuth 클라이언트 보안 비밀 (선택 - 내 채널 진짜 지표)",
 };
 
 export const ALL_PROVIDERS: ApiKeyProvider[] = [
@@ -15,6 +18,8 @@ export const ALL_PROVIDERS: ApiKeyProvider[] = [
   "openai",
   "gemini",
   "anthropic",
+  "google_client_id",
+  "google_client_secret",
 ];
 
 /**

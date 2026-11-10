@@ -13,6 +13,7 @@ import {
   Link2,
   Bookmark,
   BarChart3,
+  LineChart,
   Search,
   KeyRound,
   BookOpen,
@@ -38,6 +39,7 @@ const flow: { href: string; label: string; icon: LucideIcon; step?: string }[] =
 ];
 
 const diagnose: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/my-channel", label: "내 채널 진짜 지표", icon: LineChart },
   { href: "/channel-analysis", label: "채널 심층 분석", icon: BarChart3 },
   { href: "/keyword-analysis", label: "키워드 점유율 분석", icon: Search },
 ];
