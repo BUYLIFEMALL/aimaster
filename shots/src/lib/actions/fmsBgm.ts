@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { FMS_MAX_BYTES, fmsBgmPath, fmsFileName, fmsTitle, isOwnFmsBgmPath } from "@/lib/fmsBgm";
+import { FMS_MAX_BYTES, findSameFmsTrack, fmsBgmPath, fmsFileName, fmsTrackTitle, isOwnFmsBgmPath } from "@/lib/fmsBgm";
 
 const BUCKET = "shots-bgm";
 
@@ -45,24 +45,40 @@ export async function finishFmsBgmUploadAction(input: { videoId: string; path: s
     return { error: "올린 음악 파일을 찾지 못했습니다. 무료음악에서 다시 보내 주세요." };
   }
   const seconds = typeof input.seconds === "number" && input.seconds > 0 && input.seconds < 3600 ? Math.round(input.seconds) : null;
-  const { data: inserted, error } = await supabase
+  const title = fmsTrackTitle(input.name);
+  // 같은 영상에 같은 곡(제목·길이 같음)이 이미 있으면 새로 넣지 않고 그 곡을 고른다 — 다시 보낼 때 목록·저장 공간이 쌓이지 않게(2026-11-10)
+  const { data: sameTracks } = await supabase
     .from("shorts_bgm_tracks")
-    .insert({
-      video_id: video.id,
-      user_id: user.id,
-      audio_url: storage.getPublicUrl(input.path).data.publicUrl,
-      image_url: null,
-      title: `${fmsTitle(fmsFileName(input.name))} (AI 무료음악)`.slice(0, 120),
-      duration_seconds: seconds,
-    })
-    .select("id")
-    .single();
-  if (error || !inserted) {
+    .select("id, title, duration_seconds")
+    .eq("user_id", user.id)
+    .eq("video_id", video.id)
+    .eq("title", title);
+  const existing = findSameFmsTrack(sameTracks ?? [], title, seconds);
+  let trackId: string;
+  if (existing) {
     await storage.remove([input.path]);
-    return { error: "배경음악으로 저장하지 못했습니다. 잠시 뒤 다시 보내 주세요." };
+    trackId = existing.id;
+  } else {
+    const { data: inserted, error } = await supabase
+      .from("shorts_bgm_tracks")
+      .insert({
+        video_id: video.id,
+        user_id: user.id,
+        audio_url: storage.getPublicUrl(input.path).data.publicUrl,
+        image_url: null,
+        title,
+        duration_seconds: seconds,
+      })
+      .select("id")
+      .single();
+    if (error || !inserted) {
+      await storage.remove([input.path]);
+      return { error: "배경음악으로 저장하지 못했습니다. 잠시 뒤 다시 보내 주세요." };
+    }
+    trackId = inserted.id;
   }
   // 회원이 이 곡을 골라 보낸 것이므로 바로 선택한다(다른 곡은 그대로 남아 다시 고를 수 있음)
-  await supabase.from("shorts_videos").update({ bgm_status: "ready", bgm_selected_track_id: inserted.id }).eq("user_id", user.id).eq("id", video.id);
+  await supabase.from("shorts_videos").update({ bgm_status: "ready", bgm_selected_track_id: trackId }).eq("user_id", user.id).eq("id", video.id);
   revalidatePath(`/scripts/${video.id}`);
   revalidatePath("/music");
   return { ok: true };

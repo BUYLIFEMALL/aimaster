@@ -40,3 +40,11 @@ export function fmsBgmPath(userId: string, videoId: string, id: string, fileName
 export function isOwnFmsBgmPath(path: string, userId: string, videoId: string): boolean {
   return new RegExp(`^${userId}/${videoId}-fms-${UUID}\\.(mp3|m4a|wav|ogg|aac)$`, "i").test(path);
 }
+
+/** 받은 곡의 목록 제목 — 같은 곡 판정에도 쓴다 */
+export const fmsTrackTitle = (rawName: string | undefined) => `${fmsTitle(fmsFileName(rawName))} (AI 무료음악)`.slice(0, 120);
+
+/** 같은 영상에 이미 있는 같은 곡(제목·길이 같음, 길이는 둘 다 없어도 같음)을 찾는다 — 다시 보낼 때 목록이 쌓이지 않게(2026-11-10) */
+export function findSameFmsTrack<T extends { title: string | null; duration_seconds: number | null }>(tracks: T[], title: string, seconds: number | null): T | null {
+  return tracks.find((t) => t.title === title && (t.duration_seconds ?? null) === seconds) ?? null;
+}
