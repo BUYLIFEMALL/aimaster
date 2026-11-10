@@ -16,7 +16,7 @@
 ## 4단계 보내기
 - [ ] 이미지 공개 주소(쿠팡 운영 `/i/[id]` 방식, Content-Type 이미지)
 - [ ] `sending` 기록 → 등록 → 바로 전시중지 → `stopped`/`registered`/`failed`/`unknown`, 불확실하면 다시 보내지 않음
-- [ ] 30일 정리(관리자·시험 계정 `retention_exempt` 열외) + `CRON_SECRET`
+- [ ] 보관 정리 라우트 신설(보내기 기능과 같은 배포에) — 기본 규칙 「발행 1년·생성만 30일」(`docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md` §3): 등록 성공(`registered`·`stopped`, 상품번호 있음) 기록은 1년, `sending`·`failed`·`unknown`은 30일. 「상품 등록 = 발행」 여부는 주인님 결정 대기 — 결정 전이면 전부 30일로 만들고 조건만 나눠 둠. 열외 `src/lib/retentionExempt.ts`(이미 복사됨) + `vercel.json` crons + `CRON_SECRET`
 
 ## 5·6단계
 - [ ] `shop-detail-page/lib/markets.ts` 11번가 한 줄
