@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FolderOpen, ExternalLink, Music, Image as ImageIcon, Laptop, Clock } from "lucide-react";
+import { FolderOpen, ExternalLink, Music, Image as ImageIcon, Film, FileText, Laptop, Clock } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -12,13 +12,18 @@ export const fetchCache = "force-no-store";
 export const metadata = { title: "내 자료함", robots: { index: false, follow: false } };
 
 // 「📁 내 자료함」(2026-11-11, docs/PLAN_20261111_MEMBER_LIBRARY.md) — 같은 계정으로 여러 프로그램에서 만든 자료를 한 곳에서.
-// 1단계 음악 3종 · 2단계 이미지 스튜디오 4개(AI 이미지·바나나 캔버스·인물사진·썸네일 마스터). 원본은 각 프로그램에 그대로 있고, 원본이 지워지면 여기서도 사라진다.
+// 1단계 음악 3종 · 2단계 이미지 스튜디오 4개 · 3단계 영상 2개(AI 영상·뮤직비디오)와 블로그 원고 6개. 원본은 각 프로그램에 그대로 있고, 원본이 지워지면 여기서도 사라진다.
 const TABS: { key: "all" | AssetKind; label: string }[] = [
   { key: "all", label: "전체" },
   { key: "audio", label: "🎵 음악" },
   { key: "image", label: "🖼️ 이미지" },
+  { key: "video", label: "🎬 영상" },
+  { key: "text", label: "📝 글" },
 ];
-const KIND_LABEL: Partial<Record<AssetKind, string>> = { audio: "음악", image: "이미지" };
+const KIND_LABEL: Partial<Record<AssetKind, string>> = { audio: "음악", image: "이미지", video: "영상", text: "글" };
+const KIND_ORDER: AssetKind[] = ["image", "video", "audio", "text"];
+const KIND_HEAD: Partial<Record<AssetKind, string>> = { image: "🖼️ 이미지", video: "🎬 영상", audio: "🎵 음악", text: "📝 글(블로그 원고)" };
+const KIND_ICON = { image: ImageIcon, video: Film, audio: Music, text: FileText, file: FileText } as const;
 
 export default async function LibraryPage({ searchParams }: { searchParams: Promise<{ kind?: string }> }) {
   const supabase = await createClient();
@@ -53,11 +58,11 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
           <FolderOpen className="w-6 h-6 text-gold" /> 내 자료함
         </h1>
         <p className="text-subtext text-sm mt-1 break-keep">
-          같은 계정으로 여러 프로그램에서 만든 자료를 한곳에 모았습니다. 원본은 만든 프로그램에 그대로 있고, 다른 프로그램에서 가져다 쓸 수 있습니다. 지금은 <b className="text-white">음악·이미지</b>를 모아 보여 드립니다(영상·글은 차례로 추가).
+          같은 계정으로 여러 프로그램에서 만든 자료를 한곳에 모았습니다. 원본은 만든 프로그램에 그대로 있고, 다른 프로그램에서 가져다 쓸 수 있습니다. 지금은 <b className="text-white">이미지·영상·음악·블로그 원고</b>를 모아 보여 드립니다.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
         <GlassCard className="p-4 text-center">
           <div className="text-2xl font-black gold-text">{assets.length}개</div>
           <div className="text-subtext text-xs mt-1">{tab === "all" ? "내 자료" : KIND_LABEL[tab]}</div>
@@ -71,6 +76,14 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
           <div className="text-subtext text-xs mt-1">이미지</div>
         </GlassCard>
         <GlassCard className="p-4 text-center">
+          <div className="text-2xl font-black text-white">{countOf("video")}</div>
+          <div className="text-subtext text-xs mt-1">영상</div>
+        </GlassCard>
+        <GlassCard className="p-4 text-center">
+          <div className="text-2xl font-black text-white">{countOf("text")}</div>
+          <div className="text-subtext text-xs mt-1">글</div>
+        </GlassCard>
+        <GlassCard className="p-4 text-center col-span-3 md:col-span-1">
           <div className={`text-lg font-black ${exempt ? "text-emerald-400" : "text-white"}`}>{exempt ? "보관 기간 제외" : "원본 규칙대로"}</div>
           <div className="text-subtext text-xs mt-1">보관 기간</div>
         </GlassCard>
@@ -100,19 +113,19 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
 
       {assets.length === 0 ? (
         <GlassCard className="p-8 text-center text-subtext text-sm break-keep">
-          아직 모인 자료가 없습니다. 음악(AI 음악 스튜디오·음악(SUNO)·AI 무료음악)이나 이미지(AI 이미지·바나나 캔버스·인물사진·썸네일 마스터) 프로그램에서 만들면 여기에 자동으로 모입니다.
+          아직 모인 자료가 없습니다. 음악·이미지·영상·블로그 원고 프로그램에서 만들면 여기에 자동으로 모입니다.
         </GlassCard>
       ) : (
         <div className="space-y-8">
-          {(["image", "audio"] as AssetKind[]).filter((k) => byKind.has(k)).map((kind) => (
+          {KIND_ORDER.filter((k) => byKind.has(k)).map((kind) => (
             <div key={kind} className="space-y-6">
-              {tab === "all" && <h2 className="text-lg font-bold text-white">{kind === "image" ? "🖼️ 이미지" : "🎵 음악"}</h2>}
+              {tab === "all" && <h2 className="text-lg font-bold text-white">{KIND_HEAD[kind]}</h2>}
               {[...byKind.get(kind)!.entries()].map(([slug, list]) => {
                 const prog = programBySlug.get(slug);
                 return (
                   <section key={`${kind}-${slug}`}>
                     <div className="flex items-center gap-2 mb-2">
-                      {kind === "image" ? <ImageIcon className="w-4 h-4 text-gold" /> : <Music className="w-4 h-4 text-gold" />}
+                      {(() => { const Icon = KIND_ICON[kind]; return <Icon className="w-4 h-4 text-gold" />; })()}
                       <h3 className="text-sm font-bold text-white">{prog?.name ?? slug} <span className="text-subtext font-normal">· {list.length}개</span></h3>
                       {prog?.app_url && (
                         <Link href={prog.app_url} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1 text-xs font-bold text-gold hover:underline">
@@ -120,7 +133,47 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
                         </Link>
                       )}
                     </div>
-                    {kind === "image" ? (
+                    {kind === "video" ? (
+                      <ul className="grid gap-3 sm:grid-cols-2">
+                        {list.map((a) => (
+                          <li key={a.id}>
+                            <GlassCard className="p-2 space-y-1.5">
+                              {a.playUrl ? (
+                                <video controls preload="metadata" src={a.playUrl} className="w-full rounded-lg bg-black aspect-video" />
+                              ) : (
+                                <div className="w-full aspect-video rounded-lg bg-white/5 flex items-center justify-center text-xs text-amber-300">파일을 찾지 못했습니다</div>
+                              )}
+                              <p className="text-xs text-white line-clamp-2 break-all" title={a.title}>{a.title}</p>
+                              <p className="text-[11px] text-subtext">{formatDate(a.createdAt)}{a.durationS != null ? ` · ${a.durationS}초` : ""}</p>
+                            </GlassCard>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : kind === "text" ? (
+                      <ul className="space-y-2">
+                        {list.map((a) => (
+                          <li key={a.id}>
+                            <GlassCard className="p-3 space-y-1.5">
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                <span className="font-bold text-white text-sm break-all">{a.title}</span>
+                                {a.published ? (
+                                  <span className="rounded-full px-2 py-0.5 text-[11px] font-bold bg-emerald-500/15 text-emerald-300">발행됨 · 1년 보관</span>
+                                ) : a.status ? (
+                                  <span className="rounded-full px-2 py-0.5 text-[11px] font-bold bg-white/10 text-subtext">{a.status}</span>
+                                ) : null}
+                                <span className="ml-auto text-xs text-subtext">{formatDate(a.createdAt)}</span>
+                              </div>
+                              {a.excerpt && <p className="text-xs text-subtext line-clamp-2 break-all">{a.excerpt}</p>}
+                              {a.playUrl && (
+                                <Link href={a.playUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-gold hover:underline">
+                                  발행된 글 보기 <ExternalLink className="w-3 h-3" />
+                                </Link>
+                              )}
+                            </GlassCard>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : kind === "image" ? (
                       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {list.map((a) => (
                           <li key={a.id}>

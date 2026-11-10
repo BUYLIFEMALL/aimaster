@@ -24,6 +24,12 @@ export interface MemberAsset {
   /** 외부 임시 주소(예: Suno — 약 14일 뒤 만료 가능) */
   external: boolean;
   style: string;
+  /** 글: 본문 발췌(200자) */
+  excerpt: string;
+  /** 글: 원본 상태 값(그대로) */
+  status: string | null;
+  /** 글: 실제 발행됨(발행 1년 보관 대상) */
+  published: boolean;
 }
 
 const SIGN_TTL = 60 * 60;
@@ -69,12 +75,15 @@ export async function listMemberAssets(service: SupabaseLike, userId: string, op
       sourceSlug: r.source_slug,
       kind: r.kind,
       title: r.title || "제목 없음",
-      durationS: r.duration_s == null ? null : Math.round(Number(r.duration_s)),
+      durationS: r.duration_s != null ? Math.round(Number(r.duration_s)) : typeof meta.duration === "number" ? Math.round(meta.duration) : null,
       createdAt: r.created_at,
       playUrl: own ?? url,
       localOnly: meta.local_only === true,
       external: meta.external === true,
       style: typeof meta.style === "string" ? meta.style : "",
+      excerpt: typeof meta.excerpt === "string" ? meta.excerpt : "",
+      status: typeof meta.status === "string" && meta.status ? meta.status : null,
+      published: meta.published === true,
     };
   });
 }

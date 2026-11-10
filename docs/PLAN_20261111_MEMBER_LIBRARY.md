@@ -70,3 +70,16 @@
 - 화면: `/library`에 종류 탭(전체·음악·이미지), 이미지는 미리보기 격자(서명 주소 1시간, 누르면 원본 크기).
 - 결과: 운영 적용 — 이미지 자료 = 기대값(AI 이미지 6 · 바나나 2 · 썸네일 5 · 인물사진 0), 전체 141, 인물사진 시험 줄 넣기 1→지우기 0. `tsc` 0·로컬 빌드 통과.
 - 담당 안내: 이미지 담당(역할 `ecommerce-image`) — 위 표의 칸 이름·경로 규칙을 바꾸면 트리거 함수(`member_assets_sync_ais/banana/portrait/thumb`)도 함께 고칠 것.
+
+## 9. 3단계 — 영상 2개 + 블로그 원고 6개 연결 (2026-11-11 주인님 「3단계 영상·블로그 원고 연결 진행해」)
+- 마이그레이션 `supabase/migrations/0061_member_assets_video_text.sql`, 방식 동일(트리거 + 원본 삭제 연동, 프로그램 코드·배포 변경 없음).
+| 종류 | 프로그램 | 원본 |
+|---|---|---|
+| 영상 | `ai-video-studio` | `avs_generations.outputs[].path`(완성만) · `avs_edits.output_path` — 버킷 `ai-video-studio` |
+| 영상 | `music-video-studio` | `mvs_renders.output_path` — 버킷 `music-video-studio` |
+| 글 | `naver-blog-agent` · `naver-blog-seo-studio` · `tistory-auto-blog` · `ai-auto-blog` · `naver-blog-allinone` · `wp-blogger-auto` | `nba_posts` · `naver_blog_seo_drafts` · `tistory_posts`(숫자 id) · `blog_posts`(숫자 id) · `aio_posts` · `wba_posts` |
+- 글은 파일이 없어 제목·발췌(200자)·원본 상태·발행 여부·발행 주소(공개 주소만)를 저장. 발행된 원고는 「발행됨 · 1년 보관」 표시. 내용이 자주 바뀌므로 같은 줄을 고쳐 씀(자료함 id 유지).
+- 숫자 id 표는 `md5('표:'||id)::uuid`로 고정 번호(표 구조 변경 없음). 트리거 인자는 모두 명시 변환(`::text`) — 표마다 칸 형식이 달라도 원본 저장이 실패하지 않게.
+- 제외: `shorts-onestop-studio`(완성 영상이 아닌 프로젝트 설정) — 완성 영상을 서버에 저장하게 되면 추가.
+- 결과(운영): 영상 25(AI 영상 24 · 뮤직비디오 1), 글 107(34·25·19·15·6·8), 발행 12, 전체 272. 넣기→고치기→지우기 시험: `blog_posts`·`nba_posts`·`wba_posts` 통과(1줄·제목 갱신·0줄), `tistory_posts`는 같은 값 저장으로 트리거 오류 없음 확인(작성자 연결 때문에 가짜 줄 불가). 실제 사용 중 무료음악 곡 1개 삭제가 자료함에도 반영됨(57→56). `tsc` 0·로컬 빌드 통과.
+- 화면: `/library` 탭 전체·음악·이미지·영상·글, 영상은 재생기, 글은 발췌·상태·「발행된 글 보기」.
