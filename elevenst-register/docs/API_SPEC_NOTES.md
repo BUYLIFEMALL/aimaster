@@ -71,3 +71,10 @@
 3. 본문이 EUC-KR XML이라 인코딩 변환(`iconv-lite` 등)과 CDATA 처리 공용 함수가 필요하다. 한글 깨짐 시험을 먼저 만든다.
 4. 키 만료(1년)가 있으므로 연결 화면에 만료일 안내를 둔다.
 5. 확인 남은 것: `https` 지원, 키 하나로 Seller API가 되는지, 시험 서버 존재, 상품수정·조회 상세 칸 — 모두 고정 IP 등록 뒤 첫 연결 시험(읽기만)에서 확정.
+
+## 6. 2026-11-11 실제 연결 진단 (v1.02 연결 시험 500 원인)
+- 운영 연결 시험 결과: 「500, 나가는 IP 52.5.155.132」. 진단 스크립트(이 PC, 읽기만 5회)로 원인 확인:
+  - **Fixie(미국 동부) 경유**: `http://api.11st.co.kr` → Fixie가 `dial tcp 220.103.231.31:80: connection refused`(500, Fixie가 만든 응답), `https` → TLS 전에 연결 끊김, 조회용 `openapi.11st.co.kr`도 `connection reset`. **11번가가 해외 IP 접속을 네트워크 단계에서 막는 것으로 판단.**
+  - **한국 PC 직접(프록시 없음)**: `http`·`https` 모두 응답. 가짜 키 → 500 `<AuthMessage><resultCode>-200</resultCode>`(키에 해당하는 회원 없음). **실제 키 → 200, 출고지 1곳(`addrSeq` 2) 정상** — 키 하나로 Seller API 조회 가능 확정, `https` 지원 확정, 응답 XML은 명세 예시와 같음(`ns2:inOutAddresss`, 네임스페이스 `http://skt.tmall.business.openapi.spring.service.client.domain/`).
+  - 이 PC IP는 11번가 「API 관리」에 등록하지 않았는데 조회가 됐다 → **IP 허용 목록은 적어도 조회에서는 강제되지 않음**(쓰기 API에서 강제되는지는 미확인).
+- 결론: 11번가는 **한국 IP에서 불러야 한다.** 쿠팡처럼 Fixie(해외 고정 IP)를 쓰는 방식은 11번가에 맞지 않는다. 오류 메시지 개선: 500인데 본문이 XML이 아니면 「중간 연결(프록시)이 11번가에 닿지 못함」으로 안내해야 함.
