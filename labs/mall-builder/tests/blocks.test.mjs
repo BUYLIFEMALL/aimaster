@@ -94,3 +94,53 @@ test("순서 바꾸기·망가진 문서 읽기", () => {
   assert.deepEqual(readDoc({ blocks: "망가짐" }).blocks, []);
   assert.deepEqual(readDoc(null).blocks, []);
 });
+
+// ── D28 새 블록 6종·예약 노출 ──
+import { videoEmbed, isLive, isoOrEmpty, BLOCK_DEFS as D28 } from "../src/lib/blocks.ts";
+const U1 = "11111111-1111-1111-1111-111111111111";
+const U2 = "22222222-2222-2222-2222-222222222222";
+
+test("D28 동영상 주소 — 유튜브(여러 모양)·비메오만, 쿠키 없는 주소", () => {
+  assert.equal(videoEmbed("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=10"), "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ");
+  assert.equal(videoEmbed("https://youtu.be/dQw4w9WgXcQ"), "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ");
+  assert.equal(videoEmbed("https://youtube.com/shorts/dQw4w9WgXcQ"), "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ");
+  assert.equal(videoEmbed("https://vimeo.com/123456789"), "https://player.vimeo.com/video/123456789");
+  assert.equal(videoEmbed("http://youtu.be/dQw4w9WgXcQ"), null);
+  assert.equal(videoEmbed("https://evil.example/watch?v=dQw4w9WgXcQ"), null);
+  assert.equal(videoEmbed("https://youtu.be/dQw4w9WgXcQ\"><script>"), null);
+  assert.equal(D28.video.validate({ url: "https://example.com" }).ok, false);
+});
+
+test("D28 탭 상품 — 2~5개, 탭마다 상품 고르는 방법 검사", () => {
+  assert.equal(D28.tabs.validate({ tabs: [{ label: "A", source: "new" }] }).ok, false);
+  const bad = D28.tabs.validate({ tabs: [{ label: "A", source: "new" }, { label: "B", source: "category", category_id: "" }] });
+  assert.match(bad.error, /2번째 탭: 보여 줄 카테고리/);
+  const ok = D28.tabs.validate({ tabs: [{ label: "A", source: "new" }, { label: "B", source: "manual", product_ids: [U1, U1, "x"] }] });
+  assert.deepEqual(ok.value.tabs[1].product_ids, [U1]);
+});
+
+test("D28 타임세일·갤러리·카테고리 바로가기·후기 검사", () => {
+  assert.match(D28.timesale.validate({ title: "특가", ends_at: "" }).error, /끝나는 시각/);
+  assert.equal(D28.timesale.validate({ title: "특가", ends_at: "2026-12-01T10:00:00+09:00", source: "new" }).value.ends_at, "2026-12-01T01:00:00.000Z");
+  assert.equal(D28.gallery.validate({ items: [{ image: "http://x.png" }] }).ok, false);
+  assert.equal(D28.gallery.validate({ items: [{ image: "https://x.png", link: "/s/a" }] }).ok, true);
+  assert.equal(D28.category_icons.validate({ items: [{ category_id: U1 }] }).ok, false);
+  assert.equal(D28.category_icons.validate({ items: [{ category_id: U1, emoji: "🍎🍏🍐" }, { category_id: U2 }] }).value.items[0].emoji, "🍎🍏");
+  assert.deepEqual(D28.reviews.validate({ count: 99, min_rating: 9 }).value, { title: "구매 후기", count: 6, min_rating: 4 });
+});
+
+test("D28 예약 노출 — 시작·끝 시각, 타임세일은 끝나면 숨김, 시각 순서 검사", () => {
+  const b = (o) => ({ id: "x", type: "html", visible: true, settings: { html: "<p>a</p>" }, ...o });
+  const now = Date.parse("2026-11-11T03:00:00Z");
+  assert.equal(isLive(b({}), now), true);
+  assert.equal(isLive(b({ show_from: "2026-11-11T04:00:00Z" }), now), false);
+  assert.equal(isLive(b({ show_until: "2026-11-11T03:00:00Z" }), now), false);
+  assert.equal(isLive(b({ visible: false }), now), false);
+  assert.equal(isLive({ id: "t", type: "timesale", visible: true, settings: { ends_at: "2026-11-11T02:59:00Z" } }, now), false);
+  assert.equal(isoOrEmpty("엉터리"), null);
+  const v = validateDoc({ blocks: [b({ show_from: "2026-11-12T00:00:00Z", show_until: "2026-11-11T00:00:00Z" })] });
+  assert.match(v.error, /끝 시각이 시작 시각보다/);
+  const kept = validateDoc({ blocks: [b({ show_from: "2026-11-12T09:00:00+09:00" })] });
+  assert.equal(kept.value.blocks[0].show_from, "2026-11-12T00:00:00.000Z");
+  assert.equal("show_until" in kept.value.blocks[0], false); // 옛 저장본처럼 칸 없음
+});

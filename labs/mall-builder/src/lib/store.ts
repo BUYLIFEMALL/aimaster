@@ -744,6 +744,14 @@ export type StoreReview = {
   customer: { name: string } | null; product: { name: string } | null;
 };
 
+/** D28 첫 화면 「구매 후기」 블록 — 몰 전체 최근 후기(이름 가림, 볼 수 있는 상품만, DB 0048) */
+export type RecentReview = { id: string; rating: number; body: string; created_at: string; author: string; product_id: string; product_name: string };
+export async function getStoreRecentReviews(storeId: string, limit: number, minRating: number): Promise<RecentReview[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_store_recent_reviews", { p_store_id: storeId, p_limit: limit, p_min_rating: minRating });
+  return (data ?? []) as RecentReview[];
+}
+
 /** 운영자 후기 목록 — 최근 순(지운 것 제외, 숨긴 것 포함) */
 export async function getStoreReviews(storeId: string): Promise<StoreReview[]> {
   const supabase = await createClient();

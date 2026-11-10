@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getNotices, getPublishedHome, getShopProducts, getShowcaseProducts, getStoreBySlug } from "@/lib/store";
-import type { NoticeSettings, ShowcaseSettings } from "@/lib/blocks";
-import { HomeBlocks } from "../home-blocks";
+import { getCategoryRows, getNotices, getPublishedHome, getShopProducts, getShowcaseProducts, getStoreBySlug, getStoreRecentReviews } from "@/lib/store";
+import { isLive, type CategoryIconsSettings, type NoticeSettings, type ReviewsSettings, type ShowcaseSettings, type TabsSettings, type TimesaleSettings } from "@/lib/blocks";
+import { Countdown, HomeBlocks, TabsView } from "../home-blocks";
 import { ProductGrid } from "./product-card";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,12 @@ export default async function StorefrontPage({ params }: { params: Promise<{ sto
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);
   const base = `/s/${store.slug}`;
-  const [home, products] = await Promise.all([getPublishedHome(store.id), getShopProducts(store.id, { limit: 24 })]);
+  const [published, products] = await Promise.all([getPublishedHome(store.id), getShopProducts(store.id, { limit: 24 })]);
+  // 예약 노출·타임세일 끝(D28) — 서버 시각으로 지금 보일 블록만
+  const now = Date.now();
+  const home = { ...published, blocks: published.blocks.filter((b) => isLive(b, now)) };
+  const needCats = home.blocks.some((b) => b.type === "category_icons");
+  const catName = new Map((needCats ? await getCategoryRows(store.id) : []).filter((c) => c.is_visible).map((c) => [c.id, c.name]));
 
   const slots: Record<string, ReactNode> = {};
   await Promise.all(
@@ -27,6 +32,75 @@ export default async function StorefrontPage({ params }: { params: Promise<{ sto
             <ProductGrid base={base} products={list} columns={s.columns} empty="보여 줄 상품이 없습니다." />
           </div>
         );
+      } else if (b.type === "tabs") {
+        const s = b.settings as TabsSettings;
+        const lists = await Promise.all(s.tabs.map((t) => getShowcaseProducts(store.id, { ...t, title: "", columns: s.columns, limit: s.limit })));
+        slots[b.id] = (
+          <TabsView
+            title={s.title}
+            labels={s.tabs.map((t) => t.label)}
+            panels={lists.map((list, i) => <ProductGrid key={i} base={base} products={list} columns={s.columns} empty="보여 줄 상품이 없습니다." />)}
+          />
+        );
+      } else if (b.type === "timesale") {
+        const s = b.settings as TimesaleSettings;
+        const list = await getShowcaseProducts(store.id, { ...s, title: "" });
+        slots[b.id] = (
+          <div className="mx-4 rounded-lg border-2 border-red-500 p-4" data-timesale>
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <h2 className="text-lg font-bold text-red-600">⏰ {s.title}</h2>
+                {s.subtitle && <p className="text-sm text-gray-600">{s.subtitle}</p>}
+              </div>
+              <p className="text-sm">남은 시간 <b className="text-xl text-red-600"><Countdown endsAt={s.ends_at} /></b></p>
+            </div>
+            <ProductGrid base={base} products={list} columns={s.columns} empty="보여 줄 상품이 없습니다." />
+          </div>
+        );
+      } else if (b.type === "reviews") {
+        const s = b.settings as ReviewsSettings;
+        const list = await getStoreRecentReviews(store.id, s.count, s.min_rating);
+        slots[b.id] = list.length ? (
+          <div className="px-4" data-reviews-block>
+            <h2 className="mb-3 text-lg font-semibold">{s.title}</h2>
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {list.map((rv) => (
+                <li key={rv.id} className="rounded border p-3 text-sm">
+                  <p className="text-amber-500" aria-label={`별점 ${rv.rating}점`}>{"★".repeat(rv.rating)}<span className="text-gray-300">{"★".repeat(5 - rv.rating)}</span></p>
+                  <p className="mt-1 line-clamp-3">{rv.body}</p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    {rv.author} · <Link href={`${base}/p/${rv.product_id}`} className="underline">{rv.product_name}</Link>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null;
+      } else if (b.type === "category_icons") {
+        const s = b.settings as CategoryIconsSettings;
+        const items = s.items.filter((it) => catName.has(it.category_id)); // 숨긴·지운 카테고리는 뺌
+        slots[b.id] = items.length ? (
+          <div className="px-4" data-category-icons>
+            {s.title && <h2 className="mb-3 text-lg font-semibold">{s.title}</h2>}
+            <ul className="flex gap-4 overflow-x-auto pb-1">
+              {items.map((it) => (
+                <li key={it.category_id} className="shrink-0">
+                  <Link href={`${base}/c/${it.category_id}`} className="flex w-16 flex-col items-center gap-1 text-center text-xs sm:w-20">
+                    <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-100 text-2xl sm:h-20 sm:w-20">
+                      {it.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={it.image} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        it.emoji || "🛍"
+                      )}
+                    </span>
+                    <span className="line-clamp-2">{catName.get(it.category_id)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null;
       } else if (b.type === "notice") {
         const s = b.settings as NoticeSettings;
         const list = await getNotices(store.id, s.count);

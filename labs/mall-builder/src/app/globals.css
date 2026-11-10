@@ -26,3 +26,7 @@ body {
   body { background: #fff !important; }
   .doc { box-shadow: none !important; padding: 0 !important; max-width: none !important; }
 }
+
+/* D28 사진 갤러리 — 큰 화면은 정한 열 수, 휴대폰(767px 이하)은 3열 */
+.mall-gallery { grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); }
+@media (max-width: 767px) { .mall-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

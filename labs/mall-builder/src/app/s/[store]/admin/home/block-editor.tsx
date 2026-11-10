@@ -3,9 +3,10 @@
 import { useMemo, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
-  BLOCK_DEFS, BLOCK_TYPES, MAX_BLOCKS, MAX_HTML, SHOWCASE_SOURCE_LABEL, moveBlock, newBlock, validateDoc,
-  type BannerSettings, type Block, type BlocksDoc, type BlockType, type HtmlSettings, type NoticeSettings,
-  type ShowcaseSettings, type ShowcaseSource, type SliderSettings, type TopbarSettings,
+  BLOCK_DEFS, BLOCK_TYPES, MAX_BLOCKS, MAX_HTML, SHOWCASE_SOURCE_LABEL, isLive, moveBlock, newBlock, validateDoc, videoEmbed,
+  type BannerSettings, type Block, type BlocksDoc, type BlockType, type CategoryIconsSettings, type GallerySettings, type HtmlSettings,
+  type NoticeSettings, type ProductSource, type ReviewsSettings, type ShowcaseSettings, type ShowcaseSource, type SliderSettings,
+  type TabsSettings, type TimesaleSettings, type TopbarSettings, type VideoSettings,
 } from "@/lib/blocks";
 import { publishHomeAction, saveHomeDraftAction } from "@/lib/page-actions";
 import { HomeBlocks } from "../../home-blocks";
@@ -82,9 +83,173 @@ function NumberInput({ label, value, min, max, onChange }: { label: string; valu
 
 type Option = { id: string; name: string };
 
+/** D28 한국 시간 입력칸 ↔ ISO */
+const KST = 9 * 3600_000;
+const toLocalKst = (iso: string | undefined) => (iso ? new Date(Date.parse(iso) + KST).toISOString().slice(0, 16) : "");
+const fromLocalKst = (v: string) => (v ? new Date(Date.parse(`${v}:00+09:00`)).toISOString() : "");
+
+/** 상품 고르는 방법(쇼윈도·탭·타임세일 공통) */
+function SourcePicker({ name, value, categories, products, onChange }: { name: string; value: ProductSource; categories: Option[]; products: Option[]; onChange: (v: ProductSource) => void }) {
+  const picked = new Set(value.product_ids);
+  const toggle = (id: string) => onChange({ ...value, product_ids: picked.has(id) ? value.product_ids.filter((x) => x !== id) : [...value.product_ids, id] });
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-3 text-sm" role="radiogroup" aria-label="상품 고르는 방법">
+        {(Object.keys(SHOWCASE_SOURCE_LABEL) as ShowcaseSource[]).map((k) => (
+          <label key={k} className="flex items-center gap-1">
+            <input type="radio" name={name} checked={value.source === k} onChange={() => onChange({ ...value, source: k })} /> {SHOWCASE_SOURCE_LABEL[k]}
+          </label>
+        ))}
+      </div>
+      {value.source === "category" && (
+        <select value={value.category_id} onChange={(e) => onChange({ ...value, category_id: e.target.value })} className={input}>
+          <option value="">— 카테고리 고르기 —</option>
+          {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+      )}
+      {value.source === "manual" && (
+        <ul className="max-h-40 overflow-y-auto rounded border text-sm">
+          {products.map((p) => (
+            <li key={p.id}>
+              <label className="flex items-center gap-2 px-2 py-1">
+                <input type="checkbox" checked={picked.has(p.id)} onChange={() => toggle(p.id)} />
+                <span className="flex-1 truncate">{p.name}</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function TitleInput({ value, onChange, hint = "제목(비우면 제목 없이)" }: { value: string; onChange: (v: string) => void; hint?: string }) {
+  return (
+    <label className="block">
+      <span className="text-xs text-gray-500">{hint}</span>
+      <input value={value} maxLength={40} onChange={(e) => onChange(e.target.value)} className={input} />
+    </label>
+  );
+}
+
 function SettingsForm({ storeId, block, categories, products, onChange }: {
   storeId: string; block: Block; categories: Option[]; products: Option[]; onChange: (s: Block["settings"]) => void;
 }) {
+  if (block.type === "video") {
+    const s = block.settings as VideoSettings;
+    return (
+      <div className="space-y-3">
+        <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} />
+        <label className="block">
+          <span className="text-xs text-gray-500">유튜브 또는 비메오 영상 주소</span>
+          <input value={s.url} onChange={(e) => onChange({ ...s, url: e.target.value })} placeholder="https://www.youtube.com/watch?v=…" className={input} />
+        </label>
+        {s.url && !videoEmbed(s.url) && <p className="text-xs text-red-600">유튜브·비메오 주소가 아닙니다.</p>}
+      </div>
+    );
+  }
+  if (block.type === "tabs") {
+    const s = block.settings as TabsSettings;
+    const setTab = (i: number, patch: Partial<TabsSettings["tabs"][number]>) => onChange({ ...s, tabs: s.tabs.map((t, j) => (j === i ? { ...t, ...patch } : t)) });
+    return (
+      <div className="space-y-3">
+        <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} />
+        {s.tabs.map((t, i) => (
+          <div key={i} className="rounded border p-2">
+            <div className="flex items-center gap-2">
+              <input value={t.label} maxLength={20} onChange={(e) => setTab(i, { label: e.target.value })} placeholder={`${i + 1}번째 탭 이름`} className={input} />
+              {s.tabs.length > 2 && <button type="button" onClick={() => onChange({ ...s, tabs: s.tabs.filter((_, j) => j !== i) })} className="text-xs text-red-700">빼기</button>}
+            </div>
+            <div className="mt-2"><SourcePicker name={`tab-${block.id}-${i}`} value={t} categories={categories} products={products} onChange={(v) => setTab(i, v)} /></div>
+          </div>
+        ))}
+        {s.tabs.length < 5 && <button type="button" onClick={() => onChange({ ...s, tabs: [...s.tabs, { label: "", source: "new", category_id: "", product_ids: [] }] })} className="rounded border px-2 py-1 text-xs">+ 탭 추가</button>}
+        <div className="grid grid-cols-2 gap-2">
+          <NumberInput label="큰 화면 열 수(2~5)" value={s.columns} min={2} max={5} onChange={(columns) => onChange({ ...s, columns })} />
+          <NumberInput label="탭마다 최대 상품 수(2~24)" value={s.limit} min={2} max={24} onChange={(limit) => onChange({ ...s, limit })} />
+        </div>
+      </div>
+    );
+  }
+  if (block.type === "timesale") {
+    const s = block.settings as TimesaleSettings;
+    return (
+      <div className="space-y-3">
+        <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} hint="제목" />
+        <label className="block">
+          <span className="text-xs text-gray-500">한 줄 설명(선택)</span>
+          <input value={s.subtitle} maxLength={60} onChange={(e) => onChange({ ...s, subtitle: e.target.value })} className={input} />
+        </label>
+        <label className="block">
+          <span className="text-xs text-gray-500">끝나는 시각(한국 시간) — 지나면 손님 화면에서 자동으로 사라짐. 가격은 그대로입니다</span>
+          <input type="datetime-local" value={toLocalKst(s.ends_at)} onChange={(e) => onChange({ ...s, ends_at: fromLocalKst(e.target.value) })} className={input} />
+        </label>
+        <SourcePicker name={`ts-${block.id}`} value={s} categories={categories} products={products} onChange={(v) => onChange({ ...s, ...v })} />
+        <div className="grid grid-cols-2 gap-2">
+          <NumberInput label="큰 화면 열 수(2~5)" value={s.columns} min={2} max={5} onChange={(columns) => onChange({ ...s, columns })} />
+          <NumberInput label="최대 상품 수(2~24)" value={s.limit} min={2} max={24} onChange={(limit) => onChange({ ...s, limit })} />
+        </div>
+      </div>
+    );
+  }
+  if (block.type === "reviews") {
+    const s = block.settings as ReviewsSettings;
+    return (
+      <div className="space-y-3">
+        <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} hint="제목" />
+        <div className="grid grid-cols-2 gap-2">
+          <NumberInput label="보여 줄 후기 수(3~12)" value={s.count} min={3} max={12} onChange={(count) => onChange({ ...s, count })} />
+          <NumberInput label="별점 이상만(1~5)" value={s.min_rating} min={1} max={5} onChange={(min_rating) => onChange({ ...s, min_rating })} />
+        </div>
+        <p className="text-xs text-gray-500">손님 이름은 가려지고, 「후기」 메뉴에서 숨긴 후기는 나오지 않습니다.</p>
+      </div>
+    );
+  }
+  if (block.type === "category_icons") {
+    const s = block.settings as CategoryIconsSettings;
+    const setItem = (i: number, patch: Partial<CategoryIconsSettings["items"][number]>) => onChange({ ...s, items: s.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) });
+    return (
+      <div className="space-y-3">
+        <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} />
+        {s.items.map((it, i) => (
+          <div key={i} className="rounded border p-2">
+            <div className="flex items-center gap-2">
+              <select value={it.category_id} onChange={(e) => setItem(i, { category_id: e.target.value })} className={input}>
+                <option value="">— 카테고리 —</option>
+                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <input value={it.emoji} maxLength={4} onChange={(e) => setItem(i, { emoji: e.target.value })} placeholder="🍎" title="그림 대신 이모지" className="mt-0.5 w-14 rounded border px-2 py-1.5 text-center" />
+              <button type="button" onClick={() => onChange({ ...s, items: s.items.filter((_, j) => j !== i) })} className="text-xs text-red-700">빼기</button>
+            </div>
+            <div className="mt-1"><ImagePicker storeId={storeId} value={it.image} onChange={(image) => setItem(i, { image })} clearable /></div>
+          </div>
+        ))}
+        {s.items.length < 12 && <button type="button" onClick={() => onChange({ ...s, items: [...s.items, { category_id: "", image: "", emoji: "" }] })} className="rounded border px-2 py-1 text-xs">+ 카테고리 추가</button>}
+        <p className="text-xs text-gray-500">그림을 올리면 그림, 없으면 이모지가 둥근 아이콘으로 보입니다. 2~12개.</p>
+      </div>
+    );
+  }
+  if (block.type === "gallery") {
+    const s = block.settings as GallerySettings;
+    const setItem = (i: number, patch: Partial<GallerySettings["items"][number]>) => onChange({ ...s, items: s.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) });
+    return (
+      <div className="space-y-3">
+        <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} />
+        {s.items.map((it, i) => (
+          <div key={i} className="rounded border p-2">
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span>{i + 1}번째 사진</span>
+              <button type="button" onClick={() => onChange({ ...s, items: s.items.filter((_, j) => j !== i) })} className="text-red-700">빼기</button>
+            </div>
+            <div className="mt-1"><ImagePicker storeId={storeId} value={it.image} onChange={(image) => setItem(i, { image })} /></div>
+            <div className="mt-1"><LinkInput value={it.link} onChange={(link) => setItem(i, { link })} /></div>
+          </div>
+        ))}
+        {s.items.length < 24 && <button type="button" onClick={() => onChange({ ...s, items: [...s.items, { image: "", link: "" }] })} className="rounded border px-2 py-1 text-xs">+ 사진 추가</button>}
+        <NumberInput label="큰 화면 열 수(2~6, 휴대폰은 3열)" value={s.columns} min={2} max={6} onChange={(columns) => onChange({ ...s, columns })} />
+      </div>
+    );
+  }
   if (block.type === "topbar") {
     const s = block.settings as TopbarSettings;
     const setItem = (i: number, patch: Partial<TopbarSettings["items"][number]>) => onChange({ ...s, items: s.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) });
@@ -279,6 +444,11 @@ export default function BlockEditor({ slug, storeId, categories, products, initi
               <button type="button" onClick={() => setSelected(b.id)} className="flex-1 text-left">
                 <b>{BLOCK_DEFS[b.type].label}</b>
                 {!b.visible && <span className="ml-2 text-xs text-gray-500">(숨김)</span>}
+                {b.visible && (b.show_from || b.show_until || b.type === "timesale") && !isLive(b) && (
+                  <span className="ml-2 rounded bg-amber-100 px-1.5 text-xs text-amber-800" data-schedule-badge>
+                    {b.show_from && Date.now() < Date.parse(b.show_from) ? `예약 ${toLocalKst(b.show_from).replace("T", " ")}` : "끝남"}
+                  </span>
+                )}
               </button>
               <button type="button" aria-label="위로" disabled={i === 0} onClick={() => setBlocks((bs) => moveBlock(bs, i, -1))} className="px-1 disabled:opacity-30">↑</button>
               <button type="button" aria-label="아래로" disabled={i === blocks.length - 1} onClick={() => setBlocks((bs) => moveBlock(bs, i, 1))} className="px-1 disabled:opacity-30">↓</button>
@@ -302,6 +472,16 @@ export default function BlockEditor({ slug, storeId, categories, products, initi
         <section className="rounded border p-3">
           <h2 className="mb-2 text-sm font-semibold">{BLOCK_DEFS[current.type].label} 설정</h2>
           <SettingsForm storeId={storeId} block={current} categories={categories} products={products} onChange={(settings) => update(current.id, { settings })} />
+          <div className="mt-3 grid gap-2 border-t pt-3 sm:grid-cols-2" data-schedule>
+            <label className="block">
+              <span className="text-xs text-gray-500">보이기 시작(한국 시간, 비우면 바로)</span>
+              <input type="datetime-local" value={toLocalKst(current.show_from)} onChange={(e) => update(current.id, { show_from: fromLocalKst(e.target.value) })} className={input} />
+            </label>
+            <label className="block">
+              <span className="text-xs text-gray-500">보이기 끝(한국 시간, 비우면 계속)</span>
+              <input type="datetime-local" value={toLocalKst(current.show_until)} onChange={(e) => update(current.id, { show_until: fromLocalKst(e.target.value) })} className={input} />
+            </label>
+          </div>
         </section>
       )}
 

@@ -2,8 +2,9 @@
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import {
-  SHOWCASE_SOURCE_LABEL,
-  type BannerSettings, type Block, type HtmlSettings, type NoticeSettings, type ShowcaseSettings, type SliderSettings, type TopbarSettings,
+  BLOCK_DEFS, SHOWCASE_SOURCE_LABEL, videoEmbed,
+  type BannerSettings, type Block, type GallerySettings, type HtmlSettings, type NoticeSettings, type ShowcaseSettings, type SliderSettings,
+  type TopbarSettings, type VideoSettings,
 } from "@/lib/blocks";
 
 // 첫 화면 블록 그리기 — 손님 첫 화면과 운영자 편집기 미리보기가 같이 쓴다. 숨긴 블록은 그리지 않는다.
@@ -88,12 +89,14 @@ function Banner({ s }: { s: BannerSettings }) {
   );
 }
 
-/** 편집기 미리보기용 — 서버 데이터가 필요한 블록(쇼윈도·공지)의 자리 표시 */
+/** 편집기 미리보기용 — 서버 데이터가 필요한 블록(쇼윈도·공지·탭·타임세일·후기·카테고리)의 자리 표시 */
 function Placeholder({ b }: { b: Block }) {
   const text =
     b.type === "showcase"
       ? (() => { const s = b.settings as ShowcaseSettings; return `${s.title || "상품 쇼윈도"} — ${SHOWCASE_SOURCE_LABEL[s.source]} ${s.limit}개, ${s.columns}열`; })()
-      : `${(b.settings as NoticeSettings).title} — 최근 공지 ${(b.settings as NoticeSettings).count}개`;
+      : b.type === "notice"
+        ? `${(b.settings as NoticeSettings).title} — 최근 공지 ${(b.settings as NoticeSettings).count}개`
+        : `${BLOCK_DEFS[b.type].label}${"title" in (b.settings as object) && (b.settings as { title: string }).title ? ` — ${(b.settings as { title: string }).title}` : ""}`;
   return (
     <div className="mx-4 rounded border border-dashed px-4 py-6 text-center text-sm text-gray-500">
       {text}
@@ -101,6 +104,74 @@ function Placeholder({ b }: { b: Block }) {
     </div>
   );
 }
+
+/** D28 동영상 — 주소는 videoEmbed가 유튜브(쿠키 없는 주소)·비메오만 만든다 */
+function Video({ s }: { s: VideoSettings }) {
+  const src = videoEmbed(s.url);
+  if (!src) return null;
+  return (
+    <div className="px-4">
+      {s.title && <h2 className="mb-3 text-lg font-semibold">{s.title}</h2>}
+      <div className="relative mx-auto w-full max-w-4xl overflow-hidden rounded" style={{ aspectRatio: "16 / 9" }}>
+        <iframe src={src} title={s.title || "동영상"} className="absolute inset-0 h-full w-full" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin" />
+      </div>
+    </div>
+  );
+}
+
+/** D28 사진 갤러리(인스타 스타일 격자) */
+function Gallery({ s }: { s: GallerySettings }) {
+  return (
+    <div className="px-4">
+      {s.title && <h2 className="mb-3 text-lg font-semibold">{s.title}</h2>}
+      <div className="mall-gallery grid gap-1.5" style={{ ["--cols" as string]: s.columns } as CSSProperties}>
+        {s.items.map((it, i) => (
+          <MaybeLink key={i} href={it.link} className="block aspect-square overflow-hidden rounded bg-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={it.image} alt="" loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+          </MaybeLink>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** D28 탭 상품 — 서버가 탭마다 만든 상품 격자를 받아 누르면 바꿔 보인다 */
+export function TabsView({ title, labels, panels }: { title: string; labels: string[]; panels: ReactNode[] }) {
+  const [i, setI] = useState(0);
+  return (
+    <div className="px-4" data-tabs>
+      {title && <h2 className="mb-3 text-lg font-semibold">{title}</h2>}
+      <div className="mb-4 flex gap-1 overflow-x-auto border-b" role="tablist">
+        {labels.map((l, j) => (
+          <button key={j} type="button" role="tab" aria-selected={i === j} onClick={() => setI(j)} className={`whitespace-nowrap px-4 py-2 text-sm ${i === j ? "border-b-2 border-gray-900 font-semibold" : "text-gray-500"}`}>
+            {l}
+          </button>
+        ))}
+      </div>
+      {panels[i]}
+    </div>
+  );
+}
+
+/** D28 타임세일 남은 시간 — 끝나면 「종료」(서버는 다음 화면부터 블록을 숨김) */
+export function Countdown({ endsAt }: { endsAt: string }) {
+  const end = Date.parse(endsAt);
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  if (now == null) return <span className="font-mono">--:--:--</span>;
+  const left = Math.max(0, Math.floor((end - now) / 1000));
+  if (!left) return <span>종료</span>;
+  const d = Math.floor(left / 86400);
+  const hms = [Math.floor((left % 86400) / 3600), Math.floor((left % 3600) / 60), left % 60].map((n) => String(n).padStart(2, "0")).join(":");
+  return <span className="font-mono" data-countdown>{d > 0 ? `${d}일 ` : ""}{hms}</span>;
+}
+
+const SLOT_TYPES = new Set(["showcase", "notice", "tabs", "timesale", "reviews", "category_icons"]);
 
 // html은 readDoc/validateDoc에서 위험 태그를 지운 값만 들어온다(src/lib/sanitize.ts)
 export function HomeBlocks({ blocks, slots }: { blocks: Block[]; slots?: Record<string, ReactNode> }) {
@@ -114,7 +185,9 @@ export function HomeBlocks({ blocks, slots }: { blocks: Block[]; slots?: Record<
           {b.type === "slider" && <Slider s={b.settings as SliderSettings} />}
           {b.type === "banner" && <Banner s={b.settings as BannerSettings} />}
           {b.type === "html" && <div className="mall-html px-4" dangerouslySetInnerHTML={{ __html: (b.settings as HtmlSettings).html }} />}
-          {(b.type === "showcase" || b.type === "notice") && (slots ? slots[b.id] : <Placeholder b={b} />)}
+          {b.type === "video" && <Video s={b.settings as VideoSettings} />}
+          {b.type === "gallery" && <Gallery s={b.settings as GallerySettings} />}
+          {SLOT_TYPES.has(b.type) && (slots ? slots[b.id] : <Placeholder b={b} />)}
         </section>
       ))}
     </div>

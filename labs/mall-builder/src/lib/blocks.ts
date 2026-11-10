@@ -17,6 +17,14 @@ export type ShowcaseSource = "new" | "category" | "manual";
 export type ShowcaseSettings = { title: string; source: ShowcaseSource; category_id: string; product_ids: string[]; columns: number; limit: number };
 export type HtmlSettings = { html: string };
 export type NoticeSettings = { title: string; count: number };
+// D28 새 블록 6종(2026-11-11, 주인님 「추천안 4가지 그대로」)
+export type VideoSettings = { url: string; title: string }; // 유튜브·비메오 주소만(저장 비용 없음)
+export type ProductSource = { source: ShowcaseSource; category_id: string; product_ids: string[] };
+export type TabsSettings = { title: string; tabs: ({ label: string } & ProductSource)[]; columns: number; limit: number };
+export type TimesaleSettings = { title: string; subtitle: string; ends_at: string; columns: number; limit: number } & ProductSource; // 표시만(가격은 그대로), 끝나면 자동 숨김
+export type ReviewsSettings = { title: string; count: number; min_rating: number };
+export type CategoryIconsSettings = { title: string; items: { category_id: string; image: string; emoji: string }[] };
+export type GallerySettings = { title: string; columns: number; items: { image: string; link: string }[] }; // 인스타 대신 운영자가 직접 올리는 사진 격자
 
 export type BlockSettingsMap = {
   topbar: TopbarSettings;
@@ -25,13 +33,20 @@ export type BlockSettingsMap = {
   showcase: ShowcaseSettings;
   html: HtmlSettings;
   notice: NoticeSettings;
+  video: VideoSettings;
+  tabs: TabsSettings;
+  timesale: TimesaleSettings;
+  reviews: ReviewsSettings;
+  category_icons: CategoryIconsSettings;
+  gallery: GallerySettings;
 };
 
 export const SHOWCASE_SOURCE_LABEL: Record<ShowcaseSource, string> = { new: "신상품", category: "카테고리", manual: "직접 선택" };
 export const MAX_HTML = 20000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export type BlockType = keyof BlockSettingsMap;
-export type Block<T extends BlockType = BlockType> = { id: string; type: T; visible: boolean; settings: BlockSettingsMap[T] };
+// show_from·show_until: 예약 노출(D28, ISO 시각). 둘 다 선택 — 옛 저장본은 칸이 없어 항상 보임
+export type Block<T extends BlockType = BlockType> = { id: string; type: T; visible: boolean; settings: BlockSettingsMap[T]; show_from?: string; show_until?: string };
 export type BlocksDoc = { schema_version: number; blocks: Block[] };
 
 type Def<T extends BlockType> = { label: string; description: string; defaults: () => BlockSettingsMap[T]; validate: (s: unknown) => { ok: true; value: BlockSettingsMap[T] } | { ok: false; error: string } };
@@ -65,6 +80,43 @@ export function optionalImage(v: unknown): string | null {
 const MOBILE_IMAGE_ERROR = "휴대폰용 그림 주소가 올바르지 않습니다(https 주소). 다시 올리거나 지워 주세요.";
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
+
+/** 동영상 주소 → 넣을 주소(유튜브는 쿠키 없는 주소). 유튜브·비메오가 아니면 null */
+export function videoEmbed(url: unknown): string | null {
+  const s = str(url);
+  const yt = s.match(/^https:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?&#/].*)?$/);
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
+  const vm = s.match(/^https:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d{6,12})(?:[?#/].*)?$/);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+  return null;
+}
+
+/** 상품 고르는 방법(쇼윈도·탭·타임세일 공통) */
+function validateSource(raw: Partial<ProductSource>): { ok: true; value: ProductSource } | { ok: false; error: string } {
+  const source: ShowcaseSource = raw.source === "category" || raw.source === "manual" ? raw.source : "new";
+  const category_id = str(raw.category_id);
+  const product_ids = [...new Set((Array.isArray(raw.product_ids) ? raw.product_ids : []).map(str).filter((x) => UUID.test(x)))].slice(0, 24);
+  if (source === "category" && !UUID.test(category_id)) return { ok: false, error: "보여 줄 카테고리를 골라 주세요." };
+  if (source === "manual" && !product_ids.length) return { ok: false, error: "보여 줄 상품을 1개 이상 골라 주세요." };
+  return { ok: true, value: { source, category_id: source === "category" ? category_id : "", product_ids: source === "manual" ? product_ids : [] } };
+}
+
+/** 시각 칸: 비우면 "", 읽을 수 있는 시각이면 ISO, 아니면 null */
+export function isoOrEmpty(v: unknown): string | null {
+  const s = str(v);
+  if (!s) return "";
+  const t = Date.parse(s);
+  return Number.isNaN(t) ? null : new Date(t).toISOString();
+}
+
+/** 지금 손님에게 보일 블록인가 — 숨김·예약 노출 시각·타임세일 끝 시각 */
+export function isLive(b: Block, now = Date.now()): boolean {
+  if (!b.visible) return false;
+  if (b.show_from && now < Date.parse(b.show_from)) return false;
+  if (b.show_until && now >= Date.parse(b.show_until)) return false;
+  if (b.type === "timesale" && now >= Date.parse((b.settings as TimesaleSettings).ends_at)) return false;
+  return true;
+}
 
 export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
   topbar: {
@@ -129,16 +181,9 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
     defaults: () => ({ title: "추천 상품", source: "new", category_id: "", product_ids: [], columns: 4, limit: 8 }),
     validate: (raw) => {
       const s = (raw ?? {}) as Partial<ShowcaseSettings>;
-      const title = str(s.title).slice(0, 40);
-      const source: ShowcaseSource = s.source === "category" || s.source === "manual" ? s.source : "new";
-      const category_id = str(s.category_id);
-      const product_ids = [...new Set((Array.isArray(s.product_ids) ? s.product_ids : []).map(str).filter((x) => UUID.test(x)))].slice(0, 24);
-      if (source === "category" && !UUID.test(category_id)) return { ok: false, error: "보여 줄 카테고리를 골라 주세요." };
-      if (source === "manual" && !product_ids.length) return { ok: false, error: "보여 줄 상품을 1개 이상 골라 주세요." };
-      return {
-        ok: true,
-        value: { title, source, category_id: source === "category" ? category_id : "", product_ids: source === "manual" ? product_ids : [], columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8) },
-      };
+      const src = validateSource(s);
+      if (!src.ok) return src;
+      return { ok: true, value: { title: str(s.title).slice(0, 40), ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8) } };
     },
   },
   html: {
@@ -160,6 +205,106 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
     validate: (raw) => {
       const s = (raw ?? {}) as Partial<NoticeSettings>;
       return { ok: true, value: { title: str(s.title).slice(0, 40) || "공지사항", count: int(s.count, 3, 10, 5) } };
+    },
+  },
+  video: {
+    label: "동영상",
+    description: "유튜브·비메오 영상(주소만 넣으면 됨)",
+    defaults: () => ({ url: "", title: "" }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<VideoSettings>;
+      if (!videoEmbed(s.url)) return { ok: false, error: "유튜브(youtube.com·youtu.be) 또는 비메오(vimeo.com) 영상 주소를 넣어 주세요." };
+      return { ok: true, value: { url: str(s.url).slice(0, 300), title: str(s.title).slice(0, 40) } };
+    },
+  },
+  tabs: {
+    label: "탭 상품",
+    description: "탭(2~5개)을 눌러 상품 묶음을 바꿔 보기",
+    defaults: () => ({
+      title: "카테고리별 추천",
+      tabs: [
+        { label: "신상품", source: "new", category_id: "", product_ids: [] },
+        { label: "추천", source: "new", category_id: "", product_ids: [] },
+      ],
+      columns: 4,
+      limit: 8,
+    }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<TabsSettings>;
+      const tabs = Array.isArray(s.tabs) ? s.tabs : [];
+      if (tabs.length < 2 || tabs.length > 5) return { ok: false, error: "탭은 2~5개로 만들어 주세요." };
+      const out: TabsSettings["tabs"] = [];
+      for (const [i, t] of tabs.entries()) {
+        const label = str(t?.label).slice(0, 20);
+        if (!label) return { ok: false, error: `${i + 1}번째 탭 이름을 넣어 주세요.` };
+        const src = validateSource(t ?? {});
+        if (!src.ok) return { ok: false, error: `${i + 1}번째 탭: ${src.error}` };
+        out.push({ label, ...src.value });
+      }
+      return { ok: true, value: { title: str(s.title).slice(0, 40), tabs: out, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8) } };
+    },
+  },
+  timesale: {
+    label: "타임세일",
+    description: "끝나는 시각까지 남은 시간 + 상품 묶음(끝나면 자동으로 숨김, 가격은 그대로)",
+    defaults: () => ({ title: "오늘의 특가", subtitle: "", ends_at: "", source: "new", category_id: "", product_ids: [], columns: 4, limit: 8 }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<TimesaleSettings>;
+      const ends_at = isoOrEmpty(s.ends_at);
+      if (!ends_at) return { ok: false, error: "끝나는 시각을 넣어 주세요." };
+      const src = validateSource(s);
+      if (!src.ok) return src;
+      return {
+        ok: true,
+        value: { title: str(s.title).slice(0, 40) || "타임세일", subtitle: str(s.subtitle).slice(0, 60), ends_at, ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8) },
+      };
+    },
+  },
+  reviews: {
+    label: "구매 후기",
+    description: "최근 구매 후기(이름 가림, 숨긴 후기 제외)",
+    defaults: () => ({ title: "생생한 구매 후기", count: 6, min_rating: 4 }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<ReviewsSettings>;
+      return { ok: true, value: { title: str(s.title).slice(0, 40) || "구매 후기", count: int(s.count, 3, 12, 6), min_rating: int(s.min_rating, 1, 5, 4) } };
+    },
+  },
+  category_icons: {
+    label: "카테고리 바로가기",
+    description: "둥근 아이콘 줄(그림 또는 이모지) — 누르면 그 카테고리로",
+    defaults: () => ({ title: "", items: [] }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<CategoryIconsSettings>;
+      const items = Array.isArray(s.items) ? s.items : [];
+      if (items.length < 2 || items.length > 12) return { ok: false, error: "카테고리를 2~12개 골라 주세요." };
+      const out: CategoryIconsSettings["items"] = [];
+      for (const it of items) {
+        const category_id = str(it?.category_id);
+        if (!UUID.test(category_id)) return { ok: false, error: "카테고리를 골라 주세요." };
+        const image = optionalImage(it?.image);
+        if (image === null) return { ok: false, error: "아이콘 그림 주소가 올바르지 않습니다(https 주소)." };
+        out.push({ category_id, image, emoji: [...str(it?.emoji)].slice(0, 2).join("") });
+      }
+      return { ok: true, value: { title: str(s.title).slice(0, 40), items: out } };
+    },
+  },
+  gallery: {
+    label: "사진 갤러리",
+    description: "사진 격자(인스타 스타일) — 사진마다 링크",
+    defaults: () => ({ title: "", columns: 4, items: [] }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<GallerySettings>;
+      const items = Array.isArray(s.items) ? s.items : [];
+      if (items.length < 1 || items.length > 24) return { ok: false, error: "사진을 1~24장 넣어 주세요." };
+      const out: GallerySettings["items"] = [];
+      for (const it of items) {
+        const image = safeImage(it?.image);
+        if (!image) return { ok: false, error: "사진마다 그림을 올려 주세요(https 주소)." };
+        const link = safeLink(it?.link);
+        if (link === null) return { ok: false, error: "링크는 /로 시작하는 이 몰 주소나 https 주소만 쓸 수 있습니다." };
+        out.push({ image, link });
+      }
+      return { ok: true, value: { title: str(s.title).slice(0, 40), columns: int(s.columns, 2, 6, 4), items: out } };
     },
   },
 };
@@ -189,7 +334,12 @@ export function validateDoc(raw: unknown): { ok: true; value: BlocksDoc } | { ok
     ids.add(id);
     const v = (BLOCK_DEFS[type] as Def<BlockType>).validate(b?.settings);
     if (!v.ok) return { ok: false, error: `${i + 1}번째 블록(${BLOCK_DEFS[type].label}): ${v.error}` };
-    out.push({ id, type, visible: b?.visible !== false, settings: v.value } as Block);
+    // 예약 노출(D28)
+    const show_from = isoOrEmpty(b?.show_from);
+    const show_until = isoOrEmpty(b?.show_until);
+    if (show_from === null || show_until === null) return { ok: false, error: `${i + 1}번째 블록(${BLOCK_DEFS[type].label}): 예약 시각을 읽지 못했습니다.` };
+    if (show_from && show_until && show_from >= show_until) return { ok: false, error: `${i + 1}번째 블록(${BLOCK_DEFS[type].label}): 보이기 끝 시각이 시작 시각보다 늦어야 합니다.` };
+    out.push({ id, type, visible: b?.visible !== false, settings: v.value, ...(show_from ? { show_from } : {}), ...(show_until ? { show_until } : {}) } as Block);
   }
   return { ok: true, value: { schema_version: SCHEMA_VERSION, blocks: out } };
 }
