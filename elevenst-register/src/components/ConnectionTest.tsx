@@ -21,7 +21,7 @@ export function ConnectionTest({ ready }: { ready: boolean }) {
       {result && !result.ok && <p role="status" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[13px] font-semibold text-rose-800">❌ {result.error}</p>}
       {result && result.ok && (
         <div role="status" className="space-y-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] text-emerald-900">
-          <p className="font-bold">✅ 연결됐습니다. 키와 고정 IP를 11번가가 받아들였습니다.</p>
+          <p className="font-bold">✅ 연결됐습니다. 11번가가 키를 받아들였습니다.</p>
           {[
             ["출고지", result.outbound],
             ["반품/교환지", result.inbound],

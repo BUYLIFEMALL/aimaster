@@ -13,5 +13,5 @@ export interface ToolItem {
 export const MENU_GROUPS: { title: string; emoji: string }[] = [{ title: "판매자정보", emoji: "⚙" }];
 
 export const TOOLS: ToolItem[] = [
-  { href: "/connect", emoji: "🔑", label: "🔑 API키등록·플랫폼연동", short: "11번가 키·고정 IP", description: "11번가 API 키와 내 고정 IP를 한 번 등록하고 연결 시험으로 확인합니다.", group: "판매자정보" },
+  { href: "/connect", emoji: "🔑", label: "🔑 API키등록·플랫폼연동", short: "11번가 키·연결 시험", description: "11번가 API 키를 한 번 등록하고 연결 시험으로 확인합니다.", group: "판매자정보" },
 ];
