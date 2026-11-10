@@ -2,7 +2,8 @@
 
 - 담당: [역할: video] Claude Code(윈도우) `claude-win-video`
 - 지시: 주인님 2026-11-11 「진행해 키있어」(Runway·Vidu 직접 연동)
-- 상태: **플랜 — 주인님 결정 대기(§7)**
+- 상태: **v1.33 배포 완료(2026-11-11) — 실생성 2회는 주인님 키 등록 대기.** 결정(2026-11-11 주인님): 1 DB 허용 목록 승인(적용 완료) · 2 모델 4개 모두 · 3 빌드 1회 + 실생성 2회 승인.
+- 구현 확정: 두 회사 모두 시작 사진 1장(끝 장면은 문서 미확인이라 끔), Vidu는 비율 칸이 없어 사진 비율을 따름, Runway 길이 5·10초(문서에 목록 없음).
 
 ## 1. 지금 상태 (확인 2026-11-11)
 - 영상 모델 호출은 공용 기준 코드 `ai-video-client`(`lib/video/videoModels.ts`·`videoParse.ts`·`videoProviders.ts`, 사본 4곳: ai-image-studio·shorts-onestop-studio·shots·music-video-studio). 제공자는 `gemini`·`fal`·`replicate` 세 가지.
