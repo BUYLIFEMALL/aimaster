@@ -49,7 +49,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
       {/* 📱 모바일 상단 고정 헤더 (화면 폭 < 768px) */}
       <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-neutral-800 bg-[#171717]/95 px-4 backdrop-blur-md md:hidden">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-sm font-black text-white shadow-xs">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-purple-700 text-sm font-black text-white shadow-xs">
             @
           </span>
           <div className="min-w-0">
@@ -57,7 +57,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               Threads 쇼핑제휴 자동화
             </span>
           </div>
-          <span className="shrink-0 rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
+          <span className="shrink-0 rounded-full border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-bold text-purple-400">
             {APP_VERSION}
           </span>
         </div>
@@ -93,12 +93,12 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <div className="relative flex w-full max-w-xs flex-1 flex-col border-r border-neutral-800 bg-[#171717] p-5 shadow-2xl">
             <div className="mb-4 flex items-center justify-between border-b border-neutral-800 pb-3">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 text-sm font-black text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-600 text-sm font-black text-white">
                   @
                 </span>
                 <div>
                   <p className="text-sm font-bold text-white">Threads 쇼핑제휴</p>
-                  <p className="text-[10px] text-amber-400 font-medium">{APP_VERSION}</p>
+                  <p className="text-[10px] text-purple-400 font-medium">{APP_VERSION}</p>
                 </div>
               </div>
               <button
@@ -118,7 +118,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 onClick={closeMobile}
                 className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   pathname?.startsWith(OVERVIEW_ITEM.href)
-                    ? "bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30"
+                    ? "bg-purple-600/20 text-purple-300 font-bold border border-purple-500/30"
                     : "text-neutral-300 hover:bg-neutral-800/80 hover:text-white"
                 }`}
               >
@@ -141,13 +141,13 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     onClick={closeMobile}
                     className={`flex items-start gap-2.5 rounded-lg px-3 py-2 transition-colors ${
                       isActive
-                        ? "bg-amber-500/20 text-white font-bold border border-amber-500/40"
+                        ? "bg-purple-600/20 text-white font-bold border border-purple-500/40"
                         : "text-neutral-300 hover:bg-neutral-800/70 hover:text-white"
                     }`}
                   >
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-                        isActive ? "bg-amber-500 text-white" : "bg-neutral-800 text-neutral-400"
+                        isActive ? "bg-purple-600 text-white" : "bg-neutral-800 text-neutral-400"
                       }`}
                     >
                       {item.step}
@@ -210,7 +210,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           {/* 브랜드 헤더 */}
           <div className="mb-5 px-2">
             <div className="flex items-center gap-2 mb-1">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-sm font-black text-white shadow-xs">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-purple-700 text-sm font-black text-white shadow-xs">
                 @
               </span>
               <div className="min-w-0">
@@ -218,7 +218,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                   Threads 쇼핑제휴
                 </span>
               </div>
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
+              <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-bold text-purple-400">
                 {APP_VERSION}
               </span>
             </div>
@@ -239,7 +239,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
               href={OVERVIEW_ITEM.href}
               className={`mb-2 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                 pathname?.startsWith(OVERVIEW_ITEM.href)
-                  ? "bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 shadow-xs"
+                  ? "bg-purple-600/20 text-purple-300 font-bold border border-purple-500/30 shadow-xs"
                   : "text-neutral-300 hover:bg-neutral-800/80 hover:text-white"
               }`}
             >
@@ -263,7 +263,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     href={item.href}
                     className={`group relative flex gap-2.5 rounded-lg p-2 transition-colors ${
                       isActive
-                        ? "bg-neutral-800/90 text-white border border-amber-500/40 shadow-xs"
+                        ? "bg-neutral-800/90 text-white border border-purple-500/40 shadow-xs"
                         : "hover:bg-neutral-800/50 text-neutral-300"
                     }`}
                   >
@@ -271,7 +271,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                       <span
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
                           isActive
-                            ? "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs"
+                            ? "bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-xs"
                             : "bg-neutral-800 text-neutral-400 group-hover:bg-neutral-700 group-hover:text-neutral-200"
                         }`}
                       >
@@ -281,7 +281,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className={`text-xs font-bold ${isActive ? "text-amber-300" : "text-neutral-200"}`}>
+                      <p className={`text-xs font-bold ${isActive ? "text-purple-300" : "text-neutral-200"}`}>
                         {item.icon} {item.label}
                       </p>
                       <p className="text-[11px] text-neutral-400 truncate leading-tight mt-0.5">

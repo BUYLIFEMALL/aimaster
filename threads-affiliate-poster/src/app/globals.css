@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #171717;
-  --foreground: #f5f5f5;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card2: #f1f5f9;
+  --border: #e2e8f0;
+  --border-bright: #cbd5e1;
+  --brand-purple: #7c3aed;
+  --brand-purple-dark: #6d28d9;
 }
 
 @theme inline {
@@ -12,12 +18,49 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* 스레드 바이럴 스튜디오 스타일 (모노 다크 콘솔 #171717) */
+/* 95. 클린 스마트 커머스 인플루언서 아틀리에 스타일 (소프트 크림 & 로열 퍼플) */
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  color-scheme: dark;
 }
+
+/* 2안 95번 로열 퍼플 3D 엠보싱 버튼 표준 규격 (DESIGN.md 규격) */
+.btn-3d,
+.btn-3d-royal-purple {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff !important;
+  font-weight: 800;
+  border-radius: 0.75rem;
+  border-bottom: 4px solid #5b21b6;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+.btn-3d:hover:not(:disabled),
+.btn-3d-royal-purple:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  border-bottom-color: #4c1d95;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+}
+.btn-3d:active:not(:disabled),
+.btn-3d-royal-purple:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+}
+.btn-3d:disabled,
+.btn-3d-royal-purple:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  border-bottom-width: 4px;
+}
+
 
