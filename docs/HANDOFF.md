@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 🧪 [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 시험 계정 실제 확인(본인 키, 주인님 비용 승인)
+- **확인 끝**: 원스톱 AI 대본(15.8초)·「문장 다듬기」(10.2초, 5줄 유지·맞춤법), 영상 스튜디오 일본어판 번역(5.5초)·일본어 자막 글꼴(`Noto Sans JP`, 네모 칸 없음).
+- **못 한 것**: 해설 교차편집 받아쓰기 — 시험 계정 OpenAI 키 한도·잔액 초과(429). 앱 안내·소리 파일 정리는 정상.
+- **고친 것(미배포 대기)**: 원스톱 「문장 다듬기으로」 조사 오류 → `via` 칸, 시험 50. 문서 정리: 원스톱 개선 문서의 v1.43에 이미 나간 대기 줄 ✅, 영상 스튜디오 백로그 3차 줄 실제대로(v1.30 완료분 체크, Sync.so·Runway·Vidu만 남김).
+- 링크: https://shorts-onestop-studio.buylife.xyz/topic · https://ai-video-studio.buylife.xyz/edit
+
 ## 2026-11-10 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `youtube-viral-studio` v1.25 협업 크리에이터 찾기(A4) + 뮤직비디오 미배포 인계
 - **한 일**: 🤝 「협업 크리에이터 찾기」 `/creator-finder` — 유튜버 검색 + 채널·영상 설명에 공개된 이메일·전화·SNS·주소·웹사이트(출처 표시)·CSV·즐겨찾기. 주인님 결정 4개 추천안(보안문자 뒤 이메일은 직접 보기 링크만·결과 저장 안 함·링크 칸 제외·메뉴 이름). 공용 황금 엔진 사본은 그대로, 영상 설명은 엔진 호출에서 옆으로 모아 추가 할당량 0. 상세 `youtube-viral-studio/AGENTS.md` v1.25 절.
 - **확인**: 시험 30·tsc·린트·로컬 build → 배포 `youtube-viral-studio-lpfk3r7hp` Ready, DB v1.25. 운영 ego 시험 계정 「캠핑」 1회: 31채널·102유닛·연락처 공개 7개, CSV 정상, 390px 폭 정상.
