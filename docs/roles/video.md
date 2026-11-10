@@ -14,6 +14,9 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
+| `ai-video-studio` | Runway·Vidu 직접 연동(주인님 「진행해 키있어」) | 플랜 결정 3개(DB 허용 목록·모델·실생성 2회) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
+| `youtube-viral-studio` | V6 내 채널 진짜 지표 보기 — 주인님 2026-11-11 「너가해」로 영상 담당 지정 | Runway·Vidu 다음 순서 | `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` V6 |
+| 영상 프로그램 6개 | 서버 지역(`regions`) 측정 → DB 가까운 쪽으로 — 주인님 「측정부터해보고 가까운쪽으로해」 | V6 다음 순서 | `docs/PLATFORM_PATTERNS.md` §8 |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 
 ## 최근 완료 (최근 10개)
@@ -80,5 +83,4 @@
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
-- 서버 지역(`regions`)을 DB 가까이 옮기는 전체 프로그램 공통 제안 검토 여부
 - (없음 — V2·V5 결정 2026-11-06 받음)
