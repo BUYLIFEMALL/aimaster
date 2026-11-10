@@ -2,7 +2,7 @@
 
 형식: 발견 근거 · 영향 · 우선순위 · 상태 · 관련 파일 · 다음 첫 단계
 
-## 2026-11-07 🟡 미배포 대기 — 분석 결과 「📨 워크스페이스로」 (U10 2차, [역할: workspace] Claude Code 윈도우, 주인님 결정 1번 「버튼·라우트만」)
+## 2026-11-07 ✅ 배포됨(v1.13, 2026-11-10 — ego 운영 확인: 보내기 → 받은 업무 → 페이지 통과) — 분석 결과 「📨 워크스페이스로」 (U10 2차, [역할: workspace] Claude Code 윈도우, 주인님 결정 1번 「버튼·라우트만」)
 - 결과 막대(`src/components/kw/Workbench.tsx`, 기록에 저장된 결과일 때만)에 버튼(`SendToWorkspaceButton.tsx`) → `POST /api/work-inbox`(출처 확인 → `checkProgramAccessApi` → `loadReport`(회원 본인·30일 규칙) → 공용 사본 `src/lib/workInbox.ts`(`work-inbox-client`, **직접 고치지 말 것** — 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `--sync`)). AI 호출 없음.
 - 내용 `src/lib/workInboxContent.ts`: 본문은 화면 「결과 복사」와 같은 `toMarkdown`(JSON → 글 변환 새로 만들지 않음), 제목 「블로그 키워드 — 기능 · 키워드」, 구조 데이터 `{ 기능, 키워드, 분석일 }` — 워크스페이스에서 「페이지로 만들기」.
 - 검수: `npm test` 23개(새 `tests/work-inbox-content.test.mjs` 3개), tsc 0. 다음 배포 때 함께(버전 +0.01·DB).
