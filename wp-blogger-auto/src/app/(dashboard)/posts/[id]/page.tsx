@@ -21,7 +21,11 @@ export default async function PostPage({ params, searchParams }: { params: Promi
   if (!data) notFound();
   const post: EditablePost = { id: data.id, platform: data.platform === "blogger" ? "blogger" : "wordpress", status: data.status, title: data.title, excerpt: data.excerpt ?? "", slug: data.slug ?? "", tags: data.tags ?? [], html: data.html, images: (Array.isArray(data.images) ? data.images : []) as EditablePost["images"] };
   const admin = createAdminClient();
-  const connected = post.platform === "wordpress" ? !!(await loadWordpressConnection(admin, user.id)) : !!((await loadBloggerAccount(admin, user.id))?.extra as { blog_id?: string } | undefined)?.blog_id;
+  // 연결 상태와 검색 미리보기용 실제 블로그 주소(없으면 화면이 예시 주소를 씀)
+  const wpConn = post.platform === "wordpress" ? await loadWordpressConnection(admin, user.id) : null;
+  const blExtra = post.platform === "blogger" ? ((await loadBloggerAccount(admin, user.id))?.extra as { blog_id?: string; blog_url?: string } | undefined) : undefined;
+  const connected = post.platform === "wordpress" ? !!wpConn : !!blExtra?.blog_id;
+  const siteUrl = post.platform === "wordpress" ? wpConn?.siteUrl ?? null : blExtra?.blog_url ?? null;
   const publish = { id: data.id, platform: post.platform, status: data.status, remoteId: data.remote_id, remoteUrl: data.remote_url, scheduledAt: data.scheduled_at, errorDetail: data.error_detail, expiresAt: data.expires_at ?? null };
   const [label, cls] = STATUS_LABEL[post.status] ?? [post.status, "lp-tag-idle"];
 
@@ -33,7 +37,7 @@ export default async function PostPage({ params, searchParams }: { params: Promi
         <span className={`lp-tag ${post.platform === "wordpress" ? "lp-tag-wp" : "lp-tag-blogger"}`}>{PLATFORM_LABEL[post.platform]}</span>
       </div>
       {sp.skipped && <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">참고 주소 중 읽지 못한 곳이 있어, 읽은 자료만으로 원고를 만들었습니다.</p>}
-      <DraftEditor key={data.updated_at} post={post} publish={publish} connected={connected} />
+      <DraftEditor key={data.updated_at} post={post} publish={publish} connected={connected} siteUrl={siteUrl} />
     </div>
   );
 }

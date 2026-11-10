@@ -19,7 +19,7 @@ export type EditablePost = {
 
 const EDITABLE = ["ready", "draft", "failed"];
 
-export function DraftEditor({ post, publish, connected }: { post: EditablePost; publish: PublishState; connected: boolean }) {
+export function DraftEditor({ post, publish, connected, siteUrl = null }: { post: EditablePost; publish: PublishState; connected: boolean; siteUrl?: string | null }) {
   const router = useRouter();
   const [title, setTitle] = useState(post.title);
   const [excerpt, setExcerpt] = useState(post.excerpt);
@@ -52,7 +52,8 @@ export function DraftEditor({ post, publish, connected }: { post: EditablePost; 
 
   const field = "mt-1 w-full rounded-xl border-2 border-[color:var(--border)] bg-[color:var(--surface-soft)] px-3 py-2.5 text-sm outline-none focus:border-[color:var(--wp)] disabled:opacity-60";
   const label = "block text-xs font-extrabold text-[color:var(--muted)]";
-  const site = post.platform === "wordpress" ? "mysite.com" : "myblog.blogspot.com";
+  // 검색 미리보기 주소: 연결된 실제 블로그 주소(없으면 예시)
+  const site = (siteUrl ? siteUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "") : "") || (post.platform === "wordpress" ? "mysite.com" : "myblog.blogspot.com");
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
