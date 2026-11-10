@@ -624,26 +624,26 @@ export default function LibraryPage() {
                             {
                               label: "앨범에서 표지 고르기",
                               icon: <Images className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasAlbums(engine.status) ? "엔진 0.7.3 이상이 필요합니다" : false,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasAlbums(engine.status) ? "엔진 0.7.3 이상이 필요합니다 · 「내 PC 엔진」 화면에서 업데이트하세요" : false,
                               onClick: () => setCoverFor(t),
                             },
                             {
                               label: "마스터링",
                               icon: <SlidersHorizontal className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasMastering(engine.status) ? "엔진 0.6.9 이상(ffmpeg 포함)이 필요합니다" : false,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasMastering(engine.status) ? "엔진 0.6.9 이상(ffmpeg 포함)이 필요합니다 · 「내 PC 엔진」 화면에서 업데이트하세요" : false,
                               onClick: () => setMastering(t),
                             },
                             // 끝 이어 만들기(엔진 0.8.3, 2026-11-10) — 길이 상한에 닿아 끝이 잘린 곡을 30·60·90초 이어 그린 새 곡
                             {
                               label: "끝 이어 만들기 · 잘린 끝 살리기",
                               icon: <FastForward className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasExtend(engine.status) ? "엔진 0.8.3 이상(ffmpeg 포함)이 필요합니다" : false,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasExtend(engine.status) ? "엔진 0.8.3 이상(ffmpeg 포함)이 필요합니다 · 「내 PC 엔진」 화면에서 업데이트하세요" : false,
                               onClick: () => setExtendFor(t),
                             },
                             {
                               label: "Stem 분리 · 보컬/반주·악기별",
                               icon: <Layers className="h-3.5 w-3.5" />,
-                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasStems(engine.status) ? "엔진 0.6.9 이상(윈도우)이 필요합니다" : false,
+                              disabled: !libOk || here === false ? "이 PC에 음원이 있어야 합니다" : !hasStems(engine.status) ? "엔진 0.6.9 이상(윈도우)이 필요합니다 · 「내 PC 엔진」 화면에서 업데이트하세요" : false,
                               onClick: () => setStemFor(t),
                             },
                             { label: "스타일 복사", icon: <Copy className="h-3.5 w-3.5" />, disabled: t.style_prompt ? false : "스타일이 없습니다", onClick: () => copy(t.style_prompt, "스타일") },

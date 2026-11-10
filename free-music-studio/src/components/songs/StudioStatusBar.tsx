@@ -6,6 +6,7 @@ import { Cpu, ListOrdered, Loader2, Music2 } from "lucide-react";
 import { useQueue } from "@/components/engine/useQueue";
 import { StageProgress } from "@/components/engine/StageProgress";
 import { engineInfo } from "@/lib/engine";
+import { useLatestEngine } from "@/components/engine/useLatestEngine";
 
 /**
  * 곡 만들기 머리의 실제 상태 줄(2026-11-08 주인님 「실제 상태로 바꾸기 … 이걸 넣어」 — 동작하지 않던 24트랙 뷰파인더 목업 대신).
@@ -34,6 +35,8 @@ export function StudioStatusBar() {
     .sort((a, b) => (b.finishedAt ?? "").localeCompare(a.finishedAt ?? ""))[0];
 
   const s = engine.status;
+  // 2026-11-10 엔진 업데이트 안내 넓히기 — 「내 PC 엔진」 화면에만 있던 「새 버전」을 곡 만들기 상태 막대에도
+  const { latest, outdated } = useLatestEngine(engine.online ? s?.version : undefined);
   const engineLine = engine.checking
     ? { dot: "bg-slate-500", text: "내 PC 엔진 확인 중…", link: null as string | null }
     : !engine.online
@@ -42,7 +45,9 @@ export function StudioStatusBar() {
         ? { dot: "bg-amber-400", text: "엔진은 켜져 있지만 이 브라우저와 연결되지 않았습니다", link: "연결하기" }
         : !engine.ready
           ? { dot: "bg-amber-400 animate-pulse", text: `준비 중 · ${s?.stage || "실행 환경 확인"}`, link: null }
-          : { dot: "bg-emerald-400", text: `준비됨 · 엔진 ${s?.version ?? ""}`, link: null };
+          : outdated && latest
+            ? { dot: "bg-amber-400", text: `준비됨 · 엔진 ${s?.version ?? ""} · ⬆ 새 버전 ${latest.version}`, link: "업데이트" }
+            : { dot: "bg-emerald-400", text: `준비됨 · 엔진 ${s?.version ?? ""}`, link: null };
 
   return (
     <div className="grid gap-3 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-4 md:grid-cols-3">

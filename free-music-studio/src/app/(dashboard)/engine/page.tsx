@@ -9,6 +9,7 @@ import { StoragePanel } from "@/components/engine/StoragePanel";
 import { PcCheckPanel } from "@/components/engine/PcCheckPanel";
 import { StageProgress, parseProgress } from "@/components/engine/StageProgress";
 import { EngineError, forgetEngine, pairEngine } from "@/lib/engine";
+import { useLatestEngine } from "@/components/engine/useLatestEngine";
 
 // 내 PC 엔진 — PC 검사·음악 모델 고르기(v1.07) · 상태 확인·연결 코드(3단계). 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
 const SPECS = [
@@ -28,13 +29,6 @@ const STEPS = [
   { n: 3, title: "곡 만들기", body: "「연결됨」이 되면 곡 만들기 화면에서 [대기열에 넣기]를 누릅니다. 첫 곡은 음악 모델(약 15GB)을 받느라 오래 걸리고, 진행은 작업 대기열에 「받는 중 · ○GB」로 보입니다." },
 ];
 
-/** 사이트가 알려 주는 최신 설치 파일(엔진 실행 프로그램의 「새 버전」 알림도 같은 파일을 읽음) */
-type LatestEngine = { version: string; url: string; sizeMb: number; sha256: string; releasedAt?: string };
-const newerThan = (a: string, b: string) => {
-  const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
-  for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0);
-  return false;
-};
 
 function StatusBadge({ engine }: { engine: ReturnType<typeof useEngine> }) {
   const { status, checking, online, paired, ready } = engine;
@@ -53,15 +47,8 @@ export default function EnginePage() {
   const [code, setCode] = useState("");
   const [pairing, setPairing] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [latest, setLatest] = useState<LatestEngine | null>(null);
-  useEffect(() => {
-    fetch("/downloads/engine-latest.json", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => j?.version && setLatest(j))
-      .catch(() => {});
-  }, []);
   const mine = online ? status?.version : undefined;
-  const outdated = !!(latest && mine && newerThan(latest.version, mine));
+  const { latest, outdated } = useLatestEngine(mine);
 
   const pair = async () => {
     setPairing(true);
