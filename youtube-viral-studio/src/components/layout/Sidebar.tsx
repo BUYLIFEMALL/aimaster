@@ -30,7 +30,7 @@ interface SidebarProps {
 const flow: { href: string; label: string; icon: LucideIcon; step?: string }[] = [
   { href: "/dashboard", label: "인텔리전스 레이더", icon: Radar },
   { href: "/golden-channels", label: "황금 채널 스캐너", icon: Sparkles, step: "1" },
-  { href: "/creator-finder", label: "🤝 협업 크리에이터 찾기", icon: Handshake },
+  { href: "/creator-finder", label: "협업 크리에이터 찾기", icon: Handshake },
   { href: "/trending-videos", label: "급상승 VPH 매트릭스", icon: TrendingUp, step: "2" },
   { href: "/viral-shorts", label: "쇼츠 떡상 트리거", icon: Flame, step: "3" },
   { href: "/source-finder", label: "영상 출처 추적기", icon: Link2, step: "4" },

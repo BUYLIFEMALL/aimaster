@@ -3,7 +3,7 @@
 - 담당: [역할: video] Claude Code(윈도우) `claude-win-video` — 주인님 2026-11-10 「영상 담당인 너가 작업해」
 - 근거: `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1(A4 YouTube DB → `youtube-viral-studio` 병합), 최상위 규칙 §8 「마케팅 수집 지정 목록」(2026-10-27, A4 연락처 포함 지정), `docs/MARKETING_AUTOMATION_EXCEPTION_POLICY.md` §1-1·§3·§4
 - 주인님 범위 지시(2026-11-10): 「공개된건 다 가져와 이메일, 연락처, 계정 아이디 등」 「주소도 수집되면 그것도 포함」
-- 상태: **구현 중 — 주인님 결정 §6 네 가지 모두 추천안 승인(2026-11-10 채팅 「추천안대로 진행」)**
+- 상태: **✅ v1.25 배포 완료(2026-11-10, `youtube-viral-studio-lpfk3r7hp`)** — 주인님 결정 §6 네 가지 모두 추천안 승인(채팅 「추천안대로 진행」). 결과·검수는 `AGENTS.md` v1.25 절
 - 구현 메모: 공용 엔진 사본(`goldenEngine.ts`)은 고치지 않는다. 엔진에 넘기는 YouTube 호출 함수가 `videos` 응답의 설명 글을 옆으로 모아 두므로 영상 설명용 추가 호출(할당량)이 없다. 구독자 하한은 엔진 결과에서 거른다(엔진은 상한만 있음).
 
 ## 1. 목표
