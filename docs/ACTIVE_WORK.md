@@ -44,7 +44,7 @@
 | `real_estate_sales/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-res-v2` | 2026-11-11 | 4대 화면 3시안(88/89/90번) 쇼케이스 구축 완료 (주인님 채택 대기) |
 | `labs/mall-builder/` | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261110-mall-builder` | 2026-11-10 | B2B 핵심 순서(주인님 「B2B 핵심 먼저」) 1번 D23 상품 엑셀 완료(미배포) → 다음 2번 거래처별 특가 플랜 |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
-| `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-11 | U12 v1.24 배포·운영 확인 완료 → 다음: 영수증·홈택스 세금계산서(주인님 승인) 플랜 갱신 → 구글 캘린더 ICS |
+| `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-11 | 영수증·세금계산서 v1.25 배포·운영 확인 완료 → 다음: 구글 캘린더 ICS 구독 주소 |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |
 | `wp-blogger-auto/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-10 | 새 프로그램 「AI 워드프레스·구글블로그 자동화」 — 플랜 `docs/PLAN_20261110_WORDPRESS_BLOGGER_API.md`(결정 완료). 뼈대(카페 모집 공통) → 공용 발행 엔진 → DB 초안 → 화면 |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261101-blog` (2026-11-01 Codex 크레딧 소진으로 주인님 지시 인수) | 2026-11-01 | 담당만 인수, 지금 수정 없음. 올인원·BLOG 병합은 맥미니 재대조 결과 기준. 설치 v2.21 → v2.22 업데이트·옛 연결 8개 정리 잔여 |

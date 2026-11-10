@@ -65,6 +65,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `ai-work-workspace` | v1.25 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 승인 플랜 빌드 1회, `ai-work-workspace-8xjr9cdww` Ready, DB v1.25) | 🧾 영수증·세금계산서(새 기능) — ego 시험 계정: 사진 읽기·장부·발행 통과 |
 | `music-video-studio` | v1.29 · 2026-11-11 ([역할: video] `claude-win-video`, 주인님 승인 연속 배포 3/3, `music-video-studio-7z0alazi4` Ready, DB v1.29) | 공용 장면 맞춤 사본 `9397fb311`(11-10 음악 담당 인계, 사본 5개 OK·시험 34), 30일 열외 줄의 이 프로그램 몫 |
 | `youtube-viral-studio` | v1.26 · 2026-11-11 ([역할: video] `claude-win-video`, 연속 배포 2/3, `youtube-viral-studio-lpefb49rp` Ready, DB v1.26) | 좌측 메뉴 「협업 크리에이터 찾기」 중복 그림문자 제거(운영 화면 확인) |
 | `ai-video-studio` | v1.32 · 2026-11-11 ([역할: video] `claude-win-video`, 연속 배포 1/3, `ai-video-studio-io1q4wjnb` Ready, DB v1.32) | 구간 고르기·번역 Claude `claude-haiku-4-5` → `claude-haiku-5-5`(생각 끔·effort low, 배포 전 관리자 키로 같은 요청 200 확인) |
