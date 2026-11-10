@@ -1,34 +1,35 @@
 @import "tailwindcss";
 
 /*
- * 스마트 매트릭스 스타일 (Smart Matrix Style) — 다크 차콜(슬레이트) + 모던 블루 & 앰버.
- * 루트 DESIGN.md 템플릿 4번. 토큰·부품은 ghost-scraper(Tailwind v4 이식본)와 같다. 설명: docs/DESIGN_HANDOFF.md
- * 옛 금색 테마 이름(gold·dark-*)은 남은 클래스가 밝게 보이지 않도록 아래에서 같은 다크 토큰으로 다시 연결했다.
+ * 89. 네이버 부동산 스마트 매트릭스 저널 스타일 (Naver Real Estate Smart Matrix Journal)
+ * 소프트 화이트(#F8FAFC) + 네이버 공식 그린(#03C75A) + 딥 슬레이트 잉크(#0F172A) + 모던 슬레이트 보더.
+ * 2026-11-01 5단계 표준 로그인 & 3D 엠보싱 네이버 그린 버튼 탑재.
  */
 @theme {
-  --color-mx-bg: #0f1115;
-  --color-mx-surface: #171a21;
-  --color-mx-raised: #1f2430;
-  --color-mx-border: #2a3040;
-  --color-mx-text: #e6e9ef;
-  --color-mx-muted: #8b93a7;
-  --color-mx-primary: #2563eb;
-  --color-mx-primary-strong: #1d4ed8;
-  --color-mx-link: #93c5fd;
+  --color-mx-bg: #f8fafc;
+  --color-mx-surface: #ffffff;
+  --color-mx-raised: #f1f5f9;
+  --color-mx-border: #e2e8f0;
+  --color-mx-border-bright: #cbd5e1;
+  --color-mx-text: #0f172a;
+  --color-mx-muted: #64748b;
+  --color-mx-primary: #03c75a;
+  --color-mx-primary-strong: #00b050;
+  --color-mx-link: #0284c7;
   --color-mx-accent: #f59e0b;
   --color-mx-success: #10b981;
-  --color-mx-danger: #f43f5e;
+  --color-mx-danger: #ef4444;
 
-  /* 옛 이름 → 새 토큰 (v1.11) */
-  --color-gold: #2563eb;
-  --color-gold-light: #93c5fd;
-  --color-gold-dark: #1d4ed8;
-  --color-dark: #0f1115;
-  --color-dark-50: #171a21;
-  --color-dark-100: #1f2430;
-  --color-dark-200: #2a3040;
-  --background-image-gold-gradient: linear-gradient(135deg, #2563eb, #1d4ed8);
-  --background-image-dark-gradient: linear-gradient(180deg, #0f1115 0%, #0f1115 100%);
+  /* 호환용 토큰 매핑 */
+  --color-gold: #03c75a;
+  --color-gold-light: #0284c7;
+  --color-gold-dark: #00b050;
+  --color-dark: #f8fafc;
+  --color-dark-50: #ffffff;
+  --color-dark-100: #f1f5f9;
+  --color-dark-200: #e2e8f0;
+  --background-image-gold-gradient: linear-gradient(135deg, #03c75a, #00b050);
+  --background-image-dark-gradient: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -47,6 +48,7 @@
     border: 1px solid var(--color-mx-border);
     background: var(--color-mx-surface);
     padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   }
   .mx-section-title {
     margin-bottom: 0.75rem;
@@ -63,14 +65,51 @@
     border-radius: 1rem;
     border: 1px solid var(--color-mx-border);
     background: var(--color-mx-surface);
-    padding: 1rem;
-    transition: transform 0.15s ease;
+    padding: 1.1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   .mx-kpi:hover {
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
   }
 
-  /* 버튼 (터치 높이 44px) */
+  /* 3D 엠보싱 네이버 그린 실행 버튼 (표준 규격) */
+  .btn-3d,
+  .btn-3d-naver-green {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #03c75a;
+    color: #ffffff !important;
+    font-weight: 800;
+    border-radius: 0.75rem;
+    border-bottom: 4px solid #009b42;
+    box-shadow: 0 4px 12px rgba(3, 199, 90, 0.25);
+    transition: all 0.1s ease;
+    cursor: pointer;
+  }
+  .btn-3d:hover,
+  .btn-3d-naver-green:hover {
+    background-color: #00b050;
+    border-bottom-color: #008738;
+  }
+  .btn-3d:active,
+  .btn-3d-naver-green:active {
+    transform: translateY(2px);
+    border-bottom-width: 2px;
+    box-shadow: 0 2px 6px rgba(3, 199, 90, 0.2);
+  }
+  .btn-3d:disabled,
+  .btn-3d-naver-green:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    border-bottom-width: 4px;
+  }
+
+  /* 기본 버튼 (터치 높이 44px) */
   .mx-btn-primary,
   .mx-btn-ghost,
   .mx-btn-danger {
@@ -89,24 +128,29 @@
   .mx-btn-primary {
     background: var(--color-mx-primary);
     color: #fff;
+    border-bottom: 3px solid #009b42;
+    box-shadow: 0 2px 8px rgba(3, 199, 90, 0.2);
   }
   .mx-btn-primary:hover {
     background: var(--color-mx-primary-strong);
   }
   .mx-btn-ghost {
     border: 1px solid var(--color-mx-border);
-    background: var(--color-mx-raised);
+    background: var(--color-mx-surface);
     color: var(--color-mx-text);
   }
   .mx-btn-ghost:hover {
-    border-color: var(--color-mx-muted);
+    border-color: var(--color-mx-border-bright);
+    background: var(--color-mx-raised);
   }
   .mx-btn-danger {
-    border: 1px solid var(--color-mx-border);
+    border: 1px solid #fecaca;
+    background: #fff5f5;
     color: var(--color-mx-danger);
   }
   .mx-btn-danger:hover {
     border-color: var(--color-mx-danger);
+    background: #fee2e2;
   }
   .mx-btn-primary:disabled,
   .mx-btn-ghost:disabled,
@@ -134,16 +178,19 @@
     color: var(--color-mx-muted);
   }
   .mx-chip-blue {
-    background: rgb(30 58 138 / 0.6);
-    color: #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
   }
   .mx-chip-amber {
-    background: rgb(120 53 15 / 0.6);
-    color: #fde68a;
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
   }
   .mx-chip-green {
-    background: rgb(6 78 59 / 0.6);
-    color: #a7f3d0;
+    background: #f0fdf4;
+    color: #047857;
+    border: 1px solid #a7f3d0;
   }
 
   /* 입력창 */
@@ -151,7 +198,7 @@
     width: 100%;
     border-radius: 0.75rem;
     border: 1px solid var(--color-mx-border);
-    background: var(--color-mx-raised);
+    background: var(--color-mx-surface);
     padding: 0.75rem 1rem;
     color: var(--color-mx-text);
   }
@@ -172,10 +219,11 @@
     font-size: 0.8125rem;
   }
   .mx-table th {
+    background: var(--color-mx-raised);
     border-bottom: 1px solid var(--color-mx-border);
     padding: 0.625rem 0.75rem;
     font-size: 0.7rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--color-mx-muted);
@@ -211,8 +259,10 @@
     color: var(--color-mx-text);
   }
   .mx-toggle-active {
-    background: var(--color-mx-raised);
-    color: var(--color-mx-text);
+    background: var(--color-mx-surface);
+    color: var(--color-mx-primary);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   }
 }
 
@@ -232,28 +282,27 @@
   background: var(--color-mx-muted);
 }
 
-/* 옛 공용 클래스 — 같은 다크 토큰으로 */
 .gold-text {
-  color: var(--color-mx-link);
+  color: var(--color-mx-primary);
 }
 .glass-card {
   background: var(--color-mx-surface);
   border: 1px solid var(--color-mx-border);
   border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
-/* B2 주소 리포트 인쇄(2026-11-03): 어두운 화면을 흰 바탕·검은 글자로 — 브라우저는 배경색을 인쇄하지 않아 밝은 글자가 안 보이므로 색 변수만 바꾼다 */
 @media print {
   :root {
     --color-mx-bg: #ffffff;
     --color-mx-surface: #ffffff;
-    --color-mx-raised: #f3f4f6;
-    --color-mx-border: #d1d5db;
-    --color-mx-text: #111827;
-    --color-mx-muted: #4b5563;
-    --color-mx-link: #1d4ed8;
+    --color-mx-raised: #f8fafc;
+    --color-mx-border: #cbd5e1;
+    --color-mx-text: #0f172a;
+    --color-mx-muted: #475569;
+    --color-mx-link: #0369a1;
     --background-image-dark-gradient: none;
   }
-  body { background: #ffffff !important; color: #111827 !important; }
+  body { background: #ffffff !important; color: #0f172a !important; }
   .mx-card, .rounded-2xl { break-inside: avoid; box-shadow: none !important; background-image: none !important; }
 }
