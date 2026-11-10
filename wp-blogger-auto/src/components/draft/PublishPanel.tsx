@@ -53,6 +53,18 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
     router.refresh();
   }
 
+  const [url, setUrl] = useState("");
+  async function resolve(outcome: "sent" | "not_sent") {
+    const msg = outcome === "sent" ? "블로그에 글이 올라간 것을 확인하셨나요?" : "블로그에 글이 없는 것을 확인하셨나요? 다시 보낼 수 있게 됩니다(실제로 올라가 있으면 중복 발행됩니다).";
+    if (!window.confirm(msg)) return;
+    setBusy("resolve"); setError("");
+    const res = await fetch(`/api/posts/${post.id}/resolve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ outcome, url }) });
+    const data = await res.json().catch(() => ({}));
+    setBusy("");
+    if (!res.ok) setError(data.error ?? "저장하지 못했습니다.");
+    router.refresh();
+  }
+
   async function cancel() {
     if (!window.confirm("예약을 취소하고 블로그 초안으로 되돌릴까요?")) return;
     setBusy("cancel"); setError("");
@@ -64,14 +76,26 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
   }
 
   // 이미 블로그에 올라간 원고: 결과만
-  if (post.remoteId || post.status === "uncertain") {
+  const stuck = post.status === "publishing";
+  if (post.remoteId || post.status === "uncertain" || stuck) {
     return (
       <div className="lp-card space-y-2">
         <p className="text-sm font-black">🚀 발행 결과</p>
         {post.status === "published" && <p className="text-sm">✅ 공개됐습니다.</p>}
         {post.status === "scheduled" && post.scheduledAt && <p className="text-sm">⏰ {isoToKstLabel(post.scheduledAt)}(한국 시간)에 공개 예약됨</p>}
         {post.status === "draft" && <p className="text-sm">📝 블로그에 초안으로 저장됨 — 블로그 관리 화면에서 발행 버튼을 눌러 주세요.</p>}
+        {stuck && <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">⏳ 보내는 중입니다. 10분이 지나도 그대로면 블로그에서 확인한 뒤 아래에서 정리해 주세요.</p>}
         {post.status === "uncertain" && <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">⚠️ 보냈지만 결과를 확인하지 못했습니다. 중복을 막기 위해 다시 보내지 않습니다. 블로그 관리 화면에서 글이 올라갔는지 확인해 주세요.</p>}
+        {(post.status === "uncertain" || stuck) && (
+          <div className="space-y-2 rounded-xl border-2 border-[color:var(--border)] p-2">
+            <p className="text-xs font-extrabold">블로그에서 확인한 결과</p>
+            <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="올라간 글 주소(선택) https://..." className="w-full rounded-lg border-2 border-[color:var(--border)] px-2 py-1.5 text-xs" />
+            <div className="flex gap-2">
+              <button type="button" onClick={() => resolve("sent")} disabled={!!busy} className="flex-1 rounded-lg bg-green-600 px-2 py-1.5 text-xs font-bold text-white disabled:opacity-50">올라갔어요</button>
+              <button type="button" onClick={() => resolve("not_sent")} disabled={!!busy} className="flex-1 rounded-lg bg-slate-600 px-2 py-1.5 text-xs font-bold text-white disabled:opacity-50">안 올라갔어요</button>
+            </div>
+          </div>
+        )}
         {post.errorDetail && post.status !== "uncertain" && <p className="text-xs text-amber-700">{post.errorDetail}</p>}
         {post.remoteUrl && <a href={post.remoteUrl} target="_blank" rel="noreferrer" className="lp-btn-ghost w-full justify-center">블로그에서 열기 ↗</a>}
         {post.status === "scheduled" && <button type="button" onClick={cancel} disabled={!!busy} className="w-full rounded-xl px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50 disabled:opacity-50">{busy === "cancel" ? "취소하는 중…" : "예약 취소(초안으로)"}</button>}
