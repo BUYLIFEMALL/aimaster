@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-10 [역할: workspace] Claude Code(윈도우) `claude-win-20261025-workspace` — U11 자동화 구현 완료(미배포, 배포·DB 승인 대기)
+- 마지막 갱신: 2026-11-10 [역할: workspace] Claude Code(윈도우) — 진행 상태 전수 조사(U11 미배포·운영 DB 표 없음 확인, U10 2차 일부가 다른 배포에 함께 나간 것 확인)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,10 +15,10 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `threads-content-ops` | 미배포 `fcf2dc894` 받은 업무 제목에서 「(광고)」 줄 건너뛰기(U10 운영 확인에서 발견) | 다음 Threads 배포 때(v2.24) | `threads-content-ops/docs/IMPROVEMENTS.md` 맨 위 |
-| U10 2차 배포 | 6개 프로그램 「업무 워크스페이스로 보내기」 구현 완료·미배포(`ai-auto-blog`·`naver-blog-agent`·`competitor-analysis`·`web-crawler`·`blog-keyword` + 워크스페이스 이름표) | 주인님 결정(2026-11-09): 따로 배포하지 않고 각 프로그램을 다른 이유로 배포할 때 함께 — 배포하는 세션이 미배포 대기 표 줄을 보고 같이 내보냄 | `docs/PENDING_DEPLOYS.md` 2026-11-07 줄 |
+| U10 2차 배포 | 6개 프로그램 「업무 워크스페이스로 보내기」 구현 완료. 11-10 조사: `blog-keyword`(v1.13)·`threads-content-ops` 「(광고)」 수정(v2.25)은 디자인 역할 리뉴얼 배포에 함께 나감 — 버튼 운영 확인만 남음. 나머지 미배포(`ai-auto-blog`·`naver-blog-agent`·`competitor-analysis`·`web-crawler`·`blog-keyword` + 워크스페이스 이름표) | 주인님 결정(2026-11-09): 따로 배포하지 않고 각 프로그램을 다른 이유로 배포할 때 함께 — 배포하는 세션이 미배포 대기 표 줄을 보고 같이 내보냄 | `docs/PENDING_DEPLOYS.md` 2026-11-07 줄 |
 | `ai-work-workspace` | U12 업무 비서 → U13 협업(주인님 2026-11-10 「진행해」·「협업해서 진행해」) | U11 운영 확인 뒤 차례로 플랜부터. U13은 「회원이 초대한 사람에게만 공유」를 데이터 격리 규칙 예외로 둘지 먼저 결정 | 로드맵 §U12·U13 |
 | `ai-work-workspace` | 구글 캘린더 — 검토 문서만(U11 결정 5번). 권장: ICS 구독 주소 방식 별도 작은 단위 | 주인님 결정 | `ai-work-workspace/docs/REVIEW_20261110_GOOGLE_CALENDAR.md` |
+| `ai-work-workspace` | 영수증·홈택스 세금계산서 플랜(analysis-planning 역할이 10-27 작성, 이 역할에 구현 배정 제안) | 주인님 결정(어디에 만들지·범위) | `ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md` |
 | `ai-doc-chatbot`(다른 역할 폴더) | 문서 카드가 30일 예외 계정에도 「30일 뒤 자동 삭제」로 표시 — 실제 삭제 대상인지 확인 | 그 폴더 담당 또는 주인님 허락 | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 확인 중 발견」 |
 
 ## 최근 완료 (최근 10개)
