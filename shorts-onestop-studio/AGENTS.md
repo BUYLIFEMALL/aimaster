@@ -261,3 +261,14 @@
 ## 2026-11-03 v1.43 ✅ 배포 — 종료 모델 긴급 교체 (Claude Code 윈도우 · 세션 claude-win-20261024-music, 맥미니 요청 `docs/DEPLOY_REQUEST_20261103_RETIRED_MODELS.md`)
 - 함께 나감: 음성 `9045a5005` + 안내 그림문자 `a95613743`, 코드 표기 v2.0 → v1.43(DB와 맞춤). 버전 커밋 `d9448b5bb`, 배포 `shorts-onestop-studio-2z711hpa9` Ready, DB v1.43. tsc(시험 있으면 npm test) 통과.
 - 실제 시험(시험 계정 본인 키, 재시도 없음): 같은 음성 공용 코드 — 영상 스튜디오 시험으로 대신(자체 호출 시험 안 함).
+
+## 2026-11-10 v1.48 ✅ 배포 — 레퍼런스 받아쓰기 모델 선택 + 다듬기 조사 (Claude Code 윈도우 · [역할: video] `claude-win-video`)
+- **받아쓰기 모델 선택**(주인님 「쇼츠 원스톱도 함께」「openai도 모델 있으면 사용자가 선택」): 「🎬 레퍼런스 쇼츠에서 대본 따기」 옆 선택 칸 — Gemini 3.8 Flash(기본·추천) · Gemini 3.5 Flash Lite · OpenAI `gpt-transcribe`(여기는 시각 없이 글만 필요 → 종료 예정 whisper 대신 OpenAI 추천 모델, 요청 `languages[]=ko`·응답 `{text}` 공식 문서 확인). 기본값은 기억한 선택(키 있을 때) → 가진 키 중 Gemini 먼저(`/api/keys`). 고른 모델의 키가 없으면 등록 안내(다른 제공자로 바꾸지 않음), 재시도 없음. 모델 값 없는 옛 화면은 whisper-1 그대로. `src/lib/transcribeModels.ts`(기준 설계 `ai-video-studio/lib/clip/transcribe.ts` v1.31), `src/app/api/ai/transcribe/route.ts`, `TopicView.tsx`.
+- **함께 나감**: 「문장 다듬기으로」 → 「문장 다듬기로」 조사 수정(강도마다 `via`), 30일 열외 줄의 이 프로그램 몫.
+- **그대로 둔 것**: 음성 자막 낱말 시각 `src/lib/tts.ts` `wordStarts`는 낱말 시각이 필요해 whisper-1 유지(2027-02-26 종료 전에 대안 필요 — 실패해도 글자 수 비율로 대신하는 보조 기능).
+- 검수: 시험 53(새 3)·tsc·린트·build → 배포 `shorts-onestop-studio-5tr3q3m40` Ready, DB v1.48, `/render` 격리 헤더 유지. **운영 ego 시험 계정**: 기본값 Gemini 3.8 Flash, 17.8초 영상 → 7.5초 만에 5문장 그대로 참고 자료에 들어감, 다듬기 버튼 「문장 다듬기로 다듬기」.
+
+
+
+
+

@@ -5,7 +5,8 @@
 - **한 일**: 선택 칸 Gemini 3.8 Flash(기본)·Flash Lite·Whisper, 키 없으면 등록 안내(몰래 바꾸지 않음), 긴 소리는 5분씩 조용한 곳에서 잘라 동시에. 시험 108. 배포 `ai-video-studio-1e670xxcf`, DB v1.31.
 - **운영 확인(ego 시험 계정)**: 해설 교차편집 22.3초(5문장 원문 그대로) · 긴 영상 → 쇼츠 18.8초(+ Claude 구간 고르기).
 - **함께 정리**: 모델 선택표 받아쓰기 줄 정정(`gemini-3.5-transcribe` 없음), 요청함 OpenAI 잔액 요청 반려(필요 없음), 기억 「시험 AI는 Claude 기본」.
-- **다음**: `shorts-onestop-studio` 같은 방식(진행 중) · 구간 고르기 `claude-haiku-4-5` → `claude-haiku-5-5` 후보.
+- **이어서 ✅ `shorts-onestop-studio` v1.48**(`shorts-onestop-studio-5tr3q3m40`, DB v1.48): 레퍼런스 받아쓰기 모델 선택(Gemini 3.8 Flash 기본·Flash Lite·OpenAI `gpt-transcribe` — 글만 필요) + 「문장 다듬기로」 조사, 운영 ego 7.5초 확인. 음성 자막 낱말 시각(`wordStarts`)은 whisper-1 유지(2027-02 전 대안).
+- **다음**: 구간 고르기 `claude-haiku-4-5` → `claude-haiku-5-5` 후보.
 - 링크: https://ai-video-studio.buylife.xyz/narrate
 
 ## 2026-11-10 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D24 거래처별 특가(미배포)
