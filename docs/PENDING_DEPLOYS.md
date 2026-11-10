@@ -74,6 +74,7 @@
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 | `smartstore-register` | v1.26 · 2026-11-09 ([역할: design] Antigravity, 78번 미니멀 스마트스토어 아틀리에 테마 리뉴얼 & 5단계 표준 로그인 탑재, `smartstore-register-q8zk4ex4r`, DB v1.26) | 클린 페이퍼 & 세이지 그린 테마 전면 적용, 3D 엠보싱 세이지 버튼(`.btn-3d-sage`), 5단계 표준 로그인 폼 & 1행 약관 동의, 27개 단위테스트 PASS, live 200 검증 |
 | `ai-task-planner` | v1.13 · 2026-11-09 ([역할: design] Antigravity, 74번 퀀트 타임트래커 다크 터미널 테마 리뉴얼 & 5단계 표준 로그인 탑재, `ai-task-planner-g459ejx1a`, DB v1.13) | 공용 기준 코드 `work-inbox-client` 사본 동기화, 74번 다크 옵시디언/에메랄드 HUD, 5단계 표준 로그인 폼, 27개 단위테스트 PASS, live 200 검증 |
+| `free-music-studio` | v1.64 · 엔진 0.8.4 · 2026-11-10 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」, `free-music-studio-1k02pzlz0`, DB v1.64) | 엔진 0.8.3 곡 끝 처리 고침 — 끝 이어 만들기·끝 자동 줄이기에 ffmpeg 실행 파일 이름을 넘김(`fad5caf4e`, Admin PC 실물 시험 실패 20절). 실물 재시험은 Admin PC |
 | `free-music-studio` | v1.62 · 엔진 0.8.2 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」, `free-music-studio-5vb945ol9`, DB v1.62) | AI 마스터링 합침(소리 색깔 EQ·포화·압축·폭, 프리셋 100종, AI 설정 제안), 이미지 스토리 쇼츠 배경음악 보내기(D-6, 받는 쪽 shots v1.46 대기) |
 | `free-music-studio` | v1.61 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」, `free-music-studio-azusqsp7t`, DB v1.61, 사이트만) | 유튜브 SEO 넘기기(D-7)·LP 턴테이블 보내기(D-5)·쇼츠 받는 주소 `/fms-bgm`(D-4 마무리)·EQ·속도 글자. 실물은 마스터PC 확인 대기 |
 | `vinyl-lp-studio` | v1.15 · 2026-11-09 ([역할: music] `claude-win-20261024-music`, 주인님 「배포해」, `vinyl-lp-studio-nsnpkbv8e`, DB v1.15) | 무료음악에서 곡·표지·제목 받기(D-5) |
