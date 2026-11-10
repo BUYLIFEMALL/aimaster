@@ -13,6 +13,7 @@ import { loadRetentionExemptIds } from "@/server/retentionExempt";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { operatorJobFilter } from "@/server/memberJobs";
 import { runAutomationRetention } from "@/server/automationRetention";
+import { runReceiptRetention } from "@/server/receipts";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -36,8 +37,16 @@ export async function GET(request: NextRequest) {
   let ai: unknown = { skipped: "exempt list unavailable" };
   let inbox: unknown = { skipped: "exempt list unavailable" };
   let automation: unknown = { skipped: "exempt list unavailable" };
+  let receipts: unknown = { skipped: "exempt list unavailable" };
   if (exempt) {
     const keep = exempt;
+    // 영수증·세금계산서(2026-11-11): 발행 문서·증빙 장부 30일 자동 삭제(보관 예외 회원 제외)
+    try {
+      receipts = withRequestCache(() => runReceiptRetention(Date.now(), keep));
+    } catch (e) {
+      console.error(`[cron] receipt retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
+      receipts = { error: "failed" };
+    }
     // U11(주인님 결정 4번): 자동화 실행 기록·알림 30일 자동 삭제
     try {
       automation = withRequestCache(() => runAutomationRetention(Date.now(), 5_000, keep));
@@ -59,5 +68,5 @@ export async function GET(request: NextRequest) {
       inbox = { error: "failed" };
     }
   }
-  return NextResponse.json({ ran, ai, inbox, automation });
+  return NextResponse.json({ ran, ai, inbox, automation, receipts });
 }

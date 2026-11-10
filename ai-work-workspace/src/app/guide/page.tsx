@@ -401,6 +401,47 @@ export default async function GuidePage() {
           </aside>
         </section>
 
+        {/* 영수증·세금계산서(2026-11-11) — 플랜 docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md §6 */}
+        <section className="aww-meeting" id="receipts" aria-label="영수증·세금계산서 사용법">
+          <div className="aww-section-head">
+            <span className="aww-badge aww-badge-indigo">🧾 영수증·세금계산서</span>
+            <h2>🧾 사진 한 장으로 증빙 정리 — 영수증·세금계산서</h2>
+            <p>받은 영수증·세금계산서·현금영수증·카드전표를 사진으로 올리면 AI가 날짜·거래처·금액·부가세를 읽어 증빙 장부에 정리하고, 거래명세서·간이영수증은 바로 만들어 인쇄·PDF로 보낼 수 있습니다.</p>
+          </div>
+          <div className="aww-guide-steps">
+            {[
+              { no: 1, icon: "🏢", title: "내 사업자 정보 저장", desc: "왼쪽 메뉴 「🧾 영수증·세금계산서」 → 「내 사업자·거래처·품목」에서 상호·사업자등록번호 등을 한 번 저장합니다. 자주 쓰는 거래처·품목도 등록해 두면 빨라집니다." },
+              { no: 2, icon: "📷", title: "증빙 사진 올리기", desc: "「증빙 정리」에서 사진을 올리면(휴대폰은 바로 촬영, 한 번에 10장) AI가 읽은 값이 확인 칸에 채워집니다. 틀린 곳만 고쳐 「장부에 저장」." },
+              { no: 3, icon: "📒", title: "장부 보기·내려받기", desc: "월별 목록과 공급가액·부가세·합계를 보고 「엑셀(CSV) 내려받기」로 세무사·부가세 신고 자료로 씁니다." },
+              { no: 4, icon: "✍️", title: "문서 발행", desc: "「발행」에서 거래명세서·간이영수증·세금계산서(확인용)를 작성합니다. 견적서·명함 사진으로 거래처·품목을 채울 수 있고, 금액·부가세는 자동 계산, 「저장하고 인쇄·PDF」로 보냅니다." },
+            ].map((s) => (
+              <article key={s.no} className="aww-step-card">
+                <div className="aww-step-card-header">
+                  <span className="aww-step-num">STEP 0{s.no}</span>
+                </div>
+                <div className="aww-step-icon-wrap" aria-hidden>{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </article>
+            ))}
+          </div>
+          <aside className="aww-banner aww-tip">
+            <div className="aww-banner-head"><span className="aww-banner-icon">💡</span><strong>사진 읽기는 회원님 본인 AI 키로</strong></div>
+            <ul>
+              <li><a href="/settings/keys">API키등록·플랫폼연동</a>에 등록한 Claude·OpenAI·Gemini 키 중 하나로 읽습니다(장당 약 10원 안팎, 회원님 계정에 청구).</li>
+              <li>사진은 읽기만 하고 저장하지 않습니다. 밝은 곳에서 글자가 반듯하게 보이게 찍으면 더 정확합니다.</li>
+            </ul>
+          </aside>
+          <aside className="aww-banner aww-warn">
+            <div className="aww-banner-head"><span className="aww-banner-icon">⚠️</span><strong>알아두세요</strong></div>
+            <ul>
+              <li>법적 효력이 있는 전자세금계산서는 국세청 홈택스에서 발급합니다. 「홈택스 일괄 발급 엑셀 만들기」는 준비 중이며, 지금은 저장한 내용을 홈택스에 옮겨 적어 발급하세요.</li>
+              <li>AI가 읽은 값은 틀릴 수 있으니 저장 전에 꼭 확인하세요.</li>
+              <li>증빙 장부와 저장한 문서는 30일 뒤 자동으로 지워집니다. 매달 엑셀(CSV)·PDF로 내려받아 보관하세요. 사업자 정보·거래처·품목은 지우기 전까지 남습니다.</li>
+            </ul>
+          </aside>
+        </section>
+
         {/* ④ 하이테크 키캡 단축키 치트시트 */}
         <section className="aww-shortcuts-section">
           <div className="aww-shortcuts-header">
