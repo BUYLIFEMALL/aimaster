@@ -57,6 +57,9 @@
 
 - **2026-11-10 디자인 시안 3개(주인님 「진행해」)** — `D:\Antigravity\Design`의 88 글로벌 프레스 뉴스룸 · 89 듀얼 런치패드 미션 · 90 서프 가든 스튜디오(추천). 각 폴더 `wp-blogger-auto/`에 4대 화면 HTML·PNG·README·`showcase_12views.html`. 보기: http://localhost:3800/showcase.html · http://localhost:3800/comparison.html (이전 카페 쇼케이스는 `showcase_naver-cafe-poster_20261110.html`로 보관). 캡처는 ego가 창이 앞에 있을 때만 찍혀 막혀서, 시안 그림만 임시 프로필 헤드리스 크롬(1440px)으로 떴음(검수 증거 아님). 주인님 선택 뒤 DESIGN.md 카탈로그·현황판 등록.
 
+- **2026-11-10 디자인 결정 = 2안 89 듀얼 런치패드 미션**(주인님 「2안으로 해」). DESIGN.md 현황판 91번 줄·자산화 절 등록.
+- **2026-11-10 2-1 완료(로컬, 미배포)** — 상단 가로 메뉴 `src/components/layout/TopNav.tsx`(휴대폰 ☰, 다른 프로그램 보기, 계정·로그아웃), 디자인 색 `globals.css`(`lp-*` 클래스), 「오늘의 발행」 `dashboard/page.tsx`(발사대 카드 2개·숫자 4개·발사 순서·최근 결과), 계산 `src/lib/dashboard.ts`, 연결 읽기 `src/lib/connections.ts`(토큰 칸은 읽지 않음), 형식 정의에 `wba_posts`. 나머지 메뉴 5개는 안내 화면. 옛 좌측 메뉴 `Sidebar.tsx` 삭제. tsc 통과·시험 20개 통과. 다음: 2-2 워드프레스 연결.
+
 ## 4. 결정 항목 (주인님)
 1. **운영 DB 적용 승인** — 요청함 `eefe9433`.
 2. **구글 시험 블로그** — 원 플랜 결정 5에서 미정. 주인님 구글 계정에 시험 블로그 1개를 새로 만들지, 기존 블로그를 쓸지.

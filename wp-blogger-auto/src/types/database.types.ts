@@ -504,6 +504,93 @@ export type Database = {
         }
         Relationships: []
       }
+      wba_posts: {
+        Row: {
+          id: string
+          user_id: string
+          platform: string
+          account_id: string | null
+          blog_ref: string | null
+          blog_name: string | null
+          topic: string | null
+          title: string
+          html: string
+          excerpt: string | null
+          slug: string | null
+          tags: string[]
+          category_ids: number[]
+          images: Json
+          mode: string | null
+          scheduled_at: string | null
+          status: string
+          remote_id: string | null
+          remote_url: string | null
+          error_code: string | null
+          error_detail: string | null
+          published_at: string | null
+          keep_images: boolean
+          expires_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          platform: string
+          account_id?: string | null
+          blog_ref?: string | null
+          blog_name?: string | null
+          topic?: string | null
+          title?: string
+          html?: string
+          excerpt?: string | null
+          slug?: string | null
+          tags?: string[]
+          category_ids?: number[]
+          images?: Json
+          mode?: string | null
+          scheduled_at?: string | null
+          status?: string
+          remote_id?: string | null
+          remote_url?: string | null
+          error_code?: string | null
+          error_detail?: string | null
+          published_at?: string | null
+          keep_images?: boolean
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          platform?: string
+          account_id?: string | null
+          blog_ref?: string | null
+          blog_name?: string | null
+          topic?: string | null
+          title?: string
+          html?: string
+          excerpt?: string | null
+          slug?: string | null
+          tags?: string[]
+          category_ids?: number[]
+          images?: Json
+          mode?: string | null
+          scheduled_at?: string | null
+          status?: string
+          remote_id?: string | null
+          remote_url?: string | null
+          error_code?: string | null
+          error_detail?: string | null
+          published_at?: string | null
+          keep_images?: boolean
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           id: string

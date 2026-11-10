@@ -1,5 +1,5 @@
 import { requireProgramAccess } from "@/lib/access";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { TopNav } from "@/components/layout/TopNav";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -8,9 +8,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const user = await requireProgramAccess();
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <Sidebar userEmail={user.email ?? ""} />
-      <main className="flex-1 p-4 md:p-8">{children}</main>
+    <div className="min-h-screen">
+      <TopNav userEmail={user.email ?? ""} />
+      <main className="mx-auto max-w-[1440px] px-4 py-6 md:px-8 md:py-8">{children}</main>
     </div>
   );
 }
