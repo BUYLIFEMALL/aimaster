@@ -18,4 +18,5 @@
 - [x] R1 감지 빠르게(v1.05: 갤러리 영상 시험 건너뜀·제한 6초)
 
 ## 3차
-- [ ] 립싱크(fal Kling lipsync·Sync.so), 업스케일·배경 제거(fal), 9:16 자동 맞춤, Runway·Vidu 직접 연동
+- [x] 립싱크(fal Kling lipsync)·업스케일(fal Topaz)·배경 제거(Bria)·9:16 장면 맞춤(꽉 채우기/전체 보이기) — v1.30(2026-11-10) `lib/postprocess.ts`·`Composition.tsx`
+- [ ] Sync.so 립싱크, Runway·Vidu 직접 연동(필요한지 주인님 결정 대기)

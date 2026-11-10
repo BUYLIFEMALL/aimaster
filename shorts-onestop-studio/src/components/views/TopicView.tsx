@@ -151,7 +151,7 @@ export function TopicView() {
       const r = await api<{ lines: string[]; model: string }>("/api/ai/rewrite", { body: { lines, level: rewriteLevel, topic, own: ownScript } });
       if (manualBefore === null) setManualBefore(manual);
       setManual(r.lines.join("\n"));
-      setMsg({ text: `${REWRITE_LEVELS[rewriteLevel].label}으로 다듬었습니다(${modelName(r.model)}). 내용을 확인한 뒤 「장면 만들기」를 누르세요. 마음에 안 들면 「다듬기 전으로」.`, ok: true });
+      setMsg({ text: `${REWRITE_LEVELS[rewriteLevel].via} 다듬었습니다(${modelName(r.model)}). 내용을 확인한 뒤 「장면 만들기」를 누르세요. 마음에 안 들면 「다듬기 전으로」.`, ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
 
@@ -277,7 +277,7 @@ export function TopicView() {
               <small className="muted">{REWRITE_LEVELS[rewriteLevel].desc}</small>
               <label className="row" style={{ gap: 6, fontWeight: 500 }}><input type="checkbox" checked={ownScript} disabled={!!busy} onChange={(e) => setOwnScript(e.target.checked)} />제가 직접 쓴 대본입니다(다른 사람의 대사·자막을 바꾸는 데 쓰지 않습니다).</label>
               <div className="actions">
-                <button type="button" disabled={!manual.trim() || !ownScript || !!busy} onClick={() => void rewriteManual()}><Wand2 size={14} />{REWRITE_LEVELS[rewriteLevel].label}으로 다듬기</button>
+                <button type="button" disabled={!manual.trim() || !ownScript || !!busy} onClick={() => void rewriteManual()}><Wand2 size={14} />{REWRITE_LEVELS[rewriteLevel].via} 다듬기</button>
                 {manualBefore !== null && <button type="button" disabled={!!busy} onClick={() => { setManual(manualBefore); setManualBefore(null); setMsg({ text: "다듬기 전 원문으로 되돌렸습니다.", ok: true }); }}>다듬기 전으로</button>}
                 <Busy on={busy.startsWith("대본을 다듬")} label={busy} />
               </div>

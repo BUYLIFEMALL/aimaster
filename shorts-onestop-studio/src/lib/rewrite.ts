@@ -4,9 +4,10 @@
 const MAX_CARDS = 8;
 
 export const REWRITE_LEVELS = {
-  light: { label: "맞춤법만", desc: "띄어쓰기·맞춤법·오타만 고치고 표현은 그대로" },
-  medium: { label: "문장 다듬기", desc: "뜻과 순서는 그대로, 말하기 좋게 문장을 다듬음(길이 비슷)" },
-  strong: { label: "구성까지 새로", desc: "내용은 유지하되 첫 줄 훅·순서·마무리를 쇼츠에 맞게 다시 짬" },
+  // via: 「○○ 다듬기」「○○ 다듬었습니다」 앞에 붙는 말(조사까지 — 2026-11-10 「문장 다듬기으로」 오류 수정)
+  light: { label: "맞춤법만", via: "맞춤법만으로", desc: "띄어쓰기·맞춤법·오타만 고치고 표현은 그대로" },
+  medium: { label: "문장 다듬기", via: "문장 다듬기로", desc: "뜻과 순서는 그대로, 말하기 좋게 문장을 다듬음(길이 비슷)" },
+  strong: { label: "구성까지 새로", via: "구성까지 새로", desc: "내용은 유지하되 첫 줄 훅·순서·마무리를 쇼츠에 맞게 다시 짬" },
 } as const;
 export type RewriteLevel = keyof typeof REWRITE_LEVELS;
 export const isRewriteLevel = (v: unknown): v is RewriteLevel => typeof v === "string" && v in REWRITE_LEVELS;

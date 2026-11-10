@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { MAX_LINES, isRewriteLevel, parseRewrite, readLines, rewritePrompt } from "../src/lib/rewrite.ts";
+import { MAX_LINES, REWRITE_LEVELS, isRewriteLevel, parseRewrite, readLines, rewritePrompt } from "../src/lib/rewrite.ts";
 
 test("각색 강도: 줄 읽기 — 빈 줄 제거·공백 정리·줄 수 상한", () => {
   assert.deepEqual(readLines("첫  줄\n\n  둘째 줄 \r\n셋째"), ["첫 줄", "둘째 줄", "셋째"]);
@@ -24,4 +24,9 @@ test("각색 강도: 응답은 줄 수가 같아야 하고 번호는 뗀다, 다
   assert.equal(parseRewrite({ lines: ["하나"] }, 2), null);
   assert.equal(parseRewrite({ lines: ["하나", ""] }, 2), null);
   assert.equal(parseRewrite("bad", 2), null);
+});
+
+test("각색 강도: 버튼·안내 문구 조사(받침 없는 말 뒤에 「으로」 금지)", () => {
+  assert.deepEqual(Object.values(REWRITE_LEVELS).map((l) => `${l.via} 다듬기`), ["맞춤법만으로 다듬기", "문장 다듬기로 다듬기", "구성까지 새로 다듬기"]);
+  for (const l of Object.values(REWRITE_LEVELS)) assert.ok(!/[가-힣]으로$/.test(l.via) || /[만]으로$/.test(l.via), l.via);
 });
