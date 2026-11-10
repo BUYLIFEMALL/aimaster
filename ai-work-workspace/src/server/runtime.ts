@@ -5,7 +5,7 @@ import 'server-only';
 import { handlers, ApiError, type Ctx } from '@/litpage/server/api/handlers.ts';
 import { extraHandlers } from '@/litpage/server/api/extra.ts';
 import { realtime } from '@/litpage/server/realtime.ts';
-import { applyTransactions, blockRole, RecordMapBuilder, recordRole, UserVisibility } from '@/litpage/server/records.ts';
+import { applyTransactions, blockRole, RecordMapBuilder, recordRole, setStrictUserVisibility, UserVisibility } from '@/litpage/server/records.ts';
 import { redactDatabaseRecord } from '@/litpage/server/propaccess.ts';
 import { getRecord, putRecord, withRequestCache } from '@/litpage/server/db.ts';
 import { createUser, createWorkspace } from '@/litpage/server/seed.ts';
@@ -28,6 +28,7 @@ function init() {
   if (ready) return;
   Object.assign(handlers, extraHandlers);
   installAutofillHook(); // U3: 원본은 AI 라우트 등록 때 켰음 — 데이터베이스 AI 자동 채우기(회원 본인 키로만 동작)
+  setStrictUserVisibility(true); // U13: 다른 사용자 프로필은 같은 워크스페이스·함께 공유된 페이지 사람에게만
   realtime.setRoleResolver((table, rec, userId) => recordRole(table, rec, userId));
   realtime.setAccess({
     page: (pageId, userId) => blockRole(pageId, userId) !== 'none',

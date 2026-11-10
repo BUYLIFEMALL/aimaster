@@ -3,7 +3,7 @@ import 'server-only';
 import { isSpaceMember, roleAtLeast } from '#shared/permissions.ts';
 import type { BlockRecord, SpaceRecord } from '#shared/records.ts';
 import { toPlainText } from '#shared/richtext.ts';
-import { getRecord, withRequestCache } from '@/litpage/server/db.ts';
+import { db, getRecord, withRequestCache } from '@/litpage/server/db.ts';
 import { cleanFileName, cleanMime, fileHeaders, fileRow, readFileContent, storeFile } from '@/litpage/server/content/files.ts';
 import { blockRole } from '@/litpage/server/records.ts';
 import { pageIdOf } from '@/litpage/server/search.ts';
@@ -44,9 +44,16 @@ export function downloadFile(viewerId: string, id: string, download: boolean): R
     // 이식판 강화: 원본은 주소만 알면 로그인한 누구나 받을 수 있었다. 회원 데이터 격리를 위해 올린 사람 또는
     // 그 워크스페이스 구성원만 받게 한다.
     const member = row.user_id === viewerId || (!!row.space_id && isSpaceMember(getRecord<SpaceRecord>('space', row.space_id), viewerId));
-    if (!member) return new Response('Not found', { status: 404 });
+    // U13 협업(2026-11-11): 페이지만 공유받은 사람은 그 파일이 붙은 블록을 읽을 수 있으면 받는다
+    if (!member && !(row.space_id && canReadFileViaBlock(row.space_id, row.id, viewerId))) return new Response('Not found', { status: 404 });
     const content = readFileContent(row.id);
     if (!content) return new Response('Not found', { status: 404 });
     return new Response(new Uint8Array(content), { headers: { ...fileHeaders(row, download), 'Content-Length': String(content.length) } });
   });
+}
+
+/** 이 파일을 담은 블록 중 보는 사람이 읽을 수 있는 것이 있는가(같은 워크스페이스 안에서만 찾음) */
+function canReadFileViaBlock(spaceId: string, fileId: string, viewerId: string): boolean {
+  const rows = db.prepare("SELECT id FROM records WHERE tbl = 'block' AND space_id = ? AND alive = 1 AND data LIKE ? LIMIT 20").all(spaceId, `%${fileId}%`) as { id: string }[];
+  return rows.some((r) => blockRole(r.id, viewerId) !== 'none');
 }

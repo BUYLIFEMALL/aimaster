@@ -25,6 +25,17 @@ export function blockRole(blockId: string, userId: string | null): Role {
 }
 
 /** Role a user has on an arbitrary record (used for recordMap entries and write checks). */
+let strictUsers = false;
+/** 이식판: 다른 사용자 프로필을 같은 워크스페이스·함께 공유된 페이지 사람에게만 보이게 한다 */
+export function setStrictUserVisibility(on: boolean) {
+  strictUsers = on;
+}
+/** 보는 사람과 대상이 함께 들어 있는 블록(공유 권한·작성자)이 있는가 */
+function sharesPageWith(viewer: string, target: string): boolean {
+  if (!/^[\w-]{1,64}$/.test(viewer) || !/^[\w-]{1,64}$/.test(target)) return false;
+  return !!db.prepare("SELECT 1 AS hit FROM records WHERE tbl = 'block' AND alive = 1 AND data LIKE ? AND data LIKE ? LIMIT 1").get(`%"user_id":"${viewer}"%`, `%${target}%`);
+}
+
 export function recordRole(table: Table, rec: BaseRecord | undefined, userId: string | null): Role {
   if (!rec) return 'none';
   const r = rec as any;
@@ -68,6 +79,8 @@ export function recordRole(table: Table, rec: BaseRecord | undefined, userId: st
       if (rec.id === userId) return 'editor';
       // public demo: visitors only see the people of their own workspace
       if (userId && isDemoMode()) return new UserVisibility(userId).canSeeUser(rec.id) ? 'reader' : 'none';
+      // 이식판 U13(2026-11-11): 같은 워크스페이스 사람·함께 공유된 페이지의 사람만 보인다(runtime.ts가 켬, 원본 시험은 끔)
+      if (userId && strictUsers) return new UserVisibility(userId).canSeeUser(rec.id) || sharesPageWith(userId, rec.id) ? 'reader' : 'none';
       return userId ? 'reader' : 'none';
     case 'user_root':
     case 'user_settings':

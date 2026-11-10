@@ -123,3 +123,30 @@ describe('페이지 공유', () => {
     expect(r.status).toBe(403);
   });
 });
+
+describe('공유받은 페이지의 첨부 파일', () => {
+  it('페이지를 공유받은 사람은 그 페이지에 붙은 파일을 받고, 다른 회원은 받지 못한다', async () => {
+    const filesMod = await import('../../src/litpage/server/content/files.ts');
+    const dl = await import('../../src/server/files');
+    let fileId = '';
+    db.withRequestCache(() => {
+      const f = filesMod.storeFile('계약서.txt', '내용', owner.id, space, 'text/plain');
+      fileId = f.id;
+      seed.createPage({ spaceId: space, userId: owner.id, parentId: page, parentTable: 'block', title: '첨부', content: [{ type: 'file', props: { source: [[f.url]] } } as any] });
+    });
+    expect(dl.downloadFile(stranger.id, fileId, false).status).toBe(200);
+    expect(dl.downloadFile(noAccess.id, fileId, false).status).toBe(404);
+  });
+});
+
+describe('다른 사용자 프로필 공개 범위', () => {
+  it('관계없는 회원의 프로필은 보이지 않고, 함께 공유된 페이지 사람은 보인다', async () => {
+    const recs = await import('../../src/litpage/server/records.ts');
+    db.withRequestCache(() => {
+      if (!db.getRecord('lit_user', noAccess.id)) seed.createUser(noAccess.id, noAccess.email, noAccess.name);
+      const ownerRec = db.getRecord<any>('lit_user', owner.id);
+      expect(recs.recordRole('lit_user', ownerRec, noAccess.id)).toBe('none');
+      expect(recs.recordRole('lit_user', ownerRec, stranger.id)).toBe('reader');
+    });
+  });
+});
