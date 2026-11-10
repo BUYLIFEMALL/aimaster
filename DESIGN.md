@@ -787,4 +787,17 @@
 - 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
 - 작성: [역할: design] Antigravity(윈도우) `agy-win-iap-v1`
 
+## 2026-11-11 쓰레드 쇼핑제휴 포스터 (`threads-affiliate-poster`) 4대 화면 3시안 자산화
+
+| 템플릿 번호 & 명칭 | 구조 및 시그니처 컴포넌트 | 추천/선정 이유 | 상태 & 영구 자산 경로 |
+|---|---|---|---|
+| **94. 쓰레드 오리지널 모노 바이럴 & 일렉트릭 블루 제휴 덱 스타일** | 딥 옵시디언 다크(`#000000` / `#101010`) & 미니멀 화이트 & 일렉트릭 블루(`#0095F6`) 포인트, 4단계 제휴 자동화 파이프라인 배너, 4대 핵심 제휴 KPI 카드, 1:1 모바일 쓰레드 뷰파인더 덱 목업 UI, AI 5종 바이럴 후킹 카피 에디터, 3D 엠보싱 블루 버튼(`.btn-3d-threads-blue`), 5단계 표준 로그인 폼 | Threads 공식 브랜드 흑백 미니멀 & 일렉트릭 블루 감성을 완벽 구현하고 1:1 모바일 쓰레드 피드 뷰파인더 덱을 완비한 1순위 강력 추천 대표작 | **🏆 1순위 강력 추천 (주인님 선택 대기)** · `D:\Antigravity\Design\94_threads_mono_viral_blue_deck\threads_affiliate_poster` |
+| **95. 클린 스마트 커머스 인플루언서 아틀리에 스타일** | 소프트 크림 페이퍼(`#F8FAFC`) & 로열 퍼플(`#7C3AED`) & 세이지 차콜, 인플루언서 상품 큐레이션 매거진 카드 그리드, 쿠팡/알리 베스트셀러 랭킹 보드, 3D 엠보싱 로열 퍼플 버튼(`.btn-3d-royal-purple`), 5단계 표준 로그인 폼 | 장시간 큐레이션 작업 피로를 덜어주는 화사하고 단정한 인플루언서 라이프스타일 매거진 감성의 라이트 아틀리에 | **⚡ 2순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\95_clean_smart_commerce_atelier\threads_affiliate_poster` |
+| **96. 퀀트 어필리에이트 트래픽 & ROI 레이더 HUD 콘솔 스타일** | 옵시디언 딥블랙(`#0B101B`) & 네온 에메랄드(`#10B981`) & 볼트 옐로우(`#FACC15`) HUD, JetBrains Mono 폰트, 실시간 CPC/CTR/ROI 퀀트 계측기, 24H 피크타임 클릭 히트맵, 3D 엠보싱 네온 에메랄드 버튼(`.btn-3d-neon-emerald`), 5단계 표준 로그인 폼 | 제휴 링크 클릭률(CTR)과 구매 전환율(CVR)을 초당 관제하는 전문 퍼포먼스 마케터용 퀀트 트래픽 HUD 콘솔 | **🌿 3순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\96_quant_affiliate_roi_radar_console\threads_affiliate_poster` |
+
+- 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+- 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
+- 작성: [역할: design] Antigravity(윈도우) `agy-win-tap-v1`
+
+
 

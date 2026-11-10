@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-tap-v1` — `threads-affiliate-poster` (쓰레드 쇼핑제휴 포스터) v1.86 4대 화면 3시안(94/95/96번) 쇼케이스 및 종합 비교표 구축 완료 (주인님 채택 대기)
+- **한 일**: 주인님 「1번 쓰레드 쇼핑제휴 포스터 시안작업 진행해」 지시에 따라 4대 화면(메인/상세/매뉴얼/설정) × 3대 시안 = 총 12개 뷰 제작 및 1440px 고해상도 캡처, 포트 3800 단일 통합 쇼케이스 웹 호스팅 및 `D:\Antigravity\Design` 3대 독립 폴더 영구 자산화 완료.
+  1. **시안 1 (94. 쓰레드 오리지널 모노 바이럴 & 일렉트릭 블루 제휴 덱 스타일 - 1순위 강력 추천)**: 딥 옵시디언 다크(`#000000` / `#101010`) & 미니멀 화이트 & 일렉트릭 블루(`#0095F6`) 포인트, 4단계 제휴 자동화 파이프라인 배너, 4대 핵심 제휴 KPI 카드, 1:1 모바일 쓰레드 뷰파인더 덱 목업 UI, 3D 엠보싱 블루 버튼(`.btn-3d-threads-blue`), 5단계 표준 로그인 폼.
+  2. **시안 2 (95. 클린 스마트 커머스 인플루언서 아틀리에 스타일 - 2순위 대안)**: 소프트 크림 페이퍼(`#F8FAFC`) & 로열 퍼플(`#7C3AED`) & 세이지 차콜, 인플루언서 상품 큐레이션 매거진 카드 그리드, 쿠팡/알리 베스트셀러 랭킹 보드, 3D 엠보싱 로열 퍼플 버튼(`.btn-3d-royal-purple`), 5단계 표준 로그인 폼.
+  3. **시안 3 (96. 퀀트 어필리에이트 트래픽 & ROI 레이더 HUD 콘솔 스타일 - 3순위 대안)**: 옵시디언 딥블랙(`#0B101B`) & 네온 에메랄드(`#10B981`) & 볼트 옐로우(`#FACC15`) HUD, JetBrains Mono 폰트, 실시간 CPC/CTR/ROI 퀀트 계측기, 24H 피크타임 클릭 히트맵, 3D 엠보싱 네온 에메랄드 버튼(`.btn-3d-neon-emerald`), 5단계 표준 로그인 폼.
+- **검수**: Playwright 12개 뷰 1440px 고해상도 렌더링 및 캡처 성공, 포트 3800 쇼케이스(`http://localhost:3800/showcase.html`) 및 종합 비교표(`http://localhost:3800/comparison.html`) 200 OK 호스팅 완료.
+- **영구 자산화 경로**:
+  - 시안 1: `D:\Antigravity\Design\94_threads_mono_viral_blue_deck\threads_affiliate_poster`
+  - 시안 2: `D:\Antigravity\Design\95_clean_smart_commerce_atelier\threads_affiliate_poster`
+  - 시안 3: `D:\Antigravity\Design\96_quant_affiliate_roi_radar_console\threads_affiliate_poster`
+- **확인 링크**:
+  - 🎨 쇼케이스: http://localhost:3800/showcase.html
+  - 📊 종합 비교표: http://localhost:3800/comparison.html
+  - 🌐 공식 운영 도메인: https://threads-affiliate-poster.buylife.xyz
+- **다음 첫 단계**: 주인님 3대 시안 중 채택안 선택 대기 ➔ 선택 즉시 공식 채택안 전면 개편, 빌드, 프로덕션 배포.
+
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D32 앱(PWA)(미배포)
 - **한 일**: 주인님 「추천안 3가지 그대로」 → 몰마다 홈 화면 설치(앱 설명 파일·아이콘: 로고 또는 첫 글자), 끊김 안내 서비스 워커(저장 없음), 승인 사업자 손님 설치 안내 띠(닫으면 30일), 「쇼핑몰 정보 › 몰 로고」. DB 변경 없음
 - **검수**: 시험 235개·빌드, 응답·아이콘 눈 확인·한글 글꼴, ego(설치 단추·닫기·로고 올리기). 시험 중 고친 것: 설치 신호 놓침 → 틀 맨 앞 스크립트로 미리 붙잡음, 문구 조사
@@ -18,9 +34,16 @@
 - **남은 것**: 관리자 계정 쪽(공유받은 페이지 보기·동시 편집·댓글 멘션) 확인 — 시험 계정 페이지 「[시험] U13 공유 확인」을 관리자에게 공유해 둠. 확인 뒤 공유 거두고 페이지 휴지통. 구글 OAuth 안내 요청(`docs/REQUEST_20261111_GOOGLE_OAUTH_GUIDE.md`) 반영 — 매뉴얼·캘린더 화면의 「테스트 사용자 등록」 옛 문구 고치기.
 - 링크: https://ai-work-workspace.buylife.xyz
 
+## 2026-11-11 [역할: mac-mini] Codex(맥미니) — wp-blogger-auto 잔여 작업 대조
+- v1.02재검수완료/WP재연결복구완료. 실제잔여: OAuth공용매뉴얼안내코드 다음v1.03배포대기 → 소개/썸네일/공개전환결정 → 공개뒤시험·일반회원접근확인. 비차단P2는Blogger대상미선택안내. 비교표97번/블로그기능표/카테고리지도·윈도우ACTIVE줄은구형상태정리필요(다른역할줄미수정). 요청서아래잔여표기록. 운영DB공개여부는이번별도조회안함.
+- 공용gitstatus1회 index file corrupt 후 git ls-files재조회정상15446·잠금없음. 원인미확정·복구/인덱스수정/커밋/푸시안함, 다음커밋직전건강점검권장. 이번유료호출/빌드/배포/DB쓰기0.
 
 
 
+## 2026-11-11 ✅ [역할: mac-mini] Codex(맥미니) — wp-blogger-auto v1.02/98d1390d2 요청4항목 재검수 완료
+- **통과**: WP/Blogger 기존초안→바로발행 동일ID/정확제목1건, 양쪽예약→취소→재예약, 양쪽정확30분입력·상한초과한국어차단, 실제WP폼http/없는주소/가짜틀린비번오류, 카테고리실패→다시불러오기회복, 저장/reload뒤Test/schedule/05:07/이미지0유지.
+- 사용자재연결후WP카테고리실조회정상·Blogger선택유지, 기존대기사항해소. 최종원고8=공개5/블로그초안2/준비1·예약0/확인필요0. 늦은시험날짜정상복원·공간20finish종료·ACTIVE내줄정리. P2안내후보: Blogger블로그미선택인기존초안패널버튼disabled사유안내없음(선택뒤정상).
+- 신규Haiku1/3건·예상약5원·이미지0, 이번복구확인추가AI0·빌드/배포/소스/직접DB/커밋/푸시0. 결과/캡처: `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md` 아래최종완료표. 윈도우다음: 관리자공개전환/소개·썸네일결정요청(맥미니에서공개전환안함).
 
 
 ## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 구글 연결 매뉴얼 정리(회원 각자 본인 구글 앱)
@@ -30,6 +53,11 @@
 - 매뉴얼: https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d
 
 
+## 2026-11-11 🟡 [역할: mac-mini] Codex(맥미니) — wp-blogger-auto v1.02/98d1390d2 재검수·WP 연결복구대기
+- **실물통과**: 양쪽기존초안→바로발행(동일ID16156/201185626910807575·외부제목1건), 양쪽예약→취소→재예약(기존ID유지·최종예약0), 정확30분입력WP04:19→04:49/BL04:24→04:54, WP만료하루전초과날짜안내차단. Blogger개별상한초과클릭은공용코드확인뿐·잔여.
+- **4번통과**: 실제WP폼http/없는주소/가짜틀린비번3오류한국어표시, 카테고리오류/다시불러오기(브라우저GET일시차단후해제·실제목록회복), 저장/reload후Test/schedule/05:07/이미지0유지. P2: Blogger재연결뒤대상미선택이면기존초안패널버튼만disabled·선택안내없음.
+- **현재중요**: 폼오류시험하려WP연결을끝에해제했음. 실제응용비번은사용자직접입력지침이라가짜값비우고공간20p1사용자인계·정상재연결요청. WP연결전/Blogger정상, 재연결확인전완료아님.
+- 신규원고Haiku1/3건·예상약5원·이미지0·빌드/배포/소스/직접DB/커밋/푸시0. 총원고8=공개5/블로그초안2/준비1·예약0. 상세표/캡처: `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md` 아래v1.02. 다음: 사용자WP재연결확인→잔여상한안내확인→최종보고. 공개전환안함.
 
 
 ## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 유튜브 분석 v1.28 이름 「AI 유튜브 떡상 분석 자동화」 + 내 채널 실제 연결 확인
@@ -65,6 +93,10 @@
 - **비용**: Vercel 빌드 1회(v1.02), AI 호출 0.
 - 링크: https://wp-blogger-auto.buylife.xyz
 
+## 2026-11-11 [역할: mac-mini] Codex(맥미니) — wp-blogger-auto 사용자1·2통과/발행이미지1년지시·윈도우6·7전달
+- 사용자확인: 두연결해제재연결·확인필요두버튼「잘되」→사용자확인통과(맥미니직접재현과구분). 보관정책「발행된경우만1년보관」→TOP_RULE §8해당행갱신, 기존무기한/예약포함코드·DB는미반영. 윈도우담당이최우선구현/경계시험/운영반영할것.
+- 5번추가: http/없는도메인/틀린시험비밀번호 순차서버응답400/400/401·한국어오류·전후WP연결동일. 실제폼오류표시는미검수. 추가AI/빌드/배포/소스/직접DB0. 공간20다시인계.
+- 6번개선(카테고리오류/선택유지/원고복제·상태전환)과7번공개판단전달문을요청서아래·IMPROVEMENTS맨위에저장. **1년정책미구현·공개전환실행안함**. 다음윈도우: 정책구현/DB시험→사용성수정→검수/배포→관리자공개전환결정. `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md`.
 
 
 ## 2026-11-11 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-rea — **REA 카테고리 내부 전용(관리자·시험 계정만) + Craft Anything 0.6.0**
@@ -75,6 +107,10 @@
 - **남은 일**: `programs` RLS(`programs_select_active`)라 공개 키 API로는 REA 프로그램 기본 정보가 읽힘 — 완전 차단은 RLS 변경 결정 대기. REA 하위 프로그램을 만들 때 자기 `lib/access.ts`도 관리자·열람 계정만(문서 §4). 다음 작업: 주인님 요청 「같은 계정이면 다른 프로그램 자료 재사용(내 자료함)」 — 저장 구조 분석 진행 중.
 - 링크: https://www.buylife.xyz/programs/category/rea
 
+## 2026-11-11 🟡 [역할: mac-mini] Codex(맥미니) — wp-blogger-auto v1.01 핵심3방식 양쪽 실물 통과·재연결대기
+- **결과**: WP/Blogger 각각 초안·예약후취소·즉시발행 통과. WP관리자 본문/대표이미지 대조, 공개본문 재사용이미지 로드정상. 최종원고7=초안4/발행3/예약0/확인필요0·보관함/대시보드일치. Blogger브라우저단절복구후 발행됨·외부같은글1건(재전송없음). uncertain버튼은상태발생없어미검수.
+- 공개: https://buylife0.mycafe24.com/desk-organization-tips/ · https://buylifenews.blogspot.com/2026/11/2026_01128289243.html · 단절시험 https://buylifenews.blogspot.com/2026/11/aimaster.html . 시험글미삭제. 요청서아래종합표·IMPROVEMENTS우선순위2개선기록·캡처추가.
+- **대기**: 사용자에게해제→재연결요청, 공간20 `/connect` handOff(현재연결유지). 불확실정리버튼/30일보관/정확30분입력/오류입력미검수. 전체완료/공개전환으로처리하지않음. 유료9회(Sonnet1+Haiku6+장면1+Gemini1), 예상약0.1달러+30원·실청구액미확인. 빌드/배포/소스/직접DB/커밋/푸시0. 상세 `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md`.
 
 
 ## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` — `insta_auto_poster` (INSTA 포스팅 자동화) v1.73 1안(91. 인스타 네온 선셋 크리에이터 스튜디오 스타일) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료

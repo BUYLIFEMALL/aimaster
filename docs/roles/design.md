@@ -6,23 +6,28 @@
 - 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
 - 핵심 배포 원칙 (2026-10-29 주인님 지시): 작업한 내용의 실제 배포는 비용 절감을 위해 꼭 당장 필요한 것(긴급/치명 오류)이 아니면 로컬 검수 완료 상태로 모아두었다가 **한 번에 묶음(Batch)으로 반영**한다. 급한 것만 최소한으로 단독 반영.
 - 마지막 갱신: 2026-11-11 03:20 (agy-win-iap-v1)
+- 최신 갱신: 2026-11-11 04:40 (agy-win-tap-v1)
 - 최근 업데이트: 2026-11-11 00:35 (naver-cafe-poster v1.29 2안 퀀트 바이럴 카페 레이더 콘솔 공식 채택 전면 개편 및 프로덕션 배포 완료)
 - 부동산 시안 갱신: 2026-11-11 01:05 (agy-win-res-v2, real_estate_sales v1.58 4대 화면 3시안(88/89/90번) 쇼케이스 및 종합 비교표 구축 완료, 주인님 채택 대기)
 - 부동산 리뉴얼 완료: 2026-11-11 01:45 (agy-win-res-v2, real_estate_sales v1.59 2안 네이버 부동산 매트릭스 공식 채택 전면 리뉴얼 및 Vercel 프로덕션 배포 완료)
 - 인스타 시안 완료: 2026-11-11 02:50 (agy-win-iap-v1, insta_auto_poster v1.72 4대 화면 3시안(91/92/93번) 쇼케이스 및 종합 비교표 구축 완료, 주인님 채택 대기)
 - 인스타 리뉴얼 완료: 2026-11-11 03:20 (agy-win-iap-v1, insta_auto_poster v1.73 1안 인스타 네온 선셋 크리에이터 스튜디오 공식 채택 전면 리뉴얼 및 Vercel 프로덕션 배포 완료)
+- 쓰레드 제휴 시안 완료: 2026-11-11 04:40 (agy-win-tap-v1, threads-affiliate-poster v1.86 4대 화면 3시안(94/95/96번) 쇼케이스 및 종합 비교표 구축 완료, 주인님 채택 대기)
 
 ## 지금 하는 일
 - `real_estate_sales` 4대 화면 3시안(88/89/90번) 쇼케이스 제안 및 주인님 채택 대기 ➔ 2안 공식 채택 전면 리뉴얼 완료, 다음 지시 대기
 - `insta_auto_poster` (INSTA 포스팅 자동화) v1.73 1안(91. 인스타 네온 선셋 크리에이터 스튜디오 스타일) 공식 채택 전면 리뉴얼 및 Vercel 프로덕션 배포 완료 ➔ 다음 지시 대기
+- `threads-affiliate-poster` (쓰레드 쇼핑제휴 포스터) v1.86 4대 화면 3시안(94. 모노 바이럴 블루 / 95. 클린 스마트 커머스 / 96. 퀀트 ROI 콘솔) 쇼케이스 제안 및 주인님 채택 대기
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 - `real_estate_sales` v1.58 4대 화면 3시안(88. 퀀트 프롭테크 레이더 / 89. 네이버 부동산 매트릭스 / 90. 미니멀 인베스터 아틀리에) 주인님 채택 선택 대기 (`http://localhost:3800/showcase.html`) ➔ 2안 채택 완료로 대기 해소 (현재 다음 지시 대기)
 - `insta_auto_poster` v1.72 4대 화면 3시안(91. 인스타 선셋 스튜디오 / 92. 인스타 매거진 아틀리에 / 93. 퀀트 알고리즘 레이더) 주인님 채택 선택 대기 (`http://localhost:3800/showcase.html`) ➔ 1안 채택 완료로 대기 해소 (v1.73 배포 완료)
+- `threads-affiliate-poster` v1.86 4대 화면 3시안(94. 쓰레드 오리지널 모노 바이럴 & 블루 덱 / 95. 클린 스마트 커머스 / 96. 퀀트 ROI 콘솔) 주인님 채택 선택 대기 (`http://localhost:3800/showcase.html`)
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | `threads-affiliate-poster` `v1.86` | 4대 화면 3시안(12개 뷰) 1440px 고화질 캡처 및 `http://localhost:3800/showcase.html` 단일 통합 쇼케이스 & `comparison.html` 종합 비교 매트릭스 표 구축, `D:\Antigravity\Design` 3대 독립 폴더(94/95/96번) 영구 자산 아카이빙 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3800`) |
 | 2026-11-11 | `insta_auto_poster` `v1.73` | 1안(91. 인스타 네온 선셋 크리에이터 스튜디오 스타일) 공식 채택 전면 개편, 2026-11-01 5단계 표준 로그인 폼 & 1행 약관 개편, 3D 엠보싱 선셋 버튼(`.btn-3d`, `.btn-3d-insta-sunset`) & 네온 선셋 HUD 테마 탑재, TypeScript 검사 통과 & Next.js 16.4.2 프로덕션 빌드 성공, Vercel 프로덕션 배포 및 라이브 검증 완료 | ✔ 프로덕션 배포 완료 (`dpl_6g9SDHbgF3NvpaHUwAthZifNe1Sp`, https://auto-instagram-posting.buylife.xyz, https://insta-auto-poster.buylife.xyz) |
 | 2026-11-11 | `insta_auto_poster` `v1.72` | 4대 화면 3시안(12개 뷰) 1440px 고화질 캡처 및 `http://localhost:3800/showcase.html` 단일 통합 쇼케이스 & `comparison.html` 종합 비교 매트릭스 표 구축, `D:\Antigravity\Design` 3대 독립 폴더(91/92/93번) 영구 자산 아카이빙 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3800`) |
 | 2026-11-11 | `real_estate_sales` `v1.59` | 2안(89. 네이버 부동산 스마트 매트릭스 저널 스타일) 공식 채택 전면 개편, 2026-11-01 5단계 표준 로그인 폼 & 1행 약관 개편, 3D 엠보싱 네이버 그린 버튼(`.btn-3d`, `.btn-3d-naver-green`) & 소프트 화이트/네이버 그린 테마 탑재, TypeScript 검사 통과 & Next.js 16.4.2 프로덕션 빌드 성공, Vercel 프로덕션 배포 및 라이브 검증 완료 | ✔ 프로덕션 배포 완료 (`dpl_ErXyyTBitb7ZHsMWhDuhiY9ib4s4`, https://real-estate-sales.buylife.xyz) |
