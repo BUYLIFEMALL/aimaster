@@ -155,7 +155,7 @@ export function toGoogleEvent(e: CalEvent) {
     start = { date: e.startDate };
     end = { date: nextDay(e.endDate ?? e.startDate) };
   }
-  return { summary: e.title, description: `${e.dbTitle} · AI 업무 워크스페이스\n${e.url}`, start, end, source: { title: "AI 업무 워크스페이스", url: e.url }, extendedProperties: { private: { awwRowId: e.rowId } } };
+  return { status: "confirmed", summary: e.title, description: `${e.dbTitle} · AI 업무 워크스페이스\n${e.url}`, start, end, source: { title: "AI 업무 워크스페이스", url: e.url }, extendedProperties: { private: { awwRowId: e.rowId } } };
 }
 
 export async function upsertGoogleEvent(token: string, e: CalEvent, eventId?: string | null): Promise<string> {
@@ -165,7 +165,7 @@ export async function upsertGoogleEvent(token: string, e: CalEvent, eventId?: st
       const r = await api(token, `${API}/${encodeURIComponent(eventId)}`, { method: "PUT", body });
       return String(r.id);
     } catch (err) {
-      if (!(err instanceof GcalError && err.code === "not_found")) throw err; // 구글에서 지운 일정이면 새로 만든다
+      if (!(err instanceof GcalError && err.code === "not_found")) throw err; // 구글에서 완전히 지운 일정이면 새로 만든다(휴지통의 「취소됨」 일정은 status confirmed로 되살아남)
     }
   }
   const r = await api(token, API, { method: "POST", body });

@@ -67,7 +67,7 @@ describe('ICS 글자', () => {
     expect(folded.replace(/\r\n /g, '')).toBe(line);
   });
   it('구글 일정 본문: 종일은 date, 시간 있으면 dateTime + Asia/Seoul', () => {
-    expect(gcal.toGoogleEvent({ rowId: 'r', dbTitle: '표', title: 'A', startDate: '2026-11-15', url: 'u' })).toMatchObject({ start: { date: '2026-11-15' }, end: { date: '2026-11-16' } });
+    expect(gcal.toGoogleEvent({ rowId: 'r', dbTitle: '표', title: 'A', startDate: '2026-11-15', url: 'u' })).toMatchObject({ status: 'confirmed', start: { date: '2026-11-15' }, end: { date: '2026-11-16' } });
     expect(gcal.toGoogleEvent({ rowId: 'r', dbTitle: '표', title: 'B', startDate: '2026-11-16', startTime: '23:30', url: 'u' })).toMatchObject({ start: { dateTime: '2026-11-16T23:30:00', timeZone: 'Asia/Seoul' }, end: { dateTime: '2026-11-17T00:30:00' } });
   });
 });

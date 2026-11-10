@@ -70,7 +70,7 @@ export function CalendarBoard() {
   );
 }
 
-function DbPicker({ dbs, value, onChange, multi }: { dbs: DateDb[]; value: { id: string; prop?: string }[]; onChange: (v: { id: string; prop?: string }[]) => void; multi: boolean }) {
+function DbPicker({ dbs, value, onChange, multi, name }: { name?: string; dbs: DateDb[]; value: { id: string; prop?: string }[]; onChange: (v: { id: string; prop?: string }[]) => void; multi: boolean }) {
   const on = (id: string) => value.find((v) => v.id === id);
   return (
     <ul className="rc-list cs-dbs">
@@ -79,7 +79,7 @@ function DbPicker({ dbs, value, onChange, multi }: { dbs: DateDb[]; value: { id:
         return (
           <li key={d.id}>
             <label className="cs-check">
-              <input type={multi ? "checkbox" : "radio"} name={multi ? undefined : "cs-db"} checked={!!cur} onChange={(e) => {
+              <input type={multi ? "checkbox" : "radio"} name={multi ? undefined : name} checked={!!cur} onChange={(e) => {
                 if (!multi) onChange([{ id: d.id, prop: d.dateProps[0]?.id }]);
                 else onChange(e.target.checked ? [...value, { id: d.id, prop: d.dateProps[0]?.id }] : value.filter((v) => v.id !== d.id));
               }} />
@@ -185,7 +185,7 @@ function GoogleCard({ st, reload, notify }: { st: CalState; reload: () => void; 
         <>
           <p>✅ 연결됨: <b>{g.email ?? "구글 계정"}</b> <button type="button" className="rc-link" onClick={() => confirm("구글 캘린더 연결을 끊을까요?") && void run("off", async () => { await rpc("calGoogleDisconnect"); notify({ text: "연결을 끊었습니다." }); reload(); })}>연결 끊기</button></p>
           <h3>표 → 구글 일정 보내기</h3>
-          <DbPicker dbs={st.databases} value={push} onChange={setPush} multi={false} />
+          <DbPicker dbs={st.databases} value={push} onChange={setPush} multi={false} name="cs-push" />
           <div className="rc-row-btns"><button type="button" className="rc-btn" disabled={!push.length || !!busy} onClick={() => void run("push", async () => { const r = await rpc<{ created: number; updated: number }>("calPushToGoogle", { dbId: push[0].id, prop: push[0].prop }); notify({ text: `구글 일정 ${r.created}개를 새로 만들고 ${r.updated}개를 고쳤습니다.` }); })}>{busy === "push" ? "보내는 중…" : "📤 지금 보내기"}</button></div>
           <p className="rc-hint">이미 보낸 행은 다시 보내면 구글 일정이 고쳐집니다(중복으로 만들지 않음). 한 번에 200행까지.</p>
           <h3>구글 일정 → 표로 가져오기</h3>
@@ -195,7 +195,7 @@ function GoogleCard({ st, reload, notify }: { st: CalState; reload: () => void; 
               <tbody>{items.map((x) => <tr key={x.id}><td>{x.date}</td><td>{x.time || "종일"}</td><td><a href={x.link} target="_blank" rel="noreferrer">{x.title}</a></td><td>{x.location}</td><td>{x.imported ? "가져옴" : ""}</td></tr>)}</tbody></table></div>
           ))}
           <p className="rc-hint">가져올 표 고르기(같은 일정은 한 번만 가져옵니다):</p>
-          <DbPicker dbs={st.databases} value={pull} onChange={setPull} multi={false} />
+          <DbPicker dbs={st.databases} value={pull} onChange={setPull} multi={false} name="cs-pull" />
           <div className="rc-row-btns"><button type="button" className="rc-btn" disabled={!pull.length || !!busy} onClick={() => void run("pull", async () => { const r = await rpc<{ added: number; skipped: number }>("calPullFromGoogle", { dbId: pull[0].id, prop: pull[0].prop }); notify({ text: r.added ? `구글 일정 ${r.added}개를 표에 가져왔습니다.` : "새로 가져올 일정이 없습니다(이미 가져온 일정은 건너뜀)." }); if (items) setItems(items.map((x) => ({ ...x, imported: true }))); })}>{busy === "pull" ? "가져오는 중…" : "📥 표로 가져오기"}</button></div>
         </>
       )}
