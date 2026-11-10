@@ -251,11 +251,12 @@
 
 | 곡 | 스타일 문구(그대로) | 생성 | 걸린 시간 | 결과 | 주인님 판정 |
 |---|---|---|---|---|---|
-| 트로트 시험 A 정통 | `korean trot, accordion, brass section, male vocal with strong vibrato, 95 BPM` | 성공 | 약 4분 37초(15:15:11 넣음 → 15:19:48, 대기열 첫 곡이라 모델 준비 포함) | 120초 FLAC, 끝 0.5초 -59.7dB(자연스럽게 끝남) | 대기 |
-| 트로트 시험 B 세미 | `korean semi-trot, synth, brass, female vocal with vibrato, 110 BPM` | 성공 | 약 2분 31초(A 끝 → 15:22:19) | 120초 FLAC, 끝 -55.4dB | 대기 |
-| 트로트 시험 C 댄스 | `korean dance trot, four-on-the-floor beat, synth bass, bright female vocal, 128 BPM` | 성공 | 약 2분 24초(B 끝 → 15:24:43) | 120초 FLAC, 끝 -37.1dB | 대기 |
+| 트로트 시험 A 정통 | `korean trot, accordion, brass section, male vocal with strong vibrato, 95 BPM` | 성공 | 약 4분 37초(15:15:11 넣음 → 15:19:48, 대기열 첫 곡이라 모델 준비 포함) | 120초 FLAC, 끝 0.5초 -59.7dB(자연스럽게 끝남) | **트로트답다** |
+| 트로트 시험 B 세미 | `korean semi-trot, synth, brass, female vocal with vibrato, 110 BPM` | 성공 | 약 2분 31초(A 끝 → 15:22:19) | 120초 FLAC, 끝 -55.4dB | **트로트답다** |
+| 트로트 시험 C 댄스 | `korean dance trot, four-on-the-floor beat, synth bass, bright female vocal, 128 BPM` | 성공 | 약 2분 24초(B 끝 → 15:24:43) | 120초 FLAC, 끝 -37.1dB | **트로트답다** |
 
 - 한국어 발음 또렷함: **세션은 소리를 들을 수 없어 판단하지 못함** — 주인님 판정 때 함께 여쭘.
 - 템포: 저음 박자 주기로 간이 추정했으나 3곡 모두 약 129 BPM으로 같게 나와(요청 95·110·128) 계산을 믿을 수 없음 → **판단 불가**. 이 PC에 박자 분석 도구(librosa) 없음.
 - 파일: `E:\AI-Musc\Song\트로트 시험 A 정통.flac` 등. 곡 만들기 초안 「트로트 시험 A/B/C」 3개가 남아 있음(다시 쓸 수 있음).
-- 주인님 판정을 받으면 이 표의 「주인님 판정」 칸과 발음 판정을 채움.
+- **주인님 판정(2026-11-10 채팅 「셋다 트로트 답다」): A 정통·B 세미·C 댄스 모두 「트로트답다」.** 한국어 발음은 별도 언급 없음.
+- **음악 담당 처리 기준(21절)에 따라 → 「트로트답다」 경로**: `GENRE_GROUPS`에 「트로트·성인가요」(정통·세미·댄스·성인가요) 추가 + 위 3개 스타일 문구로 노래 프리셋 3개(다음 배포 때 함께). 프리셋 길이 기본값은 2분으로 시험했음(1분 30초 선택지 없음) 참고.
