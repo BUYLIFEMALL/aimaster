@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ImagePanel, type ImageItem } from "./ImagePanel";
 
 export type EditablePost = {
   id: string;
@@ -12,6 +13,7 @@ export type EditablePost = {
   slug: string;
   tags: string[];
   html: string; // 서버에서 정리된 저장본
+  images: ImageItem[];
 };
 
 const EDITABLE = ["ready", "draft", "failed"];
@@ -85,6 +87,8 @@ export function DraftEditor({ post }: { post: EditablePost }) {
       </div>
 
       <div className="space-y-4">
+        <ImagePanel postId={post.id} images={post.images} editable={editable && !dirty} />
+        {dirty && <p className="text-xs text-amber-700">글을 고친 뒤에는 먼저 저장해야 이미지를 만들 수 있습니다.</p>}
         <div className="lp-card">
           <p className={label}>구글 검색 미리보기</p>
           <div className="mt-2 rounded-2xl border-2 border-[color:var(--border)] p-3">

@@ -66,6 +66,8 @@
 
 - **2026-11-11 2-4 원고 만들기(글) 완료(로컬, 미배포)** — `src/lib/draft/`(모델 3개·HTML 정리·참고 주소 읽기(내부망 차단)·Claude 구조화 출력 생성·흐름 서비스), 경로 `api/posts/generate`(본인 키만·생성 중 중복 막기·실패 시 빈 원고 삭제·재시도 0)·`api/posts/[id]`(고치기·지우기), 화면 `/write`·`/posts/[id]`(검색 미리보기·HTML 고치기). Anthropic SDK 1.7.0·sanitize-html. tsc·시험 43개·로컬 빌드 통과, 실제 생성 2회 성공(분량 80% — IMPROVEMENTS). 이미지는 2-4b로 분리. 다음: 2-4b 이미지 → 2-5 발행.
 
+- **2026-11-11 2-4b 이미지 완료(로컬, 미배포)** — 장면 설명 `src/lib/image/plan.ts`(회원 Claude 키·Haiku 5.5·이 프로그램 고유 프롬프트·IMAGE_PROMPT_RULES), 생성·저장·넣기·빼기 `service.ts`(회원 Gemini 키·재시도 0·`wba-images` 버킷·n번째 소제목 아래), 공용 사본 `geminiImage`·`nanoBananaModels`, API `api/posts/[id]/images`, 편집 화면 이미지 패널(장면 기획→한 장씩/모두 만들기→다시 만들기·빼기, 저장 안 한 글이면 막음). tsc·시험 49개·로컬 빌드 통과, 실제 생성 1회 양호. 다음: 2-5 발행.
+
 ## 4. 결정 항목 (주인님)
 1. **운영 DB 적용 승인** — 요청함 `eefe9433`.
 2. **구글 시험 블로그** — 원 플랜 결정 5에서 미정. 주인님 구글 계정에 시험 블로그 1개를 새로 만들지, 기존 블로그를 쓸지.
