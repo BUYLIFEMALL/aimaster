@@ -1,5 +1,7 @@
 # 개선사항 원장 — 웹 크롤링 자동화 (web-crawler, 웹앱 `webapp/`)
 
+- 2026-11-11 v1.12 배포(U10 2차 「📨 워크스페이스로」 `21ba04b80` 함께 나감, [역할: workspace]).
+
 ## 2026-11-07 🟡 미배포 대기 — 완료 작업 「📨 워크스페이스로」 (U10 2차, [역할: workspace] Claude Code 윈도우, 주인님 결정 1번 「버튼·라우트만」)
 - 작업 목록(`webapp/src/components/jobs/JobsList.tsx`) 완료 작업마다 버튼(`SendToWorkspaceButton.tsx`) → `POST /api/work-inbox`(출처 확인 → `checkProgramAccessApi` → 회원 본인 `web_crawler_jobs` 다시 읽기, 완료 상태만 → 공용 사본 `src/lib/workInbox.ts`(`work-inbox-client`, **직접 고치지 말 것** — 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `--sync`)). 종류 `link`(워크스페이스에서 「표에 행으로 넣기」), 구조 데이터 `{ 주소, 행 수, 수집 항목, 완료일 }`.
 - 결과 엑셀은 비공개 저장소의 10분 임시 주소라 받은 업무에 넣지 않고 작업 목록 주소로 안내(`src/lib/workInboxContent.ts`). 개인정보 경고가 있는 작업은 본문에 경고 문구.
