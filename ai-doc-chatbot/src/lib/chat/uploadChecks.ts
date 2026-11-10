@@ -19,7 +19,7 @@ export function validateUpload(name: string, size: number): Response | null {
 
 /** 문서 개수 한도·같은 문서 중복(L5) 확인. 문제가 있으면 오류 응답, 없으면 null */
 export async function checkDocLimits(admin: ReturnType<typeof createAdminClient>, userId: string, name: string, size: number): Promise<Response | null> {
-  const { data: existing, error } = await admin.from("dcb_documents").select("name, size_bytes").eq("user_id", userId).gt("created_at", documentCutoff());
+  const { data: existing, error } = await admin.from("dcb_documents").select("name, size_bytes").eq("user_id", userId).gt("created_at", documentCutoff(undefined, userId));
   if (error) return NextResponse.json({ error: "문서 한도를 확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요." }, { status: 500 });
   const list = existing ?? [];
   if (list.length >= MAX_DOCS) return NextResponse.json({ error: `문서는 ${MAX_DOCS}개까지 올릴 수 있습니다. 안 쓰는 문서를 지운 뒤 다시 올려 주세요.` }, { status: 400 });

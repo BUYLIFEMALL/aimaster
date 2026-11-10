@@ -1,3 +1,5 @@
+import { retentionExemptStale, setRetentionExemptIds } from "./documentRules";
+import { createAdminClient } from "@/lib/supabase/admin";
 import "server-only";
 import { NextResponse } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
@@ -11,7 +13,19 @@ export async function authorize(): Promise<{ ok: true; auth: Authorized } | { ok
   if (!access.allowed) {
     return { ok: false, response: NextResponse.json({ error: access.error }, { status: access.status }) };
   }
+  await refreshRetentionExempt();
   return { ok: true, auth: access as Authorized };
+}
+
+/** 보관 예외 회원 목록(10분 기억). 읽지 못하면 이전 목록 유지 */
+async function refreshRetentionExempt() {
+  if (!retentionExemptStale()) return;
+  try {
+    const { data, error } = await createAdminClient().from("profiles").select("id").eq("retention_exempt", true);
+    if (!error) setRetentionExemptIds((data ?? []).map((r: { id: string }) => r.id));
+  } catch {
+    /* 다음 요청에 다시 */
+  }
 }
 
 /** 회원 본인 키만 조회한다(폴백 없음). 없으면 등록 안내 응답을 준다. */

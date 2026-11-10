@@ -48,7 +48,7 @@ export async function ingestText(opts: {
   const truncated = wasTruncated(text, chunks);
 
   // 회원 전체 조각 한도(L14) — 공용 DB 용량 보호
-  const { data: counts, error: countError } = await admin.from("dcb_documents").select("chunk_count").eq("user_id", userId).gt("created_at", documentCutoff());
+  const { data: counts, error: countError } = await admin.from("dcb_documents").select("chunk_count").eq("user_id", userId).gt("created_at", documentCutoff(undefined, userId));
   if (countError) throw new IngestError("문서 저장 한도를 확인하지 못했습니다. 자동으로 다시 처리하지 않았습니다.", 500);
   const used = (counts ?? []).reduce((sum, d) => sum + ((d.chunk_count as number) ?? 0), 0);
   if (used + chunks.length > MAX_CHUNKS_PER_USER) {

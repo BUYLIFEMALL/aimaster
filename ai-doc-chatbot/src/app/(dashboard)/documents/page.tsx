@@ -103,6 +103,7 @@ async function readProgress(res: Response, onStage: (label: string) => void): Pr
 export default function DocumentsPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
   const [maxDocs, setMaxDocs] = useState(30);
+  const [keepForever, setKeepForever] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<{ text: string; needKey?: boolean } | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -126,6 +127,7 @@ export default function DocumentsPage() {
     const d = await fetch("/api/documents", { cache: "no-store" }).then((x) => x.json()).catch(() => ({}));
     if (d.documents) setDocs(d.documents);
     if (d.maxDocs) setMaxDocs(d.maxDocs);
+    setKeepForever(!!d.retentionExempt);
     if (d.maxBytes && d.directMaxBytes) setLimits({ direct: d.directMaxBytes, max: d.maxBytes });
     if (d.error) setError({ text: d.error });
   }, []);
@@ -341,7 +343,7 @@ export default function DocumentsPage() {
                 <FileText className="h-5 w-5 shrink-0 text-emerald-300" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-slate-200">{d.name}</p>
-                  <p className="text-[11px] text-slate-500">{sizeLabel(d.size_bytes)} · 조각 {d.chunk_count}개 · <span className={d.last_used_at ? "" : "text-amber-300/80"}>{usedLabel(d.last_used_at)}</span> · {daysLeft(d.created_at)}일 뒤 자동 삭제</p>
+                  <p className="text-[11px] text-slate-500">{sizeLabel(d.size_bytes)} · 조각 {d.chunk_count}개 · <span className={d.last_used_at ? "" : "text-amber-300/80"}>{usedLabel(d.last_used_at)}</span> · {keepForever ? "보관 기한 없음" : `${daysLeft(d.created_at)}일 뒤 자동 삭제`}</p>
                   {d.processing_status !== "ready" && <p className="text-xs text-amber-200">문서 저장 처리 중 · 완료 후 참고할 수 있습니다.</p>}
                   {d.extraction_warning && <p className="mt-1 text-xs text-amber-200">{EXTRACTION_WARNING_TEXT}</p>}
                   <form className="mt-2 flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); void saveCategory(d.id, new FormData(e.currentTarget).get("category")); }}>

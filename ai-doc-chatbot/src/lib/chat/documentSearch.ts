@@ -8,7 +8,7 @@ async function firstChunks(store: Store, userId: string, ids: string[]): Promise
   const hits: DocHit[] = [];
   const perDoc = Math.max(1, Math.floor(5 / ids.length));
   for (const id of ids.slice(0, 5)) {
-    const { data, error } = await store.from("dcb_chunks").select("content,dcb_documents!inner(name,user_id,created_at,processing_status)").eq("user_id", userId).eq("document_id", id).gt("created_at", documentCutoff()).eq("dcb_documents.user_id", userId).eq("dcb_documents.processing_status", "ready").gt("dcb_documents.created_at", documentCutoff()).order("chunk_index").limit(perDoc);
+    const { data, error } = await store.from("dcb_chunks").select("content,dcb_documents!inner(name,user_id,created_at,processing_status)").eq("user_id", userId).eq("document_id", id).gt("created_at", documentCutoff(undefined, userId)).eq("dcb_documents.user_id", userId).eq("dcb_documents.processing_status", "ready").gt("dcb_documents.created_at", documentCutoff(undefined, userId)).order("chunk_index").limit(perDoc);
     if (error) throw new CompatibleChatError("문서 앞부분을 확인하지 못했습니다.", 500);
     hits.push(...(data ?? []).map((c) => ({ document_id: id, document_name: (c.dcb_documents as unknown as { name: string }).name, content: c.content as string, similarity: 0 })));
   }
@@ -28,8 +28,8 @@ export async function findDocumentHits(store: Store, userId: string, vector: num
   if (keywords.length) {
     const { data: rows, error: keywordError } = await store.from("dcb_chunks")
       .select("id,document_id,content,dcb_documents!inner(name,user_id,created_at,processing_status)")
-      .eq("user_id", userId).in("document_id", documentIds).gt("created_at", documentCutoff())
-      .eq("dcb_documents.user_id", userId).eq("dcb_documents.processing_status", "ready").gt("dcb_documents.created_at", documentCutoff())
+      .eq("user_id", userId).in("document_id", documentIds).gt("created_at", documentCutoff(undefined, userId))
+      .eq("dcb_documents.user_id", userId).eq("dcb_documents.processing_status", "ready").gt("dcb_documents.created_at", documentCutoff(undefined, userId))
       .or(keywords.map((k) => `content.ilike.%${k}%`).join(",")).limit(30);
     if (keywordError) throw new CompatibleChatError("선택 범위의 키워드 검색을 완료하지 못했습니다.", 500);
     keywordHits = (rows ?? []).map((c) => ({ id: c.id as string, document_id: c.document_id as string, document_name: (c.dcb_documents as unknown as { name: string }).name, content: c.content as string, similarity: vectorHits.find((v) => v.id === c.id)?.similarity ?? 0 }));

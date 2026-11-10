@@ -7,7 +7,17 @@ export const EXTRACTION_WARNING = "possible_text_extraction_issue";
 export const EXTRACTION_WARNING_TEXT = "글꼴 유니코드 매핑이나 텍스트 추출 문제로 일부 글자가 비정상일 수 있습니다. 미리보기에서 원문과 대조해 주세요. 자동 OCR·재파싱은 하지 않았습니다.";
 export type DocumentInfo = { id: string; name: string; category: string; processing_status: "processing" | "ready"; extraction_warning: string | null; created_at: string; chunk_count: number; size_bytes: number };
 
-export function documentCutoff(now = new Date()): string { return new Date(now.getTime() - DOC_RETENTION_MS).toISOString(); }
+// 30일 보관 예외 회원(관리자·시험 계정, profiles.retention_exempt — 2026-11-03 주인님 지시: 30일 삭제·30일 조회 숨김 모두 열외).
+// authorize()가 10분마다 목록을 새로 읽어 두고, 기준 시각은 회원이 예외면 두지 않는다(DB 삭제 작업 dcb-retention-30d도 이미 예외 제외).
+let exemptIds = new Set<string>();
+let exemptLoadedAt = 0;
+export function setRetentionExemptIds(ids: Iterable<string>) { exemptIds = new Set(ids); exemptLoadedAt = Date.now(); }
+export function retentionExemptStale(now = Date.now()) { return now - exemptLoadedAt > 600_000; }
+export function isRetentionExempt(userId?: string | null) { return !!userId && exemptIds.has(userId); }
+export function documentCutoff(now = new Date(), userId?: string | null): string {
+  if (isRetentionExempt(userId)) return "1970-01-01T00:00:00.000Z";
+  return new Date(now.getTime() - DOC_RETENTION_MS).toISOString();
+}
 
 /** undefined/null=전체, []=잘못된 빈 선택. 옛 단일 ID와 새 선택이 충돌해도 조용히 넓히지 않는다. */
 export function documentSelection(body: Record<string, unknown>): string[] | null {
