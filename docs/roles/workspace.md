@@ -9,7 +9,7 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `ai-work-workspace` | U12 업무 비서 플랜 | 2026-11-10 | 플랜 작성 예정 |
+| `ai-work-workspace` | U12 업무 비서 | 2026-11-10 | 플랜 작성 완료 — 주인님 결정 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -51,5 +51,6 @@
 2. 유튜브 발행 기록(U10 범위 밖)은 video 역할과 저장 열 확인 뒤 다음 단위
 
 ## 주인님께 여쭐 것
+- U12 업무 비서 플랜 결정 5건(범위·월 상한 기본값·웹 검색·기본 AI·템플릿) — `ai-work-workspace/docs/PLAN_20261110_U12_AGENT.md` §6
 - 구글 캘린더: ICS 구독 주소 방식(설정 3단계·키 없음)으로 별도 작은 단위 진행할지(`ai-work-workspace/docs/REVIEW_20261110_GOOGLE_CALENDAR.md`)
 - 모델 교체 7개(`web-crawler`·`ghost-scraper`·`ai-webtoon-studio`·`ebook-studio`·`ai-prompt-studio`·`vinyl-lp-studio`·`personality-suite`) 배포 — 이 세션은 `deploy.mjs`가 분류기에 막혀 주인님이 `! node scripts/deploy.mjs <폴더> --go`를 한 줄씩 돌려 주시거나 배포 권한 규칙 추가. 인스타·쓰레드 U10 1차 2개도 맡을지 확인 부탁드립니다
