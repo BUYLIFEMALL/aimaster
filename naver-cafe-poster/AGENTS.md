@@ -1,10 +1,10 @@
 # 🤖 네이버 카페 포스팅 자동화 에이전트 인수인계 가이드 (AGENTS.md)
 
-> **최종 갱신**: 2026-10-19 (Antigravity CLI `agy`)  
-> **현재 버전**: `v1.24` (플로우 위저드 스타일 — 네이버 카페 그린 에디션)  
+> **최종 갱신**: 2026-11-11 (Antigravity CLI `agy`)  
+> **현재 버전**: `v1.29` (86. 퀀트 바이럴 카페 레이더 딥 차콜 콘솔 스타일)  
 > **공식 서비스 URL**: [https://naver-cafe-poster.buylife.xyz](https://naver-cafe-poster.buylife.xyz)  
 > **공식 가이드북**: [https://naver-cafe-poster.buylife.xyz/guide](https://naver-cafe-poster.buylife.xyz/guide)  
-> **적용 디자인 템플릿**: **플로우 위저드 스타일 — 네이버 카페 그린 에디션 (Flow Wizard Style — Naver Cafe Green Edition)**
+> **적용 디자인 템플릿**: **86. 퀀트 바이럴 카페 레이더 딥 차콜 콘솔 스타일 (Quant Viral Cafe Radar Deep Charcoal Console)**
 
 ---
 
@@ -62,6 +62,13 @@
 ---
 
 ## 4. 현재 버전 및 버전 히스토리 (Changelog)
+
+- **v1.29 (2026-11-11, Antigravity CLI 윈도우) — 2안(86. 퀀트 바이럴 카페 레이더 딥 차콜 콘솔 스타일) 공식 채택 전면 개편 및 5단계 표준 로그인 탑재**:
+  - 주인님 2안 공식 채택 결정 반영.
+  - 86번 퀀트 바이럴 카페 레이더 딥 차콜 콘솔 스타일(`globals.css`, `Sidebar.tsx`, `dashboard/page.tsx`) 전면 적용: 옵시디언 딥블랙(`#070A12`) & 네온 에메랄드(`#10B981`) & 사이버 사이안(`#06B6D4`) HUD 테마 구축.
+  - 2026-11-01 5단계 표준 로그인 규격 및 1행 약관 (`(auth)/login/page.tsx`, `(auth)/layout.tsx`) 100% 탑재: 68px 네온 에메랄드 심볼 로고(`☕`), `AIMASTER NAVER CAFE POSTER` 알약 뱃지, 볼드 타이틀, 2단 탭 카드 & 3D 엠보싱 에메랄드 버튼(`.btn-3d`, `.btn-3d-neon-emerald`), `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 처리.
+  - 단위/타입스크립트 검사 통과 (`npx tsc --noEmit` 에러 0건), Next.js 16.4.2 프로덕션 빌드 성공.
+  - Vercel 프로덕션 배포 완료 (`dpl_oLrFnM1R3WmbaGxEfUtr9BSRXwHx`), 라이브 도메인 200 OK 및 실세션 캡처 검증 완료.
 
 - **v1.24 (2026-10-20, Claude Code 윈도우) — 회원 연동 정보 공용 저장 ⑤단계 네이버 로그인** — 네이버 로그인 콜백이 `ncafe_accounts`와 공용 표 `member_platform_accounts`(platform `naver_login`, 갱신 토큰, `app_ref`=회원 `naver_client_id`)에 함께 저장. 게시·예약 게시가 쓰는 `getNaverAccountOrError`와 화면 5곳은 `src/lib/naver/memberAccount.ts` `getNaverAccount` — 재연결 필요 아님 + **공용 계정의 앱이 지금 등록한 Client ID와 같음** → 없으면 `ncafe_accounts`. 갱신은 읽은 곳에 기록, 해제는 공용 행도 삭제(설정 안내 문구). 지금은 네이버 로그인을 쓰는 프로그램이 이것 하나라 동작 변화 없음 — 메인 「내 연동 정보」 표시와 다음 프로그램 재사용이 목적. 공용 부품 사본 `src/lib/memberIntegrations.ts`, 백필 `supabase/migrations/20261020230000_member_integrations_v1_24.sql`. `package.json` 버전(1.20.0)은 다른 곳의 미커밋 변경이 있어 이번에 맞추지 않음.
 - **v1.22 (2026-10-20, Claude Code 윈도우) — 정기 실행 직전 프로그램 이용 권한 확인** — 주인님 지시. 예전엔 핸드폰 번호만 확인해 사용기간이 끝난 회원의 켜 둔 정기 실행도 계속 돌았다. `src/lib/programAccess.ts`(카드뉴스·메인 사이트와 같은 판정: 정지→관리자→핸드폰→FREE→구독→등급+사용기간, 사본)를 실행 로직에서 회원별 1회 확인, 권한 없으면 실행하지 않음(소스 `last_error`에 안내). 적용 시점 영향: 정기 실행 켜진 1건 모두 권한 있음(멈춘 회원 0명). 검수: tsc 0, build, 배포 `naver-cafe-poster-ffkx9bw4o`, DB v1.22.
