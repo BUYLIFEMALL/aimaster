@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0d0f17;
+  --background: #0b0e14;
   --foreground: #f8fafc;
+  --card: #131822;
+  --border: #232e42;
+  --border-bright: #384a6b;
+  --brand-pink: #e1306c;
+  --brand-red: #fd1d1d;
+  --brand-amber: #fcb045;
+  --brand-purple: #833ab4;
 }
 
 @theme inline {
@@ -18,17 +25,54 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* v1.41 로그인 화면: 크롬 자동 채우기가 입력칸을 연한 파랑으로 덮어쓰지 않게(다크 테마 유지). 다른 화면의 밝은 입력칸에는 적용하지 않음 */
+/* 크롬 자동 채우기 다크 테마 유지 */
 .auth-dark input:-webkit-autofill,
 .auth-dark input:-webkit-autofill:hover,
 .auth-dark input:-webkit-autofill:focus {
   -webkit-text-fill-color: #f1f5f9;
   caret-color: #f1f5f9;
-  box-shadow: 0 0 0 1000px #0d0f17 inset;
+  box-shadow: 0 0 0 1000px #0b0e14 inset;
   transition: background-color 9999s ease-out 0s;
 }
 
-/* 3D 엠보싱 버튼 표준 규격 (DESIGN.md 원칙 21) */
+/* 91. 인스타 네온 선셋 3D 엠보싱 버튼 표준 규격 (DESIGN.md 규격) */
+.btn-3d,
+.btn-3d-insta-sunset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #e1306c 0%, #fd1d1d 100%);
+  color: #ffffff !important;
+  font-weight: 800;
+  border-radius: 0.75rem;
+  border-bottom: 4px solid #9e1045;
+  box-shadow: 0 4px 15px rgba(225, 48, 108, 0.4);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+.btn-3d:hover:not(:disabled),
+.btn-3d-insta-sunset:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d82b67 0%, #ea1414 100%);
+  border-bottom-color: #8b0a3a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(225, 48, 108, 0.5);
+}
+.btn-3d:active:not(:disabled),
+.btn-3d-insta-sunset:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  box-shadow: 0 2px 8px rgba(225, 48, 108, 0.3);
+}
+.btn-3d:disabled,
+.btn-3d-insta-sunset:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  border-bottom-width: 4px;
+}
+
+/* 기존 호환용 3D 엠보싱 버튼 */
 .btn-3d-primary {
   background: linear-gradient(180deg, #ec4899 0%, #db2777 100%);
   color: #ffffff;
