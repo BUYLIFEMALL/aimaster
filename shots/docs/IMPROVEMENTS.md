@@ -21,3 +21,6 @@
 - **`suno-automation`**: 음악 파형(Waveform) 시각화 및 멀티트랙 타임라인이 강조된 시안 2(사이버네틱 펄스 타임라인 다크) 템플릿 도입 제안.
 
 > **2026-11-01 미처리 인수인계:** API 키 「암호화」 문구가 실제와 다를 수 있음, 주인님 결정 대기. 상세: [`docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md`](../../docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md)
+
+## 2026-11-10 무료음악 곡을 같은 영상에 다시 보내면 곡 목록·저장 파일이 쌓임 ([역할: workspace] Admin PC 실물 시험 중 발견)
+- `src/lib/actions/fmsBgm.ts` `finishFmsBgmUploadAction`이 받을 때마다 새 `shorts_bgm_tracks` 행과 새 파일을 만듦(같은 곡 검사 없음). 제안: 같은 영상에 같은 「(AI 무료음악)」 곡이 있으면 선택만 하고 새 파일은 지우기. 상세: [`../../free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md`](../../free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md) 18절. 상태: 미처리(영상 담당 판단).
