@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getStaffStore } from "@/lib/store";
 import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
+import { canSeeMenu, type MyStaff } from "@/lib/staff";
+import { createClient } from "@/lib/supabase/server";
 import { AdminShell, NoPermission } from "./admin-shell";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +13,9 @@ export default async function StoreAdminPage({ params }: { params: Promise<{ sto
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin`);
   if (!staff) return <NoPermission />;
 
-  const missing = missingRequired(readBusinessInfo(store.business_info));
+  // 사업자 정보는 설정 화면(대표만)에서 고치므로, 고칠 수 없는 직원에게는 안내하지 않는다(D22)
+  const me = ((await (await createClient()).rpc("mall_builder_my_staff", { p_store_id: store.id })).data ?? null) as MyStaff;
+  const missing = canSeeMenu("/settings", me) ? missingRequired(readBusinessInfo(store.business_info)) : [];
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="">
@@ -34,7 +38,6 @@ export default async function StoreAdminPage({ params }: { params: Promise<{ sto
         <dt className="text-gray-500">개설일</dt>
         <dd>{new Date(store.created_at).toLocaleDateString("ko-KR")}</dd>
       </dl>
-      <p className="mt-6 text-sm text-gray-500">주문 관리 메뉴는 다음 기능부터 하나씩 추가됩니다.</p>
     </AdminShell>
   );
 }
