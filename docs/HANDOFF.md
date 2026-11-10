@@ -18,6 +18,7 @@
 - **자료함**: 운영 DB(ref `esgxyikcnnvmlhygjkth`) `supabase/migrations/0059_member_assets.sql` — 공용 목록 `member_assets`(본인만 읽기 RLS, 쓰기는 트리거·서버 키만) + 트리거 3종(`ams_generations`·`music_track_variants`·`free_music_tracks`: 생기면 넣고 **원본 삭제 시 함께 삭제** → 보관 기간 자동 일치) + 기존 자료 채우기. 메인 `/library` 화면(`lib/library/memberAssets.ts` — 버킷별 서명, 경로 첫 폴더 재확인), 회원 메뉴 「내 자료함」. 음악 프로그램 코드·배포 변경 없음(담당께 안내: `ai-music-studio`·`music` IMPROVEMENTS 맨 위).
 - **검수**: `tsc` 0·로컬 빌드 통과. DB: 자료함 줄 = 원본 기대값(21·50·57), 공개 키 읽기 0줄, 시험 곡 넣기 1줄→지우기 0줄. 커밋 `0032367d5` push → 메인 빌드.
 - **남은 일(2단계)**: 이미지 스튜디오·영상·블로그 원고 연결, 다른 프로그램이 가져다 쓰는 공용 컴포넌트(영상 4개의 음악 3종별 읽기 코드 대체 — 영상·음악 담당께 요청), 회원 PC 자료 올리기, 공유 버킷 `post-images` 파일 주인 구분. 무료음악 `IMPROVEMENTS.md`는 다른 세션 미커밋이라 안내를 못 넣음 — 음악 담당이 `free-music-studio`도 같은 트리거 대상임을 확인 바람.
+- **2단계(같은 날, 주인님 「2단계 이미지 스튜디오도 연결 진행해」)**: `0060_member_assets_images.sql` — `ai-image-studio`(공용 `usage_logs` 이미지 생성 줄만 조건부 트리거)·`banana-canvas`·`portrait-photo`·`thumbnail-master`(A/B안 버전별). `/library`에 종류 탭·이미지 격자. 검수: 이미지 = 기대값(6·2·5·0), 전체 141, 인물사진 연동 1→0, ego 이미지 7개 실제 로드. 커밋 `c73ebcf8c` 배포 Ready. 이미지 담당 안내: 4개 프로그램 `docs/IMPROVEMENTS.md` 맨 위.
 - 링크: https://www.buylife.xyz/library
 
 
