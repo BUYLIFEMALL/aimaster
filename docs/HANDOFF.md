@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.27 배포(보관 예외·캘린더 수정·에이전트 한국어)
+- **한 일**: 주인님 지정 보관 예외 — 음악·영상 파일(`files` audio/*·video/*) 30일 정리 새로(`src/server/mediaRetention.ts`), AI 기록·자동화 기록·받은편지함·영수증 장부 30일 → **1년**, 안내 문구·매뉴얼 수정, `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 지정 목록에 한 줄. 에이전트 화면 영어 25개 키 한국어·추천 버튼 업무 예시로·웹 액세스 「준비 중」(누를 수 없음). 캘린더 표 이름·지운 일정 되살리기·라디오 분리·테스트 사용자 안내.
+- **검수**: 연결부 시험 90/90(새 `mediaRetention.test.ts`), 원본 523/523, tsc, 배포 Ready·DB v1.27. ego: 화면 v1.27·표 이름 「콘텐츠 캘린더」·두 선택 유지·구글에서 지운 일정 3개 다시 보내기 → `confirmed`로 되살아남(구글 캘린더 도구로 확인) → 시험 일정 4개 삭제. 매뉴얼 새 문구 3개 확인. 에이전트 화면은 화면 확인 못 함(시험·빌드만).
+- **발견**: 구글 시간 일정(10:00)을 표로 가져오면 시간이 빠져 다시 보낼 때 종일 일정이 됨 — `IMPROVEMENTS.md` 「캘린더 연동」.
+- **다음 첫 단계**: U10 2차 5개 프로그램 순차 배포(주인님 「너가 진행해」 11-11).
+- 링크: https://ai-work-workspace.buylife.xyz
+
 ## 2026-11-11 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 새 프로그램 `elevenst-register`(AI 11번가 상품 자동등록기) v1.01 1단계 뼈대 배포(비공개)
 - 주인님 지시: 이커머스 「순서대로 진행해」(문서 정리·개편 뒤 흐름 확인·쿠팡 등록기) → 쿠팡 등록은 `coupang-ops`에 이미 있어 다음 마켓 11번가로. 결정: 새 프로그램·이름 「AI 11번가 상품 자동등록기」·판매자 계정 있음 → 0단계 명세 확보(주인님 로그인, 읽기만) → 1단계 「진행해」.
 - 한 일: 0단계 명세 정리 `elevenst-register/docs/API_SPEC_NOTES.md`(등록 `POST /rest/prodservices/product`, 헤더 `openapikey`, EUC-KR XML, 하루 500개, 임시저장 없음, 주인님 키 만료 2026-12-27·접속권한 IP 미설정). 1단계: `coupang-ops` 뼈대 복사, 처음 설정 3단계 화면(공용 `elevenst_api_key`·`fixed_ip_proxy_url` 재사용), `/guide`, EUC-KR XML 도우미 + 시험 7개. 운영 DB(ego SQL 편집기, ref `esgxyikcnnvmlhygjkth`): 프로그램 1줄 비공개 v1.01·요금제 3개·표 `elevenst_register_jobs`(RLS 본인 읽기). Vercel 새 프로젝트·도메인·환경변수 3개, 배포 `elevenst-register-30emmusx3` Ready.
