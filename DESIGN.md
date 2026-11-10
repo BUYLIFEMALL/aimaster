@@ -741,6 +741,14 @@
 | **68. 크리에이티브 아뜰리에 페이퍼 팝 스타일** | 웜 페이퍼 소프트 크림 & 바나나 옐로우/코랄, 팝 아트 매거진 컷아웃 카드 그리드, 모눈 페이퍼 캔버스, 3D 엠보싱 팝 옐로우 잉크 버튼(`.btn-3d-pop`), 4단계 파이프라인 배너, 5단계 표준 로그인 폼 | 경쾌하고 산뜻한 아티스트 작업실 감성, 높은 시인성과 초보자 친화적 팝 테마 (주인님 2안 채택 확정) | **⭐ 공식 채택 (2안) · v1.45 배포 완료** · `D:/Antigravity/Design/68_creative_atelier_paper_pop/banana-canvas` |
 | **69. 사이버펑크 네온 픽셀 스튜디오 스타일** | 퓨어 딥 스페이스 블랙 & 네온 일렉트릭 옐로우 & 사이버 시안, CRT 주사선 & 픽셀 그리드 HUD, GPU 연산 스트림 뷰파인더, 3D 엠보싱 사이버 네온 버튼(`.btn-3d-neon`) | 미래지향적 레트로-퓨처리즘 픽셀 아트 및 네온 콘솔 특화 크리에이터 타겟 | **영구 자산화 보존** · `D:/Antigravity/Design/69_cyberpunk_neon_pixel_studio/banana-canvas` |
 
+## 2026-11-10 네이버 카페 포스팅 자동화 (`naver-cafe-poster`) 4대 화면 3시안 자산화
+
+| 템플릿 번호 & 명칭 | 구조 및 시그니처 컴포넌트 | 추천/선정 이유 | 상태 & 영구 자산 경로 |
+|---|---|---|---|
+| **85. 네이버 카페 프로 커뮤니티 스튜디오 스타일** | 딥 슬레이트 잉크 & 네이버 시그니처 그린(`#03C75A`), 4단계 커뮤니티 파이프라인 배너, 4대 핵심 KPI 카드, 3대 글감 스트림(URL/RSS/Perplexity), 스마트에디터 서식 에디터 & 모바일 뷰파인더 덱 목업, 3D 엠보싱 카페 그린 버튼(`.btn-3d-cafe-green`), 5단계 표준 로그인 폼 | 네이버 공식 카페 감성과 완벽 일치, 4단계 파이프라인으로 초보자도 5분 만에 카페 연동 및 발행 가능 | **영구 자산화 보존 (1안)** · `D:/Antigravity/Design/85_naver_cafe_pro_community_studio/naver-cafe-poster` |
+| **86. 퀀트 바이럴 카페 레이더 딥 차콜 콘솔 스타일** | 옵시디언 딥블랙 & 네온 에메랄드(`#10B981`) HUD, JetBrains Mono 폰트, 초당 실시간 트렌드 키워드 감지기, 카페 침투 성공률 & 바이럴 점수(Viral Score) 계측기, 3D 엠보싱 네온 에메랄드 버튼(`.btn-3d-neon-emerald`), 5단계 표준 로그인 폼 | 전문 침투 마케터 및 다계정 바이럴 공략을 위한 하이테크 퀀트 콘솔 (주인님 2안 공식 채택 확정) | **⭐ 공식 채택 (2안) · v1.29 배포 완료** · `D:/Antigravity/Design/86_quant_viral_cafe_radar_console/naver-cafe-poster` |
+| **87. 미니멀 카페 에디토리얼 아틀리에 스타일** | 클린 아이보리 페이퍼(`#FAF9F6`) & 소프트 올리브 세이지(`#15803D`), 무소음 집중형(Zen) 듀얼 에디터, 정갈한 카드 그리드 글감 큐레이션, 3D 엠보싱 소프트 세이지 버튼(`.btn-3d-sage-soft`), 5단계 표준 로그인 폼 | 장시간 카페 글쓰기 및 커뮤니티 관리 시 눈의 피로를 최소화하는 라이트 감성 아틀리에 | **영구 자산화 보존 (3안)** · `D:/Antigravity/Design/87_minimal_cafe_editorial_atelier/naver-cafe-poster` |
+
 - 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
 - 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
 

@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-ncp-v2` — `naver-cafe-poster` (네이버 카페 포스팅 자동화) v1.29 2안(86. 퀀트 바이럴 카페 레이더 콘솔) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
+- **주인님 지시**: 「2안으로 해」 (86. 퀀트 바이럴 카페 레이더 딥 차콜 콘솔 스타일 공식 채택 확정).
+- **개편 내역**:
+  1. **86번 퀀트 바이럴 카페 레이더 콘솔 테마 전면 탑재**: `globals.css` 및 사이드바(`Sidebar.tsx`), 대시보드(`dashboard/page.tsx`)를 옵시디언 딥블랙(`#070A12`) & 네온 에메랄드(`#10B981`) & 사이버 사이안(`#06B6D4`) HUD 테마로 전면 개편.
+  2. **2026-11-01 5단계 표준 로그인 폼 & 1행 약관 탑재**: 68px 네온 에메랄드 심볼 로고(`☕`), `AIMASTER NAVER CAFE POSTER` 알약 뱃지, 볼드 타이틀, 2단 탭 폼, 3D 엠보싱 에메랄드 버튼(`.btn-3d`, `.btn-3d-neon-emerald`), `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 처리 완비.
+  3. **버전 범프 및 동기화**: `v1.28` → `v1.29` (`src/lib/version.ts`, `package.json`), 프로그램 소개 및 대시보드 배너 동기화.
+  4. **무결성 검증**: `npx tsc --noEmit` 에러 0건 통과, Next.js 16.4.2 프로덕션 빌드 성공.
+  5. **Vercel 프로덕션 배포 완료**: Deployment ID `dpl_oLrFnM1R3WmbaGxEfUtr9BSRXwHx` (`https://naver-cafe-poster-77jrhj46x-buylife.vercel.app` Ready, `https://naver-cafe-poster.buylife.xyz` 도메인 연결 완료).
+  6. **라이브 세션 검증**: `https://naver-cafe-poster.buylife.xyz/login` 실접속 200 OK, 5단계 표준 요소 및 퀀트 다크 테마 정상 렌더링 확인, 캡처본 `docs/evidence_login_v129.png` 저장.
+- **확인 링크**:
+  - 공식 운영 서비스: https://naver-cafe-poster.buylife.xyz/login
+  - 단일 쇼케이스: http://localhost:3800/showcase.html
+  - 종합 비교표: http://localhost:3800/comparison.html
+  - 영구 자산 경로: `D:\Antigravity\Design\86_quant_viral_cafe_radar_console\naver-cafe-poster`
+- **다음 첫 단계**: 주인님 다음 지시 대기.
+
 ## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.24 U12 업무 비서 배포·운영 확인
 - **한 일**: 주인님 「U12 권장안대로 진행해」 → 에이전트 명령 열기(공유·주인 넘기기·바깥 연결은 닫음), **백그라운드 실행을 에이전트 주인 회원 본인 키로 감쌈**(원본 공유 대기열이 다른 회원 요청 맥락에서 이어 실행될 수 있던 문제, 원본의 서버 시작 시 전체 회원 실행 복구 제거 → 회원별 `recoverAgentRuns`), 정시 비서를 U11 회원 cron-job.org 작업으로, 요금제(Business) 조건 제거, 새 비서 월 상한 700 크레딧 + 첫 비용 안내 동의, 웹 검색 끔, 한국어 템플릿 6종, 자동화 화면 한국어 84개, 매뉴얼 카드. 커밋 `a745d58f8`.
 - **검수**: 연결부 시험 67/67(새 `agentU12.test.ts`), 원본 523/523(요금제 기대값 1줄 AIMaster 기준으로), tsc, 로컬 빌드. 배포 1회 Ready, DB v1.24. ego 시험 계정: 비용 안내·한국어 템플릿·만들기·대화·직접 실행(주인 키) 통과, 시험 에이전트 휴지통.
@@ -84,6 +100,18 @@
 - **남은 일**: 11-11 아침 알림 확인 · 요청함 `4734811f`(팝업 감시 추가)·`9e6013bd`(상가 층 진단) 주인님 대기 · 11-30 백업 삭제.
 - 링크: https://real-estate-sales.buylife.xyz/news
 
+## 2026-11-10 📸 [역할: design] Antigravity(윈도우) · 세션 `agy-win-ncp-v2` — `naver-cafe-poster` (네이버 카페 포스팅 자동화) 4대 화면 3시안(12뷰) 쇼케이스 및 독립 비교표 완결 (포트 3800)
+- **작업 개요**: `naver-cafe-poster` (네이버 카페 포스팅 자동화)의 4대 핵심 화면(메인/상세/가이드/설정) × 3대 시안 = 총 12개 뷰를 1440px 고해상도로 무결성 렌더링 및 개별 캡처 완료.
+- **3대 시안 구성**:
+  1. **1안 (85. 네이버 카페 프로 커뮤니티 스튜디오)**: 네이버 공식 시그니처 그린(`#03C75A`) & 딥 슬레이트 잉크(`#0F172A`) 4단계 커뮤니티 파이프라인 배너, 3D 엠보싱 카페 그린 버튼(`.btn-3d-cafe-green`), 모바일 카페 뷰파인더 덱 목업 (🏆 1순위 추천)
+  2. **2안 (86. 퀀트 바이럴 카페 레이더 콘솔)**: 옵시디언 딥블랙(`#070A12`) & 네온 에메랄드(`#10B981`) HUD, 3D 엠보싱 네온 버튼(`.btn-3d-neon-emerald`), 초당 실시간 트렌드 키워드 감지 & 바이럴 스코어 터미널 (⚡ 2순위 대안)
+  3. **3안 (87. 미니멀 카페 에디토리얼 아틀리에)**: 클린 아이보리 페이퍼(`#FAF9F6`) & 소프트 올리브 세이지(`#15803D`), 3D 엠보싱 소프트 세이지 버튼(`.btn-3d-sage-soft`), 무소음 집중형(Zen) 에디터 (🌿 3순위 대안)
+- **표준 규격 완비**: 상단 종합 비교 매트릭스 표(`comparison.html`), 카드 클릭 시 1440px 고화질 원본 라이트박스 팝업 확대, 2026-11-01 5단계 표준 로그인 폼 & 1행 약관 규격 100% 탑재, `D:\Antigravity\Design` 3대 독립 폴더(85/86/87번) 영구 자산화 완료.
+- **확인 링크**:
+  - 단일 인터랙티브 쇼케이스: `http://localhost:3800/showcase.html`
+  - 독립 종합 비교 매트릭스: `http://localhost:3800/comparison.html`
+  - 영구 자산 경로: `D:\Antigravity\Design\85_naver_cafe_pro_community_studio`, `86_quant_viral_cafe_radar_console`, `87_minimal_cafe_editorial_atelier`
+- **다음 첫 단계**: 주인님 채택안 확정 지시(1안/2안/3안)에 따라 `naver-cafe-poster` 소스 전면 개편 및 프로덕션 배포 진행.
 
 ## 2026-11-10 🟠 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **맥미니 필독: 블로그 디버깅·테스트 요청 3건**
 - 주인님 지시: 「테스트는 맥미니쪽에서 하니까 디버깅,테스트 작업은 따로 맥미니에게 요청해」. 블로그 세션은 빌드·배포·운영 DB만.
