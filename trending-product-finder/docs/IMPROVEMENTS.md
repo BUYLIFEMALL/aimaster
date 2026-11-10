@@ -12,6 +12,7 @@
 | 8 | 2026-10-17 | 기능 | `SourcingCalculator.tsx` 800줄 — 채널별 검색·계산·저장이 한 파일, 유지보수 어려움 | 파일 길이 | 낮음 | **분리·배포(v1.10)** — 5개 파일, 계산 결과 동일(8,460원·28.2%) |
 | 9 | 2026-10-17 | 발견 | 리포트 화면에 「🌏 소싱」 링크가 없었음(AGENTS Phase 3 설명과 다름) — 키워드 행마다 추가 | `reports/page.tsx` | 중간 | **운영 반영·합성 검수 완료(v1.08)** |
 | 10 | 2026-10-17 | 문서 | AGENTS.md 「프로젝트 목적」의 「경쟁 상품 수는 Phase 2(쿠팡)에서 추가 예정」도 옛 설명(Phase 8 11번가로 반영됨) | `AGENTS.md` | 낮음 | 정리 완료(v1.08 Windows) |
+| 11 | 2026-11-11 | 기능 | 알리 검색어 한→영 자동 번역이 OpenAI·Gemini 키만 써서, Claude 키만 등록한 회원은 번역이 안 돼 엉뚱한 결과가 나옴(ego 실측: 시험 계정 「캠핑의자」 → WD-40 노즐·말랑이 장난감). 대시보드 「AI (OpenAI·Claude) 정상」 표시와도 어긋남. 기본 AI = Claude 지침에 맞춰 회원 본인 `anthropic` 키도 번역에 쓰도록 보강 제안(저가 모델·재시도 0) | `lib/ai/translateKeyword.ts:52`, `lib/actions/sourcing.ts:52`, 캡처 `C:/Users/Administrator/ego/ecom-flow-20261111/03-search.png` | 중간 | 미구현 — 다음 상품소싱기 작업 때(작은 수정, 미배포 대기로 모음) |
 
 ## 2026-10-17 Codex(Windows) — 인수 검사 추가 발견
 
