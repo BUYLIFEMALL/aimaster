@@ -1,5 +1,7 @@
 # 네이버 블로그 에이전트(naver-blog-agent) 개선사항 및 추가 고도화 제안
 
+- **블로그 담당께(2026-11-11, [역할: workspace])**: v2.28 배포 — U10 2차 보관함 「📨 워크스페이스로」(`18cfb01d5`)가 나갔습니다. 바뀐 것은 앱 버전·manifest·ZIP뿐이고 확장 코드는 그대로입니다. 작업 중 표의 11-01 줄(「지금 수정 없음」)은 주인님 허락으로 정리했습니다. 이어서 작업하시면 줄을 다시 넣어 주세요.
+
 ## 2026-11-07 🟡 미배포 대기 — 보관함 「📨 워크스페이스로」 (U10 2차, [역할: workspace] Claude Code 윈도우, 주인님 결정 1번 「버튼·라우트만」)
 - 보관함(`src/app/(dashboard)/queue/page.tsx`) 원고마다 「📨 워크스페이스로」 → `POST /api/work-inbox`(출처 확인 → `checkProgramAccessApi` → 회원 본인 `nba_posts` 다시 읽기 → 공용 사본 `src/lib/workInbox.ts`(`work-inbox-client`, **직접 고치지 말 것** — 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`)). 결과 안내는 기존 `notify`.
 - 내용 `src/lib/workInboxContent.ts`: 본문 `[SECTION - …]` → `## …`, `[IMAGE INSERT - n]` 제외, 태그·발행 정보. 구조 데이터 `{ 채널: 네이버 블로그, 상태, 예약일(queued·예약일 때) | 발행일(published), 발행 주소 }` — 날짜가 있으면 워크스페이스에서 「콘텐츠 캘린더에 넣기」. 「발행 전 준비(prepared)」·초안은 날짜가 없어 페이지로만(위 P1 「준비 모드 발행 결과 미기록」이 해결되면 함께 좋아짐).
