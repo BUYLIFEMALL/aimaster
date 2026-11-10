@@ -630,6 +630,7 @@
 | 63 | **63. 사이버 DAW 네온 스튜디오 덱 스타일<br>(Cyber DAW Neon Studio Deck Style)** | **AI 무료음악 자동화 시안 1 (⭐ 1순위 추천)** (`free-music-studio`, 100% 영구 자산화) | 딥 옵시디언 블랙 (`#060911` / `#0C101D`) & 사이버 에메랄드 (`#10B981`) & 네온 틸 (`#06B6D4`) & 앰버 골드 | Ableton Live / Logic Pro 감성의 퓨어 DAW 덱. 6단계 DAW 트랙 파이프라인 배너, 24트랙 스테레오 오디오 파형 뷰파인더 덱, 실시간 로컬 PC GPU 연동 허브, 3D 엠보싱 에메랄드 버튼(`.btn-3d-emerald`), 무손실 24bit FLAC & -14.0 LUFS 마스터링 | 프로 DAW 워크스테이션, 24트랙 스템 믹서, 로컬 GPU 무료 음악 생성기 |
 | 64 | **64. 어도비 사운드 아키텍트 다크 그래파이트 콘솔 스타일<br>(Adobe Sound Architect Dark Graphite Console Style)** | **AI 무료음악 자동화 시안 2 (⭐ 2026-11-06 주인님 칭찬 61번 어도비 다크 스타일 이식)** (`free-music-studio`, 100% 영구 자산화) | 다크 그래파이트 슬레이트 (`#111318` / `#1A1D24`) & 어도비 시안 블루 (`#0EA5E9`) & 마젠타 (`#EC4899`) & 에메랄드 | Adobe Audition / Avid Pro Tools 감성의 정밀 오디오 마스터링 콘솔. 1440px 와이드 마스터링 이퀄라이저 HUD, 듀얼 데시벨 VU 미터 바(-60dB ~ +3dB 클리핑 방지), 3D 엠보싱 시안 버튼(`.btn-3d-cyan`), 전문가용 마스터링 체인 | 전문가용 오디오 마스터링 콘솔, 정밀 EQ 이퀄라이저 믹서 |
 | 65 | **65. 나노 제너레이티브 AI 뉴럴 사운드 랩 스타일<br>(Nano Generative AI Neural Sound Lab Style)** | **AI 무료음악 자동화 시안 3 (⭐ 2026-11-06 주인님 칭찬 62번 나노 뉴럴 아트 스타일 이식)** (`free-music-studio`, 100% 영구 자산화) | 퓨어 딥 스페이스 블랙 (`#08070D` / `#131120`) & 제너레이티브 앰버 골드 (`#F59E0B`) & 딥 바이올렛 (`#8B5CF6`) | 차세대 제미나이 3.8 / 나노바나나 멀티모달 사운드 랩. GPU 텐서 VRAM(24GB) 연산 모니터링 HUD, AI 보컬 & 악기 LoRA 가중치 정밀 믹서, 장르 교차 합성 매트릭스, 3D 엠보싱 앰버 골드 버튼(`.btn-3d-gold`) | 차세대 AI 사운드 랩, 뉴럴 디퓨전 오디오 신디사이저, 멀티모달 음악 생성기 |
+| 91 | AI 워드프레스·구글블로그 자동화 | `wp-blogger-auto` | **89. 듀얼 런치패드 미션 스타일 (2안 채택, 2026-11-10)**<br>• 유형: 상단 가로 메뉴 + 좌우 발사대 카드(워드프레스·구글 블로그) + 예약 카운트다운 타임라인 | 라이트(스카이 `#eef6ff` + 네이비 `#0f2a4a`, 워드프레스 블루 `#2271b1`·블로거 오렌지 `#ff8a1f`·발사 그린 `#16a34a`) | 🔨 작업 중 (v1.01 화면 구현 전, [역할: blog] `claude-win-blog`) |
 
 
 ---
@@ -743,3 +744,13 @@
 - 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
 - 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
 
+## 2026-11-10 AI 워드프레스·구글블로그 자동화 (`wp-blogger-auto`) 4대 화면 3시안 자산화
+
+| 템플릿 번호 & 명칭 | 구조 및 시그니처 컴포넌트 | 추천/선정 이유 | 상태 & 영구 자산 경로 |
+|---|---|---|---|
+| **88. 글로벌 프레스 뉴스룸 스타일** | 크림 지면(`#f6f1e7`) & 잉크(`#1c1a17`), Noto Serif KR 마스트헤드, 3단 신문 칼럼, 교정쇄 원고·「인쇄 넘기기」 발행 패널 | 글쓰기 성격이 가장 강하고 가독성 최상 — 문서·뉴스레터·출판형 프로그램에 재사용 | 비선택 · `D:\Antigravity\Design\88_global_press_newsroom\wp-blogger-auto` |
+| **89. 듀얼 런치패드 미션 스타일** | 스카이(`#eef6ff`) & 네이비(`#0f2a4a`) 상단 가로 메뉴, 플랫폼별 그라데이션 발사대 카드(워드프레스 블루·블로거 오렌지), T-카운트다운, 발사 순서 타임라인, 그린 3D 발행 버튼 | 두 플랫폼 상태·예약 시각이 한눈에 — 다중 플랫폼 동시 발행형에 재사용 | ✅ **채택(주인님 「2안으로 해」)** · `D:\Antigravity\Design\89_dual_launchpad_mission\wp-blogger-auto` |
+| **90. 서프 가든 스튜디오 스타일** | 화이트 & 세이지(`#f3f7f2`), 구글 블루(`#1a73e8`)·리프 그린, 우측 고정 구글 검색 미리보기(글자 수 막대) | 검색 노출형 원고 프로그램에 재사용 | 비선택 · `D:\Antigravity\Design\90_serp_garden_studio\wp-blogger-auto` |
+
+- 쇼케이스: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html) · 비교표: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html) (이전 카페 쇼케이스는 `showcase_naver-cafe-poster_20261110.html`)
+- 작성: [역할: blog] Claude Code(윈도우) `claude-win-blog`
