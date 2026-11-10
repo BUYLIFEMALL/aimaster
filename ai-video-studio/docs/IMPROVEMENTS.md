@@ -1,5 +1,7 @@
 # AI 영상 스튜디오 — 개선 제안 (IMPROVEMENTS)
 
+> **📥 「내 자료함」에서 가져다 쓰기 요청 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시 「다른 프로그램이 자료함에서 바로 가져다 쓰는 공용 컴포넌트를 만들고, 담당께 요청」)**: 공용 컴포넌트 `member-assets-client`(기준 메인 사이트 `lib/library/memberAssets.ts`)를 만들었습니다. 편집(`lib/edit/amsSongs.ts`)의 배경 음악과 시작 이미지 고르기에 자료함 음악·이미지(4종)를 쓸 수 있습니다. 사용 순서·주의: `docs/MEMBER_LIBRARY.md` §2~§3(사본 붙이기 → 서버 API `listMemberAssets` → 화면 「내 자료함에서 가져오기」에서 `sourceRef` 저장 → 다시 열 때 `signMemberAssetByRef`). 붙일 때 `scripts/check-shared-modules.mjs`의 `member-assets-client` `copies`와 `docs/SHARED_MODULES.md`에 사본 경로를 추가하고, 버전·배포는 이 프로그램 규칙대로(작은 수정은 모아서 배포). 필수 아님 — 다음에 이 프로그램을 손댈 때 검토해 주세요.
+
 > **🗂️ 「내 자료함」 연동 안내 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 운영 DB `supabase/migrations/0061_member_assets_video_text.sql`로 이 프로그램의 완성 영상(`avs_generations.outputs[].path`)과 편집 결과(`avs_edits.output_path`)이(가) 공용 자료 목록 `member_assets`에 자동 등록되고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(보관 기간 = 이 프로그램 정리 규칙, 발행된 원고는 「발행 1년」 규칙 대상). **이 프로그램 코드·배포는 바꾸지 않았습니다.** 칸 이름·저장 경로(`{user_id}/…`)·상태 값을 바꾸면 트리거 함수 `member_assets_sync_avs_gen / member_assets_sync_avs_edit`도 함께 고쳐 주세요(트리거 오류 = 원본 저장 실패). 화면: https://www.buylife.xyz/library · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md` §9
 
 > **V1 소리 확인(2026-11-11, ego 시험 계정, 비용 0원)**: 말소리가 든 17.8초 영상을 영상 합치기에 넣고 「영상 원래 소리」 켜기 → 브라우저 렌더 17.7초 → MP4 5.2MB에 AAC 48kHz 스테레오 트랙, 평균 음량 -21.6dB(원본 -21.4dB)·최대 -5.1dB. V1(긴 영상 → 쇼츠)이 넘기는 「원본 소리 그대로」 렌더와 같은 경로라 V1 「소리 확인 남음」 해소.

@@ -1,5 +1,7 @@
 # 플레이리스트 채널 제작 자동화 (`playlist-channel-studio`) — 개선사항 관리 대장 (IMPROVEMENTS.md)
 
+> **📥 「내 자료함」에서 가져다 쓰기 요청 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시 「다른 프로그램이 자료함에서 바로 가져다 쓰는 공용 컴포넌트를 만들고, 담당께 요청」)**: 공용 컴포넌트 `member-assets-client`(기준 메인 사이트 `lib/library/memberAssets.ts`)를 만들었습니다. 지금 음악 3종을 `amsTracks.ts`·`sunoTracks.ts`·`fmsTracks.ts`로 따로 읽고 썸네일은 `thumbnailPicks.ts`로 읽는데, `listMemberAssets({ kind: "audio" })`·`({ kind: "image" })` 하나로 합칠 수 있습니다(가사 시간처럼 원본 고유 정보가 필요한 곳은 기존 코드 유지). 사용 순서·주의: `docs/MEMBER_LIBRARY.md` §2~§3(사본 붙이기 → 서버 API `listMemberAssets` → 화면 「내 자료함에서 가져오기」에서 `sourceRef` 저장 → 다시 열 때 `signMemberAssetByRef`). 붙일 때 `scripts/check-shared-modules.mjs`의 `member-assets-client` `copies`와 `docs/SHARED_MODULES.md`에 사본 경로를 추가하고, 버전·배포는 이 프로그램 규칙대로(작은 수정은 모아서 배포). 필수 아님 — 다음에 이 프로그램을 손댈 때 검토해 주세요.
+
 > **규칙 준수**: 모든 CLI는 작업 중 발견한 오류·기능·성능·편의성·디자인 개선사항을 이 문서에 즉시 기록합니다.
 > 작업 종료·중단·이관 시 `docs/IMPROVEMENT_HANDOFF_YYYYMMDD.md`를 남기고 상호 연결합니다.
 

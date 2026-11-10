@@ -726,6 +726,13 @@ const MODULES = [
     copies: ["ai-task-planner/src/lib/workInbox.ts", "ai-audio-analyzer/src/lib/workInbox.ts", "ai-slide-builder/src/lib/workInbox.ts", "document-translator/src/lib/workInbox.ts", "ai-doc-chatbot/src/lib/workInbox.ts", "insta_auto_poster/src/lib/workInbox.ts", "threads-content-ops/lib/workInbox.ts", "ai-auto-blog/lib/workInbox.ts", "naver-blog-agent/src/lib/workInbox.ts", "competitor-analysis/lib/workInbox.ts", "web-crawler/webapp/src/lib/workInbox.ts", "blog-keyword/src/lib/workInbox.ts"],
   },
   {
+    id: "member-assets-client",
+    // 2026-11-11 「내 자료함」: 같은 회원이 다른 프로그램에서 만든 음악·이미지·영상·글을 공용 표 member_assets에서 찾아 가져다 쓰기(서버 전용).
+    // 사용 안내 docs/MEMBER_LIBRARY.md. 사본은 각 담당이 자기 프로그램에 붙일 때 추가한다(메인 사이트가 기준).
+    source: "lib/library/memberAssets.ts",
+    copies: [],
+  },
+  {
     id: "youtube-golden-engine-test",
     source: "youtube-viral-studio/tests/goldenEngine.test.mjs", // 2026-10-20 병합 C로 기준 이동
     copies: [],
