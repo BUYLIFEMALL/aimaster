@@ -31,6 +31,9 @@ export default async function ProductsPage({ params }: { params: Promise<{ store
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">상품 {products.length}개</p>
         <div className="flex gap-2">
+          <Link href={`/s/${store.slug}/admin/products/price-check`} className="min-h-11 rounded border px-4 py-2.5 text-sm hover:bg-gray-50" data-price-check-link>
+            ⚠ 마진 점검
+          </Link>
           <Link href={`/s/${store.slug}/admin/products/excel`} className="min-h-11 rounded border px-4 py-2.5 text-sm hover:bg-gray-50" data-excel-link>
             엑셀로 등록·수정
           </Link>

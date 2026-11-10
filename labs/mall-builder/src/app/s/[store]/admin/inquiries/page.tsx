@@ -4,6 +4,7 @@ import { formatDateTime } from "@/lib/orders";
 import { INQUIRY_KIND_LABEL, MAX_ANSWER } from "@/lib/reviews";
 import { answerInquiryAction } from "@/lib/review-actions";
 import { AdminShell, NoPermission } from "../admin-shell";
+import AiInquiryDraft from "./ai-draft";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -41,6 +42,7 @@ export default async function AdminInquiriesPage({ params, searchParams }: { par
             </p>
             <p className="mt-1 whitespace-pre-line">{q.body}</p>
             <form action={answerInquiryAction.bind(null, store.slug, q.id)} className="mt-2 flex flex-wrap items-end gap-2">
+              {!q.answer && <AiInquiryDraft slug={store.slug} inquiryId={q.id} />}
               <textarea name="answer" defaultValue={q.answer ?? ""} maxLength={MAX_ANSWER} rows={3} placeholder="답변(비우면 답변 지움)" className="min-w-0 flex-1 rounded border px-2 py-1.5" />
               {q.kind === "product" && <label className="flex items-center gap-1 text-xs"><input type="checkbox" name="hidden" defaultChecked={q.is_hidden} /> 상품 화면에서 숨김</label>}
               <button className="rounded bg-gray-900 px-3 py-1.5 text-xs text-white">{q.answer ? "답변 고치기" : "답변 달기"}</button>

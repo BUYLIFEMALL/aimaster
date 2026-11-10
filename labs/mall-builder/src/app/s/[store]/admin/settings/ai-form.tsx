@@ -7,17 +7,22 @@ import { saveAiSettingsAction, type AiSettingsState } from "./ai-actions";
 
 export type AiStatus = { hasKey: boolean; hint: string; model: string; minMargin: number };
 
-// D27 AI 견적 보조 — 몰 대표 본인 Anthropic 키로 견적 단가를 제안받는다(누를 때만, 자동 회신 없음)
+// D27 AI 견적 보조(D29부터 「AI 도우미」 공통 키) — 몰 대표 본인 Anthropic 키로 견적 단가를 제안받는다(누를 때만, 자동 회신 없음)
 export default function AiForm({ slug, status }: { slug: string; status: AiStatus }) {
   const initial: AiSettingsState = { error: null, message: null, model: status.model, minMargin: String(status.minMargin) };
   const [state, formAction, pending] = useActionState(saveAiSettingsAction.bind(null, slug), initial);
 
   return (
-    <fieldset className="rounded-lg border p-4" data-ai-settings>
-      <legend className="px-1 text-sm font-semibold">🤖 AI 견적 보조</legend>
-      <p className="text-sm text-gray-600">
-        견적 요청이 오면 견적 상세에서 「AI 단가 제안」을 눌러 품목별 단가와 이유를 받습니다. 판매가·이 거래처 지금 단가·원가·재고·최근 구매 단가를 보고 제안하며, 최소 마진율 아래 제안은 자동으로 올립니다. 제안은 회신 칸에 채워지기만 하고, 회신은 운영자님이 직접 누릅니다.
-      </p>
+    <fieldset id="ai" className="scroll-mt-4 rounded-lg border p-4" data-ai-settings>
+      <legend className="px-1 text-sm font-semibold">🤖 AI 도우미</legend>
+      <p className="text-sm text-gray-600">키 하나로 아래 기능을 씁니다. 모두 누를 때만 부르고, 결과는 칸에 채워지기만 할 뿐 저장·회신·게시는 운영자님이 직접 합니다.</p>
+      <ul className="mt-1 list-disc pl-5 text-sm text-gray-600">
+        <li>견적 상세 「AI 단가 제안」 — 판매가·거래처 단가·원가·재고·최근 구매 단가를 보고 품목별 단가와 이유(최소 마진 아래는 자동으로 올림)</li>
+        <li>상품 등록·수정 「AI로 채우기」 — 메모와 대표 사진으로 상품 이름·한 줄 소개·설명·옵션 후보</li>
+        <li>문의 「AI 답변 초안」 — 상품 정보·자주 묻는 질문·배송 정책으로 답변 초안</li>
+        <li>첫 화면 「AI 초안 만들기」 — 업종 한 줄로 블록 배치 초안</li>
+      </ul>
+      <p className="mt-1 text-xs text-gray-500">최소 마진율은 「상품 › ⚠ 마진 점검」의 기준으로도 씁니다(이 점검은 AI를 부르지 않습니다).</p>
       <p className="mt-2 text-sm" data-ai-status>
         상태 <b>{status.hasKey ? `키 등록됨(…${status.hint})` : "키 없음 — 아래에 등록해야 쓸 수 있습니다"}</b>
       </p>

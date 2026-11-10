@@ -5,6 +5,7 @@ import { MAX_TIERS, PRICE_VISIBILITY_LABEL, PRODUCT_STATUS, VISIBILITY_LABEL, di
 import type { CategoryNode } from "@/lib/categories";
 import { saveProductAction, type ProductFormState } from "./actions";
 import ImageUploader from "./image-uploader";
+import AiFill from "./ai-fill";
 
 export type ProductFormValues = {
   product_code: string; // D23 품번(몰 안에서 겹치지 않음)
@@ -75,6 +76,7 @@ export default function ProductForm({
 
   return (
     <form action={formAction} className="space-y-6">
+      <AiFill slug={slug} />
       <fieldset className="space-y-3 rounded-lg border p-4">
         <legend className="px-1 text-sm font-semibold">기본 정보</legend>
         {field("name", "상품 이름 *", { maxLength: 100, required: true })}

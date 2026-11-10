@@ -1,13 +1,11 @@
 // D27 AI 견적 보조 — 서버 전용: 견적 자료 모으기(가격 엔진 재사용) → 몰 대표 키 풀기 → Claude 호출(구조화 응답) → 검사 → 기록.
 // 최상위 규칙: 그 몰 대표 본인 키만 쓴다(키가 없으면 등록 안내, 다른 키로 대신 처리하지 않음). 재시도 0(본인 키 이중 과금 방지).
 
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { priceLine, viewerOf, type PricingProduct } from "./pricing";
 import { getCustomerPriceMap, getGradePriceMap, getStoreCustomer, getTierMap } from "./store";
-import { openSecret } from "./secretBox";
-import { SuggestionSchema, buildQuotePrompt, checkSuggestion, estimateCost, isAiModel, DEFAULT_AI_MODEL, type CheckedRow, type QuoteFact } from "./aiQuote";
+import { callStructured, loadAi } from "./ai-client";
+import { SuggestionSchema, buildQuotePrompt, checkSuggestion, type CheckedRow, type QuoteFact } from "./aiQuote";
 
 export type AiQuoteResult =
   | { ok: false; error: string; needKey?: boolean }
@@ -88,46 +86,20 @@ async function gatherFacts(supabase: SupabaseClient, storeId: string, quoteId: s
 }
 
 export async function suggestQuotePrices(supabase: SupabaseClient, storeId: string, quoteId: string): Promise<AiQuoteResult> {
-  const { data: status } = await supabase.rpc("mall_builder_ai_status", { p_store_id: storeId });
-  const st = (status ?? {}) as { has_key?: boolean; model?: string; min_margin?: number };
-  if (!st.has_key) return { ok: false, needKey: true, error: "AI 키가 없습니다. 「쇼핑몰 정보」 아래 「AI 견적 보조」에 몰 대표 본인 Anthropic 키를 등록해 주세요." };
-  const { data: enc } = await supabase.rpc("mall_builder_ai_key_enc", { p_store_id: storeId });
-  if (typeof enc !== "string" || !enc) return { ok: false, error: "견적(주문) 권한이 있는 직원만 AI 제안을 받을 수 있습니다." };
-  let apiKey: string;
-  try {
-    apiKey = openSecret(enc, storeId);
-  } catch (e) {
-    return { ok: false, needKey: true, error: e instanceof Error ? e.message : "키를 풀지 못했습니다." };
-  }
+  const ai = await loadAi(supabase, storeId);
+  if (!ai.ok) return ai;
 
   const gathered = await gatherFacts(supabase, storeId, quoteId);
   if (!gathered || !gathered.facts.length) return { ok: false, error: "견적 품목을 찾지 못했습니다." };
-  const model = isAiModel(st.model) ? st.model : DEFAULT_AI_MODEL;
-  const minMargin = Number(st.min_margin ?? 10);
+  const { model, minMargin } = ai;
   const prompt = buildQuotePrompt(gathered.facts, { buyer: gathered.buyer, isBusiness: gathered.isBusiness, requestNote: gathered.requestNote, minMargin, year: new Date().getFullYear() });
 
-  const client = new Anthropic({ apiKey, maxRetries: 0, timeout: 120_000 });
-  let response;
-  try {
-    response = await client.messages.parse({
-      model,
-      max_tokens: 8000,
-      system: prompt.system,
-      messages: [{ role: "user", content: prompt.user }],
-      output_config: { effort: "low", format: zodOutputFormat(SuggestionSchema) },
-    });
-  } catch (e) {
-    if (e instanceof Anthropic.AuthenticationError) return { ok: false, needKey: true, error: "등록한 Anthropic 키가 올바르지 않습니다. 키를 다시 등록해 주세요." };
-    if (e instanceof Anthropic.PermissionDeniedError) return { ok: false, error: "이 키로는 선택한 모델을 쓸 수 없습니다. Anthropic 콘솔에서 권한·결제를 확인해 주세요." };
-    if (e instanceof Anthropic.RateLimitError) return { ok: false, error: "Anthropic 사용 한도에 걸렸습니다. 잠시 뒤 다시 눌러 주세요." };
-    if (e instanceof Anthropic.APIError) return { ok: false, error: `AI 호출 실패(${e.status ?? "연결"}): ${e.message.slice(0, 160)}` };
-    return { ok: false, error: "AI 호출에 실패했습니다. 잠시 뒤 다시 눌러 주세요." };
-  }
-  if (response.stop_reason === "refusal") return { ok: false, error: "AI가 이 요청에 답하지 않았습니다. 직접 단가를 입력해 주세요." };
-  if (response.stop_reason === "max_tokens" || !response.parsed_output) return { ok: false, error: "AI 답을 읽지 못했습니다. 다시 눌러 주세요." };
+  const called = await callStructured(ai, { system: prompt.system, content: prompt.user, schema: SuggestionSchema });
+  if (!called.ok) return called;
+  const response = { parsed_output: called.data, usage: called.usage };
 
   const checked = checkSuggestion(gathered.facts, response.parsed_output, minMargin);
-  const cost = estimateCost(model, { input_tokens: response.usage.input_tokens, output_tokens: response.usage.output_tokens });
+  const cost = called.cost;
   const rows = checked.map((r) => {
     const f = gathered.facts.find((x) => x.item_id === r.item_id)!;
     return { ...r, name: f.name, option: f.option, qty: f.qty, customer_unit: f.customer_unit, cost: f.cost };

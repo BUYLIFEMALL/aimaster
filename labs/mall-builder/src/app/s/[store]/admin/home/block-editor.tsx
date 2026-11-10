@@ -8,6 +8,7 @@ import {
   type NoticeSettings, type ProductSource, type ReviewsSettings, type ShowcaseSettings, type ShowcaseSource, type SliderSettings,
   type TabsSettings, type TimesaleSettings, type TopbarSettings, type VideoSettings,
 } from "@/lib/blocks";
+import AiHome from "./ai-home";
 import { publishHomeAction, saveHomeDraftAction } from "@/lib/page-actions";
 import { HomeBlocks } from "../../home-blocks";
 
@@ -425,8 +426,14 @@ export default function BlockEditor({ slug, storeId, categories, products, initi
   }
   const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("ko-KR") : "없음");
 
+  function applyAi(list: Block[], mode: "replace" | "append") {
+    setBlocks((bs) => (mode === "replace" ? list : [...bs, ...list].slice(0, MAX_BLOCKS)));
+    setSelected(list[0]?.id ?? null);
+  }
+
   return (
     <div className="space-y-6">
+      <AiHome slug={slug} count={blocks.length} onApply={applyAi} />
       <div className="flex flex-wrap items-center gap-2 rounded bg-gray-50 px-3 py-2 text-sm">
         <span>초안 저장: {when(times.draftAt)}</span>
         <span className="text-gray-300">|</span>
