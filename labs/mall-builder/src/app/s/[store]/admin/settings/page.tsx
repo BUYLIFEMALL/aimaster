@@ -11,6 +11,8 @@ import TaxForm, { type TaxStatus } from "./tax-form";
 import ClosedForm, { type ClosedStatus } from "./closed-form";
 import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form";
 import GuestForm from "./guest-form";
+import LogoForm from "./logo-form";
+import { appLogoOf } from "@/lib/pwa";
 import RestockForm, { type RestockStatus } from "./restock-form";
 import AiForm, { type AiStatus } from "./ai-form";
 import { guestOrderEnabled } from "@/lib/guest";
@@ -159,6 +161,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <TaxForm slug={store.slug} status={tax} />
+      </div>
+      <div className="mt-6">
+        <LogoForm slug={store.slug} storeId={store.id} logo={appLogoOf(store.settings)} />
       </div>
       <div className="mt-6">
         <AiForm slug={store.slug} status={ai} />

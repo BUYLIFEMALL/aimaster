@@ -7,8 +7,29 @@ import { guestOrderEnabled } from "@/lib/guest";
 import { readGuestCart } from "@/lib/guest-store";
 import { headers } from "next/headers";
 import { canEnterClosed, openWhileClosed, readClosed } from "@/lib/closed";
+import type { Metadata, Viewport } from "next";
+import { APPLE_ICON_SIZE, EARLY_INSTALL_SCRIPT, iconColor, shouldOfferInstall } from "@/lib/pwa";
+import PwaPrompt from "./pwa-prompt";
 
 export const dynamic = "force-dynamic";
+
+// D32 몰마다 제목·앱 설명 파일·아이폰 아이콘(홈 화면 설치)
+export async function generateMetadata({ params }: { params: Promise<{ store: string }> }): Promise<Metadata> {
+  const { store: slug } = await params;
+  const store = await getStoreBySlug(slug);
+  return {
+    title: { default: store.name, template: `%s | ${store.name}` },
+    description: `${store.name} 온라인 주문`,
+    manifest: `/s/${store.slug}/manifest.webmanifest`,
+    icons: { apple: `/s/${store.slug}/app-icon/${APPLE_ICON_SIZE}` },
+    appleWebApp: { capable: true, title: store.name, statusBarStyle: "default" },
+  };
+}
+export async function generateViewport({ params }: { params: Promise<{ store: string }> }): Promise<Viewport> {
+  const { store: slug } = await params;
+  const store = await getStoreBySlug(slug);
+  return { themeColor: iconColor(store.name) };
+}
 
 // 손님 화면 공통 틀 — 머리글(몰 이름·메뉴 자리)과 바닥글(사업자 표시 정보).
 // 디자인은 나중에 주인님 시안을 테마로 입힌다(docs/mall/ARCHITECTURE.md §6). 지금은 기능 위주 기본 모양.
@@ -34,6 +55,7 @@ export default async function ShopLayout({ children, params }: { children: React
 
   return (
     <div className="flex min-h-screen flex-col">
+      <script dangerouslySetInnerHTML={{ __html: EARLY_INSTALL_SCRIPT }} />
       {staff && (
         <div className="bg-gray-900 px-4 py-2 text-center text-xs text-white">
           운영자로 보고 있습니다 · <Link href={`${base}/admin`} className="underline">관리 화면</Link>
@@ -145,6 +167,7 @@ export default async function ShopLayout({ children, params }: { children: React
           <p className="pt-2 text-gray-400">© {new Date().getFullYear()} {info.company_name || store.name}</p>
         </div>
       </footer>
+      <PwaPrompt storeName={store.name} offer={shouldOfferInstall(customer)} />
     </div>
   );
 }
