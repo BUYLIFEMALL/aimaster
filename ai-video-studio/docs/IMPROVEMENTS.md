@@ -4,7 +4,7 @@
 
 > **실제 확인(2026-11-10, 영상 담당 `claude-win-video`, ego 시험 계정 본인 키)**: ① 🌐 언어판 일본어 — 예시 영상 2장면의 한국어 자막·내레이션 → 5.5초 만에 자연스러운 일본어로, 「지금 일본어판」 표시 ② 일본어 글꼴 — 미리보기에서 「今日のキャンプ準備完了！」가 `Noto Sans JP`로 네모 칸 없이 그려짐(브라우저 글꼴 loaded) ③ 🎙️ 해설 교차편집 받아쓰기 — OpenAI 키는 429(잔액)였으나, 주인님 지시로 **v1.31 받아쓰기 모델 선택**을 넣고 Gemini 3.8 Flash로 확인 끝(22.3초, 5문장 원문 그대로). 긴 영상 → 쇼츠도 Gemini 받아쓰기 + Claude 구간 고르기 확인(18.8초).
 
-> **미배포 대기(2026-11-11, `claude-win-video`)**: 아래 개선 후보 처리 — `PICK_MODELS` Claude를 `claude-haiku-5-5`로, 요청에 `thinking: { type: "disabled" }`·`output_config: { effort: "low" }`(Haiku 5.5는 생각이 기본으로 켜지고 생각 토큰이 `max_tokens`에 들어가 JSON이 잘릴 수 있음). 관리자 Claude 키로 같은 요청 모양 1회 시험: 200·생각 토큰 0·JSON 정상(1원 미만). 시험 108. 다음 배포 때 함께(버전 +0.01), 배포 뒤 구간 고르기 1회 확인.
+> ~~미배포 대기~~ ✅ **v1.32 배포(2026-11-11, `ai-video-studio-io1q4wjnb`)** (`claude-win-video`): 아래 개선 후보 처리 — `PICK_MODELS` Claude를 `claude-haiku-5-5`로, 요청에 `thinking: { type: "disabled" }`·`output_config: { effort: "low" }`(Haiku 5.5는 생각이 기본으로 켜지고 생각 토큰이 `max_tokens`에 들어가 JSON이 잘릴 수 있음). 관리자 Claude 키로 같은 요청 모양 1회 시험: 200·생각 토큰 0·JSON 정상(1원 미만). 시험 108. 다음 배포 때 함께(버전 +0.01), 배포 뒤 구간 고르기 1회 확인.
 >
 > ~~**개선 후보(2026-11-10)**~~ → 위에서 처리: 구간 고르기·번역(`askJson`)의 Claude 모델 `claude-haiku-4-5`는 모델 선택표 §4에서 「언제든 종료 가능 → `claude-haiku-5-5`」. 같은 값 $0.10/$0.50(선택표 1절)이라 바꾸면 더 싸고 최신 — 다음 배포 때 함께(시험: 구간 고르기 1회). 대상: `lib/clip/clipServer.ts` `PICK_MODELS`.
 

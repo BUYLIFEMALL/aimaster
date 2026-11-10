@@ -6,6 +6,8 @@
 > 3. **기록 정리**: 바로 아래 「미배포 대기(2026-11-06) `3a550fe12`」는 11-08 v1.28 배포 때 이미 나갔음(`AGENTS.md` v1.28 「함께 나감」) → ✅ 배포됨(v1.28)으로 바꿔 주세요.
 > 4. **배포할 때**: 급하지 않음, 다음 배포 때 함께(단독 빌드는 주인님 승인). 현재 v1.28 → v1.29(`src/lib/version.ts` + DB `programs.version`). 배포 전 `npx tsc --noEmit`·기존 시험·장면 맞춤 기본값에서 기존 렌더 모양이 같은지 확인. 배포 뒤 `docs/PENDING_DEPLOYS.md` 「대기 중」의 `9397fb311` 줄과 `d1e710d68` 해당 표시를 「내보낸 기록」으로 옮기고, 이 칸을 지우거나 ✅로 바꿔 주세요.
 >
+> ✅ **v1.29 배포(2026-11-11, `music-video-studio-7z0alazi4`, 영상 담당 `claude-win-video`)** — 위 인계 처리 끝(`9397fb311` 나감, `d1e710d68`은 v1.28에 이미 나감). 아래는 배포 전 확인 기록.
+>
 > **✔ 영상 담당 확인 (2026-11-10, [역할: video] `claude-win-video`)** — 인계 받음. ① 남은 미배포는 **`9397fb311` 하나뿐**: `d1e710d68`(11-06 22:28 커밋)은 v1.28 배포(11-08 12:46, 로컬 파일 업로드)보다 앞서 이미 함께 나감 → 권한 문서 줄에 ✅ 표시함. ② 배포 전 확인 끝: `check-shared-modules` 사본 4개(timeline·composition·voice·render-trace) OK, `npx tsc --noEmit` 통과, `npm test` 34개 통과. ③ 기본값 모양: 뮤직비디오에는 장면 맞춤을 고르는 화면이 없어 `fit`이 늘 비어 있음 → `blur` 경로가 안 켜지고 `objectFit: "cover"`·1.0→1.08 확대 그대로. 바뀐 것은 앞 그림에 `position:absolute; inset:0`이 붙은 것뿐(크기가 화면 전체라 모양 같음). 실제 렌더 대조는 배포 뒤 운영에서 1회. ④ 배포는 그대로 「다음 배포 때 함께」(단독 빌드는 주인님 승인 뒤).
 
 > ~~미배포 대기~~ ✅ **v1.28 배포됨(2026-11-08, 함께 나감)** — (2026-11-06, 영상 담당 `claude-win-video`, 급하지 않음 — 다음 배포 때 함께)**: 공용 기준 코드 사본 동기화 `video-edit-timeline`·`video-edit-composition` + 새 사본 `src/lib/edit/renderTrace.ts`(`video-edit-render-trace`). 뮤직비디오 동작은 그대로이며(렌더 기록은 켜지지 않음, 언어 값 없으면 한국어 글꼴·기존 자막 나누기), 자막 글꼴 `NotoSansKR`에 latin-ext·vietnamese 부분집합이 더해졌다. tsc·시험 33개 통과. 배경: `ai-video-studio` V2 언어판(`ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8).
