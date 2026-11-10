@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## 2026-11-11 🟡 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **wp-blogger-auto v1.02 배포(비공개)·발행 이미지 1년 보관·좌측 메뉴**
+- **한 일**: 맥미니 전달문(위 항목) 인수 → 플랜 `wp-blogger-auto/docs/PLAN_20261111_PRE_LAUNCH_FIXES.md` 결정 1~5 채팅 승인. ① 보관: 구글 블로그 **실제 발행** 글 이미지만 발행일+1년(1년 뒤 기록과 함께 삭제), 예약 대기·초안·실패·확인 필요·워드프레스 사본은 30일, 관리자·시험 계정 제외. ② 예약 확인 `src/lib/syncScheduled.ts`(매일 정리 앞, 회원 본인 연결로 읽기만, 실제 공개면 발행됨+1년, 재발행 없음). ③ 예약 상한 = 원고 보관 만료 하루 전(화면·서버). ④ 블로그 초안 → 바로 발행·예약 전환(같은 글만, 중복 방지 유지). ⑤ 카테고리 불러오기 실패·다시 불러오기, 발행 방식·예약 시각·카테고리·이미지 수 원고별 기억, 보관함 조회 오류 안내. ⑥ 설명서·발행 패널·보관함에 보관 규칙 명시. ⑦ 좌측 메뉴(SIDEBAR_LAYOUT_STANDARD, 휴대폰 ☰).
+- **DB 적용(운영 ref esgxyikcnnvmlhygjkth)**: `supabase/migrations/20261111120000_wba_image_retention.sql` — 칸 `image_expires_at`·정리 함수 교체·기존 행 보정. ego SQL 편집기에서 파일과 글자 단위 일치 확인 뒤 실행(Success). 주인님도 같은 SQL을 실행하셨으나 두 번 실행해도 같은 결과로 짜여 있음. 읽기 확인: 칸 존재, 구글 블로그 발행 글 2건은 이미지 0장이라 보관 해제가 맞음.
+- **검수**: tsc·시험 70개(보관 경계 RT01~04, 초안 전환 PB02b~d)·로컬 빌드 통과, 휴대폰 메뉴 점검 후보 0. 배포 뒤 `/login` 200·`/dashboard` 307·정리 호출 401. **관리자 실제 화면 검수는 이 PC ego가 시험 계정 로그인이라 대기**(공간 56을 주인님께 넘김).
+- **커밋·배포**: 좌측 메뉴 `0aeefa4c9`, 기능 `98d1390d2`(푸시), v1.02 배포 1회(코드+DB 버전). 작업 중 표의 맥미니 실물 시험 줄은 전달문으로 인계됐으므로 정리(배포 도우미가 그 줄 때문에 멈춤).
+- **남은 일**: 관리자 화면 검수(1440·390px) → 맥미니 재검수(초안→바로 발행 전환, 초안→예약→취소→재예약, 정확히 30분 뒤 예약, 연결 폼 오류 표시) → 결과 보고 → 공개 전환·썸네일 비용 결정.
+- **비용**: Vercel 빌드 1회(v1.02), AI 호출 0.
+- 링크: https://wp-blogger-auto.buylife.xyz
+
+
+
 ## 2026-11-11 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-rea — **REA 카테고리 내부 전용(관리자·시험 계정만) + Craft Anything 0.6.0**
 - **지시**: 주인님 「REA카테고리에 등록되는 자동화프로그램, 웹싸이트, 앱 등은 외부노출이 되어선 안되 … 관리자 계정과 테스트계정으로 들어갔을때만 볼수 있으면 되 메인 지침에 추가해두고 반영해줘」. 결정: 시험 계정은 새 칸 `profiles.can_view_internal` · 비공개 카테고리 전부 적용 · 즉시 배포.
 - **한 일**: 공용 컴포넌트 `lib/programs/internalCategories.ts` + 판정 `evaluateProgramAccess`(관리자 다음 「내부 카테고리면 can_view_internal만」, 사유 internal_viewer/internal_only) + 메인·목록·카테고리(비공개는 열람 계정만·noindex)·상세(권한 없으면 404·noindex)·사이트맵(항상 제외)·패키지·가이드·대시보드·`getProgramAccessMap`·`visibleCategories`. 운영 DB(ref `esgxyikcnnvmlhygjkth`) `supabase/migrations/0058_internal_category_viewers.sql` 적용(SQL 편집기, 확인 창 「Run query」) — 칸+회원 변경 차단 트리거, 시험 계정 1명 지정, `rea` 비공개 → 조회 확인(count 1, rea false). 최상위 지침 CLAUDE/AGENTS/GEMINI.md + 상세 [`docs/REA_CATEGORY_POLICY.md`](REA_CATEGORY_POLICY.md)(등록 체크리스트·하위 프로그램 access·검색 차단·이식 규칙).
