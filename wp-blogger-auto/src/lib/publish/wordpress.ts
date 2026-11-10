@@ -172,3 +172,22 @@ export async function cancelSchedule(c: WpConnection, remoteId: string, deps: Wp
   const r = (await call(c, `/wp/v2/posts/${encodeURIComponent(remoteId)}`, { method: "POST", json: { status: "draft" }, write: true, idempotent: true }, deps)) as { id: number; status: string; link?: string };
   return { status: mapStatus(r.status), remoteId: String(r.id), url: r.link ?? null, scheduledAt: null };
 }
+
+/** 이미 올라간 초안 → 바로 발행·예약(새 글을 만들지 않고 같은 글의 상태만 바꿈 — 중복 방지) */
+export async function setPostStatus(c: WpConnection, remoteId: string, input: { mode: "publish" | "schedule"; scheduledAt?: string }, deps: WpDeps = {}): Promise<PublishResult> {
+  const body: Record<string, unknown> = { status: WANT[input.mode] };
+  body.date_gmt = input.mode === "schedule"
+    ? checkScheduledAt(input.scheduledAt, deps.now?.()).slice(0, 19)
+    : new Date(deps.now?.() ?? Date.now()).toISOString().slice(0, 19);
+  const r = (await call(c, `/wp/v2/posts/${encodeURIComponent(remoteId)}`, { method: "POST", json: body, write: true, idempotent: true }, deps)) as { id?: number; status?: string; link?: string; date_gmt?: string };
+  if (!r?.id) throw new PublishError("uncertain", "결과를 받지 못했습니다. 워드프레스 글 목록에서 먼저 확인해 주세요.");
+  const status = mapStatus(String(r.status));
+  return { status, remoteId: String(r.id), url: r.link ? String(r.link) : null, scheduledAt: status === "scheduled" && r.date_gmt ? `${String(r.date_gmt).slice(0, 19)}Z` : null };
+}
+
+/** 글 상태 읽기(예약 확인용, 읽기만) */
+export async function getPostStatus(c: WpConnection, remoteId: string, deps: WpDeps = {}): Promise<PublishResult> {
+  const r = (await call(c, `/wp/v2/posts/${encodeURIComponent(remoteId)}`, { query: { context: "edit", _fields: "id,status,link,date_gmt" } }, deps)) as { id?: number; status?: string; link?: string; date_gmt?: string };
+  const status = mapStatus(String(r?.status));
+  return { status, remoteId: String(r?.id ?? remoteId), url: r?.link ? String(r.link) : null, scheduledAt: status === "scheduled" && r?.date_gmt ? `${String(r.date_gmt).slice(0, 19)}Z` : null, publishedAt: status === "published" && r?.date_gmt ? `${String(r.date_gmt).slice(0, 19)}Z` : null };
+}

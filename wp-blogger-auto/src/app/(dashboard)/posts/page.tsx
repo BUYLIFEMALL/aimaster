@@ -25,9 +25,11 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   // 회원 세션으로 읽는다(RLS: 본인 원고만)
   let q = supabase.from("wba_posts").select("id, platform, status, title, topic, scheduled_at, published_at, remote_url, created_at, expires_at").order("created_at", { ascending: false }).limit(200);
   if (tab.statuses) q = q.in("status", [...tab.statuses]);
-  const { data } = await q;
+  const { data, error: listError } = await q;
   const rows = (data ?? []) as Row[];
-  const { data: all } = await supabase.from("wba_posts").select("status").limit(1000);
+  const { data: all, error: countError } = await supabase.from("wba_posts").select("status").limit(1000);
+  // 조회 실패를 「원고 없음」으로 보이지 않게(맥미니 검수 2026-11-11)
+  const loadFailed = !!(listError || countError);
   const count = (statuses: readonly string[] | null) => (statuses ? (all ?? []).filter((r) => statuses.includes(r.status)).length : (all ?? []).length);
 
   return (
@@ -49,7 +51,12 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
         ))}
       </nav>
 
-      {rows.length === 0 ? (
+      {loadFailed ? (
+        <div className="lp-card flex flex-wrap items-center gap-3 bg-amber-50 text-sm text-amber-900">
+          <span className="flex-1">⚠️ 원고 목록을 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요. 원고가 지워진 것은 아닙니다.</span>
+          <Link href={tab.id === "all" ? "/posts" : `/posts?tab=${tab.id}`} className="lp-btn-ghost">새로고침</Link>
+        </div>
+      ) : rows.length === 0 ? (
         <p className="lp-card text-sm text-[color:var(--muted)]">{tab.id === "all" ? "아직 원고가 없습니다. 「새 원고 만들기」로 시작해 보세요." : "이 상태의 원고가 없습니다."}</p>
       ) : (
         <div className="lp-card overflow-x-auto">

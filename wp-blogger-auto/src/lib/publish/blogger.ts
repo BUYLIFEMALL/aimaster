@@ -117,3 +117,20 @@ export async function revertToDraft(token: string, blogId: string, postId: strin
   const r = (await call(token, `/blogs/${encodeURIComponent(blogId)}/posts/${encodeURIComponent(postId)}/revert`, { method: "POST", query: { fetchBody: "false" }, write: true, idempotent: true }, deps)) as BPost;
   return toResult(r);
 }
+
+/** 이미 올라간 초안 → 바로 발행·예약(같은 글에 publish 호출 — 새 글을 만들지 않음) */
+export async function publishExisting(token: string, blogId: string, postId: string, input: { mode: "publish" | "schedule"; scheduledAt?: string }, deps: BloggerDeps = {}): Promise<PublishResult> {
+  if (!blogId) throw new PublishError("bad_request", "올릴 블로그를 골라 주세요.");
+  const query: Record<string, string> = { fetchBody: "false" };
+  if (input.mode === "schedule") query.publishDate = checkScheduledAt(input.scheduledAt, deps.now?.());
+  const r = (await call(token, `/blogs/${encodeURIComponent(blogId)}/posts/${encodeURIComponent(postId)}/publish`, { method: "POST", query, write: true, idempotent: true }, deps)) as BPost | null;
+  if (!r?.id) throw new PublishError("uncertain", "결과를 받지 못했습니다. 블로그 관리 화면에서 먼저 확인해 주세요.");
+  return toResult(r);
+}
+
+/** 글 상태 읽기(예약 확인용, 읽기만) */
+export async function getPostStatus(token: string, blogId: string, postId: string, deps: BloggerDeps = {}): Promise<PublishResult> {
+  const r = (await call(token, `/blogs/${encodeURIComponent(blogId)}/posts/${encodeURIComponent(postId)}`, { query: { fetchBody: "false", view: "AUTHOR" } }, deps)) as BPost;
+  const res = toResult(r);
+  return { ...res, publishedAt: res.status === "published" && r.published ? new Date(r.published).toISOString() : null };
+}

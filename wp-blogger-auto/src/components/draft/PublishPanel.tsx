@@ -3,6 +3,7 @@
 // 발행 패널 — 블로그 핵심 지침: 회원이 고른 방식(발행 전까지·바로 발행·예약)으로만, 결과 기록, 불확실하면 다시 보내지 않음.
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { usePersisted } from "@/lib/client/usePersisted";
 
 export type PublishState = {
   id: string;
@@ -12,6 +13,8 @@ export type PublishState = {
   remoteUrl: string | null;
   scheduledAt: string | null;
   errorDetail: string | null;
+  /** 원고 보관 만료(만든 날+30일) — 예약 상한 계산용 */
+  expiresAt?: string | null;
 };
 
 const MODES = [
@@ -23,29 +26,51 @@ const MODES = [
 /** 한국 시간 입력값(YYYY-MM-DDTHH:mm) → ISO */
 export const kstToIso = (v: string) => new Date(`${v}:00+09:00`).toISOString();
 const isoToKstLabel = (iso: string) => new Date(Date.parse(iso) + 9 * 3600_000).toISOString().slice(0, 16).replace("T", " ");
+const isoToKstInput = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 16);
 
 export function PublishPanel({ post, canPublish, connected }: { post: PublishState; canPublish: boolean; connected: boolean }) {
   const router = useRouter();
-  const [mode, setMode] = useState<(typeof MODES)[number]["id"]>("draft");
-  const [when, setWhen] = useState(() => new Date(Date.now() + 9 * 3600_000 + 60 * 60_000).toISOString().slice(0, 16));
+  // 선택값은 원고별로 기억 — 저장 뒤 화면이 다시 그려져도 초기화되지 않게(맥미니 검수 2026-11-11)
+  const [mode, setMode] = usePersisted<(typeof MODES)[number]["id"]>(`wba:${post.id}:mode`, "draft");
+  const [when, setWhen] = usePersisted<string>(`wba:${post.id}:when`, isoToKstInput(Date.now() + 60 * 60_000));
+  const [picked, setPicked] = usePersisted<number[]>(`wba:${post.id}:cats`, []);
   const [cats, setCats] = useState<{ id: number; name: string }[] | null>(null);
-  const [picked, setPicked] = useState<number[]>([]);
+  const [catState, setCatState] = useState<"idle" | "loading" | "error">("idle");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  // 예약 상한: 원고 보관 만료 하루 전(발행 전 원고는 30일 뒤 이미지와 함께 지워짐)
+  const maxWhen = post.expiresAt ? isoToKstInput(Date.parse(post.expiresAt) - 24 * 3600_000) : undefined;
+  const minWhen = isoToKstInput(Date.now() + 5 * 60_000);
 
+  async function loadCats() {
+    setCatState("loading");
+    try {
+      const r = await fetch("/api/connect/wordpress?categories=1");
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !Array.isArray(d.categories)) throw new Error();
+      setCats(d.categories);
+      setCatState("idle");
+    } catch {
+      setCats(null);
+      setCatState("error");
+    }
+  }
   useEffect(() => {
     if (post.platform !== "wordpress" || !connected || post.remoteId) return;
-    fetch("/api/connect/wordpress?categories=1").then((r) => r.json()).then((d) => setCats(Array.isArray(d.categories) ? d.categories : [])).catch(() => setCats([]));
+    void loadCats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.platform, connected, post.remoteId]);
 
-  async function publish() {
-    const m = MODES.find((x) => x.id === mode)!;
-    const msg = mode === "publish" ? "지금 바로 공개됩니다. 발행할까요?" : mode === "schedule" ? `${when.replace("T", " ")}(한국 시간)에 공개되도록 예약할까요?` : "블로그에 초안으로 저장할까요?";
+  async function publish(forceMode?: "publish" | "schedule") {
+    const m = MODES.find((x) => x.id === (forceMode ?? mode))!;
+    const mode2 = m.id;
+    if (mode2 === "schedule" && maxWhen && when > maxWhen) { setError(`예약은 ${maxWhen.replace("T", " ")}(한국 시간)까지만 할 수 있습니다. 발행 전 원고는 만든 날부터 30일 뒤 이미지와 함께 지워집니다.`); return; }
+    const msg = mode2 === "publish" ? "지금 바로 공개됩니다. 발행할까요?" : mode2 === "schedule" ? `${when.replace("T", " ")}(한국 시간)에 공개되도록 예약할까요?` : "블로그에 초안으로 저장할까요?";
     if (!window.confirm(msg)) return;
     setBusy("publish"); setError("");
     const res = await fetch(`/api/posts/${post.id}/publish`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode: m.id, scheduledAt: mode === "schedule" ? kstToIso(when) : undefined, categoryIds: picked }),
+      body: JSON.stringify({ mode: m.id, scheduledAt: mode2 === "schedule" ? kstToIso(when) : undefined, categoryIds: picked }),
     }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
     setBusy("");
@@ -83,7 +108,20 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
         <p className="text-sm font-black">🚀 발행 결과</p>
         {post.status === "published" && <p className="text-sm">✅ 공개됐습니다.</p>}
         {post.status === "scheduled" && post.scheduledAt && <p className="text-sm">⏰ {isoToKstLabel(post.scheduledAt)}(한국 시간)에 공개 예약됨</p>}
-        {post.status === "draft" && <p className="text-sm">📝 블로그에 초안으로 저장됨 — 블로그 관리 화면에서 발행 버튼을 눌러 주세요.</p>}
+        {post.status === "draft" && (
+          <div className="space-y-2">
+            <p className="text-sm">📝 블로그에 초안으로 저장됨 — 여기서 바로 발행·예약하거나, 블로그 관리 화면에서 직접 발행해도 됩니다.</p>
+            <p className="text-xs text-[color:var(--muted)]">같은 글의 상태만 바꾸므로 블로그에 글이 두 개 생기지 않습니다.</p>
+            <label className="block text-xs font-extrabold text-[color:var(--muted)]">예약 시각(한국 시간, 예약할 때만)
+              <input type="datetime-local" value={when} min={minWhen} max={maxWhen} onChange={(e) => setWhen(e.target.value)} className="mt-1 w-full rounded-xl border-2 border-[color:var(--border)] px-3 py-2 text-sm" />
+              {maxWhen && <span className="mt-1 block font-medium">{maxWhen.replace("T", " ")}까지 — 발행 전 원고는 30일 뒤 이미지와 함께 지워집니다.</span>}
+            </label>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => publish("publish")} disabled={!!busy || !connected} className="lp-btn flex-1 justify-center disabled:opacity-50">{busy === "publish" ? "보내는 중…" : "⚡ 바로 발행"}</button>
+              <button type="button" onClick={() => publish("schedule")} disabled={!!busy || !connected} className="lp-btn-ghost flex-1 justify-center disabled:opacity-50">⏰ 예약 발행</button>
+            </div>
+          </div>
+        )}
         {stuck && <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">⏳ 보내는 중입니다. 10분이 지나도 그대로면 블로그에서 확인한 뒤 아래에서 정리해 주세요.</p>}
         {post.status === "uncertain" && <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">⚠️ 보냈지만 결과를 확인하지 못했습니다. 중복을 막기 위해 다시 보내지 않습니다. 블로그 관리 화면에서 글이 올라갔는지 확인해 주세요.</p>}
         {(post.status === "uncertain" || stuck) && (
@@ -117,9 +155,16 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
       </div>
       {mode === "schedule" && (
         <label className="block text-xs font-extrabold text-[color:var(--muted)]">예약 시각(한국 시간, 5분 뒤 ~ 원고 보관 만료 하루 전까지)
-          <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} className="mt-1 w-full rounded-xl border-2 border-[color:var(--border)] px-3 py-2 text-sm" />
-          <span className="mt-1 block font-medium">발행 전 원고는 만든 날부터 30일 뒤 이미지와 함께 지워져, 그보다 늦은 예약은 이미지가 깨집니다.</span>
+          <input type="datetime-local" value={when} min={minWhen} max={maxWhen} onChange={(e) => setWhen(e.target.value)} className="mt-1 w-full rounded-xl border-2 border-[color:var(--border)] px-3 py-2 text-sm" />
+          <span className="mt-1 block font-medium">{maxWhen ? `${maxWhen.replace("T", " ")}까지 고를 수 있습니다. ` : ""}발행 전 원고는 만든 날부터 30일 뒤 이미지와 함께 지워져, 그보다 늦은 예약은 이미지가 깨집니다.</span>
         </label>
+      )}
+      {post.platform === "wordpress" && connected && catState === "loading" && <p className="text-xs text-[color:var(--muted)]">카테고리 불러오는 중…</p>}
+      {post.platform === "wordpress" && connected && catState === "error" && (
+        <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          <span className="flex-1">카테고리를 불러오지 못했습니다. 카테고리 없이 보내도 됩니다.</span>
+          <button type="button" onClick={() => void loadCats()} className="rounded-lg bg-amber-600 px-2.5 py-1 font-bold text-white">다시 불러오기</button>
+        </div>
       )}
       {post.platform === "wordpress" && cats && cats.length > 0 && (
         <div>
@@ -131,7 +176,7 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
           </div>
         </div>
       )}
-      <button type="button" onClick={publish} disabled={!canPublish || !connected || !!busy} className="lp-btn w-full disabled:opacity-50">
+      <button type="button" onClick={() => publish()} disabled={!canPublish || !connected || !!busy} className="lp-btn w-full disabled:opacity-50">
         {busy === "publish" ? "보내는 중… 창을 닫지 마세요" : mode === "publish" ? "⚡ 바로 발행" : mode === "schedule" ? "⏰ 예약 발행" : "📝 초안으로 보내기"}
       </button>
       {!canPublish && <p className="text-xs text-amber-700">고친 내용을 먼저 저장해 주세요.</p>}

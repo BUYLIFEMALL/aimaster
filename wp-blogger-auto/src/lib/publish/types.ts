@@ -30,6 +30,8 @@ export interface PublishResult {
   remoteId: string;
   url: string | null;
   scheduledAt: string | null;
+  /** 상태 읽기에서만: 실제 공개 시각 */
+  publishedAt?: string | null;
 }
 
 export type PublishErrorCode =

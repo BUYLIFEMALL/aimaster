@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePersisted } from "@/lib/client/usePersisted";
 import { useRouter } from "next/navigation";
 import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL } from "@/lib/image/models";
 
@@ -8,7 +9,8 @@ export type ImageItem = { slot: string; section: number | null; prompt: string; 
 
 export function ImagePanel({ postId, images, editable }: { postId: string; images: ImageItem[]; editable: boolean }) {
   const router = useRouter();
-  const [count, setCount] = useState(2);
+  const existingBody = images.filter((i) => i.slot !== "featured").length;
+  const [count, setCount] = usePersisted<number>(`wba:${postId}:imgCount`, images.length ? existingBody : 2);
   const [model, setModel] = useState<string>(DEFAULT_IMAGE_MODEL);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");

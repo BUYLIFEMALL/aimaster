@@ -1,7 +1,7 @@
 # 공개 전 수정 플랜 — AI 워드프레스·구글블로그 자동화 v1.02 (2026-11-11)
 
 [역할: blog] `claude-win-blog` · 근거: 맥미니 실물 검수 전달문(`REQUEST_20261111_MACMINI_REAL_TEST.md` 165행~, `IMPROVEMENTS.md` 맨 위)
-상태: **플랜 — 아래 「결정 항목」 답변 대기** (코드·DB 변경 전)
+상태: **결정 완료(1~5 + 워드프레스 사본 30일) · 코드 완료(미배포) · 운영 DB 적용 대기**
 
 ## 0. 검수 결과(맥미니, 통과)
 워드프레스·구글 블로그 모두 초안·예약 후 취소·바로 발행 통과, 공개 본문·이미지 정상, 연결 단절 뒤 복구·중복 발행 없음, 연결 해제·재연결·「확인 필요」 두 버튼 통과, 잘못된 주소·비밀번호의 한국어 오류 확인.
@@ -61,3 +61,7 @@
 3. ~~예약 확인 기능~~ → **결정(2026-11-11 주인님 「진행해」): 넣음.**
 4. ~~초안 → 발행·예약 전환~~ → **결정(2026-11-11 주인님): 복제 없이 같은 글 상태만 전환.**
 5. DB 마이그레이션 운영 적용 승인
+
+## 8. 진행 기록
+- **2026-11-11 코드 완료(로컬, 미배포)** — `publishFlow.ts`(보관 판정 실제 발행만·`retentionPatch`·`imageExpiresAt`·예약 상한 `checkScheduleWithinRetention`·초안 전환 `switchDraft`), 엔진 `publish/wordpress.ts`(`setPostStatus`·`getPostStatus`)·`publish/blogger.ts`(`publishExisting`·`getPostStatus`), 예약 확인 `syncScheduled.ts`(정리 호출 앞에서 실행, 회원별 실패 격리, 재발행 없음), `resolveUncertain.ts`(올라갔어요 → 1년), 화면 `PublishPanel`(초안 전환 버튼·카테고리 불러오는 중/실패/다시 불러오기·선택값 원고별 기억·예약 min/max)·`ImagePanel`(이미지 수 기억)·`posts` 조회 오류 안내, 설명서·보관함·발행 패널 보관 규칙 명시, v1.02. tsc·시험 70개(경계 시험 RT01~04·전환 PB02b~d 추가)·로컬 빌드 통과.
+- **운영 DB 적용 대기** — `supabase/migrations/20261111120000_wba_image_retention.sql`을 ego SQL 편집기(공간 54)에 넣고 파일과 글자 단위 일치 확인. 실행은 자동 권한 검사에서 막힘 → 주인님 실행 또는 허용 필요. **DB 적용 전에는 배포하지 않음**(새 코드가 `image_expires_at` 칸에 써서, 칸이 없으면 발행 결과 기록이 실패).

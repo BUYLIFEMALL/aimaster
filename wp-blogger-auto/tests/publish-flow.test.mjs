@@ -63,10 +63,42 @@ test("PB01 워드프레스 바로 발행 — 이미지 미디어 업로드·주�
   assert.equal(row.status, "published"); assert.equal(row.remote_id, "501"); assert.equal(row.remote_url, "https://myblog.co.kr/winter-camping/"); assert.equal(row.keep_images, false); assert.equal(row.blog_ref, "https://myblog.co.kr");
 });
 
-test("PB02 이미 블로그에 올라간 원고는 다시 보내지 않음", async () => {
-  const admin = fakeAdmin({ post: { remote_id: "501", status: "draft" } }); const { fn, calls } = wpFetch();
-  await assert.rejects(() => publishPost(admin, "user-a", "p1", { mode: "publish" }, { wp: { fetchImpl: fn } }), (e) => e.code === "already_sent");
-  assert.equal(calls.length, 0);
+test("PB02 이미 발행·예약된 원고, 초안을 다시 초안으로 보내기는 다시 보내지 않음", async () => {
+  for (const [status, mode] of [["published", "publish"], ["scheduled", "publish"], ["draft", "draft"]]) {
+    const admin = fakeAdmin({ post: { remote_id: "501", status } }); const { fn, calls } = wpFetch();
+    await assert.rejects(() => publishPost(admin, "user-a", "p1", { mode }, { wp: { fetchImpl: fn } }), (e) => e.code === "already_sent" || e.code === "locked");
+    assert.equal(calls.length, 0);
+  }
+});
+
+test("PB02b 워드프레스 초안 → 바로 발행: 새 글 없이 같은 글(501) 상태만 바꿈", async () => {
+  const admin = fakeAdmin({ post: { remote_id: "501", status: "draft" } }); const calls = [];
+  const fn = async (url, init = {}) => {
+    calls.push({ m: init.method || "GET", url, body: typeof init.body === "string" ? JSON.parse(init.body) : null });
+    if (url.endsWith("/wp-json/")) return Response.json({ namespaces: ["wp/v2"] });
+    if (/\/wp\/v2\/posts\/501/.test(url)) return Response.json({ id: 501, status: "publish", link: "https://myblog.co.kr/winter-camping/" });
+    throw new Error("unexpected " + url);
+  };
+  const r = await publishPost(admin, "user-a", "p1", { mode: "publish" }, { wp: { fetchImpl: fn }, now: () => NOW });
+  assert.equal(r.status, "published");
+  assert.equal(calls.filter((c) => c.m === "POST" && c.url.endsWith("/wp/v2/posts")).length, 0);
+  const sw = calls.find((c) => c.m === "POST" && /posts\/501/.test(c.url)); assert.equal(sw.body.status, "publish");
+  const row = admin.tables.wba_posts[0]; assert.equal(row.status, "published"); assert.equal(row.remote_id, "501"); assert.equal(row.keep_images, false);
+});
+
+test("PB02c 구글 블로그 초안 → 예약: 같은 글에 publish(publishDate), 예약 대기는 이미지 보관 안 함", async () => {
+  const admin = fakeAdmin({ post: { platform: "blogger", remote_id: "9", status: "draft", expires_at: new Date(NOW + 30 * 864e5).toISOString() }, wp: false, blogger: true }); const sent = [];
+  const fn = async (url, init = {}) => { sent.push({ url, m: init.method }); return Response.json({ id: "9", status: "SCHEDULED", published: new Date(NOW + 2 * 864e5).toISOString(), url: "https://my.blogspot.com/x.html" }); };
+  const r = await publishPost(admin, "user-a", "p1", { mode: "schedule", scheduledAt: new Date(NOW + 2 * 864e5).toISOString() }, { blogger: { fetchImpl: fn, now: () => NOW } });
+  assert.equal(r.status, "scheduled");
+  assert.equal(sent.length, 1); assert.match(sent[0].url, /\/posts\/9\/publish\?/); assert.match(sent[0].url, /publishDate=/);
+  const row = admin.tables.wba_posts[0]; assert.equal(row.status, "scheduled"); assert.equal(row.keep_images, false); assert.equal(row.image_expires_at, null);
+});
+
+test("PB02d 예약 상한 — 원고 보관 만료 하루 전보다 늦으면 보내지 않음", async () => {
+  const admin = fakeAdmin({ post: { expires_at: new Date(NOW + 10 * 864e5).toISOString() } }); const { fn, calls } = wpFetch();
+  await assert.rejects(() => publishPost(admin, "user-a", "p1", { mode: "schedule", scheduledAt: new Date(NOW + 9.5 * 864e5).toISOString() }, { wp: { fetchImpl: fn }, now: () => NOW }), (e) => e.code === "schedule_too_late");
+  assert.equal(calls.length, 0); assert.equal(admin.tables.wba_posts[0].status, "ready");
 });
 
 test("PB03 발행 중·발행된 원고는 잠김", async () => {
@@ -96,6 +128,7 @@ test("PB06 구글 블로그 바로 발행 — 대표 이미지를 본문 맨 위
   assert.equal(r.status, "published");
   assert.match(sent[0].body.content, /^<figure><img src="[^"]+featured-1\.jpg"/); assert.match(sent[0].url, /isDraft=false/);
   const row = admin.tables.wba_posts[0]; assert.equal(row.keep_images, true); assert.equal(row.blog_ref, "111");
+  assert.equal(Date.parse(row.image_expires_at) - Date.parse(row.published_at), 365 * 864e5); // 발행일 + 1년
 });
 
 test("PB07 구글 블로그 예약 — 초안은 됐는데 예약 실패면 「초안」으로 기록(중복 방지)", async () => {

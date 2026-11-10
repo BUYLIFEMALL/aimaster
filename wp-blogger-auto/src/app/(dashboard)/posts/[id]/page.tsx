@@ -17,12 +17,12 @@ export default async function PostPage({ params, searchParams }: { params: Promi
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   // 회원 세션으로 읽는다(RLS: 본인 원고만)
   const supabase = await createClient();
-  const { data } = await supabase.from("wba_posts").select("id, platform, status, title, excerpt, slug, tags, html, images, updated_at, remote_id, remote_url, scheduled_at, error_detail").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("wba_posts").select("id, platform, status, title, excerpt, slug, tags, html, images, updated_at, remote_id, remote_url, scheduled_at, error_detail, expires_at").eq("id", id).maybeSingle();
   if (!data) notFound();
   const post: EditablePost = { id: data.id, platform: data.platform === "blogger" ? "blogger" : "wordpress", status: data.status, title: data.title, excerpt: data.excerpt ?? "", slug: data.slug ?? "", tags: data.tags ?? [], html: data.html, images: (Array.isArray(data.images) ? data.images : []) as EditablePost["images"] };
   const admin = createAdminClient();
   const connected = post.platform === "wordpress" ? !!(await loadWordpressConnection(admin, user.id)) : !!((await loadBloggerAccount(admin, user.id))?.extra as { blog_id?: string } | undefined)?.blog_id;
-  const publish = { id: data.id, platform: post.platform, status: data.status, remoteId: data.remote_id, remoteUrl: data.remote_url, scheduledAt: data.scheduled_at, errorDetail: data.error_detail };
+  const publish = { id: data.id, platform: post.platform, status: data.status, remoteId: data.remote_id, remoteUrl: data.remote_url, scheduledAt: data.scheduled_at, errorDetail: data.error_detail, expiresAt: data.expires_at ?? null };
   const [label, cls] = STATUS_LABEL[post.status] ?? [post.status, "lp-tag-idle"];
 
   return (

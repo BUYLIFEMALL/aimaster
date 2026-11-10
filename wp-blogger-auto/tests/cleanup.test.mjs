@@ -17,9 +17,9 @@ test("CL02 정리 함수 실패는 오류로(저장소는 건드리지 않음)",
   await assert.rejects(() => runCleanup(admin), /cleanup_failed/); assert.equal(touched, 0);
 });
 
-test("CL03 이미지 보관은 구글 블로그에 발행·예약된 글만", () => {
+test("CL03 이미지 보관은 구글 블로그에 실제 발행된 글만(예약 대기는 미발행 — 2026-11-11 결정)", () => {
   assert.equal(keepPublishedImages("blogger", "published", 2), true);
-  assert.equal(keepPublishedImages("blogger", "scheduled", 1), true);
+  assert.equal(keepPublishedImages("blogger", "scheduled", 1), false);
   assert.equal(keepPublishedImages("blogger", "draft", 2), false);
   assert.equal(keepPublishedImages("blogger", "published", 0), false);
   assert.equal(keepPublishedImages("wordpress", "published", 3), false);
