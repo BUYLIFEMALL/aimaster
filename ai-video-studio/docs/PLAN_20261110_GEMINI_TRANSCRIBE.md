@@ -2,7 +2,7 @@
 
 - 담당: [역할: video] Claude Code(윈도우) `claude-win-video`
 - 지시: 주인님 2026-11-10 「모든 테스트에 사용하는건 Claude가 기본이야」「Claude로 해」 → Claude API는 음성 입력이 없어(공식 기능 목록·`docs/AI_MODEL_CATALOG.md` §3 받아쓰기 Claude 「없음」) 받아쓰기는 Claude로 불가 → 주인님 선택 「Gemini 받아쓰기 추가」
-- 상태: **구현 중 — 주인님 결정(2026-11-10 채팅): 1 Gemini 3.8 Flash 먼저 · 2 3.8 Flash 기본 · 3 선택 칸 둠 · 4 쇼츠 원스톱도 함께(빌드 1회 추가) · 구현·배포·실제 확인 2회 승인**
+- 상태: **✅ ai-video-studio v1.31 배포·운영 확인(2026-11-10, `ai-video-studio-1e670xxcf`)** — 주인님 결정: 1 Gemini 3.8 Flash 먼저 · 2 3.8 Flash 기본 · 3 선택 칸 둠 · 4 쇼츠 원스톱도 함께(다음 순서). 바뀐 점: 긴 소리는 Files API 대신 5분 조각(§2 아래 「바꾼 결정」)
 
 ## 1. 문제
 - 받아쓰기는 지금 **회원 본인 OpenAI `whisper-1`만** 된다(`lib/clip/clipServer.ts` `transcribeAudio`). OpenAI 키가 없거나 잔액이 없으면 V1 「긴 영상 → 쇼츠」·V2 「해설 교차편집」 둘 다 첫 단계에서 멈춘다(11-10 시험 계정 429).
@@ -14,6 +14,9 @@
 - 소리를 요청에 바로 넣기(base64)는 **요청 전체 20MB까지** → 16kHz 모노 WAV 기준 약 6.5분까지 바로 넣고, 그보다 길면(V1은 최대 10분) **Files API에 올렸다가 받아쓰기 뒤 지운다**.
 - 모델: `gemini-3.8-flash`(선택표 중가 기본값). 문서 예시도 이 모델. 재시도 없음(이중 과금 방지), 시간 제한 240초(지금과 같음).
 - 받은 문장은 지금처럼 `cleanSegments`(무음 위치로 경계 다듬기)를 거친다 → Gemini 시각이 1초 단위로 거칠어도 컷 경계는 무음 쪽으로 맞춰진다.
+
+### 바꾼 결정(구현 중, 2026-11-10)
+- Gemini Files API 안내가 새 Interactions API 기준으로 바뀌어 `generateContent`에서 파일을 붙이는 법을 공식 문서로 확인하지 못함 → 6.5분 넘는 소리는 **5분씩, 목표 지점 앞 10초 안의 가장 조용한 곳에서 잘라** 조각마다 바로 넣고 동시에 부른 뒤 시각을 이어 붙임(`splitWav`). 파일을 올렸다 지울 필요 없음.
 
 ## 2-1. OpenAI 받아쓰기 모델 확인 (공식 문서 2026-11-10, `developers.openai.com/api/docs/guides/speech-to-text`, 주인님 「openai도 모델 있는지 확인해보고 있으면 사용자가 선택할 수 있게」)
 | 모델 | 문장 시각 | 상태 | 이 기능에 쓸 수 있나 |
