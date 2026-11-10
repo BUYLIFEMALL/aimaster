@@ -2,17 +2,20 @@
 // U3: 키 입력·저장·삭제 + 📖 연동 매뉴얼 상자(팝업). 서버: /api/keys
 import { useEffect, useState } from "react";
 
-type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key";
+type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key" | "google_client_id" | "google_client_secret";
 const ITEMS: { provider: Provider; name: string; placeholder: string; desc: string; guideId?: string; guideUrl?: string }[] = [
   { provider: "anthropic", name: "Claude (Anthropic)", placeholder: "sk-ant-…", desc: "AI 비서 기본 엔진(Claude Sonnet). 빠른 작업은 Haiku를 씁니다.", guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a" },
   { provider: "openai", name: "OpenAI (GPT)", placeholder: "sk-…", desc: "Claude 키가 없을 때 「자동」이 쓰는 엔진입니다.", guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a" },
   { provider: "gemini", name: "Google Gemini", placeholder: "AIza… 또는 AQ.…", desc: "사용료가 가장 저렴한 Gemini Flash-Lite가 기본이고, 채팅 모델 목록에서 Flash·Pro를 직접 고를 수 있습니다. 무료 등급 키도 한도 안에서 쓸 수 있습니다.", guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" },
   // U11(2026-11-10): 정시 자동화(매시간·매일 9시)·리마인더용. 공용 칸이라 다른 AIMaster 예약 프로그램에서 등록했다면 이미 「등록됨」
   { provider: "cronjob_org_api_key", name: "cron-job.org (정시 자동화)", placeholder: "cron-job.org Settings › API Keys에서 복사", desc: "「매시간·매일 9시」 같은 정시 자동화와 날짜 리마인더를 정해진 시각에 돌립니다(무료). 정시 자동화를 켜면 1분 확인 작업이 자동으로 켜지고, 남은 작업이 없으면 자동으로 꺼집니다. 키에 IP 제한은 걸지 마세요.", guideUrl: "https://console.cron-job.org/settings" },
+  // 2026-11-11 캘린더 연동 ② 구글 계정 연결 — 회원 본인 구글 OAuth 앱(유튜브·구글 블로그 자동화와 같은 공용 칸)
+  { provider: "google_client_id", name: "구글 앱 Client ID (캘린더 연결)", placeholder: "…apps.googleusercontent.com", desc: "「📅 캘린더 연동 › 구글 계정 연결」에 씁니다. 구글 클라우드 › API 및 서비스 › 사용자 인증 정보의 OAuth 클라이언트 ID. 유튜브·구글 블로그 자동화에서 이미 등록했다면 「등록됨」으로 보입니다.", guideUrl: "https://console.cloud.google.com/apis/credentials" },
+  { provider: "google_client_secret", name: "구글 앱 Client Secret (캘린더 연결)", placeholder: "GOCSPX-…", desc: "위 OAuth 클라이언트의 「클라이언트 보안 비밀」.", guideUrl: "https://console.cloud.google.com/apis/credentials" },
 ];
 const GUIDE_URL = (id: string) => `https://www.buylife.xyz/guides/${id}`;
 const openGuide = (it: { guideId?: string; guideUrl?: string }) => window.open(it.guideUrl ?? GUIDE_URL(it.guideId ?? ""), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
-const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "" };
+const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "", google_client_id: "", google_client_secret: "" };
 
 export function KeysForm() {
   const [keys, setKeys] = useState<Record<Provider, string | null> | null>(null);

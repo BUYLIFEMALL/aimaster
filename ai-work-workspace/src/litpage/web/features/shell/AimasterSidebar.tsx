@@ -8,7 +8,7 @@ import './aimaster.css';
 const PROGRAMS_URL = 'https://www.buylife.xyz/programs';
 export const AIMASTER_APP_NAME = 'AI 업무 워크스페이스';
 // 주의: src/lib/version.ts APP_VERSION과 같은 값으로, 배포 때마다 함께 올린다(2026-11-06 v1.21 배포 때 빠져 메뉴에 v1.20이 남음)
-export const AIMASTER_APP_VERSION = 'v1.25';
+export const AIMASTER_APP_VERSION = 'v1.26';
 
 export function AimasterSidebarTop() {
   return (
@@ -66,6 +66,14 @@ export function AimasterSidebarBottom() {
             <span className="aww-sb-item-label">영수증·세금계산서</span>
           </div>
           <span className="aww-sb-item-chip">증빙</span>
+        </a>
+        {/* 2026-11-11: 캘린더 연동(/calendar-sync) — 간편 구독(ICS)·구글 계정 연결 */}
+        <a className="aww-sb-item" href="/calendar-sync">
+          <div className="aww-sb-item-inner">
+            <span className="aww-sb-item-icon">📅</span>
+            <span className="aww-sb-item-label">캘린더 연동</span>
+          </div>
+          <span className="aww-sb-item-chip">구글</span>
         </a>
         <a className="aww-sb-item" href="/settings/keys">
           <div className="aww-sb-item-inner">

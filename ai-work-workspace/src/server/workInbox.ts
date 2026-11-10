@@ -58,7 +58,7 @@ function uid(ctx: Ctx): string {
 }
 
 /** 회원이 쓰는 워크스페이스(처음 연결된 것) */
-function memberSpace(userId: string): SpaceRecord {
+export function memberSpace(userId: string): SpaceRecord {
   const root = getRecord<UserRootRecord>("user_root", userId);
   for (const id of root?.space_views ?? []) {
     const sv = getRecord<SpaceViewRecord>("space_view", id);
@@ -70,7 +70,7 @@ function memberSpace(userId: string): SpaceRecord {
 }
 
 /** 회원이 연결된 모든 워크스페이스 id */
-function memberSpaceIds(userId: string): Set<string> {
+export function memberSpaceIds(userId: string): Set<string> {
   const root = getRecord<UserRootRecord>("user_root", userId);
   const ids = new Set<string>();
   for (const id of root?.space_views ?? []) {
@@ -96,7 +96,7 @@ async function markImported(userId: string, id: string, ref: string) {
   await createAdminClient().from("work_inbox").update({ imported_at: new Date().toISOString(), imported_ref: ref }).eq("user_id", userId).eq("target_slug", TARGET).eq("id", id);
 }
 
-function pageUrl(space: SpaceRecord, pageId: string): string {
+export function pageUrl(space: SpaceRecord, pageId: string): string {
   return `/${space.domain}/${compactId(pageId)}`;
 }
 

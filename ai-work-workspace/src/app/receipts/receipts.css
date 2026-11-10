@@ -69,3 +69,13 @@
   .rc-p-lines .num { text-align: right; }
   .rc-p-foot { margin-top: 12px; text-align: center; }
 }
+
+/* 📅 캘린더 연동(2026-11-11) — 같은 화면 틀 */
+.cs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.cs-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cs-card-head h2 { margin: 0; font-size: 18px; }
+.cs-dbs li { flex-wrap: wrap; }
+.cs-check { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-right: auto; }
+.cs-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.6; }
+.cs-url input, .cs-steps input { flex: 1; min-width: 200px; }
+@media (max-width: 900px) { .cs-grid { grid-template-columns: 1fr; } }

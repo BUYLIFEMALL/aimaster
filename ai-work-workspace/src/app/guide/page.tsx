@@ -442,6 +442,40 @@ export default async function GuidePage() {
           </aside>
         </section>
 
+        {/* 캘린더 연동(2026-11-11) — 플랜 docs/PLAN_20261111_GOOGLE_CALENDAR.md */}
+        <section className="aww-meeting" id="calendar" aria-label="구글 캘린더 연동 사용법">
+          <div className="aww-section-head">
+            <span className="aww-badge aww-badge-indigo">📅 캘린더 연동</span>
+            <h2>📅 워크스페이스 일정을 구글 캘린더에 — 두 가지 방식 중 고르기</h2>
+            <p>왼쪽 메뉴 「📅 캘린더 연동」에서 편한 방식을 고르세요(둘 다 써도 됩니다). 날짜 칸이 있는 표(예: 📅 콘텐츠 캘린더)의 행이 일정이 됩니다.</p>
+          </div>
+          <div className="aww-guide-steps">
+            {[
+              { no: 1, icon: "🔗", title: "① 간편 구독 — 표 고르기", desc: "구글 캘린더에 보여 줄 표를 고르고 「구독 주소 만들기」를 누릅니다. 키·로그인 연결이 필요 없습니다." },
+              { no: 2, icon: "📋", title: "① 간편 구독 — 주소 붙여 넣기", desc: "주소를 복사해 구글 캘린더 › 설정 › 「URL로 추가」에 붙여 넣으면 끝. 구글이 몇 시간~하루마다 새로 읽습니다(보기만, 한 방향)." },
+              { no: 3, icon: "🔑", title: "② 구글 계정 연결 — 앱 준비", desc: "구글 클라우드에서 OAuth 앱을 만들고 Google Calendar API를 켠 뒤, 리디렉션 주소를 추가하고 Client ID·Secret을 「API키등록·플랫폼연동」에 등록합니다(유튜브·구글 블로그용 앱이 있으면 그대로 사용)." },
+              { no: 4, icon: "🔄", title: "② 구글 계정 연결 — 보내기·가져오기", desc: "「구글 연결」 동의 뒤, 표를 골라 「지금 보내기」(구글 일정 만들기·고치기) 또는 구글 일정을 「표로 가져오기」 합니다. 바로 반영됩니다." },
+            ].map((s) => (
+              <article key={s.no} className="aww-step-card">
+                <div className="aww-step-card-header">
+                  <span className="aww-step-num">STEP 0{s.no}</span>
+                </div>
+                <div className="aww-step-icon-wrap" aria-hidden>{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </article>
+            ))}
+          </div>
+          <aside className="aww-banner aww-warn">
+            <div className="aww-banner-head"><span className="aww-banner-icon">⚠️</span><strong>알아두세요</strong></div>
+            <ul>
+              <li>간편 구독 주소는 비밀번호처럼 다루세요. 새어 나갔다면 「주소 다시 만들기」로 옛 주소를 막을 수 있습니다.</li>
+              <li>구글 계정 연결은 회원님 본인 구글 앱으로만 합니다. 처음 연결 때 「확인되지 않은 앱」 경고가 뜨면 본인 앱이므로 「고급 → 이동」으로 진행하세요.</li>
+              <li>같은 행·같은 구글 일정은 한 번만 만들거나 가져옵니다(다시 보내면 고쳐짐).</li>
+            </ul>
+          </aside>
+        </section>
+
         {/* ④ 하이테크 키캡 단축키 치트시트 */}
         <section className="aww-shortcuts-section">
           <div className="aww-shortcuts-header">
