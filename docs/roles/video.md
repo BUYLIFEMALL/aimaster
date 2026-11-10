@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-11 `claude-win-video` (Runway·Vidu 직접 연동 v1.33 배포)
+- 마지막 갱신: 2026-11-11 `claude-win-video` (v1.34 회귀 수정·Runway 실생성 확인)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | Runway·Vidu 실생성 2회(gen4_turbo 5초 약 360원 · viduq3-turbo 5초 약 375원, 승인됨) | 주인님이 시험 계정 설정에 Runway·Vidu 키 등록 | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
+| `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) | 시험 계정 Vidu 크레딧 충전(지금 `CreditInsufficient`) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `youtube-viral-studio` | V6 내 채널 진짜 지표 보기 — 주인님 2026-11-11 「너가해」로 영상 담당 지정 | Runway·Vidu 다음 순서 | `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` V6 |
 | 영상 프로그램 6개 | 서버 지역(`regions`) 측정 → DB 가까운 쪽으로 — 주인님 「측정부터해보고 가까운쪽으로해」 | V6 다음 순서 | `docs/PLATFORM_PATTERNS.md` §8 |
@@ -23,6 +23,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | `ai-video-studio` v1.34 | v1.28 리뉴얼 회귀 수정(사진·비율 값 이름·응답 읽기·모델 고르기 칸) + 운영 DB `avs_generations` 업체 제한에 runway·vidu 추가. 실생성: Runway gen4_turbo 5초 완성 ✅, Vidu는 크레딧 부족 거절(정상 안내) | 빌드 1회 `ai-video-studio-dm0t0thdn` · 생성 $0.25 |
 | 2026-11-11 | `ai-video-studio` v1.33 | Runway(gen4.5·gen4_turbo)·Vidu(viduq3-turbo·pro) 직접 연동 — 운영 DB 키 허용 목록, 공용 기준 코드·사본 4곳 동기화, 매뉴얼 2건, 시험 109, 운영 ego 설정·탭 확인. 실생성은 키 등록 대기 | 빌드 1회 `ai-video-studio-63uwl0qzd` |
 | 2026-11-11 | 미배포 3건 연속 배포 | `ai-video-studio` v1.32(Claude haiku-5-5) · `youtube-viral-studio` v1.26(메뉴 이름) · `music-video-studio` v1.29(장면 맞춤 사본) — 각 운영 화면 버전 확인. V1 소리 확인(원본 소리 렌더 -21.6dB, 0원) | 빌드 3회 |
 | 2026-11-11 | 남은 일 정리 | `ai-video-studio` 구간 고르기 Claude `claude-haiku-5-5`(생각 끔·effort low, 관리자 키 시험 1회 정상, 미배포) · `insta_auto_poster` 담당께 whisper 종료 대비 메모 · 쇼츠 낱말 시각 플랜(2027-01-05 재점검) | 없음 |
@@ -81,7 +82,7 @@
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
 2. V4 녹화는 주인님 확인 (V1 소리는 11-11 확인 끝: 원본 소리 켬 MP4 AAC 48k 스테레오·평균 -21.6dB, 원본 -21.4dB)
 3. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(플랜 `shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`, ElevenLabs는 이미 자체 시각)
-4. Runway·Vidu 키 등록되면 실생성 2회 → 결과 기록. 그다음 V6(유튜브 내 채널 진짜 지표) 플랜
+4. Vidu 크레딧 충전되면 Q3 Turbo 5초 1회 재확인(승인 뒤). 그다음 V6(유튜브 내 채널 진짜 지표) 플랜
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것

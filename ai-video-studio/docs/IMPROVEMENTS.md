@@ -17,6 +17,7 @@
 > 기준 v1.01 (2026-10-23, Claude Code 윈도우) · https://ai-video-studio.buylife.xyz
 
 ## 관찰된 문제
+- **[디자인 담당께 · 2026-11-11 영상 담당]** v1.28 전면 리뉴얼(`d075d0b0b`, 11-06)에서 만들기 화면 생성 요청의 값 이름이 바뀌어(`startImage`→`startImageUrl`, `aspectRatio`→`aspect`, `endImage`→`endImageUrl`, 응답 `generations`→`generation`) 서버와 어긋났고, 모델 고르기 칸도 빠졌습니다. v1.34에서 복구했습니다. 다음 리뉴얼 때는 **화면 모양만 바꾸고 `fetch` 요청 본문·응답 읽기 코드는 그대로** 두시고, `npm test`의 「화면이 보내는 값 이름 = 서버가 읽는 이름」 시험이 통과하는지 확인해 주세요. Vidu 실생성은 시험 계정 Vidu 크레딧 충전 뒤 재확인 대기.
 - **fal 키 「없음」 오류(원인 미확정)**: 첫 배포에서 fal 사진→영상 요청 2번이 400 「fal API 키가 없습니다」(03:58·약 04:05 KST, 비용 없음). DB `user_api_keys`의 시험 계정 fal 행은 2026-10-21 이후 그대로 1개(로컬에서 같은 조회 정상). 조회 실패 기록(`lib/access.ts` `[getUserApiKey] 없음`, 키 값은 남기지 않음)을 넣어 재배포한 뒤 같은 조건 성공. **재발하면 Vercel 로그 기록부터 확인**.
 
 ## 미배포 대기
