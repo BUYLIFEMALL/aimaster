@@ -352,9 +352,51 @@ export default async function GuidePage() {
           <aside className="aww-banner aww-warn">
             <div className="aww-banner-head"><span className="aww-banner-icon">⚠️</span><strong>알아두세요</strong></div>
             <ul>
-              <li>웹훅(바깥 주소로 보내기)·에이전트에게 메시지 보내기 동작은 아직 준비 중이라 고를 수 없습니다.</li>
+              <li>웹훅(바깥 주소로 보내기) 동작은 아직 준비 중이라 고를 수 없습니다. 「업무 비서에게 메시지」 동작은 아래 업무 비서를 만든 뒤 쓸 수 있습니다.</li>
               <li>cron-job.org API 키에 IP 제한을 걸면 작업을 켜지 못합니다(이 사이트 서버 주소는 계속 바뀝니다). cron-job.org 무료 계정은 API 호출이 하루 100회로 제한됩니다.</li>
               <li>자동화 실행 기록과 알림은 30일 뒤 자동으로 지워집니다. 자동화 설정 자체는 지우기 전까지 남습니다.</li>
+            </ul>
+          </aside>
+        </section>
+
+        {/* U12 업무 비서(2026-11-10) — 플랜 docs/PLAN_20261110_U12_AGENT.md */}
+        <section className="aww-meeting" id="agent" aria-label="AI 업무 비서 사용법">
+          <div className="aww-section-head">
+            <span className="aww-badge aww-badge-indigo">🤖 업무 비서</span>
+            <h2>🤖 맡겨 두면 알아서 — AI 업무 비서(맞춤 에이전트)</h2>
+            <p>「평일 아침 8시에 오늘 할 일 브리핑」, 「매주 월요일 콘텐츠 캘린더 점검」, 「금요일 오후 주간 보고 초안」처럼 정해 둔 일을 AI 비서가 워크스페이스의 페이지·표를 읽고 정리해 둡니다. 회원님 본인 AI 키로만 실행됩니다.</p>
+          </div>
+          <div className="aww-guide-steps">
+            {[
+              { no: 1, icon: "➕", title: "비서 만들기", desc: "왼쪽 메뉴 채팅 영역의 「에이전트」 또는 보관함 › 에이전트에서 「새 에이전트」를 누르고, 비용 안내를 확인한 뒤 템플릿(아침 업무 브리핑·회의 준비·콘텐츠 캘린더 정리·받은 업무 정리·주간 보고 초안·할 일 정리)을 고릅니다." },
+              { no: 2, icon: "📝", title: "할 일·볼 페이지 정하기", desc: "지시문을 원하는 대로 고치고, 비서가 읽고 쓸 페이지·데이터베이스를 연결합니다. 연결하지 않은 곳은 열지 않습니다." },
+              { no: 3, icon: "⏰", title: "언제 할지 정하기", desc: "「매일·평일·매주」 정해진 시각, 페이지가 바뀔 때, 이름을 불렀을 때(@멘션) 중 고릅니다. 자동화의 「업무 비서에게 메시지」 동작으로 부를 수도 있습니다." },
+              { no: 4, icon: "📊", title: "결과·사용량 보기", desc: "비서 화면의 활동·인사이트에서 실행 결과와 이번 달 사용량(크레딧)을 봅니다. 결과는 페이지와 알림함으로 옵니다." },
+            ].map((s) => (
+              <article key={s.no} className="aww-step-card">
+                <div className="aww-step-card-header">
+                  <span className="aww-step-num">STEP 0{s.no}</span>
+                </div>
+                <div className="aww-step-icon-wrap" aria-hidden>{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </article>
+            ))}
+          </div>
+          <aside className="aww-banner aww-tip">
+            <div className="aww-banner-head"><span className="aww-banner-icon">💡</span><strong>비용은 회원님 본인 AI 키로, 상한으로 안전하게</strong></div>
+            <ul>
+              <li>비서는 <a href="/settings/keys">API키등록·플랫폼연동</a>에 등록한 회원님 본인의 Claude·OpenAI·Gemini 키로 실행되고, 쓴 만큼 해당 AI 회사 요금이 회원님 계정에 청구됩니다. 키가 여러 개면 Claude를 먼저 씁니다.</li>
+              <li>새 비서는 <b>월 사용 상한 700 크레딧</b>(1 크레딧 = 토큰 약 1,000개, 출력은 5배로 셈 — 중간 모델 기준 약 $2)으로 시작합니다. 상한에 닿으면 자동으로 멈추고 알림이 옵니다. 비서 설정에서 상한을 바꿀 수 있습니다.</li>
+              <li>정해진 시각에 도는 비서는 위 자동화와 같은 cron-job.org 키 하나로 돌아갑니다(한 번 등록하면 끝).</li>
+            </ul>
+          </aside>
+          <aside className="aww-banner aww-warn">
+            <div className="aww-banner-head"><span className="aww-banner-icon">⚠️</span><strong>알아두세요</strong></div>
+            <ul>
+              <li>지금은 웹 검색·바깥 웹 페이지 열기, 메일 정리, 다른 회원과 비서 공유, 외부 도구(MCP) 연결은 쓸 수 없습니다.</li>
+              <li>한 비서가 1시간에 너무 많이 실행되면 자동으로 멈춥니다(불필요한 요금 방지).</li>
+              <li>비서 실행 기록과 대화는 30일 뒤 자동으로 지워집니다. 비서 설정·만든 페이지는 지우기 전까지 남습니다.</li>
             </ul>
           </aside>
         </section>

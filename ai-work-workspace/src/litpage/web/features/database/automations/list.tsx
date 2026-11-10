@@ -23,6 +23,8 @@ import { getLocale, tx } from '../../shell/i18n.ts'; // 이식판: 날짜를 화
 export function automationDisplayName(a: AutomationRecord): string {
   if (a.properties?.name) return a.properties.name;
   const u = records.get<UserRecord>('lit_user', a.created_by_id);
+  // AIMaster U12: 기본 이름 한국어(화면 언어가 영어면 원본 그대로)
+  if (getLocale() === 'ko-KR') return u?.name ? `${u.name}의 자동화` : '자동화';
   return u?.name ? `${u.name}’s automation` : 'Automation';
 }
 

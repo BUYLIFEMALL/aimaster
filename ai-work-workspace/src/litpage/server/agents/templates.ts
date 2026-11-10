@@ -19,132 +19,66 @@ export interface AgentTemplate {
   badge?: 'New';
 }
 
+// AIMaster U12(2026-11-10, 주인님 결정 5번): 원본 영어 템플릿 12종을 AIMaster 업무에 맞는 한국어 6종으로 바꿈.
+// 메일 정리(메일 연결 없음)·웹 조사(웹 검색 끔)·다른 사람 디렉터리가 필요한 템플릿은 뺐다.
 const steps = (goal: string, items: string[], output: string, limits: string[]) =>
-  `## Purpose\n${goal}\n\n## Run checklist\n${items.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n## Deliverable\n${output}\n\n## Guardrails\n${limits.map((s) => `- ${s}`).join('\n')}`;
+  `## 목적\n${goal}\n\n## 실행 순서\n${items.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n## 결과물\n${output}\n\n## 지킬 것\n${limits.map((s) => `- ${s}`).join('\n')}`;
+
+const COMMON_LIMITS = ['한국어로, 짧고 읽기 쉽게 정리합니다.', '확실하지 않은 내용은 추측하지 말고 「확인 필요」로 표시합니다.', '페이지·데이터를 지우지 않습니다.'];
 
 export const AGENT_TEMPLATES: AgentTemplate[] = [
   {
-    id: 'personal-assistant', title: 'Morning workspace briefing', icon: '🧭', categories: ['everyone'],
-    description: 'Starts your day with priorities, inbox follow-ups, and meeting prep',
+    id: 'morning-briefing', title: '아침 업무 브리핑', icon: '🧭', categories: ['everyone'],
+    description: '평일 아침마다 오늘·이번 주 할 일과 마감, 답이 필요한 일을 한 페이지로 정리합니다',
     schedule: { frequency: 'week', weekdays: [1, 2, 3, 4, 5], time: '08:00' },
-    instructions: steps('Start each workday knowing what matters.', ['Look through the pages and databases you can access for anything due today or this week.', 'List decisions or replies that are waiting on me.', 'Note meetings or deadlines that need preparation.'], 'A short briefing page titled with today’s date: Today, Waiting on you, Coming up. Send me a notification with the link.', ['Change or delete anything without asking.', 'Repeat items that haven’t changed since yesterday.']),
+    instructions: steps('하루를 시작할 때 무엇이 중요한지 한눈에 알 수 있게 합니다.',
+      ['볼 수 있는 페이지·데이터베이스에서 오늘과 이번 주에 마감인 일을 찾습니다.', '내 결정이나 답을 기다리는 일을 모읍니다.', '오늘 회의·일정 중 준비가 필요한 것을 표시합니다.'],
+      '「오늘의 업무 브리핑 (날짜)」 페이지 하나 — 꼭 할 일 3개, 마감 목록, 기다리는 답 순서.', COMMON_LIMITS),
   },
   {
-    id: 'email-manager', title: 'Inbox triage helper', icon: '📬', categories: ['everyone'],
-    description: 'Sorts new mail, suggests replies, and highlights what can wait',
-    schedule: { frequency: 'day', time: '07:30' },
-    instructions: steps('Keep my inbox under control.', ['Group new messages into: needs a reply, FYI, can be archived.', 'Draft short replies for the ones that need one.'], 'A triage summary with the drafts, so I can review them quickly.', ['Send anything on my behalf.', 'Archive messages from people I work with closely.']),
+    id: 'meeting-prep', title: '회의 준비·정리', icon: '🗓️', categories: ['everyone'],
+    description: '회의 전에 관련 자료를 모으고, 회의록이 생기면 할 일과 담당을 뽑아 줍니다',
+    instructions: steps('회의 시간을 아깝지 않게 만듭니다.',
+      ['회의 전: 관련 페이지·열린 할 일·지난 결정을 모읍니다.', '안건을 다섯 개 이하로 제안합니다.', '회의 뒤 AI 회의록이 생기면 실행 항목을 담당·기한과 함께 할 일로 정리합니다.'],
+      '회의 준비 메모와, 회의 뒤 「할 일 목록」 블록이 든 정리 페이지.', COMMON_LIMITS),
   },
   {
-    id: 'meeting-copilot', title: 'Meeting prep partner', icon: '🗓️', categories: ['everyone'], people: true,
-    description: 'Gathers context before meetings and captures follow-up work afterward',
-    instructions: steps('Make every meeting worth the time.', ['Before a meeting: collect related pages, open tasks and last decisions.', 'Suggest an agenda of at most five points.', 'After a meeting note is summarized: turn action items into tasks with owners.'], 'A prep section at the top of the meeting page, and follow-up tasks in the tasks database.', ['Invent decisions that weren’t made.', 'Assign tasks to people who weren’t in the meeting.']),
-  },
-  {
-    id: 'daily-standup-scribe', title: 'Standup snapshot', icon: '🧾', categories: ['eng', 'everyone'],
-    description: 'Collects progress, blockers, and recently shipped work for a daily update',
-    schedule: { frequency: 'week', weekdays: [1, 2, 3, 4, 5], time: '09:00' },
-    instructions: steps('Replace the status round in standup.', ['Read the sprint / tasks database you were given.', 'Collect what moved to Done since yesterday, what is in progress, and anything blocked.'], 'A standup page per day with Shipped, In progress and Blocked (with owners), linked from the team page.', ['Guess the status of tasks that didn’t change.', 'Mention people about tasks they don’t own.']),
-  },
-  {
-    id: 'new-hire-onboarding', title: 'New teammate launch plan', icon: '🎒', categories: ['everyone', 'other'], people: true,
-    description: 'Turns workspace guides into a practical first-two-weeks plan',
-    instructions: steps('Help a new teammate find their footing in their first two weeks.', ['Ask for the new hire’s role and team if they aren’t given.', 'Find the handbook, team pages and setup guides you can access.', 'Plan each day: what to read, who to meet, what to set up.'], 'An onboarding plan page with one section per day and links to the sources.', ['Share private HR information.', 'Promise access that hasn’t been granted.']),
-  },
-  {
-    id: 'self-improving-answer-bot', title: 'Team FAQ helper', icon: '💡', categories: ['everyone', 'support'], badge: 'New',
-    description: 'Answers recurring team questions from your pages and records confirmed gaps',
-    instructions: steps('Answer repeat questions from the team using our docs.', ['Search the pages you can access for the answer.', 'Answer briefly and link the source page.', 'When the answer wasn’t documented, add it to the FAQ page after someone confirms it.'], 'Short answers with source links; FAQ entries for new answers.', ['Answer from memory when the docs say something else.', 'Make up policies.']),
-  },
-  {
-    id: 'incident-rca', title: 'Incident review guide', icon: '🧯', categories: ['eng'],
-    description: 'Connects alerts, logs, and timelines into a clear incident follow-up',
-    instructions: steps('Turn an incident into a clear root-cause write-up.', ['Read the incident page, timeline and linked pages.', 'Separate symptoms, trigger and root cause.', 'List concrete follow-up actions with owners.'], 'A postmortem section on the incident page: Summary, Timeline, Root cause, Follow-ups.', ['Blame individuals.', 'Mark follow-ups as done.']),
-  },
-  {
-    id: 'launch-announcement-writer', title: 'Release announcement draft', icon: '📣', categories: ['marketing', 'eng'],
-    description: 'Shapes product notes into a customer-ready launch message',
-    instructions: steps('Write launch announcements customers want to read.', ['Read the launch brief and PRD you are pointed to.', 'Pick the one or two benefits that matter most to customers.', 'Write a headline, a short intro, three highlights and a call to action.'], 'A draft announcement page next to the brief, ready for review.', ['Publish anything.', 'Mention features that aren’t in the brief.']),
-  },
-  {
-    id: 'content-calendar-planner', title: 'Editorial calendar builder', icon: '🗂️', categories: ['marketing'],
-    description: 'Plans a month of content from launches and campaigns, including owners and channels',
-    schedule: { frequency: 'month', time: '09:00' },
-    instructions: steps('Plan next month’s content.', ['Read upcoming launches and campaign pages.', 'Propose pieces per week with channel, owner and due date.', 'Write a two-line brief for each piece.'], 'Rows in the content calendar database, one per piece.', ['Schedule more than three pieces per week.', 'Change pieces that are already in progress.']),
-  },
-  {
-    id: 'content-studio', title: 'Campaign copy desk', icon: '✍️', categories: ['marketing'],
-    description: 'Expands a brief into review-ready email, social, and web drafts',
-    instructions: steps('Turn a brief into ready-to-review drafts.', ['Read the brief and any linked material.', 'Write an email, a social post and a short web blurb in our voice.'], 'Drafts on the brief’s page under a “Drafts” heading.', ['Publish or schedule anything.', 'Make claims the brief doesn’t support.']),
-  },
-  {
-    id: 'industry-brief', title: 'Market pulse', icon: '📰', categories: ['marketing', 'sales'], web: true,
-    description: 'Scans recent industry news and sends a focused weekly update',
-    schedule: { frequency: 'week', weekdays: [1], time: '08:00' },
-    instructions: steps('Keep the team current on our industry.', ['Search the web for news from the past week about our market and competitors.', 'Keep only what could change our plans.'], 'A weekly brief page: Headlines, Why it matters, Sources (links).', ['Include rumors without a source.', 'Copy whole articles.']),
-  },
-  {
-    id: 'account-pulse', title: 'Account health check', icon: '📈', categories: ['sales'],
-    description: 'Combines account notes and signals to flag relationships that need attention',
+    id: 'content-calendar-keeper', title: '콘텐츠 캘린더 정리', icon: '📅', categories: ['marketing'],
+    description: '매주 월요일 콘텐츠 캘린더를 살펴 비어 있는 날·늦은 글·이번 주 발행 계획을 알려 줍니다',
     schedule: { frequency: 'week', weekdays: [1], time: '09:00' },
-    instructions: steps('Spot accounts that need attention early.', ['Read recent call notes and feedback for each account you can access.', 'Flag risk signals: unhappy contacts, stalled projects, usage drops.'], 'An account health summary with a status per account and suggested next steps.', ['Contact customers.', 'Change deal stages.']),
+    instructions: steps('콘텐츠 발행이 끊기지 않게 챙깁니다.',
+      ['「📅 콘텐츠 캘린더」 데이터베이스에서 이번 주와 다음 주 행을 읽습니다.', '예약일이 지났는데 발행 완료가 아닌 글을 찾습니다.', '채널별로 글이 없는 날을 찾습니다.'],
+      '「주간 콘텐츠 점검 (날짜)」 페이지 — 늦은 글, 빈 날, 이번 주 발행 예정 표.', [...COMMON_LIMITS, '캘린더 행의 상태를 바꾸지 말고 제안만 합니다.']),
   },
   {
-    id: 'contact-manager', title: 'Contacts organizer', icon: '📇', categories: ['sales'],
-    description: 'Keeps a contacts table current from people mentioned in workspace material',
-    instructions: steps('Keep the contacts database complete.', ['Look for new people mentioned in the pages you watch.', 'Add or update their row: name, company, role, last contact.'], 'Up-to-date rows in the contacts database.', ['Create duplicates — update the existing row.', 'Store personal information that isn’t work related.']),
+    id: 'inbox-organizer', title: '받은 업무 정리', icon: '📨', categories: ['everyone'],
+    description: '다른 프로그램에서 받은 업무를 매일 저녁 훑어보고 처리할 순서와 요약을 만들어 줍니다',
+    schedule: { frequency: 'day', time: '18:00' },
+    instructions: steps('다른 자동화 프로그램에서 온 결과를 놓치지 않게 합니다.',
+      ['오늘 만들어진 페이지(받은 업무에서 가져온 페이지 포함)를 찾습니다.', '각각 무엇인지 한 줄로 요약합니다.', '내일 먼저 볼 것 세 개를 고릅니다.'],
+      '「오늘 받은 업무 요약 (날짜)」 페이지.', COMMON_LIMITS),
   },
   {
-    id: 'customer-meeting-prep', title: 'Customer meeting brief', icon: '🤝', categories: ['sales'],
-    description: 'Prepares customer meeting context and records the recap and next steps',
-    instructions: steps('Walk into every customer meeting prepared.', ['Collect the account’s history, open issues and last commitments.', 'After the meeting, write a recap and log follow-ups.'], 'A prep section and a recap section on the meeting page.', ['Share internal notes with the customer.']),
-  },
-  {
-    id: 'pipeline-manager', title: 'Pipeline pulse', icon: '🧮', categories: ['sales'],
-    description: 'Summarizes deal movement, stalled work, and pipeline risks each week',
+    id: 'weekly-report', title: '주간 보고 초안', icon: '📊', categories: ['everyone', 'other'],
+    description: '매주 금요일 이번 주에 끝낸 일·진행 중인 일·다음 주 계획으로 보고서 초안을 씁니다',
     schedule: { frequency: 'week', weekdays: [5], time: '16:00' },
-    instructions: steps('Give a clear weekly view of the pipeline.', ['Read the deals database.', 'Summarize what moved, what stalled and what is at risk.'], 'A weekly pipeline report page with a table of changed deals.', ['Edit deal values or stages.']),
+    instructions: steps('주간 보고를 쓰는 시간을 줄입니다.',
+      ['이번 주에 수정된 페이지와 데이터베이스 행을 살펴봅니다.', '끝낸 일, 진행 중인 일, 막힌 일로 나눕니다.', '다음 주에 할 일을 제안합니다.'],
+      '「주간 보고 초안 (날짜)」 페이지 — 그대로 다듬어 보낼 수 있는 문장으로.', COMMON_LIMITS),
   },
   {
-    id: 'sales-enablement-navigator', title: 'Sales knowledge guide', icon: '🧭', categories: ['sales'],
-    description: 'Finds product answers, useful assets, and a starting point for customer emails',
-    instructions: steps('Help sellers answer customers fast.', ['Search product docs, battlecards and case studies you can access.', 'Answer with the best source and suggest a matching asset.'], 'A short answer plus links; a customer-ready email draft when asked.', ['Quote prices that aren’t in the docs.']),
-  },
-  {
-    id: 'customer-feedback-tracker', title: 'Feedback themes', icon: '🗣️', categories: ['sales', 'support'],
-    description: 'Groups new customer comments into themes and sends a weekly readout',
-    schedule: { frequency: 'week', weekdays: [5], time: '15:00' },
-    instructions: steps('Make customer feedback visible.', ['Read new feedback added this week.', 'Group it into themes and count mentions.'], 'A weekly feedback report: Top themes, Notable quotes, Suggested actions.', ['Drop feedback that doesn’t fit a theme — list it under Other.']),
-  },
-  {
-    id: 'support-help-desk', title: 'Support knowledge helper', icon: '🛟', categories: ['support'],
-    description: 'Finds answers in help pages, playbooks, and prior tickets for support replies',
-    instructions: steps('Answer support questions accurately.', ['Search help docs, playbooks and past tickets you can access.', 'Answer with steps and link the source.'], 'Concise answers with sources; say clearly when the docs don’t cover it.', ['Guess at policies or refunds.']),
-  },
-  {
-    id: 'support-reply-writer', title: 'Support reply draft', icon: '💬', categories: ['support'],
-    description: 'Uses the ticket, account context, and help center to draft a thoughtful response',
-    instructions: steps('Draft great replies to support tickets.', ['Read the ticket and the customer’s history.', 'Find the relevant knowledge base article.', 'Draft a friendly reply that solves the problem.'], 'A reply draft as a comment on the ticket page.', ['Send the reply yourself.', 'Promise timelines.']),
-  },
-  {
-    id: 'it-help-desk', title: 'IT answers', icon: '🖥️', categories: ['support', 'eng'],
-    description: 'Searches internal runbooks and policies to answer everyday IT questions',
-    instructions: steps('Unblock teammates with IT questions.', ['Search the IT wiki, runbooks and policies you can access.', 'Answer with step-by-step instructions and the source.'], 'Short answers; point to the right person when access or hardware is needed.', ['Share credentials or secrets.']),
-  },
-  {
-    id: 'legal-help-desk', title: 'Legal reference helper', icon: '⚖️', categories: ['other', 'support'],
-    description: 'Finds relevant clauses in contracts and internal legal guidance',
-    instructions: steps('Answer routine legal questions from our own guidelines.', ['Search contracts, policies and legal guidelines you can access.', 'Quote the relevant clause and link it.'], 'An answer that cites the clause, and when legal review is needed, says so.', ['Give legal advice beyond our documented guidelines.']),
+    id: 'task-tidy', title: '할 일 정리 도우미', icon: '✅', categories: ['everyone'],
+    description: '부탁하면 흩어진 메모·회의록에서 할 일을 찾아 우선순위와 함께 한곳에 모아 줍니다',
+    instructions: steps('흩어진 할 일을 한곳에 모읍니다.',
+      ['요청받은 페이지(또는 최근 페이지)에서 체크되지 않은 할 일과 「해야 함」 같은 문장을 찾습니다.', '중복을 합치고 마감·중요도로 우선순위를 매깁니다.'],
+      '우선순위 순서의 할 일 목록 페이지(원래 위치 링크 포함).', COMMON_LIMITS),
   },
 ];
 
 export const TEMPLATE_CATEGORIES: { id: TemplateCategory; label: string }[] = [
-  { id: 'everyone', label: 'For everyone' },
-  { id: 'eng', label: 'Eng & Product' },
-  { id: 'marketing', label: 'Marketing' },
-  { id: 'sales', label: 'Sales & Success' },
-  { id: 'support', label: 'Support' },
-  { id: 'other', label: 'Other' },
+  { id: 'everyone', label: '모두를 위한' },
+  { id: 'marketing', label: '마케팅·콘텐츠' },
+  { id: 'other', label: '기타' },
 ];
 
 export function templateById(id: string | undefined | null): AgentTemplate | undefined {

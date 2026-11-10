@@ -34,6 +34,11 @@ export function withRequestCache<T>(fn: () => T): T {
   return requestCache.run(new Map(), fn);
 }
 
+/** AIMaster U12: 요청 캐시 밖에서 실행(오래 걸리는 백그라운드 에이전트 실행이 요청 때 읽어 둔 옛 값을 쓰지 않게) */
+export function withoutRequestCache<T>(fn: () => T): T {
+  return requestCache.exit(fn);
+}
+
 function cacheGet(key: string): BaseRecord | null | undefined {
   return requestCache.getStore()?.get(key);
 }

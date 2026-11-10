@@ -1,6 +1,6 @@
 // U3: 원본 화면이 부르는 POST /api/ai/stream (Server-Sent Events). 원본 src/litpage/server/aiStream.ts와 같은 순서·같은
 // 이벤트(meta·status·sources·step·changes·delta·done·ping)로 응답하되, 로그인은 AIMaster 통합 계정 + 이 프로그램 이용 권한,
-// AI 키는 회원 본인 키(user_api_keys)만 쓴다. 맞춤 에이전트(kind: 'agent')는 U12 전까지 닫는다.
+// AI 키는 회원 본인 키(user_api_keys)만 쓴다. 맞춤 에이전트(kind: 'agent')는 U12(2026-11-10)에서 엶.
 import { NextResponse, type NextRequest } from "next/server";
 import { checkProgramAccessApi } from "@/lib/access";
 import { memberFromUser } from "@/server/member";
@@ -13,7 +13,7 @@ import { mapError, NO_KEY_MESSAGE } from "@/litpage/server/ai/client.ts";
 import { executeChatTurn, executeSimple, parseChatParams, prepareAiBlock, prepareChatTurn, prepareWriter, type TurnEvents } from "@/litpage/server/ai/service.ts";
 import { messageJson } from "@/litpage/server/api/modules/ai.ts";
 import { AI_RATE_MESSAGE, aiAllowed } from "@/litpage/server/ratelimit.ts";
-import { STAGE_MESSAGE } from "@/server/stagePolicy";
+import { executeAgentChat, prepareAgentChat } from "@/litpage/server/agents/runs.ts";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
   if (!aiAllowed(userId)) return NextResponse.json({ name: "AiError", code: "rate_limited", message: AI_RATE_MESSAGE }, { status: 429, headers: NO_STORE });
 
   const kind = String(body?.kind ?? "");
-  if (kind === "agent") return NextResponse.json({ name: "PermissionError", message: STAGE_MESSAGE }, { status: 403, headers: NO_STORE });
+  // U12(2026-11-10): 맞춤 에이전트 대화(kind: 'agent')도 연다 — 이 요청의 회원 본인 키로만 실행된다
   await withMemberAiKeys(keys, () => warmModelLists()).catch(() => {});
 
   // 준비 단계(권한 확인·대화 만들기)는 요청 캐시 안에서, 오래 걸리는 생성은 캐시 밖에서(오래된 값을 읽지 않게)
@@ -67,6 +67,20 @@ export async function POST(request: NextRequest) {
         return (async (ev, signal) => {
           const r = await executeChatTurn(prep, ev, signal);
           return { status: r.status, text: r.message?.data.text ?? "", message: r.message ? messageJson(r.message) : null, error: r.error ?? null, threadId: r.threadId, title: r.title ?? null };
+        }) as Job;
+      }
+      if (kind === "agent") {
+        // U12: 맞춤 에이전트와 대화(원본 aiStream.ts와 같은 처리, 에이전트 봇으로 실행 — agents/runs.ts)
+        const prep = prepareAgentChat({
+          userId: member.id, agentId: String(body?.agentId ?? ""), threadId: typeof body?.threadId === "string" ? body.threadId : null,
+          text: typeof body?.text === "string" ? body.text.slice(0, 100_000) : "",
+          approvalMode: typeof body?.approvalMode === "string" ? body.approvalMode : undefined, pageId: typeof body?.pageId === "string" ? body.pageId : null,
+          model: typeof body?.model === "string" ? body.model : undefined,
+        });
+        meta = { threadId: prep.thread.id, title: prep.thread.title, userMessageId: prep.userMessage.id, truncated: [], runId: prep.run.id };
+        return (async (ev, signal) => {
+          const r = await executeAgentChat(prep, ev, signal);
+          return { status: r.message?.data.status ?? (r.status === "failed" ? "error" : "complete"), text: r.text, message: r.message ? messageJson(r.message) : null, error: r.error ?? null, threadId: r.threadId, runId: r.run.id };
         }) as Job;
       }
       if (kind === "writer") {

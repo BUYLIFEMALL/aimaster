@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerState } from '@/lib/schedulerMember/memberScheduler';
 import { settleAutomations } from '@/litpage/server/automations/engine.ts';
 import { withRequestCache } from '@/litpage/server/db.ts';
+import { settleAgentRuns } from './agentRuns';
 
 function service(): SupabaseClient {
   return createAdminClient() as unknown as SupabaseClient;
@@ -30,6 +31,8 @@ export async function afterRpc(userId: string, scheduledMemberJob: boolean): Pro
   } catch (e) {
     console.error(`[automation] settle failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
   }
+  // U12: 이 명령이 넣은 에이전트 실행(직접 실행·페이지 변경·자동화 단계)이 끝날 때까지 기다린다(실행마다 주인 키로)
+  await settleAgentRuns();
   if (!scheduledMemberJob) return;
   try {
     await withRequestCache(() => ensureMemberSchedulerAfterSchedule(userId));

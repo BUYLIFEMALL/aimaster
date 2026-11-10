@@ -6,7 +6,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import type { BlockRecord, CollectionRecord, PropertySchema, UserRecord } from '#shared/records.ts';
 import { toPlainText, type DateValue } from '#shared/richtext.ts';
 import {
-  ACTION_META, contextLabel, type AutomationAction, type ContextKey, type EditOp, type PropertyEdit, type ValueRef,
+  ACTION_META, contextLabel as sharedContextLabel, type AutomationAction, type ContextKey, type EditOp, type PropertyEdit, type ValueRef,
 } from '#shared/automation/index.ts';
 import { encodeToken } from '#shared/formula/index.ts';
 import { records } from '../../../lib/store/records.ts';
@@ -25,6 +25,10 @@ import { overlayIdOf } from '../properties/PropertyMenus.tsx';
 import { formatDateValue } from '../../editor/inline/dates.ts';
 import { openAutomationFormula } from './formulaField.tsx';
 import { tx } from '../../shell/i18n.ts';
+
+// AIMaster U12: 자동화 문맥 값 이름(Whoever triggered 등)을 화면 언어로
+const contextLabel = (k: Parameters<typeof sharedContextLabel>[0], s: Parameters<typeof sharedContextLabel>[1]) => tx(sharedContextLabel(k, s));
+
 
 export type Surface = 'automation' | 'button_block' | 'button_property';
 

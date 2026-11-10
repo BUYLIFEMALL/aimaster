@@ -3,7 +3,7 @@
 // Time triggered, Date triggered, pages of earlier steps, variables) as {{lit:context:…}} tokens, trigger-page
 // properties as member paths (Trigger page.Status), with a page of the data source.
 import type { BlockRecord, CollectionRecord } from '#shared/records.ts';
-import { contextLabel, type ValueRef } from '#shared/automation/index.ts';
+import { contextLabel as sharedContextLabel, type ValueRef } from '#shared/automation/index.ts';
 import { dateFromMs, datetimeFromMs, encodeToken, type FValue } from '#shared/formula/index.ts';
 import { records } from '../../../lib/store/records.ts';
 import { useSession } from '../../../lib/store/session.ts';
@@ -11,6 +11,10 @@ import { openCustomFormulaEditor, type CustomFormula } from '../advanced/Formula
 import { userTimeZone } from '../advanced/context.ts';
 import { contextKeys, ctxSurface, earlierOutputs, refLabel, type EditorCtx } from './valueRefs.tsx';
 import { tx } from '../../shell/i18n.ts';
+
+// AIMaster U12: 자동화 문맥 값 이름(Whoever triggered 등)을 화면 언어로
+const contextLabel = (k: Parameters<typeof sharedContextLabel>[0], s: Parameters<typeof sharedContextLabel>[1]) => tx(sharedContextLabel(k, s));
+
 
 const DESCRIPTIONS: Record<string, [string, string]> = {
   page: ['The entry that was edited to trigger this workflow to run.', 'The entry that contains this button'],

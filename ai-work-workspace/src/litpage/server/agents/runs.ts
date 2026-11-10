@@ -226,6 +226,20 @@ export function setAgentClient(client: ClaudeLike | undefined) {
   testClient = client;
 }
 
+/**
+ * AIMaster U12(2026-11-10): 백그라운드 실행은 반드시 「그 에이전트 주인 회원의 본인 AI 키」로 감싸 실행한다.
+ * 원본 대기열은 프로세스 하나에서 공유되어, 다른 회원 요청 맥락(그 회원 키) 안에서 이어 실행될 수 있었다(서버리스 동시 요청).
+ * AIMaster 런타임이 주인 키를 읽어 감싸는 함수를 넣는다(src/server/agentRuns.ts). 넣지 않으면(원본 시험) 그대로 실행.
+ */
+/** AIMaster U12: 에이전트 웹 검색·가져오기(꺼 둠 — 켜려면 주인님 결정 후 true) */
+export const AGENT_WEB_ENABLED = false;
+
+type RunWrapper = (agentId: string, fn: () => Promise<RunOutcome>) => Promise<RunOutcome>;
+let runWrapper: RunWrapper = (_agentId, fn) => fn();
+export function setAgentRunWrapper(w: RunWrapper | undefined) {
+  runWrapper = w ?? ((_agentId, fn) => fn());
+}
+
 function schedulePump() {
   if (pumpScheduled) return;
   pumpScheduled = true;
@@ -249,7 +263,7 @@ function pump() {
     }
     queue.splice(i, 1);
     const controller = new AbortController();
-    const done = executeRun(run.id, { signal: controller.signal }).then(() => undefined, (e) => console.error('[agents] run failed', run.id, e)).finally(() => {
+    const done = runWrapper(run.agentId, () => executeRun(run.id, { signal: controller.signal })).then(() => undefined, (e) => console.error('[agents] run failed', run.id, e)).finally(() => {
       active.delete(run.id);
       schedulePump();
     });
@@ -323,15 +337,21 @@ export function heldRunCount(agentId: string): number {
   return Number((db.prepare("SELECT COUNT(*) AS c FROM agent_runs WHERE agent_id = ? AND status = 'pending' AND held = 1").get(agentId) as { c: number }).c);
 }
 
-// runs interrupted by a restart fail; pending ones are picked up again
-setTimeout(() => {
-  try {
-    db.prepare("UPDATE agent_runs SET status = 'failed', error = 'Interrupted (the server restarted)', ended_time = ? WHERE status = 'running'").run(Date.now());
-    for (const r of db.prepare("SELECT id FROM agent_runs WHERE status = 'pending' AND held = 0 ORDER BY created_time").all() as { id: string }[]) enqueue(r.id);
-  } catch (e) {
-    console.error('[agents] run recovery failed', e);
-  }
-}, 2000).unref?.();
+// AIMaster U12(2026-11-10): 원본은 서버 시작 2초 뒤 「모든 회원」의 멈춘 실행을 실패 처리하고 대기 실행을 한꺼번에 다시
+// 넣었다. 서버리스에서는 인스턴스가 수시로 새로 뜨고(그때마다 실행 중인 다른 인스턴스의 일을 실패로 만듦), 다른 회원 요청
+// 맥락에서 돌 수 있어 끈다. 대신 회원 정시 실행 주소가 그 회원 에이전트의 일만 recoverAgentRuns로 이어서 처리한다.
+const STALE_RUN_MS = 15 * 60_000;
+
+/** AIMaster: 이 에이전트들의 오래 멈춘 실행(15분 넘게 running)은 실패 처리, 대기 실행은 다시 대기열에 넣는다. 넣은 수를 돌려준다. */
+export function recoverAgentRuns(agentIds: string[], now = Date.now()): number {
+  if (!agentIds.length) return 0;
+  const marks = agentIds.map(() => '?').join(', ');
+  db.prepare(`UPDATE agent_runs SET status = 'failed', error = '실행이 중간에 멈췄습니다(시간 초과). 다시 실행해 주세요.', ended_time = ? WHERE status = 'running' AND started_time < ? AND agent_id IN (${marks})`)
+    .run(now, now - STALE_RUN_MS, ...agentIds);
+  const rows = db.prepare(`SELECT id FROM agent_runs WHERE status = 'pending' AND held = 0 AND agent_id IN (${marks}) ORDER BY created_time`).all(...agentIds) as { id: string }[];
+  for (const r of rows) enqueue(r.id);
+  return rows.length;
+}
 
 // ---------------------------------------------------------------- execution
 
@@ -551,7 +571,8 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   const { model } = resolveModel(choice, mp.allowed.length ? mp.allowed : policy.allowedModels, { fableEnabled: mp.fable || policy.fable });
   const effort = autoEffort('chat', run.payload.text ?? '');
   // ---- tools
-  const webOn = cfg.web_access && policy.webSearch;
+  // AIMaster U12(주인님 결정 3번): 이번 단계에선 에이전트의 웹 검색·웹 페이지 가져오기를 끈다(운영자 서버의 바깥 호출 없음)
+  const webOn = AGENT_WEB_ENABLED && cfg.web_access && policy.webSearch;
   const instructions = readInstructions(agent, cfg);
   const promptText = [instructions.markdown, run.payload.text ?? '', ...(run.payload.facts ?? []), run.payload.instructions ?? ''].join('\n');
   const allowedHosts = new Set<string>([...(policy.webConfirm ? [] : cfg.trusted_urls ?? []), ...hostsIn(promptText), ...(run.payload.allowedHosts ?? [])]);

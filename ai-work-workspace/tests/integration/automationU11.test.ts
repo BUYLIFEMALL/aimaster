@@ -1,5 +1,5 @@
 // U11 자동화(2026-11-10) — 플랜 docs/PLAN_20261110_U11_AUTOMATION.md §5 시험.
-// 1. 자동화 저장이 열리고, 웹훅·에이전트 동작이 든 자동화는 거절된다.
+// 1. 자동화 저장이 열리고, 웹훅 동작이 든 자동화는 거절된다(에이전트 동작은 U12에서 열림 — agentU12.test.ts).
 // 2. 회원 정시 작업은 주인 회원의 실행에서만 돌고(다른 회원 일 처리 금지), 운영 정리 작업은 회원 작업을 건너뛴다.
 // 3. 명령 처리 중 회원 정시 작업이 예약되면 표시된다(→ 회원 cron-job.org 켜기).
 // 4. 자동화 실행 기록·알림 30일 자동 삭제(예외 회원 제외). 로컬 Docker Postgres(aww-pg-test)만 쓴다.
@@ -25,11 +25,11 @@ describe('U11 자동화 열기', () => {
   it('자동화 저장·켜기·삭제·복제·버튼 서버 동작이 열려 있다', () => {
     for (const name of ['saveAutomation', 'setAutomationStatus', 'deleteAutomation', 'duplicateAutomation', 'runButtonServerSteps']) expect(stageBlock(name)).toBeNull();
   });
-  it('에이전트·개발자 API·MCP는 계속 닫혀 있다', () => {
-    for (const name of ['getAgents', 'devCreateToken', 'mcpConnect']) expect(stageBlock(name)).not.toBeNull();
+  it('에이전트 공유·개발자 API·MCP는 계속 닫혀 있다(U12에서 에이전트 자체는 열림)', () => {
+    for (const name of ['getAgentSharing', 'devCreateToken', 'mcpConnect']) expect(stageBlock(name)).not.toBeNull();
   });
-  it('웹훅·에이전트 동작이 든 자동화 저장은 한국어 안내와 함께 거절된다', () => {
-    for (const type of ['webhook', 'agent']) {
+  it('웹훅 동작이 든 자동화 저장은 한국어 안내와 함께 거절된다(에이전트 동작은 U12에서 열림)', () => {
+    for (const type of ['webhook']) {
       const r = stageBodyBlock('saveAutomation', { collectionId: 'c', automation: { actions: [{ id: 'a', type: 'notify' }, { id: 'b', type }] } });
       expect(r?.status).toBe(403);
       expect(r?.message).toContain('준비 중');

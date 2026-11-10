@@ -200,7 +200,9 @@ export function workingConfig(a: AgentRecord): AgentConfig {
 
 /** Custom Agents are a Business / Enterprise feature ; on Free / Plus every agent is off . */
 export function agentsAvailable(space: SpaceRecord | undefined): boolean {
-  return !!space && (space.plan_type === 'business' || space.plan_type === 'enterprise');
+  // AIMaster U12(2026-11-10): 이용 자격은 AIMaster 프로그램 이용 권한이 정한다(원본 Business 요금제 조건 없음).
+  // 비용은 회원 본인 AI 키로 나가며 월 사용 상한·시간당 상한으로 막는다.
+  return !!space;
 }
 
 export type CreationPolicy = 'all' | 'owners' | 'owners_groups' | 'disabled';
@@ -288,7 +290,12 @@ export interface CreateAgentInput {
   /** created already saved (duplicates of saved agents, templates applied by the server) */
   published?: boolean;
   permissions?: Permission[];
+  /** AIMaster U12: 월 사용 상한(크레딧). 비우면 DEFAULT_AGENT_CREDIT_LIMIT */
+  creditLimit?: number | null;
 }
+
+/** AIMaster U12(주인님 결정 2번): 새 에이전트 기본 월 사용 상한 — 700 크레딧(1 크레딧 = 가중 토큰 1,000개, 중간 모델 기준 약 $2) */
+export const DEFAULT_AGENT_CREDIT_LIMIT = 700;
 
 export function createAgent(input: CreateAgentInput): AgentRecord {
   const now = Date.now();
@@ -301,6 +308,8 @@ export function createAgent(input: CreateAgentInput): AgentRecord {
     created_by_id: input.userId, created_time: now, last_edited_by_id: input.userId, last_edited_time: now,
     permissions: input.permissions ?? [{ type: 'user_permission', role: 'editor', user_id: input.userId, added_timestamp: now }],
     bot_id: botId, data: base, draft: null, published: !!input.published, status: 'active', owner_id: input.userId,
+    // AIMaster U12(주인님 결정 2번): 새 에이전트는 월 사용 상한을 낮게 시작(700 크레딧 ≈ 중간 모델 기준 약 $2). 넘으면 자동 일시정지
+    credit_limit: input.creditLimit ?? DEFAULT_AGENT_CREDIT_LIMIT,
     ...(input.templateId ? { template_id: input.templateId } : {}),
   };
   // the bot exists before anything can reference it

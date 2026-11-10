@@ -85,7 +85,7 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
     try {
       await saveAutomation(collectionId, { id: existing?.id, name: draft.name.trim(), scope: draft.scope, trigger: draft.trigger, actions: draft.actions, status: draft.status });
       const name = draft.name.trim() || placeholder;
-      useUI.getState().toast(existing ? `${name} updated` : `${name} created`);
+      useUI.getState().toast(existing ? tx('{name} updated').replace('{name}', name) : tx('{name} created').replace('{name}', name));
       state.dirty = false;
       close();
     } catch (e) {
@@ -142,7 +142,7 @@ function AutomationBuilder({ collectionId, automationId, close, state, initial }
           {existing ? (
             <span role="button" className="nc-btn outline" aria-disabled={readOnly} onClick={async () => {
               if (readOnly) return;
-              if (!(await confirmDialog({ message: 'Delete this automation?', confirmLabel: 'Delete' }))) return;
+              if (!(await confirmDialog({ message: tx('Delete this automation?'), confirmLabel: tx('Delete') }))) return;
               await deleteAutomation(existing.id);
               state.dirty = false;
               close();
@@ -181,7 +181,7 @@ export function openAutomationBuilder(collectionId: string, automationId?: strin
   let closeFn: () => void = () => {};
   let closingOnPurpose = false;
   const guardedClose = async () => {
-    if (state.dirty && !(await confirmDialog({ message: 'Discard the unsaved workflow edits?', confirmLabel: 'Discard' }))) return;
+    if (state.dirty && !(await confirmDialog({ message: tx('Discard the unsaved workflow edits?'), confirmLabel: tx('Discard changes') }))) return;
     closingOnPurpose = true;
     closeFn();
   };
@@ -191,7 +191,7 @@ export function openAutomationBuilder(collectionId: string, automationId?: strin
       // Escape / click outside with unsaved edits: confirm, and bring the draft back when the user keeps editing
       if (closingOnPurpose || !state.dirty || !state.draft) return;
       const draft = state.draft;
-      void confirmDialog({ message: 'Discard the unsaved workflow edits?', confirmLabel: 'Discard', cancelLabel: 'Keep editing' }).then((discard) => {
+      void confirmDialog({ message: tx('Discard the unsaved workflow edits?'), confirmLabel: tx('Discard changes'), cancelLabel: tx('Keep editing') }).then((discard) => {
         if (!discard) openAutomationBuilder(collectionId, automationId, draft);
       });
     },
@@ -249,7 +249,7 @@ export function openButtonPropertyBuilder(collectionId: string, propId: string) 
   const state = { dirty: false };
   let closeFn: () => void = () => {};
   const guardedClose = async () => {
-    if (state.dirty && !(await confirmDialog({ message: 'Discard the unsaved workflow edits?', confirmLabel: 'Discard' }))) return;
+    if (state.dirty && !(await confirmDialog({ message: tx('Discard the unsaved workflow edits?'), confirmLabel: tx('Discard changes') }))) return;
     state.dirty = false;
     closeFn();
   };

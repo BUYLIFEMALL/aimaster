@@ -34,17 +34,17 @@ function RecurrenceEditor({ value, onSave, onDelete, close, deleteLabel }: { val
       <div className="nc-rec" data-menu-keys="ignore">
         <div className="nc-auto-pop-tabs" style={{ padding: 0 }}>
           {RECURRENCE_PRESETS.map((p) => (
-            <span key={p.id} role="button" className={`nc-auto-pop-tab ${preset === p.id ? 'on' : ''}`} onClick={() => setR({ ...presetRecurrence(p.id as RecurrencePreset, Date.now(), r.time_zone, r.time), end: r.end })}>{p.label}</span>
+            <span key={p.id} role="button" className={`nc-auto-pop-tab ${preset === p.id ? 'on' : ''}`} onClick={() => setR({ ...presetRecurrence(p.id as RecurrencePreset, Date.now(), r.time_zone, r.time), end: r.end })}>{tx(p.label)}</span>
           ))}
         </div>
         <div className="nc-rec-row">
           <span className="nc-rec-label">{tx('Every')}</span>
           <input type="number" min={1} max={1000} aria-label={tx('Interval')} value={r.interval} onChange={(e) => set({ interval: Math.max(1, Math.min(1000, Number(e.target.value) || 1)) })} />
-          <span role="button" className="nc-auto-pill" onClick={(e) => openKeepMenu(e.currentTarget, { width: 160, sections: [{ items: (Object.keys(FREQUENCY_LABELS) as Recurrence['frequency'][]).map((f) => ({ id: f, label: FREQUENCY_LABELS[f][plural], checked: r.frequency === f, onSelect: () => {
+          <span role="button" className="nc-auto-pill" onClick={(e) => openKeepMenu(e.currentTarget, { width: 160, sections: [{ items: (Object.keys(FREQUENCY_LABELS) as Recurrence['frequency'][]).map((f) => ({ id: f, label: tx(FREQUENCY_LABELS[f][plural]), checked: r.frequency === f, onSelect: () => {
             const d = new Date(`${r.start}T00:00:00`);
             set({ frequency: f, weekdays: f === 'week' ? (r.weekdays?.length ? r.weekdays : [d.getDay()]) : undefined, month_day: f === 'month' || f === 'year' ? (r.month_day ?? d.getDate()) : undefined, month: f === 'year' ? (r.month ?? d.getMonth() + 1) : undefined });
           } })) }] }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-            <span>{FREQUENCY_LABELS[r.frequency][plural]}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
+            <span>{tx(FREQUENCY_LABELS[r.frequency][plural])}</span><Icon name="arrowChevronSingleDownSmall" size={14} />
           </span>
         </div>
         {r.frequency === 'week' && (
@@ -101,7 +101,7 @@ function RecurrenceEditor({ value, onSave, onDelete, close, deleteLabel }: { val
           </span>
         </div>
         <div className={`nc-rec-next ${next === null ? 'bad' : ''}`} aria-live="polite">
-          {!valid ? tx('Some required fields are missing') : next === null ? tx('This workflow is set never to run') : <>Next occurrence: {formatOccurrence(next, r.time_zone)}</>}
+          {!valid ? tx('Some required fields are missing') : next === null ? tx('This workflow is set never to run') : <>{tx('Next occurrence:')} {formatOccurrence(next, r.time_zone)}</>}
         </div>
         <div className="nc-rec-foot">
           {onDelete ? <span role="button" className="nc-btn outline" onClick={() => { onDelete(); close(); }}>{deleteLabel ?? tx('Cancel recurrence')}</span> : <span />}

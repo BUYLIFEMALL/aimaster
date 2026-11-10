@@ -37,18 +37,27 @@ const LATER_RPCS = new Set([
   'flushAutomationsForTests',
 ]);
 
+/**
+ * U12 업무 비서(2026-11-10, 플랜 docs/PLAN_20261110_U12_AGENT.md — 주인님 권장안 승인): 맞춤 에이전트를 연다.
+ * 다만 다른 회원과 나누는 것(공유·권한·주인 넘기기 → U13 협업)과 바깥 연결(MCP 등 → U14)은 계속 닫는다.
+ */
+const AGENT_CLOSED_RPCS = new Set([
+  'getAgentSharing', 'setAgentPermissions', 'transferAgentOwnership',
+  'addAgentConnection', 'refreshAgentConnection', 'removeAgentConnection', 'updateAgentConnection',
+]);
+
 function laterByPrefix(name: string): boolean {
   return (
     /^dev[A-Z]/.test(name) || // 개발자 API·웹훅 (4단계)
     /^mcp[A-Z]/.test(name) || // MCP 연결 (4단계)
-    /Agent/.test(name) || // 맞춤 에이전트 (4단계)
+    AGENT_CLOSED_RPCS.has(name) || // U12: 에이전트 공유·바깥 연결만 닫음
     /^admin[A-Z]/.test(name) // 워크스페이스 관리자 고급 기능(다른 회원 관련)
   );
 }
 
-export const AUTOMATION_STEP_MESSAGE = '웹훅·에이전트 동작은 아직 준비 중입니다. 이 동작을 빼고 저장해 주세요.';
-/** U11: 아직 열지 않은 자동화 동작(웹훅 = 운영자 서버의 바깥 호출 → U14, 에이전트 → U12) */
-const LATER_AUTOMATION_STEPS = new Set(['webhook', 'agent']);
+export const AUTOMATION_STEP_MESSAGE = '웹훅 동작은 아직 준비 중입니다. 이 동작을 빼고 저장해 주세요.';
+/** U11: 아직 열지 않은 자동화 동작(웹훅 = 운영자 서버의 바깥 호출 → U14). 에이전트 동작은 U12(2026-11-10)에서 엶 */
+const LATER_AUTOMATION_STEPS = new Set(['webhook']);
 
 /** 명령 내용까지 봐야 막을 수 있는 것(U11 자동화 저장). 원본 명령 이름만으로는 열린 명령이다. */
 export function stageBodyBlock(name: string, body: unknown): { status: number; message: string } | null {

@@ -17,6 +17,16 @@ import './agents.css';
 type Template = Awaited<ReturnType<typeof agentApi.templates>>['templates'][number];
 const useNewAgent = { open: null as null | (() => void), pending: false };
 
+/** AIMaster U12: 업무 비서 비용 안내 동의(이 브라우저에 한 번) */
+const COST_OK_KEY = 'aww:agent-cost-ok';
+function readCostOk(): boolean {
+  try {
+    return localStorage.getItem(COST_OK_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 function Launch({ close }: { close: () => void }) {
   const admin = useAgents((s) => s.isAdmin);
   return (
@@ -58,8 +68,19 @@ function NewAgent({ close }: { close: () => void }) {
     void agentApi.templates().then(setData).catch(() => setData({ categories: [], templates: [] }));
     inputRef.current?.focus();
   }, []);
+  // AIMaster U12(주인님 결정 — 처음 켤 때 비용 안내 1번): 동의 전에는 만들 수 없음, 동의는 이 브라우저에 기억
+  const [costOk, setCostOk] = useState<boolean>(() => readCostOk());
+  const agreeCost = (v: boolean) => {
+    setCostOk(v);
+    try {
+      if (v) localStorage.setItem(COST_OK_KEY, '1');
+      else localStorage.removeItem(COST_OK_KEY);
+    } catch {
+      /* 저장소를 못 쓰면 이번 창에서만 기억 */
+    }
+  };
   const create = async (opts: { templateId?: string; prompt?: string }, key: string) => {
-    if (!spaceId || busy) return;
+    if (!spaceId || busy || !costOk) return;
     setBusy(key);
     try {
       const r = await agentApi.create(spaceId, { templateId: opts.templateId });
@@ -79,6 +100,14 @@ function NewAgent({ close }: { close: () => void }) {
         <div className="nc-new-agent-title">{t('lp.agents.create_an_agent', 'Create an agent')}</div>
         <div className="nc-new-agent-sub">{t('lp.agents.you_hand_out_the_jobs_and', 'You hand out the jobs, and your agents get them done.')}</div>
         <div role="button" aria-label={t('lp.agents.close', 'Close')} className="nc-agent-icon-btn nc-new-agent-close" onClick={close}><Icon name="close" size={16} /></div>
+      </div>
+      <div className="nc-new-agent-cost" data-testid="agent-cost-notice" style={{ margin: '0 20px 12px', padding: '10px 12px', borderRadius: 8, background: 'var(--c-bg-secondary, #f7f7f5)', fontSize: 13, lineHeight: 1.55 }}>
+        <div>💳 업무 비서는 <b>회원님 본인 AI 키</b>(API키등록·플랫폼연동에 등록한 Claude·OpenAI·Gemini 키)로 실행되며, 쓴 만큼 해당 AI 회사 요금이 회원님 계정에 청구됩니다.</div>
+        <div>새 비서는 <b>월 사용 상한 700 크레딧</b>(중간 모델 기준 약 $2)으로 시작하고, 넘으면 자동으로 멈춥니다. 상한은 비서 설정에서 바꿀 수 있습니다. 웹 검색은 꺼져 있습니다.</div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, cursor: 'pointer' }}>
+          <input type="checkbox" checked={costOk} onChange={(e) => agreeCost(e.target.checked)} data-testid="agent-cost-ok" />
+          <span>비용 안내를 확인했습니다</span>
+        </label>
       </div>
       <form
         className="nc-new-agent-ask"
@@ -101,7 +130,7 @@ function NewAgent({ close }: { close: () => void }) {
             }
           }}
         />
-        <button type="submit" className={`nc-new-agent-send ${text.trim() ? 'ready' : ''}`} aria-label={tx('Build with AI chat')} disabled={!text.trim() || !!busy}>
+        <button type="submit" className={`nc-new-agent-send ${text.trim() ? 'ready' : ''}`} aria-label={tx('Build with AI chat')} disabled={!text.trim() || !!busy || !costOk}>
           <Icon name="arrowUp" size={16} strokeWidth={2.2} />
         </button>
       </form>
@@ -114,7 +143,7 @@ function NewAgent({ close }: { close: () => void }) {
         {data === null && <div className="nc-new-agent-loading">{t('lp.agents.setting_up', 'Setting up…')}</div>}
         {data && !list.length && <div className="nc-new-agent-loading">{t('lp.agents.no_templates_found', 'No starter templates available')}</div>}
         {list.map((tp) => (
-          <div key={tp.id} role="button" tabIndex={0} className={`nc-new-agent-card ${busy === tp.id ? 'busy' : ''}`} data-template-id={tp.id} onClick={() => void create({ templateId: tp.id }, tp.id)}
+          <div key={tp.id} role="button" tabIndex={0} className={`nc-new-agent-card ${busy === tp.id ? 'busy' : ''}`} aria-disabled={!costOk} style={costOk ? undefined : { opacity: 0.55, cursor: 'not-allowed' }} data-template-id={tp.id} onClick={() => void create({ templateId: tp.id }, tp.id)}
             onKeyDown={(e) => { if (e.key === 'Enter') void create({ templateId: tp.id }, tp.id); }}
           >
             <div className="nc-new-agent-card-icon"><AgentIcon icon={tp.icon} size={22} /></div>
@@ -126,7 +155,7 @@ function NewAgent({ close }: { close: () => void }) {
         ))}
       </div>
       <div className="nc-new-agent-foot">
-        <button type="button" className="nc-btn outline" data-testid="create-blank-agent" disabled={!!busy} onClick={() => void create({}, 'blank')}>
+        <button type="button" className="nc-btn outline" data-testid="create-blank-agent" disabled={!!busy || !costOk} onClick={() => void create({}, 'blank')}>
           <Icon name="plus" size={14} />
           <span>{t('lp.agents.create_blank', 'Create blank')}</span>
         </button>

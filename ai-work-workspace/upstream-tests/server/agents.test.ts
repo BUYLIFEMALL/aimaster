@@ -610,10 +610,11 @@ describe('connections between agents and approvals', () => {
 });
 
 describe('API guards', () => {
+  // AIMaster U12(2026-11-10): 요금제 조건 없음 — 이용 자격은 AIMaster 프로그램 이용 권한이 정한다(원본은 plus에서 403)
   it('Custom Agents need Business; creation policy limits who creates', async () => {
     const sp = db.getRecord<any>('space', ids.space);
     db.putRecord('space', { ...sp, plan_type: 'plus' });
-    expect(await status(() => call(ids.A, 'createAgent', { spaceId: ids.space }))).toBe(403);
+    expect(await status(() => call(ids.A, 'createAgent', { spaceId: ids.space }))).toBe(200);
     db.putRecord('space', { ...sp, plan_type: 'business', settings: { ...sp.settings, agent_creation: 'owners' } });
     expect(await status(() => call(ids.B, 'createAgent', { spaceId: ids.space }))).toBe(403);
     expect(await status(() => call(ids.A, 'createAgent', { spaceId: ids.space }))).toBe(200);

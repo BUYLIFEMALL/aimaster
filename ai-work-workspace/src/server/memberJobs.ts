@@ -11,11 +11,16 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getRecord } from '@/litpage/server/db.ts';
 import { listJobs, onJobScheduled, type Job } from '@/litpage/server/scheduler.ts';
 import type { AutomationRecord } from '#shared/automation/types.ts';
+import type { AgentRecord } from '#shared/agents.ts';
 
-/** 회원 정시 작업 종류(작업 키 앞글자). U12에서 에이전트 예약(agent-recurrence)을 더한다. */
+/** U12: 에이전트 예약 작업 키 앞글자(원본 agents/triggers.ts jobKey = `agent-recur:<에이전트>:<트리거>`) */
+const AGENT_JOB_PREFIX = 'agent-recur:';
+
+/** 회원 정시 작업 종류(작업 키 앞글자). U12(2026-11-10)에서 에이전트 예약(agent-recurrence)을 더함 */
 export const MEMBER_JOB_KINDS: Record<string, string> = {
   'automation.recurrence': 'automation:',
   reminder: 'reminder:',
+  'agent-recurrence': AGENT_JOB_PREFIX,
 };
 
 export function isMemberJob(job: Pick<Job, 'kind'>): boolean {
@@ -29,6 +34,11 @@ export function jobOwner(job: Pick<Job, 'kind' | 'payload'>): string | null {
   if (job.kind === 'automation.recurrence') {
     const a = getRecord<AutomationRecord>('automation', String(p.id ?? ''));
     return a && a.alive !== false ? (a.created_by_id ?? null) : null;
+  }
+  if (job.kind === 'agent-recurrence') {
+    // U12: 에이전트의 주인(owner_id = Supabase 회원 id) — 그 회원의 정시 실행에서만, 그 회원 키로 돈다
+    const a = getRecord<AgentRecord>('workflow', String(p.agentId ?? ''));
+    return a && a.alive !== false ? (a.owner_id ?? null) : null;
   }
   return null;
 }

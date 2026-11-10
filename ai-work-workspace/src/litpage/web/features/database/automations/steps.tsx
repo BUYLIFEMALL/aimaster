@@ -8,7 +8,7 @@ import type { BlockRecord, CollectionRecord, CollectionViewRecord, PropertySchem
 import { toPlainText } from '#shared/richtext.ts';
 import { FILTER_OPERATOR_LABELS, defaultFilterOperator, filterOperatorsFor, propertyTypeMeta, type FilterGroup, type PropertyFilterLeaf } from '#shared/database/index.ts';
 import {
-  ACTION_META, ACTION_ORDER, LIMITS, WEBHOOK_SECRET_MASK, contextLabel, type ActionType, type AutomationAction, type PeekTarget, type PropertyEdit, type ValidationIssue,
+  ACTION_META, ACTION_ORDER, LIMITS, WEBHOOK_SECRET_MASK, contextLabel as sharedContextLabel, type ActionType, type AutomationAction, type PeekTarget, type PropertyEdit, type ValidationIssue,
   type ValueRef,
 } from '#shared/automation/index.ts';
 import { newId } from '#shared/ids.ts';
@@ -33,6 +33,10 @@ import {
 } from './valueRefs.tsx';
 import { openAutomationFormula } from './formulaField.tsx';
 import { tx } from '../../shell/i18n.ts';
+
+// AIMaster U12: 자동화 문맥 값 이름(Whoever triggered 등)을 화면 언어로
+const contextLabel = (k: Parameters<typeof sharedContextLabel>[0], s: Parameters<typeof sharedContextLabel>[1]) => tx(sharedContextLabel(k, s));
+
 
 export interface StepListProps {
   surface: Surface;
@@ -70,8 +74,8 @@ export function newStep(type: ActionType, opts: { collectionId?: string; propId?
 }
 
 /** The action menu ("New action" / "Create another step"). */
-/** AIMaster U11: 아직 준비 중인 동작(웹훅 → U14 판단, 에이전트 → U12) */
-const LATER_STEPS: ReadonlySet<string> = new Set(['webhook', 'agent']);
+/** AIMaster U11: 아직 준비 중인 동작(웹훅 → U14 판단). 에이전트 동작은 U12(2026-11-10)에서 엶 */
+const LATER_STEPS: ReadonlySet<string> = new Set(['webhook']);
 
 export function openActionMenu(anchor: HTMLElement, props: { surface: Surface; collectionId?: string; noTriggerPage?: boolean; webhooksAllowed?: boolean; steps: AutomationAction[]; onPick: (s: AutomationAction) => void }) {
   const items: MenuItemDef[] = [];
@@ -399,13 +403,13 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
                   {t.user_ids.map((id) => <span key={id} className="nc-auto-pill static"><UserAvatar userId={id} size={18} /><span>{records.get<any>('lit_user', id)?.name ?? 'Unknown'}</span></span>)}
                   {!readOnly && (
                     <span role="button" className="nc-auto-pill placeholder" onClick={(e) => openKeepMenu(e.currentTarget, {
-                      width: 280, search: `Choose up to ${LIMITS.notifyUsers} people…`,
+                      width: 280, search: tx('Choose up to {n} people…').replace('{n}', String(LIMITS.notifyUsers)),
                       sections: [
                         { title: tx('From this workflow').replace('automation', c.surface === 'automation' ? 'automation' : 'button'), items: (['actor', ...(c.surface === 'automation' ? ['page_creator'] : [])] as ('actor' | 'page_creator')[]).map((k) => ({ id: k, label: contextLabel(k, ctxSurface(c)), icon: 'person', checked: (t.dynamic ?? []).includes(k), onSelect: () => { const d = t.dynamic ?? []; onChange({ ...step, target: { ...t, dynamic: d.includes(k) ? d.filter((x) => x !== k) : [...d, k] } }); } })) },
                         { title: tx('Send a notice to'), items: workspaceMembers().map((u) => ({ id: u.id, label: u.name || u.email, text: `${u.name} ${u.email}`, icon: <UserAvatar userId={u.id} size={20} />, checked: t.user_ids.includes(u.id), onSelect: () => onChange({ ...step, target: { ...t, user_ids: t.user_ids.includes(u.id) ? t.user_ids.filter((x) => x !== u.id) : [...t.user_ids, u.id].slice(0, LIMITS.notifyUsers) } }) })) },
                       ],
                     }, { placement: 'bottom-start', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-                      <span>{t.user_ids.length + (t.dynamic?.length ?? 0) ? 'Edit' : `Choose up to ${LIMITS.notifyUsers} people…`}</span>
+                      <span>{t.user_ids.length + (t.dynamic?.length ?? 0) ? tx('Edit') : tx('Choose up to {n} people…').replace('{n}', String(LIMITS.notifyUsers))}</span>
                     </span>
                   )}
                 </div>
@@ -612,7 +616,7 @@ function StepCard({ step, index, props, issues, onDragStart, onDropAt, dragging,
       </div>
       {body && <div className="nc-auto-card-body">{body}</div>}
       {issue && (
-        <div className="nc-auto-card-error" role="alert"><Icon name="warning" size={14} /><span>{issue.message}{issue.tip ? ` — ${issue.tip}` : ''}</span></div>
+        <div className="nc-auto-card-error" role="alert"><Icon name="warning" size={14} /><span>{tx(issue.message)}{issue.tip ? ` — ${tx(issue.tip)}` : ''}</span></div>
       )}
     </div>
   );

@@ -16,6 +16,7 @@ import { newId } from '#shared/ids.ts';
 import { stageBlock, stageBodyBlock } from './stagePolicy';
 import { installAutofillHook } from '@/litpage/server/ai/autofillAuto.ts';
 import { workInboxHandlers } from './workInbox';
+import './agentRuns'; // U12: 에이전트 백그라운드 실행을 주인 회원 본인 키로 감싸는 연결(불러오면 바로 설치됨)
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
 
