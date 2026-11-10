@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 🟠 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **맥미니 필독: 블로그 디버깅·테스트 요청 3건**
+- 주인님 지시: 「테스트는 맥미니쪽에서 하니까 디버깅,테스트 작업은 따로 맥미니에게 요청해」. 블로그 세션은 빌드·배포·운영 DB만.
+- 첫째 티스토리 이미지 배치·비율 재현·원인 찾기(운영 v1.95, 발행 전까지만) + v1.96 배포 뒤 확인 → `tistory-auto-blog/docs/REQUEST_20261110_MACMINI_TEST.md`
+- 둘째 이웃 소통 v1.18 「새 글 감시 → 자동 승인 → 자동 순회」 전 과정(공감만, 대상 이웃 1명은 주인님 지정) → `blog-neighbor-care/docs/REQUEST_20261110_MACMINI_AUTOPILOT_TEST.md`
+- 셋째 카페 모집 6회차(v1.03 배포 완료) → 성공이면 명단 2~3페이지·초대링크 → `naver-cafe-recruit/docs/REQUEST_20261106_MACMINI_INVITE_TEST.md` 맨 아래 절
+- 같은 날 정리: 백업 카테고리 5개(올인원·작업실·콘텐츠 제작·App·Web)는 중지 프로그램이라 블로그 작업 대상 아님(운영 DB 확인, 변경 없음), `blog-keyword`는 agy 담당. 비용 없음.
+
 ## 2026-11-10 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261110-test — 맥미니 역할 지침 확정 + macOS 순차 시험 7건 + 30일 화면 숨김 조사
 - 역할(주인님 지시): 맥미니 = 테스트·디버깅·자잘한 작업, 특히 macOS 동작 확인. `docs/roles/mac-mini.md` 맨 위 「역할 지침」·`docs/MAC_MINI_AGENT_PLAYBOOK.md` §0 보강(`docs(mac-mini): role guide` 커밋).
 - 시험(맥 ego lite 크로미움 156, 시험 계정, 비용 0원): ✅ 플레이리스트 v1.38 MP4(스티커3·듀얼 스펙트럼, 1080p30) ✅ AI 영상 v1.30 9:16 「전체 보이기」 ✅ LP v1.15 받기·음악 포함 MP4 — 완료 칸 「60fps」가 실제 30fps와 다름(`vinyl-lp-studio/docs/IMPROVEMENTS.md` 맨 위) ✅ 무료음악 v1.65 웹(메뉴·트로트·연주곡, Intel은 「미지원」 표시) ✅ 스마트스토어 v1.26·할 일 v1.13 넓은/390px — 할 일 타이머 영어 버튼 제안(`ai-task-planner/docs/IMPROVEMENTS.md`) ✅ 쇼핑제휴 v1.86 옛 모델 이름 없음.
