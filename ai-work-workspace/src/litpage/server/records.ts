@@ -4,7 +4,7 @@ import { effectiveRole, isSpaceAdmin, isSpaceMember, type PermissionLookup } fro
 import type {
   BaseRecord, BlockRecord, CollectionRecord, RecordMap, Role, SpaceRecord, SpaceViewRecord, Table, TeamRecord, UserRootRecord,
 } from '#shared/records.ts';
-import { db, getRecord, putRecord, tx } from './db.ts';
+import { db, getRecord, lockRecords, putRecord, tx } from './db.ts';
 import { indexBlock } from './search.ts';
 import { realtime } from './realtime.ts';
 import { recordActivity, maybeSnapshot } from './history.ts';
@@ -257,6 +257,8 @@ export function applyTransactions(userId: string, transactions: Transaction[], o
   const guard = new TxGuard(userId, changed, { client, userInitiated: !!opts.userInitiated });
   const prevs = new Map<string, BaseRecord | undefined>();
   const out = tx(() => {
+    // 이식판 U13: 고칠 레코드를 먼저 잠그고 최신 값으로(동시 편집 변경 유실 방지)
+    lockRecords(transactions.flatMap((t) => t.operations.map((o) => o.pointer as { table?: unknown; id?: unknown })));
     for (const t of transactions) {
       if (t.id && txSeen.get(t.id)) {
         // idempotent retry: report the current values so the client can acknowledge its pending ops

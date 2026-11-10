@@ -293,3 +293,17 @@ export function findUserIdByEmail(email: string): string | null {
     return null;
   }
 }
+
+/** 이식판 U13(2026-11-11): 여러 사람이 동시에 같은 레코드를 고칠 때 변경이 사라지지 않게, 트랜잭션 안에서 고칠 줄을 잠그고
+ *  (정렬 순서로 — 교착 방지) 요청 캐시를 비워 잠근 뒤의 최신 값으로 적용한다. 서버 인스턴스가 여럿인 Vercel에서 필요. */
+export function lockRecords(pointers: { table?: unknown; id?: unknown }[]) {
+  if (txDepth === 0) return;
+  const keys = [...new Set(pointers.filter((p) => typeof p?.table === 'string' && typeof p?.id === 'string').map((p) => `${p.table}\u0000${p.id}`))].sort().slice(0, 2000);
+  if (!keys.length) return;
+  const q = db.prepare('SELECT id FROM records WHERE tbl = ? AND id = ? FOR UPDATE');
+  for (const k of keys) {
+    const [table, id] = k.split('\u0000');
+    q.all(table, id);
+  }
+  cacheClear();
+}

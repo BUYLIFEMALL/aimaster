@@ -177,3 +177,18 @@ describe('실시간 확인(collabPoll)', () => {
     expect((r.body as any).shared).toBe(false);
   });
 });
+
+describe('동시 편집 안전장치', () => {
+  it('두 사람이 같은 페이지의 다른 칸을 고치면 둘 다 남는다', async () => {
+    await runtime.runRpc('inviteMembers', { spaceId: space, emails: [friend.email], role: 'editor' }, owner);
+    const op = (path: string[], args: unknown) => ({ transactions: [{ id: crypto.randomUUID(), spaceId: space, operations: [{ pointer: { table: 'block', id: page, spaceId: space }, path, command: 'set', args }] }] });
+    const [a, b] = await Promise.all([
+      runtime.runRpc('applyChanges', op(['properties', 'title'], [['동시 제목']]), owner),
+      runtime.runRpc('applyChanges', op(['format', 'page_icon'], '🤝'), friend),
+    ]);
+    expect([a.status, b.status]).toEqual([200, 200]);
+    const blk = db.withRequestCache(() => db.getRecord<any>('block', page));
+    expect(blk.properties.title).toEqual([['동시 제목']]);
+    expect(blk.format?.page_icon).toBe('🤝');
+  });
+});
