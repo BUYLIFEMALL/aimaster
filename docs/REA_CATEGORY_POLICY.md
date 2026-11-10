@@ -26,6 +26,7 @@
 - 적용 화면: 메인 첫 화면 `app/(main)/page.tsx`, 목록 `app/(main)/programs/page.tsx`, 카테고리 `programs/category/[slug]`(비공개 카테고리는 열람 계정만, `noindex`), 상세 `programs/[slug]`(열람 권한 없으면 404, `noindex`), `app/sitemap.ts`(항상 제외), 패키지·가이드·대시보드, `lib/programs/visibleCategories.ts`.
 - DB: `supabase/migrations/0058_internal_category_viewers.sql` — `profiles.can_view_internal` + 보호 트리거 + 시험 계정 지정 + `rea` 비공개.
 - 한계: `programs` 표는 RLS상 활성 프로그램을 누구나 읽을 수 있어(정책 `programs_select_active`), 공개 키로 API를 직접 부르면 REA 프로그램의 이름·주소 같은 기본 정보는 보일 수 있다. 화면·검색 노출은 막혀 있다. 완전히 막으려면 RLS를 바꿔야 하며(다른 프로그램 영향 점검 필요) 주인님 결정 대기.
+  - **적용 완료(2026-11-11, 세션 `claude-win-rea`)**: `supabase/migrations/0062_internal_category_rls.sql` 운영 적용 — `categories_select_all` = 공개 또는 `member_can_view_internal()`, `programs_select_active` = 켜짐 그리고 (카테고리 없음·공개 카테고리·열람 계정). 함수 `member_can_view_internal()`·`category_is_internal(uuid)`(security definer). 관리자 전체 권한 정책은 그대로. 확인: 공개 키 프로그램 78(그대로)·카테고리 22→20(REA·백업 숨김), 흉내 조회 시험 계정 REA 1·카테고리 22 / 일반 회원 0·20 / 관리자 1·22·프로그램 101, 운영 화면 공개 카테고리 200·REA 비로그인 404. **이제 위 「한계」는 해소됨** — 공개 키 API로도 REA 카테고리·프로그램이 보이지 않는다.
 
 ## 4. REA에 프로그램을 등록할 때 (모든 CLI 공통 체크리스트)
 1. 폴더는 다른 프로그램과 같이 `AIMaster/<이름>/`(확장은 `<이름>/extension/`). 분석 원본 파일은 `D:\PDS\Program_dev`에 두고 실행하지 않는다(핵심 원칙 21).
