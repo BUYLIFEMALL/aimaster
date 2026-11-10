@@ -15,6 +15,8 @@
 
 ## 대기 중
 
+- **youtube-viral-studio(2026-11-11 영상 담당 `claude-win-video`)**: 「내 채널 진짜 지표」 쇼츠·일반 영상 칸 이름 — 실제 응답 값(`shorts`·`videoOnDemand`)을 한국어로 바꾸기(`src/lib/youtube/analytics.ts`, 시험 포함). 표시만 바뀜, 다음 배포 때 함께(버전 +0.01은 그때).
+
 - **공용 `ai-video-client` 사본 — Runway·Vidu 코드(2026-11-11 영상 담당 `claude-win-video`, 커밋 v1.33 기준 동기화):** `ai-image-studio/lib/video/`·`shorts-onestop-studio/src/lib/video*.ts`·`shots/src/lib/video/`·`music-video-studio/src/lib/video/` 3파일. 이 프로그램들 목록(`VIDEO_MODELS`)에는 새 모델이 없어 **화면·동작 변화 없음**(`findVideoModel` 반환 타입만 기존 세 제공자로 좁힘). 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 기준 `ai-video-studio` v1.33은 배포됨.
 
 
