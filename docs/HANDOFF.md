@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 🟡 [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — U10 2차 배포: `web-crawler` v1.12·`competitor-analysis` v1.13 완료, `naver-blog-agent` 막힘
+- **한 일**: 주인님 「너가 진행해」(11-11). 대기 확인 결과 `ai-auto-blog`(v1.87, 11-10 blog)·`blog-keyword`(v1.13)는 이미 나감. `web-crawler/webapp` v1.12 배포(시험 3·tsc, DB v1.10→v1.12). `competitor-analysis` v1.13 배포(앱·manifest·팝업·ZIP v1.13, 시험 work-inbox 4·expansion·tsc, DB `version`·`extension_version` v1.13 — `extension_version`은 ego SQL로 갱신, `check-extension-release` OK).
+- **막힌 것**: `naver-blog-agent` — 작업 중 표에 블로그 담당 `claude-win-20261101-blog` 줄(11-01, 「지금 수정 없음」)이 남아 배포 도구가 멈춤. 주인님 확인 대기.
+- **다음 첫 단계**: 주인님 답에 따라 `naver-blog-agent` 배포(확장 ZIP 버전 맞춤, blog 역할 폴더) 또는 블로그 담당에 넘김.
+
+
+
 ## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.27 배포(보관 예외·캘린더 수정·에이전트 한국어)
 - **한 일**: 주인님 지정 보관 예외 — 음악·영상 파일(`files` audio/*·video/*) 30일 정리 새로(`src/server/mediaRetention.ts`), AI 기록·자동화 기록·받은편지함·영수증 장부 30일 → **1년**, 안내 문구·매뉴얼 수정, `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 지정 목록에 한 줄. 에이전트 화면 영어 25개 키 한국어·추천 버튼 업무 예시로·웹 액세스 「준비 중」(누를 수 없음). 캘린더 표 이름·지운 일정 되살리기·라디오 분리·테스트 사용자 안내.
 - **검수**: 연결부 시험 90/90(새 `mediaRetention.test.ts`), 원본 523/523, tsc, 배포 Ready·DB v1.27. ego: 화면 v1.27·표 이름 「콘텐츠 캘린더」·두 선택 유지·구글에서 지운 일정 3개 다시 보내기 → `confirmed`로 되살아남(구글 캘린더 도구로 확인) → 시험 일정 4개 삭제. 매뉴얼 새 문구 3개 확인. 에이전트 화면은 화면 확인 못 함(시험·빌드만).
