@@ -57,3 +57,16 @@
 
 ## 7. 안 하는 것(1단계)
 회원 PC 자료 올리기, 이미지·영상·글 연결(2단계부터), 영상 프로그램 가져오기 교체, 자료함 전용 복사 보관.
+
+## 8. 2단계 — 이미지 스튜디오 4개 연결 (2026-11-11 주인님 「2단계 이미지 스튜디오도 연결 진행해」)
+- 방식: 1단계와 같음(DB 트리거 + 원본 삭제 연동, 프로그램 코드·배포 변경 없음). 마이그레이션 `supabase/migrations/0060_member_assets_images.sql`.
+| 프로그램 | 원본 | 파일 |
+|---|---|---|
+| `ai-image-studio` | **공용 `usage_logs`**(`action='image_generation'`, 이 프로그램 번호 줄만 — 조건부 트리거라 다른 프로그램 기록에는 영향 없음) `metadata.image_path`, 옛 기록은 공개 주소에서 경로 추출 | `ai-image-generations` |
+| `banana-canvas` | `banana_canvas_results.outputs[].path` | `banana-canvas-files` |
+| `portrait-photo` | `portrait_photo_saved.path` | `portrait-photo-files` |
+| `thumbnail-master` | `thumbnail_master_projects.images_a/b.versions[].path`(A안 0~, B안 100~, 버전이 밀려나면 다시 맞춤) | `thumbnail-master-images` |
+- 트리거 안전: 날짜 변환 등 실패할 수 있는 처리를 넣지 않음(트리거 오류 = 원본 프로그램 저장 실패이므로).
+- 화면: `/library`에 종류 탭(전체·음악·이미지), 이미지는 미리보기 격자(서명 주소 1시간, 누르면 원본 크기).
+- 결과: 운영 적용 — 이미지 자료 = 기대값(AI 이미지 6 · 바나나 2 · 썸네일 5 · 인물사진 0), 전체 141, 인물사진 시험 줄 넣기 1→지우기 0. `tsc` 0·로컬 빌드 통과.
+- 담당 안내: 이미지 담당(역할 `ecommerce-image`) — 위 표의 칸 이름·경로 규칙을 바꾸면 트리거 함수(`member_assets_sync_ais/banana/portrait/thumb`)도 함께 고칠 것.
