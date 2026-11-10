@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 🟡 [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — `wp-blogger-auto` v1.01 첫 배포(비공개) · 맥미니 실물 시험 요청
+- **한 일**: 주인님 「진행해」로 3단계 첫 배포 — Vercel 프로젝트 `wp-blogger-auto` 생성·주소 `wp-blogger-auto.buylife.xyz` 연결·운영 환경변수 5개(공용 DB 3 + 메인 주소 + 새 `CRON_SECRET`) 등록. 첫 빌드는 카페 모집에서 옮긴 DB 값에 따옴표·줄바꿈이 섞여 500 → 주인님 「db에 값있으니 찾아서 넣도록 해」로 루트 `.env.local` 값(형식 점검)으로 다시 등록·재배포 → 정상.
+- **검수**: `/login` 200, `/`·`/dashboard`·`/guide` 비로그인 시 로그인으로 이동, 정리 주소 401(비밀값 없음), DB `app_url`·v1.01 일치. ego에서 시험 계정은 비공개라 막힘(정상) — 관리자 로그인 화면 확인은 주인님 로그인 대기.
+- **배포**: 빌드 2회(`wp-blogger-auto-asl4yjjgq` 값 오류 500 → `wp-blogger-auto-8f7y6x64d` Ready). AI 호출 없음.
+- **남은 일**: 관리자 로그인 뒤 화면 확인 → 맥미니 실물 시험(`wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md`: 구글 시험 블로그·워드프레스 시험 사이트로 초안·예약→취소·바로 발행·확인 필요) → 통과하면 공개 전환·썸네일(승인 필요).
+- 주의: 새 프로젝트 환경변수를 다른 프로젝트에서 `vercel env pull`로 옮기면 값에 따옴표·`
+`이 섞일 수 있음 — 옮긴 뒤 화면 500(`Invalid supabaseUrl`)이면 값 형식부터 확인.
+- 상세: `wp-blogger-auto/docs/PLAN_20261110_REMAINING_WORK.md`
+- 링크: https://wp-blogger-auto.buylife.xyz
+
 ## 2026-11-11 🟡 [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `ai-video-studio` v1.33 Runway·Vidu 직접 연동(배포 완료, 실생성은 키 등록 대기)
 - **한 일**: 주인님 「진행해 키있어」 + 결정 3개 승인 → 회원 본인 키로 Runway `gen4.5`·`gen4_turbo`, Vidu `viduq3-turbo`·`viduq3-pro`(사진→영상, 끝 장면 없음, 자동 재시도 없음). 운영 DB `user_api_keys_provider_check`에 `runway`·`vidu` 추가(기존 값 보존), 키 API·설정 칸·만들기 탭, 연동 매뉴얼(Runway 글 교체·Vidu 글 새로). 공용 기준 `ai-video-client` 수정 → 사본 4곳 동기화(화면 변화 없음, 미배포 대기).
 - **검수**: 시험 109(가짜 응답으로 요청 모양·상태 확인·오류 문구), tsc 5개 프로그램, 사본 프로그램 시험(쇼츠 13·뮤직 34), 로컬 빌드, 운영 ego 설정 v1.33·키 칸 2개·매뉴얼 버튼·만들기 탭 「키 필요」.
