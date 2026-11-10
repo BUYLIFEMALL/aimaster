@@ -10,13 +10,15 @@ export type GenreGroup = { ko: string; subs: readonly Tag[] };
 /**
  * 노래 장르 2단계(2026-11-09 주인님 「가능한 장르가 더 있는지 알아보고 좀더 세분화」) — 대분류 = 노래용 스타일 프리셋 분류(프리셋 카드와 함께 움직임),
  * 세부 장르 = ACE-Step 스타일 태그(영어). 장르를 섞으면 결과가 흐려지므로(Tutorial) 세부 장르도 하나만.
- * 트로트·성인가요는 마스터PC 한국어 실물 확인 뒤 추가(자료로 지원 확인 못 함 — docs/IMPROVEMENT_BACKLOG.md C-17).
+ * 트로트·성인가요(2026-11-10 추가) — 자료로 지원 확인을 못 해 Admin PC에서 ACE-Step 1.5로 정통·세미·댄스 3곡을 만들어 주인님이 들어 보고
+ * 「셋다 트로트 답다」(C-17, docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md 22절). 세부 태그는 그 시험 문구의 장르 단어 그대로.
  */
 export const GENRE_GROUPS: readonly GenreGroup[] = [
   { ko: "발라드", subs: [{ ko: "팝 발라드", en: "pop ballad" }, { ko: "록 발라드", en: "rock ballad" }, { ko: "R&B 발라드", en: "r&b ballad" }, { ko: "피아노 발라드", en: "piano ballad" }, { ko: "어쿠스틱 발라드", en: "acoustic ballad" }] },
   { ko: "K-POP", subs: [{ ko: "아이돌 댄스", en: "k-pop idol dance" }, { ko: "걸그룹 팝", en: "k-pop girl group pop" }, { ko: "보이그룹 힙합", en: "k-pop boy group hip hop" }, { ko: "청량 K-POP", en: "refreshing summer k-pop" }, { ko: "K-POP 발라드", en: "k-pop ballad" }] },
   { ko: "록·메탈", subs: [{ ko: "모던 록", en: "modern rock" }, { ko: "얼터너티브", en: "alternative rock" }, { ko: "인디 록", en: "indie rock" }, { ko: "팝 펑크", en: "pop punk" }, { ko: "하드 록", en: "hard rock" }, { ko: "헤비메탈", en: "heavy metal" }] },
   { ko: "팝·레트로", subs: [{ ko: "시티팝", en: "city pop" }, { ko: "디스코", en: "disco" }, { ko: "80년대 신스웨이브", en: "80s synthwave" }, { ko: "90년대 가요풍", en: "90s korean pop" }, { ko: "레트로 팝", en: "retro pop" }] },
+  { ko: "트로트·성인가요", subs: [{ ko: "정통 트로트", en: "korean trot" }, { ko: "세미 트로트", en: "korean semi-trot" }, { ko: "댄스 트로트", en: "korean dance trot" }, { ko: "성인가요", en: "korean adult contemporary ballad" }] },
   { ko: "댄스·일렉트로닉", subs: [{ ko: "댄스 팝", en: "dance pop" }, { ko: "신스 팝", en: "synth pop" }, { ko: "EDM", en: "edm" }, { ko: "하우스", en: "house" }, { ko: "퓨처 베이스", en: "future bass" }, { ko: "트로피컬 하우스", en: "tropical house" }] },
   { ko: "힙합·알앤비", subs: [{ ko: "붐뱁", en: "boom bap hip hop" }, { ko: "트랩", en: "trap" }, { ko: "로파이 힙합", en: "lo-fi hip hop" }, { ko: "컨템포러리 R&B", en: "contemporary r&b" }, { ko: "얼반 팝", en: "urban pop" }] },
   { ko: "재즈·블루스", subs: [{ ko: "스윙", en: "swing jazz" }, { ko: "보사노바", en: "bossa nova" }, { ko: "블루스", en: "blues" }, { ko: "재즈 팝", en: "jazz pop" }, { ko: "스무스 재즈", en: "smooth jazz" }] },

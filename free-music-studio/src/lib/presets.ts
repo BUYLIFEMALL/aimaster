@@ -66,6 +66,9 @@ export const PRESETS: readonly Preset[] = [
   {"id":"synth-ballad","name":"Synth Ballad","category":"발라드","description":"신스 패드와 감성적인 팝 선율","prompt":"Synth pop ballad, emotional lead singing, gentle keyboard arpeggios, warm synth pads and soft drums","mode":"vocal"},
   {"id":"piano-ballad","name":"Piano Ballad","category":"발라드","description":"피아노 중심의 절제된 감정선","prompt":"Piano ballad, intimate expressive lead singing, grand piano, gentle strings and gradual dynamic build","mode":"vocal"},
   {"id":"80s-foxtrot","name":"80s Foxtrot (트로트풍)","category":"팝·레트로","description":"복고적인 리듬과 친숙한 선율","prompt":"male voice, trot, korean trot, with rock, slow tempo, 80s fox trot","mode":"vocal"},
+  {"id":"trot-classic","name":"정통 트로트","category":"트로트·성인가요","description":"아코디언·브라스 반주와 꺾는 남자 보컬","prompt":"korean trot, accordion, brass section, male vocal with strong vibrato, 95 BPM","mode":"vocal"},
+  {"id":"trot-semi","name":"세미 트로트","category":"트로트·성인가요","description":"신스와 브라스 위 바이브레이션 여자 보컬","prompt":"korean semi-trot, synth, brass, female vocal with vibrato, 110 BPM","mode":"vocal"},
+  {"id":"trot-dance","name":"댄스 트로트","category":"트로트·성인가요","description":"쿵쿵 네 박 비트와 밝은 여자 보컬","prompt":"korean dance trot, four-on-the-floor beat, synth bass, bright female vocal, 128 BPM","mode":"vocal"},
   // 시대별 한국 가요(백로그 D-8, 2026-11-09 — 음악 자동화 시대 템플릿에서 가수 이름 없이 태그로만)
   {"id":"era-70s-folk","name":"70s 한국 통기타 포크","category":"포크·어쿠스틱","description":"통기타와 하모니카, 소박한 노랫말","prompt":"70s korean acoustic folk, simple warm lead vocals, fingerpicked acoustic guitar, harmonica, intimate analog recording, 84 BPM","mode":"vocal"},
   {"id":"era-80s-citypop","name":"80s 한국 시티팝","category":"팝·레트로","description":"밤 드라이브 같은 도시적인 그루브","prompt":"80s korean city pop, smooth lead vocals, electric piano, slap bass, glossy synth pads, groovy drums, nostalgic night drive, 108 BPM","mode":"vocal"},
