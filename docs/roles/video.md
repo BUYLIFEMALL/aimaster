@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-11 `claude-win-video` (V1 원본 소리 렌더 확인)
+- 마지막 갱신: 2026-11-11 `claude-win-video` (미배포 3건 연속 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,12 +14,12 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `music-video-studio` | 공용 장면 맞춤 사본 `9397fb311`(동작 변화 없음) — 11-10 음악 담당 인계 받음, 배포 전 확인 끝(사본 OK·tsc·시험 34), 배포 때 v1.29 | 그 프로그램 다음 배포 때 함께(단독 빌드는 주인님 승인) | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | 미배포 3건 연속 배포 | `ai-video-studio` v1.32(Claude haiku-5-5) · `youtube-viral-studio` v1.26(메뉴 이름) · `music-video-studio` v1.29(장면 맞춤 사본) — 각 운영 화면 버전 확인. V1 소리 확인(원본 소리 렌더 -21.6dB, 0원) | 빌드 3회 |
 | 2026-11-11 | 남은 일 정리 | `ai-video-studio` 구간 고르기 Claude `claude-haiku-5-5`(생각 끔·effort low, 관리자 키 시험 1회 정상, 미배포) · `insta_auto_poster` 담당께 whisper 종료 대비 메모 · 쇼츠 낱말 시각 플랜(2027-01-05 재점검) | 없음 |
 | 2026-11-10 | `shorts-onestop-studio` v1.48 | 레퍼런스 받아쓰기 모델 선택(Gemini 3.8 Flash 기본·Flash Lite·OpenAI gpt-transcribe) + 「문장 다듬기로」 조사, 운영 ego 7.5초 확인, 시험 53 | 빌드 1회 `shorts-onestop-studio-5tr3q3m40` |
 | 2026-11-10 | `ai-video-studio` v1.31 | 받아쓰기 모델 선택(Gemini 3.8 Flash 기본·Flash Lite·Whisper) — Claude는 음성 입력 없음·OpenAI는 시각 주는 모델이 whisper-1뿐(공식 문서), 긴 소리는 5분씩 조용한 곳에서 잘라 Gemini에. 운영 ego: 해설 받아쓰기 22.3초·긴 영상→쇼츠 18.8초 정상. 시험 108 | 빌드 1회 `ai-video-studio-1e670xxcf` |
@@ -76,7 +76,7 @@
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
 2. V4 녹화는 주인님 확인 (V1 소리는 11-11 확인 끝: 원본 소리 켬 MP4 AAC 48k 스테레오·평균 -21.6dB, 원본 -21.4dB)
 3. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(플랜 `shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`, ElevenLabs는 이미 자체 시각)
-4. 미배포 대기 3건: `youtube-viral-studio` 메뉴 이름 그림문자 · `music-video-studio` v1.29 · `ai-video-studio` Claude 모델 4-5→5-5 — 각 프로그램 다음 배포 때
+4. 미배포 대기 없음(11-11 3건 모두 배포)
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것

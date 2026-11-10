@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.25` (2026-11-10 협업 크리에이터 찾기, 맨 아래 v1.25 절. 코드 표기 `v2.0`은 형식 밖이라 DB 기준 v1.25로 맞춤. v1.15~v1.24는 각 날짜 절) (`src/lib/version.ts`, `package.json`, DB `programs.version`)
+- 현재 버전: `v1.26` (2026-11-11 좌측 메뉴 이름 정리 · v1.25 협업 크리에이터 찾기는 맨 아래 절)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -196,5 +196,5 @@
 - **하지 않음(주인님 결정)**: 채널 「이메일 주소 보기」(보안문자 뒤) 자동 수집 — 「채널 정보에서 비즈니스 이메일 직접 보기」 링크만 · 검색 결과 DB 저장(화면·CSV만, DB 변경 없음) · 채널 「링크」 칸(공식 API에 없음, 2단계 후보: 회원 PC 확장).
 - **구조**: `src/lib/youtube/contactExtract.ts`(순수 — 가린 표기 `[at]`·`골뱅이` 풀기, 가짜 도메인·이미지 파일명 거르기, 한국 번호 `010-1234-5678` 모양·+82 국내 변환·대표번호는 구분 기호 있을 때만, 주소는 이름표 줄 또는 시·도+도로명/번지 모양, 유튜브 자체 링크 제외, 종류당 최대 5개) · `creatorFinder.ts`(공용 엔진 **사본은 고치지 않고** 넘기는 호출 함수가 `videos` 응답 설명을 옆으로 모음 → **추가 할당량 0**, 구독자 하한은 엔진 결과에서 거름) · API `api/youtube/creator-finder`(권한·force-dynamic·회원 본인 키·`agreed:true` 없으면 400) · 화면 동의 칸(공개 연락처 사용 책임, 브라우저에 기억 `useSyncExternalStore`).
 - **검수**: 시험 30(`tests/contactExtract.test.mjs` 25 · `creatorFinder.test.mjs` 3 · 기존 엔진 3 — 앱 코드가 확장자 없는 import라 시험에서만 `registerHooks`로 `.ts` 찾기), tsc, 새 파일 린트 0, 로컬 build. 배포 `youtube-viral-studio-lpfk3r7hp` Ready(빌드 1회, 주인님 승인), DB v1.24 → v1.25. **운영 ego(시험 계정 본인 YouTube 키)**: 「캠핑」 1회 — 채널 31개 확인·할당량 102유닛·연락처 공개 7개(모두 채널 설명 이메일)·연락처 없는 8개 제외, CSV 저장 정상, 390px 폭 가로 스크롤 없음.
-- **미배포 대기**: 좌측 메뉴 이름의 중복 그림문자 🤝 제거(아이콘과 겹침, 문구만).
+- ~~미배포 대기~~ ✅ **v1.26 배포(2026-11-11, `youtube-viral-studio-lpefb49rp`, DB v1.26)**: 좌측 메뉴 이름의 중복 그림문자 🤝 제거 — 운영 화면에서 「협업 크리에이터 찾기」 확인.
 - 처음 설정 0단계(유튜브 키 이미 등록) · 매일 조작 2번(찾기 → CSV) · 동의 1번.

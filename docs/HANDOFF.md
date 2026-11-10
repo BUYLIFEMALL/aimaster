@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 영상 미배포 3건 연속 배포 + V1 소리 확인
+- **배포(주인님 승인 빌드 3회, 하나씩)**: `ai-video-studio` v1.32(구간 고르기·번역 Claude `claude-haiku-5-5`, 생각 끔·effort low) · `youtube-viral-studio` v1.26(메뉴 이름 그림문자) · `music-video-studio` v1.29(장면 맞춤 공용 사본 `9397fb311`, 음악 담당 인계분). 모두 Ready·DB 버전 맞춤·운영 화면 버전 확인.
+- **V1 소리 확인(0원)**: 영상 합치기 원본 소리 켬 렌더 → MP4 AAC 48k 스테레오, 평균 -21.6dB(원본 -21.4dB).
+- **남은 영상 일**: 결정 대기(Runway·Vidu, V6 담당, shots 시안, 서버 지역) · V3 2단계(이커머스 답) · V4 녹화·shots 배지(주인님/채널 계정) · 2027-01-05 낱말 시각 재점검.
+- 링크: https://ai-video-studio.buylife.xyz · https://youtube-viral-studio.buylife.xyz · https://music-video-studio.buylife.xyz
+
 ## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-ncp-v2` — `naver-cafe-poster` (네이버 카페 포스팅 자동화) v1.29 2안(86. 퀀트 바이럴 카페 레이더 콘솔) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
 - **주인님 지시**: 「2안으로 해」 (86. 퀀트 바이럴 카페 레이더 딥 차콜 콘솔 스타일 공식 채택 확정).
 - **개편 내역**:

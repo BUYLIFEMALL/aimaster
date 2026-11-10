@@ -27,9 +27,6 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
-| `ai-video-studio` | 구간 고르기·언어판 번역 Claude 모델 `claude-haiku-4-5`(종료 위험) → `claude-haiku-5-5`, 요청에 생각 끔·effort low(관리자 Claude 키로 같은 요청 1회 시험 200·JSON 정상), 시험 108 | (이 줄과 같은 커밋 묶음) | 2026-11-11 · [역할: video] `claude-win-video` | `ai-video-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때 함께, 버전 +0.01, 배포 뒤 구간 고르기 1회 확인 |
-| `youtube-viral-studio` | 좌측 메뉴 「협업 크리에이터 찾기」 이름의 중복 그림문자 🤝 제거(아이콘과 겹침, 문구만) | (이 줄과 같은 커밋) | 2026-11-10 · [역할: video] `claude-win-video` | `youtube-viral-studio/AGENTS.md` v1.25 절 | 다음 배포 때 함께, 버전 +0.01 |
-| `music-video-studio` | 공용 `video-edit-composition`·`timeline` 사본 동기화(장면 맞춤 칸 추가, 이 프로그램 동작 변화 없음 — 기준 쪽 `ai-video-studio` v1.30은 11-10 배포됨) | `9397fb311` | 2026-11-09 · [역할: video] `claude-win-video` | `ai-video-studio/docs/PLAN_20261109_POSTPROCESS_FIT.md` | 그 프로그램 다음 배포 때 함께(급하지 않음). 11-10 음악 담당 → 영상 담당 인계 받음, 배포 전 확인 끝(사본 OK·tsc·시험 34). 배포 때 v1.29. `d1e710d68`은 v1.28에 이미 나감 |
 | `playlist-channel-studio` (운영 v1.35) | 무료음악 곡 가져오기 패널: 무료음악 창이 아닌 곳에서 열었을 때 「받는 중」 줄을 숨김(「직접 넣기」 안내와 엇갈려 보이던 것, 운영 확인 중 발견) | (이번 커밋) | 2026-11-08 · [역할: music] `claude-win-20261024-music` | `playlist-channel-studio/AGENTS.md` v1.35 | ✅ 11-09 v1.37에 함께 나감(이 줄은 기록용) |
 | **권한 판정 동시 조회 56개**(목록: `docs/ACCESS_CHECK_PARALLEL_20261106.md`) | 회원 권한 판정의 순차 조회 4회 → 두 묶음 동시 조회(판정 순서·결과 그대로, 첫 화면만 빨라짐). 주인님 결정 A-7 | `d1e710d68` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `docs/ACCESS_CHECK_PARALLEL_20261106.md` | 그 프로그램 다음 배포 때 함께(급하지 않음, 따로 배포 안 함). 배포한 세션은 문서 목록에서 그 줄에 ✅ |
 | `blog-neighbor-care` | 「🤖 자동 운영」 요약 칸이 처음에 접혀 제목만 보임 → 항상 펼침(`bnc-pinned`), 시험 AU03. v1.18 운영 확인 중 발견 | `02029e8f4` | 2026-11-05 · [역할: blog] `claude-win-blog` | `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위 | 다음 이웃 소통 배포 때(+0.01) — 그때까지는 칸 제목을 한 번 누르면 펼쳐지고 기억됨 |
@@ -68,6 +65,9 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `music-video-studio` | v1.29 · 2026-11-11 ([역할: video] `claude-win-video`, 주인님 승인 연속 배포 3/3, `music-video-studio-7z0alazi4` Ready, DB v1.29) | 공용 장면 맞춤 사본 `9397fb311`(11-10 음악 담당 인계, 사본 5개 OK·시험 34), 30일 열외 줄의 이 프로그램 몫 |
+| `youtube-viral-studio` | v1.26 · 2026-11-11 ([역할: video] `claude-win-video`, 연속 배포 2/3, `youtube-viral-studio-lpefb49rp` Ready, DB v1.26) | 좌측 메뉴 「협업 크리에이터 찾기」 중복 그림문자 제거(운영 화면 확인) |
+| `ai-video-studio` | v1.32 · 2026-11-11 ([역할: video] `claude-win-video`, 연속 배포 1/3, `ai-video-studio-io1q4wjnb` Ready, DB v1.32) | 구간 고르기·번역 Claude `claude-haiku-4-5` → `claude-haiku-5-5`(생각 끔·effort low, 배포 전 관리자 키로 같은 요청 200 확인) |
 | `ai-work-workspace` | v1.24 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 U12 플랜 승인 범위 빌드 1회, `ai-work-workspace-52q7nkhlv` Ready, DB v1.24) | U12 업무 비서(새 기능) — ego 시험 계정: 비용 안내·한국어 템플릿·대화·직접 실행 통과 |
 | `shorts-onestop-studio` | v1.48 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 「쇼츠 원스톱도 함께」 승인 빌드 1회, `shorts-onestop-studio-5tr3q3m40` Ready, DB v1.48) | 레퍼런스 받아쓰기 모델 선택 새 기능 + 대기 「문장 다듬기로」 조사 수정 + 30일 열외 줄의 이 프로그램 몫 |
 | `ai-video-studio` | v1.31 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 채팅 승인 빌드 1회, `ai-video-studio-1e670xxcf` Ready, DB v1.31) | 받아쓰기 모델 선택(Gemini 3.8 Flash 기본·Flash Lite·Whisper) 새 기능 + 30일 열외 줄의 이 프로그램 몫 ✅ 표시 |
