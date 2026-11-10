@@ -44,7 +44,7 @@
 | `insta_auto_poster/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` | 2026-11-11 | 4대 화면 3시안 중 1안 공식 채택 반영 v1.73 전면 리뉴얼 및 배포 완료 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.01 1단계 뼈대 배포 완료(비공개) — 다음 2단계 연동 화면은 주인님 11번가 고정 IP 등록 뒤. 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |
 | `real_estate_sales/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-res-v2` | 2026-11-11 | 4대 화면 3시안(88/89/90번) 중 2안 채택 반영 v1.59 전면 리뉴얼 및 배포 완료 |
-| `labs/mall-builder/` | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261110-mall-builder` | 2026-11-10 | D26~D29 Lab 배포(11-11) + D30 정기 주문·D31 몰 여러 개 완료(미배포) → 다음 3차 3번 PWA |
+| `labs/mall-builder/` | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261110-mall-builder` | 2026-11-10 | D26~D29 Lab 배포(11-11) + D30 정기 주문·D31 몰 여러 개·D32 PWA 완료(미배포) → 다음 3차 4번 리셀러 |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-11 | 캘린더 연동 v1.26 배포(① ICS 확인) → ② 구글 연결은 카탈로그 SQL 적용 대기 |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |

@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D32 앱(PWA)(미배포)
+- **한 일**: 주인님 「추천안 3가지 그대로」 → 몰마다 홈 화면 설치(앱 설명 파일·아이콘: 로고 또는 첫 글자), 끊김 안내 서비스 워커(저장 없음), 승인 사업자 손님 설치 안내 띠(닫으면 30일), 「쇼핑몰 정보 › 몰 로고」. DB 변경 없음
+- **검수**: 시험 235개·빌드, 응답·아이콘 눈 확인·한글 글꼴, ego(설치 단추·닫기·로고 올리기). 시험 중 고친 것: 설치 신호 놓침 → 틀 맨 앞 스크립트로 미리 붙잡음, 문구 조사
+- **커밋**: `f54aa5777` · 배포: 미배포 대기(D30~D32) · 비용 없음
+- **다음 첫 단계**: 3차 4번 리셀러·제휴 판매 플랜
+
 ## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 영상 프로그램 서버 지역 측정 → 서울 고정 설정(다음 배포 때 반영)
 - **측정**: 운영 DB 서울(ap-northeast-2, Supabase 관리 화면). 영상 6개(ai-video-studio·shorts-onestop-studio·music-video-studio·shots·infinite-loop-video·youtube-viral-studio) 함수는 모두 `iad1`(미국 동부, `x-vercel-id: icn1::iad1::…`), video-to-gif는 서버 함수 없음. 이미 7개 프로그램이 `icn1`.
 - **한 일**: 주인님 「서울로, 다음 배포 때 함께」 → 6개 `vercel.json`에 `"regions": ["icn1"]`(유튜브 떡상 분석은 파일 새로 만듦), 추가 빌드 0. 미배포 대기·`docs/PLATFORM_PATTERNS.md` §8에 측정법·권장 기록.
