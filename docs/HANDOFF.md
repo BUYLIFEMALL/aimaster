@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 🟡 [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `youtube-viral-studio` v1.27 V6 「📈 내 채널 진짜 지표」(배포 완료, 실제 연결은 구글 클라우드 설정 대기)
+- **한 일**: 회원 본인 구글 앱으로 내 채널 연결(분석+읽기+댓글+업로드 권한 한 번에, 공용 `member_platform_accounts` 재사용) → YouTube Analytics API 보고서 7개(요약·날짜별·잘 된 영상 10·유입·나이/성별·국가·쇼츠/일반)와 숫자 규칙 힌트(AI 없음, 저장 없음). 설정 구글 앱 칸·매뉴얼 카드, 운영 DB `integration_catalog` youtube `analytics` 묶음 추가(승인). 노출수·CTR은 API에 없어 안내만. 인스타 쪽은 `insta_auto_poster/docs/IMPROVEMENTS.md`에 인스타 담당께 요청.
+- **검수**: 시험 38·tsc·빌드, 운영 ego 화면·설정 확인. **배포** 빌드 1회 `youtube-viral-studio-mi4tyfu7t`, DB v1.27.
+- **남은 일**: 주인님 구글 클라우드에서 YouTube Analytics API 켜기 + 시험 계정 OAuth 앱에 콜백 `https://youtube-viral-studio.buylife.xyz/api/youtube/my-channel/callback` 추가 → 연결·지표 확인(비용 0).
+- 링크: https://youtube-viral-studio.buylife.xyz/my-channel
+
 ## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `naver-blog-agent` v2.28 배포(U10 2차 마지막)
 - **한 일**: 주인님 「순서대로 진행해」로 작업 중 표의 오래된 블로그 줄(`claude-win-20261101-blog`, 11-01 「지금 수정 없음」) 정리 → 버전 v2.28·`build-extension-archive.mjs`로 manifest·ZIP v2.28 → 시험 work-inbox 4·tsc → 배포 Ready → DB `version`·`extension_version` v2.28(확장 칸은 ego SQL) → `check-extension-release` OK. U10 2차 6개 프로그램 모두 배포 끝.
 - **블로그 담당께**: 이 폴더에서 바뀐 것은 버전·ZIP뿐(확장 코드 그대로). 회원 확장은 「ZIP 다시 받기 → 덮어쓰기 → 새로고침」 안내 필요할 수 있음.
