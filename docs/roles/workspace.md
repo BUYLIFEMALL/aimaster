@@ -4,26 +4,27 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-10 [역할: workspace] Claude Code(윈도우) — U11 v1.23 배포·운영 확인 완료, OpenAI 받아쓰기는 시험 계정 잔액 부족으로 미확인
+- 마지막 갱신: 2026-11-11 [역할: workspace] Claude Code(윈도우) — U12 업무 비서 v1.24 배포·운영 확인 완료 → 다음: 영수증·세금계산서 플랜 갱신
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `ai-work-workspace` | U12 업무 비서 | 2026-11-10 | 플랜 작성 완료 — 주인님 결정 대기 |
+| `ai-work-workspace` | 영수증·홈택스 세금계산서(주인님 승인) | 2026-11-11 | 플랜 갱신부터 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-work-workspace` | OpenAI 받아쓰기 실제 결과 확인 | 시험 계정 OpenAI 키 잔액 충전(앱 경로·안내는 정상 확인) | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U11 운영 확인」 |
 | U10 2차 배포 | 6개 프로그램 「업무 워크스페이스로 보내기」 구현 완료. `blog-keyword`(v1.13) 운영 확인 통과(11-10)·`threads-content-ops` 「(광고)」 수정(v2.25) 배포됨·DB 버전 v2.25로 맞춤. 나머지 미배포(`ai-auto-blog`·`naver-blog-agent`·`competitor-analysis`·`web-crawler`·`blog-keyword` + 워크스페이스 이름표) | 주인님 결정(2026-11-09): 따로 배포하지 않고 각 프로그램을 다른 이유로 배포할 때 함께 — 배포하는 세션이 미배포 대기 표 줄을 보고 같이 내보냄 | `docs/PENDING_DEPLOYS.md` 2026-11-07 줄 |
-| `ai-work-workspace` | U12 업무 비서 → U13 협업(주인님 2026-11-10 「진행해」·「협업해서 진행해」) | U11 운영 확인 뒤 차례로 플랜부터. U13은 「회원이 초대한 사람에게만 공유」를 데이터 격리 규칙 예외로 둘지 먼저 결정 | 로드맵 §U12·U13 |
-| `ai-work-workspace` | 구글 캘린더 — 검토 문서만(U11 결정 5번). 권장: ICS 구독 주소 방식 별도 작은 단위 | 주인님 결정 | `ai-work-workspace/docs/REVIEW_20261110_GOOGLE_CALENDAR.md` |
-| `ai-work-workspace` | 영수증·홈택스 세금계산서 플랜(analysis-planning 역할이 10-27 작성, 이 역할에 구현 배정 제안) | 주인님 결정(어디에 만들지·범위) | `ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md` |
+| `ai-work-workspace` | U13 협업(주인님 「협업해서 진행해」) | 「초대한 사람에게만 공유」를 데이터 격리 규칙 예외로 둘지 먼저 결정 | 로드맵 §U13 |
+| `ai-work-workspace` | 구글 캘린더 — **주인님 승인(2026-11-10 「편한 방법이 있다면 그걸로」) → ICS 구독 주소 방식** | 영수증 다음 차례 | `ai-work-workspace/docs/REVIEW_20261110_GOOGLE_CALENDAR.md` |
+| `ai-work-workspace` | 영수증·홈택스 세금계산서 — **주인님 승인(2026-11-10 「진행하고」, 권장안: 워크스페이스 안 메뉴)** | U12 배포 뒤 차례(작업 하나씩) | `ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md` |
 | `ai-doc-chatbot`(다른 역할 폴더) | 문서 카드가 30일 예외 계정에도 「30일 뒤 자동 삭제」로 표시 — 실제 삭제 대상인지 확인 | 그 폴더 담당 또는 주인님 허락 | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 확인 중 발견」 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | `ai-work-workspace` v1.24 | U12 업무 비서: 에이전트 열기(공유·바깥 연결 제외), 백그라운드 실행 주인 키로, 정시 비서 회원 cron-job.org, 월 상한 700·비용 안내, 웹 검색 끔, 한국어 템플릿 6종, 자동화 화면 한국어 84개. 시험 67·원본 523·빌드, ego 운영 확인(대화·직접 실행 통과) | 빌드 1회 |
 | 2026-11-10 | `blog-keyword` v1.13 · `threads-content-ops` v2.25 | U10 2차 `blog-keyword` 버튼 운영 확인(보내기 → 받은 업무 → 페이지) 통과, Threads 운영 DB 버전 v2.23 → v2.25 맞춤, 미배포 표 정리 | 없음(DB 버전만) |
 | 2026-11-10 | `ai-work-workspace` v1.23 | U11 배포: 운영 DB 표 `aww_member_scheduler` 적용, 이름표 `3c175bcce` 함께. ego 운영 확인 — 값 변경 자동화·정시 자동화(cron-job.org 실행 → 알림)·일시정지/재개·끄면 작업 꺼짐 통과. OpenAI 받아쓰기는 시험 계정 잔액 부족으로 결과 미확인 | 빌드 1회 |
 | 2026-11-10 | `ai-work-workspace`(미배포, 배포 때 v1.23) | U11 자동화 구현: 자동화·버튼 저장 열기(웹훅·에이전트는 「준비 중」·서버 거절), 값 변경 자동화 `after()` 마무리, 회원 cron-job.org 1분 정시 실행(공용 `member-scheduler` 사본·회원 주소 `/api/cron/member`·운영 cron은 회원 작업 제외), 상태 줄·키 칸·매뉴얼, 실행 기록·알림 30일 정리. 시험 58/58·원본 523/523·공용 18/18·tsc·로컬 빌드. 커밋 `fc6a5df9a`(플랜)·`0d686f9b3` | 비용 없음 |
@@ -51,6 +52,4 @@
 2. 유튜브 발행 기록(U10 범위 밖)은 video 역할과 저장 열 확인 뒤 다음 단위
 
 ## 주인님께 여쭐 것
-- U12 업무 비서 플랜 결정 5건(범위·월 상한 기본값·웹 검색·기본 AI·템플릿) — `ai-work-workspace/docs/PLAN_20261110_U12_AGENT.md` §6
-- 구글 캘린더: ICS 구독 주소 방식(설정 3단계·키 없음)으로 별도 작은 단위 진행할지(`ai-work-workspace/docs/REVIEW_20261110_GOOGLE_CALENDAR.md`)
 - 모델 교체 7개(`web-crawler`·`ghost-scraper`·`ai-webtoon-studio`·`ebook-studio`·`ai-prompt-studio`·`vinyl-lp-studio`·`personality-suite`) 배포 — 이 세션은 `deploy.mjs`가 분류기에 막혀 주인님이 `! node scripts/deploy.mjs <폴더> --go`를 한 줄씩 돌려 주시거나 배포 권한 규칙 추가. 인스타·쓰레드 U10 1차 2개도 맡을지 확인 부탁드립니다

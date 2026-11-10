@@ -8,6 +8,12 @@
 - (배포됨 v1.22 — ego: 캘린더 자동 생성·INSTA·Threads 행 정상) `cc4f4eabe` U10 워크스페이스 쪽: 템플릿 「📅 콘텐츠 캘린더」 + 받은 업무 「📅 콘텐츠 캘린더에 넣기」 + 이름표 8개 + 매뉴얼 5단계(아래 「U10 콘텐츠 캘린더」). 다음 배포(v1.22) 때 함께 — 갤러리 버전 7이라 배포 뒤 첫 요청 때 템플릿이 운영 DB에 다시 심김.
 - (배포됨) `297efb419` 요약 소제목 한국어화·`1551c9041` 휴지통 안내 한국어화 → v1.21(2026-11-06)로 나감.
 
+## U12 업무 비서 (2026-11-11, v1.24 배포 — 플랜 `docs/PLAN_20261110_U12_AGENT.md`, 주인님 권장안 승인)
+- 운영 확인(ego, 시험 계정 `buylifemall@naver.com`): 메뉴 v1.24 · 보관함 › 에이전트 › 새 에이전트 → 비용 안내·동의 전 템플릿 흐림 · 한국어 템플릿 6종 · 「할 일 정리 도우미」 만들기·저장 · 대화 1회(한국어 지침대로 「확인 필요」 표시, 13 크레딧) · 「에이전트 실행」 백그라운드 1회(주인 키로 AI 호출 성공, 15 크레딧, 할 일 없어 No action) · 시험 에이전트 휴지통. 비용: 시험 계정 본인 Claude 키 2회(소액).
+- 미확인: 정시 비서의 cron-job.org 실행은 운영에서 직접 보지 않음(같은 경로 U11 운영 통과 + 연결부 시험으로 주인 구분 확인).
+- 발견(다음 배포 때, 급하지 않음): 에이전트 화면 영어 남음 — 대화 첫 화면 추천 버튼(Answer common team policy questions·Triage requests from a team channel·Compile a weekly market watch report — 웹·메일이 필요한 예시라 한국어 업무 예시로 바꾸기), 활동 탭 거르기(All·Failed·Successful·In progress·Needs review)와 결과(No action·Run agent), 모델 「대체 동작」(Use another model·Switch to another available model). 또 「웹 액세스」 켜기 스위치가 보이지만 서버가 꺼 둠(`AGENT_WEB_ENABLED=false`) — 스위치를 숨기거나 「준비 중」 표시 필요.
+- 발견: 자동화 목록 요약 문장(When page added, edit …·Every day, notify …)은 원본 공용 코드가 영어 문장을 조립 — 화면 쪽 번역 함수로 바꿔야 함.
+
 ## U11 운영 확인 (2026-11-10, v1.23, 시험 계정 `buylifemall@naver.com`, ego lite)
 - 통과: 값 변경 자동화(「페이지를 추가했습니다」 → 메모 = 「U11 자동화 확인」, 새 행에 바로 채워짐) · 정시 자동화(매일 23:20 → 저장 즉시 회원 cron-job.org 작업 8834275 생성, 23:20에 알림함 「U11 정시 실행 확인 알림」 도착) · 상태 줄 일시정지/재개(DB `paused`·`active` 바뀜) · 정시 자동화 끄기 → 다음 1분 확인 때 `active=false`, 상태 줄 「대기」 · 웹훅 「준비 중」 표시. 시험 자동화 2개·시험 행은 지움(cron-job.org 작업은 꺼진 채 남아 다음에 다시 씀).
 - 발견(다음 배포 때, 급하지 않음): 자동화 화면에 영어가 남음 — 제목 「○○'s automation」, 작업 이름(Change property…·Add a page to…·Change pages in…·Notify…·Send email…·Notify in Slack…·Set variables), 받는 사람(Choose up to 20 people…·Whoever triggered·Page creator·Edit), 오류(Choose at least one recipient…·Add a notification message…), 정시 선택(frequency·Day·Weekday·Week·2 Weeks·Month·3 Months·6 Months·Year·Next occurrence·Delete trigger·Every day at…), 목록 요약(When page added, edit …·Every day, notify …), 완료 알림(「… automation created」), 닫기 확인(Discard the unsaved workflow edits?·Discard·Keep editing), 삭제 확인(Delete). 행 메뉴의 「Search actions…」「Page」「3 words, 8 characters」도 영어.
