@@ -140,6 +140,9 @@ export default function MyChannelPage() {
                   최근 {d}일
                 </button>
               ))}
+              <a href="/api/youtube/my-channel/connect" className="rounded-lg border border-yt-border px-3 py-1.5 text-xs font-bold text-yt-muted hover:text-yt-text" title="다른 채널로 바꾸거나 연결을 새로 받을 때">
+                다시 연결
+              </a>
               <button type="button" onClick={() => void load(days)} className="rounded-lg border border-yt-border p-1.5 text-yt-muted hover:text-yt-text" aria-label="새로고침">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               </button>

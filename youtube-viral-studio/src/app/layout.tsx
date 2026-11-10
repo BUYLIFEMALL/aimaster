@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "YOUTUBE 트렌드 분석 - AIMaster",
+  title: "AI 유튜브 떡상 분석 자동화 - AIMaster",
   description: "소형 채널 떡상 쇼츠 발굴, 황금 채널 스크리닝, 실시간 VPH 급상승 영상 랭킹 및 원본 역추적",
 };
 

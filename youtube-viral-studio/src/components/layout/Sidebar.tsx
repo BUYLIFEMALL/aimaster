@@ -57,9 +57,9 @@ function Brand() {
           <span className="text-lg">👑</span>
         </div>
         <div className="min-w-0">
-          <p className="text-[13px] font-black leading-tight tracking-tight text-[#FBBF24]">골든 엠파이어 레이더</p>
+          <p className="text-[13px] font-black leading-tight tracking-tight text-[#FBBF24]">AI 유튜브 떡상 분석</p>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-[11px] font-bold text-slate-300">인텔리전스 콘솔</span>
+            <span className="text-[11px] font-bold text-slate-300">자동화</span>
             <span className="rounded bg-amber-500/20 px-1 py-0.2 text-[10px] font-extrabold text-[#FBBF24] border border-amber-500/30">
               {APP_VERSION}
             </span>
