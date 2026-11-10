@@ -59,9 +59,7 @@
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
-| `ai-work-workspace` | 구글 연결 안내: 캘린더·키 화면에 「내 구글 앱 만들기」 공용 매뉴얼 버튼, 「테스트 중이면 7일마다 끊김 → 앱 게시」·Calendar API 켜기 문장, 매뉴얼의 「테스트 사용자 등록」 옛 문구 교체(영상 담당 요청 `docs/REQUEST_20261111_GOOGLE_OAUTH_GUIDE.md`) | `d17ea424e` | 2026-11-11 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` 「캘린더 연동」 | 다음 배포 때(v1.29) |
 | `ai-doc-chatbot` | 보관 예외 회원(관리자·시험 계정)에게 30일 지난 문서가 화면·검색에서 숨던 것 → 예외 회원은 기준 없음(`documentCutoff(now, userId)`, `authorize()`가 10분마다 예외 목록), 문서 카드 「보관 기한 없음」. DB 삭제 작업 `dcb-retention-30d`는 이미 예외 제외라 데이터 손실 없음 | `bb7f393bd` | 2026-11-11 [역할: workspace] Claude Code(윈도우) — 담당 없음, 주인님 「니가 해」 | `ai-doc-chatbot/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때(+0.01) |
-| `ai-work-workspace` | U13 보강: 페이지만 공유받은 사람의 「공유됨」에 다른 워크스페이스에서 공유된 페이지 표시(원본은 지금 워크스페이스 안만 찾아 게스트가 링크로만 찾을 수 있었음) + 게스트 멤버 자격 요청·주인 승인 엶(`requestMembers`는 닫음) | `9f1ef9dc3` | 2026-11-11 [역할: workspace] Claude Code(윈도우) — 관리자 쪽 운영 확인에서 발견 | `ai-work-workspace/docs/PLAN_20261111_U13_COLLAB.md` | 다음 배포 때(v1.29) |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
@@ -74,6 +72,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `ai-work-workspace` | v1.29 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「배포해」 빌드 1회, `ai-work-workspace-d44iw4ejf` Ready, DB v1.29) | U13 보강(공유됨에 다른 워크스페이스 공유 페이지·게스트 멤버 자격 요청/승인) + 구글 연결 안내(공용 매뉴얼 버튼·7일 끊김→앱 게시·옛 「테스트 사용자」 문구 교체) |
 | `ai-work-workspace` | v1.28 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「순서대로 진행해」 빌드 1회, `ai-work-workspace-lpqismplb` Ready, DB v1.28) | **U13 협업**(회원 초대·페이지 공유·5초 확인·동시 편집 잠금·프로필 범위·첨부 파일) + 캘린더 시간 유지 `6e22daf82` + 에이전트 기본 이름 `ea21d51a5` |
 | `naver-blog-agent` | v2.28 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「순서대로 진행해」 빌드 1회, `naver-blog-agent-41iwox33s` Ready, DB·확장·ZIP v2.28 check OK) | U10 2차 보관함 「📨 워크스페이스로」 `18cfb01d5`(시험 4개, 확장 코드 변경 없음) |
 | `competitor-analysis` | v1.13 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「너가 진행해」 빌드 1회, `competitor-analysis-m4p8gw1g0` Ready, DB·확장·ZIP v1.13 check OK) | U10 2차 「📨 업무 워크스페이스로 보내기」 `82c25c802`·`34ed724a1` (확장 코드 변경 없음, 버전만) |

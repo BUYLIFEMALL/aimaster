@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.29(U13 보강·구글 안내) + `ai-doc-chatbot` 보관 예외 수정(미배포)
+- **한 일**: 관리자 계정 쪽 U13 확인에서 「공유됨」에 공유 페이지가 안 보이고 「멤버 자격 요청」이 「준비 중」인 것 발견 → `getSharedWithMe` 덮어쓰기(다른 워크스페이스에서 공유된 맨 위 페이지 포함), `requestWorkspaceMembership`·`resolveMemberRequest` 엶(`requestMembers`는 닫음). 구글 연결 안내(영상 담당 요청) 함께 배포. 구글 DreamAI 앱은 이미 프로덕션 게시 상태 확인. `ai-doc-chatbot`: 보관 예외 회원 문서 30일 숨김 해제·「보관 기한 없음」(`bb7f393bd`, 미배포 — DB 삭제 작업은 이미 예외 제외).
+- **검수**: 연결부 110/110·원본 523/523·tsc·빌드, 배포 Ready·DB v1.29. ego(관리자 계정): 화면 v1.29, 「공유됨」 목록·화면에 시험 페이지 표시.
+- **남은 것**: 시험 계정으로 「[시험] U13 공유 확인」 공유 거두기·휴지통(ego가 관리자 로그인 중). 홈택스 공식 양식 파일 대기.
+- 링크: https://ai-work-workspace.buylife.xyz
+
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D30~D32 Lab 배포 + D33 리셀러(미배포)
 - **배포**: 주인님 「진행해」 → D30 정기 주문·D31 몰 여러 개·D32 PWA를 빌드 1회로 `dev-mall-builder-hvs7ysyse` Ready. 앱 설명 파일·아이콘·sw.js·정기 주문 화면 응답 확인
 - **D33 리셀러**(주인님 「추천안 4가지 그대로」): 운영자 지정(코드·율), `?ref=` 30일 쿠키 → 가입 때 영구 연결, 구매 확정 적립(결제−배송비)×율·반품 회수, 출금 신청 → 운영자 직접 송금 후 「지급 완료」/반려. Lab DB `0052`·`0052b`(가입 연결 고침)
