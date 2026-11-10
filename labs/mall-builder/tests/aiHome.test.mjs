@@ -54,3 +54,8 @@ test("같은 종류 2개까지, 최대 블록 수", () => {
   assert.equal(blocks.filter((b) => b.type === "topbar").length, 2);
   assert.ok(HomeDraftSchema.safeParse({ note: "", blocks: [blk({})] }).success);
 });
+
+test("프롬프트: 설명은 한국어 블록 이름으로", () => {
+  const p = buildHomePrompt({ storeName: "a", industry: "b", categories: [], productNames: [], productCount: 0, hasReviews: false, hasNotices: false }, 2026);
+  assert.match(p.system, /영어 대신 띠 배너/);
+});

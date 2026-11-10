@@ -36,3 +36,8 @@ test("정리: HTML·굵게 기호 지우기, 길이 자르기", () => {
   assert.deepEqual(d.needs_check, ["입고일"]);
   assert.ok(InquiryDraftSchema.safeParse({ answer: "a", needs_check: [] }).success);
 });
+
+test("프롬프트: 내부 사정(자료·AI)을 드러내지 않게 지시", () => {
+  const p = buildInquiryPrompt(facts(), 2026);
+  assert.match(p.system, /쇼핑몰 담당자가 직접/);
+});

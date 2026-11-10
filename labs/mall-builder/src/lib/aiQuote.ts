@@ -71,7 +71,7 @@ export function checkSuggestion(facts: QuoteFact[], ai: AiSuggestion, minMargin:
     }
     if (f.customer_unit != null && final > f.customer_unit) warnings.push(`지금 이 거래처 단가(${f.customer_unit.toLocaleString("ko-KR")}원)보다 비쌉니다`);
     if (f.cost == null) warnings.push("원가가 없어 마진을 확인하지 못했습니다");
-    return { item_id: f.item_id, suggested: s.unit_price, final, reason: s.reason.slice(0, 120), margin: marginRate(final, f.cost), warnings };
+    return { item_id: f.item_id, suggested: s.unit_price, final, reason: s.reason.replace(/[\s{}[\]"`]+$/u, "").slice(0, 120), margin: marginRate(final, f.cost), warnings };
   });
 }
 

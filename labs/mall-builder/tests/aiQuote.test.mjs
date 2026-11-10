@@ -59,3 +59,8 @@ test("D27 키 암호화 — 왕복·다른 몰 id로는 안 풀림·열쇠 없�
   assert.throws(() => sealSecret("x", "a", ""), /MALL_SECRET_KEY/);
   assert.ok(looksLikeAnthropicKey("sk-ant-api03-abcdefghijklmnopqrstuvwxyz") && !looksLikeAnthropicKey("abc"));
 });
+
+test("이유 글 끝에 남은 괄호·따옴표 기호를 지운다", () => {
+  const [row] = checkSuggestion([fact()], { items: [{ item_id: "i1", unit_price: 21000, reason: "소폭 인하.}" }], note: "" }, 10);
+  assert.equal(row.reason, "소폭 인하.");
+});
