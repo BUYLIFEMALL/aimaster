@@ -1,5 +1,11 @@
 # 뮤직비디오 자동화 (music-video-studio) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+> **📮 영상 담당께 — 미배포 대기 인계 (2026-11-10, [역할: music] `claude-win-20261024-music`, 주인님 지시 「IMPROVEMENTS.md에 영상 담당께로 남겨줘」)**
+> 1. **남은 미배포 `9397fb311`**(영상 담당 커밋, 11-09): 공용 사본 `video-edit-composition`·`video-edit-timeline` 동기화 — `src/components/edit/Composition.tsx`(+18 −3)·`src/lib/edit/timeline.ts`(+9 −3), 장면 맞춤 칸(꽉 채우기 / 전체 보이기 + 흐린 배경). 기준 `ai-video-studio` v1.30은 11-10 배포됨, 이 프로그램만 남음. `check-shared-modules` 사본 8개 모두 OK(11-10 확인).
+> 2. **같은 배포에 함께 나갈 것 `d1e710d68`**(음악 담당, 권한 판정 동시 조회): `src/lib/programAccess.ts` 한 파일, 판정 순서·결과 그대로이고 첫 화면만 빨라짐. 배포 뒤 `docs/ACCESS_CHECK_PARALLEL_20261106.md` 목록의 이 프로그램 줄에 ✅.
+> 3. **기록 정리**: 바로 아래 「미배포 대기(2026-11-06) `3a550fe12`」는 11-08 v1.28 배포 때 이미 나갔음(`AGENTS.md` v1.28 「함께 나감」) → ✅ 배포됨(v1.28)으로 바꿔 주세요.
+> 4. **배포할 때**: 급하지 않음, 다음 배포 때 함께(단독 빌드는 주인님 승인). 현재 v1.28 → v1.29(`src/lib/version.ts` + DB `programs.version`). 배포 전 `npx tsc --noEmit`·기존 시험·장면 맞춤 기본값에서 기존 렌더 모양이 같은지 확인. 배포 뒤 `docs/PENDING_DEPLOYS.md` 「대기 중」의 `9397fb311` 줄과 `d1e710d68` 해당 표시를 「내보낸 기록」으로 옮기고, 이 칸을 지우거나 ✅로 바꿔 주세요.
+
 > **미배포 대기(2026-11-06, 영상 담당 `claude-win-video`, 급하지 않음 — 다음 배포 때 함께)**: 공용 기준 코드 사본 동기화 `video-edit-timeline`·`video-edit-composition` + 새 사본 `src/lib/edit/renderTrace.ts`(`video-edit-render-trace`). 뮤직비디오 동작은 그대로이며(렌더 기록은 켜지지 않음, 언어 값 없으면 한국어 글꼴·기존 자막 나누기), 자막 글꼴 `NotoSansKR`에 latin-ext·vietnamese 부분집합이 더해졌다. tsc·시험 33개 통과. 배경: `ai-video-studio` V2 언어판(`ai-video-studio/docs/PLAN_20261106_V2_V5_OWN_CONTENT.md` §8).
 
 > v1.15(2026-10-23) 「최종 뮤직비디오 만들기」 배포. 다음 개선 후보: ~~가사 시간표로 장면 길이 맞추기~~ ✅ v1.18(시간 가사가 아닌 곡은 고르게 나눔 — 실제 Lyria 시간 가사 곡으로는 아직 운영 시험 전, 시험 계정에 그런 곡이 없음), ~~BPM 기반 장면 전환~~ ✅ v1.19(브라우저 박자 분석, 박자 흐린 곡은 그대로 둠), 완성본 회원 저장소 보관(현재는 내려받기만), 장면별 카메라 움직임(팬·줌) 선택.
