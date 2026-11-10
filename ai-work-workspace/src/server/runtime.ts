@@ -13,7 +13,7 @@ import { KOREAN_TEAM, KOREAN_WELCOME } from './koreanSeed';
 import { isSpaceMember } from '#shared/permissions.ts';
 import type { SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
 import { newId } from '#shared/ids.ts';
-import { stageBlock } from './stagePolicy';
+import { stageBlock, stageBodyBlock } from './stagePolicy';
 import { installAutofillHook } from '@/litpage/server/ai/autofillAuto.ts';
 import { workInboxHandlers } from './workInbox';
 
@@ -98,6 +98,8 @@ export async function runRpc(name: string, body: unknown, member: Member, client
   const blocked = stageBlock(name);
   if (blocked) return { status: blocked.status, body: { errorId: newId(), name: 'PermissionError', message: blocked.message } };
   const input = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
+  const blockedBody = stageBodyBlock(name, input);
+  if (blockedBody) return { status: blockedBody.status, body: { errorId: newId(), name: 'PermissionError', message: blockedBody.message } };
   try {
     const result = await withRequestCache(async () => {
       if (member.resolveName && !getRecord<UserRecord>('lit_user', member.id)) member = { ...member, name: await member.resolveName() };

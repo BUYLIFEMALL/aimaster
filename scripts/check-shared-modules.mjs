@@ -451,6 +451,7 @@ const MODULES = [
       "naver-cafe-poster/src/lib/scheduledSource/memberScheduler.ts", "stepmail/lib/schedulerMember/memberScheduler.ts", "trending-product-finder/lib/schedulerMember/memberScheduler.ts",
       "youtube-auto-reply/lib/schedulerMember/memberScheduler.ts", "threads-comment-reply/lib/schedulerMember/memberScheduler.ts", "instagram-comment-reply/lib/schedulerMember/memberScheduler.ts",
       "realty-client-desk/src/lib/schedulerMember/memberScheduler.ts",
+      "ai-work-workspace/src/lib/schedulerMember/memberScheduler.ts", // U11 2026-11-10
     ],
   },
   {

@@ -431,6 +431,17 @@ function onCommitted(info: CommitInfo) {
   }
 }
 
+/**
+ * AIMaster U11(2026-11-10): 서버리스에서는 응답이 끝나면 위 모으기 타이머가 사라질 수 있다. 명령 뒤 `after()`에서 불러
+ * 모으기 시간이 정상적으로 지나 실행될 때까지 기다리고, 최대 대기(모으기 최대 4배 + 1초)가 지나면 남은 것을 바로 실행한다.
+ */
+export async function settleAutomations(): Promise<void> {
+  if (pending.size === 0 && inflight.size === 0) return;
+  const deadline = Date.now() + 4 * windowMs() + 1000;
+  while (Date.now() < deadline && (pending.size > 0 || inflight.size > 0)) await new Promise((r) => setTimeout(r, 200));
+  if (pending.size > 0 || inflight.size > 0) await flushAutomations();
+}
+
 /** Tests / dev: evaluate every pending window now and wait for the runs. */
 export async function flushAutomations(): Promise<void> {
   const ids = [...pending.keys()];

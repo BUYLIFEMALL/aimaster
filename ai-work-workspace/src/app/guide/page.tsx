@@ -316,6 +316,49 @@ export default async function GuidePage() {
           </div>
         </section>
 
+        {/* U11 자동화(2026-11-10) — 플랜 docs/PLAN_20261110_U11_AUTOMATION.md */}
+        <section className="aww-meeting" id="automation" aria-label="데이터베이스 자동화 사용법">
+          <div className="aww-section-head">
+            <span className="aww-badge aww-badge-indigo">⚡ 자동화</span>
+            <h2>⚡ 표가 알아서 일하게 — 데이터베이스 자동화·버튼</h2>
+            <p>「상태가 완료로 바뀌면 완료일 채우기」, 「새 행이 생기면 담당자에게 알림」, 「매주 월요일 9시에 주간 보고 행 만들기」처럼 반복하던 손일을 표에 맡깁니다. 한 번 만들면 매일 조작할 일이 없습니다.</p>
+          </div>
+          <div className="aww-guide-steps">
+            {[
+              { no: 1, icon: "⚡", title: "자동화 열기", desc: "데이터베이스(표) 오른쪽 위 ⚡ 버튼을 누르세요. 처음이면 바로 만들기 화면이 열립니다." },
+              { no: 2, icon: "🎯", title: "언제(트리거) 고르기", desc: "「새 행이 추가될 때」, 「속성 값이 바뀔 때」, 또는 「매시간·매일·매주…」 같은 정해진 시각을 고릅니다." },
+              { no: 3, icon: "🛠️", title: "무엇을(동작) 고르기", desc: "속성 값 바꾸기, 새 행 추가, 여러 행 고치기, 알림 보내기를 원하는 만큼 이어 붙이고 저장합니다. 버튼 속성·버튼 블록에도 같은 동작을 넣을 수 있습니다." },
+              { no: 4, icon: "📜", title: "실행 기록 보기", desc: "⚡ 목록에서 자동화 오른쪽 ⋯ → 「최근 실행」으로 성공·실패를 확인합니다. 알림은 왼쪽 메뉴 받은편지함(알림함)에 모입니다." },
+            ].map((s) => (
+              <article key={s.no} className="aww-step-card">
+                <div className="aww-step-card-header">
+                  <span className="aww-step-num">STEP 0{s.no}</span>
+                </div>
+                <div className="aww-step-icon-wrap" aria-hidden>{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </article>
+            ))}
+          </div>
+          <aside className="aww-banner aww-tip">
+            <div className="aww-banner-head"><span className="aww-banner-icon">💡</span><strong>정해진 시각에 도는 자동화는 cron-job.org 키를 한 번만 등록하세요</strong></div>
+            <ul>
+              <li>「매시간·매일 9시」 같은 정시 자동화와 날짜 리마인더는 회원 본인의 무료 <b>cron-job.org</b> 계정이 1분마다 이 사이트를 불러 줘야 제때 돕니다.</li>
+              <li>cron-job.org에 가입 → Settings에서 API 키 복사 → 왼쪽 메뉴 <a href="/settings/keys">API키등록·플랫폼연동</a> 「cron-job.org」 칸에 한 번 저장하면 끝입니다. 다른 AIMaster 예약 프로그램에서 이미 등록했다면 다시 할 필요가 없습니다.</li>
+              <li>정시 자동화를 켜면 cron-job.org 작업이 자동으로 켜지고, 남은 정시 작업이 없으면 자동으로 꺼집니다. ⚡ 목록 위 「⏰ 정시 실행」 줄에서 일시정지·재개할 수 있습니다.</li>
+              <li>값이 바뀔 때·새 행이 생길 때 도는 자동화와 버튼은 키 없이 바로 동작합니다.</li>
+            </ul>
+          </aside>
+          <aside className="aww-banner aww-warn">
+            <div className="aww-banner-head"><span className="aww-banner-icon">⚠️</span><strong>알아두세요</strong></div>
+            <ul>
+              <li>웹훅(바깥 주소로 보내기)·에이전트에게 메시지 보내기 동작은 아직 준비 중이라 고를 수 없습니다.</li>
+              <li>cron-job.org API 키에 IP 제한을 걸면 작업을 켜지 못합니다(이 사이트 서버 주소는 계속 바뀝니다). cron-job.org 무료 계정은 API 호출이 하루 100회로 제한됩니다.</li>
+              <li>자동화 실행 기록과 알림은 30일 뒤 자동으로 지워집니다. 자동화 설정 자체는 지우기 전까지 남습니다.</li>
+            </ul>
+          </aside>
+        </section>
+
         {/* ④ 하이테크 키캡 단축키 치트시트 */}
         <section className="aww-shortcuts-section">
           <div className="aww-shortcuts-header">

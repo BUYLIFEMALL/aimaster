@@ -24,8 +24,8 @@ const LATER_RPCS = new Set([
   'invitePagePermissions', 'restrictPageAccess', 'restoreInheritedAccess', 'getPublishedPage', 'duplicatePublicPage', 'requestGuestInvite',
   'requestRestrictedMemberAccess', 'requestPageAccess', 'decideAccessRequest', 'getPublicPages',
   'getPublicForm', 'submitFormResponse', 'emailFormResponse', 'setSiteSettings', 'getSite', 'getSiteHome', 'searchSite',
-  // 4단계: 자동화(웹훅 등 바깥 호출 포함)
-  'saveAutomation', 'setAutomationStatus', 'deleteAutomation', 'duplicateAutomation', 'runButtonServerSteps',
+  // 4단계 자동화: U11(2026-11-10)에서 엶 — saveAutomation·setAutomationStatus·deleteAutomation·duplicateAutomation·runButtonServerSteps.
+  // 단, 웹훅(바깥 호출, U14 판단)·에이전트(U12) 동작이 든 자동화는 아래 stageBodyBlock이 거절한다.
   // 회의록: U6-A(2026-10-24)에서 정지·요약, U6-B(2026-11-03)에서 음성 파일 받아쓰기(회원 Gemini·OpenAI 키)를 엶
   // U3 이후에도 닫음: 외부 연결·MCP(U14), AI 채팅 공유(협업 단계), AI 그림(U2 숨김 → ai-image-studio)
   'aiListConnections', 'aiUpdateConnection', 'aiRemoveConnection', 'aiDisconnectAllConnections', 'aiUpdateMcpAllowlist',
@@ -44,6 +44,19 @@ function laterByPrefix(name: string): boolean {
     /Agent/.test(name) || // 맞춤 에이전트 (4단계)
     /^admin[A-Z]/.test(name) // 워크스페이스 관리자 고급 기능(다른 회원 관련)
   );
+}
+
+export const AUTOMATION_STEP_MESSAGE = '웹훅·에이전트 동작은 아직 준비 중입니다. 이 동작을 빼고 저장해 주세요.';
+/** U11: 아직 열지 않은 자동화 동작(웹훅 = 운영자 서버의 바깥 호출 → U14, 에이전트 → U12) */
+const LATER_AUTOMATION_STEPS = new Set(['webhook', 'agent']);
+
+/** 명령 내용까지 봐야 막을 수 있는 것(U11 자동화 저장). 원본 명령 이름만으로는 열린 명령이다. */
+export function stageBodyBlock(name: string, body: unknown): { status: number; message: string } | null {
+  if (name !== 'saveAutomation') return null;
+  const actions = (body as { automation?: { actions?: unknown } } | null)?.automation?.actions;
+  if (!Array.isArray(actions)) return null;
+  const hit = actions.some((a) => a && typeof a === 'object' && LATER_AUTOMATION_STEPS.has(String((a as { type?: unknown }).type)));
+  return hit ? { status: 403, message: AUTOMATION_STEP_MESSAGE } : null;
 }
 
 export function stageBlock(name: string): { status: number; message: string } | null {

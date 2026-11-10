@@ -2,19 +2,22 @@
 // U3: 키 입력·저장·삭제 + 📖 연동 매뉴얼 상자(팝업). 서버: /api/keys
 import { useEffect, useState } from "react";
 
-type Provider = "anthropic" | "openai" | "gemini";
-const ITEMS: { provider: Provider; name: string; placeholder: string; desc: string; guideId: string }[] = [
+type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key";
+const ITEMS: { provider: Provider; name: string; placeholder: string; desc: string; guideId?: string; guideUrl?: string }[] = [
   { provider: "anthropic", name: "Claude (Anthropic)", placeholder: "sk-ant-…", desc: "AI 비서 기본 엔진(Claude Sonnet). 빠른 작업은 Haiku를 씁니다.", guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a" },
   { provider: "openai", name: "OpenAI (GPT)", placeholder: "sk-…", desc: "Claude 키가 없을 때 「자동」이 쓰는 엔진입니다.", guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a" },
   { provider: "gemini", name: "Google Gemini", placeholder: "AIza… 또는 AQ.…", desc: "사용료가 가장 저렴한 Gemini Flash-Lite가 기본이고, 채팅 모델 목록에서 Flash·Pro를 직접 고를 수 있습니다. 무료 등급 키도 한도 안에서 쓸 수 있습니다.", guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" },
+  // U11(2026-11-10): 정시 자동화(매시간·매일 9시)·리마인더용. 공용 칸이라 다른 AIMaster 예약 프로그램에서 등록했다면 이미 「등록됨」
+  { provider: "cronjob_org_api_key", name: "cron-job.org (정시 자동화)", placeholder: "cron-job.org Settings › API Keys에서 복사", desc: "「매시간·매일 9시」 같은 정시 자동화와 날짜 리마인더를 정해진 시각에 돌립니다(무료). 정시 자동화를 켜면 1분 확인 작업이 자동으로 켜지고, 남은 작업이 없으면 자동으로 꺼집니다. 키에 IP 제한은 걸지 마세요.", guideUrl: "https://console.cron-job.org/settings" },
 ];
 const GUIDE_URL = (id: string) => `https://www.buylife.xyz/guides/${id}`;
-const openGuide = (id: string) => window.open(GUIDE_URL(id), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
+const openGuide = (it: { guideId?: string; guideUrl?: string }) => window.open(it.guideUrl ?? GUIDE_URL(it.guideId ?? ""), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
+const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "" };
 
 export function KeysForm() {
   const [keys, setKeys] = useState<Record<Provider, string | null> | null>(null);
-  const [inputs, setInputs] = useState<Record<Provider, string>>({ anthropic: "", openai: "", gemini: "" });
-  const [msg, setMsg] = useState<Record<Provider, string>>({ anthropic: "", openai: "", gemini: "" });
+  const [inputs, setInputs] = useState<Record<Provider, string>>(EMPTY);
+  const [msg, setMsg] = useState<Record<Provider, string>>(EMPTY);
   const [busy, setBusy] = useState<Provider | null>(null);
 
   const load = async () => {
@@ -28,7 +31,7 @@ export function KeysForm() {
     setBusy(provider);
     const r = await fetch("/api/keys", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider, apiKey: inputs[provider] }) });
     const j = await r.json().catch(() => ({}));
-    setMsg((m) => ({ ...m, [provider]: r.ok ? "저장했습니다." : j.message ?? "저장하지 못했습니다." }));
+    setMsg((m) => ({ ...m, [provider]: r.ok ? (j.notice ?? "저장했습니다.") : j.message ?? "저장하지 못했습니다." }));
     if (r.ok) { setInputs((v) => ({ ...v, [provider]: "" })); await load(); }
     setBusy(null);
   };
@@ -81,7 +84,7 @@ export function KeysForm() {
         <p>키를 처음 받는다면 아래 매뉴얼을 팝업으로 열어 그대로 따라 하세요.</p>
         <div className="aww-key-guide-buttons">
           {ITEMS.map((it) => (
-            <button key={it.provider} className="aww-btn small" onClick={() => openGuide(it.guideId)}>
+            <button key={it.provider} className="aww-btn small" onClick={() => openGuide(it)}>
               {it.name} API 키 발급받기 ↗
             </button>
           ))}

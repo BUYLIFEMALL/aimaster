@@ -11,6 +11,8 @@ import { runAiRetention } from "@/server/aiRetention";
 import { runWorkInboxRetention } from "@/server/workInbox";
 import { loadRetentionExemptIds } from "@/server/retentionExempt";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { operatorJobFilter } from "@/server/memberJobs";
+import { runAutomationRetention } from "@/server/automationRetention";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,7 +24,8 @@ export async function GET(request: NextRequest) {
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-  const ran = await withRequestCache(() => runDueJobs());
+  // U11(주인님 결정 1번): 회원 정시 작업(반복 자동화·리마인더)은 회원 본인 cron-job.org(/api/cron/member)가 처리 — 여기서는 운영 정리 작업만
+  const ran = await withRequestCache(() => runDueJobs(Date.now(), 200, operatorJobFilter));
   // 30일 자동 삭제 예외 회원(관리자·시험 계정). 목록을 못 읽으면 두 정리를 모두 건너뛴다(다음 날 다시)
   let exempt: Set<string> | null = null;
   try {
@@ -32,8 +35,16 @@ export async function GET(request: NextRequest) {
   }
   let ai: unknown = { skipped: "exempt list unavailable" };
   let inbox: unknown = { skipped: "exempt list unavailable" };
+  let automation: unknown = { skipped: "exempt list unavailable" };
   if (exempt) {
     const keep = exempt;
+    // U11(주인님 결정 4번): 자동화 실행 기록·알림 30일 자동 삭제
+    try {
+      automation = withRequestCache(() => runAutomationRetention(Date.now(), 5_000, keep));
+    } catch (e) {
+      console.error(`[cron] automation retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
+      automation = { error: "failed" };
+    }
     try {
       ai = withRequestCache(() => runAiRetention(Date.now(), 2_000, keep));
     } catch (e) {
@@ -48,5 +59,5 @@ export async function GET(request: NextRequest) {
       inbox = { error: "failed" };
     }
   }
-  return NextResponse.json({ ran, ai, inbox });
+  return NextResponse.json({ ran, ai, inbox, automation });
 }

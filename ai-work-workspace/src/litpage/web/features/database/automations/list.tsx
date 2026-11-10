@@ -17,6 +17,7 @@ import { automationAccess, automationRuns, deleteAutomation, duplicateAutomation
 import { openAutomationBuilder } from './builder.tsx';
 import './automations.css';
 import { openKeepMenu } from './keepMenu.ts';
+import { ScheduleLine } from './scheduleLine.tsx'; // AIMaster U11: 정시 실행 상태 줄
 import { getLocale, tx } from '../../shell/i18n.ts'; // 이식판: 날짜를 화면 언어로
 
 export function automationDisplayName(a: AutomationRecord): string {
@@ -117,6 +118,7 @@ export function AutomationsList({ collectionId, onNew, header }: { collectionId:
   return (
     <div className="nc-autolist">
       {header && <div className="nc-autolist-head"><span>{tx('Automations')}</span></div>}
+      {list.some((a) => a.trigger.type === 'recurrence') && <ScheduleLine />}
       {list.length > 5 && <div className="nc-autolist-search" data-menu-keys="ignore"><div className="nc-input"><input placeholder={tx('Search automations…')} value={q} onChange={(e) => setQ(e.target.value)} /></div></div>}
       {list.length === 0 ? (
         <div className="nc-autolist-empty">

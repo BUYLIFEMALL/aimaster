@@ -160,3 +160,13 @@
 .nc-auto-confirm { padding: 14px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; }
 .nc-auto-confirm-btns { display: flex; flex-direction: column; gap: 6px; }
 .nc-auto-confirm-btns .nc-btn { height: 32px; justify-content: center; }
+
+/* AIMaster U11(2026-11-10): 자동화 목록 위 「정시 실행」 상태 줄(scheduleLine.tsx) */
+.nc-auto-schedule { display: flex; align-items: center; gap: 8px; margin: 6px 10px 4px; padding: 8px 10px; border-radius: 8px; background: var(--lp-bg-secondary, rgba(55, 53, 47, 0.06)); font-size: 12px; line-height: 1.5; color: var(--lp-text-secondary); }
+.nc-auto-schedule[data-state="no-key"] { background: rgba(219, 171, 9, 0.12); }
+.nc-auto-schedule-icon { flex-shrink: 0; }
+.nc-auto-schedule-text { flex: 1; min-width: 0; }
+.nc-auto-schedule-text a { color: var(--lp-blue-text, #2383e2); text-decoration: underline; }
+.nc-auto-schedule-msg { color: var(--lp-text-tertiary); }
+.nc-auto-schedule-btn { flex-shrink: 0; white-space: nowrap; padding: 3px 10px; border-radius: 6px; border: 1px solid var(--lp-border, rgba(55, 53, 47, 0.16)); background: var(--lp-bg, #fff); color: inherit; font-size: 12px; cursor: pointer; }
+.nc-auto-schedule-btn:disabled { opacity: 0.6; cursor: default; }

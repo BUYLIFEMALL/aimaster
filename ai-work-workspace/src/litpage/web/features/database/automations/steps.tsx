@@ -70,6 +70,9 @@ export function newStep(type: ActionType, opts: { collectionId?: string; propId?
 }
 
 /** The action menu ("New action" / "Create another step"). */
+/** AIMaster U11: 아직 준비 중인 동작(웹훅 → U14 판단, 에이전트 → U12) */
+const LATER_STEPS: ReadonlySet<string> = new Set(['webhook', 'agent']);
+
 export function openActionMenu(anchor: HTMLElement, props: { surface: Surface; collectionId?: string; noTriggerPage?: boolean; webhooksAllowed?: boolean; steps: AutomationAction[]; onPick: (s: AutomationAction) => void }) {
   const items: MenuItemDef[] = [];
   for (const type of ACTION_ORDER[props.surface]) {
@@ -84,10 +87,12 @@ export function openActionMenu(anchor: HTMLElement, props: { surface: Surface; c
       continue;
     }
     const webhookCount = props.steps.filter((s) => s.type === 'webhook').length;
-    const disabled = type === 'mail' || type === 'slack' || (type === 'webhook' && (props.webhooksAllowed === false || webhookCount >= LIMITS.webhookActions));
+    // AIMaster U11(2026-11-10): 웹훅(바깥 호출 → U14 판단)·에이전트(U12)는 아직 준비 중 — 서버도 저장을 거절한다(src/server/stagePolicy.ts stageBodyBlock)
+    const later = LATER_STEPS.has(type);
+    const disabled = later || type === 'mail' || type === 'slack' || (type === 'webhook' && (props.webhooksAllowed === false || webhookCount >= LIMITS.webhookActions));
     items.push({
-      id: type, label: tx(meta.label), icon: meta.icon, badge: type === 'mail' ? 'New' : undefined, disabled,
-      description: type === 'mail' ? tx('Connect a Gmail account to send mail') : type === 'slack' ? tx('Connect Slack to use this action') : type === 'webhook' && props.webhooksAllowed === false ? tx('This feature is disabled in your workspace') : type === 'webhook' && webhookCount >= LIMITS.webhookActions ? `Up to ${LIMITS.webhookActions} webhook actions` : undefined,
+      id: type, label: tx(meta.label), icon: meta.icon, badge: later ? '준비 중' : undefined, disabled,
+      description: later ? '다음 업데이트에서 열릴 예정입니다' : type === 'mail' ? tx('Connect a Gmail account to send mail') : type === 'slack' ? tx('Connect Slack to use this action') : type === 'webhook' && props.webhooksAllowed === false ? tx('This feature is disabled in your workspace') : type === 'webhook' && webhookCount >= LIMITS.webhookActions ? `Up to ${LIMITS.webhookActions} webhook actions` : undefined,
       onSelect: () => props.onPick(newStep(type, { collectionId: props.collectionId })),
     });
   }

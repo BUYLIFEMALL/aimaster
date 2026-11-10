@@ -1,5 +1,7 @@
 // 원본 화면이 부르는 /api/rpc/<이름>. 모든 명령은 AIMaster 로그인 + 이 프로그램 이용 권한을 확인한 뒤 실행한다.
-import { NextResponse, type NextRequest } from "next/server";
+import { after, NextResponse, type NextRequest } from "next/server";
+import { trackMemberJobs } from "@/server/memberJobs";
+import { afterRpc } from "@/server/memberScheduling";
 import { checkProgramAccessApi } from "@/lib/access";
 import { runRpc } from "@/server/runtime";
 import { memberFromUser } from "@/server/member";
@@ -46,6 +48,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const aiKeys = await loadMemberAiKeys(access.user.id).catch(() => ({}));
   // U4: 회원 키의 모델 목록(Gemini·OpenAI)을 먼저 받아 둔다 — 모델 선택 창·자동 모델이 바로 맞게
   await withMemberAiKeys(aiKeys, () => warmModelLists()).catch(() => {});
-  const result = await withMemberAiKeys(aiKeys, () => runRpc(name, body, memberFromUser(access.user), request.headers.get("x-lit-client-id") ?? undefined));
+  // U11: 명령 처리 중 회원 정시 작업(반복 자동화·리마인더)이 예약됐는지 함께 받는다
+  const { result, scheduled } = await trackMemberJobs(() =>
+    withMemberAiKeys(aiKeys, () => runRpc(name, body, memberFromUser(access.user), request.headers.get("x-lit-client-id") ?? undefined)),
+  );
+  // U11: 응답 뒤에도 값 변경 자동화를 끝까지 실행(서버리스에서 타이머가 사라지지 않게)하고, 필요하면 회원 cron-job.org 실행을 켠다
+  const userId = access.user.id;
+  after(() => withMemberAiKeys(aiKeys, () => afterRpc(userId, scheduled)));
   return NextResponse.json(result.body, { status: result.status, headers: { "Cache-Control": "private, no-store" } });
 }

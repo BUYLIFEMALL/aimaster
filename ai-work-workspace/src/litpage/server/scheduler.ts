@@ -67,11 +67,26 @@ export function registerJobHandler(kind: string, fn: JobHandler) {
   handlers.set(kind, fn);
 }
 
+// AIMaster U11(2026-11-10): 작업이 예약될 때 알려 주는 연결점 — 회원 작업이면 그 회원의 cron-job.org 실행을 켜기 위해
+// (src/server/memberJobs.ts). 원본 동작은 바뀌지 않는다.
+type ScheduleListener = (kind: string, key: string, payload: unknown) => void;
+const scheduleListeners: ScheduleListener[] = [];
+export function onJobScheduled(fn: ScheduleListener) {
+  scheduleListeners.push(fn);
+}
+
 /** Create or replace the job with this key. */
 export function scheduleJob(kind: string, key: string, runAt: number, payload: unknown = null) {
   if (!key || key.length > MAX_KEY) throw new Error('Invalid job key');
   q.upsert.run(key, kind, Math.round(runAt), JSON.stringify(payload ?? null), Date.now());
   kick(runAt);
+  for (const fn of scheduleListeners) {
+    try {
+      fn(kind, key, payload);
+    } catch (e) {
+      console.error('[scheduler] schedule listener failed', e);
+    }
+  }
 }
 
 export function cancelJob(key: string) {
@@ -95,13 +110,17 @@ export function listJobs(prefix: string, limit = 500): Job[] {
 
 let running: Promise<number> | null = null;
 
-/** Run the jobs due at `now` (each job runs once: it is removed before its handler runs). Returns how many ran. */
-export function runDueJobs(now = Date.now(), limit = 200): Promise<number> {
+/**
+ * Run the jobs due at `now` (each job runs once: it is removed before its handler runs). Returns how many ran.
+ * AIMaster U11: `only` 조건을 주면 그 조건에 맞는 작업만 실행한다(회원 실행 주소 = 그 회원 작업만, 운영 정리 = 회원 작업 제외).
+ */
+export function runDueJobs(now = Date.now(), limit = 200, only?: (job: Job) => boolean): Promise<number> {
   // one batch at a time: a tick that overlaps a slow batch waits for it
   const go = async (): Promise<number> => {
     let ran = 0;
-    for (const r of q.due.all(now, limit) as any[]) {
+    for (const r of q.due.all(now, only ? limit * 5 : limit) as any[]) {
       const job = rowToJob(r);
+      if (only && !only(job)) continue;
       const fn = handlers.get(job.kind);
       if (!fn) continue; // keep until a handler exists (module not loaded yet)
       // claim: only the row we read (a re-schedule in between keeps the newer job)
