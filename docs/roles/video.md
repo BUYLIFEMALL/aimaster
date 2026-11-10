@@ -14,7 +14,6 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `shots` v1.46 | D-6 무료음악 곡 → 배경음악 실물 시험(양쪽 배포 끝 — 무료음악 v1.62 `TARGETS.shots`) | 마스터PC에서 「모든 음악 › 이미지 스토리 쇼츠 배경음악으로」 1회(무료) | `free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md` §13·§15 |
 | `music-video-studio` | 공용 장면 맞춤 사본 동기화(동작 변화 없음) | 그 프로그램 다음 배포 때 함께 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
