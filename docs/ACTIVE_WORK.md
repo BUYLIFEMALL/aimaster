@@ -41,6 +41,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `insta_auto_poster/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` | 2026-11-11 | 4대 화면 3시안(91/92/93번) 쇼케이스 구축 완료 (주인님 채택 대기) |
 | `elevenst-register/` (새 프로그램) | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | AI 11번가 상품 자동등록기 1단계 뼈대(주인님 승인: 코드·운영 DB 프로그램 등록·Vercel 새 프로젝트 첫 배포 1회) — 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |
 | `real_estate_sales/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-res-v2` | 2026-11-11 | 4대 화면 3시안(88/89/90번) 중 2안 채택 반영 v1.59 전면 리뉴얼 및 배포 완료 |
 | `labs/mall-builder/` | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261110-mall-builder` | 2026-11-10 | B2B 핵심 1~5 + D28 블록 + D29 AI 기능 완료·Lab 배포(11-11) → 다음 3차 후보 플랜 |
@@ -48,5 +49,6 @@
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-11 | 캘린더 연동 v1.26 배포(① ICS 확인) → ② 구글 연결은 카탈로그 SQL 적용 대기 |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |
 | `wp-blogger-auto/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-10 | 새 프로그램 「AI 워드프레스·구글블로그 자동화」 v1.01 첫 배포 완료(2026-11-11, 비공개) · 관리자 화면 확인·맥미니 실물 시험 대기 — 플랜 `docs/PLAN_20261110_WORDPRESS_BLOGGER_API.md`(결정 완료). 뼈대(카페 모집 공통) → 공용 발행 엔진 → DB 초안 → 화면 |
+| `wp-blogger-auto/` (범위: 실물 시험·결과 기록, 필요 시 작은 수정) | [역할: blog] Claude Code(맥미니, ego lite) · 세션 `claude-mac-20261111-wpblogger-test` | 2026-11-11 | 실물 발행 시험 — 요청서 `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md`(관리자 계정, 비공개) |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261101-blog` (2026-11-01 Codex 크레딧 소진으로 주인님 지시 인수) | 2026-11-01 | 담당만 인수, 지금 수정 없음. 올인원·BLOG 병합은 맥미니 재대조 결과 기준. 설치 v2.21 → v2.22 업데이트·옛 연결 8개 정리 잔여 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-11-06 | v1.12 배포 끝(L-2~L-5·`?remix=`) — 남은 것: 음악(SUNO) 리믹스 카드 링크 켜기(플레이리스트 `?remix=` 뒤) |

@@ -775,3 +775,16 @@
 - 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
 - 작성: [역할: design] Antigravity(윈도우) `agy-win-res-v2`
 
+## 2026-11-11 INSTA 포스팅 자동화 (`insta_auto_poster`) 4대 화면 3시안 자산화
+
+| 템플릿 번호 & 명칭 | 구조 및 시그니처 컴포넌트 | 추천/선정 이유 | 상태 & 영구 자산 경로 |
+|---|---|---|---|
+| **91. 인스타 네온 선셋 크리에이터 스튜디오 스타일** | 딥 스페이스 블랙(`#0B0E14`) & 네온 선셋 그라데이션(`#E1306C` / `#FD1D1D`) HUD, 4단계 파이프라인 배너, 4대 핵심 인스타 KPI 카드, 1:1 정방형 스마트폰 뷰파인더 덱 목업, 30개 해시태그 최적화 칩셋, 3D 엠보싱 선셋 버튼(`.btn-3d-insta-sunset`), 5단계 표준 로그인 폼 | 인스타그램 공식 브랜드의 역동적 선셋 그라데이션과 1:1 스마트폰 뷰파인더 덱을 완비한 1순위 추천 크리에이터 스튜디오 | **🏆 1순위 추천 (주인님 선택 대기)** · `D:\Antigravity\Design\91_insta_neon_sunset_creator_studio\insta_auto_poster` |
+| **92. 클린 인스타 매거진 에디토리얼 아틀리에 스타일** | 소프트 크림 페이퍼(`#FAF9F6`) & 로즈 골드(`#E06D83`) & 모던 차콜 잉크, 감성 매거진 컷아웃 카드 그리드, 카드뉴스 멀티 슬라이더 프리뷰, 3D 엠보싱 로즈 골드 버튼(`.btn-3d-rose-gold`), 5단계 표준 로그인 폼 | 감성 라이프스타일 매거진 감성의 단정하고 화사한 레이아웃으로 장시간 콘텐츠 큐레이션 피로를 줄여주는 라이트 아틀리에 | **⚡ 2순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\92_clean_insta_magazine_editorial_atelier\insta_auto_poster` |
+| **93. 퀀트 인스타 알고리즘 레이더 HUD 콘솔 스타일** | 옵시디언 딥블랙(`#070A10`) & 일렉트릭 마젠타(`#D946EF`) & 사이버 사이안(`#06B6D4`) HUD, JetBrains Mono 폰트, Explore 추천 알고리즘 계측기, 24H 골든타임 히트맵, 3D 엠보싱 네온 마젠타 버튼(`.btn-3d-neon-magenta`), 5단계 표준 로그인 폼 | 탐색 탭(Explore) 도달 알고리즘, 반응률 지수, 황금 포스팅 시간대를 초당 관제하는 전문 퍼포먼스 마케터용 퀀트 콘솔 | **🌿 3순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\93_quant_insta_algorithm_radar_console\insta_auto_poster` |
+
+- 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+- 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
+- 작성: [역할: design] Antigravity(윈도우) `agy-win-iap-v1`
+
+

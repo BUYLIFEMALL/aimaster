@@ -1,5 +1,27 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 🎨 [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` — `insta_auto_poster` (INSTA 포스팅 자동화) v1.72 4대 화면 3시안 쇼케이스 및 종합 비교표 구축 완료 (주인님 채택 선택 대기)
+- **주인님 지시**: 「1번 insta_auto_poster (INSTA 포스팅 자동화) 시안부터 작업하고 보여줘」
+- **구축 내역**:
+  1. **4대 핵심 화면 × 3대 프리미엄 시안 (총 12개 뷰) 기획 및 1440px 고해상도 캡처**:
+     - **시안 1 (91. 인스타 네온 선셋 크리에이터 스튜디오 스타일) 🏆 [1순위 추천]**: 딥 스페이스 블랙(`#0B0E14`) & 네온 선셋 그라데이션(`#E1306C` / `#FD1D1D`) HUD, 4단계 파이프라인 배너, 4대 핵심 인스타 KPI 카드, 1:1 정방형 스마트폰 뷰파인더 덱 목업, 30개 해시태그 최적화 칩셋, 3D 엠보싱 선셋 버튼(`.btn-3d-insta-sunset`).
+     - **시안 2 (92. 클린 인스타 매거진 에디토리얼 아틀리에 스타일) ⚡ [2순위 대안]**: 소프트 크림 페이퍼(`#FAF9F6`) & 로즈 골드(`#E06D83`) & 모던 차콜 잉크, 감성 매거진 컷아웃 카드 그리드, 카드뉴스 멀티 슬라이더 프리뷰, 3D 엠보싱 로즈 골드 버튼(`.btn-3d-rose-gold`).
+     - **시안 3 (93. 퀀트 인스타 알고리즘 레이더 HUD 콘솔 스타일) 🌿 [3순위 대안]**: 옵시디언 딥블랙(`#070A10`) & 일렉트릭 마젠타(`#D946EF`) & 사이버 사이안(`#06B6D4`) HUD, JetBrains Mono 폰트, Explore 추천 알고리즘 계측기, 24H 골든타임 히트맵, 3D 엠보싱 네온 마젠타 버튼(`.btn-3d-neon-magenta`).
+  2. **100% 자산화 헌장 준수**: `D:\Antigravity\Design` 밑 3대 독립 폴더(`91_insta_neon_sunset_creator_studio/insta_auto_poster`, `92_clean_insta_magazine_editorial_atelier/insta_auto_poster`, `93_quant_insta_algorithm_radar_console/insta_auto_poster`)에 4대 화면 고화질 캡처본(01_main, 02_detail, 03_guide, 04_settings) 및 `README.md` 영구 아카이빙 완료 (총 15개 파일).
+  3. **단일 통합 쇼케이스 웹서버 표준 포트 제공 (`http://localhost:3800/showcase.html`)**:
+     - 상단 「4대 화면 3시안 한눈에 보는 종합 비교 매트릭스 표」 필수 탑재.
+     - 카드 클릭 시 1440px 고화질 원본 라이트박스 모달 팝업 확대 (100% 원본 크기 토글, 좌우 이전/다음, ESC/배경 클릭 닫기 지원).
+     - 독립 종합 비교표 페이지 `http://localhost:3800/comparison.html` 동시 생성 및 연동.
+  4. **2026-11-01 5단계 표준 로그인 규격 100% 반영**: 68px 선셋 심볼 로고 + 알약 뱃지(`AIMASTER INSTA POSTER`) + 볼드 한글명 + 2단 탭 폼 + 1행 축소 약관 동의(`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`) 전 시안 화면 4에 완비.
+- **5대 확인 링크**:
+  - 🌐 공식 운영 도메인: https://insta-auto-poster.buylife.xyz
+  - 🌐 Vercel 프로덕션: https://insta-auto-poster.vercel.app
+  - 🎨 브라우저 쇼케이스 HTML: http://localhost:3800/showcase.html
+  - 📊 종합 비교표 단독 뷰어: http://localhost:3800/comparison.html
+  - 📁 로컬 영구 자산 경로: `D:\Antigravity\Design\91_insta_neon_sunset_creator_studio\insta_auto_poster` (및 92, 93번)
+- **다음 첫 단계**: 주인님 3대 시안 중 채택안(1/2/3안) 지시 접수 후 프로그램 리뉴얼 코드 반영 착수.
+
+
 
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D26~D29 Lab 배포
 - **한 일**: 주인님 「진행해」 → 미배포 4건(D26 거래명세서·외상 원장, D27 AI 견적 보조, D28 블록 6종·예약 노출, D29 AI 기능 나머지)을 Lab 빌드 1회로 배포 `dev-mall-builder-d9zaznaff` Ready(52초). 배포 전 팀 빌드 중 0건 확인
@@ -8,6 +30,8 @@
 - **다음 첫 단계**: 로드맵 3차 후보 플랜
 - 링크: https://dev-mall-builder.vercel.app
 
+## 2026-11-11 🟡 [역할: mac-mini] Codex(맥미니) — wp-blogger-auto v1.01 실물 사전시험·사용자 설정 대기
+- 관리자 접근·키4종 등록 표시·연결 화면390px 메뉴/가로폭 통과. 구글 기존 인증은 `400 redirect_uri_mismatch` 차단, 두 플랫폼 연결 전. 보관함 전체0 표시(기존 원고 안내와 불일치·쿼리 오류가 빈 목록으로 표시될 가능성 담당 확인 필요). 초안/예약취소/발행/확인필요 미검수. 공간20 연결 화면을 사용자에게 인계. 요청서 아래 표/캡처3개·IMPROVEMENTS 담당께 기록. 소스/직접DB/커밋/푸시/빌드/배포/AI0·비용0. 다음: OAuth callback등록·Blogger API/시험블로그·WP직접연결·기존원고 확인. `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md`.
 
 
 ## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `ai-video-studio` v1.34 v1.28 리뉴얼 회귀 수정 + Runway 실생성 확인
@@ -18,6 +42,8 @@
 - 링크: https://ai-video-studio.buylife.xyz
 
 
+## 2026-11-11 🟡 [역할: mac-mini] Codex(맥미니) · 세션 `codex-mac-20261111-wpblogger-test` — wp-blogger-auto 관리자 접근 확인·기존 시험 인수 대기
+- 운영 v1.01 관리자 로그인·대시보드 접근 확인, WP/Blogger 모두 연결 전·숫자 각 0. 기존 Claude 맥미니 작업 표와 ego 공간20(구글 로그인·사용자 인계) 확인 → 중복 연결/발행 방지로 인수 여부 질문. Codex 확인 공간21 종료. 초안·예약취소·발행·확인필요·390px 모두 미검수. 결과: `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md` 아래. 소스/직접 DB/커밋/푸시/빌드/배포/AI 호출 없음·비용0. 다음: 기존 세션 중단·인수 확인 후 준비/연결부터 진행.
 
 
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D27·D29 실제 AI 호출 시험 통과(미배포)
