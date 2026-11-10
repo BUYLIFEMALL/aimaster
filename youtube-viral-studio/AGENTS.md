@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.26` (2026-11-11 좌측 메뉴 이름 정리 · v1.25 협업 크리에이터 찾기는 맨 아래 절)
+- 현재 버전: `v1.27` (2026-11-11 V6 「📈 내 채널 진짜 지표」 — 맨 아래 절)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -198,3 +198,10 @@
 - **검수**: 시험 30(`tests/contactExtract.test.mjs` 25 · `creatorFinder.test.mjs` 3 · 기존 엔진 3 — 앱 코드가 확장자 없는 import라 시험에서만 `registerHooks`로 `.ts` 찾기), tsc, 새 파일 린트 0, 로컬 build. 배포 `youtube-viral-studio-lpfk3r7hp` Ready(빌드 1회, 주인님 승인), DB v1.24 → v1.25. **운영 ego(시험 계정 본인 YouTube 키)**: 「캠핑」 1회 — 채널 31개 확인·할당량 102유닛·연락처 공개 7개(모두 채널 설명 이메일)·연락처 없는 8개 제외, CSV 저장 정상, 390px 폭 가로 스크롤 없음.
 - ~~미배포 대기~~ ✅ **v1.26 배포(2026-11-11, `youtube-viral-studio-lpefb49rp`, DB v1.26)**: 좌측 메뉴 이름의 중복 그림문자 🤝 제거 — 운영 화면에서 「협업 크리에이터 찾기」 확인.
 - 처음 설정 0단계(유튜브 키 이미 등록) · 매일 조작 2번(찾기 → CSV) · 동의 1번.
+
+## 2026-11-11 v1.27 — V6 「📈 내 채널 진짜 지표」 (Claude Code 윈도우, 세션 `claude-win-video` · 영상 담당, 빌드 1회 `youtube-viral-studio-mi4tyfu7t`, DB v1.27)
+- 플랜 `docs/PLAN_20261111_V6_MY_CHANNEL_METRICS.md`(주인님 결정 3개 승인). 숫자 조작(SMM) 대신 채널 주인만 보는 진짜 지표.
+- **연결**: 회원 본인 구글 OAuth 앱(`google_client_id`·`google_client_secret` — 유튜브 댓글·shots와 같은 키 이름, 이미 등록했으면 재사용). 콜백 `https://youtube-viral-studio.buylife.xyz/api/youtube/my-channel/callback`(회원이 자기 앱에 추가). 권한 `yt-analytics.readonly`+`youtube.readonly`+`force-ssl`+`upload`를 한 번에 받아 공용 표 `member_platform_accounts`(youtube)에 저장(공용 사본 `src/lib/memberIntegrations.ts` 추가·등록). state = 회원 id + 임의 값(httpOnly 쿠키 대조). 다른 앱으로 받은 연결·분석 권한 없음 → 「다시 연결」 안내, 갱신 실패 → `needs_reconnect`.
+- **지표**(`src/lib/youtube/myChannel.ts` 서버 · `analytics.ts` 순수 함수): YouTube Analytics API v2 `reports` 7개를 동시에 — 요약(조회수·시청 시간·평균 시청 길이/비율·구독 얻음/잃음·좋아요·댓글·공유), 날짜별, 잘 된 영상 10(제목은 Data API), 유입 경로(`insightTrafficSourceType` 한국어), 나이·성별(`viewerPercentage`), 국가, 쇼츠/일반/라이브(`creatorContentType`). 요약 외 보고서는 실패해도 빈 칸. 「YouTube Analytics API」 꺼짐은 안내 문구. **저장하지 않음**(새 표 없음). 숫자 규칙 힌트 최대 5줄(AI 없음). 노출수·CTR은 API에 없어 안내만(공식 문서 2026-11-11 확인).
+- 화면 `/my-channel`(진단 메뉴 맨 위), 설정에 구글 앱 칸, 매뉴얼 카드. 운영 DB `integration_catalog` youtube `scope_sets.analytics` 추가(`supabase/migrations/20261111120000_integration_catalog_youtube_analytics.sql`, 기존 manage 유지).
+- 검수: 시험 38(새 `tests/myChannel.test.mjs` 8개), tsc, 로컬 빌드, 운영 ego — 시험 계정 `/my-channel` 「연결해 주세요」 단계 안내·설정 칸 「등록됨」 확인. **실제 연결·지표 확인은 주인님 구글 클라우드 설정 뒤**(Analytics API 켜기·콜백 주소 추가).

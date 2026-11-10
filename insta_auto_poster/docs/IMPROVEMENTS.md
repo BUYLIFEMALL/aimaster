@@ -10,6 +10,10 @@
 > - 새 파일: `src/lib/workInbox.ts`(공용 기준 코드 `work-inbox-client` **사본 — 직접 고치지 말고** 기준 `ai-work-workspace/src/lib/workInbox.ts` 수정 후 `node scripts/check-shared-modules.mjs --sync`), `src/lib/posts/workInboxContent.ts`(순수), `src/components/posts/SendToWorkspaceButton.tsx`, `tests/workInboxContent.test.mjs`(`npm run test:work-inbox` 4개 통과). `src/types/database.types.ts`에 공용 표 `work_inbox` 형식 추가(관리자 클라이언트가 `Database` 형식이라 필요). tsc 0.
 > - **다음 배포자**: 버전 +0.01(v1.72)·DB `programs.version`, 배포 뒤 시험 계정으로 게시글 하나 보내기 → 워크스페이스 받은 업무 → 캘린더에 넣기까지 확인(AI 호출 없음). 초안 글은 날짜가 없어 캘린더 버튼은 안 뜨고 문서로만 받음(설계). 플랜: `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md`.
 
+## [인스타 담당께 · 2026-11-11 영상 담당 요청] V6 「내 인스타 진짜 지표」
+- 주인님이 V6(숫자 조작 대신 회원 본인 계정의 진짜 지표 보기)를 영상 담당에 맡기셨고, 유튜브 쪽은 `youtube-viral-studio` v1.27 「📈 내 채널 진짜 지표」로 배포했습니다(근거 `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` V6, 플랜 `youtube-viral-studio/docs/PLAN_20261111_V6_MY_CHANNEL_METRICS.md`).
+- 인스타 쪽은 담당 프로그램 몫이라 요청드립니다: 회원 본인 Meta 앱으로 연결한 공용 `member_platform_accounts`(instagram) 토큰으로 Instagram Graph API insights(도달·노출·프로필 방문·팔로워 증감·게시물별 저장/공유) 보기 화면. 지표 저장 없이 열 때 불러오기, 숫자 규칙 힌트(AI 없음)는 유튜브 쪽 `src/lib/youtube/analytics.ts` `buildHints` 방식 참고. 플랜·주인님 승인 뒤 진행해 주세요.
+
 ## 1. 이번 버전 (`v1.23`) 주요 개선 사항 (2026-10-18)
 - **디자인 테마 전면 리뉴얼**:
   - 기존의 단조로운 라이트 테마(`bg-white`)에서 **플로우 위저드 스타일 (인스타 바이럴 변형)** 다크 모드(`bg-[#0d0f17]`, 서피스 `#161922`, 보더 `#262c3d`, 인스타 로즈/핑크 그라디언트)로 전면 일체화.

@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-11 `claude-win-video` (v1.34 회귀 수정·Runway 실생성 확인)
+- 마지막 갱신: 2026-11-11 `claude-win-video` (V6 내 채널 진짜 지표 v1.27 배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,13 +16,14 @@
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 주인님이 Vidu 충전 후 말씀하실 때(실행 직전 다시 승인) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `youtube-viral-studio` | V6 내 채널 진짜 지표 보기 — 주인님 2026-11-11 「너가해」로 영상 담당 지정 | Runway·Vidu 다음 순서 | `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` V6 |
+| `youtube-viral-studio` | V6 실제 채널 연결·지표 확인(비용 0) | 주인님 구글 클라우드: YouTube Analytics API 켜기 + 시험 계정 OAuth 앱에 콜백 주소 추가 | `youtube-viral-studio/docs/PLAN_20261111_V6_MY_CHANNEL_METRICS.md` |
 | 영상 프로그램 6개 | 서버 지역(`regions`) 측정 → DB 가까운 쪽으로 — 주인님 「측정부터해보고 가까운쪽으로해」 | V6 다음 순서 | `docs/PLATFORM_PATTERNS.md` §8 |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | `youtube-viral-studio` v1.27 | V6 「📈 내 채널 진짜 지표」 — 회원 본인 구글 앱 연결(공용 연결 재사용), 분석 API 7개 보고서·숫자 힌트, 설정·매뉴얼, 운영 DB 연동 목록 analytics 추가, 시험 38. 인스타 쪽은 인스타 담당께 요청 | 빌드 1회 `youtube-viral-studio-mi4tyfu7t` |
 | 2026-11-11 | `ai-video-studio` v1.34 | v1.28 리뉴얼 회귀 수정(사진·비율 값 이름·응답 읽기·모델 고르기 칸) + 운영 DB `avs_generations` 업체 제한에 runway·vidu 추가. 실생성: Runway gen4_turbo 5초 완성 ✅, Vidu는 크레딧 부족 거절(정상 안내) | 빌드 1회 `ai-video-studio-dm0t0thdn` · 생성 $0.25 |
 | 2026-11-11 | `ai-video-studio` v1.33 | Runway(gen4.5·gen4_turbo)·Vidu(viduq3-turbo·pro) 직접 연동 — 운영 DB 키 허용 목록, 공용 기준 코드·사본 4곳 동기화, 매뉴얼 2건, 시험 109, 운영 ego 설정·탭 확인. 실생성은 키 등록 대기 | 빌드 1회 `ai-video-studio-63uwl0qzd` |
 | 2026-11-11 | 미배포 3건 연속 배포 | `ai-video-studio` v1.32(Claude haiku-5-5) · `youtube-viral-studio` v1.26(메뉴 이름) · `music-video-studio` v1.29(장면 맞춤 사본) — 각 운영 화면 버전 확인. V1 소리 확인(원본 소리 렌더 -21.6dB, 0원) | 빌드 3회 |
@@ -82,7 +83,7 @@
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
 2. V4 녹화는 주인님 확인 (V1 소리는 11-11 확인 끝: 원본 소리 켬 MP4 AAC 48k 스테레오·평균 -21.6dB, 원본 -21.4dB)
 3. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(플랜 `shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`, ElevenLabs는 이미 자체 시각)
-4. V6(유튜브 내 채널 진짜 지표) 플랜. Vidu 재확인은 주인님이 충전 후 말씀하실 때
+4. V6 구글 클라우드 설정 끝나면 시험 계정 채널 연결·지표 확인 → 영상 프로그램 서버 지역 측정. Vidu 재확인은 주인님이 충전 후 말씀하실 때
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
