@@ -15,7 +15,9 @@
 
 ## 대기 중
 
-- **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `ai-video-studio`·`shorts-onestop-studio`·`music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때).
+- **music-video-studio(2026-11-11 영상 담당)**: 공용 `video-edit-timeline` 사본 — 배경음악 출처에 「내 자료함」(`library`) 형식 추가(기준 `ai-video-studio` v1.35). 이 프로그램 화면·동작은 같음. 다음 배포 때 함께.
+
+- **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `shorts-onestop-studio`·`music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(`ai-video-studio`는 v1.35로 반영·`icn1::icn1` 확인)(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때).
 
 - **구글 연결 안내(2026-11-11 영상 담당 `claude-win-video`, 주인님 지시 「각 개인도 본인계정으로 인증」)**: ① `youtube-viral-studio` — 내 채널 연결 단계·설정 구글 앱 칸에 공용 매뉴얼 「내 구글 앱 만들기」 버튼, 매뉴얼 0단계 링크 ② `youtube-auto-reply` — 설정 텔레그램 칸 「구글 미검증 앱은 7일마다 만료」 → 「테스트 중이면 7일 만료 — 앱 게시로 유지」. 둘 다 문구·링크만, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 공용 매뉴얼 글 2개(DB)는 이미 반영됨.
 
