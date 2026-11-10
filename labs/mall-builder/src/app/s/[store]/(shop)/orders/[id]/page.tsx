@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getMyCustomer, getMyReviewsByItem, getOrder, getStoreBySlug, requireUser } from "@/lib/store";
+import { getMyAddresses, getMyCustomer, getMyReviewsByItem, getOrder, getStoreBySlug, requireUser } from "@/lib/store";
+import RecurringForm from "./recurring-form";
 import { canReview } from "@/lib/reviews";
 import ReviewForm from "./review-form";
 import { TAX_INVOICE_LABEL, canRequestInvoice } from "@/lib/taxInvoice";
@@ -43,6 +44,9 @@ export default async function OrderDetailPage({
   // 카드 결제 기록(0028) — 보안 규칙상 이 주문의 손님만 읽힌다
   const card = order.is_card ? (await getCardPayment(order.id)) : null;
   const payLabel = order.is_card ? "카드" : order.is_credit ? "외상(후불)" : "무통장 입금";
+  // D30 정기 주문 만들기 — 가입 손님의 취소 안 된 주문, 상품이 남은 주문만(공동구매 품목 제외는 DB 함수가)
+  const canRecur = !!customer && !order.is_guest && !["cancelled", "returned"].includes(order.status) && items.some((it) => it.product_id);
+  const addresses = canRecur && customer ? await getMyAddresses(customer.id) : [];
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -205,6 +209,9 @@ export default async function OrderDetailPage({
           ))}
         </ul>
       </section>
+      {canRecur && customer && (
+        <RecurringForm slug={slug} orderId={order.id} addresses={addresses} creditLimit={Number(customer.credit_limit ?? 0)} depositor={order.depositor ?? customer.name} />
+      )}
       <Link href={`${base}/orders`} className="mt-6 inline-block text-sm underline">주문 내역 전체</Link>
     </main>
   );

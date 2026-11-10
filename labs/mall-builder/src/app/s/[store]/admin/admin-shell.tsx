@@ -10,6 +10,7 @@ const MENU = [
   { href: "", label: "대시보드" },
   { href: "/orders", label: "주문" },
   { href: "/quotes", label: "견적" },
+  { href: "/recurring", label: "정기 주문" },
   { href: "/customers", label: "손님" },
   { href: "/coupons", label: "쿠폰·포인트" },
   { href: "/stats", label: "통계" },
