@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 🟡 [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — U11 자동화 구현 완료(미배포, 배포·DB 승인 대기)
+- 한 일: 주인님 「진행해」 → 플랜 `ai-work-workspace/docs/PLAN_20261110_U11_AUTOMATION.md`(`fc6a5df9a`) → 결정 5건 「권장대로」(채팅) → 구현 `0d686f9b3`. 데이터베이스 자동화·버튼 저장 열기(웹훅·에이전트는 메뉴 「준비 중」 + 서버 `stageBodyBlock` 거절), 값 변경 자동화가 서버리스에서 사라지지 않게 `after()`로 마무리(`settleAutomations`), 정시 자동화·리마인더는 회원 본인 cron-job.org 1분 실행(공용 `member-scheduler` 사본, 회원 주소 `/api/cron/member`, 운영 `/api/cron/jobs`는 회원 작업 제외), 자동화 목록 위 「⏰ 정시 실행」 줄(일시정지·재개), 키 화면 cron-job.org 칸, 매뉴얼 「⚡ 자동화」, 실행 기록·알림 30일 정리, 구글 캘린더 검토 문서.
+- 검수: 연결부 시험 58/58(새 8), 원본 서버 523/523, 공용 자동화 18/18, tsc 0, 로컬 빌드 통과(빈 시험 DB 첫 빌드는 표 동시 생성 충돌 → 재빌드 통과, ERROR_LESSONS).
+- 남은 일: 주인님 승인 뒤 운영 DB에 `aww_member_scheduler` 표(추가만) → v1.23 배포(빌드 1회, 출처 이름표 `3c175bcce` 함께) → ego 시험 계정 운영 확인. 그다음 U12 업무 비서 → U13 협업 플랜. OpenAI 받아쓰기 확인은 ego 로그인 대기.
+- 링크: https://ai-work-workspace.buylife.xyz/
+
 ## 2026-11-10 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 무료음악 v1.65 배포(트로트 + 엔진 업데이트 안내 넓히기)
 - 한 일: 주인님 「묶어서 배포해」 → 미배포 대기 C-17 트로트(`462596896`)와 함께 엔진 업데이트 안내 넓히기 구현. 공용 컴포넌트 `src/components/engine/useLatestEngine.ts`(최신 버전 비교, 「내 PC 엔진」 화면에서 빼냄) → 곡 만들기 상태 막대가 낮은 엔진이면 「준비됨 · 엔진 0.8.3 · ⬆ 새 버전 0.8.4」 + 「업데이트 →」(/engine), 「모든 음악」 곡 메뉴의 엔진 버전 필요 비활성 문구 4곳에 「「내 PC 엔진」 화면에서 업데이트하세요」.
 - 검수: tsc·시험 27/27·로컬 빌드 통과, 배포 `free-music-studio-6ra9pi26m` Ready, DB v1.65, 운영 로그인 화면 v1.65 확인. 로그인 뒤 화면(트로트 장르·상태 막대)은 ego가 로그아웃 상태라 미확인 — 엔진이 이미 0.8.4라 「새 버전」 표시는 낮은 엔진에서만 보임.

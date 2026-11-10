@@ -1,6 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-10 워크스페이스 로컬 빌드 「duplicate key … pg_type_typname_nsp_index」 — 빈 시험 DB에서 빌드 일꾼 16개가 같은 표를 동시에 처음 만듦 ([역할: workspace])
+- **증상**: `ai-work-workspace` `npm run build`가 페이지 정보 모으기 단계에서 `/api/cron/jobs` 실패, 원인 `duplicate key value violates unique constraint "pg_type_typname_nsp_index"`(`db.ts`의 `CREATE TABLE IF NOT EXISTS`).
+- **원인**: 바로 앞에 연결부 시험(`setupLocalDb({ reset: true })`)이 로컬 Docker DB(`aww-pg-test`)를 비움 → 빌드 일꾼 16개가 모듈을 읽으며 같은 표를 동시에 만들려 함. Postgres의 「없으면 만들기」는 동시에 실행되면 형식 이름 충돌이 날 수 있음. 코드 문제 아님(운영 DB는 표가 이미 있음).
+- **해결**: 빌드를 한 번 더 실행(첫 실행에서 표가 만들어져 두 번째는 통과).
+- **다음부터 확인**: 워크스페이스는 시험 → 빌드 순서로 돌리면 첫 빌드가 이 오류로 멈출 수 있다. 다시 빌드하거나 빌드를 먼저 돌린다. 새 표를 운영에 처음 만드는 변경이면 배포 전에 SQL로 먼저 만들어 둔다.
+
 ## 2026-11-10 상가 알림 카톡 「매물 보기」가 카카오톡 뉴스레터 대시보드로 열림 — 회원 카카오 앱 「웹 도메인」에 상가 주소가 없어 기본 도메인으로 바뀜 (`commercial-land-trade-alert`, [역할: realty])
 - **증상**: 11-10 05:30 상가·건물·토지 알림 카톡의 「매물 보기」를 누르면 `kakao-auto-posting` 대시보드가 열림. 같은 앱으로 보내는 아파트 알림 버튼은 네이버 단지 화면으로 정상.
 - **원인**: 카카오 「나에게 보내기」 링크는 회원 카카오 앱 「제품 링크 관리 → 웹 도메인」에 등록된 도메인만 열고, 아니면 그 앱의 **기본 웹 도메인**(`kakaoautoposter.vercel.app` → 뉴스레터)으로 바꿔 보낸다. 상가 주소만 빠져 있었다. 코드 문제 아님(두 프로그램 `extension/lib/notify.js`는 같은 방식).

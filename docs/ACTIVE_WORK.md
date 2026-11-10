@@ -42,7 +42,7 @@
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
-| `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-06 | 음성 파일 받아쓰기 엔진 회원 선택(자동/OpenAI, 요청함 `c234b28c` 「진행해」 결정) — 구현·시험·미배포 대기, 배포 승인 뒤 v1.22 + OpenAI 실제 확인 |
+| `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-10 | U11 자동화 구현·시험 완료 `0d686f9b3`(미배포) — 배포 승인·운영 DB 표 적용 대기 → v1.23 배포·운영 확인. OpenAI 받아쓰기 확인(ego 로그인 대기) |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |
 | `naver-blog-agent/` | [역할: blog] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261101-blog` (2026-11-01 Codex 크레딧 소진으로 주인님 지시 인수) | 2026-11-01 | 담당만 인수, 지금 수정 없음. 올인원·BLOG 병합은 맥미니 재대조 결과 기준. 설치 v2.21 → v2.22 업데이트·옛 연결 8개 정리 잔여 |
 | `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-11-06 | v1.12 배포 끝(L-2~L-5·`?remix=`) — 남은 것: 음악(SUNO) 리믹스 카드 링크 켜기(플레이리스트 `?remix=` 뒤) |
