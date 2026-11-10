@@ -1,5 +1,7 @@
 # AI 이미지 스튜디오 (ai-image-studio) 개선사항 관리 대장 (IMPROVEMENTS.md)
 
+> **🗂️ 「내 자료함」 연동 안내 — 이미지 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 운영 DB `supabase/migrations/0060_member_assets_images.sql`로 이 프로그램의 생성물(공용 `usage_logs`의 이미지 생성 줄 `metadata.image_path`)이 공용 자료 목록 `member_assets`에 자동 등록되고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(보관 기간 = 이 프로그램 정리 규칙). **이 프로그램 코드·배포는 바꾸지 않았습니다.** 칸 이름이나 저장 경로 규칙(`{user_id}/…`)을 바꾸면 트리거 함수(`member_assets_sync_*`)도 함께 고쳐 주세요. 트리거는 실패하면 원본 저장도 실패하므로 날짜 변환 같은 처리를 넣지 않았습니다. 화면: https://www.buylife.xyz/library?kind=image · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md` §8
+
 > **기준일자**: 2026-10-17  
 > **프로그램**: AI 이미지 스튜디오 (`ai-image-studio`)  
 > **현재 버전**: `v1.11` → `v1.12`  
