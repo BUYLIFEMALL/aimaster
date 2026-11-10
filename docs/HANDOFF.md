@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` — `insta_auto_poster` (INSTA 포스팅 자동화) v1.73 1안(91. 인스타 네온 선셋 크리에이터 스튜디오 스타일) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
+- **한 일**: 주인님 「1안으로 진행해」 지시에 따라 91번 템플릿(인스타 네온 선셋 크리에이터 스튜디오 스타일: `#0B0E14` 딥 스페이스 블랙 & `#E1306C`/`#FD1D1D`/`#FCB045` 선셋 그라데이션) 공식 채택 전면 개편.
+  1. `src/lib/version.ts`: `v1.73`으로 버전 범프.
+  2. `src/app/globals.css`: 1안 91번 테마 토큰 및 3D 엠보싱 선셋 버튼(`.btn-3d`, `.btn-3d-insta-sunset`) 클래스 추가.
+  3. `src/app/(auth)/layout.tsx`: 2026-11-01 5단계 표준 레이아웃(68px 핑크/선셋 심볼 로고 `📸` + 알약 캡슐 뱃지 `AIMASTER INSTA POSTER` + 볼드 메인 타이틀 + 서브 안내 카피) 장착.
+  4. `src/app/(auth)/login/page.tsx`: 2단 탭 세그먼트 로그인/회원가입 폼 + 아이콘 입력 필드 + 3D 선셋 엠보싱 버튼 + 1행 축소 약관(`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`) 개편.
+  5. `DESIGN.md`: 91번 템플릿 상태를 `⭐ 공식 채택 (1안) · v1.73 배포 완료`로 갱신.
+- **검수**: TypeScript 검사(`npx tsc --noEmit`) 0 오류 통과, Next.js 16.4.2 프로덕션 빌드(`npm run build`) 완전 성공, Vercel 프로덕션 배포(`npx vercel --prod --yes`, Deployment ID `dpl_6g9SDHbgF3NvpaHUwAthZifNe1Sp`) 완료.
+  - Vercel curl 및 Playwright 세션 검증(200 OK) 완료 및 증적 스크린샷(`insta_auto_poster/docs/evidence_login_v173.png`) 저장 완료.
+  - Vercel 커스텀 도메인 바인딩(`https://auto-instagram-posting.buylife.xyz`, `https://insta-auto-poster.buylife.xyz`) 완료.
+  - 포트 3800 쇼케이스(`http://localhost:3800/showcase.html`) 정상 서빙 중.
+- **커밋**: 소스 및 문서 반영 완료.
+- **확인 링크**:
+  - 🌐 공식 운영 도메인: https://auto-instagram-posting.buylife.xyz/login (보조: https://insta-auto-poster.buylife.xyz/login)
+  - 🌐 Vercel 프로덕션 배포: https://insta-auto-poster-8a4ygcqct-buylife.vercel.app/login
+  - 🎨 쇼케이스: http://localhost:3800/showcase.html
+  - 📊 종합 비교표: http://localhost:3800/comparison.html
+  - 📁 로컬 영구 자산: `D:\Antigravity\Design\91_insta_neon_sunset_creator_studio\insta_auto_poster`
+- **다음 첫 단계**: 다음 디자인 리뉴얼 대상 프로그램 지시 대기.
+
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D30 정기 주문(미배포)
 - **한 일**: 3차 순서 결정(주인님 「추천안 4가지 그대로」: 정기 주문 → 몰 여러 개 → PWA → 리셀러 → 입점형 마켓, 개인 도메인·다국어 보류) → 정기 주문(외상·무통장, 그때 가격, 몰 운영자 본인 cron-job.org). 손님 주문 상세에서 만들기·마이페이지에서 관리, 운영자 「정기 주문」 메뉴·전체 일시정지. 예약 실행이 요청 범위 안에서만 그 거래처로 기존 주문 함수를 불러 주문(가격·재고·외상 규칙 동일), 회차 고유로 이중 주문 없음. Lab DB `0050`(주문 함수는 정기 실행 중 금액 확인만 건너뛰게 한 곳 바꿈)
 - **검수**: 시험 228개·tsc·빌드. DB 되돌림 시험(무통장 성공·재고 차감·주문 알림 4건·장바구니 복원, 외상 한도/재고/최소 수량 실패 기록, 같은 날 재실행 회차 1개, 다른 손님 차단). ego 손님·운영자 화면, 390px. 시험 정기 주문은 해지해 둠
@@ -24,6 +44,9 @@
 - **블로그 담당께**: 이 폴더에서 바뀐 것은 버전·ZIP뿐(확장 코드 그대로). 회원 확장은 「ZIP 다시 받기 → 덮어쓰기 → 새로고침」 안내 필요할 수 있음.
 - 링크: https://naver-blog-agent.buylife.xyz
 
+## 2026-11-11 🟡 [역할: mac-mini] Codex(맥미니) — wp-blogger-auto 원고/대표이미지·WP초안 실측
+- 사용자 두주소/약0.1달러 승인 뒤 Sonnet원고1·장면기획1·Gemini대표이미지1(유료요청3) 완료. 제목/본문저장·이미지로드정상. WP초안remote16156 성공/비로그인공개주소내용비노출/대시보드초안1 일치. 원고 ebdc2c51-67d7-4e73-a856-4d0fc1e05146. 390px편집가로넘침없음. 외부WP임시글/이미지대조는관리자로그인대기(공간20 p2 사용자인계).
+- 같은원고는remote_id기록뒤예약/발행전환불가·수동복제UI없어 전체시험은별도원고필요. 추가Haiku최대6건 약30원 승인질문미응답·미실행. Blogger선택버튼클릭뒤최종선택확인대기·글발행0. 나머지예약/취소/즉시발행/불확실미검수. 요청서·IMPROVEMENTS에기록/캡처2개. 실제청구액미확인·예상약0.1달러, 빌드/배포/커밋/푸시/소스/직접DB0.
 
 
 ## 2026-11-11 🟡 [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — U10 2차 배포: `web-crawler` v1.12·`competitor-analysis` v1.13 완료, `naver-blog-agent` 막힘
@@ -31,6 +54,8 @@
 - **막힌 것**: `naver-blog-agent` — 작업 중 표에 블로그 담당 `claude-win-20261101-blog` 줄(11-01, 「지금 수정 없음」)이 남아 배포 도구가 멈춤. 주인님 확인 대기.
 - **다음 첫 단계**: 주인님 답에 따라 `naver-blog-agent` 배포(확장 ZIP 버전 맞춤, blog 역할 폴더) 또는 블로그 담당에 넘김.
 
+## 2026-11-11 🟡 [역할: mac-mini] Codex(맥미니) — wp-blogger-auto 두 플랫폼 연결 확인
+- 사용자 연결 완료 후 WP buylife.blog·구글 계정 연결/BUYLIFE buylifenews.blogspot.com 목록 표시 확인, 이전OAuth 차단 해소. 보관함0건. 두 주소 시험 사용 범위와 원고1+이미지1 약0.1달러 승인 질문 후 대기(요청서 시험블로그 한정·비용승인 조건). 구글 대상 미선택·발행0·AI/빌드/비용0. 공간20 사용자 인계. 상세: `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_REAL_TEST.md` 아래.
 
 
 ## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.27 배포(보관 예외·캘린더 수정·에이전트 한국어)
