@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-rea — **「내 자료함」 1단계(음악 3종) + 보관 기본 규칙 「발행 1년 · 생성만 30일」**
+- **지시·결정**: 주인님 「같은 계정이라면 다른 프로그램에서 만든 데이터… 재사용」 → 분석([`analysis-member-library-20261111/REPORT.md`](analysis-member-library-20261111/REPORT.md)) → 결정: 보관 30일 기본·관리자·시험 계정 제외·지정 프로그램 1년, 공개 주소 그대로, 회원 PC 자료는 나중에, 음악 3종부터 → 플랜 승인([`PLAN_20261111_MEMBER_LIBRARY.md`](PLAN_20261111_MEMBER_LIBRARY.md)).
+- **보관 규칙(메인 등록)**: 「블로그·인스타·쓰레드·유튜브 등 실제 발행 콘텐츠 = 발행일로부터 1년, 생성만 한 콘텐츠 = 30일」을 TOP_RULE §0 맨 위·§8 표·CLAUDE/AGENTS/GEMINI.md에 등록. **각 프로그램 정리 코드는 미적용 — 다음에 그 프로그램을 손댈 때 함께 고치고 §8 표에 적는다.**
+- **자료함**: 운영 DB(ref `esgxyikcnnvmlhygjkth`) `supabase/migrations/0059_member_assets.sql` — 공용 목록 `member_assets`(본인만 읽기 RLS, 쓰기는 트리거·서버 키만) + 트리거 3종(`ams_generations`·`music_track_variants`·`free_music_tracks`: 생기면 넣고 **원본 삭제 시 함께 삭제** → 보관 기간 자동 일치) + 기존 자료 채우기. 메인 `/library` 화면(`lib/library/memberAssets.ts` — 버킷별 서명, 경로 첫 폴더 재확인), 회원 메뉴 「내 자료함」. 음악 프로그램 코드·배포 변경 없음(담당께 안내: `ai-music-studio`·`music` IMPROVEMENTS 맨 위).
+- **검수**: `tsc` 0·로컬 빌드 통과. DB: 자료함 줄 = 원본 기대값(21·50·57), 공개 키 읽기 0줄, 시험 곡 넣기 1줄→지우기 0줄. 커밋 `0032367d5` push → 메인 빌드.
+- **남은 일(2단계)**: 이미지 스튜디오·영상·블로그 원고 연결, 다른 프로그램이 가져다 쓰는 공용 컴포넌트(영상 4개의 음악 3종별 읽기 코드 대체 — 영상·음악 담당께 요청), 회원 PC 자료 올리기, 공유 버킷 `post-images` 파일 주인 구분. 무료음악 `IMPROVEMENTS.md`는 다른 세션 미커밋이라 안내를 못 넣음 — 음악 담당이 `free-music-studio`도 같은 트리거 대상임을 확인 바람.
+- 링크: https://www.buylife.xyz/library
+
 
 ## 2026-11-11 🟡 [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **wp-blogger-auto v1.02 배포(비공개)·발행 이미지 1년 보관·좌측 메뉴**
 - **한 일**: 맥미니 전달문(위 항목) 인수 → 플랜 `wp-blogger-auto/docs/PLAN_20261111_PRE_LAUNCH_FIXES.md` 결정 1~5 채팅 승인. ① 보관: 구글 블로그 **실제 발행** 글 이미지만 발행일+1년(1년 뒤 기록과 함께 삭제), 예약 대기·초안·실패·확인 필요·워드프레스 사본은 30일, 관리자·시험 계정 제외. ② 예약 확인 `src/lib/syncScheduled.ts`(매일 정리 앞, 회원 본인 연결로 읽기만, 실제 공개면 발행됨+1년, 재발행 없음). ③ 예약 상한 = 원고 보관 만료 하루 전(화면·서버). ④ 블로그 초안 → 바로 발행·예약 전환(같은 글만, 중복 방지 유지). ⑤ 카테고리 불러오기 실패·다시 불러오기, 발행 방식·예약 시각·카테고리·이미지 수 원고별 기억, 보관함 조회 오류 안내. ⑥ 설명서·발행 패널·보관함에 보관 규칙 명시. ⑦ 좌측 메뉴(SIDEBAR_LAYOUT_STANDARD, 휴대폰 ☰).

@@ -9,6 +9,7 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
+| 2026-11-11 | 메인 사이트 · 내 자료함 1단계 · 보관 규칙 | `member_assets` + 음악 3종 트리거(0059), `/library` 화면, 보관 기본 규칙 「발행 1년·생성만 30일」 지침 맨 위 등록(세션 `claude-win-rea`) | 메인 사이트 push 빌드 1회 |
 | 2026-11-11 | 메인 사이트 · REA 카테고리 | 비공개(내부) 카테고리 = 관리자·시험 계정 전용(`can_view_internal`, 마이그레이션 0058), 최상위 지침·[`REA_CATEGORY_POLICY.md`](../REA_CATEGORY_POLICY.md). Craft Anything 0.6.0·Codex·Antigravity 연결(세션 `claude-win-rea`) | 메인 사이트 push 빌드 1회 |
 | — | 없음 | — | — |
 
