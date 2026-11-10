@@ -27,6 +27,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `free-music-studio` (운영 v1.64) | 트로트 장르·프리셋 3개(C-17, Admin PC 실물 시험 주인님 「셋다 트로트 답다」) | `462596896` | 2026-11-10 · [역할: music] `claude-win-20261024-music` | `free-music-studio/AGENTS.md` 버전 맨 위 미배포 줄 | v1.65 때 함께 |
 | `shots` | 무료음악 곡 다시 받기 중복 방지(같은 영상·같은 제목·같은 길이면 기존 곡 선택, 새 파일 지움) | `f39885773` | 2026-11-10 · [역할: video] `claude-win-video` | `shots/docs/IMPROVEMENTS.md` 2026-11-10 | v1.47 |
 | `music-video-studio` | 공용 `video-edit-composition`·`timeline` 사본 동기화(장면 맞춤 칸 추가, 이 프로그램 동작 변화 없음 — 기준 쪽 `ai-video-studio` v1.30은 11-10 배포됨) | `9397fb311` | 2026-11-09 · [역할: video] `claude-win-video` | `ai-video-studio/docs/PLAN_20261109_POSTPROCESS_FIT.md` | 그 프로그램 다음 배포 때 함께(급하지 않음) |
 | `playlist-channel-studio` (운영 v1.35) | 무료음악 곡 가져오기 패널: 무료음악 창이 아닌 곳에서 열었을 때 「받는 중」 줄을 숨김(「직접 넣기」 안내와 엇갈려 보이던 것, 운영 확인 중 발견) | (이번 커밋) | 2026-11-08 · [역할: music] `claude-win-20261024-music` | `playlist-channel-studio/AGENTS.md` v1.35 | ✅ 11-09 v1.37에 함께 나감(이 줄은 기록용) |

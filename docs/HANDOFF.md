@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 무료음악 트로트 장르·프리셋 3개(C-17, 미배포 대기)
+- 한 일: Admin PC 실물 시험(무료음악 인수인계 22절) 주인님 「셋다 트로트 답다」 → `free-music-studio/src/lib/lyricTags.ts` `GENRE_GROUPS`에 「트로트·성인가요」(정통·세미·댄스·성인가요), `presets.ts`에 노래 프리셋 3개(시험 스타일 문구 그대로). 커밋 `462596896`.
+- 검수: 사이트 시험 136/136·tsc 통과. 배포: 미배포 대기(작은 수정 — 다음 무료음악 배포 v1.65 때 함께). 백로그 C-17 완료.
+- 링크: https://free-music-studio.buylife.xyz/songs
+
 ## 2026-11-10 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 무료음악 v1.64 · 엔진 0.8.4 배포(곡 끝 처리 고침)
 - 한 일: Admin PC 실물 시험(무료음악 인수인계 20절)에서 끝 이어 만들기 오류·끝 자동 줄이기 미적용 → `engine/src/gateway.mjs`·`engine/src/main.mjs`가 ffmpeg 참·거짓 값을 실행 파일 자리에 넘기던 것을 `"ffmpeg"`로. 호출부 시험 `engine/tests/ending-callers.test.mjs` 추가. 커밋 `fad5caf4e`.
 - 검수: 엔진 시험 131/131·사이트 136/136·tsc 통과, 배포 `free-music-studio-1k02pzlz0` Ready, DB v1.64, 운영 engine-latest 0.8.4·설치 파일 해시 일치, ego 로그인 화면 v1.64.
