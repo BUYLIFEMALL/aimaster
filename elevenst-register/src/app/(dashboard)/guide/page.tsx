@@ -17,7 +17,7 @@ const STEPS = [
     emoji: "🌐",
     title: "내 고정 IP(Fixie) 준비",
     body: "11번가는 등록된 IP에서 온 요청만 받습니다. 우리 서버는 나가는 IP가 바뀌므로, 회원 본인 Fixie 계정의 고정 IP 2개로 내보냅니다. 쿠팡 운영에서 이미 등록했다면 그대로 씁니다.",
-    link: { href: "https://coupang-ops.buylife.xyz/connect", label: "고정 IP 등록(쿠팡 운영 연동 화면)" },
+    link: { href: "/connect", label: "고정 IP 등록(API키등록·플랫폼연동)" },
   },
   {
     n: 3,
