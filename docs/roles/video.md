@@ -16,6 +16,7 @@
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 주인님이 Vidu 충전 후 말씀하실 때(실행 직전 다시 승인) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
+| `music-video-studio`·`shorts-onestop-studio`·`ai-video-studio`(+ `lyric-video-studio`·`playlist-channel-studio`) | 공용 「내 자료함」 `member-assets-client`(기준 `lib/library/memberAssets.ts`)로 음악 3종(amsSongs·sunoTracks·fmsTracks) 읽기 합치기 검토 — 필수 아님(2026-11-11 요청) | 다음에 그 프로그램을 손댈 때(작은 수정은 모아 배포, 가사 시간 등 원본 고유 정보는 기존 코드 유지) | `docs/MEMBER_LIBRARY.md` §2~§3·§5 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 
