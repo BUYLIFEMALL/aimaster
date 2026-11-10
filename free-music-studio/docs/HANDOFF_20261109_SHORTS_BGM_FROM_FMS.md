@@ -117,3 +117,11 @@
 
 - `videoHandoff.ts` `TARGETS.shots = { origin: "https://shots.buylife.xyz", path: "/fms-bgm", readyType: "shs-ready", hash: true, mp3: true }`, 「모든 음악」 곡 메뉴 「이미지 스토리 쇼츠 배경음악으로」(영상 담당 제안 문구 그대로). tsc·시험 134 통과.
 - 배포 순서: shots v1.46(영상 담당) → 무료음악 v1.62 → 마스터PC 실물 1회.
+
+## 16. shots 실물 시험 결과(2026-11-10 맥미니) — 로컬 음원·생성 환경 부족으로 미실행
+- 사용자 배정에 따라 ego공간18 하나에서 무료음악v1.62/시험계정buylifemall@naver.com 확인. 모든음악48행 중48행이 「이 PC에 음원 없음」, 사용 가능한 실제곡0.
+- 엔진연결은 정상이나0.7.5·macOS15.8.1·darwin x64·Intel i7-8700B·64GB, 원문 「엔진은 연결됐지만, 이 PC에서는 음악 생성을 지원하지 않습니다」「Intel 맥은 지원하지 않습니다. 음악 모델이 Intel 맥용으로 나오지 않습니다.」.
+- 지침대로 미지원 상태에서30초곡을 만들지 않고 중단. shots6번곡받기/영상목록,7번영상BGM넣기/선택확인,8번원래곡원복은 **전부미검수/미실행**. 배경음악을 변경하지 않아 원복할 변경도 없음. 실제송수신/저장실패를 재현한 것은 아님.
+- 캡처(저장소 기준): `shorts-onestop-studio/docs/evidence/fms-bgm-mac-20261110/engine-unsupported.png`, `shorts-onestop-studio/docs/evidence/fms-bgm-mac-20261110/library-missing-audio.png`.
+- 쇼츠원스톱1~5단계상세는그프로그램 MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md 결과. 공간18종료완료·카페공간미접근·추가비용없음.
+- **마스터PC 요청a20367c7-1224-4ac8-a985-3a00062a9038 유지(닫지않음)**. 정상 엔진에 본인 실제음원이 있는 지원PC에서 재개 필요. 코드/엔진/DB직접수정·유료호출·음원업로드0.
