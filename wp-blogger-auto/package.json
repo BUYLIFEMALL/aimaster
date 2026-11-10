@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test tests/*.test.mjs"
+    "test": "node --import tsx --test tests/*.test.mjs",
+    "test:database": "node tests/wba-database.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

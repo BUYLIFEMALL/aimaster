@@ -19,6 +19,7 @@ Next.js 16(App Router) + Supabase 공용 DB + Tailwind 4. 뼈대는 `naver-cafe-
 
 ## 4. 버전
 - v1.01(2026-11-10, 미배포): 뼈대 + 공용 발행 엔진 + 시험 17개 통과, tsc 0
+- 같은 날: DB 초안 `supabase/migrations/20261110120000_wba_init.sql`(카탈로그 wordpress·blogger, `wba_posts` 회원 읽기·지우기만, 공개 버킷 `wba-images`, `wba_cleanup()` 관리자·시험 계정 제외·구글 발행 글은 본문만 비움) — 격리 Postgres 시험 `npm run test:database` 5개 통과. **운영 미적용(주인님 승인 대기)**
 
 ## 5. 남은 일(순서)
 1. DB 초안(회원별 RLS): 연결 정보(공용 연동 `member_platform_accounts` 새 항목 `wordpress`·`blogger`, 응용 비밀번호·토큰은 암호화 저장), 원고·발행 기록 표, 30일 정리(`profiles.retention_exempt` 회원 제외, 구글 블로그 **발행된 글 이미지는 발행 기록이 있는 동안 보관** — TOP_RULE §8 지정) → 격리 DB 시험 → 주인님 승인 뒤 운영
