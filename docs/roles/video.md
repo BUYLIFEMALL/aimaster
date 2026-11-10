@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) | 시험 계정 Vidu 크레딧 충전(지금 `CreditInsufficient`) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
+| `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 주인님이 Vidu 충전 후 말씀하실 때(실행 직전 다시 승인) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `youtube-viral-studio` | V6 내 채널 진짜 지표 보기 — 주인님 2026-11-11 「너가해」로 영상 담당 지정 | Runway·Vidu 다음 순서 | `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261024_VIDEO.md` V6 |
 | 영상 프로그램 6개 | 서버 지역(`regions`) 측정 → DB 가까운 쪽으로 — 주인님 「측정부터해보고 가까운쪽으로해」 | V6 다음 순서 | `docs/PLATFORM_PATTERNS.md` §8 |
@@ -82,7 +82,7 @@
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
 2. V4 녹화는 주인님 확인 (V1 소리는 11-11 확인 끝: 원본 소리 켬 MP4 AAC 48k 스테레오·평균 -21.6dB, 원본 -21.4dB)
 3. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(플랜 `shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`, ElevenLabs는 이미 자체 시각)
-4. Vidu 크레딧 충전되면 Q3 Turbo 5초 1회 재확인(승인 뒤). 그다음 V6(유튜브 내 채널 진짜 지표) 플랜
+4. V6(유튜브 내 채널 진짜 지표) 플랜. Vidu 재확인은 주인님이 충전 후 말씀하실 때
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
