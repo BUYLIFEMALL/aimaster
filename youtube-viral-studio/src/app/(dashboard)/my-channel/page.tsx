@@ -112,7 +112,7 @@ export default function MyChannelPage() {
             <li>아래 「내 유튜브 채널 연결」 → 구글 동의 화면에서 허용</li>
           </ol>
           <p className="text-xs text-yt-muted">
-            구글 앱이 「테스트」 상태면 구글 정책상 7일마다 다시 연결해야 합니다. 한 번 연결하면 유튜브 댓글 자동화·shots 업로드도 같은 연결을 함께 씁니다.
+            구글 앱이 「테스트 중」이면 구글 정책상 7일마다 연결이 끊깁니다. 구글 클라우드 「Google 인증 플랫폼 → 대상」에서 「앱 게시」(프로덕션)로 바꾸면 계속 연결됩니다(브랜딩에 홈페이지·개인정보처리방침·약관 주소 필요, 로고는 비워 두면 심사 없이 게시). 한 번 연결하면 유튜브 댓글 자동화·shots 업로드도 같은 연결을 함께 씁니다.
           </p>
           {st.state === "no_app" ? (
             <Link href="/settings" className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl">
