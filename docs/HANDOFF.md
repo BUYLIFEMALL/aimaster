@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **wp-blogger-auto v1.03 배포·썸네일·공개 전환 완료**
+- **인수**: 맥미니 v1.02 재검수 4항목 전부 실물 통과(초안→발행 같은 글, 예약→취소→재예약, 30분·상한, 폼 오류·카테고리 재시도·선택 기억) + 맥미니 미커밋 수정(구글 블로그 대상 미선택 안내) 인수 커밋 `902f19195`(증거 캡처 36개 포함). 요청함 `de21e15b` 처리.
+- **v1.03 배포**(빌드 1회, 주인님 승인): 공용 「내 구글 앱 만들기」 매뉴얼 버튼·「테스트 중이면 7일마다 끊김 → 대상 → 앱 게시」(연결 칸·매뉴얼), 검색 미리보기 실제 블로그 주소, 블로그 대상 미선택 안내. 관리자 화면 확인(v1.03·연결 칸 문구·미리보기 `buylifenews.blogspot.com`·매뉴얼 공용 글 링크).
+- **썸네일**: `scripts/generate-program-thumbnail.mjs`(관리자 Gemini 키, gemini-3-pro-image 1회, 글자·로고 없음 확인) → `programs.thumbnail_url` 등록.
+- **공개 전환**: `programs.is_active=true`(운영 ref esgxyikcnnvmlhygjkth) → 메인 상세 200·목록 노출·썸네일 로드 확인(ego).
+- **남은 일**: 맥미니 공개 후 접근·권한 검수 `wp-blogger-auto/docs/REQUEST_20261111_MACMINI_PUBLIC_ACCESS.md`(시험 계정 사용기간은 주인님이 관리자 화면에서 부여 — 기본 14일). 개선 후보(원고 분량·이미지 용량·추가 모델)는 IMPROVEMENTS.
+- **비용**: Vercel 빌드 1회(v1.03), 썸네일 이미지 1회(약 0.13~0.27달러, 관리자 키), 원고 AI 0.
+- 링크: https://wp-blogger-auto.buylife.xyz · https://www.buylife.xyz/programs/wp-blogger-auto
+
 ## 2026-11-11 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — `elevenst-register` v1.03 (서울 지역 직접 연결)
 - 원인: v1.02 연결 시험 500 = Fixie(미국 IP)를 11번가가 네트워크에서 차단. 한국 PC 직접 + 실제 키 → 출고지 조회 200(키·Seller API·https 확인, IP 미등록이어도 조회됨). 상세 `elevenst-register/docs/API_SPEC_NOTES.md` §6.
 - 주인님 결정 1안: `regions: ["icn1"]`, Fixie 없이 직접 호출, 처음 설정 2단계. 배포 `elevenst-register-kuna0l35h` Ready(빌드 1회), DB v1.03. 11번가 「API 관리」 IP 3칸에 Fixie IP 등록돼 있음(그대로 둠, 플레이오토 유지).
