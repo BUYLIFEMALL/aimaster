@@ -1,6 +1,9 @@
 "use client";
 
 // 구글 블로그 연결 4단계: 1) 구글 앱 키(유튜브용과 같은 키) 2) 구글 콘솔에 리디렉션 주소·Blogger API 3) 구글 연결 4) 올릴 블로그 고르기
+// 회원 본인 구글 앱 — 만드는 법은 공용 매뉴얼(platform_guides) 「내 구글 앱 만들기」(2026-11-11 영상 담당 요청, 주인님 지시)
+const GOOGLE_APP_GUIDE = "https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d";
+const openGuide = () => window.open(GOOGLE_APP_GUIDE, "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
 import { useEffect, useState } from "react";
 
 type Blog = { id: string; name: string; url: string };
@@ -91,6 +94,12 @@ export function BloggerConnectCard({ initial, result }: { initial: BloggerInitia
         {step(3, state.connected && !state.needsReconnect, "구글 연결", state.connected ? <>{state.email ?? "구글 계정"} 으로 연결돼 있습니다.</> : "동의 화면에서 블로그 권한을 허용해 주세요.")}
         {step(4, state.connected && !!state.blog, "올릴 블로그 고르기", state.connected && state.blog ? <a href={state.blog.url} target="_blank" rel="noreferrer" className="font-bold text-[color:var(--blogger)] underline">{state.blog.name}</a> : "연결 뒤 내 블로그 목록에서 고릅니다.")}
       </ol>
+
+      <div className="mt-3 space-y-2 rounded-xl bg-[color:var(--surface-soft)] px-3 py-2.5 text-xs">
+        <p>구글 앱이 아직 없으면 내 구글 계정으로 직접 만듭니다(유튜브·구글 블로그 공용, 이 프로그램은 <b>Blogger API v3</b>도 켜야 합니다).</p>
+        <button type="button" onClick={openGuide} className="font-bold text-[color:var(--wp)] underline">📘 내 구글 앱 만들기(공용 매뉴얼) ↗</button>
+        <p className="rounded-lg bg-amber-50 px-2 py-1.5 text-amber-900">⚠️ 구글 앱이 <b>「테스트 중」</b>이면 연결이 <b>7일마다 끊깁니다.</b> 테스트 사용자 등록만으로는 유지되지 않으니, 구글 콘솔 「대상 → 앱 게시」로 프로덕션으로 바꾼 뒤 다시 연결해 주세요.</p>
+      </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {state.hasApp && (!state.connected || state.needsReconnect) && <a href="/api/oauth/google/start" className="lp-btn">구글 연결</a>}

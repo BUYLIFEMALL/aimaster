@@ -65,3 +65,4 @@
 ## 8. 진행 기록
 - **2026-11-11 코드 완료(로컬, 미배포)** — `publishFlow.ts`(보관 판정 실제 발행만·`retentionPatch`·`imageExpiresAt`·예약 상한 `checkScheduleWithinRetention`·초안 전환 `switchDraft`), 엔진 `publish/wordpress.ts`(`setPostStatus`·`getPostStatus`)·`publish/blogger.ts`(`publishExisting`·`getPostStatus`), 예약 확인 `syncScheduled.ts`(정리 호출 앞에서 실행, 회원별 실패 격리, 재발행 없음), `resolveUncertain.ts`(올라갔어요 → 1년), 화면 `PublishPanel`(초안 전환 버튼·카테고리 불러오는 중/실패/다시 불러오기·선택값 원고별 기억·예약 min/max)·`ImagePanel`(이미지 수 기억)·`posts` 조회 오류 안내, 설명서·보관함·발행 패널 보관 규칙 명시, v1.02. tsc·시험 70개(경계 시험 RT01~04·전환 PB02b~d 추가)·로컬 빌드 통과.
 - **운영 DB 적용 대기** — `supabase/migrations/20261111120000_wba_image_retention.sql`을 ego SQL 편집기(공간 54)에 넣고 파일과 글자 단위 일치 확인. 실행은 자동 권한 검사에서 막힘 → 주인님 실행 또는 허용 필요. **DB 적용 전에는 배포하지 않음**(새 코드가 `image_expires_at` 칸에 써서, 칸이 없으면 발행 결과 기록이 실패).
+- **미배포 대기(2026-11-11)** — 구글 블로그 연결 칸·매뉴얼에 공용 「내 구글 앱 만들기」 매뉴얼 버튼과 「테스트 중이면 7일마다 끊김 → 앱 게시」 문장(영상 담당 요청 `REQUEST_20261111_GOOGLE_OAUTH_GUIDE.md`). 다음 배포 때 v1.03으로 함께.

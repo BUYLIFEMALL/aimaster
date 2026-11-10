@@ -14,7 +14,7 @@ const STEPS = [
 
 const FAQ = [
   ["연결 확인에서 401이 나와요", "카페24 같은 공유 호스팅이 로그인 정보(Authorization 머리글)를 지우는 경우입니다. 아래 「워드프레스 연결」의 .htaccess 한 줄을 넣고 다시 「연결 확인」을 눌러 주세요."],
-  ["구글 연결이 일주일마다 끊겨요", "구글 콘솔의 OAuth 동의 화면이 「테스트」 상태이면 구글 정책상 7일마다 연결이 풀립니다. 「앱 게시」를 눌러 프로덕션으로 바꿔 주세요(본인 앱이라 「확인되지 않은 앱」 경고는 「고급 → 이동」으로 넘어가면 됩니다)."],
+  ["구글 연결이 일주일마다 끊겨요", "구글 앱이 「테스트 중」이면 구글 정책상 7일마다 연결이 풀립니다(테스트 사용자 등록만으로는 유지되지 않음). 구글 콘솔 「대상 → 앱 게시」로 프로덕션으로 바꾼 뒤 다시 연결해 주세요(본인 앱이라 「확인되지 않은 앱」 경고는 「고급 → 이동」으로 넘어가면 됩니다)."],
   ["예약한 글을 취소하고 싶어요", "보관함에서 그 원고를 열고 「예약 취소(초안으로)」를 누르면 블로그에서 초안으로 되돌아갑니다."],
   ["결과가 「확인 필요」예요", "보냈지만 응답을 받지 못한 경우입니다. 중복을 막기 위해 자동으로 다시 보내지 않습니다. 블로그 관리 화면에서 글이 있는지 본 뒤 「올라갔어요 / 안 올라갔어요」를 눌러 정리해 주세요."],
   ["원고와 이미지는 얼마나 보관되나요?", "발행하지 않은 원고(초안·예약 대기·실패·확인 필요)는 만든 날부터 30일 뒤 이미지와 함께 지워집니다. 구글 블로그에 실제로 발행된 글은 본문은 30일 뒤 비우고, 글에 들어간 이미지는 발행일부터 1년 보관한 뒤 기록과 함께 지웁니다. 블로그에 올라간 글 자체는 블로그에 그대로 남습니다."],
@@ -97,7 +97,7 @@ export default function GuidePage() {
       <Section id="step3" icon="🅑" title="STEP 3. 구글 블로그 연결(처음 한 번)">
         <ol className="space-y-1">
           <Li><a className="font-bold text-[color:var(--wp)] underline" href="https://www.blogger.com" target="_blank" rel="noreferrer">blogger.com</a>에 블로그가 없으면 먼저 만듭니다.</Li>
-          <Li><a className="font-bold text-[color:var(--wp)] underline" href="https://console.cloud.google.com/apis/library/blogger.googleapis.com" target="_blank" rel="noreferrer">구글 클라우드 콘솔</a>에서 <b>유튜브 자동화용으로 만든 프로젝트</b>를 고르고 「Blogger API v3」를 <b>사용</b>으로 켭니다(없으면 새 프로젝트).</Li>
+          <Li><a className="font-bold text-[color:var(--wp)] underline" href="https://console.cloud.google.com/apis/library/blogger.googleapis.com" target="_blank" rel="noreferrer">구글 클라우드 콘솔</a>에서 <b>유튜브 자동화용으로 만든 프로젝트</b>를 고르고 「Blogger API v3」를 <b>사용</b>으로 켭니다. 구글 앱이 아직 없으면 <a className="font-bold text-[color:var(--wp)] underline" href="https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d" target="_blank" rel="noreferrer">📘 내 구글 앱 만들기(공용 매뉴얼)</a>를 따라 내 구글 계정으로 먼저 만듭니다.</Li>
           <Li>「API 및 서비스 → 사용자 인증 정보」에서 OAuth 클라이언트 ID(웹 애플리케이션)를 열고, <b>승인된 리디렉션 URI</b>에 아래 주소를 <b>추가</b>한 뒤 저장합니다(기존 주소는 지우지 않음).</Li>
         </ol>
         <CodeLine code={REDIRECT} />
@@ -105,7 +105,7 @@ export default function GuidePage() {
           <Li>Client ID·Secret을 아직 안 넣었다면 <a className="font-bold text-[color:var(--wp)] underline" href="https://www.buylife.xyz/api-settings" target="_blank" rel="noreferrer">AIMaster 키 등록</a>에 넣습니다.</Li>
           <Li><Link className="font-bold text-[color:var(--wp)] underline" href="/connect">🔑 API키등록·플랫폼연동</Link>에서 「구글 연결」 → 동의 화면에서 <b>블로그 권한에 체크</b> → 돌아오면 내 블로그를 고릅니다.</Li>
         </ol>
-        <Trap>동의 화면이 「테스트」 상태면 <b>7일마다 연결이 끊깁니다</b>. 「OAuth 동의 화면 → 앱 게시」로 프로덕션으로 바꿔 주세요.</Trap>
+        <Trap>구글 앱이 「테스트 중」이면 <b>7일마다 연결이 끊깁니다</b>(테스트 사용자 등록만으로는 유지되지 않습니다). 구글 콘솔 「대상 → 앱 게시」로 프로덕션으로 바꾼 뒤 다시 연결해 주세요.</Trap>
         <Tip>주소 반영에는 몇 분 걸릴 수 있습니다. 「redirect_uri_mismatch」가 나오면 주소를 한 글자도 다르지 않게 넣었는지 확인하고 5분 뒤 다시 눌러 주세요.</Tip>
       </Section>
 
