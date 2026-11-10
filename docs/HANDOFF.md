@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `ai-video-studio` v1.34 v1.28 리뉴얼 회귀 수정 + Runway 실생성 확인
+- **찾은 문제**: v1.28 리뉴얼(11-06) 뒤 만들기 화면이 서버와 다른 이름(`startImageUrl`·`aspect`·`endImageUrl`)으로 보내 사진·비율이 전달되지 않음 → 사진 필요한 모델 전부 막힘, 성공 응답 읽기 오류, 모델 고르기 칸 없음(업체마다 첫 모델만). 11-06 이후 실제 생성 0건(회원 피해 없음).
+- **한 일**: 값 이름·응답 읽기·모델 고르기 칸 복구, 재발 방지 시험(110), 운영 DB `avs_generations_provider_check`에 runway·vidu 추가(주인님 승인). 디자인 담당께 주의 메모 `ai-video-studio/docs/IMPROVEMENTS.md`.
+- **실생성(시험 계정 본인 키, 최저가)**: Runway gen4_turbo 5초 16:9 약 40초 완성(5.04초·1280×720) ✅ / Vidu viduq3-turbo는 계정 크레딧 부족 거절(안내 정상, 과금 없음).
+- **배포**: 빌드 1회 `ai-video-studio-dm0t0thdn`, DB v1.34. **남은 일**: Vidu 충전 뒤 1회 재확인 → V6.
+- 링크: https://ai-video-studio.buylife.xyz
+
+
+
+
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D27·D29 실제 AI 호출 시험 통과(미배포)
 - **한 일**: 주인님 「이미 키 등록되어 있으니 db에서 찾아서 등록해서 사용해」 → 운영 DB `user_api_keys`(관리자 본인 anthropic)를 읽기만 해서 시험 몰 대표 키로 봉인·Lab DB 저장(끝 4자리 YgAA, 원문은 출력 안 함). 견적·상품·문의(2회)·첫 화면 실제 호출 5회 약 57원 통과(저장·게시·회신 안 함)
 - **실제 결과로 고친 것**: 문의 답변 내부 말투 → 쇼핑몰 담당자 말투(재시험 확인), 첫 화면 설명 한국어 블록 이름, 견적 이유 끝 「}」 제거. 시험 223개·tsc
