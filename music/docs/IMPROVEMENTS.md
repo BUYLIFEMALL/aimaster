@@ -1,5 +1,7 @@
 # 음악(SUNO)자동화 (music/) 개선사항 및 백로그 (IMPROVEMENTS.md)
 
+> **🗂️ 「내 자료함」 연동 안내 — 음악 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 승인)**: 운영 DB에 `member_assets`(공용 자료 목록)와 트리거를 달았습니다(`supabase/migrations/0059_member_assets.sql`). `ams_generations`(완성 곡)·`music_track_variants`(곡 버전)·`free_music_tracks`(휴지통 제외)가 생기거나 바뀌면 자료함 줄이 자동으로 생기고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(30일 정리를 그대로 따름). **음악 프로그램 코드는 바꾸지 않았고 재배포도 필요 없습니다.** 주의: (1) 위 세 표의 칸 이름(`outputs[].path`·`title`·`durationS`, `audio_url`, `trashed_at`·`title`)이나 저장 경로 규칙(`{user_id}/…`)을 바꾸면 트리거 함수(`member_assets_sync_ams/suno/fms`)도 같이 고쳐야 합니다. (2) 표를 지우거나 이름을 바꾸기 전에 트리거를 먼저 확인해 주세요. 화면: https://www.buylife.xyz/library · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md`
+
 작성일시: 2026-10-16  
 작업 CLI: Antigravity (Windows)  
 버전: `v1.07` (이전 v1.06)
