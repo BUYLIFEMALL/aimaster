@@ -58,6 +58,7 @@
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
 | `ai-work-workspace` | 구글 연결 안내: 캘린더·키 화면에 「내 구글 앱 만들기」 공용 매뉴얼 버튼, 「테스트 중이면 7일마다 끊김 → 앱 게시」·Calendar API 켜기 문장, 매뉴얼의 「테스트 사용자 등록」 옛 문구 교체(영상 담당 요청 `docs/REQUEST_20261111_GOOGLE_OAUTH_GUIDE.md`) | `d17ea424e` | 2026-11-11 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` 「캘린더 연동」 | 다음 배포 때(v1.29) |
+| `ai-doc-chatbot` | 보관 예외 회원(관리자·시험 계정)에게 30일 지난 문서가 화면·검색에서 숨던 것 → 예외 회원은 기준 없음(`documentCutoff(now, userId)`, `authorize()`가 10분마다 예외 목록), 문서 카드 「보관 기한 없음」. DB 삭제 작업 `dcb-retention-30d`는 이미 예외 제외라 데이터 손실 없음 | `bb7f393bd` | 2026-11-11 [역할: workspace] Claude Code(윈도우) — 담당 없음, 주인님 「니가 해」 | `ai-doc-chatbot/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때(+0.01) |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
