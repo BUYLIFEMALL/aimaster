@@ -98,3 +98,7 @@
 - 근거·할 일: [`docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md`](HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md) 18절. 상태: **처리 중**(2026-11-10 [역할: music]) — 주인님 마스터PC 0.8.3 설치 대기(요청함 등록) → 설치 뒤 Admin PC 세션이 19절 절차로 실물 시험, 이음새 듣기는 주인님.
 - 업데이트 안내 확인(코드): 「내 PC 엔진」 화면에는 「⬆ 새 버전 0.8.3 나옴」이 있음. 곡 만들기·모든 음악 상태 막대와 「끝 이어 만들기」 비활성 문구에는 없음.
 - **개선(미구현·미배포 대기 후보)**: (1) `StudioStatusBar.tsx` 엔진 줄에서 `engine-latest.json`보다 낮으면 「준비됨 · 엔진 0.8.2 · ⬆ 새 버전 0.8.3」 + 「업데이트」 링크(/engine) (2) `library/page.tsx` 640줄 「엔진 0.8.3 이상이 필요합니다」 비활성 메뉴를 누르면 /engine으로 안내(또는 문구에 「내 PC 엔진에서 업데이트」). 작은 화면 수정이라 다음 무료음악 배포 때 묶어서.
+
+## 2026-11-10 ⚠ 엔진 0.8.3 — 끝 이어 만들기·끝 자동 줄이기가 ffmpeg 값을 참·거짓으로 넘겨 동작하지 않음 ([역할: workspace] Admin PC 실물 시험)
+- `engine/src/gateway.mjs` 621줄·`engine/src/main.mjs` 140줄이 `hasFfmpeg()` 결과(true)를 ffmpeg 실행 파일로 넘김 → 이어 만들기는 「The "file" argument must be of type string. Received type boolean (true)」, 끝 줄이기는 조용히 건너뜀. 276줄처럼 `"ffmpeg"`로 넘기는 수정 제안. 상세: [`docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md`](HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md) 20절. 상태: 미처리(음악 담당).
+- 끝 이어 만들기 가사 미리 채우기가 빈 `[Outro]` 태그만 가져옴 — 같은 20절. 상태: 제안.
