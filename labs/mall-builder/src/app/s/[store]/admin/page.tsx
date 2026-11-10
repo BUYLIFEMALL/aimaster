@@ -3,6 +3,7 @@ import { getStaffStore } from "@/lib/store";
 import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
 import { canSeeMenu, type MyStaff } from "@/lib/staff";
 import { createClient } from "@/lib/supabase/server";
+import { mallSubdomainUrl } from "@/lib/host";
 import { AdminShell, NoPermission } from "./admin-shell";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export default async function StoreAdminPage({ params }: { params: Promise<{ sto
   // 사업자 정보는 설정 화면(대표만)에서 고치므로, 고칠 수 없는 직원에게는 안내하지 않는다(D22)
   const me = ((await (await createClient()).rpc("mall_builder_my_staff", { p_store_id: store.id })).data ?? null) as MyStaff;
   const missing = canSeeMenu("/settings", me) ? missingRequired(readBusinessInfo(store.business_info)) : [];
+  const subdomainUrl = mallSubdomainUrl(store.slug, process.env.MALL_ROOT_DOMAIN);
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="">
@@ -33,6 +35,14 @@ export default async function StoreAdminPage({ params }: { params: Promise<{ sto
         <dd>
           <Link href={`/s/${store.slug}`} className="text-blue-700 underline">/s/{store.slug}</Link>
         </dd>
+        {subdomainUrl && (
+          <>
+            <dt className="text-gray-500">하위 도메인</dt>
+            <dd>
+              <a href={subdomainUrl} className="text-blue-700 underline" data-subdomain-url>{subdomainUrl.replace(/^https:\/\//, "")}</a>
+            </dd>
+          </>
+        )}
         <dt className="text-gray-500">상태</dt>
         <dd>{store.status === "active" ? "영업 중" : "정지됨(플랫폼 관리자에게 문의)"}</dd>
         <dt className="text-gray-500">개설일</dt>
