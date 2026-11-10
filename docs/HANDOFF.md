@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 실거래 지역 뉴스 08:00 알림 확인(v1.58)
+- **한 일**: 운영 DB 읽기 — 08:00:33 시험 계정 새 기사 96건(서초구 51·종로구 37·화성시 동탄구 6·고양시 일산동구 2), `news_sent_on`=11-11. 알림 글은 지역 번갈아 넣기로 앞 8건이 4개 지역 2건씩. ego lite는 관리자 로그인이라 시험 계정 목록은 못 봄(작업 공간 닫음).
+- **발견**: 화면 v1.59(디자인 담당 `d2848961c`)인데 DB `programs.version`은 v1.58·버전 SQL 없음 → `real_estate_sales/docs/IMPROVEMENTS.md`에 「디자인 담당께」.
+- **남은 것**: 텔레그램 실제 글 화면 확인(주인님). 코드 변경·배포 없음, 비용 없음.
+
 ## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.29(U13 보강·구글 안내) + `ai-doc-chatbot` 보관 예외 수정(미배포)
 - **한 일**: 관리자 계정 쪽 U13 확인에서 「공유됨」에 공유 페이지가 안 보이고 「멤버 자격 요청」이 「준비 중」인 것 발견 → `getSharedWithMe` 덮어쓰기(다른 워크스페이스에서 공유된 맨 위 페이지 포함), `requestWorkspaceMembership`·`resolveMemberRequest` 엶(`requestMembers`는 닫음). 구글 연결 안내(영상 담당 요청) 함께 배포. 구글 DreamAI 앱은 이미 프로덕션 게시 상태 확인. `ai-doc-chatbot`: 보관 예외 회원 문서 30일 숨김 해제·「보관 기한 없음」(`bb7f393bd`, 미배포 — DB 삭제 작업은 이미 예외 제외).
 - **검수**: 연결부 110/110·원본 523/523·tsc·빌드, 배포 Ready·DB v1.29. ego(관리자 계정): 화면 v1.29, 「공유됨」 목록·화면에 시험 페이지 표시.
