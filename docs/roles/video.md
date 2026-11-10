@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-11 `claude-win-video` (유튜브 분석 v1.28 이름 변경·내 채널 실제 연결 확인)
+- 마지막 갱신: 2026-11-11 `claude-win-video` (서버 지역 측정 → 서울 고정 설정·구글 연결 매뉴얼)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,12 +16,14 @@
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 주인님이 Vidu 충전 후 말씀하실 때(실행 직전 다시 승인) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| 영상 프로그램 6개 | 서버 지역(`regions`) 측정 → DB 가까운 쪽으로 — 주인님 「측정부터해보고 가까운쪽으로해」 | V6 다음 순서 | `docs/PLATFORM_PATTERNS.md` §8 |
+| 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | 영상 6개 서버 지역 | 측정: DB 서울, 함수 미국 동부(iad1) → 주인님 「서울로, 다음 배포 때 함께」로 `vercel.json` `regions: ["icn1"]` 6개 설정 | 빌드 0 |
+| 2026-11-11 | 구글 연결 매뉴얼 | 공용 매뉴얼 글 2개 다시 씀(앱 게시·확인되지 않은 앱·오류 대처), 유튜브 떡상·유튜브 댓글 문구·링크(미배포), 블로그·워크스페이스 담당께 요청 파일 | 빌드 0 |
 | 2026-11-11 | `youtube-viral-studio` v1.28 | 이름 「AI 유튜브 떡상 분석 자동화」(주인님 선택) + 쇼츠/일반 영상 표시·7일 끊김 안내·다시 연결 버튼. 시험 계정 실제 연결·지표 확인, 구글 앱 프로덕션 게시(주인님) | 빌드 1회 `youtube-viral-studio-j7cm0leh3` |
 | 2026-11-11 | `youtube-viral-studio` v1.27 | V6 「📈 내 채널 진짜 지표」 — 회원 본인 구글 앱 연결(공용 연결 재사용), 분석 API 7개 보고서·숫자 힌트, 설정·매뉴얼, 운영 DB 연동 목록 analytics 추가, 시험 38. 인스타 쪽은 인스타 담당께 요청 | 빌드 1회 `youtube-viral-studio-mi4tyfu7t` |
 | 2026-11-11 | `ai-video-studio` v1.34 | v1.28 리뉴얼 회귀 수정(사진·비율 값 이름·응답 읽기·모델 고르기 칸) + 운영 DB `avs_generations` 업체 제한에 runway·vidu 추가. 실생성: Runway gen4_turbo 5초 완성 ✅, Vidu는 크레딧 부족 거절(정상 안내) | 빌드 1회 `ai-video-studio-dm0t0thdn` · 생성 $0.25 |
@@ -83,7 +85,7 @@
 1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
 2. V4 녹화는 주인님 확인 (V1 소리는 11-11 확인 끝: 원본 소리 켬 MP4 AAC 48k 스테레오·평균 -21.6dB, 원본 -21.4dB)
 3. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(플랜 `shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`, ElevenLabs는 이미 자체 시각)
-4. 구글 연결 매뉴얼 정리(주인님 지시: 회원 각자 본인 구글 앱 → 공용 매뉴얼 글 + 각 프로그램 연결 칸) → 영상 프로그램 서버 지역 측정. Vidu 재확인은 주인님이 충전 후 말씀하실 때
+4. 남은 일 없음(대기: Vidu 충전 뒤 재확인, 각 프로그램 다음 배포 때 서울 지역·문구 반영 확인). Vidu 재확인은 주인님이 충전 후 말씀하실 때
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
