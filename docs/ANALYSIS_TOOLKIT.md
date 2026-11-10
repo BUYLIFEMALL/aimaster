@@ -11,7 +11,7 @@
 | 핵심 | **REA** (`rea-agents`) | 분석 총괄 — EXE·패키지·Electron·.NET·APK·웹 번들 분석, 근거(Evidence) 정리, 재구현 점검표 | 6.4.0 설치·연결 |
 | 엔진 | **Ghidra** | C/C++ 등 네이티브 EXE를 코드(의사 C)로 풀기 — REA가 내부에서 사용 | 12.1.4 |
 | 엔진 필수 | **Java 21 (Temurin JDK)** | Ghidra 실행에 필요 | 21.0.13 (2026-11-08 재설치 — 21.0.12가 지워져 있었음, §2-2) |
-| 분석+재구현 | **Craft Anything** (`craft-anything-cli`) | 웹사이트·앱·게임을 분석하고 코딩 에이전트가 새 프로젝트로 다시 만든 뒤 원본과 비교(클린룸/딥 모드), 도구 320개를 CLI·MCP로 제공 | 0.5.0 설치·Claude Code 연결(2026-11-08, §2-7) |
+| 분석+재구현 | **Craft Anything** (`craft-anything-cli`) | 웹사이트·앱·게임을 분석하고 코딩 에이전트가 새 프로젝트로 다시 만든 뒤 원본과 비교(클린룸/딥 모드), 도구 320개를 CLI·MCP로 제공 | 0.6.0 설치·Claude Code·Codex·Antigravity 연결(2026-11-11, §2-7) |
 | .NET | **ILSpy 명령줄판** (`ilspycmd`) | C#(.NET) EXE/DLL을 C# 소스로 복원 — REA는 .NET 구조만 보여 줘서 필요 | 9.1.0 |
 | .NET 필수 | **.NET 8 SDK** | `ilspycmd` 설치·실행에 필요 | 8.0.426 |
 | 판별 | **Detect It Easy** (DIE) | EXE가 무엇으로 만들어졌는지(C++/.NET/Electron/Python/압축 포장) 판별 — 분석 방법을 고르는 첫 단계 | 3.21 |
@@ -88,16 +88,36 @@
 - 주소: https://github.com/storytold/craft-anything (MIT 또는 Apache-2.0, Rust, 초기 시험판) · 커뮤니티 https://getartcraft.com
 - 하는 일: 대상(웹사이트·데스크톱 앱·게임·파일)을 **연구 → 새 프로젝트 만들기(코딩 에이전트, Claude Code 우선 지원) → 원본과 비교 → 보완** 4단계로 진행. 화면은 「간단」(무엇을 만들까요)·「고급」(함수·문자열·의사 C·호출 그래프 등 작업대) 두 가지.
   - **클린룸(기본)**: 원본 내부(코드·파일·페이지 소스)를 읽지 않고 보이는 화면만 사용. **딥**: 코드·파일까지 읽음(개인 용도) — 남의 상용 프로그램은 핵심 원칙 21대로 기능·동작만 파악하고 코드는 옮기지 않는다.
-- 설치: 릴리스 `craft-anything-0.5.0-windows-x64.msi`(57MB) → `SHA256SUMS.txt`와 대조(`48a85388…6254`)·서명 확인(Learning Machines Inc) → `msiexec /i … /qn`. 위치 `C:\Program Files\Craft Anything\` — 앱 `craft-anything.exe`, 명령줄 `craft-anything-cli.exe`.
-- Claude Code 연결: `craft-anything-cli setup --client claude_code --dry-run` 확인 → `--yes`. 이번에는 이 Orca 계정 폴더(`claude-profiles/468f6e2e-…/home/.claude.json`, 백업 `.claude.json.before-craft-anything-20261108`)에 `mcpServers.craft-anything`와 스킬 `craft-anything`이 들어감. **다른 계정 폴더·Codex·Antigravity·Gemini는 아직 미연결** — 필요하면 그 세션에서 `setup --client <codex|antigravity|gemini_cli>` 실행. 연결 뒤 Claude Code 재시작해야 도구가 보인다.
+- **현재 버전: 0.6.0 (2026-11-11 업그레이드, 윈도우 메인 PC)** — 0.5.0(2026-11-08 처음 설치)에서 올림.
+- 설치: 릴리스 `craft-anything-<버전>-windows-x64.msi`(약 57MB) → `SHA256SUMS.txt`와 대조(0.6.0 `a650c948…d042`)·서명 확인(Learning Machines Inc, `Get-AuthenticodeSignature`) → `msiexec /i … /passive /norestart`. 위치 `C:\Program Files\Craft Anything\` — 앱 `craft-anything.exe`, 명령줄 `craft-anything-cli.exe`.
+- **업그레이드 절차(2026-11-11 실측)**: 최신 확인 `gh release list -R storytold/craft-anything -L 3` → 새 빈 폴더에 `gh release download <태그> -p "*windows-x64.msi" -p SHA256SUMS.txt` → 체크섬·서명 확인 → **다른 세션들이 띄운 MCP 서버(`craft-anything-cli.exe mcp`)가 실행 파일을 잡고 있으므로 먼저 종료**(`Get-Process | ? Path -like '*Craft Anything*' | Stop-Process -Force`, 데이터 없음) → 같은 MSI 명령으로 덮어 설치 → `craft-anything-cli --version` → `doctor`. 엔진 경로 설정(`%APPDATA%\craft-anything\config.toml`)은 업그레이드 뒤에도 유지됨. 종료된 세션은 재시작 또는 `/mcp`로 다시 연결.
+- 연결 현황(2026-11-11, 모두 `setup --client <대상> --dry-run` 확인 → `--yes`):
+
+  | 대상 | 설정 파일 | 스킬 위치 |
+  |---|---|---|
+  | Claude Code (Orca 계정 `468f6e2e-…`) | `claude-profiles/468f6e2e-…/home/.claude.json` (11-11 실행 경로 `\\?\` 표기 정리) | `…/home/skills` |
+  | Codex (Orca 계정 `d27dc5a8-…` = 지금 `CODEX_HOME`) | `orca/codex-accounts/d27dc5a8-…/home/config.toml` (백업 `.before-craft-20261111`, `rebuild_start`는 매번 승인) | `~/.agents/skills` |
+  | Antigravity | `~/.gemini/config/mcp_config.json` (백업 `.before-craft-20261111`) | `~/.gemini/config/skills` |
+
+  미연결: 다른 Claude 계정 폴더(보조 계정)·기본 `~/.codex`(Orca 밖 Codex)·Gemini CLI·VS Code·맥미니 — 필요하면 그 장비·세션에서 `setup --client <claude_code|codex|gemini_cli|vscode>`. 연결 뒤 해당 CLI를 재시작해야 도구가 보인다.
 - 엔진 경로(프로그램 자체 설정 `%APPDATA%\craft-anything\config.toml`, 환경변수가 아니라 설정값으로 찾음):
   ```powershell
   craft-anything-cli settings-set --key engines.ghidra.install_dir --value '"C:/Tools/ghidra_12.1.4_PUBLIC"'
   craft-anything-cli settings-set --key engines.ghidra.java_home --value '"C:/Program Files/Eclipse Adoptium/jdk-21.0.13.9-hotspot"'
   craft-anything-cli settings-set --key engines.tools.java --value '"C:/Program Files/Eclipse Adoptium/jdk-21.0.13.9-hotspot/bin/java.exe"'
   ```
-- 점검: `craft-anything-cli doctor` → 2026-11-08 `healthy: true`(Ghidra·Java·Ghidra-Java·크롬·ILSpy·MCP 자체 시험 정상, 나머지 adb·Frida 등은 선택). AI 백엔드(그림·3D, 회원 본인 fal.ai 키)는 설정하지 않음.
+- 점검: `craft-anything-cli doctor --format text` → 2026-11-11 `healthy`(Claude Code·Codex·Antigravity 연결, 스킬 3곳 최신, Ghidra·Java·Ghidra-Java·크롬·ILSpy·MCP 자체 시험 정상(도구 30개 응답), 나머지 adb·Frida·JADX 등은 선택). AI 백엔드(그림·3D, 회원 본인 fal.ai 키)는 설정하지 않음. `codex mcp list`의 인증 칸 「Unsupported」는 로컬 연결이라 정상.
 - 주의: 만든 프로젝트의 의존성 설치(`npm`·`cargo`)는 내 PC에서 실제로 실행되므로 처음 보는 명령은 승인 카드에서 확인한다(`ask_before_running: true` 기본값 유지).
+
+#### 2-7-1. 프로그램·웹사이트·앱 분석에 쓰는 법 (2026-11-11 주인님 지시: 「나중에 프로그램/웹싸이트/앱 분석시 사용할꺼야」)
+- **언제 쓰나**: 외부 프로그램·웹사이트·앱을 분석해 기능 목록을 뽑거나, 「이런 화면·흐름을 우리 방식으로 만들면 어떻게 되나」를 빠르게 보고 싶을 때. REA(§2-1)가 정밀 분석(디컴파일·호출 경로)에 강하다면, Craft Anything은 **화면 캡처·비교·재구현 흐름**이 강하다 — 둘을 함께 쓴다.
+- **모드 고르기**:
+  - 남의 상용 웹사이트·앱 → **클린룸(기본)**: 보이는 화면(3개 화면 폭 캡처·글자·배치·색·글꼴·메뉴)만 사용. 결과는 기능·화면 흐름 정리용.
+  - 라이선스가 허용된 원본(MIT·Apache 등)·우리 소유 프로그램 → **딥**(`--deep` 또는 `settings_set deep_mode true`): 코드·파일·JS까지 읽음. 외부 소스 이식 규칙(CLAUDE.md 최상위 「외부 소스 분석·이식 규칙」: 라이선스 확인 → 기능 전부 목록 → AIMaster 기존 기능과 비교 → 플랜에서 주인님 결정)을 그대로 따른다.
+- **세션 안에서(MCP)**: 스킬 `craft-anything` 사용 → `core_investigation_show`·`core_session_show`로 시작 → `core_target_open`(절대 경로 또는 주소) → 필요한 도구 묶음은 `list_toolsets`·`enable_toolset`(native·android·web 등)으로 켬 → 발견은 `core_finding_record`(증거 id 포함), 모르는 점은 `core_unknown_add`, 끝에 `core_handoff_write`. 증거 폴더(`investigation.cany/`)는 그 분석 작업 폴더에 둔다.
+- **명령줄로 재구현 시험**: `craft-anything-cli rebuild <주소|-> "<요청>"` (예: `rebuild https://example.com "Recreate this website" --rounds 1`). 새 프로젝트는 `Documents\Craft Anything\`에 생기며 `craft.json`·`capture/`·`app/`·`checks/`(원본과 닮은 정도)·`investigation.cany/`가 들어간다. **이 결과물은 참고용 사전 검증 페이지 수준이며 AIMaster 저장소에 그대로 들이지 않는다** — 분석 결과를 바탕으로 개발 플랜을 먼저 보고하고, 승인 뒤 `AIMaster/<프로그램>/`에 우리 방식(회원 본인 키·공용 DB·권한 판정)으로 새로 만든다.
+- **비용**: 프로그램 자체는 무료. `rebuild`는 연결된 코딩 에이전트(Claude Code 등)의 사용량을 쓰고, 설정된 AI 백엔드가 있으면 그 키 요금이 나갈 수 있으니 큰 재구현은 실행 전 보고한다(비용 사전 보고 규칙).
+- **결과 남기기**: 분석 결과는 대상 프로그램 `docs/`와 [외부 프로그램 개발분석표](EXTERNAL_PROGRAM_ANALYSIS_REGISTRY.md) 카드에 남긴다(근거 증거 id 함께).
 
 ## 3. 필요할 때만 설치 (아직 미설치)
 
@@ -124,12 +144,12 @@
 5. `winget install --id horsicq.DIE-engine -e` · `winget install --id 7zip.7zip -e`
 6. (새 터미널) `rea setup --client claude_code --dry-run` → 확인 후 `--yes` (메인·보조 계정 각각)
 7. Claude Code 재시작 → `claude mcp list`에서 `rea ✔ Connected`, `rea doctor --client claude_code` healthy 확인
-8. (선택) Craft Anything — §2-7 순서대로 MSI 설치 → `setup --client claude_code` → 엔진 경로 `settings-set` 3줄 → `doctor`
+8. (선택) Craft Anything — §2-7 순서대로 MSI 설치 → `setup --client claude_code --client codex --client antigravity` → 엔진 경로 `settings-set` 3줄 → `doctor`
 9. 이 문서 1번 표의 상태·버전을 갱신
 
 ## 5. 분석 작업 흐름 (도구 고르는 순서)
 1. 파일을 `D:\PDS` 등에서 **새 빈 폴더로 복사**(원본·실행 금지).
 2. `diec.exe`로 종류 판별 → 설치 파일이면 `7z x`로 꺼내서 다시 판별.
-3. 종류별: .NET → `ilspycmd` + REA `inspect_managed_artifact` / C·C++ → REA + Ghidra / Electron → REA `analyze_javascript_application` / Python → pyinstxtractor / 웹 → Claude in Chrome + REA `analyze-web-bundle`.
+3. 종류별: .NET → `ilspycmd` + REA `inspect_managed_artifact` / C·C++ → REA + Ghidra / Electron → REA `analyze_javascript_application` / Python → pyinstxtractor / 웹 → Claude in Chrome + REA `analyze-web-bundle`. 화면 흐름 캡처·원본과 비교·재구현 시험이 필요하면 Craft Anything(§2-7-1)을 함께 쓴다.
 4. 결과(화면·기능·서버 통신·설정값)를 정리해 **재구현 계획을 먼저 주인님께 보고** → 승인 후 `AIMaster/<프로그램>/`에 우리 방식으로 개발.
 5. 분석 → 우리 프로그램 비교 → 배치 → 개발 플랜 → 담당 인계 전체 순서는 [신규·외부 프로그램 분석·개발 플랜 지침](PROGRAM_ANALYSIS_PLANNING_GUIDE.md)(2026-10-24).
