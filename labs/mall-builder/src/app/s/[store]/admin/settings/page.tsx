@@ -12,6 +12,7 @@ import ClosedForm, { type ClosedStatus } from "./closed-form";
 import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form";
 import GuestForm from "./guest-form";
 import RestockForm, { type RestockStatus } from "./restock-form";
+import AiForm, { type AiStatus } from "./ai-form";
 import { guestOrderEnabled } from "@/lib/guest";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { digits } from "@/lib/notify";
@@ -126,12 +127,20 @@ async function closedStatus(storeId: string): Promise<ClosedStatus> {
   };
 }
 
+/** D27 AI 견적 보조 상태(키는 끝 4자리만) */
+async function aiStatus(storeId: string): Promise<AiStatus> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_ai_status", { p_store_id: storeId });
+  const d = (data ?? {}) as { has_key?: boolean; hint?: string; model?: string; min_margin?: number };
+  return { hasKey: d.has_key === true, hint: d.hint ?? "", model: d.model ?? "claude-sonnet-5-5", minMargin: d.min_margin ?? 10 };
+}
+
 export default async function StoreSettingsPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/settings`);
   if (!staff) return <NoPermission />;
   const deposit = await depositStatus(store.id);
-  const [notify, email, log, payment, restock, tax, closed] = await Promise.all([
+  const [notify, email, log, payment, restock, tax, closed, ai] = await Promise.all([
     notifyStatus(store.id, deposit),
     emailStatus(store.id, deposit),
     loadNotifyLog(store.id),
@@ -139,6 +148,7 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
     restockStatus(store.id),
     taxStatus(store.id),
     closedStatus(store.id),
+    aiStatus(store.id),
   ]);
 
   return (
@@ -149,6 +159,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <TaxForm slug={store.slug} status={tax} />
+      </div>
+      <div className="mt-6">
+        <AiForm slug={store.slug} status={ai} />
       </div>
       <div className="mt-6">
         <ClosedForm slug={store.slug} status={closed} customersHref={`/s/${store.slug}/admin/customers?member=pending`} />

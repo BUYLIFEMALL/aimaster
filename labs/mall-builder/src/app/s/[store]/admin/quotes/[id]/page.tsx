@@ -6,6 +6,8 @@ import { formatDateTime } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
 import { AdminShell, NoPermission } from "../../admin-shell";
 import { answerQuoteAction } from "../actions";
+import { AiSuggest } from "./ai-suggest";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -27,6 +29,11 @@ export default async function AdminQuotePage({
   const { quote, items } = found;
   const status = displayStatus(quote.status, quote.valid_until);
   const editable = quote.status === "requested" || quote.status === "answered";
+  // D27 지난 AI 제안 한 줄
+  const supabase = await createClient();
+  const { data: aiRow } = await supabase.from("mall_builder_quotes").select("ai_suggestion").eq("id", quote.id).maybeSingle();
+  const ai = aiRow?.ai_suggestion as { at?: string; model?: string; cost?: { krw?: number } } | null;
+  const lastAi = ai?.at ? `${formatDateTime(ai.at)} · ${ai.model ?? ""} · 대략 ${ai.cost?.krw ?? 0}원` : null;
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/quotes">
@@ -40,6 +47,8 @@ export default async function AdminQuotePage({
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-quote-ok>{ok === "sent" ? "견적을 보냈습니다." : "회신했습니다."} 손님이 견적가로 바로 주문할 수 있습니다.</p>}
       {quote.origin === "staff" && <p className="mt-2 text-xs text-gray-500" data-quote-origin>{QUOTE_ORIGIN_LABEL.staff} 견적</p>}
       {quote.request_note && <p className="mt-4 rounded bg-gray-50 px-3 py-2 text-sm">손님 메모: {quote.request_note}</p>}
+
+      {editable && <AiSuggest slug={store.slug} quoteId={quote.id} settingsHref={`/s/${store.slug}/admin/settings`} last={lastAi} />}
 
       <form action={answerQuoteAction.bind(null, store.slug, quote.id)} className="mt-6 space-y-4" data-answer-form>
         <ul className="divide-y border-y text-sm">
