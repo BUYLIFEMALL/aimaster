@@ -1,0 +1,168 @@
+{
+  "capturedAt": "2026-11-10T15:43:54.012Z",
+  "trackId": "9872b14f-0b1c-4562-a022-c24849b37814",
+  "title": "B-4 후렴 반복 시험 (K-POP)",
+  "duration_sec": 180,
+  "lyrics": "[Verse]\n아침 햇살이 창을 두드려\n어제의 걱정은 내려놓고\n운동화 끈을 꽉 묶은 채\n골목 끝까지 달려가\n\n[Chorus]\n오늘은 우리 날이야\n손을 높이 들고 웃어\n멈추지 마 지금 이 순간\n빛나는 너와 나\n\n[Verse]\n지하철 창에 비친 얼굴\n조금은 서툴러도 괜찮아\n노래 한 소절 흥얼거리면\n발걸음이 가벼워져\n\n[Chorus]\n오늘은 우리 날이야\n손을 높이 들고 웃어\n멈추지 마 지금 이 순간\n빛나는 너와 나\n\n[Bridge]\n넘어져도 다시 일어나\n하나 둘 셋 다시 시작해\n\n[Chorus]\n오늘은 우리 날이야\n손을 높이 들고 웃어\n멈추지 마 지금 이 순간\n빛나는 너와 나",
+  "lyric_timing": {
+    "cues": [
+      {
+        "end": 12.69,
+        "text": "아침 햇살이 창을 두드려",
+        "start": 8.33,
+        "lineId": "line-1",
+        "status": "automatic"
+      },
+      {
+        "end": 16.29,
+        "text": "어제의 걱정은 내려놓고",
+        "start": 13.43,
+        "lineId": "line-2",
+        "status": "automatic"
+      },
+      {
+        "end": 21.3,
+        "text": "운동화 끈을 꽉 묶은 채",
+        "start": 17.7,
+        "lineId": "line-3",
+        "status": "automatic"
+      },
+      {
+        "end": 24.93,
+        "text": "골목 끝까지 달려가",
+        "start": 23.31,
+        "lineId": "line-4",
+        "status": "automatic"
+      },
+      {
+        "end": 31.89,
+        "text": "오늘은 우리 날이야",
+        "start": 27.36,
+        "lineId": "line-5",
+        "status": "automatic"
+      },
+      {
+        "end": 32.61,
+        "text": "손을 높이 들고 웃어",
+        "start": 31.93,
+        "lineId": "line-6",
+        "status": "automatic"
+      },
+      {
+        "end": 39.27,
+        "text": "멈추지 마 지금 이 순간",
+        "start": 36.07,
+        "lineId": "line-7",
+        "status": "automatic"
+      },
+      {
+        "end": 46.31,
+        "text": "빛나는 너와 나",
+        "start": 40.8,
+        "lineId": "line-8",
+        "status": "automatic"
+      },
+      {
+        "end": 54.63,
+        "text": "지하철 창에 비친 얼굴",
+        "start": 51.81,
+        "lineId": "line-9",
+        "status": "automatic"
+      },
+      {
+        "end": 56.39,
+        "text": "조금은 서툴러도 괜찮아",
+        "start": 55.32,
+        "lineId": "line-10",
+        "status": "automatic"
+      },
+      {
+        "end": 64.89,
+        "text": "노래 한 소절 흥얼거리면",
+        "start": 59.6,
+        "lineId": "line-11",
+        "status": "automatic"
+      },
+      {
+        "end": 66.83,
+        "text": "발걸음이 가벼워져",
+        "start": 65.26,
+        "lineId": "line-12",
+        "status": "automatic"
+      },
+      {
+        "end": 74.03,
+        "text": "오늘은 우리 날이야",
+        "start": 69.32,
+        "lineId": "line-13",
+        "status": "automatic"
+      },
+      {
+        "end": 78.03,
+        "text": "손을 높이 들고 웃어",
+        "start": 74.31,
+        "lineId": "line-14",
+        "status": "automatic"
+      },
+      {
+        "end": 81.55,
+        "text": "멈추지 마 지금 이 순간",
+        "start": 78.03,
+        "lineId": "line-15",
+        "status": "automatic"
+      },
+      {
+        "end": 88.77,
+        "text": "빛나는 너와 나",
+        "start": 82.74,
+        "lineId": "line-16",
+        "status": "automatic"
+      },
+      {
+        "end": 91.01,
+        "text": "넘어져도 다시 일어나",
+        "start": 88.8,
+        "lineId": "line-17",
+        "status": "automatic"
+      },
+      {
+        "end": 93.57,
+        "text": "하나 둘 셋 다시 시작해",
+        "start": 91.05,
+        "lineId": "line-18",
+        "status": "automatic"
+      },
+      {
+        "end": 111.14,
+        "text": "오늘은 우리 날이야",
+        "start": 106.66,
+        "lineId": "line-19",
+        "status": "automatic"
+      },
+      {
+        "end": 114.23,
+        "text": "손을 높이 들고 웃어",
+        "start": 111.23,
+        "lineId": "line-20",
+        "status": "automatic"
+      },
+      {
+        "end": 120.02,
+        "text": "멈추지 마 지금 이 순간",
+        "start": 115.33,
+        "lineId": "line-21",
+        "status": "review"
+      },
+      {
+        "end": 180,
+        "text": "빛나는 너와 나",
+        "start": 120.02,
+        "lineId": "line-22",
+        "status": "review"
+      }
+    ],
+    "status": "review",
+    "duration": 180,
+    "lyricsHash": "c0075123dd189891f7f6de0f29bbc716729000ccae7cf231e65ec2376038c862"
+  }
+}

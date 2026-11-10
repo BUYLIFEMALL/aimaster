@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-10 `claude-win-20261024-music` (AI 마스터링 v1.16 배포 · A-6 「나중에 할 일」 · B-6 「공개되면 진행」)
+- 마지막 갱신: 2026-11-11 `claude-win-20261024-music` (B-4 닫음 · 「내 자료함」 트리거 안내 옮김)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,7 +16,6 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
-| `free-music-studio` | B-4 가사 시간 맞추기 추가 비교 | 수동 정답 자료 준비 | 백로그 「보관」 B-4 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
 | `free-music-studio` | 마스터PC 실물: 재생 강조·EQ·시각화·쇼츠 보내기, 참고곡 Gemini 1회 | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.60 |
 | `free-music-studio` | 마스터PC 실물: AI 설정 제안 1번(회원 키) | 주인님 확인·승인(선택) | `free-music-studio/AGENTS.md` v1.64 |
@@ -30,6 +29,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | `free-music-studio` | B-4 닫음 — 2번째 곡(후렴 3번·22줄) 자동 맞추기를 주인님이 듣고 고친 줄 0(22/22, 반복 12줄 포함), 「반복 가사 줄은 확인 필요」 규칙 넣지 않음(윈도우 미니PC 세션이 진행, 음악 담당이 증거 파일·운영 DB 읽기로 재확인 후 커밋) · 「내 자료함」 연동(트리거 `member_assets_sync_fms`, 코드 변경 없음) 안내를 `IMPROVEMENTS.md` 맨 위로 옮김 | 해당 없음 |
 | 2026-11-10 | `ai-mastering-studio` v1.16 | 미배포 3건 묶음(Gemini 2.5 제거 `946660f65` — 12-01 종료 대비, API 키 문구, 권한 판정 동시 조회). ego 운영 v1.16·`gemini-2.5` 없음 | 배포 |
 | 2026-11-10 | `free-music-studio` v1.65 | 트로트·성인가요 장르·프리셋 3개(C-17) + 엔진 업데이트 안내 넓히기(상태 막대·곡 메뉴) | 배포 |
 | 2026-11-10 | `free-music-studio` 엔진 0.8.4 | 주인님 이음새 듣기 「자연스럽게 넘어가」 — 끝 이어 만들기 실물 확인 끝, 음량 보정 안 함(인수인계서 24절) | 해당 없음 |
@@ -55,7 +55,8 @@
 ## 다음 첫 단계
 1. 다음 엔진 배포가 생기면 끝 처리 보강 후보(대기 표) 함께
 2. (선택·주인님 확인) 마스터PC에서 연주곡 장르를 골라 「AI 작곡 기획」 1회 — 고른 장르 안에서 곡을 짜는지 실물 확인(회원 키 AI 호출 1번)
-3. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
+3. **음악 표 칸 이름을 바꿀 때 주의(2026-11-11)**: `free_music_tracks`·`ams_generations`·`music_track_variants`는 메인 「내 자료함」 트리거(`member_assets_sync_fms/ams/suno`, 마이그레이션 0059)가 읽는다 — 칸 이름·저장 경로를 바꾸면 트리거도 함께 고친다(트리거 오류 = 원본 저장 실패)
+4. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
 ## 주인님께 여쭐 것
 - 없음
