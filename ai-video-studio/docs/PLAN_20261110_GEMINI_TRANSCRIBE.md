@@ -2,7 +2,7 @@
 
 - 담당: [역할: video] Claude Code(윈도우) `claude-win-video`
 - 지시: 주인님 2026-11-10 「모든 테스트에 사용하는건 Claude가 기본이야」「Claude로 해」 → Claude API는 음성 입력이 없어(공식 기능 목록·`docs/AI_MODEL_CATALOG.md` §3 받아쓰기 Claude 「없음」) 받아쓰기는 Claude로 불가 → 주인님 선택 「Gemini 받아쓰기 추가」
-- 상태: **✅ ai-video-studio v1.31 배포·운영 확인(2026-11-10, `ai-video-studio-1e670xxcf`)** — 주인님 결정: 1 Gemini 3.8 Flash 먼저 · 2 3.8 Flash 기본 · 3 선택 칸 둠 · 4 쇼츠 원스톱도 함께(다음 순서). 바뀐 점: 긴 소리는 Files API 대신 5분 조각(§2 아래 「바꾼 결정」)
+- 상태: **✅ ai-video-studio v1.31 배포·운영 확인(2026-11-10, `ai-video-studio-1e670xxcf`)** — 주인님 결정: 1 Gemini 3.8 Flash 먼저 · 2 3.8 Flash 기본 · 3 선택 칸 둠 · 4 쇼츠 원스톱도 함께 → ✅ `shorts-onestop-studio` v1.48 배포·운영 확인(레퍼런스 받아쓰기, OpenAI는 글만 필요해 `gpt-transcribe`). 바뀐 점: 긴 소리는 Files API 대신 5분 조각(§2 아래 「바꾼 결정」)
 
 ## 1. 문제
 - 받아쓰기는 지금 **회원 본인 OpenAI `whisper-1`만** 된다(`lib/clip/clipServer.ts` `transcribeAudio`). OpenAI 키가 없거나 잔액이 없으면 V1 「긴 영상 → 쇼츠」·V2 「해설 교차편집」 둘 다 첫 단계에서 멈춘다(11-10 시험 계정 429).
