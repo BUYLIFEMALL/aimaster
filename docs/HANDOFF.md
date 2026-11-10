@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 🟡 [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D27 AI 견적 보조(구현 완료, 실제 호출 시험은 키 등록 대기, 미배포)
+- **한 일**: 몰 대표 본인 Anthropic 키를 서버에서 암호화(AES-256-GCM, 몰 id 묶음)해 저장 — Lab 환경변수 `MALL_SECRET_KEY` 추가(주인님 승인, 내 PC `.env.local`과 같은 값). DB `0047`, 설정 「AI 견적 보조」, 견적 상세 「AI 단가 제안」(구조화 응답·최소 마진 보정·회신 칸 채우기).
+- **확인**: 시험 198·빌드, DB 권한 시험, 키 없음 안내. 시험 견적 `5a700530…`(aimaster-b2b, 4품목).
+- **남은 일**: 주인님이 설정에 키 등록 → 실제 호출 시험(최대 10회 승인됨) → Lab 배포(D26·D27 함께). B2B 핵심 1~5 구현 끝, 다음은 블록 추가 등 원래 순서.
+- 링크: https://dev-mall-builder.vercel.app
+
 ## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 영상 미배포 3건 연속 배포 + V1 소리 확인
 - **배포(주인님 승인 빌드 3회, 하나씩)**: `ai-video-studio` v1.32(구간 고르기·번역 Claude `claude-haiku-5-5`, 생각 끔·effort low) · `youtube-viral-studio` v1.26(메뉴 이름 그림문자) · `music-video-studio` v1.29(장면 맞춤 공용 사본 `9397fb311`, 음악 담당 인계분). 모두 Ready·DB 버전 맞춤·운영 화면 버전 확인.
 - **V1 소리 확인(0원)**: 영상 합치기 원본 소리 켬 렌더 → MP4 AAC 48k 스테레오, 평균 -21.6dB(원본 -21.4dB).
