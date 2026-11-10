@@ -26,6 +26,7 @@
   3. `.git/index.lock`·`.git/safe-commit-index.lock`이 없는지(있으면 지우지 않고 기다림)
   4. `git log -5`로 방금 다른 세션 커밋이 있었는지, 파일 수(`git ls-files | wc -l` 대 `git ls-tree -r HEAD --name-only | wc -l`)
   5. 배포(메인 PC에 요청할 때도)는 Vercel 팀 `buylife`에 빌드·대기 중 배포가 없는지
+- **담당 세션 인수인계(2026-11-10 주인님 「음악담당 메인 담당이 있으니 작업한 내용과 작업중 발견된 특이사항은 항상 인수 인계 문서로 남겨」)**: 메인 PC에 담당 세션(음악·영상 등)이 있는 프로그램을 Admin PC에서 만지거나 시험하면, 한 일·결과·작업 중 발견한 특이사항을 그 프로그램 인수인계 문서(`<프로그램>/docs/HANDOFF_*`·`IMPROVEMENTS.md`·`AGENTS.md`)에 「담당께」로 남기고, 담당 세션에 붙여 넣을 프롬프트를 채팅으로 드린다. 담당의 역할 파일(`docs/roles/<담당>.md`)은 고치지 않고 담당에게 옮겨 달라고 프롬프트에 적는다. 첫 사례: `free-music-studio/docs/HANDOFF_20261109_SHORTS_BGM_FROM_FMS.md` 17절.
 - **브라우저**: Admin PC의 Claude Code는 **ego lite**(`C:\Program Files\Citro Labs\ego lite`, `ego-browser nodejs`)를 쓴다. 작업 하나 = 작업 공간 하나, 끝나면 `task.finish({ keep: [] })`.
 - **공용 스테이징을 쓰지 못함(2026-11-10 실측)**: Admin PC에서 `.git/index`를 덮어쓰면 `fatal: unable to write new index file`로 실패한다(메인 PC가 그 파일을 열어 둔 상태로 보임, 새 파일 만들기는 됨). 커밋 도우미(`safe-commit.mjs`·`commit-paths.mjs`)는 임시 인덱스로 **커밋은 정상**이지만 공용 스테이징이 커밋 전 상태로 남아 `git status`에 `MM`·`D ` + `??`로 보인다. 이 상태에서 누가 경로 없이 커밋하면 내 변경이 되돌려지므로, 커밋 뒤 **메인 PC 세션에 「`git add -- <커밋한 경로>`로 공용 스테이징 맞추기」를 요청**한다. Admin PC에서 `git add`·`git reset`·`read-tree`를 되풀이하지 않는다.
 - **Git 작성자**: 이 PC 전역 설정 `user.name BUYLIFE`, `user.email buylifemall@gmail.com`, `core.autocrlf true`(2026-11-10 설정).
