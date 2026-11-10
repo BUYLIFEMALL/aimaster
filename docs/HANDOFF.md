@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — 무료음악 v1.64 · 엔진 0.8.4 배포(곡 끝 처리 고침)
+- 한 일: Admin PC 실물 시험(무료음악 인수인계 20절)에서 끝 이어 만들기 오류·끝 자동 줄이기 미적용 → `engine/src/gateway.mjs`·`engine/src/main.mjs`가 ffmpeg 참·거짓 값을 실행 파일 자리에 넘기던 것을 `"ffmpeg"`로. 호출부 시험 `engine/tests/ending-callers.test.mjs` 추가. 커밋 `fad5caf4e`.
+- 검수: 엔진 시험 131/131·사이트 136/136·tsc 통과, 배포 `free-music-studio-1k02pzlz0` Ready, DB v1.64, 운영 engine-latest 0.8.4·설치 파일 해시 일치, ego 로그인 화면 v1.64.
+- 남은 일: 마스터 PC 0.8.4 다시 설치(주인님) → Admin PC 세션이 20절 2~4단계 재시험. 빈 `[Outro]` 미리 채우기 개선은 제안 상태.
+- 링크: https://free-music-studio.buylife.xyz/engine
+
 ## 2026-11-10 ✅ [역할: workspace] Claude Code(Admin PC) · 세션 claude-admin-20261110-setup — 무료음악→쇼츠·shots 배경음악 실물 시험 통과 + Admin PC 협업 규칙 추가
 
 - **실물 시험(요청 a20367c7)**: Admin PC ego lite, 시험 계정, 무료음악 v1.63·엔진 실행 중. 1~4·6~8단계 통과, 5단계(엔진 끄기) 생략. 쇼츠 원스톱 MP4 19.1초 aac 평균 -25dB(내레이션 0 → 배경음악 소리 확인), shots 영상 `06cfbbe7-…`은 시험 뒤 원래 곡(139초)으로 되돌림. 상세 표: `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md` 「결과」 맨 아래. 실패 단계 없음 — 요청함 a20367c7은 영상 담당 세션이 닫음.
