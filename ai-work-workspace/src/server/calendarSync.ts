@@ -163,7 +163,7 @@ export const calendarHandlers: Record<string, Handler> = {
     const fresh = items.filter((x) => !done.has(x.id) && x.date);
     if (!fresh.length) return { added: 0, skipped: items.length };
     const cell = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-    const csv = [["이름", dateName, "시간", "장소", "구글 일정"].join(","), ...fresh.map((x) => [x.title, x.date, x.time, x.location, x.link].map(cell).join(","))].join("\n");
+    const csv = [["이름", dateName, "시간", "장소", "구글 일정"].join(","), ...fresh.map((x) => [x.title, x.time ? `${x.date} ${x.time}` : x.date, x.time, x.location, x.link].map(cell).join(","))].join("\n");
     const space = memberSpace(userId);
     const name = "구글일정.csv";
     const file = storeFile(name, csv, userId, space.id, "text/csv", { private: true });

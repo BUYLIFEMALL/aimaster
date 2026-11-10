@@ -286,8 +286,9 @@ export function encodeRowValue(prop: PropertySchema, v: RowValue): RichText | un
       return encodeSelect(Array.isArray(v) ? v.map(String) : String(v).split(',').map((s) => s.trim()));
     case 'date': {
       if (typeof v === 'object' && !Array.isArray(v)) {
-        const d = v as { date: string; end?: string };
-        const val: DateValue = d.end ? { type: 'daterange', start_date: d.date, end_date: d.end } : { type: 'date', start_date: d.date };
+        const d = v as { date: string; end?: string; time?: string };
+        // 이식판(2026-11-11): 시간이 있으면 시간 있는 날짜로(CSV 「2026-11-12 10:00」·구글 일정 가져오기)
+        const val: DateValue = d.end ? { type: 'daterange', start_date: d.date, end_date: d.end } : d.time ? ({ type: 'datetime', start_date: d.date, start_time: d.time } as DateValue) : { type: 'date', start_date: d.date };
         return encodeDate(val);
       }
       return encodeDate({ type: 'date', start_date: String(v) });

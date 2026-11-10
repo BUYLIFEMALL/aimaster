@@ -442,7 +442,9 @@ export const handlers: Record<string, Handler> = {
         else if (prop.type === 'date') {
           const d = parseDateCell(raw);
           if (!d) return;
-          v = { date: d };
+          // 이식판(2026-11-11): 날짜 뒤 「HH:MM」 시간은 버리지 않고 함께 넣는다
+          const tm = /^S+[ T](d{1,2}):(d{2})/.exec(raw);
+          v = tm && Number(tm[1]) < 24 ? { date: d, time: `${tm[1].padStart(2, '0')}:${tm[2]}` } : { date: d };
         } else if (prop.type === 'multi_select') v = raw.split(',').map((x) => x.trim()).filter(Boolean);
         if (prop.type === 'select' || prop.type === 'status' || prop.type === 'multi_select') {
           const known = new Set((prop.options ?? []).map((o) => o.value));

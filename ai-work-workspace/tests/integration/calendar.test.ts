@@ -116,3 +116,12 @@ describe('② 구글 계정 연결 — 보내기 중복 방지', () => {
     await expect(sync.calendarHandlers.calPushToGoogle(ctx('member-a'), { dbId: 'b-db' })).rejects.toThrow(/표를 찾지/);
   });
 });
+
+describe('구글 일정 가져오기 — 시간 유지(2026-11-11)', () => {
+  it('날짜 칸 값에 시간이 있으면 시간 있는 날짜로 저장한다', async () => {
+    const { encodeRowValue } = await import('../../src/litpage/server/content/spec.ts');
+    const prop = { name: '날짜', type: 'date' } as any;
+    expect(JSON.stringify(encodeRowValue(prop, { date: '2026-11-12', time: '10:00' } as any))).toContain('"start_time":"10:00"');
+    expect(JSON.stringify(encodeRowValue(prop, { date: '2026-11-12' } as any))).not.toContain('start_time');
+  });
+});
