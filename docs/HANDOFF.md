@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `ai-video-studio` v1.31 받아쓰기 모델 선택
+- **배경**: 주인님 「모든 테스트에 사용하는건 Claude가 기본」 → Claude API는 음성 입력이 없어(공식 기능 목록) 받아쓰기 불가 → 주인님 선택으로 Gemini 받아쓰기 추가 + 「openai도 모델 있으면 사용자가 선택」. OpenAI는 문장 시각 주는 모델이 whisper-1뿐(`gpt-transcribe`는 시각 없음).
+- **한 일**: 선택 칸 Gemini 3.8 Flash(기본)·Flash Lite·Whisper, 키 없으면 등록 안내(몰래 바꾸지 않음), 긴 소리는 5분씩 조용한 곳에서 잘라 동시에. 시험 108. 배포 `ai-video-studio-1e670xxcf`, DB v1.31.
+- **운영 확인(ego 시험 계정)**: 해설 교차편집 22.3초(5문장 원문 그대로) · 긴 영상 → 쇼츠 18.8초(+ Claude 구간 고르기).
+- **함께 정리**: 모델 선택표 받아쓰기 줄 정정(`gemini-3.5-transcribe` 없음), 요청함 OpenAI 잔액 요청 반려(필요 없음), 기억 「시험 AI는 Claude 기본」.
+- **다음**: `shorts-onestop-studio` 같은 방식(진행 중) · 구간 고르기 `claude-haiku-4-5` → `claude-haiku-5-5` 후보.
+- 링크: https://ai-video-studio.buylife.xyz/narrate
+
 ## 2026-11-10 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D24 거래처별 특가(미배포)
 - **한 일**: DB `0045` 특가 표(손님×상품, 상품 없는 줄 = 거래처 기본 할인율, 끝나는 날), `0045b` 주문 함수 `_v2` 가격에 특가 단계(정의를 읽어 4곳만 바꿈). 순서 공동구매가 > 상품 특가 > 기본 할인율 > 등급가, 특가는 최종 단가. 손님 상세 「거래처 특가」 칸, 손님 화면 배지. 커밋 `09adf5a6a`(+ 교훈 문서 깨진 줄 수정 2건).
 - **확인**: 자동 시험 181·tsc·빌드, DB 주문 함수 실제 실행 5경우(되돌림), ego 화면(저장 → 20,000·760·52,250원 → 삭제 → 22,000·720·55,000원).

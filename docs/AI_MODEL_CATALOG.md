@@ -67,7 +67,7 @@ Gemini 이미지 모델은 모두 **무료 등급 없음**(회원 결제 연결 
 |---|---|---|---|
 | 음성 저가 | `gemini-3.8-flash-lite-tts` ($0.50 / 음성 출력 $6) | `gpt-realtime-2.1-mini` (음성 출력 $20, **실시간 API 방식**) | 없음 |
 | 음성 고품질 | `gemini-3.8-flash-tts` ($0.50 / 음성 출력 $9) | `gpt-realtime-2.1` (음성 출력 $64) | 없음 |
-| 받아쓰기 | `gemini-3.5-transcribe` (분당 약 $0.003) | `gpt-transcribe` (분당 $0.0045) · `gpt-live-transcribe` | 없음 |
+| 받아쓰기 | ~~`gemini-3.5-transcribe`~~ → **전용 모델 없음, 일반 모델에 소리 + 지시**(`gemini-3.8-flash` 기본, 1분 = 입력 1,920토큰; 문장 시각은 응답 스키마로 받음 — 2026-11-10 공식 문서 확인, 첫 적용 `ai-video-studio` v1.31) | `gpt-transcribe` (분당 $0.0045, **문장 시각 없음**) · `gpt-live-transcribe`(실시간) · 문장 시각이 필요하면 `whisper-1`뿐(2027-02-26 종료) | 없음(음성 입력 없음) |
 | 임베딩 | `gemini-embedding-2` ($0.20 글) | `text-embedding-3-small` $0.02 · `-large` $0.13 | 없음 |
 **OpenAI에는 지금 일반 음성 합성(TTS) 전용 모델이 없다** — `tts-1`·`tts-1-hd`·`gpt-4o-mini-tts`는 2027-01-06 종료, 공식 대체는 실시간 API(`gpt-realtime-2.1-mini`)라 호출 방식이 다르다.
 
