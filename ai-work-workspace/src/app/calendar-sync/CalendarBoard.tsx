@@ -170,13 +170,15 @@ function GoogleCard({ st, reload, notify }: { st: CalState; reload: () => void; 
     <section className="rc-form cs-card">
       <div className="cs-card-head"><h2>② 구글 계정 연결</h2><span className="rc-chip">두 방향 · 바로 반영</span></div>
       <p className="rc-hint">표의 행을 구글 일정으로 <b>만들거나 고치고</b>, 구글 일정(앞으로 30일)을 표로 <b>가져옵니다</b>. 회원님 본인 구글 앱(유튜브·구글 블로그 자동화와 같은 키)으로 연결합니다.</p>
+      <p className="rc-hint">⚠️ 구글 앱이 <b>「테스트 중」이면 연결이 7일마다 끊깁니다</b>. 구글 클라우드 › Google 인증 플랫폼 › 대상에서 <b>「앱 게시」(프로덕션)</b>를 한 뒤 연결해 주세요. 이 프로그램은 <b>Google Calendar API</b>도 켜야 합니다.</p>
+      <div className="rc-row-btns"><button type="button" className="rc-btn ghost" onClick={() => window.open("https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d", "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes")}>📖 내 구글 앱 만들기 매뉴얼</button></div>
       {!g.connected ? (
         <>
           <ol className="cs-steps">
             <li>구글 클라우드 콘솔에서 OAuth 앱을 만들고 <b>Google Calendar API</b>를 사용 설정합니다(유튜브·구글 블로그용 앱이 있으면 그 앱에 캘린더 API만 켜면 됩니다).</li>
             <li>OAuth 클라이언트의 「승인된 리디렉션 URI」에 아래 주소를 추가합니다.<div className="rc-row-btns"><input readOnly value={g.redirectUri} onFocus={(e) => e.target.select()} aria-label="리디렉션 주소" /><button type="button" className="rc-btn ghost" onClick={() => void navigator.clipboard.writeText(g.redirectUri).then(() => notify({ text: "주소를 복사했습니다." }))}>📋 복사</button></div></li>
             <li>{g.hasApp ? "✅ 구글 앱 Client ID·Secret이 등록돼 있습니다." : <>「<a href="/settings/keys">API키등록·플랫폼연동</a>」에 구글 앱 Client ID·Secret을 등록합니다.</>}</li>
-            <li>아래 「구글 연결」을 눌러 동의합니다. 처음엔 「확인되지 않은 앱」 경고가 뜰 수 있습니다(본인 앱이라 「고급 → 이동」으로 진행). 앱이 「테스트 중」이면 「Google 인증 플랫폼 › 대상 › 테스트 사용자」에 연결할 구글 계정을 먼저 추가하세요.</li>
+            <li>아래 「구글 연결」을 눌러 동의합니다. 처음엔 「확인되지 않은 앱」 경고가 뜰 수 있습니다(본인 앱이라 「고급 → 이동」으로 진행). </li>
           </ol>
           {g.needsReconnect && <p className="rc-err">연결이 만료됐거나 앱 키가 바뀌었습니다. 다시 연결해 주세요.</p>}
           <div className="rc-row-btns"><a className="rc-btn" href="/api/oauth/google-calendar/start" aria-disabled={!g.hasApp} onClick={(e) => { if (!g.hasApp) { e.preventDefault(); notify({ text: GOOGLE_ERRORS.no_app, error: true }); } }}>🔗 구글 연결</a></div>

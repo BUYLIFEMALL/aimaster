@@ -10,8 +10,8 @@ const ITEMS: { provider: Provider; name: string; placeholder: string; desc: stri
   // U11(2026-11-10): 정시 자동화(매시간·매일 9시)·리마인더용. 공용 칸이라 다른 AIMaster 예약 프로그램에서 등록했다면 이미 「등록됨」
   { provider: "cronjob_org_api_key", name: "cron-job.org (정시 자동화)", placeholder: "cron-job.org Settings › API Keys에서 복사", desc: "「매시간·매일 9시」 같은 정시 자동화와 날짜 리마인더를 정해진 시각에 돌립니다(무료). 정시 자동화를 켜면 1분 확인 작업이 자동으로 켜지고, 남은 작업이 없으면 자동으로 꺼집니다. 키에 IP 제한은 걸지 마세요.", guideUrl: "https://console.cron-job.org/settings" },
   // 2026-11-11 캘린더 연동 ② 구글 계정 연결 — 회원 본인 구글 OAuth 앱(유튜브·구글 블로그 자동화와 같은 공용 칸)
-  { provider: "google_client_id", name: "구글 앱 Client ID (캘린더 연결)", placeholder: "…apps.googleusercontent.com", desc: "「📅 캘린더 연동 › 구글 계정 연결」에 씁니다. 구글 클라우드 › API 및 서비스 › 사용자 인증 정보의 OAuth 클라이언트 ID. 유튜브·구글 블로그 자동화에서 이미 등록했다면 「등록됨」으로 보입니다.", guideUrl: "https://console.cloud.google.com/apis/credentials" },
-  { provider: "google_client_secret", name: "구글 앱 Client Secret (캘린더 연결)", placeholder: "GOCSPX-…", desc: "위 OAuth 클라이언트의 「클라이언트 보안 비밀」.", guideUrl: "https://console.cloud.google.com/apis/credentials" },
+  { provider: "google_client_id", name: "구글 앱 Client ID (캘린더 연결)", placeholder: "…apps.googleusercontent.com", desc: "「📅 캘린더 연동 › 구글 계정 연결」에 씁니다. 구글 클라우드 › API 및 서비스 › 사용자 인증 정보의 OAuth 클라이언트 ID. 유튜브·구글 블로그 자동화에서 이미 등록했다면 「등록됨」으로 보입니다. 이 앱에서 Google Calendar API를 켜고, 「테스트 중」이면 연결이 7일마다 끊기니 「앱 게시」(프로덕션)를 해 주세요.", guideUrl: "https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d" },
+  { provider: "google_client_secret", name: "구글 앱 Client Secret (캘린더 연결)", placeholder: "GOCSPX-…", desc: "위 OAuth 클라이언트의 「클라이언트 보안 비밀」.", guideUrl: "https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d" },
 ];
 const GUIDE_URL = (id: string) => `https://www.buylife.xyz/guides/${id}`;
 const openGuide = (it: { guideId?: string; guideUrl?: string }) => window.open(it.guideUrl ?? GUIDE_URL(it.guideId ?? ""), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
