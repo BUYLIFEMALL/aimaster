@@ -1,6 +1,6 @@
 # AI 11번가 상품 자동등록기 (`elevenst-register`)
 
-> 운영 주소: https://elevenst-register.buylife.xyz (Vercel 프로젝트 `elevenst-register`, 팀 `buylife`) · 현재 **v1.01 비공개**(`programs.is_active=false`, 관리자만 열림)
+> 운영 주소: https://elevenst-register.buylife.xyz (Vercel 프로젝트 `elevenst-register`, 팀 `buylife`) · 현재 **v1.02 비공개**(`programs.is_active=false`, 관리자만 열림)
 > 담당 역할: `ecommerce-image` (`docs/roles/ecommerce-image.md`) · 플랜: `docs/PLAN_20261111_ELEVENST_REGISTER.md`(루트) · 명세: `docs/API_SPEC_NOTES.md`
 > 작업 전 반드시: 11번가 기능은 **11번가 OPEN API 센터 판매자용 명세(로그인 필요)를 먼저 읽고** 구현한다 — 정리본 `docs/API_SPEC_NOTES.md`.
 
@@ -19,10 +19,10 @@ Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB),
 ## 4. 버전 이력
 - **v1.01 (2026-11-11)** — 1단계 뼈대. 운영 DB 등록(비공개·이커머스 카테고리·요금제 3단계)·기록 표, Vercel 새 프로젝트·도메인·환경변수 3개(`scripts/add-elevenst-register-vercel-env.mjs`), 첫 배포 `elevenst-register-30emmusx3` Ready(빌드 1회). 시험 7/7·tsc·로컬 build 통과. [역할: ecommerce-image] `claude-win-sdp`.
 
-- **미배포 대기(2단계, 다음 배포 v1.02)** — `/connect` 「API키등록·플랫폼연동」: 11번가 키·고정 IP 저장/지우기(공용 `elevenst_api_key`·`fixed_ip_proxy_url`, 다른 프로그램도 같이 쓴다는 안내), 「연결 시험(읽기만)」 = 출고지 `GET /rest/areaservice/outboundarea` + 반품/교환지 `GET /rest/areaservice/inboundarea`(거절이면 나가는 IP 표시). 요청 함수 `src/lib/elevenst/client.ts`(undici ProxyAgent, 헤더 `openapikey`, EUC-KR, 재시도 0), 주소 응답 `areas.ts`. 시험 11/11·tsc·build 통과. 실제 연결 시험은 배포 + 주인님 11번가 IP 등록 뒤.
+- **v1.02 (2026-11-11)** — 2단계 배포 `elevenst-register-kcgko1l6z` Ready(빌드 1회, 주인님 승인), DB `programs.version` v1.02.  `/connect` 「API키등록·플랫폼연동」: 11번가 키·고정 IP 저장/지우기(공용 `elevenst_api_key`·`fixed_ip_proxy_url`, 다른 프로그램도 같이 쓴다는 안내), 「연결 시험(읽기만)」 = 출고지 `GET /rest/areaservice/outboundarea` + 반품/교환지 `GET /rest/areaservice/inboundarea`(거절이면 나가는 IP 표시). 요청 함수 `src/lib/elevenst/client.ts`(undici ProxyAgent, 헤더 `openapikey`, EUC-KR, 재시도 0), 주소 응답 `areas.ts`. 시험 11/11·tsc·build 통과. 실제 연결 시험은 주인님 11번가 IP 등록 + 관리자 계정 키·고정 IP 저장 뒤(미확인).
 
 ## 5. 남은 일
-`docs/IMPROVEMENT_BACKLOG.md` — 다음은 2단계(연동 화면·연결 시험), 그 전에 주인님이 11번가 「API 관리 › IP 직접 입력 › 실서버 IP」에 Fixie 고정 IP 2개 등록.
+`docs/IMPROVEMENT_BACKLOG.md` — 다음은 실제 연결 시험(관리자 계정) → 3단계 등록 화면. 연결 시험 전에 주인님이 11번가 「API 관리 › IP 직접 입력 › 실서버 IP」에 Fixie 고정 IP 2개 등록.
 
 ## 6. 연계·아이디어
 - `shop-detail-page/lib/markets.ts`에 11번가 한 줄(5단계) → 상세페이지 「11번가에 등록하기」.
