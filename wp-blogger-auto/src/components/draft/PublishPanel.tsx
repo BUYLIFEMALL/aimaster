@@ -116,8 +116,9 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
         ))}
       </div>
       {mode === "schedule" && (
-        <label className="block text-xs font-extrabold text-[color:var(--muted)]">예약 시각(한국 시간, 5분 뒤~1년 안)
+        <label className="block text-xs font-extrabold text-[color:var(--muted)]">예약 시각(한국 시간, 5분 뒤 ~ 원고 보관 만료 하루 전까지)
           <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} className="mt-1 w-full rounded-xl border-2 border-[color:var(--border)] px-3 py-2 text-sm" />
+          <span className="mt-1 block font-medium">발행 전 원고는 만든 날부터 30일 뒤 이미지와 함께 지워져, 그보다 늦은 예약은 이미지가 깨집니다.</span>
         </label>
       )}
       {post.platform === "wordpress" && cats && cats.length > 0 && (

@@ -36,7 +36,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
         <div>
           <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-extrabold text-blue-700">📚 보관함</span>
           <h1 className="mt-2 text-3xl font-black">보관함·발행 결과</h1>
-          <p className="mt-1 text-sm text-[color:var(--muted)]">원고는 만든 날부터 30일 보관합니다. 블로그에 올라간 글은 블로그에 그대로 남습니다.</p>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">발행하지 않은 원고는 만든 날부터 30일 보관합니다. 구글 블로그에 실제로 발행된 글의 이미지는 발행일부터 1년 보관합니다. 블로그에 올라간 글은 블로그에 그대로 남습니다.</p>
         </div>
         <Link href="/write" className="lp-btn">＋ 새 원고 만들기</Link>
       </div>
