@@ -118,7 +118,7 @@ describe('사진 읽기', () => {
 describe('30일 정리', () => {
   it('30일 지난 문서·증빙만 지우고, 보관 예외 회원은 남긴다', () => {
     const now = Date.now();
-    const later = now + 31 * 86_400_000;
+    const later = now + 366 * 86_400_000;
     const r = rc.runReceiptRetention(later, new Set(['member-b']));
     expect(r.docs).toBeGreaterThan(0);
     expect(r.evidence).toBeGreaterThan(0);

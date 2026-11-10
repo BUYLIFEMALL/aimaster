@@ -14,6 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { operatorJobFilter } from "@/server/memberJobs";
 import { runAutomationRetention } from "@/server/automationRetention";
 import { runReceiptRetention } from "@/server/receipts";
+import { runMediaRetention } from "@/server/mediaRetention";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
   let inbox: unknown = { skipped: "exempt list unavailable" };
   let automation: unknown = { skipped: "exempt list unavailable" };
   let receipts: unknown = { skipped: "exempt list unavailable" };
+  let media: unknown = { skipped: "exempt list unavailable" };
   if (exempt) {
     const keep = exempt;
     // 영수증·세금계산서(2026-11-11): 발행 문서·증빙 장부 30일 자동 삭제(보관 예외 회원 제외)
@@ -46,6 +48,13 @@ export async function GET(request: NextRequest) {
     } catch (e) {
       console.error(`[cron] receipt retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
       receipts = { error: "failed" };
+    }
+    // 2026-11-11 보관 예외: 음악·영상 파일은 30일, 그 밖은 1년(각 정리의 보관 일수)
+    try {
+      media = withRequestCache(() => runMediaRetention(Date.now(), 2_000, keep));
+    } catch (e) {
+      console.error(`[cron] media retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
+      media = { error: "failed" };
     }
     // U11(주인님 결정 4번): 자동화 실행 기록·알림 30일 자동 삭제
     try {
@@ -68,5 +77,5 @@ export async function GET(request: NextRequest) {
       inbox = { error: "failed" };
     }
   }
-  return NextResponse.json({ ran, ai, inbox, automation, receipts });
+  return NextResponse.json({ ran, ai, inbox, automation, receipts, media });
 }

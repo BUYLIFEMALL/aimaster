@@ -409,8 +409,8 @@ function WebRow({ d, edit, update }: { d: AgentDetail; edit: boolean; update: (p
       <div className="nc-agent-row-icon"><Icon name="agentWeb" size={16} /></div>
       <div className="nc-agent-row-main">
         <div className="nc-agent-row-title">{t('lp.agents.web_access', 'Web access')}</div>
-        <div className="nc-agent-row-sub">{disabledByAdmin ? t('lp.agents.web_browsing_is_disabled_by_your', 'Web browsing is disabled by your workspace admin.') : t('lp.agents.lets_the_agent_browse_the_web', 'Lets the agent browse the web with no limits on internet access.')}</div>
-        {cfg.web_access && !disabledByAdmin && (
+        <div className="nc-agent-row-sub">{!AGENT_WEB_READY ? t('lp.agents.web_access_not_ready', 'Coming soon') : disabledByAdmin ? t('lp.agents.web_browsing_is_disabled_by_your', 'Web browsing is disabled by your workspace admin.') : t('lp.agents.lets_the_agent_browse_the_web', 'Lets the agent browse the web with no limits on internet access.')}</div>
+        {AGENT_WEB_READY && cfg.web_access && !disabledByAdmin && (
           <div className="nc-agent-web">
             <div className="nc-agent-chips">
               {(cfg.web_domains ?? []).map((h) => (
@@ -431,10 +431,13 @@ function WebRow({ d, edit, update }: { d: AgentDetail; edit: boolean; update: (p
           </div>
         )}
       </div>
-      <Toggle label={t('lp.agents.toggle_the_web_browser', 'Toggle the web browser')} testId="agent-web-access" checked={cfg.web_access && !disabledByAdmin} disabled={!edit || disabledByAdmin} onChange={(v) => void update({ web_access: v })} />
+      <Toggle label={t('lp.agents.toggle_the_web_browser', 'Toggle the web browser')} testId="agent-web-access" checked={AGENT_WEB_READY && cfg.web_access && !disabledByAdmin} disabled={!AGENT_WEB_READY || !edit || disabledByAdmin} onChange={(v) => void update({ web_access: v })} />
     </div>
   );
 }
+
+/** 서버가 웹 검색을 꺼 둠(runs.ts AGENT_WEB_ENABLED=false) — 켜면 함께 true로 */
+const AGENT_WEB_READY = false;
 
 const MODE_LABEL: Record<string, string> = { auto: 'Run automatically', ask: 'Always ask', allow: 'Always allow' };
 
@@ -473,9 +476,9 @@ function McpRow({ d, c, edit }: { d: AgentDetail; c: ConnectionRow; edit: boolea
                 </div>
                 <div role="button" className={`nc-agent-role ${edit && owner ? '' : 'readonly'}`} onClick={(e) => edit && owner && openMenu(e.currentTarget, {
                   width: 220,
-                  sections: [{ items: (['auto', 'ask', 'allow'] as const).map((m) => ({ label: MODE_LABEL[m], checked: tool.mode === m, onSelect: () => void apply({ toolModes: { [tool.name]: m } }) })) }],
+                  sections: [{ items: (['auto', 'ask', 'allow'] as const).map((m) => ({ label: t(`lp.agents.mode_${m}`, MODE_LABEL[m]), checked: tool.mode === m, onSelect: () => void apply({ toolModes: { [tool.name]: m } }) })) }],
                 }, { placement: 'bottom-end' })}>
-                  {MODE_LABEL[tool.mode]}
+                  {t(`lp.agents.mode_${tool.mode}`, MODE_LABEL[tool.mode])}
                   {edit && owner && <Icon name="arrowChevronSingleDownSmall" size={12} />}
                 </div>
               </div>

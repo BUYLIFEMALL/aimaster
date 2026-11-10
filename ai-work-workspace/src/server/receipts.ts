@@ -15,7 +15,7 @@ import {
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
 
-export const RECEIPT_RETENTION_DAYS = 30;
+export const RECEIPT_RETENTION_DAYS = 365; // 2026-11-11 보관 예외: 1년
 const MAX_PHOTO_BYTES = 4 * 1024 * 1024; // Vercel 요청 본문 한도(4.5MB) 안
 const LIMIT_ROWS = 2_000;
 

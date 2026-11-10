@@ -50,7 +50,7 @@ export function StatusChip({ r }: { r: Pick<RunJson, 'status' | 'held'> }) {
 
 export function runTitle(r: RunJson): string {
   if (r.kind === 'chat') return r.text?.trim() || t('lp.agents.chat', 'Chat');
-  return r.triggerLabel || t('lp.agents.run_agent', 'Run agent');
+  return r.triggerLabel && r.triggerLabel !== 'Run agent' ? r.triggerLabel : t('lp.agents.run_agent', 'Run agent');
 }
 
 function kindLabel(r: RunJson): string {

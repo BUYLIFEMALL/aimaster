@@ -33,7 +33,7 @@ export default async function InboxPage() {
           <div className="aww-guide-meta-right">
             <div className="aww-guide-badges">
               <span className="aww-badge aww-badge-indigo">다른 프로그램 결과 모음</span>
-              <span className="aww-badge">30일 뒤 자동 정리</span>
+              <span className="aww-badge">1년 뒤 자동 정리</span>
             </div>
           </div>
         </header>

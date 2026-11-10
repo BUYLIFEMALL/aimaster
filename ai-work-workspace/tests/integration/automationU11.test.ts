@@ -93,7 +93,7 @@ describe('U11 자동화 실행 기록·알림 30일 자동 삭제', () => {
   it('31일 전 기록·알림은 지우고, 29일 전과 예외 회원 것은 남긴다', async () => {
     const { runAutomationRetention } = await import('../../src/server/automationRetention.ts');
     const NOW = Date.UTC(2026, 10, 10);
-    const OLD = NOW - 31 * DAY;
+    const OLD = NOW - 366 * DAY;
     const RECENT = NOW - 29 * DAY;
     db.putRecord('automation', { id: 'auto-r1', version: 0, space_id: 's1', parent_id: 'c1', parent_table: 'collection', alive: true, created_by_id: 'u1' } as never);
     db.putRecord('automation', { id: 'auto-vip', version: 0, space_id: 's2', parent_id: 'c2', parent_table: 'collection', alive: true, created_by_id: 'vip' } as never);

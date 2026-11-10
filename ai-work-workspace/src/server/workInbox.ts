@@ -22,7 +22,7 @@ import type { BlockRecord, CollectionRecord, SpaceRecord, SpaceViewRecord, UserR
 
 const APP_ORIGIN = "https://ai-work-workspace.buylife.xyz";
 
-export const WORK_INBOX_RETENTION_DAYS = 30;
+export const WORK_INBOX_RETENTION_DAYS = 365; // 2026-11-11 보관 예외: 1년
 const SETTINGS_KEY = "aww_work_inbox_db"; // 「📨 받은 업무 표」 데이터베이스 블록 id(회원 설정에 저장)
 const INBOX_DB_TITLE = "📨 받은 업무 표";
 const TARGET = "ai-work-workspace"; // U8-B: 받는 곳이 워크스페이스인 줄만 이 화면에서 다룬다
@@ -88,7 +88,7 @@ async function loadRow(userId: string, id: unknown): Promise<WorkInboxRow> {
     .eq("id", String(id ?? ""))
     .maybeSingle();
   if (error) throw new ApiError("받은 업무를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.", 500);
-  if (!data) throw new ApiError("이 항목을 찾지 못했습니다. 이미 지웠거나 30일이 지나 정리됐을 수 있습니다.", 404);
+  if (!data) throw new ApiError("이 항목을 찾지 못했습니다. 이미 지웠거나 보관 기간(1년)이 지나 정리됐을 수 있습니다.", 404);
   return data as WorkInboxRow;
 }
 

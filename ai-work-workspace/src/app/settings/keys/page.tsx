@@ -39,7 +39,7 @@ export default async function KeysPage() {
         </header>
 
         <section className="aww-tip">
-          💡 AI 비서(AI 질문·글쓰기·AI 블록·자동 채우기)는 <b>회원 본인의 Claude·OpenAI·Gemini API 키 중 하나</b>로만 동작합니다. 사용료는 본인 키로 청구되며, 다른 AIMaster 프로그램이나 메인 사이트 「API 설정」에서 이미 등록한 키가 있으면 그대로 쓰입니다. 여러 키가 있으면 「자동」은 Claude → OpenAI → Gemini 순서로 쓰고, 채팅의 모델 목록에서 원하는 회사 모델을 직접 고를 수도 있습니다. AI 채팅 기록은 30일이 지나면 자동으로 지워집니다(내가 쓴 페이지·데이터베이스는 그대로).
+          💡 AI 비서(AI 질문·글쓰기·AI 블록·자동 채우기)는 <b>회원 본인의 Claude·OpenAI·Gemini API 키 중 하나</b>로만 동작합니다. 사용료는 본인 키로 청구되며, 다른 AIMaster 프로그램이나 메인 사이트 「API 설정」에서 이미 등록한 키가 있으면 그대로 쓰입니다. 여러 키가 있으면 「자동」은 Claude → OpenAI → Gemini 순서로 쓰고, 채팅의 모델 목록에서 원하는 회사 모델을 직접 고를 수도 있습니다. AI 채팅 기록은 1년이 지나면 자동으로 지워집니다(내가 쓴 페이지·데이터베이스는 그대로). 페이지에 올린 음악·영상 파일은 30일 뒤 지워집니다.
         </section>
 
         <KeysForm />

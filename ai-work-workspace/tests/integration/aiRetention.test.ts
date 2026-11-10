@@ -10,8 +10,8 @@ let retention: typeof import('../../src/server/aiRetention.ts');
 
 const DAY = 86_400_000;
 const NOW = Date.UTC(2026, 9, 24);
-const OLD = NOW - 31 * DAY;
-const RECENT = NOW - 29 * DAY;
+const OLD = NOW - 366 * DAY;
+const RECENT = NOW - 300 * DAY; // 2026-11-11 보관 예외: 1년 안은 남음
 
 beforeAll(async () => {
   db = await import('../../src/litpage/server/db.ts');

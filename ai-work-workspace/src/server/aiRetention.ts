@@ -9,7 +9,7 @@ import "@/litpage/server/ai/changes.ts";
 import "@/litpage/server/agents/runs.ts";
 import "@/litpage/server/api/modules/formulaAi.ts";
 
-export const AI_RETENTION_DAYS = 30;
+export const AI_RETENTION_DAYS = 365; // 2026-11-11 주인님 지정 보관 예외: 음악·영상 외 1년(mediaRetention.ts)
 const DAY = 86_400_000;
 
 export interface AiRetentionResult {

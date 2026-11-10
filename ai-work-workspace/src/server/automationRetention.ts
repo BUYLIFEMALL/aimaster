@@ -5,7 +5,7 @@
 import { db } from "@/litpage/server/db.ts";
 import "@/litpage/server/automations/engine.ts";
 
-export const AUTOMATION_RETENTION_DAYS = 30;
+export const AUTOMATION_RETENTION_DAYS = 365; // 2026-11-11 보관 예외: 1년
 const DAY = 86_400_000;
 
 export interface AutomationRetentionResult {
