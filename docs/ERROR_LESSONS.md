@@ -1,6 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-10 상가 알림 카톡 「매물 보기」가 카카오톡 뉴스레터 대시보드로 열림 — 회원 카카오 앱 「웹 도메인」에 상가 주소가 없어 기본 도메인으로 바뀜 (`commercial-land-trade-alert`, [역할: realty])
+- **증상**: 11-10 05:30 상가·건물·토지 알림 카톡의 「매물 보기」를 누르면 `kakao-auto-posting` 대시보드가 열림. 같은 앱으로 보내는 아파트 알림 버튼은 네이버 단지 화면으로 정상.
+- **원인**: 카카오 「나에게 보내기」 링크는 회원 카카오 앱 「제품 링크 관리 → 웹 도메인」에 등록된 도메인만 열고, 아니면 그 앱의 **기본 웹 도메인**(`kakaoautoposter.vercel.app` → 뉴스레터)으로 바꿔 보낸다. 상가 주소만 빠져 있었다. 코드 문제 아님(두 프로그램 `extension/lib/notify.js`는 같은 방식).
+- **해결**: 주인님이 카카오 앱 웹 도메인에 `commercial-land-trade-alert.buylife.xyz`와 도메인 이전된 `kakao-auto-posting`·`tarot-reading`·`mbti-character`·`personality-code` `.buylife.xyz`를 추가, 타로·캐릭코드 옛 `vercel.app` 2개 삭제(웹 도메인 8개). 카카오 로그인 리다이렉트 URI에 `commercial-land-trade-alert.buylife.xyz/api/kakao/callback` 추가. 옛 `kakaoautoposter.vercel.app`(기본 도메인·콜백)은 뉴스레터가 아직 써서 남김(`docs/OLD_DOMAIN_RETIREMENT_PLAN_20261016.md`).
+- **다음부터 확인**: 카톡 링크를 쓰는 프로그램을 새로 만들거나 도메인을 옮기면 회원 카카오 앱의 「웹 도메인」과 「리다이렉트 URI」 두 곳에 새 주소를 넣는다(웹 도메인 최대 10개). 카톡 버튼이 엉뚱한 프로그램으로 열리면 코드보다 웹 도메인 목록부터 본다.
+
 ## 2026-11-09 다른 프로그램 창으로 파일을 건네는(postMessage) 연계가 쇼츠 원스톱에서만 안 됨 — 받는 쪽의 `Cross-Origin-Opener-Policy: same-origin` 헤더가 opener를 끊음 (`free-music-studio` D-4 → `shorts-onestop-studio` v1.46, [역할: music])
 - 증상: 무료음악 「쇼츠 배경음악으로」로 연 쇼츠 창이 「이 창이 무료음악에서 열리지 않아…」 — `window.opener`가 null
 - 원인: 쇼츠 원스톱 `next.config.ts`가 모든 화면에 COOP same-origin(+COEP credentialless, 무료 음성 여러 줄 계산용)을 보냄. COOP same-origin 문서는 다른 출처가 연 창이면 opener가 끊긴다. 받는 쪽 코드·계약은 맞았지만 코드 시험·tsc로는 안 보이고 실물에서만 드러남
