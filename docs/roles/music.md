@@ -16,6 +16,7 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
+| `music` → `lyric-video-studio` | 음악(SUNO) 리믹스 카드에 「가사 영상 만들기」(`?remix=<리믹스 변주 id>`) 링크 켜기 — 받는 쪽은 v1.12에 이미 있음 | 작은 수정이라 `music` 다음 배포 때 함께(단독 배포 안 함) | `lyric-video-studio/AGENTS.md` v1.12 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
 | `free-music-studio` | 마스터PC 실물: 재생 강조·EQ·시각화·쇼츠 보내기, 참고곡 Gemini 1회 | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.60 |
 | `free-music-studio` | 마스터PC 실물: AI 설정 제안 1번(회원 키) | 주인님 확인·승인(선택) | `free-music-studio/AGENTS.md` v1.64 |
