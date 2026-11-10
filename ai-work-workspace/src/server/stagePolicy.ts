@@ -17,10 +17,11 @@ const ACCOUNT_RPCS = new Set([
 /** ② 다음 단계로 미룸: 3단계 협업(초대·공유·공개), 2단계 AI, 4단계 에이전트·자동화·개발자 API */
 const LATER_RPCS = new Set([
   // 3단계: 다른 사람과 공유·초대·공개 — U13(2026-11-11)에서 회원 초대·페이지 공유·접근 요청·멤버/게스트 관리를 엶(초대 대상은 runtime.ts → collab.ts가 AIMaster 회원·이용 권한 확인).
+  // U13 보강(2026-11-11): 게스트 본인의 멤버 자격 요청(requestWorkspaceMembership)·주인 승인(resolveMemberRequest)도 엶 — 아무 이메일이나 요청하는 requestMembers는 닫음
   // 계속 닫음: 초대 링크·도메인 자동 합류·팀 링크·공개 페이지/폼/사이트(주인님 결정: 초대 링크는 닫은 채)
   'setSpaceDomain', 'resetInviteLink', 'setInviteLinkEnabled', 'joinSpaceByInviteLink',
-  'requestMembers', 'resolveMemberRequest', 'setAllowedEmailDomains', 'setMemberExpiration', 'transferPrivatePages',
-  'joinWorkspace', 'requestWorkspaceMembership', 'joinTeamByInviteLink', 'getTeamInviteLink', 'resetTeamInviteLink', 'getTeamInvite',
+  'requestMembers', 'setAllowedEmailDomains', 'setMemberExpiration', 'transferPrivatePages',
+  'joinWorkspace', 'joinTeamByInviteLink', 'getTeamInviteLink', 'resetTeamInviteLink', 'getTeamInvite',
   'requestMembershipByTeamInvite', 'requestJoinTeam',
   'getPublishedPage', 'duplicatePublicPage', 'requestGuestInvite',
   'requestRestrictedMemberAccess', 'getPublicPages',

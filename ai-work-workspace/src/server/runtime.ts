@@ -20,6 +20,9 @@ import { receiptHandlers } from './receipts';
 import { calendarHandlers } from './calendarSync';
 import { collabHandlers } from './collabPoll';
 import { resolveInvitees, sharingChangeProblem } from './collab';
+import { addOutlineBlock } from '@/litpage/server/api/modules/sidebar.ts';
+import { db } from '@/litpage/server/db.ts';
+import { memberSpaceIds } from './workInbox';
 import './agentRuns'; // U12: 에이전트 백그라운드 실행을 주인 회원 본인 키로 감싸는 연결(불러오면 바로 설치됨)
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
@@ -71,6 +74,31 @@ export function ensureMember(member: Member) {
 
 /** 이식판에서 원본 명령 대신 쓰는 명령(돌려주는 모양은 원본과 같음) */
 const OVERRIDES: Record<string, Handler> = {
+  // U13: 「공유됨」에 다른 워크스페이스에서 나에게 페이지만 공유된 것도 함께(원본은 지금 워크스페이스 안만 찾아 게스트가 찾을 길이 없었음)
+  getSharedWithMe(ctx, input) {
+    if (!ctx.userId) throw new ApiError('Unauthorized', 401);
+    const uid = ctx.userId;
+    const base = (handlers as Record<string, Handler>).getSharedWithMe(ctx, input) as { pageIds: string[]; recordMap: any };
+    const mine = memberSpaceIds(uid);
+    const rows = db.prepare("SELECT data FROM records WHERE tbl = 'block' AND alive = 1 AND data LIKE ? ORDER BY last_edited_time DESC LIMIT 200").all(`%"user_id":"${uid}"%`) as { data: string }[];
+    const rm = new RecordMapBuilder(uid);
+    const extra: string[] = [];
+    for (const r of rows) {
+      const b = JSON.parse(r.data) as BlockRecord;
+      if (b.type !== 'page' && b.type !== 'collection_view_page') continue;
+      if (!b.space_id || mine.has(b.space_id) || base.pageIds.includes(b.id)) continue;
+      if (!b.permissions?.some((p: any) => p.type === 'user_permission' && p.user_id === uid && p.role !== 'none')) continue;
+      if (b.parent_table === 'block' && blockRole(b.parent_id, uid) !== 'none') continue;
+      if (blockRole(b.id, uid) === 'none') continue;
+      addOutlineBlock(b, rm);
+      extra.push(b.id);
+    }
+    if (!extra.length) return base;
+    const merged: any = { ...(base.recordMap ?? {}) };
+    for (const [tbl, recs] of Object.entries(rm.map as any)) if (tbl !== '__version__') merged[tbl] = { ...(merged[tbl] ?? {}), ...(recs as object) };
+    if ((rm.map as any).__version__) merged.__version__ = (rm.map as any).__version__;
+    return { pageIds: [...base.pageIds, ...extra], recordMap: merged };
+  },
   // U13 협업(2026-11-11): 초대는 AIMaster 회원 + 이 프로그램 이용 권한이 있는 사람만. 내부 사용자를 그 회원 id로 먼저 만든 뒤 원본 명령에 넘긴다
   async inviteMembers(ctx, input) {
     if (!ctx.userId) throw new ApiError('Unauthorized', 401);

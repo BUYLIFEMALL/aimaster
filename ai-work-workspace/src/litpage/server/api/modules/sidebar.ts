@@ -22,7 +22,7 @@ function aliasTarget(b: BlockRecord): BlockRecord | undefined {
   return t && t.alive && (t.type === 'page' || t.type === 'collection_view_page') ? t : undefined;
 }
 
-function addOutlineBlock(b: BlockRecord, rm: RecordMapBuilder) {
+export function addOutlineBlock(b: BlockRecord, rm: RecordMapBuilder) {
   rm.add('block', b);
   if (b.type === 'collection_view_page' || b.type === 'collection_view') {
     const col = b.collection_id ? getRecord<CollectionRecord>('collection', b.collection_id) : undefined;

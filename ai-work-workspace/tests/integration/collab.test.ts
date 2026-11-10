@@ -192,3 +192,27 @@ describe('동시 편집 안전장치', () => {
     expect(blk.format?.page_icon).toBe('🤝');
   });
 });
+
+describe('공유받은 사람의 「공유됨」과 멤버 자격 요청', () => {
+  it('페이지만 공유받은 사람은 자기 워크스페이스의 「공유됨」에서 그 페이지를 본다', async () => {
+    const strangerSpace = ((await runtime.runRpc('createWorkspace', { name: '모르는 사람 팀' }, stranger)).body as any).spaceId;
+    const r = await runtime.runRpc('getSharedWithMe', { spaceId: strangerSpace }, stranger);
+    expect(r.status).toBe(200);
+    expect((r.body as any).pageIds).toContain(page);
+  });
+
+  it('게스트가 멤버 자격을 요청하고 주인이 승인하면 멤버가 된다', async () => {
+    const req = await runtime.runRpc('requestWorkspaceMembership', { spaceId: space }, stranger);
+    expect(req.status).toBe(200);
+    const requestId = (req.body as any).requestId;
+    expect(requestId).toBeTruthy();
+    const ok = await runtime.runRpc('resolveMemberRequest', { spaceId: space, requestId, approve: true }, owner);
+    expect(ok.status).toBe(200);
+    expect(db.withRequestCache(() => db.getRecord<any>('space', space)).permissions.some((p: any) => p.user_id === stranger.id && p.role !== 'none')).toBe(true);
+  });
+
+  it('아무 이메일이나 초대를 요청하는 기능은 닫혀 있다', async () => {
+    const r = await runtime.runRpc('requestMembers', { spaceId: space, emails: ['x@example.com'] }, friend);
+    expect(r.status).toBe(403);
+  });
+});
