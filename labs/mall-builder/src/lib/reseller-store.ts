@@ -1,0 +1,72 @@
+// D33 리셀러 — 서버 읽기(보안 규칙상 리셀러 본인은 자기 것만, 「손님」 권한 직원은 몰 전체)
+import { createClient } from "./supabase/server";
+import type { LedgerKind, PayoutStatus } from "./reseller";
+
+export type ResellerSummary = { id: string; code: string; rate: number; active: boolean; linked: number; balance: number; month_earned: number; pending: number };
+export type ResellerRow = { id: string; customer_id: string; code: string; rate: number; active: boolean; created_at: string; customer?: { name: string; company: string | null } | null };
+export type LedgerRow = { id: string; reseller_id: string; order_id: string | null; kind: LedgerKind; amount: number; balance_after: number; note: string; created_at: string };
+export type PayoutRow = { id: string; reseller_id: string; amount: number; bank_name: string; bank_account: string; bank_holder: string; status: PayoutStatus; reason: string | null; requested_at: string; decided_at: string | null };
+
+const CUSTOMER_JOIN = "customer:mall_builder_store_customers!mall_builder_resellers_customer_id_fkey(name, company)";
+
+export async function getMyResellerSummary(storeId: string): Promise<ResellerSummary | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_reseller_my_summary", { p_store_id: storeId });
+  return (data ?? null) as ResellerSummary | null;
+}
+
+export async function getResellerLedger(resellerId: string, limit = 30): Promise<LedgerRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_reseller_ledger")
+    .select("id, reseller_id, order_id, kind, amount, balance_after, note, created_at")
+    .eq("reseller_id", resellerId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []) as LedgerRow[];
+}
+
+export async function getPayouts(storeId: string, resellerId?: string, limit = 100): Promise<PayoutRow[]> {
+  const supabase = await createClient();
+  let q = supabase.from("mall_builder_reseller_payouts").select("id, reseller_id, amount, bank_name, bank_account, bank_holder, status, reason, requested_at, decided_at").eq("store_id", storeId);
+  if (resellerId) q = q.eq("reseller_id", resellerId);
+  const { data } = await q.order("requested_at", { ascending: false }).limit(limit);
+  return (data ?? []) as PayoutRow[];
+}
+
+/** 운영자: 리셀러 목록 + 연결 손님 수·잔액·이번 달 적립 */
+export async function getStoreResellers(storeId: string) {
+  const supabase = await createClient();
+  const monthStart = Date.parse(new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 8) + "01T00:00:00+09:00");
+  const [{ data: rs }, { data: links }, { data: ledger }] = await Promise.all([
+    supabase.from("mall_builder_resellers").select(`id, customer_id, code, rate, active, created_at, ${CUSTOMER_JOIN}`).eq("store_id", storeId).order("created_at"),
+    supabase.from("mall_builder_store_customers").select("reseller_id").eq("store_id", storeId).not("reseller_id", "is", null).limit(10000),
+    supabase.from("mall_builder_reseller_ledger").select("reseller_id, kind, amount, created_at").eq("store_id", storeId).limit(20000),
+  ]);
+  const linked = new Map<string, number>();
+  for (const l of links ?? []) linked.set(l.reseller_id as string, (linked.get(l.reseller_id as string) ?? 0) + 1);
+  const balance = new Map<string, number>();
+  const month = new Map<string, number>();
+  for (const x of ledger ?? []) {
+    const id = x.reseller_id as string;
+    balance.set(id, (balance.get(id) ?? 0) + Number(x.amount));
+    if ((x.kind === "earn" || x.kind === "reclaim") && Date.parse(x.created_at as string) >= monthStart) month.set(id, (month.get(id) ?? 0) + Number(x.amount));
+  }
+  return ((rs ?? []) as unknown as ResellerRow[]).map((r) => ({ ...r, rate: Number(r.rate), linked: linked.get(r.id) ?? 0, balance: balance.get(r.id) ?? 0, month_earned: month.get(r.id) ?? 0 }));
+}
+
+/** 운영자 손님 상세: 이 손님의 리셀러 정보·연결된 리셀러·고를 수 있는 리셀러 */
+export async function getCustomerResellerInfo(storeId: string, customerId: string) {
+  const supabase = await createClient();
+  const [{ data: mine }, { data: cust }, { data: all }] = await Promise.all([
+    supabase.from("mall_builder_resellers").select("id, code, rate, active").eq("customer_id", customerId).maybeSingle(),
+    supabase.from("mall_builder_store_customers").select("reseller_id").eq("id", customerId).maybeSingle(),
+    supabase.from("mall_builder_resellers").select(`id, code, ${CUSTOMER_JOIN}`).eq("store_id", storeId).eq("active", true).neq("customer_id", customerId).order("code"),
+  ]);
+  type Opt = { id: string; code: string; customer: { name: string; company: string | null } | null };
+  return {
+    mine: mine ? { ...(mine as { id: string; code: string; active: boolean }), rate: Number((mine as { rate: number }).rate) } : null,
+    linkedTo: (cust?.reseller_id as string | null) ?? null,
+    options: ((all ?? []) as unknown as Opt[]).map((r) => ({ id: r.id, label: `${r.code} · ${r.customer?.company || r.customer?.name || ""}` })),
+  };
+}

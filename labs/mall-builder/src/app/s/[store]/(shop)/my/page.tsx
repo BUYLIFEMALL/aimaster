@@ -16,6 +16,10 @@ import { expiringSoon, getMyCoupons, getPointBalance, getPointLedger, getPointSe
 import { couponLabel, POINT_KIND_LABEL } from "@/lib/benefits";
 import { redeemCouponAction } from "@/lib/benefit-actions";
 import { readClosed } from "@/lib/closed";
+import { headers } from "next/headers";
+import { mallSlugFromHost } from "@/lib/host";
+import { getMyResellerSummary, getPayouts, getResellerLedger } from "@/lib/reseller-store";
+import ResellerPanel from "./reseller-panel";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -86,6 +90,14 @@ export default async function MyPage({
   const usable = coupons.filter((i) => !i.used_at && i.coupon.is_active && (!i.expires_at || Date.parse(i.expires_at) > now));
   const soon = expiringSoon(pointLedger, now);
   const [birthM, birthD] = (customer.birth_md ?? "-").split("-");
+  // D33 리셀러로 지정된 손님에게만 리셀러 칸 — 링크는 지금 접속한 주소 기준(하위 도메인이면 그 주소)
+  const reseller = await getMyResellerSummary(store.id);
+  const [rLedger, rPayouts] = reseller ? await Promise.all([getResellerLedger(reseller.id, 30), getPayouts(store.id, reseller.id, 20)]) : [[], []];
+  const h = await headers();
+  const host = h.get("host") ?? "";
+  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const onSub = mallSlugFromHost(host, process.env.MALL_ROOT_DOMAIN) === store.slug;
+  const refLink = reseller ? `${proto}://${host}${onSub ? "/" : `/s/${store.slug}`}?ref=${reseller.code}` : "";
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -191,6 +203,8 @@ export default async function MyPage({
           </>
         )}
       </section>
+
+      {reseller && <ResellerPanel slug={store.slug} link={refLink} s={reseller} ledger={rLedger} payouts={rPayouts} />}
 
       <section className="mt-6 rounded-lg border p-4" data-my-coupons>
         <h2 className="mb-3 font-semibold">내 쿠폰 ({usable.length}장)</h2>

@@ -10,6 +10,7 @@ import { canEnterClosed, openWhileClosed, readClosed } from "@/lib/closed";
 import type { Metadata, Viewport } from "next";
 import { APPLE_ICON_SIZE, EARLY_INSTALL_SCRIPT, iconColor, shouldOfferInstall } from "@/lib/pwa";
 import PwaPrompt from "./pwa-prompt";
+import RefCatcher from "./ref-catcher";
 
 export const dynamic = "force-dynamic";
 
@@ -168,6 +169,7 @@ export default async function ShopLayout({ children, params }: { children: React
         </div>
       </footer>
       <PwaPrompt storeName={store.name} offer={shouldOfferInstall(customer)} />
+      {!customer && <RefCatcher slug={store.slug} />}
     </div>
   );
 }

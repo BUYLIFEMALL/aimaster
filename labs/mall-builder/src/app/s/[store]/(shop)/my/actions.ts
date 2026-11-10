@@ -3,6 +3,8 @@
 import { parseBirthMd } from "@/lib/benefits";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { refCookieName } from "@/lib/reseller";
 import { createClient } from "@/lib/supabase/server";
 import { validateAddress, validateCustomer } from "@/lib/customers";
 import { validateBusinessApplication } from "@/lib/business";
@@ -52,7 +54,9 @@ export async function joinAction(slug: string, next: string, _prev: JoinState, f
   // 가입하면 「가입 축하」 쿠폰이 DB 트리거로 자동 발급된다(D17)
   // 폐쇄몰(D20): 초대 코드는 DB 트리거가 확인하고 비워 저장한다(맞으면 바로 입장, 승인제면 대기)
   const inviteCode = String(form.get("invite_code") ?? "").trim().toUpperCase() || null;
-  const { error } = await supabase.from("mall_builder_store_customers").insert({ ...v.value, birth_md: birth.value, store_id: storeId, user_id: userId, invite_code: inviteCode });
+  // D33 리셀러 링크로 30일 안에 들어왔으면 그 코드를 함께 넣는다(DB 트리거가 이 몰의 켜진 리셀러인지 확인하고 연결, 칸은 비움)
+  const resellerRef = (await cookies()).get(refCookieName(slug))?.value ?? null;
+  const { error } = await supabase.from("mall_builder_store_customers").insert({ ...v.value, birth_md: birth.value, store_id: storeId, user_id: userId, invite_code: inviteCode, reseller_ref: resellerRef });
   if (error && error.code !== "23505" && /초대 코드|회원 전용/.test(error.message)) return { ...values, error: error.message };
   // 이미 가입한 경우(23505)는 그대로 통과
   if (error && error.code !== "23505") return { ...values, error: "가입하지 못했습니다. 잠시 뒤 다시 시도해 주세요." };

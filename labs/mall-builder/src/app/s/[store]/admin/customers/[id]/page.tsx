@@ -12,6 +12,8 @@ import { adjustPointsAction } from "@/lib/benefit-actions";
 import { MEMBER_STATUS_LABEL } from "@/lib/closed";
 import { reviewMemberAction } from "../actions";
 import { deleteCustomerPriceAction, saveBaseRateAction, saveCustomerPriceAction } from "../customer-price-actions";
+import { getCustomerResellerInfo } from "@/lib/reseller-store";
+import { setCustomerResellerAction, setResellerAction } from "@/lib/reseller-actions";
 import { specialText, todayKst } from "@/lib/customerPrices";
 import { createClient } from "@/lib/supabase/server";
 import DeleteButton from "../../categories/delete-button";
@@ -51,6 +53,7 @@ export default async function AdminCustomerPage({
   const specials = (specialRows ?? []) as unknown as SpecialRow[];
   const baseRate = specials.find((x) => !x.product_id) ?? null;
   const today = todayKst();
+  const rs = await getCustomerResellerInfo(store.id, c.id); // D33
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/customers">
@@ -143,6 +146,30 @@ export default async function AdminCustomerPage({
           )}
         </section>
       )}
+
+      <section id="reseller" className="mt-6 scroll-mt-4 space-y-3 rounded-lg border p-4 text-sm" data-reseller-admin>
+        <h3 className="font-semibold">🤝 리셀러</h3>
+        <form action={setResellerAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2" data-reseller-set>
+          <label className="block"><span className="text-xs text-gray-500">리셀러 코드(영문·숫자 4~12자)</span>
+            <input name="code" defaultValue={rs.mine?.code ?? ""} maxLength={12} className="mt-1 w-36 rounded border px-2 py-1.5 font-mono uppercase" />
+          </label>
+          <label className="block"><span className="text-xs text-gray-500">수수료율(%)</span>
+            <input name="rate" inputMode="decimal" defaultValue={rs.mine ? String(rs.mine.rate) : "3"} className="mt-1 w-20 rounded border px-2 py-1.5" />
+          </label>
+          <label className="flex items-center gap-1 pb-2"><input type="checkbox" name="active" defaultChecked={rs.mine?.active ?? true} /> 켜기</label>
+          <button className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-white">{rs.mine ? "리셀러 정보 저장" : "이 손님을 리셀러로 지정"}</button>
+        </form>
+        {rs.mine && <p className="text-xs text-gray-500">이 손님의 링크: <span className="font-mono">/s/{store.slug}?ref={rs.mine.code}</span> · 적립·출금은 「리셀러」 메뉴에서 봅니다.</p>}
+        <form action={setCustomerResellerAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2 border-t pt-3" data-reseller-link-set>
+          <label className="block"><span className="text-xs text-gray-500">이 손님을 데려온 리셀러(구매 확정 때 그 리셀러에게 적립)</span>
+            <select name="reseller_id" defaultValue={rs.linkedTo ?? ""} className="mt-1 rounded border px-2 py-1.5">
+              <option value="">연결 없음</option>
+              {rs.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+            </select>
+          </label>
+          <button className="min-h-10 rounded border px-3 py-1.5">연결 저장</button>
+        </form>
+      </section>
 
       <section className="mt-6 space-y-3 rounded-lg border p-4 text-sm" data-points-admin>
         <h3 className="font-semibold">
