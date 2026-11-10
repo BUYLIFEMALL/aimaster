@@ -161,7 +161,7 @@ export default async function MyPage({
         )}
         {credit && (
           <div className="mt-4 border-t pt-3">
-            <p className="mb-2 text-sm font-medium">외상(후불)</p>
+            <p className="mb-2 flex items-center text-sm font-medium">외상(후불)<a href={`/s/${slug}/doc/ledger/${customer.id}`} target="_blank" rel="noopener" className="ml-auto rounded border px-3 py-1 text-xs font-normal" data-ledger-link>📒 외상 원장</a></p>
             <CreditLedger limit={customer.credit_limit} balance={credit.balance} entries={credit.entries} />
           </div>
         )}

@@ -94,7 +94,7 @@ export default async function AdminCustomerPage({
 
       {c.approval_status === "approved" && (
         <section className="mt-6 space-y-4 rounded-lg border p-4" data-credit-admin>
-          <h3 className="text-sm font-semibold">외상(후불)</h3>
+          <h3 className="flex items-center text-sm font-semibold">외상(후불)<a href={`/s/${store.slug}/doc/ledger/${c.id}`} target="_blank" rel="noopener" className="ml-auto rounded border px-3 py-1 text-xs font-normal" data-ledger-link>📒 외상 원장</a></h3>
           <CreditLedger limit={c.credit_limit} balance={ledger.balance} entries={ledger.entries} />
           <form action={setCreditLimitAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2">
             <label className="block">

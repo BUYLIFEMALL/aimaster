@@ -66,7 +66,8 @@ export default async function OrderDetailPage({
         <h1 className="text-xl font-bold">주문 {order.order_no}</h1>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-order-status>{ORDER_STATUS_LABEL[order.status]}</span>
         {/* D25 다시 담기 — 같은 품목·수량을 장바구니에(가격은 지금 가격) */}
-        <form action={reorderAction.bind(null, slug, order.id)} className="ml-auto">
+        <a href={`/s/${slug}/doc/order/${order.id}`} target="_blank" rel="noopener" className="ml-auto rounded border px-3 py-1 text-sm" data-statement-link>🧾 거래명세서</a>
+        <form action={reorderAction.bind(null, slug, order.id)}>
           <button className="rounded border px-3 py-1 text-sm" data-reorder>🛒 다시 담기</button>
         </form>
       </div>

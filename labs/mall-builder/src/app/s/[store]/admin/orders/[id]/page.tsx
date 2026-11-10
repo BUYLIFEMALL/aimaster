@@ -57,6 +57,7 @@ export default async function AdminOrderDetailPage({
         <h2 className="text-xl font-bold">주문 {order.order_no}</h2>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-order-status>{ORDER_STATUS_LABEL[order.status]}</span>
         <span className="text-sm text-gray-500">{formatDateTime(order.created_at)}</span>
+        <a href={`/s/${store.slug}/doc/order/${order.id}`} target="_blank" rel="noopener" className="ml-auto rounded border px-3 py-1 text-sm" data-statement-link>🧾 거래명세서</a>
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-order-error>{error}</p>}
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-order-ok>{msg ? msg : ok === "partial" ? (order.is_card ? "부분 취소하고 줄어든 금액만큼 카드 환불했습니다." : "부분 취소했습니다. 결제 금액과 재고를 다시 계산했습니다.") : "상태를 바꿨습니다."}</p>}

@@ -18,3 +18,11 @@ body {
 .mall-html hr { margin: 1rem 0; border-color: #e5e7eb; }
 .mall-html table { border-collapse: collapse; margin: 0.5rem 0; }
 .mall-html th, .mall-html td { border: 1px solid #e5e7eb; padding: 0.25rem 0.5rem; }
+
+/* D26 서류 인쇄 — 버튼 줄 숨기고 A4 여백 */
+@media print {
+  .no-print { display: none !important; }
+  @page { size: A4; margin: 12mm; }
+  body { background: #fff !important; }
+  .doc { box-shadow: none !important; padding: 0 !important; max-width: none !important; }
+}
