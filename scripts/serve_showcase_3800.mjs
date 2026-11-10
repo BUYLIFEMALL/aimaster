@@ -50,7 +50,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
   console.log(`Showcase server running at http://localhost:${PORT}/showcase.html`);
   console.log(`Comparison table running at http://localhost:${PORT}/comparison.html`);
 });

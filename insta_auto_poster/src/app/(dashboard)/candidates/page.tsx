@@ -54,23 +54,30 @@ export default async function CandidatesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-slate-100">게시글 주제 수집</h1>
-        <Link href="/posts/new" className="text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:underline">
-          수집 없이 바로 글쓰기 →
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-pink-500/30 bg-gradient-to-r from-[#131822] via-[#1a1424] to-[#131822] p-6 shadow-[0_4px_25px_rgba(225,48,108,0.15)] relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600" />
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#833AB4] via-[#FD1D1D] to-[#FCB045] text-lg shadow-[0_4px_12px_rgba(225,48,108,0.4)] ring-2 ring-pink-500/30">
+            📰
+          </span>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">게시글 주제 수집</h1>
+            <p className="mt-1 text-xs text-slate-300">
+              HTTP(특정 URL), RSS(구독 피드), Perplexity(실시간 트렌드 검색)를 통해 인스타그램에 올릴 주제를 발굴합니다.
+            </p>
+          </div>
+        </div>
+        <Link href="/posts/new" className="btn-3d-insta-sunset px-4 py-2 text-xs text-white">
+          <span>수집 없이 바로 글쓰기 →</span>
         </Link>
       </div>
-      <p className="mb-6 text-sm text-neutral-600">
-        HTTP(특정 URL), RSS(구독 피드), Perplexity(트렌드 검색) 중 하나를 선택해서 인스타그램에 올릴
-        게시글 주제와 초안을 생성합니다.
-      </p>
 
-      <div className="mb-6 grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {(Object.keys(sourceCounts) as InstaSourceType[]).map((type) => (
-          <div key={type} className="rounded-lg border border-neutral-200 bg-white p-4">
-            <div className="text-2xl font-semibold text-neutral-900">{sourceCounts[type]}</div>
-            <div className="mt-1 text-sm text-neutral-500">{SOURCE_LABELS[type]}로 수집</div>
+          <div key={type} className="rounded-xl border border-pink-500/20 bg-[#131822] p-4.5 shadow-sm">
+            <div className="text-2xl font-black text-white">{sourceCounts[type]}<span className="text-xs font-normal text-slate-400 ml-1">건</span></div>
+            <div className="mt-1 text-xs font-semibold text-pink-400">{SOURCE_LABELS[type]} 레이더 수집</div>
           </div>
         ))}
       </div>

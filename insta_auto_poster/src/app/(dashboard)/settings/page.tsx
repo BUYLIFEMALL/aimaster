@@ -101,14 +101,15 @@ export default async function SettingsPage({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="rounded-2xl border border-[#262c3d] bg-[#161922] p-6 shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-base shadow-sm">
+      <div className="rounded-2xl border border-pink-500/30 bg-gradient-to-r from-[#131822] via-[#1a1424] to-[#131822] p-6 shadow-[0_4px_25px_rgba(225,48,108,0.15)] relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600" />
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#833AB4] via-[#FD1D1D] to-[#FCB045] text-lg shadow-[0_4px_12px_rgba(225,48,108,0.4)] ring-2 ring-pink-500/30">
             🔑
           </span>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100">API키등록·플랫폼연동</h1>
-            <p className="mt-1 text-xs text-slate-400">
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">API키등록·플랫폼연동</h1>
+            <p className="mt-1 text-xs text-slate-300">
               캡션/이미지 AI 생성용 본인 키와 인스타그램 자동 포스팅용 Meta 비즈니스 계정을 안전하게 연동합니다.
             </p>
           </div>

@@ -36,7 +36,7 @@ export default function GuidePage() {
           </div>
           <Link
             href="/candidates"
-            className="shrink-0 rounded-xl btn-3d-primary px-5 py-3 text-xs font-bold text-white transition-all cursor-pointer"
+            className="shrink-0 rounded-xl btn-3d-insta-sunset px-5 py-3 text-xs font-bold text-white transition-all cursor-pointer"
           >
             + 새 포스팅 시작하기 🚀
           </Link>
