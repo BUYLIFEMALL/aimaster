@@ -67,6 +67,7 @@ export default async function EditProductPage({
           order_unit: product.order_unit > 1 ? String(product.order_unit) : "",
           max_qty: product.max_qty ? String(product.max_qty) : "",
           tiers: (tierMap.get(product.id) ?? []).map((t) => ({ min_qty: String(t.min_qty), value: tierInput(t) })),
+          product_code: product.product_code ?? "",
           name: product.name,
           summary: product.summary,
           description: product.description,

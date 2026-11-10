@@ -79,6 +79,7 @@ export async function getCategoryRows(storeId: string): Promise<CategoryRow[]> {
 
 export type ProductRow = {
   id: string;
+  product_code: string | null; // D23
   name: string;
   summary: string;
   description: string;
@@ -100,7 +101,7 @@ export type ProductRow = {
 };
 
 export const PRODUCT_COLUMNS =
-  "id, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, visibility, price_visibility, moq, order_unit, max_qty, created_at";
+  "id, product_code, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, visibility, price_visibility, moq, order_unit, max_qty, created_at";
 
 /** 상품별 수량 구간 할인(공개) — 상품 id → 구간 목록(작은 수량부터) */
 export async function getTierMap(productIds: string[]): Promise<Map<string, VolumeTier[]>> {

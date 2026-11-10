@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // D23 상품 엑셀 올리기 — 서버 동작 기본 한도(1MB)를 4MB로. Vercel 함수 요청 한도(4.5MB) 아래로 둔다
+  experimental: {
+    serverActions: { bodySizeLimit: "4mb" },
+  },
 };
 
 export default nextConfig;

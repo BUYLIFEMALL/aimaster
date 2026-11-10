@@ -7,6 +7,7 @@ import { saveProductAction, type ProductFormState } from "./actions";
 import ImageUploader from "./image-uploader";
 
 export type ProductFormValues = {
+  product_code: string; // D23 품번(몰 안에서 겹치지 않음)
   name: string;
   summary: string;
   description: string;
@@ -77,6 +78,11 @@ export default function ProductForm({
       <fieldset className="space-y-3 rounded-lg border p-4">
         <legend className="px-1 text-sm font-semibold">기본 정보</legend>
         {field("name", "상품 이름 *", { maxLength: 100, required: true })}
+        <label className="block">
+          <span className="text-sm">품번</span>
+          <input name="product_code" defaultValue={v.product_code ?? ""} maxLength={40} className="mt-1 w-full rounded border px-3 py-2 font-mono" placeholder="예: P00001 (영문·숫자·-·_ 40자, 엑셀 등록·빠른 주문에 씀)" />
+          {state.codeError && <span className="text-xs text-red-600">{state.codeError}</span>}
+        </label>
         {field("summary", "한 줄 소개", { maxLength: 200, placeholder: "목록에 상품명 아래로 보이는 짧은 소개" })}
         <label className="block">
           <span className="text-sm">상세 설명</span>
