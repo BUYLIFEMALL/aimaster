@@ -14,6 +14,22 @@
 | 작업 수준 | **맥미니와 같은 수준** — 편집·분석·검수·내 파일 커밋까지만. 실행 단계는 메인 PC에 요청(§2) |
 | 세션 이름 | `claude-admin-YYYYMMDD-<작업>` · `codex-admin-…` · `agy-admin-…`(메인 `-win-`, 맥미니 `-mac-`와 구분) |
 
+## 1-1. 메인 PC와 협업 · 작업 기록 · 다른 작업자 확인 (2026-11-10 주인님 추가 지시)
+
+> 「너는 윈도우 메인피씨와 협업작업을 할꺼야」「항상 윈도우 메인pc와 맥미니쪽에서 같은 작업공간의 파일을 공유하면서 작업을 하고 있으니 항상 작업완료후 작업내용을 남겨야 하고 커밋,푸시,배포시에도 다른 작업자가 있는지 확인하고 없을때 너의 작업을 진행할수 있도록」「너가 사용한 브라우저는 ego lite 야」
+
+- **협업 구조**: Admin PC는 윈도우 메인 PC와 한 팀이다. 메인 PC가 실행 단계(`npm`·빌드·배포·DB)를, Admin PC는 편집·분석·실물 검수를 맡고, 서로 요청 표로 넘긴다.
+- **작업이 끝날 때마다 기록**: `docs/HANDOFF.md` 맨 위(제목에 `[역할: …] <CLI>(Admin PC) · 세션 …`), 프로그램 `AGENTS.md`·`docs/`, 역할 파일. 채팅에만 남기지 않는다.
+- **커밋·푸시·배포 직전마다 다른 작업자 확인** — 다른 작업자가 있으면 기다렸다가 없을 때 진행:
+  1. `docs/ACTIVE_WORK.md`에 같은 폴더 작업 줄이 없는지
+  2. `git status --porcelain -- <내 경로>`에 남의 미커밋 변경이 없는지
+  3. `.git/index.lock`·`.git/safe-commit-index.lock`이 없는지(있으면 지우지 않고 기다림)
+  4. `git log -5`로 방금 다른 세션 커밋이 있었는지, 파일 수(`git ls-files | wc -l` 대 `git ls-tree -r HEAD --name-only | wc -l`)
+  5. 배포(메인 PC에 요청할 때도)는 Vercel 팀 `buylife`에 빌드·대기 중 배포가 없는지
+- **브라우저**: Admin PC의 Claude Code는 **ego lite**(`C:\Program Files\Citro Labs\ego lite`, `ego-browser nodejs`)를 쓴다. 작업 하나 = 작업 공간 하나, 끝나면 `task.finish({ keep: [] })`.
+- **공용 스테이징을 쓰지 못함(2026-11-10 실측)**: Admin PC에서 `.git/index`를 덮어쓰면 `fatal: unable to write new index file`로 실패한다(메인 PC가 그 파일을 열어 둔 상태로 보임, 새 파일 만들기는 됨). 커밋 도우미(`safe-commit.mjs`·`commit-paths.mjs`)는 임시 인덱스로 **커밋은 정상**이지만 공용 스테이징이 커밋 전 상태로 남아 `git status`에 `MM`·`D ` + `??`로 보인다. 이 상태에서 누가 경로 없이 커밋하면 내 변경이 되돌려지므로, 커밋 뒤 **메인 PC 세션에 「`git add -- <커밋한 경로>`로 공용 스테이징 맞추기」를 요청**한다. Admin PC에서 `git add`·`git reset`·`read-tree`를 되풀이하지 않는다.
+- **Git 작성자**: 이 PC 전역 설정 `user.name BUYLIFE`, `user.email buylifemall@gmail.com`, `core.autocrlf true`(2026-11-10 설정).
+
 ## 2. 하는 일 / 메인 PC에 요청할 일
 
 ### ✅ Admin PC에서 직접 한다
@@ -43,4 +59,6 @@
 - **경로**: Git Bash에서는 `//GT1_MEGA/d/Antigravity/AIMaster`로 쓴다. `cmd.exe`는 UNC 경로를 현재 폴더로 못 써서 경고 뒤 `C:\Windows`에서 실행된다 — `cmd`를 거치는 명령은 절대 경로를 넘기거나 PowerShell·Git Bash를 쓴다.
 - **Claude Code 하단 상태바(2026-11-10 설치)**: Orca 계정 폴더 `%APPDATA%\orca\claude-profiles\03cb129b-…\home`에 `node scripts/install-statusbars.mjs --only claude`로 설치(Orca 호출 유지, `settings.json` 백업 `.bak-<시각>`, `statusline-extra.js.good` 백업 생성). 형식은 [`CLAUDE_STATUSBAR.md`](CLAUDE_STATUSBAR.md) 1절. **고정 장치(guard)는 Admin PC에 아직 없다** — Orca 재설치·새 계정 연결 뒤 상태바가 사라지면 같은 명령을 다시 실행한다. Codex·agy를 Admin PC에서 쓰기 시작하면 `--only codex`·`--only agy`로 설치한다.
   - 설치 스크립트의 시험 출력이 가짜 한도 값을 `%TEMP%\claude-statusline-last-limits.json`에 남기므로 설치 직후 이 파일을 지운다(2026-11-10 지움).
+- **한국어 장치(2026-11-10 설치)**: `node scripts/mac-mini/install-korean-reminder.mjs`로 `~/.claude`와 Orca 계정 폴더에 출력 스타일 `Korean`·질문마다/도구마다 상기·종료 검사 훅 설치(백업 `settings.json.before-korean-hook`). 출력 스타일은 Claude Code 재시작 뒤 적용.
+- **도구**: `ffmpeg`·`ffprobe`(WinGet) 있음 — 영상 소리 확인에 씀. 무료음악 PC 엔진(FreeMusicEngine)이 이 PC에서 실행되며 음원 저장 폴더는 `E:\AI-Musc\Song`.
 - 보조 문서: 맥미니용 [`MAC_MINI_AGENT_PLAYBOOK.md`](MAC_MINI_AGENT_PLAYBOOK.md)의 표준 작업 루프·요청 표 형식을 그대로 쓰되, 「맥미니」를 「Admin PC」로, 맥 전용 항목(SMB 마운트·zsh·맥 크롬)은 §1·§4로 바꿔 읽는다.

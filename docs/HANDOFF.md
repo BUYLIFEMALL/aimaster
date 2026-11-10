@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 ✅ [역할: workspace] Claude Code(Admin PC) · 세션 claude-admin-20261110-setup — 무료음악→쇼츠·shots 배경음악 실물 시험 통과 + Admin PC 협업 규칙 추가
+
+- **실물 시험(요청 a20367c7)**: Admin PC ego lite, 시험 계정, 무료음악 v1.63·엔진 실행 중. 1~4·6~8단계 통과, 5단계(엔진 끄기) 생략. 쇼츠 원스톱 MP4 19.1초 aac 평균 -25dB(내레이션 0 → 배경음악 소리 확인), shots 영상 `06cfbbe7-…`은 시험 뒤 원래 곡(139초)으로 되돌림. 상세 표: `shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md` 「결과」 맨 아래. 실패 단계 없음 — 요청함 a20367c7은 영상 담당 세션이 닫음.
+- **지침**: `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위 Admin PC 항목에 「메인 PC와 협업 · 작업 후 기록 · 커밋/푸시/배포 직전 다른 작업자 확인 · 브라우저 ego lite」 추가, 상세 [`docs/ADMIN_PC_WORK_GUIDE.md`](ADMIN_PC_WORK_GUIDE.md) §1-1.
+- **발견(중요)**: Admin PC는 공용 스테이징 `.git/index`를 덮어쓰지 못함(`fatal: unable to write new index file`). 커밋 도우미로 커밋은 되지만 공용 스테이징이 커밋 전 상태로 남음 → 아래 표를 메인 PC 세션이 처리.
+- 이 PC 설정: Git 작성자 BUYLIFE 전역 설정, 상태바(Orca 계정 폴더) 설치, 한국어 장치 4단 설치. 비용 0.
+
+| 순서 | 메인 PC에서 실행할 명령 | 확인할 것 |
+|---|---|---|
+| 1 | `git add -- CLAUDE.md AGENTS.md GEMINI.md docs/HANDOFF.md docs/ADMIN_PC_WORK_GUIDE.md docs/dev-docs/manifest.json shorts-onestop-studio/docs/MAC_MINI_TEST_REQUEST_20261109_FMS_BGM.md` | `git status --porcelain -- <같은 경로>`가 비고, `git ls-files | wc -l` = `git ls-tree -r HEAD --name-only | wc -l` |
+
 ## 2026-11-10 ✅ [역할: workspace] Claude Code(Admin PC) · 세션 claude-admin-20261110-setup — Admin(마스터) PC 작업 수준 = 맥미니 수준 최상위 지침 등록
 
 - 주인님 지시: Admin PC는 메인 윈도우 PC와 충돌을 피하려고 맥미니 수준으로만 작업. 작업 폴더는 메인 PC 네트워크 공유 `\\GT1_MEGA\d\Antigravity\AIMaster`.
