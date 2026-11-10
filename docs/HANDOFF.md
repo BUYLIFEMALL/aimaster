@@ -40,6 +40,7 @@
 - **검수**: `tsc` 0·로컬 빌드 통과. DB: 자료함 줄 = 원본 기대값(21·50·57), 공개 키 읽기 0줄, 시험 곡 넣기 1줄→지우기 0줄. 커밋 `0032367d5` push → 메인 빌드.
 - **남은 일(2단계)**: 이미지 스튜디오·영상·블로그 원고 연결, 다른 프로그램이 가져다 쓰는 공용 컴포넌트(영상 4개의 음악 3종별 읽기 코드 대체 — 영상·음악 담당께 요청), 회원 PC 자료 올리기, 공유 버킷 `post-images` 파일 주인 구분. 무료음악 `IMPROVEMENTS.md`는 다른 세션 미커밋이라 안내를 못 넣음 — 음악 담당이 `free-music-studio`도 같은 트리거 대상임을 확인 바람.
 - **2단계(같은 날, 주인님 「2단계 이미지 스튜디오도 연결 진행해」)**: `0060_member_assets_images.sql` — `ai-image-studio`(공용 `usage_logs` 이미지 생성 줄만 조건부 트리거)·`banana-canvas`·`portrait-photo`·`thumbnail-master`(A/B안 버전별). `/library`에 종류 탭·이미지 격자. 검수: 이미지 = 기대값(6·2·5·0), 전체 141, 인물사진 연동 1→0, ego 이미지 7개 실제 로드. 커밋 `c73ebcf8c` 배포 Ready. 이미지 담당 안내: 4개 프로그램 `docs/IMPROVEMENTS.md` 맨 위.
+- **3단계(같은 날, 주인님 「3단계 영상·블로그 원고 연결 진행해」)**: `0061_member_assets_video_text.sql` — 영상 `ai-video-studio`(생성·편집)·`music-video-studio`(렌더), 글 `naver-blog-agent`·`naver-blog-seo-studio`·`tistory-auto-blog`·`ai-auto-blog`·`naver-blog-allinone`·`wp-blogger-auto`(제목·발췌·상태·발행 여부, 같은 줄 고쳐 쓰기, 숫자 id는 md5 고정 번호). 쇼츠 원스톱은 완성 영상이 아니라 제외. 검수: 영상 25·글 107(발행 12) = 원본, 전체 272, 글 트리거 넣기→고치기→지우기(blog·nba·wba), 티스토리 같은 값 저장, ego 영상 로드·글 13건. 커밋 `9a8c27cff` 배포 Ready. 담당 안내: 영상 2·블로그 5 `IMPROVEMENTS.md` 맨 위, `wp-blogger-auto`는 `docs/HANDOFF_20261111_MEMBER_LIBRARY.md`(IMPROVEMENTS 작업 중).
 - 링크: https://www.buylife.xyz/library
 
 
