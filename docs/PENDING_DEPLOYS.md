@@ -53,6 +53,7 @@
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
+| `ai-work-workspace` | 캘린더 연동 표 이름이 「제목 없음」으로 보이던 것 → 컬렉션 이름(아이콘 포함)으로 | `ad7dc6995` | 2026-11-11 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` 「캘린더 연동」 | 다음 배포 때(v1.27, ② 구글 연결 확인과 함께) |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
@@ -65,6 +66,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `ai-work-workspace` | v1.26 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 승인 플랜 빌드 1회, `ai-work-workspace-kb3brr560` Ready, DB v1.26) | 📅 캘린더 연동(새 기능) — ① ICS 운영 확인 통과, ② 구글 연결은 카탈로그 SQL 대기 |
 | `ai-work-workspace` | v1.25 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 승인 플랜 빌드 1회, `ai-work-workspace-8xjr9cdww` Ready, DB v1.25) | 🧾 영수증·세금계산서(새 기능) — ego 시험 계정: 사진 읽기·장부·발행 통과 |
 | `music-video-studio` | v1.29 · 2026-11-11 ([역할: video] `claude-win-video`, 주인님 승인 연속 배포 3/3, `music-video-studio-7z0alazi4` Ready, DB v1.29) | 공용 장면 맞춤 사본 `9397fb311`(11-10 음악 담당 인계, 사본 5개 OK·시험 34), 30일 열외 줄의 이 프로그램 몫 |
 | `youtube-viral-studio` | v1.26 · 2026-11-11 ([역할: video] `claude-win-video`, 연속 배포 2/3, `youtube-viral-studio-lpefb49rp` Ready, DB v1.26) | 좌측 메뉴 「협업 크리에이터 찾기」 중복 그림문자 제거(운영 화면 확인) |

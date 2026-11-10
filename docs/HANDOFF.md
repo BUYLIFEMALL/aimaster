@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 🟡 [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.26 📅 캘린더 연동(① ICS 완료, ② 구글 연결 SQL 대기)
+- **한 일**: 주인님 「두 가지 방식 다 진행해서 사용자가 선택」 → `/calendar-sync`: ① 간편 구독(ICS 비밀 주소) ② 구글 계정 연결(회원 본인 구글 OAuth 앱 — `wp-blogger-auto` 구글 연결 코드 기준, 공용 `member_platform_accounts`, 표→구글 일정 보내기·구글 일정→표 가져오기). 키 화면에 구글 앱 두 칸, 공용 `memberIntegrations` 사본 추가. 커밋 `790a6542e`, 표 이름 수정 `ad7dc6995`(미배포).
+- **검수**: 연결부 시험 89/89(새 `calendar.test.ts` — ICS 글자·줄 접기·회원 격리·토큰·보내기 중복 방지, 자정 넘는 일정 끝 시각 버그 찾아 고침), 빌드, 배포 Ready·DB v1.26. ego: ICS 주소 `200 text/calendar` 일정 3건, 엉뚱한 토큰 404, 시험 주소 끔.
+- **막힌 것**: 운영 DB `integration_catalog`에 `google_calendar` 한 줄 추가 SQL이 자동 안전 검사에 막힘 → 주인님께 요청. 적용 전에는 ② 구글 연결 저장이 실패한다.
+- **다음 첫 단계**: SQL 적용 확인 → 시험 계정 구글 앱으로 ② 연결·보내기·가져오기 운영 확인 → 표 이름 수정과 함께 v1.27.
+- 링크: https://ai-work-workspace.buylife.xyz/calendar-sync
+
 ## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-res-v2` — `real_estate_sales` (부동산 실거래 투자분석 자동화) v1.59 2안(89. 네이버 부동산 스마트 매트릭스 저널) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
 - **주인님 지시**: 「2안으로 진행해」 (89. 네이버 부동산 스마트 매트릭스 저널 스타일 공식 채택 확정).
 - **개편 내역**:
