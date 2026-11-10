@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — B2B몰 D26~D29 Lab 배포
+- **한 일**: 주인님 「진행해」 → 미배포 4건(D26 거래명세서·외상 원장, D27 AI 견적 보조, D28 블록 6종·예약 노출, D29 AI 기능 나머지)을 Lab 빌드 1회로 배포 `dev-mall-builder-d9zaznaff` Ready(52초). 배포 전 팀 빌드 중 0건 확인
+- **배포본 확인**: 손님 첫 화면 새 블록 5종, 새 관리 화면 응답, 시험 회원 계정은 관리 화면 차단, 주인님 로그인 뒤 마진 점검(1건 9.1%, 내 PC와 같음)·문의 AI 초안 1회(서버에서 키 풀림, 약 7원)
+- **비용**: 빌드 1회 + AI 호출 1회 약 7원(오늘 AI 시험 합계 6회 약 64원)
+- **다음 첫 단계**: 로드맵 3차 후보 플랜
+- 링크: https://dev-mall-builder.vercel.app
+
+
+
 ## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `ai-video-studio` v1.34 v1.28 리뉴얼 회귀 수정 + Runway 실생성 확인
 - **찾은 문제**: v1.28 리뉴얼(11-06) 뒤 만들기 화면이 서버와 다른 이름(`startImageUrl`·`aspect`·`endImageUrl`)으로 보내 사진·비율이 전달되지 않음 → 사진 필요한 모델 전부 막힘, 성공 응답 읽기 오류, 모델 고르기 칸 없음(업체마다 첫 모델만). 11-06 이후 실제 생성 0건(회원 피해 없음).
 - **한 일**: 값 이름·응답 읽기·모델 고르기 칸 복구, 재발 방지 시험(110), 운영 DB `avs_generations_provider_check`에 runway·vidu 추가(주인님 승인). 디자인 담당께 주의 메모 `ai-video-studio/docs/IMPROVEMENTS.md`.
