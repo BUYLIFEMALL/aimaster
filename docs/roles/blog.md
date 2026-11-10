@@ -262,6 +262,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 
+- **보관 규칙 「발행 1년·생성만 30일」(2026-11-11 주인님 전달, `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md` §3) — 다음에 손댈 때 적용**: `wp-blogger-auto`는 v1.04 플랜 결정 대기(`wp-blogger-auto/docs/PLAN_20261111_PRE_LAUNCH_FIXES.md` §9). `ai-auto-blog`(발행 성공 칸부터 추가 — `published_at`은 실제 생성일이라 조건에 쓰지 말 것)·`tistory-auto-blog`(`tistory_publish.publishedAt+1년`, `published_at`은 생성일)·`naver-blog-agent`(`published_at` 기준 1년, 글감 표 30일)·`naver-blog-seo-studio`(`autoPublish.state='published'` 조건) — 손댈 때 정리 코드 수정 후 TOP_RULE §8 「모든 발행형 프로그램 공통」 줄에 「적용: 프로그램 vX.YY(날짜)」. `naver-blog-allinone`은 백업 카테고리라 작업 대상 아님. 쓰레드·인스타·네이버 카페 급한 2건은 블로그 담당 아님(design·미지정 몫, 같은 문서 §2).
 - 에이전트 별도 잔여: 설치v2.21→2.22업데이트, 동일이름Chrome의8연결에서현재Edge식별→구체적옛연결해제범위확인→실입력재시험. 로그인/설치/본인연결은완료라재요청하지않음.
 
 - 최신: 재가져오기8ffa45a9f/정리로그1a62398ea/반복cursor6a307bbfc/복구7b6e4556e 4건 미배포. cursor SQL1개(표1/RPC2) 미적용·적용 승인 전 실행 금지. 실제 AI/후보/소통/반복/Cron·Edge복구UI 시각 검수 미완료. 아래 옛 대기는 당시 이력.
