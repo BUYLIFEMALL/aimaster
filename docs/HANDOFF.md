@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — `ai-mastering-studio` v1.16 미배포 3건 묶음 배포 + 음악 작업 목록 정리
+- **한 일**: 주인님 「AI 마스터링 3건 묶음 배포 진행해」 → Gemini 2.5 제거·옛 값 변환 `946660f65`(12-01 종료 대비) · API 키 문구 `b16550ad4` · 권한 판정 동시 조회 `d1e710d68`을 v1.16(`cb0529c1b`)로 빌드 1회 배포 `ai-mastering-studio-bqrif5nxh` Ready, DB v1.15 → v1.16.
+- **확인**: tsc·시험 22개 통과, 배포 직전 팀 빌드 대기 0, ego 운영 `/studio`(로그인) 화면 v1.16·페이지 안 `gemini-2.5` 없음·모델 선택지 최신. 화면 캡처는 창이 가려져 시간 초과(값은 페이지에서 읽음).
+- **함께 정리**: 역할 파일 — A-6 「나중에 할 일(장비 교체 뒤)」, B-6 「공식 코드 공개되면 진행」(`c098c60dc`) · `music-video-studio` 미배포 `9397fb311` 영상 담당께 인계(`23388c8ee`, 정정 `5159d9cf1` — `d1e710d68`은 v1.28에 이미 나감).
+- **발견(미처리)**: AI 마스터링 Claude 선택지에 `claude-fable-5-1` — 최신은 5.2. 다음 작업 때 `docs/AI_MODEL_CATALOG.md` 기준 확인(`ai-mastering-studio/AGENTS.md` v1.16).
+- **다음 첫 단계**: 남은 음악 목록 — 기록 정리(ACTIVE_WORK 가사 영상 옛 줄·10-24 대기 문서), 무료음악 아이콘 파일 확인, B-4 진행 여부 주인님 결정.
+- 링크: https://ai-mastering-studio.buylife.xyz
+
 ## 2026-11-10 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.23 U11 자동화 배포·운영 확인
 - **한 일**: 운영 DB(`esgxyikcnnvmlhygjkth`)에 `aww_member_scheduler` 표 추가(ego SQL 편집기, 추가만) → 버전 v1.23(코드 2곳·DB) → 배포 1회(`deploy.mjs`, 이름표 `3c175bcce` 함께) → DB 버전 맞춤. 미배포 표 2줄 → 「내보낸 기록」.
 - **운영 확인(ego, 시험 계정)**: 값 변경 자동화(새 행 → 메모 자동 채움) · 정시 자동화(23:20 → 회원 cron-job.org 작업 생성·알림함 도착) · 일시정지/재개 · 자동화 끄면 1분 안에 작업 꺼짐 — 모두 통과. 시험 자동화·행 정리.
