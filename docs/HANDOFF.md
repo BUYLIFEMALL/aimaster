@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 🟡 [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `ai-video-studio` v1.33 Runway·Vidu 직접 연동(배포 완료, 실생성은 키 등록 대기)
+- **한 일**: 주인님 「진행해 키있어」 + 결정 3개 승인 → 회원 본인 키로 Runway `gen4.5`·`gen4_turbo`, Vidu `viduq3-turbo`·`viduq3-pro`(사진→영상, 끝 장면 없음, 자동 재시도 없음). 운영 DB `user_api_keys_provider_check`에 `runway`·`vidu` 추가(기존 값 보존), 키 API·설정 칸·만들기 탭, 연동 매뉴얼(Runway 글 교체·Vidu 글 새로). 공용 기준 `ai-video-client` 수정 → 사본 4곳 동기화(화면 변화 없음, 미배포 대기).
+- **검수**: 시험 109(가짜 응답으로 요청 모양·상태 확인·오류 문구), tsc 5개 프로그램, 사본 프로그램 시험(쇼츠 13·뮤직 34), 로컬 빌드, 운영 ego 설정 v1.33·키 칸 2개·매뉴얼 버튼·만들기 탭 「키 필요」.
+- **배포**: 빌드 1회 `ai-video-studio-63uwl0qzd` Ready, DB v1.33.
+- **남은 일**: 주인님이 시험 계정 설정에 Runway·Vidu 키 등록 → 실생성 2회(gen4_turbo 5초 약 360원 · viduq3-turbo 5초 약 375원, 승인됨). 그다음 V6 → 서버 지역 측정.
+- 상세: `ai-video-studio/AGENTS.md` v1.33, 플랜 `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md`
+- 링크: https://ai-video-studio.buylife.xyz
+
 ## 2026-11-11 🟡 [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.26 📅 캘린더 연동(① ICS 완료, ② 구글 연결 SQL 대기)
 - **한 일**: 주인님 「두 가지 방식 다 진행해서 사용자가 선택」 → `/calendar-sync`: ① 간편 구독(ICS 비밀 주소) ② 구글 계정 연결(회원 본인 구글 OAuth 앱 — `wp-blogger-auto` 구글 연결 코드 기준, 공용 `member_platform_accounts`, 표→구글 일정 보내기·구글 일정→표 가져오기). 키 화면에 구글 앱 두 칸, 공용 `memberIntegrations` 사본 추가. 커밋 `790a6542e`, 표 이름 수정 `ad7dc6995`(미배포).
 - **검수**: 연결부 시험 89/89(새 `calendar.test.ts` — ICS 글자·줄 접기·회원 격리·토큰·보내기 중복 방지, 자정 넘는 일정 끝 시각 버그 찾아 고침), 빌드, 배포 Ready·DB v1.26. ego: ICS 주소 `200 text/calendar` 일정 3건, 엉뚱한 토큰 404, 시험 주소 끔.
