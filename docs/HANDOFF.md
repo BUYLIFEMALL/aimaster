@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-10 ✅ [역할: mac-mini] Claude Code(맥미니) · 세션 claude-mac-20261110-test — 맥미니 역할 지침 확정 + macOS 순차 시험 7건 + 30일 화면 숨김 조사
+- 역할(주인님 지시): 맥미니 = 테스트·디버깅·자잘한 작업, 특히 macOS 동작 확인. `docs/roles/mac-mini.md` 맨 위 「역할 지침」·`docs/MAC_MINI_AGENT_PLAYBOOK.md` §0 보강(`docs(mac-mini): role guide` 커밋).
+- 시험(맥 ego lite 크로미움 156, 시험 계정, 비용 0원): ✅ 플레이리스트 v1.38 MP4(스티커3·듀얼 스펙트럼, 1080p30) ✅ AI 영상 v1.30 9:16 「전체 보이기」 ✅ LP v1.15 받기·음악 포함 MP4 — 완료 칸 「60fps」가 실제 30fps와 다름(`vinyl-lp-studio/docs/IMPROVEMENTS.md` 맨 위) ✅ 무료음악 v1.65 웹(메뉴·트로트·연주곡, Intel은 「미지원」 표시) ✅ 스마트스토어 v1.26·할 일 v1.13 넓은/390px — 할 일 타이머 영어 버튼 제안(`ai-task-planner/docs/IMPROVEMENTS.md`) ✅ 쇼핑제휴 v1.86 옛 모델 이름 없음.
+- 주의: 렌더 시작 시 크롬 저장 위치 창(`showSaveFilePicker`)은 자동 조작에서 닫혀 「취소」로 처리됨(프로그램 정상) — 사람 조작이 필요한 경로라 이번엔 우회 경로(일반 내려받기)로 시험.
+- 조사: [`docs/RETENTION_VIEW_HIDE_AUDIT_20261110.md`](RETENTION_VIEW_HIDE_AUDIT_20261110.md) — 블로그 밖 숨김 미처리 9개(RLS 4개 포함), ⚠ `threads-easy-planner` `savedPlans.ts:117-122`가 목록 열 때 user_id 없이 **전체 회원** 30일 지난 기획 삭제(예외 회원 포함). 코드 미수정, 담당 세션·주인님 결정 몫.
+- 발견: `docs/ACTIVE_WORK.md`의 쓰레드 4개 「연속 배포 중」 줄(11-06, `claude-win-20261106-ytreply`)은 1/4(쇼핑제휴 v1.86)만 나가고 멈춘 상태 — 그 세션 확인 필요.
+- 남은 일: 마스터PC에서 무료음악 → LP 실제 곡 보내기 1회, 플레이리스트 저장 위치 창 사람 조작 1회. 배포 없음.
+
 ## 2026-11-10 🟡 [역할: workspace] Claude Code(윈도우) · 세션 claude-win-20261025-workspace — U11 자동화 구현 완료(미배포, 배포·DB 승인 대기)
 - 한 일: 주인님 「진행해」 → 플랜 `ai-work-workspace/docs/PLAN_20261110_U11_AUTOMATION.md`(`fc6a5df9a`) → 결정 5건 「권장대로」(채팅) → 구현 `0d686f9b3`. 데이터베이스 자동화·버튼 저장 열기(웹훅·에이전트는 메뉴 「준비 중」 + 서버 `stageBodyBlock` 거절), 값 변경 자동화가 서버리스에서 사라지지 않게 `after()`로 마무리(`settleAutomations`), 정시 자동화·리마인더는 회원 본인 cron-job.org 1분 실행(공용 `member-scheduler` 사본, 회원 주소 `/api/cron/member`, 운영 `/api/cron/jobs`는 회원 작업 제외), 자동화 목록 위 「⏰ 정시 실행」 줄(일시정지·재개), 키 화면 cron-job.org 칸, 매뉴얼 「⚡ 자동화」, 실행 기록·알림 30일 정리, 구글 캘린더 검토 문서.
 - 검수: 연결부 시험 58/58(새 8), 원본 서버 523/523, 공용 자동화 18/18, tsc 0, 로컬 빌드 통과(빈 시험 DB 첫 빌드는 표 동시 생성 충돌 → 재빌드 통과, ERROR_LESSONS).
