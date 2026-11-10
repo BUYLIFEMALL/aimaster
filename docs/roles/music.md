@@ -16,10 +16,9 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
-| `music` → `lyric-video-studio` | 음악(SUNO) 리믹스 카드에 「가사 영상 만들기」(`?remix=<리믹스 변주 id>`) 링크 켜기 — 받는 쪽은 v1.12에 이미 있음 | 작은 수정이라 `music` 다음 배포 때 함께(단독 배포 안 함) | `lyric-video-studio/AGENTS.md` v1.12 |
+| `music` → `lyric-video-studio` | 음악(SUNO) 리믹스 카드에 「가사 영상 만들기」(`?remix=<리믹스 변주 id>`) 링크 켜기 — 받는 쪽은 v1.12에 이미 있음 | **Admin PC에서 코드 편집·커밋** → 메인 PC가 `music` v1.50으로 배포(빌드 1회, 승인 뒤) | `free-music-studio/docs/REQUEST_20261111_ADMIN_PC_MUSIC.md` 3번 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
-| `free-music-studio` | 마스터PC 실물: 재생 강조·EQ·시각화·쇼츠 보내기, 참고곡 Gemini 1회 | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.60 |
-| `free-music-studio` | 마스터PC 실물: AI 설정 제안 1번(회원 키) | 주인님 확인·승인(선택) | `free-music-studio/AGENTS.md` v1.64 |
+| `free-music-studio` | 실물 확인 2건: 마스터링 「AI 설정 제안」 1번 · 연주곡 장르 고르고 「AI 작곡 기획」 1번(회원 키) | **Admin PC에서 주인님과 진행**(2026-11-11 주인님 「Admin 피시에서 할꺼야」) | `free-music-studio/docs/REQUEST_20261111_ADMIN_PC_MUSIC.md` 1·2번 |
 | `free-music-studio` | 다음 엔진 배포 묶음 후보: 끝 줄이기 곡선을 끝에서 0까지(마지막 0.5초 -34.5dB), 끝 이어 만들기 가사 칸 `[Outro]` 한 줄 | 다음 엔진 배포 때 함께(단독 배포 안 함) | 인수인계서 20·24절 |
 
 ## 나중에 할 일 (장비가 바뀐 뒤 — 지금은 손대지 않음)
@@ -55,7 +54,7 @@
 
 ## 다음 첫 단계
 1. 다음 엔진 배포가 생기면 끝 처리 보강 후보(대기 표) 함께
-2. (선택·주인님 확인) 마스터PC에서 연주곡 장르를 골라 「AI 작곡 기획」 1회 — 고른 장르 안에서 곡을 짜는지 실물 확인(회원 키 AI 호출 1번)
+2. Admin PC 결과가 오면(`free-music-studio/docs/REQUEST_20261111_ADMIN_PC_MUSIC.md` 「결과」 칸): 스테이징 맞추기(`git add -- <Admin이 커밋한 경로>`) → `music` v1.50 배포 승인 받기. 참고: v1.60 실물 항목(재생 강조·EQ·시각화·참고곡·쇼츠 보내기)은 11-09~11-10에 이미 모두 확인됨
 3. **음악 표 칸 이름을 바꿀 때 주의(2026-11-11)**: `free_music_tracks`·`ams_generations`·`music_track_variants`는 메인 「내 자료함」 트리거(`member_assets_sync_fms/ams/suno`, 마이그레이션 0059)가 읽는다 — 칸 이름·저장 경로를 바꾸면 트리거도 함께 고친다(트리거 오류 = 원본 저장 실패)
 4. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
