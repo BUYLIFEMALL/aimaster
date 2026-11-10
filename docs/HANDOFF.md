@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 영상 프로그램 서버 지역 측정 → 서울 고정 설정(다음 배포 때 반영)
+- **측정**: 운영 DB 서울(ap-northeast-2, Supabase 관리 화면). 영상 6개(ai-video-studio·shorts-onestop-studio·music-video-studio·shots·infinite-loop-video·youtube-viral-studio) 함수는 모두 `iad1`(미국 동부, `x-vercel-id: icn1::iad1::…`), video-to-gif는 서버 함수 없음. 이미 7개 프로그램이 `icn1`.
+- **한 일**: 주인님 「서울로, 다음 배포 때 함께」 → 6개 `vercel.json`에 `"regions": ["icn1"]`(유튜브 떡상 분석은 파일 새로 만듦), 추가 빌드 0. 미배포 대기·`docs/PLATFORM_PATTERNS.md` §8에 측정법·권장 기록.
+- **다음**: 각 프로그램 다음 배포 뒤 함수 지역이 `icn1`인지 확인.
+
 
 ## 2026-11-11 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.28 U13 협업 배포
 - **한 일**: 주인님 결정(둘 다 공유·5초 확인·권한 있는 회원만·초대 링크 닫음, 최상위 규칙 §8 예외). `src/server/collab.ts`(회원 찾기·이용 권한 확인·회원 id로 내부 사용자 — 원본 임의 id 문제 해결, 화면 저장으로 바깥 사람·공개 링크 공유 차단), `runtime.ts` 초대 덮어쓰기(첫 공유 때 멤버·본인 권한 보존), stagePolicy 10개 엶, `collabPoll.ts`+`sync.ts`(공유 페이지 5초·혼자 60초·숨김 때 쉼, 함께 보는 사람 `aww_presence`), `db.ts lockRecords`(FOR UPDATE + 캐시 비움), 첨부 파일 공유 페이지 내려받기, 프로필은 같은 워크스페이스·함께 공유된 페이지 사람만(`setStrictUserVisibility`), memberSpace 소유자 우선, 매뉴얼 「👥 함께 쓰기」.
