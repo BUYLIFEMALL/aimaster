@@ -16,7 +16,6 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `free-music-studio` | C-17 트로트·성인가요 장르(대분류) 추가 | 주인님 「일단 대기」 — 마스터PC에서 한국어 트로트 실물 확인 뒤 | `free-music-studio/docs/IMPROVEMENT_BACKLOG.md` C-17 |
-| `free-music-studio` | WAV 원음을 FLAC으로 통일(엔진 0.8.2) | 주인님 「일단 놔둬」(2026-11-09) — 지시 있을 때만 | 이 파일(기록용) |
 | `free-music-studio` | A-6 Apple Silicon 맥 엔진 설치 파일 | Apple Silicon 맥 준비(엔진 0.7.7 이상으로) | 백로그 「보관」 A-6 |
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) | 백로그 「보관」 B-6 |
 | `free-music-studio` | B-4 가사 시간 맞추기 추가 비교 | 수동 정답 자료 준비 | 백로그 「보관」 B-4 |
@@ -28,6 +27,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-10 | `free-music-studio` | WAV 원음 FLAC 통일 — 주인님 「안할꺼야」로 대기 목록에서 지움(하지 않음) | 해당 없음 |
 | 2026-11-10 | `free-music-studio` v1.63 · 엔진 0.8.3 | 곡 끝 처리 — 끊긴 끝 3초 자동 줄이기·「끝 이어 만들기」(ACE-Step 부분 수정 30·60·90초)·가사 길이 경고 + 마스터링 창 넓힘 | 배포 |
 | 2026-11-09 | `free-music-studio` v1.60 · `ai-music-studio` v1.15 | 연계 D-4 보내는 쪽·D-8 댄스·월드 프리셋·D-9 참고곡 스타일·D-10 EQ·시각화·속도·D-11 유료 모델 비교 + 재생 강조 2곳 + 그림 기본 판 복구 | 배포 |
 | 2026-11-09 | `free-music-studio` v1.59 | 곡 만들기 화면 왼쪽 메뉴·모든 화면 이동 먹통 수정(`MultiVersionPanel` `useEffect` 무한 반복 → `useMemo`, v1.57부터 있던 버그) + 「작업 대기열」 링크. 재발 방지 `docs/ERROR_LESSONS.md` 2026-11-09 | 배포(커밋된 코드만) |
