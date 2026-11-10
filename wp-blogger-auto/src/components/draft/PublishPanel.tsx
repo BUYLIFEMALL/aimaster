@@ -41,6 +41,12 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
   // 예약 상한: 원고 보관 만료 하루 전(발행 전 원고는 30일 뒤 이미지와 함께 지워짐)
   const maxWhen = post.expiresAt ? isoToKstInput(Date.parse(post.expiresAt) - 24 * 3600_000) : undefined;
   const minWhen = isoToKstInput(Date.now() + 5 * 60_000);
+  const connectionNotice = !connected && (
+    <p role="status" className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">
+      {post.platform === "blogger" ? "구글 계정을 연결하고 발행할 블로그를 선택해 주세요." : "워드프레스 연결이 필요합니다."}{" "}
+      <a href="/connect" className="font-bold underline">{post.platform === "blogger" ? "블로그 연결·선택하기" : "연결하러 가기"}</a>
+    </p>
+  );
 
   async function loadCats() {
     setCatState("loading");
@@ -112,6 +118,7 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
           <div className="space-y-2">
             <p className="text-sm">📝 블로그에 초안으로 저장됨 — 여기서 바로 발행·예약하거나, 블로그 관리 화면에서 직접 발행해도 됩니다.</p>
             <p className="text-xs text-[color:var(--muted)]">같은 글의 상태만 바꾸므로 블로그에 글이 두 개 생기지 않습니다.</p>
+            {connectionNotice}
             <label className="block text-xs font-extrabold text-[color:var(--muted)]">예약 시각(한국 시간, 예약할 때만)
               <input type="datetime-local" value={when} min={minWhen} max={maxWhen} onChange={(e) => setWhen(e.target.value)} className="mt-1 w-full rounded-xl border-2 border-[color:var(--border)] px-3 py-2 text-sm" />
               {maxWhen && <span className="mt-1 block font-medium">{maxWhen.replace("T", " ")}까지 — 발행 전 원고는 30일 뒤 이미지와 함께 지워집니다.</span>}
@@ -145,7 +152,7 @@ export function PublishPanel({ post, canPublish, connected }: { post: PublishSta
   return (
     <div className="lp-card space-y-3">
       <p className="text-sm font-black">🚀 발행 — {post.platform === "wordpress" ? "워드프레스" : "구글 블로그"}</p>
-      {!connected && <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">블로그 연결이 필요합니다. <a href="/connect" className="font-bold underline">연결하러 가기</a></p>}
+      {connectionNotice}
       <div className="space-y-2">
         {MODES.map((m) => (
           <button key={m.id} type="button" onClick={() => setMode(m.id)} className={`flex w-full gap-2 rounded-xl border-2 px-3 py-2 text-left ${mode === m.id ? "border-[color:var(--launch)] bg-green-50" : "border-[color:var(--border)] bg-white"}`}>
