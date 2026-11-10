@@ -55,3 +55,7 @@ PowerShell·명령 프롬프트·zsh·Orca 터미널에서 같은 npm 실행기�
 본인 계정의 읽기 전용 `account/rateLimits/read`로 리셋 시각을 확인합니다. 인증 파일·API 키를 출력하거나 다른 계정으로 폴백하지 않습니다. 확인되지 않은 시각은 만들어 표시하지 않습니다. 좁은 창에서도 시간과 구분자 공백을 없애지 않고 모델명부터 줄입니다. 모든 항목이 들어가지 않는 폭에서는 생략 표시합니다.
 
 로컬 실행기이므로 적용 대상은 이 PC의 npm 실행기입니다. 다른 PC·다른 npm 설치에는 설치 절차가 필요하며 Vercel·DB 배포 대상이 아닙니다.
+
+## 2026-11-10 Windows ADMIN 적용 [역할: unassigned]
+
+메인 PC GT1_MEGA의 실제 config.toml을 SMB 읽기 전용으로 확인한 뒤 ADMIN에 `node scripts/install-statusbars.mjs --only codex`로 동일한 status_line(모델·reasoning·five-hour-limit·weekly-limit·context-remaining) 및 색상 옵션을 적용했다. 기존 설정은 자동 백업했다. 현재 실행기는 npm이 아닌 OpenAI/Codex/bin/codex.exe 0.165.0이며 npm 전용 PTY 실행기는 설치하지 않았다. 새 검수 TUI에서 모델·medium·Context 100% left 표시를 확인했다. 이후 실제 사용자 세션에서 `GPT-6.1-Sol · medium · 5h 98% left · weekly 55% left · Context ...` 표시가 실측 검증되었다(5h/weekly 잔여량 및 색상 일치 확인 완료). 또한 Antigravity CLI(`agy`)의 상태바(`statusline.js`)도 `CLAUDE_STATUSBAR.md` 지침에 맞춰 `[모델명]·[effort] | 5h [남은%] ([초기화 시간]) | weekly [남은%] ([남은 시간]) | context [남은%]` 및 스마트 폭 적응으로 5시간 리밋을 항상 표시하도록 적용 완료했다.

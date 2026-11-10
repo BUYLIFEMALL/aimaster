@@ -85,3 +85,12 @@ cmp ~/.claude/statusline-extra.js ~/.claude/statusline-extra.js.good && echo sam
 - 조치(원본 세 곳 같은 문구, 백업 `statusline-extra.js.before-5h-100-20261106`): 5시간 한도가 없는 경우(위와 같은 조건)를 `5h 100%`(남은 양 100%, 남은 시간 없음)로 표시. 실제 입력값 시험 결과 `Opus 5.5·medium | 5h 100% | weekly 25% (1h 24m) | context 67%`.
 - 다음부터: 남은 시간 없이 `5h 100%`만 보이면 5시간 한도가 없는 상태다. 맥미니는 `node scripts/install-statusbars.mjs --only claude`를 한 번 실행해야 반영된다.
 - 맥미니 적용(2026-11-06, [역할: mac-mini] `claude-mac-20261101-blog`): 저장소 원본 `e5585bee0` 확인 → `install-statusbars.mjs --only claude` 실행(자동 백업)·`.good` 갱신(cmp 동일), `grep -c "5h 100%"` = 1. 실제 입력값 출력 `Opus 5.5·medium | 5h 94% (1h 36m) | weekly 25% (1h 19m) | context 74%`(입력에 5시간 창이 없어 초기화 전 캐시 값을 이어 씀 — 캐시가 끝나면 `5h 100%`).
+
+## 2026-11-10 Antigravity CLI(`agy`) 상태바 5시간 리밋 표시 및 캐시 복원 통일 (주인님 「다른 cli들처럼 5시간 리밋도 표시해줘」)
+- 확인: Codex 및 Claude Code에는 `5h` 리밋이 정상 표시되었으나, Antigravity CLI(`agy`)에서는 `statusline.js`의 캐시 복원 로직이 `resets_at` 숫자형 에포크 초만 검사하여 agy의 `reset_in_seconds` / `reset_time` 포맷을 복원하지 못해 세션 시작 시 `5h` 칸이 누락될 수 있었고, 지침 표준의 `5h [남은%] ([초기화 시간])` 리셋 시간이 빠져 있던 문제를 확인.
+- 조치:
+  1. `secUntil()` 및 `getRemainingPct()`로 Antigravity quota(`gemini-5h`, `3p-5h`, `reset_in_seconds`, `reset_time`)와 Claude Code `rate_limits`를 모두 정규화 지원.
+  2. 세션 시작 전 빈 payload 수신 시에도 캐시에서 초기화 전 5h/weekly 값을 즉시 복원.
+  3. 지침 표준 형식 `[모델명]·[effort] | 5h [남은%] ([초기화 시간]) | weekly [남은%] ([남은 시간]) | context [남은%]` 및 ANSI 색상 통일.
+  4. 좁은 터미널(50컬럼 등)에서도 `[모델명·effort] | 5h [남은%] ([시간])`이 절대 잘리지 않도록 스마트 폭 적응(context 축약/생략, weekly 축약) 적용.
+  5. 적용 파일: `~/.gemini/antigravity-cli/statusline.js`, `~/.orca/agent-hooks/antigravity-statusline.js`, `scripts/install-statusbars.mjs`.
