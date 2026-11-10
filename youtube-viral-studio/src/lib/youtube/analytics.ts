@@ -133,7 +133,8 @@ const CONTENT_LABELS: Record<string, string> = { SHORTS: "쇼츠", VIDEO_ON_DEMA
 export function toContentTypes(t: ReportTable | null | undefined): Share[] {
   const m = new Map<string, number>();
   for (const r of toRecords(t)) {
-    const k = String(r.creatorContentType ?? "");
+    // 문서 값은 SHORTS·VIDEO_ON_DEMAND이지만 실제 응답은 shorts·videoOnDemand(2026-11-11 운영 확인) → 대문자_밑줄로 맞춤
+    const k = String(r.creatorContentType ?? "").replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase();
     if (k) m.set(k, (m.get(k) ?? 0) + num(r.views));
   }
   const total = [...m.values()].reduce((s, v) => s + v, 0);

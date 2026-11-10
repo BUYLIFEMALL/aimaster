@@ -42,6 +42,9 @@ test("잘 된 영상·유입·국가·유형 비율", () => {
   assert.equal(toCountries(table(["country", "views"], [["KR", 9], ["ZZ", 1]]))[1].label, "알 수 없음");
   const c = toContentTypes(table(["day", "creatorContentType", "views"], [["2026-11-01", "SHORTS", 8], ["2026-11-02", "SHORTS", 1], ["2026-11-01", "VIDEO_ON_DEMAND", 1]]));
   assert.deepEqual(c.map((x) => [x.label, x.percent]), [["쇼츠", 90], ["일반 영상", 10]]);
+  // 실제 응답은 shorts·videoOnDemand(소문자 낙타 표기)
+  const c2 = toContentTypes(table(["day", "creatorContentType", "views"], [["2026-11-01", "videoOnDemand", 781], ["2026-11-01", "shorts", 50]]));
+  assert.deepEqual(c2.map((x) => [x.key, x.label]), [["VIDEO_ON_DEMAND", "일반 영상"], ["SHORTS", "쇼츠"]]);
 });
 
 test("시청자: 나이는 나이 순, 성별 합계", () => {
