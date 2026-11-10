@@ -41,6 +41,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `elevenst-register/` (새 프로그램) | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | AI 11번가 상품 자동등록기 1단계 뼈대(주인님 승인: 코드·운영 DB 프로그램 등록·Vercel 새 프로젝트 첫 배포 1회) — 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |
 | `real_estate_sales/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-res-v2` | 2026-11-11 | 4대 화면 3시안(88/89/90번) 중 2안 채택 반영 v1.59 전면 리뉴얼 및 배포 완료 |
 | `labs/mall-builder/` | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261110-mall-builder` | 2026-11-10 | B2B 핵심 1~5 + D28 블록 + D29 AI 기능 완료(미배포 D26~D29) → 다음 3차 후보 플랜 |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
