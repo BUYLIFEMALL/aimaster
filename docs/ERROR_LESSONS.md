@@ -1,6 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-11 유튜브(구글) 연결이 일주일마다 끊김 — 회원 구글 앱이 「테스트 중」이라 갱신 토큰이 7일 뒤 만료 (`youtube-viral-studio` V6 · 유튜브 댓글·shots 공통, [역할: video])
+- **증상**: 유튜브 연결이 며칠 뒤 「다시 연결 필요」로 바뀜(관리자 계정 유튜브 댓글 연결도 `needs_reconnect`). V6 첫 연결 땐 `redirect_uri_mismatch`(콜백 주소 미등록·저장 안 함)도 함께 겪음.
+- **원인**: 구글 인증 플랫폼 「대상 → 게시 상태」가 「테스트 중」이면 구글 정책상 갱신 토큰이 7일 뒤 만료. 코드 문제 아님.
+- **해결**: 회원(주인님) 구글 클라우드에서 ① 브랜딩: 앱 이름·지원 이메일·홈페이지 `https://www.buylife.xyz`·개인정보처리방침 `/privacy`·약관 `/terms` ② **로고는 비움**(로고가 있으면 게시 때 인증 제출 필요) ③ 「대상 → 앱 게시 → 확인」으로 프로덕션. 민감한 범위라 「앱을 인증해야 합니다」 노란 줄·연결 때 「확인되지 않은 앱」 경고는 남지만 사용 가능(100명 한도). **게시 뒤 새로 받은 연결부터** 만료 없음 → 각 프로그램에서 한 번씩 다시 연결. 2026-11-11 DreamAI 프로젝트(`dreamai-461811`) 게시 완료.
+- **다음부터 확인**: 유튜브·구글 OAuth를 쓰는 프로그램의 매뉴얼에 「테스트 중이면 7일마다 끊김 → 앱 게시」 안내를 넣는다(`youtube-viral-studio` 화면·매뉴얼 반영, 미배포). 리디렉션 주소는 「승인된 JavaScript 원본」이 아니라 「승인된 리디렉션 URI」 칸에 넣고 「저장」까지.
+
 ## 2026-11-10 워크스페이스 로컬 빌드 「duplicate key … pg_type_typname_nsp_index」 — 빈 시험 DB에서 빌드 일꾼 16개가 같은 표를 동시에 처음 만듦 ([역할: workspace])
 - **증상**: `ai-work-workspace` `npm run build`가 페이지 정보 모으기 단계에서 `/api/cron/jobs` 실패, 원인 `duplicate key value violates unique constraint "pg_type_typname_nsp_index"`(`db.ts`의 `CREATE TABLE IF NOT EXISTS`).
 - **원인**: 바로 앞에 연결부 시험(`setupLocalDb({ reset: true })`)이 로컬 Docker DB(`aww-pg-test`)를 비움 → 빌드 일꾼 16개가 모듈을 읽으며 같은 표를 동시에 만들려 함. Postgres의 「없으면 만들기」는 동시에 실행되면 형식 이름 충돌이 날 수 있음. 코드 문제 아님(운영 DB는 표가 이미 있음).
