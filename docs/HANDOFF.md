@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 claude-win-rea — **REA 카테고리 내부 전용(관리자·시험 계정만) + Craft Anything 0.6.0**
+- **지시**: 주인님 「REA카테고리에 등록되는 자동화프로그램, 웹싸이트, 앱 등은 외부노출이 되어선 안되 … 관리자 계정과 테스트계정으로 들어갔을때만 볼수 있으면 되 메인 지침에 추가해두고 반영해줘」. 결정: 시험 계정은 새 칸 `profiles.can_view_internal` · 비공개 카테고리 전부 적용 · 즉시 배포.
+- **한 일**: 공용 컴포넌트 `lib/programs/internalCategories.ts` + 판정 `evaluateProgramAccess`(관리자 다음 「내부 카테고리면 can_view_internal만」, 사유 internal_viewer/internal_only) + 메인·목록·카테고리(비공개는 열람 계정만·noindex)·상세(권한 없으면 404·noindex)·사이트맵(항상 제외)·패키지·가이드·대시보드·`getProgramAccessMap`·`visibleCategories`. 운영 DB(ref `esgxyikcnnvmlhygjkth`) `supabase/migrations/0058_internal_category_viewers.sql` 적용(SQL 편집기, 확인 창 「Run query」) — 칸+회원 변경 차단 트리거, 시험 계정 1명 지정, `rea` 비공개 → 조회 확인(count 1, rea false). 최상위 지침 CLAUDE/AGENTS/GEMINI.md + 상세 [`docs/REA_CATEGORY_POLICY.md`](REA_CATEGORY_POLICY.md)(등록 체크리스트·하위 프로그램 access·검색 차단·이식 규칙).
+- **검수**: `tsc` 0건, `npm run build` 통과, 판정 임시 시험 7/7. 커밋 `a0f4ff690`·`6980bc216`, push → 메인 빌드 `dpl_AfwREZ2Y46pYXdpyfYJDC5im1PzP` Ready. 운영: 비로그인 `/programs/category/rea` 404·`noindex`, 공개 카테고리·목록·첫 화면 200, ego(로그인 상태) REA 카테고리 「REA (내부)」 열림. 시험 계정 실제 로그인 확인은 주인님 몫(미확인).
+- **함께**: Craft Anything 0.5.0→0.6.0 업그레이드, Claude Code·Codex·Antigravity MCP 연결(`docs/ANALYSIS_TOOLKIT.md` §2-7, 커밋 `ffd4740e4`).
+- **남은 일**: `programs` RLS(`programs_select_active`)라 공개 키 API로는 REA 프로그램 기본 정보가 읽힘 — 완전 차단은 RLS 변경 결정 대기. REA 하위 프로그램을 만들 때 자기 `lib/access.ts`도 관리자·열람 계정만(문서 §4). 다음 작업: 주인님 요청 「같은 계정이면 다른 프로그램 자료 재사용(내 자료함)」 — 저장 구조 분석 진행 중.
+- 링크: https://www.buylife.xyz/programs/category/rea
+
+
+
 ## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` — `insta_auto_poster` (INSTA 포스팅 자동화) v1.73 1안(91. 인스타 네온 선셋 크리에이터 스튜디오 스타일) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
 - **한 일**: 주인님 「1안으로 진행해」 지시에 따라 91번 템플릿(인스타 네온 선셋 크리에이터 스튜디오 스타일: `#0B0E14` 딥 스페이스 블랙 & `#E1306C`/`#FD1D1D`/`#FCB045` 선셋 그라데이션) 공식 채택 전면 개편.
   1. `src/lib/version.ts`: `v1.73`으로 버전 범프.

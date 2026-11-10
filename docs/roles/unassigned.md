@@ -9,6 +9,7 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
+| 2026-11-11 | 메인 사이트 · REA 카테고리 | 비공개(내부) 카테고리 = 관리자·시험 계정 전용(`can_view_internal`, 마이그레이션 0058), 최상위 지침·[`REA_CATEGORY_POLICY.md`](../REA_CATEGORY_POLICY.md). Craft Anything 0.6.0·Codex·Antigravity 연결(세션 `claude-win-rea`) | 메인 사이트 push 빌드 1회 |
 | — | 없음 | — | — |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
