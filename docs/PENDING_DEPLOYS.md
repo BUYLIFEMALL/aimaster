@@ -55,8 +55,6 @@
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
-| `ai-work-workspace` | 구글 일정(시간 있는 일정)을 표로 가져오면 시간이 빠지던 것 → 날짜 칸에 시간까지(CSV 「날짜 시간」 값도 시간 유지) | `6e22daf82` | 2026-11-11 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` 「캘린더 연동」 | 다음 배포 때(v1.28) |
-| `ai-work-workspace` | 새 에이전트 기본 이름 「New agent」 → 「새 에이전트」 | `ea21d51a5` | 2026-11-11 [역할: workspace] Claude Code(윈도우) | `ai-work-workspace/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때(v1.28) |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
@@ -69,6 +67,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `ai-work-workspace` | v1.28 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「순서대로 진행해」 빌드 1회, `ai-work-workspace-lpqismplb` Ready, DB v1.28) | **U13 협업**(회원 초대·페이지 공유·5초 확인·동시 편집 잠금·프로필 범위·첨부 파일) + 캘린더 시간 유지 `6e22daf82` + 에이전트 기본 이름 `ea21d51a5` |
 | `naver-blog-agent` | v2.28 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「순서대로 진행해」 빌드 1회, `naver-blog-agent-41iwox33s` Ready, DB·확장·ZIP v2.28 check OK) | U10 2차 보관함 「📨 워크스페이스로」 `18cfb01d5`(시험 4개, 확장 코드 변경 없음) |
 | `competitor-analysis` | v1.13 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「너가 진행해」 빌드 1회, `competitor-analysis-m4p8gw1g0` Ready, DB·확장·ZIP v1.13 check OK) | U10 2차 「📨 업무 워크스페이스로 보내기」 `82c25c802`·`34ed724a1` (확장 코드 변경 없음, 버전만) |
 | `web-crawler` | v1.12 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「너가 진행해」 빌드 1회, `web-crawler-saas-ibhw2lxe1` Ready, DB v1.10→v1.12) | U10 2차 완료 작업 「📨 워크스페이스로」 `21ba04b80` (시험 3개) |
