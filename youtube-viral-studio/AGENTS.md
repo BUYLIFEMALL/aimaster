@@ -9,7 +9,7 @@
 ## 1. 개요 & 버전 현황
 - 프로그램명: **YOUTUBE VIRAL FINDER**
 - Slug: `youtube-viral-studio`
-- 현재 버전: `v1.27` (2026-11-11 V6 「📈 내 채널 진짜 지표」 — 맨 아래 절)
+- 현재 버전: `v1.28` (2026-11-11 이름 「AI 유튜브 떡상 분석 자동화」로 변경 · V6 「📈 내 채널 진짜 지표」 — 맨 아래 절)
 - 공식 라이브 URL: [https://youtube-viral-studio.buylife.xyz](https://youtube-viral-studio.buylife.xyz)
 - Vercel URL: [https://youtube-viral-studio.vercel.app](https://youtube-viral-studio.vercel.app)
 - 기반 환경: Next.js 16.4.2 + React 19 + Tailwind CSS v4 + Supabase SSR
@@ -205,3 +205,8 @@
 - **지표**(`src/lib/youtube/myChannel.ts` 서버 · `analytics.ts` 순수 함수): YouTube Analytics API v2 `reports` 7개를 동시에 — 요약(조회수·시청 시간·평균 시청 길이/비율·구독 얻음/잃음·좋아요·댓글·공유), 날짜별, 잘 된 영상 10(제목은 Data API), 유입 경로(`insightTrafficSourceType` 한국어), 나이·성별(`viewerPercentage`), 국가, 쇼츠/일반/라이브(`creatorContentType`). 요약 외 보고서는 실패해도 빈 칸. 「YouTube Analytics API」 꺼짐은 안내 문구. **저장하지 않음**(새 표 없음). 숫자 규칙 힌트 최대 5줄(AI 없음). 노출수·CTR은 API에 없어 안내만(공식 문서 2026-11-11 확인).
 - 화면 `/my-channel`(진단 메뉴 맨 위), 설정에 구글 앱 칸, 매뉴얼 카드. 운영 DB `integration_catalog` youtube `scope_sets.analytics` 추가(`supabase/migrations/20261111120000_integration_catalog_youtube_analytics.sql`, 기존 manage 유지).
 - 검수: 시험 38(새 `tests/myChannel.test.mjs` 8개), tsc, 로컬 빌드, 운영 ego — 시험 계정 `/my-channel` 「연결해 주세요」 단계 안내·설정 칸 「등록됨」 확인. **실제 연결·지표 확인은 주인님 구글 클라우드 설정 뒤**(Analytics API 켜기·콜백 주소 추가).
+
+## 2026-11-11 v1.28 — 이름 변경 「AI 유튜브 떡상 분석 자동화」 + 미배포 3건 (Claude Code 윈도우 `claude-win-video`, 주인님 승인 빌드 1회 `youtube-viral-studio-j7cm0leh3`, DB v1.28)
+- 주인님 지시 「AI 유튜브 떡상 분석 자동화 이걸로 바꿔」(추천 3안 중 1안). 옛 이름: 카탈로그 「YOUTUBE 트렌드 분석」, 코드 「AI 유튜브 트렌드 분석·황금 채널 발굴」, 좌측 위 「골든 엠파이어 레이더 / 인텔리전스 콘솔」. `APP_NAME`·탭 제목·좌측 위 제목 변경, DB `programs.name`·`short_desc` 변경. slug·주소는 그대로(북마크·구글 콜백).
+- 함께 나감: 「쇼츠·일반 영상」 칸 한국어(실제 응답 `shorts`·`videoOnDemand`), 「구글 앱 테스트 중이면 7일마다 끊김 → 대상에서 앱 게시」 안내(화면·매뉴얼), 연결된 상태에서도 보이는 「다시 연결」 버튼.
+- 운영 확인(ego): 탭 제목·좌측 위·v1.28·다시 연결 버튼·쇼츠/일반 영상 표시, 메인 카탈로그 새 이름. 실제 연결: 시험 계정, 앱 게시(프로덕션) 뒤 새로 받은 연결(갱신 토큰 있음, 4권한) 저장 확인 — 7일 만료 없음.
