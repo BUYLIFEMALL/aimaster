@@ -8,7 +8,7 @@ const ts = require('typescript');
 // Run the real route handlers with an isolated database. No live writes or paid API calls.
 function harness(route, { allowed = true, status = 401, admin = false, posts, fail = null, loseOwner = false } = {}) {
   const rows = { blog_posts: posts ?? [{ id: 1, user_id: 'member-a', content: 'old' }],
-    profiles: [{ id: 'member-a', is_admin: admin }], blog_categories: [{ id: 1, name: 'Shared', slug: 'shared', sort_order: 1 }], blog_post_categories: [] };
+    profiles: [{ id: 'member-a', is_admin: admin }], blog_categories: [{ id: 1, name: 'Other', slug: 'other', sort_order: 1, user_id: 'member-b' }, { id: 2, name: 'Mine', slug: 'mine', sort_order: 2, user_id: 'member-a' }], blog_post_categories: [] };
   const mutations = [];
   let clients = 0;
   const client = { from(table) {
@@ -16,6 +16,7 @@ function harness(route, { allowed = true, status = 401, admin = false, posts, fa
     let op = 'select', values;
     const q = {
       select() { return q; }, eq(key, value) { filters.push([key, value]); return q; },
+      neq(key, value) { filters.push([key, value, 'neq']); return q; },
       order() { return q; }, limit() { return q; },
       update(data) { op = 'update'; values = data; return q; },
       insert(data) { op = 'insert'; values = data; return q; },
@@ -26,9 +27,9 @@ function harness(route, { allowed = true, status = 401, admin = false, posts, fa
     async function finish(single) {
       if (fail === table) return { data: null, error: { message: 'SECRET_DATABASE_DETAIL' } };
       if (loseOwner && op !== 'select' && table === 'blog_posts') rows.blog_posts[0].user_id = 'member-b';
-      const matched = (rows[table] ?? []).filter(row => filters.every(([key, value]) => row[key] === value));
+      const matched = (rows[table] ?? []).filter(row => filters.every(([key, value, mode]) => (mode === 'neq' ? row[key] !== value : row[key] === value)));
       if (op !== 'select') {
-        mutations.push({ table, op, filters, matched: matched.length });
+        mutations.push({ table, op, filters, matched: matched.length, values });
         if (op === 'update') matched.forEach(row => Object.assign(row, values));
         if (op === 'delete') rows[table] = rows[table].filter(row => !matched.includes(row));
       }
@@ -107,25 +108,34 @@ test('DELETE: no affected post is not reported as success', async () => {
   const h = harness(postRoute, { loseOwner: true }); const r = await h.handlers.DELETE(request('DELETE'), context(1));
   assert.equal(r.status, 409); assert.equal(h.rows.blog_posts.length, 1);
 });
-for (const method of ['POST', 'PATCH', 'DELETE']) {
-  test(`categories ${method}: ordinary member cannot mutate shared categories`, async () => {
+// 카테고리는 회원 본인 소유(v1.84, 2026-10-28 주인님 지시) — 공용·관리자 전용 규칙은 없어졌다.
+for (const method of ['PATCH', 'DELETE']) {
+  test(`categories ${method}: member cannot touch another member's category`, async () => {
     const h = harness(categoryRoute); const r = await h.handlers[method](request(method, { id: 1, name: 'Changed', is_admin: true }));
-    assert.equal(r.status, 403); assert.equal(h.mutations.length, 0);
+    assert.equal(r.status, 404); assert.equal(h.mutations.length, 0); assert.equal(h.rows.blog_categories[0].name, 'Other');
   });
+}
+for (const method of ['POST', 'PATCH', 'DELETE']) {
   test(`categories ${method}: missing entitlement stops before database`, async () => {
     const h = harness(categoryRoute, { allowed: false, status: 403 }); const r = await h.handlers[method](request(method));
     assert.equal(r.status, 403); assert.equal(h.clients(), 0);
   });
 }
-test('categories GET: authorized member sees list with read-only permission', async () => {
-  const h = harness(categoryRoute); const r = await h.handlers.GET();
-  assert.equal(r.status, 200); assert.equal((await r.json()).canManage, false);
+test('categories POST: member creates own category, owner set by server (client is_admin ignored)', async () => {
+  const h = harness(categoryRoute); const r = await h.handlers.POST(request('POST', { name: 'New', is_admin: true, user_id: 'member-b' }));
+  assert.equal(r.status, 200);
+  const ins = h.mutations.filter((m) => m.op === 'insert');
+  assert.equal(ins.length, 1); assert.equal(ins[0].values.user_id, 'member-a');
 });
-test('categories PATCH: actual admin can rename', async () => {
-  const h = harness(categoryRoute, { admin: true }); const r = await h.handlers.PATCH(request('PATCH', { id: 1, name: 'Changed' }));
-  assert.equal(r.status, 200); assert.equal(h.rows.blog_categories[0].name, 'Changed');
+test('categories GET: member sees only own categories and can manage them', async () => {
+  const h = harness(categoryRoute); const r = await h.handlers.GET(); const body = await r.json();
+  assert.equal(r.status, 200); assert.equal(body.canManage, true); assert.deepEqual(body.data.map((c) => c.id), [2]);
 });
-test('categories PATCH: client admin flag cannot bypass failed server lookup', async () => {
-  const h = harness(categoryRoute, { admin: true, fail: 'profiles' }); const r = await h.handlers.PATCH(request('PATCH', { id: 1, name: 'Changed', is_admin: true }));
+test('categories PATCH: owner can rename own category', async () => {
+  const h = harness(categoryRoute); const r = await h.handlers.PATCH(request('PATCH', { id: 2, name: 'Changed' }));
+  assert.equal(r.status, 200); assert.equal(h.rows.blog_categories[1].name, 'Changed'); assert.equal(h.rows.blog_categories[0].name, 'Other');
+});
+test('categories PATCH: failed ownership lookup stops without changes', async () => {
+  const h = harness(categoryRoute, { fail: 'blog_categories' }); const r = await h.handlers.PATCH(request('PATCH', { id: 2, name: 'Changed' }));
   assert.equal(r.status, 500); assert.equal(h.mutations.length, 0);
 });

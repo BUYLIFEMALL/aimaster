@@ -144,7 +144,7 @@ test('without Gemini, or when Gemini fails, OpenAI makes a metadata-based estima
 });
 
 // ---------- API 경로 ----------
-function routeHarness({ access = { allowed: true, user: { id: 'member-a' } }, keys = { youtube_api_key: 'YT', gemini: 'GEM', openai: 'OAI' }, categories = [{ id: 7 }], candidates = [], insertError = null, analyze = null } = {}) {
+function routeHarness({ access = { allowed: true, user: { id: 'member-a' } }, keys = { youtube_api_key: 'YT', gemini: 'GEM', openai: 'OAI' }, categories = [{ id: 7, user_id: 'member-a' }], candidates = [], insertError = null, analyze = null } = {}) {
   const rows = { blog_candidates: candidates.map((row) => ({ ...row })), blog_categories: categories, user_api_keys: Object.entries(keys).map(([provider, api_key]) => ({ user_id: 'member-a', provider, api_key })) };
   const stats = { reads: 0, inserts: [], aiCalls: 0 };
   const client = { from(table) {
