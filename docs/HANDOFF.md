@@ -8,6 +8,20 @@
 - **다음 첫 단계**: 3차 5번 입점형 마켓플레이스 플랜(큰 공사 — 범위 결정부터)
 - 링크: https://dev-mall-builder.vercel.app
 
+## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-tap-v1` — `threads-affiliate-poster` (쓰레드 쇼핑제휴 포스터) v1.87 2안(95. 클린 스마트 커머스 인플루언서 아틀리에 스타일) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
+- **한 일**: 주인님 「2안으로 해」 절대 지시에 따라 `threads-affiliate-poster` (v1.86 ➔ v1.87) 프로그램을 95번 클린 스마트 커머스 인플루언서 아틀리에 스타일로 전면 리뉴얼 및 프로덕션 배포 완료.
+  1. **2안 비주얼 테마 탑재**: 소프트 크림 페이퍼(`#F8FAFC`) & 로열 퍼플(`#7C3AED` / `#6D28D9`) & 세이지 차콜, 화사하고 단정한 인플루언서 라이프스타일 큐레이션 감성 적용.
+  2. **2026-11-01 5단계 표준 로그인 폼 & 1행 약관 개편**: 68px 퍼플 `@` 심볼 로고 + 알약 뱃지(`AIMASTER THREADS AFFILIATE`) + 볼드 타이틀 + 3D 엠보싱 로열 퍼플 버튼(`.btn-3d`, `.btn-3d-royal-purple`) + 1행 축소 약관(`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`) 탑재 (`src/app/(auth)/layout.tsx`, `src/app/(auth)/login/page.tsx`).
+  3. **대시보드 & 사이드바 통일**: 로열 퍼플 인디케이터(`bg-purple-600`, `text-purple-300`, `border-purple-500/40`), 3D 엠보싱 버튼 연동 (`Sidebar.tsx`, `Button.tsx`).
+  4. **버전 범프**: `src/lib/version.ts`: `APP_VERSION = "v1.87"`.
+- **검수**: `tsc --noEmit` 통과, Next.js 16.4.2 프로덕션 빌드 성공, Vercel 프로덕션 배포 완료 (`dpl_Eur8z57k6Ua9yjD6qvJ3eZZsjQ18`), 라이브 세션 HTTP 200 OK 및 Playwright 1440px 고화질 스크린샷 캡처 완료 (`threads-affiliate-poster/docs/evidence_login_v187.png`).
+- **5대 결과 링크 세트**:
+  1. 🌐 **공식 운영 서비스**: https://threads-affiliate-poster.buylife.xyz
+  2. 🌐 **Vercel 프로덕션 보조 링크**: https://threads-affiliate-poster.vercel.app
+  3. 📮 **관리자 dev-docs 결과함**: https://www.buylife.xyz/admin/dev-docs/requests
+  4. 🎨 **브라우저 쇼케이스 URL**: http://localhost:3800/showcase.html (비교표: http://localhost:3800/comparison.html)
+  5. 📁 **로컬 영구 자산 폴더**: `D:\Antigravity\Design\95_clean_smart_commerce_atelier\threads_affiliate_poster`
+- **다음 첫 단계**: 주인님 다음 디자인 작업 리스트 지시 대기.
 
 ## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `ai-video-studio` v1.35 영상 합치기 배경음악 「내 자료함」
 - **한 일**: 공용 `member-assets-client` 사본으로 배경음악 목록을 AI 음악 스튜디오·Suno 음악 자동화·무료음악 한 목록으로(무료음악은 PC에만 있어 비활성 안내), 새 출처 `library`(sourceRef) 저장·다시 열기, 옛 `ams` 편집 호환, 30MB 크기 확인. 공용 `video-edit-timeline` 기준 수정 → 뮤직비디오 사본 동기화(미배포). 서버 서울 `icn1` 반영 확인.
@@ -29,6 +43,10 @@
 - 다음: 관리자 계정 연결 시험 재확인 → 3단계 등록 화면. ⚠ 쓰기 API가 등록 IP를 요구하면 국내 고정 IP 재결정.
 
 
+## 2026-11-11 ✅ [역할: mac-mini] Codex(맥미니) · 세션 codex-mac-20261111-wpblogger-closeout — wp-blogger-auto 문서/대상안내 직접 정리·윈도우 요청 등록
+- **직접 완료**: 비교표해당행 v1.02배포·비공개·실물완료정리, BLOG_FEATURE_MATRIX 공식API 두플랫폼표/카테고리지도 추가, 초기·공개전플랜 현상태갱신. 기존초안 Blogger계정/대상미선택 안내+/connect링크 PublishPanel보완(미배포). 로컬Next use-client문서확인·tsc0·diff check통과, 빌드/새코드실화면미검수.
+- **윈도우 요청**: `de21e15b-4f82-460a-968c-e2c1232c3932` 등록(관리자요청함), 상세 `wp-blogger-auto/docs/IMPROVEMENTS.md` 맨위. OAuth안내+이번안내v1.03묶음/비용승인범위확인·배포→소개/썸네일/공개결정→공개뒤회원접근맥미니요청. 직접수신확인없음, 문서·요청함인계.
+- 공유폴더미커밋으로인수·맥미니커밋/푸시/설치/빌드/배포/유료호출없음. 공통문서다른세션변경을함께올리지말것. ACTIVE내줄만정리, 윈도우본인줄/역할상태는담당정리요청. 운영서비스DB변경없고사용자요청업무등록만실행. 처음설정/매일조작/동의추가0.
 
 
 ## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-tap-v1` — `threads-affiliate-poster` (쓰레드 쇼핑제휴 포스터) v1.86 4대 화면 3시안(94/95/96번) 쇼케이스 및 종합 비교표 구축 완료 (주인님 채택 대기)
