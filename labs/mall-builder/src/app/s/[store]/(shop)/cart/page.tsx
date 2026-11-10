@@ -20,10 +20,10 @@ export default async function CartPage({
   searchParams,
 }: {
   params: Promise<{ store: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
   const { store: slug } = await params;
-  const { error } = await searchParams;
+  const { error, notice } = await searchParams;
   const store = await getStoreBySlug(slug);
   // 비회원 주문을 켠 몰은 로그인 없이 쿠키 장바구니(D15)
   if (!(await getCurrentUser()) && guestOrderEnabled(store.settings)) return <GuestCart store={store} error={error} />;
@@ -49,6 +49,7 @@ export default async function CartPage({
     <main className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="text-xl font-bold">장바구니</h1>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {notice && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-800" data-cart-notice>{notice}</p>}
 
       {lines.length === 0 ? (
         <p className="mt-8 rounded border border-dashed p-8 text-center text-gray-500">

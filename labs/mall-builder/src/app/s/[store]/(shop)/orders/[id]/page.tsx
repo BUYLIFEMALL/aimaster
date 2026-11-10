@@ -11,6 +11,7 @@ import OrderStatusButtons from "@/app/order-status-buttons";
 import { getCardPayment } from "@/lib/card-payments";
 import { CARD_STATUS_LABEL } from "@/lib/payment";
 import { recheckCardAction } from "@/lib/order-actions";
+import { reorderAction } from "../../quick-order/actions";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -64,6 +65,10 @@ export default async function OrderDetailPage({
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-bold">주문 {order.order_no}</h1>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-order-status>{ORDER_STATUS_LABEL[order.status]}</span>
+        {/* D25 다시 담기 — 같은 품목·수량을 장바구니에(가격은 지금 가격) */}
+        <form action={reorderAction.bind(null, slug, order.id)} className="ml-auto">
+          <button className="rounded border px-3 py-1 text-sm" data-reorder>🛒 다시 담기</button>
+        </form>
       </div>
       <p className="mt-1 text-sm text-gray-500">
         {formatDateTime(order.created_at)} 주문 · 결제 {payLabel}

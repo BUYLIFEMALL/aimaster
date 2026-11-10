@@ -69,6 +69,7 @@ export default async function ShopLayout({ children, params }: { children: React
               </>
             ) : customer ? (
               <>
+                {showShop && <Link href={`${base}/quick-order`} data-quick-link>빠른 주문</Link>}
                 {showShop && <Link href={`${base}/cart`} data-cart-link>장바구니{cartCount ? ` ${cartCount}` : ""}</Link>}
                 <Link href={`${base}/my`}>{customer.name}님 · 마이페이지</Link>
               </>
