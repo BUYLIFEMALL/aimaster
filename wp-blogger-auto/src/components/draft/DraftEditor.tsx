@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImagePanel, type ImageItem } from "./ImagePanel";
+import { PublishPanel, type PublishState } from "./PublishPanel";
 
 export type EditablePost = {
   id: string;
@@ -18,7 +19,7 @@ export type EditablePost = {
 
 const EDITABLE = ["ready", "draft", "failed"];
 
-export function DraftEditor({ post }: { post: EditablePost }) {
+export function DraftEditor({ post, publish, connected }: { post: EditablePost; publish: PublishState; connected: boolean }) {
   const router = useRouter();
   const [title, setTitle] = useState(post.title);
   const [excerpt, setExcerpt] = useState(post.excerpt);
@@ -87,6 +88,7 @@ export function DraftEditor({ post }: { post: EditablePost }) {
       </div>
 
       <div className="space-y-4">
+        <PublishPanel post={publish} canPublish={!dirty} connected={connected} />
         <ImagePanel postId={post.id} images={post.images} editable={editable && !dirty} />
         {dirty && <p className="text-xs text-amber-700">글을 고친 뒤에는 먼저 저장해야 이미지를 만들 수 있습니다.</p>}
         <div className="lp-card">
@@ -99,7 +101,6 @@ export function DraftEditor({ post }: { post: EditablePost }) {
         </div>
         <div className="lp-card space-y-2">
           <button type="button" onClick={save} disabled={!editable || !dirty || !!busy} className="lp-btn w-full disabled:opacity-50">{busy === "save" ? "저장하는 중…" : "💾 저장"}</button>
-          <p className="text-xs text-[color:var(--muted)]">🚀 발행(초안·바로·예약)은 다음 단계에서 이 화면에 붙습니다.</p>
           {!editable && <p className="text-xs text-amber-700">발행 중·예약·발행된 글은 여기서 고칠 수 없습니다. 블로그 관리 화면에서 고쳐 주세요.</p>}
           <button type="button" onClick={remove} disabled={!!busy || post.status === "publishing"} className="w-full rounded-xl px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50 disabled:opacity-50">원고 지우기</button>
           {msg && <p className={`rounded-xl px-3 py-2 text-sm font-semibold ${msg.ok ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>{msg.text}</p>}
