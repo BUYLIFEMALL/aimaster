@@ -74,7 +74,8 @@ export default function ProductDetail({
     qty,
     ctx,
   );
-  const graded = line.breakdown.some((b) => b.label.startsWith("등급가"));
+  const special = line.breakdown.some((b) => b.label === "거래처 특가"); // D24
+  const graded = special || line.breakdown.some((b) => b.label.startsWith("등급가"));
   const rate = graded || line.priceHidden ? 0 : discountRate(basePrice, listPrice);
   const soldOut = status === "sold_out";
 
@@ -132,7 +133,7 @@ export default function ProductDetail({
           <p className="mt-4 rounded bg-gray-50 px-3 py-2 text-gray-700" data-unit-price>{line.errors.find((e) => /가격/.test(e))}</p>
         ) : (
           <p className="mt-4 text-2xl" data-unit-price>
-            {graded && <span className="mr-2 rounded bg-blue-50 px-1.5 text-sm text-blue-700">{ctx.gradeName ?? "회원"} 가격</span>}
+            {graded && <span className="mr-2 rounded bg-blue-50 px-1.5 text-sm text-blue-700" data-price-badge>{special ? "거래처 특가" : `${ctx.gradeName ?? "회원"} 가격`}</span>}
             {rate > 0 && !variant?.extra_price && <span className="mr-2 font-bold text-red-600">{rate}%</span>}
             <b>{line.unitPrice.toLocaleString("ko-KR")}</b>원
             {graded && <span className="ml-2 text-base text-gray-400 line-through">{(basePrice + (variant?.extra_price ?? 0)).toLocaleString("ko-KR")}원</span>}

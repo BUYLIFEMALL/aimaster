@@ -11,6 +11,10 @@ import { POINT_KIND_LABEL } from "@/lib/benefits";
 import { adjustPointsAction } from "@/lib/benefit-actions";
 import { MEMBER_STATUS_LABEL } from "@/lib/closed";
 import { reviewMemberAction } from "../actions";
+import { deleteCustomerPriceAction, saveBaseRateAction, saveCustomerPriceAction } from "../customer-price-actions";
+import { specialText, todayKst } from "@/lib/customerPrices";
+import { createClient } from "@/lib/supabase/server";
+import DeleteButton from "../../categories/delete-button";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -37,6 +41,16 @@ export default async function AdminCustomerPage({
     getPointLedger(c.id, 20),
     getMyCoupons(c.id),
   ]);
+  // 거래처 특가(D24) — 이 손님의 특가 + 고를 상품(품번 있는 것)
+  const supabase = await createClient();
+  const [{ data: specialRows }, { data: productRows }] = await Promise.all([
+    supabase.from("mall_builder_customer_prices").select("id, product_id, price, discount_rate, ends_on, memo, mall_builder_products(name, product_code, base_price)").eq("customer_id", c.id).order("created_at"),
+    supabase.from("mall_builder_products").select("product_code, name, base_price").eq("store_id", store.id).not("product_code", "is", null).order("product_code").limit(2000),
+  ]);
+  type SpecialRow = { id: string; product_id: string | null; price: number | null; discount_rate: number | null; ends_on: string | null; memo: string; mall_builder_products: { name: string; product_code: string | null; base_price: number } | null };
+  const specials = (specialRows ?? []) as unknown as SpecialRow[];
+  const baseRate = specials.find((x) => !x.product_id) ?? null;
+  const today = todayKst();
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/customers">
@@ -151,6 +165,66 @@ export default async function AdminCustomerPage({
                 <span className="text-xs text-gray-400">{formatDateTime(e.created_at)}{e.remaining > 0 && e.expires_at ? ` · ${new Date(e.expires_at).toLocaleDateString("ko-KR")} 소멸` : ""}</span>
               </li>
             ))}
+          </ul>
+        )}
+      </section>
+
+      <section id="customer-prices" className="mt-6 space-y-3 rounded-lg border p-4 text-sm" data-customer-prices>
+        <h3 className="font-semibold">
+          거래처 특가 <span className="ml-1 text-xs font-normal text-gray-500">상품별 특가 &gt; 기본 할인율 &gt; 등급가 순. 특가는 최종 단가(수량 할인 없음), 공동구매 중이면 공동구매가</span>
+        </h3>
+        <form action={saveBaseRateAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2" data-base-rate>
+          <label className="block">
+            <span className="text-xs text-gray-500">기본 할인율(전체 상품)</span>
+            <input name="rate" defaultValue={baseRate?.discount_rate != null ? `${baseRate.discount_rate}%` : ""} placeholder="예: 5%" className="mt-1 block w-24 rounded border px-2 py-1.5" />
+          </label>
+          <label className="block">
+            <span className="text-xs text-gray-500">끝나는 날(비우면 계속)</span>
+            <input type="date" name="ends_on" min={today} defaultValue={baseRate?.ends_on ?? ""} className="mt-1 block rounded border px-2 py-1.5" />
+          </label>
+          <button className="min-h-10 rounded border px-4">저장(비우면 지움)</button>
+          {baseRate?.ends_on && baseRate.ends_on < today && <span className="text-xs text-red-600">끝나는 날이 지나 적용되지 않습니다</span>}
+        </form>
+
+        <form action={saveCustomerPriceAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2 border-t pt-3" data-special-form>
+          <label className="block">
+            <span className="text-xs text-gray-500">품번</span>
+            <input name="product_code" list="special-products" required placeholder="P00001" className="mt-1 block w-36 rounded border px-2 py-1.5 font-mono" />
+            <datalist id="special-products">
+              {(productRows ?? []).map((p) => (
+                <option key={p.product_code as string} value={p.product_code as string}>{`${p.name} · ${Number(p.base_price).toLocaleString("ko-KR")}원`}</option>
+              ))}
+            </datalist>
+          </label>
+          <label className="block">
+            <span className="text-xs text-gray-500">특가(금액 또는 %)</span>
+            <input name="value" required placeholder="23000 또는 5%" className="mt-1 block w-32 rounded border px-2 py-1.5" />
+          </label>
+          <label className="block">
+            <span className="text-xs text-gray-500">끝나는 날</span>
+            <input type="date" name="ends_on" min={today} className="mt-1 block rounded border px-2 py-1.5" />
+          </label>
+          <input name="memo" maxLength={200} placeholder="메모(운영자만 봄)" className="w-48 rounded border px-2 py-1.5" />
+          <button className="min-h-10 rounded bg-gray-900 px-4 text-white">특가 저장</button>
+        </form>
+        <p className="text-xs text-gray-500">같은 상품을 다시 저장하면 고쳐집니다. 품번이 없는 상품은 상품 화면에서 품번을 먼저 넣어 주세요.</p>
+
+        {specials.some((x) => x.product_id) && (
+          <ul className="divide-y rounded border" data-special-list>
+            {specials.filter((x) => x.product_id).map((x) => {
+              const expired = !!x.ends_on && x.ends_on < today;
+              return (
+                <li key={x.id} className={`flex flex-wrap items-center gap-2 px-3 py-2 ${expired ? "text-gray-400" : ""}`}>
+                  <span className="w-20 font-mono text-xs">{x.mall_builder_products?.product_code}</span>
+                  <span className="flex-1">{x.mall_builder_products?.name}</span>
+                  <span className="text-gray-400 line-through">{Number(x.mall_builder_products?.base_price ?? 0).toLocaleString("ko-KR")}원</span>
+                  <b>{specialText(x)}</b>
+                  <span className="text-xs text-gray-500">{x.ends_on ? `${x.ends_on}까지${expired ? "(지남)" : ""}` : "계속"}</span>
+                  {x.memo && <span className="text-xs text-gray-500">· {x.memo}</span>}
+                  <DeleteButton name={x.mall_builder_products?.name ?? "상품"} noun="특가" action={deleteCustomerPriceAction.bind(null, store.slug, c.id, x.id)} />
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

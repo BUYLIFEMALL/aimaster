@@ -169,14 +169,38 @@ export async function getProductGradePriceInputs(productId: string): Promise<Rec
 /** 상품 여러 개의 가격 문맥(장바구니·주문서) — 상품 id를 주면 그 상품의 문맥 */
 export async function getPriceContexts(storeId: string, productIds: string[]): Promise<(productId: string) => PriceContext> {
   const shopper = await getShopper(storeId);
-  const [prices, tiers, groups] = await Promise.all([getGradePriceMap(storeId, shopper.gradeId, productIds), getTierMap(productIds), getOpenGroupPrices(productIds)]);
+  const [prices, tiers, groups, special] = await Promise.all([
+    getGradePriceMap(storeId, shopper.gradeId, productIds),
+    getTierMap(productIds),
+    getOpenGroupPrices(productIds),
+    getCustomerPriceMap(shopper.customer?.id ?? null, productIds),
+  ]);
   return (productId) => ({
+    customerPrice: special.byProduct.get(productId) ?? special.base,
     viewer: shopper.viewer,
     gradePrice: prices.get(productId) ?? null,
     gradeName: shopper.gradeName ?? undefined,
     tiers: tiers.get(productId) ?? [],
     groupPrice: groups.get(productId) ?? null,
   });
+}
+
+/** 거래처 특가(D24) — 이 손님의 상품별 특가 + 기본 할인율(상품 없는 줄). 끝나는 날(한국 날짜)이 지난 것은 뺀다(DB 0045b와 같은 조건) */
+export async function getCustomerPriceMap(customerId: string | null, productIds: string[]): Promise<{ byProduct: Map<string, GradePrice>; base: GradePrice }> {
+  const byProduct = new Map<string, GradePrice>();
+  if (!customerId) return { byProduct, base: null };
+  const supabase = await createClient();
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+  let q = supabase.from("mall_builder_customer_prices").select("product_id, price, discount_rate").eq("customer_id", customerId).or(`ends_on.is.null,ends_on.gte.${today}`);
+  q = productIds.length ? q.or(`product_id.is.null,product_id.in.(${productIds.join(",")})`) : q.is("product_id", null);
+  const { data } = await q;
+  let base: GradePrice = null;
+  for (const r of (data ?? []) as { product_id: string | null; price: number | null; discount_rate: number | null }[]) {
+    const v = { price: r.price == null ? null : Number(r.price), discount_rate: r.discount_rate };
+    if (r.product_id) byProduct.set(r.product_id, v);
+    else base = v;
+  }
+  return { byProduct, base };
 }
 
 /** 진행 중인 공동구매가(D21) — 상품 → 가격. 기간 안·진행 중만(DB 주문 함수와 같은 조건) */
@@ -246,12 +270,13 @@ async function readShopProducts(storeId: string, o: { ids?: string[] | null; q?:
   return (data ?? []) as ProductRow[];
 }
 
-export type ShopProduct = ProductRow & { display: { unitPrice: number; priceHidden: boolean; note: string } };
+export type ShopProduct = ProductRow & { display: { unitPrice: number; priceHidden: boolean; note: string; special?: boolean } };
 
-/** 보는 사람 기준으로 사업자 전용 상품을 빼고, 카드에 보여 줄 가격(등급가·비공개 반영)을 붙인다 */
+/** 보는 사람 기준으로 사업자 전용 상품을 빼고, 카드에 보여 줄 가격(등급가·거래처 특가·비공개 반영)을 붙인다 */
 async function withDisplayPrices(storeId: string, rows: ProductRow[]): Promise<ShopProduct[]> {
   const shopper = await getShopper(storeId);
-  const prices = await getGradePriceMap(storeId, shopper.gradeId, rows.map((r) => r.id));
+  const ids = rows.map((r) => r.id);
+  const [prices, special] = await Promise.all([getGradePriceMap(storeId, shopper.gradeId, ids), getCustomerPriceMap(shopper.customer?.id ?? null, ids)]);
   const out: ShopProduct[] = [];
   for (const r of rows) {
     // 옵션 상품도 카드에는 기본 판매가 기준(옵션 추가금 없이)으로 보여 준다
@@ -259,9 +284,10 @@ async function withDisplayPrices(storeId: string, rows: ProductRow[]): Promise<S
       viewer: shopper.viewer,
       gradePrice: prices.get(r.id) ?? null,
       gradeName: shopper.gradeName ?? undefined,
+      customerPrice: special.byProduct.get(r.id) ?? special.base, // 거래처 특가(D24)
     });
     if (!line.visible) continue;
-    out.push({ ...r, display: { unitPrice: line.unitPrice, priceHidden: line.priceHidden, note: line.priceHidden ? line.errors.find((e) => /가격/.test(e)) ?? "" : "" } });
+    out.push({ ...r, display: { unitPrice: line.unitPrice, priceHidden: line.priceHidden, note: line.priceHidden ? line.errors.find((e) => /가격/.test(e)) ?? "" : "", special: line.breakdown.some((b) => b.label === "거래처 특가") } });
   }
   return out;
 }

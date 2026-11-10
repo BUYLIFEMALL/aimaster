@@ -1,6 +1,6 @@
 // 가격 계산 엔진 — 장바구니·상품 상세·주문서가 모두 이 함수를 쓴다(docs/mall/ARCHITECTURE.md §4)
 // 순서: 보이기(사업자 전용·회원 구매·가격 비공개) → 판매 상태 → 기준가(판매가 + 옵션 추가금) → 등급가 → 원 단위 내림 → 수량·재고 검사.
-// 수량 구간 할인·견적가는 F14·F15에서 같은 순서 자리에 끼워 넣는다.
+// 수량 구간 할인·견적가는 F14·F15에서 같은 순서 자리에 끼워 넣는다. 거래처 특가(D24)는 등급가 자리에서 먼저 — 있으면 최종 단가.
 // 주문 DB 함수 mall_builder_place_order가 같은 계산을 SQL로 다시 한다 — 바꾸면 둘 다 바꾼다.
 // 확장자(.ts)까지 적는다 — `node --test`가 이 파일을 바로 읽기 때문(tsconfig allowImportingTsExtensions)
 import { computeShipping, type Region, type ShippingPolicy } from "./shipping.ts";
@@ -28,7 +28,8 @@ export type VolumeTier = { min_qty: number; discount_type: "rate" | "amount" | "
 export type Viewer = "guest" | "consumer" | "pending" | "business";
 export type GradePrice = { price: number | null; discount_rate: number | null } | null;
 /** groupPrice: 진행 중인 공동구매가(D21) — 있으면 등급가·수량 할인 대신 이 가격(+ 옵션 추가금). DB 0041 v2와 같은 규칙 */
-export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string; tiers?: VolumeTier[]; groupPrice?: number | null };
+/** customerPrice: 거래처 특가(D24) — 상품별 특가 또는 거래처 기본 할인율. 있으면 등급가 대신, 최종 단가(수량 할인 안 함). DB 0045b와 같은 규칙 */
+export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string; tiers?: VolumeTier[]; groupPrice?: number | null; customerPrice?: GradePrice };
 
 export type PriceLine = {
   visible: boolean; // false면 목록·상세에 보이지 않는 상품(사업자 전용)
@@ -68,12 +69,13 @@ export function priceLine(product: PricingProduct, variant: Variant | null, qty:
   let unitPrice = Math.max(0, Math.floor(base));
   const breakdown = [{ label: "판매가", amount: product.base_price }];
   if (extra) breakdown.push({ label: "옵션 추가금", amount: extra });
-  const gp = ctx.groupPrice != null ? null : ctx.gradePrice;
+  const special = ctx.groupPrice == null && ctx.customerPrice && (ctx.customerPrice.price != null || ctx.customerPrice.discount_rate != null) ? ctx.customerPrice : null;
+  const gp = ctx.groupPrice != null ? null : special ?? ctx.gradePrice;
   if (gp && (gp.price != null || gp.discount_rate != null)) {
     // 금액 지정은 옵션 추가금을 그대로 더하고, 할인율은 (판매가 + 추가금)에 적용
     const graded = gp.price != null ? gp.price + extra : Math.floor((base * (100 - (gp.discount_rate as number))) / 100);
     unitPrice = Math.max(0, Math.floor(graded));
-    if (unitPrice !== base) breakdown.push({ label: `등급가${ctx.gradeName ? `(${ctx.gradeName})` : ""}`, amount: unitPrice - base });
+    if (unitPrice !== base) breakdown.push({ label: special ? "거래처 특가" : `등급가${ctx.gradeName ? `(${ctx.gradeName})` : ""}`, amount: unitPrice - base });
   }
   // 공동구매가(D21) — 등급가·수량 할인 대신
   if (ctx.groupPrice != null) {
@@ -81,7 +83,7 @@ export function priceLine(product: PricingProduct, variant: Variant | null, qty:
     if (unitPrice !== base) breakdown.push({ label: "공동구매가", amount: unitPrice - base });
   }
   // 4. 수량 구간 할인 — 수량 이상인 구간 중 가장 큰 구간 하나만, 등급가 다음에
-  const tier = ctx.groupPrice != null ? undefined : (ctx.tiers ?? []).filter((t) => Number.isInteger(qty) && qty >= t.min_qty).sort((a, b) => b.min_qty - a.min_qty)[0];
+  const tier = ctx.groupPrice != null || special ? undefined : (ctx.tiers ?? []).filter((t) => Number.isInteger(qty) && qty >= t.min_qty).sort((a, b) => b.min_qty - a.min_qty)[0];
   if (tier) {
     const before = unitPrice;
     if (tier.discount_type === "rate") unitPrice = Math.floor((unitPrice * (100 - tier.value)) / 100);

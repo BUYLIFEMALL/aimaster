@@ -174,3 +174,32 @@ test("옵션 추가금과 단가 지정", () => {
   const opt = { ...withOptions, base_price: 10000, stock_mode: "none" };
   assert.equal(priceLine(opt, v("블랙", 2000, 0), 80, { tiers }).unitPrice, 10000); // 8000 + 2000
 });
+
+// D24 거래처 특가 — 상품별 특가 > 기본 할인율 > 등급가, 특가는 최종 단가(수량 할인 안 함), 공동구매가가 우선
+const cpProduct = { status: "on_sale", base_price: 10000, stock_mode: "none", stock: 0, option_groups: [{ name: "색", values: ["A"] }] };
+const cpVariant = { key: "A", values: ["A"], extra_price: 500, stock: 0, sku: "", is_active: true };
+const cpTiers = [{ min_qty: 10, discount_type: "rate", value: 10 }];
+
+test("D24 거래처 특가 금액 — 등급가 대신, 옵션 추가금은 더함, 수량 할인 안 함", () => {
+  const l = priceLine(cpProduct, cpVariant, 10, { gradePrice: { price: 9000, discount_rate: null }, gradeName: "사업자", tiers: cpTiers, customerPrice: { price: 8000, discount_rate: null } });
+  assert.equal(l.unitPrice, 8500);
+  assert.equal(l.lineTotal, 85000);
+  assert.ok(l.breakdown.some((b) => b.label === "거래처 특가"));
+  assert.ok(!l.breakdown.some((b) => b.label.startsWith("수량 할인")));
+});
+
+test("D24 거래처 기본 할인율 — (판매가 + 추가금)에 적용, 원 단위 내림", () => {
+  const l = priceLine(cpProduct, cpVariant, 1, { customerPrice: { price: null, discount_rate: 7 } });
+  assert.equal(l.unitPrice, Math.floor((10500 * 93) / 100)); // 9765
+});
+
+test("D24 특가가 없으면 등급가·수량 할인 그대로", () => {
+  const l = priceLine(cpProduct, cpVariant, 10, { gradePrice: { price: 9000, discount_rate: null }, tiers: cpTiers, customerPrice: null });
+  assert.equal(l.unitPrice, Math.floor((9500 * 90) / 100));
+});
+
+test("D24 공동구매 중이면 공동구매가가 우선", () => {
+  const l = priceLine(cpProduct, cpVariant, 1, { customerPrice: { price: 8000, discount_rate: null }, groupPrice: 7000 });
+  assert.equal(l.unitPrice, 7500);
+  assert.ok(!l.breakdown.some((b) => b.label === "거래처 특가"));
+});

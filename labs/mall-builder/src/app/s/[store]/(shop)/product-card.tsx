@@ -5,7 +5,7 @@ import { discountRate } from "@/lib/products";
 // 손님 화면 상품 카드 — 디자인은 나중에 테마로 입힌다. 지금은 기능 위주.
 // 가격은 보는 사람 기준(등급가·가격 비공개)으로 계산된 display를 쓴다
 export function ProductCard({ base, product }: { base: string; product: ShopProduct }) {
-  const { unitPrice, priceHidden, note } = product.display;
+  const { unitPrice, priceHidden, note, special } = product.display;
   const graded = !priceHidden && unitPrice !== product.base_price;
   const rate = priceHidden || graded ? 0 : discountRate(product.base_price, product.list_price);
   const soldOut = product.status === "sold_out";
@@ -25,7 +25,7 @@ export function ProductCard({ base, product }: { base: string; product: ShopProd
         <p className="mt-1 text-xs text-gray-500" data-card-price>{note}</p>
       ) : (
         <p className="mt-1" data-card-price>
-          {graded && <span className="mr-1 rounded bg-blue-50 px-1 text-xs text-blue-700">회원가</span>}
+          {graded && <span className="mr-1 rounded bg-blue-50 px-1 text-xs text-blue-700">{special ? "거래처 특가" : "회원가"}</span>}
           <b>{unitPrice.toLocaleString("ko-KR")}</b>원
           {graded && <span className="ml-1 text-xs text-gray-400 line-through">{product.base_price.toLocaleString("ko-KR")}원</span>}
           {rate > 0 && <span className="ml-1 text-xs text-gray-400 line-through">{product.list_price!.toLocaleString("ko-KR")}원</span>}
