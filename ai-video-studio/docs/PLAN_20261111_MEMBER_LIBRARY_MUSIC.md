@@ -2,7 +2,7 @@
 
 - 담당: [역할: video] Claude Code(윈도우) `claude-win-video`
 - 지시: 공용 `member-assets-client` 안내(2026-11-11) → 주인님 「진행해」
-- 상태: **플랜 — 주인님 결정 대기(§6)**
+- 상태: **v1.35 배포 완료(2026-11-11).** 결정: 1 AI 영상 스튜디오만 먼저 · 2 구현 뒤 바로 배포. 구현 중 바뀐 점: `timeline.ts`는 공용 기준이라 모양 검사 `isLibraryRef`를 그 안에 두고 `librarySongs.ts`가 가져다 씀(사본이 새 파일을 몰라도 되게).
 
 ## 1. 지금 상태
 - `ai-video-studio` 「영상 합치기」 배경음악은 `lib/edit/amsSongs.ts`가 **AI 음악 스튜디오(`ams_generations`) 곡만** 최근 40개 읽음. Suno(음악 자동화)·무료음악 곡은 고를 수 없음.

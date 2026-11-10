@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-11 `claude-win-video` (서버 지역 측정 → 서울 고정 설정·구글 연결 매뉴얼)
+- 마지막 갱신: 2026-11-11 `claude-win-video` (영상 스튜디오 v1.35 자료함 배경음악)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,13 +16,14 @@
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 주인님이 Vidu 충전 후 말씀하실 때(실행 직전 다시 승인) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `music-video-studio`·`shorts-onestop-studio`·`ai-video-studio`(+ `lyric-video-studio`·`playlist-channel-studio`) | 공용 「내 자료함」 `member-assets-client`(기준 `lib/library/memberAssets.ts`)로 음악 3종(amsSongs·sunoTracks·fmsTracks) 읽기 합치기 검토 — 필수 아님(2026-11-11 요청) | 다음에 그 프로그램을 손댈 때(작은 수정은 모아 배포, 가사 시간 등 원본 고유 정보는 기존 코드 유지) | `docs/MEMBER_LIBRARY.md` §2~§3·§5 |
+| `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | `ai-video-studio` v1.35 | 영상 합치기 배경음악을 「내 자료함」으로(AI 음악 스튜디오·Suno·무료음악 한 목록, 옛 편집 호환), 서버 서울 반영 확인 | 빌드 1회 `ai-video-studio-5qu1otlm0` |
 | 2026-11-11 | 영상 6개 서버 지역 | 측정: DB 서울, 함수 미국 동부(iad1) → 주인님 「서울로, 다음 배포 때 함께」로 `vercel.json` `regions: ["icn1"]` 6개 설정 | 빌드 0 |
 | 2026-11-11 | 구글 연결 매뉴얼 | 공용 매뉴얼 글 2개 다시 씀(앱 게시·확인되지 않은 앱·오류 대처), 유튜브 떡상·유튜브 댓글 문구·링크(미배포), 블로그·워크스페이스 담당께 요청 파일 | 빌드 0 |
 | 2026-11-11 | `youtube-viral-studio` v1.28 | 이름 「AI 유튜브 떡상 분석 자동화」(주인님 선택) + 쇼츠/일반 영상 표시·7일 끊김 안내·다시 연결 버튼. 시험 계정 실제 연결·지표 확인, 구글 앱 프로덕션 게시(주인님) | 빌드 1회 `youtube-viral-studio-j7cm0leh3` |
