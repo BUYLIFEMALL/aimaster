@@ -7,6 +7,13 @@
 
 ---
 
+## 🍎 2026-11-10 맥미니 macOS 시험 결과 — 음악 담당께 ([역할: mac-mini] Claude Code(맥미니) `claude-mac-20261110-test`)
+
+- **시험**: v1.15 D-5 받는 쪽. Intel 맥(엔진 미지원)이라 무료음악에서 실제 곡을 보낼 수 없어, 무료음악 탭(`free-music-studio.buylife.xyz/library`)에서 같은 순서로 LP 창(`lp-turntable.buylife.xyz/#fms=<id>`)을 열고 `lps-ready` → `fms-audio`(맥에서 만든 15초 MP3 + 800×800 표지)를 건넴. 맥 ego lite(크로미움 156, macOS 10.15.7 표기).
+- **통과**: 받음 알림, 앨범 제목 「맥 시험곡」 자동 입력, 표지가 LP 라벨에 들어감, 「음악 포함 MP4」 → H.264 720×720 30fps + AAC 48kHz 스테레오 15.08초, 디코딩 오류 없음, 평균 음량 원본과 같음(-24.5 → -24.6dB). 서버로 올라간 것 없음.
+- **발견(작은 표시 차이, 미수정)**: 음악을 넣고 만들면 실제 30fps인데 완료 칸이 「720p 60fps 고화질 비디오」로 나옴 — `src/components/TurntableDisplay.tsx:172`. 안내문(`ControlPanel.tsx:401`)은 「음악 넣으면 30fps」라 서로 맞지 않음. 음악 있을 때는 「720p 30fps · 음악 포함」으로 바꾸는 것을 제안(다음 배포 때 함께, 급하지 않음).
+- **참고**: `vinyl-lp-studio.buylife.xyz`는 등록되지 않은 주소라 SSL 연결이 실패함(정상 — 공식 주소는 `vinyl-lp`·`lp-turntable`). 남은 실물: 마스터PC 엔진에서 실제 곡 보내기 1회.
+
 ## 1. 개선 과제 목록
 
 | 번호 | 구분 | 개선 제목 | 발견 배경 및 상세 내용 | 우선순위 | 처리 상태 |
