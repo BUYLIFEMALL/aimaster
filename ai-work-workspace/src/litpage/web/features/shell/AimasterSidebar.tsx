@@ -8,7 +8,7 @@ import './aimaster.css';
 const PROGRAMS_URL = 'https://www.buylife.xyz/programs';
 export const AIMASTER_APP_NAME = 'AI 업무 워크스페이스';
 // 주의: src/lib/version.ts APP_VERSION과 같은 값으로, 배포 때마다 함께 올린다(2026-11-06 v1.21 배포 때 빠져 메뉴에 v1.20이 남음)
-export const AIMASTER_APP_VERSION = 'v1.27';
+export const AIMASTER_APP_VERSION = 'v1.28';
 
 export function AimasterSidebarTop() {
   return (

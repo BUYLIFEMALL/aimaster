@@ -476,6 +476,39 @@ export default async function GuidePage() {
           </aside>
         </section>
 
+        <section className="aww-meeting" id="collab" aria-label="함께 쓰기 사용법">
+          <div className="aww-section-head">
+            <span className="aww-badge aww-badge-indigo">👥 함께 쓰기</span>
+            <h2>👥 초대한 회원과 워크스페이스·페이지를 함께 쓰기</h2>
+            <p>AI 업무 워크스페이스를 쓸 수 있는 AIMaster 회원을 이메일로 초대해 함께 보고 고칩니다. 초대하지 않은 사람에게는 보이지 않습니다.</p>
+          </div>
+          <div className="aww-guide-steps">
+            {[
+              { no: 1, icon: "🏢", title: "워크스페이스 통째로 초대", desc: "설정 › 멤버에서 「멤버 추가」 → 회원 이메일과 역할을 고릅니다. 그 워크스페이스의 페이지를 함께 씁니다." },
+              { no: 2, icon: "📄", title: "페이지만 공유", desc: "페이지 오른쪽 위 「공유」 → 회원 이메일을 넣고 권한(보기·댓글·편집·전체)을 고릅니다. 그 페이지와 아래 페이지만 보입니다." },
+              { no: 3, icon: "💬", title: "댓글·멘션으로 대화", desc: "문장에 댓글을 달거나 「@이름」으로 부르면 상대 알림함에 남습니다." },
+              { no: 4, icon: "🔄", title: "함께 고치기", desc: "같은 페이지를 열어 두면 상대가 고친 내용이 5초 안에 보이고, 위쪽에 함께 보는 사람이 표시됩니다." },
+            ].map((s) => (
+              <article key={s.no} className="aww-step-card">
+                <div className="aww-step-card-header">
+                  <span className="aww-step-num">STEP 0{s.no}</span>
+                </div>
+                <div className="aww-step-icon-wrap" aria-hidden>{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </article>
+            ))}
+          </div>
+          <aside className="aww-banner aww-warn">
+            <div className="aww-banner-head"><span className="aww-banner-icon">⚠️</span><strong>알아두세요</strong></div>
+            <ul>
+              <li>AIMaster 회원이면서 이 프로그램 이용 권한이 있는 분만 초대할 수 있습니다. 초대 메일은 가지 않으니, 초대한 분께 「AI 업무 워크스페이스에 들어가 보세요」라고 알려 주세요.</li>
+              <li>공개 링크·초대 링크는 지원하지 않습니다. 주인은 언제든 멤버를 내보내거나 페이지 공유를 거둘 수 있습니다.</li>
+              <li>AI 쓰기·요약은 누른 사람 본인 AI 키로, 자동화는 만든 사람, 업무 비서는 주인의 키로 실행됩니다.</li>
+            </ul>
+          </aside>
+        </section>
+
         {/* ④ 하이테크 키캡 단축키 치트시트 */}
         <section className="aww-shortcuts-section">
           <div className="aww-shortcuts-header">
