@@ -27,6 +27,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `youtube-viral-studio` | 좌측 메뉴 「협업 크리에이터 찾기」 이름의 중복 그림문자 🤝 제거(아이콘과 겹침, 문구만) | (이 줄과 같은 커밋) | 2026-11-10 · [역할: video] `claude-win-video` | `youtube-viral-studio/AGENTS.md` v1.25 절 | 다음 배포 때 함께, 버전 +0.01 |
 | `music-video-studio` | 공용 `video-edit-composition`·`timeline` 사본 동기화(장면 맞춤 칸 추가, 이 프로그램 동작 변화 없음 — 기준 쪽 `ai-video-studio` v1.30은 11-10 배포됨) | `9397fb311` | 2026-11-09 · [역할: video] `claude-win-video` | `ai-video-studio/docs/PLAN_20261109_POSTPROCESS_FIT.md` | 그 프로그램 다음 배포 때 함께(급하지 않음). 11-10 음악 담당 → 영상 담당 인계 받음, 배포 전 확인 끝(사본 OK·tsc·시험 34). 배포 때 v1.29. `d1e710d68`은 v1.28에 이미 나감 |
 | `playlist-channel-studio` (운영 v1.35) | 무료음악 곡 가져오기 패널: 무료음악 창이 아닌 곳에서 열었을 때 「받는 중」 줄을 숨김(「직접 넣기」 안내와 엇갈려 보이던 것, 운영 확인 중 발견) | (이번 커밋) | 2026-11-08 · [역할: music] `claude-win-20261024-music` | `playlist-channel-studio/AGENTS.md` v1.35 | ✅ 11-09 v1.37에 함께 나감(이 줄은 기록용) |
 | **권한 판정 동시 조회 56개**(목록: `docs/ACCESS_CHECK_PARALLEL_20261106.md`) | 회원 권한 판정의 순차 조회 4회 → 두 묶음 동시 조회(판정 순서·결과 그대로, 첫 화면만 빨라짐). 주인님 결정 A-7 | `d1e710d68` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `docs/ACCESS_CHECK_PARALLEL_20261106.md` | 그 프로그램 다음 배포 때 함께(급하지 않음, 따로 배포 안 함). 배포한 세션은 문서 목록에서 그 줄에 ✅ |
@@ -71,6 +72,7 @@
 ## 내보낸 기록
 
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `youtube-viral-studio` | v1.25 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 채팅 승인 빌드 1회, `youtube-viral-studio-lpfk3r7hp` Ready, DB v1.24 → v1.25) | 협업 크리에이터 찾기(A4) 새 기능 + 여러 프로그램 묶음 줄(49행)의 API 키 안내 문구 `b16550ad4` 중 이 프로그램 몫 함께 나감. 10-30 디자인 리뉴얼(코드 표기 `v2.0`)도 이 배포로 운영 반영(화면 v1.25) |
 | `shots` | v1.47 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 「순서대로 진행해」 승인 빌드 1회, `shots-bdcid4dpl` Ready, DB v1.47) | 무료음악 곡 다시 받기 중복 방지 `f39885773`(같은 영상·같은 제목·같은 길이면 기존 곡 선택, 새 파일 지움) + 버전 `8d6fba3b7`. tsc·시험 18 통과 |
 | `smartstore-register` | v1.26 · 2026-11-09 ([역할: design] Antigravity, 78번 미니멀 스마트스토어 아틀리에 테마 리뉴얼 & 5단계 표준 로그인 탑재, `smartstore-register-q8zk4ex4r`, DB v1.26) | 클린 페이퍼 & 세이지 그린 테마 전면 적용, 3D 엠보싱 세이지 버튼(`.btn-3d-sage`), 5단계 표준 로그인 폼 & 1행 약관 동의, 27개 단위테스트 PASS, live 200 검증 |
 | `ai-task-planner` | v1.13 · 2026-11-09 ([역할: design] Antigravity, 74번 퀀트 타임트래커 다크 터미널 테마 리뉴얼 & 5단계 표준 로그인 탑재, `ai-task-planner-g459ejx1a`, DB v1.13) | 공용 기준 코드 `work-inbox-client` 사본 동기화, 74번 다크 옵시디언/에메랄드 HUD, 5단계 표준 로그인 폼, 27개 단위테스트 PASS, live 200 검증 |
