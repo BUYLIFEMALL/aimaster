@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 새 프로그램 `elevenst-register`(AI 11번가 상품 자동등록기) v1.01 1단계 뼈대 배포(비공개)
+- 주인님 지시: 이커머스 「순서대로 진행해」(문서 정리·개편 뒤 흐름 확인·쿠팡 등록기) → 쿠팡 등록은 `coupang-ops`에 이미 있어 다음 마켓 11번가로. 결정: 새 프로그램·이름 「AI 11번가 상품 자동등록기」·판매자 계정 있음 → 0단계 명세 확보(주인님 로그인, 읽기만) → 1단계 「진행해」.
+- 한 일: 0단계 명세 정리 `elevenst-register/docs/API_SPEC_NOTES.md`(등록 `POST /rest/prodservices/product`, 헤더 `openapikey`, EUC-KR XML, 하루 500개, 임시저장 없음, 주인님 키 만료 2026-12-27·접속권한 IP 미설정). 1단계: `coupang-ops` 뼈대 복사, 처음 설정 3단계 화면(공용 `elevenst_api_key`·`fixed_ip_proxy_url` 재사용), `/guide`, EUC-KR XML 도우미 + 시험 7개. 운영 DB(ego SQL 편집기, ref `esgxyikcnnvmlhygjkth`): 프로그램 1줄 비공개 v1.01·요금제 3개·표 `elevenst_register_jobs`(RLS 본인 읽기). Vercel 새 프로젝트·도메인·환경변수 3개, 배포 `elevenst-register-30emmusx3` Ready.
+- 검수: 시험 7/7·tsc 0·로컬 build 통과, 새 주소 비로그인 307→로그인 화면, 시험 계정은 비공개라 메인 404(정상). **관리자 화면 확인은 주인님 계정 필요(미확인).**
+- 커밋: 이번 묶음 `elevenst-register` 42개 파일 + 문서. 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md`.
+- 남은 일·다음 첫 단계: (주인님) 11번가 「API 관리 › IP 직접 입력 › 실서버 IP」에 Fixie 고정 IP 2개 → 2단계 연동 화면·연결 시험(읽기만). 백로그 `elevenst-register/docs/IMPROVEMENT_BACKLOG.md`.
+- 같은 날 이커머스 정리: 역할 파일·미배포 표 정리, ego 흐름 확인(소싱→상세→스마트스토어 정상), 상품소싱기 번역 Claude 키 미지원 기록(`trending-product-finder/docs/IMPROVEMENTS.md` #11).
+- https://elevenst-register.buylife.xyz
+
 ## 2026-11-11 🎨 [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` — `insta_auto_poster` (INSTA 포스팅 자동화) v1.72 4대 화면 3시안 쇼케이스 및 종합 비교표 구축 완료 (주인님 채택 선택 대기)
 - **주인님 지시**: 「1번 insta_auto_poster (INSTA 포스팅 자동화) 시안부터 작업하고 보여줘」
 - **구축 내역**:
