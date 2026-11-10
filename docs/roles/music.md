@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-10 `claude-win-20261024-music` (무료음악 v1.65 배포 — 트로트 + 엔진 업데이트 안내)
+- 마지막 갱신: 2026-11-10 `claude-win-20261024-music` (A-6 「나중에 할 일」로 이동, B-6 「공개되면 진행」 표시)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,13 +15,17 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `free-music-studio` | A-6 Apple Silicon 맥 엔진 설치 파일 | Apple Silicon 맥 준비(엔진 0.7.7 이상으로) | 백로그 「보관」 A-6 |
-| `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) | 백로그 「보관」 B-6 |
+| `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
 | `free-music-studio` | B-4 가사 시간 맞추기 추가 비교 | 수동 정답 자료 준비 | 백로그 「보관」 B-4 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
 | `free-music-studio` | 마스터PC 실물: 재생 강조·EQ·시각화·쇼츠 보내기, 참고곡 Gemini 1회 | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.60 |
 | `free-music-studio` | 마스터PC 실물: AI 설정 제안 1번(회원 키) | 주인님 확인·승인(선택) | `free-music-studio/AGENTS.md` v1.64 |
 | `free-music-studio` | 다음 엔진 배포 묶음 후보: 끝 줄이기 곡선을 끝에서 0까지(마지막 0.5초 -34.5dB), 끝 이어 만들기 가사 칸 `[Outro]` 한 줄 | 다음 엔진 배포 때 함께(단독 배포 안 함) | 인수인계서 20·24절 |
+
+## 나중에 할 일 (장비가 바뀐 뒤 — 지금은 손대지 않음)
+| 프로그램 | 작업 | 언제 | 근거 |
+|---|---|---|---|
+| `free-music-studio` | A-6 Apple Silicon 맥 엔진 설치 파일(DMG는 엔진 0.7.7 이상으로) | 장비가 Apple Silicon 맥으로 바뀐 뒤(2026-11-10 주인님 「나중에 장비 바뀌면 할꺼니까 나중에 하는 걸로」) | 백로그 「보관」 A-6 · `free-music-studio/docs/MAC_MINI_DMG_PROMPT_20261108.md` |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
