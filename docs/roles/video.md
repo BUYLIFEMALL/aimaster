@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-10 `claude-win-video` (shots v1.47 배포 — 무료음악 곡 중복 방지)
+- 마지막 갱신: 2026-11-10 `claude-win-video` (뮤직비디오 미배포 인계 받음·배포 전 확인)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `music-video-studio` | 공용 장면 맞춤 사본 동기화(동작 변화 없음) | 그 프로그램 다음 배포 때 함께 | `docs/PENDING_DEPLOYS.md` |
+| `music-video-studio` | 공용 장면 맞춤 사본 `9397fb311`(동작 변화 없음) — 11-10 음악 담당 인계 받음, 배포 전 확인 끝(사본 OK·tsc·시험 34), 배포 때 v1.29 | 그 프로그램 다음 배포 때 함께(단독 빌드는 주인님 승인) | `music-video-studio/docs/IMPROVEMENTS.md` 맨 위 |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
 | `youtube-viral-studio` | 협업 크리에이터 찾기(A4) — 공개 통계 + 채널에 등록된 비즈니스 이메일만 | 담당 지정 확정(배정표 2 「⏳ 담당 지정 후」) | `docs/analysis-marketing-collect-20261027/REPORT.md` §7-1 |
 

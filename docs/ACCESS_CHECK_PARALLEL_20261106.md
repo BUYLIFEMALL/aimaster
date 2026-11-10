@@ -41,7 +41,7 @@
 - `lyric-video-studio/src/lib/programAccess.ts`
 - `markdown-studio/src/lib/programAccess.ts`
 - `music-player/src/lib/programAccess.ts`
-- `music-video-studio/src/lib/programAccess.ts`
+- `music-video-studio/src/lib/programAccess.ts` ✅ v1.28(2026-11-08 배포 `music-video-studio-3k4jdnfc4`에 함께 나감 — 커밋 11-06 22:28이 배포 11-08 12:46보다 앞섬, 2026-11-10 영상 담당 확인)
 - `naver-blog-allinone/src/lib/programAccess.ts`
 - `naver-blog-auto-poster_app/web/lib/access/checkProgramAccess.ts`
 - `naver-blog-auto-poster_web/web/lib/access/checkProgramAccess.ts`
