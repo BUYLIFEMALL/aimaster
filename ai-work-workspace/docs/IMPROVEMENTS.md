@@ -2,7 +2,9 @@
 
 ## 데이터 보관 예외 (2026-11-11 주인님 지정, v1.27)
 - 음악·영상 파일(`files` audio/*·video/*)은 30일 뒤 정리(`src/server/mediaRetention.ts`, 하루 1회 `/api/cron/jobs`), AI 대화·실행 기록, 자동화 실행 기록·알림, 업무 받은편지함, 영수증 발행 문서·증빙 장부는 **1년**. 회의 녹음은 원본 규칙(받아쓰기 뒤 바로, 실패 3일) 그대로. 근거: `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8.
-- 에이전트 화면(v1.27): 활동 거르기·실행 상태·모델 대체 동작·도구 승인 방식 한국어, 추천 버튼 업무 예시, 웹 액세스 「준비 중」(서버 `AGENT_WEB_ENABLED=false`와 화면 `AGENT_WEB_READY=false`를 함께 켤 것). 화면 확인은 다음에.
+- 에이전트 화면(v1.27): 활동 거르기·실행 상태·모델 대체 동작·도구 승인 방식 한국어, 추천 버튼 업무 예시, 웹 액세스 「준비 중」(서버 `AGENT_WEB_ENABLED=false`와 화면 `AGENT_WEB_READY=false`를 함께 켤 것). 운영 화면 확인 통과(2026-11-11 ego, 시험 계정 빈 에이전트 만들어 확인 뒤 삭제): 추천 버튼 3개·웹 액세스 「준비 중」(스위치 꺼짐)·대체 동작 「다른 모델 사용」·활동 거르기 「전체·실패·성공·진행 중·확인 필요」, 찾은 영어 0개.
+- **미배포 대기** `ea21d51a5`: 새 에이전트 기본 이름 「New agent」 → 「새 에이전트」(이미 만든 에이전트 이름은 회원 데이터라 그대로).
+- 남은 영어(발견): 서버 오류 문구 일부가 영어(예: 없는 에이전트 삭제 「We couldn’t find that agent」) — 원본 서버 메시지 번역은 다음 묶음.
 
 ## 미배포 대기
 - **(배포됨 v1.23, 2026-11-10 — 아래 「U11 운영 확인」) `0d686f9b3` U11 자동화** — 플랜 `docs/PLAN_20261110_U11_AUTOMATION.md`(주인님 결정 5건 권장안). 자동화·버튼 저장 열기(`stagePolicy`), 웹훅·에이전트 동작은 메뉴 「준비 중」 + 서버 `stageBodyBlock` 거절. 값 변경 자동화는 명령 뒤 `after()`에서 `settleAutomations()`로 마무리. 정시 자동화·리마인더 = 회원 cron-job.org 1분(`src/lib/schedulerMember/`, 공용 `member-scheduler` 사본, 회원 주소 `/api/cron/member`, 작업 주인 찾기 `src/server/memberJobs.ts`, 운영 cron은 회원 작업 제외). 자동화 목록 위 「⏰ 정시 실행」 줄(`scheduleLine.tsx`, `/api/scheduler`), 키 화면 cron-job.org 칸(바꾸기·지우기 때 회원 작업 정리), 매뉴얼 `#automation`, 실행 기록·알림 30일 정리(`src/server/automationRetention.ts`). **배포 전 운영 DB**: `supabase/migrations/20261110000000_aww_member_scheduler.sql`. 시험 `tests/integration/automationU11.test.ts` 8개(전체 58)·원본 523·공용 18·tsc·빌드. 운영 확인 남음(플랜 §5). 구글 캘린더는 검토만 `docs/REVIEW_20261110_GOOGLE_CALENDAR.md`.
