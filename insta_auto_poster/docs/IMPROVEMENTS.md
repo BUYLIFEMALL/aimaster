@@ -1,5 +1,7 @@
 # INSTA 포스팅 자동화 (`insta_auto_poster`) 개선 및 특이사항 기록
 
+> **📮 담당께 — `whisper-1` 종료 대비 (2026-11-11, [역할: video] `claude-win-video`, 코드는 고치지 않음)**: 카드뉴스 리메이크 릴스 받아쓰기(`src/app/api/cardnews/remake/collect/route.ts` `transcribeVideo`)가 `whisper-1`(**2027-02-26 종료**, OpenAI 공식 문서 2026-11-10 확인)을 쓴다. 여기는 시각 없이 글만 필요하므로 대안 두 가지: ① OpenAI 추천 `gpt-transcribe`(요청 `file`·`model`·`languages[]=ko`, 응답 JSON `{ text }` — `response_format=text`·단수 `language`는 문서에 없음) ② 이미 분석용으로 영상을 Gemini에 올리고 있으니 같은 호출에서 받아쓰기까지(키 하나로). 참고 구현: `shorts-onestop-studio` v1.48 `src/app/api/ai/transcribe/route.ts`(Gemini 3.8 Flash 기본·Flash Lite·gpt-transcribe 선택), 받아쓰기 모델표 `docs/AI_MODEL_CATALOG.md` §3. Claude는 음성 입력이 없어 후보 아님.
+
 > **✅ v1.68로 배포됨 (2026-10-23, Claude Code 윈도우)** (예전 표시: 미배포 대기, 운영 v1.67). 커밋 `4bebfb016`.
 > - 「🔤」로 바꾸기 전 검색어를 한글이 있을 때만 기억(원래 영어였던 검색어로 「한국어로 다시 찾기」가 뜨던 틈). 배포 뒤 「zzqqxv」→🔤→검색 0장일 때 버튼이 안 뜨는지 확인.
 

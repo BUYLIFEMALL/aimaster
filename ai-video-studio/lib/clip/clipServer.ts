@@ -108,7 +108,7 @@ export async function transcribeAudio(userId: string, path: string, modelRaw?: u
 
 // 구간 고르기에 쓰는 회원 키 순서(기본 AI = Claude, 없으면 회원이 가진 다른 키) — 모두 저가 모델
 const PICK_MODELS = [
-  { provider: "anthropic", model: "claude-haiku-4-5" },
+  { provider: "anthropic", model: "claude-haiku-5-5" }, // 2026-11-11 4-5(종료 위험) → 5-5, 같은 값 — 생각 끔·effort low(아래 요청)
   { provider: "gemini", model: "gemini-3.5-flash-lite" },
   { provider: "openai", model: "gpt-4o-mini" },
 ] as const;
@@ -133,7 +133,7 @@ export async function askJson(userId: string, what: string, system: string, prom
   let text = "";
   let res: Response | null = null;
   if (chosen.provider === "anthropic") {
-    res = await fetch("https://api.anthropic.com/v1/messages", { ...opts, headers: { "x-api-key": chosen.key, "anthropic-version": "2023-06-01", "content-type": "application/json" }, body: JSON.stringify({ model: chosen.model, max_tokens: maxTokens, system, messages: [{ role: "user", content: prompt }] }) }).catch(() => null);
+    res = await fetch("https://api.anthropic.com/v1/messages", { ...opts, headers: { "x-api-key": chosen.key, "anthropic-version": "2023-06-01", "content-type": "application/json" }, body: JSON.stringify({ model: chosen.model, max_tokens: maxTokens, thinking: { type: "disabled" }, output_config: { effort: "low" }, system, messages: [{ role: "user", content: prompt }] }) }).catch(() => null);
     if (res?.ok) text = ((await res.json()).content ?? []).map((c: { text?: string }) => c.text ?? "").join("");
   } else if (chosen.provider === "gemini") {
     res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${chosen.model}:generateContent`, { ...opts, headers: { "x-goog-api-key": chosen.key, "content-type": "application/json" }, body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).catch(() => null);
