@@ -49,6 +49,27 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
     placeholder: "r8_...",
     description: "Seedance 1 Lite·Kling v2.1 영상 모델을 씁니다. Replicate 계정에 결제 수단이 등록돼 있어야 합니다.",
   },
+  // 2026-11-11 직접 연동(v1.33)
+  runway: {
+    id: "runway",
+    name: "Runway",
+    keyProvider: "runway",
+    keyLabel: "Runway API Key",
+    keyLink: "https://dev.runwayml.com",
+    usageLink: "https://dev.runwayml.com",
+    placeholder: "Runway 개발자 사이트에서 만든 키",
+    description: "Runway Gen-4.5·Gen-4 Turbo(사진→영상)를 씁니다. Runway 개발자 사이트(dev.runwayml.com)에서 키를 만들고 크레딧을 충전해야 합니다.",
+  },
+  vidu: {
+    id: "vidu",
+    name: "Vidu",
+    keyProvider: "vidu",
+    keyLabel: "Vidu API Key",
+    keyLink: "https://platform.vidu.com",
+    usageLink: "https://platform.vidu.com",
+    placeholder: "Vidu 개발자 사이트에서 만든 키",
+    description: "Vidu Q3 Turbo·Pro(사진→영상, 사진 비율을 따름)를 씁니다. Vidu 개발자 사이트(platform.vidu.com)에서 키를 만들고 크레딧을 충전해야 합니다. 실패한 생성은 과금되지 않습니다.",
+  },
 };
 
 export interface StudioModel extends VideoModel {
@@ -64,7 +85,7 @@ export interface StudioModel extends VideoModel {
 
 function studioOf(m: VideoModel): StudioModel {
   // 글→영상 주소가 있으면 사진 없이 만들 때 비율을 고른다(사진이 있으면 Kling 3.0처럼 사진 비율을 따르는 모델도 있음)
-  const aspects: AspectRatio[] = m.provider === "gemini" || m.fal?.aspect || m.fal?.t2v || (!m.fal && m.id.includes("seedance")) ? ["16:9", "9:16"] : [];
+  const aspects: AspectRatio[] = m.provider === "gemini" || m.provider === "runway" || m.fal?.aspect || m.fal?.t2v || (!m.fal && m.id.includes("seedance")) ? ["16:9", "9:16"] : [];
   return { ...m, needsImage: m.provider !== "gemini" && !m.fal?.t2v, aspects, resolutions: [...(m.fal?.resolutions ?? [])], audioOption: !!m.fal?.audio };
 }
 

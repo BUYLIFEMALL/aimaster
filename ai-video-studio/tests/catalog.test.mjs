@@ -135,3 +135,68 @@ test("v1.13 모델 카드 예시: 목록에 있는 모델은 public/examples에 
   }
   assert.equal(exampleSlug("fal-ai/veo3.1/image-to-video"), "fal-ai-veo3-1-image-to-video");
 });
+
+test("v1.33 Runway·Vidu 직접 연동: 모델·비율·요청 모양·상태 확인·오류 문구(가짜 응답, 실제 호출 없음)", async () => {
+  const { submitVideoJob, checkVideoJob, VideoGenError } = await import("../lib/video/videoProviders.ts");
+  const { estCostUsd } = await import("../lib/providers/catalog.ts");
+  const r = findModel("gen4_turbo"), r45 = findModel("gen4.5"), v = findModel("viduq3-turbo"), vp = findModel("viduq3-pro");
+  for (const m of [r, r45, v, vp]) { assert.ok(m, "모델 없음"); assert.equal(m.needsImage, true); assert.equal(m.endFrame, false); assert.equal(m.audioOption, false); }
+  assert.deepEqual(r.aspects, ["16:9", "9:16"]);
+  assert.deepEqual(v.aspects, [], "Vidu는 사진 비율을 따름");
+  assert.equal(estCostUsd(r, 5, false), 0.25);
+  assert.equal(estCostUsd(r45, 5, false), 0.6);
+  assert.ok(!VIDEO_MODELS.some((m) => m.provider === "runway" || m.provider === "vidu"), "다른 프로그램 목록(사본)에는 넣지 않음");
+  const U = "https://example.com/a.png";
+  const seen = [];
+  let reply = () => new Response("{}", { status: 200 });
+  const orig = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => { seen.push({ url: String(url), headers: init.headers ?? {}, body: init.body ? JSON.parse(init.body) : null }); return reply(String(url)); };
+  try {
+    // 사진 없으면 거절(요청 안 보냄)
+    await assert.rejects(submitVideoJob({ key: "k", model: r, prompt: "p", seconds: 5 }), /시작 장면 사진/);
+    assert.equal(seen.length, 0);
+    // Runway 제출: 세로 720:1280, 끝 장면 무시
+    reply = () => new Response(JSON.stringify({ id: "17f20503-6c24-4c16-946b-35dbbce2af2f" }), { status: 200 });
+    const a = await submitVideoJob({ key: "rk", model: r, prompt: "p", startUrl: U, endUrl: "https://example.com/e.png", seconds: 5 });
+    assert.equal(seen[0].url, "https://api.dev.runwayml.com/v1/image_to_video");
+    assert.equal(seen[0].headers.Authorization, "Bearer rk");
+    assert.equal(seen[0].headers["X-Runway-Version"], "2024-11-06");
+    assert.deepEqual(seen[0].body, { model: "gen4_turbo", promptImage: U, promptText: "p", ratio: "720:1280", duration: 5 });
+    assert.equal(a.job.provider, "runway");
+    assert.equal(a.job.withEnd, false);
+    await submitVideoJob({ key: "rk", model: r45, prompt: "p", startUrl: U, seconds: 10, aspectRatio: "16:9" });
+    assert.equal(seen[1].body.ratio, "1280:720");
+    // Runway 상태: 진행 중 → 완료(output[0] 받기)
+    reply = (u) => u.includes("/v1/tasks/") ? new Response(JSON.stringify({ status: "RUNNING" }), { status: 200 }) : new Response("x");
+    assert.deepEqual(await checkVideoJob({ key: "rk", job: a.job }), { state: "running" });
+    reply = (u) => u.includes("/v1/tasks/") ? new Response(JSON.stringify({ status: "SUCCEEDED", output: ["https://dnznrvs05pmza.cloudfront.net/v.mp4"] }), { status: 200 }) : new Response(Buffer.alloc(2000), { status: 200 });
+    const done = await checkVideoJob({ key: "rk", job: a.job });
+    assert.equal(done.state, "done");
+    assert.equal(done.bytes.length, 2000);
+    assert.equal(seen.at(-1).headers.Authorization, undefined, "결과 주소에는 키를 보내지 않음");
+    reply = () => new Response(JSON.stringify({ status: "FAILED", failureCode: "SAFETY.INPUT.IMAGE" }), { status: 200 });
+    await assert.rejects(checkVideoJob({ key: "rk", job: a.job }), /안전 정책/);
+    // Vidu 제출: Token 인증, 사진 1장, 소리 끔, 720p
+    seen.length = 0;
+    reply = () => new Response(JSON.stringify({ task_id: "866123456789", state: "created" }), { status: 200 });
+    const b = await submitVideoJob({ key: "vk", model: v, prompt: "p", startUrl: U, seconds: 8, aspectRatio: "16:9" });
+    assert.equal(seen[0].url, "https://api.vidu.com/ent/v2/img2video");
+    assert.equal(seen[0].headers.Authorization, "Token vk");
+    assert.deepEqual(seen[0].body, { model: "viduq3-turbo", images: [U], prompt: "p", duration: 8, resolution: "720p", audio: false });
+    assert.equal(b.job.id, "866123456789");
+    reply = (u) => u.includes("/creations") ? new Response(JSON.stringify({ state: "processing" }), { status: 200 }) : new Response("x");
+    assert.deepEqual(await checkVideoJob({ key: "vk", job: b.job }), { state: "running" });
+    assert.equal(seen.at(-1).url, "https://api.vidu.com/ent/v2/tasks/866123456789/creations");
+    reply = (u) => u.includes("/creations") ? new Response(JSON.stringify({ state: "success", creations: [{ id: "1", url: "https://cdn.vidu.com/v.mp4" }] }), { status: 200 }) : new Response(Buffer.alloc(3000), { status: 200 });
+    assert.equal((await checkVideoJob({ key: "vk", job: b.job })).bytes.length, 3000);
+    reply = () => new Response(JSON.stringify({ state: "failed", err_code: "CreditInsufficient" }), { status: 200 });
+    await assert.rejects(checkVideoJob({ key: "vk", job: b.job }), /크레딧/);
+    // 오류 문구: Vidu 글 오류, Runway 401
+    reply = () => new Response(JSON.stringify({ reason: "Unauthorized" }), { status: 400 });
+    await assert.rejects(submitVideoJob({ key: "vk", model: vp, prompt: "p", startUrl: U, seconds: 5 }), (e) => e instanceof VideoGenError && e.code === "key");
+    reply = () => new Response(JSON.stringify({ reason: "CreditInsufficient" }), { status: 400 });
+    await assert.rejects(submitVideoJob({ key: "vk", model: vp, prompt: "p", startUrl: U, seconds: 5 }), (e) => e.code === "quota");
+    reply = () => new Response("bad key", { status: 401 });
+    await assert.rejects(submitVideoJob({ key: "rk", model: r, prompt: "p", startUrl: U, seconds: 5 }), (e) => e.code === "key" && /Runway/.test(e.message));
+  } finally { globalThis.fetch = orig; }
+});

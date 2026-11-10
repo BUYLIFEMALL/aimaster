@@ -4,7 +4,8 @@
 // 기본은 회원이 이미 등록한 Gemini 키(주인님 지시 2026-10-22), fal·Replicate는 회원이 키를 등록하면 고를 수 있다.
 // 단가는 2026-10-22 각 공식 가격표에서 확인한 값(Gemini API 가격 페이지 · fal.ai/pricing · replicate.com 모델 페이지).
 // 가격이 바뀌면 이 표만 고친다. 화면에는 「약」으로 표시하고 실제 청구는 회원 계정 기준이라고 안내한다.
-export type VideoProvider = "gemini" | "fal" | "replicate";
+// 2026-11-11 Runway·Vidu 직접 연동(회원 본인 키) — 플랜 ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md
+export type VideoProvider = "gemini" | "fal" | "replicate" | "runway" | "vidu";
 
 export interface VideoModel {
   id: string;
@@ -68,6 +69,12 @@ export const STUDIO_EXTRA_MODELS: readonly VideoModel[] = [
   { id: "fal-ai/veo3.1/image-to-video", provider: "fal", name: "Veo 3.1 (fal)", perSec: 0.2, endFrame: false, durations: [4, 6, 8], perSecAudio: 0.4, note: "Google Veo · 소리를 켜면 초당 $0.40", fal: { image: "image_url", duration: "s", audio: "generate_audio", aspect: true, resolutions: ["720p", "1080p"], t2v: "fal-ai/veo3.1" } },
   { id: "minimax/h3/image-to-video", provider: "fal", name: "MiniMax H3 (fal)", perSec: 0.06, perSecByRes: { "768P": 0.06, "2K": 0.13 }, endFrame: true, durations: [5, 10], note: "구 Hailuo · 저렴 · 사진 비율 따름", fal: { image: "image_url", duration: "int", resolutions: ["768P", "2K"] } },
   { id: "alibaba/wan-3.0/image-to-video", provider: "fal", name: "Wan 3.0 (fal)", perSec: 0.1, perSecByRes: { "480p": 0.05, "720p": 0.1, "1080p": 0.2 }, endFrame: true, durations: [5, 10], note: "가성비 · 해상도 선택", fal: { image: "start_image_url", duration: "int", audio: "audio", aspect: true, resolutions: ["720p", "480p", "1080p"], t2v: "alibaba/wan-3.0/text-to-video" } },
+  // 2026-11-11 직접 연동 — 단가는 공식 문서(Runway 1크레딧 $0.01: gen4.5 12·gen4_turbo 5크레딧/초 · Vidu 1크레딧 0.03125위안≈$0.0043: Q3 720p turbo 12·pro 20크레딧/초).
+  // 두 회사 모두 시작 장면 사진 1장만(끝 장면은 문서 미확인이라 끔). Runway 길이는 문서에 목록이 없어 예시값 5·10초만.
+  { id: "gen4.5", provider: "runway", name: "Runway Gen-4.5", perSec: 0.12, endFrame: false, durations: [5, 10], note: "Runway 최신 · 고품질 · 세로·가로 고름" },
+  { id: "gen4_turbo", provider: "runway", name: "Runway Gen-4 Turbo", perSec: 0.05, endFrame: false, durations: [5, 10], note: "Runway 가장 빠름 · 저렴" },
+  { id: "viduq3-turbo", provider: "vidu", name: "Vidu Q3 Turbo", perSec: 0.052, endFrame: false, durations: [5, 8, 10], note: "Vidu 균형 · 720p · 사진 비율 따름" },
+  { id: "viduq3-pro", provider: "vidu", name: "Vidu Q3 Pro", perSec: 0.087, endFrame: false, durations: [5, 8, 10], note: "Vidu 고품질 · 720p · 사진 비율 따름" },
 ];
 
 /** AI 영상 스튜디오 전체 목록(기존 + 최신) */
@@ -81,10 +88,15 @@ export function findStudioVideoModel(id: unknown): VideoModel | undefined {
 export function ratePerSec(m: VideoModel, resolution?: string | null): number {
   return (resolution && m.perSecByRes?.[resolution]) || m.perSec;
 }
-export const PROVIDER_NAME: Record<VideoProvider, string> = { gemini: "Google Gemini", fal: "fal", replicate: "Replicate" };
+export const PROVIDER_NAME: Record<VideoProvider, string> = { gemini: "Google Gemini", fal: "fal", replicate: "Replicate", runway: "Runway", vidu: "Vidu" };
 
-export function findVideoModel(id: unknown): VideoModel | undefined {
-  return VIDEO_MODELS.find((m) => m.id === id);
+/** 다른 프로그램(사본)용 목록의 모델 — Runway·Vidu(영상 스튜디오 전용, 2026-11-11)는 들어 있지 않아 제공자 타입을 기존 셋으로 좁힌다 */
+export type ProgramVideoModel = VideoModel & { provider: Exclude<VideoProvider, "runway" | "vidu"> };
+const isProgramModel = (m: VideoModel): m is ProgramVideoModel => m.provider !== "runway" && m.provider !== "vidu";
+
+export function findVideoModel(id: unknown): ProgramVideoModel | undefined {
+  const m = VIDEO_MODELS.find((x) => x.id === id);
+  return m && isProgramModel(m) ? m : undefined;
 }
 
 /** 장면 1개 예상 비용(USD). seconds를 안 주면 기본 5초. audio: 소리를 켜면 perSecAudio(있을 때) */

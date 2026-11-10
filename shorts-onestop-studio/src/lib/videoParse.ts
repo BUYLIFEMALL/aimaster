@@ -37,6 +37,33 @@ export function replicateState(status: unknown): JobState {
   return "running";
 }
 
+/** 2026-11-11 Runway `GET /v1/tasks/{id}` status — SUCCEEDED만 완료(공식 문서), 실패·취소 계열은 failed, 그 밖(대기·진행·조절 중)은 계속 확인 */
+export function runwayState(status: unknown): JobState {
+  if (status === "SUCCEEDED") return "done";
+  if (status === "FAILED" || status === "CANCELLED" || status === "CANCELED") return "failed";
+  return "running";
+}
+
+/** 2026-11-11 Vidu `GET /ent/v2/tasks/{id}/creations` state — created·queueing·processing·success·failed */
+export function viduState(state: unknown): JobState {
+  if (state === "success") return "done";
+  if (state === "failed") return "failed";
+  return "running";
+}
+
+/** Runway 출력: output 배열 첫 주소 · Vidu 출력: creations[0].url */
+export function runwayOutputUrl(output: unknown): string | null {
+  const v = Array.isArray(output) ? output[0] : null;
+  return typeof v === "string" && /^https:\/\//.test(v) ? v : null;
+}
+export function viduOutputUrl(creations: unknown): string | null {
+  const v = Array.isArray(creations) ? (creations[0] as { url?: unknown } | undefined)?.url : null;
+  return typeof v === "string" && /^https:\/\//.test(v) ? v : null;
+}
+
+/** Runway ratio 값(gen4.5·gen4_turbo 공식 문서: 세로 720:1280, 가로 1280:720) */
+export const runwayRatio = (aspect: "9:16" | "16:9"): string => (aspect === "16:9" ? "1280:720" : "720:1280");
+
 /** Replicate output은 주소 문자열이거나 주소 배열 */
 export function replicateOutputUrl(output: unknown): string | null {
   const v = Array.isArray(output) ? output[0] : output;

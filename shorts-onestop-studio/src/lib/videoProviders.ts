@@ -6,11 +6,16 @@
 // 이중 과금 방지: 자동 재시도 없음. 키를 실어 보내는 주소는 업체 공식 호스트만(isHost).
 // 외부 무료배포 shorts-auto(라이선스 없음)의 코드는 쓰지 않고 새로 만들었다(docs/analysis-shorts-auto-20261022).
 import type { FalInputSpec, VideoJob, VideoModel, VideoProvider } from "./videoModels";
-import { falState, findGeminiVideo, geminiState, isHost, isJobId, replicateOutputUrl, replicateState } from "./videoParse";
+import { falState, findGeminiVideo, geminiState, isHost, isJobId, replicateOutputUrl, replicateState, runwayOutputUrl, runwayRatio, runwayState, viduOutputUrl, viduState } from "./videoParse";
 
 const GEMINI = "https://generativelanguage.googleapis.com/v1beta";
 const MAX_FRAME_BYTES = 10 * 1024 * 1024;
-const NAME: Record<VideoProvider, string> = { gemini: "Google Gemini", fal: "fal", replicate: "Replicate" };
+const NAME: Record<VideoProvider, string> = { gemini: "Google Gemini", fal: "fal", replicate: "Replicate", runway: "Runway", vidu: "Vidu" };
+// 2026-11-11 Runway·Vidu 직접 연동(공식 문서 기준)
+const RUNWAY = "https://api.dev.runwayml.com";
+const RUNWAY_HEADERS = (key: string) => ({ Authorization: `Bearer ${key}`, "X-Runway-Version": "2024-11-06", "Content-Type": "application/json" });
+const VIDU = "https://api.vidu.com";
+const VIDU_HEADERS = (key: string) => ({ Authorization: `Token ${key}`, "Content-Type": "application/json" });
 
 /** code: key(키 거절) · quota(한도·결제) · model(모델 없음) · input(요청 거절) · frame(장면 사진 문제) · timeout · empty(결과 없음) · provider(그 밖) */
 export class VideoGenError extends Error {
@@ -23,6 +28,11 @@ export type CheckResult = { state: "running" } | { state: "done"; bytes: Buffer 
 async function providerError(provider: VideoProvider, res: Response): Promise<never> {
   const text = (await res.text().catch(() => "")).slice(0, 400);
   const n = NAME[provider];
+  // 2026-11-11 Vidu는 오류 이름을 글로 돌려준다(HTTP 번호는 문서에 없음) · Runway 잔액 부족 번호도 문서에 없어 글로 판별
+  if (/CreditInsufficient|QuotaExceeded|insufficient (credit|fund|balance)|not enough credits/i.test(text)) throw new VideoGenError(402, "quota", `본인 ${n} 계정의 크레딧(잔액)이 부족합니다. ${n} 사이트에서 충전한 뒤 다시 시도해 주세요.`);
+  if (provider === "vidu" && /Unauthorized/i.test(text)) throw new VideoGenError(400, "key", `${n}가 키를 거절했습니다. API키등록·플랫폼연동에서 본인 ${n} 키를 확인해 주세요.`);
+  if (provider === "vidu" && /TooManyRequests/i.test(text)) throw new VideoGenError(429, "quota", `본인 ${n} 계정의 동시 작업·사용 한도에 걸렸습니다. 잠시 후 다시 시도해 주세요.`);
+  if (/PolicyViolation|SAFETY./i.test(text)) throw new VideoGenError(422, "input", `${n}의 안전 정책에 걸려 영상을 만들지 않았습니다. 장면 사진·설명을 바꿔 다시 시도해 주세요.`);
   const billing = "Gemini 영상 생성은 결제가 연결된 키에서만 됩니다. Google AI Studio에서 결제(유료 등급)를 연결해 주세요.";
   if (res.status === 400 && /API key not valid|API_KEY_INVALID/i.test(text)) throw new VideoGenError(400, "key", `${n}가 키를 거절했습니다. API키등록·플랫폼연동에서 본인 ${n} 키를 확인해 주세요.`);
   if (res.status === 401 || res.status === 403) {
@@ -138,6 +148,28 @@ export async function submitVideoJob(o: { key: string; model: VideoModel; prompt
     return { job: { ...base, id: json.request_id, statusUrl: json.status_url, responseUrl: json.response_url } };
   }
 
+  if (o.model.provider === "runway") {
+    // gen4.5·gen4_turbo: 시작 사진 1장(끝 장면 없음), ratio는 세로 720:1280 / 가로 1280:720
+    const body = { model: o.model.id, promptImage: o.startUrl, promptText: o.prompt.slice(0, 1000), ratio: runwayRatio(aspect), duration: o.seconds };
+    const res = await fetch(`${RUNWAY}/v1/image_to_video`, { method: "POST", headers: RUNWAY_HEADERS(o.key), body: JSON.stringify(body), cache: "no-store", signal: AbortSignal.timeout(60_000) });
+    if (!res.ok) await providerError("runway", res);
+    const json = (await res.json()) as { id?: string };
+    if (!isJobId(json.id)) throw new VideoGenError(502, "provider", "Runway가 작업 번호를 돌려주지 않았습니다. 잠시 후 다시 시도해 주세요.");
+    return { job: { ...base, id: json.id } };
+  }
+
+  if (o.model.provider === "vidu") {
+    // Q3: 시작 사진 1장, 비율은 사진을 따름, 소리는 끔(audio 기본값이 켜짐이라 명시), 720p
+    const body = { model: o.model.id, images: [o.startUrl], prompt: o.prompt.slice(0, 2000), duration: o.seconds, resolution: "720p", audio: false };
+    const res = await fetch(`${VIDU}/ent/v2/img2video`, { method: "POST", headers: VIDU_HEADERS(o.key), body: JSON.stringify(body), cache: "no-store", signal: AbortSignal.timeout(60_000) });
+    if (!res.ok) await providerError("vidu", res);
+    const json = (await res.json()) as { task_id?: string | number; state?: string; err_code?: string };
+    if (json.state === "failed") throw new VideoGenError(422, "input", `Vidu가 영상 작업을 받지 않았습니다${json.err_code ? `(${String(json.err_code).slice(0, 60)})` : ""}. 장면 사진·설명을 바꿔 다시 시도해 주세요.`);
+    const id = json.task_id == null ? "" : String(json.task_id);
+    if (!isJobId(id)) throw new VideoGenError(502, "provider", "Vidu가 작업 번호를 돌려주지 않았습니다. 잠시 후 다시 시도해 주세요.");
+    return { job: { ...base, id } };
+  }
+
   // replicate
   const input: Record<string, unknown> = o.model.id.includes("kling")
     ? { prompt: o.prompt, start_image: o.startUrl, duration: o.seconds, mode: withEnd ? "pro" : "standard", ...(withEnd ? { end_image: o.endUrl } : {}) }
@@ -177,6 +209,37 @@ export async function checkVideoJob(o: { key: string; job: VideoJob; maxBytes?: 
     if (!out.ok) await providerError("fal", out);
     const url = ((await out.json()) as { video?: { url?: string } }).video?.url;
     if (!url || !/^https:\/\//.test(url)) throw new VideoGenError(422, "input", "fal이 영상을 만들지 못했습니다. 장면 사진·설명을 바꿔 다시 시도해 주세요.");
+    return { state: "done", bytes: await download(url, maxBytes) };
+  }
+
+  if (job.provider === "runway") {
+    const res = await fetch(`${RUNWAY}/v1/tasks/${encodeURIComponent(job.id)}`, { headers: RUNWAY_HEADERS(o.key), cache: "no-store", signal: AbortSignal.timeout(30_000) });
+    if (!res.ok) await providerError("runway", res);
+    const json = (await res.json()) as { status?: string; output?: unknown; failure?: unknown; failureCode?: unknown };
+    const st = runwayState(json.status);
+    if (st === "running") return { state: "running" };
+    const url = runwayOutputUrl(json.output);
+    if (st === "failed" || !url) {
+      const code = typeof json.failureCode === "string" ? json.failureCode : "";
+      if (/^SAFETY./.test(code)) throw new VideoGenError(422, "input", "Runway의 안전 정책에 걸려 영상을 만들지 않았습니다. 장면 사진·설명을 바꿔 다시 시도해 주세요.");
+      throw new VideoGenError(422, "input", `Runway가 영상을 만들지 못했습니다${code ? `(${code.slice(0, 60)})` : ""}. 장면 사진·설명을 바꿔 다시 시도해 주세요.`);
+    }
+    return { state: "done", bytes: await download(url, maxBytes) };
+  }
+
+  if (job.provider === "vidu") {
+    const res = await fetch(`${VIDU}/ent/v2/tasks/${encodeURIComponent(job.id)}/creations`, { headers: VIDU_HEADERS(o.key), cache: "no-store", signal: AbortSignal.timeout(30_000) });
+    if (!res.ok) await providerError("vidu", res);
+    const json = (await res.json()) as { state?: string; creations?: unknown; err_code?: unknown };
+    const st = viduState(json.state);
+    if (st === "running") return { state: "running" };
+    const url = viduOutputUrl(json.creations);
+    if (st === "failed" || !url) {
+      const code = typeof json.err_code === "string" ? json.err_code : "";
+      if (/PolicyViolation/i.test(code)) throw new VideoGenError(422, "input", "Vidu의 안전 정책에 걸려 영상을 만들지 않았습니다. 장면 사진·설명을 바꿔 다시 시도해 주세요.");
+      if (/CreditInsufficient|QuotaExceeded/i.test(code)) throw new VideoGenError(402, "quota", "본인 Vidu 계정의 크레딧(잔액)이 부족합니다. Vidu 사이트에서 충전한 뒤 다시 시도해 주세요.");
+      throw new VideoGenError(422, "input", `Vidu가 영상을 만들지 못했습니다${code ? `(${code.slice(0, 60)})` : ""}. 장면 사진·설명을 바꿔 다시 시도해 주세요.`);
+    }
     return { state: "done", bytes: await download(url, maxBytes) };
   }
 
