@@ -1,6 +1,6 @@
 "use client";
 
-// v1.27(V1) 긴 영상 → 쇼츠: 회원 본인 영상 → 소리만 뽑아 본인 OpenAI 키로 받아쓰기 → AI 구간 고르기(본인 키) → 회원이 고침
+// v1.27(V1) 긴 영상 → 쇼츠: 회원 본인 영상 → 소리만 뽑아 본인 키로 받아쓰기(v1.31 모델 선택: Gemini·Whisper) → AI 구간 고르기(본인 키) → 회원이 고침
 // → 영상 합치기(브라우저 렌더)로 넘겨 세로 MP4. 영상은 서버에 올리지 않는다. 플랜 docs/PLAN_20261106_V1_LONG_TO_SHORTS.md
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import {
   type Pick, type Seg, type Silence,
 } from "@/lib/clip/clipPlan";
 import { setClipHandoff } from "@/lib/clip/handoff";
+import { TranscribeModelPicker, useTranscribeModel } from "@/components/clip/TranscribeModelPicker";
 
 const BUCKET_NAME = "ai-video-studio";
 const MAX_FILE_BYTES = 200 * 1024 * 1024;
@@ -47,6 +48,7 @@ async function postJson<T>(url: string, body?: unknown): Promise<T> {
 export function ClipStudio() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
+  const tm = useTranscribeModel();
   const [videoUrl, setVideoUrl] = useState("");
   const [rights, setRights] = useState(false);
   const [busy, setBusy] = useState("");
@@ -90,7 +92,7 @@ export function ClipStudio() {
       const { error: upErr } = await createClient().storage.from(BUCKET_NAME).uploadToSignedUrl(up.path, up.token, wav, { contentType: "audio/wav" });
       if (upErr) throw new Error("소리를 올리지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
       setBusy(`말소리를 받아쓰는 중…(${clock(duration)} 분량, 보통 10초~1분)`);
-      const tr = await postJson<{ segments: Seg[] }>("/api/clip/transcribe", { path: up.path });
+      const tr = await postJson<{ segments: Seg[] }>("/api/clip/transcribe", { path: up.path, model: tm.model });
       const clean = cleanSegments(tr.segments, sil);
       if (clean.length < 2) throw new Error("받아쓴 문장이 너무 적습니다. 말소리가 있는 영상인지 확인해 주세요.");
       setSegs(clean);
@@ -170,9 +172,10 @@ export function ClipStudio() {
           <input type="checkbox" className="mt-0.5" checked={rights} onChange={(e) => setRights(e.target.checked)} />
           내가 직접 찍었거나 쓸 권리가 있는 영상입니다. 다른 사람의 영상은 넣지 않습니다.
         </label>
+        <TranscribeModelPicker model={tm.model} setModel={tm.setModel} registered={tm.registered} disabled={!!busy} />
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" className={mainBtn} disabled={!file || !rights || !!busy} onClick={() => void analyze()}><Sparkles className="h-4 w-4" aria-hidden="true" /> 받아쓰고 구간 고르기</button>
-          <span className="text-[11px] text-zinc-500">본인 OpenAI 키로 받아쓰기(10분 약 80원) + 본인 AI 키로 구간 고르기 1회(몇 원)</span>
+          <span className="text-[11px] text-zinc-500">위에서 고른 모델의 본인 키로 받아쓰기 + 본인 AI 키로 구간 고르기 1회(몇 원)</span>
         </div>
       </section>
 

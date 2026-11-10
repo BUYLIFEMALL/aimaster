@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { BUCKET } from "@/lib/generations";
 import { getUserApiKey } from "@/lib/access";
 import { parsePicks, pickPrompt, type Pick, type Seg } from "@/lib/clip/clipPlan";
+import { GEMINI_INLINE_MAX_BYTES, GEMINI_TRANSCRIBE_PROMPT, GEMINI_TRANSCRIBE_SCHEMA, isTranscribeModel, parseGeminiSegments, splitWav, transcribeModelOf, type TranscribeModelId } from "@/lib/clip/transcribe";
 
 // v1.27(V1) 긴 영상 → 쇼츠 서버 쪽. 영상은 받지 않고, 브라우저가 뽑은 소리(16kHz 모노 WAV)만 회원 폴더에 잠깐 올렸다가 받아쓰기 직후 지운다.
 // 회원 본인 키만 쓴다(최상위 규칙). 유료 호출은 자동 재시도하지 않는다(이중 과금 방지).
@@ -25,18 +26,64 @@ export async function createAudioUpload(userId: string): Promise<{ path: string;
   return { path, token: data.token };
 }
 
-/** 받아쓰기: 회원 본인 OpenAI 키로 whisper-1(문장 시각 포함). 끝나면 성공·실패와 상관없이 소리 파일을 지운다 */
-export async function transcribeAudio(userId: string, path: string): Promise<{ duration: number; segments: Seg[] }> {
+const NO_SPEECH = "영상에서 말소리를 찾지 못했습니다. 말하는 영상인지 확인해 주세요.";
+
+/** Gemini 받아쓰기 1조각(재시도 없음) — 소리를 요청에 바로 넣고 구간·시각을 JSON으로 받는다 */
+async function geminiChunk(key: string, model: string, wav: Uint8Array): Promise<unknown> {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: "POST",
+    headers: { "x-goog-api-key": key, "content-type": "application/json" },
+    cache: "no-store",
+    signal: AbortSignal.timeout(240_000),
+    body: JSON.stringify({
+      contents: [{ role: "user", parts: [{ inline_data: { mime_type: "audio/wav", data: Buffer.from(wav).toString("base64") } }, { text: GEMINI_TRANSCRIBE_PROMPT }] }],
+      generationConfig: { responseMimeType: "application/json", responseSchema: GEMINI_TRANSCRIBE_SCHEMA, temperature: 0 },
+    }),
+  }).catch(() => null);
+  if (!res) throw new ClipError(504, "받아쓰기가 늦어지고 있습니다. 잠시 뒤 다시 시도해 주세요.");
+  if (res.status === 401 || res.status === 403) throw new ClipError(400, "Gemini API 키가 올바르지 않습니다. 본인 키를 확인해 주세요.", true);
+  if (res.status === 429) throw new ClipError(429, "Gemini 사용 한도를 넘었습니다. 잠시 뒤 다시 시도하거나 다른 받아쓰기 모델을 골라 주세요.");
+  if (!res.ok) throw new ClipError(502, `받아쓰기에 실패했습니다(Gemini ${res.status}). 잠시 뒤 다시 시도해 주세요.`);
+  const text = ((await res.json()).candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join("");
+  return jsonOf(text);
+}
+
+/** Gemini 받아쓰기: 짧으면 한 번, 길면 5분씩 나눠 동시에 부르고 시각을 이어 붙인다 */
+async function transcribeGemini(key: string, model: string, wav: Uint8Array): Promise<{ duration: number; segments: Seg[] }> {
+  const view = new DataView(wav.buffer, wav.byteOffset, wav.byteLength);
+  const rate = view.getUint32(24, true) || 16000;
+  const duration = (wav.byteLength - 44) / 2 / rate;
+  const parts = wav.byteLength <= GEMINI_INLINE_MAX_BYTES ? [{ wav, offset: 0 }] : splitWav(wav);
+  const results = await Promise.all(parts.map((p) => geminiChunk(key, model, p.wav)));
+  const segments = results.flatMap((json, i) => {
+    const len = (parts[i].wav.byteLength - 44) / 2 / rate;
+    return parseGeminiSegments(json, len).map((s) => ({ ...s, start: s.start + parts[i].offset, end: s.end + parts[i].offset }));
+  });
+  return { duration, segments };
+}
+
+/**
+ * 받아쓰기(2026-11-10 모델 선택): 회원이 고른 모델의 본인 키로. 키가 없으면 다른 제공자로 몰래 바꾸지 않고 등록 안내.
+ * 끝나면 성공·실패와 상관없이 소리 파일을 지운다.
+ */
+export async function transcribeAudio(userId: string, path: string, modelRaw?: unknown): Promise<{ duration: number; segments: Seg[]; model: TranscribeModelId }> {
   if (typeof path !== "string" || !path.startsWith(clipDir(userId)) || !/^[\w-]+\/clip\/[\w-]+\.wav$/.test(path)) {
     throw new ClipError(400, "소리 파일 경로가 올바르지 않습니다.");
   }
+  const model: TranscribeModelId = isTranscribeModel(modelRaw) ? modelRaw : "whisper-1"; // 옛 화면(모델 칸 없음)은 예전 동작 그대로
+  const spec = transcribeModelOf(model);
   const admin = createAdminClient();
   try {
-    const key = await getUserApiKey(userId, "openai");
-    if (!key) throw new ClipError(400, "받아쓰기는 본인 OpenAI 키가 필요합니다. API키등록·플랫폼연동에서 등록해 주세요.", true);
+    const key = await getUserApiKey(userId, spec.provider);
+    if (!key) throw new ClipError(400, `${spec.name} 받아쓰기는 본인 ${spec.provider === "gemini" ? "Gemini" : "OpenAI"} 키가 필요합니다. API키등록·플랫폼연동에서 등록하거나 다른 받아쓰기 모델을 골라 주세요.`, true);
     const { data: file, error } = await admin.storage.from(BUCKET).download(path);
     if (error || !file) throw new ClipError(400, "올린 소리 파일을 찾지 못했습니다. 다시 시도해 주세요.");
     if (file.size > MAX_WAV_BYTES) throw new ClipError(400, "영상이 너무 깁니다. 10분 이하 영상을 넣어 주세요.");
+    if (spec.provider === "gemini") {
+      const r = await transcribeGemini(key, model, new Uint8Array(await file.arrayBuffer()));
+      if (!r.segments.length) throw new ClipError(422, NO_SPEECH);
+      return { ...r, model };
+    }
     const fd = new FormData();
     fd.append("file", file, "audio.wav");
     fd.append("model", "whisper-1");
@@ -52,8 +99,8 @@ export async function transcribeAudio(userId: string, path: string): Promise<{ d
     if (!res.ok) throw new ClipError(502, `받아쓰기에 실패했습니다(${res.status}). 잠시 뒤 다시 시도해 주세요.`);
     const j = (await res.json()) as { duration?: number; segments?: { start: number; end: number; text: string }[] };
     const segments = (j.segments ?? []).map((s) => ({ start: Number(s.start), end: Number(s.end), text: String(s.text ?? "") }));
-    if (!segments.some((s) => s.text.trim())) throw new ClipError(422, "영상에서 말소리를 찾지 못했습니다. 말하는 영상인지 확인해 주세요.");
-    return { duration: Number(j.duration) || 0, segments };
+    if (!segments.some((s) => s.text.trim())) throw new ClipError(422, NO_SPEECH);
+    return { duration: Number(j.duration) || 0, segments, model };
   } finally {
     await admin.storage.from(BUCKET).remove([path]).catch(() => undefined);
   }

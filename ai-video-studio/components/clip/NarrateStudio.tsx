@@ -1,9 +1,10 @@
 "use client";
 
-// V2 해설 교차편집(2026-11-06): 내 해설 녹음 1개 + 내 촬영본 여러 개 → 해설을 본인 OpenAI 키로 받아쓰기 → 문장마다 촬영본을 번갈아 배치
+// V2 해설 교차편집(2026-11-06): 내 해설 녹음 1개 + 내 촬영본 여러 개 → 해설을 본인 키로 받아쓰기(v1.31 모델 선택: Gemini·Whisper) → 문장마다 촬영본을 번갈아 배치
 // → 영상 합치기(브라우저 렌더)로 넘겨 해설이 깔린 세로 MP4. 영상·녹음은 서버에 올리지 않는다(소리만 잠깐, 받아쓰기 뒤 삭제).
 // 플랜 docs/PLAN_20261106_V2_V5_OWN_CONTENT.md §2. 받아쓰기·소리 뽑기는 V1(ClipStudio)과 같은 길을 쓴다.
 import { useEffect, useMemo, useState } from "react";
+import { TranscribeModelPicker, useTranscribeModel } from "@/components/clip/TranscribeModelPicker";
 import { useRouter } from "next/navigation";
 import { Loader2, Mic, Sparkles, Trash2, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -62,6 +63,7 @@ export function NarrateStudio() {
   const [narrationUrl, setNarrationUrl] = useState("");
   const [footage, setFootage] = useState<Footage[]>([]);
   const [rights, setRights] = useState(false);
+  const tm = useTranscribeModel();
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [segs, setSegs] = useState<Seg[]>([]);
@@ -119,7 +121,7 @@ export function NarrateStudio() {
       const { error: upErr } = await createClient().storage.from(BUCKET_NAME).uploadToSignedUrl(up.path, up.token, wav, { contentType: "audio/wav" });
       if (upErr) throw new Error("소리를 올리지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
       setBusy(`해설을 받아쓰는 중…(${clock(duration)} 분량, 보통 10초~1분)`);
-      const tr = await postJson<{ segments: Seg[] }>("/api/clip/transcribe", { path: up.path });
+      const tr = await postJson<{ segments: Seg[] }>("/api/clip/transcribe", { path: up.path, model: tm.model });
       const clean = limitSegs(cleanSegments(tr.segments, sil));
       if (!clean.length) throw new Error("받아쓴 문장이 없습니다. 말소리가 있는 녹음인지 확인해 주세요.");
       setSegs(clean);
@@ -186,9 +188,10 @@ export function NarrateStudio() {
           <input type="checkbox" className="mt-0.5" checked={rights} onChange={(e) => setRights(e.target.checked)} />
           해설과 촬영본 모두 제가 만들었거나 쓸 권리가 있는 것입니다. 다른 사람의 녹음·영상은 넣지 않습니다. (실행할 때마다 파일 이름과 시각이 내 기록으로 남고 30일 뒤 지워집니다)
         </label>
+        <TranscribeModelPicker model={tm.model} setModel={tm.setModel} registered={tm.registered} disabled={!!busy} />
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" className={mainBtn} disabled={!narration || footage.length < 2 || !rights || !!busy} onClick={() => void analyze()}><Sparkles className="h-4 w-4" aria-hidden="true" /> 받아쓰고 컷 배치하기</button>
-          <span className="text-[11px] text-zinc-500">본인 OpenAI 키로 받아쓰기(3분 약 25원). 다른 AI 호출은 없습니다.</span>
+          <span className="text-[11px] text-zinc-500">위에서 고른 모델의 본인 키로 받아쓰기 1회. 다른 AI 호출은 없습니다.</span>
         </div>
       </section>
 
