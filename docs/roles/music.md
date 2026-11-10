@@ -5,12 +5,12 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-09 `claude-win-20261024-music` (무료음악 v1.60 · AI 음악 스튜디오 v1.15 배포 — 연계 D-4·D-8~D-11)
+- 마지막 갱신: 2026-11-10 `claude-win-20261024-music` (무료음악 v1.63 · 엔진 0.8.3 배포 — 마스터링 창, 곡 끝 처리)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 진행 중인 개발 없음 | — | 무료음악 v1.60 · AI 음악 스튜디오 v1.15 배포 끝, 미배포 대기 0 — 재생 관련 실물은 마스터PC 확인 대기 |
+| — | 진행 중인 개발 없음 | — | 무료음악 v1.63 · 엔진 0.8.3 배포 끝, 미배포 대기 0 — 끝 이어 만들기 실물은 마스터PC 확인 대기 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -21,12 +21,14 @@
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) | 백로그 「보관」 B-6 |
 | `free-music-studio` | B-4 가사 시간 맞추기 추가 비교 | 수동 정답 자료 준비 | 백로그 「보관」 B-4 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
-| `free-music-studio` | D-6 이미지 스토리 쇼츠 배경음악(영상 담당 위임) — 받는 쪽 끝나면 보내는 쪽 붙임 | 영상 담당 | `free-music-studio/docs/HANDOFF_20261109_SHOTS_BGM_FROM_FMS.md` |
+| `free-music-studio` | D-6 이미지 스토리 쇼츠 배경음악 — 보내는 쪽 v1.62·받는 쪽 shots v1.46 모두 배포됨, 실제 곡 시험만 남음 | 음원이 있고 음악 생성이 되는 PC(마스터PC)에서 1곡 보내기 — 맥미니는 Intel 맥이라 생성 미지원으로 중단(2026-11-10) | `free-music-studio/docs/HANDOFF_20261109_SHOTS_BGM_FROM_FMS.md` |
 | `free-music-studio` | 마스터PC 실물: 재생 강조·EQ·시각화·쇼츠 보내기, 참고곡 Gemini 1회 | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.60 |
+| `free-music-studio` | 마스터PC 실물: 끝 이어 만들기 이음새, 끊긴 끝 자동 줄이기 로그, AI 설정 제안 1번(회원 키) | 주인님 확인·승인 | `free-music-studio/AGENTS.md` v1.63 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-10 | `free-music-studio` v1.63 · 엔진 0.8.3 | 곡 끝 처리 — 끊긴 끝 3초 자동 줄이기·「끝 이어 만들기」(ACE-Step 부분 수정 30·60·90초)·가사 길이 경고 + 마스터링 창 넓힘 | 배포 |
 | 2026-11-09 | `free-music-studio` v1.60 · `ai-music-studio` v1.15 | 연계 D-4 보내는 쪽·D-8 댄스·월드 프리셋·D-9 참고곡 스타일·D-10 EQ·시각화·속도·D-11 유료 모델 비교 + 재생 강조 2곳 + 그림 기본 판 복구 | 배포 |
 | 2026-11-09 | `free-music-studio` v1.59 | 곡 만들기 화면 왼쪽 메뉴·모든 화면 이동 먹통 수정(`MultiVersionPanel` `useEffect` 무한 반복 → `useMemo`, v1.57부터 있던 버그) + 「작업 대기열」 링크. 재발 방지 `docs/ERROR_LESSONS.md` 2026-11-09 | 배포(커밋된 코드만) |
 | 2026-11-09 | `free-music-studio` v1.58 | 연주곡 장르 2단계(9개·세부 49개, AI 작곡 기획·프리셋 연동) + 단계 막대·AI 작사 접기(C-36) + 넓은 화면 배치(C-35) | 배포 |
@@ -37,7 +39,6 @@
 | 2026-11-09 | `free-music-studio` v1.52~v1.54·엔진 0.7.8~0.7.9 | 노래 장르 2단계(대분류 12·세부 59) · 그림 메모리 부족 안내·자동 재시도 · 곡 만들기 두 칸·분위기 탭(C-22~C-26) | 배포 |
 | 2026-11-08 | `free-music-studio` v1.41~v1.51·엔진 0.7.4~0.7.7 | 글 AI 모델 계정 저장·음악앨범 화면·VIP 새 프로그램 자동 체크(운영 DB `0057`)·FLAC 표지·금지어 계정 저장 등 | 배포 |
 | 2026-11-07~08 | `free-music-studio` v1.35~v1.40 | 음악앨범(곡과 따로 그림 만들기·모아 보기)·그림으로 곡 만들기·PC 검사 정리 | 배포 |
-| 2026-11-06 | 공용 권한 판정(56개)·`lyric-video-studio` v1.12·`free-music-studio` v1.26~v1.29 | 권한 판정 두 묶음 동시 조회 · Lyricbi L-2~L-5 · 원본 boks-music 이식 10묶음 운영 반영 | 배포 |
 
 더 앞의 이력은 각 프로그램 `AGENTS.md` 버전 기록에 있다(`free-music-studio/AGENTS.md` §4 등).
 
