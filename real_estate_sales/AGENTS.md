@@ -81,6 +81,7 @@
 - 시험: `tests/newsRadar.test.mjs` 7개 추가, 전체 57개 통과, `tsc`·로컬 `npm run build` 통과(`/news` 생성).
 - DB(운영 `esgxyik…`): `supabase/migrations/20261109000100_news_radar_v1_57.sql` — 표 `real_estate_news_items`·`real_estate_news_digests`(본인 읽기 RLS, 넣기는 서버만), `real_estate_user_preferences`에 `news_enabled`·`news_ai_summary`·`news_sent_on`, `programs.version` v1.57. ego SQL 편집기에 넣어 두고, 실행은 Claude Code 자동 권한 검사(운영 반영)에 막혀 **주인님이 실행**(11-09). 결과 표 이름 2개·pref_cols 3·version v1.57 확인.
 - 배포 `real-estate-sales-ivxhej2ge`(Ready, 운영 주소 연결, 화면·DB v1.57, 빌드 1회). 운영 확인(ego, 시험 계정, 작업 공간 하나·닫음): `/news` 화면·메뉴 정상, 네이버 키 이미 등록됨, 「🔎 지금 받아 보기」 1회 → 5곳에서 새 기사 106건(서초구 66·종로구 27·고양시 일산동구 7·화성시 동탄구 6·화성시 만세구 0), 보이는 기사 모두 지역 이름 있음. 남은 확인: 다음 날 아침 8시 이후 첫 예약 알림(시험 계정은 「지역 뉴스 받기」가 꺼져 있어 켜야 옴). 개선 후보는 `docs/IMPROVEMENTS.md` 2026-11-09.
+- 2026-11-10 첫 예약 알림 확인(운영 DB 읽기, ego): 08:00 KST 예약 실행으로 새 기사 58건 저장, 「지역 뉴스 받기」 켠 회원 1명의 `news_sent_on` = 2026-11-10, AI 요약은 꺼져 있어 `real_estate_news_digests` 0건(정상). `news_sent_on`은 보내기 직전에 먼저 적히므로 텔레그램 실제 도착은 주인님 확인(요청함 `3ec4a25c`). Vercel 실행 기록은 MCP 권한 403으로 못 읽음.
 - 남은 것: 연동 매뉴얼에 네이버 검색 키 매뉴얼 링크(platform_guides에 맞는 글 확인 뒤), 블로그 글 포함 여부는 2차 검토.
 
 ## 2026-11-06 v1.56 배포 — 상권 칸 가장 가까운 상권(참고) #20 + 서울 분양권 동 코드 #21 ([역할: realty] `claude-win-realty-docs`, 주인님 「진행해」 빌드 1회)
