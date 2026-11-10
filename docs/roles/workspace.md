@@ -13,7 +13,6 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-work-workspace` | OpenAI 받아쓰기 실제 결과 확인 | 시험 계정 OpenAI 키 잔액 충전(앱 경로·안내는 정상 확인) | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U11 운영 확인」 |
 | `ai-work-workspace` | U13 협업(주인님 「협업해서 진행해」) | 「초대한 사람에게만 공유」를 데이터 격리 규칙 예외로 둘지 먼저 결정 | 로드맵 §U13 |
 | `ai-work-workspace` | 홈택스 일괄 발급 엑셀(영수증·세금계산서 2단계) | 주인님께 홈택스 공식 양식 파일 1개 + 장부 보관 기간 지정 여부 | `ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md` §6-3 |
 | `ai-doc-chatbot`(다른 역할 폴더) | 문서 카드가 30일 예외 계정에도 「30일 뒤 자동 삭제」로 표시 — 실제 삭제 대상인지 확인 | 그 폴더 담당 또는 주인님 허락 | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 확인 중 발견」 |
@@ -21,6 +20,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | `ai-work-workspace` v1.27 | OpenAI 받아쓰기 운영 확인 통과(잔액 충전 뒤, 요약까지) | 없음 |
 | 2026-11-11 | `naver-blog-agent` v2.28 | U10 2차 마지막 배포(확장 ZIP·DB 맞춤, check OK) — U10 2차 전체 끝 | 빌드 1회 |
 | 2026-11-11 | `web-crawler` v1.12 · `competitor-analysis` v1.13 | U10 2차 「업무 워크스페이스로 보내기」 배포(확장 ZIP·DB 맞춤, check OK) | 빌드 2회 |
 | 2026-11-11 | `ai-work-workspace` v1.27 | 보관 예외(음악·영상 30일, 그 밖 1년)·캘린더 ② 운영 확인·지운 일정 되살리기·에이전트 화면 한국어 | 빌드 1회 |
