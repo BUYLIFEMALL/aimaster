@@ -15,7 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `free-music-studio` | C-17 트로트·성인가요 장르(대분류) 추가 | 주인님 「일단 대기」 — 마스터PC에서 한국어 트로트 실물 확인 뒤 | `free-music-studio/docs/IMPROVEMENT_BACKLOG.md` C-17 |
+| `free-music-studio` | C-17 트로트·성인가요 장르(대분류) 추가 | Admin PC 세션 3곡 시험(인수인계서 21절) + 주인님 듣고 판정 → 결과 22절 | `free-music-studio/docs/IMPROVEMENT_BACKLOG.md` C-17 |
 | `free-music-studio` | A-6 Apple Silicon 맥 엔진 설치 파일 | Apple Silicon 맥 준비(엔진 0.7.7 이상으로) | 백로그 「보관」 A-6 |
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) | 백로그 「보관」 B-6 |
 | `free-music-studio` | B-4 가사 시간 맞추기 추가 비교 | 수동 정답 자료 준비 | 백로그 「보관」 B-4 |
@@ -46,7 +46,7 @@
 ## 다음 첫 단계
 1. 주인님이 마스터PC 엔진 0.8.3 설치를 마치면 Admin PC 세션에 19절 시험을 요청(채팅 프롬프트)하고, 결과 20절을 받아 처리
 2. (선택·주인님 확인) 마스터PC에서 연주곡 장르를 골라 「AI 작곡 기획」 1회 — 고른 장르 안에서 곡을 짜는지 실물 확인(회원 키 AI 호출 1번)
-3. 주인님이 C-17(트로트) 재개를 지시하면: 마스터PC 한국어 트로트 1곡 실물 확인 → `lyricTags.ts` 대분류 추가
+3. C-17(트로트): Admin PC 시험 결과 22절이 오면 판정대로 처리(트로트답다 → `lyricTags.ts` 대분류+프리셋 3개 / 일부 → 트로트풍 / 아니면 C-17 닫기)
 4. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
 ## 주인님께 여쭐 것
