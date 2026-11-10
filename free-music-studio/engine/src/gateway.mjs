@@ -618,7 +618,8 @@ async function handleQueue(req, res, url, origin, ctx, json, imageOnly = false) 
         const src = isTrackId(sourceId) ? await ctx.library.fileOf(sourceId) : null;
         if (!src) return json(res, 400, { error: "이 PC 보관함에 원곡 음원이 없습니다." }, origin);
         if (!ctx.ffmpeg) return json(res, 501, { error: "이 PC에 ffmpeg가 없어 이어 만들 수 없습니다. 엔진을 다시 켜면 받습니다." }, origin);
-        const prep = await prepareExtendSource({ ffmpeg: ctx.ffmpeg, src, dir: ctx.queueSourceDir, seconds: Number(body.task.seconds) });
+        // ctx.ffmpeg는 「있는가」 참·거짓 — 실행 파일 이름을 넘긴다(0.8.4, 0.8.3은 true를 넘겨 spawn 오류)
+        const prep = await prepareExtendSource({ ffmpeg: "ffmpeg", src, dir: ctx.queueSourceDir, seconds: Number(body.task.seconds) });
         const allowed = ["prompt", "lyrics", "vocal_language", "thinking", "batch_size", "audio_format", "inference_steps"];
         const clean = Object.fromEntries(allowed.filter((k) => fields[k] !== undefined).map((k) => [k, String(fields[k]).slice(0, 10000)]));
         const editFields = { ...clean, task_type: "repaint", repainting_start: String(prep.range.start), repainting_end: String(prep.range.end), chunk_mask_mode: "explicit" };
