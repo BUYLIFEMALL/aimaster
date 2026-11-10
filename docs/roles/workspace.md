@@ -4,12 +4,12 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-11 [역할: workspace] Claude Code(윈도우) — U12 업무 비서 v1.24 배포·운영 확인 완료 → 다음: 영수증·세금계산서 플랜 갱신
+- 마지막 갱신: 2026-11-11 [역할: workspace] Claude Code(윈도우) — 영수증·세금계산서 v1.25 배포·운영 확인 → 다음: 구글 캘린더 ICS
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `ai-work-workspace` | 영수증·홈택스 세금계산서(주인님 승인) | 2026-11-11 | 플랜 갱신부터 |
+| `ai-work-workspace` | 구글 캘린더 ICS 구독 주소(주인님 승인) | 2026-11-11 | 다음 차례 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -18,12 +18,13 @@
 | U10 2차 배포 | 6개 프로그램 「업무 워크스페이스로 보내기」 구현 완료. `blog-keyword`(v1.13) 운영 확인 통과(11-10)·`threads-content-ops` 「(광고)」 수정(v2.25) 배포됨·DB 버전 v2.25로 맞춤. 나머지 미배포(`ai-auto-blog`·`naver-blog-agent`·`competitor-analysis`·`web-crawler`·`blog-keyword` + 워크스페이스 이름표) | 주인님 결정(2026-11-09): 따로 배포하지 않고 각 프로그램을 다른 이유로 배포할 때 함께 — 배포하는 세션이 미배포 대기 표 줄을 보고 같이 내보냄 | `docs/PENDING_DEPLOYS.md` 2026-11-07 줄 |
 | `ai-work-workspace` | U13 협업(주인님 「협업해서 진행해」) | 「초대한 사람에게만 공유」를 데이터 격리 규칙 예외로 둘지 먼저 결정 | 로드맵 §U13 |
 | `ai-work-workspace` | 구글 캘린더 — **주인님 승인(2026-11-10 「편한 방법이 있다면 그걸로」) → ICS 구독 주소 방식** | 영수증 다음 차례 | `ai-work-workspace/docs/REVIEW_20261110_GOOGLE_CALENDAR.md` |
-| `ai-work-workspace` | 영수증·홈택스 세금계산서 — **주인님 승인(2026-11-10 「진행하고」, 권장안: 워크스페이스 안 메뉴)** | U12 배포 뒤 차례(작업 하나씩) | `ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md` |
+| `ai-work-workspace` | 홈택스 일괄 발급 엑셀(영수증·세금계산서 2단계) | 주인님께 홈택스 공식 양식 파일 1개 + 장부 보관 기간 지정 여부 | `ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md` §6-3 |
 | `ai-doc-chatbot`(다른 역할 폴더) | 문서 카드가 30일 예외 계정에도 「30일 뒤 자동 삭제」로 표시 — 실제 삭제 대상인지 확인 | 그 폴더 담당 또는 주인님 허락 | `ai-work-workspace/docs/IMPROVEMENTS.md` 「U9 확인 중 발견」 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-11 | `ai-work-workspace` v1.25 | 🧾 영수증·세금계산서: 받은 증빙 사진 자동 정리(회원 본인 키)·장부·CSV, 간이영수증·거래명세서·세금계산서(확인용) 작성·인쇄, 내 사업자·거래처·품목. 시험 80, ego 운영 확인(사진 읽기 정확·저장·발행 통과) | 빌드 1회 |
 | 2026-11-11 | `ai-work-workspace` v1.24 | U12 업무 비서: 에이전트 열기(공유·바깥 연결 제외), 백그라운드 실행 주인 키로, 정시 비서 회원 cron-job.org, 월 상한 700·비용 안내, 웹 검색 끔, 한국어 템플릿 6종, 자동화 화면 한국어 84개. 시험 67·원본 523·빌드, ego 운영 확인(대화·직접 실행 통과) | 빌드 1회 |
 | 2026-11-10 | `blog-keyword` v1.13 · `threads-content-ops` v2.25 | U10 2차 `blog-keyword` 버튼 운영 확인(보내기 → 받은 업무 → 페이지) 통과, Threads 운영 DB 버전 v2.23 → v2.25 맞춤, 미배포 표 정리 | 없음(DB 버전만) |
 | 2026-11-10 | `ai-work-workspace` v1.23 | U11 배포: 운영 DB 표 `aww_member_scheduler` 적용, 이름표 `3c175bcce` 함께. ego 운영 확인 — 값 변경 자동화·정시 자동화(cron-job.org 실행 → 알림)·일시정지/재개·끄면 작업 꺼짐 통과. OpenAI 받아쓰기는 시험 계정 잔액 부족으로 결과 미확인 | 빌드 1회 |
@@ -52,4 +53,6 @@
 2. 유튜브 발행 기록(U10 범위 밖)은 video 역할과 저장 열 확인 뒤 다음 단위
 
 ## 주인님께 여쭐 것
+- 홈택스 전자세금계산서 일괄발급 엑셀 **공식 양식 파일 1개**(홈택스 로그인 → 전자(세금)계산서 일괄발급 → 엑셀양식 내려받기) — 받으면 「양식에 채워 넣기」 구현
+- 증빙 장부 보관 기간: 지금 30일(생성 데이터 규칙). 세무 장부라 관리자 보관 기간 지정(§8 예외, 예: 5년)을 할지
 - 모델 교체 7개(`web-crawler`·`ghost-scraper`·`ai-webtoon-studio`·`ebook-studio`·`ai-prompt-studio`·`vinyl-lp-studio`·`personality-suite`) 배포 — 이 세션은 `deploy.mjs`가 분류기에 막혀 주인님이 `! node scripts/deploy.mjs <폴더> --go`를 한 줄씩 돌려 주시거나 배포 권한 규칙 추가. 인스타·쓰레드 U10 1차 2개도 맡을지 확인 부탁드립니다
