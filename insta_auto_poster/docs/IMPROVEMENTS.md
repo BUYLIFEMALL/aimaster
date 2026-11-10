@@ -1,5 +1,7 @@
 # INSTA 포스팅 자동화 (`insta_auto_poster`) 개선 및 특이사항 기록
 
+> **📦 [인스타·디자인 담당께 — 내 자료함 가져다 쓰기, 2026-11-11 접수]**: `insta_auto_poster` 등 SNS 게시 프로그램에서 「내 자료함에서 가져오기」로 이미지 스튜디오 4종(`ai-image-studio`, `banana-canvas`, `portrait-photo`, `thumbnail-master`) 및 영상 결과를 고를 수 있습니다. 게시에는 공개 주소가 필요하므로, 서명 주소로 받아 내 공개 버킷의 회원 폴더(`{user_id}/…`)로 복사해 쓰면 됩니다(원본 버킷은 건드리지 않음). 방법: `docs/MEMBER_LIBRARY.md`. 현재 진행 중인 디자인 리뉴얼 작업 완료 후 다음 기능 고도화 때 검토 및 적용 예정.
+
 > **📮 담당께 — `whisper-1` 종료 대비 (2026-11-11, [역할: video] `claude-win-video`, 코드는 고치지 않음)**: 카드뉴스 리메이크 릴스 받아쓰기(`src/app/api/cardnews/remake/collect/route.ts` `transcribeVideo`)가 `whisper-1`(**2027-02-26 종료**, OpenAI 공식 문서 2026-11-10 확인)을 쓴다. 여기는 시각 없이 글만 필요하므로 대안 두 가지: ① OpenAI 추천 `gpt-transcribe`(요청 `file`·`model`·`languages[]=ko`, 응답 JSON `{ text }` — `response_format=text`·단수 `language`는 문서에 없음) ② 이미 분석용으로 영상을 Gemini에 올리고 있으니 같은 호출에서 받아쓰기까지(키 하나로). 참고 구현: `shorts-onestop-studio` v1.48 `src/app/api/ai/transcribe/route.ts`(Gemini 3.8 Flash 기본·Flash Lite·gpt-transcribe 선택), 받아쓰기 모델표 `docs/AI_MODEL_CATALOG.md` §3. Claude는 음성 입력이 없어 후보 아님.
 
 > **✅ v1.68로 배포됨 (2026-10-23, Claude Code 윈도우)** (예전 표시: 미배포 대기, 운영 v1.67). 커밋 `4bebfb016`.
