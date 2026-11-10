@@ -64,6 +64,8 @@
 
 - **2026-11-11 2-3 완료(로컬, 미배포)** — 구글 블로그 연결: `src/lib/googleConnect.ts`(회원 본인 구글 앱 키만, 동의 주소·코드 교환·블로그 권한 확인·공용 표 저장·토큰 갱신·앱 바뀌면 다시 연결 표시·블로그 목록·고르기·끊기), 경로 `api/oauth/google/start`(무작위 상태값+보안 쿠키)·`callback`(상태값·로그인 회원 대조)·`api/connect/blogger`, 화면 `BloggerConnectCard.tsx`(4단계·리디렉션 주소 복사·결과 안내). 콜백 주소 고정 `https://wp-blogger-auto.buylife.xyz/api/oauth/google/callback` — **회원이 구글 콘솔에 이 주소 추가·Blogger API 켜기 필요(매뉴얼 2-7에 넣을 것)**. tsc·시험 35개·로컬 빌드 통과. 다음: 2-4 원고 만들기.
 
+- **2026-11-11 2-4 원고 만들기(글) 완료(로컬, 미배포)** — `src/lib/draft/`(모델 3개·HTML 정리·참고 주소 읽기(내부망 차단)·Claude 구조화 출력 생성·흐름 서비스), 경로 `api/posts/generate`(본인 키만·생성 중 중복 막기·실패 시 빈 원고 삭제·재시도 0)·`api/posts/[id]`(고치기·지우기), 화면 `/write`·`/posts/[id]`(검색 미리보기·HTML 고치기). Anthropic SDK 1.7.0·sanitize-html. tsc·시험 43개·로컬 빌드 통과, 실제 생성 2회 성공(분량 80% — IMPROVEMENTS). 이미지는 2-4b로 분리. 다음: 2-4b 이미지 → 2-5 발행.
+
 ## 4. 결정 항목 (주인님)
 1. **운영 DB 적용 승인** — 요청함 `eefe9433`.
 2. **구글 시험 블로그** — 원 플랜 결정 5에서 미정. 주인님 구글 계정에 시험 블로그 1개를 새로 만들지, 기존 블로그를 쓸지.

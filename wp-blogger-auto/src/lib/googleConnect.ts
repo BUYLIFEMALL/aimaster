@@ -6,6 +6,8 @@ import { getMemberAccount, saveMemberAccount, updateMemberAccountToken, markMemb
 import { BLOGGER_SCOPE, listBlogs, type BloggerBlog } from "./publish/blogger";
 import { PublishError } from "./publish/types";
 import type { FetchLike } from "./publish/http";
+import { getMemberKey } from "./memberKeys";
+export { getMemberKey };
 
 const BLOGGER = "blogger" as unknown as MemberPlatform; // 공용 형식에 아직 없음(docs/IMPROVEMENTS.md)
 export const SITE_ORIGIN = "https://wp-blogger-auto.buylife.xyz";
@@ -18,13 +20,6 @@ const TOKEN = "https://oauth2.googleapis.com/token";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AdminDb = { from: (table: string) => any };
 type Deps = { fetchImpl?: FetchLike; now?: () => number };
-
-/** 회원 본인 키(없으면 null — 운영자 키로 대신하지 않음) */
-export async function getMemberKey(admin: AdminDb, userId: string, provider: string): Promise<string | null> {
-  const { data } = await admin.from("user_api_keys").select("api_key").eq("user_id", userId).eq("provider", provider).maybeSingle();
-  const v = typeof data?.api_key === "string" ? data.api_key.trim() : "";
-  return v || null;
-}
 
 export async function getGoogleApp(admin: AdminDb, userId: string) {
   const [clientId, clientSecret] = await Promise.all([getMemberKey(admin, userId, "google_client_id"), getMemberKey(admin, userId, "google_client_secret")]);

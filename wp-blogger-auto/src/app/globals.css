@@ -88,3 +88,16 @@ body {
 
 /* 카운트다운 숫자 */
 .lp-count { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; font-weight: 900; }
+
+/* 원고 미리보기 본문 */
+.wba-article { line-height: 1.85; font-size: 15px; color: #1e293b; }
+.wba-article h2 { font-size: 21px; font-weight: 900; margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+.wba-article h3 { font-size: 17px; font-weight: 800; margin: 20px 0 8px; }
+.wba-article p { margin: 10px 0; }
+.wba-article ul, .wba-article ol { margin: 10px 0 10px 22px; list-style: disc; }
+.wba-article ol { list-style: decimal; }
+.wba-article blockquote { margin: 14px 0; padding: 10px 14px; border-left: 4px solid var(--wp); background: var(--surface-soft); border-radius: 0 12px 12px 0; }
+.wba-article table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+.wba-article th, .wba-article td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+.wba-article img { max-width: 100%; border-radius: 14px; }
+.wba-article a { color: var(--wp); text-decoration: underline; }
