@@ -50,4 +50,3 @@
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace` | 2026-11-11 | 캘린더 연동 v1.26 배포(① ICS 확인) → ② 구글 연결은 카탈로그 SQL 적용 대기 |
 | `naver-cafe-recruit/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-05 03:10 | 지시 `INSTRUCTION_20261105_WINDOWS_SCAFFOLD.md` — DB 초안 보완·운영 적용 → 뼈대(`naver-cafe-poster` 복사, v1.01) → 서버·화면. **맥미니는 이 폴더 직접 수정 말고 요청으로**(확장 DOM은 맥미니 ego 실물 확인 뒤) |
 | `wp-blogger-auto/` | [역할: blog] Claude Code(윈도우, ego) · 세션 `claude-win-blog` | 2026-11-10 | v1.02 배포 중(2026-11-11) — 발행 이미지 1년 보관·예약 확인·초안 전환·좌측 메뉴. 맥미니 실물 검수 완료(줄 정리: 전달문으로 인계됨), 배포 뒤 맥미니 재검수 요청 예정
-| `lyric-video-studio/` | [역할: music] Claude Code(윈도우, 크롬) · 세션 `claude-win-20261024-music` | 2026-11-06 | v1.12 배포 끝(L-2~L-5·`?remix=`) — 남은 것: 음악(SUNO) 리믹스 카드 링크 켜기(플레이리스트 `?remix=` 뒤) |
