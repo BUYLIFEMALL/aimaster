@@ -76,6 +76,7 @@
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 | `shots` | v1.48 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `shots-607ynfsog` Ready, DB v1.48) | 대본·주제 후보 행 30일 정리 `44a9df352`(발행 무관, `retention_exempt` 제외, 배경음악 파일 포함) + 매뉴얼 보관 문구 + 저장공간 위젯 + 공용 `ai-video-client` 사본 + 서버 지역 서울(`icn1::icn1` 확인). 시험 22·tsc 통과 |
 | `blog-neighbor-care` | v1.19 · 2026-11-12 ([역할: blog] `claude-win-blog`, 주인님 「순서대로 진행」+환경변수 허락, 빌드 1회, `blog-neighbor-care-ctfwl3obf` Ready, DB·확장 v1.19) | 「🤖 자동 운영」 칸 항상 펼침 `02029e8f4` + 감시 AI 켜짐(환경변수 2개) + 저장공간 위젯 |
+| `ai-work-workspace` | v1.30 · 2026-11-12 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」 빌드 1회, `ai-work-workspace-j22v3r43p` Ready, DB v1.30) | 🧾 홈택스 전자세금계산서 일괄발급 엑셀 `b158a5efb` + 저장공간 위젯 한 줄 `e76e8d375` |
 | `ai-work-workspace` | v1.29 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「배포해」 빌드 1회, `ai-work-workspace-d44iw4ejf` Ready, DB v1.29) | U13 보강(공유됨에 다른 워크스페이스 공유 페이지·게스트 멤버 자격 요청/승인) + 구글 연결 안내(공용 매뉴얼 버튼·7일 끊김→앱 게시·옛 「테스트 사용자」 문구 교체) |
 | `ai-work-workspace` | v1.28 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「순서대로 진행해」 빌드 1회, `ai-work-workspace-lpqismplb` Ready, DB v1.28) | **U13 협업**(회원 초대·페이지 공유·5초 확인·동시 편집 잠금·프로필 범위·첨부 파일) + 캘린더 시간 유지 `6e22daf82` + 에이전트 기본 이름 `ea21d51a5` |
 | `naver-blog-agent` | v2.28 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「순서대로 진행해」 빌드 1회, `naver-blog-agent-41iwox33s` Ready, DB·확장·ZIP v2.28 check OK) | U10 2차 보관함 「📨 워크스페이스로」 `18cfb01d5`(시험 4개, 확장 코드 변경 없음) |

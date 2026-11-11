@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-work-workspace v1.30 배포(홈택스 일괄발급 엑셀)
+
+- 한 일: 주인님이 주신 홈택스 공식 양식 「세금계산서등록양식(일반).xls」을 프로그램에 넣고(엑셀 보호만 풀고 xlsx, 문서 속성 이름 지움), 「저장한 문서」에서 세금계산서를 골라 「🧾 홈택스 일괄 발급 엑셀」을 누르면 양식 7행부터 채운 파일을 내려받게 함(100건·품목 4줄·모든 칸 텍스트, 면세·5줄 이상·잘못된 번호는 이유와 함께 뺌). `b158a5efb` · 저장공간 위젯 한 줄·버전 `e76e8d375`. 상세 `ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md` §6-3.
+- 검수: 시험 113·tsc·로컬 빌드, 이 PC 엑셀로 결과 파일 열기(복구 경고 없음·값 텍스트). 운영: `ai-work-workspace-j22v3r43p` Ready·`ai-work-workspace.buylife.xyz` 연결, 화면·DB v1.30, ego에서 💾 위젯 표시, 새 명령 `rcptHometaxXlsx` 운영 응답(빈 선택·없는 문서 → 한국어 안내 400) 확인.
+- 못 한 것: 로그인이 관리자 계정이라 회원 흐름(세금계산서 저장 → 엑셀 받기)은 운영에서 안 함(관리자 계정에 가짜 사업자 정보를 남기지 않음) — 시험 계정 로그인 때 확인. 홈택스 실제 업로드는 주인님 계정으로 「발급」 직전까지만.
+- 비용: 빌드 1회(주인님 「진행해」 승인). 링크: https://ai-work-workspace.buylife.xyz/receipts
+
 ## 2026-11-12 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — shots v1.48 배포(대본·후보 30일 정리)
 
 - 한 일: 미배포 대기분을 묶어 배포 — 대본·주제 후보 행 30일 정리(발행 무관, `retention_exempt` 제외, 배경음악 파일 포함) `44a9df352`, 매뉴얼 보관 문구, 저장공간 위젯, 공용 `ai-video-client` 사본, 서버 지역 서울.
