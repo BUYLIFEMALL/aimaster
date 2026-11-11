@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 12월 모델 교체 남은 4개 배포(+ 저장공간 위젯)
+
+- 한 일: 주인님 「진행해」(빌드 승인)로 모델 교체 대기 프로그램을 하나씩 배포. `ghost-scraper` v1.15(`website-scraper-e3kdxt1nq`) · `ai-webtoon-studio` v1.32(`ai-webtoon-studio-62n55cowp`) · `ai-prompt-studio` v1.11(`ai-prompt-studio-9g828flet`) · `personality-suite` v1.29(`personality-suite-gyee8cb0n`), 모두 Ready·운영 주소 연결·DB 버전 맞춤. 네 곳에 저장공간 위젯 한 줄 `bf686b2b0`.
+- 확인: 배포 전 tsc·로컬 빌드 4개 통과, 운영 주소 4곳 200·위젯 스크립트 포함.
+- 배포 안 한 것: `web-crawler`(11-11 v1.12)·`vinyl-lp-studio`(11-09 v1.15)는 모델 교체 커밋(11-03) 뒤 배포라 이미 나감. `ebook-studio`는 디자인 담당(agy `agy-win-ebs-v1`)이 작업 중이라 건너뜀 — 그 담당이 다음 배포 때 함께.
+- 비용: 빌드 4회(승인 범위 7회 안). 링크: https://ghost-scraper.buylife.xyz · https://ai-webtoon-studio.buylife.xyz · https://ai-prompt.buylife.xyz · https://personality-suite.buylife.xyz
+
 ## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-doc-chatbot v1.10 배포(보관 예외 표시)
 
 - 한 일: 미배포 `bb7f393bd`(보관 예외 회원 30일 숨김 해제·문서 카드 「보관 기한 없음」)에 더해, 채팅 화면 「대화 기록 (30일 보관)」을 예외 회원에게는 「보관 기한 없음」으로(`/api/rooms`가 `retentionExempt` 함께 돌려줌) + 저장공간 위젯 한 줄 `48aad60a8`.
