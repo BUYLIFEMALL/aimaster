@@ -19,4 +19,4 @@
 
 ## 3차
 - [x] 립싱크(fal Kling lipsync)·업스케일(fal Topaz)·배경 제거(Bria)·9:16 장면 맞춤(꽉 채우기/전체 보이기) — v1.30(2026-11-10) `lib/postprocess.ts`·`Composition.tsx`
-- [ ] Sync.so 립싱크, Runway·Vidu 직접 연동(필요한지 주인님 결정 대기)
+- [x] ~~Sync.so 립싱크, Runway·Vidu 직접 연동~~ — 2026-11-12 주인님 「필요 없음」으로 닫음(Runway·Vidu는 v1.33에 이미 연동됨)

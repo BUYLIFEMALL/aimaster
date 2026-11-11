@@ -20,3 +20,11 @@
 - 새 API `GET /api/library/images`: 로그인·권한 확인 뒤 `listMemberAssets(admin, user.id, { kind: "image", limit: 60 })`, 서버에 파일이 있는 항목만 돌려줌.
 - 화면: 이미지 칸에 「🗂️ 내 자료함」 버튼 → 작은 창에 썸네일 격자 → 고르면 서명 주소에서 받아 축소 → 기존 칸에 들어감. 못 받으면 「직접 내려받아 올려 주세요」 안내.
 - 검수: 시험(`npm test`)·`tsc`. 화면 확인은 배포 뒤 시험 계정으로.
+
+
+## 진행 결과·결정 (2026-11-12)
+- 1~3 「내 자료함」: 코드 완료(ai-video-studio v1.36 · shorts-onestop v1.50 · music-video-studio v1.30 미배포).
+- 4 infinite-loop: 2건 이미 있음, 파일 나누기는 하지 않음. 5 video-to-gif: 남은 시간 표시(v1.28 미배포), 비교 슬라이더 하지 않음.
+- 6 viral: 즐겨찾기 A안 유지(저장 0개), 검색 임시 저장 하지 않음(주인님).
+- 7 shots: `shots/docs/PLAN_20261112_BACKLOG_8.md` — 보류 3건 유지(주인님), 1·7·3·6 진행.
+- 8 유료 실제 시험: 지금은 하지 않음(주인님). 9 Sync.so: 필요 없음(주인님).
