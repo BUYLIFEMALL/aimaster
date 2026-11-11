@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authorize } from "@/lib/chat/apiGuard";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isRetentionExempt } from "@/lib/chat/documentRules";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -11,12 +12,13 @@ export async function GET() {
   if (!gate.ok) return gate.response;
   const admin = createAdminClient();
   const userId = gate.auth.user.id;
+  const retentionExempt = isRetentionExempt(userId); // 보관 예외 회원은 화면에 「보관 기한 없음」
   // 고정한 대화를 맨 위에(U3). pinned 칸은 0007 마이그레이션으로 추가 — 아직 없으면 고정 없이 최근순으로 돌려준다
   const pinned = await admin.from("dcb_rooms").select("id, title, created_at, updated_at, pinned").eq("user_id", userId).order("pinned", { ascending: false }).order("updated_at", { ascending: false }).limit(100);
-  if (!pinned.error) return NextResponse.json({ rooms: pinned.data ?? [], pinSupported: true });
+  if (!pinned.error) return NextResponse.json({ rooms: pinned.data ?? [], pinSupported: true, retentionExempt });
   const { data, error } = await admin.from("dcb_rooms").select("id, title, created_at, updated_at").eq("user_id", userId).order("updated_at", { ascending: false }).limit(100);
   if (error) return NextResponse.json({ error: "채팅방 목록을 불러오지 못했습니다." }, { status: 500 });
-  return NextResponse.json({ rooms: data ?? [], pinSupported: false });
+  return NextResponse.json({ rooms: data ?? [], pinSupported: false, retentionExempt });
 }
 
 /** DELETE ?id= — 내 채팅방 삭제(메시지도 함께 삭제) */

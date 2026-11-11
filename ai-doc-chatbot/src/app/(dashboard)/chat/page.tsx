@@ -44,6 +44,7 @@ const EXAMPLES = ["올린 문서의 핵심 내용을 5줄로 요약해 줘", "�
 
 export default function ChatPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [keepForever, setKeepForever] = useState(false);
   const [pinSupported, setPinSupported] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -97,6 +98,7 @@ export default function ChatPage() {
     const r = await fetch("/api/rooms", { cache: "no-store" }).then((x) => x.json()).catch(() => ({}));
     setRooms(r.rooms ?? []);
     setPinSupported(r.pinSupported === true);
+    setKeepForever(r.retentionExempt === true);
   }, []);
 
   useEffect(() => {
@@ -293,7 +295,7 @@ export default function ChatPage() {
           <input value={roomQuery} onChange={(e) => setRoomQuery(e.target.value)} placeholder="대화 검색" aria-label="대화 검색" className="min-w-0 flex-1 bg-transparent text-xs text-slate-200 outline-none placeholder:text-slate-600" />
         </label>
       )}
-      <p className="mb-1.5 px-1 text-[11px] text-slate-500">대화 기록 (30일 보관)</p>
+      <p className="mb-1.5 px-1 text-[11px] text-slate-500">대화 기록 ({keepForever ? "보관 기한 없음" : "30일 보관"})</p>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
         {rooms.length === 0 && <p className="px-1 text-xs text-slate-500">아직 대화가 없습니다.</p>}
         {rooms.length > 0 && !visibleRooms.length && <p className="px-1 text-xs text-slate-500">「{roomQuery}」 대화가 없습니다.</p>}
