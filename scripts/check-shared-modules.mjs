@@ -730,7 +730,7 @@ const MODULES = [
     // 2026-11-11 「내 자료함」: 같은 회원이 다른 프로그램에서 만든 음악·이미지·영상·글을 공용 표 member_assets에서 찾아 가져다 쓰기(서버 전용).
     // 사용 안내 docs/MEMBER_LIBRARY.md. 사본은 각 담당이 자기 프로그램에 붙일 때 추가한다(메인 사이트가 기준).
     source: "lib/library/memberAssets.ts",
-    copies: ["ai-video-studio/lib/memberAssets.ts"],
+    copies: ["ai-video-studio/lib/memberAssets.ts", "shorts-onestop-studio/src/lib/memberAssets.ts"],
   },
   {
     id: "storage-quota-client",

@@ -383,17 +383,17 @@ export function RenderView() {
                   : <p className="muted">내 PC의 음악 파일(mp3·m4a·wav·ogg·aac, 15MB 이하)을 올리거나, AI 음악 스튜디오에서 내가 만든 곡을 고르세요. AI 무료음악 자동화 「모든 음악」의 「쇼츠 배경음악으로」로 보낸 곡도 여기에 들어옵니다. 저작권이 있는 음악은 쓰지 마시고, 무료 음원(예: 유튜브 오디오 보관함)을 권장합니다.</p>}
                 <div className="row">
                   <label className="button" style={{ fontWeight: 600 }}><Upload size={14} />{a.bgm ? "다른 음악 올리기" : "음악 파일 올리기"}<input type="file" accept=".mp3,.m4a,.wav,.ogg,.aac,audio/*" hidden onChange={(e) => void uploadBgm(e.target.files?.[0])} /></label>
-                  <button type="button" onClick={() => void openAms()}><Music size={14} />{ams ? "곡 목록 닫기" : "AI 음악 스튜디오 내 곡에서 고르기"}</button>
+                  <button type="button" onClick={() => void openAms()}><Music size={14} />{ams ? "곡 목록 닫기" : "🗂️ 내 자료함 음악에서 고르기"}</button>
                   {a.bgm && <label style={{ flex: 1, minWidth: 180 }}>음악 볼륨({Math.round(a.bgm.volume * 100)}%)<input type="range" min={0} max={1} step={0.05} value={a.bgm.volume} onChange={(e) => setA({ bgm: { ...a.bgm!, volume: Number(e.target.value) } })} /></label>}
                 </div>
                 {ams && (ams.length ? <div className="stack" style={{ gap: 8, maxHeight: 420, overflowY: "auto" }}>
                   {ams.map((s) => <div key={s.ref} className="list-item" style={{ flexWrap: "wrap", gap: 8 }}>
-                    <div style={{ flex: "1 1 220px", minWidth: 0 }}><strong>{s.instrumental ? "🎼" : "🎤"} {s.title}</strong><small>{s.model}{s.durationS ? ` · ${Math.floor(s.durationS / 60)}:${String(s.durationS % 60).padStart(2, "0")}` : ""}{s.mb ? ` · ${s.mb}MB` : ""} · {timeAgo(s.createdAt)}</small></div>
+                    <div style={{ flex: "1 1 220px", minWidth: 0 }}><strong>{s.instrumental == null ? "🎵" : s.instrumental ? "🎼" : "🎤"} {s.title}</strong><small>{s.model}{s.durationS ? ` · ${Math.floor(s.durationS / 60)}:${String(s.durationS % 60).padStart(2, "0")}` : ""}{s.mb ? ` · ${s.mb}MB` : ""} · {timeAgo(s.createdAt)}</small></div>
                     {s.previewUrl && <audio controls preload="none" src={s.previewUrl} style={{ height: 32, maxWidth: "100%" }} />}
-                    <button type="button" disabled={s.tooBig || !!busy} title={s.tooBig ? "15MB가 넘어 쓸 수 없습니다" : undefined} onClick={() => void pickAms(s)}>{s.tooBig ? "15MB 초과" : "이 곡 쓰기"}</button>
+                    <button type="button" disabled={s.tooBig || s.localOnly || !!busy} title={s.localOnly ? "무료음악 곡은 무료음악 프로그램에서 「쇼츠 배경음악으로」 보내 주세요" : s.tooBig ? "15MB가 넘어 쓸 수 없습니다" : undefined} onClick={() => void pickAms(s)}>{s.localOnly ? "무료음악에서 보내기" : s.tooBig ? "15MB 초과" : "이 곡 쓰기"}</button>
                   </div>)}
-                  <small className="muted">AI 음악 스튜디오에서 만든 완성곡(최근 40개 생성)입니다. 고른 곡은 이 프로그램으로 복사돼 30일 동안 보관됩니다.</small>
-                </div> : <p className="muted">아직 AI 음악 스튜디오에서 만든 완성곡이 없습니다. <a href="https://ai-music-studio.buylife.xyz" target="_blank" rel="noreferrer">AI 음악 스튜디오</a>에서 곡을 만든 뒤 다시 열어 주세요.</p>)}
+                  <small className="muted">내 자료함의 음악(AI 음악 스튜디오·Suno 음악 자동화·무료음악, 최근 60곡)입니다. 고른 곡은 이 프로그램으로 복사돼 30일 동안 보관됩니다. 무료음악 곡은 음원이 PC에만 있어 무료음악 프로그램에서 보내 주세요.</small>
+                </div> : <p className="muted">아직 내 자료함에 음악이 없습니다. <a href="https://ai-music-studio.buylife.xyz" target="_blank" rel="noreferrer">AI 음악 스튜디오</a> 등에서 곡을 만들면 자동으로 모입니다(<a href="https://www.buylife.xyz/library" target="_blank" rel="noreferrer">내 자료함</a>).</p>)}
               </section>
               <section className="card stack">
                 <h2>🎬 ④ MP4 만들기</h2>
