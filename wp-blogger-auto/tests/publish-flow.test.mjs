@@ -60,7 +60,7 @@ test("PB01 워드프레스 바로 발행 — 이미지 미디어 업로드·주�
   assert.equal(post.body.status, "publish"); assert.equal(post.body.featured_media, 41); assert.deepEqual(post.body.tags, [7]); assert.deepEqual(post.body.categories, [3]);
   assert.doesNotMatch(post.body.content, /supabase/); assert.match(post.body.content, /wp-content\/uploads/);
   const row = admin.tables.wba_posts[0];
-  assert.equal(row.status, "published"); assert.equal(row.remote_id, "501"); assert.equal(row.remote_url, "https://myblog.co.kr/winter-camping/"); assert.equal(row.keep_images, false); assert.equal(row.blog_ref, "https://myblog.co.kr");
+  assert.equal(row.status, "published"); assert.equal(row.remote_id, "501"); assert.equal(row.remote_url, "https://myblog.co.kr/winter-camping/"); assert.equal(row.keep_images, true); assert.equal(Date.parse(row.image_expires_at) - Date.parse(row.published_at), 365 * 864e5); assert.equal(row.blog_ref, "https://myblog.co.kr");
 });
 
 test("PB02 이미 발행·예약된 원고, 초안을 다시 초안으로 보내기는 다시 보내지 않음", async () => {
@@ -83,7 +83,7 @@ test("PB02b 워드프레스 초안 → 바로 발행: 새 글 없이 같은 글(
   assert.equal(r.status, "published");
   assert.equal(calls.filter((c) => c.m === "POST" && c.url.endsWith("/wp/v2/posts")).length, 0);
   const sw = calls.find((c) => c.m === "POST" && /posts\/501/.test(c.url)); assert.equal(sw.body.status, "publish");
-  const row = admin.tables.wba_posts[0]; assert.equal(row.status, "published"); assert.equal(row.remote_id, "501"); assert.equal(row.keep_images, false);
+  const row = admin.tables.wba_posts[0]; assert.equal(row.status, "published"); assert.equal(row.remote_id, "501"); assert.equal(row.keep_images, true);
 });
 
 test("PB02c 구글 블로그 초안 → 예약: 같은 글에 publish(publishDate), 예약 대기는 이미지 보관 안 함", async () => {

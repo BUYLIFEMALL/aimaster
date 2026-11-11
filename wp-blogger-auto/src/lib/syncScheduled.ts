@@ -1,6 +1,6 @@
 import "server-only";
 // 예약 확인(2026-11-11 주인님 결정 3) — 예약 시각이 지난 글을 회원 본인 블로그 연결로 「읽기만」 해서
-// 실제로 공개됐으면 「발행됨」으로 바꾸고, 구글 블로그 이미지는 그때부터 1년 보관한다.
+// 실제로 공개됐으면 「발행됨」으로 바꾸고, 원고·이미지·기록을 그때부터 1년 보관한다(v1.04).
 // 확인이 안 되면 그대로 두고 다음 날 다시 본다(자동 재발행·재전송 없음). 회원별로 실패를 격리한다.
 import { loadWordpressConnection, safeFetchImpl } from "./wordpressConnect";
 import { getValidBloggerToken } from "./googleConnect";

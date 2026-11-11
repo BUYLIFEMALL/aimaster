@@ -34,7 +34,7 @@ export async function resolveUncertain(admin: AdminDb, userId: string, postId: s
   const patch =
     b.outcome === "sent"
       ? { status: "published", remote_id: "manual", remote_url: url, published_at: nowIso, error_code: null, error_detail: "회원이 블로그에서 올라간 것을 확인함",
-          // 구글 블로그에 실제 발행된 글이면 이미지를 발행일부터 1년 보관
+          // 실제 발행된 글이면 원고·이미지·기록을 발행일부터 1년 보관(v1.04)
           ...retentionPatch(cur.platform, "published", Array.isArray(cur.images) ? cur.images.filter((i: { status?: string }) => i?.status === "done").length : 0, nowIso) }
       : { status: "failed", remote_id: null, keep_images: false, image_expires_at: null, error_code: "not_sent", error_detail: "회원이 블로그에서 올라가지 않은 것을 확인함 — 다시 보낼 수 있습니다" };
   const { data, error } = await admin.from("wba_posts").update({ ...patch, updated_at: new Date().toISOString() })

@@ -1,8 +1,8 @@
 import "server-only";
 // 30일 자동 정리 — DB 함수 wba_cleanup(관리자·시험 계정 profiles.retention_exempt 제외)이
 // 만료 원고를 지우고 그 이미지 경로를 돌려주면 저장소에서도 지운다.
-// 구글 블로그에 실제 발행된 글(keep_images)은 30일에 본문만 비우고, 이미지·기록은 발행일부터 1년(image_expires_at) 뒤 지운다.
-// 미발행(초안·예약 대기·실패·확인 필요)·워드프레스는 30일(주인님 2026-11-11 결정).
+// 실제 발행된 글(keep_images, 두 플랫폼)은 원고·이미지·기록 모두 발행일부터 1년(image_expires_at) 뒤 지운다.
+// 미발행(초안·예약 대기·실패·확인 필요)은 만든 날+30일, 예약 시각 미도래 예약 글은 제외(v1.04, 2026-11-11 보관 기본 규칙).
 import { BUCKET } from "./image/service";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -14,9 +14,11 @@ test("RT01 발행 이미지 보관 끝 = 발행일 + 1년(365일)", () => {
   assert.ok(Date.parse(pub) + 366 * DAY > exp, "366일째는 지울 대상");
 });
 
-test("RT02 보관 칸 묶음 — 구글 블로그 실제 발행만 1년, 나머지는 해제", () => {
-  assert.deepEqual(retentionPatch("blogger", "published", 2, "2026-11-11T00:00:00.000Z"), { keep_images: true, image_expires_at: "2027-11-11T00:00:00.000Z" });
-  for (const [pf, st, n, at] of [["blogger", "scheduled", 2, null], ["blogger", "draft", 2, null], ["blogger", "published", 0, "2026-11-11T00:00:00.000Z"], ["wordpress", "published", 3, "2026-11-11T00:00:00.000Z"], ["blogger", "published", 2, null]]) {
+test("RT02 보관 칸 묶음 — 실제 발행이면 플랫폼·이미지 수와 상관없이 1년, 미발행은 해제(v1.04)", () => {
+  for (const [pf, n] of [["blogger", 2], ["blogger", 0], ["wordpress", 3], ["wordpress", 0]]) {
+    assert.deepEqual(retentionPatch(pf, "published", n, "2026-11-11T00:00:00.000Z"), { keep_images: true, image_expires_at: "2027-11-11T00:00:00.000Z" }, `${pf}/${n}`);
+  }
+  for (const [pf, st, n, at] of [["blogger", "scheduled", 2, null], ["blogger", "draft", 2, null], ["wordpress", "failed", 1, null], ["wordpress", "uncertain", 1, null], ["blogger", "published", 2, null]]) {
     assert.deepEqual(retentionPatch(pf, st, n, at), { keep_images: false, image_expires_at: null }, `${pf}/${st}/${n}`);
   }
 });
@@ -48,7 +50,7 @@ function fakeSyncAdmin(rows) {
   };
 }
 
-test("RT04 예약 확인 — 실제 공개된 구글 블로그 글만 「발행됨」 + 그 시각부터 1년, 아직이면 그대로, 오류는 격리", async () => {
+test("RT04 예약 확인 — 실제 공개된 글만 「발행됨」 + 그 시각부터 1년, 아직이면 그대로, 오류는 격리", async () => {
   const done = { status: "done", path: "u/p/a.jpg" };
   const rows = [
     { id: "a", user_id: "u1", platform: "blogger", remote_id: "1", scheduled_at: "2026-11-10T00:00:00.000Z", images: [done] },
@@ -69,6 +71,6 @@ test("RT04 예약 확인 — 실제 공개된 구글 블로그 글만 「발행�
   assert.equal(a.values.status, "published"); assert.equal(a.values.keep_images, true); assert.equal(a.values.image_expires_at, "2027-11-10T00:00:05.000Z");
   assert.equal(a.where.status, "scheduled"); assert.equal(a.where.user_id, "u1");
   const c = admin.updates.find((u) => u.where.id === "c");
-  assert.equal(c.values.status, "published"); assert.equal(c.values.keep_images, false, "워드프레스는 사이트에 복사돼 보관 안 함");
+  assert.equal(c.values.status, "published"); assert.equal(c.values.keep_images, true, "워드프레스 발행 글도 1년(v1.04)"); assert.equal(c.values.image_expires_at, "2027-11-10T00:00:00.000Z", "발행 시각을 못 읽으면 예약 시각 기준");
   assert.equal(admin.updates.length, 2, "아직 예약·오류 글은 바꾸지 않음");
 });

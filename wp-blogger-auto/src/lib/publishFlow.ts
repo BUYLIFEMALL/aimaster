@@ -17,10 +17,11 @@ type Deps = { wp?: WpDeps; blogger?: { fetchImpl?: WpDeps["fetchImpl"]; now?: ()
 
 export type PublishRequest = { mode: PublishMode; scheduledAt?: string; categoryIds?: number[] };
 
-/** 이미지를 남길 글: 구글 블로그에 「실제 발행된」 글만(우리 저장소 이미지를 본문이 그대로 씀).
- *  예약 대기·초안은 미발행이라 30일 규칙(주인님 2026-11-11 「발행된 콘텐츠관련된 이미지와 파일만 보관」). 워드프레스는 사이트에 복사되므로 남기지 않음 */
-export function keepPublishedImages(platform: string, status: string, imageCount: number) {
-  return platform === "blogger" && imageCount > 0 && status === "published";
+/** 1년 보관할 글: 「실제 발행된」 글이면 플랫폼·이미지 수와 상관없이 원고·이미지·발행 기록 모두 발행일+1년
+ *  (v1.04, 주인님 2026-11-11 보관 기본 규칙 「발행 1년·생성만 30일」 + 결정 1 「워드프레스 이미지 사본도 함께 1년」).
+ *  예약 대기·초안·실패·확인 필요는 미발행이라 만든 날+30일. platform·imageCount 인자는 호출부 호환용으로 남김 */
+export function keepPublishedImages(_platform: string, status: string, _imageCount: number) {
+  return status === "published";
 }
 
 export const PUBLISHED_IMAGE_KEEP_MS = 365 * 24 * 3600_000;
@@ -122,7 +123,7 @@ export async function publishPost(admin: AdminDb, userId: string, postId: string
       scheduled_at: result.scheduledAt,
       published_at: publishedAt,
       blog_ref: blogRef,
-      // 구글 블로그에 실제 발행된 글의 이미지만 발행일부터 1년 보관(TOP_RULE §8)
+      // 실제 발행된 글은 원고·이미지·기록 모두 발행일부터 1년 보관(TOP_RULE §0, v1.04)
       ...retentionPatch(post.platform, result.status, images.length, publishedAt),
     });
     return { ...result, platform: post.platform };
