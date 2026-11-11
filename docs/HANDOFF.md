@@ -1,5 +1,24 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-doc-chatbot v1.10 배포(보관 예외 표시)
+
+- 한 일: 미배포 `bb7f393bd`(보관 예외 회원 30일 숨김 해제·문서 카드 「보관 기한 없음」)에 더해, 채팅 화면 「대화 기록 (30일 보관)」을 예외 회원에게는 「보관 기한 없음」으로(`/api/rooms`가 `retentionExempt` 함께 돌려줌) + 저장공간 위젯 한 줄 `48aad60a8`.
+- 검수: 시험 108/108·tsc·로컬 빌드, `ai-doc-chatbot-l9eas4bk8` Ready·운영 주소 연결, 화면·DB v1.10, ego 시험 계정에서 목록 API `retentionExempt: true`·문구 「보관 기한 없음」·💾 「1GB / 무제한」 확인.
+- 정리하지 않은 것: DB의 RLS 정책·검색 함수(`g4_document_evidence`) 30일 조건 — 앱은 서비스 키로 읽어 회원 화면에 영향 없음, 운영 DB 함수 변경은 위험 대비 이득이 없어 그대로 둠.
+- 비용: 빌드 1회(주인님 「진행해」 승인). 링크: https://ai-doc-chatbot.buylife.xyz
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-work-workspace v1.30 배포(홈택스 일괄발급 엑셀)
 
 - 한 일: 주인님이 주신 홈택스 공식 양식 「세금계산서등록양식(일반).xls」을 프로그램에 넣고(엑셀 보호만 풀고 xlsx, 문서 속성 이름 지움), 「저장한 문서」에서 세금계산서를 골라 「🧾 홈택스 일괄 발급 엑셀」을 누르면 양식 7행부터 채운 파일을 내려받게 함(100건·품목 4줄·모든 칸 텍스트, 면세·5줄 이상·잘못된 번호는 이유와 함께 뺌). `b158a5efb` · 저장공간 위젯 한 줄·버전 `e76e8d375`. 상세 `ai-work-workspace/docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md` §6-3.

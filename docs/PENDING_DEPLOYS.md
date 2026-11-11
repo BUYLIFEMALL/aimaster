@@ -62,7 +62,6 @@
 | `kakao_auto_poster` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `kakao_auto_poster/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `shorts-viral-studio` | 좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) | `22c6cda35` | 2026-10-23 · Claude Code(윈도우) | `shorts-viral-studio/docs/IMPROVEMENTS.md` 「미배포 대기」 | 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인 |
 | `emotion-writer` (운영 v1.26) | 사용 매뉴얼 사진 출처 「Unsplash」 → 「Pixabay·Pexels」 7곳·저작권 안내 문구 | `1965b2c6c` | 2026-10-23 · Claude Code(윈도우) | `emotion-writer/AGENTS.md` 맨 아래 「⏸ 미배포」 | 버전 +0.01, `/guide` 문구 확인 |
-| `ai-doc-chatbot` | 보관 예외 회원(관리자·시험 계정)에게 30일 지난 문서가 화면·검색에서 숨던 것 → 예외 회원은 기준 없음(`documentCutoff(now, userId)`, `authorize()`가 10분마다 예외 목록), 문서 카드 「보관 기한 없음」. DB 삭제 작업 `dcb-retention-30d`는 이미 예외 제외라 데이터 손실 없음 | `bb7f393bd` | 2026-11-11 [역할: workspace] Claude Code(윈도우) — 담당 없음, 주인님 「니가 해」 | `ai-doc-chatbot/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때(+0.01) |
 
 ## 메인 사이트 — 다음 메인 빌드 때 할 일 (코드 미작성)
 
@@ -150,6 +149,7 @@
 | `ai-video-studio` | v1.30 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `ai-video-studio-a8imcacg9` Ready, DB v1.30) | 백로그 3차(장면 맞춤·후처리 3종·내 영상 올리기 `9397fb311`·`82ed32bca`·`f983f30e8`·`a4000bc7f`) + 개선 4건 `a077f865c`(업스케일 1920×1080 안 배율·배경 제거 안내·멈춘 올리기 정리·편집본/내 프롬프트 예외 계정 표시). 시험 102·tsc·린트, 운영 ego 화면 v1.30·「보관 기간 제한 없음」 확인 |
 | `shorts-onestop-studio` | v1.45 · 2026-11-06 ([역할: video] `claude-win-video`, 같은 승인 빌드, `shorts-onestop-studio-f1i2zbcg1` Ready, DB v1.45) | V2 각색 강도 「✨ AI로 다듬기」 `9c4c1de96`. 시험 42개·tsc·로컬 build. 운영 주소 200. 다듬기 1회 실제 확인은 회원 키 비용이라 남음 |
 | `ai-work-workspace` | v1.21 · 2026-11-06 ([역할: workspace] U9, `ai-work-workspace-iajw3o5s8` Ready, DB 버전 맞춤) | U9 「📨 다른 프로그램으로 보내기」(슬라이드·번역·문서 챗봇), 요약 소제목 한국어화 `297efb419`, 휴지통 안내 한국어화 `1551c9041` |
+| `ai-doc-chatbot` | v1.10 · 2026-11-12 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」 빌드 1회, `ai-doc-chatbot-l9eas4bk8` Ready, DB v1.10) | 보관 예외 회원 30일 숨김 해제 `bb7f393bd` + 대화 기록 「보관 기한 없음」 표시·저장공간 위젯 `48aad60a8`. 운영 ego 시험 계정: 목록 API `retentionExempt: true`·문구·💾 확인 |
 | `ai-doc-chatbot` | v1.09 · 2026-11-06 ([역할: workspace] U9-D, `ai-doc-chatbot-cee17egz5` Ready, DB 버전 맞춤) | 받은 문서 등록(새 기능), 모델 교체 묶음 C `3be5e593d` |
 | `document-translator` | v1.23 · 2026-11-06 ([역할: workspace] U9-C, `document-translator-n5hiahhbz` Ready, DB 버전 맞춤) | 없음(새 기능만: 받은 문서 열기·번역문 보내기) |
 | `ai-slide-builder` | v1.12 · 2026-11-06 ([역할: workspace] U9-B, `ai-slide-builder-1s41p6maq` Ready, DB 버전 맞춤) | 받은 원고(새 기능), 모델 교체 묶음 C `0672e4e43`, 메뉴 계정 위치 `22c6cda35`, API 키 문구 `b16550ad4` |
