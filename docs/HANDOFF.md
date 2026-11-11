@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — 이웃 소통 v1.19 배포 완료(감시 AI 켜짐)
+
+- **맥미니 시작 조건 충족**: `blog-neighbor-care/docs/REQUEST_20261112_MACMINI_V119_AI_DRAFT.md` 진행해 주세요.
+- 한 일: 운영 환경변수 `BNC_AUTO_MESSAGE_ENABLED`·`BNC_AUTO_MESSAGE_PRICES` 등록(주인님 허락, 요청함 `e9fe7720`). 단가표 9개 모델(모델 선택표 2026-11-03 값, `gemini-4-argon`은 2026-12-01까지·`gemini-3.8-flash`는 2027-01-01까지 유효 — 그 뒤 새 단가로 바꿔야 함)은 `monitorQuotes`로 9개 통과 확인. 저장공간 위젯 한 줄, 자동 운영 칸 항상 펼침(`02029e8f4`) 함께.
+- 검수: 단위 378·`tsc` 통과, 배포 `blog-neighbor-care-ctfwl3obf` Ready·운영 주소 연결, DB `version`/`extension_version` v1.19, `check-extension-release` OK, 운영 HTML에 위젯·v1.19 확인. 감시 AI 실제 초안 생성은 맥미니 확인 대기.
+- 커밋 `078146ef2`, 역할 정리 `b7c052d59`. 비용: 빌드 1회(승인 범위), AI 호출 0.
+- 링크: https://blog-neighbor-care.buylife.xyz
+
+## 2026-11-12 00:41 KST [역할: mac-mini] 이웃 소통 v1.19 시작 조건 대기·카페 6회차 로그인 필요
+
+- 세션 `codex-mac-20261107-test-analysis`: v1.19 요청서 확인. 지정 배포 완료 인계가 없어 ZIP/화면/유료 초안 시험은 시작하지 않음. 이 항목은 **배포 완료 통지가 아님**.
+- 카페 기존 ego 공간17 결과 탭 무응답 → 같은 공간 새 결과 탭p4에서 로그인 만료 확인. 사용자 handOff, 재로그인 뒤 6회차 기존 결과부터 판정. 이미 시작했다면 추가 시작 금지, 아직 시작 전이면 사용자 직접 1회.
+- 기록: `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위, `naver-cafe-recruit/docs/INVITE_TEST_20261106.md` 6회차. AI0·추가 비용0·댓글/초대 조작0·코드/빌드/배포/운영 DB 변경0.
+- 다음: 카페 로그인/결과 확인 → Windows의 v1.19 배포 완료 인계 확인 → 요청서 순서대로 검수. 운영 링크: https://blog-neighbor-care.buylife.xyz · https://naver-cafe-recruit.buylife.xyz/results
+
+
 ## 2026-11-11 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — `ebook-studio` v1.15 배포(글 생성 모델 OpenAI·Claude·Gemini 선택)
 
 - 한 일: 주인님 지시 「OpenAI / Claude / Gemini 순으로 플랫폼별 최신 모델을 골라 쓰게」 — 플랫폼마다 가성비·균형·최고 품질 3개(`src/lib/textModels.ts`), 세 플랫폼 서버 호출(`src/lib/ai/textLlm.ts`, 기준 `blog-neighbor-care`, OpenAI 옵션은 공용 사본), OpenAI·Claude 키는 공용 `user_api_keys` 본인 키만(메인 사이트에 등록한 키 그대로 사용). AI 3곳·주소 읽기·키 저장 API에 빠져 있던 프로그램 권한 확인 추가. 저장공간 위젯 한 줄. 커밋 `38db47fd5`·이번 배포 커밋.
