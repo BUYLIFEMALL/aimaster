@@ -24,6 +24,7 @@
 
 | 문서 | 무엇을 담나 | 언제 읽나 |
 |---|---|---|
+| **[HANDOFF_THREE_MALLS.md](HANDOFF_THREE_MALLS.md)** (2026-11-11) | **쇼핑몰 3종(B2B 입점몰·분양몰·독립몰) 진행 단계별 인수인계** — 주인님 결정, 몰별 차별화 기능 표, 공통 코어, 단계(T0 운영 이전~T4 배포 키트), 확장안. 주인님용 비교표 [THREE_MALLS_COMPARISON.html](THREE_MALLS_COMPARISON.html) | **쇼핑몰 3종 작업을 이어받을 때 가장 먼저** |
 | [README.md](README.md) (이 문서) | 카테고리 총괄·버전 계열 요약·결정 기록·작업 기록 | 쇼핑몰 작업 시작 때 항상 |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 모든 버전이 함께 쓰는 **공통 코어 설계** — 3층 사용자 구조, 데이터 모델, 가격 계산 엔진, 주문 상태 흐름, 블록 스키마, 보안 규칙, 모듈(켜고 끄기) 구조 | 코드를 쓰기 전, 새 버전을 기획할 때 |
 | [PLAN_20261103_MALL_BUILDER_V1.md](PLAN_20261103_MALL_BUILDER_V1.md) | 1차 버전 개발 플랜 원본(범위·단계·검수·비용·이름) | 1차 구현 중 |
