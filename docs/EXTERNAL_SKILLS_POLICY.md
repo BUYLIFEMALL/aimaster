@@ -76,3 +76,9 @@ codex plugin add mattpocock-skills@mattpocock
 ```
 
 공급자 원본은 플러그인 캐시에 보관하고, 저장소별 운영 원칙은 이 문서에서 관리한다. 업데이트 후에는 스킬 목록·저장 위치·외부 작업·질문/승인 기본값을 다시 대조한다. [원본 저장소](https://github.com/mattpocock/skills) · [설치 인수인계](HANDOFF_SKILLS_INSTALL_20261019.md).
+
+## 2026-11-11 추가 설치 — Anthropic 공식 기술 묶음·Meta Astryx (윈도우 메인 PC Claude Code, 세션 `claude-win-rea`)
+- **설치 방식(중요)**: `claude plugin marketplace add anthropics/skills`는 이 PC에서 첫째, SSH 키가 없어 짧은 이름 받기 실패, 둘째, HTTPS로 받아도 Orca 계정 폴더에서 「EPERM rename」으로 실패(재현됨), 셋째, 이름 `anthropic-agent-skills`는 공식 예약어라 로컬 폴더 등록도 거부됨 → **저장소를 `C:\Users\Administrator\claude-marketplaces\` 아래에 받아 기술 폴더(`~/.claude/skills/`, Orca 계정 기술 폴더와 연결됨)에 직접 복사**했다. 갱신: 그 폴더에서 `git pull` 뒤 같은 이름 폴더를 다시 복사.
+- **[anthropics/skills](https://github.com/anthropics/skills)** (2026-11-06 기준): 문서 4종 `docx`·`pdf`·`pptx`·`xlsx` + 예시 12종 `algorithmic-art`·`brand-guidelines`·`canvas-design`·`doc-coauthoring`·`frontend-design`·`internal-comms`·`mcp-builder`·`skill-creator`·`slack-gif-creator`·`theme-factory`·`web-artifacts-builder`·`webapp-testing`. 안 넣은 것: `claude-api`(기본 기술과 겹침), `academy-guide`(무관), `discernment-nudge`(모든 답변 끝에 질문을 붙여 보고 형식 규칙과 충돌). `frontend-design`·`theme-factory`는 디자인 기본값을 제안하므로 AIMaster 화면 작업에서는 `DESIGN.md` 템플릿·프로그램 디자인 지침이 우선이다. `brand-guidelines`는 Anthropic 브랜드용이라 우리 화면에 쓰지 않는다.
+- **[meta/astryx](https://github.com/meta/astryx)** (MIT, 2026-11-10 기준, 주인님은 「meta/astry」로 말씀 — 철자 한 글자 차이): 기술 `astryx` + 명령 도구 `npm i -g @astryxdesign/cli`(0.7.13, `astryx search` 동작 확인). **원본 설명은 「UI를 만들거나 바꿀 때 항상」 발동이라 기존 AIMaster 프로그램(Tailwind + `DESIGN.md`)에 Astryx를 끌어들일 위험 → 로컬 설치본의 description만 「사용자가 Astryx를 명시했을 때·Astryx를 고른 새 독립 프로젝트에서만」으로 좁혔다**(파일 안 주석에 원본 위치). 기존 프로그램에 Astryx를 넣는 것은 주인님 지시가 있을 때만.
+- 맥미니·Codex·agy에는 설치하지 않았다(각 장비·CLI에서 같은 방식으로 따로 설치).
