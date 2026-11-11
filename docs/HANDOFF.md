@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 쇼핑몰 담당 인계 + T0 B 운영 DB 적용
+
+- 한 일: 주인님 지시로 쇼핑몰(mall-builder) 담당을 이어받음(이전 `claude-win-20261110-mall-builder`). 운영 Supabase 연결 → 사전 점검 → 묶음 적용. 첫 두 번은 묶음 오류(`0043` 주석이 `end if;` 삼킴, CRLF 줄바꿈으로 함수 본문 바꾸기 실패 — Supabase 편집기도 CRLF로 보냄)로 실패했고 둘 다 운영 변화 없음 확인. 고친 뒤 로컬 전체 실행 검사(`mall-builder/scripts/check-prod-bundle-local.mjs`) 통과 → 주인님 Run → 성공.
+- 검증(운영 `esgxyikcnnvmlhygjkth`): 표 55·함수 176·저장소 규칙 8·버킷 2·http 1.6·RLS 꺼진 쇼핑몰 표 0, 관리자 전용 몰 만들기·주문 특가·초대 이메일 가림 확인, 기존 profiles 그대로. 보안 점검 쇼핑몰 경고는 설계대로(함수로만 접근하는 표 3, 보안 정의자 함수 실행 권한).
+- 커밋: `60c995039`(수정·검사 스크립트·교훈) 외. 교훈: `docs/mall/LESSONS_LEARNED.md` 2026-11-12.
+- 다음: T0 C — Vercel 운영 프로젝트 `mall-builder`·`mall-builder.buylife.xyz`·환경변수(값은 주인님)·`programs` 등록(v1.01)·빌드 1회(승인 필요).
+- 비용: 없음(빌드 없음).
+
+
+
+
 ## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 12월 모델 교체 남은 4개 배포(+ 저장공간 위젯)
 
 - 한 일: 주인님 「진행해」(빌드 승인)로 모델 교체 대기 프로그램을 하나씩 배포. `ghost-scraper` v1.15(`website-scraper-e3kdxt1nq`) · `ai-webtoon-studio` v1.32(`ai-webtoon-studio-62n55cowp`) · `ai-prompt-studio` v1.11(`ai-prompt-studio-9g828flet`) · `personality-suite` v1.29(`personality-suite-gyee8cb0n`), 모두 Ready·운영 주소 연결·DB 버전 맞춤. 네 곳에 저장공간 위젯 한 줄 `bf686b2b0`.
