@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: blog] Claude Code(윈도우) · 세션 claude-win-blog — **wp-blogger-auto v1.04 보관 규칙 「발행 1년·생성만 30일」 적용·배포**
+- 주인님 결정 1(워드프레스 발행 글 이미지 사본도 1년, 권장안)·결정 2(v1.04 진행) 승인.
+- 운영 DB(ref esgxyikcnnvmlhygjkth): `wp-blogger-auto/supabase/migrations/20261111130000_wba_publish_1y.sql` — `wba_cleanup()` 교체(30일 본문 비우기 없앰, 미발행 30일·예약 시각 미도래 제외, 발행 글 발행일+1년), 기존 발행 5건(워드프레스 2·구글 블로그 3) 보정 확인. ego SQL 편집기에서 파일과 글자 단위 일치 확인 뒤 실행(Success).
+- 코드: `keepPublishedImages`=「실제 발행이면 플랫폼·이미지 수 무관」, 매뉴얼 FAQ·STEP 4 팁·보관함 머리글 문구, 시험 기대값(70개 통과).
+- 배포 v1.04(빌드 1회, Ready), DB 버전 v1.04, 운영 `/posts`·`/guide` 새 문구·v1.04 확인(ego). TOP_RULE §8 「모든 발행형 프로그램 공통」 줄에 「적용: wp-blogger-auto v1.04(2026-11-11)」.
+- 남은 일: 다른 블로그 프로그램 4개는 다음에 손댈 때(역할 파일 대기 칸). 맥미니 공개 후 접근 검수 결과 대기.
+- 비용: Vercel 빌드 1회, AI 0.
+- 링크: https://wp-blogger-auto.buylife.xyz
+
 ## 2026-11-11 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 실거래 지역 뉴스 08:00 알림 확인(v1.58)
 - **한 일**: 운영 DB 읽기 — 08:00:33 시험 계정 새 기사 96건(서초구 51·종로구 37·화성시 동탄구 6·고양시 일산동구 2), `news_sent_on`=11-11. 알림 글은 지역 번갈아 넣기로 앞 8건이 4개 지역 2건씩. ego lite는 관리자 로그인이라 시험 계정 목록은 못 봄(작업 공간 닫음).
 - **발견**: 화면 v1.59(디자인 담당 `d2848961c`)인데 DB `programs.version`은 v1.58·버전 SQL 없음 → `real_estate_sales/docs/IMPROVEMENTS.md`에 「디자인 담당께」.
