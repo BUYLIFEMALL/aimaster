@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-12 [역할: workspace] Claude Code(윈도우) — v1.30 배포·홈택스 엑셀 운영 확인. 이후 워크스페이스는 주인님이 배정한 담당 세션이 이어 감(이 기록을 쓴 `claude-win-20261025-workspace`는 같은 날 쇼핑몰 담당으로 옮김 — 위 담당 줄은 새 담당 세션이 고쳐 주세요)
+- 마지막 갱신: 2026-11-12 [역할: workspace] Claude Code(윈도우) — 문서 챗봇 v1.10·모델 교체 4개 배포, 유튜브 연동 요청
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -53,7 +53,7 @@
 ## 다음 첫 단계
 0. (완료) U11 v1.23 배포·운영 확인
 1. (v1.30 배포됨) 시험 계정으로 세금계산서 2건 저장·엑셀 받기 확인, 주인님 계정으로 홈택스 업로드 「발급」 직전까지
-2. 유튜브 발행 기록(U10 범위 밖)은 video 역할과 저장 열 확인 뒤 다음 단위
+2. 유튜브 발행 기록(U10 범위 밖): 2026-11-12 영상 담당(`shots`·`shorts-onestop-studio`)·음악 담당(`playlist-channel-studio`) 개선 기록에 저장 칸 확인 요청 남김 → 답 오면 보내기 라우트 구현
 
 ## 주인님께 여쭐 것
-- 모델 교체 7개(`web-crawler`·`ghost-scraper`·`ai-webtoon-studio`·`ebook-studio`·`ai-prompt-studio`·`vinyl-lp-studio`·`personality-suite`) 배포 — 이 세션은 `deploy.mjs`가 분류기에 막혀 주인님이 `! node scripts/deploy.mjs <폴더> --go`를 한 줄씩 돌려 주시거나 배포 권한 규칙 추가. 인스타·쓰레드 U10 1차 2개도 맡을지 확인 부탁드립니다
+- 인스타·쓰레드 U10 1차 2개를 이 세션이 맡을지(모델 교체는 2026-11-12 남은 4개 배포로 끝, `ebook-studio`만 디자인 담당 몫)
