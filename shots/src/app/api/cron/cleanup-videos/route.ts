@@ -4,6 +4,7 @@ import { REEL_COVER_BUCKET, reelCoverFolder } from "@/lib/instagram/reelCover";
 import { CLEANUP_ACTION, cleanupByOwner, pruneSegmentImages } from "@/lib/sceneImageCleanup";
 import { logProgramUsage } from "@/lib/access";
 import { loadRetentionExemptIds } from "@/lib/retentionExempt";
+import { bgmStoragePath, pickExpiredCandidates, pickExpiredVideos, rowCutoffIso } from "@/lib/retentionRows";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -165,15 +166,72 @@ export async function GET(request: NextRequest) {
   }
   console.log(`[cleanup-videos] scene images expired ${expiredImages.length} removed ${removedImages} segments ${clearedSegments}`);
   console.log(`[cleanup-videos] voices expired ${expiredVoices.length} removed ${removedVoices}`);
+
+  // v1.48 대본(shorts_videos)·주제 후보(shorts_candidates) 행도 마지막 수정 30일 뒤 삭제 — 유튜브·인스타에 올렸어도 같음(2026-11-11 주인님 최종).
+  // 대본을 지울 때 그 대본의 장면·배경음악 행과 우리 저장소(shots-bgm)에 있는 배경음악 파일도 함께 지운다. 예외 회원은 빼고, 미리보기 때는 세기만 한다.
+  const rowCutoff = rowCutoffIso(Date.now());
+  const rowsByOwner: Record<string, { scripts: number; candidates: number }> = {};
+  let expiredScripts = 0, expiredCandidates = 0, removedBgmFiles = 0;
+  try {
+    const { data: oldVideos, error: vErr } = await supabase.from("shorts_videos").select("id, user_id, updated_at, candidate_id").lt("updated_at", rowCutoff);
+    if (vErr) throw new Error(vErr.message);
+    const oldIds = (oldVideos ?? []).map((v) => v.id);
+    const { data: stamps, error: sErr } = oldIds.length
+      ? await supabase.from("shorts_video_segments").select("video_id, updated_at").in("video_id", oldIds).gte("updated_at", rowCutoff)
+      : { data: [], error: null };
+    if (sErr) throw new Error(sErr.message);
+    const goneVideos = pickExpiredVideos(oldVideos ?? [], stamps ?? [], rowCutoff, exempt);
+    expiredScripts = goneVideos.length;
+    for (const v of goneVideos) (rowsByOwner[v.user_id] ??= { scripts: 0, candidates: 0 }).scripts += 1;
+    if (!dryRun) {
+      for (let i = 0; i < goneVideos.length; i += 100) {
+        const ids = goneVideos.slice(i, i + 100).map((v) => v.id);
+        const { data: tracks, error: tErr } = await supabase.from("shorts_bgm_tracks").select("audio_url").in("video_id", ids);
+        if (tErr) throw new Error(tErr.message);
+        const files = (tracks ?? []).map((t) => bgmStoragePath(t.audio_url)).filter((p): p is string => !!p);
+        if (files.length) {
+          const { error } = await voiceStorage.remove(files);
+          if (error) throw new Error(error.message);
+          removedBgmFiles += files.length;
+        }
+        for (const table of ["shorts_bgm_tracks", "shorts_video_segments"] as const) {
+          const { error } = await supabase.from(table).delete().in("video_id", ids);
+          if (error) throw new Error(error.message);
+        }
+        const { error } = await supabase.from("shorts_videos").delete().in("id", ids);
+        if (error) throw new Error(error.message);
+      }
+    }
+    const goneIds = new Set(goneVideos.map((v) => v.id));
+    const { data: liveRefs, error: rErr } = await supabase.from("shorts_videos").select("id, candidate_id").not("candidate_id", "is", null);
+    if (rErr) throw new Error(rErr.message);
+    const inUse = new Set((liveRefs ?? []).filter((v) => dryRun ? !goneIds.has(v.id) : true).map((v) => v.candidate_id as string));
+    const { data: oldCands, error: cErr } = await supabase.from("shorts_candidates").select("id, user_id, updated_at").lt("updated_at", rowCutoff);
+    if (cErr) throw new Error(cErr.message);
+    const goneCands = pickExpiredCandidates(oldCands ?? [], inUse, rowCutoff, exempt);
+    expiredCandidates = goneCands.length;
+    for (const c of goneCands) (rowsByOwner[c.user_id] ??= { scripts: 0, candidates: 0 }).candidates += 1;
+    if (!dryRun) {
+      for (let i = 0; i < goneCands.length; i += 100) {
+        const { error } = await supabase.from("shorts_candidates").delete().in("id", goneCands.slice(i, i + 100).map((c) => c.id));
+        if (error) throw new Error(error.message);
+      }
+    }
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : "script row cleanup failed", removed, removedVoices, removedCovers, removedImages, clearedSegments, expiredScripts, expiredCandidates }, { status: 500 });
+  }
+  console.log(`[cleanup-videos] rows cutoff ${rowCutoff} scripts ${expiredScripts} candidates ${expiredCandidates} bgm files ${removedBgmFiles}${dryRun ? " (dry-run)" : ""}`);
   // v1.37: 회원별 정리 기록(usage_logs, 미리보기 때는 남기지 않음) — 스크립트 화면 「정리됐습니다」 표시·관리자 화면 합계에 쓴다
   let loggedOwners = 0;
   if (!dryRun) {
     const byOwner = cleanupByOwner({ videos: expired, voices: expiredVoices, covers: expiredCovers, images: expiredImages }, segmentsByOwner);
-    for (const [userId, c] of Object.entries(byOwner)) {
-      await logProgramUsage({ userId, action: CLEANUP_ACTION, quantity: c.videos + c.voices + c.covers + c.images, metadata: { ...c } });
+    for (const userId of new Set([...Object.keys(byOwner), ...Object.keys(rowsByOwner)])) {
+      const c = byOwner[userId] ?? { videos: 0, voices: 0, covers: 0, images: 0, segments: [] };
+      const r = rowsByOwner[userId] ?? { scripts: 0, candidates: 0 };
+      await logProgramUsage({ userId, action: CLEANUP_ACTION, quantity: c.videos + c.voices + c.covers + c.images + r.scripts + r.candidates, metadata: { ...c, ...r } });
       loggedOwners += 1;
     }
   }
   console.log(`[cleanup-videos] cutoff ${cutoff.toISOString()} checked ${checked} expired ${expired.length} removed ${removed} cleared ${clearedVideos}${dryRun ? " (dry-run)" : ""}`);
-  return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff: cutoff.toISOString(), checked, expired: expired.length, removed, clearedVideos, expiredVoices: expiredVoices.length, removedVoices, expiredCovers: expiredCovers.length, removedCovers, expiredImages: expiredImages.length, removedImages, clearedSegments, loggedOwners, dryRun });
+  return NextResponse.json({ retentionDays: RETENTION_DAYS, cutoff: cutoff.toISOString(), checked, expired: expired.length, removed, clearedVideos, expiredVoices: expiredVoices.length, removedVoices, expiredCovers: expiredCovers.length, removedCovers, expiredImages: expiredImages.length, removedImages, clearedSegments, loggedOwners, expiredScripts, expiredCandidates, removedBgmFiles, dryRun });
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#0b0d1b] text-slate-100 selection:bg-rose-500 selection:text-white">
         {children}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
       </body>
     </html>
   );

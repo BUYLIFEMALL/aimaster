@@ -275,7 +275,7 @@ export default function GuidePage() {
           </h3>
           <p className="text-xs text-emerald-200/80 leading-relaxed">
             AIMaster 쇼츠 자동화는 회원이 직접 등록한 OpenAI, Perplexity, Suno AI 및 YouTube API 키로만 동작합니다.
-            생성된 모든 쇼츠 스크립트와 영상 에셋은 회원 개인 계정에 안전하게 격리 보관되며 타인과 공유되지 않습니다.
+            생성된 모든 쇼츠 스크립트와 영상 에셋은 회원 개인 계정에 안전하게 격리 보관되며 타인과 공유되지 않습니다. 스크립트·주제 후보·배경음악·완성 영상은 마지막으로 고친 날(파일은 만든 날)부터 30일이 지나면 자동으로 지워지며, 유튜브·인스타에 올렸어도 같습니다(저장공간 구독으로 기간을 늘릴 수 있습니다).
           </p>
         </div>
       </div>
