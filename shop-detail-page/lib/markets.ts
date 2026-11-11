@@ -9,7 +9,7 @@ export interface MarketTarget {
   /** 그 상품이 골라진 등록 화면 */
   registerUrl: (productId: string) => string;
   /** 회원 본인 등록 작업 기록 표(같은 공용 DB, RLS 본인 행만) */
-  jobsTable: "smartstore_register_jobs" | "coupang_ops_jobs";
+  jobsTable: "smartstore_register_jobs" | "coupang_ops_jobs" | "elevenst_register_jobs";
 }
 
 export const MARKETS: MarketTarget[] = [
@@ -28,7 +28,24 @@ export const MARKETS: MarketTarget[] = [
     registerUrl: (productId) => `https://coupang-ops.buylife.xyz/products/${encodeURIComponent(productId)}`,
     jobsTable: "coupang_ops_jobs",
   },
+  {
+    // 11번가 공식 Seller API 등록기(2026-11-11). 상세페이지 카테고리·상품 정보로 카테고리·고시를 미리 채움
+    id: "elevenst",
+    name: "11번가",
+    emoji: "🟠",
+    registerUrl: (productId) => `https://elevenst-register.buylife.xyz/products/${encodeURIComponent(productId)}?flow=shop`,
+    jobsTable: "elevenst_register_jobs",
+  },
 ];
+
+/** 11번가 기록 상태 → 화면 결과. 11번가는 임시저장이 없어 등록 직후 전시중지(stopped)로 둔다 */
+export function pickElevenstResult(
+  jobs: { status: string; elevenst_product_no: number | null; updated_at: string }[],
+): MarketResult | null {
+  const job = jobs.find((j) => j.status === "registered") ?? jobs.find((j) => j.status === "stopped");
+  if (!job) return null;
+  return { marketId: "elevenst", status: job.status as "registered" | "stopped", marketProductNo: job.elevenst_product_no ? String(job.elevenst_product_no) : null, at: job.updated_at };
+}
 
 /** 쿠팡 기록 상태 → 화면 결과. 쿠팡에서 지운 기록은 failed라 여기 오지 않는다 */
 export function pickCoupangResult(
@@ -45,11 +62,12 @@ export const MARKET_STATUS_LABEL: Record<MarketResult["status"], { text: string;
   temp_saved: { text: "임시저장됨", cls: "bg-amber-50 text-amber-700" },
   requested: { text: "승인 심사 중", cls: "bg-sky-50 text-sky-700" },
   rejected: { text: "반려됨", cls: "bg-rose-50 text-rose-700" },
+  stopped: { text: "등록됨·전시중지", cls: "bg-amber-50 text-amber-700" },
 };
 
 export interface MarketResult {
   marketId: string;
-  status: "registered" | "temp_saved" | "requested" | "rejected";
+  status: "registered" | "temp_saved" | "requested" | "rejected" | "stopped";
   marketProductNo: string | null;
   at: string;
 }

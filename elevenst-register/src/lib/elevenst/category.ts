@@ -88,6 +88,8 @@ export function searchLeaves(tree: CategoryTree, query: string, limit = 12): Cat
   return found.sort((a, b) => b.score - a.score || a.path.length - b.path.length).slice(0, limit);
 }
 
+const SPECIAL_TOP = /^(해외직구|수입명품|중고|렌탈|브랜드)/;
+
 function scoreLeaves(tree: CategoryTree, words: string[], q: string, compound: boolean): CategoryHit[] {
   const hits: CategoryHit[] = [];
   for (const leaf of tree.leaves) {
@@ -111,8 +113,31 @@ function scoreLeaves(tree: CategoryTree, words: string[], q: string, compound: b
     }
     if (!matched) continue;
     score += matched * 4;
+    // 해외직구·수입명품·중고·렌탈·브랜드관 같은 특수 갈래는 검색어에 그 말이 없으면 뒤로
+    const special = path[0]?.name.match(SPECIAL_TOP)?.[0];
+    if (special && !q.includes(special)) score -= 5;
     if (!leafName.startsWith("기타") && (words.includes(leafName) || (leafName.length >= 3 && q.includes(leafName)))) score += 2;
     hits.push({ no: leaf.no, path: path.map((c) => c.name).join(" › "), score });
   }
   return hits;
+}
+
+/**
+ * 상세페이지 카테고리(예: 「패션잡화 > 남성가방 > 백팩」)와 상품명으로 후보를 찾고,
+ * 상세페이지 카테고리의 마지막 이름과 11번가 맨 아래 이름이 같은 첫 후보는 미리 골라 둔다(회원이 바꿀 수 있음).
+ */
+export function suggestCategory(tree: CategoryTree, detailCategory: string | null | undefined, name: string, limit = 12): { hits: CategoryHit[]; picked: CategoryHit | null } {
+  const segs = (detailCategory ?? "").split(/\s*>\s*|\s*›\s*/).map((x) => x.trim()).filter(Boolean);
+  const last = segs.length ? norm(segs[segs.length - 1]) : "";
+  const leafParts = (h: CategoryHit) => {
+    const leaf = h.path.split(" › ").pop() ?? "";
+    return [norm(leaf), ...leaf.split(/[/,()·&]+/).map(norm)].filter((x) => x.length >= 2);
+  };
+  // 상세페이지 카테고리 마지막 이름이 들어 있는 11번가 맨 아래 카테고리를 앞으로(+3)
+  const hits = searchLeaves(tree, [...segs, name].join(" "), limit * 3)
+    .map((h) => (last && leafParts(h).some((p) => p.includes(last)) ? { ...h, score: h.score + 3 } : h))
+    .sort((a, b) => b.score - a.score || a.path.length - b.path.length)
+    .slice(0, limit);
+  const picked = last ? (hits.find((h) => leafParts(h).includes(last)) ?? null) : null;
+  return { hits, picked };
 }

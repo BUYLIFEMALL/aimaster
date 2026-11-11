@@ -12,7 +12,7 @@ import { imageSrc } from "@/lib/imageSrc";
 import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
 import { applySectionSequence } from "@/lib/sectionOrder";
 import { MarketRegisterPanel } from "@/components/products/MarketRegisterPanel";
-import { MARKETS, pickCoupangResult, pickMarketResult, type MarketResult } from "@/lib/markets";
+import { MARKETS, pickCoupangResult, pickElevenstResult, pickMarketResult, type MarketResult } from "@/lib/markets";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +74,17 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         .limit(1);
       const coupang = pickCoupangResult(coupangJobs ?? []);
       if (coupang) marketResults.push(coupang);
+      continue;
+    }
+    if (market.jobsTable === "elevenst_register_jobs") {
+      const { data: elevenstJobs } = await (supabase.from("elevenst_register_jobs" as never) as unknown as { select: (c: string) => { eq: (k: string, v: string) => { in: (k: string, v: string[]) => { order: (k: string, o: { ascending: boolean }) => { limit: (n: number) => Promise<{ data: { status: string; elevenst_product_no: number | null; updated_at: string }[] | null }> } } } } })
+        .select("status, elevenst_product_no, updated_at")
+        .eq("product_id", product.id)
+        .in("status", ["registered", "stopped"])
+        .order("updated_at", { ascending: false })
+        .limit(10);
+      const elevenst = pickElevenstResult(elevenstJobs ?? []);
+      if (elevenst) marketResults.push(elevenst);
       continue;
     }
     const { data: jobs } = await supabase

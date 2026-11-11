@@ -31,7 +31,15 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
           ))}
         </div>
       )}
-      <RegisterForm productId={id} initialName={productName(p)} price={p.sale_price || p.price || 0} keySaved={Boolean(setup.elevenstKey)} />
+      <RegisterForm
+        productId={id}
+        initialName={productName(p)}
+        price={p.sale_price || p.price || 0}
+        listPrice={p.price || 0}
+        detailCategory={p.category ?? ""}
+        specs={p.specs ?? ""}
+        keySaved={Boolean(setup.elevenstKey)}
+      />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { getElevenstKeys } from "@/lib/setupStatus";
 import { getShopProduct } from "@/lib/shop";
 import { getCategoryTree } from "@/lib/elevenst/categoryStore";
-import { childrenOf, pathLabel, searchLeaves, type CategoryHit } from "@/lib/elevenst/category";
+import { childrenOf, pathLabel, searchLeaves, suggestCategory, type CategoryHit } from "@/lib/elevenst/category";
 import { ElevenstApiError, elevenstRequest } from "@/lib/elevenst/client";
 import { parseAreas, type Area } from "@/lib/elevenst/areas";
 import { parseSendCloseTemplates, type SendCloseTemplate } from "@/lib/elevenst/sendClose";
@@ -44,6 +44,16 @@ export async function searchCategoryAction(query: string): Promise<{ ok: true; h
   if (!q) return { ok: true, hits: [] };
   try {
     return { ok: true, hits: searchLeaves(await getCategoryTree(), q, 12) };
+  } catch {
+    return { ok: false, error: CATEGORY_ERROR };
+  }
+}
+
+/** 상세페이지 카테고리 + 상품명으로 후보와 미리 고를 1건(확실할 때만) */
+export async function suggestCategoryAction(detailCategory: string, name: string): Promise<{ ok: true; hits: CategoryHit[]; picked: CategoryHit | null } | { ok: false; error: string }> {
+  await requireProgramAccess();
+  try {
+    return { ok: true, ...suggestCategory(await getCategoryTree(), detailCategory.slice(0, 200), name.slice(0, 100), 12) };
   } catch {
     return { ok: false, error: CATEGORY_ERROR };
   }

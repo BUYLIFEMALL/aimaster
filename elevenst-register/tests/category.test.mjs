@@ -62,3 +62,11 @@ test("parseSendCloseTemplates: 명세 예시 응답", () => {
   assert.deepEqual(parseSendCloseTemplates(xml), [{ no: "344836", name: "오전 9시까지 주문 당일 발송", kind: "02" }]);
   assert.deepEqual(parseSendCloseTemplates("<productInformationTemplateList/>"), []);
 });
+
+test("suggestCategory: 상세페이지 카테고리 마지막 이름과 같은 맨 아래 카테고리를 미리 고름", async () => {
+  const { suggestCategory } = await import("../src/lib/elevenst/category.ts");
+  const r = suggestCategory(tree, "생활용품 > 텀블러", "스테인리스 진공 텀블러 500ml");
+  assert.equal(r.picked?.no, "111"); // 보온컵/텀블러 — 「/」 조각 일치
+  assert.equal(r.hits[0].no, "111");
+  assert.equal(suggestCategory(tree, "", "무선 블루투스 이어폰").picked, null);
+});

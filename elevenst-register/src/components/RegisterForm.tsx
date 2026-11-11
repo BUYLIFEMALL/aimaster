@@ -6,7 +6,8 @@ import { CategoryPicker, type PickedCategory } from "@/components/CategoryPicker
 import { checkDraftAction, loadSellerSetupAction, type CheckResult, type SellerSetup } from "@/lib/actions/register";
 import type { ElevenstDraft, FeeType, KcChoice, OptionRow } from "@/lib/elevenst/product";
 import { DEFAULT_AS, DEFAULT_RETURN, SEND_KIND } from "@/lib/elevenst/draftDefaults";
-import { DEFAULT_NOTI_TYPE, NOTI_DEFAULT_VALUE, NOTI_TYPES, notiType } from "@/lib/elevenst/notification";
+import { NOTI_DEFAULT_VALUE, NOTI_TYPES, notiType } from "@/lib/elevenst/notification";
+import { guessNotiType, parseSpecs, prefillBasics, prefillNoti } from "@/lib/elevenst/prefill";
 
 // 3단계 등록 화면 — 상세페이지 상품 → 카테고리 → 가격·재고·옵션 → 배송 → 고시 → 「검사하기」. 11번가에 보내지 않는다.
 // 배송·안내 문구·브랜드처럼 상품마다 같은 값은 이 브라우저에 기억해 다음 상품에 미리 채운다(서버 저장은 4단계에서 함께 정함).
@@ -48,15 +49,30 @@ function NumberField({ id, text, value, onChange, suffix = "원" }: { id: string
   );
 }
 
-export function RegisterForm(props: { productId: string; initialName: string; price: number; keySaved: boolean }) {
+const tens = (n: number) => Math.round(n / 10) * 10;
+const leafOf = (path: string) => path.split(/\s*[›>]\s*/).pop() ?? "";
+
+/** 고시 유형 하나를 상세페이지 정보(specs)로 채운 값 */
+function notiFill(code: string, specs: Map<string, string>, leaf: string): Record<string, string> {
+  const t = notiType(code);
+  return t ? prefillNoti(t, specs, leaf).values : {};
+}
+
+export function RegisterForm(props: { productId: string; initialName: string; price: number; listPrice: number; detailCategory: string; specs: string; keySaved: boolean }) {
+  // 상세페이지 자동화 정보로 미리 채움(브랜드·원산지·고시) — 회원이 고칠 수 있음
+  const specs = useMemo(() => parseSpecs(props.specs), [props.specs]);
+  const basics = useMemo(() => prefillBasics(specs), [specs]);
+  const initialNoti = guessNotiType(props.detailCategory);
   const [name, setName] = useState(props.initialName);
-  const [brand, setBrand] = useState("");
+  const [brand, setBrand] = useState(basics.brand);
   const [category, setCategory] = useState<PickedCategory | null>(null);
-  const [price, setPrice] = useState(Math.round(props.price / 10) * 10);
+  const [price, setPrice] = useState(tens(props.price));
+  const listPrice = tens(props.listPrice);
+  const [useDiscount, setUseDiscount] = useState(false); // 기본 끔(주인님 결정 2026-11-11)
   const [stock, setStock] = useState(99);
   const [tax, setTax] = useState<ElevenstDraft["tax"]>("01");
   const [minorOk, setMinorOk] = useState(true);
-  const [originText, setOriginText] = useState("상세설명 참조");
+  const [originText, setOriginText] = useState(basics.origin || "상세설명 참조");
   const [kc, setKc] = useState<KcChoice>("none");
   const [useOption, setUseOption] = useState(false);
   const [optionTitle, setOptionTitle] = useState("색상");
@@ -64,8 +80,8 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
   const [delivery, setDelivery] = useState(DEFAULT_DELIVERY);
   const [asDetail, setAsDetail] = useState(DEFAULT_AS);
   const [returnDetail, setReturnDetail] = useState(DEFAULT_RETURN);
-  const [notiTypeCode, setNotiTypeCode] = useState(DEFAULT_NOTI_TYPE);
-  const [notiValues, setNotiValues] = useState<Record<string, string>>({});
+  const [notiTypeCode, setNotiTypeCode] = useState(initialNoti);
+  const [notiValues, setNotiValues] = useState<Record<string, string>>(() => notiFill(initialNoti, specs, leafOf(props.detailCategory)));
   const [setup, setSetup] = useState<SellerSetup | null>(null);
   const [check, setCheck] = useState<CheckResult | null>(null);
   const [checkError, setCheckError] = useState("");
@@ -78,16 +94,34 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
       const saved = localStorage.getItem(LAST_KEY);
       if (!saved) return;
       const r = JSON.parse(saved) as Partial<Remembered>;
-      if (r.brand) setBrand(r.brand);
-      if (r.originText) setOriginText(r.originText);
+      // 상세페이지에서 찾은 값이 있으면 그것을 쓰고, 없을 때만 지난번 값
+      if (r.brand && !basics.brand) setBrand(r.brand);
+      if (r.originText && !basics.origin) setOriginText(r.originText);
       if (r.kc) setKc(r.kc);
       if (r.tax) setTax(r.tax);
       if (r.delivery) setDelivery({ ...DEFAULT_DELIVERY, ...r.delivery });
       if (r.asDetail) setAsDetail(r.asDetail);
       if (r.returnDetail) setReturnDetail(r.returnDetail);
-      if (r.notiType && notiType(r.notiType)) setNotiTypeCode(r.notiType);
+      if (r.notiType && notiType(r.notiType) && !props.detailCategory.trim()) {
+        setNotiTypeCode(r.notiType);
+        setNotiValues(notiFill(r.notiType, specs, ""));
+      }
     } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /** 고시 유형을 바꾸면 상세페이지 정보로 다시 채운다 */
+  const applyNoti = (code: string, leaf: string) => {
+    setNotiTypeCode(code);
+    setNotiValues(notiFill(code, specs, leaf));
+  };
+  /** 카테고리를 고르면 고시 유형도 그 카테고리에 맞춘다 */
+  const pickCategory = (c: PickedCategory | null) => {
+    setCategory(c);
+    if (c) applyNoti(guessNotiType(c.path, props.detailCategory), leafOf(c.path));
+  };
+  const canDiscount = listPrice > price && price > 0;
+  const discountOn = useDiscount && canDiscount;
 
   // 출고지·반품지·발송마감 템플릿(읽기만). 기억한 값이 목록에 없으면 첫 번째로
   useEffect(() => {
@@ -117,7 +151,8 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
     name,
     brand,
     categoryNo: category?.no ?? "",
-    price,
+    price: discountOn ? listPrice : price,
+    discount: discountOn ? listPrice - price : 0,
     stock,
     tax,
     minorOk,
@@ -158,6 +193,7 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
 
       <section className={box}>
         <h2 className="text-base font-extrabold text-slate-900">1. 기본 정보</h2>
+        {specs.size > 0 && <p className="rounded-lg bg-indigo-50 px-3 py-2 text-[12px] text-indigo-900">📄 상세페이지 상품 정보에서 브랜드·원산지·카테고리·고시 항목을 미리 채웠습니다. 다르면 고쳐 주세요.</p>}
         <div>
           <label htmlFor="f-name" className={label}>
             상품명 <span className="font-normal text-slate-500">({[...name].length}/100자)</span>
@@ -183,13 +219,23 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
       <section className={box}>
         <h2 className="text-base font-extrabold text-slate-900">2. 11번가 카테고리</h2>
         <p className="text-[13px] text-slate-600">상품명으로 후보를 찾거나 직접 찾아봅니다. 11번가는 맨 아래 카테고리에만 등록됩니다.</p>
-        <CategoryPicker productName={name} value={category} onPick={setCategory} />
+        <CategoryPicker productName={name} detailCategory={props.detailCategory} value={category} onPick={pickCategory} />
       </section>
 
       <section className={box}>
         <h2 className="text-base font-extrabold text-slate-900">3. 가격·재고·옵션</h2>
         <div className="grid gap-3 sm:grid-cols-3">
-          <NumberField id="f-price" text="판매가 (10원 단위)" value={price} onChange={setPrice} />
+          <div>
+            <NumberField id="f-price" text="판매가 (10원 단위)" value={price} onChange={setPrice} />
+            {canDiscount && (
+              <label className="mt-1.5 flex items-start gap-1.5 text-[12px] text-slate-700">
+                <input type="checkbox" checked={useDiscount} onChange={(e) => setUseDiscount(e.target.checked)} className="mt-0.5" />
+                <span>
+                  상세페이지 정가 {listPrice.toLocaleString()}원에서 {(listPrice - price).toLocaleString()}원 즉시할인으로 보여 주기
+                </span>
+              </label>
+            )}
+          </div>
           {!useOption && <NumberField id="f-stock" text="재고" value={stock} onChange={setStock} suffix="개" />}
           <div>
             <label htmlFor="f-tax" className={label}>
@@ -328,7 +374,7 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
           <label htmlFor="f-noti" className={label}>
             고시 유형
           </label>
-          <select id="f-noti" value={notiTypeCode} onChange={(e) => setNotiTypeCode(e.target.value)} className={input}>
+          <select id="f-noti" value={notiTypeCode} onChange={(e) => applyNoti(e.target.value, leafOf(category?.path ?? props.detailCategory))} className={input}>
             {NOTI_TYPES.map((t) => (
               <option key={t.type} value={t.type}>
                 {t.name}
@@ -336,7 +382,7 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
             ))}
           </select>
         </div>
-        <p className="text-[12px] text-slate-500">모든 항목에 「{NOTI_DEFAULT_VALUE}」가 미리 들어갑니다. 아는 내용은 바꿔 적어 주세요(항목당 50자까지).</p>
+        <p className="text-[12px] text-slate-500">상세페이지 상품 정보(색상·소재·크기 등)를 찾아 미리 넣고, 못 찾은 항목은 「{NOTI_DEFAULT_VALUE}」로 둡니다. 아는 내용은 바꿔 적어 주세요(항목당 50자까지).</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {noti?.items.map(([code, itemName]) => (
             <div key={code}>

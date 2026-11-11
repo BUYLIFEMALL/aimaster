@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { browseCategoryAction, describeCategoryAction, searchCategoryAction, type CategoryNodeView } from "@/lib/actions/register";
+import { useEffect, useState, useTransition } from "react";
+import { browseCategoryAction, describeCategoryAction, searchCategoryAction, suggestCategoryAction, type CategoryNodeView } from "@/lib/actions/register";
 import type { CategoryHit } from "@/lib/elevenst/category";
 
 const btn = "rounded border border-slate-300 bg-white px-2 py-1 text-[12px] font-bold text-slate-700 hover:border-indigo-300 disabled:opacity-50";
@@ -9,16 +9,35 @@ const btn = "rounded border border-slate-300 bg-white px-2 py-1 text-[12px] font
 export interface PickedCategory {
   no: string;
   path: string;
+  /** 상세페이지 카테고리로 미리 고른 것(회원 확인 안내를 보여 줌) */
+  auto?: boolean;
 }
 
 /** 11번가 카테고리 고르기 — 상품명으로 후보 찾기 · 직접 찾아보기 · 번호 입력. 맨 아래 카테고리만 고를 수 있다 */
-export function CategoryPicker({ productName, value, onPick }: { productName: string; value: PickedCategory | null; onPick: (c: PickedCategory | null) => void }) {
+export function CategoryPicker({ productName, detailCategory = "", value, onPick }: { productName: string; detailCategory?: string; value: PickedCategory | null; onPick: (c: PickedCategory | null) => void }) {
   const [query, setQuery] = useState(productName);
   const [hits, setHits] = useState<CategoryHit[] | null>(null);
   const [browse, setBrowse] = useState<{ path: { no: string; name: string }[]; children: CategoryNodeView[] } | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
+
+  // 처음 열 때: 상세페이지 카테고리 + 상품명으로 후보를 보여 주고, 확실한 1건은 미리 고른다(한 번만)
+  useEffect(() => {
+    if (!detailCategory.trim() && !productName.trim()) return;
+    let alive = true;
+    suggestCategoryAction(detailCategory, productName)
+      .then((r) => {
+        if (!alive || !r.ok) return;
+        setHits(r.hits);
+        if (r.picked) onPick({ no: r.picked.no, path: r.picked.path, auto: true });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const search = () =>
     start(async () => {
@@ -51,6 +70,7 @@ export function CategoryPicker({ productName, value, onPick }: { productName: st
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px]">
           <span className="font-bold text-emerald-900">✅ {value.path}</span>
           <span className="font-mono text-[11px] text-emerald-700">#{value.no}</span>
+          {value.auto && <span className="w-full text-[12px] text-emerald-800">📄 상세페이지 카테고리 「{detailCategory}」로 자동 추천했습니다. 맞는지 확인해 주세요.</span>}
           <button type="button" onClick={() => onPick(null)} className="ml-auto text-[12px] font-bold text-slate-600 underline">
             다시 고르기
           </button>

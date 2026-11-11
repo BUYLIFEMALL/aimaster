@@ -475,3 +475,7 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 다른 세션 커밋 `98c54b278`(「하이퍼 이커머스 셀러 스튜디오」 전면 리뉴얼, 파일 10개)이 16:40께 운영 배포됨(Vercel `shop-detail-page-3l5gu4djr` Ready)인데 DB `programs.version`이 v1.41로 남아 있어 `deploy.mjs --version-only --set-version`으로 v1.42, 비교표 2곳 v1.42(`c3b7a1bb3`).
 - `docs/PENDING_DEPLOYS.md` 「내보낸 기록」 줄은 넣지 못함 — 작업 파일에 여러 세션의 미커밋 줄이 섞여 있고 HEAD 줄 일부가 빠져 있어, 커밋하면 남의 기록을 되돌릴 위험(충돌로 중단). 배포한 세션이 기록하거나 다음 정리 때 추가.
 - 미확인: 리뉴얼 화면의 운영 동작(상품 만들기·검토·🛒 마켓 등록 연결).
+
+## 2026-11-11 미배포 대기 — 마켓 등록에 11번가 추가 (Claude Code 윈도우 `claude-win-sdp`, 역할 ecommerce-image)
+- `lib/markets.ts`에 「🟠 11번가」 한 줄(`https://elevenst-register.buylife.xyz/products/<id>?flow=shop`) + `pickElevenstResult`(기록 표 `elevenst_register_jobs`의 registered → 「등록됨」, stopped → 새 상태 「등록됨·전시중지」), 상품 화면에서 결과 읽기(`app/(dashboard)/products/[id]/page.tsx`). tsc·build 통과.
+- **11번가 등록기 4단계(실제 보내기) 배포와 같은 묶음으로 배포**(그 전에는 버튼이 검사까지만 되는 화면으로 감). 버전·DB는 배포 때 +0.01. 플랜 `elevenst-register/docs/PLAN_20261111_DETAIL_PAGE_LINK.md`.

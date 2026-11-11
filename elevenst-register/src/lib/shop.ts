@@ -35,9 +35,10 @@ export interface ShopProduct {
   updated_at: string;
   reviewed_at?: string | null;
   reference_image_urls?: string[] | null;
+  specs?: string | null;
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls";
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls,specs";
 
 export function productName(p: Pick<ShopProduct, "name" | "product_label">): string {
   return (p.name || p.product_label || "").trim() || "(상품명 없음)";

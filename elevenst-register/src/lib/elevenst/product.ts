@@ -22,6 +22,8 @@ export interface ElevenstDraft {
   brand: string;
   categoryNo: string;
   price: number;
+  /** 기본즉시할인(원). 0이나 없음 = 할인 안 함. 상세페이지 정가 > 판매가일 때 회원이 켜면 price=정가, discount=정가-판매가 */
+  discount?: number;
   stock: number;
   tax: "01" | "02" | "03"; // 과세 · 면세 · 영세
   minorOk: boolean;
@@ -81,6 +83,10 @@ export function checkDraft(d: ElevenstDraft, ctx: { categoryIsLeaf: boolean | nu
   if (!Number.isFinite(d.price) || d.price < 10) errors.push("판매가를 10원 이상으로 넣어 주세요.");
   else if (!isTens(d.price)) errors.push(`판매가는 10원 단위여야 합니다(지금 ${won(d.price)}).`);
   else if (d.price >= 1_000_000_000) errors.push("판매가는 10억 원 미만이어야 합니다.");
+  if (d.discount) {
+    if (!isTens(d.discount) || d.discount < 0) errors.push("즉시할인 금액은 10원 단위여야 합니다.");
+    else if (d.discount >= d.price) errors.push("즉시할인 금액은 판매가보다 작아야 합니다.");
+  }
 
   if (!ctx.hasMainImage) errors.push("대표 이미지가 없습니다. 상세페이지 자동화에서 대표 이미지를 먼저 만들어 주세요.");
 
@@ -174,6 +180,8 @@ export function buildProductXml(d: ElevenstDraft, img: DraftImages): string {
     ProductCertGroup: certGroups(d.kc),
     selTermUseYn: "N", // 판매기간 설정 안 함(즉시 판매)
     selPrc: d.price,
+    // 기본즉시할인 — 안 쓰면 칸을 모두 뺀다(명세 §8)
+    ...(d.discount ? { cuponcheck: "Y", dscAmtPercnt: d.discount, cupnDscMthdCd: "01", cupnUseLmtDyYn: "N" } : {}),
     ...(optionRows.length
       ? {
           optSelectYn: "Y",

@@ -87,3 +87,7 @@
 - **상품정보제공고시 코드표**: 셀러오피스 「상품정보고시 유형별 입력항목」 창(`soffice.11st.co.kr/product/BulkProductReg.tmall?method=goProductNotiPop`, 로그인 필요)을 읽기만 해 `src/lib/elevenst/notification.ts`로 옮김 — 유형 40개·항목 378개, 기본 「기타 재화」(891045, 항목 5개). 값은 항목당 50자까지. 본문 `ProductNotification › type + item(code, name)…`.
 - **공개 예제 묶음** `https://openapi.11st.co.kr/example/ProductExample1705.zip`: 옵션(싱글·멀티·계산형·작성형)·인증·고시·판매기간 조각 예시만 있고 전체 본문 예시는 없음. 싱글옵션은 `optSelectYn=Y`·`txtColCnt=1`·`colTitle`·`ProductOption(useYn, colOptPrice, colValue0, colCount)`.
 - 등록 칸 세부: 상품명 100자 · 판매가 10원 단위·10억 미만(수정 때 +50%/-80%) · 재고 0 불가 · 옵션가 -50%~+100%, 0원 옵션 1개 이상 · 옵션명/값 금지 글자 `[ ] & # ; " % < > †` · 반품·교환 배송비 10원 단위 · A/S·반품교환 안내 빈 칸 불가(4,000바이트) · KC 그룹 01~04(01: 대상/면제/대상 아님, 02·03: 대상/대상 아님, 04: 생활화학 대상/아님) · 브랜드 없으면 「알수없음」.
+
+## 8. 기본즉시할인 (2026-11-11, 상품관리 명세 `categoryNo=81` ego 읽기만)
+- 설정하지 않으면 칸을 **모두 빼야 함**. 넣을 때: `cuponcheck`=Y · `dscAmtPercnt`=할인 수치(「판매가에서 xxxx」) · `cupnDscMthdCd` 01=원 / 02=% · `cupnUseLmtDyYn` Y/N(기간 설정 시에만 `cupnIssEndDy`). 상품수정에서는 `cuponcheck`=S(기존값 유지) 가능.
+- 우리 사용: 상세페이지 정가(`price`) > 판매가(`sale_price`)일 때 회원이 켜면 `selPrc`=정가, 할인=정가−판매가(원, 기간 없음). 기본은 끔(판매가만 `selPrc`).
