@@ -69,6 +69,7 @@
 
 | 할 일 | 급함 | 관련 파일 | 근거·메모 | 적은 날 · CLI |
 |---|---|---|---|---|
+| 저작권·AI 분석 금지 고지: `public/ai.txt`(AI 학습·분석·리버스 엔지니어링 거부, 약관 제14조 링크), 응답 헤더 `X-Robots-Tag: noai, noimageai`(`next.config.mjs` headers), 화면 하단 한 줄 「© BUYLIFE. 무단 복제·리버스 엔지니어링·AI 분석 금지(이용약관 제14조)」 | 보통 | `public/ai.txt`, `next.config.mjs`, 하단 Footer 컴포넌트 | `docs/SOURCE_PROTECTION_POLICY.md` §4-2·§3 고지문, 약관 제14조는 2026-11-11 DB로 이미 반영 | 2026-11-11 · `claude-win-rea` |
 | 수동 목록 「결제 전 정지」 표시 내보내기(**2026-11-01 블로그 세션 푸시로 메인 자동 빌드 `aimaster-jb21pzhit` Ready, 운영 반영됨 — 회원 상세 화면 확인만 남음**) | 낮음 | `components/admin/MemberDetail.tsx`, `types/database.types.ts` | 커밋 `8b117fced`. 주인님 지시: 다음 배포 때 함께. 푸시 뒤 회원 상세에서 정지 권한 표시 확인 | 2026-11-01 · Claude Code(윈도우) claude-win-20261029-statusbar |
 
 ## 내보낸 기록
