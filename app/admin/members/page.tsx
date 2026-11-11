@@ -1,6 +1,7 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import GoldGradientText from "@/components/ui/GoldGradientText";
 import MembersTable from "@/components/admin/MembersTable";
+import type { MemberStorageRow } from "@/components/admin/StorageOverrideModal";
 
 type ExpiryRow = { user_id: string | null; program_id?: string | null; expires_at: string | null };
 
@@ -39,7 +40,7 @@ export const metadata = { title: "회원 관리" };
 export default async function AdminMembersPage() {
   const supabase = createServiceClient();
   const nowIso = new Date().toISOString();
-  const [{ data: members }, { data: grades }, activeSubs, activeAccess, { data: programs }] = await Promise.all([
+  const [{ data: members }, { data: grades }, activeSubs, activeAccess, { data: programs }, { data: storageRows }] = await Promise.all([
     supabase
       .from("profiles")
       .select("*, grade:member_grades(name, color)")
@@ -63,7 +64,10 @@ export default async function AdminMembersPage() {
     ),
     // 목록에서 바로 "만료일 설정" 모달을 열 때 프로그램을 고를 수 있어야 한다.
     supabase.from("programs").select("id, name, slug").eq("is_active", true).order("sort_order"),
+    // 회원별 저장공간 정책·사용량(0064, 2026-11-11 주인님 「사용자별로 전체사용량 현재 사용량/만료기간 등을 표시」)
+    supabase.rpc("member_storage_overview"),
   ]);
+  const storageByUserId = Object.fromEntries(((storageRows ?? []) as MemberStorageRow[]).map((row) => [row.user_id, row]));
 
   // user_id별로 "가장 빨리 끝나는 만료일"과 유효한 이용 권한 개수를 계산한다. 구독
   // (subscriptions)과 관리자 수동 부여(user_program_access) 두 출처를 합산한다. 평생
@@ -110,6 +114,7 @@ export default async function AdminMembersPage() {
         grades={grades ?? []}
         expiryByUserId={Object.fromEntries(expiryByUserId)}
         programs={programs ?? []}
+        storageByUserId={storageByUserId}
       />
     </div>
   );

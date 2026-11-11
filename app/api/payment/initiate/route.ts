@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
 
     // 가격 플랜 조회
-    const { data: plan } = await supabase
+    // 요금제는 서버 키로 조회한다 — 「저장공간 추가」(storage-plus)처럼 카탈로그 비공개 프로그램의 이름이 회원 권한(0062)으로는 안 보이기 때문.
+    const { data: plan } = await createServiceClient()
       .from("pricing_plans")
       .select("*, programs(name, slug)")
       .eq("id", planId)
@@ -26,13 +27,16 @@ export async function POST(req: NextRequest) {
     if (!plan) return NextResponse.json({ error: "존재하지 않는 플랜입니다." }, { status: 404 });
 
     // 이미 활성 구독 확인
-    const { data: existing } = await supabase
+    // 저장 구독(docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md)은 다른 요금제로 올리는 것을 허용 — 같은 요금제만 중복 차단
+    const isStoragePlan = (plan.programs as { slug?: string } | null)?.slug === "storage-plus";
+    let existingQuery = supabase
       .from("subscriptions")
       .select("id")
       .eq("user_id", user.id)
       .eq("program_id", plan.program_id)
-      .eq("status", "active")
-      .maybeSingle();
+      .eq("status", "active");
+    if (isStoragePlan) existingQuery = existingQuery.eq("pricing_plan_id", planId);
+    const { data: existing } = await existingQuery.limit(1).maybeSingle();
 
     if (existing) return NextResponse.json({ error: "이미 구독 중인 프로그램입니다." }, { status: 409 });
 
@@ -45,7 +49,8 @@ export async function POST(req: NextRequest) {
       .eq("id", user.id)
       .single();
     const userGrade = Array.isArray(profileForGrade?.grade) ? profileForGrade?.grade[0] : profileForGrade?.grade;
-    const isPrelaunchFreeAccess = userGrade?.slug === "basic";
+    // 저장 구독은 운영 비용(저장·전송)이 드는 상품이라 공개 전 무료 처리에서 뺀다
+    const isPrelaunchFreeAccess = userGrade?.slug === "basic" && !isStoragePlan;
 
     // 쿠폰 검증 (서버사이드 재검증)
     let couponId: string | null = null;
@@ -159,6 +164,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      if (isStoragePlan) await serviceClient.rpc("member_storage_refresh_exempt", { uid: user.id });
       return NextResponse.json({ free: true, orderId });
     }
 

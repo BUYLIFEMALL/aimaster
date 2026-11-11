@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 const SITE_URL = "https://www.buylife.xyz";
@@ -39,7 +40,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="bg-dark text-white antialiased">{children}</body>
+      <body className="bg-dark text-white antialiased">
+        {children}
+        {/* 회원 저장공간 위젯(로그인 회원만 표시, 관리자·로그인 화면 제외) — docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md */}
+        <Script src="/storage-widget.js" strategy="afterInteractive" />
+      </body>
     </html>
   );
 }

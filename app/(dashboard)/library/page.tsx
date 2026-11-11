@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { listMemberAssets, type AssetKind, type MemberAsset } from "@/lib/library/memberAssets";
 import { formatDate } from "@/lib/utils/format";
+import { getStorageSummary, formatBytes, formatRetention } from "@/lib/storage/memberStorage";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -34,13 +35,13 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
   const tab = TABS.some((t) => t.key === sp.kind) ? (sp.kind as "all" | AssetKind) : "all";
 
   const service = createServiceClient();
-  const [assets, { data: programs }, { data: profile }] = await Promise.all([
+  const [assets, { data: programs }, storage] = await Promise.all([
     listMemberAssets(service, user.id, tab === "all" ? { limit: 300 } : { kind: tab, limit: 300 }),
     service.from("programs").select("slug, name, app_url"),
-    service.from("profiles").select("retention_exempt").eq("id", user.id).maybeSingle(),
+    getStorageSummary(service, user.id),
   ]);
   const programBySlug = new Map(((programs ?? []) as { slug: string; name: string; app_url: string | null }[]).map((p) => [p.slug, p]));
-  const exempt = !!profile?.retention_exempt;
+  const exempt = storage.source === "exempt";
 
   // 종류 → 프로그램 순으로 묶는다
   const byKind = new Map<AssetKind, Map<string, MemberAsset[]>>();
@@ -83,10 +84,10 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
           <div className="text-2xl font-black text-white">{countOf("text")}</div>
           <div className="text-subtext text-xs mt-1">글</div>
         </GlassCard>
-        <GlassCard className="p-4 text-center col-span-3 md:col-span-1">
-          <div className={`text-lg font-black ${exempt ? "text-emerald-400" : "text-white"}`}>{exempt ? "보관 기간 제외" : "원본 규칙대로"}</div>
-          <div className="text-subtext text-xs mt-1">보관 기간</div>
-        </GlassCard>
+        <Link href="/storage" className="glass-card p-4 text-center col-span-3 md:col-span-1 hover:border-gold/50 transition">
+          <div className={`text-lg font-black ${exempt ? "text-emerald-400" : "text-white"}`}>{formatBytes(storage.usedBytes)} / {formatBytes(storage.quotaBytes)}</div>
+          <div className="text-subtext text-xs mt-1">💾 {formatRetention(storage)}</div>
+        </Link>
       </div>
 
       <nav className="flex flex-wrap gap-2" aria-label="자료 종류">
@@ -106,7 +107,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
         <span className="break-keep">
           {exempt
             ? "관리자·시험 계정은 자동 삭제에서 제외됩니다."
-            : "보관 기간은 원본 프로그램 규칙을 따릅니다 — 만들기만 한 자료는 30일, 블로그·인스타·쓰레드·유튜브 등에 실제 발행한 자료는 1년. 원본이 지워지면 여기서도 함께 사라집니다."}
+            : `지금 보관 기간은 「${formatRetention(storage)}」입니다 — 블로그·인스타·쓰레드·유튜브 등에 올린 자료도 기간이 지나면 자동으로 지워집니다. 더 오래 보관하려면 「저장공간」에서 저장 구독을 이용해 주세요. 원본이 지워지면 여기서도 함께 사라집니다.`}
           {" "}미리보기·재생 주소는 1시간 동안 유효하니, 오래 열어 두었다면 새로고침해 주세요.
         </span>
       </div>

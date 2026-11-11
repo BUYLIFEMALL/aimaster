@@ -84,6 +84,9 @@ export async function POST(req: NextRequest) {
       payapp_order_id: orderId,
     }).select("id").single();
 
+    // 저장 구독이면 보관 연장(열외)을 바로 반영 — 다른 프로그램 구독에는 영향 없음(매일 새벽에도 다시 계산)
+    await supabase.rpc("member_storage_refresh_exempt", { uid: record.user_id });
+
     // payment_records에 subscription_id 연결
     if (subscription) {
       await supabase.from("payment_records")

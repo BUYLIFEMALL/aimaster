@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, Search, Ban, RotateCcw, Trash2, CalendarClock, UserPlus, Layers } from "lucide-react";
+import { Eye, Search, Ban, RotateCcw, Trash2, CalendarClock, UserPlus, Layers, HardDrive } from "lucide-react";
 import MemberGradeSelect from "@/components/admin/MemberGradeSelect";
 import SetExpiryModal from "@/components/admin/SetExpiryModal";
 import AddMembersToGradeModal from "@/components/admin/AddMembersToGradeModal";
+import StorageOverrideModal, { type MemberStorageRow } from "@/components/admin/StorageOverrideModal";
+import { formatBytes, formatRetention, SOURCE_LABEL } from "@/lib/storage/memberStorage";
 import { formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import type { Profile, MemberGrade, Program } from "@/types/database.types";
@@ -24,9 +26,11 @@ interface MembersTableProps {
   expiryByUserId?: Record<string, MemberExpiryInfo>;
   /** 목록에서 바로 "만료일 설정" 모달을 열 때 고를 프로그램 목록. */
   programs?: Pick<Program, "id" | "name">[];
+  /** user_id → 저장공간 정책·사용량(0064 member_storage_overview) */
+  storageByUserId?: Record<string, MemberStorageRow>;
 }
 
-export default function MembersTable({ members, grades, expiryByUserId = {}, programs = [] }: MembersTableProps) {
+export default function MembersTable({ members, grades, expiryByUserId = {}, programs = [], storageByUserId = {} }: MembersTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedGradeId, setSelectedGradeId] = useState<string>("all");
@@ -40,6 +44,8 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
   const [suspendOverrides, setSuspendOverrides] = useState<Map<string, boolean>>(new Map());
   const [gradeOverrides, setGradeOverrides] = useState<Map<string, string | null>>(new Map());
   const [expiryOverrides, setExpiryOverrides] = useState<Map<string, MemberExpiryInfo>>(new Map());
+  const [storageOverrides, setStorageOverrides] = useState<Map<string, MemberStorageRow>>(new Map());
+  const [storageEditing, setStorageEditing] = useState<Profile[] | null>(null);
 
   const mergedExpiryByUserId = useMemo(() => {
     const map = { ...expiryByUserId };
@@ -510,6 +516,16 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
             <span className="text-white/10">|</span>
 
             <button
+              onClick={() => setStorageEditing(filtered.filter((m) => selectedIds.has(m.id)))}
+              className="flex items-center gap-1 text-xs text-gold-light hover:text-gold transition-colors"
+            >
+              <HardDrive size={12} />
+              저장공간 일괄 지정
+            </button>
+
+            <span className="text-white/10">|</span>
+
+            <button
               onClick={bulkDeleteSelected}
               disabled={bulkPending}
               className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 disabled:opacity-40 transition-colors"
@@ -533,7 +549,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
           <table className="w-full min-w-[680px]">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="p-4 w-10">
+                <th className="px-2.5 py-2 w-10">
                   <input
                     type="checkbox"
                     checked={allSelectableChecked}
@@ -541,13 +557,13 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                     className="rounded border-white/20 bg-white/5 accent-gold cursor-pointer"
                   />
                 </th>
-                <th className="text-left text-xs text-subtext font-medium p-4">회원</th>
-                <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">핸드폰</th>
-                <th className="text-left text-xs text-subtext font-medium p-4 hidden md:table-cell">등급</th>
-                <th className="text-center text-xs text-subtext font-medium p-4">상태</th>
-                <th className="text-right text-xs text-subtext font-medium p-4 hidden lg:table-cell">사용만료기간</th>
-                <th className="text-right text-xs text-subtext font-medium p-4 hidden md:table-cell">가입일</th>
-                <th className="text-center text-xs text-subtext font-medium p-4 w-32">관리</th>
+                <th className="text-left text-xs text-subtext font-medium px-2.5 py-2">회원</th>
+                <th className="text-left text-xs text-subtext font-medium px-2.5 py-2 hidden md:table-cell">등급</th>
+                <th className="text-center text-xs text-subtext font-medium px-2.5 py-2">상태</th>
+                <th className="text-right text-xs text-subtext font-medium px-2.5 py-2 hidden lg:table-cell">사용만료기간</th>
+                <th className="text-left text-xs text-subtext font-medium px-2.5 py-2 hidden md:table-cell">저장공간</th>
+                <th className="text-right text-xs text-subtext font-medium px-2.5 py-2 hidden md:table-cell">가입일</th>
+                <th className="text-center text-xs text-subtext font-medium px-2.5 py-2 w-32">관리</th>
               </tr>
             </thead>
             <tbody>
@@ -562,7 +578,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
               )}
               {paginatedMembers.map((m) => (
                 <tr key={m.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                  <td className="p-4">
+                  <td className="px-2.5 py-2">
                     {!m.is_admin && (
                       <input
                         type="checkbox"
@@ -572,16 +588,16 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                       />
                     )}
                   </td>
-                  <td className="p-4">
+                  <td className="px-2.5 py-2">
                     <Link href={`/admin/members/${m.id}`} className="hover:text-gold transition-colors">
                       <p className="text-white text-sm font-medium">{m.name ?? "(이름 없음)"}</p>
                       <p className="text-subtext text-xs">{m.email}</p>
                     </Link>
+                    <p className="text-[11px] mt-0.5">
+                      {m.phone ? <span className="text-white/60">{m.phone}</span> : <span className="rounded-full bg-red-500/15 px-1.5 py-0.5 text-red-400">핸드폰 미등록</span>}
+                    </p>
                   </td>
-                  <td className="p-4 hidden md:table-cell text-xs">
-                    {m.phone ? <span className="text-white/80">{m.phone}</span> : <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-red-400">미등록</span>}
-                  </td>
-                  <td className="p-4 hidden md:table-cell">
+                  <td className="px-2.5 py-2 hidden md:table-cell">
                     <MemberGradeSelect
                       userId={m.id}
                       currentGradeId={m.grade_id}
@@ -591,7 +607,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                       }}
                     />
                   </td>
-                  <td className="p-4 text-center">
+                  <td className="px-2.5 py-2 text-center">
                     <span
                       className={cn(
                         "text-xs px-2 py-0.5 rounded-full",
@@ -603,7 +619,7 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                       {m.is_suspended ? "정지" : "활성"}
                     </span>
                   </td>
-                  <td className="p-4 text-right hidden lg:table-cell">
+                  <td className="px-2.5 py-2 text-right hidden lg:table-cell">
                     {(() => {
                       const info = mergedExpiryByUserId[m.id];
                       if (!info) return <span className="text-subtext text-xs">-</span>;
@@ -616,10 +632,35 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                       );
                     })()}
                   </td>
-                  <td className="p-4 text-right hidden md:table-cell">
+                  <td className="px-2.5 py-2 hidden md:table-cell">
+                    {(() => {
+                      const st = storageOverrides.get(m.id) ?? storageByUserId[m.id];
+                      if (!st) return <span className="text-subtext text-xs">-</span>;
+                      const ratio = st.quota_bytes ? st.used_bytes / st.quota_bytes : null;
+                      const color = ratio === null ? "bg-emerald-500" : ratio >= 1 ? "bg-red-500" : ratio >= 0.8 ? "bg-amber-500" : "bg-emerald-500";
+                      const until = st.override_until ?? st.plan_expires_at;
+                      return (
+                        <button type="button" onClick={() => setStorageEditing([m])} className="text-left w-full min-w-[120px] group" title="저장공간 수동 지정">
+                          <span className="block text-xs text-white/90 group-hover:text-gold">
+                            {formatBytes(st.used_bytes)} / {formatBytes(st.quota_bytes)}
+                          </span>
+                          {ratio !== null && (
+                            <span className="block h-1 rounded bg-white/10 overflow-hidden my-0.5">
+                              <span className={`block h-full ${color}`} style={{ width: `${Math.min(100, ratio * 100)}%` }} />
+                            </span>
+                          )}
+                          <span className="block text-[11px] text-subtext">
+                            {formatRetention({ retentionDays: st.retention_days, unlimitedRetention: st.unlimited_retention })} · {SOURCE_LABEL[st.source]}
+                            {until ? ` · ~${formatDate(until)}` : ""}
+                          </span>
+                        </button>
+                      );
+                    })()}
+                  </td>
+                  <td className="px-2.5 py-2 text-right hidden md:table-cell">
                     <span className="text-subtext text-xs">{formatDate(m.created_at)}</span>
                   </td>
-                  <td className="p-4">
+                  <td className="px-2.5 py-2">
                     <div className="flex items-center justify-center gap-1">
                       <Link
                         href={`/admin/members/${m.id}`}
@@ -634,6 +675,13 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
                         title="사용만료기간 설정"
                       >
                         <CalendarClock size={14} />
+                      </button>
+                      <button
+                        onClick={() => setStorageEditing([m])}
+                        className="text-subtext hover:text-gold transition-colors p-1.5 rounded hover:bg-gold/10 inline-flex"
+                        title="저장공간 수동 지정"
+                      >
+                        <HardDrive size={14} />
                       </button>
                       {!m.is_admin && (
                         <>
@@ -746,6 +794,21 @@ export default function MembersTable({ members, grades, expiryByUserId = {}, pro
               return next;
             });
             router.refresh();
+          }}
+        />
+      )}
+
+      {/* 저장공간 수동 지정 모달 */}
+      {storageEditing && storageEditing.length > 0 && (
+        <StorageOverrideModal
+          members={storageEditing}
+          onClose={() => setStorageEditing(null)}
+          onSaved={(rows) => {
+            setStorageOverrides((prev) => {
+              const next = new Map(prev);
+              for (const row of rows) next.set(row.user_id, row);
+              return next;
+            });
           }}
         />
       )}
