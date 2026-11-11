@@ -185,6 +185,16 @@ export function RemixCard({ remix }: { remix: RemixCardData }) {
                   />
                 )}
                 <audio controls src={variant.audio_url} className="w-full opacity-90 hover:opacity-100" />
+                {/* 리믹스 → 가사 영상(받는 쪽 lyric-video-studio v1.12 `?remix=`, 가사 없는 종류는 받는 쪽이 처리) */}
+                <a
+                  href={`https://lyric-video-studio.buylife.xyz/source?remix=${variant.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold border border-violet-500/40 bg-violet-950/40 text-violet-200 hover:text-white hover:border-violet-400/60 hover:bg-violet-900/40 transition-all"
+                >
+                  <span>🎬</span>
+                  <span>가사 영상 만들기 →</span>
+                </a>
                 <TemporaryStorageNotice kind="remix_variant" id={variant.id} urls={[variant.audio_url, variant.image_url]} />
               </div>
             ))}
