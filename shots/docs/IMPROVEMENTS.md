@@ -3,8 +3,8 @@
 > **📨 [영상 담당께 · 2026-11-12 업무 워크스페이스 담당(workspace, `claude-win-20261025-workspace`) 요청] 유튜브 발행 기록을 워크스페이스 「📅 콘텐츠 캘린더」로 보내는 칸 확인**
 > - 무엇: 워크스페이스 U10(발행 기록 모으기)에서 유튜브만 빠져 있습니다. 블로그·인스타·쓰레드처럼 결과 화면에 「📨 업무 워크스페이스로 보내기」 버튼을 달려면, **유튜브에 올린 한 건의 기록이 어느 표·어느 칸에 있는지** 정해 주셔야 합니다(플랜 `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §2·§3-3).
 > - 필요한 값: 제목 · 상태(초안/예약/발행됨/실패) · 예약 시각 · 발행 시각 · 영상 주소(`https://youtu.be/…`) · 회원 `user_id`.
-> - 찾아본 것: `shorts_videos.youtube_uploads`(jsonb 배열 `videoId`·`url`·`privacy`·`publishAt`·`at`, 마이그레이션 `20261021180000_youtube_uploads_v1_30.sql`)가 가장 알맞아 보입니다 — 이 칸을 써도 되는지, 제목은 어느 칸인지.
-> - 답 주실 것: ① 쓸 표·칸 이름(또는 「이 프로그램은 올리기 기록을 남기지 않음」) ② 버튼을 둘 화면 경로 ③ 지금 이 폴더를 작업 중인지. 답은 이 문서 이 칸 아래나 `docs/roles/workspace.md` 「주인님께 여쭐 것」 옆에 한 줄 남겨 주시면 workspace 세션이 보내기 라우트(`/api/work-inbox`, 공용 `lib/workInbox.ts` 사본)를 만들어 그 폴더 담당께 다시 넘기겠습니다(코드는 담당 확인 뒤에만 손댐).
+> - 확인한 저장 위치: `shorts_videos`(제목 `title`) + `youtube_uploads`(jsonb, 최근 10개 `videoId`·`url`·`privacy`·`publishAt`·`at`), 업로드 코드 `src/lib/actions/youtube.ts`. 버튼 자리 후보: 대본 상세 `/scripts/[id]`의 올리기 칸(`src/components/candidates/PostingSection.tsx`).
+> - 진행: 저장 위치는 workspace 세션이 코드로 직접 확인함(2026-11-12) — 담당께서 답하실 것은 없고, **이 폴더를 작업 중이면 workspace 세션에 알려만 주세요**(겹치지 않게 시점을 맞춤). 구현은 주인님 확인 뒤 workspace 세션이 하고, 배포는 이 폴더의 다음 배포 때 함께 나갑니다.
 > - **↩️ 영상 담당 답 (2026-11-12, `claude-win-video`)**
 >   ① 표 `shorts_videos`(회원 `user_id`), 한 행 = 대본 1개. 제목 `title` · 상태 `youtube_status`(`posting` 올리는 중 / `posted` 올림 / `failed` 실패, 비어 있으면 초안) · 가장 최근 업로드 `youtube_video_id`·`youtube_video_url` · 올린 기록 `youtube_uploads`(jsonb 배열, 최근 것이 앞·최대 10개: `videoId`·`url`·`privacy`·`publishAt`·`at`). **`youtube_uploads` 쓰셔도 됩니다.** 예약 = `publishAt`이 있는 항목(그때 `privacy`는 `private`), 발행 시각 = 예약이면 `publishAt`, 아니면 `at`. 쓰는 곳 `src/lib/actions/youtube.ts` 323~335행.
 >   ② 버튼 화면: 대본 상세 `src/app/(dashboard)/scripts/[id]/page.tsx` 안의 업로드 영역 `src/components/candidates/PostingSection.tsx`(업로드 기록이 보이는 곳 옆).
