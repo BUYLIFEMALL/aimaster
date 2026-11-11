@@ -3,7 +3,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { priceLine, viewerOf, type PricingProduct } from "./pricing";
-import { getCustomerPriceMap, getGradePriceMap, getStoreCustomer, getTierMap } from "./store";
+import { getCustomerPriceMap, getPriceRuleMap, getStoreCustomer, getTierMap } from "./store";
 import { callStructured, loadAi } from "./ai-client";
 import { SuggestionSchema, buildQuotePrompt, checkSuggestion, type CheckedRow, type QuoteFact } from "./aiQuote";
 
@@ -24,7 +24,7 @@ async function gatherFacts(supabase: SupabaseClient, storeId: string, quoteId: s
     supabase.from("mall_builder_product_private").select("product_id, cost").in("product_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]),
     supabase.from("mall_builder_product_variants").select("id, product_id, key, values, extra_price, stock, sku, is_active").in("product_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]),
     getTierMap(ids),
-    getGradePriceMap(storeId, customer?.grade_id ?? null, ids),
+    getPriceRuleMap(storeId, ids, customer?.id ?? null),
     getCustomerPriceMap(customer?.id ?? null, ids),
   ]);
   const pById = new Map((products ?? []).map((p) => [p.id as string, p as PricingProduct & { id: string }]));
@@ -64,7 +64,7 @@ async function gatherFacts(supabase: SupabaseClient, storeId: string, quoteId: s
         { ...p, base_price: Number(p.base_price) },
         v ? { key: v.key as string, values: v.values as string[], extra_price: extra, stock: v.stock as number, sku: v.sku as string, is_active: v.is_active as boolean } : null,
         i.qty as number,
-        { viewer, gradePrice: grades.get(p.id) ?? null, gradeName: customer?.grade?.name, tiers: tiers.get(p.id) ?? [], customerPrice: special.byProduct.get(p.id) ?? special.base },
+        { viewer, gradePrice: grades.get(p.id)?.gradePrice ?? null, gradeName: customer?.grade?.name, tiers: tiers.get(p.id) ?? [], customerPrice: special.byProduct.get(p.id) ?? special.base, floorPrice: grades.get(p.id)?.floor ?? null },
       );
       customerUnit = line.priceHidden ? null : line.unitPrice;
     }

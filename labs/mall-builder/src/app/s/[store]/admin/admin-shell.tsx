@@ -13,6 +13,7 @@ const MENU = [
   { href: "/quotes", label: "견적" },
   { href: "/recurring", label: "정기 주문" },
   { href: "/customers", label: "손님" },
+  { href: "/grades", label: "등급·할인" },
   { href: "/coupons", label: "쿠폰·포인트" },
   { href: "/resellers", label: "리셀러" },
   { href: "/stats", label: "통계" },

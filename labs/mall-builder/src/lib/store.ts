@@ -135,18 +135,21 @@ export const getShopper = cache(async (storeId: string) => {
   };
 });
 
-/** 내 등급의 등급가(상품 id → 금액/할인율) — 보안 규칙상 내 등급 것만 온다 */
-export async function getGradePriceMap(storeId: string, gradeId: string | null, productIds: string[]): Promise<Map<string, GradePrice>> {
-  const map = new Map<string, GradePrice>();
-  if (!gradeId || !productIds.length) return map;
+/** 등급 할인·최저 판매가(T1, DB 0057) — 상품 id → { 등급가, 하한 }.
+ * 등급가는 DB가 「상품 예외 → 카테고리 등급율(상위 카테고리 상속) → 등급 기본율」 순서로 정한다.
+ * 하한(공급가 × (1 + 최소 마진))은 걸릴 가능성이 있을 때만 온다(공급가 역산 방지).
+ * customerId는 운영자가 특정 손님 기준으로 계산할 때만(AI 견적) — 손님 화면에서는 DB가 「나」를 쓴다 */
+export async function getPriceRuleMap(storeId: string, productIds: string[], customerId: string | null = null): Promise<Map<string, { gradePrice: GradePrice; floor: number | null }>> {
+  const map = new Map<string, { gradePrice: GradePrice; floor: number | null }>();
+  if (!productIds.length) return map;
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("mall_builder_product_grade_prices")
-    .select("product_id, price, discount_rate")
-    .eq("store_id", storeId)
-    .eq("grade_id", gradeId)
-    .in("product_id", productIds);
-  for (const r of data ?? []) map.set(r.product_id as string, { price: r.price as number | null, discount_rate: r.discount_rate as number | null });
+  const { data } = await supabase.rpc("mall_builder_price_rules_for", { p_store_id: storeId, p_product_ids: productIds, p_customer_id: customerId });
+  for (const r of (data ?? []) as { product_id: string; price: number | null; rate: number | null; floor_price: number | null }[]) {
+    map.set(r.product_id, {
+      gradePrice: r.price != null || r.rate != null ? { price: r.price == null ? null : Number(r.price), discount_rate: r.rate } : null,
+      floor: r.floor_price == null ? null : Number(r.floor_price),
+    });
+  }
   return map;
 }
 
@@ -170,7 +173,7 @@ export async function getProductGradePriceInputs(productId: string): Promise<Rec
 export async function getPriceContexts(storeId: string, productIds: string[]): Promise<(productId: string) => PriceContext> {
   const shopper = await getShopper(storeId);
   const [prices, tiers, groups, special] = await Promise.all([
-    getGradePriceMap(storeId, shopper.gradeId, productIds),
+    getPriceRuleMap(storeId, productIds),
     getTierMap(productIds),
     getOpenGroupPrices(productIds),
     getCustomerPriceMap(shopper.customer?.id ?? null, productIds),
@@ -178,10 +181,11 @@ export async function getPriceContexts(storeId: string, productIds: string[]): P
   return (productId) => ({
     customerPrice: special.byProduct.get(productId) ?? special.base,
     viewer: shopper.viewer,
-    gradePrice: prices.get(productId) ?? null,
+    gradePrice: prices.get(productId)?.gradePrice ?? null,
     gradeName: shopper.gradeName ?? undefined,
     tiers: tiers.get(productId) ?? [],
     groupPrice: groups.get(productId) ?? null,
+    floorPrice: prices.get(productId)?.floor ?? null,
   });
 }
 
@@ -276,15 +280,16 @@ export type ShopProduct = ProductRow & { display: { unitPrice: number; priceHidd
 async function withDisplayPrices(storeId: string, rows: ProductRow[]): Promise<ShopProduct[]> {
   const shopper = await getShopper(storeId);
   const ids = rows.map((r) => r.id);
-  const [prices, special] = await Promise.all([getGradePriceMap(storeId, shopper.gradeId, ids), getCustomerPriceMap(shopper.customer?.id ?? null, ids)]);
+  const [prices, special] = await Promise.all([getPriceRuleMap(storeId, ids), getCustomerPriceMap(shopper.customer?.id ?? null, ids)]);
   const out: ShopProduct[] = [];
   for (const r of rows) {
     // 옵션 상품도 카드에는 기본 판매가 기준(옵션 추가금 없이)으로 보여 준다
     const line = priceLine({ ...r, option_groups: [] }, null, 1, {
       viewer: shopper.viewer,
-      gradePrice: prices.get(r.id) ?? null,
+      gradePrice: prices.get(r.id)?.gradePrice ?? null,
       gradeName: shopper.gradeName ?? undefined,
       customerPrice: special.byProduct.get(r.id) ?? special.base, // 거래처 특가(D24)
+      floorPrice: prices.get(r.id)?.floor ?? null, // 최저 판매가(T1)
     });
     if (!line.visible) continue;
     out.push({ ...r, display: { unitPrice: line.unitPrice, priceHidden: line.priceHidden, note: line.priceHidden ? line.errors.find((e) => /가격/.test(e)) ?? "" : "", special: line.breakdown.some((b) => b.label === "거래처 특가") } });

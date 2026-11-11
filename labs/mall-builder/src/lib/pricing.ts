@@ -1,5 +1,6 @@
 // 가격 계산 엔진 — 장바구니·상품 상세·주문서가 모두 이 함수를 쓴다(docs/mall/ARCHITECTURE.md §4)
-// 순서: 보이기(사업자 전용·회원 구매·가격 비공개) → 판매 상태 → 기준가(판매가 + 옵션 추가금) → 등급가 → 원 단위 내림 → 수량·재고 검사.
+// 순서: 보이기(사업자 전용·회원 구매·가격 비공개) → 판매 상태 → 기준가(판매가 + 옵션 추가금) → 등급가 → 원 단위 내림 → 최저 판매가 보호(T1) → 수량·재고 검사.
+// 등급가는 DB 함수 mall_builder_price_rules_for가 「상품 예외 → 카테고리 등급율 → 등급 기본율」 순서로 정해 준다(T1, 0057).
 // 수량 구간 할인·견적가는 F14·F15에서 같은 순서 자리에 끼워 넣는다. 거래처 특가(D24)는 등급가 자리에서 먼저 — 있으면 최종 단가.
 // 주문 DB 함수 mall_builder_place_order가 같은 계산을 SQL로 다시 한다 — 바꾸면 둘 다 바꾼다.
 // 확장자(.ts)까지 적는다 — `node --test`가 이 파일을 바로 읽기 때문(tsconfig allowImportingTsExtensions)
@@ -29,7 +30,8 @@ export type Viewer = "guest" | "consumer" | "pending" | "business";
 export type GradePrice = { price: number | null; discount_rate: number | null } | null;
 /** groupPrice: 진행 중인 공동구매가(D21) — 있으면 등급가·수량 할인 대신 이 가격(+ 옵션 추가금). DB 0041 v2와 같은 규칙 */
 /** customerPrice: 거래처 특가(D24) — 상품별 특가 또는 거래처 기본 할인율. 있으면 등급가 대신, 최종 단가(수량 할인 안 함). DB 0045b와 같은 규칙 */
-export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string; tiers?: VolumeTier[]; groupPrice?: number | null; customerPrice?: GradePrice };
+/** floorPrice: 최저 판매가(T1 — 공급사 상품의 공급가 × (1 + 최소 마진)). 모든 할인 뒤에 이 아래로 내려가지 않는다(판매가+옵션을 넘지는 않음). DB 0057과 같은 규칙 */
+export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string; tiers?: VolumeTier[]; groupPrice?: number | null; customerPrice?: GradePrice; floorPrice?: number | null };
 
 export type PriceLine = {
   visible: boolean; // false면 목록·상세에 보이지 않는 상품(사업자 전용)
@@ -90,6 +92,15 @@ export function priceLine(product: PricingProduct, variant: Variant | null, qty:
     else if (tier.discount_type === "amount") unitPrice = Math.max(0, unitPrice - tier.value);
     else unitPrice = Math.min(unitPrice, tier.value + extra);
     if (unitPrice !== before) breakdown.push({ label: `수량 할인(${tier.min_qty}개 이상)`, amount: unitPrice - before });
+  }
+
+  // 5-1. 최저 판매가 보호(T1) — 공급가 하한. 판매가(+옵션)를 넘기지는 않는다
+  if (ctx.floorPrice != null) {
+    const fl = Math.min(ctx.floorPrice, base);
+    if (unitPrice < fl) {
+      breakdown.push({ label: "최저 판매가 보호", amount: fl - unitPrice });
+      unitPrice = fl;
+    }
   }
 
   // 6. 수량·재고

@@ -108,7 +108,7 @@ export default function ProductForm({
           {rate > 0 ? `손님 화면에 정가 대비 ${rate}% 할인으로 표시됩니다.` : "정가를 판매가보다 높게 넣으면 할인율이 표시됩니다."}
         </p>
         <div className="space-y-2 sm:col-span-3" data-grade-prices>
-          <p className="text-sm">등급별 가격 <span className="text-xs text-gray-500">— 금액(예: 42000) 또는 할인율(예: 10%). 비우면 판매가. 옵션 추가금은 그대로 더해집니다.</span></p>
+          <p className="text-sm">등급별 가격(상품 예외) <span className="text-xs text-gray-500">— 금액(예: 42000) 또는 할인율(예: 10%). 비우면 카테고리 할인율, 그것도 없으면 등급 기본 할인율(「등급·할인」 메뉴). 옵션 추가금은 그대로 더해집니다.</span></p>
           <div className="grid gap-2 sm:grid-cols-3">
             {grades.map((g) => (
               <label key={g.id} className="block">

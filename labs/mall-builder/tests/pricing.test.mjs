@@ -203,3 +203,17 @@ test("D24 공동구매 중이면 공동구매가가 우선", () => {
   assert.equal(l.unitPrice, 7500);
   assert.ok(!l.breakdown.some((b) => b.label === "거래처 특가"));
 });
+
+test("최저 판매가 보호(T1 공급가 하한)", () => {
+  const sp = { status: "on_sale", base_price: 12000, stock_mode: "none", stock: 0, option_groups: [] };
+  // 등급 25% → 9000, 하한 10500 → 10500
+  const a = priceLine(sp, null, 1, { viewer: "business", gradePrice: { price: null, discount_rate: 25 }, gradeName: "도매상", floorPrice: 10500 });
+  assert.equal(a.unitPrice, 10500);
+  assert.deepEqual(a.breakdown.at(-1), { label: "최저 판매가 보호", amount: 1500 });
+  // 하한이 안 걸리면 그대로
+  assert.equal(priceLine(sp, null, 1, { gradePrice: { price: null, discount_rate: 5 }, floorPrice: 10500 }).unitPrice, 11400);
+  // 하한이 판매가보다 커도 판매가를 넘지 않음
+  assert.equal(priceLine(sp, null, 1, { floorPrice: 20000 }).unitPrice, 12000);
+  // 수량 할인 뒤에도 하한
+  assert.equal(priceLine(sp, null, 10, { tiers: [{ min_qty: 10, discount_type: "rate", value: 30 }], floorPrice: 10500 }).unitPrice, 10500);
+});

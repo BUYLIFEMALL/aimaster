@@ -6,6 +6,7 @@ import { formatDateTime } from "@/lib/orders";
 import { AdminShell, NoPermission } from "../admin-shell";
 import SupplierInviteForm from "./invite-form";
 import ReinviteButton from "./reinvite-button";
+import { setSupplierAutoAction } from "@/lib/grade-actions";
 import PendingProducts from "./pending-products";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +56,12 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
                   </span>
                 </div>
                 {s.status === "invited" && <div className="mt-2"><ReinviteButton slug={store.slug} supplierId={s.id} /></div>}
+                {s.status !== "invited" && (
+                  <form action={setSupplierAutoAction.bind(null, store.slug, s.id, !s.auto_approve)} className="mt-2 flex items-center gap-2 text-xs" data-supplier-auto>
+                    <span className={`rounded px-1.5 ${s.auto_approve ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-600"}`}>{s.auto_approve ? "바로 판매" : "승인 후 판매"}</span>
+                    <button className="rounded border px-2 py-1">{s.auto_approve ? "승인 후 판매로 바꾸기" : "바로 판매로 바꾸기"}</button>
+                  </form>
+                )}
                 <details className="mt-2">
                   <summary className="cursor-pointer text-xs text-gray-600">정보·상태 고치기</summary>
                   <form action={updateSupplierAction.bind(null, store.slug, s.id)} className="mt-2 grid gap-2 text-xs sm:grid-cols-2" data-supplier-edit>

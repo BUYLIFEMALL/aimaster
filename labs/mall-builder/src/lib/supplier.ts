@@ -14,12 +14,13 @@ export type SupplierRow = {
   phone: string;
   memo: string;
   status: SupplierStatus;
+  auto_approve: boolean;
   invite_expires_at: string | null;
   accepted_at: string | null;
   created_at: string;
 };
 
-export const SUPPLIER_COLUMNS = "id, store_id, user_id, name, email, biz_no, contact_name, phone, memo, status, invite_expires_at, accepted_at, created_at";
+export const SUPPLIER_COLUMNS = "id, store_id, user_id, name, email, biz_no, contact_name, phone, memo, status, auto_approve, invite_expires_at, accepted_at, created_at";
 
 export const SUPPLIER_STATUS_LABEL: Record<SupplierStatus, string> = {
   invited: "수락 대기",

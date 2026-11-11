@@ -1,3 +1,5 @@
+import { setCustomerGradeAction } from "@/lib/grade-actions";
+import { createClient as createGradeClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCertUrl, getCreditLedger, getStaffStore, logStaffView, getStoreCustomer } from "@/lib/store";
@@ -54,6 +56,8 @@ export default async function AdminCustomerPage({
   const baseRate = specials.find((x) => !x.product_id) ?? null;
   const today = todayKst();
   const rs = await getCustomerResellerInfo(store.id, c.id); // D33
+  const { data: gradeOpts } = await (await createGradeClient()).from("mall_builder_customer_grades").select("id, name, is_business, default_discount_rate").eq("store_id", store.id).order("rank");
+  const gradeOptions = (gradeOpts ?? []) as { id: string; name: string; is_business: boolean; default_discount_rate: number }[];
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/customers">
@@ -62,6 +66,15 @@ export default async function AdminCustomerPage({
         <h2 className="text-xl font-bold">{c.name}</h2>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-approval>{APPROVAL_LABEL[c.approval_status]}</span>
         {c.grade && <span className="text-sm text-gray-500" data-grade>등급 {c.grade.name}</span>}
+        {/* T1 등급 바꾸기 — 사업자 등급은 승인된 사업자에게만(DB가 다시 검사) */}
+        <form action={setCustomerGradeAction.bind(null, store.slug, c.id)} className="flex items-center gap-1 text-sm" data-grade-form>
+          <select name="grade_id" defaultValue={c.grade_id ?? ""} aria-label="등급" className="rounded border px-2 py-1">
+            {gradeOptions.filter((g) => g.is_business === (c.kind === "business" && c.approval_status === "approved")).map((g) => (
+              <option key={g.id} value={g.id}>{g.name}{g.default_discount_rate ? ` (${g.default_discount_rate}%)` : ""}</option>
+            ))}
+          </select>
+          <button className="rounded border px-2 py-1 text-xs">등급 저장</button>
+        </form>
         <Link href={`/s/${store.slug}/admin/quotes/new?customer=${c.id}`} className="ml-auto rounded border px-3 py-1 text-sm" data-send-quote>견적 보내기</Link>
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-review-error>{error}</p>}
