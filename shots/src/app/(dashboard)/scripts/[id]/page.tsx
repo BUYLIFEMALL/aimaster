@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ThumbnailMaker } from "@/components/candidates/ThumbnailMaker";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getShotsInstagramAccount } from "@/lib/instagram/memberAccount";
@@ -87,6 +88,9 @@ export default async function ScriptDetailPage({ params }: { params: Promise<{ i
           bgmUrl={(bgmTracks ?? []).find((t) => t.id === video.bgm_selected_track_id)?.audio_url ?? null}
           hasOpenAiKey={registeredProviders.has("openai")}
         />
+      </div>
+      <div className="mt-6">
+        <ThumbnailMaker title={video.title ?? ""} imageUrls={(segments ?? []).map((s) => s.image_url).filter((u): u is string => !!u)} />
       </div>
       <div className="mt-6">
         <PostingSection
