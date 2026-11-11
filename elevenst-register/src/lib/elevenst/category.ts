@@ -81,11 +81,20 @@ export function searchLeaves(tree: CategoryTree, query: string, limit = 12): Cat
   const q = norm(query);
   const words = [...new Set(query.split(/[\s,/()[\]·+]+/).map(norm).filter((w) => w.length >= 2 && !/^\d+[a-z]*$/.test(w)))];
   if (!words.length) return [];
+  const hits = scoreLeaves(tree, words, q, false);
+  // 하나도 못 찾으면 「여행백팩」처럼 카테고리 이름(「백팩」)으로 끝나는 합성어 낱말로 한 번 더 찾는다
+  // (일반 검색에 결과가 있을 때는 쓰지 않아 「스테인리스」 → 「리스」 같은 우연 일치를 막는다)
+  const found = hits.length ? hits : scoreLeaves(tree, words, q, true);
+  return found.sort((a, b) => b.score - a.score || a.path.length - b.path.length).slice(0, limit);
+}
+
+function scoreLeaves(tree: CategoryTree, words: string[], q: string, compound: boolean): CategoryHit[] {
   const hits: CategoryHit[] = [];
   for (const leaf of tree.leaves) {
     const leafName = norm(leaf.name);
     const path = categoryPath(tree, leaf.no);
     const upper = norm(path.slice(0, -1).map((c) => c.name).join(""));
+    const parts = compound ? leaf.name.split(/[/,()·&]+/).map(norm).filter((p) => p.length >= 2) : [];
     let matched = 0;
     let score = 0;
     for (const w of words) {
@@ -95,6 +104,9 @@ export function searchLeaves(tree: CategoryTree, query: string, limit = 12): Cat
       } else if (upper.includes(w)) {
         score += 2;
         matched++;
+      } else if (parts.some((p) => w.length > p.length && w.endsWith(p))) {
+        score += 1;
+        matched++;
       }
     }
     if (!matched) continue;
@@ -102,5 +114,5 @@ export function searchLeaves(tree: CategoryTree, query: string, limit = 12): Cat
     if (!leafName.startsWith("기타") && (words.includes(leafName) || (leafName.length >= 3 && q.includes(leafName)))) score += 2;
     hits.push({ no: leaf.no, path: path.map((c) => c.name).join(" › "), score });
   }
-  return hits.sort((a, b) => b.score - a.score || a.path.length - b.path.length).slice(0, limit);
+  return hits;
 }

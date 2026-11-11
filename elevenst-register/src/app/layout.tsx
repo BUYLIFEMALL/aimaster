@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 const TITLE = "AI 11번가 상품 자동등록기 | AIMaster";
@@ -15,7 +16,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" className="h-full antialiased">
-      <body className="flex min-h-full flex-col bg-[var(--bg)] text-slate-900">{children}</body>
+      <body className="flex min-h-full flex-col bg-[var(--bg)] text-slate-900">
+        {children}
+        {/* 💾 회원 저장공간 위젯(메인 사이트 공용) — docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md */}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
+      </body>
     </html>
   );
 }

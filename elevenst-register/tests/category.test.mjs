@@ -51,6 +51,11 @@ test("searchLeaves: 낱말을 많이 맞힌 카테고리가 먼저, 「스테인
   assert.deepEqual(searchLeaves(tree, ""), []);
 });
 
+test("searchLeaves: 일반 검색에 없으면 합성어 끝(「캠핑스테인리스컵」 → 스테인리스컵)으로 다시 찾음", () => {
+  assert.equal(searchLeaves(tree, "브랜드 캠핑스테인리스컵 (AB12)")[0].no, "121");
+  assert.deepEqual(searchLeaves(tree, "스위스톤 ST4D18"), []);
+});
+
 test("parseSendCloseTemplates: 명세 예시 응답", () => {
   const xml =
     '<?xml version="1.0" encoding="euc-kr" standalone="yes"?><productInformationTemplateList><templateBOList><memNo>10000276</memNo><prdInfoTmpltNm>오전 9시까지 주문 당일 발송</prdInfoTmpltNm><prdInfoTmpltClfCd>07</prdInfoTmpltClfCd><prdInfoTmpltNo>344836</prdInfoTmpltNo><sendClfCd>02</sendClfCd><result_message>성공</result_message></templateBOList></productInformationTemplateList>';
