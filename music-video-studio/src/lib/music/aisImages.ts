@@ -1,6 +1,9 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AIS_BUCKET, AIS_PROGRAM_ID, aisStoragePath } from "./aisPath";
+import { listMemberAssets } from "@/lib/memberAssets";
+
+// v1.30 「내 자료함」의 다른 이미지(배너·썸네일 등 AI 이미지 스튜디오 밖 이미지)도 함께 보여 준다.
 
 // v1.24 AI 이미지 스튜디오(ai-image-studio)에서 회원 본인이 만든 이미지를 참고 이미지로 가져온다(곡 가져오기 v1.13 amsSongs.ts와 같은 규칙).
 // 공용 DB usage_logs를 읽기만 하고 회원 user_id로 거른다. 저장소는 비공개라 1시간 서명 주소로만 넘긴다. 외부 AI 호출·서버 저장 없음.
@@ -27,10 +30,13 @@ export async function listAisImages(userId: string): Promise<AisImageItem[]> {
     .map((r) => ({ r, path: aisStoragePath(r.metadata, userId) }))
     .filter((x): x is { r: Row; path: string } => !!x.path)
     .slice(0, MAX);
-  if (!items.length) return [];
+  const library = (await listMemberAssets(admin, userId, { kind: "image", limit: MAX }))
+    .filter((a) => a.sourceSlug !== "ai-image-studio" && !a.localOnly && a.playUrl)
+    .map((a) => ({ id: a.sourceRef, prompt: (a.title || "").slice(0, 120), createdAt: a.createdAt, url: a.playUrl as string }));
+  if (!items.length) return library;
   const { data: signed } = await admin.storage.from(AIS_BUCKET).createSignedUrls(items.map((x) => x.path), TTL);
   const urls = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
-  return items
+  const ais = items
     .map(({ r, path }) => ({
       id: r.id,
       prompt: (typeof r.metadata?.prompt === "string" ? r.metadata.prompt : "").slice(0, 120),
@@ -38,4 +44,5 @@ export async function listAisImages(userId: string): Promise<AisImageItem[]> {
       url: urls.get(path) ?? "",
     }))
     .filter((x) => x.url);
+  return [...ais, ...library].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, MAX * 2);
 }

@@ -39,13 +39,13 @@ export function AisReferencePicker({ room, onPick }: { room: number; onPick: (fi
     <div className="mt-2 space-y-2">
       <button type="button" className={BTN_GHOST} disabled={busy === "list"} onClick={() => void toggle()}>
         {busy === "list" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Wand2 className="h-4 w-4 text-fuchsia-300" aria-hidden="true" />}
-        <span>{list ? "AI 이미지 목록 닫기" : "AI 이미지 스튜디오에서 가져오기"}</span>
+        <span>{list ? "이미지 목록 닫기" : "🗂️ 내 자료함 이미지에서 가져오기"}</span>
       </button>
       {error && <p role="alert" className="text-xs text-rose-300">{error}</p>}
       {list && (
         list.length === 0 ? (
           <p className="text-xs text-slate-400">
-            최근 30일 동안 AI 이미지 스튜디오에서 만든 이미지가 없습니다. <a href={AIS_APP_URL} target="_blank" rel="noreferrer" className="text-cyan-300 underline">AI 이미지 스튜디오</a>에서 먼저 만들어 주세요.
+            내 자료함에 가져올 이미지가 없습니다. <a href={AIS_APP_URL} target="_blank" rel="noreferrer" className="text-cyan-300 underline">AI 이미지 스튜디오</a>에서 먼저 만들어 주세요.
           </p>
         ) : (
           <div className="space-y-1.5">

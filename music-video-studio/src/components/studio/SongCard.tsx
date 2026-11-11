@@ -202,7 +202,7 @@ export function SongCard() {
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-white">🎵 {song.title}</p>
               <p className="text-[11px] text-slate-400">
-                {song.source === "ams" ? `AI 음악 스튜디오${song.model ? ` · ${song.model}` : ""}` : `내 파일 · ${song.fileName ?? ""} · 이 브라우저에만 보관`}
+                {song.source === "ams" ? (/^[a-z0-9_]+:/i.test(song.ref ?? "") && !/^[0-9a-f-]{36}:/i.test(song.ref ?? "") ? `내 자료함 · ${song.model ?? ""}` : `AI 음악 스튜디오${song.model ? ` · ${song.model}` : ""}`) : `내 파일 · ${song.fileName ?? ""} · 이 브라우저에만 보관`}
                 {song.durationS ? ` · ${mmss(song.durationS)}` : ""}
               </p>
             </div>
@@ -220,13 +220,13 @@ export function SongCard() {
           ) : null}
         </div>
       ) : (
-        <p className="text-xs text-slate-400">AI 음악 스튜디오에서 만든 곡을 가져오면 제목·스타일·가사가 아래 칸에 채워지고, 다음 단계에서 그 가사로 장면을 나눕니다. 내 PC의 음악 파일도 올릴 수 있습니다.</p>
+        <p className="text-xs text-slate-400">내 자료함의 곡을 가져오면 제목·스타일이 아래 칸에 채워지고, AI 음악 스튜디오 곡은 가사까지 채워져 다음 단계에서 그 가사로 장면을 나눕니다. 내 PC의 음악 파일도 올릴 수 있습니다.</p>
       )}
 
       <div className="flex flex-wrap gap-2">
         <button type="button" className={BTN_PRIMARY} disabled={!!busy} onClick={() => void openList()}>
           {busy === "list" ? <Loader2 className="h-4 w-4 animate-spin" /> : list ? <X className="h-4 w-4" /> : <Music2 className="h-4 w-4" />}
-          <span>{list ? "곡 목록 닫기" : "AI 음악 스튜디오에서 가져오기"}</span>
+          <span>{list ? "곡 목록 닫기" : "🗂️ 내 자료함에서 가져오기"}</span>
         </button>
         <button type="button" className={BTN_GHOST} disabled={!!busy} onClick={() => fileRef.current?.click()}>
           {busy === "file" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5 text-cyan-400" />}
@@ -247,11 +247,11 @@ export function SongCard() {
               <button type="button" className={BTN_GHOST} onClick={() => pick(s)}>이 곡 쓰기</button>
             </div>
           ))}
-          <p className="text-[11px] text-slate-400">AI 음악 스튜디오에서 만든 완성곡(최근 40개 생성)입니다. 곡 파일은 AI 음악 스튜디오에 30일 동안 보관됩니다.</p>
+          <p className="text-[11px] text-slate-400">내 자료함의 곡(AI 음악 스튜디오 완성곡 최근 40개 생성 + Suno 음악 자동화 등)입니다. 무료음악 곡은 음원이 PC에만 있어 「내 PC 음악 파일 올리기」로 넣어 주세요. 곡 파일은 만든 프로그램에 30일 동안 보관됩니다.</p>
         </div>
       ) : (
         <p className="text-xs text-slate-400">
-          아직 AI 음악 스튜디오에서 만든 완성곡이 없습니다.{" "}
+          아직 내 자료함에 가져올 곡이 없습니다.{" "}
           <a href={AMS_URL} target="_blank" rel="noreferrer" className="text-cyan-300 underline">AI 음악 스튜디오</a>에서 곡을 만든 뒤 다시 열어 주세요.
         </p>
       ))}
