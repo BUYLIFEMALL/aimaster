@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-12 `claude-win-video` (영상 개선 묶음 — 자료함 연결 3개·남은 시간·shots 백로그 3건, 모두 미배포)
+- 마지막 갱신: 2026-11-12 `claude-win-video` (영상 개선 묶음 5개 배포 완료 — 빌드 5회)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,8 +15,8 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 보류 — 주인님 2026-11-11 「당장 필요한 기능은 아니니 테스트는 나중에 필요해지면」(요청함 충전 항목 닫음). 필요해지면 충전·실행 직전 승인 | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
-| `ai-image-studio`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `ai-video-studio` v1.36 · `shorts-onestop-studio` v1.50 · `music-video-studio` v1.30 · `video-to-gif` v1.28 · `shots` v1.49 | 2026-11-12 개선 묶음 미배포 대기(자료함 연결·남은 시간·장면 순서·렌더링 미리보기·썸네일) | 배포 빌드 승인(프로그램마다 1회) | `docs/PENDING_DEPLOYS.md`, `ai-video-studio/docs/PLAN_20261112_VIDEO_IMPROVEMENTS.md` |
+| `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
+| `music-video-studio` · `video-to-gif` | 저장공간 위젯 한 줄(11-12 배포 뒤 빠진 것 발견, 코드 반영) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shots` | 백로그 6 「6장면 영상화 일괄」 — 유료 생성을 차례로 보내는 기능이라 실제 시험 없이는 내보내지 않음 | 주인님: 시험 허락 또는 보류 결정 | `shots/docs/PLAN_20261112_BACKLOG_8.md` |
 | `shots` | **v1.48 배포 완료(2026-11-12)**: 대본·주제 후보 행 30일 정리 적용. 다음 날 03:30 정리 결과(대본 2·후보 10 예상) 확인만 남음 | 2026-11-13 확인 | `shots/docs/IMPROVEMENTS.md` 맨 위 |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
@@ -26,7 +26,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-11-12 | 영상 개선 묶음 | 「내 자료함」 연결(영상 스튜디오 사진·원스톱 배경음악·뮤직비디오 곡/이미지), video-to-gif 남은 시간, shots 장면 순서·렌더링 미리보기·썸네일, 무한 루프·떡상 재점검, 워크스페이스 유튜브 기록 요청 답 | 미배포(빌드 0) |
+| 2026-11-12 | 영상 개선 묶음 | 「내 자료함」 연결(영상 스튜디오 사진·원스톱 배경음악·뮤직비디오 곡/이미지), video-to-gif 남은 시간, shots 장면 순서·렌더링 미리보기·썸네일, 무한 루프·떡상 재점검, 워크스페이스 유튜브 기록 요청 답 | 11-12 배포 완료: `ai-video-studio` v1.36 · 원스톱 v1.50 · 뮤직비디오 v1.30 · video-to-gif v1.28 · shots v1.49(빌드 5회) |
 | 2026-11-12 | `shots` v1.48 | 대본·주제 후보 행 30일 정리 + 매뉴얼 문구 + 저장공간 위젯 + 공용 영상 사본 + 서울 지역 | `shots-607ynfsog` Ready, DB v1.48, `icn1` 확인 |
 | 2026-11-12 | `shorts-onestop-studio` v1.49 | 첫 30일 정리(11-12 03:30) 결과 확인 — 지운 것 0건(예상대로), 30일 넘은 행 0개 남음 | 운영 DB 읽기 전용 조회 |
 | 2026-11-11 | `ai-video-studio` v1.35 | 영상 합치기 배경음악을 「내 자료함」으로(AI 음악 스튜디오·Suno·무료음악 한 목록, 옛 편집 호환), 서버 서울 반영 확인 | 빌드 1회 `ai-video-studio-5qu1otlm0` |
