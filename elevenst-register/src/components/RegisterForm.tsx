@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { CategoryPicker, type PickedCategory } from "@/components/CategoryPicker";
 import { checkDraftAction, loadSellerSetupAction, type CheckResult, type SellerSetup } from "@/lib/actions/register";
+import { sendProductAction, type SendResult } from "@/lib/actions/send";
 import type { ElevenstDraft, FeeType, KcChoice, OptionRow } from "@/lib/elevenst/product";
 import { DEFAULT_AS, DEFAULT_RETURN, SEND_KIND } from "@/lib/elevenst/draftDefaults";
 import { NOTI_DEFAULT_VALUE, NOTI_TYPES, notiType } from "@/lib/elevenst/notification";
 import { guessNotiType, parseSpecs, prefillBasics, prefillNoti } from "@/lib/elevenst/prefill";
 
-// 3단계 등록 화면 — 상세페이지 상품 → 카테고리 → 가격·재고·옵션 → 배송 → 고시 → 「검사하기」. 11번가에 보내지 않는다.
+// 등록 화면 — 상세페이지 상품 → 카테고리 → 가격·재고·옵션 → 배송 → 고시 → 「검사하기」 → 「11번가에 보내기」(4단계, 등록 직후 전시중지).
 // 배송·안내 문구·브랜드처럼 상품마다 같은 값은 이 브라우저에 기억해 다음 상품에 미리 채운다(서버 저장은 4단계에서 함께 정함).
 
 const LAST_KEY = "elevenst-register:last-form";
@@ -85,6 +86,9 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
   const [setup, setSetup] = useState<SellerSetup | null>(null);
   const [check, setCheck] = useState<CheckResult | null>(null);
   const [checkError, setCheckError] = useState("");
+  const [checkedJson, setCheckedJson] = useState(""); // 검사한 순간의 입력값 — 바뀌면 다시 검사해야 보낼 수 있다
+  const [confirmSend, setConfirmSend] = useState(false);
+  const [sent, setSent] = useState<SendResult | null>(null);
   const [pending, start] = useTransition();
   const dl = (patch: Partial<ElevenstDraft["delivery"]>) => setDelivery((d) => ({ ...d, ...patch }));
 
@@ -176,6 +180,14 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
       const r = await checkDraftAction(props.productId, draft);
       if (!r.ok) return setCheckError(r.error);
       setCheck(r.result);
+      setCheckedJson(JSON.stringify(draft));
+    });
+
+  const canSend = Boolean(check && check.errors.length === 0 && checkedJson === JSON.stringify(draft) && !(sent && sent.ok));
+  const runSend = () =>
+    start(async () => {
+      setConfirmSend(false);
+      setSent(await sendProductAction(props.productId, draft));
     });
 
   const setRow = (i: number, patch: Partial<OptionRow>) => setOptionRows((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
@@ -428,7 +440,44 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
               <summary className="cursor-pointer text-[12px] font-bold text-slate-600">만들어진 본문 앞부분 보기(개발 확인용)</summary>
               <pre className="mt-2 max-h-60 overflow-auto whitespace-pre-wrap break-all rounded bg-slate-900 p-3 text-[11px] text-slate-100">{check.preview}</pre>
             </details>
-            <p className="text-[12px] text-slate-500">다음 버전(4단계)에서 「11번가에 보내기」 단추가 열립니다. 11번가는 임시저장이 없어, 보낸 직후 자동으로 전시중지해 두는 방식으로 만듭니다.</p>
+          </div>
+        )}
+      </section>
+
+      <section className={box}>
+        <h2 className="text-base font-extrabold text-slate-900">7. 11번가에 보내기</h2>
+        <p className="text-[13px] text-slate-600">
+          11번가는 임시저장이 없어 보내면 바로 상품이 생깁니다. 그래서 보낸 직후 자동으로 <b>전시중지</b>해 손님에게는 보이지 않게 둡니다. 셀러오피스에서 확인한 뒤 판매를 시작해 주세요.
+        </p>
+        <p className="text-[12px] text-slate-500">대표·추가 이미지는 11번가가 받아 가 저장합니다. 상세설명은 상세페이지의 핵심 특징·상품 정보·사용법을 글로 넣습니다(섹션 이미지는 셀러오피스에서 올릴 수 있습니다).</p>
+        {!canSend && !sent?.ok && <p className="text-[12px] font-semibold text-slate-500">먼저 「검사하기」를 통과해야 보낼 수 있습니다. 검사 뒤 값을 바꿨으면 다시 검사해 주세요.</p>}
+        {!confirmSend ? (
+          <button type="button" disabled={pending || !canSend} onClick={() => setConfirmSend(true)} className="rounded-lg bg-orange-600 px-5 py-2.5 text-sm font-extrabold text-white shadow-sm disabled:opacity-40">
+            🟠 11번가에 보내기(등록 후 바로 전시중지)
+          </button>
+        ) : (
+          <div className="space-y-2 rounded-lg border border-orange-300 bg-orange-50 px-3 py-3 text-[13px] text-orange-950">
+            <p className="font-bold">정말 보낼까요? 11번가에 실제 상품이 하나 만들어지고, 바로 전시중지됩니다.</p>
+            <div className="flex gap-2">
+              <button type="button" disabled={pending} onClick={runSend} className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-extrabold text-white disabled:opacity-50">
+                {pending ? "보내는 중…" : "네, 보냅니다"}
+              </button>
+              <button type="button" disabled={pending} onClick={() => setConfirmSend(false)} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700">
+                취소
+              </button>
+            </div>
+          </div>
+        )}
+        {sent && (
+          <div role="status" className={`rounded-lg border px-3 py-2 text-[13px] ${sent.ok ? (sent.status === "stopped" ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-amber-300 bg-amber-50 text-amber-900") : sent.status === "unknown" ? "border-amber-300 bg-amber-50 text-amber-900" : "border-rose-200 bg-rose-50 text-rose-900"}`}>
+            <p className="font-bold">{sent.ok ? (sent.status === "stopped" ? "✅ 등록됨·전시중지" : "⚠ 등록됨(전시중지 실패)") : sent.status === "unknown" ? "⚠ 확인 필요" : "❌ 보내지 못했습니다"}</p>
+            <p>{sent.message}</p>
+            {sent.ok && <p>11번가 상품번호: <b>{sent.productNo}</b></p>}
+            {(sent.ok || sent.status === "unknown") && (
+              <a href="https://soffice.11st.co.kr" target="_blank" rel="noreferrer" className="font-bold underline">
+                11번가 셀러오피스 열기 →
+              </a>
+            )}
           </div>
         )}
       </section>

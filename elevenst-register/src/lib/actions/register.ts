@@ -10,6 +10,7 @@ import { parseAreas, type Area } from "@/lib/elevenst/areas";
 import { parseSendCloseTemplates, type SendCloseTemplate } from "@/lib/elevenst/sendClose";
 import { buildProductXml, checkDraft, type DraftCheck, type ElevenstDraft } from "@/lib/elevenst/product";
 import { encodeEucKr } from "@/lib/elevenst/xml";
+import { detailTextHtml } from "@/lib/elevenst/register";
 
 // 3단계 등록 화면용 액션 — 11번가에 아무것도 만들거나 바꾸지 않는다(카테고리·주소·발송마감 템플릿 읽기와 검사만).
 // 모든 액션은 프로그램 이용 권한 확인부터 한다(CLAUDE.md 멀티테넌시 원칙 1).
@@ -122,13 +123,16 @@ export async function checkDraftAction(productId: string, draft: ElevenstDraft):
   }
   const check = checkDraft(draft, { categoryIsLeaf, hasMainImage: Boolean(shop.mainImage) });
 
-  // 이미지 공개 주소는 4단계(보내기)에서 만든다. 지금은 같은 길이의 자리표시 주소로 본문 크기만 잰다.
-  const slot = (i: number) => `https://elevenst-register.buylife.xyz/i/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-${i}.jpg`;
+  // 이미지 공개 주소는 보낼 때 만든다. 지금은 같은 길이의 자리표시 주소로 본문 크기만 잰다. 상세설명은 보낼 때와 같은 글 상세설명.
+  const slot = (i: number) => `https://elevenst-register.buylife.xyz/i/xxxxxxxxxxxxxxxxxxxxxx${i}`;
+  const p = shop.product;
+  const hasDetailText = Boolean(p.key_features?.trim() || p.specs?.trim() || p.how_to_use?.trim());
   const xml = buildProductXml(draft, {
     main: slot(0),
     extras: shop.extraImages.slice(0, 3).map((_, i) => slot(i + 1)),
-    details: shop.sectionImages.map((_, i) => slot(i + 10)),
+    details: [],
+    detailHtml: detailTextHtml({ name: draft.name, key_features: p.key_features, specs: p.specs, how_to_use: p.how_to_use, target_customer: p.target_customer }),
   });
-  if (!shop.sectionImages.length) check.warnings.push("상세 섹션 이미지가 없어 상세설명이 비어 보일 수 있습니다.");
+  if (!hasDetailText) check.warnings.push("상세페이지에 핵심 특징·상품 정보·사용법이 없어 11번가 상세설명이 상품명만으로 짧게 보입니다.");
   return { ok: true, result: { ...check, categoryPath, xmlBytes: encodeEucKr(xml).length, preview: xml.slice(0, 1200) } };
 }

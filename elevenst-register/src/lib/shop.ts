@@ -36,9 +36,12 @@ export interface ShopProduct {
   reviewed_at?: string | null;
   reference_image_urls?: string[] | null;
   specs?: string | null;
+  key_features?: string | null;
+  how_to_use?: string | null;
+  target_customer?: string | null;
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls,specs";
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls,specs,key_features,how_to_use,target_customer";
 
 export function productName(p: Pick<ShopProduct, "name" | "product_label">): string {
   return (p.name || p.product_label || "").trim() || "(상품명 없음)";

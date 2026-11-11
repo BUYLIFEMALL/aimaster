@@ -121,3 +121,10 @@ test("certGroups·detailHtml", () => {
   assert.deepEqual(certGroups("none")[3], { crtfGrpTypCd: "04", crtfGrpObjClfCd: "05" });
   assert.ok(!detailHtml(['https://x/"a.jpg']).includes('"a.jpg'));
 });
+
+test("본문: detailHtml을 주면 섹션 이미지 대신 그 글 상세설명을 넣는다", () => {
+  const xml = buildProductXml(draft(), { ...IMG, detailHtml: "<div>글 상세설명</div>" });
+  assert.match(xml, /<htmlDetail><!\[CDATA\[<div>글 상세설명<\/div>\]\]><\/htmlDetail>/);
+  assert.ok(!xml.includes("i/c.jpg"));
+  assert.ok(xml.includes("i/a.jpg"), "대표 이미지는 그대로");
+});

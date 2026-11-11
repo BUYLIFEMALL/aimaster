@@ -52,6 +52,8 @@ export interface DraftImages {
   main: string;
   extras: string[]; // 최대 3장(prdImage02~04)
   details: string[]; // 상세설명 HTML에 차례로 넣는 섹션 이미지
+  /** 상세설명 HTML을 직접 줄 때(4단계 보내기: 글 상세설명, register.ts detailTextHtml). 있으면 details보다 먼저 쓴다 */
+  detailHtml?: string;
 }
 
 export interface DraftCheck {
@@ -176,7 +178,7 @@ export function buildProductXml(d: ElevenstDraft, img: DraftImages): string {
     prdImage02: img.extras[0],
     prdImage03: img.extras[1],
     prdImage04: img.extras[2],
-    htmlDetail: { cdata: detailHtml(img.details) },
+    htmlDetail: { cdata: img.detailHtml ?? detailHtml(img.details) },
     ProductCertGroup: certGroups(d.kc),
     selTermUseYn: "N", // 판매기간 설정 안 함(즉시 판매)
     selPrc: d.price,

@@ -1,0 +1,30 @@
+import "server-only";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { SHOP_IMAGE_BUCKET } from "@/lib/shop";
+
+// 짧은 이미지 주소 — 쿠팡 운영(coupang-ops/src/lib/imageLinks.ts)과 같은 방식.
+// 11번가는 대표·추가 이미지(prdImage01~04)를 주소로 받아 자기 서버에 저장한다. 상세페이지 이미지는 비공개 저장소라
+// 로그인 없이 받아 갈 수 있는 /i/<id>를 준다. 주소만 아는 사람이 열 수 있으므로 추측 못 하게 길게 만들고, 30일 뒤 만료(회원 데이터 30일 규칙).
+export const IMAGE_LINK_DAYS = 30;
+export const IMAGE_ID_RE = /^[A-Za-z0-9_-]{16,40}$/;
+
+/** 추측 못 하는 22자 id(16바이트, base64url) */
+function randomId(): string {
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  return Buffer.from(b).toString("base64url");
+}
+
+export function siteUrl(): string {
+  return (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://elevenst-register.buylife.xyz").replace(/\/+$/, "");
+}
+
+/** 회원 본인 폴더의 상세페이지 이미지 경로 → 짧은 주소. 순서를 지켜 돌려준다. */
+export async function createImageLinks(userId: string, paths: string[]): Promise<string[]> {
+  if (!paths.length) return [];
+  if (paths.some((p) => !p.startsWith(`${userId}/`))) throw new Error("본인 이미지가 아닌 경로가 섞여 있습니다.");
+  const expires = new Date(Date.now() + IMAGE_LINK_DAYS * 86400000).toISOString();
+  const rows = paths.map((path) => ({ id: randomId(), user_id: userId, bucket: SHOP_IMAGE_BUCKET, path, expires_at: expires }));
+  const { error } = await createAdminClient().from("elevenst_register_image_links").insert(rows);
+  if (error) throw new Error("이미지 주소를 만들지 못했습니다.");
+  return rows.map((r) => `${siteUrl()}/i/${r.id}`);
+}

@@ -27,8 +27,10 @@ Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB),
 
 - **미배포 대기 — 상세페이지 연계 (2026-11-11, 4단계 보내기와 함께 배포)** — 플랜 `docs/PLAN_20261111_DETAIL_PAGE_LINK.md`(주인님 「진행해」 = 추천안). 상세페이지 카테고리로 11번가 카테고리 자동 추천(`suggestCategory`·`suggestCategoryAction`, 마지막 이름이 같으면 미리 고르고 「확인해 주세요」 표시, 해외직구·수입명품·중고·렌탈·브랜드관 갈래는 감점) · 상품 정보(`specs`)로 브랜드·원산지·고시 유형·고시 항목 미리 채움(`src/lib/elevenst/prefill.ts`, AI 없음, 못 찾은 항목만 「상품상세설명 참조」) · 정가>판매가면 기본즉시할인 선택(기본 끔, `cuponcheck`·`dscAmtPercnt`, 명세 §8) · 쇼핑몰 흐름 띠(공용 `shop-flow`·`shop-flow-bar` 사본) · 상세페이지 「🟠 11번가」 버튼·결과 배지(`shop-detail-page/lib/markets.ts`). 시험 29/29·tsc·build 통과(상세페이지 tsc·build 통과).
 
+- **미배포 대기 — 4단계 「11번가에 보내기」 (2026-11-12, 플랜 `docs/PLAN_20261111_STAGE4_SEND.md`)** — 주인님 승인(채팅 「진행해」): 운영 DB 표 `elevenst_register_image_links` 생성(ego SQL 편집기, RLS 켬·정책 없음 = 서버만, `supabase/migrations/20261112_elevenst_register_image_links.sql`) · Vercel 환경변수 `CRON_SECRET`(production, `scripts/add-elevenst-register-cron-secret.mjs`, 값 출력 안 함). 코드: 짧은 이미지 주소 `src/lib/imageLinks.ts`·`src/app/i/[id]/route.ts`(쿠팡 운영 사본, 확대 뺌) · 응답 읽기·중복 막기·글 상세설명 `src/lib/elevenst/register.ts` · `sendProductAction`(`src/lib/actions/send.ts`: 다시 검사 → 마지막 기록이 보내는 중/확인 필요/등록됨이면 막음 → `sending` 기록(동시 두 번이면 나중 것 멈춤) → 대표·추가 이미지 주소 → 등록(재시도 0) → 바로 전시중지 → `stopped`/`registered`/`failed`/`unknown`) · 등록 화면 「7. 11번가에 보내기」(검사 통과 + 검사 뒤 값 그대로일 때만, 화면 안 확인 단계) · 목록 결과 배지 · 30일 정리 `src/app/api/cron/cleanup/route.ts` + `vercel.json` crons `40 18 * * *`(`retention_exempt` 제외). **상세설명은 지금 글만(핵심 특징·상품 정보 표·사용법·추천 대상, 이미지 없음 = 플랜 §3 1안)** — 주인님 이미지 방식 결정(1·2·3안) 대기 중이라 바꾸면 `send.ts`의 `detailHtml` 한 곳만 고침. 시험 37/37·tsc·build 통과. 실제 보내기는 5·6단계(주인님 승인 1건).
+
 ## 5. 남은 일
-`docs/IMPROVEMENT_BACKLOG.md` — 4단계 보내기(이미지 공개 주소·`sending` 기록·등록 직후 전시중지·보관 정리 라우트).
+`docs/IMPROVEMENT_BACKLOG.md` — 4단계 코드 완료(미배포). 남은 것: 상세설명 이미지 방식 결정, 묶음 배포(빌드 2회), 5·6단계 실제 보내기 1건, 비공개 안내 화면.
 
 ## 6. 연계·아이디어
 - `shop-detail-page/lib/markets.ts`에 11번가 한 줄(5단계) → 상세페이지 「11번가에 등록하기」.
