@@ -84,7 +84,7 @@ type PolicyRow = {
 
 export function toPolicy(row: PolicyRow | null | undefined): StoragePolicy {
   return {
-    quotaBytes: row?.quota_bytes ?? (row ? null : 1073741824),
+    quotaBytes: row?.quota_bytes ?? (row ? null : 524288000), // 판정 실패 때 기본(무료 500MB, 2026-11-11 주인님 지시)
     retentionDays: row ? row.retention_days : 30,
     unlimitedRetention: row?.unlimited_retention ?? false,
     source: row?.source ?? "free",

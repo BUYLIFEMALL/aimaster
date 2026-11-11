@@ -34,7 +34,8 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
   ]);
   // 관리자 미리보기: ?preview=free — 일반 회원(기본 요금제, 87% 사용)이 보는 화면 그대로(값은 예시, 저장하지 않음)
   const preview = (await searchParams).preview === "free" && !!me?.is_admin;
-  const freeQuota = Number(freePlan?.quota_bytes ?? 1073741824);
+  const freeQuota = Number(freePlan?.quota_bytes ?? 524288000);
+  const freeDays = freePlan?.retention_days ?? 30;
   const summary = preview
     ? {
         ...real,
@@ -72,7 +73,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
           <HardDrive className="w-6 h-6 text-gold" /> 저장공간
         </h1>
         <p className="text-subtext text-sm mt-1 break-keep">
-          모든 프로그램에서 만든 이미지·영상·음악·파일이 이 공간을 함께 씁니다. 기본은 <b className="text-white">1GB · 30일 보관</b>이고,
+          모든 프로그램에서 만든 이미지·영상·음악·파일이 이 공간을 함께 씁니다. 기본은 <b className="text-white">{formatBytes(freeQuota)} · {freeDays}일 보관</b>이고,
           블로그·SNS에 올린 자료도 보관 기간이 지나면 자동으로 지워집니다. 더 오래, 더 많이 보관하려면 저장 구독을 이용해 주세요.
         </p>
       </div>

@@ -91,7 +91,7 @@ export default function StorageOverrideModal({
           </button>
         </div>
         <p className="text-subtext text-xs break-keep">
-          {single ? `${first.name ?? first.email}` : `선택한 회원 ${members.length}명`} — 빈칸은 자동(저장 구독·등급·기본 1GB·30일)을 따릅니다. 관리자·시험 계정은 원래 무제한입니다.
+          {single ? `${first.name ?? first.email}` : `선택한 회원 ${members.length}명`} — 빈칸은 자동(저장 구독·등급·기본 500MB·30일)을 따릅니다. 관리자·시험 계정은 원래 무제한입니다.
         </p>
         <label className="block text-xs text-subtext">
           용량(GB)
