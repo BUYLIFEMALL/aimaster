@@ -89,6 +89,7 @@
 ---
 
 ## 6. 버전 및 DB 이력
+- `v1.15` (2026-11-11, Claude Code 윈도우 [역할: blog]): AI 집필·목차 모델을 OpenAI→Claude→Gemini 순 플랫폼별 3개(가성비·균형·최고 품질)에서 고르게 함(`src/lib/textModels.ts`, `src/lib/ai/textLlm.ts`, 공용 사본 `openaiRequestParams.ts`), OpenAI·Claude 키는 공용 `user_api_keys` 본인 키만. AI 3곳·주소 읽기·키 저장 API에 프로그램 권한 확인 추가(보안). 저장공간 위젯 한 줄. DB `programs.version` v1.15. 실제 시험: Claude Haiku 5.5 1회 성공.
 - `v1.11` (2026-10-20, Claude Code 윈도우): 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 문제 수정 — `src/components/layout/Sidebar.tsx` 바깥 묶음의 `justify-between` 제거, 계정 묶음 `mt-4 shrink-0`(사이드바 표준, 웹툰 v1.23과 같은 원인).
 - `v1.10` (2026-10-19):
   - 포커스 스튜디오 스타일 전면 리뉴얼 (전자책 퍼블리싱 에디션)

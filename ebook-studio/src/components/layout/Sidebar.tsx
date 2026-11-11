@@ -266,7 +266,7 @@ export function Sidebar({
           className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
         >
           <KeyRound className="h-4 w-4 text-amber-500" />
-          <span>🔑 API 키 등록 (Gemini)</span>
+          <span>🔑 API 키·모델 설정</span>
         </button>
 
         <div className="flex items-center justify-between border-t border-slate-100 pt-2 px-1 text-slate-500">

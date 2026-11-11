@@ -40,7 +40,9 @@
 - 향후 과제: 상기 아이디어 백로그 검토 및 단계적 적용.
 
 
-> [역할: blog] **미배포 대기 (2026-11-11, 주인님 지시 「OpenAI / Claude / Gemini 순으로 각각 플랫폼별 최신 모델을 사용자가 골라서 사용할 수 있게」, 세션 claude-win-blog)** — 다음 배포 때 v1.15로 함께 나감(배포 승인 대기).
+> **미배포 대기 (2026-11-11 배포 뒤, 세션 claude-win-blog)** — 화면에 남은 옛 「Gemini 전용」 문구 3곳 수정: 좌측 메뉴 「API 키 등록 (Gemini)」→「API 키·모델 설정」(`Sidebar.tsx`), 원문 입력 안내(`SourceInputPanel.tsx`), 가이드 저장 문답(`guide/page.tsx`). tsc 통과, 다음 배포 때 함께(급하지 않음). 남은 관찰: 첫 화면 소개 배지가 아직 「v1.10 Focus Publishing Studio」로 보임(디자인 담당 몫).
+
+> [역할: blog] **✅ v1.15 배포 완료 (2026-11-11, 배포 `ebook-studio-hyjwx2cw6`, DB v1.12→v1.15)** — 아래 항목이 나감. 검수: ego 화면에서 설정 창 모델 9개(OpenAI→Claude→Gemini) 표시, Claude 고르면 「본인 키 등록됨」(메인 사이트 등록 키 재사용), 시험 계정 본인 Claude 키로 Haiku 5.5 목차 생성 1회 200(15초), 로그인 없는 AI 호출 401, 저장공간 위젯 표시. 원래 기록: (2026-11-11, 주인님 지시 「OpenAI / Claude / Gemini 순으로 각각 플랫폼별 최신 모델을 사용자가 골라서 사용할 수 있게」, 세션 claude-win-blog)** — 다음 배포 때 v1.15로 함께 나감(배포 승인 대기).
 >
 > - **글 모델 3개 플랫폼**: `src/lib/textModels.ts` — OpenAI → Claude → Gemini 순, 플랫폼마다 `docs/AI_MODEL_CATALOG.md` 추천 3개(가성비·균형·최고 품질). 기본값은 그대로 Gemini 3.8 Flash. 목록 기준 `blog-neighbor-care/src/lib/analysis/models.ts`.
 > - **서버 호출**: 새 `src/lib/ai/textLlm.ts`(호출 기준 `blog-neighbor-care/src/lib/analysis/provider.ts`) + 공용 모듈 `openai-request-params` 사본 `src/lib/ai/openaiRequestParams.ts`(`scripts/check-shared-modules.mjs` 사본 목록에 추가). 회원 본인 키만, 재시도 0, Gemini 키는 주소가 아닌 머리(`x-goog-api-key`)로.

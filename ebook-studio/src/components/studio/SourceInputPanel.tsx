@@ -705,7 +705,7 @@ export function SourceInputPanel({
       <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-[11px] text-slate-500 flex items-start gap-2">
         <HelpCircle className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
         <p className="leading-relaxed">
-          문서와 웹페이지의 텍스트로 구성합니다. 스캔 PDF는 OCR이 필요하며, 유튜브는 자막 추출 스크립트로 직접 붙여 넣어주세요. 입력된 원문은 회원님의 Google Gemini API 키로만 처리됩니다.
+          문서와 웹페이지의 텍스트로 구성합니다. 스캔 PDF는 OCR이 필요하며, 유튜브는 자막 추출 스크립트로 직접 붙여 넣어주세요. 입력된 원문은 회원님이 고른 AI(OpenAI·Claude·Gemini)의 본인 API 키로만 처리됩니다.
         </p>
       </div>
 
