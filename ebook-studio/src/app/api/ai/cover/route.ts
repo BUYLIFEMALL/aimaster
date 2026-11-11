@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUser } from "@/lib/auth";
+import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateGeminiImage } from "@/lib/geminiImage";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export async function POST(req: NextRequest) {
   try {
-    const user = await getUser();
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = access.user;
     const body = await req.json();
     const { title, subtitle, author, genre = "business", apiKey: clientKey } = body;
 

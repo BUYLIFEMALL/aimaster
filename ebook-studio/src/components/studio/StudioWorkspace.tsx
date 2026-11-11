@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { DEFAULT_TEXT_MODEL, currentTextModel } from "@/lib/textModels";
+import { DEFAULT_TEXT_MODEL, currentTextModel, textModelProvider, TEXT_PROVIDER_LABEL, type TextProvider } from "@/lib/textModels";
 import { Sidebar, FlowStep } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { SourceInputPanel } from "./SourceInputPanel";
@@ -108,6 +108,10 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
   const [apiKey, setApiKey] = useState("");
   const [selectedModel, setSelectedModel] = useState(DEFAULT_TEXT_MODEL);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // v1.15: OpenAI·Claude 키는 서버(공용 user_api_keys)에만 두고 등록 여부만 받는다.
+  const [keyStatus, setKeyStatus] = useState<Record<TextProvider, boolean>>({ openai: false, anthropic: false, gemini: false });
+  const textProvider = textModelProvider(selectedModel);
+  const textReady = textProvider === "gemini" ? Boolean(apiKey.trim()) : keyStatus[textProvider];
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -142,6 +146,7 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
     fetch("/api/user/key")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
+        if (data?.providers) setKeyStatus(data.providers);
         if (data?.key) {
           setApiKey(data.key);
           localStorage.setItem("ebook_studio_gemini_api_key", data.key);
@@ -203,7 +208,7 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
 
   // 전자책 생성 파이프라인 (Outline 순차 집필)
   const handleStartGeneration = async () => {
-    if (!apiKey.trim()) {
+    if (!textReady) {
       setIsSettingsOpen(true);
       return;
     }
@@ -348,7 +353,8 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
           onLoadSample={handleLoadSample}
           onNewProject={handleNewProject}
           project={project}
-          hasApiKey={Boolean(apiKey.trim())}
+          hasApiKey={textReady}
+          readyLabel={`${TEXT_PROVIDER_LABEL[textProvider]} 준비됨`}
         />
 
         {/* 생성 진행률 프로그레스 오버레이 바 */}
@@ -452,6 +458,7 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
                   onNextStep={() => setCurrentStep("style")}
                   apiKey={apiKey}
                   selectedModel={selectedModel}
+                  textReady={textReady}
                 />
               )}
 
@@ -502,6 +509,8 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
           setApiKey(key);
           localStorage.setItem("ebook_studio_gemini_api_key", key);
         }}
+        keyStatus={keyStatus}
+        onProviderKeySaved={(p) => setKeyStatus((prev) => ({ ...prev, [p]: true }))}
         selectedModel={selectedModel}
         onSelectModel={(m) => {
           setSelectedModel(m);

@@ -40,6 +40,16 @@
 - 향후 과제: 상기 아이디어 백로그 검토 및 단계적 적용.
 
 
+> [역할: blog] **미배포 대기 (2026-11-11, 주인님 지시 「OpenAI / Claude / Gemini 순으로 각각 플랫폼별 최신 모델을 사용자가 골라서 사용할 수 있게」, 세션 claude-win-blog)** — 다음 배포 때 v1.15로 함께 나감(배포 승인 대기).
+>
+> - **글 모델 3개 플랫폼**: `src/lib/textModels.ts` — OpenAI → Claude → Gemini 순, 플랫폼마다 `docs/AI_MODEL_CATALOG.md` 추천 3개(가성비·균형·최고 품질). 기본값은 그대로 Gemini 3.8 Flash. 목록 기준 `blog-neighbor-care/src/lib/analysis/models.ts`.
+> - **서버 호출**: 새 `src/lib/ai/textLlm.ts`(호출 기준 `blog-neighbor-care/src/lib/analysis/provider.ts`) + 공용 모듈 `openai-request-params` 사본 `src/lib/ai/openaiRequestParams.ts`(`scripts/check-shared-modules.mjs` 사본 목록에 추가). 회원 본인 키만, 재시도 0, Gemini 키는 주소가 아닌 머리(`x-goog-api-key`)로.
+> - **키**: OpenAI·Claude 키는 공용 `user_api_keys`(`openai`·`anthropic`)에만 저장·조회(브라우저에 남기지 않음, 화면엔 등록 여부만). `/api/user/key` GET이 `providers` 등록 여부를, POST가 `provider`를 받음(없으면 기존처럼 gemini). 표지 이미지는 계속 Gemini 키.
+> - **화면**: 설정 창 모델 칸 플랫폼별 묶음 + 고른 플랫폼 키 상태·등록 칸·발급 링크, 스타일 단계 모델 칸 묶음, 상단 「○○ 준비됨」, 목차 제안·전체 집필의 키 확인을 고른 플랫폼 기준으로. 매뉴얼 Q5·도움말 문구 정리.
+> - **보안 보완**: `/api/ai/outline`·`/api/ai/chapter`·`/api/ai/cover`·`/api/scrape`·`/api/user/key`에 프로그램 권한 확인(`checkProgramAccessApi`)과 캐시 방지 2줄이 없어 추가(그전엔 로그인·권한 없이도 호출 가능했음).
+> - **검수**: 임시 폴더 모의 응답 시험 8개 통과(세 플랫폼 요청 모양·키 판정·오류·JSON 꺼내기, 유료 호출 0) · `tsc` · `npm run build` 통과. 실제 OpenAI·Claude 호출과 화면 검수는 배포 뒤.
+> - **디자인 담당께**: v1.14 화면은 그대로 두고 설정 창 안 칸만 추가했습니다. 모양 손볼 곳이 있으면 이어서 다듬어 주세요.
+
 ## 다른 프로그램 연계 메모 — 2026-10-19 Claude Code(윈도우, ai-doc-chatbot 작업 중 발견)
 - **AI 문서 챗봇(`ai-doc-chatbot`)과 파일로 연계 가능**: 「인쇄/PDF」로 저장한 원고를 https://ai-doc-chatbot.buylife.xyz/documents 에 올리면 원고 내용을 근거로 질문할 수 있다(100쪽 초과 PDF도 챗봇 v1.05 비동기 읽기). 독자용 공개 Q&A 챗봇은 비로그인 공개가 필요해 플랫폼 규칙과 맞지 않아 보류(챗봇 `docs/IMPROVEMENTS.md` C2).
 

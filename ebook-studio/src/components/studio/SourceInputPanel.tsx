@@ -29,6 +29,8 @@ interface SourceInputPanelProps {
   onNextStep: () => void;
   apiKey: string;
   selectedModel: string;
+  /** 고른 모델 플랫폼의 본인 키가 준비됐는지(v1.15) */
+  textReady: boolean;
 }
 
 export function SourceInputPanel({
@@ -37,6 +39,7 @@ export function SourceInputPanel({
   onNextStep,
   apiKey,
   selectedModel,
+  textReady,
 }: SourceInputPanelProps) {
   // 1. 입력 모드 탭/아코디언 상태
   const [activeTab, setActiveTab] = useState<"file" | "url" | "paste">("file");
@@ -339,8 +342,8 @@ export function SourceInputPanel({
       setErrorMsg("먼저 분석할 자료를 하나 이상 등록해 주세요.");
       return;
     }
-    if (!apiKey) {
-      setErrorMsg("AI 목차 제안을 위해 상단 [AI 연결 설정]에서 본인 Gemini API 키를 먼저 입력해 주세요.");
+    if (!textReady) {
+      setErrorMsg("AI 목차 제안을 위해 상단 [API 키 등록]에서 고른 모델 플랫폼의 본인 API 키를 먼저 등록해 주세요.");
       return;
     }
 

@@ -305,7 +305,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 08. AI 연결과 키
               </h3>
               <p>
-                eBook Studio는 <strong>회원 본인의 Google Gemini API 키</strong>로만 동작합니다. 원문은 구글 AI에 안전하게 전송되며 다른 회원의 키나 운영자 키와 절대 섞이지 않습니다.
+                eBook Studio는 <strong>회원 본인의 API 키(OpenAI·Claude·Gemini 중 고른 플랫폼)</strong>로만 동작합니다. 원문은 고른 AI에 안전하게 전송되며 다른 회원의 키나 운영자 키와 절대 섞이지 않습니다.
               </p>
               <p>
                 구글 AI 스튜디오에서 키를 발급받아 <strong>AI 연결 설정</strong>에 넣으세요. 표준 키(AIza...)와 신규 인증 키(AQ...)를 모두 지원하며 공백과 줄바꿈은 자동으로 정돈됩니다.

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { currentTextModel } from "@/lib/textModels";
-import { getUser } from "@/lib/auth";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { textModelProvider } from "@/lib/textModels";
+import { generateTextJson, resolveTextKey, TextLlmError } from "@/lib/ai/textLlm";
+import { checkProgramAccessApi } from "@/lib/access";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 
 /** 한국 시간 기준 현재 연·월 지침(계절 착오 방지, docs/ERROR_LESSONS.md 2026-10-14). 서버가 UTC여도 한국 날짜를 쓴다. */
 function koreaNowRule(now: Date = new Date()): string {
@@ -11,7 +14,9 @@ function koreaNowRule(now: Date = new Date()): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await getUser();
+    const access = await checkProgramAccessApi();
+    if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
+    const user = access.user;
     const body = await req.json();
     const {
       bookTitle,
@@ -29,27 +34,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "작성할 챕터 제목이 필요합니다." }, { status: 400 });
     }
 
-    // 최상위 불변 규칙: 회원 본인의 API 키 조회
-    let finalApiKey = clientKey?.trim();
-    if (!finalApiKey && user) {
-      const adminSupabase = createAdminClient();
-      const { data } = await adminSupabase
-        .from("user_api_keys")
-        .select("api_key")
-        .eq("user_id", user.id)
-        .eq("provider", "gemini")
-        .maybeSingle();
-      if (data?.api_key) {
-        finalApiKey = data.api_key;
-      }
-    }
-
-    if (!finalApiKey) {
-      return NextResponse.json(
-        { error: "Google Gemini API 키가 필요합니다. 설정에서 회원님의 API 키를 등록해주세요." },
-        { status: 400 }
-      );
-    }
+    // 최상위 불변 규칙: 고른 모델 플랫폼의 회원 본인 키만 쓴다(v1.15: OpenAI·Claude·Gemini)
+    const provider = textModelProvider(modelInput);
+    const finalApiKey = await resolveTextKey(user?.id, provider, clientKey);
 
     const currentYear = new Date().getFullYear();
 
@@ -99,39 +86,11 @@ ${styleGuide}
   ]
 }`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentTextModel(modelInput)}:generateContent?key=${finalApiKey}`;
-
-    const response = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          responseMimeType: "application/json",
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      return NextResponse.json(
-        { error: `Gemini API 호출 실패 (${response.status}): ${errText}` },
-        { status: 500 }
-      );
-    }
-
-    const data = await response.json();
-    const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawContent) {
-      return NextResponse.json({ error: "AI로부터 응답을 받지 못했습니다." }, { status: 500 });
-    }
-
-    const cleanedJson = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
-    const parsed = JSON.parse(cleanedJson);
+    const parsed = await generateTextJson({ model: modelInput, key: finalApiKey, prompt });
 
     return NextResponse.json({ success: true, chapter: parsed });
   } catch (error: any) {
+    if (error instanceof TextLlmError) return NextResponse.json({ error: error.message }, { status: error.status });
     return NextResponse.json({ error: error.message || "챕터 집필 중 오류가 발생했습니다." }, { status: 500 });
   }
 }

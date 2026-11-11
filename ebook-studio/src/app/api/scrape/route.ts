@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkProgramAccessApi } from "@/lib/access";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export async function POST(req: NextRequest) {
+  const access = await checkProgramAccessApi();
+  if (!access.allowed) return NextResponse.json({ error: access.error }, { status: access.status });
   try {
     const { urls } = await req.json();
 

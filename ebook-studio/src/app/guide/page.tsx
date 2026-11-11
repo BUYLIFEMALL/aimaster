@@ -41,8 +41,8 @@ export default function EbookGuidePage() {
       a: "내보내기 메뉴에서 '웹 배포용 ZIP'을 내려받은 후, 브라우저에서 vercel.com/new/drop 페이지에 접속하여 해당 ZIP 파일을 드래그앤드롭하기만 하면 10초 만에 전 세계 누구나 접근할 수 있는 무료 웹 전자책 도메인 주소가 즉시 생성됩니다.",
     },
     {
-      q: "Q5. Google Gemini API 키는 필수인가요? 키가 없어도 이용할 수 있나요?",
-      a: "수동 원고 작성, 목차 분할, 21종 테마 적용, 뷰어 읽기, HTML/EPUB/인쇄 내보내기는 API 키 없이도 누구나 100% 무료로 이용할 수 있습니다. 단, 'AI 목차 제안' 및 'AI 챕터 자동 집필' 기능을 구동할 때에만 회원 본인의 무료 Google Gemini API 키가 사용됩니다.",
+      q: "Q5. AI API 키는 필수인가요? 어떤 AI를 쓸 수 있나요?",
+      a: "수동 원고 작성, 목차 분할, 21종 테마 적용, 뷰어 읽기, HTML/EPUB/인쇄 내보내기는 API 키 없이도 누구나 100% 무료로 이용할 수 있습니다. 'AI 목차 제안'과 'AI 챕터 자동 집필'은 OpenAI(GPT)·Claude·Gemini 중 고른 모델의 회원 본인 API 키로 동작하며, 플랫폼마다 가성비·균형·최고 품질 모델을 고를 수 있습니다. AI 표지 이미지는 Gemini 키를 씁니다.",
     },
   ];
 
@@ -128,7 +128,7 @@ export default function EbookGuidePage() {
               </div>
               <h3 className="text-sm font-bold text-slate-900">목차 설계 & AI 집필</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                스마트 알고리즘과 Gemini AI로 소제목/분량 단위 챕터를 자동 분할하고, 3대 정리 수준에 맞춰 원고를 순차 집필합니다.
+                스마트 알고리즘과 AI(OpenAI·Claude·Gemini 중 선택)로 소제목/분량 단위 챕터를 자동 분할하고, 3대 정리 수준에 맞춰 원고를 순차 집필합니다.
               </p>
             </div>
 
@@ -268,9 +268,9 @@ export default function EbookGuidePage() {
               </p>
             </div>
             <div className="space-y-1">
-              <span className="font-bold text-emerald-900 block">② 독립된 회원 본인 Gemini API 키 구동</span>
+              <span className="font-bold text-emerald-900 block">② 독립된 회원 본인 API 키 구동</span>
               <p>
-                운영자 또는 타인의 키를 공유하지 않으며, 회원님이 등록한 Google Gemini API 키로만 안전하게 구동됩니다. 키가 없더라도 수동 집필과 모든 내보내기는 완전 무료입니다.
+                운영자 또는 타인의 키를 공유하지 않으며, 회원님이 등록한 본인 API 키(OpenAI·Claude·Gemini 중 고른 플랫폼)로만 안전하게 구동됩니다. 키가 없더라도 수동 집필과 모든 내보내기는 완전 무료입니다.
               </p>
             </div>
           </div>

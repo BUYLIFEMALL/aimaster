@@ -27,6 +27,7 @@ interface HeaderProps {
   onNewProject: () => void;
   project: EbookProject;
   hasApiKey: boolean;
+  readyLabel?: string;
 }
 
 export function Header({
@@ -39,6 +40,7 @@ export function Header({
   onNewProject,
   project,
   hasApiKey,
+  readyLabel = "AI 준비됨",
 }: HeaderProps) {
   const [isDownloadingZip, setIsDownloadingZip] = useState(false);
   const [isDownloadingEpub, setIsDownloadingEpub] = useState(false);
@@ -152,7 +154,7 @@ export function Header({
             }`}
           />
           <span className="hidden sm:inline">
-            {hasApiKey ? "Gemini 준비됨" : "API 키 등록"}
+            {hasApiKey ? readyLabel : "API 키 등록"}
           </span>
           <span className="sm:hidden">API</span>
         </button>

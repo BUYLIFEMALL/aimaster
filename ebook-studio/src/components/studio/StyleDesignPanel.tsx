@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { TEXT_MODELS } from "@/lib/textModels";
+import { textModelGroups } from "@/lib/textModels";
 import {
   Palette,
   Type,
@@ -574,7 +574,7 @@ export function StyleDesignPanel({
               <span>전자책 집필 & 생성 시작</span>
             </h3>
             <p className="text-xs text-indigo-200 mt-0.5">
-              회원 본인의 Google Gemini API 키로 구간별 챕터를 순서대로 정교하게 생성합니다.
+              회원 본인의 API 키(OpenAI·Claude·Gemini 중 고른 모델)로 구간별 챕터를 순서대로 정교하게 생성합니다.
             </p>
           </div>
 
@@ -585,8 +585,12 @@ export function StyleDesignPanel({
               onChange={(e) => onSelectModel(e.target.value)}
               className="px-3 py-1.5 rounded-xl bg-indigo-800/80 border border-indigo-700 text-xs font-bold text-white focus:outline-hidden focus:ring-2 focus:ring-amber-300"
             >
-              {TEXT_MODELS.map((m) => (
-                <option key={m.id} value={m.id}>{m.label}</option>
+              {textModelGroups().map((g) => (
+                <optgroup key={g.provider} label={g.label}>
+                  {g.models.map((m) => (
+                    <option key={m.id} value={m.id}>{m.label}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
