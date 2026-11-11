@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { APP_NAME } from "@/lib/version";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,7 +26,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="lit-body">{children}</body>
+      <body className="lit-body">
+        {children}
+        {/* 💾 회원 저장공간 위젯(메인 사이트 공용) — docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md */}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
+      </body>
     </html>
   );
 }
