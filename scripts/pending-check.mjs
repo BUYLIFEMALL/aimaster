@@ -5,7 +5,7 @@
 //       node scripts/pending-check.mjs --publish             관리자 화면용 요약(대기 건수·30일 정리 기록 진행률)을 운영 DB site_settings.ops_overview에 저장
 // 읽는 곳: docs/PENDING_DEPLOYS.md 「대기 중」 표(프로그램 자체의 작은 수정) + docs/SHARED_MODULES.md 「미배포 사본」 표(공용 기준 코드 사본).
 // 읽기만 하고 아무것도 바꾸지 않는다. 배포가 끝나면 지침대로 두 표의 해당 줄을 직접 정리한다(docs/VERCEL_COST_REDUCTION_PLAN.md 맨 위).
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -21,6 +21,15 @@ function tableRows(md, heading) {
   const body = next < 0 ? rest : rest.slice(0, next);
   const rows = body.split("\n").filter((l) => l.startsWith("|") && !/^\|\s*-/.test(l));
   return rows.slice(1); // 첫 줄은 머리
+}
+
+// 공통 — 저장공간 위젯 한 줄(2026-11-11 주인님: 「해당 프로그램 배포할때 배포되도록」, docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md)
+const LAYOUTS = ["app/layout.tsx", "src/app/layout.tsx", "web/app/layout.tsx", "web/src/app/layout.tsx"];
+const NOT_PROGRAMS = new Set(["node_modules", "app", "labs", "docs", "scripts", "supabase", "public", "components", "lib", "types", "hooks"]);
+function widgetStatus(folder) {
+  const found = LAYOUTS.map((p) => join(ROOT, folder, p)).filter((p) => existsSync(p));
+  if (!found.length) return "none"; // Next 웹 레이아웃이 없음(확장·데스크톱·라이브러리 등) — 대상 아님
+  return found.some((p) => readFileSync(p, "utf8").includes("storage-widget.js")) ? "done" : "missing";
 }
 
 const cells = (row) => row.split("|").slice(1, -1).map((c) => c.trim());
@@ -86,6 +95,12 @@ if (args.includes("--all")) {
   const sharedNames = new Map();
   for (const s of shared) for (const n of s.names) sharedNames.set(n, (sharedNames.get(n) ?? 0) + 1);
   console.log(`[미배포 사본 — docs/SHARED_MODULES.md] 이름이 걸린 프로그램 ${sharedNames.size}개(표 비고에 ✅가 있으면 이미 배포된 줄일 수 있음 — 원문 확인)`);
+  const folders = readdirSync(ROOT, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && !d.name.startsWith(".") && !NOT_PROGRAMS.has(d.name))
+    .map((d) => d.name);
+  const st = folders.map((n) => [n, widgetStatus(n)]).filter(([, v]) => v !== "none");
+  const missing = st.filter(([, v]) => v === "missing").map(([n]) => n).sort();
+  console.log(`[공통 — 저장공간 위젯] 적용 ${st.length - missing.length} / 웹 프로그램 ${st.length}개 · 남은 것: ${missing.join(", ") || "없음"}`);
   process.exit(0);
 }
 
@@ -93,6 +108,8 @@ for (const folder of args) {
   const mine = pending.filter((p) => p.name === folder);
   const copies = shared.filter((s) => s.names.includes(folder));
   console.log(`\n=== ${folder} ===`);
+  if (widgetStatus(folder) === "missing")
+    console.log("  • [공통] 저장공간 위젯 한 줄 미적용 — 이번 배포에 함께 넣기: docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md");
   if (!mine.length && !copies.length) { console.log("  대기 없음"); continue; }
   for (const p of mine) {
     console.log(`  • [대기] ${short(p.what)}  ${p.commit}`);
