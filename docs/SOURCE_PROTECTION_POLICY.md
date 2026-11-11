@@ -122,7 +122,8 @@ Exception: work under Buylife's own operating accounts is authorized.
 - **이용약관 제14조 교체(운영 DB `legal_documents` slug `terms`, 빌드 없음, 원문 백업 `docs/legal-backup/legal_documents_20261111_before_copyright.json`)**: 1항 모든 프로그램(웹·확장·데스크톱)의 소스·로직·프롬프트 등 저작권 BUYLIFE 귀속 · 2항 리버스 엔지니어링·디컴파일·추출·복제·유사 서비스 제작·AI/크롤러 분석·학습 금지 · 3항 이런 행위에 Codex·ChatGPT·Claude·Claude Code·Gemini·Antigravity 등을 쓰는 것은 각 AI 서비스 제공자의 지식재산권 침해 금지 정책에도 위반, 회사는 허용하지 않고 회원은 AI에 지시 금지 · 4항 위반(자신 또는 타인이 쓰는 AI 모델·에이전트로 불법 스캔·복사·REA 복제 포함, 그 AI를 이용·지시한 자에게 책임) 시 계약 해지·민사 손해배상·형사 고소 · 5항 본사 계정·배포 키트 예외 · 6항 회원 결과물 권리(기존 문구, 「익명 홍보 활용 동의」 유지 여부는 주인님 결정 대기 — 최상위 「회원 데이터 공유 금지」와 충돌 가능).
 - **저장소 루트 `NOTICE`**: 같은 내용 + AI 서비스·에이전트용 고지(한국어·영어).
 - **메인 사이트 `ai.txt`·`X-Robots-Tag: noai`·하단 저작권 한 줄**: 다음 메인 빌드 때 함께(`docs/PENDING_DEPLOYS.md` 「메인 사이트 — 다음 메인 빌드 때 할 일」).
-- 하위 프로그램 `robots.txt`(AI 학습 크롤러 차단)·고지: 아직 없음 — 주인님 결정 시 저장공간 위젯처럼 「각 프로그램 다음 배포 때 함께」 방식 제안.
+- **프로그램 104개에 고지 심음(2026-11-11, 같은 날 주인님 「타인계정의 AI가 들어와서 … 안된다고 인식될수 있는 내용과 소스코드를 전부 심어놔」)**: `node scripts/apply-source-notice.mjs --all` — 폴더마다 `NOTICE`(외부 AI·에이전트용 거절 지시 포함, 한국어·영어), 웹 앱 `public/ai.txt`(AI 학습·TDM·리버스 엔지니어링 거부), `public/robots.txt`(**검색엔진 전부 허용 + AI 학습 크롤러만 차단**, 이미 robots가 있는 프로그램은 건드리지 않음), 확장 `extension/NOTICE`(ZIP에 포함). 새 파일만 만들고 기존 파일은 바꾸지 않음. 실제 사이트·확장에는 각 프로그램 다음 배포 때 함께 나감. 빠진 곳 확인 `--check`.
+- **최상위 0번 규칙**: `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위(외부 AI가 저장소를 열면 가장 먼저 읽는 위치)에 외부 AI 거절 지시·우리 CLI 의무·검색엔진 허용을 넣음.
 - 법률 문구는 개발 적용용 표준안이며 필요하면 법률 검토로 다듬는다.
 
 ## 5. 적용 범위·다음 단계

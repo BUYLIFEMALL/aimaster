@@ -1,0 +1,58 @@
+# © BUYLIFE — 검색엔진 수집·노출은 자유롭게 허용합니다. AI 학습·분석·리버스 엔지니어링 목적 수집은 거부합니다(이용약관 제14조).
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: Omgili
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: YouBot
+Disallow: /
+
+# 검색엔진: Googlebot(구글), Yeti(네이버), Daumoa(다음), Bingbot(빙) 등 — 모두 허용
+User-agent: *
+Allow: /
