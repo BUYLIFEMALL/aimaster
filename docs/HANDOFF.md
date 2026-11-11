@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — `ebook-studio` v1.15 배포(글 생성 모델 OpenAI·Claude·Gemini 선택)
+
+- 한 일: 주인님 지시 「OpenAI / Claude / Gemini 순으로 플랫폼별 최신 모델을 골라 쓰게」 — 플랫폼마다 가성비·균형·최고 품질 3개(`src/lib/textModels.ts`), 세 플랫폼 서버 호출(`src/lib/ai/textLlm.ts`, 기준 `blog-neighbor-care`, OpenAI 옵션은 공용 사본), OpenAI·Claude 키는 공용 `user_api_keys` 본인 키만(메인 사이트에 등록한 키 그대로 사용). AI 3곳·주소 읽기·키 저장 API에 빠져 있던 프로그램 권한 확인 추가. 저장공간 위젯 한 줄. 커밋 `38db47fd5`·이번 배포 커밋.
+- 검수: 모의 시험 8개·tsc·빌드, 배포 `ebook-studio-hyjwx2cw6` Ready, DB v1.12→v1.15(이전에 v1.14와 어긋나 있던 것도 바로잡음), 로그인 없는 AI 호출 401, ego 화면에서 모델 9개·「본인 키 등록됨」 확인, 시험 계정 본인 Claude 키로 Haiku 5.5 목차 생성 1회 200(15초).
+- 남은 일: 옛 「Gemini 전용」 문구 3곳 수정은 미배포 대기(`ebook-studio/docs/IMPROVEMENTS.md`). 첫 화면 소개 배지 「v1.10」 표기는 디자인 담당 몫.
+- 링크: https://ebook-studio.buylife.xyz
+
 ## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `shorts-onestop-studio` v1.49 배포(보관 규칙 최종 적용)
 
 - 한 일: 매일 정리 크론이 파일 30일에 더해 대본(`project`)·발행 계획(`plan`) 행도 마지막 수정 30일 뒤 삭제(발행 여부 무관, `retention_exempt` 회원 제외, 프리셋·지침·설정은 보관). 매뉴얼 FAQ 문구, 저장공간 위젯 한 줄, 서울 지역, 공용 `ai-video-client` 사본이 함께 나감.
