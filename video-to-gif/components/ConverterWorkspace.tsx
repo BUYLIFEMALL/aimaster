@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { etaSeconds, etaText } from "@/lib/eta";
 import Link from "next/link";
 import {
   Film,
@@ -40,6 +41,8 @@ type Job = {
   file?: File;
   status: "ready" | "processing" | "done" | "error";
   progress: number;
+  // v1.28: 변환을 시작한 시각(남은 시간 어림)
+  startedAt?: number;
   outputSize?: number;
   // v1.19: 8MiB에 맞추려고 사다리 끝 단계에서 초당 장면 수를 낮췄으면 그 값(완료 줄에 표시)
   loweredFps?: number;
@@ -393,7 +396,7 @@ export default function ConverterWorkspace() {
       setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, status: "error", error: trim.error } : j)));
       return;
     }
-    setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, status: "processing", progress: 1 } : j)));
+    setJobs((current) => current.map((j) => (j.id === job.id ? { ...j, status: "processing", progress: 1, startedAt: Date.now() } : j)));
     if (rendererReady) {
       try {
         await convertLocal(job);
@@ -913,7 +916,7 @@ export default function ConverterWorkspace() {
                             <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
                             <span>초고속 렌더링 인코딩 중...</span>
                           </span>
-                          <span className="text-amber-300 font-extrabold">{job.progress}%</span>
+                          <span className="text-amber-300 font-extrabold">{job.progress}% <span className="font-normal text-amber-200/80">· {etaText(etaSeconds(job.startedAt, job.progress, Date.now()))}</span></span>
                         </div>
                         <div className="h-2.5 overflow-hidden rounded-full bg-[#161b22] border border-amber-500/30 p-[1px]">
                           <div
