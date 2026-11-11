@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 영상 개선 묶음 5개 연속 배포(주인님 「배포해」)
+- 차례로 빌드 5회, 모두 Ready·운영 주소 200·DB 버전 맞춤: `ai-video-studio` v1.36(내 자료함 사진·저장공간 위젯 확인) · `shorts-onestop-studio` v1.50(내 자료함 음악) · `music-video-studio` v1.30(내 자료함 곡·이미지, 서울 `icn1::icn1`, 크론 401) · `video-to-gif` v1.28(남은 시간 표시) · `shots` v1.49(장면 순서·렌더 미리보기·썸네일).
+- 발견: `music-video-studio`·`video-to-gif`는 저장공간 위젯 줄이 코드에 없어 이번에 나가지 않음 → 레이아웃에 한 줄 넣고 커밋, 다음 배포 대기(`docs/PENDING_DEPLOYS.md`).
+- 남은 일: 화면 확인은 시험 계정 로그인 뒤(주인님), `shots` 6장면 영상화 일괄은 결정 대기, 11-13 아침 `shots` 30일 정리 결과 확인.
+- 비용: Vercel 빌드 5회(승인 범위), AI 호출 0.
+
+
+
+
+
 ## 2026-11-12 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 쇼핑몰 담당 인계 + T0 B 운영 DB 적용
 
 - 한 일: 주인님 지시로 쇼핑몰(mall-builder) 담당을 이어받음(이전 `claude-win-20261110-mall-builder`). 운영 Supabase 연결 → 사전 점검 → 묶음 적용. 첫 두 번은 묶음 오류(`0043` 주석이 `end if;` 삼킴, CRLF 줄바꿈으로 함수 본문 바꾸기 실패 — Supabase 편집기도 CRLF로 보냄)로 실패했고 둘 다 운영 변화 없음 확인. 고친 뒤 로컬 전체 실행 검사(`mall-builder/scripts/check-prod-bundle-local.mjs`) 통과 → 주인님 Run → 성공.
