@@ -15,6 +15,8 @@
 
 ## 대기 중
 
+- **공통 — 💾 저장공간 위젯 한 줄(2026-11-11 세션 `claude-win-rea`, 주인님 「해당 프로그램 배포할때 배포되도록」, 추가 배포 없음)**: 하위 웹 프로그램을 배포할 때 레이아웃에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`를 함께 넣는다. `node scripts/pending-check.mjs <폴더>`가 미적용 여부를 자동으로 알려 주고, `--all`이 남은 프로그램을 센다(시작 0/99). 절차·예외: [`HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`](HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md).
+
 - **music-video-studio(2026-11-11 영상 담당)**: 공용 `video-edit-timeline` 사본 — 배경음악 출처에 「내 자료함」(`library`) 형식 추가(기준 `ai-video-studio` v1.35). 이 프로그램 화면·동작은 같음. 다음 배포 때 함께.
 
 - **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `shorts-onestop-studio`·`music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(`ai-video-studio`는 v1.35로 반영·`icn1::icn1` 확인)(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때).
