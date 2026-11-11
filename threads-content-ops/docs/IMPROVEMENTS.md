@@ -1,6 +1,7 @@
 # Threads 콘텐츠 운영 자동화 — 개선사항 백로그 및 제안 (IMPROVEMENTS.md)
 
 > **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 쓰레드(design) 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 발행 글이 지금 무기한 → 발행 1년 뒤 삭제 추가, 미디어(`lib/mediaCleanup.ts`)는 발행 글 것을 1년 제외. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: threads-content-ops vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
+> **❌ 위 「발행 1년」 요청 취소 (2026-11-11 주인님 최종 결정, 세션 `claude-win-rea`)**: 일반 회원은 **발행 여부와 상관없이 30일**, 연장은 **저장 구독·등급·관리자 지정**으로 DB가 자동 처리한다(연장 회원은 `profiles.retention_exempt`가 매일 자동으로 켜짐, 기간 초과 파일은 메인 사이트 중앙 정리). **이 프로그램의 30일 정리 코드는 지금처럼 「`retention_exempt` 회원 제외」만 유지하면 되고 발행 1년 조건을 넣지 않는다.** 근거: `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §0 ⚠️ 최종 개정, `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md`.
 
 > **관리 지침**: [`docs/IMPROVEMENT_HANDOFF_POLICY.md`](../../docs/IMPROVEMENT_HANDOFF_POLICY.md) 준수  
 > **최초 작성일**: 2026-10-16  

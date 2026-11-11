@@ -1,6 +1,7 @@
 # `shots` (YOUTUBE Shots 자동화) 개선 제안서 (v1.44)
 
 > **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 업로드 기록(`youtube_video_id`·`youtube_uploads`)이 있는 영상 파일을 1년 보관할지 **주인님 결정 대기**(용량) — 결정 뒤 `src/app/api/cron/cleanup-videos/route.ts` 조건 수정. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: shots vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
+> **❌ 위 「발행 1년」 요청 취소 (2026-11-11 주인님 최종 결정, 세션 `claude-win-rea`)**: 일반 회원은 **발행 여부와 상관없이 30일**, 연장은 **저장 구독·등급·관리자 지정**으로 DB가 자동 처리한다(연장 회원은 `profiles.retention_exempt`가 매일 자동으로 켜짐, 기간 초과 파일은 메인 사이트 중앙 정리). **이 프로그램의 30일 정리 코드는 지금처럼 「`retention_exempt` 회원 제외」만 유지하면 되고 발행 1년 조건을 넣지 않는다.** 근거: `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §0 ⚠️ 최종 개정, `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md`.
 > **🗓️ 결정 반영(2026-11-11 주인님)**: **영상·음악 파일은 유튜브 등에 업로드해도 30일 뒤 지운다**(「데이터 용량의 크기상 오래보관 못해」, 관리자·시험 계정 열외 그대로). 위 요청 중 「영상·음원 파일 1년」 부분은 취소 — 1년은 대본·제목·업로드 기록 같은 글·기록 항목에만 적용. 상세: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md` §3 영상·음악.
 
 ## 1. 프로그램 로직 및 기능 개선

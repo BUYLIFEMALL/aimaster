@@ -1,6 +1,7 @@
 # 네이버 블로그 에이전트(naver-blog-agent) 개선사항 및 추가 고도화 제안
 
 > **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 블로그 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: `src/app/api/cron/cleanup/route.ts` 글 조건을 `published_at is null and created_at<30일` OR `published_at<1년`으로, 발행 글 이미지는 1년 제외(글감 표는 30일 그대로). 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: naver-blog-agent vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
+> **❌ 위 「발행 1년」 요청 취소 (2026-11-11 주인님 최종 결정, 세션 `claude-win-rea`)**: 일반 회원은 **발행 여부와 상관없이 30일**, 연장은 **저장 구독·등급·관리자 지정**으로 DB가 자동 처리한다(연장 회원은 `profiles.retention_exempt`가 매일 자동으로 켜짐, 기간 초과 파일은 메인 사이트 중앙 정리). **이 프로그램의 30일 정리 코드는 지금처럼 「`retention_exempt` 회원 제외」만 유지하면 되고 발행 1년 조건을 넣지 않는다.** 근거: `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §0 ⚠️ 최종 개정, `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md`.
 
 > **🗂️ 「내 자료함」 연동 안내 — 블로그 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 운영 DB `supabase/migrations/0061_member_assets_video_text.sql`로 이 프로그램의 원고(`nba_posts` 제목·본문·상태·발행 주소)이(가) 공용 자료 목록 `member_assets`에 자동 등록되고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(보관 기간 = 이 프로그램 정리 규칙, 발행된 원고는 「발행 1년」 규칙 대상). **이 프로그램 코드·배포는 바꾸지 않았습니다.** 칸 이름·저장 경로(`{user_id}/…`)·상태 값을 바꾸면 트리거 함수 `member_assets_sync_nba`도 함께 고쳐 주세요(트리거 오류 = 원본 저장 실패). 화면: https://www.buylife.xyz/library · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md` §9
 
