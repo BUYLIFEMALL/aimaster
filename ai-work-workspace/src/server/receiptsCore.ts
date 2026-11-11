@@ -228,3 +228,84 @@ export function parseJsonLoose(text: string): Record<string, unknown> | null {
     return null;
   }
 }
+
+// ---------------------------------------------------------------- 홈택스 일괄발급 엑셀(2026-11-12)
+// 공식 양식 「세금계산서등록양식(일반)」 엑셀업로드양식 시트: 6행 머리글(59칸 A~BG), 7행부터 최대 100건, 모든 칸은 텍스트.
+// 품목은 한 장에 4줄까지(일자·품목·규격·수량·단가·공급가액·세액·품목비고 × 4), 끝에 현금·수표·어음·외상미수금·영수(01)/청구(02).
+
+export const HOMETAX_MAX_ROWS = 100;
+export const HOMETAX_MAX_LINES = 4;
+export const HOMETAX_COLS = 59;
+
+/** 사업자등록번호·주민등록번호 → 숫자만 */
+const digits = (v: unknown): string => str(v, 40).replace(/\D/g, '');
+
+/** 홈택스 길이 한도(byte: 한글 2, 영문·숫자 1)에 맞춰 자름 */
+export function cutBytes(v: unknown, max: number): string {
+  const s = str(v, 400);
+  let n = 0;
+  let out = '';
+  for (const ch of s) {
+    n += ch.charCodeAt(0) > 0x7f ? 2 : 1;
+    if (n > max) break;
+    out += ch;
+  }
+  return out;
+}
+
+const qtyText = (q: number): string => (Number.isInteger(q) ? String(q) : String(Math.round(q * 100) / 100));
+
+export interface HometaxDoc {
+  id?: string;
+  date: string;
+  taxMode?: TaxMode;
+  lines: DocLine[];
+  supply: number;
+  tax: number;
+  partner: BizInfo;
+  purpose?: string;
+  memo?: string;
+}
+
+/** 세금계산서 한 건 → 양식 한 줄(59칸). 못 넣는 이유가 있으면 problems에 담고 row는 null */
+export function hometaxRow(me: BizInfo | null, d: HometaxDoc): { row: string[] | null; problems: string[] } {
+  const problems: string[] = [];
+  const meNo = digits(me?.bizNo);
+  const pNo = digits(d.partner?.bizNo);
+  if (!me?.name || !me.ceo) problems.push('「내 사업자」의 상호·대표자를 저장해 주세요.');
+  if (!isValidBizNo(meNo)) problems.push('「내 사업자」의 사업자등록번호가 올바르지 않습니다.');
+  if (!d.partner?.name) problems.push('거래처 상호가 비어 있습니다.');
+  if (pNo.length === 10 ? !isValidBizNo(pNo) : pNo.length !== 13) problems.push('거래처 등록번호는 사업자등록번호 10자리(또는 주민등록번호 13자리)여야 합니다.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d.date)) problems.push('작성일자가 없습니다.');
+  if (d.taxMode === 'none') problems.push('면세(부가세 없음)는 세금계산서가 아니라 홈택스 「전자계산서」로 발급합니다.');
+  if (!d.lines?.length) problems.push('품목이 없습니다.');
+  if ((d.lines?.length ?? 0) > HOMETAX_MAX_LINES) problems.push(`품목이 ${d.lines.length}줄입니다. 홈택스 양식은 한 장에 ${HOMETAX_MAX_LINES}줄까지라 나눠서 작성해 주세요.`);
+  if (problems.length) return { row: null, problems };
+
+  const day = d.date.slice(8, 10);
+  const row: string[] = [
+    '01', // 종류: 일반
+    d.date.replace(/-/g, ''),
+    meNo, '', cutBytes(me!.name, 70), cutBytes(me!.ceo, 30), cutBytes(me!.address, 150), cutBytes(me!.bizType, 40), cutBytes(me!.bizItem, 60), cutBytes(me!.email, 40),
+    pNo, '', cutBytes(d.partner.name, 70), cutBytes(d.partner.ceo, 30), cutBytes(d.partner.address, 150), cutBytes(d.partner.bizType, 40), cutBytes(d.partner.bizItem, 60), cutBytes(d.partner.email, 40), '',
+    String(d.supply), String(d.tax), cutBytes(d.memo, 150),
+  ];
+  for (let i = 0; i < HOMETAX_MAX_LINES; i++) {
+    const l = d.lines[i];
+    row.push(...(l ? [day, cutBytes(l.name, 100), cutBytes(l.spec, 60), qtyText(l.qty), String(l.unitPrice), String(l.supply), String(l.tax), ''] : ['', '', '', '', '', '', '', '']));
+  }
+  row.push('', '', '', '', d.purpose === '청구' ? '02' : '01');
+  return { row, problems };
+}
+
+/** 열 번호(0부터) → 엑셀 열 이름(A, B, … BG) */
+export function colName(i: number): string {
+  let n = i + 1;
+  let s = '';
+  while (n > 0) {
+    const r = (n - 1) % 26;
+    s = String.fromCharCode(65 + r) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
+}

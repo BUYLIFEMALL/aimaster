@@ -301,6 +301,33 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
     }
   };
 
+  // 홈택스 일괄 발급 엑셀(2026-11-12): 저장한 세금계산서를 골라 공식 양식에 채워 내려받기
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [making, setMaking] = useState(false);
+  const taxDocs = state.docs.filter((d) => d.kind === "tax_invoice");
+  const togglePick = (id: string) => setPicked((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const pickAll = () => setPicked((s) => (taxDocs.every((d) => s.has(d.id)) ? new Set() : new Set(taxDocs.slice(0, 100).map((d) => d.id))));
+  const makeHometax = async () => {
+    const ids = taxDocs.filter((d) => picked.has(d.id)).map((d) => d.id);
+    if (!ids.length) return notify({ text: "홈택스 엑셀로 만들 세금계산서를 표에서 골라 주세요.", error: true });
+    setMaking(true);
+    try {
+      const r = await rpc<{ filename: string; base64: string; count: number; skipped: { partner: string; date: string; reasons: string[] }[] }>("rcptHometaxXlsx", { ids });
+      const bin = Uint8Array.from(atob(r.base64), (c) => c.charCodeAt(0));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([bin], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+      a.download = r.filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      const skip = r.skipped.length ? ` 빠진 ${r.skipped.length}건: ${r.skipped.map((s) => `${s.date} ${s.partner || "(거래처 없음)"} — ${s.reasons[0]}`).join(" / ")}` : "";
+      notify({ text: `홈택스 일괄 발급 엑셀(${r.count}건)을 내려받았습니다.${skip}`, error: r.skipped.length > 0 });
+    } catch (e) {
+      notify({ text: (e as Error).message, error: true });
+    } finally {
+      setMaking(false);
+    }
+  };
+
   const del = async (id: string) => {
     if (!confirm("이 문서를 지울까요?")) return;
     try {
@@ -365,19 +392,27 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
           <button type="button" className="rc-btn ghost" onClick={() => void save(false)}>💾 저장만</button>
         </div>
         {kind === "tax_invoice" && (
-          <p className="rc-hint">ℹ️ 세금계산서는 국세청 홈택스에서 발급해야 효력이 있습니다. 「홈택스 일괄 발급 엑셀 만들기」는 준비 중입니다 — 지금은 저장해 둔 내용을 홈택스 「건별 발급」에 옮겨 적어 발급하세요. 인쇄본은 확인용입니다.</p>
+          <p className="rc-hint">ℹ️ 세금계산서는 국세청 홈택스에서 발급해야 효력이 있습니다. 저장한 뒤 아래 「저장한 문서」에서 골라 「🧾 홈택스 일괄 발급 엑셀」을 누르면 홈택스 공식 양식에 채운 파일이 내려받아집니다 → 홈택스 「전자(세금)계산서 일괄발급」에 올려 발급하세요(한 장에 품목 4줄까지). 인쇄본은 확인용입니다.</p>
         )}
         {kind === "receipt" && <p className="rc-hint">ℹ️ 간이영수증은 법정 세금계산서가 아닙니다(거래 확인용).</p>}
       </div>
 
       <h2>🗂️ 저장한 문서</h2>
+      {taxDocs.length > 0 && (
+        <div className="rc-row-btns">
+          <button type="button" className="rc-btn" disabled={making || picked.size === 0} onClick={() => void makeHometax()}>{making ? "만드는 중…" : `🧾 홈택스 일괄 발급 엑셀 (${taxDocs.filter((d) => picked.has(d.id)).length}건)`}</button>
+          <button type="button" className="rc-btn ghost" onClick={pickAll}>세금계산서 전체 고르기·풀기</button>
+          <a className="rc-btn ghost" href="https://www.hometax.go.kr" target="_blank" rel="noreferrer">홈택스 열기 ↗</a>
+        </div>
+      )}
       {state.docs.length === 0 ? <p className="rc-hint">아직 저장한 문서가 없습니다.</p> : (
         <div className="rc-table-wrap">
           <table className="rc-table">
-            <thead><tr><th>작성일자</th><th>문서</th><th>거래처</th><th className="num">합계</th><th></th></tr></thead>
+            <thead><tr><th aria-label="홈택스 엑셀에 넣기">🧾</th><th>작성일자</th><th>문서</th><th>거래처</th><th className="num">합계</th><th></th></tr></thead>
             <tbody>
               {state.docs.map((d) => (
                 <tr key={d.id}>
+                  <td>{d.kind === "tax_invoice" ? <input type="checkbox" checked={picked.has(d.id)} onChange={() => togglePick(d.id)} aria-label={`${d.partner?.name ?? ""} 세금계산서 고르기`} /> : null}</td>
                   <td>{d.date}</td><td>{DOC_KINDS[d.kind]}</td><td>{d.partner?.name}</td><td className="num">{won(d.total)}</td>
                   <td className="rc-actions"><button type="button" className="rc-btn ghost" onClick={() => print(d)}>🖨️ 인쇄</button><button type="button" className="rc-x" onClick={() => void del(d.id)} aria-label="지우기">🗑</button></td>
                 </tr>

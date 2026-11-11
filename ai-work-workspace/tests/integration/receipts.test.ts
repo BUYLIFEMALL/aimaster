@@ -128,3 +128,63 @@ describe('30일 정리', () => {
     expect(rc.receiptHandlers.rcptEvidenceCsv(ctx('member-a'), {}).csv).not.toContain('문구점');
   });
 });
+
+describe('홈택스 일괄발급 엑셀(2026-11-12)', () => {
+  const ME = { name: '에이상회', ceo: '홍길동', bizNo: '220-81-62517', address: '서울시 중구', bizType: '도소매', bizItem: '문구', email: 'a@example.com' };
+  const PARTNER = { name: '비상사', ceo: '김비', bizNo: '2208162517', address: '부산시', bizType: '서비스', bizItem: '컨설팅', email: 'b@example.com' };
+  const sheetOf = async (b64: string) => {
+    const { readZip } = await import('../../src/server/zipLite.ts');
+    const entries = readZip(Buffer.from(b64, 'base64'));
+    return { names: entries.map((e) => e.name), sheet: entries.find((e) => e.name === 'xl/worksheets/sheet1.xml')!.data.toString('utf8') };
+  };
+  const cell = (xml: string, ref: string) => xml.match(new RegExp(`<c r="${ref}"[^>]*><is><t[^>]*>([^<]*)</t>`))?.[1];
+
+  it('한 건 → 59칸, 앞자리 0·숫자만 등록번호·품목 4줄 칸·영수/청구', () => {
+    const { row, problems } = core.hometaxRow(core.cleanBiz(ME), { date: '2026-11-05', taxMode: 'separate', lines: [{ name: '볼펜', spec: '0.5', qty: 10, unitPrice: 1000, supply: 10000, tax: 1000 }], supply: 10000, tax: 1000, partner: core.cleanBiz(PARTNER), purpose: '청구', memo: '' });
+    expect(problems).toEqual([]);
+    expect(row).toHaveLength(core.HOMETAX_COLS);
+    expect(row!.slice(0, 3)).toEqual(['01', '20261105', '2208162517']);
+    expect(row![10]).toBe('2208162517');
+    expect(row!.slice(19, 21)).toEqual(['10000', '1000']);
+    expect(row!.slice(22, 29)).toEqual(['05', '볼펜', '0.5', '10', '1000', '10000', '1000']);
+    expect(row![58]).toBe('02');
+    expect(core.colName(58)).toBe('BG');
+  });
+
+  it('못 넣는 건은 이유를 돌려준다(면세·품목 5줄·잘못된 번호)', () => {
+    const base = { date: '2026-11-05', lines: [{ name: 'a', spec: '', qty: 1, unitPrice: 1, supply: 1, tax: 0 }], supply: 1, tax: 0, partner: core.cleanBiz(PARTNER) };
+    expect(core.hometaxRow(core.cleanBiz(ME), { ...base, taxMode: 'none' }).problems.join()).toMatch(/전자계산서/);
+    expect(core.hometaxRow(core.cleanBiz(ME), { ...base, lines: Array(5).fill(base.lines[0]) }).problems.join()).toMatch(/4줄/);
+    expect(core.hometaxRow(core.cleanBiz({ ...ME, bizNo: '1234567890' }), base).problems.join()).toMatch(/내 사업자/);
+    expect(core.cutBytes('가나다abc', 5)).toBe('가나');
+    expect(core.cutBytes('ab가', 4)).toBe('ab가');
+  });
+
+  it('명령 — 공식 양식 7행부터 채우고, 남의 문서·다른 종류는 넣지 않는다', async () => {
+    const h = rc.receiptHandlers;
+    h.rcptSaveProfile(ctx('member-h'), { profile: ME });
+    const d1 = h.rcptSaveDoc(ctx('member-h'), { doc: { kind: 'tax_invoice', date: '2026-11-03', taxMode: 'separate', lines: [{ name: '볼펜 & <잉크>', qty: 2, unitPrice: 5000 }], partner: PARTNER, purpose: '영수' } }).doc;
+    const d2 = h.rcptSaveDoc(ctx('member-h'), { doc: { kind: 'tax_invoice', date: '2026-11-04', taxMode: 'none', lines: [{ name: '쌀', qty: 1, unitPrice: 30000 }], partner: PARTNER } }).doc;
+    const st = h.rcptSaveDoc(ctx('member-h'), { doc: { kind: 'statement', date: '2026-11-04', taxMode: 'separate', lines: [{ name: '명세', qty: 1, unitPrice: 1 }], partner: PARTNER } }).doc;
+    h.rcptSaveProfile(ctx('member-x'), { profile: ME });
+    const other = h.rcptSaveDoc(ctx('member-x'), { doc: { kind: 'tax_invoice', date: '2026-11-01', taxMode: 'separate', lines: [{ name: '남의것', qty: 1, unitPrice: 100 }], partner: PARTNER } }).doc;
+
+    const r = h.rcptHometaxXlsx(ctx('member-h'), { ids: [d1.id, d2.id, st.id, other.id] });
+    expect(r.count).toBe(1);
+    expect(r.skipped).toHaveLength(1);
+    expect(r.skipped[0].reasons.join()).toMatch(/전자계산서/);
+    // 실제 엑셀로 열어 볼 때: HOMETAX_SAMPLE=<저장 경로> 로 시험을 돌리면 만든 파일을 저장
+    if (process.env.HOMETAX_SAMPLE) (await import('node:fs')).writeFileSync(process.env.HOMETAX_SAMPLE, Buffer.from(r.base64, 'base64'));
+    const { names, sheet } = await sheetOf(r.base64);
+    expect(names).toContain('xl/worksheets/sheet2.xml'); // 항목설명 등 다른 시트 그대로
+    expect(cell(sheet, 'A7')).toBe('01');
+    expect(cell(sheet, 'B7')).toBe('20261103');
+    expect(cell(sheet, 'X7')).toBe('볼펜 &amp; &lt;잉크&gt;');
+    expect(cell(sheet, 'T7')).toBe('10000');
+    expect(cell(sheet, 'BG7')).toBe('01');
+    expect(sheet).toContain('<c r="A8" s="41"/>'); // 8행은 비어 있음
+    expect(sheet).not.toContain('남의것');
+    expect(() => h.rcptHometaxXlsx(ctx('member-h'), { ids: [d2.id] })).toThrow(/전자계산서/);
+    expect(() => h.rcptHometaxXlsx(ctx('member-h'), { ids: [] })).toThrow(/골라/);
+  });
+});

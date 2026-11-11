@@ -9,9 +9,10 @@ import { db } from "@/litpage/server/db.ts";
 import { newId } from "#shared/ids.ts";
 import { loadMemberAiKeys } from "./memberAiKeys";
 import {
-  cleanBiz, cleanEvidence, cleanLines, docTotals, evidenceCsv, monthSummary, normalizeEvidence, ocrPrompt, parseJsonLoose,
-  DOC_KINDS, type DocKind, type Evidence, type TaxMode,
+  cleanBiz, cleanEvidence, cleanLines, docTotals, evidenceCsv, hometaxRow, monthSummary, normalizeEvidence, ocrPrompt, parseJsonLoose,
+  DOC_KINDS, HOMETAX_MAX_ROWS, type BizInfo, type DocKind, type Evidence, type HometaxDoc, type TaxMode,
 } from "./receiptsCore";
+import { buildHometaxXlsx } from "./hometaxXlsx";
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
 
@@ -285,6 +286,37 @@ export const receiptHandlers: Record<string, Handler> = {
     ensureReceiptTables();
     const rows = evidenceOf(userId, typeof month === "string" ? month : undefined);
     return { filename: `증빙장부_${typeof month === "string" && month ? month : "전체"}.csv`, csv: evidenceCsv(rows) };
+  },
+
+  /** 고른 세금계산서 → 홈택스 일괄발급 엑셀(공식 양식에 채움, 100건까지). 못 넣는 건은 skipped로 이유와 함께 돌려줌 */
+  rcptHometaxXlsx(ctx, { ids }) {
+    const userId = uid(ctx);
+    ensureReceiptTables();
+    const want = Array.isArray(ids) ? [...new Set(ids.filter((x: unknown): x is string => typeof x === "string"))] : [];
+    if (!want.length) throw new ApiError("홈택스 엑셀로 만들 세금계산서를 골라 주세요.", 400);
+    if (want.length > HOMETAX_MAX_ROWS) throw new ApiError(`한 번에 ${HOMETAX_MAX_ROWS}건까지 만들 수 있습니다.`, 400);
+    const prof = db.prepare("SELECT data FROM aww_rcpt_profile WHERE user_id = ?").get(userId) as { data: string } | undefined;
+    const me = prof ? parse<BizInfo>(prof.data) : null;
+    const docs = (db.prepare(`SELECT id, data FROM aww_rcpt_docs WHERE user_id = ? AND kind = 'tax_invoice' AND id IN (${want.map(() => "?").join(", ")}) ORDER BY doc_date, created_time`).all(userId, ...want) as { id: string; data: string }[])
+      .map((r) => ({ ...parse<HometaxDoc>(r.data), id: r.id }));
+    const rows: string[][] = [];
+    const skipped: { id: string; partner: string; date: string; reasons: string[] }[] = [];
+    for (const d of docs) {
+      const { row, problems } = hometaxRow(me, d);
+      if (row) rows.push(row);
+      else skipped.push({ id: d.id, partner: d.partner?.name ?? "", date: d.date, reasons: problems });
+    }
+    if (!rows.length) {
+      const first = skipped[0]?.reasons.join(" ") ?? "고른 세금계산서를 찾지 못했습니다.";
+      throw new ApiError(`홈택스 엑셀에 넣을 수 있는 세금계산서가 없습니다. ${first}`, 400);
+    }
+    const kst = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10).replace(/-/g, "");
+    return {
+      filename: `홈택스_세금계산서_일괄발급_${kst}_${rows.length}건.xlsx`,
+      base64: buildHometaxXlsx(rows).toString("base64"),
+      count: rows.length,
+      skipped,
+    };
   },
 };
 
