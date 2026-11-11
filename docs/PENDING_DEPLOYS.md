@@ -19,12 +19,12 @@
 
 - **music-video-studio(2026-11-11 영상 담당)**: 공용 `video-edit-timeline` 사본 — 배경음악 출처에 「내 자료함」(`library`) 형식 추가(기준 `ai-video-studio` v1.35). 이 프로그램 화면·동작은 같음. 다음 배포 때 함께.
 
-- **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `shorts-onestop-studio`·`music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(`ai-video-studio`는 v1.35로 반영·`icn1::icn1` 확인)(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때).
+- **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(`ai-video-studio`는 v1.35, `shorts-onestop-studio`는 v1.49로 반영·`icn1::icn1` 확인)(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때).
 
 - **구글 연결 안내(2026-11-11 영상 담당 `claude-win-video`, 주인님 지시 「각 개인도 본인계정으로 인증」)**: ① `youtube-viral-studio` — 내 채널 연결 단계·설정 구글 앱 칸에 공용 매뉴얼 「내 구글 앱 만들기」 버튼, 매뉴얼 0단계 링크 ② `youtube-auto-reply` — 설정 텔레그램 칸 「구글 미검증 앱은 7일마다 만료」 → 「테스트 중이면 7일 만료 — 앱 게시로 유지」. 둘 다 문구·링크만, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 공용 매뉴얼 글 2개(DB)는 이미 반영됨.
 
 
-- **공용 `ai-video-client` 사본 — Runway·Vidu 코드(2026-11-11 영상 담당 `claude-win-video`, 커밋 v1.33 기준 동기화):** `ai-image-studio/lib/video/`·`shorts-onestop-studio/src/lib/video*.ts`·`shots/src/lib/video/`·`music-video-studio/src/lib/video/` 3파일. 이 프로그램들 목록(`VIDEO_MODELS`)에는 새 모델이 없어 **화면·동작 변화 없음**(`findVideoModel` 반환 타입만 기존 세 제공자로 좁힘). 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 기준 `ai-video-studio` v1.33은 배포됨.
+- **공용 `ai-video-client` 사본 — Runway·Vidu 코드(2026-11-11 영상 담당 `claude-win-video`, 커밋 v1.33 기준 동기화):** `ai-image-studio/lib/video/`·`shots/src/lib/video/`·`music-video-studio/src/lib/video/` 3파일. 이 프로그램들 목록(`VIDEO_MODELS`)에는 새 모델이 없어 **화면·동작 변화 없음**(`findVideoModel` 반환 타입만 기존 세 제공자로 좁힘). 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 기준 `ai-video-studio` v1.33은 배포됨. ✅ `shorts-onestop-studio` v1.49(11-11)에 함께 나감.
 
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
@@ -87,6 +87,7 @@
 | `youtube-viral-studio` | v1.26 · 2026-11-11 ([역할: video] `claude-win-video`, 연속 배포 2/3, `youtube-viral-studio-lpefb49rp` Ready, DB v1.26) | 좌측 메뉴 「협업 크리에이터 찾기」 중복 그림문자 제거(운영 화면 확인) |
 | `ai-video-studio` | v1.32 · 2026-11-11 ([역할: video] `claude-win-video`, 연속 배포 1/3, `ai-video-studio-io1q4wjnb` Ready, DB v1.32) | 구간 고르기·번역 Claude `claude-haiku-4-5` → `claude-haiku-5-5`(생각 끔·effort low, 배포 전 관리자 키로 같은 요청 200 확인) |
 | `ai-work-workspace` | v1.24 · 2026-11-11 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 U12 플랜 승인 범위 빌드 1회, `ai-work-workspace-52q7nkhlv` Ready, DB v1.24) | U12 업무 비서(새 기능) — ego 시험 계정: 비용 안내·한국어 템플릿·대화·직접 실행 통과 |
+| `shorts-onestop-studio` | v1.49 · 2026-11-11 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `shorts-onestop-studio-a8znzp0vz` Ready, DB v1.49) | 대본·발행 계획 30일 정리(발행 여부 무관, 예외 회원 제외) + 매뉴얼 FAQ + 저장공간 위젯 + 서울 지역(`icn1::icn1` 확인) + 공용 `ai-video-client` 사본. 크론 비밀값 없이 401 확인 |
 | `shorts-onestop-studio` | v1.48 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 「쇼츠 원스톱도 함께」 승인 빌드 1회, `shorts-onestop-studio-5tr3q3m40` Ready, DB v1.48) | 레퍼런스 받아쓰기 모델 선택 새 기능 + 대기 「문장 다듬기로」 조사 수정 + 30일 열외 줄의 이 프로그램 몫 |
 | `ai-video-studio` | v1.31 · 2026-11-10 ([역할: video] `claude-win-video`, 주인님 채팅 승인 빌드 1회, `ai-video-studio-1e670xxcf` Ready, DB v1.31) | 받아쓰기 모델 선택(Gemini 3.8 Flash 기본·Flash Lite·Whisper) 새 기능 + 30일 열외 줄의 이 프로그램 몫 ✅ 표시 |
 | `ai-auto-blog` | v1.87 · 2026-11-10 ([역할: blog] `claude-win-blog`, 주인님 「진행해」 빌드 1회, `ai-auto-blog-owi7ebx36` Ready, DB·확장·ZIP v1.87) | 12월 모델 교체 A `142cb45ec` · U10 2차 「📨 업무 워크스페이스로 보내기」 `c44499682` · 권한 판정 동시 조회 `d1e710d68` · 시험 정리 |

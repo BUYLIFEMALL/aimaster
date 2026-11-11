@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `shorts-onestop-studio` v1.49 배포(보관 규칙 최종 적용)
+
+- 한 일: 매일 정리 크론이 파일 30일에 더해 대본(`project`)·발행 계획(`plan`) 행도 마지막 수정 30일 뒤 삭제(발행 여부 무관, `retention_exempt` 회원 제외, 프리셋·지침·설정은 보관). 매뉴얼 FAQ 문구, 저장공간 위젯 한 줄, 서울 지역, 공용 `ai-video-client` 사본이 함께 나감.
+- 검수: 시험 55개·tsc 통과, 배포 `shorts-onestop-studio-a8znzp0vz` Ready, DB v1.49, 운영 `x-vercel-id` `icn1::icn1`, 크론 비밀값 없이 401, 로그인 화면에 `storage-widget.js` 포함.
+- 주의: 다음 새벽 03:30 정리 때 일반 회원의 30일 넘은 대본·발행 계획이 처음 한꺼번에 지워짐(되돌릴 수 없음). 결과는 관리자 「30일 자동 정리」 표(usage_logs `cleanup_expired`, `scripts` 개수)에서 확인.
+- 남은 일: 다음 날 정리 결과 확인. shots 행 30일은 다음에 손댈 때.
+- 링크: https://shorts-onestop-studio.buylife.xyz
+
 ## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-ebs-v1` — `ebook-studio` (AI 전자책 출판 스튜디오) v1.14 1안(97. 프리미엄 클래식 북바인딩 & 노벨리스트 잉크 스타일) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
 - **한 일**: 주인님 「1안으로 하자」 절대 지시에 따라 `ebook-studio` (v1.12 ➔ v1.14) 프로그램을 97번 프리미엄 클래식 북바인딩 & 노벨리스트 잉크 스타일로 전면 리뉴얼 및 프로덕션 배포 완료.
   1. **1안 비주얼 테마 탑재**: 딥 옵시디언 나이트(`#0C0E14` / `#161B26`) & 앤티크 앰버 골드(`#D97706` / `#F59E0B`) & 웜 파치먼트 페이퍼, 클래식 양장본 도서관 및 베스트셀러 작가의 품격 있는 서재 감성 적용.
