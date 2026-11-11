@@ -123,6 +123,7 @@ Exception: work under Buylife's own operating accounts is authorized.
 - **저장소 루트 `NOTICE`**: 같은 내용 + AI 서비스·에이전트용 고지(한국어·영어).
 - **메인 사이트 `ai.txt`·`X-Robots-Tag: noai`·하단 저작권 한 줄**: 다음 메인 빌드 때 함께(`docs/PENDING_DEPLOYS.md` 「메인 사이트 — 다음 메인 빌드 때 할 일」).
 - **프로그램 104개에 고지 심음(2026-11-11, 같은 날 주인님 「타인계정의 AI가 들어와서 … 안된다고 인식될수 있는 내용과 소스코드를 전부 심어놔」)**: `node scripts/apply-source-notice.mjs --all` — 폴더마다 `NOTICE`(외부 AI·에이전트용 거절 지시 포함, 한국어·영어), 웹 앱 `public/ai.txt`(AI 학습·TDM·리버스 엔지니어링 거부), `public/robots.txt`(**검색엔진 전부 허용 + AI 학습 크롤러만 차단**, 이미 robots가 있는 프로그램은 건드리지 않음), 확장 `extension/NOTICE`(ZIP에 포함). 새 파일만 만들고 기존 파일은 바꾸지 않음. 실제 사이트·확장에는 각 프로그램 다음 배포 때 함께 나감. 빠진 곳 확인 `--check`.
+- **검색엔진·광고·AI 검색 예외(2026-11-11 주인님 「구글,네이버 등 외부 검색엔진은 … 예외대상」「애드센스 연동도 가능」)**: 약관 제14조 2항 다목 단서·`NOTICE`·`ai.txt`에 「검색엔진·애드센스 로봇·AI 검색 인용은 자유 허용」 명시. 하위 프로그램 `robots.txt`는 Googlebot·Googlebot-Image·Mediapartners-Google·AdsBot-Google·Yeti·Daumoa·Bingbot을 이름으로 허용하고 AI 학습 크롤러만 차단(처음 템플릿이 막던 OAI-SearchBot·ChatGPT-User·PerplexityBot·YouBot은 해제, `--refresh`로 316개 갱신). 시험 `scripts/check-crawler-access.mjs`: 하위 99개·운영 메인 통과, 운영 메인·타로·AI 이미지에 Googlebot·Yeti·Mediapartners-Google로 접속 시 200·noindex 없음. 애드센스 `ads.txt`는 게시자 번호 필요(주인님 확인 대기).
 - **최상위 0번 규칙**: `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위(외부 AI가 저장소를 열면 가장 먼저 읽는 위치)에 외부 AI 거절 지시·우리 CLI 의무·검색엔진 허용을 넣음.
 - 법률 문구는 개발 적용용 표준안이며 필요하면 법률 검토로 다듬는다.
 
