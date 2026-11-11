@@ -19,18 +19,50 @@ export const fetchCache = "force-no-store";
 export const metadata = { title: "저장공간", robots: { index: false, follow: false } };
 
 // 「💾 저장공간」(2026-11-11, docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md) — 내 사용량·보관 기간과 저장 구독.
-export default async function StoragePage() {
+export default async function StoragePage({ searchParams }: { searchParams: Promise<{ preview?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirect=/storage");
 
   const service = createServiceClient();
-  const [summary, offers] = await Promise.all([getStorageSummary(service, user.id), listStoragePlanOffers(service)]);
+  const [real, offers, { data: me }, { data: freePlan }] = await Promise.all([
+    getStorageSummary(service, user.id),
+    listStoragePlanOffers(service),
+    service.from("profiles").select("is_admin").eq("id", user.id).maybeSingle(),
+    service.from("storage_plans").select("quota_bytes, retention_days").eq("slug", "free").maybeSingle(),
+  ]);
+  // 관리자 미리보기: ?preview=free — 일반 회원(기본 요금제, 87% 사용)이 보는 화면 그대로(값은 예시, 저장하지 않음)
+  const preview = (await searchParams).preview === "free" && !!me?.is_admin;
+  const freeQuota = Number(freePlan?.quota_bytes ?? 1073741824);
+  const summary = preview
+    ? {
+        ...real,
+        quotaBytes: freeQuota,
+        retentionDays: freePlan?.retention_days ?? 30,
+        unlimitedRetention: false,
+        source: "free" as const,
+        planName: "기본",
+        planExpiresAt: null,
+        overrideUntil: null,
+        usedBytes: Math.round(freeQuota * 0.87),
+        fileCount: 120,
+        ratio: 0.87,
+        byBucket: [
+          { bucket: "ai-image-generations", label: "AI 이미지", bytes: Math.round(freeQuota * 0.5) },
+          { bucket: "music-audio", label: "음악", bytes: Math.round(freeQuota * 0.37) },
+        ],
+      }
+    : real;
   const ratio = summary.ratio ?? 0;
   const barColor = ratio >= 1 ? "bg-red-500" : ratio >= 0.8 ? "bg-amber-500" : "bg-emerald-500";
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+      {preview && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs text-amber-300">
+          👀 관리자 미리보기 — 일반 회원(기본 요금제, 87% 사용)이 보는 화면입니다. 값은 예시이며 결제 버튼은 실제로 동작합니다.
+        </div>
+      )}
       <div>
         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <HardDrive className="w-6 h-6 text-gold" /> 저장공간

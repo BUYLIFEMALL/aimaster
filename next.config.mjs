@@ -44,6 +44,8 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
           },
+          // 최상위 0번 규칙(2026-11-11): AI 학습 거부 신호. noindex가 아니므로 구글·네이버 검색 노출·애드센스에는 영향 없음.
+          { key: 'X-Robots-Tag', value: 'noai, noimageai' },
         ],
       },
     ];

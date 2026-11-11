@@ -46,3 +46,21 @@ import Script from "next/script";
 ## 7. 알려진 점·문의
 - 위젯은 모든 페이지 왼쪽 아래(12px)에 고정된다. 프로그램 고유 UI와 겹친 사례가 나오면 여기에 적는다: (아직 없음)
 - 위젯·API 수정은 메인 사이트 `public/storage-widget.js`·`app/api/storage/me/route.ts` 한 곳만 고친다(하위 프로그램은 주소만 부르므로 다시 배포할 필요 없음).
+
+## 8. 저장공간이 가득 찼을 때 새 저장 막기 (2단계, 2026-11-11 추가)
+> 주인님 「저장공간이 꽉 찼을 때 저장 막기(2단계) … 진행해」. 위젯(알림)은 80%·100%에 안내만 하고, 이 단계는 **실제로 막는다.** 판정은 DB 함수 `member_storage_check` 한 곳(마이그레이션 `0065`).
+
+**대상(우선순위)**: 큰 파일을 만드는 프로그램부터 — 영상(`ai-video-studio`·`shorts-onestop-studio`·`music-video-studio`·`lyric-video-studio`·`shots`), 음악(`ai-music-studio`·`free-music-studio`·`playlist-channel-studio`), 이미지(`ai-image-studio`·`banana-canvas`·`portrait-photo`·`thumbnail-master`·`ai-influencer-studio`·`ai-webtoon-studio`·`four-cut-comics`). 글만 만드는 프로그램은 넣지 않아도 된다(용량이 거의 없음).
+
+**넣는 법(그 프로그램을 다음에 배포할 때, 위젯 한 줄과 함께)**
+1. 공용 기준 코드 사본: `scripts/check-shared-modules.mjs`의 `storage-quota-client` 항목 `copies`에 `<프로그램>/lib/storageQuota.ts`(또는 `src/lib/…`)를 추가하고 `node scripts/check-shared-modules.mjs --sync --module storage-quota-client`로 기준 `lib/storage/storageQuota.ts`를 복사한다(사본은 직접 고치지 않음).
+2. **유료 AI 호출·업로드 직전**(권한 확인 바로 다음)에:
+   ```ts
+   import { checkStorageQuota } from "@/lib/storageQuota";
+   const q = await checkStorageQuota(admin /* 서버 키 */, user.id, 예상바이트 /* 모르면 0 */);
+   if (!q.allowed) return NextResponse.json({ error: q.message, code: "STORAGE_FULL", upgradeUrl: q.upgradeUrl }, { status: 403 });
+   ```
+3. 화면은 `code === "STORAGE_FULL"`이면 기존 오류 안내에 「저장공간 늘리기」 링크(`upgradeUrl`)를 붙인다. 회원 키를 쓰는 유료 호출 **전에** 막으므로 회원 비용이 새지 않는다.
+4. 판정 장애(DB 오류) 때는 허용으로 돌아간다(서비스가 멈추지 않게). 관리자·시험 계정·무제한 요금제는 항상 허용.
+
+**시험(2026-11-11 운영 DB)**: 일반 회원 1KB 허용·2GB 막힘, 시험 계정 2GB 허용, 공개 키 호출 차단. 회원 한 명 다시 계산 약 6초 → 약 0.1초(0065에서 회원 지정 측정은 정규식 없이 바로 합산).

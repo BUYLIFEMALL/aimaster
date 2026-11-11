@@ -72,6 +72,11 @@ export default function Footer() {
           <p className="text-subtext text-sm">
             © 2026 AI Master. All rights reserved.
           </p>
+          {/* 최상위 0번 규칙(2026-11-11) — 이용약관 제14조 */}
+          <p className="text-subtext/70 text-xs mt-1 break-keep">
+            © BUYLIFE. 서비스·프로그램의 무단 복제, 리버스 엔지니어링, AI를 이용한 분석·학습을 금지합니다(
+            <a href="/terms" className="underline hover:text-white">이용약관 제14조</a>). 검색엔진 노출은 자유롭게 허용합니다.
+          </p>
         </div>
       </div>
     </footer>

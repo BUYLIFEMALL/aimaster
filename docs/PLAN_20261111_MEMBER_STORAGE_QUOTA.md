@@ -132,6 +132,6 @@
 
 ### 남은 것
 1. 하위 프로그램 위젯 한 줄 붙이기 — **결정(2026-11-11 주인님): 각 프로그램을 다음에 배포할 때 함께, 남은 것은 나중에 모아서 한 번에.** 절차: [`HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`](HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md), 확인 `node scripts/pending-check.mjs --all`.
-2. 꽉 찼을 때 저장 차단(2단계, 공용 기준 코드 `checkStorageQuota`) — 아직 알림만.
+2. ~~꽉 찼을 때 저장 차단~~ → **기반 완료(2026-11-11)**: DB `member_storage_check`(0065, 측정 오래되면 다시 셈), 공용 기준 코드 `storage-quota-client`(`lib/storage/storageQuota.ts`, 사본 0개). 각 프로그램(영상·음악·이미지 우선)은 다음 배포 때 유료 AI 호출 전에 붙인다 — 절차 `HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md` §8. 회원 한 명 측정 약 6초 → 0.1초. 관리자 미리보기 `/storage?preview=free`(일반 회원 화면 확인용).
 3. ~~관리자 화면에서 요금제 숫자 편집~~ → **완료(2026-11-11)**: 관리자 「저장공간 요금제」(`/admin/storage-plans`) — 요금제별 이름·용량·보관 기간(일수/무기한)·금액·결제 주기(1·2·3·6·12개월)·사용 여부·순서·구독자 수, 요금제 추가, 등급별 기본 혜택. 저장 시 `storage_plans` + `storage-plus` 결제 요금제 동기화 + 전 회원 열외 다시 계산(`/api/admin/storage-plans`). 회원 카드·위젯 문구는 고정 숫자 없이 DB 값 표시.
 4. 실제 결제 1건 시험(시험 계정, 최소 금액) — **주인님 「나중에 테스트하자」(2026-11-11)**, 요청함 대기 유지.
