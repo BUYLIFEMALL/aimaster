@@ -25,6 +25,7 @@
 
 
 - **공용 `ai-video-client` 사본 — Runway·Vidu 코드(2026-11-11 영상 담당 `claude-win-video`, 커밋 v1.33 기준 동기화):** `ai-image-studio/lib/video/`·`shots/src/lib/video/`·`music-video-studio/src/lib/video/` 3파일. 이 프로그램들 목록(`VIDEO_MODELS`)에는 새 모델이 없어 **화면·동작 변화 없음**(`findVideoModel` 반환 타입만 기존 세 제공자로 좁힘). 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 기준 `ai-video-studio` v1.33은 배포됨. ✅ `shorts-onestop-studio` v1.49(11-11)에 함께 나감. ✅ `shots` v1.48(11-12)에 함께 나감.
+- **`ai-video-studio` 만들기 화면 「내 자료함」 사진 고르기 + 저장공간 위젯(2026-11-12 영상 담당 `claude-win-video`, 주인님 「진행해」)**: 시작·끝 장면 사진 칸에 「🗂️ 내 자료함」 버튼 → 자료함 이미지 격자 → 고르면 브라우저가 서명 주소에서 받아 기존 축소(1280px JPG) 뒤 칸에 넣음(생성 서버 코드 그대로). 새 API `app/api/library/images`. 시험 113·tsc 통과. 다음 `ai-video-studio` 배포 때 v1.36. 플랜 `ai-video-studio/docs/PLAN_20261112_VIDEO_IMPROVEMENTS.md`.
 
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.

@@ -43,6 +43,6 @@
 | 받는 프로그램 | 가져올 자료 | 지금 방식 → 바꿀 점 | 담당 |
 |---|---|---|---|
 | `lyric-video-studio` · `playlist-channel-studio` · `music-video-studio` · `shorts-onestop-studio` · `ai-video-studio`(편집 — **✅ v1.35 적용 2026-11-11**, 참고 구현 `ai-video-studio/lib/edit/librarySongs.ts`·`app/api/edit/songs`) | 음악 3종 | 프로그램마다 `amsSongs.ts`·`sunoTracks.ts`·`fmsTracks.ts` 등 3종 읽기 코드 → `listMemberAssets({ kind: "audio" })` 하나로(곡 가사 시간 등 원본 고유 정보가 필요한 곳은 기존 코드 유지) | 영상·음악 |
-| 영상 프로그램(썸네일·배경) | 이미지 4종 | `thumbnailPicks.ts`(썸네일만) → 이미지 전체 | 영상 |
+| 영상 프로그램(썸네일·배경) — `ai-video-studio` 만들기 시작·끝 장면 사진 **코드 완료 2026-11-12(v1.36 미배포)**, 참고 구현 `ai-video-studio/app/api/library/images` | 이미지 4종 | `thumbnailPicks.ts`(썸네일만) → 이미지 전체 | 영상 |
 | `insta_auto_poster` 등 SNS 게시 | 이미지·영상 | 각 스튜디오별 보내기 → 「내 자료함에서 가져오기」 + 공개 버킷 복사 | 인스타·디자인 |
 | 블로그 프로그램 | 이미지 | 본문 이미지 새로 생성 → 자료함 이미지 고르기 | 블로그 |
