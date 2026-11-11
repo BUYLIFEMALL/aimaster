@@ -136,6 +136,8 @@
 | Windows 샌드박스 | 출처 모르는 EXE를 실행해 봐야 할 때(일회용 격리 창) | **주인님이 직접**: 시작 → "Windows 기능 켜기/끄기" → Windows Sandbox 체크 → 재부팅. 2026-10-15 현재 꺼져 있음 |
 | (불필요) IDA · Hopper | 유료 — Ghidra로 충분 | — |
 
+> **윈도우 메인 PC 파이썬 (2026-11-11 확인·정리)**: `C:Python315`(3.15.2, `python`·`py` 기본)와 `C:Python314`(3.14.2, `py -3.14`) 두 개를 함께 둔다 — pyinstxtractor처럼 원본과 같은 버전이 필요할 때 쓰기 위함. 두 버전에 같은 패키지 15종(`requests`·`openpyxl`·`pymupdf`·`pypdf`·`fpdf2`·`pillow`·`yt-dlp`·`uv` 등, 버전 동일)을 설치해 어느 쪽으로 실행해도 된다. `uv`·`uvx`·`yt-dlp` 명령은 3.15 쪽이 먼저 잡힌다. 지울 때는 폴더 삭제가 아니라 「설정 → 앱」에서 제거.
+
 ## 4. 새 PC·재설치 순서 (요약)
 1. Node.js·Git 확인 → `npm i -g rea-agents`
 2. `winget install --id EclipseAdoptium.Temurin.21.JDK -e`
