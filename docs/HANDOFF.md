@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-ebs-v1` — `ebook-studio` (AI 전자책 출판 스튜디오) v1.14 1안(97. 프리미엄 클래식 북바인딩 & 노벨리스트 잉크 스타일) 공식 채택 전면 개편 및 Vercel 프로덕션 배포 완료
+- **한 일**: 주인님 「1안으로 하자」 절대 지시에 따라 `ebook-studio` (v1.12 ➔ v1.14) 프로그램을 97번 프리미엄 클래식 북바인딩 & 노벨리스트 잉크 스타일로 전면 리뉴얼 및 프로덕션 배포 완료.
+  1. **1안 비주얼 테마 탑재**: 딥 옵시디언 나이트(`#0C0E14` / `#161B26`) & 앤티크 앰버 골드(`#D97706` / `#F59E0B`) & 웜 파치먼트 페이퍼, 클래식 양장본 도서관 및 베스트셀러 작가의 품격 있는 서재 감성 적용.
+  2. **2026-11-01 5단계 표준 로그인 폼 & 1행 약관 개편**: 68px 양장본 심볼 로고 + 알약 뱃지(`AIMASTER EBOOK STUDIO`) + 볼드 타이틀 + 3D 엠보싱 골드 버튼(`.btn-3d`, `.btn-3d-amber-book`) + 1행 축소 약관(`진행 시 이용약관 및 개인정보 처리방침에 동의합니다.`) 탑재 (`src/app/login/page.tsx`).
+  3. **헤더 & 사이드바 통일**: 앤티크 골드 엠블럼(`bg-gradient-to-tr from-[#78350F] to-[#D97706]`), 4단계 출판 파이프라인 인디케이터(`bg-[#D97706]`, `text-[#FBBF24]`), 3D 엠보싱 버튼 연동 (`Header.tsx`, `Sidebar.tsx`).
+  4. **버전 범프**: `src/lib/version.ts`: `APP_VERSION = "v1.14"`, `package.json`: `1.14.0`.
+- **검수**: `tsc --noEmit` 통과, Next.js 16.4.2 프로덕션 빌드 성공, Vercel 프로덕션 배포 완료 (`dpl_9vf24yxdde7X5zbAtFus4qUhivZW`), 라이브 세션 HTTP 200 OK 및 Playwright 1440px 고화질 스크린샷 캡처 완료 (`ebook-studio/docs/evidence_login_v114.png`).
+- **5대 결과 링크 세트**:
+  1. 🌐 **공식 운영 서비스**: https://ebook-studio.buylife.xyz (보조: https://ebook.buylife.xyz)
+  2. 🌐 **Vercel 프로덕션 보조 링크**: https://ebook-studio.vercel.app
+  3. 📮 **관리자 dev-docs 결과함**: https://www.buylife.xyz/admin/dev-docs/requests
+  4. 🎨 **브라우저 쇼케이스 URL**: http://localhost:3800/showcase.html (비교표: http://localhost:3800/comparison.html)
+  5. 📁 **로컬 영구 자산 폴더**: `D:\Antigravity\Design\97_premium_classic_bookbinding_novelist\ebook_studio`
+- **다음 첫 단계**: 주인님 다음 디자인 작업 리스트 지시 대기.
+
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — **AI 쇼핑몰 빌더 D35 입점형 마켓플레이스 2단계: 공급사 상품·운영자 승인 (미배포)**
 - 한 일: Lab DB `0054`(+`_grants`)·`0054b` — 상품에 공급사·승인 상태, 손님 노출은 「승인됨 + 공급사 입점 중」만, 공급사 함수(올리기·고치기 — 재고만 바꾸면 재승인 없음, 판매 멈춤/다시 열기), 운영자 승인(판매가 ≥ 공급가, 바로 판매 선택)/반려(사유). **공급가는 별도 표 `mall_builder_product_supply`**(손님이 API로 못 읽게). 화면: 공급사 「내 상품」·올리기·고치기(사진), 운영자 「공급사」 승인 대기 칸, 「상품」 목록 🏭 배지.
 - 검수: 시험 243개·tsc, DB 되돌림 21항목 + 공급가 표 읽기 시험, ego 흐름 전부·390px. 시험 데이터 정리(사진 파일 1장은 저장소에 남음).
