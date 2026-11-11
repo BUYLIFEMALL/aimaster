@@ -30,7 +30,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
     getStorageSummary(service, user.id),
     listStoragePlanOffers(service),
     service.from("profiles").select("is_admin").eq("id", user.id).maybeSingle(),
-    service.from("storage_plans").select("quota_bytes, retention_days").eq("slug", "free").maybeSingle(),
+    service.from("storage_plans").select("quota_bytes, retention_days, posted_retention_days").eq("slug", "free").maybeSingle(),
   ]);
   // 관리자 미리보기: ?preview=free — 일반 회원(기본 요금제, 87% 사용)이 보는 화면 그대로(값은 예시, 저장하지 않음)
   const preview = (await searchParams).preview === "free" && !!me?.is_admin;
@@ -42,6 +42,8 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
         quotaBytes: freeQuota,
         retentionDays: freePlan?.retention_days ?? 30,
         unlimitedRetention: false,
+        postedRetentionDays: freePlan?.posted_retention_days ?? freePlan?.retention_days ?? 30,
+        postedUnlimited: false,
         source: "free" as const,
         planName: "기본",
         planExpiresAt: null,

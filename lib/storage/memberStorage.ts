@@ -35,6 +35,8 @@ export interface StoragePolicy {
   quotaBytes: number | null; // null = 무제한
   retentionDays: number | null; // null = 자동 삭제 없음
   unlimitedRetention: boolean;
+  postedRetentionDays: number | null; // 포스팅된 콘텐츠 보관(일), null = 자동 삭제 없음 (0068)
+  postedUnlimited: boolean;
   source: "exempt" | "admin" | "subscription" | "grade" | "free";
   planName: string | null;
   planExpiresAt: string | null;
@@ -68,6 +70,7 @@ export interface StoragePlanOffer {
   name: string;
   quotaBytes: number;
   retentionDays: number | null;
+  postedRetentionDays: number | null;
   price: number;
   billingType: string;
 }
@@ -76,6 +79,8 @@ type PolicyRow = {
   quota_bytes: number | null;
   retention_days: number | null;
   unlimited_retention: boolean;
+  posted_retention_days?: number | null;
+  posted_unlimited?: boolean;
   source: StoragePolicy["source"];
   plan_name: string | null;
   plan_expires_at: string | null;
@@ -87,6 +92,8 @@ export function toPolicy(row: PolicyRow | null | undefined): StoragePolicy {
     quotaBytes: row?.quota_bytes ?? (row ? null : 524288000), // 판정 실패 때 기본(무료 500MB, 2026-11-11 주인님 지시)
     retentionDays: row ? row.retention_days : 30,
     unlimitedRetention: row?.unlimited_retention ?? false,
+    postedRetentionDays: row ? (row.posted_retention_days === undefined ? row.retention_days : row.posted_retention_days) : 30,
+    postedUnlimited: row?.posted_unlimited ?? row?.unlimited_retention ?? false,
     source: row?.source ?? "free",
     planName: row?.plan_name ?? "기본",
     planExpiresAt: row?.plan_expires_at ?? null,
@@ -127,14 +134,15 @@ export async function listStoragePlanOffers(service: SupabaseLike): Promise<Stor
   if (!program) return [];
   const [{ data: plans }, { data: sps }] = await Promise.all([
     service.from("pricing_plans").select("id, name, price, billing_type, storage_plan_slug, sort_order").eq("program_id", program.id).eq("is_active", true).order("sort_order"),
-    service.from("storage_plans").select("slug, quota_bytes, retention_days").eq("is_active", true),
+    service.from("storage_plans").select("slug, quota_bytes, retention_days, posted_retention_days").eq("is_active", true),
   ]);
-  const bySlug = new Map<string, { quota_bytes: number; retention_days: number | null }>((sps ?? []).map((s: { slug: string; quota_bytes: number; retention_days: number | null }) => [s.slug, s]));
+  type Sp = { slug: string; quota_bytes: number; retention_days: number | null; posted_retention_days: number | null };
+  const bySlug = new Map<string, Sp>((sps ?? []).map((s: Sp) => [s.slug, s]));
   return (plans ?? [])
     .filter((p: { storage_plan_slug: string | null }) => p.storage_plan_slug && bySlug.has(p.storage_plan_slug))
     .map((p: { id: string; name: string; price: number; billing_type: string; storage_plan_slug: string }) => {
       const sp = bySlug.get(p.storage_plan_slug)!;
-      return { pricingPlanId: p.id, slug: p.storage_plan_slug, name: p.name, quotaBytes: Number(sp.quota_bytes), retentionDays: sp.retention_days, price: p.price, billingType: p.billing_type };
+      return { pricingPlanId: p.id, slug: p.storage_plan_slug, name: p.name, quotaBytes: Number(sp.quota_bytes), retentionDays: sp.retention_days, postedRetentionDays: sp.posted_retention_days, price: p.price, billingType: p.billing_type };
     });
 }
 
@@ -149,10 +157,18 @@ export function formatBytes(bytes: number | null): string {
   return `${bytes}B`;
 }
 
-export function formatRetention(p: Pick<StoragePolicy, "retentionDays" | "unlimitedRetention">): string {
-  if (p.unlimitedRetention || p.retentionDays === null) return "자동 삭제 없음";
-  if (p.retentionDays % 365 === 0) return `${p.retentionDays / 365}년 보관`;
-  return `${p.retentionDays}일 보관`;
+export function formatDays(days: number | null): string {
+  if (days === null) return "자동 삭제 없음";
+  if (days % 365 === 0) return `${days / 365}년`;
+  return `${days}일`;
+}
+
+/** 「30일 보관」 또는 「생성 30일 · 포스팅 90일 보관」 */
+export function formatRetention(p: Pick<StoragePolicy, "retentionDays" | "unlimitedRetention"> & Partial<Pick<StoragePolicy, "postedRetentionDays" | "postedUnlimited">>): string {
+  const gen = p.unlimitedRetention ? null : p.retentionDays;
+  const post = p.postedUnlimited ? null : p.postedRetentionDays === undefined ? gen : p.postedRetentionDays;
+  if (gen === post) return gen === null ? "자동 삭제 없음" : `${formatDays(gen)} 보관`;
+  return `생성 ${formatDays(gen)} · 포스팅 ${formatDays(post)} 보관`;
 }
 
 export const SOURCE_LABEL: Record<StoragePolicy["source"], string> = {

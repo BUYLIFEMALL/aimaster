@@ -10,7 +10,7 @@ function fmtGb(bytes: number) {
   return bytes >= 1024 ** 3 ? `${Math.round(bytes / 1024 ** 3)}GB` : `${Math.round(bytes / 1024 ** 2)}MB`;
 }
 function keep(days: number | null) {
-  if (days === null) return "구독 중 자동 삭제 없음";
+  if (days === null) return "자동 삭제 없음";
   if (days % 365 === 0) return `${days / 365}년 보관`;
   return `${days}일 보관`;
 }
@@ -37,8 +37,8 @@ export default function StoragePlanCards({ offers, currentQuotaBytes }: { offers
               </p>
               <ul className="mt-3 space-y-1 text-sm text-white/85">
                 <li>💾 저장 용량 {fmtGb(o.quotaBytes)}</li>
-                <li>🗓️ {keep(o.retentionDays)}</li>
-                <li>📤 블로그·SNS에 올린 자료도 같은 기간 보관</li>
+                <li>🗓️ 만든 자료 {keep(o.retentionDays)}</li>
+                <li>📤 블로그·SNS·유튜브에 올린 자료 {keep(o.postedRetentionDays)}</li>
               </ul>
               <button
                 type="button"

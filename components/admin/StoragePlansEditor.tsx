@@ -7,19 +7,16 @@ import { Plus, Save } from "lucide-react";
 export interface EditablePlan {
   slug: string | null; // null = 새 요금제
   name: string;
-  quota_gb: number;
-  retention_days: number | null;
+  quota_mb: number;
+  retention_days: number | null; // 생성 콘텐츠 보관(일)
   unlimited: boolean;
+  posted_retention_days: number | null; // 포스팅된 콘텐츠 보관(일)
+  posted_unlimited: boolean;
   price: number;
   billing_type: string;
   is_active: boolean;
   sort_order: number;
   subscribers: number;
-}
-export interface EditableGrade {
-  id: string;
-  name: string;
-  storage_plan_slug: string | null;
 }
 
 const BILLING_OPTIONS: [string, string][] = [
@@ -30,11 +27,10 @@ const BILLING_OPTIONS: [string, string][] = [
   ["annual", "12개월"],
 ];
 
-/** 관리자: 저장 요금제 표 편집 + 등급별 기본 혜택 */
-export default function StoragePlansEditor({ initialPlans, initialGrades }: { initialPlans: EditablePlan[]; initialGrades: EditableGrade[] }) {
+/** 관리자: 저장 요금제 표 편집(용량·생성 보관·포스팅 보관·금액·결제 주기) — 등급 혜택은 2026-11-11 없앰 */
+export default function StoragePlansEditor({ initialPlans }: { initialPlans: EditablePlan[] }) {
   const router = useRouter();
   const [plans, setPlans] = useState<EditablePlan[]>(initialPlans);
-  const [grades, setGrades] = useState<EditableGrade[]>(initialGrades);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -43,7 +39,7 @@ export default function StoragePlansEditor({ initialPlans, initialGrades }: { in
   function addPlan() {
     setPlans((prev) => [
       ...prev,
-      { slug: null, name: "새 요금제", quota_gb: 20, retention_days: 180, unlimited: false, price: 5900, billing_type: "monthly", is_active: false, sort_order: prev.length, subscribers: 0 },
+      { slug: null, name: "새 요금제", quota_mb: 10240, retention_days: 180, unlimited: false, posted_retention_days: 365, posted_unlimited: false, price: 50000, billing_type: "monthly", is_active: false, sort_order: prev.length, subscribers: 0 },
     ]);
   }
 
@@ -57,15 +53,16 @@ export default function StoragePlansEditor({ initialPlans, initialGrades }: { in
         plans: plans.map((p) => ({
           slug: p.slug,
           name: p.name,
-          quota_gb: Number(p.quota_gb),
+          quota_mb: Number(p.quota_mb),
           retention_days: p.unlimited ? null : Number(p.retention_days),
           unlimited: p.unlimited,
+          posted_retention_days: p.posted_unlimited ? null : Number(p.posted_retention_days),
+          posted_unlimited: p.posted_unlimited,
           price: Number(p.price),
           billing_type: p.billing_type,
           is_active: p.is_active,
           sort_order: Number(p.sort_order),
         })),
-        grades: grades.map((g) => ({ id: g.id, storage_plan_slug: g.storage_plan_slug })),
       }),
     });
     const json = await res.json().catch(() => ({}));
@@ -79,17 +76,34 @@ export default function StoragePlansEditor({ initialPlans, initialGrades }: { in
   }
 
   const input = "w-full rounded-md bg-white/5 border border-white/15 px-2 py-1.5 text-sm text-white";
-  const savedSlugs = plans.filter((p) => p.slug && p.slug !== "free");
+  const mbLabel = (mb: number) => (Number(mb) >= 1024 ? `= ${Math.round((Number(mb) / 1024) * 10) / 10}GB` : `= ${Number(mb)}MB`);
+  const daysCell = (i: number, p: EditablePlan, key: "retention_days" | "posted_retention_days", ukey: "unlimited" | "posted_unlimited", def: number) => (
+    <div className="flex items-center gap-1.5">
+      <input
+        className={input}
+        inputMode="numeric"
+        disabled={p[ukey]}
+        value={p[ukey] ? "" : p[key] ?? ""}
+        placeholder={p[ukey] ? "무기한" : "일"}
+        onChange={(e) => update(i, { [key]: e.target.value as unknown as number } as Partial<EditablePlan>)}
+      />
+      <label className="flex items-center gap-1 text-[11px] text-subtext whitespace-nowrap">
+        <input type="checkbox" checked={p[ukey]} onChange={(e) => update(i, { [ukey]: e.target.checked, [key]: e.target.checked ? null : def } as Partial<EditablePlan>)} className="accent-gold" />
+        무기한
+      </label>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
       <div className="glass-card p-0 overflow-x-auto">
-        <table className="w-full min-w-[860px] text-sm">
+        <table className="w-full min-w-[1000px] text-sm">
           <thead>
             <tr className="border-b border-white/10 text-xs text-subtext">
               <th className="text-left px-3 py-2">요금제</th>
-              <th className="text-left px-3 py-2 w-24">용량(GB)</th>
-              <th className="text-left px-3 py-2 w-44">보관 기간</th>
+              <th className="text-left px-3 py-2 w-28">용량(MB)</th>
+              <th className="text-left px-3 py-2 w-40">생성 콘텐츠 보관</th>
+              <th className="text-left px-3 py-2 w-40">포스팅 콘텐츠 보관</th>
               <th className="text-left px-3 py-2 w-28">금액(원)</th>
               <th className="text-left px-3 py-2 w-28">결제 주기</th>
               <th className="text-center px-3 py-2 w-20">사용</th>
@@ -107,24 +121,11 @@ export default function StoragePlansEditor({ initialPlans, initialGrades }: { in
                     <p className="text-[11px] text-subtext mt-0.5">{isFree ? "기본(일반 회원 무료)" : p.slug ?? "새 요금제(저장 시 생성)"}</p>
                   </td>
                   <td className="px-3 py-2">
-                    <input className={input} inputMode="decimal" value={p.quota_gb} onChange={(e) => update(i, { quota_gb: e.target.value as unknown as number })} />
+                    <input className={input} inputMode="numeric" value={p.quota_mb} onChange={(e) => update(i, { quota_mb: e.target.value as unknown as number })} />
+                    <p className="text-[11px] text-subtext mt-0.5">{mbLabel(p.quota_mb)}</p>
                   </td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        className={input}
-                        inputMode="numeric"
-                        disabled={p.unlimited}
-                        value={p.unlimited ? "" : p.retention_days ?? ""}
-                        placeholder={p.unlimited ? "무기한" : "일"}
-                        onChange={(e) => update(i, { retention_days: e.target.value as unknown as number })}
-                      />
-                      <label className="flex items-center gap-1 text-[11px] text-subtext whitespace-nowrap">
-                        <input type="checkbox" checked={p.unlimited} onChange={(e) => update(i, { unlimited: e.target.checked, retention_days: e.target.checked ? null : 365 })} className="accent-gold" />
-                        무기한
-                      </label>
-                    </div>
-                  </td>
+                  <td className="px-3 py-2">{daysCell(i, p, "retention_days", "unlimited", 30)}</td>
+                  <td className="px-3 py-2">{daysCell(i, p, "posted_retention_days", "posted_unlimited", 90)}</td>
                   <td className="px-3 py-2">
                     {isFree ? <span className="text-subtext">무료</span> : <input className={input} inputMode="numeric" value={p.price} onChange={(e) => update(i, { price: e.target.value as unknown as number })} />}
                   </td>
@@ -159,30 +160,6 @@ export default function StoragePlansEditor({ initialPlans, initialGrades }: { in
         <Plus size={14} /> 요금제 추가
       </button>
 
-      <div className="glass-card p-4">
-        <h2 className="text-white font-bold text-sm mb-1">등급별 기본 저장 혜택</h2>
-        <p className="text-subtext text-xs mb-3 break-keep">고른 요금제가 그 등급 회원 전원에게 결제 없이 적용됩니다(저장 구독이 더 크면 구독이 우선). 비우면 「기본」.</p>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {grades.map((g) => (
-            <label key={g.id} className="flex items-center gap-2 text-sm text-white/90">
-              <span className="w-28 shrink-0">{g.name}</span>
-              <select
-                className={input}
-                value={g.storage_plan_slug ?? ""}
-                onChange={(e) => setGrades((prev) => prev.map((x) => (x.id === g.id ? { ...x, storage_plan_slug: e.target.value || null } : x)))}
-              >
-                <option value="" className="bg-zinc-900">기본(혜택 없음)</option>
-                {savedSlugs.map((p) => (
-                  <option key={p.slug!} value={p.slug!} className="bg-zinc-900">
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ))}
-        </div>
-      </div>
-
       <div className="flex items-center gap-3">
         <button type="button" disabled={pending} onClick={save} className="inline-flex items-center gap-1.5 rounded-lg bg-gold px-4 py-2 text-sm font-bold text-black disabled:opacity-40">
           <Save size={14} /> {pending ? "저장 중…" : "저장"}
@@ -190,7 +167,7 @@ export default function StoragePlansEditor({ initialPlans, initialGrades }: { in
         {message && <span className={`text-xs ${message.ok ? "text-emerald-400" : "text-red-400"}`}>{message.text}</span>}
       </div>
       <p className="text-subtext text-xs break-keep">
-        참고: 용량·보관 기간을 바꾸면 그 요금제를 쓰는 기존 구독자에게도 바로 적용됩니다. 「사용」을 끄면 새 결제만 막히고 기존 구독은 만료일까지 유지됩니다. 금액·결제 주기는 다음 결제부터 적용됩니다.
+        참고: 「생성 콘텐츠」는 만들기만 하고 발행하지 않은 자료, 「포스팅 콘텐츠」는 블로그·SNS·유튜브에 발행한 자료입니다(1GB = 1024MB). 용량·보관 기간을 바꾸면 그 요금제를 쓰는 기존 구독자에게도 바로 적용됩니다. 「사용」을 끄면 새 결제만 막히고 기존 구독은 만료일까지 유지됩니다. 금액·결제 주기는 다음 결제부터 적용됩니다.
       </p>
     </div>
   );

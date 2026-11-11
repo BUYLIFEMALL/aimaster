@@ -25,10 +25,15 @@
     if (b >= 1024) return Math.round(b / 1024) + "KB";
     return b + "B";
   }
+  function days(n) {
+    if (n === null || n === undefined) return "자동 삭제 없음";
+    return n % 365 === 0 ? n / 365 + "년" : n + "일";
+  }
   function keep(d) {
-    if (d.unlimitedRetention || d.retentionDays === null) return "자동 삭제 없음";
-    if (d.retentionDays % 365 === 0) return d.retentionDays / 365 + "년 보관";
-    return d.retentionDays + "일 보관";
+    var gen = d.unlimitedRetention ? null : d.retentionDays;
+    var post = d.postedUnlimited ? null : d.postedRetentionDays === undefined ? gen : d.postedRetentionDays;
+    if (gen === post) return gen === null ? "자동 삭제 없음" : days(gen) + " 보관";
+    return "생성 " + days(gen) + " · 포스팅 " + days(post) + " 보관";
   }
   function store(k, v) {
     try {
@@ -97,7 +102,7 @@
       '<div style="font-size:20px;font-weight:800">' + fmt(d.usedBytes) + ' <span style="font-size:13px;font-weight:500;color:#666">/ ' + fmt(d.quotaBytes) + "</span></div>" +
       (d.ratio === null ? "" : '<div style="height:8px;border-radius:4px;background:#eee;margin:6px 0 8px;overflow:hidden"><div style="height:100%;width:' + Math.min(100, ratio * 100) + "%;background:" + barColor(ratio) + '"></div></div>') +
       '<div style="color:#444">보관: <b>' + keep(d) + "</b> · " + esc(d.planName || "기본") + (d.planExpiresAt ? " (" + String(d.planExpiresAt).slice(0, 10) + "까지)" : "") + "</div>" +
-      (d.unlimitedRetention ? "" : '<div style="color:#888;font-size:12px;margin-top:2px">만든 자료는 블로그·SNS에 올렸어도 보관 기간이 지나면 자동으로 지워집니다.</div>') +
+      (d.unlimitedRetention ? "" : '<div style="color:#888;font-size:12px;margin-top:2px">' + (d.postedRetentionDays !== undefined && d.postedRetentionDays !== d.retentionDays ? "블로그·SNS에 올린 자료는 더 오래 보관되고, 보관 기간이 지나면 자동으로 지워집니다." : "만든 자료는 블로그·SNS에 올렸어도 보관 기간이 지나면 자동으로 지워집니다.") + "</div>") +
       (rows ? '<div style="margin-top:8px;border-top:1px solid #eee;padding-top:6px">' + rows + "</div>" : "") +
       '<div style="display:flex;gap:6px;margin-top:10px">' +
       (d.source === "exempt" ? "" : '<a href="' + esc(d.upgradeUrl) + '" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:8px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:700">용량·보관 늘리기</a>') +
