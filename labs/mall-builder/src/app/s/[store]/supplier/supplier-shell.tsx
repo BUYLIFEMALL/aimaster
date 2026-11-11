@@ -10,6 +10,7 @@ const MENU = [
   { href: "", label: "내 정보" },
   { href: "/products", label: "내 상품" },
   { href: "/orders", label: "내 주문" },
+  { href: "/settlements", label: "정산" },
 ] as const;
 
 export async function getSupplierContext(slug: string, path: string) {

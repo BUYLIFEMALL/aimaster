@@ -35,6 +35,7 @@ export const MENU_PERM: Record<string, PermKey | "owner" | "any"> = {
   "/categories": "products",
   "/products": "products",
   "/suppliers": "products",
+  "/supplier-settlements": "orders",
   "/group-buys": "products",
   "/restock": "products",
   "/shipping": "products",
@@ -74,4 +75,7 @@ export const ACCESS_ACTION_LABEL: Record<string, string> = {
   supplier_reinvite: "공급사 링크 다시 만들기",
   supplier_accept: "공급사 입점 수락",
   supplier_status: "공급사 상태 변경",
+  supplier_settle: "공급사 정산 지급",
+  product_approve: "공급사 상품 승인",
+  product_reject: "공급사 상품 반려",
 };

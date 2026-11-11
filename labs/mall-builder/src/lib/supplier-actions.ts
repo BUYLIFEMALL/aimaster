@@ -138,3 +138,14 @@ export async function shipSupplierItemAction(slug: string, itemId: string, form:
   revalidatePath(base);
   back(base, error?.message, data === "shipping" ? "송장을 넣었습니다. 이 주문의 품목이 모두 발송되어 주문이 「배송 중」으로 바뀌었습니다." : "송장을 넣었습니다.");
 }
+
+// ── D37 공급사 정산 ──
+/** 대표: 직접 송금한 뒤 「지급 완료」 — 잔액 이하만(DB가 다시 검사) */
+export async function settleSupplierAction(slug: string, supplierId: string, form: FormData) {
+  const base = `/s/${slug}/admin/supplier-settlements`;
+  const supabase = await createClient();
+  const amount = Number(String(form.get("amount") ?? "").replace(/[^0-9]/g, ""));
+  const { error } = await supabase.rpc("mall_builder_supplier_settle", { p_supplier_id: supplierId, p_amount: amount || null, p_memo: field(form, "memo") });
+  revalidatePath(base);
+  back(base, error?.message, `${amount.toLocaleString("ko-KR")}원을 지급 완료로 기록했습니다.`);
+}

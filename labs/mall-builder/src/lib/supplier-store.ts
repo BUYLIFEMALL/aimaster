@@ -1,6 +1,6 @@
 // D34 공급사 읽기 — 보안 규칙(0053): 상품 권한 운영자는 몰 전체, 공급사는 자기 줄만
 import { createClient } from "@/lib/supabase/server";
-import { SUPPLIER_COLUMNS, type Approval, type SupplierRow, type SupplierStatus } from "@/lib/supplier";
+import { SUPPLIER_COLUMNS, type Approval, type LedgerKind, type SupplierRow, type SupplierStatus } from "@/lib/supplier";
 
 export async function getSuppliers(storeId: string): Promise<SupplierRow[]> {
   const supabase = await createClient();
@@ -133,4 +133,27 @@ export async function getItemSupplyForAdmin(orderId: string): Promise<Map<string
     courier: d.courier as string, tracking_no: d.tracking_no as string, shipped_at: d.shipped_at as string | null,
     supply_price: Number(d.supply_price), supplier_name: name.get(d.supplier_id as string) ?? "공급사",
   }]));
+}
+
+// ── D37 공급사 정산 ──
+export type SupplierLedgerRow = { id: string; supplier_id: string; order_id: string | null; kind: LedgerKind; amount: number; balance_after: number; note: string; created_at: string };
+export type SupplierSettlementRow = { id: string; supplier_id: string; amount: number; memo: string; paid_at: string };
+
+/** 장부(공급사 하나 또는 몰 전체) — 보안 규칙: 주문 권한 운영자·공급사 본인 */
+export async function getSupplierLedger(opts: { supplierId?: string; storeId?: string; limit?: number }): Promise<SupplierLedgerRow[]> {
+  const supabase = await createClient();
+  let q = supabase.from("mall_builder_supplier_ledger").select("id, supplier_id, order_id, kind, amount, balance_after, note, created_at").order("created_at", { ascending: false }).limit(opts.limit ?? 2000);
+  if (opts.supplierId) q = q.eq("supplier_id", opts.supplierId);
+  if (opts.storeId) q = q.eq("store_id", opts.storeId);
+  const { data } = await q;
+  return ((data ?? []) as SupplierLedgerRow[]).map((r) => ({ ...r, amount: Number(r.amount), balance_after: Number(r.balance_after) }));
+}
+
+export async function getSupplierSettlements(opts: { supplierId?: string; storeId?: string }): Promise<SupplierSettlementRow[]> {
+  const supabase = await createClient();
+  let q = supabase.from("mall_builder_supplier_settlements").select("id, supplier_id, amount, memo, paid_at").order("paid_at", { ascending: false }).limit(200);
+  if (opts.supplierId) q = q.eq("supplier_id", opts.supplierId);
+  if (opts.storeId) q = q.eq("store_id", opts.storeId);
+  const { data } = await q;
+  return ((data ?? []) as SupplierSettlementRow[]).map((r) => ({ ...r, amount: Number(r.amount) }));
 }

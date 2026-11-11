@@ -34,3 +34,17 @@ test("공급사 상품 노출과 마진", async () => {
   assert.deepEqual(marginOf(15000, 10000), { won: 5000, rate: 33.3 });
   assert.deepEqual(marginOf(0, 0), { won: 0, rate: 0 });
 });
+
+test("월별 정산서", async () => {
+  const { monthKst, monthlySummary } = await import("../src/lib/supplier.ts");
+  assert.equal(monthKst("2026-10-31T15:30:00Z"), "2026-11"); // 한국 시각 11월 1일 00:30
+  assert.equal(monthKst("2026-10-31T14:30:00Z"), "2026-10");
+  const rows = monthlySummary([
+    { kind: "earn", amount: 20000, created_at: "2026-11-02T00:00:00Z" },
+    { kind: "settle", amount: -5000, created_at: "2026-11-03T00:00:00Z" },
+    { kind: "reclaim", amount: -20000, created_at: "2026-11-04T00:00:00Z" },
+    { kind: "earn", amount: 7000, created_at: "2026-10-10T00:00:00Z" },
+  ]);
+  assert.deepEqual(rows[0], { month: "2026-11", earned: 20000, reclaimed: -20000, settled: 5000, net: 0 });
+  assert.deepEqual(rows[1], { month: "2026-10", earned: 7000, reclaimed: 0, settled: 0, net: 7000 });
+});

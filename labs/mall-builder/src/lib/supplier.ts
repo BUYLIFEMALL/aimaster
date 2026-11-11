@@ -62,3 +62,36 @@ export function marginOf(base: number, supply: number): { won: number; rate: num
   const won = base - supply;
   return { won, rate: base > 0 ? Math.round((won / base) * 1000) / 10 : 0 };
 }
+
+// ── D37 공급사 정산(공급가 방식) ──
+export type LedgerKind = "earn" | "reclaim" | "settle" | "adjust";
+export const SUPPLIER_LEDGER_LABEL: Record<LedgerKind, string> = {
+  earn: "구매 확정 적립",
+  reclaim: "확정 뒤 취소·반품 차감",
+  settle: "정산 지급",
+  adjust: "조정",
+};
+
+/** 한국 시각 기준 「YYYY-MM」 */
+export function monthKst(iso: string): string {
+  const d = new Date(new Date(iso).getTime() + 9 * 3600 * 1000);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+export type MonthRow = { month: string; earned: number; reclaimed: number; settled: number; net: number };
+
+/** 월별 정산서 — 적립·차감·지급 합계와 순적립(적립+차감), 최근 달 먼저 */
+export function monthlySummary(rows: { kind: LedgerKind; amount: number; created_at: string }[]): MonthRow[] {
+  const m = new Map<string, MonthRow>();
+  for (const r of rows) {
+    const k = monthKst(r.created_at);
+    const row = m.get(k) ?? { month: k, earned: 0, reclaimed: 0, settled: 0, net: 0 };
+    if (r.kind === "earn") row.earned += r.amount;
+    else if (r.kind === "reclaim") row.reclaimed += r.amount;
+    else if (r.kind === "settle") row.settled += -r.amount;
+    else row.reclaimed += r.amount;
+    row.net = row.earned + row.reclaimed;
+    m.set(k, row);
+  }
+  return [...m.values()].sort((a, b) => b.month.localeCompare(a.month));
+}
