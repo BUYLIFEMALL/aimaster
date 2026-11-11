@@ -89,8 +89,8 @@
       "position:absolute;left:0;bottom:40px;width:min(300px,calc(100vw - 24px));padding:14px;border-radius:14px;background:#fff;color:#111;" +
         "box-shadow:0 12px 32px rgba(0,0,0,.28);font-size:13px;line-height:1.5;border:1px solid #e5e7eb;",
     );
-    var rows = (d.byBucket || []).slice(0, 4).map(function (b) {
-      return '<div style="display:flex;justify-content:space-between;color:#555"><span>' + esc(b.label) + "</span><span>" + fmt(b.bytes) + "</span></div>";
+    var rows = (d.byKind || []).map(function (k) {
+      return '<div style="display:flex;justify-content:space-between;color:#555"><span>' + esc(k.emoji + " " + k.label) + "</span><span>" + fmt(k.bytes) + "</span></div>";
     }).join("");
     panel.innerHTML =
       '<div style="font-weight:700;margin-bottom:6px">💾 내 저장공간</div>' +

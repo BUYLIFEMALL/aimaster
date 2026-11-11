@@ -11,6 +11,7 @@ import {
   formatBytes,
   formatRetention,
   SOURCE_LABEL,
+  toByKind,
 } from "@/lib/storage/memberStorage";
 import { formatDate } from "@/lib/utils/format";
 
@@ -48,9 +49,12 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
         fileCount: 120,
         ratio: 0.87,
         byBucket: [
-          { bucket: "ai-image-generations", label: "AI 이미지", bytes: Math.round(freeQuota * 0.5) },
-          { bucket: "music-audio", label: "음악", bytes: Math.round(freeQuota * 0.37) },
+          { bucket: "ai-image-generations", label: "AI 이미지", bytes: Math.round(freeQuota * 0.42) },
+          { bucket: "ai-video-studio", label: "AI 영상", bytes: Math.round(freeQuota * 0.25) },
+          { bucket: "music-audio", label: "음악", bytes: Math.round(freeQuota * 0.17) },
+          { bucket: "file-merge", label: "file-merge", bytes: Math.round(freeQuota * 0.03) },
         ],
+        byKind: toByKind({ image: freeQuota * 0.42, video: freeQuota * 0.25, audio: freeQuota * 0.17, other: freeQuota * 0.03 }),
       }
     : real;
   const ratio = summary.ratio ?? 0;
@@ -99,8 +103,24 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
         <p className="text-subtext text-xs mt-2">
           파일 {summary.fileCount.toLocaleString()}개 · 마지막 계산 {summary.measuredAt ? new Date(summary.measuredAt).toLocaleString("ko-KR") : "-"} (매일 새벽 자동 계산, 화면 왼쪽 아래 💾에서 「다시 계산」)
         </p>
+        <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
+          {summary.byKind.map((k) => (
+            <div key={k.kind} className="rounded-xl bg-white/5 px-3 py-2.5">
+              <p className="text-xs text-subtext">
+                {k.emoji} {k.label}
+              </p>
+              <p className="text-lg font-bold text-white">{formatBytes(k.bytes)}</p>
+              {summary.usedBytes > 0 && (
+                <div className="mt-1 h-1 rounded bg-white/10 overflow-hidden">
+                  <div className="h-full bg-gold/80" style={{ width: `${Math.min(100, (k.bytes / summary.usedBytes) * 100)}%` }} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {summary.byBucket.length > 0 && <p className="mt-4 text-xs text-subtext">프로그램별</p>}
         {summary.byBucket.length > 0 && (
-          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          <ul className="mt-1 grid gap-2 sm:grid-cols-2">
             {summary.byBucket.map((b) => (
               <li key={b.bucket} className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-sm">
                 <span className="text-white/90">{b.label}</span>

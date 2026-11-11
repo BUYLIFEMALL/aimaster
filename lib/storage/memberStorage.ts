@@ -47,6 +47,19 @@ export interface StorageSummary extends StoragePolicy {
   measuredAt: string | null;
   ratio: number | null; // 0~1+, 무제한이면 null
   byBucket: { bucket: string; label: string; bytes: number }[];
+  /** 종류별(이미지·영상·음악·기타 파일) — 0이어도 네 칸 모두 */
+  byKind: { kind: StorageKind; label: string; emoji: string; bytes: number }[];
+}
+
+export type StorageKind = "image" | "video" | "audio" | "other";
+export const STORAGE_KINDS: { kind: StorageKind; label: string; emoji: string }[] = [
+  { kind: "image", label: "이미지", emoji: "🖼️" },
+  { kind: "video", label: "영상", emoji: "🎬" },
+  { kind: "audio", label: "음악", emoji: "🎵" },
+  { kind: "other", label: "기타 파일", emoji: "📁" },
+];
+export function toByKind(raw: Record<string, number> | null | undefined) {
+  return STORAGE_KINDS.map((k) => ({ ...k, bytes: Number(raw?.[k.kind] ?? 0) }));
 }
 
 export interface StoragePlanOffer {
@@ -84,7 +97,7 @@ export function toPolicy(row: PolicyRow | null | undefined): StoragePolicy {
 export async function getStorageSummary(service: SupabaseLike, userId: string): Promise<StorageSummary> {
   const [{ data: pol }, { data: usage }] = await Promise.all([
     service.rpc("member_storage_policy", { uid: userId }),
-    service.from("member_storage_usage").select("bytes, file_count, by_bucket, measured_at").eq("user_id", userId).maybeSingle(),
+    service.from("member_storage_usage").select("bytes, file_count, by_bucket, by_kind, measured_at").eq("user_id", userId).maybeSingle(),
   ]);
   const policy = toPolicy(Array.isArray(pol) ? (pol[0] as PolicyRow) : null);
   const used = Number(usage?.bytes ?? 0);
@@ -98,6 +111,7 @@ export async function getStorageSummary(service: SupabaseLike, userId: string): 
     measuredAt: usage?.measured_at ?? null,
     ratio: policy.quotaBytes ? used / policy.quotaBytes : null,
     byBucket,
+    byKind: toByKind(usage?.by_kind as Record<string, number> | null),
   };
 }
 
