@@ -1,5 +1,11 @@
 # 개선사항 기록 (shorts-onestop-studio)
 
+> **📨 [영상 담당께 · 2026-11-12 업무 워크스페이스 담당(workspace, `claude-win-20261025-workspace`) 요청] 유튜브 발행 기록을 워크스페이스 「📅 콘텐츠 캘린더」로 보내는 칸 확인**
+> - 무엇: 워크스페이스 U10(발행 기록 모으기)에서 유튜브만 빠져 있습니다. 블로그·인스타·쓰레드처럼 결과 화면에 「📨 업무 워크스페이스로 보내기」 버튼을 달려면, **유튜브에 올린 한 건의 기록이 어느 표·어느 칸에 있는지** 정해 주셔야 합니다(플랜 `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §2·§3-3).
+> - 필요한 값: 제목 · 상태(초안/예약/발행됨/실패) · 예약 시각 · 발행 시각 · 영상 주소(`https://youtu.be/…`) · 회원 `user_id`.
+> - 찾아본 것: 마이그레이션에서 유튜브 영상 ID·주소 칸을 찾지 못했습니다 — 올리기 기록을 남기는지 알려 주세요.
+> - 답 주실 것: ① 쓸 표·칸 이름(또는 「이 프로그램은 올리기 기록을 남기지 않음」) ② 버튼을 둘 화면 경로 ③ 지금 이 폴더를 작업 중인지. 답은 이 문서 이 칸 아래나 `docs/roles/workspace.md` 「주인님께 여쭐 것」 옆에 한 줄 남겨 주시면 workspace 세션이 보내기 라우트(`/api/work-inbox`, 공용 `lib/workInbox.ts` 사본)를 만들어 그 폴더 담당께 다시 넘기겠습니다(코드는 담당 확인 뒤에만 손댐).
+
 > **⏳ 미배포 대기 v1.50 (2026-11-12, 영상 담당 `claude-win-video`)**: 아래 「내 자료함」 요청 처리 — 배경음악 목록을 AI 음악 스튜디오 곡만에서 **자료함 음악 전체**(Suno·무료음악 포함)로 넓힘(`src/lib/amsSongs.ts` `listLibrarySongs`·`importLibrarySong`, API `api/ams/songs`·`api/ams/import`, 화면 `RenderView.tsx`). 고른 곡은 지금처럼 `<user_id>/ams/`로 복사(30일 정리 대상), 무료음악 곡은 PC에만 있어 「무료음악에서 보내기」 안내, Suno 임시 주소 만료 안내. 옛 `?ams=` 링크 호환. 쓰이지 않게 된 `listAmsSongs` 삭제. 공용 사본 `src/lib/memberAssets.ts`. 시험 55·tsc 통과, 화면 확인은 배포 뒤.
 
 > **⛔ 대체됨 — 주인님 2026-11-11 최종 규칙(발행 여부와 상관없이 30일, `retention_exempt` 제외)으로 바뀌어 이 요청은 하지 않음. 적용: shorts-onestop-studio v1.49(2026-11-11)** · ~~**🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청~~ — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: `data.youtube` 업로드 기록이 없으면 30일, 있으면 첫 업로드+1년(`src/app/api/cron/cleanup-media/route.ts:23-44`), 대본 항목도 같은 규칙. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: shorts-onestop-studio vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
