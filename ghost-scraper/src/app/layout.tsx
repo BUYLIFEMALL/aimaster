@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 
@@ -16,6 +17,8 @@ export default function RootLayout({
     <html lang="ko">
       <body className="min-h-screen bg-mx-bg text-mx-text antialiased selection:bg-mx-primary selection:text-white">
         {children}
+        {/* 💾 회원 저장공간 위젯(메인 사이트 공용) — docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md */}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
       </body>
     </html>
   );

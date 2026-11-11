@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,6 +18,8 @@ export default function RootLayout({
     <html lang="ko">
       <body className="min-h-screen bg-[#0a0d14] text-slate-100 antialiased dark">
         {children}
+        {/* 💾 회원 저장공간 위젯(메인 사이트 공용) — docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md */}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
       </body>
     </html>
   );

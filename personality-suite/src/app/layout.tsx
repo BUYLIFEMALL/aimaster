@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/version";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="ko"><body>{children}</body></html>;
+  return <html lang="ko"><body>{children}{/* 💾 회원 저장공간 위젯(메인 사이트 공용) */}<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" /></body></html>;
 }
