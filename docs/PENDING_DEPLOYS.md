@@ -25,6 +25,7 @@
 
 
 - **공용 `ai-video-client` 사본 — Runway·Vidu 코드(2026-11-11 영상 담당 `claude-win-video`, 커밋 v1.33 기준 동기화):** `ai-image-studio/lib/video/`·`shots/src/lib/video/`·`music-video-studio/src/lib/video/` 3파일. 이 프로그램들 목록(`VIDEO_MODELS`)에는 새 모델이 없어 **화면·동작 변화 없음**(`findVideoModel` 반환 타입만 기존 세 제공자로 좁힘). 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 기준 `ai-video-studio` v1.33은 배포됨. ✅ `shorts-onestop-studio` v1.49(11-11)에 함께 나감.
+- **`shots` 대본·주제 후보 행 30일 정리(2026-11-11 영상 담당 `claude-win-video`, 주인님 최종 보관 규칙)**: 정리 크론이 대본·장면·배경음악 행·배경음악 파일·주제 후보도 발행 무관 30일 뒤 삭제(`retention_exempt` 제외) + 매뉴얼 문구 + 저장공간 위젯. 시험 22·tsc 통과. 다음 shots 배포 때 v1.48(첫 정리 때 대본 2·후보 10 삭제 예상 — 되돌릴 수 없음). 상세 `shots/docs/IMPROVEMENTS.md` 맨 위.
 
 
 - **공통 — 30일 삭제 예외(2026-11-01 주인님 승인, 추가 배포 없음):** 서버 30일 정리 코드가 있는 프로그램을 배포할 때 함께 고친다. 삭제 전에 `profiles.retention_exempt = true`인 회원을 읽어 표 행(`user_id`)과 파일(경로 첫 폴더)에서 제외한다. 이메일은 코드에 적지 않는다. 공유 버킷(`post-images`, `insta-post-images`)은 함께 쓰는 프로그램이 모두 고쳐져야 파일이 지켜진다. 위험·대상: `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md` §3.
