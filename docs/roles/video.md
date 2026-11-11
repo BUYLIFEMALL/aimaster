@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 주인님이 Vidu 충전 후 말씀하실 때(실행 직전 다시 승인) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
+| `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 보류 — 주인님 2026-11-11 「당장 필요한 기능은 아니니 테스트는 나중에 필요해지면」(요청함 충전 항목 닫음). 필요해지면 충전·실행 직전 승인 | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | **v1.49 배포 완료(2026-11-11)**: 대본·발행 계획 30일 정리 적용. 다음 날 03:30 정리 결과(삭제 개수) 확인만 남음 | 다음 날 확인 | `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md` |
 | `shots` | **v1.48 미배포 대기**: 대본·주제 후보 행 30일 정리(발행 무관, `retention_exempt` 제외, 배경음악 파일 포함) + 매뉴얼 문구 + 저장공간 위젯 | 다음 배포 때(배포 뒤 첫 정리에서 대본 2·후보 10 삭제 예상) | `shots/docs/IMPROVEMENTS.md` 맨 위 |
