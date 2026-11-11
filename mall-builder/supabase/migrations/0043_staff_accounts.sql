@@ -126,7 +126,7 @@ begin
   if i.id is null or i.revoked_at is not null then raise exception '쓸 수 없는 초대 링크입니다.'; end if;
   if i.accepted_at is not null then raise exception '이미 사용한 초대 링크입니다.'; end if;
   if i.expires_at <= now() then raise exception '초대 링크 기간(7일)이 지났습니다. 대표 운영자에게 다시 요청해 주세요.'; end if;
-  if v_email <> i.email then raise exception '초대받은 이메일(%)로 로그인해 주세요.', left(i.email, 2) || '***@' || split_part(i.email, '@', 2);  -- 0043e: 다른 사람에게 전체 이메일이 보이지 않게 end if;
+  if v_email <> i.email then raise exception '초대받은 이메일(%)로 로그인해 주세요.', left(i.email, 2) || '***@' || split_part(i.email, '@', 2); end if;  -- 0043e: 다른 사람에게 전체 이메일이 보이지 않게
   if exists (select 1 from public.mall_builder_store_staff s where s.store_id = i.store_id and s.user_id = auth.uid() and s.role = 'owner') then
     raise exception '이미 이 몰의 대표 운영자입니다.';
   end if;

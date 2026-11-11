@@ -16,7 +16,8 @@ const LAB_LINE = /^select lab_admin\.register_program\('mall-builder'\);\s*$/m;
 
 let labLines = 0;
 const parts = picked.map((f) => {
-  let sql = readFileSync(join(dir, f), "utf8").replace(/^﻿/, "");
+  // 줄바꿈은 LF로 맞춘다(2026-11-12: 윈도우 작업 폴더는 CRLF라 함수 본문 「정확히 한 번 바꾸기」 단계가 문구를 못 찾아 멈춤 — Lab은 LF로 적용됐음)
+  let sql = readFileSync(join(dir, f), "utf8").replace(/^﻿/, "").replace(/\r\n/g, "\n");
   if (LAB_LINE.test(sql)) {
     labLines++;
     sql = sql.replace(LAB_LINE, "do $lab$ begin if to_regnamespace('lab_admin') is not null then perform lab_admin.register_program('mall-builder'); end if; end $lab$;");
