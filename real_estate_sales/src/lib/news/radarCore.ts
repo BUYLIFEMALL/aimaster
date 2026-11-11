@@ -36,13 +36,20 @@ export interface RegionTerms {
   alsoNeed: string | null;
 }
 
-/** 「고양시 일산동구」 → 검색 「고양시 일산동구」, 통과 이름 일산동구·고양 / 「강서구」(서울) → 「서울 강서구」, 통과 강서구 / 「중구」(부산) → 부산도 함께 */
+// 구 줄임 이름이 흔한 낱말과 같아 다른 기사가 섞일 곳(예: 용인시 수지구 → 「수지 개선」) — 줄임 이름을 쓰지 않는다
+const SHORT_NAME_EXCEPTIONS = new Set(["수지", "수정", "장안", "중원"]);
+
+/** 「고양시 일산동구」 → 검색 「고양시 일산동구」, 통과 이름 일산동구·일산 / 「강서구」(서울) → 「서울 강서구」, 통과 강서구 / 「중구」(부산) → 부산도 함께
+ *  개선 A(2026-11-11): 시+구는 시 이름(「화성」)만으로 통과시키지 않는다 — 11-11 알림에서 광명 철산자이 기사가 「화성시 동탄구」로 분류됨.
+ *  대신 구 줄임 이름(동탄구→동탄, 일산동구→일산)으로 「화성시 동탄」 기사는 놓치지 않는다 */
 export function regionTerms(sggCd: string, sggNm: string): RegionTerms {
   const parts = sggNm.trim().split(/\s+/).filter(Boolean);
   const sido = sidoOf(sggCd);
   if (parts.length >= 2) {
-    const city = parts[0].replace(/(시|군)$/, "");
-    return { query: sggNm.trim(), anyOf: [parts[parts.length - 1], city].filter((s) => s.length >= 2), alsoNeed: null };
+    const district = parts[parts.length - 1];
+    const short = district.replace(/(동|서|남|북)?구$/, "");
+    const useShort = short !== district && short.length >= 2 && !SHORT_NAME_EXCEPTIONS.has(short);
+    return { query: sggNm.trim(), anyOf: [district, ...(useShort ? [short] : [])], alsoNeed: null };
   }
   const name = parts[0] ?? "";
   const stem = name.replace(/(시|군)$/, "");
@@ -62,6 +69,17 @@ export function mentionsRegion(text: string, terms: RegionTerms): boolean {
   return terms.alsoNeed ? text.includes(terms.alsoNeed) : true;
 }
 
+/** 개선 A 실측(2026-11-11): 광명 철산자이 기사가 요약의 「경기 화성시 동탄구(21.91%)에 이어 두 번째」로 동탄구에 들어옴.
+ *  지역 이름이 「이름(숫자…)」 통계 목록 형태로만 나오면 지나가는 언급으로 본다 */
+export function onlyListedInStats(text: string, terms: RegionTerms): boolean {
+  if (!mentionsRegion(text, terms)) return false;
+  let masked = text;
+  for (const n of [...terms.anyOf].sort((a, b) => b.length - a.length)) {
+    masked = masked.replace(new RegExp(`${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s?\\(\\s?[0-9.+\\-]`, "g"), "□(");
+  }
+  return !terms.anyOf.some((n) => masked.includes(n));
+}
+
 /** 같은 기사를 다른 주소로 받지 않게: 소문자 호스트, 끝 「/」·추적 꼬리(utm_·fbclid) 제거 */
 export function normalizeLink(raw: string): string {
   try {
@@ -79,6 +97,49 @@ export function normalizeLink(raw: string): string {
 /** 같은 보도자료 재전송을 묶으려고 제목에서 기호·공백을 뺀 열쇠 */
 export function titleKey(title: string): string {
   return title.replace(/\[[^\]]*\]|\([^)]*\)/g, "").replace(/[^0-9A-Za-z가-힣]/g, "").slice(0, 40);
+}
+
+// 개선 B(2026-11-11): 같은 사건을 언론사마다 다른 제목으로 쓴 기사 묶기(11-11 알림: 재초환 탄원 중앙·동아 2건)
+// 사건을 가리지 못하는 흔한 낱말 — 셀 때 뺀다
+const STORY_STOPWORDS = new Set([
+  "아파트", "단지", "추진", "사업", "개발", "부동산", "지역", "일대", "인근", "속도", "본격", "확정", "발표", "예정", "관련",
+  "단독", "속보", "종합", "기자", "뉴스", "오늘", "내일", "올해", "내년", "이번", "최대", "최초", "공개", "전망", "논란",
+  "정부", "시장", "주민", "가격", "매매", "전세", "분양", "청약", "조합", "정비", "구역", "신설", "학교", "학군", "지하철",
+  "재건축", "재개발", "규제", "토지거래허가", "조정대상지역", "GTX", "서울", "경기", "인천", "수도권", "대책", "계획",
+  // 실측(2026-11-11): 시황 기사끼리 「강남/집값/하락」만으로 묶이던 낱말
+  "강남", "강북", "집값", "아파트값", "하락", "상승", "급등", "급락", "주택", "공급", "수요", "거래", "신규", "칼럼", "사설",
+]);
+// 「도·로·이·가」는 여의도·대로처럼 이름 끝 글자와 겹쳐 떼지 않는다
+const JOSA = /(으로|에서|까지|부터|에게|은|는|을|를|의|에)$/;
+
+/** 제목 → 사건 낱말 묶음(괄호·기호 제거, 2글자 이상, 조사 떼기, 지역 이름·흔한 낱말 빼기) */
+export function storyTokens(title: string, terms?: RegionTerms): Set<string> {
+  const region = terms
+    ? [...terms.anyOf, ...terms.anyOf.map((n) => n.replace(/(구|시|군)$/, "")), ...terms.query.split(/\s+/), terms.alsoNeed ?? ""].filter((w) => w.length >= 2)
+    : [];
+  const out = new Set<string>();
+  // 「2.2억」을 「2」「2억」으로 쪼개지 않게 소수점은 숫자 사이에서만 남긴다
+  for (const raw of title.replace(/\[[^\]]*\]|\([^)]*\)/g, " ").split(/(?:(?<!\d)\.|\.(?!\d)|[^0-9A-Za-z가-힣㎡%.])+/)) {
+    let w = raw;
+    const stripped = w.replace(JOSA, "");
+    if (stripped.length >= 2 && stripped !== w && !/\d/.test(w)) w = stripped;
+    if (w.length < 2 || STORY_STOPWORDS.has(w)) continue;
+    if (region.some((r) => w.includes(r) || r.includes(w))) continue;
+    out.add(w);
+  }
+  return out;
+}
+
+/** 낱말 3개 이상 겹치거나, 숫자 낱말(「20억」「84㎡」)을 포함해 2개 이상 겹치면 같은 사건 */
+export function isSameStory(a: Set<string>, b: Set<string>): boolean {
+  let n = 0;
+  let digit = false;
+  for (const w of a) {
+    if (!b.has(w)) continue;
+    n++;
+    if (/\d/.test(w)) digit = true;
+  }
+  return n >= 3 || (n >= 2 && digit);
 }
 
 export interface NewsCandidate {
@@ -101,11 +162,13 @@ export function sourceOf(originallink: string | undefined, link: string): string
   }
 }
 
-/** 응답 → 후보: 지역 이름 없음·너무 오래됨·같은 제목은 뺀다. 먼저 나온 분류가 남는다 */
+/** 응답 → 후보: 지역 이름 없음·너무 오래됨·같은 제목·같은 사건은 뺀다. 먼저 나온 분류가 남는다.
+ *  recentTitles = 이 회원·이 지역에 지난 3일 이미 받은 기사 제목(다음 날 다른 언론사가 같은 사건을 내도 다시 보내지 않음) */
 export function pickCandidates(
   results: { category: NewsCategory; items: RawNews[] }[],
   terms: RegionTerms,
   now = new Date(),
+  recentTitles: string[] = [],
 ): NewsCandidate[] {
   const seenLinks = new Set<string>();
   const seenTitles = new Set<string>();
@@ -116,6 +179,7 @@ export function pickCandidates(
       const title = (it.title ?? "").trim();
       if (!title) continue;
       if (!mentionsRegion(`${title} ${it.description ?? ""}`, terms)) continue;
+      if (!mentionsRegion(title, terms) && onlyListedInStats(it.description ?? "", terms)) continue;
       const published = it.pubDate ? new Date(it.pubDate) : null;
       if (published && !Number.isNaN(published.getTime()) && published.getTime() < oldest) continue;
       const link = normalizeLink(it.originallink || it.link);
@@ -136,7 +200,15 @@ export function pickCandidates(
   }
   // 개선 후보 2(2026-11-09 첫 실측): 「의원(서울 서초구 갑)안」처럼 요약에만 지나가듯 나온 기사보다 제목에 지역 이름이 있는 기사를 앞에(같은 무리 안 순서는 그대로)
   const inTitle = (c: NewsCandidate) => mentionsRegion(c.title, terms);
-  return [...out.filter(inTitle), ...out.filter((c) => !inTitle(c))];
+  const ordered = [...out.filter(inTitle), ...out.filter((c) => !inTitle(c))];
+  // 같은 사건은 앞에 온 것(제목에 지역 이름 있는 쪽)만 남긴다. 이미 받은 기사와 같은 사건이면 넣지 않는다
+  const kept: Set<string>[] = recentTitles.map((t) => storyTokens(t, terms));
+  return ordered.filter((c) => {
+    const tokens = storyTokens(c.title, terms);
+    if (kept.some((k) => isSameStory(tokens, k))) return false;
+    kept.push(tokens);
+    return true;
+  });
 }
 
 /** 한국 시각 날짜 「2026-11-09」와 시(0~23) */

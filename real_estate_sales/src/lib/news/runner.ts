@@ -5,7 +5,7 @@ import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { summarizeNews, NEWS_DIGEST_MODEL } from "@/lib/ai/newsDigest";
 import { searchNaverNews, NaverNewsError } from "./naverNews";
-import { MAX_NEWS_REGIONS, buildNewsMessage, buildQueries, isNewsDue, kstDateHour, pickCandidates, regionTerms, type DigestItem, type NewsCategory, type RawNews } from "./radarCore";
+import { MAX_NEWS_REGIONS, NEWS_MAX_AGE_DAYS, buildNewsMessage, buildQueries, isNewsDue, kstDateHour, pickCandidates, regionTerms, type DigestItem, type NewsCategory, type RawNews } from "./radarCore";
 
 // RQ-C 지역 뉴스 레이더 실행(2026-11-09, v1.57). /api/collect/dispatch(5분 예약)가 매 회차 부르고,
 // 여기서 「뉴스 받기를 켠 회원 중 아침 8시가 지났고 오늘 아직 안 보낸 회원」만 하루 1번 처리한다.
@@ -40,6 +40,16 @@ export async function runNewsForUser(supabase: AdminClient, userId: string, opts
   const regions = Array.from(new Map((watch ?? []).map((w) => [w.sgg_cd, w.sgg_nm])).entries()).slice(0, MAX_NEWS_REGIONS);
   if (regions.length === 0) return { userId, regions: 0, saved: 0, sent: false, error: "관심 지역이 없습니다." };
 
+  // 개선 B(2026-11-11): 지난 3일 이미 받은 기사와 같은 사건이면 다시 넣지 않는다(회원당 하루 DB 읽기 1번)
+  const { data: recent } = await loose(supabase)
+    .from("real_estate_news_items")
+    .select("sgg_cd, title")
+    .eq("user_id", userId)
+    .gte("created_at", new Date(now.getTime() - NEWS_MAX_AGE_DAYS * 24 * 3600 * 1000).toISOString())
+    .limit(2000);
+  const recentByRegion = new Map<string, string[]>();
+  for (const r of (recent ?? []) as { sgg_cd: string; title: string }[]) recentByRegion.set(r.sgg_cd, [...(recentByRegion.get(r.sgg_cd) ?? []), r.title]);
+
   const rows: { sgg_cd: string; sgg_nm: string; category: NewsCategory; title: string; link: string; snippet: string; published_at: string | null; source: string | null }[] = [];
   for (const [sggCd, sggNm] of regions) {
     const results: { category: NewsCategory; items: RawNews[] }[] = [];
@@ -52,7 +62,7 @@ export async function runNewsForUser(supabase: AdminClient, userId: string, opts
         console.error(`지역 뉴스 검색 실패 (user ${userId}, ${q.query}):`, err);
       }
     }
-    for (const c of pickCandidates(results, regionTerms(sggCd, sggNm), now)) {
+    for (const c of pickCandidates(results, regionTerms(sggCd, sggNm), now, recentByRegion.get(sggCd) ?? [])) {
       rows.push({ sgg_cd: sggCd, sgg_nm: sggNm, category: c.category, title: c.title, link: c.link, snippet: c.snippet, published_at: c.publishedAt, source: c.source });
     }
   }

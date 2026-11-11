@@ -1,9 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms } from "../src/lib/news/radarCore.ts";
+import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms, storyTokens, isSameStory, onlyListedInStats } from "../src/lib/news/radarCore.ts";
 
 test("RQ-C 지역 이름: 시+구, 서울 구, 흔한 구 이름", () => {
-  assert.deepEqual(regionTerms("41285", "고양시 일산동구"), { query: "고양시 일산동구", anyOf: ["일산동구", "고양"], alsoNeed: null });
+  assert.deepEqual(regionTerms("41285", "고양시 일산동구"), { query: "고양시 일산동구", anyOf: ["일산동구", "일산"], alsoNeed: null });
+  assert.deepEqual(regionTerms("41597", "화성시 동탄구").anyOf, ["동탄구", "동탄"], "개선 A: 시 이름 대신 구 줄임 이름");
+  assert.deepEqual(regionTerms("41465", "용인시 수지구").anyOf, ["수지구"], "흔한 낱말과 같은 줄임 이름은 안 씀");
   assert.deepEqual(regionTerms("11500", "강서구"), { query: "서울 강서구", anyOf: ["강서구"], alsoNeed: null });
   assert.deepEqual(regionTerms("26110", "중구"), { query: "부산 중구", anyOf: ["중구"], alsoNeed: "부산" });
   assert.equal(regionTerms("36110", "세종시").query, "세종시");
@@ -104,4 +106,43 @@ test("RQ-C 처음 켠 날은 건수와 화면 링크만", () => {
   assert.match(msg, /서초구, 종로구/);
   assert.doesNotMatch(msg, /제목 A/);
   assert.doesNotMatch(msg, /https:\/\/a\.com/);
+});
+
+test("개선 A: 시 이름만·통계 목록 속 지나가는 언급은 빼고, 「화성시 동탄」 기사는 통과", () => {
+  const t = regionTerms("41597", "화성시 동탄구");
+  assert.equal(mentionsRegion("화성 봉담 신도시 분양", t), false, "시 이름만");
+  assert.equal(mentionsRegion("경기 화성시 동탄 어린이집 폐원", t), true, "줄임 이름");
+  assert.equal(onlyListedInStats("상승률은 경기 화성시 동탄구(21.91%)에 이어 두 번째로 높았다", t), true);
+  assert.equal(onlyListedInStats("화성시 동탄구(0.77%), 동탄구 송동 한 중개업소", t), false, "본문에서도 나오면 통과");
+  const recent = "Tue, 10 Nov 2026 10:00:00 +0900";
+  const out = pickCandidates([{ category: "개발", items: [
+    { title: "광명 첫 국평 20억 철산자이, 보류지 나왔다", link: "https://a.com/1", description: "전국에서 경기 화성시 동탄구(21.91%)에 이어 두 번째", pubDate: recent },
+    { title: "삼성 특구 동탄 올 21% 급등", link: "https://a.com/2", description: "", pubDate: recent },
+  ] }], t, new Date("2026-11-11T00:00:00Z"));
+  assert.deepEqual(out.map((c) => c.link), ["https://a.com/2"]);
+});
+
+test("개선 B: 같은 사건 다른 언론사는 묶고, 다른 사건은 남긴다", () => {
+  const t = regionTerms("11650", "서초구");
+  const a = storyTokens("서초 재건축 주민 6936명 뭉쳤다… 서초구, 재초환 폐지 2차 탄원서 국토부 제출", t);
+  const b = storyTokens("주민 7000명 「재초환 폐지를」…서초구, 국토부에 2차 탄원서", t);
+  assert.equal(isSameStory(a, b), true);
+  assert.equal(isSameStory(storyTokens("반포현대 재초환 부담금 179억 통지", t), storyTokens("서초구, 반포현대 재초환 부담금 179억원 통지", t)), true);
+  assert.equal(isSameStory(storyTokens("강남 집값 하락 속 재초환 직격탄", t), storyTokens("서초 13주째 하락… 강남 집값 내리막", t)), false, "흔한 시황 낱말만 겹침");
+  assert.equal(isSameStory(storyTokens("방배7구역 시공사 입찰 유찰", t), storyTokens("서초구 내년 예산 1조124억 편성", t)), false);
+  assert.ok(storyTokens("여의도 목화 416가구로 재건축", t).has("여의도"), "이름 끝 「도」를 조사로 떼지 않음");
+  assert.ok(storyTokens("은마 4.6억·반포 2.2억", t).has("2.2억"), "소수점 숫자는 한 낱말");
+});
+
+test("개선 B: 같은 날 묶음 안 + 지난 3일 받은 기사와도 비교", () => {
+  const t = regionTerms("11650", "서초구");
+  const recent = "Tue, 10 Nov 2026 10:00:00 +0900";
+  const items = [
+    { title: "서초구, 반포현대 재초환 부담금 179억 원 통지", link: "https://a.com/1", description: "", pubDate: recent },
+    { title: "반포현대 재초환 179억 통지…전국 58곳 부담금 현실화되나", link: "https://b.com/2", description: "서초구", pubDate: recent },
+    { title: "서초구 방배15구역 사업시행인가 임박", link: "https://c.com/3", description: "", pubDate: recent },
+  ];
+  const now = new Date("2026-11-11T00:00:00Z");
+  assert.deepEqual(pickCandidates([{ category: "개발", items }], t, now).map((c) => c.link), ["https://a.com/1", "https://c.com/3"]);
+  assert.deepEqual(pickCandidates([{ category: "개발", items }], t, now, ["반포현대 재초환 부담금 179억 통지… 재건축 위축 우려"]).map((c) => c.link), ["https://c.com/3"]);
 });
