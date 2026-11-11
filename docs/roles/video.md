@@ -1,3 +1,4 @@
+| 2026-11-12 | `shorts-onestop-studio` v1.49 | 첫 30일 정리(11-12 03:30) 결과 확인 — 지운 것 0건(예상대로), 30일 넘은 행 0개 남음 | 운영 DB 읽기 전용 조회 |
 # 영상
 
 - 담당: Claude Code(윈도우) `claude-win-video`
@@ -16,7 +17,6 @@
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 보류 — 주인님 2026-11-11 「당장 필요한 기능은 아니니 테스트는 나중에 필요해지면」(요청함 충전 항목 닫음). 필요해지면 충전·실행 직전 승인 | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | **v1.49 배포 완료(2026-11-11)**: 대본·발행 계획 30일 정리 적용. 다음 날 03:30 정리 결과(삭제 개수) 확인만 남음 | 다음 날 확인 | `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md` |
 | `shots` | **v1.48 배포 완료(2026-11-12)**: 대본·주제 후보 행 30일 정리 적용. 다음 날 03:30 정리 결과(대본 2·후보 10 예상) 확인만 남음 | 2026-11-13 확인 | `shots/docs/IMPROVEMENTS.md` 맨 위 |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
