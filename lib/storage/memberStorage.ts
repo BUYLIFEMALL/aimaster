@@ -126,7 +126,10 @@ export async function listStoragePlanOffers(service: SupabaseLike): Promise<Stor
 
 export function formatBytes(bytes: number | null): string {
   if (bytes === null) return "무제한";
-  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(bytes >= 10 * 1024 ** 3 ? 0 : 1)}GB`;
+  if (bytes >= 1000 * 1024 ** 2) {
+    const gb = bytes / 1024 ** 3;
+    return `${gb >= 10 ? Math.round(gb) : Number(gb.toFixed(1))}GB`;
+  }
   if (bytes >= 1024 ** 2) return `${Math.round(bytes / 1024 ** 2)}MB`;
   if (bytes >= 1024) return `${Math.round(bytes / 1024)}KB`;
   return `${bytes}B`;

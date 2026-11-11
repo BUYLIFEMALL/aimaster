@@ -20,7 +20,7 @@
 
   function fmt(b) {
     if (b === null || b === undefined) return "무제한";
-    if (b >= 1073741824) return (b / 1073741824).toFixed(b >= 10737418240 ? 0 : 1) + "GB";
+    if (b >= 1048576000) { var g = b / 1073741824; return (g >= 10 ? Math.round(g) : Number(g.toFixed(1))) + "GB"; }
     if (b >= 1048576) return Math.round(b / 1048576) + "MB";
     if (b >= 1024) return Math.round(b / 1024) + "KB";
     return b + "B";

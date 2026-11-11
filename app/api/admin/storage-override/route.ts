@@ -46,12 +46,17 @@ export async function POST(req: NextRequest) {
     .in("id", userIds);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  for (const uid of userIds) {
-    await service.rpc("member_storage_refresh_exempt", { uid });
-  }
-  if (userIds.length <= 20) for (const uid of userIds) await service.rpc("member_storage_measure", { uid });
-
-  const { data } = await service.rpc("member_storage_overview");
-  const rows = ((data ?? []) as { user_id: string }[]).filter((r) => userIds.includes(r.user_id));
+  // 용량·기간 지정은 사용량과 무관하므로 다시 측정하지 않는다(전체 파일을 훑어 느림). 열외만 바로 다시 계산.
+  const rows = await Promise.all(
+    userIds.map(async (uid) => {
+      await service.rpc("member_storage_refresh_exempt", { uid });
+      const [{ data: pol }, { data: usage }] = await Promise.all([
+        service.rpc("member_storage_policy", { uid }),
+        service.from("member_storage_usage").select("bytes, measured_at").eq("user_id", uid).maybeSingle(),
+      ]);
+      const p = (Array.isArray(pol) ? pol[0] : null) as Record<string, unknown> | null;
+      return { user_id: uid, ...(p ?? {}), used_bytes: Number(usage?.bytes ?? 0), measured_at: usage?.measured_at ?? null };
+    }),
+  );
   return NextResponse.json({ ok: true, rows });
 }
