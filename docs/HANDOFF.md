@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-11 ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-ebs-v1` — `ebook-studio` (AI 전자책 출판 스튜디오) v1.12 4대 화면 3시안(97/98/99번) 쇼케이스 및 종합 비교표 구축 완료 (주인님 채택 대기)
+- **한 일**: 주인님 「AI 전자책 출판 스튜디오 (ebook-studio) — 1인 지식창업 스테디셀러 이거 디자인 시안 작업해줘」 지시에 따라 4대 화면(메인/상세/매뉴얼/설정) × 3대 시안 = 총 12개 뷰 제작 및 1440px 고해상도 캡처, 포트 3800 단일 통합 쇼케이스 웹 호스팅 및 `D:\Antigravity\Design` 3대 독립 폴더 영구 자산화 완료.
+  1. **시안 1 (97. 프리미엄 클래식 북바인딩 & 노벨리스트 잉크 스타일 - 1순위 강력 추천)**: 딥 옵시디언 나이트(`#0C0E14` / `#161B26`) & 앤티크 앰버 골드(`#D97706` / `#F59E0B`) & 웜 파치먼트 페이퍼, 4단계 출판 파이프라인 배너, 4대 핵심 출판 KPI 카드, 1:1.414 실제 양면 펼침 양장본 북 리더 뷰파인더 덱 목업 UI, Noto Serif KR 조판 뷰, 3D 엠보싱 골드 버튼(`.btn-3d-amber-book`), 5단계 표준 로그인 폼.
+  2. **시안 2 (98. 클린 에디토리얼 페이퍼 & 세이지 미니멀 아틀리에 스타일 - 2순위 대안)**: 소프트 아이보리 크림(`#FAF9F6`) & 세이지 그린(`#059669` / `#10B981`) & 모던 차콜 잉크, 미니멀 3단 큐레이션 카드, 아이보리 지면 원고지 에디터, 3D 엠보싱 세이지 버튼(`.btn-3d-sage-press`), 5단계 표준 로그인 폼.
+  3. **시안 3 (99. 하이퍼 디지털 퍼블리싱 & 사이버 네온 서고 HUD 콘솔 스타일 - 3순위 대안)**: 옵시디언 딥블랙(`#070A12`) & 일렉트릭 사이안(`#06B6D4`) & 인디고 바이올렛(`#6366F1`) HUD, JetBrains Mono 폰트, 초당 ePub 유효성 & 글자수 계측 콘솔, ePub XHTML 소스 인스펙터, 3D 엠보싱 사이안 버튼(`.btn-3d-cyan-publisher`), 5단계 표준 로그인 폼.
+- **검수**: Playwright 12개 뷰 1440px 고해상도 렌더링 및 캡처 성공, 포트 3800 쇼케이스(`http://localhost:3800/showcase.html`) 및 종합 비교표(`http://localhost:3800/comparison.html`) 200 OK 호스팅 완료.
+- **영구 자산화 경로**:
+  - 시안 1: `D:\Antigravity\Design\97_premium_classic_bookbinding_novelist\ebook_studio`
+  - 시안 2: `D:\Antigravity\Design\98_clean_editorial_paper_sage_atelier\ebook_studio`
+  - 시안 3: `D:\Antigravity\Design\99_hyper_digital_publishing_cyber_hud\ebook_studio`
+- **확인 링크**:
+  - 🎨 쇼케이스: http://localhost:3800/showcase.html
+  - 📊 종합 비교표: http://localhost:3800/comparison.html
+  - 🌐 공식 운영 도메인: https://ebook-studio.buylife.xyz
+- **다음 첫 단계**: 주인님 3대 시안 중 채택안 선택 대기 ➔ 선택 즉시 공식 채택안 전면 개편, 빌드, 프로덕션 배포.
+
 ## 2026-11-11 ✅ [역할: 미지정] Claude Code(윈도우) · 세션 `claude-win-rea` — **회원 저장공간(용량)·보관 기간 구독 1차 배포**
 - **지시**: 일반 회원은 발행 여부와 상관없이 30일, 유료는 구독으로 보관 기간·용량 연장 · 어느 프로그램에서든 사용량 표시·일정량에서 구독 팝업 · 관리자 수동 지정 · `/admin/members` 칸 축소 + 사용량·만료 표시.
 - **한 일**: DB `0063`·`0064`(운영 적용·검증), 메인 사이트 `/api/storage/me`·`public/storage-widget.js`·`/storage`·좌측 메뉴·자료함 안내·결제 시작/웹훅(저장 구독 예외)·`/api/cron/storage-retention`·관리자 회원 표와 `/api/admin/storage-override`. 규칙 개정(TOP_RULE §0 ⚠️·CLAUDE/AGENTS/GEMINI), 「발행 1년」 요청 15개 프로그램 취소 안내, 통합 인수인계 대체 표시.
