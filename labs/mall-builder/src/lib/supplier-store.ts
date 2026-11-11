@@ -88,3 +88,49 @@ export async function getSupplierNameMap(storeId: string): Promise<Map<string, s
   const { data } = await supabase.from("mall_builder_suppliers").select("id, name").eq("store_id", storeId);
   return new Map((data ?? []).map((s) => [s.id as string, s.name as string]));
 }
+
+// ── D36 주문 분배·발송 ──
+export type SupplierOrderItem = {
+  item_id: string;
+  order_no: string;
+  ordered_at: string;
+  order_status: string;
+  name: string;
+  option: string | null;
+  qty: number;
+  cancelled_qty: number;
+  supply_price: number;
+  courier: string;
+  tracking_no: string;
+  shipped_at: string | null;
+  receiver: { receiver: string; phone: string; zip: string; addr1: string; addr2: string; memo: string | null } | null;
+};
+
+/** 공급사 본인: 내 주문 품목(입금 확인된 주문만, 받는 사람은 결제 완료~배송 중일 때만 — DB 함수 0055) */
+export async function getSupplierOrders(storeId: string): Promise<{ items: SupplierOrderItem[]; error: string | null }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_supplier_orders", { p_store_id: storeId });
+  return { items: (data ?? []) as SupplierOrderItem[], error: error?.message ?? null };
+}
+
+export type ItemShipping = { courier: string; tracking_no: string; shipped_at: string | null; supplier_name?: string };
+
+/** 주문 상세(손님·운영자): 품목 id → 공급사 발송 송장(공급가 없음) */
+export async function getItemTracking(orderId: string): Promise<Map<string, ItemShipping>> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_order_item_tracking", { p_order_id: orderId });
+  return new Map(((data ?? []) as { order_item_id: string; courier: string; tracking_no: string; shipped_at: string }[]).map((r) => [r.order_item_id, r]));
+}
+
+/** 운영자 주문 상세: 품목 id → 공급사 이름·공급가·발송 상태(주문 권한 운영자만 읽힘) */
+export async function getItemSupplyForAdmin(orderId: string): Promise<Map<string, ItemShipping & { supply_price: number }>> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_order_item_supply").select("order_item_id, supplier_id, supply_price, courier, tracking_no, shipped_at").eq("order_id", orderId);
+  if (!data?.length) return new Map();
+  const { data: sups } = await supabase.from("mall_builder_suppliers").select("id, name").in("id", [...new Set(data.map((d) => d.supplier_id as string))]);
+  const name = new Map((sups ?? []).map((s) => [s.id as string, s.name as string]));
+  return new Map(data.map((d) => [d.order_item_id as string, {
+    courier: d.courier as string, tracking_no: d.tracking_no as string, shipped_at: d.shipped_at as string | null,
+    supply_price: Number(d.supply_price), supplier_name: name.get(d.supplier_id as string) ?? "공급사",
+  }]));
+}

@@ -39,8 +39,11 @@ export default async function SupplierHomePage({ params, searchParams }: { param
               <p className="font-semibold">📦 내 상품</p>
               <p className="mt-1 text-xs text-gray-500">상품을 올리면 운영자가 확인한 뒤 판매합니다.</p>
             </Link>
+            <Link href={`/s/${store.slug}/supplier/orders`} className="rounded border p-3 text-sm hover:bg-gray-50">
+              <p className="font-semibold">🚚 내 주문</p>
+              <p className="mt-1 text-xs text-gray-500">내 상품이 팔리면 받는 사람·주소를 보고 송장을 입력합니다.</p>
+            </Link>
             {[
-              { t: "🚚 내 주문", d: "내 상품이 팔리면 받는 사람·주소를 보고 송장을 입력합니다." },
               { t: "💰 정산", d: "구매 확정된 품목의 공급가가 쌓이고 운영자가 송금합니다." },
             ].map((m) => (
               <div key={m.t} className="rounded border p-3 text-sm">

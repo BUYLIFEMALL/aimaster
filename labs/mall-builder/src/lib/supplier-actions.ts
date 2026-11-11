@@ -128,3 +128,13 @@ export async function reviewSupplierProductAction(slug: string, productId: strin
   revalidatePath(`/s/${slug}`, "layout");
   back(base, error?.message, action === "approve" ? "승인했습니다." : "반려했습니다. 공급사 화면에 사유가 보입니다.");
 }
+
+// ── D36 공급사 발송 ──
+/** 공급사: 품목 송장 넣기·고치기. 남은 품목이 모두 공급사 품목이고 다 발송되면 DB가 주문을 「배송 중」으로 */
+export async function shipSupplierItemAction(slug: string, itemId: string, form: FormData) {
+  const base = `/s/${slug}/supplier/orders`;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_supplier_ship", { p_item_id: itemId, p_courier: field(form, "courier"), p_tracking: field(form, "tracking_no") });
+  revalidatePath(base);
+  back(base, error?.message, data === "shipping" ? "송장을 넣었습니다. 이 주문의 품목이 모두 발송되어 주문이 「배송 중」으로 바뀌었습니다." : "송장을 넣었습니다.");
+}

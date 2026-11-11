@@ -140,3 +140,8 @@
 ## 2026-11-11 D35 — SQL 여러 줄 delete는 확인 창이 뜬다
 - 증상: 시험 데이터 정리용 `delete …; delete …;` 여러 문장이 확인 창 만료로 실패.
 - 해결: `with x as (delete … returning id) select count(*) from x` 한 문장으로 나눠 실행하면 바로 된다.
+
+## 2026-11-11 D36 — 시험 주문은 알림(문자·메일)을 대기열에 넣는다
+- 증상: DB로 만든 시험 주문의 입금·발송 처리 뒤 `mall_builder_notifications`에 손님·운영자 문자·메일 8건이 queued로 쌓임(예약 실행 때 실제로 나갈 수 있음).
+- 해결: 시험 직후 `with d as (delete from public.mall_builder_notifications where order_id = '<시험 주문>' and status = 'queued' returning id) select count(*) from d`.
+- 다음부터: 커밋되는 시험 주문을 만들면 상태를 바꿀 때마다 대기열을 확인해 지운다. 되돌림(raise) 시험은 대기열도 함께 되돌려져 괜찮다. 주문 금액 확인 함수는 예상 금액이 맞아야 해서, 시험에서는 0으로 한 번 불러 오류 문구의 「현재 ○원」을 읽어 다시 부른다.

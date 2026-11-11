@@ -13,6 +13,7 @@ import { getCardPayment } from "@/lib/card-payments";
 import { CARD_STATUS_LABEL } from "@/lib/payment";
 import { recheckCardAction } from "@/lib/order-actions";
 import { reorderAction } from "../../quick-order/actions";
+import { getItemTracking } from "@/lib/supplier-store";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -35,6 +36,8 @@ export default async function OrderDetailPage({
   const found = await getOrder(store.id, id);
   if (!found || found.order.user_id !== user.id) notFound();
   const { order, items, events } = found;
+  // D36 입점 상품은 공급사가 따로 보내므로 품목별 송장을 보여 준다
+  const itemTracking = await getItemTracking(order.id);
   const customer = await getMyCustomer(store.id, user.id);
   // 후기(D13) — 배송 완료·구매 확정 주문의 품목에만 폼을 보인다
   const reviews = canReview(order.status, 1, 0, "x") ? await getMyReviewsByItem(items.map((it) => it.id)) : new Map();
@@ -152,6 +155,9 @@ export default async function OrderDetailPage({
               <br />
               <span className="text-gray-500">{formatWon(it.unit_price)} × {it.qty}</span>
               {it.cancelled_qty > 0 && <span className="ml-1 text-red-600">(취소 {it.cancelled_qty}개)</span>}
+              {itemTracking.get(it.id) && (
+                <span className="block text-xs text-emerald-700" data-item-tracking>🚚 따로 보냄 · {itemTracking.get(it.id)!.courier} {itemTracking.get(it.id)!.tracking_no}</span>
+              )}
               {canReview(order.status, it.qty, it.cancelled_qty, it.product_id) && (
                 <ReviewForm slug={store.slug} orderId={order.id} orderItemId={it.id} review={reviews.get(it.id) ?? null} />
               )}

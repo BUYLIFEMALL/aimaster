@@ -15,6 +15,7 @@ import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { getCardPayment } from "@/lib/card-payments";
 import { CARD_STATUS_LABEL } from "@/lib/payment";
 import { recheckCardAction, refundRemainingAction } from "@/lib/order-actions";
+import { getItemSupplyForAdmin } from "@/lib/supplier-store";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -37,6 +38,8 @@ export default async function AdminOrderDetailPage({
   const found = await getOrder(store.id, id);
   if (!found) notFound();
   const { order, items, events } = found;
+  // D36 공급사 품목 — 품목 id → 공급사 이름·공급가·발송 송장
+  const supplyMap = await getItemSupplyForAdmin(order.id);
   const notifyLog = await loadNotifyLog(store.id, order.id);
   const card = order.is_card ? await getCardPayment(order.id) : null;
   const r = order.receiver;
@@ -212,6 +215,12 @@ export default async function AdminOrderDetailPage({
               {it.name_snapshot}
               {it.option_snapshot && <span className="text-gray-500"> · {it.option_snapshot}</span>} × {it.qty}
               {it.cancelled_qty > 0 && <span className="ml-1 text-red-600">(취소 {it.cancelled_qty}개)</span>}
+              {supplyMap.get(it.id) && (
+                <span className="mt-0.5 block text-xs text-indigo-700" data-item-supplier>
+                  🏭 {supplyMap.get(it.id)!.supplier_name} · 공급가 {formatWon(supplyMap.get(it.id)!.supply_price)} ·{" "}
+                  {supplyMap.get(it.id)!.shipped_at ? `발송 ${supplyMap.get(it.id)!.courier} ${supplyMap.get(it.id)!.tracking_no}` : "공급사 발송 전"}
+                </span>
+              )}
             </span>
             <b>{formatWon(it.unit_price * (it.qty - it.cancelled_qty))}</b>
           </li>

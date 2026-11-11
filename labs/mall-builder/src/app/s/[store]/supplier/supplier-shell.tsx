@@ -9,6 +9,7 @@ import LogoutButton from "@/app/logout-button";
 const MENU = [
   { href: "", label: "내 정보" },
   { href: "/products", label: "내 상품" },
+  { href: "/orders", label: "내 주문" },
 ] as const;
 
 export async function getSupplierContext(slug: string, path: string) {
