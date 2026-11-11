@@ -16,7 +16,7 @@
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 주인님이 Vidu 충전 후 말씀하실 때(실행 직전 다시 승인) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | **v1.49 미배포 대기**: 보관 규칙 최종(2026-11-11 「포스팅되었어도 동일하게」) — 파일 30일(기존)에 더해 대본·발행 계획 행도 마지막 수정 30일 뒤 삭제(`src/lib/retentionRows.ts`, 프리셋·지침·설정 제외, `retention_exempt` 제외) + 매뉴얼 FAQ + 저장공간 위젯 한 줄 | 빌드 승인 뒤 배포 | `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md` |
+| `shorts-onestop-studio` | **v1.49 배포 완료(2026-11-11)**: 대본·발행 계획 30일 정리 적용. 다음 날 03:30 정리 결과(삭제 개수) 확인만 남음 | 다음 날 확인 | `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md` |
 | `shots` | 보관 규칙 최종 — 영상 파일 30일(지금 그대로), 행(대본·업로드 기록)도 발행 무관 30일(1년 조건 넣지 않음), `retention_exempt`만 제외(`src/app/api/cron/cleanup-videos/route.ts`) | 다음에 손댈 때 | `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md` |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
