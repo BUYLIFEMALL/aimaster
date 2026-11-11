@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCategoryRows, getStaffStore, getStoreProducts } from "@/lib/store";
 import { PRODUCT_STATUS, discountRate, formatWon } from "@/lib/products";
 import { createClient } from "@/lib/supabase/server";
+import { APPROVAL_LABEL, type Approval } from "@/lib/supplier";
 import { AdminShell, NoPermission } from "../admin-shell";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,13 @@ export default async function ProductsPage({ params }: { params: Promise<{ store
   const { data: waitingRows } = await supabase.from("mall_builder_restock_requests").select("product_id").eq("store_id", store.id).eq("status", "waiting").limit(5000);
   const waiting = new Map<string, number>();
   for (const r of waitingRows ?? []) waiting.set(r.product_id as string, (waiting.get(r.product_id as string) ?? 0) + 1);
+  // D35 공급사 상품 표시 — 상품 id → 공급사 이름·승인 상태
+  const [{ data: supRows }, { data: supNames }] = await Promise.all([
+    supabase.from("mall_builder_products").select("id, supplier_id, approval").eq("store_id", store.id).not("supplier_id", "is", null),
+    supabase.from("mall_builder_suppliers").select("id, name").eq("store_id", store.id),
+  ]);
+  const supName = new Map((supNames ?? []).map((s) => [s.id as string, s.name as string]));
+  const supplied = new Map((supRows ?? []).map((r) => [r.id as string, { name: supName.get(r.supplier_id as string) ?? "공급사", approval: r.approval as Approval }]));
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/products">
@@ -63,6 +71,11 @@ export default async function ProductsPage({ params }: { params: Promise<{ store
                       <span className={`rounded px-1.5 py-0.5 text-xs ${STATUS_TONE[p.status]}`}>{PRODUCT_STATUS[p.status]}</span>
                       {p.product_code && <span className="shrink-0 font-mono text-xs text-gray-500">{p.product_code}</span>}
                       <span className="truncate font-medium">{p.name}</span>
+                      {supplied.get(p.id) && (
+                        <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${supplied.get(p.id)!.approval === "approved" ? "bg-indigo-50 text-indigo-700" : "bg-amber-50 text-amber-800"}`} data-supplier-badge>
+                          🏭 {supplied.get(p.id)!.name}{supplied.get(p.id)!.approval !== "approved" && ` · ${APPROVAL_LABEL[supplied.get(p.id)!.approval]}`}
+                        </span>
+                      )}
                       {(waiting.get(p.id) ?? 0) > 0 && (
                         <span className="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-xs text-amber-800" data-restock-waiting>
                           🔔 알림 대기 {waiting.get(p.id)}

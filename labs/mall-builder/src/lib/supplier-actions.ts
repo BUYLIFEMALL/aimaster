@@ -70,3 +70,61 @@ export async function updateSupplierSelfAction(slug: string, form: FormData) {
   revalidatePath(`/s/${slug}/supplier`);
   back(`/s/${slug}/supplier`, error?.message, "담당자 정보를 저장했습니다.");
 }
+
+// ── D35 공급사 상품 ──
+const num = (form: FormData, k: string) => String(form.get(k) ?? "").replace(/[^0-9]/g, "");
+
+/** 공급사: 상품 올리기(productId null)·고치기 — 재고만 바꾸면 그대로, 내용이 바뀌면 다시 승인 대기 */
+export async function saveSupplierProductAction(slug: string, productId: string | null, form: FormData) {
+  const base = `/s/${slug}/supplier/products`;
+  const { supabase, id } = await storeIdOf(slug);
+  if (!id) back(base, "몰을 찾을 수 없습니다.");
+  let images: unknown = [];
+  try {
+    images = JSON.parse(String(form.get("images") ?? "[]"));
+  } catch {
+    back(productId ? `${base}/${productId}` : `${base}/new`, "사진 목록을 읽지 못했습니다. 다시 시도해 주세요.");
+  }
+  const stockOn = form.get("stock_on") === "on";
+  const p = {
+    name: field(form, "name"),
+    summary: field(form, "summary"),
+    description: String(form.get("description") ?? ""),
+    supply_price: num(form, "supply_price"),
+    base_price: num(form, "base_price"),
+    tax_type: field(form, "tax_type") || "taxable",
+    stock_mode: stockOn ? "product" : "none",
+    stock: stockOn ? num(form, "stock") || "0" : "0",
+    images,
+  };
+  const { error } = await supabase.rpc("mall_builder_supplier_product_save", { p_store_id: id, p_product_id: productId, p });
+  if (error) back(productId ? `${base}/${productId}` : `${base}/new`, error.message);
+  revalidatePath(base);
+  back(base, null, productId ? "저장했습니다. 내용을 바꿨다면 운영자 승인 뒤 다시 판매됩니다." : `「${p.name}」을 올렸습니다. 운영자 승인을 기다려 주세요.`);
+}
+
+/** 공급사: 판매 멈춤/다시 열기 */
+export async function pauseSupplierProductAction(slug: string, productId: string, pause: boolean) {
+  const base = `/s/${slug}/supplier/products`;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_supplier_product_pause", { p_product_id: productId, p_pause: pause });
+  revalidatePath(base);
+  back(base, error?.message, pause ? "판매를 멈췄습니다. 손님에게 보이지 않습니다." : "다시 판매합니다.");
+}
+
+/** 운영자: 공급사 상품 승인(판매가·바로 판매)/반려(사유) */
+export async function reviewSupplierProductAction(slug: string, productId: string, action: "approve" | "reject", form: FormData) {
+  const base = `/s/${slug}/admin/suppliers`;
+  const supabase = await createClient();
+  const price = num(form, "base_price");
+  const { error } = await supabase.rpc("mall_builder_product_review", {
+    p_product_id: productId,
+    p_action: action,
+    p_note: action === "reject" ? field(form, "note") : "",
+    p_base_price: price ? Number(price) : null,
+    p_on_sale: form.get("on_sale") === "on",
+  });
+  revalidatePath(base);
+  revalidatePath(`/s/${slug}`, "layout");
+  back(base, error?.message, action === "approve" ? "승인했습니다." : "반려했습니다. 공급사 화면에 사유가 보입니다.");
+}

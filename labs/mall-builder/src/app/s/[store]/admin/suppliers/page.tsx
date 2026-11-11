@@ -1,11 +1,12 @@
 import { getStaffStore } from "@/lib/store";
-import { getSuppliers } from "@/lib/supplier-store";
+import { getPendingSupplierProducts, getSuppliers } from "@/lib/supplier-store";
 import { updateSupplierAction } from "@/lib/supplier-actions";
 import { SUPPLIER_STATUS_LABEL, inviteAlive, nextStatuses } from "@/lib/supplier";
 import { formatDateTime } from "@/lib/orders";
 import { AdminShell, NoPermission } from "../admin-shell";
 import SupplierInviteForm from "./invite-form";
 import ReinviteButton from "./reinvite-button";
+import PendingProducts from "./pending-products";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -23,7 +24,8 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
   const { error, ok, msg } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/suppliers`);
   if (!staff) return <NoPermission />;
-  const suppliers = await getSuppliers(store.id);
+  const [suppliers, pending] = await Promise.all([getSuppliers(store.id), getPendingSupplierProducts(store.id)]);
+  const supplierName = new Map(suppliers.map((s) => [s.id, s.name]));
   const live = suppliers.filter((s) => s.status !== "revoked");
   const revoked = suppliers.filter((s) => s.status === "revoked");
 
@@ -33,7 +35,8 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
       {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
       <h2 className="text-lg font-semibold">🏭 공급사</h2>
       <p className="mt-1 text-sm text-gray-600">다른 회사 상품을 이 몰에서 함께 팔 때 씁니다. 공급사는 자기 화면에서 상품을 올리고(운영자 승인 뒤 판매), 자기 품목 주문만 보고 발송합니다. 정산은 구매 확정된 품목의 공급가 기준입니다.</p>
-      <div className="mt-4"><SupplierInviteForm slug={store.slug} /></div>
+      <PendingProducts slug={store.slug} products={pending} supplierName={supplierName} />
+      <div className="mt-6"><SupplierInviteForm slug={store.slug} /></div>
 
       <section className="mt-6">
         <h3 className="text-sm font-semibold">공급사 {live.length}곳</h3>

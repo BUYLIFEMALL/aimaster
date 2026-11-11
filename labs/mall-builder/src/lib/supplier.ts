@@ -42,3 +42,23 @@ export function inviteAlive(row: Pick<SupplierRow, "status" | "invite_expires_at
 
 /** 공급사 초대 링크 토큰 모양(48자리 16진수) */
 export const isInviteToken = (t: string) => /^[0-9a-f]{48}$/.test(t);
+
+// ── D35 공급사 상품 승인 ──
+export type Approval = "approved" | "pending" | "rejected";
+
+export const APPROVAL_LABEL: Record<Approval, string> = {
+  approved: "승인됨",
+  pending: "승인 대기",
+  rejected: "반려",
+};
+
+/** 공급사 상품이 손님에게 보이는가(DB mall_builder_product_visible과 같은 규칙의 요약) */
+export function supplierProductLive(p: { approval: Approval; status: string }, supplierStatus: SupplierStatus): boolean {
+  return p.approval === "approved" && (p.status === "on_sale" || p.status === "sold_out") && supplierStatus === "active";
+}
+
+/** 마진(판매가 − 공급가)과 마진율(%) — 판매가 0이면 0% */
+export function marginOf(base: number, supply: number): { won: number; rate: number } {
+  const won = base - supply;
+  return { won, rate: base > 0 ? Math.round((won / base) * 1000) / 10 : 0 };
+}

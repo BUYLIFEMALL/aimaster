@@ -130,3 +130,13 @@
 - 원인: 개발용 캐시 `labs/mall-builder/.next/dev`가 깨져 화면 동작 코드가 붙지 않음(서버 켜는 경로 문제가 아니었음 — PowerShell로 켜도 같음).
 - 해결: 서버를 끄고 `.next/dev`만 지운 뒤 `node .\node_modules\next\dist\bin\next dev -p 3210`으로 다시 켬(PowerShell에서 `npm run dev -- -p 3210`은 `-p`가 빠져 「3210」을 폴더로 읽으니 쓰지 않는다).
 - 다음부터: 로그인·단추가 안 먹으면 서버 기록에서 FATAL부터 보고, 있으면 `.next/dev` 지우고 재시작. ego에서 단추에 `__react…` 속성이 붙었는지로 동작 연결을 확인한다.
+
+## 2026-11-11 D35 — 손님이 읽을 수 있는 표에 원가성 칸을 넣으면 새어 나간다
+- 증상(설계 단계에서 발견): 공급가를 `mall_builder_products.supply_price` 칸으로 넣었더니, 그 상품을 볼 수 있는 손님도 API로 `select supply_price`를 할 수 있었다.
+- 원인: 행 보안 규칙(RLS)은 행만 거르고 칸은 숨기지 못한다.
+- 해결: 원가(`product_private`)처럼 별도 표 `mall_builder_product_supply`(운영자·공급사만 읽음)로 옮김.
+- 다음부터: 손님에게 보이는 표(상품·주문 품목 등)에는 원가·공급가·정산액 같은 칸을 넣지 않고 별도 표로 둔다(D36 주문 품목의 공급가도 별도 표).
+
+## 2026-11-11 D35 — SQL 여러 줄 delete는 확인 창이 뜬다
+- 증상: 시험 데이터 정리용 `delete …; delete …;` 여러 문장이 확인 창 만료로 실패.
+- 해결: `with x as (delete … returning id) select count(*) from x` 한 문장으로 나눠 실행하면 바로 된다.

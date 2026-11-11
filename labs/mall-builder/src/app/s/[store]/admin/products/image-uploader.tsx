@@ -8,7 +8,8 @@ const BUCKET = "mall-builder-public";
 const MAX_BYTES = 5 * 1024 * 1024;
 
 // 사진은 브라우저에서 바로 몰 폴더(<몰 id>/products/)로 올린다. 저장소 보안 규칙이 그 몰 운영자만 허용한다.
-export default function ImageUploader({ storeId, initial }: { storeId: string; initial: ProductImage[] }) {
+// D35: folder를 주면 그 폴더로(공급사는 <몰 id>/supplier/<공급사 id> — 저장소 규칙이 본인 폴더만 허용)
+export default function ImageUploader({ storeId, initial, folder }: { storeId: string; initial: ProductImage[]; folder?: string }) {
   const [images, setImages] = useState<ProductImage[]>(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -28,7 +29,7 @@ export default function ImageUploader({ storeId, initial }: { storeId: string; i
         continue;
       }
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-      const path = `${storeId}/products/${crypto.randomUUID()}.${ext}`;
+      const path = `${folder ?? `${storeId}/products`}/${crypto.randomUUID()}.${ext}`;
       const { error: upError } = await supabase.storage.from(BUCKET).upload(path, file, { contentType: file.type, upsert: false });
       if (upError) {
         setError(`「${file.name}」 올리기 실패: ${upError.message}`);
