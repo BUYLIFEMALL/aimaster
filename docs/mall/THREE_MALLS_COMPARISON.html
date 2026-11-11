@@ -119,6 +119,9 @@ code { font-size: 12.5px; background: var(--bg); padding: 1px 5px; border-radius
       <div class="dec"><span class="k">운영 이용 권한</span><span class="v">구경·주문 시험은 회원, 몰 만들기·초대·분양은 관리자</span></div>
       <div class="dec"><span class="k">나중에</span><span class="v">몰별 배포 키트로 분리해 수강생·외주 사업자에게 맞춤 판매</span></div>
       <div class="dec"><span class="k">공유 범위</span><span class="v">기본 기능·정산 연동·핵심 코어는 모두 공유</span></div>
+      <div class="dec"><span class="k">① 상품 등록</span><span class="v">공급사가 직접 등록 — 공급사별로 「바로 판매 / 승인 후 판매」 선택</span></div>
+      <div class="dec"><span class="k">① 입장</span><span class="v">폐쇄몰 — 가입 후 운영자 승인, 승인 때 등급 지정</span></div>
+      <div class="dec"><span class="k">① 등급 할인</span><span class="v">등급 기본율 → 카테고리별 등급율 → 상품 예외, 공급가 아래로는 자동 차단</span></div>
     </div>
   </section>
 
@@ -182,10 +185,14 @@ code { font-size: 12.5px; background: var(--bg); padding: 1px 5px; border-radius
           <tr><td>공급가 별도 표(손님 비공개)</td><td><span class="chip ok">있음</span></td><td><span class="chip ok">①에서 받음</span></td><td class="na">—</td><td class="where">product_supply</td></tr>
           <tr><td>주문 공급사별 분배·품목 송장·자동 배송 중</td><td><span class="chip ok">있음</span></td><td><span class="chip ok">①에서 처리</span></td><td class="na">—</td><td class="where">0055</td></tr>
           <tr><td>공급사 정산 장부·지급 완료·월별 정산서</td><td><span class="chip ok">있음</span></td><td><span class="chip ok">①에서</span></td><td class="na">—</td><td class="where">0056</td></tr>
+          <tr><td>공급사별 「바로 판매 / 승인 후 판매」 선택</td><td><span class="chip todo">만들 것</span></td><td class="na">—</td><td><span class="chip todo">선택</span></td><td class="where">T1</td></tr>
           <tr><td>공급사 상품 옵션(색상·사이즈)</td><td><span class="chip todo">만들 것</span></td><td class="na">—</td><td class="na">—</td><td class="where">T1</td></tr>
           <tr><td>공급사별 배송비·묶음배송</td><td><span class="chip todo">만들 것</span></td><td><span class="chip todo">①과 함께</span></td><td class="na">—</td><td class="where">T1</td></tr>
           <tr><td class="group" colspan="5">거래 방식</td></tr>
           <tr><td>사업자 가입·승인·등급가·외상·견적·거래명세서</td><td><span class="chip ok">핵심</span></td><td><span class="chip part">보통 끔</span><span class="note">소비자 위주</span></td><td><span class="chip part">설정으로</span></td><td class="where">F12~F17 · D24~D27</td></tr>
+          <tr><td>폐쇄몰(가입 후 운영자 승인·승인 때 등급 지정)</td><td><span class="chip ok">켬</span></td><td><span class="chip part">선택</span></td><td><span class="chip part">선택</span></td><td class="where">D20</td></tr>
+          <tr><td><b>등급 할인 3단계</b><span class="note">등급 기본율 → 카테고리별 등급율 → 상품 예외(구체적인 것이 우선). 지금은 상품별 등급가·거래처 특가만 있음</span></td><td><span class="chip todo">만들 것 · 핵심</span></td><td><span class="chip part">① 가격 기준</span></td><td><span class="chip part">설정으로</span></td><td class="where">T1 · pricing.ts + 주문 함수</td></tr>
+          <tr><td><b>공급가 하한 보호</b><span class="note">어떤 등급 할인도 공급가(+최소 마진 %) 밑으로 내려가지 않음</span></td><td><span class="chip todo">만들 것 · 핵심</span></td><td><span class="chip ok">①에서</span></td><td class="na">—</td><td class="where">T1</td></tr>
           <tr><td class="group" colspan="5">분양</td></tr>
           <tr><td>분양 신청·승인·이용 기간</td><td class="na">—</td><td><span class="chip todo">만들 것</span></td><td class="na">—</td><td class="where">T2 · 리셀러 0052 참고</td></tr>
           <tr><td>① 상품 골라 담기·자동 진열(가격·재고 연동)</td><td class="na">—</td><td><span class="chip todo">만들 것</span></td><td><span class="chip todo">선택</span></td><td class="where">T2</td></tr>
@@ -226,7 +233,7 @@ code { font-size: 12.5px; background: var(--bg); padding: 1px 5px; border-radius
       <div class="step"><span class="name">3차</span><span class="what">정기 주문·몰 여러 개·앱·리셀러(D30~D33)</span><span class="chip ok">완료</span></div>
       <div class="step"><span class="name">입점형 D34~D37</span><span class="what">공급사 계정·상품 승인·주문 분배·정산 — Lab 배포, 다른 계정으로 실제 확인(찾은 문제 2건 수정)</span><span class="chip ok">완료</span></div>
       <div class="step now"><span class="name">T0 운영 이전</span><span class="what">AIMaster 이커머스 카테고리 등록, mall-builder.buylife.xyz, 운영 DB 마이그레이션 63개, 샘플몰 ① 공개 — 단계마다 승인</span><span class="chip todo">다음</span></div>
-      <div class="step"><span class="name">T1 ① 보강</span><span class="what">공급사 상품 옵션, 공급사별 배송비</span><span class="chip todo">예정</span></div>
+      <div class="step"><span class="name">T1 ① 보강</span><span class="what">등급 할인 3단계 + 공급가 하한, 공급사별 바로 판매/승인, 폐쇄몰 켜기, 공급사 상품 옵션, 공급사별 배송비</span><span class="chip todo">예정</span></div>
       <div class="step"><span class="name">T2 ② 분양몰</span><span class="what">분양 신청·① 상품 자동 진열·주문 전달·마진 정산</span><span class="chip todo">예정</span></div>
       <div class="step"><span class="name">T3 ③ 독립몰</span><span class="what">단일 몰 모드·자기 도메인·상품/회원 이전</span><span class="chip todo">예정</span></div>
       <div class="step"><span class="name">T4 배포 키트</span><span class="what">몰별 키트 분리·설치 마법사·맞춤 수정</span><span class="chip todo">나중</span></div>
