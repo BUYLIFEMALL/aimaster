@@ -1,6 +1,7 @@
 # 개선 제안 — AI 가사영상 자동화
 
 > **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 음악 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 유튜브 업로드 결과가 화면에만 있음 → 항목에 저장(쇼츠 원스톱 방식) 후 pg_cron `lyric-video-studio-retention` 조건을 발행 1년 / 나머지 30일로. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: lyric-video-studio vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
+> **🗓️ 결정 반영(2026-11-11 주인님)**: **영상·음악 파일은 유튜브 등에 업로드해도 30일 뒤 지운다**(「데이터 용량의 크기상 오래보관 못해」, 관리자·시험 계정 열외 그대로). 위 요청 중 「영상·음원 파일 1년」 부분은 취소 — 1년은 대본·제목·업로드 기록 같은 글·기록 항목에만 적용. 상세: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md` §3 영상·음악.
 
 > 작업 중 발견한 과제를 즉시 기록한다(`docs/IMPROVEMENT_HANDOFF_POLICY.md`). 미구현 제안은 완료로 표시하지 않는다.
 

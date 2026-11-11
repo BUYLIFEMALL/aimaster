@@ -6,6 +6,7 @@
 
 ## 0. 규칙 한 줄
 블로그·인스타·쓰레드·유튜브 등에 **실제로 발행된**(발행 주소·게시 id·발행 상태가 기록된) 콘텐츠는 **발행일로부터 1년**(원고·이미지·영상·음원·발행 기록 모두), 만들기만 한 콘텐츠·예약 대기·실패·결과 불확실은 **생성일로부터 30일**. 관리자·시험 계정(`profiles.retention_exempt`)은 삭제 제외, §8 지정 프로그램은 그 기간(더 길면 긴 쪽).
+**예외(2026-11-11 주인님 결정)**: **영상·음악 파일은 발행(업로드)돼도 생성일로부터 30일** — 「관리자계정,테스트계정을 제외하고 일반 사용자들도 영상과음악 파일은 포스팅되었더라도 30일보관 정책을 유지해」「데이터 용량의 크기상 오래보관 못해」. 그 발행물의 대본·제목·태그와 발행 기록(영상 주소·게시 id·시각)은 1년, 이미지는 1년.
 
 ## 1. 이 세션이 한 것 / 담당이 할 것
 | 이 세션이 끝낸 것 | 담당이 할 것 |
@@ -47,10 +48,10 @@
 ### 영상·음악 (`lyric-video-studio`·`playlist-channel-studio`는 music, `shorts-onestop-studio`는 video)
 | 프로그램 | 발행 표시 | 정리 코드 | 지금 | 고칠 것 | 열외 |
 |---|---|---|---|---|---|
-| `shots` | `shorts_videos.youtube_video_id`, `youtube_uploads`(릴스 기록 미확인) | `src/app/api/cron/cleanup-videos/route.ts:26-86` | 파일 30일, 행 무기한 | 업로드 기록 있는 영상 파일은 업로드 1년, 미업로드 행 30일 — **주인님 결정 필요(용량)** | 예 |
-| `shorts-onestop-studio` | `data.youtube`(업로드 기록) | `src/app/api/cron/cleanup-media/route.ts:23-44` | 미디어 30일, 대본 무기한 | 업로드 없으면 30일, 있으면 첫 업로드+1년 | 예 |
-| `lyric-video-studio` | **서버 기록 없음**(화면 상태뿐) | pg_cron `lyric-video-studio-retention` | 생성 30일 | 업로드 결과를 항목에 저장(쇼츠 원스톱 방식) 후 조건 분리 | 예 |
-| `playlist-channel-studio` | **서버 기록 없음** | **없음** | `playlist_projects` 무기한 | 30일 정리 신설 + 업로드 기록 저장 | — |
+| `shots` | `shorts_videos.youtube_video_id`, `youtube_uploads`(릴스 기록 미확인) | `src/app/api/cron/cleanup-videos/route.ts:26-86` | 파일 30일, 행 무기한 | **영상 파일은 지금처럼 30일(결정 완료)**. 행(대본·업로드 기록)은 업로드 기록 있으면 업로드+1년, 없으면 30일 | 예 |
+| `shorts-onestop-studio` | `data.youtube`(업로드 기록) | `src/app/api/cron/cleanup-media/route.ts:23-44` | 미디어 30일, 대본 무기한 | **미디어(영상·음성) 파일은 지금처럼 30일**. 대본·업로드 기록 항목만 업로드 없으면 30일, 있으면 첫 업로드+1년 | 예 |
+| `lyric-video-studio` | **서버 기록 없음**(화면 상태뿐) | pg_cron `lyric-video-studio-retention` | 생성 30일 | **영상·음원 파일은 지금처럼 30일 — 고칠 것 없음**. 업로드 기록을 남기고 싶으면 기록 행만 1년(선택) | 예 |
+| `playlist-channel-studio` | **서버 기록 없음** | **없음** | `playlist_projects` 무기한 | **30일 정리 신설(영상·음원 파일은 발행돼도 30일)** + 업로드 기록 행만 1년(선택) | — |
 
 ### 이커머스·이미지 (`docs/roles/ecommerce-image.md`)
 | 프로그램 | 발행 표시 | 정리 코드 | 지금 | 고칠 것 | 열외 |
@@ -71,7 +72,7 @@
 - **내 자료함**: 원본 삭제를 따라가므로 따로 할 일 없음(연결된 블로그 6·영상 2는 원본 규칙이 바뀌면 자동으로 1년 표시).
 
 ## 5. 주인님 결정이 필요한 것 (요청함 「🙋 내가 해 줄 일」에 올림)
-1. `shots`·영상 업로드 완료 파일을 1년 보관할지(유튜브에 원본이 있음 — 저장 용량 비용).
+1. ~~`shots`·영상 업로드 완료 파일을 1년 보관할지~~ → **결정(2026-11-11): 영상·음악 파일은 발행돼도 30일**(용량). 모든 프로그램 공통(인스타 릴스·쇼츠 영상 포함).
 2. `smartstore-register`·`elevenst-register`의 「상품 등록」을 발행으로 보고 1년 보관할지.
 3. 경계 사례 — 카카오 알림·단체 발송(`kakao_auto_poster`), 댓글 답글(`youtube-auto-reply`·`instagram-comment-reply`·`threads-comment-reply`·`comment-inbox`)을 「발행」으로 볼지.
 
