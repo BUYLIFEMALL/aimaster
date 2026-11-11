@@ -74,8 +74,8 @@ export function ScriptEditor({ video, segments, sceneVideos = {}, keyProviders =
         <p className="text-base font-bold text-[#f1f1f1]">
           장면별 대사 · 이미지 프롬프트 · 이미지 (5초 × {segments.length}장면)
         </p>
-        {segments.map((seg) => (
-          <SegmentCard key={seg.id} videoId={video.id} segment={seg} sceneVideoUrl={sceneVideos[seg.id] ?? null} hasNextImage={!!segments.find((x) => x.segment_index === seg.segment_index + 1)?.image_url} keyProviders={keyProviders} imageExpired={expiredSegmentIds.includes(seg.id)} />
+        {segments.map((seg, i) => (
+          <SegmentCard key={seg.id} isFirst={i === 0} isLast={i === segments.length - 1} videoId={video.id} segment={seg} sceneVideoUrl={sceneVideos[seg.id] ?? null} hasNextImage={!!segments.find((x) => x.segment_index === seg.segment_index + 1)?.image_url} keyProviders={keyProviders} imageExpired={expiredSegmentIds.includes(seg.id)} />
         ))}
       </div>
 

@@ -7,6 +7,7 @@ import {
   saveSegmentAction,
   regenerateSegmentImageAction,
   selectSegmentImageAction,
+  moveSegmentAction,
   type SaveSegmentState,
   type RegenerateImageState,
   type SelectImageState,
@@ -21,7 +22,7 @@ const initialSaveState: SaveSegmentState = {};
 const initialRegenerateState: RegenerateImageState = {};
 const initialSelectState: SelectImageState = {};
 
-export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextImage = false, keyProviders = [], imageExpired = false }: { videoId: string; segment: Segment; sceneVideoUrl?: string | null; hasNextImage?: boolean; keyProviders?: string[]; imageExpired?: boolean }) {
+export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextImage = false, keyProviders = [], imageExpired = false, isFirst = false, isLast = false }: { isFirst?: boolean; isLast?: boolean; videoId: string; segment: Segment; sceneVideoUrl?: string | null; hasNextImage?: boolean; keyProviders?: string[]; imageExpired?: boolean }) {
   const [saveState, saveAction, isSaving] = useActionState(saveSegmentAction, initialSaveState);
   const [regenState, regenAction, isRegenerating] = useActionState(
     regenerateSegmentImageAction,
@@ -41,6 +42,13 @@ export function SegmentCard({ videoId, segment, sceneVideoUrl = null, hasNextIma
         <span className="text-sm font-bold text-[#f1f1f1]">
           장면 {segment.segment_index} · {segment.duration_seconds}초
         </span>
+        {/* v1.49 장면 순서 바꾸기 — 이웃 장면과 맞바꿈(대사·이미지·장면 영상이 함께 옮겨감) */}
+        <form action={moveSegmentAction} className="flex gap-1">
+          <input type="hidden" name="segmentId" value={segment.id} />
+          <input type="hidden" name="videoId" value={videoId} />
+          <button type="submit" name="dir" value="up" disabled={isFirst} aria-label={`장면 ${segment.segment_index} 위로`} className="min-h-[28px] rounded-md border border-[#3f3f3f] px-2 text-xs text-[#f1f1f1] hover:border-[#ff0000] disabled:opacity-30">▲ 위로</button>
+          <button type="submit" name="dir" value="down" disabled={isLast} aria-label={`장면 ${segment.segment_index} 아래로`} className="min-h-[28px] rounded-md border border-[#3f3f3f] px-2 text-xs text-[#f1f1f1] hover:border-[#ff0000] disabled:opacity-30">▼ 아래로</button>
+        </form>
       </div>
 
       <form action={saveAction} className="space-y-2">

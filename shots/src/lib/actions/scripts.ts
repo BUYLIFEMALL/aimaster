@@ -12,6 +12,7 @@ import {
   generateSegmentImage,
   type NanoBananaModelType,
 } from "@/lib/ai/script";
+import { swapTarget, type MoveDir } from "@/lib/segmentOrder";
 
 const SEGMENT_COUNT = 6;
 
@@ -345,4 +346,35 @@ export async function selectSegmentImageAction(
 
   revalidatePath(`/scripts/${videoId}`);
   return { success: true };
+}
+
+/** v1.49 장면 순서 바꾸기 — 이웃 장면과 segment_index를 맞바꾼다. 겹침 제약이 있어도 되도록 한쪽을 잠시 음수로 옮긴다(3단계). */
+export async function moveSegmentAction(formData: FormData): Promise<void> {
+  const user = await requireProgramAccess();
+  const videoId = String(formData.get("videoId") ?? "");
+  const segmentId = String(formData.get("segmentId") ?? "");
+  const dir = String(formData.get("dir") ?? "") as MoveDir;
+  if (!videoId || !segmentId || (dir !== "up" && dir !== "down")) return;
+
+  const supabase = await createClient();
+  const { data: segments } = await supabase
+    .from("shorts_video_segments")
+    .select("id, segment_index")
+    .eq("user_id", user.id)
+    .eq("video_id", videoId);
+  const pair = swapTarget(segments ?? [], segmentId, dir);
+  if (!pair) return;
+
+  const set = (id: string, segment_index: number) =>
+    supabase.from("shorts_video_segments").update({ segment_index }).eq("user_id", user.id).eq("id", id);
+  const { error: e1 } = await set(pair.from.id, -pair.from.segment_index);
+  if (e1) throw new Error(e1.message);
+  const { error: e2 } = await set(pair.to.id, pair.from.segment_index);
+  if (e2) {
+    await set(pair.from.id, pair.from.segment_index); // 되돌림
+    throw new Error(e2.message);
+  }
+  const { error: e3 } = await set(pair.from.id, pair.to.segment_index);
+  if (e3) throw new Error(e3.message);
+  revalidatePath(`/scripts/${videoId}`);
 }
