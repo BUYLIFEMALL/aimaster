@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 실거래 v1.60 배포(지역 뉴스 개선 A·B)
+
+- 한 일: 개선 A(통계 목록 속 지나가는 지역 언급 빼기·시+구는 구 줄임 이름) + B(같은 사건 다른 언론사 묶기, 지난 3일 기사와 비교) 배포, 저장공간 위젯 한 줄 함께. 버전 v1.60(코드·SQL `20261112090000_version_v1_60.sql`·운영 DB).
+- 검수: 시험 63·tsc·로컬 build, 배포 `real-estate-sales-o4g491mby` Ready·운영 주소 연결, 운영 페이지에 위젯 스크립트 확인. ACTIVE_WORK의 디자인 담당 v1.59 끝난 줄은 주인님 승인으로 정리.
+- 남은 일: 11-13 08:00 알림 DB 대조(동탄구에 광명 기사 없음, 같은 사건 1건). 상세 `real_estate_sales/docs/IMPROVEMENTS.md` 11-11.
+- 비용: 빌드 1회(승인, 요청함 `12313e11`). 링크: https://real-estate-sales.buylife.xyz/news
+
 ## 2026-11-12 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — 이웃 소통 v1.19 배포 완료(감시 AI 켜짐)
 
 - **맥미니 시작 조건 충족**: `blog-neighbor-care/docs/REQUEST_20261112_MACMINI_V119_AI_DRAFT.md` 진행해 주세요.
