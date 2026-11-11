@@ -1,6 +1,6 @@
 # AI 쇼핑몰 빌더
 
-- 담당: Claude Code(윈도우) `claude-win-20261103-mall-builder`
+- 담당: Claude Code(윈도우) `claude-win-20261025-workspace` (2026-11-12 주인님 지시 「지금부터 넌 현재 개발중인 쇼핑몰 담당」으로 인계받음, 이전 `claude-win-20261110-mall-builder`·`claude-win-20261103-mall-builder`)
 - 맡은 폴더: `mall-builder/`(2026-11-12 `labs/`에서 옮김), `docs/mall/`
 - 카테고리: 이커머스
 - 주력 업무: **AI 쇼핑몰 빌더 전담**(2026-11-03 주인님 지정·정정: 「넌 지금 진행하는 AI 쇼핑몰 빌더 전담이야」) — 회원마다 자기 몰을 개설하는 프로셀형 빌더, 블록 첫 화면 편집, 사업자 등급가·견적·외상 같은 B2B 기능
