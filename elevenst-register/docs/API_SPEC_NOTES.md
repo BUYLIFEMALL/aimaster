@@ -91,3 +91,8 @@
 ## 8. 기본즉시할인 (2026-11-11, 상품관리 명세 `categoryNo=81` ego 읽기만)
 - 설정하지 않으면 칸을 **모두 빼야 함**. 넣을 때: `cuponcheck`=Y · `dscAmtPercnt`=할인 수치(「판매가에서 xxxx」) · `cupnDscMthdCd` 01=원 / 02=% · `cupnUseLmtDyYn` Y/N(기간 설정 시에만 `cupnIssEndDy`). 상품수정에서는 `cuponcheck`=S(기존값 유지) 가능.
 - 우리 사용: 상세페이지 정가(`price`) > 판매가(`sale_price`)일 때 회원이 켜면 `selPrc`=정가, 할인=정가−판매가(원, 기간 없음). 기본은 끔(판매가만 `selPrc`).
+
+## 9. 등록 응답·판매중지·이미지 보관 (2026-11-11, 명세 81·42 ego 읽기만)
+- 등록 응답: `<ClientMessage><message>…상품번호 : N</message><productNo>N</productNo><resultCode>200</resultCode></ClientMessage>` — 200 일반상품 성공, 210 신규상품 신청했으나 일반으로 성공. 오류는 `message`에 담김. 인증 실패 `resultCode` 100/200/300(300 = SellerAPI 승인 필요).
+- 판매중지(전시중지): `PUT http://api.11st.co.kr/rest/prodstatservice/stat/stopdisplay/{prdNo}` → `<message>판매상태가 수정되었습니다. [STAT : 105]</message><resultCode>200</resultCode>`. 오류 500(업무 오류)·-1000(점검 중).
+- **이미지**: `prdImage01~04`는 「11번가 서버가 다운로드해 600×600으로 줄여 11번가 이미지서버에 저장」(명세 문구) → 우리 주소가 나중에 사라져도 됨. **`htmlDetail`에는 그런 설명이 없음** → 상세설명 속 이미지는 우리 주소를 그대로 띄우는 것으로 봐야 함(첫 실제 등록 때 상품 페이지 이미지 주소로 확인). 상세페이지 이미지는 일반 회원 30일 뒤 삭제(`shop-detail-page` 정리 작업) → 상세 이미지 보관 방식 결정 필요(4단계 플랜).
