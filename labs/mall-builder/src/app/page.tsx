@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getMyStores, requireUser } from "@/lib/store";
+import { getMySupplierStores } from "@/lib/supplier-store";
+import { SUPPLIER_STATUS_LABEL } from "@/lib/supplier";
 import CreateStoreForm from "./create-store-form";
 import LogoutButton from "./logout-button";
 
@@ -7,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const user = await requireUser("/");
-  const stores = await getMyStores(user.id);
+  const [stores, supplied] = await Promise.all([getMyStores(user.id), getMySupplierStores()]);
   // D31 몰 여러 개 — 대표인 몰은 5개까지, 직원으로 들어간 몰도 함께 보인다
   const owned = stores.filter((s) => s.owner_id === user.id);
   const MAX_OWNED = 5;
@@ -21,6 +23,23 @@ export default async function Home() {
         </div>
         <LogoutButton />
       </div>
+
+      {supplied.length > 0 && (
+        <section className="mt-8" data-supplier-stores>
+          <h2 className="text-lg font-semibold">공급사로 입점한 몰</h2>
+          <ul className="mt-3 space-y-2">
+            {supplied.map((s) => (
+              <li key={s.supplier_id} className="flex items-center gap-2 rounded-lg border p-3 text-sm">
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold">{s.store_name} <span className="ml-1 rounded bg-emerald-50 px-1.5 text-xs font-normal text-emerald-800">{SUPPLIER_STATUS_LABEL[s.status]}</span></p>
+                  <p className="truncate text-xs text-gray-500">{s.supplier_name} · /s/{s.slug}</p>
+                </div>
+                <Link href={`/s/${s.slug}/supplier`} className="min-h-11 rounded bg-gray-900 px-4 py-2.5 text-white">공급사 화면</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold">내 쇼핑몰</h2>
