@@ -76,6 +76,8 @@ function drawSubtitle(ctx: CanvasRenderingContext2D, text: string) {
 export async function buildStoryMp4(o: {
   videoId: string; scenes: StoryScene[]; bgmUrl: string | null; voice: TtsVoice; speed: number;
   onProgress: (p: ExportProgress) => void; signal: AbortSignal;
+  /** v1.49 렌더링 중 미리보기 — 그리는 장면이 바뀔 때마다 장면 번호(0부터) */
+  onScene?: (index: number) => void;
 }): Promise<{ blob: Blob; duration: number; warnings: string[] }> {
   assertWebCodecs();
   if (!o.scenes.length) throw new Error("장면이 없습니다.");
@@ -126,11 +128,13 @@ export async function buildStoryMp4(o: {
     const audio = await mixVoiceAndBgm({ total, voices, bgm, onStatus: (status) => o.onProgress({ pct: 18, status }) });
     stop();
 
+    let lastScene = -1;
     const blob = await encodeMp4({
       // 느린 확대로 매 프레임이 바뀌어 8Mbps면 50초에 약 32MB(2026-10-21 실측) → 4Mbps로 저장 한도 50MB 여유
       width: W, height: H, fps: FPS, total, audio, pctFrom: 20, videoBitrate: 4_000_000, onProgress: o.onProgress, signal: o.signal,
       drawFrame: async (ctx, time) => {
         const found = built.findIndex((x) => time < x.start + x.dur); const i = found === -1 ? built.length - 1 : found; const b = built[i];
+        if (i !== lastScene) { lastScene = i; o.onScene?.(i); }
         const local = time - b.start;
         ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
         if (b.video) { await seekTo(b.video, local); drawCover(ctx, b.video, 1); } // AI 영상 장면(영상보다 길면 처음부터 반복)

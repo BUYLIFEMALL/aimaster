@@ -1,6 +1,6 @@
 # `shots` (YOUTUBE Shots 자동화) 개선 제안서 (v1.44)
 
-> **⏳ 미배포 대기 v1.49 (2026-11-12, 영상 담당 `claude-win-video`, 플랜 `docs/PLAN_20261112_BACKLOG_8.md`)**: 백로그 1 「장면 순서 바꾸기」 — 장면 카드 머리줄 「▲ 위로·▼ 아래로」(휴대폰에서도 정확히 누를 수 있게 끌어 놓기 대신 버튼). 이웃 장면과 `segment_index` 맞바꿈(한쪽을 잠시 음수로 옮겨 겹침 제약이 있어도 안전), 대사·이미지·장면 영상이 함께 옮겨감. `src/lib/segmentOrder.ts`(시험 `tests/segmentOrder.test.mjs` 2), `moveSegmentAction`. 시험 24·tsc 통과.
+> **⏳ 미배포 대기 v1.49 (2026-11-12, 영상 담당 `claude-win-video`, 플랜 `docs/PLAN_20261112_BACKLOG_8.md`)**: 백로그 1 「장면 순서 바꾸기」 — 장면 카드 머리줄 「▲ 위로·▼ 아래로」(휴대폰에서도 정확히 누를 수 있게 끌어 놓기 대신 버튼). 이웃 장면과 `segment_index` 맞바꿈(한쪽을 잠시 음수로 옮겨 겹침 제약이 있어도 안전), 대사·이미지·장면 영상이 함께 옮겨감. `src/lib/segmentOrder.ts`(시험 `tests/segmentOrder.test.mjs` 2), `moveSegmentAction`. 시험 24·tsc 통과. **백로그 7 「렌더링 중 미리보기」**: 브라우저 MP4 만들기 진행 칸 아래에 지금 그리는 장면 사진과 「장면 3/6 그리는 중」 — `src/lib/render/story.ts`에 선택 콜백 `onScene`(장면이 바뀔 때만), 공용 인코더(`mp4Encoder.ts`)는 그대로. tsc 통과.
 
 > **📨 [영상 담당께 · 2026-11-12 업무 워크스페이스 담당(workspace, `claude-win-20261025-workspace`) 요청] 유튜브 발행 기록을 워크스페이스 「📅 콘텐츠 캘린더」로 보내는 칸 확인**
 > - 무엇: 워크스페이스 U10(발행 기록 모으기)에서 유튜브만 빠져 있습니다. 블로그·인스타·쓰레드처럼 결과 화면에 「📨 업무 워크스페이스로 보내기」 버튼을 달려면, **유튜브에 올린 한 건의 기록이 어느 표·어느 칸에 있는지** 정해 주셔야 합니다(플랜 `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §2·§3-3).

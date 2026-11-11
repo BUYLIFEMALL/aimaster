@@ -15,6 +15,8 @@ export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { 
   const [voice, setVoice] = useState<TtsVoice>("coral");
   const [speed, setSpeed] = useState(1.05);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
+  // v1.49 렌더링 중 미리보기 — 지금 그리는 장면
+  const [sceneNow, setSceneNow] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const abort = useRef<AbortController | null>(null);
@@ -25,7 +27,7 @@ export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { 
     setError(null); setWarnings([]);
     const ac = new AbortController(); abort.current = ac;
     try {
-      const { blob, warnings: w } = await buildStoryMp4({ videoId, scenes, bgmUrl, voice, speed, onProgress: setProgress, signal: ac.signal });
+      const { blob, warnings: w } = await buildStoryMp4({ videoId, scenes, bgmUrl, voice, speed, onProgress: setProgress, onScene: setSceneNow, signal: ac.signal });
       setWarnings(w);
       if (blob.size > 50 * 1048576) throw new Error(`영상이 ${(blob.size / 1048576).toFixed(1)}MB라 저장 한도(50MB)를 넘었습니다. 장면 대사를 줄여 다시 만들어 주세요.`);
       setProgress({ pct: 99, status: `저장소에 올리는 중… (${(blob.size / 1048576).toFixed(1)}MB)` });
@@ -39,7 +41,7 @@ export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { 
     } catch (e) {
       setError(e instanceof DOMException && e.name === "AbortError" ? "만들기를 멈췄습니다." : e instanceof Error ? e.message : "영상을 만들지 못했습니다.");
     } finally {
-      setProgress(null); abort.current = null;
+      setProgress(null); setSceneNow(null); abort.current = null;
     }
   }
 
@@ -86,6 +88,13 @@ export function BrowserRenderPanel({ videoId, scenes, bgmUrl, hasOpenAiKey }: { 
             <span>{progress.status}</span>
             <span>{progress.pct}%</span>
           </p>
+          {sceneNow != null && scenes[sceneNow]?.imageUrl && (
+            <div className="flex items-center gap-3 pt-1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={scenes[sceneNow].imageUrl} alt={`장면 ${sceneNow + 1} 미리보기`} className="h-24 w-[54px] rounded-md border border-[#202945] object-cover" />
+              <span className="text-xs text-slate-300">🎬 장면 {sceneNow + 1}/{scenes.length} 그리는 중</span>
+            </div>
+          )}
         </div>
       )}
       {warnings.map((w) => <p key={w} className="text-xs text-amber-400">{w}</p>)}
