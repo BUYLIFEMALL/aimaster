@@ -176,7 +176,7 @@ priceLine(product, optionCombo, qty, customer, context) →
 ## 9. 폴더 구조 (1차 예정, Lab 뼈대 기준)
 
 ```
-labs/mall-builder/
+mall-builder/
   app/
     (platform)/          # 플랫폼: 로그인·몰 개설·내 몰 목록·플랫폼 관리자
     s/[store]/           # 손님 화면: 첫 화면·목록·상세·장바구니·주문·견적·마이페이지

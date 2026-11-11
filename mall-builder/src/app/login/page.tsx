@@ -1,0 +1,77 @@
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { PLATFORM_AIMASTER, mainLoginUrl } from "@/lib/platform";
+
+// Lab은 누구나 가입한다(docs/AIMASTER_DEV_LAB_GUIDELINES.md). dev에서 이메일 확인을 끄면 가입 즉시 로그인된다.
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+// 로그인 뒤 돌아갈 주소 — 이 사이트 안 경로만 허용(외부 주소로 보내지 않음)
+function safeNext(raw: string | null) {
+  return raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/";
+}
+
+function LoginForm() {
+  const supabase = createClient();
+  const router = useRouter();
+  const next = safeNext(useSearchParams().get("next"));
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  // 운영(T0): 로그인은 메인 사이트(www.buylife.xyz)와 공유 — 이 화면 대신 메인 로그인으로 보내고, 로그인 뒤 원래 화면으로 돌아온다
+  useEffect(() => {
+    if (PLATFORM_AIMASTER) window.location.replace(mainLoginUrl(new URL(next, window.location.origin).href));
+  }, [next]);
+  if (PLATFORM_AIMASTER) return <main className="mx-auto max-w-sm px-4 py-16 text-sm text-gray-600">메인 사이트 로그인 화면으로 이동합니다…</main>;
+
+  async function submit(mode: "signin" | "signup") {
+    setMessage("");
+    const { data, error } =
+      mode === "signin"
+        ? await supabase.auth.signInWithPassword({ email, password })
+        : await supabase.auth.signUp({ email, password });
+    if (error) return setMessage(error.message);
+    if (!data.session) return setMessage("가입 확인 메일을 보냈습니다. 메일의 링크를 누른 뒤 로그인해 주세요.");
+    router.replace(next);
+    router.refresh();
+  }
+
+  return (
+    <main className="mx-auto max-w-sm px-4 py-16">
+      <h1 className="text-xl font-bold">AI 쇼핑몰 빌더</h1>
+      <div className="mt-6 space-y-3">
+        <input
+          className="w-full rounded border px-3 py-2"
+          type="email"
+          placeholder="이메일"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          className="w-full rounded border px-3 py-2"
+          type="password"
+          placeholder="비밀번호 (6자 이상)"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <button className="flex-1 rounded bg-gray-900 py-2 text-white" onClick={() => submit("signin")}>
+            로그인
+          </button>
+          <button className="flex-1 rounded border py-2" onClick={() => submit("signup")}>
+            가입
+          </button>
+        </div>
+        {message && <p className="text-sm text-red-600">{message}</p>}
+      </div>
+    </main>
+  );
+}

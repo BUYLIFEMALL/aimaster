@@ -1,10 +1,10 @@
 # 개발 플랜 — AI 쇼핑몰 빌더 v1 (B2B 도매 쇼핑몰 빌더, 버전 계열 V-B)
 
 - 작성: 2026-11-03 Claude Code(윈도우) `claude-win-20261103-mall-builder`(역할 `mall-builder`)
-- 상태: **승인됨**(2026-11-03 채팅 「진행해」, Lab 빌드 4회). F01 완료·점검 대기 — 진행표 `labs/mall-builder/README.md`
+- 상태: **승인됨**(2026-11-03 채팅 「진행해」, Lab 빌드 4회). F01 완료·점검 대기 — 진행표 `mall-builder/README.md`
 - 이름: 「AI 쇼핑몰 빌더」 / slug·폴더 `mall-builder` (주인님 정정 지시 「넌 지금 진행하는 AI 쇼핑몰 빌더 전담이야」로 확정)
 - 공통 설계: [ARCHITECTURE.md](ARCHITECTURE.md) · 향후 버전: [ROADMAP_AND_VARIANTS.md](ROADMAP_AND_VARIANTS.md)
-- 승인 후 이 문서를 `labs/mall-builder/docs/`에도 복사해 둔다(Lab 폴더 생성 뒤).
+- 승인 후 이 문서를 `mall-builder/docs/`에도 복사해 둔다(Lab 폴더 생성 뒤).
 
 ---
 
@@ -136,6 +136,6 @@ Lab 배포(빌드 비용)는 기능마다 하지 않고 아래 **점검 묶음(�
 | 범위가 커짐 | 1차는 위 범위만. 추가 요청은 로드맵 표에 적고 다음 버전으로 |
 
 ## 7. 남길 문서
-- `labs/mall-builder/README.md`(목적·실행·남은 일), `labs/mall-builder/docs/`에 이 플랜 사본
+- `mall-builder/README.md`(목적·실행·남은 일), `mall-builder/docs/`에 이 플랜 사본
 - 단계마다 [README.md](README.md) §5 작업 기록, 설계가 바뀌면 [ARCHITECTURE.md](ARCHITECTURE.md) 변경 기록
 - 외부 분석표 카드 EXT-EC-01 진행 상태 갱신

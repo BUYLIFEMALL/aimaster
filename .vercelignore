@@ -31,3 +31,5 @@ naver-blog-auto-poster_app/node_modules
 
 # labs/(AIMaster_dev 독립 실험 프로그램, 2026-10-19)는 각자 자체 Vercel 프로젝트로 배포되며 루트 앱과 무관하다(docs/AIMASTER_DEV_LAB_GUIDELINES.md).
 /labs
+# mall-builder/(AI 쇼핑몰 빌더)는 2026-11-12 labs/에서 옮겨 와 자체 Vercel 프로젝트(mall-builder·dev-mall-builder)로 배포한다.
+/mall-builder

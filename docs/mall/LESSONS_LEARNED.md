@@ -1,11 +1,11 @@
 # AI 쇼핑몰 빌더 — 작업 과정 문제·교훈 모음
 
 > 주인님 지시(2026-11-04): 「항상 작업과정과 문제 사항을 남겨 다음에 같은 반복 실수 안 하도록」.
-> 이 몰 빌더(`labs/mall-builder`)를 이어 작업하는 모든 세션은 **작업 전에 이 문서를 읽고**, 작업 중 새 문제를 만나면 **같은 커밋에** 한 줄을 추가한다.
+> 이 몰 빌더(`mall-builder`)를 이어 작업하는 모든 세션은 **작업 전에 이 문서를 읽고**, 작업 중 새 문제를 만나면 **같은 커밋에** 한 줄을 추가한다.
 > 형식: 증상 → 원인 → 해결 → 다음부터. 모든 CLI 공통 교훈은 `docs/ERROR_LESSONS.md`에도 한 항목으로 올린다.
 
 ## 작업 전 점검 (매번)
-- [ ] 이 문서와 `labs/mall-builder/README.md` 「남은 일」을 읽었다
+- [ ] 이 문서와 `mall-builder/README.md` 「남은 일」을 읽었다
 - [ ] DB 변경은 **추가만**(add column·create table·create policy·create or replace function). `drop`·`revoke`·`delete` 문장을 지금 실행하는 적용은 하지 않는다
 - [ ] DB 적용은 표·규칙과 함수를 **나눠** 보내고, 함수 묶음 맨 위에 「함수 정의만 바꾼다. 지금 지워지는 데이터는 없다」 설명 주석을 붙인다
 - [ ] 화면 시험은 ego lite 작업 공간을 **이름**(`taskSpace("AI 쇼핑몰 빌더 시험")`)으로 연다
@@ -127,7 +127,7 @@
 
 ## 2026-11-11 D34 — 로컬 개발 서버에서 로그인 단추가 안 먹음
 - 증상: `localhost:3210/login` 화면은 보이는데 「로그인」을 눌러도 반응 없음. 서버 기록에 `Turbopack` FATAL 「Next.js package not found」(endpoint `/page`)와 로그인 화면 GET 반복.
-- 원인: 개발용 캐시 `labs/mall-builder/.next/dev`가 깨져 화면 동작 코드가 붙지 않음(서버 켜는 경로 문제가 아니었음 — PowerShell로 켜도 같음).
+- 원인: 개발용 캐시 `mall-builder/.next/dev`가 깨져 화면 동작 코드가 붙지 않음(서버 켜는 경로 문제가 아니었음 — PowerShell로 켜도 같음).
 - 해결: 서버를 끄고 `.next/dev`만 지운 뒤 `node .\node_modules\next\dist\bin\next dev -p 3210`으로 다시 켬(PowerShell에서 `npm run dev -- -p 3210`은 `-p`가 빠져 「3210」을 폴더로 읽으니 쓰지 않는다).
 - 다음부터: 로그인·단추가 안 먹으면 서버 기록에서 FATAL부터 보고, 있으면 `.next/dev` 지우고 재시작. ego에서 단추에 `__react…` 속성이 붙었는지로 동작 연결을 확인한다.
 

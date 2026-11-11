@@ -2,8 +2,8 @@
 
 > **쇼핑몰 3종 작업을 이어받는 CLI는 이 문서부터 읽는다.** 그다음 [쇼핑몰 카테고리 총괄](README.md) → [공통 설계](ARCHITECTURE.md) → [작업 교훈](LESSONS_LEARNED.md) 순서.
 > - 담당 역할: `mall-builder`([역할 파일](../roles/mall-builder.md)) · 작성: Claude Code(윈도우) `claude-win-20261110-mall-builder`
-> - 코드: `labs/mall-builder/`(→ 운영 이전 뒤 `AIMaster/mall-builder/`) · Lab DB `AIMaster_dev`(ref `rjjtjakljjxsgjelqgek`) · Lab 주소 https://dev-mall-builder.vercel.app
-> - 플랜 원본: [`labs/mall-builder/docs/PLAN_20261111_THREE_MALLS.md`](../../labs/mall-builder/docs/PLAN_20261111_THREE_MALLS.md)(세 몰 전체) · [`PLAN_20261111_MARKETPLACE.md`](../../labs/mall-builder/docs/PLAN_20261111_MARKETPLACE.md)(입점 D34~D37) · [`PLAN_20261111_VH_OWN_MALL.md`](../../labs/mall-builder/docs/PLAN_20261111_VH_OWN_MALL.md)(독립몰 초안)
+> - 코드: `mall-builder/`(→ 운영 이전 뒤 `AIMaster/mall-builder/`) · Lab DB `AIMaster_dev`(ref `rjjtjakljjxsgjelqgek`) · Lab 주소 https://dev-mall-builder.vercel.app
+> - 플랜 원본: [`mall-builder/docs/PLAN_20261111_THREE_MALLS.md`](../../mall-builder/docs/PLAN_20261111_THREE_MALLS.md)(세 몰 전체) · [`PLAN_20261111_MARKETPLACE.md`](../../mall-builder/docs/PLAN_20261111_MARKETPLACE.md)(입점 D34~D37) · [`PLAN_20261111_VH_OWN_MALL.md`](../../mall-builder/docs/PLAN_20261111_VH_OWN_MALL.md)(독립몰 초안)
 
 ---
 
@@ -83,15 +83,15 @@
 | 단계 | 내용 | 상태 | 근거 |
 |---|---|---|---|
 | v1 F01~F19 | 몰 개설·상품·주문·B2B 기본·블록 편집 | ✅ Lab 배포 | [v1 플랜](PLAN_20261103_MALL_BUILDER_V1.md) |
-| 다듬기 D1~D7 | 주소 찾기·가격 보호·외상 견적 등 | ✅ | `labs/mall-builder/README.md` |
+| 다듬기 D1~D7 | 주소 찾기·가격 보호·외상 견적 등 | ✅ | `mall-builder/README.md` |
 | 2차 D8~D22 | 자동 취소·알림·배송·게시판·통계·비회원·재입고·쿠폰·포인트·세금계산서·폐쇄몰·공동구매·직원 | ✅ Lab 배포(D19 실제 발행은 볼타 test 키 대기) | 역할 파일 |
 | B2B 핵심 D23~D29 | 엑셀·특가·빠른 주문·거래명세서·AI 보조·블록 추가 | ✅ Lab 배포 | 〃 |
-| 3차 D30~D33 | 정기 주문·몰 여러 개·PWA·리셀러 | ✅ Lab 배포 | [3차 플랜](../../labs/mall-builder/docs/PLAN_20261111_PHASE3.md) |
-| 입점형 D34~D37 | 공급사 계정·상품 승인·주문 분배·정산 | ✅ Lab 배포(`dev-mall-builder-myohmxyip`)·다른 계정 실제 확인 | [마켓 플랜](../../labs/mall-builder/docs/PLAN_20261111_MARKETPLACE.md) |
-| **T0 운영 이전(①)** | 폴더 이동·AIMaster 스위치·`programs` 이커머스 등록·`v1.01`·`mall-builder.buylife.xyz`·운영 DB 마이그레이션 63개·샘플몰 ① | **⏭ 다음 첫 단계**(단계마다 주인님 승인: 운영 DB 적용·Vercel 새 프로젝트·도메인) | [3몰 플랜](../../labs/mall-builder/docs/PLAN_20261111_THREE_MALLS.md) §4 |
-| T1 ① 보강 | **등급 할인 3단계 + 공급가 하한 보호**, **공급사별 바로 판매/승인 선택**, 폐쇄몰 켜기(가입 승인·등급 지정), 공급사 상품 옵션, 공급사별 배송비 | 🔶 등급 할인·하한·바로 판매 완료(11-12, 미배포 — [플랜 §10 결과](../../labs/mall-builder/docs/PLAN_20261111_THREE_MALLS.md)), 폐쇄몰은 D20에 있음, 남은 것: 공급사 상품 옵션·공급사별 배송비 | 〃 · 주인님 결정 §0 |
+| 3차 D30~D33 | 정기 주문·몰 여러 개·PWA·리셀러 | ✅ Lab 배포 | [3차 플랜](../../mall-builder/docs/PLAN_20261111_PHASE3.md) |
+| 입점형 D34~D37 | 공급사 계정·상품 승인·주문 분배·정산 | ✅ Lab 배포(`dev-mall-builder-myohmxyip`)·다른 계정 실제 확인 | [마켓 플랜](../../mall-builder/docs/PLAN_20261111_MARKETPLACE.md) |
+| **T0 운영 이전(①)** | 폴더 이동·AIMaster 스위치·`programs` 이커머스 등록·`v1.01`·`mall-builder.buylife.xyz`·운영 DB 마이그레이션 63개·샘플몰 ① | **⏭ 다음 첫 단계**(단계마다 주인님 승인: 운영 DB 적용·Vercel 새 프로젝트·도메인) | [3몰 플랜](../../mall-builder/docs/PLAN_20261111_THREE_MALLS.md) §4 |
+| T1 ① 보강 | **등급 할인 3단계 + 공급가 하한 보호**, **공급사별 바로 판매/승인 선택**, 폐쇄몰 켜기(가입 승인·등급 지정), 공급사 상품 옵션, 공급사별 배송비 | 🔶 등급 할인·하한·바로 판매 완료(11-12, 미배포 — [플랜 §10 결과](../../mall-builder/docs/PLAN_20261111_THREE_MALLS.md)), 폐쇄몰은 D20에 있음, 남은 것: 공급사 상품 옵션·공급사별 배송비 | 〃 · 주인님 결정 §0 |
 | T2 ② 분양몰 | §2 표의 ⚪ 항목 | ⚪ | 〃 |
-| T3 ③ 독립몰 | 단일 몰 모드·자기 도메인·상품/회원 이전 | ⚪ | 〃, [V-H 초안](../../labs/mall-builder/docs/PLAN_20261111_VH_OWN_MALL.md) |
+| T3 ③ 독립몰 | 단일 몰 모드·자기 도메인·상품/회원 이전 | ⚪ | 〃, [V-H 초안](../../mall-builder/docs/PLAN_20261111_VH_OWN_MALL.md) |
 | T4 배포 키트 | 몰별 키트(설치 마법사·Lab 리허설) | ⚪ 나중 | `docs/DISTRIBUTION_KIT_GUIDE.md` |
 
 ### T0 운영 이전 — 이어받는 CLI가 할 순서
