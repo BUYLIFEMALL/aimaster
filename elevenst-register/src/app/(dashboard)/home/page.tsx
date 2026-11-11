@@ -31,11 +31,11 @@ export default async function HomePage() {
       <PageHeader emoji="🏪" title="AI 11번가 상품 자동등록기" description="상세페이지에서 만든 상품을 11번가 공식 Seller API로 등록합니다. 판매자 화면을 대신 조작하지 않고 서버가 직접 보냅니다." />
 
       <Notice tone="warn">
-        <b>지금은 준비 단계입니다.</b> 키 등록과 연결 시험은 지금 할 수 있고, 상품 등록 화면은 다음 버전에서 열립니다.
+        <b>지금은 검사 단계입니다.</b> 키 등록·연결 시험·상품 등록 정보 채우기와 「검사하기」까지 할 수 있습니다. 11번가에 실제로 보내는 기능은 다음 버전에서 열립니다.
       </Notice>
 
       <section className="space-y-3">
-        <h2 className="text-base font-extrabold text-slate-900">처음 설정 2단계</h2>
+        <h2 className="text-base font-extrabold text-slate-900">처음 설정 3단계</h2>
         <ol className="space-y-3">
           <Step
             done={Boolean(s.elevenstKey)}
@@ -46,6 +46,11 @@ export default async function HomePage() {
           <Step done={false} n={2} title="연결 시험" detail="「API키등록·플랫폼연동」에서 「연결 시험(읽기만)」을 눌러 출고지·반품/교환지가 보이면 준비 끝입니다. 고정 IP(Fixie)는 필요 없습니다 — 이 프로그램은 한국(서울) 서버에서 11번가에 직접 연결합니다.">
             <Link href="/connect" className="inline-flex items-center gap-1 text-xs font-bold text-indigo-700 hover:underline">
               연결 시험하러 가기
+            </Link>
+          </Step>
+          <Step done={false} n={3} title="상품 등록 정보 채우고 검사" detail="「상품 등록」에서 상세페이지 상품을 고르고 카테고리·가격·배송·고시를 채운 뒤 「검사하기」를 누릅니다. 배송·안내 문구는 한 번 넣으면 다음 상품에 미리 채워집니다.">
+            <Link href="/products" className="inline-flex items-center gap-1 text-xs font-bold text-indigo-700 hover:underline">
+              상품 등록하러 가기
             </Link>
           </Step>
         </ol>

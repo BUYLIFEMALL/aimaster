@@ -22,8 +22,10 @@ Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB),
 - **v1.02 (2026-11-11)** — 2단계 배포 `elevenst-register-kcgko1l6z` Ready(빌드 1회, 주인님 승인), DB `programs.version` v1.02.  `/connect` 「API키등록·플랫폼연동」: 11번가 키·고정 IP 저장/지우기(공용 `elevenst_api_key`·`fixed_ip_proxy_url`, 다른 프로그램도 같이 쓴다는 안내), 「연결 시험(읽기만)」 = 출고지 `GET /rest/areaservice/outboundarea` + 반품/교환지 `GET /rest/areaservice/inboundarea`(거절이면 나가는 IP 표시). 요청 함수 `src/lib/elevenst/client.ts`(undici ProxyAgent, 헤더 `openapikey`, EUC-KR, 재시도 0), 주소 응답 `areas.ts`. 시험 11/11·tsc·build 통과. 실제 연결 시험은 주인님 11번가 IP 등록 + 관리자 계정 키·고정 IP 저장 뒤(미확인).
 - **v1.03 (2026-11-11)** — 연결 시험 500 진단: 11번가가 해외 IP(Fixie 미국)를 막음, 한국에서 직접 부르면 키로 조회 성공(`docs/API_SPEC_NOTES.md` §6). 주인님 결정 「1안」: `vercel.json` `regions: ["icn1"]`(서울), 11번가는 Fixie 없이 직접 `https://api.11st.co.kr` 호출, 고정 IP 입력 칸·단계 제거(처음 설정 2단계: 키 → 연결 시험), `undici` 제거. 배포 `elevenst-register-kuna0l35h` Ready(빌드 1회 승인), DB v1.03. ⚠ 서울 서버 IP는 고정이 아님 — 쓰기 API가 등록 IP를 요구하면 국내 고정 IP 방안 재결정.
 
+- **미배포 대기 — 3단계 등록 화면 (2026-11-11 로컬 완료, 다음 배포 때 v1.04)** — 메뉴 「📦 상품 등록」 `/products`(상세페이지 상품, 검토 완료 먼저) → `/products/[id]` `RegisterForm`: 카테고리(`CategoryPicker` — 상품명 후보 찾기·직접 찾아보기·번호, 맨 아래만) · 가격·재고·한 가지 기준 옵션 · 과세·KC(대상 아님/면제 2종)·미성년자 · 배송(출고지·반품지·발송마감 템플릿은 11번가에서 읽어 미리 채움, 배송비 무료/고정/조건부, 추가·반품·교환 배송비, A/S·반품교환 안내) · 고시(40개 유형, 「상품상세설명 참조」 미리 채움) → 「🧪 검사하기(보내지 않음)」. 새 파일: `src/lib/elevenst/{category,categoryStore,product,notification,sendClose,draftDefaults}.ts`, `src/lib/actions/register.ts`, `src/lib/shop.ts`(쿠팡 운영 사본). 전체 카테고리는 키 없는 공개 조회를 서버 메모리에 12시간 보관. 배송·안내 문구는 브라우저에 기억(localStorage). 시험 23/23·tsc·build 통과, 브라우저 묶음에 `iconv-lite` 없음 확인. 대시보드 「처음 설정 3단계」. [역할: ecommerce-image] `claude-win-sdp`.
+
 ## 5. 남은 일
-`docs/IMPROVEMENT_BACKLOG.md` — 다음은 실제 연결 시험(관리자 계정) → 3단계 등록 화면. 연결 시험 전에 주인님이 11번가 「API 관리 › IP 직접 입력 › 실서버 IP」에 Fixie 고정 IP 2개 등록.
+`docs/IMPROVEMENT_BACKLOG.md` — 3단계 운영 화면 검수(배포 뒤) → 4단계 보내기(이미지 공개 주소·`sending` 기록·등록 직후 전시중지·보관 정리 라우트).
 
 ## 6. 연계·아이디어
 - `shop-detail-page/lib/markets.ts`에 11번가 한 줄(5단계) → 상세페이지 「11번가에 등록하기」.

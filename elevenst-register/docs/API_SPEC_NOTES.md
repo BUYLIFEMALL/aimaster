@@ -79,3 +79,11 @@
   - 이 PC IP는 11번가 「API 관리」에 등록하지 않았는데 조회가 됐다 → **IP 허용 목록은 적어도 조회에서는 강제되지 않음**(쓰기 API에서 강제되는지는 미확인).
 - 결론: 11번가는 **한국 IP에서 불러야 한다.** 쿠팡처럼 Fixie(해외 고정 IP)를 쓰는 방식은 11번가에 맞지 않는다. 오류 메시지 개선: 500인데 본문이 XML이 아니면 「중간 연결(프록시)이 11번가에 닿지 못함」으로 안내해야 함.
 - **v1.03 운영 확인(2026-11-11)**: 서울 지역(icn1) 배포에서 관리자 계정 「연결 시험」 성공 — 출고지 1곳(주소 순번 2), 반품/교환지 1곳(주소 순번 3). 상품 등록 때 `addrSeqOut=2`·`addrSeqIn=3`(주인님 계정 기준). Fixie 없이 직접 호출로 동작 확정.
+
+## 7. 3단계(등록 화면) 때 추가 확인 (2026-11-11)
+- **전체 카테고리** `GET https://api.11st.co.kr/rest/cateservice/category`: 키 없이 200, 약 3MB(EUC-KR), 15,304개(깊이 1: 173 · 2: 1,865 · 3: 8,489 · 4: 4,777), **`leafYn=Y`가 맨 아래**(12,323개). 칸 `depth·dispNm·dispNo·parentDispNo·leafYn`. → 서버가 받아 메모리에 12시간 보관(`src/lib/elevenst/categoryStore.ts`), 찾아보기·이름 검색은 서버에서(검색 약 10ms).
+- **하위 카테고리** `GET /rest/cateservice/category/{no}`: 명세는 「키 필요 없음」인데 키 없이 부르면 빈 목록(실측, 1033). 명세 예시에 `certType`·`requiredYn` 칸이 있음(카테고리별 인증 필요 여부로 보임) → 4단계에서 회원 키로 불러 KC 필수 카테고리 안내에 쓸 수 있는지 확인.
+- **발송마감 템플릿** `GET /rest/prodservices/sendCloseList`(배송 가이드 `apiSeq=6735`): 응답 `productInformationTemplateList › templateBOList`(`prdInfoTmpltNm`·`prdInfoTmpltNo`·`sendClfCd` 01 일반·02 오늘·03 순차) → 등록 칸 `dlvSendCloseTmpltNo`에 `prdInfoTmpltNo`. 등록 명세 문구상 선택 입력(택배일 때만 유효) → 없으면 비우고 경고만.
+- **상품정보제공고시 코드표**: 셀러오피스 「상품정보고시 유형별 입력항목」 창(`soffice.11st.co.kr/product/BulkProductReg.tmall?method=goProductNotiPop`, 로그인 필요)을 읽기만 해 `src/lib/elevenst/notification.ts`로 옮김 — 유형 40개·항목 378개, 기본 「기타 재화」(891045, 항목 5개). 값은 항목당 50자까지. 본문 `ProductNotification › type + item(code, name)…`.
+- **공개 예제 묶음** `https://openapi.11st.co.kr/example/ProductExample1705.zip`: 옵션(싱글·멀티·계산형·작성형)·인증·고시·판매기간 조각 예시만 있고 전체 본문 예시는 없음. 싱글옵션은 `optSelectYn=Y`·`txtColCnt=1`·`colTitle`·`ProductOption(useYn, colOptPrice, colValue0, colCount)`.
+- 등록 칸 세부: 상품명 100자 · 판매가 10원 단위·10억 미만(수정 때 +50%/-80%) · 재고 0 불가 · 옵션가 -50%~+100%, 0원 옵션 1개 이상 · 옵션명/값 금지 글자 `[ ] & # ; " % < > †` · 반품·교환 배송비 10원 단위 · A/S·반품교환 안내 빈 칸 불가(4,000바이트) · KC 그룹 01~04(01: 대상/면제/대상 아님, 02·03: 대상/대상 아님, 04: 생활화학 대상/아님) · 브랜드 없으면 「알수없음」.
