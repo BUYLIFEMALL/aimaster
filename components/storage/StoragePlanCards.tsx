@@ -4,8 +4,10 @@ import { useState } from "react";
 import PaymentModal from "@/components/payment/PaymentModal";
 import type { StoragePlanOffer } from "@/lib/storage/memberStorage";
 
+const BILLING_LABEL: Record<string, string> = { monthly: "1개월", bimonthly: "2개월", quarterly: "3개월", biannual: "6개월", annual: "12개월" };
+
 function fmtGb(bytes: number) {
-  return `${Math.round(bytes / 1024 ** 3)}GB`;
+  return bytes >= 1024 ** 3 ? `${Math.round(bytes / 1024 ** 3)}GB` : `${Math.round(bytes / 1024 ** 2)}MB`;
 }
 function keep(days: number | null) {
   if (days === null) return "구독 중 자동 삭제 없음";
@@ -31,7 +33,7 @@ export default function StoragePlanCards({ offers, currentQuotaBytes }: { offers
               {i === 1 && <span className="self-start text-[11px] font-bold text-black bg-gold rounded-full px-2 py-0.5 mb-2">추천</span>}
               <p className="text-white font-bold">{o.name}</p>
               <p className="text-3xl font-extrabold text-white mt-1">
-                {o.price.toLocaleString()}원<span className="text-sm font-medium text-subtext"> / 월</span>
+                {o.price.toLocaleString()}원<span className="text-sm font-medium text-subtext"> / {BILLING_LABEL[o.billingType] ?? "1개월"}</span>
               </p>
               <ul className="mt-3 space-y-1 text-sm text-white/85">
                 <li>💾 저장 용량 {fmtGb(o.quotaBytes)}</li>

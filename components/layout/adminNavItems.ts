@@ -24,6 +24,7 @@ import {
   ListChecks,
   BookOpen,
   FolderTree,
+  HardDrive,
 } from "lucide-react";
 
 export const ADMIN_NAV_ITEMS = [
@@ -35,6 +36,7 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin/access-matrix", icon: Shield, label: "접근 권한 관리" },
   { href: "/admin/grades", icon: Award, label: "등급 관리" },
   { href: "/admin/coupons", icon: Ticket, label: "쿠폰 관리" },
+  { href: "/admin/storage-plans", icon: HardDrive, label: "저장공간 요금제" },
   { href: "/admin/faq", icon: HelpCircle, label: "FAQ 관리" },
   { href: "/admin/guides", icon: KeyRound, label: "API/플랫폼 가이드 관리" },
   { href: "/admin/notices", icon: Megaphone, label: "공지사항 관리" },

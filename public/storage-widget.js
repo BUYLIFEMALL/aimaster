@@ -126,7 +126,7 @@
       '<div style="color:#444;font-size:14px;line-height:1.6">' + fmt(d.usedBytes) + " / " + fmt(d.quotaBytes) + " 사용 중입니다.<br>" +
       (full ? "새로 만드는 자료를 저장하려면 용량을 늘리거나 오래된 자료를 정리해 주세요." : "지금 보관 기간은 <b>" + keep(d) + "</b>입니다. 올린 글·이미지·영상도 기간이 지나면 자동으로 지워져요.") +
       "</div>" +
-      '<div style="background:#f6f7fb;border-radius:12px;padding:10px 12px;margin:12px 0;font-size:13px;color:#333">✅ 저장 구독으로 <b>용량 최대 200GB</b>, <b>보관 1년~자동 삭제 없음</b>까지 늘릴 수 있어요.</div>' +
+      '<div style="background:#f6f7fb;border-radius:12px;padding:10px 12px;margin:12px 0;font-size:13px;color:#333">✅ <b>저장 구독</b>으로 저장 용량과 보관 기간을 늘릴 수 있어요.</div>' +
       '<div style="display:flex;gap:8px"><a href="' + esc(d.upgradeUrl) + '" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:11px;border-radius:12px;background:#111;color:#fff;text-decoration:none;font-weight:800">요금제 보기</a>' +
       '<button type="button" data-act="close" style="padding:11px 14px;border-radius:12px;border:1px solid #ddd;background:#fff;cursor:pointer">나중에</button></div></div>';
     overlay.onclick = function (ev) {
