@@ -16,8 +16,8 @@
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 주인님이 Vidu 충전 후 말씀하실 때(실행 직전 다시 승인) | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio`·`shorts-onestop-studio`·`shots`·`music-video-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | 보관 규칙 「발행 1년·생성만 30일」 — 업로드 기록(`data.youtube`) 없으면 미디어 30일, 있으면 첫 업로드+1년(`src/app/api/cron/cleanup-media/route.ts`) | 다음에 손댈 때(2026-11-11 요청) | `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md` §3 영상·음악 |
-| `shots` | 보관 규칙 — 유튜브 업로드 기록 있는 영상 파일을 업로드일+1년 보관할지(`src/app/api/cron/cleanup-videos/route.ts`) | **주인님 결정 대기**(요청함 「내가 해 줄 일」) → 결정 뒤 다음에 손댈 때 | 같은 문서 §3·§5 |
+| `shorts-onestop-studio` | 보관 규칙 — **영상·음성 파일은 업로드돼도 30일(지금 그대로, 주인님 2026-11-11 「용량이 커서 보관하면 안되」)**. 대본·업로드 기록 항목만 업로드 없으면 30일, 있으면 첫 업로드+1년(`src/app/api/cron/cleanup-media/route.ts`) | 다음에 손댈 때(2026-11-11 요청) | `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md` §3 영상·음악 |
+| `shots` | 보관 규칙 — **영상 파일은 업로드돼도 30일(결정 완료 2026-11-11, 지금 그대로)**. 행(대본·업로드 기록)만 업로드 기록 있으면 업로드+1년, 없으면 30일(`src/app/api/cron/cleanup-videos/route.ts`) | 다음에 손댈 때 | 같은 문서 §3·§5 |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | V3 2단계(상품 사진 배경·외형 일치 점검) | 이커머스 담당의 사진 주소 형식 답 | `shorts-onestop-studio/docs/PLAN_20261106_V3_PRODUCT_SHORTS.md` §3 |
