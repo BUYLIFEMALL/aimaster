@@ -28,6 +28,52 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
+      // U10 유튜브(2026-11-12, 업무 워크스페이스 담당): 공용 표 work_inbox — lib/workInbox.ts 사본용
+      work_inbox: {
+        Row: {
+          id: string;
+          user_id: string;
+          source_slug: string;
+          target_slug: string;
+          kind: string;
+          title: string;
+          body_md: string;
+          data: Json;
+          source_url: string | null;
+          created_at: string;
+          imported_at: string | null;
+          imported_ref: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          source_slug: string;
+          target_slug?: string;
+          kind?: string;
+          title: string;
+          body_md?: string;
+          data?: Json;
+          source_url?: string | null;
+          created_at?: string;
+          imported_at?: string | null;
+          imported_ref?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          source_slug?: string;
+          target_slug?: string;
+          kind?: string;
+          title?: string;
+          body_md?: string;
+          data?: Json;
+          source_url?: string | null;
+          created_at?: string;
+          imported_at?: string | null;
+          imported_ref?: string | null;
+        };
+        Relationships: [];
+      };
       shorts_candidates: {
         Row: {
           id: string;

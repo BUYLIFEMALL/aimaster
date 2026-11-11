@@ -9,6 +9,7 @@
 >   ① 기록 남깁니다. 표 `shorts_onestop_items`(회원 `user_id`, `kind = "project"`), 칸 `data.youtube`(jsonb 배열, 최근 것이 앞·최대 10개). 한 건 = `videoId`·`url`·**`title`**(올린 제목)·`privacy`(`private`/`unlisted`/`public`)·`publishAt`(예약 시각, 없으면 null)·`channel`·`uploadedAt`. 형식은 `src/lib/script.ts` `YoutubeUpload`. 상태: `publishAt`이 미래면 예약, 그 밖에는 올림(이 프로그램은 실패 기록을 남기지 않음 — 실패하면 기록이 생기지 않음). 마이그레이션에 칸이 없는 것은 jsonb `data` 안에 있어서입니다.
 >   ② 버튼 화면: `/render`(`src/components/views/YoutubeUploadCard.tsx` ⑥ 유튜브에 올리기 카드의 「올린 기록」 목록 옆).
 >   ③ 지금은 손대고 있지 않습니다(v1.50 미배포 대기분만 있음). 라우트·버튼 모두 만드셔도 됩니다 — 끝나면 이 칸에 한 줄 남겨 주시면 다음 원스톱 배포에 함께 내보내겠습니다.
+> - **✅ workspace 처리 (2026-11-12)**: 라우트 `src/app/api/work-inbox/route.ts`(POST `{ id: 프로젝트 id, videoId? }`, `getItem`으로 회원 본인 `data.youtube`를 다시 읽음) · 공용 사본 `src/lib/workInbox.ts` · `src/lib/youtubeInboxContent.ts`(+ `tests/youtubeInboxContent.test.ts` 2개, `package.json` 시험 목록에 추가) · 버튼 `src/components/views/SendToWorkspaceButton.tsx`를 `YoutubeUploadCard.tsx` 「올린 기록」 줄마다 붙임. 시험 57·tsc·로컬 빌드 통과. 배포는 담당의 다음 원스톱 배포(v1.50) 때 함께 — 버전 그대로.
 
 > **⏳ 미배포 대기 v1.50 (2026-11-12, 영상 담당 `claude-win-video`)**: 아래 「내 자료함」 요청 처리 — 배경음악 목록을 AI 음악 스튜디오 곡만에서 **자료함 음악 전체**(Suno·무료음악 포함)로 넓힘(`src/lib/amsSongs.ts` `listLibrarySongs`·`importLibrarySong`, API `api/ams/songs`·`api/ams/import`, 화면 `RenderView.tsx`). 고른 곡은 지금처럼 `<user_id>/ams/`로 복사(30일 정리 대상), 무료음악 곡은 PC에만 있어 「무료음악에서 보내기」 안내, Suno 임시 주소 만료 안내. 옛 `?ams=` 링크 호환. 쓰이지 않게 된 `listAmsSongs` 삭제. 공용 사본 `src/lib/memberAssets.ts`. 시험 55·tsc 통과, 화면 확인은 배포 뒤.
 

@@ -4,6 +4,7 @@ import { ExternalLink, RefreshCw, Upload } from "lucide-react";
 import { api, toMsg, type Msg } from "@/components/ui/api";
 import { Message } from "@/components/ui/Message";
 import type { ShortsScript, YoutubeUpload } from "@/lib/script";
+import { SendToWorkspaceButton } from "./SendToWorkspaceButton";
 import type { PlanData } from "@/lib/plan";
 import { planSlotIso, toLocalInput, uploadDefaults as defaults, uploadToYoutube } from "@/lib/youtube/browserUpload";
 
@@ -107,7 +108,10 @@ export function YoutubeUploadCard({ projectId, script, blob, disabled, onUploade
         {done.length > 0 && <small className="muted">⚠️ 이 대본은 이미 {done.length}번 올렸습니다. 다시 누르면 새 영상으로 하나 더 올라갑니다.</small>}
       </>}
       {done.length > 0 && <div className="list">{done.map((d) => (
-        <a key={d.videoId} className="list-item" href={d.url} target="_blank" rel="noreferrer"><span>{d.title} · {d.publishAt ? `${new Date(d.publishAt).toLocaleString("ko-KR")} 예약 공개` : PRIVACY_LABEL[d.privacy]} · {new Date(d.uploadedAt).toLocaleDateString("ko-KR")}</span><ExternalLink size={13} /></a>
+        <div key={d.videoId} className="stack" style={{ gap: 4 }}>
+        <a className="list-item" href={d.url} target="_blank" rel="noreferrer"><span>{d.title} · {d.publishAt ? `${new Date(d.publishAt).toLocaleString("ko-KR")} 예약 공개` : PRIVACY_LABEL[d.privacy]} · {new Date(d.uploadedAt).toLocaleDateString("ko-KR")}</span><ExternalLink size={13} /></a>
+          {projectId && <SendToWorkspaceButton projectId={projectId} youtubeId={d.videoId} />}
+        </div>
       ))}</div>}
     </section>
   );
