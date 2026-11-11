@@ -799,5 +799,18 @@
 - 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
 - 작성: [역할: design] Antigravity(윈도우) `agy-win-tap-v1`
 
+## 2026-11-11 AI 전자책 출판 스튜디오 (`ebook-studio`) 4대 화면 3시안 자산화
+
+| 템플릿 번호 & 명칭 | 구조 및 시그니처 컴포넌트 | 추천/선정 이유 | 상태 & 영구 자산 경로 |
+|---|---|---|---|
+| **97. 프리미엄 클래식 북바인딩 & 노벨리스트 잉크 스타일** | 딥 옵시디언 나이트(`#0C0E14` / `#161B26`) & 앤티크 앰버 골드(`#D97706` / `#F59E0B`) & 웜 파치먼트 페이퍼, 4단계 출판 파이프라인 배너, 4대 핵심 출판 KPI 카드, 1:1.414 실제 양면 펼침 양장본 북 리더 뷰파인더 덱 목업 UI, Noto Serif KR 조판 뷰, 3D 엠보싱 골드 버튼(`.btn-3d-amber-book`), 5단계 표준 로그인 폼 | 클래식 양장본 도서관 및 베스트셀러 작가의 품격 있는 서재 감성을 완벽 구현하고 양면 북 리더 덱을 완비한 1순위 강력 추천 대표작 | **🏆 1순위 강력 추천 (주인님 선택 대기)** · `D:\Antigravity\Design\97_premium_classic_bookbinding_novelist\ebook_studio` |
+| **98. 클린 에디토리얼 페이퍼 & 세이지 미니멀 아틀리에 스타일** | 소프트 아이보리 크림(`#FAF9F6`) & 세이지 그린(`#059669` / `#10B981`) & 모던 차콜 잉크, 미니멀 3단 큐레이션 카드, 아이보리 지면 원고지 에디터, 3D 엠보싱 세이지 버튼(`.btn-3d-sage-press`), 5단계 표준 로그인 폼 | 장시간 원고 집필과 교정에 피로가 없는 단정하고 지적인 현대 출판사 아틀리에 감성의 라이트 테마 | **⚡ 2순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\98_clean_editorial_paper_sage_atelier\ebook_studio` |
+| **99. 하이퍼 디지털 퍼블리싱 & 사이버 네온 서고 HUD 콘솔 스타일** | 옵시디언 딥블랙(`#070A12`) & 일렉트릭 사이안(`#06B6D4`) & 인디고 바이올렛(`#6366F1`) HUD, JetBrains Mono 폰트, 초당 ePub 유효성 & 글자수 계측 콘솔, ePub XHTML 소스 인스펙터, 3D 엠보싱 사이안 버튼(`.btn-3d-cyan-publisher`), 5단계 표준 로그인 폼 | 대량 전자책 자동 조판 및 ePub 3.0 국제 규격 유효성을 초당 감지하는 미래형 디지털 출판 콘솔 | **🌿 3순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\99_hyper_digital_publishing_cyber_hud\ebook_studio` |
+
+- 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+- 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
+- 작성: [역할: design] Antigravity(윈도우) `agy-win-ebs-v1`
+
+
 
 
