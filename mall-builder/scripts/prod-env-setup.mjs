@@ -31,9 +31,12 @@ const add = want.filter((e) => !have.has(e.key));
 if (add.length) {
   const dir = mkdtempSync(join(tmpdir(), "mb-env-"));
   const file = join(dir, "env.json");
-  writeFileSync(file, JSON.stringify(add));
   try {
-    api(`/v10/projects/${PROJECT}/env`, ["-X", "POST", "--input", file]);
+    // vercel api --input 은 JSON 객체 하나만 받는다(배열은 「Invalid JSON」) → 하나씩 보낸다
+    for (const e of add) {
+      writeFileSync(file, JSON.stringify(e));
+      api(`/v10/projects/${PROJECT}/env`, ["-X", "POST", "--input", file]);
+    }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
