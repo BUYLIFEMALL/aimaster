@@ -2,37 +2,86 @@
 
 @layer base {
   body {
-    background-color: #fbfbf9;
-    color: #1e293b;
+    background-color: #0c0e14;
+    color: #e2e8f0;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
+/* 97. 프리미엄 클래식 북바인딩 & 노벨리스트 잉크 스타일 토큰 */
+:root {
+  --background: #0c0e14;
+  --foreground: #f8fafc;
+  --card: #141720;
+  --card2: #161b26;
+  --border: #272b38;
+  --amber-gold: #d97706;
+  --amber-light: #f59e0b;
+}
+
+/* 3D 엠보싱 양장본 앰버 골드 버튼 표준 규격 (DESIGN.md 규격) */
+.btn-3d,
+.btn-3d-amber-book {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #ffffff !important;
+  font-weight: 800;
+  border-radius: 0.75rem;
+  border-bottom: 4px solid #78350f;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.35);
+  transition: all 0.1s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-3d:hover:not(:disabled),
+.btn-3d-amber-book:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+  border-bottom-color: #451a03;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.45);
+}
+.btn-3d:active:not(:disabled),
+.btn-3d-amber-book:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+}
+.btn-3d:disabled,
+.btn-3d-amber-book:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  border-bottom-width: 4px;
+}
+
 /* 포커스 스튜디오 스타일 커스텀 토큰 & 컴포넌트 */
 .studio-hero {
-  background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 50%, #eff6ff 100%);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.08);
+  background: linear-gradient(135deg, #161b26 0%, #1a1e2b 50%, #141720 100%);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .kpi-card {
-  background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  background: #141720;
+  border: 1px solid #272b38;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
 
 .kpi-card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.1);
+  border-color: rgba(217, 119, 6, 0.5);
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.15);
   transform: translateY(-1px);
 }
 
 .focus-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #141720;
+  border: 1px solid #272b38;
   border-radius: 1rem;
-  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .gd-faq details summary::-webkit-details-marker {
@@ -46,16 +95,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #0c0e14;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #272b38;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #d97706;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -63,10 +112,10 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: #272b38;
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  background: #d97706;
 }
