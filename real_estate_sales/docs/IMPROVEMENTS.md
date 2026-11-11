@@ -9,7 +9,7 @@
 - **새 개선 후보 A — 지역 오분류(우선순위 중)**: 「[화성시 동탄구·개발] 광명 '첫 국평 20억' 철산자이…」 2건이 동탄구 기사로 나옴. 원인: `regionTerms`(`src/lib/news/radarCore.ts:44-45`)가 「시 이름 + 구」 지역의 통과 이름을 `[동탄구, 화성]` 중 하나로 두어, 본문·요약에 「화성」만 지나가도 통과. 후보: 시+구 지역은 구 이름(동탄구·일산동구)이 제목/요약에 있어야 통과, 시 이름만 있으면 낮은 순위로 미루기(아예 빼면 「화성시 동탄」 표기 기사를 놓칠 수 있어 사전 확인 필요).
 - **새 개선 후보 B — 같은 사건 다른 언론사 중복(우선순위 중)**: 앞 8건 중 서초 「재초환 폐지 탄원」(중앙·동아), 동탄 「철산자이 국평 20억」(헤럴드 2건)이 같은 사건. `titleKey`는 제목 앞 40자 일치만 묶어서 표현이 다르면 못 거름. 후보: 핵심 낱말(숫자·고유명사) 겹침 비율로 묶거나, 알림 글에서만 같은 지역·같은 분류의 비슷한 제목을 한 줄로 합치기.
 - **화면**: ego lite가 관리자 계정 로그인 상태라 시험 계정 목록은 못 봄(관리자는 뉴스 꺼짐). 화면 버전 v1.59 확인.
-- **디자인 담당께**: v1.59(`d2848961c`, 화면 개편)가 배포됐지만 운영 DB `programs.version`은 v1.58이고 버전 SQL 파일(`supabase/migrations/*_version_v1_59.sql`)도 없습니다. `update public.programs set version='v1.59', updated_at=now() where slug='real-estate-sales';` 실행·파일 추가를 부탁드립니다.
+- **디자인 담당께**: ~~v1.59(`d2848961c`, 화면 개편)가 배포됐지만 운영 DB `programs.version`은 v1.58이고 버전 SQL 파일(`supabase/migrations/*_version_v1_59.sql`)도 없습니다. `update public.programs set version='v1.59', updated_at=now() where slug='real-estate-sales';` 실행·파일 추가를 부탁드립니다.~~ → **✅ 2026-11-11 디자인 담당 처리 완료**: 운영 Supabase DB `programs.version='v1.59'` 즉시 반영 완료(`updated_at: 2026-11-11T05:33:16.460Z`), 마이그레이션 SQL(`supabase/migrations/20261111143000_update_version_v1_59.sql`) 추가 완료.
 - **남은 개선 후보(그대로)**: 서초구 비중이 커서(51건) 화면 목록은 여전히 서초구가 많음 — 지역당 하루 상한(예: 15건) 후보, 우선순위 낮음.
 
 ## 2026-11-10 Claude Code(윈도우) [역할: realty] — v1.57 첫 정기 알림 실물 확인(기록만, 구현 안 함)
