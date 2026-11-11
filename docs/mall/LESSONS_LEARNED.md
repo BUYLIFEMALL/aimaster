@@ -162,3 +162,4 @@
 - 증상 1: 운영 SQL 편집기 실행 → `42601 syntax error at or near ";"`(묶음 7513줄). 원인: `0043_staff_accounts.sql`을 Lab 적용 뒤 손으로 고치며 `… ;  -- 0043e: … end if;`처럼 주석이 같은 줄의 `end if;`를 삼킴. Lab에는 이미 고친 함수가 따로 들어가 있어 드러나지 않음. 해결: `end if;`를 주석 앞으로.
 - 증상 2: 로컬 검사에서 `0045b` 「바꿀 자리 1번이 0번」. 원인: 윈도우 작업 폴더의 마이그레이션이 CRLF라 함수 본문 정확히 바꾸기(`E'…\n'`)가 못 찾음(Lab은 LF로 적용됐었음). 해결: `scripts/build-prod-bundle.mjs`가 LF로 맞춤.
 - 다음부터: 운영(또는 새 DB)에 묶음을 넣기 전에 **`node scripts/check-prod-bundle-local.mjs`**(로컬 Docker `aww-pg-test` 빈 DB + Supabase 흉내 틀, 마지막 commit → rollback)로 전체 실행·개수(표 55·함수 176·규칙 8·버킷 2)를 먼저 확인한다. 이미 적용한 마이그레이션 파일을 고칠 때는 주석이 같은 줄 코드를 삼키지 않게 줄을 나눈다.
+- 증상 3(같은 날): 고친 LF 묶음을 Supabase SQL 편집기에 붙여 넣어도 같은 「0번」 오류. 원인: 편집기(Monaco)의 줄바꿈 설정이 CRLF라 실행할 때 다시 CRLF가 됨(로컬에서 묶음을 CRLF로 바꿔 돌리면 같은 줄에서 재현). 해결: 붙여 넣은 뒤 `monaco.editor.getModels()[0].setEOL(0)`(LF)로 바꾸고 `getValue()`에 `\r`이 없는지 확인한 다음 실행.
