@@ -8,8 +8,8 @@
 //   <웹 앱>/public/ai.txt                  배포되는 사이트의 AI 학습·분석·리버스 엔지니어링 거부 선언
 //   <폴더>/extension/NOTICE                크롬 확장 ZIP에 들어가는 고지
 // 실제 사이트·확장에는 그 프로그램을 다음에 배포할 때(확장은 ZIP을 다시 만들 때) 함께 나간다.
-import { existsSync, readdirSync, writeFileSync, mkdirSync, statSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { existsSync, readdirSync, writeFileSync, mkdirSync, statSync, readFileSync } from "node:fs";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -91,22 +91,43 @@ function targets(folder) {
   return t;
 }
 
-const args = process.argv.slice(2);
-if (!args.length) {
-  console.log("사용: node scripts/apply-source-notice.mjs --all | --check | <폴더>...");
-  process.exit(0);
-}
-const check = args.includes("--check");
-const folders = args.includes("--all") || check ? programFolders() : args.filter((a) => !a.startsWith("--"));
-let made = 0, missing = 0;
-for (const folder of folders) {
-  for (const t of targets(folder)) {
-    const abs = join(ROOT, t.path);
-    if (existsSync(abs)) continue;
-    if (check) { missing++; console.log(`빠짐: ${t.path}`); continue; }
-    mkdirSync(dirname(abs), { recursive: true });
-    writeFileSync(abs, t.text);
-    made++;
+/** 그 폴더에서 빠진 고지 파일과 고칠 점(검색엔진까지 막는 robots.txt) — 배포 전 확인(scripts/pending-check.mjs)에서도 쓴다 */
+export function noticeProblems(folder) {
+  const problems = targets(folder).filter((t) => !existsSync(join(ROOT, t.path))).map((t) => `빠짐: ${t.path}`);
+  for (const pub of webPublicDirs(folder)) {
+    const rp = join(ROOT, folder, pub, "robots.txt");
+    if (!existsSync(rp)) continue;
+    // 「User-agent: *」 묶음에 「Disallow: /」만 있으면 검색엔진까지 막는 것 — 최상위 0번 규칙 위반
+    const blocks = readFileSync(rp, "utf8").replace(/\r\n/g, "\n").split(/\n\s*\n/);
+    if (blocks.some((b) => /user-agent:\s*\*/i.test(b) && /^\s*disallow:\s*\/\s*$/im.test(b) && !/^\s*allow:\s*\//im.test(b)))
+      problems.push(`검색엔진 차단: ${join(folder, pub, "robots.txt")} — User-agent: * 를 막지 말고 AI 학습 크롤러만 막을 것(REA·비공개 프로그램은 예외)`);
   }
+  return problems;
 }
-console.log(check ? `[저작권 고지] 빠진 파일 ${missing}개 (프로그램 ${folders.length}개 검사)` : `[저작권 고지] 새로 만든 파일 ${made}개 (프로그램 ${folders.length}개)`);
+
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+if (isMain) {
+  const args = process.argv.slice(2);
+  if (!args.length) {
+    console.log("사용: node scripts/apply-source-notice.mjs --all | --check [<폴더>...] | <폴더>...");
+    process.exit(0);
+  }
+  const check = args.includes("--check");
+  const named = args.filter((a) => !a.startsWith("--"));
+  const folders = named.length ? named : programFolders();
+  let made = 0, missing = 0;
+  for (const folder of folders) {
+    if (check) {
+      for (const p of noticeProblems(folder)) { missing++; console.log(p); }
+      continue;
+    }
+    for (const t of targets(folder)) {
+      const abs = join(ROOT, t.path);
+      if (existsSync(abs)) continue;
+      mkdirSync(dirname(abs), { recursive: true });
+      writeFileSync(abs, t.text);
+      made++;
+    }
+  }
+  console.log(check ? `[저작권 고지] 고칠 곳 ${missing}개 (프로그램 ${folders.length}개 검사)` : `[저작권 고지] 새로 만든 파일 ${made}개 (프로그램 ${folders.length}개)`);
+}

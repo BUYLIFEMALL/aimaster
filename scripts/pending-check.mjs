@@ -6,6 +6,7 @@
 // 읽는 곳: docs/PENDING_DEPLOYS.md 「대기 중」 표(프로그램 자체의 작은 수정) + docs/SHARED_MODULES.md 「미배포 사본」 표(공용 기준 코드 사본).
 // 읽기만 하고 아무것도 바꾸지 않는다. 배포가 끝나면 지침대로 두 표의 해당 줄을 직접 정리한다(docs/VERCEL_COST_REDUCTION_PLAN.md 맨 위).
 import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { noticeProblems } from "./apply-source-notice.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -108,6 +109,9 @@ for (const folder of args) {
   const mine = pending.filter((p) => p.name === folder);
   const copies = shared.filter((s) => s.names.includes(folder));
   console.log(`\n=== ${folder} ===`);
+  // 최상위 0번 규칙 — 불법 복사·분석 금지 고지(NOTICE·ai.txt·robots.txt·extension/NOTICE)가 빠졌거나 robots가 검색엔진을 막으면 알림
+  for (const p of noticeProblems(folder))
+    console.log(`  • [0번 규칙] 저작권·분석 금지 고지 — ${p} → node scripts/apply-source-notice.mjs ${folder}`);
   if (widgetStatus(folder) === "missing")
     console.log("  • [공통] 저장공간 위젯 한 줄 미적용 — 이번 배포에 함께 넣기: docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md");
   if (!mine.length && !copies.length) { console.log("  대기 없음"); continue; }
