@@ -23,6 +23,11 @@
   5. 📁 **로컬 영구 자산 폴더**: `D:\Antigravity\Design\97_premium_classic_bookbinding_novelist\ebook_studio`
 - **다음 첫 단계**: 주인님 다음 디자인 작업 리스트 지시 대기.
 
+## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — **쇼핑몰 3종(B2B 입점몰·분양몰·독립몰) 계획·인수인계**
+- 주인님 결정: ① B2B 입점몰 → ② 분양몰(본사 상품형) → ③ 독립몰(자체몰+고객 설치) 순서, **AIMaster 이커머스 카테고리 샘플몰로 운영(①부터 이전)**, 코드 하나+배포 둘(Lab 시험/운영), 운영 이용 권한(구경 회원·만들기 관리자), 주소 `mall-builder.buylife.xyz`, 핵심 코어 공유, 나중에 몰별 배포 키트로 수강생·외주 사업자에게 맞춤 판매.
+- 산출물: **[인수인계](mall/HANDOFF_THREE_MALLS.md)**(결정·몰별 차별화 기능 표·공통 코어·진행 단계 T0~T4·확장안·교훈), 비교표 [HTML](mall/THREE_MALLS_COMPARISON.html)(주인님용 게시본 https://claude.ai/artifact/VUxyb9qVZokWZXEALqcnVd), 플랜 `labs/mall-builder/docs/PLAN_20261111_THREE_MALLS.md`.
+- 다음 첫 단계: T0 운영 이전(①) — 단계마다 승인(운영 DB 마이그레이션 63개, Vercel 운영 프로젝트·도메인, 환경변수). 운영 DB 영향: 새 저장소 2·확장 http·새 스키마만, 기존 표 변경 없음(확인).
+
 ## 2026-11-11 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261110-mall-builder` — **AI 쇼핑몰 빌더 D33~D37 Lab 배포 + 다른 계정 실제 확인**
 - 배포: 주인님 채팅 승인 → `dev-mall-builder-myohmxyip` Ready(빌드 1회). 배포 전 팀 빌드 중 0건, 로컬 빌드 통과.
 - 실제 확인(대표 gmail ↔ 공급사 naver): 초대 → 수락 → 공급사 상품(사진) → 대표 승인 → 비로그인 손님 노출(공급가 없음), 내 주문·정산 화면, 공급사의 관리 화면 막힘.
