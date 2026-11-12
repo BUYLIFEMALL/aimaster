@@ -4,6 +4,7 @@
 > - 무엇: 워크스페이스 U10(발행 기록 모으기)에서 유튜브만 빠져 있습니다. 블로그·인스타·쓰레드처럼 결과 화면에 「📨 업무 워크스페이스로 보내기」 버튼을 달려면, **유튜브에 올린 한 건의 기록이 어느 표·어느 칸에 있는지** 정해 주셔야 합니다(플랜 `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §2·§3-3).
 > - 필요한 값: 제목 · 상태(초안/예약/발행됨/실패) · 예약 시각 · 발행 시각 · 영상 주소(`https://youtu.be/…`) · 회원 `user_id`.
 > - 확인한 결과: 올린 기록을 DB에 남기지 않음 — `src/components/video/YoutubeUploadCard.tsx`의 화면 목록(`done`)에만 있어 새로고침하면 사라짐. 그래서 이번 연동에서는 뺌(기록 저장이 생기면 다시 검토).
+> - **✅ 음악 담당 처리(2026-11-13, v1.39 배포)**: 기록 표 `playlist_youtube_uploads` 생김 — 칸 `title`·`privacy`·`publish_at`(예약 시각)·`uploaded_at`·`url`·`user_id`(회원 본인). 상태는 `publish_at > now()`면 「예약」, 아니면 「발행됨」, 발행일은 `publish_at ?? uploaded_at`(플랜 `docs/PLAN_20261113_YOUTUBE_UPLOAD_RECORDS.md` 5절). 「실패」는 저장하지 않음. 이제 workspace 세션이 「📨 업무 워크스페이스로 보내기」를 붙일 수 있습니다(이 폴더는 지금 작업 중 아님).
 > - 진행: 저장 위치는 workspace 세션이 코드로 직접 확인함(2026-11-12) — 담당께서 답하실 것은 없고, **이 폴더를 작업 중이면 workspace 세션에 알려만 주세요**(겹치지 않게 시점을 맞춤). 구현은 주인님 확인 뒤 workspace 세션이 하고, 배포는 이 폴더의 다음 배포 때 함께 나갑니다.
 
 > **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 음악 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: **정리 코드 자체가 없음**(`playlist_projects` 무기한) → 30일 정리 신설 + 유튜브 업로드 기록 저장 후 업로드 1년. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: playlist-channel-studio vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`
@@ -57,6 +58,9 @@
 ## 3. 이관 및 인수인계 연결
 - 2026-10-16 인수인계서: [`docs/IMPROVEMENT_HANDOFF_20261016.md`](IMPROVEMENT_HANDOFF_20261016.md)
 - 개발 플랜: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](PLAN_20261016_DESIGN_RENEWAL.md)
+
+## 2026-11-13 남은 일 — 30일 정리 신설(음악 담당)
+- [ ] `playlist_projects`·`playlist_youtube_uploads` 30일 정리(관리자·시험 계정 `retention_exempt` 제외). 주인님 「정리는 다음 작업으로」(2026-11-13).
 
 ## 2026-10-22 Claude Code(윈도우) — 대기: 음악(SUNO) 리믹스 결과 받기 (다음 빌드 때 함께)
 - [ ] `?remix=<리믹스 변주 id>`로 음악(SUNO) 리믹스 결과(`music_track_remix_variants`, 회원 본인 것만)를 읽기. **주인님 지시: 따로 배포하지 않고, 이 프로그램을 다음에 다른 작업으로 빌드할 때 함께 넣고 시험한다.** 상세 플랜·시험용 리믹스 번호: [`music/docs/PLAN_20261022_REMIX_SHORTCUTS.md`](../../music/docs/PLAN_20261022_REMIX_SHORTCUTS.md). 음악(SUNO) 리믹스 카드 링크는 두 프로그램 배포 뒤에 켠다.

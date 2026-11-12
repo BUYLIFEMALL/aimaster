@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-12 `claude-win-20261024-music` (Admin 실물 확인 1·2번 통과 반영)
+- 마지막 갱신: 2026-11-13 `claude-win-20261024-music` (playlist-channel-studio v1.39 유튜브 올리기 기록)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -15,7 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `playlist-channel-studio` | 유튜브 올리기 기록 저장(새 표 `playlist_youtube_uploads` + 기록 API, v1.39) — 워크스페이스 「콘텐츠 캘린더」 연동의 전제(workspace 담당 요청) | 주인님 결정 4건(진행 시점·DB 표 추가·보관 기간·빌드 1회) | `playlist-channel-studio/docs/PLAN_20261113_YOUTUBE_UPLOAD_RECORDS.md` |
+| `playlist-channel-studio` | 30일 정리 신설(`playlist_projects`·`playlist_youtube_uploads`, `retention_exempt` 제외) | 다음 작업(주인님 「정리는 다음 작업으로」 11-13) | `playlist-channel-studio/docs/IMPROVEMENTS.md` |
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
 | `free-music-studio` | 묶음 후보 2건(단독 배포 안 함): 첫째 엔진 — 끝 줄이기 곡선을 끝에서 0까지(마지막 0.5초 -34.5dB) → 다음 **엔진** 배포 때 / 둘째 웹 화면 — 끝 이어 만들기 창 가사 미리 채우기가 원곡 마지막의 빈 `[Outro]` 태그만 가져옴 → 빈 태그면 그 앞 구간을 넣기(`lastLyricSection`) → 다음 **무료음악 웹** 배포 때(2026-11-12 정정: 예전 표기 「가사 칸 `[Outro]` 한 줄 넣기」는 잘못 — 엔진 `extendLyrics`는 이미 머리말 없는 가사에 `[Outro]`를 붙임) | 다음 배포 때 함께 | 인수인계서 20·24절 |
@@ -28,6 +28,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-13 | `playlist-channel-studio` v1.39 | 유튜브 올리기 기록 저장(표 `playlist_youtube_uploads`, 회원 채널 확인 뒤 저장, 워크스페이스 캘린더 연동 전제) + 로그아웃 local·서버 UA·저장공간 위젯. ego 시험 계정 v1.39·가짜 기록 거절 확인 | 배포 |
 | 2026-11-12 | `free-music-studio` | Admin PC 실물 확인 1·2번 모두 통과 — 마스터링 「AI 설정 제안」 오류 없음·EQ·압축 칸 11개 중 9개 바뀜·대기열 저장 / 연주곡 「AI 작곡 기획」 재즈 피아노 트리오 장르 지킴·프리셋 242→8개로 좁힘·곡 저장 (`3a423b222`, 미리 듣기 버튼은 창에 없음) | 해당 없음 |
 | 2026-11-12 | `music` v1.50 | 리믹스 결과 카드 → 가사 영상 링크(Admin PC `6d5f6d711`) + 저장공간 위젯(`5e9fea2d2`). ego lite 시험 계정으로 링크 2개·💾·가사 영상 쪽 곡 받기 확인 | 배포 |
 | 2026-11-11 | `free-music-studio` | B-4 닫음 — 2번째 곡(후렴 3번·22줄) 자동 맞추기를 주인님이 듣고 고친 줄 0(22/22, 반복 12줄 포함), 「반복 가사 줄은 확인 필요」 규칙 넣지 않음(윈도우 미니PC 세션이 진행, 음악 담당이 증거 파일·운영 DB 읽기로 재확인 후 커밋) · 「내 자료함」 연동(트리거 `member_assets_sync_fms`, 코드 변경 없음) 안내를 `IMPROVEMENTS.md` 맨 위로 옮김 | 해당 없음 |

@@ -2,7 +2,7 @@
 
 - 작성: 음악 담당 `claude-win-20261024-music` [역할: music]
 - 계기: 업무 워크스페이스 담당(workspace)의 요청 「playlist-channel-studio 유튜브 기록 저장(그래야 연동 가능) — 음악 담당」(이 폴더 `docs/IMPROVEMENTS.md` 맨 위, 워크스페이스 플랜 `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §3-3)
-- 상태: **주인님 결정 대기** (아래 4절)
+- 상태: **완료 — v1.39 배포(2026-11-13)**. 주인님 결정(같은 날 채팅): 지금 진행 · 표 추가 승인 · 30일 정리는 다음 작업 · 빌드 1회 승인. 남은 확인: 실제 새 영상 올리기 → 기록 저장(다음 실제 올리기 때)
 
 ## 1. 지금 문제
 - 「유튜브에 올리기」(`src/components/video/YoutubeUploadCard.tsx`)는 올린 결과를 화면 목록(`done`)에만 둡니다. 새로 고치면 사라지고 DB에 남지 않습니다.
