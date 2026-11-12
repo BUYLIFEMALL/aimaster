@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-12 `claude-win-video` (U10 유튜브 워크스페이스 버튼 배포 — shots v1.50 · 원스톱 v1.51, 빌드 2회)
+- 마지막 갱신: 2026-11-12 `claude-win-video` (U10 유튜브 보내기 → 받은 업무 → 캘린더 실제 확인 완료, shots)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,7 +16,6 @@
 |---|---|---|---|
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 보류 — 주인님 2026-11-11 「당장 필요한 기능은 아니니 테스트는 나중에 필요해지면」(요청함 충전 항목 닫음). 필요해지면 충전·실행 직전 승인 | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shots` · `shorts-onestop-studio` | U10 유튜브 「📨 업무 워크스페이스로」 **배포 완료**(v1.50·v1.51) — 로그인한 회원으로 보내기 → 받은 업무 → 캘린더 실제 확인만 남음 | 시험 계정 로그인(주인님) | `docs/HANDOFF.md` 맨 위 |
 | `music-video-studio` · `video-to-gif` | 저장공간 위젯 한 줄(11-12 배포 뒤 빠진 것 발견, 코드 반영) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shots` | 백로그 6 「6장면 영상화 일괄」 — 유료 생성을 차례로 보내는 기능이라 실제 시험 없이는 내보내지 않음 | 주인님: 시험 허락 또는 보류 결정 | `shots/docs/PLAN_20261112_BACKLOG_8.md` |
 | `shots` | **v1.48 배포 완료(2026-11-12)**: 대본·주제 후보 행 30일 정리 적용. 다음 날 03:30 정리 결과(대본 2·후보 10 예상) 확인만 남음 | 2026-11-13 확인 | `shots/docs/IMPROVEMENTS.md` 맨 위 |
