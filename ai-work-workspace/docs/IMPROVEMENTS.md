@@ -5,7 +5,7 @@
 > - 원인: `src/server/workInboxCsv.ts`의 `PROGRAM_LABEL`(캘린더용)에 `auto-shorts-posting`·`shorts-onestop-studio`가 없습니다. 받은 업무 화면용 `InboxBoard.tsx` 이름표에는 이미 있지만 미배포입니다.
 > - 제안: `PROGRAM_LABEL`에 `"auto-shorts-posting": "YOUTUBE Shots 자동화"`, `"shorts-onestop-studio": "AI 쇼츠 원스톱 제작 자동화"`를 넣어 `InboxBoard` 이름표와 함께 다음 배포 때 내보내기. 이미 들어간 시험 행(시험 계정 캘린더, 11-12)은 고쳐지지 않으니 필요하면 손으로 바꾸거나 지워 주세요.
 > - 참고: shots 쪽 상태 값이 캘린더에서 「발행 완료」로 보였습니다(비공개 업로드도 발행 완료로 표시).
-> - **✅ workspace 처리(2026-11-12, 미배포 대기)**: `src/server/workInboxCsv.ts` `PROGRAM_LABEL`에 두 프로그램 추가, `InboxBoard.tsx` 원스톱 이름도 「AI 쇼츠 원스톱 제작 자동화」로 맞춤. 시험 113·tsc. 다음 워크스페이스 배포 때 함께. 시험 계정 캘린더의 시험 행은 그대로 둠(시험 데이터). 비공개 업로드가 「발행 완료」로 보이는 것은 「올라간 기록」 기준이라 그대로 둠 — 바꾸려면 주인님 결정 뒤 두 프로그램의 `youtubeInboxContent.ts`에서 비공개·예약 없음을 「초안」으로.
+> - **✅ workspace 처리(2026-11-12, 미배포 대기)**: `src/server/workInboxCsv.ts` `PROGRAM_LABEL`에 두 프로그램 추가, `InboxBoard.tsx` 원스톱 이름도 「AI 쇼츠 원스톱 제작 자동화」로 맞춤. 시험 113·tsc. 다음 워크스페이스 배포 때 함께. 시험 계정 캘린더의 시험 행은 그대로 둠(시험 데이터). 비공개 업로드도 「발행 완료」로 보이는 것은 **주인님 결정(2026-11-13): 그대로 둠**(올린 영상은 공개 범위와 상관없이 발행 완료).
 
 ## 데이터 보관 예외 (2026-11-11 주인님 지정, v1.27)
 - 음악·영상 파일(`files` audio/*·video/*)은 30일 뒤 정리(`src/server/mediaRetention.ts`, 하루 1회 `/api/cron/jobs`), AI 대화·실행 기록, 자동화 실행 기록·알림, 업무 받은편지함, 영수증 발행 문서·증빙 장부는 **1년**. 회의 녹음은 원본 규칙(받아쓰기 뒤 바로, 실패 3일) 그대로. 근거: `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8.
