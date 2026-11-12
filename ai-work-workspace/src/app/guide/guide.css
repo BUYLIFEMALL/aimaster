@@ -1,7 +1,12 @@
 /* 매뉴얼 화면 — 스마트 프로 인디고 워크스페이스 스타일 (guide.css) */
 
+/* 2026-11-12: base.css(편집기용)가 html·body 스크롤을 막아(overflow: hidden) 단독 화면(매뉴얼·받은 업무·영수증·캘린더 연동·키 설정)이
+   길어도 내려가지 않던 문제 → 이 틀이 화면 높이를 차지하고 스스로 스크롤한다. 인쇄 때는 아래 @media print에서 풀어 잘리지 않게. */
 .aww-guide {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--lp-bg-primary);
   color: var(--lp-text-primary);
   padding: 36px 20px 80px;
@@ -693,4 +698,9 @@
   .aww-tour-list, .aww-mic-grid { grid-template-columns: 1fr; }
   .aww-mic-row { grid-template-columns: 1fr; }
   .aww-mic-row span + span { border-top: 0; padding-top: 0; }
+}
+
+/* 인쇄(영수증·세금계산서 인쇄본 등)는 스크롤 틀을 풀어 전체가 찍히게 */
+@media print {
+  .aww-guide { height: auto; overflow: visible; }
 }
