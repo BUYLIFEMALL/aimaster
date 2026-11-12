@@ -15,7 +15,6 @@
 
 ## 대기 중
 
-- `blog-neighbor-care` 시계 보정(미리보기·수락 409) — 커밋 `1dbf5937a`, v1.20 배포 때 확장 ZIP 함께(맥미니 C-3 재검수 전제) [역할: blog]
 - **블로그 맥미니 지적 처리(2026-11-12 [역할: blog] `claude-win-blog`)**: `tistory-auto-blog` 열외 회원 보관 안내·배지(시험 177) · `naver-cafe-recruit` 명단 고유 인원·종료 카운터·팝업 버전(시험 17, 확장 → manifest·ZIP·DB 함께). 각 `docs/IMPROVEMENT_HANDOFF_20261112.md`. 다음 그 프로그램 배포 때 함께.
 
 - **공통 — 💾 저장공간 위젯 한 줄(2026-11-11 세션 `claude-win-rea`, 주인님 「해당 프로그램 배포할때 배포되도록」, 추가 배포 없음)**: 하위 웹 프로그램을 배포할 때 레이아웃에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`를 함께 넣는다. `node scripts/pending-check.mjs <폴더>`가 미적용 여부를 자동으로 알려 주고, `--all`이 남은 프로그램을 센다(시작 0/99). 절차·예외: [`HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`](HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md).
@@ -84,6 +83,7 @@
 | `shorts-onestop-studio` | v1.50 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「배포해」 승인 연속 배포 2/5, `shorts-onestop-studio-ijzkrx70z` Ready, DB v1.50) | 배경음악 「내 자료함」 음악에서 고르기 + 공용 `member-assets-client` 사본 |
 | `ai-video-studio` | v1.36 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「배포해」 승인 연속 배포 1/5, `ai-video-studio-doydka4tu` Ready, DB v1.36) | 시작·끝 장면 사진 「내 자료함」에서 고르기(`/api/library/images`) + 저장공간 위젯(운영 화면 확인) |
 | `shots` | v1.48 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `shots-607ynfsog` Ready, DB v1.48) | 대본·주제 후보 행 30일 정리 `44a9df352`(발행 무관, `retention_exempt` 제외, 배경음악 파일 포함) + 매뉴얼 보관 문구 + 저장공간 위젯 + 공용 `ai-video-client` 사본 + 서버 지역 서울(`icn1::icn1` 확인). 시험 22·tsc 통과 |
+| `blog-neighbor-care` | v1.20 · 2026-11-13 ([역할: blog] `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-4u1h4uflh` Ready, DB·확장·ZIP v1.20 검증 OK) | 시계 보정 — 미리보기·수락 409 수정(`1dbf5937a`·`3c913dd80`), 409에 RPC `code`, 한 줄 소개 갱신 |
 | `blog-neighbor-care` | v1.19 · 2026-11-12 ([역할: blog] `claude-win-blog`, 주인님 「순서대로 진행」+환경변수 허락, 빌드 1회, `blog-neighbor-care-ctfwl3obf` Ready, DB·확장 v1.19) | 「🤖 자동 운영」 칸 항상 펼침 `02029e8f4` + 감시 AI 켜짐(환경변수 2개) + 저장공간 위젯 |
 | `ai-work-workspace` | v1.31 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「배포해」 빌드 1회, `ai-work-workspace-4yo3r69rc` Ready, DB v1.31) | 단독 화면 스크롤 수정 `ca2120163` + 캘린더·받은 업무 이름표(Shots·원스톱) `e625f1c38` |
 | `ai-work-workspace` | v1.30 · 2026-11-12 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」 빌드 1회, `ai-work-workspace-j22v3r43p` Ready, DB v1.30) | 🧾 홈택스 전자세금계산서 일괄발급 엑셀 `b158a5efb` + 저장공간 위젯 한 줄 `e76e8d375` |

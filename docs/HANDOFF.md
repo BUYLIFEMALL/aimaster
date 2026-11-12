@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — 이웃 소통 v1.20 배포(시계 보정)
+
+- 주인님 승인 빌드 1회: `blog-neighbor-care-4u1h4uflh` Ready → https://blog-neighbor-care.buylife.xyz . 커밋 `1dbf5937a`(코드)·`3c913dd80`(버전·ZIP).
+- DB `programs`: version·extension_version v1.20, short_desc 갱신(백업은 세션 스크래치 `bnc-program-backup-20261113.json`). `check-extension-release` OK.
+- 확인 못 한 것: 로그인 뒤 화면·실제 시계 보정 동작은 맥미니 새 ZIP 재설치 후 확인. 상세 설명(description)이 「AI·공감·댓글 미제공」 옛 문구라 주인님 결정 대기.
+- 다음: 맥미니 재설치 → 미리보기·확인저장·returnPostId → C-3 수락 1건(09~22시) → 통과 시 C-3 구현.
+
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-work-workspace v1.31 배포 + 홈택스 엑셀 실제 업로드 통과
 
 - 홈택스: 주인님 계정·실제 사업자/거래처로 v1.30 엑셀을 홈택스 전자세금계산서 일괄 작성에 올려 「엑셀파일 변환하기」 → 1건 오류 없이 조회(값 모두 일치), 발급은 누르지 않음.
