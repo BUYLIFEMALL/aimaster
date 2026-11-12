@@ -5,7 +5,7 @@
 - 카테고리: 음악
 - 메인 지침: [`docs/MUSIC_AUTOMATION_POLICY.md`](../MUSIC_AUTOMATION_POLICY.md) — 음악 작업 전에 먼저 읽는다
 - 주력 업무: 음악 프로그램 개발·배경음악 공용화·외부 분석 인계 처리. 대기 목록: `docs/MUSIC_OWNER_QUEUE_20261024.md`
-- 마지막 갱신: 2026-11-11 `claude-win-20261024-music` (B-4 닫음 · 「내 자료함」 트리거 안내 옮김)
+- 마지막 갱신: 2026-11-12 `claude-win-20261024-music` (Admin 결과 확인 · music v1.50 배포 준비)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -16,9 +16,9 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
-| `music` → `lyric-video-studio` | 음악(SUNO) 리믹스 카드에 「가사 영상 만들기」(`?remix=<리믹스 변주 id>`) 링크 켜기 — 받는 쪽은 v1.12에 이미 있음 | **Admin PC에서 코드 편집·커밋** → 메인 PC가 `music` v1.50으로 배포(빌드 1회, 승인 뒤) | `free-music-studio/docs/REQUEST_20261111_ADMIN_PC_MUSIC.md` 3번 |
+| `music` → `lyric-video-studio` | 음악(SUNO) 리믹스 카드에 「가사 영상 만들기」(`?remix=<리믹스 변주 id>`) 링크 켜기 — 받는 쪽은 v1.12에 이미 있음 | **배포 승인 대기**(2026-11-12) — Admin 커밋 `6d5f6d711` + 저장공간 위젯 `5e9fea2d2`, 메인 PC tsc·`npm run build` 통과, 스테이징 이미 일치 → `music` v1.50 빌드 1회 | `free-music-studio/docs/REQUEST_20261111_ADMIN_PC_MUSIC.md` 3번 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
-| `free-music-studio` | 실물 확인 2건: 마스터링 「AI 설정 제안」 1번 · 연주곡 장르 고르고 「AI 작곡 기획」 1번(회원 키) | **Admin PC에서 주인님과 진행**(2026-11-11 주인님 「Admin 피시에서 할꺼야」) | `free-music-studio/docs/REQUEST_20261111_ADMIN_PC_MUSIC.md` 1·2번 |
+| `free-music-studio` | 실물 확인 2건: 마스터링 「AI 설정 제안」 1번 · 연주곡 장르 고르고 「AI 작곡 기획」 1번(회원 키) | 2026-11-12 Admin 결과: 1번 (가) 통과·(나)(라) 로그인 풀림으로 미완 / 2번 장르 지키기 통과(재즈·블루스 1곡)·(다)(라) 미완 — 남은 칸은 Admin PC 재확인(회원 키 AI 호출 다시 필요할 수 있음) | `free-music-studio/docs/REQUEST_20261111_ADMIN_PC_MUSIC.md` 1·2번 |
 | `free-music-studio` | 묶음 후보 2건(단독 배포 안 함): 첫째 엔진 — 끝 줄이기 곡선을 끝에서 0까지(마지막 0.5초 -34.5dB) → 다음 **엔진** 배포 때 / 둘째 웹 화면 — 끝 이어 만들기 창 가사 미리 채우기가 원곡 마지막의 빈 `[Outro]` 태그만 가져옴 → 빈 태그면 그 앞 구간을 넣기(`lastLyricSection`) → 다음 **무료음악 웹** 배포 때(2026-11-12 정정: 예전 표기 「가사 칸 `[Outro]` 한 줄 넣기」는 잘못 — 엔진 `extendLyrics`는 이미 머리말 없는 가사에 `[Outro]`를 붙임) | 다음 배포 때 함께 | 인수인계서 20·24절 |
 
 ## 나중에 할 일 (장비가 바뀐 뒤 — 지금은 손대지 않음)
