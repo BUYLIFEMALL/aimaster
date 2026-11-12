@@ -42,5 +42,18 @@
 ## 2026-10-23 연계 제안 — 무료 사진 검색 붙이기 (Claude Code 윈도우, 기록만·구현 아님)
 - [ ] 화보 배경·참고 사진에 「📷 무료 사진 검색」(회원 본인 Pixabay·Pexels 키, 공용 `user_api_keys` — 감성 글귀·INSTA에서 넣은 키 그대로)을 붙이기. 공용 기준 코드 `free-photo-search`(기준 `insta_auto_poster/src/lib/cardnews/photoSearch.ts`) 사본을 쓰고, 고른 사진 저장(버킷·경로)과 화면은 이 프로그램 방식으로. 참고 구현: INSTA `src/app/api/cardnews/photos/route.ts`·`src/components/cardnews/studio/PhotoSearchPanel.tsx`. 예상 비용: 빌드 1회, AI 0. 착수 전 플랜·승인 필요.
 
+## 2026-11-13 Antigravity(윈도우) — v1.25 보그 에디토리얼 디자인 리뉴얼 공식 채택 & 배포 (세션 agy-win-inf-v1)
+- **1안(101번: 보그 하이엔드 뷰티 & 패션 에디토리얼 아틀리에) 공식 채택 및 전면 개편**:
+  - 테마: `#0C0E14` 딥 옵시디언 차콜 + `#F43F5E` 샴페인 로즈골드 + `#F59E0B` 럭셔리 골드 앰버
+  - 3:4 인스타그램 화보 뷰파인더 덱 (LIVE 🔴 STUDIO REC, 4K UHD, 60fps, ISO 100 오버레이)
+  - 4단계 페르소나 스타일링 인디케이터 배너 (모델 ➔ 스타일링 ➔ 씬 연출 ➔ 4K 화보)
+  - 페이스 일관성 시드 락커 배지 (Face Consistency Seed: #98241 LOCK)
+  - 3D 엠보싱 샴페인 로즈/앰버/다크 버튼(`.btn-3d-rose`, `.btn-3d-amber`, `.btn-3d-dark`) 전면 장착
+  - 2026-11-01 5단계 표준 로그인 폼 & 1행 약관 규격 완비
+  - 저장공간 위젯 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />` 탑재
+  - 기기 슬롯 로그인 최적화: `signOut({ scope: "local" })` 적용 및 서버 Supabase 클라이언트 `User-Agent` 헤더 전달
+  - Vercel 프로덕션 배포 완료 (`dpl_CDLgDPRuQNDztscJxdz7S2Rj1rXB`, https://ai-influencer.buylife.xyz)
+  - Playwright 실서버 라이브 스크린샷 검증 완료
+
 ## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 (세션 claude-win-20261023-next-security)
 - Next.js 16.4.2 보안 업데이트 배포 — **버전 파일이 작은따옴표라 버전이 v1.24 그대로 나감. 다음 배포 때 +0.01(코드+DB)(분담표 묶음 D)**. 상세·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](../../docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)

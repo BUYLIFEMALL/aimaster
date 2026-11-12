@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { APP_NAME, APP_VERSION } from "@/lib/version";
 
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className="min-h-screen bg-if-bg text-if-text antialiased flex flex-col">
         {children}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
       </body>
     </html>
   );

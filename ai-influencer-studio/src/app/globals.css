@@ -1,21 +1,22 @@
 @import "tailwindcss";
 
 /*
- * 크리에이티브 아틀리에 스타일 — 「핑크 화보 스튜디오」 변형 (2026-10-17 디자인 리뉴얼, v1.10).
- * 다크 미드나잇 + 브랜드 핑크 → 로즈 그라데이션. 화보 미리보기는 한 단계 더 어두운 캔버스.
- * 토큰·부품 설명: ai-influencer-studio/docs/DESIGN_HANDOFF.md
+ * 101. 보그 하이엔드 뷰티 & 패션 에디토리얼 아틀리에 (v1.25 디자인 전면 개편)
+ * 딥 옵시디언 차콜 + 샴페인 로즈골드 + 럭셔리 골드 앰버
+ * 3:4 인스타 화보 뷰파인더 덱 & 3D 엠보싱 버튼 시스템
  */
 @theme {
-  --color-if-bg: #0d0b12;
-  --color-if-canvas: #08070b;
-  --color-if-surface: #15121c;
-  --color-if-raised: #1e1a28;
-  --color-if-border: #2c2638;
-  --color-if-text: #f5f3f7;
-  --color-if-muted: #a19bb0;
-  --color-if-pink: #ec4899;
+  --color-if-bg: #0c0e14;
+  --color-if-canvas: #07080c;
+  --color-if-surface: #141721;
+  --color-if-raised: #1c202e;
+  --color-if-border: #282e42;
+  --color-if-text: #f8fafc;
+  --color-if-muted: #94a3b8;
+  --color-if-pink: #f43f5e;
   --color-if-rose: #f43f5e;
-  --color-if-purple: #a855f7;
+  --color-if-amber: #f59e0b;
+  --color-if-purple: #c084fc;
   --color-if-success: #10b981;
   --color-if-warn: #f59e0b;
 }
@@ -40,7 +41,7 @@ body {
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a4258;
+  background: #3b4461;
 }
 
 select option {
@@ -56,10 +57,10 @@ select option {
     padding: 1.25rem;
   }
   .if-gradient {
-    background-image: linear-gradient(135deg, var(--color-if-pink), var(--color-if-rose));
+    background-image: linear-gradient(135deg, #f43f5e 0%, #fb7185 50%, #f59e0b 100%);
   }
   .if-gradient-text {
-    background-image: linear-gradient(90deg, var(--color-if-pink), var(--color-if-purple));
+    background-image: linear-gradient(90deg, #fb7185, #f43f5e, #f59e0b);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -84,5 +85,63 @@ select option {
     font-size: 1rem;
     font-weight: 700;
     color: var(--color-if-text);
+  }
+
+  /* 3D 엠보싱 버튼 시스템 */
+  .btn-3d {
+    position: relative;
+    transition: all 0.15s ease-out;
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+  .btn-3d:active {
+    transform: translateY(2px);
+  }
+
+  .btn-3d-rose {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: #ffffff;
+    border: 1px solid #fb7185;
+    box-shadow: 0 4px 0 #9f1239, 0 8px 16px rgba(244, 63, 94, 0.35);
+  }
+  .btn-3d-rose:hover {
+    background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
+    box-shadow: 0 4px 0 #9f1239, 0 10px 20px rgba(244, 63, 94, 0.45);
+  }
+  .btn-3d-rose:active {
+    box-shadow: 0 1px 0 #9f1239, 0 4px 8px rgba(244, 63, 94, 0.25);
+  }
+
+  .btn-3d-amber {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    border: 1px solid #fbbf24;
+    box-shadow: 0 4px 0 #b45309, 0 8px 16px rgba(245, 158, 11, 0.35);
+  }
+  .btn-3d-amber:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 4px 0 #b45309, 0 10px 20px rgba(245, 158, 11, 0.45);
+  }
+  .btn-3d-amber:active {
+    box-shadow: 0 1px 0 #b45309, 0 4px 8px rgba(245, 158, 11, 0.25);
+  }
+
+  .btn-3d-dark {
+    background: linear-gradient(135deg, #1c202e 0%, #141721 100%);
+    color: #f1f5f9;
+    border: 1px solid #282e42;
+    box-shadow: 0 4px 0 #07080c, 0 6px 12px rgba(0, 0, 0, 0.4);
+  }
+  .btn-3d-dark:hover {
+    background: linear-gradient(135deg, #242a3d 0%, #1c202e 100%);
+    border-color: #3b4461;
+    box-shadow: 0 4px 0 #07080c, 0 8px 16px rgba(0, 0, 0, 0.5);
+  }
+  .btn-3d-dark:active {
+    box-shadow: 0 1px 0 #07080c, 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 }

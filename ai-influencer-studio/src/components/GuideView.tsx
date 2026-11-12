@@ -89,9 +89,9 @@ export function GuideView({ onStart }: { onStart: () => void }) {
           <button
             type="button"
             onClick={onStart}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl if-gradient px-4 py-2 text-sm font-bold text-white hover:brightness-110"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl btn-3d btn-3d-rose px-5 py-2.5 text-xs font-bold text-white shadow-lg cursor-pointer"
           >
-            📸 화보 만들러 가기
+            📸 에디토리얼 화보 만들러 가기
           </button>
         </div>
 

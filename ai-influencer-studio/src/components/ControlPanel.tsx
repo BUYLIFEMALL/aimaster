@@ -285,27 +285,33 @@ export function ControlPanel({
   const selectedAdType = AD_TYPES.find((a) => a.id === config.adType) || AD_TYPES[0];
 
   return (
-    <aside className="w-full lg:w-[460px] xl:w-[490px] bg-if-surface border-r border-if-border flex flex-col h-screen shrink-0 overflow-hidden shadow-sm">
+    <aside className="w-full lg:w-[460px] xl:w-[490px] bg-[#141721] border-r border-[#282e42] flex flex-col h-screen shrink-0 overflow-hidden shadow-xl">
       {/* 1. 상단 툴바 (도구 아이콘: 가이드 / 설정 / 주사위 랜덤 믹스 / 히스토리) */}
-      <div className="px-5 py-2.5 border-b border-if-border flex items-center justify-end bg-if-surface shrink-0">
+      <div className="px-5 py-2.5 border-b border-[#282e42] flex items-center justify-between bg-[#141721] shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-extrabold text-slate-200">에디토리얼 패널</span>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/40">
+            Seed #98241 LOCK
+          </span>
+        </div>
         {/* 우측 툴바 아이콘 도구 */}
         <div className="flex items-center gap-1.5">
           {/* 1. 가이드 (물음표) */}
           <button
             onClick={onOpenHelpModal}
-            className="p-2 rounded-lg text-if-muted hover:text-if-text hover:bg-if-raised transition-colors"
+            className="p-2 rounded-lg text-slate-400 hover:text-rose-300 hover:bg-[#1c202e] transition-colors cursor-pointer"
             title="사용 가이드"
           >
-            <HelpCircle className="w-4 h-4 text-if-muted hover:text-pink-400" />
+            <HelpCircle className="w-4 h-4 text-slate-400 hover:text-rose-400" />
           </button>
 
           {/* 2. API 키 / 환경 설정 (톱니바퀴) */}
           <button
             onClick={onOpenApiKeyModal}
-            className={`p-2 rounded-lg border transition-all ${
+            className={`p-2 rounded-lg border transition-all cursor-pointer ${
               hasApiKey
-                ? "text-if-text border-if-border bg-if-raised hover:bg-if-raised"
-                : "text-rose-400 border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 animate-pulse"
+                ? "text-slate-200 border-[#282e42] bg-[#1c202e] hover:bg-[#252b3d]"
+                : "text-rose-300 border-rose-500/50 bg-rose-500/20 hover:bg-rose-500/30 animate-pulse"
             }`}
             title="Gemini API 키 및 설정"
           >
@@ -315,16 +321,16 @@ export function ControlPanel({
           {/* 3. 랜덤 설정값 옵션 (주사위: 누를 때마다 전체 옵션 랜덤 믹스) */}
           <button
             onClick={handleRandomize}
-            className={`p-2 rounded-lg border transition-all ${
+            className={`p-2 rounded-lg border transition-all cursor-pointer ${
               isRandomRolling
-                ? "border-pink-400 bg-pink-500/10 text-pink-300 scale-105 shadow-sm"
-                : "border-if-border bg-if-surface hover:border-pink-500/40 hover:bg-pink-500/20 text-if-text hover:text-pink-400 shadow-xs"
+                ? "border-rose-400 bg-rose-500/20 text-rose-300 scale-105 shadow-sm"
+                : "border-[#282e42] bg-[#141721] hover:border-rose-500/40 hover:bg-rose-500/15 text-slate-200 hover:text-rose-300 shadow-xs"
             }`}
             title="랜덤 설정값 옵션 (클릭 시 전체 설정 랜덤 믹스)"
           >
             <Dices
               className={`w-4 h-4 transition-transform duration-500 ${
-                isRandomRolling ? "rotate-180 scale-110 text-pink-400" : ""
+                isRandomRolling ? "rotate-180 scale-110 text-rose-400" : ""
               }`}
             />
           </button>
@@ -332,19 +338,42 @@ export function ControlPanel({
           {/* 4. 작업 히스토리 */}
           <button
             onClick={onOpenHistory}
-            className="p-2 rounded-lg text-if-muted hover:text-if-text hover:bg-if-raised transition-colors relative"
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-[#1c202e] transition-colors relative cursor-pointer"
             title="작업 히스토리"
           >
             <Sliders className="w-4 h-4" />
             {historyCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-pink-500"></span>
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500"></span>
             )}
           </button>
         </div>
       </div>
 
-      {/* 2. 전체 옵션 세로 스크롤 영역 (스크린샷 규격과 동일) */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6 text-xs text-if-text">
+      {/* 4단계 에디토리얼 파이프라인 인디케이터 배너 (101번 시안) */}
+      <div className="px-5 py-2.5 bg-[#0e111a] border-b border-[#282e42] flex items-center justify-between text-[11px] font-bold shrink-0">
+        <div className="flex items-center gap-1.5 text-rose-300">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-white text-[9px] font-mono">1</span>
+          <span>모델</span>
+        </div>
+        <span className="text-slate-600">➔</span>
+        <div className="flex items-center gap-1.5 text-slate-400">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1c202e] text-slate-400 text-[9px] font-mono border border-[#282e42]">2</span>
+          <span>스타일링</span>
+        </div>
+        <span className="text-slate-600">➔</span>
+        <div className="flex items-center gap-1.5 text-slate-400">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1c202e] text-slate-400 text-[9px] font-mono border border-[#282e42]">3</span>
+          <span>씬 연출</span>
+        </div>
+        <span className="text-slate-600">➔</span>
+        <div className="flex items-center gap-1.5 text-slate-400">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1c202e] text-slate-400 text-[9px] font-mono border border-[#282e42]">4</span>
+          <span>4K 화보</span>
+        </div>
+      </div>
+
+      {/* 2. 전체 옵션 세로 스크롤 영역 */}
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6 text-xs text-slate-200">
         {/* [섹션 1] 기본 외형 설정 (2x2 그리드) */}
         <div id="step-1-appearance" className="space-y-3 scroll-mt-4">
           <div className="flex items-center gap-1.5 text-xs font-bold text-pink-400">
@@ -1016,10 +1045,10 @@ export function ControlPanel({
                   key={ar.id}
                   type="button"
                   onClick={() => setConfig({ ...config, aspectRatio: ar.id })}
-                  className={`py-2 rounded-lg text-xs font-bold border transition-all ${
+                  className={`py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-pink-500 border-pink-500 text-white shadow-xs"
-                      : "bg-if-raised border-if-border text-if-muted hover:text-if-text"
+                      ? "btn-3d btn-3d-rose text-white shadow-xs"
+                      : "bg-[#1c202e] border-[#282e42] text-slate-400 hover:text-slate-100 hover:border-slate-600"
                   }`}
                 >
                   {ar.id}
@@ -1037,10 +1066,10 @@ export function ControlPanel({
                   key={q.id}
                   type="button"
                   onClick={() => setConfig({ ...config, quality: q.id })}
-                  className={`py-2 rounded-lg text-xs font-bold border transition-all ${
+                  className={`py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
-                      : "bg-if-raised border-if-border text-if-muted hover:text-if-text"
+                      ? "btn-3d btn-3d-amber text-white shadow-xs"
+                      : "bg-[#1c202e] border-[#282e42] text-slate-400 hover:text-slate-100 hover:border-slate-600"
                   }`}
                 >
                   {q.id}
@@ -1052,11 +1081,11 @@ export function ControlPanel({
       </div>
 
       {/* 3. 하단 대형 생성 버튼 & 푸터 */}
-      <div className="p-4 border-t border-if-border bg-if-surface shrink-0 space-y-2.5">
+      <div className="p-4 border-t border-[#282e42] bg-[#141721] shrink-0 space-y-2.5">
         <button
           onClick={onGenerate}
           disabled={isLoading}
-          className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500 hover:from-purple-700 hover:to-rose-600 shadow-md shadow-pink-500/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+          className="w-full py-3.5 px-4 rounded-xl font-extrabold text-sm btn-3d btn-3d-rose disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg"
         >
           {isLoading ? (
             <>
@@ -1066,29 +1095,29 @@ export function ControlPanel({
           ) : config.isAdMode ? (
             <>
               <ShoppingBag className="w-4 h-4" />
-              <span>광고/공구 이미지 생성</span>
+              <span>광고/공구 에디토리얼 화보 생성</span>
             </>
           ) : config.personImage ? (
             <>
               <User className="w-4 h-4" />
-              <span>인물 고정 이미지 생성</span>
+              <span>페이스 락(#98241) 화보 생성</span>
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4" />
-              <span>이미지 생성</span>
+              <span>보그 에디토리얼 화보 생성</span>
             </>
           )}
         </button>
 
-        {/* 푸터 (스크린샷 규격 1:1) */}
-        <div className="flex items-center justify-between text-[10px] text-if-muted pt-1">
+        {/* 푸터 */}
+        <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
           <span>개발자 : GPT PARK</span>
           <a
             href="https://pure-glow-pro-99gg.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold transition-colors inline-flex items-center gap-1"
+            className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
             <span>바로가기</span>
           </a>

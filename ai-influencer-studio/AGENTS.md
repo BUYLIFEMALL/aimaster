@@ -1,11 +1,11 @@
 # AI 인플루언서 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
-> **프로그램 버전**: `v1.06` (2026-10-12 최신 배포)  
+> **프로그램 버전**: `v1.25` (2026-11-13 보그 에디토리얼 디자인 전면 개편 배포 완료, `dpl_CDLgDPRuQNDztscJxdz7S2Rj1rXB`)  
 > **공식 커스텀 도메인**: [https://ai-influencer.buylife.xyz](https://ai-influencer.buylife.xyz)  
-> **Vercel 프로덕션 도메인**: [https://ai-influencer-studio-sage.vercel.app](https://ai-influencer-studio-sage.vercel.app)  
 > **프로그램 slug**: `ai-influencer-studio`  
 > **카테고리**: 멀티미디어 / 인스타 / 마케팅  
-> **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)
+> **배지**: `['free', 'new']` (AIMaster 가입 회원 누구나 무료 이용)  
+> **디자인 테마**: 101번 보그 하이엔드 뷰티 & 패션 에디토리얼 아틀리에 (`#0C0E14` 딥 옵시디언 차콜 + `#F43F5E` 샴페인 로즈골드 + `#F59E0B` 럭셔리 골드 앰버, 3D 엠보싱 버튼 `.btn-3d-rose`, 저장공간 위젯 완비)
 
 ---
 

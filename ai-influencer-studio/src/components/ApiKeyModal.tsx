@@ -151,7 +151,7 @@ export function ApiKeyModal({
             <button
               type="submit"
               disabled={isSaving}
-              className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-sm shadow-pink-500/20 disabled:opacity-50 transition-all"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white btn-3d btn-3d-rose disabled:opacity-50 transition-all cursor-pointer shadow-md"
             >
               {isSaving ? "저장 중..." : "API 키 저장"}
             </button>
