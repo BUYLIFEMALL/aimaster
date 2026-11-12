@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## 2026-11-13 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`playlist-channel-studio` v1.39 유튜브 올리기 기록 저장(워크스페이스 콘텐츠 캘린더 연동 전제)**
+- 계기: workspace 담당 요청 「유튜브 기록 저장(그래야 연동 가능) — 음악 담당」. 주인님 채팅 결정: 지금 진행·운영 DB 표 추가·30일 정리는 다음 작업·빌드 1회.
+- 한 일: 표 `playlist_youtube_uploads`(회원 본인 읽기 RLS, 서버만 쓰기) 운영 DB(ref `esgxyikcnnvmlhygjkth`) 적용(ego SQL 편집기, 조회로 RLS·정책 1·줄 0·버전 v1.39 확인) + `GET/POST /api/youtube/uploads`(회원 본인 유튜브 연결로 영상이 그 채널에 있는지 확인 뒤 저장) + 올리기 카드 「내가 올린 영상(최근 20개)」. 함께: 로그아웃 local 2곳·서버 UA·저장공간 위젯(pending-check 공통 3건 해소).
+- 배포 `playlist-channel-studio-3vs3cl983` Ready, DB v1.39. 검수: tsc·시험 33·로컬 빌드, ego 시험 계정 v1.39·기록 API 200·다른 채널 영상 403·없는 영상 404. **못 한 것**: 실제 새 영상 올리기 → 기록 저장(시험 채널에 새 영상을 올려야 해서 보류, 다음 실제 올리기 때 확인).
+- workspace 담당께: 캘린더 값 매핑은 `playlist-channel-studio/docs/PLAN_20261113_YOUTUBE_UPLOAD_RECORDS.md` 5절. 남은 일(음악): 30일 정리 신설. 커밋 `f336f3df5`·코드 커밋·이 문서 커밋. 비용: 빌드 1회, AI 0.
+- 링크: https://playlist-channel-studio.buylife.xyz/studio
+
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-work-workspace v1.32 배포(업무 현황판·다시 로그인 안내·오류 한국어·영수증 PDF)
 
 - 한 일: ① 「📊 업무 현황판」 `85fc68e32`(받은 업무 화면 버튼 → 콘텐츠 캘린더·받은 업무 표 연결 보기 + 할 일 표, `src/server/workDashboard.ts`) ② 로그인 끊김 때 새 탭 다시 로그인 띠(입력 유지, `src/lib/standaloneRpc.ts`) + 원본 서버 영어 오류 문구 227개 한국어(`src/server/errorKo.ts`, /api/rpc 오류 응답) `5a263768d` ③ 영수증 PDF 증빙 읽기(Claude 문서·OpenAI 파일·Gemini 바로 넣기, 4MB) `d707550ff`.
