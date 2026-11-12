@@ -1,3 +1,4 @@
+import PendingButton from "@/app/pending-button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCreditLedger, getMyAddresses, getMyCustomer, getStoreBySlug, requireUser, type CustomerAddress } from "@/lib/store";
@@ -49,7 +50,7 @@ function AddressForm({ slug, address }: { slug: string; address: CustomerAddress
           <input type="checkbox" name="is_default" /> 기본 배송지로
         </label>
       )}
-      <button className="min-h-10 rounded bg-gray-900 px-4 text-sm text-white sm:w-32">{address ? "저장" : "배송지 추가"}</button>
+      <PendingButton pendingText="저장 중…" className="min-h-10 rounded bg-gray-900 px-4 text-sm text-white sm:w-32">{address ? "저장" : "배송지 추가"}</PendingButton>
     </form>
   );
 }

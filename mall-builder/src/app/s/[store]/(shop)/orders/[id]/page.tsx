@@ -1,3 +1,4 @@
+import PendingButton from "@/app/pending-button";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMyAddresses, getMyCustomer, getMyReviewsByItem, getOrder, getStoreBySlug, requireUser } from "@/lib/store";
@@ -191,7 +192,7 @@ export default async function OrderDetailPage({
                 <span className="text-xs text-gray-500">받을 메일</span>
                 <input name="invoice_email" type="email" defaultValue={user.email ?? ""} required maxLength={100} className="mt-0.5 w-64 rounded border px-2 py-1.5" />
               </label>
-              <button className="min-h-10 rounded border px-4">발행 요청</button>
+              <PendingButton pendingText="요청 중…" className="min-h-10 rounded border px-4">발행 요청</PendingButton>
             </form>
           )}
         </section>
