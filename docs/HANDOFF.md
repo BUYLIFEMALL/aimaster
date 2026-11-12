@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 쇼핑몰 빌더 v1.02(AI 도우미 제공자·모델 선택)
+
+- 한 일: AI 도우미(견적 보조·상품 AI로 채우기·문의 초안·첫 화면 초안)를 OpenAI / Claude / Gemini 중 몰 대표가 고르게(모델 10개, 처음 선택 Claude). 운영은 메인 사이트 「API키등록·플랫폼연동」의 몰 대표 키 재사용. 계좌번호 하이픈 자동 정리. 코드 `6e8b78267`, DB 0059(Lab·운영 적용).
+- 검수: 시험 251·tsc·빌드, 운영 배포 `mall-builder-n7b5u96qg` READY·DB v1.02, ego 실제 호출 3곳(gpt-6-luna·claude-haiku-5-5·gemini-3.5-flash-lite 각 약 1원) 통과, 설정 원래대로.
+- 다음: 시험 계정 손님 흐름 + 볼타 테스트 발행(시험 계정 로그인 필요). 플랜 `mall-builder/docs/PLAN_20261112_AI_MULTI_PROVIDER.md`.
+- 비용: 빌드 1회 + AI 호출 약 9회(합계 약 10원, 관리자 본인 키).
+
+
+
+
+
 ## 2026-11-12 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — U10 유튜브 「📨 업무 워크스페이스로」 배포(shots v1.50 · 쇼츠 원스톱 v1.51)
 - 한 일: 워크스페이스 담당이 만든 보내기 기능(`ea85e9879`)을 확인하고 shots `PostingSection.tsx` 「올린 기록」 줄마다 버튼을 붙임. 주인님 「진행해」로 두 프로그램 차례 배포(빌드 2회), DB 버전 맞춤.
 - 확인: 둘 다 Ready·`/login` 200, `/api/work-inbox` 비로그인 401(shots는 다른 출처 403). 시험 shots 29·원스톱 57·tsc 통과.
