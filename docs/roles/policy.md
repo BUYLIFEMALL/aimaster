@@ -14,7 +14,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| — | 없음 | — | — |
+| 메인 사이트 | 옛 주소 `aimaster-buylife.vercel.app` → `www.buylife.xyz` 이동(화면만, `/api/` 제외) | 다음 메인 사이트 수정·배포 때 같은 커밋에 넣기(코드 아직 안 넣음) | `docs/PENDING_DEPLOYS.md` 맨 위 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
@@ -28,7 +28,7 @@
 | 2026-11-12 | 운영 DB(읽기) | 0단계: 최근 14일 로그인 PC 38·모바일 13·서버 36(`node` 21·`Vercel Edge Functions` 15) | — |
 
 ## 다음 첫 단계
-1. 주인님 새 지시 대기. 메인 사이트를 다음에 고칠 때 `pending-check .` 확인.
+1. 다음 메인 사이트 수정 때 `docs/PENDING_DEPLOYS.md`의 옛 주소 이동을 같은 커밋에 넣고 `pending-check .` 확인.
 
 ## 주인님께 여쭐 것
-- 옛 주소 `aimaster-buylife.vercel.app`로 들어오는 회원을 `www.buylife.xyz`로 보낼지(다음 메인 배포 때 함께, 도메인 정책상 주소 삭제는 안 함). 그 주소의 로그인은 기기 정보가 「Vercel Edge Functions」로 찍혀 동시 접속 제한에서 빠짐.
+- 없음
