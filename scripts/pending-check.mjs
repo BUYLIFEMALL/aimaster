@@ -7,6 +7,7 @@
 // 읽기만 하고 아무것도 바꾸지 않는다. 배포가 끝나면 지침대로 두 표의 해당 줄을 직접 정리한다(docs/VERCEL_COST_REDUCTION_PLAN.md 맨 위).
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { noticeProblems } from "./apply-source-notice.mjs";
+import { unscopedSignOutFiles, serverLoginUaStatus } from "./login-policy-check.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -102,6 +103,13 @@ if (args.includes("--all")) {
   const st = folders.map((n) => [n, widgetStatus(n)]).filter(([, v]) => v !== "none");
   const missing = st.filter(([, v]) => v === "missing").map(([n]) => n).sort();
   console.log(`[공통 — 저장공간 위젯] 적용 ${st.length - missing.length} / 웹 프로그램 ${st.length}개 · 남은 것: ${missing.join(", ") || "없음"}`);
+  // 로그인 정책(2026-11-12, docs/WORKPLAN_20261112_DEVICE_SLOT_LOGIN.md 7절)
+  const all = [".", ...folders];
+  const signOutLeft = all.filter((n) => unscopedSignOutFiles(ROOT, n).length).sort();
+  console.log(`[공통 — 범위 없는 signOut()] 남은 프로그램 ${signOutLeft.length}개 · ${signOutLeft.join(", ") || "없음"}`);
+  const uaSt = all.map((n) => [n, serverLoginUaStatus(ROOT, n)]).filter(([, v]) => v !== "none");
+  const uaLeft = uaSt.filter(([, v]) => v === "missing").map(([n]) => n).sort();
+  console.log(`[공통 — 서버 로그인 기기 정보] 전달 ${uaSt.length - uaLeft.length} / 서버 로그인 프로그램 ${uaSt.length}개 · 남은 것: ${uaLeft.join(", ") || "없음"}`);
   process.exit(0);
 }
 
@@ -114,6 +122,11 @@ for (const folder of args) {
     console.log(`  • [0번 규칙] 저작권·분석 금지 고지 — ${p} → node scripts/apply-source-notice.mjs ${folder}`);
   if (widgetStatus(folder) === "missing")
     console.log("  • [공통] 저장공간 위젯 한 줄 미적용 — 이번 배포에 함께 넣기: docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md");
+  const signOutFiles = unscopedSignOutFiles(ROOT, folder);
+  if (signOutFiles.length)
+    console.log(`  • [공통] 범위 없는 signOut() ${signOutFiles.length}곳 — signOut({ scope: "local" })로 바꾸기(비밀번호 재설정 제외): ${short(signOutFiles.join(", "), 160)}  안내: docs/WORKPLAN_20261112_DEVICE_SLOT_LOGIN.md 7절`);
+  if (serverLoginUaStatus(ROOT, folder) === "missing")
+    console.log("  • [공통] 서버 로그인 기기 정보 미전달 — 서버용 Supabase 클라이언트에 global.headers[\"User-Agent\"] 넣기: docs/WORKPLAN_20261112_DEVICE_SLOT_LOGIN.md 4-4절");
   if (!mine.length && !copies.length) { console.log("  대기 없음"); continue; }
   for (const p of mine) {
     console.log(`  • [대기] ${short(p.what)}  ${p.commit}`);

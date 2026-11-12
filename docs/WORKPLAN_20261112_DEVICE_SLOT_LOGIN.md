@@ -182,7 +182,7 @@ const ua = (await headers()).get("user-agent") ?? "";
 |---|---|---|
 | 1 운영 user_agent 분류 | 최근 14일: PC 38·모바일 13·서버 36(`node` 21·`Vercel Edge Functions` 15) → 메인 로그인은 pc/mobile, 서버 로그인은 other 확인 | 2026-11-12 [역할: policy] `claude-win-20261112-policy` |
 | 2~3 Lab 시험 | **통과(2026-11-13 policy).** Lab 시험 전용 스키마 `policy_lab`(가짜 회원만 등록, 다른 Lab 회원 영향 없음)으로 두 가지 시험. (1) SQL로 로그인 줄 넣기 8단계 모두 기대대로: PC2 로그인 때 PC1과 그 갱신 토큰만 삭제, 휴대폰2 로그인 때 휴대폰1만 삭제, 서버(`node`) 줄 유지, 예외 계정은 삭제 없음, 판정 중 오류(회원 표 없음)에도 로그인 줄은 들어가고 삭제 없음, 회원 정보 없는 회원은 삭제 없음. (2) 실제 Lab 로그인 서버에 `@supabase/supabase-js` `global.headers["User-Agent"]`로 4번 로그인(PC 윈도우·기기 정보 없음·안드로이드·PC 맥): 예전 PC만 토큰 갱신 실패(`Refresh Token Not Found`), 나머지 3곳 갱신 성공. 전달한 기기 정보가 그대로 `auth.sessions.user_agent`에 찍히고, 전달 안 하면 `node`(other) → **결정 1 「가」 유효**. 시험 뒤 가짜 회원 2명·트리거·스키마 모두 삭제, Lab 회원 수 4명 그대로. | 2026-11-13 policy |
-| 4~5 코드·점검 도구 | 4 완료(커밋, 푸시 안 함): 4-1~4-3 반영, 마이그레이션 `0069_device_slot_login.sql`. 지시서와 다른 점 — 예외 계정은 `retention_exempt=true`(같은 두 계정)에서 옮겨 이메일 없이 지정, 회원 정보가 없는 회원은 건너뜀, 세션 생성은 요청 머리글 우선·없으면 화면 기기 정보, 예전 줄은 `device_info`로 다시 판정. tsc 0·판정 시험 10/10·로컬 빌드 통과. 5 미착수 | 2026-11-13 policy |
+| 4~5 코드·점검 도구 | 4 완료(커밋, 푸시 안 함): 4-1~4-3 반영, 마이그레이션 `0069_device_slot_login.sql`. 지시서와 다른 점 — 예외 계정은 `retention_exempt=true`(같은 두 계정)에서 옮겨 이메일 없이 지정, 회원 정보가 없는 회원은 건너뜀, 세션 생성은 요청 머리글 우선·없으면 화면 기기 정보, 예전 줄은 `device_info`로 다시 판정. tsc 0·판정 시험 10/10·로컬 빌드 통과. 5 완료: `scripts/login-policy-check.mjs`(판정)·`scripts/pending-check.mjs`(폴더별 알림 2종, `--all` 남은 목록)·`scripts/login-policy-check.test.mjs` 2/2 통과. 고친 메인 사이트(`.`)는 알림 없음, 무료음악·쇼츠는 알림 확인. 2026-11-13 `--all` 기준 범위 없는 signOut() 94개, 서버 로그인 기기 정보 미전달 62/62개 | 2026-11-13 policy |
 | 6~7 운영 적용·배포 | | |
 | 8 실물 확인 | | |
 | 9 요청·문서 | | |
