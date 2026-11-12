@@ -15,6 +15,7 @@
 - 남은 영어(발견): 서버 오류 문구 일부가 영어(예: 없는 에이전트 삭제 「We couldn’t find that agent」) — 원본 서버 메시지 번역은 다음 묶음.
 
 ## 미배포 대기
+- ✅ 홈택스 엑셀 실제 업로드 통과(2026-11-13, 주인님 계정): 홈택스 일괄 작성 화면에서 「엑셀파일 변환하기」 → 1건 오류 없이 조회, 값 모두 일치. 발급은 누르지 않음. 확인 중 발견한 단독 화면 스크롤 막힘은 `ca2120163`(미배포)로 고침.
 - 발견(2026-11-12, 버그 아님): 영수증 화면에서 저장 때 「로그인이 필요합니다」 — 다른 탭에서 관리자↔시험 계정을 바꾸며 로그아웃하면 `.buylife.xyz` 공용 로그인이 모든 탭에서 함께 끝나서, 먼저 열어 둔 탭은 화면만 남고 요청은 401. 코드 확인: 쿠키는 공용 도메인 한 벌만 씀(`src/proxy.ts`·`lib/supabase/*`). 대처: 새로고침 후 다시 로그인. 개선 여지: 401을 받으면 「다시 로그인」 안내 버튼을 띄우기(입력 내용 보존).
 - **미배포 대기**(2026-11-12): 받은 업무·캘린더 이름표에 `auto-shorts-posting`(YOUTUBE Shots)·`shorts-onestop-studio`(AI 쇼츠 원스톱 제작 자동화) — U10 유튜브 보내기(두 프로그램 라우트·버튼은 각 담당 다음 배포 때). 이름표가 없어도 slug 그대로 보여 동작은 같음.
 - **(배포됨 v1.23, 2026-11-10 — 아래 「U11 운영 확인」) `0d686f9b3` U11 자동화** — 플랜 `docs/PLAN_20261110_U11_AUTOMATION.md`(주인님 결정 5건 권장안). 자동화·버튼 저장 열기(`stagePolicy`), 웹훅·에이전트 동작은 메뉴 「준비 중」 + 서버 `stageBodyBlock` 거절. 값 변경 자동화는 명령 뒤 `after()`에서 `settleAutomations()`로 마무리. 정시 자동화·리마인더 = 회원 cron-job.org 1분(`src/lib/schedulerMember/`, 공용 `member-scheduler` 사본, 회원 주소 `/api/cron/member`, 작업 주인 찾기 `src/server/memberJobs.ts`, 운영 cron은 회원 작업 제외). 자동화 목록 위 「⏰ 정시 실행」 줄(`scheduleLine.tsx`, `/api/scheduler`), 키 화면 cron-job.org 칸(바꾸기·지우기 때 회원 작업 정리), 매뉴얼 `#automation`, 실행 기록·알림 30일 정리(`src/server/automationRetention.ts`). **배포 전 운영 DB**: `supabase/migrations/20261110000000_aww_member_scheduler.sql`. 시험 `tests/integration/automationU11.test.ts` 8개(전체 58)·원본 523·공용 18·tsc·빌드. 운영 확인 남음(플랜 §5). 구글 캘린더는 검토만 `docs/REVIEW_20261110_GOOGLE_CALENDAR.md`.
