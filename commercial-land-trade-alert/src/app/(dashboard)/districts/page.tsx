@@ -23,7 +23,7 @@ export default async function DistrictsPage() {
         tip={`지금 ${active.size}곳 수집 중 · 새로 고른 지역은 보통 5~10분 안에 첫 자료가 들어옵니다.`}
       />
       <TradeTabs active="districts" />
-      <p className="mt-3 rounded-xl border border-mx-border bg-white p-3 text-sm text-mx-muted">💡 여기서는 이미 계약된 <b>실거래</b>만 받습니다. 지금 나와 있는 <b>매물</b>을 보려면 1번 「매물 감시(예약 설정)」에 지역을 등록해 주세요.</p>
+      <p className="mt-3 rounded-xl border border-[#1E293B] bg-[#121824] p-3 text-sm text-gray-300">💡 여기서는 이미 계약된 <b>실거래</b>만 받습니다. 지금 나와 있는 <b>매물</b>을 보려면 1번 「매물 감시(예약 설정)」에 지역을 등록해 주세요.</p>
       <section className="mx-card mt-4">
         <h2 className="mx-section-title">📡 지금 수집 중인 지역</h2>
         {collecting.length === 0 ? (

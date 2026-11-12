@@ -35,7 +35,7 @@ function Row({ id, tail, model, onModel }: { id: AiProvider; tail: string | null
     setAskDelete(false); setEditing(true); router.refresh();
   });
   return (
-    <div className={"border-t border-mx-border bg-white p-3 first:border-t-0"}>
+    <div className={"border-t border-[#1E293B] bg-[#121824] p-3 first:border-t-0"}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="px-2 text-sm font-bold text-mx-text">{engine.icon} {engine.name}</span>
         <span className={statusBadge(has)}>{has ? "✓ 등록완료" : "미등록"}</span>
@@ -46,7 +46,7 @@ function Row({ id, tail, model, onModel }: { id: AiProvider; tail: string | null
         {editing ? (
           <input type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} aria-label={`${engine.name} API 키`} placeholder="API 키 붙여넣기" className="mx-input min-h-[40px] w-full py-2 text-sm md:w-64" />
         ) : (
-          <span className="flex min-h-[40px] w-full items-center justify-between rounded-lg border border-mx-border bg-white px-3 text-sm md:w-64"><span aria-hidden>••••••••••••</span><b>{tail}</b></span>
+          <span className="flex min-h-[40px] w-full items-center justify-between rounded-lg border border-[#1E293B] bg-[#0E1420] px-3 text-sm text-gray-200 md:w-64"><span aria-hidden>••••••••••••</span><b>{tail}</b></span>
         )}
         <select value={model} onChange={(e) => onModel(e.target.value)} aria-label={`${engine.name} 모델`} className="mx-input min-h-[40px] min-w-0 flex-1 basis-60 py-2 text-sm">
           {engine.models.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}

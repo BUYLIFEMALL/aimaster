@@ -45,15 +45,15 @@ function Tile({ label, value, sub, onClick }: { label: string; value: string; su
       <span className="mt-1 block text-xs text-mx-muted">{sub}</span>
     </>
   );
-  const cls = "rounded-2xl border border-mx-border bg-white p-4 text-left";
-  return onClick ? <button type="button" onClick={onClick} className={`${cls} hover:border-mx-primary`}>{body}</button> : <div className={cls}>{body}</div>;
+  const cls = "rounded-2xl border border-[#1E293B] bg-[#121824] p-4 text-left text-white";
+  return onClick ? <button type="button" onClick={onClick} className={`${cls} hover:border-amber-500`}>{body}</button> : <div className={cls}>{body}</div>;
 }
 
 function Seg<T extends string | number>({ options, value, onChange, label }: { options: [T, string][]; value: T; onChange: (v: T) => void; label: string }) {
   return (
-    <div role="group" aria-label={label} className="inline-flex overflow-hidden rounded-xl border border-mx-border">
+    <div role="group" aria-label={label} className="inline-flex overflow-hidden rounded-xl border border-[#1E293B]">
       {options.map(([id, text]) => (
-        <button key={String(id)} type="button" aria-pressed={value === id} onClick={() => onChange(id)} className={`min-h-[40px] border-r border-mx-border px-4 text-sm last:border-r-0 ${value === id ? "bg-mx-primary/10 font-bold text-mx-primary" : "bg-white"}`}>
+        <button key={String(id)} type="button" aria-pressed={value === id} onClick={() => onChange(id)} className={`min-h-[40px] border-r border-[#1E293B] px-4 text-sm last:border-r-0 ${value === id ? "bg-amber-500/20 font-bold text-amber-400" : "bg-[#0E1420] text-gray-300 hover:text-white"}`}>
           {text}
         </button>
       ))}
@@ -63,7 +63,7 @@ function Seg<T extends string | number>({ options, value, onChange, label }: { o
 
 function LineChart({ title, points, fmt }: { title: string; points: { at: string; v: number }[]; fmt: (v: number) => string }) {
   const [hover, setHover] = useState<number | null>(null);
-  if (!points.length) return <figure className="rounded-2xl border border-mx-border bg-white p-4"><figcaption className="text-sm font-bold">{title}</figcaption><p className="mt-2 text-xs text-mx-muted">기록이 없습니다.</p></figure>;
+  if (!points.length) return <figure className="rounded-2xl border border-[#1E293B] bg-[#121824] p-4 text-white"><figcaption className="text-sm font-bold">{title}</figcaption><p className="mt-2 text-xs text-mx-muted">기록이 없습니다.</p></figure>;
   const W = 600, H = 220, L = 86, R = 16, T = 16, B = 30;
   const vs = points.map((p) => p.v);
   let lo = Math.min(...vs), hi = Math.max(...vs);
@@ -74,18 +74,18 @@ function LineChart({ title, points, fmt }: { title: string; points: { at: string
   const y = (v: number) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
   const shown = hover ?? points.length - 1;
   return (
-    <figure className="rounded-2xl border border-mx-border bg-white p-4">
+    <figure className="rounded-2xl border border-[#1E293B] bg-[#121824] p-4 text-white">
       <figcaption className="flex flex-wrap justify-between gap-2 text-sm font-bold">{title}<span className="font-normal text-mx-muted">{when(points[shown].at)} · <b>{fmt(points[shown].v)}</b></span></figcaption>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title} 추이`} onMouseLeave={() => setHover(null)} className="mt-2 w-full">
         {[lo, (lo + hi) / 2, hi].map((t) => (
           <g key={t}>
-            <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} stroke="#e2e6ee" />
-            <text x={L - 8} y={y(t) + 4} textAnchor="end" fontSize="11" fill="#5b6475">{fmt(Math.round(t))}</text>
+            <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} stroke="#1E293B" />
+            <text x={L - 8} y={y(t) + 4} textAnchor="end" fontSize="11" fill="#94a3b8">{fmt(Math.round(t))}</text>
           </g>
         ))}
-        <text x={x(0)} y={H - 8} textAnchor={points.length === 1 ? "middle" : "start"} fontSize="11" fill="#5b6475">{day(points[0].at)}</text>
-        {points.length > 1 && <text x={x(points.length - 1)} y={H - 8} textAnchor="end" fontSize="11" fill="#5b6475">{day(points[points.length - 1].at)}</text>}
-        {points.length > 1 && <polyline fill="none" stroke="#009b4d" strokeWidth="2" strokeLinejoin="round" points={points.map((p, i) => `${x(i)},${y(p.v)}`).join(" ")} />}
+        <text x={x(0)} y={H - 8} textAnchor={points.length === 1 ? "middle" : "start"} fontSize="11" fill="#94a3b8">{day(points[0].at)}</text>
+        {points.length > 1 && <text x={x(points.length - 1)} y={H - 8} textAnchor="end" fontSize="11" fill="#94a3b8">{day(points[points.length - 1].at)}</text>}
+        {points.length > 1 && <polyline fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinejoin="round" points={points.map((p, i) => `${x(i)},${y(p.v)}`).join(" ")} />}
         {points.map((p, i) => (
           <g key={p.at}>
             <circle cx={x(i)} cy={y(p.v)} r={i === shown ? 5 : 4} fill="#009b4d" stroke="#fff" strokeWidth="2" />

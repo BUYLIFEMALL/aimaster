@@ -25,11 +25,11 @@ export type SetupRow = {
 export function SetupTable({ rows, head = ["항목", "상태", "연결 정보"] }: { rows: SetupRow[]; head?: [string, string, string] }) {
   const [open, setOpen] = useState<Record<string, boolean>>(() => Object.fromEntries(rows.map((r) => [r.id, Boolean(r.defaultOpen)])));
   return (
-    <div className="mt-3 overflow-x-auto rounded-xl border border-mx-border">
-      <table className="w-full min-w-[620px] table-fixed border-collapse bg-white text-sm">
+    <div className="mt-3 overflow-x-auto rounded-xl border border-[#1E293B]">
+      <table className="w-full min-w-[620px] table-fixed border-collapse bg-[#0E1420] text-sm text-slate-200">
         <colgroup><col className="w-28" /><col className="w-24" /><col /><col className="w-56" /></colgroup>
         <thead>
-          <tr className="border-b border-mx-border bg-slate-50 text-left text-xs font-bold text-mx-muted">
+          <tr className="border-b border-[#1E293B] bg-[#121824] text-left text-xs font-bold text-gray-400">
             <th className="px-3 py-2">{head[0]}</th><th className="px-3 py-2">{head[1]}</th><th className="px-3 py-2">{head[2]}</th><th />
           </tr>
         </thead>
@@ -46,10 +46,10 @@ export function SetupTable({ rows, head = ["항목", "상태", "연결 정보"] 
 function SetupLine({ row, open, toggle }: { row: SetupRow; open: boolean; toggle: () => void }) {
   return (
     <>
-      <tr id={row.id} className="border-b border-slate-100 last:border-b-0">
+      <tr id={row.id} className="border-b border-[#1E293B] last:border-b-0 hover:bg-white/[0.02]">
         <td className="px-3 py-2.5"><b className="block whitespace-nowrap">{row.name}</b>{row.sub && <small className="text-xs text-mx-muted">{row.sub}</small>}</td>
         <td className="px-3 py-2.5"><span className={statusBadge(row.on)}>{row.on ? row.onLabel ?? "✓ 등록완료" : row.offLabel ?? "미등록"}</span></td>
-        <td className="break-words px-3 py-2.5 text-mx-text">{row.info}</td>
+        <td className="break-words px-3 py-2.5 text-slate-200">{row.info}</td>
         <td className="px-3 py-2.5">
           <span className="flex flex-wrap justify-end gap-1.5">
             <button type="button" className={row.on ? editBtn : saveBtn} onClick={toggle}>{open ? "닫기 ▲" : row.openLabel ?? (row.on ? "수정" : "연결하기")}</button>
@@ -58,7 +58,7 @@ function SetupLine({ row, open, toggle }: { row: SetupRow; open: boolean; toggle
           </span>
         </td>
       </tr>
-      {open && <tr className="border-b border-slate-100 bg-slate-50 last:border-b-0"><td colSpan={4} className="p-4">{row.detail}</td></tr>}
+      {open && <tr className="border-b border-[#1E293B] bg-[#121824]/60 last:border-b-0"><td colSpan={4} className="p-4">{row.detail}</td></tr>}
     </>
   );
 }

@@ -31,7 +31,7 @@ export function ExtensionTokenManager({ tokens }: { tokens: ExtensionToken[] }) 
       <p className="mt-1 text-xs text-mx-muted">예전 PC나 다른 크롬 프로필의 연결을 끊을 수 있습니다. 끊긴 PC는 수집과 알림이 멈추고, 그 브라우저에서 「바로 연결」을 누르면 다시 연결됩니다.</p>
       <ul className="mt-2 space-y-2">
         {tokens.map((t) => (
-          <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-mx-border bg-white px-3 py-2 text-sm">
+          <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#1E293B] bg-[#0E1420] px-3 py-2 text-sm text-slate-200">
             <span className="min-w-0">
               <b className="block break-words">{t.label || "상가·건물·토지 매물 알림 크롬 확장"}</b>
               <small className="text-xs text-mx-muted">최근 사용: {when(t.last_used_at)}</small>

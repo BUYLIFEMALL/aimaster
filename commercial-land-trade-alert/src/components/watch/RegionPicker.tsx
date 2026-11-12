@@ -1,21 +1,28 @@
 "use client";
 
 // 지역으로 추가. 기준: realty-listing-alert/app/targets/RegionPicker.tsx
-// 상가·건물·토지는 단지가 없어 동 중심 좌표로 네이버 지도 화면을 만든다. 좌표는 회원 PC의 확장이 네이버에서 받는다(서버는 네이버에 요청하지 않음).
+// 100. 골든 랜드 프롭테크 인텔리전스 HUD 테마 고대비 버튼 & 서피스 완비
 import { startTransition, useActionState, useEffect, useMemo, useState } from "react";
 import { addRegionTargetAction, type WatchState } from "@/lib/actions/watchTargets";
 import { type AdminDongRow, searchAdminDongs } from "@/lib/adminDongs";
 import { askExtension } from "@/lib/extensionBridge";
 
-// 옛 확장은 지역 요청을 모른 채 무시해 화면이 멈춰 보이므로 먼저 버전을 확인한다
 const MIN_EXTENSION = 1.11;
 
 type Sido = { c: string; n: string; g: { c: string; n: string; d: [string, string][] }[] };
 
 const KINDS: [string, string][] = [["SG", "상가"], ["GM", "건물"], ["TJ", "토지"]];
-const btn = (on: boolean) => `min-h-[44px] whitespace-nowrap rounded-xl border px-2 py-2 text-sm font-semibold ${on ? "border-mx-primary bg-mx-primary/10 text-mx-primary" : "border-mx-border bg-white text-mx-text hover:border-mx-primary"}`;
+
+// 명시적인 고대비 색상 (White-on-White 절대 방지)
+const btn = (on: boolean) =>
+  `min-h-[44px] whitespace-nowrap rounded-xl border px-3 py-2 text-sm font-bold transition-all ${
+    on
+      ? "border-amber-500 bg-amber-500/20 text-amber-400 shadow-md shadow-amber-500/10"
+      : "border-[#1E293B] bg-[#0E1420] text-gray-200 hover:border-amber-500/50 hover:bg-[#161F30] hover:text-white"
+  }`;
+
 const grid = "grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2";
-const stepTitle = "mb-2 mt-4 text-sm font-bold text-mx-text first:mt-0";
+const stepTitle = "mb-2 mt-4 text-sm font-black text-amber-400 first:mt-0 flex items-center gap-1.5";
 
 export function RegionPicker({ email, disabled }: { email: string; disabled: boolean }) {
   const [regions, setRegions] = useState<Sido[] | null>(null);
@@ -39,7 +46,6 @@ export function RegionPicker({ email, disabled }: { email: string; disabled: boo
   const sggRow = useMemo(() => sidoRow?.g.find((g) => g.c === sgg) ?? null, [sidoRow, sgg]);
   const dongName = sggRow?.d.find((d) => d[0] === dong)?.[1];
 
-  // 행정동 자료는 찾기 칸을 처음 쓸 때 받는다
   function searchDong(text: string) {
     setDongQuery(text);
     if (adminDongs.rows.length || adminDongs.failed) return;
@@ -82,21 +88,21 @@ export function RegionPicker({ email, disabled }: { email: string; disabled: boo
     startTransition(() => action(fd));
   }
 
-  if (!regions) return <p className="text-sm text-mx-muted">지역 목록을 불러오는 중입니다...</p>;
+  if (!regions) return <p className="text-sm text-gray-400">지역 목록을 불러오는 중입니다...</p>;
   return (
     <div className="mt-3">
-      <div className="mb-4 rounded-xl border border-mx-border bg-mx-primary/5 p-3">
-        <label htmlFor="admin-dong" className="text-sm font-bold">행정동 이름으로 찾기</label>
+      <div className="mb-4 rounded-xl border border-[#1E293B] bg-[#0E1420] p-4 shadow-md">
+        <label htmlFor="admin-dong" className="text-sm font-bold text-white">행정동 이름으로 찾기</label>
         <input id="admin-dong" value={dongQuery} onChange={(e) => searchDong(e.target.value)} placeholder="예: 노량진1동" className="mx-input mt-2 min-h-[44px] w-full" />
-        <p className="mt-1 text-xs text-mx-muted">네이버 매물과 실거래는 법정동 기준이에요. 행정동을 넣으면 등록할 법정동을 알려 드리며, 같은 법정동의 다른 행정동 매물도 함께 나올 수 있어요.</p>
-        {adminDongs.failed && <p className="mt-2 text-sm text-mx-danger" role="alert">행정동 자료를 불러오지 못했습니다. 화면을 새로고침해 주세요.</p>}
-        {dongQuery.trim().length >= 2 && adminDongs.rows.length > 0 && dongResults.length === 0 && <p className="mt-2 text-sm text-mx-muted">찾는 행정동이 없습니다. 이름을 확인하거나 아래에서 직접 골라 주세요.</p>}
+        <p className="mt-1.5 text-xs text-gray-400">네이버 매물과 실거래는 법정동 기준이에요. 행정동을 넣으면 등록할 법정동을 알려 드리며, 같은 법정동의 다른 행정동 매물도 함께 나올 수 있어요.</p>
+        {adminDongs.failed && <p className="mt-2 text-sm text-rose-400" role="alert">행정동 자료를 불러오지 못했습니다. 화면을 새로고침해 주세요.</p>}
+        {dongQuery.trim().length >= 2 && adminDongs.rows.length > 0 && dongResults.length === 0 && <p className="mt-2 text-sm text-gray-400">찾는 행정동이 없습니다. 이름을 확인하거나 아래에서 직접 골라 주세요.</p>}
         {dongResults.length > 0 && (
-          <ul className="mt-2 space-y-2">
+          <ul className="mt-3 space-y-2">
             {dongResults.map(([name, codes]) => (
-              <li key={`${name}-${codes.join()}`} className="text-sm">
-                <b>{legalPlace(codes[0])?.sggName} {name}</b> → 법정동
-                <span className="ml-2 inline-flex flex-wrap gap-1 align-middle">
+              <li key={`${name}-${codes.join()}`} className="text-sm text-gray-200">
+                <b className="text-white">{legalPlace(codes[0])?.sggName} {name}</b> → 법정동
+                <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
                   {codes.map((code) => {
                     const p = legalPlace(code);
                     return p ? <button key={code} type="button" className={btn(dong === code)} onClick={() => { setSido(p.sido); setSgg(p.sgg); setDong(code); }}>{p.name}</button> : null;
@@ -106,45 +112,103 @@ export function RegionPicker({ email, disabled }: { email: string; disabled: boo
             ))}
           </ul>
         )}
-        {adminDongs.asOf && <p className="mt-2 text-xs text-mx-muted">출처: 행정안전부 행정기관·관할구역 코드({adminDongs.asOf} 기준)</p>}
+        {adminDongs.asOf && <p className="mt-2 text-xs text-gray-500 font-mono">출처: 행정안전부 행정기관·관할구역 코드({adminDongs.asOf} 기준)</p>}
       </div>
-      <p className={stepTitle}>1. 시·도</p>
+
+      <p className={stepTitle}><span>📍</span> 1. 시·도</p>
       <div className={grid}>
-        {regions.map((s) => <button key={s.c} type="button" className={btn(sido === s.c)} onClick={() => { setSido(s.c); setSgg(null); setDong(null); }}>{s.n}</button>)}
+        {regions.map((s) => (
+          <button
+            key={s.c}
+            type="button"
+            className={btn(sido === s.c)}
+            onClick={() => {
+              setSido(s.c);
+              setSgg(null);
+              setDong(null);
+            }}
+          >
+            {s.n}
+          </button>
+        ))}
       </div>
+
       {sidoRow && (
         <>
-          <p className={stepTitle}>2. 시·군·구</p>
+          <p className={stepTitle}><span>🏢</span> 2. 시·군·구</p>
           <div className={grid}>
-            {sidoRow.g.map((g) => <button key={g.c} type="button" className={btn(sgg === g.c)} onClick={() => { setSgg(g.c); setDong(null); }}>{g.n}</button>)}
+            {sidoRow.g.map((g) => (
+              <button
+                key={g.c}
+                type="button"
+                className={btn(sgg === g.c)}
+                onClick={() => {
+                  setSgg(g.c);
+                  setDong(null);
+                }}
+              >
+                {g.n}
+              </button>
+            ))}
           </div>
         </>
       )}
+
       {sggRow && (
         <>
-          <p className={stepTitle}>3. 읍·면·동 (법정동 기준)</p>
+          <p className={stepTitle}><span>🏘️</span> 3. 읍·면·동 (법정동 기준)</p>
           <div className={grid}>
-            {sggRow.d.map(([code, name]) => <button key={code} type="button" className={btn(dong === code)} onClick={() => setDong(code)}>{name}</button>)}
+            {sggRow.d.map(([code, name]) => (
+              <button
+                key={code}
+                type="button"
+                className={btn(dong === code)}
+                onClick={() => setDong(code)}
+              >
+                {name}
+              </button>
+            ))}
           </div>
         </>
       )}
+
       {dong && sggRow && (
-        <div className="mt-4 rounded-xl border border-mx-primary bg-mx-primary/5 p-4">
-          <p className="text-sm font-bold">{sggRow.n} {dongName}에서 무엇을 볼까요?</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="mt-4 rounded-xl border border-amber-500/40 bg-[#121824] p-5 shadow-xl">
+          <p className="text-sm font-bold text-white">
+            <span className="text-amber-400 font-black">{sggRow.n} {dongName}</span>에서 무엇을 볼까요?
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2.5">
             {KINDS.map(([code, label]) => (
-              <button key={code} type="button" aria-pressed={kinds.includes(code)} className={btn(kinds.includes(code))} onClick={() => setKinds((k) => (k.includes(code) ? k.filter((x) => x !== code) : [...k, code]))}>{label}</button>
+              <button
+                key={code}
+                type="button"
+                aria-pressed={kinds.includes(code)}
+                className={btn(kinds.includes(code))}
+                onClick={() =>
+                  setKinds((k) => (k.includes(code) ? k.filter((x) => x !== code) : [...k, code]))
+                }
+              >
+                {label}
+              </button>
             ))}
-            <button type="button" onClick={add} disabled={disabled || locating || adding || !kinds.length} className="mx-btn-primary min-h-[44px] text-sm">
+            <button
+              type="button"
+              onClick={add}
+              disabled={disabled || locating || adding || !kinds.length}
+              className="btn-3d-gold min-h-[44px] px-5 text-sm font-black text-black"
+            >
               {locating ? "네이버에서 위치 찾는 중..." : adding ? "추가 중..." : "이 지역 감시 추가"}
             </button>
           </div>
-          <p className="mt-2 text-xs text-mx-muted">동 중심의 지도 화면을 저장해 이웃 동 매물이 섞이거나 일부 빠질 수 있습니다. 「네이버에서 보기」로 범위를 확인해 주세요. 시세 비교를 위해 이 시·군·구의 실거래 수집도 함께 켜집니다.</p>
+          <p className="mt-2 text-xs text-gray-400">
+            동 중심의 지도 화면을 저장해 이웃 동 매물이 섞이거나 일부 빠질 수 있습니다. 「네이버에서 보기」로 범위를 확인해 주세요. 시세 비교를 위해 이 시·군·구의 실거래 수집도 함께 켜집니다.
+          </p>
         </div>
       )}
-      {locateError && <p className="mt-2 text-sm text-mx-danger" role="alert">{locateError}</p>}
-      {state.error && <p className="mt-2 text-sm text-mx-danger" role="alert">{state.error}</p>}
-      {state.success && <p className="mt-2 text-sm text-mx-success" role="status">{state.success}</p>}
+
+      {locateError && <p className="mt-2 text-sm text-rose-400" role="alert">⚠️ {locateError}</p>}
+      {state.error && <p className="mt-2 text-sm text-rose-400" role="alert">⚠️ {state.error}</p>}
+      {state.success && <p className="mt-2 text-sm text-emerald-400 font-bold" role="status">✅ {state.success}</p>}
     </div>
   );
 }

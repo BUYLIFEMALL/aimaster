@@ -1,14 +1,19 @@
 # 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
 
-## 2026-11-12 [역할: design] Antigravity(윈도우) `agy-win-clt-v1` — v1.34 1안 골든 랜드 HUD 전면 리뉴얼 및 배포 완료
+## 2026-11-12 [역할: design] Antigravity(윈도우) `agy-win-clt-v1` — v1.34 1안 골든 랜드 HUD 전면 리뉴얼 및 White-on-White 폰트 시인성 버그 긴급 해결·재배포 완료
 
 - **디자인 채택**: 4대 화면 3시안 중 **1안(100. 골든 랜드 프롭테크 인텔리전스 HUD 스타일)** 공식 채택 반영.
-- **주요 개선 내용**:
-  1. **골든 랜드 HUD 테마 전면 적용**: 딥 옵시디언 차콜(`#0B0F17`) + 럭셔리 샴페인 골드(`#F59E0B`/`#D97706`) + 석세스 에메랄드(`#10B981`) 팔레트 및 `.btn-3d-gold` 3D 엠보싱 버튼 구축.
-  2. **2026-11-01 5단계 표준 로그인 폼 & 1행 약관 규격 적용**: 64px 럭셔리 골드 로고, 영문명 알약 캡슐 뱃지, 한글명 타이틀, 3D 엠보싱 로그인 버튼, `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 처리.
-  3. **저장공간 위젯 탑재 (2026-11-11 지시)**: `layout.tsx`에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />` 탑재 완료.
-  4. **운영 DB 버전 동기화**: `programs.version='v1.34'` 갱신 완료 및 마이그레이션 SQL(`supabase/migrations/20261112170000_version_v1_34.sql`) 추가.
-  5. **프로덕션 배포 및 라이브 검증**: Vercel 프로덕션 배포 완료(`dpl_5FPw4feeJTkeZnAmKqQU443TQ9vr`), HTTP 200 및 브라우저 실세션 캡처 증적 완료(`scratch/commercial_land_v134_live_login.png`).
+- **주요 개선 및 버그 수정 내용**:
+  1. **White-on-White(흰 바탕에 흰 글자) 폰트 증발 긴급 해결 (주인님 지시)**:
+     - 원인: 다크 테마 전환 시 글로벌 텍스트가 `--color-mx-text: #f8fafc;`(밝은 흰색)로 바뀌었으나, 컴포넌트 내에 하드코딩된 `bg-white` 19곳이 남아있어 흰색 바탕에 흰 글자로 렌더링되어 사용자가 안내 카드(`1. 지역 이동`, `2. 필터 고르기`, `3. 이 화면 감시`) 및 시·도 버튼, 설정 테이블 등을 전혀 읽을 수 없는 결함 발생.
+     - 조치: `commercial-land-trade-alert` 내 하드코딩된 `bg-white` 19곳 전수 식별 후 고대비 다크 서피스(`bg-[#121824]`, `bg-[#0E1420]`, `border-[#1E293B]`) 및 명시적 폰트(`text-white`, `text-slate-200`, `text-gray-300`, `text-amber-400`)로 일괄 치환.
+     - 검증: Supabase SSR 세션 쿠키를 주입한 Playwright 헤드리스 브라우저로 실제 로그인된 `/watch` 화면 캡처(`scratch/commercial_land_v134_live_watch_auth.png`)를 수행하여 글자 시인성 100% 정상화 확인.
+     - 배포: Vercel 프로덕션 재배포 완료 (`dpl_5behamECE8T7EGrcWaBDve6EnjHa`).
+     - 지침화: `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`, `docs/ERROR_LESSONS.md`에 **「다크 테마 적용 시 하드코딩된 bg-white 전수 점검 및 White-on-White 방지 헌장」**을 영구 주의사항으로 등록.
+  2. **골든 랜드 HUD 테마 전면 적용**: 딥 옵시디언 차콜(`#0B0F17`) + 럭셔리 샴페인 골드(`#F59E0B`/`#D97706`) + 석세스 에메랄드(`#10B981`) 팔레트 및 `.btn-3d-gold` 3D 엠보싱 버튼 구축.
+  3. **2026-11-01 5단계 표준 로그인 폼 & 1행 약관 규격 적용**: 64px 럭셔리 골드 로고, 영문명 알약 캡슐 뱃지, 한글명 타이틀, 3D 엠보싱 로그인 버튼, `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 처리.
+  4. **저장공간 위젯 탑재 (2026-11-11 지시)**: `layout.tsx`에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />` 탑재 완료.
+  5. **운영 DB 버전 동기화**: `programs.version='v1.34'` 갱신 완료 및 마이그레이션 SQL(`supabase/migrations/20261112170000_version_v1_34.sql`) 추가.
 
 ---
 

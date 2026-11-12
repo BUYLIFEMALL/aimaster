@@ -7,7 +7,7 @@ import { kindsText } from "@/lib/watchTargets";
 
 const initial: WatchState = {};
 const input = "mx-input min-h-[40px] py-2 text-sm";
-const check = "flex min-h-[40px] items-center gap-2 rounded-lg border border-mx-border bg-white px-3 text-sm text-mx-text";
+const check = "flex min-h-[40px] items-center gap-2 rounded-lg border border-[#1E293B] bg-[#0E1420] px-3 text-sm text-slate-200";
 
 function Note({ s }: { s: WatchState }) {
   return (

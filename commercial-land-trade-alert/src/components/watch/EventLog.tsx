@@ -36,9 +36,9 @@ export function EventLog({ events, lastAt, short }: { events: EventRow[]; lastAt
       <h3 className="text-base font-bold">🔔 변동 기록</h3>
       <p className="mt-1 text-xs text-mx-muted">새 매물·가격 변동·사라진 매물을 기간·지역별로 모아 봅니다. 기록은 회원님 PC의 확장에만 1년 쌓입니다.</p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <div role="group" aria-label="기간" className="inline-flex flex-wrap overflow-hidden rounded-xl border border-mx-border">
+        <div role="group" aria-label="기간" className="inline-flex flex-wrap overflow-hidden rounded-xl border border-[#1E293B]">
           {PERIODS.map(([id, text]) => (
-            <button key={id} type="button" aria-pressed={period === id} onClick={() => setPeriod(id)} className={`min-h-[40px] border-r border-mx-border px-3 text-sm last:border-r-0 ${period === id ? "bg-mx-primary/10 font-bold text-mx-primary" : "bg-white"}`}>{text}</button>
+            <button key={id} type="button" aria-pressed={period === id} onClick={() => setPeriod(id)} className={`min-h-[40px] border-r border-[#1E293B] px-3 text-sm last:border-r-0 ${period === id ? "bg-amber-500/20 font-bold text-amber-400" : "bg-[#0E1420] text-gray-300 hover:text-white"}`}>{text}</button>
           ))}
         </div>
         <select value={area} onChange={(e) => setArea(e.target.value)} aria-label="지역" className="mx-input min-h-[40px] w-auto py-2 text-sm">
@@ -48,7 +48,7 @@ export function EventLog({ events, lastAt, short }: { events: EventRow[]; lastAt
       </div>
       <div role="tablist" aria-label="변동 종류" className="mt-2 flex flex-wrap gap-1.5">
         {TABS.map((t) => (
-          <button key={t.id} type="button" role="tab" aria-selected={type === t.id} onClick={() => setType(t.id)} className={`min-h-[36px] rounded-lg border px-3 text-sm ${type === t.id ? "border-mx-primary bg-mx-primary/10 font-bold text-mx-primary" : "border-mx-border bg-white"}`}>
+          <button key={t.id} type="button" role="tab" aria-selected={type === t.id} onClick={() => setType(t.id)} className={`min-h-[36px] rounded-lg border px-3 text-sm ${type === t.id ? "border-amber-500 bg-amber-500/20 font-bold text-amber-400" : "border-[#1E293B] bg-[#0E1420] text-gray-300 hover:text-white"}`}>
             {t.label} <b>{counts[t.id]}</b>
           </button>
         ))}
@@ -56,7 +56,7 @@ export function EventLog({ events, lastAt, short }: { events: EventRow[]; lastAt
       {rows.length === 0 ? (
         <p className="mt-2 text-sm text-mx-muted">{period === "last" ? "이번 회차에는 이 종류의 변동이 없습니다. 기간을 넓혀 보세요." : "이 기간에는 이 종류의 변동 기록이 없습니다."}</p>
       ) : (
-        <div className="mt-2 overflow-x-auto rounded-2xl border border-mx-border">
+        <div className="mt-2 overflow-x-auto rounded-2xl border border-[#1E293B]">
           <table className="mx-table [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
             <thead><tr><th>수집 시각</th><th>변동</th><th>지역</th><th>유형</th><th>가격</th><th>면적(㎡)</th><th>층</th><th>네이버</th></tr></thead>
             <tbody>
