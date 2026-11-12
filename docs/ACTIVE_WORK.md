@@ -1,5 +1,7 @@
 # 작업 중 표 (ACTIVE_WORK.md) — 동시 작업 방지
 
+
+
 > [역할: blog] **후속: 반복 설정 저장·후보 동의 초기화 로컬 완료 / 실제 실행 미완료** (2026-10-28T14:28:35.542Z) — 8번 반복 주기·KST시간대 저장/재조회·예상시각(실제실행아님), 동시수정revision검사·RLS/API입력검증 구현. 5번 후보주소/제목/본문수정시이전권한/AI동의/선택초기화. 단위180·격리DB10(137SQL,네트워크none)·타입/로컬빌드통과. 운영SQL은누적3개미적용·웹/ZIP묶음미배포, 실제예약/반복실행기와6/7번실행기는미완료. 기존Edge21169596 새탭만사용하여최신확장재로드/본인이웃우선배치실확인, /neighbors로그인정상·0명반영/기존43명expired확인. 팝업버튼native대상상실로실제새읽기683b74de만직접요청; 활성요청91fa9442는해결. 새수신/최종저장미완료·AI/검색/원격빌드0·전체읽기/소통OFF유지.
 
 
@@ -41,7 +43,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `commercial-land-trade-alert/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-clt-v1` | 2026-11-12 | 4대 화면 3시안(100/101/102번) 쇼케이스 및 비교표 제작 완료, 1안 추천 제안 중 |
+| `commercial-land-trade-alert/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-clt-v1` | 2026-11-12 | 1안 공식 채택 반영 v1.34 전면 리뉴얼 및 배포 완료 |
 | `ebook-studio/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-ebs-v1` | 2026-11-11 | 1안 공식 채택 반영 v1.14 전면 리뉴얼 및 배포 완료 |
 | `insta_auto_poster/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` | 2026-11-11 | 4대 화면 3시안 중 1안 공식 채택 반영 v1.73 전면 리뉴얼 및 배포 완료 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.01 1단계 뼈대 배포 완료(비공개) — 다음 2단계 연동 화면은 주인님 11번가 고정 IP 등록 뒤. 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |
