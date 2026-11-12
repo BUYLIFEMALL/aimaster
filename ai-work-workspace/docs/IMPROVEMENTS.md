@@ -5,6 +5,7 @@
 > - 원인: `src/server/workInboxCsv.ts`의 `PROGRAM_LABEL`(캘린더용)에 `auto-shorts-posting`·`shorts-onestop-studio`가 없습니다. 받은 업무 화면용 `InboxBoard.tsx` 이름표에는 이미 있지만 미배포입니다.
 > - 제안: `PROGRAM_LABEL`에 `"auto-shorts-posting": "YOUTUBE Shots 자동화"`, `"shorts-onestop-studio": "AI 쇼츠 원스톱 제작 자동화"`를 넣어 `InboxBoard` 이름표와 함께 다음 배포 때 내보내기. 이미 들어간 시험 행(시험 계정 캘린더, 11-12)은 고쳐지지 않으니 필요하면 손으로 바꾸거나 지워 주세요.
 > - 참고: shots 쪽 상태 값이 캘린더에서 「발행 완료」로 보였습니다(비공개 업로드도 발행 완료로 표시).
+> - **✅ workspace 처리(2026-11-12, 미배포 대기)**: `src/server/workInboxCsv.ts` `PROGRAM_LABEL`에 두 프로그램 추가, `InboxBoard.tsx` 원스톱 이름도 「AI 쇼츠 원스톱 제작 자동화」로 맞춤. 시험 113·tsc. 다음 워크스페이스 배포 때 함께. 시험 계정 캘린더의 시험 행은 그대로 둠(시험 데이터). 비공개 업로드가 「발행 완료」로 보이는 것은 「올라간 기록」 기준이라 그대로 둠 — 바꾸려면 주인님 결정 뒤 두 프로그램의 `youtubeInboxContent.ts`에서 비공개·예약 없음을 「초안」으로.
 
 ## 데이터 보관 예외 (2026-11-11 주인님 지정, v1.27)
 - 음악·영상 파일(`files` audio/*·video/*)은 30일 뒤 정리(`src/server/mediaRetention.ts`, 하루 1회 `/api/cron/jobs`), AI 대화·실행 기록, 자동화 실행 기록·알림, 업무 받은편지함, 영수증 발행 문서·증빙 장부는 **1년**. 회의 녹음은 원본 규칙(받아쓰기 뒤 바로, 실패 3일) 그대로. 근거: `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8.
@@ -15,7 +16,7 @@
 
 ## 미배포 대기
 - 발견(2026-11-12, 버그 아님): 영수증 화면에서 저장 때 「로그인이 필요합니다」 — 다른 탭에서 관리자↔시험 계정을 바꾸며 로그아웃하면 `.buylife.xyz` 공용 로그인이 모든 탭에서 함께 끝나서, 먼저 열어 둔 탭은 화면만 남고 요청은 401. 코드 확인: 쿠키는 공용 도메인 한 벌만 씀(`src/proxy.ts`·`lib/supabase/*`). 대처: 새로고침 후 다시 로그인. 개선 여지: 401을 받으면 「다시 로그인」 안내 버튼을 띄우기(입력 내용 보존).
-- **미배포 대기**(2026-11-12): 받은 업무 이름표에 `auto-shorts-posting`(YOUTUBE Shots)·`shorts-onestop-studio`(쇼츠 원스톱) — U10 유튜브 보내기(두 프로그램 라우트·버튼은 각 담당 다음 배포 때). 이름표가 없어도 slug 그대로 보여 동작은 같음.
+- **미배포 대기**(2026-11-12): 받은 업무·캘린더 이름표에 `auto-shorts-posting`(YOUTUBE Shots)·`shorts-onestop-studio`(AI 쇼츠 원스톱 제작 자동화) — U10 유튜브 보내기(두 프로그램 라우트·버튼은 각 담당 다음 배포 때). 이름표가 없어도 slug 그대로 보여 동작은 같음.
 - **(배포됨 v1.23, 2026-11-10 — 아래 「U11 운영 확인」) `0d686f9b3` U11 자동화** — 플랜 `docs/PLAN_20261110_U11_AUTOMATION.md`(주인님 결정 5건 권장안). 자동화·버튼 저장 열기(`stagePolicy`), 웹훅·에이전트 동작은 메뉴 「준비 중」 + 서버 `stageBodyBlock` 거절. 값 변경 자동화는 명령 뒤 `after()`에서 `settleAutomations()`로 마무리. 정시 자동화·리마인더 = 회원 cron-job.org 1분(`src/lib/schedulerMember/`, 공용 `member-scheduler` 사본, 회원 주소 `/api/cron/member`, 작업 주인 찾기 `src/server/memberJobs.ts`, 운영 cron은 회원 작업 제외). 자동화 목록 위 「⏰ 정시 실행」 줄(`scheduleLine.tsx`, `/api/scheduler`), 키 화면 cron-job.org 칸(바꾸기·지우기 때 회원 작업 정리), 매뉴얼 `#automation`, 실행 기록·알림 30일 정리(`src/server/automationRetention.ts`). **배포 전 운영 DB**: `supabase/migrations/20261110000000_aww_member_scheduler.sql`. 시험 `tests/integration/automationU11.test.ts` 8개(전체 58)·원본 523·공용 18·tsc·빌드. 운영 확인 남음(플랜 §5). 구글 캘린더는 검토만 `docs/REVIEW_20261110_GOOGLE_CALENDAR.md`.
 - (배포됨 v1.22, 2026-11-06 `ai-work-workspace-3saw5d3qw` — ego에서 메뉴 v1.22 확인) `376c55c7a` 왼쪽 메뉴 버전 표시 v1.21(v1.21 배포 때 `AimasterSidebar.tsx` 값을 빠뜨려 운영 메뉴에 v1.20이 보임 — 2026-11-06 운영 확인에서도 그대로). 다음 배포(v1.22) 때 함께.
 - (배포됨 v1.22) `a80274b4c` 보낸 마크다운 정리(회의록 근거 링크 제거·구역 들여쓰기 없음·표/페이지 표시 한국어) + 받은 업무 빈 화면 문구(2026-11-06, 아래 「U9 확인 중 발견」). 다음 배포(v1.22) 때 함께.

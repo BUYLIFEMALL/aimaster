@@ -44,7 +44,7 @@ const SOURCE: Record<string, string> = {
   "threads-content-ops": "Threads 콘텐츠 운영",
   "auto-instagram-posting": "INSTA 포스팅 자동화",
   "auto-shorts-posting": "YOUTUBE Shots 자동화",
-  "shorts-onestop-studio": "쇼츠 원스톱 자동화",
+  "shorts-onestop-studio": "AI 쇼츠 원스톱 제작 자동화",
   "competitor-analysis": "키워드·경쟁사 분석",
   "longtail-keyword-expander": "롱테일 키워드",
   "blog-keyword": "블로그 키워드",
