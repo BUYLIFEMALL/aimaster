@@ -1,6 +1,6 @@
 # AI 11번가 상품 자동등록기 (`elevenst-register`)
 
-> 운영 주소: https://elevenst-register.buylife.xyz (Vercel 프로젝트 `elevenst-register`, 팀 `buylife`) · 현재 **v1.05 비공개**(`programs.is_active=false`, 관리자만 열림)
+> 운영 주소: https://elevenst-register.buylife.xyz (Vercel 프로젝트 `elevenst-register`, 팀 `buylife`) · 현재 **v1.05 공개**(2026-11-13 주인님 「공개해」, `programs.is_active=true`)
 > 담당 역할: `ecommerce-image` (`docs/roles/ecommerce-image.md`) · 플랜: `docs/PLAN_20261111_ELEVENST_REGISTER.md`(루트) · 명세: `docs/API_SPEC_NOTES.md`
 > 작업 전 반드시: 11번가 기능은 **11번가 OPEN API 센터 판매자용 명세(로그인 필요)를 먼저 읽고** 구현한다 — 정리본 `docs/API_SPEC_NOTES.md`.
 
@@ -31,9 +31,10 @@ Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB),
 
 - **v1.05 (2026-11-13)** — 묶음 배포(주인님 「진행해」, 빌드 2회): `elevenst-register-43pl7coxp` Ready + 상세페이지 `shop-detail-page-4iuntur7m` Ready(v1.43, 11번가 버튼·저장공간 위젯 한 줄). 위 「v1.05에 포함」 3건(합성어 검색·상세페이지 연계·4단계 보내기 + 상세 사진은 보관 연장 회원만)이 함께 나감. DB `programs` v1.05 + 메인 설명·한 줄 요약 갱신(`20261113_..._v1_05.sql` 내용, 이전 값 백업 확인). 운영 확인(ego, 관리자): 사이드바 v1.05, 매뉴얼 새 FAQ, 상품 화면 「7. 11번가에 보내기」·저장 구독 안내, 없는 사진 주소 404. 메인 상세 페이지는 비공개라 404(정상). [역할: ecommerce-image] `claude-win-sdp`.
 - **실제 보내기 시험 1건 (2026-11-13, 주인님 「진행해」)** — 관리자 계정, 상세페이지 상품 「스위스톤 확장형 여행백팩 (ST4D18)」(카테고리 #1011552 자동 추천, 56,000원·재고 99·무료배송·고시 「가방」 자동 채움, 브랜드 빈칸 → 알수없음) → 검사 통과(본문 4,198바이트, 상세설명 = 상세 사진 12장) → **11번가 상품번호 9752929791 등록 + 전시중지 성공**(기록 `stopped`, 「판매상태가 수정되었습니다 [STAT : 105]」). 확인: IP 등록 요구 없음(서울 지역 직접 호출 그대로 됨), KC 「대상 아님」 그룹 통과, 대표 사진은 11번가 CDN에 복사됨(`9752929791_B.webp`), **상세설명 사진은 11번가가 복사하지 않고 우리 `/i/` 주소를 그대로 띄움**(11번가 상품 페이지를 연 순간 우리 서버에 12장 요청, 일부는 CDN 캐시 응답) → 3안 판단 근거 확인. 시험 상품은 11번가에 전시중지 상태로 남아 있음(셀러오피스에서 삭제 가능). ego 주의: 화면 아래 버튼은 `scrollIntoView` 뒤에 눌러야 함(「not visible in the viewport」), 11번가 사이트는 알림 허용 창을 띄워 조작권이 사람에게 넘어감.
+- **공개 (2026-11-13, 주인님 「공개해」)** — DB `programs`: `is_active=true`, 배지 「출시 예정(coming)」 뺌, 상세 페이지 `detail_sections`(핵심 특징 4·사용 순서 4·추천 대상 3, 원본 `supabase/migrations/20261113_elevenst_register_publish.json`) 저장. 이전 값 백업 뒤 적용. 비로그인으로 https://www.buylife.xyz/programs/elevenst-register 200·설명·특징·순서·대상·v1.05 표시, 프로그램 목록 노출 확인. 회원 사용은 기존 판정 그대로(구독 또는 일반 등급 이상 + 관리자 부여 기간). 시험 상품 9752929791은 11번가 상태 코드 105(판매중지, 손님 화면 「품절」) 확인.
 
 ## 5. 남은 일
-`docs/IMPROVEMENT_BACKLOG.md` — 4단계 v1.05 배포 완료(2026-11-13). 남은 것: 비공개 안내 화면(백로그), 공개 시점 결정(주인님), 시험 상품 9752929791 정리(셀러오피스), 비공개 안내 화면.
+`docs/IMPROVEMENT_BACKLOG.md` — 4단계 v1.05 배포 완료(2026-11-13). 남은 것: 다음은 G마켓·옥션 등록기 플랜(`docs/REVIEW_20261111_GMARKET_AUCTION_REGISTER.md`), 비공개 안내 화면.
 
 ## 6. 연계·아이디어
 - `shop-detail-page/lib/markets.ts`에 11번가 한 줄(5단계) → 상세페이지 「11번가에 등록하기」.
