@@ -20,6 +20,7 @@
 
 - **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(`ai-video-studio`는 v1.35, `shorts-onestop-studio`는 v1.49로 반영·`icn1::icn1` 확인)(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때). ✅ `shots` v1.48(11-12) 반영·`icn1::icn1` 확인. ✅ `music-video-studio` v1.30(11-12) 반영·`icn1::icn1` 확인.
 - **저장공간 위젯 한 줄 — `music-video-studio`·`video-to-gif`(2026-11-12 영상 담당 `claude-win-video`)**: 11-12 배포(v1.30·v1.28) 뒤 운영 화면에서 위젯이 없는 것을 확인하고 레이아웃에 한 줄 추가(tsc 통과). 이것만으로 따로 배포하지 않고 각 프로그램 다음 배포 때 함께.
+- **U10 유튜브 「📨 업무 워크스페이스로」 — `shots`·`shorts-onestop-studio`(2026-11-12 구현 [역할: workspace] `ea85e9879`, shots 버튼 붙이기 [역할: video] `claude-win-video`)**: 두 프로그램 `/api/work-inbox`(회원 본인 올린 기록을 서버가 다시 읽어 받은 업무로) + 「올린 기록」 줄마다 버튼. shots 시험 29·tsc 통과, 원스톱 시험 57·tsc·빌드 통과(워크스페이스 세션). 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때), 배포 뒤 시험 계정으로 보내기 → 받은 업무 → 캘린더 확인. 받는 쪽 이름표 `ai-work-workspace` `InboxBoard.tsx`도 미배포(워크스페이스 담당 몫).
 
 - **구글 연결 안내(2026-11-11 영상 담당 `claude-win-video`, 주인님 지시 「각 개인도 본인계정으로 인증」)**: ① `youtube-viral-studio` — 내 채널 연결 단계·설정 구글 앱 칸에 공용 매뉴얼 「내 구글 앱 만들기」 버튼, 매뉴얼 0단계 링크 ② `youtube-auto-reply` — 설정 텔레그램 칸 「구글 미검증 앱은 7일마다 만료」 → 「테스트 중이면 7일 만료 — 앱 게시로 유지」. 둘 다 문구·링크만, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 공용 매뉴얼 글 2개(DB)는 이미 반영됨.
 
