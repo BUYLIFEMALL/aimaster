@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Loader2, RefreshCw, Upload } from "lucide-react";
 import type { Track } from "@/types/playlist";
+import { SendToWorkspaceButton } from "./SendToWorkspaceButton";
 
 // v1.22 만든 플레이리스트 MP4를 내 유튜브 채널에 올리기(가사영상 v1.04 YoutubeUploadCard·browserUpload를 플레이리스트에 맞게 옮김).
 // 유튜브 연결은 다른 유튜브 프로그램에서 한 번 연결한 공용 계정(member_platform_accounts) + 회원 본인 Google 앱만 쓴다.
@@ -246,7 +247,10 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
         </div>
       )}
       {done.length > 0 && <div className="space-y-1"><div className="text-[11px] text-[#aaa]">📋 내가 올린 영상(최근 20개)</div>{done.map((d) => (
-        <a key={d.videoId} href={d.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-2 text-xs text-white bg-[#212121] rounded-lg px-3 py-2 hover:bg-[#2a2a2a]"><span className="truncate">{d.title} · {d.label}</span><ExternalLink className="w-3 h-3 shrink-0" /></a>
+        <div key={d.videoId} className="space-y-1">
+          <a href={d.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-2 text-xs text-white bg-[#212121] rounded-lg px-3 py-2 hover:bg-[#2a2a2a]"><span className="truncate">{d.title} · {d.label}</span><ExternalLink className="w-3 h-3 shrink-0" /></a>
+          <SendToWorkspaceButton videoId={d.videoId} />
+        </div>
       ))}</div>}
     </div>
   );

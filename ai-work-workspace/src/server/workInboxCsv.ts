@@ -54,6 +54,7 @@ const PROGRAM_LABEL: Record<string, string> = {
   "auto-instagram-posting": "INSTA 포스팅 자동화", // programs.slug(폴더 insta_auto_poster)
   "auto-shorts-posting": "YOUTUBE Shots 자동화", // programs.slug(폴더 shots) — 2026-11-12 U10 유튜브
   "shorts-onestop-studio": "AI 쇼츠 원스톱 제작 자동화",
+  "playlist-channel-studio": "플레이리스트 채널 제작 자동화",
 };
 
 /** 보낸 쪽 상태 값(영어·한국어 섞임) → 캘린더 상태 선택지 */

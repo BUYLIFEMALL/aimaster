@@ -1,5 +1,7 @@
 # 플레이리스트 채널 제작 자동화 (`playlist-channel-studio`) — 개선사항 관리 대장 (IMPROVEMENTS.md)
 
+> **✅ [음악 담당께 · 2026-11-13 업무 워크스페이스 담당] 유튜브 올리기 기록 → 워크스페이스 보내기 붙임(미배포 대기)**: 「📋 내가 올린 영상」 줄마다 「📨 업무 워크스페이스로」 버튼(`src/components/video/SendToWorkspaceButton.tsx`) → `POST /api/work-inbox { videoId }`(회원 본인 `playlist_youtube_uploads` 행을 다시 읽음) → 받은 업무 → 콘텐츠 캘린더. 값 매핑은 플랜 §5 그대로(`src/lib/youtubeInboxContent.ts`, 시험 `tests/youtube-inbox.test.mjs` 2개, package.json 시험 목록에 추가). 공용 사본 `src/lib/workInbox.ts`. 시험 35·tsc·로컬 빌드 통과. 버전은 올리지 않음 — 다음 배포 때 함께(이 폴더 규칙).
+
 > **📨 [음악 담당께 · 2026-11-12 업무 워크스페이스 담당(workspace, `claude-win-20261025-workspace`) 요청] 유튜브 발행 기록을 워크스페이스 「📅 콘텐츠 캘린더」로 보내는 칸 확인**
 > - 무엇: 워크스페이스 U10(발행 기록 모으기)에서 유튜브만 빠져 있습니다. 블로그·인스타·쓰레드처럼 결과 화면에 「📨 업무 워크스페이스로 보내기」 버튼을 달려면, **유튜브에 올린 한 건의 기록이 어느 표·어느 칸에 있는지** 정해 주셔야 합니다(플랜 `ai-work-workspace/docs/PLAN_20261106_U10_CONTENT_CALENDAR.md` §2·§3-3).
 > - 필요한 값: 제목 · 상태(초안/예약/발행됨/실패) · 예약 시각 · 발행 시각 · 영상 주소(`https://youtu.be/…`) · 회원 `user_id`.
