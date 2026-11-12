@@ -15,6 +15,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
+| `playlist-channel-studio` | 유튜브 올리기 기록 저장(새 표 `playlist_youtube_uploads` + 기록 API, v1.39) — 워크스페이스 「콘텐츠 캘린더」 연동의 전제(workspace 담당 요청) | 주인님 결정 4건(진행 시점·DB 표 추가·보관 기간·빌드 1회) | `playlist-channel-studio/docs/PLAN_20261113_YOUTUBE_UPLOAD_RECORDS.md` |
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
 | `free-music-studio` | 묶음 후보 2건(단독 배포 안 함): 첫째 엔진 — 끝 줄이기 곡선을 끝에서 0까지(마지막 0.5초 -34.5dB) → 다음 **엔진** 배포 때 / 둘째 웹 화면 — 끝 이어 만들기 창 가사 미리 채우기가 원곡 마지막의 빈 `[Outro]` 태그만 가져옴 → 빈 태그면 그 앞 구간을 넣기(`lastLyricSection`) → 다음 **무료음악 웹** 배포 때(2026-11-12 정정: 예전 표기 「가사 칸 `[Outro]` 한 줄 넣기」는 잘못 — 엔진 `extendLyrics`는 이미 머리말 없는 가사에 `[Outro]`를 붙임) | 다음 배포 때 함께 | 인수인계서 20·24절 |
@@ -58,4 +59,4 @@
 3. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
 ## 주인님께 여쭐 것
-- 없음
+- `playlist-channel-studio` 유튜브 올리기 기록 저장 플랜 결정 4건(진행 시점·운영 DB 표 추가·보관 기간·빌드 1회) — `playlist-channel-studio/docs/PLAN_20261113_YOUTUBE_UPLOAD_RECORDS.md` 4절
