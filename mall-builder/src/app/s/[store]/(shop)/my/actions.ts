@@ -35,10 +35,14 @@ async function myCustomer(slug: string) {
   return { ...ctx, customerId: data.id as string };
 }
 
-function back(slug: string, msg?: { error?: string; ok?: string }): never {
+function back(slug: string, msg?: { error?: string; ok?: string }, at?: "addresses"): never {
   revalidatePath(`/s/${slug}`, "layout");
   const q = msg?.error ? `?error=${encodeURIComponent(msg.error)}` : msg?.ok ? `?ok=${encodeURIComponent(msg.ok)}` : "";
-  redirect(`/s/${slug}/my${q}`);
+  // 배송지 저장·기본·삭제는 그 칸으로 돌아가 알림도 그 자리에 보인다(2026-11-12 맨 위 알림을 못 보고 두 번 추가한 일)
+  redirect(`/s/${slug}/my${q}${at ? `${q ? "&" : "?"}at=${at}#${at}` : ""}`);
+}
+function backAddr(slug: string, msg?: { error?: string; ok?: string }): never {
+  back(slug, msg, "addresses");
 }
 
 /** 이 몰에 가입 — next가 같은 몰 안 주소면 가입 뒤 그리로 */
@@ -87,35 +91,35 @@ export async function updateProfileAction(slug: string, form: FormData) {
 
 export async function saveAddressAction(slug: string, addressId: string | null, form: FormData) {
   const v = validateAddress(Object.fromEntries(form));
-  if (!v.ok) back(slug, { error: v.error });
+  if (!v.ok) backAddr(slug, { error: v.error });
   const { supabase, customerId } = await myCustomer(slug);
   const { count } = await supabase.from("mall_builder_customer_addresses").select("id", { count: "exact", head: true }).eq("customer_id", customerId);
   // 첫 배송지는 자동으로 기본
   const makeDefault = v.value.is_default || !count;
   if (makeDefault) {
     const { error } = await supabase.from("mall_builder_customer_addresses").update({ is_default: false }).eq("customer_id", customerId).eq("is_default", true);
-    if (error) back(slug, { error: error.message });
+    if (error) backAddr(slug, { error: error.message });
   }
   // 고칠 때는 기본으로 올리는 경우만 반영(체크를 빼서 기본이 사라지는 일 방지 — 기본 바꾸기는 다른 배송지의 「기본으로」)
   const { is_default: _ignored, ...fields } = v.value;
   const { error } = addressId
     ? await supabase.from("mall_builder_customer_addresses").update(makeDefault ? { ...fields, is_default: true } : fields).eq("id", addressId).eq("customer_id", customerId)
     : await supabase.from("mall_builder_customer_addresses").insert({ ...fields, is_default: makeDefault, customer_id: customerId });
-  back(slug, error ? { error: error.message } : { ok: "배송지를 저장했습니다." });
+  backAddr(slug, error ? { error: error.message } : { ok: "배송지를 저장했습니다." });
 }
 
 export async function makeDefaultAddressAction(slug: string, addressId: string) {
   const { supabase, customerId } = await myCustomer(slug);
   const { error: e1 } = await supabase.from("mall_builder_customer_addresses").update({ is_default: false }).eq("customer_id", customerId).eq("is_default", true);
-  if (e1) back(slug, { error: e1.message });
+  if (e1) backAddr(slug, { error: e1.message });
   const { error } = await supabase.from("mall_builder_customer_addresses").update({ is_default: true }).eq("id", addressId).eq("customer_id", customerId);
-  back(slug, error ? { error: error.message } : { ok: "기본 배송지를 바꿨습니다." });
+  backAddr(slug, error ? { error: error.message } : { ok: "기본 배송지를 바꿨습니다." });
 }
 
 export async function deleteAddressAction(slug: string, addressId: string) {
   const { supabase, customerId } = await myCustomer(slug);
   const { error } = await supabase.from("mall_builder_customer_addresses").delete().eq("id", addressId).eq("customer_id", customerId);
-  back(slug, error ? { error: error.message } : { ok: "배송지를 지웠습니다." });
+  backAddr(slug, error ? { error: error.message } : { ok: "배송지를 지웠습니다." });
 }
 
 /** 사업자 신청 — 파일은 브라우저가 비공개 저장소에 먼저 올리고, 여기서는 DB 함수로 신청만 기록(승인 칸은 함수만 바꾼다) */

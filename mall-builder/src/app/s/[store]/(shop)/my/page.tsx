@@ -59,10 +59,11 @@ export default async function MyPage({
   searchParams,
 }: {
   params: Promise<{ store: string }>;
-  searchParams: Promise<{ error?: string; ok?: string }>;
+  searchParams: Promise<{ error?: string; ok?: string; at?: string }>;
 }) {
   const { store: slug } = await params;
-  const { error, ok } = await searchParams;
+  const { error, ok, at } = await searchParams;
+  const atAddresses = at === "addresses"; // 배송지 동작의 알림은 배송지 칸에서 보인다
   const user = await requireUser(`/s/${slug}/my`);
   const store = await getStoreBySlug(slug);
   const customer = await getMyCustomer(store.id, user.id);
@@ -126,8 +127,8 @@ export default async function MyPage({
           )}
         </section>
       )}
-      {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{ok}</p>}
+      {error && !atAddresses && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {ok && !atAddresses && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{ok}</p>}
 
       <section className="mt-6 rounded-lg border p-4">
         <h2 className="mb-3 font-semibold">내 정보</h2>
@@ -258,8 +259,10 @@ export default async function MyPage({
         </section>
       )}
 
-      <section className="mt-6">
+      <section id="addresses" className="mt-6 scroll-mt-4">
         <h2 className="mb-3 font-semibold">배송지 ({addresses.length})</h2>
+        {atAddresses && error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{error}</p>}
+        {atAddresses && ok && <p className="mb-3 rounded bg-green-50 px-3 py-2 text-sm text-green-700" role="status">{ok}</p>}
         <ul className="space-y-4">
           {addresses.map((a) => (
             <li key={a.id} className="rounded-lg border p-4" data-address>
