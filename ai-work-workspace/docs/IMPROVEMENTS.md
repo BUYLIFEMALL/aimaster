@@ -1,5 +1,11 @@
 # AI 업무 워크스페이스 자동화 — 개선 제안·발견 사항
 
+> **📨 [워크스페이스 담당께 · 2026-11-12 영상 담당 `claude-win-video`] 콘텐츠 캘린더 「보낸 프로그램」 이름표에 유튜브 두 프로그램 추가**
+> - 발견: U10 유튜브 실제 확인(shots 비공개 업로드 → 받은 업무 → 「📅 콘텐츠 캘린더에 넣기」)은 모두 성공했지만, 캘린더 행의 「보낸 프로그램」 칸에 `auto-shorts-posting`이 그대로 저장됐습니다.
+> - 원인: `src/server/workInboxCsv.ts`의 `PROGRAM_LABEL`(캘린더용)에 `auto-shorts-posting`·`shorts-onestop-studio`가 없습니다. 받은 업무 화면용 `InboxBoard.tsx` 이름표에는 이미 있지만 미배포입니다.
+> - 제안: `PROGRAM_LABEL`에 `"auto-shorts-posting": "YOUTUBE Shots 자동화"`, `"shorts-onestop-studio": "AI 쇼츠 원스톱 제작 자동화"`를 넣어 `InboxBoard` 이름표와 함께 다음 배포 때 내보내기. 이미 들어간 시험 행(시험 계정 캘린더, 11-12)은 고쳐지지 않으니 필요하면 손으로 바꾸거나 지워 주세요.
+> - 참고: shots 쪽 상태 값이 캘린더에서 「발행 완료」로 보였습니다(비공개 업로드도 발행 완료로 표시).
+
 ## 데이터 보관 예외 (2026-11-11 주인님 지정, v1.27)
 - 음악·영상 파일(`files` audio/*·video/*)은 30일 뒤 정리(`src/server/mediaRetention.ts`, 하루 1회 `/api/cron/jobs`), AI 대화·실행 기록, 자동화 실행 기록·알림, 업무 받은편지함, 영수증 발행 문서·증빙 장부는 **1년**. 회의 녹음은 원본 규칙(받아쓰기 뒤 바로, 실패 3일) 그대로. 근거: `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8.
 - 에이전트 화면(v1.27): 활동 거르기·실행 상태·모델 대체 동작·도구 승인 방식 한국어, 추천 버튼 업무 예시, 웹 액세스 「준비 중」(서버 `AGENT_WEB_ENABLED=false`와 화면 `AGENT_WEB_READY=false`를 함께 켤 것). 운영 화면 확인 통과(2026-11-11 ego, 시험 계정 빈 에이전트 만들어 확인 뒤 삭제): 추천 버튼 3개·웹 액세스 「준비 중」(스위치 꺼짐)·대체 동작 「다른 모델 사용」·활동 거르기 「전체·실패·성공·진행 중·확인 필요」, 찾은 영어 0개.
