@@ -14,7 +14,7 @@ export async function POST() {
 
   // Supabase 로그아웃
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "local" });
 
   return NextResponse.json({ success: true });
 }

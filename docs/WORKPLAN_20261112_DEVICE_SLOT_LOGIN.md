@@ -180,9 +180,9 @@ const ua = (await headers()).get("user-agent") ?? "";
 ## 결과 (받는 세션이 채움)
 | 단계 | 결과 | 날짜·세션 |
 |---|---|---|
-| 1 운영 user_agent 분류 | | |
-| 2~3 Lab 시험 | | |
-| 4~5 코드·점검 도구 | | |
+| 1 운영 user_agent 분류 | 최근 14일: PC 38·모바일 13·서버 36(`node` 21·`Vercel Edge Functions` 15) → 메인 로그인은 pc/mobile, 서버 로그인은 other 확인 | 2026-11-12 [역할: policy] `claude-win-20261112-policy` |
+| 2~3 Lab 시험 | **대기**: `auth.sessions` 트리거·삭제 권한 있음(Lab·운영), `refresh_tokens` 연쇄 삭제 확인. Lab에 `profiles`가 없어 시험 전용 스키마 `policy_lab`(가짜 회원만 등록)로 시험 예정, Lab 적용 확인 창 2회 만료 | 2026-11-13 policy |
+| 4~5 코드·점검 도구 | 4 완료(커밋, 푸시 안 함): 4-1~4-3 반영, 마이그레이션 `0069_device_slot_login.sql`. 지시서와 다른 점 — 예외 계정은 `retention_exempt=true`(같은 두 계정)에서 옮겨 이메일 없이 지정, 회원 정보가 없는 회원은 건너뜀, 세션 생성은 요청 머리글 우선·없으면 화면 기기 정보, 예전 줄은 `device_info`로 다시 판정. tsc 0·판정 시험 10/10·로컬 빌드 통과. 5 미착수 | 2026-11-13 policy |
 | 6~7 운영 적용·배포 | | |
 | 8 실물 확인 | | |
 | 9 요청·문서 | | |

@@ -28,7 +28,7 @@ export default function AdminSidebar() {
     try {
       const supabase = createClient();
       await fetch("/api/session/logout", { method: "POST" }).catch(() => {});
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: "local" });
       router.push("/");
       router.refresh();
     } catch {

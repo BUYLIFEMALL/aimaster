@@ -69,7 +69,7 @@ export default function Sidebar({ initialIsAdmin = false }: { initialIsAdmin?: b
       setLoggingOut(true);
       await fetch("/api/session/logout", { credentials: "include" });
       const supabase = createClient();
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: "local" });
       router.push("/");
       router.refresh();
     } catch (err) {

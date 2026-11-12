@@ -95,7 +95,9 @@
 ## 8. 결과 (실행 세션이 채움)
 | 단계 | 결과 | 날짜·세션 |
 |---|---|---|
-| 0 | | |
-| 1 | | |
-| 2~4 | | |
+| 0 | 운영 `auth.sessions` 최근 14일(읽기만): PC 브라우저 38, 모바일 13, **서버 36**(`node` 21, `Vercel Edge Functions` 15). 서버 로그인은 기기 정보가 서버로 찍힘 → 3-2(2줄) 넣기 전까지 제한 제외 확인. 서버 로그인 폴더는 실제 약 60개(`labs/` 포함), 범위 없는 `signOut()` 폴더 99개 | 2026-11-12 policy `claude-win-20261112-policy` |
+| 1 | **대기.** Lab에서 확인한 것: `auth.refresh_tokens.session_id`는 `ON DELETE CASCADE`(갱신 토큰 함께 삭제됨, 위험 해소), `postgres`가 `auth.sessions` 트리거·삭제 권한 있음(Lab·운영 둘 다). Lab에는 `profiles`·`site_settings`가 없어 시험 전용 스키마 `policy_lab`(가짜 회원만 등록)로 시험 예정. 적용 확인 창이 2회 만료되어 아직 적용 안 함 | 2026-11-13 policy |
+| 2~4 | 2단계 완료: 로그아웃 8곳 `scope: "local"`(비밀번호 재설정 2곳 유지), `app/api/session/create/route.ts` 같은 기기 종류만 정리·예외 계정 건너뜀·`device_kind` 기록(칸이 없으면 예전 방식), `lib/session/deviceKind.ts`, 마이그레이션 `supabase/migrations/0069_device_slot_login.sql`(판정 중 오류가 나도 로그인은 통과). 작업 지시서(WORKPLAN) 기준으로 판정 규칙(`Mozilla/` 아니면 other)·트리거 이름(`trg_enforce_login_device_slot`)·예외 지정(`retention_exempt`에서 옮김)을 맞춤. tsc 0·판정 시험 10/10·로컬 `npm run build` 통과. **커밋만, 푸시 안 함**(푸시 = 메인 자동 빌드). 3·4단계 대기 | 2026-11-13 policy |
 | 5 | | |
+
+**보강한 위험(2026-11-12 policy 분석)**: 1) 트리거 오류가 로그인을 막지 않도록 예외 처리 2) 갱신 토큰 연쇄 삭제 — Lab에서 확인됨 3) 최신 아이패드는 기기 정보가 `Macintosh`라 PC로 분류(끊김이 늘어나는 쪽, 한계로 둠) 4) `Vercel Edge Functions` 15건의 프로그램을 6단계에서 찾아 요청 대상에 넣음. 또한 회원 정보(`profiles`)가 없는 회원은 트리거가 건너뜀.

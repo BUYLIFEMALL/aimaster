@@ -63,7 +63,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await fetch("/api/session/logout", { method: "POST" }).catch(() => {});
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     setProfile(null);
     router.push("/");
     router.refresh();

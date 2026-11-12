@@ -33,7 +33,7 @@ export default function LoginPage() {
   // 세션 만료로 리디렉트된 경우: Supabase 세션 클리어
   useEffect(() => {
     if (isSessionExpired) {
-      supabase.auth.signOut().then(() => {
+      supabase.auth.signOut({ scope: "local" }).then(() => {
         setError("세션이 만료되었습니다. 다시 로그인해주세요.");
       });
     }
@@ -76,7 +76,7 @@ export default function LoginPage() {
       if (sessionRes.status === 409) {
         const data = await sessionRes.json();
         setError(data.error || "이미 다른 기기에서 접속 중입니다.");
-        await supabase.auth.signOut();
+        await supabase.auth.signOut({ scope: "local" });
         setLoading(false);
         return;
       }

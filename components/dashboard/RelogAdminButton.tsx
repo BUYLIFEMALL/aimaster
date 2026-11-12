@@ -12,7 +12,7 @@ export default function RelogAdminButton() {
     setBusy(true);
     try {
       await fetch("/api/session/logout", { method: "POST" }).catch(() => {});
-      await createClient().auth.signOut();
+      await createClient().auth.signOut({ scope: "local" });
     } finally {
       window.location.href = "/login?redirect=/admin";
     }
