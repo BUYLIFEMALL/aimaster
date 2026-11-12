@@ -23,7 +23,16 @@
 | 맥 12초 늦음 | 0.3초 | **거절** | 통과 | 거절 |
 | 31초 지난 결과 | — | 거절 | 거절 | 거절 |
 
-## 고칠 방법 (결정 대기 — 구현 안 함)
+## 구현 (2026-11-13 주인님 「진행해」 → 추천안 1 + 3, 미배포)
+
+- `extension/server-clock.mjs`(새 컴포넌트): 서버 응답 `serverNow`로 시각 차이를 재고 `checkedAt`·`attempted_at`·화면에 넘기는 허가 기한을 서버 시각 기준으로 맞춘다.
+- `extension/context-bridge.mjs`: offer 응답으로 차이를 재 `pending.offset`에 저장(서비스 워커가 잠들어도 확인 단계에서 같은 값 사용).
+- `extension/accept-bridge.mjs`: 모든 응답마다 다시 재고, 수락 시도·결과 시각과 화면 기한을 보정. **수락도 같은 문제가 있었다** — 허가 기한이 「허가 시각+30초」라 맥이 늦으면 화면 기한 확인에서 막히고(클릭 전), 화면을 통과했더라면 서버가 `attempted_at<허가 시각`으로 결과 저장을 거절했을 것.
+- `src/lib/neighbors/contextApi.ts`·`acceptApi.ts`: 성공 응답에 `serverNow`, RPC 거절 409에 `code`(`BNC_*` 형식만).
+- DB 함수·nonce·30초 신선도·기한 검사는 그대로. 시험 `tests/server-clock.test.mjs` 4개(맥 1.632초 늦음 재현) + 전체 382개·`tsc` 통과.
+- 다음: v1.20으로 웹 배포 + 확장 ZIP → 맥미니 재설치 → 미리보기·확인저장·C-3 수락 1건 재검수.
+
+## 고칠 방법 (검토한 안)
 
 1. **추천 — 서버 시각 보정**: `offer` 응답에 `serverNow`를 넣고 확장이 `offset=serverNow-응답받은시각`으로 `checkedAt`을 보정해 보낸다. DB 함수·nonce·프로필 해시·30초 신선도·읽기 기한은 그대로. 시계 차이 크기와 상관없이 통과. 필요: 웹 1회 배포 + 확장 v1.20 ZIP(맥미니 재설치). 같은 보정을 수락·실행 결과의 `attempted_at`에도 적용 검토.
 2. 대안 — DB 허용오차: 100행을 `observed<r.created_at-interval '5 seconds'`, `observed>t+interval '5 seconds'`로. 확장 재설치 없음, 운영 DB 마이그레이션 필요. 5초 넘게 어긋난 PC는 여전히 실패.

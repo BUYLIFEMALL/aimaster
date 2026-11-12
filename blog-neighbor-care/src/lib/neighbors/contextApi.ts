@@ -6,6 +6,8 @@ type Dependencies={authorize:(hash:string)=>Promise<Access>;profile:()=>{profile
 const object=(v:unknown):v is Obj=>!!v&&typeof v==='object'&&!Array.isArray(v),keys=(v:Obj,names:string[])=>Object.keys(v).every(k=>names.includes(k));
 const uuid=(v:unknown)=>typeof v==='string'&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(v);
 const hash=(s:string)=>createHash('sha256').update(s).digest('hex');
+// The extension measures its clock offset from serverNow; the RPC code tells a diagnosis which check refused.
+const code=(e:unknown)=>{const m=object(e)?e.message:undefined;return typeof m==='string'&&/^BNC_[A-Z_]{1,60}$/.test(m)?m:undefined;};
 const reply=(value:unknown,status=200)=>Response.json(value,{status,headers:{'cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 function snapshot(value:unknown){
  if(!object(value)||!keys(value,['accountId','actorId','checkedAt','restriction','blocked','neighborId','relationship','postId','ownPostId','complete','comments','count'])||!uuid(value.accountId)||typeof value.actorId!=='string'||!Number.isSafeInteger(value.checkedAt)||Number(value.checkedAt)<0||Number(value.checkedAt)>Date.now()+1000||!['none','login','captcha','platform'].includes(String(value.restriction)))throw Error('input');
@@ -40,9 +42,9 @@ export function createExtensionContextHandler(d:Dependencies){return async(reque
   }else return reply({error:'지원하지 않는 읽기 작업입니다.'},403);
   const config=['status','cancel'].includes(op)?null:d.profile();if(!['status','cancel'].includes(op)&&!config)return reply({error:'읽기 준비와 허용 범위를 확인해 주세요.'},409);
   const nonce=randomBytes(32).toString('hex');if(config){payload.next_hash=hash(nonce);payload.profile_hash=hash(JSON.stringify(config.profile));payload.allowed_reads=config.reads;}
-  const r=await d.rpc(a.userId,a.deviceId,op,payload);if(r.error||!object(r.data))return reply({error:object(r.error)&&r.error.message==='BNC_RELATIONSHIP_UNKNOWN'?'현재 수락 여부를 확인하지 못해 저장하지 않았습니다.':'읽기 상태나 대상이 바뀌었습니다. 이전 결과를 확인하고 다시 읽어 주세요.'},409);
+  const r=await d.rpc(a.userId,a.deviceId,op,payload);if(r.error||!object(r.data))return reply({error:object(r.error)&&r.error.message==='BNC_RELATIONSHIP_UNKNOWN'?'현재 수락 여부를 확인하지 못해 저장하지 않았습니다.':'읽기 상태나 대상이 바뀌었습니다. 이전 결과를 확인하고 다시 읽어 주세요.',code:code(r.error)},409);
   if(r.data.blocked===true)return reply({error:'로그인·보안문자·플랫폼 제한을 확인해 주세요. 자동 실행은 중단했습니다.'},409);
-  const data={...r.data};if(data.phase==='read'||data.phase==='preview'){data.nonce=nonce;if(data.phase==='read')data.profile=config?.profile;}
+  const data:Obj={...r.data,serverNow:Date.now()};if(data.phase==='read'||data.phase==='preview'){data.nonce=nonce;if(data.phase==='read')data.profile=config?.profile;}
   return reply({data});
  }catch(e){return reply({error:e instanceof Error&&e.message==='input'?'읽기 입력값을 확인해 주세요.':'읽기 결과를 확인하지 못했습니다. 자동으로 재전송하지 않습니다.'},e instanceof Error&&e.message==='input'?400:503);}
 };}

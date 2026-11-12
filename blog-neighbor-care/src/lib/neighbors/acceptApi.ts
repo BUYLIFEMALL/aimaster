@@ -4,6 +4,8 @@ const obj=(v:unknown):v is O=>!!v&&typeof v==='object'&&!Array.isArray(v),keys=(
 const uuid=(v:unknown)=>typeof v==='string'&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(v);
 const hash=(s:string)=>createHash('sha256').update(s).digest('hex');
 type D={authorize:(h:string)=>Promise<{allowed:true;userId:string;deviceId:string}|{allowed:false;status:number}>;profile:()=>{profile:O;read:boolean;execute:boolean}|null;rpc:(u:string,d:string,op:string,p:O)=>Promise<{data:unknown;error:unknown}>};
+// serverNow lets the extension measure its clock offset; code names the refusing RPC check.
+const code=(e:unknown)=>{const m=obj(e)?e.message:undefined;return typeof m==='string'&&/^BNC_[A-Z_]{1,60}$/.test(m)?m:undefined;};
 const reply=(v:unknown,status=200)=>Response.json(v,{status,headers:{'cache-control':'private, no-store','x-content-type-options':'nosniff'}});
 const bad=()=>{throw Error('input');};
 function observation(v:unknown,list=false){
@@ -37,8 +39,8 @@ export function createAcceptHandler(d:D){return async(req:Request)=>{
    if(op==='effect'){if(!Number.isSafeInteger(p.attempted_at))return bad();payload.attempted_at=new Date(Number(p.attempted_at)).toISOString();}
   }else return reply({error:'지원하지 않는 작업입니다.'},403);
   const nonce=randomBytes(32).toString('hex');if(config)Object.assign(payload,{profile_hash:hash(JSON.stringify(config.profile)),next_hash:hash(nonce),read_enabled:config.read,execute_enabled:config.execute});
-  const r=await d.rpc(a.userId,a.deviceId,op,payload);if(r.error||!obj(r.data))return reply({error:'신청·동의·실행 상태를 확인하지 못했습니다. 자동으로 다시 수락하지 말고 이전 결과를 확인하세요.'},409);
+  const r=await d.rpc(a.userId,a.deviceId,op,payload);if(r.error||!obj(r.data))return reply({error:'신청·동의·실행 상태를 확인하지 못했습니다. 자동으로 다시 수락하지 말고 이전 결과를 확인하세요.',code:code(r.error)},409);
   if(r.data.blocked===true)return reply({error:'로그인·보안문자·플랫폼 제한으로 자동 실행을 중단했습니다.'},409);
-  const data={...r.data};if(['read','preview','inspect','recheck','apply','check'].includes(String(data.phase)))Object.assign(data,{nonce,profile:config?.profile});return reply({data});
+  const data:O={...r.data,serverNow:Date.now()};if(['read','preview','inspect','recheck','apply','check'].includes(String(data.phase)))Object.assign(data,{nonce,profile:config?.profile});return reply({data});
  }catch(e){return reply({error:e instanceof Error&&e.message==='input'?'신청 화면과 입력값을 확인해 주세요.':'처리 결과를 확인하지 못했습니다. 자동으로 재시도하지 않습니다.'},e instanceof Error&&e.message==='input'?400:503);}
 };}
