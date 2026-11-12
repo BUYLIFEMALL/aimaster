@@ -15,6 +15,8 @@
 
 ## 대기 중
 
+- **U10 유튜브 보내기 묶음(2026-11-13 [역할: workspace] `claude-win-20261025-workspace`, 주인님 「모아서 배포」 — 각 프로그램 다음 배포 때 함께)**: ① `playlist-channel-studio` `3b62f49af` 「📋 내가 올린 영상」 줄마다 「📨 업무 워크스페이스로」(라우트 `/api/work-inbox`, 공용 `workInbox.ts` 사본, 시험 2개) — 다음 배포 때 버전 +0.01(v1.40), 배포 뒤 시험 계정으로 보내기 → 받은 업무 → 캘린더 확인. ② `ai-work-workspace` 받은 업무·캘린더 이름표 「플레이리스트 채널 제작 자동화」 `3b62f49af`(없어도 slug로 보일 뿐 동작 같음) + 현황판 소제목·표 제목 겹침 다듬기(아직 코드 없음).
+
 - **메인 사이트 — 옛 주소 `aimaster-buylife.vercel.app` → `www.buylife.xyz` 이동(2026-11-13 [역할: policy] `claude-win-20261112-policy`, 주인님 「추천대로 진행해」 = 다음 메인 배포 때 함께, 이것만으로 빌드하지 않음)**: **아직 코드에 넣지 않음**(메인 파일을 커밋하면 누구의 푸시로든 바로 빌드되므로, 다음 메인 사이트 수정 때 같은 커밋에 넣는다). 넣을 것: `middleware.ts` 맨 앞에서 호스트가 **정확히** `aimaster-buylife.vercel.app`이고 `GET`이며 경로가 `/api/`·`/_next/`로 시작하지 않으면 `https://www.buylife.xyz` + 같은 경로·검색어로 307 이동. `/api/`는 제외(회원이 외부에 등록한 OAuth 콜백·확장 호출 보호, `docs/DOMAIN_SSO_POLICY.md` 「옛 vercel.app 주소 삭제·해제 금지」), 배포별 미리보기 주소(`aimaster-<해시>-buylife.vercel.app`)는 건드리지 않음. 이유: 옛 주소로 로그인하면 기기 정보가 `Vercel Edge Functions`로 찍혀 동시 접속 제한(PC1+모바일1)에서 빠짐(최근 15건). 배포 뒤 확인: 옛 주소 첫 화면 → 새 주소로 이동, 옛 주소 `/api/...`는 그대로 응답.
 
 - **블로그 맥미니 지적 처리(2026-11-12 [역할: blog] `claude-win-blog`)**: `tistory-auto-blog` 열외 회원 보관 안내·배지(시험 177) · `naver-cafe-recruit` 명단 고유 인원·종료 카운터·팝업 버전(시험 17, 확장 → manifest·ZIP·DB 함께). 각 `docs/IMPROVEMENT_HANDOFF_20261112.md`. 다음 그 프로그램 배포 때 함께.
