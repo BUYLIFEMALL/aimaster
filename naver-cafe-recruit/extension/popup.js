@@ -8,3 +8,5 @@ document.getElementById("start").onclick = () => send("start");
 document.getElementById("collect").onclick = () => send("collect");
 document.getElementById("stop").onclick = () => send("stop");
 send("status");
+// 버전은 설치된 manifest 기준(2026-11-12: HTML에 고정된 v1.02가 남던 문제)
+document.getElementById("ver").textContent = chrome.runtime.getManifest().version_name || "";

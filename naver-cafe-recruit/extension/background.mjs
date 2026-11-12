@@ -196,7 +196,8 @@ const COLLECT = "cafe-collect-step";
 const MAX_PAGES = 10;
 const getC = async () => (await chrome.storage.local.get("collect")).collect ?? { running: false, message: "" };
 const setC = (collect) => chrome.storage.local.set({ collect });
-async function stopC(message) { await chrome.alarms.clear(COLLECT); await setC({ ...(await getC()), running: false, message }); }
+// 2026-11-12: 마지막 처리의 페이지·인원도 함께 저장한다(예전엔 문구만 바뀌고 상태값은 이전 페이지 것이 남았음).
+async function stopC(message, extra = {}) { await chrome.alarms.clear(COLLECT); await setC({ ...(await getC()), ...extra, running: false, message }); }
 
 function readWriters() {
   const out = { url: location.href, title: document.title, text: (document.body?.innerText || "").slice(0, 8000), rows: [] };
@@ -228,7 +229,7 @@ async function readBoard(tabId) {
 export async function startCollect() {
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
   if (!tab?.url || !/^https:\/\/cafe\.naver\.com\//.test(tab.url)) return setC({ running: false, message: "명단을 모을 카페 게시판 목록 화면을 연 상태에서 눌러 주세요." });
-  await setC({ running: true, tabId: tab.id, pages: 0, total: 0, cafeName: cafeNameFromTitle(tab.title), message: "명단 읽는 중" });
+  await setC({ running: true, tabId: tab.id, pages: 0, total: 0, names: [], cafeName: cafeNameFromTitle(tab.title), message: "명단 읽는 중" });
   await chrome.alarms.create(COLLECT, { delayInMinutes: 0.02 });
 }
 
@@ -247,11 +248,13 @@ async function collectStep() {
     if (!board || !rows.length) return stopC(c.pages ? `모두 읽었습니다. ${c.pages}페이지 · ${c.total}명` : "이 화면에서 글쓴이 칸을 찾지 못했습니다. 게시판 목록 화면(글 목록)에서 눌러 주세요.");
     const r = await api("members_add", { cafe_id: board.cafeId, board_id: board.boardId, cafe_name: c.cafeName, rows });
     if (r.ok === false) return stopC(`오늘 명단 상한(${r.cap}명)에 닿아 멈췄습니다.`);
-    const pages = c.pages + 1, total = c.total + r.added + r.updated;
-    if (pages >= MAX_PAGES) return stopC(`${pages}페이지까지 읽었습니다 · 이번에 ${total}명(새로 ${r.added}명 포함)`);
+    // 2026-11-12: 인원은 이번 실행에서 본 고유 닉네임 수(페이지마다 같은 사람이 다시 나와도 한 번만 센다).
+    const names = [...new Set([...(c.names || []), ...rows.map((row) => row.nickname)])];
+    const pages = c.pages + 1, total = names.length, done = { pages, total, names };
+    if (pages >= MAX_PAGES) return stopC(`${pages}페이지까지 읽었습니다 · 이번에 ${total}명`, done);
     const [{ result: moved }] = await chrome.scripting.executeScript({ target: { tabId: c.tabId, frameIds: [page.frameId] }, func: goToPage, args: [page.page + 1] });
-    if (!moved) return stopC(`마지막 페이지까지 읽었습니다 · ${pages}페이지 · ${total}명`);
-    await setC({ ...c, pages, total, message: `${pages}페이지 읽음 · ${total}명 · 다음 페이지 대기` });
+    if (!moved) return stopC(`마지막 페이지까지 읽었습니다 · ${pages}페이지 · ${total}명`, done);
+    await setC({ ...c, ...done, message: `${pages}페이지 읽음 · ${total}명 · 다음 페이지 대기` });
     await chrome.alarms.create(COLLECT, { delayInMinutes: 0.5 + Math.random() * 0.25 }); // 30~45초
   } catch (e) {
     return stopC(`멈췄습니다: ${e.message}`);
