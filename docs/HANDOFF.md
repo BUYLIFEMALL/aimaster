@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 쇼핑몰 빌더 운영 배포(T0 C)
+
+- 한 일: Vercel 운영 프로젝트 `mall-builder`(서울·Basic) + `mall-builder.buylife.xyz`, 환경변수 7개(서버 키는 주인님 입력 — 운영 새 키 `aimaster_2026_1009`), `mall-builder/scripts/deploy-prod.mjs`로 운영 배포 READY. Lab(`dev-mall-builder`)은 그대로.
+- 확인: 비로그인 화면 → 메인 로그인 이동, API 401, ego 관리자 계정 로그인 공유·관리자만 몰 만들기·v1.01·💾 위젯.
+- 발견: 노출됐던 옛 공용 서버 키 `aimaster`(`sb_secret_uRX6U`)가 Supabase에 아직 살아 있음 — 최근 24시간 사용 0번(새 키 299,864번). 며칠 더 0번 확인 뒤 폐기 권장(주인님 결정).
+- 다음: T0 D `programs` 등록(이커머스·v1.01) → E 샘플몰 ①. 링크: https://mall-builder.buylife.xyz
+- 비용: 빌드 1회(주인님 승인).
+
 ## 2026-11-12 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 영상 개선 묶음 5개 연속 배포(주인님 「배포해」)
 - 차례로 빌드 5회, 모두 Ready·운영 주소 200·DB 버전 맞춤: `ai-video-studio` v1.36(내 자료함 사진·저장공간 위젯 확인) · `shorts-onestop-studio` v1.50(내 자료함 음악) · `music-video-studio` v1.30(내 자료함 곡·이미지, 서울 `icn1::icn1`, 크론 401) · `video-to-gif` v1.28(남은 시간 표시) · `shots` v1.49(장면 순서·렌더 미리보기·썸네일).
 - 발견: `music-video-studio`·`video-to-gif`는 저장공간 위젯 줄이 코드에 없어 이번에 나가지 않음 → 레이아웃에 한 줄 넣고 커밋, 다음 배포 대기(`docs/PENDING_DEPLOYS.md`).
