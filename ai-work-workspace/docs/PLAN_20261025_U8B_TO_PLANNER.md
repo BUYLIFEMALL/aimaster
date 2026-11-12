@@ -1,5 +1,7 @@
 # U8-B — 업무 워크스페이스 → AI 할 일 플래너 보내기 플랜 (2026-10-25)
 
+> **현재 상태(2026-11-13 점검)**: ✅ 완료 — v1.19(2026-10-25), 미배포 보완 `94719d8da`도 v1.20에 나감.
+
 - 담당: [역할: workspace] `claude-win-20261024-workspace` · 대상: ① AIMaster 운영(공용 DB ref `esgxyikcnnvmlhygjkth`)
 - 근거: U8-A `ai-task-planner/docs/PLAN_20261025_U8_WORK_INBOX.md` §5(주인님 결정: 「나중에 공용 표에 열 추가」), `docs/WORK_INBOX.md`
 - 상태: ✅ 완료(2026-10-25) — 워크스페이스 v1.19(배포 `ai-work-workspace-ho0fq9vle`)·할 일 플래너 v1.12(배포 `ai-task-planner-fva6qqy1q`), 운영 DB 열 적용. 미배포 보완 `94719d8da`(글자형 칸 읽기)

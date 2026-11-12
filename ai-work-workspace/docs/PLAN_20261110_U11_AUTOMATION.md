@@ -1,5 +1,7 @@
 # U11 자동화 개발 플랜 — 데이터베이스 자동화·버튼·예약 실행·알림 (2026-11-10, [역할: workspace])
 
+> **현재 상태(2026-11-13 점검)**: ✅ 완료 — v1.23 배포·운영 확인(2026-11-10, 주인님 결정 5건 권장안). **미룬 것: 웹훅 동작(U14) · 메일·카카오 알림(별도 작은 단위, 미착수).**
+
 - 세션: Claude Code(윈도우) `claude-win-20261025-workspace`
 - 주인님 지시: 「진행해」(로드맵 U11 줄을 붙여 주심, 2026-11-10)
 - 근거: 로드맵 `docs/PLAN_20261024_EXPANSION_ROADMAP.md` §U11, 예약 지침 `../docs/SCHEDULER_POLICY.md`, 자동화 최소 설정 지침 `../docs/AUTOMATION_MINIMAL_SETUP_POLICY.md`

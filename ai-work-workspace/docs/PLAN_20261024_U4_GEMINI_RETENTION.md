@@ -1,5 +1,7 @@
 # U4 — Gemini 연결 + AI 채팅 기록 30일 자동 삭제 (상세 플랜)
 
+> **현재 상태(2026-11-13 점검)**: ✅ 완료 — Gemini 제공자·AI 채팅 기록 정리 배포됨(v1.11·v1.14, 2026-10-24). 보관 기간은 2026-11-11 보관 예외로 1년.
+
 - 상위 플랜: [PLAN_20261024_EXPANSION_ROADMAP.md](PLAN_20261024_EXPANSION_ROADMAP.md) §5 U4 · 작성 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace`
 - 대상: ① AIMaster 운영 · 현재 v1.05 · 공용 DB ref `esgxyikcnnvmlhygjkth` · **DB 표 구조 변경 없음**(기존 `aww` 표의 오래된 줄만 삭제)
 - 최상위 규칙: 회원 본인 Gemini 키만 쓴다. 키 없으면 등록 안내, 다른 키로 대신하지 않는다.

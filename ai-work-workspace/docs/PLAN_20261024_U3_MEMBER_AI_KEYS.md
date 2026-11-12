@@ -1,5 +1,7 @@
 # U3 — 회원 본인 AI 키로 AI 열기 (상세 플랜)
 
+> **현재 상태(2026-11-13 점검)**: ✅ 완료 — 회원 본인 AI 키 연결 배포됨(2026-10-24, v1.0x).
+
 - 상위 플랜: [PLAN_20261024_EXPANSION_ROADMAP.md](PLAN_20261024_EXPANSION_ROADMAP.md) §5 U3 · 작성 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace`
 - 대상: ① AIMaster 운영 · 현재 v1.04 · 공용 DB ref `esgxyikcnnvmlhygjkth`
 - **최상위 규칙**: 회원 본인 키만 쓴다. 키가 없으면 다른 회원·운영자 키로 대신하지 않고 「본인 키를 등록해 주세요」 안내만 한다(운영자 환경변수 키는 1단계부터 읽지 않게 막아 둠).

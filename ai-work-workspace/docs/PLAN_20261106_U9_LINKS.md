@@ -1,5 +1,7 @@
 # U9 연계 2 — 음성 분석·문서 챗봇·번역·슬라이드와 「업무 받은편지함」으로 잇기 (상세 플랜)
 
+> **현재 상태(2026-11-13 점검)**: ✅ 완료 — v1.21 외 4개 프로그램(2026-11-06).
+
 - 작성: 2026-11-06 · [역할: workspace] Claude Code(윈도우) `claude-win-20261025-workspace`
 - 상위: 로드맵 [PLAN_20261024_EXPANSION_ROADMAP.md](PLAN_20261024_EXPANSION_ROADMAP.md) §3-2·§5 U9, 공용 표 안내 [`docs/WORK_INBOX.md`](../../docs/WORK_INBOX.md)
 - 대상: ① AIMaster 운영(공용 DB `esgxyikcnnvmlhygjkth`). Lab 아님.

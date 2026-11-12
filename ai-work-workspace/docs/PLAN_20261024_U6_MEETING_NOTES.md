@@ -1,5 +1,7 @@
 # U6 — AI 회의록 열기 (상세 플랜)
 
+> **현재 상태(2026-11-13 점검)**: ✅ 완료 — U6-A 실시간 받아쓰기·요약(v1.12, 2026-10-24) · U6-B 음성 파일 받아쓰기(v1.20, 2026-11-03) 배포·운영 확인.
+
 - 상위 플랜: [PLAN_20261024_EXPANSION_ROADMAP.md](PLAN_20261024_EXPANSION_ROADMAP.md) §5 U6 · 작성 2026-10-24 · Claude Code(윈도우) `claude-win-20261024-workspace` [역할: workspace]
 - 대상: ① AIMaster 운영 · 현재 v1.11 · 공용 DB ref `esgxyikcnnvmlhygjkth` · **DB 표 구조 변경 없음**
 - 최상위 규칙: 요약·음성 파일 받아쓰기는 회원 본인 AI 키만 쓴다. 키 없으면 등록 안내, 다른 키로 대신하지 않는다.

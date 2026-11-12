@@ -1,5 +1,7 @@
 # U7 업무 받은편지함 — 상세 개발 플랜 (2026-10-24)
 
+> **현재 상태(2026-11-13 점검)**: ✅ 완료 — 공용 표 `work_inbox`(승인·적용) + 「📨 받은 업무」 화면 v1.18 배포(2026-10-25).
+
 - 대상: AI 업무 워크스페이스 자동화(`ai-work-workspace`) · ① AIMaster 운영 · DB ref `esgxyikcnnvmlhygjkth`
 - 역할: `workspace` · 세션 `claude-win-20261024-workspace`
 - 근거: 확장 로드맵 `docs/PLAN_20261024_EXPANSION_ROADMAP.md` §3-1(연계 방식)·§5(U7)
