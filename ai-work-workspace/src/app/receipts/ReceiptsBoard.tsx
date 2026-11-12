@@ -1,6 +1,7 @@
 "use client";
 // 🧾 영수증·세금계산서 화면(2026-11-11). 명령: /api/rpc/rcpt*(src/server/receipts.ts). 플랜 docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md §6
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
 
 type EvidenceKind = "receipt" | "tax_invoice" | "cash_receipt" | "card" | "other";
 const EVIDENCE_KINDS: Record<EvidenceKind, string> = { receipt: "영수증", tax_invoice: "세금계산서", cash_receipt: "현금영수증", card: "카드전표", other: "기타" };
@@ -20,12 +21,6 @@ const EMPTY_BIZ: Biz = { bizNo: "", name: "", ceo: "", address: "", bizType: "",
 const won = (n: number) => `${(Number(n) || 0).toLocaleString("ko-KR")}원`;
 const today = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 
-async function rpc<T>(name: string, body: Record<string, unknown> = {}): Promise<T> {
-  const res = await fetch(`/api/rpc/${name}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((json as { message?: string }).message || "요청을 처리하지 못했습니다.");
-  return json as T;
-}
 
 /** 사진을 긴 변 1600px JPEG로 줄여 dataURL로(올리는 크기·AI 비용 절약) */
 async function shrinkPhoto(file: File): Promise<string> {

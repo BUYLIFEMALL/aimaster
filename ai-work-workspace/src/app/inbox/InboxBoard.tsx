@@ -1,6 +1,7 @@
 "use client";
 // U7: 받은 업무 목록·미리보기·가져오기 버튼. 워크스페이스 명령(/api/rpc/workInbox*)을 부른다.
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
 
 interface Item {
   id: string;
@@ -51,12 +52,6 @@ const SOURCE: Record<string, string> = {
   "web-crawler-saas": "웹 크롤러", // programs.slug(폴더 web-crawler)
 };
 
-async function rpc<T>(name: string, body: Record<string, unknown> = {}): Promise<T> {
-  const res = await fetch(`/api/rpc/${name}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((json as { message?: string }).message || "요청을 처리하지 못했습니다.");
-  return json as T;
-}
 
 function when(iso: string): string {
   const d = new Date(iso);

@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loadMemberAiKeys } from "@/server/memberAiKeys";
 import { withMemberAiKeys } from "@/litpage/server/ai/providers/config.ts";
 import { warmModelLists } from "@/litpage/server/ai/models.ts";
+import { koErrorBody } from "@/server/errorKo";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -55,5 +56,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   // U11: 응답 뒤에도 값 변경 자동화를 끝까지 실행(서버리스에서 타이머가 사라지지 않게)하고, 필요하면 회원 cron-job.org 실행을 켠다
   const userId = access.user.id;
   after(() => withMemberAiKeys(aiKeys, () => afterRpc(userId, scheduled)));
-  return NextResponse.json(result.body, { status: result.status, headers: { "Cache-Control": "private, no-store" } });
+  // 2026-11-13: 원본 서버 영어 오류 문구를 한국어로(src/server/errorKo.ts)
+  return NextResponse.json(koErrorBody(result.status, result.body), { status: result.status, headers: { "Cache-Control": "private, no-store" } });
 }

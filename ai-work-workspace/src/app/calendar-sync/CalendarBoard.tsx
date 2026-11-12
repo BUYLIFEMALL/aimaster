@@ -2,6 +2,7 @@
 // 📅 캘린더 연동 화면(2026-11-11). ① 간편 구독(ICS) ② 구글 계정 연결(OAuth) — 회원이 골라 쓴다(둘 다 써도 됨).
 // 명령: /api/rpc/cal*(src/server/calendarSync.ts). 플랜 docs/PLAN_20261111_GOOGLE_CALENDAR.md
 import { useCallback, useEffect, useState } from "react";
+import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
 
 interface DateDb { id: string; title: string; dateProps: { id: string; name: string }[] }
 interface CalState {
@@ -11,12 +12,6 @@ interface CalState {
 }
 interface GItem { id: string; title: string; date: string; time: string; location: string; link: string; imported: boolean }
 
-async function rpc<T>(name: string, body: Record<string, unknown> = {}): Promise<T> {
-  const res = await fetch(`/api/rpc/${name}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((json as { message?: string }).message || "요청을 처리하지 못했습니다.");
-  return json as T;
-}
 
 const GOOGLE_ERRORS: Record<string, string> = {
   no_app: "먼저 「API키등록·플랫폼연동」에 구글 앱 Client ID·Secret을 등록해 주세요.",
