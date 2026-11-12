@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { YoutubeConnectCard } from "@/components/youtube/YoutubeConnectCard";
 import { Textarea } from "@/components/ui/Textarea";
 import { ReelCoverPicker } from "@/components/candidates/ReelCoverPicker";
+import { SendToWorkspaceButton } from "@/components/candidates/SendToWorkspaceButton";
 import { clsx } from "@/lib/clsx";
 import { needsCheck } from "@/lib/uploadGuard";
 import { YOUTUBE_CATEGORY_OPTIONS } from "@/lib/youtubeCategories";
@@ -247,6 +248,7 @@ export function PostingSection({
                       <a href={u.url} target="_blank" rel="noreferrer" className="font-medium text-blue-700 hover:underline">{u.videoId}</a>
                       <span>{u.publishAt ? `예약 ${new Date(u.publishAt).toLocaleString("ko-KR")}` : PRIVACY_LABEL[u.privacy ?? ""] ?? "공개 범위 기록 없음"}</span>
                       {u.at && <span className="text-neutral-400">· {new Date(u.at).toLocaleString("ko-KR")} 올림</span>}
+                      <SendToWorkspaceButton videoId={video.id} youtubeId={u.videoId} />
                     </li>
                   ))}
                 </ul>
