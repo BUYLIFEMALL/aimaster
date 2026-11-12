@@ -110,10 +110,30 @@ export function InboxBoard() {
     }
   };
 
+  // 2026-11-13 「📊 업무 현황판」: 콘텐츠 캘린더·받은 업무 표·할 일을 한 페이지에(있으면 그 페이지를 연다)
+  const openDashboard = async () => {
+    if (busy) return;
+    setBusy("dashboard");
+    setNotice(null);
+    try {
+      const r = await rpc<{ url: string; created: boolean }>("workInboxDashboard");
+      window.location.assign(r.url);
+    } catch (e) {
+      setNotice({ text: (e as Error).message });
+      setBusy("");
+    }
+  };
+
   if (items === null) return <div className="aww-inbox-empty">불러오는 중…</div>;
 
   return (
     <section className="aww-inbox" aria-label="받은 업무">
+      <div className="aww-inbox-dash">
+        <span>📊 콘텐츠 캘린더·받은 업무 표·할 일을 한 화면에서 보려면</span>
+        <button type="button" className="aww-3d-btn blue small" disabled={!!busy} onClick={() => void openDashboard()}>
+          {busy === "dashboard" ? "여는 중…" : "📊 업무 현황판 열기"}
+        </button>
+      </div>
       {error && <div className="aww-inbox-notice error">{error}</div>}
       {notice && (
         <div className="aww-inbox-notice">

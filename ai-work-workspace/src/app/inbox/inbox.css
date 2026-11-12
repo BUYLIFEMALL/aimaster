@@ -42,3 +42,6 @@
   .aww-inbox-list { max-height: none; }
   .aww-inbox-actions .aww-3d-btn { flex: 1 1 100%; }
 }
+
+/* 2026-11-13 업무 현황판 열기 줄 */
+.aww-inbox-dash { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; padding: 10px 14px; border-radius: 12px; background: var(--lp-bg-secondary); border: 1px solid var(--lp-border-primary); font-size: 13px; color: var(--lp-text-secondary); }

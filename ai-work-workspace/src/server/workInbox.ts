@@ -18,6 +18,7 @@ import { sendToWorkInbox } from "@/lib/workInbox";
 import { exemptInFilter } from "./retentionExempt";
 import { mdSource } from "@/litpage/server/ai/context.ts";
 import { pageToMarkdown } from "@/litpage/server/ai/prompts.ts";
+import { createDashboard, DASHBOARD_SETTINGS_KEY } from "./workDashboard";
 import type { BlockRecord, CollectionRecord, SpaceRecord, SpaceViewRecord, UserRootRecord, UserSettingsRecord } from "#shared/records.ts";
 
 const APP_ORIGIN = "https://ai-work-workspace.buylife.xyz";
@@ -58,6 +59,34 @@ function uid(ctx: Ctx): string {
 }
 
 /** 회원이 쓰는 워크스페이스 — 본인이 소유자인 곳을 먼저(U13: 초대받은 워크스페이스가 있어도 받은 업무·캘린더는 내 워크스페이스로), 없으면 처음 연결된 것 */
+/** 회원 설정에 저장된 데이터베이스 블록(내 워크스페이스·살아 있는 표만) */
+export function savedDbBlock(userId: string, key: string, space: SpaceRecord): BlockRecord | undefined {
+  const settings = getRecord<UserSettingsRecord>("user_settings", userId);
+  const savedId = (settings?.settings as Record<string, unknown> | undefined)?.[key];
+  const saved = typeof savedId === "string" ? getRecord<BlockRecord>("block", savedId) : undefined;
+  return saved && saved.alive !== false && saved.space_id === space.id ? saved : undefined;
+}
+
+/** 회원 설정에 블록 id 저장 */
+export function saveSetting(userId: string, key: string, value: string) {
+  const settings = getRecord<UserSettingsRecord>("user_settings", userId);
+  if (!settings) return;
+  putRecord("user_settings", { ...settings, version: (settings.version ?? 0) + 1, settings: { ...settings.settings, [key]: value } } as UserSettingsRecord);
+}
+
+/** U10 「📅 콘텐츠 캘린더」 표 — 있으면 그것, 없으면 템플릿으로 「내 페이지」에 처음 한 번 만든다(현황판도 같이 씀) */
+export function ensureCalendarDb(ctx: Ctx, userId: string, space: SpaceRecord): string {
+  const saved = savedDbBlock(userId, CAL_SETTINGS_KEY, space);
+  if (saved && saved.type === "collection_view_page") return saved.id;
+  const t = templateHandlers.getTemplate(ctx, { templateId: CAL_TEMPLATE_ID, spaceId: space.id }) as { pageId?: string } | undefined;
+  if (!t?.pageId) throw new ApiError("콘텐츠 캘린더를 만들지 못했습니다. 다시 시도해 주세요.", 500);
+  saveSetting(userId, CAL_SETTINGS_KEY, t.pageId);
+  return t.pageId;
+}
+
+/** 받은 업무 표 설정 키(현황판에서 연결 보기로 씀) */
+export const INBOX_DB_SETTINGS_KEY = SETTINGS_KEY;
+
 export function memberSpace(userId: string): SpaceRecord {
   const root = getRecord<UserRootRecord>("user_root", userId);
   let first: SpaceRecord | null = null;
@@ -193,29 +222,26 @@ export const workInboxHandlers: Record<string, Handler> = {
     if (!isCalendarItem(row.data)) throw new ApiError("채널과 날짜(발행일·예약일)가 있는 발행 기록만 캘린더에 넣을 수 있습니다.", 400);
     const space = memberSpace(userId);
     const csv = calendarRowCsv(row);
-    const settings = getRecord<UserSettingsRecord>("user_settings", userId);
-    const savedId = (settings?.settings as Record<string, unknown> | undefined)?.[CAL_SETTINGS_KEY];
-    const saved = typeof savedId === "string" ? getRecord<BlockRecord>("block", savedId) : undefined;
-    let dbId: string;
-    if (saved && saved.alive !== false && saved.space_id === space.id && saved.type === "collection_view_page") {
-      dbId = saved.id;
-    } else {
-      const t = templateHandlers.getTemplate(ctx, { templateId: CAL_TEMPLATE_ID, spaceId: space.id }) as { pageId?: string } | undefined;
-      if (!t?.pageId) throw new ApiError("콘텐츠 캘린더를 만들지 못했습니다. 다시 시도해 주세요.", 500);
-      dbId = t.pageId;
-      if (settings) {
-        putRecord("user_settings", {
-          ...settings,
-          version: (settings.version ?? 0) + 1,
-          settings: { ...settings.settings, [CAL_SETTINGS_KEY]: dbId },
-        } as UserSettingsRecord);
-      }
-    }
+    const dbId = ensureCalendarDb(ctx, userId, space);
     const name = "콘텐츠캘린더.csv";
     const file = storeFile(name, csv, userId, space.id, "text/csv", { private: true });
     const r = await extraHandlers.mergeCsv(ctx, { blockId: dbId, url: file.url, name });
     await markImported(userId, row.id, dbId);
     return { pageId: dbId, url: pageUrl(space, dbId), recordMap: r?.recordMap };
+  },
+
+  /** 2026-11-13 「📊 업무 현황판」: 있으면 그 페이지, 없으면 콘텐츠 캘린더(없으면 먼저 만듦)·받은 업무 표 연결 보기 + 할 일 표로 새로 만든다 */
+  async workInboxDashboard(ctx) {
+    const userId = uid(ctx);
+    const space = memberSpace(userId);
+    const saved = savedDbBlock(userId, DASHBOARD_SETTINGS_KEY, space);
+    if (saved && saved.type === "page") return { pageId: saved.id, url: pageUrl(space, saved.id), created: false };
+    const calendar = getRecord<BlockRecord>("block", ensureCalendarDb(ctx, userId, space));
+    if (!calendar?.collection_id) throw new ApiError("콘텐츠 캘린더를 찾지 못했습니다. 다시 시도해 주세요.", 500);
+    const inbox = savedDbBlock(userId, INBOX_DB_SETTINGS_KEY, space);
+    const pageId = createDashboard(ctx, userId, space, calendar, inbox?.collection_id ? inbox : undefined);
+    saveSetting(userId, DASHBOARD_SETTINGS_KEY, pageId);
+    return { pageId, url: pageUrl(space, pageId), created: true };
   },
 
   /** U8-B 「할 일 플래너로 보내기」: mode "todos" = 체크 안 된 할 일 항목들, "page" = 이 페이지를 할 일 하나로. 회원 본인 공간의 페이지만 */
