@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-work-workspace v1.31 배포 + 홈택스 엑셀 실제 업로드 통과
+
+- 홈택스: 주인님 계정·실제 사업자/거래처로 v1.30 엑셀을 홈택스 전자세금계산서 일괄 작성에 올려 「엑셀파일 변환하기」 → 1건 오류 없이 조회(값 모두 일치), 발급은 누르지 않음.
+- v1.31: 단독 화면(매뉴얼·받은 업무·영수증·캘린더 연동·키 설정) 스크롤 막힘 수정 `ca2120163`(base.css가 html·body overflow hidden → `.aww-guide`가 스스로 스크롤, 인쇄 때 해제) + 캘린더·받은 업무 이름표(Shots·원스톱) `e625f1c38`. `ai-work-workspace-4yo3r69rc` Ready, DB v1.31, ego 다섯 화면 overflow-y auto·긴 화면(매뉴얼·키 설정) 끝까지 스크롤 확인.
+- 참고: 로컬 `npm run build`가 가끔 `pg_type_typname_nsp_index` 중복으로 실패 — 21개 작업이 로컬 DB에 같은 표를 동시에 만드는 경합, 다시 돌리면 통과(운영 빌드 영향 없음).
+- 비용: 빌드 1회(주인님 「배포해」). 링크: https://ai-work-workspace.buylife.xyz/receipts
+
+
+
+
 ## 2026-11-13 [역할: design] Antigravity(윈도우) · 세션 `agy-win-inf-v1` — AI 인플루언서 자동화 v1.25 1안 보그 하이엔드 뷰티 아틀리에 공식 채택 전면 개편 및 프로덕션 배포 완료
 - **결정 & 지시**: 사용자 "남은 작업 진행해" 지시 접수 ➔ 101번 보그 하이엔드 뷰티 & 패션 에디토리얼 아틀리에 공식 채택 반영.
 - **구현 내역**:
