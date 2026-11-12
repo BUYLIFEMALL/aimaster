@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { GOOGLE_FONTS_HREF } from "@/lib/playlist/types";
 
@@ -15,7 +16,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={GOOGLE_FONTS_HREF} />
       </head>
-      <body className="min-h-full flex flex-col bg-gray-50/50">{children}</body>
+      <body className="min-h-full flex flex-col bg-gray-50/50">{children}<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" /></body>
     </html>
   );
 }

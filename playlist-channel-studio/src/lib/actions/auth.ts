@@ -40,6 +40,6 @@ export async function signInAction(
 
 export async function signOutAction() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "local" }); // 이 브라우저만(2026-11-13 로그인 정책)
   redirect("/login");
 }

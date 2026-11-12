@@ -108,7 +108,21 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
       setStatus(data as Status);
     } catch (e) { setStatusError(e instanceof Error ? e.message : "연결 상태를 확인하지 못했습니다."); }
   }
-  useEffect(() => { void check(); }, []);
+  useEffect(() => { void check(); void loadRecords(); }, []);
+
+  // v1.39 올린 기록을 DB에서 읽는다(새로 고쳐도 남음, 워크스페이스 콘텐츠 캘린더 연동의 전제)
+  async function loadRecords() {
+    try {
+      const res = await fetch("/api/youtube/uploads", { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !Array.isArray(data.uploads)) return;
+      setDone((data.uploads as { video_id: string; url: string; title: string; privacy: Privacy; publish_at: string | null; uploaded_at: string }[]).map((r) => ({
+        videoId: r.video_id, url: r.url, title: r.title,
+        label: r.publish_at ? `${new Date(r.publish_at).toLocaleString("ko-KR")} 예약 공개` : `${LABEL[r.privacy] ?? r.privacy} · ${new Date(r.uploaded_at).toLocaleDateString("ko-KR")}`,
+      })));
+    } catch { /* 기록을 못 읽어도 올리기는 그대로 쓴다 */ }
+  }
+  const [uploadedNow, setUploadedNow] = useState(false);
 
   async function upload() {
     if (!video || pct !== null) return;
@@ -124,7 +138,13 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
       if (!res.ok || !data.uploadUrl) { if (data.youtubeState) void check(); throw new Error(data.error ?? `업로드를 준비하지 못했습니다(${res.status}).`); }
       const videoId = await putVideo(data.uploadUrl, video, setPct);
       const url = portrait ? `https://youtube.com/shorts/${videoId}` : `https://youtu.be/${videoId}`;
-      setDone((d) => [{ videoId, url, title: form.title, label: publishAt ? `${new Date(publishAt).toLocaleString("ko-KR")} 예약 공개` : LABEL[form.privacy] }, ...d]);
+      setDone((d) => [{ videoId, url, title: form.title, label: publishAt ? `${new Date(publishAt).toLocaleString("ko-KR")} 예약 공개` : LABEL[form.privacy] }, ...d.filter((x) => x.videoId !== videoId)]);
+      setUploadedNow(true);
+      let recordNote = "";
+      try { // v1.39 기록 저장 — 실패해도 올리기 자체는 성공
+        const r = await fetch("/api/youtube/uploads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId, accountId: status?.accountId ?? null, portrait }) });
+        if (!r.ok) { const d = await r.json().catch(() => ({})); recordNote = ` (올린 기록은 저장하지 못했습니다: ${d.error ?? r.status})`; }
+      } catch { recordNote = " (올린 기록은 저장하지 못했습니다: 연결 오류)"; }
       let thumbNote = "";
       if (useThumb && thumb && !portrait) { // v1.23 쇼츠(세로)는 유튜브가 앱에서만 썸네일을 바꾸게 해 지정하지 않는다
         try {
@@ -133,7 +153,7 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
           thumbNote = r.ok ? " 썸네일도 배경 그림으로 지정했습니다." : ` 썸네일은 지정하지 못했습니다: ${d.error ?? r.status}`;
         } catch { thumbNote = " 썸네일은 지정하지 못했습니다(연결 오류). 썸네일을 내려받아 유튜브 스튜디오에서 넣어 주세요."; }
       }
-      setMsg({ ok: true, text: (publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`) + thumbNote });
+      setMsg({ ok: true, text: (publishAt ? `유튜브에 올렸습니다. ${new Date(publishAt).toLocaleString("ko-KR")}에 공개됩니다(그때까지 비공개). 처리에 몇 분 걸릴 수 있습니다.` : `유튜브에 ${LABEL[form.privacy]}로 올렸습니다. 유튜브가 영상을 처리하는 데 몇 분 걸릴 수 있습니다.`) + thumbNote + recordNote });
     } catch (e) {
       setMsg({ text: e instanceof Error ? e.message : "유튜브에 올리지 못했습니다." });
     } finally { setPct(null); }
@@ -221,11 +241,11 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
               <div className="text-[11px] text-[#aaa]">{pct < 100 ? `유튜브로 보내는 중 ${pct}% — 이 탭을 닫지 마세요` : "유튜브가 받은 영상을 확인하는 중…"}</div>
             </div>
           )}
-          <button type="button" disabled={!video || disabled || pct !== null || !form.title.trim()} onClick={() => void upload()} className="btn-3d-primary w-full py-3 text-xs font-bold disabled:opacity-40"><Upload className="w-3.5 h-3.5" />{done.length ? "유튜브에 한 번 더 올리기" : "유튜브에 올리기"}</button>
-          {done.length > 0 && <div className="text-[11px] text-[#aaa]">⚠️ 다시 누르면 새 영상으로 하나 더 올라갑니다.</div>}
+          <button type="button" disabled={!video || disabled || pct !== null || !form.title.trim()} onClick={() => void upload()} className="btn-3d-primary w-full py-3 text-xs font-bold disabled:opacity-40"><Upload className="w-3.5 h-3.5" />{uploadedNow ? "유튜브에 한 번 더 올리기" : "유튜브에 올리기"}</button>
+          {uploadedNow && <div className="text-[11px] text-[#aaa]">⚠️ 다시 누르면 새 영상으로 하나 더 올라갑니다.</div>}
         </div>
       )}
-      {done.length > 0 && <div className="space-y-1">{done.map((d) => (
+      {done.length > 0 && <div className="space-y-1"><div className="text-[11px] text-[#aaa]">📋 내가 올린 영상(최근 20개)</div>{done.map((d) => (
         <a key={d.videoId} href={d.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-2 text-xs text-white bg-[#212121] rounded-lg px-3 py-2 hover:bg-[#2a2a2a]"><span className="truncate">{d.title} · {d.label}</span><ExternalLink className="w-3 h-3 shrink-0" /></a>
       ))}</div>}
     </div>
