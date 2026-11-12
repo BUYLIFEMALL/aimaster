@@ -81,9 +81,16 @@
 - 근거: `docs/evidence_20261112_collect_status.png`, `docs/evidence_20261112_collect_results.png`, `_workspace/naver-cafe-recruit-20261112.xlsx`, `docs/evidence_20261112_collect_result.json`. 기존 초대성공 기록은 유지. 남은 카페 항목은 수신자 내소식 확인·위 개선·공개 전 C모드 처리 결정(현재 선택지는 있지만 실제 연결 미완료), 공개 전환은 관리자/Windows 담당 판단.
 
 
-## 2026-11-12 [역할: music] Admin PC 세션 `claude-admin-20261112-music` — 무료음악↔쇼츠 함께 열면 둘 다 로그아웃: 1차 조사
+## 2026-11-12~13 ✅ [역할: music] Admin PC 세션 `claude-admin-20261112-music` — 요청서 1·2·3번 끝, 로그아웃 문제 1차 조사
 
-- 메인·영상 담당께: 코드상 쿠키 도메인 처리(두 사이트 `cookieDomain.ts`·`client.ts`·`server.ts`·`proxy.ts`)는 같고, `sb-*` 일괄 만료 코드도 없음. 유력 가설은 **origin이 다른 두 탭이 같은 갱신 토큰으로 따로 갱신 → 재사용 감지로 세션 폐기**(미확인). 이 PC는 운영 auth 로그를 못 봄 → 운영 프로젝트 auth 로그에서 2026-11-12 낮 `buylifemall@naver.com`의 `refresh_token_already_used`·`token_revoked` 확인 부탁. 맥미니 카페 검수의 401·계정 바뀜(위 13:11·13:21)도 같은 원인일 수 있음. 상세 `free-music-studio/docs/IMPROVEMENTS.md` 2026-11-12. 수정 0·비용 0.
+- 한 일(요청서 `free-music-studio/docs/REQUEST_20261111_ADMIN_PC_MUSIC.md`, ego lite·시험 계정 buylifemall@naver.com):
+  - **1번 마스터링 「AI 설정 제안」 통과** — (가) 오류 없이 제안 (나) 조절 칸 11개 중 9개 값 바뀜(설명과 방향 일치) (라) 「대기열에 넣기」로 새 곡 「트로트 시험 A 정통 (마스터링)」 생성. (다) 창에 미리 듣기 버튼 없음(해당 없음).
+  - **2번 연주곡 「AI 작곡 기획」 통과** — 재즈·블루스 → 세부 「재즈 피아노 트리오」 1곡, 섞임 없음. 프리셋 목록 「재즈·블루스」 8개로 좁혀짐. 「이 곡으로 생성하기」로 칸 채워짐, 「모두 내 곡에 저장」으로 17→18곡.
+  - **3번 리믹스 카드 「🎬 가사 영상 만들기」 링크** — 커밋 `6d5f6d711`, 메인 PC가 music v1.50으로 배포(위 music 절).
+  - 쇼츠로 보내기 재확인 통과(받는 쪽 「…(마스터링).mp3을 받았습니다」).
+  - 커밋: `6d5f6d711`(코드) · `70357339d`·`3a423b222`·`0f3fd0bc2`(기록). 비용: 회원 키 AI 호출 4번, 마스터링 1번(내 PC 엔진), 빌드·배포 0.
+- **로그인 정책 담당께(1차 조사, 수정 0)**: 무료음악에서 쇼츠 탭을 함께 열면 1~2분 안에 두 사이트 모두 로그아웃(재로그인 뒤에도 재현, 한 탭만 쓰면 정상). 두 사이트 쿠키 코드(`cookieDomain.ts`·`client.ts`·`server.ts`·`proxy.ts`)는 같고 `sb-*` 일괄 만료 코드 없음. 유력 가설(미확인): 갱신 잠금(`navigator.locks`)이 사이트 주소별이라 두 탭이 같은 갱신 토큰으로 각자 갱신 → 재사용 감지로 세션 폐기. 확인: 운영 auth 로그에서 11-12 낮 buylifemall@naver.com의 `refresh_token_already_used`·`token_revoked`. 맥미니 카페 검수의 401·계정 바뀜도 같은 원인일 수 있음. 상세 `free-music-studio/docs/IMPROVEMENTS.md` 2026-11-12.
+- 남은 일: 이 세션 몫 없음. ego 작업 공간 닫음, `docs/ACTIVE_WORK.md` 내 줄 없음.
 
 ## 2026-11-12 13:21 KST [역할: mac-mini] 카페 6회차 초대 성공 1건 · 후속 명단 읽기는 인증 종료로 미실행
 
