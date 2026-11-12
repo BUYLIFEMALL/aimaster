@@ -1,6 +1,19 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-12 다크 테마/HUD 적용 시 하드코딩된 `bg-white` 잔존으로 White-on-White(흰 바탕에 흰 글자) 폰트 증발 발생 (`commercial-land-trade-alert` v1.34, [역할: design])
+- **증상**: 다크 테마(골든 랜드 HUD) 적용 후 `/watch`(매물 감시) 페이지의 3대 단계 카드(`1. 지역 이동`, `2. 필터 고르기`, `3. 이 화면 감시`) 및 시·도 버튼들이 흰색 바탕에 흰색 글자로 렌더링되어 글자가 전혀 보이지 않음(주인님 스크린샷 제보).
+- **원인**: `globals.css`에서 다크 테마 전환 시 글로벌 텍스트 색상을 `--color-mx-text: #f8fafc;`(밝은 흰색)로 변경했으나, 하위 컴포넌트(`watch/page.tsx`, `RegionPicker.tsx`, `WatchForms.tsx`, `StatsDashboard.tsx`, `EventLog.tsx`, `SetupTable.tsx` 등) 내부에 기존 라이트 테마의 하드코딩된 `bg-white`, `border-mx-border`가 그대로 남아 결합되면서 흰 바탕에 흰 글자(White-on-White)가 됨.
+- **해결**:
+  1. `commercial-land-trade-alert` 내 하드코딩된 `bg-white` 19곳 전수 식별.
+  2. 다크 서피스(`bg-[#121824]`, `bg-[#0E1420]`, `border-[#1E293B]`) 및 고대비 폰트(`text-white`, `text-slate-200`, `text-gray-300`, `text-gray-400`, `text-amber-400`)로 일괄 교체.
+  3. Supabase SSR 세션 쿠키를 주입한 Playwright 헤드리스 브라우저로 실제 로그인된 `/watch` 화면을 캡처하여 글자 시인성 100% 정상화 실물 확인.
+  4. Vercel 프로덕션 재배포 완료 (`dpl_5behamECE8T7EGrcWaBDve6EnjHa`).
+- **다음부터 확인 (영구 주의사항 헌장)**:
+  1. **다크 테마 전환 시 `bg-white`, `bg-slate-50`, `bg-gray-100` 전수 스캔**: 컴포넌트 내에 하드코딩된 라이트 배경색이 남아있는지 정규식/스크립트로 100% 검색하여 모두 다크 서피스 토큰으로 치환한다.
+  2. **명시적 텍스트 색상 강제 지정**: 글로벌 상속에만 의존하지 않고 각 서피스에 `text-white`, `text-slate-200` 등을 명시적으로 부여한다.
+  3. **실제 로그인 세션 브라우저 캡처 실물 검증 의무**: 로그인 전 페이지만 보고 배포하지 말고, 세션 쿠키를 주입하여 실제 회원이 사용하는 내부 페이지(`/dashboard`, `/watch` 등)를 직접 캡처해 폰트 가독성을 육안으로 확인한 후 배포한다.
+
 ## 2026-11-11 유튜브(구글) 연결이 일주일마다 끊김 — 회원 구글 앱이 「테스트 중」이라 갱신 토큰이 7일 뒤 만료 (`youtube-viral-studio` V6 · 유튜브 댓글·shots 공통, [역할: video])
 - **증상**: 유튜브 연결이 며칠 뒤 「다시 연결 필요」로 바뀜(관리자 계정 유튜브 댓글 연결도 `needs_reconnect`). V6 첫 연결 땐 `redirect_uri_mismatch`(콜백 주소 미등록·저장 안 함)도 함께 겪음.
 - **원인**: 구글 인증 플랫폼 「대상 → 게시 상태」가 「테스트 중」이면 구글 정책상 갱신 토큰이 7일 뒤 만료. 코드 문제 아님.

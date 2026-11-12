@@ -1,5 +1,40 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-12 23:25 KST [역할: design] commercial-land-trade-alert v1.34 다크 HUD White-on-White 폰트 버그 완전 해결 및 지침 영구 탑재
+
+- **담당**: Antigravity (`agy`, 윈도우 메인) — 세션 `agy-win-clt-v1`
+- **조치 배경**: 사용자 스크린샷 제보 — 상업용지·토지 레이더(`/watch`) 페이지에서 안내 카드 3종 및 시·도 버튼들이 흰색 바탕에 흰색 글자(White-on-White)로 출력되어 텍스트를 읽을 수 없었던 결함 수정 및 재발 방지 지침 수립 지시.
+- **원인 정밀 규명**: `globals.css`에서 다크 테마 전환 시 글로벌 텍스트 색상을 `--color-mx-text: #f8fafc;`(밝은 흰색)로 변경했으나, 하위 컴포넌트(`watch/page.tsx`, `RegionPicker.tsx`, `WatchForms.tsx`, `StatsDashboard.tsx`, `EventLog.tsx`, `SetupTable.tsx` 등) 내부에 기존 라이트 테마의 하드코딩된 `bg-white`, `border-mx-border`가 그대로 남아 결합되면서 흰 바탕에 흰 글자(White-on-White)가 됨.
+- **수정 및 배포 결과**:
+  1. `commercial-land-trade-alert` 내 하드코딩된 `bg-white` 19곳 전수 식별 후 고대비 다크 서피스(`bg-[#121824]`, `bg-[#0E1420]`, `border-[#1E293B]`) 및 명시적 폰트 색상(`text-white`, `text-slate-200`, `text-gray-300`, `text-amber-400`)으로 일괄 치환 완료.
+  2. Next.js 16.4.2 Turbopack 프로덕션 빌드 통과.
+  3. Vercel 프로덕션 재배포 완료 (`dpl_5behamECE8T7EGrcWaBDve6EnjHa`, https://commercial-land-trade-alert.buylife.xyz/watch).
+  4. Supabase SSR 세션 쿠키를 주입한 Playwright 헤드리스 브라우저 실물 검증 수행: 로그인 후 실제 `/watch` 페이지 스크린샷(`scratch/commercial_land_v134_live_watch_auth.png`)에서 3대 카드 및 16개 시·도 버튼, 체크박스 폰트 가독성 100% 정상화 육안 검증 완료.
+- **영구 주의사항 헌장 제정 및 문서화**:
+  - `DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`, `docs/ERROR_LESSONS.md`에 **「다크 테마 적용 시 하드코딩된 bg-white 전수 점검 및 White-on-White 방지 헌장」**을 영구 주의사항으로 공식 등재.
+- **비용**: $0, 추가 유료 API 호출 0.
+
+## 2026-11-12 23:05 KST [역할: mac-mini] C3 관리화면 허용 확인·수락은시간대대기 / 본인글댓글3건 확인
+
+- 사용자 「계속 진행해」 뒤 admin.blog.naver.com optional host permission=true 확인. 수락상태 idle, accept_list의 motivationation 작업8b896941-149f-45b0-be80-a2f3e23aa64b는ready, 실제네이버신청도 motivationation/dlwlrnlao 2건 그대로. **앞선권한창이후수락은실행되지않았음을확인**, 재수락버튼은누르지않음.
+- 현재23시로09~22시동작시간대밖. 시간대를늘리거나일시정지를풀지않고실수락1건은다음허용시간대로보류.
+- 새관리자기기55c19089에 정상설정UI로 **incoming/return_post 읽기만** 허용. request/like/comment/reply 실행종류는모두꺼짐. 읽기설정저장성공, 수락전용허용과별도임.
+- 본인글 `https://blog.naver.com/buylifemall/224437302971`의 댓글펼침UI를열어 원댓글행3개/작성자링크확인. 댓글본문수집/댓글입력/공감없음. **확장으로읽어returnPostId를저장한것은아직아님.**
+- 확장 blog.naver.com optional permission=false, 현재검수탭URL도chrome.tabs에서비공개이므로activeTab권한없음확인. admin.blog.naver.com 허용과별개. 무리한실패요청/권한우회없이현재본인글준비후공간22 handOff. 다음은사용자가본인글탭에서실제확장을열어현재사이트접근을주면, 그실제팝업에서원댓글읽기→답방주소읽기검수. 이전권한창은브라우저관리화면용으로이미해소됐으며같은창을다시찾으라고하지않을것.
+- 실제수락/returnPostId 여전히미검수·C3구현선행조건통과아님. 추가AI0·비용$0·댓글/공감/수락등록0·코드/빌드/배포/운영DB직접쓰기0. 성공카페초대/본인Haiku1회는재실행없음.
+
+
+## 2026-11-12 15:35 KST [역할: mac-mini] C3 관리자 정상 재연결·신청2건 읽기/저장 통과·브라우저 허용 대기
+
+- 사용자 「남아 있는 작업 계속 진행해」에 따라 현재 로그인된 관리자 본인 Gmail로 정상 설정 UI 연결을 선택(기존 선택질문 대기 해소). 본인블로그 buylifemall 확인/동의→「이 회원 계정으로 확장 연결」 성공. 새기기 **55c19089-797a-4672-bb06-48d5de5fe85f**, 정상 status브리지 connected=true·blogIdbuylifemall 확인. 이전 시험회원기기88b7…의 권한/토큰을 복사하지 않았다. 연결 변경은 확장 자체 정상 경로로 기존 실행을 중단한다.
+- 오늘의 소통→수락전용허용조회→정확한새기기선택→읽기/실제수락/본인동의→허용저장 성공. 자동운영 일시정지는 그대로, 일반 댓글/공감/AI 동작은 켜지 않음.
+- **통과:** 본인네이버관리 현재탭에서 「받은 신청 읽고 미리보기」 **새조건에서1회** 성공, dlwlrnlao/motivationation 2건·미리보기확인 후 「다시 확인하고 웹에 저장」 성공(확인2/새저장2). 이전 RPC오류는 현재관리자/정확한기기허용조건에서는 재현되지 않음. 증거 `docs/evidence/v119-c3-admin-preview.png`.
+- **준비:** motivationation(탈리스만) **1건만** 수락초안→검토완료 UI 저장. dlwlrnlao는초안없음유지. 실제 확장팝업을 열고 실제수락동의/「검토완료신청1건수락」UI1회. 네이버직접API/직접수락버튼 우회 없음.
+- **현재 대기:** 브라우저 고유 추가권한 창, 원문 「AI 블로그 이웃 소통 자동화가 추가 승인을 요청했습니다」, **admin.blog.naver.com의 데이터를 읽고 변경** 허용/거부. 사용자허용전이므로 실제수락결과는 아직미검수. 에이전트가 허용버튼을 누르지 않음. ego 지침 「Permission prompts, device choosers, and other browser-owned prompts require the user to handle them.」에 따라 공간22 handOff. 증거 `docs/evidence/v119-c3-browser-permission.png` 직접확인.
+- 다음: 사용자 허용 뒤 **이전수락상태/웹기록/실제신청잔존 먼저확인**. 팝업이닫혀실행전이라확인되는때만 준비된1건시험재개. 결과불확실하면재시도금지. 수락검수뒤 내글원댓글1건·returnPostId읽기. 다른신청수락/공감/댓글등록·유료AI호출 없음. C3전체통과/구현착수조건은 아직미충족.
+- 이번추가AI0·비용$0·앱소스수정/빌드/배포/커밋/운영DB직접쓰기0. 앞선본인Haiku누계1회성공/실청구미확인유지·재호출없음.
+
+
 ## 2026-11-12 [역할: blog] Claude Code(윈도우) `claude-win-blog` — 맥미니 통합 인계 처리(티스토리·카페 수정 미배포, 결정 4건 대기)
 
 - 맥미니께: [통합 인계](HANDOFF_20261112_MACMINI_BLOG_REVIEW.md) 우선순위 표 처리 결과입니다.
@@ -10,19 +45,52 @@
 - **워드프레스**: P7(키 없음)은 시험 `DR05`가 확인. P3는 세 번째 계정이 있어야 실물 확인 가능.
 - 결정 대기: C-3 이어갈 계정, 카페 운영진 제외·C모드, 이웃 사용량 기록(마이그레이션), 티스토리 1월 종료 모델 기본값, WP P3 계정. 상세: `tistory-auto-blog/docs/IMPROVEMENT_HANDOFF_20261112.md`, `naver-cafe-recruit/docs/IMPROVEMENT_HANDOFF_20261112.md`. 비용 0.
 
+## 2026-11-12 [역할: mac-mini] 담당께 — 남은 검수·수정 통합 인계
+
+- [담당자별 인수인계](HANDOFF_20261112_MACMINI_BLOG_REVIEW.md)에 우선순위·재현 근거·수정 방향·맥미니 재검수 조건·Windows 전달 프롬프트를 정리했습니다. 실제 담당 수신 확인은 아직 없으며 공유 문서/관리자 결과함으로 전달합니다.
+- C3 웹Gmail/확장시험회원 기기88b7… 불일치를 정상 status브리지로 재확인했습니다. 권한 복사·강제 재연결·실수락/댓글/공감/AI 재호출 없음. 계정 일치 뒤 미검수2건 재개, 이미 성공한 카페 초대와 Haiku1회는 반복하지 않습니다.
+- 이번 추가AI0회·비용$0·코드편집/커밋/푸시/빌드/배포/운영DB 직접쓰기0.
 
 
+## 2026-11-12 15:05 KST [역할: mac-mini] 카페 A-1 2페이지·엑셀 실물 확인 완료 / Windows 개선 3건
+
+- Windows 결과함 `fad8dede-2cda-428e-81ad-b7740728bf70` 등록. 다음 C3 웹관리자/확장시험회원 계정 선택 질문을 사용자에게 표시했으며 답 전 연결 변경/수락 재시도 없음.
+- 담당께: 사용자 「진행해」 후 같은 ego 공간22 재개. 관리자 Gmail 인증 `settings_get` HTTP200, 이미 성공한 초대는 다시 실행하지 않음. 설정 화면에서 A방식·책임고지 체크 후 **설정 저장 버튼을 클릭**하여 저장 문구/HTTP200·mode_extract=true·동의시각 확인. 이번 클릭에서는 인증이 유지됨. 앞선 Enter 조작 뒤401의 원인은 여전히 미확정이며 앱 인증 결함으로 단정하지 않음.
+- **통과:** 「☕일상TALK」 게시판173에서 확장 「이 게시판 작성자 명단 모으기」1회. 1페이지 처리 뒤 실제 URL `https://cafe.naver.com/f-e/cafes/30954788/menus/173?viewType=L&page=2`로 자동 이동. 현재페이지 aria-current=2·작성자행2개 확인, 최종 **「마지막 페이지까지 읽었습니다 · 2페이지 · 13명」**·collect.running=false. 게시판은 총2페이지이므로 3페이지를 만들거나 다른 게시판으로 확장하지 않음. 공지 제외 여부는 공지행을 별도 대조하지 않아 판정 보류.
+- **통과:** 결과 화면/`members_list` HTTP200에 고유 **12명**, 모두 닉네임·등급 존재(등급 누락0). 엑셀 버튼으로 `_workspace/naver-cafe-recruit-20261112.xlsx` 실제 다운로드. ZIP/XML 검증: 시트 「모은 대상」「보낸 기록」「활동 회원 명단」3개, 행수는 헤더포함3/2/13(활동 회원12명·초대성공1건). 아이디·연락처 추가 수집 없음.
+- **P2 매니저/본인 포함:** 실제2페이지의 바이라이프·등급매니저가 웹/엑셀 명단에도 포함됨. 원인 방향: `collectStep`이 `cleanRows(rows)`만 호출해 ownNickname을 넘기지 않고 매니저등급 제외도 없음. 본인 제외/운영진 제외 정책을 정한 뒤 동일한 기준을 읽기/서버/엑셀에 적용하고 재검수할 것. 맥은 소스 수정하지 않음.
+- **P2 인원 안내 혼동:** 종료 문구13명, 실제 고유목록12명. `total += added + updated`로 페이지 사이 중복 닉네임을 갱신해도 누계에 다시 더함. 고유인원과 처리행수를 구분해 문구를 표시하거나 서버 고유인원을 사용해야 함. 저장 중복 제거 자체는12명으로 동작함.
+- **P3 최종 상태값 불일치:** 종료 message는2페이지/13명인데 상태 객체의 pages=1,total=11. 마지막페이지 `stopC()`가 마지막 처리의 pages/total을 저장하지 않고 이전 상태를 가져옴. 최종 카운터를 함께 저장할 것. 기존 P2 popup v1.02 고정표시/manifest v1.03 불일치도 유지.
+- **최종 복구:** A방식 끄기→설정 저장 클릭→HTTP200 **mode_extract=false·extract_consent_at=null**, 원래 known/promo=true·cap20·09~22시·초대누계1 유지. 확장 초대와 명단 모두 멈춤. 수집 결과는 보존, 추가 초대/외부링크전달/유료AI/빌드/배포/소스편집/커밋/운영DB 직접쓰기0. 이번 비용$0.
+- 근거: `docs/evidence_20261112_collect_status.png`, `docs/evidence_20261112_collect_results.png`, `_workspace/naver-cafe-recruit-20261112.xlsx`, `docs/evidence_20261112_collect_result.json`. 기존 초대성공 기록은 유지. 남은 카페 항목은 수신자 내소식 확인·위 개선·공개 전 C모드 처리 결정(현재 선택지는 있지만 실제 연결 미완료), 공개 전환은 관리자/Windows 담당 판단.
 
 
+## 2026-11-12 [역할: music] Admin PC 세션 `claude-admin-20261112-music` — 무료음악↔쇼츠 함께 열면 둘 다 로그아웃: 1차 조사
+
+- 메인·영상 담당께: 코드상 쿠키 도메인 처리(두 사이트 `cookieDomain.ts`·`client.ts`·`server.ts`·`proxy.ts`)는 같고, `sb-*` 일괄 만료 코드도 없음. 유력 가설은 **origin이 다른 두 탭이 같은 갱신 토큰으로 따로 갱신 → 재사용 감지로 세션 폐기**(미확인). 이 PC는 운영 auth 로그를 못 봄 → 운영 프로젝트 auth 로그에서 2026-11-12 낮 `buylifemall@naver.com`의 `refresh_token_already_used`·`token_revoked` 확인 부탁. 맥미니 카페 검수의 401·계정 바뀜(위 13:11·13:21)도 같은 원인일 수 있음. 상세 `free-music-studio/docs/IMPROVEMENTS.md` 2026-11-12. 수정 0·비용 0.
+
+## 2026-11-12 13:21 KST [역할: mac-mini] 카페 6회차 초대 성공 1건 · 후속 명단 읽기는 인증 종료로 미실행
+
+- 담당께: 관리자 `buylifemall@gmail.com` / user `168ac841-2223-4a24-930d-c789cd79c8c9`로 시작 직전 `sent_list`, `targets_list`, `settings_get` 모두 HTTP200. 보낸 기록0·승인 대상 `kkuleomi24` 1명·09~22시 확인 후, 사용자 「로그인했어 진행해」에 따라 확장 시작 UI를 1회 실행했다. 카페탭이 실제 활성탭인지 확인 후 확장 전체페이지 `#start`를 클릭했다(도구의 실제 팝업 열기는 inactive-window 오류; 네이버 API 직접 호출 없음).
+- **통과: 초대 1건 성공.** sent id `02a32eb4-14cd-4964-94b8-93fdfe37b264`, sent_at `2026-11-12T04:19:52.944677+00:00` (13:19:52 KST), result `sent`, detail **「네이버 응답: 초대 성공」**. 실제 카페 iframe의 수집된 알림은 **「초대했습니다.」**. 확장 상태 「보냄: kkuleomi24 · 오늘 1/20 · 다음 초대 대기」·done1. 확인 뒤 멈춤 UI 1회 → running=false / 「회원님이 멈췄습니다.」·done1. 추가 초대/재전송 없음. 받는 쪽 내소식 알림은 아직 미확인.
+- **통과: 초대링크 버튼 모양.** 「초대링크」를 누르면 「초대링크 복사를 눌러 원하는 곳에 링크를 공유하세요.」 모달과 「초대링크 복사」 버튼이 나온다. 주소 문자열은 화면에 노출되지 않는다. 복사/외부 전달/링크 저장은 하지 않았다. 캡처 `naver-cafe-recruit/docs/evidence_20261112_invite_link.png`.
+- **후속 미검수:** A 방식 켜기·동의 체크·설정 저장 조작 뒤 화면 「로그인이 필요합니다.」, `settings_get` HTTP401. 저장 성공을 확인하지 못했고 명단 모으기 시작0·2~3페이지/다음 페이지/엑셀 미검수. 원인은 미확정이며 서버 인증 문제·다른 탭 영향·도구 키보드 조작 영향을 구분하지 못했다. 이후 버튼은 Enter 대신 명시적 클릭과 결과 확인을 사용한다. 이전 HTTP403 계정 불일치와 이번401을 구분한다. 현재 다시 로그인부터 필요하며 과거 성공한 초대는 다시 실행하지 않는다.
+- 기존 P2 지적 유지: 설치 manifest v1.03(1.3.0), popup.html 표시 v1.02 고정. Windows 담당이 표시 동기화. 공개 전환·빌드는 관리자/Windows 판단. C3 수락/returnPostId 미검수도 그대로라 구현 선행 조건 통과로 보고하지 않는다.
+- Windows 인계 결과함 `da662d59-f0e4-4e7a-bfe3-8f7dc84f7241` 등록. 최종 초대/명단 모두 running=false 확인, 공간22 p1 로그인 화면으로 handOff(미완료이므로 finish하지 않음). 로그인 화면 제목이 「네이버 카페 포스팅 자동화」인 기존 표시도 관찰됨. 다음은 관리자 로그인 후 명단 시험만 재개하며 성공 초대는 반복하지 않는다.
+- 비용: 이번 추가 AI0회·추가 비용 $0·빌드/배포0·운영DB 직접 쓰기0. 앞선 이웃 Haiku5.5 누계1회는 재호출하지 않음(예약 $0.004333, 실제 청구 미확인). 앱 소스 수정·커밋·푸시 없음.
 
 
+## 2026-11-12 13:11 KST [역할: mac-mini] 카페 새확장v1.03 확인·시작직전403으로 발송중단
 
+- 입력준비 정정: handOff 직전 비밀값없는 이메일 readback이 `buylifemall@gmail.combuylifemall@gmail.com`으로 확인됨. 미리채우기 동작이 중복문자열을 남겼으며 로그인제출은0. 사용자에게 이메일전체지우기→정확한Gmail한개입력 안내. 다음준비는단순fill반복대신선택전체/지우기후비밀값없는readback검증필요.
 
-
-
-
-
-
+- 사용자 폴더확인/「해봐」「진행해」 후 실제검수공간22 확장관리 확인: **네이버카페회원모집 v1.03 / cfgnpcdkphnpekjphliaabncocgkikbe / 사용켜짐**, 옛fld…v1.02 카드는목록에없음. 현재공유폴더설치는확인됨.
+- **P2 표시지적**: 실제 popup.html/소스에는 v1.02 고정글자가남음. manifest1.3.0·version_namev1.03과불일치이며 코드미설치로단정하지않음. Windows담당이 manifest값으로표시하거나릴리스시동기화할것. 맥은소스수정안함.
+- 실제팝업을카페탭위에열기준비: 검사전용popup.html 전체페이지에서창포커스/해당검수창내유일한buylife카페탭활성화 후 chrome.action.openPopup 응답성공. 처음 inactive window 오류는 안내대로현재창포커스한뒤해소. **시작버튼누름은아직0**. 전체페이지팝업에서시작하면현재탭을카페로잡지못한다는상태문구도확인.
+- **차단**: 시작직전 sent_list 읽기 **403** 「이 프로그램의 이용 권한이 필요합니다.」. 앞선관리자200/빈sent확인을현재로재사용하지않고실발송취소. BNC settings 읽기는HTTP200·**user_id4a82ff77…(시험회원naver)**·comment_cap0. 카페 /results?macmini_check=1 새접속도메인비공개상세404로이동. 이전렌더에는gmail주소가남아있었으므로캐시표시와현재서버인증을구분함.
+- 앞선정상관리자조회는user168ac841…/gmail이며 현재인증과다름. **인증계정변경원인은미확정**(사용자전환·다른열린탭갱신·로그인처리등대조필요), 세션동기화버그로확정하지않음. Network.getCookies는값을출력하지않고이름/도메인등메타만확인: .buylife.xyz 동일프로젝트 auth-token.0/.1 두청크뿐·호스트중복쿠키없음. 쿠키/키/토큰내용읽기출력·삭제·변경 없음.
+- Windows 요청497d49b9에 후속결과 **6b00131d-a4a0-4aba-955a-e0ab293dac1e** 등록. 다음은관리자계정일치부터복구하고 시작직전권한/기록재조회 후1회시험. 자동재시도/우회발송/권한부여/공개전환 없음.
+- 공간22 p1관리자메일입력한로그인화면 handOff, p2카페유지. 비밀번호/로그인제출은사용자직접. next_target/초대시작/실발송0·추가AI0·이번비용$0. 앞선이웃Haiku누계1회성공(예약$0.004333·실청구미확인)은재호출안함. C3미검수/구현전제도유지.
 
 
 ## 2026-11-12 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 음악(SUNO)자동화 v1.50 배포
@@ -39,8 +107,14 @@
 - 다음: 시험 계정 손님 흐름 + 볼타 테스트 발행(시험 계정 로그인 필요). 플랜 `mall-builder/docs/PLAN_20261112_AI_MULTI_PROVIDER.md`.
 - 비용: 빌드 1회 + AI 호출 약 9회(합계 약 10원, 관리자 본인 키).
 
+## 2026-11-12 12:50 KST [역할: mac-mini] 카페6회차 관리자 접근 복구 확인·사용자 시작 준비 완료
 
+- 사용자 순서대로진행지시 후 공간22 재개. 관리자메일입력란 중복문자열을 한개로 정정(비밀번호/로그인제출조작없음). 같은브라우저 BNC실회원표시와카페실화면에서 **buylifemall@gmail.com** 로그인 확인. /results 정상열림·v1.03·관리자메일표시, 예전403/비공개상세404가 현재관리자에서는해소됨.
+- 실제 읽기3건 HTTP200: sent_list={sent:[],used_today:0,cap:20}, targets_list=kkuleomi24 reviewed(9292e1fe…)·buylifemall skipped, settings=알던모드켜짐·09~22시·하루20 유지. 새대상추가/승인/삭제/next_target 호출 없음. 과거실패기록삭제원문은기존인계보존.
+- p2바이라이프카페는네이버로그인유지, 카페탭앞으로 handOff. 요청서대로 사용자 확장에서 「이 카페로 초대 시작」1회 대기. 이미시작했다면재전송금지·새결과만조회. 맥미니발송/시작0, 이번추가AI0·비용$0·DB직접쓰기0.
+- 6회차결과는 아직성공/실패로판정하지않음. 사용자시작뒤result/detail·네이버문구/수신알림대조, 성공때만명단2~3페이지·초대링크진행.
 
+- C3 별도계정주의: 현재웹은gmail관리자이며 웹수락기기목록은b9c865ff…1개. 실제설치확장status는시험회원측기기88b7c900…에연결돼있음. 계정불일치를확인해 권한복사/저장/재연결/수락재시도는하지않음. C3는시험계정일치부터준비하고통과전구현/마이그레이션/빌드금지. 기존Haiku성공1회는재호출하지않음.
 
 
 ## 2026-11-12 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — U10 유튜브 「📨 업무 워크스페이스로」 배포(shots v1.50 · 쇼츠 원스톱 v1.51)
@@ -58,7 +132,11 @@
 - 이번추가AI0·추가비용$0·초대/수락/댓글0·권한저장/DB직접쓰기/코드/빌드/배포0. 카페/C3차단조건과기존비교검수상태유지.
 
 
+## 2026-11-12 10:56 KST [역할: mac-mini] 이웃 C3 실제팝업 읽기 오류·기기허용 대조 전 공간23 없어짐
 
+- 팝업v1.19/buylifemall에서 받은신청읽기1회→「신청·동의·실행 상태를 확인하지 못했습니다. 자동으로 다시 수락하지 말고 이전 결과를 확인하세요.」, 수락idle·실수락0. 오류원문/캡처/다음준비순서를 프로그램IMPROVEMENTS맨위에 기록.
+- accept_devices 읽기조회에서 여러새기기 수락전용허용null, 예전기기만true. 현재팝업deviceId대조가필요해원인확정은보류. 후속계속지시로준비보완하려다 `task space not found:23`, 목록에도23없음. 새공간우회/사용자공간인수 없음.
+- 다음: 받은신청화면재준비→현재기기확인→앱수락전용허용조회/해당기기만허용→새회차1건검수. 현재허용저장/재시도/실수락0·returnPostId미검수. 추가AI0/비용$0; 앞선Haiku1회성공·예약$0.004333·실청구미확인과구분.
 
 
 ## 2026-11-12 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 쇼핑몰 빌더 운영 배포(T0 C)
@@ -75,8 +153,21 @@
 - 남은 일: 화면 확인은 시험 계정 로그인 뒤(주인님), `shots` 6장면 영상화 일괄은 결정 대기, 11-13 아침 `shots` 30일 정리 결과 확인.
 - 비용: Vercel 빌드 5회(승인 범위), AI 호출 0.
 
+## 2026-11-12 02:20 KST [역할: mac-mini] 블로그5건 진행 결과 — 이웃Haiku1회성공·WP접근검수·티스토리지적
 
+| 순서 | 현재 결과 | 남음 |
+|---|---|---|
+| 카페6회차 | 앞선403·계정확인요청497d49b9 유지, 이번발송0 | 승인관리자접근복구·사용자시작뒤결과 |
+| 이웃v1.19 | 새확장재연결·본인Haiku5.5 **1회 succeeded**, 웹결과확인·감시off/stopped·paused=true·댓글상한0 | 실제청구액앱미기록(P2개선). 예약$0.004333과구분 |
+| C3 | 받은신청2건·이름td2 span.nickname/아이디span.blogid·글수없음 캡처 | 실제확장팝업열림자동조작미확인→수락1건/returnPostId미검수 |
+| WPv1.04 | 공개목록/상세·6회원페이지·원고0/연결전·390px메뉴·매뉴얼새창/7일안내통과 | P3기간없는계정/P7키없는계정 전제없어미검수 |
+| 티스토리v1.96 | 웹/ZIP·30일초과글열림확인 | id4이미지4장손상·대표URL Object not found(P1), 열외삭제배지오류(P2). 실제입력/비율미검수 |
 
+- 결과는 각 프로그램 IMPROVEMENTS 맨위와 해당 요청서 아래에 기록, 증거캡처/이웃결과JSON 저장. 실제 네이버댓글/공감/수락·WP/Tistory발행/예약0, 신규이미지0, 코드/빌드/배포/커밋/푸시/DB직접쓰기0.
+- 마무리: WP공간22·티스토리공간24 `finish({keep:[]})` 완료(기존사용자새탭은보호). 이웃공간23은 받은신청탭을앞으로 handOff, 검사전용팝업전체페이지탭은닫음. 최종monitor off/stopped·ai_count1·work_idnull, paused=true·commentCap0·실제소통오늘0 확인. 문서diff check통과(기존줄바꿈경고만).
+- Windows 티스토리 확인요청 `55534f15-aa3a-4bbd-8b71-463745c98384`, 전체작업결과 `3212a316-1168-4c85-bfdd-abd6df9508aa` 등록 완료.
+- **이번유료호출총1회(Haiku5.5)**, 이웃실제청구액미확인(예약$0.004333만확인), 나머지호출0/비용$0. 비용미확인을0원이나예약금액실청구로보고하지않음.
+- 다음사용자조작: 공간23 네이버받은신청화면에서 실제확장팝업열기. native AXPress/좌표2경로 모두효과미확인이라팝업열림/수락성공으로꾸미지않음. 승인사용자조작뒤C3검수재개, 가짜신청/직접수락/자동재전송안함.
 
 
 ## 2026-11-12 ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 쇼핑몰 담당 인계 + T0 B 운영 DB 적용
@@ -87,7 +178,12 @@
 - 다음: T0 C — Vercel 운영 프로젝트 `mall-builder`·`mall-builder.buylife.xyz`·환경변수(값은 주인님)·`programs` 등록(v1.01)·빌드 1회(승인 필요).
 - 비용: 없음(빌드 없음).
 
+## 2026-11-12 01:51 [역할: mac-mini] v1.19 설치·팝업 통과 / 새 확장 회원 재연결 전 로그인 필요
 
+- 주인님 설치 후 공간23 기존 chrome확장관리에서 **AI 블로그 이웃 소통 v1.19**, 새 ID `ogjeiolmlkmmbnegpjdfmminaloohgep`, 사용설정 켜짐 확인. 기존 ID의 v1.18 카드는 현재 목록에 없음. 새 확장의 실제 popup.html에서도 「확장 v1.19」 확인. 이전 설치경로 차단은 해소됨.
+- 새 확장 팝업 「프로그램에서 회원 계정을 연결해 주세요.」 — 기존 토큰/권한을 복사하지 않았으므로 정상적으로 새 연결 필요. 재연결하려고 웹/settings 접근했으나 「로그인이 필요합니다.」. 읽기 monitor catalog HTTP401, 메인/settings도 실제 로그인 화면 이동 확인. 현재 상태를 예전 로그인완료/403과 구분.
+- 공간23 메인 로그인 화면 사용자 handOff. 로그인은 요청서대로 사용자 직접. 다음: 승인된 본인 계정 확인→본인블로그buylifemall 연결→댓글끔·전체일시정지 확인→본인키 Haiku5.5 정확히1회(기존 이번검수 누계0회)→감시중단→C3신청/답방읽기. 관리자시험이면 gmail계정, 시험회원은 naver계정으로 서로 구분.
+- 이번 및 이 요청 누계 유료AI0회·실제추가비용$0, 초안생성/수락/댓글등록0, 재연결/자동운영설정저장/빌드/배포/DB직접쓰기0. 위젯·펼침·Haiku단가의 앞선 부분통과 유지, 유료/C3는 여전히 미검수.
 
 
 ## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 12월 모델 교체 남은 4개 배포(+ 저장공간 위젯)
@@ -97,6 +193,13 @@
 - 배포 안 한 것: `web-crawler`(11-11 v1.12)·`vinyl-lp-studio`(11-09 v1.15)는 모델 교체 커밋(11-03) 뒤 배포라 이미 나감. `ebook-studio`는 디자인 담당(agy `agy-win-ebs-v1`)이 작업 중이라 건너뜀 — 그 담당이 다음 배포 때 함께.
 - 비용: 빌드 4회(승인 범위 7회 안). 링크: https://ghost-scraper.buylife.xyz · https://ai-webtoon-studio.buylife.xyz · https://ai-prompt.buylife.xyz · https://personality-suite.buylife.xyz
 
+## 2026-11-12 01:43 [역할: mac-mini] 블로그 순차 검수 진행 — 이웃v1.19 화면3건 통과·확장 설치 경로 차단
+
+- 카페: sent_list403 유지, 메인 표시계정은 시험회원buylifemall@naver.com(지정 관리자는gmail). 서브도메인 사용자 불일치/관리자조회 오류 여부 미확정. Windows 요청497d49b9 등록, 초대0/재전송0.
+- 이웃소통 공간23: 웹v1.19·💾1GB/무제한·자동운영펼침·Haiku5.5단가(입력0.1/출력0.5 USD·백만토큰) 실물확인. 새 ZIP1.19.0/20파일=공유소스완전일치. 설치확장은v1.18이고 로드위치/Volumes/D/...가 현재없음. 실제 /Volumes/gt1_mega/AIMaster/blog-neighbor-care/extension 폴더선택 필요.
+- 유료초안/C3수락/답방읽기·WP·티스토리 후속은 미완료. AI0회·비용$0·실제댓글/공감/수락0·설정저장/빌드/배포/DB직접쓰기0. 프로그램 IMPROVEMENTS 맨위에 결과/캡처/남은조건 기록. 기존 작업 공간은 사용자 조작 인계로 유지, 완료종료로 보고하지 않음.
+
+
 ## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-doc-chatbot v1.10 배포(보관 예외 표시)
 
 - 한 일: 미배포 `bb7f393bd`(보관 예외 회원 30일 숨김 해제·문서 카드 「보관 기한 없음」)에 더해, 채팅 화면 「대화 기록 (30일 보관)」을 예외 회원에게는 「보관 기한 없음」으로(`/api/rooms`가 `retentionExempt` 함께 돌려줌) + 저장공간 위젯 한 줄 `48aad60a8`.
@@ -104,16 +207,39 @@
 - 정리하지 않은 것: DB의 RLS 정책·검색 함수(`g4_document_evidence`) 30일 조건 — 앱은 서비스 키로 읽어 회원 화면에 영향 없음, 운영 DB 함수 변경은 위험 대비 이득이 없어 그대로 둠.
 - 비용: 빌드 1회(주인님 「진행해」 승인). 링크: https://ai-doc-chatbot.buylife.xyz
 
+## 2026-11-12 01:28 [역할: mac-mini] 카페6회차 로그인 후 이용권한403 — Windows 담당께
+
+- 사용자 로그인 완료 전달 후 공간17 p4 `/results` 재진입. `/login`이 아니라 `https://www.buylife.xyz/programs/naver-cafe-recruit`로 이동하고 상세404. 로그인 화면의 잔상만 보고 로그인 실패로 판정하지 않음.
+- 같은 프로그램 `/login`에서 회원 화면과 같은 `/api/recruit` 읽기 operation=`sent_list`, payload={} 1회: HTTP403, 원문 `{"error":"이 프로그램의 이용 권한이 필요합니다."}`. 인증 실패401와 구분됨. sent_list 외 작업·next_target·발송·DB쓰기는 없음.
+- 원인 범위: src/lib/access.ts는 로그인 사용자 확인 후 evaluateAccess에서 관리자면 즉시허용, 비관리자는 active프로그램만 조회. 현재403은 program/denied 분기이며 정확한 계정/관리자조회 실패 여부는 미확정. 비공개 상세404와 결합해 시험을 막음.
+- Windows 담당 요청: 현재 로그인계정이 승인된 관리자 buylifemall@gmail.com인지, profiles.is_admin/권한조회 오류 및 운영설정 일치 확인. 비공개를 유지한 채 승인된 관리자 시험 접근 복구. 운영DB/공개전환/권한부여를 맥미니에서 하지 않음. 복구 전 초대시작 금지, 이미 시작했다면 자동재전송 금지.
+- 공간17 p2 카페(네이버 로그인 유지)를 앞으로 두고 사용자 handOff. 6회차 결과 판정은 보류, 후속 순서는 유지. 이번 유료AI0회·실제추가비용0·초대/댓글0·빌드/배포0.
 
 
+## 2026-11-12 [역할: review] Codex(Admin PC) · 세션 `codex-admin-20261112-plan-review` — 전체 플랜·상세 개발 문서 현황 정리
+
+- 결과: [읽기용 HTML](DEVELOPMENT_STATUS_REVIEW_20261112.html) · [통합 현황·83개 상세 문서 연결](DEVELOPMENT_STATUS_REVIEW_20261112.md) · [조사 범위 원장](DEVELOPMENT_STATUS_REVIEW_20261112.inventory.json).
+- 범위: 문서1,649개 파일 색인·키워드 점검, 계획/로드맵511개 분류. 공통 지침·역할·최신 인수인계·주요 플랜을 직접 대조. 전 제품 심층 재검수/운영 인증을 뜻하지 않음.
+- 반영: 중앙10개 플랜·상세 진입 문서의 스냅샷/최신 상태/보관 정책 우선순위 정정. review 역할을 주인님 지정 테스트·플랜 설계·디버깅으로 확정, 자기 역할 목록 수정. 새 보고서 문서 목록 등록.
+- 특이사항: 무료500MB/발행무관30일과 옛 발행1년 지침 혼재; 11번가 중앙플랜 구현전↔제품v1.04 배포; WP 제품AGENTS v1.02비공개↔v1.04공개 기록; mall-builder 실제 폴더 이동↔옛 labs 경로; 역할/작업중표 중첩된 과거 다음단계. 조사 중 워크스페이스v1.30 배포 인수인계도 반영.
+- 담당께: 각자 역할·제품 문서·공용 비교표·미배포 표는 통합 현황 §4에 따라 정리. 다른 담당 역할/제품 폴더·기존 미커밋 변경은 이번에 수정하지 않았음. Shots 11-13 03:30 정리·실거래 08:00 알림 대조, 맥미니 이웃소통v1.19·WP 공개 접근·워크스페이스 엑셀 회원흐름 검수는 기존 조건대로 남김.
+- 메인 PC 요청: 아래 문서 경로의 diff만 인수해 협업/인덱스/잠금 점검 뒤 경로별 안전 커밋·푸시. 다른 작업자가 활동 중이므로 Admin에서 커밋/푸시하지 않음. 생성기는 추적 파일만 읽어서 새 보고서 한 건은 manifest에 직접 추가했으며 커밋 뒤 재생성 시 자동 유지됨. 관리자 dev-docs는 GitHub를 읽으므로 푸시 전 화면 갱신으로 보고하지 않음.
+- 인수 경로: `docs/DEVELOPMENT_STATUS_REVIEW_20261112.{md,html,inventory.json}`, `docs/PROGRAM_REDESIGN_GROUPING_ROADMAP.md`, `docs/analysis-20261019/ROADMAP.md`, `docs/program-reviews-20261019/{PLAN,INDEX}.md`, `docs/PROGRAM_DETAILED_REVIEW_HANDOFF_20261019.md`, `docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md`, `docs/PLAN_20261111_MEMBER_LIBRARY.md`, `docs/PLAN_20261111_ELEVENST_REGISTER.md`, `docs/PLAN_20261110_WORDPRESS_BLOGGER_API.md`, `docs/guidelines/DEVELOPMENT.md`, `docs/roles/{review,README}.md`, `docs/dev-docs/manifest.json`, 이 HANDOFF의 본 항목만.
+- 비용/실행: 유료AI0·빌드0·배포0·운영쓰기0·추가 설정0단계/매일 조작0번/추가 동의0번. 앱 버전 변경 없음.
 
 
+## 2026-11-12 01:03 [역할: mac-mini] 블로그 실물 5건 순서 인수·카페 공간17 준비
+
+- 역할 blog 최신 순서 확인: 카페6회차 → 이웃v1.19 → C3수락1건/이름칸캡처/답방대상읽기 → WP공개접근 → 티스토리v1.96.
+- 공간17 p2 카페 새로고침 후 네이버 「바이라이프」 로그인 유지. p4 프로그램 결과는 AIMaster 로그인 필요. 공간17 로그인 화면을 사용자에게 handOff. 사용자 로그인·시작 후 결과 판정, 이미 시작했으면 재시작 금지.
+- 이번 초대/자동재전송/AI0·비용0. 후속은 미실행. 실제 검수 결과는 각 IMPROVEMENTS 맨위에 비용/호출횟수 포함 기록 예정. 카페에는 현재 IMPROVEMENTS 파일이 없어 이번 준비 상태는 기존 INVITE_TEST에 기록하고, 실제 결과 작성 때 요청 경로를 마련할 것.
 
 
+## 2026-11-12 01:00 [역할: mac-mini] 이웃 소통 v1.19·C-3 실물 요청 인수 — 회원 로그인 대기
 
-
-
-
+- PLAN_20261112_STAGE_C3 및 v1.19 요청서 추가2건 확인. v1.19 배포 인계 확인, 웹/다운로드 v1.19 표시 확인. `/settings` 본문은 「로그인이 필요합니다.」.
+- ego 공간23 로그인 화면 handOff. 로그인 뒤 기존 v1.19 시험→받은 신청1건 수락→내 글 댓글1건 returnPostId 읽기. 수락/댓글읽기 실물 결과는 아직 없음. 신청0건이면 가짜 대상 생성 없이 기록.
+- 코드/DB/빌드/배포/실제 수락/네이버 댓글/AI호출0·이번 비용0. C-3 자동 구현은 Windows 담당, 빌드는 구현 뒤 별도 요청. 상세: `blog-neighbor-care/docs/IMPROVEMENTS.md` 맨 위.
 
 
 ## 2026-11-12 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-work-workspace v1.30 배포(홈택스 일괄발급 엑셀)

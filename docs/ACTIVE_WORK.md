@@ -43,7 +43,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `commercial-land-trade-alert/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-clt-v1` | 2026-11-12 | 1안 공식 채택 반영 v1.34 전면 리뉴얼 및 배포 완료 |
 | `ebook-studio/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-ebs-v1` | 2026-11-11 | 1안 공식 채택 반영 v1.14 전면 리뉴얼 및 배포 완료 |
 | `insta_auto_poster/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` | 2026-11-11 | 4대 화면 3시안 중 1안 공식 채택 반영 v1.73 전면 리뉴얼 및 배포 완료 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.01 1단계 뼈대 배포 완료(비공개) — 다음 2단계 연동 화면은 주인님 11번가 고정 IP 등록 뒤. 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |
