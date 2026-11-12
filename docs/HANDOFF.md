@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## 2026-11-13 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 11번가 등록기 v1.05 + 상세페이지 v1.43 묶음 배포
+- 결정: 상세설명 사진 「3안」 + 「서버 보관 비용이 드니 유료 사용자만, 관리자·시험 계정 예외」 → `profiles.retention_exempt` 회원만 상세페이지 사진(최대 20장), 그 밖은 글. 사진 주소는 구독 중 계속·끝나면 404, CDN 하루 보관(`d764b4a64`).
+- 배포(빌드 2회, 주인님 「진행해」): `elevenst-register-43pl7coxp` Ready(v1.05) → `shop-detail-page-4iuntur7m` Ready(v1.43, 💾 위젯 추가). DB 버전 둘 다 맞춤, 11번가 메인 설명·한 줄 요약 갱신(비공개라 공개 화면은 404 정상).
+- 확인(ego, 관리자): 사이드바 v1.05, 매뉴얼 새 FAQ, 상품 화면 7번 보내기·저장 구독 안내, 없는 사진 주소 404. 실제 11번가 보내기는 아직(다음: 주인님 승인 뒤 1건).
+- 상세: `elevenst-register/AGENTS.md` §4 v1.05, `elevenst-register/docs/PLAN_20261111_STAGE4_SEND.md` §7.
 ## 2026-11-13 [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — 이웃 미리보기 409 원인·수정(미배포), 블로그 옛 현황 정리
 
 - 원인: DB 함수가 회원 PC `checkedAt`을 DB `created_at`과 직접 비교 → 맥(1.63초 늦음)에서 매번 거절. 운영 기록 2건 모두 실패·성공 0건. 수락(C-3)도 허가 시각과 PC `attempted_at`을 비교해 같은 문제.

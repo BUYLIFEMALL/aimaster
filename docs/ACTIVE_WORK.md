@@ -42,6 +42,6 @@
 |---|---|---|---|
 | `ebook-studio/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-ebs-v1` | 2026-11-11 | 1안 공식 채택 반영 v1.14 전면 리뉴얼 및 배포 완료 |
 | `insta_auto_poster/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` | 2026-11-11 | 4대 화면 3시안 중 1안 공식 채택 반영 v1.73 전면 리뉴얼 및 배포 완료 |
-| `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.01 1단계 뼈대 배포 완료(비공개) — 다음 2단계 연동 화면은 주인님 11번가 고정 IP 등록 뒤. 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |
+| `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.05 묶음 배포 완료(2026-11-13, 비공개). 다음: 5·6단계 실제 보내기 1건(주인님 승인 대기). 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |
 | `mall-builder/` (옛 `labs/mall-builder/`) | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace`(2026-11-12 주인님 지시로 쇼핑몰 담당 인계) | 2026-11-10 | T1 등급 할인 완료(미배포) → T0 운영 이전 A단계 완료(11-12: 폴더 이동·운영 스위치·0058) → 다음 B 운영 DB 적용(주인님 승인 대기) |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
