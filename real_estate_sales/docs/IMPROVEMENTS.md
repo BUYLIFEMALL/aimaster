@@ -2,6 +2,14 @@
 
 > ~~미배포 대기(2026-11-04)~~ → **✅ v1.48에 함께 배포됨(2026-11-04 18:50, 2026-11-10 커밋 시각으로 확인)**: 빌라 매매 주소 `RHTrade` → `RHTrade2`(`src/lib/publicdata/molit.ts`, 시험 35개·tsc 통과). 승인(10-31)된 새 서비스에 맞춤 — 지금은 빌라 매매만 24시간 13번 403. 다음 배포 때 함께 내보내고, 배포 뒤 `vercel logs --project real-estate-sales --level error`에서 「빌라 … 건수 조회 실패」가 사라졌는지 확인. 응답 칸 이름(`mhouseNm` 등)이 옛 판과 같은지도 그때 첫 수집 결과로 확인.
 
+## 2026-11-12 Claude Code(윈도우) [역할: realty] — 운영 공공데이터 키를 포털 키로 교체(코드 변경 없음, 버전 그대로)
+
+- 주인님 「너가 바꿀 수 있으면 바꾸고」: 운영 Production `DATA_GO_KR_SERVICE_KEY`(94일 전 등록, Sensitive라 값 비교 불가)를 공공데이터포털 계정 키(지문 d2ef3083f3, 시험 계정 회원 키와 같은 값)로 덮어씀. 값은 출력·저장 안 함.
+- 바꾸기 전 포털 키로 매매·전월세 9종(AptTrade·AptRent·RHTrade2·RHRent·OffiTrade·OffiRent·SHTrade·SHRent·SilvTrade)과 건축물대장 3종(getBrTitleInfo·getBrRecapTitleInfo·getBrExposPubuseAreaInfo) 각 1회 → 모두 200.
+- 같은 소스 재빌드 `vercel redeploy` real-estate-sales-o4g491mby → gso9bzsz5, Ready 1분(v1.60 그대로).
+- 배경: 상가(commercial-land-trade-alert)도 같은 날 교체 — 옛 서버 키로 건축물대장이 429였고 두 프로그램이 같은 옛 키·한도를 나눠 썼을 가능성. 관리자 계정은 회원 키가 없어 이 환경변수 키를 씀.
+- 다음 확인: 11-13 08:00 정기 수집이 정상인지 DB로 대조(수집 줄 수·오류 없음).
+
 ## 2026-11-11 Claude Code(윈도우) [역할: realty] — 지역 뉴스 개선 A·B 구현 — ✅ v1.60 배포됨(2026-11-12)
 
 - ✅ **v1.60 배포됨(2026-11-12, `real-estate-sales-o4g491mby`, 빌드 1회 주인님 승인, 저장공간 위젯 한 줄 함께)** ~~미배포 대기~~: 아래 A·B 코드 변경(`src/lib/news/radarCore.ts`, `src/lib/news/runner.ts`, `tests/newsRadar.test.mjs`). 시험 63개·`tsc`·`npm run build` 통과. 배포(v1.60, 빌드 1회)는 주인님 승인 뒤. 플랜: `docs/PLAN_20261111_NEWS_REGION_DEDUP.md`(결정 1·2 추천안으로 진행).
