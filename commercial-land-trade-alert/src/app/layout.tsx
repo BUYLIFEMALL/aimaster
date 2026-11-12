@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "상가·건물·토지 매물 알림",
-  description: "상가·건물·토지 실거래와 새 매물·가격 변동을 내 PC가 찾아 텔레그램/이메일/카카오톡으로 알려 주는 알림 자동화",
+  title: "상업용지·토지 실거래가 레이더 — AIMaster",
+  description: "국토교통부 실시간 상가·건물·토지 실거래가 및 네이버 부동산 호가 변동 감시, 3대 AI 엔진 수익률 평가 및 급매 포착 레이더",
 };
 
 export default function RootLayout({
@@ -27,7 +28,11 @@ export default function RootLayout({
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-mx-bg text-mx-text">{children}</body>
+      <body className="min-h-full flex flex-col bg-mx-bg text-mx-text">
+        {children}
+        {/* 회원 저장공간 위젯 (2026-11-11 지시: 모든 프로그램 배포 시 공통 탑재) */}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
+      </body>
     </html>
   );
 }

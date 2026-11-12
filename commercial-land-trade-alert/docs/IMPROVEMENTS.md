@@ -1,4 +1,16 @@
-# 개선 제안 (미구현)
+# 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
+
+## 2026-11-12 [역할: design] Antigravity(윈도우) `agy-win-clt-v1` — v1.34 1안 골든 랜드 HUD 전면 리뉴얼 및 배포 완료
+
+- **디자인 채택**: 4대 화면 3시안 중 **1안(100. 골든 랜드 프롭테크 인텔리전스 HUD 스타일)** 공식 채택 반영.
+- **주요 개선 내용**:
+  1. **골든 랜드 HUD 테마 전면 적용**: 딥 옵시디언 차콜(`#0B0F17`) + 럭셔리 샴페인 골드(`#F59E0B`/`#D97706`) + 석세스 에메랄드(`#10B981`) 팔레트 및 `.btn-3d-gold` 3D 엠보싱 버튼 구축.
+  2. **2026-11-01 5단계 표준 로그인 폼 & 1행 약관 규격 적용**: 64px 럭셔리 골드 로고, 영문명 알약 캡슐 뱃지, 한글명 타이틀, 3D 엠보싱 로그인 버튼, `진행 시 이용약관 및 개인정보 처리방침에 동의합니다.` 1행 축소 처리.
+  3. **저장공간 위젯 탑재 (2026-11-11 지시)**: `layout.tsx`에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />` 탑재 완료.
+  4. **운영 DB 버전 동기화**: `programs.version='v1.34'` 갱신 완료 및 마이그레이션 SQL(`supabase/migrations/20261112170000_version_v1_34.sql`) 추가.
+  5. **프로덕션 배포 및 라이브 검증**: Vercel 프로덕션 배포 완료(`dpl_5FPw4feeJTkeZnAmKqQU443TQ9vr`), HTTP 200 및 브라우저 실세션 캡처 증적 완료(`scratch/commercial_land_v134_live_login.png`).
+
+---
 
 ## 1. 로직·기능
 - 텔레그램 외 카카오·메일 알림(공용 연동 재사용).
