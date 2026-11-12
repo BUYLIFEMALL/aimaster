@@ -5,12 +5,15 @@ import { getElevenstKeys } from "@/lib/setupStatus";
 import { getShopProduct, productName } from "@/lib/shop";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createImageLinks } from "@/lib/imageLinks";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 import { getCategoryTree } from "@/lib/elevenst/categoryStore";
 import { ElevenstApiError, elevenstRequest } from "@/lib/elevenst/client";
 import { buildProductXml, checkDraft, type ElevenstDraft } from "@/lib/elevenst/product";
 import {
   classifySendError,
+  detailImageMode,
   detailTextHtml,
+  MAX_DETAIL_IMAGES,
   parseRegisterResponse,
   parseStopDisplayResponse,
   sendBlockReason,
@@ -66,16 +69,22 @@ export async function sendProductAction(productId: string, draft: ElevenstDraft)
     return { ok: false, status: "blocked", message: "같은 상품을 이미 보내는 중입니다. 잠시 뒤 등록 기록을 확인해 주세요." };
   }
 
-  // 4) 대표·추가 이미지 짧은 주소(11번가가 받아 가서 자기 서버에 저장). 상세설명은 글로(이미지 없음 → 30일 뒤에도 깨지지 않음)
+  // 4) 대표·추가 이미지 짧은 주소(11번가가 받아 가서 자기 서버에 저장).
+  //    상세설명: 유료(보관 연장) 회원·관리자·시험 계정은 상세페이지 섹션 이미지, 그 밖은 글(이미지 없음 → 30일 뒤에도 깨지지 않음)
   let xml: string;
   try {
-    const [main, ...extras] = await createImageLinks(user.id, [shop.mainImage.path, ...shop.extraImages.slice(0, 3).map((i) => i.path)]);
+    const extraPaths = shop.extraImages.slice(0, 3).map((i) => i.path);
+    const sectionPaths = shop.sectionImages.slice(0, MAX_DETAIL_IMAGES).map((i) => i.path);
+    const mode = detailImageMode(await isRetentionExempt(admin, user.id), sectionPaths.length);
+    const links = await createImageLinks(user.id, [shop.mainImage.path, ...extraPaths, ...(mode === "images" ? sectionPaths : [])]);
+    const [main, ...rest] = links;
+    const extras = rest.slice(0, extraPaths.length);
     const p = shop.product;
     xml = buildProductXml(draft, {
       main,
       extras,
-      details: [],
-      detailHtml: detailTextHtml({ name, key_features: p.key_features, specs: p.specs, how_to_use: p.how_to_use, target_customer: p.target_customer }),
+      details: rest.slice(extraPaths.length),
+      detailHtml: mode === "images" ? undefined : detailTextHtml({ name, key_features: p.key_features, specs: p.specs, how_to_use: p.how_to_use, target_customer: p.target_customer }),
     });
   } catch {
     await update({ status: "failed", message: "이미지 주소를 만들지 못해 보내지 않았습니다." });

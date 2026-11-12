@@ -436,6 +436,12 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
               </ul>
             )}
             {check.categoryPath && <p className="text-slate-600">카테고리: {check.categoryPath}</p>}
+            <p className="text-slate-600">
+              상세설명:{" "}
+              {check.detailMode === "images"
+                ? `상세페이지 사진 ${check.detailImageCount}장(저장 구독 회원 혜택)`
+                : "핵심 특징·상품 정보·사용법 글(상세 사진은 저장 구독 회원에게 넣어 드립니다)"}
+            </p>
             <details>
               <summary className="cursor-pointer text-[12px] font-bold text-slate-600">만들어진 본문 앞부분 보기(개발 확인용)</summary>
               <pre className="mt-2 max-h-60 overflow-auto whitespace-pre-wrap break-all rounded bg-slate-900 p-3 text-[11px] text-slate-100">{check.preview}</pre>
@@ -449,7 +455,10 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
         <p className="text-[13px] text-slate-600">
           11번가는 임시저장이 없어 보내면 바로 상품이 생깁니다. 그래서 보낸 직후 자동으로 <b>전시중지</b>해 손님에게는 보이지 않게 둡니다. 셀러오피스에서 확인한 뒤 판매를 시작해 주세요.
         </p>
-        <p className="text-[12px] text-slate-500">대표·추가 이미지는 11번가가 받아 가 저장합니다. 상세설명은 상세페이지의 핵심 특징·상품 정보·사용법을 글로 넣습니다(섹션 이미지는 셀러오피스에서 올릴 수 있습니다).</p>
+        <p className="text-[12px] text-slate-500">
+          대표·추가 이미지는 11번가가 받아 가 저장합니다. 상세설명의 상세페이지 사진은 11번가가 우리 서버에서 계속 불러와 보여 주므로 보관 비용이 들어, <b>저장 구독 회원</b>에게만 넣어 드립니다.
+          그 밖의 회원은 핵심 특징·상품 정보·사용법을 글로 넣고, 상세 사진은 셀러오피스에서 직접 올릴 수 있습니다. 저장 구독이 끝나면 11번가에 넣은 상세 사진이 더 이상 보이지 않으니 셀러오피스에서 바꿔 주세요.
+        </p>
         {!canSend && !sent?.ok && <p className="text-[12px] font-semibold text-slate-500">먼저 「검사하기」를 통과해야 보낼 수 있습니다. 검사 뒤 값을 바꿨으면 다시 검사해 주세요.</p>}
         {!confirmSend ? (
           <button type="button" disabled={pending || !canSend} onClick={() => setConfirmSend(true)} className="rounded-lg bg-orange-600 px-5 py-2.5 text-sm font-extrabold text-white shadow-sm disabled:opacity-40">

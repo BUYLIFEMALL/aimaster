@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   classifySendError,
+  detailImageMode,
   detailTextHtml,
   parseRegisterResponse,
   parseStopDisplayResponse,
@@ -64,4 +65,11 @@ test("글 상세설명: 특징·상품 정보 표·사용법, 이미지 없음, 
 test("EUC-KR에 없는 글자만 뺀다", () => {
   assert.equal(stripNonEucKr("가방😀 백팩"), "가방 백팩");
   assert.equal(stripNonEucKr("보통 글자 ABC 123"), "보통 글자 ABC 123");
+});
+
+test("상세설명 방식: 유료(보관 연장) 회원 + 섹션 이미지가 있을 때만 이미지, 그 밖은 글", () => {
+  assert.equal(detailImageMode(true, 5), "images");
+  assert.equal(detailImageMode(true, 0), "text");
+  assert.equal(detailImageMode(false, 5), "text");
+  assert.equal(detailImageMode(false, 0), "text");
 });

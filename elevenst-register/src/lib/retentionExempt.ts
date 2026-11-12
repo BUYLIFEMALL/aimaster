@@ -15,3 +15,9 @@ export async function retentionExemptFilter(admin: ExemptAdmin): Promise<string>
   const ids = Array.from(await loadRetentionExemptIds(admin));
   return `(${ids.length ? ids.join(",") : "00000000-0000-0000-0000-000000000000"})`;
 }
+
+/** 회원 한 명이 보관 연장 회원인지(저장 구독·관리자·시험 계정). 읽지 못하면 false — 비용이 드는 기능을 잘못 켜지 않게. */
+export async function isRetentionExempt(admin: ExemptAdmin, userId: string): Promise<boolean> {
+  const { data, error } = await admin.from("profiles").select("retention_exempt").eq("id", userId).maybeSingle();
+  return !error && data?.retention_exempt === true;
+}

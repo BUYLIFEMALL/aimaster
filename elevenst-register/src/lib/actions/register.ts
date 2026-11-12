@@ -10,7 +10,9 @@ import { parseAreas, type Area } from "@/lib/elevenst/areas";
 import { parseSendCloseTemplates, type SendCloseTemplate } from "@/lib/elevenst/sendClose";
 import { buildProductXml, checkDraft, type DraftCheck, type ElevenstDraft } from "@/lib/elevenst/product";
 import { encodeEucKr } from "@/lib/elevenst/xml";
-import { detailTextHtml } from "@/lib/elevenst/register";
+import { detailImageMode, detailTextHtml, MAX_DETAIL_IMAGES } from "@/lib/elevenst/register";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 
 // 3단계 등록 화면용 액션 — 11번가에 아무것도 만들거나 바꾸지 않는다(카테고리·주소·발송마감 템플릿 읽기와 검사만).
 // 모든 액션은 프로그램 이용 권한 확인부터 한다(CLAUDE.md 멀티테넌시 원칙 1).
@@ -100,7 +102,7 @@ export async function loadSellerSetupAction(): Promise<SellerSetup> {
   }
 }
 
-export type CheckResult = DraftCheck & { categoryPath: string; xmlBytes: number; preview: string };
+export type CheckResult = DraftCheck & { categoryPath: string; xmlBytes: number; preview: string; detailMode: "images" | "text"; detailImageCount: number };
 
 /** 「검사하기」: 초안 검사 + 등록 본문을 실제로 만들어 크기·글자를 확인한다. 11번가에는 보내지 않는다 */
 export async function checkDraftAction(productId: string, draft: ElevenstDraft): Promise<{ ok: true; result: CheckResult } | { ok: false; error: string }> {
@@ -123,16 +125,19 @@ export async function checkDraftAction(productId: string, draft: ElevenstDraft):
   }
   const check = checkDraft(draft, { categoryIsLeaf, hasMainImage: Boolean(shop.mainImage) });
 
-  // 이미지 공개 주소는 보낼 때 만든다. 지금은 같은 길이의 자리표시 주소로 본문 크기만 잰다. 상세설명은 보낼 때와 같은 글 상세설명.
+  // 이미지 공개 주소는 보낼 때 만든다. 지금은 같은 길이의 자리표시 주소로 본문 크기만 잰다. 상세설명은 보낼 때와 같은 방식
+  // (유료(보관 연장) 회원·관리자·시험 계정 = 섹션 이미지, 그 밖 = 글 — send.ts와 같은 판정).
   const slot = (i: number) => `https://elevenst-register.buylife.xyz/i/xxxxxxxxxxxxxxxxxxxxxx${i}`;
   const p = shop.product;
+  const sectionCount = Math.min(shop.sectionImages.length, MAX_DETAIL_IMAGES);
+  const detailMode = detailImageMode(await isRetentionExempt(createAdminClient(), user.id), sectionCount);
   const hasDetailText = Boolean(p.key_features?.trim() || p.specs?.trim() || p.how_to_use?.trim());
   const xml = buildProductXml(draft, {
     main: slot(0),
     extras: shop.extraImages.slice(0, 3).map((_, i) => slot(i + 1)),
-    details: [],
-    detailHtml: detailTextHtml({ name: draft.name, key_features: p.key_features, specs: p.specs, how_to_use: p.how_to_use, target_customer: p.target_customer }),
+    details: detailMode === "images" ? Array.from({ length: sectionCount }, (_, i) => slot(i + 10)) : [],
+    detailHtml: detailMode === "images" ? undefined : detailTextHtml({ name: draft.name, key_features: p.key_features, specs: p.specs, how_to_use: p.how_to_use, target_customer: p.target_customer }),
   });
-  if (!hasDetailText) check.warnings.push("상세페이지에 핵심 특징·상품 정보·사용법이 없어 11번가 상세설명이 상품명만으로 짧게 보입니다.");
-  return { ok: true, result: { ...check, categoryPath, xmlBytes: encodeEucKr(xml).length, preview: xml.slice(0, 1200) } };
+  if (detailMode === "text" && !hasDetailText) check.warnings.push("상세페이지에 핵심 특징·상품 정보·사용법이 없어 11번가 상세설명이 상품명만으로 짧게 보입니다.");
+  return { ok: true, result: { ...check, categoryPath, xmlBytes: encodeEucKr(xml).length, preview: xml.slice(0, 1200), detailMode, detailImageCount: detailMode === "images" ? sectionCount : 0 } };
 }

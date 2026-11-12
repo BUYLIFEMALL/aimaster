@@ -95,3 +95,15 @@ export function detailTextHtml(p: DetailTextSource): string {
   if (target.length) parts.push(h("이런 분께 추천합니다"), `<ul style="padding-left:20px;line-height:1.8">${target.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`);
   return stripNonEucKr(`<div style="max-width:860px;margin:0 auto;font-family:sans-serif;color:#333">${parts.join("")}</div>`);
 }
+
+/** 상세설명에 넣는 상세페이지 섹션 이미지 최대 장수 */
+export const MAX_DETAIL_IMAGES = 20;
+
+/**
+ * 상세설명 방식(2026-11-13 주인님 결정 「3안」 + 「서버 보관 비용이 드니 유료 사용자만, 관리자·시험 계정은 예외」).
+ * 섹션 이미지는 11번가가 받아 가지 않고 우리 주소를 그대로 띄우므로, 보관 기간이 늘어나는 회원(profiles.retention_exempt —
+ * 저장 구독 회원은 매일 자동으로 켜지고 관리자·시험 계정은 항상 켜짐)에게만 이미지를 넣는다. 그 밖은 글 상세설명.
+ */
+export function detailImageMode(paid: boolean, sectionImageCount: number): "images" | "text" {
+  return paid && sectionImageCount > 0 ? "images" : "text";
+}
