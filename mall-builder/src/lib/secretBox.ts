@@ -36,3 +36,11 @@ export function openSecret(sealed: string, aad: string, secretB64 = process.env.
 export function looksLikeAnthropicKey(key: string): boolean {
   return /^sk-ant-[A-Za-z0-9_-]{20,300}$/.test(key.trim());
 }
+
+/** 제공자별 키 모양 검사(2026-11-12) — OpenAI sk-…, Claude sk-ant-…, Gemini AIza… */
+export function looksLikeProviderKey(provider: "openai" | "anthropic" | "gemini", key: string): boolean {
+  const k = key.trim();
+  if (provider === "anthropic") return looksLikeAnthropicKey(k);
+  if (provider === "openai") return /^sk-(?!ant-)[A-Za-z0-9_-]{20,300}$/.test(k);
+  return /^AIza[A-Za-z0-9_-]{30,60}$/.test(k);
+}

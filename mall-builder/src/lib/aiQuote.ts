@@ -4,14 +4,39 @@
 
 import { z } from "zod";
 
+// 2026-11-12 주인님 지시: 제공자 OpenAI → Claude → Gemini 순서로 고르고, 제공자마다 최신 모델 여러 개 중 선택.
+// 목록·가격은 docs/AI_MODEL_CATALOG.md(등급별 추천·평가표) 기준. DB 0059의 허용 목록과 같게 유지한다.
+export const AI_PROVIDERS = [
+  { id: "openai", label: "OpenAI", defaultModel: "gpt-6.1-terra", keyHint: "sk-", console: "https://platform.openai.com/api-keys" },
+  { id: "anthropic", label: "Claude", defaultModel: "claude-sonnet-5-5", keyHint: "sk-ant-", console: "https://console.anthropic.com/settings/keys" },
+  { id: "gemini", label: "Gemini", defaultModel: "gemini-3.8-flash", keyHint: "AIza", console: "https://aistudio.google.com/apikey" },
+] as const;
+export type AiProviderId = (typeof AI_PROVIDERS)[number]["id"];
+export const isAiProvider = (p: unknown): p is AiProviderId => AI_PROVIDERS.some((x) => x.id === p);
+
 export const AI_MODELS = [
-  { id: "claude-haiku-5-5", label: "가성비 · Claude Haiku 5.5", inPerM: 0.1, outPerM: 0.5 },
-  { id: "claude-sonnet-5-5", label: "균형(추천) · Claude Sonnet 5.5", inPerM: 2, outPerM: 10 },
-  { id: "claude-opus-5-5", label: "최고 품질 · Claude Opus 5.5", inPerM: 4, outPerM: 20 },
-] as const; // 가격: claude-api 스킬 모델 표·docs/AI_MODEL_CATALOG.md (2026-11-03 확인)
+  { id: "gpt-6-luna", provider: "openai", label: "가성비 · GPT-6 Luna", inPerM: 0.1, outPerM: 0.5 },
+  { id: "gpt-6.1-terra", provider: "openai", label: "균형(추천) · GPT-6.1 Terra", inPerM: 1, outPerM: 5 },
+  { id: "gpt-6.1-sol", provider: "openai", label: "고품질 · GPT-6.1 Sol", inPerM: 2, outPerM: 10 },
+  { id: "gpt-6-astra", provider: "openai", label: "최고 품질 · GPT-6 Astra", inPerM: 10, outPerM: 50 },
+  { id: "claude-haiku-5-5", provider: "anthropic", label: "가성비 · Claude Haiku 5.5", inPerM: 0.1, outPerM: 0.5 },
+  { id: "claude-sonnet-5-5", provider: "anthropic", label: "균형(추천) · Claude Sonnet 5.5", inPerM: 2, outPerM: 10 },
+  { id: "claude-opus-5-5", provider: "anthropic", label: "최고 품질 · Claude Opus 5.5", inPerM: 4, outPerM: 20 },
+  { id: "gemini-3.5-flash-lite", provider: "gemini", label: "가성비 · Gemini 3.5 Flash-Lite", inPerM: 0.3, outPerM: 2.5 },
+  { id: "gemini-3.8-flash", provider: "gemini", label: "균형(추천) · Gemini 3.8 Flash", inPerM: 0.75, outPerM: 3.75 },
+  { id: "gemini-4-argon", provider: "gemini", label: "최고 품질 · Gemini 4 Argon", inPerM: 4, outPerM: 20 },
+] as const; // 가격: 100만 토큰당 달러(입력/출력), docs/AI_MODEL_CATALOG.md 2026-11 기준(Gemini 4 Argon은 2026-12-01 인상 가격)
 export type AiModelId = (typeof AI_MODELS)[number]["id"];
+export const DEFAULT_AI_PROVIDER: AiProviderId = "anthropic"; // AIMaster 기본 AI = Claude
 export const DEFAULT_AI_MODEL: AiModelId = "claude-sonnet-5-5";
 export const isAiModel = (m: unknown): m is AiModelId => AI_MODELS.some((x) => x.id === m);
+export const providerOf = (m: AiModelId): AiProviderId => AI_MODELS.find((x) => x.id === m)!.provider;
+export const modelsOf = (p: AiProviderId) => AI_MODELS.filter((x) => x.provider === p);
+export const defaultModelOf = (p: AiProviderId): AiModelId => AI_PROVIDERS.find((x) => x.id === p)!.defaultModel;
+/** 제공자와 모델이 짝이 맞는지 — 안 맞으면 그 제공자 기본 모델 */
+export function pickModel(provider: AiProviderId, model: unknown): AiModelId {
+  return isAiModel(model) && providerOf(model) === provider ? model : defaultModelOf(provider);
+}
 
 export type QuoteFact = {
   item_id: string;
@@ -77,7 +102,7 @@ export function checkSuggestion(facts: QuoteFact[], ai: AiSuggestion, minMargin:
 
 /** 대략 비용(달러·원) — 표시용, 환율은 대략 1,400원 */
 export function estimateCost(model: AiModelId, usage: { input_tokens: number; output_tokens: number }) {
-  const m = AI_MODELS.find((x) => x.id === model) ?? AI_MODELS[1];
+  const m = AI_MODELS.find((x) => x.id === model) ?? AI_MODELS.find((x) => x.id === DEFAULT_AI_MODEL)!;
   const usd = (usage.input_tokens * m.inPerM + usage.output_tokens * m.outPerM) / 1_000_000;
   return { usd: Math.round(usd * 10000) / 10000, krw: Math.max(1, Math.round(usd * 1400)) };
 }

@@ -2,7 +2,6 @@
 
 // D29 AI 도우미 서버 액션 — 누를 때만 부른다. 결과는 화면 칸에 채우기만 하고 저장은 운영자가 한다.
 // 권한: 메뉴 권한(상품·게시판·첫 화면)을 여기서 확인하고, 키 암호문은 DB 함수(0049)가 다시 확인한다.
-import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { getCategoryRows, getFaqs, getNotices, getShippingPolicies, getStoreBySlug, getStoreProducts } from "@/lib/store";
 import type { Block } from "@/lib/blocks";
@@ -39,11 +38,7 @@ export async function aiProductDraftAction(slug: string, input: { memo: string; 
     const image = isOwnImageUrl(input.imageUrl, process.env.NEXT_PUBLIC_SUPABASE_URL) ? input.imageUrl : null;
     const categories = (await getCategoryRows(store.id)).map((c) => c.name);
     const prompt = buildProductPrompt({ memo, storeName: store.name, categoryNames: categories, hasImage: !!image, year: new Date().getFullYear() });
-    const content: Anthropic.ContentBlockParam[] = [
-      ...(image ? [{ type: "image" as const, source: { type: "url" as const, url: image } }] : []),
-      { type: "text", text: prompt.user },
-    ];
-    const called = await callStructured(ai, { system: prompt.system, content, schema: ProductDraftSchema, maxTokens: 6000 });
+    const called = await callStructured(ai, { system: prompt.system, content: { text: prompt.user, imageUrl: image }, schema: ProductDraftSchema, maxTokens: 6000 });
     if (!called.ok) return called;
     return { ok: true, draft: cleanDraft(called.data), cost: { model: ai.model, ...called.cost } };
   } catch (e) {

@@ -15,6 +15,9 @@ import LogoForm from "./logo-form";
 import { appLogoOf } from "@/lib/pwa";
 import RestockForm, { type RestockStatus } from "./restock-form";
 import AiForm, { type AiStatus } from "./ai-form";
+import { DEFAULT_AI_PROVIDER, isAiProvider, pickModel, type AiProviderId } from "@/lib/aiQuote";
+import { PLATFORM_AIMASTER } from "@/lib/platform";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { guestOrderEnabled } from "@/lib/guest";
 import NotifyLog, { loadNotifyLog } from "@/app/notify-log";
 import { digits } from "@/lib/notify";
@@ -133,8 +136,28 @@ async function closedStatus(storeId: string): Promise<ClosedStatus> {
 async function aiStatus(storeId: string): Promise<AiStatus> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_ai_status", { p_store_id: storeId });
-  const d = (data ?? {}) as { has_key?: boolean; hint?: string; model?: string; min_margin?: number };
-  return { hasKey: d.has_key === true, hint: d.hint ?? "", model: d.model ?? "claude-sonnet-5-5", minMargin: d.min_margin ?? 10 };
+  const d = (data ?? {}) as { has_key?: boolean; hint?: string; model?: string; min_margin?: number; provider?: string; key_provider?: string };
+  const provider = isAiProvider(d.provider) ? d.provider : DEFAULT_AI_PROVIDER;
+  // 운영(AIMaster): 메인 사이트에 등록한 몰 대표 키가 제공자별로 있는지만(값은 읽지 않음)
+  let shared: Record<AiProviderId, boolean> | null = null;
+  if (PLATFORM_AIMASTER) {
+    const admin = createAdminClient();
+    const { data: s } = await admin.from("mall_builder_stores").select("owner_id").eq("id", storeId).maybeSingle();
+    const { data: rows } = s?.owner_id
+      ? await admin.from("user_api_keys").select("provider").eq("user_id", s.owner_id).in("provider", ["openai", "anthropic", "gemini"]).neq("api_key", "")
+      : { data: [] as { provider: string }[] };
+    const has = new Set((rows ?? []).map((r) => r.provider));
+    shared = { openai: has.has("openai"), anthropic: has.has("anthropic"), gemini: has.has("gemini") };
+  }
+  return {
+    hasKey: d.has_key === true,
+    hint: d.hint ?? "",
+    provider,
+    keyProvider: isAiProvider(d.key_provider) ? d.key_provider : "anthropic",
+    model: pickModel(provider, d.model),
+    minMargin: d.min_margin ?? 10,
+    shared,
+  };
 }
 
 export default async function StoreSettingsPage({ params }: { params: Promise<{ store: string }> }) {

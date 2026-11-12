@@ -64,3 +64,38 @@ test("이유 글 끝에 남은 괄호·따옴표 기호를 지운다", () => {
   const [row] = checkSuggestion([fact()], { items: [{ item_id: "i1", unit_price: 21000, reason: "소폭 인하.}" }], note: "" }, 10);
   assert.equal(row.reason, "소폭 인하.");
 });
+
+test("AI 제공자·모델 선택(2026-11-12) — 순서 OpenAI → Claude → Gemini, 제공자별 기본 모델, 짝 바로잡기", async () => {
+  const q = await import("../src/lib/aiQuote.ts");
+  assert.deepEqual(q.AI_PROVIDERS.map((p) => p.id), ["openai", "anthropic", "gemini"]);
+  assert.equal(q.DEFAULT_AI_PROVIDER, "anthropic");
+  assert.equal(q.DEFAULT_AI_MODEL, "claude-sonnet-5-5");
+  for (const p of q.AI_PROVIDERS) {
+    assert.ok(q.modelsOf(p.id).length >= 3, `${p.id} 모델 3개 이상`);
+    assert.equal(q.providerOf(q.defaultModelOf(p.id)), p.id);
+  }
+  assert.equal(q.AI_MODELS.length, 10);
+  assert.equal(q.pickModel("gemini", "claude-opus-5-5"), "gemini-3.8-flash"); // 다른 제공자 모델이면 기본으로
+  assert.equal(q.pickModel("openai", "gpt-6-astra"), "gpt-6-astra");
+  assert.equal(q.pickModel("openai", "gpt-9"), "gpt-6.1-terra");
+  assert.ok(q.isAiProvider("gemini") && !q.isAiProvider("claude"));
+  assert.equal(q.estimateCost("gpt-6-luna", { input_tokens: 3000, output_tokens: 1500 }).krw, 1);
+  assert.equal(q.estimateCost("모르는 모델", { input_tokens: 3000, output_tokens: 1500 }).usd, 0.021); // 모르면 기본(Sonnet) 단가
+});
+
+test("응답 형식(zod) → 제공자에 보낼 JSON 스키마", async () => {
+  const { z } = await import("zod");
+  const js = z.toJSONSchema(SuggestionSchema);
+  assert.equal(js.type, "object");
+  assert.ok(js.properties.items && js.properties.note);
+  assert.deepEqual([...js.required].sort(), ["items", "note"]);
+});
+
+test("DB 0059 허용 모델 목록 = 코드 모델 목록", async () => {
+  const { readFileSync } = await import("node:fs");
+  const q = await import("../src/lib/aiQuote.ts");
+  const sql = readFileSync(new URL("../supabase/migrations/0059_ai_multi_provider.sql", import.meta.url), "utf8");
+  const block = sql.slice(sql.indexOf("mall_builder_secrets_ai_model_v2 check"), sql.indexOf("));", sql.indexOf("mall_builder_secrets_ai_model_v2 check")));
+  const inSql = [...block.matchAll(/'([a-z0-9.-]+)'/g)].map((m) => m[1]).sort();
+  assert.deepEqual(inSql, q.AI_MODELS.map((m) => m.id).sort());
+});
