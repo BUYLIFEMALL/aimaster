@@ -48,3 +48,10 @@ test("DB 값 읽기 — 모르는 칸·문자열 아닌 값은 버림", () => {
   assert.equal("unknown" in info, false);
   assert.equal(readBusinessInfo(null).company_name, "");
 });
+
+test("번호 칸의 비슷한 하이픈(복사해 온 문자)은 일반 하이픈으로 바꿔 통과(2026-11-12)", () => {
+  const r = validateBusinessInfo({ bank_account: "123456‐01–123456", phone: "1644－3686" });
+  assert.equal(r.ok, true);
+  assert.equal(r.value.bank_account, "123456-01-123456");
+  assert.equal(r.value.phone, "1644-3686");
+});

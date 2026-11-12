@@ -67,12 +67,16 @@ export function isValidBusinessNo(input: string): boolean {
 
 export type BusinessInfoResult = { ok: true; value: BusinessInfo } | { ok: false; errors: Partial<Record<keyof BusinessInfo, string>> };
 
+const DASH_FIELDS = new Set<string>(["business_no", "mail_order_no", "phone", "bank_account"]);
+
 /** 입력값 정리·검사. 필수 칸은 비워 두고 저장할 수 있게 하되(작성 중), 채운 칸은 형식을 검사한다 */
 export function validateBusinessInfo(input: Record<string, unknown>): BusinessInfoResult {
   const value = emptyBusinessInfo();
   const errors: Partial<Record<keyof BusinessInfo, string>> = {};
   for (const f of BUSINESS_FIELDS) {
-    const v = typeof input[f.key] === "string" ? (input[f.key] as string).trim() : "";
+    let v = typeof input[f.key] === "string" ? (input[f.key] as string).trim() : "";
+    // 번호 칸: 복사해 온 비슷한 하이픈(‐ ‑ ‒ – — － ー 등)을 일반 하이픈으로(2026-11-12 계좌번호 저장이 막힌 일)
+    if (DASH_FIELDS.has(f.key)) v = v.replace(/[‐-―−﹘﹣－ー]/g, "-");
     if (v.length > f.max) errors[f.key] = `${f.label}은(는) ${f.max}자 이내로 입력해 주세요.`;
     value[f.key] = v;
   }
