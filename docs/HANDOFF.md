@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — 이웃 미리보기 409 원인·수정(미배포), 블로그 옛 현황 정리
+
+- 원인: DB 함수가 회원 PC `checkedAt`을 DB `created_at`과 직접 비교 → 맥(1.63초 늦음)에서 매번 거절. 운영 기록 2건 모두 실패·성공 0건. 수락(C-3)도 허가 시각과 PC `attempted_at`을 비교해 같은 문제.
+- 수정(커밋 `1dbf5937a`, 미배포): `extension/server-clock.mjs` 새 컴포넌트, `context-bridge`·`accept-bridge`가 서버 `serverNow`로 보정, `contextApi`·`acceptApi`가 `serverNow`와 409 `code` 반환. DB·보안 검사 그대로. 시험 `tests/server-clock.test.mjs` 4개 + 전체 382·tsc 통과.
+- 정리: ACTIVE_WORK 블로그 옛 줄 5개 삭제, 비교표 이웃 카드 v1.03→v1.19·목록 99·100번(이웃·카페) 추가, 역할 파일 갱신.
+- 남은 일: 빌드 승인 → v1.20 배포·ZIP → 맥미니 재설치·미리보기/수락 재검수 → C-3 구현. 진단 `blog-neighbor-care/docs/DIAG_20261113_PREVIEW409_CLOCK.md`.
+
+
+
+
+
+
+
+
+
+
 ## 2026-11-12 23:25 KST [역할: design] commercial-land-trade-alert v1.34 다크 HUD White-on-White 폰트 버그 완전 해결 및 지침 영구 탑재
 
 - **담당**: Antigravity (`agy`, 윈도우 메인) — 세션 `agy-win-clt-v1`

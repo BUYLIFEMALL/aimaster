@@ -15,6 +15,7 @@
 
 ## 대기 중
 
+- `blog-neighbor-care` 시계 보정(미리보기·수락 409) — 커밋 `1dbf5937a`, v1.20 배포 때 확장 ZIP 함께(맥미니 C-3 재검수 전제) [역할: blog]
 - **블로그 맥미니 지적 처리(2026-11-12 [역할: blog] `claude-win-blog`)**: `tistory-auto-blog` 열외 회원 보관 안내·배지(시험 177) · `naver-cafe-recruit` 명단 고유 인원·종료 카운터·팝업 버전(시험 17, 확장 → manifest·ZIP·DB 함께). 각 `docs/IMPROVEMENT_HANDOFF_20261112.md`. 다음 그 프로그램 배포 때 함께.
 
 - **공통 — 💾 저장공간 위젯 한 줄(2026-11-11 세션 `claude-win-rea`, 주인님 「해당 프로그램 배포할때 배포되도록」, 추가 배포 없음)**: 하위 웹 프로그램을 배포할 때 레이아웃에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`를 함께 넣는다. `node scripts/pending-check.mjs <폴더>`가 미적용 여부를 자동으로 알려 주고, `--all`이 남은 프로그램을 센다(시작 0/99). 절차·예외: [`HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`](HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md).
