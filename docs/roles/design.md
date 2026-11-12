@@ -1,23 +1,25 @@
 # 디자인
 
-- 담당: Antigravity(`agy`, 윈도우) — 최근 세션 `agy-win-clt-v1`
+- 담당: Antigravity(`agy`, 윈도우) — 최근 세션 `agy-win-inf-v1`
 - 맡은 폴더: `threads-content-ops` (Group 3 대표 모델)
 - 카테고리: 전체(디자인)
 - 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
 - 핵심 배포 원칙 (2026-10-29 주인님 지시): 작업한 내용의 실제 배포는 비용 절감을 위해 꼭 당장 필요한 것(긴급/치명 오류)이 아니면 로컬 검수 완료 상태로 모아두었다가 **한 번에 묶음(Batch)으로 반영**한다. 급한 것만 최소한으로 단독 반영.
-- 마지막 갱신: 2026-11-12 23:15 (agy-win-clt-v1)
-- 최신 갱신: 2026-11-12 23:15 (agy-win-clt-v1, commercial-land-trade-alert v1.34 다크 HUD White-on-White 폰트 시인성 버그 완전 해결, bg-white 전수 제거 및 프로덕션 재배포 완료, 다크 테마 작업 헌장 공식 제정)
-- 최근 업데이트: 2026-11-12 23:15 (commercial-land-trade-alert v1.34 White-on-White 버그 픽스 및 지침 반영 완료)
+- 마지막 갱신: 2026-11-13 01:21 (agy-win-inf-v1)
+- 최신 갱신: 2026-11-13 01:21 (agy-win-inf-v1, ai-influencer-studio v1.25 1안 보그 하이엔드 뷰티 아틀리에 공식 채택 전면 개편 & Vercel 프로덕션 배포 완료)
+- 최근 업데이트: 2026-11-13 01:21 (ai-influencer-studio v1.25 배포 완료)
 
 ## 지금 하는 일
-- `commercial-land-trade-alert` v1.34 다크 HUD 모드 White-on-White 폰트 증발 버그 완전 해결, 하드코딩된 `bg-white` 19곳 전수 다크 서피스/고대비 폰트 치환, Vercel 프로덕션 재배포(`dpl_5behamECE8T7EGrcWaBDve6EnjHa`) 및 실제 로그인 세션 실물 캡처 검증 완료, 공식 재발 방지 지침 등재 완료 ➔ 다음 지시 대기
+- 다음 디자인 리뉴얼 대상 프로그램 탐색 및 대기
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
-- 없음 (주인님 다음 지시 대기)
+- 없음 (ai-influencer-studio v1.25 배포 완료)
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-13 | `ai-influencer-studio` `v1.25` | 1안(101. 보그 하이엔드 뷰티 & 패션 에디토리얼 아틀리에) 공식 채택 전면 개편, 3:4 인스타 화보 뷰파인더 덱 (LIVE REC) & 4단계 파이프라인 배너, 3D 엠보싱 로즈 버튼(`.btn-3d-rose`) & 페이스 시드 락(#98241), 2026-11-01 5단계 표준 규격 & 1행 약관 & 저장공간 위젯 탑재, TypeScript 검사 통과 & Next.js 16.4.2 프로덕션 빌드 성공, Vercel 프로덕션 배포 및 라이브 실세션 검증 완료 | ✔ 프로덕션 배포 완료 (`dpl_CDLgDPRuQNDztscJxdz7S2Rj1rXB`, https://ai-influencer.buylife.xyz) |
+| 2026-11-13 | `ai-influencer-studio` `v1.25` | 4대 화면 3시안(12개 뷰) 1440px 고화질 캡처 및 `http://localhost:3800/showcase.html` 단일 통합 쇼케이스 & `comparison.html` 종합 비교 매트릭스 표 구축, `D:\Antigravity\Design` 3대 독립 폴더(101/102/103번) 영구 자산 아카이빙 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3800`) |
 | 2026-11-12 | `commercial-land-trade-alert` `v1.34` | 다크 HUD 적용 시 발생한 White-on-White(흰 바탕에 흰 글자) 폰트 증발 긴급 해결: 하드코딩된 `bg-white` 19곳 전수 식별 후 고대비 다크 서피스(`bg-[#121824]`, `bg-[#0E1420]`, `border-[#1E293B]`) 및 명시적 폰트 색상(`text-white`, `text-slate-200`, `text-gray-300`, `text-amber-400`)으로 일괄 치환, Supabase SSR 세션 쿠키 주입을 통한 실제 로그인 실물 화면 캡처 검증 완료, Vercel 프로덕션 배포 완료 (`dpl_5behamECE8T7EGrcWaBDve6EnjHa`), `DESIGN.md`·`PROGRAM_DESIGN_STANDARD.md`·`ERROR_LESSONS.md`에 다크 테마 bg-white 전수 치환 헌장 영구 등재 | ✔ 프로덕션 배포 완료 (`dpl_5behamECE8T7EGrcWaBDve6EnjHa`, https://commercial-land-trade-alert.buylife.xyz/watch) |
 | 2026-11-11 | `ebook-studio` `v1.14` | 1안(97. 프리미엄 클래식 북바인딩 & 노벨리스트 잉크 스타일) 공식 채택 전면 개편, 2026-11-01 5단계 표준 로그인 폼 & 1행 약관 개편, 3D 엠보싱 앰버 골드 버튼(`.btn-3d`, `.btn-3d-amber-book`) & 옵시디언 나이트/앤티크 골드 테마 탑재, TypeScript 검사 통과 & Next.js 16.4.2 프로덕션 빌드 성공, Vercel 프로덕션 배포 및 라이브 검증 완료 | ✔ 프로덕션 배포 완료 (`dpl_9vf24yxdde7X5zbAtFus4qUhivZW`, https://ebook-studio.buylife.xyz, https://ebook.buylife.xyz) |
 | 2026-11-11 | `ebook-studio` `v1.12` | 4대 화면 3시안(12개 뷰) 1440px 고화질 캡처 및 `http://localhost:3800/showcase.html` 단일 통합 쇼케이스 & `comparison.html` 종합 비교 매트릭스 표 구축, `D:\Antigravity\Design` 3대 독립 폴더(97/98/99번) 영구 자산 아카이빙 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3800`) |

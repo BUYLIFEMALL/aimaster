@@ -40,6 +40,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `.`(메인 사이트, 범위: app/api/session·app/(auth)/login·app/(dashboard)/settings·components/layout·components/dashboard/RelogAdminButton.tsx·lib/session·supabase/migrations) | [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` | 2026-11-12 | 같은 계정 PC1+모바일1 동시 접속 1·2단계(Lab 트리거 시험·메인 코드 수정, 미배포) — docs/PLAN_20261112_DEVICE_SLOT_LOGIN.md |
 | `ebook-studio/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-ebs-v1` | 2026-11-11 | 1안 공식 채택 반영 v1.14 전면 리뉴얼 및 배포 완료 |
 | `insta_auto_poster/` | [역할: design] Antigravity(윈도우) · 세션 `agy-win-iap-v1` | 2026-11-11 | 4대 화면 3시안 중 1안 공식 채택 반영 v1.73 전면 리뉴얼 및 배포 완료 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.05 묶음 배포 완료(2026-11-13, 비공개). 다음: 5·6단계 실제 보내기 1건(주인님 승인 대기). 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |

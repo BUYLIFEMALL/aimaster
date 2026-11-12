@@ -1,5 +1,26 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 [역할: design] Antigravity(윈도우) · 세션 `agy-win-inf-v1` — AI 인플루언서 자동화 v1.25 1안 보그 하이엔드 뷰티 아틀리에 공식 채택 전면 개편 및 프로덕션 배포 완료
+- **결정 & 지시**: 사용자 "남은 작업 진행해" 지시 접수 ➔ 101번 보그 하이엔드 뷰티 & 패션 에디토리얼 아틀리에 공식 채택 반영.
+- **구현 내역**:
+  1. **101번 테마 전면 리뉴얼**: `#0C0E14` 딥 옵시디언 차콜 + `#F43F5E` 샴페인 로즈골드 + `#F59E0B` 럭셔리 골드 앰버 팔레트 적용.
+  2. **핵심 컴포넌트 탑재**:
+     - 3:4 인스타그램 화보 뷰파인더 덱 (LIVE 🔴 STUDIO REC, 4K UHD 60FPS, ISO 100 오버레이)
+     - 4단계 페르소나 스타일링 인디케이터 배너 (모델 ➔ 스타일링 ➔ 씬 연출 ➔ 4K 화보)
+     - 페이스 일관성 시드 락커 배지 (Face Consistency Seed: #98241 LOCK)
+     - 3D 엠보싱 샴페인 로즈/앰버/다크 버튼(`.btn-3d-rose`, `.btn-3d-amber`, `.btn-3d-dark`)
+  3. **표준 및 공통 지침 완비**:
+     - 2026-11-01 5단계 표준 규격 인증 카드 & 1행 약관 (`/terms`, `/privacy`, `/signup`) 완비
+     - 저장공간 위젯 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />` 탑재 완료
+     - 기기 슬롯 로그인 최적화: `signOut({ scope: "local" })` 적용 및 서버 Supabase 클라이언트에 `User-Agent` 헤더 전달
+  4. **White-on-White 방지 헌장 준수**: 하드코딩된 라이트 배경 제거 및 명시적 고대비 색상 선언.
+- **빌드 & 배포 검증**:
+  - `npm run build` 로컬 Next.js 16.4.2 프로덕션 빌드 성공 (TypeScript 2.8s 통과, Static pages 9/9 완벽 생성)
+  - `node scripts/pending-check.mjs ai-influencer-studio` 사전 점검: 대기 없음(0 warnings) 통과
+  - Vercel 프로덕션 배포 완료: `dpl_CDLgDPRuQNDztscJxdz7S2Rj1rXB` (https://ai-influencer.buylife.xyz)
+  - Playwright 실서버 라이브 스크린샷 검증 완료 (`ai_influencer_v125_live_login.png`, 저장공간 위젯 탑재 확인: true)
+- **영구 자산화**: `D:\Antigravity\Design\101_vogue_beauty_editorial\ai_influencer_studio`에 12개 뷰 및 라이브 스크린샷 100% 보존.
+
 
 ## 2026-11-13 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 11번가 등록기 v1.05 + 상세페이지 v1.43 묶음 배포
 - 결정: 상세설명 사진 「3안」 + 「서버 보관 비용이 드니 유료 사용자만, 관리자·시험 계정 예외」 → `profiles.retention_exempt` 회원만 상세페이지 사진(최대 20장), 그 밖은 글. 사진 주소는 구독 중 계속·끝나면 404, CDN 하루 보관(`d764b4a64`).
@@ -13,13 +34,32 @@
 - 정리: ACTIVE_WORK 블로그 옛 줄 5개 삭제, 비교표 이웃 카드 v1.03→v1.19·목록 99·100번(이웃·카페) 추가, 역할 파일 갱신.
 - 남은 일: 빌드 승인 → v1.20 배포·ZIP → 맥미니 재설치·미리보기/수락 재검수 → C-3 구현. 진단 `blog-neighbor-care/docs/DIAG_20261113_PREVIEW409_CLOCK.md`.
 
+## 2026-11-13 [역할: mac-mini] 블로그 잔여 작업·Windows 요청 최신 목록 정리
+
+- [통합 인수인계](HANDOFF_20261112_MACMINI_BLOG_REVIEW.md)를현재상태로정리. 이웃계정재연결/관리화면허용/신청2건읽기저장은완료, 현재차단은preview409. Windows1순위는RPC오류/클라이언트-DB시각비교진단(시계차최소1.63초확인·인과미확정), 이후맥미니수락1건/returnPostId검수.
+- 티스토리손상이미지·열외안내/모델표, 카페명단/카운터/버전·C모드, WP P3/P7시험계정조건, AI실비기록·담당문서옛상태가잔여. C3실물2건통과뒤자동수락/답방구현검토. 완료항목재실행금지·실수락09~22시유지.
+- Windows수정/재배포회신은문서상미확인. 이번상태확인유료AI/추가비용/코드/빌드/배포/운영DB쓰기0.
 
 
+## 2026-11-12 23:49 KST [역할: mac-mini] C3 초점 정상 재검수·preview409 / 맥-DB 시계 차이 확인, Windows 진단 요청
+
+- 사용자 새 「계속 진행해」에 따라 이전검사용페이지를정리한새조건에서실제팝업1개를전경에열고 **새읽기UI1회**. 임시진단표시로 document.hasFocus=true·visibilityState=visible을실제AX확인한뒤읽기시작(진단표시는시험뒤제거,앱소스변경없음). 이번에는이전초점유지오류가아닌 **「읽기 상태나 대상이 바뀌었습니다. 이전 결과를 확인하고 다시 읽어 주세요.」**로중단. 같은조건자동재요청없음.
+- **Supabase 읽기 전용 진단:** 해당기기/본인글만제한SELECT. 새incoming요청2c6ef615-08f4-4bf1-8e42-165a860b8d97, 생성2026-11-12 14:46:44.720830Z, phase=cancelled, preview_at=null. offer생성성공·미리보기저장전실패/자동취소확인. 읽기권한incoming/return_post는미철회·미만료로정상. 실제DB쓰기/함수실행재현/운영로그전체조회없음.
+- **환경 시계 차이 확인:** 순차 측정 Mac before1794494931911 → DBclock1794494935098.777 → Mac after1794494933467(ms). DB시각이응답뒤측정한Mac보다도 **최소1631.777ms 앞섬**(측정왕복범위1631.777~3187.777ms). 로컬시스템시계/NTP설정은변경하지않음.
+- **유력 원인 후보, 확정 아님:** 운영함수정의의 `observed<r.created_at`/`observed>t` 거절조건을시스템카탈로그SELECT로확인. DOM은Date.now()로관찰시각을만들므로Mac이느린경우빠른정상읽기에서도관찰시각이서버요청생성보다이르게표시되어BNC_READ_CONTEXT가날수있음. 실제RPC SQLSTATE/해당snapshot checkedAt은저장되지않아이번거절의정확한분기로확정하지않음. api contextApi.ts는여러RPC오류를같은409문구로합침.
+- **Windows 담당께 다음 첫 단계:** (1) 해당요청/배포의RPC오류코드와타임스탬프를민감값없이대조 (2) 서버시간과클라이언트시간비교정책을검토. clock-skew허용/서버발급시각기준등안을제시하되nonce·프로필해시·계정/기기/대상·30초freshness·읽기기한검사를우회/삭제하지말것 (3) 클라이언트±수초차이·정상/만료/재전송거절을격리검증후필요한SQL/코드변경·배포를Windows기존승인절차로진행 (4) 정상읽기진단뒤맥미니재요청. 맥은OS시간·운영SQL·앱소스를직접수정하지않음.
+- 근거JSON `docs/evidence/v119-c3-preview-clock-review.json`, 읽기전용조회문 `_workspace/bnc-context-clock-review-20261112.sql`. 이전검사용페이지간섭가능성은당시가설로보존하되이번초점정상/검사용페이지0조건의서버단계실패와구분함.
+- 현재23시동작시간대밖, 실수락idle/준비1건은다음09~22시. 원댓글확정/returnPostId는아직미검수. 등록/공감/댓글/추가AI0·비용$0·코드/빌드/배포/커밋/직접DB쓰기0. 공간22 handOff, C3구현선행조건은여전히미충족.
 
 
+## 2026-11-12 23:15 KST [역할: mac-mini] C3 실제팝업 원댓글읽기1회·초점검사실패 / 자동재요청안함
 
-
-
+- 사용자 「계속 진행해」 뒤 실제확장팝업 Target FB1A2EB0396F2E135F6E9C9315712C3F·네이티브윈도우7663 확인. 연결buylifemall·v1.19·전체일시정지·수락idle가실제AX화면에표시됨. 이번에는실제팝업UI로처리.
+- 실제팝업 현재탭이 정확한 본인글224437302971인지확인한뒤, 필요한경우댓글펼침UI만열고 「내 글 원댓글 정보」 선택·읽기동의·「현재화면읽고미리보기」1회. 네이버 직접API/본문수집/등록동작없음.
+- **실패원문:** 실제팝업 contextMessage **「브라우저의 현재 탭을 화면에 유지해 주세요.」**. 미리보기없음·읽기버튼다시활성·수락idle. returnPostId저장/원댓글확정저장없음. 요청서의 「실패하면 자동으로 다시 하지 말고 오류 문구 원문·화면 캡처」 지시에따라자동재요청0. 실제AX화면의문구/상태를확인하고JSON증거로기록(기존native팝업스크린샷영역오류때문에다른화면을정상팝업캡처로보고하지않음).
+- **Windows담당께 진단:** context-bridge.mjs current()의 w.focused/popupFocused 검사경로와일치. background.mjs popupFocused는 runtime.sendMessage(neighbor_focus_probe) 첫응답을사용하고 popup.mjs는같은확장페이지별로 document.hasFocus()/현재windowId를응답함. 검사용전체페이지popup.html(p5)과실제팝업이동시에열렸으므로비활성페이지의false응답이먼저도착할가능성이있음. **원인확정아님**(OS초점유실/실제팝업hasFocus/windowId도대조필요). backgroundFocused값을우회하거나항상true로바꾸지말것. 실제사이트/기기/계정은정상허용조건부터유지하며전경증거를검사할것.
+- 검사용전체페이지p5는정리, 사용자실제팝업은보존. 이정리뒤자동재시험하지않았으며공간22 handOff. 다음허용시간대에실제팝업1개/전경조건에서별도재검수: 기존read취소/수락상태먼저확인, 수락1건·원댓글/답방읽기. 현재23시라실수락09~22시규칙유지.
+- 이번AI0·추가비용$0·수락/공감/댓글등록0·코드수정/빌드/배포/운영DB직접쓰기0. 카페초대1건·Haiku1회성공은재실행하지않음. **C3 실제수락·returnPostId는여전히미검수, C3구현착수조건통과아님.**
 
 
 ## 2026-11-12 23:25 KST [역할: design] commercial-land-trade-alert v1.34 다크 HUD White-on-White 폰트 버그 완전 해결 및 지침 영구 탑재
