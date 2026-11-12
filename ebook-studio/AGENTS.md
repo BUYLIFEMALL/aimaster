@@ -3,8 +3,8 @@
 ## 1. 개요
 - **프로그램명**: eBook Studio (`ebook-studio`)
 - **라이브 도메인**: [https://ebook-studio.buylife.xyz](https://ebook-studio.buylife.xyz) (별칭: `https://ebook.buylife.xyz`)
-- **버전**: `v1.10` (포커스 스튜디오 스타일 — 전자책 퍼블리싱 에디션)
-- **배포 상태**: Vercel 프로덕션 배포 완료 (`READY`, `https://ebook-studio.buylife.xyz`)
+- **버전**: `v1.16` (클래식 북바인딩 에디션 — 97번 테마 & 12월 최신 모델 엔진)
+- **배포 상태**: Vercel 프로덕션 배포 완료 (`READY`, `https://ebook.buylife.xyz`, `https://ebook-studio.buylife.xyz`, 배포 ID: `dpl_EejQ8NzCocayuEuC98uTxqqFoUFZ`)
 - **주요 기능**:
   1. **01 원본 문서 (스마트 자료 입력 & 목차 엔진)**:
      - 3가지 입력 방식: 파일(TXT, Markdown, DOCX - 브라우저 메모리 파싱), 최대 12개 웹 URL 일괄 스크래핑, 직접 붙여넣기(유튜브 자막 추출 스크립트 복사 지원).
@@ -89,6 +89,12 @@
 ---
 
 ## 6. 버전 및 DB 이력
+- `v1.16` (2026-11-13, Antigravity [역할: design]):
+  - 첫 화면 히어로 소개 배지 구버전 문구(`v1.10 Focus Publishing Studio` ➔ `{APP_VERSION} Classic Bookbinding Studio`) 동기화 (97번 클래식 북바인딩 공식 테마 정체성 일치).
+  - 12월 모델 교체(Gemini 3.8 Flash, 3.5 Flash-Lite, 4-Argon 등) 잔여 검증 및 PENDING_DEPLOYS 묶음 B 완결.
+  - 보안 강화: `supabase.auth.signOut({ scope: "local" })` 적용(타 탭 세션 보존) 및 서버 Supabase 클라이언트 `User-Agent` 헤더 전달.
+  - 저장공간 위젯(`storage-widget.js`) 탑재 확인 및 Next.js 16.4.2 프로덕션 빌드 성공.
+  - Vercel 프로덕션 배포 완료 (`dpl_EejQ8NzCocayuEuC98uTxqqFoUFZ`, https://ebook.buylife.xyz) 및 실서버 라이브 스크린샷 검증 완료.
 - `v1.15` (2026-11-11, Claude Code 윈도우 [역할: blog]): AI 집필·목차 모델을 OpenAI→Claude→Gemini 순 플랫폼별 3개(가성비·균형·최고 품질)에서 고르게 함(`src/lib/textModels.ts`, `src/lib/ai/textLlm.ts`, 공용 사본 `openaiRequestParams.ts`), OpenAI·Claude 키는 공용 `user_api_keys` 본인 키만. AI 3곳·주소 읽기·키 저장 API에 프로그램 권한 확인 추가(보안). 저장공간 위젯 한 줄. DB `programs.version` v1.15. 실제 시험: Claude Haiku 5.5 1회 성공.
 - `v1.11` (2026-10-20, Claude Code 윈도우): 좌측 메뉴 계정·로그아웃이 화면 맨 아래로 밀리던 문제 수정 — `src/components/layout/Sidebar.tsx` 바깥 묶음의 `justify-between` 제거, 계정 묶음 `mt-4 shrink-0`(사이드바 표준, 웹툰 v1.23과 같은 원인).
 - `v1.10` (2026-10-19):

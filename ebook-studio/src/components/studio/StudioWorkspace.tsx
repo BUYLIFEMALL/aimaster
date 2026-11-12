@@ -13,6 +13,7 @@ import { SettingsModal } from "@/components/modals/SettingsModal";
 import { HelpModal } from "@/components/modals/HelpModal";
 import { EbookProject, Chapter, OutlineItem } from "@/lib/types";
 import { buildStandaloneHtml } from "@/lib/template";
+import { APP_VERSION } from "@/lib/version";
 import Link from "next/link";
 import { Sparkles, RefreshCw, X, AlertCircle, BookOpen, Layers, Palette, Share2, KeyRound, ArrowRight } from "lucide-react";
 
@@ -386,9 +387,9 @@ export function StudioWorkspace({ userEmail }: StudioWorkspaceProps) {
               <div className="studio-hero rounded-2xl p-4 sm:p-5 border border-indigo-100 shadow-xs relative overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-1">
-                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-[10px] font-bold">
-                      <Sparkles className="w-3 h-3 text-indigo-600" />
-                      <span>v1.10 Focus Publishing Studio</span>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 text-[10px] font-bold">
+                      <Sparkles className="w-3 h-3 text-amber-600" />
+                      <span>{APP_VERSION} Classic Bookbinding Studio</span>
                     </div>
                     <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
                       <span>eBook Studio 전자책 집필 콘솔</span>

@@ -8,6 +8,7 @@ export async function createClient() {
   const cookieDomain = cookieDomainForHost(
     headerStore.get("x-forwarded-host") ?? headerStore.get("host")
   );
+  const userAgent = headerStore.get("user-agent") ?? "";
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,6 +31,9 @@ export async function createClient() {
             // Server Component에서 호출 시 무시
           }
         },
+      },
+      global: {
+        headers: { "User-Agent": userAgent },
       },
     }
   );

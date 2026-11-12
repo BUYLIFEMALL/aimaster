@@ -2,7 +2,7 @@
 
 ## 1. 개요
 - **프로그램**: eBook Studio (`ebook-studio`, 20번)
-- **최신 버전**: `v1.10`
+- **최신 버전**: `v1.16`
 - **라이브 도메인**: [https://ebook-studio.buylife.xyz](https://ebook-studio.buylife.xyz)
 
 ---
@@ -40,7 +40,13 @@
 - 향후 과제: 상기 아이디어 백로그 검토 및 단계적 적용.
 
 
-> **미배포 대기 (2026-11-11 배포 뒤, 세션 claude-win-blog)** — 화면에 남은 옛 「Gemini 전용」 문구 3곳 수정: 좌측 메뉴 「API 키 등록 (Gemini)」→「API 키·모델 설정」(`Sidebar.tsx`), 원문 입력 안내(`SourceInputPanel.tsx`), 가이드 저장 문답(`guide/page.tsx`). tsc 통과, 다음 배포 때 함께(급하지 않음). 남은 관찰: 첫 화면 소개 배지가 아직 「v1.10 Focus Publishing Studio」로 보임(디자인 담당 몫).
+> [역할: design] **✅ v1.16 배포 완료 (2026-11-13, 배포 `dpl_EejQ8NzCocayuEuC98uTxqqFoUFZ`, DB v1.15→v1.16)** — 12월 모델 교체 묶음 B 종결 및 소개 배지 UI 개선 반영.
+>
+> - **첫 화면 소개 배지 정상화**: `v1.10 Focus Publishing Studio` ➔ `{APP_VERSION} Classic Bookbinding Studio` 치환하여 97번 클래식 북바인딩 공식 테마 정체성 일치.
+> - **12월 모델 교체 B 종결**: 맥미니 11-03 커밋(`9b1e6fdd2`) 및 blog 세션의 다중 모델 선택(`38db47fd5`) 배포 연계 확인 및 완료 처리.
+> - **보안 강화**: `supabase.auth.signOut({ scope: "local" })` 적용 및 서버 Supabase 클라이언트 `User-Agent` 헤더 전달.
+> - **저장공간 위젯 탑재 확인**: `layout.tsx` 내 `storage-widget.js` 정상 탑재 확인 (`Storage widget tag verified: true`).
+> - **배포 및 검증**: Next.js 16.4.2 프로덕션 빌드 성공, Vercel 프로덕션 배포 완료 (`https://ebook.buylife.xyz`), 라이브 실서버 스크린샷 캡처 검증 완료.
 
 > [역할: blog] **✅ v1.15 배포 완료 (2026-11-11, 배포 `ebook-studio-hyjwx2cw6`, DB v1.12→v1.15)** — 아래 항목이 나감. 검수: ego 화면에서 설정 창 모델 9개(OpenAI→Claude→Gemini) 표시, Claude 고르면 「본인 키 등록됨」(메인 사이트 등록 키 재사용), 시험 계정 본인 Claude 키로 Haiku 5.5 목차 생성 1회 200(15초), 로그인 없는 AI 호출 401, 저장공간 위젯 표시. 원래 기록: (2026-11-11, 주인님 지시 「OpenAI / Claude / Gemini 순으로 각각 플랫폼별 최신 모델을 사용자가 골라서 사용할 수 있게」, 세션 claude-win-blog)** — 다음 배포 때 v1.15로 함께 나감(배포 승인 대기).
 >
