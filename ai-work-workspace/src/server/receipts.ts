@@ -89,7 +89,7 @@ const callVision: VisionCaller = async ({ provider, key, model, mime, base64, pr
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST", signal,
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model, max_tokens: 1500, messages: [{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: mime, data: base64 } }, { type: "text", text: prompt }] }] }),
+      body: JSON.stringify({ model, max_tokens: 1500, messages: [{ role: "user", content: [mime === "application/pdf" ? { type: "document", source: { type: "base64", media_type: mime, data: base64 } } : { type: "image", source: { type: "base64", media_type: mime, data: base64 } }, { type: "text", text: prompt }] }] }),
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new ApiError(aiError("Claude", r.status, j), 502);
@@ -99,7 +99,7 @@ const callVision: VisionCaller = async ({ provider, key, model, mime, base64, pr
     const r = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST", signal,
       headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model, response_format: { type: "json_object" }, messages: [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }] }),
+      body: JSON.stringify({ model, response_format: { type: "json_object" }, messages: [{ role: "user", content: [{ type: "text", text: prompt }, mime === "application/pdf" ? { type: "file", file: { filename: "receipt.pdf", file_data: `data:${mime};base64,${base64}` } } : { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }] }),
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new ApiError(aiError("OpenAI", r.status, j), 502);
@@ -130,21 +130,20 @@ function aiError(name: string, status: number, j: any): string {
 /** dataURL → mime·base64(이미지·PDF만, 4MB 이하) */
 export function decodePhoto(dataUrl: unknown): { mime: string; base64: string } {
   const m = typeof dataUrl === "string" ? dataUrl.match(/^data:(image\/(?:jpeg|png|webp|gif)|application\/pdf);base64,([A-Za-z0-9+/=]+)$/) : null;
-  if (!m) throw new ApiError("사진(JPG·PNG·WEBP) 파일만 올릴 수 있습니다.", 400);
-  if (Math.floor((m[2].length * 3) / 4) > MAX_PHOTO_BYTES) throw new ApiError("사진이 너무 큽니다(4MB 이하).", 413);
+  if (!m) throw new ApiError("사진(JPG·PNG·WEBP)이나 PDF 파일만 올릴 수 있습니다.", 400);
+  if (Math.floor((m[2].length * 3) / 4) > MAX_PHOTO_BYTES) throw new ApiError(m[1] === "application/pdf" ? "PDF가 너무 큽니다(4MB 이하). 증빙이 있는 쪽만 저장해 올려 주세요." : "사진이 너무 큽니다(4MB 이하).", 413);
   return { mime: m[1], base64: m[2] };
 }
 
 export async function readPhoto(userId: string, dataUrl: unknown, mode: "evidence" | "issue") {
   const { mime, base64 } = decodePhoto(dataUrl);
-  if (mime === "application/pdf") throw new ApiError("PDF는 아직 읽지 못합니다. 사진(JPG·PNG)으로 올려 주세요.", 400);
   const keys = await loadMemberAiKeys(userId).catch(() => ({} as Awaited<ReturnType<typeof loadMemberAiKeys>>));
   const provider = keys.anthropicKey ? "anthropic" : keys.openaiKey ? "openai" : keys.geminiKey ? "gemini" : null;
   if (!provider) throw new ApiError(NO_AI_KEY, 400);
   const key = (provider === "anthropic" ? keys.anthropicKey : provider === "openai" ? keys.openaiKey : keys.geminiKey) as string;
   const text = await vision({ provider, key, model: MODELS[provider], mime, base64, prompt: ocrPrompt(mode, new Date().getFullYear()) });
   const json = parseJsonLoose(text);
-  if (!json) throw new ApiError("사진에서 내용을 읽지 못했습니다. 더 밝고 반듯하게 찍어 다시 올려 주세요.", 422);
+  if (!json) throw new ApiError(mime === "application/pdf" ? "PDF에서 내용을 읽지 못했습니다. 증빙이 있는 쪽만 저장하거나 사진으로 올려 주세요." : "사진에서 내용을 읽지 못했습니다. 더 밝고 반듯하게 찍어 다시 올려 주세요.", 422);
   return { provider, json };
 }
 

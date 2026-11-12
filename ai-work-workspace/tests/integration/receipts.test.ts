@@ -97,6 +97,19 @@ describe('사진 읽기', () => {
     const st = await rc.receiptHandlers.rcptState(ctx('member-a'), { month: '2026-11' });
     expect(st.evidence.some((e: { vendor: string }) => e.vendor === '공급사')).toBe(false);
   });
+  it('2026-11-13 PDF 증빙도 그대로 AI에 넘겨 읽는다(4MB 넘으면 거절)', async () => {
+    const seen: string[] = [];
+    rc.setVisionCaller(async ({ mime }) => {
+      seen.push(mime);
+      return '{"kind":"receipt","date":"2026-11-12","vendor":"PDF상점","supply":10000,"vat":1000,"total":11000}';
+    });
+    const pdf = 'data:application/pdf;base64,' + Buffer.from('%PDF-1.4 fake').toString('base64');
+    const r = await rc.receiptHandlers.rcptReadPhoto(ctx('member-a'), { image: pdf, mode: 'evidence' });
+    expect(seen).toEqual(['application/pdf']);
+    expect(r.evidence).toMatchObject({ vendor: 'PDF상점', total: 11000 });
+    const big = 'data:application/pdf;base64,' + 'A'.repeat(6 * 1024 * 1024);
+    await expect(rc.receiptHandlers.rcptReadPhoto(ctx('member-a'), { image: big, mode: 'evidence' })).rejects.toThrow(/PDF가 너무 큽니다/);
+  });
   it('키가 없으면 다른 키로 대신하지 않고 등록 안내', async () => {
     rc.setVisionCaller(async () => { throw new Error('부르면 안 됨'); });
     await expect(rc.receiptHandlers.rcptReadPhoto(ctx('member-nokey'), { image: PHOTO })).rejects.toThrow(/본인 AI 키/);

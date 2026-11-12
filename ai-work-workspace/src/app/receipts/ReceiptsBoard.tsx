@@ -22,8 +22,17 @@ const won = (n: number) => `${(Number(n) || 0).toLocaleString("ko-KR")}원`;
 const today = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 
 
-/** 사진을 긴 변 1600px JPEG로 줄여 dataURL로(올리는 크기·AI 비용 절약) */
+/** 사진을 긴 변 1600px JPEG로 줄여 dataURL로(올리는 크기·AI 비용 절약). PDF(2026-11-13)는 줄이지 않고 그대로(4MB 이하) */
 async function shrinkPhoto(file: File): Promise<string> {
+  if (file.type === "application/pdf" || /.pdf$/i.test(file.name)) {
+    if (file.size > 4 * 1024 * 1024) throw new Error("PDF가 너무 큽니다(4MB 이하). 증빙이 있는 쪽만 저장해 올려 주세요.");
+    return await new Promise<string>((ok, bad) => {
+      const r = new FileReader();
+      r.onload = () => ok(String(r.result).replace(/^data:[^;]*;/, "data:application/pdf;"));
+      r.onerror = () => bad(new Error("PDF를 열지 못했습니다."));
+      r.readAsDataURL(file);
+    });
+  }
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((ok, bad) => {
@@ -168,10 +177,10 @@ function EvidenceTab({ state, month, setMonth, reload, notify }: { state: State;
   return (
     <section className="rc-sec">
       <label className="rc-drop">
-        <input type="file" accept="image/*" multiple capture="environment" onChange={(e) => { void onFiles(e.target.files); e.target.value = ""; }} />
+        <input type="file" accept="image/*,application/pdf,.pdf" multiple onChange={(e) => { void onFiles(e.target.files); e.target.value = ""; }} />
         <span className="rc-drop-icon">📷</span>
-        <strong>영수증·세금계산서·현금영수증·카드전표 사진 올리기</strong>
-        <span>휴대폰에서는 바로 촬영할 수 있습니다. 한 번에 10장까지 · AI가 날짜·거래처·금액·부가세를 읽어 채워 줍니다(회원님 본인 AI 키, 장당 약 10원 안팎).</span>
+        <strong>영수증·세금계산서·현금영수증·카드전표 사진·PDF 올리기</strong>
+        <span>휴대폰에서는 촬영하거나 사진을 고를 수 있고, 메일로 받은 PDF 증빙(4MB 이하)도 됩니다. 한 번에 10장까지 · AI가 날짜·거래처·금액·부가세를 읽어 채워 줍니다(회원님 본인 AI 키, 장당 약 10원 안팎).</span>
       </label>
       <div className="rc-row-btns">
         <button type="button" className="rc-btn ghost" onClick={() => setManual((v) => !v)}>{manual ? "직접 입력 닫기" : "✏️ 사진 없이 직접 입력"}</button>
@@ -351,7 +360,7 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
             <option value="">거래처 주소록에서 고르기…</option>
             {state.partners.map((p) => <option key={p.id} value={p.id}>{p.name} {p.bizNo}</option>)}
           </select>
-          <label className="rc-btn ghost">{reading ? "읽는 중…" : "📷 사진으로 채우기"}<input type="file" accept="image/*" capture="environment" hidden onChange={(e) => { void fromPhoto(e.target.files); e.target.value = ""; }} /></label>
+          <label className="rc-btn ghost">{reading ? "읽는 중…" : "📷 사진·PDF로 채우기"}<input type="file" accept="image/*,application/pdf,.pdf" hidden onChange={(e) => { void fromPhoto(e.target.files); e.target.value = ""; }} /></label>
         </div>
         <BizFields value={partner} onChange={setPartner} />
         <h3>품목</h3>

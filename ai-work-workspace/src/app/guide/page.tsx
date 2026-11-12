@@ -430,6 +430,7 @@ export default async function GuidePage() {
             <ul>
               <li><a href="/settings/keys">API키등록·플랫폼연동</a>에 등록한 Claude·OpenAI·Gemini 키 중 하나로 읽습니다(장당 약 10원 안팎, 회원님 계정에 청구).</li>
               <li>사진은 읽기만 하고 저장하지 않습니다. 밝은 곳에서 글자가 반듯하게 보이게 찍으면 더 정확합니다.</li>
+              <li>메일로 받은 전자 영수증·세금계산서 PDF(4MB 이하)도 그대로 올리면 읽습니다. 여러 쪽이면 증빙이 있는 쪽만 저장해 올리면 더 정확합니다.</li>
             </ul>
           </aside>
           <aside className="aww-banner aww-warn">
