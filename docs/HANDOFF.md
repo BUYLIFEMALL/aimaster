@@ -1,5 +1,23 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 02:05 KST ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-inf-v1` — eBook Studio v1.16 배포 완료 & 12월 모델 교체 묶음 B 종결
+
+- **사용자 지시**: "│ ebook-studio 12월 모델 교체 배포 │ 디자인 담당(agy)" 공식 접수.
+- **배포 정보**:
+  - 버전: `v1.15` ➔ `v1.16` (화면 및 `programs.version` v1.16 동기화 완료)
+  - Vercel 프로덕션 배포 완료 (`dpl_EejQ8NzCocayuEuC98uTxqqFoUFZ`, Ready, exit code 0)
+  - 라이브 URL: https://ebook.buylife.xyz (별칭: https://ebook-studio.buylife.xyz)
+- **작업 내역**:
+  1. **12월 모델 교체 묶음 B 종결**: 맥미니 11-03 커밋(`9b1e6fdd2`) 및 blog 세션의 다중 모델 선택(`38db47fd5`) 잔여물 정리, `PENDING_DEPLOYS.md` 묶음 B 줄에서 `ebook-studio` 완료 표기 및 「내보낸 기록」 반영 완료.
+  2. **첫 화면 소개 배지 정상화**: `v1.10 Focus Publishing Studio` ➔ `{APP_VERSION} Classic Bookbinding Studio` 치환으로 97번 클래식 북바인딩 공식 테마 정체성 일치.
+  3. **공통 보안 & 로그인 정책 완비**: `supabase.auth.signOut({ scope: "local" })` 적용(동일 브라우저 타 탭 세션 보존) 및 서버 Supabase 클라이언트 `User-Agent` 헤더 전달.
+  4. **저장공간 위젯 탑재 확인**: `layout.tsx` 내 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />` 정상 포함 확인 (`Storage widget tag verified: true`).
+  5. **검증 및 빌드**: Next.js 16.4.2 프로덕션 빌드 성공(`npm run build` exit code 0), Playwright 라이브 실서버 스크린샷 캡처 검증 완료.
+- **증빙 아티팩트**:
+  - 라이브 로그인 화면: `ebook_studio_v116_live_login.png`
+- **비용**: Vercel 빌드 1회 (사용자 지시 반영), 유료 API 호출 0회.
+
+
 ## 2026-11-13 02:00 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 같은 계정 「PC 1곳 + 모바일 1곳」 동시 접속 적용 완료
 
 - **주인님 지정**: 이 세션 = 사이트 전반 정책 담당 + 메인 사이트 전담(역할 파일 `docs/roles/policy.md` 새로 만듦).
@@ -24,7 +42,14 @@
 - 참고: 로컬 `npm run build`가 가끔 `pg_type_typname_nsp_index` 중복으로 실패 — 21개 작업이 로컬 DB에 같은 표를 동시에 만드는 경합, 다시 돌리면 통과(운영 빌드 영향 없음).
 - 비용: 빌드 1회(주인님 「배포해」). 링크: https://ai-work-workspace.buylife.xyz/receipts
 
+## 2026-11-13 [역할: mac-mini] v1.20 시계보정 수정 확인·단위4개 통과 / 배포승인 대기
 
+- 사용자전달 요청함2c264607 확인: **open**, Vercel빌드1회+웹/확장ZIP/DB버전맞춤 승인대기. 결과93e69cec는코드수정완료보고이며배포완료보고가아님. 코드커밋1dbf5937a·진단7ecca3172·Windows진단문서확인.
+- 코드확인: 새server-clock.mjs의serverNow오프셋이context preview/confirm(워커복원포함)와수락의관찰/시도시각·페이지기한에적용됨. 읽기/수락API는성공시serverNow, 409에허용된BNC_*코드만반환. DB함수·nonce·신선도·기한검사를느슨하게바꾸는수정은이묶음에없음.
+- **맥미니 직접 실행:** `node --test tests/server-clock.test.mjs` → **4/4통과**, 실패0. 단위검증이며실제네이버/운영서버시계보정통과로확대하지않음. Windows전체382/tsc통과는담당결과보고근거, 맥에서다시전체실행/빌드안함.
+- **운영ZIP 직접확인:** latest.zip은아직 **1.19.0/v1.19**, server-clock.mjs없음, SHA25631e91c5702dc35a71fe2cbef18bec81ade9f4d58f9a2a6bc31d37387d8d2eb38. 공유폴더manifest도v1.19이며릴리스단계에서웹·ZIP·DB버전을v1.20으로함께맞춰야함. 지금확장을다시읽거나실물읽기를반복하지않음.
+- 다음: **관리자빌드1회승인→Windows v1.20 배포/ZIP·DB버전동기화→맥미니새ZIP/실제설치버전확인→미리보기/확인저장/returnPostId→09~22시신청수락1건**. 결과불확실시재수락금지, 기존카페초대/Haiku1회재실행금지. 선택항목한줄소개는별도관리자결정, 이번확인은소개수정/배포승인이아님.
+- 이번코드확인·ZIP조회·단위시험추가AI0/비용$0, npm설치/빌드/배포/앱소스변경/커밋/DB쓰기0. C3실물두항목은아직미검수로유지.
 
 
 ## 2026-11-13 [역할: design] Antigravity(윈도우) · 세션 `agy-win-inf-v1` — AI 인플루언서 자동화 v1.25 1안 보그 하이엔드 뷰티 아틀리에 공식 채택 전면 개편 및 프로덕션 배포 완료
