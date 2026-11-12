@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --no-warnings --experimental-strip-types --test tests/parse.test.mjs tests/extension.test.mjs",
+    "test": "node --no-warnings --experimental-strip-types --test tests/parse.test.mjs tests/extension.test.mjs tests/floorProbe.test.mjs",
     "prebuild": "node scripts/build-extension-archive.mjs"
   },
   "dependencies": {

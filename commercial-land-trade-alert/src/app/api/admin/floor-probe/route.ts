@@ -2,47 +2,20 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { bjdongCodeOf } from "@/lib/regions";
-import { parseJibun, pickFloor, type ExposItem } from "@/lib/trades/floor";
+import { parseJibun, pickFloor } from "@/lib/trades/floor";
+import { createProbe, ProbeStopped } from "@/lib/trades/floorProbe";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 300;
 
-const HUB = "https://apis.data.go.kr/1613000/BldRgstHubService/getBrExposPubuseAreaInfo";
-// 이 API는 numOfRows를 1000으로 줘도 한 쪽에 100줄만 준다(2026-11-02 첫 측정: units 100 / total 최대 21,183). 그래서 쪽을 넘겨 다 읽는다.
-const PAGE_ROWS = 100;
-const MAX_PAGES = 120; // 지번 하나에 1만 2천 줄까지(대형 집합상가는 넘을 수 있어 그때는 truncated로 표시)
-
-type LotUnits = { items: ExposItem[]; total: number; truncated: boolean };
-
-async function fetchLot(key: string, sggCd: string, bjdongCd: string, bun: string, ji: string): Promise<LotUnits> {
-  const page = async (n: number) => {
-    const qs = new URLSearchParams({ serviceKey: key, sigunguCd: sggCd, bjdongCd, platGbCd: "0", bun, ji, _type: "json", numOfRows: String(PAGE_ROWS), pageNo: String(n) });
-    for (let attempt = 0; ; attempt++) {
-      const res = await fetch(`${HUB}?${qs}`, { cache: "no-store" }).catch(() => null);
-      if (res?.ok) {
-        const body = await res.json();
-        const raw = body?.response?.body?.items?.item ?? [];
-        return { items: (Array.isArray(raw) ? raw : [raw]) as ExposItem[], total: Number(body?.response?.body?.totalCount ?? 0) };
-      }
-      if (attempt >= 2) throw new Error(`HTTP ${res?.status ?? "연결 실패"}`);
-      await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
-    }
-  };
-  const first = await page(1);
-  const pages = Math.min(Math.ceil(first.total / PAGE_ROWS), MAX_PAGES);
-  const items = [...first.items];
-  // 5쪽씩 나눠 받는다(공공데이터포털 초당 호출 제한)
-  for (let n = 2; n <= pages; n += 5) {
-    const batch = await Promise.all(Array.from({ length: Math.min(5, pages - n + 1) }, (_, i) => page(n + i)));
-    for (const b of batch) items.push(...b.items);
-  }
-  return { items, total: first.total, truncated: Math.ceil(first.total / PAGE_ROWS) > MAX_PAGES };
-}
+const TIME_BUDGET_MS = 240_000; // Vercel 300초 안에서 응답을 돌려주기 위한 예산
 
 // 관리자 전용 진단(2026-11-02 플랜 §2 4단계): 층이 빈 집합 거래 최근 30건을 건축물대장 전유부와 맞춰 본다.
 // 수집에 넣기 전에 맞춤률만 잰다. DB는 읽기만 하고 고치지 않는다. 공공 실거래·건축물대장이라 회원 정보가 없다.
+// 호출 조절(2026-11-12): 쪽 하나씩·간격 200ms, 429가 다시 나면 회차 멈춤(재시도·우회 안 함), 실패 지번 다시 안 부름, 3,000줄 넘는 지번은 따로 셈.
 export async function GET(request: Request) {
+  const started = Date.now();
   const user = await getSessionUser();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = createAdminClient() as any;
@@ -63,10 +36,9 @@ export async function GET(request: Request) {
     .order("deal_date", { ascending: false })
     .limit(limit);
 
-  const tally = { found: 0, ambiguous: 0, none: 0, skipped: 0, error: 0 };
+  const probe = createProbe({ key, deadline: started + TIME_BUDGET_MS, fetcher: (url) => fetch(url, { cache: "no-store" }) });
+  const tally = { found: 0, ambiguous: 0, none: 0, too_large: 0, skipped: 0, error: 0, not_tried: 0 };
   const rows: unknown[] = [];
-  const lots = new Map<string, Promise<LotUnits>>(); // 같은 지번은 한 번만 읽는다
-  let calls = 0;
   for (const t of (trades ?? []) as { sgg_cd: string; umd_nm: string; jibun: string; area_m2: number; deal_date: string; category: string }[]) {
     const code = bjdongCodeOf(t.sgg_cd, t.umd_nm);
     const lot = parseJibun(t.jibun);
@@ -75,21 +47,39 @@ export async function GET(request: Request) {
       rows.push({ ...t, result: "skipped", why: !code ? "법정동 코드 없음" : !lot ? "지번 형식" : "면적 없음" });
       continue;
     }
-    const lotKey = `${t.sgg_cd}|${code}|${lot.bun}|${lot.ji}`;
+    if (probe.stopped) {
+      tally.not_tried++;
+      rows.push({ ...t, result: "not_tried", why: probe.stopped });
+      continue;
+    }
     try {
-      if (!lots.has(lotKey)) lots.set(lotKey, fetchLot(key, t.sgg_cd, code.slice(5), lot.bun, lot.ji));
-      const { items, total, truncated } = await lots.get(lotKey)!;
-      calls += Math.min(Math.ceil(total / PAGE_ROWS), MAX_PAGES) || 1;
+      const { items, total, tooLarge } = await probe.lot(t.sgg_cd, code.slice(5), lot.bun, lot.ji);
+      if (tooLarge) {
+        tally.too_large++;
+        rows.push({ ...t, result: "too_large", total });
+        continue;
+      }
       const hit = pickFloor(items, Number(t.area_m2));
       const result = !hit ? "none" : "floor" in hit ? "found" : "ambiguous";
       tally[result]++;
-      rows.push({ ...t, result, floor: hit && "floor" in hit ? hit.floor : null, floors: hit && "ambiguous" in hit ? hit.ambiguous : null, units: items.length, total, truncated });
+      rows.push({ ...t, result, floor: hit && "floor" in hit ? hit.floor : null, floors: hit && "ambiguous" in hit ? hit.ambiguous : null, units: items.length, total });
     } catch (e) {
-      lots.delete(lotKey);
-      tally.error++;
-      rows.push({ ...t, result: "error", why: e instanceof Error ? e.message : "실패" });
+      // 다른 지번 때문에 멈춘 회차가 이 지번의 기억된 실패로 돌아온 경우가 아니면 오류로 센다
+      const result = e instanceof ProbeStopped && e.reason === "time" ? "not_tried" : "error";
+      tally[result]++;
+      rows.push({ ...t, result, why: e instanceof Error ? e.message : "실패" });
     }
   }
-  const tried = (trades ?? []).length - tally.skipped;
-  return NextResponse.json({ sampled: (trades ?? []).length, lots: lots.size, calls, tally, matchRate: tried ? Math.round((tally.found / tried) * 100) : null, rows });
+  // 맞춤률 = 끝까지 읽어 판정한 거래(찾음·여러 층·없음) 중 찾음. 큰 지번·오류·시도 안 함은 분모에서 뺀다
+  const judged = tally.found + tally.ambiguous + tally.none;
+  return NextResponse.json({
+    sampled: (trades ?? []).length,
+    lots: probe.lotCount,
+    calls: probe.calls,
+    stoppedReason: probe.stopped,
+    seconds: Math.round((Date.now() - started) / 1000),
+    tally,
+    matchRate: judged ? Math.round((tally.found / judged) * 100) : null,
+    rows,
+  });
 }
