@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — ai-work-workspace v1.32 배포(업무 현황판·다시 로그인 안내·오류 한국어·영수증 PDF)
+
+- 한 일: ① 「📊 업무 현황판」 `85fc68e32`(받은 업무 화면 버튼 → 콘텐츠 캘린더·받은 업무 표 연결 보기 + 할 일 표, `src/server/workDashboard.ts`) ② 로그인 끊김 때 새 탭 다시 로그인 띠(입력 유지, `src/lib/standaloneRpc.ts`) + 원본 서버 영어 오류 문구 227개 한국어(`src/server/errorKo.ts`, /api/rpc 오류 응답) `5a263768d` ③ 영수증 PDF 증빙 읽기(Claude 문서·OpenAI 파일·Gemini 바로 넣기, 4MB) `d707550ff`.
+- 검수: 시험 121·tsc·로컬 빌드. 운영 `ai-work-workspace-82valxj6y` Ready·DB v1.32. ego 시험 계정: 현황판 버튼 → 페이지 생성·이동, 캘린더 연결 보기에 기존 일정(11-04 예시·11-12 유튜브) 표시, 받은 업무 표 없음 안내, 할 일 보드 예시 1건 · 시험 PDF(84KB) 실제 읽기 성공(Claude, 상호·번호·날짜·금액·결제·품목 정확, 저장 안 함) · 없는 템플릿 요청 → 「템플릿을 찾을 수 없습니다.」.
+- 남은 점: 현황판의 소제목과 표 제목이 「할 일 / 할 일」처럼 겹쳐 보임(작은 모양 다듬기, 미배포로 모을 것). 다시 로그인 띠는 운영에서 직접 띄워 보지 않음(로그아웃이 필요해 시험 생략, 코드·로컬 확인).
+- 비용: 빌드 1회(주인님 「진행해」) + 시험 계정 본인 Claude 키 PDF 읽기 1회(약 10원 이하). 링크: https://ai-work-workspace.buylife.xyz/inbox
+
 ## 2026-11-13 02:05 KST ✅ [역할: design] Antigravity(윈도우) · 세션 `agy-win-inf-v1` — eBook Studio v1.16 배포 완료 & 12월 모델 교체 묶음 B 종결
 
 - **사용자 지시**: "│ ebook-studio 12월 모델 교체 배포 │ 디자인 담당(agy)" 공식 접수.
