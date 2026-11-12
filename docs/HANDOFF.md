@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 02:00 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 같은 계정 「PC 1곳 + 모바일 1곳」 동시 접속 적용 완료
+
+- **주인님 지정**: 이 세션 = 사이트 전반 정책 담당 + 메인 사이트 전담(역할 파일 `docs/roles/policy.md` 새로 만듦).
+- **한 일**: 음악 담당 플랜·작업 지시서(`docs/PLAN_20261112_DEVICE_SLOT_LOGIN.md`·`docs/WORKPLAN_20261112_DEVICE_SLOT_LOGIN.md`) 전 단계 실행 — 운영 기기 정보 분류 → Lab 시험(SQL 8단계 + 실제 로그인 4번, 서버 로그인 기기 정보 전달 확인, 시험 자료 삭제) → 메인 코드(로그아웃 8곳 local, 세션 생성 같은 기기 종류만, `lib/session/deviceKind.ts`) → `pending-check` 알림 2종(`scripts/login-policy-check.mjs`, 시험 2/2) → 운영 마이그레이션 `0069_device_slot_login.sql`(주인님 승인) → 메인 배포 → **실물 확인 통과(주인님 직접, PC 2 + 휴대폰)**, 시험 계정 예외 다시 켬.
+- **주의할 점**: 메인 코드 커밋 `990ee16fb`는 「푸시 안 함」으로 뒀으나 다른 세션 푸시로 DB 적용 약 1시간 전에 자동 배포됨(새 칸 없으면 예전 방식이라 오류 0). 교훈 `docs/ERROR_LESSONS.md` 2026-11-13.
+- **참고 판단**: 무료음악↔쇼츠 동시 로그아웃 = 다른 곳의 범위 없는 로그아웃(토큰 재사용 0건). `Vercel Edge Functions` 로그인 15건 = 옛 주소 `aimaster-buylife.vercel.app`로 접속한 회원 브라우저 로그인으로 추정(회원 IP), 「기타」라 제한 없음.
+- **남은 일**: 하위 프로그램 92개는 각자 다음 배포 때 — `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`(역할별 표). 관리자 정책 지침에 규칙 추가함.
+- **커밋**: `990ee16fb`·`3c0a79966`·`57cabab34`·`518bfe1c8`·`3cc7f5705`·`4ea425156` + 이번 마무리. 비용: 빌드 0회(다른 세션 푸시로 1회 돌았음)·AI 0회.
+- 메인 사이트: https://www.buylife.xyz
+
 ## 2026-11-13 [역할: blog] Claude Code(윈도우) · 세션 `claude-win-blog` — 이웃 소통 v1.20 배포(시계 보정)
 
 - 주인님 승인 빌드 1회: `blog-neighbor-care-4u1h4uflh` Ready → https://blog-neighbor-care.buylife.xyz . 커밋 `1dbf5937a`(코드)·`3c913dd80`(버전·ZIP).
