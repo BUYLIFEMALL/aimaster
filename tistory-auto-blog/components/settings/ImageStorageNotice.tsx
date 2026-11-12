@@ -1,10 +1,24 @@
+'use client'
+
 import { RETENTION_DAYS } from '@/blog/utils/imageRetention'
+import { useRetentionExempt } from '@/blog/utils/useRetentionExempt'
 
 // "글·이미지 보관 기간 안내" 박스 — 설정 화면(전체), AI 글쓰기·게시글 관리 화면(compact)에 함께 쓴다.
 // 2026-10-01: 이미지를 AIMaster 저장소(Supabase Storage)에 자동 저장하고, 데이터 누적을 막기 위해 글(제목·본문)과
 // 이미지를 만든 날부터 30일만 보관하도록 정했다(주인님 지시). 값은 utils/imageRetention.ts 한 곳에서 바꾼다.
 
 export function ImageStorageNotice({ compact = false }: { compact?: boolean }) {
+  // 2026-11-12: 30일 열외 회원(관리자·시험 계정)은 자동 삭제 대상이 아니므로 30일 안내 대신 보관 기한 없음을 보인다.
+  const exempt = useRetentionExempt()
+  if (exempt) {
+    return (
+      <div className={`rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 ${compact ? 'p-3 text-[11px] leading-5' : 'p-5 text-xs leading-5'}`}>
+        <p className="font-bold">🗓️ 콘텐츠 보관 기한 없음</p>
+        <p>이 계정은 30일 자동 삭제 대상에서 빠져 있어 글·이미지·글감 수집 결과가 자동으로 지워지지 않습니다.</p>
+      </div>
+    )
+  }
+
   const items = [
     `이 프로그램에서 만든 콘텐츠 일체(작성한 글의 제목·본문, 글에 들어간 이미지, 글감 수집 결과)는 하나하나 만든 날부터 ${RETENTION_DAYS}일 동안만 보관되고, 그 뒤에는 자동으로 삭제됩니다. 삭제된 콘텐츠는 되살릴 수 없습니다.`,
     '필요한 글은 기간 안에 티스토리 등 본인 블로그로 옮겨 주세요. 이때 이미지는 꼭 내려받아 그 블로그에 직접 올려 주세요. "본문 복사"로 붙여넣은 이미지도 같은 저장소 주소를 쓰기 때문에 보관 기간이 지나면 보이지 않습니다.',

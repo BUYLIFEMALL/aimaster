@@ -8,6 +8,7 @@ import { getBlogBasePath, getBlogAuthPath } from '@/blog/utils/basePath'
 import CategoryManagementModal from './CategoryManagementModal'
 import { ImageStorageNotice } from '@/blog/components/settings/ImageStorageNotice'
 import { retentionDaysLeft } from '@/blog/utils/imageRetention'
+import { useRetentionExempt } from '@/blog/utils/useRetentionExempt'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -45,6 +46,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function HomePage() {
+  const retentionExempt = useRetentionExempt()
   const supabase = useMemo(() => createClient(), [])
   const router = useRouter()
 
@@ -391,6 +393,10 @@ export default function HomePage() {
                   <span className="text-xs text-slate-400">{formatDate(post.published_at)}</span>
                   {/* 30일 보관 — 삭제까지 남은 날(utils/imageRetention.ts) */}
                   {(() => {
+                    // 2026-11-12: 30일 열외 회원은 삭제 예정 배지 대신 보관 기한 없음
+                    if (retentionExempt) {
+                      return <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700">보관 기한 없음</span>
+                    }
                     const left = retentionDaysLeft(post.published_at)
                     return (
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${left <= 7 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-700'}`}>
