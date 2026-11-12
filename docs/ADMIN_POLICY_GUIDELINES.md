@@ -41,6 +41,17 @@
 |---|---|---|---|---|
 | 2026-10-25 | `realty-listing-alert` 부동산 실시간 매물 알림 | 통계 요약·변동 기록(중개사 전화번호 포함) | 기본 1년 | 회원 PC(크롬 확장) — 서버 미보관 |
 
+## ★ 동시 접속 — 같은 계정 「PC 1곳 + 모바일 1곳」 (2026-11-12 주인님 확정, 2026-11-13 적용·실물 확인 통과)
+
+- **규칙**: 같은 계정은 PC 브라우저 1곳과 모바일 브라우저(태블릿 포함) 1곳까지 동시에 쓸 수 있다. 같은 종류에서 새로 로그인하면 **그 종류의 예전 로그인만** 메인 사이트와 모든 하위 프로그램에서 끊긴다. 새 로그인은 남는다.
+- **로그아웃**: 로그아웃 버튼·세션 만료 화면은 **그 브라우저만** 끊는다(`signOut({ scope: "local" })`). 비밀번호 재설정만 모든 기기를 끊는다.
+- **예외**: 관리자·시험 계정(`profiles.concurrent_login_exempt = true`, 지금 2개 — 30일 보관 예외와 같은 두 계정). 코드에 이메일을 적지 않는다. 시험 때만 시험 계정 값을 잠시 끄고 끝나면 다시 켠다.
+- **판정 위치(한 곳)**: 운영 DB 트리거 `trg_enforce_login_device_slot`(`auth.sessions` 새 줄) + 함수 `public.login_device_kind`·`public.enforce_login_device_slot`(마이그레이션 `supabase/migrations/0069_device_slot_login.sql`). 기기 정보가 브라우저가 아니면(서버 대신 로그인·앱) 「기타」로 보고 끊지 않는다. 판정 중 오류가 나도 로그인은 막지 않는다. 메인 사이트 `user_sessions`도 같은 기기 종류만 정리(`app/api/session/create/route.ts`, `lib/session/deviceKind.ts`). 설정 `site_settings.concurrent_login_policy = force_logout`일 때만 동작.
+- **되돌리기**: `drop trigger if exists trg_enforce_login_device_slot on auth.sessions;` 한 줄.
+- **알고 있는 한계**: 서명만 확인하는 하위 프로그램은 예전 기기가 최대 1시간(접근 토큰 수명) 남을 수 있다(주인님 결정 3 「그대로」). 최신 아이패드는 기기 정보가 맥과 같아 PC로 분류된다.
+- **하위 프로그램**: 각자 다음 배포 때 로그아웃 범위·서버 로그인 기기 정보 전달을 넣는다 — [`HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`](HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md), 배포 전 `node scripts/pending-check.mjs <폴더>`가 알린다.
+- 상세: [`PLAN_20261112_DEVICE_SLOT_LOGIN.md`](PLAN_20261112_DEVICE_SLOT_LOGIN.md), [`WORKPLAN_20261112_DEVICE_SLOT_LOGIN.md`](WORKPLAN_20261112_DEVICE_SLOT_LOGIN.md).
+
 ## 1. 회원 등급 (4종)
 | 등급 | 의미 | 프로그램 권한 방식 |
 |---|---|---|

@@ -124,9 +124,9 @@ for (const folder of args) {
     console.log("  • [공통] 저장공간 위젯 한 줄 미적용 — 이번 배포에 함께 넣기: docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md");
   const signOutFiles = unscopedSignOutFiles(ROOT, folder);
   if (signOutFiles.length)
-    console.log(`  • [공통] 범위 없는 signOut() ${signOutFiles.length}곳 — signOut({ scope: "local" })로 바꾸기(비밀번호 재설정 제외): ${short(signOutFiles.join(", "), 160)}  안내: docs/WORKPLAN_20261112_DEVICE_SLOT_LOGIN.md 7절`);
+    console.log(`  • [공통] 범위 없는 signOut() ${signOutFiles.length}곳 — signOut({ scope: "local" })로 바꾸기(비밀번호 재설정 제외): ${short(signOutFiles.join(", "), 160)}  안내: docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`);
   if (serverLoginUaStatus(ROOT, folder) === "missing")
-    console.log("  • [공통] 서버 로그인 기기 정보 미전달 — 서버용 Supabase 클라이언트에 global.headers[\"User-Agent\"] 넣기: docs/WORKPLAN_20261112_DEVICE_SLOT_LOGIN.md 4-4절");
+    console.log("  • [공통] 서버 로그인 기기 정보 미전달 — 서버용 Supabase 클라이언트에 global.headers[\"User-Agent\"] 넣기: docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md 2-2절");
   if (!mine.length && !copies.length) { console.log("  대기 없음"); continue; }
   for (const p of mine) {
     console.log(`  • [대기] ${short(p.what)}  ${p.commit}`);
