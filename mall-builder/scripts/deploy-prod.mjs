@@ -12,7 +12,8 @@ const env = { ...process.env, MSYS_NO_PATHCONV: "1" };
 const run = (args, extraEnv = {}) =>
   spawnSync("npx", ["--yes", "vercel@latest", ...args], { cwd: dir, encoding: "utf8", shell: process.platform === "win32", env: { ...env, ...extraEnv }, maxBuffer: 64 * 1024 * 1024 });
 const api = (path) => {
-  const r = run(["api", path, "--scope", SCOPE]);
+  // 윈도우는 shell을 거치므로 주소 안의 &를 명령 구분으로 읽는다 → 따옴표로 감싼다(2026-11-12 첫 실행 실패)
+  const r = run(["api", process.platform === "win32" ? `"${path}"` : path, "--scope", SCOPE]);
   if (r.status !== 0) throw new Error((r.stderr || "").slice(-600));
   return JSON.parse(r.stdout || "{}");
 };
