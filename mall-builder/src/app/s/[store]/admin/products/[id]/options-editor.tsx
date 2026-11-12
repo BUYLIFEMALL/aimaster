@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { noResetSubmit } from "@/lib/no-reset-submit";
 import { MAX_GROUPS, buildVariants, splitValues, validateGroups, type OptionGroup, type Variant } from "@/lib/options";
 import { formatWon } from "@/lib/products";
-import { saveOptionsAction, type OptionsState } from "./options-actions";
+import { saveOptionsAction, saveSupplierOptionsAction, type OptionsState } from "./options-actions";
 
 type GroupDraft = { name: string; values: string };
 const initial: OptionsState = { saved: false, error: null };
@@ -16,6 +16,7 @@ export default function OptionsEditor({
   stockByOption,
   initialGroups,
   initialVariants,
+  mode = "admin",
 }: {
   slug: string;
   productId: string;
@@ -23,8 +24,11 @@ export default function OptionsEditor({
   stockByOption: boolean;
   initialGroups: OptionGroup[];
   initialVariants: Variant[];
+  /** supplier = 공급사 화면(0060): 추가금 칸이 「추가 공급가」, 판매가는 운영자가 승인 때 정함 */
+  mode?: "admin" | "supplier";
 }) {
-  const [state, formAction, pending] = useActionState(saveOptionsAction.bind(null, slug, productId), initial);
+  const supplier = mode === "supplier";
+  const [state, formAction, pending] = useActionState((supplier ? saveSupplierOptionsAction : saveOptionsAction).bind(null, slug, productId), initial);
   const [groups, setGroups] = useState<GroupDraft[]>(initialGroups.map((g) => ({ name: g.name, values: g.values.join(", ") })));
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
   const [note, setNote] = useState("");
@@ -95,8 +99,8 @@ export default function OptionsEditor({
             <thead className="text-left text-xs text-gray-500">
               <tr>
                 <th className="py-1">조합</th>
-                <th>추가금(원)</th>
-                <th>판매가</th>
+                <th>{supplier ? "추가 공급가(원)" : "추가금(원)"}</th>
+                {!supplier && <th>판매가</th>}
                 <th>재고{stockByOption ? "" : " (수량 관리 시)"}</th>
                 <th>품번</th>
                 <th>사용</th>
@@ -107,9 +111,9 @@ export default function OptionsEditor({
                 <tr key={v.key} className="border-t">
                   <td className="py-1 pr-2">{v.key}</td>
                   <td>
-                    <input type="number" value={v.extra_price} onChange={(e) => setVariant(i, { extra_price: Math.trunc(Number(e.target.value) || 0) })} className="w-24 rounded border px-1 py-0.5" />
+                    <input type="number" min={supplier ? 0 : undefined} value={v.extra_price} onChange={(e) => setVariant(i, { extra_price: supplier ? Math.max(0, Math.trunc(Number(e.target.value) || 0)) : Math.trunc(Number(e.target.value) || 0) })} aria-label={`${v.key} ${supplier ? "추가 공급가" : "추가금"}`} className="w-24 rounded border px-1 py-0.5" />
                   </td>
-                  <td className="whitespace-nowrap pr-2 text-gray-500">{formatWon(basePrice + v.extra_price)}</td>
+                  {!supplier && <td className="whitespace-nowrap pr-2 text-gray-500">{formatWon(basePrice + v.extra_price)}</td>}
                   <td>
                     <input type="number" min={0} value={v.stock} disabled={!stockByOption} onChange={(e) => setVariant(i, { stock: Math.max(0, Math.trunc(Number(e.target.value) || 0)) })} className="w-20 rounded border px-1 py-0.5 disabled:bg-gray-50" />
                   </td>
@@ -123,12 +127,13 @@ export default function OptionsEditor({
               ))}
             </tbody>
           </table>
-          {!stockByOption && <p className="mt-1 text-xs text-gray-500">조합별 재고를 쓰려면 위 상품 정보에서 재고를 「수량 관리」로 바꿔 저장하세요.</p>}
+          {!stockByOption && <p className="mt-1 text-xs text-gray-500">조합별 재고를 쓰려면 위 상품 정보에서 {supplier ? "「재고 관리」를 켜고" : "재고를 「수량 관리」로 바꿔"} 저장하세요.</p>}
         </div>
       )}
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-      {state.saved && <p className="text-sm text-green-700">옵션을 저장했습니다.</p>}
+      {state.saved && <p className="text-sm text-green-700">{state.message ?? "옵션을 저장했습니다."}</p>}
+      {supplier && <p className="text-xs text-gray-500">옵션 구성이나 추가 공급가를 바꾸면 운영자가 다시 확인할 때까지 손님에게 보이지 않습니다. 재고·품번·사용 여부만 바꾸면 그대로 판매됩니다.</p>}
       <button disabled={pending || outdated || (!!groupError && groups.length > 0)} className="min-h-11 rounded bg-gray-900 px-4 text-sm text-white disabled:opacity-50">
         {pending ? "저장 중…" : "옵션 저장"}
       </button>

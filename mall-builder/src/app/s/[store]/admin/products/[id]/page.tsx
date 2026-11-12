@@ -12,6 +12,9 @@ import {
 } from "@/lib/store";
 import type { VolumeTier } from "@/lib/pricing";
 import OptionsEditor from "./options-editor";
+import SupplierVariantPrices from "./supplier-variant-prices";
+import { getSupplierVariants } from "@/lib/supplier-store";
+import { createClient } from "@/lib/supabase/server";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { AdminShell, NoPermission } from "../../admin-shell";
 import ProductForm from "../product-form";
@@ -24,10 +27,10 @@ export default async function EditProductPage({
   searchParams,
 }: {
   params: Promise<{ store: string; id: string }>;
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string; ok?: string; msg?: string }>;
 }) {
   const { store: slug, id } = await params;
-  const { saved } = await searchParams;
+  const { saved, error, ok, msg } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/products/${id}`);
   if (!staff) return <NoPermission />;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
@@ -36,11 +39,15 @@ export default async function EditProductPage({
   const [categoryRows, variants, shippingPolicies, grades, gradePrices, tierMap] = await Promise.all([
     getCategoryRows(store.id),
     getProductVariants(product.id),
-    getShippingPolicies(store.id),
+    getShippingPolicies(store.id, { mallOnly: true }),
     getGrades(store.id),
     getProductGradePriceInputs(product.id),
     getTierMap([product.id]),
   ]);
+  // T1(0060) 공급사 상품이면 옵션 구성은 공급사가 정하고, 운영자는 옵션별 판매 추가금만 고친다
+  const supabase = await createClient();
+  const { data: supRow } = await supabase.from("mall_builder_product_supply").select("supplier_id, supply_price").eq("product_id", product.id).maybeSingle();
+  const supplierOpts = supRow ? await getSupplierVariants(product.id) : null;
   const tierInput = (t: VolumeTier) => (t.discount_type === "rate" ? `${t.value}%` : t.discount_type === "amount" ? `-${t.value}` : String(t.value));
   const categories = flattenTree(buildCategoryTree(categoryRows, true));
   const won = (n: number | null) => (n == null ? "" : String(n));
@@ -51,6 +58,9 @@ export default async function EditProductPage({
         <h2 className="text-lg font-semibold">상품 수정</h2>
         <Link href={`/s/${store.slug}/admin/products`} className="text-sm text-gray-500">← 상품 목록</Link>
       </div>
+      {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
+      {supRow && <p className="mb-4 rounded bg-blue-50 px-3 py-2 text-xs text-blue-800">공급사 상품입니다. 배송비는 그 공급사의 배송비 정책을 따르고(공급사 화면에서 정함, 「공급사」 메뉴에서 고칠 수 있음), 옵션 구성·재고는 공급사가 관리합니다.</p>}
       <ProductForm
         slug={store.slug}
         storeId={store.id}
@@ -84,6 +94,9 @@ export default async function EditProductPage({
         }}
       />
       <div className="mt-8">
+        {supRow && supplierOpts ? (
+          <SupplierVariantPrices slug={store.slug} productId={product.id} basePrice={product.base_price} supplyPrice={Number(supRow.supply_price)} variants={supplierOpts.variants} />
+        ) : (
         <OptionsEditor
           slug={store.slug}
           productId={product.id}
@@ -92,6 +105,7 @@ export default async function EditProductPage({
           initialGroups={product.option_groups ?? []}
           initialVariants={variants}
         />
+        )}
         {variants.length > 0 && product.stock_mode === "product" && (
           <p className="mt-2 text-xs text-gray-500">옵션이 있는 상품은 위 「재고 수량」 대신 옵션 조합별 재고를 씁니다.</p>
         )}

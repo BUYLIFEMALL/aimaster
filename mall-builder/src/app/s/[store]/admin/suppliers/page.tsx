@@ -1,6 +1,8 @@
 import { getStaffStore } from "@/lib/store";
-import { getPendingSupplierProducts, getSuppliers } from "@/lib/supplier-store";
-import { updateSupplierAction } from "@/lib/supplier-actions";
+import { getPendingSupplierProducts, getSupplierShippingMap, getSuppliers } from "@/lib/supplier-store";
+import { setSupplierShippingAction, updateSupplierAction } from "@/lib/supplier-actions";
+import SupplierShippingForm, { supplierShippingSummary } from "../../supplier/shipping-form";
+import { createClient } from "@/lib/supabase/server";
 import { SUPPLIER_STATUS_LABEL, inviteAlive, nextStatuses } from "@/lib/supplier";
 import { formatDateTime } from "@/lib/orders";
 import { AdminShell, NoPermission } from "../admin-shell";
@@ -25,7 +27,18 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
   const { error, ok, msg } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/suppliers`);
   if (!staff) return <NoPermission />;
-  const [suppliers, pending] = await Promise.all([getSuppliers(store.id), getPendingSupplierProducts(store.id)]);
+  const [suppliers, pending, shipMap] = await Promise.all([getSuppliers(store.id), getPendingSupplierProducts(store.id), getSupplierShippingMap(store.id)]);
+  // T1(0060) 승인 대기 상품의 옵션 요약(개수·추가 공급가 범위)
+  const optSummary = new Map<string, { n: number; min: number; max: number }>();
+  if (pending.length) {
+    const { data: vs } = await (await createClient()).from("mall_builder_variant_supply").select("product_id, extra_supply").in("product_id", pending.map((p) => p.id));
+    for (const r of vs ?? []) {
+      const k = r.product_id as string;
+      const x = Number(r.extra_supply);
+      const o = optSummary.get(k) ?? { n: 0, min: x, max: x };
+      optSummary.set(k, { n: o.n + 1, min: Math.min(o.min, x), max: Math.max(o.max, x) });
+    }
+  }
   const supplierName = new Map(suppliers.map((s) => [s.id, s.name]));
   const live = suppliers.filter((s) => s.status !== "revoked");
   const revoked = suppliers.filter((s) => s.status === "revoked");
@@ -36,7 +49,7 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
       {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
       <h2 className="text-lg font-semibold">🏭 공급사</h2>
       <p className="mt-1 text-sm text-gray-600">다른 회사 상품을 이 몰에서 함께 팔 때 씁니다. 공급사는 자기 화면에서 상품을 올리고(운영자 승인 뒤 판매), 자기 품목 주문만 보고 발송합니다. 정산은 구매 확정된 품목의 공급가 기준입니다.</p>
-      <PendingProducts slug={store.slug} products={pending} supplierName={supplierName} />
+      <PendingProducts slug={store.slug} products={pending} supplierName={supplierName} optSummary={optSummary} />
       <div className="mt-6"><SupplierInviteForm slug={store.slug} /></div>
 
       <section className="mt-6">
@@ -61,6 +74,12 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
                     <span className={`rounded px-1.5 ${s.auto_approve ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-600"}`}>{s.auto_approve ? "바로 판매" : "승인 후 판매"}</span>
                     <button className="rounded border px-2 py-1">{s.auto_approve ? "승인 후 판매로 바꾸기" : "바로 판매로 바꾸기"}</button>
                   </form>
+                )}
+                {s.status !== "invited" && (
+                  <details className="mt-2" data-supplier-shipping-admin>
+                    <summary className="cursor-pointer text-xs text-gray-600">🚚 배송비: {supplierShippingSummary(shipMap.get(s.id))}</summary>
+                    <div className="mt-2"><SupplierShippingForm compact action={setSupplierShippingAction.bind(null, store.slug, s.id)} current={shipMap.get(s.id) ?? null} /></div>
+                  </details>
                 )}
                 <details className="mt-2">
                   <summary className="cursor-pointer text-xs text-gray-600">정보·상태 고치기</summary>

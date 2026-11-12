@@ -5,7 +5,17 @@ import { formatWon } from "@/lib/products";
 import { formatDateTime } from "@/lib/orders";
 
 // D35 운영자: 승인 대기 공급사 상품 — 판매가를 정해 승인(바로 판매 선택) 또는 사유를 적어 반려
-export default function PendingProducts({ slug, products, supplierName }: { slug: string; products: SupplierProduct[]; supplierName: Map<string, string> }) {
+export default function PendingProducts({
+  slug,
+  products,
+  supplierName,
+  optSummary,
+}: {
+  slug: string;
+  products: SupplierProduct[];
+  supplierName: Map<string, string>;
+  optSummary?: Map<string, { n: number; min: number; max: number }>;
+}) {
   return (
     <section id="pending" className="mt-6 scroll-mt-4" data-pending-products>
       <h3 className="text-sm font-semibold">승인 대기 상품 <b className={products.length ? "text-red-700" : ""}>{products.length}</b></h3>
@@ -25,6 +35,15 @@ export default function PendingProducts({ slug, products, supplierName }: { slug
                   <Link href={`/s/${slug}/admin/products/${p.id}`} className="font-medium underline">{p.name}</Link>
                   <p className="mt-0.5 text-xs text-gray-600">공급가 <b>{formatWon(p.supply_price)}</b> · 지금 판매가(처음엔 희망 판매가) {formatWon(p.base_price)} · {p.tax_type === "exempt" ? "면세" : "과세"} · 재고 {p.stock_mode === "product" ? `${p.stock}개` : "관리 안 함"}</p>
                   {p.summary && <p className="mt-0.5 text-xs text-gray-500">{p.summary}</p>}
+                  {optSummary?.get(p.id) && (
+                    <p className="mt-0.5 text-xs text-blue-700" data-pending-options>
+                      옵션 {optSummary.get(p.id)!.n}개 · 추가 공급가{" "}
+                      {optSummary.get(p.id)!.min === optSummary.get(p.id)!.max
+                        ? formatWon(optSummary.get(p.id)!.min)
+                        : `${formatWon(optSummary.get(p.id)!.min)}~${formatWon(optSummary.get(p.id)!.max)}`}{" "}
+                      — 판매 추가금은 마진 비율로 미리 채워져 있고, 상품 화면에서 고칠 수 있습니다.
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="mt-2 flex flex-wrap items-end gap-2">

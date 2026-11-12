@@ -49,6 +49,7 @@ export default function SupplierProductForm({ slug, storeId, supplierId, product
         <textarea name="description" rows={8} maxLength={20000} defaultValue={p?.description ?? ""} className="mt-1 w-full rounded border px-2 py-2" />
       </label>
       {p && p.approval === "approved" && <p className="rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">이름·설명·공급가·사진을 바꾸면 운영자가 다시 확인할 때까지 손님에게 보이지 않습니다.</p>}
+      {!p && <p className="rounded bg-gray-50 px-3 py-2 text-xs text-gray-600">색상·사이즈 같은 옵션은 상품을 올린 뒤 「내 상품」에서 이 상품을 열어 넣을 수 있습니다(옵션마다 추가 공급가·재고).</p>}
       <button className="min-h-11 rounded bg-gray-900 px-5 py-2.5 text-white">{p ? "저장" : "올리고 승인 요청"}</button>
     </form>
   );

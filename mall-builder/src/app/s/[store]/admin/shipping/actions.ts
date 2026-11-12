@@ -52,7 +52,7 @@ export async function savePolicyAction(slug: string, policyId: string | null, fo
     back(slug, e?.message);
   }
   // 첫 정책은 자동으로 기본
-  const { count } = await supabase.from("mall_builder_shipping_policies").select("id", { count: "exact", head: true }).eq("store_id", storeId);
+  const { count } = await supabase.from("mall_builder_shipping_policies").select("id", { count: "exact", head: true }).eq("store_id", storeId).is("supplier_id", null);
   const { error: e } = await supabase.from("mall_builder_shipping_policies").insert({ ...row, store_id: storeId, is_default: !count });
   back(slug, e?.message);
 }

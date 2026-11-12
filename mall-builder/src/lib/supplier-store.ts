@@ -1,5 +1,6 @@
 // D34 공급사 읽기 — 보안 규칙(0053): 상품 권한 운영자는 몰 전체, 공급사는 자기 줄만
 import { createClient } from "@/lib/supabase/server";
+import type { OptionGroup, Variant } from "@/lib/options";
 import { SUPPLIER_COLUMNS, type Approval, type LedgerKind, type SupplierRow, type SupplierStatus } from "@/lib/supplier";
 
 export async function getSuppliers(storeId: string): Promise<SupplierRow[]> {
@@ -80,6 +81,31 @@ export async function getPendingSupplierProducts(storeId: string): Promise<Suppl
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_products").select(SP_COLUMNS).eq("store_id", storeId).eq("approval", "pending").not("supplier_id", "is", null).order("updated_at");
   return withSupply((data ?? []) as Omit<SupplierProduct, "supply_price">[]);
+}
+
+/** 공급사 상품 옵션(0060): 조합 목록 + 조합별 추가 공급가(공급사 본인·상품 권한 운영자만 읽힘) */
+export async function getSupplierVariants(productId: string): Promise<{ variants: (Variant & { id: string; extra_supply: number })[]; groups: OptionGroup[] }> {
+  const supabase = await createClient();
+  const [{ data: p }, { data: vs }, { data: sup }] = await Promise.all([
+    supabase.from("mall_builder_products").select("option_groups").eq("id", productId).maybeSingle(),
+    supabase.from("mall_builder_product_variants").select("id, key, values, extra_price, stock, sku, is_active").eq("product_id", productId).order("sort"),
+    supabase.from("mall_builder_variant_supply").select("variant_id, extra_supply").eq("product_id", productId),
+  ]);
+  const extra = new Map((sup ?? []).map((r) => [r.variant_id as string, Number(r.extra_supply)]));
+  const variants = ((vs ?? []) as (Variant & { id: string })[]).map((v) => ({ ...v, extra_supply: extra.get(v.id) ?? 0 }));
+  return { variants, groups: ((p?.option_groups ?? []) as OptionGroup[]) };
+}
+
+/** 공급사 배송비 정책(0060) — 공급사 id → 정책(없으면 몰 기본) */
+export type SupplierShippingRow = { supplier_id: string; type: "free" | "fixed" | "conditional"; base_fee: number; free_over: number | null; jeju_fee: number; island_fee: number };
+export async function getSupplierShippingMap(storeId: string): Promise<Map<string, SupplierShippingRow>> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_shipping_policies")
+    .select("supplier_id, type, base_fee, free_over, jeju_fee, island_fee")
+    .eq("store_id", storeId)
+    .not("supplier_id", "is", null);
+  return new Map(((data ?? []) as SupplierShippingRow[]).map((r) => [r.supplier_id, r]));
 }
 
 /** 운영자 상품 목록용: 상품 id → 공급사 이름 */

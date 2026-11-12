@@ -57,7 +57,7 @@ export async function loadExcelContext(supabase: SupabaseClient, storeId: string
     readAll((a, b) => supabase.from("mall_builder_product_grade_prices").select("product_id, grade_id, price, discount_rate").eq("store_id", storeId).range(a, b)),
     readAll((a, b) => supabase.from("mall_builder_product_volume_tiers").select("product_id, min_qty, discount_type, value").eq("store_id", storeId).order("min_qty").range(a, b)),
     readAll((a, b) => supabase.from("mall_builder_categories").select("id, parent_id, name, depth, sort, is_visible").eq("store_id", storeId).range(a, b)),
-    readAll((a, b) => supabase.from("mall_builder_shipping_policies").select("id, name").eq("store_id", storeId).range(a, b)),
+    readAll((a, b) => supabase.from("mall_builder_shipping_policies").select("id, name").eq("store_id", storeId).is("supplier_id", null).range(a, b)),
     readAll((a, b) => supabase.from("mall_builder_customer_grades").select("id, name, rank").eq("store_id", storeId).order("rank").range(a, b)),
   ]);
 

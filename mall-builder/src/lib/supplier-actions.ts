@@ -149,3 +149,49 @@ export async function settleSupplierAction(slug: string, supplierId: string, for
   revalidatePath(base);
   back(base, error?.message, `${amount.toLocaleString("ko-KR")}원을 지급 완료로 기록했습니다.`);
 }
+
+// ── T1(0060) 공급사 옵션 판매가·배송비 ──
+/** 운영자: 공급사 상품 옵션별 판매 추가금 — 칸 이름 「p:조합 열쇠」. 판매가가 공급가보다 낮아지면 DB가 막음 */
+export async function setVariantPricesAction(slug: string, productId: string, form: FormData) {
+  const base = `/s/${slug}/admin/products/${productId}`;
+  const prices: Record<string, number> = {};
+  for (const [k, v] of form.entries()) {
+    if (!k.startsWith("p:")) continue;
+    const n = String(v).replace(/[^0-9-]/g, "");
+    if (n !== "" && n !== "-") prices[k.slice(2)] = Number(n);
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_variant_prices_set", { p_product_id: productId, p_prices: prices });
+  revalidatePath(base);
+  revalidatePath(`/s/${slug}`, "layout");
+  back(base, error?.message, "옵션별 판매 추가금을 저장했습니다.");
+}
+
+function shippingInput(form: FormData) {
+  return {
+    type: field(form, "ship_type") || "mall",
+    base_fee: num(form, "base_fee"),
+    free_over: num(form, "free_over"),
+    jeju_fee: num(form, "jeju_fee"),
+    island_fee: num(form, "island_fee"),
+  };
+}
+
+/** 공급사 본인: 내 배송비 정책(「mall」이면 몰 기본 배송비 따르기) */
+export async function saveSupplierShippingAction(slug: string, form: FormData) {
+  const { supabase, id } = await storeIdOf(slug);
+  if (!id) back(`/s/${slug}/supplier`, "몰을 찾을 수 없습니다.");
+  const { error } = await supabase.rpc("mall_builder_supplier_shipping_save", { p_store_id: id, p: shippingInput(form) });
+  revalidatePath(`/s/${slug}/supplier`);
+  revalidatePath(`/s/${slug}`, "layout");
+  back(`/s/${slug}/supplier`, error?.message, "배송비를 저장했습니다. 다음 주문부터 적용됩니다.");
+}
+
+/** 운영자: 공급사 배송비 보고 고치기 */
+export async function setSupplierShippingAction(slug: string, supplierId: string, form: FormData) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_supplier_shipping_set", { p_supplier_id: supplierId, p: shippingInput(form) });
+  revalidatePath(`/s/${slug}/admin/suppliers`);
+  revalidatePath(`/s/${slug}`, "layout");
+  back(`/s/${slug}/admin/suppliers`, error?.message, "공급사 배송비를 저장했습니다. 다음 주문부터 적용됩니다.");
+}

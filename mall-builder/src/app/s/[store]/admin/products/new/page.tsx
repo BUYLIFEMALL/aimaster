@@ -10,7 +10,7 @@ export default async function NewProductPage({ params }: { params: Promise<{ sto
   const { store: slug } = await params;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/products/new`);
   if (!staff) return <NoPermission />;
-  const [categoryRows, shippingPolicies, grades] = await Promise.all([getCategoryRows(store.id), getShippingPolicies(store.id), getGrades(store.id)]);
+  const [categoryRows, shippingPolicies, grades] = await Promise.all([getCategoryRows(store.id), getShippingPolicies(store.id, { mallOnly: true }), getGrades(store.id)]);
   const categories = flattenTree(buildCategoryTree(categoryRows, true));
 
   return (

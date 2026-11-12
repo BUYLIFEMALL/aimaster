@@ -48,3 +48,14 @@ test("월별 정산서", async () => {
   assert.deepEqual(rows[0], { month: "2026-11", earned: 20000, reclaimed: -20000, settled: 5000, net: 0 });
   assert.deepEqual(rows[1], { month: "2026-10", earned: 7000, reclaimed: 0, settled: 0, net: 7000 });
 });
+
+test("옵션 추가 판매가 기본값(마진 비율) — DB default_extra_sale과 같음", async () => {
+  const { defaultExtraSale, isSupplierShippingType } = await import("../src/lib/supplier.ts");
+  assert.equal(defaultExtraSale(1000, 13000, 10000), 1300);
+  assert.equal(defaultExtraSale(2000, 13000, 10000), 2600);
+  assert.equal(defaultExtraSale(333, 10000, 9000), 370); // 반올림
+  assert.equal(defaultExtraSale(500, 13000, 0), 500); // 공급가 0이면 같은 금액
+  assert.equal(defaultExtraSale(0, 13000, 10000), 0);
+  assert.ok(isSupplierShippingType("conditional"));
+  assert.ok(!isSupplierShippingType("weird"));
+});

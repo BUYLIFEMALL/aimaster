@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { updateSupplierSelfAction } from "@/lib/supplier-actions";
+import { saveSupplierShippingAction, updateSupplierSelfAction } from "@/lib/supplier-actions";
+import { getSupplierShippingMap } from "@/lib/supplier-store";
+import SupplierShippingForm from "./shipping-form";
 import { SUPPLIER_STATUS_LABEL } from "@/lib/supplier";
 import { formatDateTime } from "@/lib/orders";
 import { getSupplierContext, NotSupplier, SupplierShell } from "./supplier-shell";
@@ -12,6 +14,7 @@ export default async function SupplierHomePage({ params, searchParams }: { param
   const { store: slug } = await params;
   const notice = await searchParams;
   const { user, store, me } = await getSupplierContext(slug, `/s/${slug}/supplier`);
+  const myShipping = me ? ((await getSupplierShippingMap(store.id)).get(me.id) ?? null) : null;
 
   return (
     <SupplierShell slug={store.slug} storeName={store.name} email={user.email ?? ""} active="" notice={notice}>
@@ -33,6 +36,13 @@ export default async function SupplierHomePage({ params, searchParams }: { param
               <button className="min-h-11 rounded border px-3 py-2">담당자 저장</button>
             </form>
           </section>
+
+          {me.status === "active" && (
+            <section className="mt-6 rounded-lg border p-4" data-supplier-shipping>
+              <h3 className="text-sm font-semibold">🚚 내 배송비</h3>
+              <div className="mt-2"><SupplierShippingForm action={saveSupplierShippingAction.bind(null, store.slug)} current={myShipping} /></div>
+            </section>
+          )}
 
           <section className="mt-6 grid gap-3 sm:grid-cols-3" data-supplier-menu>
             <Link href={`/s/${store.slug}/supplier/products`} className="rounded border p-3 text-sm hover:bg-gray-50">

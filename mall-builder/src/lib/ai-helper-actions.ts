@@ -70,7 +70,7 @@ export async function aiInquiryDraftAction(slug: string, inquiryId: string): Pro
         : Promise.resolve({ data: null }),
       q.order_id ? supabase.from("mall_builder_orders").select("status, created_at").eq("id", q.order_id).maybeSingle() : Promise.resolve({ data: null }),
       getFaqs(store.id),
-      getShippingPolicies(store.id),
+      getShippingPolicies(store.id, { mallOnly: true }),
     ]);
     const facts: InquiryFacts = {
       kind: q.kind as InquiryFacts["kind"],

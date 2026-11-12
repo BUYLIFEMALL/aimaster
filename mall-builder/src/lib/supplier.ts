@@ -64,6 +64,24 @@ export function marginOf(base: number, supply: number): { won: number; rate: num
   return { won, rate: base > 0 ? Math.round((won / base) * 1000) / 10 : 0 };
 }
 
+/** 옵션 추가 판매가 기본값 = 추가 공급가 × (판매가 / 공급가), 반올림. DB mall_builder_private.default_extra_sale과 같은 계산(0060) */
+export function defaultExtraSale(extraSupply: number, base: number, supply: number): number {
+  if (!(supply > 0) || !(base > 0)) return extraSupply;
+  return Math.round((extraSupply * base) / supply);
+}
+
+// ── T1 공급사별 배송비(0060) — 입력값을 DB 함수 형식으로 ──
+export type SupplierShippingType = "mall" | "free" | "fixed" | "conditional";
+export const SUPPLIER_SHIPPING_LABEL: Record<SupplierShippingType, string> = {
+  mall: "몰 기본 배송비 따르기",
+  free: "무료 배송",
+  fixed: "고정 배송비",
+  conditional: "조건부 무료",
+};
+export function isSupplierShippingType(v: string): v is SupplierShippingType {
+  return v in SUPPLIER_SHIPPING_LABEL;
+}
+
 // ── D37 공급사 정산(공급가 방식) ──
 export type LedgerKind = "earn" | "reclaim" | "settle" | "adjust";
 export const SUPPLIER_LEDGER_LABEL: Record<LedgerKind, string> = {

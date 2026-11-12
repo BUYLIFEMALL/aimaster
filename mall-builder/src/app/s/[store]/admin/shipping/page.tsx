@@ -55,7 +55,7 @@ export default async function ShippingPage({
   const { error } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/shipping`);
   if (!staff) return <NoPermission />;
-  const policies = await getShippingPolicies(store.id);
+  const policies = await getShippingPolicies(store.id, { mallOnly: true });
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/shipping">

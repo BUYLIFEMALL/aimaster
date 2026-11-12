@@ -229,13 +229,15 @@ export async function getPriceContext(storeId: string, productId: string): Promi
   return (await getPriceContexts(storeId, [productId]))(productId);
 }
 
-/** 몰의 배송비 정책(기본 정책이 맨 앞) */
-export async function getShippingPolicies(storeId: string): Promise<ShippingPolicy[]> {
+/** 몰의 배송비 정책(기본 정책이 맨 앞). mallOnly = 공급사 배송비 정책(0060)은 빼고 — 운영자 배송비·상품 화면용. 손님 계산 화면은 전부 */
+export async function getShippingPolicies(storeId: string, opts: { mallOnly?: boolean } = {}): Promise<ShippingPolicy[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  let q = supabase
     .from("mall_builder_shipping_policies")
     .select("id, name, type, base_fee, free_over, jeju_fee, island_fee, is_default")
-    .eq("store_id", storeId)
+    .eq("store_id", storeId);
+  if (opts.mallOnly) q = q.is("supplier_id", null);
+  const { data } = await q
     .order("is_default", { ascending: false })
     .order("created_at");
   return (data ?? []) as ShippingPolicy[];
