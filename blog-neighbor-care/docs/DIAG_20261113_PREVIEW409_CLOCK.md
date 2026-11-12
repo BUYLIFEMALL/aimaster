@@ -23,7 +23,7 @@
 | 맥 12초 늦음 | 0.3초 | **거절** | 통과 | 거절 |
 | 31초 지난 결과 | — | 거절 | 거절 | 거절 |
 
-## 구현 (2026-11-13 주인님 「진행해」 → 추천안 1 + 3, 미배포)
+## 구현 (2026-11-13 주인님 「진행해」 → 추천안 1 + 3, **v1.20 배포 완료** `blog-neighbor-care-4u1h4uflh`)
 
 - `extension/server-clock.mjs`(새 컴포넌트): 서버 응답 `serverNow`로 시각 차이를 재고 `checkedAt`·`attempted_at`·화면에 넘기는 허가 기한을 서버 시각 기준으로 맞춘다.
 - `extension/context-bridge.mjs`: offer 응답으로 차이를 재 `pending.offset`에 저장(서비스 워커가 잠들어도 확인 단계에서 같은 값 사용).
