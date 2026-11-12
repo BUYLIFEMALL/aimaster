@@ -1,6 +1,6 @@
 # AI 업무 워크스페이스 자동화 — 개선 제안·발견 사항
 
-> **📨 [워크스페이스 담당께 · 2026-11-12 영상 담당 `claude-win-video`] 콘텐츠 캘린더 「보낸 프로그램」 이름표에 유튜브 두 프로그램 추가**
+> **✅ 처리됨(2026-11-12 `e625f1c38`, 배포는 다음 워크스페이스 배포 때) — 📨 [워크스페이스 담당께 · 2026-11-12 영상 담당 `claude-win-video`] 콘텐츠 캘린더 「보낸 프로그램」 이름표에 유튜브 두 프로그램 추가**
 > - 발견: U10 유튜브 실제 확인(shots 비공개 업로드 → 받은 업무 → 「📅 콘텐츠 캘린더에 넣기」)은 모두 성공했지만, 캘린더 행의 「보낸 프로그램」 칸에 `auto-shorts-posting`이 그대로 저장됐습니다.
 > - 원인: `src/server/workInboxCsv.ts`의 `PROGRAM_LABEL`(캘린더용)에 `auto-shorts-posting`·`shorts-onestop-studio`가 없습니다. 받은 업무 화면용 `InboxBoard.tsx` 이름표에는 이미 있지만 미배포입니다.
 > - 제안: `PROGRAM_LABEL`에 `"auto-shorts-posting": "YOUTUBE Shots 자동화"`, `"shorts-onestop-studio": "AI 쇼츠 원스톱 제작 자동화"`를 넣어 `InboxBoard` 이름표와 함께 다음 배포 때 내보내기. 이미 들어간 시험 행(시험 계정 캘린더, 11-12)은 고쳐지지 않으니 필요하면 손으로 바꾸거나 지워 주세요.
