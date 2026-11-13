@@ -422,7 +422,7 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
       </div>
 
       <h2>🗂️ 저장한 문서</h2>
-      {taxDocs.length > 0 && <BoltaPanel notify={notify} />}
+      <BoltaPanel notify={notify} />{/* 2026-11-13: 문서가 없어도 처음 설정을 할 수 있게 항상 보임 */}
       {taxDocs.length > 0 && (
         <div className="rc-row-btns">
           <button type="button" className="rc-btn" disabled={making || picked.size === 0} onClick={() => void makeHometax()}>{making ? "만드는 중…" : `🧾 홈택스 일괄 발급 엑셀 (${taxDocs.filter((d) => picked.has(d.id)).length}건)`}</button>
