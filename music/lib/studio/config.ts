@@ -86,7 +86,8 @@ export const ERAS = [
   "1920s",
   "global",
 ] as const;
-export const MARKETS = ["한국 가요", "POP", "장르·월드"] as const;
+// v1.56: 「Suno 공식 장르」 — suno.com/music-library/genres 225개(lib/sunoGenres.ts)
+export const MARKETS = ["한국 가요", "POP", "장르·월드", "Suno 공식 장르"] as const;
 export const VOICE_TERMS: Record<string, string> = {
   "자연스러운 보컬": "natural vocals",
   "부드러운 여성 보컬": "soft female vocals",

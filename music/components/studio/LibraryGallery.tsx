@@ -68,7 +68,7 @@ export function LibraryGallery({
       <div className="section-title">
         <h2>{dance ? "200 댄스 스타일 가이드" : "프리셋 라이브러리"}</h2>
         <span className="pill">
-          {matches.length}/{dance ? 200 : 461}
+          {matches.length}/{dance ? 200 : 686}
         </span>
       </div>
       <p className="muted">

@@ -89,7 +89,7 @@ export function UsageGuide() {
               </div>
               <h3 className="text-sm font-bold text-white">컨셉 & 스타일 선택</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                461개 장르 프리셋, 243개 스타일 그룹, 200개 댄스 조합 중 마음에 드는 사운드 텍스처를 선택하거나 직접 키워드를 입력합니다.
+                461개 장르 프리셋, Suno 공식 장르 225개, 243개 스타일 그룹, 200개 댄스 조합 중 마음에 드는 사운드 텍스처를 선택하거나 직접 키워드를 입력합니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center gap-1.5 text-[11px] text-orange-400 font-medium">

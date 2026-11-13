@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 const STEPS = [
   { id: "builder", name: "🎚️ 빌더 (작사·곡 기획)", badge: "" },
   { id: "album", name: "💿 앨범 구성", badge: "3~12" },
-  { id: "presets", name: "🎨 스타일 프리셋", badge: "461" },
+  { id: "presets", name: "🎨 스타일 프리셋", badge: "686" },
   { id: "search", name: "🔎 음악 탐색·검색", badge: "AI" },
   { id: "dance", name: "🕺 댄스 머신", badge: "200" },
   { id: "saved", name: "🗂️ 검수·보관함", badge: "" },

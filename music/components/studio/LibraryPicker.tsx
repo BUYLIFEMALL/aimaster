@@ -53,7 +53,7 @@ export function LibraryPicker({
   return (
     <fieldset disabled={busy} className="library-picker">
       <p className="muted">
-        프리셋 461개 · 댄스 200개. 이름·시대·장르·BPM을 참고하여 음악 속성으로
+        프리셋 461개 · 댄스 200개 · Suno 공식 장르 225개. 이름·시대·장르·BPM을 참고하여 음악 속성으로
         Style을 구성합니다.
       </p>
       <label>
@@ -111,6 +111,7 @@ export function LibraryPicker({
             <option value="template">스타일 템플릿</option>
             <option value="reference">아티스트 참고</option>
             <option value="dance">댄스 그루브</option>
+            <option value="suno">Suno 공식 장르</option>
           </select>
         </label>
         <label>

@@ -14,6 +14,7 @@ import {
 import { LibraryPicker } from "./LibraryPicker";
 import { recipe } from "@/lib/studio/config";
 import { automaticExclude } from "@/lib/studio/catalog";
+import { SUNO_GENRES } from "@/lib/sunoGenres";
 export function BriefControls({
   brief,
   onChange,
@@ -130,7 +131,7 @@ export function BriefControls({
           onChange={(e) => edit("genre", e.target.value)}
         />
         <datalist id="genre-tags">
-          {TAGS.genre.map((t) => (
+          {[...TAGS.genre, ...SUNO_GENRES.map((g) => g.name.toLowerCase()).filter((n) => !TAGS.genre.includes(n))].map((t) => (
             <option key={t}>{t}</option>
           ))}
         </datalist>

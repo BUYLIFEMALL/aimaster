@@ -9,10 +9,10 @@ import { createWavAction, syncWavStatusAction } from "@/lib/actions/wav";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { ImageLightbox } from "@/components/plannings/ImageLightbox";
 import { TagChips } from "@/components/plannings/TagChips";
+import { GenrePicker } from "@/components/plannings/GenrePicker";
 import {
   LANG_OPTIONS,
   VOCAL_GENDER_OPTIONS,
-  GENRE_OPTIONS,
   GENRE_MAX_SELECT,
   MOOD_OPTIONS,
   MOOD_MAX_SELECT,
@@ -724,7 +724,7 @@ export function TrackCard({
               <div className="space-y-3.5 rounded-xl border border-[#272738] bg-[#12121a] p-4 animate-in fade-in duration-200">
                 <div>
                   <p className="mb-1.5 text-xs font-bold text-zinc-300">장르 (최대 {GENRE_MAX_SELECT}개)</p>
-                  <TagChips options={GENRE_OPTIONS} selected={genreTags} max={GENRE_MAX_SELECT} onToggle={toggleGenre} />
+                  <GenrePicker selected={genreTags} max={GENRE_MAX_SELECT} onToggle={toggleGenre} />
                 </div>
                 <div>
                   <p className="mb-1.5 text-xs font-bold text-zinc-300">무드 (최대 {MOOD_MAX_SELECT}개)</p>

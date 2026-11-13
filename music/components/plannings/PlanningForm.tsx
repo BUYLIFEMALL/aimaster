@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { planMusicAction } from "@/lib/actions/plannings";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { TagChips } from "@/components/plannings/TagChips";
+import { GenrePicker } from "@/components/plannings/GenrePicker";
 import {
   LANG_OPTIONS,
   VOCAL_GENDER_OPTIONS,
@@ -166,7 +167,11 @@ export function PlanningForm() {
               <p className="mb-2 text-xs font-bold text-zinc-300">
                 {g.title} <span className="font-normal text-zinc-500">(최대 {g.max}개)</span>
               </p>
-              <TagChips options={g.options} selected={tags[g.key]} max={g.max} onToggle={(v) => toggle(g.key, v)} />
+              {g.key === "genre" ? (
+                <GenrePicker selected={tags.genre} max={g.max} onToggle={(v) => toggle("genre", v)} />
+              ) : (
+                <TagChips options={g.options} selected={tags[g.key]} max={g.max} onToggle={(v) => toggle(g.key, v)} />
+              )}
             </div>
           ))}
           <div className="grid grid-cols-1 gap-3">

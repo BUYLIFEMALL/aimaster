@@ -18,9 +18,9 @@ const b={...DEFAULT_BRIEF,concept:'도시의 밤을 지나 새로운 아침으�
 const filter={market:'',era:'',group:'',type:'',query:'',bpm:''};
 const track={id:'keep-id',title:'직접 쓴 제목',summary:'직접 설명',style:'warm piano, 90 BPM',exclude:'distortion',bpm:90,lyrics:'직접 쓴 가사',hook:'기존 훅',reviewed:true};
 test('public selector metadata covers all 461 reference choices, 243 groups and 200 dance choices',()=>{
- assert.equal(LIBRARY.length,661);assert.equal(LIBRARY.filter(p=>p.type==='reference').length,200);
+ assert.equal(LIBRARY.length,886);assert.equal(LIBRARY.filter(p=>p.type==='suno').length,225);assert.equal(LIBRARY.filter(p=>p.type==='reference').length,200);
  assert.equal(LIBRARY.filter(p=>p.type==='template').length,261);assert.equal(LIBRARY.filter(p=>p.type==='dance').length,200);
- assert.equal(new Set(LIBRARY.filter(p=>p.type!=='dance').map(p=>p.group)).size,243);
+ assert.equal(new Set(LIBRARY.filter(p=>p.type==='template'||p.type==='reference').map(p=>p.group)).size,243);
  assert.equal(new Set(LIBRARY.map(p=>p.id)).size,LIBRARY.length);
 });
 test('every selectable recipe and artist variation is valid, retains controls and has usable English Style',()=>{

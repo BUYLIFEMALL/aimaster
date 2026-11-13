@@ -1,4 +1,5 @@
 import type { VocalGender } from "@/types/database.types";
+import { SUNO_GENRES } from "./sunoGenres";
 
 // 곡 기획 폼(PlanningForm)과 기획 수정(PlanningHeaderCard)이 동일한 선택지를 쓰도록 공유한다.
 export const LANG_OPTIONS = ["한국어", "English", "Japanese", "Chinese"];
@@ -10,9 +11,11 @@ export const VOCAL_GENDER_OPTIONS: VocalGender[] = ["여성", "남성", "혼성"
 export interface TagOption {
   value: string;
   label: string;
+  family?: string;
 }
 
-export const GENRE_OPTIONS: TagOption[] = [
+// 2026-08 기존 칩 20개 — 저장된 기획(plan_options)·곡 카드 호환을 위해 값을 그대로 둔다.
+const LEGACY_GENRES: TagOption[] = [
   { value: "Pop", label: "Pop(팝)" },
   { value: "K-pop", label: "K-pop(케이팝)" },
   { value: "J-pop", label: "J-pop(제이팝)" },
@@ -33,6 +36,35 @@ export const GENRE_OPTIONS: TagOption[] = [
   { value: "Cinematic", label: "Cinematic(시네마틱)" },
   { value: "Epic", label: "Epic(에픽)" },
   { value: "World music", label: "World music(월드뮤직)" },
+];
+
+// v1.56: Suno 공식 장르 225개(lib/sunoGenres.ts)와 합친다. 이름이 같은 것(대소문자 무시)은 기존 값을 쓰고 대분류만 붙인다.
+const LEGACY_FAMILY: Record<string, string> = {
+  "j-pop": "asia",
+  indie: "rock",
+  epic: "classical",
+  "world music": "world",
+  "latin pop": "latin",
+};
+export const GENRE_OPTIONS: TagOption[] = (() => {
+  const byName = new Map(SUNO_GENRES.map((g) => [g.name.toLowerCase(), g]));
+  const legacy = LEGACY_GENRES.map((o) => ({
+    ...o,
+    family: byName.get(o.value.toLowerCase())?.family ?? LEGACY_FAMILY[o.value.toLowerCase()] ?? "pop",
+  }));
+  const taken = new Set(legacy.map((o) => o.value.toLowerCase()));
+  const suno = SUNO_GENRES.filter((g) => !taken.has(g.name.toLowerCase())).map((g) => ({
+    value: g.name,
+    label: `${g.ko}(${g.name})`,
+    family: g.family,
+  }));
+  return [...legacy, ...suno];
+})();
+
+/** 장르 선택기 「자주 쓰는」 탭 */
+export const POPULAR_GENRES = [
+  "Pop", "K-pop", "J-pop", "Hip-hop", "R&B", "EDM", "House", "Lo-fi", "Rock", "Jazz",
+  "ballad", "acoustic", "city pop", "indie pop", "Trap", "folk", "Cinematic", "Synthwave", "bossa nova", "Reggaeton",
 ];
 export const GENRE_MAX_SELECT = 3;
 

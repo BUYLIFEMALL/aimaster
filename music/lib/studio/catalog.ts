@@ -2,6 +2,7 @@ import metadata from "./catalog-metadata.json";
 import danceMetadata from "./dance-metadata.json";
 import observedTags from "./tag-metadata.json";
 import { recipe, type Brief } from "./config";
+import { SUNO_GENRES, familyLabel } from "../sunoGenres";
 
 export interface LibraryPreset {
   id: string;
@@ -229,6 +230,27 @@ export const LIBRARY: LibraryPreset[] = [
     bpmHints: p.bpms,
     description: p.bpmLabel,
     structure: "댄스 드롭",
+  })),
+  // v1.56: Suno 공식 장르 225개 — 장르 이름은 Suno style에 그대로, 분위기·악기·BPM은 lib/sunoGenres.ts 출발값
+  ...SUNO_GENRES.map((g) => ({
+    id: `suno-${g.slug}`,
+    name: `${g.ko} · ${g.name}`,
+    group: familyLabel(g.family),
+    eras: ["global"],
+    market: "Suno 공식 장르",
+    markets: ["Suno 공식 장르"],
+    type: "suno",
+    genre: g.name
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\x20-\x7E]/g, " ")
+      .trim(),
+    mood: g.mood,
+    instruments: g.instruments,
+    bpm: g.bpm,
+    bpmHints: [g.bpm],
+    description: `Suno 공식 장르 · ${familyLabel(g.family)}`,
+    structure: /house|techno|trance|edm|dubstep|bass|hardstyle|garage|drum and bass|jungle/i.test(g.name) ? "댄스 드롭" : "표준",
   })),
 ];
 export const ERA_LABELS: Record<string, string> = {
