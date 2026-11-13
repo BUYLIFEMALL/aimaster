@@ -1,6 +1,22 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-13 새 키 칸을 만들었는데 「저장하지 못했습니다」 — 공용 `user_api_keys`의 허용 이름 제약에 새 provider가 없음 (`ai-work-workspace` v1.35 볼타, [역할: workspace])
+- **증상**: 볼타 API 키 칸에 키를 넣고 저장을 눌러도 「저장하지 못했습니다. 잠시 후 다시 시도해 주세요.」만 나옴. 코드·시험·빌드는 모두 통과.
+- **원인**: 운영 DB `user_api_keys`에 CHECK 제약 `user_api_keys_provider_check`(허용하는 provider 이름 목록)가 있고, 새 이름 `bolta_api_key`가 목록에 없어 DB가 거절. 시험은 가짜 DB라 걸리지 않음.
+- **해결**: 현재 정의를 읽어 앞에 덧붙이는 SQL(다른 프로그램 값 보존) — `ai-work-workspace/supabase/migrations/20261113000000_bolta_api_key_provider.sql`(기준 `ai-video-studio/…/20261111100000_runway_vidu_keys.sql`). 주인님 승인 뒤 운영 SQL 편집기에서 실행.
+- **다음부터 확인**: 공용 `user_api_keys`에 **새 provider 이름**을 쓰는 기능은 플랜의 「DB 변경」에 이 SQL을 적고, **배포 전에** 실행한다(이번에 「DB 변경 없음」으로 적어 놓쳤음). 저장 실패 문구에 원인이 안 보이니 서버 기록에 DB 오류 코드를 남기는 것도 검토.
+
+## 2026-11-13 화면 버전이 두 곳에 있어 배포 뒤에도 옛 버전이 보임 — 재발 (`ai-work-workspace` v1.34, [역할: workspace])
+- **증상**: v1.34를 배포하고 DB 버전도 맞췄는데 왼쪽 메뉴에는 v1.33. (v1.21 때도 같은 일)
+- **원인**: `src/lib/version.ts`만 올리고 원본 화면 상수 `src/litpage/web/features/shell/AimasterSidebar.tsx`의 `AIMASTER_APP_VERSION`을 빠뜨림. 배포 도구는 앞의 파일만 본다.
+- **해결·다음부터 확인**: 버전을 올릴 때 두 파일을 한 명령으로 함께 바꾸고 `grep "APP_VERSION ="`로 둘 다 확인(v1.35부터 적용). 근본 해결 후보: 메뉴가 `lib/version.ts`를 불러 쓰게 하기.
+
+## 2026-11-13 외부 문서의 서명 설명이 서로 달라 구현이 갈림 — 공식 SDK 소스로 확정 (팝빌 조사, [역할: workspace])
+- **증상**: 발급대행 API 문서의 설명 글은 「Content-MD5·SecretKey 그대로」, 같은 문서의 예시는 「SHA-256·SecretKey를 base64로 풀기」로 달랐음.
+- **해결**: 그 업체의 공식 npm 패키지(MIT)를 임시 폴더에 받아 서명 코드를 직접 읽어 확정. (이 기능은 뒤에 주인님 지시로 볼타로 교체됨 — 볼타는 HTTP Basic이라 서명 없음)
+- **다음부터 확인**: 외부 API 문서가 애매하면 추측해 구현하지 말고 공식 SDK 소스 → 테스트 서버 호출 순으로 확인한다. 같은 일을 하는 업체가 여럿이면 **구현 전에 주인님이 이미 쓰는 업체가 있는지** 먼저 여쭌다(이번에 팝빌로 만들었다가 볼타로 다시 만듦).
+
 ## 2026-11-13 CLI 배포에 다른 세션의 미커밋 화면 코드가 섞여 빌드 실패 + 파일 입력을 비운 뒤 FileList를 읽어 사진 0장 (`banana-canvas` v1.47, [역할: ecommerce-image])
 - **증상 1**: `deploy.mjs banana-canvas --go`가 `npm run build exited with 1`. 로컬 tsc·build는 직전에 통과했음. 도우미는 실패 뒤에도 `--set-version`으로 DB 버전을 올릴 수 있어 화면(v1.46)과 DB(v1.47)가 어긋남.
 - **원인 1**: `vercel deploy`는 커밋이 아니라 **작업 폴더**를 올린다. 같은 폴더에서 agy가 `batch/page.tsx`·새 컴포넌트를 미커밋으로 고치는 중이라 그 미완성 코드가 함께 빌드됨(작업 중 표의 agy 줄을 「디자인 시안만」으로 보고 넘긴 것이 실수).

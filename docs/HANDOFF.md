@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 📝 [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 워크스페이스 문서 전체 갱신 + 볼타 웹훅 구현(미배포) + 다음 두 작업 승인됨
+
+- 주인님 「현재까지 작업내용 업데이트 하고 개선사항등 보완해서 개발문서에 업데이트」: `ai-work-workspace/AGENTS.md`(v1.19에 멈춰 있던 머리말·기능 요약·이력 v1.30~v1.35·남은 작업·주의 6가지), `docs/IMPROVEMENT_BACKLOG.md`(체크리스트), `docs/IMPROVEMENTS.md`(개선 제안 3대 항목), 프로그램 비교표 카드, `docs/ERROR_LESSONS.md` 3건, 공통 아이디어 표 2건, 역할 파일.
+- 미배포(다음 워크스페이스 배포 v1.36에 함께, 빌드 1회): 볼타 설정 칸 항상 보이기 · AI/에이전트 단계 표시 한국어화 · 볼타 처리 상태 문구 · **볼타 웹훅**(회원 전용 주소 + 서명 확인 → 발급됨/실패 사유 자동 기록, 시험 138). **웹훅은 배포 전 운영 DB SQL 필요**: `ai-work-workspace/supabase/migrations/20261113010000_bolta_webhook_secret_provider.sql`(주인님 승인 받고 실행).
+- 승인됨·다음 순서(주인님 「진행하고」): ① 일정 리마인더를 내 메일·카카오톡으로도(`src/server/externalNotify.ts` 재사용, 설정 스위치 2개) ② 공개 REST API `/v1`(MCP 서버와 같은 틀 — 토큰 주인 이용 권한 확인·토큰 5개·90일·분당 60, 공개 API 웹훅·바깥 MCP 연결은 닫아 둠). 플랜 `ai-work-workspace/docs/PLAN_20261113_U14_AND_DEFERRED.md`.
+- 다른 담당 참고: 볼타 발급 코드(`ai-work-workspace/src/server/bolta*.ts`)는 쇼핑몰 빌더 D19(볼타 예정)에서 가져다 쓸 수 있음 — 주인님이 볼타 가입·테스트 키를 이미 갖고 계심(요청함의 쇼핑몰 빌더 「볼타 가입」 항목 해당).
+
 ## 2026-11-13 ✅ [역할: realty] Claude Code(윈도우) · 세션 `claude-win-20261024-realty` — 부동산 4개 프로그램 하루 정리(매물 알림 v1.44 배포·뉴스 잡음 줄이기 미배포·전체 점검)
 
 - **매물 알림 v1.44 배포**(빌드 1회, 주인님 승인): 단지 2936 이름 빈칸 원인 = 지역 감시(백석동)가 먼저 펼쳐져 겹치는 단지 감시가 건너뛰어짐 → 작업 목록을 단지 감시 먼저(`complexTargetsFirst`). 저장공간 위젯·로그아웃 이 브라우저만 함께. DB·확장·ZIP v1.44 `check-extension-release` OK. 시험 계정 ego 확장은 저장소 폴더에서 불러와져 있어 새로고침으로 v1.44 적용.
