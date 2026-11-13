@@ -76,3 +76,8 @@
   - 상세 설명 글이 없고 상세 그림만 있어도 「상세 정보」 영역이 보여야 한다(지금은 `product.description &&`로 감싸져 있음).
   - 빈 배열이면 아무것도 그리지 않는다. 데이터 처리·서버 코드는 바꾸지 않는다(표시만).
 - 시험용 상품: Lab 시험 몰에 프로셀 상품 9개를 상세 그림과 함께 넣을 예정(mall-builder 담당, 넣으면 몰 주소를 이 절에 적음).
+- **구현 완료 (2026-11-13 agy)**:
+  - 파일: `src/app/s/[store]/(shop)/p/[id]/page.tsx`
+  - 상세 설명 텍스트가 없고 상세 그림만 있어도 영역이 보이도록 `(product.description || (product.detail_images && product.detail_images.length > 0))` 적용 완료.
+  - `product.detail_images`를 `max-w-[860px] mx-auto w-full flex flex-col gap-0` 구조로 연속 배치(간격 0, `height:auto`, `loading="lazy"`).
+  - 검증: `cd mall-builder; npx tsc --noEmit` 통과, `node --test tests/*.test.mjs` **258 / 258 전수 통과** 확인.

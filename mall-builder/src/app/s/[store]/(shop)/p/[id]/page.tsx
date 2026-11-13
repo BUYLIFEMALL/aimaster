@@ -167,13 +167,31 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
         </section>
       )}
 
-      {/* 상세 설명 */}
-      {product.description && (
+      {/* 상세 설명 & 상세 그림 (0064, 인수인계 §10) */}
+      {(product.description || (product.detail_images && product.detail_images.length > 0)) && (
         <section className="mt-10 rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
           <h2 className="mb-4 text-lg font-black tracking-tight text-slate-900">상세 설명</h2>
-          <div className="border-t border-slate-100 pt-4">
-            <p className="whitespace-pre-line leading-relaxed text-slate-700 text-sm sm:text-base">{product.description}</p>
-          </div>
+          {product.description && (
+            <div className="border-t border-slate-100 pt-4">
+              <p className="whitespace-pre-line leading-relaxed text-slate-700 text-sm sm:text-base">{product.description}</p>
+            </div>
+          )}
+          {product.detail_images && product.detail_images.length > 0 && (
+            <div className={`flex flex-col items-center ${product.description ? "mt-8 border-t border-slate-100 pt-8" : "border-t border-slate-100 pt-4"}`}>
+              <div className="w-full max-w-[860px] flex flex-col gap-0 overflow-hidden rounded-2xl">
+                {product.detail_images.map((img, idx) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={img.path || img.url || idx}
+                    src={img.url}
+                    alt=""
+                    loading="lazy"
+                    className="block w-full h-auto object-cover"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       )}
 
