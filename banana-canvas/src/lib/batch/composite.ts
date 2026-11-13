@@ -13,6 +13,8 @@ export interface CompositeSettings {
   subAnchor: Anchor;
   /** 서브 한 장의 긴 변 = 바탕 짧은 변의 % */
   subRatio: number;
+  /** 서브 맞춤: cover = 정사각으로 잘라 채움(기본, 긴 사진도 띠가 되지 않음), contain = 원본 비율 그대로 */
+  subFit: "contain" | "cover";
   /** 서브와 가장자리·서브끼리 간격(px) */
   subMargin: number;
   subRadius: number;
@@ -32,7 +34,7 @@ export const COMPOSITE_PRESETS = [
 
 export const DEFAULT_COMPOSITE: CompositeSettings = {
   width: 1000, height: 1000, background: "#ffffff", fit: "contain", padding: 0,
-  subAnchor: "br", subRatio: 32, subMargin: 24, subRadius: 12, subOutline: true, subShadow: true,
+  subAnchor: "br", subRatio: 32, subFit: "cover", subMargin: 24, subRadius: 12, subOutline: true, subShadow: true,
   format: "jpg", quality: 92, prefix: "", template: "{prefix}_{code}_{option}_{role}",
 };
 
@@ -49,6 +51,7 @@ export function normalizeComposite(raw: Partial<CompositeSettings> | null | unde
     padding: clamp(Math.round(num(s.padding, 0)), 0, 200),
     subAnchor: ANCHORS.includes(s.subAnchor) ? s.subAnchor : "br",
     subRatio: clamp(Math.round(num(s.subRatio, 32)), 15, 50),
+    subFit: s.subFit === "contain" ? "contain" : "cover",
     subMargin: clamp(Math.round(num(s.subMargin, 24)), 0, 60),
     subRadius: clamp(Math.round(num(s.subRadius, 12)), 0, 30),
     subOutline: !!s.subOutline,
@@ -86,10 +89,11 @@ export function mainBox(s: Pick<CompositeSettings, "width" | "height" | "padding
  * 서브 사진들의 자리. 각 서브는 긴 변이 (짧은 변 × 비율%)인 상자에 비율 유지로 들어간다.
  * 위·아래 줄 위치면 가로로, 가운데 줄이면 세로로 나란히 놓는다(지정 위치에서 안쪽으로).
  */
-export function subRects(aspects: number[], s: Pick<CompositeSettings, "width" | "height" | "subAnchor" | "subRatio" | "subMargin">): Rect[] {
+export function subRects(aspects: number[], s: Pick<CompositeSettings, "width" | "height" | "subAnchor" | "subRatio" | "subMargin"> & { subFit?: "contain" | "cover" }): Rect[] {
   if (!aspects.length) return [];
   const side = Math.round((Math.min(s.width, s.height) * s.subRatio) / 100);
   const sizes = aspects.map((a) => {
+    if (s.subFit === "cover") return { w: side, h: side };
     const r = a > 0 && Number.isFinite(a) ? a : 1;
     return r >= 1 ? { w: side, h: Math.max(1, Math.round(side / r)) } : { w: Math.max(1, Math.round(side * r)), h: side };
   });

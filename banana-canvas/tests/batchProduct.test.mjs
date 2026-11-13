@@ -132,3 +132,12 @@ test("P2 결과·저장 알림: 바나나 주소·같은 작업·보낸 상품�
   assert.deepEqual(readProductSaved(PRODUCT_SENDER_ORIGIN, { type: PRODUCT_MSG_SAVED, jobId: JOB, productId: ID, ok: false, error: "바뀜" }, JOB), { productId: ID, ok: false, error: "바뀜" });
   assert.equal(readProductSaved(PRODUCT_RECEIVER_ORIGIN, { type: PRODUCT_MSG_SAVED, jobId: JOB, productId: ID, ok: true }, JOB), null);
 });
+
+test("서브 정사각 채우기(기본): 긴 사진도 정사각 상자, 원본 비율은 선택", () => {
+  const base = { width: 1000, height: 1000, subRatio: 32, subMargin: 24, subAnchor: "br" };
+  assert.equal(normalizeComposite({}).subFit, "cover");
+  assert.equal(normalizeComposite({ subFit: "contain" }).subFit, "contain");
+  assert.deepEqual(subRects([0.1], { ...base, subFit: "cover" }), [{ x: 656, y: 656, w: 320, h: 320 }]);
+  assert.deepEqual(subRects([0.1], { ...base, subFit: "contain" }).map((r) => [r.w, r.h]), [[32, 320]]); // 예전 동작(가는 띠)
+  assert.deepEqual(fitRect(100, 1000, { x: 0, y: 0, w: 320, h: 320 }, "cover"), { sx: 0, sy: 450, sw: 100, sh: 100, dx: 0, dy: 0, dw: 320, dh: 320 });
+});

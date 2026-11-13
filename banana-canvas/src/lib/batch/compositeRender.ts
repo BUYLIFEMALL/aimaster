@@ -45,7 +45,8 @@ export function renderComposite(main: ImageBitmap, subs: ImageBitmap[], s: Compo
     }
     roundedPath(g, r.x, r.y, r.w, r.h, s.subRadius);
     g.clip();
-    g.drawImage(bm, 0, 0, bm.width, bm.height, r.x, r.y, r.w, r.h);
+    const d = fitRect(bm.width, bm.height, r, s.subFit); // cover면 가운데 기준으로 잘라 상자를 채움
+    g.drawImage(bm, d.sx, d.sy, d.sw, d.sh, d.dx, d.dy, d.dw, d.dh);
     g.restore();
     if (s.subOutline) {
       g.save();
