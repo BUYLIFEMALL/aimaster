@@ -24,6 +24,8 @@ export interface ProductRow {
   source_image_url: string | null;
   /** 메이커 P2(2026-11-13): 바나나에서 합성한 대표사진(있으면 원본 대신 대표 이미지로) */
   main_image_url?: string | null;
+  /** 2026-11-13: 원본 사진 출처 — collected = 상품소싱이 수집한 참고 사진(보내기 전 경고) */
+  source_image_origin?: string | null;
   section_sequence: string[] | null;
   status: string;
   updated_at: string;
@@ -38,7 +40,7 @@ export function ownExtraPaths(userId: string, urls: string[] | null | undefined)
   return (urls ?? []).map((u) => storagePathFromUrl(u)).filter((p): p is string => Boolean(p && p.startsWith(`${userId}/`))).slice(0, 9);
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,main_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls";
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,main_image_url,source_image_origin,section_sequence,status,updated_at,reviewed_at,reference_image_urls";
 
 export async function listProducts(userId: string): Promise<{ rows: ProductRow[]; error: boolean }> {
   const supabase = await createClient();

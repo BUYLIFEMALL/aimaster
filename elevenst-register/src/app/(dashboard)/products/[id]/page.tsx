@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { getShopProduct, productName } from "@/lib/shop";
+import { usesCollectedPhoto } from "@/lib/collectedPhoto";
 import { getSetupStatus } from "@/lib/setupStatus";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -56,6 +57,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
         detailCategory={p.category ?? ""}
         specs={p.specs ?? ""}
         keySaved={Boolean(setup.elevenstKey)}
+        collectedPhoto={usesCollectedPhoto(p)}
         lastJob={
           lastJobRes.data
             ? { status: lastJobRes.data.status, productNo: lastJobRes.data.elevenst_product_no ? String(lastJobRes.data.elevenst_product_no) : "", createdAt: lastJobRes.data.created_at }

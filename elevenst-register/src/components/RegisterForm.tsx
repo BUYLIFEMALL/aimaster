@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CategoryPicker, type PickedCategory } from "@/components/CategoryPicker";
 import { checkDraftAction, loadSellerSetupAction, type CheckResult, type SellerSetup } from "@/lib/actions/register";
 import { sendProductAction, type SendResult } from "@/lib/actions/send";
+import { COLLECTED_PHOTO_ACK_LABEL, COLLECTED_PHOTO_WARNING, COLLECTED_PHOTO_WARNING_TITLE } from "@/lib/collectedPhoto";
 import type { ElevenstDraft, FeeType, KcChoice, OptionRow } from "@/lib/elevenst/product";
 import { DEFAULT_AS, DEFAULT_RETURN, SEND_KIND } from "@/lib/elevenst/draftDefaults";
 import { NOTI_DEFAULT_VALUE, NOTI_TYPES, notiType } from "@/lib/elevenst/notification";
@@ -61,7 +62,7 @@ function notiFill(code: string, specs: Map<string, string>, leaf: string): Recor
   return t ? prefillNoti(t, specs, leaf).values : {};
 }
 
-export function RegisterForm(props: { productId: string; initialName: string; price: number; listPrice: number; detailCategory: string; specs: string; keySaved: boolean; lastJob?: { status: string; productNo: string; createdAt: string } | null }) {
+export function RegisterForm(props: { productId: string; initialName: string; price: number; listPrice: number; detailCategory: string; specs: string; keySaved: boolean; collectedPhoto?: boolean; lastJob?: { status: string; productNo: string; createdAt: string } | null }) {
   // 상세페이지 자동화 정보로 미리 채움(브랜드·원산지·고시) — 회원이 고칠 수 있음
   const specs = useMemo(() => parseSpecs(props.specs), [props.specs]);
   const basics = useMemo(() => prefillBasics(specs), [specs]);
@@ -90,6 +91,7 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
   const [checkError, setCheckError] = useState("");
   const [checkedJson, setCheckedJson] = useState(""); // 검사한 순간의 입력값 — 바뀌면 다시 검사해야 보낼 수 있다
   const [confirmSend, setConfirmSend] = useState(false);
+  const [collectedAck, setCollectedAck] = useState(false); // 수집 원본 사진 허가·권리 확인(2026-11-13)
   const [sent, setSent] = useState<SendResult | null>(null);
   const [pending, start] = useTransition();
   const dl = (patch: Partial<ElevenstDraft["delivery"]>) => setDelivery((d) => ({ ...d, ...patch }));
@@ -191,7 +193,7 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
   const runSend = () =>
     start(async () => {
       setConfirmSend(false);
-      setSent(await sendProductAction(props.productId, draft));
+      setSent(await sendProductAction(props.productId, draft, { collectedAck }));
     });
 
   const setRow = (i: number, patch: Partial<OptionRow>) => setOptionRows((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
@@ -556,10 +558,20 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
             <div className="space-y-3 rounded-xl border border-rose-200 bg-rose-50/90 p-4 text-[13px] text-rose-950">
               <p className="font-extrabold text-sm">정말 전송하시겠습니까? 11번가 셀러오피스에 실제 상품이 등록되고 즉시 전시중지됩니다.</p>
               {check?.detailMode === "images" && <p className="text-xs text-rose-800">📷 {DETAIL_IMAGE_NOTICE}</p>}
+              {props.collectedPhoto && (
+                <div role="alert" className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950">
+                  <p className="text-xs font-extrabold">{COLLECTED_PHOTO_WARNING_TITLE}</p>
+                  <p className="text-xs leading-relaxed">{COLLECTED_PHOTO_WARNING}</p>
+                  <label className="flex items-start gap-2 text-xs font-bold">
+                    <input type="checkbox" checked={collectedAck} onChange={(e) => setCollectedAck(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{COLLECTED_PHOTO_ACK_LABEL}</span>
+                  </label>
+                </div>
+              )}
               <div className="flex gap-2.5 pt-1">
                 <button
                   type="button"
-                  disabled={pending}
+                  disabled={pending || (props.collectedPhoto && !collectedAck)}
                   onClick={runSend}
                   className="btn-3d-red !py-2 !px-5 !text-xs"
                 >

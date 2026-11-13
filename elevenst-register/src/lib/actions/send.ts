@@ -3,6 +3,7 @@
 import { requireProgramAccess } from "@/lib/access";
 import { getElevenstKeys } from "@/lib/setupStatus";
 import { getShopProduct, productName, SHOP_IMAGE_BUCKET } from "@/lib/shop";
+import { COLLECTED_PHOTO_ACK_REQUIRED, usesCollectedPhoto } from "@/lib/collectedPhoto";
 import { markPosted, type PostedFile } from "@/lib/storage/markPosted";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createImageLinks } from "@/lib/imageLinks";
@@ -32,7 +33,7 @@ export type SendResult =
 
 const JOBS = "elevenst_register_jobs";
 
-export async function sendProductAction(productId: string, draft: ElevenstDraft): Promise<SendResult> {
+export async function sendProductAction(productId: string, draft: ElevenstDraft, opts: { collectedAck?: boolean } = {}): Promise<SendResult> {
   const user = await requireProgramAccess();
   const keys = await getElevenstKeys(user.id);
   if (!keys) return { ok: false, status: "blocked", message: "먼저 「API키등록·플랫폼연동」에서 11번가 API 키를 저장해 주세요." };
@@ -49,6 +50,9 @@ export async function sendProductAction(productId: string, draft: ElevenstDraft)
   }
   const check = checkDraft(draft, { categoryIsLeaf, hasMainImage: Boolean(shop.mainImage) });
   if (check.errors.length || !shop.mainImage) return { ok: false, status: "blocked", message: `검사를 통과하지 못했습니다: ${check.errors[0] ?? "대표 이미지가 없습니다."}` };
+
+  // 1-1) 수집 원본 사진이면 회원의 허가·권리 확인이 있어야 보낸다(막지 않고 회원이 고름 — 2026-11-13 주인님 결정)
+  if (usesCollectedPhoto(shop.product) && !opts.collectedAck) return { ok: false, status: "blocked", message: COLLECTED_PHOTO_ACK_REQUIRED };
 
   // 2) 중복 막기 — 같은 상품의 마지막 기록이 보내는 중·확인 필요·등록됨이면 보내지 않는다
   const admin = createAdminClient();

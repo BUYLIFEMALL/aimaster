@@ -32,6 +32,8 @@ export interface ShopProduct {
   source_image_url: string | null;
   /** 메이커 P2(2026-11-13): 바나나에서 합성한 대표사진(있으면 원본 대신 대표 이미지로) */
   main_image_url?: string | null;
+  /** 2026-11-13: 원본 사진 출처 — collected = 상품소싱이 수집한 참고 사진(등록 전 경고) */
+  source_image_origin?: string | null;
   section_sequence: string[] | null;
   status: string;
   updated_at: string;
@@ -43,7 +45,7 @@ export interface ShopProduct {
   target_customer?: string | null;
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,main_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls,specs,key_features,how_to_use,target_customer";
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,main_image_url,source_image_origin,section_sequence,status,updated_at,reviewed_at,reference_image_urls,specs,key_features,how_to_use,target_customer";
 
 export function productName(p: Pick<ShopProduct, "name" | "product_label">): string {
   return (p.name || p.product_label || "").trim() || "(상품명 없음)";

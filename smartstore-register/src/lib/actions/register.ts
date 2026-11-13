@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaults, getProductForRegister, ownExtraPaths } from "@/lib/data";
+import { COLLECTED_PHOTO_ACK_REQUIRED, usesCollectedPhoto } from "@/lib/collectedPhoto";
 import { buildFillSteps, lastCategory, normalizeDefaults, normalizeAttributes, normalizeMainInfo, normalizePreOrder, normalizeSupplements, normalizeTags, toRegisterMode, withBuilderMark, type RegisterMode } from "@/lib/smartstore/fields";
 import { normalizeCustomOptions, normalizeOptions } from "@/lib/smartstore/options";
 
@@ -51,10 +52,12 @@ const won = (v: unknown): number | null => {
 };
 
 /** 작업 하나 만들기 — 한 상품 보내기와 연속 보내기가 같이 쓴다. 오류면 { error }. */
-async function queueJob(userId: string, productId: string, mode: RegisterMode, categoryKeyword: string, inputs: JobInputs, repeatOk: boolean): Promise<{ error?: string; name?: string }> {
+async function queueJob(userId: string, productId: string, mode: RegisterMode, categoryKeyword: string, inputs: JobInputs, repeatOk: boolean, collectedAck = false): Promise<{ error?: string; name?: string }> {
   const loaded = await getProductForRegister(userId, productId);
   if (!loaded) return { error: "상품을 찾을 수 없습니다." };
   const name = loaded.product.name || loaded.product.product_label || "(상품명 없음)";
+  // 2026-11-13 주인님 결정: 수집 원본 사진은 막지 않고, 회원이 허가·권리를 확인했을 때만 보낸다
+  if (usesCollectedPhoto(loaded.product) && !collectedAck) return { error: COLLECTED_PHOTO_ACK_REQUIRED, name };
   const op = won(inputs.price?.price), os = won(inputs.price?.sale);
   if (Number.isNaN(op) || Number.isNaN(os)) return { error: "판매가·할인가는 숫자로 넣어 주세요.", name };
   if (op != null) loaded.product.price = op;
@@ -137,7 +140,7 @@ export async function createJobAction(_prev: unknown, formData: FormData): Promi
     mainInfo: { brand: formData.get("brand"), manufacturer: formData.get("manufacturer"), model: formData.get("modelName"), used: formData.get("saleType") },
     preOrder: { on: formData.get("preOrderOn"), start: formData.get("preOrderStart"), end: formData.get("preOrderEnd"), after: formData.get("preOrderAfter") },
     price: { price: formData.get("price"), sale: formData.get("salePrice") },
-  }, formData.get("repeatOk") === "on");
+  }, formData.get("repeatOk") === "on", formData.get("collectedAck") === "on");
   if (r.error) return { error: r.error };
   revalidatePath("/history");
   return { ok: true };
@@ -174,6 +177,10 @@ export async function createBatchJobsAction(_prev: unknown, formData: FormData):
     const step = (k: string) => { for (const r of rows) { const s = (r.steps ?? []).find((x) => x.key === k); if (s) return s.value; } return undefined; };
     const json = (k: string) => { const v = step(k); if (v === undefined) return null; try { return JSON.parse(v); } catch { return null; } };
     const loaded = await getProductForRegister(user.id, id);
+    if (loaded && usesCollectedPhoto(loaded.product)) {
+      skipped.push(`${loaded.product.name || loaded.product.product_label || "상품"} — 수집한 원본 사진이라 연속 보내기에서 뺐습니다. 상품 화면에서 안내를 확인하고 하나씩 보내 주세요.`);
+      continue;
+    }
     const keyword = (rows.find((r) => r.category_keyword)?.category_keyword ?? lastCategory(loaded?.product.category ?? null)).trim().slice(0, 60);
     const r = await queueJob(user.id, id, mode, keyword, {
       options: json("options"),

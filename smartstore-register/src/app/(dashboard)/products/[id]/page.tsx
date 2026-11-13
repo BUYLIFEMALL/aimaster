@@ -5,6 +5,7 @@ import { getDefaults, getProductForRegister, listJobs, JOB_STATUS, ownExtraPaths
 import { buildFillSteps, lastCategory } from "@/lib/smartstore/fields";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { RegisterForm } from "@/components/RegisterForm";
+import { usesCollectedPhoto } from "@/lib/collectedPhoto";
 import { SHOP_DETAIL_SITE } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +62,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
         </div>
 
         <div className="space-y-3">
-          <RegisterForm productId={product.id} categoryPath={product.category ?? ""} benefitNote={benefitSummary(defaults)} initialPrice={product.price} initialSalePrice={product.sale_price} defaultKeyword={lastCategory(product.category)} initialOptions={lastOptions} initialCustomOptions={Array.isArray(lastCustom) ? lastCustom.map(String) : []} initialSupplements={Array.isArray(lastSupple) ? (lastSupple as { name: string; values: string[]; prices: number[] }[]).map((g) => `${g.name} | ${g.values.join(",")} | ${g.prices.join(",")}`).join("\n") : ""} defaultStock={defaults.stock} initialTags={Array.isArray(lastTags) ? lastTags.map(String) : []} initialMainInfo={lastMainInfo} initialAttributes={Array.isArray(lastAttributes) ? (lastAttributes as { name: string; value: string }[]).map((p) => `${p.name}: ${p.value}`).join("\n") : ""} />
+          <RegisterForm collectedPhoto={usesCollectedPhoto(product)} productId={product.id} categoryPath={product.category ?? ""} benefitNote={benefitSummary(defaults)} initialPrice={product.price} initialSalePrice={product.sale_price} defaultKeyword={lastCategory(product.category)} initialOptions={lastOptions} initialCustomOptions={Array.isArray(lastCustom) ? lastCustom.map(String) : []} initialSupplements={Array.isArray(lastSupple) ? (lastSupple as { name: string; values: string[]; prices: number[] }[]).map((g) => `${g.name} | ${g.values.join(",")} | ${g.prices.join(",")}`).join("\n") : ""} defaultStock={defaults.stock} initialTags={Array.isArray(lastTags) ? lastTags.map(String) : []} initialMainInfo={lastMainInfo} initialAttributes={Array.isArray(lastAttributes) ? (lastAttributes as { name: string; value: string }[]).map((p) => `${p.name}: ${p.value}`).join("\n") : ""} />
           <div className="slw-card p-3">
             <p className="mb-2 text-xs font-extrabold text-slate-700">대표 사진 · 상세 이미지 {sections.length}장</p>
             <div className="grid grid-cols-4 gap-1.5">

@@ -6,8 +6,9 @@ import { REGISTER_MODES, type RegisterMode } from "@/lib/smartstore/fields";
 import { OptionEditor } from "@/components/OptionEditor";
 import { AttributePicker } from "@/components/AttributePicker";
 import { ExtensionPresence } from "@/components/ExtensionPresence";
+import { COLLECTED_PHOTO_ACK_LABEL, COLLECTED_PHOTO_WARNING, COLLECTED_PHOTO_WARNING_TITLE } from "@/lib/collectedPhoto";
 
-export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", initialPrice = null, initialSalePrice = null, benefitNote = "", defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "", categoryPath = "" }: { productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; initialPrice?: number | null; initialSalePrice?: number | null; benefitNote?: string; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string; categoryPath?: string }) {
+export function RegisterForm({ productId, defaultKeyword, initialOptions = null, initialCustomOptions = [], initialSupplements = "", initialPrice = null, initialSalePrice = null, benefitNote = "", defaultStock = 99, initialTags = [], initialMainInfo = { brand: "", manufacturer: "", model: "", used: false }, initialAttributes = "", categoryPath = "", collectedPhoto = false }: { collectedPhoto?: boolean; productId: string; defaultKeyword: string; initialOptions?: unknown; initialCustomOptions?: string[]; initialSupplements?: string; initialPrice?: number | null; initialSalePrice?: number | null; benefitNote?: string; defaultStock?: number; initialTags?: string[]; initialMainInfo?: { brand: string; manufacturer: string; model: string; used: boolean }; initialAttributes?: string; categoryPath?: string }) {
   const [state, action, pending] = useActionState(createJobAction, {});
   const [mode, setMode] = useState<RegisterMode>("fill_only");
 
@@ -88,6 +89,16 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
           <input type="checkbox" name="repeatOk" className="mt-0.5" />
           <span>이미 등록한 상품이면 <b>한 번 더 등록합니다</b>(같은 상품이 판매자센터에 하나 더 생깁니다). 처음 올리는 상품이면 체크하지 않아도 됩니다.</span>
         </label>
+      )}
+      {collectedPhoto && (
+        <div role="alert" className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950">
+          <p className="text-xs font-extrabold">{COLLECTED_PHOTO_WARNING_TITLE}</p>
+          <p className="text-[11px] leading-relaxed">{COLLECTED_PHOTO_WARNING}</p>
+          <label className="flex items-start gap-1.5 text-[11px] font-bold">
+            <input type="checkbox" name="collectedAck" required className="mt-0.5" />
+            <span>{COLLECTED_PHOTO_ACK_LABEL}</span>
+          </label>
+        </div>
       )}
       <ExtensionPresence />
       <button type="submit" disabled={pending} className="slw-primary w-full">{pending ? "작업 만드는 중…" : "🧩 확장으로 보내기"}</button>
