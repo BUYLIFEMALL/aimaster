@@ -15,7 +15,7 @@
 
 ## 대기 중
 
-- **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때).
+- **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
 
@@ -164,6 +164,7 @@
 |---|---|---|
 | `playlist-channel-studio` | v1.39 · 2026-11-13 ([역할: music], 주인님 승인 빌드 1회, `playlist-channel-studio-3vs3cl983`, DB v1.39) | 유튜브 올리기 기록 저장(`playlist_youtube_uploads`) + 로그아웃 local·서버 UA·저장공간 위젯. 기록용으로 남아 있던 대기 줄(무료음악 「받는 중」 숨김, v1.37에 이미 나감)도 정리 |
 | `playlist-channel-studio` | v1.41 · 2026-11-13 ([역할: music], 주인님 승인 빌드 1회, `playlist-channel-studio-99m9mdn6s`, DB v1.41) | 30일 자동 정리(`/api/cron/cleanup` + Vercel cron, `CRON_SECRET` 추가) + 화면 안내 + 공용 사본 `youtube/client.ts` 기준과 같게 복원. 함께 나감: 워크스페이스 담당 v1.40 보내기 버튼(이미 배포)·12월 모델 교체 묶음의 이 프로그램 몫(코드에 이미 있음) | 플랜 `playlist-channel-studio/docs/PLAN_20261113_RETENTION_30D.md` |
+| `lyric-video-studio` | v1.14 · 2026-11-13 ([역할: music], 주인님 승인 빌드 1회, `lyric-video-studio-asrxw52s4`, DB v1.14) | 3차: 채널 로고·프레임 4종 + 유튜브 제목·설명 AI 제안(회원 본인 키). 함께 나감: 공통 보완 `b4403e8bd`(로그아웃 local·저장공간 위젯) | 플랜 `lyric-video-studio/docs/PLAN_20261113_PHASE3.md` |
 | `free-music-studio` · `playlist-channel-studio` · `music-video-studio` | v1.40 · v1.35 · v1.28 · 2026-11-08 ([역할: music] `claude-win-20261024-music`, 주인님 「D-1 나머지 진행해」「다음작업 하는거와 같이 배포해」, 빌드 3회 차례로, `free-music-studio-bs7rxiobi`·`playlist-channel-studio-b9iwkkr5y`·`music-video-studio-3k4jdnfc4` Ready, DB 세 곳 맞춤 — 뮤직비디오 DB는 v1.26이었음) | D-1 나머지(무료음악 곡 → 플레이리스트 영상·뮤직비디오, 커밋 `04fa2070a`) + 뮤직비디오 대기 3줄: 「공용 사본 동기화(`timeline`·`Composition` + 새 사본 `renderTrace.ts`) …」 · 「참고 이미지를 새로 고침으로 잃어도 화풍 분석 결과가 있으면 영상 전에 그 화풍으로 장면 이미지를 먼저 만들…」 · 「문구 정정: 최종 합치기 「추가 비용 없음」, 이미지 유료 안내, 설정 단가 $0.10, 곡 고르는 단계, …」 |
 | `lyric-video-studio` | v1.12 · 2026-11-06 ([역할: music] `claude-win-20261024-music`, 플랜 승인 빌드 2회 중 2회째, `lyric-video-studio-635kgahoz` Ready, DB v1.12) | Lyricbi L-2 LP판 `b9fd747bd` · L-3 무료 사진 배경 `15f0808e9` · L-4 꾸밈 확장·글꼴 미리 받기 수정 `0b1ab7066` · L-5 렌더 진단 `75fb47c35` · `?remix=` 리믹스 결과 `fa3799a63`(2026-10-22부터 대기) |
 | `ai-work-workspace` | v1.22 · 2026-11-06 ([역할: workspace] `claude-win-20261025-workspace`, U10 1차 1/3 승인 빌드, `ai-work-workspace-3saw5d3qw` Ready, DB v1.22) | 메뉴 버전 표시 `376c55c7a` · 보낸 마크다운 정리·빈 화면 문구 `a80274b4c` · 받아쓰기 엔진 선택 · U10 콘텐츠 캘린더 템플릿·캘린더에 넣기 `cc4f4eabe`·`b98de2641` — ego 시험 계정: 메뉴 v1.22, 캘린더 자동 생성(달력 첫 보기), 인스타·Threads 행 정상 |

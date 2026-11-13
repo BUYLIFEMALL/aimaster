@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 가사 영상 v1.14 + 음악 대기 정리
+
+- 가사 영상 v1.14(`lyric-video-studio-asrxw52s4`, DB v1.14, 빌드 1회 승인): 채널 로고(회원 PC 그림, 3×3 위치·크기·투명도)·프레임 4종 + 유튜브 제목·설명 AI 제안(회원 본인 키, 저가 모델, 재시도 0). 공통 보완 `b4403e8bd` 함께 나감. 시험 36·빌드, ego 시험 계정 미리보기·AI 호출 1회 200 확인. 못 한 것: 로고 넣은 실제 MP4 저장·카드 버튼 클릭(음악·가사 있는 작업 필요).
+- 플레이리스트: 저장소 밖 원본 번들 사본 `scratch/yt_playlist_maker/` 삭제(승인). Spectrum P-2 안정화의 공용 인코더 반영은 영상 담당께 요청(`shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위).
+- AI 음악 스튜디오 Mureka: 주인님 「아직」 → 보류 유지.
+- 코드 커밋 `e1dc2c7c6`, 링크 https://lyric-video-studio.buylife.xyz
+
+
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.36 배포(볼타 웹훅·리마인더 메일/카톡·공개 REST API)
 
 - 배포 `ai-work-workspace-3dprokanf` Ready, DB v1.36. 운영 DB(주인님 승인): `user_api_keys_provider_check`에 `bolta_webhook_secret` 추가(`ai-work-workspace/supabase/migrations/20261113010000_bolta_webhook_secret_provider.sql`).

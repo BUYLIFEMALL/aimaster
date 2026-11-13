@@ -40,7 +40,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `lyric-video-studio/` | [역할: music] Claude Code(윈도우, ego) · 세션 `claude-win-20261024-music` | 2026-11-13 | v1.14 3차: 로고·프레임 + 유튜브 제목·설명 AI(주인님 승인, 빌드 1회). 플랜 `lyric-video-studio/docs/PLAN_20261113_PHASE3.md` |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.06 운영. 미배포 대기(v1.07): 상세사진 `markPosted` + 안내 문구. 시험 상품 삭제 보류(주인님 결정 대기). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
 | `mall-builder/` (옛 `labs/mall-builder/`) | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace`(2026-11-12 주인님 지시로 쇼핑몰 담당 인계) | 2026-11-10 | 운영 v1.06(T0·T1·T2 분양몰·손님 화면 공개). 지금: 맥미니 분양 검수 지원 → 샘플몰 자료 → v1.07(확인 상자·단일 몰 모드 미배포). **손님 화면 `(shop)`·`resale`은 agy 범위라 고치지 않음**, 관리자·공급사·DB·`src/lib`만 (2026-11-13 갱신) |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |

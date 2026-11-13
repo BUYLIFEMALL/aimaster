@@ -100,7 +100,7 @@
 | EXT-MM-02 | Seamless Loop Studio | 웹앱 | 확인 못 함 | 시작·끝이 가장 닮은 구간을 찾아 MP4·WebM·GIF 무한 루프 | 🆕 독립 새 프로그램 | `infinite-loop-video` v1.08 | ✅ |
 | **음악** | | | | | | | |
 | EXT-MUS-01 | Spectrum Studio PRO(웹판 → 설치형 3.0.0) | 웹 번들 / NSIS + Electron | 10-13 · 10-24 | 플레이리스트 음악 영상: 스펙트럼 15·파티클 20·곡 제목 16스타일·배경 전환·프리셋·WebCodecs 1080p | 🆕 독립 새(`yt-playlist-studio`) → 🔗 이후 `playlist-channel-studio`에 병합 | `playlist-channel-studio` v1.41 | 🔶 |
-| EXT-MUS-02 | Lyricbi 1.9.0 | NSIS + Electron + Remotion | 10-21 · 10-24 | 가사 영상: 너그러운 .srt·강조 10·노래방 로마자·LP·커버·스펙트럼 9·프리셋 51 | 🆕 독립 새 프로그램 | `lyric-video-studio` v1.13 | 🔶 |
+| EXT-MUS-02 | Lyricbi 1.9.0 | NSIS + Electron + Remotion | 10-21 · 10-24 | 가사 영상: 너그러운 .srt·강조 10·노래방 로마자·LP·커버·스펙트럼 9·프리셋 51 | 🆕 독립 새 프로그램 | `lyric-video-studio` v1.14 | 🔶 |
 | EXT-MUS-03 | SU-Note(Suno 프롬프트 관리) v3.6 | 웹앱 | 10-12 | Suno Style·가사 빌더, 비율·보컬·랩·편곡, 프리셋 461·댄스 200, 앨범 기획 | 🆕 독립 새(`suno-music-studio`) → 🔗 이후 `music-automation`에 병합 | `music-automation` v1.50 | 🔀 |
 | EXT-MUS-04 | AI Playlist Creator | 웹앱 | 확인 못 함 | 장르 → 제목 10개 → Suno 프롬프트·가사·유튜브 메타·썸네일 | 🔗 기존 병합 → `playlist-channel-studio` | `playlist-channel-studio` v1.41 | ✅ |
 | EXT-MUS-05 | GPT PARK MUSIC PLAYER | AI Studio 앱 | 10-13 | 음악 파일 재생·반복·셔플·시각화 5모드·8밴드 EQ | 🆕 독립 새 프로그램 | `music-player` v1.09 | ✅ |
@@ -950,8 +950,8 @@
 | EXT-TL-01 | G-1~G-4 범위·DB 변경·비용, 커스텀 봇 위치, G-5 | 문서 챗봇·AI Prompt 담당(Codex) |
 | EXT-IMG-01 | C-0~C-5 범위·비용, 여러 장 상한, 다른 프로그램 적용 | 이커머스·이미지 담당 `claude-win-sdp` |
 | EXT-MM-01 | OpenRAIL 상업 이용, 휴대폰 노출, 시제품 장소, 플랜·빌드 | 음악 담당 |
-| EXT-MUS-02 | ~~L-1~L-5 범위·빌드 2회~~ ✅ 끝(v1.11·v1.12, 2026-11-13 확인) · 남은 것: R6~R11, 3차(여러 곡 플레이리스트·로고/프레임·AI 제목·설명) | 음악 담당 |
-| EXT-MUS-01 | ~~P-6 범위~~ ✅ 끝(v1.37·v1.38, 2026-11-13 확인) · 남은 것: P-2의 공용 인코더 반영, 원본 번들 사본 정리 | 음악 담당 |
+| EXT-MUS-02 | ~~L-1~L-5 범위·빌드 2회~~ ✅ 끝(v1.11·v1.12) · ~~3차 로고/프레임·AI 제목·설명~~ ✅ v1.14(2026-11-13) · 여러 곡 플레이리스트는 하지 않음(플레이리스트 프로그램과 겹침) · 남은 것: R6~R9 꾸밈 더 늘리기(선택) | 음악 담당 |
+| EXT-MUS-01 | ~~P-6 범위~~ ✅ 끝(v1.37·v1.38) · ~~원본 번들 사본 정리~~ ✅ 삭제(2026-11-13, 주인님 승인) · P-2 공용 인코더 반영은 영상 담당께 넘김(`shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위) | 음악 담당 → 영상 담당 |
 | EXT-BLOG-04 | E-5 착수, E-2 재개, BLOG 정리 시점, M5 | 블로그 담당 |
 | EXT-BLOG-02 | 2차 범위(이전 글 비교·스타일 점수·이미지 노드), N7, N13 | 블로그 담당 |
 | §2 A 묶음 | COOP/COEP 시제품을 누가 먼저 하고 결과를 공유할지 | 음악·이미지 담당 |
