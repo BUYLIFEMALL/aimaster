@@ -40,6 +40,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `playlist-channel-studio/` | [역할: music] Claude Code(윈도우, ego) · 세션 `claude-win-20261024-music` | 2026-11-13 | v1.41 30일 자동 정리 + 업무·캘린더 보내기 실제 검수(주인님 승인 4건). 플랜 `playlist-channel-studio/docs/PLAN_20261113_RETENTION_30D.md` |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.05 묶음 배포 완료(2026-11-13, 비공개). 다음: 5·6단계 실제 보내기 1건(주인님 승인 대기). 플랜 `docs/PLAN_20261111_ELEVENST_REGISTER.md` |
 | `mall-builder/` (옛 `labs/mall-builder/`) | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace`(2026-11-12 주인님 지시로 쇼핑몰 담당 인계) | 2026-11-10 | T1 등급 할인 완료(미배포) → T0 운영 이전 A단계 완료(11-12: 폴더 이동·운영 스위치·0058) → 다음 B 운영 DB 적용(주인님 승인 대기) |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
