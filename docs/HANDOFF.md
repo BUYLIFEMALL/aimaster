@@ -7,18 +7,6 @@
 - U10 남은 것: 원스톱·플레이리스트 버튼을 실제 업로드 기록으로 눌러 보기(회원이 올린 뒤 또는 주인님 승인 뒤 시험 계정 비공개 업로드).
 - 비용: 빌드 2회(주인님 「진행해」). 링크: https://playlist-channel-studio.buylife.xyz/studio
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## 2026-11-13 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`playlist-channel-studio` v1.39 유튜브 올리기 기록 저장(워크스페이스 콘텐츠 캘린더 연동 전제)**
 - 계기: workspace 담당 요청 「유튜브 기록 저장(그래야 연동 가능) — 음악 담당」. 주인님 채팅 결정: 지금 진행·운영 DB 표 추가·30일 정리는 다음 작업·빌드 1회.
 - 한 일: 표 `playlist_youtube_uploads`(회원 본인 읽기 RLS, 서버만 쓰기) 운영 DB(ref `esgxyikcnnvmlhygjkth`) 적용(ego SQL 편집기, 조회로 RLS·정책 1·줄 0·버전 v1.39 확인) + `GET/POST /api/youtube/uploads`(회원 본인 유튜브 연결로 영상이 그 채널에 있는지 확인 뒤 저장) + 올리기 카드 「내가 올린 영상(최근 20개)」. 함께: 로그아웃 local 2곳·서버 UA·저장공간 위젯(pending-check 공통 3건 해소).
