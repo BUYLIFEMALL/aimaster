@@ -17,7 +17,7 @@
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 보류 — 주인님 2026-11-11 「당장 필요한 기능은 아니니 테스트는 나중에 필요해지면」(요청함 충전 항목 닫음). 필요해지면 충전·실행 직전 승인 | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `music-video-studio` · `video-to-gif` | 저장공간 위젯 한 줄(11-12 배포 뒤 빠진 것 발견, 코드 반영) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shots` | 백로그 6 「6장면 영상화 일괄」 — 유료 생성을 차례로 보내는 기능이라 실제 시험 없이는 내보내지 않음 | 주인님: 시험 허락 또는 보류 결정 | `shots/docs/PLAN_20261112_BACKLOG_8.md` |
+| `shots` | 백로그 6 「6장면 영상화 일괄」 미구현 — 주인님 2026-11-12 결정대로 구현·가짜 응답 시험까지만(유료 실제 시험 안 함) | 내 차례(주인님 「진행해」 때 착수) | `shots/docs/PLAN_20261112_BACKLOG_8.md` §주인님 결정 |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | 메이커 2단계: 자료함 `sourceRef` 원본 참조로 상품 사진 받기 | sdp 계약(내부상품ID·역할·권리 값) | `shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md` §9-1 |
