@@ -10,7 +10,7 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 진행 중인 개발 없음 | — | 최근 배포: 플레이리스트 v1.41(11-13) · music v1.50(11-12) · 무료음악 v1.65·마스터링 v1.16(11-10). 미배포 대기: 플레이리스트 1건(`16439a8e9`) |
+| — | 진행 중인 개발 없음 | — | 최근 배포: 플레이리스트 v1.41(11-13) · music v1.50(11-12) · 무료음악 v1.65·마스터링 v1.16(11-10). 미배포 대기: 플레이리스트 1건(`16439a8e9`) · 음악 6개 공통 보완(`b4403e8bd`) · 무료음악 웹·엔진 2건 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -18,9 +18,9 @@
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
 | `playlist-channel-studio` | 첫 30일 정리 예약 실행 확인(cron 04:20 KST) | 2026-11-14 04:20 이후(Vercel 로그·`usage_logs` `cleanup_expired`) | 플랜 `playlist-channel-studio/docs/PLAN_20261113_RETENTION_30D.md` |
 | `playlist-channel-studio` | 곡 넣기 전에도 「내가 올린 영상」 목록 보이기 `16439a8e9`(구현 끝) | 다음 플레이리스트 배포(v1.42) | `playlist-channel-studio/docs/IMPROVEMENTS.md` |
-| 음악 6개 공통 보완(단독 배포 안 함) | 저장공간 위젯 한 줄: `free-music-studio`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio` / 로그아웃 `signOut({ scope: "local" })`: `free-music-studio` 2·`music` 1·`ai-music-studio` 1·`ai-mastering-studio` 2·`lyric-video-studio` 1·`music-video-studio` 2곳 / 서버 클라이언트 `User-Agent` 전달: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`music-video-studio` | 각 프로그램 다음 배포 때 함께(`node scripts/pending-check.mjs <폴더>`가 알려 줌). `music-video-studio` 위젯은 영상 담당이 이미 커밋(미배포) | `docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md` · `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` |
+| 음악 6개 공통 보완(단독 배포 안 함) | **구현 끝·미배포 `b4403e8bd`(11-13)**: 로그아웃 local 9곳 · 서버 `User-Agent` 5곳 · 저장공간 위젯 4곳(무료음악·music·AI 음악 스튜디오·마스터링·가사 영상·뮤직비디오) | 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때) | 각 폴더 `docs/IMPROVEMENTS.md` 맨 위 |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
-| `free-music-studio` | 묶음 후보 2건(단독 배포 안 함): 첫째 엔진 — 끝 줄이기 곡선을 끝에서 0까지(마지막 0.5초 -34.5dB) → 다음 **엔진** 배포 때 / 둘째 웹 화면 — 끝 이어 만들기 창 가사 미리 채우기가 원곡 마지막의 빈 `[Outro]` 태그만 가져옴 → 빈 태그면 그 앞 구간을 넣기(`lastLyricSection`) → 다음 **무료음악 웹** 배포 때(2026-11-12 정정: 예전 표기 「가사 칸 `[Outro]` 한 줄 넣기」는 잘못 — 엔진 `extendLyrics`는 이미 머리말 없는 가사에 `[Outro]`를 붙임) | 다음 배포 때 함께 | 인수인계서 20·24절 |
+| `free-music-studio` | **구현 끝·미배포(11-13)**: 웹 `76d9bab83` 끝 이어 만들기 가사 미리 채우기(빈 `[Outro]` 건너뛰기) / 엔진 `388b00b23` 끝 줄이기 곡선 `hsin` | 웹은 다음 웹 배포, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡으로 끝 듣기 확인) · 엔진 시험 「도구 받기」 1개 실패 원인 확인 | `free-music-studio/docs/IMPROVEMENTS.md` 맨 위 |
 
 ## 나중에 할 일 (장비가 바뀐 뒤 — 지금은 손대지 않음)
 | 프로그램 | 작업 | 언제 | 근거 |
@@ -58,7 +58,7 @@
 더 앞의 이력은 각 프로그램 `AGENTS.md` 버전 기록에 있다(`free-music-studio/AGENTS.md` §4 등).
 
 ## 다음 첫 단계
-1. 다음 엔진 배포 때 끝 줄이기 곡선 보강, 다음 무료음악 웹 배포 때 빈 `[Outro]` 미리 채우기 개선(대기 표) 함께
+1. 미배포 대기 묶음(대기 표)은 각 프로그램 다음 배포 때 함께 — 코드는 모두 커밋됨(11-13)
 2. **음악 표 칸 이름을 바꿀 때 주의(2026-11-11)**: `free_music_tracks`·`ams_generations`·`music_track_variants`는 메인 「내 자료함」 트리거(`member_assets_sync_fms/ams/suno`, 마이그레이션 0059)가 읽는다 — 칸 이름·저장 경로를 바꾸면 트리거도 함께 고친다(트리거 오류 = 원본 저장 실패)
 3. **11-14 04:20 이후** 플레이리스트 첫 예약 정리 실행 확인(Vercel 로그 또는 `usage_logs`) · 플레이리스트 미배포 대기 1건(곡 없이도 기록 목록 보이기 `16439a8e9`, 다음 배포 때 v1.42)
 4. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)

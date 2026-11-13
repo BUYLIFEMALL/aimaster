@@ -15,6 +15,8 @@
 
 ## 대기 중
 
+- **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때).
+- **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
 - **`ai-work-workspace` — 볼타 설정 칸 항상 보이기(2026-11-13 [역할: workspace])**: 저장한 세금계산서가 없어도 「✍️ 발행」 탭에 「볼타로 바로 발급」 칸이 보이게(v1.35에서는 문서가 있어야 보임) + 에이전트 단계 표시 한국어화 29개 + 볼타 처리 상태 문구 표시. 다음 워크스페이스 배포 때 함께.
 
