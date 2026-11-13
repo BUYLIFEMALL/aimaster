@@ -16,7 +16,7 @@
 ## 대기 중
 
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
-- **`ai-work-workspace` — 볼타 설정 칸 항상 보이기(2026-11-13 [역할: workspace])**: 저장한 세금계산서가 없어도 「✍️ 발행」 탭에 「볼타로 바로 발급」 칸이 보이게(v1.35에서는 문서가 있어야 보임). 다음 워크스페이스 배포 때 함께.
+- **`ai-work-workspace` — 볼타 설정 칸 항상 보이기(2026-11-13 [역할: workspace])**: 저장한 세금계산서가 없어도 「✍️ 발행」 탭에 「볼타로 바로 발급」 칸이 보이게(v1.35에서는 문서가 있어야 보임) + 에이전트 단계 표시 한국어화 29개 + 볼타 처리 상태 문구 표시. 다음 워크스페이스 배포 때 함께.
 
 - **메인 사이트 — 옛 주소 `aimaster-buylife.vercel.app` → `www.buylife.xyz` 이동(2026-11-13 [역할: policy] `claude-win-20261112-policy`, 주인님 「추천대로 진행해」 = 다음 메인 배포 때 함께, 이것만으로 빌드하지 않음)**: **코드 넣음(2026-11-13, 저장공간 요금제 카드의 마켓 상세사진 안내 문구 `components/storage/StoragePlanCards.tsx`와 같은 커밋, 푸시 안 함 — 다음 master 푸시 때 메인 자동 빌드 1회로 함께 나감)**. 넣은 것: `middleware.ts` 맨 앞에서 호스트가 **정확히** `aimaster-buylife.vercel.app`이고 `GET`이며 경로가 `/api/`·`/_next/`로 시작하지 않으면 `https://www.buylife.xyz` + 같은 경로·검색어로 307 이동. `/api/`는 제외(회원이 외부에 등록한 OAuth 콜백·확장 호출 보호, `docs/DOMAIN_SSO_POLICY.md` 「옛 vercel.app 주소 삭제·해제 금지」), 배포별 미리보기 주소(`aimaster-<해시>-buylife.vercel.app`)는 건드리지 않음. 이유: 옛 주소로 로그인하면 기기 정보가 `Vercel Edge Functions`로 찍혀 동시 접속 제한(PC1+모바일1)에서 빠짐(최근 15건). 배포 뒤 확인: 옛 주소 첫 화면 → 새 주소로 이동, 옛 주소 `/api/...`는 그대로 응답.
 
