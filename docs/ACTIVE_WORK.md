@@ -40,7 +40,6 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `banana-canvas/` (범위: `src/lib/batch/` 새 파일·`ProductCompositeBoard`·`productPhotoHandoff`) + `shop-detail-page/` (대표사진 반환) | [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-blog` | 2026-11-13 | 메이커 P1·P2 구현 완료 `0abd5aabd`, DB 마이그레이션·4개 배포 승인 대기(11번가·스마트스토어 각 한 줄 포함) — 기존 `BatchPhotoBoard`·`layout.ts`·`render.ts`는 수정 안 함 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.05 공개(2026-11-13). 실제 보내기·전시중지·중복 방지 확인 끝. 미배포 대기: 이미 등록된 상품 보내기 잠금(IMPROVEMENTS #10). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
 | `mall-builder/` (옛 `labs/mall-builder/`) | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace`(2026-11-12 주인님 지시로 쇼핑몰 담당 인계) | 2026-11-10 | T1 등급 할인 완료(미배포) → T0 운영 이전 A단계 완료(11-12: 폴더 이동·운영 스위치·0058) → 다음 B 운영 DB 적용(주인님 승인 대기) |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |

@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-blog` — 메이커 P1·P2 배포 완료(바나나 v1.46·상세 v1.44·11번가 v1.06·스마트스토어 v1.27)
+
+- 주인님 「진행해」: 운영 DB `shop_products.main_image_url`·`main_image_urls` 추가(SQL 편집기, 새 쿼리 조회로 확인) → 스마트스토어 → 바나나 → 상세페이지 → 11번가 순차 배포(각 Ready·DB 버전). 함께: 로그인 정책 2건·저장공간 위젯(`3c2c95d7e`). 작업 중 표의 agy·claude-win-sdp 줄은 주인님 승인으로 넘김.
+- 실물(ego lite, 시험 계정): 상세 목록에서 백팩 상품 → 바나나 창 「상품 1개를 받았습니다」 → 일괄 만들기 → 「반환 저장됨」 → 상세 목록 「합성 대표사진」 → 11번가 등록 화면 첫 이미지가 `…/main/…jpg` → 「원본으로」 복구. 합성 사진 1000×1000·서브 오른쪽 아래 확인.
+- 발견: 참고 사진이 긴 상세 이미지면 서브가 가는 띠로 보임 → 서브 정사각 채우기 선택지 필요(바나나 IMPROVEMENTS). 미확인: 파일 모드 ZIP·결과표 실물, 50상품 메모리, 스마트스토어 확장 실물.
+- 다음: agy 디자인(화면 3파일)·policy 저장 검토·Codex 검수. 인수인계 `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_FEATURE.md`.
+
 ## 2026-11-13 KST ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 원스톱 v1.53 인트로 상품 겹침 수정 배포
 - `shorts-onestop-studio-72fht769b` Ready, DB v1.53(주인님 승인 빌드 1회). 인트로·마무리는 상품을 글자 위쪽 작은 상자에 — ego 시험 계정 미리보기로 상품 글자 가림 없음 확인. 메이커 1단계 완료, 남은 일은 2단계(자료함 `sourceRef` 원본 참조, sdp 계약 뒤).
 
