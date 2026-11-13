@@ -67,6 +67,18 @@ export async function productUploadUrl(userId: string, mime: string): Promise<{ 
   return { path, token: data.token };
 }
 
+/** v1.54 주제 화면에서 뺀 상품 사진 파일을 바로 지운다. 본인 `product/` 폴더 파일만, 저장된 대본이 쓰고 있으면 지우지 않는다(false) */
+export async function deleteProductPhoto(userId: string, path: string): Promise<boolean> {
+  if (!path.startsWith(`${userId}/product/`) || path.includes("..") || path.split("/").length !== 3) throw new UserError(400, "지울 수 없는 파일입니다.");
+  const admin = createAdminClient();
+  const { data, error } = await admin.from("shorts_onestop_items").select("data").eq("user_id", userId).eq("kind", "project").limit(200);
+  if (error) throw new UserError(500, "저장된 대본을 확인하지 못해 사진을 지우지 않았습니다.");
+  if ((data ?? []).some((r) => JSON.stringify(r.data ?? "").includes(path))) return false;
+  const { error: rmErr } = await admin.storage.from(BUCKET).remove([path]);
+  if (rmErr) throw new UserError(500, "사진을 지우지 못했습니다.");
+  return true;
+}
+
 /** 본인 폴더 경로만 1시간 서명 주소로 바꾼다(다른 회원 경로는 무시) */
 export async function signPaths(userId: string, paths: string[]): Promise<Record<string, string>> {
   const own = Array.from(new Set(paths.filter((p) => typeof p === "string" && p.startsWith(`${userId}/`) && !p.includes("..")))).slice(0, 60);

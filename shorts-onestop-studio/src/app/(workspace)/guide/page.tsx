@@ -101,7 +101,18 @@ const KEY_STEPS = [
 ];
 
 // 4. 자주 묻는 질문
+const PRODUCT_STEPS = [
+  { step: 1, emoji: "🧾", title: "구성을 「상품 홍보」로", desc: "주제·대본 화면에서 구성을 「상품 홍보(15초 6비트)」로 바꾸고 상품명·장점·옵션·확정 설명을 적습니다. 적은 내용만 사실로 씁니다." },
+  { step: 2, emoji: "📷", title: "사진 권리 고르고 올리기", desc: "「내 사진」 또는 「공급사 허락」을 고른 뒤 상품 사진을 최대 6장 올립니다. ◀ ▶로 순서를 바꾸면 그 순서대로 장면에 들어갑니다." },
+  { step: 3, emoji: "✍️", title: "대본 만들기", desc: "대본을 만들면 상품이 나오는 장면에 사진이 자동으로 들어가고, 마무리 장면에 상품명과 옵션이 적은 그대로 고정됩니다." },
+  { step: 4, emoji: "🎬", title: "확인하고 영상으로", desc: "디자인·배경에서 상품 장면을 확인한 뒤 음성·자막·영상 화면에서 MP4를 만듭니다. 상품 주소를 적었다면 유튜브 설명란에 함께 들어갑니다." },
+];
+
 const FAQ_LIST = [
+  {
+    q: "상품 사진이 잘리거나 색이 바뀌지 않나요?",
+    a: "상품 사진은 잘라내지 않고 화면 위쪽에 전체가 보이게 넣으며, 색 보정이나 필터를 쓰지 않습니다. 「스톡으로 모두 채우기」를 눌러도 상품 사진은 바뀌지 않고, AI 이미지·AI 영상은 상품 장면에서 기본으로 막혀 있습니다.",
+  },
   {
     q: "「키가 없습니다」라는 알림이 나와요.",
     a: "현재 선택된 AI 공급사(Gemini, OpenAI, Claude)의 본인 키가 등록되지 않았기 때문입니다. 상단 사이드바의 [🔑 API키등록·플랫폼연동] 메뉴에서 키를 입력하거나, 대시보드에서 키가 등록된 다른 AI 모델을 선택하시면 즉시 사용하실 수 있습니다."
@@ -380,6 +391,32 @@ export default function GuidePage() {
             <a className="button primary btn-3d-yt-red" href="/settings" style={{ marginLeft: "auto" }}>
               🔑 지금 키 등록하러 가기 →
             </a>
+          </div>
+        </section>
+
+        {/* SECTION 4-2: 상품 사진 쇼츠 (v1.54) */}
+        <section className="card stack">
+          <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+            <h2>🛍 상품 사진 쇼츠 — 4단계</h2>
+            <span className="badge brand" style={{ fontWeight: 800 }}>상품은 원본 그대로</span>
+          </div>
+          <div className="diagram" style={{ gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
+            {PRODUCT_STEPS.map((k) => (
+              <div key={k.step} className="node" style={{ textAlign: "left", padding: 18 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <span style={{ fontSize: 24 }}>{k.emoji}</span>
+                  <span className="badge" style={{ fontWeight: 800 }}>STEP {k.step}</span>
+                </div>
+                <strong style={{ fontSize: 14, color: "var(--fg)", display: "block", marginBottom: 6 }}>{k.title}</strong>
+                <p className="muted" style={{ fontSize: 12, margin: 0, lineHeight: 1.55 }}>{k.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="notice" style={{ fontSize: 13, lineHeight: 1.6 }}>
+            💡 <strong>상품 사진은 잘라내거나 AI로 다시 그리지 않습니다.</strong> 화면 위쪽에 전체가 보이고 글자는 그 아래에 놓입니다. 저장한 상품 대본을 다시 열면 상품 정보와 사진이 그대로 채워져 같은 상품으로 다른 대본을 만들 수 있습니다.
+          </div>
+          <div className="notice" style={{ fontSize: 13, lineHeight: 1.6 }}>
+            ⚠️ <strong>상품 장면의 AI 영상은 기본으로 꺼져 있습니다.</strong> AI가 상품의 모양·색·로고·글자를 바꿀 수 있기 때문입니다. 「상품 장면도 AI 영상 허용」을 켰다면 만든 뒤 원본 사진과 꼭 비교해 주세요. 사진은 내가 찍었거나 공급사가 허락한 것만 올리고, 올린 사진은 30일 뒤 자동으로 지워집니다.
           </div>
         </section>
 

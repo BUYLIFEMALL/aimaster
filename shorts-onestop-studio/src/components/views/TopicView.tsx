@@ -15,7 +15,7 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scrip
 import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
 import { takeProductHandoff, takeRefHandoff } from "@/lib/refHandoff";
-import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, type ProductExtra, type ProductRights } from "@/lib/productShorts";
+import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, productPhotoPaths, type ProductExtra, type ProductRights } from "@/lib/productShorts";
 import { createClient } from "@/lib/supabase/client";
 import { refBlockHeader, refBlocks, removeRefBlock, shortSource } from "@/lib/refBlocks";
 import { REWRITE_LEVELS, type RewriteLevel } from "@/lib/rewrite";
@@ -89,11 +89,32 @@ export function TopicView() {
   const guide = useMemo(() => guides.find((g) => g.title === category), [guides, category]);
   useEffect(() => { setGuideText(guide?.data.text ?? ""); }, [guide]);
 
+  // v1.54 저장한 상품 대본을 열면 상품 정보·사진을 다시 채운다 — 같은 상품으로 다시 만들 수 있게
+  async function restoreProduct(d: ShortsScript) {
+    const pr = d.product; if (!pr?.name) return;
+    setProduct({ name: pr.name, points: [...pr.points, "", "", ""].slice(0, 3), offer: pr.offer });
+    setExtra(normalizeProductExtra(pr)); setProductFrom(pr.from ?? "");
+    setMode("ai"); chooseProductFormat();
+    const paths = productPhotoPaths(d); if (!paths.length) return;
+    try {
+      const { urls } = await api<{ urls: Record<string, string> }>("/api/media/sign", { body: { paths } });
+      setPhotos(paths.filter((p) => urls[p]).map((p, k) => ({ path: p, preview: urls[p], name: `사진 ${k + 1}` })));
+    } catch { /* 사진을 못 불러와도 상품 정보는 채워 둔다 */ }
+  }
+  // v1.54 사진 순서 바꾸기(앞으로·뒤로) — 순서대로 상품 장면에 들어간다
+  const movePhoto = (k: number, d: -1 | 1) => setPhotos((p) => { const t = k + d; if (t < 0 || t >= p.length) return p; const n = [...p]; [n[k], n[t]] = [n[t], n[k]]; return n; });
+  // v1.54 사진 빼기: 지금 대본이 쓰지 않으면 서버 파일도 바로 지운다(저장된 대본이 쓰는 파일은 서버가 남김)
+  function removePhoto(path: string) {
+    setPhotos((p) => p.filter((x) => x.path !== path));
+    if (script && JSON.stringify(script).includes(path)) return;
+    void api("/api/media/product-delete", { body: { path } }).catch(() => undefined);
+  }
+
   const loadGuides = useCallback(async () => { try { setGuides((await api<{ items: Guide[] }>("/api/items?kind=guideline")).items); } catch { /* 지침은 선택 기능 */ } }, []);
   useEffect(() => {
     void loadGuides();
     const id = new URLSearchParams(window.location.search).get("id");
-    if (id) api<{ item: Item<ShortsScript> }>(`/api/items?id=${id}`).then(({ item }) => { setScript(item.data); setGuardRef(""); setItemId(item.id); setTopic(item.data.topic); if (item.data.category) setCategory(item.data.category); }).catch((e) => setMsg(toMsg(e)));
+    if (id) api<{ item: Item<ShortsScript> }>(`/api/items?id=${id}`).then(({ item }) => { setScript(item.data); setGuardRef(""); setItemId(item.id); setTopic(item.data.topic); if (item.data.category) setCategory(item.data.category); void restoreProduct(item.data); }).catch((e) => setMsg(toMsg(e)));
     // v1.32 다른 프로그램(INSTA 떡상 리메이크·쇼츠 바이럴 분석)이 넘긴 대사 → 참고 자료의 레퍼런스 쇼츠 블록(v1.30 베끼기 방지 그대로 적용), 주소의 # 부분은 바로 지움
     // v1.33 로그인 화면을 거쳐 온 경우는 그때 보관한 대사를 꺼냄
     // v1.34 보낸 프로그램 이름이 있으면 머리말·안내에 표시(회원이 여러 프로그램을 오갈 때 출처 구분)
@@ -325,9 +346,9 @@ export function TopicView() {
                     <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
                       <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => void addPhotos(e.target.files)} />
                       <button type="button" disabled={!extra.rights || photos.length >= MAX_PRODUCT_PHOTOS || !!busy} title={extra.rights ? undefined : "사진 권리를 먼저 골라 주세요"} onClick={() => photoInput.current?.click()}><Plus size={14} />사진 올리기</button>
-                      {photos.map((ph, k) => <span key={ph.path} className="badge" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><img src={ph.preview} alt="" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 6, background: "#0002" }} />{k + 1}<button type="button" aria-label="이 사진 빼기" onClick={() => setPhotos((p) => p.filter((x) => x.path !== ph.path))}><Trash2 size={12} /></button></span>)}
+                      {photos.map((ph, k) => <span key={ph.path} className="badge" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><button type="button" aria-label="앞으로" title="앞으로" disabled={k === 0} onClick={() => movePhoto(k, -1)}>◀</button><img src={ph.preview} alt="" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 6, background: "#0002" }} />{k + 1}<button type="button" aria-label="뒤로" title="뒤로" disabled={k === photos.length - 1} onClick={() => movePhoto(k, 1)}>▶</button><button type="button" aria-label="이 사진 빼기" title="빼기" onClick={() => removePhoto(ph.path)}><Trash2 size={12} /></button></span>)}
                     </div>
-                    <small className="muted">상품이 나오는 장면(상품 등장·쓰는 모습·달라진 결과·인트로·마무리)에 순서대로 들어가고, 사진이 적으면 돌아가며 씁니다. 올린 사진은 다른 회원에게 보이지 않고 30일 뒤 자동으로 지워집니다.</small>
+                    <small className="muted">1번부터 순서대로 상품 등장 → 쓰는 모습 → 달라진 결과 → 인트로 → 마무리 장면에 들어가고(◀ ▶로 순서 바꾸기), 사진이 적으면 돌아가며 씁니다. 올린 사진은 다른 회원에게 보이지 않고 30일 뒤 자동으로 지워집니다.</small>
                     {script && <div className="actions"><button type="button" disabled={!!busy} onClick={() => { setScript((s) => (s ? withProduct(s) : s)); setMsg({ text: "지금 대본에 상품 정보·사진을 다시 넣었습니다. 저장해 주세요.", ok: true }); }}>🛍 지금 대본에 상품 사진·정보 넣기</button></div>}
                   </div>
                   <small className="muted">구성: 결과 먼저 → 쓰기 전 → 상품 등장 → 쓰는 모습 → 달라진 결과 → 처음 장면으로 이어지는 마무리</small>

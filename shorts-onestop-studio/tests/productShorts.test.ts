@@ -105,3 +105,16 @@ test("프롬프트 블록에 옵션·확정 설명이 들어가고, 고정 문�
   assert.match(block, /옵션: 화이트/); assert.match(block, /확정한 상품 설명: 500ml/);
   assert.equal(productCaption({ name: "물병" }), "물병");
 });
+
+// ── v1.54 같은 상품으로 다시 만들기 ──
+import { productPhotoPaths } from "../src/lib/productShorts.ts";
+
+test("저장된 상품 대본에서 올렸던 사진을 올린 순서대로 되찾는다", () => {
+  const s = applyProduct(demo(), rec("owned"), [{ path: "u1/product/a.jpg" }, { path: "u1/product/b.jpg" }, { path: "u1/product/c.jpg" }]);
+  assert.deepEqual(productPhotoPaths(s), ["u1/product/a.jpg", "u1/product/b.jpg", "u1/product/c.jpg"]);
+  // 한 장면이 AI 영상으로 바뀌어도 처음 사진(poster)으로 찾는다
+  const v = structuredClone(s);
+  v.cards[1].bg = { type: "video", source: "ai", src: "", path: "u1/video/x.mp4", poster: s.cards[1].bg };
+  assert.deepEqual(productPhotoPaths(v), ["u1/product/a.jpg", "u1/product/b.jpg", "u1/product/c.jpg"]);
+  assert.deepEqual(productPhotoPaths(demo()), []);
+});

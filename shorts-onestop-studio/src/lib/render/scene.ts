@@ -181,7 +181,8 @@ function drawMedia(ctx: CanvasRenderingContext2D, el: CanvasImageSource, progres
  *  글자가 아래쪽에 오도록 카드 장면은 위쪽 상자(가로 960 × 세로 920), 인트로·마무리는 더 작은 위쪽 상자에 놓는다. */
 export const PRODUCT_BOX = { x: 60, y: 170, w: 960, h: 920 } as const;
 /** 인트로·마무리는 글자 자리가 고정(인트로 이름표 700·제목 860, 마무리 제목 760)이라 그 위쪽 작은 상자에 둔다(2026-11-13 화면 확인에서 제목이 상품 글자를 가림) */
-export const PRODUCT_BOX_TOP = { x: 140, y: 140, w: 800, h: 520 } as const;
+// v1.54: 높이 520 → 490 — 인트로 이름표(위쪽 661px)와 상품 상자 사이에 30px 여백
+export const PRODUCT_BOX_TOP = { x: 140, y: 140, w: 800, h: 490 } as const;
 type Box = { x: number; y: number; w: number; h: number };
 export function productRect(iw: number, ih: number, zoom = 1, box: Box = PRODUCT_BOX) {
   const scale = Math.min(box.w / iw, box.h / ih) * zoom, dw = iw * scale, dh = ih * scale;

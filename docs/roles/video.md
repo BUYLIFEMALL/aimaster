@@ -94,7 +94,7 @@
 
 ## 다음 첫 단계 (2026-11-13 정리)
 1. **`shots` 백로그 6 「장면 영상화 일괄」 구현** — 주인님 11-12 결정대로 가짜 응답 시험까지만(유료 실제 시험 없음). 「진행해」 받으면 `shots/docs/PLAN_20261112_BACKLOG_8.md` 6번부터.
-2. **원스톱 개선 묶음**(무료, 모아서 1회 배포): MP4 파일로 상품 외형 대조 → 사진 순서 지정 → 인트로 간격 → 매뉴얼 단계 추가. 목록 `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md`.
+2. **원스톱 개선 묶음 5건 구현 완료·미배포 대기(v1.54)**: 인트로 간격·사진 순서·뺀 사진 삭제·같은 상품 다시 만들기·매뉴얼. 배포 승인 뒤 화면 확인 + MP4 파일로 상품 외형 대조. 목록 `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md`.
 3. **메이커 2단계**(자료함 `sourceRef` 원본 참조): sdp 계약이 나오면 `shorts-onestop-studio/src/lib/productShorts.ts`에 `product-image` 받기부터.
 4. 다음 배포 때 함께: `music-video-studio`(저장공간 위젯·로그인 정책 `b4403e8bd`) · `video-to-gif`(위젯) · `ai-image-studio`(공용 영상 코드 사본) · 서울 지역 미반영 프로그램.
 5. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(`shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`).

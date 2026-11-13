@@ -197,3 +197,15 @@ export function productSceneCount(s: ShortsScript): number {
   let n = 0; for (let i = 0; i < s.cards.length + 2; i++) if (sceneBg(s, i)?.source === "product") n++;
   return n;
 }
+
+/** v1.54 저장된 상품 대본에서 올렸던 사진 경로를 올린 순서대로 되찾는다(「같은 상품으로 다시 만들기」).
+ *  AI 이미지 등으로 바뀐 장면의 사진은 찾지 못할 수 있다 — 찾은 것만 돌려준다 */
+export function productPhotoPaths(s: ShortsScript): string[] {
+  const n = Math.min(MAX_PRODUCT_PHOTOS, Math.max(0, Math.floor(s.product?.photos ?? 0)));
+  const out: string[] = [];
+  for (const { scene, photo } of productPhotoSlots(n)) {
+    const b = sceneBg(s, scene); const path = b?.source === "product" ? b.path : b?.poster?.source === "product" ? b.poster.path : undefined;
+    if (path && out[photo] === undefined) out[photo] = path;
+  }
+  return out.filter((x): x is string => !!x);
+}
