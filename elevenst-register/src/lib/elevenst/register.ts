@@ -107,3 +107,16 @@ export const MAX_DETAIL_IMAGES = 20;
 export function detailImageMode(paid: boolean, sectionImageCount: number): "images" | "text" {
   return paid && sectionImageCount > 0 ? "images" : "text";
 }
+
+/**
+ * 등록 성공 뒤 「포스팅됨」으로 표시할 파일(2026-11-13 주인님 결정, 정책 검토 §4-1).
+ * 사진 방식일 때 상세설명에 넣은 섹션 사진만 — 11번가가 복사하지 않고 우리 주소를 계속 띄우기 때문.
+ * 글 방식이면 없음. 대표·추가 사진은 11번가가 복사해 가므로 표시하지 않는다.
+ */
+export function postedDetailFiles(mode: "images" | "text", sectionPaths: string[], bucket: string): { bucket: string; path: string }[] {
+  return mode === "images" ? sectionPaths.map((path) => ({ bucket, path })) : [];
+}
+
+/** 사진 방식일 때 보내기 확인 단계·매뉴얼에 보여 주는 안내(주인님 결정 2026-11-13) */
+export const DETAIL_IMAGE_NOTICE =
+  "상세설명 사진은 저장 구독 중·보관 기간 안에서만 11번가에 보입니다. 구독이 끝나면(7일 유예 뒤) 또는 보관 기간이 지나면 보이지 않으니, 오래 판매할 상품은 셀러오피스에서 사진을 직접 올려 두세요.";

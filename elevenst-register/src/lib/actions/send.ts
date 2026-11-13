@@ -2,7 +2,8 @@
 
 import { requireProgramAccess } from "@/lib/access";
 import { getElevenstKeys } from "@/lib/setupStatus";
-import { getShopProduct, productName } from "@/lib/shop";
+import { getShopProduct, productName, SHOP_IMAGE_BUCKET } from "@/lib/shop";
+import { markPosted, type PostedFile } from "@/lib/storage/markPosted";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createImageLinks } from "@/lib/imageLinks";
 import { isRetentionExempt } from "@/lib/retentionExempt";
@@ -16,6 +17,7 @@ import {
   MAX_DETAIL_IMAGES,
   parseRegisterResponse,
   parseStopDisplayResponse,
+  postedDetailFiles,
   sendBlockReason,
   type SendStatus,
 } from "@/lib/elevenst/register";
@@ -72,10 +74,12 @@ export async function sendProductAction(productId: string, draft: ElevenstDraft)
   // 4) 대표·추가 이미지 짧은 주소(11번가가 받아 가서 자기 서버에 저장).
   //    상세설명: 유료(보관 연장) 회원·관리자·시험 계정은 상세페이지 섹션 이미지, 그 밖은 글(이미지 없음 → 30일 뒤에도 깨지지 않음)
   let xml: string;
+  let postedFiles: PostedFile[] = [];
   try {
     const extraPaths = shop.extraImages.slice(0, 3).map((i) => i.path);
     const sectionPaths = shop.sectionImages.slice(0, MAX_DETAIL_IMAGES).map((i) => i.path);
     const mode = detailImageMode(await isRetentionExempt(admin, user.id), sectionPaths.length);
+    postedFiles = postedDetailFiles(mode, sectionPaths, SHOP_IMAGE_BUCKET);
     const links = await createImageLinks(user.id, [shop.mainImage.path, ...extraPaths, ...(mode === "images" ? sectionPaths : [])]);
     const [main, ...rest] = links;
     const extras = rest.slice(0, extraPaths.length);
@@ -111,6 +115,16 @@ export async function sendProductAction(productId: string, draft: ElevenstDraft)
       status,
       message: status === "unknown" ? `${message} 상품이 만들어졌을 수도 있으니 11번가 셀러오피스에서 먼저 확인해 주세요. 자동으로 다시 보내지 않습니다.` : message,
     };
+  }
+
+  // 5-1) 등록 성공이면 상세설명에 넣은 섹션 사진을 「포스팅됨」으로 표시(저장 구독 회원의 포스팅 보관 기간 적용).
+  //      실패·결과 불확실은 위에서 이미 돌아갔다. 표시 실패는 등록 결과에 영향 없음(공용 코드가 삼킴).
+  if (postedFiles.length > 0) {
+    try {
+      await markPosted(admin, { userId: user.id, files: postedFiles, program: "elevenst-register", postUrl: `https://www.11st.co.kr/products/${productNo}` });
+    } catch {
+      /* 등록 결과에 영향 없음 */
+    }
   }
 
   // 6) 바로 전시중지 — 실패해도 상품은 이미 생겼으므로 「등록됨」으로 두고 직접 전시중지를 안내한다

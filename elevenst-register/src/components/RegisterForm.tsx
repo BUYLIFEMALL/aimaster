@@ -9,7 +9,7 @@ import type { ElevenstDraft, FeeType, KcChoice, OptionRow } from "@/lib/elevenst
 import { DEFAULT_AS, DEFAULT_RETURN, SEND_KIND } from "@/lib/elevenst/draftDefaults";
 import { NOTI_DEFAULT_VALUE, NOTI_TYPES, notiType } from "@/lib/elevenst/notification";
 import { guessNotiType, parseSpecs, prefillBasics, prefillNoti } from "@/lib/elevenst/prefill";
-import { sendBlockReason, type SendStatus } from "@/lib/elevenst/register";
+import { DETAIL_IMAGE_NOTICE, sendBlockReason, type SendStatus } from "@/lib/elevenst/register";
 
 // 등록 화면 — 상세페이지 상품 → 카테고리 → 가격·재고·옵션 → 배송 → 고시 → 「검사하기」 → 「11번가에 보내기」(4단계, 등록 직후 전시중지).
 // 배송·안내 문구·브랜드처럼 상품마다 같은 값은 이 브라우저에 기억해 다음 상품에 미리 채운다(서버 저장은 4단계에서 함께 정함).
@@ -484,6 +484,7 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
         ) : (
           <div className="space-y-2 rounded-lg border border-orange-300 bg-orange-50 px-3 py-3 text-[13px] text-orange-950">
             <p className="font-bold">정말 보낼까요? 11번가에 실제 상품이 하나 만들어지고, 바로 전시중지됩니다.</p>
+            {check?.detailMode === "images" && <p>📷 {DETAIL_IMAGE_NOTICE}</p>}
             <div className="flex gap-2">
               <button type="button" disabled={pending} onClick={runSend} className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-extrabold text-white disabled:opacity-50">
                 {pending ? "보내는 중…" : "네, 보냅니다"}

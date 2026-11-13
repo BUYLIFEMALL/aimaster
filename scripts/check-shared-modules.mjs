@@ -749,7 +749,7 @@ const MODULES = [
     // 2026-11-11 저장 구독 「생성 / 포스팅」 보관 기간 분리(DB 0068): 발행 성공 직후 그 파일을 「포스팅됨」으로 기록. 서버 전용.
     // 사본은 블로그·인스타·쓰레드·유튜브 등 발행 기능이 있는 프로그램이 다음 배포 때 붙인다(docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md §9).
     source: "lib/storage/markPosted.ts",
-    copies: [],
+    copies: ["elevenst-register/src/lib/storage/markPosted.ts"], // 2026-11-13 11번가 상세설명 사진(주인님 결정, 정책 검토 §4-1)
   },
   {
     id: "youtube-golden-engine-test",

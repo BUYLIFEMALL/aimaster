@@ -4,6 +4,7 @@ import {
   classifySendError,
   detailImageMode,
   detailTextHtml,
+  postedDetailFiles,
   parseRegisterResponse,
   parseStopDisplayResponse,
   sendBlockReason,
@@ -72,4 +73,13 @@ test("상세설명 방식: 유료(보관 연장) 회원 + 섹션 이미지가 �
   assert.equal(detailImageMode(true, 0), "text");
   assert.equal(detailImageMode(false, 5), "text");
   assert.equal(detailImageMode(false, 0), "text");
+});
+
+test("포스팅 표시 대상: 사진 방식이면 섹션 사진 전부, 글 방식이면 없음", () => {
+  assert.deepEqual(postedDetailFiles("images", ["u/a.png", "u/b.png"], "shop-detail-images"), [
+    { bucket: "shop-detail-images", path: "u/a.png" },
+    { bucket: "shop-detail-images", path: "u/b.png" },
+  ]);
+  assert.deepEqual(postedDetailFiles("text", ["u/a.png"], "shop-detail-images"), []);
+  assert.deepEqual(postedDetailFiles("images", [], "shop-detail-images"), []);
 });
