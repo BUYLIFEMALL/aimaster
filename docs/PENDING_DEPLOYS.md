@@ -15,7 +15,6 @@
 
 ## 대기 중
 
-- **`music` — AI 가사의 굵은 글씨 기호(`**`)·줄 끝 공백 정리(`lib/lyricsClean.ts`, 자동 작사·곡 연장 가사·기획 상세 가사 생성 모두) · 스튜디오 가사 버튼이 구간 표시만 있을 때 「이 곡 가사 생성」으로 보이게 `d29041221`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 시험 63·tsc·lint 통과. 다음 music 배포 때 함께(버전 +0.01).
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
@@ -89,6 +88,7 @@
 
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `music` | v1.52 · 2026-11-13 ([역할: music] `claude-win-20261024-music`, 주인님 승인 빌드 1회, DB v1.52) | AI 가사 `**`·줄 끝 공백 정리 · 스튜디오 가사 버튼 문구(`d29041221`) — v1.52 세부 기획(`3a98fc4c6`)과 함께 |
 | `shorts-onestop-studio` | v1.53 · 2026-11-13 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `shorts-onestop-studio-72fht769b` Ready, DB v1.53) | 인트로·마무리 상품 사진 위쪽 작은 상자 `bf119e5f2`. ego 시험 계정 미리보기로 상품 글자 가림 없음 확인 |
 | `banana-canvas` | v1.47 · 2026-11-13 ([역할: ecommerce-image] `claude-win-blog`, 주인님 승인 — 첫 빌드는 agy 작업 중 파일이 섞여 실패(`qu7vdball` Error), 커밋 내용만 꺼내 재배포 `banana-canvas-dfblb5yp9` Ready, DB v1.47) | 상품 합성 파일 모드 「사진 0장」 결함 수정(`6b28e7849`) + 서브 정사각 채우기(`8377b66c7`) |
 | `smartstore-register` | v1.27 · 2026-11-13 ([역할: ecommerce-image] `claude-win-blog`, 주인님 「진행해」 승인 빌드 4회 중 1, `smartstore-register-48jiv4ene` Ready, DB v1.27) | 메이커 P2 합성 대표사진 우선(`main_image_url`, `0abd5aabd`) + 로그인 정책(로그아웃 이 브라우저만·서버 로그인 기기 정보) + 저장공간 위젯(`3c2c95d7e`) |
