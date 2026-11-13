@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.34(미룬 기능 4개 배포) + 5번 팝빌 플랜
+
+- 주인님 「권장안대로 진행해」·「지금 배포 + 실제 시험」: ① 에이전트 웹 검색(회원 본인 Claude·OpenAI 키 내장 검색, Gemini는 꺼짐, 켤 때 비용 안내) ② 자동화·버튼 웹훅 엶(https만·회원당 분당 20·하루 500, 원본 위험 주소 차단·실패 즉시 일시정지 유지) ③ 자동화 「알림 보내기」에 「내 메일·카카오톡으로도」(공용 `user_smtp_accounts`·`member_platform_accounts` kakao 재사용, 본인에게만, 채널별 하루 100) ④ MCP 서버 1단계 `/api/mcp`(개인 토큰, 토큰 주인 이용 권한 확인, 토큰 5개·90일·분당 60, 바깥 MCP 연결은 계속 닫힘). 플랜 `ai-work-workspace/docs/PLAN_20261113_U14_AND_DEFERRED.md`.
+- 배포 `ai-work-workspace-hmm43zxui` Ready, DB v1.34. 시험 129·tsc·로컬 빌드. 운영 확인: `/api/mcp` 토큰 없이 401, 시험 계정 에이전트 웹 검색 실제 성공(기사 3건+ 출처 주소 답변, 호출 2회).
+- 남은 것: 왼쪽 메뉴 버전 표시 v1.33(상수 누락, 고쳐 커밋 — 다음 배포 때), 메일·카카오 실제 발송·MCP 실제 도구 연결은 회원 연결 상태가 있을 때 확인. 5번 세금계산서 발급대행: 주인님 「팝빌 먼저, 바로 구현」 — 다음 작업.
+
+
+
 ## 2026-11-13 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 플레이리스트 v1.41 30일 정리 + 업무·캘린더 보내기 실제 검수
 
 - 한 일: `playlist-channel-studio` 30일 자동 정리(정리 라우트 + Vercel cron 매일 04:20 KST, 프로젝트·썸네일·올리기 기록, `retention_exempt` 제외, 정리 기록) + 화면 안내 2곳 + 공용 사본 `youtube/client.ts`를 기준(shots)과 같게 복원(v1.39에서 직접 넣은 함수를 `videoMeta.ts`로 옮김) + 공용 `cleanup-usage-log` 사본 등록.
