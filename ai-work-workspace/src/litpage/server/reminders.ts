@@ -241,9 +241,21 @@ export function fireReminder(p: ReminderPayload): number {
         text: isRow ? undefined : readable(block.properties?.[r.prop]), date: r.date, date_text: dateText(r.date),
       },
     });
+    // AIMaster 2026-11-13: 회원이 켜 두었으면 내 메일·카카오톡으로도(실제 발송은 src/server/externalNotify.ts, 실패해도 리마인더는 그대로)
+    if (reminderExternal) {
+      const what = isRow ? readable(page.properties?.title) : readable(block.properties?.[r.prop]);
+      void reminderExternal({ userId: uid, text: `⏰ 리마인더: ${what || '일정'} (${dateText(r.date)})`, pageId: page.id, spaceId: block.space_id }).catch(() => {});
+    }
     n++;
   }
   return n;
+}
+
+// AIMaster 2026-11-13(플랜 docs/PLAN_20261113_U14_AND_DEFERRED.md A): 리마인더를 받는 회원 본인의 메일·카카오톡으로도 보내는 연결 고리
+export type ReminderExternalInput = { userId: string; text: string; pageId: string; spaceId: string };
+let reminderExternal: ((n: ReminderExternalInput) => Promise<void>) | null = null;
+export function setReminderExternalHandler(fn: typeof reminderExternal) {
+  reminderExternal = fn;
 }
 
 registerJobHandler('reminder', (payload: ReminderPayload) => {

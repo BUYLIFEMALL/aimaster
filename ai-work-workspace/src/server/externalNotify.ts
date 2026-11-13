@@ -11,11 +11,13 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { createHash } from 'node:crypto';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getMemberAccount, markMemberAccountNeedsReconnect, updateMemberAccountToken } from '@/lib/memberIntegrations';
-import { db, getRecord } from '@/litpage/server/db.ts';
+import { db, getRecord, putRecord } from '@/litpage/server/db.ts';
+import { ApiError, type Ctx } from '@/litpage/server/api/handlers.ts';
+import { setReminderExternalHandler } from '@/litpage/server/reminders.ts';
 import { deliver, esc } from '@/litpage/server/mail.ts';
 import { pushNotification } from '@/litpage/server/notify.ts';
 import { setExternalNotifyHandler, type ExternalNotifyInput } from '@/litpage/server/automations/engine.ts';
-import type { BlockRecord, NotificationRecord, SpaceRecord, UserRecord } from '#shared/records.ts';
+import type { BlockRecord, NotificationRecord, SpaceRecord, UserRecord, UserSettingsRecord } from '#shared/records.ts';
 import { newId, pageSlug } from '#shared/ids.ts';
 import { toPlainText } from '#shared/richtext.ts';
 
@@ -150,3 +152,36 @@ export async function sendExternal(n: ExternalNotifyInput): Promise<void> {
 }
 
 setExternalNotifyHandler(sendExternal);
+
+// ---------------------------------------------------------------- 일정 리마인더(2026-11-13, 주인님 「진행하고」)
+// 회원이 「API키등록·플랫폼연동 › 알림 받기」에서 켠 채널로만 보낸다(기본 꺼짐). 받는 사람 = 리마인더 대상 회원 본인.
+// 저장: 회원 설정(user_settings.settings.aww_notify_external = "email,kakao"). 한도·중복 금지는 자동화 알림과 같은 표를 함께 쓴다.
+export const NOTIFY_PREF_KEY = 'aww_notify_external';
+const cleanChannels = (v: unknown): Channel[] => [...new Set((Array.isArray(v) ? v : String(v ?? '').split(',')).map((x) => String(x).trim()).filter((x): x is Channel => x === 'email' || x === 'kakao'))];
+
+export function reminderChannels(userId: string): Channel[] {
+  const settings = getRecord<UserSettingsRecord>('user_settings', userId);
+  return cleanChannels((settings?.settings as Record<string, unknown> | undefined)?.[NOTIFY_PREF_KEY]);
+}
+
+export const notifyPrefHandlers: Record<string, (ctx: Ctx, body: any) => unknown> = {
+  /** 리마인더를 내 메일·카카오톡으로도 받을지 — 읽기 */
+  awwNotifyPrefs(ctx) {
+    if (!ctx.userId) throw new ApiError('Unauthorized', 401);
+    return { reminder: reminderChannels(ctx.userId) };
+  },
+  /** 저장({ reminder: ['email','kakao'] }) */
+  awwSaveNotifyPrefs(ctx, body) {
+    if (!ctx.userId) throw new ApiError('Unauthorized', 401);
+    const settings = getRecord<UserSettingsRecord>('user_settings', ctx.userId);
+    if (!settings) throw new ApiError('회원 설정을 찾지 못했습니다. 워크스페이스를 한 번 연 뒤 다시 시도해 주세요.', 400);
+    const reminder = cleanChannels(body?.reminder);
+    putRecord('user_settings', { ...settings, version: (settings.version ?? 0) + 1, settings: { ...settings.settings, [NOTIFY_PREF_KEY]: reminder.join(',') } } as UserSettingsRecord);
+    return { reminder };
+  },
+};
+
+setReminderExternalHandler(async (n) => {
+  const channels = reminderChannels(n.userId);
+  if (channels.length) await sendExternal({ userId: n.userId, channels, automationName: '일정 리마인더', text: n.text, pageId: n.pageId, spaceId: n.spaceId });
+});

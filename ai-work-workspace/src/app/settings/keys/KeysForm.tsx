@@ -1,6 +1,7 @@
 "use client";
 // U3: 키 입력·저장·삭제 + 📖 연동 매뉴얼 상자(팝업). 서버: /api/keys
 import { useEffect, useState } from "react";
+import { rpc } from "@/lib/standaloneRpc";
 
 type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key" | "google_client_id" | "google_client_secret" | "bolta_api_key" | "bolta_webhook_secret";
 const ITEMS: { provider: Provider; name: string; placeholder: string; desc: string; guideId?: string; guideUrl?: string }[] = [
@@ -84,6 +85,8 @@ export function KeysForm() {
         ))}
       </section>
 
+      <NotifyPrefs />
+
       <section className="aww-key-guides">
         <h2>📖 연동 매뉴얼</h2>
         <p>키를 처음 받는다면 아래 매뉴얼을 팝업으로 열어 그대로 따라 하세요.</p>
@@ -96,5 +99,40 @@ export function KeysForm() {
         </div>
       </section>
     </>
+  );
+}
+
+// 2026-11-13: 일정 리마인더를 내 메일·카카오톡으로도 받기(기본 꺼짐). 연결은 다른 프로그램에서 등록한 것을 그대로 쓴다.
+function NotifyPrefs() {
+  const [on, setOn] = useState<string[] | null>(null);
+  const [msg, setMsg] = useState("");
+  useEffect(() => {
+    rpc<{ reminder: string[] }>("awwNotifyPrefs", {}).then((r) => setOn(r.reminder)).catch(() => setOn([]));
+  }, []);
+  const toggle = async (k: "email" | "kakao") => {
+    const next = (on ?? []).includes(k) ? (on ?? []).filter((x) => x !== k) : [...(on ?? []), k];
+    try {
+      const r = await rpc<{ reminder: string[] }>("awwSaveNotifyPrefs", { reminder: next });
+      setOn(r.reminder);
+      setMsg("저장했습니다.");
+    } catch (e) {
+      setMsg((e as Error).message);
+    }
+  };
+  return (
+    <section className="aww-keys">
+      <div className="aww-key-card">
+        <div className="aww-key-head"><b>🔔 알림 받기 — 일정 리마인더</b></div>
+        <p>표의 날짜에 걸어 둔 리마인더가 울릴 때 앱 알림과 함께 아래로도 보냅니다. 받는 사람은 나 한 명이고, 채널마다 하루 100건까지입니다.</p>
+        {(["email", "kakao"] as const).map((k) => (
+          <label key={k} style={{ display: "flex", alignItems: "center", gap: 6, margin: "4px 0" }}>
+            <input type="checkbox" disabled={on === null} checked={(on ?? []).includes(k)} onChange={() => void toggle(k)} />
+            {k === "email" ? "내 메일로도 받기" : "내 카카오톡(나에게 보내기)으로도 받기"}
+          </label>
+        ))}
+        <p style={{ fontSize: 12, opacity: 0.75 }}>💡 메일은 「예약(취소)방지 리마인드 자동화」 등에서 등록한 내 메일 계정으로, 카카오톡은 「부동산 실시간 매물 알림」 등에서 연결한 내 카카오로 보냅니다. 연결이 없으면 보내지 않고 앱 알림으로 이유를 알려 드립니다. 자동화의 「알림 보내기」는 자동화마다 따로 켭니다.</p>
+        {msg && <p className="aww-key-msg">{msg}</p>}
+      </div>
+    </section>
   );
 }

@@ -65,4 +65,15 @@ describe('자동화 알림 — 내 메일·카카오톡으로도', () => {
     const { stageBodyBlock } = await import('@/server/stagePolicy');
     expect(stageBodyBlock('saveAutomation', { automation: { actions: [{ type: 'notify', external: ['email', 'sms'] }] } })).toBeNull();
   });
+
+  it('리마인더 받기 설정: 기본 꺼짐, 저장하면 그 채널만(모르는 값은 버림), 회원마다 따로', () => {
+    for (const id of ['ex-d', 'ex-e']) db.putRecord('user_settings', { id, version: 1, settings: {} } as never);
+    const h = ext.notifyPrefHandlers;
+    expect(h.awwNotifyPrefs({ userId: 'ex-d' } as never, {})).toEqual({ reminder: [] });
+    expect(h.awwSaveNotifyPrefs({ userId: 'ex-d' } as never, { reminder: ['kakao', 'sms', 'kakao'] })).toEqual({ reminder: ['kakao'] });
+    expect(ext.reminderChannels('ex-d')).toEqual(['kakao']);
+    expect(ext.reminderChannels('ex-e')).toEqual([]);
+    expect(h.awwSaveNotifyPrefs({ userId: 'ex-d' } as never, { reminder: [] })).toEqual({ reminder: [] });
+    expect(() => h.awwNotifyPrefs({} as never, {})).toThrow();
+  });
 });
