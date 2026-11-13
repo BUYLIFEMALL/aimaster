@@ -16,7 +16,7 @@ export const fetchCache = "force-no-store";
 const NO_STORE = { "Cache-Control": "private, no-store" };
 // U11(2026-11-10): cron-job.org 키(정시 자동화) — 공용 provider 이름 cronjob_org_api_key, 다른 예약 프로그램과 같은 칸
 // 2026-11-11 캘린더 연동: 회원 본인 구글 OAuth 앱(유튜브·구글 블로그 자동화와 같은 공용 칸)
-const PROVIDERS = ["openai", "anthropic", "gemini", "cronjob_org_api_key", "google_client_id", "google_client_secret"] as const;
+const PROVIDERS = ["openai", "anthropic", "gemini", "cronjob_org_api_key", "google_client_id", "google_client_secret", "popbill_link_id", "popbill_secret_key"] as const; // 2026-11-13: 팝빌 세금계산서 발급(회원 본인 키)
 type Provider = (typeof PROVIDERS)[number];
 const isProvider = (v: unknown): v is Provider => typeof v === "string" && (PROVIDERS as readonly string[]).includes(v);
 const mask = (k: string) => (k.length <= 8 ? "••••" : `${k.slice(0, 7)}••••${k.slice(-4)}`);
@@ -31,7 +31,7 @@ export async function GET() {
   if (!access.allowed) return NextResponse.json({ message: access.error }, { status: access.status, headers: NO_STORE });
   const { data, error } = await createAdminClient().from("user_api_keys").select("provider, api_key").eq("user_id", access.user.id).in("provider", [...PROVIDERS]);
   if (error) return NextResponse.json({ message: "등록 상태를 불러오지 못했습니다." }, { status: 503, headers: NO_STORE });
-  const keys: Record<Provider, string | null> = { openai: null, anthropic: null, gemini: null, cronjob_org_api_key: null, google_client_id: null, google_client_secret: null };
+  const keys: Record<Provider, string | null> = { openai: null, anthropic: null, gemini: null, cronjob_org_api_key: null, google_client_id: null, google_client_secret: null, popbill_link_id: null, popbill_secret_key: null };
   for (const row of data ?? []) if (isProvider(row.provider) && typeof row.api_key === "string" && row.api_key.trim()) keys[row.provider] = mask(row.api_key.trim());
   return NextResponse.json({ keys }, { headers: NO_STORE });
 }

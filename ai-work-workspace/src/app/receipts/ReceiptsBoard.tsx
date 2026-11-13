@@ -2,6 +2,7 @@
 // 🧾 영수증·세금계산서 화면(2026-11-11). 명령: /api/rpc/rcpt*(src/server/receipts.ts). 플랜 docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md §6
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
+import { PopbillPanel } from "./PopbillPanel"; // 2026-11-13: 팝빌로 바로 발급(회원 본인 키)
 
 type EvidenceKind = "receipt" | "tax_invoice" | "cash_receipt" | "card" | "other";
 const EVIDENCE_KINDS: Record<EvidenceKind, string> = { receipt: "영수증", tax_invoice: "세금계산서", cash_receipt: "현금영수증", card: "카드전표", other: "기타" };
@@ -13,7 +14,7 @@ interface Biz { id?: string; bizNo: string; name: string; ceo: string; address: 
 interface Item { id?: string; name: string; spec: string; unitPrice: number }
 interface Evidence { id?: string; kind: EvidenceKind; date: string; vendor: string; bizNo: string; supply: number; vat: number; total: number; payment: string; memo: string }
 interface Line { name: string; spec: string; qty: number; unitPrice: number; supply?: number; tax?: number }
-interface Doc { id: string; kind: DocKind; date: string; partner: Biz; lines: (Line & { supply: number; tax: number })[]; supply: number; tax: number; total: number; taxMode: TaxMode; purpose: string; memo: string; createdTime: number }
+interface Doc { id: string; kind: DocKind; date: string; partner: Biz; lines: (Line & { supply: number; tax: number })[]; supply: number; tax: number; total: number; taxMode: TaxMode; purpose: string; memo: string; createdTime: number; popbill?: { mode: "test" | "prod"; state: "sending" | "issued" | "failed"; ntsConfirmNum?: string; message?: string } }
 interface State { profile: Biz | null; partners: Biz[]; items: Item[]; docs: Doc[]; month: string; evidence: Evidence[]; summary: { count: number; supply: number; vat: number; total: number }; retentionDays: number }
 interface Pending { key: string; name: string; status: "reading" | "ready" | "error"; error?: string; ev?: Evidence }
 
@@ -332,6 +333,22 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
     }
   };
 
+  // 팝빌로 바로 발급(2026-11-13): 문서마다 직접 누름, 결과는 문서에 기록
+  const [issuing, setIssuing] = useState<string | null>(null);
+  const issuePopbill = async (d: Doc) => {
+    if (!window.confirm(`${d.date} ${d.partner?.name ?? ""} 세금계산서를 팝빌로 발급합니다. 계속할까요? (실제 발급 모드면 국세청에 실제로 발급되고 팝빌 요금이 청구됩니다)`)) return;
+    setIssuing(d.id);
+    try {
+      const r = await rpc<{ state: string; already?: boolean; ntsConfirmNum: string | null; mode: string }>("pbIssue", { id: d.id });
+      notify({ text: `${r.mode === "prod" ? "실제" : "테스트"} 발급 ${r.already ? "확인(이미 발급됨)" : "완료"}${r.ntsConfirmNum ? ` · 국세청 승인번호 ${r.ntsConfirmNum}` : ""}` });
+    } catch (e) {
+      notify({ text: (e as Error).message, error: true });
+    } finally {
+      setIssuing(null);
+      reload();
+    }
+  };
+
   const del = async (id: string) => {
     if (!confirm("이 문서를 지울까요?")) return;
     try {
@@ -396,12 +413,13 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
           <button type="button" className="rc-btn ghost" onClick={() => void save(false)}>💾 저장만</button>
         </div>
         {kind === "tax_invoice" && (
-          <p className="rc-hint">ℹ️ 세금계산서는 국세청 홈택스에서 발급해야 효력이 있습니다. 저장한 뒤 아래 「저장한 문서」에서 골라 「🧾 홈택스 일괄 발급 엑셀」을 누르면 홈택스 공식 양식에 채운 파일이 내려받아집니다 → 홈택스 「전자(세금)계산서 일괄발급」에 올려 발급하세요(한 장에 품목 4줄까지). 인쇄본은 확인용입니다.</p>
+          <p className="rc-hint">ℹ️ 세금계산서는 국세청 홈택스에서 발급해야 효력이 있습니다. 저장한 뒤 아래 「저장한 문서」에서 골라 「🧾 홈택스 일괄 발급 엑셀」을 누르면 홈택스 공식 양식에 채운 파일이 내려받아집니다 → 홈택스 「전자(세금)계산서 일괄발급」에 올려 발급하세요(한 장에 품목 4줄까지). 팝빌(발급대행)에 본인 키를 등록했다면 표의 「📤 팝빌 발급」으로 바로 발급할 수도 있습니다. 인쇄본은 확인용입니다.</p>
         )}
         {kind === "receipt" && <p className="rc-hint">ℹ️ 간이영수증은 법정 세금계산서가 아닙니다(거래 확인용).</p>}
       </div>
 
       <h2>🗂️ 저장한 문서</h2>
+      {taxDocs.length > 0 && <PopbillPanel notify={notify} />}
       {taxDocs.length > 0 && (
         <div className="rc-row-btns">
           <button type="button" className="rc-btn" disabled={making || picked.size === 0} onClick={() => void makeHometax()}>{making ? "만드는 중…" : `🧾 홈택스 일괄 발급 엑셀 (${taxDocs.filter((d) => picked.has(d.id)).length}건)`}</button>
@@ -418,7 +436,7 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
                 <tr key={d.id}>
                   <td>{d.kind === "tax_invoice" ? <input type="checkbox" checked={picked.has(d.id)} onChange={() => togglePick(d.id)} aria-label={`${d.partner?.name ?? ""} 세금계산서 고르기`} /> : null}</td>
                   <td>{d.date}</td><td>{DOC_KINDS[d.kind]}</td><td>{d.partner?.name}</td><td className="num">{won(d.total)}</td>
-                  <td className="rc-actions"><button type="button" className="rc-btn ghost" onClick={() => print(d)}>🖨️ 인쇄</button><button type="button" className="rc-x" onClick={() => void del(d.id)} aria-label="지우기">🗑</button></td>
+                  <td className="rc-actions">{d.kind === "tax_invoice" && (d.popbill?.state === "issued" ? <span className="rc-hint" title={d.popbill.ntsConfirmNum ?? ""}>✅ 팝빌 {d.popbill.mode === "prod" ? "발급됨" : "테스트 발급됨"}</span> : <button type="button" className="rc-btn ghost" disabled={issuing === d.id} title={d.popbill?.state === "failed" ? d.popbill.message : d.popbill?.state === "sending" ? "지난번 결과가 확실하지 않음 — 누르면 먼저 확인합니다" : undefined} onClick={() => void issuePopbill(d)}>{issuing === d.id ? "발급 중…" : d.popbill?.state === "sending" ? "📤 발급 확인" : "📤 팝빌 발급"}</button>)}<button type="button" className="rc-btn ghost" onClick={() => print(d)}>🖨️ 인쇄</button><button type="button" className="rc-x" onClick={() => void del(d.id)} aria-label="지우기">🗑</button></td>
                 </tr>
               ))}
             </tbody>
