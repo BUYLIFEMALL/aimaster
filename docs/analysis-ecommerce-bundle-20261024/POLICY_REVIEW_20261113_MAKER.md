@@ -88,6 +88,17 @@ A 계약에 아래 값이 들어가야 한다. 비밀키·이메일·전화번�
 - 쿠팡 운영도 같은 `/i/` 구조다(링크 22개, 모두 예외 계정). 쿠팡이 상세사진을 복사하는지는 이번에 확인하지 않았다(미확인).
 - **권장(결정 필요, 주인님)**: ① 11번가 보내기 직후 상세사진 경로에 `markPosted`를 부른다 — 표시가 있는 파일만 포스팅 기간, 나머지 상세 파일은 생성 기간으로 정리돼 정책과 맞아진다. 단 「버킷이 표시 버킷이 되면 표시 없는 구독 회원 파일이 생성 기간(30/60/180일)으로 줄어드는」 변화가 상세페이지 전체에 생기므로 상세페이지 담당과 같이 배포해야 한다. ② 보내기 화면·저장 구독 해지 화면에 「구독이 끝나거나 보관 기간이 지나면 11번가 상세 사진이 보이지 않습니다. 오래 팔 상품은 11번가에 직접 사진을 올려 두세요」 안내. ③ 장기적으로 11번가 이미지 업로드 API가 있으면 상세사진도 복사(11번가 명세 확인 필요, 미확인).
 
+### 4-1. 결정(2026-11-13 주인님 「첫째로 진행해」) — 보낸 직후 `markPosted`
+
+- **무엇을**: 11번가 등록이 성공했고 상세설명이 사진 방식(`mode === "images"`)일 때, 상세설명에 넣은 섹션 사진 경로(`sectionPaths`)를 「포스팅됨」으로 표시한다. 대표·추가 사진은 11번가가 복사하므로 표시하지 않는다.
+- **어디서**: `elevenst-register/src/lib/actions/send.ts` 등록 성공 분기(전시중지 호출과 무관하게 등록 성공이면 표시). 공용 기준 코드 `lib/storage/markPosted.ts` 사본을 `elevenst-register/src/lib/storage/markPosted.ts`로 둔다(직접 고치지 않음).
+- **호출**: `await markPosted(admin, { userId: user.id, files: sectionPaths.map((path) => ({ bucket: SHOP_IMAGE_BUCKET, path })), program: "elevenst-register", postUrl: <11번가 상품 주소> })`. 실패해도 등록 결과를 바꾸지 않는다(공용 코드가 삼킴). 결과 불확실(`unknown`)·실패면 표시하지 않는다.
+- **달라지는 것**: 첫 호출 때 `shop-detail-images`가 「표시 버킷」이 된다. 그 뒤 저장 구독 회원의 상세페이지 파일 중 표시가 없는 것은 **생성 보관 기간(30/60/180일)**, 표시된 상세사진은 **포스팅 보관 기간(90/180/365일)**으로 정리된다(둘 다 파일 생성일 기준). 일반 회원(30일)과 관리자·시험 계정(무기한)은 변화 없음. 2026-11-13 현재 저장 구독 회원 0명이라 지금 바뀌는 운영 자료는 없다.
+- **달라지지 않는 것**: 포스팅 보관 기간이 지나거나 구독이 끝나면 상세사진이 깨지는 것은 그대로다(3안). 그래서 둘째 안(안내 문구)은 별도 결정으로 남는다.
+- **코드 변경은 상세페이지에 없음**: 표시 버킷 전환은 DB 기록만으로 일어난다. 상세페이지 정리 코드(`retention_exempt` 제외)는 그대로다. 「같은 묶음 배포」는 필요 없고, 상세페이지 담당은 변화만 알면 된다.
+- **시험(운영 자료를 지우지 않음)**: 단위 시험 — 사진 방식+성공이면 `markPosted` 1회·경로 수 일치, 글 방식·실패·`unknown`이면 0회. 배포 뒤 관리자 계정 실제 보내기가 있으면 `member_posted_assets`에 그 경로가 생겼는지 읽기 확인(관리자는 무기한이라 삭제 영향 없음).
+- **되돌리기**: `delete from storage_posting_tracked_buckets where bucket_id = shop-detail-images`(주인님 승인 뒤) — 다시 모든 파일을 포스팅 기간으로 본다.
+
 ## 5. 최소 DB 변경 필요성
 
 | 범위 | DB 변경 | 이유 |
@@ -106,7 +117,7 @@ A 계약에 아래 값이 들어가야 한다. 비밀키·이메일·전화번�
 | A 기능(`ecommerce-image`) | `shop-detail-page/lib/actions/images.ts` | `addCustomSectionImageAction`·새 대표사진 저장에 경로 검사(`<user.id>/products/<productId>/`), `prepareReturnAction`(소유·revision·용량) |
 | A | `banana-canvas/src/lib/nukkiHandoff.ts`(기준) → 사본 `--sync` | 메시지에 `jobId`·`productId`·`role`·`baseRevision` 추가. 기존 단일 섹션 반환과 하위 호환 유지 |
 | A | 상세페이지에 `lib/storage/storageQuota.ts` 사본 | 공용 기준 코드 그대로(`docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md` §8) |
-| A·11번가 | `elevenst-register/src/lib/actions/send.ts` | §4 권장 ①(`markPosted`)은 주인님 결정 뒤 상세페이지와 같은 묶음으로 |
+| A·11번가 | `elevenst-register/src/lib/actions/send.ts` | §4-1 `markPosted`(결정됨) — 다음 11번가 배포 때 함께 |
 | B 디자인(agy) | 반환 확인 창 | 거절·충돌·용량초과·「마켓에 다시 보내야 반영」 문구 상태 |
 | E 몰(`mall-builder`) | 몰 상품 사진 | 반환이 공급사 승인·판매 상태를 바꾸지 않게(§3-5) |
 | 각 담당 배포 때 | 바나나·이미지 변환·스마트스토어·쿠팡 | 저장 위젯 한 줄, 범위 있는 로그아웃(`docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`) — `node scripts/pending-check.mjs <폴더>`가 알림 |
@@ -129,7 +140,7 @@ A 계약에 아래 값이 들어가야 한다. 비밀키·이메일·전화번�
 
 ## 8. 미확인·주인님 결정 항목
 
-- §4 권장 ①(11번가 보낸 뒤 `markPosted`)·②(안내 문구)·③(상세사진 복사 방안) — 결정 필요.
+- §4 권장 ①은 **결정됨(§4-1)**. ②(안내 문구)·③(상세사진 복사 방안)은 미결정.
 - 쿠팡이 상세사진을 복사하는지(미확인).
 - 대표사진 교체 시 이전 사진 보관 방식(§5 폴더 방식)은 A가 화면과 함께 확정.
 - P3 외부 URL·P4 E2는 이 검토 범위 밖(보류 유지).
