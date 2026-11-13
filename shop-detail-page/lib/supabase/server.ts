@@ -28,6 +28,8 @@ export async function createClient() {
           }
         },
       },
+      // 로그인 정책(2026-11-13): 서버가 대신 로그인할 때 브라우저 기기 정보를 넘겨 PC/모바일 동시 접속 제한에 맞춤
+      global: { headers: { "User-Agent": headerStore.get("user-agent") ?? "" } },
     },
   );
 }
