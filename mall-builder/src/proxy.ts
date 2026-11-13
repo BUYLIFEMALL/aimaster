@@ -2,13 +2,14 @@
 // 하위 도메인(2026-11-10): `<몰>.<MALL_ROOT_DOMAIN>` 으로 들어오면 `/s/<몰>/…` 로 바꿔 읽는다(주소창은 그대로). 기본값 localhost = 내 PC 시험용
 // 운영 관문(T0 2026-11-12): 운영 스위치가 켜진 배포에서만 모든 요청이 로그인(메인 사이트 공유)·프로그램 이용 권한을 먼저 지난다(lib/platform-gate.ts)
 import { NextResponse, type NextRequest } from "next/server";
-import { mallSlugFromHost, subdomainRewritePath } from "@/lib/host";
+import { mallSlugFromHost, singleMallSlug, subdomainRewritePath } from "@/lib/host";
 import { PLATFORM_AIMASTER } from "@/lib/platform";
 import { isOpenPath, platformGate } from "@/lib/platform-gate";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const slug = mallSlugFromHost(request.headers.get("host"), process.env.MALL_ROOT_DOMAIN ?? "localhost");
+  // 단일 몰 모드(T3 H1): MALL_SINGLE_SLUG가 있으면 주소와 상관없이 그 몰 하나로 읽는다
+  const slug = singleMallSlug(process.env.MALL_SINGLE_SLUG) ?? mallSlugFromHost(request.headers.get("host"), process.env.MALL_ROOT_DOMAIN ?? "localhost");
   const rewritten = slug ? subdomainRewritePath(pathname, slug) : null;
   const path = rewritten ?? pathname;
 

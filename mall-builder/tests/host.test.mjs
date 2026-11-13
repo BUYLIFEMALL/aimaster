@@ -42,3 +42,19 @@ test("운영자 화면에 보여 줄 하위 도메인 주소", () => {
   assert.equal(mallSubdomainUrl("shop1", "localhost"), null);
   assert.equal(mallSubdomainUrl("shop1", ""), null);
 });
+
+test("단일 몰 모드 — 환경 설정 값이 맞는 몰 주소일 때만 켜짐", async () => {
+  const { singleMallSlug, subdomainRewritePath } = await import("../src/lib/host.ts");
+  assert.equal(singleMallSlug("my-shop"), "my-shop");
+  assert.equal(singleMallSlug("  My-Shop "), "my-shop");
+  assert.equal(singleMallSlug(""), null);
+  assert.equal(singleMallSlug(undefined), null);
+  assert.equal(singleMallSlug("a"), null);
+  assert.equal(singleMallSlug("bad_slug"), null);
+  // 켜지면 첫 화면·상품·관리 주소가 그 몰로 읽힌다(기존 /s/<몰> 링크는 그대로 통과)
+  assert.equal(subdomainRewritePath("/", "my-shop"), "/s/my-shop");
+  assert.equal(subdomainRewritePath("/p/123", "my-shop"), "/s/my-shop/p/123");
+  assert.equal(subdomainRewritePath("/admin", "my-shop"), "/s/my-shop/admin");
+  assert.equal(subdomainRewritePath("/s/my-shop/cart", "my-shop"), null);
+  assert.equal(subdomainRewritePath("/login", "my-shop"), null);
+});

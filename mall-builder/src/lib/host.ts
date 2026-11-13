@@ -37,3 +37,13 @@ export function mallSubdomainUrl(slug: string, rootDomain: string | null | undef
   if (!root || root === "localhost" || !root.includes(".")) return null;
   return `https://${slug}.${root}`;
 }
+
+/**
+ * 단일 몰 모드(T3 H1, 2026-11-13) — 환경 설정 MALL_SINGLE_SLUG에 몰 주소를 넣으면 그 배포는 「몰 하나만 있는 사이트」가 된다.
+ * 어느 주소로 들어와도 `/…` 를 `/s/<몰>/…` 로 바꿔 읽는다(첫 화면 = 그 몰, 몰 만들기·다른 몰 화면은 열리지 않음, 관리는 `/admin`).
+ * 값이 없거나 형식이 틀리면 null → 지금까지와 똑같이 동작(운영·Lab 영향 없음). 독립몰·배포 키트가 쓴다.
+ */
+export function singleMallSlug(value: string | null | undefined): string | null {
+  const v = (value ?? "").trim().toLowerCase();
+  return v && slugError(v) === null ? v : null;
+}
