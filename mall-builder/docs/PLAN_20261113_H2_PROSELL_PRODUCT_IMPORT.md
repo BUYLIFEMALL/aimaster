@@ -78,3 +78,11 @@
 - 프로셀은 주인님이 쓰는 쇼핑몰 서비스이고 읽은 것은 주인님 몰의 상품 자료뿐이다. 프로셀의 화면 디자인·코드는 옮기지 않는다.
 - 상품 사진·상세 사진의 권리(공급사 제공 자료)는 주인님이 기존 몰에서 쓰던 그대로다.
 - `D:\PDS` 원본 엑셀은 옮기거나 지우지 않았다.
+
+## 10. 결과 — Lab 시험 몰 이전 완료 (2026-11-13 저녁)
+- 대상: Lab `aimaster-retail`(AIMaster 소매몰(시험), 관리자 소유) — https://dev-mall-builder.vercel.app/s/aimaster-retail
+- `node scripts/prosell-import.mjs --store aimaster-retail`: 사진 198장을 `<몰 id>/products/prosell-<번호>/`에 올림, 카테고리 6개(공동구매·차박용품·침구/커튼·디지털가전·남성화장품·남성의류) 생성, 엑셀 `D:\PDS\Program_dev\prosell-export\import\prosell-to-aimaster-retail.xlsx` 생성.
+- 엑셀 적용: 관리자 「상품 엑셀 올리기」와 같은 함수(`loadExcelContext → readWorkbook → planImport → applyPlan`)를 Lab 서버 키로 실행 → 등록 9 · 오류 0. 같은 파일 다시 검사 = 바뀐 것 없음 9.
+- DB 대조: 9개 모두 판매가·정가·원가·재고 방식·카테고리·사진 수·상세 그림 수가 원본과 일치(#105·#106만 사진 7→5장).
+- Lab 키: `mall-builder/.env.local`의 `LAB_SUPABASE_SECRET_KEY`(주인님 등록, 커밋 안 됨).
+- 남은 것: 손님 상품 화면의 상세 그림 표시(agy §10), 배송비 기준(프로셀 무료 기준 3,000원 ↔ 시험 몰 기본 50,000원), 운영 이전 전 사진 30일 규칙 확정, 운영 DB 0064 적용(주인님 승인 대기).
