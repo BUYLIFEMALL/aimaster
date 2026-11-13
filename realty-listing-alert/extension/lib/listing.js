@@ -111,6 +111,16 @@ export function complexNoFromUrl(url) {
 }
 
 /** 탭 제목 같은 일반 이름(「네이버페이 부동산」 등)인지 — 단지 이름으로 쓰지 않는다(2026-10-25 시험에서 발견). */
+/**
+ * 회차 작업 목록 순서 — 단지 감시를 먼저, 지역 감시를 뒤에 둔다(2026-11-13 L-5).
+ * 지역 감시가 먼저 펼쳐지면 겹치는 단지가 지역 항목으로 들어가 단지 감시의 조건·이름 고치기가 무시됐다.
+ * 같은 종류 안의 순서는 그대로 둔다.
+ */
+export function complexTargetsFirst(targets) {
+  const list = targets || [];
+  return [...list.filter((t) => t.target_type !== "region"), ...list.filter((t) => t.target_type === "region")];
+}
+
 export function isGenericName(name) {
   const s = String(name || "").trim();
   return !s || /네이버|부동산$|^n\s*pay/i.test(s);

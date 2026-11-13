@@ -2,7 +2,7 @@
 // 원칙(인수인계 §0): 네이버는 회원 PC·회원 본인 로그인으로만 읽고, 매물은 우리 서버로 보내지 않는다(확장 안에만 저장).
 // 텔레그램은 회원 본인 봇으로 이 PC에서 바로 보낸다. 서버에는 숫자 상태만 보고한다. 차단·확인 화면이면 그날 멈춘다.
 import { collectComplex, collectRegionComplexes, rand, sleep } from "./lib/collector.js";
-import { complexNoFromUrl, extractPhones, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes, pruneStateToTarget } from "./lib/listing.js";
+import { complexNoFromUrl, complexTargetsFirst, extractPhones, isGenericName, matchesTarget, normalizeArticle, pickTopComplexes, pruneStateToTarget } from "./lib/listing.js";
 import { compareComplex, filterEvents } from "./lib/compare.js";
 import { computeNextDue, kstDate, pickRunSlice, shouldRunScheduled } from "./lib/guard.js";
 import { COLUMNS, toCsv, toTable, toXlsx } from "./lib/sheet.js";
@@ -161,9 +161,10 @@ async function runCollection(trigger) {
     let detailLeft = rules.detail?.maxPerRun ?? 20; // 회차당 상세(중개사 번호) 최대 건수
 
     // 지역 대상은 그 동에서 매물 많은 단지 N곳으로 펼친다(2026-10-25). 단지 대상과 겹치는 단지는 한 번만 읽는다.
+    // 단지 대상을 먼저 넣어 겹칠 때 단지 대상의 조건·이름 고치기가 이기게 한다(2026-11-13 L-5).
     const work = [];
     const seenNo = new Set();
-    for (const t of targets) {
+    for (const t of complexTargetsFirst(targets)) {
       if (t.target_type !== "region") {
         if (t.complex_no && !seenNo.has(t.complex_no)) { seenNo.add(t.complex_no); work.push(t); }
         continue;

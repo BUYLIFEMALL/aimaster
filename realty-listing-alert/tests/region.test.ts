@@ -1,7 +1,7 @@
 // 지역(동) 감시 시험 — node --test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { pickTopComplexes } from "../extension/lib/listing.js";
+import { complexTargetsFirst, pickTopComplexes } from "../extension/lib/listing.js";
 import { readFileSync } from "node:fs";
 
 const regions = JSON.parse(readFileSync(new URL("../public/regions.json", import.meta.url), "utf8"));
@@ -31,4 +31,27 @@ test("지역 단지 고르기: 매물 많은 순 상위 N곳, 번호 없는 줄 
   assert.equal(pickTopComplexes(null, null, 5).length, 0);
   // 매물 수 칸이 없으면 네이버 순서 그대로
   assert.deepEqual(pickTopComplexes([{ complexNo: "9" }, { complexNo: "8" }], null, 5).map((c) => c.complexNo), ["9", "8"]);
+});
+
+test("작업 목록은 단지 감시를 먼저 둔다 — 지역과 겹치는 단지는 단지 감시로 읽힘(2026-11-13 L-5, 단지 2936)", () => {
+  const targets = [
+    { target_type: "region", region_name: "고양시 일산동구 백석동" },
+    { target_type: "region", region_name: "사상구 삼락동" },
+    { target_type: "complex", complex_no: "111515", complex_name: "헬리오시티" },
+    { target_type: "complex", complex_no: "2936", complex_name: null },
+  ];
+  const ordered = complexTargetsFirst(targets);
+  assert.deepEqual(ordered.map((t) => t.complex_no ?? t.region_name), ["111515", "2936", "고양시 일산동구 백석동", "사상구 삼락동"]);
+  // background.js와 같은 중복 규칙: 먼저 들어간 단지 감시가 남고, 지역에서 온 같은 번호는 건너뛴다
+  const seen = new Set();
+  const work: { complex_no: string; complex_name: string | null; fromRegion?: string }[] = [];
+  for (const t of ordered) {
+    if (t.target_type !== "region") { seen.add(t.complex_no); work.push(t as never); continue; }
+    if (t.region_name === "고양시 일산동구 백석동" && !seen.has("2936")) work.push({ complex_no: "2936", complex_name: "백송xx", fromRegion: t.region_name });
+  }
+  const w2936 = work.filter((w) => w.complex_no === "2936");
+  assert.equal(w2936.length, 1);
+  assert.equal(w2936[0].complex_name, null); // 이름이 비어 있어 수집 뒤 이름 고치기가 나간다
+  assert.equal(w2936[0].fromRegion, undefined);
+  assert.deepEqual(complexTargetsFirst(undefined as never), []);
 });
