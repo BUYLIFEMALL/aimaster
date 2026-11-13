@@ -647,6 +647,7 @@
 | 64 | **64. 어도비 사운드 아키텍트 다크 그래파이트 콘솔 스타일<br>(Adobe Sound Architect Dark Graphite Console Style)** | **AI 무료음악 자동화 시안 2 (⭐ 2026-11-06 주인님 칭찬 61번 어도비 다크 스타일 이식)** (`free-music-studio`, 100% 영구 자산화) | 다크 그래파이트 슬레이트 (`#111318` / `#1A1D24`) & 어도비 시안 블루 (`#0EA5E9`) & 마젠타 (`#EC4899`) & 에메랄드 | Adobe Audition / Avid Pro Tools 감성의 정밀 오디오 마스터링 콘솔. 1440px 와이드 마스터링 이퀄라이저 HUD, 듀얼 데시벨 VU 미터 바(-60dB ~ +3dB 클리핑 방지), 3D 엠보싱 시안 버튼(`.btn-3d-cyan`), 전문가용 마스터링 체인 | 전문가용 오디오 마스터링 콘솔, 정밀 EQ 이퀄라이저 믹서 |
 | 65 | **65. 나노 제너레이티브 AI 뉴럴 사운드 랩 스타일<br>(Nano Generative AI Neural Sound Lab Style)** | **AI 무료음악 자동화 시안 3 (⭐ 2026-11-06 주인님 칭찬 62번 나노 뉴럴 아트 스타일 이식)** (`free-music-studio`, 100% 영구 자산화) | 퓨어 딥 스페이스 블랙 (`#08070D` / `#131120`) & 제너레이티브 앰버 골드 (`#F59E0B`) & 딥 바이올렛 (`#8B5CF6`) | 차세대 제미나이 3.8 / 나노바나나 멀티모달 사운드 랩. GPU 텐서 VRAM(24GB) 연산 모니터링 HUD, AI 보컬 & 악기 LoRA 가중치 정밀 믹서, 장르 교차 합성 매트릭스, 3D 엠보싱 앰버 골드 버튼(`.btn-3d-gold`) | 차세대 AI 사운드 랩, 뉴럴 디퓨전 오디오 신디사이저, 멀티모달 음악 생성기 |
 | 91 | AI 워드프레스·구글블로그 자동화 | `wp-blogger-auto` | **89. 듀얼 런치패드 미션 스타일 (2안 채택, 2026-11-10)**<br>• 유형: 상단 가로 메뉴 + 좌우 발사대 카드(워드프레스·구글 블로그) + 예약 카운트다운 타임라인 | 라이트(스카이 `#eef6ff` + 네이비 `#0f2a4a`, 워드프레스 블루 `#2271b1`·블로거 오렌지 `#ff8a1f`·발사 그린 `#16a34a`) | 🔨 작업 중 (v1.01 화면 구현 전, [역할: blog] `claude-win-blog`) |
+| 92 | AI 쇼핑몰 빌더 (손님 화면·분양 안내) | `mall-builder` | **106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 (1안 공식 채택)**<br>• 유형: B2B 입점몰·분양몰·독립몰 공용 옴니채널 손님 화면 & 분양 센터<br>• 스타일: 클린 화이트/슬레이트 50 + 신뢰의 일렉트릭 로열 블루 + 3D 엠보싱 버튼(`.btn-3d-blue`)<br>• 선정이유: 외부 손님 및 검색엔진 전면 공개에 맞춘 완성도 높은 B2B 쇼핑몰 UI/UX 및 모바일 390px 가로 스크롤 0px 보장 | 라이트 (슬레이트 `#F8FAFC` + 화이트 `#FFFFFF` + 로열 블루 `#2563EB`) | ✅ 1차 리뉴얼완료 (`v1.06`, 106번 1안 공식 채택 손님 화면 전면 개편, 단위테스트 256/256 전수 통과, Turbopack 프로덕션 빌드 성공, 1440px/390px 실물 렌더링 검증 완료) | [`mall-builder/docs/DESIGN_HANDOFF.md`](mall-builder/docs/DESIGN_HANDOFF.md) |
 
 
 ---
@@ -850,6 +851,18 @@
 - 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
 - 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
 - 작성: [역할: design] Antigravity(윈도우) `agy-win-inf-v1`
+
+## 2026-11-13 AI 쇼핑몰 빌더 (`mall-builder`) 손님 화면(가게 앞) 3시안 자산화
+
+| 템플릿 번호 & 명칭 | 구조 및 시그니처 컴포넌트 | 추천/선정 이유 | 상태 & 영구 자산 경로 |
+|---|---|---|---|
+| **104. 클래식 노르딕 미니멀 커머스 아틀리에** | 웜 페이퍼 크림(`#FAF9F6`) & 세이지 차콜(`#334155`), 4열 단정한 갤러리 그리드, 부드러운 아날로그 세리프 헤드라인, 3D 엠보싱 세이지 버튼(`.btn-3d-sage`) | 북유럽 라이프스타일 셀렉트샵 감성의 감성적 B2C/B2B 큐레이션 | **⚡ 2순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\104_classic_nordic_minimal_atelier\mall_builder` |
+| **105. 퀀트 다크 B2B 서플라이 허브 HUD** | 딥 옵시디언 다크(`#0B0F17`) & 일렉트릭 에메랄드(`#10B981`) & 골드 앰버, 대량 발주/도매 특화 고밀도 매트릭스 테이블, MOQ 카운터 칩셋, 3D 엠보싱 에메랄드 버튼(`.btn-3d-emerald`) | 전문 도매상·대량 사입 바이어를 위한 데이터 밀도 중심의 하이테크 B2B 콘솔 | **🌿 3순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\105_quant_dark_b2b_supply_hud\mall_builder` |
+| **106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오** | 클린 슬레이트 화이트(`#F8FAFC`) & 로열 일렉트릭 블루(`#2563EB`) & 딥 슬레이트 900(`#0F172A`), 스티키 블러 헤더, 라운드 풀 검색창, 1:1 정사각형 뷰파인더 상품카드, 브레드크럼 & 공동구매/할인/쿠폰 티켓 2단 상품상세, 2단 그리드 장바구니 & 주문서 라디오 카드, S3 샘플몰 안내 띠 배너, 3D 엠보싱 블루 버튼(`.btn-3d-blue`) | B2B 신뢰도와 대중적 커머스의 쾌적한 구매 경험을 완벽히 융합한 1순위 대표작 (⭐ 주인님 공식 채택 및 v1.07 배포) | **✅ 공식 채택 및 프로덕션 배포 완료 (`https://mall-builder.buylife.xyz`)** · `D:\Antigravity\Design\106_neo_modern_b2b_commerce\mall_builder` |
+
+- 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+- 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
+- 작성: [역할: design] Antigravity(윈도우) `agy-win-mb-v1`
 
 
 

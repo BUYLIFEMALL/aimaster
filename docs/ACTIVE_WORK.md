@@ -2,6 +2,7 @@
 
 
 
+
 > [역할: blog] **후속: 반복 설정 저장·후보 동의 초기화 로컬 완료 / 실제 실행 미완료** (2026-10-28T14:28:35.542Z) — 8번 반복 주기·KST시간대 저장/재조회·예상시각(실제실행아님), 동시수정revision검사·RLS/API입력검증 구현. 5번 후보주소/제목/본문수정시이전권한/AI동의/선택초기화. 단위180·격리DB10(137SQL,네트워크none)·타입/로컬빌드통과. 운영SQL은누적3개미적용·웹/ZIP묶음미배포, 실제예약/반복실행기와6/7번실행기는미완료. 기존Edge21169596 새탭만사용하여최신확장재로드/본인이웃우선배치실확인, /neighbors로그인정상·0명반영/기존43명expired확인. 팝업버튼native대상상실로실제새읽기683b74de만직접요청; 활성요청91fa9442는해결. 새수신/최종저장미완료·AI/검색/원격빌드0·전체읽기/소통OFF유지.
 
 
@@ -40,6 +41,8 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `mall-builder/` (범위: `docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md`·`docs/evidence/t2-20261113-*`·운영UI 실물검수만) | [역할: mac-mini] Claude Code(맥미니, ego+Safari) · 세션 `claude-mac-20261111-wpblogger`(Codex에게서 이어받음, 2026-11-13 주인님 지시) | 2026-11-13 | T2 25단계 검수, 1~5번 통과 → 6번부터 진행. 코드/DB직접쓰기/배포 없음 |
+| `banana-canvas/` (범위: `batch/` 디자인 시안 및 UI 인수인계) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-inf-v1` | 2026-11-13 | 메이커 후속 1안 페이퍼 팝 일괄 합성 UI 구현 및 검증 완료 — agy |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.06 운영. 미배포 대기(v1.07): 상세사진 `markPosted` + 안내 문구. 시험 상품 삭제 보류(주인님 결정 대기). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
 | `mall-builder/` (옛 `labs/mall-builder/`) | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace`(2026-11-12 주인님 지시로 쇼핑몰 담당 인계) | 2026-11-10 | 운영 v1.06(T0·T1·T2 분양몰·손님 화면 공개). 지금: 맥미니 분양 검수 지원 → 샘플몰 자료 → v1.07(확인 상자·단일 몰 모드 미배포). **손님 화면 `(shop)`·`resale`은 agy 범위라 고치지 않음**, 관리자·공급사·DB·`src/lib`만 (2026-11-13 갱신) |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |

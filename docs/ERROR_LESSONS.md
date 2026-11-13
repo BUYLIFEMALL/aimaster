@@ -1,6 +1,15 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-13 크롬 확장이 있는 프로그램 배포 시 `programs.extension_version` 미갱신으로 점검 실패 (`commercial-land-trade-alert` v1.34, [역할: design], 제보: [역할: realty])
+- **증상**: v1.34 배포 뒤 운영 ZIP 및 `manifest.json`은 v1.34였으나 운영 DB `programs.extension_version`이 v1.32로 남아 있어 `node scripts/check-extension-release.mjs commercial-land-trade-alert` 점검 시 불일치 실패가 발생함. (부동산 담당이 11-13 DB 값을 v1.34로 수동 일치시켜 `OK DB v1.34 / ext v1.34 / zip v1.34`로 정상화함)
+- **원인**: 디자인 개편 후 배포 시 `programs.version`만 올리고 크롬 확장이 함께 존재하는 프로그램임에도 `programs.extension_version` 동시 갱신 및 `check-extension-release.mjs` 검증 관문을 생략함.
+- **해결**: 부동산 담당의 조치 확인(`OK DB v1.34 / ext v1.34 / zip v1.34`) 및 디자인 역할 지침(`docs/roles/design.md`)에 확장이 있는 프로그램 배포 시 `programs.version`과 함께 `programs.extension_version`을 갱신하고 `node scripts/check-extension-release.mjs <slug>`의 OK를 필수로 확인하는 헌장을 영구 등록.
+- **다음부터 확인 (필수 배포 관문)**: 크롬 확장이 포함된 프로그램(`commercial-land-trade-alert`, `blog-neighbor-care`, `naver-cafe-poster`, `insta_auto_poster`, `threads` 등)을 리뉴얼/배포할 때는 반드시:
+  1. `extension/manifest.json` 버전 및 릴리스 ZIP 버전 동기화
+  2. 운영 DB `programs.version`과 `programs.extension_version` 동시 갱신
+  3. 배포 직후 `node scripts/check-extension-release.mjs <slug>` 실행하여 `OK` 결과 확인 필수
+
 ## 2026-11-13 새 키 칸을 만들었는데 「저장하지 못했습니다」 — 공용 `user_api_keys`의 허용 이름 제약에 새 provider가 없음 (`ai-work-workspace` v1.35 볼타, [역할: workspace])
 - **증상**: 볼타 API 키 칸에 키를 넣고 저장을 눌러도 「저장하지 못했습니다. 잠시 후 다시 시도해 주세요.」만 나옴. 코드·시험·빌드는 모두 통과.
 - **원인**: 운영 DB `user_api_keys`에 CHECK 제약 `user_api_keys_provider_check`(허용하는 provider 이름 목록)가 있고, 새 이름 `bolta_api_key`가 목록에 없어 DB가 거절. 시험은 가짜 DB라 걸리지 않음.

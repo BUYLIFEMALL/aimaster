@@ -1,5 +1,29 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-mb-v1` — AI 쇼핑몰 빌더(`mall-builder`) v1.07 손님 화면 1안(106번 네오 모던 B2B 커머스) 디자인 전면 개편 및 운영 배포 완료
+- **작업 내용**: 주인님 「진행해」 및 「이것부터 진행하고 순서대로 진행해」 승인에 따라 **`106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일`** 기반으로 손님 화면(가게 앞) 전면 개편 및 운영 배포 완료.
+- **수정/구현 파일**:
+  - `mall-builder/src/lib/version.ts` — `v1.07` 버전 상향.
+  - `mall-builder/src/app/globals.css` — 1안 전용 3D 엠보싱 버튼 클래스(`.btn-3d-blue`, `.btn-3d-dark`) 및 네오 모던 슬레이트 테마 정의.
+  - `mall-builder/src/app/s/[store]/(shop)/layout.tsx` — 스티키 블러 헤더, 라운드 풀 검색창, 장바구니 숫자 뱃지, 슬레이트 900 B2B 바닥글 및 **S3 샘플몰 상단 고지 띠 배너**(`SAMPLE_MALL_SLUG` 검사: 「이 몰은 샘플입니다 · 실제 결제·배송은 없습니다 · 사업자 신청을 하면 사업자 가격을 볼 수 있습니다」).
+  - `mall-builder/src/app/s/[store]/(shop)/product-card.tsx` — 1:1 정사각형 뷰파인더, 볼드 가격 서피스, 특가/회원가/사업자전용 뱃지, 기존 `data-card-price` 및 문구 100% 보존.
+  - `mall-builder/src/app/s/[store]/(shop)/page.tsx` & `src/app/s/[store]/home-blocks.tsx` — 첫 화면 블록(슬라이더·배너·카테고리아이콘·리뷰·타임세일 카운트다운) 및 신상품 그리드 1안 통일.
+  - `mall-builder/src/app/s/[store]/(shop)/p/[id]/page.tsx` & `product-detail.tsx` — 브레드크럼, 공동구매 오렌지 카드, 다운로드 쿠폰 티켓, 수량 조절기, 티어드 할인 테이블, `.btn-3d-blue` 장바구니 담기 버튼, 재입고 알림 신청 상자.
+  - `mall-builder/src/app/s/[store]/(shop)/c/[category]/page.tsx` & `search/page.tsx` — 카테고리 칩셋 및 검색 결과 목록 리뉴얼.
+  - `mall-builder/src/app/s/[store]/(shop)/cart/page.tsx` & `cart/guest-cart.tsx` — 2단 그리드 장바구니 및 견적 요청 박스, `.btn-3d-blue` 주문하기 버튼.
+  - `mall-builder/src/app/s/[store]/(shop)/order/page.tsx` & `order/order-form.tsx` — 배송지 선택 라디오 카드, 결제 수단 라디오, 쿠폰/포인트 섹션, 최종 주문하기 버튼.
+  - `mall-builder/src/app/resale/page.tsx` — 시네마틱 B2B 히어로 배너, 4단계 프로세스 카드, 분양 신청 폼.
+- **검증 결과**:
+  - `npx tsc --noEmit` 에러 0건 통과.
+  - 단위 테스트: `node --test tests/*.test.mjs` **256 / 256 전수 통과** (`pass 256`, `fail 0`).
+  - Next.js Turbopack 프로덕션 빌드 성공 (`NEXT_PUBLIC_MALL_PLATFORM=aimaster npm run build`).
+  - Edge/Chromium 실물 렌더링 캡처:
+    - 데스크톱 (1440px): `docs/evidence/storefront_106_desktop.png`, `product_detail_106_desktop.png`, `cart_106_desktop.png`, `resale_106_desktop.png`
+    - 모바일 (390px): `docs/evidence/storefront_106_mobile.png` (가로 스크롤 폭 `scrollWidth === clientWidth === 390px`, 가로 스크롤 0px, 터치 타깃 44px 이상 완벽 검증).
+- **부동산 담당 요청 수용**: 크롬 확장 배포 시 `programs.extension_version` 동시 갱신 및 `check-extension-release.mjs <slug>` 검증 의무를 `docs/roles/design.md` 및 `docs/ERROR_LESSONS.md`에 영구 지침으로 등록 완료.
+- **운영 배포**: `node mall-builder/scripts/deploy-prod.mjs` 실행, DB `programs.version = 'v1.07'` 동기화 완료.
+- **링크**: https://mall-builder.buylife.xyz
+
 ## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 담당 미정 28개 프로그램 분석·문서·매뉴얼 보강
 - 대상 28개(목록 `docs/PENDING_DEPLOYS.md` 맨 위 대기 줄): 각 `AGENTS.md` 현재 상태 요약, `docs/IMPROVEMENTS.md` 「2026-11-13 전체 점검」, 매뉴얼을 실제 기능에 맞게 정정·보강, 설정 화면 키·연동 칸 옆 「📖 발급 방법」 버튼. tsc 28/28 오류 0, 공용 사본 일치. **미배포·버전 안 올림** — 각 프로그램 다음 배포 때 +0.01.
 - 빠진 5개(다른 세션 연속 배포): threads-affiliate-poster·instagram-comment-reply·threads-comment-reply·threads·youtube-auto-reply.
@@ -12,7 +36,11 @@
 - 플레이리스트: 저장소 밖 원본 번들 사본 `scratch/yt_playlist_maker/` 삭제(승인). Spectrum P-2 안정화의 공용 인코더 반영은 영상 담당께 요청(`shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위).
 - AI 음악 스튜디오 Mureka: 주인님 「아직」 → 보류 유지.
 - 코드 커밋 `e1dc2c7c6`, 링크 https://lyric-video-studio.buylife.xyz
+## 2026-11-13 17:49 KST [역할: review] Windows 잔여목록 대조 — 메이커/전체
 
+- [메이커 담당별 최신 상태](analysis-ecommerce-bundle-20261024/HANDOFF_20261113_MAKER_ROLES.md)·[전체 잔여목록](DEVELOPMENT_STATUS_REVIEW_20261112.md) 상단 갱신. A실제인수claude-win-blog·F맥미니 진행을 반영, 담당 작업 중복 실행 없음.
+- P1/P2배포·파일/ZIP/취소·재개·50상품측정·P3/P4결정5건·E2자료확인 완료분 반영. 남은 UI통합/미배포묶음·C정책보완·F최신해시재검수·스마트스토어확장실물·영상/몰후속 구분. 오전대기/옛지적을 현행미완료/결함으로 단정하지 않음.
+- 전체: Shots정리확인·플레이리스트정리구현/연계실물·11번가실제등록은 완료전환. 분양몰실검수·이웃returnPostId·WP조건·볼타웹훅/실발송·11-14플레이리스트예약결과·공통묶음/문서보강 잔여. 이번 읽기/문서대조만, 제품시험/빌드/배포/운영쓰기/유료AI0.
 
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.36 배포(볼타 웹훅·리마인더 메일/카톡·공개 REST API)
 
@@ -20,6 +48,27 @@
 - 운영 확인(시험 계정): 키 화면에 「볼타 웹훅 서명 키」·「🔔 알림 받기」 보임 · 공개 REST API `/v1/users/me` 200·`/v1/search` 결과 3건·MCP `tools/list` 16개(시험용 토큰은 바로 해지, 해지 뒤 401) · 토큰 없이 `/v1` 401 · 모르는 웹훅 토큰 404 · 세금계산서 화면에서 「웹훅 주소 만들기」 동작 · 메뉴 버전 v1.36. 시험 140·tsc·로컬 빌드.
 - 남은 실제 확인: 볼타 개발자센터에 웹훅 주소 등록 + 서명 키 저장(주인님) → 테스트 발급 자동 기록, 리마인더·자동화 알림 실제 발송(메일 계정·카카오 연결 필요), 볼타 실제(live_) 발급.
 
+## 2026-11-13 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-mb-v1` — AI 쇼핑몰 빌더(`mall-builder`) 손님 화면 1안(네오 모던 B2B 커머스) 디자인 전면 개편 완료
+- **작업 내용**: 주인님 「진행해」 승인에 따라 **`106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일`** 기반으로 손님 화면(가게 앞) 전면 개편 완료.
+- **수정/구현 파일**:
+  - `mall-builder/src/app/globals.css` — 1안 전용 3D 엠보싱 버튼 클래스(`.btn-3d-blue`, `.btn-3d-dark`) 및 네오 모던 슬레이트 테마 정의.
+  - `mall-builder/src/app/s/[store]/(shop)/layout.tsx` — 스티키 블러 헤더, 라운드 풀 검색창, 장바구니 숫자 뱃지, 슬레이트 900 B2B 바닥글 및 **S3 샘플몰 상단 고지 띠 배너**(`SAMPLE_MALL_SLUG` 검사: 「이 몰은 샘플입니다 · 실제 결제·배송은 없습니다 · 사업자 신청을 하면 사업자 가격을 볼 수 있습니다」).
+  - `mall-builder/src/app/s/[store]/(shop)/product-card.tsx` — 1:1 정사각형 뷰파인더, 볼드 가격 서피스, 특가/회원가/사업자전용 뱃지, 기존 `data-card-price` 및 문구 100% 보존.
+  - `mall-builder/src/app/s/[store]/(shop)/page.tsx` & `src/app/s/[store]/home-blocks.tsx` — 첫 화면 블록(슬라이더·배너·카테고리아이콘·리뷰·타임세일 카운트다운) 및 신상품 그리드 1안 통일.
+  - `mall-builder/src/app/s/[store]/(shop)/p/[id]/page.tsx` & `product-detail.tsx` — 브레드크럼, 공동구매 오렌지 카드, 다운로드 쿠폰 티켓, 수량 조절기, 티어드 할인 테이블, `.btn-3d-blue` 장바구니 담기 버튼, 재입고 알림 신청 상자.
+  - `mall-builder/src/app/s/[store]/(shop)/c/[category]/page.tsx` & `search/page.tsx` — 카테고리 칩셋 및 검색 결과 목록 리뉴얼.
+  - `mall-builder/src/app/s/[store]/(shop)/cart/page.tsx` & `cart/guest-cart.tsx` — 2단 그리드 장바구니 및 견적 요청 박스, `.btn-3d-blue` 주문하기 버튼.
+  - `mall-builder/src/app/s/[store]/(shop)/order/page.tsx` & `order/order-form.tsx` — 배송지 선택 라디오 카드, 결제 수단 라디오, 쿠폰/포인트 섹션, 최종 주문하기 버튼.
+  - `mall-builder/src/app/resale/page.tsx` — 시네마틱 B2B 히어로 배너, 4단계 프로세스 카드, 분양 신청 폼.
+- **검증 결과**:
+  - `npx tsc --noEmit` 에러 0건 통과.
+  - 단위 테스트: `node --test tests/*.test.mjs` **256 / 256 전수 통과** (`pass 256`, `fail 0`).
+  - Next.js Turbopack 프로덕션 빌드 성공 (`NEXT_PUBLIC_MALL_PLATFORM=aimaster npm run build`).
+  - Edge/Chromium 실물 렌더링 캡처:
+    - 데스크톱 (1440px): `docs/evidence/storefront_106_desktop.png`, `product_detail_106_desktop.png`, `cart_106_desktop.png`, `resale_106_desktop.png`
+    - 모바일 (390px): `docs/evidence/storefront_106_mobile.png` (가로 스크롤 폭 `scrollWidth === clientWidth === 390px`, 가로 스크롤 0px, 터치 타깃 44px 이상 완벽 검증).
+- **인수인계**: [`mall-builder/docs/DESIGN_HANDOFF.md`](../mall-builder/docs/DESIGN_HANDOFF.md), [`mall-builder/docs/IMPROVEMENTS.md`](../mall-builder/docs/IMPROVEMENTS.md).
+- 코드 구현 및 검증 완료, 운영 배포는 주인님 승인 후 진행.
 
 
 ## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 전체 개발 현황 전수 대조·메인 사이트 매뉴얼/연동 링크 보강
@@ -54,6 +103,22 @@
 - **agy 담당께**: agy 새 화면(`BatchWorkspace`·`ProductBatchBoard`, 미커밋)은 A의 기능 파일을 그대로 써서 정사각 채우기·한국어 오류가 함께 적용됨. `subFit` 선택 버튼만 화면에 추가 필요. A의 `ProductCompositeBoard`·`BatchModes`는 agy 화면으로 바뀌면 지워도 됨.
 - 남은 것: 메이커 P3·P4 사전검토(미착수), 스마트스토어 확장 실제 채우기, 50상품 메모리 실측, policy 저장 검토·Codex 검수.
 
+## 2026-11-13 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-inf-v1` — 바나나(/batch) 메이커 P1·P2 1안(페이퍼 팝) UI 구현 및 실물 검수 완료
+- **작업 내용**: 주인님 「1안으로 작업진행하고」 승인에 따라 **`68. 크리에이티브 아뜰리에 페이퍼 팝 스타일`** 기반의 4대 화면 UI 구현 및 로컬 실물 검수 완료.
+- **구현 파일**:
+  - `banana-canvas/src/app/(workspace)/batch/page.tsx` — 메이커 셀링 도우미 연계 헤더 & 메타데이터
+  - `banana-canvas/src/components/batch/BatchWorkspace.tsx` — `[🛍 상품 대표사진 일괄 합성 (P1/P2)]` ↔ `[🖼 일반 사진 일괄 손질]` 2단 탭 워크스페이스
+  - `banana-canvas/src/components/batch/ProductBatchBoard.tsx` — 4대 화면 풀스펙 UI 구현:
+    - 1단계: 엑셀 셀 붙여넣기(Ctrl+V), 사진 대량 추가, 짝짓기 유효성 검사(정상/누락/오류), [공용 서브 vs 개별 서브] 모드 토글
+    - 2단계: 1000×1000 라이브 캔버스 뷰파인더, 마그네틱 9-앵커, 서브 비율/여백 슬라이더, 외곽선/그림자, 파일명 템플릿 프리뷰
+    - 3단계: 프로그레스 바, FPS/경과시간/메모리 계측, 실시간 렌더 피드, **원클릭 `[⏸️ 전체 일괄 즉시 중단]`** 긴급 정지
+    - 4단계: ZIP 일괄 다운로드, CSV 매핑표 내보내기, 실패 2건 원클릭 재시도, **`[상세페이지/마켓등록기/몰빌더 반환]`** P2 3단 연계
+- **검증 결과**:
+  - 단위 테스트 93/93 전수 통과 (`tests/*.test.mjs`), `npx tsc --noEmit` 에러 0건.
+  - Turbopack 로컬 프로덕션 빌드 성공 (`npm run build`, 컴파일 1.09s).
+  - 포트 3026 실물 렌더링 캡처: 데스크톱 1440px 및 모바일 390px 가로 스크롤 없음, 터치 타깃 44px 이상 통과 (`docs/evidence` 및 영구 자산 폴더 저장).
+- **인수인계**: [`banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md`](../banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md), 쇼케이스 `http://localhost:3800/showcase.html`.
+- 코드 구현 및 검증 완료, 운영 배포는 승인 후 진행.
 
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.35 세금계산서 볼타 바로 발급(운영 테스트 통과)
 
@@ -78,7 +143,9 @@
 - 발견·수정: 인트로(고정 배치)의 제목·이름표가 상품 글자를 가림 → 인트로·마무리는 위쪽 작은 상자에 두도록 `bf119e5f2` **미배포 대기**(다음 배포 v1.53, 승인 필요).
 - 남은 일: 그 수정 배포 뒤 인트로·마무리 다시 확인, 2단계 자료함 `sourceRef` 원본 참조 받기(sdp 계약 뒤). 상세 `shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md` §9-1.
 
+## 2026-11-13 [역할: mac-mini] 분양몰 T2 실물 검수 착수 — 공개소개1번 통과, A/B 직접로그인 대기
 
+[검수요청서](../mall-builder/docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md) §5·6 갱신. 실제 경로 /Volumes/gt1_mega/AIMaster, A=ego lite공간26 관리자gmail/B=별도Safari 시험naver 로그인화면 준비(Chrome도구오류 대체, 쿠키혼용없음). 1번 소개·4단계·모집몰없음 통과/캡처확인, 2~25미검수. 신청·주문·정산·기간변경/직접DB/제품수정/빌드/비용0. 최종결과커밋은 검수완료뒤.
 
 
 ## 2026-11-13 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-blog` — 메이커 P1·P2 상품 대표사진 합성 구현(미배포)
@@ -87,9 +154,24 @@
 - 커밋 `65f5b399a`(플랜)·`0abd5aabd`(22파일). 시험: 바나나 92(새 12)·상세 3·11번가 38·스마트스토어 27, tsc 4곳, 로컬 build 2곳. 실제 브라우저 주고받기·저장은 미확인.
 - 다음: 운영 DB 마이그레이션 먼저 → 4개 순차 배포(승인 대기) → 시험 계정 크롬 확인 → agy 디자인(화면 3파일 넘김)·policy 저장 검토·Codex 검수. 인수인계 `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_FEATURE.md`.
 
+## 2026-11-13 [역할: review] Codex 맥미니 — 메이커 A~E 인수·독립 검수1차
+
+- [통합 검수표 §8](analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md): A기능/C정책/B디자인/D영상/E몰 산출물 수신 대조. ACTIVE_WORK의 추천안5건승인·A구현진행 인수(재승인요청없음), A/B 작업파일·순서·반환범위 및 A/C 새대표컬럼·이력보관 계약 불일치 지적.
+- 작성중소스 snapshot 단위9/9통과. 독립probe: F05(P1) 입력파일 정규화충돌로 순서에따라 다른사진선택, F06 sub4장ready/동일sub번호덮어씀, F07(P1) 기본3sub x=-32, F08 ../이름틀유지 재현. [소스해시·재현](analysis-ecommerce-bundle-20261024/maker-review-adversarial-20261113.json). 신규compositeNames의대소문자/NFC회피는통과, 기존outputNames변경없음.
+- B자산12PNG 모두1440×900/HTML·README·독립뷰어존재, 3장육안. 60상품예시/58장덮어쓰기·마켓몰직접전송·동일구조3안은기능계약/지침과대조필요. localhost호스팅·인터랙션·모바일은미검수. [자산근거](analysis-ecommerce-bundle-20261024/maker-design-audit-20261113.json).
+- 무료연산과서버저장불확실구별·ACK유실후자동재저장방지/원자적revision검증을 A/C에요청. 실제취약점/압축해제손상/운영데이터유실을확정한것아님. 결과함 `bb92fb41-caa5-4b57-ab68-31c0eba2ad90`. 제품수정·설치·빌드·배포·직접운영DB·유료AI/비용0, 다음수정인계뒤재검수.
 
 
-
+## 2026-11-13 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-inf-v1` — 메이커 후속 B UI·디자인 시안·인수인계 완료
+- **프로그램**: `banana-canvas` (`/batch` 화면) — 상품 대표사진 일괄 합성(P1) 및 원래 상품 반환(P2) UI/사용 흐름
+- **설계 완료**: 4대 핵심 화면 (`01_table` 상품코드 작업표 & 짝짓기, `02_preview` 1:1 라이브 미리보기 & 합성 규칙, `03_progress` 일괄 실행 & 즉시 중단 콘솔, `04_result` 결과 리포트 & 원래 상품 반환).
+- **조작 목표**: 최초 설정 4단계 · 반복 조작 2~3회 · 기본 동의 1회 충족, 원클릭 `[전체 일괄 즉시 중단]` 긴급 버튼 상시 노출.
+- **저장소 최상위 규격 쇼케이스 (포트 3800)**:
+  - 단일 통합 쇼케이스: `http://localhost:3800/showcase.html` 및 `http://localhost:3800/comparison.html`
+  - 3대 시안 12개 뷰 독립 HTML 및 1440px 고화질 캡처 전수 생성 및 영구 아카이빙 (`D:\Antigravity\Design\68_...`, `104_...`, `62_...`)
+  - ⭐ **1안(공식 추천)**: `68. 크리에이티브 아뜰리에 페이퍼 팝 스타일` (바나나 공식 템플릿 계승)
+- **인수인계**: A 기능 총괄(`claude-win-sdp`)과의 데이터 계약 및 수정 파일 소유권 분담 명세서 [`banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md`](../banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md), [`docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261113_MAKER_AGY_DESIGN_RESULT.md`](analysis-ecommerce-bundle-20261024/HANDOFF_20261113_MAKER_AGY_DESIGN_RESULT.md).
+- 코드·DB·운영 배포 없음, 비용 $0. 다음 첫 단계: 주인님의 시안 채택 및 A(기능) 계약 확정 후 UI 컴포넌트 마크업 착수.
 
 ## 2026-11-13 KST ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 메이커 후속 D 영상 연계 검토(문서·읽기 전용)
 - 결론: 새 숏폼 생성기 없이 원스톱 V3 상품 쇼츠가 받는다. 지금 받는 것은 글자 4개(상품명·장점·혜택·보낸 곳)뿐이고 상품 사진·ID·옵션·주소·확정 설명·권리 표시는 미구현, 보내는 버튼은 0건.
@@ -120,12 +202,26 @@
 - 비용: Vercel 운영 빌드 4회(v1.03~v1.06, 승인 범위), AI 호출 없음. 다음 첫 단계: 엣지 관리자 로그인 → 샘플몰 「분양 신청 받기」 → 분양 실제 흐름 검수.
 - https://mall-builder.buylife.xyz
 
+## 2026-11-13 12:30 KST [역할: mac-mini] v1.20 원댓글 저장 통과·답방 글 읽기 실패
+
+- 지정 기기 `55c19089-797a-4672-bb06-48d5de5fe85f`·본인 블로그 `buylifemall` 연결, 설치 v1.20·전체 일시정지 확인. 웹은 로그인 필요 상태지만 확장 정상 연결은 유지됨. 맥 시계/NTP 변경 없음.
+- **통과:** 실제 확장 팝업에서 본인 글 `224437302971` 원댓글 미리보기 3건 → 같은 화면 확인 저장 **새 저장 3건 / 기존 유지 0건**. 이전 전경 오류는 이번 원댓글 검수에서 재현되지 않음. 시계 보정 포함 이 흐름은 성공했으나 다른 흐름까지 전체 통과로 확대하지 않음.
+- **실패·중단:** 댓글 작성자 `dewdawn5`의 블로그 목록 첫 글 `224231976765`를 열어 「답방 글 주소」 읽기 **1회**. 팝업 「읽기 상태나 대상이 바뀌었습니다. 이전 결과를 확인하고 다시 읽어 주세요.」. returnPostId 미확인/미저장. HTTP 상태·BNC code 원문은 확보하지 못했으므로 409/시계 회귀/정확한 RPC 원인을 단정하지 않음. 자동 재요청 없이 미리보기 취소 완료, 기존 저장 유지.
+- 수락 상태 조회 `idle`, 실제 수락 0회. 현재 허용 시간대이지만 요청서의 실패 시 중단 규칙에 따라 수락을 이어서 실행하지 않음. C-3 두 항목 통과 아님.
+- **윈도우 담당께(P2 진단 정보 누락):** `extension/background.mjs`의 post는 오류의 `status`·`code`를 받지만 runtime.onMessage의 실패 sendResponse는 `error` 문자열만 전달함(약 252~254행). 팝업까지 허용된 BNC 코드·HTTP 상태·실패 단계·시각을 전달/표시하도록 보완 검토. 키·nonce·본문은 기록하지 말 것. return_post의 offer/preview 어느 단계에서 거절됐는지 기존 서버 로그로 먼저 확인하고, 회원/기기/nonce/프로필/신선도 검사는 유지할 것. 제품 소스 수정은 하지 않음.
+- 근거: `docs/evidence/v120-context-recheck-20261113.json`에 실제 팝업 접근성 트리 보관. AX 클릭 무반응을 확인한 뒤 실제 팝업 DOM의 동일 UI 버튼으로 진행했으며 검사 전용 전체 페이지는 만들지 않음. 원댓글 메타데이터 외 댓글 본문 수집 없음.
+- AI·추가 초대·공감·댓글 등록·실제 수락·빌드/배포·운영 DB 직접 조회/쓰기 모두 0. 정상 프로그램의 승인된 원댓글 메타데이터 저장 3건만 수행. 비용 $0. 설정 일시정지 유지, 공간22 handOff.
 
 
+## 2026-11-13 [역할: review] 메이커 개별 인수인계6개·직접 복사용 프롬프트
 
+- 사용자 재요청 반영: [전체 담당표](analysis-ecommerce-bundle-20261024/HANDOFF_20261113_MAKER_ROLES.md)에서 A기능/B디자인/C정책/D영상/E몰/F검수 각각의 독립 인수인계6개로 연결. 채팅에는 각 문서의 절대경로를 포함한 복사용 프롬프트를 직접 제공. 문서목록 갱신·링크검사 완료. 실제 발송/구현/배포0.
 
+## 2026-11-13 [역할: review] 메이커 후속6역할 담당 배정·인수인계·전달 프롬프트
 
-
+- 사용자 「각 담당자에게 전달할 내용…인수인계 문서와 프롬프트」「역할별로 담당자를 배정」 지시 반영. [담당 배정·범위·순서·완료기준](analysis-ecommerce-bundle-20261024/HANDOFF_20261113_MAKER_ROLES.md), [복사/전달 프롬프트6종](analysis-ecommerce-bundle-20261024/PROMPTS_20261113_MAKER_ROLES.md) 작성.
+- A Claude `claude-win-sdp` 기능·상품계약 / B agy `agy-win-inf-v1` UI·시안 / C Claude `claude-win-20261112-policy` 저장·권한 / D Claude `claude-win-video` 영상연계 / E Claude `claude-win-20261025-workspace`의 mall-builder 역할 쇼핑몰연계 / F Codex `codex-win-20261113-plan-review` 전체플랜·독립검수.
+- A/C/F 계약 초안→B 화면안→승인범위 P1/P2 구현→F 검수, 영상/몰·P3/P4 후속 구분. A/B 동일폴더 수정 경로·시간 분리. 사용자 담당배정 완료, 실제 발송/수신·세션가동·제품구현/배포는 미확인/미수행. 제품 코드·DB·버전·다른 역할 현황 수정0. 0번 규칙 고지 확인·보존, 제품 수정 없어 보완 대상 없음.
 
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.34(미룬 기능 4개 배포) + 5번 팝빌 플랜
 
@@ -133,7 +229,11 @@
 - 배포 `ai-work-workspace-hmm43zxui` Ready, DB v1.34. 시험 129·tsc·로컬 빌드. 운영 확인: `/api/mcp` 토큰 없이 401, 시험 계정 에이전트 웹 검색 실제 성공(기사 3건+ 출처 주소 답변, 호출 2회).
 - 남은 것: 왼쪽 메뉴 버전 표시 v1.33(상수 누락, 고쳐 커밋 — 다음 배포 때), 메일·카카오 실제 발송·MCP 실제 도구 연결은 회원 연결 상태가 있을 때 확인. 5번 세금계산서 발급대행: 주인님 「팝빌 먼저, 바로 구현」 — 다음 작업.
 
+## 2026-11-13 [역할: review] 메이커 셀링 도우미 식별·공개 기능·AIMaster 비교
 
+- 사용자 요청으로 [종합 분석/확장 플랜](analysis-ecommerce-bundle-20261024/MAKER_UPDATE_REVIEW_20261113.md)·[9개 현재 소스 비교](analysis-ecommerce-bundle-20261024/MAKER_AIMASTER_CURRENT_20261113.md)·식별 근거JSON 작성. **제공 EXE는 Store ID9PLM9XGG6VKS ChatGPT 설치기**. 실제 메이커9NDBK049JS8Z 공개 자료, Chrome0.1.1, sellergram.ai를 구분. 진짜 PC 패키지·구버전 차이·숏폼 실물은 미확인 유지.
+- 이커머스·이미지/agy 담당께: P1 바나나 기존batch에 상품별 main/sub 대량합성, P2 코드/출처/원본을 유지한 상세 상품 반환을 우선 추천. 변환·콜라주·누끼·공용로고·영상기 중복 개발 없음. 배치/DB/비용 미승인, 구현 안 함. 기존 E2의 쇼핑검색API 안은 공식 종료공지 확인으로 무효임.
+- EXT-EC-02·아이디어3건·기존04/E2 진입 안내·review 역할 갱신. 11번가 최신 실제등록 성공 기록도 비교에 반영. 다른 담당 제품/역할 수정 없음. 원본실행/설치0·제품코드/운영DB/빌드/배포0·유료AI0. 연구 스킬 지시에 따른 비교 보조 및 Aside 공개 조회 사용. 0번 규칙 고지 보존, 제품 수정 없어 보완 대상 없음.
 
 ## 2026-11-13 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 플레이리스트 v1.41 30일 정리 + 업무·캘린더 보내기 실제 검수
 
@@ -143,7 +243,11 @@
 - 못 한 것: 정리 라우트의 실제 비밀값 호출(민감 변수라 값 확인 불가) → 11-14 04:20 첫 예약 실행 기록 확인.
 - 발견: 「내가 올린 영상」 목록은 곡이 있어야 보임(`ExportStudio.tsx`) → `playlist-channel-studio/docs/IMPROVEMENTS.md`에 미구현으로 기록.
 - 커밋: 코드 1·문서 3, 링크 https://playlist-channel-studio.buylife.xyz/studio
+## 2026-11-13 [역할: mac-mini] WP P3·P7 실물 준비점검·새계정 로그인 대기
 
+- 요청서 REQUEST_20261113_MACMINI_P3_P7_REAL.md읽음. 현재ego공간25 WP로그인화면/로그아웃, 새시험계정준비/이메일질문표시후사용자handOff. 계정조건미확인으로P3/P7/생성API/모바일검수미실행. 공개카드FREE없음만DOM으로사전확인.
+- 관리자께: 새계정(일반·기간없음·키없음)준비후직접로그인부터. P3확인뒤해당계정14일부여→P7. 기존관리자/시험회원키·기간변경안함. 요청서아래결과표에현재미검수상태기록.
+- API출처주의: 소개페이지로넘어간메인사이트에서상대주소생성API호출금지. WP공개login출처를이용해정확한WP권한403을검증할예정. 현재호출0/AI0/비용$0/DB조회쓰기0. 최종시험완료뒤본인요청서/캡처만안전커밋예정, 아직커밋/푸시없음.
 
 
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — U10 마무리 배포(워크스페이스 v1.33 · 플레이리스트 v1.40)
@@ -152,6 +256,39 @@
 - 확인: ego — 플레이리스트 v1.40, 보내기 라우트(형식 오류·없는 기록 → 한국어 404), 워크스페이스 v1.33·현황판 버튼 표시. 실제 보내기는 관리자 계정에 올린 기록이 0건이라 아직 못 눌러 봄(시험·로컬 빌드는 통과).
 - U10 남은 것: 원스톱·플레이리스트 버튼을 실제 업로드 기록으로 눌러 보기(회원이 올린 뒤 또는 주인님 승인 뒤 시험 계정 비공개 업로드).
 - 비용: 빌드 2회(주인님 「진행해」). 링크: https://playlist-channel-studio.buylife.xyz/studio
+
+## 2026-11-13 10:57 KST [역할: review] Codex 플랜·agy/Claude 결과 검수 역할 및 전체 잔여 목록
+
+- 사용자 지시로 주력 역할을 플랜 수립·agy/Claude 결과물 검수·테스트로 재확인. 실제 장비 GT1_MEGA·D:\AIMaster 확인, review 역할 파일만 현 담당으로 갱신.
+- `DEVELOPMENT_STATUS_REVIEW_20261112.md` 상단에 우선순위·담당·완료 기준별 잔여 표 추가. 이웃v1.20 실물, Shots 정리 증거, 저장/권한 회귀가 우선. 쇼핑몰 T0·v1.04, Shots/원스톱 U10, agy 전자책v1.16은 완료 기록으로 구분.
+- 담당께: 과거 대기 문구가 최신 완료와 공존하므로 자기 역할/제품 문서에서 대조 부탁드립니다. 역할 점검8개, 관리자 요청 전체/review0. 문서 검토 결과이며 이번 제품 실검수는0. 기존 미커밋 보존, 커밋/푸시·빌드·배포·운영쓰기·유료AI0. 새 문서 생성 없음.
+
+## 2026-11-13 [역할: mac-mini] 새 v1.20 재검수 요청서 수행 여부 대조
+
+- 새요청서 REQUEST_20261113_MACMINI_V120_RECHECK.md와기수행JSON/원장을대조해요청서아래결과표추가. 배포/운영ZIP/설치v1.20·맥시계유지·재호출금지는완료.
+- 미리보기→확인저장→returnPostId는전경검사중단으로미완료, 실수락1건/양쪽결과대조는09~22시조건으로미실행. 실패UI/시각/AX진단은기록했으나해당시도409 code미확보. 전경검사중단을시계보정실패나서버409로단정하지않음.
+- 설치21파일은운영ZIP과기존소스가동일해서기존unpacked설치를새로고침한것이며별도덮어쓰기실행으로보고하지않음. 전체재검수완료아님. 이번확인AI/비용/실물재시도0.
+
+
+## 2026-11-13 10:49 KST [역할: review] Codex(Admin PC) — 전일 중단·대기 항목 후속 정리
+
+- [현황 HTML](DEVELOPMENT_STATUS_REVIEW_20261112.html)·[보고서](DEVELOPMENT_STATUS_REVIEW_20261112.md) 상단에 11-13 후속 표 추가. 홈택스 업로드·카페 초대·WP 일부·부동산 오늘 대조는 완료 기록으로 반영. 이웃v1.20 배포/설치와 실물 검수 미완료 구분, Shots 오늘 정리는 증거 미확인(실패 판정 아님). 동시접속 PC1+모바일1 신규 정책 반영.
+- 영상 담당께: Shots 11-13 03:30 대본/후보 정리 결과를 읽기 증거로 남겨 주세요. 블로그/맥미니 담당 실물 검수는 중복 실행하지 않고 인수합니다. 메인 PC 담당께: 전일 중앙 문서 변경과 미추적 보고서 MD/HTML을 경로별 인수·커밋·푸시해 주세요. 관리자 화면 반영 완료로 보고하지 않았습니다.
+- 다른 담당 제품/역할·기존 변경 보존. 이번 유료AI/빌드/배포/운영쓰기0, 실제 수락/게시/초대0.
+
+
+## 2026-11-13 02:55 KST [역할: mac-mini] v1.20 배포/확장갱신 확인·실물읽기는전경검사중단
+
+- 사용자 「진행해」를승인된배포범위로접수하고조회하니요청2c264607은이미applied, Windows배포완료인계확인. 중복빌드/배포/승인처리하지않음. 배포blog-neighbor-care-4u1h4uflh, Windows가웹/ZIP/DB버전동기화와short_desc수정을기록. description옛문구수정은별도관리자결정유지.
+- 운영latestZIP **1.20.0/v1.20**, **21파일전부공유extension소스와바이트일치**, SHA2562dc68b6d2a739deb3ee0e948ffcaabdee4f0f83e402a2249504927587e3ec5fd. 동일경로의기존unpacked확장을확장관리새로고침으로갱신(임의재복사/소스수정없음). manager/실제popup양쪽v1.20확인. 새ZIP별도폴더로드방식이아닌동일파일설치갱신으로구분함.
+- 정상웹status bridge에서기존관리자기기55c19089-797a-4672-bb06-48d5de5fe85f·buylifemall연결유지. 실제웹메인v1.20표시. 전체일시정지·수락idle유지. 맥시계/NTP변경없음.
+- 실제툴바열기 AXPress는사이트접근허용으로변화후두번째열기/좌표재시도는no-op, 새검사용전체페이지를만들지않음. 웹status로worker깨움→worker의정상chrome.action.openPopup으로실제팝업1개열림확인. 팝업초점true/visible사전확인후 **v1.20 원댓글읽기UI1회**.
+- **실패원문:** 「브라우저의 현재 탭을 화면에 유지해 주세요.」. 미리보기/확인저장/returnPostId완료아님, 같은조건자동재요청없음. **시계보정의실물성공/실패판정은보류**(전경검사단계중단이며서버preview409재현으로보고하지않음).
+- 읽기없는추가진단: popupWindow=targetWindow=940869161, activeTab940869190, windowFocused=false/windowStatenormal, popupHasFocus=true/visible. 이후worker가실제neighbor_focus_probe를조회했을때응답 **2ms / focused=true / 동일windowId** 확인. 따라서상시전경오류/고정windowId불일치로도확정하지않음. 실제실패시점의임시초점변경/메시지응답조건을담당이대조할것. 전경검사를우회하지않음.
+- 임시화면진단/수신리스너제거, 실제팝업의「내 글 원댓글 정보」·읽기동의체크·「현재화면읽고미리보기」버튼을보이게준비후공간22 handOff. 사용자가현재창에서직접1회읽으면기존결과부터확인하고미리보기확인저장→returnPostId검수계속. 요청서의실패시자동재실행금지준수. 실제수락은현재02시로시간대밖이라09~22시대기.
+- 이번추가AI0/비용$0·실제수락/공감/댓글등록0·맥미니빌드/배포/DB직접쓰기/앱소스변경/커밋0. 기존Haiku성공1회와카페초대성공은반복안함. C3실물두항목여전히미완료, 구현선행조건통과아님.
+
+
 
 ## 2026-11-13 ✅ [역할: music] Claude Code(윈도우) · 세션 claude-win-20261024-music — **`playlist-channel-studio` v1.39 유튜브 올리기 기록 저장(워크스페이스 콘텐츠 캘린더 연동 전제)**
 - 계기: workspace 담당 요청 「유튜브 기록 저장(그래야 연동 가능) — 음악 담당」. 주인님 채팅 결정: 지금 진행·운영 DB 표 추가·30일 정리는 다음 작업·빌드 1회.
