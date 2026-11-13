@@ -1,35 +1,71 @@
 # AI 쇼핑몰 빌더 (`mall-builder`) — 에이전트 인수인계
 
 > 먼저 읽기: [README](README.md)(기능 진행 표·실행 방법) → [3몰 인수인계](../docs/mall/HANDOFF_THREE_MALLS.md) → [T0 운영 이전 플랜](docs/PLAN_20261112_T0_PROD_MIGRATION.md) → [교훈 모음](../docs/mall/LESSONS_LEARNED.md) → 역할 파일 [`docs/roles/mall-builder.md`](../docs/roles/mall-builder.md)
-> 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 버전 `v1.01`(`src/lib/version.ts` + DB `programs.version`)
+> 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 운영 버전 `v1.06`(`src/lib/version.ts` + DB `programs.version`) · 최신 요약: [§4 버전·이력](#4-버전이력)·[§5 남은 일](#5-남은-일)·[§8 향후 개선 방향](#8-향후-개선-방향)
 
 ## 1. 사용 목적·대상
 - 회원(사업자)이 자기 쇼핑몰을 개설·운영하는 프로셀형 B2B 쇼핑몰 빌더. AIMaster 이커머스 카테고리의 **샘플몰**로 운영하고(① B2B 입점몰 → ② 분양몰 → ③ 독립몰), 나중에 배포 키트로 분리해 수강생·외주 사업자에게 판매한다.
-- 지금 운영 단계: 샘플몰 구경·주문 시험은 로그인 회원(FREE 배지), 몰 만들기·공급사 초대·분양은 관리자만.
+- 지금 운영 단계(2026-11-13): **손님 화면(`/s/<몰>`)과 분양 안내(`/resale`)는 로그인 없이 누구나·검색엔진**(주인님 승인 「쇼핑몰 손님 화면 예외」, 최상위 규칙 문서 §8), 주문·마이페이지는 AIMaster 로그인, 몰 관리·공급사·분양자 화면·처음 화면은 회원 + 이용 권한(FREE 배지). 몰 만들기·공급사 초대는 관리자만, 분양은 회원 신청 → 본사 승인.
 
 ## 2. 기술·도구
 - Next.js 16 App Router(`proxy.ts`), React 19, Tailwind, Supabase(@supabase/ssr) + **DB 보안 규칙·security definer 함수 중심**(서버가 남의 데이터를 대신 읽지 않음), 토스페이먼츠(DB 안 http 확장으로 승인·환불), 솔라피 문자·Resend 메일, cron-job.org(회원 본인 키), Claude API(몰 대표 본인 키, 서버 암호화 `MALL_SECRET_KEY`).
-- 시험: `node --test tests/`(247개), `npx tsc --noEmit`, ego lite 화면 시험(`ego-browser nodejs < 스크립트`).
+- 시험: `node --test tests/`(256개), `npx tsc --noEmit`, ego lite 화면 시험(`ego-browser nodejs < 스크립트`).
 
 ## 3. 핵심 구조·장단점
 - **플랫폼 스위치**(`src/lib/platform.ts`): `NEXT_PUBLIC_MALL_PLATFORM=aimaster`면 운영 — `proxy.ts`가 모든 요청을 `lib/platform-gate.ts`로 보내 메인 로그인(`.buylife.xyz` 쿠키 공유)·프로그램 이용 권한(`lib/programAccess.ts` 사본, 정지→관리자→핸드폰→FREE→구독→등급+기간)을 확인. 비우면 Lab/키트(자체 로그인).
+- **열어 두는 경로**(`platform.ts` `isOpenPath`): 손님 화면 `/s/<몰>/…`(admin·supplier·doc 제외)·`/resale`·예약 실행·앱 아이콘. 시험 `tests/platform-gate.test.mjs`.
+- **세 몰 = 코드 하나**: 몰 종류 `mall_builder_stores.kind`(standard·resale). 분양몰 상품은 본사 상품의 **거울**(`source_product_id`, 내용·옵션·재고·배송비 자동 맞춤, 판매가만 분양자), 분양몰 주문은 본사 입금 확인 때 본사 **전달 주문**으로 넘어가고 발송·송장이 되돌아온다(0061~0063). 독립몰은 환경 설정 `MALL_SINGLE_SLUG`(단일 몰 모드, `lib/host.ts`).
+- **공급사**: 상품·옵션(추가 공급가는 손님이 못 읽는 별도 표)·공급사별 배송비 정책(공급사 상품은 트리거로 자동 연결)·분배 발송·정산(공급가 + 공급사 배송비)(0053~0060).
 - 몰 만들기는 운영에서 관리자만: 화면(`lib/platform-admin.ts`) + DB 0058(`profiles.is_admin`이 있을 때만 검사).
 - 가격: 화면 엔진 `src/lib/pricing.ts`와 주문 함수(`place_order_v2`·`place_guest_order`) 서버 재계산이 같은 규칙(공동구매가 > 거래처 특가 > 상품 예외 > 카테고리 등급율 > 등급 기본율 → 수량 할인 → 최저 판매가).
-- 장점: 몰 데이터 보호가 DB에 있어 화면 실수가 새지 않음, 기능 폭이 넓음(F01~F19·D1~D37·T1). 단점: 디자인은 기능 위주 기본 모양(주인님 시안 대기), 마이그레이션 수가 많음(66개).
+- 장점: 몰 데이터 보호가 DB에 있어 화면 실수가 새지 않음, 기능 폭이 넓음(F01~F19·D1~D37·T1). 단점: 손님 화면 디자인은 기능 위주 기본 모양(2026-11-13 agy에 인계), 마이그레이션 수가 많음(71개 — 운영 적용은 묶음 SQL + 로컬 전체 실행 검사 `scripts/check-prod-bundle-local.mjs` 필수).
 
 ## 4. 버전·이력
-- `v1.01`(2026-11-12) 운영 이전 시작: 폴더 `labs/mall-builder` → `mall-builder`, 플랫폼 스위치·운영 관문·관리자 전용 몰 만들기(0058), 저작권 고지·저장공간 위젯, T1 등급 할인(0057·0057c).
+- `v1.06`(2026-11-13) 손님 화면·분양 안내 공개(운영 관문 예외) — 운영 배포.
+- `v1.05`(2026-11-13) **T2 분양몰**: 공개 안내·신청 `/resale`, 본사 「분양」(승인·이용 기간·분양 주문 입금 확인·출금 지급), 분양자 「분양」(본사 상품 담기·판매가·매출·정산), 거울 상품, 주문 전달·연동, 마진 장부, DB 0061~0063 — 운영 배포. 로컬 시나리오 36단계(`scripts/scenario-0061~0063-*.sql`), 운영 실제 흐름 검수는 맥미니 진행 중([인계](docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md)).
+- `v1.04`(2026-11-13) **T1 마무리**: 공급사 상품 옵션(추가 공급가 → 판매 추가금 마진 비율 자동)·공급사별 배송비(공급사 정산에 더함), DB 0060 — 운영 배포·실제 흐름 검수 완료(공급사 정산 25,000원 = 공급가 22,000 + 배송비 3,000).
+- `v1.03`(2026-11-13) 배송지 저장 알림 위치, 두 번 누름 방지 단추(`src/app/pending-button.tsx`).
+- `v1.02`(2026-11-12) AI 도우미 제공자·모델 선택(OpenAI·Claude·Gemini, 운영은 몰 대표 `user_api_keys` 재사용), DB 0059.
+- `v1.01`(2026-11-12) 운영 이전(T0): 폴더 `labs/mall-builder` → `mall-builder`, 플랫폼 스위치·운영 관문·관리자 전용 몰 만들기(0058), 저작권 고지·저장공간 위젯, T1 등급 할인(0057·0057c), 운영 DB·배포·프로그램 등록·샘플몰 `aimaster-b2b`, B2B 주문·볼타 테스트 세금계산서 통과.
+- **미배포 대기(다음 배포 = v1.07)**: 브라우저 확인 창 6곳 → 화면 안 확인 상자(`src/app/inline-confirm.tsx`), T3 H1 단일 몰 모드(`MALL_SINGLE_SLUG`).
 - 그 이전(Lab, 버전 없음): F01~F19, D1~D37 — [README](README.md) 진행 표·역할 파일 최근 완료.
 
 ## 5. 남은 일
-- T0 B~E(운영 DB 적용·운영 배포·프로그램 등록·샘플몰) — [T0 플랜 §2](docs/PLAN_20261112_T0_PROD_MIGRATION.md), [대기 목록](docs/IMPROVEMENT_BACKLOG.md)
-- T1 남은 것: 공급사 상품 옵션·공급사별 배송비. 그다음 T2 분양몰 → T3 독립몰 → T4 키트.
+| 순서 | 일 | 상태·기다리는 것 | 문서 |
+|---|---|---|---|
+| 1 | T2 분양몰 운영 실제 흐름 검수(25단계) | 맥미니 진행 중(12단계까지 통과) — 문제 나오면 mall-builder 담당이 고침 | [검수 인계](docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md) |
+| 2 | 손님 화면 디자인 | agy 진행 중 — 담당은 `(shop)`·`resale` 파일을 고치지 않음 | [디자인 인계](docs/HANDOFF_20261113_STOREFRONT_DESIGN_AGY.md) |
+| 3 | 샘플몰 자료 채우기(카테고리 6·상품 16·기본 배송비·첫 화면) + 시험 데이터 정리 | 1번 검수가 끝난 뒤. 엑셀 준비됨 `docs/sample/aimaster-b2b-sample-catalog.xlsx` | [후속 플랜](docs/PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md) §2 |
+| 4 | v1.07 배포(확인 상자·단일 몰 모드) | 다음 배포 때 모아서(빌드 승인) | [개선](docs/IMPROVEMENTS.md) |
+| 5 | 메이커 연계 M1~M3(바나나로 상품 사진 보내기 → 돌려받기 → 적용) | 바나나 P1 승인·몰 사진 보관 기준 결정 | [검토 결과](docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) |
+| 6 | T3 독립몰 H2 상품 이전·H3 회원 이전 | 주인님 프로셀 상품 엑셀·회원 엑셀 견본 | [V-H 플랜](docs/PLAN_20261111_VH_OWN_MALL.md) §6 |
+| 7 | T3 H4 운영 설치·H5 전환, T4 배포 키트 | 주인님 지시(별도 Supabase 유료 가능성) | 〃 |
 
 ## 6. 다른 프로그램 연계 아이디어
 - 상품 소싱·상세페이지 프로그램(`trending-product-finder`·`shop-detail-page`) → ① 상품 등록 바로 보내기, 카드뉴스·이미지 프로그램 → 분양자 홍보 도구([3몰 인수인계 §4](../docs/mall/HANDOFF_THREE_MALLS.md)).
 
 ## 7. 화면·디자인 제안
-- 지금은 기능 위주 기본 모양. 주인님 시안을 받으면 몰 테마로 입힘([디자인 인수인계](docs/DESIGN_HANDOFF.md)). 운영 관리자 화면은 좌측 메뉴형으로 바꾸는 안 검토.
+- 손님 화면: agy가 테마 작업 중([디자인 인계](docs/HANDOFF_20261113_STOREFRONT_DESIGN_AGY.md)) — 샘플몰 안내 띠 포함 요청. 운영 관리자 화면은 메뉴가 24개라 좌측 메뉴형(묶음 접기)으로 바꾸는 안 검토, 「쇼핑몰 정보」 저장 단추 11개는 묶음별 탭으로 정리.
+
+## 8. 향후 개선 방향
+**가. 세 몰 완성(큰 줄기)**
+1. 분양몰: 실제 흐름 검수 마무리 → 분양 요금(이용 기간 결제)·분양몰 카드 결제(본사 토스 키)·분양자 홍보 도구(카드뉴스·링크) → 분양자별 매출 통계.
+2. 독립몰: 단일 몰 모드 다듬기(주소에서 `/s/<몰>` 감추기·자기 도메인) → 프로셀 상품·회원 이전 → 별도 환경 설치·리허설 → 전환.
+3. 배포 키트(T4): 설치 마법사·Lab 리허설(`docs/DISTRIBUTION_KIT_GUIDE.md`) — 몰별로 분리해 수강생·외주 의뢰 사업자에게.
+
+**나. 기능·안정성**
+- 공급가 하한(`price_floor`)에 옵션 추가 공급가 반영(지금은 운영자 판매 추가금 저장 때만 막음) · 분양몰 거울 상품의 등급가·수량 할인 연동(지금은 본사 판매가만 기준).
+- 분양 주문의 부분 취소·반품을 본사 전달 주문과 품목 단위로 연동(지금은 주문 단위 취소·반품만 연동).
+- 운영 관문이 요청마다 권한 조회 4번 → 짧은 캐시. 보안 정의자 함수의 비로그인 실행 권한 일괄 점검·거두기.
+- 운영 DB 적용 도구: MCP 확인 창이 자동 취소되는 환경에서는 SQL 편집기로 넣음 — 붙여 넣은 뒤 글자 수·처음/끝 줄 확인을 스크립트로 고정(`docs/mall/LESSONS_LEARNED.md`).
+- 손님 화면 공개에 맞춘 검색엔진 자료: 몰별 `sitemap`·상품 구조화 데이터(가격·재고)·대표 그림(OG).
+
+**다. 사용 편의**
+- 처음 설정 「시작하기」 3~5단계(사업자 정보 → 배송비 → 첫 상품 → 결제 → 공개) — 자동화 최소 설정 지침. 관리자 메뉴 묶기, 할 일 알림(승인 대기·입금 확인·출금 신청)을 대시보드 한곳에.
+- 공급사·분양자 화면에 매뉴얼(`/guide`) — 연동 & 사용 매뉴얼 8대 템플릿.
+
+**라. 다른 프로그램 연계**
+- 바나나(상품 사진 일괄 가공 → 사진 제안 → 적용, M1~M3) · 상품 소싱·상세페이지 → 몰 상품 바로 보내기 · 주문 리포트(실제 손익) · 카드뉴스·인스타(분양자 홍보) · 워크스페이스(세금계산서·거래처).
 
 ## 작업 규칙(요약)
 - DB 변경은 `supabase/migrations/`에 파일로 남기고 Lab 먼저 적용·되돌림 시험 → 운영 DB는 주인님 승인 뒤 같은 파일로.
