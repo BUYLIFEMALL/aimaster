@@ -3,6 +3,7 @@ import danceMetadata from "./dance-metadata.json";
 import observedTags from "./tag-metadata.json";
 import { recipe, type Brief } from "./config";
 import { SUNO_GENRES, familyLabel } from "../sunoGenres";
+import { linkPresetGenre, linkedGenreText } from "./presetGenreLink";
 
 export interface LibraryPreset {
   id: string;
@@ -20,6 +21,8 @@ export interface LibraryPreset {
   description: string;
   structure: string;
   voiceHint?: string;
+  /** v1.57: 연결된 Suno 공식 장르(weak = 배지만, Style은 예전 그대로) */
+  sunoGenre?: { slug: string; name: string; ko: string; weak: boolean };
 }
 // Independently written musical recipes. The reference site supplies factual selector metadata only.
 const PALETTES: [RegExp, string, string, string, number][] = [
@@ -203,15 +206,34 @@ function properties(subject: string) {
         bpm: 100,
       };
 }
+const DROP_GENRE = /house|techno|trance|edm|dubstep|bass|hardstyle|garage|drum and bass|jungle/i;
 export const LIBRARY: LibraryPreset[] = [
-  ...metadata.map((p) => ({
-    ...p,
-    ...properties(p.group),
-    bpm: p.bpm ?? properties(p.group).bpm,
-    bpmHints: p.bpm ? [p.bpm] : [],
-    description: `${p.group}의 음악적 특성을 출발점으로 구성합니다.`,
-    structure: /dance|댄스|EDM/i.test(p.group) ? "댄스 드롭" : "표준",
-  })),
+  // v1.57: 프리셋마다 가장 가까운 Suno 공식 장르를 연결(lib/studio/presetGenreLink.ts).
+  // 확실한 연결은 그 장르의 분위기·악기(원본 BPM이 있으면 원본 BPM)로 Style을 만들고, 약한 연결·연결 없음은 예전 팔레트 그대로.
+  ...metadata.map((p) => {
+    const link = linkPresetGenre(p.name, p.group);
+    const old = properties(p.group);
+    const sound =
+      link && !link.weak
+        ? {
+            genre: linkedGenreText(link),
+            mood: link.sound?.[0] ?? link.genre.mood,
+            instruments: link.sound?.[1] ?? link.genre.instruments,
+            bpm: p.bpm ?? link.genre.bpm,
+          }
+        : { ...old, bpm: p.bpm ?? old.bpm };
+    return {
+      ...p,
+      ...sound,
+      bpmHints: p.bpm ? [p.bpm] : [],
+      description: link
+        ? `${p.group}의 음악적 특성을 출발점으로 구성합니다. 🔗 Suno 공식 장르 ${link.genre.ko}(${link.genre.name})`
+        : `${p.group}의 음악적 특성을 출발점으로 구성합니다.`,
+      structure:
+        /dance|댄스|EDM/i.test(p.group) || (link && !link.weak && DROP_GENRE.test(link.genre.name)) ? "댄스 드롭" : "표준",
+      sunoGenre: link ? { slug: link.genre.slug, name: link.genre.name, ko: link.genre.ko, weak: link.weak } : undefined,
+    };
+  }),
   ...danceMetadata.map((p) => ({
     id: p.id,
     name: `${p.name} · ${p.englishName}`,

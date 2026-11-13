@@ -55,6 +55,12 @@ export function LibraryGallery({
     }));
     setPage(0);
   }
+  // v1.57: 카드의 「🔗 Suno 공식 장르」 → 공식 장르 분류에서 그 장르 카드만 보이게
+  function showGenre(g: NonNullable<LibraryPreset["sunoGenre"]>) {
+    const target = LIBRARY.find((x) => x.id === `suno-${g.slug}`);
+    setFilter({ market: "Suno 공식 장르", era: "", group: "", type: "", query: target?.name ?? g.name, bpm: "" });
+    setPage(0);
+  }
   async function copy(style: string) {
     try {
       await navigator.clipboard.writeText(style);
@@ -74,6 +80,13 @@ export function LibraryGallery({
       <p className="muted">
         이름·분류·BPM은 원본 선택 항목을 참고했습니다. 표시 Style은 음악
         속성으로 구성한 자체 기획 예시입니다.
+        {!dance && (
+          <>
+            {" "}
+            2026-11-14부터 기존 프리셋의 Style은 카드의 「🔗 Suno 공식 장르」를 바탕으로 만들어 이전보다 더 구체적입니다
+            (점선 배지는 참고용 — Style은 그대로).
+          </>
+        )}
       </p>
       {dance ? (
         <div className="tag-chips family-filters">
@@ -192,6 +205,7 @@ export function LibraryGallery({
             onApply={onApply}
             onSeed={onSeed}
             copy={copy}
+            onGenre={showGenre}
           />
         ))}
       </div>
@@ -229,6 +243,7 @@ function GalleryCard({
   onApply,
   onSeed,
   copy,
+  onGenre,
 }: {
   preset: LibraryPreset;
   brief: Brief;
@@ -236,6 +251,7 @@ function GalleryCard({
   onApply: (b: Brief) => void;
   onSeed?: (b: Brief) => void;
   copy: (s: string) => void;
+  onGenre: (g: NonNullable<LibraryPreset["sunoGenre"]>) => void;
 }) {
   const [variant, setVariant] = useState("기본");
   const preview = applyPreset(brief, p, variant);
@@ -248,6 +264,16 @@ function GalleryCard({
       <p className="muted">
         {p.group} · {p.eras.map((e) => ERA_LABELS[e] || e).join(" / ")}
       </p>
+      {p.sunoGenre && (
+        <button
+          type="button"
+          className={`genre-link${p.sunoGenre.weak ? " weak" : ""}`}
+          title={p.sunoGenre.weak ? "가까운 공식 장르(참고) — Style은 이 프리셋 그대로입니다" : "이 프리셋의 Style은 이 공식 장르를 바탕으로 만들었습니다"}
+          onClick={() => onGenre(p.sunoGenre!)}
+        >
+          🔗 Suno 공식 장르{p.sunoGenre.weak ? "(참고)" : ""}: {p.sunoGenre.ko} · {p.sunoGenre.name}
+        </button>
+      )}
       {p.type === "reference" && (
         <label>
           음악 방향
