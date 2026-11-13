@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-elr-v1` — 버튼 텍스트 2행 밀림 방지 전역 헌장 등재 및 11st 등록기 1행 고정 완료, mall-builder 손님 화면 상세 그림(detail_images) 표시 완료
+- **주인님 지시**:
+  1. 「버튼 1행으로 조정해 앞으로 버튼이 이런식으로 2행으로 밀리지 않게 해」 (11번가 전송 버튼 2행 밀림 현상)
+  2. 「손님 화면 상세 그림 표시 agy에게 요청해 두었습니다(인수인계 §10). 이거 했나」 확인 및 완료
+- **작업 내용**:
+  1. **버튼 텍스트 2행 밀림 영구 방지 전역 조치**:
+     - `elevenst-register/src/app/globals.css`: 모든 버튼 클래스(`.btn-3d-red`, `.btn-3d-11st`, `.btn-3d-blue`, `.slw-btn`, `.slw-primary`, `.btn-create-key`) 및 기본 버튼 태그(`button`, `input[type="submit"]`)에 `white-space: nowrap !important;`, `min-width: max-content;`, `flex-shrink: 0;` 장착.
+     - `scripts/generate_elr_showcase.mjs`: 쇼케이스 내 액션 열(`.data-table td:last-child`) 너비 `1%` + `white-space: nowrap !important;` 및 좌측 사이드바 270px 확장 적용.
+     - 12개 뷰 HTML 및 1440px 고화질 캡처 재렌더링 완료(`elr_107_01_main_v2.png`). 테이블 액션 열의 `11번가 전송` 버튼이 깔끔하게 1행으로 고정됨.
+     - 디자인 메인 지침서 영구 헌장 등재: `DESIGN.md` 및 `docs/PROGRAM_DESIGN_STANDARD.md` 최상단에 **"🔘 버튼 및 핵심 UI 텍스트 2행 밀림 절대 금지 및 1행 유지 의무 헌장 (2026-11-13 주인님 절대 지시)"** 섹션 신설.
+  2. **mall-builder 손님 화면 상품 상세 그림(detail_images) 표시 구현 완료 (인수인계 §10)**:
+     - 파일: `mall-builder/src/app/s/[store]/(shop)/p/[id]/page.tsx`
+     - 상세 설명 텍스트가 없고 상세 그림만 존재해도 영역이 보이도록 `(product.description || (product.detail_images && product.detail_images.length > 0))` 조건 적용.
+     - `product.detail_images` 배열을 `max-w-[860px] mx-auto w-full flex flex-col gap-0` 구조로 연속 배치(간격 0, `height:auto`, `loading="lazy"`).
+     - `mall-builder/docs/HANDOFF_20261113_STOREFRONT_DESIGN_AGY.md` §10 상태 "구현 완료 (agy)" 갱신.
+- **검증 결과**:
+  - `cd elevenst-register; node --test tests/*.test.mjs` **39 / 39 전수 통과** (`pass 39`, `fail 0`).
+  - `cd mall-builder; npx tsc --noEmit` 통과 & `node --test tests/*.test.mjs` **258 / 258 전수 통과** (`pass 258`, `fail 0`).
+- **상태**: 커밋 및 동기화 완료.
+
 ## 2026-11-13 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-elr-v1` — AI 11번가 상품 자동등록기(`elevenst-register`) 1안(107번 11st 오리지널 레드 스튜디오) 전면 구현 및 로컬 빌드·실물 검증 완료 (미배포 대기)
 - **작업 내용**: 주인님 「1안으로 하고」 확정 승인에 따라 **`107. 11번가 오리지널 레드 & 화이트 셀러 스튜디오 스타일 (11st Iconic Vibrant Red Studio)`** 기반으로 `elevenst-register` 전면 개편 구현 완료.
 - **주요 구현 및 개선 파일**:

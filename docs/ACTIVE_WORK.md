@@ -45,6 +45,6 @@
 | `banana-canvas/` (범위: `batch/` 디자인 시안 및 UI 인수인계) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-inf-v1` | 2026-11-13 | 메이커 후속 1안 페이퍼 팝 일괄 합성 UI 구현 및 검증 완료 — agy |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.06 운영. 미배포 대기(v1.07): 상세사진 `markPosted` + 안내 문구. 시험 상품 삭제 보류(주인님 결정 대기). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
 | `elevenst-register/` (범위: 4대 화면 3시안 쇼케이스 및 디자인 제안) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-elr-v1` | 2026-11-13 | 11번가 등록기 4대 화면 3시안(12뷰) 쇼케이스 및 종합 비교표 구축 — agy |
-| `elevenst-register/` (범위: 1안 107번 디자인 구현) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-elr-v1` | 2026-11-13 | 11st 1안(107. 11번가 오리지널 레드 스튜디오) 전면 구현, 39/39 테스트·tsc·빌드 통과, 1440/390px 실물 검증 완료 — agy |
+| `elevenst-register/` (범위: 1안 107번 디자인 및 버튼 1행 최적화) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-elr-v1` | 2026-11-13 | 11st 1안 구현 및 버튼 1행 고정(nowrap) 전역 적용 완료. 배포 승인 대기 — agy |
 | `mall-builder/` (옛 `labs/mall-builder/`) | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace`(2026-11-12 주인님 지시로 쇼핑몰 담당 인계) | 2026-11-10 | 운영 v1.06(T0·T1·T2 분양몰·손님 화면 공개). 지금: 맥미니 분양 검수 지원 → 샘플몰 자료 → v1.07(확인 상자·단일 몰 모드 미배포). **손님 화면 `(shop)`·`resale`은 agy 범위라 고치지 않음**, 관리자·공급사·DB·`src/lib`만 (2026-11-13 갱신) |
 | `threads-affiliate-poster/` → `instagram-comment-reply/` → `threads-comment-reply/` → `threads/` | [역할: 미지정] Claude Code(윈도우, ego) · 세션 `claude-win-20261106-ytreply` | 2026-11-06 | **연속 배포 중(4개, 주인님 「순서대로 진행해」)** — 미배포 대기 묶음(모델 교체 A/B·30일 열외·설정 바로가기)을 프로그램당 빌드 1회로 순서대로 배포. 지금: 쓰레드 쇼핑제휴 v1.86 |
