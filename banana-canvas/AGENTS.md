@@ -1,3 +1,5 @@
+> **✅ v1.46·v1.47 (2026-11-13, Claude Code 윈도우 `claude-win-blog`, [역할: ecommerce-image]) — 메이커 P1 「🛍 상품 대표사진 합성」(`/batch?mode=product`)**: 상품코드 작업표·파일 이름 짝짓기 → 메인+서브 합성(1000×1000, 서브 정사각 채우기) → 중단·실패만 다시 → ZIP+결과표, 상세페이지 반환(공용 `product-photo-handoff` 기준 파일 `src/lib/productPhotoHandoff.ts` — 사본은 직접 고치지 말 것). 기능 파일 `src/lib/batch/productJobs.ts`·`composite.ts`·`compositeRender.ts`·`runQueue.ts`, 시험 `tests/batchProduct.test.mjs`. v1.47 = 파일 모드 사진 0장 결함 수정. 화면은 agy가 `BatchWorkspace`·`ProductBatchBoard`로 교체 작업 중(미커밋) — **배포는 커밋 내용만 꺼내서**. 상세: `docs/IMPROVEMENT_HANDOFF_20261113_MAKER_FEATURE.md`.
+>
 > **✅ v1.45 (2026-11-08, Antigravity 윈도우 `agy-win-banana-canvas-v2`, [역할: design]) — 🎨 68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 전면 리뉴얼 및 2026-11-01 로그인 5단계 표준 규격 적용:**
 > ① **공식 디자인 템플릿**: **68. 크리에이티브 아뜰리에 페이퍼 팝 스타일 (Creative Atelier Paper Pop Edition)** 채택 (4대 화면 3시안 쇼케이스 종합 비교표 2안 확정).
 > ② **테마 & 토큰**: 웜 페이퍼 소프트 크림(`#FAF8F5`) 베이스 & 밀크 페이퍼 서피스(`#F3EFEA`), 바나나 팝 옐로우(`#EAB308`/`#FACC15`) & 엠보싱 섀도우, 2px 블랙 솔리드 라인 아웃라인.

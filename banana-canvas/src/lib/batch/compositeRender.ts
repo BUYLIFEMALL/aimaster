@@ -2,7 +2,19 @@
 // 사진 읽기·저장은 기존 「사진 일괄 손질」의 readBitmap·canvasToBlob을 그대로 쓴다(촬영·위치 정보는 결과에 남지 않음).
 import { fitRect, mainBox, subRects, type CompositeSettings } from "./composite";
 
-export { readBitmap, canvasToBlob } from "./render";
+import { readBitmap as readBitmapRaw } from "./render";
+
+export { canvasToBlob } from "./render";
+
+/** 사진 읽기 — 깨졌거나 지원하지 않는 파일이면 브라우저의 영어 오류 대신 한국어 안내(파일 이름 포함)로 알린다 */
+export async function readBitmap(file: Blob): Promise<ImageBitmap> {
+  try {
+    return await readBitmapRaw(file);
+  } catch {
+    const name = file instanceof File && file.name ? `「${file.name}」 ` : "";
+    throw new Error(`${name}사진을 열 수 없습니다(깨졌거나 지원하지 않는 형식). 다른 파일로 바꿔 주세요.`);
+  }
+}
 
 function roundedPath(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   const rr = Math.max(0, Math.min(r, w / 2, h / 2));
