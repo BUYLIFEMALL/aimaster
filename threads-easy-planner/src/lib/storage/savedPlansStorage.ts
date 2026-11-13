@@ -8,8 +8,34 @@ import {
   deleteSavedThreadPlanAction,
   type SavePlanInput,
 } from "@/lib/actions/savedPlans";
+import { createClient } from "@/lib/supabase/client";
 
-const LOCAL_STORAGE_KEY = "tep_saved_plans_local_cache";
+// 2026-11-13: 브라우저 임시 저장을 회원별로 나눈다(같은 PC를 여러 회원이 쓰면 다른 회원 글이 보이던 문제 — 회원 자료 격리 규칙).
+// 예전 공용 이름(LEGACY_KEY)은 누구 글인지 알 수 없어 읽지 않고 지운다. 글의 원본은 DB(회원 본인 행)라 서버 저장분은 그대로 다시 불러온다.
+const LEGACY_KEY = "tep_saved_plans_local_cache";
+const LOCAL_STORAGE_PREFIX = "tep_saved_plans_local_cache:";
+let currentUserId: string | null = null;
+
+/** 로그인한 회원 ID를 읽어 저장 이름을 정한다. 로그인 안 됐으면 null — 그때는 브라우저 저장을 쓰지 않는다. */
+async function resolveUserKey(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    localStorage.removeItem(LEGACY_KEY);
+  } catch {
+    // ignore
+  }
+  try {
+    const { data } = await createClient().auth.getUser();
+    currentUserId = data.user?.id ?? null;
+  } catch {
+    currentUserId = null;
+  }
+  return currentUserId;
+}
+
+function localKey(): string | null {
+  return currentUserId ? `${LOCAL_STORAGE_PREFIX}${currentUserId}` : null;
+}
 export const RETENTION_DAYS = 30;
 export const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
 
@@ -34,9 +60,10 @@ export function getDaysRemaining(createdAt: string): number {
 }
 
 function getLocalPlans(): SavedThreadPlan[] {
-  if (typeof window === "undefined") return [];
+  const key = localKey();
+  if (typeof window === "undefined" || !key) return [];
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return [];
     const list = JSON.parse(raw);
     if (!Array.isArray(list)) return [];
@@ -53,9 +80,10 @@ function getLocalPlans(): SavedThreadPlan[] {
 }
 
 function setLocalPlans(plans: SavedThreadPlan[]) {
-  if (typeof window === "undefined") return;
+  const key = localKey();
+  if (typeof window === "undefined" || !key) return;
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(plans));
+    localStorage.setItem(key, JSON.stringify(plans));
   } catch {
     // ignore quota errors
   }
@@ -70,6 +98,7 @@ export async function savePlanToStorage(input: SavePlanInput): Promise<{
   isLocalOnly?: boolean;
   error?: string;
 }> {
+  await resolveUserKey();
   let dbPlan: SavedThreadPlan | null = null;
 
   // 1. Server Action (DB 저장 시도)
@@ -89,7 +118,8 @@ export async function savePlanToStorage(input: SavePlanInput): Promise<{
     return { success: true, data: dbPlan, isLocalOnly: false };
   }
 
-  // 2. Fallback: 로컬 스토리지에 무조건 안전하게 저장
+  // 2. Fallback: 로컬 스토리지에 저장(로그인한 회원 이름으로만)
+  if (!localKey()) return { success: false, error: "로그인 정보를 확인하지 못해 저장하지 못했습니다. 새로고침 후 다시 시도해 주세요." };
   try {
     const newId = `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     const nowIso = new Date().toISOString();
@@ -123,6 +153,7 @@ export async function savePlanToStorage(input: SavePlanInput): Promise<{
  * 저장된 글 전체 목록 로드 (DB 우선 + 로컬 병합)
  */
 export async function loadPlansFromStorage(): Promise<SavedThreadPlan[]> {
+  await resolveUserKey();
   const localList = getLocalPlans();
 
   try {
@@ -146,6 +177,7 @@ export async function loadPlansFromStorage(): Promise<SavedThreadPlan[]> {
  * 특정 글 1건 로드
  */
 export async function loadPlanByIdFromStorage(id: string): Promise<SavedThreadPlan | null> {
+  await resolveUserKey();
   // 로컬에서 먼저 탐색
   const localList = getLocalPlans();
   const foundLocal = localList.find((p) => p.id === id);
@@ -168,6 +200,7 @@ export async function loadPlanByIdFromStorage(id: string): Promise<SavedThreadPl
  * 보관함 글 삭제
  */
 export async function deletePlanFromStorage(id: string): Promise<boolean> {
+  await resolveUserKey();
   // 1. 로컬 캐시에서 제거
   const current = getLocalPlans();
   const updated = current.filter((p) => p.id !== id);

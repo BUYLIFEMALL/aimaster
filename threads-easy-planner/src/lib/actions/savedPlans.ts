@@ -2,6 +2,7 @@
 
 import { requireProgramAccess } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 import type { SavedThreadPlan, HookVariant } from "@/types/planner";
 import { IMAGE_BUCKET, isOwnImageUrl } from "@/lib/storage/imageBucket";
 import { IMAGE_FEATURE } from "@/lib/deployment";
@@ -114,22 +115,28 @@ export async function getSavedThreadPlansAction(): Promise<{
     const admin = createAdminClient();
 
     // 30일 보관 정책: 30일 지난 생성 데이터 자동 삭제 (TTL Sweep)
+    // 2026-11-13: 지우는 범위를 「이 회원 본인 글」로 좁히고(예전엔 서버 키로 모든 회원 글을 지웠다),
+    // 관리자·시험 계정·보관 연장 회원(profiles.retention_exempt)은 지우지도 숨기지도 않는다.
     const thirtyDaysAgoIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    try {
-      await (admin as any)
-        .from("tep_saved_plans")
-        .delete()
-        .lt("created_at", thirtyDaysAgoIso);
-    } catch {
-      // sweep 오류가 조회 자체를 중단시키지 않도록 방어
+    const exempt = await isRetentionExempt(admin, user.id);
+    if (!exempt) {
+      try {
+        await (admin as any)
+          .from("tep_saved_plans")
+          .delete()
+          .eq("user_id", user.id)
+          .lt("created_at", thirtyDaysAgoIso);
+      } catch {
+        // sweep 오류가 조회 자체를 중단시키지 않도록 방어
+      }
+      if (IMAGE_FEATURE) await sweepExpiredImages(admin, user.id, Date.now() - 30 * 24 * 60 * 60 * 1000);
     }
-    if (IMAGE_FEATURE) await sweepExpiredImages(admin, user.id, Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const { data, error } = await (admin as any)
       .from("tep_saved_plans")
       .select("*")
       .eq("user_id", user.id)
-      .gte("created_at", thirtyDaysAgoIso)
+      .gte("created_at", exempt ? "1970-01-01T00:00:00Z" : thirtyDaysAgoIso)
       .order("created_at", { ascending: false });
 
     if (error) {
