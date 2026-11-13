@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
+import { parsePlanOptions, sameTags, lyricsDirectives } from "@/lib/planOptions";
 import { generateLyrics, generateInstrumentalPrompt, generateStyleAndExclude, generateExtendLyrics } from "@/lib/ai/musicPrompts";
 import {
   requestSunoGeneration,
@@ -130,7 +131,11 @@ export async function generateTracksAction(
   const instruments = options.instruments?.length ? options.instruments : undefined;
   const vocalTone = options.vocalTone?.length ? options.vocalTone : undefined;
   const tempo = options.tempo?.length ? options.tempo : undefined;
-  const hasTagOverride = !fixedPrompt && Boolean(genre || mood || instruments || vocalTone || tempo);
+  // v1.52: 기획 때 고른 칩(plan_options)이 생성 콘솔에 미리 채워진다 — 그대로면 바꾼 것으로 보지 않는다.
+  const storedOptions = parsePlanOptions((planning as { plan_options?: unknown }).plan_options);
+  const panelOptions = parsePlanOptions({ genre, mood, instruments, vocalTone, tempo });
+  const hasTagOverride =
+    !fixedPrompt && Boolean(genre || mood || instruments || vocalTone || tempo) && !sameTags(storedOptions, panelOptions);
   const savedLyrics =
     !fixedPrompt && options.useSavedLyrics !== false ? ((planning as { lyrics?: string | null }).lyrics ?? "").trim() : "";
 
@@ -190,6 +195,8 @@ export async function generateTracksAction(
                   lang: effectiveLang,
                   styleDescription,
                   vocalGender: modeVocalGender,
+                  songDescription: planning.song_description,
+                  directives: lyricsDirectives(storedOptions),
                 },
                 openaiKey,
               )

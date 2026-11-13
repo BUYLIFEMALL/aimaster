@@ -20,6 +20,7 @@ import {
   TEMPO_MAX_SELECT,
 } from "@/lib/constants";
 import type { TrackMode, VocalGender } from "@/types/database.types";
+import type { PlanOptions } from "@/lib/planOptions";
 
 const PROVIDER_LABELS: Record<string, string> = { openai: "OpenAI", suno: "Suno" };
 const COUNT_OPTIONS = Array.from({ length: 10 }, (_, i) => i + 1); // 1~10
@@ -30,12 +31,15 @@ export function GenerateTracksPanel({
   planningLang,
   personas = [],
   hasSavedLyrics = false,
+  initialOptions,
 }: {
   planningId: string;
   planningVocalGender: VocalGender | null;
   planningLang: string;
   personas?: { id: string; name: string }[];
   hasSavedLyrics?: boolean;
+  // v1.52: 기획 때 고른 칩을 미리 채운다(그대로면 서버가 기획 스타일을 그대로 씀)
+  initialOptions?: PlanOptions;
 }) {
   const router = useRouter();
   const [vocal, setVocal] = useState(false);
@@ -48,11 +52,11 @@ export function GenerateTracksPanel({
   const [variety, setVariety] = useState("");
   const [personaId, setPersonaId] = useState("");
   const [useSavedLyrics, setUseSavedLyrics] = useState(true);
-  const [genreTags, setGenreTags] = useState<string[]>([]);
-  const [moodTags, setMoodTags] = useState<string[]>([]);
-  const [instrumentTags, setInstrumentTags] = useState<string[]>([]);
-  const [vocalToneTags, setVocalToneTags] = useState<string[]>([]);
-  const [tempoTags, setTempoTags] = useState<string[]>([]);
+  const [genreTags, setGenreTags] = useState<string[]>(initialOptions?.genre ?? []);
+  const [moodTags, setMoodTags] = useState<string[]>(initialOptions?.mood ?? []);
+  const [instrumentTags, setInstrumentTags] = useState<string[]>(initialOptions?.instruments ?? []);
+  const [vocalToneTags, setVocalToneTags] = useState<string[]>(initialOptions?.vocalTone ?? []);
+  const [tempoTags, setTempoTags] = useState<string[]>(initialOptions?.tempo ?? []);
   const [showTagOptions, setShowTagOptions] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -281,7 +285,7 @@ export function GenerateTracksPanel({
               className="mt-0.5 w-4 h-4"
             />
             <span>
-              <strong>📝 위에서 저장한 가사로 보컬 버전 만들기</strong>
+              <strong>📝 위에서 확정한 가사로 보컬 버전 만들기</strong>
               <span className="block text-[11px] text-emerald-300/70">
                 끄면 곡마다 AI가 새로 작사합니다. 여러 곡을 만들면 가사는 같고 스타일만 곡마다 달라집니다.
               </span>

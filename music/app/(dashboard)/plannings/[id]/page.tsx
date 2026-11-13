@@ -11,13 +11,20 @@ import { withSignedStorageUrls } from "@/lib/storageSign";
 import { RetentionNotice } from "@/components/RetentionBadge";
 import { PlanningExportPicker, type ExportTrack } from "@/components/plannings/PlanningExportPicker";
 import { fmtTime } from "@/lib/replaceRange";
+import { parsePlanOptions } from "@/lib/planOptions";
 
 export const dynamic = "force-dynamic";
 // 최대 10곡 대량생성 시 GPT 스타일/가사 호출이 순차로 여러 번 도는 generateTracksAction이
 // 이 페이지의 Server Action으로 실행되므로, 기본 함수 제한 시간보다 넉넉하게 잡아둔다.
 export const maxDuration = 300;
 
-export default async function PlanningDetailPage({ params }: { params: { id: string } }) {
+export default async function PlanningDetailPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams?: { lyrics?: string };
+}) {
   const user = await requireProgramAccess();
   const supabase = await createClient();
 
@@ -96,7 +103,11 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
 
       <RetentionNotice />
 
-      <PlanningLyricsCard planningId={planningData.id} savedLyrics={(planning as { lyrics?: string | null }).lyrics ?? null} />
+      <PlanningLyricsCard
+        planningId={planningData.id}
+        savedLyrics={(planning as { lyrics?: string | null }).lyrics ?? null}
+        lyricsFailed={searchParams?.lyrics === "failed" && !((planning as { lyrics?: string | null }).lyrics ?? "").trim()}
+      />
 
       <GenerateTracksPanel
         planningId={planningData.id}
@@ -104,6 +115,7 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
         planningLang={planningData.lang}
         personas={personas}
         hasSavedLyrics={Boolean(((planning as { lyrics?: string | null }).lyrics ?? "").trim())}
+        initialOptions={parsePlanOptions((planning as { plan_options?: unknown }).plan_options)}
       />
 
       <PlanningExportPicker planningTitle={planningData.title ?? "곡목록"} tracks={exportTracks} />

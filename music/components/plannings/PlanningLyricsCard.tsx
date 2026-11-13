@@ -10,12 +10,22 @@ import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 const MAX = 5000;
 const SECTION_TAGS = ["[Intro]", "[Verse 1]", "[Pre-Chorus]", "[Chorus]", "[Verse 2]", "[Bridge]", "[Outro]"];
 
-export function PlanningLyricsCard({ planningId, savedLyrics }: { planningId: string; savedLyrics: string | null }) {
+export function PlanningLyricsCard({
+  planningId,
+  savedLyrics,
+  lyricsFailed = false,
+}: {
+  planningId: string;
+  savedLyrics: string | null;
+  lyricsFailed?: boolean;
+}) {
   const router = useRouter();
   const [text, setText] = useState(savedLyrics ?? "");
   const [saved, setSaved] = useState(savedLyrics ?? "");
   const [busy, setBusy] = useState<"" | "generate" | "save">("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    lyricsFailed ? "기획은 저장됐지만 가사를 만들지 못했습니다. 「AI로 가사 생성」을 다시 눌러 주세요." : null,
+  );
   const [notice, setNotice] = useState<string | null>(null);
   const [missingKey, setMissingKey] = useState(false);
   const dirty = text.trim() !== saved.trim();
@@ -32,7 +42,7 @@ export function PlanningLyricsCard({ planningId, savedLyrics }: { planningId: st
       else if (r.lyrics) {
         setText(r.lyrics);
         setSaved(r.lyrics);
-        setNotice("가사를 만들어 저장했습니다. 고칠 부분을 수정한 뒤 「가사 저장」을 눌러 주세요.");
+        setNotice("새 가사를 만들었습니다. 고칠 부분을 수정한 뒤 「가사 확정」을 눌러 주세요.");
         router.refresh();
       }
     } finally {
@@ -50,7 +60,7 @@ export function PlanningLyricsCard({ planningId, savedLyrics }: { planningId: st
       else {
         setText(r.lyrics ?? "");
         setSaved(r.lyrics ?? "");
-        setNotice(r.lyrics ? "가사를 저장했습니다. 아래에서 보컬 버전을 만들면 이 가사로 생성됩니다." : "가사를 비웠습니다. 곡을 만들 때 AI가 새로 작사합니다.");
+        setNotice(r.lyrics ? "가사를 확정했습니다. 아래 생성 콘솔에서 보컬 버전을 만들면 이 가사로 노래를 만듭니다." : "가사를 비웠습니다. 곡을 만들 때 AI가 새로 작사합니다.");
         router.refresh();
       }
     } finally {
@@ -68,7 +78,7 @@ export function PlanningLyricsCard({ planningId, savedLyrics }: { planningId: st
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <span className="text-lg">📝</span>
-            <p className="text-base font-black text-white">가사 만들기 · 수정</p>
+            <p className="text-base font-black text-white">가사 수정 · 확정</p>
           </div>
           <span
             className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
@@ -77,12 +87,12 @@ export function PlanningLyricsCard({ planningId, savedLyrics }: { planningId: st
                 : "text-zinc-400 bg-zinc-500/10 border-zinc-500/30"
             }`}
           >
-            {saved.trim() ? (dirty ? "수정 중 · 저장 안 됨" : "저장한 가사로 생성") : "자동 작사(가사 미저장)"}
+            {saved.trim() ? (dirty ? "수정 중 · 아직 확정 안 됨" : "✅ 확정된 가사") : "자동 작사(가사 없음)"}
           </span>
         </div>
         <p className="mb-3 text-[11px] leading-relaxed text-zinc-400">
-          AI로 가사를 먼저 만들고 원하는 대로 고쳐 저장하면, 보컬 버전을 만들 때 이 가사가 그대로 Suno에 들어갑니다.
-          가사를 비워 두면 예전처럼 곡을 만들 때 AI가 새로 작사합니다. 가사 생성은 본인 OpenAI 키로 1회 호출됩니다.
+          기획 때 만든 가사를 원하는 대로 고친 뒤 「✅ 가사 확정」을 누르세요. 보컬 버전을 만들 때 확정한 가사가 그대로 Suno에 들어갑니다.
+          가사를 비워 확정하면 예전처럼 곡을 만들 때 AI가 새로 작사합니다. 「AI로 가사 다시 생성」은 본인 OpenAI 키로 1회 호출됩니다.
         </p>
 
         <div className="mb-2 flex flex-wrap gap-1.5" aria-label="가사 구간 넣기">
@@ -137,7 +147,7 @@ export function PlanningLyricsCard({ planningId, savedLyrics }: { planningId: st
             disabled={busy !== "" || !dirty}
             className="rounded-xl border border-emerald-500/50 bg-emerald-500/15 px-4 py-2 text-xs font-bold text-emerald-200 hover:bg-emerald-500/25 disabled:opacity-50 whitespace-nowrap"
           >
-            {busy === "save" ? "💾 저장 중…" : "💾 가사 저장"}
+            {busy === "save" ? "✅ 확정 중…" : "✅ 가사 확정"}
           </button>
           {dirty && (
             <button

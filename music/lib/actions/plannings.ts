@@ -6,10 +6,12 @@ import { requireProgramAccess, logProgramUsage } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { resolveApiKey } from "@/lib/apiKeys";
 import {
+  generateLyrics,
   generateStyleAndExclude,
   generateTitleAndDescription,
   reconcileSongDescriptionWithVocalGender,
 } from "@/lib/ai/musicPrompts";
+import { parsePlanOptions, lyricsDirectives } from "@/lib/planOptions";
 import { VOCAL_GENDER_OPTIONS } from "@/lib/constants";
 import type { VocalGender } from "@/types/database.types";
 
@@ -17,6 +19,7 @@ export interface PlanMusicState {
   error?: string;
   needsApiKey?: boolean;
   planningId?: string;
+  lyricsFailed?: boolean; // 기획은 저장됐지만 가사 생성만 실패(상세에서 다시 만들 수 있음)
 }
 
 function parseVocalGender(raw: string): VocalGender | null {
@@ -29,6 +32,14 @@ export async function planMusicAction(formData: FormData): Promise<PlanMusicStat
   const songDescription = String(formData.get("songDescription") ?? "").trim();
   const vocalGender = parseVocalGender(String(formData.get("vocalGender") ?? "").trim());
   const lang = String(formData.get("lang") ?? "한국어").trim() || "한국어";
+  // v1.52: 세부 설정(장르·무드·악기·보컬톤·템포 칩, 후렴 구절·단어·피할 말, 곡 길이)
+  let rawOptions: unknown = null;
+  try {
+    rawOptions = JSON.parse(String(formData.get("planOptions") ?? "null"));
+  } catch {
+    rawOptions = null;
+  }
+  const planOptions = parsePlanOptions(rawOptions);
 
   if (!songDescription) {
     return { error: "곡 설명을 입력해주세요." };
@@ -41,10 +52,55 @@ export async function planMusicAction(formData: FormData): Promise<PlanMusicStat
   }
 
   try {
+    const hints = [
+      planOptions.hook && `후렴 구절: ${planOptions.hook}`,
+      planOptions.keywords && `핵심 단어: ${planOptions.keywords}`,
+      [...planOptions.genre, ...planOptions.mood].length && `장르·무드: ${[...planOptions.genre, ...planOptions.mood].join(", ")}`,
+    ].filter(Boolean);
     const [styleResult, titleResult] = await Promise.all([
-      generateStyleAndExclude({ songDescription, vocalGender }, apiKey),
-      generateTitleAndDescription({ songDescription, vocalGender, lang }, apiKey),
+      // 기획 첫 스타일은 온도를 낮춰(1.1 → 0.7) 설명·칩에 충실하게(주인님 「랜덤성이 강해」)
+      generateStyleAndExclude(
+        {
+          songDescription,
+          vocalGender,
+          genre: planOptions.genre,
+          mood: planOptions.mood,
+          instruments: planOptions.instruments,
+          vocalTone: planOptions.vocalTone,
+          tempo: planOptions.tempo,
+        },
+        apiKey,
+        0.7,
+      ),
+      generateTitleAndDescription(
+        { songDescription: hints.length ? `${songDescription}\n${hints.join("\n")}` : songDescription, vocalGender, lang },
+        apiKey,
+      ),
     ]);
+
+    // 가사까지 기획 단계에서 만든다 — 상세에서 고쳐 확정한 뒤 곡을 만든다. 실패해도 기획은 저장.
+    let lyrics: string | null = null;
+    try {
+      lyrics =
+        (
+          await generateLyrics(
+            {
+              title: titleResult.title,
+              description: titleResult.description,
+              lang,
+              styleDescription: styleResult.styleDescription,
+              vocalGender,
+              songDescription,
+              directives: lyricsDirectives(planOptions),
+            },
+            apiKey,
+          )
+        )
+          .trim()
+          .slice(0, 5000) || null;
+    } catch {
+      lyrics = null;
+    }
 
     const { data: planning, error } = await supabase
       .from("music_plannings")
@@ -57,6 +113,8 @@ export async function planMusicAction(formData: FormData): Promise<PlanMusicStat
         exclude_styles: styleResult.excludeStyles,
         title: titleResult.title,
         description: titleResult.description,
+        lyrics,
+        plan_options: planOptions,
         status: "planned",
       })
       .select("id")
@@ -66,9 +124,13 @@ export async function planMusicAction(formData: FormData): Promise<PlanMusicStat
       return { error: error?.message ?? "곡 기획 저장에 실패했습니다." };
     }
 
-    await logProgramUsage({ userId: user.id, action: "plan_music", metadata: { songDescription } });
+    await logProgramUsage({
+      userId: user.id,
+      action: "plan_music",
+      metadata: { songDescription, planOptions, lyrics: Boolean(lyrics) },
+    });
     revalidatePath("/plannings");
-    return { planningId: planning.id };
+    return { planningId: planning.id, lyricsFailed: !lyrics };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "곡 기획 중 오류가 발생했습니다." };
   }

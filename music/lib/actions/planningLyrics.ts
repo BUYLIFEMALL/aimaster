@@ -9,6 +9,7 @@ import { resolveApiKey } from "@/lib/apiKeys";
 import { generateLyrics } from "@/lib/ai/musicPrompts";
 import { VOCAL_GENDER_OPTIONS } from "@/lib/constants";
 import type { VocalGender } from "@/types/database.types";
+import { parsePlanOptions, lyricsDirectives } from "@/lib/planOptions";
 
 const LYRICS_MAX = 5000;
 
@@ -27,7 +28,7 @@ export async function generatePlanningLyricsAction(
   const supabase = await createClient();
   const { data: planning } = await supabase
     .from("music_plannings")
-    .select("id, title, description, style_description, vocal_gender, lang")
+    .select("id, title, description, style_description, vocal_gender, lang, song_description, plan_options")
     .eq("id", planningId)
     .eq("user_id", user.id)
     .single();
@@ -53,6 +54,8 @@ export async function generatePlanningLyricsAction(
           lang: options.lang?.trim() || planning.lang,
           styleDescription: planning.style_description,
           vocalGender,
+          songDescription: planning.song_description,
+          directives: lyricsDirectives(parsePlanOptions(planning.plan_options)),
         },
         apiKey,
       )

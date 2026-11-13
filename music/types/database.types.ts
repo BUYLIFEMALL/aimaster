@@ -66,6 +66,7 @@ export interface Database {
           title: string | null;
           description: string | null;
           lyrics: string | null;
+          plan_options: unknown | null;
           status: PlanningStatus;
           created_at: string;
           updated_at: string;
@@ -81,6 +82,7 @@ export interface Database {
           title?: string | null;
           description?: string | null;
           lyrics?: string | null;
+          plan_options?: unknown | null;
           status?: PlanningStatus;
           created_at?: string;
           updated_at?: string;
@@ -96,6 +98,7 @@ export interface Database {
           title?: string | null;
           description?: string | null;
           lyrics?: string | null;
+          plan_options?: unknown | null;
           status?: PlanningStatus;
           created_at?: string;
           updated_at?: string;
