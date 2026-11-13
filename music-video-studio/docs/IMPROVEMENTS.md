@@ -1,12 +1,12 @@
 # 뮤직비디오 자동화 (music-video-studio) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
-> **⏳ 미배포 대기 v1.30 (2026-11-12, 영상 담당 `claude-win-video`)**: 아래 「내 자료함」 요청 처리 — 곡 목록(`src/lib/music/amsSongs.ts`)에 자료함의 다른 음악을 더하고(AI 음악 스튜디오 곡은 가사·시간 가사 때문에 기존 방식 유지, PC에만 있는 무료음악 제외), 참고 이미지(`src/lib/music/aisImages.ts`)에 자료함의 다른 이미지를 더함. `signAmsSong`이 자료함 참조도 받아 다시 열기·최종 렌더가 그대로 동작. 화면 문구 「🗂️ 내 자료함에서 가져오기」. 공용 사본 `src/lib/memberAssets.ts`. 시험 34·tsc 통과, 화면 확인은 배포 뒤.
+> **✅ 배포됨 v1.30 (2026-11-12 `music-video-studio-79fiamka3`, 2026-11-13 음악 담당 확인) — 원래 표시: 미배포 대기 v1.30 (2026-11-12, 영상 담당 `claude-win-video`)**: 아래 「내 자료함」 요청 처리 — 곡 목록(`src/lib/music/amsSongs.ts`)에 자료함의 다른 음악을 더하고(AI 음악 스튜디오 곡은 가사·시간 가사 때문에 기존 방식 유지, PC에만 있는 무료음악 제외), 참고 이미지(`src/lib/music/aisImages.ts`)에 자료함의 다른 이미지를 더함. `signAmsSong`이 자료함 참조도 받아 다시 열기·최종 렌더가 그대로 동작. 화면 문구 「🗂️ 내 자료함에서 가져오기」. 공용 사본 `src/lib/memberAssets.ts`. 시험 34·tsc 통과, 화면 확인은 배포 뒤.
 
 > **📥 「내 자료함」에서 가져다 쓰기 요청 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시 「다른 프로그램이 자료함에서 바로 가져다 쓰는 공용 컴포넌트를 만들고, 담당께 요청」)**: 공용 컴포넌트 `member-assets-client`(기준 메인 사이트 `lib/library/memberAssets.ts`)를 만들었습니다. 지금 `amsSongs.ts`·`fmsSong.ts`·`aisImages.ts`로 따로 읽는데, 자료함으로 음악 3종·이미지 4종을 한 목록에서 고를 수 있습니다. 사용 순서·주의: `docs/MEMBER_LIBRARY.md` §2~§3(사본 붙이기 → 서버 API `listMemberAssets` → 화면 「내 자료함에서 가져오기」에서 `sourceRef` 저장 → 다시 열 때 `signMemberAssetByRef`). 붙일 때 `scripts/check-shared-modules.mjs`의 `member-assets-client` `copies`와 `docs/SHARED_MODULES.md`에 사본 경로를 추가하고, 버전·배포는 이 프로그램 규칙대로(작은 수정은 모아서 배포). 필수 아님 — 다음에 이 프로그램을 손댈 때 검토해 주세요.
 
 > **🗂️ 「내 자료함」 연동 안내 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 운영 DB `supabase/migrations/0061_member_assets_video_text.sql`로 이 프로그램의 렌더 결과(`mvs_renders.output_path`)이(가) 공용 자료 목록 `member_assets`에 자동 등록되고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(보관 기간 = 이 프로그램 정리 규칙, 발행된 원고는 「발행 1년」 규칙 대상). **이 프로그램 코드·배포는 바꾸지 않았습니다.** 칸 이름·저장 경로(`{user_id}/…`)·상태 값을 바꾸면 트리거 함수 `member_assets_sync_mvs`도 함께 고쳐 주세요(트리거 오류 = 원본 저장 실패). 화면: https://www.buylife.xyz/library · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md` §9
 
-> **📮 영상 담당께 — 미배포 대기 인계 (2026-11-10, [역할: music] `claude-win-20261024-music`, 주인님 지시 「IMPROVEMENTS.md에 영상 담당께로 남겨줘」)**
+> **✅ 끝(2026-11-13 음악 담당 확인: `9397fb311`은 11-12 v1.30 배포에 실림) — 📮 영상 담당께 — 미배포 대기 인계 (2026-11-10, [역할: music] `claude-win-20261024-music`, 주인님 지시 「IMPROVEMENTS.md에 영상 담당께로 남겨줘」)**
 > 1. **남은 미배포 `9397fb311`**(영상 담당 커밋, 11-09): 공용 사본 `video-edit-composition`·`video-edit-timeline` 동기화 — `src/components/edit/Composition.tsx`(+18 −3)·`src/lib/edit/timeline.ts`(+9 −3), 장면 맞춤 칸(꽉 채우기 / 전체 보이기 + 흐린 배경). 기준 `ai-video-studio` v1.30은 11-10 배포됨, 이 프로그램만 남음. `check-shared-modules` 사본 8개 모두 OK(11-10 확인).
 > 2. ~~같은 배포에 함께 나갈 것 `d1e710d68`~~ **정정(2026-11-10, 음악 담당)**: `d1e710d68`(11-06)은 v1.28(11-08) 배포 때 이미 나갔음 — 음악 담당의 착오. 이 프로그램에서 챙길 것 없음.
 > 3. **기록 정리**: 바로 아래 「미배포 대기(2026-11-06) `3a550fe12`」는 11-08 v1.28 배포 때 이미 나갔음(`AGENTS.md` v1.28 「함께 나감」) → ✅ 배포됨(v1.28)으로 바꿔 주세요.

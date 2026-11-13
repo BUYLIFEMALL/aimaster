@@ -61,7 +61,7 @@
 ## 6. 연계·병합 아이디어 → `docs/IMPROVEMENTS.md` §3
 ## 7. UI/UX 개선안 → `docs/IMPROVEMENTS.md` §2, 디자인: `docs/DESIGN_HANDOFF.md`
 
-## 2026-10-23 공용 기준 코드 `music-sync-calls` 신설 (Claude Code 윈도우, 미배포 대기)
+## 2026-10-23 공용 기준 코드 `music-sync-calls` 신설 (Claude Code 윈도우, ~~미배포 대기~~ (✅ 2026-11-13 음악 담당 확인: 이후 배포에 실림, 현재 v1.15)
 - `lib/providers/musicCalls.ts`가 기준(사본 `shots/src/lib/ai/musicCalls.ts`) — Lyria·ElevenLabs 호출과 `musicProviderError`. `adapters/gemini.ts`·`adapters/elevenlabs.ts`는 입력·비용 문구만, `types.ts` `providerError` = `musicProviderError`. 이 파일을 고치면 `node scripts/check-shared-modules.mjs --sync` 후 쇼츠도 시험.
 
 ## 2026-10-23 v1.07 — 곡 카드에 쇼츠 원스톱·뮤직비디오 링크 (Claude Code 윈도우)
@@ -70,7 +70,7 @@
 ## 2026-10-23 v1.08 — 곡마다 원스톱·뮤직비디오 링크에 곡 번호 `?ams=`(`components/studio/GenerationCard.tsx`). (Claude Code 윈도우)
 - 검수: tsc·시험·build, 배포 Ready·DB 버전 맞춤, 크롬 시험 회원으로 AI 음악 스튜디오 링크 → 곡 들어감 확인. 비용: 빌드 1회.
 
-## 2026-10-23 Mureka 연동 코드 준비 (Claude Code 윈도우, 숨김·미배포 대기)
+## 2026-10-23 Mureka 연동 코드 준비 (Claude Code 윈도우, 숨김 — ~~미배포 대기~~ (✅ 2026-11-13 음악 담당 확인: 이후 배포에 실림, 현재 v1.15·화면은 숨김 유지)
 - 주인님 지시 「작업만 해놔 나중에 필요하면 연동해서 사용할께」. `lib/providers/adapters/mureka.ts`(보컬 `/v1/song/generate`·연주곡 `/v1/instrumental/generate` → `/query/{id}` 상태 확인, succeeded/failed·cancelled·timeouted), `catalog.ts` `MUREKA_ENABLED=false`·`MUREKA_MODELS`(`auto`, 2곡)·`VISIBLE_PROVIDERS`(꺼진 공급자는 키 칸·안내에서 뺌), 키 허용 목록에 `mureka`, DB 허용 이름 SQL `supabase/migrations/0004_mureka_provider.sql`(**미적용**). 근거: 공식 MCP 서버 소스 github.com/SkyworkAI/Mureka-mcp.
 - 시험: 가짜 응답으로 요청 주소·본문·상태 해석 3개(전체 28개 통과), tsc·build. 실제 호출 시험 없음(충전 필요).
 - 켜는 법: ① platform.mureka.ai 선불 충전($30~)·키 발급 → 시험 계정 키 등록 ② 운영 DB에 `supabase/migrations/0004_mureka_provider.sql` 실행(주인님 승인) ③ `lib/providers/catalog.ts` `MUREKA_ENABLED = true` ④ 시험 생성 1곡으로 결과 칸(choices·duration)·모델 이름 확인 ⑤ 배포(버전 +0.01).
@@ -84,12 +84,12 @@
 ## 2026-10-23 v1.11 — 디자인 리뉴얼 「사운드 랩 바이올렛 스타일」 (Claude Code 윈도우, 음악 작업 담당)
 - 곡 만들기 2열·고정 요약 패널·휴대폰 하단 만들기 막대, 화면 아래 미니 플레이어(이어 듣기), 곡 카드 파형·공급자 색 띠, 안내 키 발급 3단계·자주 묻는 질문. 동작(생성·저장·링크·키)은 그대로. 상세 `docs/DESIGN_HANDOFF.md` 맨 위. 시험 33개·build·모바일 점검 0곳, 배포 Ready·DB v1.11. 비용: 빌드 1회.
 
-## 2026-10-23 미니 플레이어 반복·무작위 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, **미배포 대기** — 버전은 배포 때 v1.12)
+## 2026-10-23 미니 플레이어 반복·무작위 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, ~~미배포 대기~~ (✅ 2026-11-13 음악 담당 확인: 이후 배포에 실림) — 버전은 배포 때 v1.12)
 - 주인님 지시: 제안 가~라를 대기 목록에 올려 순차 진행, 배포는 모아서. 플랜 `docs/PLAN_20261023_PLAYER_REPEAT_SHUFFLE.md`.
 - `lib/playerOrder.ts`(순수 함수 `pickNext`·`pickPrev`·`nextRepeat`) + `tests/playerOrder.test.mjs` 7개(전체 40개). `components/player/PlayerProvider.tsx` 반복(끔→목록→한 곡)·무작위 상태, 들은 곡 기록(무작위 「이전 곡」용, 최근 50곡), 설정은 `localStorage` `ams-player-mode`(try/catch). 한 곡 반복은 곡이 끝났을 때만 — 「다음 곡」 버튼은 다음 곡으로. `MiniPlayer.tsx` 무작위·반복 버튼(켜지면 하늘색, 한 곡 반복은 「1」 아이콘).
 - 검수: 시험 40개·tsc·build 통과. 화면·소리는 배포 뒤 확인(미확인).
 
-## 2026-10-23 실제 소리 파형 막대 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, **미배포 대기** — 배포 때 v1.12에 함께)
+## 2026-10-23 실제 소리 파형 막대 (Claude Code 윈도우 · 세션 claude-win-20261023-bgm, ~~미배포 대기~~ (✅ 2026-11-13 음악 담당 확인: 이후 배포에 실림) — 배포 때 v1.12에 함께)
 - 제안 나. 곡 카드 막대 그림이 곡 번호로 만든 장식이었음 → **한 번 재생한 곡만** 브라우저가 곡 파일을 다시 받아(`fetch` → `decodeAudioData`) 구간 36개의 RMS를 막대 높이로 그림. 재생 위치까지는 진하게, 이후는 흐리게(움직임 없음). 결과는 탭 메모리 + `sessionStorage` `ams-peaks:<곡 키>`(서버 저장 없음), 30MB 넘는 파일·실패 시 기존 장식 막대 그대로.
 - `lib/peaks.ts`(`peaksFromChannels`·`peakToHeight`, 시험 `tests/peaks.test.mjs` 4개 — 전체 44개), `components/player/usePeaks.ts`, `Waveform.tsx`(`peaks`·`progress` 선택값), `TrackRow.tsx`.
 - 사전 확인(운영 v1.11 보관함, 크롬): Stable Audio 30초 곡 서명 주소를 브라우저에서 받아 디코딩·막대 계산 0.8초, 끝부분 소리 줄어듦까지 반영 — 저장소 서명 주소는 다른 출처에서도 받아짐. 화면 표시는 배포 뒤 확인.
