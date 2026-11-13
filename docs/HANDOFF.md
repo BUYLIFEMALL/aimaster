@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-elr-v1` — AI 11번가 상품 자동등록기(`elevenst-register`) 1안(107번 11st 오리지널 레드 스튜디오) 전면 구현 및 로컬 빌드·실물 검증 완료 (미배포 대기)
+- **작업 내용**: 주인님 「1안으로 하고」 확정 승인에 따라 **`107. 11번가 오리지널 레드 & 화이트 셀러 스튜디오 스타일 (11st Iconic Vibrant Red Studio)`** 기반으로 `elevenst-register` 전면 개편 구현 완료.
+- **주요 구현 및 개선 파일**:
+  - `elevenst-register/src/app/globals.css` — 107번 11st 오리지널 레드(`#FA0050` / `#E60045`) 토큰, 3D 엠보싱 레드 버튼(`.btn-3d-red`, `.btn-3d-11st`), 4단계 오픈 API 파이프라인 배너(`.pipeline-banner`) 스타일링 탑재.
+  - `elevenst-register/src/app/(auth)/login/page.tsx` — 5단계 표준 로그인 폼 개편, 과거 쿠팡 잔재 텍스트(`AIMASTER COUPANG OPS`) 완전 제거 → `AIMASTER 11ST REGISTER` 배지 탑재, 68px 11st 레드 로고, 3D 엠보싱 레드 로그인 버튼 탑재.
+  - `elevenst-register/src/app/(dashboard)/home/page.tsx` — 대시보드 4단계 오픈마켓 파이프라인 배너(상세 추출 → 11st 변환 → 10원 절사 & 고시 → 즉시 전송 & 전시중지) 및 실시간 4대 KPI 관제 카드(11st API 200 OK, 등록대기 상품, 누적등록 완료, 30일 보관 정책) 탑재. 과거 구버전 문구("지금은 검사 단계...") 제거.
+  - `elevenst-register/src/app/(dashboard)/products/page.tsx` & `[id]/page.tsx` — 11st 스튜디오 카드, 카테고리/가격/배송/고시 칩셋 정돈.
+  - `elevenst-register/src/components/RegisterForm.tsx` — 2단 관제 덱 등록 폼 리디자인, 10원 단위 절사 가이드 및 `.btn-3d-11st` 규격 검사 버튼, `.btn-3d-red` 11번가 즉시 전송 버튼 탑재. (API 계약 및 XML 빌드, 전송 로직 100% 보존).
+  - `elevenst-register/src/components/layout/Sidebar.tsx` & `TopBar.tsx` & `PageHeader.tsx` — 11st 레드 브랜드 뱃지, 액티브 메뉴 하이라이트, 보안 격리 배지 일체화.
+  - `elevenst-register/src/components/CategoryPicker.tsx`, `KeyForm.tsx`, `ConnectionTest.tsx`, `connect/page.tsx`, `guide/page.tsx` — 1안 테마 일체화.
+  - `elevenst-register/docs/DESIGN_HANDOFF.md`, `IMPROVEMENTS.md`, `AGENTS.md`, 루트 `DESIGN.md`, `docs/roles/design.md`, `docs/ACTIVE_WORK.md` 갱신.
+- **검증 결과**:
+  - 단위 테스트: `cd elevenst-register; node --test tests/*.test.mjs` **39 / 39 전수 통과** (`pass 39`, `fail 0`).
+  - TypeScript 검사: `npx tsc --noEmit` **에러 0건 통과**.
+  - Next.js 프로덕션 빌드: `npm run build` (Next.js 16.4.6 Turbopack 최적화 빌드 성공).
+  - 실물 렌더링 캡처:
+    - 데스크톱 (1440px): `elevenst-register/docs/evidence/elr_v107_desktop_login.png`
+    - 모바일 (390px): `elevenst-register/docs/evidence/elr_v107_mobile_login.png` (가로스크롤 `scrollWidth === innerWidth === 390px` 0px 완벽 검증).
+- **상태**: 로컬 검증 100% 완료, 주인님 배포 승인 대기 (운영 배포 시 `v1.07` 상향).
+
 ## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 카카오 공유 본인 키·쓰레드 기획 회원 격리·30일 정리 10개
 - 카카오 공유: 운영자 JS 키 → 회원 본인 `kakao_js_key`(DB 허용 목록 추가 SQL 0072 작성, **운영 적용은 권한 검사에서 막혀 미적용**). 쓰레드 기획: 브라우저 저장 회원별 분리, 30일 정리가 서버 키로 전체 회원 글을 지우던 것을 본인 글로 좁힘·예외 계정 제외.
 - 30일 정리: 예외 계정 빼기 4개(SQL 3개 미적용), 새로 넣기 6개(2026-12-14까지 유예). 모두 tsc 0, 미배포. 대기 줄 `docs/PENDING_DEPLOYS.md` 맨 위 4줄.
