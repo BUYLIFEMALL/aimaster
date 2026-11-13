@@ -84,6 +84,9 @@ body {
   transition: all 0.12s ease;
   cursor: pointer;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  white-space: nowrap !important;
+  min-width: max-content;
+  flex-shrink: 0;
 }
 .btn-3d-red:hover:not(:disabled),
 .btn-3d-11st:hover:not(:disabled),
@@ -117,6 +120,9 @@ body {
   transition: all 0.12s ease;
   cursor: pointer;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  white-space: nowrap !important;
+  min-width: max-content;
+  flex-shrink: 0;
 }
 .btn-3d-blue:hover:not(:disabled),
 .btn-3d-indigo:hover:not(:disabled) {
@@ -146,6 +152,9 @@ body {
   transition: all 0.12s ease;
   cursor: pointer;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  white-space: nowrap !important;
+  min-width: max-content;
+  flex-shrink: 0;
 }
 .btn-3d-emerald:hover:not(:disabled) {
   transform: translateY(-1.5px);
@@ -170,6 +179,9 @@ body {
   font-weight: 700;
   transition: all 0.15s ease;
   min-height: 38px;
+  white-space: nowrap !important;
+  min-width: max-content;
+  flex-shrink: 0;
 }
 .slw-primary {
   background: linear-gradient(180deg, #fa0050 0%, #e60045 100%);
@@ -301,3 +313,10 @@ body {
   background: #f1f5f9;
   color: #64748b;
 }
+
+/* 🎯 버튼 텍스트 2행 밀림 방지 전역 헌장 (1행 유지 의무) */
+button, input[type="button"], input[type="submit"], .btn-3d-red, .btn-3d-11st, .btn-3d-blue, .slw-btn, .slw-primary {
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
