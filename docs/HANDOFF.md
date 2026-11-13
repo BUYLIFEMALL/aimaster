@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.36 배포(볼타 웹훅·리마인더 메일/카톡·공개 REST API)
+
+- 배포 `ai-work-workspace-3dprokanf` Ready, DB v1.36. 운영 DB(주인님 승인): `user_api_keys_provider_check`에 `bolta_webhook_secret` 추가(`ai-work-workspace/supabase/migrations/20261113010000_bolta_webhook_secret_provider.sql`).
+- 운영 확인(시험 계정): 키 화면에 「볼타 웹훅 서명 키」·「🔔 알림 받기」 보임 · 공개 REST API `/v1/users/me` 200·`/v1/search` 결과 3건·MCP `tools/list` 16개(시험용 토큰은 바로 해지, 해지 뒤 401) · 토큰 없이 `/v1` 401 · 모르는 웹훅 토큰 404 · 세금계산서 화면에서 「웹훅 주소 만들기」 동작 · 메뉴 버전 v1.36. 시험 140·tsc·로컬 빌드.
+- 남은 실제 확인: 볼타 개발자센터에 웹훅 주소 등록 + 서명 키 저장(주인님) → 테스트 발급 자동 기록, 리마인더·자동화 알림 실제 발송(메일 계정·카카오 연결 필요), 볼타 실제(live_) 발급.
+
+
+
 ## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 전체 개발 현황 전수 대조·메인 사이트 매뉴얼/연동 링크 보강
 - 전체 현황: [`docs/DEV_STATUS_20261113.md`](DEV_STATUS_20261113.md) — 폴더 102·운영 DB 103개를 코드 버전·DB 버전·문서·매뉴얼 화면·담당·미배포 대기로 대조. 버전 불일치 9(대기 줄 없는 것 `ai-influencer-studio` 1개), 문서 뒤처짐 49, 매뉴얼 뒤처짐 추정 39, 공개인데 매뉴얼 화면 없음 5, 담당 미정 공개 프로그램 목록 §2-4.
 - 메인 사이트: 「API 설정」 「📖 발급 방법」·「📖 연동 매뉴얼」 버튼(미배포), 옛 주소 이동 대상을 공개 주소 `aimaster-five.vercel.app`으로 수정(미배포). 운영 DB: `integration_catalog.guide_id` 11개 연결(0070), `faq_items` 답 4개 수정·질문 5개 추가(0071) — 운영 화면 확인.
