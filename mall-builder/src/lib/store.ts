@@ -22,9 +22,14 @@ export type Store = {
   business_info: unknown; // readBusinessInfo()로 읽는다
   settings: unknown; // guestOrderEnabled() 등으로 읽는다
   created_at: string;
+  /** T2 분양몰(0061): standard = 일반 몰, resale = 분양몰(원본 몰 상품을 파는 몰) */
+  kind: "standard" | "resale";
+  source_store_id: string | null;
+  resale_expires_at: string | null;
+  modules: unknown; // resale(분양 받기) 등 켜짐 여부
 };
 
-const STORE_COLUMNS = "id, owner_id, slug, name, status, business_info, settings, created_at";
+const STORE_COLUMNS = "id, owner_id, slug, name, status, business_info, settings, created_at, kind, source_store_id, resale_expires_at, modules";
 
 export async function getCurrentUser() {
   const supabase = await createClient();

@@ -27,6 +27,7 @@ const MENU = [
   { href: "/products", label: "상품" },
   { href: "/suppliers", label: "공급사" },
   { href: "/supplier-settlements", label: "공급사 정산" },
+  { href: "/resale", label: "분양" },
   { href: "/group-buys", label: "공동구매" },
   { href: "/restock", label: "재입고 알림" },
   { href: "/shipping", label: "배송비" },

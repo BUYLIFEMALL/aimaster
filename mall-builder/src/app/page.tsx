@@ -7,6 +7,7 @@ import LogoutButton from "./logout-button";
 import { canCreateStore, SAMPLE_MALL_SLUG } from "@/lib/platform-admin";
 import { PLATFORM_AIMASTER } from "@/lib/platform";
 import { APP_VERSION } from "@/lib/version";
+import { resaleDaysLeft } from "@/lib/resale";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,11 @@ export default async function Home() {
                   {store.status === "suspended" && (
                     <span className="rounded bg-red-50 px-2 py-1 text-xs text-red-700">정지됨</span>
                   )}
+                  {store.kind === "resale" && (
+                    <span className={`rounded px-2 py-1 text-xs ${resaleDaysLeft(store.resale_expires_at) ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"}`} data-resale-badge>
+                      분양몰 · {resaleDaysLeft(store.resale_expires_at) ? `${resaleDaysLeft(store.resale_expires_at)}일 남음` : "기간 끝남"}
+                    </span>
+                  )}
                 </div>
                 <div className="mt-3 flex gap-2">
                   <Link href={`/s/${store.slug}/admin`} className="min-h-11 flex-1 rounded bg-gray-900 py-2.5 text-center text-sm text-white">
@@ -105,6 +111,11 @@ export default async function Home() {
           <Link href={`/s/${SAMPLE_MALL_SLUG}`} className="mt-3 inline-block min-h-11 rounded bg-blue-700 px-4 py-2.5 text-sm text-white">B2B 입점몰 샘플 열기</Link>
         </section>
       )}
+      <section className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4" data-resale-card>
+        <h2 className="text-base font-semibold">🏪 쇼핑몰 분양</h2>
+        <p className="mt-1 text-sm text-gray-700">내 이름의 쇼핑몰을 분양받아 본사 상품을 팔고 마진을 받으세요. 상품·재고·발송은 본사가 맡습니다.</p>
+        <Link href="/resale" className="mt-3 inline-block min-h-11 rounded bg-emerald-700 px-4 py-2.5 text-sm text-white">분양 안내·신청</Link>
+      </section>
     </main>
   );
 }
