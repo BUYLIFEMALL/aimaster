@@ -641,6 +641,15 @@
   align-items: center;
   gap: 12px;
 }
+/* v1.53: 가사 칸까지 내려와서 버튼을 눌러도 진행·오류 안내가 보이게 화면 위에 붙인다(2026-11-13 「가사 생성 안 돼」 — 오류가 맨 위에만 떠서 안 보였음) */
+.suno-studio .notice,
+.suno-studio .generation-progress {
+  position: sticky;
+  top: 12px;
+  z-index: 40;
+  background: #2a1608;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
 .suno-studio .generation-progress span {
   flex: 1;
 }

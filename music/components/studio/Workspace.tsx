@@ -366,13 +366,13 @@ export function Workspace({
       throw new Error(
         "선택한 AI의 본인 API 키를 먼저 등록해 주세요. API키등록·플랫폼연동에서 등록할 수 있습니다.",
       );
-    const r = await fetch("/api/generate", {
+    const r = await fetch("/api/studio/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, brief: input, contextTrack }),
       signal: c.signal,
     });
-    const data = await r.json();
+    const data = await r.json().catch(() => ({ error: `서버 응답을 읽지 못했습니다(${r.status}). 잠시 뒤 다시 시도해 주세요.` }));
     if (!r.ok) throw new Error(data.error || "생성 요청 실패");
     if (active.current !== c || c.signal.aborted) return null;
     return data.result;
@@ -768,13 +768,13 @@ export function Workspace({
     try {
       if (!registered[b.provider])
         throw new Error("선택 AI의 본인 API 키를 먼저 등록해 주세요.");
-      const r = await fetch("/api/search", {
+      const r = await fetch("/api/studio/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query, useWeb, mode, brief: b }),
         signal: c.signal,
       });
-      const data = await r.json();
+      const data = await r.json().catch(() => ({ error: `서버 응답을 읽지 못했습니다(${r.status}). 잠시 뒤 다시 시도해 주세요.` }));
       if (!r.ok) throw new Error(data.error || "검색 실패");
       if (active.current !== c || c.signal.aborted) return;
       setSearchResult(data.result.tracks);
