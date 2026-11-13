@@ -3,7 +3,7 @@
 # AI 가사영상 자동화 (`lyric-video-studio`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`·`AGENTS.md`를 먼저 읽는다. 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
-> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.13**
+> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.14**
 > 출발점: 외부 상용 앱 Lyricbi 1.9.0 분석([`docs/analysis-lyricbi-20261021/REPORT.md`](../docs/analysis-lyricbi-20261021/REPORT.md)) — **코드는 옮기지 않고** 기능·흐름만 참고해 새로 만들었다.
 
 ## 1. 사용 목적과 대상
@@ -41,6 +41,7 @@
 - v1.13(2026-11-07, 무료음악 D-1): **AI 무료음악 자동화에서 곡 받기** — `?fms=<곡 번호>`(`FmsImportCard`), 제목·가사·가사 시간은 `/api/fms/song`(`lib/fms.ts`, 공용 DB `free_music_tracks` 회원 본인 곡만 읽기)·`lib/fmsLyrics.ts`(cues → 줄 시간, 빈 끝은 다음 줄·곡 길이), 음원은 회원 PC 엔진에만 있어 무료음악 창이 `postMessage`로 건넴(「lvs-ready」 → 「fms-audio」, 출처·창 확인, 30초 안 오면 직접 넣기 안내, 서버 업로드 없음). 시험 30.
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.14 | 2026-11-13 | 3차(플랜 `docs/PLAN_20261113_PHASE3.md`, 주인님 승인 빌드 1회, `lyric-video-studio-asrxw52s4`, DB v1.14, [역할: music]): **채널 로고**(디자인 「🏷️ 채널 로고」 — 회원 PC 그림만·서버 업로드 없음·저장 안 함, 3×3 위치·크기 5~30%·투명도, `src/lib/overlay.ts` `logoRect`) · **프레임** 4종(없음·얇은 선·둥근 카드·필름 띠, 색·두께, 필름 띠면 로고가 띠 안쪽) — 미리보기와 MP4가 같은 `drawFrame`. 프리셋을 바꿔도 로고·프레임 값 유지. **유튜브 제목·설명 AI 제안(선택)**: 올리기 카드 「✨ AI로 제목·설명 제안받기」 → `POST /api/youtube/meta`(`src/lib/llm.ts`, 회원 본인 키 Claude → Gemini → OpenAI 순, 저가 모델 `claude-haiku-5-5`·`gemini-3.5-flash-lite`·`gpt-6-luna`, 재시도 0, 40초 제한, 키 없으면 등록 안내) — 제목 3개·설명·해시태그 5개, 고르면 칸에 채움(`src/lib/ytMeta.ts` 프롬프트·해석, 당해 연도 지침). 함께: 공통 보완 `b4403e8bd`(로그아웃 local·저장공간 위젯). 시험 36(새 6)·로컬 빌드. ego 시험 계정: v1.14·위젯·로고·필름 띠 미리보기 확인, AI 호출 1회 200(본인 Claude 키, 제목 3·해시태그 5), JSON 아닌 요청 400. **못 한 것**: 로고·프레임을 넣은 실제 MP4 저장과 올리기 카드의 AI 버튼 화면 클릭(음악·가사가 있는 작업이 필요 — 같은 그리기 함수라 미리보기와 같음, 다음 실제 작업 때 확인). |
 | v1.12 | 2026-11-06 | `?remix=<리믹스 변주 id>`: 음악(SUNO) 리믹스 결과를 회원 본인 것만 가져오기(`suno.ts` `ownVariant`가 `music_track_remix_variants`·`music_track_remixes`로 이어짐, 제목=원곡 제목+방식 이름, 보컬 방식만 가사·시간 가사 — 반주 추가·연주곡은 없음). `/source`가 `?suno=`와 같은 흐름으로 받음(플랜 `music/docs/PLAN_20261022_REMIX_SHORTCUTS.md`) |
 | v1.12 | 2026-11-06 | Lyricbi L-5 렌더 진단 기록: 새 `src/lib/render/diagnostics.ts` — 이 PC가 고를 인코더를 공용 인코더와 같은 순서로 미리 살핌(H.264 High→Main→Baseline, AAC→Opus, 그래픽 가속 여부), 메모리 어림(디코딩 소리 + 메모리 방식 결과)·대체·인코더 없음은 만들기 전 「⚠️」 안내. 내보내기 동안 단계 바뀔 때·완료(걸린 시간·재생 대비 배속)·취소·실패(오류 이름·내용)를 기록, 「🩺 렌더 진단 기록」 접기 칸 + 「📋 진단 복사」(브라우저·코어·메모리·인코더·해상도·fps·저장 방식·프리셋·LP·사진 포함). 공용 인코더 사본은 고치지 않음. 시험 4개 `tests/diagnostics.test.ts`(전체 28)·tsc |
 | v1.12 | 2026-11-06 | Lyricbi L-4 꾸밈 확장(우리 값): 강조 「앞 점」·「모서리 괄호」, 소리 반응 「점 막대」·「가는 선」, 한글 글꼴 주아·개구·송명, 프리셋 LP 라운지·파스텔 팝(가로)·세로 LP·세로 일기장(세로). **함께 고친 오류**: `ensureFonts`가 「가나다ABC」 글자 묶음만 미리 받아 한글 웹 글꼴의 나머지 글자가 늦게 받아지는 동안 기본 글꼴로 섞여 그려짐(MP4 앞부분에도 해당) → 실제 제목·가사 글자(`sceneText`)로 미리 받기(미리보기·프리셋 그림·내보내기 3곳). 시험 24·tsc, ego 확인 페이지로 새 프리셋 4개·글꼴 확인 |
