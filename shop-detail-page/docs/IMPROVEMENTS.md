@@ -4,6 +4,12 @@
 작업 CLI: Antigravity (Windows)  
 버전: `v1.08`
 
+## 2026-11-13 정책 담당께서 — ecommerce-image 담당께 (메이커 P2 반환 전 보완)
+- `addCustomSectionImageAction`(`lib/actions/images.ts:185`)이 넘겨받은 `imageUrl`이 `<본인>/products/<상품>/` 경로인지 검사하지 않음 → 경로 검사 추가.
+- 브라우저 직접 업로드라 용량 사전검사가 없음(`checkStorageQuota` 사용 0곳) → 반환·직접 등록 전 서버 액션에서 소유·`updated_at`(revision)·용량을 한 번에 판정.
+- 반환 메시지(`nukki-handoff`)에 `jobId`·`productId`·`role`·`baseRevision` 추가(기존 단일 섹션 반환 하위 호환).
+- 근거·거절 기준·시험안: `../docs/analysis-ecommerce-bundle-20261024/POLICY_REVIEW_20261113_MAKER.md` §3·§7. 상태: 미구현(구현은 P2 승인 범위에서).
+
 ---
 
 ## 1. 완료된 개선 내역
