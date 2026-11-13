@@ -412,6 +412,8 @@ function WebRow({ d, edit, update }: { d: AgentDetail; edit: boolean; update: (p
         <div className="nc-agent-row-sub">{!AGENT_WEB_READY ? t('lp.agents.web_access_not_ready', 'Coming soon') : disabledByAdmin ? t('lp.agents.web_browsing_is_disabled_by_your', 'Web browsing is disabled by your workspace admin.') : t('lp.agents.lets_the_agent_browse_the_web', 'Lets the agent browse the web with no limits on internet access.')}</div>
         {AGENT_WEB_READY && cfg.web_access && !disabledByAdmin && (
           <div className="nc-agent-web">
+            {/* 2026-11-13 회원 키 AI 내장 웹 검색 — 비용 안내(플랜 PLAN_20261113_U14_AND_DEFERRED.md §2-3) */}
+            <div className="nc-agent-row-sub">💡 웹 검색은 회원님 본인 AI 키의 내장 검색을 씁니다(Claude·OpenAI). 검색 1번에 약 15~50원과 읽은 글만큼의 사용료가 회원님 AI 계정에 청구됩니다. Gemini 키만 있으면 웹 검색은 동작하지 않습니다.</div>
             <div className="nc-agent-chips">
               {(cfg.web_domains ?? []).map((h) => (
                 <span key={h} className="nc-agent-chip">{h}{edit && <span role="button" aria-label={t('lp.agents.remove_39d4', 'Remove {domain}', { domain: h })} onClick={() => void update({ web_domains: (cfg.web_domains ?? []).filter((x) => x !== h) })}><Icon name="close" size={10} /></span>}</span>
@@ -436,8 +438,8 @@ function WebRow({ d, edit, update }: { d: AgentDetail; edit: boolean; update: (p
   );
 }
 
-/** 서버가 웹 검색을 꺼 둠(runs.ts AGENT_WEB_ENABLED=false) — 켜면 함께 true로 */
-const AGENT_WEB_READY = false;
+/** 서버 runs.ts AGENT_WEB_ENABLED와 함께 맞춘다 */
+const AGENT_WEB_READY = true; // 2026-11-13 회원 키 AI 내장 웹 검색 열림(서버 runs.ts memberWebMode)
 
 const MODE_LABEL: Record<string, string> = { auto: 'Run automatically', ask: 'Always ask', allow: 'Always allow' };
 

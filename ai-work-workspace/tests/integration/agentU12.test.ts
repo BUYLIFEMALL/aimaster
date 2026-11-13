@@ -54,10 +54,15 @@ describe('U12 에이전트 열기', () => {
     expect(r?.status).toBe(403);
     expect(r?.message).toContain('준비 중');
   });
-  it('요금제 조건 없이 쓸 수 있고, 웹 검색은 꺼져 있고, 기본 월 상한은 700이다', () => {
+  it('요금제 조건 없이 쓸 수 있고, 웹 검색은 회원 키 AI 내장 검색만(2026-11-13), 기본 월 상한은 700이다', () => {
     expect(model.agentsAvailable({ id: 's', plan_type: 'plus' } as never)).toBe(true);
     expect(model.agentsAvailable(undefined)).toBe(false);
-    expect(runs.AGENT_WEB_ENABLED).toBe(false);
+    expect(runs.AGENT_WEB_ENABLED).toBe(true);
+    // 우리 서버가 바깥 주소를 가져오지 않게: Claude만 페이지 읽기(Anthropic 실행), OpenAI는 내장 검색만, Gemini·키 없음은 끔
+    expect(runs.memberWebMode('anthropic')).toEqual({ search: true, fetch: true });
+    expect(runs.memberWebMode('openai')).toEqual({ search: true, fetch: false });
+    expect(runs.memberWebMode('gemini')).toEqual({ search: false, fetch: false });
+    expect(runs.memberWebMode(null)).toEqual({ search: false, fetch: false });
     expect(model.DEFAULT_AGENT_CREDIT_LIMIT).toBe(700);
   });
 });

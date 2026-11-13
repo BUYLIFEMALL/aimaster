@@ -22,6 +22,7 @@ import { buildChatRequest, pageToMarkdown, type StoredMessage } from '../ai/prom
 import { addMessage, createThread, listMessages, markRead, setAutoTitle, setThreadModel, threadById, type Message, type MessageData, type SourceRef, type StoredStep, type Thread } from '../ai/threads.ts';
 import { effectiveApprovalMode, userAiPrefs, workspaceAiPolicy, type ApprovalMode } from '../ai/aiPolicy.ts';
 import { autoEffort, capabilities, offeredModels, resolveModel, webToolDefs } from '../ai/models.ts';
+import { providerForModel } from '../ai/providers/config.ts';
 import { waitForApproval } from '../ai/approvals.ts';
 import { turnChanges, type TouchedPage } from '../ai/changes.ts';
 import { toolParams } from '../ai/tools/defs.ts';
@@ -232,7 +233,16 @@ export function setAgentClient(client: ClaudeLike | undefined) {
  * AIMaster 런타임이 주인 키를 읽어 감싸는 함수를 넣는다(src/server/agentRuns.ts). 넣지 않으면(원본 시험) 그대로 실행.
  */
 /** AIMaster U12: 에이전트 웹 검색·가져오기(꺼 둠 — 켜려면 주인님 결정 후 true) */
-export const AGENT_WEB_ENABLED = false;
+export const AGENT_WEB_ENABLED = true;
+
+/** AIMaster 2026-11-13(주인님 「권장안대로」, 플랜 docs/PLAN_20261113_U14_AND_DEFERRED.md §2-3): 회원 키 AI의 「내장」 웹 기능만 쓴다 —
+ *  우리(운영자) 서버가 바깥 주소를 가져오는 일은 없게. Claude = 검색·페이지 읽기 모두 Anthropic이 실행 / OpenAI = 내장 검색만
+ *  (페이지 읽기는 우리 서버가 가져오므로 끔) / Gemini = 이식판에 내장 검색이 연결되지 않아 끔. */
+export function memberWebMode(provider: string | null | undefined): { search: boolean; fetch: boolean } {
+  if (provider === 'anthropic') return { search: true, fetch: true };
+  if (provider === 'openai') return { search: true, fetch: false };
+  return { search: false, fetch: false };
+}
 
 type RunWrapper = (agentId: string, fn: () => Promise<RunOutcome>) => Promise<RunOutcome>;
 let runWrapper: RunWrapper = (_agentId, fn) => fn();
@@ -572,13 +582,14 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   const effort = autoEffort('chat', run.payload.text ?? '');
   // ---- tools
   // AIMaster U12(주인님 결정 3번): 이번 단계에선 에이전트의 웹 검색·웹 페이지 가져오기를 끈다(운영자 서버의 바깥 호출 없음)
-  const webOn = AGENT_WEB_ENABLED && cfg.web_access && policy.webSearch;
+  const webMode = memberWebMode(providerForModel(model));
+  const webOn = AGENT_WEB_ENABLED && cfg.web_access && policy.webSearch && webMode.search;
   const instructions = readInstructions(agent, cfg);
   const promptText = [instructions.markdown, run.payload.text ?? '', ...(run.payload.facts ?? []), run.payload.instructions ?? ''].join('\n');
   const allowedHosts = new Set<string>([...(policy.webConfirm ? [] : cfg.trusted_urls ?? []), ...hostsIn(promptText), ...(run.payload.allowedHosts ?? [])]);
   const allowAll = !!cfg.allow_all_urls && !policy.webConfirm;
   const mcp = agentMcpTools(agent, cfg);
-  const names = agentToolNames(cfg, { canConfigure, web: webOn });
+  const names = agentToolNames(cfg, { canConfigure, web: webOn && webMode.fetch });
   const subAgents = cfg.sub_agents.map((id) => getAgent(id)).filter((a): a is AgentRecord => !!a && a.alive !== false && a.space_id === agent.space_id)
     .map((a) => ({ id: a.id, name: a.data.name, description: a.data.description }));
   const history: StoredMessage[] = messages.map((m) => ({ role: m.role, text: m.data.text, contexts: m.data.contexts, status: m.data.status === 'stopped' ? 'stopped' : undefined, meta: m.data.meta }));
@@ -595,7 +606,7 @@ async function runModel(agent: AgentRecord, run: RunRow, opts: ModelOptions): Pr
   const allowedModels = mp.allowed.length ? mp.allowed : policy.allowedModels;
   const buildWeb = () => {
     if (!webOn) return [];
-    const defs = webToolDefs(model, { fetch: true });
+    const defs = webToolDefs(model, { fetch: webMode.fetch });
     return defs.map((d) => {
       if (d.name === 'web_search' && cfg.web_domains?.length) return { ...d, allowed_domains: cfg.web_domains };
       if (d.name === 'web_fetch' && !allowAll) return allowedHosts.size ? { ...d, allowed_domains: [...allowedHosts] } : null;
