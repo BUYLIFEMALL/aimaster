@@ -1,5 +1,22 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 쇼핑몰 v1.03~v1.06·분양몰 운영 반영·손님 화면 공개
+
+- **v1.03** 배송지 알림 위치·두 번 누름 방지 단추. **v1.04** T1 마무리: 공급사 상품 옵션(추가 공급가·판매 추가금 마진 비율 자동)·공급사별 배송비(공급사 정산에 더함), DB 0060 — 운영 실제 흐름 검수 완료(주문 20261113-0002 → 공급사 정산 25,000원 = 공급가 22,000 + 배송비 3,000). [플랜](mall-builder/docs/PLAN_20261113_T1_SUPPLIER_OPTIONS_SHIPPING.md)
+- **v1.05** T2 분양몰: 공개 안내·신청 `/resale`, 본사 「분양」(승인·이용 기간·분양 주문 입금 확인·출금 지급), 분양자 「분양」(본사 상품 담기·판매가·매출·정산), 거울 상품 자동 맞춤, 입금 확인 → 본사 전달 주문·발송 연동·취소 재고 복구·마진 장부, DB 0061~0063(로컬 시나리오 36단계 통과, Lab·운영 SQL 편집기 적용). [설계](mall-builder/docs/PLAN_20261113_T2_RESALE_MALL.md) · **운영 실제 흐름 검수는 남음**(엣지 관리자 로그인 대기).
+- **v1.06** 주인님 결정 「쇼핑몰 손님 화면 예외」: `/s/<몰>` 손님 화면·`/resale`은 로그인 없이 누구나·검색엔진, 몰 관리·공급사·처음 화면은 회원 전용 — 최상위 규칙 문서 §8 기록, `mall-builder/src/lib/platform.ts` `isOpenPath`.
+- **인계**: 손님 화면 디자인 → agy [HANDOFF_20261113_STOREFRONT_DESIGN_AGY.md](mall-builder/docs/HANDOFF_20261113_STOREFRONT_DESIGN_AGY.md) / 메이커 후속 쇼핑몰 연계 검토 결과 [IMPROVEMENT_HANDOFF_20261113_MAKER.md](mall-builder/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) / 후속 플랜(샘플몰 완성·분양몰·독립몰) [PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md](mall-builder/docs/PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md)
+- 발견: 주문 상태 단추의 브라우저 확인 창이 자동 조작을 멈추게 함(개선 후보), Supabase MCP 운영 적용 확인 창이 자동 취소됨 → ego lite SQL 편집기로 적용(클립보드에 다른 작업 내용이 섞인 적 있어 붙여 넣은 뒤 글자 수·처음/끝 줄 확인 후 실행).
+- 비용: Vercel 운영 빌드 4회(v1.03~v1.06, 승인 범위), AI 호출 없음. 다음 첫 단계: 엣지 관리자 로그인 → 샘플몰 「분양 신청 받기」 → 분양 실제 흐름 검수.
+- https://mall-builder.buylife.xyz
+
+
+
+
+
+
+
+
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.34(미룬 기능 4개 배포) + 5번 팝빌 플랜
 
 - 주인님 「권장안대로 진행해」·「지금 배포 + 실제 시험」: ① 에이전트 웹 검색(회원 본인 Claude·OpenAI 키 내장 검색, Gemini는 꺼짐, 켤 때 비용 안내) ② 자동화·버튼 웹훅 엶(https만·회원당 분당 20·하루 500, 원본 위험 주소 차단·실패 즉시 일시정지 유지) ③ 자동화 「알림 보내기」에 「내 메일·카카오톡으로도」(공용 `user_smtp_accounts`·`member_platform_accounts` kakao 재사용, 본인에게만, 채널별 하루 100) ④ MCP 서버 1단계 `/api/mcp`(개인 토큰, 토큰 주인 이용 권한 확인, 토큰 5개·90일·분당 60, 바깥 MCP 연결은 계속 닫힘). 플랜 `ai-work-workspace/docs/PLAN_20261113_U14_AND_DEFERRED.md`.
