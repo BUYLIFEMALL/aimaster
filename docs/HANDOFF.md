@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 메이커 후속 C 정책 검토(문서·읽기 전용)
+- 산출물: [`docs/analysis-ecommerce-bundle-20261024/POLICY_REVIEW_20261113_MAKER.md`](analysis-ecommerce-bundle-20261024/POLICY_REVIEW_20261113_MAKER.md) — 입력·가공·저장·호스팅·발행·삭제별 허용표, P2 반환 소유권·거절 기준(jobId·productId·role·baseRevision=`updated_at` 트리거), 최소 DB(1차 불필요), 11번가 `/i/` 노출 영향, 운영자료를 지우지 않는 시험안.
+- 발견: 상세페이지 직접 업로드에 용량 사전검사 없음 · 섹션 저장 액션이 이미지 경로 소유를 검사하지 않음 · 11번가 상세사진은 구독 중에도 포스팅 보관 기간(파일 생성일 기준) 뒤 깨짐. 지금 걸린 `/i/` 링크 15·쿠팡 22개는 모두 예외 계정이라 운영 피해 0. 11/21 상세 30일 유예 종료 때 일반 회원 상품 3개 정상 정리 예정.
+- 담당께: `shop-detail-page/docs/IMPROVEMENTS.md`·`elevenst-register/docs/IMPROVEMENTS.md`에 요청 남김. 주인님 결정 1건(`/i/` markPosted·안내) 역할 파일에. 운영 DB 읽기 3회, 쓰기·배포 없음, 비용 없음.
+- 다음 첫 단계: A(기능) 계약 초안이 나오면 §3 기준으로 대조.
+
 ## 2026-11-13 KST ✅ [역할: mall-builder] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 쇼핑몰 v1.03~v1.06·분양몰 운영 반영·손님 화면 공개
 
 - **v1.03** 배송지 알림 위치·두 번 누름 방지 단추. **v1.04** T1 마무리: 공급사 상품 옵션(추가 공급가·판매 추가금 마진 비율 자동)·공급사별 배송비(공급사 정산에 더함), DB 0060 — 운영 실제 흐름 검수 완료(주문 20261113-0002 → 공급사 정산 25,000원 = 공급가 22,000 + 배송비 3,000). [플랜](mall-builder/docs/PLAN_20261113_T1_SUPPLIER_OPTIONS_SHIPPING.md)
