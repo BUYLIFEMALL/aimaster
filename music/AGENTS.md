@@ -466,3 +466,7 @@ POST 콜백을 보낸다. 이 라우트는:
 - `components/studio/Workspace.tsx`가 `/api/generate`·`/api/search`를 불러 404(10-23 대량 복구 커밋 `237741cc3` 줄 — 그때부터 곡·앨범·제안·가사 생성과 탐색이 실패) → `/api/studio/generate`·`/api/studio/search`. 안내·진행 표시를 화면 위에 붙임(`studio.css` sticky), JSON이 아닌 응답은 한국어 안내.
 - 검수: 시험 65·tsc·lint·build, 배포 `music-97h7ogmyg`·DB v1.53, ego lite 시험 계정 빌더 가사 생성 1회 성공. 탐색은 화면 확인 안 함.
 - (같은 날 추가 확인) 탐색 화면: 웹 검색 끈 AI 검색 1회 → 진행 표시가 화면 위에 보이고 음악 방향 제안 6개 표시(시험 계정 본인 Gemini 키). 웹 검색 켠 검색·대표곡 참고는 미확인.
+
+## 2026-11-13 v1.54 — 빌더를 「쉽게/디테일하게」 두 색 박스로 구분 (Claude Code 윈도우 · 음악 담당)
+- 주인님 「두 영역을 다른 색 박스로 구분」「위는 쉽게, 아래는 디테일하게」. 곡 편집기(빌더)는 주황 「⚡ 쉽게 만들기」, AI 기획·작사 카드는 보라 「🎯 디테일하게 만들기」(`studio.css` `.maker-box`·`.maker-quick`·`.maker-detail`·`.maker-label`).
+- 「생성된 가사는 어디에?」 → 디테일 결과는 위 곡 칸(제목·Style·가사)에 채워짐. 생성 뒤 안내 + 위 박스로 자동 스크롤 추가. 커밋 ba1944190, 배포 `music-7ti2ljjxs`·DB v1.54(승인 빌드 1회), ego lite 두 박스 색·제목 확인(AI 호출 없음).
