@@ -141,6 +141,10 @@ test("끝 이어 만들기 — 마지막 구간 미리 채우기·가사 머리�
   assert.equal(lastLyricSection("[Verse]\n하나\n\n[Chorus]\n둘\n셋"), "[Chorus]\n둘\n셋");
   assert.equal(lastLyricSection("그냥 한 줄"), "그냥 한 줄");
   assert.equal(lastLyricSection("[Instrumental]"), "");
+  // 2026-11-13: 원곡이 빈 머리말로 끝나면 그 앞의 부르는 구간을 채운다
+  assert.equal(lastLyricSection("[Verse]\n하나\n\n[Chorus]\n둘\n셋\n\n[Outro]"), "[Chorus]\n둘\n셋");
+  assert.equal(lastLyricSection("[Chorus]\n둘\n[Outro]\n[Instrumental]"), "[Chorus]\n둘");
+  assert.equal(lastLyricSection("[Intro]\n[Outro]"), "");
   assert.equal(extendLyrics(""), "[Outro]\n[Instrumental]");
   assert.equal(extendLyrics("고마워 내 사랑"), "[Outro]\n고마워 내 사랑");
   assert.equal(extendLyrics("[Chorus]\n둘"), "[Chorus]\n둘");

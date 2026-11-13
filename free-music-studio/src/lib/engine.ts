@@ -729,12 +729,19 @@ export function hasExtend(status: EngineStatus | null): boolean {
 
 export const EXTEND_SECONDS = [30, 60, 90] as const;
 
-/** 원곡 가사의 마지막 구간([Chorus] 등 마지막 머리말부터) — 이어 만들기 가사 칸에 미리 채운다 */
+/** 원곡 가사에서 부르는 줄이 있는 마지막 구간(머리말 포함) — 이어 만들기 가사 칸에 미리 채운다.
+    원곡이 빈 [Outro]·[Instrumental]처럼 머리말만 있는 구간으로 끝나면 그 앞 구간을 쓴다(2026-11-13, 인수인계서 20·24절). 없으면 빈 칸 */
 export function lastLyricSection(lyrics: string): string {
-  const text = String(lyrics ?? "").trim();
-  const i = text.lastIndexOf("\n[");
-  const tail = (i >= 0 ? text.slice(i + 1) : text).trim();
-  return /^\[(instrumental|sfx)\]$/i.test(tail) ? "" : tail.slice(0, 1500);
+  const isTag = (line: string) => /^\s*\[[^\]]*\]\s*$/.test(line);
+  const sections: string[][] = [];
+  for (const line of String(lyrics ?? "").trim().split(/\r?\n/)) {
+    if (isTag(line) || !sections.length) sections.push([line]);
+    else sections[sections.length - 1].push(line);
+  }
+  for (let i = sections.length - 1; i >= 0; i--) {
+    if (sections[i].some((line) => line.trim() && !isTag(line))) return sections[i].join("\n").trim().slice(0, 1500);
+  }
+  return "";
 }
 
 /** 이어 만들 가사 — 비우면 연주로 끝맺음, 머리말이 없으면 [Outro]를 붙인다 */
