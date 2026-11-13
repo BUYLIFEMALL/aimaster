@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.35 세금계산서 볼타 바로 발급(운영 테스트 통과)
+
+- 주인님 「일단 볼타로 정리해」: 팝빌 구현(미배포)을 볼타로 교체. 회원 본인 볼타 API 키(공용 `user_api_keys` `bolta_api_key`, test_/live_), 4단계 설정(키·발급자·공동인증서·실제 발급 동의), 문서별 「📤 볼타 발급」→「🔄 발급 결과 확인」, 요청 번호 먼저 저장·접수 조회 후에만 재전송(이중 발급 방지). 코드 `ai-work-workspace/src/server/bolta.ts`·`boltaCore.ts`, 화면 `src/app/receipts/BoltaPanel.tsx`, 플랜 `ai-work-workspace/docs/PLAN_20261113_U14_AND_DEFERRED.md` §2-5.
+- 배포 `ai-work-workspace-dyeif39yo` Ready, DB v1.35. **운영 DB 변경(주인님 승인)**: `user_api_keys_provider_check`에 `bolta_api_key` 추가(`ai-work-workspace/supabase/migrations/20261113000000_bolta_api_key_provider.sql`) — 새 키 이름을 쓰려면 이 제약에 먼저 넣어야 저장됨(다른 담당도 참고).
+- 운영 확인(시험 계정, 볼타 test_ 키): 발급자 등록 → 공동인증서 등록(주인님 직접) → 과세 1건·면세 1건 테스트 발급 → 국세청 승인번호(test_nts_…) 기록까지 통과. 시험 134·tsc.
+- 남은 것: 볼타 칸 항상 보이기(커밋, 미배포), 실제(live_) 발급은 주인님이 live_ 키·포인트 준비 뒤, 웹훅 자동 수신은 다음 단계.
+
 ## 2026-11-13 [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-blog` — 메이커 P1·P2 배포 완료(바나나 v1.46·상세 v1.44·11번가 v1.06·스마트스토어 v1.27)
 
 - 주인님 「진행해」: 운영 DB `shop_products.main_image_url`·`main_image_urls` 추가(SQL 편집기, 새 쿼리 조회로 확인) → 스마트스토어 → 바나나 → 상세페이지 → 11번가 순차 배포(각 Ready·DB 버전). 함께: 로그인 정책 2건·저장공간 위젯(`3c2c95d7e`). 작업 중 표의 agy·claude-win-sdp 줄은 주인님 승인으로 넘김.
