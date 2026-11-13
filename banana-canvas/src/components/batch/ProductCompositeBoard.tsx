@@ -78,14 +78,17 @@ export function ProductCompositeBoard() {
   }, [fileJobs]);
 
   const addFiles = useCallback((list: FileList | File[]) => {
+    // 입력 칸을 바로 비우면(e.target.value = "") FileList도 비므로, 상태 갱신 전에 먼저 골라 둔다(2026-11-13 운영 결함 수정)
     const skipped: string[] = [];
+    const ok: File[] = [];
+    for (const f of Array.from(list)) {
+      if (!f.type.startsWith("image/")) continue;
+      if (f.size > PHOTO_MAX_BYTES) { skipped.push(`${f.name}(25MB 초과)`); continue; }
+      ok.push(f);
+    }
     setFiles((prev) => {
       const next = new Map(prev);
-      for (const f of Array.from(list)) {
-        if (!f.type.startsWith("image/")) continue;
-        if (f.size > PHOTO_MAX_BYTES) { skipped.push(`${f.name}(25MB 초과)`); continue; }
-        next.set(f.name, f);
-      }
+      for (const f of ok) next.set(f.name, f);
       return next;
     });
     setNotice(skipped.length ? `넣지 못한 사진: ${skipped.join(", ")}` : null);
