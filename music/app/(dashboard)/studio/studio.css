@@ -1179,3 +1179,47 @@
 .suno-studio .send-to-suno .actions {
   margin: 10px 0 6px;
 }
+
+/* v1.54: 빌더의 두 작성 방식을 색 박스로 구분(2026-11-13 주인님 「위는 쉽게, 아래는 디테일하게」) */
+.suno-studio .maker-box {
+  border-width: 2px;
+  border-style: solid;
+}
+.suno-studio .maker-quick {
+  border-color: rgba(249, 115, 22, 0.75);
+  background: linear-gradient(180deg, rgba(249, 115, 22, 0.08), transparent 160px), var(--surface-card);
+}
+.suno-studio .maker-detail {
+  border-color: rgba(139, 92, 246, 0.75);
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.1), transparent 160px), var(--surface-card);
+}
+.suno-studio .maker-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin: -4px 0 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+.suno-studio .maker-label strong {
+  font-size: 15px;
+  white-space: nowrap;
+}
+.suno-studio .maker-label span {
+  font-size: 12px;
+  color: #a1a1aa;
+}
+.suno-studio .maker-quick .maker-label {
+  background: rgba(249, 115, 22, 0.14);
+  color: #fdba74;
+}
+.suno-studio .maker-detail .maker-label {
+  background: rgba(139, 92, 246, 0.16);
+  color: #c4b5fd;
+}
+.suno-studio .maker-detail .primary {
+  background: #7c3aed;
+  border-color: #7c3aed;
+  color: #fff;
+}

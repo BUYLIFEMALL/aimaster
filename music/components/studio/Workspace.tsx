@@ -455,6 +455,22 @@ export function Workspace({
             },
           };
         });
+      // v1.54: 아래 「디테일하게 만들기」 결과는 위 「쉽게 만들기」 곡 칸에 채워진다 — 어디로 갔는지 보이게 안내하고 올라간다.
+      if (action === "song" && section === "song") {
+        setNotice(
+          override
+            ? "새 가사를 가사 칸에 넣었습니다. 고칠 부분을 수정한 뒤 Suno로 보내세요."
+            : "결과를 위 「⚡ 쉽게 만들기」 곡 칸(제목·Style·가사)에 채웠습니다. 확인·수정한 뒤 Suno로 보내세요.",
+        );
+        if (!override)
+          window.setTimeout(
+            () =>
+              document
+                .querySelector(".suno-studio .maker-quick")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+            50,
+          );
+      }
     } catch (e) {
       failure(e, c);
     } finally {
@@ -469,7 +485,7 @@ export function Workspace({
       [t?.title, t?.summary].filter((v) => v && v.trim()).join(" — ");
     if (!concept) {
       setNotice(
-        "가사를 만들 주제가 없습니다. 오른쪽 「AI 기획·작사」의 곡 설명을 먼저 적어 주세요.",
+        "가사를 만들 주제가 없습니다. 아래 「🎯 디테일하게 만들기」의 곡 설명을 먼저 적어 주세요.",
       );
       return;
     }
@@ -1104,7 +1120,13 @@ export function Workspace({
                     : undefined
                 }
               />
-              <section className="card">
+              <section className="card maker-box maker-detail">
+                <div className="maker-label">
+                  <strong>🎯 디테일하게 만들기</strong>
+                  <span>
+                    곡 설명·꼭 반영할 내용·AI 모델을 정하고, 제목·Style·가사 중 만들 항목을 골라 위 곡에 채웁니다.
+                  </span>
+                </div>
                 <div className="section-title">
                   <h2>AI 기획·작사</h2>
                 </div>

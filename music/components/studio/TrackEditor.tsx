@@ -79,7 +79,13 @@ export function TrackEditor({
     onChange({ ...track, [k]: v, reviewed: false });
   }
   return (
-    <article className={`card track-editor ${builder ? "builder-editor" : ""}`}>
+    <article className={`card track-editor ${builder ? "builder-editor maker-box maker-quick" : ""}`}>
+      {builder && (
+        <div className="maker-label">
+          <strong>⚡ 쉽게 만들기</strong>
+          <span>가사 칸에서 바로 — 「이 곡 가사 생성」으로 가사만 받고 직접 고친 뒤 Suno로 보냅니다.</span>
+        </div>
+      )}
       <div className="section-title">
         <h2>{track.title || "곡 제목"}</h2>
         <span className={`pill ${track.reviewed ? "success" : ""}`}>
