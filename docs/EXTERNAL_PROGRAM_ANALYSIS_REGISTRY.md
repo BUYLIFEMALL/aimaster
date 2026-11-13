@@ -99,14 +99,14 @@
 | EXT-MM-01 | Supertonic TTS 0.3.0(비공식 앱) | NSIS + Electron + ONNX | 10-24 | 키 없는 브라우저 음성 합성(31개 언어·목소리 10종)·여러 줄 ZIP·대화 합성·SRT | 🔗 기존 병합(공용 엔진) → `shorts-onestop-studio` 먼저 · 독립 여부 보류 | 공용 「브라우저 무료 음성」 엔진(예정) | ⏳ |
 | EXT-MM-02 | Seamless Loop Studio | 웹앱 | 확인 못 함 | 시작·끝이 가장 닮은 구간을 찾아 MP4·WebM·GIF 무한 루프 | 🆕 독립 새 프로그램 | `infinite-loop-video` v1.08 | ✅ |
 | **음악** | | | | | | | |
-| EXT-MUS-01 | Spectrum Studio PRO(웹판 → 설치형 3.0.0) | 웹 번들 / NSIS + Electron | 10-13 · 10-24 | 플레이리스트 음악 영상: 스펙트럼 15·파티클 20·곡 제목 16스타일·배경 전환·프리셋·WebCodecs 1080p | 🆕 독립 새(`yt-playlist-studio`) → 🔗 이후 `playlist-channel-studio`에 병합 | `playlist-channel-studio` v1.31 | 🔶 |
-| EXT-MUS-02 | Lyricbi 1.9.0 | NSIS + Electron + Remotion | 10-21 · 10-24 | 가사 영상: 너그러운 .srt·강조 10·노래방 로마자·LP·커버·스펙트럼 9·프리셋 51 | 🆕 독립 새 프로그램 | `lyric-video-studio` v1.10 | 🔶 |
-| EXT-MUS-03 | SU-Note(Suno 프롬프트 관리) v3.6 | 웹앱 | 10-12 | Suno Style·가사 빌더, 비율·보컬·랩·편곡, 프리셋 461·댄스 200, 앨범 기획 | 🆕 독립 새(`suno-music-studio`) → 🔗 이후 `music-automation`에 병합 | `music-automation` v1.46 | 🔀 |
-| EXT-MUS-04 | AI Playlist Creator | 웹앱 | 확인 못 함 | 장르 → 제목 10개 → Suno 프롬프트·가사·유튜브 메타·썸네일 | 🔗 기존 병합 → `playlist-channel-studio` | `playlist-channel-studio` v1.31 | ✅ |
+| EXT-MUS-01 | Spectrum Studio PRO(웹판 → 설치형 3.0.0) | 웹 번들 / NSIS + Electron | 10-13 · 10-24 | 플레이리스트 음악 영상: 스펙트럼 15·파티클 20·곡 제목 16스타일·배경 전환·프리셋·WebCodecs 1080p | 🆕 독립 새(`yt-playlist-studio`) → 🔗 이후 `playlist-channel-studio`에 병합 | `playlist-channel-studio` v1.41 | 🔶 |
+| EXT-MUS-02 | Lyricbi 1.9.0 | NSIS + Electron + Remotion | 10-21 · 10-24 | 가사 영상: 너그러운 .srt·강조 10·노래방 로마자·LP·커버·스펙트럼 9·프리셋 51 | 🆕 독립 새 프로그램 | `lyric-video-studio` v1.13 | 🔶 |
+| EXT-MUS-03 | SU-Note(Suno 프롬프트 관리) v3.6 | 웹앱 | 10-12 | Suno Style·가사 빌더, 비율·보컬·랩·편곡, 프리셋 461·댄스 200, 앨범 기획 | 🆕 독립 새(`suno-music-studio`) → 🔗 이후 `music-automation`에 병합 | `music-automation` v1.50 | 🔀 |
+| EXT-MUS-04 | AI Playlist Creator | 웹앱 | 확인 못 함 | 장르 → 제목 10개 → Suno 프롬프트·가사·유튜브 메타·썸네일 | 🔗 기존 병합 → `playlist-channel-studio` | `playlist-channel-studio` v1.41 | ✅ |
 | EXT-MUS-05 | GPT PARK MUSIC PLAYER | AI Studio 앱 | 10-13 | 음악 파일 재생·반복·셔플·시각화 5모드·8밴드 EQ | 🆕 독립 새 프로그램 | `music-player` v1.09 | ✅ |
-| EXT-MUS-06 | GPT PARK 마스터링 스튜디오 | 웹앱 | 확인 못 함 | 음원 마스터링 처리 순서·프리셋 12종·AI 분석 | 🆕 독립 새 프로그램 | `ai-mastering-studio` v1.14 | ✅ |
-| EXT-MUS-07 | 외부 음악 생성 플랫폼 조사(10곳) | 플랫폼·API 조사 | 10-23 | Lyria·ElevenLabs·fal·Replicate·Suno(중계) 등 공식 API·상업 이용 조건·단가 비교 | 🆕 독립 새 프로그램(음악 연동 기준) | `ai-music-studio` v1.14 | ✅ |
-| EXT-MUS-08 | 공개 MIT 로컬 AI 음악 데스크톱 앱 0.1.0-beta.3(원저작자 협의로 이름 기록 생략) | Electron 44 + React + Python 엔진 | 11-03 | 내 PC 음악 생성(YuE2)·커버·경음악·보컬 분리·가사 시간표·마스터링·영상 37종·앨범아트·프로젝트 관리 | 🆕 독립 새 프로그램 | `free-music-studio`(기획) | ⏳ |
+| EXT-MUS-06 | GPT PARK 마스터링 스튜디오 | 웹앱 | 확인 못 함 | 음원 마스터링 처리 순서·프리셋 12종·AI 분석 | 🆕 독립 새 프로그램 | `ai-mastering-studio` v1.16 | ✅ |
+| EXT-MUS-07 | 외부 음악 생성 플랫폼 조사(10곳) | 플랫폼·API 조사 | 10-23 | Lyria·ElevenLabs·fal·Replicate·Suno(중계) 등 공식 API·상업 이용 조건·단가 비교 | 🆕 독립 새 프로그램(음악 연동 기준) | `ai-music-studio` v1.15 | ✅ |
+| EXT-MUS-08 | 공개 MIT 로컬 AI 음악 데스크톱 앱 0.1.0-beta.3(원저작자 협의로 이름 기록 생략) | Electron 44 + React + Python 엔진 | 11-03 | 내 PC 음악 생성(YuE2)·커버·경음악·보컬 분리·가사 시간표·마스터링·영상 37종·앨범아트·프로젝트 관리 | 🆕 독립 새 프로그램 | `free-music-studio` v1.65 · 엔진 0.8.4 | 🔶 |
 | **이미지** | | | | | | | |
 | EXT-IMG-01 | ClearPic 1.3.0 | NSIS + Electron + ONNX | 10-24 | 키 없는 브라우저 지우기(LaMa)·글자 자동 찾기(PP-OCRv4)·여러 장 일괄·ZIP | 🔗 기존 병합 → `banana-canvas`(제미나이 워터마크 제거는 ❌ 제외) | `banana-canvas` v1.34 | 🔶 |
 | EXT-IMG-02 | AI Studio 「Banana Canvas」 | AI Studio 앱 | 10-14 | 생성·편집·합성·배경 제거·부분 삭제·증명사진·스토리 8컷·레시피 | 🆕 독립 새 프로그램 | `banana-canvas` v1.33 | ✅ |
@@ -950,8 +950,8 @@
 | EXT-TL-01 | G-1~G-4 범위·DB 변경·비용, 커스텀 봇 위치, G-5 | 문서 챗봇·AI Prompt 담당(Codex) |
 | EXT-IMG-01 | C-0~C-5 범위·비용, 여러 장 상한, 다른 프로그램 적용 | 이커머스·이미지 담당 `claude-win-sdp` |
 | EXT-MM-01 | OpenRAIL 상업 이용, 휴대폰 노출, 시제품 장소, 플랜·빌드 | 음악 담당 |
-| EXT-MUS-02 | L-1~L-5 범위·빌드 2회, R6~R11 | 음악 담당 |
-| EXT-MUS-01 | P-6 범위, P-2의 공용 인코더 반영, 원본 번들 사본 정리 | 음악 담당 |
+| EXT-MUS-02 | ~~L-1~L-5 범위·빌드 2회~~ ✅ 끝(v1.11·v1.12, 2026-11-13 확인) · 남은 것: R6~R11, 3차(여러 곡 플레이리스트·로고/프레임·AI 제목·설명) | 음악 담당 |
+| EXT-MUS-01 | ~~P-6 범위~~ ✅ 끝(v1.37·v1.38, 2026-11-13 확인) · 남은 것: P-2의 공용 인코더 반영, 원본 번들 사본 정리 | 음악 담당 |
 | EXT-BLOG-04 | E-5 착수, E-2 재개, BLOG 정리 시점, M5 | 블로그 담당 |
 | EXT-BLOG-02 | 2차 범위(이전 글 비교·스타일 점수·이미지 노드), N7, N13 | 블로그 담당 |
 | §2 A 묶음 | COOP/COEP 시제품을 누가 먼저 하고 결과를 공유할지 | 음악·이미지 담당 |

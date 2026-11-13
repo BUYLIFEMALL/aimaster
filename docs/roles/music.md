@@ -19,6 +19,9 @@
 | `playlist-channel-studio` | 첫 30일 정리 예약 실행 확인(cron 04:20 KST) | 2026-11-14 04:20 이후(Vercel 로그·`usage_logs` `cleanup_expired`) | 플랜 `playlist-channel-studio/docs/PLAN_20261113_RETENTION_30D.md` |
 | `playlist-channel-studio` | 곡 넣기 전에도 「내가 올린 영상」 목록 보이기 `16439a8e9`(구현 끝) | 다음 플레이리스트 배포(v1.42) | `playlist-channel-studio/docs/IMPROVEMENTS.md` |
 | 음악 6개 공통 보완(단독 배포 안 함) | **구현 끝·미배포 `b4403e8bd`(11-13)**: 로그아웃 local 9곳 · 서버 `User-Agent` 5곳 · 저장공간 위젯 4곳(무료음악·music·AI 음악 스튜디오·마스터링·가사 영상·뮤직비디오) | 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때) | 각 폴더 `docs/IMPROVEMENTS.md` 맨 위 |
+| `lyric-video-studio` | 개선안(3차, 미착수): 여러 곡 플레이리스트(앨범 카드·챕터) · 로고·프레임·선택 AI 제목·설명 · Lyricbi 남은 R6~R11 | 주인님 지시 때(플랜부터) | `lyric-video-studio/docs/IMPROVEMENT_BACKLOG.md` · 외부 분석표 EXT-MUS-02 |
+| `playlist-channel-studio` | 확인 필요: Spectrum P-2 영상 저장 안정화를 공용 인코더 기준(`browser-mp4-encoder`)에 올렸는지 · 원본 번들 사본 정리 | 다음에 플레이리스트·공용 인코더를 손댈 때 | 외부 분석표 EXT-MUS-01 「남은 결정」 |
+| `ai-music-studio` | ⏸ Mureka 켜기(코드 준비됨·숨김) | 주인님이 필요해 충전하실 때(10-23 지시) | `ai-music-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
 | `free-music-studio` | **구현 끝·미배포(11-13)**: 웹 `76d9bab83` 끝 이어 만들기 가사 미리 채우기(빈 `[Outro]` 건너뛰기) / 엔진 `388b00b23` 끝 줄이기 곡선 `hsin` | 웹은 다음 웹 배포, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡으로 끝 듣기 확인) · 엔진 시험 「도구 받기」 1개 실패 원인 확인 | `free-music-studio/docs/IMPROVEMENTS.md` 맨 위 |
 
