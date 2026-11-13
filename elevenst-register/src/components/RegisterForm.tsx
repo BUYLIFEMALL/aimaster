@@ -9,6 +9,7 @@ import type { ElevenstDraft, FeeType, KcChoice, OptionRow } from "@/lib/elevenst
 import { DEFAULT_AS, DEFAULT_RETURN, SEND_KIND } from "@/lib/elevenst/draftDefaults";
 import { NOTI_DEFAULT_VALUE, NOTI_TYPES, notiType } from "@/lib/elevenst/notification";
 import { guessNotiType, parseSpecs, prefillBasics, prefillNoti } from "@/lib/elevenst/prefill";
+import { sendBlockReason, type SendStatus } from "@/lib/elevenst/register";
 
 // 등록 화면 — 상세페이지 상품 → 카테고리 → 가격·재고·옵션 → 배송 → 고시 → 「검사하기」 → 「11번가에 보내기」(4단계, 등록 직후 전시중지).
 // 배송·안내 문구·브랜드처럼 상품마다 같은 값은 이 브라우저에 기억해 다음 상품에 미리 채운다(서버 저장은 4단계에서 함께 정함).
@@ -59,7 +60,7 @@ function notiFill(code: string, specs: Map<string, string>, leaf: string): Recor
   return t ? prefillNoti(t, specs, leaf).values : {};
 }
 
-export function RegisterForm(props: { productId: string; initialName: string; price: number; listPrice: number; detailCategory: string; specs: string; keySaved: boolean }) {
+export function RegisterForm(props: { productId: string; initialName: string; price: number; listPrice: number; detailCategory: string; specs: string; keySaved: boolean; lastJob?: { status: string; productNo: string; createdAt: string } | null }) {
   // 상세페이지 자동화 정보로 미리 채움(브랜드·원산지·고시) — 회원이 고칠 수 있음
   const specs = useMemo(() => parseSpecs(props.specs), [props.specs]);
   const basics = useMemo(() => prefillBasics(specs), [specs]);
@@ -183,7 +184,9 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
       setCheckedJson(JSON.stringify(draft));
     });
 
-  const canSend = Boolean(check && check.errors.length === 0 && checkedJson === JSON.stringify(draft) && !(sent && sent.ok));
+  // 이미 등록됐거나 결과를 모르는 상품은 화면을 열 때부터 보내기를 잠근다(서버 sendProductAction도 같은 판정으로 다시 막음)
+  const lastBlock = sendBlockReason(props.lastJob?.status as SendStatus | undefined);
+  const canSend = Boolean(!lastBlock && check && check.errors.length === 0 && checkedJson === JSON.stringify(draft) && !(sent && sent.ok));
   const runSend = () =>
     start(async () => {
       setConfirmSend(false);
@@ -194,6 +197,19 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
 
   return (
     <div className="space-y-5">
+      {lastBlock && props.lastJob && (
+        <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] text-emerald-900">
+          <p className="font-bold">
+            {props.lastJob.status === "stopped" ? "✅ 이미 11번가에 등록됨·전시중지" : props.lastJob.status === "registered" ? "✅ 이미 11번가에 등록됨(전시중지 실패)" : props.lastJob.status === "sending" ? "⏳ 11번가로 보내는 중" : "⚠ 지난 보내기 결과 확인 필요"}
+            {props.lastJob.productNo && <> · 상품번호 <b>{props.lastJob.productNo}</b></>}
+            <span className="font-normal text-emerald-800"> · {new Date(props.lastJob.createdAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</span>
+          </p>
+          <p>{lastBlock} 그래서 이 화면의 「11번가에 보내기」는 잠가 두었습니다.</p>
+          <a href="https://soffice.11st.co.kr" target="_blank" rel="noreferrer" className="font-bold underline">
+            11번가 셀러오피스 열기 →
+          </a>
+        </div>
+      )}
       {!props.keySaved && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[13px] text-amber-900">
           11번가 API 키가 없어 출고지·반품지를 불러올 수 없습니다.{" "}
@@ -459,7 +475,8 @@ export function RegisterForm(props: { productId: string; initialName: string; pr
           대표·추가 이미지는 11번가가 받아 가 저장합니다. 상세설명의 상세페이지 사진은 11번가가 우리 서버에서 계속 불러와 보여 주므로 보관 비용이 들어, <b>저장 구독 회원</b>에게만 넣어 드립니다.
           그 밖의 회원은 핵심 특징·상품 정보·사용법을 글로 넣고, 상세 사진은 셀러오피스에서 직접 올릴 수 있습니다. 저장 구독이 끝나면 11번가에 넣은 상세 사진이 더 이상 보이지 않으니 셀러오피스에서 바꿔 주세요.
         </p>
-        {!canSend && !sent?.ok && <p className="text-[12px] font-semibold text-slate-500">먼저 「검사하기」를 통과해야 보낼 수 있습니다. 검사 뒤 값을 바꿨으면 다시 검사해 주세요.</p>}
+        {lastBlock && !sent && <p className="text-[12px] font-semibold text-slate-500">{lastBlock}</p>}
+        {!lastBlock && !canSend && !sent?.ok && <p className="text-[12px] font-semibold text-slate-500">먼저 「검사하기」를 통과해야 보낼 수 있습니다. 검사 뒤 값을 바꿨으면 다시 검사해 주세요.</p>}
         {!confirmSend ? (
           <button type="button" disabled={pending || !canSend} onClick={() => setConfirmSend(true)} className="rounded-lg bg-orange-600 px-5 py-2.5 text-sm font-extrabold text-white shadow-sm disabled:opacity-40">
             🟠 11번가에 보내기(등록 후 바로 전시중지)

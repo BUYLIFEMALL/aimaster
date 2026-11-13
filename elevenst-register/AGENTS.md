@@ -34,6 +34,8 @@ Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB),
 - **중복 방지 실제 확인 (2026-11-13, 주인님 「진행해」)** — 위 상품을 다시 보내기 → 서버가 11번가 호출 전에 「이미 11번가에 등록된 상품입니다」로 막음, DB 기록 1건 그대로(`stopped`). 실제 전송·전시중지·중복 방지 확인 끝.
 - **공개 (2026-11-13, 주인님 「공개해」)** — DB `programs`: `is_active=true`, 배지 「출시 예정(coming)」 뺌, 상세 페이지 `detail_sections`(핵심 특징 4·사용 순서 4·추천 대상 3, 원본 `supabase/migrations/20261113_elevenst_register_publish.json`) 저장. 이전 값 백업 뒤 적용. 비로그인으로 https://www.buylife.xyz/programs/elevenst-register 200·설명·특징·순서·대상·v1.05 표시, 프로그램 목록 노출 확인. 회원 사용은 기존 판정 그대로(구독 또는 일반 등급 이상 + 관리자 부여 기간). 시험 상품 9752929791은 11번가 상태 코드 105(판매중지, 손님 화면 「품절」) 확인.
 
+- **v1.06에 포함 — 이미 등록된 상품 보내기 잠금 (2026-11-13, 주인님 「지금 수정해」)** — 상품 화면(`products/[id]/page.tsx`)이 마지막 등록 기록(`elevenst_register_jobs`)을 읽어 `RegisterForm`에 넘김 → 등록됨·보내는 중·확인 필요면 화면 맨 위에 상태·상품번호·시각·셀러오피스 링크를 보여 주고 「11번가에 보내기」를 잠금(판정은 서버와 같은 `sendBlockReason`, 서버도 그대로 다시 막음). 시험 38/38·tsc·build 통과. **미배포 대기**(작은 수정, 다음 배포 때 함께 v1.06).
+
 ## 5. 남은 일
 `docs/IMPROVEMENT_BACKLOG.md` — 4단계 v1.05 배포 완료(2026-11-13). 남은 것: 다음은 G마켓·옥션 등록기 플랜(`docs/REVIEW_20261111_GMARKET_AUCTION_REGISTER.md`), 비공개 안내 화면.
 
