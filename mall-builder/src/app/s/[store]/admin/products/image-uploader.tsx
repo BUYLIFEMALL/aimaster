@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { MAX_IMAGES, type ProductImage } from "@/lib/products";
+import { MAX_DETAIL_IMAGES, MAX_IMAGES, type ProductImage } from "@/lib/products";
 
 const BUCKET = "mall-builder-public";
 const MAX_BYTES = 5 * 1024 * 1024;
 
 // 사진은 브라우저에서 바로 몰 폴더(<몰 id>/products/)로 올린다. 저장소 보안 규칙이 그 몰 운영자만 허용한다.
 // D35: folder를 주면 그 폴더로(공급사는 <몰 id>/supplier/<공급사 id> — 저장소 규칙이 본인 폴더만 허용)
-export default function ImageUploader({ storeId, initial, folder }: { storeId: string; initial: ProductImage[]; folder?: string }) {
+// H2(0064): detail을 주면 「상세 그림」 칸(name=detail_images, 최대 40장, 대표 없음·순서 바꾸기)
+export default function ImageUploader({ storeId, initial, folder, detail = false }: { storeId: string; initial: ProductImage[]; folder?: string; detail?: boolean }) {
+  const max = detail ? MAX_DETAIL_IMAGES : MAX_IMAGES;
+  const noun = detail ? "상세 그림" : "사진";
   const [images, setImages] = useState<ProductImage[]>(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -17,9 +20,10 @@ export default function ImageUploader({ storeId, initial, folder }: { storeId: s
   async function upload(files: FileList | null) {
     if (!files?.length) return;
     setError("");
-    const room = MAX_IMAGES - images.length;
-    const picked = [...files].slice(0, room);
-    if (files.length > room) setError(`사진은 ${MAX_IMAGES}장까지입니다. 앞의 ${room}장만 올립니다.`);
+    const room = max - images.length;
+    // 여러 장을 고르면 파일 이름 순서대로(상세 그림은 01·02… 순서가 곧 보이는 순서)
+    const picked = [...files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true })).slice(0, room);
+    if (files.length > room) setError(`${noun}은(는) ${max}장까지입니다. 앞의 ${room}장만 올립니다.`);
     setBusy(true);
     const supabase = createClient();
     const added: ProductImage[] = [];
@@ -50,29 +54,51 @@ export default function ImageUploader({ storeId, initial, folder }: { storeId: s
     setImages((prev) => [prev[i], ...prev.filter((_, j) => j !== i)]);
   }
 
+  function moveUp(i: number) {
+    setImages((prev) => {
+      const next = [...prev];
+      [next[i - 1], next[i]] = [next[i], next[i - 1]];
+      return next;
+    });
+  }
+
   return (
     <div>
-      <input type="hidden" name="images" value={JSON.stringify(images)} />
+      <input type="hidden" name={detail ? "detail_images" : "images"} value={JSON.stringify(images)} />
       <div className="flex flex-wrap gap-2">
         {images.map((img, i) => (
           <div key={img.path} className="relative h-24 w-24 overflow-hidden rounded border">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={img.url} alt="" className="h-full w-full object-cover" />
-            {i === 0 && <span className="absolute left-1 top-1 rounded bg-gray-900 px-1 text-[10px] text-white">대표</span>}
+            {detail ? (
+              <span className="absolute left-1 top-1 rounded bg-gray-900/80 px-1 text-[10px] text-white">{i + 1}</span>
+            ) : (
+              i === 0 && <span className="absolute left-1 top-1 rounded bg-gray-900 px-1 text-[10px] text-white">대표</span>
+            )}
             <div className="absolute inset-x-0 bottom-0 flex justify-between bg-white/90 text-[11px]">
-              {i > 0 ? <button type="button" onClick={() => makeMain(i)} className="px-1">대표로</button> : <span />}
+              {i > 0 ? (
+                <button type="button" onClick={() => (detail ? moveUp(i) : makeMain(i))} className="px-1">
+                  {detail ? "앞으로" : "대표로"}
+                </button>
+              ) : (
+                <span />
+              )}
               <button type="button" onClick={() => remove(i)} className="px-1 text-red-700">빼기</button>
             </div>
           </div>
         ))}
-        {images.length < MAX_IMAGES && (
+        {images.length < max && (
           <label className="flex h-24 w-24 cursor-pointer items-center justify-center rounded border border-dashed text-center text-xs text-gray-500">
-            {busy ? "올리는 중…" : "사진 추가"}
+            {busy ? "올리는 중…" : `${noun} 추가`}
             <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple className="hidden" disabled={busy} onChange={(e) => upload(e.target.files)} />
           </label>
         )}
       </div>
-      <p className="mt-1 text-xs text-gray-500">최대 {MAX_IMAGES}장, 한 장 5MB 이하(JPG·PNG·WEBP·GIF). 첫 사진이 대표 사진입니다.</p>
+      <p className="mt-1 text-xs text-gray-500">
+        {detail
+          ? `최대 ${max}장, 한 장 5MB 이하(JPG·PNG·WEBP·GIF). 상품 상세 화면에서 상세 설명 아래에 이 순서대로 세로로 이어 보입니다. 여러 장을 한 번에 고르면 파일 이름 순서로 올라갑니다.`
+          : `최대 ${max}장, 한 장 5MB 이하(JPG·PNG·WEBP·GIF). 첫 사진이 대표 사진입니다.`}
+      </p>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>
   );

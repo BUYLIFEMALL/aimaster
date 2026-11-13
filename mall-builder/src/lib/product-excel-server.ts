@@ -48,7 +48,7 @@ export async function loadExcelContext(supabase: SupabaseClient, storeId: string
     readAll((a, b) =>
       supabase
         .from("mall_builder_products")
-        .select("id, product_code, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, visibility, price_visibility, moq, order_unit, max_qty, mall_builder_product_private(cost), mall_builder_product_categories(category_id)")
+        .select("id, product_code, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, detail_images, option_groups, shipping_policy_id, visibility, price_visibility, moq, order_unit, max_qty, mall_builder_product_private(cost), mall_builder_product_categories(category_id)")
         .eq("store_id", storeId)
         .order("created_at")
         .range(a, b),
@@ -90,6 +90,7 @@ export async function loadExcelContext(supabase: SupabaseClient, storeId: string
       cost: pr?.cost == null ? null : Number(pr.cost),
       category_ids: (cats ?? []).map((c) => c.category_id),
       images: p.images ?? [],
+      detail_images: p.detail_images ?? [],
       option_groups: p.option_groups ?? [],
       variants: vByProduct.get(p.id) ?? [],
       grades: gByProduct.get(p.id) ?? {},
@@ -137,7 +138,7 @@ export async function buildWorkbook(ctx: ExcelContext, empty: boolean): Promise<
     ws.columns.forEach((c) => (c.numFmt = "@"));
   };
   const header = headersFor(ctx.grades);
-  add(SHEET.products, header, helpRow(ctx.grades), data.products, header.map((h) => (h === "상세 설명" || h === "사진 주소" ? 40 : h === "상품명" || h === "카테고리" ? 24 : 14)));
+  add(SHEET.products, header, helpRow(ctx.grades), data.products, header.map((h) => (h === "상세 설명" || h === "사진 주소" || h === "상세 그림" ? 40 : h === "상품명" || h === "카테고리" ? 24 : 14)));
   add(SHEET.options, O_COLS.map((c) => c[1]), [`${HELP_MARK} 한 줄 = 옵션 조합 하나. 이 시트에 그 상품 줄이 있으면 옵션 전체가 엑셀 내용으로 바뀝니다(없는 조합은 「사용 안 함」). 줄이 없으면 옵션은 그대로`, "", "", "", "", "", "", "음수 가능", "", "", "사용 / 안 함"], data.options, [14, 12, 12, 12, 12, 12, 12, 10, 10, 14, 10]);
   add(SHEET.tiers, T_COLS.map((c) => c[1]), [`${HELP_MARK} 상품마다 최대 3줄. 이 시트에 그 상품 줄이 있으면 구간이 엑셀 내용으로 바뀝니다. 줄이 없으면 그대로`, "2~999", "5%(할인율) / -1000(개당 할인) / 40000(개당 가격)"], data.tiers, [14, 12, 40]);
   return Buffer.from(await wb.xlsx.writeBuffer());

@@ -89,6 +89,7 @@ export default async function EditProductPage({
           stock_mode: product.stock_mode,
           stock: product.stock_mode === "product" ? String(product.stock) : "",
           images: product.images ?? [],
+          detail_images: product.detail_images ?? [],
           category_ids: product.category_ids,
           shipping_policy_id: product.shipping_policy_id ?? "",
         }}

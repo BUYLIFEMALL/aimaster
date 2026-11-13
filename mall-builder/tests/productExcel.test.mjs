@@ -216,3 +216,24 @@ test("옵션 줄이 있는 상품은 상품 재고 칸을 비워도 됨(옵션�
   const noOpt = planImport({ products: [row(3, { ...base, stock: "" })], options: [], tiers: [] }, ctx());
   assert.equal(noOpt.products[0].action, "error"); // 옵션 없으면 여전히 필수
 });
+
+test("상세 그림(H2 0064) — 이 몰 주소만 읽고, 바뀌면 「상세 그림」, 내보내기에 포함", () => {
+  const u = (n) => `${BASE}/${STORE}/products/d${n}.jpg`;
+  const plan = planImport({ products: [row(3, { ...base, detail_images: `${u(1)}; ${u(2)}` })], options: [], tiers: [] }, ctx());
+  const p = plan.products[0];
+  assert.equal(p.action, "create", p.errors.join());
+  assert.deepEqual(p.value.product.detail_images.map((i) => i.path), [`${STORE}/products/d1.jpg`, `${STORE}/products/d2.jpg`]);
+
+  const bad = planImport({ products: [row(3, { ...base, detail_images: "https://buylife.cdnpro.kr/a.jpg" })], options: [], tiers: [] }, ctx());
+  assert.equal(bad.products[0].action, "error");
+  assert.match(bad.products[0].errors.join(), /상세 그림 주소/);
+
+  const upd = planImport({ products: [row(3, { ...base, detail_images: u(1) })], options: [], tiers: [] }, ctx([existingMouse]));
+  assert.equal(upd.products[0].action, "update");
+  assert.ok(upd.products[0].changes.includes("상세 그림"), upd.products[0].changes.join());
+
+  const withDetail = { ...existingMouse, detail_images: [{ url: u(1), path: `${STORE}/products/d1.jpg` }] };
+  const out = exportRows(ctx([withDetail]));
+  const head = headersFor(ctx().grades);
+  assert.equal(out.products[0][head.indexOf("상세 그림")], u(1));
+});

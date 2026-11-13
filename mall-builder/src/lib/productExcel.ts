@@ -43,6 +43,7 @@ const P_COLS = [
 ] as const;
 const IMAGES_COL = ["images", "사진 주소", "이 몰에 올린 사진 주소만, ;로 최대 5개(새 사진은 화면에서 올림)", ""] as const;
 const DESC_COL = ["description", "상세 설명", "20,000자 이내", ""] as const;
+const DETAIL_COL = ["detail_images", "상세 그림", "이 몰에 올린 사진 주소만, ;로 최대 40개(상세 설명 아래 세로로 보임)", ""] as const;
 export const GRADE_PREFIX = "등급가:";
 
 export const O_COLS = [
@@ -126,7 +127,7 @@ export type ExcelPlan = {
 
 // ── 헬퍼 ─────────────────────────────────────────────────────
 export function headersFor(grades: { name: string }[]): string[] {
-  return [...P_COLS.map((c) => c[1]), ...grades.map((g) => GRADE_PREFIX + g.name), IMAGES_COL[1], DESC_COL[1]];
+  return [...P_COLS.map((c) => c[1]), ...grades.map((g) => GRADE_PREFIX + g.name), IMAGES_COL[1], DESC_COL[1], DETAIL_COL[1]];
 }
 export const HELP_MARK = "※"; // 설명 줄은 첫 칸이 이 글자로 시작 → 읽을 때 건너뜀
 /** 양식 둘째 줄(설명 + 예시) — 첫 칸이 ※라 올릴 때 건너뛴다 */
@@ -136,6 +137,7 @@ export function helpRow(grades: { name: string }[]): string[] {
     ...grades.map(() => "금액(8000) 또는 할인율(10%), 비우면 판매가"),
     IMAGES_COL[2],
     DESC_COL[2],
+    DETAIL_COL[2],
   ];
   cells[0] = `${HELP_MARK} ${cells[0]} — 이 줄은 설명이라 올릴 때 건너뜁니다`;
   return cells;
@@ -157,7 +159,7 @@ export function imageFromUrl(url: string, publicBase: string, storeId: string): 
 
 const FIELD_LABEL: Record<keyof ProductInput, string> = {
   name: "상품명", summary: "한 줄 소개", description: "상세 설명", base_price: "판매가", list_price: "정가", cost: "원가",
-  tax_type: "과세", status: "상태", stock_mode: "재고 관리", stock: "재고", images: "사진 주소", category_ids: "카테고리",
+  tax_type: "과세", status: "상태", stock_mode: "재고 관리", stock: "재고", images: "사진 주소", detail_images: "상세 그림", category_ids: "카테고리",
   shipping_policy_id: "배송비 정책", visibility: "공개 범위", price_visibility: "가격 공개", moq: "최소 주문 수량",
   order_unit: "주문 단위", max_qty: "최대 수량",
 };
@@ -247,6 +249,12 @@ export function planImport(sheets: Sheets, ctx: ExcelContext): ExcelPlan {
       if (img) images.push(img);
       else errors.push("사진 주소는 이 몰에 올린 사진만 쓸 수 있습니다(새 사진은 상품 화면에서 올려 주세요).");
     }
+    const detail_images: ProductImage[] = [];
+    for (const url of String(r.detail_images ?? "").split(";").map((s) => s.trim()).filter(Boolean)) {
+      const img = imageFromUrl(url, ctx.publicBase, ctx.storeId);
+      if (img) detail_images.push(img);
+      else errors.push("상세 그림 주소는 이 몰에 올린 사진만 쓸 수 있습니다(새 사진은 상품 화면에서 올려 주세요).");
+    }
 
     // 옵션이 있는 상품은 재고를 옵션별로 관리하므로, 상품 재고 칸을 비워도 0으로 본다
     const hasOptionRows = optionRows.has(code.toUpperCase());
@@ -254,7 +262,7 @@ export function planImport(sheets: Sheets, ctx: ExcelContext): ExcelPlan {
     const checked = validateProduct(
       {
         name, summary: r.summary, description: r.description, base_price: r.base_price, list_price: r.list_price, cost: r.cost,
-        tax_type, status, stock_mode, stock: stockCell, images: JSON.stringify(images), category_ids,
+        tax_type, status, stock_mode, stock: stockCell, images: JSON.stringify(images), detail_images: JSON.stringify(detail_images), category_ids,
         shipping_policy_id: shipping_policy_id ?? "", visibility, price_visibility, moq: r.moq, order_unit: r.order_unit, max_qty: r.max_qty,
       },
       ctx.storeId,
@@ -372,6 +380,7 @@ export function diffProduct(cur: ExistingProduct, next: NonNullable<PlannedProdu
   if (cur.product_code !== p.product_code) out.push("품번");
   if (cur.cost !== next.cost) out.push("원가");
   if (!sameJson(cur.images.map((i) => i.path), p.images.map((i) => i.path))) out.push("사진 주소");
+  if (!sameJson((cur.detail_images ?? []).map((i) => i.path), p.detail_images.map((i) => i.path))) out.push("상세 그림");
   if (!sameJson([...cur.category_ids].sort(), [...next.category_ids].sort())) out.push("카테고리");
   for (const g of ctx.grades) {
     const a = cur.grades[g.id] ?? null;
@@ -403,6 +412,7 @@ export function exportRows(ctx: ExcelContext): { products: string[][]; options: 
     }),
     p.images.map((i) => i.url).join(";"),
     p.description,
+    (p.detail_images ?? []).map((i) => i.url).join(";"),
   ]);
   const options = ctx.existing.flatMap((p) =>
     p.variants.map((v) => {
@@ -420,7 +430,7 @@ export function exportRows(ctx: ExcelContext): { products: string[][]; options: 
 export function mapHeaders(sheet: "products" | "options" | "tiers", header: string[], grades: { id: string; name: string }[]): { keys: (string | null)[] } | { error: string } {
   const defs: [string, string][] =
     sheet === "products"
-      ? [...P_COLS.map((c) => [c[0], c[1]] as [string, string]), [IMAGES_COL[0], IMAGES_COL[1]], [DESC_COL[0], DESC_COL[1]], ...grades.map((g) => [GRADE_PREFIX + g.name, GRADE_PREFIX + g.name] as [string, string])]
+      ? [...P_COLS.map((c) => [c[0], c[1]] as [string, string]), [IMAGES_COL[0], IMAGES_COL[1]], [DESC_COL[0], DESC_COL[1]], [DETAIL_COL[0], DETAIL_COL[1]], ...grades.map((g) => [GRADE_PREFIX + g.name, GRADE_PREFIX + g.name] as [string, string])]
       : sheet === "options"
         ? O_COLS.map((c) => [c[0], c[1]] as [string, string])
         : T_COLS.map((c) => [c[0], c[1]] as [string, string]);

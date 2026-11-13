@@ -9,6 +9,7 @@ export const PRODUCT_STATUS = {
 export type ProductStatus = keyof typeof PRODUCT_STATUS;
 
 export const MAX_IMAGES = 5;
+export const MAX_DETAIL_IMAGES = 40; // 상세 그림(상세 설명 아래 세로로 이어 보이는 긴 사진)
 
 export type ProductImage = { url: string; path: string };
 
@@ -24,6 +25,7 @@ export type ProductInput = {
   stock_mode: "none" | "product"; // 「product」 + 옵션이 있으면 옵션별 재고(옵션 조합 표의 stock)
   stock: number;
   images: ProductImage[];
+  detail_images: ProductImage[];
   category_ids: string[];
   shipping_policy_id: string | null; // 없으면 몰 기본 배송비 정책
   visibility: "public" | "members" | "business_only";
@@ -159,6 +161,11 @@ export function validateProduct(input: Record<string, unknown>, storeId?: string
   else if (images.length > MAX_IMAGES) errors.images = `사진은 ${MAX_IMAGES}장까지 올릴 수 있습니다.`;
   else if (storeId && images.some((i) => !i.path.startsWith(`${storeId}/`))) errors.images = "이 몰의 사진만 쓸 수 있습니다.";
 
+  const detail_images = readImages(input.detail_images);
+  if (detail_images == null) errors.detail_images = "상세 그림 정보를 읽지 못했습니다. 다시 올려 주세요.";
+  else if (detail_images.length > MAX_DETAIL_IMAGES) errors.detail_images = `상세 그림은 ${MAX_DETAIL_IMAGES}장까지 올릴 수 있습니다.`;
+  else if (storeId && detail_images.some((i) => !i.path.startsWith(`${storeId}/`))) errors.detail_images = "이 몰의 사진만 쓸 수 있습니다.";
+
   const category_ids = [...new Set((Array.isArray(input.category_ids) ? input.category_ids : []).map(String))].filter((id) =>
     /^[0-9a-f-]{36}$/.test(id),
   );
@@ -196,7 +203,7 @@ export function validateProduct(input: Record<string, unknown>, storeId?: string
       name, summary, description,
       base_price: base as number, list_price: list, cost,
       tax_type, status, stock_mode, stock,
-      images: images ?? [], category_ids, shipping_policy_id,
+      images: images ?? [], detail_images: detail_images ?? [], category_ids, shipping_policy_id,
       visibility, price_visibility,
       moq, order_unit, max_qty,
     },

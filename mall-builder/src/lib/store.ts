@@ -95,6 +95,7 @@ export type ProductRow = {
   stock_mode: "none" | "product"; // 「product」 + 옵션이 있으면 옵션별 재고
   stock: number;
   images: { url: string; path: string }[];
+  detail_images: { url: string; path: string }[]; // 상세 그림(0064) — 상세 설명 아래 세로로
   option_groups: OptionGroup[];
   shipping_policy_id: string | null;
   visibility: "public" | "members" | "business_only";
@@ -106,7 +107,7 @@ export type ProductRow = {
 };
 
 export const PRODUCT_COLUMNS =
-  "id, product_code, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, option_groups, shipping_policy_id, visibility, price_visibility, moq, order_unit, max_qty, created_at";
+  "id, product_code, name, summary, description, base_price, list_price, tax_type, status, stock_mode, stock, images, detail_images, option_groups, shipping_policy_id, visibility, price_visibility, moq, order_unit, max_qty, created_at";
 
 /** 상품별 수량 구간 할인(공개) — 상품 id → 구간 목록(작은 수량부터) */
 export async function getTierMap(productIds: string[]): Promise<Map<string, VolumeTier[]>> {

@@ -67,3 +67,12 @@
 - **확인 상자 변경(기능, 커밋됨)**: 브라우저 확인 창(`window.confirm`) 6곳을 화면 안 확인 상자로 바꿨다 — 공용 `src/app/inline-confirm.tsx`(`useInlineConfirm`). 손님 화면 범위에서는 `src/app/order-status-buttons.tsx`(주문 취소·구매 확정 등)와 `(shop)/guest/orders/[id]/status-button.tsx` 두 곳. **agy가 소스를 고치기 전에 넣은 변경**이므로 최신 HEAD에서 시작하면 된다. 확인 상자의 모양(지금 노란 안내 칸 + 「확인」「아니요」)은 테마에 맞게 다듬어도 되지만, `data-inline-confirm`·`data-confirm-yes`·`data-confirm-no` 표시와 「상자의 확인 단추로 보낼 때만 통과」 동작은 그대로 둔다.
 - **요청 — 샘플몰 안내 띠(S3)**: 손님 화면 틀(`(shop)/layout.tsx`) 맨 위에, 그 몰이 샘플몰(`store.slug === SAMPLE_MALL_SLUG`, `@/lib/platform-admin`)일 때만 한 줄 안내를 넣어 달라 — 문구: 「이 몰은 샘플입니다 · 실제 결제·배송은 없습니다 · 사업자 신청을 하면 사업자 가격을 볼 수 있습니다」. 틀 파일이 디자인 범위라 mall-builder 담당은 직접 넣지 않았다.
 - 이후 mall-builder 담당은 손님 화면 파일을 고치지 않는다(약속 그대로).
+
+## 10. 추가 요청 (2026-11-13 저녁, mall-builder 담당 → agy) — 상품 「상세 그림」 표시
+- **새 기능(0064, Lab DB 적용·운영 미적용, 코드 커밋됨)**: 상품마다 `detail_images`(모양은 `images`와 같은 `[{url, path}]`, 최대 40장)가 생겼다. 프로셀 등 다른 몰에서 옮겨 오는 상품의 상세 설명이 대부분 「긴 사진 여러 장」이라 만든 칸이다. 관리자 상품 화면에 「상세 그림」 올리기 칸이 있고, 엑셀에도 「상세 그림」 칸이 있다.
+- **데이터는 이미 손님 화면까지 온다**: `PRODUCT_COLUMNS`(`src/lib/store.ts`)와 가격 비공개용 함수 `mall_builder_shop_products` 결과에 `detail_images`가 들어 있다(`Product` 타입에도 추가).
+- **요청**: 상품 상세(`(shop)/p/[id]/page.tsx`)의 「상세 설명」 글 **아래**에 `product.detail_images`를 순서대로 **세로로 이어 붙여** 보여 달라.
+  - 사진 사이 간격 0(한 장의 긴 상세 페이지처럼), 너비는 본문 폭 100%·최대 860px 정도 가운데, `height:auto`, `loading="lazy"`, `alt=""`.
+  - 상세 설명 글이 없고 상세 그림만 있어도 「상세 정보」 영역이 보여야 한다(지금은 `product.description &&`로 감싸져 있음).
+  - 빈 배열이면 아무것도 그리지 않는다. 데이터 처리·서버 코드는 바꾸지 않는다(표시만).
+- 시험용 상품: Lab 시험 몰에 프로셀 상품 9개를 상세 그림과 함께 넣을 예정(mall-builder 담당, 넣으면 몰 주소를 이 절에 적음).

@@ -115,3 +115,20 @@ test("F14 수량 구간 할인 칸", async () => {
   assert.match(parseTiers([{ min_qty: "10", value: "abc" }]).error, /5%/);
   assert.match(parseTiers([{ min_qty: "10", value: "5%" }, { min_qty: "10", value: "7%" }]).error, /두 번/);
 });
+
+test("상세 그림(H2 0064) — 최대 40장, 이 몰 폴더만", async () => {
+  const { validateProduct, MAX_DETAIL_IMAGES } = await import("../src/lib/products.ts");
+  const S = "11111111-1111-1111-1111-111111111111";
+  const img = (i, s = S) => ({ url: `https://x/${s}/products/${i}.jpg`, path: `${s}/products/${i}.jpg` });
+  const basic = { name: "상품", base_price: "1000", status: "draft", stock_mode: "none" };
+  const ok = validateProduct({ ...basic, detail_images: JSON.stringify([img(1), img(2)]) }, S);
+  assert.equal(ok.ok, true);
+  assert.equal(ok.value.detail_images.length, 2);
+  const none = validateProduct(basic, S);
+  assert.deepEqual(none.value.detail_images, []);
+  const many = validateProduct({ ...basic, detail_images: JSON.stringify(Array.from({ length: MAX_DETAIL_IMAGES + 1 }, (_, i) => img(i))) }, S);
+  assert.equal(many.ok, false);
+  assert.match(many.errors.detail_images, /40장/);
+  const other = validateProduct({ ...basic, detail_images: JSON.stringify([img(1, "22222222-2222-2222-2222-222222222222")]) }, S);
+  assert.equal(other.ok, false);
+});

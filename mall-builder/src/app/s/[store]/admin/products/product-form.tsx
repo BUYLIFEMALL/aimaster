@@ -20,6 +20,7 @@ export type ProductFormValues = {
   stock_mode: string;
   stock: string;
   images: ProductImage[];
+  detail_images?: ProductImage[];
   category_ids: string[];
   shipping_policy_id: string;
   visibility: string;
@@ -97,6 +98,12 @@ export default function ProductForm({
         <legend className="px-1 text-sm font-semibold">사진</legend>
         <ImageUploader storeId={storeId} initial={v.images} />
         {e.images && <span className="text-xs text-red-600">{e.images}</span>}
+      </fieldset>
+
+      <fieldset className="rounded-lg border p-4" data-detail-images>
+        <legend className="px-1 text-sm font-semibold">상세 그림</legend>
+        <ImageUploader storeId={storeId} initial={v.detail_images ?? []} detail />
+        {e.detail_images && <span className="text-xs text-red-600">{e.detail_images}</span>}
       </fieldset>
 
       <fieldset className="grid gap-3 rounded-lg border p-4 sm:grid-cols-3">
