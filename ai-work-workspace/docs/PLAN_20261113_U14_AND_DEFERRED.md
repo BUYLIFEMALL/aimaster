@@ -98,3 +98,10 @@
 3. **웹훅 한도** — 권장: https만·하루 500회·분당 20회·3번 실패 시 일시정지.
 4. **알림 채널** — 권장: 공용 연동 재사용(메일 SMTP·카카오 「나에게 보내기」), 받는 사람은 회원 본인만.
 5. **U14 범위** — 권장: MCP 서버 1단계만, 공개 REST API·바깥 MCP 연결은 다음에.
+
+## 8. 2026-11-13 추가 승인분(주인님 「진행하고」) — 구현 기록(모두 미배포, 다음 배포 v1.36)
+- **볼타 웹훅(결과 자동 수신)**: 회원 전용 주소 `/api/bolta/webhook/<토큰>`(해시 저장) + 서명 키(공용 `user_api_keys` `bolta_webhook_secret`, Standard Webhooks 규격 확인) → 문서를 발급됨/실패(한국어 사유)로 자동 기록, 같은 알림 번호 1번만, 선택 기능. `src/server/boltaWebhook.ts`·`src/app/api/bolta/webhook/[token]/route.ts`. **배포 전 운영 DB**: `supabase/migrations/20261113010000_bolta_webhook_secret_provider.sql`.
+- **A. 일정 리마인더를 내 메일·카카오톡으로도**: 「API키등록·플랫폼연동 › 🔔 알림 받기」 스위치 2개(기본 꺼짐, 회원 설정 `aww_notify_external`), 원본 `reminders.ts`에 연결 고리 → `src/server/externalNotify.ts`가 발송(자동화 알림과 한도 공유: 채널별 하루 100건). 명령 `awwNotifyPrefs`·`awwSaveNotifyPrefs`.
+- **B-1. 공개 REST API `/v1`**: 원본 구조상 개인 토큰(`lp_pat_`, MCP 화면에서 발급)이 그대로 통하므로 **새 토큰 화면 없이** Next 라우트 `src/app/v1/[...path]/route.ts`만 연결(토큰 주인 이용 권한 확인 → 원본 Hono 공개 API). 25개 경로(내 정보·검색·페이지·블록·데이터베이스 조회/쿼리·댓글). 한도: 분당 60(원본 기본 180에서 낮춤), 90일 만료(`publicApi/principal.ts`). **계속 닫힘**: 개발자용 연결·봇 토큰·공개 API 웹훅(`dev*` 명령), 바깥 MCP 연결(B-2).
+- 검사: 시험 140·tsc·로컬 빌드(새 라우트 2개 확인). 실제 확인은 배포 뒤 — 볼타 웹훅 주소 등록(주인님) → 테스트 발급 자동 기록, 리마인더 실제 발송(메일·카카오 연결 필요), `/v1/users/me` 실제 호출.
+

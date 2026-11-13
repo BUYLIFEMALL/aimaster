@@ -24,7 +24,7 @@
 ## 3. 핵심 기능·구조·장단점
 - **기능(1단계)**: 블록 편집기 41종(`/` 메뉴·마크다운 단축키·끌어 옮기기), 데이터베이스 보기 12종(표·보드·목록·갤러리·캘린더·타임라인·차트·대시보드·피드·폼·지도·페이지)·수식·관계·집계·템플릿, 검색(pg_trgm, 한국어 부분 검색), 버전 기록, 휴지통(30일 후 삭제), 불러오기(Markdown·CSV·HTML·Word·PDF)·내보내기, 파일 첨부(DB 저장, 4MB), 한국어 화면·서울 시간대·한국어 날짜.
 - **지금 열린 기능(2026-11-13 기준, 1단계 뒤 U3~U14로 연 것)**: 회원 본인 AI 키(Claude·OpenAI·Gemini)로 AI 비서·회의록 받아쓰기·요약, 「📨 받은 업무」(다른 프로그램에서 보내기 → 표·콘텐츠 캘린더·할 일 플래너), 「📊 업무 현황판」, 자동화·버튼(정시 실행은 회원 cron-job.org), 맞춤 에이전트(+웹 검색 = 회원 키 내장 검색), 협업(초대한 AIMaster 회원끼리 공유·5초 확인·동시 편집 잠금), 구글 캘린더(ICS 구독 + 회원 본인 구글 앱 연결), 영수증·세금계산서(증빙 사진·PDF 읽기, 문서 발행, 홈택스 일괄발급 엑셀, **볼타 바로 발급**), 자동화 웹훅(https만·분당 20·하루 500), 자동화 알림을 내 메일·카카오톡으로도, **MCP 서버**(`/api/mcp`, 개인 토큰 5개·90일·분당 60).
-- **아직 닫힌 것**: 공개 링크·사이트 게시, 초대 링크, 바깥 MCP 서버 연결(에이전트가 남의 MCP 호출)·MCP 프리셋, 공개 REST API(/v1 — 2026-11-13 주인님 승인, 구현 예정), 개발자 웹훅(dev*), 관리자 고급 기능(admin*). 판정은 `src/server/stagePolicy.ts` 한 곳.
+- **아직 닫힌 것**: 공개 링크·사이트 게시, 초대 링크, 바깥 MCP 서버 연결(에이전트가 남의 MCP 호출)·MCP 프리셋, 개발자용 연결·봇 토큰·공개 API 웹훅(dev*), 관리자 고급 기능(admin*). 판정은 `src/server/stagePolicy.ts` 한 곳.
 - **토큰으로 들어오는 주소(로그인 쿠키 없음, 각자 토큰 주인의 이용 권한을 확인)**: `/api/calendar/<토큰>.ics`, `/api/mcp`(Bearer `lp_pat_`), `/api/cron/member`(회원 cron-job.org), `/api/bolta/webhook/<토큰>`(볼타 서명 확인).
 - **회원 연동값은 전부 공용 `user_api_keys`·`member_platform_accounts`·`user_smtp_accounts`**(새 저장소 만들지 않음). 새 키 이름을 쓰려면 운영 DB 제약 `user_api_keys_provider_check`에 먼저 넣어야 저장된다(`supabase/migrations/20261113000000_bolta_api_key_provider.sql` 방식).
 - **구조**: 화면 `/[[...path]]`(서버에서 권한 확인 → 원본 SPA 탑재) · `/api/rpc/[name]`(원본 RPC, `src/server/runtime.ts`가 회원 자동 생성·단계 정책·`createWorkspace` 한국어판 처리) · `/api/upload`·`/files/[id]/[name]` · `/api/cron/jobs`(하루 1회 03:00 KST, `CRON_SECRET`, 원본 `runDueJobs`) · `/guide`(매뉴얼) · `/login`.
@@ -70,7 +70,7 @@
 ## 5. 남은 작업
 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md) · [`docs/IMPROVEMENTS.md`](docs/IMPROVEMENTS.md) 「미배포 대기」.
 - **미배포(다음 배포 v1.36에 함께)**: 볼타 설정 칸 항상 보이기 · AI/에이전트 단계 표시 한국어화 · 볼타 처리 상태 문구 · **볼타 웹훅(결과 자동 수신)** — 웹훅은 배포 전 운영 DB에 `supabase/migrations/20261113010000_bolta_webhook_secret_provider.sql` 실행 필요(주인님 승인).
-- **승인됨·구현 예정(2026-11-13 주인님 「진행하고」)**: 일정 리마인더를 내 메일·카카오톡으로도 → 공개 REST API(/v1, MCP 서버와 같은 한도, 공개 API 웹훅은 닫아 둠).
+- **미배포(같은 묶음)**: 일정 리마인더를 내 메일·카카오톡으로도(키 화면 「🔔 알림 받기」) · 공개 REST API `/v1`(MCP 개인 토큰 그대로, 분당 60·90일, `src/app/v1/[...path]/route.ts` — 개발자용 연결·공개 API 웹훅 `dev*`는 계속 닫힘). 플랜 §8.
 - **실제 확인 남음**: 볼타 실제(live_) 발급, 볼타 웹훅 실제 수신, 자동화 알림 메일·카톡 실제 발송, MCP 서버에 외부 도구 연결, 원스톱·플레이리스트 「업무 워크스페이스로」 버튼.
 - **하지 않기로 한 것**: 바깥 MCP 서버 연결(운영자 서버가 임의 주소를 자주 호출 + 외부 응답이 AI에 그대로 들어감 — 수요 확인 뒤 별도 플랜), 팝빌·바로빌(볼타로 정리).
 
