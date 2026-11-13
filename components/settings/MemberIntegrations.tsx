@@ -8,7 +8,7 @@ import GlassCard from "@/components/ui/GlassCard";
 // 「내 연동 정보」 — 회원이 한 번 연결한 플랫폼 계정을 모든 프로그램이 함께 쓴다(2026-10-20, lib/memberIntegrations.ts).
 // 토큰 칸은 DB 권한상 회원이 읽을 수 없으므로, 아래처럼 칸 이름을 직접 지정해서만 읽는다(select("*") 금지).
 
-type CatalogItem = { key: string; label: string; description: string | null; connect_program_url: string | null };
+type CatalogItem = { key: string; label: string; description: string | null; connect_program_url: string | null; guide_id: string | null };
 type AccountRow = {
   id: string;
   platform: string;
@@ -36,7 +36,7 @@ export default function MemberIntegrations({ userId }: { userId: string }) {
     const [{ data: items }, { data: rows, error: rowsError }] = await Promise.all([
       supabase
         .from("integration_catalog")
-        .select("key, label, description, connect_program_url")
+        .select("key, label, description, connect_program_url, guide_id")
         .eq("kind", "oauth_account")
         .eq("is_active", true)
         .order("sort_order"),
@@ -85,7 +85,19 @@ export default function MemberIntegrations({ userId }: { userId: string }) {
             const mine = accounts.filter((a) => a.platform === item.key);
             return (
               <div key={item.key} className="rounded-xl border border-white/10 p-4">
-                <p className="text-sm font-medium text-white">{item.label}</p>
+                <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-white">
+                  {item.label}
+                  {item.guide_id && (
+                    <a
+                      href={`/guides/${item.guide_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-gold/40 px-2 py-0.5 text-[11px] font-medium text-gold hover:bg-gold/10"
+                    >
+                      📖 연동 매뉴얼
+                    </a>
+                  )}
+                </p>
                 {item.description && <p className="mt-0.5 text-xs text-subtext">{item.description}</p>}
 
                 {mine.length === 0 ? (

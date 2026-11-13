@@ -29,6 +29,15 @@ const PROVIDER_DESCRIPTIONS: Record<ApiKeyProvider, string> = {
   perplexity: "게시글 주제 수집(최신 트렌드 검색)과 경쟁사 분석에서 최신 정보를 검색할 때 사용됩니다.",
 };
 const PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity"];
+// 키 발급 안내(메인 사이트 「연동 매뉴얼」 글, platform_guides) — 키 이름 옆 「📖 발급 방법」 버튼(2026-11-13)
+const PROVIDER_GUIDES: Record<ApiKeyProvider, string> = {
+  openai: "/guides/1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
+  anthropic: "/guides/d03f65c2-efbb-421f-a041-a075562e3b7a",
+  gemini: "/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
+  perplexity: "/guides/1df95d8b-6a27-4de0-b1d9-8bbc218534ad",
+};
+const CLOUDINARY_GUIDE = "/guides/e2004c0f-160d-4360-bcbf-98f4409edde2";
+const GUIDE_LINK_CLASS = "inline-flex items-center gap-1 rounded-lg border border-gold/40 px-2 py-0.5 text-[11px] font-medium text-gold hover:bg-gold/10";
 
 function maskSecret(key: string): string {
   if (key.length <= 8) return "••••••••";
@@ -166,7 +175,12 @@ export default function ApiSettingsPage() {
               return (
                 <div key={provider} className="rounded-xl border border-white/10 p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-medium text-white">{PROVIDER_LABELS[provider]}</p>
+                    <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-white">
+                      {PROVIDER_LABELS[provider]}
+                      <a href={PROVIDER_GUIDES[provider]} target="_blank" rel="noopener noreferrer" className={GUIDE_LINK_CLASS}>
+                        📖 발급 방법
+                      </a>
+                    </p>
                     {saved && (
                       <button
                         onClick={() => handleDeleteApiKey(provider)}
@@ -224,6 +238,9 @@ export default function ApiSettingsPage() {
               <ImageIcon size={18} className="text-blue-400" />
             </div>
             <h2 className="text-lg font-bold text-white">Cloudinary (생성 이미지 업로드)</h2>
+            <a href={CLOUDINARY_GUIDE} target="_blank" rel="noopener noreferrer" className={GUIDE_LINK_CLASS}>
+              📖 발급 방법
+            </a>
           </div>
           <p className="text-xs text-subtext mb-4">
             등록하면 AI로 생성한 이미지를 본문에 직접 삽입(base64)하지 않고 본인 Cloudinary
