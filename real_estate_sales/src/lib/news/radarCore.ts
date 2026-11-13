@@ -34,6 +34,8 @@ export interface RegionTerms {
   anyOf: string[];
   /** 이것도 함께 있어야 통과(「중구」처럼 흔한 이름일 때 시·도 이름) */
   alsoNeed: string | null;
+  /** 그 구의 동 이름(반포·방배…) — 제목에 있으면 「제목에 지역 있음」으로 본다(2026-11-13, 넘기지 않으면 쓰지 않음) */
+  dongs?: string[];
 }
 
 // 구 줄임 이름이 흔한 낱말과 같아 다른 기사가 섞일 곳(예: 용인시 수지구 → 「수지 개선」) — 줄임 이름을 쓰지 않는다
@@ -42,7 +44,11 @@ const SHORT_NAME_EXCEPTIONS = new Set(["수지", "수정", "장안", "중원"]);
 /** 「고양시 일산동구」 → 검색 「고양시 일산동구」, 통과 이름 일산동구·일산 / 「강서구」(서울) → 「서울 강서구」, 통과 강서구 / 「중구」(부산) → 부산도 함께
  *  개선 A(2026-11-11): 시+구는 시 이름(「화성」)만으로 통과시키지 않는다 — 11-11 알림에서 광명 철산자이 기사가 「화성시 동탄구」로 분류됨.
  *  대신 구 줄임 이름(동탄구→동탄, 일산동구→일산)으로 「화성시 동탄」 기사는 놓치지 않는다 */
-export function regionTerms(sggCd: string, sggNm: string): RegionTerms {
+export function regionTerms(sggCd: string, sggNm: string, dongs?: string[]): RegionTerms {
+  return { ...baseTerms(sggCd, sggNm), ...(dongs?.length ? { dongs } : {}) };
+}
+
+function baseTerms(sggCd: string, sggNm: string): RegionTerms {
   const parts = sggNm.trim().split(/\s+/).filter(Boolean);
   const sido = sidoOf(sggCd);
   if (parts.length >= 2) {
@@ -78,6 +84,42 @@ export function onlyListedInStats(text: string, terms: RegionTerms): boolean {
     masked = masked.replace(new RegExp(`${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s?\\(\\s?[0-9.+\\-]`, "g"), "□(");
   }
   return !terms.anyOf.some((n) => masked.includes(n));
+}
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** 제목에 지역 이름이나 그 구의 동 이름이 있는가 */
+export function titleMentionsRegion(title: string, terms: RegionTerms): boolean {
+  return mentionsRegion(title, terms) || Boolean(terms.dongs?.some((d) => title.includes(d)));
+}
+
+/** 잡음 줄이기(2026-11-13, docs/PLAN_20261113_NEWS_NOISE.md) — 11-13 서초구 37건 중 제목에 서초가 있는 기사는 3건뿐이었다.
+ *  요약의 지역 언급이 지나가는 꼴뿐이면 true:
+ *  가) 통계 목록 「서초구(21.9%)」 나) 행사 장소 「서초구 aT센터에서 열린」
+ *  다) 다른 구와 나란히 든 통계 비교 — 구가 셋 이상 나열(「서초구, 강남구, 송파구」)이거나, 둘이면 바로 뒤에 숫자·「각각」이 올 때(「강남구와 서초구의 전셋값이 각각 2.52%」).
+ *     「서초구와 강남구는 부담금 예정액을 통보」처럼 그 구가 주체인 문장은 숫자가 바로 따라오지 않아 남는다 */
+export function onlyPassingMention(text: string, terms: RegionTerms): boolean {
+  if (!mentionsRegion(text, terms)) return false;
+  let masked = text;
+  const JOIN = "(?:와|과|,|·|ㆍ)\\s?";
+  for (const n of [...terms.anyOf].sort((a, b) => b.length - a.length)) {
+    const e = escapeRe(n);
+    masked = masked
+      .replace(new RegExp(`${e}\\s?\\(\\s?[0-9.+\\-]`, "g"), "□(")
+      .replace(new RegExp(`${e}[^.。]{0,25}?(센터|타워|호텔|컨벤션|회관|빌딩|사옥|본사|홀)[^.。]{0,10}?에서`, "g"), "□에서")
+      .replace(new RegExp(`((?:[가-힣]{1,4}구${JOIN})*)${e}((?:${JOIN}[가-힣]{1,4}구)*)`, "g"), (m: string, before: string, after: string, offset: number, whole: string) => {
+        const others = (before.match(/구(?:와|과|,|·|ㆍ)/g) ?? []).length + (after.match(/[가-힣]구/g) ?? []).length;
+        if (others >= 2) return "□";
+        if (others === 1 && /[0-9]|각각/.test(whole.slice(offset + m.length, offset + m.length + 30))) return "□";
+        return m;
+      });
+  }
+  return !terms.anyOf.some((n) => masked.includes(n));
+}
+
+/** 여러 회사·여러 소식을 한 기사에 모은 묶음 기사 제목(「[건설 브리핑]」「[오늘의 건설]」「이 시각 헤드라인」) */
+export function isRoundupTitle(title: string): boolean {
+  return /(브리핑|라운지|레이더|업계 소식|오늘의 건설|건설·분양오늘|헤드라인|이 시각)/.test(title);
 }
 
 /** 같은 기사를 다른 주소로 받지 않게: 소문자 호스트, 끝 「/」·추적 꼬리(utm_·fbclid) 제거 */
@@ -180,6 +222,9 @@ export function pickCandidates(
       if (!title) continue;
       if (!mentionsRegion(`${title} ${it.description ?? ""}`, terms)) continue;
       if (!mentionsRegion(title, terms) && onlyListedInStats(it.description ?? "", terms)) continue;
+      // 잡음 줄이기(2026-11-13): 제목에 지역 이름이 없는 묶음 기사, 제목에 지역·동 이름이 없고 요약 언급이 지나가는 꼴뿐인 기사는 뺀다
+      if (!mentionsRegion(title, terms) && isRoundupTitle(title)) continue;
+      if (!titleMentionsRegion(title, terms) && onlyPassingMention(it.description ?? "", terms)) continue;
       const published = it.pubDate ? new Date(it.pubDate) : null;
       if (published && !Number.isNaN(published.getTime()) && published.getTime() < oldest) continue;
       const link = normalizeLink(it.originallink || it.link);
@@ -199,7 +244,7 @@ export function pickCandidates(
     }
   }
   // 개선 후보 2(2026-11-09 첫 실측): 「의원(서울 서초구 갑)안」처럼 요약에만 지나가듯 나온 기사보다 제목에 지역 이름이 있는 기사를 앞에(같은 무리 안 순서는 그대로)
-  const inTitle = (c: NewsCandidate) => mentionsRegion(c.title, terms);
+  const inTitle = (c: NewsCandidate) => titleMentionsRegion(c.title, terms);
   const ordered = [...out.filter(inTitle), ...out.filter((c) => !inTitle(c))];
   // 같은 사건은 앞에 온 것(제목에 지역 이름 있는 쪽)만 남긴다. 이미 받은 기사와 같은 사건이면 넣지 않는다
   const kept: Set<string>[] = recentTitles.map((t) => storyTokens(t, terms));

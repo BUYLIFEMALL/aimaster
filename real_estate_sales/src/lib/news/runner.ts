@@ -5,6 +5,7 @@ import { sendTelegramMessage } from "@/lib/telegram/client";
 import { sendAlimtalk } from "@/lib/solapi/client";
 import { summarizeNews, NEWS_DIGEST_MODEL } from "@/lib/ai/newsDigest";
 import { searchNaverNews, NaverNewsError } from "./naverNews";
+import { NEWS_DONGS } from "./dongNames";
 import { MAX_NEWS_REGIONS, NEWS_MAX_AGE_DAYS, buildNewsMessage, buildQueries, isNewsDue, kstDateHour, pickCandidates, regionTerms, type DigestItem, type NewsCategory, type RawNews } from "./radarCore";
 
 // RQ-C 지역 뉴스 레이더 실행(2026-11-09, v1.57). /api/collect/dispatch(5분 예약)가 매 회차 부르고,
@@ -62,7 +63,7 @@ export async function runNewsForUser(supabase: AdminClient, userId: string, opts
         console.error(`지역 뉴스 검색 실패 (user ${userId}, ${q.query}):`, err);
       }
     }
-    for (const c of pickCandidates(results, regionTerms(sggCd, sggNm), now, recentByRegion.get(sggCd) ?? [])) {
+    for (const c of pickCandidates(results, regionTerms(sggCd, sggNm, NEWS_DONGS[sggCd]), now, recentByRegion.get(sggCd) ?? [])) {
       rows.push({ sgg_cd: sggCd, sgg_nm: sggNm, category: c.category, title: c.title, link: c.link, snippet: c.snippet, published_at: c.publishedAt, source: c.source });
     }
   }

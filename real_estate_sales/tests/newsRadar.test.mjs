@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms, storyTokens, isSameStory, onlyListedInStats } from "../src/lib/news/radarCore.ts";
+import { buildNewsMessage, buildQueries, interleaveByRegion, isNewsDue, kstDateHour, mentionsRegion, normalizeLink, pickCandidates, regionTerms, storyTokens, isSameStory, onlyListedInStats, onlyPassingMention, isRoundupTitle, titleMentionsRegion } from "../src/lib/news/radarCore.ts";
 
 test("RQ-C 지역 이름: 시+구, 서울 구, 흔한 구 이름", () => {
   assert.deepEqual(regionTerms("41285", "고양시 일산동구"), { query: "고양시 일산동구", anyOf: ["일산동구", "일산"], alsoNeed: null });
@@ -145,4 +145,55 @@ test("개선 B: 같은 날 묶음 안 + 지난 3일 받은 기사와도 비교",
   const now = new Date("2026-11-11T00:00:00Z");
   assert.deepEqual(pickCandidates([{ category: "개발", items }], t, now).map((c) => c.link), ["https://a.com/1", "https://c.com/3"]);
   assert.deepEqual(pickCandidates([{ category: "개발", items }], t, now, ["반포현대 재초환 부담금 179억 통지… 재건축 위축 우려"]).map((c) => c.link), ["https://c.com/3"]);
+});
+
+// 잡음 줄이기(2026-11-13, docs/PLAN_20261113_NEWS_NOISE.md) — 문장은 11-13 서초구·종로구 실제 기사 요약
+test("잡음 줄이기: 지나가는 언급(행사 장소·통계 비교)만 있으면 뺀다", () => {
+  const t = regionTerms("11650", "서초구", ["반포", "방배", "양재"]);
+  // 행사 장소
+  assert.equal(onlyPassingMention("관람객들이 12일 서울 서초구 aT센터에서 열린 2026 대한민국 주거·도시정비 박람회", t), true);
+  assert.equal(onlyPassingMention("서은진 대표는 11일 서울 서초구 양재동 엘타워 2층에서 개최된 한국철도학회", t), true);
+  // 둘 비교 + 숫자
+  assert.equal(onlyPassingMention("올해 강남구와 서초구의 전셋값이 각각 2.52%, 4.13% 뛴", t), true);
+  assert.equal(onlyPassingMention("39% 하락했고 서초구와 송파구도 각각 0.37%, 0.17% 내", t), true);
+  // 셋 이상 나열
+  assert.equal(onlyPassingMention("강남 3구(서초구, 강남구, 송파구) 하락세가 이어지는 상황", t), true);
+  assert.equal(onlyPassingMention("특히 종로구와 중구, 용산구...", regionTerms("11110", "종로구")), true);
+  // 통계 목록(개선 A와 같은 꼴)
+  assert.equal(onlyPassingMention("성북구(79건), 서초구(70건), 중랑구(68건)가 뒤를 이었다", t), true);
+});
+
+test("잡음 줄이기: 그 구가 주체인 문장은 남긴다", () => {
+  const t = regionTerms("11650", "서초구", ["반포", "방배", "양재"]);
+  assert.equal(onlyPassingMention("서울 서초구와 강남구는 재건축을 마쳤거나 사업을 진행 중인 조합에 재건축 부담금 예정액을 통보하기 시작했다", t), false);
+  assert.equal(onlyPassingMention("현대건설은 서울 서초구와 성북구 등 여러 공동주택을 대상으로 주민설명회를", t), false);
+  assert.equal(onlyPassingMention("현대건설은 서울 서초구 반포주공1단지 1·2·4주구를 재건축한", t), false);
+  assert.equal(onlyPassingMention("서울 서초구 aT센터에서 열린 박람회. 서초구는 재건축 지원 방안을 소개했다", t), false, "다른 문장에 또 나오면 남김");
+  assert.equal(onlyPassingMention("강남구 이야기만 있는 글", t), false, "지역 언급이 없으면 이 함수의 대상이 아님");
+});
+
+test("잡음 줄이기: 묶음 기사 제목, 동 이름 제목", () => {
+  assert.equal(isRoundupTitle("[건설 브리핑] 현대건설·DL이앤씨·현대엔지니어링·LH"), true);
+  assert.equal(isRoundupTitle("[굿모닝! 12일 건설업계 소식] 현대건설·GS건설"), true);
+  assert.equal(isRoundupTitle("[연합뉴스 이 시각 헤드라인] - 14:30"), true);
+  assert.equal(isRoundupTitle("현대건설, 반포주공1단지 재건축 일반분양 공급"), false);
+  const t = regionTerms("11650", "서초구", ["반포", "방배"]);
+  assert.equal(titleMentionsRegion("현대건설, 반포주공1단지 재건축 일반분양 공급", t), true);
+  assert.equal(titleMentionsRegion("국토장관 “재초환, 종합적 검토 필요”", t), false);
+  assert.equal(titleMentionsRegion("반포 재건축", regionTerms("11650", "서초구")), false, "동 이름을 안 넘기면 예전과 같음");
+});
+
+test("잡음 줄이기: pickCandidates에 적용", () => {
+  const t = regionTerms("11650", "서초구", ["반포", "방배"]);
+  const now = new Date("2026-11-13T00:00:00Z");
+  const item = (title, description, n) => ({ title, description, link: `https://news.example.com/${n}`, pubDate: "Thu, 12 Nov 2026 09:00:00 +0900" });
+  const out = pickCandidates([{ category: "개발", items: [
+    item("주거·도시정비 박람회 ‘재건축·재개발 한 눈에’", "관람객들이 12일 서울 서초구 aT센터에서 열린 2026 대한민국 주거·도시정비 박람회", 1),
+    item("[건설 브리핑] 현대건설·DL이앤씨·현대엔지니어링·LH", "현대건설은 오는 12월 서울 서초구 반포주공1단지(1·2·4주구)를", 2),
+    item("씨 마른 전세탓에…비강남권, 계약갱신권 더 많이 써", "올해 강남구와 서초구의 전셋값이 각각 2.52%, 4.13% 뛴", 3),
+    item("현대건설, 반포주공1단지 재건축 일반분양 공급", "서울 서초구 반포주공1단지 재건축 사업의 일반분양이", 4),
+    item("국토장관 “재초환, 종합적 검토 필요”", "지난 9일 서울 서초구가 반포현대재건축조합에 약 179억원의 재건축 부담금", 5),
+    item("전성수 서초구청장, 'IMAX 행정'으로 명품 주거단지", "전성수 서울 서초구청장이 서울 서초구 aT센터에서 열린 박람회에서", 6),
+  ] }], t, now);
+  assert.deepEqual(out.map((c) => c.link.slice(-1)), ["4", "6", "5"], "잡음 3건 빠지고, 제목에 지역·동 이름 있는 기사가 앞");
 });
