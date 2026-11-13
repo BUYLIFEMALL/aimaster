@@ -13,6 +13,15 @@
 - 하지 않은 것: 사진 설명·인터뷰 예시로만 나오는 언급(오늘 4~5건)은 문장 꼴로 가르기 어려워 둠. 이미 저장된 기사는 지우지 않음(다음 회차부터 적용).
 - **배포 뒤 확인**: 다음 08:00 회차에서 서초 건수와 빠진 기사 대조(같은 시뮬레이션 방식).
 
+## 2026-11-13 Claude Code(윈도우) [역할: realty] — 전체 점검에서 나온 개선 후보 (모두 제안·미착수)
+
+- **지금 대기(다음 배포 때 함께)**: 지역 뉴스 잡음 줄이기(`2b2fecec4`, 위 항목) · 로그인 정책 2건(`src/lib/actions/auth.ts` 로그아웃 `scope: "local"`, 서버용 Supabase 클라이언트에 User-Agent 전달 — `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`) · 옛 AI 모델 선택지 삭제(`docs/PENDING_DEPLOYS.md`). 확인: `node scripts/pending-check.mjs real_estate_sales`.
+- **뉴스 N-1 (중): 분류와 상관없는 기사 거르기.** 11-13 종로구 21건 중 5건이 분류와 무관 — 「교통」에 연극 「조립식가족」 상견례(「서울 종로구에서 열린」)·명동 약국 기사, 「개발」에 종부세 정치 기사·한화 M&S 투자·동반성장지수. 네이버 검색이 「종로구 지하철」 검색어에 본문 어딘가의 낱말로 걸린 기사를 준 것. 제안: 분류마다 관련 낱말 묶음(개발: 재개발·재건축·정비·분양·착공… / 교통: GTX·지하철·역·노선·개통… / 학교: 학교·학군·개교… / 규제: 토지거래허가·조정대상·규제…)을 두고 **제목+요약에 하나도 없으면 뺌**. 먼저 저장분으로 측정(뉴스 N-2)해 잘못 빠지는 기사 0건을 확인하고 넣는다.
+- **뉴스 N-2 (낮음): 거르기 측정 스크립트를 저장소 도구로.** 이번에는 스크래치 스크립트로 「운영 DB 저장분에 실제 코드 적용 → 지역별 빠짐/남음」을 쟀다. 규칙을 바꿀 때마다 반복하므로 `scripts/news-noise-sim.mjs`(읽기만, 기간 인자)로 둔다. 단 저장분은 이미 걸러진 뒤라 「더 뺄 것」만 잴 수 있음 — 「놓친 기사」는 못 잼(한계 명시).
+- **뉴스 N-3 (낮음): 사진 설명·인터뷰 예시 언급.** 「서울 서초구 아파트 재건축 현장. 2026.10.31[」(사진 설명), 「김 소장은 "서초구 래미안원베일리 …"」(예시) — 하루 4~5건. 「지역 이름 바로 뒤가 날짜·대괄호·기자 이메일」이면 사진 설명으로 보는 규칙을 측정부터.
+- **뉴스 N-4 (낮음): 동 이름 표에 흔한 낱말이 섞임.** `dongNames.ts`에 「식사」「효자」「통인」「중산」 같은 낱말이 있어 제목에 우연히 나오면 「제목에 지역 있음」으로 지켜 줌(거르기에서 빠지지 않을 뿐, 새 기사가 들어오지는 않음). 실측에서 문제 없었지만 사례가 나오면 `scripts/build-news-dongs.mjs` `SKIP`에 추가.
+- **연계 (검토): 관심 지역·단지 한 번 등록.** 실거래 `real_estate_watch_districts`, 매물 알림 `realty_alert_targets`, 상가 감시 화면이 지역을 각자 등록 — 시험 계정도 종로·백석동·역삼동을 여러 군데에 따로 넣음. 한 프로그램에서 등록하면 다른 프로그램에 「이 지역도 감시할까요?」 제안(자동 등록 아님). 기존 A3 메뉴 링크·「🔔 이 단지 새 매물 알림 받기」 버튼의 다음 단계. 공통 아이디어 표에도 올림.
+
 ## 2026-11-12 Claude Code(윈도우) [역할: realty] — 운영 공공데이터 키를 포털 키로 교체(코드 변경 없음, 버전 그대로)
 
 - 주인님 「너가 바꿀 수 있으면 바꾸고」: 운영 Production `DATA_GO_KR_SERVICE_KEY`(94일 전 등록, Sensitive라 값 비교 불가)를 공공데이터포털 계정 키(지문 d2ef3083f3, 시험 계정 회원 키와 같은 값)로 덮어씀. 값은 출력·저장 안 함.
@@ -90,12 +99,12 @@
 - 위 「확인 필요」 항목은 **잘못된 판단**이었다. 처음 표를 만든 SQL(`20260810050751_real_estate_sales_init.sql`)만 보고 user_id가 없다고 봤으나, `supabase/migrations/20261017_district_sentiment_per_user_v1_12.sql`에서 이미 `user_id` 추가·`unique (user_id, sgg_nm, sentiment_date)`·회원 본인 RLS로 바뀌었고, `src/lib/ai/sentiment.ts`도 회원 본인 Perplexity 키로 만들어 본인 행만 읽고 쓴다. **최상위 규칙 위반 없음.** (운영 표가 0행이라 칸을 직접 확인하지 못한 것이 원인)
 - 조치: 정리 코드의 「회원 데이터 아님」 표시를 지우고 회원별 `usage_logs` `cleanup_expired`(sentiments) 기록을 붙임(`61142a909`, 공용 `cleanup-usage-log` 사본). ~~미배포 대기~~ → **v1.19(2026-10-25) 배포됨**.
 
-## 2026-10-23 미배포 대기 — SOLAPI 발송 코드 공용 기준 코드 `solapi-client` (Claude Code 윈도우 · 세션 `claude-win-20261023-solapi-shared`)
+## 2026-10-23 (✅ v1.19 배포됨, 제목 2026-11-13 정리) — SOLAPI 발송 코드 공용 기준 코드 `solapi-client` (Claude Code 윈도우 · 세션 `claude-win-20261023-solapi-shared`)
 - 주인님 승인(「진행, 미배포 대기」). 플랜: `crm-google-form/docs/PLAN_20261023_SOLAPI_SHARED.md`. 기준 `crm-google-form/lib/solapi/client.ts`, 사본 5곳(booking-reminder·stepmail·kakao_auto_poster·trending-product-finder·real_estate_sales) — **사본은 직접 고치지 말고 기준을 고친 뒤 `node scripts/check-shared-modules.mjs --sync`.** 계정 저장 `lib/actions/solapiAccount.ts`는 프로그램마다 기능이 달라 공용 아님.
 - 사본으로 맞춤: 주석 정리 + 쓰지 않는 RCS 발송 함수 `sendRcs` 추가(동작 같음). tsc·로컬 build 통과.
 - 배포: ~~미배포 대기~~ → **v1.19(2026-10-25) 배포됨**(아래 「🔔 이 단지 새 매물 알림 받기」와 함께).
 
-## 2026-10-25 미배포 대기 — 「🔔 이 단지 새 매물 알림 받기」 버튼 ([역할: realty] Claude Code 윈도우 · 세션 `claude-win-20261024-realty`)
+## 2026-10-25 (✅ v1.19 배포됨, 제목 2026-11-13 정리) — 「🔔 이 단지 새 매물 알림 받기」 버튼 ([역할: realty] Claude Code 윈도우 · 세션 `claude-win-20261024-realty`)
 - 주인님 제안 채택: 실거래 상세(`src/app/(dashboard)/listings/[id]/page.tsx`) 단지 제목 아래 버튼 → `https://realty-listing-alert.buylife.xyz/targets?name=<bldg_nm>&region=<자치구 동>` 새 탭. 실거래 자료에는 네이버 단지 번호가 없어(우리 서버는 네이버에 요청하지 않음) 이름·지역만 넘기고, 매물 알림 쪽 화면이 이름을 미리 채운 뒤 회원이 네이버 단지 주소를 붙여 넣게 안내한다.
 - 커밋 `154e7386b`. tsc·eslint 통과. **배포됨 v1.19(2026-10-25)** — 함께 나간 것: 공용 `solapi-client`·`telegram-bot-client` 사본, 30일 정리 회원별 기록(다음 정리 시각에 관리자 「30일 자동 정리」 표 확인 필요). 매물 알림 쪽 미리 채우기(`c623becf5`)도 배포돼야 안내가 보인다(먼저 배포되면 빈 추가 화면만 열림 — 해는 없음).
 - 2026-10-25 확인: 30일 정리는 매일 한국 03:30. 정리 코드는 실제로 지운 줄이 있을 때만 `usage_logs` `cleanup_expired`를 남긴다 — 지금 30일 지난 지역 분위기 자료가 0줄이라 기록 없음이 정상. 자료가 30일을 넘기는 날 첫 기록이 생긴다.

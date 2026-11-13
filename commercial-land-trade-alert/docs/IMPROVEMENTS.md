@@ -1,5 +1,13 @@
 # 개선사항 기록 — 상업용지·토지 실거래가 레이더 (`commercial-land-trade-alert`)
 
+## 2026-11-13 [역할: realty] Claude Code(윈도우) `claude-win-20261024-realty` — 전체 점검
+
+- **DB 확장 버전 칸 맞춤(처리함)**: v1.34 배포(11-12, 디자인 세션) 뒤 운영 ZIP·`manifest.json`은 v1.34인데 `programs.extension_version`이 v1.32로 남아 `check-extension-release`가 실패로 나옴 → 11-13 `extension_version = 'v1.34'`로 맞춤(운영 DB `esgxyikcnnvmlhygjkth`, 그 한 칸만) → `OK DB v1.34 / ext v1.34 / zip v1.34`.
+- **디자인 담당께(요청)**: 확장이 있는 프로그램을 배포하면 같은 작업에서 `programs.version`과 함께 `extension_version`도 올리고 `node scripts/check-extension-release.mjs <slug>`의 `OK`를 확인해 주세요(핵심 원칙 10). 이번에는 회원 피해 없음(다운로드 ZIP 자체는 최신이었음).
+- **다음 배포 때 함께**: 로그인 정책 2건(`src/lib/actions/auth.ts` 로그아웃 `scope: "local"`, 서버 로그인 기기 정보 전달) — `node scripts/pending-check.mjs commercial-land-trade-alert`.
+- **대기**: 층 진단 재측정 1회(호출 조절은 11-12 23:04 배포에 포함됨) — 관리자 로그인 필요(요청함 `ce2cf5bd`). 맞춤률 50% 이상이면 5단계(지번 캐시·하루 상한) 플랜.
+- **개선 후보(제안)**: 층 진단 결과를 화면 없이 JSON으로만 봄 → 관리자 화면에 「찾음·여러 층·없음·큰 지번·멈춤 사유」 요약 카드 하나(재측정 때마다 JSON을 읽지 않게). 우선 낮음.
+
 ## 2026-11-12 [역할: design] Antigravity(윈도우) `agy-win-clt-v1` — v1.34 1안 골든 랜드 HUD 전면 리뉴얼 및 White-on-White 폰트 시인성 버그 긴급 해결·재배포 완료
 
 - **디자인 채택**: 4대 화면 3시안 중 **1안(100. 골든 랜드 프롭테크 인텔리전스 HUD 스타일)** 공식 채택 반영.
