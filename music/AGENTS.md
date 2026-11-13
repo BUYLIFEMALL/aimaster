@@ -455,3 +455,9 @@ POST 콜백을 보낸다. 이 라우트는:
 - 정밀 기획 빌더: 가사 칸 바로 아래 「이 곡 가사 생성」(`Workspace.tsx` `builderLyrics` — 제목·Style 그대로, 곡 설명이 비면 곡 제목·요약으로).
 - 검수: 시험 61·tsc·lint·build, 배포 `music-qs47n803e` Ready, DB v1.51, ego lite 시험 계정으로 가사 생성 1회·수정·저장·새로고침 유지·콘솔 체크·스튜디오 버튼 확인. Suno 실제 생성은 하지 않음.
 - **미배포 대기 `d29041221`**: AI 가사의 `**`·줄 끝 공백 정리(`lib/lyricsClean.ts`, 시험 2개 — 자동 작사·연장 가사 포함, 예전부터 섞여 Suno로 가던 것), 스튜디오 버튼이 구간 표시만 있을 때 「이 곡 가사 생성」(`hasSungLyrics`). 다음 배포 때 v1.52로.
+
+## 2026-11-13 v1.52 — 세부 기획: 가사까지 기획 → 수정·확정 → 노래 생성 (Claude Code 윈도우 · 음악 담당)
+- 새 기획(`components/plannings/PlanningForm.tsx`): 장르·무드·악기·보컬톤·템포 칩, 후렴 구절·녹일 단어·쓰지 말 단어, 곡 길이(2·3·4분대). **DB** `music_plannings.plan_options` jsonb(`supabase/migrations/20261113_v1_52_planning_options.sql`, 운영 적용). 정리·비교·가사 지시문 `lib/planOptions.ts`(시험 `tests/planOptions.test.mjs`).
+- `planMusicAction`: 스타일(온도 0.7, 칩 반영)·제목(후렴·단어 힌트) → **가사까지** 생성해 `lyrics`에 저장(실패해도 기획 저장, 상세에 안내). `generateLyrics`가 회원 원문(`songDescription`)·세부 지시(`directives`)를 받음, 온도 0.8. 작사 프롬프트의 `**[Verse]**` 출력 지시 제거.
+- 상세: 가사 카드 「✅ 가사 확정」, 생성 콘솔 칩을 기획 칩으로 미리 채움(`initialOptions`), 서버는 칩이 기획과 같으면(`sameTags`) 기획 스타일을 그대로 사용. 자동 작사·상세 재생성도 원문·세부 지시 사용.
+- 함께 나감: v1.51 뒤 미배포 `d29041221`. 검수: 시험 65·tsc·lint·build, 배포·DB v1.52, ego lite 시험 계정 기획 1회(14초)·수정·확정·칩 미리 채움 확인. 남은 것: AI 초안도 곧바로 「확정된 가사」로 보임(별도 확정 상태 없음).
