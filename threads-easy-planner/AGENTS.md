@@ -1,5 +1,16 @@
 # 🤖 Threads AI 기획 자동화 — 에이전트 인수인계 문서 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.50 (`src/lib/version.ts`) · 운영 주소: https://threads-easy-planner.buylife.xyz (같은 코드가 독립 운영 배포판 「ALLA AI」 키트 `KIT/`로도 나감 — `src/lib/deployment.ts`의 `IS_STANDALONE`)
+- 한 줄 정의: 주제 입력·추천 주제·페르소나 버튼으로 스레드 글(5대 첫 문장 훅, 본문, 마지막 댓글/CTA)을 회원 본인 AI 키로 만들고, 고른 글만 보관함에 30일 저장하는 기획 도구. 스레드 계정 연동·자동 게시는 없음.
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): ✏️ 스레드 기획기(`/`) / 📁 내 콘텐츠 보관함(`/saved`) / 🔑 API키 등록·관리(`/settings`) / 📖 사용 매뉴얼(`/guide`). 이미지 생성은 배포판에서만 켜짐(`IMAGE_FEATURE`).
+- 필요한 키·연동(회원 본인 것, 공용 `user_api_keys`): `openai`·`gemini`·`anthropic` 중 1개 이상(이 프로그램 설정 화면에서 저장). 외부 계정 연동 없음.
+- 자동 실행(예약·정리)·확장: `vercel.json` 없음(crons 없음), 확장 없음. 보관함 30일 정리는 회원이 보관함을 열 때 서버 액션이 실행(`src/lib/actions/savedPlans.ts:116-126`).
+- 최근 변경(커밋 기준): d9448b5bb·87b12267e 종료된 OpenAI 이미지 모델 교체(v1.50 배포) / b16550ad4 확인 안 된 「암호화」 문구 제거 / 80d62d590 ALLA AI 키트 v1.05 / 1def2373a·9810804f1 저작권 고지·robots(공통).
+- 미배포 대기·남은 일: 이번 점검의 설정 화면·매뉴얼·사이드바 문구 수정. 정책 점검 3건(저장공간 위젯, 범위 없는 `signOut()` 1곳, 서버 클라이언트 User-Agent)과 보관함 정리·기기 임시 저장 문제 — `docs/IMPROVEMENTS.md` 2026-11-13 절.
+- 다음에 손댈 때 주의: 운영과 배포판이 같은 코드라 AIMaster 주소 링크는 `!IS_STANDALONE`일 때만 보이게 합니다. 기본 모델 `gpt-4.1`은 2027-01-14 종료 예정(`docs/AI_MODEL_CATALOG.md`). `src/lib/ai/geminiImage.ts`·`nanoBananaModels.ts`는 공용 기준 코드 사본입니다.
+- 이번 점검에서 고친 것: 설정 화면(`src/app/(dashboard)/settings/page.tsx`) — 키별 「📖 발급 방법」 매뉴얼 링크(운영에서만), 키 이름 옆 옛 모델명(Gemini 2.5 Flash·Claude 3.5 Sonnet)을 현재 기본 모델로 정정. 매뉴얼(`src/app/(dashboard)/guide/page.tsx`) — Claude 키 포함·엔진 선택 위치, 페르소나 이름·편집 완료 버튼 이름 정정, 없는 「만료 3일 전 붉은 배지」를 실제 「🕒 ○일 후 자동삭제」 표시로 정정, 자주 묻는 질문 4개. 사이드바 설명에 Claude 추가. (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 이 문서는 **Threads AI 기획 자동화(threads-easy-planner)** 서브프로젝트의 인수인계 문서입니다.
 루트 `CLAUDE.md`, `AGENTS.md`, `DESIGN.md`를 기반으로 동작하며, 다른 CLI(Antigravity, Codex, Claude Code)가 언제든 이어받아 작업할 수 있도록 7대 핵심 규격에 맞추어 정리되었습니다.
 

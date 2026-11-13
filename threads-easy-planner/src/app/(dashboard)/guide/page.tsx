@@ -75,12 +75,12 @@ export default function GuidePage() {
             </div>
           </div>
           <p className="text-xs md:text-sm text-neutral-600 leading-relaxed">
-            {APP_SHORT_NAME}는 <strong>회원 본인의 API 키(BYOK)</strong>를 사용하여 고성능 AI 글을 무제한 생성합니다. 
-            좌측 메뉴의 <strong>[🔑 API키 등록·관리]</strong>에서 OpenAI(GPT) 또는 Google Gemini 키를 한 번만 등록해 두시면 모든 기능이 즉시 활성화됩니다.
+            {APP_SHORT_NAME}는 <strong>회원 본인의 API 키(BYOK)</strong>로 글을 생성합니다(AI 사용 요금은 회원님 키의 계정에서 나갑니다).
+            좌측 메뉴의 <strong>[🔑 API키 등록·관리]</strong>에서 OpenAI(GPT)·Google Gemini·Anthropic Claude 중 <strong>1개만</strong> 등록해 두셔도 바로 쓸 수 있습니다. 각 칸의 [키 발급 사이트 열기 ↗]로 발급 화면이 열립니다.
           </p>
           <div className="rounded-2xl bg-neutral-50 p-4 border border-neutral-200 text-xs text-neutral-700 flex items-center justify-between gap-3">
             <div>
-              <span className="font-bold text-neutral-900">💡 기본 추천 모델:</span> OpenAI의 최신 <strong>GPT-4.1</strong>이 기본 엔진으로 탑재되어 있어, 별도 설정 없이 바로 매끄러운 스레드 말투를 뽑아냅니다.
+              <span className="font-bold text-neutral-900">💡 기본 엔진:</span> 처음에는 OpenAI <strong>GPT-4.1</strong>이 선택되어 있습니다. 다른 키를 등록하셨다면 기획 화면의 <strong>[⚙️ AI 추론 엔진 및 모델 설정]</strong>에서 OpenAI·Claude·Gemini와 모델을 바꿔 주세요. 고른 엔진은 이 브라우저에 기억됩니다.
             </div>
             <Link
               href="/settings"
@@ -149,7 +149,7 @@ export default function GuidePage() {
                   <span>방법 C. 페르소나 원클릭</span>
                 </div>
                 <p className="text-xs text-neutral-600 mt-2 leading-relaxed">
-                  <strong>[가전·살림 주부형]</strong>, <strong>[고부간 갈등 공감형]</strong>, <strong>[독신·자취생형]</strong>, <strong>[워킹맘]</strong> 등 원하는 캐릭터 카드를 클릭하면, 아무것도 입력하지 않아도 해당 인물의 말투로 대표 글이 3초 만에 완성됩니다.
+                  <strong>[가전·살림 주부형]</strong>, <strong>[고부간 갈등 공감형]</strong>, <strong>[독신·자취생형]</strong>, <strong>[워킹맘·직장인형]</strong> 등 원하는 캐릭터 카드를 클릭하면, 아무것도 입력하지 않아도 해당 인물의 말투로 대표 글이 3초 만에 완성됩니다.
                 </p>
               </div>
               <div className="pt-2 text-[11px] font-semibold text-neutral-500">
@@ -211,7 +211,7 @@ export default function GuidePage() {
               </span>
               <p className="leading-relaxed">
                 생성된 본문 박스 우측의 <strong>[✏️ 직접 수정]</strong> 버튼을 누르면 편집창(textarea)이 열립니다. 
-                내 말투나 특정 브랜드명, 추가 멘트를 자유롭게 고친 후 <strong>[수정 완료]</strong>를 누르시면 됩니다.
+                내 말투나 특정 브랜드명, 추가 멘트를 자유롭게 고친 후 같은 자리의 <strong>[완료 및 반영 ✓]</strong>를 누르시면 됩니다.
               </p>
             </div>
           </div>
@@ -291,7 +291,30 @@ export default function GuidePage() {
 
           <div className="rounded-2xl bg-emerald-50/60 p-3.5 border border-emerald-200 text-xs text-emerald-950 flex items-center gap-2">
             <span>🕒</span>
-            <span><strong>30일 보관 정책:</strong> 저장된 글은 30일 동안 안전하게 유지되며, 만료 3일 전부터는 붉은색 긴급 배지로 자동 안내됩니다.</span>
+            <span><strong>30일 보관 정책:</strong> 저장된 글은 저장일로부터 30일이 지나면 자동으로 삭제됩니다. 보관함의 각 카드에 <strong>「🕒 ○일 후 자동삭제」</strong>로 남은 날이 표시되니, 오래 쓸 글은 미리 복사해 두세요.</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2026-11-13 자주 묻는 질문 */}
+      <div className="rounded-3xl border border-neutral-200 bg-white p-6 md:p-7 space-y-3 shadow-xs">
+        <h3 className="text-lg font-bold text-neutral-900">❓ 자주 묻는 질문</h3>
+        <div className="space-y-3 text-xs md:text-sm text-neutral-600 leading-relaxed">
+          <div className="rounded-2xl bg-neutral-50 p-4 border border-neutral-200">
+            <p className="font-bold text-neutral-900">Q. 「API 키가 등록되어 있지 않습니다」라고 나와요.</p>
+            <p className="mt-1">지금 고른 엔진의 키가 없다는 뜻입니다. [🔑 API키 등록·관리]에서 그 키를 등록하거나, [⚙️ AI 추론 엔진 및 모델 설정]에서 이미 등록한 키의 엔진으로 바꿔 주세요.</p>
+          </div>
+          <div className="rounded-2xl bg-neutral-50 p-4 border border-neutral-200">
+            <p className="font-bold text-neutral-900">Q. 「크레딧(잔액)이 부족합니다」라는 오류가 나요.</p>
+            <p className="mt-1">회원님 AI 계정의 결제·충전 문제입니다. 해당 AI 사이트(OpenAI·Anthropic·Google)에서 결제 수단과 잔액을 확인해 주세요.</p>
+          </div>
+          <div className="rounded-2xl bg-neutral-50 p-4 border border-neutral-200">
+            <p className="font-bold text-neutral-900">Q. 글을 만들기만 하면 보관함에 저장되나요?</p>
+            <p className="mt-1">아니요. 마음에 드는 글만 [💾 보관함에 저장]을 눌러야 보관함에 들어갑니다. 저장하지 않은 글은 화면을 떠나면 다시 찾을 수 없습니다.</p>
+          </div>
+          <div className="rounded-2xl bg-neutral-50 p-4 border border-neutral-200">
+            <p className="font-bold text-neutral-900">Q. 스레드에 자동으로 올려 주나요?</p>
+            <p className="mt-1">아니요. 이 프로그램은 글을 기획·작성하는 도구이며 스레드 계정과 연결하지 않습니다. [전체 복사]·[본문만 복사]로 복사해 스레드 앱에 직접 올려 주세요.</p>
           </div>
         </div>
       </div>

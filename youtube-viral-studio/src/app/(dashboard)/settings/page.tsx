@@ -215,16 +215,17 @@ export default function SettingsPage() {
             * 입력 즉시 YouTube 공식 서버와 통신하여 키 유효성을 자동으로 검증합니다.
           </p>
         </form>
+        <GuideLinkButton guideId="72d39d06-a7ca-4ab0-8327-f9bb085ac394" label="YouTube Data API 키 발급 방법 매뉴얼" />
       </div>
 
-      {/* 2. Claude AI 분석 엔진 안내 카드 */}
+      {/* 2. AI 분석 엔진 안내 카드 (2026-11-13: 실제로 쓰는 Gemini·OpenAI·Claude 세 엔진으로 안내 정정) */}
       <div className="rounded-3xl border border-amber-500/25 bg-[#131B2A] p-6 shadow-md space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Bot size={20} className="text-[#FBBF24]" />
-            <h2 className="text-base font-black text-slate-100">2. AI 분석 엔진 (Claude)</h2>
+            <h2 className="text-base font-black text-slate-100">2. AI 분석 엔진 (Gemini · OpenAI · Claude)</h2>
             <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[11px] font-bold text-[#FBBF24] border border-amber-500/30">
-              기본 AI 활성
+              선택 · 메인 사이트에서 등록
             </span>
           </div>
           <a
@@ -237,9 +238,15 @@ export default function SettingsPage() {
           </a>
         </div>
         <p className="text-xs text-slate-400 leading-relaxed">
-          11대 바이럴 심리 메커니즘 분석 및 새 소재 대본 생성 시 사용되는 Anthropic Claude 키입니다.
-          메인 사이트 <b>/api-settings</b>에 등록된 키를 공유하여 사용합니다.
+          「채널 심층 분석」·「키워드 점유율 분석」의 AI 분석은 Google Gemini·OpenAI·Anthropic Claude 중 내가 등록한 키로 엔진을 골라 씁니다.
+          영상 카드의 쇼츠 대본 분석은 Gemini 또는 OpenAI 키가 필요합니다. AI 키는 이 화면이 아니라
+          <a href="https://www.buylife.xyz/api-settings" target="_blank" rel="noopener noreferrer" className="font-bold text-amber-400 underline"> 메인 사이트 API 설정</a>에서 등록하며, 한 번 등록하면 다른 프로그램에서도 함께 씁니다.
         </p>
+        <div className="flex flex-wrap gap-2">
+          <GuideLinkButton guideId="f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" label="Gemini 키 발급 방법" />
+          <GuideLinkButton guideId="1c5c24e2-15d4-49b8-b907-0ac6843dee3a" label="OpenAI 키 발급 방법" />
+          <GuideLinkButton guideId="d03f65c2-efbb-421f-a041-a075562e3b7a" label="Claude 키 발급 방법" />
+        </div>
       </div>
 
       {/* v1.27 내 채널 진짜 지표 — 회원 본인 구글 OAuth 앱(유튜브 댓글·shots와 같은 키 이름) */}
@@ -288,7 +295,10 @@ export default function SettingsPage() {
             </form>
           </div>
         ))}
-        <GuideLinkButton guideId="523e7401-7393-44f5-ba45-dd437e10fa2d" label="내 구글 앱 만들기·리디렉션 URI·앱 게시(7일 끊김 방지) 매뉴얼" />
+        <div className="flex flex-wrap gap-2">
+          <GuideLinkButton guideId="523e7401-7393-44f5-ba45-dd437e10fa2d" label="내 구글 앱 만들기·리디렉션 URI·앱 게시(7일 끊김 방지) 매뉴얼" />
+          <GuideLinkButton guideId="1c4181ac-a8c4-4b11-80f4-b29f3318c39b" label="내 유튜브 채널 연결 방법" />
+        </div>
         <p className="text-[11px] text-slate-500">
           * 승인된 리디렉션 URI에 <span className="font-mono text-amber-300 break-all">https://youtube-viral-studio.buylife.xyz/api/youtube/my-channel/callback</span> 을 추가하고, 「YouTube Analytics API」를 사용 설정한 뒤 「내 채널 진짜 지표」 메뉴에서 연결하세요.
         </p>

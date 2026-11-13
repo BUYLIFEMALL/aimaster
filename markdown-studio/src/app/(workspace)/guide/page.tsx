@@ -79,7 +79,10 @@ export default function GuidePage() {
               <strong>• 새 문서 생성:</strong> [문서 준비] 화면에서 회의록, 기술 문서, 기획서 등 미리 준비된 템플릿을 선택하거나 빈 문서로 즉시 시작할 수 있습니다.
             </p>
             <p>
-              <strong>• 기존 파일 가져오기:</strong> PC에 보관 중인 <code>.md</code>, <code>.txt</code> 파일이나 폴더를 드래그 앤 드롭으로 가져올 수 있습니다.
+              <strong>• 기존 파일 가져오기:</strong> [문서 준비] 화면의 「파일 가져오기」 칸에서 먼저 <strong>가져올 위치</strong>(최상위 또는 내 폴더)를 고른 뒤 <strong>[파일 선택]</strong> 또는 <strong>[폴더 선택]</strong> 버튼을 누르세요. <code>.md</code>, <code>.markdown</code>, <code>.txt</code> 파일을 가져오며, 끝나면 「○개 문서를 가져왔습니다」와 [가져온 문서 열기] 버튼이 나옵니다. (파일을 화면에 끌어다 놓는 방식은 지원하지 않습니다.)
+            </p>
+            <p>
+              <strong>• 백업 파일(.json)은 여기서 가져오지 않습니다:</strong> 전체 백업 파일은 [4. 문서 보관함]의 복원 기능으로 되살려 주세요.
             </p>
           </div>
 
@@ -122,6 +125,18 @@ export default function GuidePage() {
             <div className="guide-chip"><kbd>Ctrl</kbd> + <kbd>S</kbd> 즉시 강제 저장</div>
             <div className="guide-chip"><kbd>Ctrl</kbd> + <kbd>Z</kbd> 실행 취소</div>
             <div className="guide-chip"><kbd>Ctrl</kbd> + <kbd>F</kbd> 찾기 및 바꾸기</div>
+          </div>
+
+          <div style={{ fontSize: "13px", color: "var(--text-2)", lineHeight: 1.7 }}>
+            <p>
+              <strong>• 단축키 안내 창:</strong> 편집 화면의 <strong>[⌨️ 단축키]</strong> 버튼을 누르거나, 글을 입력하는 칸 밖에서 <kbd>?</kbd> 키를 누르면 단축키 목록이 열립니다. 목록의 항목(굵게·링크·찾기·저장 등)을 누르면 열려 있는 문서에 바로 적용됩니다.
+            </p>
+            <p>
+              <strong>• 미리보기 칸의 도구:</strong> [목차] 버튼을 누르면 제목(#) 목록이 나오고, 제목을 누르면 그 위치로 이동합니다. [MD 복사]·[HTML 복사] 버튼으로 원문이나 HTML을 클립보드에 담을 수 있고, 위쪽에 글자 수와 예상 읽기 시간이 함께 표시됩니다.
+            </p>
+            <p>
+              <strong>• 자동 저장:</strong> 입력한 내용은 자동으로 이 기기에 저장되며, 화면 위쪽에 「저장 중…」「이 기기에 저장됨」으로 상태가 보입니다. 다른 메뉴로 이동하거나 창을 닫을 때도 먼저 저장합니다.
+            </p>
           </div>
 
           <div className="guide-tip-box">
@@ -195,10 +210,16 @@ export default function GuidePage() {
               <strong>• 자동 리비전 타임라인:</strong> 문서 저장 시마다 최대 30개의 이전 버전 이력이 안전하게 보관됩니다. 이력 목록에서 작성 시간과 글자 수를 확인하고 언제든 [이 본문 복원] 버튼으로 되살릴 수 있습니다.
             </p>
             <p>
-              <strong>• 안전 휴지통:</strong> 삭제된 문서는 영구 삭제되지 않고 휴지통에 보관되며, 폴더 복원 시 하위 문서까지 한 번에 원래 위치로 되돌아옵니다.
+              <strong>• 안전 휴지통:</strong> 삭제한 문서는 바로 지워지지 않고 휴지통으로 갑니다. 폴더를 복원하면 안쪽 문서까지 한 번에 원래 위치로 되돌아옵니다. 필요 없는 항목은 항목별 영구 삭제 버튼이나 <strong>[휴지통 비우기]</strong>로 직접 지울 수 있으며, 확인 창에서 한 번 더 묻습니다. 영구 삭제하면 수정 이력까지 지워져 되돌릴 수 없습니다(Google Drive에 올린 파일은 그대로 남습니다). 휴지통에 30일 넘게 있는 항목에는 「30일 지남」 표시만 붙고 자동으로 지우지는 않습니다.
             </p>
             <p>
-              <strong>• 전체 데이터 백업(.json):</strong> 보관함의 [전체 백업] 버튼으로 작성한 모든 문서를 JSON 파일 하나로 안전하게 내려받을 수 있습니다.
+              <strong>• 전체 데이터 백업(.json):</strong> 보관함의 [전체 백업 내려받기 (.json)] 버튼으로 작성한 모든 문서를 JSON 파일 하나로 내려받을 수 있습니다. 문서 고정·꼬리표 색과 꼬리표 이름도 함께 들어가며, 복원하면 새 폴더로 되살아나고 고정·꼬리표도 다시 연결됩니다.
+            </p>
+            <p>
+              <strong>• 찾기·고정·꼬리표:</strong> 대시보드에서 문서 이름으로 검색하고, 📌 고정한 문서는 맨 앞에 보입니다. 고정 문서에는 5가지 색 꼬리표를 붙이고 색마다 이름(최대 10자, 예: 빨강 = 급함)을 정할 수 있으며, 색 버튼으로 그 꼬리표 문서만 걸러 볼 수 있습니다. 편집 화면 왼쪽 문서 목록에도 꼬리표 색 점이 표시됩니다.
+            </p>
+            <p>
+              <strong>• 화면 밝기(테마):</strong> 화면 위쪽 오른쪽의 [라이트]·[다크]·[자동] 버튼으로 바꿉니다. [자동]은 컴퓨터의 밝게·어둡게 설정을 따라가며, 고른 값은 이 기기에 기억됩니다.
             </p>
           </div>
         </section>
@@ -241,7 +262,7 @@ export default function GuidePage() {
           <div className="guide-notice-box">
             <Lock size={20} style={{ flexShrink: 0, marginTop: "2px" }} />
             <div>
-              <strong>철저한 보안 원칙:</strong> 인증에 사용되는 접근 토큰(Access Token)은 서버에 저장되지 않고 오직 회원님의 브라우저 메모리에만 일시적으로 보관되며, 페이지 새로고침 시 즉시 초기화되어 안전합니다.
+              <strong>철저한 보안 원칙:</strong> 인증에 사용되는 접근 토큰(Access Token)은 서버에 저장되지 않고 오직 회원님의 브라우저 메모리에만 일시적으로 보관되며, 페이지 새로고침 시 즉시 초기화되어 안전합니다. 그래서 다른 메뉴로 이동하거나 새로고침하면 연결이 풀립니다. [API키등록·플랫폼연동] 화면의 연결은 설정 확인용이니, 실제로 올리거나 가져올 때는 <strong>[4. 문서 보관함]의 Google Drive 카드</strong>에서 다시 [Google에 연결]을 눌러 주세요. 올린 파일은 내 Drive의 「마크다운 문서 자동화」 폴더 아래에만 저장됩니다.
             </div>
           </div>
         </section>
@@ -259,6 +280,31 @@ export default function GuidePage() {
             <p>
               • <strong>정기적 백업 권장:</strong> 브라우저 캐시 삭제나 기기 변경 시 데이터가 유실되지 않도록, 주기적으로 <code>[원문 저장]</code> 또는 <code>[보관함 전체 백업]</code>을 통해 중요 원고를 PC에 보관해 주시기 바랍니다.
             </p>
+            <p>
+              • <strong>서버에 올리지 않습니다:</strong> 문서는 AIMaster 서버로 전송되지 않으므로, 서버 자료에 적용되는 저장 용량·30일 자동 삭제 규칙과는 상관없습니다. 대신 이 기기·이 브라우저에만 있으니 백업이나 Google Drive로 따로 보관해 주세요.
+            </p>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="guide-card">
+          <div className="guide-card-header">
+            <div className="guide-card-title-group">
+              <div className="guide-step-avatar">
+                <Sparkles size={22} />
+              </div>
+              <div>
+                <h2>자주 묻는 질문</h2>
+                <p>처음 쓰실 때 자주 막히는 부분을 모았습니다.</p>
+              </div>
+            </div>
+            <span className="guide-tag">FAQ</span>
+          </div>
+          <div style={{ fontSize: "13px", color: "var(--text-2)", lineHeight: 1.7 }}>
+            <p><strong>Q. AI API 키를 등록해야 하나요?</strong><br />아니요. 문서 작성·가져오기·내보내기·백업에는 API 키가 필요 없고 비용도 들지 않습니다. Google Drive 연결만 내 Google Cloud 앱(Client ID)이 필요하며, 이것도 무료입니다.</p>
+            <p><strong>Q. 다른 컴퓨터나 휴대폰에서 로그인했는데 문서가 안 보여요.</strong><br />문서는 처음 작성한 기기의 브라우저에 저장되므로 다른 기기에는 자동으로 나타나지 않습니다. 원래 기기에서 [전체 백업 내려받기 (.json)]로 백업 파일을 받아 새 기기의 [4. 문서 보관함]에서 복원하거나, Google Drive에 올린 뒤 새 기기에서 가져와 주세요.</p>
+            <p><strong>Q. Drive에 올리려는데 연결이 풀려 있어요.</strong><br />보안을 위해 연결 정보는 메모리에만 두므로 메뉴를 옮기거나 새로고침하면 풀립니다. [4. 문서 보관함]의 Google Drive 카드에서 [Google에 연결]을 다시 눌러 주세요.</p>
+            <p><strong>Q. 실수로 지운 내용을 되살릴 수 있나요?</strong><br />본문은 문서마다 최근 30개 이력에서 [이 본문 복원]으로, 지운 문서는 휴지통에서 복원할 수 있습니다. 단, 휴지통에서 영구 삭제한 항목은 되살릴 수 없습니다.</p>
           </div>
         </section>
       </div>

@@ -7,25 +7,29 @@ import { IMAGE_FEATURE, IS_STANDALONE } from "@/lib/deployment";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const PROVIDER_INFO: { id: AIProvider; name: string; desc: string; guideUrl: string; isRecommended?: boolean }[] = [
+// 2026-11-13: manualId = 메인 사이트 연동 매뉴얼 글(platform_guides) id — 독립 운영(배포판)에서는 AIMaster 링크라 숨긴다
+const PROVIDER_INFO: { id: AIProvider; name: string; desc: string; guideUrl: string; manualId: string; isRecommended?: boolean }[] = [
   {
     id: "openai",
-    name: "OpenAI API 키 (GPT-4.1, GPT-4o)",
+    name: "OpenAI API 키 (GPT-4.1 · GPT-6 등)",
     desc: "★ 가장 안정적이고 추천하는 AI 엔진입니다. platform.openai.com에서 발급받은 일반/프로젝트 키('sk-...')를 입력하세요.",
     guideUrl: "https://platform.openai.com/api-keys",
+    manualId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
     isRecommended: true,
   },
   {
     id: "gemini",
-    name: "Google Gemini API 키 (Gemini 2.5 Flash)",
+    name: "Google Gemini API 키 (Gemini 3.7 Flash 등)",
     desc: "생성 속도가 매우 빠르고 기본 무료 사용량이 넉넉합니다. aistudio.google.com에서 발급받을 수 있습니다.",
     guideUrl: "https://aistudio.google.com/app/apikey",
+    manualId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
   },
   {
     id: "anthropic",
-    name: "Anthropic Claude API 키 (Claude 3.5 Sonnet)",
+    name: "Anthropic Claude API 키 (Claude Sonnet 5 등)",
     desc: "문장력이 우수합니다. (★ 주의: console.anthropic.com 콘솔에서 반드시 [Workspaces] 내의 특정 워크스페이스를 선택한 뒤 발급받은 'sk-ant-api03-...' 키를 입력해주세요. 워크스페이스가 미지정된 sk-ant-usr-... 키는 호출 시 오류가 발생합니다)",
     guideUrl: "https://console.anthropic.com/settings/keys",
+    manualId: "d03f65c2-efbb-421f-a041-a075562e3b7a",
   },
 ];
 
@@ -93,14 +97,26 @@ export default async function SettingsPage() {
                     </span>
                   )}
                 </div>
-                <a
-                  href={item.guideUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs text-neutral-400 hover:text-neutral-700 underline"
-                >
-                  키 발급 사이트 열기 ↗
-                </a>
+                <div className="flex items-center gap-3">
+                  {!IS_STANDALONE && (
+                    <a
+                      href={`https://www.buylife.xyz/guides/${item.manualId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold text-blue-600 hover:text-blue-800 underline"
+                    >
+                      📖 발급 방법
+                    </a>
+                  )}
+                  <a
+                    href={item.guideUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-neutral-400 hover:text-neutral-700 underline"
+                  >
+                    키 발급 사이트 열기 ↗
+                  </a>
+                </div>
               </div>
 
               <p className="mt-2 text-xs text-neutral-500 leading-relaxed">
