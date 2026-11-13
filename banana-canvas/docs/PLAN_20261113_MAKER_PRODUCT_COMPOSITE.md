@@ -1,6 +1,6 @@
 # 플랜 — 바나나 「상품 대표사진 일괄 합성」(P1) + 상세상품 반환(P2)
 
-2026-11-13 · 담당 A(기능·상품 연계) · 작성 Claude Code(윈도우) · **상태: 플랜·결정 대기(구현 안 함)**
+2026-11-13 · 담당 A(기능·상품 연계) · 작성 Claude Code(윈도우) · **상태: 주인님 승인(추천안 5건) → 구현 완료 `0abd5aabd`, 배포·DB 적용 승인 대기** — 결과 [`IMPROVEMENT_HANDOFF_20261113_MAKER_FEATURE.md`](IMPROVEMENT_HANDOFF_20261113_MAKER_FEATURE.md)
 근거: [`HANDOFF_20261113_MAKER_CLAUDE_FEATURE.md`](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261113_MAKER_CLAUDE_FEATURE.md), [`MAKER_UPDATE_REVIEW_20261113.md`](../../docs/analysis-ecommerce-bundle-20261024/MAKER_UPDATE_REVIEW_20261113.md) P1·P2. 대상 버전: 바나나 v1.45, 상세 v1.43, 11번가 v1.05, 스마트스토어(코드 기준) — 2026-11-13 로컬 코드 대조.
 
 ## 1. 지금 코드 사실 (2026-11-13 대조)
