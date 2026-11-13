@@ -1,7 +1,7 @@
 // v1.33 다른 프로그램이 넘긴 레퍼런스 대사(주소 # 뒤)를 로그인 화면을 거쳐도 잃지 않게 — 이 탭 저장소(sessionStorage)에 잠깐 보관
 // v1.34 보낸 프로그램 이름도 함께 보관
 import { readRefHandoff, readRefHandoffFrom } from "./reference";
-import { readProductHandoff, type ProductInfo } from "./productShorts";
+import { normalizeProductExtra, readProductExtra, readProductHandoff, type ProductExtra, type ProductInfo } from "./productShorts";
 
 const KEY = "onestop-ref-handoff";
 
@@ -42,8 +42,8 @@ export function stashProductHandoff(hash: string): boolean {
   return true;
 }
 
-/** 주제 화면: 주소 # 뒤 상품 정보를 먼저, 없으면 보관분 — 꺼낸 보관분은 바로 지움 */
-export function takeProductHandoff(hash: string): { product: ProductInfo; from: string } | null {
+/** 주제 화면: 주소 # 뒤 상품 정보를 먼저, 없으면 보관분 — 꺼낸 보관분은 바로 지움. v1.52 추가 필드(extra)도 같은 주소에서 */
+export function takeProductHandoff(hash: string): { product: ProductInfo; from: string; extra: ProductExtra } | null {
   let stored = "";
   try {
     stored = sessionStorage.getItem(PRODUCT_KEY) ?? "";
@@ -51,7 +51,9 @@ export function takeProductHandoff(hash: string): { product: ProductInfo; from: 
   } catch {
     /* 무시 */
   }
-  return readProductHandoff(hash) ?? (stored ? readProductHandoff(stored) : null);
+  const src = readProductHandoff(hash) ? hash : stored;
+  const got = src ? readProductHandoff(src) : null;
+  return got ? { ...got, extra: readProductExtra(src) ?? normalizeProductExtra({}) } : null;
 }
 
 function parseStored(raw: string): RefHandoff {

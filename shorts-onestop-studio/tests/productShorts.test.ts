@@ -41,3 +41,67 @@ test("프롬프트 블록에는 판매자가 적은 값만 들어간다", () => 
   assert.match(block, /1\. 가볍다/);
   assert.doesNotMatch(block, /혜택/);
 });
+
+// ── v1.52 메이커 후속 1단계 ──
+import { applyProduct, normalizeProductExtra, productCaption, productExtraHash, productPhotoSlots, productSceneCount, readProductExtra } from "../src/lib/productShorts.ts";
+
+const baseHash = () => productHandoffHash({ name: "물병", points: ["가볍다"], offer: "" }, "상세페이지");
+
+test("추가 필드를 붙여도 기존 4개 받기는 그대로(하위 호환)", () => {
+  const hash = baseHash() + productExtraHash({ id: "P-001", option: "화이트", url: "https://smartstore.naver.com/x/1", desc: "500ml, 1회 세척 쉬움", rights: "owned", rev: "r3" });
+  assert.deepEqual(readProductHandoff(hash), { product: { name: "물병", points: ["가볍다"], offer: "" }, from: "상세페이지" });
+  assert.deepEqual(readProductExtra(hash), { id: "P-001", option: "화이트", url: "https://smartstore.naver.com/x/1", desc: "500ml, 1회 세척 쉬움", rights: "owned", rev: "r3" });
+});
+
+test("추가 필드: https만·ID 형식·권리 값이 틀리면 빈 값, 길이 자르기", () => {
+  const e = normalizeProductExtra({ id: "a b<c", url: "http://x.com", rights: "anyone", desc: "가".repeat(400), rev: "r 1" });
+  assert.equal(e.id, ""); assert.equal(e.url, ""); assert.equal(e.rights, ""); assert.equal(e.rev, "");
+  assert.equal(e.desc.length, 300);
+  assert.equal(readProductExtra("#other=1"), null);
+  assert.equal(productExtraHash({}), "");
+});
+
+test("사진 배치: 상품이 나오는 장면 우선, 적으면 돌아가며, 6장이면 카드1까지", () => {
+  assert.deepEqual(productPhotoSlots(0), []);
+  assert.deepEqual(productPhotoSlots(1).map((x) => x.photo), [0, 0, 0, 0, 0]);
+  assert.deepEqual(productPhotoSlots(2).map((x) => `${x.scene}:${x.photo}`), ["2:0", "3:1", "4:0", "0:1", "5:0"]);
+  assert.equal(productPhotoSlots(6).length, 6);
+  assert.equal(productPhotoSlots(6)[5].scene, 1);
+});
+
+const demo = () => ({
+  topic: "t", category: "", tone: "friendly" as const, format: "product" as const,
+  intro: { eyebrow: "", title: "인트로", narration: "n" },
+  cards: [1, 2, 3, 4].map((i) => ({ title: `c${i}`, desc: "", narration: "n" })),
+  outro: { title: "끝", subtitle: "AI가 쓴 부제", cta: [], narration: "n" },
+  hashtags: [], source: "ai" as const,
+});
+const rec = (rights: "owned" | "") => ({ name: "물병", points: [], offer: "", ...normalizeProductExtra({ option: "화이트", rights }), from: "", photos: 0 });
+
+test("대본에 넣기: 권리가 없으면 사진은 안 넣고 상품명 원문은 고정", () => {
+  const s = applyProduct(demo(), rec(""), [{ path: "u1/product/a.jpg" }]);
+  assert.equal(productSceneCount(s), 0);
+  assert.equal(s.outro.subtitle, "물병 · 화이트");
+  assert.equal(s.product?.photos, 0);
+});
+
+test("대본에 넣기: 상품 장면에 원본 사진, 장면 배경·아래 글자 배치, AI 장면은 덮지 않음, 다시 넣으면 교체", () => {
+  const d = demo();
+  (d.cards[1] as { bg?: unknown }).bg = { type: "image", source: "ai", src: "", path: "u1/ai.png" };
+  const s = applyProduct(d, rec("owned"), [{ path: "u1/product/a.jpg" }, { path: "u1/product/b.jpg" }, { path: "bad/path.jpg" }]);
+  assert.equal(s.cards[1].bg?.source, "ai"); // 카드2(AI 이미지)는 그대로
+  assert.equal(s.cards[2].bg?.source, "product");
+  assert.equal(s.intro.bg?.source, "product");
+  assert.equal(s.cards[0].bg, undefined); // 카드1(쓰기 전)은 6장일 때만
+  assert.equal(s.backdrop?.mode, "scene");
+  assert.equal(s.design?.layout, "bottom");
+  assert.equal(s.product?.photos, 2); // product 폴더가 아닌 경로는 버림
+  const again = applyProduct(s, rec("owned"), [{ path: "u1/product/z.jpg" }]);
+  assert.ok([again.intro.bg, ...again.cards.map((c) => c.bg), again.outro.bg].filter((b) => b?.source === "product").every((b) => b?.path === "u1/product/z.jpg"));
+});
+
+test("프롬프트 블록에 옵션·확정 설명이 들어가고, 고정 문구는 원문 그대로", () => {
+  const block = productBlock({ name: "물병", points: [], offer: "" }, { option: "화이트", desc: "500ml" });
+  assert.match(block, /옵션: 화이트/); assert.match(block, /확정한 상품 설명: 500ml/);
+  assert.equal(productCaption({ name: "물병" }), "물병");
+});

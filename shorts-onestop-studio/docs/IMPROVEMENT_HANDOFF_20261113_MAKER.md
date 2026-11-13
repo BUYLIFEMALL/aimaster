@@ -3,7 +3,7 @@
 - 담당: [역할: video] Claude Code(윈도우) `claude-win-video`
 - 근거: `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261113_MAKER_CLAUDE_VIDEO.md`(D 영상 연계)
 - 대상: `shorts-onestop-studio` 코드 v1.51(운영 배포 v1.51) — 이번 작업은 **읽기 전용 검토·플랜**, 코드·DB·배포·유료 호출 0
-- 상태: **플랜(주인님 결정 대기)**. 메이커 원본 숏폼 메뉴는 실제 기능 미확인이므로 근거로 쓰지 않는다.
+- 상태: **결정 3건 받음(2026-11-13) → 1단계 구현 완료·미배포 대기(배포 때 v1.52)**. 메이커 원본 숏폼 메뉴는 실제 기능 미확인이므로 근거로 쓰지 않는다.
 
 ## 1. 결론
 
@@ -95,11 +95,27 @@
   - 유튜브 업로드 1회: 비공개, 비용 없음(외부 공개 아님). 시험 영상 삭제는 주인님이 직접
   - Vercel 배포 빌드 1회(v1.52) — 실행 직전 승인
 
-## 9. 주인님 결정 항목
+## 9. 주인님 결정 (2026-11-13 채팅 확정)
 
-1. 1단계(회원 사진 올리기 + 추가 필드 받기) 구현을 시작할지
-2. 상품 장면의 AI 영상: 기본 꺼짐 + 경고로 허용할지, 상품 장면에서는 아예 막을지(추천: 기본 꺼짐 + 경고)
-3. 2단계 자료함 사진: 참조(추천) / 원스톱으로 복사
+1. 1단계 구현 — **진행**
+2. 상품 장면 AI 영상 — **기본 꺼짐 + 켜면 「형태가 바뀔 수 있음」 경고**
+3. 2단계 자료함 사진 — **복사하지 않고 원본 참조**
+
+## 9-1. 1단계 구현 결과(미배포)
+
+| 항목 | 위치 |
+|---|---|
+| 추가 필드 받기·사진 배치·고정 문구 | `src/lib/productShorts.ts`(`normalizeProductExtra`·`readProductExtra`·`productExtraHash`·`productPhotoSlots`·`applyProduct`), `src/lib/refHandoff.ts` |
+| 배경 출처 `"product"`·상품 기록 `ShortsScript.product` | `src/lib/script.ts` |
+| 사진 올리기(권리 필수, JPG·PNG·WEBP 10MB, 회원당 120장) | `src/app/api/media/product-upload/route.ts`, `src/lib/media.ts` `productUploadUrl` |
+| 원본 그대로 그리기(contain·흐림 배경·4% 확대) | `src/lib/render/scene.ts` `drawProduct` |
+| 확정 설명·옵션 → 대본 근거, 원문 규칙 | `src/lib/prompts.ts`, `src/app/api/ai/script/route.ts` |
+| 상품 장면 보호(스톡 덮기·AI 이미지 막기, AI 영상 기본 잠금) | `src/components/views/DesignView.tsx` |
+| 주제 화면 칸·사진 올리기·「지금 대본에 넣기」 | `src/components/views/TopicView.tsx` |
+| 유튜브 설명란 상품 주소 | `src/lib/youtube/browserUpload.ts` |
+| 30일 정리 `product/` | `src/app/api/cron/cleanup-media/route.ts` |
+
+검수: 시험 63(새 7)·tsc·로컬 build 통과. 미확인: 운영 화면·MP4 외형 대조(배포 뒤), 유료 대본 1회(승인 뒤).
 
 ## 10. 다른 담당께 요청
 

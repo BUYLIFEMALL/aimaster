@@ -15,7 +15,8 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scrip
 import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
 import { takeProductHandoff, takeRefHandoff } from "@/lib/refHandoff";
-import { PRODUCT_CARDS, PRODUCT_LIMITS } from "@/lib/productShorts";
+import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, type ProductExtra, type ProductRights } from "@/lib/productShorts";
+import { createClient } from "@/lib/supabase/client";
 import { refBlockHeader, refBlocks, removeRefBlock, shortSource } from "@/lib/refBlocks";
 import { REWRITE_LEVELS, type RewriteLevel } from "@/lib/rewrite";
 
@@ -74,6 +75,11 @@ export function TopicView() {
   const [guardAll, setGuardAll] = useState(false), [guardRef, setGuardRef] = useState("");
   // v1.44(V3) 상품 홍보: 판매자가 적은 상품명·장점 3개·혜택(다른 프로그램이 주소 # 뒤로 넘기면 채워짐)
   const [product, setProduct] = useState({ name: "", points: ["", "", ""], offer: "" });
+  // v1.52 메이커 후속 1단계: 상품ID·옵션·주소·확정 설명·사진 권리·판번호 + 회원이 올린 상품 사진(최대 6)
+  const [extra, setExtra] = useState<ProductExtra>(() => normalizeProductExtra({}));
+  const [productFrom, setProductFrom] = useState("");
+  const [photos, setPhotos] = useState<{ path: string; preview: string; name: string }[]>([]);
+  const photoInput = useRef<HTMLInputElement>(null);
   const isProduct = format === "product";
   function chooseProductFormat() {
     setFormat("product"); setCards(PRODUCT_CARDS); setSeconds(15);
@@ -103,6 +109,7 @@ export function TopicView() {
     const got = takeProductHandoff(window.location.hash);
     if (got) {
       setProduct({ name: got.product.name, points: [...got.product.points, "", "", ""].slice(0, 3), offer: got.product.offer });
+      setExtra(got.extra); setProductFrom(got.from);
       setTopic(`${got.product.name} 15초 홍보 쇼츠`.slice(0, 120));
       setMode("ai"); chooseProductFormat();
       setMsg({ text: `${got.from ? `「${got.from}」` : "다른 프로그램"}에서 넘긴 상품 정보를 채웠습니다. 장점·혜택을 확인한 뒤 「대본 만들기」를 누르세요.`, ok: true });
@@ -150,13 +157,40 @@ export function TopicView() {
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
 
+  // v1.52 대본에 상품 기록·상품 사진·고정 문구(상품명·옵션 원문)를 넣는다(src/lib/productShorts.ts applyProduct)
+  function withProduct(s: ShortsScript): ShortsScript {
+    const points = product.points.map((p) => p.trim()).filter(Boolean);
+    return applyProduct(s, { name: product.name.trim(), points, offer: product.offer.trim(), ...normalizeProductExtra(extra), from: productFrom, photos: photos.length }, photos);
+  }
+
+  async function addPhotos(files: FileList | null) {
+    if (!files?.length) return;
+    if (!extra.rights) { setMsg({ text: "사진을 올리기 전에 사진 권리(내 사진 또는 공급사 허락)를 먼저 골라 주세요." }); return; }
+    const room = MAX_PRODUCT_PHOTOS - photos.length;
+    const list = Array.from(files).slice(0, Math.max(0, room));
+    if (!list.length) { setMsg({ text: `상품 사진은 ${MAX_PRODUCT_PHOTOS}장까지 넣을 수 있습니다.` }); return; }
+    setBusy("상품 사진을 올리는 중…"); setMsg(null);
+    const added: { path: string; preview: string; name: string }[] = []; const skipped: string[] = [];
+    try {
+      for (const f of list) {
+        if (!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size > 10 * 1024 * 1024) { skipped.push(f.name); continue; }
+        const r = await api<{ path: string; token: string }>("/api/media/product-upload", { body: { size: f.size, type: f.type, rights: extra.rights } });
+        const { error } = await createClient().storage.from("shorts-onestop-studio").uploadToSignedUrl(r.path, r.token, f, { contentType: f.type });
+        if (error) { skipped.push(f.name); continue; }
+        added.push({ path: r.path, preview: URL.createObjectURL(f), name: f.name });
+      }
+      setPhotos((p) => [...p, ...added].slice(0, MAX_PRODUCT_PHOTOS));
+      setMsg(skipped.length ? { text: `${added.length}장을 올렸습니다. 올리지 못한 사진: ${skipped.join(", ")} (JPG·PNG·WEBP, 한 장 10MB 이하)` } : { text: `상품 사진 ${added.length}장을 올렸습니다. 대본을 만들면 상품이 나오는 장면에 원본 그대로 들어갑니다.`, ok: true });
+    } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); if (photoInput.current) photoInput.current.value = ""; }
+  }
+
   async function makeScript() {
     setBusy("대본을 쓰는 중… (보통 10~40초)"); setMsg(null);
     try {
-      const productBody = isProduct ? { name: product.name, points: product.points, offer: product.offer } : undefined;
+      const productBody = isProduct ? { name: product.name, points: product.points, offer: product.offer, option: extra.option, desc: extra.desc } : undefined;
       const sendTopic = isProduct && topic.trim().length < 4 ? `${product.name.trim()} 홍보 쇼츠` : topic;
       const r = await api<{ script: ShortsScript; copied?: string[] }>("/api/ai/script", { body: { topic: sendTopic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined, guardAll, product: productBody } });
-      setScript(r.script); setItemId(null); setGuardRef(guardText(reference, guardAll));
+      setScript(isProduct ? withProduct(r.script) : r.script); setItemId(null); setGuardRef(guardText(reference, guardAll));
       // v1.30 레퍼런스 쇼츠와 그대로 겹치는 구절이 남았으면 다듬기에서 고치도록 알린다
       setMsg(r.copied?.length
         ? { text: `대본이 완성됐지만 참고 자료와 그대로 겹치는 구절이 ${r.copied.length}개 남았습니다. 아래 「③ 대본 다듬기」의 노란 테두리 장면을 다른 표현으로 고쳐 주세요: 「${r.copied.slice(0, 3).join("」, 「")}」` }
@@ -279,6 +313,23 @@ export function TopicView() {
                     <label key={i}>장점 {i + 1}{i === 0 ? "" : " (선택)"}<input value={pt} maxLength={PRODUCT_LIMITS.point} onChange={(e) => setProduct((p) => ({ ...p, points: p.points.map((v, j) => (j === i ? e.target.value : v)) }))} placeholder={["예: 무게 300g, 가방에 쏙", "예: USB-C로 어디서나 충전", "예: 밤에도 조용한 3단 바람"][i]} /></label>
                   ))}</div>
                   <label>혜택·구매 안내 (선택 — 아웃트로에 그대로 씀)<input value={product.offer} maxLength={PRODUCT_LIMITS.offer} onChange={(e) => setProduct((p) => ({ ...p, offer: e.target.value }))} placeholder="예: 프로필 링크에서 오늘 출발 상품 확인" /></label>
+                  <div className="grid2">
+                    <label>옵션 (선택)<input value={extra.option} maxLength={EXTRA_LIMITS.option} onChange={(e) => setExtra((x) => ({ ...x, option: e.target.value }))} placeholder="예: 화이트 · 3단" /></label>
+                    <label>판매 상품 주소 (선택 — 유튜브 설명란에 넣음)<input value={extra.url} maxLength={EXTRA_LIMITS.url} onChange={(e) => setExtra((x) => ({ ...x, url: e.target.value }))} placeholder="https://…" /></label>
+                  </div>
+                  <label>확정한 상품 설명 (선택 — 적은 내용만 사실로 씀)<textarea rows={2} value={extra.desc} maxLength={EXTRA_LIMITS.desc} onChange={(e) => setExtra((x) => ({ ...x, desc: e.target.value }))} placeholder="예: 접으면 18cm, 1회 충전 8시간 사용" /></label>
+                  {(extra.id || productFrom) && <small className="muted">📦 넘겨받은 상품{extra.id ? ` · 상품ID ${extra.id}` : ""}{productFrom ? ` · 보낸 곳 「${productFrom}」` : ""}{extra.rev ? ` · 판 ${extra.rev}` : ""}</small>}
+                  <div className="stack" style={{ gap: 6 }}>
+                    <strong style={{ fontSize: 14 }}>📷 상품 사진 (선택, 최대 {MAX_PRODUCT_PHOTOS}장) — 잘라내거나 AI로 다시 그리지 않고 원본 그대로 장면에 넣습니다</strong>
+                    <div className="chips">{(Object.keys(RIGHTS_LABEL) as ProductRights[]).map((k) => <button key={k} type="button" className={`chip ${extra.rights === k ? "on" : ""}`} onClick={() => setExtra((x) => ({ ...x, rights: k }))}>{extra.rights === k ? "✔ " : ""}{RIGHTS_LABEL[k]}</button>)}</div>
+                    <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                      <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => void addPhotos(e.target.files)} />
+                      <button type="button" disabled={!extra.rights || photos.length >= MAX_PRODUCT_PHOTOS || !!busy} title={extra.rights ? undefined : "사진 권리를 먼저 골라 주세요"} onClick={() => photoInput.current?.click()}><Plus size={14} />사진 올리기</button>
+                      {photos.map((ph, k) => <span key={ph.path} className="badge" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><img src={ph.preview} alt="" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 6, background: "#0002" }} />{k + 1}<button type="button" aria-label="이 사진 빼기" onClick={() => setPhotos((p) => p.filter((x) => x.path !== ph.path))}><Trash2 size={12} /></button></span>)}
+                    </div>
+                    <small className="muted">상품이 나오는 장면(상품 등장·쓰는 모습·달라진 결과·인트로·마무리)에 순서대로 들어가고, 사진이 적으면 돌아가며 씁니다. 올린 사진은 다른 회원에게 보이지 않고 30일 뒤 자동으로 지워집니다.</small>
+                    {script && <div className="actions"><button type="button" disabled={!!busy} onClick={() => { setScript((s) => (s ? withProduct(s) : s)); setMsg({ text: "지금 대본에 상품 정보·사진을 다시 넣었습니다. 저장해 주세요.", ok: true }); }}>🛍 지금 대본에 상품 사진·정보 넣기</button></div>}
+                  </div>
                   <small className="muted">구성: 결과 먼저 → 쓰기 전 → 상품 등장 → 쓰는 모습 → 달라진 결과 → 처음 장면으로 이어지는 마무리</small>
                 </div>
               )}

@@ -31,7 +31,8 @@ export const MIN_CARDS = 3, MAX_CARDS = 8;
 /** stockId: 스톡 원본 번호. Pixabay 사진 주소(pixabay.com/get/…)는 24시간 임시라, 열 때마다 이 번호로 새 주소를 받는다(/api/stock/resolve) */
 /** v1.23 AI 영상: type "video" + source "ai" + path(회원 폴더 mp4), model = 만든 영상 모델, poster = 첫 화면으로 쓴 사진 배경(썸네일·되돌리기용),
  *  videoJob = 업체에서 만드는 중인 작업(제출 번호 — 저장해 두면 새로고침 뒤에도 이어서 확인). 완성되면 videoJob은 지운다 */
-export interface Bg { type: "image" | "video"; source: "pexels" | "pixabay" | "ai"; src: string; thumb?: string; path?: string; credit?: string; pageUrl?: string; prompt?: string; stockId?: string; model?: string; poster?: Bg; videoJob?: import("@/lib/videoModels").VideoJob }
+/** v1.52 source "product": 회원이 올린 상품 사진(type "image", path = <회원>/product/…). 잘라내지 않고 전체를 보이게 그린다(render/scene.ts drawProduct) */
+export interface Bg { type: "image" | "video"; source: "pexels" | "pixabay" | "ai" | "product"; src: string; thumb?: string; path?: string; credit?: string; pageUrl?: string; prompt?: string; stockId?: string; model?: string; poster?: Bg; videoJob?: import("@/lib/videoModels").VideoJob }
 export interface Backdrop { mode: "theme" | "global" | "scene"; global?: Bg; dim: number; style: string; character: string; provider?: "pexels" | "pixabay"; media?: "image" | "video"; hints?: { query: string; prompt: string }[] }
 /** 장면 내레이션 음성(P5): 저장소 경로·재생 길이(초)·만들 때의 내레이션(바뀌면 다시 만들어야 함) */
 /** words(v1.27): 대본 낱말(공백 기준)마다 음성 속 시작 시각(초) — 있으면 자막을 말하는 순간에 맞춘다 */
@@ -59,6 +60,8 @@ export interface ShortsScript {
   seo?: import("@/lib/plan").Seo;
   /** 유튜브에 올린 기록(v1.19, 최근 것이 앞, 최대 10개) — 영상 파일은 저장하지 않는다 */
   youtube?: YoutubeUpload[];
+  /** v1.52 상품 홍보 쇼츠의 상품 기록(상품ID·옵션·주소·확정 설명·사진 권리 — src/lib/productShorts.ts ProductRecord) */
+  product?: import("@/lib/productShorts").ProductRecord;
 }
 export interface YoutubeUpload { videoId: string; url: string; title: string; privacy: "private" | "unlisted" | "public"; publishAt?: string | null; channel?: string | null; uploadedAt: string }
 

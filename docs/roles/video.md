@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-13 `claude-win-video` (메이커 후속 D 영상 연계 플랜 작성)
+- 마지막 갱신: 2026-11-13 `claude-win-video` (메이커 1단계 구현 — 미배포 대기)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -21,11 +21,12 @@
 | `shots` | **v1.48 배포 완료(2026-11-12)**: 대본·주제 후보 행 30일 정리 적용. 다음 날 03:30 정리 결과(대본 2·후보 10 예상) 확인만 남음 | 2026-11-13 확인 | `shots/docs/IMPROVEMENTS.md` 맨 위 |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | V3 2단계 = 메이커 영상 연계 플랜(11-13): 1단계 회원 상품 사진 올리기+추가 필드 받기 / 2단계 자료함 `sourceRef` 받기 | 주인님 결정 3건(§9) · sdp 계약 · policy 참조/복사 판정 | `shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md` |
+| `shorts-onestop-studio` | 메이커 후속 1단계(상품 사진 쇼츠) 구현 완료 **미배포 대기**(배포 때 v1.52) — 배포·화면 확인·유료 대본 1회 남음 / 2단계 자료함 `sourceRef` 원본 참조 받기 | 배포 빌드·유료 대본 시험 승인 · 2단계는 sdp 계약 | `shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md` §9-1 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-13 | `shorts-onestop-studio` (v1.52 예정) | 메이커 1단계 구현: 상품 사진 배경(원본 그대로·AI 이미지 막기·AI 영상 기본 잠금)·추가 필드 6개 받기·상품명 원문 고정·설명란 상품 주소·30일 정리 `product/`. 시험 63·tsc·build | 미배포 대기 |
 | 2026-11-13 | `shorts-onestop-studio` v1.51 | 메이커 후속 D 영상 연계 검토: 받는 것 글자 4개뿐·사진/ID/옵션/주소/설명/권리 미구현·보내는 버튼 0건 확인 → 기존/미구현 표·최소 계약·외형 보존·보관·재호출·검수·비용 플랜 | 없음(읽기 전용, 비용 0) |
 | 2026-11-13 | `shorts-onestop-studio` v1.51 | U10 실제 확인: MP4 브라우저 생성 → 유튜브 비공개 업로드(`TH6NxZzJIcA`) → 보내기 → 워크스페이스 받은 업무 도착 | 없음(시험만, 비용 0) |
 | 2026-11-12 | 영상 개선 묶음 | 「내 자료함」 연결(영상 스튜디오 사진·원스톱 배경음악·뮤직비디오 곡/이미지), video-to-gif 남은 시간, shots 장면 순서·렌더링 미리보기·썸네일, 무한 루프·떡상 재점검, 워크스페이스 유튜브 기록 요청 답 | 11-12 배포 완료: `ai-video-studio` v1.36 · 원스톱 v1.50 · 뮤직비디오 v1.30 · video-to-gif v1.28 · shots v1.49(빌드 5회) |
@@ -99,4 +100,4 @@
 3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
 
 ## 주인님께 여쭐 것
-- 메이커 영상 연계(원스톱 상품 쇼츠): 1단계 구현 시작 여부 · 상품 장면 AI 영상 허용 방식(추천: 기본 꺼짐+경고) · 자료함 사진 참조/복사(추천: 참조) — `shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md` §9
+- 원스톱 v1.52(메이커 1단계) 배포 빌드 1회와 유료 대본 시험 1회(약 10원) 승인 여부

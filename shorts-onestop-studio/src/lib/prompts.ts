@@ -1,7 +1,7 @@
 import "server-only";
 import { FORMATS, TONES, type Format, type Tone } from "@/lib/script";
 import { COPY_WORDS, REF_MARK } from "@/lib/reference";
-import { productBlock, type ProductInfo } from "@/lib/productShorts";
+import { productBlock, type ProductExtra, type ProductInfo } from "@/lib/productShorts";
 
 // 프롬프트는 이 프로그램용으로 새로 썼다(참고 원본 문구 사용 안 함). 당해 연도는 항상 동적으로 주입한다(원칙 8).
 function yearRule() {
@@ -40,9 +40,10 @@ const PRODUCT_RULES = `[상품 홍보 규칙 — 반드시 지킴]
 - 아래 「상품 정보」에 판매자가 적은 내용만 사실로 씁니다. 적혀 있지 않은 효능·수치·성분·인증·가격·할인율·판매량·후기는 지어내지 않습니다.
 - 「품절 대란」「마감 임박」「한정 수량」「1위」「100% 효과」처럼 근거 없는 긴급·최상급 표현, 의학적 효능 단정, 다른 상품 비방은 쓰지 않습니다.
 - 화면 글자는 짧게, 장면마다 하나의 장면 묘사가 떠오르게 씁니다(desc는 그 장면에 보일 모습).
+- 상품명·옵션은 적힌 글자 그대로 씁니다(줄이거나 다른 이름으로 바꾸지 않음). 「판매자가 확정한 상품 설명」도 장점과 같은 사실 근거로만 씁니다.
 - 아웃트로 cta는 1~2개, 판매자가 혜택을 적었으면 그 문구를 그대로, 없으면 「프로필 링크에서 확인」처럼 담백하게.`;
 
-export function scriptPrompt(o: { topic: string; category: string; tone: Tone; format: Format; cards: number; reference?: string; guideline?: string; seconds?: number; guardAll?: boolean; product?: ProductInfo | null }) {
+export function scriptPrompt(o: { topic: string; category: string; tone: Tone; format: Format; cards: number; reference?: string; guideline?: string; seconds?: number; guardAll?: boolean; product?: ProductInfo | null; productExtra?: Pick<ProductExtra, "desc" | "option"> | null }) {
   const budget = o.seconds ? narrationBudget(o.seconds, o.cards) : null;
   const system = [
     "당신은 한국어 유튜브 쇼츠 대본 작가입니다. 화면에는 짧은 글자만, 자세한 내용은 내레이션으로 전달하는 세로 카드형 쇼츠 대본을 씁니다.",
@@ -55,7 +56,7 @@ export function scriptPrompt(o: { topic: string; category: string; tone: Tone; f
   const prompt = [
     `주제: ${o.topic}`,
     o.category ? `분야: ${o.category}` : "",
-    o.format === "product" && o.product ? `상품 정보(판매자가 직접 적은 내용):\n${productBlock(o.product)}` : "",
+    o.format === "product" && o.product ? `상품 정보(판매자가 직접 적은 내용):\n${productBlock(o.product, o.productExtra ?? undefined)}` : "",
     o.reference ? `참고 자료(이 내용을 근거로 쓰고, 자료에 없는 사실을 지어내지 마세요):\n${o.reference}` : "",
     // v1.30 레퍼런스 쇼츠 받아쓰기(v1.29)가 있으면 베끼기 금지 — 구성·후킹·심리만 참고
     o.reference?.includes(REF_MARK) ? `[레퍼런스 쇼츠 사용 규칙] 「${REF_MARK}…」 블록은 다른 사람이 만든 쇼츠의 실제 대사입니다. 구성·후킹 방식·심리만 참고하고 문장은 완전히 새로 쓰세요. 그 블록과 연속 ${COPY_WORDS}어절 이상 같은 표현을 쓰지 마세요(숫자·고유명사 같은 사실은 써도 됩니다). 첫 문장(후킹)은 특히 다른 상황·다른 말로 시작하세요.` : "",

@@ -37,6 +37,9 @@ export function DesignView() {
   const [linkNext, setLinkNext] = useState(true);
   const [lenChoice, setLenChoice] = useState<"fit" | number>("fit"); // v1.25 영상 길이: 장면에 맞춤(기본) 또는 5·8·10초
   const [keyOk, setKeyOk] = useState<Record<string, boolean>>({});
+  // v1.52 상품 사진 장면의 AI 영상은 기본 잠금 — 회원이 「형태가 바뀔 수 있음」을 보고 직접 켤 때만(주인님 2026-11-13 결정)
+  const [allowProductVideo, setAllowProductVideo] = useState(false);
+  const isProductScene = (b?: Bg) => !!b && (b.source === "product" || b.poster?.source === "product");
   const scriptRef = useRef<ShortsScript | null>(null); scriptRef.current = script;
   const itemRef = useRef<Item<ShortsScript> | null>(null); itemRef.current = item;
   const [busy, setBusy] = useState(""), [msg, setMsg] = useState<Msg>(null), [dirty, setDirty] = useState(false);
@@ -120,17 +123,19 @@ export function DesignView() {
     try {
       let next = script; const used = new Set<string>();
       for (const i of idx) {
-        if (getBg(next, i)?.source === "ai" || getBg(next, i)?.videoJob) continue; // 비용을 들여 만든 AI 이미지·영상(만드는 중 포함)은 덮어쓰지 않는다
+        if (getBg(next, i)?.source === "ai" || getBg(next, i)?.source === "product" || getBg(next, i)?.videoJob) continue; // 비용을 들여 만든 AI 이미지·영상(만드는 중 포함)과 v1.52 상품 사진은 덮어쓰지 않는다
         const items = (await api<{ items: StockItem[] }>("/api/stock/search", { body: { provider: bd.provider, type: bd.media, query: hint(i).query } })).items;
         const r = bestStock(items, hint(i).query, used); // 검색어와 태그가 가장 많이 겹치는 결과
         if (r) { used.add(r.id); next = setBg(next, i, { type: r.type, source: bd.provider ?? "pixabay", src: r.src, thumb: r.thumb, credit: r.credit, pageUrl: r.pageUrl, stockId: r.id.replace(/^[a-z]+-/, "") }); }
       }
-      setScript(next); setDirty(true); setMsg({ text: "스톡으로 배경을 채웠습니다(AI 이미지가 있는 장면은 그대로 둠). 마음에 안 드는 장면만 다시 검색해 바꾸세요.", ok: true });
+      setScript(next); setDirty(true); setMsg({ text: "스톡으로 배경을 채웠습니다(AI 이미지·상품 사진이 있는 장면은 그대로 둠). 마음에 안 드는 장면만 다시 검색해 바꾸세요.", ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
   }
 
   async function aiImage(i: number) {
     if (locked(i)) return;
+    // v1.52 상품 장면은 AI가 상품을 다시 그리지 않게 한다 — 바꾸려면 회원이 먼저 상품 사진을 지운다
+    if (script && getBg(script, i)?.source === "product") { setMsg({ text: "상품 사진 장면은 AI 이미지로 바꾸지 않습니다(상품을 AI가 다시 그리면 실제 상품과 달라질 수 있음). 꼭 바꾸려면 🗑로 상품 사진을 먼저 지워 주세요." }); return; }
     const prompt = hint(i).prompt.trim(); if (prompt.length < 8) { setMsg({ text: "AI 이미지 설명을 먼저 만들거나 입력해 주세요." }); return; }
     setBusy("AI 이미지를 만드는 중… (보통 10~40초)"); setMsg(null); setActive(i);
     try {
@@ -161,6 +166,7 @@ export function DesignView() {
     const b = getBg(script, i); const start = frameOf(b);
     if (!b || !start) { setMsg({ text: "먼저 이 장면에 사진 배경(AI 이미지 또는 스톡 사진)을 넣어 주세요. 그 사진이 영상의 첫 화면이 됩니다." }); return; }
     if (b.videoJob) return;
+    if (isProductScene(b) && !allowProductVideo) { setMsg({ text: "상품 사진 장면은 AI 영상이 기본으로 꺼져 있습니다. AI가 상품의 모양·색·글자를 바꿀 수 있어서입니다. 그래도 쓰려면 위의 「상품 장면도 AI 영상 허용」을 켜 주세요." }); return; }
     if (!keyOk[vm.provider]) { setMsg({ text: `${vm.name}은(는) 본인 ${PROVIDER_NAME[vm.provider]} 키가 필요합니다. API키등록·플랫폼연동에서 먼저 등록해 주세요.` }); return; }
     const n = nextIdx(i); const end = linkNext && vm.endFrame && n >= 0 ? frameOf(getBg(script, n)) : "";
     setBusy(`${label(script, i)} AI 영상 작업을 보내는 중…`); setMsg(null); setActive(i);
@@ -217,9 +223,10 @@ export function DesignView() {
   const rows = script ? (bd.mode === "global" ? [-1] : Array.from({ length: script.cards.length + 2 }, (_, i) => i)) : [];
   const thumbOf = (b?: Bg): string => (b ? (b.source === "ai" && b.type === "video" ? (b.poster ? thumbOf(b.poster) : "") : b.source === "ai" ? media.srcOf(b) : b.type === "image" ? media.srcOf(b) : b.thumb || b.src) : "");
   const bgLabel = (b: Bg) => b.path && media.gone.has(b.path) ? `🗑️ 만든 지 30일이 지나 파일이 삭제되었습니다 — 다시 만들거나 골라 주세요` : b.videoJob ? `⏳ AI 영상 만드는 중… (${findVideoModel(b.videoJob.model)?.name ?? ""} · ${new Date(b.videoJob.startedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })} 시작)`
-    : b.source === "ai" && b.type === "video" ? `🎬 AI 영상 · ${findVideoModel(b.model)?.name ?? ""}` : b.source === "ai" ? "🎨 AI 이미지" : `${b.type === "video" ? "🎬" : "🖼️"} ${b.credit ?? b.source}`;
+    : b.source === "ai" && b.type === "video" ? `🎬 AI 영상 · ${findVideoModel(b.model)?.name ?? ""}${b.poster?.source === "product" ? " (상품 사진에서 만듦 — 모양·색·글자를 원본과 꼭 비교해 주세요)" : ""}` : b.source === "ai" ? "🎨 AI 이미지" : b.source === "product" ? "🛍 상품 사진 — 잘라내지 않고 원본 그대로 보입니다" : `${b.type === "video" ? "🎬" : "🖼️"} ${b.credit ?? b.source}`;
   // v1.25 「모두 영상으로 만들면」 합계: 사진 배경이 있고 아직 AI 영상이 아닌(만드는 중도 아닌) 장면
-  const videoTargets = rows.filter((i) => i >= 0 && script && frameOf(getBg(script, i)) && !(getBg(script, i)?.source === "ai" && getBg(script, i)?.type === "video") && !getBg(script, i)?.videoJob);
+  const videoTargets = rows.filter((i) => i >= 0 && script && frameOf(getBg(script, i)) && !(getBg(script, i)?.source === "ai" && getBg(script, i)?.type === "video") && !getBg(script, i)?.videoJob && (allowProductVideo || !isProductScene(getBg(script, i))));
+  const hasProductScene = rows.some((i) => script && isProductScene(getBg(script, i)));
   const allCost = Math.round(videoTargets.reduce((sum, i) => sum + costOf(i), 0) * 100) / 100;
 
   return (
@@ -253,6 +260,7 @@ export function DesignView() {
                     <label>⏱️ 영상 길이<select value={String(lenChoice)} onChange={(e) => setLenChoice(e.target.value === "fit" ? "fit" : Number(e.target.value))}><option value="fit">장면 길이에 맞춤 (반복 재생 없음 · 권장)</option>{LENGTH_CHOICES.filter((s) => vm.durations.includes(s)).map((s) => <option key={s} value={s}>{s}초 고정</option>)}</select></label>
                     <label className="row" style={{ gap: 8, fontWeight: 500, alignSelf: "end" }}><input type="checkbox" checked={linkNext} onChange={(e) => setLinkNext(e.target.checked)} />다음 장면과 이어지게(다음 장면 사진을 끝 화면으로)</label>
                   </div>
+                  {hasProductScene && <label className="row notice" style={{ gap: 8, fontWeight: 500, fontSize: 13 }}><input type="checkbox" checked={allowProductVideo} onChange={(e) => setAllowProductVideo(e.target.checked)} />⚠️ 상품 장면도 AI 영상 허용 — AI가 상품의 모양·색·로고·글자를 바꿀 수 있습니다. 켜면 만든 뒤 원본 사진과 꼭 비교해 주세요(기본 꺼짐).</label>}
                   <small className="muted">🎬 AI 영상: 장면 사진을 첫 화면으로 영상을 만듭니다({vm.name}은 {vm.durations.join("·")}초). 「장면 길이에 맞춤」은 장면보다 길거나 같은 가장 짧은 길이를 골라 반복 재생을 막습니다. 버튼의 금액은 그 장면 기준이며 본인 {PROVIDER_NAME[vm.provider]} 계정에 청구되고, 실제 금액은 업체 가격표 기준입니다. 실패해도 자동으로 다시 보내지 않으니 직접 다시 눌러 주세요.</small>
                   <div className="actions">
                     <button className="primary" disabled={!!busy} onClick={() => void makeHints()}><Wand2 size={14} />AI로 장면 설명 만들기</button>
@@ -274,7 +282,7 @@ export function DesignView() {
                         <div className="stack" style={{ gap: 6, minWidth: 0 }}>
                           <div className="row"><input value={hint(i).query} placeholder="스톡 검색어(영어 권장) 예: morning coffee" onChange={(e) => setHint(i, { query: e.target.value })} style={{ flex: 1 }} /><button type="button" disabled={!!busy} onClick={(e) => { e.stopPropagation(); void search(i); }}><Search size={13} />검색</button></div>
                           <div className="row"><input value={hint(i).prompt} placeholder="AI 이미지 설명(영어 권장)" onChange={(e) => setHint(i, { prompt: e.target.value })} style={{ flex: "1 1 180px", minWidth: 0 }} /><button type="button" disabled={!!busy} onClick={(e) => { e.stopPropagation(); void aiImage(i); }}><Sparkles size={13} />AI 이미지</button>
-                            {i >= 0 && <button type="button" disabled={!!busy || !!b?.videoJob || !frameOf(b)} title={frameOf(b) ? `${vm.name} · ${secOf(i)}초 · 약 $${costOf(i).toFixed(2)}${withEndOf(i) ? " · 다음 장면과 이어 붙임" : ""}` : "사진 배경이 있어야 영상으로 만들 수 있어요"} onClick={(e) => { e.stopPropagation(); void aiVideo(i); }}><Clapperboard size={13} />AI 영상 {secOf(i)}초 ${costOf(i).toFixed(2)}</button>}
+                            {i >= 0 && <button type="button" disabled={!!busy || !!b?.videoJob || !frameOf(b) || (isProductScene(b) && !allowProductVideo)} title={isProductScene(b) && !allowProductVideo ? "상품 사진 장면은 AI 영상이 기본으로 꺼져 있습니다(모양·색·글자가 바뀔 수 있음)" : frameOf(b) ? `${vm.name} · ${secOf(i)}초 · 약 $${costOf(i).toFixed(2)}${withEndOf(i) ? " · 다음 장면과 이어 붙임" : ""}` : "사진 배경이 있어야 영상으로 만들 수 있어요"} onClick={(e) => { e.stopPropagation(); void aiVideo(i); }}><Clapperboard size={13} />AI 영상 {secOf(i)}초 ${costOf(i).toFixed(2)}</button>}
                             {b?.poster && !b.videoJob && <button type="button" title="AI 영상을 지우고 처음 사진으로" aria-label="처음 사진으로 되돌리기" onClick={(e) => { e.stopPropagation(); backToPhoto(i); }}><RotateCcw size={13} /></button>}
                             {b && !b.videoJob && <button type="button" className="danger" onClick={(e) => { e.stopPropagation(); update((s) => setBg(s, i, undefined)); }}><Trash2 size={13} /></button>}</div>
                           {b && <small className="muted">{bgLabel(b)}</small>}

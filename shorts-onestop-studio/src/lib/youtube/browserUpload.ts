@@ -11,7 +11,7 @@ export function uploadDefaults(s: ShortsScript) {
   const tags = [...new Set([...(s.seo?.hashtags ?? []), "#Shorts"])];
   return {
     title: (s.seo?.titles?.[0] ?? s.intro.title).slice(0, 100),
-    description: [s.seo?.description ?? "", usesFreeVoice(s) ? FREE_VOICE_NOTE : "", tags.join(" ")].filter(Boolean).join("\n\n").slice(0, 5000),
+    description: [s.seo?.description ?? "", s.product?.url ? `🛒 상품 보기: ${s.product.url}` : "", usesFreeVoice(s) ? FREE_VOICE_NOTE : "", tags.join(" ")].filter(Boolean).join("\n\n").slice(0, 5000),
     tags: (s.seo?.tags ?? []).join(", "),
   };
 }

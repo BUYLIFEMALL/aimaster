@@ -51,6 +51,22 @@ export async function saveSceneImage(userId: string, img: { bytes: Buffer; mimeT
   return path;
 }
 
+// v1.52 상품 사진(회원이 직접 올림): 본인 폴더 <user_id>/product/ — 같은 버킷이라 30일 정리·retention_exempt 제외·서명 주소가 그대로 적용된다
+export const PRODUCT_PHOTO_TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
+export const PRODUCT_PHOTO_MAX_BYTES = 10 * 1024 * 1024;
+const MAX_PRODUCT_PHOTOS_PER_USER = 120;
+export async function productUploadUrl(userId: string, mime: string): Promise<{ path: string; token: string }> {
+  const ext = PRODUCT_PHOTO_TYPES[mime as keyof typeof PRODUCT_PHOTO_TYPES];
+  if (!ext) throw new UserError(400, "상품 사진은 JPG·PNG·WEBP만 올릴 수 있습니다.");
+  const admin = createAdminClient();
+  const { data: list } = await admin.storage.from(BUCKET).list(`${userId}/product`, { limit: MAX_PRODUCT_PHOTOS_PER_USER + 1 });
+  if ((list?.length ?? 0) >= MAX_PRODUCT_PHOTOS_PER_USER) throw new UserError(400, `상품 사진은 ${MAX_PRODUCT_PHOTOS_PER_USER}장까지 보관할 수 있습니다. 만든 지 30일이 지난 사진은 자동으로 정리됩니다.`);
+  const path = `${userId}/product/${randomUUID()}.${ext}`;
+  const { data, error } = await admin.storage.from(BUCKET).createSignedUploadUrl(path);
+  if (error || !data) throw new UserError(500, "업로드 주소를 만들지 못했습니다.");
+  return { path, token: data.token };
+}
+
 /** 본인 폴더 경로만 1시간 서명 주소로 바꾼다(다른 회원 경로는 무시) */
 export async function signPaths(userId: string, paths: string[]): Promise<Record<string, string>> {
   const own = Array.from(new Set(paths.filter((p) => typeof p === "string" && p.startsWith(`${userId}/`) && !p.includes("..")))).slice(0, 60);
