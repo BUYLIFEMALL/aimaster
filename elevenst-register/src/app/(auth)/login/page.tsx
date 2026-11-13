@@ -29,14 +29,14 @@ function LoginCard() {
 
   return (
     <div className="w-full max-w-[440px] flex flex-col items-center relative z-10">
-      {/* 1. [맨 위] 프로그램 고유 심볼 로고 (64~68px 라운드 스퀘어 아이콘) */}
-      <div className="w-[68px] h-[68px] rounded-[22px] flex items-center justify-center mb-3.5 bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] border border-blue-400/30 shadow-[0_10px_25px_-5px_rgba(37,99,235,0.35)] text-white">
+      {/* 1. [맨 위] 프로그램 고유 심볼 로고 (11번가 비비드 레드 라운드 스퀘어 아이콘) */}
+      <div className="w-[68px] h-[68px] rounded-[22px] flex items-center justify-center mb-3.5 bg-gradient-to-br from-[#FA0050] to-[#E60045] border border-rose-400/30 shadow-[0_10px_25px_-5px_rgba(250,0,80,0.35)] text-white">
         <ShoppingBag className="w-8 h-8" strokeWidth={2.3} />
       </div>
 
       {/* 2. [그 밑] 프로그램 영문명 (알약 캡슐 뱃지) */}
-      <div className="inline-flex items-center justify-center px-4 py-1 rounded-full text-[11px] font-black tracking-wider uppercase bg-blue-50 text-blue-700 border border-blue-200/80 mb-2.5">
-        AIMASTER COUPANG OPS
+      <div className="inline-flex items-center justify-center px-4 py-1 rounded-full text-[11px] font-black tracking-wider uppercase bg-rose-50 text-[#FA0050] border border-rose-200/80 mb-2.5">
+        AIMASTER 11ST REGISTER
       </div>
 
       {/* 3. [그 밑] 프로그램 한글명 + 서브 안내 카피 */}
@@ -47,13 +47,13 @@ function LoginCard() {
         AIMaster 계정(이메일·비밀번호)으로 로그인하세요.
       </p>
 
-      {/* 4. [중앙] 로그인/회원가입 카드 */}
-      <div className="w-full bg-white border border-[#E2E8F0] rounded-[24px] p-7 sm:p-8 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.06),0_6px_12px_-4px_rgba(15,23,42,0.03)] text-left">
+      {/* 4. [중앙] 로그인/회원가입 카드 (107. 화이트 스튜디오 카드) */}
+      <div className="w-full bg-white border border-[#EEF0F4] rounded-[24px] p-7 sm:p-8 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.06),0_6px_12px_-4px_rgba(250,0,80,0.03)] text-left">
         {/* 2단 탭 세그먼트 (로그인 / 회원가입) */}
         <div className="flex bg-[#F1F5F9] rounded-[14px] p-1 mb-5 border border-slate-200/70">
           <button
             type="button"
-            className="flex-1 py-2 text-center text-[12.5px] font-bold rounded-[10px] bg-white text-[#2563EB] shadow-[0_2px_6px_rgba(0,0,0,0.05)] cursor-default"
+            className="flex-1 py-2 text-center text-[12.5px] font-bold rounded-[10px] bg-white text-[#FA0050] shadow-[0_2px_6px_rgba(0,0,0,0.05)] cursor-default"
           >
             로그인
           </button>
@@ -87,7 +87,7 @@ function LoginCard() {
                 required
                 autoComplete="email"
                 placeholder="name@example.com"
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 transition-all"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#FA0050] focus:ring-4 focus:ring-rose-500/15 transition-all"
               />
             </div>
           </div>
@@ -99,11 +99,9 @@ function LoginCard() {
               </label>
               <a
                 href={`${MAIN_SITE}/forgot-password`}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11.5px] font-bold text-[#2563EB] hover:underline"
+                className="text-[11.5px] font-bold text-[#FA0050] hover:underline"
               >
-                비밀번호 찾기?
+                비밀번호 찾기
               </a>
             </div>
             <div className="relative flex items-center">
@@ -115,44 +113,44 @@ function LoginCard() {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 transition-all"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#FA0050] focus:ring-4 focus:ring-rose-500/15 transition-all"
               />
             </div>
           </div>
 
-          {/* 3D 엠보싱 실행 버튼 (`로그인 →`) */}
           <button
             type="submit"
             disabled={pending}
-            className="btn-3d-blue w-full mt-2 py-3 rounded-xl font-extrabold text-[14.5px] flex items-center justify-center gap-1.5"
+            className="w-full btn-3d-red !py-3 !text-[14px] !rounded-xl mt-2 flex items-center justify-center gap-2"
           >
-            <span>{pending ? "로그인 확인 중..." : "로그인 →"}</span>
+            <span>{pending ? "로그인 중..." : "로그인하기"}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        {/* 5. [맨 아래] 약관 문구 1행 축소 처리 (필수 준수) */}
-        <p className="mt-5 text-center text-[11.5px] text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis">
-          진행 시{" "}
+        <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-center gap-1.5 text-xs text-slate-500">
+          <span>계정이 없으신가요?</span>
           <a
-            href={`${MAIN_SITE}/terms`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-800 font-bold hover:underline"
+            href={`${MAIN_SITE}/signup`}
+            className="font-bold text-[#FA0050] hover:underline"
           >
-            이용약관
-          </a>{" "}
-          및{" "}
-          <a
-            href={`${MAIN_SITE}/privacy`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-800 font-bold hover:underline"
-          >
-            개인정보 처리방침
+            무료 회원가입
           </a>
-          에 동의합니다.
-        </p>
+        </div>
+      </div>
+
+      {/* 5. [맨 밑] 서비스 상태 & 메인 바로가기 링크 */}
+      <div className="mt-7 flex flex-col items-center gap-2.5">
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>AIMaster 공식 오픈마켓 클라우드 가동 중</span>
+        </div>
+        <a
+          href={MAIN_SITE}
+          className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          ← AIMaster 메인으로 돌아가기
+        </a>
       </div>
     </div>
   );
@@ -160,16 +158,13 @@ function LoginCard() {
 
 export default function LoginPage() {
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-5 relative overflow-hidden bg-[#F8FAFC]"
-      style={{
-        backgroundImage: `linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px)`,
-        backgroundSize: "32px 32px",
-      }}
-    >
-      <Suspense fallback={<div className="text-slate-400 text-sm">로딩 중...</div>}>
+    <main className="min-h-screen w-full flex items-center justify-center p-4 bg-radial from-[#FFF5F7] via-[#FAFAFC] to-[#F1F3F9] relative overflow-hidden">
+      {/* 11번가 레드 스튜디오 백그라운드 오라 */}
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-rose-200/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-red-200/20 rounded-full blur-3xl pointer-events-none" />
+      <Suspense fallback={<div className="text-sm font-bold text-slate-400">화면을 불러오는 중...</div>}>
         <LoginCard />
       </Suspense>
-    </div>
+    </main>
   );
 }

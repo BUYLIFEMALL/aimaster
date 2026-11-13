@@ -3,8 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { browseCategoryAction, describeCategoryAction, searchCategoryAction, suggestCategoryAction, type CategoryNodeView } from "@/lib/actions/register";
 import type { CategoryHit } from "@/lib/elevenst/category";
-
-const btn = "rounded border border-slate-300 bg-white px-2 py-1 text-[12px] font-bold text-slate-700 hover:border-indigo-300 disabled:opacity-50";
+import { Search, FolderOpen, CheckCircle2, RotateCcw } from "lucide-react";
 
 export interface PickedCategory {
   no: string;
@@ -67,81 +66,114 @@ export function CategoryPicker({ productName, detailCategory = "", value, onPick
   return (
     <div className="space-y-3">
       {value ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px]">
-          <span className="font-bold text-emerald-900">✅ {value.path}</span>
-          <span className="font-mono text-[11px] text-emerald-700">#{value.no}</span>
-          {value.auto && <span className="w-full text-[12px] text-emerald-800">📄 상세페이지 카테고리 「{detailCategory}」로 자동 추천했습니다. 맞는지 확인해 주세요.</span>}
-          <button type="button" onClick={() => onPick(null)} className="ml-auto text-[12px] font-bold text-slate-600 underline">
-            다시 고르기
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50/90 p-3.5 text-[13px]">
+          <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+          <span className="font-extrabold text-emerald-950">{value.path}</span>
+          <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded">#{value.no}</span>
+          {value.auto && <span className="w-full text-xs text-emerald-800 mt-0.5">📄 상세페이지 카테고리 「{detailCategory}」를 기반으로 자동 추천되었습니다.</span>}
+          <button
+            type="button"
+            onClick={() => onPick(null)}
+            className="ml-auto inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-[#FA0050] transition-colors"
+          >
+            <RotateCcw size={12} />
+            <span>카테고리 다시 고르기</span>
           </button>
         </div>
       ) : (
         <>
           <div className="flex flex-wrap gap-2">
-            <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && search()} aria-label="카테고리 검색어" className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-            <button type="button" disabled={pending || !query.trim()} onClick={search} className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-50">
-              {pending ? "찾는 중…" : "🔎 후보 찾기"}
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && search()}
+              aria-label="카테고리 검색어"
+              placeholder="카테고리 검색어 (예: 텀블러, 무선이어폰)"
+              className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-[#FA0050] focus:ring-2 focus:ring-rose-500/15 focus:outline-none"
+            />
+            <button
+              type="button"
+              disabled={pending || !query.trim()}
+              onClick={search}
+              className="btn-3d-11st !py-2 !px-4 !text-xs flex items-center gap-1.5"
+            >
+              <Search size={14} />
+              <span>{pending ? "검색 중…" : "후보 찾기"}</span>
             </button>
-            <button type="button" disabled={pending} onClick={() => open("0")} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 disabled:opacity-50">
-              📂 직접 찾아보기
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => open("0")}
+              className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+            >
+              <FolderOpen size={14} />
+              <span>직접 찾아보기</span>
             </button>
           </div>
           {hits && (
-            <ul className="space-y-1">
-              {hits.length === 0 && <li className="text-[13px] text-slate-600">맞는 카테고리를 찾지 못했습니다. 낱말을 줄이거나(예: 「텀블러」) 직접 찾아보기를 써 주세요.</li>}
+            <ul className="space-y-1.5 max-h-60 overflow-y-auto">
+              {hits.length === 0 && <li className="text-xs text-slate-500 p-2">맞는 카테고리를 찾지 못했습니다. 키워드를 단순화하거나 직접 찾아보기를 사용해 주세요.</li>}
               {hits.map((h) => (
                 <li key={h.no}>
-                  <button type="button" onClick={() => onPick({ no: h.no, path: h.path })} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-[13px] hover:border-indigo-400 hover:bg-indigo-50">
-                    {h.path} <span className="font-mono text-[11px] text-slate-400">#{h.no}</span>
+                  <button
+                    type="button"
+                    onClick={() => onPick({ no: h.no, path: h.path })}
+                    className="w-full rounded-xl border border-slate-200/90 bg-white p-3 text-left text-xs hover:border-[#FA0050] hover:bg-rose-50/50 transition-all flex items-center justify-between"
+                  >
+                    <span className="font-semibold text-slate-800">{h.path}</span>
+                    <span className="font-mono text-[11px] font-bold text-slate-400">#{h.no}</span>
                   </button>
                 </li>
               ))}
             </ul>
           )}
           {browse && (
-            <div className="space-y-2 rounded-lg bg-slate-50 p-2 text-[12px]">
-              <p className="font-bold text-slate-700">
-                <button type="button" disabled={pending} onClick={() => open("0")} className="underline">
+            <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex flex-wrap items-center gap-1 text-xs">
+                <button type="button" onClick={() => open("0")} className="font-bold text-[#FA0050] underline">
                   전체
                 </button>
-                {browse.path.map((p) => (
-                  <span key={p.no}>
-                    {" "}
-                    ›{" "}
-                    <button type="button" disabled={pending} onClick={() => open(p.no)} className="underline">
-                      {p.name}
-                    </button>
+                {browse.path.map((p, idx) => (
+                  <span key={p.no} className="flex items-center gap-1 text-slate-500">
+                    <span>›</span>
+                    {idx === browse.path.length - 1 ? (
+                      <span className="font-bold text-slate-800">{p.name}</span>
+                    ) : (
+                      <button type="button" onClick={() => open(p.no)} className="text-[#FA0050] underline">
+                        {p.name}
+                      </button>
+                    )}
                   </span>
                 ))}
-              </p>
-              <div className="flex flex-wrap gap-1.5">
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
                 {browse.children.map((c) =>
                   c.leaf ? (
-                    <button key={c.no} type="button" onClick={() => onPick({ no: c.no, path: [...browse.path.map((p) => p.name), c.name].join(" › ") })} className="rounded border border-indigo-500 bg-indigo-600 px-2 py-1 text-[12px] font-bold text-white">
-                      ✔ {c.name}
+                    <button
+                      key={c.no}
+                      type="button"
+                      onClick={() => onPick({ no: c.no, path: [...browse.path.map((p) => p.name), c.name].join(" > ") })}
+                      className="rounded-lg border border-rose-200 bg-rose-50/70 p-2 text-left text-xs font-bold text-[#FA0050] hover:bg-rose-100"
+                    >
+                      {c.name} (선택)
                     </button>
                   ) : (
-                    <button key={c.no} type="button" disabled={pending} onClick={() => open(c.no)} className={btn}>
+                    <button
+                      key={c.no}
+                      type="button"
+                      onClick={() => open(c.no)}
+                      className="rounded-lg border border-slate-200 bg-white p-2 text-left text-xs text-slate-700 hover:bg-slate-100"
+                    >
                       {c.name} ›
                     </button>
-                  ),
+                  )
                 )}
               </div>
-              <p className="text-slate-500">파란 단추(✔)가 맨 아래 카테고리입니다. 누르면 바로 고릅니다.</p>
             </div>
           )}
-          <details className="text-[12px] text-slate-600">
-            <summary className="cursor-pointer font-bold">카테고리 번호를 알고 있으면</summary>
-            <div className="mt-2 flex gap-2">
-              <input value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ""))} inputMode="numeric" aria-label="카테고리 번호" placeholder="예: 1009391" className="w-40 rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-              <button type="button" disabled={pending || !codeInput} onClick={byCode} className={btn}>
-                이 번호 쓰기
-              </button>
-            </div>
-          </details>
+          {error && <p className="text-xs font-bold text-rose-600">❌ {error}</p>}
         </>
       )}
-      {error && <p className="text-[13px] font-semibold text-rose-800">❌ {error}</p>}
     </div>
   );
 }

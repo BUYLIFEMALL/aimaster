@@ -6,6 +6,7 @@ import { getSetupStatus } from "@/lib/setupStatus";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RegisterForm } from "@/components/RegisterForm";
+import { ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,15 +30,21 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
 
   return (
     <div className="space-y-5">
-      <Link href="/products" className="text-xs font-bold text-indigo-700">
-        ← 상품 목록
+      <Link href="/products" className="inline-flex items-center gap-1 text-xs font-bold text-[#FA0050] hover:underline">
+        <ArrowLeft size={13} />
+        <span>상품 목록으로 돌아가기</span>
       </Link>
       <PageHeader emoji="📦" title={productName(p)} description={`이미지: 대표 ${shop.mainImage ? 1 : 0}장 · 추가 ${shop.extraImages.length}장(11번가는 3장까지) · 상세 섹션 ${shop.sectionImages.length}장`} />
       {thumbs.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto">
-          {thumbs.map((t) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={t.path} src={t.url!} alt="" className="h-20 w-20 shrink-0 rounded-lg border border-slate-200 object-cover" />
+        <div className="flex gap-2.5 overflow-x-auto pb-1">
+          {thumbs.map((t, idx) => (
+            <div key={t.path} className="relative shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={t.url!} alt="" className="h-20 w-20 rounded-xl border border-slate-200/90 object-cover shadow-2xs" />
+              <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1 py-0.2 font-mono text-[9px] font-bold text-white">
+                {idx === 0 ? "대표" : `추가${idx}`}
+              </span>
+            </div>
           ))}
         </div>
       )}

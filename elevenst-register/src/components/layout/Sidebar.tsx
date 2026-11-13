@@ -10,7 +10,7 @@ import { MENU_GROUPS, TOOLS } from "@/lib/tools";
 // 좌측 메뉴(docs/SIDEBAR_LAYOUT_STANDARD.md): 계정·로그아웃은 마지막 메뉴 바로 아래에 붙인다.
 function BackLink() {
   return (
-    <a className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-500 hover:text-indigo-600 transition-colors" href={`${MAIN_SITE}/programs`}>
+    <a className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-500 hover:text-[#FA0050] transition-colors" href={`${MAIN_SITE}/programs`}>
       <span>← 다른 프로그램 보기</span>
       <ExternalLink size={11} />
     </a>
@@ -20,13 +20,13 @@ function BackLink() {
 function BrandName({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <Link href="/home" onClick={onNavigate} className="flex min-w-0 items-center gap-2.5">
-      <div aria-hidden className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-sm font-bold text-sm">
+      <div aria-hidden className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#FA0050] to-[#E60045] text-white shadow-sm shadow-[#FA0050]/20 font-bold text-sm">
         🛒
       </div>
       <div className="flex flex-col min-w-0">
         <div className="flex items-center gap-1.5">
           <span className="truncate text-sm font-extrabold text-slate-900 tracking-tight">{APP_NAME}</span>
-          <span className="rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-indigo-700">
+          <span className="rounded-md border border-rose-200 bg-rose-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#FA0050]">
             {APP_VERSION}
           </span>
         </div>
@@ -42,7 +42,7 @@ function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: (
     const active = pathname === href || pathname.startsWith(`${href}/`);
     return `flex items-center gap-2.5 rounded-lg py-2 pl-9 pr-3 text-[13.5px] transition-all ${
       active
-        ? "font-bold text-indigo-700 bg-indigo-50/80 border-r-2 border-indigo-600"
+        ? "font-bold text-[#FA0050] bg-rose-50/80 border-r-2 border-[#FA0050]"
         : "font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
     }`;
   };
@@ -54,7 +54,7 @@ function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: (
         onClick={onNavigate}
         className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[14px] font-extrabold transition-all ${
           pathname === "/home"
-            ? "bg-indigo-600 text-white shadow-sm"
+            ? "bg-[#FA0050] text-white shadow-sm shadow-[#FA0050]/20"
             : "text-slate-900 hover:bg-slate-100"
         }`}
       >
@@ -82,7 +82,7 @@ function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: (
 
       <div className="pt-1">
         <Link href="/guide" onClick={onNavigate} className={item("/guide")}>
-          <BookOpen size={15} className="text-indigo-600" />
+          <BookOpen size={15} className="text-[#FA0050]" />
           <span>연동 & 사용 매뉴얼</span>
         </Link>
       </div>
@@ -108,25 +108,25 @@ function NavBody({ userEmail, onNavigate }: { userEmail?: string; onNavigate?: (
   );
 }
 
-/** 맨 위 흰 헤더(데스크톱) */
+/** 맨 위 헤더(데스크톱) — 107. 11st 오리지널 레드 스튜디오 */
 export function TopBar({ userEmail }: { userEmail?: string }) {
   return (
-    <header className="sticky top-0 z-40 hidden h-14 items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur px-6 print:hidden md:flex">
+    <header className="sticky top-0 z-40 hidden h-14 items-center justify-between border-b border-slate-200/80 bg-white/95 backdrop-blur px-6 print:hidden md:flex">
       <BrandName />
       <div className="flex items-center gap-4 text-xs text-slate-700">
         <a
           href="https://soffice.11st.co.kr"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-indigo-700 transition-colors"
+          className="inline-flex items-center gap-1 font-semibold text-slate-600 hover:text-[#FA0050] transition-colors"
         >
           <span>11번가 셀러오피스 열기</span>
           <ExternalLink size={11} />
         </a>
-        <Link href="/guide" className="font-semibold text-slate-600 hover:text-indigo-700 transition-colors">
+        <Link href="/guide" className="font-semibold text-slate-600 hover:text-[#FA0050] transition-colors">
           도움말
         </Link>
-        <span className="max-w-48 truncate rounded-md bg-slate-100 px-2 py-1 font-mono text-[11px] font-bold text-slate-700" title={userEmail}>
+        <span className="max-w-48 truncate rounded-md bg-rose-50 border border-rose-100 px-2 py-1 font-mono text-[11px] font-bold text-[#FA0050]" title={userEmail}>
           {userEmail}
         </span>
       </div>
