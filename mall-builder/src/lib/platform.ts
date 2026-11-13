@@ -16,5 +16,10 @@ export function isOpenPath(path: string): boolean {
   if (path === "/login") return true; // 운영에서는 메인 로그인으로 넘기는 화면
   if (["/sw.js", "/robots.txt", "/ai.txt", "/NOTICE", "/favicon.ico"].includes(path)) return true;
   if (/^\/s\/[^/]+\/(manifest\.webmanifest|app-icon(\/.*)?)$/.test(path)) return true;
+  // 2026-11-13 주인님 결정 「쇼핑몰 손님 화면 예외」: 쇼핑몰 가게 앞(손님 화면)과 분양 안내는 누구나·검색엔진.
+  // 로그인이 필요한 손님 화면(마이페이지·회원 주문·사업자 신청 등)은 그 화면이 스스로 로그인으로 보낸다. 데이터는 DB 보안 규칙이 지킨다.
+  // 운영 도구(몰 관리 admin·공급사 supplier·문서 doc·처음 화면·초대)는 지금처럼 회원 + 이용 권한.
+  if (path === "/resale") return true;
+  if (/^\/s\/[a-z0-9][a-z0-9-]{1,29}(\/.*)?$/.test(path) && !/^\/s\/[^/]+\/(admin|supplier|doc)(\/|$)/.test(path)) return true;
   return false;
 }
