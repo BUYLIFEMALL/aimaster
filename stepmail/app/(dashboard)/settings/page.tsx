@@ -19,6 +19,8 @@ export const fetchCache = "force-no-store";
 const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
   { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
+  { guideId: "eb8f5eaf-6ef7-46b8-9b05-994e944fe69a", label: "SOLAPI(문자·카카오) API 키 발급받기" },
+  { guideId: "1dbea19b-4c83-4453-ae41-0b59d7f27b5f", label: "네이버 메일(SMTP) 연동하기" },
 ];
 
 // 이 프로그램이 실제로 쓰는 provider: openai(이메일 초안 작성), gemini(이메일 핵심 주제를
@@ -27,6 +29,13 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
 // 관리한다. provider가 openai+gemini 2개뿐이라 그룹을 억지로 쪼개지 않고 "AI 이메일 작성"
 // 박스 하나로 묶는다(trending-product-finder 설정 페이지의 그룹 박스 패턴 참고).
 const PROVIDERS: ApiKeyProvider[] = ["openai", "gemini"];
+
+// 항목 옆 「발급 방법」 버튼(2026-11-13 전체 점검) — 각 키 입력 칸 바로 아래에서 매뉴얼을 연다.
+// cron-job.org는 매뉴얼 글이 없어 넣지 않았다.
+const PROVIDER_GUIDES: Partial<Record<ApiKeyProvider, { guideId: string; label: string }>> = {
+  openai: { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI 키 발급 방법" },
+  gemini: { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Gemini 키 발급 방법" },
+};
 
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
@@ -57,7 +66,7 @@ export default async function SettingsPage() {
         만들어집니다(선택 사항 — 등록하지 않아도 텍스트 초안은 그대로 만들어집니다). 실제 메일을
         보내는 이메일 계정(SMTP)은 이 페이지가 아니라{" "}
         <a href="/accounts" className="font-semibold text-blue-600 hover:underline">
-          이메일 계정
+          메일계정 등록
         </a>{" "}
         페이지에서 등록합니다.
       </p>
@@ -68,12 +77,16 @@ export default async function SettingsPage() {
         </div>
         <div className="space-y-3">
           {PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-            />
+            <div key={provider} className="space-y-1.5">
+              <ApiKeyRow
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+              {PROVIDER_GUIDES[provider] && (
+                <GuideLinkButton guideId={PROVIDER_GUIDES[provider]!.guideId} label={PROVIDER_GUIDES[provider]!.label} />
+              )}
+            </div>
           ))}
         </div>
       </div>
@@ -81,6 +94,9 @@ export default async function SettingsPage() {
       {/* 📱 문자(SMS·LMS) 차수 발송용 SOLAPI 계정(v1.27) — 화면·저장 함수는 booking-reminder와 같음 */}
       <div className="mt-5">
         <SolapiAccountSection account={solapiAccount ?? null} />
+        <div className="mt-2">
+          <GuideLinkButton guideId="eb8f5eaf-6ef7-46b8-9b05-994e944fe69a" label="SOLAPI 키 발급 방법" />
+        </div>
       </div>
 
       {/* ⏰ 예약 발송 실행 방식(v1.21, 지침 docs/SCHEDULER_POLICY.md) — 캠페인 켜기/끄기는 「예약 발송」 화면에서 한다 */}

@@ -4,6 +4,12 @@ import { useState } from "react";
 import { SmtpAccountForm } from "@/components/accounts/SmtpAccountForm";
 import { SmtpAccountCard, type SmtpAccountData } from "@/components/accounts/SmtpAccountCard";
 import type { SmtpProviderPreset } from "@/lib/constants";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
+
+// 플랫폼별 매뉴얼 글(2026-11-13 전체 점검) — 매뉴얼 글이 있는 네이버 메일만. Gmail·다음은 글이 없어 넣지 않았다.
+const SMTP_GUIDES: Record<string, { guideId: string; label: string }> = {
+  naver: { guideId: "1dbea19b-4c83-4453-ae41-0b59d7f27b5f", label: "네이버 메일(SMTP) 설정 방법" },
+};
 
 // 플랫폼(구글/네이버/다음/기타)별로 섹션을 나누고, 각 섹션 안에서 여러 계정을 등록할 수 있게 한다.
 // 예약 발송 시에는 캠페인에 선택된 계정들을 sort_order 순서대로 순차 로테이션한다(lib/dispatch.ts).
@@ -31,6 +37,10 @@ export function ProviderAccountSection({
           {showForm ? "닫기" : `+ 계정 추가`}
         </button>
       </div>
+
+      {SMTP_GUIDES[preset.value] && (
+        <GuideLinkButton guideId={SMTP_GUIDES[preset.value].guideId} label={SMTP_GUIDES[preset.value].label} />
+      )}
 
       {accounts.length > 0 && (
         <div className="space-y-3">

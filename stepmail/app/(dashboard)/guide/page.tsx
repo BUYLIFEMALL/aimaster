@@ -73,7 +73,7 @@ export default async function GuidePage() {
             </div>
             <h3 className="font-bold text-sm text-slate-900">리드 DB 수집 & 정제</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              잠재고객의 회사명, 담당자명, 유효한 이메일 주소를 엑셀(.xlsx)로 정리하여 업로드합니다. 중복 이메일은 자동 필터링됩니다.
+              잠재고객의 이메일(필수)과 전화번호·닉네임(선택)을 엑셀(.xlsx)로 정리해 올립니다. 같은 이메일이 이미 있으면 새로 늘지 않고 한 명으로 합쳐집니다.
             </p>
             <div className="pt-2 border-t border-slate-100 text-[11px] text-sky-600 font-medium">
               핵심 팁: 정확한 이메일 형식 검증
@@ -90,7 +90,7 @@ export default async function GuidePage() {
             </div>
             <h3 className="font-bold text-sm text-slate-900">AI 초안 작성 & 개인화</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              {"#{고객명}"}, {"#{회사명}"} 치환 태그를 활용해 받는 사람이 나만을 위해 쓴 편지처럼 느끼도록 자연스러운 문체로 작성합니다.
+              「이메일 작성」에서 AI(회원 본인 OpenAI 키)로 제목·본문 초안을 만들고 직접 다듬습니다. 이메일은 모든 리드에게 같은 내용으로 나가며, 이름 치환은 문자 본문의 {"{닉네임}"}만 지원합니다.
             </p>
             <div className="pt-2 border-t border-slate-100 text-[11px] text-blue-600 font-medium">
               핵심 팁: 1차~5차 단계별 차수 기획
@@ -107,7 +107,7 @@ export default async function GuidePage() {
             </div>
             <h3 className="font-bold text-sm text-slate-900">다중 SMTP 계정 연동</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              네이버, 다음, Gmail 계정을 2~3개 이상 등록해 두면, 시스템이 계정별 일일 발송 한도를 지키며 안전하게 분할 발송합니다.
+              네이버, 다음, Gmail 계정을 여러 개 등록해 캠페인에 고르면, 리드마다 계정을 차례로 돌려가며 나눠 보냅니다. 계정별 일일 한도를 프로그램이 세어 주지는 않으니, 「실행당 발송 수량」을 계정 수와 각 메일 서비스 한도에 맞춰 정해 주세요.
             </p>
             <div className="pt-2 border-t border-slate-100 text-[11px] text-indigo-600 font-medium">
               핵심 팁: 일일 한도 분산으로 차단 예방
@@ -124,7 +124,7 @@ export default async function GuidePage() {
             </div>
             <h3 className="font-bold text-sm text-slate-900">캠페인 스케줄링 & 발송</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              원하는 발송 일시와 배치 수량을 설정하여 캠페인을 생성하면, 클라우드 크론이 백그라운드에서 순차적으로 안전 발송합니다.
+              몇 차 발송인지, 실행당 발송 수량(최대 500), 반복 주기(한 번만·매일·매주)와 발송 시각을 정해 캠페인을 만들면 예약 실행이 차례대로 보냅니다. 실패한 발송은 「잠재고객 DB관리」의 실패 목록에서 확인합니다.
             </p>
             <div className="pt-2 border-t border-slate-100 text-[11px] text-emerald-600 font-medium">
               핵심 팁: 발송 실패 리드 즉시 격리
@@ -284,11 +284,11 @@ export default async function GuidePage() {
         <div className="flex items-center gap-2 text-xs font-semibold text-sky-800">
           <span>✓ 다른 프로그램(crm-google-form, booking-reminder)과 1회 등록 시 즉시 호환</span>
           <span>·</span>
-          <span>✓ 30일 데이터 보존 주기 준수</span>
+          <span>✓ 리드·초안·발송 기록은 회원 본인 계정에만 보관</span>
         </div>
       </div>
 
-      {/* 6. 자주 묻는 질문 (FAQ 7종) */}
+      {/* 6. 자주 묻는 질문 (FAQ) */}
       <section className="space-y-4">
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <span>❓</span>
@@ -312,7 +312,7 @@ export default async function GuidePage() {
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-              시스템 백그라운드 크론이 한 번에 수천 건을 쏟아붓지 않고, 계정당 분당 5~10건 단위로 간격을 두어 안전하게 분할 발송합니다. 이를 통해 수신 포털의 스팸 모니터링 시스템에 걸리지 않고 높은 도달율을 유지합니다.
+              한 번 실행할 때 캠페인에 정한 「실행당 발송 수량」만큼만, 한 통씩 차례로(동시에 여러 통이 아니라) 보냅니다. 계정을 여러 개 고르면 리드마다 계정을 돌려가며 씁니다. 따로 몇 초씩 쉬는 간격이나 계정별 하루 한도 계산은 없으니, 하루에 나가는 양은 「실행당 발송 수량 × 하루 실행 횟수」로 직접 조절해 주세요.
             </p>
           </details>
 
@@ -352,7 +352,7 @@ export default async function GuidePage() {
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-              1차 발송이 완료된 리드는 대시보드에서 '1차 발송' 상태로 자동 변경됩니다. 다음 캠페인 생성 시 대상을 '1차 발송 리드'로 필터링하고 2차 팔로우업 이메일 초안을 지정하여 스케줄링하시면, 자연스럽게 단계별 시퀀스 마케팅이 진행됩니다.
+              한 채널이라도 발송에 성공한 리드는 '1차 발송' 상태로 바뀝니다(최대 5차). 새 캠페인을 만들 때 「2차 발송 (1차까지 받은 리드 대상)」을 고르고 2차용 이메일 초안을 지정하면, 1차까지 받은 리드에게만 다음 메일이 나갑니다. 3차 이후도 같은 방식입니다.
             </p>
           </details>
 
@@ -362,7 +362,7 @@ export default async function GuidePage() {
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-              리드 관리 테이블에서 해당 고객의 상태를 '고객 전환 완료' 또는 '발송 중지'로 변경하시면, 이후의 모든 예약 캠페인 대상에서 자동으로 제외되어 불필요한 메일이 더 이상 발송되지 않습니다.
+              「잠재고객 DB관리」 목록에서 그 고객 줄의 「발송제외 처리」를 누르면 이후 모든 캠페인 대상에서 빠집니다. 엑셀로 올릴 때 '상태' 열에 「발송제외」나 「수신거부」라고 적어도 같은 효과가 있습니다. 예약 발송은 '미발송'과 'N차 발송' 상태의 리드에게만 나갑니다.
             </p>
           </details>
 
@@ -373,6 +373,26 @@ export default async function GuidePage() {
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
               API키등록·플랫폼연동 → ⏰ 예약 발행에서 고릅니다. 기본 「AIMaster 기본(Vercel)」은 따로 할 일 없이 매시 정각에 발송 시각이 된 캠페인을 보냅니다. 「내 cron-job.org」를 고르고 본인 무료 cron-job.org API 키를 등록하면, 캠페인을 켤 때 본인 계정에 작업이 자동으로 켜져 매시 0·30분에 확인하고, 보낼 캠페인이 없으면 자동으로 멈춥니다. 예약 발송 화면의 「예약 발송 일시정지」로 전체를 잠시 멈출 수 있습니다.
+            </p>
+          </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q9. 어떤 버튼을 누르면 비용이 나가나요?</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              「이메일 작성」의 AI 초안 만들기는 회원 본인 OpenAI 키를, Gemini 키를 등록했다면 이미지 생성에 Gemini 키를 씁니다(각 서비스 요금이 회원님 계정으로 청구). 네이버·다음·Gmail 메일 발송 자체는 무료입니다. 문자(SMS·LMS)와 카카오 브랜드 메시지는 보낸 건수만큼 회원님 SOLAPI 충전금이 차감되니, 캠페인 「지금 실행」이나 예약을 켜기 전에 대상 리드 수를 꼭 확인해 주세요.
+            </p>
+          </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q10. 발송에 실패한 메일은 어디서 확인하나요?</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              실패가 있으면 「잠재고객 DB관리」 화면에 「최근 발송 실패 N건이 감지되었습니다」 안내가 뜨고, 누르면 실패 목록에서 어떤 리드·캠페인이 왜 실패했는지 볼 수 있습니다. 실패한 리드는 차수가 올라가지 않아 다음 실행 때 다시 대상이 되므로, 계속 실패하는 주소는 「발송제외 처리」를 해 주세요.
             </p>
           </details>
         </div>

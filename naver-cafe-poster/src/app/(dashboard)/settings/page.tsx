@@ -28,6 +28,15 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
 
 const AI_PROVIDERS: ApiKeyProvider[] = ["openai", "perplexity", "gemini"];
 
+// 항목 옆 「발급 방법」 버튼(2026-11-13 전체 점검) — 맨 아래 「📖 연동 매뉴얼」 상자와 같은 글을
+// 각 키 입력 칸 바로 아래에서도 열 수 있게 한다. cron-job.org·NewsBlur는 매뉴얼 글이 없어 넣지 않았다.
+const PROVIDER_GUIDES: Partial<Record<ApiKeyProvider, { guideId: string; label: string }>> = {
+  openai: { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI 키 발급 방법" },
+  perplexity: { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity 키 발급 방법" },
+  gemini: { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Gemini 키 발급 방법" },
+};
+const NAVER_CAFE_GUIDE_ID = "ec45e4bd-fccc-4f14-92e8-3e2df3ced50b";
+
 // 네이버 로그인 연동에 필요한 회원 본인의 네이버 앱 자격증명 — 2026-09-16부터 앱(운영자)
 // 공용 네이버 앱 대신 회원 각자 본인 앱을 등록하는 BYOK 방식으로 전환했다(네이버 앱이
 // "검수"를 통과하지 않은 동안은 등록된 테스터 계정만 로그인이 가능해, 공용 앱 하나로는
@@ -86,18 +95,22 @@ export default async function SettingsPage({
           <p className="text-xs text-neutral-500">
             "AI 자동 글쓰기(수동)"에서 주제·분위기·대상 독자·분량·키워드·참고링크 등을 지정하면 AI가 카페
             게시글 제목/본문을 만들어줍니다(OpenAI). Gemini 키를 등록하면 나노바나나로 대표
-            이미지도 함께 생성할 수 있고, Perplexity 키를 등록하면 "글감 수집" 메뉴에서 최신
+            이미지도 함께 생성할 수 있고, Perplexity 키를 등록하면 "게시글 주제 수집" 메뉴에서 최신
             트렌드를 검색해 게시글 후보까지 자동으로 만들 수 있습니다.
           </p>
         </div>
         <div className="space-y-3">
           {AI_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-            />
+            <div key={provider} className="space-y-1.5">
+              <ApiKeyRow
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+              {PROVIDER_GUIDES[provider] && (
+                <GuideLinkButton guideId={PROVIDER_GUIDES[provider]!.guideId} label={PROVIDER_GUIDES[provider]!.label} />
+              )}
+            </div>
           ))}
         </div>
       </section>
@@ -105,6 +118,9 @@ export default async function SettingsPage({
       <section className="rounded-2xl border-2 border-neutral-300 bg-neutral-100 p-5 shadow-sm">
         <div className="mb-4">
           <h2 className="text-sm font-bold text-neutral-900">🔑 네이버 앱 등록 (네이버 로그인 연동용)</h2>
+          <div className="my-1.5">
+            <GuideLinkButton guideId={NAVER_CAFE_GUIDE_ID} label="네이버 앱 만들기·연동 방법" />
+          </div>
           <p className="text-xs text-neutral-500">
             네이버 로그인은 developers.naver.com에서 본인 명의로 애플리케이션을 직접 만들고
             아래 Client ID/Secret을 등록해야 연동할 수 있습니다.
@@ -197,6 +213,9 @@ export default async function SettingsPage({
             글을 올릴 카페의 게시판(clubid/menuid)을 등록해두면, 게시글 작성 시 목록에서 골라
             바로 게시할 수 있습니다.
           </p>
+          <div className="mt-1.5">
+            <GuideLinkButton guideId={NAVER_CAFE_GUIDE_ID} label="게시판 번호 찾는 방법" />
+          </div>
         </div>
         <CafeTargetManager targets={targets ?? []} />
       </section>
@@ -207,7 +226,7 @@ export default async function SettingsPage({
           <h2 className="text-sm font-bold text-neutral-900">⏰ 예약 발행</h2>
           <p className="text-xs text-neutral-500">
             정기 자동 실행(글감 수집 → 글 생성 → 카페 게시)을 무엇으로 돌릴지 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고,
-            본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 정기 실행 켜기/끄기는 「글감 수집」의 예약 자동화에서 합니다.
+            본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 정기 실행 켜기/끄기는 「게시글 주제 수집」의 「예약 자동화 등록」에서 합니다. 정기 실행은 검토 없이 카페에 바로 게시됩니다.
           </p>
         </div>
         <SchedulerModePicker initialMode={scheduler.mode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />

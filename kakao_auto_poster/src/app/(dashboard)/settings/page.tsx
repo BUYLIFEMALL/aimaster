@@ -25,6 +25,15 @@ const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
 // meta_app_id/meta_app_secret 전환과 동일한 이유).
 const KAKAO_PROVIDERS: ApiKeyProvider[] = ["kakao_rest_api_key", "kakao_client_secret"];
 
+// 항목 옆 「발급 방법」 버튼(2026-11-13 전체 점검) — 맨 아래 「📖 연동 매뉴얼」 상자와 같은 매뉴얼 글을
+// 각 키 입력 칸 바로 아래에서도 열 수 있게 한다. cron-job.org는 매뉴얼 글이 없어 넣지 않았다.
+const PROVIDER_GUIDES: Partial<Record<ApiKeyProvider, { guideId: string; label: string }>> = {
+  perplexity: { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity 키 발급 방법" },
+  openai: { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI 키 발급 방법" },
+  anthropic: { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Claude 키 발급 방법" },
+  gemini: { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Gemini 키 발급 방법" },
+};
+
 // app/(main)/guides의 platform_guides.id — 이 프로그램이 실제로 쓰는 API/플랫폼에 해당하는
 // 매뉴얼만 골랐다(naver-cafe-poster에서 만든 "연동 매뉴얼" 패턴을 전 서브프로젝트로 확장,
 // 2026-09-13). 카카오 로그인("나에게 보내기")은 아직 매뉴얼이 없어 대상에서 뺐다.
@@ -52,7 +61,7 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
   },
   {
     title: "✍️ 콘텐츠 생성 AI",
-    description: "검색된 정보를 카카오톡 발송용 요약과 웹 리포트 본문으로 정리하는 데 쓰입니다. 필수입니다.",
+    description: "검색된 정보를 카카오톡 발송용 요약과 웹 리포트 본문으로 정리하는 데 쓰입니다. 지금은 OpenAI 키로만 만들므로 OpenAI 키가 필수입니다(Claude 키만으로는 리포트가 만들어지지 않습니다).",
     providers: ["openai", "anthropic"],
   },
   {
@@ -131,12 +140,16 @@ export default async function SettingsPage({
             </div>
             <div className="space-y-3">
               {section.providers.map((provider) => (
-                <ApiKeyRow
-                  key={provider}
-                  provider={provider}
-                  label={PROVIDER_LABELS[provider]}
-                  maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-                />
+                <div key={provider} className="space-y-1.5">
+                  <ApiKeyRow
+                    provider={provider}
+                    label={PROVIDER_LABELS[provider]}
+                    maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+                  />
+                  {PROVIDER_GUIDES[provider] && (
+                    <GuideLinkButton guideId={PROVIDER_GUIDES[provider]!.guideId} label={PROVIDER_GUIDES[provider]!.label} />
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -145,6 +158,7 @@ export default async function SettingsPage({
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <div className="mb-4 space-y-2 text-xs text-neutral-500">
             <p className="text-sm font-bold text-neutral-900">🔑 카카오 앱 등록 (카카오 로그인 연동용)</p>
+            <GuideLinkButton guideId="4042a4b3-e573-4baa-8f70-103f52b1cbbd" label="카카오 앱 만들기·연동 방법" />
             <p>
               카카오 로그인은 developers.kakao.com에서 <b>본인 명의로 카카오 앱을 직접 만들고</b>
               아래 REST API 키를 등록해야 연동할 수 있습니다(앱이 카카오의 &quot;비즈니스 앱
@@ -183,6 +197,9 @@ export default async function SettingsPage({
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <SolapiAccountSection account={solapiAccount ?? null} />
+          <div className="mt-2">
+            <GuideLinkButton guideId="eb8f5eaf-6ef7-46b8-9b05-994e944fe69a" label="SOLAPI 키 발급 방법" />
+          </div>
           <p className="mt-3 border-t border-neutral-200 pt-3 text-xs text-neutral-500">
             리포트를 함께 받아볼 사람들은{" "}
             <a href="/recipients" className="font-medium text-yellow-700 hover:underline">
@@ -194,10 +211,16 @@ export default async function SettingsPage({
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <SmtpAccountSection accounts={smtpAccount ?? []} />
+          <div className="mt-2">
+            <GuideLinkButton guideId="1dbea19b-4c83-4453-ae41-0b59d7f27b5f" label="네이버 메일(SMTP) 연동 방법" />
+          </div>
         </div>
 
         <div className="rounded-2xl border-2 border-neutral-300 bg-white p-4 shadow-sm">
           <TelegramSection link={telegramLink ?? null} />
+          <div className="mt-2">
+            <GuideLinkButton guideId="f43e8ebe-a930-4933-b965-7068b38d79aa" label="텔레그램 봇 만드는 방법" />
+          </div>
         </div>
 
         {/* ⏰ 정기 자동 생성 실행 방식(v1.21, 지침 docs/SCHEDULER_POLICY.md) — 예약 켜기/끄기는 「관심 주제」에서 주제마다 한다 */}
@@ -206,7 +229,7 @@ export default async function SettingsPage({
             <h2 className="text-sm font-bold text-neutral-900">⏰ 예약 발행</h2>
             <p className="text-xs text-neutral-500">
               주제별 정기 자동 생성을 무엇으로 돌릴지 고릅니다. 기본은 「AIMaster 기본(Vercel)」이라 따로 할 일이 없고,
-              본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약 켜기/끄기는 「관심 주제」에서 주제마다 합니다. 카카오 발송은 지금처럼 사람이 결정합니다.
+              본인 계정으로 돌리고 싶으면 「내 cron-job.org」를 고르세요. 예약 켜기/끄기는 「관심 주제」에서 주제마다 합니다. 주제에서 「💬 카카오톡」 칩을 켜 두면 예약으로 만든 리포트가 검토 없이 바로 카카오톡으로 발송되니, 확인 후 보내려면 텔레그램 칩만 켜 두세요.
             </p>
           </div>
           <SchedulerModePicker initialMode={scheduler.mode} platformAvailable={scheduler.platformAvailable} hasKey={scheduler.hasKey} />

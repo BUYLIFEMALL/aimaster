@@ -1,5 +1,16 @@
 # 🤖 네이버 카페 포스팅 자동화 에이전트 인수인계 가이드 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.29(`src/lib/version.ts`) · **운영 DB `programs.version`은 v1.28**(2026-11-13 읽기 확인) — 아래 4절은 v1.29 배포 완료(`dpl_oLrFnM1R3WmbaGxEfUtr9BSRXwHx`)라고 적혀 있으나 DB가 올라가지 않았고, 실제 운영 화면이 v1.29인지는 미확인 · `package.json`은 1.20.0 · 운영 주소: https://naver-cafe-poster.buylife.xyz
+- 한 줄 정의: URL·RSS(NewsBlur)·Perplexity로 글감(게시글 후보)을 모으고 OpenAI로 카페용 글을 써서, 회원 본인 네이버 계정으로 공식 카페 글쓰기 API를 통해 즉시 또는 정기 실행으로 게시하는 프로그램.
+- 화면·메뉴(실제 코드 기준): 대시보드 / 게시글 주제 수집(`/candidates`, 방식 4가지: URL·RSS·Perplexity·「게시글 후보에서 예약발행」, 예약 자동화 등록·일시정지) / AI 자동 글쓰기(초안)(`/drafts`) / AI 자동 글쓰기(수동)(`/write`, 이미지 생성 포함) / 게시글 관리(`/posts`, 수정 후 재게시는 새 글) / 연동 & 사용 매뉴얼(`/guide`) / API키등록·플랫폼연동(`/settings`).
+- 필요한 키·연동(회원 본인 것): OpenAI(글 생성·URL/RSS 글감, 필수), Perplexity(Perplexity 방식·정기 실행), Gemini(대표 이미지), 본인 네이버 앱 Client ID/Secret + 네이버 로그인(`naver_client_id`/`naver_client_secret`, 공용 `member_platform_accounts`), NewsBlur 아이디·비밀번호(`newsblur_accounts`), 선택 cron-job.org 키.
+- 자동 실행(예약·정리)·확장: `vercel.json` 5분 크론 `/api/cron/generate-and-post` + 회원 cron-job.org 방식 `/api/cron/dispatch-member`(공용 `member-scheduler` 사본). 정기 실행은 검토 없이 바로 카페 게시(`src/lib/scheduledSource/engine.ts:175-184`). 개별 글 날짜·시각 예약 기능은 없음. 30일 자동 정리 없음. 크롬 확장 없음.
+- 최근 변경(커밋 기준): `1def2373a`·`9810804f1` 저작권 고지·robots / `7d84e7509`·`68f6831e9` 보관 「발행 1년」 요청 → 취소 / `7866057d6` v1.29 2안 디자인(86번 템플릿)·5단계 표준 로그인 / `d1e710d68` 권한 확인 병렬화 / `8e8455b4f` Next.js 보안 업데이트(v1.28).
+- 미배포 대기·남은 일: 루트 `docs/PENDING_DEPLOYS.md` 줄은 「좌측 메뉴 계정·로그아웃을 마지막 메뉴 바로 아래로(클래스만) `22c6cda35` — 배포 때 버전 +0.01, 데스크톱·휴대폰 폭 계정 위치 확인」 한 줄. 그 밖에 `member-scheduler` 사본 전환(`41c39274e`), 권한 확인 병렬화(`d1e710d68`), 이번 점검의 매뉴얼·설정 수정. 정책 점검: 저장공간 위젯 한 줄, `signOut({ scope: "local" })`(`src/lib/actions/auth.ts:45`), 서버 Supabase 클라이언트 User-Agent 전달이 아직 안 됨. 다음 배포 때 DB 버전을 코드와 맞출 것.
+- 다음에 손댈 때 주의: `memberScheduler.ts`·`memberIntegrations.ts`·`programAccess.ts`는 공용 사본. 대표 이미지는 공유 버킷 `post-images`(쓰레드와 같이 씀)에 저장돼 다른 프로그램의 정리 작업 영향을 받을 수 있음. 게시글 삭제는 우리 기록만 지움(카페 글은 남음).
+- 이번 점검에서 고친 것: 매뉴얼(`/guide`) STEP 1·2·4 문구, NewsBlur 입력 설명, FAQ 2개 정정(토큰 만료 재연결 방법, 자동 게시·후보 예약발행) + FAQ 3개 추가(처음 준비, 키·비용, 수정·삭제와 카페 글), 설정 화면 키·네이버 앱·게시판 항목마다 매뉴얼 버튼 추가 + 메뉴 이름(「게시글 주제 수집」) 정정 (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > **최종 갱신**: 2026-11-11 (Antigravity CLI `agy`)  
 > **현재 버전**: `v1.29` (86. 퀀트 바이럴 카페 레이더 딥 차콜 콘솔 스타일)  
 > **공식 서비스 URL**: [https://naver-cafe-poster.buylife.xyz](https://naver-cafe-poster.buylife.xyz)  

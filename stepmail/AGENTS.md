@@ -1,5 +1,16 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.28(`lib/version.ts`, 운영 DB도 v1.28) · 운영 주소: https://stepmail.buylife.xyz (옛 `stepmail-kappa.vercel.app`은 화면 308)
+- 한 줄 정의: 엑셀로 올린 잠재고객(리드)에게 회원 본인 메일 계정(SMTP 여러 개 로테이션)·SOLAPI 문자·카카오 브랜드 메시지로 1~5차 단계 발송을 예약해 보내는 프로그램(이메일 초안은 OpenAI로 작성, 이미지는 Gemini 선택).
+- 화면·메뉴(실제 코드 기준): 잠재고객 DB관리(`/leads`, 엑셀 양식·가져오기·발송제외·실패 목록 `/leads/failed`) / 이메일 작성(`/drafts`) / 메일계정 등록(`/accounts`, Gmail·네이버·다음·기타) / 예약 발송(`/campaigns`, 채널 이메일·문자·둘 다, 문자 방식 SMS/카카오, 한 번만·매일·매주, 지금 실행·일시정지) / API키등록·플랫폼연동(`/settings`) / 연동 & 사용 매뉴얼(`/guide`).
+- 필요한 키·연동(회원 본인 것): OpenAI(초안, 필수), Gemini(이미지, 선택), 메일 계정 SMTP(공용 `user_smtp_accounts`, 앱 비밀번호), 문자·카카오는 공용 `user_solapi_accounts`(카카오는 본인 pfId 필수), 선택 cron-job.org 키.
+- 자동 실행(예약·정리)·확장: `vercel.json` 매시 정각 `/api/cron/dispatch` + 회원 cron-job.org 방식 `/api/cron/dispatch-member`(매시 0·30분, 공용 `member-scheduler` 사본). 30일 자동 정리 없음. 크롬 확장 없음.
+- 최근 변경(커밋 기준): `1def2373a`·`9810804f1` 저작권 고지·robots / `d1e710d68` 권한 확인 병렬화(사본) / `b16550ad4` 키 암호화 문구 수정 / `36d0a4fdc` 공용 `solapi-client` 사본·테스트 문자 머리말 「[구글폼 CRM]」 수정 / `672643bda` v1.28 카카오 브랜드 메시지.
+- 미배포 대기·남은 일: `docs/PENDING_DEPLOYS.md`의 「테스트 문자 머리말 + `solapi-client` 사본」(`36d0a4fdc`), 권한 확인 병렬화(`d1e710d68`), 키 문구(`b16550ad4`), 이번 점검의 매뉴얼·설정·메일계정 화면 수정. 정책 점검: 저장공간 위젯 한 줄, `signOut({ scope: "local" })`(`lib/actions/auth.ts:39`), 서버 Supabase 클라이언트 User-Agent 전달이 아직 안 됨. v1.28 남은 일: 실제 카카오 발송·문자 캠페인 실발송 검수.
+- 다음에 손댈 때 주의: 실제 리드 대상 발송은 사전 승인 필수(위 안전 수칙 4번). `memberScheduler.ts`·`solapi/client.ts`·`geminiImage.ts`·`nanoBananaModels.ts`·`programAccess.ts`는 공용 사본. 이메일 본문에는 치환 태그가 없음(문자만 `{닉네임}`). 발송 간격·계정별 하루 한도 계산 없음(`lib/dispatch.ts:111-125`).
+- 이번 점검에서 고친 것: 매뉴얼(`/guide`) Step 1~4, FAQ Q2·Q6·Q7 정정(없는 치환 태그·분당 발송 간격·계정별 한도·없는 상태 이름), 「30일 데이터 보존 주기 준수」 문구를 실제대로 정정, FAQ Q9(비용)·Q10(실패 확인) 추가, 설정 화면 OpenAI·Gemini·SOLAPI 항목 옆 매뉴얼 버튼 + 하단 매뉴얼 상자에 SOLAPI·네이버 메일 추가, 메일계정 화면 네이버 메일 칸에 매뉴얼 버튼, 메뉴 이름(「메일계정 등록」) 정정 (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 이 문서는 **이메일 자동발송 (STEP Mail)** 프로젝트에서 AI Agent(Claude Code 등)가 협업할 때
 준수해야 할 필수 가이드라인 및 규칙입니다.
 

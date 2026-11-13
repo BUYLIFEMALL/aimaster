@@ -42,15 +42,27 @@ export default function GuidePage() {
     },
     {
       q: "네이버 로그인 연동 토큰이 만료되면 어떻게 되나요?",
-      a: "네이버 OAuth 토큰은 보안상 주기적으로 갱신되며, 리프레시 토큰이 만료되면 [API키등록·플랫폼연동] 메뉴에서 [네이버 재연동] 버튼을 한 번만 클릭해주시면 즉시 정상 복구됩니다."
+      a: "평소에는 프로그램이 갱신 토큰으로 자동 갱신합니다. 갱신까지 만료되어 글 게시가 실패하면 [API키등록·플랫폼연동] → 「🟢 네이버 계정 연결」에서 「연결 해제」를 누른 뒤 「네이버 계정 연결하기」로 다시 연결해 주세요. 연결을 해제하면 같은 네이버 연결을 쓰는 다른 프로그램에서도 함께 해제됩니다."
     },
     {
       q: "생성된 글 초안을 검수하지 않고 바로 카페에 올릴 수 있나요?",
-      a: "자동 예약 발행 스케줄을 설정하시면 수집된 글감으로 AI가 초안을 작성하여 지정된 시간에 바로 게시할 수 있습니다. 단, 초기에는 [AI 자동 글쓰기(초안)] 화면에서 AI가 생성한 문맥과 어투를 미리 확인해보시는 것을 권장합니다."
+      a: "네. [게시글 주제 수집]에서 「예약 자동화 등록」으로 정기 실행을 켜 두면 정해 둔 주기마다 글감 수집 → AI 글 생성 → 카페 게시가 검토 없이 자동으로 진행됩니다. 「🗂️ 게시글 후보에서 예약발행」을 고르면 새로 수집하지 않고, 후보 목록에서 「예약포스팅」이 켜진 후보(새로 모은 후보는 기본으로 켜짐)를 먼저 모인 것부터 하나씩 게시합니다. 빼고 싶은 글은 「예약포스팅」을 OFF로 꺼 두세요. 글 하나를 특정 날짜·시각에 올리는 개별 예약 기능은 없습니다. 처음에는 [AI 자동 글쓰기(초안)] 화면에서 AI가 만든 문맥과 어투를 미리 확인해 보시는 것을 권장합니다."
     },
     {
       q: "정기 자동 실행은 무엇으로 돌아가나요? 내 cron-job.org로 돌릴 수 있나요?",
-      a: "API키등록·플랫폼연동 → ⏰ 예약 발행에서 고릅니다. 기본 「AIMaster 기본(Vercel)」은 따로 할 일 없이 사이트가 5분마다 차례를 확인해 실행합니다. 「내 cron-job.org」를 고르고 본인 무료 cron-job.org API 키를 등록하면, 정기 실행을 켤 때 본인 계정에 5분 작업이 자동으로 켜지고 켜진 정기 실행이 없으면 자동으로 멈춥니다. 글감 수집 화면의 「정기 실행 일시정지」로 전체를 잠시 멈출 수 있습니다."
+      a: "API키등록·플랫폼연동 → ⏰ 예약 발행에서 고릅니다. 기본 「AIMaster 기본(Vercel)」은 따로 할 일 없이 사이트가 5분마다 차례를 확인해 실행합니다. 「내 cron-job.org」를 고르고 본인 무료 cron-job.org API 키를 등록하면, 정기 실행을 켤 때 본인 계정에 5분 작업이 자동으로 켜지고 켜진 정기 실행이 없으면 자동으로 멈춥니다. 게시글 주제 수집 화면의 「정기 실행 일시정지」로 전체를 잠시 멈출 수 있습니다."
+    },
+    {
+      q: "처음 쓰기 전에 무엇을 준비해야 하나요?",
+      a: "1) developers.naver.com에서 본인 명의 애플리케이션을 만들고 사용 API에 「네이버 로그인」과 「카페」를 추가합니다. 2) 설정 화면에 나오는 Callback URL을 그 앱에 등록하고, 검수 전이면 본인 네이버 계정을 테스트 계정으로 추가합니다. 3) 발급된 Client ID/Secret을 [API키등록·플랫폼연동] → 「🔑 네이버 앱 등록」에 저장한 뒤 「네이버 계정 연결하기」를 누릅니다. 4) 글을 올릴 게시판(clubid/menuid)을 등록하고, OpenAI 키(글 작성 필수)와 필요하면 Perplexity·Gemini 키를 등록합니다. RSS 방식을 쓰려면 [게시글 주제 수집]에서 본인 NewsBlur 계정을 연결합니다."
+    },
+    {
+      q: "어떤 기능에 어떤 키가 쓰이고, 비용은 어디서 나가나요?",
+      a: "글 생성·수정과 URL·RSS 방식 글감 만들기에는 회원 본인 OpenAI 키가, Perplexity 검색 방식에는 Perplexity 키와 OpenAI 키가 함께, 대표 이미지 만들기에는 Gemini 키가 쓰입니다. 요금은 각 서비스에서 회원님 계정으로 청구되며, 정기 자동 실행을 켜 두면 주기마다 같은 비용이 반복해서 나갑니다. 네이버 카페 게시와 NewsBlur 연결은 무료입니다."
+    },
+    {
+      q: "게시글을 수정하거나 지우면 카페 글도 바뀌나요?",
+      a: "아니요. [게시글 관리]에서 수정 후 다시 게시하면 기존 카페 글은 그대로 남고 새 글이 하나 더 올라갑니다. 삭제도 이 프로그램의 기록만 지우며, 이미 올라간 카페 글은 카페에서 직접 지워야 합니다."
     }
   ];
 
@@ -125,7 +137,7 @@ export default function GuidePage() {
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
-              필요: 네이버 로그인 · AI API 키
+              필요: 본인 네이버 앱(Client ID/Secret) · 네이버 로그인 · OpenAI 키
             </div>
           </div>
 
@@ -140,7 +152,7 @@ export default function GuidePage() {
               </div>
               <h3 className="text-base font-bold text-slate-900">3대 소스 글감 수집</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                HTTP URL, RSS(NewsBlur), Perplexity 실시간 검색 중 하나를 선택해 인기 트렌드 글감을 수집합니다.
+                HTTP URL, RSS(NewsBlur), Perplexity 실시간 검색 중 하나로 글감(게시글 후보)을 모으거나, 모아 둔 후보에서 예약 발행할 글을 고릅니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
@@ -178,7 +190,7 @@ export default function GuidePage() {
               </div>
               <h3 className="text-base font-bold text-slate-900">즉시 & 예약 발행</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                검수된 초안을 대상 카페 게시판으로 즉시 발행하거나, 정해진 시간에 자동으로 올라가도록 예약합니다.
+                검수된 초안을 대상 카페 게시판으로 즉시 발행하거나, 정기 실행(주기 지정)을 켜 두어 정해 둔 주기마다 자동으로 올라가게 합니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
@@ -292,7 +304,7 @@ export default function GuidePage() {
                   <span className="h-2 w-2 rounded-full bg-blue-500"></span>
                   RSS 피드 (NewsBlur)
                 </td>
-                <td className="p-3.5 font-mono text-slate-700">NewsBlur 계정 연동</td>
+                <td className="p-3.5 font-mono text-slate-700">본인 NewsBlur 아이디·비밀번호 연결 후 구독 피드 선택</td>
                 <td className="p-3.5">구독 중인 미디어/블로그의 최신 피드를 주기적으로 자동 감지하여 글감 풀에 적재</td>
                 <td className="p-3.5">정기 뉴스레터 브리핑, 업계 동향 데일리 포스팅</td>
               </tr>
