@@ -426,6 +426,25 @@ function StepBody({ step, c, onChange, readOnly, props }: { step: AutomationActi
             )}
             <div className="nc-auto-field-label">{tx('Message')}</div>
             <RefsField c={c} value={step.message} onChange={(message) => onChange({ ...step, message })} placeholder={tx('Write a message, @ to mention')} multiline ariaLabel="Message" />
+            {c.surface === 'automation' && (
+              <>
+                {/* AIMaster 2026-11-13(플랜 §2-2): 자동화를 만든 회원 본인에게만, 공용 연동 재사용 */}
+                <div className="nc-auto-field-label">내 메일·카카오톡으로도 받기</div>
+                {(['email', 'kakao'] as const).map((k) => {
+                  const on = (step.external ?? []).includes(k);
+                  return (
+                    <label key={k} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, margin: '2px 0' }}>
+                      <input type="checkbox" checked={on} disabled={readOnly} onChange={() => {
+                        const next = on ? (step.external ?? []).filter((x) => x !== k) : [...(step.external ?? []), k];
+                        onChange({ ...step, external: next.length ? next : undefined });
+                      }} />
+                      {k === 'email' ? '내 메일로도 보내기' : '내 카카오톡(나에게 보내기)으로도 보내기'}
+                    </label>
+                  );
+                })}
+                <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>💡 받는 사람은 이 자동화를 만든 나 한 명입니다. 메일은 「예약(취소)방지 리마인드 자동화」 등에서 등록한 내 메일 계정, 카카오톡은 「부동산 실시간 매물 알림」 등에서 연결한 내 카카오를 그대로 씁니다. 채널마다 하루 100건까지.</div>
+              </>
+            )}
           </>
         ),
       };

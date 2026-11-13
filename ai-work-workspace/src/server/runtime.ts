@@ -24,6 +24,7 @@ import { addOutlineBlock } from '@/litpage/server/api/modules/sidebar.ts';
 import { db } from '@/litpage/server/db.ts';
 import { memberSpaceIds } from './workInbox';
 import './agentRuns'; // U12: 에이전트 백그라운드 실행을 주인 회원 본인 키로 감싸는 연결(불러오면 바로 설치됨)
+import './externalNotify'; // 2026-11-13: 자동화 알림을 회원 본인 메일·카카오톡으로도(불러오면 바로 설치됨)
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
 

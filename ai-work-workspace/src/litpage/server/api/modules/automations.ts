@@ -142,7 +142,9 @@ export function cleanActions(list: unknown): AutomationAction[] {
         const target = a.target?.type === 'property' && typeof a.target.property === 'string'
           ? { type: 'property' as const, property: str(a.target.property, 100) }
           : { type: 'users' as const, user_ids: ids(a.target?.user_ids, LIMITS.notifyUsers), dynamic: (Array.isArray(a.target?.dynamic) ? a.target.dynamic : []).filter((k: string) => CONTEXT_KEYS.has(k)).slice(0, 3) };
-        out.push({ id, type: 'notify', target, message: cleanRefs(a.message) });
+        // AIMaster 2026-11-13: 회원 본인 메일·카카오톡으로도 받기(알 수 없는 값은 버림)
+        const external: ('email' | 'kakao')[] = (Array.isArray(a.external) ? (a.external as unknown[]) : []).filter((k): k is 'email' | 'kakao' => k === 'email' || k === 'kakao');
+        out.push({ id, type: 'notify', target, message: cleanRefs(a.message), ...(external.length ? { external: [...new Set(external)] } : {}) });
         break;
       }
       case 'webhook': out.push({ id, type: 'webhook', url: str(a.url, 2000).trim(), headers: (Array.isArray(a.headers) ? a.headers : []).slice(0, LIMITS.customHeaders + 1).map((h: any) => ({ ...(isId(h?.id) ? { id: h.id } : {}), key: str(h?.key, 100).trim(), value: str(h?.value, 1000) })), properties: a.properties === 'all' ? 'all' : (Array.isArray(a.properties) ? a.properties.filter((p: unknown) => typeof p === 'string').slice(0, 500) : 'all') }); break;

@@ -132,6 +132,8 @@ export type AutomationAction =
     id: string; type: 'notify';
     target: { type: 'users'; user_ids: string[]; dynamic?: ContextKey[] } | { type: 'property'; property: string };
     message: ValueRef[];
+    /** AIMaster 2026-11-13(플랜 §2-2): 자동화를 만든 회원 본인 메일·카카오톡으로도 받기(공용 연동 재사용, 자동화에서만) */
+    external?: ('email' | 'kakao')[];
   }
   /** Send webhook: URL, custom headers, page properties sent as content */
   | { id: string; type: 'webhook'; url: string; headers: { id?: string; key: string; value: string }[]; properties: string[] | 'all' }

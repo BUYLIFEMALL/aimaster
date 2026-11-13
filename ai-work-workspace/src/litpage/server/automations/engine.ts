@@ -231,6 +231,13 @@ async function sendWebhook(a: AutomationRecord, step: Extract<AutomationAction, 
   }
 }
 
+// AIMaster 2026-11-13(플랜 §2-2): 「내 메일·카카오톡으로도 받기」 — 실제 발송은 AIMaster 쪽(src/server/externalNotify.ts)이 붙인다.
+export type ExternalNotifyInput = { userId: string; channels: ('email' | 'kakao')[]; automationName: string; text: string; pageId: string; spaceId: string };
+let externalNotify: ((n: ExternalNotifyInput) => Promise<void>) | null = null;
+export function setExternalNotifyHandler(fn: typeof externalNotify) {
+  externalNotify = fn;
+}
+
 /** Recipients come from the run (`planner`), the message from the creator's view (`payload`, see payloadPlanner). */
 function sendNotifications(a: AutomationRecord, step: Extract<AutomationAction, { type: 'notify' }>, planner: AutomationPlanner, payload: AutomationPlanner, host: BlockRecord) {
   const targets = planner.notifyTargets(step).slice(0, LIMITS.notifyUsers);
@@ -244,6 +251,10 @@ function sendNotifications(a: AutomationRecord, step: Extract<AutomationAction, 
       user_id: uid, space_id: host.space_id, type: 'automation' as NotificationRecord['type'], navigable_block_id: pageId, actor_id: planner.ctx.actorId,
       activity: { kind: 'message', automation_id: a.id, automation_name: automationName(a), message: text.slice(0, LIMITS.messageLength), message_rich: rich, page_id: pageId },
     });
+  }
+  // 받는 사람은 자동화를 만든 회원 본인뿐. 실패해도 자동화는 계속(안내는 앱 알림으로)
+  if (step.external?.length && externalNotify) {
+    void externalNotify({ userId: a.created_by_id, channels: step.external, automationName: automationName(a), text: text.slice(0, LIMITS.messageLength), pageId, spaceId: host.space_id }).catch(() => {});
   }
 }
 
