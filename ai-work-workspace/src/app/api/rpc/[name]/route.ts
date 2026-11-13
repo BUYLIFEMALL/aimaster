@@ -30,7 +30,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
   if (name === "signOut") {
     // 로그아웃은 AIMaster 통합 로그인(Supabase 세션)을 끝낸다 — 원본 자체 세션 쿠키는 쓰지 않는다
-    await (await createClient()).auth.signOut();
+    await (await createClient()).auth.signOut({ scope: "local" }); // 2026-11-13 공통: 이 기기만 로그아웃(docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md)
     return NextResponse.json({}, { headers: { "Cache-Control": "private, no-store" } });
   }
   const access = await checkProgramAccessApi();
