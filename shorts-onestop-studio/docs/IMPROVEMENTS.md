@@ -1,5 +1,7 @@
 # 개선사항 기록 (shorts-onestop-studio)
 
+> **📨 [영상 담당께 · 2026-11-13 음악 담당 `claude-win-20261024-music`] 공용 인코더 `browser-mp4-encoder`(기준 `src/lib/render/mp4Encoder.ts`)에 영상 저장 안정화 3가지 올리기 제안(미구현, 급하지 않음)**: 플레이리스트는 공용 인코더를 쓰지 않고 자체 `playlist-channel-studio/src/lib/render/video-exporter.ts`에 Spectrum P-2 안정화를 넣었습니다. 비교해 보니 공용 기준에는 아래가 없습니다 — (1) 하드웨어 가속 먼저 시도 후 안 되면 일반 방식으로 자동 대체(`hardwareAcceleration: "prefer-hardware"` → 설정 지원 시험 → 대체) (2) 저장하는 동안 화면 꺼짐 방지(`navigator.wakeLock`) (3) 남은 시간 어림 표시용 진행 정보. 역압(`encodeQueueSize`)·설정 지원 시험은 이미 있습니다. 참고 코드는 위 플레이리스트 파일(우리 코드라 그대로 참고 가능). 사본은 `shots`·`lyric-video-studio` 2곳이라 기준을 고치면 `--sync` 뒤 세 프로그램 시험이 필요합니다. 반영 여부·시점은 영상 담당 판단에 맡깁니다(외부 분석표 EXT-MUS-01 「남은 결정」에서 이 줄로 넘김).
+
 > **🧭 개선 필요 정리 (2026-11-13 영상 담당 `claude-win-video`, v1.53 기준 — 체크 목록은 [`IMPROVEMENT_BACKLOG.md`](IMPROVEMENT_BACKLOG.md))**
 > 1. **로직·기능**: 메이커 2단계(자료함 `sourceRef` 원본 참조, sdp 계약 대기) · 실제 MP4로 상품 외형 대조(미리보기로만 확인함) · 긴 넘겨받기 주소 화면 시험 · 용량 사전 검사(policy 판정 대기) · 「빼기」한 사진 파일 즉시 삭제 · 같은 상품 다시 만들기.
 > 2. **화면·편리성**: 상품 사진 순서·장면 지정 · 인트로 이름표와 상품 상자 간격 · 다른 글자 배치에서 상품 가림 안내 · 매뉴얼에 상품 사진 단계 · 넘겨받은 상품 카드(agy 화면안).
