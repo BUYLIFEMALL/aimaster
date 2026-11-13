@@ -10,12 +10,15 @@
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| — | 진행 중인 개발 없음 | — | 무료음악 v1.65 배포 끝(`free-music-studio-6ra9pi26m`). 미배포 대기 없음 |
+| — | 진행 중인 개발 없음 | — | 최근 배포: 플레이리스트 v1.41(11-13) · music v1.50(11-12) · 무료음악 v1.65·마스터링 v1.16(11-10). 미배포 대기: 플레이리스트 1건(`16439a8e9`) |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `free-music-studio` | B-6 LeVo 2 v2-medium | 공식 코드 `tencent-ailab/SongGeneration` 공개(아직 404) — **공개되면 바로 진행**(2026-11-10 주인님 「이건 나오면 진행」, 공개 확인 시 플랜부터) | 백로그 「보관」 B-6 |
+| `playlist-channel-studio` | 첫 30일 정리 예약 실행 확인(cron 04:20 KST) | 2026-11-14 04:20 이후(Vercel 로그·`usage_logs` `cleanup_expired`) | 플랜 `playlist-channel-studio/docs/PLAN_20261113_RETENTION_30D.md` |
+| `playlist-channel-studio` | 곡 넣기 전에도 「내가 올린 영상」 목록 보이기 `16439a8e9`(구현 끝) | 다음 플레이리스트 배포(v1.42) | `playlist-channel-studio/docs/IMPROVEMENTS.md` |
+| 음악 6개 공통 보완(단독 배포 안 함) | 저장공간 위젯 한 줄: `free-music-studio`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio` / 로그아웃 `signOut({ scope: "local" })`: `free-music-studio` 2·`music` 1·`ai-music-studio` 1·`ai-mastering-studio` 2·`lyric-video-studio` 1·`music-video-studio` 2곳 / 서버 클라이언트 `User-Agent` 전달: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`music-video-studio` | 각 프로그램 다음 배포 때 함께(`node scripts/pending-check.mjs <폴더>`가 알려 줌). `music-video-studio` 위젯은 영상 담당이 이미 커밋(미배포) | `docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md` · `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
 | `free-music-studio` | 묶음 후보 2건(단독 배포 안 함): 첫째 엔진 — 끝 줄이기 곡선을 끝에서 0까지(마지막 0.5초 -34.5dB) → 다음 **엔진** 배포 때 / 둘째 웹 화면 — 끝 이어 만들기 창 가사 미리 채우기가 원곡 마지막의 빈 `[Outro]` 태그만 가져옴 → 빈 태그면 그 앞 구간을 넣기(`lastLyricSection`) → 다음 **무료음악 웹** 배포 때(2026-11-12 정정: 예전 표기 「가사 칸 `[Outro]` 한 줄 넣기」는 잘못 — 엔진 `extendLyrics`는 이미 머리말 없는 가사에 `[Outro]`를 붙임) | 다음 배포 때 함께 | 인수인계서 20·24절 |
 
