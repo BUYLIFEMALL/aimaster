@@ -75,3 +75,33 @@ export async function getResaleMirrors(storeId: string): Promise<ResaleMirrorRow
   const price = new Map((src ?? []).map((s) => [s.id as string, Number(s.base_price)]));
   return rows.map((r) => ({ ...r, base_price: Number(r.base_price), source_price: price.get(r.source_product_id) ?? null }));
 }
+
+// ── T2-3·T2-4 주문·정산(0063) ──
+export type ResaleOrderRow = { id: string; store_slug: string; store_name: string; order_no: string; status: string; total: number; depositor: string; created_at: string; forwarded_order_id: string | null; margin: number };
+
+/** 본사: 분양몰 주문(입금 대기 먼저) */
+export async function getResaleOrders(sourceStoreId: string): Promise<ResaleOrderRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_resale_orders", { p_source_store_id: sourceStoreId });
+  return ((data ?? []) as ResaleOrderRow[]).map((r) => ({ ...r, total: Number(r.total), margin: Number(r.margin) }));
+}
+
+export type ResaleLedgerRow = { id: string; order_id: string | null; kind: "earn" | "reclaim" | "payout" | "refund"; amount: number; balance_after: number; note: string; created_at: string };
+export type ResalePayoutRow = { id: string; store_id: string; amount: number; bank_name: string; bank_account: string; bank_holder: string; status: "requested" | "paid" | "rejected"; memo: string; requested_at: string; decided_at: string | null };
+
+/** 분양자: 내 장부(최근 100) */
+export async function getResaleLedger(storeId: string): Promise<ResaleLedgerRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_resale_ledger").select("id, order_id, kind, amount, balance_after, note, created_at").eq("store_id", storeId).order("created_at", { ascending: false }).limit(100);
+  return ((data ?? []) as ResaleLedgerRow[]).map((r) => ({ ...r, amount: Number(r.amount), balance_after: Number(r.balance_after) }));
+}
+
+/** 출금 신청 — 분양자는 자기 몰(storeId), 본사는 원본 몰(sourceStoreId) 기준 */
+export async function getResalePayouts(opts: { storeId?: string; sourceStoreId?: string }): Promise<ResalePayoutRow[]> {
+  const supabase = await createClient();
+  let q = supabase.from("mall_builder_resale_payouts").select("id, store_id, amount, bank_name, bank_account, bank_holder, status, memo, requested_at, decided_at");
+  if (opts.storeId) q = q.eq("store_id", opts.storeId);
+  if (opts.sourceStoreId) q = q.eq("source_store_id", opts.sourceStoreId);
+  const { data } = await q.order("requested_at", { ascending: false }).limit(100);
+  return ((data ?? []) as ResalePayoutRow[]).map((r) => ({ ...r, amount: Number(r.amount) }));
+}

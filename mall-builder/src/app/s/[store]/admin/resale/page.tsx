@@ -1,8 +1,20 @@
 import Link from "next/link";
 import { getStaffStore } from "@/lib/store";
-import { getResaleCatalog, getResaleMirrors, getResaleStoresOf, getStoreResaleApplications, getStoresByIds } from "@/lib/resale-store";
+import {
+  getResaleCatalog,
+  getResaleLedger,
+  getResaleMirrors,
+  getResaleOrders,
+  getResalePayouts,
+  getResaleStoresOf,
+  getStoreResaleApplications,
+  getStoresByIds,
+} from "@/lib/resale-store";
 import {
   addResaleProductsAction,
+  confirmResalePaymentAction,
+  decideResalePayoutAction,
+  requestResalePayoutAction,
   decideResaleAction,
   removeResaleProductAction,
   setResaleOpenAction,
@@ -10,8 +22,8 @@ import {
   setResalePriceAction,
 } from "@/lib/resale-actions";
 import { formatWon } from "@/lib/products";
-import { DEFAULT_RESALE_DAYS, MIRROR_STATUS_LABEL, RESALE_STATUS_LABEL, resaleAccepting, resaleDaysLeft } from "@/lib/resale";
-import { formatDateTime } from "@/lib/orders";
+import { DEFAULT_RESALE_DAYS, MIRROR_STATUS_LABEL, RESALE_LEDGER_LABEL, RESALE_PAYOUT_LABEL, RESALE_PAYOUT_MIN, RESALE_STATUS_LABEL, resaleAccepting, resaleDaysLeft } from "@/lib/resale";
+import { formatDateTime, ORDER_STATUS_LABEL } from "@/lib/orders";
 import PendingButton from "@/app/pending-button";
 import { AdminShell, NoPermission } from "../admin-shell";
 
@@ -34,12 +46,16 @@ export default async function AdminResalePage({ params, searchParams }: { params
 
   // 분양몰 대표(분양자) 화면
   if (store.kind === "resale") {
-    const [[source], mirrors, catalog] = await Promise.all([
+    const [[source], mirrors, catalog, ledger, myPayouts] = await Promise.all([
       getStoresByIds(store.source_store_id ? [store.source_store_id] : []),
       getResaleMirrors(store.id),
       getResaleCatalog(store.id, q),
+      getResaleLedger(store.id),
+      getResalePayouts({ storeId: store.id }),
     ]);
     const left = resaleDaysLeft(store.resale_expires_at);
+    const balance = ledger[0]?.balance_after ?? 0;
+    const waitingPayout = myPayouts.find((p) => p.status === "requested");
     return (
       <AdminShell slug={store.slug} storeName={store.name} active="/resale">
         {notice}
@@ -49,6 +65,38 @@ export default async function AdminResalePage({ params, searchParams }: { params
           <p className={`mt-2 ${left === 0 ? "text-red-700" : "text-gray-700"}`} data-resale-period>
             {left === 0 ? "이용 기간이 끝나 지금은 새 주문을 받지 않습니다. 본사에 연장을 요청해 주세요." : `이용 기간: ${store.resale_expires_at ? formatDateTime(store.resale_expires_at) : "—"}까지 (${left}일 남음)`}
           </p>
+        </section>
+
+        <section id="money" className="mt-6 scroll-mt-4 rounded-lg border p-4 text-sm" data-resale-money>
+          <h3 className="font-semibold">💰 매출·정산</h3>
+          <p className="mt-1">출금할 수 있는 잔액 <b className="text-lg" data-resale-balance>{formatWon(balance)}</b></p>
+          <p className="mt-1 text-xs text-gray-500">손님이 구매 확정하면 (내 판매가 − 본사가) × 수량이 쌓이고, 그 뒤 반품·취소되면 회수됩니다. 손님 주문의 입금 확인·발송은 본사가 처리하며 진행 상태는 「주문」에서 볼 수 있습니다.</p>
+          {waitingPayout ? (
+            <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">출금 신청 {formatWon(waitingPayout.amount)} — 본사 처리 대기 중입니다.</p>
+          ) : (
+            <form action={requestResalePayoutAction.bind(null, store.slug, store.id)} className="mt-3 grid gap-2 text-xs sm:grid-cols-5" data-resale-payout-form>
+              <input name="amount" inputMode="numeric" placeholder={`금액(${RESALE_PAYOUT_MIN.toLocaleString("ko-KR")}원부터)`} className="rounded border px-2 py-1.5 sm:col-span-1" />
+              <input name="bank_name" maxLength={30} placeholder="은행" className="rounded border px-2 py-1.5" />
+              <input name="bank_account" maxLength={40} placeholder="계좌번호" className="rounded border px-2 py-1.5" />
+              <input name="bank_holder" maxLength={30} placeholder="예금주" className="rounded border px-2 py-1.5" />
+              <PendingButton pendingText="신청 중…" className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-white">출금 신청</PendingButton>
+            </form>
+          )}
+          {ledger.length > 0 && (
+            <details className="mt-3">
+              <summary className="cursor-pointer text-xs text-gray-600">장부 {ledger.length}건</summary>
+              <ul className="mt-1 space-y-0.5 text-xs text-gray-600">
+                {ledger.map((l) => (
+                  <li key={l.id}>{formatDateTime(l.created_at)} · {RESALE_LEDGER_LABEL[l.kind] ?? l.kind} {l.amount > 0 ? "+" : ""}{formatWon(l.amount)} → 잔액 {formatWon(l.balance_after)} · {l.note}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+          {myPayouts.length > 0 && (
+            <ul className="mt-2 space-y-0.5 text-xs text-gray-500">
+              {myPayouts.slice(0, 10).map((p) => <li key={p.id}>출금 {formatWon(p.amount)} · {RESALE_PAYOUT_LABEL[p.status]}{p.memo ? ` — ${p.memo}` : ""} · {formatDateTime(p.requested_at)}</li>)}
+            </ul>
+          )}
         </section>
 
         <section id="mine" className="mt-6 scroll-mt-4" data-resale-mirrors>
@@ -115,7 +163,15 @@ export default async function AdminResalePage({ params, searchParams }: { params
     );
   }
 
-  const [apps, resaleStores] = await Promise.all([getStoreResaleApplications(store.id), getResaleStoresOf(store.id)]);
+  const [apps, resaleStores, resaleOrders, payouts] = await Promise.all([
+    getStoreResaleApplications(store.id),
+    getResaleStoresOf(store.id),
+    getResaleOrders(store.id),
+    getResalePayouts({ sourceStoreId: store.id }),
+  ]);
+  const waitingOrders = resaleOrders.filter((o) => o.status === "pending_payment");
+  const waitingPayouts = payouts.filter((p) => p.status === "requested");
+  const storeName = new Map(resaleStores.map((r) => [r.id, r.name]));
   const pending = apps.filter((a) => a.status === "pending");
   const done = apps.filter((a) => a.status !== "pending").slice(0, 30);
   const accepting = resaleAccepting(store.modules);
@@ -181,6 +237,59 @@ export default async function AdminResalePage({ params, searchParams }: { params
                 </li>
               );
             })}
+          </ul>
+        )}
+      </section>
+
+      <section id="orders" className="mt-6 scroll-mt-4" data-resale-orders>
+        <h3 className="text-sm font-semibold">분양 주문 입금 확인 <b className={waitingOrders.length ? "text-red-700" : ""}>{waitingOrders.length}</b></h3>
+        <p className="mt-1 text-xs text-gray-500">분양몰 손님은 이 몰 계좌로 입금합니다. 입금을 확인하면 이 몰에 「분양 전달」 주문이 생기고, 지금처럼 「주문」에서 발송하면 분양몰 주문도 함께 바뀝니다.</p>
+        {resaleOrders.length === 0 ? (
+          <p className="mt-1 text-sm text-gray-500">아직 분양몰 주문이 없습니다.</p>
+        ) : (
+          <ul className="mt-2 space-y-1">
+            {resaleOrders.slice(0, 50).map((o) => (
+              <li key={o.id} className="flex flex-wrap items-center gap-2 rounded border p-2 text-sm" data-resale-order>
+                <span className="text-xs text-gray-500">{formatDateTime(o.created_at)}</span>
+                <b>{o.order_no}</b>
+                <span className="text-xs">{o.store_name} · 입금자 {o.depositor}</span>
+                <span className="ml-auto">{formatWon(o.total)}</span>
+                <span className="rounded bg-gray-100 px-1.5 text-xs">{ORDER_STATUS_LABEL[o.status as keyof typeof ORDER_STATUS_LABEL] ?? o.status}</span>
+                {o.status === "pending_payment" ? (
+                  <form action={confirmResalePaymentAction.bind(null, store.slug, o.id)}>
+                    <PendingButton pendingText="확인 중…" className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-xs text-white">입금 확인</PendingButton>
+                  </form>
+                ) : (
+                  o.forwarded_order_id && <Link href={`/s/${store.slug}/admin/orders/${o.forwarded_order_id}`} className="text-xs text-blue-700 underline">본사 주문 보기</Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section id="payouts" className="mt-6 scroll-mt-4" data-resale-payouts>
+        <h3 className="text-sm font-semibold">분양자 출금 신청 <b className={waitingPayouts.length ? "text-red-700" : ""}>{waitingPayouts.length}</b></h3>
+        {waitingPayouts.length === 0 ? (
+          <p className="mt-1 text-sm text-gray-500">처리할 출금 신청이 없습니다.</p>
+        ) : (
+          <ul className="mt-2 space-y-2">
+            {waitingPayouts.map((p) => (
+              <li key={p.id} className="rounded border p-3 text-sm" data-resale-payout>
+                <p><b>{storeName.get(p.store_id) ?? "분양몰"}</b> · {formatWon(p.amount)} <span className="text-xs text-gray-500">· {formatDateTime(p.requested_at)} 신청</span></p>
+                <p className="text-xs text-gray-600">{p.bank_name} {p.bank_account} · 예금주 {p.bank_holder}</p>
+                <div className="mt-2 flex flex-wrap items-end gap-2">
+                  <form action={decideResalePayoutAction.bind(null, store.slug, p.id, "paid")} className="flex items-center gap-2">
+                    <input name="memo" maxLength={200} placeholder="메모(선택)" className="rounded border px-2 py-1.5 text-xs" />
+                    <PendingButton pendingText="처리 중…" className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-xs text-white">송금했음 · 지급 완료</PendingButton>
+                  </form>
+                  <form action={decideResalePayoutAction.bind(null, store.slug, p.id, "reject")} className="flex items-center gap-2">
+                    <input name="memo" maxLength={200} placeholder="반려 사유" className="rounded border px-2 py-1.5 text-xs" />
+                    <PendingButton pendingText="반려 중…" className="min-h-10 rounded border border-red-300 px-3 py-1.5 text-xs text-red-700">반려</PendingButton>
+                  </form>
+                </div>
+              </li>
+            ))}
           </ul>
         )}
       </section>

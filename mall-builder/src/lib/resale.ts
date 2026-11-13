@@ -58,3 +58,8 @@ export const MIRROR_STATUS_LABEL: Record<string, string> = {
   hidden: "본사 판매 중지",
   draft: "뺀 상품",
 };
+
+export const RESALE_LEDGER_LABEL: Record<string, string> = { earn: "마진 적립", reclaim: "마진 회수", payout: "출금 신청", refund: "출금 반려(돌려줌)" };
+export const RESALE_PAYOUT_LABEL: Record<string, string> = { requested: "처리 대기", paid: "지급 완료", rejected: "반려" };
+/** 출금 최소 금액(DB mall_builder_resale_payout_request와 같음) */
+export const RESALE_PAYOUT_MIN = 10_000;

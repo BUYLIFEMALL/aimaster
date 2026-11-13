@@ -107,3 +107,37 @@ export async function removeResaleProductAction(slug: string, productId: string)
   revalidatePath(`/s/${slug}`, "layout");
   go(back, error?.message, data === "hidden" ? "주문 기록이 있어 지우지 않고 숨겼습니다." : "뺐습니다.");
 }
+
+// ── T2-3·T2-4 주문·정산(0063) ──
+/** 본사: 분양몰 주문 입금 확인 → 본사 전달 주문 생성 */
+export async function confirmResalePaymentAction(slug: string, orderId: string) {
+  const back = `/s/${slug}/admin/resale#orders`;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_resale_confirm_payment", { p_order_id: orderId });
+  revalidatePath(`/s/${slug}/admin`, "layout");
+  go(back, error?.message, "입금을 확인했습니다. 본사 주문이 만들어져 「주문」에서 발송할 수 있습니다.");
+}
+
+/** 분양자: 출금 신청 */
+export async function requestResalePayoutAction(slug: string, storeId: string, form: FormData) {
+  const back = `/s/${slug}/admin/resale#money`;
+  const amount = Number(String(form.get("amount") ?? "").replace(/[^0-9]/g, ""));
+  if (!amount) go(back, "출금 금액을 숫자로 적어 주세요.");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_resale_payout_request", {
+    p_store_id: storeId,
+    p_amount: amount,
+    p_bank: { bank_name: text(form, "bank_name"), bank_account: text(form, "bank_account"), bank_holder: text(form, "bank_holder") },
+  });
+  revalidatePath(back.split("#")[0]);
+  go(back, error?.message, "출금을 신청했습니다. 본사가 송금한 뒤 「지급 완료」로 바뀝니다.");
+}
+
+/** 본사: 출금 지급 완료 / 반려 */
+export async function decideResalePayoutAction(slug: string, payoutId: string, action: "paid" | "reject", form: FormData) {
+  const back = `/s/${slug}/admin/resale#payouts`;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_resale_payout_decide", { p_id: payoutId, p_action: action, p_memo: text(form, "memo") });
+  revalidatePath(back.split("#")[0]);
+  go(back, error?.message, action === "paid" ? "지급 완료로 바꿨습니다." : "반려했습니다. 금액은 분양자 잔액으로 돌아갔습니다.");
+}
