@@ -39,8 +39,8 @@
 ## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
 ### 1) 프로그램 로직·기능
 - **설정의 Claude 키가 실제로 쓰이지 않음** — 근거 `src/lib/reportEngine.ts:33-36`(OpenAI 키만 조회), 설정 섹션은 OpenAI·Anthropic을 함께 보여 줌. 영향: Claude 키만 등록한 회원은 리포트 생성이 실패. 우선순위 높음. 상태: 안내 문구는 이번에 고침(미배포), 실제 Claude 선택 지원(또는 칸 숨김)은 제안.
-- **30일 자동 정리 없음** — 근거: `vercel.json` 크론은 생성뿐, `kakao_reports`·`kakao-report-images` 정리 코드 없음. 영향: 회원 저장공간·보관 규칙(일반 회원 30일) 미적용. 우선순위 중간. 상태: 제안(정리 시 `retention_exempt` 회원 제외).
-- **리포트 삭제 시 대표 이미지 파일이 남음** — 근거 `src/lib/actions/reports.ts:73-79`(행만 삭제), 이미지는 공개 버킷 `kakao-report-images/<userId>/…`(`src/lib/ai/reportImage.ts:62-69`). 우선순위 중간. 상태: 제안.
+- **30일 자동 정리 없음** — 근거: `vercel.json` 크론은 생성뿐, `kakao_reports`·`kakao-report-images` 정리 코드 없음. 영향: 회원 저장공간·보관 규칙(일반 회원 30일) 미적용. 우선순위 중간. 상태: 이번에 고침(미배포) — `/api/cron/cleanup-generated`(매일 19:10 UTC, 2026-12-14 전 유예), 리포트·리포트 이미지·발송 기록 30일 정리, `retention_exempt` 회원 제외.
+- **리포트 삭제 시 대표 이미지 파일이 남음** — 근거 `src/lib/actions/reports.ts:73-79`(행만 삭제), 이미지는 공개 버킷 `kakao-report-images/<userId>/…`(`src/lib/ai/reportImage.ts:62-69`). 우선순위 중간. 상태: 이번에 고침(미배포) — 바로 지우지는 않고, 30일 지난 이미지 중 남은 리포트 본문에 없는 파일을 매일 정리(`/api/cron/cleanup-generated`).
 - **`package.json` 버전 1.27.0 vs 코드 v1.30** — 근거 `package.json`, `src/lib/version.ts`. 우선순위 낮음. 상태: 다음 배포 때 맞추기 제안.
 - **링크 기본값이 옛 주소** — 근거 `src/lib/kakaoSend.ts:8`, `src/lib/telegramReview.ts:4` 등 `NEXT_PUBLIC_SITE_URL` 기본값 `kakao-auto-poster.vercel.app`/`kakaoautoposter.vercel.app`이 서로 다름(환경변수가 있으면 무관, 실제 값은 미확인). 우선순위 낮음. 상태: 제안.
 ### 2) 화면·가독성·사용 편의
@@ -52,4 +52,4 @@
 - 고친 것(미배포): 카카오 나에게 보내기 = 「원클릭, 개발자 키 불필요」 → 본인 카카오 앱 + Redirect URI 등록 필요 / Perplexity·Gemini 「권장」 → 필수, Claude 키 미사용 안내 / 예약 FAQ 「카카오 자동 발송 안 함」 → 카카오톡 칩 즉시 발송 / 텔레그램 「Chat ID 등록」 → 봇에게 메시지 1개(자동 탐색) / Solapi 「건당 15~20원」(근거 없는 수치) → Solapi 요금표 확인 / FAQ 추가: 비용 버튼, 보관·삭제.
 - 남은 것: 「7대 황금 수칙」은 운영 팁이라 코드 대조 대상 아님(그대로 둠). 로그인 기기 정책 안내는 매뉴얼에 없음(정책 코드 적용 후 함께 추가 제안).
 ### 5) 정책 점검 (pending-check 결과)
-- 저작권 고지: 경고 없음(적용됨). 저장공간 위젯: 미적용(다음 배포 때 레이아웃에 한 줄). 로그아웃 범위: `src/lib/actions/auth.ts:45` `signOut()` 범위 없음 → `scope: "local"` 필요. 서버 로그인 기기 정보: 서버 Supabase 클라이언트 User-Agent 미전달. 30일 정리 예외 회원: 정리 작업 자체가 없어 해당 없음(위 1번).
+- 저작권 고지: 경고 없음(적용됨). 저장공간 위젯: 미적용(다음 배포 때 레이아웃에 한 줄). 로그아웃 범위: `src/lib/actions/auth.ts:45` `signOut()` 범위 없음 → `scope: "local"` 필요. 서버 로그인 기기 정보: 서버 Supabase 클라이언트 User-Agent 미전달. 30일 정리 예외 회원: 이번에 새로 넣은 정리 작업에 적용(미배포).

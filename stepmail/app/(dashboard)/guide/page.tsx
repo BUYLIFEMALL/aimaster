@@ -281,6 +281,10 @@ export default async function GuidePage() {
           오직 본인의 캠페인 발송에만 사용됩니다. 운영자 메일이나 타 회원의 계정으로 폴백되지 않으며,
           모든 리드 DB는 회원 본인만 열람할 수 있도록 RLS(행 단위 보안)가 완벽하게 적용되어 있습니다.
         </p>
+        <p className="text-xs text-sky-900 leading-relaxed">
+          보관 기간: 2026년 12월 14일부터 만든 지 30일이 지난 발송 기록, 캠페인에 쓰이지 않는 이메일 초안,
+          초안에 쓰이지 않는 이미지 파일은 매일 새벽 자동으로 삭제됩니다. 잠재고객(리드) 목록과 캠페인 설정은 지우지 않습니다.
+        </p>
         <div className="flex items-center gap-2 text-xs font-semibold text-sky-800">
           <span>✓ 다른 프로그램(crm-google-form, booking-reminder)과 1회 등록 시 즉시 호환</span>
           <span>·</span>
