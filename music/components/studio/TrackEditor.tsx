@@ -1,5 +1,5 @@
 "use client";
-import { Copy, Download, CheckCircle2 } from "lucide-react";
+import { Copy, Download, CheckCircle2, Sparkles } from "lucide-react";
 import type { Track } from "@/lib/studio/config";
 import { useRef } from "react";
 import { SECTION_TAGS, insertSection } from "@/lib/studio/catalog";
@@ -32,6 +32,12 @@ export function trackProblems(t: Track, instrumental: boolean) {
       : []),
   ];
 }
+// 구간 표시([Verse 1] 등)만 있고 부를 줄이 없으면 아직 가사가 없는 것으로 본다(2026-11-13 주인님 지적).
+function hasSungLyrics(lyrics: string) {
+  return lyrics
+    .split(/\r?\n/)
+    .some((l) => l.trim() && !/^\s*\[[^\]]*\]\s*$/.test(l));
+}
 export function TrackEditor({
   track,
   onChange,
@@ -43,6 +49,7 @@ export function TrackEditor({
   onSkeleton,
   onReset,
   onUndo,
+  onLyrics,
 }: {
   track: Track;
   onChange: (v: Track) => void;
@@ -54,6 +61,7 @@ export function TrackEditor({
   onSkeleton?: () => void;
   onReset?: () => void;
   onUndo?: () => void;
+  onLyrics?: () => void;
 }) {
   const lyricsRef = useRef<HTMLTextAreaElement>(null);
   const issues = trackProblems(track, instrumental);
@@ -224,6 +232,21 @@ export function TrackEditor({
         </label>
         {builder && (
           <div className="actions">
+            {onLyrics && (
+              <button
+                className="primary"
+                disabled={busy || instrumental}
+                title={
+                  instrumental
+                    ? "연주곡은 가사가 없습니다."
+                    : "제목·Style은 그대로 두고 가사만 AI로 만듭니다(본인 API 키 사용)."
+                }
+                onClick={onLyrics}
+              >
+                <Sparkles size={15} />
+                {hasSungLyrics(track.lyrics) ? "가사 다시 생성" : "이 곡 가사 생성"}
+              </button>
+            )}
             <button
               disabled={busy || !track.lyrics.trim()}
               onClick={() => copy(track.lyrics)}
@@ -307,7 +330,7 @@ export function TrackEditor({
             disabled={busy || instrumental}
             onClick={generate}
           >
-            {track.lyrics.trim() ? "가사 다시 생성" : "이 곡 가사 생성"}
+            {hasSungLyrics(track.lyrics) ? "가사 다시 생성" : "이 곡 가사 생성"}
           </button>
         )}
       </div>

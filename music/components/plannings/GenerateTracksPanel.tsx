@@ -29,11 +29,13 @@ export function GenerateTracksPanel({
   planningVocalGender,
   planningLang,
   personas = [],
+  hasSavedLyrics = false,
 }: {
   planningId: string;
   planningVocalGender: VocalGender | null;
   planningLang: string;
   personas?: { id: string; name: string }[];
+  hasSavedLyrics?: boolean;
 }) {
   const router = useRouter();
   const [vocal, setVocal] = useState(false);
@@ -45,6 +47,7 @@ export function GenerateTracksPanel({
   const [sunoModel, setSunoModel] = useState("V6");
   const [variety, setVariety] = useState("");
   const [personaId, setPersonaId] = useState("");
+  const [useSavedLyrics, setUseSavedLyrics] = useState(true);
   const [genreTags, setGenreTags] = useState<string[]>([]);
   const [moodTags, setMoodTags] = useState<string[]>([]);
   const [instrumentTags, setInstrumentTags] = useState<string[]>([]);
@@ -95,6 +98,7 @@ export function GenerateTracksPanel({
         model: sunoModel,
         variety: variety === "" ? undefined : Number(variety),
         personaId: personaId || null,
+        useSavedLyrics,
       });
       if (result.needsApiKey) {
         setMissingProvider(result.needsApiKey);
@@ -267,6 +271,23 @@ export function GenerateTracksPanel({
             </div>
           )}
         </div>
+
+        {showVocalOptions && hasSavedLyrics && (
+          <label className="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 text-xs text-emerald-200 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={useSavedLyrics}
+              onChange={(e) => setUseSavedLyrics(e.target.checked)}
+              className="mt-0.5 w-4 h-4"
+            />
+            <span>
+              <strong>📝 위에서 저장한 가사로 보컬 버전 만들기</strong>
+              <span className="block text-[11px] text-emerald-300/70">
+                끄면 곡마다 AI가 새로 작사합니다. 여러 곡을 만들면 가사는 같고 스타일만 곡마다 달라집니다.
+              </span>
+            </span>
+          </label>
+        )}
 
         {/* 세부 스타일 칩 토글 버튼 */}
         <div className="mb-3">

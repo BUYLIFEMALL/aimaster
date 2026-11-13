@@ -388,20 +388,25 @@ export function Workspace({
     if (active.current === c && !c.signal.aborted)
       setNotice(e instanceof Error ? e.message : "요청을 완료하지 못했습니다.");
   }
-  async function generate(action: "song" | "album" | "suggest") {
+  async function generate(
+    action: "song" | "album" | "suggest",
+    override?: Brief,
+    progressText?: string,
+  ) {
+    const bb = override ?? b;
     const c = begin();
     setProgress(
       action === "album"
-        ? `${b.count}곡 앨범을 기획하고 있습니다…`
+        ? `${bb.count}곡 앨범을 기획하고 있습니다…`
         : action === "suggest"
           ? "음악 방향을 제안하고 있습니다…"
-          : "제목·스타일·가사를 만들고 있습니다…",
+          : progressText || "제목·스타일·가사를 만들고 있습니다…",
     );
     try {
-      if (action === "song") assertTargets(b);
+      if (action === "song") assertTargets(bb);
       const result = await request(
         action,
-        b,
+        bb,
         c,
         action === "song" ? current.current.draft.song : null,
       );
@@ -420,7 +425,7 @@ export function Workspace({
                 ...s.draft,
                 brief: {
                   ...s.draft.brief,
-                  ...(b.generateStyle
+                  ...(bb.generateStyle
                     ? {
                         style: result.tracks[0].style,
                         bpm: result.tracks[0].bpm,
@@ -455,6 +460,30 @@ export function Workspace({
     } finally {
       finish(c);
     }
+  }
+  // v1.51: 빌더 가사 칸 바로 아래 「이 곡 가사 생성」 — 제목·Style은 그대로 두고 가사만 만든다(주인님 2026-11-13).
+  function builderLyrics() {
+    const t = current.current.draft.song;
+    const concept =
+      b.concept.trim() ||
+      [t?.title, t?.summary].filter((v) => v && v.trim()).join(" — ");
+    if (!concept) {
+      setNotice(
+        "가사를 만들 주제가 없습니다. 오른쪽 「AI 기획·작사」의 곡 설명을 먼저 적어 주세요.",
+      );
+      return;
+    }
+    void generate(
+      "song",
+      {
+        ...b,
+        concept: concept.slice(0, 1500),
+        generateTitle: false,
+        generateStyle: false,
+        generateLyrics: true,
+      },
+      "가사를 만들고 있습니다…",
+    );
   }
   function editTrack(t: Track) {
     cancel();
@@ -1058,6 +1087,7 @@ export function Workspace({
                 notice={setNotice}
                 onChange={editBuilder}
                 builder
+                onLyrics={builderLyrics}
                 onSkeleton={builderSkeleton}
                 onReset={builderReset}
                 onUndo={

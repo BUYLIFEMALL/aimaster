@@ -1,6 +1,7 @@
 import "server-only";
 import { callOpenAiJson, callOpenAiText } from "./openai";
 import type { VocalGender } from "@/types/database.types";
+import { cleanLyrics } from "@/lib/lyricsClean";
 
 // 아래 4개 시스템 프롬프트는 D:\PDS\01🟡🎵Suno자동화-기획+음악생성호출-레퍼런스.blueprint.json의
 // GPT 호출 4단계(스타일/제외스타일 → 제목/설명 → 가사 → 인스트루멘탈 BGM 프롬프트)를 그대로 이식한
@@ -247,7 +248,7 @@ export async function generateLyrics(
 ): Promise<string> {
   const systemPrompt = LYRICS_SYSTEM_PROMPT + buildVocalCompositionNote(input.vocalGender);
   const userPrompt = `# 요청\n제목: ${input.title}\n주제 설명: "${input.description}"\n언어 설정: ${input.lang}\n곡 설명: ${input.styleDescription}`;
-  return callOpenAiText(systemPrompt, userPrompt, apiKey, { model: "gpt-4o-mini", maxTokens: 1500 });
+  return cleanLyrics(await callOpenAiText(systemPrompt, userPrompt, apiKey, { model: "gpt-4o-mini", maxTokens: 1500 }));
 }
 
 // shots/src/lib/ai/script.ts의 BGM_SYSTEM_PROMPT를 그대로 재사용(이미 검증된 프롬프트) —
@@ -368,5 +369,5 @@ export async function generateExtendLyrics(
   apiKey: string,
 ): Promise<string> {
   const userPrompt = `# 요청\n제목: ${input.title}\n언어 설정: ${input.lang}\n곡 스타일: ${input.styleDescription}\n\n# 원곡 가사\n${input.lyrics.slice(0, 4000)}`;
-  return callOpenAiText(EXTEND_LYRICS_SYSTEM_PROMPT, userPrompt, apiKey, { model: "gpt-4o-mini", maxTokens: 900 });
+  return cleanLyrics(await callOpenAiText(EXTEND_LYRICS_SYSTEM_PROMPT, userPrompt, apiKey, { model: "gpt-4o-mini", maxTokens: 900 }));
 }

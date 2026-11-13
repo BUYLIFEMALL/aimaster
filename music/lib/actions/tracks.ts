@@ -67,6 +67,8 @@ export interface GenerateTracksOptions {
   fixedPrompt?: string;
   // 2026-10-21 V6 2차 ③: 내 페르소나(music_personas.id). 보컬판에만 적용(목소리·스타일 유지).
   personaId?: string | null;
+  // v1.51: 기획 상세에서 저장한 가사(music_plannings.lyrics)를 보컬판에 그대로 쓴다(GPT 작사 건너뜀). 기본 true.
+  useSavedLyrics?: boolean;
 }
 
 export async function generateTracksAction(
@@ -129,6 +131,8 @@ export async function generateTracksAction(
   const vocalTone = options.vocalTone?.length ? options.vocalTone : undefined;
   const tempo = options.tempo?.length ? options.tempo : undefined;
   const hasTagOverride = !fixedPrompt && Boolean(genre || mood || instruments || vocalTone || tempo);
+  const savedLyrics =
+    !fixedPrompt && options.useSavedLyrics !== false ? ((planning as { lyrics?: string | null }).lyrics ?? "").trim() : "";
 
   // 정밀 기획 곡(fixedPrompt)은 GPT를 부르지 않으므로 OpenAI 키가 없어도 된다.
   const openaiKey = (fixedPrompt ? "" : await resolveApiKey(supabase, user.id, "openai")) ?? "";
@@ -176,6 +180,8 @@ export async function generateTracksAction(
 
         const promptText = fixedPrompt
           ? fixedPrompt
+          : mode === "vocal" && savedLyrics
+            ? savedLyrics
           : mode === "vocal"
             ? await generateLyrics(
                 {
@@ -249,6 +255,7 @@ export async function generateTracksAction(
         instruments,
         vocalTone,
         tempo,
+        savedLyrics: Boolean(savedLyrics),
       },
     });
 

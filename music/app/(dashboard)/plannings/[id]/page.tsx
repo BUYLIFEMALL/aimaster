@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { GenerateTracksPanel } from "@/components/plannings/GenerateTracksPanel";
+import { PlanningLyricsCard } from "@/components/plannings/PlanningLyricsCard";
 import { TrackCard, type TrackCardData } from "@/components/plannings/TrackCard";
 import { AutoRefresh } from "@/components/plannings/AutoRefresh";
 import { PlanningHeaderCard, type PlanningHeaderData } from "@/components/plannings/PlanningHeaderCard";
@@ -95,11 +96,14 @@ export default async function PlanningDetailPage({ params }: { params: { id: str
 
       <RetentionNotice />
 
+      <PlanningLyricsCard planningId={planningData.id} savedLyrics={(planning as { lyrics?: string | null }).lyrics ?? null} />
+
       <GenerateTracksPanel
         planningId={planningData.id}
         planningVocalGender={planningData.vocal_gender}
         planningLang={planningData.lang}
         personas={personas}
+        hasSavedLyrics={Boolean(((planning as { lyrics?: string | null }).lyrics ?? "").trim())}
       />
 
       <PlanningExportPicker planningTitle={planningData.title ?? "곡목록"} tracks={exportTracks} />
