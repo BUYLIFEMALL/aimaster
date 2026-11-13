@@ -295,6 +295,10 @@ export function LitMcpAccess() {
             <Button small onClick={() => { void navigator.clipboard?.writeText(fresh).catch(() => {}); useUI.getState().toast(tx('Copied')); }}>{tx('Copy token')}</Button>
           </div>
         )}
+        {/* AIMaster 2026-11-13(플랜 §2-4): 한도·만료·주의 안내 */}
+        <div style={{ fontSize: 12, opacity: 0.75, margin: '6px 0' }}>
+          💡 토큰은 5개까지, 발급 뒤 90일이 지나면 자동으로 만료됩니다(토큰마다 1분에 60번까지). ⚠️ 토큰을 가진 도구는 내 권한으로 워크스페이스를 읽고 고칠 수 있으니 남에게 보여 주지 말고, 쓰지 않으면 바로 해지해 주세요.
+        </div>
         <div className="nc-ai-set-token-new">
           <input aria-label={tx('Token name')} placeholder={tx('Token name, e.g. Claude Desktop')} value={name} onChange={(e) => setName(e.target.value)} disabled={!enabled} />
           <Button variant="primary" disabled={!enabled} onClick={() => void create()}>{tx('Create token')}</Button>

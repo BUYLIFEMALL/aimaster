@@ -48,10 +48,16 @@ const AGENT_CLOSED_RPCS = new Set([
   'addAgentConnection', 'refreshAgentConnection', 'removeAgentConnection', 'updateAgentConnection',
 ]);
 
+/** 2026-11-13(플랜 PLAN_20261113_U14_AND_DEFERRED.md §2-4): MCP 서버 1단계 — 개인 토큰 발급·해지, 연결한 외부 AI 도구 관리 */
+const MCP_OPEN_RPCS = new Set([
+  'mcpListTokens', 'mcpCreateToken', 'mcpRevokeToken', 'mcpRevokeAll', 'mcpDisableMyClient',
+  'mcpListClients', 'mcpClientMembers', 'mcpDisconnectClient', 'mcpSetClientRestriction', 'mcpApproveClients', 'mcpRemoveApprovedClient', 'mcpRenameClient',
+]);
+
 function laterByPrefix(name: string): boolean {
   return (
     /^dev[A-Z]/.test(name) || // 개발자 API·웹훅 (4단계)
-    /^mcp[A-Z]/.test(name) || // MCP 연결 (4단계)
+    (/^mcp[A-Z]/.test(name) && !MCP_OPEN_RPCS.has(name)) || // MCP: 2026-11-13 내 워크스페이스 MCP 서버(토큰·연결 도구 관리)만 엶, 바깥 MCP 서버 등록(프리셋)은 닫음
     AGENT_CLOSED_RPCS.has(name) || // U12: 에이전트 공유·바깥 연결만 닫음
     /^admin[A-Z]/.test(name) // 워크스페이스 관리자 고급 기능(다른 회원 관련)
   );

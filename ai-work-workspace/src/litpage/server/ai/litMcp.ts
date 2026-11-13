@@ -56,6 +56,10 @@ for (const col of ['client_key TEXT', 'client_name TEXT', 'first_connected_time 
 
 export const MCP_PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 const hash = (t: string) => createHash('sha256').update(t).digest('hex');
+// AIMaster 2026-11-13(플랜 docs/PLAN_20261113_U14_AND_DEFERRED.md §2-4, 주인님 「권장안대로」): 회원당 토큰 5개 · 90일 뒤 만료 · 토큰당 분당 60회
+export const AWW_MCP_MAX_TOKENS = 5;
+export const AWW_MCP_TOKEN_TTL_MS = 90 * 86_400_000;
+const AWW_MCP_RATE_PER_MIN = 60;
 
 export interface McpTokenInfo {
   id: string;
@@ -85,7 +89,7 @@ export function createToken(userId: string, spaceId: string, name: string): { to
   if (!isSpaceMember(getRecord<SpaceRecord>('space', spaceId), userId)) throw new AiError('forbidden', 'You aren’t a member of this workspace.', 403);
   if (!workspaceAiPolicy(spaceId).litMcp) throw new AiError('forbidden', 'Workspace MCP is turned off for this workspace.', 403);
   const count = (db.prepare('SELECT COUNT(*) AS n FROM mcp_tokens WHERE user_id = ? AND space_id = ? AND revoked_time IS NULL').get(userId, spaceId) as { n: number }).n;
-  if (count >= 20) throw new AiError('bad_request', 'You can have up to 20 active tokens.', 400);
+  if (count >= AWW_MCP_MAX_TOKENS) throw new AiError('bad_request', `MCP 토큰은 ${AWW_MCP_MAX_TOKENS}개까지 만들 수 있습니다. 쓰지 않는 토큰을 해지한 뒤 다시 만들어 주세요.`, 400);
   const token = `lp_pat_${randomBytes(24).toString('base64url')}`;
   const id = newId();
   const now = Date.now();
@@ -401,9 +405,19 @@ function tokenAuth(header: string | undefined): { tokenId: string; userId: strin
   if (!m) return null;
   const r = db.prepare('SELECT * FROM mcp_tokens WHERE token_hash = ? AND revoked_time IS NULL').get(hash(m[1])) as TokenRow | undefined;
   if (!r) return null;
+  if (Date.now() - r.created_time > AWW_MCP_TOKEN_TTL_MS) return null; // AIMaster: 90일 만료
   if (!isSpaceMember(getRecord<SpaceRecord>('space', r.space_id), r.user_id)) return null;
   db.prepare('UPDATE mcp_tokens SET last_used_time = ? WHERE id = ?').run(Date.now(), r.id);
   return { tokenId: r.id, userId: r.user_id, spaceId: r.space_id };
+}
+
+/** AIMaster: 토큰 주인 회원(사용 시각은 바꾸지 않음) — /api/mcp 라우트가 이용 권한을 먼저 판정하는 데 쓴다. expired = 90일 지남 */
+export function mcpTokenOwner(header: string | undefined): { userId: string; expired: boolean } | null {
+  const m = /^Bearer\s+(lp_pat_[A-Za-z0-9_-]{20,})$/.exec(header?.trim() ?? '');
+  if (!m) return null;
+  const r = db.prepare('SELECT * FROM mcp_tokens WHERE token_hash = ? AND revoked_time IS NULL').get(hash(m[1])) as TokenRow | undefined;
+  if (!r) return null;
+  return { userId: r.user_id, expired: Date.now() - r.created_time > AWW_MCP_TOKEN_TTL_MS };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -599,7 +613,7 @@ export async function handleMcpHttp(authorization: string | undefined, body: unk
   const auth = tokenAuth(authorization);
   if (!auth) return { status: 401, body: { jsonrpc: '2.0', id: null, error: { code: -32001, message: 'Unauthorized: create an access token in Settings → Workspace MCP.' } }, headers: { 'www-authenticate': 'Bearer realm="Workspace MCP"' } };
   if (!workspaceAiPolicy(auth.spaceId).litMcp) return { status: 403, body: { jsonrpc: '2.0', id: null, error: { code: -32003, message: 'Workspace MCP is turned off for this workspace.' } } };
-  if (!hit(`mcp:token:${auth.tokenId}`, Number(process.env.NC_MCP_RATE_PER_MIN) || 180, 60_000)) {
+  if (!hit(`mcp:token:${auth.tokenId}`, Number(process.env.NC_MCP_RATE_PER_MIN) || AWW_MCP_RATE_PER_MIN, 60_000)) {
     return { status: 429, body: { jsonrpc: '2.0', id: null, error: { code: -32029, message: 'There are too many requests right now. Try again shortly.' } } };
   }
   const session = sessionId || newId();

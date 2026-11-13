@@ -140,6 +140,11 @@ const OVERRIDES: Record<string, Handler> = {
   ...collabHandlers,
 };
 
+/** 2026-11-13: /api/mcp(토큰으로 들어오는 외부 AI 도구)용 — 원본 서버 초기화만 */
+export function initRuntime() {
+  init();
+}
+
 /** U3: AI 스트림 라우트용 — 초기화와 회원 레코드 준비(RPC와 같은 순서). */
 export async function readyMember(member: Member): Promise<Member> {
   init();
