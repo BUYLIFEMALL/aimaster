@@ -461,3 +461,7 @@ POST 콜백을 보낸다. 이 라우트는:
 - `planMusicAction`: 스타일(온도 0.7, 칩 반영)·제목(후렴·단어 힌트) → **가사까지** 생성해 `lyrics`에 저장(실패해도 기획 저장, 상세에 안내). `generateLyrics`가 회원 원문(`songDescription`)·세부 지시(`directives`)를 받음, 온도 0.8. 작사 프롬프트의 `**[Verse]**` 출력 지시 제거.
 - 상세: 가사 카드 「✅ 가사 확정」, 생성 콘솔 칩을 기획 칩으로 미리 채움(`initialOptions`), 서버는 칩이 기획과 같으면(`sameTags`) 기획 스타일을 그대로 사용. 자동 작사·상세 재생성도 원문·세부 지시 사용.
 - 함께 나감: v1.51 뒤 미배포 `d29041221`. 검수: 시험 65·tsc·lint·build, 배포·DB v1.52, ego lite 시험 계정 기획 1회(14초)·수정·확정·칩 미리 채움 확인. 남은 것: AI 초안도 곧바로 「확정된 가사」로 보임(별도 확정 상태 없음).
+
+## 2026-11-13 v1.53 — 정밀 기획 스튜디오 AI 버튼 404 수정 (Claude Code 윈도우 · 음악 담당)
+- `components/studio/Workspace.tsx`가 `/api/generate`·`/api/search`를 불러 404(10-23 대량 복구 커밋 `237741cc3` 줄 — 그때부터 곡·앨범·제안·가사 생성과 탐색이 실패) → `/api/studio/generate`·`/api/studio/search`. 안내·진행 표시를 화면 위에 붙임(`studio.css` sticky), JSON이 아닌 응답은 한국어 안내.
+- 검수: 시험 65·tsc·lint·build, 배포 `music-97h7ogmyg`·DB v1.53, ego lite 시험 계정 빌더 가사 생성 1회 성공. 탐색은 화면 확인 안 함.
