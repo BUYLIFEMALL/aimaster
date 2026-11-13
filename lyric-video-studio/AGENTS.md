@@ -3,7 +3,7 @@
 # AI 가사영상 자동화 (`lyric-video-studio`) — 에이전트 인수인계
 
 > 루트 `CLAUDE.md`·`AGENTS.md`를 먼저 읽는다. 대상: ① AIMaster 운영(DB ref `esgxyikcnnvmlhygjkth`).
-> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.12**
+> 서비스: https://lyric-video-studio.buylife.xyz · Vercel 프로젝트 `lyric-video-studio`(팀 `buylife`) · 현재 **v1.13**
 > 출발점: 외부 상용 앱 Lyricbi 1.9.0 분석([`docs/analysis-lyricbi-20261021/REPORT.md`](../docs/analysis-lyricbi-20261021/REPORT.md)) — **코드는 옮기지 않고** 기능·흐름만 참고해 새로 만들었다.
 
 ## 1. 사용 목적과 대상
