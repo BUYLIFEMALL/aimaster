@@ -10,6 +10,7 @@ import { PcCheckPanel } from "@/components/engine/PcCheckPanel";
 import { StageProgress, parseProgress } from "@/components/engine/StageProgress";
 import { EngineError, forgetEngine, pairEngine } from "@/lib/engine";
 import { useLatestEngine } from "@/components/engine/useLatestEngine";
+import { SmartAppControlNotice } from "@/components/engine/SmartAppControlNotice";
 
 // 내 PC 엔진 — PC 검사·음악 모델 고르기(v1.07) · 상태 확인·연결 코드(3단계). 사양 표는 2026-11-03 사전 검증 결과(플랜 §8) 기준.
 const SPECS = [
@@ -242,6 +243,8 @@ export default function EnginePage() {
           </div>
         </div>
       </section>
+
+      <SmartAppControlNotice />
 
       <section className="space-y-3 rounded-2xl border border-slate-800 bg-[#0a0f1d] p-5">
         <h2 className="text-sm font-bold text-slate-100">초간단 3단계 설치</h2>

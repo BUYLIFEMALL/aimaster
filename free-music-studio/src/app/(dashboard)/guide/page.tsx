@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { BookOpen, Lightbulb, AlertTriangle, ExternalLink } from "lucide-react";
+import { SmartAppControlNotice } from "@/components/engine/SmartAppControlNotice";
 
 // 연동 & 사용 매뉴얼 기본판(1단계). 플랜 8단계에서 docs/MANUAL_AND_INTEGRATION_GUIDELINES.md 8대 템플릿으로 완성한다.
 const STEPS = [
   { n: 1, emoji: "🔑", title: "(선택) Claude 키 등록", body: "AI 작사를 쓰려면 [API키등록·플랫폼연동]에 본인 Claude API 키를 넣습니다. 가사를 직접 쓰면 키가 없어도 됩니다.", href: "/settings" },
   { n: 2, emoji: "✍️", title: "곡 만들기", body: "곡 제목·길이·스타일(영어 태그)·가사를 적고 저장합니다. 주제만 적고 [가사 채우기]를 눌러 AI 작사로 채울 수도 있습니다.", href: "/songs" },
-  { n: 3, emoji: "🖥️", title: "내 PC 엔진 연결", body: "「내 PC 엔진」 화면의 [설치 파일 받기]로 받아 더블클릭하면 설치되고 엔진이 켜집니다(윈도우 10·11, 「Windows의 PC 보호」 창이 뜨면 [추가 정보] → [실행]). 엔진 창의 연결 코드 6자리를 같은 화면에 넣습니다. 브라우저마다 한 번만 하면 됩니다.", href: "/engine" },
+  { n: 3, emoji: "🖥️", title: "내 PC 엔진 연결", body: "「내 PC 엔진」 화면의 [설치 파일 받기]로 받아 더블클릭하면 설치되고 엔진이 켜집니다(윈도우 10·11, 「Windows의 PC 보호」 창이 뜨면 [추가 정보] → [실행], 「스마트 앱 컨트롤」에 막히면 아래 안내). 엔진 창의 연결 코드 6자리를 같은 화면에 넣습니다. 브라우저마다 한 번만 하면 됩니다.", href: "/engine" },
   { n: 4, emoji: "🎧", title: "노래 만들고 듣기", body: "곡 만들기 화면 아래 [노래 만들기]를 누르면 걸린 시간이 보이고, 완성되면 바로 듣고 MP3로 내려받습니다. 만든 노래는 내 PC 보관함에 남아 「모든 음악」에서 다시 들을 수 있습니다. 첫 곡은 음악 모델(약 10GB)을 받느라 더 걸립니다.", href: "/songs" },
 ];
 
@@ -27,6 +28,7 @@ const FAQ = [
   { q: "SUNO와 비교하면 어떤가요?", a: "공개 모델로 만들기 때문에 음질은 SUNO보다 조금 아쉬울 수 있지만, 곡 수 제한 없이 내 PC에서 계속 만들 수 있습니다." },
   { q: "만든 곡은 어디에 저장되나요?", a: "음원 파일은 회원님 PC에만 저장됩니다. 이 사이트에는 곡 제목·스타일·가사만 저장되며, 생성일로부터 30일 뒤 자동으로 지워집니다." },
   { q: "그래픽카드가 없어도 되나요?", a: "됩니다. CPU 모드로 돌아가며 30초 곡에 약 1분 30초가 걸립니다. NVIDIA 그래픽카드나 Apple Silicon 맥이면 더 빠르고 고품질 모드를 쓸 수 있습니다." },
+  { q: "설치 파일이 「스마트 앱 컨트롤」에 막혀요.", a: "윈도우 11의 스마트 앱 컨트롤은 서명이 없는 프로그램을 [실행] 버튼 없이 막습니다. 설치 파일 [속성]에서 「차단 해제」를 체크해 보고, 그래도 막히면 「Windows 보안 → 앱 및 브라우저 컨트롤 → 스마트 앱 컨트롤 설정」에서 「끄기」를 고른 뒤 다시 실행해 주세요. 윈도우 버전에 따라 한 번 끄면 다시 켜려면 윈도우를 새로 설치해야 할 수 있습니다." },
   { q: "모델 파일이 커서 C 드라이브가 꽉 찼어요.", a: "「내 PC 엔진」의 「모델 저장 공간」에서 음악 모델 폴더를, 「음악앨범」 화면 「내 PC 그림 모델」의 「다른 폴더로 바꾸기」에서 그림 모델 폴더를 다른 드라이브로 옮길 수 있습니다. 받아 둔 모델은 다시 받지 않고 옮겨집니다." },
 ];
 
@@ -66,6 +68,8 @@ export default function GuidePage() {
           </li>
         ))}
       </ol>
+
+      <SmartAppControlNotice />
 
       <section className="space-y-3">
         <h2 className="text-sm font-bold text-slate-100">✨ 익숙해지면 더 해 볼 수 있는 것</h2>
