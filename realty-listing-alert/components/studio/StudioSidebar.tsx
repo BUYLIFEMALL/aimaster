@@ -26,7 +26,7 @@ export function StudioSidebar({
   async function signOut() {
     setSigningOut(true);
     try {
-      await createClient().auth.signOut();
+      await createClient().auth.signOut({ scope: "local" });
     } finally {
       window.location.href = "/login";
     }
