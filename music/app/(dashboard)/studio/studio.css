@@ -1223,3 +1223,31 @@
   border-color: #7c3aed;
   color: #fff;
 }
+/* v1.55: 디테일하게 만들기 결과 미리보기 */
+.suno-studio .detail-result {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(139, 92, 246, 0.55);
+  border-radius: 14px;
+  background: rgba(139, 92, 246, 0.08);
+}
+.suno-studio .detail-result-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: baseline;
+  margin-bottom: 8px;
+  color: #c4b5fd;
+}
+.suno-studio .detail-result-lyrics {
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #0b0b10;
+}

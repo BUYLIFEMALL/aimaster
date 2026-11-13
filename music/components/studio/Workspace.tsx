@@ -110,6 +110,12 @@ export function Workspace({
     brief: Brief;
   } | null>(null);
   const [searchResult, setSearchResult] = useState<Track[]>([]);
+  // v1.55: 「디테일하게 만들기」 결과 미리보기(실제 값은 위 곡 칸에 채워짐)
+  const [detailResult, setDetailResult] = useState<{
+    title: string | null;
+    style: string | null;
+    lyrics: string | null;
+  } | null>(null);
   const [recordingResult, setRecordingResult] =
     useState<RecordingResult | null>(null);
   const [research, setResearch] = useState<Research | null>(null);
@@ -455,21 +461,19 @@ export function Workspace({
             },
           };
         });
-      // v1.54: 아래 「디테일하게 만들기」 결과는 위 「쉽게 만들기」 곡 칸에 채워진다 — 어디로 갔는지 보이게 안내하고 올라간다.
+      // v1.54~1.55: 아래 「디테일하게 만들기」 결과는 위 「쉽게 만들기」 곡 칸에 채워진다 — 안내 + 버튼 아래 미리보기(detailResult).
+      if (action === "song" && section === "song" && !override)
+        setDetailResult({
+          title: bb.generateTitle ? result.tracks[0].title : null,
+          style: bb.generateStyle ? result.tracks[0].style : null,
+          lyrics: bb.generateLyrics && !bb.instrumental ? result.tracks[0].lyrics : null,
+        });
       if (action === "song" && section === "song") {
         setNotice(
           override
             ? "새 가사를 가사 칸에 넣었습니다. 고칠 부분을 수정한 뒤 Suno로 보내세요."
-            : "결과를 위 「⚡ 쉽게 만들기」 곡 칸(제목·Style·가사)에 채웠습니다. 확인·수정한 뒤 Suno로 보내세요.",
+            : "결과를 위 「⚡ 쉽게 만들기」 곡 칸에 채웠습니다. 생성 버튼 아래 미리보기에서 확인하고, 위 곡 칸에서 고친 뒤 Suno로 보내세요.",
         );
-        if (!override)
-          window.setTimeout(
-            () =>
-              document
-                .querySelector(".suno-studio .maker-quick")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" }),
-            50,
-          );
       }
     } catch (e) {
       failure(e, c);
@@ -1223,6 +1227,34 @@ export function Workspace({
                   <Sparkles size={17} />
                   선택한 항목 생성
                 </button>
+                {detailResult && (
+                  <div className="detail-result" role="region" aria-label="생성 결과 미리보기">
+                    <div className="detail-result-head">
+                      <strong>✨ 생성 결과</strong>
+                      <span className="muted">위 「⚡ 쉽게 만들기」 곡 칸에 채워졌습니다</span>
+                    </div>
+                    {detailResult.title && (
+                      <p>
+                        <span className="muted">제목</span> {detailResult.title}
+                      </p>
+                    )}
+                    {detailResult.style && <p className="mono">{detailResult.style}</p>}
+                    {detailResult.lyrics && <pre className="detail-result-lyrics">{detailResult.lyrics}</pre>}
+                    <div className="actions">
+                      <button
+                        className="primary"
+                        onClick={() =>
+                          document
+                            .querySelector(".suno-studio .maker-quick")
+                            ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                        }
+                      >
+                        ↑ 위 곡 칸에서 수정하기
+                      </button>
+                      <button onClick={() => setDetailResult(null)}>미리보기 닫기</button>
+                    </div>
+                  </div>
+                )}
               </section>
             </div>
             <div className="builder-controls">
