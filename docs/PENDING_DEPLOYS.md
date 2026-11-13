@@ -15,8 +15,6 @@
 
 ## 대기 중
 
-- **`ai-work-workspace` — 볼타 웹훅 실제 수신 수정(2026-11-13 [역할: workspace], 운영 확인에서 발견)**: 알림이 요청 후 3초 만에 와서 문서를 못 찾던 문제·「_」 든 번호 검색·발급 상태 덮어쓰기 방지·거절 이유 진단 기록·HEAD 200. 시험 141. 이것이 나가야 웹훅이 실제로 문서를 바꿈 — 배포 뒤 테스트 발급 1건으로 확인.
-
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
@@ -108,6 +106,7 @@
 | `shots` | v1.48 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `shots-607ynfsog` Ready, DB v1.48) | 대본·주제 후보 행 30일 정리 `44a9df352`(발행 무관, `retention_exempt` 제외, 배경음악 파일 포함) + 매뉴얼 보관 문구 + 저장공간 위젯 + 공용 `ai-video-client` 사본 + 서버 지역 서울(`icn1::icn1` 확인). 시험 22·tsc 통과 |
 | `blog-neighbor-care` | v1.20 · 2026-11-13 ([역할: blog] `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-4u1h4uflh` Ready, DB·확장·ZIP v1.20 검증 OK) | 시계 보정 — 미리보기·수락 409 수정(`1dbf5937a`·`3c913dd80`), 409에 RPC `code`, 한 줄 소개 갱신 |
 | `blog-neighbor-care` | v1.19 · 2026-11-12 ([역할: blog] `claude-win-blog`, 주인님 「순서대로 진행」+환경변수 허락, 빌드 1회, `blog-neighbor-care-ctfwl3obf` Ready, DB·확장 v1.19) | 「🤖 자동 운영」 칸 항상 펼침 `02029e8f4` + 감시 AI 켜짐(환경변수 2개) + 저장공간 위젯 |
+| `ai-work-workspace` | v1.37 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「배포해」 빌드 1회, `ai-work-workspace-akv3lqyvg` Ready, DB v1.37) | 볼타 웹훅 실제 수신 수정(알림이 3초 만에 오는 경우·「_」 번호·상태 덮어쓰기 방지·진단 기록·HEAD 200) — 운영에서 버튼 없이 자동 「발급됨」 + 승인번호 기록 통과 |
 | `ai-work-workspace` | v1.36 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」 빌드 1회, `ai-work-workspace-3dprokanf` Ready, DB v1.36) | 볼타 웹훅(결과 자동 수신) · 일정 리마인더 내 메일/카톡 · 공개 REST API `/v1`(운영 실제 호출 통과) · 볼타 칸 항상 보이기 · 단계 표시 한국어화 · 볼타 처리 상태 문구 + 운영 DB `user_api_keys` 허용 목록에 `bolta_webhook_secret` |
 | `ai-work-workspace` | v1.35 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」 빌드 1회, `ai-work-workspace-dyeif39yo` Ready, DB v1.35) | 세금계산서 볼타 바로 발급(회원 본인 키, 운영 테스트 발급 2건 통과) + 왼쪽 메뉴 버전 표시 + 운영 DB `user_api_keys` 허용 목록에 `bolta_api_key` |
 | `ai-work-workspace` | v1.34 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「지금 배포 + 실제 시험」 빌드 1회, `ai-work-workspace-hmm43zxui` Ready, DB v1.34) | 에이전트 웹 검색(회원 키 내장 검색, 운영 실제 검색 통과) `600d1682f` · 웹훅 자동화 엶 `70d09af17` · 자동화 알림 내 메일·카카오톡 `169b806cd` · MCP 서버 1단계 `/api/mcp` `2d333a6b5` · 로그아웃 이 기기만 |
