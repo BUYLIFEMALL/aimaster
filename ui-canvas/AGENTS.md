@@ -1,5 +1,16 @@
 # 🎨 UI Canvas 자동화 (ui-canvas) — AI 에이전트 인수인계서
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.15(`src/lib/version.ts`, 버전 커밋 `d7146360c`) · 운영 주소: https://ui-canvas.buylife.xyz. (`package.json`은 1.13.0, 아래 머리말 「현재 버전 v1.13」은 옛 기록)
+- 한 줄 정의: 마우스로 UI 화면을 그려 PNG·JSON·React+Tailwind 코드로 내보내고, 회원 본인 Gemini 키로 스크린샷에서 화면 복원·명세 채우기·컴포넌트 생성을 하는 웹 UI 설계 도구.
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 대시보드(`/dashboard`, 프로젝트 목록·새 프로젝트·삭제), 캔버스 열기(`/open` → 최근 프로젝트 편집기 `/editor/[id]`, 없으면 새로 만듦), 🧩 컴포넌트 갤러리(`/gallery`, 탭 gallery·demos·code·ai), 📖 연동 & 사용 매뉴얼(`/guide`), API키등록·플랫폼연동(`/settings`). 편집기 상단: 목록·이름·실행취소/다시실행·이미지로 만들기·불러오기·컴포넌트 JSON·명세 JSON·</> 코드·이미지로 저장·도움말. 화면 크기 프리셋 4종(1440×900·1280×800·820×1180·390×844), 컴포넌트 25종+그룹, 실행 취소 100단계.
+- 필요한 키·연동(회원 본인 것): `user_api_keys`의 Gemini 키 하나(`/api/keys`, 모델 `gemini-3.8-flash` — `src/lib/gemini.ts`, `src/lib/gallery/generateComponent.ts`). AI API: `/api/ai/from-image`, `/api/ai/spec`, `/api/ai/component`. 외부 계정 연동 없음. 캔버스 편집·저장·내보내기는 키 없이 동작.
+- 자동 실행(예약·정리)·확장: `vercel.json`은 framework만, 크론 없음, 크롬 확장 없음. 프로젝트는 `ui_canvas_projects`(`doc` 안에 `snippets` 최대 50개)에 저장되며 **30일 자동 정리 코드는 이 프로그램에 없음**(메인 중앙 정리 대상인지 미확인).
+- 최근 변경(커밋 기준): `1def2373a`·`9810804f1` 저작권 고지·robots / `d1e710d68` 권한 판정 조회 병렬화(배포 대기) / `d7146360c` v1.15 버전 올림 / `7afee3c23` gemini-2.5-flash → gemini-3.8-flash / `5c2b3337a` v1.14 Next.js 보안 업데이트.
+- 미배포 대기·남은 일: 저작권 고지 파일, 권한 판정 병렬화(`d1e710d68`), 이번 점검의 매뉴얼·설정 화면 수정. pending-check가 알린 저장공간 위젯 한 줄·`signOut({ scope: "local" })`(`src/app/api/auth/logout/route.ts:8`) 미적용. pending-check가 공용 대기표(`docs/PENDING_DEPLOYS.md`)에 Gemini 모델 교체 줄을 아직 ui-canvas 대기로 보여 주는데, v1.15 배포로 이미 나갔는지는 미확인.
+- 다음에 손댈 때 주의: `src/lib/canvas/codegen.ts`와 `src/components/canvas/ComponentView.tsx`는 그리는 방식을 같이 바꿔야 함(테스트 `tests/codegen.test.mjs`). 갤러리 Tailwind는 `gallery.css`에서만 범위 한정으로 불러옴(전역 태그 스타일과 충돌 주의). 편집기 자동 저장 `PUT`은 `snippets`를 보내지 않음.
+- 이번 점검에서 고친 것: 매뉴얼(`src/components/workspace/GuideContent.tsx`) — 화면 크기 프리셋(옛 1440/768/375 → 실제 4종), 그룹 해제 단축키(Ctrl+Shift+G), 실행 취소 100단계·Ctrl+Y, 「AI로 내용 채우기」 위치(상단 → 우측 [명세] 칸), 불러오기 버튼·저장 상태 표시·보관 기간·프로젝트 목록·코드 「배치 방식」·「캔버스에 놓기」 설명 추가, AI 요금 FAQ 정정. 설정 화면(`src/components/workspace/KeyManager.tsx`) — Gemini 키 칸 바로 아래 「Gemini 키 발급 방법」 버튼 추가. (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > **공식 서비스 URL**: https://ui-canvas.buylife.xyz  
 > **현재 버전**: `v1.13` (크리에이티브 아틀리에 스타일 — 캔버스 프로 에디션, 2026-10-21 병합 D 갤러리·코드 내보내기 + 반응형 코드)  
 > **최근 갱신일**: 2026-10-19  

@@ -41,7 +41,7 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
             </div>
             <strong style={{ display: "block", fontSize: 14, color: "#ffffff", marginBottom: 6 }}>캔버스 해상도 설정</strong>
             <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.5, margin: 0 }}>
-              데스크톱(1440px), 태블릿(768px), 모바일(375px) 프리셋을 고르고 격자 모눈 배경을 활성화합니다.
+              왼쪽 패널 아래에서 데스크톱 1440×900, 노트북 1280×800, 태블릿 820×1180, 모바일 390×844 중 화면 크기를 고르고, 캔버스 배경을 어둡게·밝게 바꿉니다.
             </p>
           </div>
 
@@ -80,7 +80,7 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
             </div>
             <strong style={{ display: "block", fontSize: 14, color: "#ffffff", marginBottom: 6 }}>실측 PNG & JSON 명세</strong>
             <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.5, margin: 0 }}>
-              html2canvas 기반 고해상도 1:1 이미지 저장 및 개발팀 전달용 구조화 JSON 명세서를 내보냅니다.
+              PNG 이미지, 컴포넌트·명세 JSON, React + Tailwind 코드(.tsx)로 내보냅니다. 코드는 반응형(flex)과 캔버스 그대로(절대 위치) 중에서 고릅니다.
             </p>
           </div>
         </div>
@@ -157,7 +157,7 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
             입력창, 카드, 탭, 차트 등을 추가합니다. 선택한 요소의 우측 하단 파란 핸들러를 끌면 크기를 미세 조절할 수 있고, 방향키로 1px씩 정밀 이동할 수 있습니다.
           </Step>
           <Step n={5} title="완성된 UI를 이미지나 JSON 명세로 내보냅니다">
-            상단 [이미지로 저장]은 1:1 무손실 PNG 그림 파일, [컴포넌트 JSON]과 [명세 JSON]은 프론트엔드 개발팀에게 전달할 표준 데이터 규격입니다. 모든 작업은 1.5초마다 자동 저장됩니다.
+            상단 [이미지로 저장]은 PNG 그림 파일, [컴포넌트 JSON]과 [명세 JSON]은 개발자에게 넘길 데이터 파일, [{"</>"} 코드]는 React + Tailwind 코드입니다. [명세 JSON]은 우측 [명세]에 앱 이름과 설명을 먼저 적어야 받을 수 있습니다. 작업은 손을 멈추고 약 1.5초 뒤 자동 저장됩니다.
           </Step>
         </ol>
         <p className="gd-tip">💡 <b>원클릭 팁</b>: 기존에 마음에 드는 앱이나 웹사이트 캡처 이미지가 있다면, 상단 <b>[이미지로 만들기]</b>를 눌러 스크린샷을 올려보세요. Gemini AI가 컴포넌트를 자동으로 분해해 캔버스에 배치해 줍니다.</p>
@@ -178,8 +178,9 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
         <ul className="gd-list">
           <li><b>A 상단 글로벌 도구줄</b> — 프로젝트 제목 편집, 자동 저장 상태 인디케이터, 실행취소/다시실행, AI 역공학, 파일 가져오기 및 내보내기 버튼이 집약되어 있습니다.</li>
           <li><b>B 좌측 패널</b> — [컴포넌트] 탭에서 25종 UI 부품을 고르고, [레이어] 탭에서 화면 내 컴포넌트의 앞뒤 순서(Z-Index) 및 잠금/삭제를 제어합니다.</li>
-          <li><b>C 중앙 메인 캔버스</b> — 반응형 뷰포트(데스크톱 1440px / 태블릿 768px / 모바일 375px), 배율 줌, 다크/라이트 격자 모눈을 지원하는 고성능 작업판입니다.</li>
-          <li><b>D 우측 패널</b> — 요소를 선택하면 [속성](텍스트, 색상, 좌표, 테두리, 프리셋), 선택이 없을 때는 프로젝트 전체의 [앱 명세](이름, 목적, 화면 설명)가 표시됩니다.</li>
+          <li><b>C 중앙 메인 캔버스</b> — 화면 크기(데스크톱 1440×900 / 노트북 1280×800 / 태블릿 820×1180 / 모바일 390×844), 배율 줌, 어두운·밝은 배경을 지원하는 작업판입니다.</li>
+          <li><b>D 우측 패널</b> — 요소를 선택하면 [속성](텍스트, 색상, 좌표, 테두리, 프리셋), 선택이 없을 때는 프로젝트 전체의 [앱 명세](이름, 목적, 화면 설명)가 표시됩니다. [AI로 내용 채우기] 버튼도 이 명세 칸에 있습니다.</li>
+          <li><b>프로젝트 목록</b> — 좌측 메뉴의 대시보드에서 [새 프로젝트 생성]으로 새 캔버스를 만들고, 프로젝트마다 [열기]·[삭제]를 합니다(삭제는 되돌릴 수 없습니다). 「캔버스 디자인 시작하기」는 가장 최근 프로젝트를 바로 열고, 하나도 없으면 새로 만듭니다.</li>
         </ul>
       </section>
 
@@ -214,7 +215,7 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
           </article>
           <article>
             <h3>그룹으로 묶고 풀기</h3>
-            <p>요소를 2개 이상 선택하고 <Kbd>Ctrl</Kbd>+<Kbd>G</Kbd>를 누르면 그룹이 됩니다. 그룹을 선택하고 다시 누르면 그룹이 해제되어 개별 요소로 돌아옵니다.</p>
+            <p>요소를 2개 이상 선택하고 <Kbd>Ctrl</Kbd>+<Kbd>G</Kbd>를 누르면 그룹이 됩니다. 그룹을 선택하고 <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>G</Kbd>를 누르면 그룹이 풀려 개별 요소로 돌아옵니다.</p>
           </article>
           <article>
             <h3>화면 밖으로 나가지 않게 하기</h3>
@@ -231,13 +232,14 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
       <section id="buttons" className="card">
         <h2>⑤ 상단 도구줄 버튼 가이드</h2>
         <div className="gd-btns">
-          <div><span><Undo2 size={16} /></span><div><strong>실행 취소 (Ctrl+Z)</strong><p>직전 작업을 되돌립니다. 최대 50단계 이력을 보관합니다.</p></div></div>
-          <div><span><Redo2 size={16} /></span><div><strong>다시 실행 (Ctrl+Shift+Z)</strong><p>취소했던 작업을 다시 적용합니다.</p></div></div>
+          <div><span><Undo2 size={16} /></span><div><strong>실행 취소 (Ctrl+Z)</strong><p>직전 작업을 되돌립니다. 최대 100단계까지 되돌릴 수 있습니다.</p></div></div>
+          <div><span><Redo2 size={16} /></span><div><strong>다시 실행 (Ctrl+Shift+Z 또는 Ctrl+Y)</strong><p>취소했던 작업을 다시 적용합니다.</p></div></div>
           <div><span><ImagePlus size={16} /></span><div><strong>이미지로 만들기</strong><p>앱 스크린샷 이미지를 분석해 캔버스에 자동으로 배치합니다.</p></div></div>
-          <div><span><Sparkles size={16} /></span><div><strong>AI로 내용 채우기</strong><p>현재 UI 배치에 맞는 자연스러운 한국어 텍스트와 레이블을 자동 채웁니다.</p></div></div>
+          <div><span><FolderOpen size={16} /></span><div><strong>불러오기</strong><p>예전에 받은 JSON 파일을 열어 캔버스를 그 내용으로 바꿉니다. 바꾸기 전에 확인 창이 뜨고, Ctrl+Z로 되돌릴 수 있습니다.</p></div></div>
+          <div><span><Sparkles size={16} /></span><div><strong>AI로 내용 채우기 (우측 [명세] 칸)</strong><p>요소를 아무것도 선택하지 않으면 우측에 [명세] 칸이 보이고, 그 안의 버튼을 누르면 현재 배치에 맞는 앱 이름·설명과 글자를 AI가 제안합니다. 결과를 확인 창에서 보고 적용할지 고릅니다.</p></div></div>
           <div><span><Download size={16} /></span><div><strong>이미지로 저장</strong><p>캔버스 전체를 1:1 고해상도 PNG 파일로 캡처하여 다운로드합니다.</p></div></div>
           <div><span><FileJson size={16} /></span><div><strong>컴포넌트 / 명세 JSON</strong><p>프론트엔드 개발팀에 그대로 전달할 수 있는 표준 명세서 파일입니다.</p></div></div>
-          <div><span><FileJson size={16} /></span><div><strong>{"</>"} 코드</strong><p>캔버스 화면을 React + Tailwind CSS 코드 한 파일로 복사하거나 .tsx로 받습니다. 갤러리에서 저장한 AI 컴포넌트도 여기서 다시 봅니다.</p></div></div>
+          <div><span><FileJson size={16} /></span><div><strong>{"</>"} 코드</strong><p>캔버스 화면을 React + Tailwind CSS 코드 한 파일로 복사하거나 .tsx로 받습니다. 「배치 방식」에서 <b>반응형 (flex)</b>(기본, 휴대폰에서는 세로로 쌓임)과 <b>캔버스 그대로 (절대 위치)</b> 중 하나를 고릅니다. 갤러리에서 저장한 AI 컴포넌트도 여기서 다시 보고 복사·받기·삭제합니다.</p></div></div>
         </div>
       </section>
 
@@ -248,7 +250,8 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
         <ul className="gd-list">
           <li><b>컴포넌트 갤러리·코드 라이브러리</b>: 버튼·입력·탭 등 12종 React + Tailwind 컴포넌트를 보고 TSX 코드를 복사합니다.</li>
           <li><b>인터랙티브 데모실</b>: 장바구니·업로드·미디어 재생 같은 실제 상황 10종으로 동작을 체험합니다.</li>
-          <li><b>AI 컴포넌트 생성기</b>: 만들고 싶은 컴포넌트를 한 줄로 적으면 회원 본인 Gemini 키로 코드를 만들어 줍니다. 결과 아래 [캔버스 프로젝트에 저장]으로 보관하고, 그 프로젝트 편집기의 [{"</>"} 코드] → 「저장한 AI 컴포넌트」에서 다시 봅니다.</li>
+          <li><b>AI 컴포넌트 생성기</b>: 만들고 싶은 컴포넌트를 한 줄로 적으면 회원 본인 Gemini 키로 코드를 만들어 줍니다. 결과 아래 [캔버스 프로젝트에 저장]으로 기존 또는 새 프로젝트에 보관하고(프로젝트당 최대 50개), 그 프로젝트 편집기의 [{"</>"} 코드] → 「저장한 AI 컴포넌트」에서 다시 봅니다.</li>
+          <li><b>캔버스에 놓기</b>: 「저장한 AI 컴포넌트」에서 [캔버스에 놓기]를 누르면 보이는 화면 가운데에 「🧩 AI 컴포넌트」 상자가 놓입니다. 코드로 내보낼 때 그 자리에 해당 컴포넌트를 불러오는 코드가 들어갑니다. 안전을 위해 캔버스에서는 실제 모양 대신 제목 상자로만 보여 줍니다.</li>
         </ul>
       </section>
 
@@ -275,6 +278,14 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
             <h3>JSON 프로젝트 가져오기</h3>
             <p>기존에 내보냈던 컴포넌트 JSON이나 다른 사용자가 공유한 JSON 명세를 [불러오기] 버튼으로 캔버스 위에 그대로 복원할 수 있습니다.</p>
           </article>
+          <article>
+            <h3>저장 상태 표시 읽는 법</h3>
+            <p>상단에 「저장됨 / 저장 대기 / 저장 중… / 저장 실패 · 다시 시도합니다 / 다른 창에서 먼저 저장됨」이 표시됩니다. 같은 프로젝트를 두 창에서 열어 고치면 「다른 창에서 먼저 저장됨」이 뜨니, 한 창에서만 작업해 주세요. 저장 실패는 약 8초 뒤 자동으로 다시 시도합니다.</p>
+          </article>
+          <article>
+            <h3>보관 기간</h3>
+            <p>프로젝트는 회원님 계정에만 저장됩니다. AIMaster 공통 보관 규칙에 따라 일반 회원이 만든 자료는 저장공간 500MB 안에서 만든 날부터 30일이 지나면 자동 삭제 대상이 되며, 더 오래 두려면 메인 사이트의 저장 구독으로 기간을 늘릴 수 있습니다. 중요한 화면은 JSON·이미지·코드로 받아 두세요.</p>
+          </article>
         </div>
       </section>
 
@@ -283,9 +294,10 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
         <h2>⑧ 단축키 모음 (치트시트)</h2>
         <div className="gd-table">
           <div><strong><Kbd>Ctrl</Kbd> + <Kbd>Z</Kbd></strong><span>실행 취소 (Undo)</span></div>
-          <div><strong><Kbd>Ctrl</Kbd> + <Kbd>Shift</Kbd> + <Kbd>Z</Kbd></strong><span>다시 실행 (Redo)</span></div>
+          <div><strong><Kbd>Ctrl</Kbd> + <Kbd>Shift</Kbd> + <Kbd>Z</Kbd> 또는 <Kbd>Ctrl</Kbd> + <Kbd>Y</Kbd></strong><span>다시 실행 (Redo)</span></div>
           <div><strong><Kbd>Ctrl</Kbd> + <Kbd>D</Kbd></strong><span>선택한 요소 즉시 복제 (Duplicate)</span></div>
-          <div><strong><Kbd>Ctrl</Kbd> + <Kbd>G</Kbd></strong><span>선택 요소 그룹화 / 그룹 해제 토글</span></div>
+          <div><strong><Kbd>Ctrl</Kbd> + <Kbd>G</Kbd></strong><span>선택한 요소 2개 이상을 그룹으로 묶기</span></div>
+          <div><strong><Kbd>Ctrl</Kbd> + <Kbd>Shift</Kbd> + <Kbd>G</Kbd></strong><span>선택한 그룹 풀기</span></div>
           <div><strong><Kbd>Delete</Kbd> 또는 <Kbd>Backspace</Kbd></strong><span>선택한 요소 삭제</span></div>
           <div><strong><Kbd>방향키 (↑, ↓, ←, →)</Kbd></strong><span>선택 요소 1px 정밀 이동</span></div>
           <div><strong><Kbd>Shift</Kbd> + <Kbd>방향키</Kbd></strong><span>선택 요소 10px 빠른 이동</span></div>
@@ -299,7 +311,7 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
         <div className="gd-faq">
           <details>
             <summary>Q1. 작업 중인 캔버스는 언제 저장되나요?</summary>
-            <p>키보드 입력이나 마우스 드래그를 멈추고 약 1.5초가 지나면 클라우드 DB에 자동으로 영구 저장됩니다. 상단 인디케이터에 '✓ 저장됨' 상태가 표시되면 안심하고 창을 닫으셔도 됩니다.</p>
+            <p>키보드 입력이나 마우스 드래그를 멈추고 약 1.5초가 지나면 회원님 계정에 자동으로 저장됩니다. 상단에 '저장됨'이 표시되면 창을 닫으셔도 됩니다. 저장 중에 [목록]을 누르면 저장을 마친 뒤 목록으로 이동합니다. 보관 기간은 위 「보관 기간」 안내를 따릅니다.</p>
           </details>
           <details>
             <summary>Q2. 고해상도 모니터에서 PNG로 저장하면 글자가 흐릿해지지 않나요?</summary>
@@ -311,11 +323,11 @@ export function GuideContent({ geminiGuideUrl }: { geminiGuideUrl: string | null
           </details>
           <details>
             <summary>Q4. 그룹으로 묶인 요소 중 하나만 따로 글자를 바꿀 수 있나요?</summary>
-            <p>현재 버전에서는 그룹 전체를 선택하고 <Kbd>Ctrl</Kbd>+<Kbd>G</Kbd>를 눌러 일시 해제한 후 개별 편집하고 다시 그룹으로 묶는 방식을 권장합니다. 그룹 내부 직접 편집 기능은 차기 업데이트 백로그에 반영되어 있습니다.</p>
+            <p>현재 버전에서는 그룹을 선택하고 <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>G</Kbd>로 잠시 풀어 개별 편집한 뒤, 다시 선택해 <Kbd>Ctrl</Kbd>+<Kbd>G</Kbd>로 묶는 방식을 권장합니다.</p>
           </details>
           <details>
             <summary>Q5. AI 기능을 사용할 때 추가 요금이나 크레딧 차감이 있나요?</summary>
-            <p>회원님 본인의 Google Gemini API 키(Google AI Studio에서 무료 발급 가능)를 사용하므로 AIMaster 플랫폼 차원의 추가 요금이나 크레딧 차감 없이 무료 쿼터 범위 내에서 자유롭게 이용하실 수 있습니다.</p>
+            <p>AIMaster에서 따로 받는 요금은 없습니다. AI 버튼(이미지로 만들기, AI로 내용 채우기, AI 컴포넌트 생성기)을 누를 때마다 회원님 본인의 Google Gemini API 키로 호출되며, Google의 무료 사용량을 넘거나 유료 결제를 켠 키라면 Google 가격표대로 회원님 계정에 요금이 나갑니다. 캔버스 편집·저장·내보내기는 키 없이 무료입니다.</p>
           </details>
         </div>
       </section>

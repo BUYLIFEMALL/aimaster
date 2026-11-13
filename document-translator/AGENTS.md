@@ -1,5 +1,17 @@
 # AI 문서번역 자동화 — 에이전트 인수인계
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.23(`src/lib/version.ts`, 버전 커밋 `76b000660`) · 운영 주소: https://document-translator.buylife.xyz. (`package.json`은 1.20.0)
+- 한 줄 정의: TXT·PDF·DOCX 원문을 브라우저에서 글자만 뽑아, 회원 본인 Gemini 키로 문단별 번역·AI 문서 정리·재검수·역번역을 하고 TXT·MD·DOCX로 내보내는 문서 번역 작업실.
+- 화면·메뉴(실제 코드 기준, `src/lib/navigation.ts` → `src/app/(workspace)/[screen]/page.tsx`): 대시보드, 1 문서번역, 2 용어집, 3 작업 보관함, API키등록·플랫폼연동, 📖 연동 & 사용 매뉴얼(`/guide`, `src/components/Guide.tsx`). 매뉴얼 화면은 있음(전수 점검에서 「없음」으로 잡힌 것은 `[screen]` 동적 경로라 파일명이 안 보였기 때문).
+- 기능 요약: 파일 5MB·원문 20,000자·PDF 50쪽, 약 4,000자씩 최대 10묶음 호출(`src/lib/translation/model.ts`), AI 작업 4종 translate·review·reverse·structure, 숫자·URL 표기 차이는 AI 없이 화면 비교, 원문/번역문 TXT·MD·DOCX 다운로드, JSON 백업 받기·불러오기(4MB), 용어집 최대 200개·CSV·TXT 다운로드, 업무 워크스페이스 받은 문서 열기·번역문 보내기(v1.23, `src/lib/workInbox.ts`).
+- 필요한 키·연동(회원 본인 것): Gemini 키 하나(`user_api_keys`, 모델 `gemini-3.8-flash` 기본·`gemini-3.5-flash-lite` 경제형). 키 등록은 메인 사이트 `https://www.buylife.xyz/api-settings`로 보내고 이 화면은 등록 상태만 확인(`src/components/Settings.tsx`) — 안내 정확함. 외부 계정 연동 없음.
+- 자동 실행(예약·정리)·확장: Supabase pg_cron `document-translator-project-retention`(매시 35분) — `dt_projects`는 처음 저장 후 30일(`expires_at`, 다시 저장해도 연장 안 됨) 지나면 삭제, `dt_operations`는 24시간. 회원당 보관함 100개. 크롬 확장 없음. `vercel.json` 없음.
+- 최근 변경(커밋 기준): `1def2373a`·`9810804f1` 저작권 고지·robots / `76b000660` v1.23 / `0c4b118e4` 업무 워크스페이스 주고받기(U9-C) / `fac6471c6` 받은 업무 공용 함수 사본 / `b54d50c97` v1.22 Next.js 보안 업데이트.
+- 미배포 대기·남은 일: 저작권 고지 파일, 이번 점검의 매뉴얼·설정 화면 수정. pending-check가 알린 저장공간 위젯 한 줄·`signOut({ scope: "local" })`(`src/app/api/auth/logout/route.ts:12`) 미적용.
+- 다음에 손댈 때 주의: `src/lib/workInbox.ts`는 공용 사본일 수 있으니 머리 주석 확인 후 기준 파일만 고칠 것(이번 점검에서는 건드리지 않음). 원문·언어·모델이 바뀌면 이전 번역을 「재확인 필요」로 표시하는 revision 대조 구조 유지. 30일 정리 크론은 `retention_exempt` 회원을 빼지 않음(아래 개선 문서 참고).
+- 이번 점검에서 고친 것: 매뉴얼(`src/components/Guide.tsx`) — 옛 모델·가격(「Gemini 2.5 Flash 100만 토큰당 $0.10」) 삭제 후 실제 모델 2종·본인 키 과금 안내, 분할 단위 1,500~2,000자 → 약 4,000자·최대 10묶음, MD 파일 불러오기 미지원 표기, DOCX 「완벽 복원」 과장 정정, 확인 안 된 「암호화 보관」「AI 학습에 절대 사용 안 됨」 문구를 실제 저장 방식(처음 저장 후 30일·연장 없음·100개·실행 기록 24시간, Google 약관 적용)으로 정정, 숫자·URL 비교 설명 정정, 화면별 버튼 안내 카드 4개와 FAQ 2개(업무 워크스페이스, 시작 전 준비) 추가. 설정 화면(`src/components/Settings.tsx`) — 「본인 API 키 등록·수정」 옆에 「📖 Gemini 키 발급 방법」 링크 추가. (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 ## 현재 상태
 
 2026-10-14, Codex. 운영 연결·배포·실제 검수 전체 범위는 승인 완료입니다. DB·연결값·Cron·카탈로그/요금제·VIP·도메인·첫 배포 및 v1.02 수정 배포를 완료했습니다. 실제 Chrome 시험 회원 SSO와 만료 기록 정리, 같은 회원 키의 실제 Gemini 번역 응답을 확인한 기록이 있습니다. **v1.03**은 번역문 이중 이스케이프 줄바꿈을 정규화하고 원문 코드 문자열은 보존합니다. 자동10개와 프로덕션 빌드 통과입니다. v1.03 커밋8d34b366·원격 푸시·프로덕션 READY·카탈로그 버전 동기화·운영 HTTP 검사10개를 완료했습니다. 테이블3개 RLS와 함수4개 서버 전용 권한, Cron 최신 성공도 확인했습니다. 주인님이 열어주신 실제 Chrome의 시험 회원으로 번역·편집·재검수·역번역·TXT/MD/DOCX/JSON/CSV 다운로드·선택 저장/새로고침/복원·용어집 저장/적용/복원·JSON 백업 UI 다시 불러오기·창516px 메뉴/문서 탭까지 검수를 완료했습니다. 본인 Gemini3.8 Flash 호출3회 모두 운영 dt_operations done 및 /api/ai200으로 대조했습니다. 실제 휴대폰 기기 검수와 구분하며, 이번 요청 범위의 남은 작업은 없습니다. 운영 변경 승인을 다시 요청하지 않습니다.

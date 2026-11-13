@@ -39,18 +39,33 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "타로 카드 이미지가 매번 다르게 생성되는 이유는 무엇인가요?",
-    a: "AIMaster 타로점은 고정된 판본의 기성 카드 이미지를 쓰지 않고, 고객님이 선택하신 12대 화풍(르네상스 유화, 사이버펑크, 다크 고딕, 에테르 수채화 등)과 뽑힌 카드의 고유 상징 체계를 결합하여 Google Gemini AI가 실시간으로 세상에 단 하나뿐인 일러스트 카드를 연성하기 때문입니다.",
+    a: "AIMaster 타로점은 고정된 판본의 기성 카드 이미지를 쓰지 않고, 고객님이 선택하신 12가지 화풍(네온 스테인드글라스, 다크 아르누보 골드, 코스믹 갤럭시, 한국 전통 동양화, 클래식 유화 초상화, 몽환 수채화, 귀여운 캐릭터, 레트로 픽셀아트, 사이버펑크 네온, 팝아트 코믹, 지브리풍 애니메이션, 픽사풍 3D 애니메이션)과 뽑힌 카드의 상징을 합쳐 Google Gemini가 그때그때 새 그림을 그리기 때문입니다. 카드 그림은 결과 화면에서 카드를 누를 때(또는 「전체 카드 한 번에 뽑기」를 누를 때)만 만들어지고, 한 장마다 회원님 Gemini 키로 요금이 나갑니다.",
     badge: "AI 고유 일러스트"
   },
   {
     q: "내가 뽑은 카드와 상담 해석은 어디에 보관되나요?",
-    a: "리딩이 완료되면 고객님의 고유 계정에 연결된 '내 보관함(/history)'에 자동으로 영구 저장됩니다. 언제든지 과거의 타로 리딩 기록을 다시 열어보거나, 카카오톡 또는 링크 공유를 통해 친구들과 상담 결과를 나눌 수 있습니다.",
+    a: "카드 그림이나 해석이 하나라도 만들어지면 회원님 계정의 '내 보관함(/history)'에 자동으로 저장됩니다. 보관함에서 스프레드별로 골라 보거나 다시 열어볼 수 있고, 필요 없는 기록은 직접 삭제할 수 있습니다. 결과 화면의 공유 버튼으로 카카오톡이나 링크로 친구에게 보낼 수도 있습니다. AIMaster 공통 보관 규칙에 따라 일반 회원이 만든 자료는 저장공간 500MB 안에서 만든 날부터 30일이 지나면 자동 삭제 대상이 되며(공유했어도 같음), 더 오래 두려면 메인 사이트의 저장 구독으로 기간을 늘릴 수 있습니다.",
     badge: "보관함 & 공유"
   },
   {
     q: "API 키(Gemini / OpenAI)는 어떻게 연동하며 안전한가요?",
-    a: "타로 카드 일러스트 연성에는 Google Gemini API 키가, 심층 해석 작성에는 OpenAI API 키가 사용됩니다. 회원님의 API 키는 본인 계정에 연결해 보관하며, 본인 요청에만 사용합니다.",
+    a: "타로 카드 일러스트에는 Google Gemini API 키가, 심층 해석에는 OpenAI API 키가 쓰입니다. 상단 메뉴 '설정(API키등록·플랫폼연동)'에서 키를 붙여 넣고 저장하면 되며, 각 키 옆의 발급 방법 버튼을 누르면 발급 순서가 팝업으로 열립니다. 둘 중 하나만 등록해도 등록한 기능은 바로 쓸 수 있습니다. 회원님의 API 키는 본인 계정에 연결해 보관하며, 본인 요청에만 사용합니다. 운영자나 다른 회원의 키로 대신 처리하지 않습니다.",
     badge: "BYOK 보안"
+  },
+  {
+    q: "처음 시작하기 전에 무엇을 준비해야 하나요?",
+    a: "첫째, AIMaster에 로그인합니다(핸드폰 번호가 등록되어 있어야 합니다). 둘째, '설정'에서 Gemini 키와 OpenAI 키를 등록합니다. 키가 없는 상태에서 그림이나 해석을 만들려고 하면 등록 안내 창이 뜹니다. 셋째, '카드 뽑기'에서 스프레드 → 화풍 → (필요하면) AI 모델 → 질문 순서로 고르고 카드를 뽑습니다. 결과 화면에서 카드를 눌러 그림을 만들고, 카드가 모두 공개되면 해석이 자동으로 시작됩니다.",
+    badge: "시작 전 준비"
+  },
+  {
+    q: "AI 모델은 무엇을 고르면 되나요? 비용이 달라지나요?",
+    a: "카드 뽑기 화면 'AI 모델 선택(옵션)'에서 고를 수 있습니다. 카드 그림은 NanoBanana 2-2K(추천), 2-4K, Pro, Standard 중에서, 해석은 GPT-5.6 Sol(추천), GPT-5.6 Terra, GPT-5.6 Luna, GPT-5.5, GPT-5.4 중에서 고릅니다. 모델마다 요금은 각 회사(Google·OpenAI)의 가격표를 따르며 회원님 키로 청구됩니다. 고르지 않으면 추천 모델로 진행됩니다.",
+    badge: "AI 모델"
+  },
+  {
+    q: "다른 프로그램에서 넘어오면 질문이 미리 채워져 있어요.",
+    a: "AI 종합 성격 진단·캐릭코드·성격코드 결과 화면의 '이어서 보기'로 들어오면 질문(최대 300자)과 스프레드가 미리 채워지고, 어디서 넘어왔는지 안내 띠가 보입니다. 채워 두기만 할 뿐이며 카드 뽑기와 AI 호출은 회원님이 직접 버튼을 누를 때만 진행됩니다. 질문은 자유롭게 고쳐 쓰셔도 됩니다.",
+    badge: "이어서 보기"
   }
 ];
 
@@ -64,7 +79,7 @@ export default function TarotGuidePage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-bold text-purple-300">
             <Sparkles className="h-3.5 w-3.5" />
-            정통 타로학 & AI 멀티모달 연성 가이드북 v1.20
+            정통 타로학 & AI 멀티모달 연성 가이드북
           </div>
           <Link
             href="/draw"
@@ -125,7 +140,7 @@ export default function TarotGuidePage() {
               12대 화풍 & 덱 셔플
             </h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              사이버펑크, 르네상스 유화, 다크 고딕 등 원하는 일러스트 화풍을 고르고 신비로운 3D 덱을 정성껏 셔플합니다.
+              네온 스테인드글라스, 한국 전통 동양화, 사이버펑크 네온 등 12가지 화풍 중 하나를 고르고, 필요하면 그림·해석 AI 모델도 고릅니다. 질문을 적은 뒤 카드를 뽑습니다.
             </p>
             <div className="mt-4 inline-block rounded-md bg-[#090614] px-2.5 py-1 text-[11px] text-pink-300 border border-[#2a1f4e]">
               12대 아티스틱 화풍
@@ -141,7 +156,7 @@ export default function TarotGuidePage() {
               직관적 카드 드로우
             </h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              스프레드 자리에 맞춰 카드를 차례대로 뽑습니다. 카드를 뒤집을 때마다 Google Gemini가 실시간으로 고유 일러스트를 연성합니다.
+              결과 화면에서 카드를 하나씩 누르면 Google Gemini가 그 카드의 그림을 그립니다. 「전체 카드 한 번에 뽑기」를 누르면 남은 카드를 한꺼번에 만듭니다(카드 한 장마다 회원님 Gemini 키로 요금이 나갑니다).
             </p>
             <div className="mt-4 inline-block rounded-md bg-[#090614] px-2.5 py-1 text-[11px] text-cyan-300 border border-[#2a1f4e]">
               Gemini 실시간 연성
@@ -157,10 +172,10 @@ export default function TarotGuidePage() {
               AI 심층 리딩 & 조언
             </h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              모든 카드가 공개되면 카드 간의 상호작용과 배열 위치의 의미를 종합하여 심층 분석 리포트를 도출하고 보관함에 저장합니다.
+              모든 카드가 공개되면 OpenAI가 카드끼리의 관계와 자리의 의미를 묶어 해석을 자동으로 씁니다(Gemini 키가 없으면 그림 없이 바로 해석). 결과는 내 보관함에 자동 저장됩니다.
             </p>
             <div className="mt-4 inline-block rounded-md bg-[#090614] px-2.5 py-1 text-[11px] text-amber-300 border border-[#2a1f4e]">
-              종합 통찰 & 영구 보관
+              종합 해석 & 보관함 자동 저장
             </div>
           </div>
         </div>
@@ -235,6 +250,39 @@ export default function TarotGuidePage() {
                 <td className="px-5 py-4 font-semibold text-amber-400">12장</td>
                 <td className="px-5 py-4">1월부터 12월까지의 월별 흐름과 기운</td>
                 <td className="px-5 py-4 text-slate-400">사계절 12개월의 월별 운세 및 주의사항</td>
+              </tr>
+              <tr className="hover:bg-[#1c1536]/50 transition-colors">
+                <td className="px-5 py-4 font-bold text-purple-300">말굽 스프레드</td>
+                <td className="px-5 py-4 font-semibold text-amber-400">7장</td>
+                <td className="px-5 py-4">과거부터 예상 결과까지 한 흐름으로 보고 싶을 때</td>
+                <td className="px-5 py-4 text-slate-400">가운데 조언 카드를 중심으로 한 균형 잡힌 흐름</td>
+              </tr>
+              <tr className="hover:bg-[#1c1536]/50 transition-colors">
+                <td className="px-5 py-4 font-bold text-pink-300 flex items-center gap-1.5">
+                  <Heart className="h-3.5 w-3.5 text-pink-400" />
+                  관계 심층 분석
+                </td>
+                <td className="px-5 py-4 font-semibold text-amber-400">6장</td>
+                <td className="px-5 py-4">나와 상대방, 관계의 강점·과제·방향</td>
+                <td className="px-5 py-4 text-slate-400">3카드 궁합보다 한 단계 깊은 관계 분석</td>
+              </tr>
+              <tr className="hover:bg-[#1c1536]/50 transition-colors">
+                <td className="px-5 py-4 font-bold text-amber-300">생명의 나무 (카발라)</td>
+                <td className="px-5 py-4 font-semibold text-amber-400">10장</td>
+                <td className="px-5 py-4">영적 목표부터 현실 문제까지 깊이 돌아볼 때</td>
+                <td className="px-5 py-4 text-slate-400">카발라 세피로트 10자리에 맞춘 정통 신비주의 리딩</td>
+              </tr>
+              <tr className="hover:bg-[#1c1536]/50 transition-colors">
+                <td className="px-5 py-4 font-bold text-purple-300">만다라 라이프 밸런스</td>
+                <td className="px-5 py-4 font-semibold text-amber-400">9장</td>
+                <td className="px-5 py-4">사랑·일·재정·건강 등 삶 전체 점검</td>
+                <td className="px-5 py-4 text-slate-400">핵심 테마를 중심으로 여러 영역의 균형</td>
+              </tr>
+              <tr className="hover:bg-[#1c1536]/50 transition-colors">
+                <td className="px-5 py-4 font-bold text-purple-300">예 / 아니오 타로</td>
+                <td className="px-5 py-4 font-semibold text-amber-400">3장</td>
+                <td className="px-5 py-4">예·아니오로 답할 수 있는 질문</td>
+                <td className="px-5 py-4 text-slate-400">세 장으로 내리는 명쾌한 판정</td>
               </tr>
             </tbody>
           </table>
@@ -318,7 +366,7 @@ export default function TarotGuidePage() {
             </h3>
             <p className="text-xs text-slate-300 leading-relaxed">
               AIMaster 타로점은 회원의 소중한 개인적 고민과 리딩 내역을 타인이나 관리자 공용 캐시와 일체 공유하지 않습니다.
-              Google Gemini 및 OpenAI API 키는 본인 계정에 연결해 보관하며, 회원 탈퇴 시 모든 상담 데이터는 완벽히 파기됩니다.
+              Google Gemini 및 OpenAI API 키는 본인 계정에 연결해 보관하며, 리딩 기록은 내 보관함에서 언제든 직접 삭제할 수 있습니다.
             </p>
           </div>
         </div>

@@ -75,6 +75,8 @@ export function KeyManager({ guideUrl }: { guideUrl: string | null }) {
           </div>
         </form>
         {msg && <p role="status" className={msg.ok ? "" : "error"} style={{ marginTop: 12 }}>{msg.text}</p>}
+        {/* 2026-11-13: 키 칸 바로 아래 발급 방법 버튼(아래 「연동 매뉴얼」 상자와 같은 글) */}
+        {guideUrl && <div className="actions" style={{ marginTop: 12 }}><GuideLinkButton url={guideUrl} label="Gemini 키 발급 방법" /></div>}
       </section>
       <section className="card">
         <h2>📖 연동 매뉴얼</h2>

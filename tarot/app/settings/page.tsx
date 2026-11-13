@@ -16,6 +16,11 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
 ];
 
+const PROVIDER_GUIDE_IDS: Record<string, string> = {
+  gemini: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
+  openai: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
+};
+
 export default async function SettingsPage() {
   const user = await requireProgramAccess();
   const supabase = await createClient();
@@ -48,12 +53,15 @@ export default async function SettingsPage() {
         </div>
         <div className="space-y-3">
           {AI_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-            />
+            <div key={provider} className="space-y-1.5">
+              <ApiKeyRow
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+              {/* 2026-11-13: 키 칸 바로 아래에 발급 방법 버튼(하단 매뉴얼 상자와 같은 글) */}
+              <GuideLinkButton guideId={PROVIDER_GUIDE_IDS[provider]} label="발급 방법" />
+            </div>
           ))}
         </div>
       </section>

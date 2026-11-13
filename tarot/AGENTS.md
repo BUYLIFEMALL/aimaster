@@ -1,5 +1,17 @@
 # AIMaster 타로점 에이전트 작업 지침 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.28(`lib/version.ts`) · 운영 주소: https://tarot-reading.buylife.xyz (slug `tarot-reading`, 폴더 `tarot`)
+- 한 줄 정의: 질문과 스프레드를 고르고 78장 덱에서 카드를 뽑으면, 회원 본인 Gemini 키로 카드 그림을 그리고 본인 OpenAI 키로 해석을 써 주는 AI 타로 상담(회원가입 유도용 무료 성격, FREE 판정은 DB 배지).
+- 화면·메뉴(실제 코드 기준): 상단 메뉴 `components/layout/HeaderNav.tsx` — 대시보드(`/`), 카드 뽑기(`/draw`), 연동 & 사용 매뉴얼(`/guide`), 내 보관함(`/history`), 설정(`/settings`). 결과 화면 `/result`(카드를 눌러 그림 생성, 「전체 카드 한 번에 뽑기」, 모든 카드가 공개되면 해석 자동 시작, 카카오·링크 공유). 로그인·회원가입 `app/(auth)`.
+- 스프레드 12종(`lib/deck.ts` `SPREAD_CONFIGS`): 오늘의 운세 1장·3카드 기본·관계 3카드·5카드·켈틱크로스 10장·말굽 7장·관계 심층 6장·커리어 6장·한 해 운세 12장·생명의 나무 10장·만다라 9장·예/아니오 3장. 화풍 12종(`CARD_STYLES`). 그림 모델 NanoBanana 4종, 해석 모델 GPT-5.6 Sol/Terra/Luna·GPT-5.5·GPT-5.4.
+- 필요한 키·연동(회원 본인 것): `user_api_keys`의 `gemini`(그림, `app/api/generate-card-image`), `openai`(해석, `app/api/generate-reading`). 외부 계정 연동 없음. 둘 중 하나만 있어도 그 기능은 동작.
+- 자동 실행(예약·정리)·확장: `vercel.json`·크론 없음, 크롬 확장 없음. 리딩은 `tarot_readings`, 그림은 공개 버킷 `tarot-card-images/<회원 id>/`에 저장되며 **30일 자동 정리 코드는 이 프로그램에 없음**(메인 중앙 정리 대상인지 미확인).
+- 최근 변경(커밋 기준): `1def2373a`·`9810804f1` 저작권 고지·robots(배포 대기) / `d9448b5bb` v1.28 배포(종료 모델 o3-mini·o1 → gpt-5.6-sol 변환 `22fbd1b03`) / `b16550ad4` API 키 안내 문구 정정 / `cff74a844` 서비스 주소 tarot-reading.buylife.xyz.
+- 미배포 대기·남은 일: 저작권 고지 파일(`NOTICE`·`public/ai.txt`·`public/robots.txt`), 이번 점검의 매뉴얼·설정 화면 수정. pending-check가 알린 저장공간 위젯 한 줄·`signOut({ scope: "local" })`·서버 Supabase 클라이언트 User-Agent 전달이 아직 안 됨(다음 배포 때 함께).
+- 다음에 손댈 때 주의: `lib/programLinks.ts`는 공용 기준 코드 사본(기준 `personality-suite/src/lib/`) — 직접 고치지 말 것. 모델 메뉴를 바꾸면 `app/api/generate-reading`의 허용 목록이 자동으로 따라감. 아래 §1 표의 「현재 버전 v1.20」, §3의 화풍 이름(「다크 고딕·에테르 수채화」)은 옛 기록이며 실제 값은 이 요약이 맞음.
+- 이번 점검에서 고친 것: 매뉴얼(`app/guide/page.tsx`) — 화풍 이름을 실제 12종으로, 스프레드 표에 빠진 5종 추가, 카드 그림은 눌러야 생성·장당 요금 안내, 「영구 저장」→ 보관함 자동 저장 + 30일 보관 규칙, 확인 안 된 「탈퇴 시 완벽 파기」 문구 삭제, FAQ 3개 추가(시작 전 준비·AI 모델·이어서 보기). 설정 화면(`app/settings/page.tsx`) — Gemini·OpenAI 키 칸 바로 아래 「발급 방법」 버튼 추가. (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
 ## 2026-10-20 v1.27 — 리딩 API 모델 허용 목록 검사 (Claude Code 윈도우, 추가개선 제안 1-1)

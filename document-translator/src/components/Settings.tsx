@@ -70,6 +70,15 @@ export function Settings({
           rel="noopener noreferrer"
         >
           본인 API 키 등록·수정
+        </a>{" "}
+        {/* 2026-11-13: 키 등록 버튼 바로 옆 발급 방법(아래 「연동 매뉴얼」과 같은 글) */}
+        <a
+          className="button"
+          href={GEMINI_GUIDE}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          📖 Gemini 키 발급 방법
         </a>
         <p className="muted">등록 후 이 화면에서 상태를 다시 확인해주세요.</p>
       </section>
