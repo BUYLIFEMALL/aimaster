@@ -476,3 +476,11 @@ POST 콜백을 보낸다. 이 라우트는:
 - 주인님 「왜 음악 장르가 이것밖에 없어」「suno 확인해서 사용 가능한 장르 전부」「api 문서 참고」. sunoapi.org 문서(generate-music)에는 장르 목록이 없고 style 자유 입력(V6 1000자) → Suno 공식 Music Library › Genres 225개를 기준(`lib/sunoGenres.ts`: 영어 이름·한글·대분류 13·BPM·분위기·악기, 시험 `tests/sunoGenres.test.mjs`, 공식 목록과 225/225 대조).
 - 스튜디오: 「음악 분류」·「유형」에 「Suno 공식 장르」, 프리셋 225개(`catalog.ts` type `suno`, 대분류=스타일 그룹), 「장르」 입력 추천 228개. 시험 기대값 661→886.
 - 빠른 기획·생성 콘솔·곡 카드: 장르 칩 → `components/plannings/GenrePicker.tsx`(검색·⭐자주 쓰는·대분류 탭), 목록 230개(기존 20개 값 유지 + 공식 225, 겹침 15 합침). 커밋 9076a9317, 배포 `music-91uepa8po`·DB v1.56(승인 빌드 1회), ego lite 화면 확인. AI·Suno 호출 없음.
+
+## 2026-11-14 v1.57 — 기존 프리셋 461개에 Suno 공식 장르 연결 (Claude Code 윈도우 · 음악 담당)
+- 주인님 「권장안으로 진행해」(플랜 [docs/PLAN_20261114_PRESET_GENRE_LINK.md](docs/PLAN_20261114_PRESET_GENRE_LINK.md)). 예전에는 그룹 이름을 정규식 묶음(PALETTES)에 맞춰 Style을 골라 461개가 **22가지 조합**뿐이었고 113개가 기본값 pop으로 떨어졌다.
+- `lib/studio/presetGenreLink.ts`: 프리셋 이름 먼저, 없으면 그룹 이름에서 글자상 가장 앞에 나오는 장르(같은 위치면 긴 이름)를 고름. 공식 이름 + 한국어·세부 장르 별칭(트로트→엔카+태그 trot, 소리는 아코디언·브라스 유지 등), 약한 별칭(가요·OST)은 배지만. 사람 검토로 고정한 `OVERRIDES`(Daft Punk·Prince·크라잉넛·서태지·지브리 등 10개). 검토표 `docs/REVIEW_20261114_PRESET_GENRE_LINK.md`(다시 만들기: `node --import tsx scripts/preset-genre-link-report.mjs --md <파일>`).
+- `lib/studio/catalog.ts`: 확실한 연결은 장르 칸 「태그, 공식 이름」 + 그 장르 분위기·악기(원본 BPM 우선), 약한 연결·연결 없음은 예전 팔레트. `LibraryPreset.sunoGenre` 추가. 결과: 확실 447 · 약함 4 · 없음 10(연대별 템플릿), Style 조합 **161가지**, 기본값 pop **10개**. 프리셋 id·이름·그룹·시대 변화 0.
+- 화면 `components/studio/LibraryGallery.tsx`: 카드에 「🔗 Suno 공식 장르: 한글 · 영어」(약한 연결은 점선 「(참고)」), 누르면 「Suno 공식 장르」 분류 + 그 장르 카드로. 라이브러리 안내 한 줄.
+- 검수: 시험 71(새 `tests/presetGenreLink.test.mjs` 5개)·tsc·lint·build, 배포 `music-h7adu4ta4` Ready·DB v1.57, ego lite 시험 계정: 화면 v1.57, 한국 가요 카드 배지·Style, 트로트 배지 → 엔카 카드 1개로 이동. Suno 실제 생성 시험은 하지 않음(바뀐 Style 소리는 다음 실제 생성 때 확인). 비용: Vercel 빌드 1회.
+- 커밋 `fd5a19180`. 별칭을 고칠 때는 검토표를 다시 만들어 틀린 연결이 없는지 보고 시험의 고정 사례를 함께 늘린다.

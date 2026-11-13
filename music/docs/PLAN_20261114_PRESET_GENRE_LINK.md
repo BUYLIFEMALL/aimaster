@@ -1,6 +1,6 @@
 # 플랜 — 기존 프리셋 461개에 Suno 공식 장르 연결 (2026-11-14, [역할: music])
 
-> 상태: **플랜 — 주인님 결정 대기**(코드 수정 없음). 작성 `claude-win-20261024-music`.
+> 상태: **✅ 완료 v1.57(2026-11-14, 주인님 「권장안으로 진행해」 — 결정 4개 모두 권장안)**. 결과: 확실한 연결 447 · 약한 연결 4 · 없음 10, Style 조합 161가지, 기본값 pop 10개. 상세 `music/AGENTS.md` v1.57. 작성 `claude-win-20261024-music`.
 > 관련: v1.56 `lib/sunoGenres.ts`(공식 장르 225개), `lib/studio/catalog.ts`(프리셋 생성), `lib/studio/catalog-metadata.json`(기존 461개 원본).
 
 ## 1. 문제 (실측)
