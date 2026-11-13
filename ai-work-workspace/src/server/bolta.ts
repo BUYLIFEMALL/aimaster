@@ -118,6 +118,10 @@ async function issuerOf(key: string, corpNum: string): Promise<Issuer | null> {
 
 interface BtState { ref: string; mode: BoltaMode; state: 'sending' | 'requested' | 'issued' | 'failed'; issuanceKey?: string; ntsTransactionId?: string; message?: string; time: number }
 function saveDocState(userId: string, docId: string, data: object, bt: BtState) {
+  // 2026-11-13: 웹훅이 먼저 「발급됨·실패」로 바꾼 같은 요청을 옛 상태(보내는 중·요청됨)로 덮어쓰지 않는다
+  const cur = db.prepare('SELECT data FROM aww_rcpt_docs WHERE id = ? AND user_id = ?').get(docId, userId) as { data: string } | undefined;
+  const now = cur ? (JSON.parse(cur.data) as { bolta?: BtState }).bolta : undefined;
+  if (now && now.ref === bt.ref && (now.state === 'issued' || now.state === 'failed') && (bt.state === 'sending' || bt.state === 'requested')) return;
   db.prepare('UPDATE aww_rcpt_docs SET data = ? WHERE id = ? AND user_id = ?').run(JSON.stringify({ ...data, bolta: bt }), docId, userId);
 }
 
@@ -239,7 +243,9 @@ export const boltaHandlers: Record<string, Handler> = {
       try {
         const r = await call(key, 'POST', '/v1/taxInvoices/issue', { body: inv, ref });
         if (typeof r?.issuanceKey !== 'string') throw new BoltaError(502, '', '볼타가 접수 번호를 돌려주지 않았습니다.', true);
-        return await check({ ref, mode, state: 'requested', issuanceKey: r.issuanceKey, time: Date.now() });
+        const accepted: BtState = { ref, mode, state: 'requested', issuanceKey: r.issuanceKey, time: Date.now() };
+        saveDocState(userId, docId, data, accepted); // 접수 번호를 바로 저장(웹훅이 몇 초 만에 올 수 있음 — 2026-11-13 운영 확인)
+        return await check(accepted);
       } catch (e) {
         if (e instanceof BoltaError && !e.uncertain) {
           saveDocState(userId, docId, data, { ref, mode, state: 'failed', message: e.message, time: Date.now() });

@@ -73,9 +73,16 @@ export async function handleBoltaWebhook(userId: string, headers: { id?: string 
   const issuanceKey = typeof ev?.data?.issuanceKey === 'string' ? ev.data.issuanceKey : '';
   const kind = ev?.eventType;
   if (!issuanceKey || (kind !== 'TAX_INVOICE_ISSUANCE_SUCCESS' && kind !== 'TAX_INVOICE_ISSUANCE_FAILURE')) return seen('ignored');
-  const rows = db.prepare("SELECT id, data FROM aww_rcpt_docs WHERE user_id = ? AND kind = 'tax_invoice' AND data LIKE ?").all(userId, `%${issuanceKey.replace(/[%_\\]/g, '')}%`) as { id: string; data: string }[];
-  const hit = rows.map((r) => ({ id: r.id, data: JSON.parse(r.data) as HometaxDoc & { bolta?: BtState } })).find((r) => r.data.bolta?.issuanceKey === issuanceKey);
-  if (!hit?.data.bolta) return seen('unknown_doc');
+  // 2026-11-13 운영 확인에서 고침: ① LIKE 검색은 접수 번호에 「_」가 있으면 못 찾았음 → 회원의 볼타 문서를 읽어 그대로 비교
+  // ② 실제 알림이 요청 후 3초 만에 와서, 우리가 접수 번호를 저장하기 전이면 「모르는 문서」가 됨 → 아직 보내는 중인 문서가 있으면
+  //    처리 표시를 남기지 않고 409로 답해 볼타가 다시 보내게 한다(볼타는 2xx가 아니면 1분 뒤부터 다시 보냄)
+  const rows = db.prepare("SELECT id, data FROM aww_rcpt_docs WHERE user_id = ? AND kind = 'tax_invoice' AND data LIKE '%\"bolta\"%'").all(userId) as { id: string; data: string }[];
+  const docs = rows.map((r) => ({ id: r.id, data: JSON.parse(r.data) as HometaxDoc & { bolta?: BtState } }));
+  const hit = docs.find((r) => r.data.bolta?.issuanceKey === issuanceKey);
+  if (!hit?.data.bolta) {
+    const pending = docs.some((r) => r.data.bolta && (r.data.bolta.state === 'sending' || (r.data.bolta.state === 'requested' && !r.data.bolta.issuanceKey)) && now - r.data.bolta.time < 10 * 60_000);
+    return pending ? { status: 409, result: 'unknown_doc_retry' } : seen('unknown_doc');
+  }
   const bt = hit.data.bolta;
   if (bt.state === 'issued') return seen('already');
   if (kind === 'TAX_INVOICE_ISSUANCE_FAILURE') {

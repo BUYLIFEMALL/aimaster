@@ -93,4 +93,21 @@ describe('볼타 웹훅', () => {
     expect(docOf(id).bolta.message).toContain('거래처 사업자등록번호');
     bt.setBoltaFetch(undefined);
   });
+it('운영 확인에서 고침: 접수 번호에 「_」가 있어도 찾고, 접수 번호 저장 전에 온 알림은 409로 다시 받는다', async () => {
+    // 접수 번호 저장 전(보내는 중) — 알림이 먼저 오면 처리 표시 없이 409
+    rc.receiptHandlers.rcptSaveProfile(ctx('wh-c'), { profile: ME });
+    const id = rc.receiptHandlers.rcptSaveDoc(ctx('wh-c'), { doc: { kind: 'tax_invoice', date: '2026-11-13', taxMode: 'separate', lines: [{ name: '볼펜', qty: 1, unitPrice: 1000 }], partner: PARTNER, purpose: '영수' } }).doc.id as string;
+    const data = docOf(id);
+    db.db.prepare('UPDATE aww_rcpt_docs SET data = ? WHERE id = ?').run(JSON.stringify({ ...data, bolta: { ref: 'aww-r1', mode: 'test', state: 'sending', time: NOW } }), id);
+    const key = 'IK_with_underscore-1';
+    const body = JSON.stringify({ eventType: 'TAX_INVOICE_ISSUANCE_SUCCESS', data: { issuanceKey: key } });
+    expect(await wh.handleBoltaWebhook('wh-c', sign('m-early', body), body, NOW)).toEqual({ status: 409, result: 'unknown_doc_retry' });
+    // 접수 번호가 저장된 뒤 같은 알림을 다시 받으면 처리된다(중복 표시가 남지 않았으므로)
+    db.db.prepare('UPDATE aww_rcpt_docs SET data = ? WHERE id = ?').run(JSON.stringify({ ...data, bolta: { ref: 'aww-r1', mode: 'test', state: 'requested', issuanceKey: key, time: NOW } }), id);
+    bt.setBoltaFetch((async () => new Response(JSON.stringify({ issuanceKey: key, ntsTransactionId: 'NTS-U1' }), { status: 200 })) as unknown as typeof fetch);
+    expect(await wh.handleBoltaWebhook('wh-c', sign('m-early', body), body, NOW + 60_000)).toEqual({ status: 200, result: 'issued' });
+    expect(docOf(id).bolta).toMatchObject({ state: 'issued', ntsTransactionId: 'NTS-U1' });
+    bt.setBoltaFetch(undefined);
+  });
 });
+
