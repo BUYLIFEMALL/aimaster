@@ -11,6 +11,8 @@ import { parseMediaInfo, probe } from "./mastering.mjs";
 /** 끝 0.5초 평균 음량이 이보다 크면 「끊김」 — 자연스러운 끝맺음은 이보다 훨씬 조용하다 */
 export const CUT_TAIL_DB = -35;
 export const FADE_SECONDS = 3;
+/** 줄이기 곡선(2026-11-13): 직선(tri)은 실제 곡에서 끝 0.5초가 -34.5dB로 기준(-35dB)에 못 미쳤다. hsin은 앞부분은 직선과 거의 같고 끝 0.5초가 약 10dB 더 조용하다(사인파 측정 tri -42.3 → hsin -52.4dB) */
+export const FADE_CURVE = "hsin";
 export const EXTEND_SECONDS = [30, 60, 90];
 /** 이어 그릴 때 원곡 끝에서 얼마나 앞부터 다시 그릴지(이음새를 자연스럽게) */
 export const EXTEND_OVERLAP = 10;
@@ -69,7 +71,7 @@ export async function smoothEnding({ ffmpeg, bytes, ext, tmpDir }) {
     const tailDb = parseMeanVolume(await ff(ffmpeg, ["-sseof", "-0.5", "-i", src, "-map", "0:a:0", "-af", "volumedetect", "-f", "null", "-"]));
     if (!tailIsCut(tailDb)) return { bytes, faded: false, tailDb };
     const st = Math.max(0, info.duration - FADE_SECONDS).toFixed(3);
-    await ff(ffmpeg, ["-i", src, "-map", "0:a:0", "-map_metadata", "-1", "-af", `afade=t=out:st=${st}:d=${FADE_SECONDS}`, ...codecArgs(ext, info.codec), out]);
+    await ff(ffmpeg, ["-i", src, "-map", "0:a:0", "-map_metadata", "-1", "-af", `afade=t=out:st=${st}:d=${FADE_SECONDS}:curve=${FADE_CURVE}`, ...codecArgs(ext, info.codec), out]);
     const done = await readFile(out);
     return done.length ? { bytes: done, faded: true, tailDb } : { bytes, faded: false, tailDb };
   } catch {
