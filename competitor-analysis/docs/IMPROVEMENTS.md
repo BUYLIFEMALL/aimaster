@@ -33,3 +33,25 @@
 
 - **#13 매뉴얼 SPA 전환 검수의 오판 가능성 (중간·검사 보완)**: 실제 /guide 클릭 후 일반적인 첫 heading만 기다리면 직전 /settings 제목이 조건을 만족해 설정 화면을 매뉴얼 캡처로 저장할 수 있었습니다. 제품 라우트 버그가 아니라 검사 대기 조건 문제입니다. tests/runtime.mjs에서 /guide URL·고유 제목을 확인하고 FAQ 열기/닫기도 검사하도록 보완했습니다. 로컬·운영 재검수 통과, 캡처 교체 완료(evidence/guide-captures.json). 다음 CLI도 메뉴 클릭 후 목표 경로/제목을 함께 기다립니다.
 - **#14 375px 긴 제목 글자 일부 잘림(낮음·화면 개선 제안)**: 후보 검수 캡처 retention-v108-local-dashboard-mobile.png에서 PageHero 제목의 줄바꿈 경계 글자가 일부 잘려 보입니다. 문서 전체 가로 넘침 검사는 통과하지만 overflow-hidden 안쪽 글자까지 보장하지 않습니다. 다음 UI 작업에서 h1 줄바꿈·글자 폭과 실제 캡처를 함께 확인합니다. 이번 데이터 격리 작업의 범위에는 포함하지 않았습니다.
+
+## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
+### 1) 프로그램 로직·기능
+- **분석·키워드 확장 30일 정리에 관리자·시험 계정 열외가 없음 (중간·제안)**: 저장소의 정리 함수 `supabase/migrations/20261016115339_member_owned_generated_data_retention.sql:99-113`(분석·검색결과·회사 조사)과 `20261023120000_merge_a_longtail_retention.sql:19-23`(롱테일 실행·확장)은 `retention_exempt`를 보지 않습니다. 제휴 채널 정리(`20261105140000_partner_channels.sql:91`)만 열외가 있습니다. 영향: 관리자·시험 계정과 저장 구독으로 연장된 회원의 분석 결과도 30일 뒤 지워집니다. 운영 DB 함수가 저장소와 같은지는 미확인입니다. 다음 첫 단계: 운영 DB 함수 정의 확인 → `competitor_retention_exempt()`를 두 정리 함수와 조회 정책에 넣는 마이그레이션(DB 변경이라 주인님 승인 필요).
+
+### 2) 화면·가독성·사용 편의
+- **SerpApi는 메인 사이트 매뉴얼 글이 없음 (낮음·대기)**: 설정 화면 SerpApi 칸에는 공식 발급 링크만 있고 `/guides` 매뉴얼 글이 없습니다(매뉴얼 글 없음). 글이 생기면 `app/(dashboard)/settings/page.tsx`의 SerpApi 섹션 `guides`에 넣습니다.
+
+### 3) 다른 자동화 프로그램과 연계
+- 새로 찾은 것 없음(업무 워크스페이스 보내기 v1.13·네이버 검색 키 공용 사용은 이미 반영).
+
+### 4) 매뉴얼과 실제 기능의 차이 (이번에 고친 것 / 남은 것)
+- **이번에 고침(미배포)**: 매뉴얼에 v1.10~v1.12 「🤝 제휴 타깃 찾기」 설명이 없었습니다 → 사용 순서 5단계(네이버 키 → 처음 동의 → 매칭 기준 60/40/20점으로 찾기 → 확장 설치·스캔(30~45초 간격, 9시~22시, 하루 300곳, `extension/background.mjs:26-27`, `app/api/partners/extension/route.ts:12`) → 엑셀)와 화면 목록 2줄을 넣었습니다. FAQ에 기능별 필요한 키, 30일 보관(씨드·키는 남음), 확장 결과 → 경쟁사 분석 등록(한 번에 10개, `lib/actions/expandSeeds.ts:73`), 업무 워크스페이스로 보내기, 확장 업데이트 방법, PC 1곳 + 모바일 1곳 로그인을 보탰습니다.
+- **이번에 고침(미배포)**: 설정 화면에 Perplexity·OpenAI·Anthropic·네이버 검색·네이버 검색광고 섹션별 발급 방법 버튼과 텔레그램 봇 만드는 방법 버튼을 넣었습니다.
+- 남은 것: 매뉴얼의 보관 안내는 코드대로 「30일 뒤 자동 삭제」만 적었습니다(위 1번 열외 문제가 고쳐지기 전에는 저장 구독 연장을 안내하지 않음).
+
+### 5) 정책 점검 (pending-check 결과)
+- 저작권 고지: `NOTICE` 있음, 경고 없음.
+- **저장공간 위젯 미적용 (중간·대기)**: `app/layout.tsx`에 `storage-widget.js` 한 줄이 없습니다. 다음 배포 때 함께 넣습니다(`docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`).
+- **로그아웃 범위 없음 (중간·대기)**: `lib/actions/auth.ts:36` `supabase.auth.signOut()` → `signOut({ scope: "local" })`로 바꿉니다(`docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`).
+- **서버 로그인 기기 정보 미전달 (중간·대기)**: `lib/supabase/server.ts:13` `createServerClient`에 `global.headers["User-Agent"]`가 없습니다(같은 안내 문서 2-2절).
+- 30일 정리 예외 회원: 위 1번 참고(제휴 채널만 열외 적용).

@@ -1,5 +1,17 @@
 # 🖋️ AI 글쓰기 에디터 자동화 (ai-writing-editor) — AI 에이전트 인수인계서
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.13(`src/lib/version.ts`, 아래 머리말의 v1.12 표기는 옛 기록) · 운영 주소: https://ai-writing-editor.buylife.xyz (공개)
+- 한 줄 정의: 「AI 글쓰기 에디터 자동화」 — 주제를 적으면 회원 본인 Gemini 키로 9종 형식의 초안을 만들고, 에디터에서 문장별 다시쓰기·글 분석·문체 바꾸기·이미지·표 편집 뒤 복사하거나 .md/.html/.txt로 내려받는 글쓰기 도구입니다(블로그 자동 발행 없음).
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 「새 글 · 분석」(`/dashboard` — 「새 글 생성」·「기존 글 분석」 탭, 에디터 `/editor/...`) / 「내 문서 보관함」(`/documents`) / 「매뉴얼 & 연동」(`/guide`) / 설정(`/settings`, 키 관리).
+- 필요한 키·연동(회원 본인 것): Google Gemini API 키 하나(`user_api_keys`, provider `gemini`). 외부 계정 연동 없음. 「📁 내 템플릿 불러오기」는 같은 회원의 AI Prompt 보관함을 읽습니다(`/api/prompt-templates`).
+- Gemini를 부르는 API: `generate`(초안)·`rewrite`(선택 문장 6종)·`analyze`(글 분석)·`style-rewrite`(문체 바꾸기)·`persona-generate`(AI로 말투 채우기)·`keys/test`(연결 확인).
+- 자동 실행(예약·정리)·확장: `vercel.json` 예약 없음, 크롬 확장 없음. 보관은 개수 기준 — 회원당 문서 30개를 넘으면 가장 오래 수정하지 않은 문서부터 지움(`src/lib/documents.ts` `prune`), 이미지는 계정 전체 60개·한 장 4MB(`src/lib/images.ts`). **30일 자동 삭제는 없습니다**(개선 문서 참고).
+- 최근 변경(커밋 기준): 저작권 고지·검색엔진 허용 robots(`9810804f1`·`1def2373a`) / 권한 판정 조회 병렬화(`d1e710d68`) / 텍스트 실패 대비 모델 목록 교체(`aae03dda7`, 미배포) / API 키 안내 문구 정정(`b16550ad4`, 미배포) / Next.js 보안 업데이트 v1.13(`8945c86b7`).
+- 미배포 대기·남은 일: 루트 `docs/PENDING_DEPLOYS.md`에 2건 — 모델 교체 `aae03dda7`, 키 안내 문구 `b16550ad4`(+ 권한 판정 병렬화 `d1e710d68`). 정책 점검 남은 일: 저장공간 위젯 한 줄, 로그아웃 범위(`src/app/api/auth/logout/route.ts:8`), 30일 보관 규칙 미적용.
+- 다음에 손댈 때 주의: 문서 보관 규칙을 30일로 바꾸면 매뉴얼 FAQ 「작성 중인 글은 어디에…」도 함께 고칩니다. 이미지 프롬프트·생성 기능은 없음.
+- 이번 점검에서 고친 것: 매뉴얼(`src/app/(workspace)/guide/page.tsx`) 단계 설명을 실제 화면 이름(9종 형식·톤 4종·분량 3종·6,000자·참고 파일 .txt/.md/.csv 30,000자·「기존 글 분석」 탭)으로 고침, 보관 FAQ를 「30개 초과 시 오래된 문서부터 삭제」로 정정, 이미지 한도를 「계정 전체 60개·4MB·PNG/JPEG/WebP/GIF」로 정정, FAQ 3개(Gemini 사용량이 쓰이는 버튼·기존 글 분석·인터넷 검색) 추가, 시작 전 준비 상자에 발급 방법 매뉴얼 버튼 추가. 설정 화면(`src/components/workspace/KeyManager.tsx`) Gemini 칸 바로 아래에 「📖 발급 방법」 버튼 추가 (미배포 — 다음 배포 때 버전 +0.01과 함께).
+
 > **공식 서비스 URL**: https://ai-writing-editor.buylife.xyz  
 > **현재 버전**: `v1.12` (포커스 스튜디오 스타일 — 글쓰기 에디터 에디션, 2026-10-21 병합 B 「🎚️ 문체 바꾸기」 + 「📁 내 템플릿 불러오기」)  
 > **최근 갱신일**: 2026-10-21  

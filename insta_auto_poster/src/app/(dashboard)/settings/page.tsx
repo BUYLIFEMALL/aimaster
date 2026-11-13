@@ -34,7 +34,26 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
   { guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4", label: "Google Gemini API 키 발급받기" },
   { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
+  { guideId: "c315c6d7-4187-446a-86da-5c37d4274d54", label: "Pixabay 무료 사진 키 발급받기" },
+  { guideId: "ff6c331e-74a8-4b00-99c9-3b91f44f41f7", label: "Pexels 무료 사진 키 발급받기" },
 ];
+
+// 키 칸마다 옆에 붙는 「📖 발급 방법」 링크(2026-11-13 전체 점검). Apify·cron-job.org는 메인 사이트 매뉴얼 글이 아직 없어 뺐다.
+const INSTAGRAM_GUIDE_ID = "6cdae259-b9d2-45ae-9c21-e5f498f78956";
+const GUIDE_BY_PROVIDER: Partial<Record<ApiKeyProvider, string>> = {
+  openai: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
+  anthropic: "d03f65c2-efbb-421f-a041-a075562e3b7a",
+  gemini: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
+  perplexity: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad",
+  pixabay: "c315c6d7-4187-446a-86da-5c37d4274d54",
+  pexels: "ff6c331e-74a8-4b00-99c9-3b91f44f41f7",
+  meta_app_id: INSTAGRAM_GUIDE_ID,
+  meta_app_secret: INSTAGRAM_GUIDE_ID,
+  facebook_app_id: INSTAGRAM_GUIDE_ID,
+  facebook_app_secret: INSTAGRAM_GUIDE_ID,
+};
+/** 배포판(독립 모드)은 AIMaster 매뉴얼 버튼을 숨기므로 칸 옆 링크도 숨긴다 */
+const guideFor = (provider: ApiKeyProvider) => (IS_STANDALONE ? undefined : GUIDE_BY_PROVIDER[provider]);
 
 const META_PROVIDERS: ApiKeyProvider[] = ["meta_app_id", "meta_app_secret"];
 // 무료 사진 키 발급 주소(v1.63)
@@ -191,6 +210,7 @@ export default async function SettingsPage({
                   maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
                   helpUrl={PHOTO_KEY_HELP[provider]?.url}
                   helpLabel={PHOTO_KEY_HELP[provider]?.label}
+                  guideId={guideFor(provider)}
                 />
               ))}
               {section.providers
@@ -246,6 +266,7 @@ export default async function SettingsPage({
                 maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
                 helpUrl="https://developers.facebook.com/apps"
                 helpLabel="Meta App Dashboard에서 발급받기"
+                guideId={guideFor(provider)}
               />
             ))}
           </div>
@@ -265,6 +286,7 @@ export default async function SettingsPage({
                 maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
                 helpUrl="https://developers.facebook.com/apps"
                 helpLabel="Meta App Dashboard에서 확인하기"
+                guideId={guideFor(provider)}
               />
             ))}
           </div>

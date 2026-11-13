@@ -17,6 +17,9 @@ const GUIDE_LINKS: { guideId: string; label: string }[] = [
   { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity API 키 발급받기" },
   { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI API 키 발급받기" },
   { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude API 키 발급받기" },
+  { guideId: "8f201233-b2f6-4da0-851c-f045bdb5f9c7", label: "네이버 검색 API 키 발급받기" },
+  { guideId: "8be38787-dacf-4921-9800-83159c9001be", label: "네이버 검색광고 API 키 발급받기" },
+  { guideId: "f43e8ebe-a930-4933-b965-7068b38d79aa", label: "텔레그램 봇 만들기" },
 ];
 
 export const dynamic = "force-dynamic";
@@ -24,7 +27,8 @@ export const fetchCache = "force-no-store";
 
 // 프로바이더를 성격별 섹션으로 묶어서 보여준다 — 검색결과 수집용 키와 AI 리서치/분석용
 // 키가 한눈에 구분되도록 그룹핑한다.
-const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[] }[] = [
+// guides: 그 섹션의 키 발급 방법 매뉴얼(메인 사이트 /guides) — 섹션 제목 바로 아래에 버튼으로 보여 준다(2026-11-13). SerpApi는 매뉴얼 글이 없어 공식 발급 링크만 있다.
+const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[]; guides?: { guideId: string; label: string }[] }[] = [
   {
     title: "🔍 검색결과 수집 (SerpApi)",
     description: "구글/네이버 검색결과에서 상위 노출 도메인을 가져오는 필수 키",
@@ -35,17 +39,24 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
     description:
       "경쟁사 리서치와 분석 리포트를 만드는 AI 키 — Perplexity/OpenAI는 필수, Anthropic은 리포트를 HTML로 변환하는 선택 기능",
     providers: ["perplexity", "openai", "anthropic"],
+    guides: [
+      { guideId: "1df95d8b-6a27-4de0-b1d9-8bbc218534ad", label: "Perplexity 발급 방법" },
+      { guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a", label: "OpenAI 발급 방법" },
+      { guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a", label: "Anthropic Claude 발급 방법" },
+    ],
   },
   {
     title: "🤝 제휴 타깃 찾기 (네이버 검색 API)",
     description:
       "키워드로 그 주제 블로그·업체·카페·쇼핑몰을 찾는 네이버 공식 검색 키 — 무료(하루 한도), 다른 AIMaster 프로그램에 등록했다면 그대로 쓰입니다",
     providers: ["naver_client_id", "naver_client_secret"],
+    guides: [{ guideId: "8f201233-b2f6-4da0-851c-f045bdb5f9c7", label: "네이버 검색 API 발급 방법" }],
   },
   {
     title: "📈 많이 검색하는 키워드 추천 (네이버 검색광고, 선택)",
     description: "제휴 타깃 찾기의 키워드 추천에서 월간 검색량 순으로 보여 줄 때만 씁니다 — 무료(광고비 없음), 등록 안 해도 다른 추천은 동작합니다",
     providers: ["naver_ads_api_key", "naver_ads_secret_key", "naver_ads_customer_id"],
+    guides: [{ guideId: "8be38787-dacf-4921-9800-83159c9001be", label: "네이버 검색광고 API 발급 방법" }],
   },
 ];
 
@@ -110,6 +121,13 @@ export default async function SettingsPage() {
             <div className="mb-3">
               <h2 className="text-sm font-bold text-mx-text">{section.title}</h2>
               <p className="text-xs text-mx-muted">{section.description}</p>
+              {section.guides && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {section.guides.map((guide) => (
+                    <GuideLinkButton key={guide.guideId} guideId={guide.guideId} label={guide.label} />
+                  ))}
+                </div>
+              )}
             </div>
             <div className="space-y-3">
               {section.providers.map((provider) => (
@@ -136,6 +154,9 @@ export default async function SettingsPage() {
             🌱 키워드 확장이 끝나면 결과 요약을 본인 텔레그램 봇으로도 받아볼 수 있어요. 롱테일 키워드분석에서 연결해 둔
             봇이 있으면 그대로 이어서 씁니다.
           </p>
+          <div className="mt-2">
+            <GuideLinkButton guideId="f43e8ebe-a930-4933-b965-7068b38d79aa" label="텔레그램 봇 만드는 방법" />
+          </div>
         </div>
         {telegramLink ? (
           <div className="space-y-3">

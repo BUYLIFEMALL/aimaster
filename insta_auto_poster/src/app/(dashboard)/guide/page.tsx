@@ -65,7 +65,7 @@ export default function GuidePage() {
               </div>
               <h3 className="font-bold text-slate-100 text-sm mb-1.5">AI API 키 등록</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Gemini(이미지) 및 OpenAI/Claude(캡션), Perplexity(트렌드) 회원 본인 키를 안전하게 등록합니다.
+                Gemini(이미지) 및 OpenAI/Claude(캡션), Perplexity(트렌드) 회원 본인 키를 등록합니다. 키 칸 옆 「📖 발급 방법」을 누르면 발급 매뉴얼이 새 창으로 열립니다. 카드뉴스 무료 사진(Pixabay·Pexels)·인기 게시물 수집(Apify)은 쓸 때만 넣으면 됩니다.
               </p>
             </div>
             <div className="mt-3 pt-2 border-t border-[#1f2433] text-[11px] text-pink-400 font-medium">
@@ -103,7 +103,7 @@ export default function GuidePage() {
               </div>
               <h3 className="font-bold text-slate-100 text-sm mb-1.5">게시글 주제 수집</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                HTTP 웹 주소 지정, RSS 구독 피드, Perplexity 실시간 트렌드 검색 중 원하는 방식으로 글감을 자동 수집합니다.
+                웹 주소(HTTP), RSS(본인 NewsBlur 계정을 연결해 구독 피드에서 가져오기), Perplexity 실시간 트렌드 검색 중 원하는 방식으로 글감을 모읍니다. 글감을 골라 새 글로 넘깁니다.
               </p>
             </div>
             <div className="mt-3 pt-2 border-t border-[#1f2433] text-[11px] text-pink-400 font-medium">
@@ -122,7 +122,7 @@ export default function GuidePage() {
               </div>
               <h3 className="font-bold text-slate-100 text-sm mb-1.5">AI 캡션 & 이미지 생성</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                피드(1장) 또는 카드뉴스(캐러셀 4장)를 선택하면 AI가 후킹 캡션, 25개 해시태그, 나노바나나 고화질 이미지를 생성합니다.
+                「게시글 관리 → 새 글」에서 피드(1장) 또는 카드뉴스(캐러셀 4장)를 고르면 AI가 캡션, 해시태그(5~10개), 나노바나나 이미지를 만듭니다. 내 이미지를 직접 첨부하거나 무료 사진을 골라 캡션을 쓰면 AI 없이 그대로 저장됩니다.
               </p>
             </div>
             <div className="mt-3 pt-2 border-t border-[#1f2433] text-[11px] text-pink-400 font-medium">
@@ -141,11 +141,11 @@ export default function GuidePage() {
               </div>
               <h3 className="font-bold text-slate-100 text-sm mb-1.5">즉시 또는 예약 게시</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                작성된 콘텐츠를 인스타그램에 즉시 게시하거나, 원하는 황금 시간대를 지정하여 자동 예약 게시를 실행합니다.
+                작성 화면 아래 「게시방식 결정」에서 임시저장·예약 게시·즉시 게시 중 하나를 고릅니다. 임시저장한 글은 글 상세 화면의 게시 버튼으로 나중에 올릴 수 있습니다. 게시 결과는 대시보드 「📊 최근 7일 게시」 그래프에서 날짜별로 봅니다.
               </p>
             </div>
             <div className="mt-3 pt-2 border-t border-[#1f2433] text-[11px] text-pink-400 font-medium">
-              👉 <Link href="/dashboard" className="hover:underline">메뉴: 대시보드 (`/dashboard`)</Link>
+              👉 <Link href="/posts" className="hover:underline">메뉴: 게시글 관리 (`/posts`)</Link>
             </div>
           </div>
         </div>
@@ -221,12 +221,12 @@ export default function GuidePage() {
         <div className="rounded-xl bg-[#161922] p-5 sm:p-6 border border-[#262c3d] space-y-3.5">
           <div className="flex items-center gap-2 text-pink-400 font-bold text-base">
             <span>📐</span>
-            <h3>피드 1장 vs 캐러셀 4장 황금 비율</h3>
+            <h3>피드 1장 vs 캐러셀 4장 고르는 법</h3>
           </div>
           <ul className="space-y-2.5 text-xs text-slate-300 leading-relaxed">
             <li className="flex items-start gap-2">
               <span className="text-pink-400 font-bold">1.</span>
-              <span><strong>4:5 세로형(1080×1350) 화면 점유율</strong>: 1:1 정방형보다 스마트폰 피드에서 약 <strong>25% 더 많은 면적</strong>을 차지하여 스크롤 중 체류 시간을 획기적으로 늘립니다.</span>
+              <span><strong>화면비율 선택</strong>: 새 글의 AI 이미지는 9:16(세로, 기본)·1:1(정사각)·16:9(가로) 중에서 고릅니다. 글자가 들어간 4:5 세로 카드뉴스(4~10장)는 좌측 메뉴 「🎨 카드뉴스 홈」 스튜디오에서 만듭니다.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-pink-400 font-bold">2.</span>
@@ -234,7 +234,7 @@ export default function GuidePage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-pink-400 font-bold">3.</span>
-              <span><strong>무손실 나노바나나 2.1</strong>: 생성된 이미지는 1080px 정규 규격으로 최적화되어 인스타 업로드 시 화질 저하가 없습니다.</span>
+              <span><strong>이미지 모델 고르기</strong>: NanoBanana 2-2K(추천)·2-4K·Pro·Standard 중에서 고릅니다. 화질이 높을수록 본인 Gemini 요금이 더 나옵니다(2026-10-17 공식 가격표 기준 1장 약 $0.03~$0.24). 저장할 때 인스타가 받는 JPEG 형식으로 자동 변환됩니다.</span>
             </li>
           </ul>
         </div>
@@ -251,7 +251,7 @@ export default function GuidePage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 font-bold">2.</span>
-              <span><strong>20~25개 타겟 해시태그</strong>: 대형 키워드(100만+) 5개, 중형(10만+) 10개, 세부 틈새(1만+) 10개를 믹스하여 롱테일 유입을 극대화합니다.</span>
+              <span><strong>해시태그 섞어 쓰기</strong>: AI가 만든 해시태그(5~10개)에 큰 키워드와 좁은 틈새 키워드를 함께 넣어 보세요. 해시태그 칸에서 직접 더하거나 뺄 수 있습니다.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 font-bold">3.</span>
@@ -314,6 +314,29 @@ export default function GuidePage() {
               모든 회원의 데이터는 Supabase PostgreSQL RLS(소유자 격리) 정책을 통해 회원 본인 기준으로 구분해 조회합니다.
             </p>
           </div>
+
+          <div className="p-4 rounded-lg bg-[#0d0f17] border border-[#262c3d] space-y-2">
+            <h4 className="font-bold text-pink-300 text-xs">Q. AI를 쓰지 않고 내 사진과 글로만 올릴 수 있나요?</h4>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              네. 새 글 화면의 「이미지 파일 직접 첨부」에 내 사진을 넣거나(카드뉴스는 여러 장을 한 번에 선택 가능){!IS_STANDALONE && " 「무료 사진으로 첨부」에서 Pixabay·Pexels 사진을 고른 뒤"} 캡션을 쓰면, 주제가 비어 있어도 AI 호출 없이 그대로 저장·예약·게시됩니다. 장마다 「✂ 누끼·🙈 가리기·🧽 지우기」 버튼으로 배경 지우기 같은 간단한 손질도 할 수 있습니다.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg bg-[#0d0f17] border border-[#262c3d] space-y-2">
+            <h4 className="font-bold text-pink-300 text-xs">Q. 만든 글과 이미지는 언제까지 보관되나요?</h4>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              카드뉴스 스튜디오의 예약·게시 기록과 이미지는 만든 날부터 30일 뒤 자동으로 지워집니다. 피드 게시글은 AIMaster 공통 보관 규칙(일반 회원 500MB·30일, 저장 구독으로 연장)에 맞춘 자동 정리를 준비하고 있으니, 오래 두고 쓸 이미지는 내 PC에 따로 저장해 두세요.
+            </p>
+          </div>
+
+          {!IS_STANDALONE && (
+            <div className="p-4 rounded-lg bg-[#0d0f17] border border-[#262c3d] space-y-2">
+              <h4 className="font-bold text-pink-300 text-xs">Q. 만든 글을 다른 프로그램에서 이어서 쓸 수 있나요?</h4>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                게시글 상세 화면의 「📨 업무 워크스페이스로 보내기」를 누르면 업무 워크스페이스의 「받은 업무」로 들어가 콘텐츠 캘린더나 페이지로 정리할 수 있습니다. 반대로 AI 상세페이지·감성 글귀 같은 다른 프로그램에서 인스타 포스팅으로 넘기는 버튼을 누르면 이 프로그램의 새 글 화면에 이미지와 캡션이 채워진 채로 열립니다.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

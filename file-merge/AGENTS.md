@@ -1,5 +1,16 @@
 # AI 엑셀·텍스트 합치기 자동화 (file-merge) — 작업 지침 (v1.07)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.08(`src/lib/version.ts`, 제목의 v1.07은 옛 표기) · 운영 주소: https://file-merge.buylife.xyz (공개)
+- 한 줄 정의: 엑셀·CSV 여러 개를 머리글 기준으로 이어 붙이거나 시트별로 모으고, 엑셀을 시트·열 값·N행씩 나누며, 텍스트 파일을 합치고 나누는 도구입니다. 모든 처리는 회원 브라우저 안에서만 하고 서버에 파일을 보내거나 저장하지 않습니다(이름에 「AI」가 있지만 AI 호출은 없음).
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 「대시보드」(`/dashboard`) / 작업 흐름 「엑셀 합치기」(`/excel-merge`)·「엑셀 나누기」(`/excel-split`)·「텍스트 합치기」(`/text-merge`)·「텍스트 나누기」(`/text-split`) / 「사용 매뉴얼」(`/guide`). 설정 화면 없음.
+- 필요한 키·연동(회원 본인 것): 없음(`resolveApiKey`·`user_api_keys` 사용 없음, 외부 계정 연동 없음). 로그인·권한만 필요(`src/lib/access.ts`, 핸드폰 미등록이면 메인 사이트 설정으로 보냄).
+- 자동 실행(예약·정리)·확장: `vercel.json` 예약 없음, 크롬 확장 없음, 서버 보관 자료 없음(30일 정리 대상 없음). 한도: 나누기 결과 500개(`src/lib/files/sheetStore.ts:120`), 서식 유지 100만 칸(같은 파일 122줄), 텍스트 조각 1,000개(`src/components/files/TextSplit.tsx:38`).
+- 최근 변경(커밋 기준): 저작권 고지·검색엔진 허용 robots(`9810804f1`·`1def2373a`) / 권한 판정 조회 병렬화(`d1e710d68`, 미배포) / Next.js 보안 업데이트 v1.08(`f068726bb`) / 브라우저 시험 판정 보완(`4e574906f`).
+- 미배포 대기·남은 일: 루트 `docs/PENDING_DEPLOYS.md`에 대기 없음. 실제 미배포: `d1e710d68`(공용 권한 판정 병렬화, 다음 배포 때 함께), 이번 매뉴얼 수정. 정책 남은 일: 저장공간 위젯 한 줄, 로그아웃 범위(`src/app/api/auth/logout/route.ts:8`).
+- 다음에 손댈 때 주의: SheetJS는 공식 CDN tarball 0.20.3을 씁니다(npm `xlsx` 0.18.5로 바꾸지 않음). 파일을 서버로 보내는 기능을 넣으면 매뉴얼 「내 파일은 어디로 가나요?」와 보관 규칙을 함께 바꿔야 합니다.
+- 이번 점검에서 고친 것: 매뉴얼(`src/app/(workspace)/guide/page.tsx`) — 동그라미 번호를 일반 번호로, 머리글 1~5행·「머리글 없음」, 미리보기 20행·CSV 글자 인코딩, 「저장할 이름」·[합쳐서 저장], 나누기 미리보기 50개·최대 500개 파일, 텍스트 합치기 파일 종류·구분자 「바로 이어서」·\n/\t·미리보기 3,000자, 조각 이름 「_01.txt」·최대 1,000개, 올릴 수 있는 파일 종류, 서식 유지 100만 칸 초과 시 방법, 자주 묻는 질문 5개(키 불필요·결과 재다운로드 불가·열이 둘로 나뉨·큰 파일·PC/모바일 로그인) 추가. 설정 화면·API 키가 없어 링크 버튼은 해당 없음 (미배포 — 다음 배포 때 버전 +0.01과 함께).
+
 - 이어서 작업하는 CLI/계정은 먼저 [`docs/CLI_HANDOFF.md`](docs/CLI_HANDOFF.md)(현재 상태·남은 일)와 [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md)·[`docs/REFERENCE_ANALYSIS.md`](docs/REFERENCE_ANALYSIS.md)를 읽는다. 루트 `CLAUDE.md`·`docs/ERROR_LESSONS.md`도 함께.
 - 프로그램명 "AI 엑셀·텍스트 합치기 자동화"(2026-10-15 주인님 "계속 진행해줘"로 추천안 확정), slug·폴더 `file-merge`, 주소 https://file-merge.buylife.xyz, Vercel 프로젝트 `file-merge`(buylife 팀).
 - 원칙: **파일은 브라우저 안에서만 처리**(서버 전송·저장 없음) — API 라우트는 로그아웃 하나뿐, AI·API 키·회원 데이터 테이블 없음. 권한은 공용 `requireProgramAccess()`(작업 화면 레이아웃·각 페이지). 흰색 UI, 표준 사이드바(작업 흐름 1~4 + 사용 매뉴얼), 모바일 레이아웃 지침(원칙 19번) 적용.

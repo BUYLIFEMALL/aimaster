@@ -69,7 +69,8 @@ export function KeyManager({ guideUrl }: { guideUrl: string | null }) {
       </div>
       <section className="card" data-provider="gemini">
         <h2><KeyRound size={16} style={{ verticalAlign: "-3px" }} /> Google Gemini API 키 (필수)</h2>
-        <p className="muted" style={{ marginTop: 6 }}>초안 생성, 선택 문장 수정, 전체 글 분석에 쓰입니다. 발급: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>aistudio.google.com/apikey</a></p>
+        <p className="muted" style={{ marginTop: 6 }}>초안 생성, 선택 문장 수정, 전체 글 분석, 문체 바꾸기에 쓰입니다. 발급: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>aistudio.google.com/apikey</a></p>
+        {guideUrl && <div className="actions" style={{ marginTop: 8 }}><GuideLinkButton url={guideUrl} label="📖 발급 방법" /></div>}
         {state === null ? <p className="muted" style={{ marginTop: 12 }}>확인 중…</p> : (
           <p className={`key-status ${has ? "" : "none"}`} style={{ marginTop: 12 }}>
             {has ? <>등록됨 · <code>{state.maskedKey}</code></> : "아직 등록된 키가 없습니다."}

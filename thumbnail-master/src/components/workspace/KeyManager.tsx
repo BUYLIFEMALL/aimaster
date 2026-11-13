@@ -10,7 +10,7 @@ const PROVIDERS: Info[] = [
   { provider: "gemini", title: "Google Gemini API 키 (필수)", hint: "전략 분석과 썸네일 이미지 생성에 쓰입니다.", placeholder: "AIza…로 시작하는 키를 붙여 넣으세요", signup: "https://aistudio.google.com/apikey", required: true },
 ];
 
-function KeyCard({ info, state, onChanged }: { info: Info; state?: { hasKey: boolean; maskedKey: string | null }; onChanged: () => void }) {
+function KeyCard({ info, state, onChanged, guideUrl }: { info: Info; state?: { hasKey: boolean; maskedKey: string | null }; onChanged: () => void; guideUrl?: string | null }) {
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -44,7 +44,10 @@ function KeyCard({ info, state, onChanged }: { info: Info; state?: { hasKey: boo
   const has = !!state?.hasKey;
   return (
     <section className="card" data-provider={info.provider}>
-      <h2><KeyRound size={16} style={{ verticalAlign: "-3px" }} /> {info.title}</h2>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+        <h2><KeyRound size={16} style={{ verticalAlign: "-3px" }} /> {info.title}</h2>
+        {guideUrl && <GuideLinkButton url={guideUrl} label="발급 방법" />}
+      </div>
       <p className="muted" style={{ marginTop: 6 }}>{info.hint} 발급: <a href={info.signup} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>{info.signup.replace("https://", "")}</a></p>
       {state === undefined ? <p className="muted" style={{ marginTop: 12 }}>확인 중…</p> : (
         <p className={`key-status ${has ? "" : "none"}`} style={{ marginTop: 12 }}>
@@ -89,7 +92,7 @@ export function KeyManager({ guideUrl }: { guideUrl: string | null }) {
       </div>
       {error && <p role="alert" className="error">{error}</p>}
       {PROVIDERS.map((info) => (
-        <KeyCard key={info.provider} info={info} state={keys ? keys[info.provider] ?? { hasKey: false, maskedKey: null } : undefined} onChanged={load} />
+        <KeyCard key={info.provider} info={info} state={keys ? keys[info.provider] ?? { hasKey: false, maskedKey: null } : undefined} onChanged={load} guideUrl={info.provider === "gemini" ? guideUrl : null} />
       ))}
       <section className="card">
         <h2>📖 연동 매뉴얼</h2>

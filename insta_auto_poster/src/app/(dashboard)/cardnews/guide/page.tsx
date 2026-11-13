@@ -146,13 +146,13 @@ export default function GuidePage() {
                 </span>
                 <Download className="w-4 h-4 text-purple-400" />
               </div>
-              <h3 className="font-bold text-slate-100 text-sm mb-1.5">내보내기 & 캡션 복사</h3>
+              <h3 className="font-bold text-slate-100 text-sm mb-1.5">저장 & 인스타 게시</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                완성된 카드뉴스를 고해상도 PNG/ZIP으로 일괄 다운로드하고, AI가 생성한 피드 캡션과 25개 해시태그를 원클릭 복사합니다.
+                완성된 카드를 한 장씩 또는 ZIP으로 한 번에 내려받고, AI가 만든 캡션과 해시태그(20~25개)를 복사합니다. 같은 화면의 인스타그램 게시 칸에서 연결된 내 인스타 계정으로 바로 게시하거나 예약할 수 있습니다.
               </p>
             </div>
             <div className="mt-3 pt-2 border-t border-[#1f2433] text-[11px] text-purple-400 font-medium">
-              👉 메뉴: 내보내기 (`/cardnews/export`)
+              👉 메뉴: 저장·인스타 게시 (`/cardnews/export`)
             </div>
           </div>
         </div>
@@ -315,6 +315,26 @@ export default function GuidePage() {
             </p>
             <p className="text-xs text-slate-400 leading-relaxed">
               설정 → ⏰ 예약 발행에서 방식을 고릅니다. 기본 「AIMaster 기본(Vercel)」은 따로 할 일 없이 예약 시각 후 5분 안에 올라갑니다. 「내 cron-job.org」를 고르고 본인 무료 cron-job.org API 키를 등록하면, 예약할 때 본인 계정에 작업이 자동으로 켜져 1분 안에 올라가고 남은 예약이 없으면 자동으로 멈춥니다. 예약 게시 화면의 「일시정지」로 전체를 잠시 멈출 수 있으며, 예약 시각이 24시간 넘게 지난 글은 자동으로 올리지 않습니다.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-[#161922] p-4 sm:p-5 border border-[#262c3d] space-y-2">
+            <p className="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <span className="text-pink-400">Q.</span>
+              다른 계정의 인기 게시물을 자동으로 가져올 수 있나요?
+            </p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              떡상 리메이크 맨 위 「🔍 인기 게시물 수집」에 @계정 이름이나 #해시태그를 넣으면 반응이 좋은 게시물 상위 5개를 보여 줍니다. Facebook 페이지 방식으로 인스타를 연결했다면 계정 수집은 인스타 공식 API로 무료로 되고, 그 밖의 경우와 해시태그는 「API키등록·플랫폼연동」에 등록한 본인 Apify 토큰을 씁니다(Apify 무료 크레딧 안에서 1회 약 $0.02~0.06). ☆로 자주 보는 계정을 즐겨찾기하고, 릴스는 「🎬 영상까지 분석」(Gemini)이나 「🎙 말소리까지 분석」(OpenAI 받아쓰기)으로 말한 내용까지 분석할 수 있습니다. 공개 게시물만, 본인 책임으로 사용해 주세요.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-[#161922] p-4 sm:p-5 border border-[#262c3d] space-y-2">
+            <p className="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <span className="text-pink-400">Q.</span>
+              AI 배경 대신 무료 사진을 쓸 수 있나요? 만든 카드는 언제까지 남나요?
+            </p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              4단계 배경 화면에서 장마다 「무료 사진 검색」을 누르거나 「전체 무료 사진 자동 채우기」를 쓰면 AI 비용 없이 Pixabay·Pexels 사진으로 배경을 채웁니다(본인 무료 키 필요, 「API키등록·플랫폼연동」에서 등록). 인스타 예약·게시 기록과 그 이미지는 만든 날부터 30일 뒤 자동으로 지워지니, 오래 둘 카드는 5단계에서 ZIP으로 저장해 두세요.
             </p>
           </div>
         </div>

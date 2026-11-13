@@ -13,13 +13,15 @@ interface KeyCardProps {
   description: string;
   placeholder: string;
   required?: boolean;
+  /** 메인 사이트 매뉴얼 글(platform_guides.id) — 있으면 설명 아래 「📖 발급 방법」 링크(2026-11-13 전체 점검) */
+  guideId?: string;
   keys: KeyState;
   submitting: boolean;
   onSave: (provider: string, apiKey: string) => void;
   onDelete: (provider: string) => void;
 }
 
-function KeyCard({ provider, title, description, placeholder, required, keys, submitting, onSave, onDelete }: KeyCardProps) {
+function KeyCard({ provider, title, description, placeholder, required, guideId, keys, submitting, onSave, onDelete }: KeyCardProps) {
   const [value, setValue] = useState("");
   const registered = keys[provider]?.registered;
 
@@ -31,6 +33,16 @@ function KeyCard({ provider, title, description, placeholder, required, keys, su
             {title} {required && <span className="text-xs font-semibold text-rose-400">(필수)</span>}
           </h2>
           <p className="mt-0.5 text-xs text-slate-400">{description}</p>
+          {guideId && (
+            <a
+              href={`https://www.buylife.xyz/guides/${guideId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-block text-xs font-semibold text-rose-300 underline hover:text-rose-200"
+            >
+              📖 발급 방법
+            </a>
+          )}
         </div>
         {registered ? (
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400">
@@ -191,6 +203,7 @@ export default function SettingsPage() {
         required
         description="배경 이미지(나노바나나) 생성에 필수이며, 문구 기획에도 사용할 수 있습니다."
         placeholder="AIzaSy... 로 시작하는 Gemini API 키"
+        guideId="f442cd37-f1e0-42a7-a3de-f9a9acf47cc4"
         {...common}
       />
 
@@ -201,8 +214,8 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <KeyCard provider="openai" title="OpenAI API 키" description="문구 기획용 (선택)" placeholder="sk-... 로 시작하는 OpenAI API 키" {...common} />
-      <KeyCard provider="anthropic" title="Anthropic Claude API 키" description="문구 기획용 (선택)" placeholder="sk-ant-... 로 시작하는 Claude API 키" {...common} />
+      <KeyCard provider="openai" title="OpenAI API 키" description="문구 기획용 (선택)" placeholder="sk-... 로 시작하는 OpenAI API 키" guideId="1c5c24e2-15d4-49b8-b907-0ac6843dee3a" {...common} />
+      <KeyCard provider="anthropic" title="Anthropic Claude API 키" description="문구 기획용 (선택)" placeholder="sk-ant-... 로 시작하는 Claude API 키" guideId="d03f65c2-efbb-421f-a041-a075562e3b7a" {...common} />
 
       {/* ⏰ 예약 발행 실행 방식(v1.24, 지침 docs/SCHEDULER_POLICY.md) — 예약 자체는 카드뉴스 「인스타그램 게시」에서 한다 */}
       <div className="space-y-4 rounded-2xl border border-[#262c3d] bg-[#161922] p-6 shadow-xs">

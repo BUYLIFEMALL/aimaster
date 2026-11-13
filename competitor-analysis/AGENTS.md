@@ -1,5 +1,16 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.13(`lib/version.ts`, 확장 manifest도 v1.13) · 운영 주소: https://competitor-analysis.buylife.xyz (FREE 배지, 공개)
+- 한 줄 정의: 「키워드·경쟁사 분석 자동화」 — 씨드 키워드를 연관·롱테일 키워드로 넓히고, 키워드별 상위 노출 도메인을 모아 회사 조사·AI 리포트를 만들며, 키워드로 제휴할 블로그·업체·카페·쇼핑몰과 공개 연락처를 찾는 프로그램입니다.
+- 화면·메뉴(실제 코드 기준, `components/layout/Sidebar.tsx`): 1단계 「🌱 키워드 확장」(`/expand`, 결과 기록 `/expand/history`) → 2단계 「🔍 경쟁사 분석」(`/keywords`) → 3단계 「📋 분석 결과 목록」(`/analyses`) / 「🏢 내 경쟁사」(`/competitors`) / 「🤝 제휴 타깃 찾기」(`/partners`) / 「🔑 API키등록·플랫폼연동」(`/settings`) / 「📖 연동 & 사용 매뉴얼」(`/guide`), 대시보드 `/dashboard`.
+- 필요한 키·연동(회원 본인 것, 공용 `user_api_keys`): 키워드 확장 = SerpApi + OpenAI, 경쟁사 분석 = SerpApi + Perplexity + OpenAI(HTML 리포트는 Anthropic 선택), 제휴 타깃 찾기 = 네이버 검색 API(`naver_client_id`·`naver_client_secret`, 검색량 순 추천은 네이버 검색광고 키 3개 선택), 텔레그램 봇 연결(선택, 키워드 확장 결과 알림).
+- 자동 실행(예약·정리)·확장: `vercel.json` 예약 없음. DB pg_cron 3개 — 분석 데이터 30일 정리(매시 7분), 롱테일(키워드 확장) 30일 정리(매시 9분), 제휴 채널 30일 정리(매시 11분, 관리자·시험 계정 열외). 크롬 확장 `extension/`(v1.13)은 제휴 타깃 찾기의 공개 연락처 스캔 전용 — 30~45초 간격, 오전 9시~밤 10시, 하루 300곳 상한(서버 `app/api/partners/extension/route.ts`).
+- 최근 변경(커밋 기준): v1.13 업무 워크스페이스로 보내기(분석 결과·키워드 확장 결과, `82c25c802`·`34ed724a1`·`7504a13b5`) / v1.12 네이버 밖 주소 건너뛰기·스캔 뒤 최종 판정(`a3943b872`·`43b6a5bcb`) / v1.11 엑셀 내려받기 / v1.10 「제휴 타깃 찾기」 신설 / 저작권 고지·검색엔진 허용 robots(`9810804f1`·`1def2373a`).
+- 미배포 대기·남은 일: 루트 `docs/PENDING_DEPLOYS.md`에 대기 없음. 이번 점검의 매뉴얼·설정 화면 수정이 미배포 대기입니다. 정책 점검 남은 일 3개(저장공간 위젯 한 줄, 로그아웃 범위 `scope: "local"`, 서버 클라이언트 기기 정보) — `docs/IMPROVEMENTS.md` 2026-11-13 절.
+- 다음에 손댈 때 주의: `docs/evidence/` 아래 미커밋 파일과 `supabase/.temp/`는 다른 세션·도구 것이니 건드리지 않습니다. 확장을 바꾸면 manifest·ZIP·DB `extension_version`을 함께 맞춥니다. 제휴 타깃 고지 문구(`lib/partners/notice.ts`)를 바꾸면 `PARTNER_NOTICE_VERSION`을 올려 다시 동의를 받습니다.
+- 이번 점검에서 고친 것: 매뉴얼(`app/(dashboard)/guide/page.tsx`)에 「제휴 타깃 찾기 사용 순서」 5단계, 화면 목록에 제휴 타깃·설정, FAQ 6개(기능별 필요한 키·30일 보관·확장 결과 → 경쟁사 분석 등록·업무 워크스페이스로 보내기·확장 업데이트·PC/모바일 로그인), 매뉴얼 버튼 3개(네이버 검색·검색광고·텔레그램) 추가. 설정 화면(`app/(dashboard)/settings/page.tsx`)에 섹션별 발급 방법 버튼(Perplexity·OpenAI·Anthropic·네이버 검색·네이버 검색광고)과 텔레그램 봇 만드는 방법 버튼 추가 (미배포 — 다음 배포 때 버전 +0.01과 함께).
+
 이 문서는 **경쟁사 키워드 분석 자동화(competitor-analysis)** 프로젝트에서 AI Agent(Claude
 Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 

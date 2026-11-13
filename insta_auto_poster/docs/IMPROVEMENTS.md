@@ -123,3 +123,48 @@
 - 상태: 처리 대기(담당 지정 전). 분석 보고서 `../../docs/analysis-marketing14-20261027/REPORT.md` §9.
 
 > **2026-11-01 미처리 인수인계:** API 키 「암호화」 문구가 실제와 다를 수 있음, 주인님 결정 대기. 상세: [`docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md`](../../docs/HANDOFF_20261101_MVS_DEPLOY_AND_API_KEY_WORDING.md)
+
+## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
+
+> 점검 기준: 코드 v1.73(운영 DB v1.72 — v1.73은 디자인 템플릿 91 적용분 미배포), `git log` 최근 15개, `node scripts/pending-check.mjs insta_auto_poster`. 이미 위에 적힌 항목(피드 30일 정리 없음 79줄, 상세페이지 복사본 82줄, 해시태그 묶음·대기열 119줄, 키 「암호화」 문구 결정 대기)은 다시 쓰지 않았습니다.
+
+### 1) 프로그램 로직·기능
+- **NewsBlur 비밀번호를 그대로(평문) 저장** — `src/lib/actions/newsblurAccount.ts:33-35`가 `newsblur_accounts`에 `password`를 그대로 upsert합니다(회원 본인 행, 저장 전 로그인 확인은 함). 영향: DB가 새면 회원의 NewsBlur 비밀번호가 그대로 드러남. 우선순위 **중간**. 상태: 제안(세션 쿠키만 저장하거나 서버 암호화 검토, 표의 RLS 정책은 이번에 미확인).
+- **카드뉴스 30일 정리에 「보관 열외 회원」 처리가 없음** — `src/lib/cardnews/instagram/posts.ts:164-169` `cleanupOldPosts()`가 `created_at` 30일 지난 `cns_insta_posts` 행·이미지를 회원 구분 없이 지웁니다. 루트 공통 규칙(`profiles.retention_exempt = true` 회원은 제외, `docs/PENDING_DEPLOYS.md` 40줄)과 다름. 우선순위 **중간**. 상태: 대기(다음 배포 때 함께 고칠 항목).
+- **피드 AI 이미지 화면비 9:16(기본)·16:9가 인스타 피드 허용 비율과 맞는지 미확인** — `src/components/posts/PostForm.tsx:52-55` 선택지는 9:16·1:1·16:9이고, 저장 때 JPEG 변환(`src/lib/posts/instagramJpeg.ts`)은 비율을 자르지 않습니다. 인스타 피드는 보통 4:5~1.91:1 사이만 받는 것으로 알려져 있어 9:16 게시가 거절되거나 잘릴 수 있습니다(실제 게시 결과 미확인). 우선순위 **중간**. 상태: 제안(9:16 게시 실측 → 필요하면 4:5 선택지 추가 또는 게시 전 4:5로 맞추기).
+
+### 2) 화면·가독성·사용 편의
+- **설정 하단 「📖 연동 매뉴얼」 버튼이 흰 바탕** — `src/components/settings/GuideLinkButton.tsx:26`(`bg-white text-neutral-700`)가 어두운 테마 화면에서 혼자 밝게 튑니다. 우선순위 낮음. 상태: 제안(디자인 담당 — 템플릿 91 색으로).
+- **카드뉴스 매뉴얼 FAQ에 내부 기술 이름** — `src/app/(dashboard)/cardnews/guide/page.tsx` 「작업 도중 페이지를 닫거나…」 답에 `ProjectProvider`·「1.5초 단위」가 그대로 나옵니다(1.5초 값은 이번에 미확인). 우선순위 낮음. 상태: 제안(쉬운 말로 「자동 저장」만 안내).
+- **(이번에 고침, 미배포)** 설정 키 칸마다 「📖 발급 방법」 링크 — 아래 4)·5) 참고.
+
+### 3) 다른 자동화 프로그램과 연계
+- 피드 새 글 화면이 다른 프로그램에서 넘어온 이미지·캡션을 받는 경로가 3가지(`?imageUrl=` 감성 글귀, `?from=shop-detail&shopImage=` 상세페이지, `?caption=&hashtags=` 4컷 만화)로 흩어져 있습니다. 매뉴얼에는 이번에 한 줄로만 안내했습니다. 우선순위 낮음. 상태: 제안(받는 경로 목록을 이 문서나 프로그램 비교표에 한 표로 정리).
+- 게시글 상세 「📨 업무 워크스페이스로 보내기」(v1.72, U10)가 매뉴얼에 없었음 → 이번에 FAQ에 추가(미배포).
+
+### 4) 매뉴얼과 실제 기능의 차이 (이번에 고친 것 / 남은 것)
+- **이번에 고침(미배포)** — `src/app/(dashboard)/guide/page.tsx`
+  - 4단계 「25개 해시태그」 → 실제 프롬프트는 5~10개(`src/lib/ai/generator.ts:49`, 주제 수집 경로 8~10개 `src/lib/ai/collector.ts:326`)라 「해시태그(5~10개)」로. 직접 첨부·무료 사진이면 AI 없이 저장된다는 안내 추가.
+  - 3단계 RSS가 실제로는 본인 NewsBlur 계정 연결 방식(`src/lib/actions/candidates.ts:117-144`)임을 적음.
+  - 5단계 링크가 대시보드(`/dashboard`)였던 것을 실제 게시 위치인 게시글 관리(`/posts`)로, 「게시방식 결정」(임시저장·예약 게시·즉시 게시, `PostForm.tsx:963-970`) 설명.
+  - 팁 「4:5 세로형(1080×1350)」 — 피드 새 글에는 4:5 선택지가 없음 → 실제 선택지(9:16·1:1·16:9)와 카드뉴스 스튜디오 안내로. 「무손실 나노바나나 2.1, 1080px 정규 규격」 — 그런 크기 맞춤 코드가 없음 → 실제 모델 선택지와 1장 가격대(`src/lib/ai/nanoBananaModels.ts:41` 주석), JPEG 자동 변환으로. 「20~25개 해시태그」 팁 → 실제 개수에 맞춤.
+  - 1단계에 키 칸 옆 「📖 발급 방법」과 선택 키(Pixabay·Pexels·Apify) 안내.
+  - FAQ 3개 추가: AI 없이 내 사진으로 올리기(직접 첨부·무료 사진·누끼 도구), 보관 기간(코드대로 — 카드뉴스 기록 30일 자동 삭제, 피드 자동 정리는 준비 중), 업무 워크스페이스로 보내기·다른 프로그램에서 넘겨받기.
+- **이번에 고침(미배포)** — `src/app/(dashboard)/cardnews/guide/page.tsx`
+  - 5단계 「내보내기 & 캡션 복사 / PNG·ZIP」 → 실제 메뉴 이름 「저장·인스타 게시」, 한 장씩·ZIP 저장, 같은 화면에서 인스타 바로 게시·예약(`src/components/cardnews/studio/InstagramPublishPanel.tsx`).
+  - FAQ 2개 추가: 🔍 인기 게시물 수집(공식 API/Apify·즐겨찾기·릴스 영상/말소리 분석), 무료 사진 배경·30일 보관.
+- **남은 것**: 카드뉴스 FAQ 「고해상도 무손실 PNG로 1:1 픽셀」 문구는 내보내기 렌더 함수(`renderCardToBlob`) 형식을 끝까지 확인하지 못해 그대로 둠(미확인). 로그인(PC 1곳 + 모바일 1곳) 안내는 이 프로그램이 아직 로그아웃 범위·기기 정보 전달을 적용하지 않아(아래 5) 넣지 않음.
+
+### 5) 정책 점검 (pending-check 결과)
+- 저작권·분석 금지 고지: `NOTICE` 있음(커밋 `9810804f1`·`1def2373a`), pending-check 경고 없음.
+- **저장공간 위젯 한 줄 미적용** — `src/app/layout.tsx`에 `storage-widget.js` 없음. 다음 배포 때 함께. 상태: 대기.
+- **범위 없는 로그아웃** — `src/lib/actions/auth.ts:79` `supabase.auth.signOut()` → `signOut({ scope: "local" })`로. 상태: 대기(다음 배포 때, 안내 루트 `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`).
+- **서버 로그인 기기 정보 미전달** — `src/lib/supabase/server.ts:13` `createServerClient`에 `global.headers["User-Agent"]` 없음. 상태: 대기(같은 안내 2-2절).
+- 30일 정리 예외 회원: 위 1)의 `cleanupOldPosts` 항목. 피드 `insta_posts`는 정리 자체가 없음(79줄 기존 항목).
+- 공용 사본 미배포(`member-scheduler` 15개 확대·`instagram-publish` 분리)는 pending-check 표 기준 이미 v1.68에 나감 — 표 정리는 다음 배포자 몫.
+
+### 6) 설정 화면 API 키·연동 링크 버튼 (이번에 고침, 미배포)
+- `src/components/settings/ApiKeyRow.tsx`에 선택 속성 `guideId` → 키 칸 버튼 줄에 「📖 발급 방법」(새 창, `https://www.buylife.xyz/guides/<id>`). 버튼 줄은 좁은 화면에서 줄바꿈되게 `flex-wrap`.
+- `src/app/(dashboard)/settings/page.tsx`: OpenAI·Claude·Gemini·Perplexity·Pixabay·Pexels·Meta(Instagram/Facebook 앱 ID·시크릿 4칸 → 인스타그램 연동 매뉴얼) 칸 옆에 링크. 하단 「📖 연동 매뉴얼」 상자에 Pixabay·Pexels 버튼 추가. 배포판(독립 모드)은 숨김.
+- `src/app/(dashboard)/cardnews/settings/page.tsx`: Gemini·OpenAI·Claude 키 카드 설명 아래 「📖 발급 방법」.
+- **매뉴얼 글 없음(버튼 못 넣음)**: Apify(인기 게시물 수집 토큰), cron-job.org(예약 발행 키), NewsBlur(RSS 계정). 메인 사이트 `platform_guides`에 글이 생기면 `GUIDE_BY_PROVIDER`에 한 줄 추가.

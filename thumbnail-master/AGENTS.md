@@ -1,5 +1,16 @@
 # AI 썸네일 마스터 자동화 (thumbnail-master) — 작업 지침 및 인수인계 규격서
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v2.01(`src/lib/version.ts`) · 운영 주소: https://thumbnail-master.buylife.xyz (운영 DB 이름 「AI 썸네일·SEO 자동화」, 공개)
+- 한 줄 정의: 영상 주제·대본과 시청 타겟을 고르면 회원 본인 Gemini 키로 A/B 두 전략의 문구가 들어간 유튜브 썸네일 2종(가로 16:9·세로 9:16)을 만들고, 대본으로 제목·설명·태그(SEO 전략 3가지)를 만들어 주는 프로그램입니다.
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 「NLE 워크스페이스」(`/dashboard`, 프로젝트 목록) → 「1 주제 · 피사체 훅」·「2 타겟 · CTR 전략」·「3 하이퍼 렌더 · 다운로드」(`/open#…`, 제작 화면 `components/studio/Studio.tsx`) / 「SEO 전략 (제목·설명·태그)」(`/seo`) / 설정(`/settings`)·매뉴얼(`/guide`).
+- 필요한 키·연동(회원 본인 것): Google Gemini API 키 하나(`user_api_keys` provider `gemini`, 이미지 생성은 Google 결제 설정 필요할 수 있음). 외부 계정 연동 없음. 「무료 지우기」는 바나나 캔버스 지우기 창과 주고받습니다(AI 비용 없음).
+- 자동 실행(예약·정리)·확장: `vercel.json` 크론 `/api/cron/cleanup` 매일 18:50 UTC(03:50 KST) — 생성일 30일 지난 프로젝트·이미지 삭제, `profiles.retention_exempt` 회원 제외(`src/lib/retentionExempt.ts`). 한도: 프로젝트 30개, A/B안마다 버전 5개(`src/lib/tmb/types.ts:68-69`). 크롬 확장 없음.
+- 최근 변경(커밋 기준): v2.01 배포(`fd2b0446e` — 무료 지우기 새 버전 `75bd2728d`, 모델 대비 목록 `dc64d2eae`, 30일 열외 `16eb5d6e2`) / 권한 판정 조회 병렬화(`d1e710d68`, v2.01 뒤 커밋이라 미배포) / 저작권 고지·검색엔진 허용 robots(`9810804f1`·`1def2373a`).
+- 미배포 대기·남은 일: 루트 `docs/PENDING_DEPLOYS.md`에서 이 프로그램이 들어간 대기 줄은 2개(모델 교체 묶음 C, 30일 열외 21개 묶음)인데, 두 줄 모두 같은 칸에 「11-06 `claude-win-sdp` 배포에 함께 나감: `thumbnail-master` v2.01」로 적혀 있어 **실제로는 이미 배포됨**(표에서 줄만 아직 안 옮김 — `pending-check`가 대기로 잘못 표시). 실제 미배포: `d1e710d68` 권한 판정 병렬화, 이번 매뉴얼·설정 수정. 정책 남은 일: 저장공간 위젯 한 줄, 로그아웃 범위(`src/app/api/auth/logout/route.ts:8`).
+- 다음에 손댈 때 주의: 머리 주석에 「공용 기준 코드 … 사본」이 있는 파일은 고치지 않습니다. 이미지 프롬프트는 이 프로그램 고유의 것(공유 금지). 화면 버전 표기는 `APP_VERSION`을 씁니다(옛 「v2.0」 문구 금지).
+- 이번 점검에서 고친 것: 매뉴얼(`src/app/(workspace)/guide/page.tsx`)을 실제 화면 기준으로 다시 씀 — 제목·버전 배지(`APP_VERSION`), 목차 7개, 키 등록 3단계, 썸네일 만들기 4단계, 옵션 설명(타겟·피사체·추가 스타일·비율·해상도·배경만), 수정·버전·보관(AI 수정 요청·무료 지우기·버전 5개·30일 보관·프로젝트 30개), SEO 전략 절, FAQ 7개, 과장 문구(「1,000만 유저」·「뇌과학」 등) 삭제. 설정 화면(`src/components/workspace/KeyManager.tsx`) Gemini 키 제목 옆에 「발급 방법」 버튼 추가 (미배포 — 다음 배포 때 버전 +0.01과 함께).
+
 > 먼저 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`·`docs/HANDOFF.md`를 읽습니다.
 > 최신 배포 URL: [https://thumbnail-master.buylife.xyz](https://thumbnail-master.buylife.xyz)
 

@@ -14,7 +14,11 @@ interface ApiKeyRowProps {
   helpLabel?: string;
   signupUrl?: string;
   signupLabel?: string;
+  /** 메인 사이트 매뉴얼 글(platform_guides.id) — 있으면 이 항목 옆에 「📖 발급 방법」 링크(2026-11-13 전체 점검) */
+  guideId?: string;
 }
+
+const GUIDE_BASE_URL = "https://www.buylife.xyz/guides/";
 
 const PLATFORM_LINKS: Record<string, { keyUrl: string; keyLabel: string; signupUrl: string; signupLabel: string }> = {
   openai: {
@@ -95,6 +99,7 @@ export function ApiKeyRow({
   helpLabel,
   signupUrl,
   signupLabel,
+  guideId,
 }: ApiKeyRowProps) {
   const [state, formAction, isPending] = useActionState(saveApiKeyAction, initialState);
   const [isEditing, setIsEditing] = useState(false);
@@ -120,7 +125,7 @@ export function ApiKeyRow({
         </div>
 
         {/* 2단 퀵액션 버튼 세트 (키 발급 바로가기 + 플랫폼 가입) */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
           {finalKeyUrl && (
             <a
               href={finalKeyUrl}
@@ -141,6 +146,17 @@ export function ApiKeyRow({
               title={`${label} 플랫폼 공식 가입 바로가기`}
             >
               <span>{finalSignupLabel}</span>
+            </a>
+          )}
+          {guideId && (
+            <a
+              href={`${GUIDE_BASE_URL}${guideId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-pink-300 hover:bg-pink-500/10 hover:text-pink-200 transition-colors"
+              title={`${label} 발급·연동 방법 매뉴얼 (새 창)`}
+            >
+              📖 발급 방법
             </a>
           )}
           {maskedValue && !isEditing && (
