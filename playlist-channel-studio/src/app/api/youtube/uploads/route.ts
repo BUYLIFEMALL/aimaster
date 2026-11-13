@@ -2,7 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { requireAccess } from "@/lib/routeGuard";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { youtubeStateMessage, youtubeUploadToken } from "@/lib/youtube/account";
-import { getYoutubeChannelInfo, getYoutubeVideoMeta } from "@/lib/youtube/client";
+import { getYoutubeChannelInfo } from "@/lib/youtube/client";
+import { getYoutubeVideoMeta } from "@/lib/youtube/videoMeta";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
