@@ -15,6 +15,7 @@
 
 ## 대기 중
 
+- **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
 - **`ai-work-workspace` — 왼쪽 메뉴 버전 표시 v1.34(2026-11-13 [역할: workspace] `claude-win-20261025-workspace`)**: v1.34 배포 때 원본 메뉴 상수(`src/litpage/web/features/shell/AimasterSidebar.tsx`)를 빠뜨려 운영 메뉴에 v1.33이 보임 — 코드는 고쳐 커밋함. 다음 워크스페이스 배포(5번 팝빌 발급) 때 함께.
 - **`ai-work-workspace` — 세금계산서 팝빌 바로 발급(회원 본인 키) `08b46ff1c`(2026-11-13 [역할: workspace])**: 시험 135. 배포는 주인님 빌드 승인 뒤, 실제 시험은 팝빌 테스트 키가 생긴 뒤.
 

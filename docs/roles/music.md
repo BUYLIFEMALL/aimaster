@@ -56,7 +56,7 @@
 ## 다음 첫 단계
 1. 다음 엔진 배포 때 끝 줄이기 곡선 보강, 다음 무료음악 웹 배포 때 빈 `[Outro]` 미리 채우기 개선(대기 표) 함께
 2. **음악 표 칸 이름을 바꿀 때 주의(2026-11-11)**: `free_music_tracks`·`ams_generations`·`music_track_variants`는 메인 「내 자료함」 트리거(`member_assets_sync_fms/ams/suno`, 마이그레이션 0059)가 읽는다 — 칸 이름·저장 경로를 바꾸면 트리거도 함께 고친다(트리거 오류 = 원본 저장 실패)
-3. **11-14 04:20 이후** 플레이리스트 첫 예약 정리 실행 확인(Vercel 로그 또는 `usage_logs`) · 「내가 올린 영상」 목록을 곡 없이도 보이게(IMPROVEMENTS 미구현, 다음 배포 때)
+3. **11-14 04:20 이후** 플레이리스트 첫 예약 정리 실행 확인(Vercel 로그 또는 `usage_logs`) · 플레이리스트 미배포 대기 1건(곡 없이도 기록 목록 보이기 `16439a8e9`, 다음 배포 때 v1.42)
 4. 새 작업이 오면: `node scripts/dev-requests.mjs list --role music` → 백로그 확인 → 플랜 → 구현. 화면을 크게 바꾼 뒤에는 배포 전에 `next dev`로 「Maximum update depth」 경고를 확인한다(2026-11-09 교훈)
 
 ## 주인님께 여쭐 것
