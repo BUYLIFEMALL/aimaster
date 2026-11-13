@@ -48,11 +48,9 @@ describe('U12 에이전트 열기', () => {
       expect(stageBlock(name)).not.toBeNull();
     }
   });
-  it('자동화 「에이전트」 동작 저장은 통과하고 웹훅은 한국어 안내와 함께 거절된다', () => {
+  it('자동화 「에이전트」·웹훅(2026-11-13 엶) 동작 저장은 통과한다', () => {
     expect(stageBodyBlock('saveAutomation', { automation: { actions: [{ type: 'agent' }] } })).toBeNull();
-    const r = stageBodyBlock('saveAutomation', { automation: { actions: [{ type: 'webhook' }] } });
-    expect(r?.status).toBe(403);
-    expect(r?.message).toContain('준비 중');
+    expect(stageBodyBlock('saveAutomation', { automation: { actions: [{ type: 'webhook' }] } })).toBeNull();
   });
   it('요금제 조건 없이 쓸 수 있고, 웹 검색은 회원 키 AI 내장 검색만(2026-11-13), 기본 월 상한은 700이다', () => {
     expect(model.agentsAvailable({ id: 's', plan_type: 'plus' } as never)).toBe(true);

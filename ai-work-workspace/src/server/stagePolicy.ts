@@ -59,7 +59,8 @@ function laterByPrefix(name: string): boolean {
 
 export const AUTOMATION_STEP_MESSAGE = '웹훅 동작은 아직 준비 중입니다. 이 동작을 빼고 저장해 주세요.';
 /** U11: 아직 열지 않은 자동화 동작(웹훅 = 운영자 서버의 바깥 호출 → U14). 에이전트 동작은 U12(2026-11-10)에서 엶 */
-const LATER_AUTOMATION_STEPS = new Set(['webhook']);
+// 2026-11-13(주인님 「권장안대로」): 웹훅 동작 엶 — 회원별 제한은 litpage/server/aimasterWebhookGuard.ts
+const LATER_AUTOMATION_STEPS = new Set<string>([]);
 
 /** 명령 내용까지 봐야 막을 수 있는 것(U11 자동화 저장). 원본 명령 이름만으로는 열린 명령이다. */
 export function stageBodyBlock(name: string, body: unknown): { status: number; message: string } | null {

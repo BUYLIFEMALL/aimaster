@@ -30,6 +30,7 @@ import { registerJobHandler, scheduleJob, cancelJob } from '../scheduler.ts';
 import { pushNotification } from '../notify.ts';
 import { safeFetch, FetchBlockedError } from '../safefetch.ts';
 import { hit } from '../ratelimit.ts';
+import { memberWebhookGate } from '../aimasterWebhookGuard.ts';
 import { instantiateTemplate, TemplateError, userTimeZone } from './templates.ts';
 
 /** Detection window: ~3 seconds. Tests shorten it with NC_AUTOMATION_WINDOW_MS. */
@@ -207,6 +208,9 @@ async function sendWebhook(a: AutomationRecord, step: Extract<AutomationAction, 
   if (isDemoMode()) throw new AutomationError(DEMO_MESSAGE, 'webhook_disabled', step.id);
   if (!webhooksAllowed(col.space_id as string)) throw new AutomationError('This feature is disabled in your workspace', 'webhook_disabled', step.id);
   if (!hit(`automation-webhook:${a.id}`, 60, 60_000) || !hit(`automation-webhook-space:${col.space_id}`, 600, 60_000)) throw new AutomationError('Too many webhook requests. Try again later.', 'rate_limited', step.id);
+  // AIMaster: https만·회원당 분당 20회·하루 500회(만든 사람 기준)
+  const gate = memberWebhookGate(a.created_by_id, step.url);
+  if (gate) throw new AutomationError(gate, 'webhook_failed', step.id);
   // the creator's view: hidden values are off the page, "No access" properties out of the schema (payloadPlanner)
   const view = viewerQueryContext(a.created_by_id);
   const page = planner.ctx.page ? planner.get<BlockRecord>('block', planner.ctx.page.id) : undefined;

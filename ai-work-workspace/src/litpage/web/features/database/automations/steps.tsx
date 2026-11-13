@@ -75,7 +75,8 @@ export function newStep(type: ActionType, opts: { collectionId?: string; propId?
 
 /** The action menu ("New action" / "Create another step"). */
 /** AIMaster U11: 아직 준비 중인 동작(웹훅 → U14 판단). 에이전트 동작은 U12(2026-11-10)에서 엶 */
-const LATER_STEPS: ReadonlySet<string> = new Set(['webhook']);
+// 2026-11-13(주인님 「권장안대로」): 웹훅 엶 — 서버는 https만·회원당 분당 20회·하루 500회(litpage/server/aimasterWebhookGuard.ts)
+const LATER_STEPS: ReadonlySet<string> = new Set<string>([]);
 
 export function openActionMenu(anchor: HTMLElement, props: { surface: Surface; collectionId?: string; noTriggerPage?: boolean; webhooksAllowed?: boolean; steps: AutomationAction[]; onPick: (s: AutomationAction) => void }) {
   const items: MenuItemDef[] = [];

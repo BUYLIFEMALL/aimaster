@@ -19,6 +19,7 @@ import { messageQueryContext, readableQueryContext, viewerQueryContext } from '.
 import { redactDatabaseRecord } from '../../propaccess.ts';
 import { pageIdOf } from '../../search.ts';
 import { hit, RateLimitError } from '../../ratelimit.ts';
+import { memberWebhookGate } from '../../aimasterWebhookGuard.ts';
 import { safeFetch, FetchBlockedError } from '../../safefetch.ts';
 import { pushNotification } from '../../notify.ts';
 import { audit } from '../../audit.ts';
@@ -463,6 +464,9 @@ export const handlers: Record<string, Handler> = {
           if (isDemoMode()) throw new AutomationError(DEMO_MESSAGE);
           if (!webhooksAllowed(src.spaceId)) throw new AutomationError('This feature is disabled in your workspace');
           if (!hit(`button-webhook:${src.block?.id ?? src.page?.id}`, 30, 60_000)) throw new AutomationError('Too many webhook requests. Try again later.');
+          // AIMaster: https만·회원당 분당 20회·하루 500회(누른 사람 기준)
+          const gate = memberWebhookGate(uid, step.url);
+          if (gate) throw new AutomationError(gate);
           let host = step.url;
           try { host = new URL(step.url).host; } catch { throw new AutomationError('Enter a valid URL'); }
           const pageCol = page?.parent_table === 'collection' ? (view.getRecord!('collection', page.parent_id) as CollectionRecord | undefined) : undefined;

@@ -28,12 +28,19 @@ describe('U11 자동화 열기', () => {
   it('에이전트 공유·개발자 API·MCP는 계속 닫혀 있다(U12에서 에이전트 자체는 열림)', () => {
     for (const name of ['getAgentSharing', 'devCreateToken', 'mcpConnect']) expect(stageBlock(name)).not.toBeNull();
   });
-  it('웹훅 동작이 든 자동화 저장은 한국어 안내와 함께 거절된다(에이전트 동작은 U12에서 열림)', () => {
-    for (const type of ['webhook']) {
-      const r = stageBodyBlock('saveAutomation', { collectionId: 'c', automation: { actions: [{ id: 'a', type: 'notify' }, { id: 'b', type }] } });
-      expect(r?.status).toBe(403);
-      expect(r?.message).toContain('준비 중');
-    }
+  it('웹훅 동작이 든 자동화 저장은 통과하고(2026-11-13 엶), 회원별 제한은 https만·분당 20·하루 500', async () => {
+    expect(stageBodyBlock('saveAutomation', { collectionId: 'c', automation: { actions: [{ id: 'a', type: 'notify' }, { id: 'b', type: 'webhook' }] } })).toBeNull();
+    const g = await import('../../src/litpage/server/aimasterWebhookGuard.ts');
+    expect(g.memberWebhookGate('wh-a', 'http://example.com/x')).toMatch(/https/);
+    expect(g.memberWebhookGate('wh-a', '주소 아님')).toMatch(/올바르지/);
+    const t0 = Date.parse('2026-11-13T00:00:00Z');
+    for (let i = 0; i < 20; i++) expect(g.memberWebhookGate('wh-b', 'https://example.com/h', t0 + i)).toBeNull();
+    expect(g.memberWebhookGate('wh-b', 'https://example.com/h', t0 + 30)).toMatch(/1분에 20번/);
+    // 하루 500번: 분 단위를 넘겨 가며 채운다
+    let ok = 20;
+    for (let m = 1; ok < 500; m++) for (let i = 0; i < 20 && ok < 500; i++, ok++) expect(g.memberWebhookGate('wh-b', 'https://example.com/h', t0 + m * 61_000 + i)).toBeNull();
+    expect(g.memberWebhookGate('wh-b', 'https://example.com/h', t0 + 30 * 61_000)).toMatch(/하루 500번/);
+    expect(g.memberWebhookGate('wh-c', 'https://example.com/h', t0)).toBeNull(); // 다른 회원은 따로
   });
   it('알림·속성 바꾸기 동작 자동화 저장은 통과한다', () => {
     expect(stageBodyBlock('saveAutomation', { automation: { actions: [{ type: 'notify' }, { type: 'edit_property' }] } })).toBeNull();
