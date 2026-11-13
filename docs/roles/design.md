@@ -6,19 +6,20 @@
 - 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
 - 핵심 배포 원칙 (2026-10-29 주인님 지시): 작업한 내용의 실제 배포는 비용 절감을 위해 꼭 당장 필요한 것(긴급/치명 오류)이 아니면 로컬 검수 완료 상태로 모아두었다가 **한 번에 묶음(Batch)으로 반영**한다. 급한 것만 최소한으로 단독 반영.
 - **[필수 배포 관문 — 크롬 확장 버전 일치 검증 의무 (2026-11-13)]**: 크롬 확장이 포함된 프로그램을 배포할 때는 반드시 `programs.version`과 함께 `programs.extension_version`도 동일하게 올리고, 배포 직후 `node scripts/check-extension-release.mjs <slug>`를 실행하여 `OK DB vX.XX / ext vX.XX / zip vX.XX` 무결성을 확인한다(핵심 원칙 10 & 2026-11-13 부동산 담당 요청 및 영구 지침 등록).
-- 마지막 갱신: 2026-11-13 18:24 (agy-win-mb-v1)
-- 최신 갱신: 2026-11-13 18:24 (agy-win-mb-v1, mall-builder v1.07 손님 화면 106번 전면 개편 및 프로덕션 배포 완료)
-- 최근 업데이트: 2026-11-13 18:24 (mall-builder v1.07 배포 완료 및 elevenst-register 착수 대기)
+- 마지막 갱신: 2026-11-13 18:33 (agy-win-elr-v1)
+- 최신 갱신: 2026-11-13 18:33 (agy-win-elr-v1, elevenst-register 4대 화면 3시안 쇼케이스 구축 및 107/108/109번 100% 자산화 완료)
+- 최근 업데이트: 2026-11-13 18:33 (elevenst-register 시안 공식 제안서 제출 완료)
 
 ## 지금 하는 일
-- mall-builder v1.07 배포 완료 및 후속 1순위 과제(elevenst-register 11번가 등록기 3시안 쇼케이스) 착수 준비
+- elevenst-register 4대 화면 3시안(12뷰) 쇼케이스 구축 완료 및 주인님 시안 확정 승인 대기
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
-- `elevenst-register` 4대 화면 3시안 쇼케이스 제작 착수
+- `elevenst-register` 3대 시안 중 채택안(추천: 1안 11st 오리지널 레드 스튜디오) 주인님 결정 대기
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-13 | `elevenst-register` | 4대 화면 3시안(12개 뷰) 1440px 고화질 캡처 및 `http://localhost:3800/showcase.html` 단일 통합 쇼케이스 & `comparison.html` 종합 비교 매트릭스 표 구축, `D:\Antigravity\Design` 3대 독립 폴더(107/108/109번) 영구 자산 아카이빙 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3800`) |
 | 2026-11-13 | `mall-builder` `v1.07` | 1안(106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일) 공식 채택 손님 화면 전면 개편, 헤더/바닥글 B2B 일체화, S3 샘플몰 안내 띠 배너, 3D 엠보싱 블루 버튼(`.btn-3d-blue`), 상품 카드/상세/장바구니/주문서/분양안내(`/resale`) 1안 적용, 단위테스트 256/256 전수 통과, Turbopack 프로덕션 빌드 성공, Edge 1440px/390px 실물 캡처 검증 완료, Vercel 프로덕션 배포 완료 | ✔ 프로덕션 배포 완료 (https://mall-builder.buylife.xyz) |
 | 2026-11-13 | `banana-canvas` `v1.46` | 1안(68. 크리에이티브 아뜰리에 페이퍼 팝 스타일) 공식 채택 메이커 상품 대표사진 일괄 합성(P1) 및 원래 상품 반환(P2) UI 구현, 4단계 워크플로우, 1000×1000 정사각형 뷰파인더, 원클릭 긴급 중단 버튼, 단위테스트 93/93 통과, Turbopack 빌드 성공, 실물 캡처 검증 완료 | 🔍 로컬 검증 완료 (운영 배포 대기) |
 | 2026-11-13 | `ebook-studio` `v1.16` | 12월 모델 교체 묶음 B 종결 및 첫 화면 소개 배지 구버전 문구({APP_VERSION} Classic Bookbinding Studio) 동기화 (97번 테마 정체성 일치), 보안 강화(signOut({ scope: "local" }), UA 헤더 전달), 저장공간 위젯 태그 탑재 확인, Next.js 16.4.2 프로덕션 빌드 성공 및 Vercel 배포 완료 | ✔ 프로덕션 배포 완료 (`dpl_EejQ8NzCocayuEuC98uTxqqFoUFZ`, https://ebook.buylife.xyz) |
