@@ -5,6 +5,7 @@ import { formatTime, lineAt, type LyricLine } from "@/lib/lyrics";
 import { romanize } from "@/lib/romanize";
 import { smoothBandsAt, waveAt, type AudioSource } from "@/lib/render/spectrum";
 import { vinylAngle } from "@/lib/vinyl";
+import { filmBarHeight, logoRect } from "@/lib/overlay";
 
 export interface Scene {
   title: string; artist: string;
@@ -19,6 +20,8 @@ export interface Scene {
   /** 무료 사진 배경(디자인 bgPhoto를 우리 서버로 받아 둔 그림) */
   photo?: (CanvasImageSource & { width: number; height: number }) | null;
   photoKey?: string;
+  /** v1.14 채널 로고(회원 PC의 그림 — 서버에 올리지 않음) */
+  logo?: (CanvasImageSource & { width: number; height: number }) | null;
 }
 export interface DrawCache { backdrop?: { key: string; canvas: HTMLCanvasElement }; vinyl?: { key: string; canvas: HTMLCanvasElement } }
 
@@ -309,6 +312,32 @@ function drawLyrics(ctx: CanvasRenderingContext2D, sc: Scene, t: number, rx: num
 }
 
 /** t초 화면 한 장 */
+/** v1.14 프레임(테두리) — 얇은 선·둥근 카드·필름 띠. 시간과 무관해 미리보기와 MP4가 같다 */
+function drawBorder(ctx: CanvasRenderingContext2D, W: number, H: number, d: Design, u: number) {
+  if (d.frame === "none") return;
+  ctx.save();
+  const lw = Math.max(1, d.frameWidth * u);
+  ctx.strokeStyle = d.frameColor; ctx.lineWidth = lw;
+  if (d.frame === "film") {
+    const bar = filmBarHeight(d.frame, H);
+    ctx.fillStyle = "#000000"; ctx.fillRect(0, 0, W, bar); ctx.fillRect(0, H - bar, W, bar);
+    ctx.beginPath(); ctx.moveTo(0, bar); ctx.lineTo(W, bar); ctx.moveTo(0, H - bar); ctx.lineTo(W, H - bar); ctx.stroke();
+  } else {
+    const m = 26 * u + lw / 2, r = d.frame === "card" ? 40 * u : 0;
+    ctx.beginPath(); ctx.roundRect(m, m, W - m * 2, H - m * 2, r); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/** v1.14 채널 로고 — 3×3 칸 자리, 원본 비율 그대로 */
+function drawLogo(ctx: CanvasRenderingContext2D, W: number, H: number, sc: Scene) {
+  const d = sc.design, img = sc.logo;
+  if (!img) return;
+  const r = logoRect(W, H, img.width, img.height, d.logoPos, d.logoSize, d.frame);
+  if (!r) return;
+  ctx.save(); ctx.globalAlpha = d.logoOpacity; ctx.drawImage(img, r.x, r.y, r.w, r.h); ctx.restore();
+}
+
 export function drawFrame(ctx: CanvasRenderingContext2D, W: number, H: number, sc: Scene, t: number, cache: DrawCache) {
   const d = sc.design, u = Math.min(W, H) / 1080, size = d.size;
   ctx.save(); ctx.clearRect(0, 0, W, H);
@@ -344,6 +373,8 @@ export function drawFrame(ctx: CanvasRenderingContext2D, W: number, H: number, s
       drawProgress(ctx, sc, t, W * 0.1, H - 160 * u, W * 0.8, u);
     }
   }
+  drawBorder(ctx, W, H, d, u);
+  drawLogo(ctx, W, H, sc);
   if (sc.photo && d.bgPhoto) { // 사진 작가·출처(제공처 권장 표기)
     ctx.save(); ctx.globalAlpha = 0.55; ctx.fillStyle = "#ffffff"; ctx.font = `400 ${Math.round(16 * u)}px "Noto Sans KR", "Malgun Gothic", sans-serif`;
     ctx.textAlign = "right"; ctx.textBaseline = "bottom";

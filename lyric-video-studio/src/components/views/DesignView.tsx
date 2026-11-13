@@ -4,7 +4,8 @@ import { useStudio } from "@/components/studio/StudioContext";
 import { Preview, StudioBar, Transport } from "@/components/studio/parts";
 import { PresetThumb } from "@/components/studio/PresetThumb";
 import { PhotoPicker } from "@/components/studio/PhotoPicker";
-import { FONT_IDS, FONTS, HIGHLIGHTS, presetsFor, ROMANS, SPECTRUMS, type Aspect, type Design } from "@/lib/design";
+import { useRef, useState } from "react";
+import { FONT_IDS, FONTS, FRAMES, HIGHLIGHTS, LOGO_POSITIONS, presetsFor, ROMANS, SPECTRUMS, type Aspect, type Design } from "@/lib/design";
 import { allSynced } from "@/lib/lyrics";
 
 function Chips<T extends string | number>({ value, items, onPick }: { value: T; items: { id: T; label: string; hint?: string }[]; onPick: (v: T) => void }) {
@@ -17,6 +18,9 @@ function Toggle({ on, label, onChange }: { on: boolean; label: string; onChange:
 export function DesignView() {
   const s = useStudio(), d = s.design;
   const set = (patch: Partial<Design>) => s.setDesign(patch);
+  const logoInput = useRef<HTMLInputElement>(null);
+  const [logoMsg, setLogoMsg] = useState("");
+  const pickLogo = async (f: File) => { setLogoMsg(""); try { await s.loadLogo(f); } catch (e) { setLogoMsg(e instanceof Error ? e.message : "로고를 넣지 못했습니다."); } };
   const switchAspect = (a: Aspect) => { if (a !== d.aspect) s.applyPreset(presetsFor(a)[0]); };
   return (
     <div className="stack">
@@ -74,6 +78,36 @@ export function DesignView() {
               <Toggle on={d.coverBackdrop} label="커버를 흐리게 배경으로" onChange={(v) => set({ coverBackdrop: v })} />
               <Toggle on={d.showTitle} label="제목·아티스트 표시" onChange={(v) => set({ showTitle: v })} />
               <Toggle on={d.progress} label="재생 막대 표시" onChange={(v) => set({ progress: v })} />
+            </div>
+          </section>
+          <section className="card stack">
+            <div>
+              <div className="panel-label">🏷️ 채널 로고 <span className="muted">(이 PC의 그림 — 서버에 올리지 않습니다)</span></div>
+              <div className="row" style={{ alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <button type="button" onClick={() => logoInput.current?.click()}>{s.logo ? "로고 바꾸기" : "로고 그림 넣기"}</button>
+                {s.logo && <button type="button" onClick={() => s.clearLogo()}>로고 빼기</button>}
+                <small className="muted">{s.logo ? `✓ ${s.logo.name}` : "PNG(투명 배경)·JPG·WebP, 5MB 이하"}</small>
+                <input ref={logoInput} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void pickLogo(f); e.target.value = ""; }} />
+              </div>
+              {logoMsg && <small>⚠️ {logoMsg}</small>}
+              {s.logo && <>
+                <div className="panel-label" style={{ marginTop: 10 }}>로고 위치</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 40px)", gap: 6 }}>
+                  {LOGO_POSITIONS.map((p) => <button key={p.id} type="button" className={`chip ${d.logoPos === p.id ? "on" : ""}`} style={{ justifyContent: "center", padding: "6px 0" }} aria-pressed={d.logoPos === p.id} aria-label={`로고 위치 ${p.id + 1}`} onClick={() => set({ logoPos: p.id })}>{p.label}</button>)}
+                </div>
+                <div className="field-grid two" style={{ marginTop: 10 }}>
+                  <label>로고 크기 {Math.round(d.logoSize * 100)}%<input type="range" min={0.05} max={0.3} step={0.01} value={d.logoSize} onChange={(e) => set({ logoSize: Number(e.target.value) })} /></label>
+                  <label>로고 투명도 {Math.round(d.logoOpacity * 100)}%<input type="range" min={0.2} max={1} step={0.05} value={d.logoOpacity} onChange={(e) => set({ logoOpacity: Number(e.target.value) })} /></label>
+                </div>
+                <small className="muted">로고 그림은 저장되지 않습니다. 작업을 다시 열면 한 번 더 넣어 주세요(위치·크기는 저장됩니다).</small>
+              </>}
+            </div>
+            <div>
+              <div className="panel-label">🖼️ 프레임(테두리)</div><Chips value={d.frame} onPick={(v) => set({ frame: v })} items={FRAMES} />
+              {d.frame !== "none" && <div className="field-grid two" style={{ marginTop: 10 }}>
+                <label>선 색<input type="color" value={d.frameColor} onChange={(e) => set({ frameColor: e.target.value })} /></label>
+                <label>선 두께 {d.frameWidth}<input type="range" min={2} max={12} step={1} value={d.frameWidth} onChange={(e) => set({ frameWidth: Number(e.target.value) })} /></label>
+              </div>}
             </div>
           </section>
           <PhotoPicker />

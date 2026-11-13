@@ -5,6 +5,8 @@ import { api, toMsg, type Msg } from "@/components/ui/api";
 import { Message } from "@/components/ui/Message";
 import { useStudio } from "./StudioContext";
 import { uploadDefaults, uploadToYoutube, type Privacy, type UploadRecord } from "@/lib/youtube/browserUpload";
+import { timeline } from "@/lib/lyrics";
+import type { YtMeta } from "@/lib/ytMeta";
 
 // v1.04 만든 MP4를 내 유튜브 채널에 올리기(shorts-onestop-studio YoutubeUploadCard를 가사영상에 맞게 줄임).
 // 유튜브 연결은 다른 유튜브 프로그램에서 한 번 연결한 공용 계정을 그대로 쓴다(회원 본인 Google 앱·본인 채널만).
@@ -43,6 +45,21 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
   const [picked, setPicked] = useState<File | null>(null);
   const [pct, setPct] = useState<number | null>(null), [msg, setMsg] = useState<Msg>(null), [done, setDone] = useState<UploadRecord[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
+  // v1.14 AI 제목·설명 제안(선택) — 누를 때만 회원 본인 키로 1회 호출
+  const [ai, setAi] = useState<(YtMeta & { provider: string; model: string }) | null>(null), [aiBusy, setAiBusy] = useState(false), [aiMsg, setAiMsg] = useState<Msg>(null);
+  const lyrics = timeline(s.lines).map((l) => l.text.replace(/\n/g, " ")).join("\n");
+  async function suggest() {
+    if (aiBusy) return;
+    setAiBusy(true); setAiMsg(null);
+    try {
+      setAi(await api<YtMeta & { provider: string; model: string }>("/api/youtube/meta", { body: { title: s.title, artist: s.artist, lyrics, portrait } }));
+    } catch (e) { setAiMsg(toMsg(e)); }
+    finally { setAiBusy(false); }
+  }
+  function useAiText() { // 설명란 = AI 설명 + 해시태그 + 가사(지금 설명란의 가사 부분은 기본값에서 다시 만든다)
+    if (!ai) return;
+    setForm((f) => ({ ...f, description: [ai.description, ai.hashtags.join(" "), lyrics].filter(Boolean).join("\n\n").slice(0, 5000) }));
+  }
   const video = blob ?? picked;
   const coverUrl = s.cover?.url ?? null;
   const [thumb, setThumb] = useState<Thumb | null>(null), [useThumb, setUseThumb] = useState(true);
@@ -120,6 +137,20 @@ export function YoutubeUploadCard({ blob, disabled }: { blob: Blob | null; disab
             <input ref={fileInput} type="file" accept="video/mp4" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) setPicked(f); e.target.value = ""; }} />
           </div>
         )}
+        <div className="stack" style={{ gap: 8 }}>
+          <div className="row" style={{ alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <button type="button" disabled={aiBusy || pct !== null} onClick={() => void suggest()}>{aiBusy ? "AI가 쓰는 중…" : ai ? "✨ 다시 제안받기" : "✨ AI로 제목·설명 제안받기"}</button>
+            <small className="muted">선택 기능 · 누를 때마다 회원님 본인 AI 키로 1회 호출됩니다(저가 모델, 1회 수 원 이하). 곡 제목·가수·가사 앞부분만 보냅니다.</small>
+          </div>
+          <Message msg={aiMsg} />
+          {ai && <div className="stack" style={{ gap: 6 }}>
+            <small className="muted">제목 후보 — 누르면 제목 칸에 들어갑니다({ai.provider} · {ai.model})</small>
+            {ai.titles.map((t) => <button key={t} type="button" style={{ textAlign: "left" }} onClick={() => setForm((f) => ({ ...f, title: t.slice(0, 100) }))}>{t}</button>)}
+            <small style={{ whiteSpace: "pre-wrap" }}>{ai.description}{ai.hashtags.length ? `
+${ai.hashtags.join(" ")}` : ""}</small>
+            <div className="actions"><button type="button" onClick={useAiText}>이 설명·해시태그를 설명란에 넣기(가사는 그대로 아래에)</button></div>
+          </div>}
+        </div>
         <label>제목 <small className="muted">({form.title.length}/100)</small><input value={form.title} maxLength={100} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
         <label>설명란(가사·해시태그)<textarea rows={5} value={form.description} maxLength={5000} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
         <label>검색 태그(쉼표로 구분)<input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} /></label>

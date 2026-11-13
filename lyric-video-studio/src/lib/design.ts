@@ -7,6 +7,7 @@ export type Highlight = "color" | "box" | "outline" | "marker" | "underline" | "
 export type SpectrumKind = "none" | "bars" | "mirror" | "wave" | "dots" | "lines";
 export type Align = "left" | "center";
 export type Roman = "off" | "above" | "below";
+export type FrameKind = "none" | "line" | "card" | "film";
 export type FontId = "noto" | "gowun" | "dohyeon" | "blackhan" | "myeongjo" | "pen" | "jua" | "gaegu" | "songmyung";
 
 export interface Design {
@@ -35,6 +36,10 @@ export interface Design {
   vinyl: boolean;
   /** 무료 사진 배경(회원 본인 Pixabay·Pexels 키로 고른 사진 — 주소·작가만 저장, 파일은 서버에 두지 않음) */
   bgPhoto: BgPhoto | null;
+  /** v1.14 프레임(테두리) — 색·두께(1080 기준 픽셀) */
+  frame: FrameKind; frameColor: string; frameWidth: number;
+  /** v1.14 채널 로고(그림 파일은 회원 PC에만, 여기에는 자리·크기·투명도만) — 위치 0~8(3×3 칸), 크기 = 짧은 변 대비 비율 */
+  logoPos: number; logoSize: number; logoOpacity: number;
   fps: 24 | 30;
 }
 
@@ -76,6 +81,15 @@ export const HIGHLIGHTS: { id: Highlight; label: string; hint: string }[] = [
   { id: "bracket", label: "모서리 괄호", hint: "줄의 네 모서리에 괄호를 그립니다" },
 ];
 
+export const FRAMES: { id: FrameKind; label: string; hint: string }[] = [
+  { id: "none", label: "없음", hint: "테두리를 그리지 않습니다" },
+  { id: "line", label: "얇은 선", hint: "화면 가장자리에 선을 두릅니다" },
+  { id: "card", label: "둥근 카드", hint: "모서리가 둥근 선을 두릅니다" },
+  { id: "film", label: "필름 띠", hint: "위아래에 검은 띠를 넣습니다" },
+];
+/** 로고 위치 — 3×3 칸(0 왼쪽 위 … 8 오른쪽 아래) */
+export const LOGO_POSITIONS: { id: number; label: string }[] = ["↖", "↑", "↗", "←", "●", "→", "↙", "↓", "↘"].map((label, id) => ({ id, label }));
+
 export const ROMANS: { id: Roman; label: string }[] = [
   { id: "off", label: "끔" }, { id: "above", label: "가사 위" }, { id: "below", label: "가사 아래" },
 ];
@@ -86,7 +100,7 @@ export const SPECTRUMS: { id: SpectrumKind; label: string }[] = [
 
 const BASE: Omit<Design, "presetId" | "aspect"> = {
   layout: "panel", bg1: "#141028", bg2: "#06060c", coverBackdrop: true, text: "#ffffff", accent: "#a78bfa", font: "noto",
-  highlight: "color", context: 2, align: "left", size: 1, spectrum: "bars", progress: true, showTitle: true, ambient: 0.6, roman: "off", vinyl: false, bgPhoto: null, fps: 30,
+  highlight: "color", context: 2, align: "left", size: 1, spectrum: "bars", progress: true, showTitle: true, ambient: 0.6, roman: "off", vinyl: false, bgPhoto: null, frame: "none", frameColor: "#ffffff", frameWidth: 4, logoPos: 2, logoSize: 0.12, logoOpacity: 0.9, fps: 30,
 };
 
 export interface Preset { id: string; name: string; desc: string; design: Design }
@@ -144,6 +158,12 @@ export function normalizeDesign(raw: unknown): Design {
     roman: pick(d.roman, ["off", "above", "below"], "off"),
     vinyl: typeof d.vinyl === "boolean" ? d.vinyl : base.vinyl,
     bgPhoto: bgPhotoOf(d.bgPhoto),
+    frame: pick(d.frame, FRAMES.map((f) => f.id), "none"),
+    frameColor: color(d.frameColor, "#ffffff"),
+    frameWidth: Math.round(num(d.frameWidth, 2, 12, 4)),
+    logoPos: Math.round(num(d.logoPos, 0, 8, 2)),
+    logoSize: num(d.logoSize, 0.05, 0.3, 0.12),
+    logoOpacity: num(d.logoOpacity, 0.2, 1, 0.9),
     fps: d.fps === 24 ? 24 : 30,
   };
 }

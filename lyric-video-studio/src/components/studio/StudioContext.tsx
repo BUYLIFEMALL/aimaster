@@ -29,6 +29,8 @@ interface Studio {
   audio: AudioState | null; audioBusy: string; loadAudio(file: File, sunoVariantId?: string | null): Promise<void>;
   sunoVariantId: string | null; restoreNote: string;
   cover: CoverState | null; loadCover(file: File): Promise<void>; clearCover(): void;
+  /** v1.14 채널 로고(이 브라우저에서만 — 저장하지 않으므로 다시 열면 다시 넣는다) */
+  logo: CoverState | null; loadLogo(file: File): Promise<void>; clearLogo(): void;
   /** 배경 사진 받는 중·실패 안내(없으면 빈 문자열) */
   photoNote: string;
   player: HTMLAudioElement | null;
@@ -51,6 +53,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLinesRaw] = useState<LyricLine[]>(blankLines), [design, setDesignRaw] = useState<Design>(DEFAULT_DESIGN);
   const [audio, setAudio] = useState<AudioState | null>(null), [audioBusy, setAudioBusy] = useState("");
   const [cover, setCover] = useState<CoverState | null>(null);
+  const [logo, setLogo] = useState<CoverState | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null), [dirty, setDirty] = useState(false);
   const [savedNames, setSavedNames] = useState<{ audioName?: string; coverName?: string }>({});
   const [player, setPlayer] = useState<HTMLAudioElement | null>(null);
@@ -75,7 +78,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const setLines = useCallback((next: LyricLine[] | ((prev: LyricLine[]) => LyricLine[])) => { setLinesRaw(next); setDirty(true); }, []);
   const setDesign = useCallback((patch: Partial<Design>) => { setDesignRaw((d) => normalizeDesign({ ...d, ...patch })); setDirty(true); }, []);
   // 프리셋을 바꿔도 회원이 정한 글자 크기·프레임레이트·배경 사진은 그대로 둔다
-  const applyPreset = useCallback((p: Preset) => { setDesignRaw((d) => ({ ...p.design, size: d.size, fps: d.fps, bgPhoto: d.bgPhoto })); setDirty(true); }, []);
+  const applyPreset = useCallback((p: Preset) => { setDesignRaw((d) => ({ ...p.design, size: d.size, fps: d.fps, bgPhoto: d.bgPhoto, frame: d.frame, frameColor: d.frameColor, frameWidth: d.frameWidth, logoPos: d.logoPos, logoSize: d.logoSize, logoOpacity: d.logoOpacity })); setDirty(true); }, []);
 
   // 배경 사진은 우리 서버를 거쳐 받는다(다른 사이트 그림을 캔버스에 바로 그리면 MP4로 내보낼 수 없음)
   const [photo, setPhoto] = useState<{ key: string; img: HTMLImageElement } | null>(null), [photoNote, setPhotoNote] = useState("");
@@ -116,6 +119,14 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     setCover({ name: file.name, url, img, key: `${file.name}:${file.size}:${file.lastModified}` }); setDirty(true);
   }, []);
   const clearCover = () => { setCover(null); touch(); };
+  const loadLogo = useCallback(async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) throw new Error("로고 그림은 5MB 이하로 넣어 주세요.");
+    const url = URL.createObjectURL(file); urls.current.push(url);
+    const img = new Image();
+    await new Promise<void>((ok, bad) => { img.onload = () => ok(); img.onerror = () => bad(new Error("이미지를 읽지 못했습니다. jpg·png·webp 파일인지 확인해 주세요.")); img.src = url; });
+    setLogo({ name: file.name, url, img, key: `${file.name}:${file.size}:${file.lastModified}` });
+  }, []);
+  const clearLogo = () => setLogo(null);
 
   const data = (): ProjectData => ({ title, artist, lines, design, audioName: audio?.name ?? savedNames.audioName, coverName: cover?.name ?? savedNames.coverName, duration: audio?.buffer.duration, sunoVariantId: sunoVariantId ?? undefined });
 
@@ -155,8 +166,9 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     title, artist, lines: timeline(lines, audio?.buffer.duration ?? Infinity), duration: audio?.buffer.duration ?? 0, design,
     cover: cover?.img ?? null, coverKey: cover?.key ?? "", audio: audio?.source ?? null,
     photo: photo && photo.key === design.bgPhoto?.url ? photo.img : null, photoKey: photo?.key ?? "",
-  }), [title, artist, lines, design, audio, cover, photo]);
+    logo: logo?.img ?? null,
+  }), [title, artist, lines, design, audio, cover, photo, logo]);
 
-  const value: Studio = { title, artist, lines, design, setTitle, setArtist, setLines, setDesign, applyPreset, audio, audioBusy, loadAudio, sunoVariantId, restoreNote, cover, loadCover, clearCover, photoNote, player, projectId, dirty, savedNames, save, open, reset, scene };
+  const value: Studio = { title, artist, lines, design, setTitle, setArtist, setLines, setDesign, applyPreset, audio, audioBusy, loadAudio, sunoVariantId, restoreNote, cover, loadCover, clearCover, logo, loadLogo, clearLogo, photoNote, player, projectId, dirty, savedNames, save, open, reset, scene };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
