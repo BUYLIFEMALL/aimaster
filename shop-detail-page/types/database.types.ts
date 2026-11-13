@@ -69,6 +69,8 @@ export interface Database {
           layout_density: string | null;
           source_image_url: string | null;
           reference_image_urls: string[];
+          main_image_url: string | null;
+          main_image_urls: string[];
           image_generation_notes: string | null;
           default_image_model: string;
           layout_preset: string;
@@ -100,6 +102,8 @@ export interface Database {
           layout_density?: string | null;
           source_image_url?: string | null;
           reference_image_urls?: string[];
+          main_image_url?: string | null;
+          main_image_urls?: string[];
           image_generation_notes?: string | null;
           default_image_model?: string;
           layout_preset?: string;
@@ -131,6 +135,8 @@ export interface Database {
           layout_density?: string | null;
           source_image_url?: string | null;
           reference_image_urls?: string[];
+          main_image_url?: string | null;
+          main_image_urls?: string[];
           image_generation_notes?: string | null;
           default_image_model?: string;
           layout_preset?: string;

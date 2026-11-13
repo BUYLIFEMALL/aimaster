@@ -22,6 +22,8 @@ export interface ProductRow {
   sale_price: number | null;
   category: string | null;
   source_image_url: string | null;
+  /** 메이커 P2(2026-11-13): 바나나에서 합성한 대표사진(있으면 원본 대신 대표 이미지로) */
+  main_image_url?: string | null;
   section_sequence: string[] | null;
   status: string;
   updated_at: string;
@@ -36,7 +38,7 @@ export function ownExtraPaths(userId: string, urls: string[] | null | undefined)
   return (urls ?? []).map((u) => storagePathFromUrl(u)).filter((p): p is string => Boolean(p && p.startsWith(`${userId}/`))).slice(0, 9);
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls";
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,main_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls";
 
 export async function listProducts(userId: string): Promise<{ rows: ProductRow[]; error: boolean }> {
   const supabase = await createClient();
@@ -65,7 +67,7 @@ export async function getProductForRegister(userId: string, productId: string) {
     .eq("user_id", userId);
   const ordered = orderSections(((rows ?? []) as { section_key: string; section_order: number; image_url: string | null }[]).filter((r) => r.image_url), p.section_sequence);
   const paths = ordered.map((r) => ({ sectionKey: r.section_key, path: storagePathFromUrl(r.image_url) })).filter((r): r is { sectionKey: string; path: string } => Boolean(r.path));
-  const mainPath = storagePathFromUrl(p.source_image_url);
+  const mainPath = storagePathFromUrl(p.main_image_url || p.source_image_url);
   const all = [...(mainPath ? [mainPath] : []), ...paths.map((r) => r.path)];
   const signed = new Map<string, string>();
   if (all.length) {

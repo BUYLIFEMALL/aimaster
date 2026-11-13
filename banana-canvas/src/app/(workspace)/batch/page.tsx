@@ -1,4 +1,4 @@
-import { BatchPhotoBoard } from "@/components/batch/BatchPhotoBoard";
+import { BatchModes } from "@/components/batch/BatchModes";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export default function BatchPage() {
@@ -14,7 +14,7 @@ export default function BatchPage() {
           상품 사진 여러 장의 <strong>세로 높이를 맞추고</strong>, <strong>로고·문자 워터마크</strong>를 같은 자리에 넣고, <strong>촬영 정보·위치 정보</strong>를 지워 한 번에 받습니다. 사진은 외부 서버로 전송되지 않습니다.
         </p>
       </div>
-      <BatchPhotoBoard />
+      <BatchModes />
     </>
   );
 }

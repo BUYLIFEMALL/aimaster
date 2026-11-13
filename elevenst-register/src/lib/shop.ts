@@ -30,6 +30,8 @@ export interface ShopProduct {
   sale_price: number | null;
   category: string | null;
   source_image_url: string | null;
+  /** 메이커 P2(2026-11-13): 바나나에서 합성한 대표사진(있으면 원본 대신 대표 이미지로) */
+  main_image_url?: string | null;
   section_sequence: string[] | null;
   status: string;
   updated_at: string;
@@ -41,7 +43,7 @@ export interface ShopProduct {
   target_customer?: string | null;
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls,specs,key_features,how_to_use,target_customer";
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,main_image_url,section_sequence,status,updated_at,reviewed_at,reference_image_urls,specs,key_features,how_to_use,target_customer";
 
 export function productName(p: Pick<ShopProduct, "name" | "product_label">): string {
   return (p.name || p.product_label || "").trim() || "(상품명 없음)";
@@ -75,7 +77,7 @@ export async function getShopProduct(userId: string, productId: string) {
   const own = (path: string | null): path is string => Boolean(path && path.startsWith(`${userId}/`));
   const ordered = orderSections(((rows ?? []) as { section_key: string; section_order: number; image_url: string | null }[]).filter((r) => r.image_url), p.section_sequence);
   const sectionPaths = ordered.map((r) => storagePathFromUrl(r.image_url)).filter(own);
-  const mainPath = storagePathFromUrl(p.source_image_url);
+  const mainPath = storagePathFromUrl(p.main_image_url || p.source_image_url);
   const extraPaths = (p.reference_image_urls ?? []).map((u) => storagePathFromUrl(u)).filter(own).slice(0, 9);
   const all = [...(own(mainPath) ? [mainPath] : []), ...extraPaths, ...sectionPaths];
   const signed = new Map<string, string>();

@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { splitIntoSentenceParagraphs } from "@/lib/formatProgramDescription";
 import { CommerceUsageGuide } from "@/components/guide/CommerceUsageGuide";
 import { imageSrc } from "@/lib/imageSrc";
+import { representativePhoto } from "@/lib/mainPhoto";
+import { MainPhotoBatch } from "@/components/products/MainPhotoBatch";
 import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
 import { isInRetentionGrace, RETENTION_DAYS, RETENTION_GRACE_END_LABEL } from "@/lib/retention";
 
@@ -34,7 +36,7 @@ export default async function ProductsPage() {
   const [{ data: products }, { data: program }] = await Promise.all([
     supabase
       .from("shop_products")
-      .select("id, product_label, name, category, source_image_url, status, created_at, layout_preset, reviewed_at")
+      .select("id, product_label, name, category, source_image_url, reference_image_urls, main_image_url, updated_at, status, created_at, layout_preset, reviewed_at")
       .order("created_at", { ascending: false }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as unknown as { from: (table: string) => any })
@@ -156,6 +158,8 @@ export default async function ProductsPage() {
           </div>
         )}
 
+        <MainPhotoBatch products={(products ?? []).map((p) => ({ id: p.id, label: p.product_label ?? p.name ?? "상품", source_image_url: p.source_image_url, reference_image_urls: p.reference_image_urls, main_image_url: p.main_image_url, updated_at: p.updated_at }))} />
+
         {/* 상품 카드 그리드 (3열) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
           {(products ?? []).map((p) => {
@@ -168,10 +172,10 @@ export default async function ProductsPage() {
               >
                 <div>
                   <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden flex items-center justify-center">
-                    {p.source_image_url ? (
+                    {representativePhoto(p) ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={imageSrc(p.source_image_url)}
+                        src={imageSrc(representativePhoto(p))}
                         alt={p.product_label ?? p.name ?? ""}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />

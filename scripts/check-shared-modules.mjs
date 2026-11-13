@@ -366,6 +366,7 @@ const MODULES = [
     copies: ["emotion-writer/src/lib/studio/zip.ts", "shop-detail-page/lib/zip.ts", "video-to-gif/lib/zip.ts"],
   },
   { id: "nukki-handoff", source: "banana-canvas/src/lib/nukkiHandoff.ts", copies: ["shop-detail-page/lib/nukkiHandoff.ts", "thumbnail-master/src/lib/nukkiHandoff.ts", "insta_auto_poster/src/lib/nukkiHandoff.ts"] }, // E5-2(2026-10-26) 상세페이지 → 바나나 무료 이미지 도구 그림 넘기기
+  { id: "product-photo-handoff", source: "banana-canvas/src/lib/productPhotoHandoff.ts", copies: ["shop-detail-page/lib/productPhotoHandoff.ts"] }, // 메이커 P2(2026-11-13) 상세페이지 상품 → 바나나 상품 대표사진 합성 → 결과 반환
   {
     // GIF 자동화 창 → 상세페이지 「GIF 받기」 창으로 브라우저 안에서 GIF 넘기기 약속(postMessage, 허용 주소·메시지 검사). 2026-10-22 상세 v1.28·GIF v1.14
     id: "gif-handoff",

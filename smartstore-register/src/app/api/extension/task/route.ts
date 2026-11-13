@@ -54,7 +54,7 @@ export async function POST(req: Request) {
   // 이미지: 대표 사진 + 섹션 이미지(상세설명 순서). 본인 상품 폴더 안 경로만, 15분 서명 주소.
   const { data: product } = await admin
     .from("shop_products")
-    .select("source_image_url,section_sequence,reference_image_urls")
+    .select("source_image_url,main_image_url,section_sequence,reference_image_urls")
     .eq("id", job.product_id)
     .eq("user_id", who.userId)
     .maybeSingle();
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     .eq("product_id", job.product_id)
     .eq("user_id", who.userId);
   const own = (p: string | null) => (p && p.startsWith(`${who.userId}/`) ? p : null);
-  const main = own(storagePathFromUrl(product?.source_image_url));
+  const main = own(storagePathFromUrl(product?.main_image_url || product?.source_image_url)); // 메이커 P2: 합성 대표사진 우선
   const sections = orderSections(((rows ?? []) as { section_key: string; section_order: number; image_url: string | null }[]).filter((r) => r.image_url), product?.section_sequence)
     .map((r) => ({ key: r.section_key, path: own(storagePathFromUrl(r.image_url)) }))
     .filter((r): r is { key: string; path: string } => Boolean(r.path));
