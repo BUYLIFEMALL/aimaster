@@ -449,3 +449,9 @@ POST 콜백을 보낸다. 이 라우트는:
 - **v1.49 배포(2026-11-03, 승인 빌드 1회) `0a2ce932f`**: 위 두 수정 + API 키 암호화 문구 `b16550ad4`. 시험 61·tsc, DB v1.49, 크롬 시험 계정 화면 v1.49. **다음 할 일: 2026-11-04 03:00(KST) 정리 뒤 30일 넘은 행 0개(다른 회원 곡 2·기획 2 삭제)·두 계정 자료 유지·`usage_logs` `cleanup_expired` 새 줄 대조.**
 - **대조 완료(2026-11-06, 운영 DB 읽기만, ego lite SQL 편집기)**: 제외 계정을 뺀 30일 넘은 곡 0·기획 0·리믹스 0·리믹스 원곡 0 — `usage_logs` `cleanup_expired` 11-04 03:00 `{"tracks": 2}`(멈춘 곡 2개 삭제, 그 기획 2개도 함께 비워 삭제). 관리자·시험 계정은 곡 11개(30일 넘은 것 0)·리믹스 원곡 3개(30일 넘음) 그대로 유지 — 제외 규칙 동작 확인. v1.49 정리 수정은 이것으로 검수 끝.
 - **v1.50 배포(2026-11-12, 승인 빌드 1회 `music-h16rgt8o9`)**: 리믹스 결과 카드 「🎬 가사 영상 만들기 →」(`?remix=<variant.id>`, Admin PC 커밋 `6d5f6d711`) + 저장공간 위젯 한 줄(`5e9fea2d2`). 로컬 tsc·`npm run build` 통과, DB v1.50, ego lite 시험 계정으로 화면 v1.50·💾 위젯·리믹스 카드 링크 2개·가사 영상 쪽 곡 받기 확인. 0번 규칙 고지 점검: 고칠 곳 0.
+
+## 2026-11-13 v1.51 — 가사 생성·수정·저장 뒤 곡 생성 (Claude Code 윈도우 · 음악 담당)
+- 기획 상세 「📝 가사 만들기 · 수정」(`components/plannings/PlanningLyricsCard.tsx`, `lib/actions/planningLyrics.ts`): AI 가사 생성(본인 OpenAI 키, gpt-4o-mini, 기존 작사 프롬프트) → 수정 → 저장. **DB** `music_plannings.lyrics`(`supabase/migrations/20261113_v1_51_planning_lyrics.sql`, 운영 적용). 저장 가사가 있으면 생성 콘솔 「위에서 저장한 가사로 보컬 버전 만들기」(기본 켬, `useSavedLyrics`) → `generateTracksAction`이 보컬판에 그대로 사용(대량생성은 가사 같고 스타일만 다름). 비우면 예전처럼 자동 작사.
+- 정밀 기획 빌더: 가사 칸 바로 아래 「이 곡 가사 생성」(`Workspace.tsx` `builderLyrics` — 제목·Style 그대로, 곡 설명이 비면 곡 제목·요약으로).
+- 검수: 시험 61·tsc·lint·build, 배포 `music-qs47n803e` Ready, DB v1.51, ego lite 시험 계정으로 가사 생성 1회·수정·저장·새로고침 유지·콘솔 체크·스튜디오 버튼 확인. Suno 실제 생성은 하지 않음.
+- **미배포 대기 `d29041221`**: AI 가사의 `**`·줄 끝 공백 정리(`lib/lyricsClean.ts`, 시험 2개 — 자동 작사·연장 가사 포함, 예전부터 섞여 Suno로 가던 것), 스튜디오 버튼이 구간 표시만 있을 때 「이 곡 가사 생성」(`hasSungLyrics`). 다음 배포 때 v1.52로.
