@@ -175,3 +175,22 @@
 - 자주 묻는 질문: 옛 정책 답 4개 수정 + 질문 5개 추가(마이그레이션 0071, 적용·운영 화면 확인).
 - 옛 주소 이동 대상 수정(`aimaster-five.vercel.app`), 저장공간 요금제 카드 안내 문구(코드, 미배포).
 - 개선사항 원장: [`docs/MAIN_SITE_IMPROVEMENTS.md`](MAIN_SITE_IMPROVEMENTS.md).
+
+## 6. 담당 미정 28개 점검 결과 (2026-11-13, 주인님 「니가 해」)
+
+- 대상 28개 모두 끝남: 각 프로그램 `AGENTS.md` 「현재 상태 요약 (2026-11-13 전체 점검)」(insta는 `docs/STATUS_20261113.md`), `docs/IMPROVEMENTS.md` 「2026-11-13 전체 점검에서 발견」, 매뉴얼 정정·보강, 설정 화면 「📖 발급 방법」 버튼. 28개 모두 tsc 오류 0, 공용 사본 기준과 일치. 미배포(버전 안 올림).
+- 빠진 5개(다른 세션 연속 배포 중): `threads-affiliate-poster` `instagram-comment-reply` `threads-comment-reply` `threads` `youtube-auto-reply`.
+- 매뉴얼이 실제와 달랐던 대표 사례: 없는 기능 안내(드래그 앤 드롭, 치환 태그, 개별 예약, 붉은 배지), 틀린 수치(해시태그 25개, 화면 크기, 실행 취소 50단계, 나눠 보내는 단위), 옛 모델·가격, 근거 없는 약속(암호화 보관·완벽 파기·30일 보존 준수), 실제와 반대 안내(카카오 자동 발송).
+
+### 6-1. 주인님 결정이 필요한 것
+| 구분 | 프로그램 | 내용 | 근거 |
+|---|---|---|---|
+| ⚠ 최상위 규칙 | `kakao_auto_poster` | 카카오톡 공유 버튼이 운영자 카카오 앱 키(`NEXT_PUBLIC_KAKAO_JS_KEY`)를 씀 | 그 프로그램 IMPROVEMENTS 맨 위 |
+| ⚠ 회원 격리 | `threads-easy-planner` | 보관함 브라우저 임시 저장 키가 회원별로 나뉘지 않음 — 같은 PC 다른 회원 글이 보일 수 있음 | `src/lib/storage/savedPlansStorage.ts:12` |
+| 보관 열외 누락(DB·정리 코드) | `document-translator`(높음) `youtube-viral-studio` `competitor-analysis` `insta_auto_poster`(카드뉴스) `threads-easy-planner` | 30일 정리가 관리자·시험 계정(`retention_exempt`)을 빼지 않음 | 각 IMPROVEMENTS |
+| 30일 정리 없음 | `ai-writing-editor`(개수 기준만) `tarot` `ui-canvas` `kakao_auto_poster` `naver-cafe-poster` `stepmail` | 서버 저장 자료의 30일 자동 삭제 코드가 없음(중앙 정리는 연장 회원만 처리) | 각 IMPROVEMENTS |
+| 비밀번호 평문 저장 | `insta_auto_poster` `naver-cafe-poster` | NewsBlur 비밀번호를 원문으로 DB에 저장 | `newsblurAccount.ts` |
+| 쓰이지 않는 키 칸 | `kakao_auto_poster` | 설정의 Claude 키 칸이 실제로 쓰이지 않음 | `reportEngine.ts:33` |
+| 종료 예정 모델 | `threads-easy-planner` | 선택지에 종료·종료 예정 모델 3개 | 그 프로그램 IMPROVEMENTS |
+
+- 공통(다음 배포 때 함께, 점검 도구가 알림): 저장공간 위젯 한 줄, `signOut({ scope: "local" })`, 서버 Supabase 클라이언트 `User-Agent` — 28개 대부분 미적용.
