@@ -26,14 +26,13 @@ declare global {
   }
 }
 
-const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
-
 /**
  * mbti-character/mbti에서 실기기 검증까지 마친 카카오 SDK 로드 패턴을 그대로 가져왔다.
- * 앱키가 없으면(로컬 등) 아무 것도 하지 않는다.
+ * 2026-11-13: 운영자 앱 키(NEXT_PUBLIC_KAKAO_JS_KEY) 대신 **회원 본인 카카오 앱의 JavaScript 키**로만 연다
+ * (최상위 규칙 「본인 계정·본인 키」). 키가 없으면 아무 것도 하지 않는다 — 공유 버튼은 등록 안내로 바뀐다.
  */
-export function KakaoScript() {
-  if (!KAKAO_JS_KEY) return null;
+export function KakaoScript({ jsKey }: { jsKey: string | null }) {
+  if (!jsKey) return null;
 
   return (
     <Script
@@ -41,7 +40,7 @@ export function KakaoScript() {
       strategy="afterInteractive"
       onLoad={() => {
         if (window.Kakao && !window.Kakao.isInitialized()) {
-          window.Kakao.init(KAKAO_JS_KEY);
+          window.Kakao.init(jsKey);
         }
       }}
     />

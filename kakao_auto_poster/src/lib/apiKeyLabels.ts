@@ -9,5 +9,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   perplexity: "Perplexity (실시간 뉴스/정보 검색)",
   kakao_rest_api_key: "카카오 REST API 키 (카카오 로그인 연동)",
   kakao_client_secret: "카카오 Client Secret (선택)",
+  kakao_js_key: "카카오 JavaScript 키 (리포트 「카카오톡 공유」 버튼)",
   cronjob_org_api_key: "cron-job.org API 키 (정기 자동 생성 — 「내 cron-job.org」 방식에서만 필요)",
 };

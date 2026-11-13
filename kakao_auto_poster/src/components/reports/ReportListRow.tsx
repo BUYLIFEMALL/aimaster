@@ -17,6 +17,7 @@ interface ReportListRowProps {
   shareToken: string;
   createdAt: string;
   topicName: string | null;
+  hasJsKey: boolean;
 }
 
 /**
@@ -25,7 +26,7 @@ interface ReportListRowProps {
  * 모드로 바로 열기)/"삭제"(확인 후 즉시 삭제) 버튼을 둔다 — 목록에서 상세로 매번 들어가지
  * 않고도 바로 공유/수정/삭제할 수 있게 해달라는 요청(2026-09-15).
  */
-export function ReportListRow({ id, title, summary, content, shareToken, createdAt, topicName }: ReportListRowProps) {
+export function ReportListRow({ id, title, summary, content, shareToken, createdAt, topicName, hasJsKey }: ReportListRowProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -55,7 +56,7 @@ export function ReportListRow({ id, title, summary, content, shareToken, created
         <p className="whitespace-pre-line text-xs text-neutral-500">{summary}</p>
       </Link>
       <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-neutral-100 pt-2">
-        <KakaoShareButtons shareUrl={shareUrl} shareText={title} shareDescription={summary} imageUrl={shareImageUrl} />
+        <KakaoShareButtons hasJsKey={hasJsKey} shareUrl={shareUrl} shareText={title} shareDescription={summary} imageUrl={shareImageUrl} />
         <Link href={`/reports/${id}?edit=1`} className="text-xs font-semibold text-blue-600 hover:underline">
           ✏️ 수정
         </Link>

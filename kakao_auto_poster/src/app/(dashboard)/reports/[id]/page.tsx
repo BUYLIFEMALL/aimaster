@@ -7,6 +7,7 @@ import { resolveApiKey as resolveKakaoKey } from "@/lib/apiKeys";
 import { SendKakaoButton } from "@/components/reports/SendKakaoButton";
 import { ReportEditor } from "@/components/reports/ReportEditor";
 import { KakaoShareButtons } from "@/components/reports/KakaoShareButtons";
+import { KakaoScript } from "@/components/KakaoScript";
 import { extractFirstImageUrl } from "@/lib/reportContent";
 
 export const dynamic = "force-dynamic";
@@ -37,11 +38,13 @@ export default async function ReportDetailPage({
 
   if (!report) notFound();
 
-  const [{ data: topic }, { data: profile }, { data: solapiAccount }, { data: kakaoAccount }] = await Promise.all([
+  const [{ data: topic }, { data: profile }, { data: solapiAccount }, { data: kakaoAccount }, kakaoJsKey] = await Promise.all([
     supabase.from("kakao_topics").select("topic_name").eq("id", report.topic_id).maybeSingle(),
     supabase.from("profiles").select("phone").eq("id", user.id).maybeSingle(),
     supabase.from("user_solapi_accounts").select("kakao_pf_id").eq("user_id", user.id).maybeSingle(),
     (async () => ({ data: await getKakaoAccount(supabase, user.id, await resolveKakaoKey(supabase, user.id, "kakao_rest_api_key")).then((a) => (a ? { nickname: a.nickname } : null)) }))(),
+    // 카카오톡 공유 버튼용 — 회원 본인 카카오 앱 JavaScript 키(없으면 null → 버튼 대신 등록 안내)
+    resolveKakaoKey(supabase, user.id, "kakao_js_key"),
   ]);
 
   // 카카오 로그인(무료) 또는 SOLAPI(카카오 채널) 둘 중 하나만 연동돼 있어도 발송 가능하다 —
@@ -86,7 +89,9 @@ export default async function ReportDetailPage({
             아래 버튼으로 카카오톡 친구/채팅방을 직접 골라 공유할 수 있어요. 받는 사람은
             AIMaster 회원이 아니어도 로그인 없이 바로 내용을 읽을 수 있습니다.
           </p>
+          <KakaoScript jsKey={kakaoJsKey} />
           <KakaoShareButtons
+            hasJsKey={Boolean(kakaoJsKey)}
             shareUrl={`${SITE_URL}/share/${report.share_token}`}
             shareText={report.title}
             shareDescription={report.summary}

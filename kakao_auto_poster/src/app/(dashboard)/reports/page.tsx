@@ -2,6 +2,8 @@ import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { ReportListRow } from "@/components/reports/ReportListRow";
+import { KakaoScript } from "@/components/KakaoScript";
+import { resolveApiKey } from "@/lib/apiKeys";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -22,9 +24,12 @@ export default async function ReportsPage() {
       ? await supabase.from("kakao_topics").select("id, topic_name").in("id", topicIds)
       : { data: [] as { id: string; topic_name: string }[] };
   const topicNameById = new Map((topics ?? []).map((t) => [t.id, t.topic_name]));
+  // 카카오톡 공유 버튼 — 회원 본인 카카오 앱 JavaScript 키(2026-11-13, 운영자 키 사용 중단)
+  const kakaoJsKey = await resolveApiKey(supabase, user.id, "kakao_js_key");
 
   return (
     <div className="mx-auto max-w-2xl">
+      <KakaoScript jsKey={kakaoJsKey} />
       <h1 className="mb-2 text-2xl font-semibold text-neutral-900">생성리포트 목록</h1>
       <p className="mb-6 text-sm text-neutral-600">
         등록된 주제로 AI가 생성한 콘텐츠 목록입니다. 카카오톡 공유를 통해서 친구 및
@@ -51,6 +56,7 @@ export default async function ReportsPage() {
               shareToken={r.share_token}
               createdAt={r.created_at}
               topicName={topicNameById.get(r.topic_id) ?? null}
+              hasJsKey={Boolean(kakaoJsKey)}
             />
           ))
         )}

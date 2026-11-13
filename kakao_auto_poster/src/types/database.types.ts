@@ -5,6 +5,7 @@ export type ApiKeyProvider =
   | "perplexity"
   | "kakao_rest_api_key"
   | "kakao_client_secret"
+  | "kakao_js_key"
   | "cronjob_org_api_key";
 export type ReportSourceType = "perplexity";
 

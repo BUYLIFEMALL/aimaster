@@ -17,7 +17,9 @@ export function KakaoShareButtons({
   shareText,
   shareDescription,
   imageUrl,
+  hasJsKey,
 }: {
+  hasJsKey: boolean;
   shareUrl: string;
   shareText: string;
   shareDescription: string;
@@ -111,6 +113,13 @@ export function KakaoShareButtons({
         </button>
       </div>
       {copied && <p className="text-xs text-neutral-400">링크가 복사되었어요!</p>}
+      {!hasJsKey && (
+        <p className="text-xs text-neutral-500">
+          💬 카카오톡 공유 버튼은 본인 카카오 앱의 JavaScript 키가 필요합니다.{" "}
+          <a href="/settings" className="font-semibold text-neutral-700 underline">API키등록·플랫폼연동</a>에서 등록해 주세요
+          (카카오 개발자 콘솔 [플랫폼 › Web › 사이트 도메인]에 이 프로그램 주소도 추가).
+        </p>
+      )}
     </div>
   );
 }

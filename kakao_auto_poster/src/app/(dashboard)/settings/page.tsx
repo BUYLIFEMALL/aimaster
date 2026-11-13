@@ -23,7 +23,9 @@ const TELEGRAM_PROGRAM_SLUG = "kakao-auto-posting";
 // 앱이 "비즈니스 앱 전환" 심사를 받지 않은 동안은 테스터로 등록된 계정만 로그인이 가능해,
 // 공용 앱 하나로는 운영자 본인 외 다른 회원이 연결할 수 없었기 때문 — threads의
 // meta_app_id/meta_app_secret 전환과 동일한 이유).
-const KAKAO_PROVIDERS: ApiKeyProvider[] = ["kakao_rest_api_key", "kakao_client_secret"];
+// kakao_js_key(2026-11-13): 리포트 「카카오톡 공유」 버튼도 회원 본인 카카오 앱으로 연다 — 같은 앱의 [앱 키 › JavaScript 키] +
+// [플랫폼 › Web › 사이트 도메인]에 이 프로그램 주소 등록. 예전에는 운영자 앱 키(NEXT_PUBLIC_KAKAO_JS_KEY)를 썼다(최상위 규칙 위반).
+const KAKAO_PROVIDERS: ApiKeyProvider[] = ["kakao_rest_api_key", "kakao_client_secret", "kakao_js_key"];
 
 // 항목 옆 「발급 방법」 버튼(2026-11-13 전체 점검) — 맨 아래 「📖 연동 매뉴얼」 상자와 같은 매뉴얼 글을
 // 각 키 입력 칸 바로 아래에서도 열 수 있게 한다. cron-job.org는 매뉴얼 글이 없어 넣지 않았다.

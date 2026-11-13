@@ -20,6 +20,7 @@ const VALID_PROVIDERS: ApiKeyProvider[] = [
   "perplexity",
   "kakao_rest_api_key",
   "kakao_client_secret",
+  "kakao_js_key", // 2026-11-13: 카카오톡 공유 버튼을 회원 본인 카카오 앱으로(운영자 키 사용 중단)
   "cronjob_org_api_key", // v1.21: 공용 연동 키 — 다른 프로그램에서 넣었으면 그대로 「등록됨」
 ];
 

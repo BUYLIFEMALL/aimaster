@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { KakaoScript } from "@/components/KakaoScript";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +14,6 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-neutral-50">
-        <KakaoScript />
         {children}
       </body>
     </html>
