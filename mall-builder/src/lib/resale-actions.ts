@@ -74,3 +74,36 @@ export async function setResaleOpenAction(slug: string, storeId: string, open: b
   revalidatePath("/resale");
   go(back, error?.message, open ? "분양 신청을 받습니다. 공개 안내 화면(/resale)에 이 몰이 보입니다." : "분양 신청을 받지 않습니다.");
 }
+
+// ── T2-2 거울 상품(0062) ──
+/** 분양자: 본사 상품 담기(체크한 것, 처음 판매가 = 본사가 × (1 + 인상률%)) */
+export async function addResaleProductsAction(slug: string, storeId: string, form: FormData) {
+  const back = `/s/${slug}/admin/resale#catalog`;
+  const ids = form.getAll("ids").map(String).filter((v) => /^[0-9a-f-]{36}$/.test(v));
+  if (!ids.length) go(back, "담을 상품을 골라 주세요.");
+  const rate = Number(String(form.get("markup") ?? "0").replace(/[^0-9.]/g, "") || "0");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_resale_add", { p_store_id: storeId, p_source_ids: ids, p_markup: rate });
+  revalidatePath(`/s/${slug}`, "layout");
+  go(back, error?.message, `${data ?? 0}개를 담았습니다. 아래 「내 분양 상품」에서 판매가를 고칠 수 있습니다.`);
+}
+
+/** 분양자: 판매가 정하기(본사가 이상) */
+export async function setResalePriceAction(slug: string, productId: string, form: FormData) {
+  const back = `/s/${slug}/admin/resale#mine`;
+  const price = Number(String(form.get("price") ?? "").replace(/[^0-9]/g, ""));
+  if (!price) go(back, "판매가를 숫자로 적어 주세요.");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_resale_price", { p_product_id: productId, p_price: price });
+  revalidatePath(`/s/${slug}`, "layout");
+  go(back, error?.message, "판매가를 저장했습니다.");
+}
+
+/** 분양자: 빼기 */
+export async function removeResaleProductAction(slug: string, productId: string) {
+  const back = `/s/${slug}/admin/resale#mine`;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_resale_remove", { p_product_id: productId });
+  revalidatePath(`/s/${slug}`, "layout");
+  go(back, error?.message, data === "hidden" ? "주문 기록이 있어 지우지 않고 숨겼습니다." : "뺐습니다.");
+}

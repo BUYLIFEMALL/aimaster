@@ -50,3 +50,11 @@ export function resaleOpen(store: { kind: string; resale_expires_at: string | nu
 export function resaleAccepting(modules: unknown): boolean {
   return !!modules && typeof modules === "object" && (modules as Record<string, unknown>).resale === true;
 }
+
+/** 분양 상품(거울) 상태 — hidden은 본사가 판매를 멈춘 것, draft는 분양자가 뺀 것(주문 기록이 있어 숨김) */
+export const MIRROR_STATUS_LABEL: Record<string, string> = {
+  on_sale: "판매 중",
+  sold_out: "품절",
+  hidden: "본사 판매 중지",
+  draft: "뺀 상품",
+};

@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { getStaffStore } from "@/lib/store";
-import { getResaleStoresOf, getStoreResaleApplications, getStoresByIds } from "@/lib/resale-store";
-import { decideResaleAction, setResaleOpenAction, setResalePeriodAction } from "@/lib/resale-actions";
-import { DEFAULT_RESALE_DAYS, RESALE_STATUS_LABEL, resaleAccepting, resaleDaysLeft } from "@/lib/resale";
+import { getResaleCatalog, getResaleMirrors, getResaleStoresOf, getStoreResaleApplications, getStoresByIds } from "@/lib/resale-store";
+import {
+  addResaleProductsAction,
+  decideResaleAction,
+  removeResaleProductAction,
+  setResaleOpenAction,
+  setResalePeriodAction,
+  setResalePriceAction,
+} from "@/lib/resale-actions";
+import { formatWon } from "@/lib/products";
+import { DEFAULT_RESALE_DAYS, MIRROR_STATUS_LABEL, RESALE_STATUS_LABEL, resaleAccepting, resaleDaysLeft } from "@/lib/resale";
 import { formatDateTime } from "@/lib/orders";
 import PendingButton from "@/app/pending-button";
 import { AdminShell, NoPermission } from "../admin-shell";
@@ -11,9 +19,9 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // T2-1 「분양」 — 본사(일반 몰): 분양 받기 켜기·신청 승인/반려·분양몰 이용 기간 / 분양몰: 분양자에게 원본 몰·남은 기간 안내
-export default async function AdminResalePage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
+export default async function AdminResalePage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string; q?: string }> }) {
   const { store: slug } = await params;
-  const { error, ok, msg } = await searchParams;
+  const { error, ok, msg, q } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/resale`);
   if (!staff) return <NoPermission />;
 
@@ -26,7 +34,11 @@ export default async function AdminResalePage({ params, searchParams }: { params
 
   // 분양몰 대표(분양자) 화면
   if (store.kind === "resale") {
-    const [source] = await getStoresByIds(store.source_store_id ? [store.source_store_id] : []);
+    const [[source], mirrors, catalog] = await Promise.all([
+      getStoresByIds(store.source_store_id ? [store.source_store_id] : []),
+      getResaleMirrors(store.id),
+      getResaleCatalog(store.id, q),
+    ]);
     const left = resaleDaysLeft(store.resale_expires_at);
     return (
       <AdminShell slug={store.slug} storeName={store.name} active="/resale">
@@ -37,7 +49,67 @@ export default async function AdminResalePage({ params, searchParams }: { params
           <p className={`mt-2 ${left === 0 ? "text-red-700" : "text-gray-700"}`} data-resale-period>
             {left === 0 ? "이용 기간이 끝나 지금은 새 주문을 받지 않습니다. 본사에 연장을 요청해 주세요." : `이용 기간: ${store.resale_expires_at ? formatDateTime(store.resale_expires_at) : "—"}까지 (${left}일 남음)`}
           </p>
-          <p className="mt-2 text-xs text-gray-500">다음 단계(준비 중): 본사 상품 골라 담기·판매가 정하기, 매출·마진·출금.</p>
+        </section>
+
+        <section id="mine" className="mt-6 scroll-mt-4" data-resale-mirrors>
+          <h3 className="text-sm font-semibold">내 분양 상품 {mirrors.length}개</h3>
+          {mirrors.length === 0 ? (
+            <p className="mt-1 text-sm text-gray-500">아직 담은 상품이 없습니다. 아래 「본사 상품 담기」에서 골라 주세요.</p>
+          ) : (
+            <ul className="mt-2 space-y-2">
+              {mirrors.map((m) => (
+                <li key={m.id} className="flex flex-wrap items-center gap-2 rounded border p-3 text-sm" data-resale-mirror>
+                  <Link href={`/s/${store.slug}/p/${m.id}`} className="min-w-0 flex-1 truncate font-medium underline">{m.name}</Link>
+                  <span className={`rounded px-1.5 text-xs ${m.status === "on_sale" ? "bg-emerald-50 text-emerald-800" : "bg-gray-100 text-gray-600"}`}>{MIRROR_STATUS_LABEL[m.status] ?? m.status}</span>
+                  <span className="text-xs text-gray-500">본사가 {m.source_price == null ? "—" : formatWon(m.source_price)} · 마진 {m.source_price == null ? "—" : formatWon(m.base_price - m.source_price)}</span>
+                  <form action={setResalePriceAction.bind(null, store.slug, m.id)} className="flex items-center gap-1 text-xs">
+                    <input name="price" inputMode="numeric" defaultValue={m.base_price} aria-label={`${m.name} 판매가`} className="w-24 rounded border px-2 py-1.5" />원
+                    <PendingButton pendingText="저장 중…" className="min-h-10 rounded border px-2 py-1.5">판매가 저장</PendingButton>
+                  </form>
+                  <form action={removeResaleProductAction.bind(null, store.slug, m.id)}>
+                    <PendingButton pendingText="빼는 중…" className="min-h-10 rounded border border-red-300 px-2 py-1.5 text-xs text-red-700">빼기</PendingButton>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section id="catalog" className="mt-6 scroll-mt-4 rounded-lg border p-4" data-resale-catalog>
+          <h3 className="text-sm font-semibold">본사 상품 담기</h3>
+          <p className="mt-1 text-xs text-gray-500">담으면 이름·사진·옵션·재고·품절이 본사 상품과 자동으로 맞춰집니다. 판매가는 본사가 이상으로 정하고, 차액이 내 마진입니다.</p>
+          <form className="mt-2 flex gap-2" action={`/s/${store.slug}/admin/resale#catalog`}>
+            <input name="q" defaultValue={q ?? ""} placeholder="상품 이름 검색" className="min-w-0 flex-1 rounded border px-2 py-1.5 text-sm" />
+            <button className="min-h-10 rounded border px-3 text-sm">검색</button>
+          </form>
+          {catalog.error ? (
+            <p className="mt-2 text-sm text-red-700">{catalog.error}</p>
+          ) : catalog.rows.length === 0 ? (
+            <p className="mt-2 text-sm text-gray-500">담을 수 있는 본사 상품이 없습니다.</p>
+          ) : (
+            <form action={addResaleProductsAction.bind(null, store.slug, store.id)} className="mt-3 space-y-2">
+              <ul className="max-h-[480px] space-y-1 overflow-y-auto">
+                {catalog.rows.map((c) => (
+                  <li key={c.id}>
+                    <label className={`flex items-center gap-2 rounded border p-2 text-sm ${c.added ? "bg-gray-50 text-gray-400" : ""}`}>
+                      <input type="checkbox" name="ids" value={c.id} disabled={c.added} />
+                      <span className="h-10 w-10 shrink-0 overflow-hidden rounded bg-gray-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {c.image && <img src={c.image} alt="" className="h-full w-full object-cover" />}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate">{c.name}</span>
+                      <span className="text-xs">{formatWon(c.base_price)}{c.option_count ? ` · 옵션 ${c.option_count}` : ""}{c.status === "sold_out" ? " · 품절" : ""}</span>
+                      {c.added && <span className="text-xs">담음</span>}
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <label>처음 판매가 = 본사가 + <input name="markup" inputMode="numeric" defaultValue={20} className="w-14 rounded border px-2 py-1.5" />%</label>
+                <PendingButton pendingText="담는 중…" className="min-h-11 rounded bg-gray-900 px-4 py-2 text-white">고른 상품 담기</PendingButton>
+              </div>
+            </form>
+          )}
         </section>
       </AdminShell>
     );

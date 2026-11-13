@@ -47,3 +47,31 @@ export async function getResaleStoresOf(sourceStoreId: string): Promise<ResaleSt
     .order("created_at", { ascending: false });
   return (data ?? []) as ResaleStoreRow[];
 }
+
+// ── T2-2 거울 상품 ──
+export type ResaleCatalogRow = { id: string; name: string; base_price: number; status: string; stock_mode: string; stock: number; image: string | null; option_count: number; added: boolean };
+
+/** 분양자: 담을 수 있는 본사 상품 */
+export async function getResaleCatalog(storeId: string, q?: string): Promise<{ rows: ResaleCatalogRow[]; error: string | null }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_resale_catalog", { p_store_id: storeId, p_q: q ?? null });
+  return { rows: (data ?? []) as ResaleCatalogRow[], error: error?.message ?? null };
+}
+
+export type ResaleMirrorRow = { id: string; name: string; base_price: number; status: string; stock_mode: string; stock: number; source_product_id: string; source_price: number | null };
+
+/** 분양자: 내 분양 상품(거울) + 지금 본사 판매가 */
+export async function getResaleMirrors(storeId: string): Promise<ResaleMirrorRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_products")
+    .select("id, name, base_price, status, stock_mode, stock, source_product_id")
+    .eq("store_id", storeId)
+    .not("source_product_id", "is", null)
+    .order("updated_at", { ascending: false });
+  const rows = (data ?? []) as Omit<ResaleMirrorRow, "source_price">[];
+  if (!rows.length) return [];
+  const { data: src } = await supabase.from("mall_builder_products").select("id, base_price").in("id", rows.map((r) => r.source_product_id));
+  const price = new Map((src ?? []).map((s) => [s.id as string, Number(s.base_price)]));
+  return rows.map((r) => ({ ...r, base_price: Number(r.base_price), source_price: price.get(r.source_product_id) ?? null }));
+}
