@@ -111,17 +111,9 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
   }
   useEffect(() => { void check(); void loadRecords(); }, []);
 
-  // v1.39 올린 기록을 DB에서 읽는다(새로 고쳐도 남음, 워크스페이스 콘텐츠 캘린더 연동의 전제)
   async function loadRecords() {
-    try {
-      const res = await fetch("/api/youtube/uploads", { cache: "no-store" });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !Array.isArray(data.uploads)) return;
-      setDone((data.uploads as { video_id: string; url: string; title: string; privacy: Privacy; publish_at: string | null; uploaded_at: string }[]).map((r) => ({
-        videoId: r.video_id, url: r.url, title: r.title,
-        label: r.publish_at ? `${new Date(r.publish_at).toLocaleString("ko-KR")} 예약 공개` : `${LABEL[r.privacy] ?? r.privacy} · ${new Date(r.uploaded_at).toLocaleDateString("ko-KR")}`,
-      })));
-    } catch { /* 기록을 못 읽어도 올리기는 그대로 쓴다 */ }
+    const items = await fetchRecords();
+    if (items) setDone(items);
   }
   const [uploadedNow, setUploadedNow] = useState(false);
 
@@ -246,12 +238,46 @@ export function YoutubeUploadCard({ tracks, portrait, blob, disabled, bgMedia }:
           {uploadedNow && <div className="text-[11px] text-[#aaa]">⚠️ 다시 누르면 새 영상으로 하나 더 올라갑니다.</div>}
         </div>
       )}
-      {done.length > 0 && <div className="space-y-1"><div className="text-[11px] text-[#aaa]">📋 내가 올린 영상(최근 20개 · 기록은 30일 뒤 자동 삭제, 유튜브 영상은 그대로)</div>{done.map((d) => (
-        <div key={d.videoId} className="space-y-1">
-          <a href={d.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-2 text-xs text-white bg-[#212121] rounded-lg px-3 py-2 hover:bg-[#2a2a2a]"><span className="truncate">{d.title} · {d.label}</span><ExternalLink className="w-3 h-3 shrink-0" /></a>
-          <SendToWorkspaceButton videoId={d.videoId} />
-        </div>
-      ))}</div>}
+      <RecordsList done={done} />
+    </div>
+  );
+}
+
+// v1.39 올린 기록을 DB에서 읽는다(워크스페이스 콘텐츠 캘린더 연동의 전제). 못 읽으면 null — 올리기는 그대로 쓴다.
+async function fetchRecords(): Promise<Done[] | null> {
+  try {
+    const res = await fetch("/api/youtube/uploads", { cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !Array.isArray(data.uploads)) return null;
+    return (data.uploads as { video_id: string; url: string; title: string; privacy: Privacy; publish_at: string | null; uploaded_at: string }[]).map((r) => ({
+      videoId: r.video_id, url: r.url, title: r.title,
+      label: r.publish_at ? `${new Date(r.publish_at).toLocaleString("ko-KR")} 예약 공개` : `${LABEL[r.privacy] ?? r.privacy} · ${new Date(r.uploaded_at).toLocaleDateString("ko-KR")}`,
+    }));
+  } catch { return null; }
+}
+
+function RecordsList({ done }: { done: Done[] }) {
+  if (!done.length) return null;
+  return (
+    <div className="space-y-1"><div className="text-[11px] text-[#aaa]">📋 내가 올린 영상(최근 20개 · 기록은 30일 뒤 자동 삭제, 유튜브 영상은 그대로)</div>{done.map((d) => (
+      <div key={d.videoId} className="space-y-1">
+        <a href={d.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-2 text-xs text-white bg-[#212121] rounded-lg px-3 py-2 hover:bg-[#2a2a2a]"><span className="truncate">{d.title} · {d.label}</span><ExternalLink className="w-3 h-3 shrink-0" /></a>
+        <SendToWorkspaceButton videoId={d.videoId} />
+      </div>
+    ))}</div>
+  );
+}
+
+// v1.42 곡을 넣기 전(새로 고친 뒤 등)에도 지난 기록과 「📨 업무 워크스페이스로」를 볼 수 있게 목록만 보여 준다. 기록이 없으면 아무것도 안 그린다.
+export function YoutubeUploadRecords() {
+  const [done, setDone] = useState<Done[]>([]);
+  useEffect(() => { void fetchRecords().then((items) => { if (items) setDone(items); }); }, []);
+  if (!done.length) return null;
+  return (
+    <div className="bg-[#181818] rounded-2xl border border-[#272727] p-6 space-y-3">
+      <div className="flex items-center gap-2 text-sm font-bold text-white"><Upload className="w-4 h-4 text-[#ff0000]" />📤 유튜브에 올린 기록</div>
+      <div className="text-[11px] text-[#aaa]">새 영상을 올리려면 ① 음악·배경 넣기에서 곡을 넣고 MP4를 만들어 주세요.</div>
+      <RecordsList done={done} />
     </div>
   );
 }

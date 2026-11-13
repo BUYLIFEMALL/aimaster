@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Track, StudioSettings, ExportSettings, type StickerItem } from "@/types/playlist";
 import { exportVideoMp4, RenderProgress } from "@/lib/render/video-exporter";
-import { YoutubeUploadCard } from "./YoutubeUploadCard";
+import { YoutubeUploadCard, YoutubeUploadRecords } from "./YoutubeUploadCard";
 
 interface ExportStudioProps {
   tracks: Track[];
@@ -324,7 +324,7 @@ export function ExportStudio({
         </div>
 
         {/* v1.22 만든 MP4를 내 유튜브 채널에 올리기(공용 유튜브 연결) */}
-        {tracks.length > 0 && <YoutubeUploadCard tracks={tracks} portrait={exportSettings.aspect === "9:16"} blob={lastBlob} disabled={isExporting} bgMedia={bgMedia} />}
+        {tracks.length > 0 ? <YoutubeUploadCard tracks={tracks} portrait={exportSettings.aspect === "9:16"} blob={lastBlob} disabled={isExporting} bgMedia={bgMedia} /> : <YoutubeUploadRecords />}
       </div>
     </div>
   );
