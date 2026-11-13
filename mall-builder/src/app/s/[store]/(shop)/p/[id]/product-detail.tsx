@@ -106,18 +106,26 @@ export default function ProductDetail({
   };
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
+    <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+      {/* 사진 갤러리 */}
       <div>
-        <div className="aspect-square overflow-hidden rounded bg-gray-100">
+        <div className="relative aspect-square overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-100 shadow-xs">
           {images[imageIndex] && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={images[imageIndex].url} alt={name} className="h-full w-full object-cover" />
           )}
         </div>
         {images.length > 1 && (
-          <div className="mt-2 flex gap-2">
+          <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1">
             {images.map((img, i) => (
-              <button key={img.url} type="button" onClick={() => setImageIndex(i)} className={`h-16 w-16 overflow-hidden rounded border-2 ${i === imageIndex ? "border-gray-900" : "border-transparent"}`}>
+              <button
+                key={img.url}
+                type="button"
+                onClick={() => setImageIndex(i)}
+                className={`relative h-18 w-18 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                  i === imageIndex ? "border-blue-600 shadow-sm" : "border-slate-200 opacity-70 hover:opacity-100"
+                }`}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img.url} alt="" className="h-full w-full object-cover" />
               </button>
@@ -126,29 +134,55 @@ export default function ProductDetail({
         )}
       </div>
 
-      <div>
-        <h1 className="text-2xl font-bold">{name}</h1>
-        {summary && <p className="mt-2 text-gray-600">{summary}</p>}
-        {line.priceHidden ? (
-          <p className="mt-4 rounded bg-gray-50 px-3 py-2 text-gray-700" data-unit-price>{line.errors.find((e) => /가격/.test(e))}</p>
-        ) : (
-          <p className="mt-4 text-2xl" data-unit-price>
-            {graded && <span className="mr-2 rounded bg-blue-50 px-1.5 text-sm text-blue-700" data-price-badge>{special ? "거래처 특가" : `${ctx.gradeName ?? "회원"} 가격`}</span>}
-            {rate > 0 && !variant?.extra_price && <span className="mr-2 font-bold text-red-600">{rate}%</span>}
-            <b>{line.unitPrice.toLocaleString("ko-KR")}</b>원
-            {graded && <span className="ml-2 text-base text-gray-400 line-through">{(basePrice + (variant?.extra_price ?? 0)).toLocaleString("ko-KR")}원</span>}
-            {rate > 0 && <span className="ml-2 text-base text-gray-400 line-through">{listPrice!.toLocaleString("ko-KR")}원</span>}
-          </p>
-        )}
-        <p className="mt-2 text-sm text-gray-600" data-shipping>{shippingText}</p>
+      {/* 상품 정보 및 구매 옵션 */}
+      <div className="flex flex-col">
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 leading-tight">
+          {name}
+        </h1>
+        {summary && <p className="mt-2 text-sm text-slate-600 leading-relaxed">{summary}</p>}
 
+        <div className="mt-4 pb-4 border-b border-slate-100">
+          {line.priceHidden ? (
+            <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700" data-unit-price>
+              {line.errors.find((e) => /가격/.test(e))}
+            </p>
+          ) : (
+            <div className="flex flex-col" data-unit-price>
+              <div className="flex flex-wrap items-baseline gap-2">
+                {graded && (
+                  <span className="rounded-md bg-blue-50 border border-blue-200/80 px-2 py-0.5 text-xs font-bold text-blue-700" data-price-badge>
+                    {special ? "거래처 특가" : `${ctx.gradeName ?? "회원"} 가격`}
+                  </span>
+                )}
+                {rate > 0 && !variant?.extra_price && (
+                  <span className="text-2xl font-black text-rose-600">{rate}%</span>
+                )}
+                <span className="text-3xl font-black text-slate-900 tracking-tight">
+                  <b>{line.unitPrice.toLocaleString("ko-KR")}</b>원
+                </span>
+              </div>
+              {(graded || rate > 0) && (
+                <div className="mt-1 flex items-center gap-2 text-sm text-slate-400 line-through">
+                  {graded && <span>{(basePrice + (variant?.extra_price ?? 0)).toLocaleString("ko-KR")}원</span>}
+                  {rate > 0 && <span>{listPrice!.toLocaleString("ko-KR")}원</span>}
+                </div>
+              )}
+            </div>
+          )}
+          <p className="mt-2.5 text-xs font-medium text-slate-500 flex items-center gap-1.5" data-shipping>
+            <span className="text-slate-400">🚚</span>
+            <span>{shippingText}</span>
+          </p>
+        </div>
+
+        {/* 옵션 선택 */}
         {groups.map((g, level) => (
           <label key={g.name} className="mt-4 block">
-            <span className="text-sm text-gray-600">{g.name}</span>
+            <span className="text-xs font-bold text-slate-700">{g.name}</span>
             <select
               value={picked[level]}
               onChange={(e) => setPicked((prev) => prev.map((p, i) => (i === level ? e.target.value : i > level ? "" : p)))}
-              className="mt-1 w-full rounded border px-3 py-2"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm font-medium text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-100 disabled:opacity-50"
               disabled={soldOut || (level > 0 && !picked[level - 1])}
             >
               <option value="">{level > 0 && !picked[level - 1] ? "앞 옵션을 먼저 선택" : `${g.name} 선택`}</option>
@@ -167,51 +201,59 @@ export default function ProductDetail({
           </label>
         ))}
 
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <label className="flex items-center gap-2 text-sm text-gray-600">
-            수량
-            <input
-              type="number"
-              name="qty"
-              min={Math.max(1, moq)}
-              max={maxQty ?? MAX_QTY}
-              step={orderUnit > 1 ? orderUnit : 1}
-              value={qty}
-              disabled={soldOut}
-              onChange={(e) => setQty(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
-              className="w-20 rounded border px-2 py-1.5"
-            />
-          </label>
-          <p className="text-lg" data-line-total>
-            합계 <b>{line.lineTotal.toLocaleString("ko-KR")}</b>원
-          </p>
+        {/* 수량 조절 및 총 금액 */}
+        <div className="mt-5 rounded-2xl border border-slate-200/80 bg-slate-50/60 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <label className="flex items-center gap-2 text-xs font-bold text-slate-700">
+              <span>수량</span>
+              <input
+                type="number"
+                name="qty"
+                min={Math.max(1, moq)}
+                max={maxQty ?? MAX_QTY}
+                step={orderUnit > 1 ? orderUnit : 1}
+                value={qty}
+                disabled={soldOut}
+                onChange={(e) => setQty(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
+                className="w-20 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-center text-sm font-bold text-slate-900 focus:border-blue-500 focus:outline-hidden focus:ring-2 focus:ring-blue-100 disabled:opacity-50"
+              />
+            </label>
+            <p className="text-base text-slate-700" data-line-total>
+              합계 <b className="text-xl font-black text-slate-900">{line.lineTotal.toLocaleString("ko-KR")}</b>원
+            </p>
+          </div>
+
+          {(moq > 1 || orderUnit > 1 || maxQty) && (
+            <p className="mt-2 text-[11px] font-medium text-slate-500" data-qty-rules>
+              {[moq > 1 && `최소 ${moq}개`, orderUnit > 1 && `${orderUnit}개 단위`, maxQty && `최대 ${maxQty}개`].filter(Boolean).join(" · ")}
+            </p>
+          )}
+
+          {!line.priceHidden && (ctx.tiers ?? []).length > 0 && (
+            <ul className="mt-3 space-y-1 rounded-xl border border-slate-200 bg-white p-3 text-xs" data-tiers>
+              <li className="font-bold text-blue-600">📊 대량 구매 수량 할인</li>
+              {(ctx.tiers ?? []).map((t) => (
+                <li key={t.min_qty} className="text-slate-600 font-medium">
+                  {t.min_qty}개 이상 ·{" "}
+                  {t.discount_type === "rate" ? `${t.value}% 할인` : t.discount_type === "amount" ? `개당 ${t.value.toLocaleString("ko-KR")}원 할인` : `개당 ${t.value.toLocaleString("ko-KR")}원`}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        {(moq > 1 || orderUnit > 1 || maxQty) && (
-          <p className="mt-2 text-xs text-gray-500" data-qty-rules>
-            {[moq > 1 && `최소 ${moq}개`, orderUnit > 1 && `${orderUnit}개 단위`, maxQty && `최대 ${maxQty}개`].filter(Boolean).join(" · ")}
-          </p>
-        )}
-        {!line.priceHidden && (ctx.tiers ?? []).length > 0 && (
-          <ul className="mt-3 space-y-0.5 rounded bg-gray-50 px-3 py-2 text-sm" data-tiers>
-            <li className="text-xs text-gray-500">수량 할인</li>
-            {(ctx.tiers ?? []).map((t) => (
-              <li key={t.min_qty}>
-                {t.min_qty}개 이상 ·{" "}
-                {t.discount_type === "rate" ? `${t.value}% 할인` : t.discount_type === "amount" ? `개당 ${t.value.toLocaleString("ko-KR")}원 할인` : `개당 ${t.value.toLocaleString("ko-KR")}원`}
-              </li>
-            ))}
-          </ul>
-        )}
-        {line.errors[0] && <p className="mt-4 text-sm text-amber-700">{line.errors[0]}</p>}
+        {line.errors[0] && <p className="mt-3 text-xs font-semibold text-amber-700">{line.errors[0]}</p>}
+
+        {/* 장바구니 담기 3D 버튼 */}
         <button
           type="button"
           onClick={add}
           disabled={!line.orderable || pending}
-          className="mt-6 min-h-12 w-full rounded bg-gray-900 text-white disabled:opacity-50"
+          className="mt-6 min-h-13 w-full btn-3d-blue text-base font-bold tracking-tight disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
         >
           {pending ? "담는 중…" : "장바구니 담기"}
         </button>
+
         {restockTarget && (
           <RestockBox
             key={restockTarget.variantId ?? "whole"}
@@ -221,16 +263,19 @@ export default function ProductDetail({
             memberPhone={memberPhone}
           />
         )}
+
         {message && (
-          <p className={`mt-3 text-sm ${message.ok ? "text-green-700" : "text-red-600"}`} data-cart-message>
+          <div className={`mt-4 rounded-xl border p-3.5 text-sm font-medium ${message.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-700"}`} data-cart-message>
             {message.text}
             {message.ok && (
               <>
                 {" "}
-                <Link href={`/s/${slug}/cart`} className="underline">장바구니 보기</Link>
+                <Link href={`/s/${slug}/cart`} className="font-bold underline text-emerald-900 hover:text-emerald-700">
+                  장바구니 보기 ›
+                </Link>
               </>
             )}
-          </p>
+          </div>
         )}
       </div>
     </div>
@@ -248,17 +293,24 @@ function RestockBox({ slug, productId, variantId, memberPhone }: { slug: string;
     setResult(null);
     startTransition(async () => setResult(await requestRestockAction(slug, productId, variantId, phone, agree)));
   };
+
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="mt-3 min-h-12 w-full rounded border border-gray-900 text-gray-900" data-restock-open>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mt-3 min-h-11 w-full rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+        data-restock-open
+      >
         🔔 재입고 알림 신청{variantId ? "(선택한 옵션)" : ""}
       </button>
     );
   }
+
   return (
-    <div className="mt-3 rounded border p-3" data-restock-box>
-      <p className="text-sm font-semibold">재입고 알림 신청{variantId ? " — 선택한 옵션" : ""}</p>
-      <p className="mt-1 text-xs text-gray-500">다시 입고되면 이 번호로 문자를 한 번 보내 드립니다(회원은 메일도).</p>
+    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-xs" data-restock-box>
+      <p className="text-sm font-bold text-slate-900">재입고 알림 신청{variantId ? " — 선택한 옵션" : ""}</p>
+      <p className="mt-1 text-xs text-slate-500">다시 입고되면 이 번호로 문자를 한 번 보내 드립니다(회원은 메일도).</p>
       <input
         type="tel"
         inputMode="numeric"
@@ -266,10 +318,10 @@ function RestockBox({ slug, productId, variantId, memberPhone }: { slug: string;
         onChange={(e) => setPhone(e.target.value)}
         placeholder="010-1234-5678"
         maxLength={13}
-        className="mt-2 w-full rounded border px-3 py-2"
+        className="mt-2.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-hidden"
         data-restock-phone
       />
-      <label className="mt-2 flex items-start gap-2 text-xs text-gray-600">
+      <label className="mt-2 flex items-start gap-2 text-xs text-slate-600 leading-snug">
         <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5" data-restock-agree />
         재입고 알림을 위해 핸드폰 번호를 수집·이용하는 데 동의합니다. 신청은 90일 뒤 만료되고, 알림이 끝난 뒤 30일이 지나면 번호를 지웁니다.
       </label>
@@ -277,12 +329,12 @@ function RestockBox({ slug, productId, variantId, memberPhone }: { slug: string;
         type="button"
         onClick={submit}
         disabled={pending || !agree || !phone.trim()}
-        className="mt-2 min-h-11 w-full rounded bg-gray-900 text-white disabled:opacity-50"
+        className="mt-3 min-h-10 w-full btn-3d-dark text-xs disabled:opacity-40"
         data-restock-submit
       >
         {pending ? "신청 중…" : "알림 신청하기"}
       </button>
-      {result && <p className={`mt-2 text-sm ${result.ok ? "text-green-700" : "text-red-600"}`} data-restock-message>{result.message}</p>}
+      {result && <p className={`mt-2 text-xs font-semibold ${result.ok ? "text-emerald-700" : "text-rose-600"}`} data-restock-message>{result.message}</p>}
     </div>
   );
 }

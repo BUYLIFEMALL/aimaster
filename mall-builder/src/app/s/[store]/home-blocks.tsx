@@ -7,8 +7,8 @@ import {
   type TopbarSettings, type VideoSettings,
 } from "@/lib/blocks";
 
-// 첫 화면 블록 그리기 — 손님 첫 화면과 운영자 편집기 미리보기가 같이 쓴다. 숨긴 블록은 그리지 않는다.
-// 새 블록 종류를 추가하면 src/lib/blocks.ts(등록표)·block-editor.tsx(편집 칸)와 함께 여기에도 넣는다.
+// 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 첫 화면 블록 그리기
+// 손님 첫 화면과 운영자 편집기 미리보기가 같이 쓴다. 숨긴 블록은 그리지 않는다.
 
 function MaybeLink({ href, className, style, children }: { href: string; className?: string; style?: CSSProperties; children: ReactNode }) {
   if (!href) return <div className={className} style={style}>{children}</div>;
@@ -47,7 +47,7 @@ function Topbar({ s }: { s: TopbarSettings }) {
   const it = s.items[i];
   if (!it) return null;
   return (
-    <MaybeLink href={it.link} className="block px-4 py-2 text-center text-sm text-white" style={{ backgroundColor: it.bg }}>
+    <MaybeLink href={it.link} className="block px-4 py-2.5 text-center text-xs font-semibold text-white shadow-xs" style={{ backgroundColor: it.bg }}>
       {it.text}
     </MaybeLink>
   );
@@ -58,7 +58,7 @@ function Slider({ s }: { s: SliderSettings }) {
   const n = s.slides.length;
   if (!n) return null;
   return (
-    <div className="relative w-full overflow-hidden bg-gray-100" style={{ height: `min(${s.height}px, 62vw)` }}>
+    <div className="relative mx-4 sm:mx-6 overflow-hidden rounded-2xl bg-slate-100 shadow-xs" style={{ height: `min(${s.height}px, 58vw)` }}>
       {s.slides.map((sl, j) => (
         <MaybeLink key={j} href={sl.link} className={`absolute inset-0 transition-opacity duration-500 ${j === i ? "opacity-100" : "pointer-events-none opacity-0"}`}>
           <BannerImage image={sl.image} mobile={sl.mobile_image} className="h-full w-full object-cover" />
@@ -66,11 +66,31 @@ function Slider({ s }: { s: SliderSettings }) {
       ))}
       {n > 1 && (
         <>
-          <button type="button" aria-label="이전 그림" onClick={() => setI((i - 1 + n) % n)} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 px-2.5 py-1 text-lg">‹</button>
-          <button type="button" aria-label="다음 그림" onClick={() => setI((i + 1) % n)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 px-2.5 py-1 text-lg">›</button>
-          <div className="absolute inset-x-0 bottom-2 flex justify-center gap-1.5">
+          <button
+            type="button"
+            aria-label="이전 그림"
+            onClick={() => setI((i - 1 + n) % n)}
+            className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-md backdrop-blur-xs transition hover:bg-white"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            aria-label="다음 그림"
+            onClick={() => setI((i + 1) % n)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-md backdrop-blur-xs transition hover:bg-white"
+          >
+            ›
+          </button>
+          <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
             {s.slides.map((_, j) => (
-              <button key={j} type="button" aria-label={`${j + 1}번째 그림`} onClick={() => setI(j)} className={`h-2 w-2 rounded-full ${j === i ? "bg-white" : "bg-white/50"}`} />
+              <button
+                key={j}
+                type="button"
+                aria-label={`${j + 1}번째 그림`}
+                onClick={() => setI(j)}
+                className={`h-2 rounded-full transition-all ${j === i ? "w-6 bg-blue-600" : "w-2 bg-white/70"}`}
+              />
             ))}
           </div>
         </>
@@ -81,9 +101,9 @@ function Slider({ s }: { s: SliderSettings }) {
 
 function Banner({ s }: { s: BannerSettings }) {
   return (
-    <div className="px-4">
+    <div className="px-4 sm:px-6">
       <MaybeLink href={s.link} className="mx-auto block">
-        <BannerImage image={s.image} mobile={s.mobile_image} className="mx-auto w-full rounded" style={{ maxWidth: s.max_width }} />
+        <BannerImage image={s.image} mobile={s.mobile_image} className="mx-auto w-full rounded-2xl border border-slate-200/80 shadow-xs transition hover:shadow-md" style={{ maxWidth: s.max_width }} />
       </MaybeLink>
     </div>
   );
@@ -98,9 +118,9 @@ function Placeholder({ b }: { b: Block }) {
         ? `${(b.settings as NoticeSettings).title} — 최근 공지 ${(b.settings as NoticeSettings).count}개`
         : `${BLOCK_DEFS[b.type].label}${"title" in (b.settings as object) && (b.settings as { title: string }).title ? ` — ${(b.settings as { title: string }).title}` : ""}`;
   return (
-    <div className="mx-4 rounded border border-dashed px-4 py-6 text-center text-sm text-gray-500">
-      {text}
-      <p className="mt-1 text-xs">실제 상품·공지는 손님 화면에서 보입니다.</p>
+    <div className="mx-4 sm:mx-6 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-8 text-center text-sm text-slate-500 shadow-xs">
+      <p className="font-semibold text-slate-700">{text}</p>
+      <p className="mt-1 text-xs text-slate-400">실제 상품·공지는 손님 화면에서 보입니다.</p>
     </div>
   );
 }
@@ -110,9 +130,9 @@ function Video({ s }: { s: VideoSettings }) {
   const src = videoEmbed(s.url);
   if (!src) return null;
   return (
-    <div className="px-4">
-      {s.title && <h2 className="mb-3 text-lg font-semibold">{s.title}</h2>}
-      <div className="relative mx-auto w-full max-w-4xl overflow-hidden rounded" style={{ aspectRatio: "16 / 9" }}>
+    <div className="px-4 sm:px-6">
+      {s.title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900">{s.title}</h2>}
+      <div className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-2xl border border-slate-200/80 shadow-xs" style={{ aspectRatio: "16 / 9" }}>
         <iframe src={src} title={s.title || "동영상"} className="absolute inset-0 h-full w-full" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin" />
       </div>
     </div>
@@ -122,13 +142,13 @@ function Video({ s }: { s: VideoSettings }) {
 /** D28 사진 갤러리(인스타 스타일 격자) */
 function Gallery({ s }: { s: GallerySettings }) {
   return (
-    <div className="px-4">
-      {s.title && <h2 className="mb-3 text-lg font-semibold">{s.title}</h2>}
-      <div className="mall-gallery grid gap-1.5" style={{ ["--cols" as string]: s.columns } as CSSProperties}>
+    <div className="px-4 sm:px-6">
+      {s.title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900">{s.title}</h2>}
+      <div className="mall-gallery grid gap-2.5" style={{ ["--cols" as string]: s.columns } as CSSProperties}>
         {s.items.map((it, i) => (
-          <MaybeLink key={i} href={it.link} className="block aspect-square overflow-hidden rounded bg-gray-100">
+          <MaybeLink key={i} href={it.link} className="group block aspect-square overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-100 shadow-xs">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={it.image} alt="" loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+            <img src={it.image} alt="" loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
           </MaybeLink>
         ))}
       </div>
@@ -140,11 +160,22 @@ function Gallery({ s }: { s: GallerySettings }) {
 export function TabsView({ title, labels, panels }: { title: string; labels: string[]; panels: ReactNode[] }) {
   const [i, setI] = useState(0);
   return (
-    <div className="px-4" data-tabs>
-      {title && <h2 className="mb-3 text-lg font-semibold">{title}</h2>}
-      <div className="mb-4 flex gap-1 overflow-x-auto border-b" role="tablist">
+    <div className="px-4 sm:px-6" data-tabs>
+      {title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900">{title}</h2>}
+      <div className="mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none" role="tablist">
         {labels.map((l, j) => (
-          <button key={j} type="button" role="tab" aria-selected={i === j} onClick={() => setI(j)} className={`whitespace-nowrap px-4 py-2 text-sm ${i === j ? "border-b-2 border-gray-900 font-semibold" : "text-gray-500"}`}>
+          <button
+            key={j}
+            type="button"
+            role="tab"
+            aria-selected={i === j}
+            onClick={() => setI(j)}
+            className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+              i === j
+                ? "bg-slate-900 text-white shadow-xs"
+                : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+            }`}
+          >
             {l}
           </button>
         ))}
@@ -178,13 +209,13 @@ export function HomeBlocks({ blocks, slots }: { blocks: Block[]; slots?: Record<
   const shown = blocks.filter((b) => b.visible);
   if (!shown.length) return null;
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {shown.map((b) => (
         <section key={b.id} data-block={b.type}>
           {b.type === "topbar" && <Topbar s={b.settings as TopbarSettings} />}
           {b.type === "slider" && <Slider s={b.settings as SliderSettings} />}
           {b.type === "banner" && <Banner s={b.settings as BannerSettings} />}
-          {b.type === "html" && <div className="mall-html px-4" dangerouslySetInnerHTML={{ __html: (b.settings as HtmlSettings).html }} />}
+          {b.type === "html" && <div className="mall-html px-4 sm:px-6" dangerouslySetInnerHTML={{ __html: (b.settings as HtmlSettings).html }} />}
           {b.type === "video" && <Video s={b.settings as VideoSettings} />}
           {b.type === "gallery" && <Gallery s={b.settings as GallerySettings} />}
           {SLOT_TYPES.has(b.type) && (slots ? slots[b.id] : <Placeholder b={b} />)}

@@ -10,7 +10,7 @@ export default function LogoutButton({ label = "로그아웃" }: { label?: strin
       type="button"
       className="min-h-11 rounded border px-3 text-sm"
       onClick={async () => {
-        await createClient().auth.signOut();
+        await createClient().auth.signOut({ scope: "local" });
         router.replace(`/login?next=${encodeURIComponent(window.location.pathname)}`);
         router.refresh();
       }}

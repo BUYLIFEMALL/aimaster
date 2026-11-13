@@ -1,8 +1,45 @@
 @import "tailwindcss";
 
 body {
-  background: #ffffff;
-  color: #111827;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 3D 엠보싱 버튼 */
+.btn-3d-blue {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 0 0 #1d4ed8;
+  transition: all 0.15s ease-in-out;
+}
+.btn-3d-blue:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 #1e40af;
+}
+.btn-3d-blue:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+.btn-3d-dark {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 0 0 #020617;
+  transition: all 0.15s ease-in-out;
+}
+.btn-3d-dark:hover:not(:disabled) {
+  background-color: #1e293b;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 #020617;
+}
+.btn-3d-dark:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: none;
 }
 
 /* 글·HTML 블록(F19) — Tailwind가 지운 기본 글 모양을 블록 안에서만 되살린다 */

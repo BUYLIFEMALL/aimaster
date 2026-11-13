@@ -16,7 +16,66 @@ import { couponLabel } from "@/lib/benefits";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 주문서 — 장바구니 전체를 무통장 입금으로 주문. 금액은 같은 가격 엔진으로 보여 주고, 실제 금액은 DB 함수가 다시 계산한다
+// 비회원 주문서(D15)
+async function GuestOrderPage({ store }: { store: Store }) {
+  const base = `/s/${store.slug}`;
+  const [rows, policies] = await Promise.all([loadGuestCart(store.id, store.slug), getShippingPolicies(store.id)]);
+  const ctxOf = await getPriceContexts(store.id, rows.map((r) => r.product.id));
+  const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty, ctxOf(r.product.id)) }));
+  if (!lines.length || lines.some((l) => !l.price.orderable)) redirect(`${base}/cart`);
+  const shipLines = lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: true }));
+  const totalsByRegion = Object.fromEntries(
+    (["mainland", "jeju", "island"] as Region[]).map((r) => {
+      const t = cartTotals(shipLines, policies, r);
+      return [r, { subtotal: t.subtotal, shipping: t.shipping, total: t.total }];
+    }),
+  ) as Record<Region, { subtotal: number; shipping: number; total: number }>;
+  const info = readBusinessInfo(store.business_info);
+  const bankText =
+    info.bank_name && info.bank_account
+      ? `${info.bank_name} ${info.bank_account}${info.bank_holder ? ` (예금주 ${info.bank_holder})` : ""} — 주문 후 입금해 주세요.`
+      : "입금 계좌는 주문 후 안내됩니다.";
+
+  return (
+    <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="mb-6 border-b border-slate-200/80 pb-4">
+        <span className="text-xs font-bold uppercase tracking-wider text-blue-600">Checkout</span>
+        <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+          주문서 <span className="text-sm font-normal text-slate-500">(비회원)</span>
+        </h1>
+      </div>
+
+      <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
+        <h2 className="text-base font-bold text-slate-900 mb-3">주문 상품 ({lines.length}건)</h2>
+        <ul className="divide-y divide-slate-100 text-sm">
+          {lines.map((l) => (
+            <li key={l.index} className="flex justify-between gap-4 py-3" data-order-line>
+              <span className="text-slate-800">
+                <span className="font-semibold">{l.product.name}</span>
+                {l.variant && <span className="text-slate-500"> · {l.variant.key}</span>} × {l.qty}
+              </span>
+              <b className="font-bold text-slate-900">{formatWon(l.price.lineTotal)}</b>
+            </li>
+          ))}
+        </ul>
+        <Link href={`${base}/cart`} className="mt-4 inline-block text-xs font-semibold text-blue-600 underline">
+          ← 장바구니로 돌아가기
+        </Link>
+      </div>
+
+      <div className="mt-8 rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+        <GuestOrderForm
+          slug={store.slug}
+          totalsByRegion={totalsByRegion}
+          bankText={bankText}
+          loginHref={`/login?next=${encodeURIComponent(`${base}/cart`)}`}
+        />
+      </div>
+    </main>
+  );
+}
+
+// 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 주문서
 export default async function OrderPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const base = `/s/${slug}`;
@@ -65,75 +124,54 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
       : "입금 계좌는 주문 후 안내됩니다. (운영자가 아직 계좌를 등록하지 않았습니다)";
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-xl font-bold">주문서</h1>
-      <ul className="mt-6 divide-y border-y text-sm">
-        {lines.map((l) => (
-          <li key={l.id} className="flex justify-between gap-4 py-3" data-order-line>
-            <span>
-              {l.product.name}
-              {l.variant && <span className="text-gray-500"> · {l.variant.key}</span>} × {l.qty}
-            </span>
-            <b>{formatWon(l.price.lineTotal)}</b>
-          </li>
-        ))}
-      </ul>
-      <Link href={`${base}/cart`} className="mt-2 inline-block text-sm underline">장바구니로 돌아가기</Link>
+    <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="mb-6 border-b border-slate-200/80 pb-4">
+        <span className="text-xs font-bold uppercase tracking-wider text-blue-600">Checkout</span>
+        <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">주문서</h1>
+      </div>
+
+      <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
+        <h2 className="text-base font-bold text-slate-900 mb-3">주문 상품 ({lines.length}건)</h2>
+        <ul className="divide-y divide-slate-100 text-sm">
+          {lines.map((l) => (
+            <li key={l.id} className="flex justify-between gap-4 py-3" data-order-line>
+              <span className="text-slate-800">
+                <span className="font-semibold">{l.product.name}</span>
+                {l.variant && <span className="text-slate-500"> · {l.variant.key}</span>} × {l.qty}
+              </span>
+              <b className="font-bold text-slate-900">{formatWon(l.price.lineTotal)}</b>
+            </li>
+          ))}
+        </ul>
+        <Link href={`${base}/cart`} className="mt-4 inline-block text-xs font-semibold text-blue-600 underline">
+          ← 장바구니로 돌아가기
+        </Link>
+      </div>
 
       {addresses.length === 0 ? (
-        <p className="mt-6 rounded bg-amber-50 px-3 py-3 text-sm">
-          배송지가 없습니다. <Link href={`${base}/my`} className="underline">마이페이지에서 배송지를 먼저 추가</Link>해 주세요.
-        </p>
+        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900 shadow-xs">
+          <p className="font-bold text-base">등록된 배송지가 없습니다.</p>
+          <p className="mt-1 text-xs">주문을 진행하려면 먼저 마이페이지에서 배송지를 등록해 주세요.</p>
+          <Link href={`${base}/my`} className="mt-4 inline-block btn-3d-blue px-4 py-2 text-xs">
+            마이페이지에서 배송지 추가하기
+          </Link>
+        </div>
       ) : (
-        <OrderForm
-          slug={store.slug}
-          addresses={addresses}
-          regionOf={Object.fromEntries(addresses.map((a) => [a.id, regionOfZip(a.zip)]))}
-          totalsByRegion={totalsByRegion}
-          defaultDepositor={customer.name}
-          bankText={bankText}
-          credit={credit}
-          invoice={isBusiness ? { defaultEmail: user.email ?? "" } : undefined}
-          card={card}
-          benefits={benefits}
-        />
+        <div className="mt-8 rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+          <OrderForm
+            slug={store.slug}
+            addresses={addresses}
+            regionOf={Object.fromEntries(addresses.map((a) => [a.id, regionOfZip(a.zip)]))}
+            totalsByRegion={totalsByRegion}
+            defaultDepositor={customer.name}
+            bankText={bankText}
+            credit={credit}
+            invoice={isBusiness ? { defaultEmail: user.email ?? "" } : undefined}
+            card={card}
+            benefits={benefits}
+          />
+        </div>
       )}
-    </main>
-  );
-}
-
-// 비회원 주문서(D15) — 쿠키 장바구니를 같은 가격 엔진으로(보는 사람 = 비회원), 지역별 합계는 미리 계산해 주소에 맞춰 바꾼다
-async function GuestOrderPage({ store }: { store: Store }) {
-  const base = `/s/${store.slug}`;
-  const [rows, policies] = await Promise.all([loadGuestCart(store.id, store.slug), getShippingPolicies(store.id)]);
-  const ctxOf = await getPriceContexts(store.id, rows.map((r) => r.product.id));
-  const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty, ctxOf(r.product.id)) }));
-  if (!lines.length || lines.some((l) => !l.price.orderable)) redirect(`${base}/cart`);
-  const shipLines = lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: true }));
-  const totalsByRegion = Object.fromEntries(
-    (["mainland", "jeju", "island"] as Region[]).map((r) => {
-      const t = cartTotals(shipLines, policies, r);
-      return [r, { subtotal: t.subtotal, shipping: t.shipping, total: t.total }];
-    }),
-  ) as Record<Region, { subtotal: number; shipping: number; total: number }>;
-  const info = readBusinessInfo(store.business_info);
-  const bankText = info.bank_name && info.bank_account
-    ? `${info.bank_name} ${info.bank_account}${info.bank_holder ? ` (예금주 ${info.bank_holder})` : ""} — 주문 후 입금해 주세요.`
-    : "입금 계좌는 주문 후 안내됩니다.";
-
-  return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-xl font-bold">주문서 <span className="text-sm font-normal text-gray-500">(비회원)</span></h1>
-      <ul className="mt-6 divide-y border-y text-sm">
-        {lines.map((l) => (
-          <li key={l.index} className="flex justify-between gap-4 py-3" data-order-line>
-            <span>{l.product.name}{l.variant && <span className="text-gray-500"> · {l.variant.key}</span>} × {l.qty}</span>
-            <b>{formatWon(l.price.lineTotal)}</b>
-          </li>
-        ))}
-      </ul>
-      <Link href={`${base}/cart`} className="mt-2 inline-block text-sm underline">장바구니로 돌아가기</Link>
-      <GuestOrderForm slug={store.slug} totalsByRegion={totalsByRegion} bankText={bankText} loginHref={`/login?next=${encodeURIComponent(`${base}/cart`)}`} />
     </main>
   );
 }

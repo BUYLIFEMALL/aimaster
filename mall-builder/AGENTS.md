@@ -1,7 +1,7 @@
 # AI 쇼핑몰 빌더 (`mall-builder`) — 에이전트 인수인계
 
 > 먼저 읽기: [README](README.md)(기능 진행 표·실행 방법) → [3몰 인수인계](../docs/mall/HANDOFF_THREE_MALLS.md) → [T0 운영 이전 플랜](docs/PLAN_20261112_T0_PROD_MIGRATION.md) → [교훈 모음](../docs/mall/LESSONS_LEARNED.md) → 역할 파일 [`docs/roles/mall-builder.md`](../docs/roles/mall-builder.md)
-> 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 운영 버전 `v1.06`(`src/lib/version.ts` + DB `programs.version`) · 최신 요약: [§4 버전·이력](#4-버전이력)·[§5 남은 일](#5-남은-일)·[§8 향후 개선 방향](#8-향후-개선-방향)
+> 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 운영 버전 `v1.07`(`src/lib/version.ts` + DB `programs.version`) · 최신 요약: [§4 버전·이력](#4-버전이력)·[§5 남은 일](#5-남은-일)·[§8 향후 개선 방향](#8-향후-개선-방향)
 
 ## 1. 사용 목적·대상
 - 회원(사업자)이 자기 쇼핑몰을 개설·운영하는 프로셀형 B2B 쇼핑몰 빌더. AIMaster 이커머스 카테고리의 **샘플몰**로 운영하고(① B2B 입점몰 → ② 분양몰 → ③ 독립몰), 나중에 배포 키트로 분리해 수강생·외주 사업자에게 판매한다.
@@ -21,6 +21,7 @@
 - 장점: 몰 데이터 보호가 DB에 있어 화면 실수가 새지 않음, 기능 폭이 넓음(F01~F19·D1~D37·T1). 단점: 손님 화면 디자인은 기능 위주 기본 모양(2026-11-13 agy에 인계), 마이그레이션 수가 많음(71개 — 운영 적용은 묶음 SQL + 로컬 전체 실행 검사 `scripts/check-prod-bundle-local.mjs` 필수).
 
 ## 4. 버전·이력
+- `v1.07`(2026-11-13) **손님 화면 1안(106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일) 전면 개편** — 헤더/바닥글 B2B 일체화, S3 샘플몰 안내 띠 배너, 상품카드 1:1 뷰파인더, 상품상세/장바구니/주문서/분양안내 1안 적용, 단위테스트 256/256 전수 통과, Next.js Turbopack 빌드 성공, Edge 1440px/390px 실물 캡처 검증 완료 — 운영 배포.
 - `v1.06`(2026-11-13) 손님 화면·분양 안내 공개(운영 관문 예외) — 운영 배포.
 - `v1.05`(2026-11-13) **T2 분양몰**: 공개 안내·신청 `/resale`, 본사 「분양」(승인·이용 기간·분양 주문 입금 확인·출금 지급), 분양자 「분양」(본사 상품 담기·판매가·매출·정산), 거울 상품, 주문 전달·연동, 마진 장부, DB 0061~0063 — 운영 배포. 로컬 시나리오 36단계(`scripts/scenario-0061~0063-*.sql`), 운영 실제 흐름 검수는 맥미니 진행 중([인계](docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md)).
 - `v1.04`(2026-11-13) **T1 마무리**: 공급사 상품 옵션(추가 공급가 → 판매 추가금 마진 비율 자동)·공급사별 배송비(공급사 정산에 더함), DB 0060 — 운영 배포·실제 흐름 검수 완료(공급사 정산 25,000원 = 공급가 22,000 + 배송비 3,000).
@@ -34,7 +35,7 @@
 | 순서 | 일 | 상태·기다리는 것 | 문서 |
 |---|---|---|---|
 | 1 | T2 분양몰 운영 실제 흐름 검수(25단계) | 맥미니 진행 중(12단계까지 통과) — 문제 나오면 mall-builder 담당이 고침 | [검수 인계](docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md) |
-| 2 | 손님 화면 디자인 | agy 진행 중 — 담당은 `(shop)`·`resale` 파일을 고치지 않음 | [디자인 인계](docs/HANDOFF_20261113_STOREFRONT_DESIGN_AGY.md) |
+| 2 | 손님 화면 디자인 | ✅ agy 완료 (106번 네오 모던 B2B 커머스 채택, 단위256·빌드·Edge1440/390 실물 통과) | [디자인 결과](docs/DESIGN_HANDOFF.md) |
 | 3 | 샘플몰 자료 채우기(카테고리 6·상품 16·기본 배송비·첫 화면) + 시험 데이터 정리 | 1번 검수가 끝난 뒤. 엑셀 준비됨 `docs/sample/aimaster-b2b-sample-catalog.xlsx` | [후속 플랜](docs/PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md) §2 |
 | 4 | v1.07 배포(확인 상자·단일 몰 모드) | 다음 배포 때 모아서(빌드 승인) | [개선](docs/IMPROVEMENTS.md) |
 | 5 | 메이커 연계 M1~M3(바나나로 상품 사진 보내기 → 돌려받기 → 적용) | 바나나 P1 승인·몰 사진 보관 기준 결정 | [검토 결과](docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) |
