@@ -6,7 +6,7 @@
 - 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 「새 글 · 분석」(`/dashboard` — 「새 글 생성」·「기존 글 분석」 탭, 에디터 `/editor/...`) / 「내 문서 보관함」(`/documents`) / 「매뉴얼 & 연동」(`/guide`) / 설정(`/settings`, 키 관리).
 - 필요한 키·연동(회원 본인 것): Google Gemini API 키 하나(`user_api_keys`, provider `gemini`). 외부 계정 연동 없음. 「📁 내 템플릿 불러오기」는 같은 회원의 AI Prompt 보관함을 읽습니다(`/api/prompt-templates`).
 - Gemini를 부르는 API: `generate`(초안)·`rewrite`(선택 문장 6종)·`analyze`(글 분석)·`style-rewrite`(문체 바꾸기)·`persona-generate`(AI로 말투 채우기)·`keys/test`(연결 확인).
-- 자동 실행(예약·정리)·확장: `vercel.json` 예약 없음, 크롬 확장 없음. 보관은 개수 기준 — 회원당 문서 30개를 넘으면 가장 오래 수정하지 않은 문서부터 지움(`src/lib/documents.ts` `prune`), 이미지는 계정 전체 60개·한 장 4MB(`src/lib/images.ts`). **30일 자동 삭제는 없습니다**(개선 문서 참고).
+- 자동 실행(예약·정리)·확장: 크롬 확장 없음. 보관은 개수 기준 — 회원당 문서 30개를 넘으면 가장 오래 수정하지 않은 문서부터 지움(`src/lib/documents.ts` `prune`), 이미지는 계정 전체 60개·한 장 4MB(`src/lib/images.ts`). **30일 자동 삭제(2026-11-13 추가, 미배포)**: `src/app/api/cron/cleanup-generated/route.ts` + `vercel.json` 크론 `20 19 * * *`(한국 04:20) — 만든 지 30일 지난 문서·쓰이지 않는 이미지 삭제, `profiles.retention_exempt` 회원 제외, 2026-12-14까지 유예(`src/lib/retention.ts`), 배포 때 `CRON_SECRET` 필요.
 - 최근 변경(커밋 기준): 저작권 고지·검색엔진 허용 robots(`9810804f1`·`1def2373a`) / 권한 판정 조회 병렬화(`d1e710d68`) / 텍스트 실패 대비 모델 목록 교체(`aae03dda7`, 미배포) / API 키 안내 문구 정정(`b16550ad4`, 미배포) / Next.js 보안 업데이트 v1.13(`8945c86b7`).
 - 미배포 대기·남은 일: 루트 `docs/PENDING_DEPLOYS.md`에 2건 — 모델 교체 `aae03dda7`, 키 안내 문구 `b16550ad4`(+ 권한 판정 병렬화 `d1e710d68`). 정책 점검 남은 일: 저장공간 위젯 한 줄, 로그아웃 범위(`src/app/api/auth/logout/route.ts:8`), 30일 보관 규칙 미적용.
 - 다음에 손댈 때 주의: 문서 보관 규칙을 30일로 바꾸면 매뉴얼 FAQ 「작성 중인 글은 어디에…」도 함께 고칩니다. 이미지 프롬프트·생성 기능은 없음.

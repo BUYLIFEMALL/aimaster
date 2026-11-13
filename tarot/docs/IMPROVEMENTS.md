@@ -46,7 +46,7 @@
 
 ## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
 ### 1) 프로그램 로직·기능
-- **30일 보관 정리 없음** — `tarot_readings` 행과 `tarot-card-images` 버킷 파일을 지우는 정리 작업(크론·정리 라우트)이 이 프로그램에 없다(`vercel.json` 없음, `supabase/migrations`에 정리 함수 없음). 메인 중앙 정리가 이 표·버킷을 다루는지는 미확인. 영향: 보관 규칙과 실제 동작 불일치, 저장공간 누적. 우선순위 중간. 상태 제안.
+- **30일 보관 정리 없음 (이번에 고침(미배포), 2026-11-13)** — `app/api/cron/cleanup-generated/route.ts`(매일 `40 19 * * *`, 새 `vercel.json`, `CRON_SECRET`, 2026-12-14 전 유예, `profiles.retention_exempt` 회원 제외): 만든 지 30일 지난 리딩 삭제 + 남은 리딩에 쓰이지 않는 카드 그림(30일 지났거나 지운 리딩에 있던 것) 삭제. 매뉴얼에 시작일 안내 추가. 원래 기록: `tarot_readings` 행과 `tarot-card-images` 버킷 파일을 지우는 정리 작업(크론·정리 라우트)이 이 프로그램에 없다(`vercel.json` 없음, `supabase/migrations`에 정리 함수 없음). 메인 중앙 정리가 이 표·버킷을 다루는지는 미확인. 영향: 보관 규칙과 실제 동작 불일치, 저장공간 누적. 우선순위 중간. 상태 제안.
 - **해석 API 기본 모델이 `gpt-4o-mini`** — `app/api/generate-reading/route.ts:16`. 화면은 항상 모델을 보내지만(`components/DrawFlow.tsx:40` 기본 `gpt-5.6-sol`), `?om=` 없는 옛 링크로 들어오면 메뉴에 없는 이 모델을 쓴다. 영향: 모델 선택표와 어긋남. 우선순위 낮음. 상태 제안.
 - 카드 그림 버킷은 조회가 공개(`supabase/migrations/0003_card_images_storage.sql`) — 카카오 공유 미리보기 때문에 의도된 설계. 경로에 회원 id가 들어가므로 주소를 아는 사람은 볼 수 있음을 기록만 해 둔다. 우선순위 낮음. 상태 대기(설계 유지).
 ### 2) 화면·가독성·사용 편의
@@ -61,4 +61,4 @@
 - 저장공간 위젯 한 줄 미적용 — `app/layout.tsx`. 중간, 대기(다음 배포 때).
 - 범위 없는 `signOut()` 1곳 — `lib/actions/auth.ts:39` → `signOut({ scope: "local" })`. 중간, 대기.
 - 서버 로그인 기기 정보 미전달 — `lib/supabase/server.ts`에 `global.headers["User-Agent"]`. 중간, 대기.
-- 30일 정리 예외 회원(`retention_exempt`): 정리 코드 자체가 없어 해당 없음(1번 항목 참고).
+- 30일 정리 예외 회원(`retention_exempt`): 이번에 새로 넣은 정리에서 제외(이번에 고침(미배포)).

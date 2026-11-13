@@ -82,7 +82,7 @@
 
 ## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
 ### 1) 프로그램 로직·기능
-- **30일 보관 정리 없음** — `ui_canvas_projects`를 지우는 정리 작업이 없다(`vercel.json` 크론 없음, `src/app/api/projects/route.ts`에 정리 없음). 메인 중앙 정리가 이 표를 다루는지는 미확인. 영향: 보관 규칙과 실제 동작 불일치. 우선순위 중간. 상태 제안.
+- **30일 보관 정리 없음 (이번에 고침(미배포), 2026-11-13)** — `src/app/api/cron/cleanup-generated/route.ts`(매일 `30 19 * * *`, `CRON_SECRET`, 2026-12-14 전 유예, `profiles.retention_exempt` 회원 제외): 만든 날(`created_at`) 기준 30일 지난 프로젝트 행 삭제(저장소 파일 없음). 매뉴얼 보관 안내에 시작일·기준일 추가. 원래 기록: `ui_canvas_projects`를 지우는 정리 작업이 없다(`vercel.json` 크론 없음, `src/app/api/projects/route.ts`에 정리 없음). 메인 중앙 정리가 이 표를 다루는지는 미확인. 영향: 보관 규칙과 실제 동작 불일치. 우선순위 중간. 상태 제안.
 - **버전 표기 불일치** — `src/lib/version.ts` v1.15인데 `package.json` 1.13.0. 화면 표시는 `APP_VERSION`이라 회원 영향은 없음. 다음 배포 때 맞추기. 우선순위 낮음. 상태 제안.
 ### 2) 화면·가독성·사용 편의
 - 편집기 안 도움말 창(`src/components/canvas/Editor.tsx:669` 부근 「사용법」)과 `/guide` 매뉴얼이 따로 있어 내용이 어긋나기 쉽다. 단축키 표를 한 곳(상수)에서 함께 쓰면 좋음. 우선순위 낮음. 상태 제안.
@@ -96,4 +96,4 @@
 - 저장공간 위젯 한 줄 미적용 — `src/app/layout.tsx`. 중간, 대기.
 - 범위 없는 `signOut()` — `src/app/api/auth/logout/route.ts:8` → `signOut({ scope: "local" })`. 중간, 대기.
 - 서버 로그인 기기 정보: pending-check에서 지적 없음.
-- 30일 정리 예외 회원(`retention_exempt`): 정리 코드가 없어 해당 없음.
+- 30일 정리 예외 회원(`retention_exempt`): 이번에 새로 넣은 정리에서 제외(이번에 고침(미배포)).
