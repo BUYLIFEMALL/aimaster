@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 [역할: ecommerce-image·blog] Claude Code(윈도우) · 세션 `claude-win-blog` — 바나나 v1.47(파일 모드 결함 수정)·실물 검수 완료·이웃 상세 설명 갱신
+
+- **결함·수정**: 바나나 v1.46 「상품 대표사진 합성」 파일 모드에서 추가·끌어놓기 사진이 0장 들어감(입력 칸을 비운 뒤 FileList를 읽음) → `6b28e7849` v1.47. 서브 정사각 채우기 기본(`8377b66c7`). 미배포: 깨진 사진 한국어 안내.
+- **배포 주의(교훈)**: 첫 v1.47 빌드가 실패 — CLI 배포는 작업 폴더를 올려 agy의 미커밋 화면 코드가 섞임. `git archive HEAD banana-canvas`로 임시 폴더에 꺼내 `.vercel`만 복사해 재배포(Ready). `docs/ERROR_LESSONS.md` 기록.
+- **실물(ego lite, 운영 v1.47)**: 사진 24장 → 21상품 준비·짝 없는 사진 표시 → 일괄 실행 중 중단(완료 2 유지) → 이어 하기(완료 20·깨진 1 실패) → 실패만 다시(1개만 재시도) → ZIP 22파일(JPG 1000×1000 20 + 결과표 CSV/JSON) → 390px 넘침 없음. F4·F5 통과.
+- **이웃 소통**: `programs.description`(5단락 455자)·`detail_sections`(특징 4·순서 4·대상 3)를 현재 기능 기준으로 저장(주인님 승인, DB 값만), 공개 상세 페이지 확인. 백업은 세션 스크래치.
+- **agy 담당께**: agy 새 화면(`BatchWorkspace`·`ProductBatchBoard`, 미커밋)은 A의 기능 파일을 그대로 써서 정사각 채우기·한국어 오류가 함께 적용됨. `subFit` 선택 버튼만 화면에 추가 필요. A의 `ProductCompositeBoard`·`BatchModes`는 agy 화면으로 바뀌면 지워도 됨.
+- 남은 것: 메이커 P3·P4 사전검토(미착수), 스마트스토어 확장 실제 채우기, 50상품 메모리 실측, policy 저장 검토·Codex 검수.
+
+
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 업무 워크스페이스 v1.35 세금계산서 볼타 바로 발급(운영 테스트 통과)
 
 - 주인님 「일단 볼타로 정리해」: 팝빌 구현(미배포)을 볼타로 교체. 회원 본인 볼타 API 키(공용 `user_api_keys` `bolta_api_key`, test_/live_), 4단계 설정(키·발급자·공동인증서·실제 발급 동의), 문서별 「📤 볼타 발급」→「🔄 발급 결과 확인」, 요청 번호 먼저 저장·접수 조회 후에만 재전송(이중 발급 방지). 코드 `ai-work-workspace/src/server/bolta.ts`·`boltaCore.ts`, 화면 `src/app/receipts/BoltaPanel.tsx`, 플랜 `ai-work-workspace/docs/PLAN_20261113_U14_AND_DEFERRED.md` §2-5.

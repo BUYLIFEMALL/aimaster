@@ -1,6 +1,14 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-13 CLI 배포에 다른 세션의 미커밋 화면 코드가 섞여 빌드 실패 + 파일 입력을 비운 뒤 FileList를 읽어 사진 0장 (`banana-canvas` v1.47, [역할: ecommerce-image])
+- **증상 1**: `deploy.mjs banana-canvas --go`가 `npm run build exited with 1`. 로컬 tsc·build는 직전에 통과했음. 도우미는 실패 뒤에도 `--set-version`으로 DB 버전을 올릴 수 있어 화면(v1.46)과 DB(v1.47)가 어긋남.
+- **원인 1**: `vercel deploy`는 커밋이 아니라 **작업 폴더**를 올린다. 같은 폴더에서 agy가 `batch/page.tsx`·새 컴포넌트를 미커밋으로 고치는 중이라 그 미완성 코드가 함께 빌드됨(작업 중 표의 agy 줄을 「디자인 시안만」으로 보고 넘긴 것이 실수).
+- **해결 1**: `git archive HEAD <폴더> | tar -x -C <임시>` → `.vercel` 복사 → 임시 폴더에서 `npx vercel deploy --prod --yes --scope buylife`(Ready). **다음부터**: 배포 직전 `git status --porcelain -- <폴더>/src`에 내 것이 아닌 변경이 있으면 작업 폴더째 배포하지 않는다. 배포 실패 뒤에는 `--set-version`을 실행하지 않는다.
+- **증상 2**: 상품 합성 파일 모드에서 「추가」·끌어놓기 사진이 0장. 시험·tsc·build 모두 통과, 상세 연결 모드만 실물 확인해 놓침.
+- **원인 2**: `onChange`에서 `addFiles(e.target.files); e.target.value = ""` — `addFiles`가 `setState((prev) => …)` 갱신 함수 **안에서** FileList를 읽는데, 갱신 함수는 나중에 실행되고 그 사이 입력 칸이 비워져 같은 FileList가 빈 목록이 됨. 기존 `BatchPhotoBoard`는 `Array.from(list)`를 먼저 해서 괜찮았음.
+- **해결 2**: 갱신 함수 밖에서 먼저 `Array.from(list)`로 복사(`6b28e7849`). **다음부터**: FileList·이벤트 값은 상태 갱신 함수 안에서 읽지 않는다. 입력 방식이 여러 개면(파일·붙여넣기·다른 창) 방식마다 실물로 한 번씩 넣어 본다.
+
 ## 2026-11-13 범위 없는 `signOut()`은 그 계정의 모든 기기·모든 프로그램을 끊는다 — 한 곳 로그아웃에 다른 PC·다른 탭이 함께 로그아웃 (메인 사이트·하위 프로그램 공통, [역할: policy])
 
 - 증상: 무료음악·쇼츠를 함께 열면 1~2분 안에 둘 다 로그인 화면, 다른 PC에서 쓰던 시험 계정이 수시로 끊김, 새 기기 로그인 뒤 예전 기기의 「세션 만료」 화면이 **새 기기까지** 끊음.
