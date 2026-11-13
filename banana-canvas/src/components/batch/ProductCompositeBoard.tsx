@@ -12,6 +12,7 @@ import {
   PHOTO_MAX_BYTES, buildJobs, compositeNames, manifestCsv, manifestJson, parseTable, rowsFromFileNames, type JobStatus, type ManifestRow, type ProductJobDraft,
 } from "@/lib/batch/productJobs";
 import { runQueue } from "@/lib/batch/runQueue";
+import { fileKey, imagesFromZip } from "@/lib/batch/zipInput";
 import {
   PRODUCT_MSG_READY, PRODUCT_MSG_RESULT, PRODUCT_RESULT_MAX_BYTES, PRODUCT_SENDER_ORIGIN, readProductJob, readProductSaved,
 } from "@/lib/productPhotoHandoff";
@@ -79,19 +80,28 @@ export function ProductCompositeBoard() {
 
   const addFiles = useCallback((list: FileList | File[]) => {
     // 입력 칸을 바로 비우면(e.target.value = "") FileList도 비므로, 상태 갱신 전에 먼저 골라 둔다(2026-11-13 운영 결함 수정)
-    const skipped: string[] = [];
-    const ok: File[] = [];
-    for (const f of Array.from(list)) {
-      if (!f.type.startsWith("image/")) continue;
-      if (f.size > PHOTO_MAX_BYTES) { skipped.push(`${f.name}(25MB 초과)`); continue; }
-      ok.push(f);
-    }
-    setFiles((prev) => {
-      const next = new Map(prev);
-      for (const f of ok) next.set(f.name, f);
-      return next;
-    });
-    setNotice(skipped.length ? `넣지 못한 사진: ${skipped.join(", ")}` : null);
+    const picked = Array.from(list);
+    void (async () => {
+      const skipped: string[] = [];
+      const ok: [string, File][] = [];
+      for (const f of picked) {
+        // P3-F: 공급사 ZIP은 브라우저 안에서 풀어 사진만 넣는다(이름 = ZIP 안 경로, 폴더 이름이 상품코드)
+        if (/\.zip$/i.test(f.name)) {
+          try { const z = await imagesFromZip(f); z.files.forEach((x) => ok.push([x.name, x])); skipped.push(...z.skipped); }
+          catch { skipped.push(`${f.name}(ZIP을 열 수 없습니다)`); }
+          continue;
+        }
+        if (!f.type.startsWith("image/")) continue;
+        if (f.size > PHOTO_MAX_BYTES) { skipped.push(`${f.name}(25MB 초과)`); continue; }
+        ok.push([fileKey(f), f]); // 폴더로 넣으면 경로가 키(폴더마다 같은 main.jpg가 있어도 섞이지 않음)
+      }
+      setFiles((prev) => {
+        const next = new Map(prev);
+        for (const [k, f] of ok) next.set(k, f);
+        return next;
+      });
+      setNotice(skipped.length ? `넣지 못한 것: ${skipped.slice(0, 6).join(", ")}${skipped.length > 6 ? ` 외 ${skipped.length - 6}건` : ""}` : null);
+    })();
   }, []);
 
   async function pickTableFile(f: File | undefined) {
@@ -207,7 +217,7 @@ export function ProductCompositeBoard() {
         <p className="bp-intro">
           {linked
             ? "상세페이지에서 보낸 상품마다 메인+서브 사진을 대표사진 한 장으로 합성해 그 상품의 대표사진 칸에 새 버전으로 돌려보냅니다(원본 사진은 그대로)."
-            : <>사진을 넣고 <b>상품코드 작업표</b>(엑셀에서 복사해 붙여넣기 또는 CSV)를 넣거나, 파일 이름을 <b>코드_main.jpg · 코드_sub1.jpg</b>로 맞추세요. 파일 순서로 짝짓지 않습니다.</>}
+            : <>사진을 넣고 <b>상품코드 작업표</b>(엑셀에서 복사해 붙여넣기 또는 CSV)를 넣거나, 파일 이름을 <b>코드_main.jpg · 코드_sub1.jpg</b>로 맞추세요. 공급사가 준 <b>ZIP·폴더</b>는 그대로 넣으면 <b>폴더 이름이 상품코드</b>가 됩니다(main·sub1 이름 우선, 없으면 이름순 첫 장이 메인). 본인이 찍었거나 공급사가 허용한 사진만 쓰세요.</>}
         </p>
         {notice && <p className="notice" role="status">{notice}</p>}
       </div>
@@ -219,18 +229,19 @@ export function ProductCompositeBoard() {
             <>
               <header>
                 <b>사진 {files.size}장</b>
-                <label className="button"><ImagePlus size={14} />추가<input type="file" accept="image/*" multiple hidden onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} /></label>
+                <label className="button"><ImagePlus size={14} />추가<input type="file" accept="image/*,.zip" multiple hidden onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} /></label>
               </header>
               <label className="fe-drop" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}>
                 <ImagePlus size={22} />
                 <b>상품 사진을 끌어 놓거나 눌러서 고르세요</b>
-                <small>한 장 25MB · 한 번에 상품 50개까지</small>
-                <input type="file" accept="image/*" multiple hidden onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} />
+                <small>사진 또는 공급사 ZIP · 한 장 25MB · 한 번에 상품 50개까지</small>
+                <input type="file" accept="image/*,.zip" multiple hidden onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} />
               </label>
               <label className="bp-range" style={{ marginTop: 10 }}>📋 상품코드 작업표(머리줄 예: 상품코드, 옵션, 대표사진, 서브1)
                 <textarea value={table} onChange={(e) => setTable(e.target.value)} rows={4} className="bp-input" placeholder={"상품코드\t옵션\t대표사진\t서브1\nA-1001\t화이트\ta1.jpg\ta1_s.jpg"} style={{ marginTop: 4, fontFamily: "monospace" }} />
               </label>
               <div className="bp-row" style={{ flexWrap: "wrap" }}>
+                <label className="button">📁 폴더 넣기<input type="file" multiple hidden ref={(el) => { if (el) el.setAttribute("webkitdirectory", ""); }} onChange={(e) => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} /></label>
                 <label className="button">CSV 불러오기<input type="file" accept=".csv,.tsv,.txt,text/csv" hidden onChange={(e) => { void pickTableFile(e.target.files?.[0]); e.target.value = ""; }} /></label>
                 <label className="button"><ImagePlus size={14} />{sharedSub ? `공용 서브: ${sharedSub.name}` : "공용 서브 1장(모든 상품)"}<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f && f.size <= PHOTO_MAX_BYTES) setSharedSub(f); e.target.value = ""; }} /></label>
                 {sharedSub && <button type="button" className="bp-link" style={{ marginTop: 0 }} onClick={() => setSharedSub(null)}>공용 서브 빼기</button>}

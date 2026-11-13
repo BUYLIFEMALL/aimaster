@@ -141,3 +141,43 @@ test("서브 정사각 채우기(기본): 긴 사진도 정사각 상자, 원본
   assert.deepEqual(subRects([0.1], { ...base, subFit: "contain" }).map((r) => [r.w, r.h]), [[32, 320]]); // 예전 동작(가는 띠)
   assert.deepEqual(fitRect(100, 1000, { x: 0, y: 0, w: 320, h: 320 }, "cover"), { sx: 0, sy: 450, sw: 100, sh: 100, dx: 0, dy: 0, dw: 320, dh: 320 });
 });
+
+// P3-F 폴더·ZIP 넣기
+import JSZip from "jszip";
+import { rowsFromPaths } from "../src/lib/batch/productJobs.ts";
+import { imagesFromZip } from "../src/lib/batch/zipInput.ts";
+
+test("P3-F 폴더 규칙: 폴더 이름=상품코드, main·sub 이름 우선, 없으면 이름순 첫 장이 메인", () => {
+  const rows = rowsFromPaths(["공급사/A-1/sub2.jpg", "공급사/A-1/main.jpg", "공급사/A-1/sub1.png", "공급사/B-2/2.jpg", "공급사/B-2/10.jpg", "공급사/B-2/1.jpg", "공급사/읽어보기.txt", "혼자.jpg"]);
+  assert.deepEqual(rows.map((r) => [r.code, r.main, r.subs]), [
+    ["A-1", "공급사/A-1/main.jpg", ["공급사/A-1/sub1.png", "공급사/A-1/sub2.jpg"]],
+    ["B-2", "공급사/B-2/1.jpg", ["공급사/B-2/2.jpg", "공급사/B-2/10.jpg"]],
+  ]);
+  const five = rowsFromPaths(["C/1.jpg", "C/2.jpg", "C/3.jpg", "C/4.jpg", "C/5.jpg"])[0];
+  assert.deepEqual([five.main, five.subs.length], ["C/1.jpg", 3]); // 서브는 3장까지
+  assert.match(buildJobs(rowsFromPaths(["D/main.jpg", "D/메인.png"]), ["D/main.jpg", "D/메인.png"]).jobs[0].problems.join(), /두 장 이상/);
+});
+
+test("P3-F 경로 있는 파일과 없는 파일을 함께 넣어도 각 규칙으로 짝짓고, 같은 파일 이름이 폴더마다 있어도 섞이지 않는다", () => {
+  const names = ["A/main.jpg", "B/main.jpg", "B/sub1.jpg", "X_main.jpg", "X_sub1.jpg"];
+  const { jobs, orphans } = buildJobs(rowsFromFileNames(names), names);
+  assert.deepEqual(jobs.map((j) => [j.code, j.status, j.photos.map((p) => p.ref)]), [
+    ["A", "ready", ["A/main.jpg"]], ["B", "ready", ["B/main.jpg", "B/sub1.jpg"]], ["X", "ready", ["X_main.jpg", "X_sub1.jpg"]],
+  ]);
+  assert.deepEqual(orphans, []);
+  assert.deepEqual(compositeNames(jobs.map((j) => ({ code: j.code, option: j.option })), { prefix: "", template: DEFAULT_COMPOSITE.template, ext: "jpg" }), ["A_main.jpg", "B_main.jpg", "X_main.jpg"]);
+});
+
+test("P3-F ZIP: 사진만 꺼내고 경로를 이름으로, 맥 임시 폴더·숨김·다른 형식은 건너뜀", async () => {
+  const z = new JSZip();
+  z.file("가방/main.jpg", new Uint8Array([1, 2, 3]));
+  z.file("가방/sub1.PNG", new Uint8Array([4]));
+  z.file("__MACOSX/가방/._main.jpg", new Uint8Array([9]));
+  z.file("가방/.DS_Store", new Uint8Array([9]));
+  z.file("설명.txt", "hi");
+  z.file("빈/empty.jpg", new Uint8Array([]));
+  const { files, skipped } = await imagesFromZip(await z.generateAsync({ type: "uint8array" }));
+  assert.deepEqual(files.map((f) => [f.name, f.type, f.size]), [["가방/main.jpg", "image/jpeg", 3], ["가방/sub1.PNG", "image/png", 1]]);
+  assert.equal(skipped.length, 2); assert.match(skipped.join(), /빈\/empty\.jpg/); assert.match(skipped.join(), /사진이 아닌 파일 1개/);
+  assert.deepEqual(rowsFromFileNames(files.map((f) => f.name)).map((r) => [r.code, r.main, r.subs]), [["가방", "가방/main.jpg", ["가방/sub1.PNG"]]]);
+});

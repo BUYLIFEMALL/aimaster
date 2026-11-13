@@ -80,8 +80,45 @@ export function roleFromFileName(fileName: string): { code: string; role: PhotoR
   return { code: m[1].trim(), role, index: role === "main" ? 0 : Number(m[3] ?? 1) };
 }
 
-/** 파일 이름 규칙만으로 작업표를 만든다(작업표 없이 파일만 넣었을 때) */
-export function rowsFromFileNames(fileNames: string[]): TableRow[] {
+const IMAGE_EXT = /\.(jpe?g|png|webp)$/i;
+const byName = (x: string, y: string) => x.localeCompare(y, "ko", { numeric: true, sensitivity: "base" });
+
+/**
+ * 메이커 P3-F(2026-11-13) 폴더·ZIP 구조로 작업표를 만든다 — 「상품코드/main.jpg」「상품코드/sub1.jpg」.
+ * 사진이 든 폴더 이름이 상품코드다(위쪽 폴더는 무시). 이름이 main·메인·대표면 메인, sub1~9·서브1~9면 서브,
+ * main이 없으면 그 폴더에서 이름순 첫 장이 메인이고 나머지가 서브(최대 3장, 넘는 사진은 쓰지 않아 「작업표에 없는 사진」으로 표시된다).
+ * 줄의 main·subs 값은 넣은 파일의 전체 경로(파일 맵의 키)다.
+ */
+export function rowsFromPaths(paths: string[]): TableRow[] {
+  const groups = new Map<string, string[]>();
+  for (const raw of paths) {
+    const path = raw.replace(/\\/g, "/").replace(/^\/+/, "");
+    const parts = path.split("/");
+    if (parts.length < 2 || !IMAGE_EXT.test(parts[parts.length - 1])) continue;
+    const dir = parts.slice(0, -1).join("/");
+    groups.set(dir, [...(groups.get(dir) ?? []), raw]);
+  }
+  const rows: TableRow[] = [];
+  for (const [dir, list] of [...groups.entries()].sort((x, y) => byName(x[0], y[0]))) {
+    const code = dir.split("/").pop()!.trim();
+    if (!code) continue;
+    const base = (p: string) => p.replace(/\\/g, "/").split("/").pop()!.replace(/\.[^.]+$/, "").trim().toLowerCase();
+    const sorted = [...list].sort(byName);
+    const mains = sorted.filter((p) => /^(main|메인|대표)$/.test(base(p)));
+    const named = sorted.map((p) => ({ p, m: /^(?:sub|서브)[ _-]?([1-9])?$/.exec(base(p)) })).filter((x) => x.m).sort((x, y) => Number(x.m![1] ?? 1) - Number(y.m![1] ?? 1)).map((x) => x.p);
+    const rest = sorted.filter((p) => !mains.includes(p) && !named.includes(p));
+    const main = mains[0] ?? rest.shift() ?? "";
+    const subs = [...named, ...rest].slice(0, PRODUCT_MAX_SUBS);
+    rows.push({ code, option: "", name: "", main, subs: [...mains.slice(1).map((p) => `__dup_main__${p}`), ...subs], line: 0 });
+  }
+  return rows;
+}
+
+/** 파일 이름 규칙만으로 작업표를 만든다(작업표 없이 파일만 넣었을 때). 경로(폴더·ZIP)가 있는 파일은 폴더 규칙으로 */
+export function rowsFromFileNames(allNames: string[]): TableRow[] {
+  const pathed = allNames.filter((n) => /[\\/]/.test(n));
+  const fileNames = allNames.filter((n) => !/[\\/]/.test(n));
+  if (pathed.length) return [...rowsFromPaths(pathed), ...rowsFromFileNames(fileNames)];
   const byCode = new Map<string, TableRow>();
   for (const f of fileNames) {
     const r = roleFromFileName(f);
