@@ -465,3 +465,4 @@ POST 콜백을 보낸다. 이 라우트는:
 ## 2026-11-13 v1.53 — 정밀 기획 스튜디오 AI 버튼 404 수정 (Claude Code 윈도우 · 음악 담당)
 - `components/studio/Workspace.tsx`가 `/api/generate`·`/api/search`를 불러 404(10-23 대량 복구 커밋 `237741cc3` 줄 — 그때부터 곡·앨범·제안·가사 생성과 탐색이 실패) → `/api/studio/generate`·`/api/studio/search`. 안내·진행 표시를 화면 위에 붙임(`studio.css` sticky), JSON이 아닌 응답은 한국어 안내.
 - 검수: 시험 65·tsc·lint·build, 배포 `music-97h7ogmyg`·DB v1.53, ego lite 시험 계정 빌더 가사 생성 1회 성공. 탐색은 화면 확인 안 함.
+- (같은 날 추가 확인) 탐색 화면: 웹 검색 끈 AI 검색 1회 → 진행 표시가 화면 위에 보이고 음악 방향 제안 6개 표시(시험 계정 본인 Gemini 키). 웹 검색 켠 검색·대표곡 참고는 미확인.
