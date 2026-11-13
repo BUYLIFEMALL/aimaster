@@ -3,15 +3,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
 import { getSupabasePublicKey } from "@/lib/supabase/env";
 
-const LEGACY_HOST = "aimaster-buylife.vercel.app";
+// 공개된 옛 주소는 aimaster-five.vercel.app(Vercel 프로젝트 도메인). aimaster-buylife.vercel.app은 Vercel 로그인으로 보호된 팀 주소라 회원이 올 수 없지만 함께 둔다.
+const LEGACY_HOSTS = new Set(["aimaster-five.vercel.app", "aimaster-buylife.vercel.app"]);
 
 export async function middleware(request: NextRequest) {
-  // 옛 주소(aimaster-buylife.vercel.app)의 화면 요청은 새 주소로 보낸다(2026-11-13). 옛 주소로 로그인하면 기기 정보가
+  // 옛 주소(aimaster-five.vercel.app)의 화면 요청은 새 주소로 보낸다(2026-11-13). 옛 주소로 로그인하면 기기 정보가
   // 서버 이름으로 찍혀 동시 접속 제한(PC 1 + 모바일 1)에서 빠지기 때문. /api/는 회원이 외부에 등록한 OAuth 콜백·확장 호출이라
   // 그대로 둔다(docs/DOMAIN_SSO_POLICY.md). 배포별 미리보기 주소는 호스트가 달라 해당 없음.
   if (
     request.method === "GET" &&
-    (request.headers.get("x-forwarded-host") ?? request.headers.get("host")) === LEGACY_HOST &&
+    LEGACY_HOSTS.has(request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "") &&
     !request.nextUrl.pathname.startsWith("/api/") &&
     !request.nextUrl.pathname.startsWith("/_next/")
   ) {
