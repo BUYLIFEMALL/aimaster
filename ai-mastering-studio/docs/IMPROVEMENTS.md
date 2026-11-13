@@ -1,5 +1,7 @@
 # AI 마스터링 스튜디오 — 개선사항 및 제안 (IMPROVEMENTS.md)
 
+> **⏳ 미배포 대기 (2026-11-13, [역할: music] `claude-win-20261024-music`, 커밋 `b4403e8bd`)**: 공통 보완 — 로그아웃 `signOut({ scope: "local" })` 2곳 · 서버 클라이언트 `User-Agent` 전달 · 저장공간 위젯 한 줄. tsc·기존 시험 통과, 버전은 올리지 않음. 다음에 이 프로그램을 배포할 때 함께 나가며 그때 버전 +0.01. 근거 `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` · `docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`.
+
 - **대상 프로그램**: AI 마스터링 스튜디오 (`ai-mastering-studio`, 77번)
 - **작성 일자**: 2026-10-19
 - **작성 기준 버전**: `v1.10`

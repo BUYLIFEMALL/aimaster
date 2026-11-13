@@ -1,5 +1,7 @@
 # 뮤직비디오 자동화 (music-video-studio) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+> **⏳ 미배포 대기 — 영상 담당께 (2026-11-13, [역할: music] `claude-win-20261024-music`, 커밋 `b4403e8bd`)**: 공통 보완 — 로그아웃 `signOut({ scope: "local" })` 2곳 · 서버 클라이언트 `User-Agent` 전달. tsc·기존 시험 통과, 버전은 올리지 않음. 다음에 이 프로그램을 배포할 때 함께 나가며 그때 버전 +0.01. 근거 `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` · `docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`.
+
 > **✅ 배포됨 v1.30 (2026-11-12 `music-video-studio-79fiamka3`, 2026-11-13 음악 담당 확인) — 원래 표시: 미배포 대기 v1.30 (2026-11-12, 영상 담당 `claude-win-video`)**: 아래 「내 자료함」 요청 처리 — 곡 목록(`src/lib/music/amsSongs.ts`)에 자료함의 다른 음악을 더하고(AI 음악 스튜디오 곡은 가사·시간 가사 때문에 기존 방식 유지, PC에만 있는 무료음악 제외), 참고 이미지(`src/lib/music/aisImages.ts`)에 자료함의 다른 이미지를 더함. `signAmsSong`이 자료함 참조도 받아 다시 열기·최종 렌더가 그대로 동작. 화면 문구 「🗂️ 내 자료함에서 가져오기」. 공용 사본 `src/lib/memberAssets.ts`. 시험 34·tsc 통과, 화면 확인은 배포 뒤.
 
 > **📥 「내 자료함」에서 가져다 쓰기 요청 — 영상 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시 「다른 프로그램이 자료함에서 바로 가져다 쓰는 공용 컴포넌트를 만들고, 담당께 요청」)**: 공용 컴포넌트 `member-assets-client`(기준 메인 사이트 `lib/library/memberAssets.ts`)를 만들었습니다. 지금 `amsSongs.ts`·`fmsSong.ts`·`aisImages.ts`로 따로 읽는데, 자료함으로 음악 3종·이미지 4종을 한 목록에서 고를 수 있습니다. 사용 순서·주의: `docs/MEMBER_LIBRARY.md` §2~§3(사본 붙이기 → 서버 API `listMemberAssets` → 화면 「내 자료함에서 가져오기」에서 `sourceRef` 저장 → 다시 열 때 `signMemberAssetByRef`). 붙일 때 `scripts/check-shared-modules.mjs`의 `member-assets-client` `copies`와 `docs/SHARED_MODULES.md`에 사본 경로를 추가하고, 버전·배포는 이 프로그램 규칙대로(작은 수정은 모아서 배포). 필수 아님 — 다음에 이 프로그램을 손댈 때 검토해 주세요.
