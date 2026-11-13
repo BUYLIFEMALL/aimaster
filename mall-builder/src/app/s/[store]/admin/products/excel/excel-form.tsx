@@ -2,6 +2,7 @@
 
 import { startTransition, useActionState, useState } from "react";
 import { applyExcelAction, previewExcelAction, type ExcelState } from "./actions";
+import { useInlineConfirm } from "@/app/inline-confirm";
 
 const INITIAL: ExcelState = { mode: "idle", error: null, sheetErrors: [], counts: { create: 0, update: 0, same: 0, error: 0 }, rows: [] };
 const ACTION_LABEL = { create: "새로 등록", update: "수정", same: "바뀐 것 없음", error: "오류" } as const;
@@ -18,6 +19,7 @@ export function ExcelForm({ slug }: { slug: string }) {
   const [preview, previewAction, previewing] = useActionState(previewExcelAction.bind(null, slug), INITIAL);
   const [applied, applyAction, applying] = useActionState(applyExcelAction.bind(null, slug), INITIAL);
   const [last, setLast] = useState<"preview" | "apply">("preview");
+  const confirmBox = useInlineConfirm();
   const state = last === "apply" ? applied : preview;
   const busy = previewing || applying;
 
@@ -118,14 +120,13 @@ export function ExcelForm({ slug }: { slug: string }) {
               <button
                 type="button"
                 disabled={busy || blocked || changes === 0}
-                onClick={() => {
-                  if (confirm(`새로 등록 ${state.counts.create}개, 수정 ${state.counts.update}개를 적용할까요?`)) send("apply");
-                }}
+                onClick={() => confirmBox.ask(`새로 등록 ${state.counts.create}개, 수정 ${state.counts.update}개를 적용할까요?`, () => send("apply"))}
                 className="min-h-11 rounded bg-blue-600 px-4 py-2.5 text-sm text-white disabled:opacity-40"
                 data-excel-apply
               >
                 {applying ? "적용하는 중…" : `적용 (${changes}개)`}
               </button>
+              {confirmBox.box}
               {blocked && <span className="text-sm text-red-700">오류를 고쳐 다시 올려야 적용할 수 있습니다.</span>}
               {!blocked && changes === 0 && <span className="text-sm text-gray-500">바뀐 상품이 없습니다.</span>}
             </div>

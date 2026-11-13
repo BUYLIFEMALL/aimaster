@@ -2,6 +2,8 @@
 
 import { nextActions, type ActorRole, type OrderStatus } from "@/lib/orders";
 import { changeOrderStatusAction } from "@/lib/order-actions";
+import { useInlineConfirm } from "@/app/inline-confirm";
+import type { ReactNode } from "react";
 
 // 지금 상태에서 할 수 있는 버튼들 — 취소·반품처럼 되돌리기 어려운 것은 한 번 더 묻는다. 발송은 택배사·송장 칸을 함께 받는다
 const CONFIRM: Partial<Record<OrderStatus, string>> = {
@@ -17,6 +19,17 @@ const CARD_CONFIRM: Partial<Record<OrderStatus, string>> = {
   cancelled: "이 주문을 취소할까요? 재고가 되돌려지고, 결제된 카드 금액은 바로 환불됩니다.",
   returned: "반품을 승인할까요? 재고가 되돌려지고, 결제된 카드 금액은 바로 환불됩니다.",
 };
+
+/** 단추 하나의 폼 — 되돌리기 어려운 것은 화면 안 확인 상자로 한 번 더 묻는다 */
+function ConfirmForm({ action, message, children }: { action: (form: FormData) => Promise<void>; message: string | null; children: ReactNode }) {
+  const c = useInlineConfirm();
+  return (
+    <form action={action} onSubmit={c.guard(message)} className="flex flex-wrap items-end gap-2">
+      {children}
+      {c.box}
+    </form>
+  );
+}
 
 export default function OrderStatusButtons({
   slug,
@@ -39,14 +52,10 @@ export default function OrderStatusButtons({
   return (
     <div className="space-y-3" data-status-actions>
       {actions.map((a) => (
-        <form
+        <ConfirmForm
           key={a.to}
           action={changeOrderStatusAction.bind(null, slug, orderId, a.to, backPath)}
-          onSubmit={(e) => {
-            const msg = (isCard && role === "staff" && status !== "pending_payment" && CARD_CONFIRM[a.to]) || CONFIRM[a.to];
-            if (msg && !window.confirm(msg)) e.preventDefault();
-          }}
-          className="flex flex-wrap items-end gap-2"
+          message={(isCard && role === "staff" && status !== "pending_payment" && CARD_CONFIRM[a.to]) || CONFIRM[a.to] || null}
         >
           {a.to === "shipping" && (
             <>
@@ -73,7 +82,7 @@ export default function OrderStatusButtons({
           >
             {a.label}
           </button>
-        </form>
+        </ConfirmForm>
       ))}
     </div>
   );

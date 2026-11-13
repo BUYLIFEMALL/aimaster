@@ -62,3 +62,8 @@
 
 ## 8. 참고 — 지금 운영 샘플몰 자료
 - 자체 상품 2개, 공급사 시험 상품 1개(「[시험] 옵션 티셔츠」), 카테고리 2개(사무용품·생활용품). 샘플 자료 채우기(S1)는 mall-builder 담당이 따로 한다 — 디자인은 상품이 많을 때·적을 때 모두 보기 좋게.
+
+## 9. 추가 전달 (2026-11-13 오후, mall-builder 담당 → agy)
+- **확인 상자 변경(기능, 커밋됨)**: 브라우저 확인 창(`window.confirm`) 6곳을 화면 안 확인 상자로 바꿨다 — 공용 `src/app/inline-confirm.tsx`(`useInlineConfirm`). 손님 화면 범위에서는 `src/app/order-status-buttons.tsx`(주문 취소·구매 확정 등)와 `(shop)/guest/orders/[id]/status-button.tsx` 두 곳. **agy가 소스를 고치기 전에 넣은 변경**이므로 최신 HEAD에서 시작하면 된다. 확인 상자의 모양(지금 노란 안내 칸 + 「확인」「아니요」)은 테마에 맞게 다듬어도 되지만, `data-inline-confirm`·`data-confirm-yes`·`data-confirm-no` 표시와 「상자의 확인 단추로 보낼 때만 통과」 동작은 그대로 둔다.
+- **요청 — 샘플몰 안내 띠(S3)**: 손님 화면 틀(`(shop)/layout.tsx`) 맨 위에, 그 몰이 샘플몰(`store.slug === SAMPLE_MALL_SLUG`, `@/lib/platform-admin`)일 때만 한 줄 안내를 넣어 달라 — 문구: 「이 몰은 샘플입니다 · 실제 결제·배송은 없습니다 · 사업자 신청을 하면 사업자 가격을 볼 수 있습니다」. 틀 파일이 디자인 범위라 mall-builder 담당은 직접 넣지 않았다.
+- 이후 mall-builder 담당은 손님 화면 파일을 고치지 않는다(약속 그대로).

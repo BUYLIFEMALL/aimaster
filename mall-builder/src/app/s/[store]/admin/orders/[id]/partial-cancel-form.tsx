@@ -2,6 +2,7 @@
 
 import { formatWon } from "@/lib/products";
 import type { OrderItemRow } from "@/lib/orders";
+import { useInlineConfirm } from "@/app/inline-confirm";
 
 // 운영자 부분 취소(D5) — 품목마다 「취소할 수량」 칸. 보내기 전에 한 번 더 묻는다(되돌릴 수 없음)
 export default function PartialCancelForm({ items, action, isCredit, isCard = false, usedBenefits = false }: { items: OrderItemRow[]; action: (form: FormData) => Promise<void>; isCredit: boolean; isCard?: boolean; usedBenefits?: boolean }) {
@@ -9,12 +10,11 @@ export default function PartialCancelForm({ items, action, isCredit, isCard = fa
   const tail = (isCard ? " 줄어든 금액은 카드로 바로 환불됩니다." : isCredit ? " 외상 장부에서도 되돌립니다." : " 입금된 주문이면 차액은 직접 환불해 주세요.") +
     // 쿠폰·포인트를 쓴 주문(D17·D18): 현금(입금·카드·외상)부터 돌려주고 남으면 포인트로
     (usedBenefits ? " 쿠폰·포인트를 쓴 주문이라 현금부터 돌려주고, 남는 금액은 포인트로 돌려줍니다." : "");
+  const c = useInlineConfirm();
   return (
     <form
       action={action}
-      onSubmit={(e) => {
-        if (!window.confirm(`고른 수량을 취소할까요? 재고가 돌아오고 결제 금액이 줄어듭니다.${tail}`)) e.preventDefault();
-      }}
+      onSubmit={c.guard(`고른 수량을 취소할까요? 재고가 돌아오고 결제 금액이 줄어듭니다.${tail}`)}
       className="mt-6 rounded-lg border p-4 text-sm"
       data-partial-cancel
     >
@@ -49,6 +49,7 @@ export default function PartialCancelForm({ items, action, isCredit, isCard = fa
         </label>
         <button className="min-h-10 rounded border border-red-200 px-4 text-red-700">선택 수량 취소</button>
       </div>
+      {c.box}
       <p className="mt-2 text-xs text-gray-500">단가는 주문 때 그대로입니다. 배송비는 남은 품목으로 다시 계산하되 원래 배송비보다 늘지 않습니다. 모든 품목을 취소하려면 위 「주문 취소」를 써 주세요.</p>
     </form>
   );
