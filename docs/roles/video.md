@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-13 `claude-win-video` (원스톱 v1.53 메이커 1단계 배포 완료)
+- 마지막 갱신: 2026-11-13 `claude-win-video` (shots 30일 정리 첫 실행 확인)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -18,7 +18,6 @@
 | `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `music-video-studio` · `video-to-gif` | 저장공간 위젯 한 줄(11-12 배포 뒤 빠진 것 발견, 코드 반영) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shots` | 백로그 6 「6장면 영상화 일괄」 — 유료 생성을 차례로 보내는 기능이라 실제 시험 없이는 내보내지 않음 | 주인님: 시험 허락 또는 보류 결정 | `shots/docs/PLAN_20261112_BACKLOG_8.md` |
-| `shots` | **v1.48 배포 완료(2026-11-12)**: 대본·주제 후보 행 30일 정리 적용. 다음 날 03:30 정리 결과(대본 2·후보 10 예상) 확인만 남음 | 2026-11-13 확인 | `shots/docs/IMPROVEMENTS.md` 맨 위 |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | 메이커 2단계: 자료함 `sourceRef` 원본 참조로 상품 사진 받기 | sdp 계약(내부상품ID·역할·권리 값) | `shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md` §9-1 |
@@ -26,6 +25,7 @@
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-13 | `shots` v1.48 | 30일 정리 첫 실행 확인: 03:30:17 KST 실행·오류 없음·지운 행 0. 30일 지난 대본 1개는 장면을 10-22에 고쳐서, 후보 1개는 그 대본이 써서 설계대로 보호(대본은 11-21 이후 정리 대상) | 없음(조회만) |
 | 2026-11-13 | `shorts-onestop-studio` v1.52·v1.53 | 메이커 1단계 구현: 상품 사진 배경(원본 그대로·AI 이미지 막기·AI 영상 기본 잠금)·추가 필드 6개 받기·상품명 원문 고정·설명란 상품 주소·30일 정리 `product/`. 시험 63·tsc·build, ego 운영 확인(인트로 겹침 → v1.53 수정) | 배포 2회 |
 | 2026-11-13 | `shorts-onestop-studio` v1.51 | 메이커 후속 D 영상 연계 검토: 받는 것 글자 4개뿐·사진/ID/옵션/주소/설명/권리 미구현·보내는 버튼 0건 확인 → 기존/미구현 표·최소 계약·외형 보존·보관·재호출·검수·비용 플랜 | 없음(읽기 전용, 비용 0) |
 | 2026-11-13 | `shorts-onestop-studio` v1.51 | U10 실제 확인: MP4 브라우저 생성 → 유튜브 비공개 업로드(`TH6NxZzJIcA`) → 보내기 → 워크스페이스 받은 업무 도착 | 없음(시험만, 비용 0) |
