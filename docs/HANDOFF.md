@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 전체 개발 현황 전수 대조·메인 사이트 매뉴얼/연동 링크 보강
+- 전체 현황: [`docs/DEV_STATUS_20261113.md`](DEV_STATUS_20261113.md) — 폴더 102·운영 DB 103개를 코드 버전·DB 버전·문서·매뉴얼 화면·담당·미배포 대기로 대조. 버전 불일치 9(대기 줄 없는 것 `ai-influencer-studio` 1개), 문서 뒤처짐 49, 매뉴얼 뒤처짐 추정 39, 공개인데 매뉴얼 화면 없음 5, 담당 미정 공개 프로그램 목록 §2-4.
+- 메인 사이트: 「API 설정」 「📖 발급 방법」·「📖 연동 매뉴얼」 버튼(미배포), 옛 주소 이동 대상을 공개 주소 `aimaster-five.vercel.app`으로 수정(미배포). 운영 DB: `integration_catalog.guide_id` 11개 연결(0070), `faq_items` 답 4개 수정·질문 5개 추가(0071) — 운영 화면 확인.
+- 개선 원장: [`docs/MAIN_SITE_IMPROVEMENTS.md`](MAIN_SITE_IMPROVEMENTS.md)(10건). 주의: `Vercel Edge Functions` 로그인 출처는 아직 추정(#9).
+- 다음 첫 단계: 메인 배포 뒤 `/api-settings` 버튼·옛 주소 이동 확인. 담당 미정 프로그램 처리 방식은 주인님 결정 대기.
+
 ## 2026-11-13 📝 [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — 워크스페이스 문서 전체 갱신 + 볼타 웹훅 구현(미배포) + 다음 두 작업 승인됨
 
 - 주인님 「현재까지 작업내용 업데이트 하고 개선사항등 보완해서 개발문서에 업데이트」: `ai-work-workspace/AGENTS.md`(v1.19에 멈춰 있던 머리말·기능 요약·이력 v1.30~v1.35·남은 작업·주의 6가지), `docs/IMPROVEMENT_BACKLOG.md`(체크리스트), `docs/IMPROVEMENTS.md`(개선 제안 3대 항목), 프로그램 비교표 카드, `docs/ERROR_LESSONS.md` 3건, 공통 아이디어 표 2건, 역할 파일.
