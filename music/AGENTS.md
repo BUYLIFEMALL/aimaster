@@ -471,3 +471,8 @@ POST 콜백을 보낸다. 이 라우트는:
 - 주인님 「두 영역을 다른 색 박스로 구분」「위는 쉽게, 아래는 디테일하게」. 곡 편집기(빌더)는 주황 「⚡ 쉽게 만들기」, AI 기획·작사 카드는 보라 「🎯 디테일하게 만들기」(`studio.css` `.maker-box`·`.maker-quick`·`.maker-detail`·`.maker-label`).
 - 「생성된 가사는 어디에?」 → 디테일 결과는 위 곡 칸(제목·Style·가사)에 채워짐. 생성 뒤 안내 + 위 박스로 자동 스크롤 추가. 커밋 ba1944190, 배포 `music-7ti2ljjxs`·DB v1.54(승인 빌드 1회), ego lite 두 박스 색·제목 확인(AI 호출 없음).
 - v1.55(같은 날): 보라 박스 「선택한 항목 생성」 아래에 「✨ 생성 결과」 미리보기(제목·Style·가사, 「↑ 위 곡 칸에서 수정하기」·「미리보기 닫기」, `detailResult`). 미리보기가 생겨 자동 스크롤은 뺌. 커밋 c806c85b1, 배포 `music-d8bi7dwbs`·DB v1.55. 미리보기 실제 표시는 AI 호출이 필요해 미확인.
+
+## 2026-11-13 v1.56 — Suno 공식 장르 225개 전부 (Claude Code 윈도우 · 음악 담당)
+- 주인님 「왜 음악 장르가 이것밖에 없어」「suno 확인해서 사용 가능한 장르 전부」「api 문서 참고」. sunoapi.org 문서(generate-music)에는 장르 목록이 없고 style 자유 입력(V6 1000자) → Suno 공식 Music Library › Genres 225개를 기준(`lib/sunoGenres.ts`: 영어 이름·한글·대분류 13·BPM·분위기·악기, 시험 `tests/sunoGenres.test.mjs`, 공식 목록과 225/225 대조).
+- 스튜디오: 「음악 분류」·「유형」에 「Suno 공식 장르」, 프리셋 225개(`catalog.ts` type `suno`, 대분류=스타일 그룹), 「장르」 입력 추천 228개. 시험 기대값 661→886.
+- 빠른 기획·생성 콘솔·곡 카드: 장르 칩 → `components/plannings/GenrePicker.tsx`(검색·⭐자주 쓰는·대분류 탭), 목록 230개(기존 20개 값 유지 + 공식 225, 겹침 15 합침). 커밋 9076a9317, 배포 `music-91uepa8po`·DB v1.56(승인 빌드 1회), ego lite 화면 확인. AI·Suno 호출 없음.
