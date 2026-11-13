@@ -19,8 +19,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   initRuntime();
   const userId = withRequestCache(() => boltaWebhookOwner(token));
   if (!userId) return NextResponse.json({ ok: false }, { status: 404, headers: NO_STORE });
-  const r = await withRequestCache(() => handleBoltaWebhook(userId, {
-    id: request.headers.get("webhook-id"), timestamp: request.headers.get("webhook-timestamp"), signature: request.headers.get("webhook-signature"),
-  }, raw));
+  const h = { id: request.headers.get("webhook-id"), timestamp: request.headers.get("webhook-timestamp"), signature: request.headers.get("webhook-signature") };
+  const r = await withRequestCache(() => handleBoltaWebhook(userId, h, raw));
+  // 2026-11-13 진단: 처리 결과와 서명 머리글의 모양만 남긴다(키·서명 값·본문은 남기지 않음)
+  const parts = (h.signature ?? "").split(" ").filter(Boolean);
+  console.warn(`[bolta-webhook] result=${r.result} status=${r.status} hasId=${!!h.id} tsSkewSec=${h.timestamp ? Math.round(Date.now() / 1000 - Number(h.timestamp)) : "none"} sigParts=${parts.length} sigVersions=${parts.map((p) => p.split(",")[0]).join("|")} bodyLen=${raw.length}`);
   return NextResponse.json({ ok: r.status === 200 }, { status: r.status, headers: NO_STORE });
+}
+
+/** 볼타가 주소를 등록할 때 HEAD로 확인한다 — 200으로 답한다(2026-11-13, 처음엔 405였음) */
+export function HEAD() {
+  return new NextResponse(null, { status: 200, headers: NO_STORE });
 }

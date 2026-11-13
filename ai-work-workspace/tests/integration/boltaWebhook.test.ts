@@ -75,7 +75,7 @@ describe('볼타 웹훅', () => {
     const { id, key } = await requested('wh-a');
     bt.setBoltaFetch((async () => new Response(JSON.stringify({ issuanceKey: key, ntsTransactionId: 'NTS-W1' }), { status: 200 })) as unknown as typeof fetch);
     const body = JSON.stringify({ eventType: 'TAX_INVOICE_ISSUANCE_SUCCESS', data: { issuanceKey: key, taxInvoiceUrl: 'https://x' } });
-    expect(await wh.handleBoltaWebhook('wh-a', { ...sign('m-ok', body), signature: 'v1,AAAA' }, body, NOW)).toEqual({ status: 400, result: 'bad_signature' });
+    expect(await wh.handleBoltaWebhook('wh-a', { ...sign('m-ok', body), signature: 'v1,AAAA' }, body, NOW)).toMatchObject({ status: 400, result: expect.stringMatching(/^bad_signature/) });
     expect(docOf(id).bolta.state).toBe('requested');
     expect(await wh.handleBoltaWebhook('wh-a', sign('m-ok', body), body, NOW)).toEqual({ status: 200, result: 'issued' });
     expect(docOf(id).bolta).toMatchObject({ state: 'issued', ntsTransactionId: 'NTS-W1' });

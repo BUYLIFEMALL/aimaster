@@ -55,7 +55,9 @@ export async function handleBoltaWebhook(userId: string, headers: { id?: string 
   boltaInternals.ensureTable();
   const secret = await readSecret(userId);
   if (!secret) return { status: 400, result: 'no_secret' };
-  if (verifyBoltaWebhook(secret, headers, rawBody, now)) return { status: 400, result: 'bad_signature' };
+  const why = verifyBoltaWebhook(secret, headers, rawBody, now);
+  // 진단(2026-11-13): 키 모양만 남긴다(값은 남기지 않음) — whsec_ 머리 여부, 뒷부분이 base64로 풀리는 길이
+  if (why) return { status: 400, result: `bad_signature(${why} keyPrefix=${secret.startsWith('whsec_')} keyBytes=${Buffer.from(secret.replace(/^whsec_/, ''), 'base64').length} keyLen=${secret.length})` };
   if (db.prepare('SELECT 1 AS x FROM aww_bolta_webhook_seen WHERE webhook_id = ?').get(headers.id!)) return { status: 200, result: 'duplicate' };
   const seen = (result: string) => {
     db.prepare('INSERT INTO aww_bolta_webhook_seen (webhook_id, user_id, seen_time) VALUES (?, ?, ?) ON CONFLICT (webhook_id) DO NOTHING').run(headers.id!, userId, now);
