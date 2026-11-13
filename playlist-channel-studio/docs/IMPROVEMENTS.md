@@ -62,7 +62,8 @@
 - 개발 플랜: [`docs/PLAN_20261016_DESIGN_RENEWAL.md`](PLAN_20261016_DESIGN_RENEWAL.md)
 
 ## 2026-11-13 남은 일 — 30일 정리 신설(음악 담당)
-- [ ] `playlist_projects`·`playlist_youtube_uploads` 30일 정리(관리자·시험 계정 `retention_exempt` 제외). 주인님 「정리는 다음 작업으로」(2026-11-13).
+- [x] `playlist_projects`·`playlist_youtube_uploads` 30일 정리(관리자·시험 계정 `retention_exempt` 제외). 주인님 「정리는 다음 작업으로」(2026-11-13). → **v1.41 배포(2026-11-13)**
+- [ ] **(발견 2026-11-13, 미구현)** 「📋 내가 올린 영상」 목록은 올리기 카드 안에 있고 카드는 곡이 1개 이상일 때만 보인다(`ExportStudio.tsx` `tracks.length > 0 &&`). 그래서 새로 고친 뒤 곡을 다시 넣기 전에는 지난 기록·「📨 업무 워크스페이스로」 버튼을 볼 수 없다. 제안: 기록 목록을 카드 밖 별도 컴포넌트로 빼서 곡이 없어도 ③ 화면(또는 「내 프로젝트」)에 보이게. 작은 수정 — 다음 배포 때 함께.
 
 ## 2026-10-22 Claude Code(윈도우) — 대기: 음악(SUNO) 리믹스 결과 받기 (다음 빌드 때 함께)
 - [ ] `?remix=<리믹스 변주 id>`로 음악(SUNO) 리믹스 결과(`music_track_remix_variants`, 회원 본인 것만)를 읽기. **주인님 지시: 따로 배포하지 않고, 이 프로그램을 다음에 다른 작업으로 빌드할 때 함께 넣고 시험한다.** 상세 플랜·시험용 리믹스 번호: [`music/docs/PLAN_20261022_REMIX_SHORTCUTS.md`](../../music/docs/PLAN_20261022_REMIX_SHORTCUTS.md). 음악(SUNO) 리믹스 카드 링크는 두 프로그램 배포 뒤에 켠다.
