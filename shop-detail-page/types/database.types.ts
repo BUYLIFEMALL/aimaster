@@ -71,6 +71,7 @@ export interface Database {
           reference_image_urls: string[];
           main_image_url: string | null;
           main_image_urls: string[];
+          source_image_origin: string | null;
           image_generation_notes: string | null;
           default_image_model: string;
           layout_preset: string;
@@ -104,6 +105,7 @@ export interface Database {
           reference_image_urls?: string[];
           main_image_url?: string | null;
           main_image_urls?: string[];
+          source_image_origin?: string | null;
           image_generation_notes?: string | null;
           default_image_model?: string;
           layout_preset?: string;
@@ -137,6 +139,7 @@ export interface Database {
           reference_image_urls?: string[];
           main_image_url?: string | null;
           main_image_urls?: string[];
+          source_image_origin?: string | null;
           image_generation_notes?: string | null;
           default_image_model?: string;
           layout_preset?: string;

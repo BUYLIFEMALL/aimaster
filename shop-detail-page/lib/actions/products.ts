@@ -199,6 +199,8 @@ export async function createProductAction(formData: FormData) {
       font_style: String(formData.get("fontStyle") ?? "").trim() || null,
       layout_density: String(formData.get("layoutDensity") ?? "").trim() || null,
       source_image_url: sourceImageUrl,
+      // 2026-11-13: 상품소싱이 수집한 참고 사진이면 출처 표시(등록기가 등록 직전 경고). 회원 사진은 비워 둔다.
+      source_image_origin: String(formData.get("sourceImageOrigin") ?? "") === "collected" ? "collected" : null,
       reference_image_urls: referenceImageUrls,
       image_generation_notes: String(formData.get("imageGenerationNotes") ?? "").trim() || null,
       default_image_model: defaultImageModel,

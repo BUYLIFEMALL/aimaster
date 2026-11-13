@@ -3,6 +3,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getRegisteredProviders } from "@/lib/apiKeys";
 import { ProductAnalyzeForm } from "@/components/products/ProductAnalyzeForm";
+import { REFERENCE_JOB_PARAM, isReferenceJobId } from "@/lib/referencePhotoHandoff";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,9 @@ export default async function NewProductPage({
   // 이커머스 한 흐름(2026-10-27): 소싱 결과의 마켓 카테고리(예: 생활/건강>주방용품)를 「카테고리」 칸에 넣는다.
   const initialCategory = fromSourcing ? firstParam(searchParams.category, 120) : "";
   const initialPrice = /^[1-9][0-9]{0,8}$/.test(priceParam) ? priceParam : "";
+  // 2026-11-13: 상품소싱이 수집 참고 사진을 함께 넘길 때의 작업 번호
+  const jobParam = fromSourcing ? firstParam(searchParams[REFERENCE_JOB_PARAM], 40) : "";
+  const referenceJobId = isReferenceJobId(jobParam) ? jobParam : "";
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-10">
@@ -64,7 +68,7 @@ export default async function NewProductPage({
           <p className="font-bold">🔎 상품소싱 자동화에서 가져온 상품입니다.</p>
           <p className="mt-0.5 text-emerald-800">
             상품명과 원본 정보를 채워 두었습니다
-            {initialPrice ? `(추천판매가 ${Number(initialPrice).toLocaleString()}원은 「정상가」 칸에 넣었습니다)` : ""}. 대표 사진은 판매 권한이 있는 사진으로 직접 올려 주세요.
+            {initialPrice ? `(추천판매가 ${Number(initialPrice).toLocaleString()}원은 「정상가」 칸에 넣었습니다)` : ""}. {referenceJobId ? "상품소싱이 수집한 참고 사진을 대표이미지 칸에 넣습니다(분석·기획 참고용). 마켓 등록에는 편집본이나 직접 찍은 사진을 쓰세요." : "대표 사진은 판매 권한이 있는 사진으로 직접 올려 주세요."}
             할인가는 실제로 할인할 때만 입력하세요 — 비워 두면 이미지에 특가·할인 문구가 들어가지 않습니다.
           </p>
         </div>
@@ -76,6 +80,7 @@ export default async function NewProductPage({
         initialSourceText={initialSourceText}
         initialPrice={initialPrice}
         initialCategory={initialCategory}
+        referenceJobId={referenceJobId}
       />
     </div>
   );

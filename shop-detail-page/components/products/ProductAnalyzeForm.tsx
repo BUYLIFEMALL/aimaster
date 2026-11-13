@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { uploadImageDirect, uploadSpecDocument } from "@/lib/uploadImageClient";
 import { analyzeByNameAction, analyzeProductAction, createProductAction } from "@/lib/actions/products";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
@@ -8,6 +8,7 @@ import type { FlatProductAnalysis } from "@/lib/ai/flattenAnalysis";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
 import { imageSrc } from "@/lib/imageSrc";
 import { DEFAULT_LAYOUT_PRESET, LAYOUT_PRESETS, type LayoutPreset } from "@/lib/layoutPresets";
+import { REFERENCE_MSG_READY, REFERENCE_MSG_RECEIVED, REFERENCE_SENDER_ORIGIN, readReferenceJob } from "@/lib/referencePhotoHandoff";
 
 const MAX_REFERENCE_IMAGES = 10;
 
@@ -32,6 +33,7 @@ export function ProductAnalyzeForm({
   initialSourceText = "",
   initialPrice = "",
   initialCategory = "",
+  referenceJobId = "",
 }: {
   hasGeminiKey: boolean;
   initialLabel?: string;
@@ -39,6 +41,8 @@ export function ProductAnalyzeForm({
   initialPrice?: string;
   /** 주소로 넘어온 카테고리 — 처음 칸에 채우고, 분석 결과가 비었을 때만 남긴다(분석이 더 자세함) */
   initialCategory?: string;
+  /** 상품소싱이 수집 참고 사진을 넘길 때의 작업 번호(2026-11-13) — 있으면 소싱 창에 「준비됨」을 보내고 사진을 받는다 */
+  referenceJobId?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const referenceInputRef = useRef<HTMLInputElement>(null);
@@ -46,6 +50,10 @@ export function ProductAnalyzeForm({
 
   const [productLabel, setProductLabel] = useState(initialLabel);
   const [sourceImageUrl, setSourceImageUrl] = useState<string | null>(null);
+  // 2026-11-13: 상품소싱이 수집한 참고 사진(다른 판매자 상품 페이지의 원본) — 대표로 쓰면 출처를 collected로 저장
+  const [collectedPhotos, setCollectedPhotos] = useState<{ file: File; preview: string }[]>([]);
+  const [collectedIndex, setCollectedIndex] = useState<number | null>(null);
+  const [receiveState, setReceiveState] = useState<"" | "waiting" | "done" | "failed">(referenceJobId ? "waiting" : "");
   const [referenceImageUrls, setReferenceImageUrls] = useState<string[]>([]);
   const [sourceText, setSourceText] = useState(initialSourceText);
   const [fields, setFields] = useState<FlatProductAnalysis>({ ...EMPTY_FIELDS, category: initialCategory });
@@ -66,6 +74,75 @@ export function ProductAnalyzeForm({
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
 
+  async function pickCollectedPhoto(index: number, list = collectedPhotos) {
+    const photo = list[index];
+    if (!photo) return;
+    setError(null);
+    setIsUploading(true);
+    try {
+      const result = await uploadImageDirect(photo.file);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      setSourceImageUrl(result.url ?? null);
+      setCollectedIndex(index);
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  // 상품소싱 창이 이 창을 열었으면 「준비됨」을 보내고 사진을 기다린다(주소·작업 번호가 맞는 메시지만 받음)
+  useEffect(() => {
+    if (!referenceJobId) return;
+    if (!window.opener) {
+      setReceiveState("failed");
+      return;
+    }
+    let received = false;
+    const onMessage = async (e: MessageEvent) => {
+      const job = readReferenceJob(e.origin, e.data, referenceJobId);
+      if (!job || received) return;
+      received = true;
+      const reply = (ok: boolean, err = "") =>
+        (e.source as Window | null)?.postMessage({ type: REFERENCE_MSG_RECEIVED, jobId: referenceJobId, ok, error: err }, REFERENCE_SENDER_ORIGIN);
+      if ("error" in job) {
+        setReceiveState("failed");
+        setError(job.error);
+        reply(false, job.error);
+        return;
+      }
+      const list = job.photos.map((p, i) => {
+        const ext = p.file.type === "image/png" ? "png" : p.file.type === "image/webp" ? "webp" : "jpg";
+        const file = new File([p.file], `collected-${i + 1}.${ext}`, { type: p.file.type });
+        return { file, preview: URL.createObjectURL(file) };
+      });
+      setCollectedPhotos(list);
+      setReceiveState("done");
+      reply(true);
+      await pickCollectedPhoto(0, list);
+    };
+    window.addEventListener("message", onMessage);
+    // 소싱 창이 듣기 시작하기 전일 수 있어 받을 때까지 1초마다 다시 알린다(최대 15번)
+    let tries = 0;
+    const ping = () => window.opener?.postMessage({ type: REFERENCE_MSG_READY, jobId: referenceJobId }, REFERENCE_SENDER_ORIGIN);
+    ping();
+    const timer = window.setInterval(() => {
+      tries += 1;
+      if (received || tries >= 15) {
+        window.clearInterval(timer);
+        if (!received) setReceiveState("failed");
+        return;
+      }
+      ping();
+    }, 1000);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      window.clearInterval(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referenceJobId]);
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -78,6 +155,7 @@ export function ProductAnalyzeForm({
         return;
       }
       setSourceImageUrl(result.url ?? null);
+      setCollectedIndex(null); // 직접 올린 사진 = 회원 사진
     } finally {
       setIsUploading(false);
       e.target.value = "";
@@ -224,6 +302,7 @@ export function ProductAnalyzeForm({
     try {
       const formData = new FormData(e.currentTarget);
       formData.set("sourceImageUrl", sourceImageUrl);
+      formData.set("sourceImageOrigin", collectedIndex !== null ? "collected" : "member");
       for (const url of referenceImageUrls) formData.append("referenceImageUrls", url);
       formData.set("moodKeywords", fields.moodKeywords.join(", "));
       const result = await createProductAction(formData);
@@ -299,6 +378,36 @@ export function ProductAnalyzeForm({
             onChange={handleFileChange}
           />
         </div>
+        {receiveState === "waiting" && <p className="text-xs font-bold text-emerald-700">🔎 상품소싱에서 참고 사진을 받는 중입니다…</p>}
+        {receiveState === "failed" && collectedPhotos.length === 0 && (
+          <p className="text-xs text-slate-500">상품소싱의 참고 사진을 받지 못했습니다. 소싱 화면 창을 닫지 말고 다시 「상세페이지」를 눌러 주세요. 사진을 직접 올려도 됩니다.</p>
+        )}
+        {collectedPhotos.length > 0 && (
+          <div className="space-y-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-950">
+            <p className="text-xs font-extrabold">🔎 수집한 참고 사진 — 분석·기획 참고용입니다</p>
+            <p className="text-[11px] leading-relaxed">
+              다른 판매자 상품 페이지의 원본 사진입니다(저작권은 원 판매자). AI 분석과 섹션 이미지 만들기에는 쓸 수 있지만, 마켓에 등록할 때는 바나나 합성·편집본이나 직접 찍은 사진을 쓰세요. 그대로 등록하려 하면 등록기가 경고합니다.
+            </p>
+            {collectedPhotos.length > 1 && (
+              <div className="flex gap-2">
+                {collectedPhotos.map((p, i) => (
+                  <button
+                    key={p.preview}
+                    type="button"
+                    disabled={isUploading}
+                    onClick={() => pickCollectedPhoto(i)}
+                    className={`rounded-lg border-2 ${collectedIndex === i ? "border-amber-500" : "border-transparent"}`}
+                    title="이 사진을 대표이미지로"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.preview} alt={`수집 사진 ${i + 1}`} className="h-16 w-16 rounded-md object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+            {collectedIndex === null && <p className="text-[11px] font-bold text-emerald-800">✅ 지금 대표이미지는 직접 올린 사진입니다.</p>}
+          </div>
+        )}
       </div>
 
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-3">
