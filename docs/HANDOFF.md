@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 담당 미정 28개 프로그램 분석·문서·매뉴얼 보강
+- 대상 28개(목록 `docs/PENDING_DEPLOYS.md` 맨 위 대기 줄): 각 `AGENTS.md` 현재 상태 요약, `docs/IMPROVEMENTS.md` 「2026-11-13 전체 점검」, 매뉴얼을 실제 기능에 맞게 정정·보강, 설정 화면 키·연동 칸 옆 「📖 발급 방법」 버튼. tsc 28/28 오류 0, 공용 사본 일치. **미배포·버전 안 올림** — 각 프로그램 다음 배포 때 +0.01.
+- 빠진 5개(다른 세션 연속 배포): threads-affiliate-poster·instagram-comment-reply·threads-comment-reply·threads·youtube-auto-reply.
+- 결정 필요(최상위 규칙·회원 격리·보관): [`docs/DEV_STATUS_20261113.md`](DEV_STATUS_20261113.md) §6-1. 비용: 토큰만(빌드·DB 쓰기 없음).
+- 다음 첫 단계: §6-1 결정 → 해당 프로그램 수정을 다음 배포에 묶기.
+
 ## 2026-11-13 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 가사 영상 v1.14 + 음악 대기 정리
 
 - 가사 영상 v1.14(`lyric-video-studio-asrxw52s4`, DB v1.14, 빌드 1회 승인): 채널 로고(회원 PC 그림, 3×3 위치·크기·투명도)·프레임 4종 + 유튜브 제목·설명 AI 제안(회원 본인 키, 저가 모델, 재시도 0). 공통 보완 `b4403e8bd` 함께 나감. 시험 36·빌드, ego 시험 계정 미리보기·AI 호출 1회 200 확인. 못 한 것: 로고 넣은 실제 MP4 저장·카드 버튼 클릭(음악·가사 있는 작업 필요).
