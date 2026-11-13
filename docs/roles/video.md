@@ -1,10 +1,10 @@
 # 영상
 
 - 담당: Claude Code(윈도우) `claude-win-video`
-- 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령)
+- 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령) · 실제로 함께 맡아 온 폴더: `shorts-onestop-studio/`(v1.53) · `shots/`(v1.50) · `music-video-studio/`(v1.30, 음악 담당과 겹침) · `video-to-gif/`(v1.28)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-13 `claude-win-video` (shots 30일 정리 첫 실행 확인)
+- 마지막 갱신: 2026-11-13 `claude-win-video` (영상 담당 문서 전체 정리·원스톱 백로그 작성)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -92,12 +92,23 @@
 - **DUP-4**: 기준은 `youtube-auto-reply/lib/comments/post.ts` 46~59행 조건부 선점. 완료 기준 — 불확실하면 자동 재발송 안 함·서버에서 상태 먼저 잡기·같은 대상 재발송은 회원 확인 창·시험은 모의(실발송 1건은 승인 뒤).
 - **2026-10-27 Program_dev 묶음**: 영상 관련 새 개발 없음(Movavi 데스크톱 편집기는 제외). 유튜브 A4 「협업 크리에이터 찾기」만 `youtube-viral-studio` 병합 후보(연락처는 채널에 공개 등록된 비즈니스 이메일만, 마케팅 예외 지침 §3 적용).
 
-## 다음 첫 단계
-1. 진단 스위치(`?render=`) 정리는 급하지 않음 — 다음 `ai-video-studio` 배포 때 함께 판단(맥 기본 `cpu` 유지)
-2. V4 녹화는 주인님 확인 (V1 소리는 11-11 확인 끝: 원본 소리 켬 MP4 AAC 48k 스테레오·평균 -21.6dB, 원본 -21.4dB)
-3. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(플랜 `shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`, ElevenLabs는 이미 자체 시각)
-4. 남은 일 없음(대기: Vidu 충전 뒤 재확인, 각 프로그램 다음 배포 때 서울 지역·문구 반영 확인). Vidu 재확인은 주인님이 충전 후 말씀하실 때
-3. 영상 D는 요청함 「필요 없음」 처리 — 주인님이 다시 말씀하시면 재개
+## 다음 첫 단계 (2026-11-13 정리)
+1. **`shots` 백로그 6 「장면 영상화 일괄」 구현** — 주인님 11-12 결정대로 가짜 응답 시험까지만(유료 실제 시험 없음). 「진행해」 받으면 `shots/docs/PLAN_20261112_BACKLOG_8.md` 6번부터.
+2. **원스톱 개선 묶음**(무료, 모아서 1회 배포): MP4 파일로 상품 외형 대조 → 사진 순서 지정 → 인트로 간격 → 매뉴얼 단계 추가. 목록 `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md`.
+3. **메이커 2단계**(자료함 `sourceRef` 원본 참조): sdp 계약이 나오면 `shorts-onestop-studio/src/lib/productShorts.ts`에 `product-image` 받기부터.
+4. 다음 배포 때 함께: `music-video-studio`(저장공간 위젯·로그인 정책 `b4403e8bd`) · `video-to-gif`(위젯) · `ai-image-studio`(공용 영상 코드 사본) · 서울 지역 미반영 프로그램.
+5. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(`shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`).
+6. 보류: Vidu 실생성 재확인(주인님 충전 뒤) · V4 화면 녹화(주인님 확인) · 진단 스위치(`?render=`) 정리(다음 `ai-video-studio` 배포 때).
+
+## 영상 담당 프로그램 현황 (2026-11-13)
+| 프로그램 | 버전 | 최근 한 일 | 남은 것 |
+|---|---|---|---|
+| `shorts-onestop-studio` | v1.53 | 상품 사진 쇼츠(메이커 1단계) | 백로그 문서 · 메이커 2단계 |
+| `shots`(`auto-shorts-posting`) | v1.50 | 30일 정리 첫 실행 확인 | 백로그 6 구현 |
+| `ai-video-studio` | v1.36 | 시작·끝 장면 사진 「내 자료함」에서 고르기 | Vidu 실생성 재확인(보류) |
+| `music-video-studio` | v1.30 | 「내 자료함」 곡·이미지 가져오기·서울 지역 | 위젯·로그인 정책 미배포 대기 |
+| `video-to-gif` | v1.28 | 변환 남은 시간 표시 | 위젯 미배포 대기 · V4 녹화(확인 대기) |
+| `infinite-loop-video` | v1.10 | (최근 배포 내용은 폴더 문서 확인) | 서울 지역 반영 여부 다음 배포 때 확인 |
 
 ## 주인님께 여쭐 것
 - (없음)

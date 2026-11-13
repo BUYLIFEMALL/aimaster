@@ -25,10 +25,13 @@
 | 개선 v1.11 | ① 스톡 점수에 두 낱말 구절 일치 +1(`stockScore` — "living room" 태그 4점 vs 숲 2점) ② 자막 `captions.voiceOnly`(기본 켬): MP4(`renderFrame` `final`)에는 목소리가 있는 장면에만 자막, 미리보기는 스타일 확인용으로 항상 표시 ③ 목표 길이: 대본 API가 내레이션 합계가 예산의 1.2배를 넘으면 "더 짧게" 1회 재요청 후 목표에 가까운 쪽 사용 | **v1.11 배포·실화면 검수 완료**(2026-10-16) |
 | 개선 v1.12 | 가이드북(/guide) 가독성 및 줄넘김 전면 개편: 12px 흐릿한 텍스트 5개 단락을 14px 표준 폰트 크기, 5대 독립 카드(디자인·배경, 음성·자막·음악, 발행 계획, 장면 편집, 내 지침), 알약 뱃지, 단계별 줄바꿈·볼드 키워드로 전면 리팩터링. Microsoft Edge 실세션 검수 완료 | **v1.12 배포·실화면 검수 완료**(2026-10-16) |
 | 개선 v1.13 | 로그인/회원가입 표준 2탭 레이아웃(플로우 위저드 테마) 전면 개편: 24px 퍼플 모눈 격자, 쇼츠 필름 릴 심볼, 2탭 토글 바, 메일/자물쇠 아이콘(42px 패딩), 비밀번호 찾기, 풀 위드 로즈-퍼플 그라디언트 버튼, 통합 안내 박스 및 약관 푸터 완비. Microsoft Edge 실세션 검수 완료 | **v1.13 배포·실화면 검수 완료**(2026-10-17) |
+| 최근 v1.44~v1.53 | v1.44 상품 홍보 쇼츠(15초 6비트·넘겨받기 4필드) · v1.45 각색 강도 「AI로 다듬기」 · v1.47 무료음악 받기 `/fms-bgm` · v1.48 받아쓰기 모델 선택 · v1.49 대본·발행 계획 30일 정리·저장공간 위젯·서울 지역 · v1.50 배경음악 「내 자료함」 · v1.51 유튜브 기록 「업무 워크스페이스로」 · **v1.52 상품 사진 쇼츠(메이커 1단계)** · v1.53 인트로·마무리 상품 상자 | **v1.53 배포**(2026-11-13) |
+
+> **지금 버전 v1.53 · 남은 일은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)**(기능·화면·연계 체크 목록, 2026-11-13 정리). 최근 기록은 `docs/IMPROVEMENTS.md` 맨 위.
 
 ## 3. 운영 정보
 - 주소: https://shorts-onestop-studio.buylife.xyz (별칭 https://shorts-onestop-studio.vercel.app), Vercel 프로젝트 `shorts-onestop-studio`(팀 `buylife`), 배포 `vercel deploy --prod --yes --scope buylife`(이 폴더에서).
-- DB: `programs` slug `shorts-onestop-studio`, 카테고리 유튜브, 최소 등급 일반, **badges `coming`(개발 중)**, 요금제 3종. 등록 SQL `supabase/migrations/0001_register_shorts_onestop_studio.sql`.
+- DB: `programs` slug `shorts-onestop-studio`, 카테고리 유튜브, 최소 등급 일반, badges `new`(2026-10-16 v1.09부터 공개 — 아래 「공개 전까지」 설명은 개발 당시 기록), 요금제 3종. 등록 SQL `supabase/migrations/0001_register_shorts_onestop_studio.sql`.
   - `is_active=false`면 관리자·시험 계정도 들어갈 수 없어(권한 판정 not_found) 활성으로 두고, **등급 자동 부여(`grade_program_access`)는 공개 전까지 넣지 않는다** → 지금은 관리자 + 시험 계정(`buylifemall@naver.com`, blog-workroom 기간 복사)만 사용.
 - Vercel 환경변수(Production): 공용 DB 연결값 새·기존 이름 + `NEXT_PUBLIC_MAIN_SITE_URL`. 등록 스크립트 `scripts/add-platform-env.mjs`(루트 `.env.local`에서 읽음, 값 출력 없음). **운영자 AI 키는 등록하지 않는다.**
 - 저장 테이블 `shorts_onestop_items`(kind: project·preset·guideline·plan·settings, `user_id`+RLS 4정책, SQL `supabase/migrations/0002_shorts_onestop_items.sql`). 서비스 롤 접근이라 `src/lib/store.ts`가 모든 쿼리에 `user_id` 조건.
@@ -268,7 +271,30 @@
 - **그대로 둔 것**: 음성 자막 낱말 시각 `src/lib/tts.ts` `wordStarts`는 낱말 시각이 필요해 whisper-1 유지(2027-02-26 종료 전에 대안 필요 — 실패해도 글자 수 비율로 대신하는 보조 기능).
 - 검수: 시험 53(새 3)·tsc·린트·build → 배포 `shorts-onestop-studio-5tr3q3m40` Ready, DB v1.48, `/render` 격리 헤더 유지. **운영 ego 시험 계정**: 기본값 Gemini 3.8 Flash, 17.8초 영상 → 7.5초 만에 5문장 그대로 참고 자료에 들어감, 다듬기 버튼 「문장 다듬기로 다듬기」.
 
+## 2026-11-11 v1.49 ✅ 배포 — 대본·발행 계획 30일 정리 (Claude Code 윈도우 `claude-win-video`)
+- 대본·발행 계획 행도 30일(발행 여부 무관, `retention_exempt` 회원 제외, `src/lib/retentionRows.ts`) + 매뉴얼 FAQ + 저장공간 위젯 + 서버 지역 서울(`icn1`) + 공용 `ai-video-client` 사본. 배포 `shorts-onestop-studio-a8znzp0vz`.
 
+## 2026-11-12 v1.50 ✅ 배포 — 배경음악 「내 자료함」에서 고르기
+- 공용 `member-assets-client` 사본(`src/lib/memberAssets.ts`)으로 자료함 음악을 배경음악으로. 배포 `shorts-onestop-studio-ijzkrx70z`.
 
+## 2026-11-12 v1.51 ✅ 배포 — 유튜브 올린 기록 「📨 업무 워크스페이스로」(U10)
+- 워크스페이스 담당 구현(`ea85e9879`, `/api/work-inbox`). 11-13 실제 확인: MP4 → 비공개 업로드 → 보내기 → 워크스페이스 도착. 배포 `shorts-onestop-studio-2jis52jgc`.
 
+## 2026-11-13 v1.52 ✅ 배포 — 상품 사진 쇼츠(메이커 후속 1단계) (Claude Code 윈도우 `claude-win-video`)
+- 근거·결정: `docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md`(주인님 결정 3건: 1단계 진행 · 상품 장면 AI 영상 기본 꺼짐+경고 · 자료함 사진은 2단계에서 원본 참조).
+- 넣은 것: 배경 출처 `"product"`(`src/lib/script.ts`), 사진 올리기 `POST /api/media/product-upload`(권리 필수, JPG·PNG·WEBP 10MB, 본인 폴더 `<회원>/product/`, 회원당 120장), 렌더러 `drawProduct`(잘라내지 않음·흐림 배경·상품 위 어둡게 안 함·4% 확대), 추가 넘기기 필드 `product-id·option·url·desc·rights·rev`(`src/lib/productShorts.ts` — 기존 4개 하위 호환), 상품명(+옵션) 아웃트로 부제 원문 고정, 유튜브 설명란 「🛒 상품 보기」, 디자인 화면 상품 장면 보호(스톡 덮기·AI 이미지 막기·AI 영상 기본 잠금), 30일 정리 `product/` 폴더, 로그인 정책 `signOut({ scope: "local" })`.
+- 검수: 시험 63(새 7)·tsc·로컬 build → 배포 `shorts-onestop-studio-ct6p9f215`, DB v1.52. ego 시험 계정: 사진 2장 올리기 → 대본 1회(`gemini-3.8-flash`) → 상품 장면 5곳·카드1 비움·부제 원문·상품 기록 저장·AI 영상 잠금 확인.
+- 주의: 상품 사진 경로는 반드시 `/product/`가 들어가야 받는다(`applyProduct`). 인트로·마무리는 글자 자리가 고정이라 상품 상자를 따로 쓴다(v1.53).
 
+## 2026-11-13 v1.53 ✅ 배포 — 인트로·마무리 상품 상자
+- v1.52 화면 확인에서 인트로 이름표·제목이 상품 글자를 가림 → 인트로·마무리는 `PRODUCT_BOX_TOP`(140~660px), 카드 장면은 `PRODUCT_BOX`(170~1090px). 배포 `shorts-onestop-studio-72fht769b`, DB v1.53. 미리보기로 가림 없음 확인(MP4 파일 대조는 백로그).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
