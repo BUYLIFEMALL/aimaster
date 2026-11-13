@@ -65,11 +65,13 @@ export function KeyManager({ guideUrl }: { guideUrl: string | null }) {
     <div className="stack">
       <div className="notice">
         <strong><ShieldCheck size={14} style={{ verticalAlign: "-2px" }} /> 본인 키로만 동작합니다</strong>
-        <p>글 생성·수정·분석은 회원 본인의 Google Gemini API 키로 호출됩니다. 운영자나 다른 회원의 키로 대신 처리되지 않으며, 키는 서버에서만 사용되고 화면에는 일부만 표시됩니다.</p>
+        <p>AI 심층 분석과 종합 프로필은 회원 본인의 Google Gemini API 키로 호출됩니다(버튼을 누를 때마다 1회). 운영자나 다른 회원의 키로 대신 처리되지 않으며, 키는 서버에서만 사용되고 화면에는 일부만 표시됩니다.</p>
       </div>
       <section className="card" data-provider="gemini">
-        <h2><KeyRound size={16} style={{ verticalAlign: "-3px" }} /> Google Gemini API 키 (필수)</h2>
-        <p className="muted" style={{ marginTop: 6 }}>초안 생성, 선택 문장 수정, 전체 글 분석에 쓰입니다. 발급: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>aistudio.google.com/apikey</a></p>
+        <h2><KeyRound size={16} style={{ verticalAlign: "-3px" }} /> Google Gemini API 키 (AI 분석용)</h2>
+        <p className="muted" style={{ marginTop: 6 }}>결과 화면의 [AI 심층 분석 받기]와 [종합 프로필 만들기]에 쓰입니다. 검사와 기본 해석은 키 없이도 됩니다. 발급: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>aistudio.google.com/apikey</a></p>
+        {/* 2026-11-13: 키 입력 칸 바로 옆에도 발급 방법 버튼(아래 「연동 매뉴얼」 상자와 같은 글) */}
+        {guideUrl && <div className="actions" style={{ marginTop: 8 }}><GuideLinkButton url={guideUrl} label="📖 발급 방법 (팝업)" /></div>}
         {state === null ? <p className="muted" style={{ marginTop: 12 }}>확인 중…</p> : (
           <p className={`key-status ${has ? "" : "none"}`} style={{ marginTop: 12 }}>
             {has ? <>등록됨 · <code>{state.maskedKey}</code></> : "아직 등록된 키가 없습니다."}

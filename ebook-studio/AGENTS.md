@@ -1,5 +1,24 @@
 # eBook Studio (ebook-studio) — 인수인계 문서
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 `v1.16`(`src/lib/version.ts`) · 운영 주소: https://ebook-studio.buylife.xyz (별칭 `https://ebook.buylife.xyz` — 아래 본문 기록 기준). `package.json`의 `version`은 `1.14.0`으로 남아 있습니다(회원에게 보이는 값 아님).
+- 한 줄 정의: 가진 글(TXT·MD·DOCX 파일, 웹 주소, 붙여넣기)을 목차로 나누고, 원하면 본인 AI 키로 장별로 다듬어 단일 HTML·EPUB·웹 배포용 ZIP·인쇄(PDF)로 내보내는 전자책 제작 도구.
+- 화면·메뉴(실제 코드 기준): 첫 화면 `/`(권한 확인 뒤 `StudioWorkspace`), 왼쪽 메뉴 4단계 「자료 수집 & 기획」→「목차 & 챕터 집필」→「디자인 & 표지」→「배포 & 내보내기」(`src/components/layout/Sidebar.tsx`), 그 아래 「📖 연동 & 사용 매뉴얼」(`/guide`)·「빠른 도움말 팝업」(`HelpModal`)·「🔑 API 키·모델 설정」(`SettingsModal`). 「전자책 생성하기」 단추는 「디자인 & 표지」 맨 아래에 있습니다(`StyleDesignPanel.tsx`). `/read/[id]`는 브라우저에 저장된 현재 책을 전체화면으로 보여 줍니다. API: `/api/ai/outline`·`/api/ai/chapter`·`/api/ai/cover`·`/api/scrape`·`/api/user/key`·`/api/auth/logout`(모두 `checkProgramAccessApi`, 로그아웃 제외).
+- 필요한 키·연동(회원 본인 것): 글 모델 9개(OpenAI 3·Claude 3·Gemini 3, `src/lib/textModels.ts`, 기본 `gemini-3.8-flash`). OpenAI·Claude 키는 공용 `user_api_keys`(`openai`·`anthropic`)에만, Gemini 키는 `user_api_keys`(`gemini`)와 브라우저 `localStorage`에 함께 저장. 운영자 키 폴백 없음. 외부 계정(OAuth) 연동 없음.
+- 자동 실행(예약·정리)·확장: 없음(`vercel.json` 없음, `extension/` 없음). 원고는 서버·DB에 저장하지 않고 브라우저 `localStorage` 키 `ebook_studio_current_project` 한 개에만 둡니다(한 번에 한 권). 그래서 30일 자동 삭제 대상 데이터가 없습니다.
+- 최근 변경(커밋 기준):
+  - `2685c56e1` v1.16 — 12월 모델 교체 B 마무리, 첫 화면 소개 배지, `signOut({ scope: "local" })`, 서버 Supabase 클라이언트에 기기 정보(User-Agent) 전달, 배포.
+  - `d8f02a4c3`·`38db47fd5` v1.15 — 글 모델을 OpenAI→Claude→Gemini 3개 플랫폼에서 고르기, AI·주소 읽기·키 API에 프로그램 권한 확인, 저장공간 위젯.
+  - `b5d1f3871` v1.14 — 클래식 북바인딩 디자인 개편.
+  - `9b1e6fdd2` v1.13 — Gemini 2.5·1.5 → 3.8 Flash 등으로 교체, 저장된 옛 값 변환.
+- 미배포 대기·남은 일: 루트 `docs/PENDING_DEPLOYS.md` 94번째 줄 「내보낸 기록」에 v1.16 배포(2026-11-13, 배포 `dpl_EejQ8NzCocayuEuC98uTxqqFoUFZ`, DB v1.15→v1.16)가 적혀 있습니다. 다만 같은 문서 57번째 줄 「12월 모델 교체 묶음 B」 대기 줄에 `ebook-studio` `9b1e6fdd2`가 아직 남아 있어 `node scripts/pending-check.mjs ebook-studio`가 대기 1건으로 표시합니다 — 실제로는 v1.16에 함께 나간 것으로 기록돼 있으므로 그 줄의 정리(루트 문서)는 부모 세션 몫입니다. 운영 DB `programs.version` 값은 이번 점검에서 직접 조회하지 않았습니다(미확인). 이번 점검의 매뉴얼·설정 창 수정은 미배포입니다.
+- 다음에 손댈 때 주의:
+  - AI 표지 생성 함수(`StyleDesignPanel.tsx`의 `handleGenerateCover`, `/api/ai/cover`)는 남아 있지만 **화면에 부르는 단추가 없습니다**. 사이드바 설명·설정 창 문구에는 「AI 표지」가 남아 있습니다(개선 문서 2026-11-13 1번).
+  - 화면에 적힌 한도(파일당 20MB·합계 200,000자·80장)는 안내 문구일 뿐 코드에서 막지 않습니다.
+  - `src/lib/ai/openaiRequestParams.ts`·`src/lib/geminiImage.ts`는 공용 기준 코드 사본이라 직접 고치지 않습니다.
+  - 아래 본문 1~5절은 v1.10 기준 기록이 섞여 있습니다(예: 모델 `gemini-2.5-*`, 배지 `v1.10 PUBLISHING LAB`, 메뉴 이름 「01 원본 문서」). 지금 값은 이 요약을 기준으로 봅니다.
+- 이번 점검에서 고친 것: 매뉴얼 `/guide`(시작 전 준비 3칸과 키 발급 매뉴얼 링크, 단계 카드를 실제 메뉴 이름·단추 위치로, 프로젝트 JSON 백업 카드, 질문 Q6~Q9 추가, 저장·전송 설명을 사실대로, 머리 배지 `v1.10` → 버전 값), 도움말 창(키 등록 순서·메뉴 이름·PDF 안내), 설정 창 OpenAI·Claude·Gemini 칸에 「📖 발급 방법」 링크 (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 ## 1. 개요
 - **프로그램명**: eBook Studio (`ebook-studio`)
 - **라이브 도메인**: [https://ebook-studio.buylife.xyz](https://ebook-studio.buylife.xyz) (별칭: `https://ebook.buylife.xyz`)

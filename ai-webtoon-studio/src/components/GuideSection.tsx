@@ -174,6 +174,70 @@ export function GuideSection({ onGoToStep, onOpenSettings }: GuideSectionProps) 
         </div>
       </div>
 
+      {/* 2-1. 시작 전 준비 (2026-11-13 추가) */}
+      <div className="bg-[#121620] border border-[#232b3e] rounded-3xl p-6 sm:p-7 space-y-4">
+        <div className="flex items-center gap-2">
+          <KeyRound className="w-5 h-5 text-amber-400" />
+          <h2 className="text-base sm:text-lg font-black text-white">시작 전 준비</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-2">
+            <h3 className="text-xs font-bold text-white">🔑 Gemini API 키 (꼭 필요)</h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              좌측 [API키등록·플랫폼연동]을 눌러 본인 키를 붙여 넣고 [키 테스트] → [설정 저장하기]를 누릅니다. 시놉시스·캐릭터·콘티 글과 표지·컷 그림이 모두 이 키로 만들어지고 요금은 Google에서 회원님께 청구됩니다.
+            </p>
+            <a href="https://www.buylife.xyz/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" target="_blank" rel="noopener noreferrer" className="inline-block text-[11px] text-indigo-400 underline font-semibold">
+              📖 Gemini 키 발급 방법
+            </a>
+          </div>
+          <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-2">
+            <h3 className="text-xs font-bold text-white">📸 인스타그램 연결 (올릴 때만)</h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              완성한 웹툰을 인스타그램에 올리려면 「INSTA 포스팅 자동화」 설정에서 본인 인스타그램 계정을 한 번 연결합니다. 연결해 두면 이 프로그램 STEP 4 아래 게시 칸에 「연결됨 · @계정」이 보입니다.
+            </p>
+            <a href="https://www.buylife.xyz/guides/6cdae259-b9d2-45ae-9c21-e5f498f78956" target="_blank" rel="noopener noreferrer" className="inline-block text-[11px] text-indigo-400 underline font-semibold">
+              📖 인스타그램 연동 방법
+            </a>
+          </div>
+          <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-2">
+            <h3 className="text-xs font-bold text-white">⏰ 예약 실행 방식 (선택)</h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              기본값은 사이트가 5분마다 확인해 올리는 방식이라 따로 할 일이 없습니다. 같은 설정 창 아래 「예약 발행」에 본인 cron-job.org 키를 넣으면 1분마다 확인하는 방식으로 바꿀 수 있습니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 2-2. 인스타그램 게시·예약 (2026-11-13 추가) */}
+      <div className="bg-[#121620] border border-[#232b3e] rounded-3xl p-6 sm:p-7 space-y-4">
+        <div className="flex items-center gap-2">
+          <Film className="w-5 h-5 text-indigo-400" />
+          <h2 className="text-base sm:text-lg font-black text-white">완성한 웹툰을 인스타그램에 올리기</h2>
+        </div>
+        <ul className="space-y-2.5 text-xs text-slate-300">
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <span><strong>컷 하나 = 인스타 한 장</strong>: STEP 4 화면 아래 「인스타그램에 게시 (컷 캐러셀)」에서 올릴 장을 고릅니다. 흰 4:5 판에 컷 그림과 대사 말풍선을 넣어 넘겨 보는 웹툰으로 올라가며 한 번에 최대 10장입니다.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <span><strong>올리기 전에 미리보기</strong>: [올라갈 장 미리보기]를 누르면 인스타에서 보이는 모양 그대로 한 장씩 넘겨 볼 수 있습니다.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <span><strong>지금 게시 / 예약 게시</strong>: 「지금 게시」는 바로 공개로 올리고, 「예약 게시」는 한국 시간으로 10분 뒤부터 60일 안의 시각을 정해 두면 그때 자동으로 올라갑니다. 같은 칸의 게시 기록에서 결과를 보고 대기 중인 예약을 취소할 수 있습니다.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <span><strong>여러 회차 한 번에 예약 (연재용)</strong>: 회차마다 [프로젝트 저장 (JSON)]으로 저장해 둔 파일을 여러 개 고르면, 파일 이름 순서대로 첫 회차 시각부터 매일·3일마다·매주·2주마다 간격으로 한 번에 예약합니다. 예약이 끝날 때까지 창을 닫지 마세요.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <span><strong>공개 게시 주의</strong>: 게시와 예약은 본인 인스타그램에 공개로 올라갑니다. 확인 칸에 체크하기 전에 장과 게시 문구를 한 번 더 확인하세요.</span>
+          </li>
+        </ul>
+      </div>
+
       {/* 3. 5대 아트 스타일 비교 가이드 */}
       <div className="bg-[#121620] border border-[#232b3e] rounded-3xl p-6 sm:p-7 space-y-5">
         <div className="flex items-center justify-between">
@@ -266,7 +330,7 @@ export function GuideSection({ onGoToStep, onOpenSettings }: GuideSectionProps) 
           <ul className="space-y-2.5 text-xs text-slate-300">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-              <span><strong>브라우저 로컬 격리 보관</strong>: 사용자의 Google Gemini API 키는 오직 본인의 브라우저 로컬 스토리지에만 보관되며 운영자나 타 회원과 절대 공유되지 않습니다.</span>
+              <span><strong>본인 계정에만 보관</strong>: 등록한 Google Gemini API 키는 회원님 계정의 서버 저장소에 보관되고 브라우저에는 남기지 않습니다. 다른 AIMaster 프로그램에서 이미 등록했다면 다시 넣지 않아도 되며, 운영자나 다른 회원의 키로 대신 만들지 않습니다.</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
@@ -274,13 +338,13 @@ export function GuideSection({ onGoToStep, onOpenSettings }: GuideSectionProps) 
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-              <span><strong>무료 렌더러 자동 폴백</strong>: Gemini API 키가 없거나 사용량이 소진된 경우에도 무료 렌더러를 통해 중단 없이 테스트 원고를 제작할 수 있습니다.</span>
+              <span><strong>그림 생성이 실패했을 때</strong>: 키가 없거나 한도·시간 초과로 Gemini 그림 생성이 실패하면 외부 무료 그림 서비스의 대체 그림을 대신 넣고, 실패 원인을 알림으로 보여 줍니다. 대체 그림은 품질과 인물 일관성이 다르니 원인을 해결한 뒤 그 컷만 다시 만드세요. 시놉시스·콘티 같은 글 생성은 본인 키가 꼭 있어야 합니다.</span>
             </li>
           </ul>
         </div>
       </div>
 
-      {/* 5. 자주 묻는 질문 (FAQ 5종) */}
+      {/* 5. 자주 묻는 질문 (FAQ) */}
       <div className="bg-[#121620] border border-[#232b3e] rounded-3xl p-6 sm:p-7 space-y-4">
         <div className="flex items-center gap-2">
           <HelpCircle className="w-5 h-5 text-amber-400" />
@@ -300,14 +364,14 @@ export function GuideSection({ onGoToStep, onOpenSettings }: GuideSectionProps) 
           <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-1.5">
             <h3 className="text-xs font-bold text-indigo-300">Q. 마음에 안 드는 특정 컷만 다시 그릴 수 있나요?</h3>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              네! STEP 4 뷰어에서 각 컷 카드의 [이 컷 다시 생성] 버튼을 누르면 해당 컷의 연출 지시문이나 구도를 수정한 후 개별 재생성할 수 있습니다.
+              네! STEP 4에서 [그리드 카드 뷰]로 바꾸면 컷마다 [이 컷 재생성] 버튼이 있어 그 컷만 다시 그릴 수 있습니다. 대사를 고치고 싶으면 STEP 3 콘티의 「대사 / 말풍선 내용」 칸을 먼저 고친 뒤 다시 만드세요. 한 번 누를 때마다 본인 키로 그림 1장 요금이 나갑니다.
             </p>
           </div>
 
           <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-1.5">
             <h3 className="text-xs font-bold text-indigo-300">Q. 작업 중인 프로젝트를 나중에 이어서 하려면 어떻게 하나요?</h3>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              좌측 사이드바의 [프로젝트 저장 (JSON)] 버튼을 누르면 전체 시놉시스, 캐릭터 설정, 콘티, 생성된 이미지 URL이 파일로 저장됩니다. 언제든 [프로젝트 불러오기]를 통해 복원할 수 있습니다.
+              작업 중인 원고는 지금 쓰는 브라우저에 자동으로 저장되어 다시 열면 이어집니다. 다만 다른 PC·브라우저에서는 보이지 않고 브라우저 데이터를 지우면 사라집니다. 좌측 사이드바의 [프로젝트 저장 (JSON)]을 누르면 시놉시스·캐릭터 설정·콘티·그림이 파일 하나로 내려받아지니, 회차를 마칠 때마다 저장해 두고 필요할 때 [프로젝트 불러오기]로 복원하세요.
             </p>
           </div>
 
@@ -315,6 +379,34 @@ export function GuideSection({ onGoToStep, onOpenSettings }: GuideSectionProps) 
             <h3 className="text-xs font-bold text-indigo-300">Q. 전체 완성 원고는 어떤 파일 형식으로 다운로드되나요?</h3>
             <p className="text-[11px] text-slate-400 leading-relaxed">
               상단 우측의 [전체 이어붙여 저장 (JPG)] 버튼을 누르면 모든 컷이 하나의 세로 롱스크롤 웹툰 원고로 병합되어 저장되며, [이미지 일괄 저장 (.zip)]을 통해 각 컷을 개별 고화질 파일로 압축 다운로드할 수도 있습니다.
+            </p>
+          </div>
+
+          <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-1.5">
+            <h3 className="text-xs font-bold text-indigo-300">Q. 비용은 언제 나가나요?</h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              시놉시스 확장·캐릭터 시트·스토리(콘티) 생성과 표지·컷 그림을 만들 때마다 회원님 본인 Gemini 키로 요금이 나갑니다. [원고 일괄 제작 시작]은 표지와 모든 컷을 차례로 만들어 컷 수만큼 그림 요금이 한꺼번에 나가니, 먼저 [이 컷만 생성]으로 한두 컷을 확인해 보세요.
+            </p>
+          </div>
+
+          <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-1.5">
+            <h3 className="text-xs font-bold text-indigo-300">Q. 인스타그램에 올린 기록은 얼마나 보관되나요?</h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              게시·예약 기록은 30일 동안 보이고 그 뒤 자동으로 지워집니다. 인스타그램에 올라간 게시물 자체는 지워지지 않습니다. 원고와 그림은 서버가 아니라 이 브라우저에 있으니 파일로 따로 저장해 두세요.
+            </p>
+          </div>
+
+          <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-1.5">
+            <h3 className="text-xs font-bold text-indigo-300">Q. 예약한 웹툰이 정한 시각에 안 올라가요.</h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              기본 방식은 예약 시각 뒤 5분 안에, 「내 cron-job.org」 방식은 1분 안에 올라갑니다. 게시 기록에 「실패」와 사유가 보이면 확인하고, 인스타그램 연결이 만료됐다면 INSTA 포스팅 자동화에서 다시 연결해 주세요.
+            </p>
+          </div>
+
+          <div className="bg-[#181d2a] border border-[#232b3e] rounded-2xl p-4 space-y-1.5">
+            <h3 className="text-xs font-bold text-indigo-300">Q. PC와 휴대폰에서 같이 쓸 수 있나요?</h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              같은 계정으로 PC 1곳과 모바일 1곳에서 동시에 로그인할 수 있고, 같은 종류의 기기에서 새로 로그인하면 그 종류의 이전 로그인만 끊깁니다. 단, 작업 중인 원고는 기기마다 따로 저장되므로 옮기려면 [프로젝트 저장 (JSON)] 파일을 쓰세요.
             </p>
           </div>
         </div>

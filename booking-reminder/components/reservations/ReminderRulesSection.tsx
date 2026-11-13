@@ -148,7 +148,7 @@ function RuleForm({ rule, onDone }: { rule?: ReminderRuleData; onDone: () => voi
             name="kakaoVariables"
             rows={2}
             defaultValue={kakaoVariablesText}
-            placeholder={"치환 변수 (한 줄에 하나씩, 예: 이름=홍길동\n날짜=8월 20일)"}
+            placeholder={"치환 변수 (한 줄에 하나씩, 예: #{성함}={name}\n#{예약일시}={time})"}
             className="input-sm text-xs font-mono"
           />
         </div>
@@ -159,7 +159,7 @@ function RuleForm({ rule, onDone }: { rule?: ReminderRuleData; onDone: () => voi
         <input
           name="messageSubject"
           defaultValue={rule?.message_subject ?? ""}
-          placeholder="[예약안내] #{고객명}님, 예약 일정을 안내해 드립니다."
+          placeholder="[예약안내] 예약 일정을 안내해 드립니다."
           className="input-sm"
         />
       </div>
@@ -173,11 +173,11 @@ function RuleForm({ rule, onDone }: { rule?: ReminderRuleData; onDone: () => voi
           required
           rows={3}
           defaultValue={rule?.message_text ?? ""}
-          placeholder="안녕하세요 #{고객명}님! #{예약일시}에 예약되어 있습니다. 변경이 필요하시면 미리 연락 부탁드립니다."
+          placeholder="안녕하세요 {name}님! {time}에 예약되어 있습니다. 변경이 필요하시면 미리 연락 부탁드립니다."
           className="input-sm text-xs"
         />
         <p className="mt-1 text-[10px] text-slate-400">
-          치환 태그 사용 가능: {"#{고객명}"}, {"#{예약일시}"}, {"#{메모}"}
+          치환 태그 사용 가능: {"{name}"}(고객 성함), {"{time}"}(예약 일시·한국 시간) — 본문과 알림톡 치환 변수 값에만 적용됩니다(이메일 제목 제외)
         </p>
       </div>
 

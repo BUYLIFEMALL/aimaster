@@ -19,6 +19,14 @@ import {
   FileCheck,
   CheckCircle2,
 } from "lucide-react";
+import { APP_VERSION } from "@/lib/version";
+
+// 메인 사이트에 있는 키 발급 매뉴얼 글(새 창으로 열림)
+const KEY_GUIDES = [
+  { name: "OpenAI (GPT)", href: "https://www.buylife.xyz/guides/1c5c24e2-15d4-49b8-b907-0ac6843dee3a" },
+  { name: "Claude (Anthropic)", href: "https://www.buylife.xyz/guides/d03f65c2-efbb-421f-a041-a075562e3b7a" },
+  { name: "Google Gemini", href: "https://www.buylife.xyz/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" },
+];
 
 export default function EbookGuidePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -26,7 +34,7 @@ export default function EbookGuidePage() {
   const faqs = [
     {
       q: "Q1. 업로드한 원본 문서나 작성 중인 전자책 내용이 서버에 저장되나요?",
-      a: "절대 저장되지 않습니다. 파일 파싱(TXT, Markdown, DOCX)은 전적으로 브라우저 내부 메모리에서만 수행되며 원본 파일이 서버로 전송되지 않습니다. 회원님의 원고 데이터는 브라우저 로컬 저장소에만 격리 보관되며, AI 집필 호출 시에도 회원님이 고른 AI(OpenAI·Claude·Gemini)로만 암호화 전송 후 소멸됩니다.",
+      a: "서버에 보관하지 않습니다. 올린 파일(TXT, Markdown, DOCX)은 브라우저 안에서 읽고, 작성 중인 전자책은 지금 쓰는 브라우저의 저장 공간에만 남습니다. 다만 두 가지는 서버를 거칩니다. 웹 주소로 가져오기는 서버가 그 주소의 글을 대신 읽어 화면으로 돌려주고, AI 목차 제안·AI 집필은 해당 장의 원문을 회원님이 고른 AI(OpenAI·Claude·Gemini)에 보내 결과를 받아 옵니다. 두 경우 모두 내용을 서버에 저장하지 않습니다.",
     },
     {
       q: "Q2. 발행된 독립형 단일 HTML 파일은 인터넷 연결 없이도 동작하나요?",
@@ -42,7 +50,23 @@ export default function EbookGuidePage() {
     },
     {
       q: "Q5. AI API 키는 필수인가요? 어떤 AI를 쓸 수 있나요?",
-      a: "수동 원고 작성, 목차 분할, 21종 테마 적용, 뷰어 읽기, HTML/EPUB/인쇄 내보내기는 API 키 없이도 누구나 100% 무료로 이용할 수 있습니다. 'AI 목차 제안'과 'AI 챕터 자동 집필'은 OpenAI(GPT)·Claude·Gemini 중 고른 모델의 회원 본인 API 키로 동작하며, 플랫폼마다 가성비·균형·최고 품질 모델을 고를 수 있습니다. AI 표지 이미지는 Gemini 키를 씁니다.",
+      a: "수동 원고 작성, 목차 분할, 21종 테마 적용, 뷰어 읽기, HTML/EPUB/인쇄 내보내기는 API 키 없이도 쓸 수 있습니다. 'AI 목차 제안'과 'AI 챕터 자동 집필'은 OpenAI(GPT)·Claude·Gemini 중 고른 모델의 회원 본인 API 키로 동작하며, 플랫폼마다 가성비·균형·최고 품질 모델을 고를 수 있습니다. 표지는 지금 화면에서 이미지를 직접 올리거나, 표지 프롬프트를 복사해 원하는 이미지 도구에서 만든 뒤 올리는 방식입니다. AI를 쓴 만큼의 요금은 그 AI 회사가 회원님 키로 청구합니다.",
+    },
+    {
+      q: "Q6. 작업하던 전자책은 어디에 저장되나요? 다른 PC에서도 이어서 할 수 있나요?",
+      a: "지금 쓰는 브라우저의 저장 공간에 자동 저장되며, 한 번에 한 권만 보관합니다. 그래서 다른 PC·다른 브라우저에서는 보이지 않고, 브라우저의 사이트 데이터를 지우면 함께 사라집니다. '새 프로젝트'를 누르면 지금 작업이 비워지니, 그 전에 왼쪽 메뉴 '배포 & 내보내기' 맨 아래의 '프로젝트 JSON 백업'으로 파일을 받아 두세요. 다른 PC에서는 같은 자리의 'JSON 불러오기'로 이어서 작업할 수 있습니다.",
+    },
+    {
+      q: "Q7. API 키는 어디에 등록하나요? 메인 사이트에 등록한 키도 쓸 수 있나요?",
+      a: "왼쪽 메뉴 맨 아래 '🔑 API 키·모델 설정'(또는 상단의 'API 키 등록' 단추)을 누르면 설정 창이 열립니다. 먼저 모델을 고르고, 그 모델 플랫폼의 본인 키를 넣은 뒤 '설정 저장'을 누릅니다. OpenAI·Claude 키는 본인 계정에만 저장되어, 메인 사이트 'API 키 설정'에 이미 등록한 키가 있으면 다시 넣지 않아도 '본인 키 등록됨'으로 표시됩니다. Gemini 키는 본인 계정과 이 브라우저에 함께 저장됩니다.",
+    },
+    {
+      q: "Q8. AI 집필 도중에 멈추거나 오류가 나면 처음부터 다시 해야 하나요?",
+      a: "아닙니다. '전자책 생성하기'는 목차의 장을 하나씩 순서대로 만들며, 중간에 멈춰도 그때까지 만든 장은 남습니다. 마음에 들지 않는 장은 왼쪽 메뉴 '목차 & 챕터 집필'에서 그 장만 직접 고치거나 「이 장만 AI로 집필하기」로 다시 만들 수 있습니다. 같은 장을 다시 만들면 AI 호출이 한 번 더 일어나 요금도 한 번 더 듭니다.",
+    },
+    {
+      q: "Q9. 같은 계정으로 여러 기기에서 쓸 수 있나요?",
+      a: "같은 계정으로 PC 1곳과 모바일 1곳에서 동시에 쓸 수 있습니다. 같은 종류의 기기(예: 다른 PC)에서 새로 로그인하면 그 종류의 이전 로그인만 끊깁니다. 작업 중인 전자책은 브라우저에만 저장되므로 기기를 바꿀 때는 Q6의 JSON 백업을 이용해 주세요.",
     },
   ];
 
@@ -62,7 +86,7 @@ export default function EbookGuidePage() {
               eBook Studio
             </span>
             <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold bg-indigo-50 text-indigo-600 rounded border border-indigo-100">
-              v1.10 매뉴얼
+              {APP_VERSION} 매뉴얼
             </span>
           </div>
         </Link>
@@ -96,6 +120,49 @@ export default function EbookGuidePage() {
           </div>
         </section>
 
+        {/* 1-1. 시작 전 준비 — AI 기능을 쓸 때만 필요한 본인 키 */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <KeyRound className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">
+              시작 전 준비 — AI를 쓸 때만 본인 키가 필요합니다
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="focus-card p-5 space-y-2">
+              <h3 className="text-sm font-bold text-slate-900">1. 키 없이 되는 일</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                자료 넣기, 목차 자동 나누기, 직접 쓰기·고치기, 테마·서체 고르기, 표지 이미지 올리기, HTML·EPUB·ZIP·인쇄 내보내기는 키 없이 바로 쓸 수 있습니다.
+              </p>
+            </div>
+            <div className="focus-card p-5 space-y-2">
+              <h3 className="text-sm font-bold text-slate-900">2. 키가 필요한 단추</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                「AI 목차 제안」, 「전자책 생성하기」, 「이 장만 AI로 집필하기」는 고른 모델 플랫폼(OpenAI·Claude·Gemini)의 본인 키로 동작합니다. 누를 때마다 회원님 키로 요금이 발생할 수 있습니다.
+              </p>
+            </div>
+            <div className="focus-card p-5 space-y-2">
+              <h3 className="text-sm font-bold text-slate-900">3. 키 등록 위치</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                왼쪽 메뉴 맨 아래 「🔑 API 키·모델 설정」에서 모델을 고르고 키를 넣은 뒤 「설정 저장」을 누릅니다. 발급 방법은 아래 매뉴얼을 따라 하시면 됩니다.
+              </p>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {KEY_GUIDES.map((g) => (
+                  <a
+                    key={g.name}
+                    href={g.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 px-2 py-1 rounded-lg transition"
+                  >
+                    📖 {g.name} 발급 방법
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* 2. 4단계 전자책 출판 파이프라인 */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
@@ -115,7 +182,7 @@ export default function EbookGuidePage() {
               </div>
               <h3 className="text-sm font-bold text-slate-900">원본 자료 입력 & 수집</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                TXT, Markdown, DOCX 파일 업로드 또는 최대 12개 웹 URL 일괄 스크래핑으로 본문을 브라우저에 안전하게 추출합니다.
+                왼쪽 메뉴 「자료 수집 & 기획」에서 TXT·Markdown·DOCX 파일을 끌어다 놓거나, 웹 주소를 한 줄에 하나씩(한 번에 최대 12개) 넣고 「주소 분석」을 누르거나, 본문을 50자 이상 직접 붙여넣습니다. 넣는 즉시 아래에 목차가 만들어집니다. PDF·한글(HWP) 파일은 올릴 수 없으니 글자를 복사해 붙여넣어 주세요.
               </p>
             </div>
 
@@ -128,7 +195,7 @@ export default function EbookGuidePage() {
               </div>
               <h3 className="text-sm font-bold text-slate-900">목차 설계 & AI 집필</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                스마트 알고리즘과 AI(OpenAI·Claude·Gemini 중 선택)로 소제목/분량 단위 챕터를 자동 분할하고, 3대 정리 수준에 맞춰 원고를 순차 집필합니다.
+                소제목(#, ##)과 분량을 기준으로 장이 자동으로 나뉘고, 제목은 목록에서 바로 고칩니다. 「AI 목차 제안」을 누르면 AI가 장 제목을 다듬어 줍니다. 그다음 왼쪽 메뉴 「디자인 & 표지」 맨 아래에서 정리 수준(상세 정리·핵심 요약·원문 그대로)과 모델을 고르고 「전자책 생성하기」를 누르면 장을 하나씩 순서대로 씁니다.
               </p>
             </div>
 
@@ -141,7 +208,7 @@ export default function EbookGuidePage() {
               </div>
               <h3 className="text-sm font-bold text-slate-900">디자인 & 실시간 뷰어</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                21종 독서 테마, 5종 한글 서체, 10대 출판 프리셋을 적용하고 모바일/태블릿 반응형 뷰어로 실시간 레이아웃을 검수합니다.
+                「디자인 & 표지」에서 21종 독서 테마, 5종 한글 서체, 10가지 디자인 조합을 고르고 「직접 표지 이미지 등록」으로 표지를 올립니다(없으면 테마에 맞는 글자 표지가 자동으로 들어갑니다). 표지 프롬프트 4종은 복사해 원하는 이미지 도구에서 쓸 수 있습니다. 오른쪽 미리보기에 바로 반영되며 모바일·태블릿·데스크톱 폭으로 바꿔 볼 수 있습니다. 만든 글은 「목차 & 챕터 집필」에서 장별로 제목·요약·본문을 고치고 순서를 바꿉니다.
               </p>
             </div>
 
@@ -154,7 +221,7 @@ export default function EbookGuidePage() {
               </div>
               <h3 className="text-sm font-bold text-slate-900">멀티 포맷 발행 & 배포</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                독립형 단일 HTML, 표준 EPUB, 인쇄/PDF 최적화 규격 및 Vercel Drop 웹 배포용 ZIP 번들로 영구 보관/배포합니다.
+                왼쪽 메뉴 「배포 & 내보내기」(또는 상단 단추)에서 단일 HTML, EPUB, 웹 배포용 ZIP을 내려받고 인쇄 창에서 PDF로 저장합니다. 같은 화면 맨 아래 「프로젝트 JSON 백업」으로 작업 원본도 꼭 받아 두세요.
               </p>
             </div>
           </div>
@@ -251,6 +318,16 @@ export default function EbookGuidePage() {
                 출판 인쇄 규격에 맞춘 페이지 바꿈(Page Break) 및 머리글/바닥글 최적화 CSS가 적용되어 브라우저 인쇄 창에서 고품질 PDF 책으로 즉시 저장할 수 있습니다.
               </p>
             </div>
+
+            <div className="focus-card p-5 space-y-2">
+              <div className="flex items-center gap-2 text-indigo-700 font-bold text-sm">
+                <FileCheck className="w-4 h-4" />
+                <span>프로젝트 JSON 백업 · 불러오기 (.json)</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                독자에게 주는 파일이 아니라 내 작업 원본입니다. 원고·목차·스타일 설정이 한 파일에 담기며, 「JSON 불러오기」로 다른 PC나 다른 브라우저에서 이어서 고칠 수 있습니다. 작업은 브라우저에만 저장되므로 중요한 책은 수시로 백업해 주세요.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -262,15 +339,15 @@ export default function EbookGuidePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-emerald-950/80 leading-relaxed pt-1">
             <div className="space-y-1">
-              <span className="font-bold text-emerald-900 block">① 원본 문서 및 원고 100% 로컬 격리</span>
+              <span className="font-bold text-emerald-900 block">1. 원본 문서와 원고는 서버에 보관하지 않습니다</span>
               <p>
-                업로드된 TXT, Markdown, DOCX 문서 파싱과 전자책 원고는 브라우저 내부 메모리에만 존재하며 AIMaster 서버로 절대 전송되거나 보관되지 않습니다.
+                올린 TXT·Markdown·DOCX 파일은 브라우저 안에서 읽고, 전자책 원고는 이 브라우저의 저장 공간에만 남습니다. 웹 주소 가져오기와 AI 호출은 서버를 거치지만 내용을 저장하지 않습니다.
               </p>
             </div>
             <div className="space-y-1">
-              <span className="font-bold text-emerald-900 block">② 독립된 회원 본인 API 키 구동</span>
+              <span className="font-bold text-emerald-900 block">2. 회원 본인 API 키로만 동작합니다</span>
               <p>
-                운영자 또는 타인의 키를 공유하지 않으며, 회원님이 등록한 본인 API 키(OpenAI·Claude·Gemini 중 고른 플랫폼)로만 안전하게 구동됩니다. 키가 없더라도 수동 집필과 모든 내보내기는 완전 무료입니다.
+                운영자 또는 타인의 키를 공유하지 않으며, 회원님이 등록한 본인 API 키(OpenAI·Claude·Gemini 중 고른 플랫폼)로만 안전하게 구동됩니다. 키가 없어도 직접 쓰기와 모든 내보내기는 그대로 쓸 수 있습니다.
               </p>
             </div>
           </div>

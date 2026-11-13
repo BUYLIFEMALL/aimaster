@@ -1,5 +1,22 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 `v1.16`(`lib/version.ts`) · 운영 주소: https://crm-google-form.buylife.xyz (웹훅 주소 `…/api/webhooks/form-submit/<토큰>`)
+- 한 줄 정의: 구글폼에 응답이 들어오면 신청자에게 접수 확인(이메일·문자·알림톡·친구톡)을 보내고 운영자 텔레그램으로 알리며, N일 뒤 팔로우업과 RCS 1회 발송까지 하는 CRM 자동화.
+- 화면·메뉴(실제 코드 기준, `components/layout/Sidebar.tsx`): `/dashboard`(연결 상태·최근 접수) · `/sources`(구글폼 연결 — 폼 등록, Apps Script 코드·웹훅 주소 복사, 필드 매핑, 채널 체크, 알림톡 템플릿, 접수 후 팔로우업 규칙, 일시중지·삭제, 팔로우업 발송 상태 줄) · `/submissions`(접수 내역 — 최근 100건, 검색·상태/폼 필터·응답 보기) · `/promotions`(RCS 프로모션 발송 — 수신자 직접 선택 후 1회) · `/settings`(API키등록·플랫폼연동) · `/guide`(연동 & 사용 매뉴얼).
+- 필요한 키·연동(회원 본인 것): SMTP 계정(`user_smtp_accounts`, 여러 개) · SOLAPI 계정(`user_solapi_accounts` — API Key/Secret·발신번호·카카오 채널 ID·RCS 브랜드 ID) · 텔레그램 봇(`user_telegram_links`, 프로그램별) · 선택: cron-job.org API 키(`user_api_keys`, 팔로우업을 본인 계정으로 돌릴 때). AI 키는 쓰지 않음. 운영자 발송 계정 환경변수 사용 없음(검색으로 확인).
+- 자동 실행(예약·정리)·확장: Vercel cron 매일 00:00 UTC(= 09:00 KST) `/api/cron/followup`(운영자 실행, 「내 cron-job.org」 회원·일시정지 회원 제외) · 회원 전용 `/api/cron/dispatch-member`(회원 토큰). 접수 내역 자동 삭제(보관 기간 정리) 코드는 없음. 크롬 확장 없음.
+- 최근 변경(커밋 기준):
+  - `1def2373a`·`9810804f1` 저작권·분석 금지 고지 파일
+  - `d1e710d68` 권한 판정 조회 병렬화(판정 같음, 미배포)
+  - `36d0a4fdc` SOLAPI 발송 코드를 공용 기준 코드 `solapi-client`로 등록(이 프로그램이 기준, 미배포)
+  - `f0871e568` 좁은 칸 버튼 줄바꿈·잘림 수정(미배포)
+  - `eeaeb4a9a` 텔레그램 공용 모듈 사본·연동 확인 수정(v1.16 배포)
+- 미배포 대기·남은 일: 위 미배포 3건 + 텔레그램 `linkButton` 사본 + 이번 점검 수정. `pending-check`: 저장공간 위젯 미적용, 범위 없는 `signOut()`(`lib/actions/auth.ts:39`), 서버 로그인 기기 정보 미전달. 개선 원장의 🚨 웹훅 중복·횟수 제한(2026-10-17 표 1·2번)은 여전히 미구현.
+- 다음에 손댈 때 주의: `lib/solapi/client.ts`는 공용 기준(사본 5곳) — 고치면 `--sync`와 사본 프로그램 시험 필요. `lib/schedulerMember/*`·`lib/telegram/client.ts`는 공용 사본. 실제 신청자 대상 발송 시험은 사전 승인(아래 안전 수칙 2-4).
+- 이번 점검에서 고친 것: 매뉴얼 `/guide`(FAQ 6개 — 연결 순서·팔로우업 만드는 법·RCS 프로모션·접수 내역 기능과 삭제 범위·일시중지·기기 동시 사용, TIP 2줄), 설정 화면 링크(이메일·SOLAPI·텔레그램 구역 제목 옆에 매뉴얼 버튼 추가) (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
+
 이 문서는 **구글폼 신청접수 자동 응대 시스템(crm-google-form)** 프로젝트에서 AI Agent(Claude Code 등)가
 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 

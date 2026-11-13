@@ -283,11 +283,11 @@ export function Analyzer({ historyId }: { historyId?: string }) {
           <span>Creative Reverse Prompt Atelier</span>
         </div>
         <p className="studio-hero-desc">
-          이미지·동영상·오디오 미디어를 멀티모달 AI로 정밀 역분석하여 Midjourney, Flux, Sora, Suno 등 10대 주요 생성 AI에 최적화된 프롬프트와 파라미터를 도출합니다.
+          이미지·동영상·오디오 미디어를 멀티모달 AI로 정밀 역분석하여 Midjourney, Flux, Sora, Suno 등 주요 생성 AI 9가지에 최적화된 프롬프트와 파라미터를 도출합니다.
         </p>
         <div className="studio-hero-badges">
           <span className="badge-tag amber"><Sparkles size={12} /> v1.10 ARCHITECT</span>
-          <span className="badge-tag violet"><Layers size={12} /> 10대 AI 도구 맞춤 최적화</span>
+          <span className="badge-tag violet"><Layers size={12} /> 대상 도구 9가지 맞춤</span>
           <span className="badge-tag cyan"><Cpu size={12} /> 멀티모달 3종 미디어 역분석</span>
         </div>
         <div className="actions" style={{ marginTop: "16px" }}>
@@ -307,8 +307,8 @@ export function Analyzer({ historyId }: { historyId?: string }) {
             <Layers size={20} />
           </div>
           <div className="kpi-content">
-            <strong>10대 타겟 AI 도구</strong>
-            <small>Midjourney · Flux · Sora · Suno 완벽 호환</small>
+            <strong>대상 도구 9가지</strong>
+            <small>Midjourney · Flux · Sora · Suno 등 도구별 형식</small>
           </div>
         </div>
         <div className="kpi-card">
@@ -388,7 +388,7 @@ export function Analyzer({ historyId }: { historyId?: string }) {
           </label>
           <label>AI 모델
             <select value={options.model} onChange={(e) => setOptions({ ...options, model: e.target.value === "pro" ? "pro" : "flash" })}>
-              <option value="flash">Gemini 3.5 Flash — 빠름(기본)</option>
+              <option value="flash">Gemini 3.8 Flash — 빠름(기본)</option>
               <option value="pro">Gemini 3.1 Pro — 정밀(느림)</option>
             </select>
           </label>

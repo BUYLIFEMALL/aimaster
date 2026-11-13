@@ -50,6 +50,54 @@ export default async function GuidePage() {
         </div>
       </div>
 
+      {/* 1-1. 처음 쓰는 순서 (2026-11-13 보강 — 실제 화면 기준) */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span>🚀</span>
+            <span>처음 쓰는 순서 (4단계)</span>
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            시작 전 준비: 메인 사이트(buylife.xyz) 내 정보에 본인 핸드폰 번호가 등록돼 있어야 자동 발송이 실행됩니다.
+            발송 계정(문자·카카오는 SOLAPI, 이메일은 본인 메일)은 모두 회원 본인 것을 등록합니다.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="guide-card space-y-2 border-t-4 border-t-blue-500">
+            <span className="rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 text-[11px] font-bold">1단계 · 발송 계정 등록</span>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              좌측 메뉴 「🔑 API키등록·플랫폼연동」을 엽니다. 문자·알림톡을 보내려면 「📱 문자·카카오 (SOLAPI)」에 본인 API Key·Secret·발신번호를 넣고 저장한 뒤
+              「✉️ 테스트 문자 발송」으로 확인합니다(SOLAPI 잔액에서 실제 요금이 나갑니다). 이메일로 보내려면 「✉️ 이메일 발송 (SMTP)」에 본인 메일 계정을 등록합니다.
+              섹션마다 있는 「📄 … 연동하기」 버튼을 누르면 발급 방법이 팝업으로 열립니다.
+            </p>
+          </div>
+          <div className="guide-card space-y-2 border-t-4 border-t-indigo-500">
+            <span className="rounded-full bg-indigo-50 text-indigo-700 px-2 py-0.5 text-[11px] font-bold">2단계 · 예약 등록</span>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              「예약 관리」에서 고객 성함·예약 일시(한국 시간)·연락처·이메일을 넣고 등록합니다. 여러 건이면 「📥 엑셀로 한 번에 등록」에서 양식을 내려받아
+              고객명·핸드폰·이메일·예약일시·메모를 채운 뒤 올립니다. 먼저 미리보기에서 「등록 가능 ○건 · 건너뜀 ○건」을 확인하고 등록 버튼을 누르면 저장됩니다(한 번에 500건까지).
+            </p>
+          </div>
+          <div className="guide-card space-y-2 border-t-4 border-t-emerald-500">
+            <span className="rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[11px] font-bold">3단계 · 리마인드 규칙 만들기</span>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              「리마인드 규칙」에서 규칙 이름, 발송 타이밍(예약 전·후 + 분/시간/일), 발송 채널(문자·카카오 알림톡·이메일), 메시지 본문을 적고 저장합니다.
+              본문에 <code className="font-bold text-blue-600">{"{name}"}</code>, <code className="font-bold text-blue-600">{"{time}"}</code>을 쓰면 고객 이름과 예약 일시로 바뀝니다.
+              규칙을 켜 두면 그때부터 자동 발송 대상이 됩니다.
+            </p>
+          </div>
+          <div className="guide-card space-y-2 border-t-4 border-t-amber-500">
+            <span className="rounded-full bg-amber-50 text-amber-700 px-2 py-0.5 text-[11px] font-bold">4단계 · 자동 발송과 결과 확인</span>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              15분마다 「예약 대기」 상태인 예약 중 발송 시점이 된 건을 찾아 보냅니다. 같은 규칙으로 같은 예약에는 한 번만 보냅니다.
+              예약 상태를 「방문 완료」「노쇼(불참)」「예약 취소」로 바꾸면 그 예약은 더 이상 발송되지 않습니다.
+              잠시 전체를 멈추려면 예약 관리 화면의 「리마인드 발송 일시정지」를 누릅니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* 2. 4단계 노쇼 방지 리마인드 시퀀스 파이프라인 */}
       <section className="space-y-4">
         <div>
@@ -163,7 +211,7 @@ export default async function GuidePage() {
                   <span>카카오 알림톡</span>
                 </td>
                 <td className="px-5 py-4 font-medium text-slate-700">SOLAPI (카카오 비즈니스)</td>
-                <td className="px-5 py-4 text-emerald-600 font-semibold">약 6.5원 ~ 8원</td>
+                <td className="px-5 py-4 text-emerald-600 font-semibold">유료 (SOLAPI 요금표 기준)</td>
                 <td className="px-5 py-4">D-1 확인, 당일 안내, 리뷰 유도</td>
                 <td className="px-5 py-4 text-slate-500">
                   카카오 인증 마크와 버튼 링크(예약 확인/지도) 탑재 가능, 높은 오픈율
@@ -175,10 +223,10 @@ export default async function GuidePage() {
                   <span>문자(SMS/LMS)</span>
                 </td>
                 <td className="px-5 py-4 font-medium text-slate-700">SOLAPI</td>
-                <td className="px-5 py-4 text-slate-700 font-semibold">SMS 약 10원 / LMS 약 30원</td>
+                <td className="px-5 py-4 text-slate-700 font-semibold">유료 (SOLAPI 요금표 기준)</td>
                 <td className="px-5 py-4">카카오톡 미설치 고객, 당일 긴급 안내</td>
                 <td className="px-5 py-4 text-slate-500">
-                  알림톡 실패 시 자동으로 문자로 폴백 발송 가능, 100% 도달 보장
+                  템플릿 승인 없이 바로 보낼 수 있습니다. 알림톡이 실패해도 문자로 자동 전환되지는 않으니, 둘 다 보내려면 규칙에서 두 채널을 함께 체크하세요
                 </td>
               </tr>
               <tr className="hover:bg-slate-50/50">
@@ -200,9 +248,9 @@ export default async function GuidePage() {
                 </td>
                 <td className="px-5 py-4 font-medium text-slate-700">Telegram Bot API</td>
                 <td className="px-5 py-4 text-emerald-600 font-semibold">완전 무료</td>
-                <td className="px-5 py-4">관리자 실시간 예약 알림 모니터링</td>
+                <td className="px-5 py-4">봇 연동 확인 (준비 단계)</td>
                 <td className="px-5 py-4 text-slate-500">
-                  신규 예약 접수나 노쇼 발생 시 관리자 스마트폰으로 즉시 푸시 알림
+                  지금은 설정에서 본인 봇을 연동하고 연동 완료 메시지를 받는 것까지만 됩니다. 리마인드 규칙의 발송 채널(문자·알림톡·이메일)에는 아직 포함되지 않습니다
                 </td>
               </tr>
             </tbody>
@@ -217,24 +265,26 @@ export default async function GuidePage() {
           <span>동적 메시지 치환 태그 사용법</span>
         </h2>
         <p className="text-xs text-slate-500">
-          규칙 설정 시 본문이나 이메일 제목에 아래 태그를 입력하면, 발송 시 고객별 정보로 자동 치환됩니다.
+          규칙의 메시지 본문에 아래 태그를 입력하면, 발송할 때 고객별 정보로 자동으로 바뀝니다.
+          알림톡은 「치환 변수」 칸에 <code className="font-bold text-blue-600">{"#{성함}={name}"}</code>처럼 「템플릿 변수=값」을 한 줄에 하나씩 적으면 값 안의 태그가 바뀝니다.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200">
-            <code className="text-xs font-bold text-blue-600">{"#{고객명}"}</code>
+            <code className="text-xs font-bold text-blue-600">{"{name}"}</code>
             <p className="text-xs text-slate-700 font-medium mt-1">예약 고객의 성함</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">예: 홍길동님</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">예: 홍길동</p>
           </div>
           <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200">
-            <code className="text-xs font-bold text-blue-600">{"#{예약일시}"}</code>
-            <p className="text-xs text-slate-700 font-medium mt-1">예약된 날짜와 시간</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">예: 2026년 10월 25일 14:00</p>
+            <code className="text-xs font-bold text-blue-600">{"{time}"}</code>
+            <p className="text-xs text-slate-700 font-medium mt-1">예약된 날짜와 시간 (한국 시간)</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">예: 2026. 12. 24. 오후 2:30</p>
           </div>
-          <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200">
-            <code className="text-xs font-bold text-blue-600">{"#{메모}"}</code>
-            <p className="text-xs text-slate-700 font-medium mt-1">시술/상담 항목 또는 특이사항</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">예: 퍼스널 컬러 1인 코스</p>
+          <div className="rounded-xl bg-amber-50 p-3.5 border border-amber-200">
+            <p className="text-xs text-amber-900 font-bold">⚠️ 주의</p>
+            <p className="text-[11px] text-amber-800 mt-1 leading-relaxed">
+              지금 바뀌는 태그는 위 두 가지뿐입니다. {"#{고객명}"}·{"#{예약일시}"}·{"#{메모}"}처럼 적으면 바뀌지 않고 글자 그대로 발송됩니다. 이메일 제목에는 태그가 적용되지 않습니다.
+            </p>
           </div>
         </div>
       </section>
@@ -253,7 +303,7 @@ export default async function GuidePage() {
           AIMaster는 회원의 안전과 개인정보 보호를 최우선으로 합니다. 회원이 등록한 SOLAPI API 키,
           네이버/다음 메일 SMTP 로그인 정보는 회원 본인 계정에 연결해 저장하며,
           오직 본인의 예약 발송에만 사용됩니다. 운영자 키나 타 회원의 계정으로 폴백되지 않으며,
-          모든 고객 데이터는 30일 보존 원칙에 따라 안전하게 보호됩니다.
+          등록한 예약과 발송 기록은 본인 계정에서만 보이며, 직접 삭제하기 전까지 보관됩니다(이 프로그램에는 자동 삭제 기능이 없습니다).
         </p>
         <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800">
           <span>✓ Supabase RLS(행 단위 보안) 완벽 적용</span>
@@ -327,6 +377,36 @@ export default async function GuidePage() {
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
               설정 → ⏰ 예약 발행에서 고릅니다. 기본 「AIMaster 기본(Vercel)」은 따로 할 일 없이 15분마다 보낼 리마인드를 확인합니다. 「내 cron-job.org」를 고르고 본인 무료 cron-job.org API 키를 등록하면, 규칙을 켤 때 본인 계정에 15분 작업이 자동으로 켜지고 켜진 규칙이 없으면 자동으로 멈춥니다. 예약 관리 화면의 「리마인드 발송 일시정지」로 전체를 잠시 멈출 수 있습니다.
+            </p>
+          </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q7. 엑셀로 올렸는데 일부가 「건너뜀」으로 나옵니다.</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              고객명이 없거나, 핸드폰·이메일이 둘 다 없거나, 핸드폰 번호 형식이 아니거나, 예약일시를 읽지 못했거나, 이미 지난 예약이거나, 파일 안에서 겹치거나 이미 등록된 같은 예약이면 건너뜁니다. 미리보기에 줄마다 사유가 나오니 엑셀을 고쳐 다시 올려 주세요. 예약일시는 한국 시간으로 적습니다.
+            </p>
+          </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q8. 발송에 실패한 리마인드는 다시 보내지나요?</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              아닙니다. 같은 규칙·같은 예약에는 한 번만 시도하며, 실패해도 자동으로 다시 보내지 않습니다(중복 발송 방지). 발송 계정 미등록·잔액 부족·잘못된 번호가 흔한 원인이니, 규칙을 켜기 전에 설정 화면의 「테스트 문자」로 먼저 확인해 주세요. 또 규칙에서 고른 채널에 맞는 연락처가 없는 예약(예: 문자 규칙인데 핸드폰 번호 없음)은 아무것도 보내지 않습니다.
+            </p>
+          </details>
+
+          <details className="group rounded-xl border border-slate-200 bg-white p-4 transition-all [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer items-center justify-between font-bold text-xs sm:text-sm text-slate-800">
+              <span>Q9. PC와 휴대폰에서 같이 로그인해도 되나요?</span>
+              <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+              같은 계정으로 PC 1곳과 모바일 1곳에서 동시에 쓸 수 있습니다. 같은 종류의 기기에서 새로 로그인하면 그 종류의 이전 로그인만 끊깁니다. 자동 발송은 로그인 여부와 상관없이 서버에서 실행됩니다.
             </p>
           </details>
         </div>

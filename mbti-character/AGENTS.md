@@ -1,5 +1,16 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.24(`lib/version.ts`; `package.json`은 1.22.0으로 뒤처져 있음) · 운영 주소: https://mbti-character.buylife.xyz (slug `mbti-character`).
+- 한 줄 정의: 20문항에 답하면 브라우저에서 채점해 16유형별 자체 제작 캐릭터를 보여 주고, 회원 본인 Gemini 키로 캐릭터 그림(5가지 화풍)을 만들어 카카오톡·링크로 공유하는 검사.
+- 화면·메뉴(실제 코드 기준): 사이드바 없음 — 상단 머리줄(로고·버전·「📖 연동 & 사용 매뉴얼」·「다른 프로그램」·「🔑 API키등록」·로그아웃). `/`(첫 화면: 로그인하면 Gemini 키 칸 + 선호 화풍 선택) · `/guide`(매뉴얼·캐릭터 도감, 로그인 없이 열림) · `/test`(20문항) · `/result/[type]`(캐릭터·그림 생성·지표·공유·타로점 이어 보기) · `/settings`(API키등록·플랫폼연동) — 뒤 세 화면은 `middleware.ts` 로그인 + `requireProgramAccess()` · `/api/generate-character-image`(`checkProgramAccessApi`) · `/api/og`(공유용 그림, 로그인 없음).
+- 필요한 키·연동(회원 본인 것): Gemini 키 1개(`user_api_keys` provider `gemini`, `lib/apiKeys.ts` `resolveApiKey` — 폴백 없음, 없으면 `NO_API_KEY` → 등록 안내 창). 외부 계정 연동(OAuth) 없음. 카카오톡 공유는 사이트 공용 자바스크립트 키(`NEXT_PUBLIC_KAKAO_JS_KEY`, 공유 버튼용).
+- 자동 실행(예약·정리)·확장: 없음(`vercel.json` 없음, `extension/` 없음). 만든 그림은 공개 버킷 `mbti-character-images`의 회원 폴더(`<user.id>/…`)에 쌓이는데 **이 폴더에는 30일 정리 코드가 없음**(메인 중앙 정리가 이 버킷을 다루는지 미확인).
+- 최근 변경(커밋 기준): `1def2373a`·`9810804f1` 저작권 고지 / `b16550ad4` API 키 안내의 확인 안 된 암호화 문구 삭제 / `f0871e568` 좁은 칸 버튼 줄바꿈 수정 / `c037e742b` v1.24 제목 줄바꿈 / v1.23 그림 자동 생성을 검사 직후(`fresh=1`)로만 제한 / v1.22 미드나잇 퍼플 테마.
+- 미배포 대기·남은 일: 이번 매뉴얼·홈 문구·설정 링크 버튼 수정 · 정책 3건(저장공간 위젯 한 줄, `signOut({ scope: "local" })`, 서버 로그인 기기 정보) · 그림 30일 정리 확인 — 상세 `docs/IMPROVEMENTS.md` 2026-11-13.
+- 다음에 손댈 때 주의: `lib/programLinks.ts`·`lib/ai/geminiImage.ts`·`lib/ai/nanoBananaModels.ts`는 공용 사본(직접 고치지 않음). 결과 화면을 `?fresh=1`로 열면 회원 키로 그림 1장이 만들어지므로 검수는 `fresh` 없이. 그림 프롬프트는 서버에서 유형+화풍 id로만 조립(자유 글 금지). `/api/og`에 로그인 확인을 넣지 않음.
+- 이번 점검에서 고친 것: 매뉴얼(`app/guide/page.tsx`) — 옛 모델 이름(Gemini 2.5 Flash)·「무료 티어·무제한 생성」·없는 화풍(3D 렌더·픽셀아트)·「완전히 격리」 문구를 코드대로 정정, FAQ 3개 추가(자동 생성 시점과 요금·보관 기간·PC+모바일 로그인). 홈(`app/page.tsx`) 「무제한 생성」 문구 정정. 설정 화면 링크: 홈과 `/settings`의 Gemini 키 칸 바로 아래에 [📄 Google Gemini API 키 발급받기] 버튼 추가(기존 `GuideLinkButton`). (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
 ## 2026-10-20 v1.24 — 홈 큰 제목·통계 카드 제목이 글자 중간에서 끊기던 문제 (Claude Code 윈도우, 남은 작업 ⑩)

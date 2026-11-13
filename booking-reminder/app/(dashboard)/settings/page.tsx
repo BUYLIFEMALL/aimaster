@@ -80,6 +80,9 @@ export default async function SettingsPage() {
           <p className="mt-1 text-xs text-gray-500">
             리마인드/리뷰요청 메일을 보낼 SMTP 계정입니다. 구글·네이버 등 플랫폼별로 여러 계정을 등록할 수 있어요.
           </p>
+          <div className="mt-2">
+            <GuideLinkButton guideId="1dbea19b-4c83-4453-ae41-0b59d7f27b5f" label="네이버 메일(SMTP) 연동 방법" />
+          </div>
         </div>
         <div className="space-y-4">
           {SMTP_PROVIDER_PRESETS.map((preset) => (
@@ -93,7 +96,12 @@ export default async function SettingsPage() {
       <section className="space-y-4 rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
         <div>
           <h2 className="text-lg font-bold text-gray-900">📨 텔레그램 알림 연동</h2>
-          <p className="mt-1 text-xs text-gray-500">봇을 연동해두면 예약 리마인드를 텔레그램으로도 받을 수 있어요.</p>
+          <p className="mt-1 text-xs text-gray-500">
+            본인 텔레그램 봇을 연동해 둡니다. 지금은 연동 확인 메시지까지만 보내며, 리마인드 규칙의 발송 채널(문자·알림톡·이메일)에는 아직 포함되지 않습니다.
+          </p>
+          <div className="mt-2">
+            <GuideLinkButton guideId="f43e8ebe-a930-4933-b965-7068b38d79aa" label="텔레그램 봇 만드는 방법" />
+          </div>
         </div>
 
         {telegramLink ? (

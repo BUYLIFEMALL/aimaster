@@ -1,5 +1,16 @@
 # 🔑 AIMaster — 39번 성격코드(MBTI) 측정기 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.21(`lib/version.ts`, `package.json` 1.21.0) · 운영 주소: https://personality-code.buylife.xyz (slug `personality-code`, 폴더 `mbti/`). 아래 「프로그램 정보」 칸의 v1.20 표기는 옛 값입니다.
+- 한 줄 정의: 20문항(빠른)·60문항(정식) 질문에 답하면 브라우저에서 채점해 16유형 결과를 보여 주고, 카카오톡 공유·링크 복사와 캐릭코드·타로점 「이어서 보기」로 이어 주는 AI 없는 검사.
+- 화면·메뉴(실제 코드 기준): 사이드바 없음 — 상단 머리줄(로고·버전·「16성격 가이드북」·「다른 프로그램」). `/`(첫 화면, 누구나) · `/guide`(가이드북, 누구나) · `/test`(20문항)·`/test/full`(60문항)·`/result/[type]`(결과) — 뒤 세 화면은 `middleware.ts` 로그인 + `requireProgramAccess()` · `/login`·`/signup`(가입은 AIMaster로 안내) · `/api/og`(공유용 그림).
+- 필요한 키·연동(회원 본인 것): 없음. AI 호출·`resolveApiKey`·OAuth 없음. 카카오톡 공유는 `components/KakaoScript.tsx`의 사이트 공용 자바스크립트 키(공유 버튼용, 회원 계정 연동 아님).
+- 자동 실행(예약·정리)·확장: 없음(`vercel.json` 없음, `extension/` 없음). 검사 답·결과를 DB에 저장하지 않으므로 30일 정리 대상 데이터도 없음.
+- 최근 변경(커밋 기준): `1def2373a`·`9810804f1` 저작권 고지(NOTICE·ai.txt·robots.txt) / `c6fa194c8` 「이어서 보기」 링크를 공용 기준 코드 사본(`lib/programLinks.ts`)으로(미배포) / `c3b08283a` v1.21 결과 → 캐릭코드·타로점 연결 / `08eecdd3b` v1.20 디자인 리뉴얼·가이드북 신설.
+- 미배포 대기·남은 일: 공용 사본 `programLinks.ts` 전환(결과 같음) · 이번 매뉴얼 문구 수정 · 정책 3건(저장공간 위젯 한 줄, `signOut({ scope: "local" })`, 서버 로그인 기기 정보) — 상세 `docs/IMPROVEMENTS.md` 2026-11-13.
+- 다음에 손댈 때 주의: `lib/programLinks.ts`는 공용 사본이라 직접 고치지 않음(기준 `personality-suite/src/lib/programLinks.ts` → `--sync`). `lib/access.ts` 판정 순서는 고치지 않음. 결과 지표(%)는 주소 값이라 0~100 제한만 하고 믿지 않음. 로그아웃 함수(`lib/actions/auth.ts` `signOutAction`)는 있지만 화면에 버튼이 없음.
+- 이번 점검에서 고친 것: 매뉴얼(`app/guide/page.tsx`) — 「카드 이미지 저장·인스타 스토리 공유」처럼 실제에 없는 문구를 카카오톡 공유·링크 복사로 고침, 「시작 전 준비」 상자와 FAQ 3개(로그인·비용/API 키·PC+모바일 로그인) 추가, 개인정보 안내를 코드대로(답은 저장 안 함, 주소에 유형·지표만) 정정. 설정 화면 링크 버튼: 해당 없음(AI 키를 쓰지 않아 설정 화면 없음). (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
 ## 2026-10-20 (버전 변경 없음·미배포) — 「이어서 보기」 링크를 공용 기준 코드 사본으로 (Claude Code 윈도우)

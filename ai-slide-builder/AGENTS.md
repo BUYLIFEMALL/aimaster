@@ -1,5 +1,16 @@
 # AI 슬라이드 자동화 (ai-slide-builder) — 인수인계 및 작업 지침
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 `v1.12`(`src/lib/version.ts`) · 운영 주소: https://ai-slide-builder.buylife.xyz (아래 머리말의 `v1.10`은 2026-10-19 기준 옛 값)
+- 한 줄 정의: 원고·문서를 넣으면 회원 본인 Gemini 키로 슬라이드 구성안(JSON)을 만들고, 카드로 고친 뒤 브라우저에서 16:9 PPTX로 내려받는 프로그램.
+- 화면·메뉴(실제 코드 기준): 한 화면 스튜디오 `/`(왼쪽 = 형식 선택·웹 검색 체크·C-Suite 설정·파일 올리기·업무 워크스페이스 받은 원고·원문 칸·「🤖 AI로 구성안 만들기」·JSON 칸 / 오른쪽 = 슬라이드 카드 편집·카드별 AI 수정·전체 일괄 AI 수정·16:9 미리보기 / 아래 = PPTX 다운로드·Google 슬라이드 생성기(바깥 Apps Script 링크)·Gemini 링크), 매뉴얼 `/guide`, 로그인 `/login`. 사이드바: 생성 형식 3개, 작업 흐름 안내, 「API키등록·플랫폼연동」(창), 「연동 & 사용 매뉴얼」. API: `/api/generate`·`/api/analyze`·`/api/regenerate`·`/api/keys`·`/api/work-inbox/received`·`/api/auth/logout`.
+- 필요한 키·연동(회원 본인 것): Gemini 키 하나(`user_api_keys` provider `gemini`, `src/lib/apiKeys.ts`). 모델 `gemini-3.8-flash` 고정(`src/lib/gemini.ts:12`). 외부 계정 연동(OAuth) 없음.
+- 자동 실행(예약·정리)·확장: 없음(`vercel.json` 없음, `extension/` 없음). **만든 슬라이드는 서버·DB·브라우저 저장소 어디에도 저장하지 않는다**(화면 상태뿐 — 새로 고침하면 사라짐). 그래서 30일 정리 대상 자료도 없다.
+- 최근 변경(커밋 기준): `4a25c2aee` v1.12(업무 워크스페이스 받은 원고 U9-B + 모델·사이드바·키 문구 대기분) · `7de7fb4f5` 받은 원고를 원문 칸에 넣기 · `0672e4e43` `gemini-2.5-flash` → `gemini-3.8-flash` · `b16550ad4` 확인 안 된 암호화 문구 삭제 · `0aac6f993` Next.js 보안 업데이트(v1.11) · `9810804f1`/`1def2373a` 저작권 고지·검색 로봇 허용.
+- 미배포 대기·남은 일: 저장공간 위젯 한 줄 미적용, 범위 없는 `signOut()` 2곳(`src/app/api/auth/logout/route.ts`, `src/lib/actions/auth.ts`), 서버 Supabase 클라이언트 로그인 기기 정보 미전달(`node scripts/pending-check.mjs ai-slide-builder` 2026-11-13 결과). 이번 점검의 매뉴얼·설정 창 수정도 미배포.
+- 다음에 손댈 때 주의: 권한 판정(`src/lib/programAccess.ts`·`src/lib/access.ts`)이 표준 순서와 다르다 — 관리자·핸드폰·구독·등급 확인이 없고 사용기간이 빈(무기한) 부여를 차단으로 본다. PPTX 생성기(`src/lib/pptxGenerator.ts`)는 8개 종류만 전용 모양이고 나머지는 목록으로 들어가며 일부는 본문이 빠진다. 상세는 `docs/IMPROVEMENTS.md` 「2026-11-13 전체 점검」.
+- 이번 점검에서 고친 것: 매뉴얼 `/guide`(옛 버전 표시·없는 버튼 이름·확인 안 되는 50MB·글꼴 안내 정정, 받은 원고·웹 검색·비용이 드는 버튼·저장 안 됨·PPTX 모양 한계·FAQ 3개 추가), 설정 창에 Gemini 「📖 발급 방법」 버튼 추가·옛 모델 이름 삭제, 사이드바·첫 화면의 `v1.10` 고정 표시를 `APP_VERSION`으로 (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > **공식 서비스 URL**: https://ai-slide-builder.buylife.xyz  
 > **현재 버전**: `v1.10` (플로우 위저드 스타일 — 단계별 슬라이드 기획 에디션)  
 > **작업 일자**: 2026-10-19  

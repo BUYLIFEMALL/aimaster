@@ -1,5 +1,16 @@
 # AI 종합 성격 진단 자동화 (personality-suite) — 작업 지침 (v1.27)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.29(`src/lib/version.ts`; `package.json`은 1.27.0으로 뒤처져 있음, 이 문서 제목의 v1.27도 옛 값) · 운영 주소: https://personality-suite.buylife.xyz (slug `personality-suite`).
+- 한 줄 정의: 16종 검사(상황별 16유형 10종·심리 성격 5종·마음 상태 자기점검 1종)를 한 문항씩 풀어 점수·기본 해석을 바로 보고, 회원 본인 Gemini 키로 AI 심층 분석과 여러 검사를 묶은 종합 프로필을 받는 프로그램.
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 작업 흐름 1 검사하기(`/dashboard` → `/test/[id]`) · 2 내 결과(`/history` → `/result/[id]`) · 3 종합 프로필(`/profile`, 검사별 반영 비중 + 시기별 변화 추이) · 📖 연동 & 사용 매뉴얼(`/guide`) · 🔑 API키등록·플랫폼연동(`/settings`) · 계정·로그아웃. 그 밖에 `/login`·`/setup`.
+- 필요한 키·연동(회원 본인 것): Gemini 키 1개(`user_api_keys` provider `gemini`) — `/api/analyze`·`/api/profile`·`/api/keys/test`에서만 사용, 없으면 `needKey` 안내(폴백 없음). 검사 제출(`/api/submit`)·기본 해석은 AI 없음. 외부 계정 연동(OAuth) 없음.
+- 자동 실행(예약·정리)·확장: 없음(`vercel.json`에 crons 없음, `extension/` 없음). 결과는 회원당 최근 100개만 유지(`src/lib/results.ts` `MAX_RESULTS`, 저장할 때 초과분 삭제). **날짜 기준 30일 정리는 없음.**
+- 최근 변경(커밋 기준): `bf686b2b0` 저장공간 위젯 한 줄 추가 / `d1e710d68` 권한 판정 조회 병렬화(판정 같음) / `d62cc7265` 모델 교체 배포 묶음 버전 올림 / `73e8ac110` 글 모델 `gemini-3.8-flash` → 실패 시 `gemini-3.5-flash-lite` / `b16550ad4` 확인 안 된 암호화 문구 삭제 / `d81b9bef4` v1.28 Next.js 보안 갱신.
+- 미배포 대기·남은 일: `pending-check` 기준 — 글 모델 실패 대비 목록 변경, 「이어서 보기」 공용 링크 전환, `signOut({ scope: "local" })` 1곳(`src/app/api/auth/logout/route.ts`) + 이번 매뉴얼·키 화면 수정. 운영에 실제로 나간 버전은 이 폴더만으로는 미확인(부모 세션 확인: 운영 DB v1.29).
+- 다음에 손댈 때 주의: Tailwind 미설치 — 화면은 `src/app/globals.css`의 `ps-*` 클래스와 토큰만. `src/lib/programLinks.ts`는 공용 기준(여기를 고치면 `--sync`로 사본 3곳 반영). 마음 상태 자기점검은 `save:true`일 때만 저장, AI 분석·종합 프로필·변화 그래프·결과 이미지에서 제외. 상표·공식 검사 이름을 제목·소개에 쓰지 않음(단위 테스트가 검사).
+- 이번 점검에서 고친 것: 매뉴얼(`src/app/(workspace)/guide/page.tsx`) — 없는 기능(레이더 차트)·「무료 티어·100% 무료」·「암호화 보관」 문구 정정, 검사 표의 AI 분석 칸에서 마음 상태 점검을 「제외」로, FAQ 5개를 실제 버튼 이름으로 다시 쓰고 4개 추가(보관 100개·이어서 보기·균형 구간·PC+모바일 로그인). 설정 화면(`src/components/workspace/KeyManager.tsx`) — 다른 프로그램에서 복사된 「글 생성·초안 생성」 문구를 이 프로그램 기능으로 고치고, Gemini 키 칸 바로 아래에 [📖 발급 방법 (팝업)] 버튼 추가. (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > 📌 2026-10-20 인수인계: [`docs/IMPROVEMENT_HANDOFF_20261020.md`](docs/IMPROVEMENT_HANDOFF_20261020.md) · 세션 전체 [`docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md`](../docs/HANDOFF_CLAUDE_SESSION_2026-10-20_PERSONALITY_TAROT.md)
 
 ## 2026-10-20 (버전 변경 없음·미배포) — 「이어서 보기」 링크 공용 기준 코드 `personality-program-links` (이 폴더가 기준, Claude Code 윈도우)

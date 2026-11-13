@@ -1,5 +1,17 @@
 # AI 웹툰 자동화 (`ai-webtoon-studio`) AI 에이전트 인수인계 문서 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 `v1.32`(`src/lib/version.ts`, 운영 DB도 v1.32 — 부모 세션 확인값) · 운영 주소: https://ai-webtoon-automation.buylife.xyz (옛 `ai-webtoon-studio.buylife.xyz` 병행, 이 문서 1절 기준) · slug `ai-webtoon-studio`.
+- 한 줄 정의: 줄거리 한 줄에서 시놉시스 → 캐릭터 시트(최대 3명) → 컷별 콘티 → 표지·컷 그림까지 회원 본인 Gemini 키로 만들고, 세로 롱스크롤 JPG·ZIP으로 내려받거나 본인 인스타그램에 컷 캐러셀로 게시·예약하는 프로그램입니다.
+- 화면·메뉴(실제 코드 기준): 라우트는 `/` 하나이고 탭으로 바뀝니다(`src/components/StudioWorkspace.tsx`). 사이드바(`Sidebar.tsx`) = 대시보드 메인 → 연동 & 사용 매뉴얼(`GuideSection.tsx`) → STEP 1 기획 & 시놉시스(`ProjectSection`) → STEP 2 캐릭터 시트 설정(`CharacterSection`) → STEP 3 시나리오 콘티 생성(`ScriptEditorSection`) → STEP 4 웹툰 제작 & 뷰어(`WebtoonCanvasSection`) → 프로젝트 저장 (JSON) / 프로젝트 불러오기 → API키등록·플랫폼연동(창 `SettingsModal` + `ScheduleSettings`). STEP 4 아래에 「인스타그램에 게시 (컷 캐러셀)」(`InstagramPublishPanel`: 지금/예약, 최대 10장, 미리보기, 게시 기록·예약 취소, 「여러 회차 한 번에 예약」 `EpisodeBatchSchedule`), 화면 위쪽에 공지 띠·「예약 n건 대기」·「최근 7일 게시」 그래프가 있습니다.
+- 필요한 키·연동(회원 본인 것): Gemini 키(`user_api_keys` provider `gemini`, 서버에서만 읽음 `src/lib/serverAi.ts` — 운영자 키 폴백 없음), 인스타그램 연결(INSTA 포스팅 자동화에서 한 번 연결한 공용 계정), 선택으로 cron-job.org 키.
+- 자동 실행(예약·정리)·확장: `vercel.json` crons `/api/instagram/dispatch` 5분마다(예약 게시 + 게시 기록 30일 정리 `src/lib/instagram/posting.ts` `cleanupOldPosts`), 회원 cron-job.org용 `/api/instagram/dispatch-member`. 크롬 확장 없음. 원고(시놉시스·콘티·그림)는 서버가 아니라 회원 브라우저 `localStorage`에 저장됩니다(`src/lib/storage.ts`).
+- 모델: 글 `gemini-3.8-flash` 고정(`src/lib/serverAi.ts:22`), 그림 `/api/ai/image`(공용 사본 `geminiImage.ts`, 1K·120초·재시도 0, `src/app/api/ai/image/route.ts:38-40`). 그림이 실패하면 브라우저가 외부 무료 서비스(Pollinations) 그림으로 대신 넣고 원인을 알립니다(`src/lib/imageGen.ts:89-103`).
+- 최근 변경(커밋 기준): `bf686b2b0` 저장공간 위젯 한 줄 / `1def2373a`·`9810804f1` 저작권 고지·robots / `d1e710d68` 권한 판정 조회 병렬화 / `d62cc7265` v1.32 버전 올림(모델 교체 묶음) / `184f3f2ca` 글 모델 gemini-2.5-flash → gemini-3.8-flash, 설정 옛 값 변환 / `fbeae5f8a` Next.js 보안 업데이트(v1.31).
+- 미배포 대기·남은 일: `node scripts/pending-check.mjs ai-webtoon-studio` 결과 — 범위 없는 `signOut()` 1곳(`src/app/api/auth/logout/route.ts:6`), 루트 `docs/PENDING_DEPLOYS.md`의 모델 교체 대기 줄 1건(다른 배포 때 함께). 개선 제안은 `docs/IMPROVEMENTS.md` 맨 아래 2026-11-13 섹션.
+- 다음에 손댈 때 주의: 설정 창의 「텍스트 모델」「이미지 생성 모델」 선택 값은 브라우저에만 저장되고 실제 호출 코드 어디에서도 읽지 않습니다(이번 점검 `grep` 기준) — 고를 수 있어 보이지만 결과는 같습니다. `geminiImage.ts`·`nanoBananaModels.ts`·`ProgramNoticeBanner.tsx`·`instagram/*` 대부분은 공용 사본이라 직접 고치지 않습니다(`instagram/posting.ts`는 이 프로그램이 기준). 매뉴얼은 별도 주소가 아니라 탭입니다.
+- 이번 점검에서 고친 것: 매뉴얼 `src/components/GuideSection.tsx`(「시작 전 준비」 3칸과 「인스타그램에 올리기」 섹션 추가, 「키는 브라우저 로컬 스토리지에만 보관」이라던 틀린 안내를 계정 서버 보관으로 수정, 무료 대체 그림 설명을 실제 동작대로 수정, 없는 버튼 이름 「이 컷 다시 생성」을 「이 컷 재생성」으로 수정, 원고가 브라우저에만 저장된다는 안내와 질문 4개 추가), 설정 창 `src/components/SettingsModal.tsx`(Gemini 「📖 발급 방법」 링크 추가). (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > # ★★★ 최상위 절대 불변 규칙 (2026-10-09 주인님 지시)
 > **모든 사용자는 본인의 계정과 본인 API 키(Google Gemini)를 각각 직접 등록·연동해서 사용한다.**
 > 운영자(주인님)나 타인의 키로 대신 처리하지 않으며, 키가 없으면 "본인 키를 등록해주세요"로 안내한다. 상세: 루트 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`.

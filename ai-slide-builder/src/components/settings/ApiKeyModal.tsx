@@ -131,8 +131,16 @@ export default function ApiKeyModal({ isOpen, onClose, onKeySaved }: ApiKeyModal
                 발급받기 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
+            <a
+              href="https://www.buylife.xyz/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 font-bold text-[11px]"
+            >
+              📖 발급 방법 (그림으로 보는 매뉴얼) <ExternalLink className="w-3 h-3" />
+            </a>
             <p className="text-slate-500 leading-relaxed text-[11px]">
-              • Gemini 2.5 Flash 기반 프레젠테이션 자동 생성을 위해 회원 본인의 API 키가 필요합니다.
+              • Gemini 기반 프레젠테이션 자동 생성을 위해 회원 본인의 API 키가 필요합니다.
               <br />
               • 개인 키는 회원 본인의 프레젠테이션 생성에만 안전하게 사용됩니다.
             </p>

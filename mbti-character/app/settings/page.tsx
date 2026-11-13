@@ -40,18 +40,23 @@ export default async function SettingsPage() {
         <div className="mb-4">
           <h2 className="text-sm font-bold text-slate-100">🎨 AI 캐릭터 이미지 생성</h2>
           <p className="text-xs text-slate-400">
-            검사 결과 화면에서 스타일(귀여운/실사/애니메이션풍/수채화)을 골라 나만의 캐릭터
-            일러스트를 만들 수 있습니다.
+            검사 결과 화면에서 스타일(귀여운 캐릭터/실물 캐릭터/귀여운 동물 캐릭터/애니메이션풍/수채화
+            일러스트)을 골라 나만의 캐릭터 일러스트를 만들 수 있습니다.
           </p>
         </div>
         <div className="space-y-3">
           {AI_PROVIDERS.map((provider) => (
-            <ApiKeyRow
-              key={provider}
-              provider={provider}
-              label={PROVIDER_LABELS[provider]}
-              maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
-            />
+            <div key={provider}>
+              <ApiKeyRow
+                provider={provider}
+                label={PROVIDER_LABELS[provider]}
+                maskedValue={keyMap.has(provider) ? maskApiKey(keyMap.get(provider)!) : null}
+              />
+              {/* 2026-11-13: 키 입력 칸 바로 아래에도 발급 방법 버튼(맨 아래 「연동 매뉴얼」 상자와 같은 글) */}
+              <div className="mt-2">
+                <GuideLinkButton guideId={GUIDE_LINKS[0].guideId} label={GUIDE_LINKS[0].label} />
+              </div>
+            </div>
           ))}
         </div>
       </section>

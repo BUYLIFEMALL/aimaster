@@ -11,6 +11,7 @@ import ApiKeyModal from "@/components/settings/ApiKeyModal";
 import SlidePreviewModal from "@/components/studio/SlidePreviewModal";
 import { PromptFormat, BaseSlide } from "@/lib/types";
 import { exportToPptx } from "@/lib/pptxGenerator";
+import { APP_VERSION } from "@/lib/version";
 
 interface SlideBuilderAppProps {
   initialUserEmail?: string | null;
@@ -96,7 +97,7 @@ export default function SlideBuilderApp({ initialUserEmail }: SlideBuilderAppPro
               <div className="max-w-3xl">
                 <div className="hero-badge">
                   <span>✨</span>
-                  <span>AI SLIDE BUILDER · FLOW WIZARD v1.10</span>
+                  <span>AI SLIDE BUILDER · FLOW WIZARD {APP_VERSION}</span>
                 </div>
                 <h1 className="hero-title">
                   원고만 넣으면 완성되는 <span className="gradient-text">단계별 AI 슬라이드 제작</span>

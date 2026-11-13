@@ -3,6 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { getUserApiKey, PROVIDER_LABELS, maskApiKey } from "@/lib/apiKeys";
 import { ApiKeyRow } from "@/components/settings/ApiKeyRow";
 import { StylePreferencePicker } from "@/components/StylePreferencePicker";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 import { APP_VERSION } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
@@ -174,7 +175,7 @@ export default async function LandingPage() {
                   AI 캐릭터 일러스트 연동 설정
                 </h3>
                 <p className="text-xs text-slate-400">
-                  본인의 Gemini API 키를 등록하면 결과 화면에서 고유 화풍 일러스트를 무제한 생성할 수 있습니다.
+                  본인의 Gemini API 키를 등록하면 결과 화면에서 고른 화풍으로 캐릭터 그림을 만들 수 있습니다(1장마다 본인 키 요금).
                 </p>
               </div>
             </div>
@@ -195,6 +196,9 @@ export default async function LandingPage() {
               label={PROVIDER_LABELS.gemini}
               maskedValue={geminiKey ? maskApiKey(geminiKey) : null}
             />
+            <div className="mt-2">
+              <GuideLinkButton guideId="f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" label="Google Gemini API 키 발급받기" />
+            </div>
             <div className="mt-4 pt-3 border-t border-[#2a1f4e]">
               <div className="text-xs font-bold text-slate-300 mb-2">
                 🎨 선호하는 AI 캐릭터 일러스트 화풍 선택

@@ -54,6 +54,50 @@ const FEATURES = [
       "「머리를 조금 더 밝게」처럼 적으면 직전 화보를 참고해 이어서 고쳐요.",
     ],
   },
+  {
+    icon: "📤",
+    title: "인스타그램에 게시 · 예약",
+    points: [
+      "화보가 나오면 결과 아래 「인스타그램에 게시」에서 사진(최대 10장, 2장 이상이면 넘겨 보는 캐러셀)과 캡션을 골라요.",
+      "「지금 게시」는 바로 공개로 올리고, 「예약 게시」는 한국 시간으로 10분 뒤부터 60일 안의 시각을 정해 두면 그때 자동으로 올라가요.",
+      "인스타 피드 비율(4:5~1.91:1)을 벗어난 사진은 가운데 기준으로 잘라 올려요.",
+      "같은 칸에서 최근 게시 기록을 보고 대기 중인 예약을 취소할 수 있고, 결과 화면 위쪽에 「인스타 예약 n건 대기」와 「최근 7일 게시」 그래프가 보여요.",
+    ],
+  },
+  {
+    icon: "🗂️",
+    title: "작업 히스토리 · 화질",
+    points: [
+      "만든 화보·캡션·글자 설정은 왼쪽 「작업 히스토리」에 자동으로 쌓이고, 눌러서 다시 불러올 수 있어요.",
+      "올린 얼굴·장소·상품 사진은 히스토리에 저장하지 않아요. 다시 쓰려면 사진을 다시 올려 주세요.",
+      "화보 비율과 화질(1K·2K·4K)은 5단계에서 골라요. 화질이 높을수록 본인 키 요금이 더 나와요.",
+    ],
+  },
+];
+
+// 처음 쓰는 회원이 막히는 지점 — 무엇이 필요하고 어디서 하는지
+const PREP = [
+  {
+    icon: "🔑",
+    title: "Gemini API 키 (꼭 필요)",
+    desc: "왼쪽 「API키등록·플랫폼연동」을 눌러 본인 Gemini 키를 붙여 넣고 저장해요. 화보·캡션·일과 기획이 모두 이 키로 만들어져요.",
+    href: "https://www.buylife.xyz/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
+    linkLabel: "📖 Gemini 키 발급 방법",
+  },
+  {
+    icon: "📸",
+    title: "인스타그램 연결 (게시할 때만)",
+    desc: "인스타에 올리려면 「INSTA 포스팅 자동화」 설정에서 본인 인스타그램 계정을 한 번 연결해요. 연결해 두면 이 프로그램에서 그대로 써요.",
+    href: "https://www.buylife.xyz/guides/6cdae259-b9d2-45ae-9c21-e5f498f78956",
+    linkLabel: "📖 인스타그램 연동 방법",
+  },
+  {
+    icon: "⏰",
+    title: "예약 실행 방식 (선택)",
+    desc: "기본값은 사이트가 5분마다 확인해 올리는 방식이라 따로 할 일이 없어요. 본인 cron-job.org 키를 같은 설정 창에 넣으면 1분마다 확인하는 방식으로 바꿀 수 있어요.",
+    href: "",
+    linkLabel: "",
+  },
 ];
 
 const FAQ = [
@@ -63,7 +107,7 @@ const FAQ = [
   },
   {
     q: "만든 화보는 어디에 저장되나요?",
-    a: "왼쪽 「작업 히스토리」에 지금 쓰는 브라우저에만 저장돼요. 다른 기기에서는 보이지 않고 브라우저 데이터를 지우면 사라지니, 마음에 드는 화보는 바로 내려받아 두세요.",
+    a: "왼쪽 「작업 히스토리」에 회원님 계정으로 저장돼서 다른 PC·브라우저에서 로그인해도 보여요. 최근 30개까지, 만든 날부터 30일 동안 보관하고 그 뒤에는 자동으로 지워져요(인스타에 올린 화보도 같아요). 오래 두고 쓸 화보는 「화보 다운로드」로 내려받아 두세요.",
   },
   {
     q: "실제 사람 사진을 올려도 되나요?",
@@ -72,6 +116,18 @@ const FAQ = [
   {
     q: "광고 화보를 그대로 올려도 되나요?",
     a: "AI로 만든 이미지라는 점과 광고·협찬 사실을 게시물에 표시해 주세요. 상품 정보와 할인 내용은 올리기 전에 직접 확인하세요.",
+  },
+  {
+    q: "인스타그램에 게시하려면 무엇이 필요한가요?",
+    a: "본인 인스타그램 계정 연결이 필요해요. 결과 아래 「인스타그램에 게시」 칸에 「아직 연결된 계정이 없어요」가 보이면 「INSTA에서 연결하기」를 눌러 INSTA 포스팅 자동화 설정에서 한 번 연결하세요. 연결이 끝나면 이 칸에 「연결됨 @계정」이 보이고 바로 게시·예약할 수 있어요.",
+  },
+  {
+    q: "예약한 글이 정한 시각에 안 올라가요.",
+    a: "기본 방식은 예약 시각 뒤 5분 안에, 「내 cron-job.org」 방식은 1분 안에 올라가요. 일시적인 오류면 10분 뒤 한 번 더 시도해요. 「인스타그램에 게시」 칸의 게시 기록에서 「실패」와 사유를 확인하고, 인스타그램 연결이 만료됐다면 INSTA 포스팅 자동화에서 다시 연결해 주세요.",
+  },
+  {
+    q: "PC와 휴대폰에서 같이 쓸 수 있나요?",
+    a: "같은 계정으로 PC 1곳과 모바일 1곳에서 동시에 쓸 수 있어요. 같은 종류의 기기에서 새로 로그인하면 그 종류의 이전 로그인만 끊겨요.",
   },
 ];
 
@@ -85,7 +141,7 @@ export function GuideView({ onStart }: { onStart: () => void }) {
           <h1 className="mt-3 text-2xl font-extrabold text-if-text">
             5단계로 만드는 <span className="if-gradient-text">AI 인플루언서 화보</span>
           </h1>
-          <p className="mt-2 text-sm text-if-muted">본인 Gemini 키만 등록하면 바로 시작할 수 있어요.</p>
+          <p className="mt-2 text-sm text-if-muted">본인 Gemini 키만 등록하면 화보를 만들 수 있고, 인스타그램 계정을 연결하면 게시·예약까지 이어서 할 수 있어요.</p>
           <button
             type="button"
             onClick={onStart}
@@ -104,6 +160,25 @@ export function GuideView({ onStart }: { onStart: () => void }) {
             </p>
           </div>
         </div>
+
+        <section className="if-card">
+          <h2 className="if-section-title">🧰 시작 전 준비</h2>
+          <div className="grid gap-3 md:grid-cols-3">
+            {PREP.map((p) => (
+              <div key={p.title} className="flex flex-col rounded-xl border border-if-border bg-if-raised p-4">
+                <p className="text-sm font-bold text-if-text">
+                  {p.icon} {p.title}
+                </p>
+                <p className="mt-2 flex-1 text-xs leading-relaxed text-if-muted">{p.desc}</p>
+                {p.href && (
+                  <a href={p.href} target="_blank" rel="noopener noreferrer" className="mt-3 text-xs font-semibold text-pink-400 hover:underline">
+                    {p.linkLabel}
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="if-card">
           <h2 className="if-section-title">🧭 사용 순서</h2>
@@ -155,7 +230,8 @@ export function GuideView({ onStart }: { onStart: () => void }) {
             <p className="text-sm font-bold text-if-warn">⚠️ 꼭 알아 두세요</p>
             <ul className="mt-2 list-inside list-disc space-y-1 text-xs leading-relaxed text-if-text">
               <li>Gemini 키는 회원님 <b>본인 것</b>만 사용해요(운영자 키 대신 사용 없음).</li>
-              <li>「이미지 생성」을 누를 때마다 본인 키로 요금이 나가요.</li>
+              <li>「이미지 생성」, 캡션 「다시 작성」, 일과 기획을 누를 때마다 본인 키로 요금이 나가요.</li>
+              <li>「지금 게시」와 예약은 본인 인스타그램에 <b>공개</b>로 올라가요. 확인 칸에 체크하기 전에 사진과 캡션을 한 번 더 보세요.</li>
               <li>다른 사람의 얼굴·상표는 허락 없이 쓰지 마세요.</li>
             </ul>
           </div>

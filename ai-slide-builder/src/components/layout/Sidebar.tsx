@@ -72,7 +72,7 @@ export default function Sidebar({
                 {APP_NAME}
               </h1>
               <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded-full font-mono">
-                v1.10
+                {APP_VERSION}
               </span>
             </div>
             <p className="text-[10.5px] font-medium text-slate-500 mt-0.5">

@@ -168,7 +168,8 @@ export function SettingsModal({
               </p>
             )}
             <p className="text-[11px] text-slate-400 mt-0.5">
-              키가 없으신 경우 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-400 underline font-semibold">Google AI Studio</a>에서 무료 발급받으실 수 있습니다.
+              키가 없으신 경우 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-400 underline font-semibold">Google AI Studio</a>에서 무료 발급받으실 수 있습니다.{" "}
+              <a href="https://www.buylife.xyz/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" target="_blank" rel="noopener noreferrer" className="text-indigo-400 underline font-semibold">📖 발급 방법</a>
             </p>
           </div>
 

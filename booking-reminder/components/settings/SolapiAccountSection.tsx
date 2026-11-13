@@ -8,6 +8,7 @@ import {
   saveSolapiAccountAction,
   testSolapiSmsAction,
 } from "@/lib/actions/solapiAccount";
+import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 
 export interface SolapiAccountData {
   api_key: string;
@@ -109,6 +110,9 @@ export function SolapiAccountSection({ account }: { account: SolapiAccountData |
         쓰려면 브랜드 인증 ID(brandId)를 함께 등록해야 합니다(SMS만 쓸 거면 둘 다 비워둬도
         됩니다).
       </p>
+      <div>
+        <GuideLinkButton guideId="eb8f5eaf-6ef7-46b8-9b05-994e944fe69a" label="SOLAPI API 키 발급 방법" />
+      </div>
 
       {account && !isEditing ? (
         <div className="space-y-3 rounded-xl bg-gray-50 p-4">

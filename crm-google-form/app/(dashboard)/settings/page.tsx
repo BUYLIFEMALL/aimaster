@@ -75,7 +75,10 @@ export default async function SettingsPage() {
 
       <section className="glass-card space-y-4 rounded-2xl border border-mx-border bg-mx-surface p-6 shadow-sm">
         <div>
-          <h2 className="text-lg font-bold text-mx-text">📧 이메일(SMTP) 발송 계정</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-bold text-mx-text">📧 이메일(SMTP) 발송 계정</h2>
+            <GuideLinkButton guideId="1dbea19b-4c83-4453-ae41-0b59d7f27b5f" label="네이버 메일(SMTP) 연동 방법" />
+          </div>
           <p className="text-sm text-mx-muted">
             신청자에게 접수 확인 이메일을 보낼 계정입니다. 플랫폼별로 여러 개 등록할 수 있어요.
           </p>
@@ -95,7 +98,10 @@ export default async function SettingsPage() {
 
       <section className="glass-card space-y-4 rounded-2xl border border-mx-border bg-mx-surface p-6 shadow-sm">
         <div>
-          <h2 className="text-lg font-bold text-mx-text">📱 텔레그램 연동</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-bold text-mx-text">📱 텔레그램 연동</h2>
+            <GuideLinkButton guideId="f43e8ebe-a930-4933-b965-7068b38d79aa" label="텔레그램 봇 만드는 방법" />
+          </div>
           <p className="text-sm text-mx-muted">운영자 본인 텔레그램으로 신청 내역을 요약해서 받아보세요.</p>
         </div>
 

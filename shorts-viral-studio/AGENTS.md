@@ -7,6 +7,17 @@
 
 # shorts-viral-studio — 쇼츠 떡상 분석·대본 자동화 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v2.00(`src/lib/version.ts`) · 운영 주소: https://shorts-viral-studio.buylife.xyz
+- 한 줄 정의: 유튜브 쇼츠를 검색해 구독자 대비 조회수가 높은 영상을 고르고, AI로 성공 요인 분석 → 새 소재 6개 → 씬별 대본 → 이미지·영상·BGM 프롬프트 글까지 만드는 6단계 도구(이미지·영상·음악 자체는 만들지 않음).
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 홈(`/`, 프로젝트 목록) · 1 쇼츠 떡상 검색(`/search`) · 2 바이럴 구조 해체(`/analyze`, 최대 3개) · 3 킬러 소재 발굴(`/ideate`) · 4 주제·전략 확정(`/select`) · 5 대본(`/script`) · 6 비주얼 프롬프트(`/prompts`) · API키등록·플랫폼연동(`/settings`) · 연동 & 사용 매뉴얼(`/guide`) · 프롬프트 보관함(`/vault`). API 라우트는 없고 모두 서버 액션(`src/lib/actions/svs.ts`·`projects.ts`·`savedPrompts.ts`·`settings.ts`).
+- 필요한 키·연동(회원 본인 것, 공용 `user_api_keys`): `youtube_api_key`(검색 필수, 분석 때 댓글·설명 보조) · `gemini`/`openai`/`anthropic` 중 고른 엔진 1개. 키가 없으면 다른 키로 대신하지 않고 등록 안내 창을 띄움(`svs.ts:42-52`, `77-85`). 외부 계정 연동(OAuth) 없음.
+- 자동 실행(예약·정리)·확장: 예약 작업 없음(`vercel.json`에 crons 없음). 프로젝트 30일 정리는 홈의 프로젝트 목록을 불러올 때만 실행(`projects.ts:63-64`). 크롬 확장 없음.
+- 최근 변경(커밋 기준): `132d4b28c` v2.00 레드·화이트 디자인 배포 → `9810804f1`·`1def2373a` 저작권 고지·robots(미배포, 다음 배포 때 함께) · 그 전 `a5c6e7636` Next 보안 갱신(v1.16), `f055d6b70` 대본 → 썸네일 SEO 넘기기(v1.15), `cc3216914` 원스톱으로 넘기는 대사에 프로그램 이름(v1.14).
+- 미배포 대기·남은 일: `pending-check` 기준 좌측 메뉴 계정 위치(`22c6cda35`) 1줄이 대기로 남아 있음(v2.00 사이드바 재작성 뒤 실제로 이미 반영됐는지 화면 확인 필요 — 미확인). 공통 3건(저장공간 위젯 한 줄, 범위 없는 `signOut()` `src/lib/actions/auth.ts:44`, 서버 로그인 기기 정보) 미적용.
+- 다음에 손댈 때 주의: `src/lib/reference.ts`는 공용 `reference-copy-guard` 사본이라 직접 고치지 않음. 이 문서 아래 「2. 개발 구현」의 다크 테마 토큰 설명과 `README.md`의 v1.11 표기는 옛 내용(지금은 흰색·레드 테마 v2.00). 30일 정리에 예외 회원(`profiles.retention_exempt`) 제외가 아직 없음 — `docs/IMPROVEMENTS.md` 2026-11-13 절 참고.
+- 이번 점검에서 고친 것: 매뉴얼(`/guide`)에 「시작 전 준비」 카드 3장 추가, 단계 카드 6장을 실제 버튼 이름·한도에 맞게 수정(채널 검색 문구 삭제), FAQ 3개 수정(메뉴 이름·넘기기 버튼·보관 안내의 미확인 「암호화」 표현 삭제)과 2개 추가(분석 개수·비용, PC·모바일 로그인). 설정 화면 키 4종 항목마다 「📖 발급 방법」 버튼 추가. (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > **작업 전 필독:** 루트 `CLAUDE.md` / `AGENTS.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`를 먼저 읽는다. 이 문서는 이 프로그램 전용 인수인계다.
 
 | 항목 | 내용 |

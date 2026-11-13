@@ -1,5 +1,16 @@
 # 🤖 AI Agent 협업 가이드라인 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.28(`lib/version.ts`) · 운영 주소: https://booking-reminder.buylife.xyz
+- 한 줄 정의: 예약일시 기준 「몇 분/시간/일 전·후」 규칙으로 회원 본인 발송 계정(SOLAPI 문자·알림톡, SMTP 이메일)에서 리마인드를 자동 발송하는 프로그램.
+- 화면·메뉴(실제 코드 기준): 예약 관리 `/reservations`(예약 등록·📥 엑셀 일괄 등록·리마인드 규칙 `#rules`·예약 목록 `#list`·발송 일시정지/재개) · API키등록·플랫폼연동 `/settings` · 연동 & 사용 매뉴얼 `/guide`. 예약 상태 4가지(예약 대기·방문 완료·노쇼·예약 취소) 중 「예약 대기」만 발송 대상.
+- 필요한 키·연동(회원 본인 것): 공용 `user_solapi_accounts`(문자·알림톡·친구톡), `user_smtp_accounts`(이메일), `user_telegram_links`(프로그램별, **지금은 연동 확인 메시지만 — 리마인드 발송에 쓰지 않음**), `user_api_keys` provider `cronjob_org_api_key`(「내 cron-job.org」 방식일 때만). AI 키는 쓰지 않음.
+- 자동 실행(예약·정리)·확장: `vercel.json` cron `/api/cron/reminder` 15분마다(`CRON_SECRET`), 회원 실행 `/api/cron/dispatch-member`(회원 토큰). 핸드폰 미등록 회원(관리자 제외)·이용 권한 없는 회원 규칙은 건너뜀. **데이터 자동 삭제(30일 정리) 코드는 없음.** 크롬 확장 없음.
+- 최근 변경(커밋 기준): `55064fea0` v1.28 엑셀 일괄 등록·예약 시각 한국 시간 수정 / `36d0a4fdc` 공용 `solapi-client` 사본 등록·테스트 문구 속 다른 프로그램 이름 수정(미배포) / `d1e710d68` 권한 판정 조회 병렬화(미배포) / `9810804f1`·`1def2373a` 저작권 고지·robots(미배포).
+- 미배포 대기·남은 일: 위 미배포 3건 + 이번 점검 수정. 배포 때 저장공간 위젯 한 줄, `signOut({ scope: "local" })`, 서버 클라이언트 `User-Agent` 전달(pending-check 3건)도 함께.
+- 다음에 손댈 때 주의: **치환 태그는 `{name}`·`{time}` 두 개뿐**(`lib/booking/reminderDispatch.ts` `fillTemplate`). 실패한 리마인드는 재발송하지 않음. `lib/schedulerMember/memberScheduler.ts`·`lib/solapi/client.ts`·`lib/telegram/client.ts`는 공용 사본이라 직접 고치지 않음.
+- 이번 점검에서 고친 것: 매뉴얼 `/guide`(처음 쓰는 순서 4단계 추가, 치환 태그를 실제 동작하는 `{name}`·`{time}`으로 정정, 알림톡→문자 자동 전환·텔레그램 알림·30일 보존·건당 금액처럼 코드에 없는 설명 정정, FAQ 3개 추가), 규칙 입력 폼의 틀린 태그 안내 정정, 설정 화면 SMTP·SOLAPI·텔레그램 섹션 옆 매뉴얼 버튼 3개 추가 (미배포 — 다음 배포 때 버전 +0.01과 함께). 상세: `docs/IMPROVEMENTS.md` 맨 아래.
+
 이 문서는 **예약(취소)방지 리마인드 자동화(booking-reminder)** 프로젝트에서 AI Agent(Claude
 Code 등)가 협업할 때 준수해야 할 필수 가이드라인 및 규칙입니다.
 

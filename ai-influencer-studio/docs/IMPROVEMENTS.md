@@ -57,3 +57,28 @@
 
 ## 2026-10-23 Claude Code(윈도우) — Next.js 보안 업데이트 (세션 claude-win-20261023-next-security)
 - Next.js 16.4.2 보안 업데이트 배포 — **버전 파일이 작은따옴표라 버전이 v1.24 그대로 나감. 다음 배포 때 +0.01(코드+DB)(분담표 묶음 D)**. 상세·명령: [`docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md`](../../docs/HANDOFF_20261023_NEXTJS_SECURITY_SPLIT.md)
+
+## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
+### 1) 프로그램 로직·기능
+- **글 모델이 미리보기 이름** — 캡션·일과 기획·이벤트 변형이 `gemini-3-flash-preview`를 씁니다(`src/lib/gemini.ts:169·237·296`). `docs/AI_MODEL_CATALOG.md`는 미리보기 모델을 넣지 않는 모델로 봅니다. 영향: 모델이 종료되면 캡션·기획이 한꺼번에 멈춤. 우선순위 높음. 상태: 제안(모델 교체는 선택표 확인 뒤).
+- **코드 v1.25와 운영 DB v1.24 불일치** — `src/lib/version.ts` v1.25, DB `programs.version` v1.24. 문서에는 v1.25 배포 완료로 적혀 있으나 이번에 실제 배포를 확인하지 못했습니다. 영향: 메인 사이트 표시 버전과 프로그램 표시 버전이 다름. 우선순위 중간. 상태: 대기(부모 세션·담당이 배포 확인 뒤 DB 맞추기).
+- **「하루 일과 자동 예약」 꺼짐** — `src/lib/routineSchedule.ts:11` `ROUTINE_SCHEDULE_MODE = "off"`. 코드는 남아 있고 화면에는 안 보입니다. 우선순위 낮음. 상태: 대기(주인님 결정 사항, 기존 기록 v1.21과 같음).
+- 일과 플래닝 실패 등이 아직 `alert` 팝업입니다(`src/components/ControlPanel.tsx:219`) — 2026-10-19 제안과 같은 내용이라 다시 적지 않습니다.
+
+### 2) 화면·가독성·사용 편의
+- **설정 창에 인스타그램 연결 상태가 없음** — 메뉴 이름은 「API키등록·플랫폼연동」인데 창(`src/components/ApiKeyModal.tsx`)에는 Gemini 키와 예약 방식만 있고, 인스타 연결 여부는 화보를 만든 뒤 게시 칸(`src/components/InstagramPublishPanel.tsx:163-176`)에서야 보입니다. 영향: 처음 쓰는 회원이 연결이 필요한지 늦게 앎. 우선순위 중간. 상태: 제안(창 안에 「연결됨 @계정 / INSTA에서 연결하기」 한 줄 + 연동 매뉴얼 버튼). 이번에는 매뉴얼 화면의 「시작 전 준비」에 안내와 매뉴얼 링크만 넣었습니다.
+- **키 등록 창의 Gemini 키 지우기 없음** — 저장만 있고 삭제 버튼이 없습니다(`ApiKeyModal.tsx`, `/api/user-key`는 GET·POST). 우선순위 낮음. 상태: 제안.
+- 사이드바 5단계 설명이 「Gemini 3 Pro 화보」로 고정돼 있으나(`src/components/Sidebar.tsx:66`) 실제 기본 모델은 화질 선택에 따라 달라집니다. 우선순위 낮음. 상태: 제안(문구만).
+
+### 3) 다른 자동화 프로그램과 연계
+- 새로 찾은 것 없음. 기존 제안(인물사진 규격 저장 링크, 무료 사진 검색, 작업 워크스페이스 보내기)은 위 섹션들에 이미 있습니다.
+
+### 4) 매뉴얼과 실제 기능의 차이 (이번에 고친 것 / 남은 것)
+- 이번에 고침(미배포): 「만든 화보는 지금 쓰는 브라우저에만 저장」 → 실제는 계정 저장·최근 30개·30일(`src/app/api/history/route.ts:9-13`, v1.20부터). `src/components/GuideView.tsx` 질문 답변을 고쳤습니다.
+- 이번에 보탬(미배포): 인스타 지금 게시·예약 게시·게시 기록·예약 취소·7일 그래프, 화질(1K·2K·4K), 올린 사진은 히스토리에 저장되지 않음, 시작 전 준비(Gemini 키·인스타 연결·예약 방식), 로그인 기기 안내, 공개 게시 주의.
+- 남은 것: 폴더 루트 `MANUAL.md`(139줄)는 화면 매뉴얼과 따로 있는 문서라 이번에 대조하지 않았습니다(미확인). 우선순위 낮음.
+
+### 5) 정책 점검 (pending-check 결과: 고지·저장 위젯·로그아웃 범위·서버 로그인 기기 정보·30일 정리 예외 회원)
+- `node scripts/pending-check.mjs ai-influencer-studio` → 「대기 없음」. 저장공간 위젯 있음(`src/app/layout.tsx:20`), `signOut({ scope: "local" })` 적용(`src/app/api/auth/logout/route.ts:6`, `src/lib/actions/auth.ts`), 서버 `User-Agent` 전달 있음(`src/lib/supabase/server.ts:36`), `NOTICE` 있음.
+- **30일 정리에 예외 회원(`retention_exempt`) 조건 없음** — 폴더 전체에서 `retention_exempt`를 쓰는 곳이 없습니다. 작업 히스토리 정리(`src/app/api/history/route.ts:38-43`)와 게시 기록 정리(`src/lib/instagram/posting.ts:151-165` `cleanupOldPosts`, 공용 사본 `insta-posting`)가 관리자·시험 계정·저장 구독 회원 것도 30일에 지웁니다. 이 문서 맨 위 2026-11-11 안내의 「`retention_exempt` 회원 제외만 유지」와 맞지 않습니다. 우선순위 높음. 상태: 제안(히스토리 라우트는 이 프로그램에서, `posting.ts`는 기준 `ai-webtoon-studio`에서 고친 뒤 사본 동기화 — 인스타 담당께). 매뉴얼에는 코드대로 「30일 뒤 자동 삭제」로만 적었습니다.
+- 설정 창 링크: Gemini 「📖 발급 방법」 추가(이번에 고침, 미배포). cron-job.org는 매뉴얼 글 없음 — 기존 가입 링크와 3단계 설명만 유지.

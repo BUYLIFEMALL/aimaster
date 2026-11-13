@@ -1,5 +1,17 @@
 # AI 인플루언서 자동화 — AI 에이전트 인수인계 문서 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 `v1.25`(`src/lib/version.ts`) · 운영 주소: https://ai-influencer.buylife.xyz · slug `ai-influencer-studio`. **운영 DB `programs.version`은 `v1.24`**(부모 세션 확인값)로 코드와 다릅니다. v1.25는 커밋 `53cf1273d`(2026-11-13, 세션 `agy-win-inf-v1`, 보그 에디토리얼 디자인 개편 + 저장공간 위젯 + `signOut({ scope: "local" })` + 서버 `User-Agent` 전달)이고, 이 문서 머리말과 `docs/IMPROVEMENTS.md`에는 「배포 완료(`dpl_CDLgDPRuQNDztscJxdz7S2Rj1rXB`)」라고 적혀 있습니다. 실제 배포 여부는 이번 점검에서 확인하지 못했습니다(미확인). 루트 `docs/PENDING_DEPLOYS.md`에 v1.25 대기 줄은 없습니다 — 배포가 맞다면 DB 버전만 안 올린 상태입니다.
+- 한 줄 정의: 인물 외형·하루 일과·연출·상품 사진을 고르면 회원 본인 Gemini 키로 인플루언서 화보 1장과 인스타 캡션 3종을 만들고, 본인 인스타그램에 바로 게시하거나 예약하는 한 화면짜리 프로그램입니다.
+- 화면·메뉴(실제 코드 기준): 라우트는 `/`(작업 화면)와 `/login` 둘뿐입니다. 사이드바(`src/components/Sidebar.tsx`) = 대시보드(1단계로 스크롤) → 1 외형 스타일링 → 2 일과 & 앵글 기획 → 3 표정·포즈 & 연출 → 4 광고/공구 모드 → 5 화보 & 캡션 생성 → 🔑 API키등록·플랫폼연동(창 `ApiKeyModal` + 그 안 `ScheduleSettings`) → 📖 연동 & 사용 매뉴얼(화면 안 `GuideView`) → ⚙️ 작업 히스토리(서랍 `HistoryDrawer`). 결과 영역(`ImageDisplay`)에 「인스타 예약 n건 대기」(`ScheduledSummary`), 「최근 7일 게시」 그래프(`weekChart/InstaWeekPosts`), 캡션 탭·다시 작성, 이미지 미세 보정, 「인스타그램에 게시」(`InstagramPublishPanel`: 지금/예약, 최대 10장 캐러셀, 게시 기록·예약 취소)가 있습니다.
+- 필요한 키·연동(회원 본인 것): Gemini 키(`user_api_keys` provider `gemini`, `src/lib/apiKeys.ts` — 폴백 없음), 인스타그램 연결(공용 계정, INSTA 포스팅 자동화 설정에서 한 번 연결 — `src/lib/instagram/memberAccount.ts`), 선택으로 cron-job.org 키(provider는 `schedulerConfig.ts`의 `CRONJOB_PROVIDER`).
+- 자동 실행(예약·정리)·확장: `vercel.json` crons `/api/instagram/dispatch` 5분마다(예약 게시 + `cleanupOldPosts` 30일 정리), 회원 cron-job.org용 `/api/instagram/dispatch-member`. 작업 히스토리(`aif_history` + 비공개 버킷 `aif-history`)는 회원당 최근 30개·30일, 목록을 불러올 때 정리합니다(`src/app/api/history/route.ts`). 크롬 확장 없음.
+- 모델: 이미지 `gemini-nano-banana-2.1`·`gemini-3-pro-image` 등(공용 사본 `nanoBananaModels.ts`), 글(캡션·일과 기획)은 `gemini-3-flash-preview`(`src/lib/gemini.ts:169·237·296`).
+- 최근 변경(커밋 기준): `53cf1273d` v1.25 디자인 개편·저장 위젯·로그아웃 범위 / `1def2373a`·`9810804f1` 저작권 고지·robots / `d1e710d68` 권한 판정 조회 병렬화 / `b16550ad4` API 키 암호화 문구 삭제 / `9cc704270` Next.js 보안 업데이트 / `2dc19dac2` v1.24(7일 그래프·게시 뒤 썸네일 1장).
+- 미배포 대기·남은 일: `node scripts/pending-check.mjs ai-influencer-studio` 결과 「대기 없음」. 「🗓 하루 일과 자동 예약」은 `src/lib/routineSchedule.ts`의 스위치가 `"off"`라 화면에 보이지 않습니다. 개선 제안은 `docs/IMPROVEMENTS.md` 맨 아래 2026-11-13 섹션.
+- 다음에 손댈 때 주의: 이 문서 아래쪽 「0. 3번 클린 화이트 베이스」와 「1. 구조도(`HelpModal.tsx`, `version.ts v1.06`, 히스토리 로컬 스토리지)」는 옛 내용입니다 — 지금은 어두운 테마(`if-*` 토큰), `HelpModal` 없음, 히스토리는 DB 저장입니다. `nanoBananaModels.ts`·`geminiImage.ts`·`instagram/posting.ts` 등은 공용 사본이라 직접 고치지 않습니다. `package.json` 버전(`1.12.0`)은 회원 표시 버전과 다릅니다.
+- 이번 점검에서 고친 것: 매뉴얼 `src/components/GuideView.tsx`(「시작 전 준비」 3칸 추가, 인스타 게시·예약과 작업 히스토리·화질 기능 카드 추가, 「브라우저에만 저장」이라던 틀린 보관 안내를 계정 저장·30개·30일로 수정, 질문 3개 추가), 설정 창 `src/components/ApiKeyModal.tsx`(Gemini 「📖 발급 방법」 링크 추가). (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
 > **프로그램 버전**: `v1.25` (2026-11-13 보그 에디토리얼 디자인 전면 개편 배포 완료, `dpl_CDLgDPRuQNDztscJxdz7S2Rj1rXB`)  
 > **공식 커스텀 도메인**: [https://ai-influencer.buylife.xyz](https://ai-influencer.buylife.xyz)  
 > **프로그램 slug**: `ai-influencer-studio`  

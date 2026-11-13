@@ -137,7 +137,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </li>
               </ol>
               <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-900 text-[11px] font-medium">
-                💡 작업 내용은 이 브라우저에 자동으로 저장됩니다. 창을 닫았다 열면 이어서 할 수 있습니다.
+                💡 작업 내용은 이 브라우저에 자동으로 저장됩니다(한 번에 한 권). 창을 닫았다 열면 이어서 할 수 있습니다. 다른 PC에서 이어 쓰거나 「새 프로젝트」를 누르기 전에는 「배포 &amp; 내보내기」 맨 아래 <strong>프로젝트 JSON 백업</strong>으로 파일을 받아 두세요.
               </div>
             </section>
 
@@ -308,7 +308,10 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 eBook Studio는 <strong>회원 본인의 API 키(OpenAI·Claude·Gemini 중 고른 플랫폼)</strong>로만 동작합니다. 원문은 고른 AI에 안전하게 전송되며 다른 회원의 키나 운영자 키와 절대 섞이지 않습니다.
               </p>
               <p>
-                구글 AI 스튜디오에서 키를 발급받아 <strong>AI 연결 설정</strong>에 넣으세요. 표준 키(AIza...)와 신규 인증 키(AQ...)를 모두 지원하며 공백과 줄바꿈은 자동으로 정돈됩니다.
+                왼쪽 메뉴 맨 아래 <strong>🔑 API 키·모델 설정</strong>을 열어 먼저 모델을 고르고, 그 모델 플랫폼의 본인 키를 넣은 뒤 <strong>설정 저장</strong>을 누르세요. OpenAI·Claude 키는 본인 계정에만 저장되어 메인 사이트 「API 키 설정」에 등록한 키를 그대로 씁니다. Gemini 키는 구글 AI 스튜디오에서 발급받아 넣으며, <strong>API 키 연결 테스트</strong>로 바로 확인할 수 있습니다.
+              </p>
+              <p>
+                키가 필요한 단추는 <strong>AI 목차 제안</strong>, <strong>전자책 생성하기</strong>, <strong>이 장만 AI로 집필하기</strong>입니다. 누를 때마다 회원님 키로 AI 요금이 발생할 수 있습니다. 발급 방법은 설정 창의 <strong>📖 발급 방법</strong> 링크에서 볼 수 있습니다.
               </p>
             </section>
 
@@ -318,7 +321,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 09. 화면 다루기
               </h3>
               <p>
-                좌측에서 <strong>01 원본 문서</strong>, <strong>02 전자책 구성</strong>, <strong>03 실시간 뷰어</strong> 단계를 자유롭게 오갈 수 있으며, 우측의 뷰어는 모바일(375px), 태블릿(768px), 데스크톱 폭으로 반응형 전환을 지원합니다. 모든 변경 사항은 실시간으로 저장됩니다.
+                좌측 메뉴에서 <strong>자료 수집 &amp; 기획</strong>, <strong>목차 &amp; 챕터 집필</strong>, <strong>디자인 &amp; 표지</strong>, <strong>배포 &amp; 내보내기</strong> 네 단계를 자유롭게 오갈 수 있으며(<strong>전자책 생성하기</strong> 단추는 「디자인 &amp; 표지」 맨 아래에 있습니다), 우측의 뷰어는 모바일(375px), 태블릿(768px), 데스크톱 폭으로 반응형 전환을 지원합니다. 모든 변경 사항은 이 브라우저에 바로 저장됩니다.
               </p>
             </section>
 
@@ -329,7 +332,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               </h3>
               <ul className="space-y-2 list-disc pl-5 text-rose-700">
                 <li>
-                  <strong>스캔한 PDF:</strong> 글자가 이미지로 되어 있어 OCR이 필요합니다. 텍스트가 없는 스캔본은 읽지 못합니다.
+                  <strong>PDF·한글(HWP) 파일:</strong> 올릴 수 있는 파일은 TXT · MD · DOCX입니다. PDF나 한글 파일은 글자를 복사해 <strong>직접 붙여넣기</strong>로 넣어 주세요(스캔본은 글자가 이미지라 복사되지 않습니다).
                 </li>
                 <li>
                   <strong>이미지·도형·발표자 노트:</strong> 원본 문서의 복잡한 도형 레이아웃은 가져오지 않으며 텍스트 글자만 가져옵니다.

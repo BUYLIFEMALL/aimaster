@@ -4,13 +4,16 @@ import { KeyRound, ShieldCheck, Trash2 } from "lucide-react";
 import { GuideLinkButton } from "./GuideLinkButton";
 
 type Provider = "gemini" | "unsplash" | "pexels" | "pixabay";
-interface Info { provider: Provider; title: string; hint: string; placeholder: string; signup: string; required: boolean }
+interface Info { provider: Provider; title: string; hint: string; placeholder: string; signup: string; required: boolean; guideId?: string }
+
+// 메인 사이트 연동 매뉴얼 글(https://www.buylife.xyz/guides/<id>). Unsplash는 매뉴얼 글이 아직 없어 발급 페이지 링크만 둔다.
+const GUIDE_BASE = "https://www.buylife.xyz/guides/";
 
 const PROVIDERS: Info[] = [
-  { provider: "gemini", title: "Google Gemini API 키 (필수)", hint: "기획안·프로토타입 생성에 쓰입니다.", placeholder: "AIza…로 시작하는 키를 붙여 넣으세요", signup: "https://aistudio.google.com/apikey", required: true },
+  { provider: "gemini", title: "Google Gemini API 키 (필수)", hint: "기획안·프로토타입 생성에 쓰입니다.", placeholder: "AIza…로 시작하는 키를 붙여 넣으세요", signup: "https://aistudio.google.com/apikey", required: true, guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4" },
   { provider: "unsplash", title: "Unsplash Access Key (선택)", hint: "이미지 소스를 Unsplash로 쓸 때만 필요합니다.", placeholder: "Access Key를 붙여 넣으세요", signup: "https://unsplash.com/developers", required: false },
-  { provider: "pexels", title: "Pexels API 키 (선택)", hint: "이미지 소스를 Pexels로 쓸 때만 필요합니다.", placeholder: "API 키를 붙여 넣으세요", signup: "https://www.pexels.com/api/", required: false },
-  { provider: "pixabay", title: "Pixabay API 키 (선택)", hint: "이미지 소스를 Pixabay로 쓸 때만 필요합니다.", placeholder: "API 키를 붙여 넣으세요", signup: "https://pixabay.com/api/docs/", required: false },
+  { provider: "pexels", title: "Pexels API 키 (선택)", hint: "이미지 소스를 Pexels로 쓸 때만 필요합니다.", placeholder: "API 키를 붙여 넣으세요", signup: "https://www.pexels.com/api/", required: false, guideId: "ff6c331e-74a8-4b00-99c9-3b91f44f41f7" },
+  { provider: "pixabay", title: "Pixabay API 키 (선택)", hint: "이미지 소스를 Pixabay로 쓸 때만 필요합니다.", placeholder: "API 키를 붙여 넣으세요", signup: "https://pixabay.com/api/docs/", required: false, guideId: "c315c6d7-4187-446a-86da-5c37d4274d54" },
 ];
 
 function KeyCard({ info, state, onChanged }: { info: Info; state?: { hasKey: boolean; maskedKey: string | null }; onChanged: () => void }) {
@@ -49,6 +52,11 @@ function KeyCard({ info, state, onChanged }: { info: Info; state?: { hasKey: boo
     <section className="card" data-provider={info.provider}>
       <h2><KeyRound size={16} style={{ verticalAlign: "-3px" }} /> {info.title}</h2>
       <p className="muted" style={{ marginTop: 6 }}>{info.hint} 발급: <a href={info.signup} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>{info.signup.replace("https://", "")}</a></p>
+      {info.guideId && (
+        <div className="actions" style={{ marginTop: 8 }}>
+          <GuideLinkButton url={GUIDE_BASE + info.guideId} label="📖 발급 방법 매뉴얼 (팝업)" />
+        </div>
+      )}
       {state === undefined ? <p className="muted" style={{ marginTop: 12 }}>확인 중…</p> : (
         <p className={`key-status ${has ? "" : "none"}`} style={{ marginTop: 12 }}>
           {has ? <>등록됨 · <code>{state.maskedKey}</code></> : "아직 등록된 키가 없습니다."}
@@ -96,7 +104,7 @@ export function KeyManager({ guideUrl }: { guideUrl: string | null }) {
       ))}
       <section className="card">
         <h2>📖 연동 매뉴얼</h2>
-        <p>Gemini API 키 발급 방법을 단계별로 따라 할 수 있습니다.</p>
+        <p>Gemini API 키 발급 방법을 단계별로 따라 할 수 있습니다. Pexels·Pixabay 키 발급 매뉴얼은 위 각 키 카드의 「📖 발급 방법 매뉴얼」 버튼에서 열 수 있습니다.</p>
         <div className="actions" style={{ marginTop: 12 }}>
           {guideUrl && <GuideLinkButton url={guideUrl} label="Gemini API 키 발급 매뉴얼 (팝업)" />}
           <a className="button" href="/guide">이 프로그램 사용 매뉴얼</a>

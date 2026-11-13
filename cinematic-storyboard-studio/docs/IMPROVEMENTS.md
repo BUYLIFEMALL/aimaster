@@ -43,3 +43,29 @@
 - 메인 사이트 주소 상수가 연결 안 되는 `https://aimaster.buylife.xyz`였다(권한 없음·정지·핸드폰 안내 이동, 회원가입·비밀번호 찾기·약관 링크가 접속 오류). → `https://www.buylife.xyz`, `/signup`→`/register`, `/legal/privacy`·`/legal/terms`→`/privacy`·`/terms`. 커밋 `486fd5fd3`(prompt-template-studio는 `9c170faf5`). tsc 0.
 - 운영 임시 조치: 메인 Vercel 프로젝트에 `aimaster.buylife.xyz`를 추가해 `www.buylife.xyz`로 308 이동(경로 유지) — 회원가입 `/signup`만 다음 배포 전까지 404.
 - 다음 배포 때: 버전 +0.01, 로그인 화면의 회원가입·비밀번호 찾기 링크와 권한 없는 계정 이동 확인.
+
+## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
+### 1) 프로그램 로직·기능
+- **코드 v1.19 / 운영 DB v1.18 불일치** — 근거: `src/lib/version.ts:4`(v1.19), 커밋 `49f76b9a1` 제목은 「배포」. 영향: 메인 사이트 표시 버전과 프로그램 좌측 메뉴 버전이 다를 수 있음. 우선순위 중간. 상태: 대기(실제 운영 배포 여부·DB 값은 부모 세션 확인 필요, 이번 점검에서 DB는 읽지 않음).
+- **업로드 한도 안내와 서버 한도가 다름** — 근거: `src/components/studio/i18n.ts:81`(15MB 안내), `src/components/studio/StudioWorkspace.tsx:145`(15MB 검사), `src/lib/storyboard/types.ts:57`(서버 6MB), `src/app/api/projects/route.ts:45`(오류 문구 6MB). 브라우저가 긴 변 1600px JPEG로 줄여 보내므로 보통 걸리지 않지만, 걸리면 「6MB 이하」 문구가 화면 안내(15MB)와 달라 헷갈림. 우선순위 낮음. 상태: 제안(오류 문구를 「줄인 뒤에도 너무 큽니다」로).
+- **`MANUAL.md`·`AGENTS.md` 1절이 옛 값** — 근거: `MANUAL.md:4`(v1.03), `AGENTS.md` 「1. 한눈에 보기」(v1.07, `gemini-2.5-flash`·`gemini-2.5-flash-image`). 영향: 다음 작업자가 옛 모델로 오해. 우선순위 낮음. 상태: 이번에 AGENTS.md 맨 위 요약으로 보완(기존 표는 보존), `MANUAL.md` 본문 갱신은 대기.
+
+### 2) 화면·가독성·사용 편의
+- **매뉴얼의 영상 AI 소개 문구가 확인할 수 없는 평가** — 근거: `src/app/(dashboard)/guide/page.tsx` `VIDEO_AI_TOOLS`(「동양인 및 사실적 인물 묘사에 탁월」「빠른 렌더링」 등). 외부 서비스 성능은 코드로 확인할 수 없음. 이번에 서비스 버전 표기(Gen-3 Alpha·1.5)와 「100% 프롬프트 호환」만 고침. 우선순위 낮음. 상태: 제안(평가 문구를 사용 방법 설명으로 교체).
+- **영상 길이 선택지 이름과 매뉴얼 소개 서비스가 다름** — 근거: `src/lib/storyboard/types.ts:17-20`(8초 Veo 3.1, 10·15초 Sora 2), 매뉴얼은 Runway·Kling·Luma 소개. 우선순위 낮음. 상태: 제안(한쪽으로 맞추기).
+- **설정 화면 발급 매뉴얼 버튼이 입력 칸과 떨어진 별도 카드** — 근거: `src/components/settings/ApiKeySettings.tsx`(2번 카드). 버튼은 있음. 우선순위 낮음. 상태: 제안(입력 칸 옆 작은 링크 추가).
+
+### 3) 다른 자동화 프로그램과 연계
+- 받는 쪽은 AI 바나나 캔버스·AI 4컷 만화·AI 인물사진 3곳(`src/lib/importSource.ts`). AGENTS.md v1.11 기록의 「AI 이미지 스튜디오 결과 받기」는 여전히 허용 목록에 없음(`IMPORT_SOURCES`). 우선순위 중간. 상태: 대기(이미지 스튜디오 쪽 보내기 버튼과 함께).
+- 9컷 ZIP·영상 프롬프트를 영상 프로그램(쇼츠 계열)으로 바로 넘기는 연결은 없음(내려받아 옮겨야 함). 우선순위 낮음. 상태: 제안.
+
+### 4) 매뉴얼과 실제 기능의 차이 (이번에 고친 것 / 남은 것)
+- 이번에 고침(미배포): 옛 모델 이름 「Gemini 2.5 Flash 및 Pro 비전」 → 실제 모델(Gemini 3.8 Flash · Nano Banana · Nano Banana Pro 2K), 「사용량 제한 없이」 삭제, 「모든 생성물은 안전하게 보존」 → 30일 자동 삭제 안내, 비용 FAQ의 「매우 저렴·무료 한도」 추측 문구 → 비용이 드는 버튼 목록, 「100% 프롬프트 호환」 삭제. 추가: 다른 프로그램에서 넘겨받기, Pro 엔진 결제 조건, 대사 선택, 보관(30개·30일·500MB·저장 구독) FAQ, 다시 만들기(다시 분석·이미지 다시 생성·이어서 다시 시도·언어 전환) FAQ.
+- 남은 것: 로그인 기기 안내(PC 1 + 모바일 1)는 이 프로그램 로그아웃이 아직 범위 없는 `signOut()`이라 넣지 않음(아래 5번 처리 뒤 추가). 상태: 대기.
+
+### 5) 정책 점검 (pending-check 결과: 고지·저장 위젯·로그아웃 범위·서버 로그인 기기 정보·30일 정리 예외 회원)
+- 저작권·분석 금지 고지: 확인됨(`NOTICE`, `public/` 고지 — pending-check에 경고 없음).
+- 저장공간 위젯 한 줄: 미적용 — 다음 배포 때 `src/app/layout.tsx`에 추가. 우선순위 중간. 상태: 대기.
+- 범위 없는 `signOut()` 2곳: `src/app/api/auth/logout/route.ts:6`, `src/lib/actions/auth.ts:43` → `signOut({ scope: "local" })`. 우선순위 중간. 상태: 대기.
+- 서버 로그인 기기 정보(User-Agent) 미전달: `src/lib/supabase/server.ts`. 우선순위 중간. 상태: 대기(`docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` 2-2절).
+- 30일 정리 예외 회원: 코드 반영됨(`src/app/api/cron/cleanup/route.ts:25`), 운영 반영 여부는 위 버전 불일치와 함께 확인 필요.

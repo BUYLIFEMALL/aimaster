@@ -1,5 +1,22 @@
 # 시네마틱 스토리보드 자동화 — 인수인계 (AGENTS.md)
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.19(`src/lib/version.ts`) · 운영 DB `programs.version`은 v1.18(부모 세션이 알려 준 값 — 코드와 1 차이, v1.19 커밋 `49f76b9a1` 제목은 「배포」인데 DB가 안 맞음. 실제 운영 화면 버전은 미확인) · 운영 주소: https://cinematic-storyboard-studio.buylife.xyz
+- 한 줄 정의: 참고 이미지 1장을 분석해 9컷 마스터 콘택트 시트(3:2)와 영상 AI용 프롬프트(마스터 + 장면 9개 + JSON)를 만드는 프로그램.
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 1 새 스토리보드(`/studio`) · 2 내 프로젝트(`/projects`) · 📖 연동 & 사용 매뉴얼(`/guide`) · 🔑 API키등록·플랫폼연동(`/settings`). 스튜디오 안: 한국어/English 전환, 주제 [AI 제안], 엔진 선택(Nano Banana / Nano Banana Pro 2K), [스토리보드 생성]·[다시 분석]·[이미지 다시 생성], [마스터 이미지 저장], [자르기 및 다운로드](3×3 경계 조절 → ZIP), 영상 프롬프트(길이 5·8·10·15초, 대사 없음·KR·EN, 복사·JSON 다운로드).
+- 필요한 키·연동(회원 본인 것): Google Gemini API 키 1개(`user_api_keys` provider `gemini`, `src/lib/apiKeys.ts`, 키가 없으면 `needKey` 안내 — 폴백 없음). 글 모델 `gemini-3.8-flash`, 이미지 `gemini-3.1-flash-lite-image`(표준)·`gemini-3-pro-image`(Pro 2K) — `src/lib/storyboard/types.ts`. 외부 계정 연동(OAuth) 없음.
+- 자동 실행(예약·정리)·확장: `vercel.json` cron `/api/cron/cleanup` 매일 03:00 KST — 생성일 30일 지난 프로젝트(행 + 폴더 파일) 삭제, 예외 회원(`profiles.retention_exempt`) 제외, `usage_logs`에 `cleanup_expired` 기록. 회원당 프로젝트 30개 상한. 크롬 확장 없음.
+- 최근 변경(커밋 기준):
+  - `1def2373a`·`9810804f1` 저작권·분석 금지 고지(`NOTICE`·`public/ai.txt`·`robots.txt`)
+  - `d1e710d68` 접근 판정 조회를 2묶음 병렬로(판정 결과 같음, 미배포)
+  - `49f76b9a1` v1.19 디자인 리뉴얼(「헐리우드 9컷 시네마틱 디렉터스 뷰파인더」 스타일 — 로그인·매뉴얼·스튜디오·globals.css)
+  - `97a6d8589` 30일 정리에서 예외 회원 제외(미배포 대기였음) · `cdd576bcf` 글 모델 `gemini-2.5-flash` → `gemini-3.8-flash`
+  - `5cf72196a` v1.18 Next.js 보안 업데이트
+- 미배포 대기·남은 일: `node scripts/pending-check.mjs cinematic-storyboard-studio` 기준 — 저장공간 위젯 한 줄 미적용, 범위 없는 `signOut()` 2곳(`src/app/api/auth/logout/route.ts`, `src/lib/actions/auth.ts`), 서버 로그인 기기 정보(User-Agent) 미전달, 모델 교체·예외 회원 정리 대기 줄. 이 문서 「1. 한눈에 보기」 표(v1.07·옛 모델 이름)와 `MANUAL.md`(v1.03 표기)는 옛 값 — 아래 요약이 최신.
+- 다음에 손댈 때 주의: `src/lib/geminiImage.ts`·`nanoBananaModels.ts`·`linkMark.ts`·`cleanupUsageLog.ts`는 공용 기준 코드 사본(직접 고치지 않음). 화면 업로드 안내는 15MB인데 서버 한도는 줄인 뒤 6MB(`LIMITS.maxImageBytes`) — 브라우저가 1600px로 줄여 보내므로 보통 문제없음. 유료 이미지 생성은 재시도 0(이중 과금 방지).
+- 이번 점검에서 고친 것: 매뉴얼 화면(`src/app/(dashboard)/guide/page.tsx`) — 옛 모델 이름(Gemini 2.5 Flash)·「사용량 제한 없이」·「모든 생성물 보존」·「100% 호환」 문구 정정, 다른 프로그램에서 넘겨받기·Pro 결제 조건·비용이 드는 버튼·30일 보관·다시 만들기 안내 추가(FAQ 2개). 설정 화면 링크 — Gemini 발급 매뉴얼 버튼이 이미 있어 변경 없음. (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
+
 > 다른 CLI가 대화 없이 이어서 작업할 수 있도록 쓴 문서입니다. 작업 전에 루트 `CLAUDE.md`, `docs/HANDOFF.md`, `docs/ERROR_LESSONS.md`를 먼저 읽습니다. 작업 기록은 아래 "작업 기록"에 **추가만** 합니다.
 
 ## 1. 한눈에 보기

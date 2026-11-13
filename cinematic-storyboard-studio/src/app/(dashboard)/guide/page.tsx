@@ -29,8 +29,8 @@ const PIPELINE_STEPS = [
     step: "01",
     badge: "API KEY",
     title: "본인 Google Gemini API 키 연동",
-    desc: "사이드바의 [API키등록·플랫폼연동] 메뉴에서 본인의 Google AI Studio Gemini API 키를 등록합니다. 회원 본인의 키로만 작동하여 보안이 안전하고 사용량 제한 없이 자유롭게 제작할 수 있습니다.",
-    tip: "Gemini 2.5 Flash 및 Pro 비전 모델을 사용하여 고해상도 이미지 분석 및 콘택트 시트 생성을 지원합니다.",
+    desc: "사이드바의 [API키등록·플랫폼연동] 메뉴에서 본인의 Google AI Studio Gemini API 키를 등록합니다. 같은 화면의 [발급 매뉴얼 팝업 열기] 버튼을 누르면 발급 방법을 보면서 따라 할 수 있습니다. 회원 본인의 키로만 동작하며, AI 사용 비용은 본인 Google 계정으로 청구됩니다.",
+    tip: "분석·영상 프롬프트는 Gemini 3.8 Flash, 9컷 이미지는 Nano Banana(표준) 또는 Nano Banana Pro(2K) 모델을 씁니다. 키를 등록하지 않고 생성을 누르면 등록 안내 창이 뜹니다.",
     icon: KeyRound,
     color: "amber",
   },
@@ -39,7 +39,7 @@ const PIPELINE_STEPS = [
     badge: "UPLOAD & TOPIC",
     title: "레퍼런스 이미지 업로드 & 로그라인 제안",
     desc: "영화 분위기나 캐릭터, 조명 레퍼런스가 담긴 이미지 1장을 업로드합니다. 원하는 줄거리나 테마가 있으면 입력하고, 막막할 때는 [AI 제안] 버튼을 눌러 이미지에 어울리는 한 줄 로그라인을 즉시 추천받습니다.",
-    tip: "드래그앤드롭으로 간편하게 업로드할 수 있으며, 긴 변 1600px로 최적화되어 빠른 처리 속도를 보장합니다.",
+    tip: "JPG·PNG·WebP 15MB 이하 파일을 끌어다 놓을 수 있고, 브라우저에서 긴 변 1600px로 줄여서 보냅니다. AI 바나나 캔버스·AI 4컷 만화·AI 인물사진의 [🎬 스토리보드로] 버튼으로 넘어오면 그 그림이 참고 이미지로 자동으로 들어옵니다.",
     icon: ImagePlus,
     color: "sky",
   },
@@ -57,7 +57,7 @@ const PIPELINE_STEPS = [
     badge: "MASTER SHEET",
     title: "3:2 마스터 콘택트 시트 렌더링 & 3×3 정밀 분할",
     desc: "9컷이 하나의 3:2 비율 마스터 필름 콘택트 시트로 완성됩니다. [자르기 및 다운로드] 메뉴에서 브라우저 기반 슬라이더로 상하좌우 경계를 미세 조정한 뒤, 9장의 고화질 개별 키프레임을 ZIP 파일로 한 번에 내려받습니다.",
-    tip: "더 디테일한 영화적 질감이 필요할 때는 Pro 2K 고화질 엔진을 선택할 수 있습니다.",
+    tip: "더 디테일한 질감이 필요하면 Nano Banana Pro(2K) 엔진을 고를 수 있습니다. 이 엔진은 본인 Google 계정에 결제가 연결되어 있어야 하며, 권한이 없으면 안내 문구가 나옵니다.",
     icon: Scissors,
     color: "emerald",
   },
@@ -66,7 +66,7 @@ const PIPELINE_STEPS = [
     badge: "VIDEO PROMPT",
     title: "Runway · Kling · Luma 맞춤 영상 프롬프트 생성",
     desc: "목표 영상 길이(5초/8초/10초/15초)와 대사 언어를 선택하면, 영상 생성 AI 서비스에 바로 복사해 붙여넣을 수 있는 마스터 스타일 프롬프트와 컷별 시간 배분 프롬프트, JSON 명세서가 자동 추출됩니다.",
-    tip: "1번 컷을 시작 이미지(Start Image)로 업로드하면 완벽하게 연속성 있는 비디오 클립을 얻을 수 있습니다.",
+    tip: "대사는 없음·KR·EN 중에서 고릅니다. 잘라 둔 1번 컷을 영상 AI의 시작 이미지(Start Image)로 올리고 프롬프트를 붙여 넣으면 스토리보드와 이어지는 영상을 만들기 쉽습니다.",
     icon: Video,
     color: "rose",
   },
@@ -75,13 +75,13 @@ const PIPELINE_STEPS = [
 // 비디오 AI 연계 팁
 const VIDEO_AI_TOOLS = [
   {
-    name: "Runway Gen-3 Alpha",
+    name: "Runway",
     badge: "추천",
     role: "카메라 무빙 & 텍스처",
     desc: "스튜디오에서 다운로드한 1번 컷을 'First Frame'에 넣고, 제공된 마스터 스타일 프롬프트를 입력하면 일관된 질감의 고화질 시네마틱 무빙 영상을 생성할 수 있습니다.",
   },
   {
-    name: "Kling AI 1.5",
+    name: "Kling AI",
     badge: "자연스러운 모션",
     role: "인물 표정 & 물리 엔진",
     desc: "동양인 및 사실적 인물 묘사에 탁월합니다. 컷별 프롬프트의 카메라 모션 지시어(Pan, Tilt, Dolly)를 모션 브러시와 함께 사용하면 최적의 결과를 냅니다.",
@@ -102,7 +102,15 @@ const FAQS = [
   },
   {
     q: "API 키 비용은 얼마나 발생하나요?",
-    a: "회원님 본인의 Google Gemini API 키를 직접 등록하여 사용하므로, 비용은 Google Cloud 콘솔 본인 계정 기준으로만 청구됩니다. 표준 엔진(Gemini 2.5 Flash)은 매우 저렴하며 무료 제공 한도(Free Tier) 내에서도 다수의 스토리보드를 시험 제작할 수 있습니다. Pro 엔진은 고화질 이미지 생성을 위해 과금이 발생할 수 있으니 프로젝트 필요에 따라 선택하세요.",
+    a: "회원님 본인의 Google Gemini API 키를 직접 등록하여 사용하므로, 비용은 Google Cloud 콘솔 본인 계정 기준으로만 청구됩니다. [스토리보드 생성]·[이미지 다시 생성]·[다시 분석]·[AI 제안]·[프롬프트 생성] 버튼은 누를 때마다 본인 키로 AI를 호출합니다. Nano Banana Pro(2K) 엔진은 본인 Google 계정에 결제가 연결되어 있어야 쓸 수 있고 표준 엔진보다 비용이 큽니다. 정확한 요금은 Google AI Studio의 가격 안내에서 확인해 주세요.",
+  },
+  {
+    q: "만든 스토리보드는 얼마나 보관되나요?",
+    a: "만든 스토리보드는 [내 프로젝트]에 저장되어 다시 열거나 삭제할 수 있습니다. 프로젝트는 최대 30개까지 저장되고, 만든 날부터 30일이 지나면 참고 이미지·마스터 시트와 함께 자동으로 삭제됩니다(일반 회원 전체 저장 용량 500MB, 저장 구독을 이용하면 보관 기간이 늘어납니다). 오래 두고 쓸 이미지는 [마스터 이미지 저장]이나 [자르기 및 다운로드]의 ZIP으로, 프롬프트는 [복사]나 [JSON 다운로드]로 내 PC에 받아 두세요.",
+  },
+  {
+    q: "결과가 마음에 들지 않으면 처음부터 다시 해야 하나요?",
+    a: "아닙니다. 분석 내용만 바꾸려면 [다시 분석], 9컷 그림만 바꾸려면 [이미지 다시 생성], 영상 프롬프트만 바꾸려면 길이·대사를 고친 뒤 [다시 생성]을 누르면 됩니다. 중간에 오류로 멈췄을 때는 [이어서 다시 시도]로 멈춘 단계부터 이어집니다. 화면 위쪽의 한국어/English 버튼으로 결과 언어도 바꿀 수 있습니다.",
   },
   {
     q: "9컷 마스터 시트에서 특정 컷 경계가 맞지 않을 때는 어떻게 하나요?",
@@ -252,7 +260,7 @@ export default function GuidePage() {
               </div>
               <div className="mt-4 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
                 <CheckCircle2 size={13} className="text-emerald-400" />
-                <span>100% 프롬프트 호환</span>
+                <span>프롬프트 복사 후 붙여넣기</span>
               </div>
             </div>
           ))}
@@ -363,7 +371,7 @@ export default function GuidePage() {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-100">안전한 회원 본인 API 키 기반 시스템</p>
-            <p className="text-xs text-slate-400">운영자나 타인의 키로 폴백하지 않으며, 모든 생성물은 안전하게 보존됩니다.</p>
+            <p className="text-xs text-slate-400">운영자나 다른 회원의 키로 대신 처리하지 않습니다. 만든 프로젝트는 회원 본인만 볼 수 있고 30일 뒤 자동으로 삭제됩니다.</p>
           </div>
         </div>
         <div className="flex shrink-0 gap-3">

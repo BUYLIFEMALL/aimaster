@@ -1,5 +1,23 @@
 # AI 리버스 프롬프트 자동화 (reverse-prompt) — 작업 지침 및 에이전트 인수인계 문서
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 `v1.14`(`src/lib/version.ts`) · 운영 주소: https://reverse-prompt.buylife.xyz (아래 §1 표의 「최신 버전 v1.10」은 옛 값 — 이 줄이 최신)
+- 한 줄 정의: 이미지·동영상·오디오 파일 하나를 회원 본인 Gemini 키로 분석해, 고른 생성 AI 도구(9가지) 형식의 프롬프트로 바꿔 주는 프로그램.
+- 화면·메뉴(실제 코드 기준): `/analyze`(파일 올리기 → 분석 옵션[대상 도구·설명 언어·프롬프트 길이·AI 모델·추가 지시] → 분석 결과[프롬프트 편집·복사·JSON 저장·Markdown 요약 복사]) · `/history`(내 분석 기록, 열기·즐겨찾기·삭제) · `/settings`(API키등록·플랫폼연동) · `/guide`(📖 연동 & 사용 매뉴얼). 대상 도구: 이미지 3(Midjourney, DALL·E/GPT Image, Flux/SD) · 동영상 4(Sora, Veo, Runway, Kling) · 오디오 2(Suno, Udio) — `src/lib/rpa/types.ts`.
+- 필요한 키·연동(회원 본인 것): Google Gemini API 키 하나(`user_api_keys` provider `gemini`, `/api/keys`). 외부 계정 연동(OAuth) 없음. 운영자 키 폴백 없음(키 없으면 `needKey` 안내).
+- 자동 실행(예약·정리)·확장: Vercel cron 매일 18:00 UTC(= 03:00 KST) `/api/cron/cleanup` — 30일 지난 기록 삭제(즐겨찾기 포함, `retention_exempt` 회원 제외) + 1시간 지난 임시 파일 정리. 분석할 때마다 회원 기록을 100건으로 정리(즐겨찾기 제외). 크롬 확장 없음.
+- 모델: Flash = `gemini-3.8-flash` → `gemini-3.5-flash-lite`, Pro = `gemini-3.1-pro-preview` → 위 둘(`src/lib/gemini.ts` `MODEL_CHAIN`). 동영상·오디오는 Files API 처리 대기 최대 약 4분, 라우트 `maxDuration` 300초.
+- 최근 변경(커밋 기준):
+  - `1def2373a`·`9810804f1` 저작권·분석 금지 고지(`NOTICE`·`public/ai.txt`·`public/robots.txt`)
+  - `d1e710d68` 권한 판정 조회를 두 번의 병렬 묶음으로(판정 결과 같음, 미배포)
+  - `a253ae63d` 30일 정리에서 예외 회원 제외(미배포)
+  - `0e8f645cf` 모델 체인 `gemini-3.8-flash`로 교체(미배포)
+  - `d55f4d281` Next.js 보안 업데이트(v1.14 배포)
+- 미배포 대기·남은 일: 위 미배포 3건 + 정리 기록(`cleanup-usage-log`, `8ad8ea2e5`·`f53021369`) + 이번 점검 수정. `pending-check` 기준 저장공간 위젯 한 줄 미적용, 범위 없는 `signOut()` 1곳(`src/app/api/auth/logout/route.ts:8`).
+- 다음에 손댈 때 주의: `src/lib/cleanupUsageLog.ts`·`src/lib/rpa/bananaIdeaLink.ts`·`src/lib/programAccess.ts`는 공용 기준 코드 사본이라 직접 고치지 않음. 분석 화면 모델 이름 표기는 `MODEL_CHAIN`을 바꿀 때 함께 고칠 것(이번에 한 번 어긋나 있었음). `package.json` 버전은 `1.11.0`에 머물러 있음.
+- 이번 점검에서 고친 것: 매뉴얼 `/guide`(옛 버전 배지·「10대 도구」·도구 버전 표기 정리, 설명 언어·AI 모델·비용·다른 프로그램으로 보내기 3종·30일 보관·로그인 안내·FAQ 4개 추가), 분석 화면 모델 이름(3.5 → 3.8 Flash)·도구 수 표기, 기록 화면 보관 안내(30일). 설정 화면 링크는 이미 있어 그대로 둠 (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
+
 <!-- INCREMENTAL_REFERENCE_IDEAS_20261019 -->
 > **★★★ 공통 개발 방향 — 기능 안정화 우선·점진 레퍼런스 모듈화·아이디어 등록 (2026-10-19 주인님 확정)**
 > 당분간 기존 프로그램 기능 개선·오류 수정·안정화에 집중합니다. 그 과정에서 잘 만들어지고 검증된 기능을 레퍼런스 모듈로 정리하고, 신규 프로그램 또는 기존 프로그램 리뉴얼 때 필요한 모듈을 하나씩 적용합니다.

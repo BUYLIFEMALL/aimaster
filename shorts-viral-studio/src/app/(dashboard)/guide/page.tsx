@@ -13,7 +13,7 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     q: "YouTube Data API v3 키는 꼭 등록해야 하나요?",
-    a: "네! 쇼츠 검색(1단계)과 조회수·구독자·댓글 수집은 유튜브 공식 API를 통해 이루어집니다. 구글 클라우드 콘솔(GCP)에서 YouTube Data API v3를 활성화한 뒤 생성된 무료 API 키를 [설정 > API키등록] 메뉴에 본인 키로 등록하시면 매일 10,000 유닛의 무료 할당량 내에서 넉넉하게 이용하실 수 있습니다.",
+    a: "네! 쇼츠 검색(1단계)과 조회수·구독자·댓글 수집은 유튜브 공식 API를 통해 이루어집니다. 구글 클라우드 콘솔(GCP)에서 YouTube Data API v3를 활성화한 뒤 만든 API 키를 좌측 메뉴 [🔑 API키등록·플랫폼연동]에 본인 키로 등록해 주세요. 기본 무료 할당량은 하루 10,000 유닛이고 검색 1회에 약 100 유닛이 쓰입니다. 발급 순서는 그 화면의 키 항목마다 있는 [📖 발급 방법] 버튼에서 볼 수 있습니다.",
   },
   {
     q: "Gemini 분석과 GPT/Claude 분석은 무엇이 다른가요?",
@@ -29,11 +29,37 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "대본을 완성한 후 영상은 어떻게 만드나요?",
-    a: "완성된 대본은 버튼 하나로 **shorts-onestop-studio (AI 쇼츠 원스톱 제작 스튜디오)**로 바로 전송됩니다! 씬별 자막, 음성 합성(TTS), 배경 음악, 세로형 씬 렌더링까지 원스톱으로 이어져 10분 만에 최종 MP4 영상이 완성됩니다.",
+    a: "5단계에서 대본이 만들어지면 위쪽에 버튼 세 개가 나옵니다. [🎬 쇼츠 영상 제작하기]를 누르면 AI 쇼츠 원스톱 제작 프로그램이 새 탭으로 열리고 대본이 참고 자료로 넘어갑니다. [📤 썸네일 만들기]를 누르면 AI 썸네일·SEO 자동화의 SEO 전략 화면으로 대본이 넘어갑니다. [📥 .md 저장]은 대본을 파일로 내려받습니다. 넘겨받는 프로그램은 각각 이용 권한과 본인 키가 따로 필요합니다.",
   },
   {
     q: "생성된 프로젝트와 데이터는 어디에 보관되나요?",
-    a: "모든 프로젝트 데이터는 사용자 본인의 계정 고유 저장소에 안전하게 암호화되어 저장됩니다. 유튜브 개발자 정책 및 데이터 프라이버시 원칙에 따라 생성일 기준 30일 동안 보관되며 이후 자동 삭제됩니다. 필요하신 결과물은 [대본 복사] 또는 [.md 파일 내보내기]로 언제든 영구 보관하실 수 있습니다.",
+    a: "프로젝트(검색 결과·분석·소재·대본)는 회원님 계정에만 저장되고 다른 회원에게 보이지 않습니다. 프로젝트는 만든 날부터 30일이 지나면 홈 화면의 프로젝트 목록을 열 때 자동으로 지워집니다. 오래 두고 쓰실 결과는 6단계의 [💾 보관함에 저장]으로 프롬프트 보관함에 넣어 두시면 직접 지울 때까지 남고(최대 200세트), [📥 .md 저장]으로 파일로 내려받으실 수도 있습니다.",
+  },
+  {
+    q: "한 번에 영상을 몇 개까지 분석할 수 있고, 비용은 어디서 나가나요?",
+    a: "1단계 검색 결과에서 한 번에 최대 3개까지 골라 분석할 수 있습니다. 검색은 회원님 YouTube Data API 키의 무료 할당량을 쓰고, 분석·소재·대본·프롬프트 생성은 화면 위쪽에서 고른 AI 엔진(Gemini·GPT·Claude)의 회원님 본인 키로 호출되어 그 서비스에서 사용량만큼 요금이 계산됩니다. 고른 엔진의 키가 등록돼 있지 않으면 등록 안내 창이 뜹니다.",
+  },
+  {
+    q: "PC와 휴대폰에서 같이 로그인해도 되나요?",
+    a: "같은 계정으로 PC 1곳과 모바일 1곳에서 동시에 쓰실 수 있습니다. 같은 종류의 기기(예: 다른 PC)에서 새로 로그인하면 그 종류의 이전 로그인만 끊깁니다.",
+  },
+];
+
+const PREP_ITEMS = [
+  {
+    icon: "🔑",
+    title: "YouTube Data API 키 (필수)",
+    body: "쇼츠 검색과 조회수·구독자·댓글 수집에 씁니다. 이 키가 없으면 1단계 검색이 되지 않습니다.",
+  },
+  {
+    icon: "✨",
+    title: "AI 엔진 키 1개 이상",
+    body: "Gemini·OpenAI·Claude 중 하나만 있어도 됩니다. 영상을 직접 보고 분석하려면 Gemini 키가 필요합니다.",
+  },
+  {
+    icon: "🧭",
+    title: "등록 위치",
+    body: "좌측 메뉴 [🔑 API키등록·플랫폼연동]에서 키를 붙여넣고 [키 등록]을 누릅니다. 항목마다 [📖 발급 방법] 버튼이 있습니다.",
   },
 ];
 
@@ -73,6 +99,30 @@ export default function GuidePage() {
         </div>
       </div>
 
+      {/* 1-1. 시작 전 준비 */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+          <div>
+            <h2 className="text-lg md:text-xl font-black tracking-tight text-slate-900">🧰 시작 전 준비 (처음 한 번)</h2>
+            <p className="text-xs md:text-sm text-slate-500 font-medium">
+              이 프로그램은 회원님 본인 키로만 동작합니다. 아래 키를 먼저 등록해 주세요.
+            </p>
+          </div>
+          <Link href="/settings" className="btn-create-key">
+            🔑 API키등록·플랫폼연동 열기
+          </Link>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {PREP_ITEMS.map((item) => (
+            <Card key={item.title} className="shadow-2xs">
+              <div className="text-xl">{item.icon}</div>
+              <h3 className="mt-2 text-sm font-black text-slate-900">{item.title}</h3>
+              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">{item.body}</p>
+            </Card>
+          ))}
+        </div>
+      </div>
+
       {/* 2. 6단계 올인원 제작 파이프라인 */}
       <div className="space-y-4">
         <div className="flex items-center justify-between border-b border-slate-200 pb-2">
@@ -81,7 +131,7 @@ export default function GuidePage() {
               🔥 6단계 올인원 떡상 제작 파이프라인
             </h2>
             <p className="text-xs md:text-sm text-slate-500 font-medium">
-              검색부터 영상·BGM 생성 프롬프트 조립까지 원스톱 흐름으로 완성됩니다.
+              좌측 메뉴의 1~6번 순서대로 진행합니다. 진행 내용은 프로젝트로 저장되어 홈 화면에서 다시 열 수 있습니다.
             </p>
           </div>
         </div>
@@ -98,7 +148,7 @@ export default function GuidePage() {
               </div>
               <h3 className="text-base font-black text-slate-900 mb-1.5">쇼츠 떡상 검색</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                키워드나 벤치마킹 채널을 입력하여 조회수÷구독자 비율 3배~10배 이상의 실제 떡상 쇼츠 영상을 선별합니다.
+                검색어를 넣고 [쇼츠 검색]을 누르면 조회수÷구독자 비율이 높은 쇼츠가 표로 나옵니다. 게시 기간·정렬·길이·최소 조회수·최대 구독자로 좁힐 수 있고, 분석할 영상을 최대 3개 골라 [선택 영상 분석하기]를 누릅니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
@@ -117,7 +167,7 @@ export default function GuidePage() {
               </div>
               <h3 className="text-base font-black text-slate-900 mb-1.5">바이럴 메커니즘 분석</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Gemini 영상 직접 분석(컷 전환·소리·자막)으로 시청자 뇌리에 박힌 11대 성공 공식을 정밀 해체합니다.
+                화면 위쪽에서 AI 엔진을 고르고 분석을 시작합니다. Gemini는 영상을 직접 보고 컷 전환·소리·자막을 분석하며 영상 대사 받아쓰기도 함께 나옵니다. GPT·Claude는 지표·제목·댓글로 추정합니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
@@ -136,7 +186,7 @@ export default function GuidePage() {
               </div>
               <h3 className="text-base font-black text-slate-900 mb-1.5">소재 6종 발굴</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                검증된 Content DNA를 이식하여 잠재 점수와 예상 완청률이 높은 6가지 신규 기획 아이디어를 제안합니다.
+                분석 결과 아래 버튼을 누르면 분석한 성공 공식을 응용한 새 쇼츠 소재 6개가 나옵니다. 마음에 드는 소재 카드의 선택 버튼을 눌러 다음 단계로 갑니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
@@ -155,7 +205,7 @@ export default function GuidePage() {
               </div>
               <h3 className="text-base font-black text-slate-900 mb-1.5">주제 확정 & 피드백</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                채택한 소재의 전개 로드맵을 확인하고, 내 채널의 타깃 시청자와 톤앤매너 피드백을 반영해 기획을 고도화합니다.
+                고른 소재의 전략을 확인하고, 대본에 반영할 추가 요청(예: 2030 직장인 톤, 40초 분량)을 글로 적은 뒤 대본 생성으로 넘어갑니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
@@ -174,7 +224,7 @@ export default function GuidePage() {
               </div>
               <h3 className="text-base font-black text-slate-900 mb-1.5">씬별 1문장 대본 생성</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                씬마다 단 1개의 명확한 나레이션 문장으로 시청 지속 시간을 끌어올리며, 연출 지시문·자막·효과음을 함께 작성합니다.
+                목표 길이(10~180초)와 나레이션 톤을 정하고 대본을 만듭니다. 씬마다 나레이션 한 문장과 연출·자막·효과음이 나오고 문장은 화면에서 바로 고칠 수 있습니다. 완성되면 영상 제작·썸네일 프로그램으로 넘길 수 있습니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
@@ -193,11 +243,11 @@ export default function GuidePage() {
               </div>
               <h3 className="text-base font-black text-slate-900 mb-1.5">올인원 프롬프트 조립</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Midjourney 이미지 생성, Runway 비디오 모션, Suno BGM 생성 프롬프트를 씬별로 완벽 조립해 보관함에 저장합니다.
+                씬별 이미지 프롬프트·영상 프롬프트와 전체 BGM 프롬프트를 글로 만들어 줍니다(이미지·영상·음악 자체를 만들지는 않습니다). [💾 보관함에 저장]을 누르면 좌측 메뉴 [📚 프롬프트 보관함]에 모입니다.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-red-600">
-              핵심: 멀티모달 AI 제작 프롬프트 완성
+              핵심: 프롬프트 글 완성 → 보관함 저장
             </div>
           </Card>
         </div>
@@ -225,7 +275,7 @@ export default function GuidePage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold text-emerald-700">3.</span>
-                <span><strong>무한루프 엔딩:</strong> 영상의 마지막 문장이 첫 씬의 나레이션과 자연스럽게 이어지도록 설계해 재시청률 120%를 달성합니다.</span>
+                <span><strong>무한루프 엔딩:</strong> 영상의 마지막 문장이 첫 씬의 나레이션과 자연스럽게 이어지도록 설계해 다시 보게 만듭니다.</span>
               </li>
             </ul>
           </div>

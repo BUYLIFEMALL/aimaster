@@ -126,8 +126,16 @@ export function ApiKeyModal({
           )}
 
           {/* 키 발급 안내 링크 */}
-          <div className="pt-1 flex items-center justify-between text-[11px] text-if-muted">
+          <div className="pt-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-if-muted">
             <span>아직 키가 없으신가요?</span>
+            <a
+              href="https://www.buylife.xyz/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-400 font-semibold hover:underline inline-flex items-center gap-1"
+            >
+              📖 발급 방법
+            </a>
             <a
               href="https://aistudio.google.com/app/apikey"
               target="_blank"

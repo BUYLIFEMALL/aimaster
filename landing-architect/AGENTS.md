@@ -1,5 +1,23 @@
 # AI 랜딩페이지 기획 자동화 (landing-architect) — 인수인계 및 작업 지침
 
+## 현재 상태 요약 (2026-11-13 전체 점검)
+- 버전: 코드 v1.15(`src/lib/version.ts`) · 운영 DB v1.15(부모 세션이 알려 준 값) · 운영 주소: https://landing-architect.buylife.xyz
+- 한 줄 정의: 주제·타겟·목표를 적으면 6개 섹션 기획안(JSON·Markdown)과 반응형 HTML 프로토타입 한 파일을 만들고, UI Canvas 자동화로 보내 다듬을 수 있는 프로그램.
+- 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 내 프로젝트(`/dashboard`) · 흐름 1 주제 입력 → 2 기획안·프로토타입(`/open` → `/project/[id]`) → 3 내보내기 · API키등록·플랫폼연동(`/settings`) · 📖 연동 & 사용 매뉴얼(`/guide`). 작업 화면(`src/components/studio/Workspace.tsx`): 주제 예시 20종(「기타」 포함), [타겟/목표 자동 완성], 이미지 소스 4종, AI 모델 Pro·Standard, [기획안 생성 시작], 섹션별 [수정 적용]·[이 섹션 다시 만들기], [프로토타입 만들기], 미리보기 폭 3종, JSON·Markdown·HTML 복사/저장, [변환 프롬프트 복사(기획안 포함)], [🧩 UI Canvas로 보내 다듬기], [이미지 다시 찾기], 변경 뒤 1.2초 자동 저장.
+- **기획안 6개 섹션의 실제 이름**(`src/lib/lpa/types.ts` `PLAN_SECTIONS`): 프로젝트 정보 · 페이지 구조 · 콘텐츠 전략 · 디자인 시스템 · 개발 가이드 · 이미지 에셋. 아래 기존 본문의 「6대 전환 블록(히어로·페인포인트·솔루션·소셜 프루프·가격·클로징)」은 실제 코드와 다르다.
+- 필요한 키·연동(회원 본인 것, 공용 `user_api_keys`): `gemini`(필수 — `MODEL_CHAIN` Pro: `gemini-3.1-pro-preview` → 안 되면 `gemini-3.8-flash`, Standard: `gemini-3.8-flash`, `src/lib/gemini.ts`), 선택 `unsplash`·`pexels`·`pixabay`(이미지 소스로 고를 때만). 기본 이미지는 키 없는 임시 사진. 외부 계정 연동(OAuth) 없음.
+- 자동 실행(예약·정리)·확장: `vercel.json`에 cron 없음, 이 폴더에 30일 정리 코드 없음(프로젝트 최대 50개 상한만 — `src/lib/projects.ts` `MAX_PROJECTS`). 크롬 확장 없음.
+- 최근 변경(커밋 기준):
+  - `1def2373a`·`9810804f1` 저작권·분석 금지 고지(`NOTICE`·`public/ai.txt`·`robots.txt`)
+  - `d1e710d68` 접근 판정 조회 병렬화(판정 같음, 미배포)
+  - `d7146360c` 버전 +0.01(v1.15) · `8b2d37718` `gemini-2.5-flash` → `gemini-3.8-flash`
+  - `0153bf77a` v1.14 Next.js 보안 업데이트
+  - `ab8a84d7a` v1.13 UI Canvas로 보낼 때 회원 이미지 키로 실제 사진 · `f15050e5a` v1.12 서브 페이지·이미지 에셋 보내기
+- 미배포 대기·남은 일: pending-check 기준 — 저장공간 위젯 한 줄 미적용, 범위 없는 `signOut()` 1곳(`src/app/api/auth/logout/route.ts`), 모델 교체 대기 줄. 대시보드 문구(「6대 전환 블록」)는 아직 옛 표현.
+- 다음에 손댈 때 주의: UI Canvas 보내기는 프로그램끼리 호출하지 않고 공용 DB 표에 본인 행을 추가하는 방식(`src/app/api/canvas-export/route.ts`, 문서 모양은 `ui-canvas/src/lib/canvas/types.ts`에 맞춤 — UI Canvas 문서 모양이 바뀌면 `src/lib/lpa/toCanvas.ts`도 함께). Pro 모델이 미리보기 모델(`-preview`)이라 종료되면 다음 모델로 넘어가도록 돼 있음.
+- 이번 점검에서 고친 것: 매뉴얼 화면(`src/app/(workspace)/guide/page.tsx`) — 「6대 전환 블록」을 실제 6개 섹션으로, 레이아웃 5종 이름·React 변환(Vite + React)·섹션 수정 방법·이미지 소스 설명 정정, 버전 글자(v1.10)·동그라미 숫자·과장 표현 제거, 산출물 표에 UI Canvas 줄, FAQ 2개(보관·비용이 드는 버튼) 추가. 설정 화면(`src/components/workspace/KeyManager.tsx`) — Gemini·Pexels·Pixabay 키 카드마다 「📖 발급 방법 매뉴얼 (팝업)」 버튼 추가(Unsplash는 매뉴얼 글 없음). (미배포 — 다음 배포 때 버전 +0.01과 함께)
+
+
 > **공식 서비스 URL**: https://landing-architect.buylife.xyz  
 > **현재 버전**: `v1.13` (플로우 위저드 스타일 — 단계별 랜딩페이지 기획 에디션, 2026-10-21 🧩 UI Canvas로 보내 다듬기)  
 > **작업 일자**: 2026-10-19  

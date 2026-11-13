@@ -16,6 +16,13 @@ interface SettingsModalProps {
   onProviderKeySaved: (provider: TextProvider) => void;
 }
 
+// 메인 사이트의 키 발급 매뉴얼 글(그림 설명, 새 창)
+const KEY_GUIDE_URL: Record<TextProvider, string> = {
+  openai: "https://www.buylife.xyz/guides/1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
+  anthropic: "https://www.buylife.xyz/guides/d03f65c2-efbb-421f-a041-a075562e3b7a",
+  gemini: "https://www.buylife.xyz/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
+};
+
 // OpenAI·Claude 키 발급 주소(Gemini는 아래 기존 링크)
 const KEY_ISSUE_URL: Record<"openai" | "anthropic", string> = {
   openai: "https://platform.openai.com/api-keys",
@@ -189,15 +196,25 @@ export function SettingsModal({
                 <label className="text-xs font-bold text-slate-800">
                   {TEXT_PROVIDER_LABEL[provider]} API Key
                 </label>
-                <a
-                  href={KEY_ISSUE_URL[provider]}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[11px] text-indigo-600 hover:underline flex items-center gap-1 font-semibold"
-                >
-                  <span>키 발급받기</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+                <div className="flex items-center gap-3">
+                  <a
+                    href={KEY_GUIDE_URL[provider]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-indigo-600 hover:underline font-semibold"
+                  >
+                    📖 발급 방법
+                  </a>
+                  <a
+                    href={KEY_ISSUE_URL[provider]}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] text-indigo-600 hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    <span>키 발급받기</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
               <div
                 className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg border font-medium ${
@@ -231,15 +248,25 @@ export function SettingsModal({
               <label className="text-xs font-bold text-slate-800">
                 Google Gemini API Key
               </label>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11px] text-indigo-600 hover:underline flex items-center gap-1 font-semibold"
-              >
-                <span>무료 키 발급받기</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+              <div className="flex items-center gap-3">
+                <a
+                  href={KEY_GUIDE_URL.gemini}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-indigo-600 hover:underline font-semibold"
+                >
+                  📖 발급 방법
+                </a>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-indigo-600 hover:underline flex items-center gap-1 font-semibold"
+                >
+                  <span>무료 키 발급받기</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </div>
             <input
               type="password"

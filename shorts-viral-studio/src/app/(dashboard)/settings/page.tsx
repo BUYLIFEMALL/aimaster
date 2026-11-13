@@ -7,12 +7,13 @@ import { GuideLinkButton } from "@/components/settings/GuideLinkButton";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const PROVIDER_INFO: { id: KeyProvider; name: string; desc: string; guideUrl: string; required?: boolean }[] = [
+const PROVIDER_INFO: { id: KeyProvider; name: string; desc: string; guideUrl: string; guideId: string; required?: boolean }[] = [
   {
     id: "youtube_api_key",
     name: "YouTube Data API v3 키",
     desc: "쇼츠 검색과 조회수·구독자·댓글 수집에 필수입니다. 구글 클라우드 콘솔에서 'YouTube Data API v3'를 사용 설정한 뒤 API 키를 만드세요. 검색 1회에 약 100유닛(기본 하루 1만유닛)이 사용됩니다.",
     guideUrl: "https://console.cloud.google.com/apis/library/youtube.googleapis.com",
+    guideId: "72d39d06-a7ca-4ab0-8327-f9bb085ac394",
     required: true,
   },
   {
@@ -20,18 +21,21 @@ const PROVIDER_INFO: { id: KeyProvider; name: string; desc: string; guideUrl: st
     name: "Google Gemini API 키",
     desc: "영상 직접 분석에 필요합니다(강력 권장). Gemini를 쓰면 AI가 영상을 실제로 보고 컷 전환과 소리를 정밀 분석합니다. aistudio.google.com에서 무료로 발급받을 수 있습니다.",
     guideUrl: "https://aistudio.google.com/app/apikey",
+    guideId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
   },
   {
     id: "openai",
     name: "OpenAI API 키 (GPT)",
     desc: "소재·대본·프롬프트 생성에 쓸 수 있습니다. platform.openai.com에서 발급받은 'sk-...' 키를 입력하세요. (영상 직접 분석은 지원하지 않아 지표·댓글 기반 추정으로 동작합니다)",
     guideUrl: "https://platform.openai.com/api-keys",
+    guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
   },
   {
     id: "anthropic",
     name: "Anthropic Claude API 키",
     desc: "소재·대본·프롬프트 생성에 쓸 수 있습니다. console.anthropic.com에서 발급받을 수 있습니다. (영상 직접 분석은 지원하지 않아 지표·댓글 기반 추정으로 동작합니다)",
     guideUrl: "https://console.anthropic.com/settings/keys",
+    guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a",
   },
 ];
 
@@ -96,15 +100,25 @@ export default async function SettingsPage() {
                     </span>
                   )}
                 </div>
-                <a
-                  href={item.guideUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-create-key"
-                >
-                  <span>키 발급 바로가기</span>
-                  <span>↗</span>
-                </a>
+                <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href={`https://www.buylife.xyz/guides/${item.guideId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-create-key"
+                  >
+                    <span>📖 발급 방법</span>
+                  </a>
+                  <a
+                    href={item.guideUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-create-key"
+                  >
+                    <span>키 발급 바로가기</span>
+                    <span>↗</span>
+                  </a>
+                </div>
               </div>
 
               <p className="mt-2.5 text-xs text-slate-600 leading-relaxed font-medium">{item.desc}</p>
