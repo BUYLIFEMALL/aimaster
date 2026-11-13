@@ -2,25 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createExtensionConnectTokenAction } from "@/lib/actions/coupangResults";
+import { askExtension } from "@/lib/extensionBridge";
 
-function askExtension<T>(type: string, timeoutMs: number, payload: Record<string, unknown> = {}): Promise<T | null> {
-  return new Promise((resolve) => {
-    const requestId = `${type}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const timer = window.setTimeout(() => {
-      window.removeEventListener("message", onMessage);
-      resolve(null);
-    }, timeoutMs);
-    function onMessage(event: MessageEvent) {
-      if (event.source !== window || event.origin !== window.location.origin) return;
-      if (event.data?.source !== "tpf-extension" || event.data.requestId !== requestId) return;
-      window.clearTimeout(timer);
-      window.removeEventListener("message", onMessage);
-      resolve(event.data.result as T);
-    }
-    window.addEventListener("message", onMessage);
-    window.postMessage({ ...payload, source: "tpf-app", type, requestId }, window.location.origin);
-  });
-}
 
 type Ping = { ok: boolean; version: string; connected: boolean };
 

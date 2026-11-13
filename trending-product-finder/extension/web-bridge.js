@@ -17,6 +17,11 @@
       } else {
         result = { ok: false, error: "연결 코드 형식이 올바르지 않습니다." };
       }
+    } else if (message.type === "collect-photos") {
+      // 원본 사진 참고 수집(2026-11-13): 뒤편이 회원 브라우저로 사진을 받아 돌려준다. 필요한 값만 넘긴다.
+      result = await chrome.runtime
+        .sendMessage({ type: "collect-photos", market: message.market, id: message.id, productUrl: message.productUrl, imageUrls: message.imageUrls, consent: message.consent === true })
+        .catch(() => ({ ok: false, error: "확장과 연결하지 못했습니다. 확장을 새로 고친 뒤 다시 눌러 주세요." }));
     } else {
       return;
     }

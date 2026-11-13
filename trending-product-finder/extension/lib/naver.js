@@ -2,6 +2,8 @@
 // 화면 글자가 아니라 페이지에 함께 내려오는 상품 자료(__NEXT_DATA__ compositeList.list)를 읽는다(2026-11-03 실측: 1페이지 56개).
 // 「가격비교」로 묶인 상품(판매처 여러 곳)은 구매수가 0으로 오고 리뷰 수만 있다. 판매처가 한 곳인 상품에만 구매수가 있다.
 
+import { cleanImageUrl } from "./photos.js";
+
 const HOST = "https://search.shopping.naver.com";
 // 상품명에 흔한 말이라도 상품이 0개인 화면에서만 본다.
 const BLOCK_TEXT = /보안 확인|자동입력 방지|비정상적인|접근이 제한|일시적으로 제한|captcha/i;
@@ -47,6 +49,7 @@ export function readNaverPage() {
           mall: item?.mallName ?? "",
           sellers: item?.mallCount ?? 0,
           url: item?.mallProductUrl ?? "",
+          image: item?.imageUrl ?? "",
         }))
       : null,
   };
@@ -84,6 +87,7 @@ export function parseNaverRow(row) {
     mall: sellers > 0 ? "" : String(row?.mall ?? "").trim(),
     sellers,
     url: id ? naverProductUrl({ id, sellers, url: row?.url }) : "",
+    imageUrl: cleanImageUrl(row?.image),
   };
 }
 

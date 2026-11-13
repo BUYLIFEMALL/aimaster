@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { deleteReviewRunAction, getReviewItemsAction, renameReviewRunAction, type ReviewItem, type ReviewRun } from "@/lib/actions/coupangResults";
 import { sellerText, toCsv } from "@/extension/lib/parse.js";
 import { MARKET_LABEL, type SourcingMarket } from "@/lib/coupangResults";
+import { shopDetailPageUrl } from "@/lib/shopDetailLink";
+import { DetailPageButton } from "@/components/sourcing/DetailPageButton";
 
 const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "medium", timeStyle: "short" });
 const runTitle = (run: ReviewRun) => run.label || run.keyword || "키워드 없음";
@@ -134,7 +136,7 @@ export function ReviewResults({ initialRuns, market = "coupang" }: { initialRuns
                       {shown.map((item) => (
                         <tr key={item.product_id} className="border-b border-mx-border/60">
                           <td className="whitespace-nowrap py-2 pr-2 text-right text-mx-muted">{item.sales_rank ?? "-"}</td>
-                          <td className="py-2 pr-2"><a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#93c5fd] hover:underline">{item.is_ad ? `[광고] ${item.name}` : item.name}</a>{naver && <span className="block text-[11px] text-mx-muted">{sellerText({ market, sellers: item.sellers ?? 0, mall: item.mall_name ?? "" })}</span>}</td>
+                          <td className="py-2 pr-2"><a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#93c5fd] hover:underline">{item.is_ad ? `[광고] ${item.name}` : item.name}</a>{naver && <span className="block text-[11px] text-mx-muted">{sellerText({ market, sellers: item.sellers ?? 0, mall: item.mall_name ?? "" })}</span>}<DetailPageButton href={shopDetailPageUrl({ title: item.name, platform: market, detailUrl: item.url })} market={market} productId={item.product_id} productUrl={item.url} title="이 상품으로 상세페이지 만들기(원본 사진은 참고용 — 상품 페이지를 크롬에서 열어 두면 큰 사진까지)" className="mt-1 rounded border border-mx-border px-1.5 py-0.5 text-[11px] font-bold text-mx-link hover:bg-mx-primary/10">📄 상세페이지</DetailPageButton></td>
                           <td className="whitespace-nowrap py-2 pr-2 text-right">{item.price == null ? "-" : `${item.price.toLocaleString("ko-KR")}원`}</td>
                           <td className="whitespace-nowrap py-2 text-right">{item.reviews.toLocaleString("ko-KR")}</td>
                           {naver && <td className="whitespace-nowrap py-2 pl-2 text-right">{(item.purchases ?? 0).toLocaleString("ko-KR")}</td>}

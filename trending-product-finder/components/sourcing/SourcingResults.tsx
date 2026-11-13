@@ -3,6 +3,7 @@
 import { matchedPromoKeyword } from "@/lib/promoKeywords";
 import type { NormalizedProduct, Platform, PlatformResult } from "@/lib/sourcingResults";
 import { shopDetailPageUrl } from "@/lib/shopDetailLink";
+import { DetailPageButton } from "./DetailPageButton";
 
 interface ToolsProps {
   keyword: string;
@@ -143,16 +144,15 @@ export function PlatformResultList({ label, result, promoFilterEnabled, promoFil
                   🔗 상품 링크
                 </a>
               )}
-              {/* v1.23: 이 상품으로 AI 상세페이지 자동화의 새 상품 화면을 연다(상품명·원본 정보만 전달). */}
-              <a
+              {/* v1.23: 이 상품으로 AI 상세페이지 자동화의 새 상품 화면을 연다. v1.38: 확장이 있으면 원본 사진도 참고용으로 넘긴다. */}
+              <DetailPageButton
                 href={shopDetailPageUrl(prod)}
-                target="_blank"
-                rel="noreferrer"
-                title="AI 상세페이지 자동화에서 이 상품의 상세페이지를 만듭니다 (새 창)"
+                imageUrls={prod.imageUrl ? [prod.imageUrl] : []}
+                title="AI 상세페이지 자동화에서 이 상품의 상세페이지를 만듭니다 (새 창, 원본 사진은 참고용)"
                 className="shrink-0 rounded-lg border border-mx-primary/40 bg-mx-surface px-3 py-1.5 text-xs font-bold text-mx-link hover:bg-mx-primary/10"
               >
                 📄 상세페이지
-              </a>
+              </DetailPageButton>
               <button
                 type="button"
                 onClick={() => onSave(prod)}

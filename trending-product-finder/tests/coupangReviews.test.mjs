@@ -13,7 +13,7 @@ const one = parseCard({ lines: ["국내산 세척솔", "8,900원", "무료배송
 const none = parseCard({ lines: ["온빛5 세척솔 리필", "6,300원", "배송비 2,800원", "최대 315원 적립", "6"], href: "/vp/products/9790877505" });
 
 test("카드에서 판매가·리뷰 수·광고를 읽는다", () => {
-  assert.deepEqual(ad, { id: "8640872937", name: "허니앤버니 텀블러 대용량", price: 28700, reviews: 1981, isAd: true, url: "https://www.coupang.com/vp/products/8640872937" });
+  assert.deepEqual(ad, { id: "8640872937", name: "허니앤버니 텀블러 대용량", price: 28700, reviews: 1981, isAd: true, url: "https://www.coupang.com/vp/products/8640872937", imageUrl: "" });
   assert.equal(one.reviews, 1);
   assert.equal(none.reviews, 0);
   assert.equal(none.price, 6300);
@@ -160,7 +160,7 @@ const single = parseNaverRow({ id: "88591845041", name: "대용량 텀블러 퀜
 const catalog = parseNaverRow({ id: "45678912345", name: "스탠리 퀜처 H2.0", price: 41820, reviews: 81417, purchases: 0, isAd: false, mall: "", sellers: 782, url: "" });
 
 test("네이버: 판매처 한 곳 상품은 구매 수·판매처·스마트스토어 주소를 쓴다", () => {
-  assert.deepEqual(single, { market: "naver", id: "88591845041", name: "대용량 텀블러 퀜처 보온 보냉텀블러", price: 14500, reviews: 13323, purchases: 3114, isAd: false, mall: "1리터텀블러 마켓", sellers: 0, url: "https://smartstore.naver.com/main/products/8469600558" });
+  assert.deepEqual(single, { market: "naver", id: "88591845041", name: "대용량 텀블러 퀜처 보온 보냉텀블러", price: 14500, reviews: 13323, purchases: 3114, isAd: false, mall: "1리터텀블러 마켓", sellers: 0, url: "https://smartstore.naver.com/main/products/8469600558", imageUrl: "" });
 });
 
 test("네이버: 가격비교 상품은 가격비교 화면 주소, 바깥 주소는 쓰지 않는다", () => {

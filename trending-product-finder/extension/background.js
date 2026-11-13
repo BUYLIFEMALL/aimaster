@@ -3,6 +3,7 @@
 // 하루 상한과 거부 징후 일시정지는 두 마켓이 함께 쓴다(한쪽에서 징후가 보이면 둘 다 쉰다).
 import { MARKETS, SCHEDULE_ALARM_PREFIX, SCHEDULE_RETRY_MINUTES, isSearchUrl, marketOf, migrateSchedules, kstDay, nextGapMinutes, nextScheduleAt, safetyMessage, searchUrl, startProblem, todayRecord, validTime } from "./lib/auto.js";
 import { addToLocalList, readTab, saveToAccount } from "./lib/page.js";
+import { collectPhotos } from "./lib/collect.js";
 
 const ALARM = "auto-next";
 const LEGACY_SCHEDULE_ALARM = "auto-schedule"; // v1.34까지 하나짜리 예약
@@ -237,6 +238,11 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
   }
   if (message?.type === "safety-resume") {
     chrome.storage.local.remove("autoSafety").then(() => showSafetyBadge(false)).then(() => armSchedule(false)).then(() => reply({ ok: true }));
+    return true;
+  }
+  // 2026-11-13 원본 사진 참고 수집 — 우리 사이트 화면(web-bridge)이 「상세페이지」를 누를 때만
+  if (message?.type === "collect-photos") {
+    collectPhotos(message).then(reply, () => reply({ ok: false, error: "사진을 받는 중 오류가 났습니다." }));
     return true;
   }
   if (message?.type === "auto-stop") {

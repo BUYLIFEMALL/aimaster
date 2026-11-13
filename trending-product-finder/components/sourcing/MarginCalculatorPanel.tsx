@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { shopDetailPageUrl } from "@/lib/shopDetailLink";
+import { DetailPageButton } from "./DetailPageButton";
 // v1.10: SourcingCalculator에서 분리 — 💰 마진 계산기(입력칸 + 영수증 형태 결과). 화면·계산식은 이전과 같다.
 import { calcMargin, MARGIN_DEFAULTS, type MarginResult } from "@/lib/margin";
 // v1.27(E1): 마켓별 정산 공식 — 공용 기준 코드 market-fees 사본(lib/marketFees.ts, 직접 고치지 말 것)
@@ -186,18 +187,17 @@ export function MarginCalculatorPanel({
               <span className="block text-[11px] text-mx-muted">할인가로는 넘기지 않아 이미지에 특가·할인 문구가 생기지 않습니다.</span>
             </span>
           </label>
-          <a
+          <DetailPageButton
             href={shopDetailPageUrl(
               { title: selectedTitle, platform: selectedPlatform, detailUrl: selectedDetailUrl },
               passPrice ? num(form.sellingPrice) : undefined,
               inFlow,
             )}
-            target="_blank"
-            rel="noreferrer"
+            imageUrls={selectedImage ? [selectedImage] : []}
             className="shrink-0 rounded-lg bg-mx-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-[#1d4ed8]"
           >
             📄 상세페이지 만들기
-          </a>
+          </DetailPageButton>
         </div>
       )}
 

@@ -14,6 +14,8 @@ export function readVisiblePage() {
       lines: node.innerText.split("\n"),
       href: node.querySelector('a[href*="/vp/products/"]')?.getAttribute("href") ?? "",
       name: node.querySelector('[class*="productName"]')?.innerText ?? node.querySelector("img[alt]")?.getAttribute("alt") ?? "",
+      // 2026-11-13 원본 사진 참고 수집: 카드의 상품 사진 주소(이 PC 목록에만 보관, 사진 자체는 「상세페이지」를 누를 때만 받음)
+      image: node.querySelector("img")?.getAttribute("src") ?? node.querySelector("img")?.getAttribute("data-src") ?? "",
     })),
   };
 }

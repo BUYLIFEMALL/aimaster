@@ -7,13 +7,13 @@ import { platformLabel, type Platform } from "./sourcingResults";
 const SHOP_DETAIL_URL = "https://shop-detail-page.buylife.xyz/products/new";
 
 export function shopDetailPageUrl(
-  product: { title: string; platform: Platform; detailUrl: string },
+  product: { title: string; platform: Platform | "coupang" | "naver"; detailUrl: string },
   sellingPriceKrw?: number,
   /** E9: 쇼핑몰 흐름 중이면 흐름 표시(flow=shop)를 함께 넘긴다 — 받는 쪽은 띠 사본이 생기면 흐름 띠를 보여 준다 */
   inFlow = false,
 ): string {
   const source = [
-    `원본 판매처: ${platformLabel(product.platform) ?? product.platform}`,
+    `원본 판매처: ${product.platform === "coupang" ? "쿠팡" : product.platform === "naver" ? "네이버쇼핑" : (platformLabel(product.platform) ?? product.platform)}`,
     `원본 상품명: ${product.title}`,
     product.detailUrl ? `원본 링크: ${product.detailUrl}` : "",
   ]
