@@ -15,8 +15,6 @@
 
 ## 대기 중
 
-- **U10 유튜브 보내기 묶음(2026-11-13 [역할: workspace] `claude-win-20261025-workspace`, 주인님 「모아서 배포」 — 각 프로그램 다음 배포 때 함께)**: ① `playlist-channel-studio` `3b62f49af` 「📋 내가 올린 영상」 줄마다 「📨 업무 워크스페이스로」(라우트 `/api/work-inbox`, 공용 `workInbox.ts` 사본, 시험 2개) — 다음 배포 때 버전 +0.01(v1.40), 배포 뒤 시험 계정으로 보내기 → 받은 업무 → 캘린더 확인. ② `ai-work-workspace` 받은 업무·캘린더 이름표 「플레이리스트 채널 제작 자동화」 `3b62f49af`(없어도 slug로 보일 뿐 동작 같음) + 현황판 소제목·표 제목 겹침 다듬기(아직 코드 없음).
-
 - **메인 사이트 — 옛 주소 `aimaster-buylife.vercel.app` → `www.buylife.xyz` 이동(2026-11-13 [역할: policy] `claude-win-20261112-policy`, 주인님 「추천대로 진행해」 = 다음 메인 배포 때 함께, 이것만으로 빌드하지 않음)**: **아직 코드에 넣지 않음**(메인 파일을 커밋하면 누구의 푸시로든 바로 빌드되므로, 다음 메인 사이트 수정 때 같은 커밋에 넣는다). 넣을 것: `middleware.ts` 맨 앞에서 호스트가 **정확히** `aimaster-buylife.vercel.app`이고 `GET`이며 경로가 `/api/`·`/_next/`로 시작하지 않으면 `https://www.buylife.xyz` + 같은 경로·검색어로 307 이동. `/api/`는 제외(회원이 외부에 등록한 OAuth 콜백·확장 호출 보호, `docs/DOMAIN_SSO_POLICY.md` 「옛 vercel.app 주소 삭제·해제 금지」), 배포별 미리보기 주소(`aimaster-<해시>-buylife.vercel.app`)는 건드리지 않음. 이유: 옛 주소로 로그인하면 기기 정보가 `Vercel Edge Functions`로 찍혀 동시 접속 제한(PC1+모바일1)에서 빠짐(최근 15건). 배포 뒤 확인: 옛 주소 첫 화면 → 새 주소로 이동, 옛 주소 `/api/...`는 그대로 응답.
 
 - **블로그 맥미니 지적 처리(2026-11-12 [역할: blog] `claude-win-blog`)**: `tistory-auto-blog` 열외 회원 보관 안내·배지(시험 177) · `naver-cafe-recruit` 명단 고유 인원·종료 카운터·팝업 버전(시험 17, 확장 → manifest·ZIP·DB 함께). 각 `docs/IMPROVEMENT_HANDOFF_20261112.md`. 다음 그 프로그램 배포 때 함께.
@@ -89,6 +87,8 @@
 | `shots` | v1.48 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `shots-607ynfsog` Ready, DB v1.48) | 대본·주제 후보 행 30일 정리 `44a9df352`(발행 무관, `retention_exempt` 제외, 배경음악 파일 포함) + 매뉴얼 보관 문구 + 저장공간 위젯 + 공용 `ai-video-client` 사본 + 서버 지역 서울(`icn1::icn1` 확인). 시험 22·tsc 통과 |
 | `blog-neighbor-care` | v1.20 · 2026-11-13 ([역할: blog] `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-4u1h4uflh` Ready, DB·확장·ZIP v1.20 검증 OK) | 시계 보정 — 미리보기·수락 409 수정(`1dbf5937a`·`3c913dd80`), 409에 RPC `code`, 한 줄 소개 갱신 |
 | `blog-neighbor-care` | v1.19 · 2026-11-12 ([역할: blog] `claude-win-blog`, 주인님 「순서대로 진행」+환경변수 허락, 빌드 1회, `blog-neighbor-care-ctfwl3obf` Ready, DB·확장 v1.19) | 「🤖 자동 운영」 칸 항상 펼침 `02029e8f4` + 감시 AI 켜짐(환경변수 2개) + 저장공간 위젯 |
+| `ai-work-workspace` | v1.33 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」, `ai-work-workspace-pcj8ihnh4` Ready, DB v1.33) | 업무 현황판 소제목 겹침 수정 + 플레이리스트 이름표 `3b62f49af` |
+| `playlist-channel-studio` | v1.40 · 2026-11-13 (같은 세션, `playlist-channel-studio-f10pyrzt0` Ready, DB v1.40) | U10 유튜브 「📨 업무 워크스페이스로」 버튼 `3b62f49af` |
 | `ai-work-workspace` | v1.32 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」 빌드 1회, `ai-work-workspace-82valxj6y` Ready, DB v1.32) | 업무 현황판 `85fc68e32` · 다시 로그인 안내+오류 한국어 `5a263768d` · 영수증 PDF `d707550ff` |
 | `ai-work-workspace` | v1.31 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「배포해」 빌드 1회, `ai-work-workspace-4yo3r69rc` Ready, DB v1.31) | 단독 화면 스크롤 수정 `ca2120163` + 캘린더·받은 업무 이름표(Shots·원스톱) `e625f1c38` |
 | `ai-work-workspace` | v1.30 · 2026-11-12 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」 빌드 1회, `ai-work-workspace-j22v3r43p` Ready, DB v1.30) | 🧾 홈택스 전자세금계산서 일괄발급 엑셀 `b158a5efb` + 저장공간 위젯 한 줄 `e76e8d375` |
