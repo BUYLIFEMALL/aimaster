@@ -828,7 +828,7 @@ const ROUTES: [string, string, Handler][] = [
 ];
 
 function ratePerMin(): number {
-  return Number(process.env.NC_API_RATE_PER_MIN) || 180;
+  return Number(process.env.NC_API_RATE_PER_MIN) || 60; // AIMaster 2026-11-13: 토큰당 분당 60회(MCP 서버와 같음)
 }
 
 function hasSupportedVersion(raw: string | undefined): boolean {

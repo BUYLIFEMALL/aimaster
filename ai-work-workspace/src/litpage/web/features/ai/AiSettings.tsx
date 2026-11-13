@@ -297,7 +297,7 @@ export function LitMcpAccess() {
         )}
         {/* AIMaster 2026-11-13(플랜 §2-4): 한도·만료·주의 안내 */}
         <div style={{ fontSize: 12, opacity: 0.75, margin: '6px 0' }}>
-          💡 토큰은 5개까지, 발급 뒤 90일이 지나면 자동으로 만료됩니다(토큰마다 1분에 60번까지). ⚠️ 토큰을 가진 도구는 내 권한으로 워크스페이스를 읽고 고칠 수 있으니 남에게 보여 주지 말고, 쓰지 않으면 바로 해지해 주세요.
+          💡 토큰은 5개까지, 발급 뒤 90일이 지나면 자동으로 만료됩니다(토큰마다 1분에 60번까지). 같은 토큰으로 내 프로그램·Make·n8n에서 REST API({serverUrl.replace("/api/mcp", "/v1/…")})도 쓸 수 있습니다. ⚠️ 토큰을 가진 도구는 내 권한으로 워크스페이스를 읽고 고칠 수 있으니 남에게 보여 주지 말고, 쓰지 않으면 바로 해지해 주세요.
         </div>
         <div className="nc-ai-set-token-new">
           <input aria-label={tx('Token name')} placeholder={tx('Token name, e.g. Claude Desktop')} value={name} onChange={(e) => setName(e.target.value)} disabled={!enabled} />

@@ -35,6 +35,7 @@ describe('U14 MCP 서버 1단계', () => {
   });
 
   let token = '';
+  let expired = '';
   it('토큰은 회원당 5개까지 만들고 6번째는 한국어로 거절한다', async () => {
     for (let i = 0; i < 5; i++) {
       const r = await runtime.runRpc('mcpCreateToken', { spaceId, name: `도구 ${i}` }, cat);
@@ -74,5 +75,24 @@ describe('U14 MCP 서버 1단계', () => {
     db.db.prepare('UPDATE mcp_tokens SET created_time = ? WHERE id = ?').run(Date.now() - 91 * 86_400_000, fresh.info.id);
     expect(db.withRequestCache(() => mcp.mcpTokenOwner(`Bearer ${fresh.token}`))?.expired).toBe(true);
     expect((await rpc(fresh.token, { jsonrpc: '2.0', id: 1, method: 'ping' })).status).toBe(401);
+    expired = fresh.token;
+  });
+
+  // U14 2단계(2026-11-13): 공개 REST API /v1 — 같은 개인 토큰, 90일 만료, 연결·봇·웹훅 명령은 계속 닫힘
+  it('공개 REST API: 맞는 토큰이면 내 정보·검색이 되고, 틀리거나 만료된 토큰은 401', async () => {
+    const { Hono } = await import('hono');
+    const { registerPublicApi } = await import('../../src/litpage/server/publicApi/routes.ts');
+    const app = new Hono();
+    registerPublicApi(app);
+    const call = (path: string, tk: string, init: RequestInit = {}) =>
+      db.withRequestCache(() => Promise.resolve(app.fetch(new Request(`https://x.test/v1${path}`, { ...init, headers: { authorization: `Bearer ${tk}`, 'content-type': 'application/json' } }))));
+    const me = await call('/users/me', token);
+    expect(me.status).toBe(200);
+    expect(JSON.stringify(await me.json())).toContain(cat.id);
+    const found = await call('/search', token, { method: 'POST', body: JSON.stringify({ query: '' }) });
+    expect(found.status).toBe(200);
+    expect((await call('/users/me', 'lp_pat_' + 'y'.repeat(32))).status).toBe(401);
+    expect((await call('/users/me', expired)).status).toBe(401);
+    for (const name of ['devCreateConnection', 'devCreateWebhook', 'devInstallationToken']) expect(stageBlock(name)).not.toBeNull();
   });
 });

@@ -33,11 +33,12 @@ function personalForToken(token: string): { tokenId: string; userId: string; spa
   if (!/^lp_pat_[A-Za-z0-9_-]{20,}$/.test(token)) return null;
   let r: { id: string; user_id: string; space_id: string; last_used_time: number | null } | undefined;
   try {
-    r = db.prepare('SELECT id, user_id, space_id, last_used_time FROM mcp_tokens WHERE token_hash = ? AND revoked_time IS NULL').get(sha256(token)) as typeof r;
+    r = db.prepare('SELECT id, user_id, space_id, last_used_time, created_time FROM mcp_tokens WHERE token_hash = ? AND revoked_time IS NULL').get(sha256(token)) as typeof r;
   } catch {
     return null; // table not created (MCP module not loaded)
   }
   if (!r || !isSpaceMember(getRecord<SpaceRecord>('space', r.space_id), r.user_id)) return null;
+  if (Date.now() - Number((r as { created_time?: number }).created_time ?? 0) > 90 * 86_400_000) return null; // AIMaster 2026-11-13: 발급 뒤 90일 만료(MCP 서버와 같음)
   const now = Date.now();
   if (!r.last_used_time || now - r.last_used_time > 60_000) db.prepare('UPDATE mcp_tokens SET last_used_time = ? WHERE id = ?').run(now, r.id);
   return { tokenId: r.id, userId: r.user_id, spaceId: r.space_id };
