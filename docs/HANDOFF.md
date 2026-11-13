@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 메이커 후속 D 영상 연계 검토(문서·읽기 전용)
+- 결론: 새 숏폼 생성기 없이 원스톱 V3 상품 쇼츠가 받는다. 지금 받는 것은 글자 4개(상품명·장점·혜택·보낸 곳)뿐이고 상품 사진·ID·옵션·주소·확정 설명·권리 표시는 미구현, 보내는 버튼은 0건.
+- 플랜: 1단계 「상품 사진」 배경(회원 직접 올리기·켄 번즈 기본·AI 이미지 금지) + 추가 필드 받기 / 2단계 자료함 `sourceRef` 받기. 외형·색·문구 보존, 30일 보관, 재호출 금지 조건, 유료 시험(대본 1회·AI 영상 1회 선택) 별도 승인.
+- 문서: [`shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md`](../shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) — 주인님 결정 3건(§9), sdp·policy·agy·Codex 요청(§10).
+- 코드·DB·배포·유료 호출 0. 다음 첫 단계: 주인님 결정 뒤 `src/lib/script.ts` `Bg.source`에 `"product"` 추가.
+
+## 2026-11-13 [역할: review] Codex 맥미니 — 메이커 F 인수·통합 플랜·기준선 검수
+
+- 사용자 메이커 전체 플랜/독립검수 담당 지정 인수. [통합 플랜·22개 검수 시나리오](analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md)·[근거 JSON](analysis-ecommerce-bundle-20261024/maker-review-baseline-20261113.json). 기존 Windows 세션명/남의 제품소스는 변경하지 않음.
+- 기존 batch 계산6/6통과(Node24 TS), 공유Windows esbuild로 tsx실행은 차단. F-01 대소문자/NFC 파일명 충돌 위험 순수함수재현·실제압축해제미검수. A/C 상품·옵션·role/revision/중복방지/보관 계약→B 화면안→범위확정→구현→F 검수→Windows배포/실물 순서. 신규 구현/실물 완료 아님.
+- A/C 상세산출물 수신대기, A~E 실제착수/수신은 증거없이 갱신하지 않음. Mac 빌드/설치/배포/직접운영DB/유료AI/커밋·푸시0·비용$0. 상세 지적/담당 전달문은 통합 플랜§6~7.
+
+
 ## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 메이커 후속 C 정책 검토(문서·읽기 전용)
 - 산출물: [`docs/analysis-ecommerce-bundle-20261024/POLICY_REVIEW_20261113_MAKER.md`](analysis-ecommerce-bundle-20261024/POLICY_REVIEW_20261113_MAKER.md) — 입력·가공·저장·호스팅·발행·삭제별 허용표, P2 반환 소유권·거절 기준(jobId·productId·role·baseRevision=`updated_at` 트리거), 최소 DB(1차 불필요), 11번가 `/i/` 노출 영향, 운영자료를 지우지 않는 시험안.
 - 발견: 상세페이지 직접 업로드에 용량 사전검사 없음 · 섹션 저장 액션이 이미지 경로 소유를 검사하지 않음 · 11번가 상세사진은 구독 중에도 포스팅 보관 기간(파일 생성일 기준) 뒤 깨짐. 지금 걸린 `/i/` 링크 15·쿠팡 22개는 모두 예외 계정이라 운영 피해 0. 11/21 상세 30일 유예 종료 때 일반 회원 상품 3개 정상 정리 예정.
