@@ -2,7 +2,7 @@
 // U3: 키 입력·저장·삭제 + 📖 연동 매뉴얼 상자(팝업). 서버: /api/keys
 import { useEffect, useState } from "react";
 
-type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key" | "google_client_id" | "google_client_secret" | "popbill_link_id" | "popbill_secret_key";
+type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key" | "google_client_id" | "google_client_secret" | "bolta_api_key";
 const ITEMS: { provider: Provider; name: string; placeholder: string; desc: string; guideId?: string; guideUrl?: string }[] = [
   { provider: "anthropic", name: "Claude (Anthropic)", placeholder: "sk-ant-…", desc: "AI 비서 기본 엔진(Claude Sonnet). 빠른 작업은 Haiku를 씁니다.", guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a" },
   { provider: "openai", name: "OpenAI (GPT)", placeholder: "sk-…", desc: "Claude 키가 없을 때 「자동」이 쓰는 엔진입니다.", guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a" },
@@ -12,12 +12,11 @@ const ITEMS: { provider: Provider; name: string; placeholder: string; desc: stri
   // 2026-11-11 캘린더 연동 ② 구글 계정 연결 — 회원 본인 구글 OAuth 앱(유튜브·구글 블로그 자동화와 같은 공용 칸)
   { provider: "google_client_id", name: "구글 앱 Client ID (캘린더 연결)", placeholder: "…apps.googleusercontent.com", desc: "「📅 캘린더 연동 › 구글 계정 연결」에 씁니다. 구글 클라우드 › API 및 서비스 › 사용자 인증 정보의 OAuth 클라이언트 ID. 유튜브·구글 블로그 자동화에서 이미 등록했다면 「등록됨」으로 보입니다. 이 앱에서 Google Calendar API를 켜고, 「테스트 중」이면 연결이 7일마다 끊기니 「앱 게시」(프로덕션)를 해 주세요.", guideUrl: "https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d" },
   { provider: "google_client_secret", name: "구글 앱 Client Secret (캘린더 연결)", placeholder: "GOCSPX-…", desc: "위 OAuth 클라이언트의 「클라이언트 보안 비밀」.", guideUrl: "https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d" },
-  { provider: "popbill_link_id", name: "팝빌 LinkID (세금계산서 바로 발급)", placeholder: "팝빌에서 받은 LinkID", desc: "「영수증·세금계산서 › 팝빌로 바로 발급」에 씁니다. 팝빌 개발자센터에서 본인 사업자로 API 서비스를 신청하면 LinkID·SecretKey를 받습니다(같은 키로 테스트·실제 모두 사용). 발급 요금은 팝빌이 회원님 계정에 청구합니다.", guideUrl: "https://developers.popbill.com/en/guide/taxinvoice/getting-started/environment-set-up" },
-  { provider: "popbill_secret_key", name: "팝빌 SecretKey (세금계산서 바로 발급)", placeholder: "팝빌에서 받은 SecretKey", desc: "위 LinkID와 함께 받은 비밀 키. 남에게 보여 주지 마세요.", guideUrl: "https://developers.popbill.com/en/guide/taxinvoice/getting-started/environment-set-up" },
+  { provider: "bolta_api_key", name: "볼타 API 키 (세금계산서 바로 발급)", placeholder: "test_… 또는 live_…", desc: "「영수증·세금계산서 › 볼타로 바로 발급」에 씁니다. 볼타 개발자센터에서 본인 사업자로 가입한 뒤 연동을 만들면 테스트 키(test_)와 실제 키(live_)를 바로 받습니다. 처음엔 test_ 키로 시험하고, 실제 발급할 때 live_ 키로 바꿔 주세요. 실제 발급 요금은 볼타가 회원님 포인트에서 차감합니다.", guideUrl: "https://docs.bolta.io" },
 ];
 const GUIDE_URL = (id: string) => `https://www.buylife.xyz/guides/${id}`;
 const openGuide = (it: { guideId?: string; guideUrl?: string }) => window.open(it.guideUrl ?? GUIDE_URL(it.guideId ?? ""), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
-const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "", google_client_id: "", google_client_secret: "", popbill_link_id: "", popbill_secret_key: "" };
+const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "", google_client_id: "", google_client_secret: "", bolta_api_key: "" };
 
 export function KeysForm() {
   const [keys, setKeys] = useState<Record<Provider, string | null> | null>(null);
