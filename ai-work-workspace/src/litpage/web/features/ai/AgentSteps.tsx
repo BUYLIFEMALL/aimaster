@@ -9,6 +9,17 @@ import { AiMarkdown } from './AiMarkdown.tsx';
 import type { AgentStep, ApprovalPayload, StepRef, TouchedPage, TurnChanges } from './aiApi.ts';
 import { tx } from '../shell/i18n.ts';
 
+// AIMaster 2026-11-13: 서버가 영어로 보내는 단계 문구(Viewing·Searched·Updated settings 등)를 표시할 때 한국어로 바꾼다(사전에 없으면 그대로).
+function stepText(label: string): string {
+  const hit = tx(label);
+  if (hit !== label) return hit;
+  const m = /^(Viewed|Open|Ran MCP tool:|Called by) (.+)$/.exec(label);
+  if (!m || tx('Viewed') === 'Viewed') return label; // 영어 화면이면 그대로
+  const head = ({ Viewed: '확인함', Open: '열기', 'Ran MCP tool:': 'MCP 도구 실행:', 'Called by': '호출한 에이전트:' } as Record<string, string>)[m[1]];
+  return `${head} ${m[2]}`;
+}
+const stepDetail = (d: string) => d.split(', ').map((x) => tx(x)).join(', ');
+
 registerIcons({
   aiStepSearch: L.Search,
   aiStepView: L.FileText,
@@ -86,8 +97,8 @@ function StepRow({ s, onAnswer }: { s: AgentStep; onAnswer?: (approvalId: string
     <div className={`nc-ai-agent-step ${s.status}`} data-tool={s.tool} data-status={s.status}>
       <div className="nc-ai-agent-step-row" role={expandable ? 'button' : undefined} onClick={expandable ? () => setOpen(!open) : undefined}>
         <span className="nc-ai-agent-step-icon"><Icon name={icon} size={16} /></span>
-        <span className={`nc-ai-agent-step-label ${running ? 'nc-ai-shimmer' : ''}`}>{s.label}</span>
-        {s.detail && !(refs.length && !s.mcp && refs.some((r) => r.title === s.detail)) && <span className="nc-ai-agent-step-detail nc-ellipsis">{s.detail}</span>}
+        <span className={`nc-ai-agent-step-label ${running ? 'nc-ai-shimmer' : ''}`}>{stepText(s.label)}</span>
+        {s.detail && !(refs.length && !s.mcp && refs.some((r) => r.title === s.detail)) && <span className="nc-ai-agent-step-detail nc-ellipsis">{stepDetail(s.detail)}</span>}
         {s.status === 'declined' && <span className="nc-ai-agent-step-tag">{tx('Rejected')}</span>}
         {shownRefs.length > 0 && !s.mcp && (
           <span className="nc-ai-agent-step-refs" onClick={(e) => e.stopPropagation()}>
@@ -97,7 +108,7 @@ function StepRow({ s, onAnswer }: { s: AgentStep; onAnswer?: (approvalId: string
         )}
         {expandable && <span className="nc-ai-agent-step-chev"><Icon name={open ? 'chevronUp' : 'chevronDown'} size={14} /></span>}
       </div>
-      {s.status === 'error' && s.error && <div className="nc-ai-agent-step-error">{s.error}</div>}
+      {s.status === 'error' && s.error && <div className="nc-ai-agent-step-error">{tx(s.error)}</div>}
       {open && s.mcp && <McpDetails mcp={s.mcp} />}
       {open && !s.mcp && refs.length > 3 && <div className="nc-ai-agent-step-allrefs">{refs.map((r, i) => <RefChip key={i} r={r} />)}</div>}
       {s.status === 'waiting' && s.approval && onAnswer && <ApprovalCard a={s.approval} onAnswer={onAnswer} />}

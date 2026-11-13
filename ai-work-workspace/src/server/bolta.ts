@@ -201,8 +201,12 @@ export const boltaHandlers: Record<string, Handler> = {
         } catch (e) {
           if (e instanceof BoltaError && e.status === 401) throw e;
         }
-        saveDocState(userId, docId, data, bt);
-        return { state: 'requested', mode, message: mode === 'live' ? '국세청 처리 중입니다(보통 10분 안팎). 잠시 뒤 다시 눌러 확인해 주세요.' : '볼타가 처리 중입니다(테스트는 10~30초). 잠시 뒤 다시 눌러 확인해 주세요.' };
+        // 아직 발행 전(또는 실패) — 볼타가 알려 주는 처리 상태 문구를 문서에 남겨 화면에 보여 준다(2026-11-13)
+        const status = await call(key, 'GET', `/v1/taxInvoices/issue/status?clientReferenceId=${encodeURIComponent(bt.ref)}`).then((r) => (typeof r?.message === 'string' ? r.message.trim().slice(0, 200) : '')).catch(() => '');
+        saveDocState(userId, docId, data, { ...bt, message: status || bt.message });
+        const wait = mode === 'live' ? '국세청 처리 중입니다(보통 10분 안팎). 잠시 뒤 다시 눌러 확인해 주세요.' : '볼타가 처리 중입니다(테스트는 10~30초). 잠시 뒤 다시 눌러 확인해 주세요.';
+        const old = Date.now() - bt.time > 30 * 60_000 ? ' 30분이 지나도 그대로면 볼타 개발자센터의 발행 내역에서 실패 사유를 확인해 주세요.' : '';
+        return { state: 'requested', mode, message: `${wait}${status ? ` (볼타 상태: ${status})` : ''}${old}` };
       };
       if (prev?.state === 'requested' && prev.issuanceKey) return await check(prev);
 
