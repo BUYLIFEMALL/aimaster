@@ -18,6 +18,7 @@ import { installAutofillHook } from '@/litpage/server/ai/autofillAuto.ts';
 import { workInboxHandlers } from './workInbox';
 import { receiptHandlers } from './receipts';
 import { boltaHandlers } from './bolta';
+import { boltaWebhookHandlers } from './boltaWebhook';
 import { calendarHandlers } from './calendarSync';
 import { collabHandlers } from './collabPoll';
 import { resolveInvitees, sharingChangeProblem } from './collab';
@@ -137,6 +138,7 @@ const OVERRIDES: Record<string, Handler> = {
   // 영수증·세금계산서(2026-11-11, src/server/receipts.ts)
   ...receiptHandlers,
   ...boltaHandlers, // 2026-11-13: 볼타 세금계산서 발급(회원 본인 키)
+  ...boltaWebhookHandlers, // 2026-11-13: 볼타 결과 자동 수신(웹훅 주소 만들기)
   // 구글 캘린더 연동(2026-11-11, src/server/calendarSync.ts)
   ...calendarHandlers,
   ...collabHandlers,

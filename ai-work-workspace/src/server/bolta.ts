@@ -43,8 +43,19 @@ function ensureTable() {
   if (ready) return;
   ensureReceiptTables();
   db.exec('CREATE TABLE IF NOT EXISTS aww_bolta (user_id TEXT PRIMARY KEY, live_agreed_time INTEGER, updated_time INTEGER NOT NULL)');
+  // 2026-11-13 웹훅(boltaWebhook.ts): 회원 전용 주소의 토큰(해시만 저장)과 받은 알림 번호(중복 방지)
+  db.exec('ALTER TABLE aww_bolta ADD COLUMN IF NOT EXISTS webhook_token_hash TEXT');
+  db.exec('CREATE TABLE IF NOT EXISTS aww_bolta_webhook_seen (webhook_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, seen_time INTEGER NOT NULL)');
   ready = true;
 }
+/** boltaWebhook.ts가 함께 쓰는 것 */
+export const boltaInternals = {
+  ensureTable: () => ensureTable(),
+  readKey: (userId: string) => readKey(userId),
+  call: (key: string, method: string, path: string) => call(key, method, path),
+  saveDocState: (userId: string, docId: string, data: object, bt: BtState) => saveDocState(userId, docId, data, bt),
+};
+export type { BtState };
 const liveAgreed = (userId: string) => !!(db.prepare('SELECT live_agreed_time FROM aww_bolta WHERE user_id = ?').get(userId) as { live_agreed_time: number | null } | undefined)?.live_agreed_time;
 function profileOf(userId: string): BizInfo | null {
   const r = db.prepare('SELECT data FROM aww_rcpt_profile WHERE user_id = ?').get(userId) as { data: string } | undefined;
@@ -118,7 +129,8 @@ export const boltaHandlers: Record<string, Handler> = {
     const key = await readKey(userId);
     const mode = boltaModeOf(key);
     const corpNum = corpOf(profileOf(userId));
-    const out: Record<string, unknown> = { keys: !!key, keyOk: !!mode, mode, bizNo: corpNum.length === 10, issuer: null, cert: null, certExpires: null, liveAgreed: liveAgreed(userId), problem: null };
+    const out: Record<string, unknown> = { keys: !!key, keyOk: !!mode, mode, bizNo: corpNum.length === 10, issuer: null, cert: null, certExpires: null, liveAgreed: liveAgreed(userId), problem: null,
+      webhookUrl: !!(db.prepare('SELECT webhook_token_hash FROM aww_bolta WHERE user_id = ?').get(userId) as { webhook_token_hash: string | null } | undefined)?.webhook_token_hash };
     if (!key || !mode || corpNum.length !== 10) return out;
     try {
       const iss = await issuerOf(key, corpNum);

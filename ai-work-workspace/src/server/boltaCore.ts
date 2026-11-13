@@ -2,7 +2,7 @@
 // 외부 호출 없는 순수 함수(시험 가능): 인증 헤더, 키 → 테스트/실제, 저장한 세금계산서 → 볼타 정발행 데이터, 요청 번호.
 // 출처(공식 문서 docs.bolta.io): 인증 = HTTP Basic(API 키 + ":" → base64), 키 앞부분 test_/live_로 환경 구분(authentication.md),
 // 정발행 POST https://xapi.bolta.io/v1/taxInvoices/issue 본문(issue-tax-invoice.md), 품목 1~16개, 중복 방지 헤더 Bolta-Client-Reference-Id.
-import { randomBytes } from 'node:crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { cutBytes, isValidBizNo, type BizInfo, type HometaxDoc } from './receiptsCore';
 
 export const BOLTA_KEY_PROVIDER = 'bolta_api_key';
@@ -96,4 +96,44 @@ export function boltaErrorText(status: number, e: { code?: unknown; message?: un
   };
   const msg = known[code] ?? (typeof e?.message === 'string' && e.message.trim() ? e.message.trim() : `볼타 요청이 실패했습니다(${status}).`);
   return code && !known[code] ? `${msg} (볼타 코드 ${code})` : msg;
+}
+
+// ---------------------------------------------------------------- 웹훅(2026-11-13, 결과 자동 수신)
+// 출처: docs.bolta.io/docs/api-introduction/webhook-events.md — Standard Webhooks 규격.
+// 헤더 webhook-id · webhook-timestamp(초) · webhook-signature("v1,<base64>" 여러 개 가능, 공백 구분),
+// 서명 대상 = `${id}.${timestamp}.${원문 body}`, HMAC-SHA256, 키 = 서명 키(whsec_ 뒤 부분을 base64로 푼 바이트).
+export const BOLTA_WEBHOOK_PROVIDER = 'bolta_webhook_secret';
+const WEBHOOK_TOLERANCE_SEC = 300;
+
+export function verifyBoltaWebhook(secret: string, h: { id?: string | null; timestamp?: string | null; signature?: string | null }, rawBody: string, now = Date.now()): string | null {
+  if (!h.id || !h.timestamp || !h.signature) return '서명 헤더가 없습니다.';
+  const ts = Number(h.timestamp);
+  if (!Number.isFinite(ts) || Math.abs(now / 1000 - ts) > WEBHOOK_TOLERANCE_SEC) return '요청 시각이 맞지 않습니다.';
+  const key = Buffer.from(secret.startsWith('whsec_') ? secret.slice(6) : secret, 'base64');
+  if (!key.length) return '서명 키 형식이 올바르지 않습니다.';
+  const expected = createHmac('sha256', key).update(`${h.id}.${h.timestamp}.${rawBody}`).digest();
+  for (const part of h.signature.split(' ')) {
+    const [ver, sig] = part.split(',');
+    if (ver !== 'v1' || !sig) continue;
+    const got = Buffer.from(sig, 'base64');
+    if (got.length === expected.length && timingSafeEqual(got, expected)) return null;
+  }
+  return '서명이 맞지 않습니다.';
+}
+
+/** 웹훅 실패 사유(data.cause) → 한국어 */
+export function boltaCauseText(cause: { code?: unknown; message?: unknown } | null | undefined): string {
+  const code = typeof cause?.code === 'string' ? cause.code : '';
+  const known: Record<string, string> = {
+    INVALID_SUPPLIER_BUSINESS: '「내 사업자」가 볼타에 등록돼 있지 않거나 휴·폐업 상태입니다.',
+    INVALID_SUPPLIED_BUSINESS: '거래처 사업자등록번호가 올바르지 않거나 휴·폐업 상태입니다.',
+    INVALID_CERTIFICATE: '공동인증서가 만료됐거나 폐기됐습니다. 인증서를 다시 등록해 주세요.',
+    CERTIFICATE_UNAVAILABLE: '공동인증서를 쓸 수 없습니다. 인증서를 다시 등록해 주세요.',
+    SIGNING_CERTIFICATE_EXPIRED: '공동인증서가 만료됐습니다. 인증서를 다시 등록해 주세요.',
+    FIELD_LENGTH_EXCEEDED: '입력한 내용이 너무 깁니다(상호·품목·비고 길이를 줄여 주세요).',
+    INTERNAL_SERVER_ERROR: '볼타 내부 오류입니다. 잠시 뒤 다시 발급해 주세요.',
+  };
+  if (known[code]) return known[code];
+  const msg = typeof cause?.message === 'string' && cause.message.trim() ? cause.message.trim().slice(0, 200) : '발급에 실패했습니다.';
+  return code ? `${msg} (볼타·국세청 코드 ${code})` : msg;
 }

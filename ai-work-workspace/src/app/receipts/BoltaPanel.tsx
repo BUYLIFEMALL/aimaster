@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc";
 
-interface BtStatus { keys: boolean; keyOk: boolean; mode: "test" | "live" | null; bizNo: boolean; issuer: boolean | null; cert: boolean | null; certExpires: string | null; liveAgreed: boolean; problem: string | null }
+interface BtStatus { keys: boolean; keyOk: boolean; mode: "test" | "live" | null; bizNo: boolean; issuer: boolean | null; cert: boolean | null; certExpires: string | null; liveAgreed: boolean; problem: string | null; webhookUrl?: boolean }
 
 export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boolean }) => void }) {
   const [open, setOpen] = useState(false);
@@ -49,6 +49,17 @@ export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boo
     await load();
   });
 
+  // (선택) 결과 자동 수신: 회원 전용 웹훅 주소 — 만들 때 한 번만 보여 준다
+  const [hookUrl, setHookUrl] = useState("");
+  const makeHook = () => run(async () => {
+    if (st?.webhookUrl && !window.confirm("웹훅 주소를 새로 만들면 예전 주소는 더 이상 동작하지 않습니다. 볼타 개발자센터에 등록한 주소도 새 주소로 바꿔야 합니다. 계속할까요?")) return;
+    const r = await rpc<{ url: string }>("btWebhookUrl", {});
+    setHookUrl(r.url);
+    void navigator.clipboard?.writeText(r.url).catch(() => {});
+    notify({ text: "웹훅 주소를 만들어 복사했습니다. 이 주소는 지금만 보이니 바로 볼타 개발자센터에 등록해 주세요." });
+    await load();
+  });
+
   const step = (ok: boolean | null | undefined, label: string) => <li>{ok ? "✅" : "⬜"} {label}</li>;
   return (
     <div className="rc-card" style={{ marginBottom: 12 }}>
@@ -75,6 +86,11 @@ export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boo
                 <button type="button" className="rc-btn ghost" disabled={busy} onClick={() => void load()}>상태 새로고침</button>
               </div>
               <p className="rc-hint">⚠️ 테스트 키와 실제 키는 볼타 안에서 발급자·인증서가 따로입니다. live_ 키로 바꾸면 2·3단계를 한 번 더 해 주세요. 발급은 문서마다 「📤 볼타 발급」을 직접 누를 때만 하며, 볼타가 접수한 뒤 결과가 나오면(테스트 10~30초, 실제 약 10분) 같은 버튼으로 확인합니다. 응답이 불확실하면 자동으로 다시 보내지 않습니다.</p>
+              <p className="rc-hint"><b>(선택) 발급 결과 자동 기록</b> {st.webhookUrl ? "✅ 웹훅 주소 만듦" : "⬜ 웹훅 주소 없음"} — ① 「웹훅 주소 만들기」 ② 볼타 개발자센터 › 연동 › 웹훅에 그 주소 등록 ③ 거기서 보이는 서명 키(whsec_)를 <a href="/settings/keys">API키등록·플랫폼연동</a>의 「볼타 웹훅 서명 키」에 저장. 하면 「발급 결과 확인」을 다시 누르지 않아도 결과·실패 사유가 기록됩니다.</p>
+              <div className="rc-row-btns">
+                <button type="button" className="rc-btn ghost" disabled={busy || !st.keyOk} onClick={() => void makeHook()}>{st.webhookUrl ? "웹훅 주소 새로 만들기" : "웹훅 주소 만들기"}</button>
+              </div>
+              {hookUrl && <p className="rc-hint">📋 <code style={{ wordBreak: "break-all" }}>{hookUrl}</code> (복사됨 · 남에게 보여 주지 마세요)</p>}
             </>
           )}
           {!st && <p className="rc-hint">상태를 불러오는 중…</p>}
