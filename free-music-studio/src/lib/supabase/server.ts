@@ -31,6 +31,8 @@ export async function createClient() {
           }
         },
       },
+      // 2026-11-13 로그인 정책: 서버가 대신 로그인할 때 브라우저 기기 정보를 넘긴다(PC 1곳 + 모바일 1곳 판정)
+      global: { headers: { "User-Agent": headerStore.get("user-agent") ?? "" } },
     }
   );
 }
