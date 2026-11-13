@@ -178,20 +178,23 @@ function drawMedia(ctx: CanvasRenderingContext2D, el: CanvasImageSource, progres
 
 /** v1.52 상품 사진: 잘라내지 않고 전체를 보이게(contain) — 뒤에는 같은 사진을 흐리게 꽉 채우고, 상품 위에는 어둡게 덮지 않는다.
  *  색 보정·필터를 상품에 쓰지 않고 4%까지만 천천히 확대한다(형태·색·글자 보존, docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md §4).
- *  글자가 아래쪽에 오도록 상품은 위쪽 상자(가로 960 × 세로 920)에 놓는다. */
+ *  글자가 아래쪽에 오도록 카드 장면은 위쪽 상자(가로 960 × 세로 920), 인트로·마무리는 더 작은 위쪽 상자에 놓는다. */
 export const PRODUCT_BOX = { x: 60, y: 170, w: 960, h: 920 } as const;
-export function productRect(iw: number, ih: number, zoom = 1) {
-  const scale = Math.min(PRODUCT_BOX.w / iw, PRODUCT_BOX.h / ih) * zoom, dw = iw * scale, dh = ih * scale;
-  return { x: PRODUCT_BOX.x + (PRODUCT_BOX.w - dw) / 2, y: PRODUCT_BOX.y + (PRODUCT_BOX.h - dh) / 2, w: dw, h: dh };
+/** 인트로·마무리는 글자 자리가 고정(인트로 이름표 700·제목 860, 마무리 제목 760)이라 그 위쪽 작은 상자에 둔다(2026-11-13 화면 확인에서 제목이 상품 글자를 가림) */
+export const PRODUCT_BOX_TOP = { x: 140, y: 140, w: 800, h: 520 } as const;
+type Box = { x: number; y: number; w: number; h: number };
+export function productRect(iw: number, ih: number, zoom = 1, box: Box = PRODUCT_BOX) {
+  const scale = Math.min(box.w / iw, box.h / ih) * zoom, dw = iw * scale, dh = ih * scale;
+  return { x: box.x + (box.w - dw) / 2, y: box.y + (box.h - dh) / 2, w: dw, h: dh };
 }
-function drawProduct(ctx: CanvasRenderingContext2D, el: CanvasImageSource, progress: number, dim: number) {
+function drawProduct(ctx: CanvasRenderingContext2D, el: CanvasImageSource, progress: number, dim: number, box: Box) {
   const iw = (el as HTMLImageElement).naturalWidth || (el as HTMLVideoElement).videoWidth || 0;
   const ih = (el as HTMLImageElement).naturalHeight || (el as HTMLVideoElement).videoHeight || 0;
   if (!iw || !ih) return false;
   const cover = Math.max(W / iw, H / ih) * 1.1, cw = iw * cover, ch = ih * cover;
   ctx.save(); ctx.filter = "blur(36px)"; ctx.drawImage(el, (W - cw) / 2, (H - ch) / 2, cw, ch); ctx.restore();
   ctx.fillStyle = `rgba(0,0,0,${Math.max(0.35, dim)})`; ctx.fillRect(0, 0, W, H);
-  const r = productRect(iw, ih, 1 + 0.04 * Math.min(1, Math.max(0, progress)));
+  const r = productRect(iw, ih, 1 + 0.04 * Math.min(1, Math.max(0, progress)), box);
   ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.45)"; ctx.shadowBlur = 40; ctx.shadowOffsetY = 12; ctx.drawImage(el, r.x, r.y, r.w, r.h); ctx.restore();
   const g = ctx.createLinearGradient(0, H * 0.6, 0, H); g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,0.5)"); ctx.fillStyle = g; ctx.fillRect(0, H * 0.6, W, H * 0.4);
   return true;
@@ -218,7 +221,7 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
   if (opts.media) {
     const bg = bgFor(s, seg);
     const el = bg ? opts.media(bg) : null;
-    if (el) { if (bg?.source === "product") drawProduct(ctx, el, u / seg.dur, bd.dim); else drawMedia(ctx, el, u / seg.dur, bd.dim); }
+    if (el) { if (bg?.source === "product") drawProduct(ctx, el, u / seg.dur, bd.dim, seg.kind === "card" ? PRODUCT_BOX : PRODUCT_BOX_TOP); else drawMedia(ctx, el, u / seg.dur, bd.dim); }
   }
   ctx.globalAlpha = out;
 
