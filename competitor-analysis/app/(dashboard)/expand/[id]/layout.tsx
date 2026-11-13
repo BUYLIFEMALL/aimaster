@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import { RunListSidebar } from "@/components/expand/RunListSidebar";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +29,7 @@ export default async function SeedLayout({ params, children }: LayoutProps) {
   const { data: runs } = await supabase
     .from("longtail_runs")
     .select("id, executed_at, related_count, expansion_count")
-    .gt("executed_at", retentionCutoff())
+    .gt("executed_at", await memberRetentionCutoff(user.id))
     .eq("user_id", user.id)
     .eq("seed_id", seed.id)
     .order("executed_at", { ascending: false });

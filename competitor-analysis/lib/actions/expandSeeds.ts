@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 
 export interface CreateSeedState {
   error?: string;
@@ -96,7 +96,7 @@ export async function registerKeywordsForAnalysisAction(
     .maybeSingle();
   if (!seed) return { error: "키워드를 찾을 수 없습니다." };
 
-  const cutoff = retentionCutoff();
+  const cutoff = await memberRetentionCutoff(user.id);
   const [{ data: related }, { data: expansions }] = await Promise.all([
     supabase.from("longtail_related_keywords").select("keyword").eq("user_id", user.id).eq("seed_id", seed.id).gt("created_at", cutoff),
     supabase.from("longtail_expansions").select("keyword").eq("user_id", user.id).eq("seed_id", seed.id).gt("created_at", cutoff),

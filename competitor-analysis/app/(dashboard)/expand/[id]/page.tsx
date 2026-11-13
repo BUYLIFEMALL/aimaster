@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +18,7 @@ export default async function SeedIndexPage({ params }: PageProps) {
   const { data: latestRun } = await supabase
     .from("longtail_runs")
     .select("id")
-    .gt("executed_at", retentionCutoff())
+    .gt("executed_at", await memberRetentionCutoff(user.id))
     .eq("user_id", user.id)
     .eq("seed_id", params.id)
     .order("executed_at", { ascending: false })

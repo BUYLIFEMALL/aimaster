@@ -53,7 +53,7 @@
 ## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
 ### 1) 프로그램 로직·기능
 - 쇼츠 대본 분석 오류 문구가 「[설정 > YouTube API 키] 메뉴에서 AI 키를 등록해주세요」라고 안내하지만(`src/app/api/youtube/analyze-script/route.ts:31`), 이 프로그램 설정 화면에는 AI 키 입력 칸이 없고 메인 사이트 `/api-settings`에서 등록합니다. 영상 카드의 「API 키 등록하러 가기 →」도 `/settings`로 갑니다(`src/components/common/VideoCard.tsx:217`). 이번에 설정 화면에 메인 사이트 링크를 넣어 한 번 더 이동하면 되지만, 오류 문구 자체를 「메인 사이트 API 설정에서 Gemini 또는 OpenAI 키 등록」으로 바꾸는 편이 정확합니다. 우선순위 중간. 상태: 제안.
-- 보관함 30일 정리가 관리자·시험 계정(`profiles.retention_exempt`)을 빼지 않습니다 — DB 정리 함수가 모든 행을 지우고(`supabase/migrations/20261017025253_yvs_member_favorites.sql:28`), 조회도 30일 이내만 보여 줍니다(`src/app/api/favorites/route.ts:14`). 우선순위 중간(2026-11-03 주인님 지시: 두 계정은 모든 프로그램에서 30일 열외). 상태: 제안(DB 함수 수정이라 승인 필요).
+- 보관함 30일 정리가 관리자·시험 계정(`profiles.retention_exempt`)을 빼지 않습니다 — DB 정리 함수가 모든 행을 지우고(`supabase/migrations/20261017025253_yvs_member_favorites.sql:28`), 조회도 30일 이내만 보여 줍니다(`src/app/api/favorites/route.ts:14`). 우선순위 중간(2026-11-03 주인님 지시: 두 계정은 모든 프로그램에서 30일 열외). **상태: SQL 작성, 적용 대기 + 조회 코드 이번에 고침(미배포)**(2026-11-13) — `supabase/migrations/20261113120000_yvs_favorites_retention_exempt.sql`(정리 함수·조회 정책에서 예외 회원 제외, 운영 DB 미적용), `src/app/api/favorites/route.ts`·`src/components/favorites/FavoritesProvider.tsx`·`src/app/(dashboard)/favorites/page.tsx`가 예외 회원은 30일 지난 자료도 숨기지 않음(`src/lib/retentionExempt.ts`).
 ### 2) 화면·가독성·사용 편의
 - 설정 화면의 AI 엔진 칸이 Claude 키만 쓰는 것처럼 적혀 있었습니다(실제는 대본 분석 Gemini/OpenAI, 채널·키워드 분석 세 엔진 — `src/app/api/youtube/analyze-script/route.ts:25-26`, `src/lib/ai/models.ts`). 상태: 이번에 고침(미배포).
 - 설정 화면 맨 위 제목이 「보안 키 금고 (Security Key Vault)」라 좌측 메뉴 이름 「API키등록·플랫폼연동」과 다릅니다. 공통 표준 이름에 맞추면 찾기 쉽습니다. 우선순위 낮음. 상태: 제안.
@@ -68,4 +68,4 @@
 - 저장공간 위젯 한 줄 미적용 — 다음 배포 때 레이아웃에 함께. 상태: 대기.
 - 범위 없는 `signOut()` 2곳(`src/app/api/auth/logout/route.ts:6`, `src/lib/actions/auth.ts:43`) — `signOut({ scope: "local" })`로. 상태: 대기.
 - 서버 로그인 기기 정보 미전달 — 서버용 Supabase 클라이언트에 `global.headers["User-Agent"]`. 상태: 대기.
-- 30일 정리 예외 회원: 위 1) 두 번째 항목(예외 처리 없음).
+- 30일 정리 예외 회원: 위 1) 두 번째 항목 → SQL 작성, 적용 대기 + 조회 코드 이번에 고침(미배포).

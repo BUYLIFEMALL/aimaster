@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import { SeedForm } from "@/components/expand/SeedForm";
 import { SeedMatrix } from "@/components/expand/SeedMatrix";
 import type { SeedRowData } from "@/components/expand/SeedRow";
@@ -27,7 +27,7 @@ export default async function SeedsPage() {
     supabase
       .from("longtail_runs")
       .select("seed_id, executed_at")
-      .gt("executed_at", retentionCutoff())
+      .gt("executed_at", await memberRetentionCutoff(user.id))
       .eq("user_id", user.id)
       .order("executed_at", { ascending: false }),
   ]);

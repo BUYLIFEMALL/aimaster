@@ -8,7 +8,8 @@ import { searchSerp, extractDomain } from "@/lib/serp/client";
 import { researchCompanyByDomain, extractCompanyName } from "@/lib/ai/research";
 import { analyzeKeywordCompetitors } from "@/lib/ai/analysis";
 import { generateHtmlReport } from "@/lib/ai/report";
-import { latestProfiles, retentionCutoff } from "@/lib/retention";
+import { latestProfiles } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 
 export interface RunAnalysisState {
   error?: string;
@@ -98,7 +99,7 @@ export async function runKeywordAnalysisAction(keywordId: string): Promise<RunAn
         .from("competitor_company_profiles")
         .select("domain")
         .eq("user_id", user.id)
-        .gt("created_at", retentionCutoff())
+        .gt("created_at", await memberRetentionCutoff(user.id))
         .in("domain", uniqueDomains);
       if (profilesError) throw new Error("본인의 회사 조사 정보를 조회하지 못했습니다. 잠시 후 다시 시도해 주세요.");
       const existingDomains = new Set((existingProfiles ?? []).map((p) => p.domain));
@@ -127,7 +128,7 @@ export async function runKeywordAnalysisAction(keywordId: string): Promise<RunAn
       .from("competitor_company_profiles")
       .select("domain, company_name")
       .eq("user_id", user.id)
-      .gt("created_at", retentionCutoff())
+      .gt("created_at", await memberRetentionCutoff(user.id))
       .order("created_at", { ascending: false })
       .in("domain", uniqueDomains.length > 0 ? uniqueDomains : [""]);
     if (namesError) throw new Error("본인의 회사 조사 정보를 조회하지 못했습니다.");
@@ -175,7 +176,7 @@ export async function generateReportAction(analysisId: string): Promise<Generate
     .select("id, summary_text, keyword_id")
     .eq("id", analysisId)
     .eq("user_id", user.id)
-    .gt("created_at", retentionCutoff())
+    .gt("created_at", await memberRetentionCutoff(user.id))
     .maybeSingle();
   if (!analysis || !analysis.summary_text) return { error: "분석 결과를 찾을 수 없습니다." };
 
@@ -185,7 +186,7 @@ export async function generateReportAction(analysisId: string): Promise<Generate
   try {
     const html = await generateHtmlReport(analysis.summary_text, anthropicKey);
     const { data: saved, error } = await supabase.from("competitor_analyses").update({ html_report: html })
-      .eq("id", analysisId).eq("user_id", user.id).gt("created_at", retentionCutoff()).select("id").maybeSingle();
+      .eq("id", analysisId).eq("user_id", user.id).gt("created_at", await memberRetentionCutoff(user.id)).select("id").maybeSingle();
     if (error) return { error: error.message };
     if (!saved) return { error: "분석 결과의 30일 보관기간이 지났거나 삭제되었습니다." };
 

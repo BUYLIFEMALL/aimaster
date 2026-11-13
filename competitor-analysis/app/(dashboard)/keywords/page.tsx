@@ -1,4 +1,4 @@
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { KeywordForm } from "@/components/keywords/KeywordForm";
@@ -24,7 +24,7 @@ export default async function KeywordsPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("competitor_serp_jobs")
-      .select("keyword_id, executed_at").gt("created_at", retentionCutoff())
+      .select("keyword_id, executed_at").gt("created_at", await memberRetentionCutoff(user.id))
       .eq("user_id", user.id)
       .order("executed_at", { ascending: false }),
   ]);

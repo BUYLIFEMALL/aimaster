@@ -36,7 +36,7 @@
 
 ## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
 ### 1) 프로그램 로직·기능
-- **분석·키워드 확장 30일 정리에 관리자·시험 계정 열외가 없음 (중간·제안)**: 저장소의 정리 함수 `supabase/migrations/20261016115339_member_owned_generated_data_retention.sql:99-113`(분석·검색결과·회사 조사)과 `20261023120000_merge_a_longtail_retention.sql:19-23`(롱테일 실행·확장)은 `retention_exempt`를 보지 않습니다. 제휴 채널 정리(`20261105140000_partner_channels.sql:91`)만 열외가 있습니다. 영향: 관리자·시험 계정과 저장 구독으로 연장된 회원의 분석 결과도 30일 뒤 지워집니다. 운영 DB 함수가 저장소와 같은지는 미확인입니다. 다음 첫 단계: 운영 DB 함수 정의 확인 → `competitor_retention_exempt()`를 두 정리 함수와 조회 정책에 넣는 마이그레이션(DB 변경이라 주인님 승인 필요).
+- **분석·키워드 확장 30일 정리에 관리자·시험 계정 열외가 없음 (중간·제안)**: 저장소의 정리 함수 `supabase/migrations/20261016115339_member_owned_generated_data_retention.sql:99-113`(분석·검색결과·회사 조사)과 `20261023120000_merge_a_longtail_retention.sql:19-23`(롱테일 실행·확장)은 `retention_exempt`를 보지 않습니다. 제휴 채널 정리(`20261105140000_partner_channels.sql:91`)만 열외가 있습니다. 영향: 관리자·시험 계정과 저장 구독으로 연장된 회원의 분석 결과도 30일 뒤 지워집니다. 운영 DB 함수가 저장소와 같은지는 미확인입니다. 다음 첫 단계: 운영 DB 함수 정의 확인 → `competitor_retention_exempt()`를 두 정리 함수와 조회 정책에 넣는 마이그레이션(DB 변경이라 주인님 승인 필요). **상태: SQL 작성, 적용 대기 + 조회 코드 이번에 고침(미배포)**(2026-11-13) — `supabase/migrations/20261113120000_competitor_retention_exempt.sql`(두 정리 함수·30일 조회 차단 정책 4개에서 예외 회원 제외, 판정 함수 `competitor_retention_exempt` 재정의 포함, 운영 DB 미적용·로컬 도커 Postgres에서 동작 확인). 화면·서버 조회 20곳의 `retentionCutoff()`를 `lib/memberRetention.ts`의 `memberRetentionCutoff(회원 id)`로 바꿔 예외 회원은 30일 지난 자료도 보이게 함(`lib/retentionExempt.ts`, 미배포). 적용 전 운영 함수가 저장소와 같은지 확인 필요.
 
 ### 2) 화면·가독성·사용 편의
 - **SerpApi는 메인 사이트 매뉴얼 글이 없음 (낮음·대기)**: 설정 화면 SerpApi 칸에는 공식 발급 링크만 있고 `/guides` 매뉴얼 글이 없습니다(매뉴얼 글 없음). 글이 생기면 `app/(dashboard)/settings/page.tsx`의 SerpApi 섹션 `guides`에 넣습니다.
@@ -54,4 +54,4 @@
 - **저장공간 위젯 미적용 (중간·대기)**: `app/layout.tsx`에 `storage-widget.js` 한 줄이 없습니다. 다음 배포 때 함께 넣습니다(`docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`).
 - **로그아웃 범위 없음 (중간·대기)**: `lib/actions/auth.ts:36` `supabase.auth.signOut()` → `signOut({ scope: "local" })`로 바꿉니다(`docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md`).
 - **서버 로그인 기기 정보 미전달 (중간·대기)**: `lib/supabase/server.ts:13` `createServerClient`에 `global.headers["User-Agent"]`가 없습니다(같은 안내 문서 2-2절).
-- 30일 정리 예외 회원: 위 1번 참고(제휴 채널만 열외 적용).
+- 30일 정리 예외 회원: 위 1번 참고(제휴 채널만 열외 적용) → 분석·키워드 확장도 SQL 작성, 적용 대기 + 조회 코드 이번에 고침(미배포).

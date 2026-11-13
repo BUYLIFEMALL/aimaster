@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import { RunMatrix } from "@/components/expand/RunMatrix";
 import { PageHero } from "@/components/layout/PageHero";
 import { KpiCard, KpiGrid } from "@/components/dashboard/KpiCard";
@@ -16,7 +16,7 @@ export default async function RunsPage() {
   const { data: runs } = await supabase
     .from("longtail_runs")
     .select("id, seed_id, executed_at, related_count, expansion_count, summary_text")
-    .gt("executed_at", retentionCutoff())
+    .gt("executed_at", await memberRetentionCutoff(user.id))
     .eq("user_id", user.id)
     .order("executed_at", { ascending: false });
 

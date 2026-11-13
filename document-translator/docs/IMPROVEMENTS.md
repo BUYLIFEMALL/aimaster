@@ -29,7 +29,7 @@
 
 ## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
 ### 1) 프로그램 로직·기능
-- **30일 정리가 관리자·시험 계정도 지움** — `supabase/migrations/20261014094000_document_translator_retention.sql:5`의 크론이 `expires_at<=now()`면 회원 구분 없이 삭제하고, 조회 정책(`20261014082202_document_translator_initial.sql:32`)과 목록 API(`src/app/api/projects/route.ts:28`)도 만료분을 숨긴다. 「`retention_exempt` 회원 제외」 규칙(루트 `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md`)과 다름. 저장 구독으로 기간을 늘린 회원도 이 프로그램에서는 30일 고정. 영향: 관리자·시험 계정·저장 구독 회원 자료가 30일 뒤 삭제됨. 우선순위 높음. 상태 제안(DB 변경이라 주인님 승인 필요).
+- **30일 정리가 관리자·시험 계정도 지움** — `supabase/migrations/20261014094000_document_translator_retention.sql:5`의 크론이 `expires_at<=now()`면 회원 구분 없이 삭제하고, 조회 정책(`20261014082202_document_translator_initial.sql:32`)과 목록 API(`src/app/api/projects/route.ts:28`)도 만료분을 숨긴다. 「`retention_exempt` 회원 제외」 규칙(루트 `docs/PLAN_20261031_RETENTION_EXEMPT_ACCOUNTS.md`)과 다름. 저장 구독으로 기간을 늘린 회원도 이 프로그램에서는 30일 고정. 영향: 관리자·시험 계정·저장 구독 회원 자료가 30일 뒤 삭제됨. 우선순위 높음. **상태: SQL 작성, 적용 대기**(2026-11-13) — `supabase/migrations/20261113120000_document_translator_retention_exempt.sql`(크론·조회 정책·`dt_save_project`에서 예외 회원 제외, 운영 DB 미적용) + 목록 API `src/app/api/projects/route.ts`가 예외 회원은 만료 숨김을 풀도록 고침(`src/lib/retentionExempt.ts`, 미배포).
 - **다시 저장해도 만료일이 늘지 않음** — `dt_save_project`의 update가 `expires_at`을 건드리지 않음(초기 마이그레이션 49행). 공통 규칙(생성 기준 30일)과는 맞지만, 회원이 계속 고쳐 쓰는 작업도 처음 저장일 기준으로 사라진다. 매뉴얼에는 이번에 그대로 안내함. 우선순위 낮음. 상태 대기(규칙과 일치, 정책 결정 사항).
 - 용어집(`dt_glossaries`)은 만료 칸이 없어 기간 없이 남는다. 생성 데이터 30일 규칙 대상인지 미확인(회원 설정에 가까움). 우선순위 낮음. 상태 제안(정책 확인).
 - **버전 표기 불일치** — `src/lib/version.ts` v1.23인데 `package.json` 1.20.0. 화면 영향 없음. 우선순위 낮음. 상태 제안.
@@ -46,4 +46,4 @@
 - 저장공간 위젯 한 줄 미적용 — `src/app/layout.tsx`. 중간, 대기.
 - 범위 없는 `signOut()` — `src/app/api/auth/logout/route.ts:12` → `signOut({ scope: "local" })`. 중간, 대기.
 - 서버 로그인 기기 정보: pending-check에서 지적 없음.
-- 30일 정리 예외 회원: 크론이 `retention_exempt`를 빼지 않음(1번 첫 항목, 높음).
+- 30일 정리 예외 회원: 크론이 `retention_exempt`를 빼지 않음(1번 첫 항목, 높음) → SQL 작성, 적용 대기 + 목록 API 이번에 고침(미배포).

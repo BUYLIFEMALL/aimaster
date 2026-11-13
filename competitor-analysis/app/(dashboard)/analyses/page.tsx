@@ -1,4 +1,4 @@
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import Link from "next/link";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -15,7 +15,7 @@ export default async function AnalysesPage() {
 
   const { data: jobs } = await supabase
     .from("competitor_serp_jobs")
-    .select("id, keyword_id, executed_at, total_results").gt("created_at", retentionCutoff())
+    .select("id, keyword_id, executed_at, total_results").gt("created_at", await memberRetentionCutoff(user.id))
     .eq("user_id", user.id)
     .order("executed_at", { ascending: false });
 
@@ -30,7 +30,7 @@ export default async function AnalysesPage() {
   const jobIds = (jobs ?? []).map((j) => j.id);
   const analyses =
     jobIds.length > 0
-      ? (await supabase.from("competitor_analyses").select("job_id, summary_text").eq("user_id", user.id).gt("created_at", retentionCutoff()).in("job_id", jobIds)).data
+      ? (await supabase.from("competitor_analyses").select("job_id, summary_text").eq("user_id", user.id).gt("created_at", await memberRetentionCutoff(user.id)).in("job_id", jobIds)).data
       : [];
   const summaryByJobId = new Map((analyses ?? []).map((a) => [a.job_id, a.summary_text]));
 

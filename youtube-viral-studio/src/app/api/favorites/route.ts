@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { checkProgramAccessApi } from '@/lib/access';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { isRetentionExempt } from '@/lib/retentionExempt';
 import { FAVORITE_TTL_MS, FAVORITES_LOAD_LIMIT, sanitizeFavorite, validId, validKind } from '@/lib/favorites';
 
 export const dynamic = 'force-dynamic';
@@ -11,12 +12,16 @@ export async function GET() {
   const access = await checkProgramAccessApi();
   if (!access.allowed) return json({ error: access.error }, access.status);
   const db = createAdminClient();
-  const { data, error } = await db.from('yvs_favorites').select('item_type,item_id,payload,created_at').eq('user_id', access.user.id).gt('created_at', new Date(Date.now() - FAVORITE_TTL_MS).toISOString()).order('created_at', { ascending: false }).limit(FAVORITES_LOAD_LIMIT);
+  // 30일 보관 예외 회원(profiles.retention_exempt)은 30일 지난 자료도 숨기지 않는다.
+  const retentionExempt = await isRetentionExempt(db, access.user.id);
+  let query = db.from('yvs_favorites').select('item_type,item_id,payload,created_at').eq('user_id', access.user.id);
+  if (!retentionExempt) query = query.gt('created_at', new Date(Date.now() - FAVORITE_TTL_MS).toISOString());
+  const { data, error } = await query.order('created_at', { ascending: false }).limit(FAVORITES_LOAD_LIMIT);
   if (error) return json({ error: '보관함을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.' }, 503);
   const favorites = (data ?? []).flatMap(row => {
     try { if (!validKind(row.item_type) || row.payload?.id !== row.item_id) return []; return [{ ...row, payload: sanitizeFavorite(row.item_type, row.payload) }]; } catch { return []; }
   });
-  return json({ favorites, limit: FAVORITES_LOAD_LIMIT, serverNow: new Date().toISOString() });
+  return json({ favorites, limit: FAVORITES_LOAD_LIMIT, serverNow: new Date().toISOString(), retentionExempt });
 }
 
 async function mutate(request: Request, deleting: boolean) {
@@ -44,8 +49,11 @@ async function mutate(request: Request, deleting: boolean) {
   }
   let payload;
   try { payload = sanitizeFavorite(body.type, body.item); } catch (e) { return json({ error: e instanceof Error ? e.message : '자료가 올바르지 않습니다.' }, 400); }
-  const { error: expiredError } = await db.from('yvs_favorites').delete().eq('user_id', owner).eq('item_type', body.type).eq('item_id', payload.id).lte('created_at', new Date(Date.now() - FAVORITE_TTL_MS).toISOString());
-  if (expiredError) return json({ error: '만료 자료를 정리하지 못했습니다.' }, 503);
+  // 예외 회원은 30일 지난 자료도 남아 있으므로 지우지 않는다(같은 항목은 아래 upsert가 그대로 둔다).
+  if (!(await isRetentionExempt(db, owner))) {
+    const { error: expiredError } = await db.from('yvs_favorites').delete().eq('user_id', owner).eq('item_type', body.type).eq('item_id', payload.id).lte('created_at', new Date(Date.now() - FAVORITE_TTL_MS).toISOString());
+    if (expiredError) return json({ error: '만료 자료를 정리하지 못했습니다.' }, 503);
+  }
   // Ignore duplicate inserts: created_at is assigned by DB once, never refreshed.
   const { error } = await db.from('yvs_favorites').upsert({ user_id: owner, item_type: body.type, item_id: payload.id, payload }, { onConflict: 'user_id,item_type,item_id', ignoreDuplicates: true });
   return error ? json({ error: '보관하지 못했습니다. 다시 시도해주세요.' }, 503) : json({ success: true });

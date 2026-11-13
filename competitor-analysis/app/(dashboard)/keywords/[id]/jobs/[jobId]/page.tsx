@@ -1,4 +1,5 @@
-import { latestProfiles, retentionCutoff } from "@/lib/retention";
+import { latestProfiles } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -38,7 +39,7 @@ export default async function JobDetailPage({ params }: PageProps) {
 
   const { data: job } = await supabase
     .from("competitor_serp_jobs")
-    .select("id, executed_at, total_results").gt("created_at", retentionCutoff())
+    .select("id, executed_at, total_results").gt("created_at", await memberRetentionCutoff(user.id))
     .eq("id", params.jobId)
     .eq("user_id", user.id)
     .eq("keyword_id", keyword.id)
@@ -48,13 +49,13 @@ export default async function JobDetailPage({ params }: PageProps) {
   const [{ data: results }, { data: analysis }, { data: tracked }] = await Promise.all([
     supabase
       .from("competitor_serp_results")
-      .select("id, position, result_type, title, link, snippet, domain").gt("created_at", retentionCutoff())
+      .select("id, position, result_type, title, link, snippet, domain").gt("created_at", await memberRetentionCutoff(user.id))
       .eq("job_id", job.id)
       .eq("user_id", user.id)
       .order("position", { ascending: true, nullsFirst: false }),
     supabase
       .from("competitor_analyses")
-      .select("id, summary_text, html_report").gt("created_at", retentionCutoff())
+      .select("id, summary_text, html_report").gt("created_at", await memberRetentionCutoff(user.id))
       .eq("job_id", job.id)
       .eq("user_id", user.id)
       .maybeSingle(),
@@ -65,7 +66,7 @@ export default async function JobDetailPage({ params }: PageProps) {
   const domains = Array.from(new Set((results ?? []).map((r) => r.domain).filter((d): d is string => !!d)));
   const { data: profiles } =
     domains.length > 0
-      ? await supabase.from("competitor_company_profiles").select("domain, company_name").eq("user_id", user.id).gt("created_at", retentionCutoff()).order("created_at", { ascending: false }).in("domain", domains)
+      ? await supabase.from("competitor_company_profiles").select("domain, company_name").eq("user_id", user.id).gt("created_at", await memberRetentionCutoff(user.id)).order("created_at", { ascending: false }).in("domain", domains)
       : { data: [] };
   const companyNameByDomain = new Map(latestProfiles(profiles ?? []).map((p) => [p.domain, p.company_name]));
 

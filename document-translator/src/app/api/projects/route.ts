@@ -11,21 +11,25 @@ import {
 import { projectInputSchema, stateSchema } from "@/lib/translation/model";
 import { saveProject } from "@/lib/translation/repository";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isRetentionExempt } from "@/lib/retentionExempt";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export async function GET(request: NextRequest) {
   try {
     const user = await authorize(),
       id = request.nextUrl.searchParams.get("id");
-    const query = createAdminClient()
+    const admin = createAdminClient();
+    // 30일 보관 예외 회원(profiles.retention_exempt)은 만료일이 지난 작업도 숨기지 않는다.
+    const exempt = await isRetentionExempt(admin, user.id);
+    let query = admin
       .from("dt_projects")
       .select(
         id
           ? "id,title,payload,revision,updated_at,expires_at"
           : "id,title,revision,updated_at,expires_at",
       )
-      .eq("user_id", user.id)
-      .gt("expires_at", new Date().toISOString());
+      .eq("user_id", user.id);
+    if (!exempt) query = query.gt("expires_at", new Date().toISOString());
     if (id) {
       z.uuid().parse(id);
       const { data, error } = await query.eq("id", id).maybeSingle();

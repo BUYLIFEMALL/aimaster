@@ -1,4 +1,4 @@
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
@@ -26,7 +26,7 @@ export default async function KeywordLayout({ params, children }: LayoutProps) {
 
   const { data: jobs } = await supabase
     .from("competitor_serp_jobs")
-    .select("id, executed_at, engine").gt("created_at", retentionCutoff())
+    .select("id, executed_at, engine").gt("created_at", await memberRetentionCutoff(user.id))
     .eq("user_id", user.id)
     .eq("keyword_id", keyword.id)
     .order("executed_at", { ascending: false });

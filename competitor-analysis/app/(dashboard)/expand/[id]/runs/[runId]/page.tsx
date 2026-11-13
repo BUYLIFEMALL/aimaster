@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { CsvButton, type CsvRow } from "@/components/expand/CsvButton";
@@ -30,7 +30,7 @@ export default async function RunDetailPage({ params }: PageProps) {
   const { data: run } = await supabase
     .from("longtail_runs")
     .select("id, executed_at, related_count, expansion_count, summary_text")
-    .gt("executed_at", retentionCutoff())
+    .gt("executed_at", await memberRetentionCutoff(user.id))
     .eq("id", params.runId)
     .eq("user_id", user.id)
     .eq("seed_id", seed.id)
@@ -44,10 +44,10 @@ export default async function RunDetailPage({ params }: PageProps) {
     supabase
       .from("longtail_related_keywords")
       .select("id, keyword, relevance_score")
-      .gt("created_at", retentionCutoff())
+      .gt("created_at", await memberRetentionCutoff(user.id))
       .eq("seed_id", seed.id)
       .order("relevance_score", { ascending: false, nullsFirst: false }),
-    supabase.from("longtail_expansions").select("id, keyword, related_id").gt("created_at", retentionCutoff()).eq("seed_id", seed.id),
+    supabase.from("longtail_expansions").select("id, keyword, related_id").gt("created_at", await memberRetentionCutoff(user.id)).eq("seed_id", seed.id),
   ]);
 
   const expansionsByRelatedId = new Map<string | null, { id: string; keyword: string }[]>();

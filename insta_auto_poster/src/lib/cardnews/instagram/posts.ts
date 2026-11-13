@@ -4,6 +4,7 @@ import { checkProgramAccess } from "@/lib/cardnews/programAccess";
 import { THIS_PROGRAM_SLUG } from "@/lib/cardnews/access";
 import { getMemberInstagramAccount } from "./memberAccount";
 import { graphBaseFor, publishInstagramCarousel, publishInstagramPost } from "@/lib/instagram/publish";
+import { exemptInFilter, loadRetentionExemptIds } from "@/lib/retentionExempt";
 import { findSameRecentPost, isTooLate, isTransientPublishError, RETRY_DELAY_MS, TOO_LATE_MESSAGE, type RecentMedia } from "@/lib/cardnews/schedule";
 
 // 인스타 게시 기록·예약 게시(v1.19). 즉시 게시와 예약 실행이 같은 함수(publishPaths)를 쓴다.
@@ -160,18 +161,31 @@ export async function dispatchDuePosts(limit = 10, options: DispatchOptions = {}
   return results;
 }
 
-/** 30일 지난 기록·남은 이미지 정리, 30분 넘게 「게시 중」에 멈춘 글은 실패 처리 */
-export async function cleanupOldPosts(): Promise<{ deleted: number; unstuck: number }> {
+/** 30일 지난 기록·남은 이미지 정리, 30분 넘게 「게시 중」에 멈춘 글은 실패 처리.
+ *  30일 보관 예외 회원(profiles.retention_exempt — 관리자·시험 계정·저장 구독 연장 회원)의 기록은 지우지 않는다(2026-11-13).
+ *  예외 목록을 읽지 못하면 30일 삭제는 이번 회차를 건너뛴다(잘못 지우지 않게). 멈춘 글 처리는 삭제가 아니므로 그대로 한다. */
+export async function cleanupOldPosts(): Promise<{ deleted: number; unstuck: number; skipped?: "exempt_unavailable" }> {
   const admin = createAdminClient();
   const cutoff = new Date(Date.now() - RETENTION_MS).toISOString();
-  const { data: old } = await admin.from("cns_insta_posts").select("id, image_paths").lt("created_at", cutoff).limit(200);
-  for (const o of old ?? []) await removeImages(o.image_paths ?? []);
-  if (old?.length) await admin.from("cns_insta_posts").delete().in("id", old.map((o) => o.id));
+  let exempt: string | null | undefined;
+  try {
+    exempt = exemptInFilter(await loadRetentionExemptIds(admin));
+  } catch {
+    exempt = undefined;
+  }
+  let old: { id: string; image_paths: string[] | null }[] = [];
+  if (exempt !== undefined) {
+    let query = admin.from("cns_insta_posts").select("id, image_paths").lt("created_at", cutoff);
+    if (exempt) query = query.not("user_id", "in", exempt);
+    old = (await query.limit(200)).data ?? [];
+    for (const o of old) await removeImages(o.image_paths ?? []);
+    if (old.length) await admin.from("cns_insta_posts").delete().in("id", old.map((o) => o.id));
+  }
   const { data: stuck } = await admin
     .from("cns_insta_posts")
     .update({ status: "failed", error_message: "게시 처리가 너무 오래 걸려 중단했습니다. 인스타그램에서 올라갔는지 확인한 뒤 다시 시도해 주세요.", updated_at: new Date().toISOString() })
     .eq("status", "publishing")
     .lt("updated_at", new Date(Date.now() - STUCK_MS).toISOString())
     .select("id");
-  return { deleted: old?.length ?? 0, unstuck: stuck?.length ?? 0 };
+  return { deleted: old.length, unstuck: stuck?.length ?? 0, ...(exempt === undefined ? { skipped: "exempt_unavailable" as const } : {}) };
 }

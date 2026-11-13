@@ -5,10 +5,10 @@
 - 한 줄 정의: 회원 본인 YouTube Data API 키로 구독자 대비 조회수가 터진 채널·급상승 영상·조회수 폭발 쇼츠를 찾고, 회원 본인 AI 키로 대본·채널·키워드를 분석해 AI 쇼츠 원스톱으로 넘기는 프로그램.
 - 화면·메뉴(실제 코드 기준, `src/components/layout/Sidebar.tsx`): 인텔리전스 레이더(`/dashboard`) / 1 황금 채널 스캐너 / 협업 크리에이터 찾기 / 2 급상승 VPH 매트릭스 / 3 쇼츠 떡상 트리거 / 4 영상 출처 추적기 / 5 황금 공식 보관함 / 내 채널 진짜 지표 / 채널 심층 분석 / 키워드 점유율 분석 / 🔑 API키등록·플랫폼연동 / 📖 연동 & 사용 매뉴얼.
 - 필요한 키·연동(회원 본인 것, `user_api_keys`): `youtube_api_key`(필수, 이 프로그램 설정 화면에서 검증 후 저장) / AI 키 `gemini`·`openai`·`anthropic`(선택, 메인 사이트 `/api-settings`에서 등록 — 영상 카드 「AI 황금 대본 공식 분석」은 Gemini 또는 OpenAI만, 채널·키워드 AI 분석은 세 엔진 중 선택) / `google_client_id`·`google_client_secret`(선택, 「내 채널 진짜 지표」용 본인 구글 OAuth 앱, 연결 정보는 공용 `member_platform_accounts`).
-- 자동 실행(예약·정리)·확장: `vercel.json`은 지역 `icn1`만(crons 없음). 보관함 표 `yvs_favorites`는 DB pg_cron(`yvs-favorites-retention-30d`, 매분)이 30일 지난 행을 지움. 크롬 확장 없음.
+- 자동 실행(예약·정리)·확장: `vercel.json`은 지역 `icn1`만(crons 없음). 보관함 표 `yvs_favorites`는 DB pg_cron(`yvs-favorites-retention-30d`, 매분)이 30일 지난 행을 지움(`profiles.retention_exempt` 회원 제외 SQL `20261113120000_yvs_favorites_retention_exempt.sql` 작성·운영 적용 대기, 조회 숨김 해제 코드 미배포 — 2026-11-13). 크롬 확장 없음.
 - 최근 변경(커밋 기준): 63ba1d3b2 이름 변경·다시 연결 버튼(v1.28 배포) / bb7c7e1b8 구글 앱 공용 매뉴얼 연결 문구(미배포) / 33909b11c 함수 지역 서울 고정(미배포) / 72afdb2e2 내 채널 진짜 지표(v1.27).
 - 미배포 대기·남은 일: bb7c7e1b8, 33909b11c, 이번 점검의 매뉴얼·설정 화면 수정. 정책 점검 3건(저장공간 위젯, 범위 없는 `signOut()` 2곳, 서버 클라이언트 User-Agent) — `docs/IMPROVEMENTS.md` 2026-11-13 절.
-- 다음에 손댈 때 주의: AI 키 등록 칸은 이 프로그램에 없고 메인 사이트에서 받습니다. 보관함 30일 정리는 관리자·시험 계정(`retention_exempt`)을 빼지 않습니다(개선 문서 참고). `youtube-golden-engine` 공용 기준 코드 사본은 직접 고치지 않습니다.
+- 다음에 손댈 때 주의: AI 키 등록 칸은 이 프로그램에 없고 메인 사이트에서 받습니다. 보관함 30일 정리의 `retention_exempt` 제외는 SQL 적용 대기(개선 문서 참고). `youtube-golden-engine` 공용 기준 코드 사본은 직접 고치지 않습니다.
 - 이번 점검에서 고친 것: 설정 화면(`src/app/(dashboard)/settings/page.tsx`) — YouTube Data API 키 칸 옆 발급 매뉴얼 버튼, AI 엔진 칸을 Claude 전용 안내에서 Gemini·OpenAI·Claude 실제 동작으로 정정 + 키별 발급 매뉴얼 버튼 3개 + 메인 사이트 API 설정 링크, 구글 앱 칸에 「내 유튜브 채널 연결 방법」 버튼. 매뉴얼(`src/app/(dashboard)/guide/page.tsx`) — 「처음 시작하기」 카드(키 준비·메뉴별 순서), 쇼츠 연계 질문을 실제 버튼 「🎬 이 대사로 쇼츠 만들기」로 정정, AI 키·보관 기간 질문 추가. (미배포 — 다음 배포 때 버전 +0.01과 함께)
 
 > # ★★★ 최상위 절대 불변 규칙 (2026-10-09 주인님 지시)

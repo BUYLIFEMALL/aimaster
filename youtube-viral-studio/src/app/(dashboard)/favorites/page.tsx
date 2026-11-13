@@ -120,7 +120,7 @@ export default function FavoritesPage() {
           {savedVideos.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {savedVideos.map((v) => (
-                <div key={v.id}><VideoCard video={v} isBookmarked={true} /><p className="mt-2 text-xs text-yt-muted">보관 기한: {new Date(Date.parse(rows.find(r=>r.item_type==='video'&&r.item_id===v.id)!.created_at)+FAVORITE_TTL_MS).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국 시간)</p></div>
+                <div key={v.id}><VideoCard video={v} isBookmarked={true} /><p className="mt-2 text-xs text-yt-muted">보관 기한: {store?.retentionExempt ? '자동 삭제 제외 계정' : <>{new Date(Date.parse(rows.find(r=>r.item_type==='video'&&r.item_id===v.id)!.created_at)+FAVORITE_TTL_MS).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국 시간)</>}</p></div>
               ))}
             </div>
           ) : (
@@ -143,7 +143,7 @@ export default function FavoritesPage() {
           {savedChannels.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {savedChannels.map((c) => (
-                <div key={c.id}><ChannelCard channel={c} isBookmarked={true} /><p className="mt-2 text-xs text-yt-muted">보관 기한: {new Date(Date.parse(rows.find(r=>r.item_type==='channel'&&r.item_id===c.id)!.created_at)+FAVORITE_TTL_MS).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국 시간)</p></div>
+                <div key={c.id}><ChannelCard channel={c} isBookmarked={true} /><p className="mt-2 text-xs text-yt-muted">보관 기한: {store?.retentionExempt ? '자동 삭제 제외 계정' : <>{new Date(Date.parse(rows.find(r=>r.item_type==='channel'&&r.item_id===c.id)!.created_at)+FAVORITE_TTL_MS).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국 시간)</>}</p></div>
               ))}
             </div>
           ) : (

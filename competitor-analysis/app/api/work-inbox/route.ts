@@ -3,7 +3,7 @@ import { checkProgramAccessApi } from "@/lib/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendToWorkInbox } from "@/lib/workInbox";
 import { analysisInboxContent, expandInboxContent } from "@/lib/workInboxContent";
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function loadAnalysis(db: Db, userId: string, id: string): Promise<{ content: Content; path: string } | null> {
-  const cutoff = retentionCutoff();
+  const cutoff = await memberRetentionCutoff(userId);
   const { data: analysis } = await db
     .from("competitor_analyses")
     .select("id, keyword_id, job_id, summary_text, created_at")
@@ -80,7 +80,7 @@ async function loadAnalysis(db: Db, userId: string, id: string): Promise<{ conte
 }
 
 async function loadExpand(db: Db, userId: string, id: string): Promise<{ content: Content; path: string } | null> {
-  const cutoff = retentionCutoff();
+  const cutoff = await memberRetentionCutoff(userId);
   const { data: run } = await db
     .from("longtail_runs")
     .select("id, seed_id, executed_at, summary_text")

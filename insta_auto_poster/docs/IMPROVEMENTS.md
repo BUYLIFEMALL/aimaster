@@ -130,7 +130,7 @@
 
 ### 1) 프로그램 로직·기능
 - **NewsBlur 비밀번호를 그대로(평문) 저장** — `src/lib/actions/newsblurAccount.ts:33-35`가 `newsblur_accounts`에 `password`를 그대로 upsert합니다(회원 본인 행, 저장 전 로그인 확인은 함). 영향: DB가 새면 회원의 NewsBlur 비밀번호가 그대로 드러남. 우선순위 **중간**. 상태: 제안(세션 쿠키만 저장하거나 서버 암호화 검토, 표의 RLS 정책은 이번에 미확인).
-- **카드뉴스 30일 정리에 「보관 열외 회원」 처리가 없음** — `src/lib/cardnews/instagram/posts.ts:164-169` `cleanupOldPosts()`가 `created_at` 30일 지난 `cns_insta_posts` 행·이미지를 회원 구분 없이 지웁니다. 루트 공통 규칙(`profiles.retention_exempt = true` 회원은 제외, `docs/PENDING_DEPLOYS.md` 40줄)과 다름. 우선순위 **중간**. 상태: 대기(다음 배포 때 함께 고칠 항목).
+- **카드뉴스 30일 정리에 「보관 열외 회원」 처리가 없음** — `src/lib/cardnews/instagram/posts.ts:164-169` `cleanupOldPosts()`가 `created_at` 30일 지난 `cns_insta_posts` 행·이미지를 회원 구분 없이 지웁니다. 루트 공통 규칙(`profiles.retention_exempt = true` 회원은 제외, `docs/PENDING_DEPLOYS.md` 40줄)과 다름. 우선순위 **중간**. **상태: 이번에 고침(미배포)**(2026-11-13) — `cleanupOldPosts()`가 `src/lib/retentionExempt.ts`(`loadRetentionExemptIds`·`exemptInFilter`)로 예외 회원 행·이미지를 빼고 지우며, 예외 목록을 못 읽으면 그 회차 30일 삭제를 건너뜀(멈춘 「게시 중」 처리만 계속). 크론 `/api/cardnews/instagram/dispatch`(5분)는 그대로.
 - **피드 AI 이미지 화면비 9:16(기본)·16:9가 인스타 피드 허용 비율과 맞는지 미확인** — `src/components/posts/PostForm.tsx:52-55` 선택지는 9:16·1:1·16:9이고, 저장 때 JPEG 변환(`src/lib/posts/instagramJpeg.ts`)은 비율을 자르지 않습니다. 인스타 피드는 보통 4:5~1.91:1 사이만 받는 것으로 알려져 있어 9:16 게시가 거절되거나 잘릴 수 있습니다(실제 게시 결과 미확인). 우선순위 **중간**. 상태: 제안(9:16 게시 실측 → 필요하면 4:5 선택지 추가 또는 게시 전 4:5로 맞추기).
 
 ### 2) 화면·가독성·사용 편의

@@ -5,6 +5,7 @@ import { build } from 'esbuild';
 
 const mocks = {
   'next/cache': 'export const revalidatePath = () => {};',
+  '@/lib/memberRetention': 'export const memberRetentionCutoff = async () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();', // 2026-11-13: 일반 회원(예외 아님) 기준
   '@/lib/access': 'export const requireProgramAccess = async () => ({id:"member-a"}); export const logProgramUsage=async()=>{};',
   '@/lib/supabase/server': 'export const createClient = async () => globalThis.retentionFixture.client;',
   '@/lib/apiKeys': 'export const resolveApiKey = async (_, user, provider) => { if(user!=="member-a") throw Error("foreign key"); return globalThis.retentionFixture.missingKey === provider ? null : "mock-own-"+provider; };',

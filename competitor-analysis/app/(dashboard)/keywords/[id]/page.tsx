@@ -1,4 +1,4 @@
-import { retentionCutoff } from "@/lib/retention";
+import { memberRetentionCutoff } from "@/lib/memberRetention";
 import { redirect } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -17,7 +17,7 @@ export default async function KeywordIndexPage({ params }: PageProps) {
 
   const { data: latestJob } = await supabase
     .from("competitor_serp_jobs")
-    .select("id").gt("created_at", retentionCutoff())
+    .select("id").gt("created_at", await memberRetentionCutoff(user.id))
     .eq("user_id", user.id)
     .eq("keyword_id", params.id)
     .order("executed_at", { ascending: false })
