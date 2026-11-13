@@ -16,6 +16,7 @@
 ## 대기 중
 
 - **`ai-work-workspace` — 왼쪽 메뉴 버전 표시 v1.34(2026-11-13 [역할: workspace] `claude-win-20261025-workspace`)**: v1.34 배포 때 원본 메뉴 상수(`src/litpage/web/features/shell/AimasterSidebar.tsx`)를 빠뜨려 운영 메뉴에 v1.33이 보임 — 코드는 고쳐 커밋함. 다음 워크스페이스 배포(5번 팝빌 발급) 때 함께.
+- **`ai-work-workspace` — 세금계산서 팝빌 바로 발급(회원 본인 키) `08b46ff1c`(2026-11-13 [역할: workspace])**: 시험 135. 배포는 주인님 빌드 승인 뒤, 실제 시험은 팝빌 테스트 키가 생긴 뒤.
 
 - **메인 사이트 — 옛 주소 `aimaster-buylife.vercel.app` → `www.buylife.xyz` 이동(2026-11-13 [역할: policy] `claude-win-20261112-policy`, 주인님 「추천대로 진행해」 = 다음 메인 배포 때 함께, 이것만으로 빌드하지 않음)**: **아직 코드에 넣지 않음**(메인 파일을 커밋하면 누구의 푸시로든 바로 빌드되므로, 다음 메인 사이트 수정 때 같은 커밋에 넣는다). 넣을 것: `middleware.ts` 맨 앞에서 호스트가 **정확히** `aimaster-buylife.vercel.app`이고 `GET`이며 경로가 `/api/`·`/_next/`로 시작하지 않으면 `https://www.buylife.xyz` + 같은 경로·검색어로 307 이동. `/api/`는 제외(회원이 외부에 등록한 OAuth 콜백·확장 호출 보호, `docs/DOMAIN_SSO_POLICY.md` 「옛 vercel.app 주소 삭제·해제 금지」), 배포별 미리보기 주소(`aimaster-<해시>-buylife.vercel.app`)는 건드리지 않음. 이유: 옛 주소로 로그인하면 기기 정보가 `Vercel Edge Functions`로 찍혀 동시 접속 제한(PC1+모바일1)에서 빠짐(최근 15건). 배포 뒤 확인: 옛 주소 첫 화면 → 새 주소로 이동, 옛 주소 `/api/...`는 그대로 응답.
 
