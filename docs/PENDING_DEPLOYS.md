@@ -15,6 +15,8 @@
 
 ## 대기 중
 
+- **`ai-work-workspace` — 볼타 웹훅 실제 수신 수정(2026-11-13 [역할: workspace], 운영 확인에서 발견)**: 알림이 요청 후 3초 만에 와서 문서를 못 찾던 문제·「_」 든 번호 검색·발급 상태 덮어쓰기 방지·거절 이유 진단 기록·HEAD 200. 시험 141. 이것이 나가야 웹훅이 실제로 문서를 바꿈 — 배포 뒤 테스트 발급 1건으로 확인.
+
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
@@ -48,6 +50,10 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `kakao_auto_poster` | 카카오톡 공유를 회원 본인 카카오 JavaScript 키로(운영자 `NEXT_PUBLIC_KAKAO_JS_KEY` 사용 중단, 최상위 규칙) + 설정 칸·매뉴얼 | 정책 담당 2026-11-13 | 최상위 규칙 위반 수정 | 루트 `supabase/migrations/0072_user_api_keys_kakao_js_key.sql` | **배포 전에 0072 운영 DB 적용 필수**(없으면 키 저장 실패). 배포 뒤 회원 안내: 카카오 콘솔 JavaScript SDK 도메인에 이 주소 추가 |
+| `threads-easy-planner` | 보관함 브라우저 저장을 회원별로 분리 + 30일 정리를 본인 글로 좁히고 예외 계정 제외 | 정책 담당 2026-11-13 | 회원 격리 수정 | 그 프로그램 `docs/IMPROVEMENTS.md` | 코드만, 바로 배포 가능 |
+| `document-translator` `youtube-viral-studio` `competitor-analysis` `insta_auto_poster` | 30일 정리·30일 조회 숨김에서 관리자·시험·보관 연장 회원 제외 | 정책 담당 2026-11-13 | 보관 규칙 | 각 폴더 `supabase/migrations/20261113120000_*retention_exempt.sql`(insta는 SQL 없음) | **앞의 3개는 SQL 운영 적용 → 배포 순서**. competitor는 적용 전 운영 정리 함수가 저장소와 같은지 확인 |
+| `ai-writing-editor` `tarot` `ui-canvas` `kakao_auto_poster` `naver-cafe-poster` `stepmail` | 30일 자동 정리 새로 추가(Vercel 크론 `/api/cron/cleanup-generated`, 예외 회원 제외, **2026-12-14까지 유예**) | 정책 담당 2026-11-13 | 보관 규칙 | 각 폴더 `vercel.json`·IMPROVEMENTS | 배포 때 각 프로젝트 `CRON_SECRET` 환경변수 확인. stepmail은 크론 활성화 사전 승인(그 폴더 AGENTS 수칙) |
 | `reverse-prompt` `crm-google-form` `kakao_auto_poster` `naver-cafe-poster` `cinematic-storyboard-studio` `landing-architect` `ui-canvas` `booking-reminder` `comment-inbox` `competitor-analysis` `stepmail` `mbti` `mbti-character` `personality-suite` `tarot` `ai-slide-builder` `ai-writing-editor` `document-translator` `ebook-studio` `file-merge` `markdown-studio` `shorts-viral-studio` `thumbnail-master` `youtube-viral-studio` `threads-easy-planner` `ai-influencer-studio` `ai-webtoon-studio` `insta_auto_poster` | 2026-11-13 전체 점검(28개): 매뉴얼을 실제 기능에 맞게 정정·보강, 설정 화면 키·연동 칸 옆 「📖 발급 방법」 링크 버튼, AGENTS 「현재 상태 요약」·IMPROVEMENTS 보강(문서는 배포 무관). **버전은 올리지 않음** — 각 프로그램 다음 배포 때 +0.01과 함께 | 커밋 5건(정책 담당, 2026-11-13) | 작은 화면·문구 수정(모아서 배포 규칙) | 각 프로그램 `docs/IMPROVEMENTS.md` 「2026-11-13 전체 점검」 절, 현황 `docs/DEV_STATUS_20261113.md` | 배포 뒤 `/guide`·설정 화면 버튼 확인. `insta_auto_poster` 요약은 `docs/STATUS_20261113.md`. 확인 요청: `thumbnail-master` 기존 대기 2줄은 11-06 v2.01 때 이미 나간 것으로 보임, `ui-canvas` `7afee3c23` 배포 여부 |
 | `shorts-onestop-studio` | 상품 사진 쇼츠 개선 5건(인트로 간격·사진 순서 ◀ ▶·뺀 사진 파일 삭제 API·저장 대본 열면 상품 다시 채움·매뉴얼 4단계) | 이 줄 커밋 직전 코드 커밋 | 2026-11-13 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때 v1.54, 배포 뒤 MP4 파일로 상품 외형 대조 |
 | **권한 판정 동시 조회 56개**(목록: `docs/ACCESS_CHECK_PARALLEL_20261106.md`) | 회원 권한 판정의 순차 조회 4회 → 두 묶음 동시 조회(판정 순서·결과 그대로, 첫 화면만 빨라짐). 주인님 결정 A-7 | `d1e710d68` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `docs/ACCESS_CHECK_PARALLEL_20261106.md` | 그 프로그램 다음 배포 때 함께(급하지 않음, 따로 배포 안 함). 배포한 세션은 문서 목록에서 그 줄에 ✅ |

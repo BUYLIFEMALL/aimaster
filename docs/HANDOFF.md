@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 카카오 공유 본인 키·쓰레드 기획 회원 격리·30일 정리 10개
+- 카카오 공유: 운영자 JS 키 → 회원 본인 `kakao_js_key`(DB 허용 목록 추가 SQL 0072 작성, **운영 적용은 권한 검사에서 막혀 미적용**). 쓰레드 기획: 브라우저 저장 회원별 분리, 30일 정리가 서버 키로 전체 회원 글을 지우던 것을 본인 글로 좁힘·예외 계정 제외.
+- 30일 정리: 예외 계정 빼기 4개(SQL 3개 미적용), 새로 넣기 6개(2026-12-14까지 유예). 모두 tsc 0, 미배포. 대기 줄 `docs/PENDING_DEPLOYS.md` 맨 위 4줄.
+- 주의: competitor-analysis 시험을 돌리다 다른 세션 미커밋 증거 파일 `docs/evidence/member-retention-actions.json`이 다시 써짐(차이는 확인 시각 1줄) — 그 세션이 시험 때 다시 만들면 됨.
+- 쓰레드 담당께: `threads/src/lib/postImageCleanup.ts`가 공유 버킷 `post-images/<회원>/` 안의 30일 지난·쓰레드 글이 안 가리키는 파일을 모두 지움 → 네이버 카페 이미지도 지울 수 있음. `threads-affiliate-poster` `cleanup-media`도 같은 버킷인지 확인 필요.
+
 ## 2026-11-13 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-mb-v1` — AI 쇼핑몰 빌더(`mall-builder`) v1.07 손님 화면 1안(106번 네오 모던 B2B 커머스) 디자인 전면 개편 및 운영 배포 완료
 - **작업 내용**: 주인님 「진행해」 및 「이것부터 진행하고 순서대로 진행해」 승인에 따라 **`106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일`** 기반으로 손님 화면(가게 앞) 전면 개편 및 운영 배포 완료.
 - **수정/구현 파일**:
