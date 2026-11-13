@@ -53,7 +53,7 @@ export default function StoragePlanCards({ offers, currentQuotaBytes }: { offers
         })}
       </div>
       <p className="text-subtext text-xs mt-3 break-keep">
-        구독이 끝나면 7일 유예 뒤 기본(30일 보관)으로 돌아가며, 그때 30일이 지난 자료는 자동으로 정리됩니다.
+        구독이 끝나면 7일 유예 뒤 기본(30일 보관)으로 돌아가며, 그때 30일이 지난 자료는 자동으로 정리됩니다. 11번가처럼 마켓 상세설명에 넣은 상세페이지 사진도 구독이 끝나거나 보관 기간이 지나면 보이지 않으니, 오래 판매할 상품은 마켓에 사진을 직접 올려 두세요.
       </p>
       {selected && (
         <PaymentModal

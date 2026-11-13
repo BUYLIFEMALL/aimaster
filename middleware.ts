@@ -3,7 +3,21 @@ import { NextResponse, type NextRequest } from "next/server";
 import { cookieDomainForHost } from "@/lib/supabase/cookieDomain";
 import { getSupabasePublicKey } from "@/lib/supabase/env";
 
+const LEGACY_HOST = "aimaster-buylife.vercel.app";
+
 export async function middleware(request: NextRequest) {
+  // 옛 주소(aimaster-buylife.vercel.app)의 화면 요청은 새 주소로 보낸다(2026-11-13). 옛 주소로 로그인하면 기기 정보가
+  // 서버 이름으로 찍혀 동시 접속 제한(PC 1 + 모바일 1)에서 빠지기 때문. /api/는 회원이 외부에 등록한 OAuth 콜백·확장 호출이라
+  // 그대로 둔다(docs/DOMAIN_SSO_POLICY.md). 배포별 미리보기 주소는 호스트가 달라 해당 없음.
+  if (
+    request.method === "GET" &&
+    (request.headers.get("x-forwarded-host") ?? request.headers.get("host")) === LEGACY_HOST &&
+    !request.nextUrl.pathname.startsWith("/api/") &&
+    !request.nextUrl.pathname.startsWith("/_next/")
+  ) {
+    return NextResponse.redirect(new URL(request.nextUrl.pathname + request.nextUrl.search, "https://www.buylife.xyz"), 307);
+  }
+
   // blog처럼 루트 앱 라우트에 내장되는 서브프로젝트는 자기 페이지에서 로그인이 필요할 때
   // 이 헤더로 "지금 어느 경로였는지"를 읽어서 /login?redirect=로 되돌아올 수 있게 한다
   // (blog/utils/access.ts 참고). 이 헤더 자체는 리다이렉트를 일으키지 않는 순수 정보 전달이다.
