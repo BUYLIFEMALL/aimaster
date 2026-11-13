@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-13 ✅ [역할: music] Claude Code(윈도우) · 세션 `claude-win-20261024-music` — 플레이리스트 v1.41 30일 정리 + 업무·캘린더 보내기 실제 검수
+
+- 한 일: `playlist-channel-studio` 30일 자동 정리(정리 라우트 + Vercel cron 매일 04:20 KST, 프로젝트·썸네일·올리기 기록, `retention_exempt` 제외, 정리 기록) + 화면 안내 2곳 + 공용 사본 `youtube/client.ts`를 기준(shots)과 같게 복원(v1.39에서 직접 넣은 함수를 `videoMeta.ts`로 옮김) + 공용 `cleanup-usage-log` 사본 등록.
+- 운영: `CRON_SECRET` 추가(주인님 승인), 배포 `playlist-channel-studio-99m9mdn6s` Ready, DB v1.41. 운영 지울 대상 0개.
+- 검수: tsc·시험 37·로컬 빌드, 비밀값 없이 401. ego 시험 계정으로 비공개 1편 올리기 → 기록 저장 → 「📨 업무 워크스페이스로」 → 받은 업무 → 콘텐츠 캘린더 행까지 확인 후 유튜브 영상 삭제.
+- 못 한 것: 정리 라우트의 실제 비밀값 호출(민감 변수라 값 확인 불가) → 11-14 04:20 첫 예약 실행 기록 확인.
+- 발견: 「내가 올린 영상」 목록은 곡이 있어야 보임(`ExportStudio.tsx`) → `playlist-channel-studio/docs/IMPROVEMENTS.md`에 미구현으로 기록.
+- 커밋: 코드 1·문서 3, 링크 https://playlist-channel-studio.buylife.xyz/studio
+
+
+
 ## 2026-11-13 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — U10 마무리 배포(워크스페이스 v1.33 · 플레이리스트 v1.40)
 
 - 한 일: 업무 현황판 소제목 겹침 수정(표 제목만, 할 일 표 「✅ 할 일」) + 플레이리스트 이름표 → 워크스페이스 v1.33(`ai-work-workspace-pcj8ihnh4`) · 플레이리스트 「📋 내가 올린 영상」 줄마다 「📨 업무 워크스페이스로」 `3b62f49af` → v1.40(`playlist-channel-studio-f10pyrzt0`). 둘 다 Ready·DB 버전 맞춤.
