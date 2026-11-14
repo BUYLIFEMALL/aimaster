@@ -5,35 +5,107 @@ import StoreSwitcher from "./store-switcher";
 import LogoutButton from "@/app/logout-button";
 import { createClient } from "@/lib/supabase/server";
 import { canSeeMenu, type MyStaff } from "@/lib/staff";
+import { APP_VERSION } from "@/lib/version";
 
-// 운영자 관리 화면 공통 틀 — 메뉴는 기능을 하나씩 만들 때마다 추가한다.
-const MENU = [
-  { href: "", label: "대시보드" },
-  { href: "/orders", label: "주문" },
-  { href: "/quotes", label: "견적" },
-  { href: "/recurring", label: "정기 주문" },
-  { href: "/customers", label: "손님" },
-  { href: "/grades", label: "등급·할인" },
-  { href: "/coupons", label: "쿠폰·포인트" },
-  { href: "/resellers", label: "리셀러" },
-  { href: "/stats", label: "통계" },
-  { href: "/settings", label: "쇼핑몰 정보" },
-  { href: "/home", label: "첫 화면" },
-  { href: "/notices", label: "공지" },
-  { href: "/reviews", label: "후기" },
-  { href: "/inquiries", label: "문의" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/categories", label: "카테고리" },
-  { href: "/products", label: "상품" },
-  { href: "/suppliers", label: "공급사" },
-  { href: "/supplier-settlements", label: "공급사 정산" },
-  { href: "/resale", label: "분양" },
-  { href: "/group-buys", label: "공동구매" },
-  { href: "/restock", label: "재입고 알림" },
-  { href: "/shipping", label: "배송비" },
-  { href: "/photos", label: "사진 정리" },
-  { href: "/staff", label: "직원" },
+// 운영자 관리 화면 공통 틀 — 좌측 메뉴(2026-11-14 주인님 지시: 「상단 메뉴를 좌측 메뉴로 수정해」, docs/SIDEBAR_LAYOUT_STANDARD.md)
+// 넓은 화면: 왼쪽 메뉴 막대(몰 이름·버전 → 다른 프로그램 보기 → 메뉴 묶음 → 손님 화면 → 계정·로그아웃 바로 아래)
+// 767px 이하: 왼쪽 막대를 숨기고 위쪽 ☰ 펼침 메뉴(같은 항목·같은 순서), 본문은 화면 전체 폭
+// 메뉴 주소·이름·직원 권한 거르기(canSeeMenu)는 그대로. 기능을 새로 만들면 알맞은 묶음에 한 줄 추가한다.
+const MENU_GROUPS = [
+  {
+    title: "주문",
+    items: [
+      { href: "", label: "대시보드" },
+      { href: "/orders", label: "주문" },
+      { href: "/quotes", label: "견적" },
+      { href: "/recurring", label: "정기 주문" },
+      { href: "/group-buys", label: "공동구매" },
+    ],
+  },
+  {
+    title: "손님",
+    items: [
+      { href: "/customers", label: "손님" },
+      { href: "/grades", label: "등급·할인" },
+      { href: "/coupons", label: "쿠폰·포인트" },
+      { href: "/resellers", label: "리셀러" },
+      { href: "/inquiries", label: "문의" },
+      { href: "/reviews", label: "후기" },
+      { href: "/restock", label: "재입고 알림" },
+    ],
+  },
+  {
+    title: "상품",
+    items: [
+      { href: "/products", label: "상품" },
+      { href: "/categories", label: "카테고리" },
+      { href: "/shipping", label: "배송비" },
+      { href: "/suppliers", label: "공급사" },
+      { href: "/supplier-settlements", label: "공급사 정산" },
+    ],
+  },
+  {
+    title: "몰 꾸미기",
+    items: [
+      { href: "/settings", label: "쇼핑몰 정보" },
+      { href: "/home", label: "첫 화면" },
+      { href: "/notices", label: "공지" },
+      { href: "/faq", label: "FAQ" },
+      { href: "/photos", label: "사진 정리" },
+    ],
+  },
+  {
+    title: "운영",
+    items: [
+      { href: "/resale", label: "분양" },
+      { href: "/stats", label: "통계" },
+      { href: "/staff", label: "직원" },
+    ],
+  },
 ] as const;
+
+/** 메뉴 전체(순서대로) — 시험·다른 화면에서 쓰는 평평한 목록 */
+export const MENU: { href: string; label: string }[] = MENU_GROUPS.flatMap((g): { href: string; label: string }[] => [...g.items]);
+
+type Group = { title: string; items: readonly { href: string; label: string }[] };
+
+function SideMenu({ slug, active, groups, email }: { slug: string; active: string; groups: Group[]; email: string | undefined }) {
+  return (
+    <>
+      <nav className="min-h-0 shrink overflow-y-auto pr-1" aria-label="관리 메뉴">
+        {groups.map((g) => (
+          <div key={g.title} className="mb-3">
+            <p className="px-3 pb-1 text-[11px] font-semibold tracking-wide text-gray-400">{g.title}</p>
+            <ul className="space-y-0.5">
+              {g.items.map((m) => (
+                <li key={m.href}>
+                  <Link
+                    href={`/s/${slug}/admin${m.href}`}
+                    aria-current={active === m.href ? "page" : undefined}
+                    className={`block rounded-lg px-3 py-1.5 text-sm ${
+                      active === m.href ? "bg-gray-900 font-semibold text-white" : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {m.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <Link href={`/s/${slug}`} className="block rounded-lg px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-50">
+          손님 화면 ↗
+        </Link>
+      </nav>
+      <div className="mt-2 shrink-0 border-t pt-3" data-admin-account>
+        <p className="truncate px-1 text-xs text-gray-500" title="지금 로그인한 계정">{email}</p>
+        <div className="mt-2 px-1">
+          <LogoutButton />
+        </div>
+      </div>
+    </>
+  );
+}
 
 export async function AdminShell({ slug, storeName, active, children }: { slug: string; storeName: string; active: string; children: ReactNode }) {
   const user = await getCurrentUser();
@@ -41,47 +113,67 @@ export async function AdminShell({ slug, storeName, active, children }: { slug: 
   const supabase = await createClient();
   const { data: storeRow } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();
   const me = storeRow ? (((await supabase.rpc("mall_builder_my_staff", { p_store_id: storeRow.id })).data ?? null) as MyStaff) : null;
-  const menu = MENU.filter((m) => canSeeMenu(m.href, me));
+  const groups: Group[] = MENU_GROUPS.map((g) => ({ title: g.title, items: g.items.filter((m) => canSeeMenu(m.href, me)) })).filter((g) => g.items.length > 0);
   const allowed = canSeeMenu(active, me);
   // D31 몰 여러 개 — 내가 대표·직원인 몰이 둘 이상이면 「다른 몰로」
   const myStores = user ? await getMyStores(user.id) : [];
+  const switcher = myStores.length > 1 ? <StoreSwitcher current={slug} stores={myStores.map((s) => ({ slug: s.slug, name: s.name }))} /> : null;
+  const heading = (
+    <div>
+      <p className="text-base font-bold leading-snug text-gray-900 [word-break:keep-all]">
+        {storeName} <span className="whitespace-nowrap">관리</span>
+      </p>
+      <span className="mt-1 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-500">AI 쇼핑몰 빌더 {APP_VERSION}</span>
+    </div>
+  );
+  const links = (
+    <div className="space-y-1 text-xs">
+      <a href="https://www.buylife.xyz/programs" className="block text-gray-500 hover:text-gray-900">← 다른 프로그램 보기</a>
+      <Link href="/" className="block text-gray-500 hover:text-gray-900">← 내 쇼핑몰 목록</Link>
+    </div>
+  );
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <div className="flex items-center justify-between gap-2 text-sm text-gray-500">
-        <Link href="/">← 내 쇼핑몰</Link>
-        <span className="truncate" title="지금 로그인한 계정">{user?.email}</span>
-      </div>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <h1 className="text-2xl font-bold">{storeName} 관리</h1>
-        {myStores.length > 1 && <StoreSwitcher current={slug} stores={myStores.map((s) => ({ slug: s.slug, name: s.name }))} />}
-      </div>
-      <nav className="mt-4 flex gap-2 overflow-x-auto border-b">
-        {menu.map((m) => (
-          <Link
-            key={m.href}
-            href={`/s/${slug}/admin${m.href}`}
-            className={`whitespace-nowrap border-b-2 px-3 py-2 text-sm ${
-              active === m.href ? "border-gray-900 font-semibold" : "border-transparent text-gray-500"
-            }`}
-          >
-            {m.label}
-          </Link>
-        ))}
-        <Link href={`/s/${slug}`} className="ml-auto whitespace-nowrap px-3 py-2 text-sm text-blue-700">
-          손님 화면 ↗
-        </Link>
-      </nav>
-      {me && me.role !== "owner" && <p className="mt-2 text-xs text-gray-500" data-staff-badge>직원 계정으로 보고 있습니다 · 보이는 메뉴만 쓸 수 있습니다</p>}
-      <div className="mt-6">
-        {allowed ? (
-          children
-        ) : (
-          <p className="rounded border border-dashed p-8 text-center text-sm text-gray-600" data-staff-denied>
-            이 메뉴를 쓸 권한이 없습니다. 대표 운영자에게 권한을 요청해 주세요.
-          </p>
-        )}
-      </div>
-    </main>
+    <div className="min-h-screen md:flex" data-admin-shell>
+      {/* 넓은 화면: 왼쪽 메뉴 막대 */}
+      <aside className="hidden md:sticky md:top-0 md:flex md:h-screen md:w-56 md:shrink-0 md:flex-col md:border-r md:bg-white md:px-3 md:py-5" data-admin-sidebar>
+        <div className="shrink-0 space-y-3 px-1 pb-4">
+          {heading}
+          {switcher}
+          {links}
+        </div>
+        <SideMenu slug={slug} active={active} groups={groups} email={user?.email} />
+      </aside>
+
+      {/* 767px 이하: 위쪽 ☰ 펼침 메뉴 */}
+      <details className="border-b bg-white md:hidden" data-admin-mobile-menu>
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3">
+          <span className="min-w-0 truncate text-sm font-bold">{storeName} 관리</span>
+          <span className="shrink-0 rounded-lg border px-3 py-1.5 text-sm" aria-hidden>☰ 메뉴</span>
+        </summary>
+        <div className="flex max-h-[80vh] flex-col px-3 pb-4">
+          <div className="shrink-0 space-y-3 px-1 pb-3">
+            <span className="inline-block rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-500">AI 쇼핑몰 빌더 {APP_VERSION}</span>
+            {switcher}
+            {links}
+          </div>
+          <SideMenu slug={slug} active={active} groups={groups} email={user?.email} />
+        </div>
+      </details>
+
+      <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
+        <div className="mx-auto max-w-4xl">
+          {me && me.role !== "owner" && <p className="mb-4 text-xs text-gray-500" data-staff-badge>직원 계정으로 보고 있습니다 · 보이는 메뉴만 쓸 수 있습니다</p>}
+          {allowed ? (
+            children
+          ) : (
+            <p className="rounded border border-dashed p-8 text-center text-sm text-gray-600" data-staff-denied>
+              이 메뉴를 쓸 권한이 없습니다. 대표 운영자에게 권한을 요청해 주세요.
+            </p>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
 
