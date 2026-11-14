@@ -1,7 +1,7 @@
 # AI 쇼핑몰 빌더 (`mall-builder`) — 에이전트 인수인계
 
 > 먼저 읽기: [README](README.md)(기능 진행 표·실행 방법) → [3몰 인수인계](../docs/mall/HANDOFF_THREE_MALLS.md) → [T0 운영 이전 플랜](docs/PLAN_20261112_T0_PROD_MIGRATION.md) → [교훈 모음](../docs/mall/LESSONS_LEARNED.md) → 역할 파일 [`docs/roles/mall-builder.md`](../docs/roles/mall-builder.md)
-> 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 운영 버전 `v1.08`(`src/lib/version.ts` + DB `programs.version`) · 최신 요약: [§4 버전·이력](#4-버전이력)·[§5 남은 일](#5-남은-일)·[§8 향후 개선 방향](#8-향후-개선-방향)
+> 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 운영 버전 `v1.09`(`src/lib/version.ts` + DB `programs.version`) · 최신 요약: [§4 버전·이력](#4-버전이력)·[§5 남은 일](#5-남은-일)·[§8 향후 개선 방향](#8-향후-개선-방향)
 
 ## 1. 사용 목적·대상
 - 회원(사업자)이 자기 쇼핑몰을 개설·운영하는 프로셀형 B2B 쇼핑몰 빌더. AIMaster 이커머스 카테고리의 **샘플몰**로 운영하고(① B2B 입점몰 → ② 분양몰 → ③ 독립몰), 나중에 배포 키트로 분리해 수강생·외주 사업자에게 판매한다.
@@ -29,6 +29,7 @@
 - `v1.02`(2026-11-12) AI 도우미 제공자·모델 선택(OpenAI·Claude·Gemini, 운영은 몰 대표 `user_api_keys` 재사용), DB 0059.
 - `v1.01`(2026-11-12) 운영 이전(T0): 폴더 `labs/mall-builder` → `mall-builder`, 플랫폼 스위치·운영 관문·관리자 전용 몰 만들기(0058), 저작권 고지·저장공간 위젯, T1 등급 할인(0057·0057c), 운영 DB·배포·프로그램 등록·샘플몰 `aimaster-b2b`, B2B 주문·볼타 테스트 세금계산서 통과.
 - `v1.08`(2026-11-14) 관리 화면 위쪽 메뉴 → **좌측 메뉴**(주인님 「상단 메뉴를 좌측 메뉴로 수정해」 — `admin/admin-shell.tsx`, 5묶음, 767px 이하 ☰, 계정·로그아웃 메뉴 바로 아래, 「다른 몰로」 세로 배치) — 운영 배포·DB 버전 일치. 알려진 문제: 왼쪽 아래 💾 저장공간 표시가 좌측 메뉴의 로그아웃 단추를 가림(v1.09에서 고침).
+- `v1.09`(2026-11-14) 좌측 메뉴 다듬기 — 메뉴 안 스크롤바 없앰(페이지와 함께 움직임, 주인님 「스크롤바 만들지마」「같이 움직이게 해」), 묶음마다 상자·배경색(「박스를 치고 배경 색을 달리해서 구분해줘」), 주인님 지정 순서 상품→주문→손님→공급사 정산→몰 꾸미기→운영(대시보드는 맨 위), 💾 저장공간 표시가 로그아웃을 가리지 않게 아래 여백 — 운영 배포·DB 버전 일치.
 - 미배포 대기: 없음.
 - 그 이전(Lab, 버전 없음): F01~F19, D1~D37 — [README](README.md) 진행 표·역할 파일 최근 완료.
 
