@@ -89,6 +89,7 @@ export function ProductBatchBoard() {
   const [orphans, setOrphans] = useState<string[]>([]);
   const [tableErrors, setTableErrors] = useState<string[]>([]);
   const [filterProblemsOnly, setFilterProblemsOnly] = useState<boolean>(false);
+  const [isLinkedMode, setIsLinkedMode] = useState<boolean>(false);
 
   // 합성 설정
   const [settings, setSettings] = useState<CompositeSettings>(DEFAULT_COMPOSITE);
@@ -161,6 +162,7 @@ export function ProductBatchBoard() {
           };
         });
         linkedJobId.current = got.jobId;
+        setIsLinkedMode(true);
         setFilesMap(map);
         setJobs(list);
         setStep(2); // 상품을 받았으므로 2단계(합성 규칙 & 미리보기)로 직행
@@ -210,8 +212,10 @@ export function ProductBatchBoard() {
     setNotice(`📥 ${list.length}개의 사진 파일을 추가했습니다.`);
   }, []);
 
-  // 3. 작업표 텍스트 또는 파일 변경 시 짝짓기 재계산
+  // 3. 작업표 텍스트 또는 파일 변경 시 짝짓기 재계산 (연결 모드에서는 건너뜀 - F09 방어)
   useEffect(() => {
+    if (isLinkedMode || linkedJobId.current) return;
+
     let parsedRows = tableRows;
     if (tableText.trim()) {
       const { rows, errors } = parseTable(tableText);
@@ -237,7 +241,7 @@ export function ProductBatchBoard() {
       setJobs([]);
       setOrphans(Array.from(filesMap.keys()));
     }
-  }, [tableText, filesMap, commonSubFile, subMode]);
+  }, [tableText, filesMap, commonSubFile, subMode, isLinkedMode]);
 
   // 클립보드 붙여넣기 감지
   useEffect(() => {
@@ -456,7 +460,12 @@ export function ProductBatchBoard() {
 
     setRunning(false);
     setCurrentRunningKey(null);
-    setResults(finalResults);
+    setResults((prev) =>
+      finalResults.map((fr) => {
+        const old = prev.find((p) => p.productId && p.productId === fr.productId);
+        return old && old.returned === "saved" ? { ...fr, returned: "saved" } : fr;
+      })
+    );
     setStep(4);
   };
 

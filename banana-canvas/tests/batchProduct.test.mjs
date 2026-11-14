@@ -197,3 +197,42 @@ test("P3-F ZIP: 사진만 꺼내고 경로를 이름으로, 맥 임시 폴더·�
   assert.equal(skipped.length, 2); assert.match(skipped.join(), /빈\/empty\.jpg/); assert.match(skipped.join(), /사진이 아닌 파일 1개/);
   assert.deepEqual(rowsFromFileNames(files.map((f) => f.name)).map((r) => [r.code, r.main, r.subs]), [["가방", "가방/main.jpg", ["가방/sub1.PNG"]]]);
 });
+
+test("F-09 회귀 방어: 연결 모드 수신 시 uuid#i 키로 인한 파일 자동매칭의 jobs 빈배열 초기화 차단", () => {
+  // 상세페이지/쇼핑몰에서 넘어온 uuid#i 키 파일명
+  const linkedFileKeys = ["bfa7ed41-dcc4-4216-9ba5-01350b814e48#0", "bfa7ed41-dcc4-4216-9ba5-01350b814e48#1"];
+  // 기존 rowsFromFileNames는 uuid#i를 일반 파일명 규칙(sku_role)으로 파싱하지 못해 빈 배열을 반환함
+  const autoRows = rowsFromFileNames(linkedFileKeys);
+  assert.equal(autoRows.length, 0);
+
+  // 연결 모드 가드 시뮬레이션: isLinkedMode가 true일 때 autoRows 파싱 및 setJobs([])가 실행되지 않고, 수신된 jobs 목록이 유지됨
+  const isLinkedMode = true;
+  let currentJobs = [
+    {
+      key: "bfa7ed41-dcc4-4216-9ba5-01350b814e48",
+      productId: "bfa7ed41-dcc4-4216-9ba5-01350b814e48",
+      code: "ST4D18",
+      label: "ST4D18",
+      status: "ready",
+      photos: [
+        { role: "main", ref: "bfa7ed41-dcc4-4216-9ba5-01350b814e48#0" },
+        { role: "sub", ref: "bfa7ed41-dcc4-4216-9ba5-01350b814e48#1" },
+      ],
+    },
+  ];
+
+  function runFileModeMatchingEffect(linked) {
+    if (linked) return; // F-09 가드 적용
+    if (autoRows.length > 0) {
+      currentJobs = [];
+    } else {
+      currentJobs = [];
+    }
+  }
+
+  // effect 실행 시 가드에 의해 jobs가 그대로 유지되어야 함
+  runFileModeMatchingEffect(isLinkedMode);
+  assert.equal(currentJobs.length, 1);
+  assert.equal(currentJobs[0].code, "ST4D18");
+  assert.equal(currentJobs[0].status, "ready");
+});

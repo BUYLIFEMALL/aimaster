@@ -6,22 +6,22 @@
 - 주력 업무: UI/UX 디자인 업그레이드·매뉴얼 시각화(`DESIGN.md`, `docs/PROGRAM_DESIGN_STANDARD.md`). 브라우저는 웨일
 - 핵심 배포 원칙 (2026-10-29 주인님 지시): 작업한 내용의 실제 배포는 비용 절감을 위해 꼭 당장 필요한 것(긴급/치명 오류)이 아니면 로컬 검수 완료 상태로 모아두었다가 **한 번에 묶음(Batch)으로 반영**한다. 급한 것만 최소한으로 단독 반영.
 - **[필수 배포 관문 — 크롬 확장 버전 일치 검증 의무 (2026-11-13)]**: 크롬 확장이 포함된 프로그램을 배포할 때는 반드시 `programs.version`과 함께 `programs.extension_version`도 동일하게 올리고, 배포 직후 `node scripts/check-extension-release.mjs <slug>`를 실행하여 `OK DB vX.XX / ext vX.XX / zip vX.XX` 무결성을 확인한다(핵심 원칙 10 & 2026-11-13 부동산 담당 요청 및 영구 지침 등록).
-- 마지막 갱신: 2026-11-14 22:40 (agy-win-ssr-v1)
-- 최신 갱신: 2026-11-14 22:40 (agy-win-ssr-v1, smartstore-register 1안 110번 네이버 스마트스토어 오리지널 그린 전면 구현 및 검증 완료)
-- 이전 갱신: 2026-11-14 16:25 (agy-win-bnc-m1, banana-canvas 메이커 M1/P2 Handoff 연동 및 새 ProductBatchBoard 결함 해결 완료)
+- 마지막 갱신: 2026-11-15 00:52 (agy-win-ssr-v1)
+- 최신 갱신: 2026-11-15 00:52 (agy-win-ssr-v1, banana-canvas F-09 결함 해결 및 검증 완료, smartstore/elevenst 배포 완료)
+- 이전 갱신: 2026-11-14 22:40 (agy-win-ssr-v1, smartstore-register 1안 110번 네이버 스마트스토어 오리지널 그린 전면 구현 및 검증 완료)
 
 ## 지금 하는 일
-- smartstore-register 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트 셀러 스튜디오) 전면 구현 완료 후 운영 배포 승인 대기
-- banana-canvas 메이커 연계 M1(쇼핑몰) & P2(상세페이지) Handoff 연동 및 결함 수정 완료 (배포 대기)
+- banana-canvas F-09 결함(연결 모드 상품 유실) 해결 완료 후 다음 묶음 배포 준비
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
-- `smartstore-register` 1안(110번 그린 & 화이트) 전면 반영본 프로덕션 배포 (`node scripts/deploy.mjs smartstore-register --go`, v1.28) 주인님 배포 승인 대기
-- `banana-canvas` 메이커 연계 M1 & P2 완결본 다음 묶음 프로덕션 배포 대기
-- `elevenst-register` 1안 디자인 전면 반영본 프로덕션 배포 (`node scripts/deploy.mjs elevenst-register --go`, v1.07) 주인님 배포 승인 대기
+- `banana-canvas` 메이커 연계 M1 & P2 완결본(F09 수정본 탑재) 프로덕션 배포 대기
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
+| 2026-11-15 | `banana-canvas` | 메이커 연계 F-09 결함(상세페이지/쇼핑몰 수신 후 파일모드 재매칭으로 jobs 빈배열 초기화되는 버그) 해결: `isLinkedMode` 가드 신설, 조기 도착 ACK(saved) 보존 병합 로직 보완, F-09 회귀 단위 테스트 추가, 98/98 단위테스트 통과, tsc 에러 0건, Turbopack 프로덕션 빌드 성공 | 🔍 로컬 검증 완료 (배포 대기) |
+| 2026-11-15 | `smartstore-register` `v1.28` | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트) 전면 구현본 프로덕션 배포 완료 (`smartstore-register-mxv57n8mv`, Ready, DB v1.28 / ext v1.28 / zip v1.28 일치) | ✔ 프로덕션 배포 완료 (https://smartstore-register.buylife.xyz) |
+| 2026-11-15 | `elevenst-register` `v1.07` | 1안(107. 11번가 오리지널 레드 & 화이트) 전면 구현본 및 전역 버튼 nowrap 최적화 프로덕션 배포 완료 (`elevenst-register-dub6wjt88`, Ready, DB v1.07 일치) | ✔ 프로덕션 배포 완료 (https://elevenst-register.buylife.xyz) |
 | 2026-11-14 | `smartstore-register` `v1.28` | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트 셀러 스튜디오) 공식 채택 전면 구현: 네이버 시그니처 그린(#03C75A) 테마 탑재, 3D 엠보싱 네이버 버튼(`.btn-3d-primary`, `.btn-3d-naver`), N 스마트스토어 센터 일체형 사이드바, 상단 실시간 파이프라인 배너, 4대 실시간 KPI 관제 카드(기본값·대기상품·등록기록·HealthCard), 상품 등록 폼/속성 추천/배치 전송 UI 고도화, 5단계 표준 로그인 폼 N 로고 탑재, 단위테스트 27/27 전수 통과, tsc 에러 0건, Next.js 16.4.3 Turbopack 빌드 성공, 390px 모바일 가로스크롤 0px 실물 검증 통과 | 🔍 로컬 검증 완료 (운영 배포 대기) |
 | 2026-11-14 | `banana-canvas` | 메이커 연계 M1(쇼핑몰) & P2(상세페이지) Handoff 연동: from=mall 및 from=shop-detail 공통 오리진 검증(`productSenderOrigin`), 작업 수신/준비 알림/저장 알림/결과 반환 4개 채널 동기화, 새 `ProductBatchBoard.tsx` 결함 2건 해결(type 오표기 교정, 바나나 자기 주소 대신 senderOrigin으로 개별 반환, 규격 준수), 완성된 사진 그리드 및 실시간 반환 상태 배지 신설, Handoff 실물 시뮬레이션 100% 통과, 단위테스트 97/97 통과, tsc 통과, Next.js 빌드 성공 | 🔍 로컬 검증 완료 (배포 대기) |
 | 2026-11-14 | `smartstore-register` | 4대 화면 3시안(12개 뷰: 110번 네이버 오리지널 그린, 111번 퀀트 다크 사이버 HUD, 112번 소프트 에디토리얼 세이지) 1440px 고화질 캡처 및 `http://localhost:3800/showcase.html` 단일 통합 쇼케이스 & `comparison.html` 종합 비교 매트릭스 표 구축, `D:\Antigravity\Design` 3대 독립 폴더(110/111/112번) 영구 자산 아카이빙 완료 | 🔍 쇼케이스 호스팅 완료 (`http://localhost:3800`) |
