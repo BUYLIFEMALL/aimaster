@@ -1,6 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-14 재발 — 배포 도우미가 작업 폴더째 올려 다른 세션의 미커밋 서버 코드가 운영에 나감 (`trending-product-finder` v1.38, [역할: ecommerce-image])
+- **증상**: `node scripts/deploy.mjs trending-product-finder --go`가 Ready로 끝났는데, 그 폴더에 있던 다른 세션의 미커밋 E2-2 코드(`draftListingAction`·`lib/ai/claude.ts`·`@anthropic-ai/sdk` 추가)도 함께 운영에 올라갔다. 화면 연결이 없어 회원 영향은 없었다.
+- **원인**: `git status --porcelain -- <폴더>`와 배포를 한 명령(`;`)에 묶어 결과를 보기 전에 배포가 시작됐다. `deploy.mjs`는 작업 중 표만 보고 폴더의 미커밋 변경은 막지 않는다. 바로 위 11-13 `banana-canvas` 항목과 같은 유형의 재발.
+- **해결**: 내용 확인 후 보고·담당 메모(`trending-product-finder/docs/IMPROVEMENTS.md` 2026-11-14). 같은 날 스마트스토어는 `git archive HEAD | tar -x`로 커밋본만 꺼내 `.vercel`을 복사한 뒤 그 폴더에서 `npx vercel deploy --prod --yes --scope buylife`로 배포해 문제없었다.
+- **다음부터 확인**: 배포 직전 `git status --porcelain -- <폴더>`를 **따로 실행해 결과를 본 뒤** 배포한다. 남의 `M`·`??`가 있으면 커밋본 배포(`git archive HEAD`)로 한다. 제안: `deploy.mjs --go`가 폴더에 미커밋 변경이 있으면 목록을 보여 주고 멈추게(`--allow-dirty`로만 통과) — 공용 스크립트라 주인님 승인 뒤.
+
 ## 2026-11-13 정밀 기획 스튜디오 AI 버튼이 아무 반응 없음 — 대량 복구가 API 주소를 옛 값으로 되돌림 + 오류가 화면 맨 위에만 뜸 (`music` v1.53, [역할: music])
 
 - 증상: 「이 곡 가사 생성」을 눌러도 가사가 안 바뀜(주인님 제보). 곡·앨범·제안 생성과 탐색도 같은 상태.

@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-photo` — 원본 사진 참고 수집 운영 반영(DB 칸 1 + 배포 4)
+
+- 주인님 「순서대로 진행해」: 운영 DB(ref `esgxyikcnnvmlhygjkth`) `shop-detail-page/supabase/migrations/20261113_source_origin_v1_45.sql` 적용(ego SQL 편집기, 파일과 글자 단위 일치 확인 → Success → 조회: 칸 text·제약 1·채워진 줄 0) → 11번가 v1.07 → 스마트스토어 v1.28 → 상세페이지 v1.45 → 상품소싱 v1.38 순차 배포(각 Ready·DB 버전). 확장 2개는 DB `extension_version`을 SQL로 v1.28·v1.38로 맞춰 `check-extension-release` OK.
+- 함께 나간 대기분: 11번가 `markPosted`·안내 문구(claude-win-sdp)·agy 107번 디자인, 상세페이지 「🎬 쇼츠로 만들기」, 상품소싱 E2-1 등록 정보 도우미. 스마트스토어는 다른 세션 미커밋 `scratch/` 때문에 `git archive HEAD` 커밋본으로 배포.
+- **주의(실수)**: 상품소싱 배포 때 확인과 배포를 한 명령에 묶어, 폴더에 있던 다른 세션의 미커밋 E2-2 서버 코드(`draftListingAction`, `lib/ai/claude.ts`, `lib/listingRules.ts`, `@anthropic-ai/sdk`)가 함께 올라갔다. 화면 어디에서도 부르지 않아 회원 동작 변화는 없음. 커밋본 재배포 여부는 주인님께 여쭘. 상품소싱 `docs/IMPROVEMENTS.md` 「ecommerce-image 담당께」.
+- 화면 확인(ego, 시험 계정): 네 프로그램 새 버전으로 열림, 11번가·스마트스토어 상품 상세 화면 오류 없음. 실제 쿠팡·네이버 상품 탭에서 사진 받기 → 상세페이지 → 등록기 경고까지의 흐름은 확장 설치가 필요해 아직 못 함(다음 첫 단계).
+- 비용: Vercel 빌드 4회(승인 범위), AI 0회.
+
+https://trending-product-finder.buylife.xyz
+
 ## 2026-11-14 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 모아서 배포 25개·운영 DB SQL 4개·쓰레드 이미지 정리
 - 배포 25개(빌드 25회, 주인님 「배포는 모아서 해」): 버전·결과는 `docs/PENDING_DEPLOYS.md` 「내보낸 기록」 2026-11-14 줄. 모두 Ready·운영 주소 연결·DB 버전 확인. 건너뜀 3개(`ui-canvas`·`tarot`·`ai-writing-editor`) — `CRON_SECRET` 환경변수 없음, 추가 승인 대기.
 - 운영 DB: SQL 0072(`kakao_js_key` 허용) + 30일 예외 3개(document-translator·youtube-viral-studio·competitor-analysis — 삭제 쪽은 이미 제외돼 있었고 조회 정책 6개·문서번역 다시 저장만 바뀜). 관리자 계정에 기존 카카오 JavaScript 키 등록(주인님 「기존값 가져다 쓰면되」).
