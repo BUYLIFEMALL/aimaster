@@ -1,0 +1,393 @@
+{
+  "input-result": {
+    "outcome": "publish_ready",
+    "stage": "발행 직전 준비 완료",
+    "message": "발행 직전 준비가 끝났습니다(비공개·현재 발행, 태그 10개). 내용을 확인한 뒤 티스토리의 마지막 저장·발행 버튼만 직접 누르세요.",
+    "notes": "",
+    "cancelVisible": false
+  },
+  "editor-actual": {
+    "title": "AI 에이전트의 진화와 실행형 AI: 자동화·업무 수행 혁신 및 최신 AI 트렌드 분석",
+    "sequence": [
+      {
+        "type": "image",
+        "precedingHeading": "",
+        "alt": "",
+        "naturalWidth": 2752,
+        "naturalHeight": 1536,
+        "renderWidth": 862,
+        "renderHeight": 482,
+        "objectFit": "fill",
+        "sourceOrigin": "https://blog.kakaocdn.net",
+        "parent": "FIGURE"
+      },
+      {
+        "type": "H2",
+        "text": "AI 에이전트를 통한 자동화의 혁신적 변화"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "AI 에이전트를 통한 자동화의 혁신적 변화",
+        "alt": "",
+        "naturalWidth": 2752,
+        "naturalHeight": 1536,
+        "renderWidth": 862,
+        "renderHeight": 482,
+        "objectFit": "fill",
+        "sourceOrigin": "https://blog.kakaocdn.net",
+        "parent": "FIGURE"
+      },
+      {
+        "type": "H3",
+        "text": "AI 에이전트 자동화의 주요 특징"
+      },
+      {
+        "type": "H3",
+        "text": "자동화의 확장성과 고도화"
+      },
+      {
+        "type": "H2",
+        "text": "실행형 AI 에이전트가 바꾼 업무 수행 방식"
+      },
+      {
+        "type": "H3",
+        "text": "실행형 AI 에이전트의 업무 적용 사례"
+      },
+      {
+        "type": "H2",
+        "text": "최신 AI 트렌드와 에이전트 기술의 동향 분석"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "최신 AI 트렌드와 에이전트 기술의 동향 분석",
+        "alt": "",
+        "naturalWidth": 2752,
+        "naturalHeight": 1536,
+        "renderWidth": 862,
+        "renderHeight": 482,
+        "objectFit": "fill",
+        "sourceOrigin": "https://blog.kakaocdn.net",
+        "parent": "FIGURE"
+      },
+      {
+        "type": "H3",
+        "text": "최신 AI 트렌드의 핵심 포인트"
+      },
+      {
+        "type": "H3",
+        "text": "AI 트렌드가 산업에 미치는 영향"
+      },
+      {
+        "type": "H2",
+        "text": "실행하는 AI로의 전환이 가져올 사회·산업적 파급 효과"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "실행하는 AI로의 전환이 가져올 사회·산업적 파급 효과",
+        "alt": "",
+        "naturalWidth": 2752,
+        "naturalHeight": 1536,
+        "renderWidth": 862,
+        "renderHeight": 482,
+        "objectFit": "fill",
+        "sourceOrigin": "https://blog.kakaocdn.net",
+        "parent": "FIGURE"
+      },
+      {
+        "type": "H3",
+        "text": "실행형 AI의 파급 효과 주요 사례"
+      }
+    ],
+    "imageCount": 4,
+    "dialog": {
+      "text": "발행정보 입력폼\n발행\n저작물 사용허가상업적 허용 안함콘텐츠 변경 허용 안함\nAI 에이전트의 진화와 실행형 AI: 자동화·업무 수행 혁신 및 최신 AI 트렌드 분석\n기본\n공개공개(보호)비공개\n작성자만 글을 읽을 수 있습니다\n댓글 허용더보기\n홈주제\n선택 안 함\n발행일\nURL\nhttps://buylifemall.tistory.com/entry/\n대표이미지 추가\n취소비공개 저장",
+      "imageCount": 0
+    },
+    "textLength": 2449
+  },
+  "expected-sequence": {
+    "title": "AI 에이전트의 진화와 실행형 AI: 자동화·업무 수행 혁신 및 최신 AI 트렌드 분석",
+    "sequence": [
+      {
+        "type": "image",
+        "precedingHeading": "",
+        "alt": "AI 에이전트의 진화와 실행형 AI: 자동화·업무 수행 혁신 및 최신 AI 트렌드 분석 대표 비주얼",
+        "width": 2752,
+        "height": 1536
+      },
+      {
+        "type": "H2",
+        "text": "AI 에이전트를 통한 자동화의 혁신적 변화"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "AI 에이전트를 통한 자동화의 혁신적 변화",
+        "alt": "AI 에이전트를 통한 자동화의 혁신적 변화 비주얼",
+        "width": 2752,
+        "height": 1536
+      },
+      {
+        "type": "H3",
+        "text": "AI 에이전트 자동화의 주요 특징"
+      },
+      {
+        "type": "H3",
+        "text": "자동화의 확장성과 고도화"
+      },
+      {
+        "type": "H2",
+        "text": "실행형 AI 에이전트가 바꾼 업무 수행 방식"
+      },
+      {
+        "type": "H3",
+        "text": "실행형 AI 에이전트의 업무 적용 사례"
+      },
+      {
+        "type": "H2",
+        "text": "최신 AI 트렌드와 에이전트 기술의 동향 분석"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "최신 AI 트렌드와 에이전트 기술의 동향 분석",
+        "alt": "최신 AI 트렌드와 에이전트 기술의 동향 분석 비주얼",
+        "width": 2752,
+        "height": 1536
+      },
+      {
+        "type": "H3",
+        "text": "최신 AI 트렌드의 핵심 포인트"
+      },
+      {
+        "type": "H3",
+        "text": "AI 트렌드가 산업에 미치는 영향"
+      },
+      {
+        "type": "H2",
+        "text": "실행하는 AI로의 전환이 가져올 사회·산업적 파급 효과"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "실행하는 AI로의 전환이 가져올 사회·산업적 파급 효과",
+        "alt": "실행하는 AI로의 전환이 가져올 사회·산업적 파급 효과 비주얼",
+        "width": 2752,
+        "height": 1536
+      },
+      {
+        "type": "H3",
+        "text": "실행형 AI의 파급 효과 주요 사례"
+      }
+    ]
+  },
+  "preview-desktop": {
+    "frameWidth": 1176,
+    "frameHeight": 860,
+    "docWidth": 1161,
+    "bodyWidth": 1161,
+    "matchedImages": 4,
+    "sequence": [
+      {
+        "type": "image",
+        "precedingHeading": "",
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714,
+        "renderWidth": 740,
+        "renderHeight": 412.78125,
+        "contentWidth": 740,
+        "contentHeight": 412.78125,
+        "objectFit": "fill"
+      },
+      {
+        "type": "H2",
+        "text": "AI 에이전트를 통한 자동화의 혁신적 변화"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "AI 에이전트를 통한 자동화의 혁신적 변화",
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714,
+        "renderWidth": 740,
+        "renderHeight": 412.78125,
+        "contentWidth": 740,
+        "contentHeight": 412.78125,
+        "objectFit": "fill"
+      },
+      {
+        "type": "H3",
+        "text": "AI 에이전트 자동화의 주요 특징"
+      },
+      {
+        "type": "H3",
+        "text": "자동화의 확장성과 고도화"
+      },
+      {
+        "type": "H2",
+        "text": "실행형 AI 에이전트가 바꾼 업무 수행 방식"
+      },
+      {
+        "type": "H3",
+        "text": "실행형 AI 에이전트의 업무 적용 사례"
+      },
+      {
+        "type": "H2",
+        "text": "최신 AI 트렌드와 에이전트 기술의 동향 분석"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "최신 AI 트렌드와 에이전트 기술의 동향 분석",
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714,
+        "renderWidth": 740,
+        "renderHeight": 412.78125,
+        "contentWidth": 740,
+        "contentHeight": 412.78125,
+        "objectFit": "fill"
+      },
+      {
+        "type": "H3",
+        "text": "최신 AI 트렌드의 핵심 포인트"
+      },
+      {
+        "type": "H3",
+        "text": "AI 트렌드가 산업에 미치는 영향"
+      },
+      {
+        "type": "H2",
+        "text": "실행하는 AI로의 전환이 가져올 사회·산업적 파급 효과"
+      },
+      {
+        "type": "image",
+        "precedingHeading": "실행하는 AI로의 전환이 가져올 사회·산업적 파급 효과",
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714,
+        "renderWidth": 740,
+        "renderHeight": 412.78125,
+        "contentWidth": 740,
+        "contentHeight": 412.78125,
+        "objectFit": "fill"
+      },
+      {
+        "type": "H3",
+        "text": "실행형 AI의 파급 효과 주요 사례"
+      }
+    ]
+  },
+  "preview-mobile": {
+    "frameWidth": 390,
+    "frameHeight": 844,
+    "docWidth": 764,
+    "bodyWidth": 764,
+    "images": [
+      {
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714,
+        "renderWidth": 327,
+        "renderHeight": 182.3984375
+      },
+      {
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714,
+        "renderWidth": 327,
+        "renderHeight": 182.3984375
+      },
+      {
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714,
+        "renderWidth": 327,
+        "renderHeight": 182.3984375
+      },
+      {
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714,
+        "renderWidth": 327,
+        "renderHeight": 182.3984375
+      }
+    ],
+    "checkpoints": [
+      {
+        "w": 390,
+        "h": 844
+      },
+      {
+        "w": 390,
+        "h": 844
+      },
+      {
+        "w": 390,
+        "h": 844
+      },
+      {
+        "w": 390,
+        "h": 844
+      }
+    ]
+  },
+  "mobile-overflow-attribution": {
+    "time": "2026-11-14T15:09:01.805Z",
+    "viewport": {
+      "width": 390,
+      "clientWidth": 375,
+      "scrollWidth": 764
+    },
+    "overflowAd": {
+      "id": "aswift_3_host",
+      "width": 740,
+      "parentClass": "adsbygoogle"
+    },
+    "postImages": [
+      {
+        "width": 327,
+        "height": 182.3984375,
+        "right": 351,
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714
+      },
+      {
+        "width": 327,
+        "height": 182.3984375,
+        "right": 351,
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714
+      },
+      {
+        "width": 327,
+        "height": 182.3984375,
+        "right": 351,
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714
+      },
+      {
+        "width": 327,
+        "height": 182.3984375,
+        "right": 351,
+        "complete": true,
+        "naturalWidth": 1280,
+        "naturalHeight": 714
+      }
+    ],
+    "closeButtons": [
+      {
+        "class": "btn_close",
+        "text": "닫기"
+      }
+    ]
+  },
+  "checks": {
+    "headingAndImageOrderMatch": true,
+    "inputAttempts": 1,
+    "finalSaveOrPublishClicks": 0,
+    "aiCalls": 0,
+    "builds": 0,
+    "directDatabaseWrites": 0
+  }
+}
