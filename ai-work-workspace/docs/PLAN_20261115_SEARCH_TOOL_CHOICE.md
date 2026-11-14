@@ -12,7 +12,7 @@
 | 선택지 | 쓰는 키(공용 저장소) | 지금 등록 회원 | 특징 |
 |---|---|---|---|
 | 자동(추천 기본값) | — | — | Claude·OpenAI는 모델 내장 검색, Gemini는 아래 중 등록된 키를 차례로(네이버 → 카카오 → Tavily → Perplexity → SerpAPI) |
-| 모델 내장 검색 | Claude·OpenAI 키 | — | 지금 방식(Gemini는 없음) |
+| 모델 내장 검색 | Claude·OpenAI·Gemini 키 | — | Claude·OpenAI는 지금 방식, **Gemini는 구글 검색(`google_search`) — 2026-11-15 실제 호출로 검색·출처 확인**(함수 도구와 함께 쓰려면 `toolConfig.includeServerSideToolInvocations` 필요) |
 | 네이버 검색 | `naver_client_id`·`naver_client_secret` | 5 | 국내 블로그·뉴스·웹문서에 강함, 무료(하루 한도) |
 | 카카오(다음) 검색 | `kakao_rest_api_key` | 4 | 다음 웹문서·블로그, 무료(하루 한도) |
 | Tavily | `tavily` | 2 | AI용 검색, 요약 포함 |

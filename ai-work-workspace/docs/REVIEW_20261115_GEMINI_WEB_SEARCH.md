@@ -32,3 +32,18 @@
 
 ## 5. 주인님 결정 대기
 - 위 1번 실제 호출(시험 계정 본인 Gemini 키, 1~3회) 진행 여부
+
+## 6. 실제 호출 결과 (2026-11-15, 주인님 「진행해」, 시험 계정 본인 Gemini 키, `gemini-3.8-flash`, `generateContent`, 3회)
+| 호출 | 결과 |
+|---|---|
+| ① `tools: [{google_search:{}}]`만 | ✅ 200 — 검색어 2개(「2026년 최저임금 고시」 등) 실행, 출처 3곳(`groundingMetadata.groundingChunks`, 첫 출처 moel.go.kr), 답에 출처 표기. 토큰 입력 323·출력 113 |
+| ② `google_search` + 함수 도구 | ❌ 400 `INVALID_ARGUMENT: Please enable tool_config.include_server_side_tool_invocations to use Built-in tools with Function calling.` |
+| ③ (②에 설정을 켜려 했으나 스크립트 수정이 적용 안 돼 ②와 같은 요청) | ❌ 같은 400 — 세션 실수, 승인 3회를 다 써서 추가 호출하지 않음 |
+
+### 알게 된 것
+- `generateContent`(우리 어댑터 방식)에서도 **구글 검색 자체는 된다** — 응답은 `groundingMetadata`(검색어·출처) 모양. Interactions API로 바꿀 필요 없음.
+- 비서는 함수 도구(워크스페이스 검색 등)를 늘 함께 쓰므로 **`toolConfig.includeServerSideToolInvocations: true`를 함께 보내야 한다**(오류 문구로 확인). 이 설정을 켠 실제 호출 1회는 아직 못 했다.
+- 첫 출처 주소는 `vertexaisearch.cloud.google.com` 경유 주소(구글이 감싼 주소) — 화면에는 출처 제목(도메인)을 보여 주면 된다.
+
+### 다음 단계
+- 「검색 도구 고르기」(`docs/PLAN_20261115_SEARCH_TOOL_CHOICE.md`)의 「모델 내장 검색」 선택지에 Gemini `google_search`를 넣는다. 구현 때 설정을 켠 호출 1회로 함수 도구 조합을 확인한다(주인님 승인 필요).
