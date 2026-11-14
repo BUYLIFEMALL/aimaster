@@ -22,7 +22,7 @@
 | `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Lab(`rjjtjakljjxsgjelqgek`) 공개값으로 복구 |
 | `MALL_SECRET_KEY`(몰 대표 AI 키 암호화 열쇠) | 원래 값 분실 → 주인님 승인으로 **Lab·내 PC 전용 새 열쇠** 생성(값은 출력·기록 안 함) |
 | 예전 열쇠로 암호화된 Lab 데이터 | `mall_builder_store_scheduler_secrets.ai_key_enc` 1건(시험 몰 `aimaster-b2b`) — 관리 화면 「쇼핑몰 정보 → AI」에서 다시 등록 필요 |
-| `SUPABASE_SECRET_KEY`(Lab 서버 키) | **비어 있음 — 주인님이 Lab Supabase 대시보드에서 복사해 `.env.local`에 직접 넣어야 함**(관리자 기능 일부·AI 호출 코드가 씀) |
+| `SUPABASE_SECRET_KEY`(Lab 서버 키) | ✅ 복구(주인님 「니가 직접 할 수 없나」 → 진행). ego로 Lab 대시보드 API Keys의 **복사 단추**를 눌러 클립보드에서 바로 파일에 추가하고 클립보드를 비움(값은 출력·기록 안 함). 「Reveal」 펼치기는 자동 조작 브라우저에서 동작하지 않았음. 확인: 비공개 표 읽기 응답 200 |
 | `MALL_ROOT_DOMAIN`·`MALL_SINGLE_SLUG` 등 | 없어도 기본값(localhost)으로 동작 |
 | 개발 서버 | 바뀐 설정을 읽다 꼬여 포트 3210 프로세스를 끄고 다시 띄움 |
 
@@ -32,7 +32,7 @@
 3. `docs/ERROR_LESSONS.md` 2026-11-14 항목.
 
 ## 5. 남은 일
-1. (주인님) 맥미니·Admin PC 세션에 위 메시지를 붙여 넣은 적이 있으면 알려 주시면 그쪽 기록으로 원인 확정.
-2. (주인님) `mall-builder/.env.local`에 Lab `SUPABASE_SECRET_KEY` 직접 추가.
+1. 원인 미확정 — 주인님 「네가 실수로 붙여 넣었을 수 있어」에 따라 백엔드 세션 기록 전체를 다시 확인: 이 세션이 `mall-builder/.env.local`을 건드린 명령은 모두 22:41 이후(발견 뒤 확인·백업·복구)뿐이고, ego 붙여 넣기도 22:35 이후 SQL 편집기 안에서만 함 → 기록상 이 세션은 아님. 기록 밖 경로(다른 장비·편집기 직접 붙여 넣기 등)는 확인 불가라 재발 방지 규칙·점검 스크립트로 대응.
+2. ~~(주인님) Lab `SUPABASE_SECRET_KEY` 추가~~ — ✅ 백엔드 세션이 넣음(2026-11-14).
 3. (백엔드) Lab 시험 몰 `aimaster-b2b` AI 키 다시 등록 뒤 AI 기능 확인.
 4. (모든 CLI) 다른 프로그램도 작업 시작 때 이상하면 `node scripts/check-env-files.mjs <폴더>`.
