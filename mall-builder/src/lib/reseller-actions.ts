@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { codeError, normalizeCode, parseRate, PAYOUT_MIN } from "@/lib/reseller";
+import { parseApproveRate } from "@/lib/reseller-apply";
 
 function go(path: string, error?: string | null, ok?: string): never {
   const [p, hash] = path.split("#");
@@ -70,4 +71,40 @@ export async function decidePayoutAction(slug: string, payoutId: string, action:
   const { error } = await supabase.rpc("mall_builder_reseller_decide_payout", { p_id: payoutId, p_action: action, p_reason: String(form.get("reason") ?? "") });
   revalidatePath(back);
   go(back, error?.message, action === "paid" ? "지급 완료로 표시했습니다." : "반려하고 잔액을 돌려줬습니다.");
+}
+
+// ── M1-4(0071) 리셀러 신청·승인 ──
+/** 신청자: 서류를 비공개 저장소에 올린 뒤 신청 기록(검사는 DB 함수가 다시) */
+export async function applyResellerAction(storeId: string, input: Record<string, string | null>): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_reseller_apply", { p_store_id: storeId, p: input });
+  return { error: error?.message ?? null };
+}
+
+/** 신청자: 대기 중 신청 취소 */
+export async function cancelResellerApplyAction(slug: string, id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_reseller_apply_cancel", { p_id: id });
+  revalidatePath(`/s/${slug}/reseller/apply`);
+  go(`/s/${slug}/reseller/apply`, error?.message, "신청을 취소했습니다.");
+}
+
+/** 몰 대표: 리셀러 신청 받기 켜기/끄기 */
+export async function setResellerApplyOpenAction(slug: string, storeId: string, open: boolean) {
+  const base = `/s/${slug}/admin/resellers`;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_reseller_apply_open", { p_store_id: storeId, p_open: open });
+  revalidatePath(base);
+  go(base, error?.message, open ? "리셀러 신청을 받습니다. 신청 주소를 회원에게 알려 주세요." : "리셀러 신청을 그만 받습니다.");
+}
+
+/** 몰 대표: 승인(추가 수수료율 선택, 비우면 0%)·반려(사유 필수) */
+export async function decideResellerApplyAction(slug: string, id: string, action: "approve" | "reject", form: FormData) {
+  const base = `/s/${slug}/admin/resellers`;
+  const rate = parseApproveRate(form.get("rate"));
+  if (!rate.ok) go(base, rate.error);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_reseller_apply_decide", { p_id: id, p_action: action, p_note: String(form.get("note") ?? ""), p_rate: rate.value });
+  revalidatePath(base);
+  go(base, error?.message, action === "approve" ? "리셀러로 승인했습니다. 리셀러 코드가 만들어졌습니다." : "신청을 반려했습니다.");
 }

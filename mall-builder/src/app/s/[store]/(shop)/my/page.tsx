@@ -21,6 +21,7 @@ import { headers } from "next/headers";
 import { mallSlugFromHost } from "@/lib/host";
 import { getMyResellerSummary, getPayouts, getResellerLedger } from "@/lib/reseller-store";
 import ResellerPanel from "./reseller-panel";
+import { resellerApplyOpen } from "@/lib/reseller-apply";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -207,6 +208,12 @@ export default async function MyPage({
       </section>
 
       {reseller && <ResellerPanel slug={store.slug} link={refLink} s={reseller} ledger={rLedger} payouts={rPayouts} />}
+      {/* M1-4(0071) 리셀러가 아니고 몰이 신청을 받으면 신청 안내 */}
+      {!reseller && resellerApplyOpen(store.modules) && (
+        <p className="mt-6 rounded-lg border border-dashed p-4 text-sm text-gray-600" data-reseller-apply-link>
+          🤝 내 채널로 상품을 알리고 수수료를 받아 보세요. <a href={`/s/${store.slug}/reseller/apply`} className="text-blue-700 underline">리셀러 신청하기 →</a>
+        </p>
+      )}
 
       <section className="mt-6 rounded-lg border p-4" data-my-coupons>
         <h2 className="mb-3 font-semibold">내 쿠폰 ({usable.length}장)</h2>

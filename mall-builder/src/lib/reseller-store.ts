@@ -1,6 +1,7 @@
 // D33 리셀러 — 서버 읽기(보안 규칙상 리셀러 본인은 자기 것만, 「손님」 권한 직원은 몰 전체)
 import { createClient } from "./supabase/server";
 import type { LedgerKind, PayoutStatus } from "./reseller";
+import { RESELLER_APPLY_COLUMNS, type ResellerApplication } from "./reseller-apply";
 
 export type ResellerSummary = { id: string; code: string; rate: number; active: boolean; linked: number; balance: number; month_earned: number; pending: number };
 export type ResellerRow = { id: string; customer_id: string; code: string; rate: number; active: boolean; created_at: string; customer?: { name: string; company: string | null } | null };
@@ -69,4 +70,20 @@ export async function getCustomerResellerInfo(storeId: string, customerId: strin
     linkedTo: (cust?.reseller_id as string | null) ?? null,
     options: ((all ?? []) as unknown as Opt[]).map((r) => ({ id: r.id, label: `${r.code} · ${r.customer?.company || r.customer?.name || ""}` })),
   };
+}
+
+// M1-4(0071) 리셀러 신청 — 본사(「손님」 권한)는 몰 전체, 신청자는 자기 것만(보안 규칙)
+
+export async function getResellerApplications(storeId: string): Promise<ResellerApplication[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_reseller_applications").select(RESELLER_APPLY_COLUMNS).eq("store_id", storeId).order("created_at", { ascending: false }).limit(100);
+  const rows = (data ?? []) as ResellerApplication[];
+  return [...rows.filter((r) => r.status === "pending"), ...rows.filter((r) => r.status !== "pending")];
+}
+
+/** 신청자 본인: 이 몰에 낸 가장 최근 리셀러 신청 */
+export async function getMyResellerApplication(storeId: string, userId: string): Promise<ResellerApplication | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_reseller_applications").select(RESELLER_APPLY_COLUMNS).eq("store_id", storeId).eq("user_id", userId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  return (data ?? null) as ResellerApplication | null;
 }
