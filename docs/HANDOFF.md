@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` — 상품소싱 v1.39 배포
+
+- 주인님 「진행해」(빌드 1회). EC-W10 「🏭 공장 견적 비교」·E2-1~4(등록 정보 도우미·상품명/태그 초안·네이버 분류 분포·상세페이지로 넘기기)와 공통 항목(저장공간 위젯·로그아웃 local·서버 기기 정보)이 함께 나감. 배포 `trending-product-finder-lrksrt89m` Ready, DB·확장·ZIP v1.39 OK.
+- 확인: 비로그인 분석 주소 401, ego(시험 계정) 공장 견적 화면·「마진 계산」 외화 칸 USD 3.5 채움·네이버 기록의 새 카드 3개. AI 호출·검색 0회.
+- 남은 일: 안내 카드 문구 「PDF·CSV」 미배포 대기, 새 확장으로 네이버 검색 1회 뒤 분류 카드 실데이터 확인, 회원 실제 견적 분석 사용 뒤 결과 품질 확인. 상세: [trending-product-finder/AGENTS.md](../trending-product-finder/AGENTS.md) 2026-11-14 v1.39.
+- https://trending-product-finder.buylife.xyz/factory-quotes
+
 ## 2026-11-14 [역할: mac-mini] 분양몰 T2 — 주인님 결정으로 윈도우 담당 이관
 
 - 14~25단계는 윈도우 mall-builder 담당이 같은 요청서에 이어서 기록. 맥미니 본사·분양자 화면 조작 종료(발송·배송 완료·구매 확정·출금·기간 변경 안 함).
