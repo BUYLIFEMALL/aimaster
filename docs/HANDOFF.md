@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.39 배포(왼쪽 메뉴 버전 표시)
+- 주인님 지시: 「진행해」(남은 일 목록의 메뉴 버전 배포)
+- 한 일: 미배포였던 `9adffe5df`(왼쪽 메뉴가 `src/lib/version.ts`의 버전을 불러 씀)를 v1.39로 배포. `version.ts`·버전 마이그레이션(`20261114010000_bump_version_v1_39.sql`)·AGENTS 이력, DB `programs.version` v1.39
+- 검수: tsc 통과, 배포 `ai-work-workspace-2u0tnk1ci` Ready, ego 관리자 화면에서 왼쪽 메뉴 v1.39 표시 확인
+- 남은 일: 메인 사이트 중앙 정리에서 `workspace-files` 버킷 제외(메인 저장공간 담당), 볼타 공동인증서 2026-12-13 만료 갱신(주인님), 볼타 live_ 발급 보류
+- 링크: https://ai-work-workspace.buylife.xyz
+
 ## 2026-11-14 22:42 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-ssr-v1` — `smartstore-register` v1.28 1안 110번(네이버 스마트스토어 오리지널 그린 & 화이트) 전면 구현 완료 (운영 배포 대기)
 - 주인님 지시: 「1안으로 진행해」 (110. 네이버 스마트스토어 오리지널 그린 & 화이트 셀러 스튜디오 공식 채택)
 - 완료 내역:
