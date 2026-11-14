@@ -140,3 +140,5 @@ input[type="submit"] {
 [data-mall-mode="dark"] .mall-html a[href] { color: var(--mall-primary-300, #93c5fd); }
 [data-mall-mode="dark"] .mall-html blockquote { color: var(--color-slate-600); border-left-color: var(--color-slate-300); }
 [data-mall-mode="dark"] .mall-html hr { border-color: var(--color-slate-200); }
+/* 진한 회색 칩·단추(bg-slate-900 + text-white 등)는 어둡게에서 바탕이 밝게 뒤집히므로 글자를 진하게(2026-11-15 118 시험에서 발견 — 선택된 탭 글자 안 보임) */
+[data-mall-mode="dark"] :is(.bg-slate-700, .bg-slate-800, .bg-slate-900, .bg-slate-950, .bg-gray-700, .bg-gray-800, .bg-gray-900, .bg-gray-950).text-white { color: var(--color-slate-50); }
