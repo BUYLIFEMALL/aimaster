@@ -87,3 +87,11 @@ export async function getMyResellerApplication(storeId: string, userId: string):
   const { data } = await supabase.from("mall_builder_reseller_applications").select(RESELLER_APPLY_COLUMNS).eq("store_id", storeId).eq("user_id", userId).order("created_at", { ascending: false }).limit(1).maybeSingle();
   return (data ?? null) as ResellerApplication | null;
 }
+
+/** M1-5(0072) 주문의 리셀러 기록 — 운영 DB에 0072가 아직 없으면(칸 없음) 조용히 null */
+export async function getOrderRef(orderId: string): Promise<{ code: string; source: "link" | "customer" } | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("mall_builder_orders").select("ref_code, ref_source").eq("id", orderId).maybeSingle();
+  if (error || !data?.ref_code || !data.ref_source) return null;
+  return { code: data.ref_code as string, source: data.ref_source as "link" | "customer" };
+}

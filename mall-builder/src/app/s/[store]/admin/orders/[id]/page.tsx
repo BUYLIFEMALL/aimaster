@@ -16,6 +16,8 @@ import { getCardPayment } from "@/lib/card-payments";
 import { CARD_STATUS_LABEL } from "@/lib/payment";
 import { recheckCardAction, refundRemainingAction } from "@/lib/order-actions";
 import { getItemSupplyForAdmin } from "@/lib/supplier-store";
+import { getOrderRef } from "@/lib/reseller-store";
+import { REF_SOURCE_LABEL } from "@/lib/reseller";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -38,6 +40,7 @@ export default async function AdminOrderDetailPage({
   const found = await getOrder(store.id, id);
   if (!found) notFound();
   const { order, items, events } = found;
+  const ref = await getOrderRef(order.id); // M1-5(0072)
   // D36 공급사 품목 — 품목 id → 공급사 이름·공급가·발송 송장
   const supplyMap = await getItemSupplyForAdmin(order.id);
   const notifyLog = await loadNotifyLog(store.id, order.id);
@@ -83,6 +86,7 @@ export default async function AdminOrderDetailPage({
             {order.coupon_discount > 0 && <> − 쿠폰 {formatWon(order.coupon_discount)}</>}
             {order.point_used > 0 && <> − 포인트 {formatWon(order.point_used)}</>})
           </p>
+          {ref && <p className="text-xs text-emerald-700" data-order-ref>🤝 리셀러 <b className="font-mono">{ref.code}</b> · {REF_SOURCE_LABEL[ref.source]}</p>}
           {order.points_earned > 0 && <p className="text-xs text-gray-500" data-points-earned>구매 확정 적립 {order.points_earned.toLocaleString("ko-KR")}점</p>}
           {order.pay_deadline_at && order.status === "pending_payment" && (
             <p className="text-red-700" data-pay-deadline>{order.is_card ? "결제 기한" : "입금 기한"} {formatDateTime(order.pay_deadline_at)} — 지나면 자동 취소</p>
