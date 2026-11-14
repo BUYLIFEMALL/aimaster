@@ -101,6 +101,14 @@
 > ⑥ **작업을 시작할 때 `node scripts/index-watch.mjs session-check`를 한 번 실행한다(2026-10-23 주인님 승인, Codex·agy 포함 모든 CLI·장비)** — 공용 스테이징 축소·`index.lock` 오래 남음·묵은 스테이징 항목(작업 파일=HEAD인데 스테이징만 옛 판)을 ⚠로 알리고, 잠금이 있으면 그 장비의 프로세스를 `.git/aimaster-lock-evidence.txt`에 남긴다. ⚠가 나오면 안내된 정리 명령(`git reset -q HEAD -- <파일>`, 작업 파일은 그대로)만 쓰거나 주인님께 알리고, 잠금 파일은 지우지 않는다. Claude Code는 저장소 세션 시작 훅이 자동으로 같은 검사를 한다.
 
 <!-- GUIDELINES_SUMMARY_20261023 -->
+> **🔐🔐🔐 최상위 고정 — `.env*`(접속 설정·비밀값 파일) 덮어쓰기 사고 재발 방지 (2026-11-14 주인님 지시: 「동일한 사고가 발생안되도록 관련 메인 지침에 넣어두고 인수인계 문서로도 남겨」, 모든 CLI·모든 장비 공통)**
+> **무슨 일이 있었나:** 2026-11-14 22:33 `mall-builder/.env.local`(1,824바이트, Lab 주소·공개 키·서버 비밀 키·몰 대표 키 암호화 열쇠 `MALL_SECRET_KEY` 등)의 내용 전체가 **「mall-builder 담당께: …」로 시작하는 인수인계 메시지 한 줄로 덮어써졌다.** git 밖 파일이라 `git status`에도 안 보였고, 내 PC 개발 서버의 모든 화면이 500이 됐다. 이 PC의 세션 기록 12개에는 그 시각에 이 파일을 쓴 명령이 없어(공유 폴더를 쓰는 다른 장비·다른 도구로 추정) 원래 비밀값은 되살리지 못했고, 공개값만 복구 + Lab 전용 `MALL_SECRET_KEY`를 새로 만들었다(예전 열쇠로 저장된 Lab 키 1개는 다시 등록, `SUPABASE_SECRET_KEY`는 주인님이 직접 넣음). 상세: [`mall-builder/docs/HANDOFF_20261114_ENV_LOCAL_OVERWRITE.md`](mall-builder/docs/HANDOFF_20261114_ENV_LOCAL_OVERWRITE.md), [`docs/ERROR_LESSONS.md`](docs/ERROR_LESSONS.md) 2026-11-14.
+> **그래서 이렇게 한다:**
+> 첫째, **인수인계·요청·메모 글은 `docs/` 문서·역할 파일·요청함·채팅에만 쓴다. `.env`·`.env.local`·`.env.*` 파일에는 어떤 글도 쓰지 않는다**(`echo "…" > .env.local`, 파일 쓰기 도구의 대상 착오 포함). 다른 담당께 남길 글은 그 프로그램 `docs/IMPROVEMENTS.md`의 「○○ 담당께」 칸으로.
+> 둘째, **`.env*` 파일은 고칠 때도 덮어쓰기(`>`, 파일 통째 쓰기) 대신 줄 추가만 하고, 고치기 전에 저장소 밖(scratchpad 등)에 사본을 떠 둔다.** 값은 채팅·문서·로그에 출력하지 않는다(확인은 `sed -E 's/=.*/=<숨김>/' .env.local`처럼 이름만).
+> 셋째, **개발 서버가 갑자기 「URL and Key are required」·전 화면 500을 내거나 작업을 시작할 때 이상하면 `node scripts/check-env-files.mjs [폴더]`로 점검한다**(값은 안 보이고 `이름=값`이 아닌 줄·빈 파일만 알려 줌, 정상 0 / 깨짐 1). 깨졌으면 값을 추측해 채우지 말고 주인님께 알린 뒤 공개값만 복구하고, 비밀값은 주인님이 넣는다.
+> 넷째, 비밀값을 새로 만들어야 하면(예: 암호화 열쇠) 주인님 승인 뒤 Lab·내 PC 전용으로만 만들고, 운영 Vercel 환경변수는 건드리지 않는다(운영 비밀값 교체는 별도 승인).
+
 > **지침 빠른 찾기:** [분야별 요약 색인](docs/guidelines/README.md) · [멀티에이전트·멀티세션 작업 규칙](docs/MULTI_AGENT_SESSION_RULES.md)
 > 기존 지침 본문은 보존했습니다. 필요한 분야의 요약과 연결된 상세 원문을 함께 읽습니다. 윈도우 메인·맥미니 보조 PC의 모든 CLI/세션은 공동 작업 규칙도 확인합니다.
 <!-- /GUIDELINES_SUMMARY_20261023 -->

@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 ✅ [역할: mall-builder] Claude Code(윈도우) `claude-win-20261025-workspace` — `.env*` 덮어쓰기 사고 재발 방지 + 쇼핑몰 M1-4 리셀러 신청(미배포)
+
+- **사고**: 22:33 `mall-builder/.env.local`이 인수인계 메시지 한 줄로 덮어써져 내 PC 개발 서버 전 화면 500. 이 PC 세션 기록엔 쓴 명령 없음(다른 장비·도구 추정). 공개값 복구 + Lab 전용 `MALL_SECRET_KEY` 새로 만듦(주인님 승인), `SUPABASE_SECRET_KEY`는 주인님이 직접 넣을 차례. 상세 [`mall-builder/docs/HANDOFF_20261114_ENV_LOCAL_OVERWRITE.md`](../mall-builder/docs/HANDOFF_20261114_ENV_LOCAL_OVERWRITE.md).
+- **재발 방지**: `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`에 「`.env*` 덮어쓰기 사고 재발 방지」 고정 규칙, 점검 스크립트 `node scripts/check-env-files.mjs [폴더]`(값 출력 없음, 저장소 101개 정상·사고 파일 잡힘), `docs/ERROR_LESSONS.md` 항목.
+- **쇼핑몰 M1-4**: 리셀러 신청·승인(DB 0071 Lab 적용 — MCP 확인 창 4번 만료로 ego Lab SQL 편집기로 실행, 화면 확인). 미배포·운영 DB 미적용. 다음 첫 단계: M1-5 상품 제휴 링크·주문 기록(0072). 마스터 플랜 [`mall-builder/docs/PLAN_20261114_B2B_MASTER.md`](../mall-builder/docs/PLAN_20261114_B2B_MASTER.md).
+
+## 2026-11-14 ✅ [역할: music] Claude Code(윈도우) `claude-win-20261024-music` — 무료 음악 v1.67 · 엔진 0.8.5 배포
+
+- 끝 자동 줄이기 곡선 `hsin`(`388b00b23`)을 담은 엔진 0.8.5 설치 파일을 이 PC에서 빌드(로컬, 무료), 실제 곡으로 끊긴 끝 0.5초 예전 직선 -46.8dB → 새 곡선 -61.2dB 확인, 자연스럽게 끝난 곡은 손대지 않음.
+- 웹 v1.67 배포 `free-music-studio-eaf18nsd6`(빌드 1회, 주인님 승인), DB v1.67, 운영 `engine-latest.json` 0.8.5·설치 파일 sha256 일치, ego `/engine` 확인. 커밋 `bc946e04c` 외. 상세 `free-music-studio/AGENTS.md` v1.67.
+- 남은 일: 없음(회원 PC에서 새 곡 끝 듣기는 선택). `desktop/build/icon.png`는 빌드가 다시 만든 것이라 커밋하지 않음.
+- 링크: https://free-music-studio.buylife.xyz/engine
+
 ## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` — 바나나 v1.48 배포(메이커 일괄 합성·반환)
 
 - 메이커 기능·UI 인계 확인: agy `f9b8604d4` 결함 2건 해결, 사진 역할 기준 선택·서브 3장/중복 검사·서브 cover·파일명 경로 문자 제거는 공용 계산 코드에 있고 새 화면도 사용. 추가 수정 `1060a8b22`: 반환 단추가 이미 저장된 상품을 다시 보내던 것·빈 작업 번호·성급한 완료 안내.
