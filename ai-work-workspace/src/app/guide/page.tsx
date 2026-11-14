@@ -3,6 +3,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { APP_NAME, APP_VERSION, MAIN_SITE } from "@/lib/version";
 import "@/litpage/web/styles/base.css";
 import "./guide.css";
+import { CopyCode } from "./CopyCode"; // 2026-11-15 MCP·REST 예시 복사
 import { FaqAccordion } from "./FaqAccordion";
 
 export const dynamic = "force-dynamic";
@@ -394,7 +395,7 @@ export default async function GuidePage() {
           <aside className="aww-banner aww-warn">
             <div className="aww-banner-head"><span className="aww-banner-icon">⚠️</span><strong>알아두세요</strong></div>
             <ul>
-              <li>지금은 웹 검색·바깥 웹 페이지 열기, 메일 정리, 다른 회원과 비서 공유, 외부 도구(MCP) 연결은 쓸 수 없습니다.</li>
+              <li>웹 검색은 비서 설정에서 켜면 쓸 수 있습니다. 메일 정리, 다른 회원과 비서 공유, 비서에 바깥 MCP 서버 연결은 아직 쓸 수 없습니다(반대로 Claude 같은 AI 도구에서 내 워크스페이스로 들어오는 연결은 아래 「🔌 MCP·REST API」를 보세요).</li>
               <li>한 비서가 1시간에 너무 많이 실행되면 자동으로 멈춥니다(불필요한 요금 방지).</li>
               <li>비서 실행 기록과 대화는 1년 뒤 자동으로 지워집니다. 비서 설정·만든 페이지는 지우기 전까지 남습니다.</li>
             </ul>
@@ -513,6 +514,71 @@ export default async function GuidePage() {
         </section>
 
         {/* ④ 하이테크 키캡 단축키 치트시트 */}
+        {/* 2026-11-15 MCP·REST API 사용 예(백로그 「/guide에 MCP·REST API 사용 예 추가」) — 서버: /api/mcp, /v1(src/litpage/server/publicApi/routes.ts) */}
+        <section className="aww-meeting" id="api" aria-label="MCP·REST API 연결 방법">
+          <div className="aww-section-head">
+            <span className="aww-badge aww-badge-indigo">🔌 MCP·REST API</span>
+            <h2>🔌 Claude 같은 AI 도구나 내 프로그램에서 워크스페이스 쓰기</h2>
+            <p>개인 토큰 하나로 두 가지를 씁니다. <b>MCP</b>는 Claude Code·Cursor 같은 AI 도구가 내 페이지·표를 찾고 고치게 하고, <b>REST API</b>는 스크립트·Make·n8n 같은 내 프로그램이 페이지·표·댓글을 읽고 씁니다.</p>
+          </div>
+          <div className="aww-guide-steps">
+            {[
+              { no: 1, icon: "🔑", title: "개인 토큰 만들기", desc: "워크스페이스 왼쪽 아래 설정 → 「Workspace MCP」에서 토큰(lp_pat_…)을 만듭니다. 처음 한 번만 보이니 바로 복사해 두세요(회원당 5개, 90일 뒤 만료)." },
+              { no: 2, icon: "🤖", title: "AI 도구에 MCP 연결", desc: "아래 「Claude Code」 명령이나 「설정 파일」 예시에 토큰을 넣어 연결합니다. 그 뒤 AI에게 「내 워크스페이스에서 회의록 찾아 요약해 줘」처럼 말하면 됩니다." },
+              { no: 3, icon: "🧩", title: "내 프로그램에서 REST 호출", desc: "주소 앞부분은 " + "https://ai-work-workspace.buylife.xyz/v1" + " 입니다. 머리글에 「Authorization: Bearer 토큰」을 넣고 아래 예시처럼 부릅니다." },
+              { no: 4, icon: "🛡️", title: "권한·한도 확인", desc: "토큰은 만든 회원 권한 그대로 움직입니다(내가 볼 수 있는 페이지만). 토큰 하나에 1분 60번까지이고, 필요 없어진 토큰은 같은 화면에서 지우세요." },
+            ].map((s) => (
+              <article key={s.no} className="aww-step-card">
+                <div className="aww-step-card-header">
+                  <span className="aww-step-num">STEP 0{s.no}</span>
+                </div>
+                <div className="aww-step-icon-wrap" aria-hidden>{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </article>
+            ))}
+          </div>
+          <div className="aww-code-list">
+            <CopyCode label="① Claude Code에 MCP 연결(터미널)" code={`claude mcp add --transport http aimaster-workspace https://ai-work-workspace.buylife.xyz/api/mcp --header "Authorization: Bearer lp_pat_여기에_토큰"`} />
+            <CopyCode label="② Cursor 등 설정 파일(mcp.json)" code={`{
+  "mcpServers": {
+    "aimaster-workspace": {
+      "url": "https://ai-work-workspace.buylife.xyz/api/mcp",
+      "headers": { "Authorization": "Bearer lp_pat_여기에_토큰" }
+    }
+  }
+}`} />
+            <CopyCode label="③ REST — 제목으로 페이지 찾기" code={`curl -X POST https://ai-work-workspace.buylife.xyz/v1/search \\
+  -H "Authorization: Bearer lp_pat_여기에_토큰" \\
+  -H "lit-version: 2026-10-01" -H "Content-Type: application/json" \\
+  -d '{"query":"회의록"}'`} />
+            <CopyCode label="④ REST — 페이지 내용을 마크다운으로 읽기" code={`curl https://ai-work-workspace.buylife.xyz/v1/pages/페이지ID/markdown \\
+  -H "Authorization: Bearer lp_pat_여기에_토큰" -H "lit-version: 2026-10-01"`} />
+            <CopyCode label="⑤ REST — 페이지 끝에 글 덧붙이기" code={`curl -X PATCH https://ai-work-workspace.buylife.xyz/v1/pages/페이지ID/markdown \\
+  -H "Authorization: Bearer lp_pat_여기에_토큰" \\
+  -H "lit-version: 2026-10-01" -H "Content-Type: application/json" \\
+  -d '{"type":"insert_content","insert_content":{"content":"## 오늘 메모\\n- 거래처 회신 받음"}}'`} />
+            <CopyCode label="⑥ REST — 표(데이터베이스) 행 조회" code={`curl -X POST https://ai-work-workspace.buylife.xyz/v1/databases/표ID/query \\
+  -H "Authorization: Bearer lp_pat_여기에_토큰" \\
+  -H "lit-version: 2026-10-01" -H "Content-Type: application/json" -d '{}'`} />
+          </div>
+          <aside className="aww-banner aww-tip">
+            <div className="aww-banner-head"><span className="aww-banner-icon">💡</span><strong>페이지·표 ID 찾기</strong></div>
+            <ul>
+              <li>페이지를 열었을 때 주소 맨 끝의 32글자(예: …-11daba1c56bb4080a4d2da39ba58aa48)가 페이지 ID입니다. 표도 표 페이지를 열어 같은 방법으로 찾습니다.</li>
+              <li>쓸 수 있는 주소: 검색(POST /search), 페이지 만들기·읽기·고치기(/pages), 마크다운 읽기·고치기(/pages/ID/markdown), 블록(/blocks), 표 만들기·조회(/databases, /data_sources), 댓글(/comments), 내 정보(/users/me).</li>
+            </ul>
+          </aside>
+          <aside className="aww-banner aww-warn">
+            <div className="aww-banner-head"><span className="aww-banner-icon">⚠️</span><strong>알아두세요</strong></div>
+            <ul>
+              <li>토큰은 비밀번호와 같습니다. 화면 캡처·공유 문서·공개 저장소에 올리지 마세요. 새어 나갔다면 「Workspace MCP」에서 그 토큰을 바로 지우세요.</li>
+              <li>워크스페이스 관리자가 설정의 AI 칸에서 MCP를 꺼 두면 REST API도 함께 막힙니다.</li>
+              <li>토큰은 90일 뒤 만료됩니다. 「토큰이 만료됐습니다」가 나오면 새로 만들어 바꿔 넣으세요.</li>
+            </ul>
+          </aside>
+        </section>
+
         <section className="aww-shortcuts-section">
           <div className="aww-shortcuts-header">
             <span className="aww-badge aww-badge-indigo">SPEED UP</span>

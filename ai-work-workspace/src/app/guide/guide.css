@@ -704,3 +704,10 @@
 @media print {
   .aww-guide { height: auto; overflow: visible; }
 }
+
+/* 2026-11-15 MCP·REST API 예시 — 코드 칸 + 복사 버튼(CopyCode.tsx) */
+.aww-code-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+.aww-code-box { border-radius: 12px; border: 1px solid var(--lp-border-primary); background: #0f172a; overflow: hidden; }
+.aww-code-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; background: #1e293b; color: #e2e8f0; font-size: 13px; font-weight: 700; }
+.aww-code-copy { border: 1px solid #475569; background: #334155; color: #f8fafc; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.aww-code-pre { margin: 0; padding: 12px; color: #e2e8f0; font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; font-family: ui-monospace, Consolas, monospace; }
