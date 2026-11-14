@@ -36,12 +36,12 @@
 ## 5. 남은 일
 | 순서 | 일 | 상태·기다리는 것 | 문서 |
 |---|---|---|---|
-| 1 | T2 분양몰 운영 실제 흐름 검수(25단계) | 맥미니 진행 중(12단계까지 통과) — 문제 나오면 mall-builder 담당이 고침 | [검수 인계](docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md) |
+| 1 | T2 분양몰 운영 실제 흐름 검수(25단계) | ✅ 2026-11-14 25단계 모두 통과(1~13 맥미니, 14~25 윈도우 이어받음), 제품 오류 0건 | [검수 인계](docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md) |
 | 2 | 손님 화면 디자인 | ✅ agy 완료 (106번 네오 모던 B2B 커머스 채택, 단위256·빌드·Edge1440/390 실물 통과) | [디자인 결과](docs/DESIGN_HANDOFF.md) |
-| 3 | 샘플몰 자료 채우기(카테고리 6·상품 16·기본 배송비·첫 화면) + 시험 데이터 정리 | 1번 검수가 끝난 뒤. 엑셀 준비됨 `docs/sample/aimaster-b2b-sample-catalog.xlsx` | [후속 플랜](docs/PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md) §2 |
+| 3 | 샘플몰 자료 채우기(카테고리 6·상품 16·기본 배송비·첫 화면) + 시험 데이터 정리 | **이제 시작 가능**(검수 끝남). 엑셀 준비됨 `docs/sample/aimaster-b2b-sample-catalog.xlsx` | [후속 플랜](docs/PLAN_20261113_NEXT_SAMPLE_RESALE_INDEPENDENT.md) §2 |
 | 4 | v1.07 배포 | ✅ 2026-11-14 배포 완료(확인 상자·단일 몰 모드·상세 그림·배송비 종류·손님 화면 개편) | [agy 인계 결과](docs/HANDOFF_20261114_AGY_DETAIL_IMAGES_SHIPPING.md) |
-| 5 | 메이커 연계 M1~M3(바나나로 상품 사진 보내기 → 돌려받기 → 적용) | 바나나 P1 승인·몰 사진 보관 기준 결정 | [검토 결과](docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) |
-| 6 | T3 독립몰 H2 상품 이전·H3 회원 이전 | H2: ✅ 프로셀 판매 중 9개를 Lab 시험 몰 `aimaster-retail`에 이전(변환기 `scripts/prosell-import.mjs`, 사진 198장, 상세 그림 포함). H3: 프로셀 회원 수 확인 대기 | [H2 플랜·결과](docs/PLAN_20261113_H2_PROSELL_PRODUCT_IMPORT.md) |
+| 5 | 메이커 연계 M1~M3(바나나로 상품 사진 보내기 → 돌려받기 → 적용) | 보류(2026-11-14 주인님 「나중에」) — 바나나 P1 먼저. 몰 사진 보관 기준은 결정됨(안 쓰는 사진만 30일) | [검토 결과](docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md) |
+| 6 | T3 독립몰 H2 상품 이전·H3 회원 이전 | H2: ✅ 프로셀 판매 중 9개를 Lab 시험 몰 `aimaster-retail`에 이전(변환기 `scripts/prosell-import.mjs`, 사진 198장, 상세 그림 포함). H3: ❌ 하지 않음(2026-11-14 주인님 「이전 안해도 되」) | [H2 플랜·결과](docs/PLAN_20261113_H2_PROSELL_PRODUCT_IMPORT.md) |
 | 7 | T3 H4 운영 설치·H5 전환, T4 배포 키트 | 주인님 지시(별도 Supabase 유료 가능성) | 〃 |
 | 8 | 쇼핑몰 사진 30일(안 쓰는 사진만) 실제 삭제·사용량 집계 | 메인 사이트 저장공간 담당 처리 대기(후보 함수 0066은 운영 적용됨) | [요청](docs/REQUEST_20261114_MAIN_STORAGE_MALL_PHOTOS.md) |
 
