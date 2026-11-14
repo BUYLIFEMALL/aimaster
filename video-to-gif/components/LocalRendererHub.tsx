@@ -231,7 +231,7 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
                 <Puzzle className="h-5 w-5" />
               </span>
               <span className="rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-bold text-cyan-300 border border-cyan-500/20">
-                Chrome / Edge / Whale / ego lite
+                Chrome / Edge / Whale / ego lite / Aside
               </span>
             </div>
             <h3 className="mt-4 text-base font-extrabold text-white flex items-center gap-1.5">
