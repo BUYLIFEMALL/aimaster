@@ -38,3 +38,19 @@
 ## 확인 방법
 - Lab 개발 서버에서 `/s/aimaster-retail/admin/design/templates`에 들어가 시안을 고르고, 「내 상품으로 미리보기」를 누르면 편집기에 저장 없이 열립니다.
 - 손님 화면 반영은 「초안 저장·게시」를 눌러야 됩니다. Lab 시험 뒤에는 원래대로 돌려 주세요.
+
+---
+
+## ✅ 처리 결과 (2026-11-14 agy 세션 완료 보고)
+- **주인님 지시**: "3안으로 가고 1,2안도 템플릿으로 저장해놔"
+- **시안 3종 자산화 및 등록표 탑재**:
+  1. **3안 (115번): 클린 웰니스 & 테크 그린 스타일 (`clean-wellness`)** — **대표 채택** (기본 테마 `emerald`, 4열, 맞춤 영양 탭, 신뢰 인증 띠)
+  2. **1안 (113번): 럭셔리 부티크 & 누아르 블랙 스타일 (`luxury-boutique`)** — **정식 템플릿 저장** (기본 테마 `mustard`, 3열, 3:4 세로 사진, VIP 마스터피스 컬렉션)
+  3. **2안 (114번): 트렌디 셀렉트샵 & 네오 팝 스타일 (`trendy-pop`)** — **정식 템플릿 저장** (기본 테마 `orange`, 4열, 게릴라 타임드롭 세일, 감성 큐레이션 탭)
+- **코드 및 검증**:
+  - `src/lib/builder/templates.ts`에 `LAYOUTS` 3종 추가 (총 7종 레이아웃)
+  - `src/app/s/[store]/admin/design/templates/template-gallery.tsx`에 3종 미니 도식 썸네일 탑재
+  - 단위 테스트 `node --test tests/templates.test.mjs` 실행: 7종 레이아웃 × 12개 색상 = 84개 전 조합 저장 검사 100% 통과(Pass 4/4)
+  - `DESIGN.md` 및 `DESIGN_BUILDER_TRACKER.md`(D5-2, D5-5, D5-6) 갱신 완료
+  - 디자인 자산: `D:\Antigravity\Design\113_luxury_boutique_black_mall`, `114_trendy_select_pop_mall`, `115_clean_wellness_green_mall` (각 4개 뷰 HTML 및 PNG 캡처 보관)
+

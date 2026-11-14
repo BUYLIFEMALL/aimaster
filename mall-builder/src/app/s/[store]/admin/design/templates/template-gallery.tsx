@@ -28,6 +28,9 @@ function Thumb({ layout, color }: { layout: LayoutCard; color: ColorPreset }) {
     </div>
   );
   const rows: Record<string, React.ReactNode> = {
+    "clean-wellness": <><div className="mx-auto h-2 w-2/5 rounded bg-emerald-400" />{card(4, false)}<div className="flex gap-1 justify-center"><span className="h-1.5 w-8 rounded-full" style={{ background: color.primary }} /><span className="h-1.5 w-8 rounded-full bg-slate-200" /></div>{card(4, false)}</>,
+    "luxury-boutique": <><div className="mx-auto h-2 w-1/2 rounded bg-amber-500" />{card(3, true)}<div className="mx-auto h-1 w-1/3 rounded bg-slate-400" />{card(4, true)}</>,
+    "trendy-pop": <><div className="rounded-md border p-1" style={{ borderColor: "#ea580c" }}>{card(4, false)}</div><div className="flex gap-1"><span className="h-1.5 w-5 rounded bg-orange-400" /><span className="h-1.5 w-5 rounded bg-slate-300" /></div>{card(4, false)}</>,
     "neo-modern": <>{card(4, false)}<div className="h-3 rounded bg-white" />{card(3, false)}</>,
     "clean-select": <><div className="mx-auto h-2 w-1/2 rounded bg-slate-400" />{card(4, true)}<div className="-mx-2 bg-white px-2 py-1.5">{card(3, true)}</div></>,
     "market-daily": <><div className="rounded border-2 p-1" style={{ borderColor: "#f43f5e" }}>{card(4, false)}</div><div className="flex gap-1"><span className="h-2 w-6 rounded" style={{ background: color.primary }} /><span className="h-2 w-6 rounded bg-slate-300" /></div>{card(4, false)}</>,

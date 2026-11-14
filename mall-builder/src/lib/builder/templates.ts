@@ -54,8 +54,215 @@ const doc = (blocks: Block[]): BlocksDoc => ({ schema_version: SCHEMA_VERSION, b
 const base = { header: DEFAULT_HEADER, footer: DEFAULT_FOOTER, popup: DEFAULT_POPUP, list: DEFAULT_LIST, detail: DEFAULT_DETAIL };
 const DAY = 86400_000;
 
-// ── 레이아웃 템플릿(1차 4종 — agy 시안 3종은 오는 대로 같은 모양으로 추가) ──
+// ── 레이아웃 템플릿(7종: agy 3종 시안 + 기존 4종) ──
+// 3안(115. 클린 웰니스) 채택 및 1안(113. 럭셔리 부티크), 2안(114. 트렌디 팝) 템플릿 정식 저장 (2026-11-14 주인님 지시)
 export const LAYOUTS: LayoutTemplate[] = [
+  {
+    id: "clean-wellness",
+    name: "클린 웰니스 & 테크 그린 스타일",
+    description: "청량한 에메랄드 테마와 신뢰감을 주는 구조. 건강기능식품·비건·뷰티·바이오 등 성분과 인증이 중요한 몰에 최적 (115번 시안 채택)",
+    industries: ["beauty", "food", "living", "b2b"],
+    moods: ["웰니스", "신뢰", "클린"],
+    defaultColor: "emerald",
+    shape: { radius: "lg", button: "3d", image_ratio: "1:1" },
+    build: ({ storeName }) => ({
+      ...base,
+      header: {
+        ...DEFAULT_HEADER,
+        band: { text: "식약처 안심 인증 · 전 상품 당일 출고 · 100% 정품 보증", link: "", bg: "#065f46" },
+      },
+      list: { ...DEFAULT_LIST, columns: 4 },
+      detail: { ...DEFAULT_DETAIL },
+      home: doc([
+        blk({
+          id: id("cw-intro"),
+          type: "html",
+          visible: true,
+          settings: {
+            html: `<h2>${esc(storeName)} 클린 케어</h2><p>자연의 순수함과 과학적 설계를 담아 건강한 일상을 전합니다.</p>`,
+          },
+          style: { pad_top: 36, pad_bottom: 12, title_align: "center" },
+        }),
+        blk({
+          id: id("cw-best"),
+          type: "showcase",
+          visible: true,
+          settings: {
+            title: "베스트 웰니스 솔루션",
+            source: "new",
+            category_id: "",
+            product_ids: [],
+            columns: 4,
+            limit: 8,
+          },
+          style: { title_align: "center" },
+        }),
+        blk({
+          id: id("cw-tabs"),
+          type: "tabs",
+          visible: true,
+          settings: {
+            title: "맞춤 영양 테마관",
+            tabs: [
+              { label: "활력 & 면역", source: "new", category_id: "", product_ids: [] },
+              { label: "이너뷰티 & 장건강", source: "new", category_id: "", product_ids: [] },
+              { label: "항산화 & 기초영양", source: "new", category_id: "", product_ids: [] },
+            ],
+            columns: 4,
+            limit: 8,
+          },
+        }),
+        blk({
+          id: id("cw-reviews"),
+          type: "reviews",
+          visible: true,
+          settings: { title: "고객 리얼 체험 후기", count: 6, min_rating: 5 },
+          style: { title_align: "center", width: "full", bg_color: "#ffffff", pad_top: 40, pad_bottom: 40 },
+        }),
+        blk({
+          id: id("cw-notice"),
+          type: "notice",
+          visible: true,
+          settings: { title: "원료 및 품질 인증 공지", count: 3 },
+        }),
+      ]),
+    }),
+  },
+  {
+    id: "luxury-boutique",
+    name: "럭셔리 부티크 & 누아르 블랙 스타일",
+    description: "품격 있는 딥 블랙과 샴페인 골드 액센트. 명품·패션·귀금속·프라이빗 VIP B2B 폐쇄몰에 최적 (113번 시안)",
+    industries: ["fashion", "beauty", "b2b", "digital"],
+    moods: ["럭셔리", "하이엔드", "VIP"],
+    defaultColor: "mustard",
+    shape: { radius: "sm", button: "3d", image_ratio: "3:4" },
+    build: ({ storeName }) => ({
+      ...base,
+      header: {
+        ...DEFAULT_HEADER,
+        band: { text: "VIP 바이어 전용 멤버십 혜택 · 공식 부티크 100% 정품 보증", link: "", bg: "#1c1917" },
+      },
+      list: { ...DEFAULT_LIST, columns: 3, card: { style: "plain" } },
+      detail: { ...DEFAULT_DETAIL },
+      home: doc([
+        blk({
+          id: id("lb-intro"),
+          type: "html",
+          visible: true,
+          settings: {
+            html: `<h2>${esc(storeName)} EXCLUSIVE</h2><p>시대를 초월한 우아함과 최상의 장인정신이 깃든 마스터피스를 만나보세요.</p>`,
+          },
+          style: { width: "full", bg_color: "#ffffff", pad_top: 44, pad_bottom: 44, title_align: "center" },
+        }),
+        blk({
+          id: id("lb-master"),
+          type: "showcase",
+          visible: true,
+          settings: {
+            title: "시그니처 마스터피스 컬렉션",
+            source: "new",
+            category_id: "",
+            product_ids: [],
+            columns: 3,
+            limit: 6,
+            card: { style: "plain" },
+          },
+          style: { title_align: "center" },
+        }),
+        blk({
+          id: id("lb-new"),
+          type: "showcase",
+          visible: true,
+          settings: {
+            title: "프라이빗 신작 라인업",
+            source: "new",
+            category_id: "",
+            product_ids: [],
+            columns: 4,
+            limit: 4,
+            card: { style: "plain" },
+          },
+          style: { title_align: "center" },
+        }),
+        blk({
+          id: id("lb-reviews"),
+          type: "reviews",
+          visible: true,
+          settings: { title: "VIP 클라이언트 프리미엄 리뷰", count: 4, min_rating: 5 },
+          style: { title_align: "center" },
+        }),
+      ]),
+    }),
+  },
+  {
+    id: "trendy-pop",
+    name: "트렌디 셀렉트샵 & 네오 팝 스타일",
+    description: "생동감 넘치는 탠저린 팝 포인트와 쾌활한 레이아웃. 2030 라이프스타일·디자인 소품·위탁 분양몰에 최적 (114번 시안)",
+    industries: ["living", "fashion", "kids", "general"],
+    moods: ["트렌디", "위트", "인기"],
+    defaultColor: "orange",
+    shape: { radius: "xl", button: "3d", image_ratio: "1:1" },
+    build: ({ now, storeName }) => ({
+      ...base,
+      header: {
+        ...DEFAULT_HEADER,
+        band: { text: "첫 구매 즉시 5,000원 쿠폰팩 증정 · 오늘 주문 시 오늘 출발!", link: "", bg: "#c2410c" },
+      },
+      list: { ...DEFAULT_LIST, columns: 4 },
+      detail: { ...DEFAULT_DETAIL },
+      home: doc([
+        blk({
+          id: id("tp-sale"),
+          type: "timesale",
+          visible: true,
+          settings: {
+            title: "게릴라 타임 드롭",
+            subtitle: "오늘 한정 수량, 깜짝 특가 찬스!",
+            ends_at: new Date(now + 7 * DAY).toISOString(),
+            source: "new",
+            category_id: "",
+            product_ids: [],
+            columns: 4,
+            limit: 4,
+          },
+        }),
+        blk({
+          id: id("tp-pick"),
+          type: "showcase",
+          visible: true,
+          settings: {
+            title: `SNS 화제의 ${esc(storeName)} 핫템`,
+            source: "new",
+            category_id: "",
+            product_ids: [],
+            columns: 4,
+            limit: 8,
+          },
+        }),
+        blk({
+          id: id("tp-tabs"),
+          type: "tabs",
+          visible: true,
+          settings: {
+            title: "라이프스타일 큐레이션",
+            tabs: [
+              { label: "데스크테리어", source: "new", category_id: "", product_ids: [] },
+              { label: "홈카페 & 리빙", source: "new", category_id: "", product_ids: [] },
+              { label: "선물 추천", source: "new", category_id: "", product_ids: [] },
+            ],
+            columns: 4,
+            limit: 8,
+          },
+        }),
+        blk({
+          id: id("tp-reviews"),
+          type: "reviews",
+          visible: true,
+          settings: { title: "생생한 내돈내산 포토 후기", count: 6, min_rating: 4 },
+        }),
+      ]),
+    }),
+  },
   {
     id: "neo-modern",
     name: "네오 모던 B2B 커머스 스타일",
