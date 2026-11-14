@@ -193,4 +193,5 @@
 | 쓰이지 않는 키 칸 | `kakao_auto_poster` | 설정의 Claude 키 칸이 실제로 쓰이지 않음 | `reportEngine.ts:33` |
 | 종료 예정 모델 | `threads-easy-planner` | 선택지에 종료·종료 예정 모델 3개 | 그 프로그램 IMPROVEMENTS |
 
+- **2026-11-14 결정**: `stepmail` 리드(회원이 올린 연락처 명부)는 예외로 삭제하지 않고 회원별 보관, 발송 기록은 30일 그대로 — `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 지정 목록.
 - 공통(다음 배포 때 함께, 점검 도구가 알림): 저장공간 위젯 한 줄, `signOut({ scope: "local" })`, 서버 Supabase 클라이언트 `User-Agent` — 28개 대부분 미적용.
