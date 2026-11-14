@@ -15,7 +15,7 @@
 
 ## 대기 중
 
-- **`ai-work-workspace` — 키 화면 그룹 상자 + AI 비서 플랫폼별 기본 모델(2026-11-14 [역할: workspace], 주인님 지시)**: 시험 143. 다음 워크스페이스 배포 때 함께(빌드 1회).
+- **`ai-work-workspace` — 키 화면 그룹 상자 + AI 비서 플랫폼별 기본 모델 + 큰 파일(4~50MB) Storage 저장 + 공개 페이지 1단계(2026-11-14 [역할: workspace], 주인님 지시·「모았다가 배포해」)**: 시험 155, 로컬 빌드 통과. 다음 워크스페이스 배포 때 함께(빌드 1회, 버전 화면·DB 두 곳). 배포 뒤 확인: 10MB 파일 올리기·내려받기, 게시 → 시크릿 창 열기 → 신고 → `/settings/public-pages` 내리기. 메인 사이트 담당께 `workspace-files` 버킷 정리 제외 요청(`docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md` 끝).
 
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
