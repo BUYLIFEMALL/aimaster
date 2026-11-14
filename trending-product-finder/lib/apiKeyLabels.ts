@@ -14,5 +14,6 @@ export const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   elevenst_api_key: "11번가 Open API Key (국내 오픈마켓 소싱 비교, 선택)",
   openai: "OpenAI (기회 점수 산정, 추천 사유 생성)",
   gemini: "Gemini (기회 점수 산정, 추천 사유 생성 — OpenAI 대체 가능)",
+  anthropic: "Claude (상품명·태그 초안 — 메인 사이트 API 설정에서 등록)",
   cronjob_org_api_key: "cron-job.org API 키 (매일 리포트·알림 — 「내 cron-job.org」 방식에서만 필요)",
 };

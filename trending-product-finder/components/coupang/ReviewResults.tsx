@@ -146,7 +146,7 @@ export function ReviewResults({ initialRuns, market = "coupang" }: { initialRuns
                     </tbody>
                   </table>
                 </div>
-                {!loading && <RegisterHelper key={selected.id} items={shown} keyword={selected.keyword} collectedAt={when(selected.created_at)} />}
+                {!loading && <RegisterHelper key={selected.id} items={shown} keyword={selected.keyword} collectedAt={when(selected.created_at)} market={market} />}
               </>
             )}
           </div>

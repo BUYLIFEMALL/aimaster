@@ -12,6 +12,7 @@ export type ApiKeyProvider =
   | "elevenst_api_key"
   | "openai"
   | "gemini"
+  | "anthropic"
   | "cronjob_org_api_key";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];

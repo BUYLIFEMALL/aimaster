@@ -6,11 +6,13 @@ import { useMemo, useState } from "react";
 import { adShare, priceStats, topWords, usedInNames, type SampleItem } from "@/lib/registerHelper";
 import { relatedKeywordsAction } from "@/lib/actions/registerHelper";
 import type { RelatedKeyword } from "@/lib/naver/searchAd";
+import type { ListingMarket } from "@/lib/listingRules";
+import { ListingDraft } from "@/components/coupang/ListingDraft";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 const num = (n: number) => n.toLocaleString("ko-KR");
 
-export function RegisterHelper({ items, keyword, collectedAt }: { items: SampleItem[]; keyword: string; collectedAt: string }) {
+export function RegisterHelper({ items, keyword, collectedAt, market }: { items: SampleItem[]; keyword: string; collectedAt: string; market: ListingMarket }) {
   const names = useMemo(() => items.map((item) => item.name), [items]);
   const words = useMemo(() => topWords(names), [names]);
   const prices = useMemo(() => priceStats(items.map((item) => item.price)), [items]);
@@ -141,6 +143,15 @@ export function RegisterHelper({ items, keyword, collectedAt }: { items: SampleI
           </div>
         )}
       </div>
+
+      <ListingDraft
+        market={market}
+        keyword={seed.trim() || keyword}
+        words={words.map((w) => w.word)}
+        related={(related ?? []).map((r) => ({ keyword: r.keyword, searches: r.totalMonthlySearches, usedInSample: usedInNames(r.keyword, names) }))}
+        priceMedian={prices?.median ?? null}
+        names={names}
+      />
     </section>
   );
 }
