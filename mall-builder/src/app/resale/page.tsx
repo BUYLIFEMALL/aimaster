@@ -125,6 +125,10 @@ export default async function ResalePage({ searchParams }: { searchParams: Promi
                       <Link href={`/s/${st.slug}/admin`} className="btn-3d-dark px-3.5 py-1.5 text-xs">
                         내 분양몰 관리
                       </Link>
+                      {/* 프론트 S21① — 디자인 템플릿 고르기·편집(분양몰은 바닥글 입금 계좌 등 일부 잠금) */}
+                      <Link href={`/s/${st.slug}/admin/design/templates`} className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors" data-resale-design-link>
+                        디자인 편집
+                      </Link>
                       <Link href={`/s/${st.slug}`} className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
                         손님 화면 보기
                       </Link>
