@@ -25,6 +25,7 @@
 
 - `banana-canvas` 상품 합성: 깨진 사진 실패 사유 한국어 안내(`compositeRender.ts` `readBitmap`) — 2026-11-13 [역할: ecommerce-image] `claude-win-blog`, 다음 바나나 배포 때 함께. **주의: agy가 `batch/` 화면 작업 중(미커밋) — 배포는 커밋 내용만 꺼내서(`git archive HEAD banana-canvas`) 하거나 agy 커밋 뒤에.**
 - `banana-canvas` 상품 합성 P3-F: 공급사 ZIP·폴더 그대로 넣기(`zipInput.ts`·`rowsFromPaths`) — 2026-11-13 [역할: ecommerce-image] `claude-win-blog`, 주인님 승인. 다음 바나나 배포 때 함께(같은 주의: agy 미커밋 화면).
+- `banana-canvas` 메이커 연계 M1: 상품 사진 약속에 보낸 곳 쇼핑몰(`from=mall`) 추가 — `31dd0b632` 2026-11-14 [역할: ecommerce-image] `claude-win-sdp`. 약속 코드만(동작 같음). **화면 연결 3곳은 agy**(플랜 `banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md` §4) — 연결 전에는 쇼핑몰이 보내도 받지 않음. 상세 사본 `shop-detail-page/lib/productPhotoHandoff.ts`도 동작 같아 다음 상세 배포 때 함께.
 - **블로그 맥미니 지적 처리(2026-11-12 [역할: blog] `claude-win-blog`)**: `tistory-auto-blog` 열외 회원 보관 안내·배지(시험 177) · `naver-cafe-recruit` 명단 고유 인원·종료 카운터·팝업 버전(시험 17, 확장 → manifest·ZIP·DB 함께). 각 `docs/IMPROVEMENT_HANDOFF_20261112.md`. 다음 그 프로그램 배포 때 함께.
 
 - **공통 — 💾 저장공간 위젯 한 줄(2026-11-11 세션 `claude-win-rea`, 주인님 「해당 프로그램 배포할때 배포되도록」, 추가 배포 없음)**: 하위 웹 프로그램을 배포할 때 레이아웃에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`를 함께 넣는다. `node scripts/pending-check.mjs <폴더>`가 미적용 여부를 자동으로 알려 주고, `--all`이 남은 프로그램을 센다(시작 0/99). 절차·예외: [`HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`](HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md).

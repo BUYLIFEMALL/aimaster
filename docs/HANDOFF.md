@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` — 메이커 연계 M1(쇼핑몰 → 바나나 상품 사진) 바나나 쪽 약속 · 미배포
+
+- 주인님 「메이커 연계(바나나로 상품 사진 손질) … 진행해」. 막힌 이유 두 가지(바나나 P1 승인·몰 사진 보관)가 모두 풀린 것을 확인했다.
+- 새 약속을 만들지 않고 `product-photo-handoff`에 보낸 곳 `mall`을 추가했다(기본값 상세 — 지금 화면 그대로). 시험 97 통과, `tsc` 0(바나나·상세), 상세 사본 동기화. 커밋 `31dd0b632`.
+- 남은 일: agy가 바나나 화면 연결 3곳을 해야 한다. 새 `ProductBatchBoard.tsx`(미커밋)에는 결과를 `kind`·자기 주소로 보내는 결함이 있다. 쇼핑몰 담당은 M1~M3(사본 받기·보내기·제안 표 DB·적용)를 해야 한다. 상세: [banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md](../banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md). 비용 없음.
+- https://banana-canvas.buylife.xyz/batch?mode=product
+
+
+
 ## 2026-11-14 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-ssr-v1` — AI 스마트스토어 상품 자동등록기(smartstore-register) 4대 화면 3시안(110번/111번/112번, 12개 뷰) 쇼케이스 및 종합 비교표 구축 완료
 - 주인님 지시: 「스마트스토어 상품등록기 디자인 시안 작업해」
 - 쇼케이스 링크: http://localhost:3800/showcase.html (로컬 웹서버 포트 3800 데몬 구동 중)
