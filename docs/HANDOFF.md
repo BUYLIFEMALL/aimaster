@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 KST ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 모아서 배포 25개·운영 DB SQL 4개·쓰레드 이미지 정리
+- 배포 25개(빌드 25회, 주인님 「배포는 모아서 해」): 버전·결과는 `docs/PENDING_DEPLOYS.md` 「내보낸 기록」 2026-11-14 줄. 모두 Ready·운영 주소 연결·DB 버전 확인. 건너뜀 3개(`ui-canvas`·`tarot`·`ai-writing-editor`) — `CRON_SECRET` 환경변수 없음, 추가 승인 대기.
+- 운영 DB: SQL 0072(`kakao_js_key` 허용) + 30일 예외 3개(document-translator·youtube-viral-studio·competitor-analysis — 삭제 쪽은 이미 제외돼 있었고 조회 정책 6개·문서번역 다시 저장만 바뀜). 관리자 계정에 기존 카카오 JavaScript 키 등록(주인님 「기존값 가져다 쓰면되」).
+- 쓰레드 이미지 정리(`threads/src/lib/postImageCleanup.ts`): 같은 버킷·같은 회원 폴더를 쓰는 `tap_posts`·`ncafe_posts`가 가리키는 파일도 남김 — **커밋만, 미배포**(threads는 `claude-win-20261106-ytreply` 연속 배포 중·미커밋 `version.ts` 있음 → 그 세션 배포 때 함께).
+- 쓰레드 기획: 예전 공용 임시 저장분 중 서버에 없는 글을 지금 로그인한 회원 칸으로 옮김(주인님 결정).
+
 ## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 보류 목록 4가지 차례로(모두 미배포 대기)
 
 - 주인님 「순서대로 진행해」(E2 등록 정보 도우미 → 셀러 라벨 작은 기능 → 주문 리포트 작은 기능 → 상세페이지와 쇼츠 연결·EC-W10).
