@@ -522,25 +522,31 @@ export function ProductBatchBoard() {
     const targetOrigin = senderOriginRef.current;
     const targetLabel = senderLabelRef.current;
 
-    // 부모 창(상세페이지 또는 쇼핑몰)에 postMessage로 개별 전송
-    if (window.opener && !window.opener.closed && targetOrigin) {
-      let sentCount = 0;
+    // 부모 창(상세페이지 또는 쇼핑몰)에 postMessage로 개별 전송 — 이미 저장된 상품은 다시 보내지 않는다(중복 저장 방지)
+    const jobId = linkedJobId.current;
+    if (window.opener && !window.opener.closed && targetOrigin && jobId) {
+      const sentIds = new Set<string>();
       for (const r of successList) {
-        if (r.productId && r.blob) {
+        if (r.productId && r.blob && r.returned !== "saved" && r.blob.size <= PRODUCT_RESULT_MAX_BYTES) {
           window.opener.postMessage(
             {
               type: PRODUCT_MSG_RESULT,
-              jobId: linkedJobId.current || "",
+              jobId,
               productId: r.productId,
               file: r.blob,
               settingsVersion: settingsVersion(settings),
             },
             targetOrigin
           );
-          sentCount++;
+          sentIds.add(r.productId);
         }
       }
-      setNotice(`✅ ${targetLabel}으로 ${sentCount}건의 대표사진을 안전하게 개별 반환했습니다.`);
+      setResults((xs) => xs.map((r) => (r.productId && sentIds.has(r.productId) ? { ...r, returned: "sending" } : r)));
+      setNotice(
+        sentIds.size
+          ? `📤 ${targetLabel}으로 ${sentIds.size}건을 보냈습니다. 저장 결과는 표의 「반환」 칸에 표시됩니다.`
+          : `이미 ${targetLabel}에 모두 저장되어 다시 보낼 결과가 없습니다.`
+      );
     } else {
       setNotice(
         `✅ ${successList.length}건의 대표사진 반환 준비 완료. [ZIP 일괄 다운로드] 또는 [CSV 내보내기]를 통해 원클릭 동기화하세요.`
