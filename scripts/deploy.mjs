@@ -6,9 +6,12 @@
 //       … --set-version   위 비교에서 다르면 운영 DB programs.version을 화면 버전으로 고침(이 옵션이 있을 때만 DB 쓰기)
 //       node scripts/deploy.mjs --version-only --all   연결된 모든 프로그램 비교, 어긋난 곳만 보고(DB 안 고침) — 세션 시작 때 1회
 //       … --all --fix-map   프로그램 비교표 목록 표의 버전 칸만 DB 운영 버전으로 고침(카드 내용은 안 건드림)
+//       … --go --from-head   폴더에 미커밋 변경이 있을 때: 커밋된 내용(git archive HEAD)만 임시 폴더로 꺼내 그곳에서 배포
+//       … --go --allow-dirty  미커밋 변경을 직접 확인했고 그대로 내보낼 때만(내 변경일 때)
 // --go가 끝나면 pending-check --publish로 관리자 첫 화면 숫자(미배포 대기·정리 기록 진행률)도 갱신한다.
 // 배포는 비용이므로 --go는 주인님 승인 범위 안에서만 쓴다(CLAUDE.md 비용 사전 보고). 루트(메인 사이트)는 GitHub 푸시 자동 빌드라 대상이 아니다.
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -343,7 +346,17 @@ if (!active.length) console.log("  (줄 없음)");
 
 // 3) 배포
 const cmd = ["vercel", "deploy", "--prod", "--yes", "--scope", "buylife"];
+// 2026-11-14 주인님 「진행」: 배포는 작업 폴더째 올라가므로, 폴더에 미커밋 변경이 있으면 목록을 보여 주고 멈춘다
+// (11-13 banana-canvas 빌드 실패·11-14 trending-product-finder에 남의 미커밋 서버 코드가 운영에 나감 — docs/ERROR_LESSONS.md).
+const dirtyFiles = (spawnSync("git", ["status", "--porcelain", "--", folder], { cwd: ROOT, encoding: "utf8" }).stdout ?? "")
+  .split("\n").map((l) => l.trimEnd()).filter(Boolean);
+const showDirty = () => {
+  console.log(`\n⚠ 미커밋 변경 ${dirtyFiles.length}개 — 그대로 배포하면 운영에 함께 올라갑니다(다른 세션 작업일 수 있음):`);
+  for (const l of dirtyFiles.slice(0, 20)) console.log(`    ${l}`);
+  if (dirtyFiles.length > 20) console.log(`    … 외 ${dirtyFiles.length - 20}개`);
+};
 if (!go) {
+  if (dirtyFiles.length) { showDirty(); console.log("  → --go 때는 멈춥니다. 커밋본만 배포: --from-head · 내 변경이라 그대로: --allow-dirty"); }
   console.log(`\n[3/3] 배포하지 않았습니다(확인만). 배포하려면: node scripts/deploy.mjs ${folder} --go`);
   console.log(`      실행할 명령: (cd ${folder} && npx ${cmd.join(" ")})`);
   // 막는 세션이 있으면 맨 끝에 한 줄 더(2026-10-23 — [2/3]의 보낼 문안이 긴 출력 중간에 묻혔음). 내 줄이면 --go 때 --owner로 넘김
@@ -360,19 +373,38 @@ if (active.some((l) => !(ownerArg && l.includes(ownerArg)))) {
   console.log("  내 줄이라면: --owner \"<내 세션 이름 또는 내 줄 작업 설명 일부>\"를 붙여 다시 실행");
   process.exit(1);
 }
+let deployDir = dir;
+if (dirtyFiles.length && !args.includes("--allow-dirty")) {
+  showDirty();
+  if (!args.includes("--from-head")) {
+    console.log("\n✖ 미커밋 변경이 있어 배포하지 않습니다. 내 변경이면 커밋한 뒤 다시, 남의 변경이면 --from-head(커밋본만 배포), 직접 확인한 내 변경을 그대로 내보낼 때만 --allow-dirty.");
+    process.exit(1);
+  }
+  const tmp = mkdtempSync(join(tmpdir(), "aimaster-deploy-"));
+  const tar = join(tmp, "head.tar"); // 풀 때는 tmp 안에서 상대 경로로(Git Bash tar가 「C:」를 원격 주소로 읽음)
+  const a = spawnSync("git", ["archive", "--format=tar", "-o", tar, "HEAD", "--", folder], { cwd: ROOT, encoding: "utf8" });
+  const x = a.status === 0 ? spawnSync("tar", ["-xf", "head.tar"], { cwd: tmp, encoding: "utf8" }) : a;
+  if (x.status !== 0 || !existsSync(join(dir, ".vercel"))) {
+    console.log(`✖ 커밋본을 꺼내지 못했습니다(${(x.stderr ?? "").trim() || ".vercel 연결 없음"}). 배포하지 않습니다.`);
+    process.exit(1);
+  }
+  deployDir = join(tmp, folder);
+  cpSync(join(dir, ".vercel"), join(deployDir, ".vercel"), { recursive: true });
+  console.log(`\n✔ 커밋본(HEAD)만 꺼내 배포합니다 — ${deployDir} (미커밋 변경은 이번 배포에 들어가지 않음)`);
+}
 // 배포 뒤 대기 줄 정리·인수인계를 안전 커밋 도우미로 하도록, 고치기 전 기준 사본을 지금 떠 둠(2026-10-23 — 배포 기록 커밋의 되돌림 방지)
 const docAs = `deploy-${folder.replace(/[^\w.-]/g, "_")}`;
 spawnSync(process.execPath, [join(ROOT, "scripts", "safe-commit.mjs"), "--begin", "docs/PENDING_DEPLOYS.md", "docs/HANDOFF.md", "docs/PROGRAM_CAPABILITY_MAP.md", "--as", docAs, "--force-begin"], { stdio: "inherit" });
 console.log(`\n[3/3] 배포 실행: npx ${cmd.join(" ")}  (빌드 1회)`);
 // 배포 출력에서 이번 배포 주소를 받아 vercel inspect로 상태·운영 주소 연결을 직접 확인(2026-10-23 — 예전엔 vercel ls 표를 읽다 「?」가 자주 나옴)
-const r = spawnSync("npx", cmd, { cwd: dir, encoding: "utf8", shell: process.platform === "win32", maxBuffer: 64 * 1024 * 1024 });
+const r = spawnSync("npx", cmd, { cwd: deployDir, encoding: "utf8", shell: process.platform === "win32", maxBuffer: 64 * 1024 * 1024 });
 const deployOut = `${r.stdout ?? ""}\n${r.stderr ?? ""}`;
 process.stdout.write(deployOut.split("\n").filter((l) => /https:\/\/|Error|error|Ready|Production/.test(l)).slice(0, 12).join("\n") + "\n");
 if (r.status !== 0) { console.log(`✖ 배포 명령 실패(코드 ${r.status}). vercel inspect로 원인을 확인하세요.`); process.exit(r.status ?? 1); }
 const deployUrl = (deployOut.match(new RegExp(`https://${project}-[a-z0-9]+-buylife\\.vercel\\.app`)) || [])[0];
 if (!deployUrl) console.log("\n⚠ 배포 출력에서 배포 주소를 찾지 못했습니다 — `vercel ls`로 직접 확인하세요.");
 else {
-  const ins = spawnSync("npx", ["vercel", "inspect", deployUrl, "--scope", "buylife"], { cwd: dir, encoding: "utf8", shell: process.platform === "win32" });
+  const ins = spawnSync("npx", ["vercel", "inspect", deployUrl, "--scope", "buylife"], { cwd: deployDir, encoding: "utf8", shell: process.platform === "win32" });
   const io = `${ins.stdout ?? ""}\n${ins.stderr ?? ""}`;
   const status = (io.match(/status\s+●?\s*(\w+)/) || [])[1] ?? "?";
   const aliases = [...io.matchAll(/https:\/\/[a-z0-9.-]+\.buylife\.xyz/g)].map((m) => m[0]);
