@@ -59,6 +59,14 @@ export async function GET(request: NextRequest) {
     result.coupang_review_runs = oldRuns?.length ?? 0;
     for (const r of (oldRuns ?? []) as { user_id: string }[]) addCleanupCount(counts, r.user_id, "coupangReviewRuns");
   }
+  // EC-W10 공장 견적 비교: 붙여 넣은 대화·결과 30일(마지막으로 고친 날 기준, 결과는 cascade). 원본 파일은 처음부터 저장하지 않음.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: oldQuotes, error: quoteError } = await (admin as unknown as { from: (table: string) => any }).from("factory_quote_projects").delete().lt("updated_at", cutoff).not("user_id", "in", exemptFilter).select("user_id");
+  if (quoteError) errors.push(`factory_quote_projects: ${quoteError.message}`);
+  else {
+    result.factory_quote_projects = oldQuotes?.length ?? 0;
+    for (const r of (oldQuotes ?? []) as { user_id: string }[]) addCleanupCount(counts, r.user_id, "factoryQuotes");
+  }
   result.loggedOwners = await logCleanupUsage(admin, "trending-product-finder", counts);
 
   const { count: cleared, error: snapError } = await admin

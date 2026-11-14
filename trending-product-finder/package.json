@@ -10,7 +10,7 @@
     "lint": "next lint",
     "test:permissions": "node tests/permissions.cjs",
     "test:fixtures": "node tests/fixtures.mjs",
-    "test:trend": "node --test tests/referencePhotos.test.mjs tests/coupangReviews.test.mjs tests/reportTrend.test.mjs tests/sourcingResults.test.mjs tests/loadErrors.test.mjs tests/retention.test.mjs tests/customs.test.mjs tests/registerHelper.test.mjs tests/listingRules.test.mjs",
+    "test:trend": "node --test tests/referencePhotos.test.mjs tests/coupangReviews.test.mjs tests/reportTrend.test.mjs tests/sourcingResults.test.mjs tests/loadErrors.test.mjs tests/retention.test.mjs tests/customs.test.mjs tests/registerHelper.test.mjs tests/listingRules.test.mjs tests/factoryQuotes.test.mjs",
     "test:runtime": "node tests/runtime.mjs",
     "build:verify": "node tests/local.mjs build"
   },

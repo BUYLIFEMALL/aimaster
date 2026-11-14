@@ -415,8 +415,19 @@ function ForeignCostBox({ customsFx, onApply }: { customsFx?: CustomsFxSnapshot;
   const rate = official ?? (Number(manualRate) || null);
   const krw = toKrw(Number(amount), rate);
   const weekLabel = customsFx?.applyStart ? `${Number(customsFx.applyStart.slice(5, 7))}월 ${Number(customsFx.applyStart.slice(8, 10))}일 주` : null;
+  // EC-W10: 「🏭 공장 견적 비교」의 「마진 계산 →」이 ?fxCurrency=&fxAmount= 로 공장 단가를 넘긴다 — 칸만 채우고 원가 넣기는 회원이 누른다.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const c = params.get("fxCurrency") as FxCurrency | null;
+    const a = params.get("fxAmount");
+    if (c && FX_CURRENCIES.includes(c)) setCurrency(c);
+    if (a && Number(a) > 0) {
+      setAmount(a);
+      document.getElementById("margin")?.scrollIntoView({ block: "center" });
+    }
+  }, []);
   return (
-    <div className="space-y-2 rounded-lg border border-mx-border bg-mx-raised p-3 text-xs text-mx-text">
+    <div id="margin" className="space-y-2 rounded-lg border border-mx-border bg-mx-raised p-3 text-xs text-mx-text">
       <p className="font-bold">💱 외화 원가로 넣기 <span className="font-normal text-mx-muted">(1688·타오바오·공장 견적 등 — 알리 검색 결과는 이미 원화)</span></p>
       <div className="flex flex-wrap items-center gap-2">
         <select value={currency} onChange={(e) => setCurrency(e.target.value as FxCurrency)} className="input-sm w-auto" aria-label="통화">

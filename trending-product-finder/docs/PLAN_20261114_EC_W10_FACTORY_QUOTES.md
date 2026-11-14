@@ -2,7 +2,7 @@
 
 > 작성 2026-11-14 · [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` · 주인님 「1번부터 진행해」
 > 원래 기획: [`../../sourcing/README.md`](../../sourcing/README.md)·[`../../sourcing/docs/ARCHITECTURE.md`](../../sourcing/docs/ARCHITECTURE.md)(기획 문서만, 코드 없음)
-> 상태: **플랜 — 아래 「결정 항목」 답을 받은 뒤 구현**
+> 상태: **✅ 2026-11-14 구현(추천안 승인 「진행해」)·운영 DB 표 2개 적용·미배포 대기** — 바뀐 점: 합계 20MB → **4MB**(Vercel 함수 요청 한도 4.5MB, 큰 사진은 브라우저에서 줄임), 엑셀(.xlsx)은 이 PC npm 설정이 외부 주소 패키지(SheetJS) 설치를 막아 **CSV로 저장해 올리거나 표를 붙여 넣기**로 안내
 
 ## 1. 무엇을 만드나
 셀러가 해외 공장(알리바바·1688·위챗)과 주고받은 **견적서(PDF·엑셀·사진)와 위챗 대화(캡처 사진·복사한 글)**를 한 상품 단위로 올리면, AI가 읽어서
