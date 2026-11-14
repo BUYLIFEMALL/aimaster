@@ -32,12 +32,39 @@ function PolicyForm({ slug, policy }: { slug: string; policy: ShippingPolicy | n
         <input name="free_over" defaultValue={v(policy?.free_over)} inputMode="numeric" placeholder="50000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
+        <span className="text-xs text-gray-500">수량별: 몇 개마다(개)</span>
+        <input name="repeat_qty" defaultValue={v(policy?.repeat_qty)} inputMode="numeric" placeholder="3" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+      </label>
+      <label className="block">
+        <span className="text-xs text-gray-500">구간별: 몇 개까지 기본(개)</span>
+        <input name="range_upto" defaultValue={v(policy?.range_upto)} inputMode="numeric" placeholder="5" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+      </label>
+      <label className="block">
+        <span className="text-xs text-gray-500">구간별: 넘으면 추가(원)</span>
+        <input name="range_extra_fee" defaultValue={v(policy?.range_extra_fee)} inputMode="numeric" placeholder="3000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+      </label>
+      <label className="block">
         <span className="text-xs text-gray-500">제주 추가(원)</span>
         <input name="jeju_fee" defaultValue={v(policy?.jeju_fee)} inputMode="numeric" placeholder="3000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">도서산간 추가(원)</span>
         <input name="island_fee" defaultValue={v(policy?.island_fee)} inputMode="numeric" placeholder="5000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+      </label>
+      <label className="block">
+        <span className="text-xs text-gray-500">묶음배송</span>
+        <select name="bundle" defaultValue={policy?.bundle === false ? "no" : "yes"} className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm">
+          <option value="yes">가능(같은 정책끼리 한 번)</option>
+          <option value="no">불가(상품마다 따로)</option>
+        </select>
+      </label>
+      <label className="block">
+        <span className="text-xs text-gray-500">반품 배송비(편도, 원)</span>
+        <input name="return_fee" defaultValue={policy?.return_fee != null ? String(policy.return_fee) : ""} inputMode="numeric" placeholder="3000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+      </label>
+      <label className="block">
+        <span className="text-xs text-gray-500">교환 배송비(왕복, 원)</span>
+        <input name="exchange_fee" defaultValue={policy?.exchange_fee != null ? String(policy.exchange_fee) : ""} inputMode="numeric" placeholder="6000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <button className="min-h-10 rounded bg-gray-900 px-4 text-sm text-white sm:col-span-3 sm:w-32">{policy ? "저장" : "정책 추가"}</button>
     </form>
@@ -61,7 +88,8 @@ export default async function ShippingPage({
     <AdminShell slug={store.slug} storeName={store.name} active="/shipping">
       {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <p className="text-sm text-gray-600">
-        상품마다 배송비 정책을 고를 수 있고, 고르지 않은 상품은 <b>기본 정책</b>을 씁니다. 같은 정책 상품끼리 묶어 묶음마다 한 번 매기며, 조건부 무료는 묶음 합계로 판단합니다. 제주·도서산간은 주문 주소의 우편번호로 판단합니다.
+        상품마다 배송비 정책을 고를 수 있고, 고르지 않은 상품은 <b>기본 정책</b>을 씁니다. 같은 정책 상품끼리 묶어 묶음마다 한 번 매기며(묶음배송 「불가」면 상품마다 따로), 조건부 무료는 묶음 합계로 판단합니다.
+        <b>수량별</b>은 「몇 개마다」 기본 배송비를 다시 매기고(3개마다 3,000원 → 4개면 6,000원), <b>구간별</b>은 「몇 개까지」 기본 배송비, 넘으면 추가 배송비를 한 번 더 매깁니다. 제주·도서산간은 주문 주소의 우편번호로 판단합니다. 반품·교환 배송비는 안내용입니다.
       </p>
       {policies.length === 0 && (
         <p className="mt-3 rounded bg-amber-50 px-3 py-2 text-sm">아직 배송비 정책이 없어 모든 상품이 무료 배송으로 계산됩니다. 첫 정책을 만들면 자동으로 기본이 됩니다.</p>

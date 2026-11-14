@@ -137,13 +137,13 @@ export function viewerOf(
 
 /** 장바구니·주문서 합계 — 주문 가능한 줄만 더하고, 배송비는 정책 묶음별(shipping.ts) */
 export function cartTotals(
-  lines: { lineTotal: number; policyId: string | null; orderable: boolean }[],
+  lines: { lineTotal: number; policyId: string | null; orderable: boolean; qty?: number; productId?: string | null }[],
   policies: ShippingPolicy[],
   region: Region = "mainland",
 ) {
   const ok = lines.filter((l) => l.orderable);
   if (!ok.length) return { subtotal: 0, shipping: 0, total: 0, shippingBreakdown: [] as ReturnType<typeof computeShipping>["breakdown"] };
   const subtotal = ok.reduce((s, l) => s + l.lineTotal, 0);
-  const ship = computeShipping(ok.map((l) => ({ policyId: l.policyId, amount: l.lineTotal })), policies, region);
+  const ship = computeShipping(ok.map((l) => ({ policyId: l.policyId, amount: l.lineTotal, qty: l.qty, productId: l.productId })), policies, region);
   return { subtotal, shipping: ship.total, total: subtotal + ship.total, shippingBreakdown: ship.breakdown };
 }

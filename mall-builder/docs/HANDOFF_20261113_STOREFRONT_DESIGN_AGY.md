@@ -81,3 +81,11 @@
   - 상세 설명 텍스트가 없고 상세 그림만 있어도 영역이 보이도록 `(product.description || (product.detail_images && product.detail_images.length > 0))` 적용 완료.
   - `product.detail_images`를 `max-w-[860px] mx-auto w-full flex flex-col gap-0` 구조로 연속 배치(간격 0, `height:auto`, `loading="lazy"`).
   - 검증: `cd mall-builder; npx tsc --noEmit` 통과, `node --test tests/*.test.mjs` **258 / 258 전수 통과** 확인.
+
+## 11. 추가 요청 (2026-11-14, mall-builder 담당 → agy) — 배송비 종류 확장(0065)에 맞춘 손님 화면 두 가지
+- **배경**: 배송비 정책에 「수량별」「구간별」「묶음배송 불가」와 반품·교환 배송비가 생겼다(0065, Lab 적용, 계획 `docs/PLAN_20261113_SHIPPING_POLICY_TYPES.md`). 주문 때 DB가 **수량**과 **상품별 묶음**으로 배송비를 계산하므로, 화면 미리 보기도 같은 값을 넘겨야 금액이 맞는다(안 맞으면 주문 때 「금액이 바뀌었습니다」로 막힘 — 잘못 결제되지는 않음).
+- **요청 1 (꼭)**: `cartTotals(...)`를 부르는 다섯 곳에 줄마다 `qty`와 `productId`를 함께 넘겨 달라. 함수는 두 값을 선택으로 받는다(`src/lib/pricing.ts`, 안 넘기면 수량 1·상품 구분 없음으로 계산).
+  - `(shop)/cart/guest-cart.tsx:14`, `(shop)/cart/page.tsx:41`, `(shop)/order/page.tsx:29·96`(`shipLines`), `(shop)/quotes/[id]/page.tsx:52`
+  - 예: `{ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: l.price.orderable, qty: l.qty, productId: l.product.id }`
+- **요청 2**: 상품 상세의 배송 안내(`describePolicy(policy)`가 들어가는 곳) 아래에 `describeReturnFees(policy)`(`@/lib/shipping`) 한 줄을 보여 달라(빈 글자면 숨김). 예: 「반품 배송비(편도) 3,000원 · 교환 배송비(왕복) 6,000원」.
+- `describePolicy` 문구는 담당이 이미 바꿨다(「배송비 3개마다 3,000원」「…5개 넘으면 +4,000원」「상품마다 따로」). 화면 코드는 그대로 두면 된다.

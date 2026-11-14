@@ -240,7 +240,7 @@ export async function getShippingPolicies(storeId: string, opts: { mallOnly?: bo
   const supabase = await createClient();
   let q = supabase
     .from("mall_builder_shipping_policies")
-    .select("id, name, type, base_fee, free_over, jeju_fee, island_fee, is_default")
+    .select("id, name, type, base_fee, free_over, jeju_fee, island_fee, is_default, repeat_qty, range_upto, range_extra_fee, bundle, return_fee, exchange_fee")
     .eq("store_id", storeId);
   if (opts.mallOnly) q = q.is("supplier_id", null);
   const { data } = await q

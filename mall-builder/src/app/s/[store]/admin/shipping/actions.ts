@@ -35,6 +35,11 @@ export async function savePolicyAction(slug: string, policyId: string | null, fo
     free_over: num(form.get("free_over")),
     jeju_fee: num(form.get("jeju_fee")),
     island_fee: num(form.get("island_fee")),
+    repeat_qty: num(form.get("repeat_qty")),
+    range_upto: num(form.get("range_upto")),
+    range_extra_fee: num(form.get("range_extra_fee")),
+    return_fee: num(form.get("return_fee")),
+    exchange_fee: num(form.get("exchange_fee")),
   };
   const error = validatePolicy(input);
   if (error) back(slug, error);
@@ -46,6 +51,12 @@ export async function savePolicyAction(slug: string, policyId: string | null, fo
     free_over: input.type === "conditional" ? input.free_over : null,
     jeju_fee: input.jeju_fee ?? 0,
     island_fee: input.island_fee ?? 0,
+    repeat_qty: input.type === "quantity" ? input.repeat_qty : null,
+    range_upto: input.type === "range" ? input.range_upto : null,
+    range_extra_fee: input.type === "range" ? input.range_extra_fee ?? 0 : 0,
+    bundle: form.get("bundle") !== "no",
+    return_fee: input.return_fee,
+    exchange_fee: input.exchange_fee,
   };
   if (policyId) {
     const { error: e } = await supabase.from("mall_builder_shipping_policies").update(row).eq("id", policyId).eq("store_id", storeId);
