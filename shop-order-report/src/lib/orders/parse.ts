@@ -24,6 +24,8 @@ export interface OrderLine {
   qty: number;
   amount: number;
   settlement: number | null;
+  /** 정산 파일로 채운 실제 정산액이면 true — 주문 파일을 다시 올려도 지우지 않는다 */
+  settlementFromFile?: boolean;
   shippingFee: number;
   status: OrderStatus;
   statusRaw: string;
@@ -123,9 +125,11 @@ export function mergeLines(existing: OrderLine[], incoming: OrderLine[]): { line
   const byId = new Map(existing.map((l) => [l.id, l]));
   let added = 0, updated = 0;
   for (const l of incoming) {
-    if (byId.has(l.id)) updated += 1;
+    const old = byId.get(l.id);
+    if (old) updated += 1;
     else added += 1;
-    byId.set(l.id, l);
+    // 정산 파일로 채운 값은, 새 주문 파일에 정산액이 없으면 그대로 둔다
+    byId.set(l.id, old?.settlementFromFile && l.settlement == null ? { ...l, settlement: old.settlement, settlementFromFile: true } : l);
   }
   return { lines: [...byId.values()].sort((a, b) => a.orderedAt.localeCompare(b.orderedAt)), added, updated };
 }

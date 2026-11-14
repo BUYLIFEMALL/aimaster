@@ -10,6 +10,88 @@ import { FIELDS, MARKETS, guessMapping, guessMarket, isPersonalColumn, marketLab
 import { mergeLines, toOrderLines, STATUS_LABEL } from "@/lib/orders/parse";
 import { saveBlob } from "@/lib/download";
 import { COUPANG_HEADERS, SMARTSTORE_HEADERS, sampleOrders } from "@/lib/sample";
+import { SETTLE_FIELDS, applySettlement, guessSettleMapping, type SettleField } from "@/lib/orders/settlement";
+
+interface SettlePending {
+  fileName: string;
+  sheet: SheetData;
+  market: MarketId;
+  map: Partial<Record<SettleField, string>>;
+}
+
+/** 💰 정산 파일로 실제 정산액 채우기 — 마켓 정산 내역 파일의 주문번호·정산금액만 읽는다. */
+function SettlementBox() {
+  const { lines, setLines } = useData();
+  const [p, setP] = useState<SettlePending | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function open(files: File[]) {
+    const file = files[0];
+    if (!file) return;
+    setErr(null);
+    setMsg(null);
+    try {
+      const sheet = readSheetBytes(new Uint8Array(await file.arrayBuffer()), file.name);
+      if (!sheet.rows.length) throw new Error("내용 줄이 없습니다");
+      setP({ fileName: file.name, sheet, market: guessMarket(sheet.headers, file.name), map: guessSettleMapping(sheet.headers) });
+    } catch (e) {
+      setErr(`「${file.name}」을 읽지 못했습니다(${e instanceof Error ? e.message : "형식 오류"}).`);
+    }
+  }
+
+  const missing = p ? SETTLE_FIELDS.filter((f) => f.required && !p.map[f.id]).map((f) => f.label) : [];
+  const marketLines = p ? lines.filter((l) => l.market === p.market).length : 0;
+
+  function apply() {
+    if (!p || missing.length) return;
+    const r = applySettlement(lines, p.market, p.sheet, p.map);
+    setLines(r.lines);
+    setMsg(
+      `${marketLabel(p.market)} 주문 줄 ${r.updatedLines}개에 실제 정산액을 채웠습니다(정산 파일 ${r.readRows}줄 읽음` +
+        (r.unmatchedRows ? ` · 이 PC에 없는 주문 ${r.unmatchedRows}줄` : "") +
+        (r.badRows ? ` · 금액을 못 읽은 ${r.badRows}줄` : "") +
+        "). 리포트의 「추정」 비율이 그만큼 줄어듭니다.",
+    );
+    setP(null);
+  }
+
+  return (
+    <section className="slw-card space-y-2 p-4">
+      <p className="text-sm font-extrabold text-slate-900">💰 정산 파일로 실제 정산액 채우기</p>
+      <p className="text-[12px] text-slate-600">주문 파일에 정산액이 없으면 수수료로 추정합니다. 판매자센터의 정산 내역 파일을 올리면 주문번호로 맞춰 실제 정산액으로 바꿉니다. 주문 파일을 먼저 올려 주세요.</p>
+      <Dropzone accept={ACCEPT_SHEETS} multiple={false} label="정산 내역 파일 고르기" hint="엑셀·CSV 한 개" onFiles={(f) => void open(f)} />
+      {err && <Notice tone="warn">{err}</Notice>}
+      {p && (
+        <div className="space-y-2">
+          <p className="truncate text-[12px] font-bold text-slate-800">📄 {p.fileName} ({p.sheet.rows.length}줄)</p>
+          <label className="block">
+            <span className="slw-label">마켓</span>
+            <select className="slw-field" value={p.market} onChange={(e) => setP({ ...p, market: e.target.value as MarketId })}>
+              {MARKETS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+            </select>
+          </label>
+          {SETTLE_FIELDS.map((f) => (
+            <label key={f.id} className="block">
+              <span className="slw-label">{f.label}{f.required ? " *" : " (선택)"}</span>
+              <select className={`slw-field ${f.required && !p.map[f.id] ? "!border-rose-400" : ""}`} value={p.map[f.id] ?? ""} onChange={(e) => setP({ ...p, map: { ...p.map, [f.id]: e.target.value || undefined } })}>
+                <option value="">— 없음 —</option>
+                {p.sheet.headers.filter((h) => !isPersonalColumn(h)).map((h) => <option key={h} value={h}>{h}</option>)}
+              </select>
+            </label>
+          ))}
+          {missing.length > 0 && <Notice tone="warn">꼭 필요한 열({missing.join(", ")})을 골라 주세요.</Notice>}
+          {!marketLines && <Notice tone="warn">이 PC에 {marketLabel(p.market)} 주문이 없습니다. 주문 파일을 먼저 올리거나 마켓을 바꿔 주세요.</Notice>}
+          <div className="flex gap-2">
+            <button type="button" className="slw-primary flex-1" disabled={missing.length > 0 || !marketLines} onClick={apply}>정산액 채우기</button>
+            <button type="button" className="slw-btn" onClick={() => setP(null)}>취소</button>
+          </div>
+        </div>
+      )}
+      {msg && <Notice tone="tip">✅ {msg}</Notice>}
+    </section>
+  );
+}
 
 interface Pending {
   id: string;
@@ -108,6 +190,7 @@ export default function UploadPage() {
               <p className="text-[13px] text-slate-600">아직 없습니다.</p>
             )}
           </section>
+          <SettlementBox />
         </div>
 
         <div className="space-y-4">

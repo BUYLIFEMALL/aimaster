@@ -196,3 +196,67 @@ test("발송 전 주문 표를 주소로 넘기고 그대로 읽는다(한글·3
   assert.equal(decodeImport("#import=bm90LWpzb24"), null);
   assert.equal(decodeImport("#other=1"), null);
 });
+
+// ── 2026-11-14 상품 묶기·정산 파일 ──
+import { reportKey, costOf } from "../src/lib/report/aggregate.ts";
+import { applySettlement, guessSettleMapping } from "../src/lib/orders/settlement.ts";
+
+const L = (o) => ({ id: `${o.market}|${o.key}`, market: o.market, orderNo: o.orderNo, orderedAt: "2026-11-01", product: o.product, option: o.option ?? "", qty: 1, amount: o.amount, settlement: o.settlement ?? null, shippingFee: 0, status: "done", statusRaw: "" });
+
+test("상품 묶기: 다른 이름을 한 줄로 세고, 원가는 묶음 값 → 예전 상품별 값", () => {
+  const lines = [
+    L({ market: "smartstore", key: "1", orderNo: "A", product: "보온 텀블러 500", amount: 10000 }),
+    L({ market: "coupang", key: "B#x#", orderNo: "B", product: "스텐 텀블러 500ml", amount: 12000 }),
+  ];
+  const st = { ...DEFAULT_SETTINGS, products: { "보온 텀블러 500": { unitCost: 3000, packCost: 0 } }, productGroups: { "보온 텀블러 500": "텀블러 500", "스텐 텀블러 500ml": "텀블러 500" } };
+  assert.equal(reportKey(lines[0], st), "텀블러 500");
+  assert.equal(reportKey(lines[0], DEFAULT_SETTINGS), "보온 텀블러 500");
+  const rows = byProduct(lines, st);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].sales, 22000);
+  assert.equal(costOf(lines[0], st).unitCost, 3000, "묶음 값이 없으면 예전 상품별 원가");
+  assert.equal(costOf(lines[1], st), undefined);
+  const st2 = { ...st, products: { ...st.products, "텀블러 500": { unitCost: 4000, packCost: 0 } } };
+  assert.equal(costOf(lines[1], st2).unitCost, 4000, "묶음 원가가 있으면 그 값");
+  assert.equal(summarize(lines, st2).missingCost, 0);
+  const f = forecastStock(lines, { "텀블러 500": 10 }, "2026-11-01", 14, (l) => reportKey(l, st));
+  assert.equal(f.length, 1);
+  assert.equal(f[0].soldInWindow, 2);
+});
+
+test("정산 파일: 상품주문번호로 맞추고, 없으면 주문번호 줄들에 금액 비율로 나눔", () => {
+  const lines = [
+    L({ market: "smartstore", key: "P1", orderNo: "O1", product: "가", amount: 10000 }),
+    L({ market: "coupang", key: "O2#가#", orderNo: "O2", product: "가", amount: 10000 }),
+    L({ market: "coupang", key: "O2#나#", orderNo: "O2", product: "나", amount: 30000 }),
+  ];
+  const sheet = aoaToSheet([
+    ["주문번호", "상품주문번호", "최종정산금액", "구매자명"],
+    ["O2", "", "35,000", "홍길동"],
+    ["O2", "", "-1,000", "홍길동"],
+    ["O9", "", "5000", "홍길동"],
+    ["O3", "", "얼마", ""],
+  ]);
+  const map = guessSettleMapping(sheet.headers);
+  assert.deepEqual(map, { orderNo: "주문번호", lineNo: "상품주문번호", amount: "최종정산금액" });
+  const r = applySettlement(lines, "coupang", sheet, map);
+  assert.equal(r.updatedLines, 2);
+  assert.equal(r.readRows, 3);
+  assert.equal(r.unmatchedRows, 1);
+  assert.equal(r.badRows, 1);
+  const [, a, b] = r.lines;
+  assert.equal(a.settlement + b.settlement, 34000, "같은 주문 줄은 더하고(차감 포함) 나눠도 합계 그대로");
+  assert.equal(a.settlement, 8500);
+  assert.ok(a.settlementFromFile && b.settlementFromFile);
+  assert.equal(r.lines[0].settlement, null, "다른 마켓은 그대로");
+  const s2 = applySettlement(lines, "smartstore", aoaToSheet([["주문번호", "상품주문번호", "정산금액"], ["O1", "P1", "9100"]]), { orderNo: "주문번호", lineNo: "상품주문번호", amount: "정산금액" });
+  assert.equal(s2.lines[0].settlement, 9100);
+  assert.equal(lineProfit(s2.lines[0], DEFAULT_SETTINGS).settlementEstimated, false);
+});
+
+test("정산 파일로 채운 값은 주문 파일을 다시 올려도 남는다(새 파일에 정산액이 있으면 새 값)", () => {
+  const filled = { ...L({ market: "coupang", key: "k", orderNo: "O", product: "가", amount: 1000 }), settlement: 900, settlementFromFile: true };
+  const again = L({ market: "coupang", key: "k", orderNo: "O", product: "가", amount: 1000 });
+  assert.equal(mergeLines([filled], [again]).lines[0].settlement, 900);
+  assert.equal(mergeLines([filled], [{ ...again, settlement: 950 }]).lines[0].settlement, 950);
+});

@@ -37,3 +37,9 @@ Next.js 16 + Tailwind 4 + 공용 Supabase(권한 판정·회원 키 조회만). 
 
 ## 2026-11-03 (미배포 대기) — `market-fees` 쿠팡·11번가 공식 값 반영 (맥미니 [역할: mac-mini])
 - 설정 화면의 쿠팡·11번가 표시가 ⚠ → ✅, 쿠팡 대표 수수료 10.8 → 10.9%(정산액이 없을 때 추정에 씀). 근거·상세: `trending-product-finder/AGENTS.md` 2026-11-03, 시험 `tests/report.test.mjs` 기대값 수정(맥에서는 실행 불가 — 윈도우에서 `npm test`).
+
+## 2026-11-14 (미배포 대기) — 상품 묶기·정산 파일 ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`)
+- 주인님 「순서대로 진행해」(보류 목록 세 번째). 플랜 [docs/PLAN_20261114_GROUP_SETTLEMENT.md](docs/PLAN_20261114_GROUP_SETTLEMENT.md).
+- **상품 묶기**: 설정 화면 「🔗 상품 묶기」 — 주문에 나온 상품·옵션(마켓 표시)마다 「묶음 이름」(입력 도움 목록). `ReportSettings.productGroups`, `reportKey`·`costOf`(`src/lib/report/aggregate.ts`): 리포트 상품별 표·원가 표·원가 미입력 수·재고 예측(`forecastStock` 새 인자 `keyOf`)이 묶음 이름으로 합침. 원가는 묶음 값 → 없으면 예전 상품별 값이라 기존 설정 그대로 동작. 설정 파일 불러오기도 묶음을 합침.
+- **정산 파일**: 올리기 화면 「💰 정산 파일로 실제 정산액 채우기」(`src/lib/orders/settlement.ts`): 마켓·열(주문번호·상품주문번호·정산금액, 별칭 자동·개인정보 열 제외) → 상품주문번호가 맞으면 그 줄, 아니면 같은 주문번호 줄들에 판매금액 비율로 나눔(같은 번호 여러 줄·차감 줄은 더함). 채운 줄은 `settlementFromFile` — 정산 칸이 없는 주문 파일을 다시 올려도 지우지 않음(`mergeLines`).
+- 검사: `npm test` 25개(새 3개)·tsc·build 통과. 서버·DB 변경 없음(모두 이 PC 브라우저). **화면 확인 전** — 다음 배포(버전 +0.01) 뒤 ego에서 예시 파일로 묶기·정산 파일 확인. 실제 마켓 정산 파일 열 이름은 주인님 실제 파일로 보정 필요(요청함 대기 항목과 같음).

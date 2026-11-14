@@ -5,6 +5,7 @@ import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { useData } from "@/components/DataProvider";
 import { EmptyOrders } from "@/components/report/Widgets";
 import { forecastStock, lastOrderDate } from "@/lib/report/inventory";
+import { reportKey } from "@/lib/report/aggregate";
 
 const LEVEL = {
   danger: { label: "7일 안 품절", cls: "bg-rose-50 text-rose-700" },
@@ -17,8 +18,12 @@ export default function InventoryPage() {
   const { lines, settings, setSettings, ready } = useData();
   const [windowDays, setWindowDays] = useState(14);
   const end = lastOrderDate(lines);
-  const stocks = useMemo(() => Object.fromEntries(Object.entries(settings.products).map(([k, p]) => [k, p.stock ?? null])), [settings.products]);
-  const rows = useMemo(() => (end ? forecastStock(lines, stocks, end, windowDays) : []), [lines, stocks, end, windowDays]);
+  // 묶은 상품(원래 이름)은 묶음 이름 줄로 합쳐 보이므로 따로 줄을 만들지 않는다
+  const stocks = useMemo(
+    () => Object.fromEntries(Object.entries(settings.products).filter(([k]) => !settings.productGroups?.[k]?.trim()).map(([k, p]) => [k, p.stock ?? null])),
+    [settings.products, settings.productGroups],
+  );
+  const rows = useMemo(() => (end ? forecastStock(lines, stocks, end, windowDays, (l) => reportKey(l, settings)) : []), [lines, stocks, end, windowDays, settings]);
 
   if (!ready) return <p className="text-sm text-slate-600">불러오는 중…</p>;
   if (!lines.length) return <EmptyOrders />;

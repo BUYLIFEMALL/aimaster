@@ -21,12 +21,25 @@ export interface ReportSettings {
   courierPerOrder: number;
   /** 기간 광고비 합계(리포트 기간 전체에 한 번 뺌) */
   adCost: number;
+  /** 상품 묶기: 상품 키(상품명 / 옵션) → 묶음 이름. 마켓마다 이름이 다른 같은 물건을 한 줄로 센다. */
+  productGroups?: Record<string, string>;
 }
 
 export const DEFAULT_SETTINGS: ReportSettings = { products: {}, marketFeePct: {}, courierPerOrder: 0, adCost: 0 };
 
 /** 상품 키 — 상품명 + 옵션 */
 export const productKey = (l: Pick<OrderLine, "product" | "option">) => (l.option ? `${l.product} / ${l.option}` : l.product);
+
+/** 리포트에서 쓰는 이름 — 묶음 이름이 있으면 그 이름, 없으면 상품 키 */
+export function reportKey(l: Pick<OrderLine, "product" | "option">, st: Pick<ReportSettings, "productGroups">): string {
+  const k = productKey(l);
+  return st.productGroups?.[k]?.trim() || k;
+}
+
+/** 원가 설정 — 묶음 이름 값이 있으면 그것, 없으면 예전 상품별 값 */
+export function costOf(l: Pick<OrderLine, "product" | "option">, st: ReportSettings): ProductCost | undefined {
+  return st.products[reportKey(l, st)] ?? st.products[productKey(l)];
+}
 
 /** 매출에 넣는 주문(취소·반품은 매출에서 뺀다) */
 export const isSale = (s: OrderStatus) => s !== "cancel" && s !== "return";
@@ -41,7 +54,7 @@ export interface LineProfit {
 
 export function lineProfit(l: OrderLine, st: ReportSettings): LineProfit {
   if (!isSale(l.status)) return { sales: 0, settlement: 0, settlementEstimated: false, cost: 0, profit: 0 };
-  const pc = st.products[productKey(l)];
+  const pc = costOf(l, st);
   const fee = MARKET_FEES[l.market];
   const ratePct = pc?.feePct ?? st.marketFeePct[l.market] ?? fee.ratePct;
   const estimated = l.settlement == null;
@@ -88,7 +101,7 @@ export function summarize(lines: OrderLine[], st: ReportSettings): Summary {
     cost += p.cost;
     saleLines += 1;
     if (p.settlementEstimated) est += 1;
-    if (!st.products[productKey(l)]?.unitCost) missing.add(productKey(l));
+    if (!costOf(l, st)?.unitCost) missing.add(reportKey(l, st));
   }
   missingCost = missing.size;
   const courier = Math.round(saleOrders.size * (st.courierPerOrder || 0));
@@ -164,7 +177,7 @@ function group(lines: OrderLine[], st: ReportSettings, keyOf: (l: OrderLine) => 
 export const byPeriod = (lines: OrderLine[], st: ReportSettings, p: Period) =>
   group(lines, st, (l) => periodKey(l.orderedAt, p)).sort((a, b) => a.key.localeCompare(b.key));
 export const byMarket = (lines: OrderLine[], st: ReportSettings) => group(lines, st, (l) => l.market).sort((a, b) => b.sales - a.sales);
-export const byProduct = (lines: OrderLine[], st: ReportSettings) => group(lines, st, (l) => productKey(l)).sort((a, b) => b.sales - a.sales);
+export const byProduct = (lines: OrderLine[], st: ReportSettings) => group(lines, st, (l) => reportKey(l, st)).sort((a, b) => b.sales - a.sales);
 
 /** 기간 거르기(포함 범위) */
 export function inRange(lines: OrderLine[], from: string, to: string): OrderLine[] {

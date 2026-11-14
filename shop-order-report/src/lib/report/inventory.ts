@@ -17,6 +17,7 @@ export function forecastStock(
   stocks: Record<string, number | null | undefined>,
   endDate: string,
   windowDays = 14,
+  keyOf: (l: OrderLine) => string = productKey,
 ): StockForecast[] {
   const end = new Date(`${endDate}T00:00:00Z`);
   const start = new Date(end);
@@ -25,7 +26,7 @@ export function forecastStock(
   const sold = new Map<string, number>();
   for (const l of lines) {
     if (!isSale(l.status) || l.orderedAt < from || l.orderedAt > endDate) continue;
-    const k = productKey(l);
+    const k = keyOf(l);
     sold.set(k, (sold.get(k) ?? 0) + l.qty);
   }
   const keys = new Set([...sold.keys(), ...Object.keys(stocks).filter((k) => stocks[k] != null)]);

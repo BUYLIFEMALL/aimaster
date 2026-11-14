@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { Download, Upload } from "lucide-react";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
 import { useData, type AppSettings } from "@/components/DataProvider";
-import { byProduct, type ProductCost } from "@/lib/report/aggregate";
+import { byProduct, productKey, type ProductCost } from "@/lib/report/aggregate";
 import { MARKETS } from "@/lib/orders/markets";
 import { MARKET_FEES } from "@/lib/marketFees";
 import { saveBlob } from "@/lib/download";
@@ -28,6 +28,25 @@ export default function SettingsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const products = useMemo(() => byProduct(lines, settings).map((r) => r.key), [lines, settings]);
+  // 상품 묶기 — 주문에 나온 원래 상품·옵션 이름(마켓별) 목록
+  const rawProducts = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const l of lines) {
+      const k = productKey(l);
+      if (!m.has(k)) m.set(k, new Set());
+      m.get(k)!.add(l.market);
+    }
+    return [...m.entries()].map(([key, markets]) => ({ key, markets: [...markets] })).sort((a, b) => a.key.localeCompare(b.key, "ko"));
+  }, [lines]);
+  const groupNames = useMemo(() => [...new Set(Object.values(settings.productGroups ?? {}).map((v) => v.trim()).filter(Boolean))].sort(), [settings.productGroups]);
+  const setGroup = (key: string, name: string) =>
+    setSettings((s) => {
+      const next = { ...(s.productGroups ?? {}) };
+      const clean = name.replace(/\s+/g, " ").slice(0, 60);
+      if (clean.trim()) next[key] = clean;
+      else delete next[key];
+      return { ...s, productGroups: next };
+    });
 
   const setProduct = (key: string, patch: Partial<ProductCost>) =>
     setSettings((s) => ({ ...s, products: { ...s.products, [key]: { ...(s.products[key] ?? { unitCost: 0, packCost: 0 }), ...patch } } }));
@@ -41,7 +60,7 @@ export default function SettingsPage() {
     try {
       const s = JSON.parse(await file.text()) as Partial<AppSettings>;
       if (typeof s !== "object" || !s || typeof s.products !== "object") throw new Error();
-      setSettings((prev) => ({ ...prev, ...s, products: { ...prev.products, ...s.products }, marketFeePct: { ...prev.marketFeePct, ...s.marketFeePct }, mappings: { ...prev.mappings, ...s.mappings } }));
+      setSettings((prev) => ({ ...prev, ...s, products: { ...prev.products, ...s.products }, marketFeePct: { ...prev.marketFeePct, ...s.marketFeePct }, mappings: { ...prev.mappings, ...s.mappings }, productGroups: { ...prev.productGroups, ...s.productGroups } }));
       setMsg("설정 파일을 불러왔습니다.");
     } catch {
       setMsg("설정 파일을 읽지 못했습니다. 이 프로그램에서 내보낸 .json 파일인지 확인해 주세요.");
@@ -78,6 +97,34 @@ export default function SettingsPage() {
                       </tr>
                     );
                   })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <h2 className="mb-1 mt-6 text-sm font-extrabold text-slate-900">🔗 상품 묶기</h2>
+          <p className="mb-3 text-[12px] text-slate-600">
+            마켓마다 상품명이 달라도 같은 물건이면 같은 「묶음 이름」을 적으세요. 리포트·원가 표·재고 예측이 한 줄로 합쳐집니다. 이름을 지우면 다시 나뉩니다(이미 넣은 원가는 그대로 남아 있습니다).
+          </p>
+          {rawProducts.length === 0 ? (
+            <p className="rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-600">주문 파일을 올리면 묶을 상품이 나옵니다.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <datalist id="group-names">{groupNames.map((g) => <option key={g} value={g} />)}</datalist>
+              <table className="w-full min-w-[560px] text-[13px]">
+                <thead>
+                  <tr className="border-b border-slate-200 text-left text-[12px] text-slate-600">
+                    <th className="py-2 pr-2">주문에 나온 상품 · 옵션</th><th className="w-28 pr-2">마켓</th><th className="w-56">묶음 이름</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rawProducts.map(({ key, markets }) => (
+                    <tr key={key} className="border-b border-slate-100">
+                      <td className="max-w-[260px] truncate py-1.5 pr-2" title={key}>{key}</td>
+                      <td className="pr-2 text-[12px] text-slate-600">{markets.map((m) => MARKETS.find((x) => x.id === m)?.label ?? m).join(", ")}</td>
+                      <td><input className="slw-field !py-1" list="group-names" maxLength={60} placeholder="묶지 않음" value={settings.productGroups?.[key] ?? ""} onChange={(e) => setGroup(key, e.target.value)} /></td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
