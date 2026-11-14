@@ -80,7 +80,7 @@ export default function GuidePage() {
           </p>
           <div className="rounded-2xl bg-neutral-50 p-4 border border-neutral-200 text-xs text-neutral-700 flex items-center justify-between gap-3">
             <div>
-              <span className="font-bold text-neutral-900">💡 기본 엔진:</span> 처음에는 OpenAI <strong>GPT-4.1</strong>이 선택되어 있습니다. 다른 키를 등록하셨다면 기획 화면의 <strong>[⚙️ AI 추론 엔진 및 모델 설정]</strong>에서 OpenAI·Claude·Gemini와 모델을 바꿔 주세요. 고른 엔진은 이 브라우저에 기억됩니다.
+              <span className="font-bold text-neutral-900">💡 기본 엔진:</span> 처음에는 OpenAI <strong>GPT-6.1 Terra</strong>가 선택되어 있습니다(플랫폼마다 균형·가성비·최고 품질 3개 중에서 고를 수 있고, 예전에 고른 모델이 종료됐으면 같은 플랫폼의 기본 추천 모델로 자동으로 바뀝니다). 다른 키를 등록하셨다면 기획 화면의 <strong>[⚙️ AI 추론 엔진 및 모델 설정]</strong>에서 OpenAI·Claude·Gemini와 모델을 바꿔 주세요. 고른 엔진은 이 브라우저에 기억됩니다.
             </div>
             <Link
               href="/settings"

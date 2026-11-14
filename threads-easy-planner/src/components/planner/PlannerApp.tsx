@@ -39,6 +39,7 @@ import { TARGET_CATEGORIES } from "@/lib/constants/categories";
 import {
   AI_MODEL_OPTIONS,
   DEFAULT_AI_MODELS,
+  currentModelFor,
   PROVIDER_SHORT_LABELS,
   type AIModelProvider,
 } from "@/lib/ai/models";
@@ -98,7 +99,7 @@ export function PlannerApp() {
 
   // AI 추론 엔진 및 모델 선택 상태 (OpenAI / Claude / Gemini)
   const [selectedProvider, setSelectedProvider] = useState<AIModelProvider>("openai");
-  const [selectedModel, setSelectedModel] = useState<string>("gpt-4.1");
+  const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_AI_MODELS.openai);
   const [missingProviderName, setMissingProviderName] = useState<string | null>(null);
 
   // 로딩 상태
@@ -146,11 +147,10 @@ export function PlannerApp() {
       const savedModel = localStorage.getItem("threads_planner_model");
       if (savedProvider && ["openai", "anthropic", "gemini"].includes(savedProvider)) {
         setSelectedProvider(savedProvider);
-        if (savedModel && AI_MODEL_OPTIONS.some((o) => o.value === savedModel && o.provider === savedProvider)) {
-          setSelectedModel(savedModel);
-        } else {
-          setSelectedModel(DEFAULT_AI_MODELS[savedProvider]);
-        }
+        // 옛 모델(종료·이전 세대)이 저장돼 있으면 같은 플랫폼의 기본 추천 모델로 바꾸고 저장값도 고친다.
+        const model = currentModelFor(savedProvider, savedModel);
+        setSelectedModel(model);
+        if (model !== savedModel) localStorage.setItem("threads_planner_model", model);
       }
     } catch {
       // ignore

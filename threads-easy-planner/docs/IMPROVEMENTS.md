@@ -66,7 +66,7 @@
 ### 1) 프로그램 로직·기능
 - 보관함 기기 임시 저장이 회원별로 나뉘지 않음(맨 위 ⚠ 참고, `src/lib/storage/savedPlansStorage.ts:12,126-135`). 영향: 공용 PC에서 다른 회원 글 노출 가능. 우선순위 높음. 상태: 제안(키를 `tep_saved_plans_local_cache:<user_id>`처럼 바꾸고 옛 키는 읽지 않기).
 - 보관함 30일 정리가 회원 구분 없이 전체 행을 지우고(`src/lib/actions/savedPlans.ts:119-122`, `user_id` 조건 없음) 관리자·시험 계정(`profiles.retention_exempt`)을 빼지 않습니다. 조회도 30일 이내만 보여 줍니다(`:128-133`). 영향: 열외 계정 자료 삭제. 우선순위 중간. 상태: 제안.
-- 모델 목록에 종료·종료 예정 모델이 남아 있습니다: `claude-3-5-sonnet-latest`, `gemini-2.0-flash`, 기본값 `gpt-4.1`·`gpt-4o`·`gpt-4o-mini`(2027-01-14 종료 예정) — `src/lib/ai/models.ts`, 기준 `docs/AI_MODEL_CATALOG.md`. 우선순위 중간(기본값 교체는 2027-01 전). 상태: 제안.
+- 모델 목록에 종료·종료 예정 모델이 남아 있습니다: `claude-3-5-sonnet-latest`, `gemini-2.0-flash`, 기본값 `gpt-4.1`·`gpt-4o`·`gpt-4o-mini`(2027-01-14 종료 예정) — `src/lib/ai/models.ts`, 기준 `docs/AI_MODEL_CATALOG.md`. 우선순위 중간. 상태: **이번에 고침(미배포, 2026-11-14 주인님 「사용안되는 모델이니 이런건 빼고 최신 모델로 바꿔」)** — 목록 18개 → 최신 9개(플랫폼별 균형·가성비·최고 품질, 기본 `gpt-6.1-terra`·`claude-sonnet-5-5`·`gemini-3.8-flash`), 브라우저에 저장된 옛 값과 서버로 온 옛 값은 `currentModelFor()`가 같은 플랫폼 기본 모델로 바꿈, 매뉴얼·설정 화면 모델 이름 갱신.
 ### 2) 화면·가독성·사용 편의
 - 좌측 메뉴 이름 「API키 등록·관리」가 공통 표준 「API키등록·플랫폼연동」과 다릅니다(`src/components/layout/Sidebar.tsx:12`). 배포판 키트 문서와 함께 바꿔야 해서 이번에는 설명 문구만 고쳤습니다. 우선순위 낮음. 상태: 제안.
 - 설정 화면 키 이름 옆 모델명이 옛 것이었음(Gemini 2.5 Flash, Claude 3.5 Sonnet). 상태: 이번에 고침(미배포).

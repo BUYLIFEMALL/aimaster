@@ -4,6 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Anthropic from "@anthropic-ai/sdk";
 import type { AIProvider } from "@/lib/apiKeys";
 import type { TopicSuggestion, ThreadPlanResult, HookVariant, RewriteMode } from "@/types/planner";
+import { currentModelFor } from "@/lib/ai/models";
 export type { TopicSuggestion, ThreadPlanResult, HookVariant, RewriteMode };
 
 /**
@@ -500,7 +501,7 @@ async function callLLM(
   try {
     if (provider === "gemini") {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const selectedModel = model || "gemini-2.0-flash";
+      const selectedModel = currentModelFor("gemini", model);
       const geminiModel = genAI.getGenerativeModel({
         model: selectedModel,
         systemInstruction: systemPrompt,
@@ -527,7 +528,7 @@ async function callLLM(
 
     if (provider === "anthropic") {
       const anthropic = new Anthropic({ apiKey });
-      const selectedModel = model || "claude-sonnet-5";
+      const selectedModel = currentModelFor("anthropic", model);
 
       let content: any = userPrompt;
       if (images && images.length > 0) {
@@ -561,7 +562,7 @@ async function callLLM(
 
     // 기본: OpenAI
     const openai = new OpenAI({ apiKey });
-    const selectedModel = model || "gpt-4.1";
+    const selectedModel = currentModelFor("openai", model);
 
     let userContent: any = userPrompt;
     if (images && images.length > 0) {

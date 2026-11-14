@@ -11,7 +11,7 @@ export const fetchCache = "force-no-store";
 const PROVIDER_INFO: { id: AIProvider; name: string; desc: string; guideUrl: string; manualId: string; isRecommended?: boolean }[] = [
   {
     id: "openai",
-    name: "OpenAI API 키 (GPT-4.1 · GPT-6 등)",
+    name: "OpenAI API 키 (GPT-6.1 Terra 등)",
     desc: "★ 가장 안정적이고 추천하는 AI 엔진입니다. platform.openai.com에서 발급받은 일반/프로젝트 키('sk-...')를 입력하세요.",
     guideUrl: "https://platform.openai.com/api-keys",
     manualId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
@@ -19,14 +19,14 @@ const PROVIDER_INFO: { id: AIProvider; name: string; desc: string; guideUrl: str
   },
   {
     id: "gemini",
-    name: "Google Gemini API 키 (Gemini 3.7 Flash 등)",
+    name: "Google Gemini API 키 (Gemini 3.8 Flash 등)",
     desc: "생성 속도가 매우 빠르고 기본 무료 사용량이 넉넉합니다. aistudio.google.com에서 발급받을 수 있습니다.",
     guideUrl: "https://aistudio.google.com/app/apikey",
     manualId: "f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
   },
   {
     id: "anthropic",
-    name: "Anthropic Claude API 키 (Claude Sonnet 5 등)",
+    name: "Anthropic Claude API 키 (Claude Sonnet 5.5 등)",
     desc: "문장력이 우수합니다. (★ 주의: console.anthropic.com 콘솔에서 반드시 [Workspaces] 내의 특정 워크스페이스를 선택한 뒤 발급받은 'sk-ant-api03-...' 키를 입력해주세요. 워크스페이스가 미지정된 sk-ant-usr-... 키는 호출 시 오류가 발생합니다)",
     guideUrl: "https://console.anthropic.com/settings/keys",
     manualId: "d03f65c2-efbb-421f-a041-a075562e3b7a",
