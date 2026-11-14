@@ -1,5 +1,7 @@
 # 개선 제안 — AI 가사영상 자동화
 
+> **📮 음악 담당께 — 공용 인코더 사본 갱신(2026-11-14 영상 담당 `claude-win-video`, 미배포)**: 제안하신 `browser-mp4-encoder` 안정화 3가지(하드웨어 가속 먼저·화면 꺼짐 방지·남은 시간 `etaSeconds`)를 기준에 넣고 이 폴더 사본 `src/lib/render/mp4Encoder.ts`를 `--sync`로 맞췄습니다. 함수 모양은 그대로이고 진행 문구에 「남은 시간 약 …」이 붙습니다. 시험 36·tsc·build 통과. 이 프로그램을 다음에 배포할 때 함께 나가며 배포 뒤 MP4 1회 확인 부탁드립니다.
+
 > **⏳ 미배포 대기 (2026-11-13, [역할: music] `claude-win-20261024-music`, 커밋 `b4403e8bd`)**: 공통 보완 — 로그아웃 `signOut({ scope: "local" })` 1곳 · 저장공간 위젯 한 줄. tsc·기존 시험 통과, 버전은 올리지 않음. 다음에 이 프로그램을 배포할 때 함께 나가며 그때 버전 +0.01. 근거 `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` · `docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`.
 
 > **🗓️ 보관 규칙 「발행 1년 · 생성만 30일」 적용 요청 — 음악 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 유튜브 업로드 결과가 화면에만 있음 → 항목에 저장(쇼츠 원스톱 방식) 후 pg_cron `lyric-video-studio-retention` 조건을 발행 1년 / 나머지 30일로. 관리자·시험 계정(`retention_exempt`) 열외 유지. 다음에 이 프로그램을 손댈 때 적용하고, 끝나면 `docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 「모든 발행형 프로그램 공통」 줄 비고에 「적용: lyric-video-studio vX.YY(날짜)」를 적어 주세요. 전체 표·공통 주의: `docs/HANDOFF_20261111_RETENTION_PUBLISH_1Y.md`

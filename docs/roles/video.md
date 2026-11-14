@@ -94,7 +94,7 @@
 
 ## 다음 첫 단계 (2026-11-13 정리)
 1. ~~shots 백로그 6~~ 구현 완료(11-14, 미배포).
-2. **공용 인코더 안정화 3가지**(음악 담당 제안): 기준 `shorts-onestop-studio/src/lib/render/mp4Encoder.ts` → `--sync` → 원스톱·shots·lyric-video-studio MP4 시험. 백로그 참고. 목록 `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md`.
+2. ~~공용 인코더 안정화~~ 구현 완료(11-14, 미배포 — 세 프로그램 다음 배포 때). 목록 `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md`.
 3. **메이커 2단계**(자료함 `sourceRef` 원본 참조): sdp 계약이 나오면 `shorts-onestop-studio/src/lib/productShorts.ts`에 `product-image` 받기부터.
 4. 다음 배포 때 함께: `music-video-studio`(저장공간 위젯·로그인 정책 `b4403e8bd`) · `video-to-gif`(위젯) · `ai-image-studio`(공용 영상 코드 사본) · 서울 지역 미반영 프로그램.
 5. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(`shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`).
