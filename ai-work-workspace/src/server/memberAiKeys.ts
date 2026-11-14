@@ -32,6 +32,14 @@ export async function loadMemberAiKeys(userId: string): Promise<MemberAiKeys> {
   if (keys.anthropicKey) keys.provider = "anthropic";
   else if (keys.openaiKey) keys.provider = "openai";
   else if (keys.geminiKey) keys.provider = "gemini";
+  // 2026-11-14: 회원이 고른 플랫폼별 기본 모델(워크스페이스 회원 설정 aww_ai_models) — 읽지 못해도 키는 그대로 쓴다
+  try {
+    const { readAiModelPrefs } = await import("./aiModelPrefs"); // 필요할 때만 불러온다(워크스페이스 DB를 함께 불러오므로)
+    const prefs = readAiModelPrefs(userId);
+    if (Object.keys(prefs).length) keys.models = prefs;
+  } catch {
+    /* 설정 없음 */
+  }
   cache.set(userId, { at: Date.now(), keys });
   return keys;
 }

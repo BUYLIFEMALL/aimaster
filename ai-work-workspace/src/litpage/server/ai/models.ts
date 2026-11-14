@@ -10,7 +10,7 @@
 // model) with the effort picked per task (autoEffort); quick one-shot tasks, chat titles, database autofill, and the
 // formula assistant (low effort, ≤ 16k output tokens), run on the fast model (NC_AI_FAST_MODEL; with OpenAI else
 // the newest listed model described as fast / affordable / efficient; else the default).
-import { availableProviders, memberKeyTag, modelFamily, providerForModel, providerId, type ProviderId } from './providers/config.ts';
+import { availableProviders, memberKeyTag, memberModelPref, modelFamily, providerForModel, providerId, type ProviderId } from './providers/config.ts';
 import { cachedOpenAIModels, openaiModelsVersion, refreshOpenAIModels, type OpenAIModel } from './providers/openaiModels.ts';
 import {
   cachedGeminiModels, geminiModelsVersion, GEMINI_FLASH_LITE_ALIAS, pickGemini, warmGeminiModels, type GeminiModel,
@@ -161,7 +161,9 @@ export function syncModels(): void {
   let def = '';
   providers.forEach((p, i) => {
     const m = providerModels(p, i === 0 ? envModel : '');
-    if (i === 0) def = m.def;
+    // 2026-11-14: 회원이 고른 플랫폼별 기본 모델 — 그 플랫폼 목록에 있을 때만(지워진 옛 모델이면 원래 기본값)
+    const pref = memberModelPref(p);
+    if (i === 0) def = !envModel && pref && m.listed.some((x) => x.id === pref) ? pref : m.def;
     for (const x of m.listed) if (!all.some((y) => y.id === x.id)) all.push(x);
     hidden.push(...m.hidden);
   });
@@ -179,6 +181,12 @@ export function offeredModels(fableEnabled: boolean): ModelInfo[] {
 }
 
 export const AUTO = 'auto';
+
+/** 2026-11-14: 설정 화면용 — 회원 키가 있는 플랫폼의 고를 수 있는 모델과 원래 기본값(회원 선택 전) */
+export function providerModelOptions(p: Exclude<ProviderId, 'none'>): { options: { id: string; label: string; recommended: boolean }[]; def: string } {
+  const m = providerModels(p, '');
+  return { options: m.listed.filter((x) => !x.adminEnable).map((x) => ({ id: x.id, label: `${x.name} ${x.version}`.trim(), recommended: x.group === 'recommended' })), def: m.def };
+}
 
 export function modelInfo(id: string): ModelInfo | undefined {
   syncModels();

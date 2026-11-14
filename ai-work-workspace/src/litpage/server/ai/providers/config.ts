@@ -27,6 +27,8 @@ export interface MemberAiKeys {
   anthropicKey?: string;
   /** U4: 회원 본인 Gemini 키(user_api_keys provider 'gemini') */
   geminiKey?: string;
+  /** 2026-11-14 주인님 「플랫폼별 모델을 선택할 수 있게」: 회원이 고른 플랫폼별 기본 모델(회원 설정 aww_ai_models) — 「자동」일 때 그 플랫폼에서 쓴다 */
+  models?: Partial<Record<'anthropic' | 'openai' | 'gemini', string>>;
 }
 const memberKeys = new AsyncLocalStorage<MemberAiKeys>();
 
@@ -34,7 +36,7 @@ const memberKeys = new AsyncLocalStorage<MemberAiKeys>();
 export function memberKeyTag(): string {
   const k = memberKeys.getStore();
   if (!k) return '';
-  return createHash('sha256').update(`${k.anthropicKey ?? ''}|${k.openaiKey ?? ''}|${k.geminiKey ?? ''}`).digest('hex').slice(0, 16);
+  return createHash('sha256').update(`${k.anthropicKey ?? ''}|${k.openaiKey ?? ''}|${k.geminiKey ?? ''}|${JSON.stringify(k.models ?? {})}`).digest('hex').slice(0, 16);
 }
 
 /** 이 요청을 보낸 회원 본인의 AI 키로 fn을 실행한다(서버 라우트에서 회원 키를 읽은 뒤 호출). */
@@ -65,6 +67,11 @@ export function openaiConfig(): OpenAIConfig | null {
   const baseUrl = (env('OPENAI_BASE_URL') || 'https://api.openai.com/v1').replace(/\/+$/, '');
   const apiKey = env('OPENAI_API_KEY');
   return baseUrl && apiKey ? { baseUrl, apiKey } : null;
+}
+
+/** 회원이 고른 그 플랫폼의 기본 모델(없으면 빈 문자열) */
+export function memberModelPref(p: 'anthropic' | 'openai' | 'gemini'): string {
+  return memberKeys.getStore()?.models?.[p]?.trim() ?? '';
 }
 
 let warnedValue = '';

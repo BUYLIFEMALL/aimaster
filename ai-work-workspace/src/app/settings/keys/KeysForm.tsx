@@ -100,6 +100,7 @@ export function KeysForm() {
             {msg[it.provider] && <p className="aww-key-msg">{msg[it.provider]}</p>}
           </div>
         ))}
+        {g.providers.includes("anthropic") && <AiModelPrefs reloadTag={JSON.stringify(keys)} />}
       </div>
       </section>
         );
@@ -156,5 +157,73 @@ function NotifyPrefs() {
         {msg && <p className="aww-key-msg">{msg}</p>}
       </div>
     </section>
+  );
+}
+
+// 2026-11-14 주인님 「플랫폼별 모델을 선택할 수 있게」 — 기준 naver-blog-agent 「기본 모델 설정」·free-music-studio AiModelsCard.
+// 키가 없는 플랫폼은 「API 미등록」. 고른 모델은 AI 비서가 「자동」일 때 그 플랫폼에서 쓴다(채팅에서 직접 고르면 그것이 우선).
+type ModelProvider = { id: string; name: string; registered: boolean; options: { id: string; label: string; recommended: boolean }[]; def: string; selected: string };
+function AiModelPrefs({ reloadTag }: { reloadTag: string }) {
+  const [list, setList] = useState<ModelProvider[] | null>(null);
+  const [draft, setDraft] = useState<Record<string, string>>({});
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    rpc<{ providers: ModelProvider[] }>("awwAiModelPrefs", {})
+      .then((r) => { setList(r.providers); setDraft(Object.fromEntries(r.providers.map((p) => [p.id, p.selected]))); })
+      .catch(() => setList([]));
+  }, [reloadTag]);
+  const changed = !!list && list.some((p) => (draft[p.id] ?? "") !== p.selected);
+  const save = async () => {
+    setBusy(true);
+    try {
+      await rpc("awwSaveAiModelPrefs", { models: draft });
+      setList((l) => l?.map((p) => ({ ...p, selected: draft[p.id] ?? "" })) ?? l);
+      setMsg("저장했습니다. AI 비서가 「자동」일 때 이 모델을 씁니다.");
+    } catch (e) {
+      setMsg((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="aww-key-card">
+      <div className="aww-key-head"><b>플랫폼별 기본 모델</b></div>
+      <p className="aww-key-desc">플랫폼마다 쓸 모델을 고릅니다. AI 비서가 「자동」일 때 이 모델을 쓰고, 채팅의 모델 목록에서 직접 고르면 그것이 우선입니다. 빠른 짧은 작업(제목 짓기 등)은 비용을 줄이려고 가벼운 모델을 그대로 씁니다.</p>
+      {list === null && <p className="aww-key-desc">불러오는 중…</p>}
+      {list?.map((p) => (
+        <div key={p.id} className="aww-key-row" style={{ alignItems: "center", margin: "6px 0" }}>
+          <span style={{ flex: "0 0 150px", fontSize: 13, fontWeight: 600 }}>{p.name}</span>
+          {p.registered ? (
+            <select
+              value={draft[p.id] ?? ""}
+              onChange={(e) => setDraft((d) => ({ ...d, [p.id]: e.target.value }))}
+              aria-label={`${p.name} 기본 모델`}
+              style={{ flex: "1 1 220px", minWidth: 0, height: 36, padding: "0 8px", borderRadius: 8, border: "1px solid var(--lp-border-primary, rgba(127,127,127,0.35))", background: "transparent", color: "inherit", font: "inherit" }}
+            >
+              <option value="">기본값 ({p.options.find((o) => o.id === p.def)?.label ?? (p.def || "자동")})</option>
+              {p.options.filter((o) => o.recommended).length > 0 && (
+                <optgroup label="추천">
+                  {p.options.filter((o) => o.recommended).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                </optgroup>
+              )}
+              {p.options.filter((o) => !o.recommended).length > 0 && (
+                <optgroup label="다른 모델">
+                  {p.options.filter((o) => !o.recommended).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                </optgroup>
+              )}
+            </select>
+          ) : (
+            <span className="aww-key-state">API 미등록 — 위에서 키를 넣으면 고를 수 있습니다</span>
+          )}
+        </div>
+      ))}
+      {list && list.some((p) => p.registered) && (
+        <div className="aww-key-row" style={{ marginTop: 8 }}>
+          <button className="aww-btn primary small" disabled={busy || !changed} onClick={() => void save()}>{busy ? "저장 중…" : "모델 저장"}</button>
+        </div>
+      )}
+      {msg && <p className="aww-key-msg">{msg}</p>}
+    </div>
   );
 }
