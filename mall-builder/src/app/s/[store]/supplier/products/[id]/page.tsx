@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSupplierProduct, getSupplierVariants } from "@/lib/supplier-store";
+import { getSupplierProduct, getSupplierVariants, getSupplyConfig } from "@/lib/supplier-store";
 import { APPROVAL_LABEL } from "@/lib/supplier";
 import { getSupplierContext, NotSupplier, SupplierShell } from "../../supplier-shell";
 import SupplierProductForm from "../product-form";
@@ -17,6 +17,7 @@ export default async function SupplierProductEditPage({ params, searchParams }: 
   const product = me ? await getSupplierProduct(me.id, id) : null;
   if (me && !product) notFound();
   const opts = product ? await getSupplierVariants(product.id) : { variants: [], groups: [] };
+  const supply = await getSupplyConfig(store.id);
   return (
     <SupplierShell slug={store.slug} storeName={store.name} email={user.email ?? ""} active="/products" notice={notice}>
       {!me || !product ? (
@@ -26,7 +27,7 @@ export default async function SupplierProductEditPage({ params, searchParams }: 
           <Link href={`/s/${store.slug}/supplier/products`} className="text-sm text-gray-500">← 내 상품</Link>
           <h2 className="mt-2 text-lg font-semibold">{product.name} <span className="ml-1 text-sm font-normal text-gray-500">{APPROVAL_LABEL[product.approval]}</span></h2>
           {product.approval === "rejected" && product.approval_note && <p className="mt-2 rounded bg-red-50 px-3 py-2 text-sm text-red-700">반려 사유: {product.approval_note} — 고쳐서 저장하면 다시 승인 요청됩니다.</p>}
-          <div className="mt-4"><SupplierProductForm slug={store.slug} storeId={store.id} supplierId={me.id} product={product} /></div>
+          <div className="mt-4"><SupplierProductForm slug={store.slug} storeId={store.id} supplierId={me.id} product={product} rate={supply.mode === "rate" ? { hqRate: me.hq_fee_rate ?? supply.hqRate } : null} /></div>
           {/* T1(0060) 옵션 — 추가 공급가를 적으면 운영자가 승인 때 판매 추가금을 정함(기본값 = 마진 비율) */}
           <div className="mt-8" data-supplier-options>
             <OptionsEditor

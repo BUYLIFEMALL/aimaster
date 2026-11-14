@@ -1,9 +1,11 @@
 import ImageUploader from "../../admin/products/image-uploader";
 import { saveSupplierProductAction } from "@/lib/supplier-actions";
 import type { SupplierProduct } from "@/lib/supplier-store";
+import RateFields from "./rate-fields";
 
 // D35 공급사 상품 입력 — 처음 올릴 때만 희망 판매가(그 뒤 판매가는 운영자가 정함). 재고만 바꾸면 재승인 없음
-export default function SupplierProductForm({ slug, storeId, supplierId, product }: { slug: string; storeId: string; supplierId: string; product: SupplierProduct | null }) {
+// M1-2(0068) rate가 있으면(수수료율 방식 몰) 공급가 대신 판매가·리셀러율을 받고 공급가를 미리 계산해 보여 준다(옛 방식은 그대로)
+export default function SupplierProductForm({ slug, storeId, supplierId, product, rate = null }: { slug: string; storeId: string; supplierId: string; product: SupplierProduct | null; rate?: { hqRate: number } | null }) {
   const p = product;
   return (
     <form action={saveSupplierProductAction.bind(null, slug, p?.id ?? null)} className="space-y-4 text-sm" data-supplier-product-form>
@@ -15,6 +17,12 @@ export default function SupplierProductForm({ slug, storeId, supplierId, product
         <span className="font-medium">한 줄 소개</span>
         <input name="summary" maxLength={200} defaultValue={p?.summary ?? ""} className="mt-1 w-full rounded border px-2 py-2" />
       </label>
+      {rate ? (
+        <>
+          <input type="hidden" name="supply_price" value={p?.supply_price ?? 0} />
+          <RateFields isNew={!p} basePrice={p?.base_price ?? 0} hqRate={p?.hq_rate ?? rate.hqRate} resellerRate={p?.reseller_rate ?? 0} />
+        </>
+      ) : (
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
           <span className="font-medium">공급가(몰에 넘기는 값) *</span>
@@ -33,6 +41,7 @@ export default function SupplierProductForm({ slug, storeId, supplierId, product
           </label>
         )}
       </div>
+      )}
       <div className="flex flex-wrap items-center gap-4">
         <label className="flex items-center gap-1"><input type="radio" name="tax_type" value="taxable" defaultChecked={(p?.tax_type ?? "taxable") === "taxable"} /> 과세</label>
         <label className="flex items-center gap-1"><input type="radio" name="tax_type" value="exempt" defaultChecked={p?.tax_type === "exempt"} /> 면세</label>

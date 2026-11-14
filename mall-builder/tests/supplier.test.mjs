@@ -1,7 +1,7 @@
 // D34 공급사 상태 규칙 — DB 함수(0053)와 같은 규칙인지
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { inviteAlive, isInviteToken, nextStatuses, SUPPLIER_STATUS_LABEL } from "../src/lib/supplier.ts";
+import { inviteAlive, isInviteToken, nextStatuses, rateSplit, rateSupply, SUPPLIER_STATUS_LABEL } from "../src/lib/supplier.ts";
 
 test("상태별로 고를 수 있는 다음 상태", () => {
   assert.deepEqual(nextStatuses("invited"), ["invited", "revoked"]);
@@ -58,4 +58,24 @@ test("옵션 추가 판매가 기본값(마진 비율) — DB default_extra_sale
   assert.equal(defaultExtraSale(0, 13000, 10000), 0);
   assert.ok(isSupplierShippingType("conditional"));
   assert.ok(!isSupplierShippingType("weird"));
+});
+
+// M1-2(0068) 공급가 = 판매가 × (1 − 본사율 − 리셀러율), DB rate_supply와 같은 값(시나리오 0068과 같은 수)
+test("rateSupply — 마스터 플랜 예시와 시나리오 값", () => {
+  assert.equal(rateSupply(10000, 3, 0), 9700);
+  assert.equal(rateSupply(10000, 3, 10), 8700);
+  assert.equal(rateSupply(10000, 5, 10), 8500);
+  assert.equal(rateSupply(12000, 5, 10), 10200);
+  assert.equal(rateSupply(12000, 3, 10), 10440);
+  assert.equal(rateSupply(1000, 3, 10), 870);
+  assert.equal(rateSupply(9999, 3, 10), 8699); // 원 단위 버림
+  assert.equal(rateSupply(10000, 3.5, 12.25), 8425);
+  assert.equal(rateSupply(-5, 3, 10), 0);
+});
+
+test("rateSplit — 세 몫의 합이 판매가", () => {
+  const s = rateSplit(10000, 3, 10);
+  assert.deepEqual(s, { supply: 8700, reseller: 1000, hq: 300 });
+  const t = rateSplit(9999, 3, 10);
+  assert.equal(t.supply + t.reseller + t.hq, 9999);
 });

@@ -15,12 +15,26 @@ export type SupplierRow = {
   memo: string;
   status: SupplierStatus;
   auto_approve: boolean;
+  hq_fee_rate: number | null; // M1-1(0068) 공급사별 본사 판매수수료율(비우면 몰 기본값)
   invite_expires_at: string | null;
   accepted_at: string | null;
   created_at: string;
 };
 
-export const SUPPLIER_COLUMNS = "id, store_id, user_id, name, email, biz_no, contact_name, phone, memo, status, auto_approve, invite_expires_at, accepted_at, created_at";
+export const SUPPLIER_COLUMNS = "id, store_id, user_id, name, email, biz_no, contact_name, phone, memo, status, auto_approve, hq_fee_rate, invite_expires_at, accepted_at, created_at";
+
+/** M1-2(0068) 공급가 = 판매가 × (1 − 본사율 − 리셀러율), 원 단위 버림 — DB mall_builder_private.rate_supply와 같은 계산 */
+export function rateSupply(price: number, hqRate: number, resellerRate: number): number {
+  const keep = Math.round((100 - hqRate - resellerRate) * 100); // 0.01% 단위 정수로 바꿔 소수 오차를 없앤다
+  return Math.max(0, Math.floor((Math.max(0, price) * keep) / 10000));
+}
+
+/** 수수료율 방식 몰의 세 몫(판매가 기준) */
+export function rateSplit(price: number, hqRate: number, resellerRate: number) {
+  const supply = rateSupply(price, hqRate, resellerRate);
+  const reseller = Math.floor((Math.max(0, price) * Math.round(resellerRate * 100)) / 10000);
+  return { supply, reseller, hq: Math.max(0, price - supply - reseller) };
+}
 
 export const SUPPLIER_STATUS_LABEL: Record<SupplierStatus, string> = {
   invited: "수락 대기",

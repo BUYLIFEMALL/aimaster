@@ -33,7 +33,7 @@ export default function PendingProducts({
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-gray-500">{supplierName.get(p.supplier_id) ?? "공급사"} · {formatDateTime(p.updated_at)} 요청</p>
                   <Link href={`/s/${slug}/admin/products/${p.id}`} className="font-medium underline">{p.name}</Link>
-                  <p className="mt-0.5 text-xs text-gray-600">공급가 <b>{formatWon(p.supply_price)}</b> · 지금 판매가(처음엔 희망 판매가) {formatWon(p.base_price)} · {p.tax_type === "exempt" ? "면세" : "과세"} · 재고 {p.stock_mode === "product" ? `${p.stock}개` : "관리 안 함"}</p>
+                  <p className="mt-0.5 text-xs text-gray-600">공급가 <b>{formatWon(p.supply_price)}</b>{p.hq_rate != null && ` (본사 ${p.hq_rate}% · 리셀러 ${p.reseller_rate}% 자동 계산 — 판매가를 바꾸면 같은 비율로 다시 계산)`} · 지금 판매가(처음엔 희망 판매가) {formatWon(p.base_price)} · {p.tax_type === "exempt" ? "면세" : "과세"} · 재고 {p.stock_mode === "product" ? `${p.stock}개` : "관리 안 함"}</p>
                   {p.summary && <p className="mt-0.5 text-xs text-gray-500">{p.summary}</p>}
                   {optSummary?.get(p.id) && (
                     <p className="mt-0.5 text-xs text-blue-700" data-pending-options>

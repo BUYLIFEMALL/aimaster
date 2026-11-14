@@ -97,8 +97,14 @@ export async function saveSupplierProductAction(slug: string, productId: string 
     stock: stockOn ? num(form, "stock") || "0" : "0",
     images,
   };
-  const { error } = await supabase.rpc("mall_builder_supplier_product_save", { p_store_id: id, p_product_id: productId, p });
+  const { data: savedId, error } = await supabase.rpc("mall_builder_supplier_product_save", { p_store_id: id, p_product_id: productId, p });
   if (error) back(productId ? `${base}/${productId}` : `${base}/new`, error.message);
+  // M1-2(0068) 수수료율 방식 몰이면 리셀러 판매수수료율도 저장(공급가는 DB가 다시 계산)
+  const resellerRate = String(form.get("reseller_rate") ?? "").trim();
+  if (resellerRate !== "" && savedId) {
+    const { error: rateError } = await supabase.rpc("mall_builder_product_reseller_rate_set", { p_product_id: savedId as string, p_rate: Number(resellerRate.replace(/[^0-9.]/g, "")) });
+    if (rateError) back(`${base}/${savedId}`, rateError.message);
+  }
   revalidatePath(base);
   back(base, null, productId ? "저장했습니다. 내용을 바꿨다면 운영자 승인 뒤 다시 판매됩니다." : `「${p.name}」을 올렸습니다. 운영자 승인을 기다려 주세요.`);
 }
@@ -194,4 +200,29 @@ export async function setSupplierShippingAction(slug: string, supplierId: string
   revalidatePath(`/s/${slug}/admin/suppliers`);
   revalidatePath(`/s/${slug}`, "layout");
   back(`/s/${slug}/admin/suppliers`, error?.message, "공급사 배송비를 저장했습니다. 다음 주문부터 적용됩니다.");
+}
+
+// ── M1-1(0068) 공급가 방식·본사 판매수수료율 ──
+/** 몰 대표: 공급가 방식(직접 입력 / 수수료율 자동)·몰 기본 본사율 */
+export async function saveSupplySettingsAction(slug: string, storeId: string, form: FormData) {
+  const base = `/s/${slug}/admin/suppliers`;
+  const mode = form.get("supply_mode") === "rate" ? "rate" : "manual";
+  const rate = Number(String(form.get("hq_rate") ?? "").replace(/[^0-9.]/g, ""));
+  if (!Number.isFinite(rate) || rate < 0 || rate > 50) back(base, "본사 판매수수료율은 0~50 사이 숫자로 적어 주세요.");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_supply_settings_save", { p_store_id: storeId, p_mode: mode, p_hq_rate: rate });
+  revalidatePath(base);
+  back(base, error?.message, mode === "rate" ? `수수료율 자동 방식·기본 본사율 ${rate}%로 저장했습니다. 공급가를 다시 계산했습니다.` : "공급가 직접 입력 방식으로 저장했습니다.");
+}
+
+/** 몰 대표: 공급사별 본사 판매수수료율(비우면 몰 기본값) */
+export async function setSupplierHqRateAction(slug: string, supplierId: string, form: FormData) {
+  const base = `/s/${slug}/admin/suppliers`;
+  const raw = String(form.get("hq_rate") ?? "").trim();
+  const rate = raw === "" ? null : Number(raw.replace(/[^0-9.]/g, ""));
+  if (rate !== null && (!Number.isFinite(rate) || rate < 0 || rate > 50)) back(base, "본사 판매수수료율은 0~50 사이 숫자로 적어 주세요.");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_supplier_hq_rate_set", { p_supplier_id: supplierId, p_rate: rate });
+  revalidatePath(base);
+  back(base, error?.message, rate === null ? "이 공급사는 몰 기본 본사율을 따릅니다. 공급가를 다시 계산했습니다." : `이 공급사 본사 판매수수료율을 ${rate}%로 저장했습니다. 공급가를 다시 계산했습니다.`);
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSupplierContext, NotSupplier, SupplierShell } from "../../supplier-shell";
 import SupplierProductForm from "../product-form";
+import { getSupplyConfig } from "@/lib/supplier-store";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -10,6 +11,7 @@ export default async function SupplierProductNewPage({ params, searchParams }: {
   const { store: slug } = await params;
   const notice = await searchParams;
   const { user, store, me } = await getSupplierContext(slug, `/s/${slug}/supplier/products/new`);
+  const supply = await getSupplyConfig(store.id);
   return (
     <SupplierShell slug={store.slug} storeName={store.name} email={user.email ?? ""} active="/products" notice={notice}>
       {!me ? (
@@ -20,7 +22,7 @@ export default async function SupplierProductNewPage({ params, searchParams }: {
         <>
           <Link href={`/s/${store.slug}/supplier/products`} className="text-sm text-gray-500">← 내 상품</Link>
           <h2 className="mb-4 mt-2 text-lg font-semibold">상품 올리기</h2>
-          <SupplierProductForm slug={store.slug} storeId={store.id} supplierId={me.id} product={null} />
+          <SupplierProductForm slug={store.slug} storeId={store.id} supplierId={me.id} product={null} rate={supply.mode === "rate" ? { hqRate: me.hq_fee_rate ?? supply.hqRate } : null} />
         </>
       )}
     </SupplierShell>

@@ -50,37 +50,50 @@ export type SupplierProduct = {
   approval_at: string | null;
   updated_at: string;
   supply_price: number | null;
+  reseller_rate: number; // M1-2(0068) 상품별 리셀러 판매수수료율
+  hq_rate: number | null; // 수수료율 방식일 때 계산에 쓴 본사율
 };
 
 const SP_COLUMNS = "id, store_id, name, summary, description, base_price, tax_type, status, stock_mode, stock, images, supplier_id, approval, approval_note, approval_at, updated_at";
 
-async function withSupply(rows: Omit<SupplierProduct, "supply_price">[]): Promise<SupplierProduct[]> {
+async function withSupply(rows: Omit<SupplierProduct, "supply_price" | "reseller_rate" | "hq_rate">[]): Promise<SupplierProduct[]> {
   if (!rows.length) return [];
   const supabase = await createClient();
-  const { data } = await supabase.from("mall_builder_product_supply").select("product_id, supply_price").in("product_id", rows.map((r) => r.id));
-  const m = new Map((data ?? []).map((d) => [d.product_id as string, Number(d.supply_price)]));
-  return rows.map((r) => ({ ...r, supply_price: m.get(r.id) ?? null }));
+  const { data } = await supabase.from("mall_builder_product_supply").select("product_id, supply_price, reseller_rate, hq_rate").in("product_id", rows.map((r) => r.id));
+  const m = new Map((data ?? []).map((d) => [d.product_id as string, d]));
+  return rows.map((r) => {
+    const d = m.get(r.id);
+    return { ...r, supply_price: d ? Number(d.supply_price) : null, reseller_rate: d ? Number(d.reseller_rate) : 0, hq_rate: d?.hq_rate == null ? null : Number(d.hq_rate) };
+  });
+}
+
+/** M1-1(0068) 몰의 공급가 방식·기본 본사율 */
+export type SupplyConfig = { mode: "manual" | "rate"; hqRate: number };
+export async function getSupplyConfig(storeId: string): Promise<SupplyConfig> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mall_builder_stores").select("supply_mode, hq_fee_rate").eq("id", storeId).maybeSingle();
+  return { mode: data?.supply_mode === "rate" ? "rate" : "manual", hqRate: data?.hq_fee_rate == null ? 3 : Number(data.hq_fee_rate) };
 }
 
 /** 공급사 본인: 내 상품 목록(보안 규칙이 자기 상품만 — 손님으로 보이는 다른 상품은 supplier_id로 거름) */
 export async function getMySupplierProducts(supplierId: string): Promise<SupplierProduct[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_products").select(SP_COLUMNS).eq("supplier_id", supplierId).order("updated_at", { ascending: false });
-  return withSupply((data ?? []) as Omit<SupplierProduct, "supply_price">[]);
+  return withSupply((data ?? []) as Omit<SupplierProduct, "supply_price" | "reseller_rate" | "hq_rate">[]);
 }
 
 export async function getSupplierProduct(supplierId: string, productId: string): Promise<SupplierProduct | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_products").select(SP_COLUMNS).eq("supplier_id", supplierId).eq("id", productId).maybeSingle();
   if (!data) return null;
-  return (await withSupply([data as Omit<SupplierProduct, "supply_price">]))[0];
+  return (await withSupply([data as Omit<SupplierProduct, "supply_price" | "reseller_rate" | "hq_rate">]))[0];
 }
 
 /** 운영자: 승인 대기 공급사 상품 */
 export async function getPendingSupplierProducts(storeId: string): Promise<SupplierProduct[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_products").select(SP_COLUMNS).eq("store_id", storeId).eq("approval", "pending").not("supplier_id", "is", null).order("updated_at");
-  return withSupply((data ?? []) as Omit<SupplierProduct, "supply_price">[]);
+  return withSupply((data ?? []) as Omit<SupplierProduct, "supply_price" | "reseller_rate" | "hq_rate">[]);
 }
 
 /** 공급사 상품 옵션(0060): 조합 목록 + 조합별 추가 공급가(공급사 본인·상품 권한 운영자만 읽힘) */

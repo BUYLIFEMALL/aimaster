@@ -1,6 +1,6 @@
 import { getStaffStore } from "@/lib/store";
-import { getPendingSupplierProducts, getSupplierShippingMap, getSuppliers } from "@/lib/supplier-store";
-import { setSupplierShippingAction, updateSupplierAction } from "@/lib/supplier-actions";
+import { getPendingSupplierProducts, getSupplierShippingMap, getSuppliers, getSupplyConfig } from "@/lib/supplier-store";
+import { saveSupplySettingsAction, setSupplierHqRateAction, setSupplierShippingAction, updateSupplierAction } from "@/lib/supplier-actions";
 import SupplierShippingForm, { supplierShippingSummary } from "../../supplier/shipping-form";
 import { createClient } from "@/lib/supabase/server";
 import { SUPPLIER_STATUS_LABEL, inviteAlive, nextStatuses } from "@/lib/supplier";
@@ -27,7 +27,7 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
   const { error, ok, msg } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/suppliers`);
   if (!staff) return <NoPermission />;
-  const [suppliers, pending, shipMap] = await Promise.all([getSuppliers(store.id), getPendingSupplierProducts(store.id), getSupplierShippingMap(store.id)]);
+  const [suppliers, pending, shipMap, supply] = await Promise.all([getSuppliers(store.id), getPendingSupplierProducts(store.id), getSupplierShippingMap(store.id), getSupplyConfig(store.id)]);
   // T1(0060) 승인 대기 상품의 옵션 요약(개수·추가 공급가 범위)
   const optSummary = new Map<string, { n: number; min: number; max: number }>();
   if (pending.length) {
@@ -49,6 +49,17 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
       {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
       <h2 className="text-lg font-semibold">🏭 공급사</h2>
       <p className="mt-1 text-sm text-gray-600">다른 회사 상품을 이 몰에서 함께 팔 때 씁니다. 공급사는 자기 화면에서 상품을 올리고(운영자 승인 뒤 판매), 자기 품목 주문만 보고 발송합니다. 정산은 구매 확정된 품목의 공급가 기준입니다.</p>
+      {/* M1-1(0068) 공급가 방식·본사 판매수수료율 — 공급가 = 판매가 × (1 − 본사율 − 리셀러율) */}
+      <section className="mt-4 rounded-lg border p-4 text-sm" data-supply-settings>
+        <h3 className="font-semibold">💰 공급가 방식·본사 판매수수료</h3>
+        <form action={saveSupplySettingsAction.bind(null, store.slug, store.id)} className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+          <label className="flex items-center gap-1"><input type="radio" name="supply_mode" value="rate" defaultChecked={supply.mode === "rate"} /> 수수료율 자동(공급사가 판매가·리셀러율 입력)</label>
+          <label className="flex items-center gap-1"><input type="radio" name="supply_mode" value="manual" defaultChecked={supply.mode === "manual"} /> 공급가 직접 입력(옛 방식)</label>
+          <label className="flex items-center gap-1">몰 기본 본사율 <input name="hq_rate" inputMode="decimal" defaultValue={supply.hqRate} className="w-16 rounded border px-2 py-1.5" />%</label>
+          <button className="min-h-10 rounded border px-3 py-1.5">저장</button>
+        </form>
+        <p className="mt-2 text-xs text-gray-500">수수료율 자동이면 공급가 = 판매가 × (1 − 본사 판매수수료율 − 리셀러 판매수수료율). 리셀러 수수료는 리셀러 링크로 팔린 주문에만 본사가 대신 지급하고, 링크 없이 팔리면 본사 몫입니다. 공급사별 본사율은 아래 각 공급사에서 바꿉니다.</p>
+      </section>
       <PendingProducts slug={store.slug} products={pending} supplierName={supplierName} optSummary={optSummary} />
       <div className="mt-6"><SupplierInviteForm slug={store.slug} /></div>
 
@@ -73,6 +84,14 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
                   <form action={setSupplierAutoAction.bind(null, store.slug, s.id, !s.auto_approve)} className="mt-2 flex items-center gap-2 text-xs" data-supplier-auto>
                     <span className={`rounded px-1.5 ${s.auto_approve ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-600"}`}>{s.auto_approve ? "바로 판매" : "승인 후 판매"}</span>
                     <button className="rounded border px-2 py-1">{s.auto_approve ? "승인 후 판매로 바꾸기" : "바로 판매로 바꾸기"}</button>
+                  </form>
+                )}
+                {s.status !== "invited" && supply.mode === "rate" && (
+                  <form action={setSupplierHqRateAction.bind(null, store.slug, s.id)} className="mt-2 flex flex-wrap items-center gap-2 text-xs" data-supplier-hq-rate>
+                    <span>본사 판매수수료</span>
+                    <input name="hq_rate" inputMode="decimal" defaultValue={s.hq_fee_rate ?? ""} placeholder={`기본 ${supply.hqRate}`} className="w-16 rounded border px-2 py-1" />%
+                    <button className="rounded border px-2 py-1">저장</button>
+                    <span className="text-gray-500">{s.hq_fee_rate == null ? `몰 기본 ${supply.hqRate}% 적용 중` : "이 공급사만 따로 적용 중"}</span>
                   </form>
                 )}
                 {s.status !== "invited" && (
