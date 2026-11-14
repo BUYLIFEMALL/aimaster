@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   BLOCK_DEFS, BLOCK_TYPES, MAX_BLOCKS, MAX_HTML, SHOWCASE_SOURCE_LABEL, isLive, moveBlock, newBlock, validateDoc, videoEmbed,
-  type BannerSettings, type Block, type BlocksDoc, type BlockType, type CategoryIconsSettings, type GallerySettings, type HtmlSettings,
+  type BannerSettings, type Block, type CardOptions, type BlocksDoc, type BlockType, type CategoryIconsSettings, type GallerySettings, type HtmlSettings,
   type NoticeSettings, type ProductSource, type ReviewsSettings, type ShowcaseSettings, type ShowcaseSource, type SliderSettings,
   type TabsSettings, type TimesaleSettings, type TopbarSettings, type VideoSettings,
 } from "@/lib/blocks";
@@ -133,6 +133,37 @@ function TitleInput({ value, onChange, hint = "제목(비우면 제목 없이)" 
   );
 }
 
+/** 상품 카드 표시·모양(D2-4c) — 쇼윈도·탭·타임세일 공통. 비우면 지금 모양 */
+function CardOptionsForm({ value, onChange }: { value: CardOptions | undefined; onChange: (v: CardOptions | undefined) => void }) {
+  const v = value ?? {};
+  const set = (patch: Partial<Record<keyof CardOptions, unknown>>) => {
+    const next = { ...v, ...patch } as Record<string, unknown>;
+    for (const k of Object.keys(next)) if (next[k] === undefined || next[k] === false) delete next[k];
+    onChange(Object.keys(next).length ? (next as CardOptions) : undefined);
+  };
+  const box = (k: "hide_discount" | "hide_list_price" | "hide_business", label: string) => (
+    <label className="flex items-center gap-1">
+      <input type="checkbox" checked={!v[k]} onChange={(e) => set({ [k]: e.target.checked ? undefined : true })} /> {label}
+    </label>
+  );
+  return (
+    <fieldset className="rounded border p-2" data-card-options>
+      <legend className="px-1 text-xs text-gray-500">상품 카드에 보일 것</legend>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
+        {box("hide_discount", "할인율")}
+        {box("hide_list_price", "정가(줄 그은 가격)")}
+        {box("hide_business", "「사업자 전용」 표시")}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-3 text-sm">
+        <span className="text-xs text-gray-500">카드 모양</span>
+        <label className="flex items-center gap-1"><input type="radio" checked={v.style !== "plain"} onChange={() => set({ style: undefined })} /> 상자형</label>
+        <label className="flex items-center gap-1"><input type="radio" checked={v.style === "plain"} onChange={() => set({ style: "plain" })} /> 깔끔형(테두리 없음)</label>
+      </div>
+      <p className="mt-1 text-[11px] text-gray-400">판매가·상품명·사진은 늘 보입니다.</p>
+    </fieldset>
+  );
+}
+
 export function SettingsForm({ storeId, block, categories, products, onChange }: {
   storeId: string; block: Block; categories: Option[]; products: Option[]; onChange: (s: Block["settings"]) => void;
 }) {
@@ -169,6 +200,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
           <NumberInput label="큰 화면 열 수(2~5)" value={s.columns} min={2} max={5} onChange={(columns) => onChange({ ...s, columns })} />
           <NumberInput label="탭마다 최대 상품 수(2~24)" value={s.limit} min={2} max={24} onChange={(limit) => onChange({ ...s, limit })} />
         </div>
+        <CardOptionsForm value={s.card} onChange={(card) => onChange({ ...s, card })} />
       </div>
     );
   }
@@ -190,6 +222,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
           <NumberInput label="큰 화면 열 수(2~5)" value={s.columns} min={2} max={5} onChange={(columns) => onChange({ ...s, columns })} />
           <NumberInput label="최대 상품 수(2~24)" value={s.limit} min={2} max={24} onChange={(limit) => onChange({ ...s, limit })} />
         </div>
+        <CardOptionsForm value={s.card} onChange={(card) => onChange({ ...s, card })} />
       </div>
     );
   }
@@ -345,6 +378,12 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
           <NumberInput label="큰 화면 열 수(2~5, 휴대폰은 2열)" value={s.columns} min={2} max={5} onChange={(columns) => onChange({ ...s, columns })} />
           <NumberInput label="최대 상품 수(2~24)" value={s.limit} min={2} max={24} onChange={(limit) => onChange({ ...s, limit })} />
         </div>
+        <div className="flex flex-wrap gap-3 text-sm" role="radiogroup" aria-label="상품 배치">
+          <span className="text-xs text-gray-500">배치</span>
+          <label className="flex items-center gap-1"><input type="radio" name={`layout-${block.id}`} checked={s.layout !== "row"} onChange={() => onChange({ ...s, layout: undefined })} /> 바둑판</label>
+          <label className="flex items-center gap-1"><input type="radio" name={`layout-${block.id}`} checked={s.layout === "row"} onChange={() => onChange({ ...s, layout: "row" })} /> 가로로 넘기기(한 줄)</label>
+        </div>
+        <CardOptionsForm value={s.card} onChange={(card) => onChange({ ...s, card })} />
       </div>
     );
   }

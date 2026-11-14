@@ -77,3 +77,25 @@ test("새 블록 기본 props는 12종 모두 저장 검사 모양과 같다", (
     assert.deepEqual(d.style, {});
   }
 });
+
+test("상품 카드 표시·배치(D2-4b·4c) — 기본값은 저장하지 않고, 고른 값만 남는다", async () => {
+  const { normalizeCard } = await import("../src/lib/blocks.ts");
+  assert.equal(normalizeCard(undefined), null);
+  assert.equal(normalizeCard({ hide_discount: false, style: "box" }), null);
+  assert.deepEqual(normalizeCard({ hide_discount: true, hide_list_price: true, hide_business: true, style: "plain", x: 1 }), { hide_discount: true, hide_list_price: true, hide_business: true, style: "plain" });
+  const base = { title: "추천", source: "new", category_id: "", product_ids: [], columns: 4, limit: 8 };
+  const plain = validateDoc({ blocks: [{ id: "s1", type: "showcase", visible: true, settings: { ...base, card: {}, layout: "grid" } }] });
+  assert.ok(plain.ok);
+  assert.deepEqual(plain.value.blocks[0].settings, base);
+  const styled = validateDoc({ blocks: [{ id: "s1", type: "showcase", visible: true, settings: { ...base, card: { style: "plain", hide_discount: true }, layout: "row" } }] });
+  assert.ok(styled.ok);
+  assert.deepEqual(styled.value.blocks[0].settings.card, { hide_discount: true, style: "plain" });
+  assert.equal(styled.value.blocks[0].settings.layout, "row");
+  const tabs = validateDoc({ blocks: [{ id: "t1", type: "tabs", visible: true, settings: { title: "", tabs: [{ label: "가", source: "new", category_id: "", product_ids: [] }, { label: "나", source: "new", category_id: "", product_ids: [] }], columns: 4, limit: 8, card: { hide_list_price: true }, layout: "row" } }] });
+  assert.ok(tabs.ok);
+  assert.deepEqual(tabs.value.blocks[0].settings.card, { hide_list_price: true });
+  assert.equal("layout" in tabs.value.blocks[0].settings, false);
+  const back = fromPuck(toPuck(styled.value));
+  assert.ok(back.ok);
+  assert.deepEqual(back.value, styled.value);
+});

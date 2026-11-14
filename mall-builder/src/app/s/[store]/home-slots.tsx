@@ -29,7 +29,7 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
             <h2 className="text-xl font-black tracking-tight text-slate-900">{s.title}</h2>
           </div>
         )}
-        <ProductGrid base={base} products={d.products ?? []} columns={s.columns} empty="보여 줄 상품이 없습니다." />
+        <ProductGrid base={base} products={d.products ?? []} columns={s.columns} card={s.card} layout={s.layout} empty="보여 줄 상품이 없습니다." />
       </div>
     );
   }
@@ -40,7 +40,7 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
       <TabsView
         title={s.title}
         labels={s.tabs.map((t) => t.label)}
-        panels={s.tabs.map((_, i) => <ProductGrid key={i} base={base} products={lists[i] ?? []} columns={s.columns} empty="보여 줄 상품이 없습니다." />)}
+        panels={s.tabs.map((_, i) => <ProductGrid key={i} base={base} products={lists[i] ?? []} columns={s.columns} card={s.card} empty="보여 줄 상품이 없습니다." />)}
       />
     );
   }
@@ -63,7 +63,7 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
             </p>
           </div>
         </div>
-        <ProductGrid base={base} products={d.products ?? []} columns={s.columns} empty="보여 줄 상품이 없습니다." />
+        <ProductGrid base={base} products={d.products ?? []} columns={s.columns} card={s.card} empty="보여 줄 상품이 없습니다." />
       </div>
     );
   }

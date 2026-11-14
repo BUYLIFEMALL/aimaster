@@ -14,14 +14,16 @@ export type TopbarSettings = { items: { text: string; link: string; bg: string }
 export type SliderSettings = { slides: { image: string; mobile_image: string; link: string }[]; height: number; autoplay_sec: number };
 export type BannerSettings = { image: string; mobile_image: string; link: string; max_width: number };
 export type ShowcaseSource = "new" | "category" | "manual";
-export type ShowcaseSettings = { title: string; source: ShowcaseSource; category_id: string; product_ids: string[]; columns: number; limit: number };
+// 상품 카드 표시(디자인 빌더 D2-4c, 프로셀 view1~7 참고) — 선택, 기본값(전부 보임·상자형)은 저장하지 않는다
+export type CardOptions = { hide_discount?: true; hide_list_price?: true; hide_business?: true; style?: "plain" };
+export type ShowcaseSettings = { title: string; source: ShowcaseSource; category_id: string; product_ids: string[]; columns: number; limit: number; card?: CardOptions; layout?: "row" };
 export type HtmlSettings = { html: string };
 export type NoticeSettings = { title: string; count: number };
 // D28 새 블록 6종(2026-11-11, 주인님 「추천안 4가지 그대로」)
 export type VideoSettings = { url: string; title: string }; // 유튜브·비메오 주소만(저장 비용 없음)
 export type ProductSource = { source: ShowcaseSource; category_id: string; product_ids: string[] };
-export type TabsSettings = { title: string; tabs: ({ label: string } & ProductSource)[]; columns: number; limit: number };
-export type TimesaleSettings = { title: string; subtitle: string; ends_at: string; columns: number; limit: number } & ProductSource; // 표시만(가격은 그대로), 끝나면 자동 숨김
+export type TabsSettings = { title: string; tabs: ({ label: string } & ProductSource)[]; columns: number; limit: number; card?: CardOptions };
+export type TimesaleSettings = { title: string; subtitle: string; ends_at: string; columns: number; limit: number; card?: CardOptions } & ProductSource; // 표시만(가격은 그대로), 끝나면 자동 숨김
 export type ReviewsSettings = { title: string; count: number; min_rating: number };
 export type CategoryIconsSettings = { title: string; items: { category_id: string; image: string; emoji: string }[] };
 export type GallerySettings = { title: string; columns: number; items: { image: string; link: string }[] }; // 인스타 대신 운영자가 직접 올리는 사진 격자
@@ -110,6 +112,22 @@ function validateSource(raw: Partial<ProductSource>): { ok: true; value: Product
   if (source === "manual" && !product_ids.length) return { ok: false, error: "보여 줄 상품을 1개 이상 골라 주세요." };
   return { ok: true, value: { source, category_id: source === "category" ? category_id : "", product_ids: source === "manual" ? product_ids : [] } };
 }
+
+/** 상품 카드 표시 정리 — 기본값은 버리고, 하나도 없으면 null(저장 안 함) */
+export function normalizeCard(raw: unknown): CardOptions | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const r = raw as Record<string, unknown>;
+  const out: CardOptions = {};
+  if (r.hide_discount === true) out.hide_discount = true;
+  if (r.hide_list_price === true) out.hide_list_price = true;
+  if (r.hide_business === true) out.hide_business = true;
+  if (r.style === "plain") out.style = "plain";
+  return Object.keys(out).length ? out : null;
+}
+const cardOf = (raw: unknown) => {
+  const c = normalizeCard((raw as { card?: unknown } | null)?.card);
+  return c ? { card: c } : {};
+};
 
 /** 시각 칸: 비우면 "", 읽을 수 있는 시각이면 ISO, 아니면 null */
 export function isoOrEmpty(v: unknown): string | null {
@@ -215,7 +233,7 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
       const s = (raw ?? {}) as Partial<ShowcaseSettings>;
       const src = validateSource(s);
       if (!src.ok) return src;
-      return { ok: true, value: { title: str(s.title).slice(0, 40), ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8) } };
+      return { ok: true, value: { title: str(s.title).slice(0, 40), ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s), ...(s.layout === "row" ? { layout: "row" as const } : {}) } };
     },
   },
   html: {
@@ -273,7 +291,7 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
         if (!src.ok) return { ok: false, error: `${i + 1}번째 탭: ${src.error}` };
         out.push({ label, ...src.value });
       }
-      return { ok: true, value: { title: str(s.title).slice(0, 40), tabs: out, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8) } };
+      return { ok: true, value: { title: str(s.title).slice(0, 40), tabs: out, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s) } };
     },
   },
   timesale: {
@@ -288,7 +306,7 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
       if (!src.ok) return src;
       return {
         ok: true,
-        value: { title: str(s.title).slice(0, 40) || "타임세일", subtitle: str(s.subtitle).slice(0, 60), ends_at, ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8) },
+        value: { title: str(s.title).slice(0, 40) || "타임세일", subtitle: str(s.subtitle).slice(0, 60), ends_at, ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s) },
       };
     },
   },
