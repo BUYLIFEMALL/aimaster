@@ -487,3 +487,9 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 상품 목록 「🛍 대표사진 일괄 만들기」(`components/products/MainPhotoBatch.tsx`) → 바나나 합성 → `shop_products.main_image_url`·`main_image_urls`(마이그레이션 `20261113_main_photo_v1_44.sql`, 운영 적용)에 새 버전 저장, 원본 `source_image_url` 보존. 기록 `lib/actions/mainPhoto.ts`, 규칙 `lib/mainPhoto.ts`(시험 `node --test tests/`), 공용 사본 `lib/productPhotoHandoff.ts`(기준 바나나).
 - 함께: 로그인 정책 2건(로그아웃 이 브라우저만·서버 로그인 기기 정보). 배포 `shop-detail-page-agt903lj2` Ready, DB v1.44. 운영 실물: 백팩 상품 반환 저장 → 11번가 첫 이미지 → 「원본으로」 복구.
 - 남은 것: 저장 용량 사전검사(policy 검토), 화면 디자인(agy). 상세 [`docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md`](docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md).
+
+## 2026-11-14 (미배포 대기) — 「🎬 쇼츠로 만들기」 ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`)
+- 주인님 「순서대로 진행해」(보류 목록 네 번째 「상세페이지와 쇼츠 연결」). 받는 쪽 `shorts-onestop-studio` v1.52가 준비돼 있어 보내는 쪽만 만듦.
+- 상품 화면 마켓 등록 영역 아래 `components/products/ShortsHandoffCard.tsx` → `https://shorts-onestop-studio.buylife.xyz/topic#product-name=…&product-point=…&product-offer=…&product-from=AI 상세페이지 자동화&product-id=<상품 id>` 새 창(`lib/shortsLink.ts`). 장점 = 핵심 특징 앞 3줄(글머리표·「3.」 번호만 지움), 혜택 = **할인가가 있을 때만**(정가보다 낮으면 「정가 → 할인가」, 원화만), 도매가·원가·재고는 넘기지 않음, 주소 # 뒤라 서버 기록에 안 남음. **상품 사진은 넘기지 않음** — 쇼츠 2단계(자료함 원본 참조) 뒤에 `product-image` 추가.
+- 형식은 받는 쪽 `productShorts.ts`와 같게 여기서 만듦(프로그램끼리 코드를 불러오지 않음) — 시험 `tests/shortsLink.test.mjs`가 받는 쪽 `readProductHandoff`·`readProductExtra`로 다시 풀어 맞는지 확인(한쪽 형식을 바꾸면 이 시험이 깨짐).
+- 검사: `node --test tests/` 8개(새 3개)·tsc·build. **화면 확인 전** — 다음 상세페이지 배포(버전 +0.01) 뒤 ego로 버튼 → 쇼츠 화면에 상품 정보 채워지는지(대본 만들기는 누르지 않음).

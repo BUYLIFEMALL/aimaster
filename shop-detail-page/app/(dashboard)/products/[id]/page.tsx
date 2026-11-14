@@ -12,6 +12,7 @@ import { imageSrc } from "@/lib/imageSrc";
 import { LAYOUT_PRESETS, toLayoutPreset } from "@/lib/layoutPresets";
 import { applySectionSequence } from "@/lib/sectionOrder";
 import { MarketRegisterPanel } from "@/components/products/MarketRegisterPanel";
+import { ShortsHandoffCard } from "@/components/products/ShortsHandoffCard";
 import { MARKETS, pickCoupangResult, pickElevenstResult, pickMarketResult, type MarketResult } from "@/lib/markets";
 
 export const dynamic = "force-dynamic";
@@ -248,6 +249,9 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
           initialReviewedAt={product.reviewed_at}
           results={marketResults}
         />
+
+        {/* 상품 → AI 쇼츠 원스톱 넘기기 */}
+        <ShortsHandoffCard product={product} />
       </div>
 
     </div>

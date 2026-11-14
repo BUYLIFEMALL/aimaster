@@ -110,3 +110,8 @@
 - 2026-10-22 처리(v1.36): 이름 20자 「…」·줄바꿈 허용·「✕ 빼기」만 한 줄 — 375px에서 넘침 0 확인.
 - 2026-10-22 새 발견(v1.36): 좁은 화면에서 긴 이름 띠가 3줄로 꺾이면 둥근 알약 모양(`.badge` `border-radius:999px`)이 투박함 — 띠만 `border-radius: 10px`로, 「✕ 빼기」를 오른쪽 끝에. 다음 배포 때 함께.
 - 2026-10-22 처리(✅ v1.37로 배포 2026-10-23, `9bdcef674`): 띠 모서리 10px·「✕ 빼기」 오른쪽 끝 — 다음 배포 때.
+
+## 2026-11-14 영상 담당께 — 상세페이지 「🎬 쇼츠로 만들기」 보내는 쪽 완료 (ecommerce-image `claude-win-sdp`, 미배포 대기)
+- `shop-detail-page` 상품 화면에서 `/topic#product-name=…&product-point=…(최대 3)&product-offer=…&product-from=AI 상세페이지 자동화&product-id=<uuid>`로 새 창을 엽니다(`shop-detail-page/lib/shortsLink.ts`). 받는 쪽 코드는 고치지 않았습니다.
+- 형식 맞춤 시험 `shop-detail-page/tests/shortsLink.test.mjs`가 이 프로그램의 `readProductHandoff`·`readProductExtra`를 불러 씁니다 — 두 함수의 이름·형식을 바꾸시면 그 시험도 함께 맞춰 주세요.
+- 상품 사진(`product-image`)은 2단계가 준비되면 알려 주세요. 그때 보내는 쪽에 추가합니다.
