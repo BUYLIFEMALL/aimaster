@@ -439,3 +439,12 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - **E2-3 네이버 분류 분포**: 확장 `extension/lib/naver.js`가 `category1Name~category4Name`(2026-11-14 ego 실측)을 「>」로 이어 보냄 → 서버 `cleanCategory`(4단계·단계 40자, 네이버만) → 표 `coupang_review_items.category`(운영 DB 적용 완료, `supabase/migrations/20261114120000_review_items_category.sql`) → 「🗂 네이버 분류 분포」 카드(`categoryShares`, 상위 5). 쿠팡 검색 화면은 상품별 분류가 없어 제외. 옛 기록·옛 확장은 「분류 정보 없음」 안내. **확장 동작이 바뀌었으므로 다음 배포 때 manifest·ZIP·DB 확장 버전 함께(v1.39)**. 로컬 빌드가 만든 ZIP은 되돌려 둠.
 - **E2-4 넘기기**: 초안 상품명마다 「📄 상세페이지로」 → `shopDetailDraftUrl`(name·tags·조사 키워드, flow 유지) → 상세페이지 새 상품 화면 「검색 태그」 칸 → `shop_products.search_tags`(운영 DB 적용 완료) → 스마트스토어 등록기 「검색 태그」 처음 값(마지막에 보낸 태그가 없을 때).
 - 검사: `test:trend` 60개·tsc·eslint·build. 화면 확인은 배포 뒤.
+
+## 2026-11-14 (미배포 대기) — EC-W10 「🏭 공장 견적 비교」 구현 + E2-2 실호출 시험 ([역할: ecommerce-image] `claude-win-sdp`)
+- 주인님 「진행해」(플랜 추천안 그대로). 커밋 `790b34f84`. 플랜 [docs/PLAN_20261114_EC_W10_FACTORY_QUOTES.md](docs/PLAN_20261114_EC_W10_FACTORY_QUOTES.md).
+- 화면 `/factory-quotes`(사이드바 「🏭 공장 견적 비교」): 상품 이름 → 견적서 PDF·위챗 캡처(JPG·PNG, 브라우저에서 긴 변 1568px로 줄임)·CSV/TXT 끌어 놓기 + 대화 붙여 넣기 → 「🤖 AI로 비교표 만들기」 → 공장별 표(단가·수량 구간·MOQ·샘플비·금형비·샘플/양산 기간·결제 조건, 같은 통화일 때 「최저 단가」) · 미확인 · 미답변 · 다음 질문 한·영·중(복사) · 「마진 계산 →」(`/sourcing?fxCurrency=&fxAmount=` → 외화 원가 칸 채움, 원가 넣기는 회원이 누름). 「이어서: 상품」으로 같은 상품에 새 대화를 덧붙여 다시 분석.
+- 서버 `/api/factory-quotes/analyze`(서버 액션 1MB 한도 대신 API 경로, 합계 4MB, maxDuration 120): `checkProgramAccessApi` → 회원 본인 `anthropic` 키(폴백 없음) → `lib/ai/factoryQuotes.ts`(`claude-sonnet-5-5`, PDF는 document·사진은 image 블록, json_schema `REPORT_SCHEMA`, 재시도 0) → `sanitizeReport` → 표 저장. **원본 파일은 저장하지 않음**.
+- DB(운영 적용 완료): `factory_quote_projects`(이름·붙여 넣은 글·파일 이름 목록) · `factory_quote_reports`(결과 JSON·모델), 둘 다 본인만 RLS. 30일 정리 `cleanup-generated`에 추가(예외 회원 제외, 결과는 cascade). 화면도 30일 안 것만.
+- 엑셀(.xlsx): 이 PC npm 설정이 외부 주소 패키지(SheetJS tgz) 설치를 막아(`EALLOWREMOTE`, 우회 안 함) CSV로 저장하거나 붙여 넣기 안내. 나중에 설정이 바뀌면 브라우저에서 시트 → CSV 변환 추가 가능.
+- 실호출 시험(관리자 본인 Claude 키, 비용 범위 안): **E2-2 초안** 1회 5초 — 상품명 3개 규칙 검사 통과·태그 10개·지어낸 사양 없음 / **EC-W10** 가짜 대화 1회 — 두 공장·수량 구간·미답변 2건·한영중 질문 3개 정상. 모르는 비용이 0으로 나오던 점을 지시문에서 「모르면 null, 0은 무료라고 적힌 경우만」으로 고침(다시 시험은 안 함).
+- 검사: `test:trend` 65개·tsc·eslint·build. 화면 확인은 배포 뒤(로그인 필요).
