@@ -30,3 +30,22 @@ test('CB-P1 a preview survives a sleeping service worker and a closed popup, and
  await assert.rejects(make().confirm(),/미리보기부터/);
  await make().preview('incoming');await make().cancel();assert.equal(store.contextPending,undefined);assert.ok(calls.includes('cancel'));await assert.rejects(make().confirm(),/미리보기부터/);
 });
+
+test('CB-T1 (2026-11-14) a return-post read from the member own blog tab stops before any server call',async()=>{
+ const {createContextReader,blogPost}=await import('../extension/context-bridge.mjs');
+ const calls=[];let url='https://blog.naver.com/own/224437302971';
+ const browser={tabs:{query:async()=>[{id:1,windowId:2,url}]},windows:{get:async()=>({focused:true,state:'normal'})},scripting:{executeScript:async()=>[]}};
+ const reader=createContextReader(browser,async()=>({deviceId:'d',blogId:'own'}),async op=>{calls.push(op);return {};});
+ await assert.rejects(reader.preview('return_post'),e=>e.stage==='tab'&&/내 블로그/.test(e.message));
+ url='https://blog.naver.com/neighbor';await assert.rejects(reader.preview('return_post'),e=>e.stage==='tab');
+ url='https://blog.naver.com/neighbor/224231976765';await assert.rejects(reader.preview('incoming'),e=>e.stage==='tab'&&/내 블로그 글/.test(e.message));
+ assert.deepEqual(calls.filter(op=>op!=='cancel'),[]);
+ assert.deepEqual(blogPost('https://blog.naver.com/PostView.naver?blogId=neighbor&logNo=12'),{owner:'neighbor',post:'12'});
+ assert.equal(blogPost('https://m.blog.naver.com/neighbor/12'),null);
+});
+test('CB-T2 (2026-11-14) a refused offer keeps HTTP status and BNC code and names the failing stage',async()=>{
+ const {createContextReader}=await import('../extension/context-bridge.mjs');
+ const browser={tabs:{query:async()=>[{id:1,windowId:2,url:'https://blog.naver.com/neighbor/224231976765'}]},windows:{get:async()=>({focused:true,state:'normal'})},scripting:{executeScript:async()=>[]}};
+ const reader=createContextReader(browser,async()=>({deviceId:'d',blogId:'own'}),async op=>{if(op==='offer')throw Object.assign(Error('refused'),{status:409,code:'BNC_RETURN_SOURCE_REQUIRED'});return {};});
+ await assert.rejects(reader.preview('return_post'),e=>e.stage==='offer'&&e.status===409&&e.code==='BNC_RETURN_SOURCE_REQUIRED');
+});

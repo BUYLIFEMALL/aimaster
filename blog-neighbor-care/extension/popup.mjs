@@ -41,9 +41,15 @@ async function run(work,kind='general') {
   }
   finally { busy = false;applyButtons(); }
 }
+const STAGE={tab:'탭 확인',offer:'읽기 시작',preview:'미리보기',confirm:'저장'};
+function diagnosis(r){
+  if(!r||(!r.status&&!r.code&&!r.stage))return '';
+  const parts=[r.stage&&(STAGE[r.stage]||r.stage),r.status&&`HTTP ${r.status}`,r.code,r.at&&new Date(r.at).toLocaleTimeString('ko-KR',{hour12:false})].filter(Boolean);
+  return ` [진단: ${parts.join(' · ')}]`;
+}
 async function send(message) {
   const r = await chrome.runtime.sendMessage(message);
-  if (!r?.ok) throw new Error(r?.error || '확장 연결을 확인해 주세요.'); return r.data;
+  if (!r?.ok) throw new Error((r?.error || '확장 연결을 확인해 주세요.') + diagnosis(r)); return r.data;
 }
 async function status() {
   try {

@@ -48,3 +48,12 @@ test('SC04 both extension APIs return serverNow on success and the refusing BNC 
  const c=await (await acc(ok)(req('https://x.test/a','status_work',{}))).json();assert.ok(c.data.serverNow>=before);
  const e=await acc(async()=>({data:null,error:{message:'BNC_ACCEPT_CONTEXT'}}))(req('https://x.test/a','status_work',{}));assert.equal(e.status,409);assert.equal((await e.json()).code,'BNC_ACCEPT_CONTEXT');
 });
+
+test('SC05 (2026-11-14) a 409 names what to fix for the refusing check, and unknown codes keep the generic line',async()=>{
+ const {createExtensionContextHandler}=await import('../src/lib/neighbors/contextApi.ts');
+ const id='11111111-1111-4111-8111-111111111111';
+ const h=msg=>createExtensionContextHandler({authorize:async()=>({allowed:true,userId:id,deviceId:id}),profile:()=>null,rpc:async()=>({data:null,error:{message:msg}})});
+ const req=()=>new Request('https://x.test/c',{method:'POST',headers:{authorization:`Bearer ${'a'.repeat(64)}`,'content-type':'application/json'},body:JSON.stringify({operation:'status',payload:{}})});
+ const a=await (await h('BNC_RETURN_POST_REQUIRED')(req())).json();assert.equal(a.code,'BNC_RETURN_POST_REQUIRED');assert.match(a.error,/이웃의 글 화면/);
+ assert.match((await (await h('BNC_SOMETHING_NEW')(req())).json()).error,/읽기 상태나 대상이 바뀌었습니다/);
+});

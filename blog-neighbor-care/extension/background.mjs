@@ -250,7 +250,12 @@ if (globalThis.chrome?.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(['neighbor_progress','neighbor_focus_probe','work_progress','schedule_progress','traversal_progress','accept_schedule_progress'].includes(message?.type))return false;
     handle(message, sender).then(data => sendResponse({ ok: true, data }), error => sendResponse({ ok: false,
-      error: error?.message || '결과를 확인하지 못했습니다. 자동 재전송하지 않습니다.' }));
+      error: error?.message || '결과를 확인하지 못했습니다. 자동 재전송하지 않습니다.',
+      // 2026-11-14: keep the diagnosis (no keys, nonces or page text) instead of dropping it here.
+      status: Number.isInteger(error?.status) ? error.status : undefined,
+      code: typeof error?.code === 'string' && /^BNC_[A-Z_]{1,60}$/.test(error.code) ? error.code : undefined,
+      stage: typeof error?.stage === 'string' && /^[a-z_]{1,30}$/.test(error.stage) ? error.stage : undefined,
+      at: new Date().toISOString() }));
     return true;
   });
 }
