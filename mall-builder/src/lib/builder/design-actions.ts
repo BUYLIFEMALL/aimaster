@@ -7,6 +7,7 @@ import { validateDoc } from "@/lib/blocks";
 import { readTheme, validateTheme } from "@/lib/theme";
 import { validateFooter, validateHeader, validatePopup } from "@/lib/builder/frame";
 import { validateDetail, validateList } from "@/lib/builder/pages";
+import { designPolicy, enforceFooter } from "@/lib/builder/policy";
 import { loadSlotData } from "@/lib/builder/slot-data";
 import type { SlotData } from "@/app/s/[store]/home-slots";
 
@@ -41,11 +42,15 @@ export async function saveDesignAction(slug: string, storeId: string, input: { h
   const detail = validateDetail(input.detail ?? {});
   if (!detail.ok) return { ok: false, error: `상품 상세: ${detail.error}` };
   const supabase = await createClient();
+  // D5-4 몰 종류별 잠금 — 화면을 우회해 보내도 잠긴 칸은 정책 값으로 저장
+  const { data: storeRow } = await supabase.from("mall_builder_stores").select("kind").eq("id", storeId).maybeSingle();
+  const policy = designPolicy({ kind: (storeRow as { kind?: string } | null)?.kind ?? null });
+  const footerValue = enforceFooter(policy, footer.value);
   const a = await supabase.rpc("mall_builder_save_page_draft", { p_store_id: storeId, p_doc: home.value });
   if (a.error) return { ok: false, error: a.error.message };
   const b = await supabase.rpc("mall_builder_design_save_draft", { p_store_id: storeId, p_kind: "theme", p_doc: theme });
   if (b.error) return { ok: false, error: b.error.message };
-  for (const [kind, doc] of [["header", header.value], ["footer", footer.value], ["popup", popup.value], ["list", list.value], ["detail", detail.value]] as const) {
+  for (const [kind, doc] of [["header", header.value], ["footer", footerValue], ["popup", popup.value], ["list", list.value], ["detail", detail.value]] as const) {
     const r = await supabase.rpc("mall_builder_design_save_draft", { p_store_id: storeId, p_kind: kind, p_doc: doc });
     if (r.error) return { ok: false, error: r.error.message };
   }

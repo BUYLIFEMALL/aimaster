@@ -190,8 +190,8 @@ function headerFields(storeId: string) {
   };
 }
 
-/** 바닥글 칸 — 사업자(판매자) 정보는 「쇼핑몰 정보」 값이 늘 보인다(잠금, 여기서 못 지움) */
-const FOOTER_FIELDS = {
+/** 바닥글 칸 — 사업자(판매자) 정보는 「쇼핑몰 정보」 값이 늘 보인다(잠금, 여기서 못 지움). 분양몰은 입금 계좌도 잠금(D5-4) */
+const footerFields = (bankLocked: boolean) => ({
   type: "object",
   label: "바닥글(사업자 정보는 늘 보임 — 「쇼핑몰 정보」에서 고침)",
   objectFields: {
@@ -207,9 +207,9 @@ const FOOTER_FIELDS = {
       },
     },
     note: { type: "textarea", label: "안내 문구(500자까지, 예: 상담 시간·반품 주소)" },
-    show_bank: { type: "radio", label: "무통장 입금 계좌", options: [{ label: "보임", value: true }, { label: "숨김", value: false }] },
+    ...(bankLocked ? {} : { show_bank: { type: "radio", label: "무통장 입금 계좌", options: [{ label: "보임", value: true }, { label: "숨김", value: false }] } }),
   },
-};
+});
 
 /** 첫 화면 팝업 칸 */
 function popupFields(storeId: string) {
@@ -306,22 +306,26 @@ function snapshot(data: Data): string {
   return v.ok ? JSON.stringify({ blocks: v.value.blocks, theme: readTheme(r.theme), header: readHeader(r.header), footer: readFooter(r.footer), popup: readPopup(r.popup), list: readList(r.list), detail: readDetail(r.detail) }) : `invalid:${Date.now()}`;
 }
 
-export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, initialFrame, storeName, topCategories, businessInfo, publishedState, draftAt, publishedAt }: {
+export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, initialFrame, storeName, topCategories, businessInfo, publishedState, draftAt, publishedAt, footerBankLocked = false, previewing = false }: {
   slug: string; storeId: string; categories: Option[]; products: Option[]; initial: BlocksDoc; initialTheme: ShopTheme;
   initialFrame: { header: HeaderDesign; footer: FooterDesign; popup: PopupDesign; list: ListDesign; detail: DetailDesign }; storeName: string; topCategories: { id: string; name: string }[]; businessInfo: BusinessInfo;
+  /** D5-4 분양몰 — 바닥글 입금 계좌 칸 잠금 */
+  footerBankLocked?: boolean;
+  /** D5 템플릿 미리보기로 열렸는가 — 그렇다면 처음부터 「저장 안 한 변경」 */
+  previewing?: boolean;
   /** 지금 손님에게 보이는 블록·테마(비교용 문자열, 게시 전이면 null) */
   publishedState: string | null;
   draftAt: string | null; publishedAt: string | null;
 }) {
   const base = `/s/${slug}`;
   const start = useMemo(() => ({ ...toPuck(initial), root: { props: { theme: initialTheme, ...initialFrame } } }) as unknown as Data, [initial, initialTheme, initialFrame]);
-  const [saved, setSaved] = useState(() => snapshot(start));
+  const [saved, setSaved] = useState(() => (previewing ? "template-preview" : snapshot(start)));
   const [live, setLive] = useState(publishedState);
   const [times, setTimes] = useState({ draftAt, publishedAt });
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const latest = useRef<Data>(start);
-  const [nowState, setNowState] = useState(saved);
+  const [nowState, setNowState] = useState(() => snapshot(start));
 
   const config = useMemo((): Config => {
     const components: Record<string, unknown> = {};
@@ -364,7 +368,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
       categories: CATEGORIES,
       components,
       root: {
-        fields: { theme: THEME_FIELDS, header: headerFields(storeId), footer: FOOTER_FIELDS, popup: popupFields(storeId), list: listFields(storeId, categories), detail: detailFields(storeId) },
+        fields: { theme: THEME_FIELDS, header: headerFields(storeId), footer: footerFields(footerBankLocked), popup: popupFields(storeId), list: listFields(storeId, categories), detail: detailFields(storeId) },
         render: ({ children, theme, header, footer, popup }: { children: ReactNode } & RootProps) => {
           const h = readHeader(header);
           return (
@@ -379,7 +383,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         },
       },
     } as unknown as Config;
-  }, [storeId, base, slug, categories, products, storeName, topCategories, businessInfo]);
+  }, [storeId, base, slug, categories, products, storeName, topCategories, businessInfo, footerBankLocked]);
 
   function run(kind: "save" | "publish") {
     setMsg(null);
