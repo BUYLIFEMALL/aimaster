@@ -39,7 +39,7 @@
 ## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
 ### 1) 프로그램 로직·기능
 - **설정의 Claude 키가 실제로 쓰이지 않음** — 근거 `src/lib/reportEngine.ts:33-36`(OpenAI 키만 조회), 설정 섹션은 OpenAI·Anthropic을 함께 보여 줌. 영향: Claude 키만 등록한 회원은 리포트 생성이 실패. 우선순위 높음. 상태: 안내 문구는 이번에 고침(미배포), 실제 Claude 선택 지원(또는 칸 숨김)은 제안.
-- **30일 자동 정리 없음** — 근거: `vercel.json` 크론은 생성뿐, `kakao_reports`·`kakao-report-images` 정리 코드 없음. 영향: 회원 저장공간·보관 규칙(일반 회원 30일) 미적용. 우선순위 중간. 상태: 이번에 고침(미배포) — `/api/cron/cleanup-generated`(매일 19:10 UTC, 2026-12-14 전 유예), 리포트·리포트 이미지·발송 기록 30일 정리, `retention_exempt` 회원 제외.
+- **30일 자동 정리 없음** — 근거: `vercel.json` 크론은 생성뿐, `kakao_reports`·`kakao-report-images` 정리 코드 없음. 영향: 회원 저장공간·보관 규칙(일반 회원 30일) 미적용. 우선순위 중간. 상태: v1.31 배포됨(2026-11-14). 2026-11-14 주인님 확인 「발송내역 30일룰 적용」 — 발송 기록도 30일 정리 대상(수신자 명부는 회원이 관리하는 명부라 지우지 않음). `/api/cron/cleanup-generated`(매일 19:10 UTC, 2026-12-14 전 유예), 리포트·리포트 이미지·발송 기록 30일 정리, `retention_exempt` 회원 제외.
 - **리포트 삭제 시 대표 이미지 파일이 남음** — 근거 `src/lib/actions/reports.ts:73-79`(행만 삭제), 이미지는 공개 버킷 `kakao-report-images/<userId>/…`(`src/lib/ai/reportImage.ts:62-69`). 우선순위 중간. 상태: 이번에 고침(미배포) — 바로 지우지는 않고, 30일 지난 이미지 중 남은 리포트 본문에 없는 파일을 매일 정리(`/api/cron/cleanup-generated`).
 - **`package.json` 버전 1.27.0 vs 코드 v1.30** — 근거 `package.json`, `src/lib/version.ts`. 우선순위 낮음. 상태: 다음 배포 때 맞추기 제안.
 - **링크 기본값이 옛 주소** — 근거 `src/lib/kakaoSend.ts:8`, `src/lib/telegramReview.ts:4` 등 `NEXT_PUBLIC_SITE_URL` 기본값 `kakao-auto-poster.vercel.app`/`kakaoautoposter.vercel.app`이 서로 다름(환경변수가 있으면 무관, 실제 값은 미확인). 우선순위 낮음. 상태: 제안.
