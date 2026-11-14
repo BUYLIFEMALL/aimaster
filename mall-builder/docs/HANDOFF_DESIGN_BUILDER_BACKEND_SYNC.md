@@ -27,7 +27,7 @@
 | 쪽 | 파일·폴더 | 목적 | 시작 | 예상 끝 |
 |---|---|---|---|---|
 | 프론트 | `supabase/migrations/0081_design_history_lock.sql`(새), `scripts/scenario-0081-*.sql`(새), `src/lib/builder/design-actions.ts`, `src/lib/builder/design-store.ts`, `src/app/s/[store]/admin/design/**`, `tests/` | D6 게시 기록·되돌리기 + 분양몰 잠금 DB 검사(S21 합의) — 0081은 프론트 함수 `mall_builder_design_save_draft` 덮어쓰기 + 새 표·함수만, `stores`·분양 함수 안 건드림 | 2026-11-14 23:50 | D6 커밋 때 |
-| 백엔드 | `supabase/migrations/0075_*`(새), `scripts/scenario-0075-*`(새), `src/lib/reseller*.ts`, `(shop)/my/reseller-panel.tsx`·`(shop)/my/page.tsx`의 리셀러 부분, `admin/resellers/**` | M1-7 리셀러 출금(몰 최소 금액·공제·이체금액·저장 계좌) | 2026-11-15 | M1-7 커밋 때 |
+| 프론트 | `src/lib/blocks.ts`, `src/app/s/[store]/home-blocks.tsx`·`home-slots.tsx`, `src/lib/builder/slot-data.ts`·`templates.ts`, `admin/home/block-editor.tsx`, `tests/` | D5-8 「글 히어로」 블록(그림 없이 큰 제목·단추 2개·대표 상품 1개) — 주인님이 고른 agy 115 시안 맨 위 영역 | 2026-11-15 | 커밋 때 |
 
 ## 1. 주고받는 메시지
 | 번호 | 날짜 | 보낸 쪽 → 받는 쪽 | 종류 | 내용 | 관련 파일·DB | 상태 |
