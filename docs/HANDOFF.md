@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 KST ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 원스톱 v1.55 · shots v1.51 배포
+- 원스톱 `shorts-onestop-studio-2xx22aape`(DB v1.55): 상품 사진 「내 자료함에서 고르기」(원본 참조, 복사 없음) · 업로드 전 용량 검사(`storage-quota-client` 첫 사본) · 공용 인코더 안정화. 확인: 자료함 사진이 MP4에 그려짐·남은 시간 표시.
+- shots `shots-3w5bgz2bb`(DB v1.51): 「모든 장면 영상으로」(합계 확인 뒤 한 장면씩, 자동 재요청 없음) · 공용 인코더 안정화. 확인: 상자·금액·취소(유료 실행 안 함).
+- 남음: `lyric-video-studio` 인코더 사본은 음악 담당 다음 배포 때 · V4 화면 녹화 실제 확인(주인님 화면 선택 필요) · AI 영상 변형 시험·Vidu는 주인님 보류.
+
 ## 2026-11-14 ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 결정 대기 11건 처리(보관·모델·회원 본인 키), 미배포
 - 결정만 기록(코드 동작 그대로): `stepmail` 리드는 예외로 회원별 보관·발송 기록 30일(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 지정 목록), `kakao_auto_poster` 발송 내역 30일, `ui-canvas` 만든 날 기준, `tarot` 공유 그림도 30일, `document-translator` 번역 결과만 30일(용어집 보관), NewsBlur 비밀번호 기존대로. 기록: `docs/DEV_STATUS_20261113.md` §6-1 아래.
 - 코드(미배포, 커밋됨): `threads-easy-planner` 모델 최신 9개 · `tarot`·`mbti`·`mbti-character` 카카오 공유를 회원 본인 키로 + 메인 `/api-settings` 카카오 JavaScript 키 칸 · `kakao_auto_poster` 리포트 글 정리 AI 선택(OpenAI·Claude·Gemini, Claude 구조화 응답). 운영 DB: `kakao_topics.text_model` 칼럼 추가(적용됨). 시험: 세 플랫폼 저가 모델 실호출 성공(Claude 2회 — 첫 회 600토큰 한도에서 해석 실패 → 구조화 응답으로 해결).
