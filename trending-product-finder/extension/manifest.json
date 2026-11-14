@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "상품소싱 자동화",
-  "version": "1.38.0",
-  "version_name": "v1.38",
+  "version": "1.39.0",
+  "version_name": "v1.39",
   "description": "회원이 고른 쿠팡(판매량순)·네이버 쇼핑(랭킹순) 검색 화면의 상품을 읽어 판매 순위·리뷰 수·구매 수로 거르고, 상세페이지 기획용 참고 사진을 회원 브라우저로 받는 확장 프로그램",
   "permissions": [
     "activeTab",

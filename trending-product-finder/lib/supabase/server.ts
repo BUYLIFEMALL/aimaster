@@ -9,6 +9,7 @@ export async function createClient() {
   const cookieStore = await cookies();
   const headerStore = await headers();
   const cookieDomain = cookieDomainForHost(headerStore.get("x-forwarded-host") ?? headerStore.get("host"));
+  const ua = headerStore.get("user-agent") ?? ""; // 서버 로그인 기기 정보 전달(동시 접속 제한 판정)
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,6 +29,7 @@ export async function createClient() {
           }
         },
       },
+      global: { headers: { "User-Agent": ua } },
     },
   );
 }
