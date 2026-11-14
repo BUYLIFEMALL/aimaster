@@ -26,7 +26,7 @@
 ### 지금 만지는 파일
 | 쪽 | 파일·폴더 | 목적 | 시작 | 예상 끝 |
 |---|---|---|---|---|
-| (비어 있음) | | | | |
+| 프론트 | `supabase/migrations/0081_design_history_lock.sql`(새), `scripts/scenario-0081-*.sql`(새), `src/lib/builder/design-actions.ts`, `src/lib/builder/design-store.ts`, `src/app/s/[store]/admin/design/**`, `tests/` | D6 게시 기록·되돌리기 + 분양몰 잠금 DB 검사(S21 합의) — 0081은 프론트 함수 `mall_builder_design_save_draft` 덮어쓰기 + 새 표·함수만, `stores`·분양 함수 안 건드림 | 2026-11-14 23:50 | D6 커밋 때 |
 
 ## 1. 주고받는 메시지
 | 번호 | 날짜 | 보낸 쪽 → 받는 쪽 | 종류 | 내용 | 관련 파일·DB | 상태 |
