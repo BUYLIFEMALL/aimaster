@@ -37,7 +37,7 @@ select pg_temp.ord(7, 'f4', 'c4', 'scn=RSLR03');               -- 7 쉬는 리�
 select pg_temp.ord(8, 'f4', 'c4', 'scn=RSLR01;bad');           -- 8 깨진 머리글 뒷부분 무시하고 링크
 select o.n, x.ref_code, x.ref_source from o join mall_builder_orders x on x.id = o.id order by o.n;
 
--- 9 구매 확정 → 적립(링크 주문 1·비회원 6, 가입 연결 3)
+-- 9 구매 확정 → 적립(링크 주문 1·비회원 6, 가입 연결 3) — 0074부터 리셀러가 기록된 주문은 품목 리워드로 적립하므로 품목이 없는 이 시나리오는 0건이 정상(리워드 시험은 scenario-0074)
 update mall_builder_orders set status = 'confirmed' where id in (select id from o where n in (1, 3, 6));
 select '9 적립' t, r.code, l.amount, x.order_no from mall_builder_reseller_ledger l join mall_builder_resellers r on r.id = l.reseller_id join mall_builder_orders x on x.id = l.order_id order by x.order_no;
 
