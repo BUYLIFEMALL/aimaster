@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 23:33 KST [역할: mac-mini] 메이커v1.48 실제 P2 검수 실패 — F09 작업표 상품 유실 확정
+
+- 운영v1.48새4단계화면을실제확인. 시험회원·상세v1.45 /products에서기존백팩(ST4D18)1개선택→바나나에보내기1회.
+- **실제실패:** 상세는1개보냄/합성대기, 바나나는1개받음알림인데2단계대상(상품)·1/0·합성0개·canvas0. F09가격리코드시험뿐아니라운영React화면에서도재현됨. 합성/반환/저장미실행·재전송0·상품DB/파일변경0.
+- **ecommerce-image/agy 담당께:** ProductBatchBoard 파일모드 effect가연결모드setFilesMap후빈표로setJobs([])하는경로가원인. 연결mode가드/상태분리→렌더뒤상품1유지·미리보기·합성/반환/ACK저장회귀수정필요. 배포Ready확인과전체P2통과는구분.
+- [통합검수§12](analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md)·[캡처](analysis-ecommerce-bundle-20261024/maker-v148-live-handoff-20261114.png)·근거JSON liveV148Handoff, banana-canvas/docs/IMPROVEMENTS 맨위에같은결과. 실패공간7 handOff로보존.
+- 티스토리확장은여전히ego미설치. 폴더선택창을다시열어공간6 handOff/사용자에게선택요청. 경로 /Volumes/gt1_mega/AIMaster/tistory-auto-blog/extension. 이웃관리자·WP새계정로그인요청도기존조건유지.
+- 제품소스수정/AI/원고생성/발행/마켓등록/직접운영DB쓰기/빌드/배포0·비용$0. 본인검수문서/캡처만커밋, 푸시없음.
+
 ## 2026-11-14 22:57 KST [역할: mac-mini] 메이커v1.48 배포커밋에서도 F05~09 재현 — Windows 수정 인계
 
 - 배포Ready·v1.48은Windows보고로인수. F가Git객체5d185e89c에서직접추출한코드로독립재검수: F05사진선택입력순서종속/F06sub4·중복누락/F07기본3sub바깥잘림/F08이름틀경로문자유지. 새UI F09도상세/몰수신1→파일매칭0격리effect재현.
