@@ -84,3 +84,16 @@ test("모든 템플릿의 같은 화면 이동 링크(#blk-)는 그 템플릿 �
     for (const x of links) assert.ok(ids.has(x), `${l.id}: ${x}`);
   }
 });
+
+test("모든 템플릿 × 모든 색: 바탕 밝기와 밝기 칸이 맞고, 블록 배경색도 같은 밝기 쪽(글자가 안 보이는 조합 없음)", async () => {
+  const { contrastWarning, isDarkColor } = await import("../src/lib/theme.ts");
+  for (const l of LAYOUTS) for (const c of COLOR_PRESETS) {
+    const t = applyTemplate(l.id, c.id, { now: 0, storeName: "가나몰" });
+    assert.equal(contrastWarning(t.theme), null, `${l.id}·${c.id}`);
+    for (const b of t.home.blocks) if (b.style?.bg_color) assert.equal(isDarkColor(b.style.bg_color), t.theme.mode === "dark", `${l.id}·${c.id} ${b.id} ${b.style.bg_color}`);
+  }
+});
+
+test("럭셔리 부티크(agy 113 누아르 블랙)는 어두운 테마", () => {
+  assert.equal(applyTemplate("luxury-boutique", null, { now: 0, storeName: "가나몰" }).theme.mode, "dark");
+});

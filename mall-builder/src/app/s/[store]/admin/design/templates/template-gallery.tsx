@@ -9,7 +9,7 @@ import type { ColorPreset } from "@/lib/builder/templates";
 
 type LayoutCard = {
   id: string; name: string; description: string; industries: string[]; moods: string[]; defaultColor: string;
-  shape: { radius: string; button: string; image_ratio: string };
+  shape: { radius: string; button: string; image_ratio: string; mode?: string };
 };
 
 const RATIO: Record<string, string> = { "1:1": "1 / 1", "4:5": "4 / 5", "3:4": "3 / 4", "4:3": "4 / 3" };
@@ -37,7 +37,7 @@ function Thumb({ layout, color }: { layout: LayoutCard; color: ColorPreset }) {
     "brand-story": <><div className="-mx-2 bg-white px-2 py-2"><div className="mx-auto h-2 w-2/3 rounded bg-slate-500" /><div className="mx-auto mt-1 h-1 w-4/5 rounded bg-slate-300" /></div>{card(3, false)}</>,
   };
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200" style={{ background: color.bg }} aria-hidden>
+    <div className="overflow-hidden rounded-lg border border-slate-200" style={{ background: layout.shape.mode === "dark" ? "#0c0a09" : color.bg }} aria-hidden>
       <div className="h-1.5" style={{ background: "#111827" }} />
       <div className="flex items-center justify-between bg-white px-2 py-1.5">
         <span className="h-3 w-3 rounded" style={{ background: color.primary }} />

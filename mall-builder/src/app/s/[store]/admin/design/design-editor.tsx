@@ -11,7 +11,7 @@ import "@puckeditor/core/no-external.css";
 import { BLOCK_DEFS, BLOCK_TYPES, MAX_PAD, validateDoc, type Block, type BlockType, type BlocksDoc } from "@/lib/blocks";
 import { defaultPuckProps, fromPuck, fromPuckRaw, toPuck, type PuckBlockProps } from "@/lib/builder/puck-adapter";
 import { previewSlotAction, saveDesignAction } from "@/lib/builder/design-actions";
-import { DEFAULT_THEME, readTheme, themeStyle, validateTheme, type ShopTheme } from "@/lib/theme";
+import { DEFAULT_THEME, readTheme, themeStyle, validateTheme, type ShopTheme, contrastWarning } from "@/lib/theme";
 import { DEFAULT_FOOTER, DEFAULT_HEADER, DEFAULT_POPUP, readFooter, readHeader, readPopup, type FooterDesign, type HeaderDesign, type PopupDesign } from "@/lib/builder/frame";
 import type { BusinessInfo } from "@/lib/businessInfo";
 import { DEFAULT_DETAIL, DEFAULT_LIST, LIST_SORT_LABEL, LIST_SORTS, readDetail, readList, type DetailDesign, type ListDesign } from "@/lib/builder/pages";
@@ -144,6 +144,7 @@ const THEME_FIELDS = {
     bg: { type: "custom", label: "바탕색", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ColorCodeField label="바탕색" value={value} onChange={onChange} emptyText={`기본 ${DEFAULT_THEME.bg}`} /> },
     radius: { type: "select", label: "단추 모서리", options: [{ label: "각지게", value: "none" }, { label: "조금 둥글게", value: "sm" }, { label: "보통", value: "md" }, { label: "둥글게", value: "lg" }, { label: "더 둥글게(기본)", value: "xl" }] },
     button: { type: "radio", label: "단추 모양", options: [{ label: "입체(기본)", value: "3d" }, { label: "평면", value: "flat" }] },
+    mode: { type: "radio", label: "밝기(어둡게 = 검은 바탕 + 밝은 글자)", options: [{ label: "밝게(기본)", value: "light" }, { label: "어둡게", value: "dark" }] },
     image_ratio: { type: "select", label: "상품 사진 비율(가로:세로)", options: [{ label: "1:1 정사각형(기본)", value: "1:1" }, { label: "4:5 세로형(패션)", value: "4:5" }, { label: "3:4 세로형", value: "3:4" }, { label: "4:3 가로형", value: "4:3" }] },
   },
 };
@@ -376,7 +377,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         render: ({ children, theme, header, footer, popup }: { children: ReactNode } & RootProps) => {
           const h = readHeader(header);
           return (
-            <div className="relative flex min-h-screen flex-col bg-[var(--mall-bg,var(--color-slate-50))] font-sans text-slate-900 antialiased" style={themeStyle(readTheme(theme)) as CSSProperties}>
+            <div className="relative flex min-h-screen flex-col bg-[var(--mall-bg,var(--color-slate-50))] font-sans text-slate-900 antialiased" style={themeStyle(readTheme(theme)) as CSSProperties} data-mall-mode={readTheme(theme).mode === "dark" ? "dark" : undefined}>
               <ShopBand band={h.band} />
               <ShopHeader base={base} storeName={storeName} header={h} categories={topCategories} showShop right={<span className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">가입</span>} />
               <div className="flex-1 py-6"><div className="mx-auto max-w-6xl space-y-8">{children}</div></div>
@@ -420,6 +421,8 @@ export default function DesignEditor({ slug, storeId, categories, products, init
   }
   const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("ko-KR") : "없음");
   const dirty = nowState !== saved;
+  // I23 색 대비 경고(바탕 밝기와 밝기 칸이 어긋남) — 편집 중인 값으로
+  const contrast = contrastWarning(readTheme(rootOf(latest.current).theme ?? {}));
   const empty = useMemo(() => snapshot({ root: { props: { theme: DEFAULT_THEME, header: DEFAULT_HEADER, footer: DEFAULT_FOOTER, popup: DEFAULT_POPUP, list: DEFAULT_LIST, detail: DEFAULT_DETAIL } }, content: [] } as unknown as Data), []);
   const unpublished = nowState !== (live ?? empty);
 
@@ -433,6 +436,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         {unpublished && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-blue-800">게시 안 된 변경</span>}
         <span className="text-gray-500">몰 테마·헤더·바닥글·팝업·상품 목록·상품 상세: 위쪽 「첫 화면」을 누르거나 블록 고르기를 풀면 오른쪽에 나옵니다</span>
         {pending && <span className="text-gray-500">처리 중…</span>}
+        {contrast && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800" data-contrast-warning>⚠ {contrast}</span>}
         {msg && <span className={msg.ok ? "text-green-700" : "text-red-600"} data-design-msg>{msg.text}</span>}
         {conflict && (
           <span className="flex flex-wrap items-center gap-2" data-design-conflict>

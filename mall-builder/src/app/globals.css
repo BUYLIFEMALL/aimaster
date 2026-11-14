@@ -130,3 +130,13 @@ input[type="submit"] {
 
 /* 디자인 빌더 D2-4 블록 공통 겉모양 — 제목 가운데(제목 옆 링크가 있는 줄은 제목만 가운데로) */
 [data-title-align="center"] h2 { text-align: center; margin-inline: auto; }
+
+/* I23 어두운 테마(몰 테마 밝기 = 어둡게) — 회색·포인트 옅은 단계 뒤집기는 src/lib/theme.ts 변수, 여기는 변수로 못 바꾸는 것만
+   흰 카드(bg-white)는 어두운 면으로(text-white는 그대로 흰색이어야 해서 --color-white는 건드리지 않음) */
+[data-mall-mode="dark"] { color-scheme: dark; }
+[data-mall-mode="dark"] .bg-white { background-color: var(--mall-surface); }
+[data-mall-mode="dark"] .bg-white\/90 { background-color: color-mix(in oklab, var(--mall-surface) 90%, transparent); }
+[data-mall-mode="dark"] .hover\:bg-white:hover { background-color: var(--mall-surface); }
+[data-mall-mode="dark"] .mall-html a[href] { color: var(--mall-primary-300, #93c5fd); }
+[data-mall-mode="dark"] .mall-html blockquote { color: var(--color-slate-600); border-left-color: var(--color-slate-300); }
+[data-mall-mode="dark"] .mall-html hr { border-color: var(--color-slate-200); }

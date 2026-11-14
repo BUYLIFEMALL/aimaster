@@ -62,3 +62,40 @@ test("색 칸을 비우면 기본색으로(검사 통과, 읽으면 기본값)",
   assert.deepEqual(readTheme({ primary: "", bg: "" }), DEFAULT_THEME);
   assert.equal(validateTheme({ primary: "#12" }).length, 1);
 });
+
+// I23 어두운 테마(2026-11-15) — 밝기 칸 mode: light(기본, 저장 안 함 = 화면 변화 0) / dark
+test("밝기: 기본은 밝게, 어둡게는 읽고 검사를 통과, 틀린 값은 오류", async () => {
+  const { readTheme, validateTheme, DEFAULT_THEME } = await import("../src/lib/theme.ts");
+  assert.equal(DEFAULT_THEME.mode, "light");
+  assert.equal(readTheme({}).mode, "light");
+  assert.equal(readTheme({ mode: "dark" }).mode, "dark");
+  assert.equal(readTheme({ mode: "x" }).mode, "light");
+  assert.deepEqual(validateTheme({ mode: "dark" }), []);
+  assert.equal(validateTheme({ mode: "night" }).length, 1);
+});
+
+test("어둡게: 회색 단계를 뒤집고(진한 글자 → 밝게), 포인트색 옅은 단계도 뒤집되 단추 색(--mall-primary)은 그대로", async () => {
+  const { themeStyle, readTheme, buildPalette } = await import("../src/lib/theme.ts");
+  const light = themeStyle(readTheme({ primary: "#059669" }));
+  assert.equal(light["--color-slate-900"], undefined);
+  const v = themeStyle(readTheme({ primary: "#059669", mode: "dark", bg: "#0c0a09" }));
+  assert.equal(v["--color-slate-900"], "oklch(96.8% 0.007 247.896)"); // 원래 slate-100(거울: 900↔100, 950↔50)
+  assert.equal(v["--color-slate-50"], "oklch(12.9% 0.042 264.695)"); // 원래 slate-950
+  assert.equal(v["--color-gray-700"], "oklch(87.2% 0.01 258.338)"); // 원래 gray-300
+  const p = buildPalette("#059669");
+  assert.equal(v["--color-blue-50"], p[950]);
+  assert.equal(v["--color-blue-600"], p[400]);
+  assert.equal(v["--mall-primary-600"], p[600]);
+  assert.ok(v["--mall-surface"]);
+  // 기본 포인트색이어도 어둡게면 옅은 단계를 뒤집는다
+  const d2 = themeStyle(readTheme({ mode: "dark", bg: "#0c0a09" }));
+  assert.ok(d2["--color-blue-50"]);
+});
+
+test("색 대비 경고: 바탕 밝기와 밝기 칸이 어긋나면 알림", async () => {
+  const { contrastWarning, readTheme } = await import("../src/lib/theme.ts");
+  assert.equal(contrastWarning(readTheme({})), null);
+  assert.equal(contrastWarning(readTheme({ mode: "dark", bg: "#0c0a09" })), null);
+  assert.match(contrastWarning(readTheme({ bg: "#111111" })), /어둡게/);
+  assert.match(contrastWarning(readTheme({ mode: "dark", bg: "#ffffff" })), /밝게/);
+});

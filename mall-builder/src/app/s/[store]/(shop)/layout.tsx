@@ -42,7 +42,8 @@ export default async function ShopLayout({ children, params }: { children: React
   const store = await getStoreBySlug(slug);
   const [user, staff, categoryRows, design] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id), getPublishedDesign(store.id)]);
   // 디자인 빌더 D1: 몰 테마 → CSS 변수(기본 테마면 빈 객체 = 화면 그대로)
-  const themeVars = themeStyle(readTheme(design.theme));
+  const shopTheme = readTheme(design.theme);
+  const themeVars = themeStyle(shopTheme);
   const header = readHeader(design.header);
   const customer = user ? await getMyCustomer(store.id, user.id) : null;
   const cartCount = customer && user ? await getCartCount(store.id, user.id) : 0;
@@ -65,6 +66,7 @@ export default async function ShopLayout({ children, params }: { children: React
     <div
       className="flex min-h-screen flex-col overflow-x-clip bg-[var(--mall-bg,var(--color-slate-50))] font-sans text-slate-900 antialiased selection:bg-blue-600 selection:text-white"
       style={themeVars as CSSProperties}
+      data-mall-mode={shopTheme.mode === "dark" ? "dark" : undefined}
     >
       <script dangerouslySetInnerHTML={{ __html: EARLY_INSTALL_SCRIPT }} />
 

@@ -27,8 +27,8 @@ export type LayoutTemplate = {
   industries: Industry[];
   moods: string[];
   defaultColor: string; // ColorPreset id
-  /** 테마에서 색을 뺀 나머지(모서리·단추·사진 비율) */
-  shape: Pick<ShopTheme, "radius" | "button" | "image_ratio">;
+  /** 테마에서 색을 뺀 나머지(모서리·단추·사진 비율) + 밝기(I23, 비우면 밝게) */
+  shape: Pick<ShopTheme, "radius" | "button" | "image_ratio"> & { mode?: ShopTheme["mode"] };
   /** now: 타임세일 끝 시각 같은 날짜 계산용 */
   build: (ctx: { now: number; storeName: string }) => Omit<DesignSet, "theme">;
 };
@@ -55,6 +55,8 @@ const blk = <T extends Block>(b: T) => b;
 const doc = (blocks: Block[]): BlocksDoc => ({ schema_version: SCHEMA_VERSION, blocks });
 const base = { header: DEFAULT_HEADER, footer: DEFAULT_FOOTER, popup: DEFAULT_POPUP, list: DEFAULT_LIST, detail: DEFAULT_DETAIL };
 const DAY = 86400_000;
+/** 어둡게 레이아웃의 바탕(I23) */
+export const DARK_BG = "#0c0a09";
 
 // ── 레이아웃 템플릿(7종: agy 3종 시안 + 기존 4종) ──
 // 3안(115. 클린 웰니스) 채택 및 1안(113. 럭셔리 부티크), 2안(114. 트렌디 팝) 템플릿 정식 저장 (2026-11-14 주인님 지시)
@@ -146,7 +148,7 @@ export const LAYOUTS: LayoutTemplate[] = [
     industries: ["fashion", "beauty", "b2b", "digital"],
     moods: ["럭셔리", "하이엔드", "VIP"],
     defaultColor: "mustard",
-    shape: { radius: "sm", button: "3d", image_ratio: "3:4" },
+    shape: { radius: "sm", button: "3d", image_ratio: "3:4", mode: "dark" }, // agy 113 누아르 블랙 — 검은 바탕 + 밝은 글자(I23)
     build: ({ storeName }) => ({
       ...base,
       header: {
@@ -163,7 +165,7 @@ export const LAYOUTS: LayoutTemplate[] = [
           settings: {
             html: `<h2>${esc(storeName)} EXCLUSIVE</h2><p>시대를 초월한 우아함과 최상의 장인정신이 깃든 마스터피스를 만나보세요.</p>`,
           },
-          style: { width: "full", bg_color: "#ffffff", pad_top: 44, pad_bottom: 44, title_align: "center" },
+          style: { width: "full", bg_color: "#1c1917", pad_top: 44, pad_bottom: 44, title_align: "center" },
         }),
         blk({
           id: id("lb-master"),
@@ -361,7 +363,9 @@ export function applyTemplate(layoutId: string, colorId: string | null | undefin
   const layout = findLayout(layoutId);
   if (!layout) return null;
   const color = (colorId && findColor(colorId)) || findColor(layout.defaultColor) || COLOR_PRESETS[0];
-  return { theme: { ...layout.shape, primary: color.primary, bg: color.bg }, ...layout.build(ctx) };
+  // 어둡게 레이아웃은 색 조합의 밝은 바탕 대신 검은 바탕(포인트색만 조합에서)
+  const mode = layout.shape.mode ?? "light";
+  return { theme: { ...layout.shape, mode, primary: color.primary, bg: mode === "dark" ? DARK_BG : color.bg }, ...layout.build(ctx) };
 }
 
 /** 갤러리 거르기 — 업종(비우면 전부) */

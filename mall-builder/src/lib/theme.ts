@@ -8,9 +8,11 @@
 export const IMAGE_RATIOS = ["1:1", "4:5", "3:4", "4:3"] as const;
 export const RADII = ["none", "sm", "md", "lg", "xl"] as const;
 export const BUTTONS = ["3d", "flat"] as const;
+export const MODES = ["light", "dark"] as const;
 export type ImageRatio = (typeof IMAGE_RATIOS)[number];
 export type Radius = (typeof RADII)[number];
 export type ButtonStyle = (typeof BUTTONS)[number];
+export type Mode = (typeof MODES)[number];
 
 export type ShopTheme = {
   /** 포인트색(#rrggbb) — 단추·링크·강조. 이 색이 팔레트의 600 단계가 된다 */
@@ -23,10 +25,12 @@ export type ShopTheme = {
   button: ButtonStyle;
   /** 상품 사진 비율(가로:세로) — 쇼윈도·목록 카드 */
   image_ratio: ImageRatio;
+  /** 밝기(I23): 밝게(기본) / 어둡게 — 어둡게면 회색 단계·포인트색 옅은 단계를 뒤집고 흰 카드를 어두운 면으로 */
+  mode: Mode;
 };
 
 /** 지금 손님 화면(106 네오 모던) 값 그대로 */
-export const DEFAULT_THEME: ShopTheme = { primary: "#2563eb", bg: "#f8fafc", radius: "xl", button: "3d", image_ratio: "1:1" };
+export const DEFAULT_THEME: ShopTheme = { primary: "#2563eb", bg: "#f8fafc", radius: "xl", button: "3d", image_ratio: "1:1", mode: "light" };
 
 const HEX = /^#[0-9a-f]{6}$/;
 const RADIUS_REM: Record<Radius, string> = { none: "0", sm: "0.25rem", md: "0.5rem", lg: "0.625rem", xl: "0.75rem" };
@@ -54,6 +58,7 @@ export function readTheme(raw: unknown): ShopTheme {
     radius: pick(o.radius, RADII, DEFAULT_THEME.radius),
     button: pick(o.button, BUTTONS, DEFAULT_THEME.button),
     image_ratio: pick(o.image_ratio, IMAGE_RATIOS, DEFAULT_THEME.image_ratio),
+    mode: pick(o.mode, MODES, DEFAULT_THEME.mode),
   };
 }
 
@@ -69,6 +74,7 @@ export function validateTheme(raw: unknown): string[] {
   if (o.radius !== undefined && !(RADII as readonly unknown[]).includes(o.radius)) errs.push("모서리 값이 올바르지 않습니다.");
   if (o.button !== undefined && !(BUTTONS as readonly unknown[]).includes(o.button)) errs.push("단추 모양 값이 올바르지 않습니다.");
   if (o.image_ratio !== undefined && !(IMAGE_RATIOS as readonly unknown[]).includes(o.image_ratio)) errs.push("사진 비율 값이 올바르지 않습니다.");
+  if (o.mode !== undefined && !(MODES as readonly unknown[]).includes(o.mode)) errs.push("밝기 값이 올바르지 않습니다.");
   return errs;
 }
 
@@ -111,15 +117,44 @@ export function buildPalette(hex: string): Record<(typeof STEPS)[number], string
   return out;
 }
 
+// ── I23 어두운 테마 ──
+// Tailwind v4 기본 회색 값(node_modules/tailwindcss/theme.css) — 어둡게면 50↔950처럼 뒤집어 넣는다
+const SLATE = ["oklch(98.4% 0.003 247.858)", "oklch(96.8% 0.007 247.896)", "oklch(92.9% 0.013 255.508)", "oklch(86.9% 0.022 252.894)", "oklch(70.4% 0.04 256.788)", "oklch(55.4% 0.046 257.417)", "oklch(44.6% 0.043 257.281)", "oklch(37.2% 0.044 257.287)", "oklch(27.9% 0.041 260.031)", "oklch(20.8% 0.042 265.755)", "oklch(12.9% 0.042 264.695)"];
+const GRAY = ["oklch(98.5% 0.002 247.839)", "oklch(96.7% 0.003 264.542)", "oklch(92.8% 0.006 264.531)", "oklch(87.2% 0.01 258.338)", "oklch(70.7% 0.022 261.325)", "oklch(55.1% 0.027 264.364)", "oklch(44.6% 0.03 256.802)", "oklch(37.3% 0.034 259.733)", "oklch(27.8% 0.033 256.848)", "oklch(21% 0.034 264.665)", "oklch(13% 0.028 261.692)"];
+/** 어둡게일 때 흰 카드(bg-white) 대신 쓰는 면 색 — globals.css [data-mall-mode="dark"] */
+const DARK_SURFACE = "oklch(22% 0.01 260)";
+
+/** 색 밝기(OKLCH L)가 낮으면 어두운 색 */
+export function isDarkColor(hex: string): boolean {
+  return HEX.test(hex.toLowerCase()) ? hexToOklch(hex.toLowerCase())[0] < 0.6 : false;
+}
+
+/** 색 대비 경고(E4 일부) — 바탕 밝기와 밝기 칸이 어긋나 글자가 안 보일 때 한국어 안내, 괜찮으면 null */
+export function contrastWarning(theme: ShopTheme): string | null {
+  const dark = isDarkColor(theme.bg);
+  if (dark && theme.mode === "light") return "바탕색이 어두워 글자가 잘 안 보입니다 — 밝기를 「어둡게」로 바꾸거나 밝은 바탕색을 고르세요.";
+  if (!dark && theme.mode === "dark") return "밝기가 「어둡게」인데 바탕색이 밝습니다 — 어두운 바탕색을 고르거나 밝기를 「밝게」로 바꾸세요.";
+  return null;
+}
+
 /** 테마 → 바깥 상자 style에 넣을 CSS 변수. 기본값과 같은 칸은 내보내지 않는다(기본 테마 = 빈 객체) */
 export function themeStyle(theme: ShopTheme): Record<string, string> {
   const v: Record<string, string> = {};
-  if (theme.primary !== DEFAULT_THEME.primary) {
+  const dark = theme.mode === "dark";
+  if (theme.primary !== DEFAULT_THEME.primary || dark) {
     const p = buildPalette(theme.primary);
-    for (const step of STEPS) {
-      v[`--color-blue-${step}`] = p[step];
-      v[`--mall-primary-${step}`] = p[step];
-    }
+    STEPS.forEach((step, i) => {
+      // 글자·옅은 배경용 클래스 색(--color-blue-*)은 어둡게면 뒤집고, 단추 색(--mall-primary-*)은 그대로
+      v[`--color-blue-${step}`] = dark ? p[STEPS[STEPS.length - 1 - i]] : p[step];
+      if (theme.primary !== DEFAULT_THEME.primary || dark) v[`--mall-primary-${step}`] = p[step];
+    });
+  }
+  if (dark) {
+    STEPS.forEach((step, i) => {
+      v[`--color-slate-${step}`] = SLATE[STEPS.length - 1 - i];
+      v[`--color-gray-${step}`] = GRAY[STEPS.length - 1 - i];
+    });
+    v["--mall-surface"] = DARK_SURFACE;
   }
   if (theme.bg !== DEFAULT_THEME.bg) v["--mall-bg"] = theme.bg;
   if (theme.radius !== DEFAULT_THEME.radius) v["--mall-radius"] = RADIUS_REM[theme.radius];
