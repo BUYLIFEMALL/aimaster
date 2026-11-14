@@ -89,7 +89,7 @@ test("서브: 기본 오른쪽 아래 32%·여백 24, 여러 장은 가로/세�
 
 // F5 순서 처리·중단·실패만 다시 / P2 주고받기 약속 검사
 import { runQueue } from "../src/lib/batch/runQueue.ts";
-import { PRODUCT_MSG_JOB, PRODUCT_MSG_RESULT, PRODUCT_MSG_SAVED, PRODUCT_RECEIVER_ORIGIN, PRODUCT_SENDER_ORIGIN, readProductJob, readProductResult, readProductSaved } from "../src/lib/productPhotoHandoff.ts";
+import { PRODUCT_BATCH_URL, PRODUCT_MALL_ORIGIN, PRODUCT_MSG_JOB, PRODUCT_MSG_RESULT, PRODUCT_MSG_SAVED, PRODUCT_RECEIVER_ORIGIN, PRODUCT_SENDER_ORIGIN, productBatchUrl, productSenderOrigin, readProductJob, readProductResult, readProductSaved } from "../src/lib/productPhotoHandoff.ts";
 
 test("F5 한 개씩 순서대로·중단하면 남은 것 안 함·실패만 다시", async () => {
   const items = ["a", "b", "c"].map((key) => ({ key, status: "ready" }));
@@ -131,6 +131,22 @@ test("P2 결과·저장 알림: 바나나 주소·같은 작업·보낸 상품�
   assert.match(readProductResult(PRODUCT_RECEIVER_ORIGIN, res({ file: img("image/webp") }), JOB, ids).error, /PNG·JPG/);
   assert.deepEqual(readProductSaved(PRODUCT_SENDER_ORIGIN, { type: PRODUCT_MSG_SAVED, jobId: JOB, productId: ID, ok: false, error: "바뀜" }, JOB), { productId: ID, ok: false, error: "바뀜" });
   assert.equal(readProductSaved(PRODUCT_RECEIVER_ORIGIN, { type: PRODUCT_MSG_SAVED, jobId: JOB, productId: ID, ok: true }, JOB), null);
+});
+
+test("M1 쇼핑몰 보낸 곳: from=mall일 때만 쇼핑몰 주소, 창마다 한 곳만", () => {
+  assert.equal(productSenderOrigin("mall"), PRODUCT_MALL_ORIGIN);
+  assert.equal(productSenderOrigin("shop-detail"), PRODUCT_SENDER_ORIGIN);
+  for (const bad of [null, "", "toString", "__proto__", "evil"]) assert.equal(productSenderOrigin(bad), null);
+  assert.equal(productBatchUrl("mall"), `${PRODUCT_RECEIVER_ORIGIN}/batch?mode=product&from=mall`);
+  assert.equal(PRODUCT_BATCH_URL, productBatchUrl("shop-detail"));
+  // 쇼핑몰 창으로 열린 바나나는 쇼핑몰 작업만, 상세 창으로 열린 바나나(기본값)는 쇼핑몰 작업을 받지 않음
+  assert.equal(readProductJob(PRODUCT_MALL_ORIGIN, job([prod()]), PRODUCT_MALL_ORIGIN).products.length, 1);
+  assert.equal(readProductJob(PRODUCT_MALL_ORIGIN, job([prod()])), null);
+  assert.equal(readProductJob(PRODUCT_SENDER_ORIGIN, job([prod()]), PRODUCT_MALL_ORIGIN), null);
+  assert.equal(readProductJob("https://dev-mall-builder.vercel.app", job([prod()]), PRODUCT_MALL_ORIGIN), null);
+  const saved = { type: PRODUCT_MSG_SAVED, jobId: JOB, productId: ID, ok: true };
+  assert.equal(readProductSaved(PRODUCT_MALL_ORIGIN, saved, JOB, PRODUCT_MALL_ORIGIN).ok, true);
+  assert.equal(readProductSaved(PRODUCT_MALL_ORIGIN, saved, JOB), null);
 });
 
 test("서브 정사각 채우기(기본): 긴 사진도 정사각 상자, 원본 비율은 선택", () => {

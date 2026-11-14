@@ -6,8 +6,24 @@
 
 export const PRODUCT_SENDER_ORIGIN = "https://shop-detail-page.buylife.xyz";
 export const PRODUCT_RECEIVER_ORIGIN = "https://banana-canvas.buylife.xyz";
-/** 상세페이지가 여는 바나나 주소(이 주소로 열렸을 때만 「준비됨」을 보낸다) */
-export const PRODUCT_BATCH_URL = `${PRODUCT_RECEIVER_ORIGIN}/batch?mode=product&from=shop-detail`;
+/** 쇼핑몰 빌더(메이커 연계 M1, 2026-11-14) — 운영 주소만. Lab(dev-mall-builder.vercel.app)은 받지 않는다 */
+export const PRODUCT_MALL_ORIGIN = "https://mall-builder.buylife.xyz";
+/**
+ * 바나나 창을 열 수 있는 곳: 주소 값 `from=` → 그 프로그램 주소.
+ * 바나나 창 하나는 열린 주소의 `from`에 맞는 한 곳에서만 작업을 받고, 결과도 그곳으로만 보낸다.
+ */
+export const PRODUCT_SENDERS = {
+  "shop-detail": PRODUCT_SENDER_ORIGIN,
+  mall: PRODUCT_MALL_ORIGIN,
+} as const;
+export type ProductSender = keyof typeof PRODUCT_SENDERS;
+/** 보내는 프로그램이 여는 바나나 주소(이 주소로 열렸을 때만 「준비됨」을 보낸다) */
+export const productBatchUrl = (from: ProductSender) => `${PRODUCT_RECEIVER_ORIGIN}/batch?mode=product&from=${from}`;
+export const PRODUCT_BATCH_URL = productBatchUrl("shop-detail");
+/** 바나나 쪽: 주소 값 `from`이 정해 둔 곳이면 그 주소, 아니면 null(작업을 받지 않음) */
+export function productSenderOrigin(from: string | null | undefined): string | null {
+  return from && Object.prototype.hasOwnProperty.call(PRODUCT_SENDERS, from) ? PRODUCT_SENDERS[from as ProductSender] : null;
+}
 
 export const PRODUCT_MAX_PRODUCTS = 50;
 export const PRODUCT_MAX_PHOTOS = 4; // 메인 1 + 서브 3
@@ -38,11 +54,11 @@ export function isProductReady(origin: string, data: unknown): boolean {
 }
 
 /**
- * 바나나 쪽: 상세페이지가 보낸 작업 메시지 검사. 맞으면 작업, 형식이 틀리면 오류 문구,
- * 다른 사이트에서 온 메시지나 다른 종류면 null(조용히 무시).
+ * 바나나 쪽: 보낸 프로그램(기본 상세페이지, `expectedOrigin`으로 쇼핑몰 등)의 작업 메시지 검사.
+ * 맞으면 작업, 형식이 틀리면 오류 문구, 다른 사이트에서 온 메시지나 다른 종류면 null(조용히 무시).
  */
-export function readProductJob(origin: string, data: unknown): HandoffJob | { error: string } | null {
-  if (origin !== PRODUCT_SENDER_ORIGIN || !isRecord(data) || data.type !== PRODUCT_MSG_JOB) return null;
+export function readProductJob(origin: string, data: unknown, expectedOrigin: string = PRODUCT_SENDER_ORIGIN): HandoffJob | { error: string } | null {
+  if (origin !== expectedOrigin || !isRecord(data) || data.type !== PRODUCT_MSG_JOB) return null;
   if (!isUuid(data.jobId)) return { error: "작업 번호가 올바르지 않습니다." };
   if (!Array.isArray(data.products) || !data.products.length) return { error: "받은 상품이 없습니다." };
   if (data.products.length > PRODUCT_MAX_PRODUCTS) return { error: `한 번에 ${PRODUCT_MAX_PRODUCTS}개 상품까지 보낼 수 있습니다.` };
@@ -81,8 +97,8 @@ export function readProductResult(origin: string, data: unknown, jobId: string, 
   return { productId: data.productId, file, settingsVersion: shortText(data.settingsVersion, 40) };
 }
 
-/** 바나나 쪽: 상세페이지의 저장 결과 알림 검사 */
-export function readProductSaved(origin: string, data: unknown, jobId: string): { productId: string; ok: boolean; error: string } | null {
-  if (origin !== PRODUCT_SENDER_ORIGIN || !isRecord(data) || data.type !== PRODUCT_MSG_SAVED || data.jobId !== jobId || !isUuid(data.productId)) return null;
+/** 바나나 쪽: 보낸 프로그램(기본 상세페이지)의 저장 결과 알림 검사 */
+export function readProductSaved(origin: string, data: unknown, jobId: string, expectedOrigin: string = PRODUCT_SENDER_ORIGIN): { productId: string; ok: boolean; error: string } | null {
+  if (origin !== expectedOrigin || !isRecord(data) || data.type !== PRODUCT_MSG_SAVED || data.jobId !== jobId || !isUuid(data.productId)) return null;
   return { productId: data.productId, ok: data.ok === true, error: shortText(data.error, 200) };
 }

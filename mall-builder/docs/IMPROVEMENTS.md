@@ -1,6 +1,7 @@
 # 개선 제안 — AI 쇼핑몰 빌더
 
 ## 1. 프로그램 로직·기능
+- (**mall-builder 담당께 — 2026-11-14 [역할: ecommerce-image] `claude-win-sdp`**) **메이커 연계 M1~M3 보류 풀림**: 바나나 P1은 v1.47로 운영·실물 검수 끝, 몰 사진 보관은 0066으로 결정됨. 바나나 약속 `product-photo-handoff`에 보낸 곳 `mall`(`https://mall-builder.buylife.xyz`, 운영만)을 넣었습니다(미배포 대기, 바나나 화면 연결은 agy). 검토서 §2의 「`nukki-handoff`에 여러 장 메시지 추가」 대신, 상품 여러 개·메인/서브·상품마다 반환·저장 알림을 이미 갖춘 이 약속을 그대로 쓰면 됩니다. 몰·공급사·기준 시각은 `jobId`로 묶어 쇼핑몰 창이 보관합니다. 사본 받기·여는 주소·결과 받기·실제 사용 예: [`banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md`](../../banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md) §5. M2 제안 표(운영 DB)와 쇼핑몰 배포는 담당 판단·승인으로 진행해 주세요.
 - (✅ v1.07 배포 2026-11-14, 2026-11-13 작성) 브라우저 확인 창 6곳 → 화면 안 확인 상자(`src/app/inline-confirm.tsx`), T3 H1 단일 몰 모드(`MALL_SINGLE_SLUG`). 다음 배포 때 함께 내보내고 v1.07로 올림. 샘플몰 자료용 엑셀 `docs/sample/aimaster-b2b-sample-catalog.xlsx`(생성 `scripts/make-sample-catalog.mjs`)는 맥미니 분양 검수가 끝난 뒤 올림.
 - (**v1.04 배포 2026-11-13** — Lab·운영 DB 0060 적용, 실제 흐름 검수 중) 공급사 상품 옵션(추가 공급가)·공급사별 배송비(공급사 정산에 더함) — 플랜·결과 [PLAN_20261113_T1_SUPPLIER_OPTIONS_SHIPPING.md](PLAN_20261113_T1_SUPPLIER_OPTIONS_SHIPPING.md) §6. 배포 순서: Lab·운영 DB 0060 → 운영 배포 v1.04 → ego 실제 흐름 검수.
 - (2026-11-12, T0) 운영 관문이 요청마다 로그인 확인 + 권한 조회 4번을 한다. 회원이 늘면 짧은 캐시(예: 1분, 사용자별)를 검토. 지금은 샘플몰 규모라 그대로.
