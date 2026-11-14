@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { validateDoc } from "@/lib/blocks";
+import { recordPublished } from "@/lib/builder/design-store";
 
 // 첫 화면 블록 — 초안 저장·게시. 내용 검사는 validateDoc, 운영자 확인·모양·크기는 DB 함수가 한다
 // 편집기(클라이언트)에서 바로 부르므로 이동하지 않고 결과를 돌려준다
@@ -29,6 +30,7 @@ export async function publishHomeAction(slug: string, storeId: string, raw: unkn
   if (!saved.ok) return saved;
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("mall_builder_publish_page", { p_store_id: storeId });
+  if (!error) await recordPublished(supabase, storeId); // D6 게시 기록(실패해도 게시는 그대로)
   revalidatePath(`/s/${slug}`, "layout");
   return error ? { ok: false, error: error.message } : { ok: true, at: data as string };
 }

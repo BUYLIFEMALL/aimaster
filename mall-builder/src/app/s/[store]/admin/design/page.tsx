@@ -16,9 +16,9 @@ export const fetchCache = "force-no-store";
 
 // 디자인 빌더 D2 — 끌어 놓는 첫 화면 편집기(Puck). 저장 모양·검사·저장 함수는 기존 첫 화면 편집(F18)과 같다
 // 초안 저장은 나만 보이고, 「손님 화면에 게시」를 눌러야 손님에게 보인다
-export default async function AdminDesignPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ template?: string; color?: string }> }) {
+export default async function AdminDesignPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ template?: string; color?: string; restored?: string }> }) {
   const { store: slug } = await params;
-  const { template, color } = await searchParams;
+  const { template, color, restored } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/design`);
   if (!staff) return <NoPermission />;
   const [home, rows, products, design] = await Promise.all([getHomeForEdit(store.id), getCategoryRows(store.id), getStoreProducts(store.id), getDesignForEdit(store.id)]);
@@ -50,8 +50,14 @@ export default async function AdminDesignPage({ params, searchParams }: { params
         <span>왼쪽에서 블록을 끌어 놓고, 가운데에서 블록을 눌러 오른쪽에서 고칩니다. <b>초안 저장</b>은 나만 보이고, <b>손님 화면에 게시</b>를 눌러야 손님에게 보입니다.</span>
         <Link href={`/s/${store.slug}`} target="_blank" className="underline">손님 화면 열기 ↗</Link>
         <Link href={`/s/${store.slug}/admin/design/templates`} className="font-semibold text-violet-700 underline">🎨 템플릿 고르기</Link>
+        <Link href={`/s/${store.slug}/admin/design/history`} className="underline">🕘 게시 기록</Link>
         <Link href={`/s/${store.slug}/admin/home`} className="underline">간단 편집(예전 화면)</Link>
       </div>
+      {restored && !tpl && (
+        <p className="mb-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800" data-restored>
+          예전 게시 판을 <b>초안</b>으로 되돌렸습니다. 손님 화면은 아직 그대로입니다 — 확인하고 <b>손님 화면에 게시</b>를 눌러야 바뀝니다.
+        </p>
+      )}
       {tpl && (
         <p className="mb-2 rounded bg-violet-50 px-3 py-2 text-xs text-violet-800" data-template-preview>
           템플릿 미리보기 중: <b>{tplName}</b> — 아직 저장되지 않았습니다. 마음에 들면 <b>초안 저장</b>(나만 보임) 또는 <b>손님 화면에 게시</b>를 누르세요. 그대로 나가면 지금 디자인이 유지됩니다.{" "}

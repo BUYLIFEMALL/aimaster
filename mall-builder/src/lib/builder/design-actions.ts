@@ -8,6 +8,7 @@ import { readTheme, validateTheme } from "@/lib/theme";
 import { validateFooter, validateHeader, validatePopup } from "@/lib/builder/frame";
 import { validateDetail, validateList } from "@/lib/builder/pages";
 import { designPolicy, enforceFooter } from "@/lib/builder/policy";
+import { recordPublished } from "@/lib/builder/design-store";
 import { loadSlotData } from "@/lib/builder/slot-data";
 import type { SlotData } from "@/app/s/[store]/home-slots";
 
@@ -23,6 +24,16 @@ export async function previewSlotAction(storeId: string, block: unknown): Promis
 }
 
 type Result = { ok: true; at: string } | { ok: false; error: string };
+
+/** D6 게시 기록 한 줄을 「초안」으로 되돌리기 — 손님 화면은 운영자가 편집기에서 확인하고 게시해야 바뀐다 */
+export async function restoreDesignAction(slug: string, storeId: string, historyId: string): Promise<Result> {
+  if (!/^[0-9a-f-]{36}$/i.test(historyId)) return { ok: false, error: "게시 기록을 찾지 못했습니다." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_design_restore", { p_store_id: storeId, p_history_id: historyId });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/s/${slug}/admin/design`);
+  return { ok: true, at: data as string };
+}
 
 /** D3 첫 화면 블록 + 몰 테마·헤더·바닥글·팝업을 함께 초안 저장(publish면 이어서 모두 게시). 하나라도 검사에 걸리면 아무것도 저장하지 않는다 */
 export async function saveDesignAction(slug: string, storeId: string, input: { home: unknown; theme: unknown; header?: unknown; footer?: unknown; popup?: unknown; list?: unknown; detail?: unknown }, publish: boolean): Promise<Result> {
@@ -61,6 +72,7 @@ export async function saveDesignAction(slug: string, storeId: string, input: { h
     const d = await supabase.rpc("mall_builder_design_publish", { p_store_id: storeId, p_kinds: ["theme", "header", "footer", "popup", "list", "detail"] });
     if (d.error) return { ok: false, error: d.error.message };
     at = c.data as string;
+    await recordPublished(supabase, storeId);
     revalidatePath(`/s/${slug}`, "layout");
   }
   revalidatePath(`/s/${slug}/admin/design`);
