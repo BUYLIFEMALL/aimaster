@@ -2,7 +2,7 @@
 
 - 주소: https://ai-work-workspace.buylife.xyz · 메인 상세: https://www.buylife.xyz/programs/ai-work-workspace
 - 카테고리: **업무자동화**(2026-10-24 신설) · 이용 권한: 최소 등급 「일반」, FREE 없음(일반 등급 이상 + 관리자 사용기간 또는 구독)
-- 현재 버전: **v1.38** (13번 스마트 프로 인디고 워크스페이스 스타일) · 화면 버전은 **두 곳**(`src/lib/version.ts`, `src/litpage/web/features/shell/AimasterSidebar.tsx`)을 함께 올린다
+- 현재 버전: **v1.38** (13번 스마트 프로 인디고 워크스페이스 스타일) · 화면 버전은 **`src/lib/version.ts` 한 곳**만 올린다(왼쪽 메뉴 `AimasterSidebar.tsx`가 불러 씀, 2026-11-14부터 · 시험 명령 `npx vitest run --config tests/vitest.config.mjs` 155개)
 - **🔁 최신 인수인계(2026-11-13, v1.30~v1.35 + 미배포 묶음): 아래 §3 「지금 열린 기능」·§4·§5, 플랜 [`docs/PLAN_20261113_U14_AND_DEFERRED.md`](docs/PLAN_20261113_U14_AND_DEFERRED.md)**
 - 원본: [litmers-dev/litpage](https://github.com/litmers-dev/litpage) 커밋 `81665d4` (MIT, © 씨그로 주식회사(리트머스)) — `LICENSE`·`THIRD_PARTY_NOTICES.md` 유지. 화면 이름 「Litpage」는 주인님 지시로 「Workspace」, 「Litpage AI」는 「AIMaster」로 모두 바꿈(2026-10-24).
 - **🔁 인수인계(2026-11-06, 받아쓰기 엔진 선택·v1.22 배포·모델 교체 7개 배포 준비): [`docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md`](docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md)** — 남은 것: 배포 기록 정리, OpenAI 실제 받아쓰기 확인, 모델 교체 7개 배포(명령은 주인님 `!` 실행).

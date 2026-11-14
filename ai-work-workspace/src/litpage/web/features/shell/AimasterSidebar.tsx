@@ -4,11 +4,12 @@ import { useSession } from '../../lib/store/session.ts';
 import { useCurrentUser } from '../../lib/hooks.ts';
 import { useEffect, useState } from 'react';
 import './aimaster.css';
+import { APP_VERSION } from '../../../../lib/version.ts';
 
 const PROGRAMS_URL = 'https://www.buylife.xyz/programs';
 export const AIMASTER_APP_NAME = 'AI 업무 워크스페이스';
-// 주의: src/lib/version.ts APP_VERSION과 같은 값으로, 배포 때마다 함께 올린다(2026-11-06 v1.21 배포 때 빠져 메뉴에 v1.20이 남음)
-export const AIMASTER_APP_VERSION = 'v1.38';
+// 버전은 src/lib/version.ts 한 곳에서만 올린다(2026-11-14 — 두 곳에 따로 적어 v1.21·v1.34·v1.38 세 번 메뉴 버전이 뒤처짐)
+export const AIMASTER_APP_VERSION = APP_VERSION;
 
 export function AimasterSidebarTop() {
   return (
