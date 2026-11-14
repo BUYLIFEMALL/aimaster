@@ -4,7 +4,7 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import {
   BLOCK_DEFS, SHOWCASE_SOURCE_LABEL, videoEmbed,
   type BannerSettings, type Block, type GallerySettings, type HtmlSettings, type NoticeSettings, type ShowcaseSettings, type SliderSettings,
-  type TopbarSettings, type VideoSettings,
+  type BlockStyle, type TopbarSettings, type VideoSettings,
 } from "@/lib/blocks";
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 첫 화면 블록 그리기
@@ -202,7 +202,43 @@ export function Countdown({ endsAt }: { endsAt: string }) {
   return <span className="font-mono" data-countdown>{d > 0 ? `${d}일 ` : ""}{hms}</span>;
 }
 
+/** 블록 하나(겉모양 포함) — 손님 화면과 디자인 편집기(Puck 미리보기)가 같이 쓴다 */
+export function BlockView({ b, slot }: { b: Block; slot?: ReactNode }) {
+  const f = blockFrame(b.style);
+  const body = (
+    <>
+      {b.type === "topbar" && <Topbar s={b.settings as TopbarSettings} />}
+      {b.type === "slider" && <Slider s={b.settings as SliderSettings} />}
+      {b.type === "banner" && <Banner s={b.settings as BannerSettings} />}
+      {b.type === "html" && <div className="mall-html px-4 sm:px-6" dangerouslySetInnerHTML={{ __html: (b.settings as HtmlSettings).html }} />}
+      {b.type === "video" && <Video s={b.settings as VideoSettings} />}
+      {b.type === "gallery" && <Gallery s={b.settings as GallerySettings} />}
+      {SLOT_TYPES.has(b.type) && slot}
+    </>
+  );
+  return (
+    <section data-block={b.type} data-title-align={b.style?.title_align} className={f.className || undefined} style={f.style}>
+      {f.full ? <div className="mx-auto max-w-6xl">{body}</div> : body}
+    </section>
+  );
+}
+
 const SLOT_TYPES = new Set(["showcase", "notice", "tabs", "timesale", "reviews", "category_icons"]);
+
+/** 블록 공통 겉모양(D2-4) → section 속성. 화면 가득이면 본문 상자(max-w-6xl) 밖으로 배경을 넓히고 안쪽은 본문 폭 그대로 */
+export function blockFrame(style: BlockStyle | undefined): { className: string; style?: CSSProperties; full: boolean } {
+  if (!style) return { className: "", full: false };
+  const cls = [style.hide_pc ? "md:hidden" : "", style.hide_mobile ? "max-md:hidden" : ""].filter(Boolean).join(" ");
+  const css: CSSProperties = {};
+  if (style.pad_top) css.paddingTop = style.pad_top;
+  if (style.pad_bottom) css.paddingBottom = style.pad_bottom;
+  if (style.bg_color) css.backgroundColor = style.bg_color;
+  if (style.width === "full") {
+    css.width = "100vw";
+    css.marginLeft = "calc(50% - 50vw)";
+  }
+  return { className: cls, style: Object.keys(css).length ? css : undefined, full: style.width === "full" };
+}
 
 // html은 readDoc/validateDoc에서 위험 태그를 지운 값만 들어온다(src/lib/sanitize.ts)
 export function HomeBlocks({ blocks, slots }: { blocks: Block[]; slots?: Record<string, ReactNode> }) {
@@ -211,15 +247,7 @@ export function HomeBlocks({ blocks, slots }: { blocks: Block[]; slots?: Record<
   return (
     <div className="space-y-8">
       {shown.map((b) => (
-        <section key={b.id} data-block={b.type}>
-          {b.type === "topbar" && <Topbar s={b.settings as TopbarSettings} />}
-          {b.type === "slider" && <Slider s={b.settings as SliderSettings} />}
-          {b.type === "banner" && <Banner s={b.settings as BannerSettings} />}
-          {b.type === "html" && <div className="mall-html px-4 sm:px-6" dangerouslySetInnerHTML={{ __html: (b.settings as HtmlSettings).html }} />}
-          {b.type === "video" && <Video s={b.settings as VideoSettings} />}
-          {b.type === "gallery" && <Gallery s={b.settings as GallerySettings} />}
-          {SLOT_TYPES.has(b.type) && (slots ? slots[b.id] : <Placeholder b={b} />)}
-        </section>
+        <BlockView key={b.id} b={b} slot={SLOT_TYPES.has(b.type) ? (slots ? slots[b.id] : <Placeholder b={b} />) : null} />
       ))}
     </div>
   );

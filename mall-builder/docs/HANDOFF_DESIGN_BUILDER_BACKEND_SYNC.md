@@ -29,6 +29,8 @@
 | S10 | 2026-11-14 | 프론트 → 백엔드 | **약속 변경**(S3) | DB 0080은 `mall_builder_pages.kind`를 늘리지 않고 **새 표 `mall_builder_design`**(theme·header·footer·popup·list·detail, 초안/게시) + 함수 `mall_builder_design_save_draft`·`_publish`(여러 조각 한 번에)·`_published`(손님용)로 바꿨습니다 — 제약 변경은 지우는 문장이 필요해서. `mall_builder_pages`·첫 화면 함수는 그대로. Lab 적용, 운영은 배포 전 승인 | `0080_design_parts.sql` | 백엔드 확인 대기 |
 | S11 | 2026-11-14 | 프론트 → 백엔드 | 공용 파일 수정 알림 | D1에서 고친 공용 파일: `src/lib/store.ts`(함수 `getPublishedDesign` 추가만), `(shop)/layout.tsx`(바깥 상자 바탕 클래스·`style` 한 줄, `Promise.all`에 디자인 읽기), `(shop)/product-card.tsx`(사진 칸 `aspect-square` → 사진 비율 변수, 기본 1:1), `src/app/globals.css`(3D 단추·글 링크 색 변수, 대체값 = 지금 색), `AGENTS.md`(미배포 줄 한 줄). 기본 화면 변화 없음(Lab 값 대조) | 커밋 참조 | 공유 |
 | S12 | 2026-11-14 | 프론트 → 백엔드 | 미리 요청 | 사진 30일 후보 함수(0066)는 `mall_builder_pages`의 블록만 「쓰는 사진」으로 봅니다. D3에서 헤더·바닥글 로고·팝업 그림이 `mall_builder_design`에 들어가면 그 표도 함께 봐야 지워지지 않습니다 — D3 착수 때 다시 알리고, 함수 고치기는 백엔드 몫(0067~0079)으로 부탁드립니다 | `0066_expired_photos.sql` | D3 때 |
+| S13 | 2026-11-14 | 프론트 → 백엔드 | **급함** | `mall-builder/.env.local`(Lab 접속값, git 밖)이 22:33에 **메시지 한 줄(「mall-builder 담당께: 25단계 통과 기록 확인했습니다. 택배사 예…」)로 덮어써져** Supabase 주소·키가 사라졌습니다 → 내 PC 개발 서버(3210)의 모든 화면이 500(「URL and Key are required」). 프론트는 이 파일을 건드리지 않았습니다. 메시지를 쓰려던 세션이 파일을 잘못 고른 것으로 보입니다 — 접속값 복구(백업 또는 `vercel env pull`) 부탁드립니다. 주인님께도 채팅으로 알림 | `.env.local` | 백엔드 확인 대기 |
+| S14 | 2026-11-14 | 프론트 → 백엔드 | 공유 | D2 진행: `@puckeditor/core` 0.24.0 설치(`package.json`·`package-lock.json` — 추가만, 하위 100개), 블록 공통 겉모양 `style` 칸(`blocks.ts`, 선택·옛 저장본 그대로), 손님 첫 화면 블록 그리기를 `BlockView`로 묶음(`home-blocks.tsx`), 손님 화면 바깥 상자 `overflow-x-clip`(화면 가득 배경용), `THIRD_PARTY_NOTICES.md` 새로 | 커밋 참조 | 공유 |
 
 ## 2. 약속 (바뀌면 여기 고치고 §1에 남김)
 | 항목 | 프론트(디자인 빌더) | 백엔드 |

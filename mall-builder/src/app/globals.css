@@ -127,3 +127,6 @@ input[type="submit"] {
 /* D28 사진 갤러리 — 큰 화면은 정한 열 수, 휴대폰(767px 이하)은 3열 */
 .mall-gallery { grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); }
 @media (max-width: 767px) { .mall-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* 디자인 빌더 D2-4 블록 공통 겉모양 — 제목 가운데(제목 옆 링크가 있는 줄은 제목만 가운데로) */
+[data-title-align="center"] h2 { text-align: center; margin-inline: auto; }

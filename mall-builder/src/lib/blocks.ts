@@ -46,7 +46,17 @@ export const MAX_HTML = 20000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export type BlockType = keyof BlockSettingsMap;
 // show_from·show_until: 예약 노출(D28, ISO 시각). 둘 다 선택 — 옛 저장본은 칸이 없어 항상 보임
-export type Block<T extends BlockType = BlockType> = { id: string; type: T; visible: boolean; settings: BlockSettingsMap[T]; show_from?: string; show_until?: string };
+// style: 블록 공통 겉모양(디자인 빌더 D2-4, 프로셀 블록 공통 칸 참고). 선택 — 기본값은 저장하지 않으므로 옛 저장본·기본 블록은 칸이 없다
+export type BlockStyle = {
+  pad_top?: number; // 위 여백(px)
+  pad_bottom?: number; // 아래 여백(px)
+  width?: "full"; // 배경을 화면 끝까지(기본 = 본문 폭)
+  bg_color?: string; // 배경색 #rrggbb
+  title_align?: "center"; // 제목 가운데(기본 = 왼쪽)
+  hide_pc?: true; // PC(768px 이상)에서 숨김
+  hide_mobile?: true; // 휴대폰(767px 이하)에서 숨김
+};
+export type Block<T extends BlockType = BlockType> = { id: string; type: T; visible: boolean; settings: BlockSettingsMap[T]; show_from?: string; show_until?: string; style?: BlockStyle };
 export type BlocksDoc = { schema_version: number; blocks: Block[] };
 
 type Def<T extends BlockType> = { label: string; description: string; defaults: () => BlockSettingsMap[T]; validate: (s: unknown) => { ok: true; value: BlockSettingsMap[T] } | { ok: false; error: string } };
@@ -107,6 +117,28 @@ export function isoOrEmpty(v: unknown): string | null {
   if (!s) return "";
   const t = Date.parse(s);
   return Number.isNaN(t) ? null : new Date(t).toISOString();
+}
+
+export const MAX_PAD = 160;
+
+/** 블록 공통 겉모양 정리 — 모르는 칸·틀린 값·기본값은 버린다(값이 하나도 없으면 null = 저장 안 함) */
+export function normalizeStyle(raw: unknown): BlockStyle | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const r = raw as Record<string, unknown>;
+  const out: BlockStyle = {};
+  const pad = (v: unknown) => {
+    const n = Number(v);
+    return Number.isInteger(n) && n > 0 && n <= MAX_PAD ? n : 0;
+  };
+  if (pad(r.pad_top)) out.pad_top = pad(r.pad_top);
+  if (pad(r.pad_bottom)) out.pad_bottom = pad(r.pad_bottom);
+  if (r.width === "full") out.width = "full";
+  const bg = str(r.bg_color).toLowerCase();
+  if (HEX.test(bg)) out.bg_color = bg;
+  if (r.title_align === "center") out.title_align = "center";
+  if (r.hide_pc === true) out.hide_pc = true;
+  if (r.hide_mobile === true) out.hide_mobile = true;
+  return Object.keys(out).length ? out : null;
 }
 
 /** 지금 손님에게 보일 블록인가 — 숨김·예약 노출 시각·타임세일 끝 시각 */
@@ -339,7 +371,9 @@ export function validateDoc(raw: unknown): { ok: true; value: BlocksDoc } | { ok
     const show_until = isoOrEmpty(b?.show_until);
     if (show_from === null || show_until === null) return { ok: false, error: `${i + 1}번째 블록(${BLOCK_DEFS[type].label}): 예약 시각을 읽지 못했습니다.` };
     if (show_from && show_until && show_from >= show_until) return { ok: false, error: `${i + 1}번째 블록(${BLOCK_DEFS[type].label}): 보이기 끝 시각이 시작 시각보다 늦어야 합니다.` };
-    out.push({ id, type, visible: b?.visible !== false, settings: v.value, ...(show_from ? { show_from } : {}), ...(show_until ? { show_until } : {}) } as Block);
+    if (b?.style?.hide_pc === true && b?.style?.hide_mobile === true) return { ok: false, error: `${i + 1}번째 블록(${BLOCK_DEFS[type].label}): PC와 휴대폰 모두 숨기면 보이지 않습니다. 「숨기기」를 쓰세요.` };
+    const style = normalizeStyle(b?.style);
+    out.push({ id, type, visible: b?.visible !== false, settings: v.value, ...(show_from ? { show_from } : {}), ...(show_until ? { show_until } : {}), ...(style ? { style } : {}) } as Block);
   }
   return { ok: true, value: { schema_version: SCHEMA_VERSION, blocks: out } };
 }

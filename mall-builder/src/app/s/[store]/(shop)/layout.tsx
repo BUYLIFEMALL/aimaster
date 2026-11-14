@@ -60,7 +60,7 @@ export default async function ShopLayout({ children, params }: { children: React
 
   return (
     <div
-      className="flex min-h-screen flex-col bg-[var(--mall-bg,var(--color-slate-50))] font-sans text-slate-900 antialiased selection:bg-blue-600 selection:text-white"
+      className="flex min-h-screen flex-col overflow-x-clip bg-[var(--mall-bg,var(--color-slate-50))] font-sans text-slate-900 antialiased selection:bg-blue-600 selection:text-white"
       style={themeVars as CSSProperties}
     >
       <script dangerouslySetInnerHTML={{ __html: EARLY_INSTALL_SCRIPT }} />
