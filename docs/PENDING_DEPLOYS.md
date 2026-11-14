@@ -15,6 +15,7 @@
 
 ## 대기 중
 
+- **`ai-work-workspace` — 백로그 묶음(2026-11-15 [역할: workspace], `a8a495cbf`·`9b9f3bb11`·`5e591b63c`)**: 받은 업무 「🧾 세금계산서 초안」(회원 AI 키로 글 읽기), 「표에 행으로 넣기」 넣을 표 고르기, 매뉴얼 「🔌 MCP·REST API」 단락. tsc·로컬 빌드·시험 166 통과. 다음 워크스페이스 배포 때 함께(배포 뒤 엣지에서 초안·표 고르기 확인).
 - **`blog-neighbor-care` — 답방 글 읽기 탭 사전 확인 + 실패 진단(단계·HTTP·BNC code) 팝업 전달 + 409 코드별 안내 `85eedc18b`(2026-11-14 [역할: blog] `claude-win-photo`)**: 작은 수정, 다음 배포 때 함께(확장 ZIP·manifest·DB 버전 같이). 상세 `blog-neighbor-care/docs/IMPROVEMENTS.md` 2026-11-14.
 - **`naver-cafe-recruit` — 명단에서 카페 운영진(매니저·스탭 등급) 제외 + 아직 없는 「C. 카페 홍보 글」 칸 숨김(저장 때 꺼짐) `b61270d8f`(2026-11-15 [역할: blog] `claude-win-photo`, 주인님 결정 5건 중 2번)**: 시험 17개·tsc 통과. 다음 카페 모집 배포(v1.03, `1bd454187`·`7a85de294`와 함께) 때 manifest·ZIP·DB 버전 맞춤, 검수는 `docs/REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md` B-3.
 - **`wp-blogger-auto` — 로그인·회원가입 제목이 「네이버 카페 포스팅 자동화」로 나오던 것을 「AI 워드프레스·구글블로그 자동화」로 `190f971dc`(2026-11-14 [역할: blog] `claude-win-photo`)**: 맥미니 P2 검수 지적. tsc 통과. 다음 WP 배포 때 함께, 배포 뒤 로그인·회원가입·모바일 제목 확인.
