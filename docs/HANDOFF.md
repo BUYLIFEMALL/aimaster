@@ -1,5 +1,18 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: design] Antigravity(윈도우) `agy-win-ssr-v1` — 바나나 캔버스 F-09 결함(상품 목록 유실) 수정 완료 & 스마트스토어/11번가 운영 배포 완료
+- 주인님 지시: 「1. 스마트스토어(smartstore-register v1.28) 및 11번가(elevenst-register v1.07) 1안 디자인 완성본의 프로덕션 배포 진행해 / 2. 바나나 캔버스(banana-canvas) 메이커 연계 F09 결함(상품 목록 유실) 우선 수정 착수 여부 확인해서 처리해」
+- **1. 스마트스토어 & 11번가 운영 배포 완료**:
+  - `smartstore-register` v1.28: 1안(110. 네이버 스마트스토어 그린 & 화이트) 전면 구현본 배포 (`smartstore-register-mxv57n8mv`, Ready). DB/확장 v1.28 일치. https://smartstore-register.buylife.xyz
+  - `elevenst-register` v1.07: 1안(107. 11번가 레드 & 화이트) 전면 구현본 배포 (`elevenst-register-dub6wjt88`, Ready). DB v1.07 일치. https://elevenst-register.buylife.xyz
+  - `docs/ACTIVE_WORK.md` 및 `docs/PENDING_DEPLOYS.md` 내보낸 기록 반영 완료.
+- **2. 바나나 캔버스 F-09 결함(상품 목록 유실) 해결**:
+  - 원인: 상세페이지/쇼핑몰에서 1개 이상의 상품 수신 시, `setFilesMap`으로 인해 파일 모드 `useEffect`가 트리거되어 `setJobs([])`로 상품 목록을 초기화하던 문제.
+  - 해결: `isLinkedMode` 상태 도입 및 연결 모드 시 파일 모드 재매칭 effect 건너뜀 가드 적용, 조기 ACK(`saved`) 보존 병합 로직 보완.
+  - 검증: `tests/batchProduct.test.mjs` F-09 회귀 방어 단위 테스트 추가, 98/98 단위 테스트 전수 통과, tsc 에러 0건, Next.js 16.4.2 Turbopack 프로덕션 빌드 성공.
+  - 문서: `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md` 갱신.
+
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.40 볼타 수정발행·PDF 배포
 - 주인님 지시: 「볼타 수정발행부터 진행해」 → 결정: 다섯 사유 전부 + PDF, 시험은 시험 계정 테스트 키, 완성 뒤 바로 v1.40 배포
 - 한 일: 서버 `btAmend`·`btAmendCheck`·`btPdf`(src/server/bolta.ts), 사유별 본문 `boltaAmendBody`(boltaCore.ts, 공식 openapi로 확인), 웹훅이 수정분·취소분 번호 반영(boltaWebhook.ts), 화면 `AmendPanel.tsx`(표 아래 카드)·표의 📄 PDF/✏️ 수정발행/🔄 결과 확인, 매뉴얼 한 줄. 「발급 취소」는 계약의 해제·이중발급 수정발행(국세청에 나간 건은 지울 수 없음)
@@ -16,6 +29,13 @@
 - G마켓·옥션은 새 플랜 `docs/PLAN_20261115_ESM_REGISTER.md`/커밋16774a4dd 확인. 현재 방식·명칭 등 결정 대기, 구현/마켓등록 시험 안 함.
 - 최신 이커머스 담당 문서 대조: 11번가 시험 상품은 주인님 직접 삭제(에이전트 보존), 쿠팡 임시저장 상품 중지 유지, 라벨/주문리포트 미배포·배포후검수. 바나나 F09 수정 및 티스토리 대표/스킨 확인 요청 유지. Mac에서 운영 변경 실행 안 함.
 
+## 2026-11-15 ✅ [역할: design] Antigravity(윈도우) `agy-win-ssr-v1` — 스마트스토어 v1.28 & 11번가 v1.07 1안 디자인 완성본 운영 배포 완료
+- 주인님 승인 지시: 「1. 스마트스토어(smartstore-register v1.28) 및 11번가(elevenst-register v1.07) 1안 디자인 완성본의 프로덕션 배포 진행해」
+- 한 일:
+  1. `smartstore-register` v1.28: 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트) 전면 구현본 프로덕션 배포(`smartstore-register-mxv57n8mv`, Ready). DB v1.28 및 크롬 확장 `DB v1.28 / ext v1.28 / zip v1.28` 일치 확인. 운영 주소 https://smartstore-register.buylife.xyz
+  2. `elevenst-register` v1.07: 1안(107. 11번가 오리지널 레드 & 화이트) 전면 구현본 및 전역 버튼 nowrap 최적화 프로덕션 배포(`elevenst-register-dub6wjt88`, Ready). DB v1.07 일치 확인. 운영 주소 https://elevenst-register.buylife.xyz
+  3. 작업 중 표(`docs/ACTIVE_WORK.md`) 완료 줄 정리 및 `docs/PENDING_DEPLOYS.md` 내보낸 기록 반영.
+- 다음 단계: 사용자 요청 2번(바나나 캔버스 메이커 연계 F09 결함 — 상품 목록 유실 원인 분석 및 수정 착수).
 
 
 ## 2026-11-15 ✅ [역할: mall-builder] Claude Code(윈도우) `claude-win-20261025-workspace` — AI 쇼핑몰 빌더 v1.11 운영 배포(백엔드 M1-6~M1-8 + 디자인 빌더 D5·글 히어로 함께)
