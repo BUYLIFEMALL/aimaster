@@ -14,6 +14,6 @@ export async function POST(request: NextRequest) {
     if (g.body.rights !== "owned" && g.body.rights !== "supplier") throw new UserError(400, "사진 권리(내 사진 또는 공급사 허락)를 먼저 확인해 주세요.");
     const size = Number(g.body.size ?? 0);
     if (!(size > 0 && size <= PRODUCT_PHOTO_MAX_BYTES)) throw new UserError(400, "상품 사진은 한 장에 10MB 이하로 올려 주세요.");
-    return json(await productUploadUrl(g.userId, String(g.body.type ?? "")));
+    return json(await productUploadUrl(g.userId, String(g.body.type ?? ""), size));
   } catch (e) { return fail(e); }
 }

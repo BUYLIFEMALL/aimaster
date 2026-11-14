@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AiError } from "@/lib/ai";
 import { UserError } from "@/lib/errors";
+import { checkStorageQuota, STORAGE_FULL_CODE } from "@/lib/storage/storageQuota";
 import { GeminiImageError, generateGeminiImage } from "./geminiImage";
 import { NANO_BANANA_MODEL_CONFIGS } from "./nanoBananaModels";
 
@@ -55,10 +56,13 @@ export async function saveSceneImage(userId: string, img: { bytes: Buffer; mimeT
 export const PRODUCT_PHOTO_TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
 export const PRODUCT_PHOTO_MAX_BYTES = 10 * 1024 * 1024;
 const MAX_PRODUCT_PHOTOS_PER_USER = 120;
-export async function productUploadUrl(userId: string, mime: string): Promise<{ path: string; token: string }> {
+export async function productUploadUrl(userId: string, mime: string, size = 0): Promise<{ path: string; token: string }> {
   const ext = PRODUCT_PHOTO_TYPES[mime as keyof typeof PRODUCT_PHOTO_TYPES];
   if (!ext) throw new UserError(400, "상품 사진은 JPG·PNG·WEBP만 올릴 수 있습니다.");
   const admin = createAdminClient();
+  // v1.55 업로드 전 용량 검사(정책 검토 POLICY_REVIEW_20261113_MAKER §6) — 관리자·시험·무제한 회원은 DB가 항상 허용, 판정 장애면 허용
+  const q = await checkStorageQuota(admin, userId, size);
+  if (!q.allowed) throw new UserError(403, q.message ?? "저장공간이 가득 찼습니다. 쓰지 않는 자료를 정리하거나 저장 구독을 늘려 주세요.", { code: STORAGE_FULL_CODE, upgradeUrl: q.upgradeUrl });
   const { data: list } = await admin.storage.from(BUCKET).list(`${userId}/product`, { limit: MAX_PRODUCT_PHOTOS_PER_USER + 1 });
   if ((list?.length ?? 0) >= MAX_PRODUCT_PHOTOS_PER_USER) throw new UserError(400, `상품 사진은 ${MAX_PRODUCT_PHOTOS_PER_USER}장까지 보관할 수 있습니다. 만든 지 30일이 지난 사진은 자동으로 정리됩니다.`);
   const path = `${userId}/product/${randomUUID()}.${ext}`;
