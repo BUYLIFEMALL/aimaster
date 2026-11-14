@@ -259,7 +259,7 @@ function renderCustomEmoji(id: string, spaceId?: string): HTMLElement {
   if (!e) {
     el.classList.add('missing');
     el.textContent = ':deleted-emoji:';
-    el.title = 'This custom emoji was deleted';
+    el.title = tx('This custom emoji was deleted');
     return el;
   }
   const img = document.createElement('img');

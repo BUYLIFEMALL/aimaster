@@ -108,9 +108,9 @@ function writePref(key: string, v: string) {
 
 const MODE_INFO: Record<ChatMode, { label: string; description: string; icon: string; off?: string }> = {
   default: { label: tx('Default'), description: tx('Can search, edit, and take actions'), icon: 'aiFace' },
-  ask: { label: tx('Ask'), description: tx('Answers only, with no edits'), icon: 'questionMarkCircle', off: 'Allow edits' },
-  plan: { label: tx('Plan'), description: tx('Plans first, then acts after approval'), icon: 'checklist', off: 'Disable planning mode' },
-  research: { label: tx('Research'), description: 'Think deeper and broader.\nSlower, more thorough analysis.', icon: 'docTextMagnifyingGlass', off: 'Disable research mode' },
+  ask: { label: tx('Ask'), description: tx('Answers only, with no edits'), icon: 'questionMarkCircle', off: tx('Allow edits') },
+  plan: { label: tx('Plan'), description: tx('Plans first, then acts after approval'), icon: 'checklist', off: tx('Disable planning mode') },
+  research: { label: tx('Research'), description: tx('Think deeper and broader.\nSlower, more thorough analysis.'), icon: 'docTextMagnifyingGlass', off: tx('Disable research mode') },
 };
 const MODE_ORDER: ChatMode[] = ['default', 'ask', 'plan', 'research'];
 
@@ -659,7 +659,7 @@ export function ChatComposer(p: Props) {
     if (on && readPref<string>('nc:ai:webWarned', '0') !== '1') {
       const ok = await choiceDialog({
         title: tx('Confirm this action?'),
-        description: 'Web access lets AI 비서 browse the internet and connected workspace data without asking for approval. Continue? This comes with risks like data loss and prompt injection.',
+        description: tx('Web access lets AI 비서 browse the internet and connected workspace data without asking for approval. Continue? This comes with risks like data loss and prompt injection.'),
         buttons: [{ label: tx('Cancel'), value: false }, { label: tx('Enable web access'), value: true, primary: true }],
       });
       if (!ok) return;
@@ -797,7 +797,7 @@ export function ChatComposer(p: Props) {
     if (id === 'skip_all') {
       const choice = await choiceDialog<'with' | 'without'>({
         title: tx('Enable action without approval?'),
-        description: 'AI 비서 can act in your workspace and connected apps without asking first. Continue only if you trust this setting. Web browsing gives the agent unrestricted internet access. You can change it later from the + menu.',
+        description: tx('AI 비서 can act in your workspace and connected apps without asking first. Continue only if you trust this setting. Web browsing gives the agent unrestricted internet access. You can change it later from the + menu.'),
         buttons: [{ label: tx('Cancel'), value: null as unknown as 'with' }, { label: tx('Without internet'), value: 'without' }, { label: tx('With internet'), value: 'with', primary: true }],
         width: 440,
       });

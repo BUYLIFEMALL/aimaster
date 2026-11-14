@@ -114,7 +114,7 @@ function ConnectionRow({ c }: { c: McpConnection }) {
         <Switch label={`Use ${c.name}`} checked={c.enabled} onChange={(v) => void update({ enabled: v })} />
         <Button small onClick={async () => { await api('aiRefreshConnection', { id: c.id }).catch(() => {}); await useConnections.getState().load(true); }}>{tx('Refresh')}</Button>
         <Button small variant="danger" onClick={async () => {
-          if (!(await confirmDialog({ title: `Disconnect ${c.name}?`, description: 'AI 비서 will no longer be able to use this server’s tools.', confirmLabel: 'Disconnect', danger: true }))) return;
+          if (!(await confirmDialog({ title: tx('Disconnect {name}?').replace('{name}', c.name), description: tx('AI 비서 will no longer be able to use this server’s tools.'), confirmLabel: tx('Disconnect'), danger: true }))) return;
           await api('aiRemoveConnection', { id: c.id });
           await useConnections.getState().load(true);
         }}>{tx('Disconnect')}</Button>
@@ -195,12 +195,12 @@ export function AiWorkspaceControls() {
   if (!space) return null;
   const webOn = spaceSetting<boolean>(space, 'ai_web_search', true);
   const rows: { k: string; fallback: boolean; label: string; description: ReactNode; disabled?: boolean }[] = [
-    { k: 'ai_enabled', fallback: true, label: 'Turn on AI 비서', description: tx('Enable AI for all members of your workspace.') },
+    { k: 'ai_enabled', fallback: true, label: tx('Turn on AI 비서'), description: tx('Enable AI for all members of your workspace.') },
     { k: 'ai_web_search', fallback: true, label: tx('Allow web search for this workspace'), description: tx('Let AI search the web for current information when it answers.') },
     { k: 'ai_web_confirm', fallback: false, label: tx('Ask before making web requests'), description: tx('The agent may open external pages when search is not enough. Require approval before viewing any web page.'), disabled: !webOn },
     { k: 'ai_skip_approvals', fallback: true, label: tx('Allow actions without approval'), description: tx('Let agents act without asking you first') },
     { k: 'ai_custom_mcp', fallback: true, label: tx('Allow custom MCP servers'), description: tx('Allow members to connect agents to custom MCP servers that Workspace hasn’t reviewed. Connected agents can share content externally, access external data, and take external actions.') },
-    { k: 'ai_memories', fallback: true, label: tx('Enable Memories'), description: 'Let AI 비서 create and use personal memories for workspace members.' },
+    { k: 'ai_memories', fallback: true, label: tx('Enable Memories'), description: tx('Let AI 비서 create and use personal memories for workspace members.') },
     { k: 'ai_mcp_skills', fallback: true, label: tx('Allow skills over MCP'), description: tx('Let MCP clients use Workspace skills automatically.') },
     { k: 'ai_local_skills', fallback: true, label: tx('Allow skill downloads on local devices'), description: tx('Let members download skills for local agent use') },
   ];

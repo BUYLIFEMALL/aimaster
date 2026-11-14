@@ -127,7 +127,7 @@ function McpConnectForm({ close, onDone }: { close: () => void; onDone: (c: McpC
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder={tx('External MCP endpoint')} maxLength={60} />
           </label>
           <label className="nc-ai-field">
-            <span>MCP endpoint URL</span>
+            <span>{tx('MCP endpoint URL')}</span>
             <input autoFocus value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/mcp" inputMode="url" />
           </label>
           <label className="nc-ai-field">

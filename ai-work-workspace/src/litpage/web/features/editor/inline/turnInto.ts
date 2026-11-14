@@ -8,6 +8,7 @@ import { setOpen, turnInto } from '../commands.ts';
 import { useEditor } from '../editorState.ts';
 import { openPagePicker } from './PagePicker.tsx';
 import { turnIntoOverride } from '../blocks/registry.ts';
+import { tx } from '../../shell/i18n.ts'; // 이식판: 「다른 페이지로 옮겨 페이지로 바꾸기」 안내 한국어(2026-11-15)
 
 export interface TurnIntoItem {
   label: string;
@@ -79,7 +80,7 @@ export function turnIntoItems(opts?: { includeSynced?: boolean }): TurnIntoItem[
     {
       label: 'Page in', icon: 'docSend', type: 'page', pickParent: true,
       apply: (ids, anchor) => openPagePicker(anchor ?? new DOMRect(window.innerWidth / 2 - 160, 120, 0, 0), {
-        placeholder: 'Turn into page in…',
+        placeholder: tx('Turn into page in…'),
         exclude: ids,
         onPick: (parentId) => {
           for (const id of ids) convertToPage(id);
