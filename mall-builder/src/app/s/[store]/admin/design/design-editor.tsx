@@ -10,8 +10,8 @@ import { Puck, type Config, type Data } from "@puckeditor/core";
 import "@puckeditor/core/no-external.css";
 import { BLOCK_DEFS, BLOCK_TYPES, MAX_PAD, validateDoc, type Block, type BlockType, type BlocksDoc } from "@/lib/blocks";
 import { defaultPuckProps, fromPuck, fromPuckRaw, toPuck, type PuckBlockProps } from "@/lib/builder/puck-adapter";
-import { previewSlotAction } from "@/lib/builder/design-actions";
-import { publishHomeAction, saveHomeDraftAction } from "@/lib/page-actions";
+import { previewSlotAction, saveDesignAction } from "@/lib/builder/design-actions";
+import { DEFAULT_THEME, readTheme, themeStyle, validateTheme, type ShopTheme } from "@/lib/theme";
 import { BlockView } from "../../home-blocks";
 import { renderSlot, SLOT_BLOCK_TYPES, type SlotData } from "../../home-slots";
 import { SettingsForm, fromLocalKst, toLocalKst, type Option } from "../home/block-editor";
@@ -119,18 +119,51 @@ function CanvasBlock({ type, p, storeId, base }: { type: BlockType; p: PuckBlock
   );
 }
 
-export default function DesignEditor({ slug, storeId, categories, products, initial, published, draftAt, publishedAt, themeVars }: {
-  slug: string; storeId: string; categories: Option[]; products: Option[]; initial: BlocksDoc; published: BlocksDoc | null;
-  draftAt: string | null; publishedAt: string | null; themeVars: Record<string, string>;
+/** 색 고르기 + 코드 칸(브라우저 색상 창만으로는 코드를 붙여 넣을 수 없어서) */
+function ColorCodeField({ value, onChange, label, emptyText }: { value: string | undefined; onChange: (v: string) => void; label: string; emptyText: string }): ReactElement {
+  return (
+    <div className="flex items-center gap-2">
+      <input type="color" value={value || "#ffffff"} onChange={(e) => onChange(e.target.value)} className="h-8 w-10 shrink-0 rounded border" aria-label={`${label} 고르기`} />
+      <input value={value ?? ""} onChange={(e) => onChange(e.target.value.trim())} placeholder={emptyText} maxLength={7} className="w-full rounded border px-2 py-1 text-sm" aria-label={`${label} 코드`} />
+      {value && <button type="button" onClick={() => onChange("")} className="shrink-0 text-xs text-gray-600 underline">지우기</button>}
+    </div>
+  );
+}
+
+const THEME_FIELDS = {
+  type: "object",
+  label: "몰 테마 — 손님 화면 전체(헤더·상품·단추)에 적용",
+  objectFields: {
+    primary: { type: "custom", label: "포인트색(단추·링크·강조)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ColorCodeField label="포인트색" value={value} onChange={onChange} emptyText={`기본 ${DEFAULT_THEME.primary}`} /> },
+    bg: { type: "custom", label: "바탕색", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ColorCodeField label="바탕색" value={value} onChange={onChange} emptyText={`기본 ${DEFAULT_THEME.bg}`} /> },
+    radius: { type: "select", label: "단추 모서리", options: [{ label: "각지게", value: "none" }, { label: "조금 둥글게", value: "sm" }, { label: "보통", value: "md" }, { label: "둥글게", value: "lg" }, { label: "더 둥글게(기본)", value: "xl" }] },
+    button: { type: "radio", label: "단추 모양", options: [{ label: "입체(기본)", value: "3d" }, { label: "평면", value: "flat" }] },
+    image_ratio: { type: "select", label: "상품 사진 비율(가로:세로)", options: [{ label: "1:1 정사각형(기본)", value: "1:1" }, { label: "4:5 세로형(패션)", value: "4:5" }, { label: "3:4 세로형", value: "3:4" }, { label: "4:3 가로형", value: "4:3" }] },
+  },
+};
+
+/** 저장·게시 비교용 — 블록과 테마를 한 줄 문자열로 */
+function snapshot(data: Data): string {
+  const v = fromPuck(data);
+  const theme = readTheme((data.root as { props?: { theme?: unknown } })?.props?.theme);
+  return v.ok ? JSON.stringify({ blocks: v.value.blocks, theme }) : `invalid:${Date.now()}`;
+}
+
+export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, publishedState, draftAt, publishedAt }: {
+  slug: string; storeId: string; categories: Option[]; products: Option[]; initial: BlocksDoc; initialTheme: ShopTheme;
+  /** 지금 손님에게 보이는 블록·테마(비교용 문자열, 게시 전이면 null) */
+  publishedState: string | null;
+  draftAt: string | null; publishedAt: string | null;
 }) {
   const base = `/s/${slug}`;
-  const start = useMemo(() => toPuck(initial) as unknown as Data, [initial]);
-  const [saved, setSaved] = useState(JSON.stringify(initial.blocks));
-  const [live, setLive] = useState(published ? JSON.stringify(published.blocks) : null);
+  const start = useMemo(() => ({ ...toPuck(initial), root: { props: { theme: initialTheme } } }) as unknown as Data, [initial, initialTheme]);
+  const [saved, setSaved] = useState(() => snapshot(start));
+  const [live, setLive] = useState(publishedState);
   const [times, setTimes] = useState({ draftAt, publishedAt });
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const latest = useRef<Data>(start);
+  const [nowState, setNowState] = useState(saved);
 
   const config = useMemo((): Config => {
     const components: Record<string, unknown> = {};
@@ -157,24 +190,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
               pad_top: { type: "number", label: "위 여백(px, 0~160)", min: 0, max: MAX_PAD, step: 8 },
               pad_bottom: { type: "number", label: "아래 여백(px, 0~160)", min: 0, max: MAX_PAD, step: 8 },
               width: { type: "radio", label: "배경 폭", options: [{ label: "본문 폭", value: "content" }, { label: "화면 가득", value: "full" }] },
-              bg_color: {
-                type: "custom",
-                label: "배경색",
-                render: ({ value, onChange }: { value: string | undefined; onChange: (v: string) => void }) => (
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={value || "#ffffff"} onChange={(e) => onChange(e.target.value)} className="h-8 w-10 shrink-0 rounded border" aria-label="배경색 고르기" />
-                    <input
-                      value={value ?? ""}
-                      onChange={(e) => onChange(e.target.value.trim())}
-                      placeholder="없음(투명) · 예: #fef3c7"
-                      maxLength={7}
-                      className="w-full rounded border px-2 py-1 text-sm"
-                      aria-label="배경색 코드"
-                    />
-                    {value && <button type="button" onClick={() => onChange("")} className="shrink-0 text-xs text-gray-600 underline">지우기</button>}
-                  </div>
-                ),
-              },
+              bg_color: { type: "custom", label: "배경색", render: ({ value, onChange }: { value: string | undefined; onChange: (v: string) => void }) => <ColorCodeField label="배경색" value={value} onChange={onChange} emptyText="없음(투명) · 예: #fef3c7" /> },
               title_align: { type: "radio", label: "제목 정렬", options: [{ label: "왼쪽", value: "left" }, { label: "가운데", value: "center" }] },
               hide_pc: { type: "radio", label: "PC(768px 이상)", options: [{ label: "보임", value: false }, { label: "숨김", value: true }] },
               hide_mobile: { type: "radio", label: "휴대폰(767px 이하)", options: [{ label: "보임", value: false }, { label: "숨김", value: true }] },
@@ -190,33 +206,33 @@ export default function DesignEditor({ slug, storeId, categories, products, init
       categories: CATEGORIES,
       components,
       root: {
-        fields: {},
-        render: ({ children }: { children: ReactNode }) => (
-          <div className="min-h-screen bg-[var(--mall-bg,var(--color-slate-50))] py-6 font-sans text-slate-900 antialiased" style={themeVars as CSSProperties}>
+        fields: { theme: THEME_FIELDS },
+        render: ({ children, theme }: { children: ReactNode; theme?: unknown }) => (
+          <div className="min-h-screen bg-[var(--mall-bg,var(--color-slate-50))] py-6 font-sans text-slate-900 antialiased" style={themeStyle(readTheme(theme)) as CSSProperties}>
             <div className="mx-auto max-w-6xl space-y-8">{children}</div>
           </div>
         ),
       },
     } as unknown as Config;
-  }, [storeId, base, categories, products, themeVars]);
+  }, [storeId, base, categories, products]);
 
-  function current(): ReturnType<typeof fromPuck> {
-    return fromPuck(latest.current);
-  }
   function run(kind: "save" | "publish") {
     setMsg(null);
     const raw = fromPuckRaw(latest.current);
     const check = validateDoc(raw);
     if (!check.ok) return setMsg({ ok: false, text: `고칠 곳: ${check.error}` });
-    const now = JSON.stringify(check.value.blocks);
+    const themeRaw = (latest.current.root as { props?: { theme?: unknown } })?.props?.theme ?? {};
+    const themeErr = validateTheme(themeRaw);
+    if (themeErr.length) return setMsg({ ok: false, text: `고칠 곳(몰 테마): ${themeErr[0]}` });
+    const now = snapshot(latest.current);
     startTransition(async () => {
-      const r = kind === "save" ? await saveHomeDraftAction(slug, storeId, raw) : await publishHomeAction(slug, storeId, raw);
+      const r = await saveDesignAction(slug, storeId, { home: raw, theme: themeRaw }, kind === "publish");
       if (!r.ok) return setMsg({ ok: false, text: r.error });
       setSaved(now);
       if (kind === "publish") {
         setLive(now);
         setTimes({ draftAt: r.at, publishedAt: r.at });
-        setMsg({ ok: true, text: "게시했습니다. 손님 첫 화면에 바로 보입니다." });
+        setMsg({ ok: true, text: "게시했습니다. 손님 화면에 바로 보입니다(테마는 모든 화면에)." });
       } else {
         setTimes((t) => ({ ...t, draftAt: r.at }));
         setMsg({ ok: true, text: "초안을 저장했습니다. 게시하기 전까지 손님에게는 보이지 않습니다." });
@@ -224,9 +240,9 @@ export default function DesignEditor({ slug, storeId, categories, products, init
     });
   }
   const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("ko-KR") : "없음");
-  const [nowJson, setNowJson] = useState(saved);
-  const dirty = nowJson !== saved;
-  const unpublished = live === null ? nowJson !== "[]" : nowJson !== live;
+  const dirty = nowState !== saved;
+  const empty = useMemo(() => snapshot({ root: { props: { theme: DEFAULT_THEME } }, content: [] } as unknown as Data), []);
+  const unpublished = nowState !== (live ?? empty);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2" data-design-editor>
@@ -236,6 +252,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         <span>게시: {when(times.publishedAt)}</span>
         {dirty && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">저장 안 한 변경</span>}
         {unpublished && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-blue-800">게시 안 된 변경</span>}
+        <span className="text-gray-500">몰 테마: 위쪽 「첫 화면」을 누르거나 블록 고르기를 풀면 오른쪽에 나옵니다</span>
         {pending && <span className="text-gray-500">처리 중…</span>}
         {msg && <span className={msg.ok ? "text-green-700" : "text-red-600"} data-design-msg>{msg.text}</span>}
       </div>
@@ -250,8 +267,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
           height="100%"
           onChange={(d) => {
             latest.current = d;
-            const v = current();
-            setNowJson(v.ok ? JSON.stringify(v.value.blocks) : `invalid:${Date.now()}`);
+            setNowState(snapshot(d));
           }}
           renderHeaderActions={() => (
             <div className="flex items-center gap-2">

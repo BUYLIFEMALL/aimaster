@@ -62,8 +62,10 @@ export function validateTheme(raw: unknown): string[] {
   const o = raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
   if (!o) return ["테마 모양이 올바르지 않습니다."];
   const errs: string[] = [];
-  if (o.primary !== undefined && !(typeof o.primary === "string" && HEX.test(o.primary.trim().toLowerCase()))) errs.push("포인트색은 #2563eb 같은 6자리 색 코드로 넣어 주세요.");
-  if (o.bg !== undefined && !(typeof o.bg === "string" && HEX.test(o.bg.trim().toLowerCase()))) errs.push("바탕색은 #f8fafc 같은 6자리 색 코드로 넣어 주세요.");
+  // 색 칸을 비우면 「기본색」 — 빈 값은 통과(readTheme이 기본값으로 읽음)
+  const badColor = (v: unknown) => v !== undefined && v !== "" && !(typeof v === "string" && HEX.test(v.trim().toLowerCase()));
+  if (badColor(o.primary)) errs.push("포인트색은 #2563eb 같은 6자리 색 코드로 넣어 주세요(비우면 기본색).");
+  if (badColor(o.bg)) errs.push("바탕색은 #f8fafc 같은 6자리 색 코드로 넣어 주세요(비우면 기본색).");
   if (o.radius !== undefined && !(RADII as readonly unknown[]).includes(o.radius)) errs.push("모서리 값이 올바르지 않습니다.");
   if (o.button !== undefined && !(BUTTONS as readonly unknown[]).includes(o.button)) errs.push("단추 모양 값이 올바르지 않습니다.");
   if (o.image_ratio !== undefined && !(IMAGE_RATIOS as readonly unknown[]).includes(o.image_ratio)) errs.push("사진 비율 값이 올바르지 않습니다.");

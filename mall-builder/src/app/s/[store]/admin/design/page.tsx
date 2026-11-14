@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { getCategoryRows, getHomeForEdit, getPublishedDesign, getStaffStore, getStoreProducts } from "@/lib/store";
+import { getCategoryRows, getHomeForEdit, getStaffStore, getStoreProducts } from "@/lib/store";
+import { getDesignForEdit } from "@/lib/builder/design-store";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
-import { readTheme, themeStyle } from "@/lib/theme";
+import { readTheme } from "@/lib/theme";
 import { NoPermission } from "../admin-shell";
 import DesignEditor from "./design-editor";
 
@@ -14,7 +15,11 @@ export default async function AdminDesignPage({ params }: { params: Promise<{ st
   const { store: slug } = await params;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/design`);
   if (!staff) return <NoPermission />;
-  const [home, rows, products, design] = await Promise.all([getHomeForEdit(store.id), getCategoryRows(store.id), getStoreProducts(store.id), getPublishedDesign(store.id)]);
+  const [home, rows, products, design] = await Promise.all([getHomeForEdit(store.id), getCategoryRows(store.id), getStoreProducts(store.id), getDesignForEdit(store.id)]);
+  // 테마: 초안이 있으면 초안, 없으면 게시본, 둘 다 없으면 기본(지금 106 스타일)
+  const theme = design.theme;
+  const initialTheme = readTheme(theme?.draft ?? theme?.published ?? null);
+  const publishedState = home.published || theme?.published ? JSON.stringify({ blocks: home.published?.blocks ?? [], theme: readTheme(theme?.published ?? null) }) : null;
   const categories = flattenTree(buildCategoryTree(rows, true)).map((c) => ({ id: c.id, name: `${"　".repeat(c.depth - 1)}${c.name}${c.is_visible ? "" : " (숨김)"}` }));
   const pickable = products.filter((p) => p.status === "on_sale" || p.status === "sold_out").map((p) => ({ id: p.id, name: p.name }));
 
@@ -35,10 +40,10 @@ export default async function AdminDesignPage({ params }: { params: Promise<{ st
         categories={categories}
         products={pickable}
         initial={home.draft}
-        published={home.published}
+        initialTheme={initialTheme}
+        publishedState={publishedState}
         draftAt={home.draftAt}
         publishedAt={home.publishedAt}
-        themeVars={themeStyle(readTheme(design.theme))}
       />
     </div>
   );

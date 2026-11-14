@@ -56,3 +56,9 @@ test("다른 테마는 필요한 변수만 덮어쓴다", () => {
   // 바탕색만 바꾸면 그것만
   assert.deepEqual(themeStyle(readTheme({ bg: "#fffbeb" })), { "--mall-bg": "#fffbeb" });
 });
+
+test("색 칸을 비우면 기본색으로(검사 통과, 읽으면 기본값)", () => {
+  assert.deepEqual(validateTheme({ primary: "", bg: "" }), []);
+  assert.deepEqual(readTheme({ primary: "", bg: "" }), DEFAULT_THEME);
+  assert.equal(validateTheme({ primary: "#12" }).length, 1);
+});
