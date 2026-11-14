@@ -11,7 +11,7 @@
 - 지금 중앙 정리 `member_storage_expired_files`와 사용량 집계는 **경로에 회원 아이디가 들어간 파일만** 본다 → 쇼핑몰 사진은 정리·사용량 모두에서 빠져 있다(운영 DB 확인: `member_storage_usage.by_bucket`에 `mall-builder-private`만 있고 `mall-builder-public` 없음).
 - 쇼핑몰 앱에는 서버 키가 없어(몰 운영자 토큰으로만 예약 작업) 저장소 파일을 지울 수 없다.
 
-## 쇼핑몰 쪽에서 해 둔 것 (운영·Lab DB 모두 적용 대상, 0066)
+## 쇼핑몰 쪽에서 해 둔 것 (0066 — Lab·운영 DB 모두 적용 완료 2026-11-14, 운영 사진 3장·후보 0장 확인)
 - **`public.mall_builder_expired_photos(p_max integer default 500) returns table (bucket_id text, name text, user_id uuid)`** — `service_role`만 실행.
   - 지울 후보 = `mall-builder-public`의 `<몰 id>/…` 파일 중 ① 어디에도 안 쓰임(상품 사진·상세 그림·상품 설명·첫 화면·지난 주문 품목 사진·공지·몰 설정/로고) ② 몰 주인 보관 기간 지남(`member_storage_policy(owner).retention_days`, 없으면 30일, `unlimited_retention`이면 제외) ③ 몰 주인이 `retention_exempt_manual`(관리자·시험 계정)이 아님.
   - `user_id` = 몰 주인(`mall_builder_stores.owner_id`).
