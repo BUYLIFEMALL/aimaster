@@ -5,9 +5,12 @@ import { useEffect, useState } from "react";
 export default function ProductTabsNav({
   reviewsCount,
   inquiriesCount,
+  showBoards = true,
 }: {
   reviewsCount: number;
   inquiriesCount: number;
+  /** 디자인 빌더 D4 — 후기·문의를 끈 몰은 그 탭도 숨김 */
+  showBoards?: boolean;
 }) {
   const [activeTab, setActiveTab] = useState<string>("detail-description");
 
@@ -16,7 +19,7 @@ export default function ProductTabsNav({
     { id: "detail-shipping", label: "배송 · 교환 · 반품" },
     { id: "reviews", label: `구매 후기 (${reviewsCount})` },
     { id: "inquiries", label: `상품 문의 (${inquiriesCount})` },
-  ];
+  ].filter((t) => showBoards || (t.id !== "reviews" && t.id !== "inquiries"));
 
   const scrollTo = (id: string) => {
     setActiveTab(id);

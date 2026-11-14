@@ -14,11 +14,13 @@ import { previewSlotAction, saveDesignAction } from "@/lib/builder/design-action
 import { DEFAULT_THEME, readTheme, themeStyle, validateTheme, type ShopTheme } from "@/lib/theme";
 import { DEFAULT_FOOTER, DEFAULT_HEADER, DEFAULT_POPUP, readFooter, readHeader, readPopup, type FooterDesign, type HeaderDesign, type PopupDesign } from "@/lib/builder/frame";
 import type { BusinessInfo } from "@/lib/businessInfo";
+import { DEFAULT_DETAIL, DEFAULT_LIST, LIST_SORT_LABEL, LIST_SORTS, readDetail, readList, type DetailDesign, type ListDesign } from "@/lib/builder/pages";
+import type { CardOptions } from "@/lib/blocks";
 import { ShopBand, ShopFooter, ShopHeader } from "../../(shop)/shop-frame";
 import HomePopup from "../../(shop)/home-popup";
 import { BlockView } from "../../home-blocks";
 import { renderSlot, SLOT_BLOCK_TYPES, type SlotData } from "../../home-slots";
-import { ImagePicker, SettingsForm, fromLocalKst, toLocalKst, type Option } from "../home/block-editor";
+import { CardOptionsForm, ImagePicker, SettingsForm, fromLocalKst, toLocalKst, type Option } from "../home/block-editor";
 
 const DICTIONARY: Record<string, string> = {
   "header-publish": "게시",
@@ -231,19 +233,82 @@ function popupFields(storeId: string) {
   };
 }
 
-type RootProps = { theme?: unknown; header?: unknown; footer?: unknown; popup?: unknown };
+const bannerFields = (storeId: string, label: string) => ({
+  type: "object",
+  label,
+  objectFields: {
+    image: { type: "custom", label: "그림(비우면 없음)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ImagePicker storeId={storeId} value={value ?? ""} onChange={onChange} clearable /> },
+    link: { type: "text", label: "누르면 갈 곳(선택)" },
+  },
+});
+const SORT_OPTIONS = LIST_SORTS.map((s) => ({ label: LIST_SORT_LABEL[s], value: s }));
+
+/** 상품 목록(카테고리 화면) 칸 — 표시만 바뀐다. 카테고리별 덮어쓰기 */
+function listFields(storeId: string, categories: Option[]) {
+  return {
+    type: "object",
+    label: "상품 목록(카테고리 화면) — 게시 뒤 손님 화면에서 확인",
+    objectFields: {
+      columns: { type: "number", label: "큰 화면 열 수(2~5, 휴대폰은 2열)", min: 2, max: 5 },
+      sort: { type: "select", label: "기본 정렬", options: SORT_OPTIONS },
+      hide_soldout: { type: "radio", label: "품절 상품", options: [{ label: "보임", value: false }, { label: "숨김", value: true }] },
+      card: { type: "custom", label: "상품 카드", render: ({ value, onChange }: { value: CardOptions | undefined; onChange: (v: CardOptions | undefined) => void }) => <CardOptionsForm value={value} onChange={onChange} /> },
+      banner: bannerFields(storeId, "모든 목록 위 배너"),
+      overrides: {
+        type: "array",
+        label: "카테고리별 따로 정하기(비운 칸은 위 기본값)",
+        max: 50,
+        getItemSummary: (it: { category_id?: string }) => categories.find((c) => c.id === it?.category_id)?.name.trim() || "카테고리 고르기",
+        defaultItemProps: { category_id: "", sort: "default", banner: { image: "", link: "" } },
+        arrayFields: {
+          category_id: { type: "select", label: "카테고리", options: [{ label: "— 고르세요 —", value: "" }, ...categories.map((c) => ({ label: c.name, value: c.id }))] },
+          columns: { type: "number", label: "열 수(2~5, 비우면 기본값)", min: 2, max: 5 },
+          sort: { type: "select", label: "정렬", options: SORT_OPTIONS },
+          banner: bannerFields(storeId, "이 카테고리 목록 위 배너(비우면 기본 배너)"),
+        },
+      },
+    },
+  };
+}
+
+/** 상품 상세 칸 — 배송·교환·반품 안내는 법정 안내라 늘 보임 */
+function detailFields(storeId: string) {
+  const imgs = (label: string) => ({
+    type: "array",
+    label,
+    max: 3,
+    getItemSummary: (_: unknown, i?: number) => `${(i ?? 0) + 1}번째 그림`,
+    defaultItemProps: { image: "", link: "" },
+    arrayFields: {
+      image: { type: "custom", label: "그림(필수)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ImagePicker storeId={storeId} value={value ?? ""} onChange={onChange} /> },
+      link: { type: "text", label: "누르면 갈 곳(선택)" },
+    },
+  });
+  return {
+    type: "object",
+    label: "상품 상세 — 배송·교환·반품 안내는 늘 보임",
+    objectFields: {
+      show_coupons: { type: "radio", label: "받을 수 있는 쿠폰 띠", options: [{ label: "보임", value: true }, { label: "숨김", value: false }] },
+      show_boards: { type: "radio", label: "구매 후기·상품 문의", options: [{ label: "보임", value: true }, { label: "숨김", value: false }] },
+      top_images: imgs("모든 상품 상세 위 공통 그림(3장까지)"),
+      bottom_images: imgs("모든 상품 상세 아래 공통 그림(3장까지)"),
+    },
+  };
+}
+
+type RootProps = { theme?: unknown; header?: unknown; footer?: unknown; popup?: unknown; list?: unknown; detail?: unknown };
 const rootOf = (data: Data): RootProps => ((data.root as { props?: RootProps })?.props ?? {});
 
 /** 저장·게시 비교용 — 블록과 테마·헤더·바닥글·팝업을 한 줄 문자열로 */
 function snapshot(data: Data): string {
   const v = fromPuck(data);
   const r = rootOf(data);
-  return v.ok ? JSON.stringify({ blocks: v.value.blocks, theme: readTheme(r.theme), header: readHeader(r.header), footer: readFooter(r.footer), popup: readPopup(r.popup) }) : `invalid:${Date.now()}`;
+  return v.ok ? JSON.stringify({ blocks: v.value.blocks, theme: readTheme(r.theme), header: readHeader(r.header), footer: readFooter(r.footer), popup: readPopup(r.popup), list: readList(r.list), detail: readDetail(r.detail) }) : `invalid:${Date.now()}`;
 }
 
 export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, initialFrame, storeName, topCategories, businessInfo, publishedState, draftAt, publishedAt }: {
   slug: string; storeId: string; categories: Option[]; products: Option[]; initial: BlocksDoc; initialTheme: ShopTheme;
-  initialFrame: { header: HeaderDesign; footer: FooterDesign; popup: PopupDesign }; storeName: string; topCategories: { id: string; name: string }[]; businessInfo: BusinessInfo;
+  initialFrame: { header: HeaderDesign; footer: FooterDesign; popup: PopupDesign; list: ListDesign; detail: DetailDesign }; storeName: string; topCategories: { id: string; name: string }[]; businessInfo: BusinessInfo;
   /** 지금 손님에게 보이는 블록·테마(비교용 문자열, 게시 전이면 null) */
   publishedState: string | null;
   draftAt: string | null; publishedAt: string | null;
@@ -299,7 +364,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
       categories: CATEGORIES,
       components,
       root: {
-        fields: { theme: THEME_FIELDS, header: headerFields(storeId), footer: FOOTER_FIELDS, popup: popupFields(storeId) },
+        fields: { theme: THEME_FIELDS, header: headerFields(storeId), footer: FOOTER_FIELDS, popup: popupFields(storeId), list: listFields(storeId, categories), detail: detailFields(storeId) },
         render: ({ children, theme, header, footer, popup }: { children: ReactNode } & RootProps) => {
           const h = readHeader(header);
           return (
@@ -327,7 +392,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
     if (themeErr.length) return setMsg({ ok: false, text: `고칠 곳(몰 테마): ${themeErr[0]}` });
     const now = snapshot(latest.current);
     startTransition(async () => {
-      const r = await saveDesignAction(slug, storeId, { home: raw, theme: themeRaw, header: rp.header, footer: rp.footer, popup: rp.popup }, kind === "publish");
+      const r = await saveDesignAction(slug, storeId, { home: raw, theme: themeRaw, header: rp.header, footer: rp.footer, popup: rp.popup, list: rp.list, detail: rp.detail }, kind === "publish");
       if (!r.ok) return setMsg({ ok: false, text: r.error });
       setSaved(now);
       if (kind === "publish") {
@@ -342,7 +407,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
   }
   const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("ko-KR") : "없음");
   const dirty = nowState !== saved;
-  const empty = useMemo(() => snapshot({ root: { props: { theme: DEFAULT_THEME, header: DEFAULT_HEADER, footer: DEFAULT_FOOTER, popup: DEFAULT_POPUP } }, content: [] } as unknown as Data), []);
+  const empty = useMemo(() => snapshot({ root: { props: { theme: DEFAULT_THEME, header: DEFAULT_HEADER, footer: DEFAULT_FOOTER, popup: DEFAULT_POPUP, list: DEFAULT_LIST, detail: DEFAULT_DETAIL } }, content: [] } as unknown as Data), []);
   const unpublished = nowState !== (live ?? empty);
 
   return (
@@ -353,7 +418,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         <span>게시: {when(times.publishedAt)}</span>
         {dirty && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">저장 안 한 변경</span>}
         {unpublished && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-blue-800">게시 안 된 변경</span>}
-        <span className="text-gray-500">몰 테마·헤더·바닥글·팝업: 위쪽 「첫 화면」을 누르거나 블록 고르기를 풀면 오른쪽에 나옵니다</span>
+        <span className="text-gray-500">몰 테마·헤더·바닥글·팝업·상품 목록·상품 상세: 위쪽 「첫 화면」을 누르거나 블록 고르기를 풀면 오른쪽에 나옵니다</span>
         {pending && <span className="text-gray-500">처리 중…</span>}
         {msg && <span className={msg.ok ? "text-green-700" : "text-red-600"} data-design-msg>{msg.text}</span>}
       </div>

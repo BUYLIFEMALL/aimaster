@@ -190,6 +190,10 @@ export default async function ShopLayout({ children, params }: { children: React
         {gated ? (
           <main className="mx-auto my-16 max-w-md px-4 text-center" data-closed-gate>
             <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+              {(header.logo_page || header.logo) && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={header.logo_page || header.logo} alt={store.name} className="mx-auto mb-5 h-12 w-auto max-w-[220px] object-contain" data-page-logo />
+              )}
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-2xl text-amber-600 shadow-inner">
                 🔒
               </div>

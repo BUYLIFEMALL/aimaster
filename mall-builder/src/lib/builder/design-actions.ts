@@ -6,6 +6,7 @@ import { isStoreStaff } from "@/lib/store";
 import { validateDoc } from "@/lib/blocks";
 import { readTheme, validateTheme } from "@/lib/theme";
 import { validateFooter, validateHeader, validatePopup } from "@/lib/builder/frame";
+import { validateDetail, validateList } from "@/lib/builder/pages";
 import { loadSlotData } from "@/lib/builder/slot-data";
 import type { SlotData } from "@/app/s/[store]/home-slots";
 
@@ -23,7 +24,7 @@ export async function previewSlotAction(storeId: string, block: unknown): Promis
 type Result = { ok: true; at: string } | { ok: false; error: string };
 
 /** D3 첫 화면 블록 + 몰 테마·헤더·바닥글·팝업을 함께 초안 저장(publish면 이어서 모두 게시). 하나라도 검사에 걸리면 아무것도 저장하지 않는다 */
-export async function saveDesignAction(slug: string, storeId: string, input: { home: unknown; theme: unknown; header?: unknown; footer?: unknown; popup?: unknown }, publish: boolean): Promise<Result> {
+export async function saveDesignAction(slug: string, storeId: string, input: { home: unknown; theme: unknown; header?: unknown; footer?: unknown; popup?: unknown; list?: unknown; detail?: unknown }, publish: boolean): Promise<Result> {
   const home = validateDoc(input.home);
   if (!home.ok) return home;
   const themeErrors = validateTheme(input.theme ?? {});
@@ -35,12 +36,16 @@ export async function saveDesignAction(slug: string, storeId: string, input: { h
   if (!footer.ok) return { ok: false, error: `바닥글: ${footer.error}` };
   const popup = validatePopup(input.popup ?? {});
   if (!popup.ok) return { ok: false, error: `팝업: ${popup.error}` };
+  const list = validateList(input.list ?? {});
+  if (!list.ok) return { ok: false, error: `상품 목록: ${list.error}` };
+  const detail = validateDetail(input.detail ?? {});
+  if (!detail.ok) return { ok: false, error: `상품 상세: ${detail.error}` };
   const supabase = await createClient();
   const a = await supabase.rpc("mall_builder_save_page_draft", { p_store_id: storeId, p_doc: home.value });
   if (a.error) return { ok: false, error: a.error.message };
   const b = await supabase.rpc("mall_builder_design_save_draft", { p_store_id: storeId, p_kind: "theme", p_doc: theme });
   if (b.error) return { ok: false, error: b.error.message };
-  for (const [kind, doc] of [["header", header.value], ["footer", footer.value], ["popup", popup.value]] as const) {
+  for (const [kind, doc] of [["header", header.value], ["footer", footer.value], ["popup", popup.value], ["list", list.value], ["detail", detail.value]] as const) {
     const r = await supabase.rpc("mall_builder_design_save_draft", { p_store_id: storeId, p_kind: kind, p_doc: doc });
     if (r.error) return { ok: false, error: r.error.message };
   }
@@ -48,7 +53,7 @@ export async function saveDesignAction(slug: string, storeId: string, input: { h
   if (publish) {
     const c = await supabase.rpc("mall_builder_publish_page", { p_store_id: storeId });
     if (c.error) return { ok: false, error: c.error.message };
-    const d = await supabase.rpc("mall_builder_design_publish", { p_store_id: storeId, p_kinds: ["theme", "header", "footer", "popup"] });
+    const d = await supabase.rpc("mall_builder_design_publish", { p_store_id: storeId, p_kinds: ["theme", "header", "footer", "popup", "list", "detail"] });
     if (d.error) return { ok: false, error: d.error.message };
     at = c.data as string;
     revalidatePath(`/s/${slug}`, "layout");

@@ -4,6 +4,7 @@ import { getDesignForEdit } from "@/lib/builder/design-store";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { readTheme } from "@/lib/theme";
 import { readFooter, readHeader, readPopup } from "@/lib/builder/frame";
+import { readDetail, readList } from "@/lib/builder/pages";
 import { readBusinessInfo } from "@/lib/businessInfo";
 import { NoPermission } from "../admin-shell";
 import DesignEditor from "./design-editor";
@@ -21,11 +22,11 @@ export default async function AdminDesignPage({ params }: { params: Promise<{ st
   // 테마: 초안이 있으면 초안, 없으면 게시본, 둘 다 없으면 기본(지금 106 스타일)
   const theme = design.theme;
   const initialTheme = readTheme(theme?.draft ?? theme?.published ?? null);
-  const pick = (k: "header" | "footer" | "popup") => design[k]?.draft ?? design[k]?.published ?? null;
-  const initialFrame = { header: readHeader(pick("header")), footer: readFooter(pick("footer")), popup: readPopup(pick("popup")) };
-  const anyPublished = home.published || theme?.published || design.header?.published || design.footer?.published || design.popup?.published;
+  const pick = (k: "header" | "footer" | "popup" | "list" | "detail") => design[k]?.draft ?? design[k]?.published ?? null;
+  const initialFrame = { header: readHeader(pick("header")), footer: readFooter(pick("footer")), popup: readPopup(pick("popup")), list: readList(pick("list")), detail: readDetail(pick("detail")) };
+  const anyPublished = home.published || theme?.published || design.header?.published || design.footer?.published || design.popup?.published || design.list?.published || design.detail?.published;
   const publishedState = anyPublished
-    ? JSON.stringify({ blocks: home.published?.blocks ?? [], theme: readTheme(theme?.published ?? null), header: readHeader(design.header?.published ?? null), footer: readFooter(design.footer?.published ?? null), popup: readPopup(design.popup?.published ?? null) })
+    ? JSON.stringify({ blocks: home.published?.blocks ?? [], theme: readTheme(theme?.published ?? null), header: readHeader(design.header?.published ?? null), footer: readFooter(design.footer?.published ?? null), popup: readPopup(design.popup?.published ?? null), list: readList(design.list?.published ?? null), detail: readDetail(design.detail?.published ?? null) })
     : null;
   // 미리보기 틀용 — 손님 메뉴에 보이는 카테고리(최상위)·사업자 정보
   const topCats = buildCategoryTree(rows, false).map((c) => ({ id: c.id, name: c.name }));

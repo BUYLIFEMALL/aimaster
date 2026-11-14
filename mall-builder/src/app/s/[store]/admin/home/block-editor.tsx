@@ -134,7 +134,7 @@ function TitleInput({ value, onChange, hint = "제목(비우면 제목 없이)" 
 }
 
 /** 상품 카드 표시·모양(D2-4c) — 쇼윈도·탭·타임세일 공통. 비우면 지금 모양 */
-function CardOptionsForm({ value, onChange }: { value: CardOptions | undefined; onChange: (v: CardOptions | undefined) => void }) {
+export function CardOptionsForm({ value, onChange }: { value: CardOptions | undefined; onChange: (v: CardOptions | undefined) => void }) {
   const v = value ?? {};
   const set = (patch: Partial<Record<keyof CardOptions, unknown>>) => {
     const next = { ...v, ...patch } as Record<string, unknown>;

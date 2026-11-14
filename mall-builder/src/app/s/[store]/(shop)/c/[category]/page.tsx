@@ -1,10 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoryRows, getShopProducts, getStoreBySlug } from "@/lib/store";
+import { getCategoryRows, getPublishedDesign, getShopProducts, getStoreBySlug } from "@/lib/store";
+import { arrangeProducts, listFor, readList } from "@/lib/builder/pages";
 import { buildCategoryTree, categoryPath, flattenTree } from "@/lib/categories";
 import { ProductGrid } from "../../product-card";
 
 export const dynamic = "force-dynamic";
+
+function CommonImage({ b, alt }: { b: { image: string; link: string }; alt: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  const img = <img src={b.image} alt={alt} loading="lazy" className="block w-full h-auto" />;
+  return b.link ? (
+    <a href={b.link} {...(b.link.startsWith("https://") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{img}</a>
+  ) : (
+    img
+  );
+}
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 카테고리 상품 목록
 export default async function CategoryPage({ params }: { params: Promise<{ store: string; category: string }> }) {
@@ -20,7 +31,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ store
   const base = `/s/${store.slug}`;
   const path = categoryPath(rows, node.id);
   const ids = flattenTree([node]).map((c) => c.id);
-  const products = await getShopProducts(store.id, { categoryIds: ids });
+  const [all, design] = await Promise.all([getShopProducts(store.id, { categoryIds: ids }), getPublishedDesign(store.id)]);
+  // 디자인 빌더 D4: 열 수·정렬·품절 숨기기·카드·배너(몰 기본값 + 이 카테고리 덮어쓰기). 표시만 바꾼다
+  const view = listFor(readList(design.list), node.id);
+  const products = arrangeProducts(all, view);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -59,8 +73,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ store
         </ul>
       )}
 
+      {view.banner && (
+        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200/80" data-list-banner>
+          <CommonImage b={view.banner} alt={`${node.name} 안내`} />
+        </div>
+      )}
+
       <div className="mt-8">
-        <ProductGrid base={base} products={products} empty="이 카테고리에는 아직 상품이 없습니다." />
+        <ProductGrid base={base} products={products} columns={view.columns} card={view.card} empty="이 카테고리에는 아직 상품이 없습니다." />
       </div>
     </main>
   );

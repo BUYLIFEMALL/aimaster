@@ -10,8 +10,10 @@ import {
   getProductVariants,
   getShippingPolicies,
   getShopProduct,
+  getPublishedDesign,
   getStoreBySlug,
 } from "@/lib/store";
+import { readDetail } from "@/lib/builder/pages";
 import { describePolicy, describeReturnFees } from "@/lib/shipping";
 import { buildCategoryTree, categoryPath, flattenTree } from "@/lib/categories";
 import ProductDetail from "./product-detail";
@@ -22,6 +24,16 @@ import { couponEligible, couponLabel } from "@/lib/benefits";
 import { downloadCouponAction } from "@/lib/benefit-actions";
 import { createClient } from "@/lib/supabase/server";
 import { GROUP_BUY_STATUS_LABEL, progressPercent, remainingLabel, type GroupBuyInfo } from "@/lib/groupBuy";
+
+function CommonImage({ b, alt }: { b: { image: string; link: string }; alt: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  const img = <img src={b.image} alt={alt} loading="lazy" className="block w-full h-auto" />;
+  return b.link ? (
+    <a href={b.link} {...(b.link.startsWith("https://") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{img}</a>
+  ) : (
+    img
+  );
+}
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +60,8 @@ export default async function ProductPage({
     getProductReviews(product.id),
     getProductInquiries(product.id),
   ]);
+  // 디자인 빌더 D4: 쿠폰 띠·후기/문의 보이기, 모든 상품 공통 위·아래 그림. 배송·교환·반품 안내는 법정 안내라 늘 보임
+  const view = readDetail((await getPublishedDesign(store.id)).detail);
 
   const customer = user ? await getMyCustomer(store.id, user.id) : null;
   const policy = policies.find((p) => p.id === product.shipping_policy_id) ?? policies.find((p) => p.is_default) ?? null;
@@ -184,7 +198,7 @@ export default async function ProductPage({
       )}
 
       {/* 다운로드 쿠폰 바우처 */}
-      {forThis.length > 0 && (
+      {view.show_coupons && forThis.length > 0 && (
         <section className="mt-8 space-y-3" data-product-coupons>
           <div className="flex items-center gap-2">
             <span className="text-sm">🎟️</span>
@@ -231,11 +245,16 @@ export default async function ProductPage({
 
       {/* 2. 스티키 탭 네비게이션 */}
       <div className="mt-10">
-        <ProductTabsNav reviewsCount={reviews.count} inquiriesCount={inquiries.count} />
+        <ProductTabsNav reviewsCount={reviews.count} inquiriesCount={inquiries.count} showBoards={view.show_boards} />
       </div>
 
       {/* 3. 상품 상세정보 섹션 */}
       <div id="detail-description" className="scroll-mt-24 space-y-8">
+        {view.top_images.length > 0 && (
+          <div className="mx-auto max-w-[860px] overflow-hidden rounded-2xl" data-detail-top>
+            {view.top_images.map((b, i) => <CommonImage key={i} b={b} alt="공통 안내" />)}
+          </div>
+        )}
         {(product.description || (product.detail_images && product.detail_images.length > 0)) ? (
           <section className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-10 shadow-xs">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
@@ -272,6 +291,12 @@ export default async function ProductPage({
           </div>
         )}
       </div>
+
+      {view.bottom_images.length > 0 && (
+        <div className="mx-auto mt-8 max-w-[860px] overflow-hidden rounded-2xl" data-detail-bottom>
+          {view.bottom_images.map((b, i) => <CommonImage key={i} b={b} alt="공통 안내" />)}
+        </div>
+      )}
 
       {/* 4. 배송 · 교환 · 반품 안내 섹션 */}
       <div id="detail-shipping" className="mt-12 scroll-mt-24">
@@ -356,7 +381,8 @@ export default async function ProductPage({
         </p>
       )}
 
-      {/* 5. 상품 게시판 (구매 후기 & 상품 문의) */}
+      {/* 5. 상품 게시판 (구매 후기 & 상품 문의) — 디자인에서 끌 수 있음 */}
+      {view.show_boards && (
       <div className="mt-12">
         <ProductBoards
           slug={store.slug}
@@ -366,6 +392,7 @@ export default async function ProductPage({
           isCustomer={!!customer}
         />
       </div>
+      )}
     </main>
   );
 }
