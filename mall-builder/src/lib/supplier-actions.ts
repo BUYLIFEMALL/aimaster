@@ -226,3 +226,40 @@ export async function setSupplierHqRateAction(slug: string, supplierId: string, 
   revalidatePath(base);
   back(base, error?.message, rate === null ? "이 공급사는 몰 기본 본사율을 따릅니다. 공급가를 다시 계산했습니다." : `이 공급사 본사 판매수수료율을 ${rate}%로 저장했습니다. 공급가를 다시 계산했습니다.`);
 }
+
+// ── M1-0(0070) 공급사 입점 신청 ──
+/** 신청자: 입점 신청(서류는 브라우저가 비공개 저장소에 먼저 올림). 화면에 오류만 돌려준다 */
+export async function applySupplierAction(storeId: string, input: Record<string, string>): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_supplier_apply", { p_store_id: storeId, p: input });
+  return { error: error?.message ?? null };
+}
+
+/** 신청자: 대기 중 신청 취소 */
+export async function cancelSupplierApplyAction(slug: string, id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_supplier_apply_cancel", { p_id: id });
+  revalidatePath(`/s/${slug}/supplier/apply`);
+  back(`/s/${slug}/supplier/apply`, error?.message, "신청을 취소했습니다.");
+}
+
+/** 몰 대표: 입점 신청 받기 켜기/끄기 */
+export async function setSupplierApplyOpenAction(slug: string, storeId: string, open: boolean) {
+  const base = `/s/${slug}/admin/suppliers`;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_supplier_apply_open", { p_store_id: storeId, p_open: open });
+  revalidatePath(base);
+  back(base, error?.message, open ? "입점 신청을 받습니다. 공급사 신청 주소를 알려 주세요." : "입점 신청을 그만 받습니다.");
+}
+
+/** 몰 대표: 입점 신청 승인(본사율 선택)·반려(사유 필수) */
+export async function decideSupplierApplyAction(slug: string, id: string, action: "approve" | "reject", form: FormData) {
+  const base = `/s/${slug}/admin/suppliers`;
+  const raw = String(form.get("hq_rate") ?? "").trim();
+  const rate = raw === "" ? null : Number(raw.replace(/[^0-9.]/g, ""));
+  if (rate !== null && (!Number.isFinite(rate) || rate < 0 || rate > 50)) back(base, "본사 판매수수료율은 0~50 사이 숫자로 적어 주세요.");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_supplier_apply_decide", { p_id: id, p_action: action, p_note: String(form.get("note") ?? ""), p_hq_rate: rate });
+  revalidatePath(base);
+  back(base, error?.message, action === "approve" ? "입점을 승인했습니다. 공급사 목록에 추가됐습니다." : "신청을 반려했습니다.");
+}

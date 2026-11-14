@@ -1,5 +1,6 @@
 // D34 공급사 읽기 — 보안 규칙(0053): 상품 권한 운영자는 몰 전체, 공급사는 자기 줄만
 import { createClient } from "@/lib/supabase/server";
+import { SUPPLIER_APPLY_COLUMNS, type SupplierApplication } from "@/lib/supplier-apply";
 import type { OptionGroup, Variant } from "@/lib/options";
 import { SUPPLIER_COLUMNS, type Approval, type LedgerKind, type SupplierRow, type SupplierStatus } from "@/lib/supplier";
 
@@ -195,4 +196,32 @@ export async function getSupplierSettlements(opts: { supplierId?: string; storeI
   if (opts.storeId) q = q.eq("store_id", opts.storeId);
   const { data } = await q;
   return ((data ?? []) as SupplierSettlementRow[]).map((r) => ({ ...r, amount: Number(r.amount) }));
+}
+
+// ── M1-0(0070) 공급사 입점 신청 ──
+/** 몰 운영자(상품 권한): 이 몰의 입점 신청(대기 먼저) */
+export async function getSupplierApplications(storeId: string): Promise<SupplierApplication[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_supplier_applications")
+    .select(SUPPLIER_APPLY_COLUMNS)
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  const rows = (data ?? []) as SupplierApplication[];
+  return [...rows.filter((r) => r.status === "pending"), ...rows.filter((r) => r.status !== "pending")];
+}
+
+/** 신청자 본인: 이 몰에 낸 가장 최근 신청 */
+export async function getMySupplierApplication(storeId: string, userId: string): Promise<SupplierApplication | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("mall_builder_supplier_applications")
+    .select(SUPPLIER_APPLY_COLUMNS)
+    .eq("store_id", storeId)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (data as SupplierApplication | null) ?? null;
 }

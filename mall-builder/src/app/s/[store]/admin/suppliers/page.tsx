@@ -1,6 +1,14 @@
-import { getStaffStore } from "@/lib/store";
-import { getPendingSupplierProducts, getSupplierShippingMap, getSuppliers, getSupplyConfig } from "@/lib/supplier-store";
-import { saveSupplySettingsAction, setSupplierHqRateAction, setSupplierShippingAction, updateSupplierAction } from "@/lib/supplier-actions";
+import { getCertUrl, getStaffStore } from "@/lib/store";
+import { getPendingSupplierProducts, getSupplierApplications, getSupplierShippingMap, getSuppliers, getSupplyConfig } from "@/lib/supplier-store";
+import {
+  decideSupplierApplyAction,
+  saveSupplySettingsAction,
+  setSupplierApplyOpenAction,
+  setSupplierHqRateAction,
+  setSupplierShippingAction,
+  updateSupplierAction,
+} from "@/lib/supplier-actions";
+import { supplierApplyOpen } from "@/lib/supplier-apply";
 import SupplierShippingForm, { supplierShippingSummary } from "../../supplier/shipping-form";
 import { createClient } from "@/lib/supabase/server";
 import { SUPPLIER_STATUS_LABEL, inviteAlive, nextStatuses } from "@/lib/supplier";
@@ -27,7 +35,13 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
   const { error, ok, msg } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/suppliers`);
   if (!staff) return <NoPermission />;
-  const [suppliers, pending, shipMap, supply] = await Promise.all([getSuppliers(store.id), getPendingSupplierProducts(store.id), getSupplierShippingMap(store.id), getSupplyConfig(store.id)]);
+  const [suppliers, pending, shipMap, supply, apps] = await Promise.all([
+    getSuppliers(store.id),
+    getPendingSupplierProducts(store.id),
+    getSupplierShippingMap(store.id),
+    getSupplyConfig(store.id),
+    getSupplierApplications(store.id),
+  ]);
   // T1(0060) 승인 대기 상품의 옵션 요약(개수·추가 공급가 범위)
   const optSummary = new Map<string, { n: number; min: number; max: number }>();
   if (pending.length) {
@@ -40,6 +54,9 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
     }
   }
   const supplierName = new Map(suppliers.map((s) => [s.id, s.name]));
+  const applyOpen = supplierApplyOpen(store.modules);
+  const pendingApps = apps.filter((a) => a.status === "pending");
+  const certUrls = new Map(await Promise.all(pendingApps.map(async (a) => [a.id, await getCertUrl(a.cert_path)] as const)));
   const live = suppliers.filter((s) => s.status !== "revoked");
   const revoked = suppliers.filter((s) => s.status === "revoked");
 
@@ -59,6 +76,41 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
           <button className="min-h-10 rounded border px-3 py-1.5">저장</button>
         </form>
         <p className="mt-2 text-xs text-gray-500">수수료율 자동이면 공급가 = 판매가 × (1 − 본사 판매수수료율 − 리셀러 판매수수료율). 리셀러 수수료는 리셀러 링크로 팔린 주문에만 본사가 대신 지급하고, 링크 없이 팔리면 본사 몫입니다. 공급사별 본사율은 아래 각 공급사에서 바꿉니다.</p>
+      </section>
+      {/* M1-0(0070) 공급사 입점 신청 — 받기 켜기/끄기, 대기 신청 승인(본사율 함께)·반려 */}
+      <section className="mt-4 rounded-lg border p-4 text-sm" data-supplier-applications>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-semibold">📝 입점 신청 <b className={pendingApps.length ? "text-red-700" : ""}>{pendingApps.length}</b></h3>
+          <span className={`rounded px-1.5 text-xs ${applyOpen ? "bg-emerald-50 text-emerald-800" : "bg-gray-100 text-gray-600"}`}>{applyOpen ? "신청 받는 중" : "신청 안 받음"}</span>
+          <span className="text-xs text-gray-500">신청 주소: /s/{store.slug}/supplier/apply</span>
+          <form action={setSupplierApplyOpenAction.bind(null, store.slug, store.id, !applyOpen)} className="ml-auto">
+            <button className="min-h-10 rounded border px-3 py-1.5 text-xs">{applyOpen ? "신청 그만 받기" : "입점 신청 받기"}</button>
+          </form>
+        </div>
+        {pendingApps.length === 0 ? (
+          <p className="mt-1 text-xs text-gray-500">확인할 입점 신청이 없습니다.</p>
+        ) : (
+          <ul className="mt-2 space-y-3">
+            {pendingApps.map((a) => (
+              <li key={a.id} className="rounded border p-3" data-supplier-app>
+                <p><b>{a.company}</b> <span className="text-xs text-gray-500">· 사업자 {a.biz_no} · {formatDateTime(a.created_at)} 신청</span></p>
+                <p className="mt-0.5 text-xs text-gray-600">대표 {a.ceo_name || "—"} · 담당 {a.contact_name || "—"} · {a.phone || "—"} · {a.email} · 분야 {a.category || "—"}</p>
+                {a.intro && <p className="mt-0.5 text-xs text-gray-500">「{a.intro}」</p>}
+                {certUrls.get(a.id) && <a href={certUrls.get(a.id)!} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-blue-700 underline">사업자등록증 보기(10분)</a>}
+                <div className="mt-2 flex flex-wrap items-end gap-2">
+                  <form action={decideSupplierApplyAction.bind(null, store.slug, a.id, "approve")} className="flex flex-wrap items-center gap-2 text-xs">
+                    <label>본사 판매수수료 <input name="hq_rate" inputMode="decimal" placeholder={`기본 ${supply.hqRate}`} className="w-16 rounded border px-2 py-1.5" />%</label>
+                    <button className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-white">입점 승인</button>
+                  </form>
+                  <form action={decideSupplierApplyAction.bind(null, store.slug, a.id, "reject")} className="flex items-center gap-2 text-xs">
+                    <input name="note" maxLength={300} placeholder="반려 사유(신청자에게 보임)" className="rounded border px-2 py-1.5" />
+                    <button className="min-h-10 rounded border border-red-300 px-3 py-1.5 text-red-700">반려</button>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
       <PendingProducts slug={store.slug} products={pending} supplierName={supplierName} optSummary={optSummary} />
       <div className="mt-6"><SupplierInviteForm slug={store.slug} /></div>

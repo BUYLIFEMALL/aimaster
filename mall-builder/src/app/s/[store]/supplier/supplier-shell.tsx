@@ -45,7 +45,9 @@ export function SupplierShell({ slug, storeName, email, active, notice, children
 export function NotSupplier() {
   return (
     <div className="rounded border border-dashed p-8 text-center text-sm text-gray-600" data-supplier-denied>
-      <p>이 몰의 공급사 계정이 아닙니다. 몰 운영자에게 받은 초대 링크로 먼저 입점을 수락해 주세요.</p>
+      <p>이 몰의 공급사 계정이 아닙니다. 몰 운영자에게 받은 초대 링크로 입점을 수락하거나, 입점 신청을 보내 주세요.</p>
+      {/* M1-0(0070) 입점 신청 — 신청을 받지 않는 몰이면 신청 화면이 안내만 보여 준다 */}
+      <p className="mt-2"><Link href="./apply" className="text-blue-700 underline" data-supplier-apply-link>입점 신청하기 →</Link></p>
       <div className="mt-3"><LogoutButton label="다른 계정으로 로그인" /></div>
     </div>
   );
