@@ -41,3 +41,10 @@ Next.js 16(App Router, `src/proxy.ts`) + Tailwind 4 + 공용 Supabase(권한 판
 
 ## 2026-10-26 ✅ v1.04 — 「🙈 사진 속 개인정보 가리기 ↗」 바로가기 (Claude Code 윈도우 `claude-win-sdp`, [역할: ecommerce-image])
 - 홈 「어떤 작업이세요?」 카드에 바나나 캔버스 무료 이미지 도구 `https://banana-canvas.buylife.xyz/tools?tab=face`(새 탭) 바로가기. 이 프로그램에는 송장·후기 사진 화면이 없어 사진을 넘기지 않고 바로가기로 연결(키·비용 없음). 커밋 `38180d0d9`. 운영 크롬에서 주소·새 탭 확인.
+
+## 2026-11-14 (미배포 대기) — 작은 기능 3가지 ([역할: ecommerce-image] Claude Code 윈도우 `claude-win-sdp`)
+- 주인님 「순서대로 진행해」(보류 목록 두 번째). 플랜 [docs/PLAN_20261114_SMALL_FEATURES.md](docs/PLAN_20261114_SMALL_FEATURES.md).
+- **바코드 30mm 경고**: `barcodeWidthMm`·`svgAspect`(`src/lib/label/barcode.ts`)가 바코드 그림 비율과 칸 크기·안쪽 여백·바코드 높이로 실제 찍히는 가로를 계산 → EAN-13·Code128이 30mm보다 좁으면 「약 N mm」와 해결 방법, 넉넉하면 회색 한 줄로 가로 표시. 계산해 보니 예전 기본값(21칸·높이 12mm)은 약 27mm라 **1차원 바코드를 고를 때 기본 높이를 16mm(약 36mm)로** 올림.
+- **💾 내 라벨 틀**: 라벨지 규격·칸 내용·위치 보정을 이름 붙여 저장·불러오기·지우기(`src/lib/label/savedTemplates.ts`, 같은 이름 덮어씀·20개, 브라우저 `sld-label-saved-v1`에만 — 서버·DB 저장 없음). 불러와도 채울 데이터는 그대로.
+- **HEIC**: PDF 사진 넣기 고르기 창에 HEIC도 보이고, `createImageBitmap` 실패 시 `<img>`로 한 번 더 열어 봄(사파리는 열림). 못 열면 아이폰 「높은 호환성」 설정 안내. 크롬용 변환 라이브러리(`heic2any` 등, 안의 libheif가 LGPL-3.0)는 넣지 않음 — 주인님 결정 대기.
+- 검사: `npm test` 28개(새 4개)·tsc·build 통과. **화면 확인 전** — 다음 라벨 배포(버전 +0.01, 흐름 띠 대기 `48b67dd5c`와 함께) 뒤 ego로 라벨 화면 확인.

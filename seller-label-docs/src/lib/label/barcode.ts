@@ -41,6 +41,34 @@ export function checkCodeValue(type: CodeType, value: string): string | null {
   return null;
 }
 
+/** 1차원 바코드를 스캐너가 안정적으로 읽는 최소 가로(mm). EAN-13 표준 크기(37.29mm)의 약 80%. */
+export const MIN_BARCODE_WIDTH_MM = 30;
+
+/** bwip-js SVG의 viewBox로 가로÷세로 비율을 구한다. 못 읽으면 null. */
+export function svgAspect(svg: string): number | null {
+  const m = svg.match(/viewBox="\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)\s*"/);
+  if (!m) return null;
+  const w = Number(m[1]);
+  const h = Number(m[2]);
+  return w > 0 && h > 0 ? w / h : null;
+}
+
+/**
+ * 라벨 칸 안에서 바코드가 실제로 찍히는 가로(mm). 그림은 상자 안에서 비율을 지키며 줄어든다(CSS `width/height:100%`).
+ * 아래: 상자 = (칸 가로 − 안쪽 여백×2) × 바코드 높이 / 오른쪽: 상자 가로 = 바코드 너비, 세로 = 칸 세로 − 안쪽 여백×2.
+ */
+export function barcodeWidthMm(
+  t: { codePos: "right" | "bottom"; codeSizeMm: number; paddingMm: number },
+  cell: { w: number; h: number },
+  aspect: number,
+): number {
+  const innerW = Math.max(0, cell.w - t.paddingMm * 2);
+  const innerH = Math.max(0, cell.h - t.paddingMm * 2);
+  const boxW = t.codePos === "bottom" ? innerW : Math.min(t.codeSizeMm, innerW);
+  const boxH = t.codePos === "bottom" ? t.codeSizeMm : innerH;
+  return Math.round(Math.min(boxW, boxH * aspect) * 10) / 10;
+}
+
 /** bwip-js 옵션 이름으로 바꾼다. */
 export function bwipOptions(type: Exclude<CodeType, "none">, value: string) {
   const text = value.trim();

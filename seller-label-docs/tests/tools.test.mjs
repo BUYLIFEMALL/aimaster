@@ -151,3 +151,49 @@ test("흰 바탕 투명화·여백 범위·상자 가두기", () => {
   assert.equal(opaqueBounds(new Uint8ClampedArray(12), 3, 1), null);
   assert.deepEqual(clampPlace({ x: 0.9, y: -0.2, w: 0.3, h: 0.1 }), { w: 0.3, h: 0.1, x: 0.7, y: 0 });
 });
+
+// ── 2026-11-14 작은 기능: 바코드 실제 가로·틀 저장·HEIC ──
+import { barcodeWidthMm, svgAspect, MIN_BARCODE_WIDTH_MM } from "../src/lib/label/barcode.ts";
+import { upsertSaved, removeSaved, sanitizeSavedList, cleanName, SAVED_LIMIT } from "../src/lib/label/savedTemplates.ts";
+import { isHeic } from "../src/lib/browser/imageInput.ts";
+
+test("바코드 그림 비율 읽기", () => {
+  assert.equal(svgAspect('<svg viewBox="0 0 286 126" xmlns="x">'), 286 / 126);
+  assert.equal(svgAspect("<svg>"), null);
+});
+
+test("바코드 실제 가로: 아래 배치는 칸 폭과 높이×비율 중 작은 값", () => {
+  const ean = 286 / 126; // EAN-13 비율(약 2.27)
+  const t = { codePos: "bottom", codeSizeMm: 12, paddingMm: 2 };
+  // 21칸(63.5×38.1): 칸 폭 59.5, 높이 12×2.27=27.2 → 27.2mm(30mm 미만)
+  assert.equal(barcodeWidthMm(t, { w: 63.5, h: 38.1 }, ean), 27.2);
+  assert.ok(barcodeWidthMm(t, { w: 63.5, h: 38.1 }, ean) < MIN_BARCODE_WIDTH_MM);
+  // 높이 16mm면 36.3mm로 넉넉
+  assert.equal(barcodeWidthMm({ ...t, codeSizeMm: 16 }, { w: 63.5, h: 38.1 }, ean), 36.3);
+  // 65칸(38.1×21.2): 칸 폭 34.1이 먼저 막음
+  assert.equal(barcodeWidthMm({ ...t, codeSizeMm: 20 }, { w: 38.1, h: 21.2 }, ean), 34.1);
+  // 오른쪽 배치: 너비 16mm로 고정
+  assert.equal(barcodeWidthMm({ codePos: "right", codeSizeMm: 16, paddingMm: 2 }, { w: 63.5, h: 38.1 }, ean), 16);
+});
+
+test("내 라벨 틀: 같은 이름 덮어쓰기·새 것이 위·20개 상한·지우기", () => {
+  const e = (name) => ({ name, savedAt: "", sheetId: "a4-21", custom: {}, template: {}, dx: 0, dy: 0 });
+  let list = upsertSaved([], e("가격표"));
+  list = upsertSaved(list, e("택배"));
+  list = upsertSaved(list, { ...e("가격표"), dx: 1 });
+  assert.deepEqual(list.map((x) => x.name), ["가격표", "택배"]);
+  assert.equal(list[0].dx, 1);
+  assert.deepEqual(upsertSaved(list, e("   ")), list, "빈 이름은 저장 안 함");
+  for (let i = 0; i < 30; i += 1) list = upsertSaved(list, e(`틀${i}`));
+  assert.equal(list.length, SAVED_LIMIT);
+  assert.deepEqual(removeSaved(list, "틀29").length, SAVED_LIMIT - 1);
+  assert.equal(cleanName("  21칸   가격표  "), "21칸 가격표");
+  assert.deepEqual(sanitizeSavedList("망가짐"), []);
+  assert.deepEqual(sanitizeSavedList([{ name: 1 }, e("정상")]).map((x) => x.name), ["정상"]);
+});
+
+test("HEIC 판정: 형식 또는 확장자", () => {
+  assert.equal(isHeic({ name: "IMG_0001.HEIC", type: "" }), true);
+  assert.equal(isHeic({ name: "a.jpg", type: "image/heif" }), true);
+  assert.equal(isHeic({ name: "a.jpg", type: "image/jpeg" }), false);
+});

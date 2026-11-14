@@ -2,17 +2,19 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Download, FileSpreadsheet, Printer, RotateCcw } from "lucide-react";
+import { Download, FileSpreadsheet, Printer, RotateCcw, Save, Trash2 } from "lucide-react";
 import { PageHeader, Notice } from "@/components/ui/PageHeader";
-import { LabelCell } from "@/components/label/LabelCell";
+import { LabelCell, codeSvg } from "@/components/label/LabelCell";
 import { SHEET_PRESETS, assignToPages, cellRects, totalCells, validateSheet, fillTemplate, type LabelSheet } from "@/lib/label/layout";
-import { CODE_TYPES, checkCodeValue } from "@/lib/label/barcode";
+import { CODE_TYPES, MIN_BARCODE_WIDTH_MM, barcodeWidthMm, checkCodeValue, svgAspect } from "@/lib/label/barcode";
+import { NAME_MAX, SAVED_LIMIT, cleanName, removeSaved, sanitizeSavedList, upsertSaved, type SavedLabel } from "@/lib/label/savedTemplates";
 import { DEFAULT_TEMPLATE, FOOD_FIELDS, SAMPLE_HEADERS, SAMPLE_ROWS, type LabelTemplate } from "@/lib/label/template";
 import { ACCEPT_SHEETS, parsePasted, readSheetBytes, sampleWorkbook, type SheetData } from "@/lib/sheet";
 import { loadLocal, saveBlob, saveLocal } from "@/lib/download";
 import { decodeImport } from "@/lib/shopFlow";
 
 const STORE_KEY = "sld-label-v1";
+const SAVED_KEY = "sld-label-saved-v1";
 const MM_PX = 96 / 25.4;
 
 interface Settings {
@@ -119,8 +121,13 @@ export default function LabelTool() {
   const [scale, setScale] = useState(0.5);
 
   const [imported, setImported] = useState<string | null>(null);
+  const [savedList, setSavedList] = useState<SavedLabel[]>([]);
+  const [saveName, setSaveName] = useState("");
+  const [pickedName, setPickedName] = useState("");
+  const [savedMsg, setSavedMsg] = useState<string | null>(null);
 
   useEffect(() => {
+    setSavedList(sanitizeSavedList(loadLocal<{ list: unknown }>(SAVED_KEY, { list: [] }).list));
     const saved = loadLocal<Settings>(STORE_KEY, DEFAULTS);
     let next: Settings = { ...saved, template: { ...DEFAULT_TEMPLATE, ...saved.template } };
     // E9: 주문·매출 리포트 「셀러 라벨로 보내기」 — 주소 「#import=」의 표로 채운다(서버를 거치지 않음). 한 번 읽고 주소에서 지운다.
@@ -171,6 +178,49 @@ export default function LabelTool() {
     return out;
   }, [items, s.template, s.source]);
 
+  // 1차원 바코드가 칸 안에서 실제로 찍히는 가로(mm) — 첫 번째로 그려지는 값의 비율로 계산한다.
+  const barcodeWidth = useMemo(() => {
+    const t = s.template;
+    if (t.kind !== "text" || (t.code !== "ean13" && t.code !== "code128")) return null;
+    for (const rec of items.slice(0, 50)) {
+      const svg = codeSvg(t.code, fillTemplate(t.codeValue, rec));
+      const aspect = svg ? svgAspect(svg) : null;
+      if (aspect) return barcodeWidthMm(t, { w: sheet.cellW, h: sheet.cellH }, aspect);
+    }
+    return null;
+  }, [items, s.template, sheet.cellW, sheet.cellH]);
+
+  function persistSaved(next: SavedLabel[]) {
+    setSavedList(next);
+    saveLocal(SAVED_KEY, { list: next });
+  }
+
+  function saveCurrent() {
+    const name = cleanName(saveName);
+    if (!name) return setSavedMsg("틀 이름을 적어 주세요.");
+    const replaced = savedList.some((x) => x.name === name);
+    if (!replaced && savedList.length >= SAVED_LIMIT) return setSavedMsg(`틀은 ${SAVED_LIMIT}개까지 저장됩니다. 안 쓰는 틀을 지운 뒤 저장해 주세요.`);
+    persistSaved(upsertSaved(savedList, { name, savedAt: new Date().toISOString(), sheetId: s.sheetId, custom: s.custom, template: s.template, dx: s.dx, dy: s.dy }));
+    setPickedName(name);
+    setSavedMsg(replaced ? `「${name}」 틀을 지금 설정으로 덮어썼습니다.` : `「${name}」 틀을 저장했습니다.`);
+  }
+
+  function loadPicked() {
+    const found = savedList.find((x) => x.name === pickedName);
+    if (!found) return;
+    setS((prev) => ({ ...prev, sheetId: found.sheetId, custom: found.custom, template: { ...DEFAULT_TEMPLATE, ...found.template }, dx: found.dx, dy: found.dy, startCell: 0 }));
+    setPreviewPage(0);
+    setSaveName(found.name);
+    setSavedMsg(`「${found.name}」 틀을 불러왔습니다. 채울 데이터는 그대로입니다.`);
+  }
+
+  function deletePicked() {
+    if (!pickedName) return;
+    persistSaved(removeSaved(savedList, pickedName));
+    setSavedMsg(`「${pickedName}」 틀을 지웠습니다.`);
+    setPickedName("");
+  }
+
   const set = (patch: Partial<Settings>) => setS((prev) => ({ ...prev, ...patch }));
   const setT = (patch: Partial<LabelTemplate>) => setS((prev) => ({ ...prev, template: { ...prev.template, ...patch } }));
   const setCustom = (patch: Partial<LabelSheet>) => setS((prev) => ({ ...prev, custom: { ...prev.custom, ...patch } }));
@@ -216,6 +266,26 @@ export default function LabelTool() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <div className="space-y-4">
+          <section className="slw-card p-4">
+            <h2 className="mb-1 text-sm font-extrabold text-slate-900">💾 내 라벨 틀</h2>
+            <p className="mb-3 text-[12px] text-slate-600">자주 쓰는 라벨지 규격·칸 내용·위치 보정을 이름 붙여 저장합니다. 이 PC 브라우저에만 저장되고({SAVED_LIMIT}개까지), 다른 PC에서는 보이지 않습니다.</p>
+            <div className="flex flex-wrap gap-2">
+              <select className="slw-field min-w-0 flex-1" value={pickedName} onChange={(e) => setPickedName(e.target.value)} aria-label="저장한 틀">
+                <option value="">{savedList.length ? `저장한 틀 고르기 (${savedList.length}개)` : "저장한 틀이 없습니다"}</option>
+                {savedList.map((x) => (
+                  <option key={x.name} value={x.name}>{x.name}</option>
+                ))}
+              </select>
+              <button type="button" className="slw-btn whitespace-nowrap" disabled={!pickedName} onClick={loadPicked}>불러오기</button>
+              <button type="button" className="slw-btn whitespace-nowrap" disabled={!pickedName} onClick={deletePicked} aria-label="고른 틀 지우기"><Trash2 size={14} /></button>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <input className="slw-field min-w-0 flex-1" maxLength={NAME_MAX} placeholder="틀 이름 (예: 21칸 가격표)" value={saveName} onChange={(e) => setSaveName(e.target.value)} />
+              <button type="button" className="slw-primary whitespace-nowrap" disabled={!saveName.trim()} onClick={saveCurrent}><Save size={14} /> 지금 설정 저장</button>
+            </div>
+            {savedMsg && <p className="mt-2 text-[12px] text-teal-800">{savedMsg}</p>}
+          </section>
+
           <Section step={1} title="라벨지 규격">
             <label className="block">
               <span className="slw-label">라벨지 칸 수·크기</span>
@@ -292,8 +362,8 @@ export default function LabelTool() {
                     value={s.template.code}
                     onChange={(e) => {
                       const code = e.target.value as LabelTemplate["code"];
-                      // 1차원 바코드는 글자 아래·높이 12mm(가로는 칸 너비), 2차원 코드는 글자 오른쪽·16mm 정사각형이 읽기 좋다
-                      if (code === "code128" || code === "ean13") setT({ code, codePos: "bottom", codeSizeMm: 12 });
+                      // 1차원 바코드는 글자 아래·높이 16mm(그림 비율 때문에 가로 약 36mm — 12mm면 약 27mm로 30mm 권장보다 좁음), 2차원 코드는 글자 오른쪽·16mm 정사각형이 읽기 좋다
+                      if (code === "code128" || code === "ean13") setT({ code, codePos: "bottom", codeSizeMm: 16 });
                       else if (code === "qrcode" || code === "datamatrix") setT({ code, codePos: "right", codeSizeMm: 16 });
                       else setT({ code });
                     }}
@@ -319,8 +389,14 @@ export default function LabelTool() {
                     <NumberField label={s.template.code === "qrcode" || s.template.code === "datamatrix" ? "코드 크기(mm)" : s.template.codePos === "bottom" ? "바코드 높이(mm)" : "바코드 너비(mm)"} value={s.template.codeSizeMm} step={1} min={5} onChange={(n) => setT({ codeSizeMm: Math.max(5, n) })} />
                   </div>
                 )}
-                {(s.template.code === "ean13" || s.template.code === "code128") && s.template.codePos === "right" && (
-                  <p className="text-[12px] text-amber-800">⚠ 바코드를 글자 오른쪽에 두면 작아져 스캐너가 못 읽을 수 있습니다. 가로 30mm 이상이 되도록 「글자 아래」를 권장합니다.</p>
+                {barcodeWidth != null && barcodeWidth < MIN_BARCODE_WIDTH_MM && (
+                  <Notice tone="warn">
+                    ⚠ 바코드가 가로 약 {barcodeWidth}mm로 찍혀 {MIN_BARCODE_WIDTH_MM}mm보다 좁습니다. 스캐너가 못 읽을 수 있어요.{" "}
+                    {s.template.codePos === "right" ? "「글자 아래」로 옮기거나 바코드 너비를 키워 주세요." : "바코드 높이를 키우거나, 칸이 더 넓은 라벨지를 고르거나, 안쪽 여백을 줄여 주세요."}
+                  </Notice>
+                )}
+                {barcodeWidth != null && barcodeWidth >= MIN_BARCODE_WIDTH_MM && (
+                  <p className="text-[12px] text-slate-600">바코드 가로 약 {barcodeWidth}mm로 찍힙니다(권장 {MIN_BARCODE_WIDTH_MM}mm 이상).</p>
                 )}
                 {s.template.code === "ean13" && (
                   <p className="text-[12px] text-slate-600">EAN-13 번호는 GS1(대한상공회의소 유통물류진흥원)에서 발급받은 번호를 넣어 주세요. 여기서는 자릿수·검증 숫자만 확인합니다.</p>

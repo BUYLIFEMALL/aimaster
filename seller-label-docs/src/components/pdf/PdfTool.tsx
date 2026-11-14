@@ -47,7 +47,7 @@ function ImagesToPdf() {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
       <section className="slw-card space-y-3 p-4 lg:self-start">
-        <Dropzone accept={ACCEPT_IMAGES} label="사진을 끌어 놓거나 눌러서 고르세요" hint="JPG·PNG·WEBP · 넣은 순서가 페이지 순서" onFiles={add} />
+        <Dropzone accept={ACCEPT_IMAGES} label="사진을 끌어 놓거나 눌러서 고르세요" hint="JPG·PNG·WEBP(아이폰 HEIC는 사파리에서 열림) · 넣은 순서가 페이지 순서" onFiles={add} />
         <label className="block">
           <span className="slw-label">페이지 크기</span>
           <select className="slw-field" value={mode} onChange={(e) => setMode(e.target.value as "a4" | "original")}>
