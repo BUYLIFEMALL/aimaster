@@ -89,3 +89,5 @@
   - 예: `{ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: l.price.orderable, qty: l.qty, productId: l.product.id }`
 - **요청 2**: 상품 상세의 배송 안내(`describePolicy(policy)`가 들어가는 곳) 아래에 `describeReturnFees(policy)`(`@/lib/shipping`) 한 줄을 보여 달라(빈 글자면 숨김). 예: 「반품 배송비(편도) 3,000원 · 교환 배송비(왕복) 6,000원」.
 - `describePolicy` 문구는 담당이 이미 바꿨다(「배송비 3개마다 3,000원」「…5개 넘으면 +4,000원」「상품마다 따로」). 화면 코드는 그대로 두면 된다.
+
+> **2026-11-14 보충**: §10·§11의 자세한 할 일·고칠 줄·시험 방법은 [`HANDOFF_20261114_AGY_DETAIL_IMAGES_SHIPPING.md`](HANDOFF_20261114_AGY_DETAIL_IMAGES_SHIPPING.md)를 따른다(§10 상세 그림 표시는 agy 작업 폴더에 이미 들어가 있음 — 커밋만).
