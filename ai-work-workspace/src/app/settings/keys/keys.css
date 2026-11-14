@@ -1,5 +1,13 @@
 /* U3: API키등록·플랫폼연동 — 매뉴얼 화면(guide.css)과 같은 디자인 값(--lp-*)을 쓴다 */
-.aww-keys { display: grid; gap: 16px; margin: 24px 0; }
+.aww-keys { display: grid; gap: 12px; margin: 0; }
+/* 2026-11-14 그룹 상자: 쓰는 곳별 묶음 */
+.aww-key-group { margin: 20px 0; padding: 16px; border-radius: 14px; border: 1px solid var(--lp-border-primary, rgba(127, 127, 127, 0.3)); background: var(--lp-bg-secondary, rgba(127, 127, 127, 0.04)); }
+.aww-key-group-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.aww-key-group-head h2 { margin: 0; font-size: 16px; }
+.aww-key-group-count { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--lp-border-primary, rgba(127, 127, 127, 0.35)); color: var(--lp-text-secondary, #888); }
+.aww-key-group-count.on { color: var(--lp-green-text, #2e9e5b); border-color: currentColor; }
+.aww-key-group-desc { margin: 4px 0 12px; font-size: 13px; color: var(--lp-text-secondary, #888); }
+.aww-key-group .aww-key-card { background: var(--lp-bg-primary, #fff); }
 .aww-key-card { border: 1px solid var(--lp-border-primary, rgba(127, 127, 127, 0.25)); border-radius: 12px; padding: 16px; background: var(--lp-bg-elevated-primary, transparent); }
 .aww-key-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .aww-key-state { font-size: 13px; color: var(--lp-text-secondary, #888); }

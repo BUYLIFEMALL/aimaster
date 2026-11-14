@@ -16,6 +16,13 @@ const ITEMS: { provider: Provider; name: string; placeholder: string; desc: stri
   { provider: "bolta_api_key", name: "볼타 API 키 (세금계산서 바로 발급)", placeholder: "test_… 또는 live_…", desc: "「영수증·세금계산서 › 볼타로 바로 발급」에 씁니다. 볼타 개발자센터에서 본인 사업자로 가입한 뒤 연동을 만들면 테스트 키(test_)와 실제 키(live_)를 바로 받습니다. 처음엔 test_ 키로 시험하고, 실제 발급할 때 live_ 키로 바꿔 주세요. 실제 발급 요금은 볼타가 회원님 포인트에서 차감합니다.", guideUrl: "https://docs.bolta.io" },
   { provider: "bolta_webhook_secret", name: "볼타 웹훅 서명 키 (선택 · 발급 결과 자동 기록)", placeholder: "whsec_…", desc: "넣으면 「발급 결과 확인」을 다시 누르지 않아도 발급 결과·실패 사유가 문서에 자동으로 기록됩니다. 순서: 「영수증·세금계산서 › 볼타로 바로 발급」에서 웹훅 주소 만들기 → 볼타 개발자센터 › 연동 › 웹훅에 그 주소 등록 → 거기서 보이는 서명 키(whsec_)를 여기에 붙여 넣기. 테스트와 실제는 서명 키가 다르니 API 키를 live_로 바꿀 때 이 키도 함께 바꿔 주세요.", guideUrl: "https://docs.bolta.io/docs/api-introduction/webhook-events.md" },
 ];
+// 2026-11-14 주인님 「그룹별 박스로 묶어줘」: 쓰는 곳별로 묶어 상자 하나씩
+const GROUPS: { title: string; desc: string; providers: Provider[] }[] = [
+  { title: "🤖 AI 비서", desc: "AI 질문·글쓰기·블록 자동 채우기·회의록 요약에 씁니다. 하나만 있어도 됩니다.", providers: ["anthropic", "openai", "gemini"] },
+  { title: "⏰ 정시 자동화", desc: "「매일 9시」 같은 정시 자동화와 날짜 리마인더를 제시간에 돌립니다.", providers: ["cronjob_org_api_key"] },
+  { title: "📅 구글 캘린더 연결", desc: "「📅 캘린더 연동 › 구글 계정 연결」에 씁니다. 두 칸을 함께 넣어 주세요.", providers: ["google_client_id", "google_client_secret"] },
+  { title: "🧾 세금계산서 바로 발급 (볼타)", desc: "「영수증·세금계산서 › 볼타로 바로 발급」에 씁니다. 서명 키는 선택(발급 결과 자동 기록).", providers: ["bolta_api_key", "bolta_webhook_secret"] },
+];
 const GUIDE_URL = (id: string) => `https://www.buylife.xyz/guides/${id}`;
 const openGuide = (it: { guideId?: string; guideUrl?: string }) => window.open(it.guideUrl ?? GUIDE_URL(it.guideId ?? ""), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
 const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "", google_client_id: "", google_client_secret: "", bolta_api_key: "", bolta_webhook_secret: "" };
@@ -53,8 +60,18 @@ export function KeysForm() {
 
   return (
     <>
-      <section className="aww-keys">
-        {ITEMS.map((it) => (
+      {GROUPS.map((g) => {
+        const items = ITEMS.filter((it) => g.providers.includes(it.provider));
+        const done = items.filter((it) => keys?.[it.provider]).length;
+        return (
+      <section key={g.title} className="aww-key-group">
+        <div className="aww-key-group-head">
+          <h2>{g.title}</h2>
+          <span className={`aww-key-group-count ${keys && done === items.length ? "on" : ""}`}>{keys === null ? "" : `등록 ${done}/${items.length}`}</span>
+        </div>
+        <p className="aww-key-group-desc">{g.desc}</p>
+      <div className="aww-keys">
+        {items.map((it) => (
           <div key={it.provider} className="aww-key-card">
             <div className="aww-key-head">
               <b>{it.name}</b>
@@ -83,7 +100,10 @@ export function KeysForm() {
             {msg[it.provider] && <p className="aww-key-msg">{msg[it.provider]}</p>}
           </div>
         ))}
+      </div>
       </section>
+        );
+      })}
 
       <NotifyPrefs />
 
@@ -120,9 +140,11 @@ function NotifyPrefs() {
     }
   };
   return (
-    <section className="aww-keys">
+    <section className="aww-key-group">
+      <div className="aww-key-group-head"><h2>🔔 알림 받기</h2></div>
+      <p className="aww-key-group-desc">일정 리마인더를 앱 알림과 함께 내 메일·카카오톡으로도 받습니다(선택).</p>
       <div className="aww-key-card">
-        <div className="aww-key-head"><b>🔔 알림 받기 — 일정 리마인더</b></div>
+        <div className="aww-key-head"><b>일정 리마인더</b></div>
         <p>표의 날짜에 걸어 둔 리마인더가 울릴 때 앱 알림과 함께 아래로도 보냅니다. 받는 사람은 나 한 명이고, 채널마다 하루 100건까지입니다.</p>
         {(["email", "kakao"] as const).map((k) => (
           <label key={k} style={{ display: "flex", alignItems: "center", gap: 6, margin: "4px 0" }}>
