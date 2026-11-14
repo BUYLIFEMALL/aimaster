@@ -25,31 +25,31 @@ function PolicyForm({ slug, policy }: { slug: string; policy: ShippingPolicy | n
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">기본 배송비(원)</span>
-        <input name="base_fee" defaultValue={v(policy?.base_fee)} inputMode="numeric" placeholder="3000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="base_fee" defaultValue={v(policy?.base_fee)} inputMode="numeric" placeholder="예: 3,000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">무료 기준(원 이상, 조건부)</span>
-        <input name="free_over" defaultValue={v(policy?.free_over)} inputMode="numeric" placeholder="50000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="free_over" defaultValue={v(policy?.free_over)} inputMode="numeric" placeholder="예: 50,000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">수량별: 몇 개마다(개)</span>
-        <input name="repeat_qty" defaultValue={v(policy?.repeat_qty)} inputMode="numeric" placeholder="3" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="repeat_qty" defaultValue={v(policy?.repeat_qty)} inputMode="numeric" placeholder="예: 3" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">구간별: 몇 개까지 기본(개)</span>
-        <input name="range_upto" defaultValue={v(policy?.range_upto)} inputMode="numeric" placeholder="5" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="range_upto" defaultValue={v(policy?.range_upto)} inputMode="numeric" placeholder="예: 5" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">구간별: 넘으면 추가(원)</span>
-        <input name="range_extra_fee" defaultValue={v(policy?.range_extra_fee)} inputMode="numeric" placeholder="3000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="range_extra_fee" defaultValue={v(policy?.range_extra_fee)} inputMode="numeric" placeholder="예: 3,000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">제주 추가(원)</span>
-        <input name="jeju_fee" defaultValue={v(policy?.jeju_fee)} inputMode="numeric" placeholder="3000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="jeju_fee" defaultValue={v(policy?.jeju_fee)} inputMode="numeric" placeholder="예: 3,000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">도서산간 추가(원)</span>
-        <input name="island_fee" defaultValue={v(policy?.island_fee)} inputMode="numeric" placeholder="5000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="island_fee" defaultValue={v(policy?.island_fee)} inputMode="numeric" placeholder="예: 5,000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">묶음배송</span>
@@ -60,11 +60,11 @@ function PolicyForm({ slug, policy }: { slug: string; policy: ShippingPolicy | n
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">반품 배송비(편도, 원)</span>
-        <input name="return_fee" defaultValue={policy?.return_fee != null ? String(policy.return_fee) : ""} inputMode="numeric" placeholder="3000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="return_fee" defaultValue={policy?.return_fee != null ? String(policy.return_fee) : ""} inputMode="numeric" placeholder="예: 3,000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block">
         <span className="text-xs text-gray-500">교환 배송비(왕복, 원)</span>
-        <input name="exchange_fee" defaultValue={policy?.exchange_fee != null ? String(policy.exchange_fee) : ""} inputMode="numeric" placeholder="6000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
+        <input name="exchange_fee" defaultValue={policy?.exchange_fee != null ? String(policy.exchange_fee) : ""} inputMode="numeric" placeholder="예: 6,000" className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <button className="min-h-10 rounded bg-gray-900 px-4 text-sm text-white sm:col-span-3 sm:w-32">{policy ? "저장" : "정책 추가"}</button>
     </form>
