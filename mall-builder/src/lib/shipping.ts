@@ -23,6 +23,10 @@ export type ShippingPolicy = {
 
 export type Region = "mainland" | "jeju" | "island";
 
+/** 발송 칸 택배사 고르기 목록(직접 입력도 됨) — 2026-11-14 분양몰 검수: 회색 예시 「CJ대한통운」이 입력값처럼 보여 빈 칸으로 막힘 → 실제 기본값 + 목록 */
+export const COURIERS = ["CJ대한통운", "한진택배", "롯데택배", "우체국택배", "로젠택배", "경동택배", "대신택배"] as const;
+export const DEFAULT_COURIER = COURIERS[0];
+
 export const SHIPPING_TYPE_LABEL: Record<ShippingType, string> = {
   free: "무료 배송",
   fixed: "고정 배송비",

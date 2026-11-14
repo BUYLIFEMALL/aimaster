@@ -3,6 +3,7 @@
 import { nextActions, type ActorRole, type OrderStatus } from "@/lib/orders";
 import { changeOrderStatusAction } from "@/lib/order-actions";
 import { useInlineConfirm } from "@/app/inline-confirm";
+import { COURIERS, DEFAULT_COURIER } from "@/lib/shipping";
 import type { ReactNode } from "react";
 
 // 지금 상태에서 할 수 있는 버튼들 — 취소·반품처럼 되돌리기 어려운 것은 한 번 더 묻는다. 발송은 택배사·송장 칸을 함께 받는다
@@ -61,7 +62,8 @@ export default function OrderStatusButtons({
             <>
               <label className="block">
                 <span className="text-xs text-gray-500">택배사</span>
-                <input name="courier" required maxLength={30} placeholder="CJ대한통운" className="mt-0.5 w-32 rounded border px-2 py-1.5 text-sm" />
+                <input name="courier" required maxLength={30} defaultValue={DEFAULT_COURIER} list="mb-couriers" placeholder="택배사 이름" className="mt-0.5 w-32 rounded border px-2 py-1.5 text-sm" />
+                <datalist id="mb-couriers">{COURIERS.map((c) => <option key={c} value={c} />)}</datalist>
               </label>
               <label className="block">
                 <span className="text-xs text-gray-500">송장 번호</span>

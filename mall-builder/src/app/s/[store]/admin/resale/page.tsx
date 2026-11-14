@@ -75,11 +75,11 @@ export default async function AdminResalePage({ params, searchParams }: { params
             <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">출금 신청 {formatWon(waitingPayout.amount)} — 본사 처리 대기 중입니다.</p>
           ) : (
             <form action={requestResalePayoutAction.bind(null, store.slug, store.id)} className="mt-3 grid gap-2 text-xs sm:grid-cols-5" data-resale-payout-form>
-              <input name="amount" inputMode="numeric" placeholder={`금액(${RESALE_PAYOUT_MIN.toLocaleString("ko-KR")}원부터)`} className="rounded border px-2 py-1.5 sm:col-span-1" />
-              <input name="bank_name" maxLength={30} placeholder="은행" className="rounded border px-2 py-1.5" />
-              <input name="bank_account" maxLength={40} placeholder="계좌번호" className="rounded border px-2 py-1.5" />
-              <input name="bank_holder" maxLength={30} placeholder="예금주" className="rounded border px-2 py-1.5" />
-              <PendingButton pendingText="신청 중…" className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-white">출금 신청</PendingButton>
+              <input name="amount" required inputMode="numeric" placeholder={`금액(${RESALE_PAYOUT_MIN.toLocaleString("ko-KR")}원부터)`} className="rounded border px-2 py-1.5 sm:col-span-1" />
+              <input name="bank_name" required maxLength={30} placeholder="은행" className="rounded border px-2 py-1.5" />
+              <input name="bank_account" required maxLength={40} placeholder="계좌번호" className="rounded border px-2 py-1.5" />
+              <input name="bank_holder" required maxLength={30} placeholder="예금주" className="rounded border px-2 py-1.5" />
+              <PendingButton pendingText="보내는 중…" className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-white">출금 신청 보내기</PendingButton>
             </form>
           )}
           {ledger.length > 0 && (

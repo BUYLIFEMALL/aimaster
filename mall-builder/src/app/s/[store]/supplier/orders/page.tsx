@@ -2,6 +2,7 @@ import { getSupplierOrders, type SupplierOrderItem } from "@/lib/supplier-store"
 import { shipSupplierItemAction } from "@/lib/supplier-actions";
 import { ORDER_STATUS_LABEL, formatDateTime, type OrderStatus } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
+import { COURIERS, DEFAULT_COURIER } from "@/lib/shipping";
 import { getSupplierContext, NotSupplier, SupplierShell } from "../supplier-shell";
 
 export const dynamic = "force-dynamic";
@@ -73,7 +74,8 @@ function ItemCard({ slug, it }: { slug: string; it: SupplierOrderItem }) {
       {it.shipped_at && <p className="mt-1 text-xs text-emerald-700" data-supplier-shipped>발송 {formatDateTime(it.shipped_at)} · {it.courier} {it.tracking_no}</p>}
       {canShip && (
         <form action={shipSupplierItemAction.bind(null, slug, it.item_id)} className="mt-2 flex flex-wrap items-center gap-2" data-supplier-ship-form>
-          <input name="courier" required maxLength={30} defaultValue={it.courier || ""} placeholder="택배사(예: CJ대한통운)" className="w-36 rounded border px-2 py-1.5" />
+          <input name="courier" required maxLength={30} defaultValue={it.courier || DEFAULT_COURIER} list={`mb-couriers-${it.item_id}`} placeholder="택배사 이름" className="w-36 rounded border px-2 py-1.5" />
+          <datalist id={`mb-couriers-${it.item_id}`}>{COURIERS.map((c) => <option key={c} value={c} />)}</datalist>
           <input name="tracking_no" required maxLength={40} defaultValue={it.tracking_no || ""} placeholder="송장 번호" className="w-40 rounded border px-2 py-1.5" />
           <button className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-xs text-white">{it.shipped_at ? "송장 고치기" : "발송 처리"}</button>
         </form>
