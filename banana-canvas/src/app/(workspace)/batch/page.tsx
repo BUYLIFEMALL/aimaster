@@ -1,20 +1,13 @@
-import { BatchModes } from "@/components/batch/BatchModes";
+import { BatchWorkspace } from "@/components/batch/BatchWorkspace";
+
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+
+export const metadata = {
+  title: "상품 대표사진 일괄 합성 & 사진 일괄 손질 | AI 바나나 캔버스",
+  description: "상품코드(SKU)별 메인·서브 사진 1:1 합성 및 1000x1000 규격화, 워터마크·높이 맞춤 브라우저 로컬 일괄 처리 도구",
+};
+
 export default function BatchPage() {
-  return (
-    <>
-      <div className="page-heading">
-        <div className="bp-tags">
-          <span className="fe-badge">🛒 쇼핑몰 사진 준비</span>
-          <span className="fe-badge leaf">브라우저에서 처리 · 0원</span>
-        </div>
-        <h1>🖼 사진 일괄 손질</h1>
-        <p className="bp-intro">
-          상품 사진 여러 장의 <strong>세로 높이를 맞추고</strong>, <strong>로고·문자 워터마크</strong>를 같은 자리에 넣고, <strong>촬영 정보·위치 정보</strong>를 지워 한 번에 받습니다. 사진은 외부 서버로 전송되지 않습니다.
-        </p>
-      </div>
-      <BatchModes />
-    </>
-  );
+  return <BatchWorkspace />;
 }

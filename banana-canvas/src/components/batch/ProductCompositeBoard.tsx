@@ -14,7 +14,7 @@ import {
 import { runQueue } from "@/lib/batch/runQueue";
 import { fileKey, imagesFromZip } from "@/lib/batch/zipInput";
 import {
-  PRODUCT_MSG_READY, PRODUCT_MSG_RESULT, PRODUCT_RESULT_MAX_BYTES, PRODUCT_SENDER_ORIGIN, readProductJob, readProductSaved,
+  PRODUCT_MSG_READY, PRODUCT_MSG_RESULT, PRODUCT_RESULT_MAX_BYTES, productSenderOrigin, readProductJob, readProductSaved,
 } from "@/lib/productPhotoHandoff";
 
 const STORE_KEY = "bnc-product-composite-v1";
@@ -51,6 +51,8 @@ export function ProductCompositeBoard() {
   const abortRef = useRef<AbortController | null>(null);
   const jobsRef = useRef<Job[]>([]); jobsRef.current = jobs;
   const linkedJobId = useRef<string | null>(null);
+  const senderOriginRef = useRef<string | null>(null);
+  const senderLabelRef = useRef<string>("상세페이지");
 
   useEffect(() => { setS(normalizeComposite(load())); }, []);
   const update = (patch: Partial<CompositeSettings>) => setS((prev) => {
@@ -110,15 +112,20 @@ export function ProductCompositeBoard() {
     setTable(await f.text());
   }
 
-  // ── 상세페이지 연결 모드(P2): 상세페이지 창이 연 경우만 ──
+  // ── 상세페이지 / 쇼핑몰 연결 모드(P2 / M1): 부모 창이 연 경우만 ──
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    if (q.get("from") !== "shop-detail" || !window.opener) return;
+    const origin = productSenderOrigin(q.get("from"));
+    if (!origin || !window.opener) return;
+    senderOriginRef.current = origin;
+    const label = q.get("from") === "mall" ? "쇼핑몰" : "상세페이지";
+    senderLabelRef.current = label;
+
     const onMessage = (e: MessageEvent) => {
       if (e.source !== window.opener) return;
-      const got = readProductJob(e.origin, e.data);
+      const got = readProductJob(e.origin, e.data, origin);
       if (got) {
-        if ("error" in got) { setNotice(`상세페이지에서 받은 자료에 문제가 있습니다: ${got.error}`); return; }
+        if ("error" in got) { setNotice(`${label}에서 받은 자료에 문제가 있습니다: ${got.error}`); return; }
         const map = new Map<string, File>();
         const list: Job[] = got.products.map((p) => {
           const photos = p.photos.map((ph, i) => {
@@ -129,14 +136,14 @@ export function ProductCompositeBoard() {
           return { key: p.productId, productId: p.productId, code: p.label, option: "", label: p.label, photos, baseRevision: p.baseRevision, problems: [], status: "ready", error: null, result: null, resultName: "", returned: "" };
         });
         linkedJobId.current = got.jobId; setFiles(map); setLinked({ jobId: got.jobId, jobs: list }); setJobs(list); setSel(list[0]?.key ?? null);
-        setNotice(`📥 상세페이지에서 상품 ${list.length}개를 받았습니다. 규칙을 확인하고 「일괄 만들기」를 누르세요.`);
+        setNotice(`📥 ${label}에서 상품 ${list.length}개를 받았습니다. 규칙을 확인하고 「일괄 만들기」를 누르세요.`);
         return;
       }
-      const saved = linkedJobId.current ? readProductSaved(e.origin, e.data, linkedJobId.current) : null;
+      const saved = linkedJobId.current ? readProductSaved(e.origin, e.data, linkedJobId.current, origin) : null;
       if (saved) setJobs((xs) => xs.map((j) => (j.productId === saved.productId ? { ...j, returned: saved.ok ? "saved" : saved.error || "저장하지 못했습니다." } : j)));
     };
     window.addEventListener("message", onMessage);
-    window.opener.postMessage({ type: PRODUCT_MSG_READY }, PRODUCT_SENDER_ORIGIN);
+    window.opener.postMessage({ type: PRODUCT_MSG_READY }, origin);
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
@@ -174,14 +181,16 @@ export function ProductCompositeBoard() {
       const blob = await canvasToBlob(await draw(job, 1), s);
       patch(job.key, { result: blob, resultName: nameOf.get(job.key) ?? `${job.code}_main.${s.format}`, error: null });
       if (linked && job.productId) {
-        if (!window.opener || window.opener.closed) { patch(job.key, { returned: "상세페이지 창이 닫혔습니다. ZIP을 받아 직접 올려 주세요." }); return; }
+        const targetOrigin = senderOriginRef.current;
+        const targetLabel = senderLabelRef.current;
+        if (!targetOrigin || !window.opener || window.opener.closed) { patch(job.key, { returned: `${targetLabel} 창이 닫혔습니다. ZIP을 받아 직접 올려 주세요.` }); return; }
         if (blob.size > PRODUCT_RESULT_MAX_BYTES) { patch(job.key, { returned: "결과가 10MB를 넘어 보내지 못했습니다. JPG·화질을 낮춰 주세요." }); return; }
         patch(job.key, { returned: "sending" });
-        window.opener.postMessage({ type: PRODUCT_MSG_RESULT, jobId: linked.jobId, productId: job.productId, file: blob, settingsVersion: version }, PRODUCT_SENDER_ORIGIN);
+        window.opener.postMessage({ type: PRODUCT_MSG_RESULT, jobId: linked.jobId, productId: job.productId, file: blob, settingsVersion: version }, targetOrigin);
       }
     }, { signal: ac.signal, retryFailed, onUpdate: (u) => patch(u.key, { status: u.status, ...(u.error ? { error: u.error } : {}) }) });
     abortRef.current = null; setBusy(false);
-    setNotice(r.stopped ? `⏸ 중단했습니다. 완료 ${r.done}개는 그대로 남아 있습니다.` : `✅ 완료 ${r.done}개${r.failed ? ` · 실패 ${r.failed}개(「실패한 것만 다시」)` : ""}${linked ? " · 상세페이지 저장 결과는 표의 「반환」 칸에 표시됩니다." : ""}`);
+    setNotice(r.stopped ? `⏸ 중단했습니다. 완료 ${r.done}개는 그대로 남아 있습니다.` : `✅ 완료 ${r.done}개${r.failed ? ` · 실패 ${r.failed}개(「실패한 것만 다시」)` : ""}${linked ? ` · ${senderLabelRef.current} 저장 결과는 표의 「반환」 칸에 표시됩니다.` : ""}`);
   }
 
   async function downloadZip() {

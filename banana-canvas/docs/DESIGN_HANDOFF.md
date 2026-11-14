@@ -1,5 +1,38 @@
 # AI 바나나 캔버스 자동화 (banana-canvas) — 디자인 개발완료 보고서 (DESIGN_HANDOFF)
 
+## ★ 2026-11-14 메이커 연계 M1 & P2 Handoff 연동 완결 (Antigravity agy)
+- **배경 지침**: [`banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md`](PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md) §4
+- **주요 수정 및 해결 사항**:
+  1. **`from=mall` (쇼핑몰 빌더) 및 `from=shop-detail` (상세페이지) 공통 지원**:
+     - `productSenderOrigin(q.get("from"))`으로 보낸 프로그램의 오리진을 검증하여, 작업 수신(`readProductJob`), 준비 알림(`PRODUCT_MSG_READY`), 저장 결과 수신(`readProductSaved`), 결과 반환(`PRODUCT_MSG_RESULT`) 4개 채널 전체 연동 완료.
+     - `ProductCompositeBoard.tsx`와 `ProductBatchBoard.tsx` 양쪽 컴포넌트 모두 동일한 프로토콜로 동기화 완료.
+  2. **새 `ProductBatchBoard.tsx` 결함 2건 해결**:
+     - 결과 메시지 규격 수정: `kind:` 오표기를 **`type: PRODUCT_MSG_RESULT`**로 교정.
+     - 타겟 오리진 교정: 바나나 자기 주소(`PRODUCT_RECEIVER_ORIGIN`)로 잘못 쏘던 postMessage를 보낸 창 주소(**`senderOrigin`**)로 정확히 전달.
+     - 데이터 페이로드: `{ type: PRODUCT_MSG_RESULT, jobId, productId, file, settingsVersion }` 규격 100% 준수 (단일 객체 개별 전송).
+     - 완성된 대표사진 목록 그리드 신설 및 부모 창 반환 상태(`saved`, `sending`, 실패 사유) 실시간 표시.
+  3. **검증**:
+     - `verify_banana_handoff_real.mjs` 실물 프로토콜 왕복 시뮬레이션(상세페이지 발신/수신, 쇼핑몰 발신/수신, 결과 파싱, 저장 알림) 100% 성공.
+     - 단위 테스트: `tests/*.test.mjs` 97 / 97 전수 통과 (`pass 97`, `fail 0`).
+     - 타입 검사: `npx tsc --noEmit` 에러 0건 통과.
+     - 프로덕션 빌드: `next build` (Turbopack) 컴파일 성공.
+
+
+## ★ 2026-11-13 메이커 후속 「상품 대표사진 일괄 합성(/batch)」 4대 화면 3시안 자산화 (Antigravity agy)
+- **배경**: 메이커 셀링 도우미 후속 조사 결과 도출된 P1(상품별 대표사진 일괄 합성) 및 P2(원래 상품 반환) 전용 UI/사용 흐름 설계.
+- **조작 목표**: 최초 설정 4단계(자료입력 ➔ 짝확인 ➔ 미리보기 ➔ 실행/반환) · 반복 조작 2~3회 · 기본 동의 1회 충족, 원클릭 `[⏸️ 전체 일괄 즉시 중단]` 긴급 정지 버튼 상시 노출.
+- **4대 핵심 화면**:
+  1. `01_table`: 상품코드 작업표 & 짝짓기 (자료 붙여넣기, 메인·서브 유효성 검사, 공용/개별 서브 모드 선택)
+  2. `02_preview`: 실시간 미리보기 & 합성 규칙 (1000×1000 캔버스 라이브 합성, 9-앵커, 서브 크기/마진, 파일명 템플릿)
+  3. `03_progress`: 일괄 실행 & 즉시 중단 콘솔 (원클릭 즉시 전체 중단, 4대 메트릭 게이지, 실시간 렌더 피드)
+  4. `04_result`: 성공/실패 결과 리포트 & 원래 상품 반환 (P2 상세페이지/마켓등록기 원클릭 반환 연계, 실패 2건 재시도)
+- **3대 시안 12뷰 영구 자산화 (`D:\Antigravity\Design\`)**:
+  - ⭐ **1안 (공식 추천)**: `68. 크리에이티브 아뜰리에 페이퍼 팝 스타일` (`banana-canvas` 공식 템플릿 계승)
+  - **2안**: `104. 네오 B2B 커머스 엔터프라이즈 콘솔`
+  - **3안**: `62. 나노 뉴럴 아트 캔버스 랩 스타일`
+- **단일 통합 쇼케이스 (포트 3800)**: `http://localhost:3800/showcase.html` 및 `http://localhost:3800/comparison.html`
+- **인수인계**: A 기능 총괄(`claude-win-sdp`)과의 데이터 계약 및 수정 파일 소유권 분담 명세서 [`banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md`](IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md) 작성 완료.
+
 ## ★ v1.39 갱신 (2026-10-25 주인님 지시: 「각 프로그램별로 API키 등록|플랫폼 메뉴에 해당 플랫폼의 API키 생성주소를 버튼형태로 생성할 수 있도록 버튼을 달고 링크를 걸어줘. 플랫폼 가입도 버튼형태로 링크 걸고, 사용자 매뉴얼도 같이 업데이트하고 럭셔리하고 고급진 느낌이 나도록 해줘」)
 - **API키 등록·플랫폼연동 2단 퀵 액션 버튼 세트 탑재**:
   - `KeyCard` 상단에 **`[ 🔗 Google AI Studio API 키 발급/생성하기 ↗ ]`** (골드 엠보싱 럭셔리 버튼) 및 **`[ 👤 Google AI Studio 회원가입 / 시작 ↗ ]`** (아웃라인 버튼) 탑재.
