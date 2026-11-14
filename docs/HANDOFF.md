@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 [역할: mac-mini] 분양몰 T2 후속 — 13결과 재확인·모바일 일부 확인, 본사 Chrome 도구연결 대기
+
+[요청서](../mall-builder/docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md) §5/6 갱신. B시험회원 실제 v1.07 주문20261113-0001 결제완료60,000원·본사입금확인기록 유지, 신규상태변경0. 390×844 분양안내·상품정산관리·기존주문상세 페이지가로넘침없음. A Chrome기존탭은있으나 조작/DOM읽기 timeoutMs도구오류로14번본사50,000/수량/배송지 대조부터대기, 15~24/25전체통과아님. Chrome재연결요청, SQL/다른조작도구우회/제품수정/빌드/AI/비용0. 최종커밋은 전체검수뒤.
+
+
 
 ## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 결정 3건 진행(EC-W10 플랜·HEIC·E2-2~4), 미배포 대기
 - 주인님 「1번부터 진행해」「진행해」×2.
@@ -11,7 +16,7 @@
 - 검사: 상품소싱 시험 60·상세페이지 10·등록기 27·셀러 라벨 28, 네 프로그램 tsc·build. 비용: 빌드 0·AI 0(ego 네이버 쇼핑 1회 읽기만).
 - 다음 첫 단계: 다음 상품소싱 배포(v1.39, 확장 포함) → ego로 네이버 기록의 분류 카드·초안 화면 확인. EC-W10 결정 대기.
 
-## 2026-11-14 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-mb-v2` — AI 쇼핑몰 빌더(mall-builder) 손님 화면 상세 그림 표시 완결 + 배송비 계산 qty·productId 전달(5곳) + 반품·교환 배송비 안내 및 UI 고도화 커밋 완료
+## 2026-11-14 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-mb-v2` — AI 쇼핑몰 빌더(mall-builder) v1.07 운영 프로덕션 배포 완료 (손님 화면 상세 그림 표시 완결 + 배송비 계산 qty·productId 전달 5곳 + 반품·교환 배송비 안내 및 UI 고도화)
 - 인수인계 지침: `mall-builder/docs/HANDOFF_20261114_AGY_DETAIL_IMAGES_SHIPPING.md`
 - 완료 내용:
   1. 상세 그림 손님 화면 표시 완결: `(shop)/p/[id]/page.tsx` 내 상세 그림 연속 렌더링 컨테이너(`max-w-[860px]`, `gap-0`, `loading="lazy"`) 유지 및 고해상도 최적화.
@@ -20,6 +25,8 @@
   4. UI 디자인 고도화: 메인 포털 홈 화면(`/`) B2B 대시보드 리뉴얼 + 상품 상세페 스티키 탭 네비게이션(`tabs-nav.tsx`), 수량 `[-]`/`[+]` 컨트롤러, 모바일 하단 플로팅 구매 바, 버튼 1행 유지 헌장(`white-space: nowrap !important;`) 전역 적용.
 - 검증: `npx tsc --noEmit` 통과, `node --test tests/*.test.mjs` 261/261 전수 통과, Turbopack 프로덕션 빌드 성공.
 - 상태: 커밋 `ca987e26b` 완료, 운영 배포 주인님 최종 승인 대기.
+- 운영 배포: `node mall-builder/scripts/deploy-prod.mjs` 완료 (배포 ID: `dpl_63yY4Zb2sdW8pT7Pbz1S8CN76otg`, 빌드 1회).
+- 운영 검증: DB `programs.version = 'v1.07'` 동기화 일치 확인, 스토어프론트(`https://mall-builder.buylife.xyz/s/aimaster-b2b`) 및 상품상세 200 OK 정상 서빙 확인.
 
 ## 2026-11-14 KST ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 원스톱 v1.54 상품 사진 쇼츠 개선 5건 배포
 - `shorts-onestop-studio-2bruvgtk6` Ready, DB v1.54. 확인: 저장 대본 다시 열면 상품·사진 채움 · 사진 순서 ◀▶ · 뺀 사진 서버 파일 삭제(대본이 쓰는 사진 보호) · 실제 MP4 프레임에서 상품 모양·색(차이 1 이하)·글자 원본 그대로 · 인트로 이름표 여백.
