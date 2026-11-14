@@ -71,19 +71,29 @@ export const LAYOUTS: LayoutTemplate[] = [
       ...base,
       header: {
         ...DEFAULT_HEADER,
-        band: { text: "건강한 일상을 위한 클린 셀렉션", link: "", bg: "#065f46" },
+        band: { text: "건강한 일상을 위한 클린 셀렉션", link: "", bg: "#047857" },
       },
       list: { ...DEFAULT_LIST, columns: 4 },
       detail: { ...DEFAULT_DETAIL },
       home: doc([
+        // agy 115 시안 맨 위: 왼쪽 큰 제목 두 줄(둘째 줄 포인트색)·단추 2개, 오른쪽 대표 상품 카드 — 단추는 아래 블록으로 이동
         blk({
-          id: id("cw-intro"),
-          type: "html",
+          id: id("cw-hero"),
+          type: "hero",
           visible: true,
           settings: {
-            html: `<h2>${esc(storeName)} 클린 케어</h2><p>자연의 순수함과 과학적 설계를 담아 건강한 일상을 전합니다.</p>`,
+            eyebrow: "SEASON CURATION",
+            title: "자연과 과학이 선사하는",
+            accent: "순수한 데일리 웰니스 라이프",
+            text: `매일 챙기는 건강 습관, ${storeName}에서 깔끔하게 골라 보세요.`,
+            button: { label: "컬렉션 둘러보기 →", link: `#blk-${id("cw-best")}` },
+            button2: { label: "테마별로 고르기", link: `#blk-${id("cw-tabs")}` },
+            feature: true,
+            source: "new",
+            category_id: "",
+            product_ids: [],
           },
-          style: { pad_top: 36, pad_bottom: 12, title_align: "center" },
+          style: { width: "full", bg_color: "#fdf8f3", pad_top: 56, pad_bottom: 56 },
         }),
         blk({
           id: id("cw-best"),
@@ -97,7 +107,6 @@ export const LAYOUTS: LayoutTemplate[] = [
             columns: 4,
             limit: 8,
           },
-          style: { title_align: "center" },
         }),
         blk({
           id: id("cw-tabs"),

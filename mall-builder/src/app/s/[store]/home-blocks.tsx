@@ -217,13 +217,13 @@ export function BlockView({ b, slot }: { b: Block; slot?: ReactNode }) {
     </>
   );
   return (
-    <section data-block={b.type} data-title-align={b.style?.title_align} className={f.className || undefined} style={f.style}>
+    <section id={`blk-${b.id}`} data-block={b.type} data-title-align={b.style?.title_align} className={`scroll-mt-24 ${f.className}`.trim()} style={f.style}>
       {f.full ? <div className="mx-auto max-w-6xl">{body}</div> : body}
     </section>
   );
 }
 
-const SLOT_TYPES = new Set(["showcase", "notice", "tabs", "timesale", "reviews", "category_icons"]);
+const SLOT_TYPES = new Set(["showcase", "notice", "tabs", "timesale", "reviews", "category_icons", "hero"]);
 
 /** 블록 공통 겉모양(D2-4) → section 속성. 화면 가득이면 본문 상자(max-w-6xl) 밖으로 배경을 넓히고 안쪽은 본문 폭 그대로 */
 export function blockFrame(style: BlockStyle | undefined): { className: string; style?: CSSProperties; full: boolean } {

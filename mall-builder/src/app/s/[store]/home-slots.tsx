@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Notice, RecentReview, ShopProduct } from "@/lib/store";
-import type { Block, CategoryIconsSettings, NoticeSettings, ReviewsSettings, ShowcaseSettings, TabsSettings, TimesaleSettings } from "@/lib/blocks";
+import type { Block, CategoryIconsSettings, HeroButton, HeroSettings, NoticeSettings, ReviewsSettings, ShowcaseSettings, TabsSettings, TimesaleSettings } from "@/lib/blocks";
 import { Countdown, TabsView } from "./home-blocks";
-import { ProductGrid } from "./(shop)/product-card";
+import { ProductCard, ProductGrid } from "./(shop)/product-card";
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 — 서버 데이터가 필요한 첫 화면 블록 그리기
 // 데이터만 받아 그린다(가져오기는 src/lib/builder/slot-data.ts). 손님 첫 화면(서버)과 디자인 편집기 미리보기(클라이언트)가 같이 쓴다(디자인 빌더 D2-5)
@@ -17,9 +17,54 @@ export type SlotData = {
   categories?: { id: string; name: string }[];
 };
 
-export const SLOT_BLOCK_TYPES = ["showcase", "notice", "tabs", "timesale", "reviews", "category_icons"] as const;
+export const SLOT_BLOCK_TYPES = ["showcase", "notice", "tabs", "timesale", "reviews", "category_icons", "hero"] as const;
+
+/** 글 히어로 단추 — 이 몰 안 주소는 Link, https는 새 창, 링크가 비면 누를 수 없는 모양만 */
+function HeroLink({ bt, primary }: { bt: HeroButton; primary: boolean }) {
+  const cls = primary
+    ? "btn-3d-blue inline-flex items-center justify-center px-6 py-3 text-sm font-bold"
+    : "inline-flex items-center justify-center rounded-[var(--mall-radius,0.75rem)] border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-800 shadow-xs transition hover:bg-slate-50";
+  if (!bt.link) return <span className={cls}>{bt.label}</span>;
+  if (bt.link.startsWith("https://")) return <a href={bt.link} target="_blank" rel="noopener noreferrer" className={cls}>{bt.label}</a>;
+  return <Link href={bt.link} className={cls}>{bt.label}</Link>;
+}
+
+/** D5-8 글 히어로 — 그림 없이 큰 제목(둘째 줄 포인트색)·설명·단추 2개, 오른쪽 대표 상품 1개(가격 규칙은 상품 카드 그대로) */
+function Hero({ b, base, d }: { b: Block; base: string; d: SlotData }) {
+  const s = b.settings as HeroSettings;
+  const product = s.feature ? d.products?.[0] : undefined;
+  const center = !product && b.style?.title_align === "center";
+  const buttons = [s.button, s.button2].filter((bt) => bt.label);
+  return (
+    <div className="px-4 sm:px-6" data-hero>
+      <div className={`grid items-center gap-8 ${product ? "md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]" : ""}`}>
+        <div className={center ? "mx-auto max-w-3xl text-center" : ""}>
+          {s.eyebrow && (
+            <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold tracking-wide text-blue-700">{s.eyebrow}</span>
+          )}
+          <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl">
+            {s.title}
+            {s.accent && <span className="block text-blue-600">{s.accent}</span>}
+          </h2>
+          {s.text && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-600 sm:text-base">{s.text}</p>}
+          {buttons.length > 0 && (
+            <div className={`mt-7 flex flex-wrap gap-3 ${center ? "justify-center" : ""}`}>
+              {buttons.map((bt, i) => <HeroLink key={i} bt={bt} primary={bt === s.button} />)}
+            </div>
+          )}
+        </div>
+        {product && (
+          <div className="mx-auto w-full max-w-sm rounded-3xl border border-slate-200/80 bg-white p-4 shadow-lg" data-hero-product>
+            <ProductCard base={base} product={product} card={{ style: "plain" }} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
+  if (b.type === "hero") return <Hero b={b} base={base} d={d} />;
   if (b.type === "showcase") {
     const s = b.settings as ShowcaseSettings;
     return (

@@ -69,7 +69,7 @@ const VIEWPORTS = [
 ];
 
 const CATEGORIES = {
-  banner: { title: "배너·알림", components: ["topbar", "slider", "banner"] },
+  banner: { title: "배너·알림", components: ["hero", "topbar", "slider", "banner"] },
   products: { title: "상품", components: ["showcase", "tabs", "timesale", "category_icons"] },
   content: { title: "글·사진·소식", components: ["html", "video", "gallery", "notice", "reviews"] },
 };

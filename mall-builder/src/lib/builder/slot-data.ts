@@ -1,5 +1,5 @@
 import { getCategoryRows, getNotices, getShowcaseProducts, getStoreRecentReviews } from "@/lib/store";
-import type { Block, NoticeSettings, ReviewsSettings, ShowcaseSettings, TabsSettings, TimesaleSettings } from "@/lib/blocks";
+import type { Block, HeroSettings, NoticeSettings, ReviewsSettings, ShowcaseSettings, TabsSettings, TimesaleSettings } from "@/lib/blocks";
 import type { SlotData } from "@/app/s/[store]/home-slots";
 
 // 디자인 빌더 D2-5 — 서버 데이터가 필요한 첫 화면 블록의 데이터 가져오기(손님 첫 화면과 편집기 미리보기 공용)
@@ -26,6 +26,11 @@ export async function loadSlotData(storeId: string, b: Block, categories?: { id:
     }
     case "category_icons":
       return { categories: categories ?? (await visibleCategoryNames(storeId)) };
+    case "hero": {
+      // D5-8 대표 상품 1개(끄면 데이터 없음)
+      const s = b.settings as HeroSettings;
+      return s.feature ? { products: await getShowcaseProducts(storeId, { ...s, title: "", columns: 2, limit: 1 }) } : {};
+    }
     case "notice":
       return { notices: await getNotices(storeId, (b.settings as NoticeSettings).count) };
     default:

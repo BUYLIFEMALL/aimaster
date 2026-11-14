@@ -69,8 +69,8 @@ test("모르는 종류·틀린 설정은 몇 번째 블록인지 알려 준다",
   assert.equal(fromPuck(null).ok, true);
 });
 
-test("새 블록 기본 props는 12종 모두 저장 검사 모양과 같다", () => {
-  assert.equal(BLOCK_TYPES.length, 12);
+test("새 블록 기본 props는 13종 모두 저장 검사 모양과 같다", () => {
+  assert.equal(BLOCK_TYPES.length, 13); // D5-8 글 히어로 추가
   for (const t of BLOCK_TYPES) {
     const d = defaultPuckProps(t);
     assert.deepEqual(d.settings, newBlock(t, "z").settings);

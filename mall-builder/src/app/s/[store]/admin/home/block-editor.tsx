@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   BLOCK_DEFS, BLOCK_TYPES, MAX_BLOCKS, MAX_HTML, SHOWCASE_SOURCE_LABEL, isLive, moveBlock, newBlock, validateDoc, videoEmbed,
-  type BannerSettings, type Block, type CardOptions, type BlocksDoc, type BlockType, type CategoryIconsSettings, type GallerySettings, type HtmlSettings,
+  type BannerSettings, type Block, type CardOptions, type BlocksDoc, type BlockType, type CategoryIconsSettings, type GallerySettings, type HeroButton, type HeroSettings, type HtmlSettings,
   type NoticeSettings, type ProductSource, type ReviewsSettings, type ShowcaseSettings, type ShowcaseSource, type SliderSettings,
   type TabsSettings, type TimesaleSettings, type TopbarSettings, type VideoSettings,
 } from "@/lib/blocks";
@@ -167,6 +167,45 @@ export function CardOptionsForm({ value, onChange }: { value: CardOptions | unde
 export function SettingsForm({ storeId, block, categories, products, onChange }: {
   storeId: string; block: Block; categories: Option[]; products: Option[]; onChange: (s: Block["settings"]) => void;
 }) {
+  if (block.type === "hero") {
+    // D5-8 글 히어로 — 그림 없이 큰 제목·단추, 대표 상품 1개(선택)
+    const s = block.settings as HeroSettings;
+    const btn = (key: "button" | "button2", label: string) => (
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-2">
+        <label className="block">
+          <span className="text-xs text-gray-500">{label} 이름(비우면 없음)</span>
+          <input value={s[key].label} maxLength={20} onChange={(e) => onChange({ ...s, [key]: { ...s[key], label: e.target.value } as HeroButton })} className={input} />
+        </label>
+        <LinkInput value={s[key].link} onChange={(link) => onChange({ ...s, [key]: { ...s[key], link } as HeroButton })} />
+      </div>
+    );
+    return (
+      <div className="space-y-3">
+        <label className="block">
+          <span className="text-xs text-gray-500">작은 머리말(선택, 30자)</span>
+          <input value={s.eyebrow} maxLength={30} onChange={(e) => onChange({ ...s, eyebrow: e.target.value })} className={input} />
+        </label>
+        <label className="block">
+          <span className="text-xs text-gray-500">큰 제목 첫 줄(40자)</span>
+          <input value={s.title} maxLength={40} onChange={(e) => onChange({ ...s, title: e.target.value })} className={input} />
+        </label>
+        <label className="block">
+          <span className="text-xs text-gray-500">큰 제목 둘째 줄 — 포인트색(선택, 40자)</span>
+          <input value={s.accent} maxLength={40} onChange={(e) => onChange({ ...s, accent: e.target.value })} className={input} />
+        </label>
+        <label className="block">
+          <span className="text-xs text-gray-500">설명(선택, 200자)</span>
+          <textarea value={s.text} maxLength={200} rows={3} onChange={(e) => onChange({ ...s, text: e.target.value })} className={input} />
+        </label>
+        {btn("button", "첫 단추(진한 색)")}
+        {btn("button2", "둘째 단추(테두리)")}
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={s.feature} onChange={(e) => onChange({ ...s, feature: e.target.checked })} /> 오른쪽에 대표 상품 1개 보이기
+        </label>
+        {s.feature && <SourcePicker name={`hero-${block.id}`} value={s} categories={categories} products={products} onChange={(v) => onChange({ ...s, ...v })} />}
+      </div>
+    );
+  }
   if (block.type === "video") {
     const s = block.settings as VideoSettings;
     return (

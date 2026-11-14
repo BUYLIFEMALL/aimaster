@@ -51,7 +51,7 @@ test("템플릿 문구에 몰마다 다른 사실(인증·보증·쿠폰·배송
   const CLAIMS = /인증|보증|정품|증정|쿠폰|무료\s*배송|당일|오늘\s*(출발|출고|발송)|최저가|1위|식약처|특허|100\s*%/;
   for (const l of LAYOUTS) {
     const t = applyTemplate(l.id, null, { now: 0, storeName: "가나몰" });
-    const texts = [t.header.band.text, t.footer.note, ...t.header.menu.map((m) => m.label), ...t.home.blocks.flatMap((b) => [b.settings.title, b.settings.subtitle, ...(b.settings.tabs ?? []).map((x) => x.label)])].filter(Boolean);
+    const texts = [t.header.band.text, t.footer.note, ...t.header.menu.map((m) => m.label), ...t.home.blocks.flatMap((b) => [b.settings.title, b.settings.subtitle, b.settings.eyebrow, b.settings.accent, b.settings.text, b.settings.button?.label, b.settings.button2?.label, ...(b.settings.tabs ?? []).map((x) => x.label)])].filter(Boolean);
     for (const s of texts) assert.doesNotMatch(s, CLAIMS, `${l.id}: 「${s}」`);
   }
 });
@@ -59,7 +59,28 @@ test("템플릿 문구에 몰마다 다른 사실(인증·보증·쿠폰·배송
 test("일반 글자 칸(띠·제목)에는 HTML 이스케이프가 들어가지 않는다(몰 이름의 & < > 그대로)", () => {
   for (const l of LAYOUTS) {
     const t = applyTemplate(l.id, null, { now: 0, storeName: "A&B <샵>" });
-    const plain = [t.header.band.text, ...t.home.blocks.map((b) => b.settings.title)].filter(Boolean);
+    const plain = [t.header.band.text, ...t.home.blocks.flatMap((b) => [b.settings.title, b.settings.eyebrow, b.settings.accent, b.settings.text])].filter(Boolean);
     for (const s of plain) assert.doesNotMatch(s, /&amp;|&lt;|&gt;/, `${l.id}: 「${s}」`);
+  }
+});
+
+test("클린 웰니스(agy 115): 맨 위는 글 히어로 + 대표 상품, 단추는 같은 화면의 실제 블록으로 이동", () => {
+  const t = applyTemplate("clean-wellness", "emerald", { now: 0, storeName: "가나몰" });
+  const [hero, ...rest] = t.home.blocks;
+  assert.equal(hero.type, "hero");
+  assert.equal(hero.settings.feature, true);
+  assert.ok(hero.settings.accent, "둘째 줄(포인트색)");
+  for (const bt of [hero.settings.button, hero.settings.button2]) {
+    assert.match(bt.link, /^#blk-/);
+    assert.ok(rest.some((b) => `#blk-${b.id}` === bt.link), `${bt.label} → ${bt.link}`);
+  }
+});
+
+test("모든 템플릿의 같은 화면 이동 링크(#blk-)는 그 템플릿 안 블록을 가리킨다", () => {
+  for (const l of LAYOUTS) {
+    const t = applyTemplate(l.id, null, { now: 0, storeName: "가나몰" });
+    const ids = new Set(t.home.blocks.map((b) => `#blk-${b.id}`));
+    const links = t.home.blocks.flatMap((b) => [b.settings.button?.link, b.settings.button2?.link]).filter((x) => x && x.startsWith("#"));
+    for (const x of links) assert.ok(ids.has(x), `${l.id}: ${x}`);
   }
 });

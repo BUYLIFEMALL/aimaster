@@ -27,6 +27,10 @@ export type TimesaleSettings = { title: string; subtitle: string; ends_at: strin
 export type ReviewsSettings = { title: string; count: number; min_rating: number };
 export type CategoryIconsSettings = { title: string; items: { category_id: string; image: string; emoji: string }[] };
 export type GallerySettings = { title: string; columns: number; items: { image: string; link: string }[] }; // 인스타 대신 운영자가 직접 올리는 사진 격자
+// D5-8 글 히어로(2026-11-15) — 그림 없이 맨 위 큰 제목·설명·단추 2개, 오른쪽 대표 상품 1개(선택). agy 115 시안 맨 위 영역
+// 단추 이름이 비면 그 단추는 없다. feature가 false면 상품 칸은 비운다(source "new")
+export type HeroButton = { label: string; link: string };
+export type HeroSettings = { eyebrow: string; title: string; accent: string; text: string; button: HeroButton; button2: HeroButton; feature: boolean } & ProductSource;
 
 export type BlockSettingsMap = {
   topbar: TopbarSettings;
@@ -41,6 +45,7 @@ export type BlockSettingsMap = {
   reviews: ReviewsSettings;
   category_icons: CategoryIconsSettings;
   gallery: GallerySettings;
+  hero: HeroSettings;
 };
 
 export const SHOWCASE_SOURCE_LABEL: Record<ShowcaseSource, string> = { new: "신상품", category: "카테고리", manual: "직접 선택" };
@@ -69,10 +74,11 @@ const int = (v: unknown, min: number, max: number, fallback: number) => {
   return Number.isInteger(n) && n >= min && n <= max ? n : fallback;
 };
 
-/** 링크: 비우거나, 이 사이트 안 경로(/로 시작), 또는 https 주소만 */
+/** 링크: 비우거나, 이 사이트 안 경로(/로 시작), 같은 화면 안 이동(#이름 — 블록마다 id="blk-<번호>"), 또는 https 주소만 */
 export function safeLink(v: unknown): string | null {
   const s = str(v);
   if (!s) return "";
+  if (/^#[A-Za-z0-9_-]{1,60}$/.test(s)) return s;
   if (s.startsWith("/") && !s.startsWith("//")) return s.slice(0, 300);
   if (/^https:\/\/[^\s"'<>]+$/.test(s) && s.length <= 500) return s;
   return null;
@@ -355,6 +361,45 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
         out.push({ image, link });
       }
       return { ok: true, value: { title: str(s.title).slice(0, 40), columns: int(s.columns, 2, 6, 4), items: out } };
+    },
+  },
+  hero: {
+    label: "글 히어로",
+    description: "맨 위 큰 제목·설명·단추(그림 없이), 오른쪽에 대표 상품 1개(선택)",
+    defaults: () => ({
+      eyebrow: "",
+      title: "우리 몰에 오신 것을 환영합니다",
+      accent: "",
+      text: "",
+      button: { label: "상품 보러 가기", link: "" },
+      button2: { label: "", link: "" },
+      feature: false,
+      source: "new",
+      category_id: "",
+      product_ids: [],
+    }),
+    validate: (raw) => {
+      const s = (raw ?? {}) as Partial<HeroSettings>;
+      const title = str(s.title).slice(0, 40);
+      if (!title) return { ok: false, error: "큰 제목을 넣어 주세요." };
+      const buttons: HeroButton[] = [];
+      for (const bt of [s.button, s.button2]) {
+        const label = str(bt?.label).slice(0, 20);
+        const link = label ? safeLink(bt?.link) : "";
+        if (link === null) return { ok: false, error: "단추 링크는 /로 시작하는 이 몰 주소나 https 주소만 쓸 수 있습니다." };
+        buttons.push({ label, link });
+      }
+      const feature = s.feature === true;
+      let src: ProductSource = { source: "new", category_id: "", product_ids: [] };
+      if (feature) {
+        const v = validateSource(s);
+        if (!v.ok) return { ok: false, error: `대표 상품: ${v.error}` };
+        src = v.value;
+      }
+      return {
+        ok: true,
+        value: { eyebrow: str(s.eyebrow).slice(0, 30), title, accent: str(s.accent).slice(0, 40), text: str(s.text).slice(0, 200), button: buttons[0], button2: buttons[1], feature, ...src },
+      };
     },
   },
 };

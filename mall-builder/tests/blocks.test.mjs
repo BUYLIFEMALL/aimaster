@@ -11,6 +11,9 @@ test("링크·그림 주소 검사", () => {
   assert.equal(safeLink("javascript:alert(1)"), null);
   assert.equal(safeLink("//evil.com"), null);
   assert.equal(safeLink("http://x.com"), null);
+  assert.equal(safeLink("#blk-t-cw-best"), "#blk-t-cw-best"); // 같은 화면 안 이동
+  assert.equal(safeLink("#a b"), null);
+  assert.equal(safeLink("#"), null);
   assert.equal(safeImage(IMG), IMG);
   assert.equal(safeImage("data:image/png;base64,xx"), null);
 });
@@ -143,4 +146,47 @@ test("D28 예약 노출 — 시작·끝 시각, 타임세일은 끝나면 숨김
   const kept = validateDoc({ blocks: [b({ show_from: "2026-11-12T09:00:00+09:00" })] });
   assert.equal(kept.value.blocks[0].show_from, "2026-11-12T00:00:00.000Z");
   assert.equal("show_until" in kept.value.blocks[0], false); // 옛 저장본처럼 칸 없음
+});
+
+// D5-8 글 히어로(2026-11-15, agy 115 시안 맨 위 영역 — 그림 없이 큰 제목·단추·대표 상품)
+test("글 히어로: 기본값으로 저장되고, 제목은 꼭 있어야 한다", () => {
+  const b = newBlock("hero", "h");
+  const ok = validateDoc({ blocks: [b] });
+  assert.equal(ok.ok, true);
+  const s = ok.value.blocks[0].settings;
+  assert.equal(s.feature, false);
+  assert.equal(s.source, "new");
+  const bad = validateDoc({ blocks: [{ ...b, settings: { ...b.settings, title: "  " } }] });
+  assert.equal(bad.ok, false);
+  assert.match(bad.error, /제목/);
+});
+
+test("글 히어로: 글자 수 자르기·위험 링크 거절·단추 이름 없으면 단추 없음", () => {
+  const b = newBlock("hero", "h");
+  const long = "가".repeat(300);
+  const v = validateDoc({ blocks: [{ ...b, settings: { ...b.settings, eyebrow: long, title: long, accent: long, text: long, button: { label: "", link: "/s/a/c/1" }, button2: { label: "보기", link: "" } } }] });
+  assert.equal(v.ok, true);
+  const s = v.value.blocks[0].settings;
+  assert.equal(s.eyebrow.length, 30);
+  assert.equal(s.title.length, 40);
+  assert.equal(s.accent.length, 40);
+  assert.equal(s.text.length, 200);
+  assert.deepEqual(s.button, { label: "", link: "" }); // 이름이 없으면 링크도 버림
+  assert.deepEqual(s.button2, { label: "보기", link: "" });
+  const evil = validateDoc({ blocks: [{ ...b, settings: { ...b.settings, button: { label: "가기", link: "javascript:alert(1)" } } }] });
+  assert.equal(evil.ok, false);
+});
+
+test("글 히어로: 대표 상품을 켜면 상품 고르는 방법을 검사하고, 끄면 상품 칸을 비운다", () => {
+  const b = newBlock("hero", "h");
+  const manualEmpty = validateDoc({ blocks: [{ ...b, settings: { ...b.settings, feature: true, source: "manual", product_ids: [] } }] });
+  assert.equal(manualEmpty.ok, false);
+  const id = "11111111-2222-4333-8444-555555555555";
+  const on = validateDoc({ blocks: [{ ...b, settings: { ...b.settings, feature: true, source: "manual", product_ids: [id, id] } }] });
+  assert.equal(on.ok, true);
+  assert.deepEqual(on.value.blocks[0].settings.product_ids, [id]);
+  const off = validateDoc({ blocks: [{ ...b, settings: { ...b.settings, feature: false, source: "manual", product_ids: [id] } }] });
+  assert.equal(off.ok, true);
+  assert.equal(off.value.blocks[0].settings.source, "new");
+  assert.deepEqual(off.value.blocks[0].settings.product_ids, []);
 });
