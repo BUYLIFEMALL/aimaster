@@ -3,17 +3,18 @@
 # 사용: curl -fsSL https://video-to-gif.buylife.xyz/downloads/local-renderer/install-mac.sh | bash
 #       (개발 시험: LOCAL_SRC=<local-renderer 폴더> bash install-mac.sh)
 # 하는 일: ① 연결 스크립트(host.pl)를 내 계정 폴더에 복사 ② ffmpeg 찾기(없으면 Homebrew로 설치 안내/설치)
-#          ③ 크롬에 연결 등록(~/Library/Application Support/Google/Chrome/NativeMessagingHosts/)
+#          ③ 브라우저 연결 등록 — 크롬·크로미움(ego lite 등)·엣지·웨일(~/Library/Application Support/<브라우저>/NativeMessagingHosts/)
 set -euo pipefail
 
 HOST_NAME="xyz.buylife.gif_renderer"
 EXT_ID="efgimakonmphcdojhiegemjmpbokpcgk"
 BASE_URL="https://video-to-gif.buylife.xyz/downloads/local-renderer"
 DEST="$HOME/Library/Application Support/BuylifeGifRenderer"
-CHROME_DIR="$HOME/Library/Application Support/Google/Chrome/NativeMessagingHosts"
+APP_SUPPORT="$HOME/Library/Application Support"
+BROWSER_DIRS=("Google/Chrome" "Chromium" "Microsoft Edge" "Naver/Whale")
 
 echo "▶ GIF 자동화 내 PC 고속 변환 — 설치를 시작합니다."
-mkdir -p "$DEST" "$CHROME_DIR"
+mkdir -p "$DEST"
 
 if [ -n "${LOCAL_SRC:-}" ]; then
   cp "$LOCAL_SRC/host/host.pl" "$DEST/host.pl"
@@ -52,7 +53,7 @@ if [ -z "$FFMPEG" ]; then
 fi
 
 printf '{"ffmpeg":"%s"}\n' "$FFMPEG" > "$DEST/config.json"
-cat > "$CHROME_DIR/$HOST_NAME.json" <<JSON
+cat > "$DEST/$HOST_NAME.json" <<JSON
 {
   "name": "$HOST_NAME",
   "description": "VideoToGIF local renderer",
@@ -61,6 +62,11 @@ cat > "$CHROME_DIR/$HOST_NAME.json" <<JSON
   "allowed_origins": ["chrome-extension://$EXT_ID/"]
 }
 JSON
+# v1.29 크롬 외 크로미움 계열 브라우저도 쓰도록 각 브라우저 폴더에 모두 등록(확장 ID는 manifest key로 고정)
+for b in "${BROWSER_DIRS[@]}"; do
+  mkdir -p "$APP_SUPPORT/$b/NativeMessagingHosts"
+  cp "$DEST/$HOST_NAME.json" "$APP_SUPPORT/$b/NativeMessagingHosts/$HOST_NAME.json"
+done
 
 echo "✔ 설치했습니다. ffmpeg: $FFMPEG"
-echo "  이제 크롬에서 「AIMaster 내 PC 고속 변환」 확장을 켜고 GIF 자동화 화면을 새로고침하세요."
+echo "  이제 쓰는 브라우저(크롬·엣지·웨일·ego lite 등)에서 「AIMaster 내 PC 고속 변환」 확장을 켜고 GIF 자동화 화면을 새로고침하세요."

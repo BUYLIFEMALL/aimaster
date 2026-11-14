@@ -256,7 +256,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                 <div>
                   <div className="text-xs font-black text-white flex items-center gap-1">
                     <span>로컬 렌더러 받기</span>
-                    <span className="rounded bg-amber-400/20 px-1 text-[9px] font-bold text-amber-300">최신 v1.26</span>
+                    <span className="rounded bg-amber-400/20 px-1 text-[9px] font-bold text-amber-300">최신 {APP_VERSION}</span>
                   </div>
                   <div className="text-[10px] text-gray-400">내 PC 가속 렌더러 & 확장 ZIP</div>
                 </div>

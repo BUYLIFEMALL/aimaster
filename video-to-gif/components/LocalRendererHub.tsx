@@ -81,7 +81,7 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
               <span>내 PC 하드웨어 3~4배 초고속 가속</span>
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-bold text-cyan-300">
-              공식 최신 v1.25 (Host 1.30)
+              공식 최신 {APP_VERSION} (Host 1.30)
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-300">
               선택 · 설치 안 해도 바로 사용 가능
@@ -238,7 +238,7 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
               <span>브라우저 확장프로그램</span>
             </h3>
             <p className="mt-1 text-xs text-gray-400 leading-relaxed">
-              웹 스튜디오 화면과 내 PC 렌더러를 안전하게 이어주는 고속 중계 확장프로그램 (v1.25 최신판)
+              웹 스튜디오 화면과 내 PC 렌더러를 안전하게 이어주는 고속 중계 확장프로그램 ({APP_VERSION} 최신판)
             </p>
             <div className="mt-3 rounded-xl bg-black/30 p-2.5 text-[11px] text-gray-300 font-mono border border-white/5 space-y-1">
               <div className="flex items-center gap-1 text-cyan-400 font-semibold">

@@ -9,6 +9,10 @@ export async function createClient() {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim())!,
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: (items) => { try { items.forEach(({ name, value, options }) => cookieStore.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options)); } catch {} } } },
+    {
+      cookies: { getAll: () => cookieStore.getAll(), setAll: (items) => { try { items.forEach(({ name, value, options }) => cookieStore.set(name, value, cookieDomain ? { ...options, domain: cookieDomain } : options)); } catch {} } },
+      // v1.29 서버가 대신 로그인할 때 브라우저 기기 정보를 넘김(동시 접속 제한 판정, 공통 로그인 정책 2-2)
+      global: { headers: { "User-Agent": headers().get("user-agent") ?? "" } },
+    },
   );
 }
