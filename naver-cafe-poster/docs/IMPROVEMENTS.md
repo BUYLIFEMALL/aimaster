@@ -60,7 +60,7 @@
 
 ## 2026-11-13 전체 점검에서 발견 (정책 담당 세션 `claude-win-20261112-policy`)
 ### 1) 프로그램 로직·기능
-- **NewsBlur 비밀번호를 그대로 저장** — 근거 `src/lib/actions/newsblurAccount.ts:32-34`(`newsblur_accounts`에 `password` 원문 upsert, 회원 본인 행·RLS). 영향: DB 유출 시 회원 외부 계정 비밀번호 노출. 우선순위 높음. 상태: 제안(암호화 저장 또는 세션 쿠키만 보관 검토 — DB 변경이라 주인님 승인 필요).
+- **NewsBlur 비밀번호를 그대로 저장** — 근거 `src/lib/actions/newsblurAccount.ts:32-34`(`newsblur_accounts`에 `password` 원문 upsert, 회원 본인 행·RLS). 영향: DB 유출 시 회원 외부 계정 비밀번호 노출. 우선순위 높음. 상태: **하지 않음 — 2026-11-14 주인님 결정 「그냥 기존대로 저장해」**(지금 방식 유지, 다시 제안하지 않음).
 - **코드 v1.29 / 운영 DB v1.28 불일치** — 근거 `src/lib/version.ts`, DB 읽기(2026-11-13), AGENTS 4절은 배포 완료라고 기록. 영향: 메인 사이트 버전 표시가 다름. 우선순위 중간. 상태: 다음 배포 때 DB와 맞추기(실제 운영 버전 미확인).
 - **30일 자동 정리 없음** — `ncafe_posts`·`ncafe_candidates`·이미지 정리 코드 없음(크론은 생성·게시뿐). 이미 위 11-11 메모가 있어 상세는 그쪽을 따름(`retention_exempt` 회원 제외). 상태: 이번에 고침(미배포) — `/api/cron/cleanup-generated`(매일 19:20 UTC, 2026-12-14 전 유예), 글 기록과 그 글이 가리키던 본인 폴더 파일만(다른 글이 쓰는 파일은 남김)·게시글 후보(예약발행 후보함 제외) 정리, `retention_exempt` 회원 제외.
 - **`package.json` 1.20.0** — 코드 v1.29와 다름. 우선순위 낮음. 상태: 제안.
