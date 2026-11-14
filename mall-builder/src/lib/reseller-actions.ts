@@ -48,7 +48,9 @@ export async function setCustomerResellerAction(slug: string, customerId: string
 export async function requestPayoutAction(slug: string, form: FormData) {
   // 마이페이지는 ?ok=<안내 문구> 형식(기존 마이페이지 동작과 같게)
   const back = (q: { error?: string; ok?: string }): never =>
-    redirect(`/s/${slug}/my?${q.error ? `error=${encodeURIComponent(q.error)}` : `ok=${encodeURIComponent(q.ok ?? "")}`}#reseller`);
+    form.get("back") === "reseller" // M4-C1 리셀러 화면에서 신청하면 그 화면으로
+      ? redirect(`/s/${slug}/reseller?${q.error ? `error=${encodeURIComponent(q.error)}` : `ok=1&msg=${encodeURIComponent(q.ok ?? "")}`}`)
+      : redirect(`/s/${slug}/my?${q.error ? `error=${encodeURIComponent(q.error)}` : `ok=${encodeURIComponent(q.ok ?? "")}`}#reseller`);
   const amount = Math.floor(Number(String(form.get("amount") ?? "").replace(/[^0-9]/g, "")));
   if (!(amount > 0)) back({ error: "출금 금액을 적어 주세요." }); // 몰 최소 금액은 DB(0075)가 검사
   const { supabase, id } = await storeIdOf(slug);

@@ -15,6 +15,8 @@ export default function ResellerPanel({ slug, link, s, ledger, payouts }: { slug
       <h2 className="font-semibold">🤝 리셀러 <span className="ml-1 font-mono text-xs text-gray-500">{s.code} · 수수료 {Number(s.rate)}%</span>{!s.active && <span className="ml-2 rounded bg-gray-100 px-1.5 text-xs">쉬는 중</span>}</h2>
       <p className="mt-1 text-xs text-gray-500">내 링크로 들어온 손님이 30일 안에 주문하면 그 주문에 내 이름이 남습니다. 결제되면 상품마다 정해진 리워드(상품 리셀러율 + 내 추가율 {Number(s.rate)}%)가 「지급 예정」으로 쌓이고, 구매 확정되면 출금 가능 금액이 됩니다. 확정 전 취소·반품은 보류되어 운영자가 확인합니다. 링크로 가입한 손님도 내 거래처로 이어집니다.</p>
       <CopyLink url={link} />
+      {/* M4-C1 리셀러 전용 화면(상품별 링크·QR·수익) */}
+      <a href={`/s/${slug}/reseller`} className="mt-2 inline-block rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white" data-open-reseller>리셀러 화면 열기 — 상품 링크·QR·수익 →</a>
       <div className="mt-3 grid grid-cols-2 gap-2 text-center sm:grid-cols-4" data-reseller-summary>
         <div className="rounded border p-2"><p className="text-xs text-gray-500">연결 손님</p><p className="font-semibold">{s.linked}명</p></div>
         <div className="rounded border p-2"><p className="text-xs text-gray-500">이번 달 적립</p><p className="font-semibold">{formatWon(s.month_earned)}</p></div>

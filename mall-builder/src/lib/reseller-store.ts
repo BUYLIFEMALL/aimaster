@@ -158,3 +158,31 @@ export async function getResellerPayees(storeId: string): Promise<Map<string, { 
   }
   return m;
 }
+
+// ── M4-C1·C2 리셀러 화면 ──
+/** 상품별 내 리워드율(0077, 활동 중 리셀러 본인만) — 없거나 막히면 빈 지도 */
+export async function getMyProductRates(storeId: string): Promise<Map<string, { product: number; mine: number; total: number }>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_reseller_product_rates", { p_store_id: storeId });
+  const m = new Map<string, { product: number; mine: number; total: number }>();
+  if (error) return m;
+  for (const r of (data ?? []) as { product_id: string; product_rate: number; my_rate: number; total_rate: number }[]) {
+    m.set(r.product_id, { product: Number(r.product_rate), mine: Number(r.my_rate), total: Number(r.total_rate) });
+  }
+  return m;
+}
+
+/** 내 리워드 품목(보안 규칙상 본인 것만) — 상태별 합계 포함 */
+export async function getMyRewards(resellerId: string, limit = 200) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("mall_builder_reseller_rewards")
+    .select("id, order_id, name_snapshot, base_amount, product_rate, reseller_rate, amount, status, note, created_at, order:mall_builder_orders(order_no)")
+    .eq("reseller_id", resellerId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  const rows = (error ? [] : (data ?? [])) as unknown as RewardRow[];
+  const sum = { pending: 0, paid: 0, held: 0, deleted: 0 } as Record<RewardStatus, number>;
+  for (const w of rows) sum[w.status] += Number(w.amount);
+  return { rows: rows.map((w) => ({ ...w, amount: Number(w.amount), base_amount: Number(w.base_amount), product_rate: Number(w.product_rate), reseller_rate: Number(w.reseller_rate) })), sum };
+}
