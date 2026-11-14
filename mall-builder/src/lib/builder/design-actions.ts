@@ -8,7 +8,8 @@ import { readTheme, validateTheme } from "@/lib/theme";
 import { validateFooter, validateHeader, validatePopup } from "@/lib/builder/frame";
 import { validateDetail, validateList } from "@/lib/builder/pages";
 import { designPolicy, enforceFooter } from "@/lib/builder/policy";
-import { recordPublished } from "@/lib/builder/design-store";
+import { currentDraftStamp, recordPublished } from "@/lib/builder/design-store";
+import { isStale, latestStamp } from "@/lib/builder/history";
 import { loadSlotData } from "@/lib/builder/slot-data";
 import type { SlotData } from "@/app/s/[store]/home-slots";
 
@@ -24,6 +25,8 @@ export async function previewSlotAction(storeId: string, block: unknown): Promis
 }
 
 type Result = { ok: true; at: string } | { ok: false; error: string };
+/** 디자인 저장 결과 — base: 저장 뒤 마지막 초안 시각(편집기가 다음 저장 때 비교), conflict: 다른 곳에서 먼저 저장함(D6-3) */
+type SaveResult = { ok: true; at: string; base: string | null } | { ok: false; error: string; conflict?: { at: string } };
 
 /** D6 게시 기록 한 줄을 「초안」으로 되돌리기 — 손님 화면은 운영자가 편집기에서 확인하고 게시해야 바뀐다 */
 export async function restoreDesignAction(slug: string, storeId: string, historyId: string): Promise<Result> {
@@ -36,7 +39,7 @@ export async function restoreDesignAction(slug: string, storeId: string, history
 }
 
 /** D3 첫 화면 블록 + 몰 테마·헤더·바닥글·팝업을 함께 초안 저장(publish면 이어서 모두 게시). 하나라도 검사에 걸리면 아무것도 저장하지 않는다 */
-export async function saveDesignAction(slug: string, storeId: string, input: { home: unknown; theme: unknown; header?: unknown; footer?: unknown; popup?: unknown; list?: unknown; detail?: unknown }, publish: boolean): Promise<Result> {
+export async function saveDesignAction(slug: string, storeId: string, input: { home: unknown; theme: unknown; header?: unknown; footer?: unknown; popup?: unknown; list?: unknown; detail?: unknown; expect?: string | null; force?: boolean }, publish: boolean): Promise<SaveResult> {
   const home = validateDoc(input.home);
   if (!home.ok) return home;
   const themeErrors = validateTheme(input.theme ?? {});
@@ -57,13 +60,22 @@ export async function saveDesignAction(slug: string, storeId: string, input: { h
   const { data: storeRow } = await supabase.from("mall_builder_stores").select("kind").eq("id", storeId).maybeSingle();
   const policy = designPolicy({ kind: (storeRow as { kind?: string } | null)?.kind ?? null });
   const footerValue = enforceFooter(policy, footer.value);
+  // D6-3 편집기를 연 뒤 다른 곳에서 먼저 저장했으면 덮어쓰지 않고 알림(운영자가 「그래도 덮어쓰기」를 고르면 force)
+  if (input.expect !== undefined && !input.force) {
+    const current = await currentDraftStamp(supabase, storeId);
+    if (isStale(input.expect, current)) return { ok: false, error: "다른 곳(다른 직원이나 다른 창)에서 먼저 저장했습니다.", conflict: { at: current! } };
+  }
+  const stamps: string[] = [];
   const a = await supabase.rpc("mall_builder_save_page_draft", { p_store_id: storeId, p_doc: home.value });
   if (a.error) return { ok: false, error: a.error.message };
+  stamps.push(a.data as string);
   const b = await supabase.rpc("mall_builder_design_save_draft", { p_store_id: storeId, p_kind: "theme", p_doc: theme });
   if (b.error) return { ok: false, error: b.error.message };
+  stamps.push(b.data as string);
   for (const [kind, doc] of [["header", header.value], ["footer", footerValue], ["popup", popup.value], ["list", list.value], ["detail", detail.value]] as const) {
     const r = await supabase.rpc("mall_builder_design_save_draft", { p_store_id: storeId, p_kind: kind, p_doc: doc });
     if (r.error) return { ok: false, error: r.error.message };
+    stamps.push(r.data as string);
   }
   let at = a.data as string;
   if (publish) {
@@ -76,5 +88,5 @@ export async function saveDesignAction(slug: string, storeId: string, input: { h
     revalidatePath(`/s/${slug}`, "layout");
   }
   revalidatePath(`/s/${slug}/admin/design`);
-  return { ok: true, at };
+  return { ok: true, at, base: latestStamp(stamps) };
 }

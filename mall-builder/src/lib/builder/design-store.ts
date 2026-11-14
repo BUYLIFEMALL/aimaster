@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { latestStamp } from "@/lib/builder/history";
 
 // 디자인 빌더 D3 — 디자인 조각(DB 0080 mall_builder_design) 운영자 읽기. 표 읽기는 보안 규칙상 운영자만 된다
 // 손님 화면은 게시본만 돌려주는 함수(getPublishedDesign, src/lib/store.ts)를 쓴다
@@ -10,6 +11,17 @@ export type DesignPart = { draft: Record<string, unknown>; published: Record<str
 export async function recordPublished(supabase: Awaited<ReturnType<typeof createClient>>, storeId: string): Promise<void> {
   const r = await supabase.rpc("mall_builder_design_record", { p_store_id: storeId });
   if (r.error) console.warn("[design] 게시 기록 남기기 실패(게시는 됨):", r.error.message);
+}
+
+/** D6-3 지금 DB의 마지막 초안 저장 시각(첫 화면 + 조각 중 가장 늦은 것). 표 읽기는 운영자만 */
+export async function currentDraftStamp(supabase: Awaited<ReturnType<typeof createClient>>, storeId: string): Promise<string | null> {
+  const [a, b] = await Promise.all([
+    supabase.from("mall_builder_pages").select("draft_updated_at").eq("store_id", storeId).eq("kind", "home").maybeSingle(),
+    supabase.from("mall_builder_design").select("draft_updated_at").eq("store_id", storeId),
+  ]);
+  const home = (a.data as { draft_updated_at?: string } | null)?.draft_updated_at ?? null;
+  const parts = ((b.data ?? []) as { draft_updated_at: string }[]).map((r) => r.draft_updated_at);
+  return latestStamp([home, ...parts]);
 }
 
 export type DesignHistoryRow = { id: string; snapshot: unknown; createdAt: string };

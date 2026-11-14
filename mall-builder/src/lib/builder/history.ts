@@ -30,3 +30,23 @@ export function summarizeSnapshot(raw: unknown): SnapshotSummary {
     parts: PART_LABEL.filter(([k]) => isObj(snap[k])).map(([, label]) => label),
   };
 }
+
+// ── D6-3 동시 편집 경고 ──
+// 편집기를 열 때의 「마지막 초안 저장 시각」(첫 화면 + 조각 6개 중 가장 늦은 것)을 기억해 두고,
+// 저장할 때 DB의 지금 값이 더 늦으면 다른 곳(다른 직원·다른 탭)에서 먼저 저장한 것 — 덮어쓰기 전에 알린다
+
+const ms = (v: unknown) => (typeof v === "string" ? Date.parse(v) : NaN);
+
+/** 여러 시각 중 가장 늦은 것(읽을 수 없는 값은 건너뜀). 하나도 없으면 null */
+export function latestStamp(stamps: (string | null | undefined)[]): string | null {
+  let best: string | null = null;
+  for (const s of stamps) if (!Number.isNaN(ms(s)) && (best === null || ms(s) > ms(best))) best = s as string;
+  return best;
+}
+
+/** 편집기를 연 뒤(base) 더 늦게 저장된 것(current)이 있나 */
+export function isStale(base: string | null, current: string | null): boolean {
+  if (current === null || Number.isNaN(ms(current))) return false;
+  if (base === null || Number.isNaN(ms(base))) return true;
+  return ms(current) > ms(base);
+}

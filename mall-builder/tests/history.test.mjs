@@ -26,3 +26,22 @@ test("게시 기록 요약: 비었거나 이상한 값이어도 깨지지 않는
   assert.equal(summarizeSnapshot({ home: { blocks: [{ type: "nope" }] } }).firstBlock, "");
   assert.equal(summarizeSnapshot({ theme: { primary: "red" } }).primary, ""); // #rrggbb만
 });
+
+// D6-3 동시 편집 경고 — 편집기를 연 뒤 다른 곳(다른 직원·다른 탭)에서 저장했는지
+test("마지막 저장 시각: 여러 시각 중 가장 늦은 것, 빈 값은 건너뜀", async () => {
+  const { latestStamp } = await import("../src/lib/builder/history.ts");
+  assert.equal(latestStamp([]), null);
+  assert.equal(latestStamp([null, undefined, "x"]), null);
+  assert.equal(latestStamp(["2026-11-15T00:00:00.000Z", null, "2026-11-15T00:00:05.000Z", "2026-11-14T23:00:00Z"]), "2026-11-15T00:00:05.000Z");
+});
+
+test("다른 곳에서 먼저 저장했나: 연 뒤 더 늦게 저장된 게 있으면 true", async () => {
+  const { isStale } = await import("../src/lib/builder/history.ts");
+  assert.equal(isStale(null, null), false); // 처음 꾸미는 몰
+  assert.equal(isStale(null, "2026-11-15T00:00:00Z"), true); // 열 때는 없었는데 그사이 누가 저장
+  assert.equal(isStale("2026-11-15T00:00:00Z", null), false);
+  assert.equal(isStale("2026-11-15T00:00:00.000Z", "2026-11-15T00:00:00.000Z"), false);
+  assert.equal(isStale("2026-11-15T00:00:00.000Z", "2026-11-15T00:00:01.000Z"), true);
+  assert.equal(isStale("2026-11-15T00:00:01.000Z", "2026-11-15T00:00:00.000Z"), false);
+  assert.equal(isStale("2026-11-15T09:00:00+09:00", "2026-11-15T00:00:00.000Z"), false); // 같은 순간, 다른 표기
+});

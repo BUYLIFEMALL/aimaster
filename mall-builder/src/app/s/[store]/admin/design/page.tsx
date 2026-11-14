@@ -7,6 +7,7 @@ import { readFooter, readHeader, readPopup } from "@/lib/builder/frame";
 import { readDetail, readList } from "@/lib/builder/pages";
 import { applyTemplate, findColor, findLayout } from "@/lib/builder/templates";
 import { designPolicy } from "@/lib/builder/policy";
+import { latestStamp } from "@/lib/builder/history";
 import { readBusinessInfo } from "@/lib/businessInfo";
 import { NoPermission } from "../admin-shell";
 import DesignEditor from "./design-editor";
@@ -83,6 +84,7 @@ export default async function AdminDesignPage({ params, searchParams }: { params
         businessInfo={readBusinessInfo(store.business_info)}
         publishedState={publishedState}
         draftAt={home.draftAt}
+        baseAt={latestStamp([home.draftAt, ...Object.values(design).map((p) => p?.draftAt)])}
         publishedAt={home.publishedAt}
       />
     </div>

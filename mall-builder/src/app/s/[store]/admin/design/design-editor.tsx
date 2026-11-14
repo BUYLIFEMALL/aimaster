@@ -306,7 +306,7 @@ function snapshot(data: Data): string {
   return v.ok ? JSON.stringify({ blocks: v.value.blocks, theme: readTheme(r.theme), header: readHeader(r.header), footer: readFooter(r.footer), popup: readPopup(r.popup), list: readList(r.list), detail: readDetail(r.detail) }) : `invalid:${Date.now()}`;
 }
 
-export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, initialFrame, storeName, topCategories, businessInfo, publishedState, draftAt, publishedAt, footerBankLocked = false, previewing = false }: {
+export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, initialFrame, storeName, topCategories, businessInfo, publishedState, draftAt, publishedAt, baseAt = null, footerBankLocked = false, previewing = false }: {
   slug: string; storeId: string; categories: Option[]; products: Option[]; initial: BlocksDoc; initialTheme: ShopTheme;
   initialFrame: { header: HeaderDesign; footer: FooterDesign; popup: PopupDesign; list: ListDesign; detail: DetailDesign }; storeName: string; topCategories: { id: string; name: string }[]; businessInfo: BusinessInfo;
   /** D5-4 분양몰 — 바닥글 입금 계좌 칸 잠금 */
@@ -316,6 +316,8 @@ export default function DesignEditor({ slug, storeId, categories, products, init
   /** 지금 손님에게 보이는 블록·테마(비교용 문자열, 게시 전이면 null) */
   publishedState: string | null;
   draftAt: string | null; publishedAt: string | null;
+  /** D6-3 편집기를 열 때 마지막 초안 저장 시각(첫 화면 + 조각) — 저장할 때 서버가 비교 */
+  baseAt?: string | null;
 }) {
   const base = `/s/${slug}`;
   const start = useMemo(() => ({ ...toPuck(initial), root: { props: { theme: initialTheme, ...initialFrame } } }) as unknown as Data, [initial, initialTheme, initialFrame]);
@@ -323,6 +325,8 @@ export default function DesignEditor({ slug, storeId, categories, products, init
   const [live, setLive] = useState(publishedState);
   const [times, setTimes] = useState({ draftAt, publishedAt });
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [stamp, setStamp] = useState<string | null>(baseAt);
+  const [conflict, setConflict] = useState<{ kind: "save" | "publish"; at: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const latest = useRef<Data>(start);
   const [nowState, setNowState] = useState(() => snapshot(start));
@@ -385,8 +389,9 @@ export default function DesignEditor({ slug, storeId, categories, products, init
     } as unknown as Config;
   }, [storeId, base, slug, categories, products, storeName, topCategories, businessInfo, footerBankLocked]);
 
-  function run(kind: "save" | "publish") {
+  function run(kind: "save" | "publish", force = false) {
     setMsg(null);
+    setConflict(null);
     const raw = fromPuckRaw(latest.current);
     const check = validateDoc(raw);
     if (!check.ok) return setMsg({ ok: false, text: `고칠 곳: ${check.error}` });
@@ -396,8 +401,12 @@ export default function DesignEditor({ slug, storeId, categories, products, init
     if (themeErr.length) return setMsg({ ok: false, text: `고칠 곳(몰 테마): ${themeErr[0]}` });
     const now = snapshot(latest.current);
     startTransition(async () => {
-      const r = await saveDesignAction(slug, storeId, { home: raw, theme: themeRaw, header: rp.header, footer: rp.footer, popup: rp.popup, list: rp.list, detail: rp.detail }, kind === "publish");
-      if (!r.ok) return setMsg({ ok: false, text: r.error });
+      const r = await saveDesignAction(slug, storeId, { home: raw, theme: themeRaw, header: rp.header, footer: rp.footer, popup: rp.popup, list: rp.list, detail: rp.detail, expect: stamp, force }, kind === "publish");
+      if (!r.ok) {
+        if (r.conflict) setConflict({ kind, at: r.conflict.at });
+        return setMsg({ ok: false, text: r.error });
+      }
+      setStamp(r.base);
       setSaved(now);
       if (kind === "publish") {
         setLive(now);
@@ -425,6 +434,13 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         <span className="text-gray-500">몰 테마·헤더·바닥글·팝업·상품 목록·상품 상세: 위쪽 「첫 화면」을 누르거나 블록 고르기를 풀면 오른쪽에 나옵니다</span>
         {pending && <span className="text-gray-500">처리 중…</span>}
         {msg && <span className={msg.ok ? "text-green-700" : "text-red-600"} data-design-msg>{msg.text}</span>}
+        {conflict && (
+          <span className="flex flex-wrap items-center gap-2" data-design-conflict>
+            <span className="text-gray-600">(먼저 저장된 때 {when(conflict.at)})</span>
+            <button type="button" onClick={() => window.location.reload()} className="rounded border border-gray-300 bg-white px-2 py-0.5 font-semibold">새로 불러오기(내 변경은 사라짐)</button>
+            <button type="button" onClick={() => run(conflict.kind, true)} className="rounded bg-amber-600 px-2 py-0.5 font-semibold text-white">그래도 내 것으로 덮어쓰기</button>
+          </span>
+        )}
       </div>
       <div className="min-h-0 flex-1 overflow-hidden rounded border bg-white">
         <Puck
