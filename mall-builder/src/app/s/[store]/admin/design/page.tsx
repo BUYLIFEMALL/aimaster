@@ -17,9 +17,9 @@ export const fetchCache = "force-no-store";
 
 // 디자인 빌더 D2 — 끌어 놓는 첫 화면 편집기(Puck). 저장 모양·검사·저장 함수는 기존 첫 화면 편집(F18)과 같다
 // 초안 저장은 나만 보이고, 「유저 화면에 게시」를 눌러야 유저에게 보인다
-export default async function AdminDesignPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ template?: string; color?: string; restored?: string }> }) {
+export default async function AdminDesignPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ template?: string; color?: string; restored?: string; block?: string }> }) {
   const { store: slug } = await params;
-  const { template, color, restored } = await searchParams;
+  const { template, color, restored, block } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/design`);
   if (!staff) return <NoPermission />;
   const [home, rows, products, design] = await Promise.all([getHomeForEdit(store.id), getCategoryRows(store.id), getStoreProducts(store.id), getDesignForEdit(store.id)]);
@@ -84,6 +84,7 @@ export default async function AdminDesignPage({ params, searchParams }: { params
         businessInfo={readBusinessInfo(store.business_info)}
         publishedState={publishedState}
         draftAt={home.draftAt}
+        focusBlock={tpl ? undefined : block}
         baseAt={latestStamp([home.draftAt, ...Object.values(design).map((p) => p?.draftAt)])}
         publishedAt={home.publishedAt}
       />

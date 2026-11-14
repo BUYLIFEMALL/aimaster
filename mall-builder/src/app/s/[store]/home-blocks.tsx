@@ -161,7 +161,7 @@ export function TabsView({ title, labels, panels }: { title: string; labels: str
   const [i, setI] = useState(0);
   return (
     <div className="px-4 sm:px-6" data-tabs>
-      {title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900">{title}</h2>}
+      {title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{title}</h2>}
       <div className="mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none" role="tablist">
         {labels.map((l, j) => (
           <button

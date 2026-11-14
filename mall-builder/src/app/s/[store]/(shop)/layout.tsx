@@ -14,6 +14,7 @@ import type { Metadata, Viewport } from "next";
 import { APPLE_ICON_SIZE, EARLY_INSTALL_SCRIPT, iconColor, shouldOfferInstall } from "@/lib/pwa";
 import PwaPrompt from "./pwa-prompt";
 import RefCatcher from "./ref-catcher";
+import DesignEditOverlay from "./design-edit-overlay";
 import { SAMPLE_MALL_SLUG } from "@/lib/platform-admin";
 
 export const dynamic = "force-dynamic";
@@ -240,6 +241,7 @@ export default async function ShopLayout({ children, params }: { children: React
 
       {/* 네오 모던 B2B 바닥글 — 사업자 정보는 잠금(shop-frame.tsx) */}
       <ShopFooter storeName={store.name} info={info} footer={readFooter(design.footer)} logo={header.logo_footer} />
+      {staff && <DesignEditOverlay slug={store.slug} storeId={store.id} base={base} />}
 
       <PwaPrompt storeName={store.name} offer={shouldOfferInstall(customer)} />
       {!customer && <RefCatcher slug={store.slug} />}

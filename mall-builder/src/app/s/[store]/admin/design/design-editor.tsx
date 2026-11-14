@@ -307,7 +307,7 @@ function snapshot(data: Data): string {
   return v.ok ? JSON.stringify({ blocks: v.value.blocks, theme: readTheme(r.theme), header: readHeader(r.header), footer: readFooter(r.footer), popup: readPopup(r.popup), list: readList(r.list), detail: readDetail(r.detail) }) : `invalid:${Date.now()}`;
 }
 
-export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, initialFrame, storeName, topCategories, businessInfo, publishedState, draftAt, publishedAt, baseAt = null, footerBankLocked = false, previewing = false }: {
+export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, initialFrame, storeName, topCategories, businessInfo, publishedState, draftAt, publishedAt, baseAt = null, focusBlock, footerBankLocked = false, previewing = false }: {
   slug: string; storeId: string; categories: Option[]; products: Option[]; initial: BlocksDoc; initialTheme: ShopTheme;
   initialFrame: { header: HeaderDesign; footer: FooterDesign; popup: PopupDesign; list: ListDesign; detail: DetailDesign }; storeName: string; topCategories: { id: string; name: string }[]; businessInfo: BusinessInfo;
   /** D5-4 분양몰 — 바닥글 입금 계좌 칸 잠금 */
@@ -319,6 +319,8 @@ export default function DesignEditor({ slug, storeId, categories, products, init
   draftAt: string | null; publishedAt: string | null;
   /** D6-3 편집기를 열 때 마지막 초안 저장 시각(첫 화면 + 조각) — 저장할 때 서버가 비교 */
   baseAt?: string | null;
+  /** D7-1 유저 화면 연필에서 왔을 때 처음부터 골라 둘 블록 번호 */
+  focusBlock?: string;
 }) {
   const base = `/s/${slug}`;
   const start = useMemo(() => ({ ...toPuck(initial), root: { props: { theme: initialTheme, ...initialFrame } } }) as unknown as Data, [initial, initialTheme, initialFrame]);
@@ -420,6 +422,11 @@ export default function DesignEditor({ slug, storeId, categories, products, init
     });
   }
   const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("ko-KR") : "없음");
+  // D7-1 유저 화면 연필 → 그 블록을 골라 둔 채로 열기(없는 번호면 그냥 열기)
+  const focusUi = useMemo(() => {
+    const i = focusBlock ? (start.content as { props: { id?: string } }[]).findIndex((c) => c.props.id === focusBlock) : -1;
+    return i >= 0 ? { itemSelector: { index: i, zone: "root:default-zone" } } : undefined;
+  }, [focusBlock, start]);
   const dirty = nowState !== saved;
   // I23 색 대비 경고(바탕 밝기와 밝기 칸이 어긋남) — 편집 중인 값으로
   const contrast = contrastWarning(readTheme(rootOf(latest.current).theme ?? {}));
@@ -451,6 +458,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
           config={config}
           data={start}
           dictionary={DICTIONARY}
+          ui={focusUi}
           viewports={VIEWPORTS}
           iframe={{ enabled: true, waitForStyles: true }}
           headerTitle="첫 화면 디자인"

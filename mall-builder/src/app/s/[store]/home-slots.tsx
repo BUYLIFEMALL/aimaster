@@ -40,13 +40,13 @@ function Hero({ b, base, d }: { b: Block; base: string; d: SlotData }) {
       <div className={`grid items-center gap-8 ${product ? "md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]" : ""}`}>
         <div className={center ? "mx-auto max-w-3xl text-center" : ""}>
           {s.eyebrow && (
-            <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold tracking-wide text-blue-700">{s.eyebrow}</span>
+            <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold tracking-wide text-blue-700" data-edit-field="eyebrow">{s.eyebrow}</span>
           )}
           <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl">
-            {s.title}
-            {s.accent && <span className="block text-blue-600">{s.accent}</span>}
+            <span data-edit-field="title">{s.title}</span>
+            {s.accent && <span className="block text-blue-600" data-edit-field="accent">{s.accent}</span>}
           </h2>
-          {s.text && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-600 sm:text-base">{s.text}</p>}
+          {s.text && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-600 sm:text-base" data-edit-field="text">{s.text}</p>}
           {buttons.length > 0 && (
             <div className={`mt-7 flex flex-wrap gap-3 ${center ? "justify-center" : ""}`}>
               {buttons.map((bt, i) => <HeroLink key={i} bt={bt} primary={bt === s.button} />)}
@@ -71,7 +71,7 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
       <div className="px-4 sm:px-6">
         {s.title && (
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-black tracking-tight text-slate-900">{s.title}</h2>
+            <h2 className="text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{s.title}</h2>
           </div>
         )}
         <ProductGrid base={base} products={d.products ?? []} columns={s.columns} card={s.card} layout={s.layout} empty="보여 줄 상품이 없습니다." />
@@ -98,8 +98,8 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
             <span className="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold text-white mb-1.5">
               LIMITED TIME SALE
             </span>
-            <h2 className="text-xl font-black tracking-tight text-rose-700">⏰ {s.title}</h2>
-            {s.subtitle && <p className="mt-1 text-sm text-slate-600">{s.subtitle}</p>}
+            <h2 className="text-xl font-black tracking-tight text-rose-700">⏰ <span data-edit-field="title">{s.title}</span></h2>
+            {s.subtitle && <p className="mt-1 text-sm text-slate-600" data-edit-field="subtitle">{s.subtitle}</p>}
           </div>
           <div className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-right shadow-xs">
             <p className="text-xs text-slate-500">마감까지 남은 시간</p>
@@ -117,7 +117,7 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
     const list = d.reviews ?? [];
     return list.length ? (
       <div className="px-4 sm:px-6" data-reviews-block>
-        <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900">{s.title}</h2>
+        <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{s.title}</h2>
         <ul className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((rv) => (
             <li key={rv.id} className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition-shadow hover:shadow-md">
@@ -144,7 +144,7 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
     const items = s.items.filter((it) => catName.has(it.category_id));
     return items.length ? (
       <div className="px-4 sm:px-6" data-category-icons>
-        {s.title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900">{s.title}</h2>}
+        {s.title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{s.title}</h2>}
         <ul className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
           {items.map((it) => (
             <li key={it.category_id} className="shrink-0">
@@ -171,7 +171,7 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
     return (
       <div className="px-4 sm:px-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-black tracking-tight text-slate-900">{s.title}</h2>
+          <h2 className="text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{s.title}</h2>
           <Link href={`${base}/notices`} className="text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors">
             전체보기 ›
           </Link>

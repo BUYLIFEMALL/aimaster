@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isStoreStaff } from "@/lib/store";
-import { validateDoc } from "@/lib/blocks";
+import { readDoc, validateDoc } from "@/lib/blocks";
+import { applyInlineEdits } from "@/lib/builder/inline-edit";
 import { readTheme, validateTheme } from "@/lib/theme";
 import { validateFooter, validateHeader, validatePopup } from "@/lib/builder/frame";
 import { validateDetail, validateList } from "@/lib/builder/pages";
@@ -89,4 +90,44 @@ export async function saveDesignAction(slug: string, storeId: string, input: { h
   }
   revalidatePath(`/s/${slug}/admin/design`);
   return { ok: true, at, base: latestStamp(stamps) };
+}
+
+/** D7-2 유저 화면에서 「디자인 고치기」를 켤 때 — 지금 마지막 초안 시각(동시 편집 비교용)과 초안에 게시 안 된 첫 화면 변경이 있는지 */
+export async function inlineEditStartAction(storeId: string): Promise<{ ok: true; stamp: string | null; draftDiffers: boolean } | { ok: false; error: string }> {
+  if (!(await isStoreStaff(storeId))) return { ok: false, error: "이 몰을 고칠 권한이 없습니다." };
+  const supabase = await createClient();
+  const [stamp, home] = await Promise.all([
+    currentDraftStamp(supabase, storeId),
+    supabase.from("mall_builder_pages").select("draft_blocks, published_blocks").eq("store_id", storeId).eq("kind", "home").maybeSingle(),
+  ]);
+  const row = home.data as { draft_blocks?: unknown; published_blocks?: unknown } | null;
+  const draftDiffers = !!row && JSON.stringify(readDoc(row.draft_blocks)) !== JSON.stringify(readDoc(row.published_blocks));
+  return { ok: true, stamp, draftDiffers };
+}
+
+/** D7-2 유저 화면에서 고친 글자를 첫 화면 초안에 덧붙여 저장(publish면 이어서 게시). 고칠 수 있는 칸만, 저장 검사·동시 편집 검사 통과 */
+export async function saveInlineEditsAction(slug: string, storeId: string, edits: unknown, publish: boolean, expect: string | null, force = false): Promise<SaveResult> {
+  if (!(await isStoreStaff(storeId))) return { ok: false, error: "이 몰을 고칠 권한이 없습니다." };
+  const supabase = await createClient();
+  if (!force) {
+    const current = await currentDraftStamp(supabase, storeId);
+    if (isStale(expect, current)) return { ok: false, error: "다른 곳(다른 직원이나 다른 창)에서 먼저 저장했습니다.", conflict: { at: current! } };
+  }
+  const { data } = await supabase.from("mall_builder_pages").select("draft_blocks").eq("store_id", storeId).eq("kind", "home").maybeSingle();
+  const r = applyInlineEdits(readDoc((data as { draft_blocks?: unknown } | null)?.draft_blocks), edits);
+  if (!r.applied) return { ok: false, error: "저장할 수 있는 고친 글자가 없습니다(초안에서 그 블록이 빠졌을 수 있습니다 — 편집기에서 확인해 주세요)." };
+  const v = validateDoc(r.doc);
+  if (!v.ok) return { ok: false, error: v.error };
+  const a = await supabase.rpc("mall_builder_save_page_draft", { p_store_id: storeId, p_doc: v.value });
+  if (a.error) return { ok: false, error: a.error.message };
+  let at = a.data as string;
+  if (publish) {
+    const c = await supabase.rpc("mall_builder_publish_page", { p_store_id: storeId });
+    if (c.error) return { ok: false, error: c.error.message };
+    at = c.data as string;
+    await recordPublished(supabase, storeId);
+    revalidatePath(`/s/${slug}`, "layout");
+  }
+  revalidatePath(`/s/${slug}/admin/design`);
+  return { ok: true, at, base: await currentDraftStamp(supabase, storeId) };
 }

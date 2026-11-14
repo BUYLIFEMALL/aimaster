@@ -79,7 +79,9 @@
 | D6-1 | DB **0081**(번호는 프론트 범위 0080~0089 다음 번호) 게시 기록 표 `mall_builder_design_history` — 게시할 때마다 첫 화면 + 조각 6개 한 묶음, 같은 판이면 새로 안 남김, 몰당 20개 | I4 | ✅ 미배포 — Lab 적용·시나리오 9개 통과 | `0081_design_history_lock.sql`, `scripts/scenario-0081-design-history.sql`, `src/lib/builder/history.ts`, `tests/history.test.mjs` | 시나리오 | |
 | D6-2 | 되돌리기(그 판을 **초안으로만** 복사 → 편집기에서 확인 후 게시). 화면 `admin/design/history`(포인트색·블록 수·맨 위 블록·조각, 두 번 눌러 확인) | I4 | ✅ 미배포 — ego: 게시 A → 게시 B → A로 되돌리기 → 게시 = A와 해시 같음 | `admin/design/history/**`, `design-actions.ts` `restoreDesignAction`, `docs/evidence/d6-*.png` | ego | |
 | D6-3 | 「다른 곳에서 먼저 저장했습니다」 경고 — 편집기를 열 때 마지막 초안 시각(첫 화면+조각)을 기억, 저장 때 DB가 더 늦으면 덮어쓰지 않고 「새로 불러오기 / 그래도 덮어쓰기」 | 플랜 | ✅ 미배포 — ego 창 2개: B 저장 → A 경고 → 덮어쓰기 → A 다시 저장 경고 없음 → B 경고 | `history.ts` `latestStamp`·`isStale`, `design-store.ts` `currentDraftStamp`, `design-actions.ts`, `design-editor.tsx`, `docs/evidence/d6-3-conflict.png` | ego | |
-| **D7** | **손님 화면 위 바로 편집(확장)** | E1 | ⚪ D2~D6 끝난 뒤(결정 3) | | ego | 모아서 |
+| **D7** | **유저 화면 위 바로 편집(1·2단계)** | E1 | ✅ 미배포 — 주인님 「1·2단계 모두」 | `(shop)/design-edit-overlay.tsx`, `src/lib/builder/inline-edit.ts`, `design-actions.ts` | ego | 다음 함께 배포 |
+| D7-1 | 운영사에게만 「✏️ 디자인 고치기」 단추(오른쪽 아래) → 켜면 첫 화면 블록·헤더·바닥글에 ✏ 단추, 누르면 편집기가 그 블록을 골라 둔 채로 열림(`?block=`, Puck `ui.itemSelector`). 블록 그리기 코드는 안 고치고 이동 지점 `id="blk-…"`에 겹쳐 그림. 공용 `layout.tsx`는 `{staff && <DesignEditOverlay/>}` 한 줄 | E1 | ✅ 미배포 — ego: 연필 6개(블록 4·헤더·바닥글), 탭 상품 연필 → 편집기 「첫 화면 › 탭 상품」 선택 | `docs/evidence/d7-pencil-editor.png` | ego | |
+| D7-2 | 글자 바로 고치기 — 히어로 문구 4칸·상품 블록 제목·타임세일 부제(`INLINE_FIELDS`, 그림·상품·링크·글/HTML은 편집기에서만) → 「초안 저장」(초안에 덧붙임) 또는 「유저 화면에 게시」. 저장 검사·동시 편집 검사(D6-3)·게시 기록(D6) 그대로, 초안에 게시 안 된 변경이 있으면 알림, 한 줄 칸 Enter 막음 | E1 | ✅ 미배포 — ego: 탭 제목 키보드로 고침 → 초안만 바뀜(게시본 그대로) DB 확인 → Lab 초안 원래대로 | `tests/inline-edit.test.mjs` 4개 | ego·DB | |
 
 ## 2. 작업 중 발견한 개선사항
 | 번호 | 발견일 | 내용 | 근거(파일·화면) | 영향 | 처리 | 상태 |
@@ -155,3 +157,4 @@
 - 2026-11-15: 백엔드 v1.11 배포(D5·D5-8 운영, S29) → 운영 샘플몰 aimaster-b2b에 클린 웰니스 + 에메랄드 초안 저장 → 주인님 확인(「문구를 도매몰에 맞춰」 → 이어서 「문구는 나중에」) → **템플릿 그대로 게시**(00:37). 손님 화면 ego 확인(글 히어로·대표 상품·가로 넘침 없음). 운영에 0081 없음 → 원래 첫 화면 수동 백업. 문구 수정은 I26.
 - 2026-11-15: 주인님 「순서대로 진행해」 — I26 운영 샘플몰 도매 문구 게시(초안 값은 앱 저장 검사 통과본, 편집기 미리보기 확인 뒤 게시, 손님 화면 ego 확인). D6-3 동시 편집 경고(시험 319/319, tsc 0, ego 창 2개 확인) → D6 전체 완료, 운영 DB 0081 + 빌드 1회로 함께 배포 요청(SYNC). 작업표 큰 줄 상태 정리(D1~D5 운영, I11·I15·I20 완료).
 - 2026-11-15: I23 어두운 테마(주인님 「만들기」) — `theme.ts` mode·`contrastWarning`·`isDarkColor`, 공용 파일 `(shop)/layout.tsx` 바깥 상자 `data-mall-mode` 한 줄·`globals.css` 어두운 면 규칙, 편집기 밝기 칸·대비 경고, 럭셔리 부티크 어둡게. 시험 324/324, tsc 0, ego(검은 바탕·밝은 글자, 밝게로 바꾸면 경고). 미배포(DB 추가 없음).
+- 2026-11-15: D7 유저 화면 위 바로 편집 1·2단계(주인님 「1·2단계 모두」) — 겹침층·연필 → 편집기 블록 선택·글자 바로 고치기(초안 저장/게시). 시험 331/331, tsc 0, ego(캡처는 ego 탭이 다른 세션 탭에 가려 두 번 실패 → 화면 값 읽기로 확인, 편집기 캡처 1장). 미배포(DB 추가 없음).
