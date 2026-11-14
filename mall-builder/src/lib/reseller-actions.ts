@@ -66,14 +66,14 @@ export async function requestPayoutAction(slug: string, form: FormData) {
 
 /** 운영자: 출금 처리 — 지급 완료(공제금액·비고, M1-7 0075)·반려 */
 export async function decidePayoutAction(slug: string, payoutId: string, action: "paid" | "rejected", form: FormData) {
-  const back = `/s/${slug}/admin/resellers`;
+  const back = `/s/${slug}/admin/resellers?tab=payouts`;
   const supabase = await createClient();
   const deduction = Math.floor(Number(String(form.get("deduction") ?? "0").replace(/[^0-9]/g, "") || "0"));
   const { error } =
     action === "paid"
       ? await supabase.rpc("mall_builder_reseller_payout_pay", { p_id: payoutId, p_deduction: deduction, p_memo: String(form.get("reason") ?? "") })
       : await supabase.rpc("mall_builder_reseller_decide_payout", { p_id: payoutId, p_action: action, p_reason: String(form.get("reason") ?? "") });
-  revalidatePath(back);
+  revalidatePath(`/s/${slug}/admin/resellers`);
   go(back, error?.message, action === "paid" ? "지급 완료로 표시했습니다." : "반려하고 잔액을 돌려줬습니다.");
 }
 
@@ -115,10 +115,59 @@ export async function decideResellerApplyAction(slug: string, id: string, action
 
 /** 몰 대표: 리셀러 최소 출금 금액(M1-7 0075) */
 export async function setPayoutMinAction(slug: string, storeId: string, form: FormData) {
-  const base = `/s/${slug}/admin/resellers`;
+  const base = `/s/${slug}/admin/resellers?tab=payouts`;
   const amount = Math.floor(Number(String(form.get("payout_min") ?? "").replace(/[^0-9]/g, "")));
   const supabase = await createClient();
   const { error } = await supabase.rpc("mall_builder_reseller_payout_min_set", { p_store_id: storeId, p_amount: amount });
-  revalidatePath(base);
+  revalidatePath(`/s/${slug}/admin/resellers`);
   go(base, error?.message, `최소 출금 금액을 ${amount.toLocaleString("ko-KR")}원으로 바꿨습니다.`);
+}
+
+// ── M1-8 운영 화면 동작 ──
+/** 몰 대표: 리워드 상품 일괄(본사 상품 리셀러율·추가율 중복 차단) */
+export async function setRewardProductsAction(slug: string, storeId: string, form: FormData) {
+  const base = `/s/${slug}/admin/resellers?tab=products`;
+  const ids = form.getAll("pid").map(String).filter((x) => /^[0-9a-f-]{36}$/.test(x));
+  const rawRate = String(form.get("rate") ?? "").trim();
+  const rate = rawRate === "" ? null : Number(rawRate.replace(/[^0-9.]/g, ""));
+  const ne = String(form.get("no_extra") ?? "keep");
+  const noExtra = ne === "on" ? true : ne === "off" ? false : null;
+  if (ids.length === 0) go(base, "상품을 골라 주세요.");
+  if (rate !== null && (!Number.isFinite(rate) || rate < 0 || rate > 50)) go(base, "리셀러율은 0~50 사이 숫자로 적어 주세요.");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_reward_products_set", { p_store_id: storeId, p_product_ids: ids, p_rate: rate, p_no_extra: noExtra });
+  revalidatePath(`/s/${slug}/admin/resellers`);
+  go(base, error?.message, `상품 ${Number(data ?? 0)}개를 바꿨습니다(공급사 상품의 율은 공급사가 정하므로 그대로).`);
+}
+
+/** 몰 대표: 보류 리워드 지급·삭제 */
+export async function decideRewardAction(slug: string, rewardId: string, action: "pay" | "delete", form: FormData) {
+  const base = `/s/${slug}/admin/resellers?tab=rewards&status=held`;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_reward_decide", { p_id: rewardId, p_action: action, p_note: String(form.get("note") ?? "") });
+  revalidatePath(`/s/${slug}/admin/resellers`);
+  go(base, error?.message, action === "pay" ? "보류 리워드를 지급했습니다(잔고에 적립)." : "보류 리워드를 삭제했습니다.");
+}
+
+/** 몰 대표: 직권 지급·차감 */
+export async function adjustResellerAction(slug: string, storeId: string, form: FormData) {
+  const base = `/s/${slug}/admin/resellers?tab=rewards`;
+  const sign = String(form.get("sign") ?? "plus") === "minus" ? -1 : 1;
+  const amount = Math.floor(Number(String(form.get("amount") ?? "").replace(/[^0-9]/g, "")));
+  if (!(amount > 0)) go(base, "금액을 적어 주세요.");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_reseller_adjust", { p_store_id: storeId, p_reseller_id: String(form.get("reseller_id") ?? ""), p_amount: sign * amount, p_note: String(form.get("note") ?? "") });
+  revalidatePath(`/s/${slug}/admin/resellers`);
+  go(base, error?.message, sign > 0 ? "직권 지급했습니다." : "직권 차감했습니다.");
+}
+
+/** 운영자: 리셀러 계정 — 추가율·쉬기(코드는 그대로) */
+export async function updateResellerAccountAction(slug: string, storeId: string, customerId: string, code: string, form: FormData) {
+  const base = `/s/${slug}/admin/resellers?tab=accounts`;
+  const rate = parseRate(form.get("rate"));
+  if (!rate.ok) go(base, rate.error);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_reseller_set", { p_store_id: storeId, p_customer_id: customerId, p_code: code, p_rate: rate.value, p_active: form.get("active") === "on" });
+  revalidatePath(`/s/${slug}/admin/resellers`);
+  go(base, error?.message, `리셀러 ${code}를 저장했습니다.`);
 }

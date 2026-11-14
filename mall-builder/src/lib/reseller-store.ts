@@ -111,3 +111,50 @@ export async function getPayoutMin(storeId: string): Promise<number | null> {
   if (error || data?.reseller_payout_min == null) return null;
   return Number(data.reseller_payout_min);
 }
+
+// ── M1-8 운영 화면(리워드 상품·적립 내역·계정) — 운영 DB에 0074~0076이 없으면 빈 값 ──
+export type RewardProduct = { id: string; name: string; base_price: number; status: string; supplier: boolean; supplier_rate: number | null; reward_rate: number; reward_no_extra: boolean };
+export async function getRewardProducts(storeId: string): Promise<{ ready: boolean; rows: RewardProduct[] }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("mall_builder_products")
+    .select("id, name, base_price, status, supplier_id, reward_rate, reward_no_extra, supply:mall_builder_product_supply(reseller_rate)")
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) return { ready: false, rows: [] };
+  type Raw = { id: string; name: string; base_price: number; status: string; supplier_id: string | null; reward_rate: number; reward_no_extra: boolean; supply: { reseller_rate: number } | { reseller_rate: number }[] | null };
+  return {
+    ready: true,
+    rows: ((data ?? []) as unknown as Raw[]).map((p) => {
+      const sup = Array.isArray(p.supply) ? p.supply[0] : p.supply;
+      return { id: p.id, name: p.name, base_price: Number(p.base_price), status: p.status, supplier: !!p.supplier_id, supplier_rate: sup ? Number(sup.reseller_rate) : null, reward_rate: Number(p.reward_rate), reward_no_extra: !!p.reward_no_extra };
+    }),
+  };
+}
+
+export type RewardStatus = "pending" | "paid" | "held" | "deleted";
+export type RewardRow = { id: string; reseller_id: string; order_id: string; name_snapshot: string; base_amount: number; product_rate: number; reseller_rate: number; amount: number; status: RewardStatus; note: string; created_at: string; decided_at: string | null; order: { order_no: string } | null };
+export async function getRewards(storeId: string, status?: RewardStatus, limit = 300): Promise<{ ready: boolean; rows: RewardRow[] }> {
+  const supabase = await createClient();
+  let q = supabase
+    .from("mall_builder_reseller_rewards")
+    .select("id, reseller_id, order_id, name_snapshot, base_amount, product_rate, reseller_rate, amount, status, note, created_at, decided_at, order:mall_builder_orders(order_no)")
+    .eq("store_id", storeId);
+  if (status) q = q.eq("status", status);
+  const { data, error } = await q.order("created_at", { ascending: false }).limit(limit);
+  if (error) return { ready: false, rows: [] };
+  return { ready: true, rows: ((data ?? []) as unknown as RewardRow[]).map((w) => ({ ...w, amount: Number(w.amount), base_amount: Number(w.base_amount), product_rate: Number(w.product_rate), reseller_rate: Number(w.reseller_rate) })) };
+}
+
+/** 리셀러 정산 정보(0071) — 칸이 없으면 빈 지도 */
+export async function getResellerPayees(storeId: string): Promise<Map<string, { payee_type: string; bank: string; channel: string }>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("mall_builder_resellers").select("id, payee_type, bank_name, bank_account, bank_holder, channel").eq("store_id", storeId);
+  const m = new Map<string, { payee_type: string; bank: string; channel: string }>();
+  if (error) return m;
+  for (const r of (data ?? []) as { id: string; payee_type: string; bank_name: string; bank_account: string; bank_holder: string; channel: string }[]) {
+    m.set(r.id, { payee_type: r.payee_type, bank: r.bank_account ? `${r.bank_name} ${r.bank_account} (${r.bank_holder})` : "", channel: r.channel ?? "" });
+  }
+  return m;
+}
