@@ -1,5 +1,25 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 22:42 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-ssr-v1` — `smartstore-register` v1.28 1안 110번(네이버 스마트스토어 오리지널 그린 & 화이트) 전면 구현 완료 (운영 배포 대기)
+- 주인님 지시: 「1안으로 진행해」 (110. 네이버 스마트스토어 오리지널 그린 & 화이트 셀러 스튜디오 공식 채택)
+- 완료 내역:
+  1. **네이버 시그니처 그린 테마 전면 교체**: `--brand: #03C75A`, `--brand-dark: #029643`, `--brand-light: rgba(3,199,90,0.12)`, 쿨 그레이 서피스 및 3D 엠보싱 네이버 그린 버튼(`.btn-3d-primary`, `.btn-3d-naver`), 전역 1행 유지 의무(`white-space: nowrap !important;`) 완비.
+  2. **GNB 및 사이드바 개편**: N 스마트스토어 센터 고유 브랜드 로고, 네이버 그린 액티브 하이라이트 및 실시간 연동 배지.
+  3. **메인 등록 관제 스튜디오 (`/home`)**: 상단 실시간 파이프라인 배너(상세페이지 ➔ 스마트스토어 원클릭 자동 등록) 및 4대 실시간 KPI 관제 카드(스토어 기본 설정, 등록 대기 상품, 30일 등록 기록, 판매자센터 화면 점검 `HealthCard`) 고도화.
+  4. **상품 일괄/배치 전송 워크스페이스 (`/products`)**: 네이버 그린 액센트 체크박스, 선택 카드 하이라이트, 3D 엠보싱 연속 전송 바.
+  5. **상품 상세 등록 스튜디오 (`/products/[id]`)**: 카테고리 검색, 판매가/할인가 입력, 구매/리뷰 혜택 바로가기 안내, 톤앤매너 일체화된 속성/태그 덱, 대표 사진 링(`ring-2 ring-[#03C75A]`).
+  6. **스토어 기본값 설정 (`/defaults`)**: 네이버페이 포인트/리뷰 혜택, 배송비/반품 배송비, 판매자 A/S 덱의 네이버 센터 스타일 일체화.
+  7. **셀러 마스터 가이드 (`/guide`)**: 4단계 핵심 프로세스 매뉴얼 덱 및 네이버 그린 시그니처 뱃지.
+  8. **5단계 표준 로그인 폼 (`/login`)**: 네이버 N 시그니처 로고, 알약 캡슐 뱃지, 2단 탭, 3D 엠보싱 로그인 버튼, 1행 약관 규격 완비.
+- 검증:
+  - 단위 테스트: `npm --prefix smartstore-register test` 27 / 27 전수 통과 (`pass 27, fail 0`).
+  - 타입 검사: `npx --prefix smartstore-register tsc --noEmit` 에러 0건 통과.
+  - 프로덕션 빌드: `npm --prefix smartstore-register run build` (Turbopack) 성공.
+  - 실물 검수: 모바일 390px 가로스크롤 0px (너비 390px / 클라이언트 390px, 오버플로우 0px) 통과.
+  - 최상위 0번 규칙 고지 & 저장공간 위젯 태그 탑재 확인 완료.
+- 인수인계 문서: [`smartstore-register/docs/DESIGN_HANDOFF.md`](../smartstore-register/docs/DESIGN_HANDOFF.md)
+- 링크: https://smartstore-register.buylife.xyz (운영 배포 승인 대기)
+
 ## 2026-11-14 22:31 KST [역할: mac-mini] 1~5 순차 재개 — 메이커 새 P1, 이웃/WP 로그인·티스토리 설치 선택 대기
 
 - 1 상품소싱: Chrome목록조회가능·화면읽기timeoutMs재현, 검색0. ZIPv1.39확인만(기커밋cba0d3c52), 기능실패판정아님.
