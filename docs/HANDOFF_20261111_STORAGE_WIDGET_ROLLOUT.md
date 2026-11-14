@@ -83,3 +83,4 @@ import Script from "next/script";
 - 문제: 중앙 정리 함수 `member_storage_expired_files`(마이그레이션 0063·0068)가 보관 연장 회원의 기간 지난 Storage 파일을 지우는데, 워크스페이스는 주인님 지정 예외(일반 자료 1년·음악/영상 30일)로 **자체 정리**를 합니다. 연장 회원(예: 90일)의 첨부가 페이지에 남은 채 먼저 지워질 수 있습니다.
 - 요청: 함수의 `where`에 `and o.bucket_id <> 'workspace-files'` 한 줄을 더해 주세요(운영 DB 변경이라 주인님 승인 뒤). 워크스페이스 배포 전후 어느 쪽이든 괜찮습니다 — 일반 회원(30일)은 영향이 없고 보관 연장 회원만 해당됩니다.
 - 처리하시면 이 칸에 「반영함(날짜·커밋)」을 적어 주세요.
+- **반영함(2026-11-15, 주인님 「너가 해」로 workspace 세션이 직접 처리)**: 마이그레이션 `supabase/migrations/0073_storage_expired_skip_workspace_files.sql` 운영 적용(cand에 `where o.bucket_id <> 'workspace-files'` 한 줄). 확인: 함수 정의에 제외 줄 있음, 실행 결과 workspace-files 0건. 용량 계산(`member_storage_measure`)은 그대로.
