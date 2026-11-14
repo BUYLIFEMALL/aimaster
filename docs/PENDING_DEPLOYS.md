@@ -50,6 +50,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `shorts-onestop-studio` | 상품 사진 업로드 전 용량 검사(공용 `storage-quota-client` 첫 사본) | 이 줄 직전 코드 커밋 | 2026-11-14 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때 v1.55 함께 |
 | `shorts-onestop-studio` | 메이커 2단계: 상품 사진 「내 자료함에서 고르기」(원본 참조 `Bg.ref`, 복사 없음) + 서명 API `refs` | 이 줄 직전 코드 커밋 | 2026-11-14 · [역할: video] `claude-win-video` | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때 v1.55(새 기능 — 화면 확인 필요) |
 | `shorts-onestop-studio` · `shots` · `lyric-video-studio` | 공용 `browser-mp4-encoder` 영상 저장 안정화 3가지(하드웨어 가속 먼저·화면 꺼짐 방지·남은 시간) — 사본 맞춤, 함수 모양 그대로 | 이 줄 직전 코드 커밋 | 2026-11-14 · [역할: video] `claude-win-video` | `docs/SHARED_MODULES.md` 미배포 표 | 각 프로그램 다음 배포 때 함께(급하지 않음), 배포 뒤 MP4 1회 확인 |
 | `shots` | 백로그 6 「모든 장면 영상으로」(합계 확인 뒤 한 장면씩 차례로, 자동 재요청 없음, 실패만 다시) | 이 줄 직전 코드 커밋 | 2026-11-14 · [역할: video] `claude-win-video` | `shots/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때 v1.51(새 기능 — 화면 확인 필요) |
