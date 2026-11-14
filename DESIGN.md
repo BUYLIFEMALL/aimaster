@@ -883,6 +883,19 @@
 - 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
 - 작성: [역할: design] Antigravity(윈도우) `agy-win-elr-v1`
 
+## 2026-11-14 AI 스마트스토어 상품 자동등록기 (`smartstore-register`) 4대 화면 3시안 자산화
+
+| 템플릿 번호 & 명칭 | 구조 및 시그니처 컴포넌트 | 추천/선정 이유 | 상태 & 영구 자산 경로 |
+|---|---|---|---|
+| **110. 네이버 스마트스토어 오리지널 그린 & 화이트 셀러 스튜디오** | 클린 퓨어 화이트 & 소프트 쿨 그레이(`#F5F6F8`) & 네이버 시그니처 그린(`#03C75A`, `#1EC800`), 실시간 4단계 파이프라인 배너, 4대 실시간 KPI 관제 카드, 스마트폰 프레임 네이버 모바일 쇼핑 실물 뷰파인더 덱, 14개 필드 자동 매핑 테이블, 3D 엠보싱 네이버 그린 버튼(`.btn-3d-naver`), 버튼 1행 고정(nowrap) 전역 준수 | 네이버 스마트스토어 센터(`sell.smartstore.naver.com`)와의 압도적인 일체감과 직관성을 제공하는 공식 1순위 추천 스타일 | **⭐ 강력 추천 (1안 제안)** · `D:\Antigravity\Design\110_naver_smartstore_green_seller_studio\smartstore-register` |
+| **111. 퀀트 커머스 네오 다크 사이버 셀러 HUD 스타일** | 딥 옵시디언 다크(`#0A0E17`, `#111827`) & 네온 에메랄드(`#10B981`) & 사이버 시안(`#06B6D4`), 고대비 수치 디스플레이, 시스템 로그 레이더 덱, 터미널 속성 인스펙터, 3D 엠보싱 네온 사이버 버튼(`.btn-3d-cyber`) | 대량 상품 등록 및 실시간 전송 관제에 최적화된 파워셀러 전용 콘솔 | **⚡ 2순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\111_neo_dark_cyber_seller_hud\smartstore-register` |
+| **112. 소프트 에디토리얼 세이지 & 클린 페이퍼 셀러 아틀리에** | 소프트 웜 아이보리(`#FAF8F5`, `#F3EFEA`) & 세이지 민트(`#2D5A4C`, `#88B2A0`), 매거진 카드 그리드, 페이퍼 질감 서피스, 우아한 스토리텔링 가이드, 3D 엠보싱 세이지 버튼(`.btn-3d-sage`) | 감성 리빙, 인테리어, 핸드메이드 브랜드 셀러를 위한 프리미엄 아틀리에 | **🌿 3순위 대안 (영구 자산화 보존)** · `D:\Antigravity\Design\112_soft_editorial_sage_seller_atelier\smartstore-register` |
+
+- 단일 통합 쇼케이스 웹서버 링크: [http://localhost:3800/showcase.html](http://localhost:3800/showcase.html)
+- 4대 화면 3시안 종합 비교표 링크: [http://localhost:3800/comparison.html](http://localhost:3800/comparison.html)
+- 작성: [역할: design] Antigravity(윈도우) `agy-win-ssr-v1`
+
+
 
 
 
