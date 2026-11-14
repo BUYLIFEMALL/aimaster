@@ -419,7 +419,9 @@ export const boltaHandlers: Record<string, Handler> = {
       ...(data.boltaAmends ?? []).flatMap((a) => [a.ntsTransactionId ? a.issuanceKey : undefined, a.cancel?.state === 'issued' ? a.cancel.issuanceKey : undefined]),
     ].filter((k): k is string => !!k);
     if (!want || !issued.includes(want)) throw new ApiError('발급을 마친 세금계산서만 PDF를 받을 수 있습니다.', 400);
-    const { key } = await keyOrThrow(userId);
+    const { key, mode } = await keyOrThrow(userId);
+    // 볼타 규칙: PDF는 발행을 요청한 키로만 받는다(키를 바꾸면 그 키로 발행한 건의 PDF는 못 받음)
+    if (data.bolta?.mode && mode !== data.bolta.mode) throw new ApiError(`이 세금계산서는 ${data.bolta.mode === 'live' ? '실제(live_)' : '테스트(test_)'} 키로 발급했습니다. 발급할 때 쓴 키로만 PDF를 받을 수 있습니다.`, 400);
     try {
       const r = await call(key, 'GET', `/v1/taxInvoices/${encodeURIComponent(want)}/pdf`);
       if (r?.status === 'READY' && typeof r.downloadUrl === 'string') return { ready: true, url: r.downloadUrl, filename: typeof r.filename === 'string' ? r.filename : null };
