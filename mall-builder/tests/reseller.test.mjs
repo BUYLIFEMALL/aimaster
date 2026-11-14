@@ -48,3 +48,35 @@ test("defaultDeduction — 개인 3.3% 원천징수, 사업자 0(M1-7 0075)", ()
   assert.equal(defaultDeduction(40000, undefined), 1320);
   assert.equal(defaultDeduction(40000, "business"), 0);
 });
+
+// ── M4-C3 상품 순위·새 소식
+import { rankProducts, recentNews } from "../src/lib/reseller.ts";
+const W = (o) => ({ product_id: "p1", name_snapshot: "컵", order_id: "o1", base_amount: 10000, amount: 700, status: "pending", created_at: "2026-11-14T00:00:00Z", decided_at: null, ...o });
+
+test("rankProducts: 상품별 주문 수·금액·리워드, 삭제 제외, 리워드 많은 순", () => {
+  const r = rankProducts([
+    W({}),
+    W({ order_id: "o2", status: "paid" }),
+    W({ product_id: "p2", name_snapshot: "티셔츠", amount: 1200 }),
+    W({ product_id: "p2", name_snapshot: "티셔츠", order_id: "o3", amount: 999, status: "deleted" }),
+  ]);
+  assert.deepEqual(r.map((x) => [x.name, x.orders, x.sales, x.reward]), [["컵", 2, 20000, 1400], ["티셔츠", 1, 10000, 1200]]);
+});
+
+test("rankProducts: 상품 id가 없으면 이름으로 묶음", () => {
+  const r = rankProducts([W({ product_id: null }), W({ product_id: null, order_id: "o9" })]);
+  assert.equal(r.length, 1);
+  assert.equal(r[0].orders, 2);
+});
+
+test("recentNews: 최근 7일 새 리워드·지급 완료·보류, 오래된 것·삭제 제외, 최신순", () => {
+  const now = new Date("2026-11-15T00:00:00Z");
+  const n = recentNews([
+    W({ created_at: "2026-11-14T00:00:00Z" }),
+    W({ created_at: "2026-11-01T00:00:00Z", status: "paid", decided_at: "2026-11-13T00:00:00Z" }),
+    W({ created_at: "2026-11-12T00:00:00Z", status: "held", decided_at: "2026-11-12T12:00:00Z" }),
+    W({ created_at: "2026-10-01T00:00:00Z" }),
+    W({ created_at: "2026-11-14T00:00:00Z", status: "deleted" }),
+  ], now);
+  assert.deepEqual(n.map((x) => x.kind), ["new", "paid", "held"]);
+});

@@ -173,3 +173,21 @@ export async function updateResellerAccountAction(slug: string, storeId: string,
   revalidatePath(`/s/${slug}/admin/resellers`);
   go(base, error?.message, `리셀러 ${code}를 저장했습니다.`);
 }
+
+/** M4-C3 리셀러: 상품 픽 켜고 끄기(DB 0078이 판매 중·내 몰 상품인지 다시 확인) */
+export async function togglePickAction(slug: string, productId: string, back: string) {
+  const { supabase, id } = await storeIdOf(slug);
+  if (!id) go(back, "몰을 찾을 수 없습니다.");
+  const { data, error } = await supabase.rpc("mall_builder_reseller_pick_toggle", { p_store_id: id, p_product_id: productId });
+  revalidatePath(`/s/${slug}/reseller`, "layout");
+  go(back, error?.message, data ? "픽에 담았습니다." : "픽에서 뺐습니다.");
+}
+
+/** M4-C3 리셀러: 짧은 링크 키 만들기(이미 있으면 그 키). productId null = 몰 첫 화면 */
+export async function makeShortLinkAction(slug: string, productId: string | null): Promise<{ key: string | null; error: string | null }> {
+  const { supabase, id } = await storeIdOf(slug);
+  if (!id) return { key: null, error: "몰을 찾을 수 없습니다." };
+  const { data, error } = await supabase.rpc("mall_builder_reseller_link_make", { p_store_id: id, p_product_id: productId });
+  if (error) return { key: null, error: /function|does not exist|schema cache/i.test(error.message) ? "짧은 링크는 DB 업데이트 뒤 쓸 수 있습니다." : error.message };
+  return { key: data as string, error: null };
+}

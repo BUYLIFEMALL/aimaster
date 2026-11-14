@@ -62,3 +62,38 @@ export function defaultDeduction(amount: number, payeeType: string | undefined |
   return payeeType === "business" ? 0 : withholdingHint(amount);
 }
 export const PAYEE_LABEL: Record<"individual" | "business", string> = { individual: "개인(3.3% 원천징수)", business: "사업자(세금계산서)" };
+
+// ── M4-C3 상품 순위·새 소식(순수 함수, node --test 대상)
+type RewardLite = { product_id?: string | null; name_snapshot: string; order_id: string; base_amount: number; amount: number; status: "pending" | "paid" | "held" | "deleted"; created_at: string; decided_at: string | null };
+
+/** 내 리워드 품목 → 상품별 주문 수·판매 금액·리워드(삭제 제외), 리워드 많은 순 */
+export function rankProducts(rows: RewardLite[]) {
+  const m = new Map<string, { key: string; name: string; orders: Set<string>; sales: number; reward: number }>();
+  for (const w of rows) {
+    if (w.status === "deleted") continue;
+    const key = w.product_id || `name:${w.name_snapshot}`;
+    const g = m.get(key) ?? { key, name: w.name_snapshot, orders: new Set<string>(), sales: 0, reward: 0 };
+    g.orders.add(w.order_id);
+    g.sales += Number(w.base_amount);
+    g.reward += Number(w.amount);
+    m.set(key, g);
+  }
+  return [...m.values()]
+    .map((g) => ({ key: g.key, name: g.name, orders: g.orders.size, sales: g.sales, reward: g.reward }))
+    .sort((a, b) => b.reward - a.reward || b.orders - a.orders || a.name.localeCompare(b.name, "ko"));
+}
+
+export type NewsItem = { at: string; kind: "new" | "paid" | "held"; name: string; amount: number };
+/** 최근 days일 소식: 새 리워드(지급 예정), 지급 완료(출금 가능해짐), 보류 — 최신순 limit개 */
+export function recentNews(rows: RewardLite[], now: Date, days = 7, limit = 6): NewsItem[] {
+  const from = now.getTime() - days * 86400000;
+  const out: NewsItem[] = [];
+  for (const w of rows) {
+    if (w.status === "deleted") continue;
+    if (w.status === "paid" && w.decided_at && Date.parse(w.decided_at) >= from) out.push({ at: w.decided_at, kind: "paid", name: w.name_snapshot, amount: Number(w.amount) });
+    else if (w.status === "held" && Date.parse(w.decided_at ?? w.created_at) >= from) out.push({ at: w.decided_at ?? w.created_at, kind: "held", name: w.name_snapshot, amount: Number(w.amount) });
+    if (Date.parse(w.created_at) >= from && w.status !== "held") out.push({ at: w.created_at, kind: "new", name: w.name_snapshot, amount: Number(w.amount) });
+  }
+  return out.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, limit);
+}
+export const NEWS_LABEL: Record<NewsItem["kind"], string> = { new: "새 리워드(지급 예정)", paid: "지급 완료 → 출금 가능", held: "보류(취소·반품 확인 중)" };

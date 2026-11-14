@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { getMyRewards, getPayouts } from "@/lib/reseller-store";
+import { getMyLinks, getMyRewards, getPayouts } from "@/lib/reseller-store";
 import { requestPayoutAction } from "@/lib/reseller-actions";
-import { PAYOUT_MIN, PAYOUT_STATUS_LABEL, defaultDeduction } from "@/lib/reseller";
+import { NEWS_LABEL, PAYOUT_MIN, PAYOUT_STATUS_LABEL, defaultDeduction, recentNews } from "@/lib/reseller";
 import { formatWon } from "@/lib/products";
 import { formatDateTime } from "@/lib/orders";
 import { ResellerShell, getResellerContext } from "./reseller-shell";
@@ -10,12 +10,14 @@ import LinkTools from "./link-tools";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// M4-C1 리셀러 홈 — 수익 3칸(지급 예정·보류·출금 가능 + 지급 완료 누계), 내 링크, 출금 신청
+// M4-C1 리셀러 홈 — 수익 칸(지급 예정·보류·출금 가능·지급 완료 누계), 새 소식(M4-C3, 최근 7일 리워드 변화 — 화면 안 알림, 문자 없음), 내 링크, 출금 신청
 export default async function ResellerHomePage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const notice = await searchParams;
-  const { user, store, summary: s, shopUrl } = await getResellerContext(slug, `/s/${slug}/reseller`);
-  const [{ sum }, payouts] = await Promise.all([getMyRewards(s.id, 500), getPayouts(store.id, s.id, 5)]);
+  const { user, store, summary: s, shopUrl, shortBase } = await getResellerContext(slug, `/s/${slug}/reseller`);
+  const [{ rows, sum }, payouts, links] = await Promise.all([getMyRewards(s.id, 500), getPayouts(store.id, s.id, 5), getMyLinks(s.id)]);
+  const news = recentNews(rows, new Date());
+  const homeLink = links.get("home");
   const min = s.payout_min ?? PAYOUT_MIN;
   const canPayout = s.balance >= min && s.pending === 0;
   const card = "rounded-xl border bg-white p-4";
@@ -31,10 +33,26 @@ export default async function ResellerHomePage({ params, searchParams }: { param
         <div className={card}><p className="text-xs text-slate-500">지급 완료 누계</p><p className="mt-1 text-lg font-bold">{formatWon(sum.paid)}</p><p className="text-[11px] text-slate-400">이번 달 적립 {formatWon(s.month_earned)}</p></div>
       </section>
 
+      <section className="mt-6" data-reseller-news>
+        <h2 className="font-semibold">🔔 새 소식 <span className="text-xs font-normal text-slate-500">최근 7일</span></h2>
+        {news.length === 0 ? (
+          <p className="mt-1 text-sm text-slate-500">최근 7일 동안 바뀐 리워드가 없습니다.</p>
+        ) : (
+          <ul className="mt-2 space-y-1 text-sm">
+            {news.map((n, i) => (
+              <li key={i} className="flex items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2">
+                <span className="min-w-0 truncate"><span className={`mr-1 rounded px-1.5 text-xs ${n.kind === "paid" ? "bg-emerald-50 text-emerald-800" : n.kind === "held" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-800"}`}>{NEWS_LABEL[n.kind]}</span>{n.name}</span>
+                <span className="shrink-0 text-xs text-slate-500">{formatDateTime(n.at)} · <b className="text-slate-800">{formatWon(n.amount)}</b></span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <section id="link" className="mt-6 scroll-mt-4" data-reseller-link>
         <h2 className="font-semibold">🔗 내 링크</h2>
         <p className="mt-1 text-xs text-slate-500">몰 첫 화면 링크입니다. 상품마다 링크는 <Link href={`/s/${store.slug}/reseller/products`} className="underline">상품 고르기</Link>에서 복사하세요.</p>
-        <div className="mt-2"><LinkTools url={shopUrl()} name={`${store.name}-몰`} /></div>
+        <div className="mt-2"><LinkTools url={shopUrl()} name={`${store.name}-몰`} short={{ slug: store.slug, productId: null, base: shortBase, key: homeLink?.key, clicks: homeLink?.clicks }} /></div>
       </section>
 
       <section className="mt-6" data-reseller-payout>

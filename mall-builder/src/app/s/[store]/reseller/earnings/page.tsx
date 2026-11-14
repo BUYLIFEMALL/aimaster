@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getMyRewards, getPayouts, getResellerLedger } from "@/lib/reseller-store";
+import { getMyRewards, getMySales, getPayouts, getResellerLedger } from "@/lib/reseller-store";
 import { LEDGER_KIND_LABEL, PAYOUT_STATUS_LABEL } from "@/lib/reseller";
 import { formatWon } from "@/lib/products";
 import { formatDateTime } from "@/lib/orders";
@@ -16,7 +16,9 @@ export default async function ResellerEarningsPage({ params, searchParams }: { p
   const { store: slug } = await params;
   const { status } = await searchParams;
   const { user, store, summary: s } = await getResellerContext(slug, `/s/${slug}/reseller/earnings`);
-  const [{ rows, sum }, ledger, payouts] = await Promise.all([getMyRewards(s.id, 300), getResellerLedger(s.id, 50), getPayouts(store.id, s.id, 30)]);
+  const [{ rows, sum }, ledger, payouts, sales] = await Promise.all([getMyRewards(s.id, 300), getResellerLedger(s.id, 50), getPayouts(store.id, s.id, 30), getMySales(store.id, 500)]);
+  // 리셀러는 주문 표를 직접 못 읽어 주문번호가 비므로 판매 내역(0078)에서 채운다
+  const orderNo = new Map(sales.rows.map((o) => [o.order_id, o.order_no]));
   const st = (Object.keys(STATUS) as (keyof typeof STATUS)[]).find((k) => k === status);
   const list = st ? rows.filter((w) => w.status === st) : rows;
   const base = `/s/${store.slug}/reseller/earnings`;
@@ -38,7 +40,7 @@ export default async function ResellerEarningsPage({ params, searchParams }: { p
               <li key={w.id} className="flex items-start justify-between gap-2 rounded-xl border bg-white p-3 text-sm">
                 <div className="min-w-0">
                   <p className="truncate font-medium">{w.name_snapshot}</p>
-                  <p className="text-xs text-slate-500">{formatDateTime(w.created_at)} · 주문 {w.order?.order_no ?? ""} · {formatWon(w.base_amount)} × {w.product_rate + w.reseller_rate}%</p>
+                  <p className="text-xs text-slate-500">{formatDateTime(w.created_at)} · 주문 {w.order?.order_no ?? orderNo.get(w.order_id) ?? "-"} · {formatWon(w.base_amount)} × {w.product_rate + w.reseller_rate}%</p>
                   {w.note && <p className="text-xs text-slate-500">{w.note}</p>}
                 </div>
                 <div className="shrink-0 text-right">

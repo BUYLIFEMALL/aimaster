@@ -6,13 +6,15 @@ import { getStoreBySlug, requireUser } from "@/lib/store";
 import { getMyResellerSummary } from "@/lib/reseller-store";
 import { mallSlugFromHost } from "@/lib/host";
 
-// M4-C1 리셀러 화면 공통 틀 — PC는 왼쪽 메뉴, 휴대폰(767px 이하)은 아래쪽 탭 5개(홈·상품·내 링크·수익·메뉴)
+// M4-C1 리셀러 화면 공통 틀 — PC는 왼쪽 메뉴, 휴대폰(767px 이하)은 아래쪽 탭 5개(홈·상품·판매·수익·메뉴)
+// 휴대폰 아래쪽 탭은 5칸이라 「내 링크」는 PC 메뉴·홈에만(M4-C3에서 「판매」 추가)
 const NAV = [
-  { href: "", label: "홈", icon: "🏠" },
-  { href: "/products", label: "상품", icon: "🛍️" },
-  { href: "#link", label: "내 링크", icon: "🔗" },
-  { href: "/earnings", label: "수익", icon: "💰" },
-  { href: "/menu", label: "메뉴", icon: "☰" },
+  { href: "", label: "홈", icon: "🏠", mobile: true },
+  { href: "/products", label: "상품", icon: "🛍️", mobile: true },
+  { href: "#link", label: "내 링크", icon: "🔗", mobile: false },
+  { href: "/sales", label: "판매", icon: "📈", mobile: true },
+  { href: "/earnings", label: "수익", icon: "💰", mobile: true },
+  { href: "/menu", label: "메뉴", icon: "☰", mobile: true },
 ] as const;
 
 /** 로그인 + 이 몰의 활동 중 리셀러 확인. 아니면 신청 화면으로 */
@@ -27,7 +29,9 @@ export async function getResellerContext(slug: string, path: string) {
   const onSub = mallSlugFromHost(host, process.env.MALL_ROOT_DOMAIN) === store.slug;
   /** 손님에게 줄 주소 — 상품 경로(예: `/p/<id>`)를 넣으면 그 상품 링크 */
   const shopUrl = (sub = "") => `${proto}://${host}${onSub ? sub || "/" : `/s/${store.slug}${sub}`}?ref=${summary.code}`;
-  return { user, store, summary, shopUrl };
+  /** 짧은 링크 앞부분(M4-C3) — 뒤에 7자 키를 붙이면 `/l/<키>` */
+  const shortBase = `${proto}://${host}${onSub ? "" : `/s/${store.slug}`}/l/`;
+  return { user, store, summary, shopUrl, shortBase };
 }
 
 export function ResellerShell({ slug, storeName, code, email, active, notice, children }: { slug: string; storeName: string; code: string; email: string; active: string; notice?: { error?: string; ok?: string; msg?: string }; children: ReactNode }) {
@@ -63,7 +67,7 @@ export function ResellerShell({ slug, storeName, code, email, active, notice, ch
       </div>
       {/* 휴대폰 아래쪽 탭 */}
       <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t bg-white md:hidden" data-reseller-tabbar>
-        {NAV.map((n) => (
+        {NAV.filter((n) => n.mobile).map((n) => (
           <Link key={n.href} href={href(n.href)} className={`flex min-h-14 flex-col items-center justify-center text-[11px] ${active === n.href ? "font-semibold text-slate-900" : "text-slate-500"}`}>
             <span className="text-lg leading-none" aria-hidden>{n.icon}</span>
             {n.label}

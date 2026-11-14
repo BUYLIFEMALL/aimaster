@@ -134,7 +134,7 @@ export async function getRewardProducts(storeId: string): Promise<{ ready: boole
 }
 
 export type RewardStatus = "pending" | "paid" | "held" | "deleted";
-export type RewardRow = { id: string; reseller_id: string; order_id: string; name_snapshot: string; base_amount: number; product_rate: number; reseller_rate: number; amount: number; status: RewardStatus; note: string; created_at: string; decided_at: string | null; order: { order_no: string } | null };
+export type RewardRow = { id: string; reseller_id: string; order_id: string; name_snapshot: string; base_amount: number; product_rate: number; reseller_rate: number; amount: number; status: RewardStatus; note: string; created_at: string; decided_at: string | null; product_id?: string | null; order: { order_no: string } | null };
 export async function getRewards(storeId: string, status?: RewardStatus, limit = 300): Promise<{ ready: boolean; rows: RewardRow[] }> {
   const supabase = await createClient();
   let q = supabase
@@ -177,7 +177,7 @@ export async function getMyRewards(resellerId: string, limit = 200) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("mall_builder_reseller_rewards")
-    .select("id, order_id, name_snapshot, base_amount, product_rate, reseller_rate, amount, status, note, created_at, order:mall_builder_orders(order_no)")
+    .select("id, order_id, product_id, name_snapshot, base_amount, product_rate, reseller_rate, amount, status, note, created_at, decided_at, order:mall_builder_orders(order_no)")
     .eq("reseller_id", resellerId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -185,4 +185,54 @@ export async function getMyRewards(resellerId: string, limit = 200) {
   const sum = { pending: 0, paid: 0, held: 0, deleted: 0 } as Record<RewardStatus, number>;
   for (const w of rows) sum[w.status] += Number(w.amount);
   return { rows: rows.map((w) => ({ ...w, amount: Number(w.amount), base_amount: Number(w.base_amount), product_rate: Number(w.product_rate), reseller_rate: Number(w.reseller_rate) })), sum };
+}
+
+// ── M4-C3(0078) 판매 내역·판매 수·픽·짧은 링크 — 운영 DB에 0078이 없으면 빈 값(화면은 안내만)
+export type SaleRow = {
+  order_id: string;
+  order_no: string;
+  created_at: string;
+  status: string;
+  ref_source: "link" | "customer" | null;
+  item_count: number;
+  first_item: string;
+  items_total: number;
+  reward: number;
+  reward_pending: number;
+  reward_paid: number;
+  reward_held: number;
+};
+
+/** 내 링크로 들어온 주문(손님 개인정보 없이 주문번호·상태·품목 요약·금액·리워드만). ready=false면 DB 업데이트 전 */
+export async function getMySales(storeId: string, limit = 200): Promise<{ ready: boolean; rows: SaleRow[] }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_reseller_sales", { p_store_id: storeId, p_limit: limit });
+  if (error) return { ready: false, rows: [] };
+  const num = ["item_count", "items_total", "reward", "reward_pending", "reward_paid", "reward_held"] as const;
+  return { ready: true, rows: ((data ?? []) as SaleRow[]).map((r) => ({ ...r, ...Object.fromEntries(num.map((k) => [k, Number(r[k])])) }) as SaleRow) };
+}
+
+/** 몰 전체 상품별 판매 수(최근 days일, 결제 이후 주문) */
+export async function getProductSold(storeId: string, days = 30): Promise<Map<string, number>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_product_sold", { p_store_id: storeId, p_days: days });
+  const m = new Map<string, number>();
+  if (!error) for (const r of (data ?? []) as { product_id: string; sold: number }[]) m.set(r.product_id, Number(r.sold));
+  return m;
+}
+
+/** 내가 픽한 상품 id들 */
+export async function getMyPicks(resellerId: string): Promise<Set<string>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("mall_builder_reseller_picks").select("product_id").eq("reseller_id", resellerId);
+  return new Set(error ? [] : (data ?? []).map((r) => r.product_id as string));
+}
+
+/** 내 짧은 링크(상품 id → 키·누른 수, 몰 첫 화면은 "home") */
+export async function getMyLinks(resellerId: string): Promise<Map<string, { key: string; clicks: number }>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("mall_builder_reseller_links").select("key, product_id, clicks").eq("reseller_id", resellerId);
+  const m = new Map<string, { key: string; clicks: number }>();
+  if (!error) for (const r of data ?? []) m.set((r.product_id as string | null) ?? "home", { key: r.key as string, clicks: Number(r.clicks) });
+  return m;
 }
