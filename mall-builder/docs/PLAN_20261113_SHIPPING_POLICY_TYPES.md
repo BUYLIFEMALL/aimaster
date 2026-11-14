@@ -2,7 +2,10 @@
 
 - 담당: [역할: mall-builder] Claude Code(윈도우) `claude-win-20261025-workspace`
 - 주인님 지시(2026-11-13): 「5만원 이상 무료 배송으로 하고 / 배송 정책은 무료·조건부무료·판매수량별 / 스마트스토어 상품등록 자동화쪽에 배송정책 확인하고 분석후 여기도 적용하도록 해」
-- 상태: **분석 완료 · 주인님 결정 대기(코드 수정 전)**
+- 상태: **결정 완료(2026-11-14, 1~4 모두 추가) → 구현·Lab 적용 완료, 운영 DB 승인 대기**
+- ⚠️ **운영 배포 순서**: 코드가 정책의 새 칸(`repeat_qty` 등)을 읽으므로 **운영 DB에 0065를 먼저 적용한 뒤** 배포해야 한다(0064와 같은 이유).
+- 검수: 시험 261개 · 타입 검사 · 로컬 묶음 검사 · 시나리오 `scripts/scenario-0065-shipping-types.sql`(비회원 주문 배송비 18,000원, B 2개 부분 취소 뒤 15,000원 — 화면 계산 `computeShipping`과 같은 값) · 빈 수량 정책 막힘 확인 · Lab 함수 반영 확인.
+- 손님 화면: `cartTotals`에 `qty`·`productId` 넘기기, 반품·교환 안내 표시 → agy 인수인계 §11.
 
 ## 1. 비교 — 스마트스토어 상품등록 자동화 vs 쇼핑몰 빌더(v1.07 코드)
 기준 코드: `smartstore-register/src/lib/smartstore/fields.ts`(`StoreDefaults`, 판매자센터 배송 칸을 그대로 옮긴 것) · 쇼핑몰 `src/lib/shipping.ts` + DB `mall_builder_shipping_policies`(0005).
