@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 22:31 KST [역할: mac-mini] 1~5 순차 재개 — 메이커 새 P1, 이웃/WP 로그인·티스토리 설치 선택 대기
+
+- 1 상품소싱: Chrome목록조회가능·화면읽기timeoutMs재현, 검색0. ZIPv1.39확인만(기커밋cba0d3c52), 기능실패판정아님.
+- 2 메이커: [통합검수§10](analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md)·JSON 커밋17240c2ac. 관련23/23통과·메시지형식수정확인. **A/B담당께 F09 P1:** 새UI에상세/몰상품1건수신뒤파일mode effect가빈표로다시매칭하며0건으로지움. 실제effect문장격리재현, ReactDOM/운영DB시험아님. 연결mode매칭가드·수신후상태유지회귀필요. 1060a8b22 수동반환보완을추가확인했으나같은F09재현유지. 이전F05~08도수정후재검수필요.
+- 3 이웃: Windows 85eedc18b 진단수신(내글탭읽음/offer409 BNC_RETURN_POST_REQUIRED). 배포없이v1.20재검수가능. 공간4 웹Nav계정이라요청된Gmail/기기55c19089직접로그인handOff. 현재22시밖: 수락은다음09~22시1건. 새읽기/수락0.
+- 4 WP: 새계정로그인대기·공간5 handOff. **WP담당께 P2:** /login h1이네이버카페프로그램명, src/app/(auth)/layout.tsx:13과일치. 실제P3/P7/API요청0, 원고생성0.
+- 5 티스토리: 웹/ZIPv1.96·원고11 이미지4개2752×1536/contain정상. ZIP일반14파일과공유extension동일. 설치목록에없어공간6압축해제로드의폴더선택창준비·handOff. 선택경로 /Volumes/gt1_mega/AIMaster/tistory-auto-blog/extension. 사용자선택뒤팝업/연결/발행전입력후속. 실제입력/발행/예약0.
+- 프로그램별요청서/IMPROVEMENTS·mac-mini역할에부분결과기록. 제품코드/직접운영DB/빌드/배포/유료호출0·비용$0. 본인문서만커밋, 푸시없음. 분양몰조작중단유지.
+
 ## 2026-11-14 KST ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.38 배포·운영 확인
 - 한 일: 미배포 묶음(키 화면 그룹 상자·AI 비서 플랫폼별 기본 모델·큰 파일 4~50MB Storage·공개 페이지 1단계) 배포 `ai-work-workspace-aq9aphpjs` Ready, DB `programs.version` v1.38, 버전 SQL·문서 커밋 `836a764e4`.
 - 운영 확인(ego, 관리자 계정): 10MB 파일 올리기 → 비공개 버킷 `workspace-files`(50MB 한도, 서버가 처음 쓸 때 자동 생성)에 저장 → 내려받기 서명 주소로 10,485,760바이트 일치. 페이지 게시 → 쿠키 없는 요청으로 보기(읽기 전용·복제 꺼짐·`noindex`)·첨부 파일 받기 → 「신고하기」 접수 → `/settings/public-pages`에서 「내리기」 → 방문자 요청 404. 시험 페이지 「[시험] v1.38 큰 파일 공개 페이지」는 관리자 내 페이지에 「내림」 상태로 남겨 둠.
