@@ -1,7 +1,7 @@
 # AI 쇼핑몰 빌더 (`mall-builder`) — 에이전트 인수인계
 
 > 먼저 읽기: [README](README.md)(기능 진행 표·실행 방법) → [3몰 인수인계](../docs/mall/HANDOFF_THREE_MALLS.md) → [T0 운영 이전 플랜](docs/PLAN_20261112_T0_PROD_MIGRATION.md) → [교훈 모음](../docs/mall/LESSONS_LEARNED.md) → 역할 파일 [`docs/roles/mall-builder.md`](../docs/roles/mall-builder.md)
-> 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 운영 버전 `v1.07`(`src/lib/version.ts` + DB `programs.version`) · 최신 요약: [§4 버전·이력](#4-버전이력)·[§5 남은 일](#5-남은-일)·[§8 향후 개선 방향](#8-향후-개선-방향)
+> 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 운영 버전 `v1.08`(`src/lib/version.ts` + DB `programs.version`) · 최신 요약: [§4 버전·이력](#4-버전이력)·[§5 남은 일](#5-남은-일)·[§8 향후 개선 방향](#8-향후-개선-방향)
 
 ## 1. 사용 목적·대상
 - 회원(사업자)이 자기 쇼핑몰을 개설·운영하는 프로셀형 B2B 쇼핑몰 빌더. AIMaster 이커머스 카테고리의 **샘플몰**로 운영하고(① B2B 입점몰 → ② 분양몰 → ③ 독립몰), 나중에 배포 키트로 분리해 수강생·외주 사업자에게 판매한다.
@@ -28,7 +28,8 @@
 - `v1.03`(2026-11-13) 배송지 저장 알림 위치, 두 번 누름 방지 단추(`src/app/pending-button.tsx`).
 - `v1.02`(2026-11-12) AI 도우미 제공자·모델 선택(OpenAI·Claude·Gemini, 운영은 몰 대표 `user_api_keys` 재사용), DB 0059.
 - `v1.01`(2026-11-12) 운영 이전(T0): 폴더 `labs/mall-builder` → `mall-builder`, 플랫폼 스위치·운영 관문·관리자 전용 몰 만들기(0058), 저작권 고지·저장공간 위젯, T1 등급 할인(0057·0057c), 운영 DB·배포·프로그램 등록·샘플몰 `aimaster-b2b`, B2B 주문·볼타 테스트 세금계산서 통과.
-- **미배포 대기(다음 배포 = v1.08)**: 관리 화면 위쪽 메뉴 → **좌측 메뉴**(2026-11-14 주인님 「상단 메뉴를 좌측 메뉴로 수정해」 — `admin/admin-shell.tsx` 한 파일, 메뉴 25개를 주문·손님·상품·몰 꾸미기·운영 5묶음, 767px 이하 ☰ 펼침, 계정·로그아웃 메뉴 바로 아래, 「다른 몰로」 세로 배치). 시험 261·타입 검사·휴대폰 메뉴 점검 0곳·Lab 화면(데스크톱·390px) 확인, 캡처 `docs/evidence/admin-sidebar-20261114-*.png`.
+- `v1.08`(2026-11-14) 관리 화면 위쪽 메뉴 → **좌측 메뉴**(주인님 「상단 메뉴를 좌측 메뉴로 수정해」 — `admin/admin-shell.tsx`, 5묶음, 767px 이하 ☰, 계정·로그아웃 메뉴 바로 아래, 「다른 몰로」 세로 배치) — 운영 배포·DB 버전 일치. 알려진 문제: 왼쪽 아래 💾 저장공간 표시가 좌측 메뉴의 로그아웃 단추를 가림(v1.09에서 고침).
+- 미배포 대기: 없음.
 - 그 이전(Lab, 버전 없음): F01~F19, D1~D37 — [README](README.md) 진행 표·역할 파일 최근 완료.
 
 ## 5. 남은 일

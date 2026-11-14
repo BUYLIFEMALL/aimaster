@@ -1,7 +1,7 @@
 # 개선 제안 — AI 쇼핑몰 빌더
 
 ## 1. 프로그램 로직·기능
-- (**미배포 대기**, 2026-11-13) 브라우저 확인 창 6곳 → 화면 안 확인 상자(`src/app/inline-confirm.tsx`), T3 H1 단일 몰 모드(`MALL_SINGLE_SLUG`). 다음 배포 때 함께 내보내고 v1.07로 올림. 샘플몰 자료용 엑셀 `docs/sample/aimaster-b2b-sample-catalog.xlsx`(생성 `scripts/make-sample-catalog.mjs`)는 맥미니 분양 검수가 끝난 뒤 올림.
+- (✅ v1.07 배포 2026-11-14, 2026-11-13 작성) 브라우저 확인 창 6곳 → 화면 안 확인 상자(`src/app/inline-confirm.tsx`), T3 H1 단일 몰 모드(`MALL_SINGLE_SLUG`). 다음 배포 때 함께 내보내고 v1.07로 올림. 샘플몰 자료용 엑셀 `docs/sample/aimaster-b2b-sample-catalog.xlsx`(생성 `scripts/make-sample-catalog.mjs`)는 맥미니 분양 검수가 끝난 뒤 올림.
 - (**v1.04 배포 2026-11-13** — Lab·운영 DB 0060 적용, 실제 흐름 검수 중) 공급사 상품 옵션(추가 공급가)·공급사별 배송비(공급사 정산에 더함) — 플랜·결과 [PLAN_20261113_T1_SUPPLIER_OPTIONS_SHIPPING.md](PLAN_20261113_T1_SUPPLIER_OPTIONS_SHIPPING.md) §6. 배포 순서: Lab·운영 DB 0060 → 운영 배포 v1.04 → ego 실제 흐름 검수.
 - (2026-11-12, T0) 운영 관문이 요청마다 로그인 확인 + 권한 조회 4번을 한다. 회원이 늘면 짧은 캐시(예: 1분, 사용자별)를 검토. 지금은 샘플몰 규모라 그대로.
 - (2026-11-12, T1) 등급 이름 중복은 0057c로 막음. 카테고리 이름도 같은 몰 안 중복을 DB에서 막을지 검토.
