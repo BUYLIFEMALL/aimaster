@@ -60,3 +60,20 @@ test("E2-3 확장: 네이버 분류 경로를 정리해 넘김", () => {
   assert.equal(parseNaverRow({ id: "1", category: "스포츠/레저>캠핑  >캠핑가구" }).category, "스포츠/레저>캠핑 >캠핑가구");
   assert.equal(parseNaverRow({ id: "1" }).category, "");
 });
+
+import { build } from "esbuild";
+import { fileURLToPath } from "node:url";
+import { parseSearchTags } from "../../shop-detail-page/lib/searchTags.ts";
+
+test("E2-4 상세페이지로 넘기는 주소: 받는 쪽 규칙으로 다시 풀면 같은 상품명·태그", async () => {
+  const out = await build({ entryPoints: [fileURLToPath(new URL("../lib/shopDetailLink.ts", import.meta.url))], bundle: true, format: "esm", write: false, platform: "node" });
+  const mod = await import("data:text/javascript;base64," + Buffer.from(out.outputFiles[0].text).toString("base64"));
+  const url = new URL(mod.shopDetailDraftUrl({ title: "접이식 캠핑의자 경량", tags: ["캠핑의자", "낚시의자"], keyword: "캠핑의자", market: "naver" }, true));
+  assert.equal(url.origin + url.pathname, "https://shop-detail-page.buylife.xyz/products/new");
+  assert.equal(url.searchParams.get("from"), "sourcing");
+  assert.equal(url.searchParams.get("name"), "접이식 캠핑의자 경량");
+  assert.deepEqual(parseSearchTags(url.searchParams.get("tags")), ["캠핑의자", "낚시의자"]);
+  assert.match(url.searchParams.get("source"), /조사 마켓: 네이버쇼핑/);
+  assert.equal(url.searchParams.get("flow"), "shop");
+  assert.equal(new URL(mod.shopDetailDraftUrl({ title: "a", tags: [], keyword: "k", market: "coupang" })).searchParams.has("tags"), false);
+});

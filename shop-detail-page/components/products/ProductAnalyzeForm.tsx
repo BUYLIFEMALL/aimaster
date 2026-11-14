@@ -33,6 +33,7 @@ export function ProductAnalyzeForm({
   initialSourceText = "",
   initialPrice = "",
   initialCategory = "",
+  initialTags = [],
   referenceJobId = "",
 }: {
   hasGeminiKey: boolean;
@@ -41,6 +42,8 @@ export function ProductAnalyzeForm({
   initialPrice?: string;
   /** 주소로 넘어온 카테고리 — 처음 칸에 채우고, 분석 결과가 비었을 때만 남긴다(분석이 더 자세함) */
   initialCategory?: string;
+  /** E2-4: 상품소싱 초안에서 넘어온 검색 태그 — 있을 때만 칸을 보여 준다 */
+  initialTags?: string[];
   /** 상품소싱이 수집 참고 사진을 넘길 때의 작업 번호(2026-11-13) — 있으면 소싱 창에 「준비됨」을 보내고 사진을 받는다 */
   referenceJobId?: string;
 }) {
@@ -596,6 +599,14 @@ export function ProductAnalyzeForm({
             />
           </div>
         </div>
+
+        {initialTags.length > 0 && (
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">검색 태그 (상품소싱 초안 · 쉼표로 구분, 최대 10개)</label>
+            <input name="searchTags" className="input-sm" defaultValue={initialTags.join(", ")} />
+            <p className="mt-1 text-[11px] text-slate-500">저장해 두면 스마트스토어 등록기의 「검색 태그」 칸에 처음 값으로 들어갑니다.</p>
+          </div>
+        )}
 
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">핵심특징 (줄바꿈으로 구분)</label>

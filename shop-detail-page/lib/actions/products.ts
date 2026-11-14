@@ -1,5 +1,6 @@
 "use server";
 
+import { parseSearchTags } from "@/lib/searchTags";
 import { redirect } from "next/navigation";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -201,6 +202,8 @@ export async function createProductAction(formData: FormData) {
       source_image_url: sourceImageUrl,
       // 2026-11-13: 상품소싱이 수집한 참고 사진이면 출처 표시(등록기가 등록 직전 경고). 회원 사진은 비워 둔다.
       source_image_origin: String(formData.get("sourceImageOrigin") ?? "") === "collected" ? "collected" : null,
+      // E2-4: 상품소싱 초안에서 넘어온 검색 태그(비면 null) — 스마트스토어 등록기가 처음 값으로 씀
+      search_tags: parseSearchTags(String(formData.get("searchTags") ?? "")).length ? parseSearchTags(String(formData.get("searchTags") ?? "")) : null,
       reference_image_urls: referenceImageUrls,
       image_generation_notes: String(formData.get("imageGenerationNotes") ?? "").trim() || null,
       default_image_model: defaultImageModel,

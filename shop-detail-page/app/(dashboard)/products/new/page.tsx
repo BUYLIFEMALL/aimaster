@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { parseSearchTags } from "@/lib/searchTags";
 import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { getRegisteredProviders } from "@/lib/apiKeys";
@@ -30,6 +31,8 @@ export default async function NewProductPage({
   // 이커머스 한 흐름(2026-10-27): 소싱 결과의 마켓 카테고리(예: 생활/건강>주방용품)를 「카테고리」 칸에 넣는다.
   const initialCategory = fromSourcing ? firstParam(searchParams.category, 120) : "";
   const initialPrice = /^[1-9][0-9]{0,8}$/.test(priceParam) ? priceParam : "";
+  // E2-4: 상품소싱 「상품명·태그 초안」에서 고른 검색 태그(쉼표, 최대 10개)
+  const initialTags = fromSourcing ? parseSearchTags(firstParam(searchParams.tags, 400)) : [];
   // 2026-11-13: 상품소싱이 수집 참고 사진을 함께 넘길 때의 작업 번호
   const jobParam = fromSourcing ? firstParam(searchParams[REFERENCE_JOB_PARAM], 40) : "";
   const referenceJobId = isReferenceJobId(jobParam) ? jobParam : "";
@@ -80,6 +83,7 @@ export default async function NewProductPage({
         initialSourceText={initialSourceText}
         initialPrice={initialPrice}
         initialCategory={initialCategory}
+        initialTags={initialTags}
         referenceJobId={referenceJobId}
       />
     </div>

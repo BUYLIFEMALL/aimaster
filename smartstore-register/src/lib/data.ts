@@ -33,6 +33,8 @@ export interface ProductRow {
   reviewed_at?: string | null;
   /** 회원이 올린 참고(실물) 사진 — 스마트스토어 추가 이미지로 쓴다 */
   reference_image_urls?: string[] | null;
+  /** E2-4: 상품소싱 초안에서 고른 검색 태그(상세페이지에 저장) — 마지막에 보낸 태그가 없을 때 처음 값 */
+  search_tags?: string[] | null;
 }
 
 /** 참고 사진 중 회원 본인 폴더 경로만, 앞에서부터 최대 9개(스마트스토어 추가 이미지) */
@@ -40,7 +42,7 @@ export function ownExtraPaths(userId: string, urls: string[] | null | undefined)
   return (urls ?? []).map((u) => storagePathFromUrl(u)).filter((p): p is string => Boolean(p && p.startsWith(`${userId}/`))).slice(0, 9);
 }
 
-const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,main_image_url,source_image_origin,section_sequence,status,updated_at,reviewed_at,reference_image_urls";
+const PRODUCT_COLS = "id,name,product_label,price,sale_price,category,source_image_url,main_image_url,source_image_origin,section_sequence,status,updated_at,reviewed_at,reference_image_urls,search_tags";
 
 export async function listProducts(userId: string): Promise<{ rows: ProductRow[]; error: boolean }> {
   const supabase = await createClient();

@@ -5,6 +5,8 @@
 import { useState } from "react";
 import { draftListingAction, type DraftResult } from "@/lib/actions/registerHelper";
 import { checkTitle, cleanTags, MAX_TAGS, type ListingMarket } from "@/lib/listingRules";
+import { shopDetailDraftUrl } from "@/lib/shopDetailLink";
+import { readFlowActive } from "@/components/ShopFlowBar";
 
 type Related = { keyword: string; searches: number; usedInSample: number };
 
@@ -94,6 +96,15 @@ export function ListingDraft({ market, keyword, words, related, priceMedian, nam
                   <button type="button" onClick={() => copy(title.trim(), `t${index}`)} className="whitespace-nowrap rounded border border-mx-border px-2 py-1 text-[11px] font-bold text-mx-link">
                     {copied === `t${index}` ? "복사됨" : "복사"}
                   </button>
+                  <a
+                    href={title.trim() ? shopDetailDraftUrl({ title: title.trim(), tags, keyword, market }, readFlowActive()) : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="이 상품명과 아래 태그로 AI 상세페이지 자동화의 새 상품 화면을 엽니다(태그는 스마트스토어 등록기까지 이어집니다)"
+                    className="whitespace-nowrap rounded border border-mx-border px-2 py-1 text-[11px] font-bold text-mx-link"
+                  >
+                    📄 상세페이지로
+                  </a>
                 </div>
                 {issues.length > 0 ? (
                   <ul className="mt-1 space-y-0.5 pl-5 text-[11px]">
