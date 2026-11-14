@@ -1,5 +1,15 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-mb-v2` — AI 쇼핑몰 빌더(mall-builder) 손님 화면 상세 그림 표시 완결 + 배송비 계산 qty·productId 전달(5곳) + 반품·교환 배송비 안내 및 UI 고도화 커밋 완료
+- 인수인계 지침: `mall-builder/docs/HANDOFF_20261114_AGY_DETAIL_IMAGES_SHIPPING.md`
+- 완료 내용:
+  1. 상세 그림 손님 화면 표시 완결: `(shop)/p/[id]/page.tsx` 내 상세 그림 연속 렌더링 컨테이너(`max-w-[860px]`, `gap-0`, `loading="lazy"`) 유지 및 고해상도 최적화.
+  2. 배송비 계산에 `qty`·`productId` 값 넘기기 완료 (5곳 전수): `cart/guest-cart.tsx`, `cart/page.tsx`, `order/page.tsx`(2곳), `quotes/[id]/page.tsx`. 수량별·구간별·묶음불가 배송비 상품의 결제 금액 일치 보장.
+  3. 반품·교환 배송비 안내 한 줄 탑재: `(shop)/p/[id]/page.tsx` 「📦 배송 정책」 목록에 `describeReturnFees(policy)` 적용.
+  4. UI 디자인 고도화: 메인 포털 홈 화면(`/`) B2B 대시보드 리뉴얼 + 상품 상세페 스티키 탭 네비게이션(`tabs-nav.tsx`), 수량 `[-]`/`[+]` 컨트롤러, 모바일 하단 플로팅 구매 바, 버튼 1행 유지 헌장(`white-space: nowrap !important;`) 전역 적용.
+- 검증: `npx tsc --noEmit` 통과, `node --test tests/*.test.mjs` 261/261 전수 통과, Turbopack 프로덕션 빌드 성공.
+- 상태: 커밋 `ca987e26b` 완료, 운영 배포 주인님 최종 승인 대기.
+
 ## 2026-11-14 KST ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 원스톱 v1.54 상품 사진 쇼츠 개선 5건 배포
 - `shorts-onestop-studio-2bruvgtk6` Ready, DB v1.54. 확인: 저장 대본 다시 열면 상품·사진 채움 · 사진 순서 ◀▶ · 뺀 사진 서버 파일 삭제(대본이 쓰는 사진 보호) · 실제 MP4 프레임에서 상품 모양·색(차이 1 이하)·글자 원본 그대로 · 인트로 이름표 여백.
 - 받은 제안: 공용 인코더 `browser-mp4-encoder` 안정화 3가지(음악 담당) → 원스톱 백로그에 올림(원스톱·shots·lyric-video-studio 세 프로그램 시험 필요, 따로 진행).
