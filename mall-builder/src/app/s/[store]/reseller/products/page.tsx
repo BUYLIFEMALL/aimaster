@@ -22,7 +22,8 @@ export default async function ResellerProductsPage({ params, searchParams }: { p
   const { user, store, summary: s, shopUrl } = await getResellerContext(slug, `/s/${slug}/reseller/products`);
   const [products, rates] = await Promise.all([getShopProducts(store.id, { limit: 300, q: q?.trim() || undefined }), getMyProductRates(store.id)]);
   const rows = products
-    .filter((p) => p.status === "on_sale" && !p.display.priceHidden)
+    // 사업자 전용 상품은 링크로 들어온 일반 손님이 살 수 없으므로 뺀다
+    .filter((p) => p.status === "on_sale" && !p.display.priceHidden && p.visibility !== "business_only")
     .map((p) => {
       const rate = rates.get(p.id)?.total ?? 0;
       return { p, rate, reward: Math.floor((p.display.unitPrice * rate) / 100) };
