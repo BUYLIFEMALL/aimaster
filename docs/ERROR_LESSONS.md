@@ -1,7 +1,13 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
-## 2026-11-14 프로그램의 `.env.local`(DB 접속 설정)에 다른 세션의 인수인계 메시지가 덮어써져 내 PC 개발 서버가 500 (`mall-builder`, [역할: mall-builder])
+## 2026-11-14 Supabase 대시보드 SQL 편집기에 붙여 넣으면 줄바꿈이 CRLF로 바뀌어 함수 본문에 CR이 섞임 (`mall-builder` 0071·0072 Lab, [역할: mall-builder])
+- **증상**: 실행은 성공하지만 그 SQL로 만든 함수 본문(`prosrc`)에 CR()이 들어감 → 나중에 「함수 문구를 정확히 한 번 바꾸기」(`pg_temp.swap`) 마이그레이션이 여러 줄 문구를 못 찾아 멈출 수 있음.
+- **원인**: 윈도우 클립보드로 Monaco 편집기에 붙여 넣으면 편집기 줄바꿈이 CRLF가 됨(붙여 넣은 길이가 파일보다 줄 수만큼 김).
+- **해결**: 붙여 넣은 뒤 실행 전에 `page.evaluate(() => monaco.editor.getModels()[…].setEOL(0))`로 LF로 맞추고 길이가 파일과 같은지 확인. 이미 들어간 함수는 `execute replace(pg_get_functiondef(oid), chr(13), '')`로 다시 만듦(Lab 7개 정리). 확인: `select proname from pg_proc where prosrc like '%'||chr(13)||'%'`.
+- **다음부터**: 편집기로 마이그레이션을 넣을 때는 LF 맞춤·길이 대조를 같은 스크립트에서 하고, 적용 뒤 위 확인 쿼리로 CR 0을 본다.
+
+(DB 접속 설정)에 다른 세션의 인수인계 메시지가 덮어써져 내 PC 개발 서버가 500 (`mall-builder`, [역할: mall-builder])
 - **증상**: 내 PC 개발 서버(`next dev`)의 모든 화면이 500 「Your project's URL and Key are required to create a Supabase client!」.
 - **원인**: `mall-builder/.env.local`의 내용 전체가 「mall-builder 담당께: …」로 시작하는 한 줄 메시지로 바뀌어 있었다(같은 날 22:33, 다른 세션이 인수인계 글을 이 파일에 잘못 씀). git 제외 파일이라 `git status`에도 안 보인다.
 - **해결**: 메시지는 백업(이미 처리된 개선 후보 2건이라 옮길 내용 없음) → Lab(`rjjtjakljjxsgjelqgek`) 공개 주소·공개 키만 다시 채움(비밀 키 없음). 바뀐 설정을 읽다 꼬인 개발 서버는 포트 3210 프로세스를 끄고 다시 띄움.
