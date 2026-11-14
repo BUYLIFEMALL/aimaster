@@ -28,6 +28,7 @@ export const MENU_PERM: Record<string, PermKey | "owner" | "any"> = {
   "/settings": "owner",
   "/staff": "owner",
   "/home": "home",
+  "/design": "home",
   "/photos": "home",
   "/notices": "boards",
   "/reviews": "boards",

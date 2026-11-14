@@ -61,6 +61,7 @@ const MENU_GROUPS = [
     tone: "border-violet-200 bg-violet-50/70 text-violet-700",
     items: [
       { href: "/settings", label: "쇼핑몰 정보" },
+      { href: "/design", label: "디자인 편집" },
       { href: "/home", label: "첫 화면" },
       { href: "/notices", label: "공지" },
       { href: "/faq", label: "FAQ" },

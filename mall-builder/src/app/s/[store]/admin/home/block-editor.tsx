@@ -82,12 +82,12 @@ function NumberInput({ label, value, min, max, onChange }: { label: string; valu
   );
 }
 
-type Option = { id: string; name: string };
+export type Option = { id: string; name: string };
 
 /** D28 한국 시간 입력칸 ↔ ISO */
 const KST = 9 * 3600_000;
-const toLocalKst = (iso: string | undefined) => (iso ? new Date(Date.parse(iso) + KST).toISOString().slice(0, 16) : "");
-const fromLocalKst = (v: string) => (v ? new Date(Date.parse(`${v}:00+09:00`)).toISOString() : "");
+export const toLocalKst = (iso: string | undefined) => (iso ? new Date(Date.parse(iso) + KST).toISOString().slice(0, 16) : "");
+export const fromLocalKst = (v: string) => (v ? new Date(Date.parse(`${v}:00+09:00`)).toISOString() : "");
 
 /** 상품 고르는 방법(쇼윈도·탭·타임세일 공통) */
 function SourcePicker({ name, value, categories, products, onChange }: { name: string; value: ProductSource; categories: Option[]; products: Option[]; onChange: (v: ProductSource) => void }) {
@@ -133,7 +133,7 @@ function TitleInput({ value, onChange, hint = "제목(비우면 제목 없이)" 
   );
 }
 
-function SettingsForm({ storeId, block, categories, products, onChange }: {
+export function SettingsForm({ storeId, block, categories, products, onChange }: {
   storeId: string; block: Block; categories: Option[]; products: Option[]; onChange: (s: Block["settings"]) => void;
 }) {
   if (block.type === "video") {
