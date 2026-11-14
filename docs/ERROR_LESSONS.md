@@ -1,6 +1,18 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-14 프로그램의 `.env.local`(DB 접속 설정)에 다른 세션의 인수인계 메시지가 덮어써져 내 PC 개발 서버가 500 (`mall-builder`, [역할: mall-builder])
+- **증상**: 내 PC 개발 서버(`next dev`)의 모든 화면이 500 「Your project's URL and Key are required to create a Supabase client!」.
+- **원인**: `mall-builder/.env.local`의 내용 전체가 「mall-builder 담당께: …」로 시작하는 한 줄 메시지로 바뀌어 있었다(같은 날 22:33, 다른 세션이 인수인계 글을 이 파일에 잘못 씀). git 제외 파일이라 `git status`에도 안 보인다.
+- **해결**: 메시지는 백업(이미 처리된 개선 후보 2건이라 옮길 내용 없음) → Lab(`rjjtjakljjxsgjelqgek`) 공개 주소·공개 키만 다시 채움(비밀 키 없음). 바뀐 설정을 읽다 꼬인 개발 서버는 포트 3210 프로세스를 끄고 다시 띄움.
+- **다음부터**: 인수인계·요청 글은 `docs/` 문서나 채팅으로만 남기고 `.env*` 파일에는 절대 쓰지 않는다. 개발 서버가 갑자기 「URL and Key are required」를 내면 값은 출력하지 말고 `sed -E 's/=.*/=<숨김>/' .env.local`로 칸 이름부터 본다.
+
+## 2026-11-14 권한 검사에서 `not (null = x or …)`가 빈값(null)이 되어 검사를 그냥 통과 (`mall-builder` 0068, [역할: mall-builder])
+- **증상**: 로컬 시나리오에서 권한 없는 사용자가 공급사 율 바꾸기 함수를 통과했다.
+- **원인**: `if not (a.owner = uid or staff_can(...)) then raise` 꼴에서 비교 한쪽이 null이면 식 전체가 null → `if null`은 거짓이라 막지 않는다.
+- **해결**: `if not coalesce(<조건>, false) then raise`로 바꿈. 시나리오로 막히는 것을 다시 확인.
+- **다음부터**: DB 함수의 권한 검사는 항상 `coalesce(…, false)`로 감싸고, 시나리오에 「권한 없는 사람」 줄을 꼭 넣는다(`set role authenticated`까지 — 없으면 postgres 권한으로 돌아 지킴이를 건너뜀).
+
 ## 2026-11-14 메인 사이트 코드가 푸시됐는데 자동 빌드가 「취소」로 끝나 운영에 안 나감 (메인 `/api-settings` 카카오 키 칸, [역할: policy])
 - 증상: 메인 사이트 파일(`app/(dashboard)/api-settings/page.tsx`)을 고친 커밋이 푸시됐는데, 그 뒤 메인 자동 빌드가 연달아 Canceled. 운영 화면 번들에 새 문구가 없음.
 - 원인(추정): 다른 세션이 내 미푸시 커밋까지 함께 푸시한 뒤 이어진 푸시들에서 「건너뛰기」 스크립트(`scripts/vercel-ignore-build.sh`)가 `VERCEL_GIT_PREVIOUS_SHA`(직전 배포의 커밋 — 취소된 것도 포함되는 것으로 보임)와 비교해 메인 파일 변경 없음으로 판단.
