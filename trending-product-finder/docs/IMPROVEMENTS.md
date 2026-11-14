@@ -19,7 +19,7 @@
 - v1.38(원본 사진 참고 수집, `trending-product-finder-kw7jxke9h`)을 `scripts/deploy.mjs`로 작업 폴더에서 배포할 때, 폴더에 있던 미커밋 변경이 함께 올라갔습니다: `lib/actions/registerHelper.ts`(`draftListingAction`), `lib/ai/claude.ts`·`lib/listingRules.ts`(미추적), `lib/apiKeyLabels.ts`(`anthropic` 라벨), `types/database.types.ts`, `package.json`·`package-lock.json`(`@anthropic-ai/sdk` 1.3.0).
 - 영향: 빌드는 Ready. `draftListingAction`은 어떤 화면에서도 부르지 않아 회원 동작 변화 없음. 키는 회원 본인 `anthropic`만 쓰는 구조.
 - 원인: 배포 직전 `git status` 확인과 배포를 한 명령에 묶어 실행(제 실수). 앞으로는 확인 결과를 본 뒤 배포하고, 남의 미커밋이 있으면 `git archive HEAD` 커밋본으로 배포합니다.
-- 할 일: E2-2를 마무리해 커밋하면 다음 배포 때 그대로 나가면 됩니다. 커밋본으로 다시 배포할지는 주인님 결정 대기.
+- 할 일: E2-2를 마무리해 커밋하면 다음 배포 때 그대로 나가면 됩니다. **주인님 결정(2026-11-14 「모았다가 정리해」): 재배포하지 않고 다음 상품소싱 배포 때 모아서 정리**(빌드 추가 없음).
 
 ## 2026-10-17 Codex(Windows) — 인수 검사 추가 발견
 
