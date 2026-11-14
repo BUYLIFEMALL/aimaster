@@ -371,20 +371,22 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
       reload();
     }
   };
+  // 볼타 PDF 주소는 「내려받기(attachment)」 방식이라 새 탭을 열면 빈 탭만 남는다(2026-11-15 운영 확인) → 같은 화면에서 바로 내려받기
   const openPdf = async (d: Doc, issuanceKey?: string) => {
-    const w = window.open("", "_blank"); // 팝업 차단을 피하려고 누른 순간 창부터 연다
-    if (w) w.opener = null;
     try {
-      const r = await rpc<{ ready: boolean; url?: string; message?: string }>("btPdf", { id: d.id, issuanceKey });
+      const r = await rpc<{ ready: boolean; url?: string; filename?: string | null; message?: string }>("btPdf", { id: d.id, issuanceKey });
       if (r.ready && r.url) {
-        if (w) w.location.href = r.url;
-        else window.location.href = r.url;
+        const a = document.createElement("a");
+        a.href = r.url;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        notify({ text: `PDF를 내려받았습니다${r.filename ? ` (${r.filename})` : ""}.` });
       } else {
-        w?.close();
         notify({ text: r.message ?? "PDF를 만드는 중입니다. 잠시 뒤 다시 눌러 주세요." });
       }
     } catch (e) {
-      w?.close();
       notify({ text: (e as Error).message, error: true });
     }
   };

@@ -94,3 +94,7 @@
 .rc-amend-panel-row > td { padding: 8px 0 14px; }
 .rc .neg { color: #dc2626; }
 @media (max-width: 767px) { .rc-amend-reasons { grid-template-columns: 1fr; } }
+/* 2026-11-15 운영 확인: 표 칸의 「줄바꿈 안 함」 때문에 수정발행 카드·이력이 옆으로 넘쳐 화면이 가로로 밀렸음 */
+.rc-amend-panel-row > td, .rc-amend-history > td, .rc-amend, .rc-amend td { white-space: normal; }
+.rc-amend-panel-row > td { max-width: 0; }
+.rc-amend .rc-table td { white-space: nowrap; }

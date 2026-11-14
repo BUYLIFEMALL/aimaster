@@ -7,6 +7,11 @@ import { rpc } from "@/lib/standaloneRpc";
 type Reason = "termination" | "doubleIssuance" | "changeSupplyCost" | "return" | "misspell";
 interface Biz { bizNo: string; name: string; ceo: string; address: string; bizType: string; bizItem: string; email: string; phone: string }
 interface Line { name: string; spec: string; qty: number; unitPrice: number; supply?: number; tax?: number }
+// 입력칸은 친 글자를 그대로 들고 있다가 계산·보낼 때만 숫자로(2026-11-15 운영 확인: 숫자로 바로 바꾸면 「-」 한 글자가 0이 되어 마이너스를 칠 수 없었음)
+interface DiffRow { name: string; qty: string; unitPrice: string }
+interface FixRow { name: string; spec: string; qty: string; unitPrice: string }
+const toNum = (v: string) => { const n = Number(String(v).replace(/[^\d.-]/g, "")); return Number.isFinite(n) ? n : 0; };
+const clean = (v: string) => v.replace(/[^\d.-]/g, "");
 export interface AmendDoc { id: string; date: string; partner: Biz; lines: Line[]; supply: number; tax: number; total: number; taxMode: "separate" | "included" | "none"; purpose: string; bolta?: { mode: "test" | "live" } }
 
 const REASONS: { id: Reason; label: string; desc: string }[] = [
@@ -32,18 +37,18 @@ export function AmendPanel({ doc, notify, onDone, onClose }: { doc: AmendDoc; no
   const taxFree = doc.taxMode === "none";
   const [reason, setReason] = useState<Reason>("termination");
   const [date, setDate] = useState(today());
-  const [diff, setDiff] = useState<{ name: string; qty: number; unitPrice: number }[]>([{ name: doc.lines[0]?.name ?? "", qty: 1, unitPrice: 0 }]);
-  const [fixed, setFixed] = useState<{ partner: Biz; lines: Line[]; purpose: string; date: string }>(() => ({ partner: { ...doc.partner }, lines: doc.lines.map((l) => ({ name: l.name, spec: l.spec, qty: l.qty, unitPrice: l.unitPrice })), purpose: doc.purpose || "영수", date: doc.date }));
+  const [diff, setDiff] = useState<DiffRow[]>([{ name: doc.lines[0]?.name ?? "", qty: "1", unitPrice: "" }]);
+  const [fixed, setFixed] = useState<{ partner: Biz; lines: FixRow[]; purpose: string; date: string }>(() => ({ partner: { ...doc.partner }, lines: doc.lines.map((l) => ({ name: l.name, spec: l.spec, qty: String(l.qty ?? ""), unitPrice: String(l.unitPrice ?? "") })), purpose: doc.purpose || "영수", date: doc.date }));
   const [busy, setBusy] = useState(false);
 
   // 화면 미리보기(서버가 같은 규칙으로 다시 계산해 보냄)
   const preview = useMemo(() => {
     if (reason === "termination" || reason === "doubleIssuance") return { amount: -doc.total, rows: [] as { name: string; supply: number; tax: number }[] };
     if (reason === "misspell") {
-      const rows = fixed.lines.map((l) => ({ name: l.name, ...calcLine(l.qty, l.unitPrice, doc.taxMode) }));
+      const rows = fixed.lines.map((l) => ({ name: l.name, ...calcLine(toNum(l.qty), toNum(l.unitPrice), doc.taxMode) }));
       return { amount: rows.reduce((s, r) => s + r.supply + r.tax, 0) - doc.total, rows };
     }
-    const rows = diff.map((l) => { const supply = Math.round((Number(l.qty) || 0) * (Number(l.unitPrice) || 0)); return { name: l.name, supply, tax: taxFree ? 0 : tenth(supply) }; });
+    const rows = diff.map((l) => { const supply = Math.round(toNum(l.qty) * toNum(l.unitPrice)); return { name: l.name, supply, tax: taxFree ? 0 : tenth(supply) }; });
     return { amount: rows.reduce((s, r) => s + r.supply + r.tax, 0), rows };
   }, [reason, diff, fixed, doc, taxFree]);
 
@@ -60,9 +65,9 @@ export function AmendPanel({ doc, notify, onDone, onClose }: { doc: AmendDoc; no
       if (reason === "termination") body.date = date;
       if (reason === "changeSupplyCost" || reason === "return") {
         body.date = date;
-        body.lines = diff.map((l) => ({ name: l.name, qty: l.qty || undefined, unitPrice: l.unitPrice, supply: Math.round((Number(l.qty) || 0) * (Number(l.unitPrice) || 0)) }));
+        body.lines = diff.map((l) => ({ name: l.name, qty: toNum(l.qty) || undefined, unitPrice: toNum(l.unitPrice), supply: Math.round(toNum(l.qty) * toNum(l.unitPrice)) }));
       }
-      if (reason === "misspell") body.doc = { date: fixed.date, partner: fixed.partner, lines: fixed.lines, purpose: fixed.purpose, taxMode: doc.taxMode };
+      if (reason === "misspell") body.doc = { date: fixed.date, partner: fixed.partner, lines: fixed.lines.map((l) => ({ name: l.name, spec: l.spec, qty: toNum(l.qty), unitPrice: toNum(l.unitPrice) })), purpose: fixed.purpose, taxMode: doc.taxMode };
       const res = await rpc<{ state: string; ntsTransactionId?: string | null; cancelNts?: string | null; message?: string }>("btAmend", body);
       const kind = live ? "실제" : "테스트";
       notify({ text: res.state === "issued" ? `${kind} 수정발행 완료${res.ntsTransactionId ? ` · 승인번호 ${res.ntsTransactionId}` : ""}${res.cancelNts ? ` · 취소분 ${res.cancelNts}` : ""}` : `${kind} 수정발행이 접수됐습니다. ${res.message ?? ""}` });
@@ -76,9 +81,8 @@ export function AmendPanel({ doc, notify, onDone, onClose }: { doc: AmendDoc; no
     }
   };
 
-  const setDiffLine = (i: number, p: Partial<{ name: string; qty: number; unitPrice: number }>) => setDiff((ls) => ls.map((l, j) => (j === i ? { ...l, ...p } : l)));
-  const setFixedLine = (i: number, p: Partial<Line>) => setFixed((f) => ({ ...f, lines: f.lines.map((l, j) => (j === i ? { ...l, ...p } : l)) }));
-  const num = (v: string) => Number(v.replace(/[^\d.-]/g, "")) || 0;
+  const setDiffLine = (i: number, p: Partial<DiffRow>) => setDiff((ls) => ls.map((l, j) => (j === i ? { ...l, ...p } : l)));
+  const setFixedLine = (i: number, p: Partial<FixRow>) => setFixed((f) => ({ ...f, lines: f.lines.map((l, j) => (j === i ? { ...l, ...p } : l)) }));
 
   return (
     <div className="rc-card rc-amend">
@@ -110,8 +114,8 @@ export function AmendPanel({ doc, notify, onDone, onClose }: { doc: AmendDoc; no
                 {diff.map((l, i) => (
                   <tr key={i}>
                     <td><input value={l.name} onChange={(e) => setDiffLine(i, { name: e.target.value })} aria-label="품목" /></td>
-                    <td className="num"><input inputMode="decimal" value={l.qty} onChange={(e) => setDiffLine(i, { qty: num(e.target.value) })} aria-label="수량" /></td>
-                    <td className="num"><input inputMode="numeric" value={l.unitPrice} onChange={(e) => setDiffLine(i, { unitPrice: num(e.target.value) })} aria-label="단가" /></td>
+                    <td className="num"><input inputMode="decimal" value={l.qty} onChange={(e) => setDiffLine(i, { qty: clean(e.target.value) })} aria-label="수량" /></td>
+                    <td className="num"><input inputMode="numeric" value={l.unitPrice} onChange={(e) => setDiffLine(i, { unitPrice: clean(e.target.value) })} aria-label="단가" /></td>
                     <td className="num">{won(preview.rows[i]?.supply ?? 0)}</td><td className="num">{won(preview.rows[i]?.tax ?? 0)}</td>
                     <td><button type="button" className="rc-x" onClick={() => setDiff((ls) => ls.filter((_, j) => j !== i))} aria-label="줄 지우기">✕</button></td>
                   </tr>
@@ -119,7 +123,7 @@ export function AmendPanel({ doc, notify, onDone, onClose }: { doc: AmendDoc; no
               </tbody>
             </table>
           </div>
-          <div className="rc-row-btns"><button type="button" className="rc-btn ghost" onClick={() => setDiff((ls) => [...ls, { name: "", qty: 1, unitPrice: 0 }])}>＋ 품목 추가</button></div>
+          <div className="rc-row-btns"><button type="button" className="rc-btn ghost" onClick={() => setDiff((ls) => [...ls, { name: "", qty: "1", unitPrice: "" }])}>＋ 품목 추가</button></div>
         </>
       )}
 
@@ -143,8 +147,8 @@ export function AmendPanel({ doc, notify, onDone, onClose }: { doc: AmendDoc; no
                   <tr key={i}>
                     <td><input value={l.name} onChange={(e) => setFixedLine(i, { name: e.target.value })} aria-label="품목" /></td>
                     <td><input value={l.spec} onChange={(e) => setFixedLine(i, { spec: e.target.value })} aria-label="규격" /></td>
-                    <td className="num"><input inputMode="decimal" value={l.qty} onChange={(e) => setFixedLine(i, { qty: num(e.target.value) })} aria-label="수량" /></td>
-                    <td className="num"><input inputMode="numeric" value={l.unitPrice} onChange={(e) => setFixedLine(i, { unitPrice: num(e.target.value) })} aria-label="단가" /></td>
+                    <td className="num"><input inputMode="decimal" value={l.qty} onChange={(e) => setFixedLine(i, { qty: clean(e.target.value) })} aria-label="수량" /></td>
+                    <td className="num"><input inputMode="numeric" value={l.unitPrice} onChange={(e) => setFixedLine(i, { unitPrice: clean(e.target.value) })} aria-label="단가" /></td>
                     <td className="num">{won(preview.rows[i]?.supply ?? 0)}</td><td className="num">{won(preview.rows[i]?.tax ?? 0)}</td>
                   </tr>
                 ))}
