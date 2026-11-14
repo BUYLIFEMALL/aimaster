@@ -1,6 +1,6 @@
 # 플랜 — 상품소싱 「원본 사진 참고 수집」 → 상세페이지 분석 입력 (2026-11-13)
 
-작성: [역할: ecommerce-image] Claude Code(윈도우) `claude-win-blog` · **상태: 결정 5건 모두 확정(2026-11-13) → 구현 중(프로그램 4개 차례대로)**
+작성: [역할: ecommerce-image] Claude Code(윈도우) `claude-win-blog` · **상태: 결정 5건 확정(2026-11-13) → 구현·운영 반영 완료(2026-11-14: DB 칸 + 11번가 v1.07·스마트스토어 v1.28·상세페이지 v1.45·상품소싱 v1.38). 남음: 실제 쿠팡·네이버 흐름 검수**
 지시(주인님 채팅 2026-11-13): 「상품을 분석하는데 사진이 없으면 어떻게」「사진까지 수집하도록 하고 예외조항이야 수집만 할 뿐이지 실제 상품등록은 편집본이나 새로 만들어서 할꺼야」「원본 사진수집은 각각 사용자가 참고하는 용도니까 예외조항으로 같이 수집 가능하도록 기능 확장해」.
 지정 기록: [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](../../docs/TOP_RULE_PERSONAL_ACCOUNT_API.md) §8 2026-11-13 줄(2026-11-01 쿠팡 줄 확장). 앞 결정 변경: [`banana-canvas/docs/PLAN_20261113_MAKER_P3_P4_PREREVIEW.md`](../../banana-canvas/docs/PLAN_20261113_MAKER_P3_P4_PREREVIEW.md) §5.
 

@@ -14,6 +14,13 @@
 | 10 | 2026-10-17 | 문서 | AGENTS.md 「프로젝트 목적」의 「경쟁 상품 수는 Phase 2(쿠팡)에서 추가 예정」도 옛 설명(Phase 8 11번가로 반영됨) | `AGENTS.md` | 낮음 | 정리 완료(v1.08 Windows) |
 | 11 | 2026-11-11 | 기능 | 알리 검색어 한→영 자동 번역이 OpenAI·Gemini 키만 써서, Claude 키만 등록한 회원은 번역이 안 돼 엉뚱한 결과가 나옴(ego 실측: 시험 계정 「캠핑의자」 → WD-40 노즐·말랑이 장난감). 대시보드 「AI (OpenAI·Claude) 정상」 표시와도 어긋남. 기본 AI = Claude 지침에 맞춰 회원 본인 `anthropic` 키도 번역에 쓰도록 보강 제안(저가 모델·재시도 0) | `lib/ai/translateKeyword.ts:52`, `lib/actions/sourcing.ts:52`, 캡처 `C:/Users/Administrator/ego/ecom-flow-20261111/03-search.png` | 중간 | 미구현 — 다음 상품소싱기 작업 때(작은 수정, 미배포 대기로 모음) |
 
+## 2026-11-14 ecommerce-image 담당께 — v1.38 배포에 미커밋 E2-2 서버 코드가 함께 올라감 (`claude-win-photo`)
+
+- v1.38(원본 사진 참고 수집, `trending-product-finder-kw7jxke9h`)을 `scripts/deploy.mjs`로 작업 폴더에서 배포할 때, 폴더에 있던 미커밋 변경이 함께 올라갔습니다: `lib/actions/registerHelper.ts`(`draftListingAction`), `lib/ai/claude.ts`·`lib/listingRules.ts`(미추적), `lib/apiKeyLabels.ts`(`anthropic` 라벨), `types/database.types.ts`, `package.json`·`package-lock.json`(`@anthropic-ai/sdk` 1.3.0).
+- 영향: 빌드는 Ready. `draftListingAction`은 어떤 화면에서도 부르지 않아 회원 동작 변화 없음. 키는 회원 본인 `anthropic`만 쓰는 구조.
+- 원인: 배포 직전 `git status` 확인과 배포를 한 명령에 묶어 실행(제 실수). 앞으로는 확인 결과를 본 뒤 배포하고, 남의 미커밋이 있으면 `git archive HEAD` 커밋본으로 배포합니다.
+- 할 일: E2-2를 마무리해 커밋하면 다음 배포 때 그대로 나가면 됩니다. 커밋본으로 다시 배포할지는 주인님 결정 대기.
+
 ## 2026-10-17 Codex(Windows) — 인수 검사 추가 발견
 
 - **#11 권한 조회 RLS 의존(보완)**: 인증 후 관리자 클라이언트로 권한 조사(정책 유지), 회원 자료는 계속 회원 클라이언트와 소유자 조건. 페이지/API 합성 회귀 검사.
