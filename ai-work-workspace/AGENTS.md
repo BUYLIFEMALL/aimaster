@@ -2,7 +2,7 @@
 
 - 주소: https://ai-work-workspace.buylife.xyz · 메인 상세: https://www.buylife.xyz/programs/ai-work-workspace
 - 카테고리: **업무자동화**(2026-10-24 신설) · 이용 권한: 최소 등급 「일반」, FREE 없음(일반 등급 이상 + 관리자 사용기간 또는 구독)
-- 현재 버전: **v1.38** (13번 스마트 프로 인디고 워크스페이스 스타일) · 화면 버전은 **`src/lib/version.ts` 한 곳**만 올린다(왼쪽 메뉴 `AimasterSidebar.tsx`가 불러 씀, 2026-11-14부터 · 시험 명령 `npx vitest run --config tests/vitest.config.mjs` 155개)
+- 현재 버전: **v1.39** (13번 스마트 프로 인디고 워크스페이스 스타일) · 화면 버전은 **`src/lib/version.ts` 한 곳**만 올린다(왼쪽 메뉴 `AimasterSidebar.tsx`가 불러 씀, 2026-11-14부터 · 시험 명령 `npx vitest run --config tests/vitest.config.mjs` 155개)
 - **🔁 최신 인수인계(2026-11-13, v1.30~v1.35 + 미배포 묶음): 아래 §3 「지금 열린 기능」·§4·§5, 플랜 [`docs/PLAN_20261113_U14_AND_DEFERRED.md`](docs/PLAN_20261113_U14_AND_DEFERRED.md)**
 - 원본: [litmers-dev/litpage](https://github.com/litmers-dev/litpage) 커밋 `81665d4` (MIT, © 씨그로 주식회사(리트머스)) — `LICENSE`·`THIRD_PARTY_NOTICES.md` 유지. 화면 이름 「Litpage」는 주인님 지시로 「Workspace」, 「Litpage AI」는 「AIMaster」로 모두 바꿈(2026-10-24).
 - **🔁 인수인계(2026-11-06, 받아쓰기 엔진 선택·v1.22 배포·모델 교체 7개 배포 준비): [`docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md`](docs/IMPROVEMENT_HANDOFF_20261106_STT_DEPLOY.md)** — 남은 것: 배포 기록 정리, OpenAI 실제 받아쓰기 확인, 모델 교체 7개 배포(명령은 주인님 `!` 실행).
@@ -35,6 +35,7 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.39 | 2026-11-14 | 왼쪽 메뉴 버전 표시를 `src/lib/version.ts`에서 불러오게 고친 것(`9adffe5df`)만 내보낸 배포 — 메뉴에 v1.39가 보이는지 운영 확인 |
 | v1.38 | 2026-11-14 | 키 화면 그룹 상자·AI 비서 플랫폼별 기본 모델·큰 파일(4~50MB) Supabase Storage 저장·공개 페이지 1단계(`/public/<번호>`, 신고, 관리자 `/settings/public-pages` 내리기). 운영 확인: 10MB 올리기·내려받기(서명 주소, 크기 일치), 게시 → 로그인 없이 보기(noindex·읽기 전용) → 신고 → 내리기 뒤 404 통과. **왼쪽 메뉴 버전 표시(`AimasterSidebar.tsx`)는 빠뜨려 v1.37로 보임 — 코드는 v1.38로 고쳐 두었고 다음 배포 때 반영** |
 | v1.37 | 2026-11-13 | 볼타 웹훅 실제 수신 수정(알림이 요청 후 약 3초 만에 와도 처리, 「_」 든 접수 번호, 발급 상태 덮어쓰기 방지, 거절 이유 진단 기록, HEAD 200) — 운영에서 버튼 없이 자동 「발급됨」·승인번호 기록 통과 |
 | v1.36 | 2026-11-13 | 볼타 웹훅(회원 전용 주소 + 서명 확인 → 발급됨/실패 사유 자동 기록) · 일정 리마인더를 내 메일/카카오톡으로도(키 화면 「🔔 알림 받기」) · 공개 REST API `/v1`(MCP 개인 토큰 그대로, 분당 60·90일 — 운영 실제 호출 통과) · 볼타 설정 칸 항상 보이기 · AI/에이전트 단계 표시 한국어화 · 볼타 처리 상태 문구. 운영 DB 키 허용 목록에 `bolta_webhook_secret` |
