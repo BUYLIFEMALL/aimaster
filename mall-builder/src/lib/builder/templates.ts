@@ -10,6 +10,7 @@ import { SCHEMA_VERSION, type Block, type BlocksDoc } from "../blocks.ts";
 import { DEFAULT_THEME, type ShopTheme } from "../theme.ts";
 import { DEFAULT_FOOTER, DEFAULT_HEADER, DEFAULT_POPUP, type FooterDesign, type HeaderDesign, type PopupDesign } from "./frame.ts";
 import { DEFAULT_DETAIL, DEFAULT_LIST, type DetailDesign, type ListDesign } from "./pages.ts";
+import { EXTRA_LAYOUTS } from "./templates-extra.ts"; // 프론트(Claude) 스타일 116·117·118
 
 export const INDUSTRIES = ["b2b", "general", "fashion", "beauty", "food", "living", "digital", "kids"] as const;
 export type Industry = (typeof INDUSTRIES)[number];
@@ -58,8 +59,8 @@ const DAY = 86400_000;
 /** 어둡게 레이아웃의 바탕(I23) */
 export const DARK_BG = "#0c0a09";
 
-// ── 레이아웃 템플릿(7종: agy 3종 시안 + 기존 4종) ──
-// 3안(115. 클린 웰니스) 채택 및 1안(113. 럭셔리 부티크), 2안(114. 트렌디 팝) 템플릿 정식 저장 (2026-11-14 주인님 지시)
+// ── 레이아웃 템플릿(10종: agy 6종 시안 + 기존 4종) ──
+// 3안(115. 클린 웰니스) 채택 및 1안(113. 럭셔리 부티크), 2안(114. 트렌디 팝), 키즈·완구, 디지털·가전, 도매 카탈로그형 (2026-11-15 D5+ 템플릿 확장)
 export const LAYOUTS: LayoutTemplate[] = [
   {
     id: "clean-wellness",
@@ -159,13 +160,22 @@ export const LAYOUTS: LayoutTemplate[] = [
       detail: { ...DEFAULT_DETAIL },
       home: doc([
         blk({
-          id: id("lb-intro"),
-          type: "html",
+          id: id("lb-hero"),
+          type: "hero",
           visible: true,
           settings: {
-            html: `<h2>${esc(storeName)} EXCLUSIVE</h2><p>시대를 초월한 우아함과 최상의 장인정신이 깃든 마스터피스를 만나보세요.</p>`,
+            eyebrow: "HAUTE HORLOGERIE & LUXE",
+            title: "시대를 초월한 우아함과",
+            accent: "오직 당신만을 위한 프라이빗 셀렉션",
+            text: `시간이 흘러도 변치 않는 품격, ${storeName} 시그니처 마스터피스를 만나보세요.`,
+            button: { label: "컬렉션 살펴보기 →", link: `#blk-${id("lb-master")}` },
+            button2: { label: "신작 라인업", link: `#blk-${id("lb-new")}` },
+            feature: true,
+            source: "new",
+            category_id: "",
+            product_ids: [],
           },
-          style: { width: "full", bg_color: "#1c1917", pad_top: 44, pad_bottom: 44, title_align: "center" },
+          style: { width: "full", bg_color: "#1c1917", pad_top: 56, pad_bottom: 56 },
         }),
         blk({
           id: id("lb-master"),
@@ -224,6 +234,24 @@ export const LAYOUTS: LayoutTemplate[] = [
       list: { ...DEFAULT_LIST, columns: 4 },
       detail: { ...DEFAULT_DETAIL },
       home: doc([
+        blk({
+          id: id("tp-hero"),
+          type: "hero",
+          visible: true,
+          settings: {
+            eyebrow: "TRENDY SELECT & DROP",
+            title: "일상에 감각을 더하는",
+            accent: "생동감 넘치는 라이프스타일 큐레이션",
+            text: `새로운 취향과 위트 있는 디자인을 ${storeName}에서 즐겁게 발견해 보세요.`,
+            button: { label: "타임 특가 보기 →", link: `#blk-${id("tp-sale")}` },
+            button2: { label: "인기 아이템 탐색", link: `#blk-${id("tp-pick")}` },
+            feature: true,
+            source: "new",
+            category_id: "",
+            product_ids: [],
+          },
+          style: { width: "full", bg_color: "#fffaf5", pad_top: 56, pad_bottom: 56 },
+        }),
         blk({
           id: id("tp-sale"),
           type: "timesale",
@@ -353,7 +381,249 @@ export const LAYOUTS: LayoutTemplate[] = [
       ]),
     }),
   },
+  {
+    id: "kids-toy",
+    name: "키즈 & 토이 플레이월드 스타일",
+    description: "밝고 경쾌한 옐로우 팝 컬러와 부드러운 라운드. 장난감·유아동용품·교구·키즈 라이프스타일 몰에 최적",
+    industries: ["kids", "living", "general"],
+    moods: ["발랄함", "친근함", "플레이"],
+    defaultColor: "mustard",
+    shape: { radius: "xl", button: "3d", image_ratio: "1:1" },
+    build: ({ storeName }) => ({
+      ...base,
+      header: {
+        ...DEFAULT_HEADER,
+        band: { text: "아이들의 꿈과 상상력이 자라나는 공간", link: "", bg: "#d97706" },
+      },
+      list: { ...DEFAULT_LIST, columns: 4 },
+      detail: { ...DEFAULT_DETAIL },
+      home: doc([
+        blk({
+          id: id("kt-hero"),
+          type: "hero",
+          visible: true,
+          settings: {
+            eyebrow: "KIDS PLAY WORLD",
+            title: "매일매일 즐거운 놀이",
+            accent: "우리아이 행복한 플레이타임",
+            text: `상상력과 창의력을 키워주는 특별한 선물을 ${storeName}에서 골라보세요.`,
+            button: { label: "인기 장난감 보기 →", link: `#blk-${id("kt-best")}` },
+            button2: { label: "연령별 테마관", link: `#blk-${id("kt-tabs")}` },
+            feature: true,
+            source: "new",
+            category_id: "",
+            product_ids: [],
+          },
+          style: { width: "full", bg_color: "#fffbeb", pad_top: 52, pad_bottom: 52 },
+        }),
+        blk({
+          id: id("kt-best"),
+          type: "showcase",
+          visible: true,
+          settings: {
+            title: "베스트 플레이 랭킹",
+            source: "new",
+            category_id: "",
+            product_ids: [],
+            columns: 4,
+            limit: 8,
+          },
+        }),
+        blk({
+          id: id("kt-tabs"),
+          type: "tabs",
+          visible: true,
+          settings: {
+            title: "연령별 & 발달 테마관",
+            tabs: [
+              { label: "베이비 & 토들러", source: "new", category_id: "", product_ids: [] },
+              { label: "창의력 블록", source: "new", category_id: "", product_ids: [] },
+              { label: "실내외 놀이완구", source: "new", category_id: "", product_ids: [] },
+            ],
+            columns: 4,
+            limit: 8,
+          },
+        }),
+        blk({
+          id: id("kt-reviews"),
+          type: "reviews",
+          visible: true,
+          settings: { title: "부모님들의 생생 사용 후기", count: 6, min_rating: 4 },
+          style: { title_align: "center", width: "full", bg_color: "#ffffff", pad_top: 36, pad_bottom: 36 },
+        }),
+        blk({
+          id: id("kt-notice"),
+          type: "notice",
+          visible: true,
+          settings: { title: "안전 놀이 가이드", count: 3 },
+        }),
+      ]),
+    }),
+  },
+  {
+    id: "digital-tech",
+    name: "디지털 테크 & 스마트 디바이스 스타일",
+    description: "고밀도 5열 그리드와 메탈릭 하이테크 레이아웃. 스마트기기·음향·컴퓨터 부품·테크 기어 전문몰에 최적",
+    industries: ["digital", "b2b", "living"],
+    moods: ["하이테크", "스마트", "정보형"],
+    defaultColor: "charcoal",
+    shape: { radius: "sm", button: "flat", image_ratio: "1:1" },
+    build: ({ storeName }) => ({
+      ...base,
+      header: {
+        ...DEFAULT_HEADER,
+        search: "box",
+        band: { text: "스마트한 일상을 위한 최신 테크 솔루션", link: "", bg: "#1e293b" },
+      },
+      list: { ...DEFAULT_LIST, columns: 5 },
+      detail: { ...DEFAULT_DETAIL },
+      home: doc([
+        blk({
+          id: id("dt-hero"),
+          type: "hero",
+          visible: true,
+          settings: {
+            eyebrow: "SMART TECH GEAR",
+            title: "일상을 바꾸는 스마트한 연결",
+            accent: "고성능 디지털 테크 셀렉션",
+            text: `정밀한 규격과 뛰어난 기술력의 기어를 ${storeName}에서 직접 비교해 보세요.`,
+            button: { label: "스마트 기어 둘러보기 →", link: `#blk-${id("dt-show")}` },
+            button2: { label: "카테고리별 탐색", link: `#blk-${id("dt-tabs")}` },
+            feature: true,
+            source: "new",
+            category_id: "",
+            product_ids: [],
+          },
+          style: { width: "full", bg_color: "#f8fafc", pad_top: 48, pad_bottom: 48 },
+        }),
+        blk({
+          id: id("dt-show"),
+          type: "showcase",
+          visible: true,
+          settings: {
+            title: "주목할 만한 스마트 기기",
+            source: "new",
+            category_id: "",
+            product_ids: [],
+            columns: 5,
+            limit: 10,
+          },
+        }),
+        blk({
+          id: id("dt-tabs"),
+          type: "tabs",
+          visible: true,
+          settings: {
+            title: "카테고리별 테크 기어",
+            tabs: [
+              { label: "스마트 모빌리티 & 웨어러블", source: "new", category_id: "", product_ids: [] },
+              { label: "음향 & 홈엔터테인먼트", source: "new", category_id: "", product_ids: [] },
+              { label: "컴퓨팅 & 오피스", source: "new", category_id: "", product_ids: [] },
+            ],
+            columns: 5,
+            limit: 10,
+          },
+        }),
+        blk({
+          id: id("dt-reviews"),
+          type: "reviews",
+          visible: true,
+          settings: { title: "얼리어답터 실사용 리뷰", count: 6, min_rating: 4 },
+          style: { title_align: "center", width: "full", bg_color: "#ffffff", pad_top: 36, pad_bottom: 36 },
+        }),
+        blk({
+          id: id("dt-notice"),
+          type: "notice",
+          visible: true,
+          settings: { title: "규격 & 호환성 가이드", count: 3 },
+        }),
+      ]),
+    }),
+  },
+  {
+    id: "wholesale-catalog",
+    name: "도매 카탈로그 & 대량납품 B2B 스타일",
+    description: "압축된 5열 데이터 카탈로그형 그리드와 단정한 폼. 식자재·판촉물·소모품 등 대량발주와 납품 위주 B2B 도매몰에 최적",
+    industries: ["b2b", "general", "living", "food"],
+    moods: ["카탈로그", "대량구매", "도매"],
+    defaultColor: "blue",
+    shape: { radius: "none", button: "3d", image_ratio: "1:1" },
+    build: ({ storeName }) => ({
+      ...base,
+      header: {
+        ...DEFAULT_HEADER,
+        show_categories: true,
+        band: { text: "기업 및 사업자 회원을 위한 도매 카탈로그 센터", link: "", bg: "#1e40af" },
+      },
+      list: { ...DEFAULT_LIST, columns: 5, card: { style: "plain" } },
+      detail: { ...DEFAULT_DETAIL },
+      home: doc([
+        blk({
+          id: id("wc-hero"),
+          type: "hero",
+          visible: true,
+          settings: {
+            eyebrow: "B2B WHOLESALE CATALOG",
+            title: "합리적인 사업자 파트너십",
+            accent: "안정적인 도매 공급망 솔루션",
+            text: `사업장 운영에 필요한 핵심 품목을 ${storeName} 대량 카탈로그에서 한 번에 확인하세요.`,
+            button: { label: "도매 카탈로그 바로가기 →", link: `#blk-${id("wc-catalog")}` },
+            button2: { label: "업종별 품목 보기", link: `#blk-${id("wc-tabs")}` },
+            feature: true,
+            source: "new",
+            category_id: "",
+            product_ids: [],
+          },
+          style: { width: "full", bg_color: "#f8fafc", pad_top: 44, pad_bottom: 44 },
+        }),
+        blk({
+          id: id("wc-catalog"),
+          type: "showcase",
+          visible: true,
+          settings: {
+            title: "대량 발주 추천 품목",
+            source: "new",
+            category_id: "",
+            product_ids: [],
+            columns: 5,
+            limit: 10,
+            card: { style: "plain" },
+          },
+        }),
+        blk({
+          id: id("wc-tabs"),
+          type: "tabs",
+          visible: true,
+          settings: {
+            title: "업종별 소모품 카탈로그",
+            tabs: [
+              { label: "사무 & 매장 소모품", source: "new", category_id: "", product_ids: [] },
+              { label: "포장 & 위생 자재", source: "new", category_id: "", product_ids: [] },
+              { label: "정기 납품 품목", source: "new", category_id: "", product_ids: [] },
+            ],
+            columns: 5,
+            limit: 10,
+            card: { style: "plain" },
+          },
+        }),
+        blk({
+          id: id("wc-notice"),
+          type: "notice",
+          visible: true,
+          settings: { title: "대량 발주 및 납품 거래처 안내", count: 4 },
+        }),
+        blk({
+          id: id("wc-reviews"),
+          type: "reviews",
+          visible: true,
+          settings: { title: "거래처 바이어 평가", count: 6, min_rating: 4 },
+          style: { title_align: "center", width: "full", bg_color: "#ffffff", pad_top: 36, pad_bottom: 36 },
+        }),
+      ]),
+    }),
+  },
 ];
+LAYOUTS.push(...EXTRA_LAYOUTS);
 
 export const findLayout = (layoutId: string) => LAYOUTS.find((l) => l.id === layoutId) ?? null;
 export const findColor = (colorId: string) => COLOR_PRESETS.find((c) => c.id === colorId) ?? null;
