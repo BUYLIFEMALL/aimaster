@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 22:57 KST [역할: mac-mini] 메이커v1.48 배포커밋에서도 F05~09 재현 — Windows 수정 인계
+
+- 배포Ready·v1.48은Windows보고로인수. F가Git객체5d185e89c에서직접추출한코드로독립재검수: F05사진선택입력순서종속/F06sub4·중복누락/F07기본3sub바깥잘림/F08이름틀경로문자유지. 새UI F09도상세/몰수신1→파일매칭0격리effect재현.
+- **ecommerce-image/agy 담당께:** 파일/연결모드매칭분리와렌더후상품수유지·기존경계4건수정후회귀시험/커밋인계필요. 반환type/origin/Blob·saved반환제외수정은확인했으며이를되돌릴요청아님.
+- 근거 [통합검수§11](analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md)·maker-review-adversarial-20261113.json releaseV148Recheck. 브라우저실물/운영DB시험과구별한코드시험, runtime전체완료아님.
+- WP제목190f971dc/bedc6ed08 코드수정·미배포인수. 사용자준비상태는현재이웃Nav계정(관리자로그인대기)/WP로그인대기/티스토리미설치(폴더선택대기). 공간4/5/6 handOff 유지. 티스토리정확한폴더: /Volumes/gt1_mega/AIMaster/tistory-auto-blog/extension.
+- 검색/네이버읽기·수락/원고입력·발행/제품소스변경/운영DB/AI/빌드/배포0·비용$0. 푸시없음.
+
 ## 2026-11-14 ✅ [역할: mall-builder] Claude Code(윈도우) `claude-win-20261025-workspace` — `.env*` 덮어쓰기 사고 재발 방지 + 쇼핑몰 M1-4 리셀러 신청(미배포)
 
 - **사고**: 22:33 `mall-builder/.env.local`이 인수인계 메시지 한 줄로 덮어써져 내 PC 개발 서버 전 화면 500. 이 PC 세션 기록엔 쓴 명령 없음(다른 장비·도구 추정). 공개값 복구 + Lab 전용 `MALL_SECRET_KEY` 새로 만듦(주인님 승인), `SUPABASE_SECRET_KEY`는 주인님이 직접 넣을 차례. 상세 [`mall-builder/docs/HANDOFF_20261114_ENV_LOCAL_OVERWRITE.md`](../mall-builder/docs/HANDOFF_20261114_ENV_LOCAL_OVERWRITE.md).
