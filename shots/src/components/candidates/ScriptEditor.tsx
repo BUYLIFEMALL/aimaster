@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions/scripts";
 import { NANO_BANANA_MODEL_OPTIONS } from "@/lib/ai/nanoBananaModels";
 import { SegmentCard } from "@/components/candidates/SegmentCard";
+import { SceneVideoBatch } from "@/components/candidates/SceneVideoBatch";
 import type { Database, ShortsVideoStatus } from "@/types/database.types";
 
 type Video = Database["public"]["Tables"]["shorts_videos"]["Row"];
@@ -74,8 +75,10 @@ export function ScriptEditor({ video, segments, sceneVideos = {}, keyProviders =
         <p className="text-base font-bold text-[#f1f1f1]">
           장면별 대사 · 이미지 프롬프트 · 이미지 (5초 × {segments.length}장면)
         </p>
+        {/* v1.51 일괄 영상: 완성되면 화면을 새로 읽고, 영상 주소가 바뀐 장면 카드는 key가 달라져 새로 그려진다 */}
+        <SceneVideoBatch videoId={video.id} segments={segments.map((x) => ({ id: x.id, segment_index: x.segment_index, image_url: x.image_url }))} sceneVideos={sceneVideos} keyProviders={keyProviders} />
         {segments.map((seg, i) => (
-          <SegmentCard key={seg.id} isFirst={i === 0} isLast={i === segments.length - 1} videoId={video.id} segment={seg} sceneVideoUrl={sceneVideos[seg.id] ?? null} hasNextImage={!!segments.find((x) => x.segment_index === seg.segment_index + 1)?.image_url} keyProviders={keyProviders} imageExpired={expiredSegmentIds.includes(seg.id)} />
+          <SegmentCard key={`${seg.id}:${sceneVideos[seg.id] ?? ""}`} isFirst={i === 0} isLast={i === segments.length - 1} videoId={video.id} segment={seg} sceneVideoUrl={sceneVideos[seg.id] ?? null} hasNextImage={!!segments.find((x) => x.segment_index === seg.segment_index + 1)?.image_url} keyProviders={keyProviders} imageExpired={expiredSegmentIds.includes(seg.id)} />
         ))}
       </div>
 

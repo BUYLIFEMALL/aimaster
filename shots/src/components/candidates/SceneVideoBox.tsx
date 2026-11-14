@@ -6,8 +6,8 @@ import { DEFAULT_VIDEO_MODEL, findVideoModel, priceLabel, PROVIDER_NAME, sceneCo
 // v1.32 장면 AI 영상 — 선택한 장면 이미지를 첫 화면으로 5~10초 영상을 만든다(회원 본인 Gemini·Replicate·fal 키).
 // 진행 중 작업 번호는 이 브라우저(localStorage)에 기억해 새로고침해도 이어서 확인한다(표 구조 변경 없음). 자동 다시 보내기 없음(이중 과금 방지).
 const jobKey = (segmentId: string) => `shots-scene-job:${segmentId}`;
-function readJob(segmentId: string): VideoJob | null { try { const v = localStorage.getItem(jobKey(segmentId)); return v ? (JSON.parse(v) as VideoJob) : null; } catch { return null; } }
-function writeJob(segmentId: string, job: VideoJob | null) { try { if (job) localStorage.setItem(jobKey(segmentId), JSON.stringify(job)); else localStorage.removeItem(jobKey(segmentId)); } catch { /* 저장 못 해도 이 화면에서는 계속 확인 */ } }
+export function readSceneJob(segmentId: string): VideoJob | null { try { const v = localStorage.getItem(jobKey(segmentId)); return v ? (JSON.parse(v) as VideoJob) : null; } catch { return null; } }
+export function writeSceneJob(segmentId: string, job: VideoJob | null) { try { if (job) localStorage.setItem(jobKey(segmentId), JSON.stringify(job)); else localStorage.removeItem(jobKey(segmentId)); } catch { /* 저장 못 해도 이 화면에서는 계속 확인 */ } }
 
 async function call(body: Record<string, unknown>): Promise<{ state?: string; job?: VideoJob; url?: string; error?: string }> {
   const res = await fetch("/api/video/scene", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -33,13 +33,13 @@ export function SceneVideoBox({ videoId, segmentId, hasImage, hasNextImage, init
   const cost = sceneCost(m, withEnd, seconds);
   const costNoEnd = sceneCost(m, false, seconds);
 
-  useEffect(() => { setJob(readJob(segmentId)); }, [segmentId]);
+  useEffect(() => { setJob(readSceneJob(segmentId)); }, [segmentId]);
 
   const check = useCallback(async (j: VideoJob) => {
     try {
       const r = await call({ action: "check", videoId, segmentId, job: j });
-      if (r.state === "done" && r.url) { setUrl(r.url); setJob(null); writeJob(segmentId, null); setMsg({ text: "장면 영상이 완성되었습니다. 「브라우저에서 만들기」 때 이 장면은 영상으로 들어갑니다.", ok: true }); }
-    } catch (e) { setJob(null); writeJob(segmentId, null); setRetryNoEnd(j.withEnd); setMsg({ text: `영상을 만들지 못했습니다. ${e instanceof Error ? e.message : ""}` }); }
+      if (r.state === "done" && r.url) { setUrl(r.url); setJob(null); writeSceneJob(segmentId, null); setMsg({ text: "장면 영상이 완성되었습니다. 「브라우저에서 만들기」 때 이 장면은 영상으로 들어갑니다.", ok: true }); }
+    } catch (e) { setJob(null); writeSceneJob(segmentId, null); setRetryNoEnd(j.withEnd); setMsg({ text: `영상을 만들지 못했습니다. ${e instanceof Error ? e.message : ""}` }); }
   }, [videoId, segmentId]);
 
   // 만드는 중이면 15초마다 확인(한 번에 하나, 다시 보내기 없음)
@@ -58,7 +58,7 @@ export function SceneVideoBox({ videoId, segmentId, hasImage, hasNextImage, init
     try {
       const r = await call({ action: "submit", videoId, segmentId, model: m.id, seconds, linkNext: useEnd });
       if (r.state === "done" && r.url) { setUrl(r.url); setMsg({ text: "장면 영상을 만들었습니다.", ok: true }); }
-      else if (r.job) { setJob(r.job); writeJob(segmentId, r.job); setMsg({ text: "영상을 만드는 중입니다(보통 1~5분). 이 화면을 닫았다 열어도 이어서 확인합니다.", ok: true }); }
+      else if (r.job) { setJob(r.job); writeSceneJob(segmentId, r.job); setMsg({ text: "영상을 만드는 중입니다(보통 1~5분). 이 화면을 닫았다 열어도 이어서 확인합니다.", ok: true }); }
     } catch (e) { setRetryNoEnd(useEnd); setMsg({ text: e instanceof Error ? e.message : "영상 요청에 실패했습니다." }); } finally { setBusy(false); }
   }
 
