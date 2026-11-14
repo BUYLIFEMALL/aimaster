@@ -153,11 +153,14 @@ export function productCaption(p: { name: string }, option?: string): string {
 // 원칙(docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md §4): 상품 장면에는 AI 이미지를 쓰지 않고 회원이 올린 원본 사진을 그대로 쓴다.
 // 상품명(+옵션)은 아웃트로 부제에 원문 그대로 고정한다(AI가 바꾸지 못하게).
 
-export type ProductPhoto = { path: string };
+/** v1.55 path(원스톱에 올린 사진) 또는 ref(「내 자료함」 원본 번호, 복사하지 않음) 중 하나 */
+export type ProductPhoto = { path?: string; ref?: string };
+const REF_RE = /^[a-z0-9_]{1,64}:[0-9a-f-]{36}:\d{1,4}$/i;
+export const isLibraryRef = (v: unknown): v is string => typeof v === "string" && REF_RE.test(v);
 
 /** 상품 사진 배경 하나 — 서명 주소는 열 때마다 path로 다시 받는다(src는 비워 둠) */
-export function productBg(path: string): Bg {
-  return { type: "image", source: "product", src: "", path, credit: "상품 사진" };
+export function productBg(p: ProductPhoto): Bg {
+  return p.ref ? { type: "image", source: "product", src: "", ref: p.ref, credit: "상품 사진(내 자료함)" } : { type: "image", source: "product", src: "", path: p.path, credit: "상품 사진" };
 }
 
 function setSceneBg(s: ShortsScript, scene: number, bg: Bg | undefined) {
@@ -175,13 +178,13 @@ function sceneBg(s: ShortsScript, scene: number): Bg | undefined {
  *  - 사진 권리 표시가 없으면 사진은 넣지 않는다(상품 기록·고정 문구만). */
 export function applyProduct(script: ShortsScript, record: ProductRecord, photos: ProductPhoto[]): ShortsScript {
   const s = structuredClone(script);
-  const usable = record.rights ? photos.filter((p) => typeof p.path === "string" && p.path.includes("/product/")) : [];
+  const usable = record.rights ? photos.filter((p) => (typeof p.path === "string" && p.path.includes("/product/")) || isLibraryRef(p.ref)) : [];
   // 같은 대본에 다시 넣을 때: 이전 상품 사진은 지우고 새로 배치
   for (let i = 0; i < s.cards.length + 2; i++) if (sceneBg(s, i)?.source === "product") setSceneBg(s, i, undefined);
   for (const { scene, photo } of productPhotoSlots(usable.length)) {
     const cur = sceneBg(s, scene);
     if (cur && (cur.source === "ai" || cur.videoJob)) continue;
-    setSceneBg(s, scene, productBg(usable[photo].path));
+    setSceneBg(s, scene, productBg(usable[photo]));
   }
   if (usable.length) {
     s.backdrop = { ...(s.backdrop ?? { dim: 0.45, style: "photo", character: "" }), mode: "scene" } as ShortsScript["backdrop"];
@@ -208,4 +211,15 @@ export function productPhotoPaths(s: ShortsScript): string[] {
     if (path && out[photo] === undefined) out[photo] = path;
   }
   return out.filter((x): x is string => !!x);
+}
+
+/** v1.55 저장된 상품 대본에서 올렸던 사진(경로 또는 자료함 원본 번호)을 올린 순서대로 되찾는다 */
+export function productPhotoList(s: ShortsScript): ProductPhoto[] {
+  const n = Math.min(MAX_PRODUCT_PHOTOS, Math.max(0, Math.floor(s.product?.photos ?? 0)));
+  const out: (ProductPhoto | undefined)[] = [];
+  for (const { scene, photo } of productPhotoSlots(n)) {
+    const b = sceneBg(s, scene); const pb = b?.source === "product" ? b : b?.poster?.source === "product" ? b.poster : undefined;
+    if (pb && out[photo] === undefined && (pb.path || pb.ref)) out[photo] = pb.ref ? { ref: pb.ref } : { path: pb.path };
+  }
+  return out.filter((x): x is ProductPhoto => !!x);
 }

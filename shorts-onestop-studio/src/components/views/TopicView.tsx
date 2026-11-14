@@ -15,7 +15,7 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scrip
 import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
 import { takeProductHandoff, takeRefHandoff } from "@/lib/refHandoff";
-import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, productPhotoPaths, type ProductExtra, type ProductRights } from "@/lib/productShorts";
+import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, productPhotoList, type ProductExtra, type ProductRights } from "@/lib/productShorts";
 import { createClient } from "@/lib/supabase/client";
 import { refBlockHeader, refBlocks, removeRefBlock, shortSource } from "@/lib/refBlocks";
 import { REWRITE_LEVELS, type RewriteLevel } from "@/lib/rewrite";
@@ -78,7 +78,8 @@ export function TopicView() {
   // v1.52 메이커 후속 1단계: 상품ID·옵션·주소·확정 설명·사진 권리·판번호 + 회원이 올린 상품 사진(최대 6)
   const [extra, setExtra] = useState<ProductExtra>(() => normalizeProductExtra({}));
   const [productFrom, setProductFrom] = useState("");
-  const [photos, setPhotos] = useState<{ path: string; preview: string; name: string }[]>([]);
+  const [photos, setPhotos] = useState<{ path?: string; ref?: string; preview: string; name: string }[]>([]);
+  const [library, setLibrary] = useState<{ ref: string; title: string; source: string; url: string }[] | null>(null);
   const photoInput = useRef<HTMLInputElement>(null);
   const isProduct = format === "product";
   function chooseProductFormat() {
@@ -95,17 +96,29 @@ export function TopicView() {
     setProduct({ name: pr.name, points: [...pr.points, "", "", ""].slice(0, 3), offer: pr.offer });
     setExtra(normalizeProductExtra(pr)); setProductFrom(pr.from ?? "");
     setMode("ai"); chooseProductFormat();
-    const paths = productPhotoPaths(d); if (!paths.length) return;
+    const list = productPhotoList(d); if (!list.length) return;
     try {
-      const { urls } = await api<{ urls: Record<string, string> }>("/api/media/sign", { body: { paths } });
-      setPhotos(paths.filter((p) => urls[p]).map((p, k) => ({ path: p, preview: urls[p], name: `사진 ${k + 1}` })));
+      const { urls } = await api<{ urls: Record<string, string> }>("/api/media/sign", { body: { paths: list.flatMap((p) => (p.path ? [p.path] : [])), refs: list.flatMap((p) => (p.ref ? [p.ref] : [])) } });
+      const urlOf = (p: { path?: string; ref?: string }) => (p.ref ? urls[`ref:${p.ref}`] : p.path ? urls[p.path] : undefined);
+      setPhotos(list.filter((p) => urlOf(p)).map((p, k) => ({ ...p, preview: urlOf(p)!, name: `사진 ${k + 1}` })));
     } catch { /* 사진을 못 불러와도 상품 정보는 채워 둔다 */ }
+  }
+  // v1.55 「내 자료함」 이미지를 상품 사진으로(복사하지 않고 원본 번호만 저장)
+  async function openLibrary() {
+    if (!extra.rights) { setMsg({ text: "사진을 고르기 전에 사진 권리(내 사진 또는 공급사 허락)를 먼저 골라 주세요." }); return; }
+    try { setLibrary((await api<{ images: { ref: string; title: string; source: string; url: string }[] }>("/api/library/images")).images); }
+    catch (e) { setMsg(toMsg(e)); }
+  }
+  function pickLibrary(img: { ref: string; title: string; url: string }) {
+    setPhotos((p) => (p.some((x) => x.ref === img.ref) || p.length >= MAX_PRODUCT_PHOTOS ? p : [...p, { ref: img.ref, preview: img.url, name: img.title }]));
   }
   // v1.54 사진 순서 바꾸기(앞으로·뒤로) — 순서대로 상품 장면에 들어간다
   const movePhoto = (k: number, d: -1 | 1) => setPhotos((p) => { const t = k + d; if (t < 0 || t >= p.length) return p; const n = [...p]; [n[k], n[t]] = [n[t], n[k]]; return n; });
   // v1.54 사진 빼기: 지금 대본이 쓰지 않으면 서버 파일도 바로 지운다(저장된 대본이 쓰는 파일은 서버가 남김)
-  function removePhoto(path: string) {
-    setPhotos((p) => p.filter((x) => x.path !== path));
+  function removePhoto(key: string) {
+    setPhotos((p) => p.filter((x) => (x.path ?? x.ref) !== key));
+    if (!key.includes("/product/")) return; // 자료함 사진은 원본이라 지우지 않는다
+    const path = key;
     if (script && JSON.stringify(script).includes(path)) return;
     void api("/api/media/product-delete", { body: { path } }).catch(() => undefined);
   }
@@ -346,8 +359,22 @@ export function TopicView() {
                     <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
                       <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => void addPhotos(e.target.files)} />
                       <button type="button" disabled={!extra.rights || photos.length >= MAX_PRODUCT_PHOTOS || !!busy} title={extra.rights ? undefined : "사진 권리를 먼저 골라 주세요"} onClick={() => photoInput.current?.click()}><Plus size={14} />사진 올리기</button>
-                      {photos.map((ph, k) => <span key={ph.path} className="badge" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><button type="button" aria-label="앞으로" title="앞으로" disabled={k === 0} onClick={() => movePhoto(k, -1)}>◀</button><img src={ph.preview} alt="" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 6, background: "#0002" }} />{k + 1}<button type="button" aria-label="뒤로" title="뒤로" disabled={k === photos.length - 1} onClick={() => movePhoto(k, 1)}>▶</button><button type="button" aria-label="이 사진 빼기" title="빼기" onClick={() => removePhoto(ph.path)}><Trash2 size={12} /></button></span>)}
+                      <button type="button" disabled={!extra.rights || photos.length >= MAX_PRODUCT_PHOTOS || !!busy} title={extra.rights ? "바나나·AI 이미지 등 내 자료함 사진 — 복사하지 않고 원본을 그대로 씁니다" : "사진 권리를 먼저 골라 주세요"} onClick={() => void openLibrary()}>🗂️ 내 자료함에서 고르기</button>
+                      {photos.map((ph, k) => <span key={ph.path ?? ph.ref} className="badge" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><button type="button" aria-label="앞으로" title="앞으로" disabled={k === 0} onClick={() => movePhoto(k, -1)}>◀</button><img src={ph.preview} alt="" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 6, background: "#0002" }} />{k + 1}<button type="button" aria-label="뒤로" title="뒤로" disabled={k === photos.length - 1} onClick={() => movePhoto(k, 1)}>▶</button><button type="button" aria-label="이 사진 빼기" title="빼기" onClick={() => removePhoto((ph.path ?? ph.ref)!)}><Trash2 size={12} /></button></span>)}
                     </div>
+                    {library && (
+                      <div className="stack" style={{ gap: 6 }}>
+                        <div className="row" style={{ justifyContent: "space-between" }}><strong style={{ fontSize: 13 }}>🗂️ 내 자료함 이미지 ({library.length}) — 눌러서 넣기</strong><button type="button" onClick={() => setLibrary(null)}>닫기</button></div>
+                        {library.length === 0 ? <small className="muted">자료함에 서버에 저장된 이미지가 없습니다. <a href="https://www.buylife.xyz/library" target="_blank" rel="noreferrer">내 자료함 보기</a></small> : (
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(84px, 1fr))", gap: 6, maxHeight: 260, overflowY: "auto" }}>
+                            {library.map((img) => { const on = photos.some((x) => x.ref === img.ref); return (
+                              <button key={img.ref} type="button" title={`${img.title} · ${img.source}`} onClick={() => pickLibrary(img)} disabled={on || photos.length >= MAX_PRODUCT_PHOTOS} style={{ padding: 2, borderRadius: 8, outline: on ? "2px solid var(--brand)" : undefined }}>
+                                <img src={img.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "contain", background: "#0002", borderRadius: 6 }} />
+                              </button>); })}
+                          </div>)}
+                        <small className="muted">자료함 사진은 복사하지 않고 원본을 그대로 씁니다. 원본이 보관 기간이 지나 지워지면 영상에서도 빠지니 그때는 다시 골라 주세요.</small>
+                      </div>
+                    )}
                     <small className="muted">1번부터 순서대로 상품 등장 → 쓰는 모습 → 달라진 결과 → 인트로 → 마무리 장면에 들어가고(◀ ▶로 순서 바꾸기), 사진이 적으면 돌아가며 씁니다. 올린 사진은 다른 회원에게 보이지 않고 30일 뒤 자동으로 지워집니다.</small>
                     {script && <div className="actions"><button type="button" disabled={!!busy} onClick={() => { setScript((s) => (s ? withProduct(s) : s)); setMsg({ text: "지금 대본에 상품 정보·사진을 다시 넣었습니다. 저장해 주세요.", ok: true }); }}>🛍 지금 대본에 상품 사진·정보 넣기</button></div>}
                   </div>

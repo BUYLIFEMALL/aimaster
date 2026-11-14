@@ -95,12 +95,13 @@ export async function prepareMedia(s: ShortsScript): Promise<{ media: (bg: Bg) =
   const voicePaths = sceneVoices(s).map((v) => v.voice?.path).filter((p): p is string => !!p);
   const bgm = normalizeAudio(s.audio).bgm?.path;
   const paths = [...bgs.map((b) => b.path).filter((p): p is string => !!p), ...voicePaths, ...(bgm ? [bgm] : [])];
-  const signed = paths.length ? (await api<{ urls: Record<string, string> }>("/api/media/sign", { body: { paths } })).urls : {};
+  const refs = bgs.map((b) => b.ref).filter((r): r is string => !!r); // v1.55 자료함 원본 번호
+  const signed = paths.length || refs.length ? (await api<{ urls: Record<string, string> }>("/api/media/sign", { body: { paths, refs } })).urls : {};
   const pb = bgs.filter((b) => b.source === "pixabay" && b.stockId).map((b) => ({ id: b.stockId!, type: b.type }));
   const fresh = pb.length ? (await api<{ urls: Record<string, { src: string }> }>("/api/stock/resolve", { body: { items: pb } })).urls : {};
   const map = new Map<Bg, CanvasImageSource>();
   await Promise.all(bgs.map((b) => new Promise<void>((done) => {
-    const src = b.path ? signed[b.path] : b.source === "pixabay" && b.stockId && fresh[b.stockId] ? fresh[b.stockId].src : b.src;
+    const src = b.path ? signed[b.path] : b.ref ? signed[`ref:${b.ref}`] : b.source === "pixabay" && b.stockId && fresh[b.stockId] ? fresh[b.stockId].src : b.src;
     if (!src) return done();
     const to = setTimeout(done, 20000);
     if (b.type === "video") {

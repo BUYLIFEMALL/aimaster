@@ -118,3 +118,17 @@ test("저장된 상품 대본에서 올렸던 사진을 올린 순서대로 되�
   assert.deepEqual(productPhotoPaths(v), ["u1/product/a.jpg", "u1/product/b.jpg", "u1/product/c.jpg"]);
   assert.deepEqual(productPhotoPaths(demo()), []);
 });
+
+// ── v1.55 「내 자료함」 사진을 원본 참조로 ──
+import { isLibraryRef, productPhotoList } from "../src/lib/productShorts.ts";
+
+test("자료함 원본 번호는 형식이 맞을 때만, 복사 없이 ref로 장면에 들어간다", () => {
+  const ref = "banana_runs:123e4567-e89b-12d3-a456-426614174000:0";
+  assert.equal(isLibraryRef(ref), true);
+  assert.equal(isLibraryRef("../x"), false);
+  const s = applyProduct(demo(), rec("owned"), [{ ref }, { path: "u1/product/a.jpg" }, { ref: "bad ref" }]);
+  assert.equal(s.product?.photos, 2);
+  assert.equal(s.cards[1].bg?.ref, ref);
+  assert.equal(s.cards[1].bg?.path, undefined);
+  assert.deepEqual(productPhotoList(s), [{ ref }, { path: "u1/product/a.jpg" }]);
+});

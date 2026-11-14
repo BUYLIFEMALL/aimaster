@@ -22,13 +22,14 @@ export function useMedia(script: ShortsScript | null | undefined) {
 
   // AI 이미지 경로 → 서명 주소
   // v1.23: AI 영상의 첫 화면 사진(poster)도 썸네일·이어 붙이기용으로 서명 주소를 받는다
-  const pathKey = allBgs(script).flatMap((b) => [b.path, b.poster?.path]).filter((p): p is string => !!p).sort().join("|");
+  // v1.55 자료함 원본 번호는 "ref:<번호>" 키로 함께 서명
+  const pathKey = allBgs(script).flatMap((b) => [b.path, b.poster?.path, b.ref && `ref:${b.ref}`, b.poster?.ref && `ref:${b.poster.ref}`]).filter((p): p is string => !!p).sort().join("|");
   useEffect(() => {
     const paths = pathKey ? pathKey.split("|") : [];
     const need = paths.filter((p) => !signed[p] && !asked.current.has(p));
     if (!need.length) return;
     need.forEach((p) => asked.current.add(p));
-    fetch("/api/media/sign", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paths: need }) })
+    fetch("/api/media/sign", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paths: need.filter((p) => !p.startsWith("ref:")), refs: need.filter((p) => p.startsWith("ref:")).map((p) => p.slice(4)) }) })
       .then((r) => r.json()).then((d) => {
         if (!d.urls) return; // 요청 자체가 실패하면 지워졌다고 판단하지 않는다
         if (Object.keys(d.urls).length) setSigned((s) => ({ ...s, ...d.urls }));
@@ -46,12 +47,12 @@ export function useMedia(script: ShortsScript | null | undefined) {
     fetch("/api/stock/resolve", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }) })
       .then((r) => r.json()).then((d) => { if (d.urls && Object.keys(d.urls).length) setFresh((f) => ({ ...f, ...Object.fromEntries(Object.entries(d.urls as Record<string, { src: string }>).map(([k, v]) => [k, v.src])) })); }).catch(() => undefined);
   }, [pbKey]);
-  const srcOf = useCallback((b: Bg) => (b.path ? signed[b.path] ?? "" : b.source === "pixabay" && b.stockId && fresh[b.stockId] ? fresh[b.stockId] : b.src), [signed, fresh]);
+  const srcOf = useCallback((b: Bg) => (b.path ? signed[b.path] ?? "" : b.ref ? signed[`ref:${b.ref}`] ?? "" : b.source === "pixabay" && b.stockId && fresh[b.stockId] ? fresh[b.stockId] : b.src), [signed, fresh]);
 
   // 필요한 요소 불러오기
   useEffect(() => {
     for (const b of allBgs(script).flatMap((x) => (x.poster ? [x, x.poster] : [x]))) { // v1.23: AI 영상의 첫 화면 사진도 미리 불러 둔다(영상 로딩 중 대신 표시)
-      const src = srcOf(b); const key = b.path ?? (b.stockId ? `${b.source}:${b.stockId}:${src}` : b.src);
+      const src = srcOf(b); const key = b.path ?? (b.ref ? `ref:${b.ref}` : undefined) ?? (b.stockId ? `${b.source}:${b.stockId}:${src}` : b.src);
       if (!src || cache.current.has(key)) continue;
       if (b.type === "video") {
         const v = document.createElement("video");
@@ -67,12 +68,12 @@ export function useMedia(script: ShortsScript | null | undefined) {
 
   // 다 그릴 수 있는 상태만 돌려준다(아직 로딩 중이면 null → 테마 배경)
   const resolve = useCallback((b: Bg): CanvasImageSource | null => {
-    const el = cache.current.get(b.path ?? (b.stockId ? `${b.source}:${b.stockId}:${srcOf(b)}` : b.src));
+    const el = cache.current.get(b.path ?? (b.ref ? `ref:${b.ref}` : undefined) ?? (b.stockId ? `${b.source}:${b.stockId}:${srcOf(b)}` : b.src));
     const ready = !el ? null : el instanceof HTMLVideoElement ? (el.readyState >= 2 ? el : null) : el.complete && el.naturalWidth > 0 ? el : null;
     if (ready) return ready;
     // AI 영상을 아직 받는 중이면 첫 화면 사진을 대신 보여 준다(테마 배경으로 깜빡이지 않게)
     const p = b.poster; if (!p) return null;
-    const pe = cache.current.get(p.path ?? (p.stockId ? `${p.source}:${p.stockId}:${srcOf(p)}` : p.src));
+    const pe = cache.current.get(p.path ?? (p.ref ? `ref:${p.ref}` : undefined) ?? (p.stockId ? `${p.source}:${p.stockId}:${srcOf(p)}` : p.src));
     return pe instanceof HTMLImageElement && pe.complete && pe.naturalWidth > 0 ? pe : null;
   }, [srcOf]);
 
