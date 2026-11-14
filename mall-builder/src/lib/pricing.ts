@@ -30,7 +30,7 @@ export type Viewer = "guest" | "consumer" | "pending" | "business";
 export type GradePrice = { price: number | null; discount_rate: number | null } | null;
 /** groupPrice: 진행 중인 공동구매가(D21) — 있으면 등급가·수량 할인 대신 이 가격(+ 옵션 추가금). DB 0041 v2와 같은 규칙 */
 /** customerPrice: 거래처 특가(D24) — 상품별 특가 또는 거래처 기본 할인율. 있으면 등급가 대신, 최종 단가(수량 할인 안 함). DB 0045b와 같은 규칙 */
-/** floorPrice: 최저 판매가(T1 — 공급사 상품의 공급가 × (1 + 최소 마진)). 모든 할인 뒤에 이 아래로 내려가지 않는다(판매가+옵션을 넘지는 않음). DB 0057과 같은 규칙 */
+/** floorPrice: 최저 판매가(T1 — 공급사 상품의 공급가 × (1 + 최소 마진), M1-3(0069)부터 공급가 ÷ (1 − 리셀러율)과 둘 중 큰 값 — DB가 계산해 내려줌). 모든 할인 뒤에 이 아래로 내려가지 않는다(판매가+옵션을 넘지는 않음). DB 0057과 같은 규칙 */
 export type PriceContext = { viewer?: Viewer; gradePrice?: GradePrice; gradeName?: string; tiers?: VolumeTier[]; groupPrice?: number | null; customerPrice?: GradePrice; floorPrice?: number | null };
 
 export type PriceLine = {

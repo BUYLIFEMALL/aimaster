@@ -49,3 +49,14 @@ select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000b1'
 select mall_builder_supplier_product_save('00000000-0000-0000-0000-00000000005b', null, '{"name":"모자","supply_price":"7000","base_price":"10000","stock_mode":"none","images":[]}'::jsonb) as pid2 \gset
 select mall_builder_product_reseller_rate_set(:'pid2', 10);
 select '9 옛 방식' t, supply_price, hq_rate, reseller_rate from mall_builder_product_supply where product_id=:'pid2';
+
+-- 0069 M1-3 하한: 판매가 12,000 · 본사 3% · 리셀러 10% → 공급가 10,440, 리셀러 하한 = ceil(10440 / 0.9) = 11,600
+reset role;
+select '10 하한(리셀러 10%)' t, mall_builder_private.price_floor(:'pid', 12000) floor;
+-- 최소 마진 20%면 ceil(10440 × 1.2) = 12,528 → 판매가 12,000을 넘지 않음 → 12,000
+insert into mall_builder_price_rules (store_id, min_margin_rate) values ('00000000-0000-0000-0000-00000000005a', 20)
+  on conflict (store_id) do update set min_margin_rate = 20;
+select '11 하한(마진 20%)' t, mall_builder_private.price_floor(:'pid', 12000) floor;
+update mall_builder_price_rules set min_margin_rate = 0 where store_id = '00000000-0000-0000-0000-00000000005a';
+-- 옛 방식 몰 리셀러 10%·공급가 7,000 → ceil(7000/0.9) = 7,778
+select '12 옛 방식 하한' t, mall_builder_private.price_floor(:'pid2', 10000) floor;
