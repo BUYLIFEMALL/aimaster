@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { codeError, commissionOf, normalizeCode, parseRate, payoutError, refCookieName, refHeaderFromCookies, withholdingHint } from "../src/lib/reseller.ts";
+import { codeError, commissionOf, normalizeCode, parseRate, payoutError, refCookieName, refHeaderFromCookies, withholdingHint, defaultDeduction } from "../src/lib/reseller.ts";
 
 test("코드", () => {
   assert.equal(normalizeCode(" gana01 "), "GANA01");
@@ -41,4 +41,10 @@ test("refHeaderFromCookies — 몰별 리셀러 쿠키를 머리글 한 줄로(M
   assert.equal(refHeaderFromCookies([{ name: "mb_ref_scn", value: "rslr01" }, { name: "mb_ref_aimaster-b2b", value: "OWNER1" }]), "scn=RSLR01;aimaster-b2b=OWNER1");
   assert.equal(refHeaderFromCookies([{ name: "mb_ref_" + "a".repeat(61), value: "RSLR01" }]), null);
   assert.equal(refHeaderFromCookies([{ name: refCookieName("scn"), value: "RSLR01" }]), "scn=RSLR01");
+});
+
+test("defaultDeduction — 개인 3.3% 원천징수, 사업자 0(M1-7 0075)", () => {
+  assert.equal(defaultDeduction(40000, "individual"), 1320);
+  assert.equal(defaultDeduction(40000, undefined), 1320);
+  assert.equal(defaultDeduction(40000, "business"), 0);
 });

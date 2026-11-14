@@ -3,10 +3,13 @@ import { createClient } from "./supabase/server";
 import type { LedgerKind, PayoutStatus } from "./reseller";
 import { RESELLER_APPLY_COLUMNS, type ResellerApplication } from "./reseller-apply";
 
-export type ResellerSummary = { id: string; code: string; rate: number; active: boolean; linked: number; balance: number; month_earned: number; pending: number };
+export type ResellerSummary = { id: string; code: string; rate: number; active: boolean; linked: number; balance: number; month_earned: number; pending: number;
+  // M1-7(0075) — 운영 DB에 0075가 없으면 비어 있음
+  scheduled?: number; payout_min?: number; payee_type?: "individual" | "business"; saved_bank?: string | null };
 export type ResellerRow = { id: string; customer_id: string; code: string; rate: number; active: boolean; created_at: string; customer?: { name: string; company: string | null } | null };
 export type LedgerRow = { id: string; reseller_id: string; order_id: string | null; kind: LedgerKind; amount: number; balance_after: number; note: string; created_at: string };
-export type PayoutRow = { id: string; reseller_id: string; amount: number; bank_name: string; bank_account: string; bank_holder: string; status: PayoutStatus; reason: string | null; requested_at: string; decided_at: string | null };
+export type PayoutRow = { id: string; reseller_id: string; amount: number; bank_name: string; bank_account: string; bank_holder: string; status: PayoutStatus; reason: string | null; requested_at: string; decided_at: string | null;
+  payee_type?: "individual" | "business"; deduction?: number; transfer_amount?: number | null };
 
 const CUSTOMER_JOIN = "customer:mall_builder_store_customers!mall_builder_resellers_customer_id_fkey(name, company)";
 
@@ -27,12 +30,17 @@ export async function getResellerLedger(resellerId: string, limit = 30): Promise
   return (data ?? []) as LedgerRow[];
 }
 
+const PAYOUT_COLS = "id, reseller_id, amount, bank_name, bank_account, bank_holder, status, reason, requested_at, decided_at";
 export async function getPayouts(storeId: string, resellerId?: string, limit = 100): Promise<PayoutRow[]> {
   const supabase = await createClient();
-  let q = supabase.from("mall_builder_reseller_payouts").select("id, reseller_id, amount, bank_name, bank_account, bank_holder, status, reason, requested_at, decided_at").eq("store_id", storeId);
-  if (resellerId) q = q.eq("reseller_id", resellerId);
-  const { data } = await q.order("requested_at", { ascending: false }).limit(limit);
-  return (data ?? []) as PayoutRow[];
+  // M1-7(0075) 공제·이체 칸 — 운영 DB에 0075가 없으면 옛 칸으로 다시 읽음
+  for (const cols of [PAYOUT_COLS + ", payee_type, deduction, transfer_amount", PAYOUT_COLS]) {
+    let q = supabase.from("mall_builder_reseller_payouts").select(cols).eq("store_id", storeId);
+    if (resellerId) q = q.eq("reseller_id", resellerId);
+    const { data, error } = await q.order("requested_at", { ascending: false }).limit(limit);
+    if (!error) return (data ?? []) as unknown as PayoutRow[];
+  }
+  return [];
 }
 
 /** 운영자: 리셀러 목록 + 연결 손님 수·잔액·이번 달 적립 */
@@ -94,4 +102,12 @@ export async function getOrderRef(orderId: string): Promise<{ code: string; sour
   const { data, error } = await supabase.from("mall_builder_orders").select("ref_code, ref_source").eq("id", orderId).maybeSingle();
   if (error || !data?.ref_code || !data.ref_source) return null;
   return { code: data.ref_code as string, source: data.ref_source as "link" | "customer" };
+}
+
+/** M1-7(0075) 몰 최소 출금 금액 — 운영 DB에 0075가 없으면(칸 없음) null → 화면은 기본값 */
+export async function getPayoutMin(storeId: string): Promise<number | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("mall_builder_stores").select("reseller_payout_min").eq("id", storeId).maybeSingle();
+  if (error || data?.reseller_payout_min == null) return null;
+  return Number(data.reseller_payout_min);
 }

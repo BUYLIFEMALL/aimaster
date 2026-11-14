@@ -1,5 +1,5 @@
 // D33 마이페이지 「🤝 리셀러」 — 내 링크·연결 손님 수·잔액·이번 달 적립·출금 신청·내역(리셀러로 지정된 손님에게만)
-import { LEDGER_KIND_LABEL, PAYOUT_MIN, PAYOUT_STATUS_LABEL, withholdingHint } from "@/lib/reseller";
+import { LEDGER_KIND_LABEL, PAYOUT_MIN, PAYOUT_STATUS_LABEL, defaultDeduction } from "@/lib/reseller";
 import type { LedgerRow, PayoutRow, ResellerSummary } from "@/lib/reseller-store";
 import { requestPayoutAction } from "@/lib/reseller-actions";
 import { formatWon } from "@/lib/products";
@@ -7,7 +7,9 @@ import { formatDateTime } from "@/lib/orders";
 import CopyLink from "./copy-link";
 
 export default function ResellerPanel({ slug, link, s, ledger, payouts }: { slug: string; link: string; s: ResellerSummary; ledger: LedgerRow[]; payouts: PayoutRow[] }) {
-  const canPayout = s.active && s.balance >= PAYOUT_MIN && s.pending === 0;
+  const min = s.payout_min ?? PAYOUT_MIN; // M1-7(0075) 몰별 최소 출금 금액
+  const canPayout = s.active && s.balance >= min && s.pending === 0;
+  const business = s.payee_type === "business";
   return (
     <section id="reseller" className="mt-6 scroll-mt-4 rounded-lg border border-emerald-200 p-4 text-sm" data-reseller-panel>
       <h2 className="font-semibold">🤝 리셀러 <span className="ml-1 font-mono text-xs text-gray-500">{s.code} · 수수료 {Number(s.rate)}%</span>{!s.active && <span className="ml-2 rounded bg-gray-100 px-1.5 text-xs">쉬는 중</span>}</h2>
@@ -18,19 +20,30 @@ export default function ResellerPanel({ slug, link, s, ledger, payouts }: { slug
         <div className="rounded border p-2"><p className="text-xs text-gray-500">이번 달 적립</p><p className="font-semibold">{formatWon(s.month_earned)}</p></div>
         <div className="rounded border p-2"><p className="text-xs text-gray-500">출금 가능</p><p className="font-semibold text-emerald-700" data-reseller-balance>{formatWon(s.balance)}</p></div>
         <div className="rounded border p-2"><p className="text-xs text-gray-500">처리 대기</p><p className="font-semibold">{formatWon(s.pending)}</p></div>
+        {s.scheduled !== undefined && (
+          <div className="col-span-2 rounded border border-dashed p-2 sm:col-span-4" data-reseller-scheduled>
+            <p className="text-xs text-gray-500">지급 예정(구매 확정되면 출금 가능으로 바뀜) <b className="ml-1 text-gray-800">{formatWon(s.scheduled)}</b></p>
+          </div>
+        )}
       </div>
 
       {canPayout ? (
         <form action={requestPayoutAction.bind(null, slug)} className="mt-3 grid gap-2 rounded border p-3 sm:grid-cols-4" data-payout-form>
           <input name="amount" inputMode="numeric" defaultValue={s.balance} aria-label="출금 금액" className="rounded border px-2 py-2" />
-          <input name="bank_name" placeholder="은행" maxLength={30} className="rounded border px-2 py-2" />
+          <input name="bank_name" placeholder={s.saved_bank ? "은행(비우면 저장 계좌)" : "은행"} maxLength={30} className="rounded border px-2 py-2" />
           <input name="bank_account" placeholder="계좌번호" maxLength={40} className="rounded border px-2 py-2" />
           <input name="bank_holder" placeholder="예금주" maxLength={30} className="rounded border px-2 py-2" />
-          <p className="text-xs text-gray-500 sm:col-span-3">운영자가 확인한 뒤 직접 송금합니다. 사업소득 원천징수(3.3%, 예: {formatWon(s.balance)} → 약 {formatWon(withholdingHint(s.balance))})는 운영자와 따로 정산합니다.</p>
+          <p className="text-xs text-gray-500 sm:col-span-3" data-payout-hint>
+            {s.saved_bank && <>계좌 칸을 모두 비우면 저장 계좌 <b>{s.saved_bank}</b>로 받습니다. </>}
+            운영자가 확인한 뒤 송금합니다.{" "}
+            {business
+              ? "사업자는 세금계산서로 정산하므로 신청 금액 그대로 이체됩니다."
+              : <>개인은 사업소득 원천징수 3.3%를 빼고 이체됩니다(예: {formatWon(s.balance)} → 공제 약 {formatWon(defaultDeduction(s.balance, s.payee_type))}).</>}
+          </p>
           <button className="min-h-11 rounded bg-gray-900 px-4 py-2 text-white">출금 신청</button>
         </form>
       ) : (
-        <p className="mt-3 text-xs text-gray-500">{s.pending > 0 ? "처리 대기 중인 출금 신청이 있습니다." : `출금은 ${PAYOUT_MIN.toLocaleString("ko-KR")}원 이상부터 신청할 수 있습니다.`}</p>
+        <p className="mt-3 text-xs text-gray-500">{s.pending > 0 ? "처리 대기 중인 출금 신청이 있습니다." : `출금은 ${min.toLocaleString("ko-KR")}원 이상부터 신청할 수 있습니다.`}</p>
       )}
 
       {payouts.length > 0 && (
@@ -38,7 +51,7 @@ export default function ResellerPanel({ slug, link, s, ledger, payouts }: { slug
           <summary className="cursor-pointer text-xs text-gray-600">출금 신청 {payouts.length}건</summary>
           <ul className="mt-1 space-y-0.5 text-xs">
             {payouts.map((p) => (
-              <li key={p.id}>{formatDateTime(p.requested_at)} · {formatWon(p.amount)} · <b>{PAYOUT_STATUS_LABEL[p.status]}</b>{p.reason && ` — ${p.reason}`}</li>
+              <li key={p.id}>{formatDateTime(p.requested_at)} · {formatWon(p.amount)} · <b>{PAYOUT_STATUS_LABEL[p.status]}</b>{p.status === "paid" && p.transfer_amount != null && ` (공제 ${formatWon(p.deduction ?? 0)} → 이체 ${formatWon(p.transfer_amount)})`}{p.reason && ` — ${p.reason}`}</li>
             ))}
           </ul>
         </details>

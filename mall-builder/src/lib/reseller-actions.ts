@@ -4,7 +4,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { codeError, normalizeCode, parseRate, PAYOUT_MIN } from "@/lib/reseller";
+import { codeError, normalizeCode, parseRate } from "@/lib/reseller";
 import { parseApproveRate } from "@/lib/reseller-apply";
 
 function go(path: string, error?: string | null, ok?: string): never {
@@ -50,7 +50,7 @@ export async function requestPayoutAction(slug: string, form: FormData) {
   const back = (q: { error?: string; ok?: string }): never =>
     redirect(`/s/${slug}/my?${q.error ? `error=${encodeURIComponent(q.error)}` : `ok=${encodeURIComponent(q.ok ?? "")}`}#reseller`);
   const amount = Math.floor(Number(String(form.get("amount") ?? "").replace(/[^0-9]/g, "")));
-  if (!(amount >= PAYOUT_MIN)) back({ error: `출금은 ${PAYOUT_MIN.toLocaleString("ko-KR")}원 이상부터 신청할 수 있습니다.` });
+  if (!(amount > 0)) back({ error: "출금 금액을 적어 주세요." }); // 몰 최소 금액은 DB(0075)가 검사
   const { supabase, id } = await storeIdOf(slug);
   if (!id) back({ error: "몰을 찾을 수 없습니다." });
   const { error } = await supabase.rpc("mall_builder_reseller_request_payout", {
@@ -61,14 +61,18 @@ export async function requestPayoutAction(slug: string, form: FormData) {
     p_bank_holder: String(form.get("bank_holder") ?? ""),
   });
   revalidatePath(`/s/${slug}/my`);
-  back(error ? { error: error.message } : { ok: "출금을 신청했습니다. 운영자가 확인한 뒤 송금합니다." });
+  back(error ? { error: error.message } : { ok: "출금을 신청했습니다. 운영자가 확인한 뒤 송금합니다(개인은 3.3% 원천징수 뒤 이체)." });
 }
 
-/** 운영자: 출금 처리(지급 완료·반려) */
+/** 운영자: 출금 처리 — 지급 완료(공제금액·비고, M1-7 0075)·반려 */
 export async function decidePayoutAction(slug: string, payoutId: string, action: "paid" | "rejected", form: FormData) {
   const back = `/s/${slug}/admin/resellers`;
   const supabase = await createClient();
-  const { error } = await supabase.rpc("mall_builder_reseller_decide_payout", { p_id: payoutId, p_action: action, p_reason: String(form.get("reason") ?? "") });
+  const deduction = Math.floor(Number(String(form.get("deduction") ?? "0").replace(/[^0-9]/g, "") || "0"));
+  const { error } =
+    action === "paid"
+      ? await supabase.rpc("mall_builder_reseller_payout_pay", { p_id: payoutId, p_deduction: deduction, p_memo: String(form.get("reason") ?? "") })
+      : await supabase.rpc("mall_builder_reseller_decide_payout", { p_id: payoutId, p_action: action, p_reason: String(form.get("reason") ?? "") });
   revalidatePath(back);
   go(back, error?.message, action === "paid" ? "지급 완료로 표시했습니다." : "반려하고 잔액을 돌려줬습니다.");
 }
@@ -107,4 +111,14 @@ export async function decideResellerApplyAction(slug: string, id: string, action
   const { error } = await supabase.rpc("mall_builder_reseller_apply_decide", { p_id: id, p_action: action, p_note: String(form.get("note") ?? ""), p_rate: rate.value });
   revalidatePath(base);
   go(base, error?.message, action === "approve" ? "리셀러로 승인했습니다. 리셀러 코드가 만들어졌습니다." : "신청을 반려했습니다.");
+}
+
+/** 몰 대표: 리셀러 최소 출금 금액(M1-7 0075) */
+export async function setPayoutMinAction(slug: string, storeId: string, form: FormData) {
+  const base = `/s/${slug}/admin/resellers`;
+  const amount = Math.floor(Number(String(form.get("payout_min") ?? "").replace(/[^0-9]/g, "")));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mall_builder_reseller_payout_min_set", { p_store_id: storeId, p_amount: amount });
+  revalidatePath(base);
+  go(base, error?.message, `최소 출금 금액을 ${amount.toLocaleString("ko-KR")}원으로 바꿨습니다.`);
 }

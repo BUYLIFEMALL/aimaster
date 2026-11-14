@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { getCertUrl, getStaffStore } from "@/lib/store";
-import { getPayouts, getResellerApplications, getStoreResellers } from "@/lib/reseller-store";
-import { decidePayoutAction, decideResellerApplyAction, setResellerApplyOpenAction } from "@/lib/reseller-actions";
+import { getPayoutMin, getPayouts, getResellerApplications, getStoreResellers } from "@/lib/reseller-store";
+import { decidePayoutAction, decideResellerApplyAction, setPayoutMinAction, setResellerApplyOpenAction } from "@/lib/reseller-actions";
 import { PAYEE_TYPE_LABEL, resellerApplyOpen } from "@/lib/reseller-apply";
-import { PAYOUT_STATUS_LABEL, withholdingHint } from "@/lib/reseller";
+import { PAYEE_LABEL, PAYOUT_MIN, PAYOUT_STATUS_LABEL, defaultDeduction } from "@/lib/reseller";
 import { formatWon } from "@/lib/products";
 import { formatDateTime } from "@/lib/orders";
 import { AdminShell, NoPermission } from "../admin-shell";
@@ -17,7 +17,7 @@ export default async function AdminResellersPage({ params, searchParams }: { par
   const { error, ok, msg } = await searchParams;
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/resellers`);
   if (!staff) return <NoPermission />;
-  const [resellers, payouts, apps] = await Promise.all([getStoreResellers(store.id), getPayouts(store.id), getResellerApplications(store.id)]);
+  const [resellers, payouts, apps, payoutMin] = await Promise.all([getStoreResellers(store.id), getPayouts(store.id), getResellerApplications(store.id), getPayoutMin(store.id)]);
   const applyOpen = resellerApplyOpen(store.modules);
   const pendingApps = apps.filter((a) => a.status === "pending");
   const fileUrls = new Map(await Promise.all(pendingApps.map(async (a) => [a.id, { book: await getCertUrl(a.bankbook_path), doc: await getCertUrl(a.doc_path) }] as const)));
@@ -72,18 +72,27 @@ export default async function AdminResellersPage({ params, searchParams }: { par
       </section>
 
       <section className="mt-4" data-payout-requests>
-        <h3 className="text-sm font-semibold">출금 신청 처리 대기 <b className={waiting.length ? "text-red-700" : ""}>{waiting.length}</b></h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold">출금 신청 처리 대기 <b className={waiting.length ? "text-red-700" : ""}>{waiting.length}</b></h3>
+          {/* M1-7(0075) 몰별 최소 출금 금액 */}
+          <form action={setPayoutMinAction.bind(null, store.slug, store.id)} className="ml-auto flex items-center gap-1 text-xs" data-payout-min>
+            최소 출금 <input name="payout_min" inputMode="numeric" defaultValue={payoutMin ?? PAYOUT_MIN} className="w-24 rounded border px-2 py-1.5 text-right" />원
+            <button className="min-h-10 rounded border px-2 py-1.5">저장</button>
+          </form>
+        </div>
         {waiting.length === 0 ? (
           <p className="mt-1 text-sm text-gray-500">처리할 출금 신청이 없습니다.</p>
         ) : (
           <ul className="mt-2 space-y-2">
             {waiting.map((p) => (
               <li key={p.id} className="rounded border p-3 text-sm" data-payout-row>
-                <p><b>{name.get(p.reseller_id) ?? "리셀러"}</b> · {formatWon(p.amount)} <span className="text-xs text-gray-500">(원천징수 3.3% 참고 {formatWon(withholdingHint(p.amount))})</span></p>
+                <p><b>{name.get(p.reseller_id) ?? "리셀러"}</b> · {formatWon(p.amount)} <span className="text-xs text-gray-500">({PAYEE_LABEL[p.payee_type ?? "individual"]})</span></p>
                 <p className="text-xs text-gray-600">{p.bank_name} {p.bank_account} · 예금주 {p.bank_holder} · 신청 {formatDateTime(p.requested_at)}</p>
                 <div className="mt-2 flex flex-wrap items-end gap-2">
-                  <form action={decidePayoutAction.bind(null, store.slug, p.id, "paid")} className="flex items-end gap-2">
-                    <input name="reason" placeholder="메모(선택, 예: 11-12 송금)" maxLength={200} className="rounded border px-2 py-1.5 text-xs" />
+                  <form action={decidePayoutAction.bind(null, store.slug, p.id, "paid")} className="flex flex-wrap items-end gap-2">
+                    <label className="text-xs">공제 <input name="deduction" inputMode="numeric" defaultValue={defaultDeduction(p.amount, p.payee_type)} className="w-24 rounded border px-2 py-1.5 text-right" />원</label>
+                    <span className="text-xs text-gray-500" data-payout-transfer>기본 이체 {formatWon(p.amount - defaultDeduction(p.amount, p.payee_type))}</span>
+                    <input name="reason" placeholder="비고(선택, 예: 11-12 송금)" maxLength={200} className="rounded border px-2 py-1.5 text-xs" />
                     <button className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-xs text-white" data-payout-paid>송금했음 — 지급 완료</button>
                   </form>
                   <form action={decidePayoutAction.bind(null, store.slug, p.id, "rejected")} className="flex items-end gap-2">
@@ -126,7 +135,7 @@ export default async function AdminResellersPage({ params, searchParams }: { par
           <summary className="cursor-pointer text-gray-600">처리한 출금 {payouts.length - waiting.length}건</summary>
           <ul className="mt-1 space-y-0.5 text-xs">
             {payouts.filter((p) => p.status !== "requested").map((p) => (
-              <li key={p.id}>{formatDateTime(p.decided_at ?? p.requested_at)} · {name.get(p.reseller_id)} · {formatWon(p.amount)} · <b>{PAYOUT_STATUS_LABEL[p.status]}</b>{p.reason && ` — ${p.reason}`}</li>
+              <li key={p.id}>{formatDateTime(p.decided_at ?? p.requested_at)} · {name.get(p.reseller_id)} · {formatWon(p.amount)} · <b>{PAYOUT_STATUS_LABEL[p.status]}</b>{p.status === "paid" && p.transfer_amount != null && ` (공제 ${formatWon(p.deduction ?? 0)} → 이체 ${formatWon(p.transfer_amount)})`}{p.reason && ` — ${p.reason}`}</li>
             ))}
           </ul>
         </details>
