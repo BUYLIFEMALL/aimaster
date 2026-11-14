@@ -41,7 +41,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
-| `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.07 운영(2026-11-14 `claude-win-photo` 배포에 상세사진 `markPosted`·안내 문구 함께 나감). 시험 상품 삭제 보류(주인님 결정 대기). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
+| `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.07 운영(2026-11-14 `claude-win-photo` 배포에 상세사진 `markPosted`·안내 문구 함께 나감). 시험 상품 9752929791은 주인님이 나중에 직접 삭제(11-15 지시, 에이전트는 손대지 않음). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
 | `elevenst-register/` (범위: 4대 화면 3시안 쇼케이스 및 디자인 제안) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-elr-v1` | 2026-11-13 | 11번가 등록기 4대 화면 3시안(12뷰) 쇼케이스 및 종합 비교표 구축 — agy |
 | `elevenst-register/` (범위: 1안 107번 디자인 및 버튼 1행 최적화) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-elr-v1` | 2026-11-13 | 11st 1안 구현 및 버튼 1행 고정(nowrap) 전역 적용 완료. 배포 승인 대기 — agy |
 | `mall-builder/` (옛 `labs/mall-builder/`) | [역할: mall-builder] Claude Code(윈도우, ego) · 세션 `claude-win-20261025-workspace`(2026-11-12 주인님 지시로 쇼핑몰 담당 인계) | 2026-11-10 | 운영 v1.06(T0·T1·T2 분양몰·손님 화면 공개). 지금: 맥미니 분양 검수 지원 → 샘플몰 자료 → v1.07(확인 상자·단일 몰 모드 미배포). **손님 화면 `(shop)`·`resale`은 agy 범위라 고치지 않음**, 관리자·공급사·DB·`src/lib`만 (2026-11-13 갱신) |
