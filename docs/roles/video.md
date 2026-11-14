@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령) · 실제로 함께 맡아 온 폴더: `shorts-onestop-studio/`(v1.53) · `shots/`(v1.50) · `music-video-studio/`(v1.30, 음악 담당과 겹침) · `video-to-gif/`(v1.28)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-13 `claude-win-video` (영상 담당 문서 전체 정리·원스톱 백로그 작성)
+- 마지막 갱신: 2026-11-14 `claude-win-video` (shots 백로그 6·공용 인코더·메이커 2단계·용량 검사 — 미배포 대기)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -17,10 +17,10 @@
 | `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 보류 — 주인님 2026-11-11 「당장 필요한 기능은 아니니 테스트는 나중에 필요해지면」(요청함 충전 항목 닫음). 필요해지면 충전·실행 직전 승인 | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
 | `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `music-video-studio` · `video-to-gif` | 저장공간 위젯 한 줄(11-12 배포 뒤 빠진 것 발견, 코드 반영) 미배포 대기 + `music-video-studio` 로그인 정책(로그아웃 범위·기기 정보 전달, 음악 담당 `b4403e8bd` 11-13 인계) | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shots` | 백로그 6 「모든 장면 영상으로」 구현 완료 **미배포 대기**(배포 때 v1.51) | 배포 승인(다음 배포 묶음) | `shots/docs/IMPROVEMENTS.md` 맨 위 |
+| `shots` | **미배포 대기 v1.51**: 백로그 6 「모든 장면 영상으로」 · 공용 인코더 안정화 | 배포 빌드 승인 | `shots/docs/IMPROVEMENTS.md` 맨 위 |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | 메이커 2단계: 자료함 `sourceRef` 원본 참조로 상품 사진 받기 | sdp 계약(내부상품ID·역할·권리 값) | `shorts-onestop-studio/docs/IMPROVEMENT_HANDOFF_20261113_MAKER.md` §9-1 |
+| `shorts-onestop-studio` | **미배포 대기 v1.55**: 메이커 2단계(자료함 사진 원본 참조) · 상품 사진 업로드 전 용량 검사 · 공용 인코더 안정화 | 배포 빌드 승인 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` 맨 위 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
@@ -98,7 +98,7 @@
 3. **메이커 2단계**(자료함 `sourceRef` 원본 참조): sdp 계약이 나오면 `shorts-onestop-studio/src/lib/productShorts.ts`에 `product-image` 받기부터.
 4. 다음 배포 때 함께: `music-video-studio`(저장공간 위젯·로그인 정책 `b4403e8bd`) · `video-to-gif`(위젯) · `ai-image-studio`(공용 영상 코드 사본) · 서울 지역 미반영 프로그램.
 5. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(`shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`).
-6. 보류: Vidu 실생성 재확인(주인님 충전 뒤) · V4 화면 녹화(주인님 확인) · 진단 스위치(`?render=`) 정리(다음 `ai-video-studio` 배포 때).
+6. 주인님과 함께: V4 화면 녹화 실제 확인(브라우저 화면 공유 창은 주인님이 고름) · 상품 장면 AI 영상 변형 시험(약 $0.25, 승인) · Vidu 재확인(충전 뒤). 영상 주소를 상품 쪽으로 반환은 받는 쪽 상품ID 형식이 생기면.
 
 ## 영상 담당 프로그램 현황 (2026-11-13)
 | 프로그램 | 버전 | 최근 한 일 | 남은 것 |
