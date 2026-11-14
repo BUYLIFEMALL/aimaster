@@ -5,6 +5,7 @@ import { sendViaSmtpAccount } from "@/lib/email/transport";
 import { sendSms } from "@/lib/solapi/client";
 import { buildSmsText } from "@/lib/sms";
 import { sendKakaoBrandMessage } from "@/lib/kakaoBrand";
+import { kstDayStartIso, personalizeEmail, pickAccountIndex, randomGapMs, RUN_BUDGET_MS } from "@/lib/emailPacing";
 
 type SupabaseLike = SupabaseClient<Database>;
 
@@ -35,7 +36,15 @@ export async function dispatchCampaign(
     target_send_count: number;
     quantity_per_run: number;
   },
+  options: {
+    /** 이 시각(ms)이 지나면 남은 리드는 다음 실행에 넘긴다. 예약 실행은 캠페인 여러 개가 같은 마감을 나눠 쓴다. */
+    deadline?: number;
+    /** 메일 사이 쉬기(시험에서는 바로 넘어가게 바꿔 끼움). */
+    sleep?: (ms: number) => Promise<void>;
+  } = {},
 ): Promise<DispatchResult> {
+  const deadline = options.deadline ?? Date.now() + RUN_BUDGET_MS;
+  const sleep = options.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   const { data: settings } = await supabase
     .from("stepmail_campaigns")
     .select("channel, sms_text, sms_optout, mobile_type, kakao_fallback_sms")
@@ -84,6 +93,21 @@ export async function dispatchCampaign(
     if (accounts.length === 0) return { sentCount: 0, failedCount: 0, notice: "사용할 수 있는 이메일 발송 계정이 없습니다." };
   }
 
+  // 계정별 하루 한도(2026-11-14): 오늘(한국 시간) 이 계정으로 보낸 메일 수를 발송 기록에서 센다(다른 캠페인 발송 포함).
+  const usedToday = new Map<string, number>();
+  if (wantsEmail && accounts.length > 0) {
+    const { data: sentRows } = await supabase
+      .from("stepmail_send_log")
+      .select("smtp_account_id")
+      .eq("user_id", campaign.user_id)
+      .eq("status", "sent")
+      .gte("sent_at", kstDayStartIso())
+      .in("smtp_account_id", accounts.map((a) => a.id));
+    for (const row of sentRows ?? []) {
+      if (row.smtp_account_id) usedToday.set(row.smtp_account_id, (usedToday.get(row.smtp_account_id) ?? 0) + 1);
+    }
+  }
+
   let solapi: { api_key: string; api_secret: string; sender_phone: string; kakao_pf_id: string | null; rcs_brand_id: string | null } | null = null;
   if (wantsSms) {
     if (!settings?.sms_text?.trim() || !settings?.sms_optout?.trim()) {
@@ -114,21 +138,41 @@ export async function dispatchCampaign(
 
   let sentCount = 0;
   let failedCount = 0;
+  let notice: string | undefined;
+  let rotation = 0;
+  let emailsTried = 0;
 
   for (let i = 0; i < leads.length; i++) {
     const lead = leads[i];
     let anySent = false;
 
+    // 시간 한도: 남은 리드는 차수를 올리지 않은 채 두어 다음 실행이 이어서 보낸다.
+    if (Date.now() > deadline) {
+      notice = `실행 시간 한도로 ${leads.length - i}명은 다음 실행 때 이어서 보냅니다.`;
+      break;
+    }
+
     if (wantsEmail && draft) {
-      const account = accounts[i % accounts.length]; // 계정 로테이션
+      const idx = pickAccountIndex(accounts, usedToday, rotation);
+      if (idx < 0) {
+        notice = `오늘 모든 발송 계정이 하루 한도에 닿아 ${leads.length - i}명은 내일 이어서 보냅니다.`;
+        break;
+      }
+      const account = accounts[idx]; // 계정 로테이션(한도에 닿은 계정은 건너뜀)
+      rotation = idx + 1;
+      // 발송 간격: 두 번째 메일부터 2~5초 쉰다(한꺼번에 몰아 보내 스팸으로 막히는 것을 줄임).
+      if (emailsTried > 0) await sleep(randomGapMs());
+      emailsTried++;
+      const mail = personalizeEmail(draft.subject, draft.body_html, lead.nickname);
       try {
-        await sendViaSmtpAccount(account, lead.email, draft.subject, draft.body_html);
+        await sendViaSmtpAccount(account, lead.email, mail.subject, mail.bodyHtml);
+        usedToday.set(account.id, (usedToday.get(account.id) ?? 0) + 1);
         await supabase.from("stepmail_send_log").insert({
           user_id: campaign.user_id,
           campaign_id: campaign.id,
           lead_id: lead.id,
           smtp_account_id: account.id,
-          subject: draft.subject,
+          subject: mail.subject,
           channel: "email",
           status: "sent",
         });
@@ -139,7 +183,7 @@ export async function dispatchCampaign(
           campaign_id: campaign.id,
           lead_id: lead.id,
           smtp_account_id: account.id,
-          subject: draft.subject,
+          subject: mail.subject,
           channel: "email",
           status: "failed",
           error_message: err instanceof Error ? err.message : "알 수 없는 오류",
@@ -186,5 +230,5 @@ export async function dispatchCampaign(
     }
   }
 
-  return { sentCount, failedCount };
+  return notice ? { sentCount, failedCount, notice } : { sentCount, failedCount };
 }

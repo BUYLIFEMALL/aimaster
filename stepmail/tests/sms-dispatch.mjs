@@ -19,7 +19,9 @@ const bundle = async (entry) => {
   });
   return import("data:text/javascript;base64," + Buffer.from(out.outputFiles[0].text).toString("base64"));
 };
-const { dispatchCampaign } = await bundle("lib/dispatch.ts");
+const { dispatchCampaign: rawDispatch } = await bundle("lib/dispatch.ts");
+// 발송 간격(2~5초)은 시험에서 기다리지 않는다.
+const dispatchCampaign = (c, k, o = {}) => rawDispatch(c, k, { sleep: async () => {}, ...o });
 const sms = await bundle("lib/sms.ts");
 const ok = (n) => console.log("PASS", n);
 
@@ -51,7 +53,7 @@ function fixture({ channel, solapi = true, pfId = null, mobileType = "sms", fall
     const f = []; let limit = Infinity;
     const list = () => (rows[t] ?? []).filter((r) => f.every(([k, v, kind]) => kind === "in" ? v.includes(r[k]) : kind === "notnull" ? r[k] != null : r[k] === v)).slice(0, limit);
     const api = {
-      select: () => api, eq: (k, v) => (f.push([k, v]), api), in: (k, v) => (f.push([k, v, "in"]), api),
+      select: () => api, gte: () => api, eq: (k, v) => (f.push([k, v]), api), in: (k, v) => (f.push([k, v, "in"]), api),
       not: (k, op, v) => (f.push([k, null, "notnull"]), api), order: () => api, limit: (n) => ((limit = n), api),
       maybeSingle: async () => ({ data: list()[0] ?? null }), then: (r) => r({ data: list(), error: null }),
       insert: async (p) => (fx.logs.push(p), { error: null }),
@@ -133,4 +135,59 @@ const camp = (draft_id = null) => ({ id: "c1", user_id: "member-a", draft_id, ta
   const noPhone = parseLeadsWorkbook(book([["이메일", "닉네임"], ["c@x.com", "c"]]));
   assert.equal("phone" in noPhone[0], false);
   ok("엑셀: 전화 열이 있으면 번호 정리(핸드폰 아니면 비움), 전화 열이 없으면 phone 칸 자체를 빼서 기존 번호 유지"); }
+// ── 2026-11-14 메일 개인화·발송 간격·계정별 하루 한도 ──
+const pacing = await bundle("lib/emailPacing.ts");
+{ const m = pacing.personalizeEmail("{닉네임}님께", "<p>{닉네임}님</p>", "<b>철수</b>");
+  assert.equal(m.subject, "<b>철수</b>님께");
+  assert.equal(m.bodyHtml, "<p>&lt;b&gt;철수&lt;/b&gt;님</p>");
+  assert.equal(pacing.personalizeEmail("{닉네임}", "{닉네임}", null).subject, "고객");
+  assert.equal(pacing.dailyLimitForHost("smtp.naver.com"), 400);
+  assert.equal(pacing.dailyLimitForHost("mail.company.co.kr"), 300);
+  assert.equal(pacing.kstDayStartIso(new Date("2026-11-14T16:30:00Z")), "2026-11-14T15:00:00.000Z");
+  assert.equal(pacing.kstDayStartIso(new Date("2026-11-14T14:30:00Z")), "2026-11-13T15:00:00.000Z");
+  const g = pacing.randomGapMs(() => 0.999); assert.ok(g >= 2000 && g <= 5000);
+  ok("개인화({닉네임}·HTML 특수문자), 계정 한도, 한국 시간 오늘 0시, 간격 2~5초"); }
+
+function mailFixture({ used = {}, accountsList, leadsList }) {
+  const fx = fixture({ channel: "email", leads: leadsList });
+  fx.sent = []; fx.gaps = 0;
+  const orig = fx.client.from;
+  const sendLog = Object.entries(used).flatMap(([id, n]) => Array.from({ length: n }, () => ({ smtp_account_id: id, user_id: "member-a", status: "sent" })));
+  fx.client = { from: (t) => {
+    if (t === "user_smtp_accounts" || t === "stepmail_campaign_smtp_accounts" || t === "stepmail_send_log") {
+      const data = t === "user_smtp_accounts" ? accountsList : t === "stepmail_campaign_smtp_accounts" ? accountsList.map((a, i) => ({ campaign_id: "c1", smtp_account_id: a.id, sort_order: i })) : sendLog;
+      const api = { select: () => api, eq: () => api, gte: () => api, in: () => api, order: () => api, then: (r) => r({ data, error: null }), insert: async (p) => (fx.logs.push(p), { error: null }) };
+      return api;
+    }
+    return orig(t);
+  } };
+  return fx;
+}
+const acc = (id, host) => ({ id, smtp_host: host, smtp_port: 465, smtp_user: id, smtp_password: "p", from_name: null, is_active: true });
+{ const fx = mailFixture({ used: { s1: 400 }, accountsList: [acc("s1", "smtp.naver.com"), acc("s2", "smtp.gmail.com")], leadsList: [lead("a", null), lead("b", null)] });
+  fx.client = new Proxy(fx.client, {});
+  const r = await rawDispatch(fx.client, camp("d1"), { sleep: async () => { fx.gaps++; } });
+  assert.deepEqual(r, { sentCount: 2, failedCount: 0 });
+  assert.deepEqual(fx.logs.map((l) => l.smtp_account_id), ["s2", "s2"]);
+  assert.equal(fx.gaps, 1);
+  ok("하루 한도에 닿은 네이버 계정은 건너뛰고 Gmail로, 두 번째 메일부터 간격 1번"); }
+{ const fx = mailFixture({ used: { s1: 399 }, accountsList: [acc("s1", "smtp.naver.com")], leadsList: [lead("a", null), lead("b", null), lead("c", null)] });
+  const r = await dispatchCampaign(fx.client, camp("d1"));
+  assert.equal(r.sentCount, 1);
+  assert.match(r.notice, /하루 한도에 닿아 2명은 내일/);
+  assert.equal(fx.updates.length, 1);
+  ok("모든 계정이 한도에 닿으면 멈추고 남은 리드는 차수를 올리지 않음(내일 이어서)"); }
+{ const fx = mailFixture({ accountsList: [acc("s1", "smtp.naver.com")], leadsList: [lead("a", null), lead("b", null)] });
+  const r = await dispatchCampaign(fx.client, camp("d1"), { deadline: Date.now() - 1 });
+  assert.equal(r.sentCount, 0);
+  assert.match(r.notice, /2명은 다음 실행/);
+  ok("실행 시간 한도가 지나면 보내지 않고 다음 실행으로 넘김"); }
+{ const fx = fixture({ channel: "email", leads: [lead("철수", null)] });
+  fx.client = new Proxy(fx.client, {});
+  const draftRows = { id: "d1", subject: "{닉네임}님 제안", body_html: "<p>{닉네임}님</p>" };
+  const orig = fx.client.from;
+  fx.client = { from: (t) => t === "stepmail_email_drafts" ? { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: draftRows }) }) }) } : orig(t) };
+  await dispatchCampaign(fx.client, camp("d1"));
+  assert.equal(fx.logs[0].subject, "철수님 제안");
+  ok("메일 제목·본문의 {닉네임}이 받는 사람 닉네임으로 바뀌어 나가고 기록에도 바뀐 제목"); }
 console.log("문자 차수 발송 시험 모두 통과");

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { dispatchCampaign } from "@/lib/dispatch";
 import { isCampaignDue } from "@/lib/schedule";
 import { checkProgramAccess } from "@/lib/programAccess";
+import { RUN_BUDGET_MS } from "@/lib/emailPacing";
 
 // 캠페인 정기 발송 — 운영자 Vercel 호출(/api/cron/dispatch)과 회원 cron-job.org 호출(/api/cron/dispatch-member)이 같이 쓴다(v1.21).
 // 캠페인마다 정한 발송 시각(send_hour, KST)·반복(한 번/매일/매주)으로 차례를 판단한다(lib/schedule.ts). 지침: 루트 docs/SCHEDULER_POLICY.md
@@ -67,7 +68,10 @@ export async function dispatchDueCampaigns(options: DispatchOptions = {}) {
 
   const summary: { campaignId: string; sentCount: number; failedCount: number }[] = [];
 
+  // 발송 간격 때문에 한 실행이 길어질 수 있어, 캠페인들이 같은 마감 시각을 나눠 쓴다(2026-11-14).
+  const deadline = Date.now() + RUN_BUDGET_MS;
   for (const campaign of dueCampaigns) {
+    if (Date.now() > deadline) break; // 남은 캠페인은 last_run_at을 바꾸지 않았으므로 다음 호출 때 처리된다
     if (!(await hasAccess(campaign.user_id))) continue;
     // 중복 발송 방지(v1.21): 운영자 호출·회원 호출이 겹쳐도 last_run_at을 「먼저 바꾼」 실행만 발송한다(조건부 update).
     let claim = admin.from("stepmail_campaigns").update({ last_run_at: now.toISOString() }).eq("id", campaign.id);
@@ -75,7 +79,7 @@ export async function dispatchDueCampaigns(options: DispatchOptions = {}) {
     const { data: claimed } = await claim.select("id").maybeSingle();
     if (!claimed) continue;
     try {
-      const result = await dispatchCampaign(admin, campaign);
+      const result = await dispatchCampaign(admin, campaign, { deadline });
       summary.push({ campaignId: campaign.id, sentCount: result.sentCount, failedCount: result.failedCount });
     } catch (err) {
       // 발송 도중 예외가 나도 선점(last_run_at)은 되돌리지 않는다 — 일부 메일이 이미 나갔을 수 있어 다시 보내면 중복 발송된다.

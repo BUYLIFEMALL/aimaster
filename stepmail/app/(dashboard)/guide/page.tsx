@@ -90,7 +90,7 @@ export default async function GuidePage() {
             </div>
             <h3 className="font-bold text-sm text-slate-900">AI 초안 작성 & 개인화</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              「이메일 작성」에서 AI(회원 본인 OpenAI 키)로 제목·본문 초안을 만들고 직접 다듬습니다. 이메일은 모든 리드에게 같은 내용으로 나가며, 이름 치환은 문자 본문의 {"{닉네임}"}만 지원합니다.
+              「이메일 작성」에서 AI(회원 본인 OpenAI 키)로 제목·본문 초안을 만들고 직접 다듬습니다. 제목·본문에 {"{닉네임}"}을 넣으면 받는 사람마다 엑셀의 닉네임으로 바뀌어 나갑니다(닉네임이 없으면 「고객」). 문자 본문도 같은 태그를 씁니다.
             </p>
             <div className="pt-2 border-t border-slate-100 text-[11px] text-blue-600 font-medium">
               핵심 팁: 1차~5차 단계별 차수 기획
@@ -107,7 +107,7 @@ export default async function GuidePage() {
             </div>
             <h3 className="font-bold text-sm text-slate-900">다중 SMTP 계정 연동</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              네이버, 다음, Gmail 계정을 여러 개 등록해 캠페인에 고르면, 리드마다 계정을 차례로 돌려가며 나눠 보냅니다. 계정별 일일 한도를 프로그램이 세어 주지는 않으니, 「실행당 발송 수량」을 계정 수와 각 메일 서비스 한도에 맞춰 정해 주세요.
+              네이버, 다음, Gmail 계정을 여러 개 등록해 캠페인에 고르면, 리드마다 계정을 차례로 돌려가며 나눠 보냅니다. 계정마다 오늘(한국 시간) 보낸 메일 수를 프로그램이 세어, 하루 한도(네이버·다음·Gmail 400통, 그 밖의 회사 메일 300통 — 각 서비스 공지보다 조금 낮게)에 닿은 계정은 건너뜁니다. 모든 계정이 한도에 닿으면 남은 리드는 다음 날 이어서 보냅니다.
             </p>
             <div className="pt-2 border-t border-slate-100 text-[11px] text-indigo-600 font-medium">
               핵심 팁: 일일 한도 분산으로 차단 예방
@@ -238,7 +238,7 @@ export default async function GuidePage() {
           <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 space-y-1">
             <p className="text-xs font-bold text-slate-800">3. 개인화 치환 태그 사용</p>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              {"#{고객명}"}, {"#{회사명}"}을 본문과 제목에 넣어 메일마다 고유한 해시값을 갖도록 하여 대량 템플릿 탐지를 우회합니다.
+              제목·본문에 {"{닉네임}"}을 넣으면 받는 사람마다 이름이 바뀌어, 모두 똑같은 메일보다 스팸으로 덜 분류되고 회신율도 높아집니다.
             </p>
           </div>
 
@@ -316,7 +316,7 @@ export default async function GuidePage() {
               <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p className="mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-              한 번 실행할 때 캠페인에 정한 「실행당 발송 수량」만큼만, 한 통씩 차례로(동시에 여러 통이 아니라) 보냅니다. 계정을 여러 개 고르면 리드마다 계정을 돌려가며 씁니다. 따로 몇 초씩 쉬는 간격이나 계정별 하루 한도 계산은 없으니, 하루에 나가는 양은 「실행당 발송 수량 × 하루 실행 횟수」로 직접 조절해 주세요.
+              한 번 실행할 때 캠페인에 정한 「실행당 발송 수량」만큼만, 한 통씩 차례로(동시에 여러 통이 아니라) 보냅니다. 계정을 여러 개 고르면 리드마다 계정을 돌려가며 씁니다. 메일 사이에는 2~5초씩 무작위로 쉬고, 계정마다 하루 한도(네이버·다음·Gmail 400통, 그 밖 300통)를 넘지 않게 자동으로 건너뜁니다. 한 번 실행은 약 4분까지라, 수량이 많아 시간이 넘으면 남은 리드는 다음 실행 때 이어서 보냅니다.
             </p>
           </details>
 
