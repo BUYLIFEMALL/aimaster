@@ -41,6 +41,12 @@ const LANG_NAMES: Record<string, string> = {
   it: 'Italian', nl: 'Dutch', ru: 'Russian', vi: 'Vietnamese', th: 'Thai', id: 'Indonesian', tr: 'Turkish',
 };
 
+const KO_LANG_NAMES: Record<string, string> = {
+  Korean: '한국어', Japanese: '일본어', Chinese: '중국어', English: '영어', French: '프랑스어', German: '독일어', Spanish: '스페인어',
+  Portuguese: '포르투갈어', Italian: '이탈리아어', Dutch: '네덜란드어', Russian: '러시아어', Vietnamese: '베트남어', Thai: '태국어',
+  Indonesian: '인도네시아어', Turkish: '튀르키예어',
+};
+
 /** Target language for the suggestion: the first preferred language (UI locale, then browser languages)
  *  that differs from the page's script — e.g. an English page for a reader whose browser prefers Korean. */
 export function translateTarget(pageId: string): string | null {
@@ -66,7 +72,9 @@ export function TranslatePill({ pageId, compact }: { pageId: string; compact?: b
   if (hidden) return null;
   const target = translateTarget(pageId);
   if (!target) return null;
-  const label = t('lp.page.translate_to', 'Translate to {language}', { language: target });
+  // 이식판: 버튼에 보이는 언어 이름만 화면 언어로(「한국어(으)로 번역」, 2026-11-14) — 번역 요청에는 영어 이름 그대로
+  const shown = getLocale() === 'ko-KR' ? (KO_LANG_NAMES[target] ?? target) : target;
+  const label = t('lp.page.translate_to', 'Translate to {language}', { language: shown });
   return (
     <div className={`nc-translate-pill ${compact ? 'compact' : ''}`} role="button" aria-label={target} data-tooltip={compact ? label : undefined} onClick={() => translatePage(pageId, target)}>
       <Icon name="translate" size={16} />

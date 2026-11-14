@@ -22,7 +22,7 @@ import { CommentsSidebar, focusDiscussion, RichTextView, TopbarCommentsButton } 
 import { UserAvatar, userName } from '../presence/Avatar.tsx';
 import { TopbarFacepile } from '../presence/Facepile.tsx';
 import { PageIcon } from '../shell/PageIcon.tsx';
-import { t, tx } from '../shell/i18n.ts';
+import { getLocale, t, tx } from '../shell/i18n.ts';
 import { openVersionHistory } from './VersionHistory.tsx';
 import { ShareButton } from './ShareMenu.tsx';
 import { TranslatePill } from './TranslatePill.tsx';
@@ -196,8 +196,11 @@ function UpdatesAndAnalytics({ pageId }: { pageId: string }) {
 /** "14 seconds ago", "7 minutes ago", "1 hour ago", "3 days ago", then the date. */
 export function longAgo(ms: number): string {
   const s = Math.max(0, Math.floor((Date.now() - ms) / 1000));
-  const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'} ago`;
-  if (s < 5) return 'Just now';
+  // 이식판: 화면 언어가 한국어면 「7분 전」(2026-11-14)
+  const KO_UNIT: Record<string, string> = { second: '초', minute: '분', hour: '시간', day: '일' };
+  const koUi = getLocale() === 'ko-KR';
+  const plural = (n: number, unit: string) => (koUi ? `${n}${KO_UNIT[unit]} 전` : `${n} ${unit}${n === 1 ? '' : 's'} ago`);
+  if (s < 5) return koUi ? '방금' : 'Just now';
   if (s < 60) return plural(s, 'second');
   const m = Math.floor(s / 60);
   if (m < 60) return plural(m, 'minute');
@@ -205,7 +208,7 @@ export function longAgo(ms: number): string {
   if (h < 24) return plural(h, 'hour');
   const d = Math.floor(h / 24);
   if (d < 30) return plural(d, 'day');
-  return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(ms).toLocaleDateString(koUi ? 'ko-KR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 // ---------------------------------------------------------------------------------------------

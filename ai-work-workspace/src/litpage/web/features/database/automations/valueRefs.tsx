@@ -24,7 +24,7 @@ import { workspaceMembers } from '../properties/editors/MiscEditors.tsx';
 import { overlayIdOf } from '../properties/PropertyMenus.tsx';
 import { formatDateValue } from '../../editor/inline/dates.ts';
 import { openAutomationFormula } from './formulaField.tsx';
-import { tx } from '../../shell/i18n.ts';
+import { getLocale, tx } from '../../shell/i18n.ts';
 
 // AIMaster U12: 자동화 문맥 값 이름(Whoever triggered 등)을 화면 언어로
 const contextLabel = (k: Parameters<typeof sharedContextLabel>[0], s: Parameters<typeof sharedContextLabel>[1]) => tx(sharedContextLabel(k, s));
@@ -67,12 +67,18 @@ export function refLabel(ref: ValueRef, c: EditorCtx): { label: string; icon?: s
     case 'user': return { label: userName(ref.id), icon: 'person' };
     case 'page': return { label: pageTitle(records.get<BlockRecord>('block', ref.id)) || tx('Untitled'), icon: 'page' };
     case 'date': return { label: formatDateValue(ref.date), icon: 'date' };
-    case 'checkbox': return { label: ref.checked ? 'Checked' : 'Unchecked', icon: 'checkboxChecked' };
+    case 'checkbox': return { label: ref.checked ? tx('Checked') : tx('Unchecked'), icon: 'checkboxChecked' };
     case 'context': return { label: contextLabel(ref.key, ctxSurface(c)), icon: ref.key === 'page' ? 'page' : ref.key === 'actor' || ref.key === 'page_creator' ? 'person' : 'clock' };
     case 'relative_date': {
       const n = Math.abs(ref.amount);
       const unit = `${ref.unit}${n === 1 ? '' : 's'}`;
       if (ref.amount === 0) return { label: tx('Today'), icon: 'date' };
+      // 이식판: 「오늘부터 3일 후」「2주 전」(2026-11-14)
+      if (getLocale() === 'ko-KR') {
+        const koUnit: Record<string, string> = { day: '일', week: '주', month: '개월', year: '년' };
+        const ku = koUnit[ref.unit] ?? ref.unit;
+        return { label: ref.amount > 0 ? `오늘부터 ${n}${ku} 후` : `${n}${ku} 전`, icon: 'date' };
+      }
       return { label: ref.amount > 0 ? `${n} ${unit} from today` : `${n} ${unit} ago`, icon: 'date' };
     }
     case 'property': {

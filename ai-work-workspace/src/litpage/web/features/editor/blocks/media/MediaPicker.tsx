@@ -220,7 +220,7 @@ function configFor(b: BlockRecord): PickerConfig {
       if (provider && provider.type === 'embed') return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: `Works with ${provider.name} links` };
       return { width: 300, tabs: ['link', 'upload'], uploadLabel: 'Choose a file', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: 'Supports PDF, Drive, Maps, CodePen, and more' };
     default:
-      return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: provider ? `Works with ${provider.name} links` : tx('Supports PDF, Drive, Maps, CodePen, and more') };
+      return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: provider ? tx('Works with {name} links').replace('{name}', provider.name) : tx('Supports PDF, Drive, Maps, CodePen, and more') };
   }
 }
 
@@ -242,7 +242,7 @@ export function PickerTabs({ tabs: allTabs, tab, setTab, right }: { tabs: Tab[];
           <div role="tab" aria-selected={t === tab} className="nc-media-tab" onMouseDown={(e) => e.preventDefault()} onClick={() => setTab(t)}>
             {t === 'unsplash' && <Icon name="unsplash" size={12} style={{ marginInlineEnd: 4 }} />}
             {t === 'giphy' && <Icon name="giphy" size={12} style={{ marginInlineEnd: 4 }} />}
-            {TAB_LABEL[t]}
+            {tx(TAB_LABEL[t])}
           </div>
           {t === tab && <div className="nc-media-tab-underline" />}
         </div>
@@ -298,7 +298,7 @@ function MediaPicker({ blockId, close, replace }: { blockId: string; close: () =
         {tab === 'upload' && (
           <div className={cfg.uploadStyle === 'outline' ? 'nc-media-upload-outline' : 'nc-media-upload-primary'}>
             <button className={`nc-blk-btn ${cfg.uploadStyle === 'outline' ? 'outline big' : 'primary'}`} onClick={() => fileRef.current?.click()}>
-              {cfg.uploadLabel}
+              {tx(cfg.uploadLabel)}
             </button>
             <input ref={fileRef} type="file" accept={cfg.accept} hidden onChange={(e) => onFiles(e.target.files)} />
           </div>
@@ -308,7 +308,7 @@ function MediaPicker({ blockId, close, replace }: { blockId: string; close: () =
             <div className={`nc-input ${error ? 'error' : ''}`}>
               <input
                 autoFocus
-                placeholder={cfg.linkPlaceholder}
+                placeholder={tx(cfg.linkPlaceholder)}
                 value={url}
                 onChange={(e) => { setUrl(e.target.value); setError(''); }}
                 onKeyDown={(e) => {
@@ -319,8 +319,8 @@ function MediaPicker({ blockId, close, replace }: { blockId: string; close: () =
                 }}
               />
             </div>
-            <button className={`nc-blk-btn primary ${block.type === 'bookmark' ? 'wide' : 'link'}`} onClick={submitLink}>{cfg.linkButton}</button>
-            {error ? <div className="nc-media-error">{error}</div> : cfg.linkCaption && <div className="nc-media-caption">{cfg.linkCaption}</div>}
+            <button className={`nc-blk-btn primary ${block.type === 'bookmark' ? 'wide' : 'link'}`} onClick={submitLink}>{tx(cfg.linkButton)}</button>
+            {error ? <div className="nc-media-error">{error}</div> : cfg.linkCaption && <div className="nc-media-caption">{tx(cfg.linkCaption)}</div>}
           </div>
         )}
         {(tab === 'unsplash' || tab === 'giphy') && <StockTab kind={tab} onPick={(u) => { close(); void setMediaSource(blockId, u); }} />}

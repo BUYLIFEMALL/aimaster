@@ -66,9 +66,9 @@ export function formatDateOnly(dateStr: string, format: string | undefined): str
     case undefined:
     default: {
       const diff = dayDiff(d);
-      if (diff === 0) return 'Today';
-      if (diff === 1) return 'Tomorrow';
-      if (diff === -1) return 'Yesterday';
+      if (diff === 0) return tx('Today');
+      if (diff === 1) return tx('Tomorrow');
+      if (diff === -1) return tx('Yesterday');
       if (diff < 0 && diff > -7) return `Last ${WEEKDAYS[d.getDay()]}`;
       if (diff > 1 && diff < 7) return `Next ${WEEKDAYS[d.getDay()]}`;
       return formatMedium(d);
@@ -161,12 +161,17 @@ export function dateFormatLabel(f: string | undefined): string {
 /** Relative captions such as "3 days from now" and "Yesterday". */
 export function timeCaption(d: Date): string {
   const diff = dayDiff(d);
-  if (diff === 0) return 'Today';
-  if (diff === 1) return 'Tomorrow';
-  if (diff === -1) return 'Yesterday';
+  if (diff === 0) return tx('Today');
+  if (diff === 1) return tx('Tomorrow');
+  if (diff === -1) return tx('Yesterday');
   const abs = Math.abs(diff);
   const unit = abs >= 365 ? ['year', Math.round(abs / 365)] : abs >= 30 ? ['month', Math.round(abs / 30)] : abs >= 14 ? ['week', Math.round(abs / 7)] : ['day', abs];
   const n = unit[1] as number;
+  // 이식판: 「3일 후」「2주 전」(2026-11-14)
+  if (getLocale() === 'ko-KR') {
+    const koUnit: Record<string, string> = { year: '년', month: '개월', week: '주', day: '일' };
+    return `${n}${koUnit[unit[0] as string]} ${diff > 0 ? '후' : '전'}`;
+  }
   const word = `${n} ${unit[0]}${n === 1 ? '' : 's'}`;
   return diff > 0 ? `${word} from now` : `${word} ago`;
 }

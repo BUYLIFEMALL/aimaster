@@ -43,7 +43,7 @@ export function MediaPlaceholder({ block, readOnly }: { block: BlockRecord; read
         block={block}
         readOnly={readOnly || !!uploading}
         icon={uploading ? <div className="nc-spinner" /> : icon}
-        label={uploading ? `Uploading ${uploading.name}…` : label}
+        label={uploading ? tx('Uploading {name}…').replace('{name}', uploading.name) : tx(label)}
         className={uploading ? 'uploading' : ''}
         onOpen={(el) => openMediaPicker(block, el)}
       />

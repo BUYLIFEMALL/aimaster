@@ -21,7 +21,7 @@ import { useEditor } from '../editor/editorState.ts';
 import { EditorSurface } from '../editor/EditorSurface.tsx';
 import { Icon } from '../../components/Icon.tsx';
 import { PageIcon } from '../shell/PageIcon.tsx';
-import { t, tx } from '../shell/i18n.ts';
+import { getLocale, t, tx } from '../shell/i18n.ts';
 import { retentionDurationLabel } from '../settings/spaceSettings.ts';
 import { openIconPicker, randomEmoji } from './IconPicker.tsx';
 import { PageCover, randomCover } from './Cover.tsx';
@@ -331,7 +331,10 @@ function TrashBanner({ page }: { page: BlockRecord }) {
   // Settings › Security › Data retention: 30 days, or the Enterprise workspace's own number
   const space = useRecord<SpaceRecord>('space', page.space_id);
   const daysLeft = Math.max(1, trashRetentionDays(space) - Math.floor((Date.now() - deleted) / 86400000));
-  const when = Date.now() - deleted < 60_000 ? 'just now' : Date.now() - deleted < 86400000 ? `${Math.round((Date.now() - deleted) / 3600000) || 1}h ago` : new Date(deleted).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // 이식판: 휴지통 배너 시각도 화면 언어로(2026-11-14 — 원본은 영어 고정)
+  const koUi = getLocale() === 'ko-KR';
+  const hoursAgo = Math.round((Date.now() - deleted) / 3600000) || 1;
+  const when = Date.now() - deleted < 60_000 ? (koUi ? '방금' : 'just now') : Date.now() - deleted < 86400000 ? (koUi ? `${hoursAgo}시간 전` : `${hoursAgo}h ago`) : new Date(deleted).toLocaleDateString(koUi ? 'ko-KR' : 'en-US', { month: 'short', day: 'numeric' });
   return (
     <div className="nc-trash-banner" role="status">
       <span>{t('lp.page.moved_to_trash_by_permanent_deletion', 'Moved to Trash by {trashAuthorDisplayName} {movedToTrashDateComponent}. Permanent deletion in {numDaysLeftInTrashComponent}.', { trashAuthorDisplayName: userName(by), movedToTrashDateComponent: when, numDaysLeftInTrashComponent: retentionDurationLabel(daysLeft) })}</span>
