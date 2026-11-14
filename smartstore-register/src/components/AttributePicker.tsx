@@ -70,7 +70,7 @@ export function AttributePicker({ productId, initialText = "", categoryPath = ""
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
         <span className="slw-label !mb-0">상품속성 <span className="font-normal text-slate-500">(선택)</span></span>
-        <button type="button" onClick={() => load()} disabled={busy} className="rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 disabled:opacity-60">
+        <button type="button" onClick={() => load()} disabled={busy} className="rounded-lg border border-[rgba(3,199,90,0.3)] bg-[rgba(3,199,90,0.12)] px-2.5 py-1 text-xs font-bold text-[#03C75A] hover:bg-[rgba(3,199,90,0.18)] disabled:opacity-60 transition-colors">
           🔎 이 카테고리 속성 불러오기
         </button>
       </div>

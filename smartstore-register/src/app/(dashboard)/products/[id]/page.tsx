@@ -32,7 +32,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
   return (
     <div className="space-y-4">
       <PageHeader emoji="🧩" title={product.name || product.product_label || "상품"} description="스마트스토어 「상품 등록」 화면에 확장이 넣을 값입니다. 빠진 필수값이 있으면 보내기 전에 고쳐 주세요.">
-        <a className="slw-btn" href={`${SHOP_DETAIL_SITE}/products/${product.id}`} target="_blank" rel="noreferrer">상세페이지에서 고치기 ↗</a>
+        <a className="btn-3d-secondary !py-2 !px-4 text-xs" href={`${SHOP_DETAIL_SITE}/products/${product.id}`} target="_blank" rel="noreferrer">상세페이지에서 고치기 ↗</a>
       </PageHeader>
 
       {!product.reviewed_at && (
@@ -66,7 +66,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
           <div className="slw-card p-3">
             <p className="mb-2 text-xs font-extrabold text-slate-700">대표 사진 · 상세 이미지 {sections.length}장</p>
             <div className="grid grid-cols-4 gap-1.5">
-              {mainImage?.url && <img src={mainImage.url} alt="대표 사진" className="aspect-square w-full rounded-md object-cover ring-2 ring-emerald-500" />}
+              {mainImage?.url && <img src={mainImage.url} alt="대표 사진" className="aspect-square w-full rounded-md object-cover ring-2 ring-[#03C75A]" />}
               {sections.slice(0, 11).map((s) => s.url && <img key={s.path} src={s.url} alt={s.sectionKey} className="aspect-square w-full rounded-md object-cover" />)}
             </div>
           </div>
@@ -75,7 +75,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
 
       {jobs.rows.length > 0 && (
         <div className="slw-card p-4">
-          <p className="mb-2 text-sm font-extrabold text-slate-900">이 상품의 등록 작업</p>
+          <p className="mb-2 text-sm font-extrabold text-[#111827]">이 상품의 등록 작업</p>
           <ul className="divide-y divide-slate-100 text-sm">
             {jobs.rows.map((j) => (
               <li key={j.id} className="flex items-center justify-between gap-2 py-2">
@@ -84,7 +84,7 @@ export default async function ProductRegisterPage({ params }: { params: Promise<
               </li>
             ))}
           </ul>
-          <Link href="/history" className="mt-2 inline-block text-xs font-bold text-emerald-700 hover:underline">전체 등록 기록 →</Link>
+          <Link href="/history" className="mt-2 inline-block text-xs font-bold text-[#03C75A] hover:underline">전체 등록 기록 →</Link>
         </div>
       )}
     </div>

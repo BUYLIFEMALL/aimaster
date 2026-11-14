@@ -29,9 +29,9 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
         <p className="text-[11px] text-slate-500">할인가를 넣으면 「정상가 − 할인가」가 즉시할인으로 들어갑니다. 여기서 바꾼 가격은 이번 등록에만 쓰고 상세페이지 상품 정보는 바꾸지 않습니다.</p>
       </fieldset>
       {/* 혜택은 상품마다가 아니라 스토어 기본값 — 상품 화면에서 찾는 회원이 있어 지금 값과 바로가기를 보여 준다(2026-10-28 주인님 「넣어」) */}
-      <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-[11px] leading-relaxed text-emerald-900">
-        🎁 구매/리뷰 혜택은 <b>스토어 기본값</b>에서 정합니다 — 지금: {benefitNote || "넣지 않음"}{" "}
-        <a href="/defaults" className="font-bold underline">바꾸기 →</a>
+      <p className="rounded-xl border border-[#C6F2DB] bg-gradient-to-r from-[#E8F8F0] to-white p-3 text-xs leading-relaxed text-[#111827]">
+        🎁 구매/리뷰 혜택은 <b>스토어 기본값</b>에서 정합니다 — 지금: <span className="font-bold text-[#03C75A]">{benefitNote || "넣지 않음"}</span>{" "}
+        <a href="/defaults" className="font-bold text-[#03C75A] underline ml-1">바꾸기 →</a>
       </p>
       <fieldset className="space-y-1.5">
         <legend className="slw-label">상품 주요정보 <span className="font-normal text-slate-500">(선택)</span></legend>
@@ -72,21 +72,21 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
       </div>
       <fieldset>
         <legend className="slw-label">등록 방식</legend>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {(Object.keys(REGISTER_MODES) as RegisterMode[]).map((m) => (
-            <label key={m} className={`flex cursor-pointer gap-2 rounded-lg border p-2 text-xs ${mode === m ? "border-emerald-500 bg-emerald-50" : "border-slate-200"}`}>
-              <input type="radio" name="mode" value={m} checked={mode === m} onChange={() => setMode(m)} className="mt-0.5" />
+            <label key={m} className={`flex cursor-pointer gap-2.5 rounded-xl border p-2.5 text-xs transition-all ${mode === m ? "border-[#03C75A] bg-[rgba(3,199,90,0.08)] ring-1 ring-[#03C75A]" : "border-[#E5E8EB] bg-white hover:bg-slate-50"}`}>
+              <input type="radio" name="mode" value={m} checked={mode === m} onChange={() => setMode(m)} className="mt-0.5 accent-[#03C75A]" />
               <span>
-                <b className="text-slate-900">{REGISTER_MODES[m].label}</b>
-                <span className="block text-slate-600">{REGISTER_MODES[m].hint}</span>
+                <b className="text-[#111827] text-sm">{REGISTER_MODES[m].label}</b>
+                <span className="block text-[#6B7280] text-[11px] mt-0.5">{REGISTER_MODES[m].hint}</span>
               </span>
             </label>
           ))}
         </div>
       </fieldset>
       {mode === "register" && (
-        <label className="flex items-start gap-1.5 text-[11px] text-slate-600">
-          <input type="checkbox" name="repeatOk" className="mt-0.5" />
+        <label className="flex items-start gap-2 text-[11px] text-[#4B5563] p-2 rounded-lg bg-amber-50 border border-amber-200">
+          <input type="checkbox" name="repeatOk" className="mt-0.5 accent-amber-600" />
           <span>이미 등록한 상품이면 <b>한 번 더 등록합니다</b>(같은 상품이 판매자센터에 하나 더 생깁니다). 처음 올리는 상품이면 체크하지 않아도 됩니다.</span>
         </label>
       )}
@@ -95,14 +95,14 @@ export function RegisterForm({ productId, defaultKeyword, initialOptions = null,
           <p className="text-xs font-extrabold">{COLLECTED_PHOTO_WARNING_TITLE}</p>
           <p className="text-[11px] leading-relaxed">{COLLECTED_PHOTO_WARNING}</p>
           <label className="flex items-start gap-1.5 text-[11px] font-bold">
-            <input type="checkbox" name="collectedAck" required className="mt-0.5" />
+            <input type="checkbox" name="collectedAck" required className="mt-0.5 accent-amber-600" />
             <span>{COLLECTED_PHOTO_ACK_LABEL}</span>
           </label>
         </div>
       )}
       <ExtensionPresence />
-      <button type="submit" disabled={pending} className="slw-primary w-full">{pending ? "작업 만드는 중…" : "🧩 확장으로 보내기"}</button>
-      {state?.ok && <p role="status" className="text-xs font-bold text-emerald-700">✅ 작업을 만들었습니다. 스마트스토어센터에 로그인된 크롬에서 확장이 순서대로 채웁니다.</p>}
+      <button type="submit" disabled={pending} className="btn-3d-primary w-full !py-3 text-sm font-black">{pending ? "작업 만드는 중…" : "🧩 확장으로 스마트스토어 전송"}</button>
+      {state?.ok && <p role="status" className="text-xs font-black text-[#03C75A]">✅ 작업을 만들었습니다. 스마트스토어센터에 로그인된 크롬에서 확장이 순서대로 채웁니다.</p>}
       {state?.error && <p role="alert" className="text-xs font-bold text-rose-700">{state.error}</p>}
       <p className="text-[11px] text-slate-500">처음에는 「입력만」이나 「임시저장까지」로 확인해 보세요. 결과가 확실하지 않으면 확장이 자동으로 다시 등록하지 않습니다.</p>
     </form>

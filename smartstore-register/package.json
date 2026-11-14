@@ -1,6 +1,6 @@
 {
   "name": "smartstore-register",
-  "version": "1.26.0",
+  "version": "1.28.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3032",

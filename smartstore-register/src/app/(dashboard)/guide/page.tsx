@@ -44,12 +44,12 @@ const FAQ = [
 
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
-    <section className="slw-card p-4 sm:p-5">
-      <div className="flex items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-sm font-black text-white">{n}</span>
-        <h2 className="text-base font-extrabold text-slate-900">{title}</h2>
+    <section className="slw-card p-5 sm:p-6">
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#03C75A] text-xs font-black text-white">{n}</span>
+        <h2 className="text-base font-black text-[#111827]">{title}</h2>
       </div>
-      <div className="mt-3 space-y-3 text-[13px] leading-relaxed text-slate-700">{children}</div>
+      <div className="mt-3.5 space-y-3 text-[13px] leading-relaxed text-[#4B5563]">{children}</div>
     </section>
   );
 }
@@ -76,24 +76,24 @@ export default function GuidePage() {
 
       {/* 헤더 메타데이터 바 */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800">🛒 이커머스</span>
+        <span className="rounded-full bg-[rgba(3,199,90,0.12)] px-2.5 py-1 text-[11px] font-bold text-[#03C75A]">🛒 이커머스</span>
         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700">⏱ 처음 준비 약 15분 · 상품당 약 3분</span>
         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700">🔒 비밀번호·판매자 키 받지 않음</span>
         <span className="flex-1" />
-        <a href={SELLER} target="_blank" rel="noreferrer" className={`${ext} border-emerald-300 bg-emerald-50 text-emerald-800`}>스마트스토어센터 ↗</a>
-        <a href={`${SHOP_DETAIL_SITE}/products`} target="_blank" rel="noreferrer" className={`${ext} border-slate-300 bg-white text-slate-700`}>AI 상세페이지 자동화 ↗</a>
+        <a href={SELLER} target="_blank" rel="noreferrer" className={`${ext} border-[rgba(3,199,90,0.3)] bg-[rgba(3,199,90,0.08)] text-[#03C75A]`}>스마트스토어센터 ↗</a>
+        <a href={`${SHOP_DETAIL_SITE}/products`} target="_blank" rel="noreferrer" className={`${ext} border-[#E5E8EB] bg-white text-[#111827]`}>AI 상세페이지 자동화 ↗</a>
       </div>
 
       {/* 개요 히어로 카드 */}
-      <section className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5">
-        <p className="text-sm font-extrabold text-emerald-900">이 프로그램이 해 주는 일</p>
-        <p className="mt-1 text-[13px] leading-relaxed text-slate-700">
+      <section className="rounded-2xl border border-[#C6F2DB] bg-gradient-to-br from-[#E8F8F0] to-white p-6 shadow-sm">
+        <p className="text-sm font-black text-[#03C75A]">이 프로그램이 해 주는 일</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-[#111827]">
           AI 상세페이지 자동화에서 만든 상품을, 회원님 크롬의 확장이 <b>스마트스토어센터 「상품 등록」 화면에 칸마다 대신 입력</b>합니다.
           카테고리·상품명·가격·이미지·상세설명·옵션·배송·상품속성까지 채우고, 결과와 멈춘 칸을 「등록 기록」에 남깁니다.
         </p>
-        <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[12px] font-bold text-slate-700">
+        <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs font-bold text-[#111827]">
           {["🛍 상세페이지 상품", "→", "📦 등록기에서 보내기", "→", "🧩 내 크롬 확장", "→", "🏪 판매자센터 칸 채움", "→", "🧾 등록 기록"].map((x, i) => (
-            <span key={i} className={x === "→" ? "text-slate-400" : "rounded-lg border border-emerald-200 bg-white px-2 py-1"}>{x}</span>
+            <span key={i} className={x === "→" ? "text-slate-400" : "rounded-lg border border-[#C6F2DB] bg-white px-2.5 py-1"}>{x}</span>
           ))}
         </div>
       </section>
@@ -103,7 +103,7 @@ export default function GuidePage() {
         {QUICK.map((s) => (
           <div key={s.n} className="slw-card p-4">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-black text-emerald-700">STEP {s.n}</p>
+              <p className="text-[11px] font-black text-[#03C75A]">STEP {s.n}</p>
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">⏱ {s.time}</span>
             </div>
             <p className="mt-1 text-base font-extrabold text-slate-900">{s.emoji} {s.title}</p>
@@ -224,11 +224,11 @@ export default function GuidePage() {
       </div>
 
       {/* 직링크 */}
-      <div className="flex flex-wrap gap-2">
-        <Link href="/extension" className={`${ext} border-emerald-600 bg-emerald-600 text-white`}>🧩 확장 연결하러 가기</Link>
-        <Link href="/defaults" className={`${ext} border-slate-300 bg-white text-slate-700`}>⚙ 스토어 기본값</Link>
-        <Link href="/products" className={`${ext} border-slate-300 bg-white text-slate-700`}>📦 등록할 상품</Link>
-        <a href={`${MAIN_SITE}/api-settings`} target="_blank" rel="noreferrer" className={`${ext} border-slate-300 bg-white text-slate-700`}>🔑 내 API 키 등록(추천용) ↗</a>
+      <div className="flex flex-wrap gap-2.5">
+        <Link href="/extension" className="btn-3d-primary !py-2 !px-4 text-xs font-black">🧩 확장 연결하러 가기</Link>
+        <Link href="/defaults" className="btn-3d-secondary !py-2 !px-4 text-xs">⚙ 스토어 기본값</Link>
+        <Link href="/products" className="btn-3d-secondary !py-2 !px-4 text-xs">📦 등록할 상품</Link>
+        <a href={`${MAIN_SITE}/api-settings`} target="_blank" rel="noreferrer" className="btn-3d-secondary !py-2 !px-4 text-xs">🔑 내 API 키 등록(추천용) ↗</a>
       </div>
     </div>
   );

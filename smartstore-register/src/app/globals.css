@@ -1,18 +1,20 @@
 @import "tailwindcss";
 
-/* AI 스마트스토어 상품 자동등록기 - 78. 미니멀 스마트스토어 아틀리에 스타일 (클린 크림 페이퍼 & 세이지 그린) */
+/* AI 스마트스토어 상품 자동등록기 - 110. 네이버 스마트스토어 오리지널 그린 & 화이트 셀러 스튜디오 스타일 */
 :root {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --surface-raised: #f1f5f9;
-  --border: #e2e8f0;
-  --border-bright: #cbd5e1;
-  --text: #0f172a;
-  --muted: #64748b;
-  --accent: #10b981;
-  --accent-hover: #059669;
-  --accent-soft: #ecfdf5;
-  --brand: #10b981;
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --surface-raised: #F1F5F9;
+  --border: #E5E8EB;
+  --border-bright: #CBD5E1;
+  --text: #111827;
+  --muted: #6B7280;
+  --brand: #03C75A;
+  --brand-dark: #029643;
+  --brand-light: rgba(3, 199, 90, 0.12);
+  --accent: #03C75A;
+  --accent-hover: #029643;
+  --accent-soft: rgba(3, 199, 90, 0.08);
 }
 
 body {
@@ -20,43 +22,54 @@ body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Segoe UI", "Malgun Gothic", Roboto, Arial, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* 네이버 스마트스토어 프리미엄 카드 */
 .slw-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-/* 3D 엠보싱 세이지 버튼 (78번 시안 핵심) */
-.btn-3d-sage,
+/* 3D 엠보싱 네이버 그린 버튼 (110번 시안 핵심) - 4px 깊이감 & 전역 1행 유지 */
+.btn-3d-naver,
+.btn-3d-green,
+.btn-3d-primary,
 .btn-3d,
 .slw-primary {
-  background: linear-gradient(180deg, #10B981 0%, #059669 100%) !important;
+  background: linear-gradient(180deg, #03C75A 0%, #029643 100%) !important;
   color: #FFFFFF !important;
   font-weight: 800 !important;
-  padding: 8px 16px !important;
-  border-radius: 10px !important;
-  border: 1px solid #34D399 !important;
-  box-shadow: 0 4px 0 #065F46, 0 8px 16px rgba(16,185,129,0.22) !important;
+  padding: 8px 18px !important;
+  border-radius: 8px !important;
+  border: 1px solid #1EC800 !important;
+  box-shadow: 0 4px 0 #027A36, 0 6px 14px rgba(3, 199, 90, 0.25) !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 7px;
   text-decoration: none;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
   min-height: 38px;
+  white-space: nowrap !important;
 }
-.btn-3d-sage:hover:not(:disabled),
+
+.btn-3d-naver:hover:not(:disabled),
+.btn-3d-green:hover:not(:disabled),
+.btn-3d-primary:hover:not(:disabled),
 .btn-3d:hover:not(:disabled),
 .slw-primary:hover:not(:disabled) {
   transform: translateY(1px);
-  box-shadow: 0 2px 0 #065F46, 0 4px 10px rgba(16,185,129,0.2) !important;
-  background: linear-gradient(180deg, #34D399 0%, #059669 100%) !important;
+  box-shadow: 0 2px 0 #027A36, 0 4px 8px rgba(3, 199, 90, 0.2) !important;
+  background: linear-gradient(180deg, #1EC800 0%, #029643 100%) !important;
 }
-.btn-3d-sage:disabled,
+
+.btn-3d-naver:disabled,
+.btn-3d-green:disabled,
+.btn-3d-primary:disabled,
 .btn-3d:disabled,
 .slw-primary:disabled {
   opacity: 0.5;
@@ -65,26 +78,54 @@ body {
   box-shadow: none !important;
 }
 
+/* 3D 보조 버튼 (화이트 & 쿨 그레이) */
+.btn-3d-secondary {
+  background: #FFFFFF !important;
+  color: #111827 !important;
+  font-weight: 700 !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid #E5E8EB !important;
+  box-shadow: 0 3px 0 #CBD5E1 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.12s ease;
+  min-height: 38px;
+  white-space: nowrap !important;
+  cursor: pointer;
+}
+
+.btn-3d-secondary:hover:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #CBD5E1 !important;
+  background: #F8FAFC !important;
+}
+
+/* 기본 버튼 */
 .slw-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 700;
   min-height: 38px;
-  background: #ffffff;
+  background: #FFFFFF;
   color: var(--text);
   border: 1px solid var(--border-bright);
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
   cursor: pointer;
+  white-space: nowrap !important;
 }
 .slw-btn:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent-hover);
-  background: #f8fafc;
+  background: #F8FAFC;
 }
 .slw-btn:disabled {
   opacity: 0.5;
@@ -93,9 +134,9 @@ body {
 
 .slw-field {
   width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  background: #ffffff;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background: #FFFFFF;
   padding: 8px 12px;
   font-size: 13px;
   color: var(--text);
@@ -103,8 +144,8 @@ body {
 }
 .slw-field:focus {
   outline: none;
-  border-color: #10B981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  border-color: #03C75A;
+  box-shadow: 0 0 0 3px rgba(3, 199, 90, 0.2);
 }
 .slw-label {
   display: block;
@@ -115,9 +156,9 @@ body {
 }
 
 .slw-drop {
-  border: 2px dashed #cbd5e1;
-  border-radius: 14px;
-  background: #f8fafc;
+  border: 2px dashed #CBD5E1;
+  border-radius: 12px;
+  background: #F8FAFC;
   padding: 24px 16px;
   text-align: center;
   cursor: pointer;
@@ -127,4 +168,19 @@ body {
 .slw-drop[data-over="true"] {
   border-color: var(--accent);
   background: var(--accent-soft);
+}
+
+/* 네이버 시그니처 뱃지 */
+.naver-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(3, 199, 90, 0.12);
+  color: #03C75A;
+  border: 1px solid rgba(3, 199, 90, 0.25);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }

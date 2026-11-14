@@ -11,7 +11,7 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
   const [jeju, setJeju] = useState(initial.jejuMode);
 
   return (
-    <form action={action} className="slw-card grid gap-4 p-5 sm:grid-cols-2">
+    <form action={action} className="slw-card grid gap-5 p-6 sm:grid-cols-2">
       <div>
         <label className="slw-label" htmlFor="stock">재고수량(기본)</label>
         <input id="stock" name="stock" type="number" min={0} defaultValue={initial.stock} className="slw-field" />
@@ -19,35 +19,40 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
       <div>
         <label className="slw-label" htmlFor="noticeGroup">상품정보제공고시 상품군</label>
         <input id="noticeGroup" name="noticeGroup" defaultValue={initial.noticeGroup} placeholder="예: 주방용품, 기타 재화" className="slw-field" />
-        <label className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-600">
-          <input type="checkbox" name="noticeReference" defaultChecked={initial.noticeReference} /> 「상품상세 참조로 전체 입력」 켜기
+        <label className="mt-1.5 flex items-center gap-1.5 text-xs text-[#4B5563]">
+          <input type="checkbox" name="noticeReference" defaultChecked={initial.noticeReference} className="accent-[#03C75A]" />
+          <span>「상품상세 참조로 전체 입력」 켜기</span>
         </label>
       </div>
 
-      <fieldset className="sm:col-span-2">
-        <legend className="slw-label">원산지</legend>
-        <div className="flex flex-wrap gap-3 text-sm">
+      <fieldset className="sm:col-span-2 rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-4">
+        <legend className="px-1 text-xs font-black text-[#111827]">원산지 설정</legend>
+        <div className="flex flex-wrap gap-4 text-sm mt-1">
           {([["domestic", "국산"], ["import", "수입산"], ["etc", "기타(직접 입력)"]] as const).map(([v, l]) => (
-            <label key={v} className="flex items-center gap-1.5">
-              <input type="radio" name="originType" value={v} checked={origin === v} onChange={() => setOrigin(v)} /> {l}
+            <label key={v} className="flex items-center gap-1.5 cursor-pointer font-bold text-[#111827]">
+              <input type="radio" name="originType" value={v} checked={origin === v} onChange={() => setOrigin(v)} className="accent-[#03C75A]" />
+              <span>{l}</span>
             </label>
           ))}
         </div>
         {origin !== "domestic" && (
-          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <input name="originCountry" defaultValue={initial.originCountry} placeholder={origin === "import" ? "나라(예: 중국)" : "원산지 내용"} className="slw-field" />
             {origin === "import" && <input name="importer" defaultValue={initial.importer} placeholder="수입사(선택)" className="slw-field" />}
           </div>
         )}
       </fieldset>
 
-      <div>
-        <label className="slw-label" htmlFor="deliveryTemplate">배송 템플릿 이름</label>
+      <div className="sm:col-span-2">
+        <label className="slw-label" htmlFor="deliveryTemplate">배송 템플릿 이름 (스마트스토어 센터 템플릿)</label>
         <input id="deliveryTemplate" name="deliveryTemplate" defaultValue={initial.deliveryTemplate} placeholder="판매자센터에 저장한 이름 그대로" className="slw-field" />
-        <p className="mt-1 text-[11px] text-slate-500">비우면 아래 배송비를 확장이 직접 넣습니다. 템플릿이 없으면 비워 두세요.</p>
+        <p className="mt-1 text-[11px] text-[#9CA3AF]">비우면 아래 배송비를 확장이 직접 입력합니다. 템플릿이 없으면 비워 두세요.</p>
       </div>
-      <fieldset className="grid gap-3 sm:col-span-2 sm:grid-cols-4">
-        <legend className="slw-label sm:col-span-4">배송비 직접 입력 <span className="font-normal text-slate-500">(템플릿 이름이 비어 있을 때만 씀)</span></legend>
+
+      <fieldset className="grid gap-3.5 sm:col-span-2 sm:grid-cols-4 rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-4">
+        <legend className="px-1 text-xs font-black text-[#111827] sm:col-span-4">
+          배송비 직접 입력 <span className="font-normal text-[#6B7280]">(템플릿 이름이 비어 있을 때만 씀)</span>
+        </legend>
         <div>
           <label className="slw-label" htmlFor="deliveryCompany">택배사</label>
           <input id="deliveryCompany" name="deliveryCompany" list="ssr-couriers" defaultValue={initial.deliveryCompany} placeholder="예: CJ대한통운" className="slw-field" />
@@ -56,8 +61,7 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
           </datalist>
         </div>
         <div>
-          <label className="slw-label" htmlFor="deliveryFeeType">배송비</label>
-          {/* key: 저장 뒤 폼이 초기화될 때 고르기 상자가 옛 값으로 보이지 않게 새 값으로 다시 그림 */}
+          <label className="slw-label" htmlFor="deliveryFeeType">배송비 유형</label>
           <select key={initial.deliveryFeeType} id="deliveryFeeType" name="deliveryFeeType" defaultValue={initial.deliveryFeeType} onChange={(e) => setFee(e.target.value as typeof fee)} className="slw-field">
             <option value="">판매자센터 기본값 그대로</option>
             <option value="FREE">무료</option>
@@ -148,29 +152,33 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
           <input id="regionFee" name="regionFee" defaultValue={initial.regionFee} placeholder="제주/도서산간 외 지역 차등이 있을 때만(예: 산간지역 3000원)" className="slw-field" />
         </div>
       </fieldset>
-      <div className="grid grid-cols-2 gap-3">
+
+      <div className="grid grid-cols-2 gap-3.5 sm:col-span-2 rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-4">
+        <legend className="col-span-2 px-1 text-xs font-black text-[#111827]">반품 및 교환 배송비</legend>
         <div className="col-span-2">
           <label className="slw-label" htmlFor="returnCompany">반품 택배사</label>
           <input id="returnCompany" name="returnCompany" list="ssr-couriers" defaultValue={initial.returnCompany} placeholder="비우면 판매자센터 기본값(반품/교환지는 판매자 주소록 기본 주소)" className="slw-field" />
         </div>
         <div>
-          <label className="slw-label" htmlFor="returnFee">반품 배송비(편도)</label>
+          <label className="slw-label" htmlFor="returnFee">반품 배송비 (편도, 원)</label>
           <input id="returnFee" name="returnFee" type="number" min={0} defaultValue={initial.returnFee ?? ""} placeholder="템플릿 쓰면 비움" className="slw-field" />
         </div>
         <div>
-          <label className="slw-label" htmlFor="exchangeFee">교환 배송비(왕복)</label>
+          <label className="slw-label" htmlFor="exchangeFee">교환 배송비 (왕복, 원)</label>
           <input id="exchangeFee" name="exchangeFee" type="number" min={0} defaultValue={initial.exchangeFee ?? ""} placeholder="템플릿 쓰면 비움" className="slw-field" />
         </div>
       </div>
 
-      <fieldset className="grid grid-cols-2 gap-3 rounded-lg border border-slate-200 p-3 sm:col-span-2">
-        <legend className="px-1 text-sm font-semibold text-slate-700">구매/리뷰 혜택 <span className="font-normal text-slate-500">(선택, 비우면 넣지 않음)</span></legend>
+      <fieldset className="grid grid-cols-2 gap-3.5 rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-4 sm:col-span-2">
+        <legend className="col-span-2 px-1 text-xs font-black text-[#111827]">
+          네이버페이 포인트 및 구매 혜택 <span className="font-normal text-[#6B7280]">(선택 사항)</span>
+        </legend>
         <div className="col-span-2">
-          <label className="slw-label" htmlFor="purchasePoint">상품 구매 시 포인트(원)</label>
+          <label className="slw-label" htmlFor="purchasePoint">상품 구매 시 지급 포인트(원)</label>
           <input id="purchasePoint" name="purchasePoint" type="number" min={10} step={10} defaultValue={initial.purchasePoint ?? ""} placeholder="예: 500" className="slw-field" />
         </div>
         <div>
-          <label className="slw-label" htmlFor="reviewText">텍스트 리뷰 포인트(원)</label>
+          <label className="slw-label" htmlFor="reviewText">텍스트 리뷰 작성 포인트(원)</label>
           <input id="reviewText" name="reviewText" type="number" min={10} max={20000} step={10} defaultValue={initial.reviewText ?? ""} placeholder="예: 100" className="slw-field" />
         </div>
         <div>
@@ -178,42 +186,45 @@ export function DefaultsForm({ initial }: { initial: StoreDefaults }) {
           <input id="reviewPhoto" name="reviewPhoto" type="number" min={10} max={20000} step={10} defaultValue={initial.reviewPhoto ?? ""} placeholder="예: 300" className="slw-field" />
         </div>
         <div>
-          <label className="slw-label" htmlFor="multiQty">복수구매할인 — ○개 이상</label>
+          <label className="slw-label" htmlFor="multiQty">복수구매할인 기준 수량 (○개 이상)</label>
           <input id="multiQty" name="multiQty" type="number" min={2} defaultValue={initial.multiQty ?? ""} placeholder="예: 2" className="slw-field" />
         </div>
         <div>
-          <label className="slw-label" htmlFor="multiDiscount">○원 할인(개당)</label>
+          <label className="slw-label" htmlFor="multiDiscount">개당 할인 금액(원)</label>
           <input id="multiDiscount" name="multiDiscount" type="number" min={10} step={10} defaultValue={initial.multiDiscount ?? ""} placeholder="예: 1000" className="slw-field" />
         </div>
       </fieldset>
 
       <div>
-        <label className="slw-label" htmlFor="asPhone">A/S 전화번호 *</label>
+        <label className="slw-label" htmlFor="asPhone">판매자 A/S 전화번호 *</label>
         <input id="asPhone" name="asPhone" defaultValue={initial.asPhone} placeholder="010-1234-5678" className="slw-field" />
       </div>
       <div>
-        <label className="slw-label" htmlFor="asGuide">A/S 안내</label>
+        <label className="slw-label" htmlFor="asGuide">A/S 안내 문구</label>
         <input id="asGuide" name="asGuide" defaultValue={initial.asGuide} placeholder="비우면 「상품 상세페이지 참조」" className="slw-field" />
       </div>
 
       <div className="sm:col-span-2">
-        <label className="slw-label" htmlFor="childCert">어린이제품인증</label>
+        <label className="slw-label" htmlFor="childCert">어린이제품안전 특별법 인증</label>
         <select key={initial.childCert} id="childCert" name="childCert" defaultValue={initial.childCert} className="slw-field">
           <option value="">판매자센터 기본값 그대로</option>
-          <option value="not_target">인증대상 아님(성인용 상품)</option>
+          <option value="not_target">인증대상 아님 (성인용 상품)</option>
         </select>
-        <p className="mt-1 text-[11px] text-slate-500">가방·의류 등 일부 카테고리에서만 나오는 칸입니다. 어린이(13세 이하)용이 아닌 상품만 「인증대상 아님」을 고르세요 — 판매자 책임 항목입니다.</p>
+        <p className="mt-1 text-[11px] text-[#9CA3AF]">가방·의류 등 일부 카테고리에서만 나오는 칸입니다. 13세 이하 어린이용이 아닌 상품만 「인증대상 아님」을 선택하세요.</p>
       </div>
 
-      <label className="flex items-center gap-1.5 text-sm text-slate-700 sm:col-span-2">
-        <input type="checkbox" name="displayOnRegister" defaultChecked={initial.displayOnRegister} />
-        「바로 등록」 때 바로 전시하기 <span className="text-xs text-slate-500">(끄면 전시중지 = 판매대기로 올라감, 기본 꺼짐)</span>
+      <label className="flex items-center gap-2 text-sm text-[#111827] font-semibold sm:col-span-2">
+        <input type="checkbox" name="displayOnRegister" defaultChecked={initial.displayOnRegister} className="accent-[#03C75A]" />
+        <span>「바로 등록」 시 즉시 전시하기</span>
+        <span className="text-xs text-[#6B7280] font-normal">(체크 해제 시 판매대기 상태로 등록됩니다)</span>
       </label>
 
-      <div className="flex items-center gap-3 sm:col-span-2">
-        <button type="submit" disabled={pending} className="slw-primary">{pending ? "저장 중…" : "💾 기본값 저장"}</button>
-        {state?.ok && <span role="status" className="text-xs font-bold text-emerald-700">✅ 저장했습니다.</span>}
-        {state?.error && <span role="alert" className="text-xs font-bold text-rose-700">{state.error}</span>}
+      <div className="flex items-center gap-3 sm:col-span-2 pt-2">
+        <button type="submit" disabled={pending} className="btn-3d-primary !py-3 !px-6 text-sm font-black">
+          {pending ? "기본값 저장 중…" : "💾 스토어 기본값 저장"}
+        </button>
+        {state?.ok && <span role="status" className="text-xs font-black text-[#03C75A]">✅ 기본값이 안전하게 저장되었습니다.</span>}
+        {state?.error && <span role="alert" className="text-xs font-black text-rose-700">{state.error}</span>}
       </div>
     </form>
   );
