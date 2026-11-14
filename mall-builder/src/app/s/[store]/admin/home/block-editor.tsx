@@ -20,7 +20,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 const input = "mt-0.5 w-full rounded border px-2 py-1.5 text-sm";
 const docJson = (blocks: Block[]) => JSON.stringify(blocks);
 
-function ImagePicker({ storeId, value, onChange, clearable }: { storeId: string; value: string; onChange: (url: string) => void; clearable?: boolean }) {
+export function ImagePicker({ storeId, value, onChange, clearable }: { storeId: string; value: string; onChange: (url: string) => void; clearable?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function upload(file: File | undefined) {

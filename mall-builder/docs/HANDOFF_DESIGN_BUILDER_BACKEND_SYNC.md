@@ -33,6 +33,7 @@
 | S14 | 2026-11-14 | 프론트 → 백엔드 | 공유 | D2 진행: `@puckeditor/core` 0.24.0 설치(`package.json`·`package-lock.json` — 추가만, 하위 100개), 블록 공통 겉모양 `style` 칸(`blocks.ts`, 선택·옛 저장본 그대로), 손님 첫 화면 블록 그리기를 `BlockView`로 묶음(`home-blocks.tsx`), 손님 화면 바깥 상자 `overflow-x-clip`(화면 가득 배경용), `THIRD_PARTY_NOTICES.md` 새로 | 커밋 참조 | 공유 |
 | S15 | 2026-11-14 | 프론트 → 백엔드 | 공용 파일 수정 알림 | `admin/admin-shell.tsx`(몰 꾸미기에 「디자인 편집」 한 줄), `src/lib/staff.ts`(`MENU_PERM` `"/design": "home"` 한 줄), 손님 첫 화면 `(shop)/page.tsx`(상품·공지·후기 칸 그리기를 `home-slots.tsx`·`src/lib/builder/slot-data.ts`로 옮김 — 같은 모양, 편집기와 공용), `admin/home/block-editor.tsx`(`SettingsForm`·시각 함수에 `export`만). `.env.local`은 22:42에 Lab 주소·공개 키 2줄로 복구된 것 확인 — 다만 3210 개발 서버가 작업 프로세스 오류(Jest worker)로 계속 500이라 다시 켜 주셔야 합니다(남의 서버라 끄지 않음) | 커밋 참조 | 확인 대기 |
 | S16 | 2026-11-14 | 프론트 → 백엔드 | 공용 파일 수정 알림 | `(shop)/product-card.tsx`: `ProductCard`·`ProductGrid`에 선택 인자 `card`(표시 항목·깔끔형)·`layout`(가로 넘기기) 추가 — 안 넘기면 지금과 똑같음(카테고리·검색 화면 변화 없음). 가격 계산·표시 규칙은 그대로 | 커밋 참조 | 공유 |
+| S17 | 2026-11-14 | 프론트 → 백엔드 | **요청(S12 실제 발생)** + 공용 파일 알림 | ① 헤더·바닥글 로고와 첫 화면 팝업 그림이 이제 `mall_builder_design`(kind `header`·`popup`)의 `draft`·`published`에 들어갑니다(버킷 `mall-builder-public`, 경로 `<몰>/banners/…`). 사진 30일 후보 함수(0066)가 이 표도 「쓰는 사진」으로 보게 고쳐 주세요(백엔드 번호) — 안 고치면 로고·팝업 그림이 후보로 잡힐 수 있습니다. ② 공용 파일: `(shop)/layout.tsx` 헤더·바닥글 마크업을 `(shop)/shop-frame.tsx`로 옮김(오른쪽 로그인·장바구니 단추는 layout에 그대로, 디자인 값이 비면 지금 모양 그대로), 손님 첫 화면 `(shop)/page.tsx`에 팝업 한 줄 | `0066_expired_photos.sql`, layout | 백엔드 확인 대기 |
 
 ## 2. 약속 (바뀌면 여기 고치고 §1에 남김)
 | 항목 | 프론트(디자인 빌더) | 백엔드 |
@@ -54,7 +55,7 @@
 ## 4. 지금 상태 (양쪽이 갱신)
 | 쪽 | 지금 하는 일 | 미배포 대기 | 다음 |
 |---|---|---|---|
-| 프론트 | D2 편집 화면 코드·빌드 끝, 화면 확인 대기 | D1+D2(테마 층·Puck 편집기·0080 운영 미적용) — 묶어서 배포 | D2-9 화면 확인 → D2-4b 블록 모양 → D3 |
+| 프론트 | D3 헤더·바닥글·팝업 끝(Lab 확인) | D1+D2+D3(테마·Puck 편집기·틀·0080 운영 미적용) — 묶어서 배포 | 배포 승인 여쭘 → D4 목록·상세 |
 | 백엔드 | (백엔드 담당이 채움) | v1.10(택배사 기본값·출금 단추·배송비 예시, 0067 운영 미적용) — 인수인계 §6 기준 | |
 
 ## 5. 처리 끝난 메시지 보관

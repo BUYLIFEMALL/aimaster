@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { getCartCount, getCategoryRows, getCurrentUser, getMyCustomer, getPublishedDesign, getStoreBySlug, isStoreStaff } from "@/lib/store";
 import { readTheme, themeStyle } from "@/lib/theme";
+import { readFooter, readHeader } from "@/lib/builder/frame";
+import { ShopBand, ShopFooter, ShopHeader } from "./shop-frame";
 import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
 import { buildCategoryTree } from "@/lib/categories";
 import { guestOrderEnabled } from "@/lib/guest";
@@ -41,6 +43,7 @@ export default async function ShopLayout({ children, params }: { children: React
   const [user, staff, categoryRows, design] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id), getPublishedDesign(store.id)]);
   // 디자인 빌더 D1: 몰 테마 → CSS 변수(기본 테마면 빈 객체 = 화면 그대로)
   const themeVars = themeStyle(readTheme(design.theme));
+  const header = readHeader(design.header);
   const customer = user ? await getMyCustomer(store.id, user.id) : null;
   const cartCount = customer && user ? await getCartCount(store.id, user.id) : 0;
   // 비회원 주문을 켠 몰(D15): 로그인 전에도 장바구니(쿠키)·주문 조회
@@ -87,36 +90,16 @@ export default async function ShopLayout({ children, params }: { children: React
         </div>
       )}
 
-      {/* 네오 모던 B2B 헤더 */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 shadow-xs backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
-          <Link href={base} className="group flex items-center gap-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white shadow-xs group-hover:bg-blue-700 transition-colors">
-              {store.name.slice(0, 1)}
-            </span>
-            <span>{store.name}</span>
-          </Link>
-
-          {showShop && (
-            <form action={`${base}/search`} className="hidden flex-1 sm:block sm:max-w-md">
-              <div className="relative flex items-center">
-                <input
-                  name="q"
-                  placeholder="원하시는 B2B 상품이나 규격을 검색하세요"
-                  maxLength={50}
-                  className="w-full rounded-full border border-slate-200 bg-slate-50/80 px-4 py-2 pl-10 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-blue-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-100"
-                />
-                <span className="pointer-events-none absolute left-3.5 text-slate-400 text-sm">🔍</span>
-              </div>
-            </form>
-          )}
-
-          <nav className="flex items-center gap-2.5 text-sm font-medium text-slate-600 sm:gap-4">
-            {showShop && (
-              <Link href={`${base}/search`} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 sm:hidden" aria-label="검색">
-                🔍
-              </Link>
-            )}
+      {/* 네오 모던 B2B 헤더 — 디자인 빌더 D3: 로고·메뉴·검색 모양은 디자인 값(shop-frame.tsx) */}
+      <ShopBand band={header.band} />
+      <ShopHeader
+        base={base}
+        storeName={store.name}
+        header={header}
+        categories={topCategories.map((c) => ({ id: c.id, name: c.name }))}
+        showShop={showShop}
+        right={
+          <>
             {showShop && (
               <Link href={`${base}/faq`} className="hidden text-slate-600 hover:text-blue-600 sm:inline transition-colors">
                 FAQ
@@ -198,32 +181,9 @@ export default async function ShopLayout({ children, params }: { children: React
                 이 몰 가입하기
               </Link>
             )}
-          </nav>
-        </div>
-
-        {/* 카테고리 네비게이션 탭 */}
-        {showShop && topCategories.length > 0 && (
-          <div className="border-t border-slate-100 bg-white">
-            <nav className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-4 py-1.5 text-sm font-medium text-slate-600 scrollbar-none sm:px-6">
-              <Link
-                href={base}
-                className="shrink-0 rounded-md px-3 py-1.5 text-slate-800 hover:bg-slate-100 hover:text-blue-600 transition-colors"
-              >
-                전체
-              </Link>
-              {topCategories.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`${base}/c/${c.id}`}
-                  className="shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors"
-                >
-                  {c.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
-      </header>
+          </>
+        }
+      />
 
       {/* 본문 콘텐츠 */}
       <div className="flex-1">
@@ -272,46 +232,8 @@ export default async function ShopLayout({ children, params }: { children: React
         )}
       </div>
 
-      {/* 네오 모던 B2B 바닥글 */}
-      <footer className="border-t border-slate-200 bg-slate-900 text-slate-400">
-        <div className="mx-auto max-w-6xl px-4 py-12 text-xs leading-relaxed sm:px-6">
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="md:col-span-2 space-y-3">
-              <p className="text-base font-bold text-white tracking-tight">{info.company_name || store.name}</p>
-              <p className="flex flex-wrap gap-x-3 gap-y-1 text-slate-400">
-                {info.ceo_name && <span>대표자: {info.ceo_name}</span>}
-                {info.business_no && <span>사업자등록번호: {info.business_no}</span>}
-                {info.mail_order_no && <span>통신판매업 신고: {info.mail_order_no}</span>}
-              </p>
-              {info.address && <p className="text-slate-400">사업장 주소: {info.address}</p>}
-              <p className="flex flex-wrap gap-x-3 gap-y-1 text-slate-400">
-                {info.phone && <span>고객센터: {info.phone}</span>}
-                {info.cs_hours && <span>({info.cs_hours})</span>}
-                {info.email && <span>이메일: {info.email}</span>}
-                {info.privacy_officer && <span>개인정보보호책임자: {info.privacy_officer}</span>}
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-slate-800 bg-slate-800/40 p-4 space-y-2">
-              <p className="font-semibold text-slate-200">결제 및 고객 지원</p>
-              {info.bank_name && info.bank_account ? (
-                <p className="text-slate-300">
-                  무통장 입금 계좌<br />
-                  <b className="text-white text-sm">{info.bank_name} {info.bank_account}</b>
-                  {info.bank_holder && <span className="block text-slate-400">예금주: {info.bank_holder}</span>}
-                </p>
-              ) : (
-                <p className="text-slate-400">무통장 계좌는 주문서에서 안내됩니다.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-8 border-t border-slate-800/80 pt-6 flex flex-wrap items-center justify-between gap-2 text-slate-500">
-            <p>© {new Date().getFullYear()} {info.company_name || store.name}. All rights reserved.</p>
-            <p className="text-[11px]">B2B Commerce Powered by AIMaster Mall-Builder</p>
-          </div>
-        </div>
-      </footer>
+      {/* 네오 모던 B2B 바닥글 — 사업자 정보는 잠금(shop-frame.tsx) */}
+      <ShopFooter storeName={store.name} info={info} footer={readFooter(design.footer)} logo={header.logo_footer} />
 
       <PwaPrompt storeName={store.name} offer={shouldOfferInstall(customer)} />
       {!customer && <RefCatcher slug={store.slug} />}

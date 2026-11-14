@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import { getPublishedHome, getShopProducts, getStoreBySlug } from "@/lib/store";
+import { getPublishedDesign, getPublishedHome, getShopProducts, getStoreBySlug } from "@/lib/store";
+import { readPopup } from "@/lib/builder/frame";
+import HomePopup from "./home-popup";
 import { isLive } from "@/lib/blocks";
 import { loadSlotData, visibleCategoryNames } from "@/lib/builder/slot-data";
 import { HomeBlocks } from "../home-blocks";
@@ -14,7 +16,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ sto
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);
   const base = `/s/${store.slug}`;
-  const [published, products] = await Promise.all([getPublishedHome(store.id), getShopProducts(store.id, { limit: 24 })]);
+  const [published, products, design] = await Promise.all([getPublishedHome(store.id), getShopProducts(store.id, { limit: 24 }), getPublishedDesign(store.id)]);
   // 예약 노출·타임세일 끝(D28) — 서버 시각으로 지금 보일 블록만
   const now = Date.now();
   const home = { ...published, blocks: published.blocks.filter((b) => isLive(b, now)) };
@@ -32,6 +34,8 @@ export default async function StorefrontPage({ params }: { params: Promise<{ sto
 
   return (
     <>
+      {/* 디자인 빌더 D3 첫 화면 팝업(게시된 것만) */}
+      <HomePopup slug={store.slug} popup={readPopup(design.popup)} />
       {store.status === "suspended" && (
         <div className="mx-auto mt-4 max-w-6xl px-4 sm:px-6">
           <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">

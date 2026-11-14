@@ -12,9 +12,13 @@ import { BLOCK_DEFS, BLOCK_TYPES, MAX_PAD, validateDoc, type Block, type BlockTy
 import { defaultPuckProps, fromPuck, fromPuckRaw, toPuck, type PuckBlockProps } from "@/lib/builder/puck-adapter";
 import { previewSlotAction, saveDesignAction } from "@/lib/builder/design-actions";
 import { DEFAULT_THEME, readTheme, themeStyle, validateTheme, type ShopTheme } from "@/lib/theme";
+import { DEFAULT_FOOTER, DEFAULT_HEADER, DEFAULT_POPUP, readFooter, readHeader, readPopup, type FooterDesign, type HeaderDesign, type PopupDesign } from "@/lib/builder/frame";
+import type { BusinessInfo } from "@/lib/businessInfo";
+import { ShopBand, ShopFooter, ShopHeader } from "../../(shop)/shop-frame";
+import HomePopup from "../../(shop)/home-popup";
 import { BlockView } from "../../home-blocks";
 import { renderSlot, SLOT_BLOCK_TYPES, type SlotData } from "../../home-slots";
-import { SettingsForm, fromLocalKst, toLocalKst, type Option } from "../home/block-editor";
+import { ImagePicker, SettingsForm, fromLocalKst, toLocalKst, type Option } from "../home/block-editor";
 
 const DICTIONARY: Record<string, string> = {
   "header-publish": "게시",
@@ -142,21 +146,110 @@ const THEME_FIELDS = {
   },
 };
 
-/** 저장·게시 비교용 — 블록과 테마를 한 줄 문자열로 */
-function snapshot(data: Data): string {
-  const v = fromPuck(data);
-  const theme = readTheme((data.root as { props?: { theme?: unknown } })?.props?.theme);
-  return v.ok ? JSON.stringify({ blocks: v.value.blocks, theme }) : `invalid:${Date.now()}`;
+const linkFields = { label: { type: "text", label: "이름" }, link: { type: "text", label: "링크(/로 시작하는 이 몰 주소 또는 https)" } };
+
+/** 헤더 칸 — 띠·로고 3종·메뉴(2단까지)·카테고리 줄·검색 모양 */
+function headerFields(storeId: string) {
+  const img = (label: string) => ({
+    type: "custom",
+    label,
+    render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ImagePicker storeId={storeId} value={value ?? ""} onChange={onChange} clearable />,
+  });
+  return {
+    type: "object",
+    label: "헤더(맨 위 띠·로고·메뉴·검색)",
+    objectFields: {
+      band: {
+        type: "object",
+        label: "맨 위 띠(모든 화면, 문구를 비우면 없음)",
+        objectFields: {
+          text: { type: "text", label: "문구(60자까지)" },
+          link: { type: "text", label: "링크(선택)" },
+          bg: { type: "custom", label: "띠 색", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ColorCodeField label="띠 색" value={value} onChange={onChange} emptyText="기본 #111827" /> },
+        },
+      },
+      logo: img("상단 로고(비우면 몰 이름 글자, 권장 400×80 이하 투명 PNG)"),
+      logo_footer: img("바닥글 로고(비우면 몰 이름 글자)"),
+      logo_page: img("단독 화면 로고(로그인 등, 비우면 상단 로고)"),
+      show_categories: { type: "radio", label: "카테고리 줄", options: [{ label: "보임", value: true }, { label: "숨김", value: false }] },
+      menu: {
+        type: "array",
+        label: "메뉴(카테고리 뒤에, 8개까지 · 큰 화면에서 아래 메뉴 2단)",
+        max: 8,
+        getItemSummary: (it: { label?: string }) => it?.label || "새 메뉴",
+        defaultItemProps: { label: "", link: "", children: [] },
+        arrayFields: {
+          ...linkFields,
+          children: { type: "array", label: "아래 메뉴(선택)", max: 8, getItemSummary: (it: { label?: string }) => it?.label || "새 아래 메뉴", defaultItemProps: { label: "", link: "" }, arrayFields: linkFields },
+        },
+      },
+      search: { type: "radio", label: "검색", options: [{ label: "검색 칸", value: "box" }, { label: "돋보기만", value: "icon" }, { label: "숨김", value: "none" }] },
+    },
+  };
 }
 
-export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, publishedState, draftAt, publishedAt }: {
+/** 바닥글 칸 — 사업자(판매자) 정보는 「쇼핑몰 정보」 값이 늘 보인다(잠금, 여기서 못 지움) */
+const FOOTER_FIELDS = {
+  type: "object",
+  label: "바닥글(사업자 정보는 늘 보임 — 「쇼핑몰 정보」에서 고침)",
+  objectFields: {
+    columns: {
+      type: "array",
+      label: "링크 묶음(3개까지)",
+      max: 3,
+      getItemSummary: (it: { title?: string }) => it?.title || "새 묶음",
+      defaultItemProps: { title: "", links: [] },
+      arrayFields: {
+        title: { type: "text", label: "묶음 제목" },
+        links: { type: "array", label: "링크(8개까지)", max: 8, getItemSummary: (it: { label?: string }) => it?.label || "새 링크", defaultItemProps: { label: "", link: "" }, arrayFields: linkFields },
+      },
+    },
+    note: { type: "textarea", label: "안내 문구(500자까지, 예: 상담 시간·반품 주소)" },
+    show_bank: { type: "radio", label: "무통장 입금 계좌", options: [{ label: "보임", value: true }, { label: "숨김", value: false }] },
+  },
+};
+
+/** 첫 화면 팝업 칸 */
+function popupFields(storeId: string) {
+  return {
+    type: "object",
+    label: "첫 화면 팝업(그림 3장까지, 비우면 없음)",
+    objectFields: {
+      items: {
+        type: "array",
+        label: "팝업 그림",
+        max: 3,
+        getItemSummary: (_: unknown, i?: number) => `${(i ?? 0) + 1}번째 그림`,
+        defaultItemProps: { image: "", link: "" },
+        arrayFields: {
+          image: { type: "custom", label: "그림(필수)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ImagePicker storeId={storeId} value={value ?? ""} onChange={onChange} /> },
+          link: { type: "text", label: "누르면 갈 곳(선택)" },
+        },
+      },
+      hide_days: { type: "number", label: "「보지 않기」 기간(1~30일)", min: 1, max: 30 },
+    },
+  };
+}
+
+type RootProps = { theme?: unknown; header?: unknown; footer?: unknown; popup?: unknown };
+const rootOf = (data: Data): RootProps => ((data.root as { props?: RootProps })?.props ?? {});
+
+/** 저장·게시 비교용 — 블록과 테마·헤더·바닥글·팝업을 한 줄 문자열로 */
+function snapshot(data: Data): string {
+  const v = fromPuck(data);
+  const r = rootOf(data);
+  return v.ok ? JSON.stringify({ blocks: v.value.blocks, theme: readTheme(r.theme), header: readHeader(r.header), footer: readFooter(r.footer), popup: readPopup(r.popup) }) : `invalid:${Date.now()}`;
+}
+
+export default function DesignEditor({ slug, storeId, categories, products, initial, initialTheme, initialFrame, storeName, topCategories, businessInfo, publishedState, draftAt, publishedAt }: {
   slug: string; storeId: string; categories: Option[]; products: Option[]; initial: BlocksDoc; initialTheme: ShopTheme;
+  initialFrame: { header: HeaderDesign; footer: FooterDesign; popup: PopupDesign }; storeName: string; topCategories: { id: string; name: string }[]; businessInfo: BusinessInfo;
   /** 지금 손님에게 보이는 블록·테마(비교용 문자열, 게시 전이면 null) */
   publishedState: string | null;
   draftAt: string | null; publishedAt: string | null;
 }) {
   const base = `/s/${slug}`;
-  const start = useMemo(() => ({ ...toPuck(initial), root: { props: { theme: initialTheme } } }) as unknown as Data, [initial, initialTheme]);
+  const start = useMemo(() => ({ ...toPuck(initial), root: { props: { theme: initialTheme, ...initialFrame } } }) as unknown as Data, [initial, initialTheme, initialFrame]);
   const [saved, setSaved] = useState(() => snapshot(start));
   const [live, setLive] = useState(publishedState);
   const [times, setTimes] = useState({ draftAt, publishedAt });
@@ -206,27 +299,35 @@ export default function DesignEditor({ slug, storeId, categories, products, init
       categories: CATEGORIES,
       components,
       root: {
-        fields: { theme: THEME_FIELDS },
-        render: ({ children, theme }: { children: ReactNode; theme?: unknown }) => (
-          <div className="min-h-screen bg-[var(--mall-bg,var(--color-slate-50))] py-6 font-sans text-slate-900 antialiased" style={themeStyle(readTheme(theme)) as CSSProperties}>
-            <div className="mx-auto max-w-6xl space-y-8">{children}</div>
-          </div>
-        ),
+        fields: { theme: THEME_FIELDS, header: headerFields(storeId), footer: FOOTER_FIELDS, popup: popupFields(storeId) },
+        render: ({ children, theme, header, footer, popup }: { children: ReactNode } & RootProps) => {
+          const h = readHeader(header);
+          return (
+            <div className="relative flex min-h-screen flex-col bg-[var(--mall-bg,var(--color-slate-50))] font-sans text-slate-900 antialiased" style={themeStyle(readTheme(theme)) as CSSProperties}>
+              <ShopBand band={h.band} />
+              <ShopHeader base={base} storeName={storeName} header={h} categories={topCategories} showShop right={<span className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">가입</span>} />
+              <div className="flex-1 py-6"><div className="mx-auto max-w-6xl space-y-8">{children}</div></div>
+              <ShopFooter storeName={storeName} info={businessInfo} footer={readFooter(footer)} logo={h.logo_footer} />
+              <HomePopup slug={slug} popup={readPopup(popup)} preview />
+            </div>
+          );
+        },
       },
     } as unknown as Config;
-  }, [storeId, base, categories, products]);
+  }, [storeId, base, slug, categories, products, storeName, topCategories, businessInfo]);
 
   function run(kind: "save" | "publish") {
     setMsg(null);
     const raw = fromPuckRaw(latest.current);
     const check = validateDoc(raw);
     if (!check.ok) return setMsg({ ok: false, text: `고칠 곳: ${check.error}` });
-    const themeRaw = (latest.current.root as { props?: { theme?: unknown } })?.props?.theme ?? {};
+    const rp = rootOf(latest.current);
+    const themeRaw = rp.theme ?? {};
     const themeErr = validateTheme(themeRaw);
     if (themeErr.length) return setMsg({ ok: false, text: `고칠 곳(몰 테마): ${themeErr[0]}` });
     const now = snapshot(latest.current);
     startTransition(async () => {
-      const r = await saveDesignAction(slug, storeId, { home: raw, theme: themeRaw }, kind === "publish");
+      const r = await saveDesignAction(slug, storeId, { home: raw, theme: themeRaw, header: rp.header, footer: rp.footer, popup: rp.popup }, kind === "publish");
       if (!r.ok) return setMsg({ ok: false, text: r.error });
       setSaved(now);
       if (kind === "publish") {
@@ -241,7 +342,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
   }
   const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("ko-KR") : "없음");
   const dirty = nowState !== saved;
-  const empty = useMemo(() => snapshot({ root: { props: { theme: DEFAULT_THEME } }, content: [] } as unknown as Data), []);
+  const empty = useMemo(() => snapshot({ root: { props: { theme: DEFAULT_THEME, header: DEFAULT_HEADER, footer: DEFAULT_FOOTER, popup: DEFAULT_POPUP } }, content: [] } as unknown as Data), []);
   const unpublished = nowState !== (live ?? empty);
 
   return (
@@ -252,7 +353,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         <span>게시: {when(times.publishedAt)}</span>
         {dirty && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">저장 안 한 변경</span>}
         {unpublished && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-blue-800">게시 안 된 변경</span>}
-        <span className="text-gray-500">몰 테마: 위쪽 「첫 화면」을 누르거나 블록 고르기를 풀면 오른쪽에 나옵니다</span>
+        <span className="text-gray-500">몰 테마·헤더·바닥글·팝업: 위쪽 「첫 화면」을 누르거나 블록 고르기를 풀면 오른쪽에 나옵니다</span>
         {pending && <span className="text-gray-500">처리 중…</span>}
         {msg && <span className={msg.ok ? "text-green-700" : "text-red-600"} data-design-msg>{msg.text}</span>}
       </div>

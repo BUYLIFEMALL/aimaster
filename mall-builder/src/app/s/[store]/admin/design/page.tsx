@@ -3,6 +3,8 @@ import { getCategoryRows, getHomeForEdit, getStaffStore, getStoreProducts } from
 import { getDesignForEdit } from "@/lib/builder/design-store";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { readTheme } from "@/lib/theme";
+import { readFooter, readHeader, readPopup } from "@/lib/builder/frame";
+import { readBusinessInfo } from "@/lib/businessInfo";
 import { NoPermission } from "../admin-shell";
 import DesignEditor from "./design-editor";
 
@@ -19,7 +21,14 @@ export default async function AdminDesignPage({ params }: { params: Promise<{ st
   // 테마: 초안이 있으면 초안, 없으면 게시본, 둘 다 없으면 기본(지금 106 스타일)
   const theme = design.theme;
   const initialTheme = readTheme(theme?.draft ?? theme?.published ?? null);
-  const publishedState = home.published || theme?.published ? JSON.stringify({ blocks: home.published?.blocks ?? [], theme: readTheme(theme?.published ?? null) }) : null;
+  const pick = (k: "header" | "footer" | "popup") => design[k]?.draft ?? design[k]?.published ?? null;
+  const initialFrame = { header: readHeader(pick("header")), footer: readFooter(pick("footer")), popup: readPopup(pick("popup")) };
+  const anyPublished = home.published || theme?.published || design.header?.published || design.footer?.published || design.popup?.published;
+  const publishedState = anyPublished
+    ? JSON.stringify({ blocks: home.published?.blocks ?? [], theme: readTheme(theme?.published ?? null), header: readHeader(design.header?.published ?? null), footer: readFooter(design.footer?.published ?? null), popup: readPopup(design.popup?.published ?? null) })
+    : null;
+  // 미리보기 틀용 — 손님 메뉴에 보이는 카테고리(최상위)·사업자 정보
+  const topCats = buildCategoryTree(rows, false).map((c) => ({ id: c.id, name: c.name }));
   const categories = flattenTree(buildCategoryTree(rows, true)).map((c) => ({ id: c.id, name: `${"　".repeat(c.depth - 1)}${c.name}${c.is_visible ? "" : " (숨김)"}` }));
   const pickable = products.filter((p) => p.status === "on_sale" || p.status === "sold_out").map((p) => ({ id: p.id, name: p.name }));
 
@@ -41,6 +50,10 @@ export default async function AdminDesignPage({ params }: { params: Promise<{ st
         products={pickable}
         initial={home.draft}
         initialTheme={initialTheme}
+        initialFrame={initialFrame}
+        storeName={store.name}
+        topCategories={topCats}
+        businessInfo={readBusinessInfo(store.business_info)}
         publishedState={publishedState}
         draftAt={home.draftAt}
         publishedAt={home.publishedAt}
