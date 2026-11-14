@@ -16,7 +16,7 @@ test("요청 가능한 주문", () => {
 });
 
 import { taxInvoiceButtons, TAX_INVOICE_LABEL } from "../src/lib/taxInvoice.ts";
-test("D19 운영자 버튼 — 요청·실패면 발행, 접수·모름이면 확인만, 완료면 수정 발행, 카드는 없음", () => {
+test("D19 운영사 버튼 — 요청·실패면 발행, 접수·모름이면 확인만, 완료면 수정 발행, 카드는 없음", () => {
   const req = { status: "requested" };
   assert.deepEqual(taxInvoiceButtons(req, { status: "paid", is_card: false }, true), { issue: true, recheck: false, amend: false, markManual: true, reason: null });
   assert.equal(taxInvoiceButtons(req, { status: "paid", is_card: false }, false).issue, false);

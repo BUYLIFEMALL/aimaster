@@ -68,7 +68,7 @@ export async function saveProductAction(
     id = data.id as string;
   }
 
-  // 원가(운영자 전용 표)
+  // 원가(운영사 전용 표)
   const { error: privError } = await supabase
     .from("mall_builder_product_private")
     .upsert({ product_id: id, store_id: store.id, cost }, { onConflict: "product_id" });

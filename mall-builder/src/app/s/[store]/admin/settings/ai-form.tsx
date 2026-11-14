@@ -36,7 +36,7 @@ export default function AiForm({ slug, status }: { slug: string; status: AiStatu
   return (
     <fieldset id="ai" className="scroll-mt-4 rounded-lg border p-4" data-ai-settings>
       <legend className="px-1 text-sm font-semibold">🤖 AI 도우미 · {info.label}</legend>
-      <p className="text-sm text-gray-600">고른 AI 하나로 아래 기능을 씁니다. 모두 누를 때만 부르고, 결과는 칸에 채워지기만 할 뿐 저장·회신·게시는 운영자님이 직접 합니다.</p>
+      <p className="text-sm text-gray-600">고른 AI 하나로 아래 기능을 씁니다. 모두 누를 때만 부르고, 결과는 칸에 채워지기만 할 뿐 저장·회신·게시는 운영사님이 직접 합니다.</p>
       <ul className="mt-1 list-disc pl-5 text-sm text-gray-600">
         <li>견적 상세 「AI 단가 제안」 — 판매가·거래처 단가·원가·재고·최근 구매 단가를 보고 품목별 단가와 이유(최소 마진 아래는 자동으로 올림)</li>
         <li>상품 등록·수정 「AI로 채우기」 — 메모와 대표 사진으로 상품 이름·한 줄 소개·설명·옵션 후보</li>
@@ -81,7 +81,7 @@ export default function AiForm({ slug, status }: { slug: string; status: AiStatu
         {!shared && (
           <label className="block sm:col-span-2">
             <span className="text-sm">
-              운영자님 본인 {info.label} API 키({info.keyHint}…) {ownKey && <span className="text-green-700">(등록됨 — 바꿀 때만 입력)</span>}
+              운영사님 본인 {info.label} API 키({info.keyHint}…) {ownKey && <span className="text-green-700">(등록됨 — 바꿀 때만 입력)</span>}
               {status.hasKey && !ownKey && <span className="text-amber-700"> — 지금 저장된 키는 다른 제공자 것이라 새로 넣어야 합니다</span>}
             </span>
             <input name="api_key" type="password" autoComplete="off" maxLength={300} placeholder={ownKey ? "••••••••" : `${info.keyHint}로 시작`} className="mt-1 w-full rounded border px-3 py-2" />
@@ -113,7 +113,7 @@ export default function AiForm({ slug, status }: { slug: string; status: AiStatu
       {state.error && <p className="mt-2 text-sm text-red-600">{state.error}</p>}
       {state.message && <p className="mt-2 text-sm text-green-700">{state.message}</p>}
       <p className="mt-3 text-xs text-gray-500">
-        비용은 운영자님 {info.label} 계정에서 빠집니다(누를 때마다, 결과 옆에 대략 금액 표시). 가성비 모델은 1건에 1원 안팎, 최고 품질 모델은 수십 원~백 원대입니다.
+        비용은 운영사님 {info.label} 계정에서 빠집니다(누를 때마다, 결과 옆에 대략 금액 표시). 가성비 모델은 1건에 1원 안팎, 최고 품질 모델은 수십 원~백 원대입니다.
         {!shared && " 키는 서버에서 암호화해 저장되고 화면·브라우저로는 다시 나오지 않습니다."} 키 발급: <a href={info.console} target="_blank" rel="noreferrer" className="underline">{info.label} 콘솔 ↗</a>
       </p>
     </fieldset>

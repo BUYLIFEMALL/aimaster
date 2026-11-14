@@ -1,5 +1,5 @@
 // D29 가격 점검(AI 없음, 규칙 계산) — 원가 대비 마진이 기준 아래인 판매 단가를 찾는다.
-// 단가는 손님 화면·주문 DB와 같은 가격 엔진(priceLine)으로 계산한다. 원가는 상품 단위(옵션 추가금은 0으로 봄).
+// 단가는 유저 화면·주문 DB와 같은 가격 엔진(priceLine)으로 계산한다. 원가는 상품 단위(옵션 추가금은 0으로 봄).
 // 확장자(.ts)까지 적는다 — `node --test`가 이 파일을 바로 읽기 때문
 
 import { priceLine, type GradePrice, type PricingProduct, type VolumeTier } from "./pricing.ts";

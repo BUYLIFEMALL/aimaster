@@ -22,7 +22,7 @@ import { REF_SOURCE_LABEL } from "@/lib/reseller";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const ROLE_LABEL: Record<string, string> = { customer: "손님", staff: "운영자", system: "자동" };
+const ROLE_LABEL: Record<string, string> = { customer: "유저", staff: "운영사", system: "자동" };
 
 export default async function AdminOrderDetailPage({
   params,

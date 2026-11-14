@@ -1,5 +1,5 @@
 // 사업자 회원 신청·승인 — DB: mall_builder_store_customers(사업자 칸), mall_builder_customer_grades
-// 승인 상태·등급은 손님이 직접 못 바꾸고, DB 함수(신청·심사)만 바꾼다(0010_business.sql)
+// 승인 상태·등급은 유저가 직접 못 바꾸고, DB 함수(신청·심사)만 바꾼다(0010_business.sql)
 import { formatBusinessNo, isValidBusinessNo } from "./businessInfo.ts";
 
 export type ApprovalStatus = "none" | "pending" | "approved" | "rejected";
@@ -37,7 +37,7 @@ export function checkCertFile(file: { type: string; size: number } | null): stri
   return null;
 }
 
-/** 비공개 버킷 저장 경로 — 첫 칸 몰, 둘째 칸 손님 계정(보안 규칙이 이 두 칸으로 판단) */
+/** 비공개 버킷 저장 경로 — 첫 칸 몰, 둘째 칸 유저 계정(보안 규칙이 이 두 칸으로 판단) */
 export function certPath(storeId: string, userId: string, fileType: string, now = Date.now()): string {
   const ext = fileType === "application/pdf" ? "pdf" : fileType.split("/")[1] === "jpeg" ? "jpg" : fileType.split("/")[1];
   return `${storeId}/${userId}/business-cert-${now}.${ext}`;

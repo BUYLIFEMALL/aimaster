@@ -9,16 +9,16 @@ test("이동표의 상태는 모두 이름표가 있다", () => {
   }
 });
 
-test("손님 — 입금 전 취소, 결제 뒤엔 취소 요청만, 배송 완료 뒤 확정·반품 요청", () => {
+test("유저 — 입금 전 취소, 결제 뒤엔 취소 요청만, 배송 완료 뒤 확정·반품 요청", () => {
   assert.deepEqual(nextActions("customer", "pending_payment").map((a) => a.to), ["cancelled"]);
   assert.deepEqual(nextActions("customer", "paid").map((a) => a.to), ["cancel_requested"]);
   assert.deepEqual(nextActions("customer", "delivered").map((a) => a.to), ["confirmed", "return_requested"]);
-  assert.equal(canTransition("customer", "pending_payment", "paid"), false); // 입금 확인은 운영자만
+  assert.equal(canTransition("customer", "pending_payment", "paid"), false); // 입금 확인은 운영사만
   assert.equal(canTransition("customer", "paid", "cancelled"), false); // 결제 뒤 바로 취소 불가
   assert.deepEqual(nextActions("customer", "shipping"), []);
 });
 
-test("운영자 — 정상 흐름과 요청 처리", () => {
+test("운영사 — 정상 흐름과 요청 처리", () => {
   const flow = ["pending_payment", "paid", "preparing", "shipping", "delivered", "confirmed"];
   for (let i = 0; i < flow.length - 1; i++) assert.equal(canTransition("staff", flow[i], flow[i + 1]), true, `${flow[i]}→${flow[i + 1]}`);
   assert.equal(canTransition("staff", "shipping", "cancelled"), false); // 발송 뒤에는 반품으로

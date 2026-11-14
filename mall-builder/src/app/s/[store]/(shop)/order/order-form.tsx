@@ -232,7 +232,7 @@ export default function OrderForm({
                 <span className="text-xs text-slate-700 leading-relaxed">
                   <span className="font-bold text-slate-900">외상(후불)</span> — 남은 한도 <b>{won(creditAvailable(credit.limit, credit.balance))}</b>
                   {!creditOk && <span className="ml-1 font-bold text-rose-600">이번 주문 금액이 남은 한도보다 큽니다</span>}
-                  <span className="block text-[11px] text-slate-400 mt-0.5">외상 주문은 바로 「결제 완료」가 되고, 대금은 운영자와 정한 날에 입금합니다.</span>
+                  <span className="block text-[11px] text-slate-400 mt-0.5">외상 주문은 바로 「결제 완료」가 되고, 대금은 운영사와 정한 날에 입금합니다.</span>
                 </span>
               </label>
             )}

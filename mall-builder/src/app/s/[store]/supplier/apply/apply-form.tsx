@@ -54,7 +54,7 @@ export default function SupplierApplyForm({ storeId, userId }: { storeId: string
       <label className="block">
         <span className="font-medium">사업자등록증 *</span>
         <input name="cert" type="file" accept={CERT_TYPES.join(",")} required className="mt-1 block w-full text-sm" />
-        <span className="mt-1 block text-xs text-gray-500">PDF·JPG·PNG·WEBP, 5MB 이하. 본사 운영자만 볼 수 있게 비공개로 보관합니다.</span>
+        <span className="mt-1 block text-xs text-gray-500">PDF·JPG·PNG·WEBP, 5MB 이하. 본사 운영사만 볼 수 있게 비공개로 보관합니다.</span>
       </label>
       {error && <p className="rounded bg-red-50 px-3 py-2 text-red-700" data-apply-error>{error}</p>}
       <button disabled={pending} className="min-h-11 rounded bg-gray-900 px-5 py-2.5 text-white disabled:opacity-60">{pending ? "보내는 중…" : "입점 신청 보내기"}</button>

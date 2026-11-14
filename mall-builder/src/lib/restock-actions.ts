@@ -1,6 +1,6 @@
 "use server";
 
-// 재입고 알림 신청 취소(D16) — 회원 본인(마이페이지) 또는 그 몰 운영자(관리 화면). 권한 검사는 DB 함수가 한다
+// 재입고 알림 신청 취소(D16) — 회원 본인(마이페이지) 또는 그 몰 운영사(관리 화면). 권한 검사는 DB 함수가 한다
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";

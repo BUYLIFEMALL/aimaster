@@ -1,6 +1,6 @@
 "use client";
 
-// D32 앱(PWA) — 서비스 워커 등록(모든 손님) + 「📲 홈 화면에 추가」 안내 띠(승인 사업자 손님만, 닫으면 30일 숨김·이 기기 저장)
+// D32 앱(PWA) — 서비스 워커 등록(모든 유저) + 「📲 홈 화면에 추가」 안내 띠(승인 사업자 유저만, 닫으면 30일 숨김·이 기기 저장)
 import { useEffect, useState } from "react";
 import { INSTALL_HIDE_DAYS } from "@/lib/pwa";
 

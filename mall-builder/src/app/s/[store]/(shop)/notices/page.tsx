@@ -3,7 +3,7 @@ import { getNotices, getStoreBySlug } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-// 손님 공지 목록(F19) — 상단 고정 먼저, 최근 순
+// 유저 공지 목록(F19) — 상단 고정 먼저, 최근 순
 export default async function NoticesPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);

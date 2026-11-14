@@ -82,7 +82,7 @@ export async function saveMinMarginAction(slug: string, form: FormData) {
   back(base, error?.message, `최소 마진을 ${v}%로 저장했습니다.`);
 }
 
-/** 손님 등급 바꾸기 */
+/** 유저 등급 바꾸기 */
 export async function setCustomerGradeAction(slug: string, customerId: string, form: FormData) {
   const base = `/s/${slug}/admin/customers/${customerId}`;
   const supabase = await createClient();
@@ -96,5 +96,5 @@ export async function setSupplierAutoAction(slug: string, supplierId: string, au
   const supabase = await createClient();
   const { error } = await supabase.rpc("mall_builder_supplier_set_auto", { p_id: supplierId, p_auto: auto });
   revalidatePath(`/s/${slug}/admin/suppliers`);
-  back(`/s/${slug}/admin/suppliers`, error?.message, auto ? "이 공급사 상품은 이제 등록하면 바로 판매됩니다." : "이 공급사 상품은 이제 운영자 승인 뒤 판매됩니다.");
+  back(`/s/${slug}/admin/suppliers`, error?.message, auto ? "이 공급사 상품은 이제 등록하면 바로 판매됩니다." : "이 공급사 상품은 이제 운영사 승인 뒤 판매됩니다.");
 }

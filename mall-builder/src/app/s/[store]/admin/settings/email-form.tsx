@@ -25,7 +25,7 @@ export default function EmailForm({ slug, status }: { slug: string; status: Emai
     <fieldset className="rounded-lg border p-4" data-order-email>
       <legend className="px-1 text-sm font-semibold">주문 알림(메일)</legend>
       <p className="text-sm text-gray-600">
-        문자와 같은 때에 메일도 보냅니다. 운영자님 본인 Resend(무료: 하루 100통) 계정으로 보내며, Resend에서 도메인 인증을 마친 주소로만 보낼 수 있습니다. 손님에게는 주문한 손님의 로그인 메일로 보냅니다.
+        문자와 같은 때에 메일도 보냅니다. 운영사님 본인 Resend(무료: 하루 100통) 계정으로 보내며, Resend에서 도메인 인증을 마친 주소로만 보낼 수 있습니다. 유저에게는 주문한 유저의 로그인 메일로 보냅니다.
       </p>
       <p className="mt-2 text-sm" data-email-status>상태 <b>{label}</b></p>
 
@@ -39,7 +39,7 @@ export default function EmailForm({ slug, status }: { slug: string; status: Emai
           <input name="email_from" defaultValue={state.from} type="email" maxLength={200} placeholder="예: order@mail.내도메인.com" className="mt-1 w-full rounded border px-3 py-2" />
         </label>
         <label className="block">
-          <span className="text-sm">운영자가 받을 메일</span>
+          <span className="text-sm">운영사가 받을 메일</span>
           <input name="staff_email" defaultValue={state.staff} type="email" maxLength={200} placeholder="예: me@example.com" className="mt-1 w-full rounded border px-3 py-2" />
         </label>
         <div className="sm:col-span-2">

@@ -33,7 +33,7 @@ export async function creditEntryAction(slug: string, customerId: string, form: 
   back(error ? `error=${encodeURIComponent(error.message)}` : "ok=ledger");
 }
 
-// 사업자 심사 — 그 몰 운영자인지·승인 대기인지는 DB 함수 mall_builder_review_business가 검사한다
+// 사업자 심사 — 그 몰 운영사인지·승인 대기인지는 DB 함수 mall_builder_review_business가 검사한다
 export async function reviewBusinessAction(slug: string, customerId: string, approve: boolean, form: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("mall_builder_review_business", {

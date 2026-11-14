@@ -2,7 +2,7 @@
 
 import { useInlineConfirm } from "@/app/inline-confirm";
 
-// 비회원 주문 상태 버튼 — 취소·반품처럼 되돌리기 어려운 것은 한 번 더 묻는다(가입 손님 버튼과 같은 문구)
+// 비회원 주문 상태 버튼 — 취소·반품처럼 되돌리기 어려운 것은 한 번 더 묻는다(가입 유저 버튼과 같은 문구)
 const CONFIRM: Record<string, string> = {
   cancelled: "이 주문을 취소할까요? 재고가 되돌려집니다.",
   cancel_requested: "취소를 요청할까요?",

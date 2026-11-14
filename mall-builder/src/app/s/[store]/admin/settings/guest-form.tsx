@@ -10,8 +10,8 @@ export default function GuestForm({ slug, enabled }: { slug: string; enabled: bo
     <fieldset className="rounded-lg border p-4" data-guest-setting>
       <legend className="px-1 text-sm font-semibold">비회원 주문</legend>
       <p className="text-sm text-gray-600">
-        켜면 로그인·가입하지 않은 손님도 장바구니에 담고 <b>무통장 입금</b>으로 주문할 수 있습니다. 손님은 주문번호와 휴대폰 번호로 주문을 조회·취소합니다.
-        카드 결제·외상·등급가·견적·세금계산서·후기·문의는 가입 손님만 씁니다. 사업자 전용 상품과 비회원에게 가격을 숨긴 상품은 비회원이 주문할 수 없습니다.
+        켜면 로그인·가입하지 않은 유저도 장바구니에 담고 <b>무통장 입금</b>으로 주문할 수 있습니다. 유저는 주문번호와 휴대폰 번호로 주문을 조회·취소합니다.
+        카드 결제·외상·등급가·견적·세금계산서·후기·문의는 가입 유저만 씁니다. 사업자 전용 상품과 비회원에게 가격을 숨긴 상품은 비회원이 주문할 수 없습니다.
       </p>
       <form action={formAction} className="mt-3 flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm">

@@ -1,6 +1,6 @@
 "use server";
 
-// 주문 알림(메일) 설정 — 몰 운영자 본인 Resend 계정. 키는 DB 함수로만 저장·읽기(표 직접 읽기 불가), 화면에는 「등록됨」만 돌려준다.
+// 주문 알림(메일) 설정 — 몰 운영사 본인 Resend 계정. 키는 DB 함수로만 저장·읽기(표 직접 읽기 불가), 화면에는 「등록됨」만 돌려준다.
 // 저장 뒤 몰 자동 작업(cron-job.org)을 1분 주기로 맞춘다(job-sync.ts).
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -29,7 +29,7 @@ export async function saveEmailAction(slug: string, _prev: EmailState, form: For
   const willHaveKey = removeKey ? false : Boolean(keyInput) || Boolean((before as { api_key: string }).api_key);
   if (kinds.length && !willHaveKey) return back("메일 알림을 켜려면 Resend API 키를 먼저 입력해 주세요.", null);
   if (kinds.length && !from) return back("메일 알림을 켜려면 Resend에서 인증한 도메인의 보내는 주소를 입력해 주세요.", null);
-  if (kinds.includes("staff_new_order") && !staff) return back("「새 주문 → 운영자」를 켜려면 받을 메일을 입력해 주세요.", null);
+  if (kinds.includes("staff_new_order") && !staff) return back("「새 주문 → 운영사」를 켜려면 받을 메일을 입력해 주세요.", null);
 
   const { error } = await supabase.rpc("mall_builder_email_save", {
     p_store_id: store.id,
@@ -52,7 +52,7 @@ export async function saveEmailAction(slug: string, _prev: EmailState, form: For
   }
 }
 
-/** 받을 메일로 시험 메일 1통(운영자 본인만) */
+/** 받을 메일로 시험 메일 1통(운영사 본인만) */
 export async function sendTestEmailAction(slug: string): Promise<{ error: string | null; message: string | null }> {
   const store = await getStoreBySlug(slug);
   const supabase = await createClient();

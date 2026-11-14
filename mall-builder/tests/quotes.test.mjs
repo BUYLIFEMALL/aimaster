@@ -23,7 +23,7 @@ test("회신 검사", () => {
   assert.match(validateAnswer([], "2026-11-11", "2026-11-04").error, /품목/);
 });
 
-test("운영자 발송 견적 품목 검사", () => {
+test("운영사 발송 견적 품목 검사", () => {
   const opt = (id) => id === "P2";
   assert.match(validateSendItems([{ product_id: "", variant_id: "", qty: "", price: "" }], opt).error, /1개 이상/);
   assert.match(validateSendItems([{ product_id: "P2", variant_id: "", qty: 1, price: 1 }], opt).error, /1번째 품목의 옵션/);

@@ -25,7 +25,7 @@ export async function saveStoreInfoAction(slug: string, _prev: SettingsState, fo
   if (!checked.ok || nameError) return { saved: false, error: "입력값을 확인해 주세요.", fieldErrors, values };
 
   const supabase = await createClient();
-  // 보안 규칙이 그 몰 운영자만 고치게 한다 — 바뀐 줄이 0이면 권한이 없는 것
+  // 보안 규칙이 그 몰 운영사만 고치게 한다 — 바뀐 줄이 0이면 권한이 없는 것
   const { data, error } = await supabase
     .from("mall_builder_stores")
     .update({ name, business_info: checked.value })

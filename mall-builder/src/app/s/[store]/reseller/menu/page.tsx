@@ -22,7 +22,7 @@ export default async function ResellerMenuPage({ params }: { params: Promise<{ s
         <p className={row}><span className="text-slate-500">저장 계좌</span><b>{s.saved_bank ?? "없음(출금 때 입력)"}</b></p>
         <p className={row}><span className="text-slate-500">최소 출금</span><b>{formatWon(s.payout_min ?? PAYOUT_MIN)}</b></p>
       </section>
-      <p className="mt-2 text-xs text-slate-500">정산 계좌·추가율을 바꾸려면 몰 운영자에게 문의해 주세요.</p>
+      <p className="mt-2 text-xs text-slate-500">정산 계좌·추가율을 바꾸려면 몰 운영사에게 문의해 주세요.</p>
       <nav className="mt-4 grid gap-2 text-sm">
         <Link href={`/s/${store.slug}`} className="rounded-xl border bg-white px-4 py-3">🏬 쇼핑몰로 가기</Link>
         <Link href={`/s/${store.slug}/my`} className="rounded-xl border bg-white px-4 py-3">👤 마이페이지(주문·내 정보)</Link>

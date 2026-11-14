@@ -47,7 +47,7 @@ export default function NotifyForm({ slug, status }: { slug: string; status: Not
     <fieldset className="rounded-lg border p-4" data-order-notify>
       <legend className="px-1 text-sm font-semibold">주문 알림(문자)</legend>
       <p className="text-sm text-gray-600">
-        주문이 들어오거나 상태가 바뀌면 운영자님·손님에게 문자를 보냅니다. 운영자님 본인 솔라피 계정으로 보내며 요금도 그 계정에서 나갑니다. 확인은 위 cron-job.org 작업이 1분마다 합니다.
+        주문이 들어오거나 상태가 바뀌면 운영사님·유저에게 문자를 보냅니다. 운영사님 본인 솔라피 계정으로 보내며 요금도 그 계정에서 나갑니다. 확인은 위 cron-job.org 작업이 1분마다 합니다.
       </p>
       <p className="mt-2 text-sm" data-notify-status>상태 <b>{label}</b></p>
 
@@ -65,7 +65,7 @@ export default function NotifyForm({ slug, status }: { slug: string; status: Not
           <input name="sender_phone" defaultValue={state.sender} inputMode="tel" maxLength={20} placeholder="예: 02-1234-5678" className="mt-1 w-full rounded border px-3 py-2" />
         </label>
         <label className="block">
-          <span className="text-sm">알림 받을 번호(운영자 핸드폰)</span>
+          <span className="text-sm">알림 받을 번호(운영사 핸드폰)</span>
           <input name="staff_phone" defaultValue={state.staff} inputMode="tel" maxLength={20} placeholder="예: 010-1234-5678" className="mt-1 w-full rounded border px-3 py-2" />
         </label>
         <div className="sm:col-span-2">
@@ -107,7 +107,7 @@ export default function NotifyForm({ slug, status }: { slug: string; status: Not
       {extra.error && <p className="mt-2 text-sm text-red-600" data-notify-extra-error>{extra.error}</p>}
       {extra.message && <p className="mt-2 text-sm text-green-700" data-notify-extra>{extra.message}</p>}
       <p className="mt-3 text-xs text-gray-500">
-        키는 솔라피 콘솔(console.solapi.com) → 개발/연동 → API Key 관리에서 만들 수 있습니다. 발신번호는 솔라피에 미리 등록된 번호만 쓸 수 있습니다. 손님에게는 주문서의 「받는 분 핸드폰」으로 보냅니다. 같은 주문의 같은 알림은 한 번만 보내고, 보냈는지 확실하지 않은 문자는 다시 보내지 않습니다(이중 요금 방지). 일시정지는 위 「입금 기한 자동 취소」 칸의 버튼과 같습니다.
+        키는 솔라피 콘솔(console.solapi.com) → 개발/연동 → API Key 관리에서 만들 수 있습니다. 발신번호는 솔라피에 미리 등록된 번호만 쓸 수 있습니다. 유저에게는 주문서의 「받는 분 핸드폰」으로 보냅니다. 같은 주문의 같은 알림은 한 번만 보내고, 보냈는지 확실하지 않은 문자는 다시 보내지 않습니다(이중 요금 방지). 일시정지는 위 「입금 기한 자동 취소」 칸의 버튼과 같습니다.
       </p>
     </fieldset>
   );

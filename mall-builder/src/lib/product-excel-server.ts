@@ -42,7 +42,7 @@ async function readAll<T>(make: (from: number, to: number) => PromiseLike<{ data
   }
 }
 
-/** 몰의 상품·옵션·등급가·구간·카테고리·배송비·등급을 한 번에 읽는다(운영자 권한으로) */
+/** 몰의 상품·옵션·등급가·구간·카테고리·배송비·등급을 한 번에 읽는다(운영사 권한으로) */
 export async function loadExcelContext(supabase: SupabaseClient, storeId: string): Promise<ExcelContext> {
   const [products, variants, gradePrices, tiers, categories, policies, grades] = await Promise.all([
     readAll((a, b) =>

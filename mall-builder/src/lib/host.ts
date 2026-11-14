@@ -31,7 +31,7 @@ export function subdomainRewritePath(pathname: string, slug: string): string | n
   return `/s/${slug}${pathname === "/" ? "" : pathname}`;
 }
 
-/** 운영자 화면에 보여 줄 하위 도메인 주소. 실제 도메인이 아니면(localhost·비어 있음) null */
+/** 운영사 화면에 보여 줄 하위 도메인 주소. 실제 도메인이 아니면(localhost·비어 있음) null */
 export function mallSubdomainUrl(slug: string, rootDomain: string | null | undefined): string | null {
   const root = cleanRoot(rootDomain);
   if (!root || root === "localhost" || !root.includes(".")) return null;

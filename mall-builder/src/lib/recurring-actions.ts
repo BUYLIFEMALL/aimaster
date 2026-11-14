@@ -17,7 +17,7 @@ async function storeId(slug: string) {
   return { supabase, id: (data?.id as string | undefined) ?? null };
 }
 
-/** 손님: 지난 주문으로 정기 주문 만들기 */
+/** 유저: 지난 주문으로 정기 주문 만들기 */
 export async function createRecurringAction(slug: string, orderId: string, form: FormData) {
   const back = `/s/${slug}/orders/${orderId}`;
   const parsed = parseSchedule(
@@ -46,7 +46,7 @@ export async function createRecurringAction(slug: string, orderId: string, form:
   go(`/s/${slug}/my/recurring`, null, "정기 주문을 만들었습니다. 주문일 아침에 자동으로 주문됩니다.");
 }
 
-/** 손님 본인·「주문」 권한 직원: 일시정지·다시 시작·건너뛰기·해지 */
+/** 유저 본인·「주문」 권한 직원: 일시정지·다시 시작·건너뛰기·해지 */
 export async function changeRecurringAction(slug: string, id: string, action: "pause" | "resume" | "skip" | "cancel", back: string) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("mall_builder_recurring_change", { p_id: id, p_action: action });
@@ -65,7 +65,7 @@ export async function recurringQtyAction(slug: string, id: string, count: number
   go(back, error?.message, "수량을 바꿨습니다.");
 }
 
-/** 운영자: 몰 전체 정기 주문 일시정지 */
+/** 운영사: 몰 전체 정기 주문 일시정지 */
 export async function pauseAllRecurringAction(slug: string, paused: boolean) {
   const back = `/s/${slug}/admin/recurring`;
   const { supabase, id } = await storeId(slug);

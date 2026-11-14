@@ -58,7 +58,7 @@ export default function CreateStoreForm({ sources = [], label = "내 쇼핑몰 �
               </label>
             ))}
           </div>
-          <p className="mt-2 text-[10px] leading-relaxed text-slate-500">※ 상품·손님·주문은 복사되지 않으며, 안전한 개설을 위해 결제·API 키는 새 몰에서 개별 등록합니다.</p>
+          <p className="mt-2 text-[10px] leading-relaxed text-slate-500">※ 상품·유저·주문은 복사되지 않으며, 안전한 개설을 위해 결제·API 키는 새 몰에서 개별 등록합니다.</p>
         </fieldset>
       )}
       {state.error && <p className="rounded-lg bg-rose-50 border border-rose-200 p-2.5 text-xs font-medium text-rose-700">{state.error}</p>}

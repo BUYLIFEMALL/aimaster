@@ -9,7 +9,7 @@ import AiInquiryDraft from "./ai-draft";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 운영자 문의 관리(D13) — 상품 문의·1:1 문의에 답변·숨기기. 답변 안 한 것이 위에 온다
+// 운영사 문의 관리(D13) — 상품 문의·1:1 문의에 답변·숨기기. 답변 안 한 것이 위에 온다
 export default async function AdminInquiriesPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;
@@ -32,7 +32,7 @@ export default async function AdminInquiriesPage({ params, searchParams }: { par
               <span className={`rounded px-1.5 text-xs ${q.answer ? "bg-gray-900 text-white" : "bg-red-50 text-red-700"}`}>{q.answer ? "답변 완료" : "답변 대기"}</span>
               <span className="text-xs text-gray-500">{INQUIRY_KIND_LABEL[q.kind]}{q.is_secret && " 🔒"}</span>
               <span className="font-medium">{q.title}</span>
-              <span>{q.customer?.name ?? "손님"}{q.customer?.phone && ` · ${q.customer.phone}`}</span>
+              <span>{q.customer?.name ?? "유저"}{q.customer?.phone && ` · ${q.customer.phone}`}</span>
               <span className="text-xs text-gray-400">{formatDateTime(q.created_at)}</span>
               {q.is_hidden && <span className="rounded bg-gray-200 px-1.5 text-xs">숨김</span>}
             </p>

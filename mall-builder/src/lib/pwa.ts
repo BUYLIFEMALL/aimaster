@@ -4,7 +4,7 @@
 export const ICON_SIZES = [192, 512] as const;
 export const APPLE_ICON_SIZE = 180;
 export const INSTALL_HIDE_DAYS = 30;
-/** 크롬이 페이지 뜨자마자 보내는 「설치 가능」 신호를 화면이 그려지기 전에 붙잡아 둔다(손님 화면 틀 맨 앞의 작은 스크립트) */
+/** 크롬이 페이지 뜨자마자 보내는 「설치 가능」 신호를 화면이 그려지기 전에 붙잡아 둔다(유저 화면 틀 맨 앞의 작은 스크립트) */
 export const EARLY_INSTALL_SCRIPT = "window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__mbInstall=e;});";
 
 const PALETTE = ["#1f2937", "#1d4ed8", "#047857", "#b45309", "#7c3aed", "#be123c", "#0e7490", "#4d7c0f"];
@@ -53,7 +53,7 @@ export function buildManifest(input: { name: string; slug: string; onSubdomain: 
   };
 }
 
-/** 설치 안내를 보일 손님인가 — 로그인한 승인 사업자 손님만(주인님 결정) */
+/** 설치 안내를 보일 유저인가 — 로그인한 승인 사업자 유저만(주인님 결정) */
 export function shouldOfferInstall(customer: { approval_status?: string | null; kind?: string | null } | null): boolean {
   return !!customer && customer.kind === "business" && customer.approval_status === "approved";
 }

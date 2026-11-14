@@ -78,9 +78,9 @@ export default async function PriceCheckPage({ params }: { params: Promise<{ sto
         <Link href={`/s/${store.slug}/admin/products`} className="text-sm underline">← 상품 목록</Link>
       </div>
       <p className="text-sm text-gray-600">
-        원가를 넣은 상품의 판매가·등급가·수량 할인·거래처 특가를 손님 화면과 같은 계산으로 내서, 마진이 <b>{minMargin}%</b> 아래인 곳을 모았습니다(기준은 「쇼핑몰 정보 › AI 도우미」의 최소 마진). AI를 부르지 않아 비용이 없습니다.
+        원가를 넣은 상품의 판매가·등급가·수량 할인·거래처 특가를 유저 화면과 같은 계산으로 내서, 마진이 <b>{minMargin}%</b> 아래인 곳을 모았습니다(기준은 「쇼핑몰 정보 › AI 도우미」의 최소 마진). AI를 부르지 않아 비용이 없습니다.
       </p>
-      {!canSeeCustomers && <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800">「손님」 권한이 없어 거래처 특가는 점검에서 빠졌습니다.</p>}
+      {!canSeeCustomers && <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800">「유저」 권한이 없어 거래처 특가는 점검에서 빠졌습니다.</p>}
 
       <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm" data-price-check-summary>
         <div className="rounded border p-3"><p className="text-gray-500">점검한 상품</p><p className="text-xl font-semibold">{result.checked}</p></div>

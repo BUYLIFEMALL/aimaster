@@ -27,7 +27,7 @@ export async function getResellerContext(slug: string, path: string) {
   const host = h.get("host") ?? "";
   const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const onSub = mallSlugFromHost(host, process.env.MALL_ROOT_DOMAIN) === store.slug;
-  /** 손님에게 줄 주소 — 상품 경로(예: `/p/<id>`)를 넣으면 그 상품 링크 */
+  /** 유저에게 줄 주소 — 상품 경로(예: `/p/<id>`)를 넣으면 그 상품 링크 */
   const shopUrl = (sub = "") => `${proto}://${host}${onSub ? sub || "/" : `/s/${store.slug}${sub}`}?ref=${summary.code}`;
   /** 짧은 링크 앞부분(M4-C3) — 뒤에 7자 키를 붙이면 `/l/<키>` */
   const shortBase = `${proto}://${host}${onSub ? "" : `/s/${store.slug}`}/l/`;

@@ -11,7 +11,7 @@ import { getCardPayment } from "@/lib/card-payments";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 카드 결제 화면 — 토스 결제위젯(운영자 클라이언트 키). 금액·주문명은 DB의 주문에서만 정한다(화면 값 아님)
+// 카드 결제 화면 — 토스 결제위젯(운영사 클라이언트 키). 금액·주문명은 DB의 주문에서만 정한다(화면 값 아님)
 export default async function PayPage({ params, searchParams }: { params: Promise<{ store: string; id: string }>; searchParams: Promise<{ error?: string }> }) {
   const { store: slug, id } = await params;
   const { error } = await searchParams;

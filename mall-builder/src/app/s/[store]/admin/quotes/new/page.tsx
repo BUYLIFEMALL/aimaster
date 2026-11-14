@@ -9,7 +9,7 @@ import SendQuoteForm from "./send-quote-form";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 운영자가 먼저 견적 보내기(D4) — 손님 상세의 「견적 보내기」에서 들어온다. 보내면 손님 화면에 「회신 도착」으로 보인다
+// 운영사가 먼저 견적 보내기(D4) — 유저 상세의 「견적 보내기」에서 들어온다. 보내면 유저 화면에 「회신 도착」으로 보인다
 export default async function SendQuotePage({
   params,
   searchParams,
@@ -28,9 +28,9 @@ export default async function SendQuotePage({
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/quotes">
-      <Link href={`/s/${store.slug}/admin/customers/${c.id}`} className="text-sm text-gray-500">← {c.name} 손님</Link>
+      <Link href={`/s/${store.slug}/admin/customers/${c.id}`} className="text-sm text-gray-500">← {c.name} 유저</Link>
       <h2 className="mt-2 text-xl font-bold">견적 보내기 — {c.company ?? c.name}</h2>
-      <p className="mt-1 text-sm text-gray-600">보내면 손님 「견적 내역」에 <b>회신 도착</b>으로 보이고, 손님은 견적가 그대로 주문하거나 거절할 수 있습니다. 재고·판매 상태·배송비는 주문할 때 다시 확인합니다.</p>
+      <p className="mt-1 text-sm text-gray-600">보내면 유저 「견적 내역」에 <b>회신 도착</b>으로 보이고, 유저는 견적가 그대로 주문하거나 거절할 수 있습니다. 재고·판매 상태·배송비는 주문할 때 다시 확인합니다.</p>
       {products.length === 0 ? (
         <p className="mt-6 rounded border border-dashed p-8 text-center text-sm text-gray-500">판매 중인 상품이 없습니다.</p>
       ) : (

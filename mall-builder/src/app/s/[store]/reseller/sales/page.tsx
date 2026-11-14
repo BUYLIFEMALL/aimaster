@@ -16,7 +16,7 @@ const TABS = [
 ] as const;
 const LIVE = new Set(["paid", "preparing", "shipping", "delivered", "confirmed"]);
 
-// M4-C3 판매 — 내 링크로 들어온 주문(손님 개인정보 없이, 0078), 상품 순위(내 리워드 기준), 짧은 링크 누른 수
+// M4-C3 판매 — 내 링크로 들어온 주문(유저 개인정보 없이, 0078), 상품 순위(내 리워드 기준), 짧은 링크 누른 수
 export default async function ResellerSalesPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { store: slug } = await params;
   const { tab: rawTab } = await searchParams;
@@ -67,7 +67,7 @@ export default async function ResellerSalesPage({ params, searchParams }: { para
               ))}
             </ul>
           )}
-          <p className="mt-2 text-xs text-slate-500">손님 이름·연락처·주소는 보이지 않습니다. 리워드는 결제가 확인된 뒤 생기고, 입금 대기 주문은 0원으로 보입니다.</p>
+          <p className="mt-2 text-xs text-slate-500">유저 이름·연락처·주소는 보이지 않습니다. 리워드는 결제가 확인된 뒤 생기고, 입금 대기 주문은 0원으로 보입니다.</p>
         </section>
       )}
 

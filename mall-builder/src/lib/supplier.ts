@@ -43,7 +43,7 @@ export const SUPPLIER_STATUS_LABEL: Record<SupplierStatus, string> = {
   revoked: "초대 거둠",
 };
 
-/** 운영자가 고를 수 있는 다음 상태 — DB 함수와 같은 규칙 */
+/** 운영사가 고를 수 있는 다음 상태 — DB 함수와 같은 규칙 */
 export function nextStatuses(s: SupplierStatus): SupplierStatus[] {
   if (s === "invited") return ["invited", "revoked"];
   if (s === "active" || s === "paused") return ["active", "paused"];
@@ -67,7 +67,7 @@ export const APPROVAL_LABEL: Record<Approval, string> = {
   rejected: "반려",
 };
 
-/** 공급사 상품이 손님에게 보이는가(DB mall_builder_product_visible과 같은 규칙의 요약) */
+/** 공급사 상품이 유저에게 보이는가(DB mall_builder_product_visible과 같은 규칙의 요약) */
 export function supplierProductLive(p: { approval: Approval; status: string }, supplierStatus: SupplierStatus): boolean {
   return p.approval === "approved" && (p.status === "on_sale" || p.status === "sold_out") && supplierStatus === "active";
 }

@@ -20,7 +20,7 @@ import { AdminShell, NoPermission } from "../admin-shell";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 운영자 「리셀러」 — M1-8 탭 4개: 리셀러 계정(신청 승인·추가율·쉬기) · 리워드 상품(상품별 율 일괄) · 리워드 적립 내역(보류 지급/삭제·직권) · 출금 신청 관리(공제·이체)
+// 운영사 「리셀러」 — M1-8 탭 4개: 리셀러 계정(신청 승인·추가율·쉬기) · 리워드 상품(상품별 율 일괄) · 리워드 적립 내역(보류 지급/삭제·직권) · 출금 신청 관리(공제·이체)
 const TABS = [
   { id: "accounts", label: "리셀러 계정" },
   { id: "products", label: "리워드 상품" },
@@ -122,12 +122,12 @@ async function AccountsTab({ storeId, slug, modules, resellers, name }: { storeI
       <section className="mt-6">
         <h3 className="text-sm font-semibold">리셀러 {resellers.length}명</h3>
         {resellers.length === 0 ? (
-          <p className="mt-1 text-sm text-gray-500">아직 리셀러가 없습니다. 신청을 받거나 「손님」 상세 아래 「🤝 리셀러」에서 지정해 주세요.</p>
+          <p className="mt-1 text-sm text-gray-500">아직 리셀러가 없습니다. 신청을 받거나 「유저」 상세 아래 「🤝 리셀러」에서 지정해 주세요.</p>
         ) : (
           <div className="mt-2 overflow-x-auto">
             <table className="w-full min-w-[760px] text-sm" data-reseller-table>
               <thead>
-                <tr className="border-b text-left text-gray-500"><th className="py-2">리셀러</th><th>정산</th><th className="text-right">연결 손님</th><th className="text-right">이번 달 적립</th><th className="text-right">잔액</th><th>추가율 · 상태</th></tr>
+                <tr className="border-b text-left text-gray-500"><th className="py-2">리셀러</th><th>정산</th><th className="text-right">연결 유저</th><th className="text-right">이번 달 적립</th><th className="text-right">잔액</th><th>추가율 · 상태</th></tr>
               </thead>
               <tbody>
                 {resellers.map((r) => {

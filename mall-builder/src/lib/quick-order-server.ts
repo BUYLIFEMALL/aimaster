@@ -1,4 +1,4 @@
-// D25 빠른 주문·다시 담기 — 서버 전용: 품번 찾기 → 손님 화면 상품 읽기 → 장바구니 수량까지 더해 가격 엔진 검사 → 담기.
+// D25 빠른 주문·다시 담기 — 서버 전용: 품번 찾기 → 유저 화면 상품 읽기 → 장바구니 수량까지 더해 가격 엔진 검사 → 담기.
 // 담기 규칙은 상품 상세의 장바구니 담기(cart/actions.ts addToCartAction)와 같다: 같은 상품·옵션이면 수량을 더하고, 더한 수량으로 검사.
 
 import ExcelJS from "exceljs";
@@ -28,7 +28,7 @@ type Want = { lines: number[]; code: string; option: string; qty: number; produc
 
 const chunks = <T,>(list: T[], n: number) => Array.from({ length: Math.ceil(list.length / n) }, (_, i) => list.slice(i * n, i * n + n));
 
-/** 상품 id들 → 손님 화면 상품(보는 사람 기준) + 옵션 조합 */
+/** 상품 id들 → 유저 화면 상품(보는 사람 기준) + 옵션 조합 */
 async function loadCatalog(supabase: SupabaseClient, storeId: string, ids: string[]) {
   const products = new Map<string, ProductRow>();
   for (const part of chunks([...new Set(ids)], 200)) {

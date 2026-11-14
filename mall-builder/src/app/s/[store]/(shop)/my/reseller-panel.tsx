@@ -1,4 +1,4 @@
-// D33 마이페이지 「🤝 리셀러」 — 내 링크·연결 손님 수·잔액·이번 달 적립·출금 신청·내역(리셀러로 지정된 손님에게만)
+// D33 마이페이지 「🤝 리셀러」 — 내 링크·연결 유저 수·잔액·이번 달 적립·출금 신청·내역(리셀러로 지정된 유저에게만)
 import { LEDGER_KIND_LABEL, PAYOUT_MIN, PAYOUT_STATUS_LABEL, defaultDeduction } from "@/lib/reseller";
 import type { LedgerRow, PayoutRow, ResellerSummary } from "@/lib/reseller-store";
 import { requestPayoutAction } from "@/lib/reseller-actions";
@@ -13,12 +13,12 @@ export default function ResellerPanel({ slug, link, s, ledger, payouts }: { slug
   return (
     <section id="reseller" className="mt-6 scroll-mt-4 rounded-lg border border-emerald-200 p-4 text-sm" data-reseller-panel>
       <h2 className="font-semibold">🤝 리셀러 <span className="ml-1 font-mono text-xs text-gray-500">{s.code} · 수수료 {Number(s.rate)}%</span>{!s.active && <span className="ml-2 rounded bg-gray-100 px-1.5 text-xs">쉬는 중</span>}</h2>
-      <p className="mt-1 text-xs text-gray-500">내 링크로 들어온 손님이 30일 안에 주문하면 그 주문에 내 이름이 남습니다. 결제되면 상품마다 정해진 리워드(상품 리셀러율 + 내 추가율 {Number(s.rate)}%)가 「지급 예정」으로 쌓이고, 구매 확정되면 출금 가능 금액이 됩니다. 확정 전 취소·반품은 보류되어 운영자가 확인합니다. 링크로 가입한 손님도 내 거래처로 이어집니다.</p>
+      <p className="mt-1 text-xs text-gray-500">내 링크로 들어온 유저가 30일 안에 주문하면 그 주문에 내 이름이 남습니다. 결제되면 상품마다 정해진 리워드(상품 리셀러율 + 내 추가율 {Number(s.rate)}%)가 「지급 예정」으로 쌓이고, 구매 확정되면 출금 가능 금액이 됩니다. 확정 전 취소·반품은 보류되어 운영사가 확인합니다. 링크로 가입한 유저도 내 거래처로 이어집니다.</p>
       <CopyLink url={link} />
       {/* M4-C1 리셀러 전용 화면(상품별 링크·QR·수익) */}
       <a href={`/s/${slug}/reseller`} className="mt-2 inline-block rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white" data-open-reseller>리셀러 화면 열기 — 상품 링크·QR·수익 →</a>
       <div className="mt-3 grid grid-cols-2 gap-2 text-center sm:grid-cols-4" data-reseller-summary>
-        <div className="rounded border p-2"><p className="text-xs text-gray-500">연결 손님</p><p className="font-semibold">{s.linked}명</p></div>
+        <div className="rounded border p-2"><p className="text-xs text-gray-500">연결 유저</p><p className="font-semibold">{s.linked}명</p></div>
         <div className="rounded border p-2"><p className="text-xs text-gray-500">이번 달 적립</p><p className="font-semibold">{formatWon(s.month_earned)}</p></div>
         <div className="rounded border p-2"><p className="text-xs text-gray-500">출금 가능</p><p className="font-semibold text-emerald-700" data-reseller-balance>{formatWon(s.balance)}</p></div>
         <div className="rounded border p-2"><p className="text-xs text-gray-500">처리 대기</p><p className="font-semibold">{formatWon(s.pending)}</p></div>
@@ -37,7 +37,7 @@ export default function ResellerPanel({ slug, link, s, ledger, payouts }: { slug
           <input name="bank_holder" placeholder="예금주" maxLength={30} className="rounded border px-2 py-2" />
           <p className="text-xs text-gray-500 sm:col-span-3" data-payout-hint>
             {s.saved_bank && <>계좌 칸을 모두 비우면 저장 계좌 <b>{s.saved_bank}</b>로 받습니다. </>}
-            운영자가 확인한 뒤 송금합니다.{" "}
+            운영사가 확인한 뒤 송금합니다.{" "}
             {business
               ? "사업자는 세금계산서로 정산하므로 신청 금액 그대로 이체됩니다."
               : <>개인은 사업소득 원천징수 3.3%를 빼고 이체됩니다(예: {formatWon(s.balance)} → 공제 약 {formatWon(defaultDeduction(s.balance, s.payee_type))}).</>}

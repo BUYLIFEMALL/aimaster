@@ -24,11 +24,11 @@ export default async function ResellerHomePage({ params, searchParams }: { param
   return (
     <ResellerShell slug={store.slug} storeName={store.name} code={s.code} email={user.email ?? ""} active="" notice={notice}>
       <h1 className="text-xl font-bold">안녕하세요, 리셀러님 👋</h1>
-      <p className="mt-1 text-sm text-slate-600">내 링크로 들어온 손님이 30일 안에 주문하면 상품마다 정해진 리워드가 쌓입니다. 구매 확정되면 출금할 수 있습니다.</p>
+      <p className="mt-1 text-sm text-slate-600">내 링크로 들어온 유저가 30일 안에 주문하면 상품마다 정해진 리워드가 쌓입니다. 구매 확정되면 출금할 수 있습니다.</p>
 
       <section className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4" data-reseller-earn>
         <div className={card}><p className="text-xs text-slate-500">지급 예정</p><p className="mt-1 text-lg font-bold text-amber-700">{formatWon(sum.pending)}</p><p className="text-[11px] text-slate-400">구매 확정되면 출금 가능</p></div>
-        <div className={card}><p className="text-xs text-slate-500">보류</p><p className="mt-1 text-lg font-bold text-red-700">{formatWon(sum.held)}</p><p className="text-[11px] text-slate-400">확정 전 취소·반품, 운영자 확인 중</p></div>
+        <div className={card}><p className="text-xs text-slate-500">보류</p><p className="mt-1 text-lg font-bold text-red-700">{formatWon(sum.held)}</p><p className="text-[11px] text-slate-400">확정 전 취소·반품, 운영사 확인 중</p></div>
         <div className={card}><p className="text-xs text-slate-500">출금 가능</p><p className="mt-1 text-lg font-bold text-emerald-700" data-reseller-balance>{formatWon(s.balance)}</p><p className="text-[11px] text-slate-400">처리 대기 {formatWon(s.pending)}</p></div>
         <div className={card}><p className="text-xs text-slate-500">지급 완료 누계</p><p className="mt-1 text-lg font-bold">{formatWon(sum.paid)}</p><p className="text-[11px] text-slate-400">이번 달 적립 {formatWon(s.month_earned)}</p></div>
       </section>

@@ -6,7 +6,7 @@ import { RecurringList } from "../../../recurring-list";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// D30 손님 「내 정기 주문」 — 주기·다음 주문일·지난 회차, 일시정지·건너뛰기·해지·수량 바꾸기
+// D30 유저 「내 정기 주문」 — 주기·다음 주문일·지난 회차, 일시정지·건너뛰기·해지·수량 바꾸기
 export default async function MyRecurringPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;

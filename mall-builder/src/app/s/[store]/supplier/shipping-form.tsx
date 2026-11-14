@@ -2,7 +2,7 @@ import { SUPPLIER_SHIPPING_LABEL, type SupplierShippingType } from "@/lib/suppli
 import type { SupplierShippingRow } from "@/lib/supplier-store";
 import PendingButton from "@/app/pending-button";
 
-// T1(0060) 공급사 배송비 입력 — 공급사 화면과 운영자 「공급사」 목록이 함께 쓴다. 손님은 공급사마다 따로 한 번씩 배송비를 내고, 확정되면 공급사 정산에 더해짐
+// T1(0060) 공급사 배송비 입력 — 공급사 화면과 운영사 「공급사」 목록이 함께 쓴다. 유저는 공급사마다 따로 한 번씩 배송비를 내고, 확정되면 공급사 정산에 더해짐
 export default function SupplierShippingForm({ action, current, compact = false }: { action: (form: FormData) => Promise<void>; current: SupplierShippingRow | null; compact?: boolean }) {
   const type: SupplierShippingType = current?.type ?? "mall";
   const won = (n: number | null | undefined) => (n == null ? "" : String(n));
@@ -21,7 +21,7 @@ export default function SupplierShippingForm({ action, current, compact = false 
         <label className="block">제주 추가<input name="jeju_fee" inputMode="numeric" defaultValue={won(current?.jeju_fee)} placeholder="0" className="mt-1 w-full rounded border px-2 py-1.5" /></label>
         <label className="block">도서산간 추가<input name="island_fee" inputMode="numeric" defaultValue={won(current?.island_fee)} placeholder="0" className="mt-1 w-full rounded border px-2 py-1.5" /></label>
       </div>
-      <p className="text-xs text-gray-500">「몰 기본 배송비 따르기」면 몰 배송비 정책으로 받고 배송비는 몰 몫입니다. 직접 정하면 손님이 이 공급사 상품 묶음마다 한 번 내고, 구매 확정 때 공급사 정산에 더해집니다.</p>
+      <p className="text-xs text-gray-500">「몰 기본 배송비 따르기」면 몰 배송비 정책으로 받고 배송비는 몰 몫입니다. 직접 정하면 유저가 이 공급사 상품 묶음마다 한 번 내고, 구매 확정 때 공급사 정산에 더해집니다.</p>
       <PendingButton pendingText="저장 중…" className="min-h-10 rounded border px-3 py-1.5">배송비 저장</PendingButton>
     </form>
   );

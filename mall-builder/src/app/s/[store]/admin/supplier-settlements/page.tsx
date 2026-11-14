@@ -10,7 +10,7 @@ import { AdminShell, NoPermission } from "../admin-shell";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// D37 운영자 「공급사 정산」 — 공급사별 잔액(구매 확정 공급가 − 확정 뒤 차감 − 지급), 이번 달 적립, 대표가 송금한 뒤 「지급 완료」, 월별 합계
+// D37 운영사 「공급사 정산」 — 공급사별 잔액(구매 확정 공급가 − 확정 뒤 차감 − 지급), 이번 달 적립, 대표가 송금한 뒤 「지급 완료」, 월별 합계
 export default async function SupplierSettlementsPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;

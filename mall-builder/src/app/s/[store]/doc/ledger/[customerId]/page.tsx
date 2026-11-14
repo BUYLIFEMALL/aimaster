@@ -9,7 +9,7 @@ export const fetchCache = "force-no-store";
 
 const n = (v: number) => v.toLocaleString("ko-KR");
 
-// D26 외상 원장(손님 1명 × 기간) — 인쇄용 A4 + 엑셀
+// D26 외상 원장(유저 1명 × 기간) — 인쇄용 A4 + 엑셀
 export default async function LedgerDocPage({
   params,
   searchParams,
@@ -29,7 +29,7 @@ export default async function LedgerDocPage({
     <main className="min-h-screen bg-gray-100 px-4 py-6 print:bg-white print:p-0">
       <PrintBar
         back={back}
-        backLabel={staff ? "손님 상세" : "마이페이지"}
+        backLabel={staff ? "유저 상세" : "마이페이지"}
         extra={
           <>
             <form className="flex items-center gap-1" data-ledger-period>

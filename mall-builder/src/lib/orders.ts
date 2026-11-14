@@ -1,4 +1,4 @@
-// 주문 상태 이름표 — 손님·운영자 화면 공통(상태 흐름: docs/mall/ARCHITECTURE.md §5)
+// 주문 상태 이름표 — 유저·운영사 화면 공통(상태 흐름: docs/mall/ARCHITECTURE.md §5)
 import type { TaxInvoice } from "./taxInvoice.ts";
 
 export type OrderStatus =

@@ -1,6 +1,6 @@
 "use server";
 
-// 세금계산서 발행(볼타, D19) 설정 — 몰 운영자 본인 볼타 계정 키. 키는 DB 함수로만 저장(화면엔 「등록됨」만), 발행·조회는 DB 함수가 직접 부른다(0039)
+// 세금계산서 발행(볼타, D19) 설정 — 몰 운영사 본인 볼타 계정 키. 키는 DB 함수로만 저장(화면엔 「등록됨」만), 발행·조회는 DB 함수가 직접 부른다(0039)
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getStoreBySlug } from "@/lib/store";

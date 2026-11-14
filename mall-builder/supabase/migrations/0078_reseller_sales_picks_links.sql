@@ -1,9 +1,9 @@
 -- AI 쇼핑몰 빌더 M4-C3 — 리셀러 판매 내역·상품 판매 수·픽·짧은 링크 (2026-11-15 마스터 플랜 §4 M4-C2·C3)
--- 1) 판매 내역: 리셀러는 주문 표를 읽을 수 없으므로(손님 이름·주소·연락처 보호) 주문번호·날짜·상태·품목 요약·금액·리워드만 돌려주는 함수
--- 2) 상품 판매 수: 최근 N일 결제 이후 주문의 남은 수량 합(몰 전체) — 리셀러 「베스트」 정렬·카드 표시용, 그 몰 리셀러·운영자만
+-- 1) 판매 내역: 리셀러는 주문 표를 읽을 수 없으므로(유저 이름·주소·연락처 보호) 주문번호·날짜·상태·품목 요약·금액·리워드만 돌려주는 함수
+-- 2) 상품 판매 수: 최근 N일 결제 이후 주문의 남은 수량 합(몰 전체) — 리셀러 「베스트」 정렬·카드 표시용, 그 몰 리셀러·운영사만
 -- 3) 픽: 리셀러가 고른 상품 목록(C4 진열 페이지에서도 씀)
--- 4) 짧은 링크: `/s/<몰>/l/<키>` → 상품(또는 몰 첫 화면) + ?ref=<코드>. 누가 열어도 되고(손님), 열 때 누른 수 +1
--- 추가만(표·자료 지우기 없음, 보기 규칙은 drop if exists 뒤 다시 만듦). 손님 개인정보 칸(receiver·guest_*·depositor·memo)은 어느 함수도 돌려주지 않는다.
+-- 4) 짧은 링크: `/s/<몰>/l/<키>` → 상품(또는 몰 첫 화면) + ?ref=<코드>. 누가 열어도 되고(유저), 열 때 누른 수 +1
+-- 추가만(표·자료 지우기 없음, 보기 규칙은 drop if exists 뒤 다시 만듦). 유저 개인정보 칸(receiver·guest_*·depositor·memo)은 어느 함수도 돌려주지 않는다.
 
 -- 0. 이 몰의 「활동 중 리셀러 본인」 id(없으면 null) — 아래 함수들 안에서만 씀
 create or replace function mall_builder_private.my_active_reseller(p_store uuid)
@@ -54,7 +54,7 @@ returns table (product_id uuid, sold bigint)
 language plpgsql stable security definer set search_path = '' as $$
 begin
   if mall_builder_private.my_active_reseller(p_store_id) is null and not public.mall_builder_is_store_staff(p_store_id) then
-    raise exception '이 몰의 리셀러·운영자만 볼 수 있습니다.';
+    raise exception '이 몰의 리셀러·운영사만 볼 수 있습니다.';
   end if;
   return query
     select i.product_id, sum(greatest(i.qty - coalesce(i.cancelled_qty, 0), 0))::bigint
@@ -157,7 +157,7 @@ $$;
 revoke all on function public.mall_builder_reseller_link_make(uuid, uuid) from public, anon;
 grant execute on function public.mall_builder_reseller_link_make(uuid, uuid) to authenticated;
 
--- 열기(손님 누구나) — 그 몰 주소 이름이 맞고 리셀러가 활동 중일 때만 코드를 돌려줌.
+-- 열기(유저 누구나) — 그 몰 주소 이름이 맞고 리셀러가 활동 중일 때만 코드를 돌려줌.
 -- 상품이 판매 중·품절(재입고 알림 신청 가능)이 아니면 product_id = null(몰 첫 화면으로). 누른 수 +1
 create or replace function public.mall_builder_reseller_link_open(p_slug text, p_key text)
 returns table (product_id uuid, code text)

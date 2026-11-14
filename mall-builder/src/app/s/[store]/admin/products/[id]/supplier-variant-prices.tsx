@@ -3,7 +3,7 @@ import { formatWon } from "@/lib/products";
 import type { Variant } from "@/lib/options";
 import PendingButton from "@/app/pending-button";
 
-// T1(0060) 운영자: 공급사 상품 옵션별 판매 추가금. 처음 값 = 추가 공급가 × (판매가 / 공급가). 판매가가 공급가보다 낮으면 저장되지 않음
+// T1(0060) 운영사: 공급사 상품 옵션별 판매 추가금. 처음 값 = 추가 공급가 × (판매가 / 공급가). 판매가가 공급가보다 낮으면 저장되지 않음
 export default function SupplierVariantPrices({
   slug,
   productId,
@@ -24,7 +24,7 @@ export default function SupplierVariantPrices({
         <p className="text-sm text-gray-500">공급사가 옵션을 넣지 않은 상품입니다.</p>
       ) : (
         <form action={setVariantPricesAction.bind(null, slug, productId)} className="space-y-3">
-          <p className="text-xs text-gray-500">공급사가 적은 추가 공급가를 보고 손님 판매 추가금을 정합니다. 처음 값은 이 상품의 마진 비율을 따른 금액입니다.</p>
+          <p className="text-xs text-gray-500">공급사가 적은 추가 공급가를 보고 유저 판매 추가금을 정합니다. 처음 값은 이 상품의 마진 비율을 따른 금액입니다.</p>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[520px] text-sm">
               <thead className="text-left text-xs text-gray-500">

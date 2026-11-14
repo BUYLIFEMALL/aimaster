@@ -36,7 +36,7 @@ test("표시 도우미", () => {
   assert.equal(stars(4), "★★★★☆");
   assert.equal(stars(0), "☆☆☆☆☆");
   assert.equal(maskName("김철수"), "김**");
-  assert.equal(maskName("  "), "손님");
+  assert.equal(maskName("  "), "유저");
   assert.equal(canReview("delivered", 2, 0, "p"), true);
   assert.equal(canReview("confirmed", 2, 2, "p"), false);
   assert.equal(canReview("paid", 1, 0, "p"), false);

@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { parseWon } from "@/lib/products";
 import { validatePolicy } from "@/lib/shipping";
 
-// 보안 규칙(그 몰 운영자만 쓰기)을 그대로 거친다
+// 보안 규칙(그 몰 운영사만 쓰기)을 그대로 거친다
 
 async function staffStore(slug: string) {
   const supabase = await createClient();

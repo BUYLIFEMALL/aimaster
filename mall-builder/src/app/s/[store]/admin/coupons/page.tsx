@@ -10,7 +10,7 @@ export const fetchCache = "force-no-store";
 
 const TARGET_LABEL = { all: "전체 상품", category: "카테고리", product: "상품" } as const;
 
-// 운영자 쿠폰·포인트(D17·D18) — 포인트 설정(한 화면 3칸이면 시작), 쿠폰 만들기·켜고 끄기·직접 발급·사용 수
+// 운영사 쿠폰·포인트(D17·D18) — 포인트 설정(한 화면 3칸이면 시작), 쿠폰 만들기·켜고 끄기·직접 발급·사용 수
 export default async function AdminCouponsPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;
@@ -36,7 +36,7 @@ export default async function AdminCouponsPage({ params, searchParams }: { param
 
       <section className="rounded border p-4" data-point-settings>
         <h2 className="text-sm font-semibold">포인트 설정 {settings.enabled ? <span className="ml-1 rounded bg-gray-900 px-1.5 text-xs text-white">켜짐</span> : <span className="ml-1 rounded bg-gray-200 px-1.5 text-xs">꺼짐</span>}</h2>
-        <p className="mt-1 text-xs text-gray-500">구매 확정 때 (배송비 뺀 결제 금액 × 적립률)만큼 자동 적립되고, 손님은 주문서에서 씁니다. 기간이 지나면 매일 자동 소멸되고 7일 전에 문자로 알립니다(주문 알림 문자를 켠 몰).</p>
+        <p className="mt-1 text-xs text-gray-500">구매 확정 때 (배송비 뺀 결제 금액 × 적립률)만큼 자동 적립되고, 유저는 주문서에서 씁니다. 기간이 지나면 매일 자동 소멸되고 7일 전에 문자로 알립니다(주문 알림 문자를 켠 몰).</p>
         <form action={savePointSettingsAction.bind(null, store.slug)} className="mt-3 space-y-3 text-sm">
           <label className="flex items-center gap-2 font-medium"><input type="checkbox" name="enabled" defaultChecked={settings.enabled} /> 포인트 쓰기</label>
           <div className="grid gap-2 sm:grid-cols-3">
@@ -108,7 +108,7 @@ export default async function AdminCouponsPage({ params, searchParams }: { param
             </div>
           </fieldset>
           <label className="flex items-center gap-2"><input type="checkbox" name="allow_business" /> 사업자 등급가와 같이 쓰기 <span className="text-xs text-gray-500">(끄면 승인 사업자는 이 쿠폰을 쓸 수 없음)</span></label>
-          <p className="text-xs text-gray-500">가입 축하는 몰에 새로 가입할 때, 생일은 손님이 마이페이지에 생일을 넣어 두면 그날 자동으로 발급됩니다. 주문 한 건에 쿠폰은 1장, 배송비에는 적용되지 않습니다.</p>
+          <p className="text-xs text-gray-500">가입 축하는 몰에 새로 가입할 때, 생일은 유저가 마이페이지에 생일을 넣어 두면 그날 자동으로 발급됩니다. 주문 한 건에 쿠폰은 1장, 배송비에는 적용되지 않습니다.</p>
           <button className="rounded bg-gray-900 px-4 py-1.5 text-white">쿠폰 만들기</button>
         </form>
       </section>
@@ -140,12 +140,12 @@ export default async function AdminCouponsPage({ params, searchParams }: { param
                   <summary className="cursor-pointer text-xs text-blue-700">발급하기</summary>
                   <form action={issueCouponAction.bind(null, store.slug, c.id)} className="mt-2 space-y-2 rounded bg-gray-50 p-3 text-sm" data-issue-form>
                     <div className="flex flex-wrap items-center gap-3">
-                      <label><input type="radio" name="scope" value="all" defaultChecked /> 가입 손님 전체</label>
+                      <label><input type="radio" name="scope" value="all" defaultChecked /> 가입 유저 전체</label>
                       <label>
                         <input type="radio" name="scope" value="grade" /> 등급{" "}
                         <select name="grade_id" className="rounded border px-1 py-0.5">{grades.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}</select>
                       </label>
-                      <label><input type="radio" name="scope" value="customers" /> 아래에서 고른 손님</label>
+                      <label><input type="radio" name="scope" value="customers" /> 아래에서 고른 유저</label>
                     </div>
                     <div className="max-h-40 overflow-y-auto rounded border bg-white p-2" data-issue-customers>
                       {customers.map((u) => <label key={u.id} className="block"><input type="checkbox" name="customer_ids" value={u.id} /> {u.name} <span className="text-xs text-gray-500">{u.grade?.name}</span></label>)}

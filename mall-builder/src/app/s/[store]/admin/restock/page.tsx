@@ -10,7 +10,7 @@ import { AdminShell, NoPermission } from "../admin-shell";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 운영자 재입고 알림(D16) — 상품(옵션)별 대기 인원과 최근 신청 목록. 재고를 채우면 대기 신청에 자동으로 알림이 간다
+// 운영사 재입고 알림(D16) — 상품(옵션)별 대기 인원과 최근 신청 목록. 재고를 채우면 대기 신청에 자동으로 알림이 간다
 export default async function AdminRestockPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;
@@ -31,7 +31,7 @@ export default async function AdminRestockPage({ params, searchParams }: { param
       {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
       <p className={`mb-4 rounded px-3 py-2 text-sm ${on ? "bg-gray-50 text-gray-700" : "bg-amber-50 text-amber-800"}`} data-restock-switch>
         {on
-          ? "재입고 알림이 켜져 있습니다. 상품 재고를 채우거나 「판매 중」으로 바꾸면 1분 안에 대기 손님에게 자동으로 알립니다."
+          ? "재입고 알림이 켜져 있습니다. 상품 재고를 채우거나 「판매 중」으로 바꾸면 1분 안에 대기 유저에게 자동으로 알립니다."
           : "재입고 알림이 꺼져 있어 신청만 받고 있습니다. "}
         <Link href={`/s/${store.slug}/admin/settings`} className="underline">{on ? "설정" : "쇼핑몰 정보 → 재입고 알림에서 켜기"}</Link>
       </p>

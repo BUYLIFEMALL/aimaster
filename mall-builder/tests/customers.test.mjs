@@ -11,7 +11,7 @@ test("휴대폰 번호 정리 — 휴대폰만", () => {
   assert.equal(normalizeMobile(""), null);
 });
 
-test("손님 정보", () => {
+test("유저 정보", () => {
   const r = validateCustomer({ name: " 홍길동 ", phone: "01012345678", marketing_agree: "on" });
   assert.deepEqual(r, { ok: true, value: { name: "홍길동", phone: "010-1234-5678", marketing_agree: true } });
   assert.equal(validateCustomer({ name: "", phone: "01012345678" }).ok, false);

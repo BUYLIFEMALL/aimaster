@@ -16,12 +16,12 @@ test("순서대로 트리 — sort 작은 것이 먼저", () => {
   assert.deepEqual(tree[1].children.map((n) => n.name), ["과일", "채소"]);
 });
 
-test("손님 화면 — 숨긴 카테고리와 그 아래는 빠진다", () => {
+test("유저 화면 — 숨긴 카테고리와 그 아래는 빠진다", () => {
   const names = flattenTree(buildCategoryTree(rows, false)).map((n) => n.name);
   assert.deepEqual(names, ["가전", "식품", "채소"]);
 });
 
-test("운영자 화면 — 상위가 숨겨진 칸은 표시", () => {
+test("운영사 화면 — 상위가 숨겨진 칸은 표시", () => {
   const flat = flattenTree(buildCategoryTree(rows, true));
   assert.equal(flat.find((n) => n.id === "d").hiddenByParent, true);
   assert.equal(flat.find((n) => n.id === "c").hiddenByParent, false);

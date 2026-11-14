@@ -1,4 +1,4 @@
-// 주문 알림 기록 목록(운영자 화면 전용) — 받는 번호는 뒤 4자리, 메일은 앞 두 글자만 보인다
+// 주문 알림 기록 목록(운영사 화면 전용) — 받는 번호는 뒤 4자리, 메일은 앞 두 글자만 보인다
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/orders";
 import { headers } from "next/headers";

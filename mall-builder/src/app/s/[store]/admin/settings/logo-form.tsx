@@ -36,7 +36,7 @@ export default function LogoForm({ slug, storeId, logo }: { slug: string; storeI
   return (
     <fieldset className="rounded-lg border p-4" data-logo-setting>
       <legend className="px-1 text-sm font-semibold">📲 몰 로고(홈 화면 앱 아이콘)</legend>
-      <p className="text-sm text-gray-600">손님이 휴대폰 홈 화면에 이 몰을 추가하면 이 그림이 아이콘이 됩니다. 정사각형 PNG를 권장하고, 없으면 몰 이름 첫 글자 아이콘을 씁니다.</p>
+      <p className="text-sm text-gray-600">유저가 휴대폰 홈 화면에 이 몰을 추가하면 이 그림이 아이콘이 됩니다. 정사각형 PNG를 권장하고, 없으면 몰 이름 첫 글자 아이콘을 씁니다.</p>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={`/s/${slug}/app-icon/192?v=${encodeURIComponent(url).slice(-12)}`} alt="지금 앱 아이콘" className="h-16 w-16 rounded-2xl border object-cover" data-logo-preview />

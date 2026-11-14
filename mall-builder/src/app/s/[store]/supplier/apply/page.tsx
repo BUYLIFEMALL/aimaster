@@ -40,7 +40,7 @@ export default async function SupplierApplyPage({ params, searchParams }: { para
             </form>
           </div>
         ) : !open ? (
-          <p className="rounded bg-gray-50 px-3 py-2 text-sm text-gray-600">지금은 이 몰에서 입점 신청을 받지 않습니다. 몰 운영자에게 문의해 주세요.</p>
+          <p className="rounded bg-gray-50 px-3 py-2 text-sm text-gray-600">지금은 이 몰에서 입점 신청을 받지 않습니다. 몰 운영사에게 문의해 주세요.</p>
         ) : (
           <>
             {mine?.status === "rejected" && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">지난 신청이 반려됐습니다: {mine.note} — 고쳐서 다시 신청할 수 있습니다.</p>}

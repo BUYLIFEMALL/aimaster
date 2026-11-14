@@ -19,7 +19,7 @@ test("승인 전에도 여는 경로 — 가입·마이페이지만", () => {
   assert.equal(openWhileClosed(null, "abc"), false);
 });
 
-test("입장 판단 — 꺼짐·운영자·승인만", () => {
+test("입장 판단 — 꺼짐·운영사·승인만", () => {
   const on = { enabled: true, approval: true, code: true, notice: "" };
   assert.equal(canEnterClosed({ ...on, enabled: false }, false, null), true);
   assert.equal(canEnterClosed(on, true, null), true);

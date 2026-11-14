@@ -16,7 +16,7 @@ export async function saveLogoAction(slug: string, url: string): Promise<LogoSta
   const settings = { ...((store.settings as Record<string, unknown> | null) ?? {}), app_logo: url };
   const { data, error } = await supabase.from("mall_builder_stores").update({ settings }).eq("id", store.id).select("id");
   if (error) return { error: error.message, message: null };
-  if (!data?.length) return { error: "대표 운영자만 로고를 바꿀 수 있습니다.", message: null };
+  if (!data?.length) return { error: "대표 운영사만 로고를 바꿀 수 있습니다.", message: null };
   revalidatePath(`/s/${slug}`, "layout");
-  return { error: null, message: url ? "로고를 저장했습니다. 홈 화면 아이콘에 이 그림이 쓰입니다(이미 설치한 손님은 다시 설치해야 바뀔 수 있습니다)." : "로고를 지웠습니다. 몰 이름 첫 글자 아이콘으로 돌아갑니다." };
+  return { error: null, message: url ? "로고를 저장했습니다. 홈 화면 아이콘에 이 그림이 쓰입니다(이미 설치한 유저는 다시 설치해야 바뀔 수 있습니다)." : "로고를 지웠습니다. 몰 이름 첫 글자 아이콘으로 돌아갑니다." };
 }

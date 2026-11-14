@@ -55,7 +55,7 @@ export function refHeaderFromCookies(list: { name: string; value: string }[]): s
   return parts.length ? parts.join(";") : null;
 }
 
-export const REF_SOURCE_LABEL: Record<"link" | "customer", string> = { link: "제휴 링크로 주문", customer: "가입 때 연결된 손님" };
+export const REF_SOURCE_LABEL: Record<"link" | "customer", string> = { link: "제휴 링크로 주문", customer: "가입 때 연결된 유저" };
 
 /** M1-7(0075) 출금 지급 때 공제금액 기본값 — 개인은 사업소득 원천징수 3.3%, 사업자(세금계산서)는 0 */
 export function defaultDeduction(amount: number, payeeType: string | undefined | null): number {

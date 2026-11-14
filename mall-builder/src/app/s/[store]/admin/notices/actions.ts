@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { validateNotice } from "@/lib/notices";
 
-// 공지 쓰기·고치기·삭제 — 보안 규칙(그 몰 운영자만)을 그대로 거친다
+// 공지 쓰기·고치기·삭제 — 보안 규칙(그 몰 운영사만)을 그대로 거친다
 
 async function staffStore(slug: string) {
   const supabase = await createClient();

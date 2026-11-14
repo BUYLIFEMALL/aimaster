@@ -1,5 +1,5 @@
 // 견적 — DB: mall_builder_quotes, mall_builder_quote_items (0013_quotes.sql)
-// 흐름: 손님 요청(requested) → 운영자 회신(answered, 품목별 견적가·유효기한) → 손님 수락(accepted, 견적가 그대로 주문) / 거절(rejected)
+// 흐름: 유저 요청(requested) → 운영사 회신(answered, 품목별 견적가·유효기한) → 유저 수락(accepted, 견적가 그대로 주문) / 거절(rejected)
 // 유효기한이 지난 회신 견적은 화면에서 「기한 지남」으로 보이고 수락 함수가 거절한다(상태 칸은 바꾸지 않음)
 
 export type QuoteStatus = "requested" | "answered" | "accepted" | "rejected";
@@ -23,7 +23,7 @@ export function displayStatus(status: QuoteStatus, validUntil: string | null, to
   return status;
 }
 
-/** 운영자 회신 검사 — 품목마다 견적가(0원 이상 정수), 유효기한은 오늘 이후 90일 이내 */
+/** 운영사 회신 검사 — 품목마다 견적가(0원 이상 정수), 유효기한은 오늘 이후 90일 이내 */
 export function validateAnswer(
   items: { id: string; price: unknown }[],
   validUntil: string,
@@ -45,10 +45,10 @@ export function validateAnswer(
 }
 
 export type QuoteOrigin = "customer" | "staff";
-export const QUOTE_ORIGIN_LABEL: Record<QuoteOrigin, string> = { customer: "손님 요청", staff: "운영자 발송" };
+export const QUOTE_ORIGIN_LABEL: Record<QuoteOrigin, string> = { customer: "유저 요청", staff: "운영사 발송" };
 export const MAX_SEND_ITEMS = 30;
 
-/** 운영자가 먼저 보내는 견적(D4)의 품목 검사 — 상품 필수, 옵션 상품이면 옵션 필수, 수량 1~999, 견적가 0원 이상. 같은 상품·옵션은 합친다 */
+/** 운영사가 먼저 보내는 견적(D4)의 품목 검사 — 상품 필수, 옵션 상품이면 옵션 필수, 수량 1~999, 견적가 0원 이상. 같은 상품·옵션은 합친다 */
 export function validateSendItems(
   rows: { product_id: unknown; variant_id: unknown; qty: unknown; price: unknown }[],
   hasOptions: (productId: string) => boolean,

@@ -1,6 +1,6 @@
 "use client";
 
-// D29 상품 등록 도우미 — 메모(+대표 사진) → 이름·한 줄 소개·설명 초안 → 「칸에 채우기」. 저장은 아래 「저장」 단추로 운영자가 한다.
+// D29 상품 등록 도우미 — 메모(+대표 사진) → 이름·한 줄 소개·설명 초안 → 「칸에 채우기」. 저장은 아래 「저장」 단추로 운영사가 한다.
 import { useRef, useState, useTransition } from "react";
 import { aiProductDraftAction, type ProductDraftState } from "@/lib/ai-helper-actions";
 

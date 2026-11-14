@@ -4,7 +4,7 @@ import type { SupplierProduct } from "@/lib/supplier-store";
 import { formatWon } from "@/lib/products";
 import { formatDateTime } from "@/lib/orders";
 
-// D35 운영자: 승인 대기 공급사 상품 — 판매가를 정해 승인(바로 판매 선택) 또는 사유를 적어 반려
+// D35 운영사: 승인 대기 공급사 상품 — 판매가를 정해 승인(바로 판매 선택) 또는 사유를 적어 반려
 export default function PendingProducts({
   slug,
   products,

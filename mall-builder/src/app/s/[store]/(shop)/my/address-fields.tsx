@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-// 우편번호·주소 칸 + 「주소 찾기」(카카오 우편번호 서비스 — 키·비용 없음, 손님 브라우저에서 바로 열림)
+// 우편번호·주소 칸 + 「주소 찾기」(카카오 우편번호 서비스 — 키·비용 없음, 유저 브라우저에서 바로 열림)
 // 검색 창을 못 불러오면 지금처럼 손으로 입력한다. 도서산간 판단은 우편번호로 하므로 검색 결과의 5자리 우편번호를 그대로 넣는다.
 
 const SCRIPT = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";

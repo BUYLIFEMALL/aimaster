@@ -23,7 +23,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ store
   const store = await getStoreBySlug(slug);
   const rows = await getCategoryRows(store.id);
 
-  // 손님 기준으로 보이는 카테고리만 — 숨김이거나 상위가 숨겨진 카테고리는 주소로 들어와도 없음 처리
+  // 유저 기준으로 보이는 카테고리만 — 숨김이거나 상위가 숨겨진 카테고리는 주소로 들어와도 없음 처리
   const visible = flattenTree(buildCategoryTree(rows, false));
   const node = visible.find((c) => c.id === categoryId);
   if (!node) notFound();

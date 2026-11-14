@@ -30,7 +30,7 @@ test("앱 설명 파일: 하위 도메인이면 시작 주소 /", () => {
   assert.equal(b.icons[1].src, "/s/gana/app-icon/512?v=1");
 });
 
-test("설치 안내는 승인된 사업자 손님만", () => {
+test("설치 안내는 승인된 사업자 유저만", () => {
   assert.equal(shouldOfferInstall(null), false);
   assert.equal(shouldOfferInstall({ kind: "consumer", approval_status: "approved" }), false);
   assert.equal(shouldOfferInstall({ kind: "business", approval_status: "pending" }), false);

@@ -1,6 +1,6 @@
 // D27 AI 견적 보조 — 보낼 자료·응답 형식·최저선 보정·비용 계산(node --test 대상, DB·SDK 없음)
 // 결정(주인님 2026-11-11): 몰 대표 본인 키, 모델 3개 중 선택(기본 Sonnet 5.5), 최소 마진율 아래는 코드가 최저선으로 올림, 원가는 보냄.
-// AI는 제안만 한다 — 견적 회신 칸에 채워 넣고 운영자가 고쳐서 회신(자동 회신 없음).
+// AI는 제안만 한다 — 견적 회신 칸에 채워 넣고 운영사가 고쳐서 회신(자동 회신 없음).
 
 import { z } from "zod";
 
@@ -110,14 +110,14 @@ export function estimateCost(model: AiModelId, usage: { input_tokens: number; ou
 /** AI에 보낼 글 — 몰 데이터만. 개인정보(연락처·주소)는 보내지 않는다 */
 export function buildQuotePrompt(facts: QuoteFact[], ctx: { buyer: string; isBusiness: boolean; requestNote: string; minMargin: number; year: number }) {
   const system = [
-    "너는 한국 B2B 도매 쇼핑몰 운영자를 돕는 견적 단가 보조다. 운영자가 거래처의 견적 요청에 회신할 품목별 단가(원, 부가세 포함, 정수)를 제안한다.",
+    "너는 한국 B2B 도매 쇼핑몰 운영사를 돕는 견적 단가 보조다. 운영사가 거래처의 견적 요청에 회신할 품목별 단가(원, 부가세 포함, 정수)를 제안한다.",
     `[기준 연도: ${ctx.year}년] 날짜와 관행은 ${ctx.year}년 기준으로 판단한다.`,
     "규칙:",
     `- 원가가 있으면 (단가 - 원가) / 단가 가 ${ctx.minMargin}% 이상이 되게 한다.`,
     "- '지금 거래처 단가'는 이 거래처가 지금 그대로 사면 내는 값이다. 견적은 보통 이보다 같거나 조금 낮게(대량·재구매·관계 고려) 제안하되 마진을 지킨다.",
     "- 최근 구매 단가가 있으면 일관성을 고려한다. 재고가 요청 수량보다 적으면 할인을 줄이고 이유에 적는다.",
     "- 끝자리는 보기 좋게(10원·100원 단위) 맞춘다.",
-    "- reason은 품목마다 한국어 한 문장(40자 이내). note는 운영자에게 하는 전체 한두 문장 조언(한국어).",
+    "- reason은 품목마다 한국어 한 문장(40자 이내). note는 운영사에게 하는 전체 한두 문장 조언(한국어).",
     "- 모든 품목의 item_id를 그대로 돌려준다.",
   ].join("\n");
   const lines = facts.map((f) =>
@@ -133,7 +133,7 @@ export function buildQuotePrompt(facts: QuoteFact[], ctx: { buyer: string; isBus
     }),
   );
   const user = [
-    `거래처: ${ctx.buyer} (${ctx.isBusiness ? "승인 사업자" : "일반 손님"})`,
+    `거래처: ${ctx.buyer} (${ctx.isBusiness ? "승인 사업자" : "일반 유저"})`,
     ctx.requestNote ? `거래처 요청 메모: ${ctx.requestNote.slice(0, 300)}` : "거래처 요청 메모: 없음",
     "품목(한 줄에 하나):",
     ...lines,

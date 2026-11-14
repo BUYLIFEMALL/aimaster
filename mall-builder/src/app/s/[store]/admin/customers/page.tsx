@@ -50,7 +50,7 @@ export default async function AdminCustomersPage({
         })}
       </nav>
       {customers.length === 0 ? (
-        <p className="mt-6 rounded border border-dashed p-8 text-center text-sm text-gray-500">손님이 없습니다.</p>
+        <p className="mt-6 rounded border border-dashed p-8 text-center text-sm text-gray-500">유저가 없습니다.</p>
       ) : (
         <ul className="mt-4 divide-y border-y text-sm">
           {customers.map((c) => (

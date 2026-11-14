@@ -54,7 +54,7 @@ export function buildVariants(groups: OptionGroup[], existing: Variant[] = []): 
   });
 }
 
-/** 손님이 고를 수 있는 조합 — 사용 중이고, 재고 관리 시 재고가 있는 것 */
+/** 유저가 고를 수 있는 조합 — 사용 중이고, 재고 관리 시 재고가 있는 것 */
 export function isVariantOrderable(v: Variant, stockByOption: boolean): boolean {
   return v.is_active && (!stockByOption || v.stock > 0);
 }

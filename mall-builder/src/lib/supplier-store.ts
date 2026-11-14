@@ -1,4 +1,4 @@
-// D34 공급사 읽기 — 보안 규칙(0053): 상품 권한 운영자는 몰 전체, 공급사는 자기 줄만
+// D34 공급사 읽기 — 보안 규칙(0053): 상품 권한 운영사는 몰 전체, 공급사는 자기 줄만
 import { createClient } from "@/lib/supabase/server";
 import { SUPPLIER_APPLY_COLUMNS, type SupplierApplication } from "@/lib/supplier-apply";
 import type { OptionGroup, Variant } from "@/lib/options";
@@ -76,7 +76,7 @@ export async function getSupplyConfig(storeId: string): Promise<SupplyConfig> {
   return { mode: data?.supply_mode === "rate" ? "rate" : "manual", hqRate: data?.hq_fee_rate == null ? 3 : Number(data.hq_fee_rate) };
 }
 
-/** 공급사 본인: 내 상품 목록(보안 규칙이 자기 상품만 — 손님으로 보이는 다른 상품은 supplier_id로 거름) */
+/** 공급사 본인: 내 상품 목록(보안 규칙이 자기 상품만 — 유저로 보이는 다른 상품은 supplier_id로 거름) */
 export async function getMySupplierProducts(supplierId: string): Promise<SupplierProduct[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_products").select(SP_COLUMNS).eq("supplier_id", supplierId).order("updated_at", { ascending: false });
@@ -90,14 +90,14 @@ export async function getSupplierProduct(supplierId: string, productId: string):
   return (await withSupply([data as Omit<SupplierProduct, "supply_price" | "reseller_rate" | "hq_rate">]))[0];
 }
 
-/** 운영자: 승인 대기 공급사 상품 */
+/** 운영사: 승인 대기 공급사 상품 */
 export async function getPendingSupplierProducts(storeId: string): Promise<SupplierProduct[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_products").select(SP_COLUMNS).eq("store_id", storeId).eq("approval", "pending").not("supplier_id", "is", null).order("updated_at");
   return withSupply((data ?? []) as Omit<SupplierProduct, "supply_price" | "reseller_rate" | "hq_rate">[]);
 }
 
-/** 공급사 상품 옵션(0060): 조합 목록 + 조합별 추가 공급가(공급사 본인·상품 권한 운영자만 읽힘) */
+/** 공급사 상품 옵션(0060): 조합 목록 + 조합별 추가 공급가(공급사 본인·상품 권한 운영사만 읽힘) */
 export async function getSupplierVariants(productId: string): Promise<{ variants: (Variant & { id: string; extra_supply: number })[]; groups: OptionGroup[] }> {
   const supabase = await createClient();
   const [{ data: p }, { data: vs }, { data: sup }] = await Promise.all([
@@ -122,7 +122,7 @@ export async function getSupplierShippingMap(storeId: string): Promise<Map<strin
   return new Map(((data ?? []) as SupplierShippingRow[]).map((r) => [r.supplier_id, r]));
 }
 
-/** 운영자 상품 목록용: 상품 id → 공급사 이름 */
+/** 운영사 상품 목록용: 상품 id → 공급사 이름 */
 export async function getSupplierNameMap(storeId: string): Promise<Map<string, string>> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_suppliers").select("id, name").eq("store_id", storeId);
@@ -155,14 +155,14 @@ export async function getSupplierOrders(storeId: string): Promise<{ items: Suppl
 
 export type ItemShipping = { courier: string; tracking_no: string; shipped_at: string | null; supplier_name?: string };
 
-/** 주문 상세(손님·운영자): 품목 id → 공급사 발송 송장(공급가 없음) */
+/** 주문 상세(유저·운영사): 품목 id → 공급사 발송 송장(공급가 없음) */
 export async function getItemTracking(orderId: string): Promise<Map<string, ItemShipping>> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_order_item_tracking", { p_order_id: orderId });
   return new Map(((data ?? []) as { order_item_id: string; courier: string; tracking_no: string; shipped_at: string }[]).map((r) => [r.order_item_id, r]));
 }
 
-/** 운영자 주문 상세: 품목 id → 공급사 이름·공급가·발송 상태(주문 권한 운영자만 읽힘) */
+/** 운영사 주문 상세: 품목 id → 공급사 이름·공급가·발송 상태(주문 권한 운영사만 읽힘) */
 export async function getItemSupplyForAdmin(orderId: string): Promise<Map<string, ItemShipping & { supply_price: number }>> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_order_item_supply").select("order_item_id, supplier_id, supply_price, courier, tracking_no, shipped_at").eq("order_id", orderId);
@@ -179,7 +179,7 @@ export async function getItemSupplyForAdmin(orderId: string): Promise<Map<string
 export type SupplierLedgerRow = { id: string; supplier_id: string; order_id: string | null; kind: LedgerKind; amount: number; balance_after: number; note: string; created_at: string };
 export type SupplierSettlementRow = { id: string; supplier_id: string; amount: number; memo: string; paid_at: string };
 
-/** 장부(공급사 하나 또는 몰 전체) — 보안 규칙: 주문 권한 운영자·공급사 본인 */
+/** 장부(공급사 하나 또는 몰 전체) — 보안 규칙: 주문 권한 운영사·공급사 본인 */
 export async function getSupplierLedger(opts: { supplierId?: string; storeId?: string; limit?: number }): Promise<SupplierLedgerRow[]> {
   const supabase = await createClient();
   let q = supabase.from("mall_builder_supplier_ledger").select("id, supplier_id, order_id, kind, amount, balance_after, note, created_at").order("created_at", { ascending: false }).limit(opts.limit ?? 2000);
@@ -199,7 +199,7 @@ export async function getSupplierSettlements(opts: { supplierId?: string; storeI
 }
 
 // ── M1-0(0070) 공급사 입점 신청 ──
-/** 몰 운영자(상품 권한): 이 몰의 입점 신청(대기 먼저) */
+/** 몰 운영사(상품 권한): 이 몰의 입점 신청(대기 먼저) */
 export async function getSupplierApplications(storeId: string): Promise<SupplierApplication[]> {
   const supabase = await createClient();
   const { data } = await supabase

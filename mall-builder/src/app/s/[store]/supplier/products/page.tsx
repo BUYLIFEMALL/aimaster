@@ -28,7 +28,7 @@ export default async function SupplierProductsPage({ params, searchParams }: { p
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-gray-500">내 상품 {products.length}개 · 판매가는 몰 운영자가 정합니다.</p>
+            <p className="text-sm text-gray-500">내 상품 {products.length}개 · 판매가는 몰 운영사가 정합니다.</p>
             {me.status === "active" ? (
               <Link href={`/s/${store.slug}/supplier/products/new`} className="min-h-11 rounded bg-gray-900 px-4 py-2.5 text-sm text-white" data-supplier-new>+ 상품 올리기</Link>
             ) : (
@@ -52,14 +52,14 @@ export default async function SupplierProductsPage({ params, searchParams }: { p
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className={`rounded px-1.5 py-0.5 text-xs ${APPROVAL_TONE[p.approval]}`} data-approval>{APPROVAL_LABEL[p.approval]}</span>
                         <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">{PRODUCT_STATUS[p.status]}</span>
-                        {live && <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700">손님에게 보임</span>}
+                        {live && <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700">유저에게 보임</span>}
                         <Link href={`/s/${store.slug}/supplier/products/${p.id}`} className="truncate font-medium underline">{p.name}</Link>
                       </div>
                       <p className="mt-1 text-xs text-gray-600">
                         공급가 {formatWon(p.supply_price)} · 판매가 {formatWon(p.base_price)}{m && ` (몰 마진 ${m.rate}%)`} · 재고 {p.stock_mode === "product" ? `${p.stock}개` : "관리 안 함"}
                       </p>
                       {p.approval === "rejected" && p.approval_note && <p className="mt-1 rounded bg-red-50 px-2 py-1 text-xs text-red-700" data-reject-note>반려 사유: {p.approval_note}</p>}
-                      {p.approval === "pending" && <p className="mt-1 text-xs text-amber-700">운영자 확인을 기다리고 있습니다.</p>}
+                      {p.approval === "pending" && <p className="mt-1 text-xs text-amber-700">운영사 확인을 기다리고 있습니다.</p>}
                     </div>
                     {p.approval === "approved" && me.status === "active" && (
                       <form action={pauseSupplierProductAction.bind(null, store.slug, p.id, p.status === "on_sale" || p.status === "sold_out")} className="shrink-0">

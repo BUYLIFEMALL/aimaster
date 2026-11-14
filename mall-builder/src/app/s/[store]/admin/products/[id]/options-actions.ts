@@ -111,6 +111,6 @@ export async function saveSupplierOptionsAction(slug: string, productId: string,
   revalidatePath(`/s/${slug}/supplier/products`);
   revalidatePath(`/s/${slug}`, "layout");
   const message =
-    data === "pending" ? "옵션을 저장했습니다. 운영자가 확인한 뒤 다시 판매됩니다." : data === "approved" ? "옵션을 저장했습니다(바로 판매 공급사)." : "옵션을 저장했습니다. 판매는 그대로 이어집니다.";
+    data === "pending" ? "옵션을 저장했습니다. 운영사가 확인한 뒤 다시 판매됩니다." : data === "approved" ? "옵션을 저장했습니다(바로 판매 공급사)." : "옵션을 저장했습니다. 판매는 그대로 이어집니다.";
   return { saved: true, error: null, message };
 }

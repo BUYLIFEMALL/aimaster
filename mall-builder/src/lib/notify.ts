@@ -2,11 +2,11 @@
 // 플랜: docs/PLAN_20261104_ORDER_NOTIFY.md. 솔라피 SDK 호출은 src/lib/solapi.ts(서버 전용)에 두고 여기서는 주입받는다.
 
 export const NOTIFY_KINDS = [
-  { key: "staff_new_order", label: "새 주문 → 운영자", hint: "주문 번호·금액·결제 방식" },
-  { key: "customer_received", label: "주문 접수 → 손님", hint: "입금 금액·계좌·입금 기한(무통장)" },
-  { key: "customer_paid", label: "입금 확인 → 손님", hint: "결제 완료로 바꿀 때" },
-  { key: "customer_shipped", label: "발송 → 손님", hint: "택배사·송장 번호" },
-  { key: "customer_expired", label: "자동 취소 → 손님", hint: "입금 기한이 지나 취소될 때" },
+  { key: "staff_new_order", label: "새 주문 → 운영사", hint: "주문 번호·금액·결제 방식" },
+  { key: "customer_received", label: "주문 접수 → 유저", hint: "입금 금액·계좌·입금 기한(무통장)" },
+  { key: "customer_paid", label: "입금 확인 → 유저", hint: "결제 완료로 바꿀 때" },
+  { key: "customer_shipped", label: "발송 → 유저", hint: "택배사·송장 번호" },
+  { key: "customer_expired", label: "자동 취소 → 유저", hint: "입금 기한이 지나 취소될 때" },
 ] as const;
 
 export type NotifyKind = (typeof NOTIFY_KINDS)[number]["key"];
@@ -14,7 +14,7 @@ export type NotifyKind = (typeof NOTIFY_KINDS)[number]["key"];
 export const NOTIFY_KIND_LABEL: Record<string, string> = {
   ...Object.fromEntries(NOTIFY_KINDS.map((k) => [k.key, k.label])),
   test: "시험 문자",
-  customer_restock: "재입고 → 손님",
+  customer_restock: "재입고 → 유저",
 };
 
 /** 재입고 알림(D16) 문구 속 {{site}}를 사이트 주소로(DB 트리거는 사이트 주소를 모른다) */

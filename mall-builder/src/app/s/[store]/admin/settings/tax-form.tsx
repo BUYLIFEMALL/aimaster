@@ -6,7 +6,7 @@ import { saveTaxSettingsAction, testTaxKeyAction, type TaxState } from "./tax-ac
 
 export type TaxStatus = { hasKey: boolean; mode: string; managerEmail: string; businessType: string; businessItem: string };
 
-// 세금계산서 발행(볼타, D19) — 운영자 본인 볼타 키·공동인증서로 발행. 손님 요청 → 운영자가 주문 상세에서 「발행」
+// 세금계산서 발행(볼타, D19) — 운영사 본인 볼타 키·공동인증서로 발행. 유저 요청 → 운영사가 주문 상세에서 「발행」
 export default function TaxForm({ slug, status }: { slug: string; status: TaxStatus }) {
   const initial: TaxState = { error: null, message: null, managerEmail: status.managerEmail, businessType: status.businessType, businessItem: status.businessItem };
   const [state, formAction, pending] = useActionState(saveTaxSettingsAction.bind(null, slug), initial);
@@ -17,7 +17,7 @@ export default function TaxForm({ slug, status }: { slug: string; status: TaxSta
     <fieldset className="rounded-lg border p-4" data-tax-settings>
       <legend className="px-1 text-sm font-semibold">세금계산서 발행(볼타)</legend>
       <p className="text-sm text-gray-600">
-        사업자 손님이 주문에 세금계산서를 요청하면, 주문 상세에서 「발행」 한 번으로 전자세금계산서를 보냅니다. 운영자님 본인 볼타(bolta.io) 계정의 API 키와 공동인증서로 발행되고, 요금(건당 90원, VAT 별도)은 운영자님 볼타 포인트에서 빠집니다. 카드 결제 주문은 카드 매출전표가 대신하므로 발행하지 않습니다.
+        사업자 유저가 주문에 세금계산서를 요청하면, 주문 상세에서 「발행」 한 번으로 전자세금계산서를 보냅니다. 운영사님 본인 볼타(bolta.io) 계정의 API 키와 공동인증서로 발행되고, 요금(건당 90원, VAT 별도)은 운영사님 볼타 포인트에서 빠집니다. 카드 결제 주문은 카드 매출전표가 대신하므로 발행하지 않습니다.
       </p>
       <p className="mt-2 text-sm" data-tax-status>상태 <b>{label}</b></p>
 

@@ -11,7 +11,7 @@ export const fetchCache = "force-no-store";
 
 type Row = { id: string; product_id: string; title: string; group_price: number; target_qty: number; max_per_customer: number | null; starts_at: string; ends_at: string; status: GroupBuyStatus; achieved_qty: number | null };
 
-// 운영자 공동구매(D21) — 만들기·진행률·지금 마감·실패 일괄 취소. 마감 판정은 예약 실행이 자동으로
+// 운영사 공동구매(D21) — 만들기·진행률·지금 마감·실패 일괄 취소. 마감 판정은 예약 실행이 자동으로
 export default async function AdminGroupBuysPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;
@@ -40,7 +40,7 @@ export default async function AdminGroupBuysPage({ params, searchParams }: { par
 
       <section className="rounded border p-4" data-new-group-buy>
         <h2 className="text-sm font-semibold">새 공동구매</h2>
-        <p className="mt-1 text-xs text-gray-500">손님은 참여할 때 바로 결제하고, 결제가 끝난 수량만 셉니다. 마감 시각이 지나면 자동으로 판정해 참여 손님에게 문자로 알립니다. 목표를 못 채우면 아래 목록의 「미달 주문 일괄 취소·환불」을 눌러 주세요.</p>
+        <p className="mt-1 text-xs text-gray-500">유저는 참여할 때 바로 결제하고, 결제가 끝난 수량만 셉니다. 마감 시각이 지나면 자동으로 판정해 참여 유저에게 문자로 알립니다. 목표를 못 채우면 아래 목록의 「미달 주문 일괄 취소·환불」을 눌러 주세요.</p>
         <form action={createGroupBuyAction.bind(null, store.slug)} className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
           <label className="block sm:col-span-2">
             <span className="text-xs text-gray-500">상품</span>

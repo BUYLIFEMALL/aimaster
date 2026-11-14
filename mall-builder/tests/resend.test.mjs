@@ -27,7 +27,7 @@ test("상태 → 결과: 2xx 보냄, 4xx 실패, 409·429·5xx 불확실", () =>
   assert.equal(classifyStatus(503), "unknown");
 });
 
-test("보냄·실패를 기록하고, 머리글에 알림 번호(중복 방지 키)와 운영자 키", async () => {
+test("보냄·실패를 기록하고, 머리글에 알림 번호(중복 방지 키)와 운영사 키", async () => {
   const { f, calls } = fakeFetch([200, 403]);
   const r = await sendEmailsClaimed([item("a"), item("b")], CREDS, "https://dev.example.com", f, 0);
   assert.deepEqual(r.map((x) => x.result), ["sent", "failed"]);
@@ -55,7 +55,7 @@ test("키가 없으면 보내지 않고 실패", async () => {
   assert.equal(r[0].result, "failed");
 });
 
-test("본문은 HTML 이스케이프, 링크는 운영자→관리 화면·손님→주문 화면", () => {
+test("본문은 HTML 이스케이프, 링크는 운영사→관리 화면·유저→주문 화면", () => {
   const e = buildEmail(item("a"), CREDS, "https://dev.example.com/");
   assert.ok(e.html.includes("&lt;b&gt;"));
   assert.ok(!e.html.includes("<b>굵게"));
@@ -70,6 +70,6 @@ test("주소 형식·기록 표시", () => {
   assert.equal(checkEmail(""), null);
   assert.match(checkEmail("no-at") ?? "", /형식/);
   assert.equal(maskEmail("owner@example.com"), "ow***@example.com");
-  assert.equal(kindLabel("email_customer_paid"), "입금 확인 → 손님");
+  assert.equal(kindLabel("email_customer_paid"), "입금 확인 → 유저");
   assert.equal(kindLabel("email_test"), "시험 메일");
 });

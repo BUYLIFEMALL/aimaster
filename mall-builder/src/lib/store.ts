@@ -44,7 +44,7 @@ export async function requireUser(next: string) {
   return user;
 }
 
-/** 내가 운영자인 몰 목록 (보안 규칙이 내 몰만 돌려준다) */
+/** 내가 운영사인 몰 목록 (보안 규칙이 내 몰만 돌려준다) */
 export async function getMyStores(userId: string): Promise<Store[]> {
   const supabase = await createClient();
   const { data: staff } = await supabase
@@ -58,7 +58,7 @@ export async function getMyStores(userId: string): Promise<Store[]> {
   return (data ?? []) as Store[];
 }
 
-/** 주소로 몰 찾기 — 정지된 몰은 보안 규칙상 운영자에게만 보인다. 없으면 404 */
+/** 주소로 몰 찾기 — 정지된 몰은 보안 규칙상 운영사에게만 보인다. 없으면 404 */
 export async function getStoreBySlug(slug: string): Promise<Store> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_stores").select(STORE_COLUMNS).eq("slug", slug).maybeSingle();
@@ -72,7 +72,7 @@ export async function isStoreStaff(storeId: string): Promise<boolean> {
   return data === true;
 }
 
-/** 몰의 카테고리 — 보안 규칙상 손님에게는 보이는 것만, 운영자에게는 숨긴 것까지 온다 */
+/** 몰의 카테고리 — 보안 규칙상 유저에게는 보이는 것만, 운영사에게는 숨긴 것까지 온다 */
 export async function getCategoryRows(storeId: string): Promise<CategoryRow[]> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -127,7 +127,7 @@ export async function getTierMap(productIds: string[]): Promise<Map<string, Volu
   return map;
 }
 
-/** 지금 보는 사람(손님 화면) — 요청마다 한 번만 읽는다 */
+/** 지금 보는 사람(유저 화면) — 요청마다 한 번만 읽는다 */
 export const getShopper = cache(async (storeId: string) => {
   const user = await getCurrentUser();
   const customer = user ? await getMyCustomer(storeId, user.id) : null;
@@ -135,7 +135,7 @@ export const getShopper = cache(async (storeId: string) => {
     user,
     customer,
     viewer: viewerOf(customer, !!user),
-    // 사업자 등급은 승인 때만 붙으므로 손님의 등급 그대로(주문 DB 함수도 같은 등급으로 계산)
+    // 사업자 등급은 승인 때만 붙으므로 유저의 등급 그대로(주문 DB 함수도 같은 등급으로 계산)
     gradeId: customer?.grade_id ?? null,
     gradeName: customer?.grade?.name ?? null,
   };
@@ -144,7 +144,7 @@ export const getShopper = cache(async (storeId: string) => {
 /** 등급 할인·최저 판매가(T1, DB 0057) — 상품 id → { 등급가, 하한 }.
  * 등급가는 DB가 「상품 예외 → 카테고리 등급율(상위 카테고리 상속) → 등급 기본율」 순서로 정한다.
  * 하한(공급가 × (1 + 최소 마진))은 걸릴 가능성이 있을 때만 온다(공급가 역산 방지).
- * customerId는 운영자가 특정 손님 기준으로 계산할 때만(AI 견적) — 손님 화면에서는 DB가 「나」를 쓴다 */
+ * customerId는 운영사가 특정 유저 기준으로 계산할 때만(AI 견적) — 유저 화면에서는 DB가 「나」를 쓴다 */
 export async function getPriceRuleMap(storeId: string, productIds: string[], customerId: string | null = null): Promise<Map<string, { gradePrice: GradePrice; floor: number | null }>> {
   const map = new Map<string, { gradePrice: GradePrice; floor: number | null }>();
   if (!productIds.length) return map;
@@ -168,7 +168,7 @@ export async function getGrades(storeId: string): Promise<Grade[]> {
   return (data ?? []) as Grade[];
 }
 
-/** 상품의 등급가(운영자 편집용) — 등급 id → 입력 칸 글자("8000" 또는 "15%") */
+/** 상품의 등급가(운영사 편집용) — 등급 id → 입력 칸 글자("8000" 또는 "15%") */
 export async function getProductGradePriceInputs(productId: string): Promise<Record<string, string>> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_product_grade_prices").select("grade_id, price, discount_rate").eq("product_id", productId);
@@ -195,7 +195,7 @@ export async function getPriceContexts(storeId: string, productIds: string[]): P
   });
 }
 
-/** 거래처 특가(D24) — 이 손님의 상품별 특가 + 기본 할인율(상품 없는 줄). 끝나는 날(한국 날짜)이 지난 것은 뺀다(DB 0045b와 같은 조건) */
+/** 거래처 특가(D24) — 이 유저의 상품별 특가 + 기본 할인율(상품 없는 줄). 끝나는 날(한국 날짜)이 지난 것은 뺀다(DB 0045b와 같은 조건) */
 export async function getCustomerPriceMap(customerId: string | null, productIds: string[]): Promise<{ byProduct: Map<string, GradePrice>; base: GradePrice }> {
   const byProduct = new Map<string, GradePrice>();
   if (!customerId) return { byProduct, base: null };
@@ -230,12 +230,12 @@ async function getOpenGroupPrices(productIds: string[]): Promise<Map<string, num
   return map;
 }
 
-/** 손님 화면 가격 문맥(상품 하나) — 가격 엔진 priceLine의 네 번째 인자 */
+/** 유저 화면 가격 문맥(상품 하나) — 가격 엔진 priceLine의 네 번째 인자 */
 export async function getPriceContext(storeId: string, productId: string): Promise<PriceContext> {
   return (await getPriceContexts(storeId, [productId]))(productId);
 }
 
-/** 몰의 배송비 정책(기본 정책이 맨 앞). mallOnly = 공급사 배송비 정책(0060)은 빼고 — 운영자 배송비·상품 화면용. 손님 계산 화면은 전부 */
+/** 몰의 배송비 정책(기본 정책이 맨 앞). mallOnly = 공급사 배송비 정책(0060)은 빼고 — 운영사 배송비·상품 화면용. 유저 계산 화면은 전부 */
 export async function getShippingPolicies(storeId: string, opts: { mallOnly?: boolean } = {}): Promise<ShippingPolicy[]> {
   const supabase = await createClient();
   let q = supabase
@@ -249,7 +249,7 @@ export async function getShippingPolicies(storeId: string, opts: { mallOnly?: bo
   return (data ?? []) as ShippingPolicy[];
 }
 
-/** 손님 화면용 상품 목록 — 판매 중·품절만(운영자가 볼 때도 손님과 같게). 카테고리·검색어로 거른다 */
+/** 유저 화면용 상품 목록 — 판매 중·품절만(운영사가 볼 때도 유저와 같게). 카테고리·검색어로 거른다 */
 export async function getShopProducts(
   storeId: string,
   opts: { categoryIds?: string[]; ids?: string[]; q?: string; limit?: number } = {},
@@ -270,7 +270,7 @@ export async function getShopProducts(
   return withDisplayPrices(storeId, await readShopProducts(storeId, { ids: productIds, q: opts.q, limit: opts.limit }));
 }
 
-/** 손님 화면 상품 읽기는 모두 DB 함수로(0018) — 사업자 전용은 승인 사업자에게만, 가격 비공개 상품은 판매가 0·정가 null로 가려서 온다 */
+/** 유저 화면 상품 읽기는 모두 DB 함수로(0018) — 사업자 전용은 승인 사업자에게만, 가격 비공개 상품은 판매가 0·정가 null로 가려서 온다 */
 async function readShopProducts(storeId: string, o: { ids?: string[] | null; q?: string; limit?: number }): Promise<ProductRow[]> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_shop_products", {
@@ -305,7 +305,7 @@ async function withDisplayPrices(storeId: string, rows: ProductRow[]): Promise<S
   return out;
 }
 
-/** 손님 상품 상세 — 판매 중·품절만. 없으면 null */
+/** 유저 상품 상세 — 판매 중·품절만. 없으면 null */
 export async function getShopProduct(storeId: string, productId: string) {
   const [row] = await readShopProducts(storeId, { ids: [productId], limit: 1 });
   if (!row) return null;
@@ -325,7 +325,7 @@ export async function getProductVariants(productId: string): Promise<(Variant & 
   return (data ?? []) as (Variant & { id: string })[];
 }
 
-/** 운영자용 상품 목록(모든 상태) — 보안 규칙상 운영자가 아니면 손님에게 보이는 것만 온다 */
+/** 운영사용 상품 목록(모든 상태) — 보안 규칙상 운영사가 아니면 유저에게 보이는 것만 온다 */
 export async function getStoreProducts(storeId: string): Promise<(ProductRow & { category_ids: string[] })[]> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -357,7 +357,7 @@ export async function getProductForEdit(storeId: string, productId: string) {
   return { ...row, cost: priv?.cost ?? null, category_ids: (row.mall_builder_product_categories ?? []).map((l) => l.category_id) };
 }
 
-/** 운영자 관리 화면 공통 입구 — 로그인 확인 후 몰과 「운영자인가」를 함께 돌려준다 */
+/** 운영사 관리 화면 공통 입구 — 로그인 확인 후 몰과 「운영사인가」를 함께 돌려준다 */
 export async function getStaffStore(slug: string, path: string): Promise<{ store: Store; staff: boolean }> {
   await requireUser(path);
   const store = await getStoreBySlug(slug);
@@ -391,7 +391,7 @@ export type StoreCustomer = {
 
 export type LedgerEntry = { id: string; kind: LedgerKind; amount: number; balance_after: number; note: string; order_id: string | null; created_at: string };
 
-/** 외상 장부(최근 순)와 지금 사용 중 금액 — 보안 규칙상 그 손님 본인과 그 몰 운영자만 */
+/** 외상 장부(최근 순)와 지금 사용 중 금액 — 보안 규칙상 그 유저 본인과 그 몰 운영사만 */
 export async function getCreditLedger(customerId: string): Promise<{ balance: number; entries: LedgerEntry[] }> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -421,7 +421,7 @@ export async function getMyCustomer(storeId: string, userId: string): Promise<St
   return (data as unknown as StoreCustomer | null) ?? null;
 }
 
-/** 운영자 손님 목록(이 몰) — 승인 상태로 거르기. 승인 대기가 먼저 */
+/** 운영사 유저 목록(이 몰) — 승인 상태로 거르기. 승인 대기가 먼저 */
 export async function getStoreCustomers(storeId: string, approval?: ApprovalStatus): Promise<StoreCustomer[]> {
   const supabase = await createClient();
   let query = supabase.from("mall_builder_store_customers").select(CUSTOMER_COLUMNS).eq("store_id", storeId).order("created_at", { ascending: false }).limit(300);
@@ -430,7 +430,7 @@ export async function getStoreCustomers(storeId: string, approval?: ApprovalStat
   return (data ?? []) as unknown as StoreCustomer[];
 }
 
-/** 손님 한 명(운영자 화면) — 보안 규칙상 그 몰 운영자(또는 본인)만 받는다 */
+/** 유저 한 명(운영사 화면) — 보안 규칙상 그 몰 운영사(또는 본인)만 받는다 */
 export async function getStoreCustomer(storeId: string, customerId: string): Promise<StoreCustomer | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_store_customers").select(CUSTOMER_COLUMNS).eq("store_id", storeId).eq("id", customerId).maybeSingle();
@@ -463,7 +463,7 @@ export async function getCart(storeId: string, userId: string): Promise<CartRow[
     .order("created_at");
   type Raw = { id: string; qty: number; mall_builder_products: ProductRow | null; mall_builder_product_variants: (Variant & { id: string }) | null };
   return ((data ?? []) as unknown as Raw[])
-    .filter((r) => r.mall_builder_products) // 손님에게 안 보이게 된 상품(숨김 등)은 빼고 보여 준다
+    .filter((r) => r.mall_builder_products) // 유저에게 안 보이게 된 상품(숨김 등)은 빼고 보여 준다
     .map((r) => ({ id: r.id, qty: r.qty, product: r.mall_builder_products!, variant: r.mall_builder_product_variants }));
 }
 
@@ -485,7 +485,7 @@ export async function getMyOrders(storeId: string, userId: string): Promise<(Ord
   }));
 }
 
-/** 운영자 주문 목록(이 몰, 최근 순) — 상태로 거르기. 보안 규칙상 운영자가 아니면 자기 주문만 온다 */
+/** 운영사 주문 목록(이 몰, 최근 순) — 상태로 거르기. 보안 규칙상 운영사가 아니면 자기 주문만 온다 */
 export async function getStoreOrders(storeId: string, status?: string) {
   const supabase = await createClient();
   let query = supabase
@@ -504,7 +504,7 @@ export async function getStoreOrders(storeId: string, status?: string) {
   }));
 }
 
-/** 상태별 주문 수(운영자 탭 숫자) */
+/** 상태별 주문 수(운영사 탭 숫자) */
 export async function getOrderCounts(storeId: string): Promise<Record<string, number>> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_orders").select("status").eq("store_id", storeId).limit(5000);
@@ -513,7 +513,7 @@ export async function getOrderCounts(storeId: string): Promise<Record<string, nu
   return counts;
 }
 
-/** 주문 하나(품목·이력 포함) — 보안 규칙상 주문한 손님과 그 몰 운영자만 받는다. 없으면 null */
+/** 주문 하나(품목·이력 포함) — 보안 규칙상 주문한 유저와 그 몰 운영사만 받는다. 없으면 null */
 export async function getOrder(storeId: string, orderId: string) {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_orders").select(`${ORDER_COLUMNS}, user_id`).eq("store_id", storeId).eq("id", orderId).maybeSingle();
@@ -560,7 +560,7 @@ const QUOTE_COLUMNS =
 
 export type QuotableProduct = { id: string; name: string; base_price: number; status: string; variants: { id: string; key: string; extra_price: number }[] };
 
-/** 운영자 견적 보내기(D4)용 — 판매 중·품절 상품과 판매 중인 옵션 조합(운영자 권한으로 읽음) */
+/** 운영사 견적 보내기(D4)용 — 판매 중·품절 상품과 판매 중인 옵션 조합(운영사 권한으로 읽음) */
 export async function getQuotableProducts(storeId: string): Promise<QuotableProduct[]> {
   const products = (await getStoreProducts(storeId)).filter((p) => p.status === "on_sale" || p.status === "sold_out");
   if (!products.length) return [];
@@ -576,7 +576,7 @@ export async function getQuotableProducts(storeId: string): Promise<QuotableProd
   return products.map((p) => ({ id: p.id, name: p.name, base_price: p.base_price, status: p.status, variants: (p.option_groups?.length ?? 0) > 0 ? byProduct.get(p.id) ?? [] : [] }));
 }
 
-/** 견적 목록 — 손님은 자기 것만(userId), 운영자는 몰 전체(userId 없이). 보안 규칙이 한 번 더 거른다 */
+/** 견적 목록 — 유저는 자기 것만(userId), 운영사는 몰 전체(userId 없이). 보안 규칙이 한 번 더 거른다 */
 export async function getQuotes(storeId: string, userId?: string): Promise<(QuoteRow & { item_count: number; first_item: string })[]> {
   const supabase = await createClient();
   let query = supabase
@@ -630,14 +630,14 @@ export async function getMyAddresses(customerId: string): Promise<CustomerAddres
   return (data ?? []) as CustomerAddress[];
 }
 
-/** 손님 첫 화면 — 게시된 블록만(초안은 DB 함수가 돌려주지 않는다). 게시 전이면 빈 문서 */
+/** 유저 첫 화면 — 게시된 블록만(초안은 DB 함수가 돌려주지 않는다). 게시 전이면 빈 문서 */
 export async function getPublishedHome(storeId: string): Promise<BlocksDoc> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_published_page", { p_store_id: storeId });
   return readDoc(data);
 }
 
-/** 손님 화면 디자인(테마·헤더·바닥글 등, DB 0080) — 게시본만. 게시 전이거나 함수가 아직 없는 DB면 빈 객체 → 기본 디자인 */
+/** 유저 화면 디자인(테마·헤더·바닥글 등, DB 0080) — 게시본만. 게시 전이거나 함수가 아직 없는 DB면 빈 객체 → 기본 디자인 */
 export const getPublishedDesign = cache(async (storeId: string): Promise<Record<string, unknown>> => {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("mall_builder_design_published", { p_store_id: storeId });
@@ -686,7 +686,7 @@ export async function getNotice(storeId: string, id: string): Promise<Notice | n
   return (data as Notice) ?? null;
 }
 
-/** 운영자 편집 화면 — 초안·게시본·저장 시각(표 읽기는 운영자만 허용) */
+/** 운영사 편집 화면 — 초안·게시본·저장 시각(표 읽기는 운영사만 허용) */
 export async function getHomeForEdit(storeId: string): Promise<{ draft: BlocksDoc; published: BlocksDoc | null; draftAt: string | null; publishedAt: string | null }> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -707,7 +707,7 @@ export async function getHomeForEdit(storeId: string): Promise<{ draft: BlocksDo
 export type ProductReview = { id: string; rating: number; body: string; reply: string | null; replied_at: string | null; created_at: string; author: string; option: string | null; mine: boolean };
 export type ProductInquiry = { id: string; is_secret: boolean; created_at: string; answered_at: string | null; answered: boolean; mine: boolean; title: string; body: string | null; answer: string | null; author: string };
 
-/** 손님에게 보이는 상품 후기(DB 함수가 이름을 가리고 숨긴 것을 뺀다) */
+/** 유저에게 보이는 상품 후기(DB 함수가 이름을 가리고 숨긴 것을 뺀다) */
 export async function getProductReviews(productId: string): Promise<{ count: number; average: number | null; items: ProductReview[] }> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_product_reviews", { p_product_id: productId, p_limit: 50 });
@@ -715,7 +715,7 @@ export async function getProductReviews(productId: string): Promise<{ count: num
   return { count: d.count ?? 0, average: d.average ?? null, items: d.items ?? [] };
 }
 
-/** 손님에게 보이는 상품 문의(비밀글은 본인·운영자만 내용이 온다) */
+/** 유저에게 보이는 상품 문의(비밀글은 본인·운영사만 내용이 온다) */
 export async function getProductInquiries(productId: string): Promise<{ count: number; items: ProductInquiry[] }> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_product_inquiries", { p_product_id: productId, p_limit: 50 });
@@ -750,7 +750,7 @@ export async function getMyInquiries(storeId: string, userId: string): Promise<I
 
 export type StoreInquiry = InquiryRow & { customer: { name: string; phone: string } | null; product: { name: string } | null; order: { order_no: string } | null };
 
-/** 운영자 문의 목록 — 최근 순(지운 것 제외) */
+/** 운영사 문의 목록 — 최근 순(지운 것 제외) */
 export async function getStoreInquiries(storeId: string): Promise<StoreInquiry[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_inquiries")
@@ -773,7 +773,7 @@ export async function getStoreRecentReviews(storeId: string, limit: number, minR
   return (data ?? []) as RecentReview[];
 }
 
-/** 운영자 후기 목록 — 최근 순(지운 것 제외, 숨긴 것 포함) */
+/** 운영사 후기 목록 — 최근 순(지운 것 제외, 숨긴 것 포함) */
 export async function getStoreReviews(storeId: string): Promise<StoreReview[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_reviews")
@@ -782,7 +782,7 @@ export async function getStoreReviews(storeId: string): Promise<StoreReview[]> {
   return (data ?? []) as unknown as StoreReview[];
 }
 
-/** 통계(D14) — DB 함수가 운영자만 허용. 실패하면 빈 통계 */
+/** 통계(D14) — DB 함수가 운영사만 허용. 실패하면 빈 통계 */
 export async function getStats(storeId: string, from: Date, to: Date): Promise<Stats> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("mall_builder_stats", { p_store_id: storeId, p_from: from.toISOString(), p_to: to.toISOString() });
@@ -791,7 +791,7 @@ export async function getStats(storeId: string, from: Date, to: Date): Promise<S
 
 export type Faq = { id: string; category: string; question: string; answer: string; sort: number; is_published: boolean; created_at: string };
 
-/** FAQ — 보안 규칙상 손님에게는 공개된 것만, 운영자에게는 전부 */
+/** FAQ — 보안 규칙상 유저에게는 공개된 것만, 운영사에게는 전부 */
 export async function getFaqs(storeId: string): Promise<Faq[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_faqs").select("id, category, question, answer, sort, is_published, created_at")
@@ -799,7 +799,7 @@ export async function getFaqs(storeId: string): Promise<Faq[]> {
   return (data ?? []) as Faq[];
 }
 
-/** 직원 부계정(D22): 손님·주문 상세(개인정보)를 연 기록. 권한이 없어 화면이 막힌 경우는 남기지 않는다 */
+/** 직원 부계정(D22): 유저·주문 상세(개인정보)를 연 기록. 권한이 없어 화면이 막힌 경우는 남기지 않는다 */
 export async function logStaffView(storeId: string, type: "customer" | "order", target: string) {
   const supabase = await createClient();
   const me = ((await supabase.rpc("mall_builder_my_staff", { p_store_id: storeId })).data ?? null) as MyStaff;

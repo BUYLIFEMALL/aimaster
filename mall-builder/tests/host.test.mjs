@@ -37,7 +37,7 @@ test("이미 /s/ 경로·내부 경로·정적 파일은 그대로 둔다", () =
   }
 });
 
-test("운영자 화면에 보여 줄 하위 도메인 주소", () => {
+test("운영사 화면에 보여 줄 하위 도메인 주소", () => {
   assert.equal(mallSubdomainUrl("shop1", "mall.example.com"), "https://shop1.mall.example.com");
   assert.equal(mallSubdomainUrl("shop1", "localhost"), null);
   assert.equal(mallSubdomainUrl("shop1", ""), null);

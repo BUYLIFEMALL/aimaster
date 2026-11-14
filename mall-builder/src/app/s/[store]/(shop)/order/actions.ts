@@ -8,7 +8,7 @@ import { validateInvoiceEmail } from "@/lib/taxInvoice";
 export type PlaceOrderState = { error: string | null; depositor: string; memo: string };
 
 // 금액·재고·외상 한도는 DB 함수 mall_builder_place_order_v2(0038, 쿠폰·포인트 포함)가 다시 계산·검사한다(화면 금액은 「확인용」으로만 보낸다)
-// 장바구니 비우기는 함수 밖에서 손님 권한으로 한다 — DB 함수에 지우기를 넣으면 적용 확인 창이 막힘(docs/mall/LESSONS_LEARNED.md)
+// 장바구니 비우기는 함수 밖에서 유저 권한으로 한다 — DB 함수에 지우기를 넣으면 적용 확인 창이 막힘(docs/mall/LESSONS_LEARNED.md)
 export async function placeOrderAction(slug: string, _prev: PlaceOrderState, form: FormData): Promise<PlaceOrderState> {
   const values = { depositor: String(form.get("depositor") ?? ""), memo: String(form.get("memo") ?? "") };
   const addressId = String(form.get("address_id") ?? "");

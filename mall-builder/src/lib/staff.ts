@@ -4,7 +4,7 @@
 export const PERM_GROUPS = [
   { key: "orders", label: "주문·견적" },
   { key: "products", label: "상품·재고·공동구매" },
-  { key: "customers", label: "손님·쿠폰·포인트" },
+  { key: "customers", label: "유저·쿠폰·포인트" },
   { key: "boards", label: "게시판(후기·문의·FAQ·공지)" },
   { key: "home", label: "첫 화면·사진" },
   { key: "stats", label: "통계" },
@@ -66,7 +66,7 @@ export function permsLabel(perms: unknown): string {
 }
 
 export const ACCESS_ACTION_LABEL: Record<string, string> = {
-  view_customer: "손님 정보 열람",
+  view_customer: "유저 정보 열람",
   view_order: "주문 정보 열람",
   staff_invite: "직원 초대",
   staff_accept: "초대 수락",
@@ -79,7 +79,7 @@ export const ACCESS_ACTION_LABEL: Record<string, string> = {
   supplier_status: "공급사 상태 변경",
   supplier_settle: "공급사 정산 지급",
   supplier_auto: "공급사 바로 판매 설정",
-  customer_grade: "손님 등급 변경",
+  customer_grade: "유저 등급 변경",
   product_approve: "공급사 상품 승인",
   variant_prices: "공급사 옵션 판매가",
   supplier_shipping: "공급사 배송비 설정",

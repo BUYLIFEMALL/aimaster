@@ -1,5 +1,5 @@
 // 세금계산서 발행 요청 — DB: 주문 tax_invoice(jsonb) 칸, 함수 mall_builder_request_tax_invoice / mall_builder_mark_tax_invoice_issued (0015)
-// 실제 발행은 운영자가 홈택스 등에서 하고, 여기서는 「요청 → 발행 완료」 기록만 한다
+// 실제 발행은 운영사가 홈택스 등에서 하고, 여기서는 「요청 → 발행 완료」 기록만 한다
 
 export type TaxInvoiceAmendment = { kind: "termination" | "changeSupplyCost"; at: string; supply_diff: number; tax_diff: number; status: "requested" | "unknown" };
 
@@ -32,7 +32,7 @@ export const TAX_INVOICE_LABEL = {
   unknown: "결과 확인 필요",
 } as const;
 
-/** 운영자 주문 상세에서 보일 버튼(D19). 카드 주문은 매출전표가 대신하므로 발행 안 함 */
+/** 운영사 주문 상세에서 보일 버튼(D19). 카드 주문은 매출전표가 대신하므로 발행 안 함 */
 export function taxInvoiceButtons(
   inv: TaxInvoice | null,
   order: { status: string; is_card: boolean },

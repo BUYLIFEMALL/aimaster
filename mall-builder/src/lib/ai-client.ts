@@ -199,7 +199,7 @@ async function callGemini<S extends z.ZodType>(ai: AiSetup, system: string, text
   return finish(ai, schema, raw, { input_tokens: meta.promptTokenCount ?? 0, output_tokens: (meta.candidatesTokenCount ?? 0) + (meta.thoughtsTokenCount ?? 0) });
 }
 
-/** 오류 → 운영자 안내(제공자 이름을 붙여서) */
+/** 오류 → 운영사 안내(제공자 이름을 붙여서) */
 export function aiErrorMessage(e: unknown, provider: AiProviderId = "anthropic"): { error: string; needKey?: boolean } {
   const name = providerLabel(provider);
   let status: number | undefined;

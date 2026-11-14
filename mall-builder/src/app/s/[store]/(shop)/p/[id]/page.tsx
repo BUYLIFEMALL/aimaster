@@ -86,13 +86,13 @@ export default async function ProductPage({
     );
   }
 
-  // 경로: 손님에게 보이는 첫 번째 카테고리
+  // 경로: 유저에게 보이는 첫 번째 카테고리
   const visibleIds = new Set(flattenTree(buildCategoryTree(categoryRows, false)).map((c) => c.id));
   const firstCategory = product.category_ids.find((cid) => visibleIds.has(cid));
   const path = firstCategory ? categoryPath(categoryRows, firstCategory) : [];
   const base = `/s/${store.slug}`;
 
-  // 받을 수 있는 쿠폰(D17) — 이 상품에 쓸 수 있는 「손님이 받기」 쿠폰만
+  // 받을 수 있는 쿠폰(D17) — 이 상품에 쓸 수 있는 「유저가 받기」 쿠폰만
   const [downloadable, mine] = await Promise.all([
     getDownloadableCoupons(store.id),
     customer ? getMyCoupons(customer.id) : Promise.resolve([]),

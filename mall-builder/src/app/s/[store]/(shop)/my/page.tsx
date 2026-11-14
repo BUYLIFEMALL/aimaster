@@ -93,7 +93,7 @@ export default async function MyPage({
   const usable = coupons.filter((i) => !i.used_at && i.coupon.is_active && (!i.expires_at || Date.parse(i.expires_at) > now));
   const soon = expiringSoon(pointLedger, now);
   const [birthM, birthD] = (customer.birth_md ?? "-").split("-");
-  // D33 리셀러로 지정된 손님에게만 리셀러 칸 — 링크는 지금 접속한 주소 기준(하위 도메인이면 그 주소)
+  // D33 리셀러로 지정된 유저에게만 리셀러 칸 — 링크는 지금 접속한 주소 기준(하위 도메인이면 그 주소)
   const reseller = await getMyResellerSummary(store.id);
   const [rLedger, rPayouts] = reseller ? await Promise.all([getResellerLedger(reseller.id, 30), getPayouts(store.id, reseller.id, 20)]) : [[], []];
   const h = await headers();
@@ -119,7 +119,7 @@ export default async function MyPage({
           <p className="font-medium text-amber-900">
             {customer.member_status === "rejected"
               ? `입장이 반려되었습니다${customer.member_reject_reason ? ` — ${customer.member_reject_reason}` : ""}`
-              : "입장 대기 중입니다. 운영자가 승인하면 상품을 보고 주문할 수 있습니다."}
+              : "입장 대기 중입니다. 운영사가 승인하면 상품을 보고 주문할 수 있습니다."}
           </p>
           {readClosed(store.settings).code && (
             <form action={applyInviteCodeAction.bind(null, store.slug)} className="mt-2 flex gap-2">
@@ -183,7 +183,7 @@ export default async function MyPage({
         )}
         {customer.approval_status === "pending" && (
           <p className="text-sm text-gray-700">
-            {customer.company}({customer.business_no}) 신청을 운영자가 확인하고 있습니다.
+            {customer.company}({customer.business_no}) 신청을 운영사가 확인하고 있습니다.
             {customer.applied_at && ` 신청일 ${new Date(customer.applied_at).toLocaleDateString("ko-KR")}.`}
           </p>
         )}

@@ -4,7 +4,7 @@ import { createHash, randomBytes } from "node:crypto";
 
 export const DEPOSIT_HOURS_MIN = 1;
 export const DEPOSIT_HOURS_MAX = 168;
-/** 몰 운영자 cron-job.org가 부르는 실행 주소 */
+/** 몰 운영사 cron-job.org가 부르는 실행 주소 */
 export const DEPOSIT_EXPIRE_PATH = "/api/cron/deposit-expire";
 /** 10분마다 확인(입금 기한은 시간 단위라 1분 확인이 필요 없다) */
 export const CHECK_MINUTES = [0, 10, 20, 30, 40, 50];
@@ -20,7 +20,7 @@ export function parseDepositHours(input: string): { ok: true; value: number | nu
   return { ok: true, value: n };
 }
 
-/** 몰 전용 실행 토큰 — 운영자 cron-job.org 작업 머리글에만 들어가고, DB에는 해시만 둔다 */
+/** 몰 전용 실행 토큰 — 운영사 cron-job.org 작업 머리글에만 들어가고, DB에는 해시만 둔다 */
 export function newRunToken(): string {
   return RUN_TOKEN_PREFIX + randomBytes(32).toString("base64url");
 }

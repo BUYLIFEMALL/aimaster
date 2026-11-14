@@ -90,7 +90,7 @@ export function validateBusinessInfo(input: Record<string, unknown>): BusinessIn
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, value };
 }
 
-/** 손님 화면 바닥글에 꼭 있어야 하는 칸 중 비어 있는 것 */
+/** 유저 화면 바닥글에 꼭 있어야 하는 칸 중 비어 있는 것 */
 export function missingRequired(info: BusinessInfo): string[] {
   return BUSINESS_FIELDS.filter((f) => f.required && !info[f.key]).map((f) => f.label);
 }

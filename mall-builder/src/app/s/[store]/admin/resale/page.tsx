@@ -72,7 +72,7 @@ export default async function AdminResalePage({ params, searchParams }: { params
         <section id="money" className="mt-6 scroll-mt-4 rounded-lg border p-4 text-sm" data-resale-money>
           <h3 className="font-semibold">💰 매출·정산</h3>
           <p className="mt-1">출금할 수 있는 잔액 <b className="text-lg" data-resale-balance>{formatWon(balance)}</b></p>
-          <p className="mt-1 text-xs text-gray-500">손님이 구매 확정하면 (결제 금액 − 배송비) × 수수료 {rate ?? "—"}%가 쌓이고, 그 뒤 반품·취소되면 회수됩니다. 손님 주문의 입금 확인·발송은 본사가 처리하며 진행 상태는 「주문」에서 볼 수 있습니다.</p>
+          <p className="mt-1 text-xs text-gray-500">유저가 구매 확정하면 (결제 금액 − 배송비) × 수수료 {rate ?? "—"}%가 쌓이고, 그 뒤 반품·취소되면 회수됩니다. 유저 주문의 입금 확인·발송은 본사가 처리하며 진행 상태는 「주문」에서 볼 수 있습니다.</p>
           {waitingPayout ? (
             <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">출금 신청 {formatWon(waitingPayout.amount)} — 본사 처리 대기 중입니다.</p>
           ) : (
@@ -253,7 +253,7 @@ export default async function AdminResalePage({ params, searchParams }: { params
 
       <section id="orders" className="mt-6 scroll-mt-4" data-resale-orders>
         <h3 className="text-sm font-semibold">분양 주문 입금 확인 <b className={waitingOrders.length ? "text-red-700" : ""}>{waitingOrders.length}</b></h3>
-        <p className="mt-1 text-xs text-gray-500">분양몰 손님은 이 몰 계좌로 입금합니다. 입금을 확인하면 이 몰에 「분양 전달」 주문이 생기고, 지금처럼 「주문」에서 발송하면 분양몰 주문도 함께 바뀝니다.</p>
+        <p className="mt-1 text-xs text-gray-500">분양몰 유저는 이 몰 계좌로 입금합니다. 입금을 확인하면 이 몰에 「분양 전달」 주문이 생기고, 지금처럼 「주문」에서 발송하면 분양몰 주문도 함께 바뀝니다.</p>
         {resaleOrders.length === 0 ? (
           <p className="mt-1 text-sm text-gray-500">아직 분양몰 주문이 없습니다.</p>
         ) : (

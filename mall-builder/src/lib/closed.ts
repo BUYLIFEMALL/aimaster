@@ -12,14 +12,14 @@ export function readClosed(settings: unknown): ClosedSettings {
   return { enabled: o.enabled === true, approval: o.approval === true, code: o.code === true, notice: typeof o.notice === "string" ? o.notice : "" };
 }
 
-/** 승인 전 손님에게도 열어 둘 몰 안 경로: 가입·마이페이지(입장 상태·코드 입력) */
+/** 승인 전 유저에게도 열어 둘 몰 안 경로: 가입·마이페이지(입장 상태·코드 입력) */
 export function openWhileClosed(pathname: string | null, slug: string): boolean {
   if (!pathname) return false;
   const base = `/s/${slug}`;
   return pathname === `${base}/join` || pathname.startsWith(`${base}/join/`) || pathname === `${base}/my` || pathname.startsWith(`${base}/my/`);
 }
 
-/** 이 손님이 폐쇄몰 안을 볼 수 있는가(운영자는 언제나) */
+/** 이 유저가 폐쇄몰 안을 볼 수 있는가(운영사는 언제나) */
 export function canEnterClosed(closed: ClosedSettings, staff: boolean, memberStatus: MemberStatus | null | undefined): boolean {
   return !closed.enabled || staff || memberStatus === "approved";
 }

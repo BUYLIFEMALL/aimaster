@@ -68,7 +68,7 @@ export async function joinAction(slug: string, next: string, _prev: JoinState, f
   redirect(next.startsWith(`/s/${slug}/`) ? next : `/s/${slug}/my`);
 }
 
-/** 폐쇄몰(D20): 입장 대기·반려 손님이 초대 코드로 바로 입장 */
+/** 폐쇄몰(D20): 입장 대기·반려 유저가 초대 코드로 바로 입장 */
 export async function applyInviteCodeAction(slug: string, form: FormData) {
   const supabase = await createClient();
   const { data: store } = await supabase.from("mall_builder_stores").select("id").eq("slug", slug).maybeSingle();

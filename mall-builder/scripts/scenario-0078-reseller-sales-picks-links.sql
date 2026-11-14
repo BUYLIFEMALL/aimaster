@@ -1,5 +1,5 @@
 -- 0078 리셀러 판매 내역·판매 수·픽·짧은 링크 시나리오(로컬 Docker 전용, 단독). 0077 시나리오 준비 재사용
--- 몰 scn(대표 a1, 수수료율 방식 본사 3%), 공급사 b1, 리셀러 R1(손님 c1·f1, 추가율 2%), 구매자 c4(f4), 다른 사람 e9
+-- 몰 scn(대표 a1, 수수료율 방식 본사 3%), 공급사 b1, 리셀러 R1(유저 c1·f1, 추가율 2%), 구매자 c4(f4), 다른 사람 e9
 \set ON_ERROR_STOP 1
 insert into auth.users (id, email) select ('00000000-0000-0000-0000-0000000000' || x)::uuid, x || '@x.test' from unnest(array['a1','b1','f1','f2','f4','e9']) x;
 insert into public.profiles (id, email) select ('00000000-0000-0000-0000-0000000000' || x)::uuid, x || '@x.test' from unnest(array['a1','b1','f1','f2','f4','e9']) x;
@@ -38,7 +38,7 @@ begin
   return v;
 end $f$;
 
--- 0078 준비: 다른 리셀러 R2(손님 c2·f2), 본사 컵에 리셀러율 5%
+-- 0078 준비: 다른 리셀러 R2(유저 c2·f2), 본사 컵에 리셀러율 5%
 insert into mall_builder_store_customers (id, store_id, user_id, name, phone) values ('00000000-0000-0000-0000-0000000000c2','00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000f2','리셀러2','010-2222-3333');
 insert into mall_builder_resellers (id, store_id, customer_id, code, rate, active) values ('00000000-0000-0000-0000-0000000000e2','00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000c2','RSLR02',0,true);
 update mall_builder_products set reward_rate = 5 where id = '00000000-0000-0000-0000-0000000000d9';
@@ -77,17 +77,17 @@ set role authenticated;
 select 'E 판매' t, order_no, reward from mall_builder_reseller_sales('00000000-0000-0000-0000-00000000005a');
 select 'E 남의 픽·링크' t, (select count(*) from mall_builder_reseller_picks) picks, (select count(*) from mall_builder_reseller_links) links;
 reset role;
--- F 손님(f4·비리셀러)은 판매 내역·판매 수·링크 만들기 막힘
+-- F 유저(f4·비리셀러)은 판매 내역·판매 수·링크 만들기 막힘
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000f4', false);
 set role authenticated;
 do $$ begin perform * from mall_builder_reseller_sales('00000000-0000-0000-0000-00000000005a'); raise notice 'F1 — 통과됨(문제)'; exception when others then raise notice 'F1 막힘: %', sqlerrm; end $$;
 do $$ begin perform * from mall_builder_product_sold('00000000-0000-0000-0000-00000000005a'); raise notice 'F2 — 통과됨(문제)'; exception when others then raise notice 'F2 막힘: %', sqlerrm; end $$;
 do $$ begin perform mall_builder_reseller_link_make('00000000-0000-0000-0000-00000000005a', null); raise notice 'F3 — 통과됨(문제)'; exception when others then raise notice 'F3 막힘: %', sqlerrm; end $$;
 reset role;
--- G 운영자(a1)는 판매 수 봄
+-- G 운영사(a1)는 판매 수 봄
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000a1', false);
 set role authenticated;
-select 'G 운영자 판매 수 줄' t, count(*) from mall_builder_product_sold('00000000-0000-0000-0000-00000000005a');
+select 'G 운영사 판매 수 줄' t, count(*) from mall_builder_product_sold('00000000-0000-0000-0000-00000000005a');
 reset role;
 -- H 열기(비로그인): 맞는 몰 → 컵·RSLR01, 누른 수 1 / 다른 몰 이름 → 없음 / 이상한 키 → 없음 / 품절 → 상품 그대로 / 숨김 → 상품 null / 리셀러 정지 → 없음
 select set_config('request.jwt.claim.sub','', false);

@@ -63,7 +63,7 @@ export default function BusinessForm({
         <input name="ceo_name" defaultValue={initial.ceo_name} required maxLength={30} className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
       </label>
       <label className="block sm:col-span-3">
-        <span className="text-xs text-gray-500">사업자등록증 (PDF·JPG·PNG·WEBP, 5MB 이하 — 운영자만 볼 수 있습니다)</span>
+        <span className="text-xs text-gray-500">사업자등록증 (PDF·JPG·PNG·WEBP, 5MB 이하 — 운영사만 볼 수 있습니다)</span>
         <input name="cert" type="file" accept={CERT_TYPES.join(",")} required className="mt-0.5 block w-full text-sm" />
       </label>
       {error && <p className="text-sm text-red-600 sm:col-span-3" data-business-error>{error}</p>}

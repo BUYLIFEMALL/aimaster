@@ -29,7 +29,7 @@ export async function lookupGuestOrderAction(slug: string, form: FormData) {
   redirect(`/s/${slug}/guest/orders/${row.order_id}`);
 }
 
-/** 비회원 손님의 상태 변경(입금 전 취소·취소 요청·구매 확정·반품 요청) */
+/** 비회원 유저의 상태 변경(입금 전 취소·취소 요청·구매 확정·반품 요청) */
 export async function guestChangeStatusAction(slug: string, orderId: string, to: string) {
   const here = `/s/${slug}/guest/orders/${orderId}`;
   const token = (await readGuestTokens(slug))[orderId];

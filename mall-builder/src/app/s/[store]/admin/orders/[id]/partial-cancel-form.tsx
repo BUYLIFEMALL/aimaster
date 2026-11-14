@@ -4,7 +4,7 @@ import { formatWon } from "@/lib/products";
 import type { OrderItemRow } from "@/lib/orders";
 import { useInlineConfirm } from "@/app/inline-confirm";
 
-// 운영자 부분 취소(D5) — 품목마다 「취소할 수량」 칸. 보내기 전에 한 번 더 묻는다(되돌릴 수 없음)
+// 운영사 부분 취소(D5) — 품목마다 「취소할 수량」 칸. 보내기 전에 한 번 더 묻는다(되돌릴 수 없음)
 export default function PartialCancelForm({ items, action, isCredit, isCard = false, usedBenefits = false }: { items: OrderItemRow[]; action: (form: FormData) => Promise<void>; isCredit: boolean; isCard?: boolean; usedBenefits?: boolean }) {
   // 카드 주문은 줄어든 금액이 카드로 자동 환불된다(D11) — 「직접 환불」 안내는 무통장 주문에만
   const tail = (isCard ? " 줄어든 금액은 카드로 바로 환불됩니다." : isCredit ? " 외상 장부에서도 되돌립니다." : " 입금된 주문이면 차액은 직접 환불해 주세요.") +
@@ -44,7 +44,7 @@ export default function PartialCancelForm({ items, action, isCredit, isCard = fa
       </ul>
       <div className="mt-3 flex flex-wrap items-end gap-2">
         <label className="block">
-          <span className="text-xs text-gray-500">메모(선택, 손님에게도 보임)</span>
+          <span className="text-xs text-gray-500">메모(선택, 유저에게도 보임)</span>
           <input name="note" maxLength={200} className="mt-0.5 w-64 rounded border px-2 py-1.5" placeholder="예: 블랙 재고 부족" />
         </label>
         <button className="min-h-10 rounded border border-red-200 px-4 text-red-700">선택 수량 취소</button>

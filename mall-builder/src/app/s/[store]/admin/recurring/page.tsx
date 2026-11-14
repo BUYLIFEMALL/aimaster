@@ -9,7 +9,7 @@ import { RecurringList } from "../../recurring-list";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// D30 운영자 「정기 주문」 — 몰 전체 정기 주문·최근 회차·실패 사유, 전체 일시정지 단추 하나(「주문」 권한)
+// D30 운영사 「정기 주문」 — 몰 전체 정기 주문·최근 회차·실패 사유, 전체 일시정지 단추 하나(「주문」 권한)
 export default async function AdminRecurringPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;
@@ -46,7 +46,7 @@ export default async function AdminRecurringPage({ params, searchParams }: { par
           자동 실행(cron-job.org)이 꺼져 있어 정기 주문이 만들어지지 않습니다. <Link href={`/s/${store.slug}/admin/settings`} className="underline">쇼핑몰 정보</Link>의 「입금 기한 자동 취소」 칸에서 자동 실행(cron-job.org)을 켜 주세요.
         </p>
       )}
-      <p className="mb-4 text-sm text-gray-600">거래처가 지난 주문 상세에서 만든 정기 주문입니다. 주문일 아침 8시 이후 첫 자동 실행 때 그날 가격으로 주문을 만들고(외상은 바로 결제 완료, 무통장은 입금 대기), 실패하면 주문하지 않고 손님에게 문자로 알립니다.</p>
+      <p className="mb-4 text-sm text-gray-600">거래처가 지난 주문 상세에서 만든 정기 주문입니다. 주문일 아침 8시 이후 첫 자동 실행 때 그날 가격으로 주문을 만들고(외상은 바로 결제 완료, 무통장은 입금 대기), 실패하면 주문하지 않고 유저에게 문자로 알립니다.</p>
       <RecurringList slug={store.slug} rows={rows} runs={runs} back={back} admin />
     </AdminShell>
   );

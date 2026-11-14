@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // M4-C3 리셀러 짧은 링크 `/s/<몰>/l/<키>`(하위 도메인이면 `/l/<키>`) — DB 0078이 키를 확인하고 누른 수 +1,
-// 상품 화면(또는 몰 첫 화면)에 ?ref=<코드>를 붙여 보낸다. 쿠키는 손님 화면의 ref-catcher가 심는다(기존 링크와 같은 길).
+// 상품 화면(또는 몰 첫 화면)에 ?ref=<코드>를 붙여 보낸다. 쿠키는 유저 화면의 ref-catcher가 심는다(기존 링크와 같은 길).
 // 키가 없거나 리셀러가 정지됐으면 코드 없이 몰 첫 화면으로.
 export async function GET(request: NextRequest, { params }: { params: Promise<{ store: string; key: string }> }) {
   const { store: slug, key } = await params;

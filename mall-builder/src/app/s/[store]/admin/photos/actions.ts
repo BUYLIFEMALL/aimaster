@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 // 안 쓰는 사진 지우기(D7) — 고른 사진 중 지금 다시 확인해도 「지울 수 있음」인 것만 지운다
-// 목록·쓰임 판단은 DB 함수 mall_builder_store_files(그 몰 운영자만), 지우기는 저장소 지우기 규칙(그 몰 운영자만)
+// 목록·쓰임 판단은 DB 함수 mall_builder_store_files(그 몰 운영사만), 지우기는 저장소 지우기 규칙(그 몰 운영사만)
 
 const BUCKET = "mall-builder-public";
 const MAX_DELETE = 100;

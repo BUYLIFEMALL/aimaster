@@ -12,7 +12,7 @@ function go(path: string, error?: string | null, ok?: string): never {
   redirect(`${path}${path.includes("?") ? "&" : "?"}${q}`);
 }
 
-/** 손님: 후기 쓰기·고치기(주문 상세 품목) */
+/** 유저: 후기 쓰기·고치기(주문 상세 품목) */
 export async function writeReviewAction(slug: string, orderId: string, orderItemId: string, form: FormData) {
   const back = `/s/${slug}/orders/${orderId}`;
   const v = validateReview({ rating: form.get("rating"), body: form.get("body") });
@@ -23,7 +23,7 @@ export async function writeReviewAction(slug: string, orderId: string, orderItem
   go(back, error?.message, "후기를 남겼습니다.");
 }
 
-/** 손님: 후기 지우기 */
+/** 유저: 후기 지우기 */
 export async function removeReviewAction(slug: string, backPath: string, reviewId: string) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("mall_builder_review_remove", { p_review_id: reviewId });
@@ -31,7 +31,7 @@ export async function removeReviewAction(slug: string, backPath: string, reviewI
   go(backPath, error?.message, "후기를 지웠습니다.");
 }
 
-/** 손님: 상품 문의 / 1:1 문의 쓰기 */
+/** 유저: 상품 문의 / 1:1 문의 쓰기 */
 export async function writeInquiryAction(slug: string, storeId: string, kind: InquiryKind, productId: string | null, backPath: string, form: FormData) {
   const v = validateInquiry({ title: form.get("title"), body: form.get("body"), secret: form.get("secret") });
   if (!v.ok) go(backPath, v.error);
@@ -45,7 +45,7 @@ export async function writeInquiryAction(slug: string, storeId: string, kind: In
   go(backPath, error?.message, "문의를 남겼습니다. 답변이 달리면 이 자리에 보입니다.");
 }
 
-/** 손님: 문의 고치기(답변 전만) */
+/** 유저: 문의 고치기(답변 전만) */
 export async function editInquiryAction(slug: string, backPath: string, inquiryId: string, form: FormData) {
   const v = validateInquiry({ title: form.get("title"), body: form.get("body"), secret: form.get("secret") });
   if (!v.ok) go(backPath, v.error);
@@ -55,7 +55,7 @@ export async function editInquiryAction(slug: string, backPath: string, inquiryI
   go(backPath, error?.message, "문의를 고쳤습니다.");
 }
 
-/** 손님: 문의 지우기 */
+/** 유저: 문의 지우기 */
 export async function removeInquiryAction(slug: string, backPath: string, inquiryId: string) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("mall_builder_inquiry_remove", { p_inquiry_id: inquiryId });
@@ -63,9 +63,9 @@ export async function removeInquiryAction(slug: string, backPath: string, inquir
   go(backPath, error?.message, "문의를 지웠습니다.");
 }
 
-// ── 운영자 ──
+// ── 운영사 ──
 
-/** 운영자: 후기 답글·숨기기 */
+/** 운영사: 후기 답글·숨기기 */
 export async function moderateReviewAction(slug: string, reviewId: string, form: FormData) {
   const back = `/s/${slug}/admin/reviews`;
   const v = validateAnswer(form.get("reply"), MAX_REPLY);
@@ -76,7 +76,7 @@ export async function moderateReviewAction(slug: string, reviewId: string, form:
   go(back, error?.message, "후기를 처리했습니다.");
 }
 
-/** 운영자: 문의 답변·숨기기 */
+/** 운영사: 문의 답변·숨기기 */
 export async function answerInquiryAction(slug: string, inquiryId: string, form: FormData) {
   const back = `/s/${slug}/admin/inquiries`;
   const v = validateAnswer(form.get("answer"), MAX_ANSWER);
@@ -96,7 +96,7 @@ async function staffStore(slug: string, back: string) {
   return { supabase, storeId: store.id as string };
 }
 
-/** 운영자: FAQ 쓰기·고치기(표 규칙으로 — 그 몰 운영자만) */
+/** 운영사: FAQ 쓰기·고치기(표 규칙으로 — 그 몰 운영사만) */
 export async function saveFaqAction(slug: string, faqId: string | null, form: FormData) {
   const back = `/s/${slug}/admin/faq`;
   const v = validateFaq({ category: form.get("category"), question: form.get("question"), answer: form.get("answer"), sort: form.get("sort"), published: form.get("published") });

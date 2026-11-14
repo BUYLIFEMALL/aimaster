@@ -1,4 +1,4 @@
-// D30 정기 주문 — 서버 읽기(보안 규칙상 손님은 자기 것만, 「주문」 권한 직원은 몰 전체)
+// D30 정기 주문 — 서버 읽기(보안 규칙상 유저는 자기 것만, 「주문」 권한 직원은 몰 전체)
 import { createClient } from "./supabase/server";
 import type { RecurringKind, RecurringPay, RecurringStatus } from "./recurring";
 

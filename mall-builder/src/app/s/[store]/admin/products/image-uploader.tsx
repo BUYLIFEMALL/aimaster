@@ -7,7 +7,7 @@ import { MAX_DETAIL_IMAGES, MAX_IMAGES, type ProductImage } from "@/lib/products
 const BUCKET = "mall-builder-public";
 const MAX_BYTES = 5 * 1024 * 1024;
 
-// 사진은 브라우저에서 바로 몰 폴더(<몰 id>/products/)로 올린다. 저장소 보안 규칙이 그 몰 운영자만 허용한다.
+// 사진은 브라우저에서 바로 몰 폴더(<몰 id>/products/)로 올린다. 저장소 보안 규칙이 그 몰 운영사만 허용한다.
 // D35: folder를 주면 그 폴더로(공급사는 <몰 id>/supplier/<공급사 id> — 저장소 규칙이 본인 폴더만 허용)
 // H2(0064): detail을 주면 「상세 그림」 칸(name=detail_images, 최대 40장, 대표 없음·순서 바꾸기)
 export default function ImageUploader({ storeId, initial, folder, detail = false }: { storeId: string; initial: ProductImage[]; folder?: string; detail?: boolean }) {

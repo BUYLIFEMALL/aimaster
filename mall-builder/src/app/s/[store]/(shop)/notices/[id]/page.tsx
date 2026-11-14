@@ -4,7 +4,7 @@ import { getNotice, getStoreBySlug } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-// 손님 공지 상세(F19) — 본문은 일반 글(줄바꿈만 살림, HTML로 그리지 않음)
+// 유저 공지 상세(F19) — 본문은 일반 글(줄바꿈만 살림, HTML로 그리지 않음)
 export default async function NoticePage({ params }: { params: Promise<{ store: string; id: string }> }) {
   const { store: slug, id } = await params;
   const store = await getStoreBySlug(slug);

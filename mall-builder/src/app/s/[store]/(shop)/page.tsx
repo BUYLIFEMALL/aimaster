@@ -11,7 +11,7 @@ import { ProductGrid } from "./product-card";
 export const dynamic = "force-dynamic";
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 첫 화면
-// 위쪽은 운영자가 게시한 블록(F18·F19, 초안은 안 보임), 아래는 신상품 목록
+// 위쪽은 운영사가 게시한 블록(F18·F19, 초안은 안 보임), 아래는 신상품 목록
 export default async function StorefrontPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);
@@ -39,7 +39,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ sto
       {store.status === "suspended" && (
         <div className="mx-auto mt-4 max-w-6xl px-4 sm:px-6">
           <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
-            이 몰은 정지된 상태입니다. 운영자인 회원님에게만 보입니다.
+            이 몰은 정지된 상태입니다. 운영사인 회원님에게만 보입니다.
           </p>
         </div>
       )}

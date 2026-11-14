@@ -5,7 +5,7 @@ import { noResetSubmit } from "@/lib/no-reset-submit";
 import type { QuotableProduct } from "@/lib/store";
 import { MAX_SEND_ITEMS } from "@/lib/quotes";
 
-// 운영자 견적 보내기(D4) 작성 폼 — 품목 줄(상품·옵션·수량·견적가)은 hidden 「items」(JSON)로 서버 동작에 넘긴다.
+// 운영사 견적 보내기(D4) 작성 폼 — 품목 줄(상품·옵션·수량·견적가)은 hidden 「items」(JSON)로 서버 동작에 넘긴다.
 // 오류는 화면에 돌려받아 보여 주므로 입력한 줄이 그대로 남는다
 type Row = { product_id: string; variant_id: string; qty: string; price: string };
 const empty = (): Row => ({ product_id: "", variant_id: "", qty: "1", price: "" });
@@ -75,7 +75,7 @@ export default function SendQuoteForm({
           <input type="date" name="valid_until" defaultValue={defaultValidUntil} min={minDate} max={maxDate} required className="mt-0.5 w-full rounded border px-2 py-1.5" />
         </label>
         <label className="block text-sm sm:col-span-2">
-          <span className="text-xs text-gray-500">손님에게 보일 메모(선택, 500자)</span>
+          <span className="text-xs text-gray-500">유저에게 보일 메모(선택, 500자)</span>
           <textarea name="note" maxLength={500} rows={2} className="mt-0.5 w-full rounded border px-2 py-1.5" placeholder="예: 대량 구매 특가입니다. 다음 주 금요일까지 유효합니다." />
         </label>
       </div>

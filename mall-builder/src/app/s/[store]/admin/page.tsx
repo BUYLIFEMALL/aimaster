@@ -26,7 +26,7 @@ export default async function StoreAdminPage({ params, searchParams }: { params:
       {flashOk && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-flash-ok>{flashMsg || "처리했습니다."}</p>}
       {missing.length > 0 && (
         <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm">
-          <p className="font-semibold">손님 화면 바닥글에 꼭 필요한 사업자 정보가 비어 있습니다.</p>
+          <p className="font-semibold">유저 화면 바닥글에 꼭 필요한 사업자 정보가 비어 있습니다.</p>
           <p className="mt-1 text-gray-700">빠진 칸: {missing.join(", ")}</p>
           <Link href={`/s/${store.slug}/admin/settings`} className="mt-2 inline-block text-blue-700 underline">
             쇼핑몰 정보 입력하기

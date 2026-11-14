@@ -44,9 +44,9 @@ export default async function AdminQuotePage({
         <span className="text-sm text-gray-500">{formatDateTime(quote.created_at)} · {quote.customer?.company ?? quote.customer?.name}</span>
       </div>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-answer-error>{error}</p>}
-      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-quote-ok>{ok === "sent" ? "견적을 보냈습니다." : "회신했습니다."} 손님이 견적가로 바로 주문할 수 있습니다.</p>}
+      {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-quote-ok>{ok === "sent" ? "견적을 보냈습니다." : "회신했습니다."} 유저가 견적가로 바로 주문할 수 있습니다.</p>}
       {quote.origin === "staff" && <p className="mt-2 text-xs text-gray-500" data-quote-origin>{QUOTE_ORIGIN_LABEL.staff} 견적</p>}
-      {quote.request_note && <p className="mt-4 rounded bg-gray-50 px-3 py-2 text-sm">손님 메모: {quote.request_note}</p>}
+      {quote.request_note && <p className="mt-4 rounded bg-gray-50 px-3 py-2 text-sm">유저 메모: {quote.request_note}</p>}
 
       {editable && <AiSuggest slug={store.slug} quoteId={quote.id} settingsHref={`/s/${store.slug}/admin/settings`} last={lastAi} />}
 
@@ -81,7 +81,7 @@ export default async function AdminQuotePage({
               <input type="date" name="valid_until" defaultValue={quote.valid_until ?? addDays(todayKst(), 7)} className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
             </label>
             <label className="block sm:col-span-2">
-              <span className="text-xs text-gray-500">회신 메모(손님에게 보임)</span>
+              <span className="text-xs text-gray-500">회신 메모(유저에게 보임)</span>
               <input name="note" defaultValue={quote.answer_note} maxLength={500} className="mt-0.5 w-full rounded border px-2 py-1.5 text-sm" />
             </label>
             <button className="min-h-10 rounded bg-gray-900 px-4 text-sm text-white sm:w-40">{quote.status === "answered" ? "다시 회신" : "회신 보내기"}</button>
@@ -90,7 +90,7 @@ export default async function AdminQuotePage({
       </form>
       {quote.order_id && (
         <p className="mt-6 text-sm">
-          손님이 이 견적으로 주문했습니다. <Link href={`/s/${store.slug}/admin/orders/${quote.order_id}`} className="underline">주문 보기</Link>
+          유저가 이 견적으로 주문했습니다. <Link href={`/s/${store.slug}/admin/orders/${quote.order_id}`} className="underline">주문 보기</Link>
         </p>
       )}
     </AdminShell>

@@ -29,7 +29,7 @@ const BADGE: Record<string, string> = {
   revoked: "bg-gray-100 text-gray-400",
 };
 
-// D34 입점형 마켓플레이스 — 운영자 「공급사」: 초대(이메일 → 수락), 정보·상태(입점 중/쉬는 중) 관리. 상품 권한 직원과 대표
+// D34 입점형 마켓플레이스 — 운영사 「공급사」: 초대(이메일 → 수락), 정보·상태(입점 중/쉬는 중) 관리. 상품 권한 직원과 대표
 export default async function AdminSuppliersPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;
@@ -65,7 +65,7 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
       {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
       <h2 className="text-lg font-semibold">🏭 공급사</h2>
-      <p className="mt-1 text-sm text-gray-600">다른 회사 상품을 이 몰에서 함께 팔 때 씁니다. 공급사는 자기 화면에서 상품을 올리고(운영자 승인 뒤 판매), 자기 품목 주문만 보고 발송합니다. 정산은 구매 확정된 품목의 공급가 기준입니다.</p>
+      <p className="mt-1 text-sm text-gray-600">다른 회사 상품을 이 몰에서 함께 팔 때 씁니다. 공급사는 자기 화면에서 상품을 올리고(운영사 승인 뒤 판매), 자기 품목 주문만 보고 발송합니다. 정산은 구매 확정된 품목의 공급가 기준입니다.</p>
       {/* M1-1(0068) 공급가 방식·본사 판매수수료율 — 공급가 = 판매가 × (1 − 본사율 − 리셀러율) */}
       <section className="mt-4 rounded-lg border p-4 text-sm" data-supply-settings>
         <h3 className="font-semibold">💰 공급가 방식·본사 판매수수료</h3>
@@ -159,7 +159,7 @@ export default async function AdminSuppliersPage({ params, searchParams }: { par
                     <input name="biz_no" maxLength={20} defaultValue={s.biz_no} placeholder="사업자등록번호" className="rounded border px-2 py-1.5" />
                     <input name="contact_name" maxLength={30} defaultValue={s.contact_name} placeholder="담당자" className="rounded border px-2 py-1.5" />
                     <input name="phone" maxLength={30} defaultValue={s.phone} placeholder="연락처" className="rounded border px-2 py-1.5" />
-                    <input name="memo" maxLength={300} defaultValue={s.memo} placeholder="운영자 메모" className="rounded border px-2 py-1.5 sm:col-span-2" />
+                    <input name="memo" maxLength={300} defaultValue={s.memo} placeholder="운영사 메모" className="rounded border px-2 py-1.5 sm:col-span-2" />
                     <select name="status" defaultValue={s.status} aria-label="상태" className="rounded border px-2 py-1.5">
                       {nextStatuses(s.status).map((v) => (
                         <option key={v} value={v}>{v === "revoked" ? "초대 거두기" : v === "paused" ? "쉬는 중(상품 판매·새 주문 멈춤)" : SUPPLIER_STATUS_LABEL[v]}</option>

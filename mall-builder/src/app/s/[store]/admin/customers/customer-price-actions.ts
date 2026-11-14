@@ -1,6 +1,6 @@
 "use server";
 
-// D24 거래처 특가 — 손님 상세 화면의 저장·삭제. 쓰기는 직원 「손님」 권한만(DB 보안 규칙도 같은 조건)
+// D24 거래처 특가 — 유저 상세 화면의 저장·삭제. 쓰기는 직원 「유저」 권한만(DB 보안 규칙도 같은 조건)
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -11,9 +11,9 @@ async function prepare(slug: string, customerId: string) {
   const supabase = await createClient();
   const { data: c } = await supabase.from("mall_builder_store_customers").select("id, store_id, mall_builder_stores!inner(slug)").eq("id", customerId).maybeSingle();
   const store = c as unknown as { store_id: string; mall_builder_stores: { slug: string } } | null;
-  if (!store || store.mall_builder_stores.slug !== slug) back(`error=${encodeURIComponent("손님을 찾을 수 없습니다.")}`);
+  if (!store || store.mall_builder_stores.slug !== slug) back(`error=${encodeURIComponent("유저를 찾을 수 없습니다.")}`);
   const { data: can } = await supabase.rpc("mall_builder_staff_can", { p_store_id: store!.store_id, p_perm: "customers" });
-  if (can !== true) back(`error=${encodeURIComponent("손님 권한이 있는 직원만 특가를 정할 수 있습니다.")}`);
+  if (can !== true) back(`error=${encodeURIComponent("유저 권한이 있는 직원만 특가를 정할 수 있습니다.")}`);
   return { supabase, storeId: store!.store_id, back };
 }
 const done = (slug: string, back: (q: string) => never, msg: string) => {

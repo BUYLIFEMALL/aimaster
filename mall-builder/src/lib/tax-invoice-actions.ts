@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { validateInvoiceEmail } from "@/lib/taxInvoice";
 
-// 세금계산서 — 요청(손님)·발행 완료 표시(운영자). 권한·상태 검사는 DB 함수가 한다
+// 세금계산서 — 요청(유저)·발행 완료 표시(운영사). 권한·상태 검사는 DB 함수가 한다
 
 export async function requestTaxInvoiceAction(slug: string, orderId: string, form: FormData) {
   const back = (q: string) => redirect(`/s/${slug}/orders/${orderId}?${q}`);
@@ -24,7 +24,7 @@ export async function markTaxInvoiceIssuedAction(slug: string, orderId: string, 
   redirect(`/s/${slug}/admin/orders/${orderId}?${error ? `error=${encodeURIComponent(error.message)}` : "ok=1"}`);
 }
 
-/** 운영자: 볼타 발행·상태 다시 확인·수정 발행(D19) — 결과는 주문 상세에 문구로 */
+/** 운영사: 볼타 발행·상태 다시 확인·수정 발행(D19) — 결과는 주문 상세에 문구로 */
 async function bolta(slug: string, orderId: string, fn: string, done: (inv: { status?: string }) => string) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc(fn, { p_order_id: orderId });

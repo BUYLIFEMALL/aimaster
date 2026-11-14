@@ -36,7 +36,7 @@ export async function generateViewport({ params }: { params: Promise<{ store: st
   return { themeColor: iconColor(store.name) };
 }
 
-// 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 손님 화면 공통 틀
+// 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 유저 화면 공통 틀
 export default async function ShopLayout({ children, params }: { children: ReactNode; params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);
@@ -50,7 +50,7 @@ export default async function ShopLayout({ children, params }: { children: React
   // 비회원 주문을 켠 몰(D15): 로그인 전에도 장바구니(쿠키)·주문 조회
   const guestOk = !user && guestOrderEnabled(store.settings);
   const guestCartCount = guestOk ? (await readGuestCart(store.slug)).length : 0;
-  // 손님 메뉴에는 보이는 카테고리만(운영자로 보고 있어도 손님과 같게)
+  // 유저 메뉴에는 보이는 카테고리만(운영사로 보고 있어도 유저와 같게)
   const topCategories = buildCategoryTree(categoryRows, false);
   const info = readBusinessInfo(store.business_info);
   const missing = missingRequired(info);
@@ -82,7 +82,7 @@ export default async function ShopLayout({ children, params }: { children: React
 
       {staff && (
         <div className="bg-slate-950 px-4 py-2 text-center text-xs text-slate-300">
-          운영자로 보고 있습니다 · <Link href={`${base}/admin`} className="font-semibold text-blue-400 underline hover:text-blue-300">관리 화면</Link>
+          운영사로 보고 있습니다 · <Link href={`${base}/admin`} className="font-semibold text-blue-400 underline hover:text-blue-300">관리 화면</Link>
           {missing.length > 0 && (
             <>
               {" "}· 바닥글에 빠진 사업자 정보 {missing.length}개 ·{" "}
@@ -207,7 +207,7 @@ export default async function ShopLayout({ children, params }: { children: React
                 <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50/80 px-3.5 py-2.5 text-xs text-amber-900" data-closed-status>
                   {customer.member_status === "rejected"
                     ? `입장이 반려되었습니다${customer.member_reject_reason ? ` — ${customer.member_reject_reason}` : ""}.`
-                    : "가입 신청을 받았습니다. 운영자가 승인하면 들어올 수 있습니다."}
+                    : "가입 신청을 받았습니다. 운영사가 승인하면 들어올 수 있습니다."}
                   {closed.code && " 초대 코드가 있으면 마이페이지에서 바로 들어올 수 있습니다."}
                 </p>
               ) : null}

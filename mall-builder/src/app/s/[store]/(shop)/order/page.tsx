@@ -121,7 +121,7 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
   const bankText =
     info.bank_name && info.bank_account
       ? `${info.bank_name} ${info.bank_account}${info.bank_holder ? ` (예금주 ${info.bank_holder})` : ""} — 주문 후 입금해 주세요.`
-      : "입금 계좌는 주문 후 안내됩니다. (운영자가 아직 계좌를 등록하지 않았습니다)";
+      : "입금 계좌는 주문 후 안내됩니다. (운영사가 아직 계좌를 등록하지 않았습니다)";
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">

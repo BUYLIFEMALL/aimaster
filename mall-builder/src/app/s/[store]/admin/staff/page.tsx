@@ -34,7 +34,7 @@ export default async function AdminStaffPage({ params, searchParams }: { params:
       <InviteForm slug={store.slug} />
 
       <section className="mt-6">
-        <h2 className="text-sm font-semibold">운영자 ({l.staff.filter((s) => !s.removed_at).length})</h2>
+        <h2 className="text-sm font-semibold">운영사 ({l.staff.filter((s) => !s.removed_at).length})</h2>
         <ul className="mt-2 divide-y rounded border text-sm" data-staff-list>
           {l.staff.map((s) => (
             <li key={s.user_id} className={`space-y-2 px-3 py-3 ${s.removed_at ? "opacity-50" : ""}`}>
@@ -77,7 +77,7 @@ export default async function AdminStaffPage({ params, searchParams }: { params:
 
       <section className="mt-6">
         <h2 className="text-sm font-semibold">접속 기록 (최근 100건 · 1년 보관)</h2>
-        <p className="mt-1 text-xs text-gray-500">손님·주문 상세(개인정보)를 연 기록과 직원 초대·권한 변경 기록입니다. 대표만 볼 수 있습니다.</p>
+        <p className="mt-1 text-xs text-gray-500">유저·주문 상세(개인정보)를 연 기록과 직원 초대·권한 변경 기록입니다. 대표만 볼 수 있습니다.</p>
         {(logs ?? []).length === 0 ? (
           <p className="mt-2 text-sm text-gray-500">아직 기록이 없습니다.</p>
         ) : (

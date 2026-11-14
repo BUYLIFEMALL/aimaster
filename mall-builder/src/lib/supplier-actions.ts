@@ -22,7 +22,7 @@ async function storeIdOf(slug: string) {
 
 const field = (form: FormData, k: string) => String(form.get(k) ?? "").trim();
 
-/** 운영자: 공급사 초대 — 링크는 주소창·기록에 남지 않게 화면 상태로만 돌려준다(이때 한 번만 보임) */
+/** 운영사: 공급사 초대 — 링크는 주소창·기록에 남지 않게 화면 상태로만 돌려준다(이때 한 번만 보임) */
 export async function inviteSupplierAction(slug: string, _prev: SupplierInviteState, form: FormData): Promise<SupplierInviteState> {
   const keep = Object.fromEntries(["name", "email", "biz_no", "contact_name", "phone", "memo"].map((k) => [k, field(form, k)]));
   const { supabase, id } = await storeIdOf(slug);
@@ -37,7 +37,7 @@ export async function inviteSupplierAction(slug: string, _prev: SupplierInviteSt
 
 export type ReinviteState = { error: string | null; link: string | null };
 
-/** 운영자: 수락 대기 공급사 링크 다시 만들기(옛 링크는 못 씀) */
+/** 운영사: 수락 대기 공급사 링크 다시 만들기(옛 링크는 못 씀) */
 export async function reinviteSupplierAction(slug: string, supplierId: string, _prev: ReinviteState): Promise<ReinviteState> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("mall_builder_supplier_reinvite", { p_id: supplierId });
@@ -50,7 +50,7 @@ function back(path: string, error?: string | null, ok?: string): never {
   redirect(error ? `${path}?error=${encodeURIComponent(error)}` : `${path}?ok=1&msg=${encodeURIComponent(ok ?? "처리했습니다.")}`);
 }
 
-/** 운영자: 공급사 정보·상태 저장 */
+/** 운영사: 공급사 정보·상태 저장 */
 export async function updateSupplierAction(slug: string, supplierId: string, form: FormData) {
   const supabase = await createClient();
   const status = field(form, "status");
@@ -106,7 +106,7 @@ export async function saveSupplierProductAction(slug: string, productId: string 
     if (rateError) back(`${base}/${savedId}`, rateError.message);
   }
   revalidatePath(base);
-  back(base, null, productId ? "저장했습니다. 내용을 바꿨다면 운영자 승인 뒤 다시 판매됩니다." : `「${p.name}」을 올렸습니다. 운영자 승인을 기다려 주세요.`);
+  back(base, null, productId ? "저장했습니다. 내용을 바꿨다면 운영사 승인 뒤 다시 판매됩니다." : `「${p.name}」을 올렸습니다. 운영사 승인을 기다려 주세요.`);
 }
 
 /** 공급사: 판매 멈춤/다시 열기 */
@@ -115,10 +115,10 @@ export async function pauseSupplierProductAction(slug: string, productId: string
   const supabase = await createClient();
   const { error } = await supabase.rpc("mall_builder_supplier_product_pause", { p_product_id: productId, p_pause: pause });
   revalidatePath(base);
-  back(base, error?.message, pause ? "판매를 멈췄습니다. 손님에게 보이지 않습니다." : "다시 판매합니다.");
+  back(base, error?.message, pause ? "판매를 멈췄습니다. 유저에게 보이지 않습니다." : "다시 판매합니다.");
 }
 
-/** 운영자: 공급사 상품 승인(판매가·바로 판매)/반려(사유) */
+/** 운영사: 공급사 상품 승인(판매가·바로 판매)/반려(사유) */
 export async function reviewSupplierProductAction(slug: string, productId: string, action: "approve" | "reject", form: FormData) {
   const base = `/s/${slug}/admin/suppliers`;
   const supabase = await createClient();
@@ -157,7 +157,7 @@ export async function settleSupplierAction(slug: string, supplierId: string, for
 }
 
 // ── T1(0060) 공급사 옵션 판매가·배송비 ──
-/** 운영자: 공급사 상품 옵션별 판매 추가금 — 칸 이름 「p:조합 열쇠」. 판매가가 공급가보다 낮아지면 DB가 막음 */
+/** 운영사: 공급사 상품 옵션별 판매 추가금 — 칸 이름 「p:조합 열쇠」. 판매가가 공급가보다 낮아지면 DB가 막음 */
 export async function setVariantPricesAction(slug: string, productId: string, form: FormData) {
   const base = `/s/${slug}/admin/products/${productId}`;
   const prices: Record<string, number> = {};
@@ -193,7 +193,7 @@ export async function saveSupplierShippingAction(slug: string, form: FormData) {
   back(`/s/${slug}/supplier`, error?.message, "배송비를 저장했습니다. 다음 주문부터 적용됩니다.");
 }
 
-/** 운영자: 공급사 배송비 보고 고치기 */
+/** 운영사: 공급사 배송비 보고 고치기 */
 export async function setSupplierShippingAction(slug: string, supplierId: string, form: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("mall_builder_supplier_shipping_set", { p_supplier_id: supplierId, p: shippingInput(form) });

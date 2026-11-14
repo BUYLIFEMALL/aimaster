@@ -37,11 +37,11 @@ export function buildHomePrompt(f: HomeFacts, year: number) {
     "카테고리 id는 아래 목록에 있는 것만 그대로 씁니다. 후기가 없으면 reviews를, 공지가 없으면 notice를 넣지 않습니다. 같은 종류는 2번까지.",
     "할인율·기한·무료배송 같은 사실은 지어내지 말고, 띠 문구는 업종에 맞는 일반 안내(예: 사업자 회원 가입 안내, 대량 구매 견적 안내)로 씁니다.",
     "블록은 3~8개. 제목은 20자 이내 한국어.",
-    "note는 운영자에게 보이는 한국어 한두 문장이며, 블록 이름은 영어 대신 띠 배너·상품 쇼윈도·탭 상품·카테고리 바로가기·구매 후기·공지로 씁니다.",
+    "note는 운영사에게 보이는 한국어 한두 문장이며, 블록 이름은 영어 대신 띠 배너·상품 쇼윈도·탭 상품·카테고리 바로가기·구매 후기·공지로 씁니다.",
   ].join("\n");
   const user = [
     `쇼핑몰: ${f.storeName}`,
-    `업종·분위기(운영자 입력): ${f.industry.slice(0, 200)}`,
+    `업종·분위기(운영사 입력): ${f.industry.slice(0, 200)}`,
     `상품 수: ${f.productCount}개${f.productNames.length ? ` · 예: ${f.productNames.slice(0, 20).join(", ")}` : ""}`,
     `카테고리(id: 이름):\n${f.categories.slice(0, 40).map((c) => `${c.id}: ${c.name}`).join("\n") || "(없음)"}`,
     `후기 ${f.hasReviews ? "있음" : "없음"} · 공지 ${f.hasNotices ? "있음" : "없음"}`,

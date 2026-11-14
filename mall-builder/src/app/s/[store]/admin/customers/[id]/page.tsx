@@ -45,7 +45,7 @@ export default async function AdminCustomerPage({
     getPointLedger(c.id, 20),
     getMyCoupons(c.id),
   ]);
-  // 거래처 특가(D24) — 이 손님의 특가 + 고를 상품(품번 있는 것)
+  // 거래처 특가(D24) — 이 유저의 특가 + 고를 상품(품번 있는 것)
   const supabase = await createClient();
   const [{ data: specialRows }, { data: productRows }] = await Promise.all([
     supabase.from("mall_builder_customer_prices").select("id, product_id, price, discount_rate, ends_on, memo, mall_builder_products(name, product_code, base_price)").eq("customer_id", c.id).order("created_at"),
@@ -61,7 +61,7 @@ export default async function AdminCustomerPage({
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/customers">
-      <Link href={`/s/${store.slug}/admin/customers`} className="text-sm text-gray-500">← 손님 목록</Link>
+      <Link href={`/s/${store.slug}/admin/customers`} className="text-sm text-gray-500">← 유저 목록</Link>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <h2 className="text-xl font-bold">{c.name}</h2>
         <span className="rounded bg-gray-900 px-2 py-0.5 text-sm text-white" data-approval>{APPROVAL_LABEL[c.approval_status]}</span>
@@ -82,7 +82,7 @@ export default async function AdminCustomerPage({
 
       <section className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
         <div className="rounded border p-4">
-          <p className="font-medium">손님 정보</p>
+          <p className="font-medium">유저 정보</p>
           <p className="mt-1">휴대폰 {c.phone}</p>
           <p>가입 {formatDateTime(c.created_at)}</p>
           <p>소식 수신 {c.marketing_agree ? "동의" : "안 함"}</p>
@@ -151,7 +151,7 @@ export default async function AdminCustomerPage({
           {c.member_status === "pending" && (
             <form action={reviewMemberAction.bind(null, store.slug, c.id, false)} className="flex flex-wrap items-end gap-2">
               <label className="block">
-                <span className="text-xs text-gray-500">반려 사유(손님에게 보입니다)</span>
+                <span className="text-xs text-gray-500">반려 사유(유저에게 보입니다)</span>
                 <input name="reason" required maxLength={200} className="mt-0.5 w-64 rounded border px-2 py-1.5" />
               </label>
               <button className="min-h-10 rounded border border-red-200 px-4 text-red-700">입장 반려</button>
@@ -170,11 +170,11 @@ export default async function AdminCustomerPage({
             <input name="rate" inputMode="decimal" defaultValue={rs.mine ? String(rs.mine.rate) : "3"} className="mt-1 w-20 rounded border px-2 py-1.5" />
           </label>
           <label className="flex items-center gap-1 pb-2"><input type="checkbox" name="active" defaultChecked={rs.mine?.active ?? true} /> 켜기</label>
-          <button className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-white">{rs.mine ? "리셀러 정보 저장" : "이 손님을 리셀러로 지정"}</button>
+          <button className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-white">{rs.mine ? "리셀러 정보 저장" : "이 유저를 리셀러로 지정"}</button>
         </form>
-        {rs.mine && <p className="text-xs text-gray-500">이 손님의 링크: <span className="font-mono">/s/{store.slug}?ref={rs.mine.code}</span> · 적립·출금은 「리셀러」 메뉴에서 봅니다.</p>}
+        {rs.mine && <p className="text-xs text-gray-500">이 유저의 링크: <span className="font-mono">/s/{store.slug}?ref={rs.mine.code}</span> · 적립·출금은 「리셀러」 메뉴에서 봅니다.</p>}
         <form action={setCustomerResellerAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2 border-t pt-3" data-reseller-link-set>
-          <label className="block"><span className="text-xs text-gray-500">이 손님을 데려온 리셀러(구매 확정 때 그 리셀러에게 적립)</span>
+          <label className="block"><span className="text-xs text-gray-500">이 유저를 데려온 리셀러(구매 확정 때 그 리셀러에게 적립)</span>
             <select name="reseller_id" defaultValue={rs.linkedTo ?? ""} className="mt-1 rounded border px-2 py-1.5">
               <option value="">연결 없음</option>
               {rs.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
@@ -192,7 +192,7 @@ export default async function AdminCustomerPage({
         <form action={adjustPointsAction.bind(null, store.slug, c.id)} className="flex flex-wrap items-end gap-2">
           <select name="sign" className="rounded border px-2 py-1.5"><option value="plus">지급(+)</option><option value="minus">차감(−)</option></select>
           <input name="amount" inputMode="numeric" required placeholder="점수" className="w-28 rounded border px-2 py-1.5" />
-          <input name="note" required maxLength={100} placeholder="사유(손님 내역에 보입니다)" className="w-64 rounded border px-2 py-1.5" />
+          <input name="note" required maxLength={100} placeholder="사유(유저 내역에 보입니다)" className="w-64 rounded border px-2 py-1.5" />
           <button className="min-h-10 rounded bg-gray-900 px-4 text-white">포인트 반영</button>
         </form>
         {points.length > 0 && (
@@ -244,7 +244,7 @@ export default async function AdminCustomerPage({
             <span className="text-xs text-gray-500">끝나는 날</span>
             <input type="date" name="ends_on" min={today} className="mt-1 block rounded border px-2 py-1.5" />
           </label>
-          <input name="memo" maxLength={200} placeholder="메모(운영자만 봄)" className="w-48 rounded border px-2 py-1.5" />
+          <input name="memo" maxLength={200} placeholder="메모(운영사만 봄)" className="w-48 rounded border px-2 py-1.5" />
           <button className="min-h-10 rounded bg-gray-900 px-4 text-white">특가 저장</button>
         </form>
         <p className="text-xs text-gray-500">같은 상품을 다시 저장하면 고쳐집니다. 품번이 없는 상품은 상품 화면에서 품번을 먼저 넣어 주세요.</p>
@@ -276,7 +276,7 @@ export default async function AdminCustomerPage({
           </form>
           <form action={reviewBusinessAction.bind(null, store.slug, c.id, false)} className="flex flex-wrap items-end gap-2">
             <label className="block">
-              <span className="text-xs text-gray-500">반려 사유(손님에게 보입니다)</span>
+              <span className="text-xs text-gray-500">반려 사유(유저에게 보입니다)</span>
               <input name="reason" maxLength={200} className="mt-0.5 w-64 rounded border px-2 py-1.5 text-sm" />
             </label>
             <button className="min-h-10 rounded border border-red-200 px-4 text-sm text-red-700">반려</button>

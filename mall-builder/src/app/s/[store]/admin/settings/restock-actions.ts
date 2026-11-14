@@ -36,7 +36,7 @@ export async function saveRestockAction(slug: string, _prev: RestockState, form:
     revalidatePath(`/s/${slug}/admin/settings`);
     revalidatePath(`/s/${slug}/admin/restock`);
     if (sync.skippedLocal) return { error: null, message: LOCAL_SKIP_MESSAGE };
-    if (!sms && !email) return { error: null, message: "재입고 알림을 껐습니다. 손님 신청은 계속 받고, 다시 켜면 그다음 재입고 때 보냅니다." };
+    if (!sms && !email) return { error: null, message: "재입고 알림을 껐습니다. 유저 신청은 계속 받고, 다시 켜면 그다음 재입고 때 보냅니다." };
     if (!sync.hasKey) return { error: null, message: "저장했습니다. 「입금 기한 자동 취소」 칸에 cron-job.org API 키를 등록하면 발송이 시작됩니다." };
     const channels = [sms && "문자", email && "메일"].filter(Boolean).join("·");
     return { error: null, message: `저장했습니다. 재고가 다시 생기면 1분 안에 ${channels}로 알립니다.` };

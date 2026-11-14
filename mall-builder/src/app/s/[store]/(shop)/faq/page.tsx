@@ -4,7 +4,7 @@ import { groupFaqs } from "@/lib/reviews";
 
 export const dynamic = "force-dynamic";
 
-// 손님 자주 묻는 질문(D13) — 보안 규칙상 공개된 것만 온다. 분류별로 접어 보여 준다
+// 유저 자주 묻는 질문(D13) — 보안 규칙상 공개된 것만 온다. 분류별로 접어 보여 준다
 export default async function FaqPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);

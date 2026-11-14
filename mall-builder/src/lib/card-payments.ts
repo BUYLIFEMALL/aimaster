@@ -1,4 +1,4 @@
-// 카드 결제 기록 읽기(0028 mall_builder_card_payments) — 보안 규칙상 그 몰 운영자와 그 주문의 손님만 읽힌다
+// 카드 결제 기록 읽기(0028 mall_builder_card_payments) — 보안 규칙상 그 몰 운영사와 그 주문의 유저만 읽힌다
 import { createClient } from "@/lib/supabase/server";
 
 export type CardPayment = {

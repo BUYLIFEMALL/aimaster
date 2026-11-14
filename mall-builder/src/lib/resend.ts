@@ -1,5 +1,5 @@
 // 주문 알림 메일 — Resend REST API(https://resend.com/docs/api-reference/emails/send-email)를 SDK 없이 fetch로 부른다.
-// 키는 몰 운영자 본인 Resend 계정 것만 쓴다. 저장소에서 Resend를 처음 쓰는 코드라 이 파일이 기준이 된다.
+// 키는 몰 운영사 본인 Resend 계정 것만 쓴다. 저장소에서 Resend를 처음 쓰는 코드라 이 파일이 기준이 된다.
 // 중복 방지: `Idempotency-Key` 머리글에 알림 번호를 넣어, 결과가 불확실해 다시 보내도 Resend가 한 번만 보낸다.
 import { NOTIFY_KIND_LABEL, type SendResult } from "./notify.ts";
 
@@ -20,7 +20,7 @@ export function fromHeader(storeName: string, address: string): string {
   return name ? `${name} <${address}>` : address;
 }
 
-/** 주문 상세 링크: 운영자 알림은 관리 화면, 손님 알림은 손님 주문 화면 */
+/** 주문 상세 링크: 운영사 알림은 관리 화면, 유저 알림은 유저 주문 화면 */
 export function orderLink(origin: string, slug: string, item: Pick<EmailItem, "order_id" | "kind">): string | null {
   if (!item.order_id) return null;
   const base = `${origin.replace(/\/+$/, "")}/s/${encodeURIComponent(slug)}`;

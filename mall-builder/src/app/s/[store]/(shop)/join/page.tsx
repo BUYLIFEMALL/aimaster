@@ -28,8 +28,8 @@ export default async function JoinPage({
       </p>
       {readClosed(store.settings).enabled && (
         <p className="mt-4 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800" data-join-closed>
-          회원 전용 몰입니다. {readClosed(store.settings).code ? "운영자에게 받은 초대 코드를 넣으면 바로 들어올 수 있습니다." : ""}
-          {readClosed(store.settings).approval ? " 코드가 없으면 가입 뒤 운영자가 승인하면 들어올 수 있습니다." : ""}
+          회원 전용 몰입니다. {readClosed(store.settings).code ? "운영사에게 받은 초대 코드를 넣으면 바로 들어올 수 있습니다." : ""}
+          {readClosed(store.settings).approval ? " 코드가 없으면 가입 뒤 운영사가 승인하면 들어올 수 있습니다." : ""}
         </p>
       )}
       <JoinForm

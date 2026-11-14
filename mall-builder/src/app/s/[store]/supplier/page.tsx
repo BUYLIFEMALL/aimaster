@@ -28,8 +28,8 @@ export default async function SupplierHomePage({ params, searchParams }: { param
               <span className={`rounded px-1.5 text-xs ${me.status === "active" ? "bg-emerald-50 text-emerald-800" : "bg-gray-100 text-gray-600"}`}>{SUPPLIER_STATUS_LABEL[me.status]}</span>
               {me.accepted_at && <span className="ml-auto text-xs text-gray-400">{formatDateTime(me.accepted_at)} 입점</span>}
             </div>
-            {me.status === "paused" && <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">운영자가 잠시 쉬게 해 두었습니다. 그동안 내 상품은 판매되지 않고 새 주문도 들어오지 않습니다.</p>}
-            <p className="mt-2 text-xs text-gray-500">사업자등록번호 {me.biz_no || "—"} · 상호·사업자번호를 바꾸려면 몰 운영자에게 요청해 주세요.</p>
+            {me.status === "paused" && <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">운영사가 잠시 쉬게 해 두었습니다. 그동안 내 상품은 판매되지 않고 새 주문도 들어오지 않습니다.</p>}
+            <p className="mt-2 text-xs text-gray-500">사업자등록번호 {me.biz_no || "—"} · 상호·사업자번호를 바꾸려면 몰 운영사에게 요청해 주세요.</p>
             <form action={updateSupplierSelfAction.bind(null, store.slug)} className="mt-3 flex flex-wrap items-end gap-2" data-supplier-self>
               <input name="contact_name" maxLength={30} defaultValue={me.contact_name} placeholder="담당자" className="rounded border px-2 py-2" />
               <input name="phone" maxLength={30} defaultValue={me.phone} placeholder="연락처" className="rounded border px-2 py-2" />
@@ -47,7 +47,7 @@ export default async function SupplierHomePage({ params, searchParams }: { param
           <section className="mt-6 grid gap-3 sm:grid-cols-3" data-supplier-menu>
             <Link href={`/s/${store.slug}/supplier/products`} className="rounded border p-3 text-sm hover:bg-gray-50">
               <p className="font-semibold">📦 내 상품</p>
-              <p className="mt-1 text-xs text-gray-500">상품을 올리면 운영자가 확인한 뒤 판매합니다.</p>
+              <p className="mt-1 text-xs text-gray-500">상품을 올리면 운영사가 확인한 뒤 판매합니다.</p>
             </Link>
             <Link href={`/s/${store.slug}/supplier/orders`} className="rounded border p-3 text-sm hover:bg-gray-50">
               <p className="font-semibold">🚚 내 주문</p>
@@ -55,7 +55,7 @@ export default async function SupplierHomePage({ params, searchParams }: { param
             </Link>
             <Link href={`/s/${store.slug}/supplier/settlements`} className="rounded border p-3 text-sm hover:bg-gray-50">
               <p className="font-semibold">💰 정산</p>
-              <p className="mt-1 text-xs text-gray-500">구매 확정된 품목의 공급가가 쌓이고 운영자가 송금합니다.</p>
+              <p className="mt-1 text-xs text-gray-500">구매 확정된 품목의 공급가가 쌓이고 운영사가 송금합니다.</p>
             </Link>
           </section>
         </>

@@ -1,6 +1,6 @@
 "use server";
 
-// 입금 기한 자동 취소 설정 — 몰 운영자 본인 cron-job.org 키로 그 계정의 몰 자동 작업을 켜고 끈다(작업 하나를 주문 알림과 함께 씀, job-sync.ts).
+// 입금 기한 자동 취소 설정 — 몰 운영사 본인 cron-job.org 키로 그 계정의 몰 자동 작업을 켜고 끈다(작업 하나를 주문 알림과 함께 씀, job-sync.ts).
 // 키·토큰 해시는 DB 함수로만 다룬다(표 직접 읽기 불가). 토큰 원문은 cron-job.org 작업 머리글에만 들어간다.
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";

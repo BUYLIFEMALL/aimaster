@@ -1,5 +1,5 @@
-// D26 거래명세서·외상 원장 — 화면용 데이터 읽기(서버). 보안 규칙(손님 본인·그 몰 직원)을 그대로 거치고,
-// 직원은 메뉴 권한(주문 / 손님)까지 확인한다. 직원이 남의 서류를 볼 때는 D22 열람 기록을 남긴다.
+// D26 거래명세서·외상 원장 — 화면용 데이터 읽기(서버). 보안 규칙(유저 본인·그 몰 직원)을 그대로 거치고,
+// 직원은 메뉴 권한(주문 / 유저)까지 확인한다. 직원이 남의 서류를 볼 때는 D22 열람 기록을 남긴다.
 
 import { notFound } from "next/navigation";
 import { createClient } from "./supabase/server";
@@ -14,7 +14,7 @@ async function staffCan(storeId: string, perm: "orders" | "customers") {
   return data === true;
 }
 
-/** 거래명세서 — 주문 낸 손님 본인 또는 「주문」 권한 직원 */
+/** 거래명세서 — 주문 낸 유저 본인 또는 「주문」 권한 직원 */
 export async function loadOrderStatement(slug: string, orderId: string) {
   if (!/^[0-9a-f-]{36}$/.test(orderId)) notFound();
   const user = await requireUser(`/s/${slug}/doc/order/${orderId}`);
@@ -48,7 +48,7 @@ export async function loadOrderStatement(slug: string, orderId: string) {
   return { store, info: readBusinessInfo(store.business_info), order: o2, customer, statement, staff };
 }
 
-/** 외상 원장 — 그 손님 본인 또는 「손님」 권한 직원 */
+/** 외상 원장 — 그 유저 본인 또는 「유저」 권한 직원 */
 export async function loadLedger(slug: string, customerId: string, from: string, to: string) {
   if (!/^[0-9a-f-]{36}$/.test(customerId)) notFound();
   const user = await requireUser(`/s/${slug}/doc/ledger/${customerId}`);

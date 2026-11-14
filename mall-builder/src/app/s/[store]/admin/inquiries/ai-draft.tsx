@@ -1,6 +1,6 @@
 "use client";
 
-// D29 문의 「AI 답변 초안」 — 답변 칸에 채우기만 하고, 「답변 달기」는 운영자가 누른다
+// D29 문의 「AI 답변 초안」 — 답변 칸에 채우기만 하고, 「답변 달기」는 운영사가 누른다
 import { useRef, useState, useTransition } from "react";
 import { aiInquiryDraftAction, type InquiryDraftState } from "@/lib/ai-helper-actions";
 

@@ -44,7 +44,7 @@ export default async function EditProductPage({
     getProductGradePriceInputs(product.id),
     getTierMap([product.id]),
   ]);
-  // T1(0060) 공급사 상품이면 옵션 구성은 공급사가 정하고, 운영자는 옵션별 판매 추가금만 고친다
+  // T1(0060) 공급사 상품이면 옵션 구성은 공급사가 정하고, 운영사는 옵션별 판매 추가금만 고친다
   const supabase = await createClient();
   const { data: supRow } = await supabase.from("mall_builder_product_supply").select("supplier_id, supply_price").eq("product_id", product.id).maybeSingle();
   const supplierOpts = supRow ? await getSupplierVariants(product.id) : null;

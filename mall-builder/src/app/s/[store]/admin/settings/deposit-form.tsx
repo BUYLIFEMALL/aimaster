@@ -35,7 +35,7 @@ export default function DepositForm({ slug, status }: { slug: string; status: De
     <fieldset className="rounded-lg border p-4" data-deposit-auto-cancel>
       <legend className="px-1 text-sm font-semibold">입금 기한 자동 취소</legend>
       <p className="text-sm text-gray-600">
-        무통장 주문이 정한 시간 안에 입금되지 않으면 자동으로 취소하고 재고를 되돌립니다. 확인은 운영자님 본인 cron-job.org 무료 계정이 10분마다(주문 알림을 켜면 1분마다) 합니다.
+        무통장 주문이 정한 시간 안에 입금되지 않으면 자동으로 취소하고 재고를 되돌립니다. 확인은 운영사님 본인 cron-job.org 무료 계정이 10분마다(주문 알림을 켜면 1분마다) 합니다.
       </p>
       <p className="mt-2 text-sm" data-deposit-status>
         상태 <b>{label}</b>

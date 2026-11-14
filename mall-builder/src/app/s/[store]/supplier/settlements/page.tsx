@@ -7,7 +7,7 @@ import { getSupplierContext, NotSupplier, SupplierShell } from "../supplier-shel
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// D37 공급사 「정산」 — 잔액·이번 달 적립·월별 정산서·지급 기록·장부(구매 확정 공급가 적립, 확정 뒤 반품 차감, 운영자 송금)
+// D37 공급사 「정산」 — 잔액·이번 달 적립·월별 정산서·지급 기록·장부(구매 확정 공급가 적립, 확정 뒤 반품 차감, 운영사 송금)
 export default async function SupplierSettlementPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const notice = await searchParams;
@@ -25,7 +25,7 @@ export default async function SupplierSettlementPage({ params, searchParams }: {
         <NotSupplier />
       ) : (
         <>
-          <p className="text-sm text-gray-500">손님이 구매 확정한 내 품목의 공급가 × 수량이 쌓입니다. 확정 뒤 취소·반품되면 빠지고, 몰 운영자가 송금하면 「지급」으로 기록됩니다. 세금계산서는 몰에 발행해 주세요.</p>
+          <p className="text-sm text-gray-500">유저가 구매 확정한 내 품목의 공급가 × 수량이 쌓입니다. 확정 뒤 취소·반품되면 빠지고, 몰 운영사가 송금하면 「지급」으로 기록됩니다. 세금계산서는 몰에 발행해 주세요.</p>
           <div className="mt-3 grid grid-cols-3 gap-2 text-center" data-supplier-settle-summary>
             <div className="rounded border p-2"><p className="text-xs text-gray-500">받을 금액(잔액)</p><p className={`font-semibold ${balance < 0 ? "text-red-700" : "text-emerald-700"}`}>{formatWon(balance)}</p></div>
             <div className="rounded border p-2"><p className="text-xs text-gray-500">이번 달 적립</p><p className="font-semibold">{formatWon(monthEarned)}</p></div>

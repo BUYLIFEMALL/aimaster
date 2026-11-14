@@ -1,4 +1,4 @@
-// 외상(후불) — DB: 손님 표 credit_limit, mall_builder_credit_ledger, 주문 is_credit (0014_credit.sql)
+// 외상(후불) — DB: 유저 표 credit_limit, mall_builder_credit_ledger, 주문 is_credit (0014_credit.sql)
 // 장부 금액 부호: 사용(charge) +, 입금(payment) −, 조정(adjust) ±. 사용 중 금액 = 장부 합계
 
 export type LedgerKind = "charge" | "payment" | "adjust";
@@ -15,7 +15,7 @@ export function canUseCredit(limit: number, balance: number, total: number): boo
   return limit > 0 && total > 0 && balance + total <= limit;
 }
 
-/** 운영자 장부 입력 검사 — 입금은 양수로 받아 −로 기록, 조정은 +/− 그대로 */
+/** 운영사 장부 입력 검사 — 입금은 양수로 받아 −로 기록, 조정은 +/− 그대로 */
 export function validateLedgerEntry(
   kind: string,
   amountInput: unknown,

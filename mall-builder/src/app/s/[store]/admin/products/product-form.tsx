@@ -110,9 +110,9 @@ export default function ProductForm({
         <legend className="px-1 text-sm font-semibold">가격</legend>
         {field("base_price", "판매가(원) *", { inputMode: "numeric", required: true, placeholder: "47000" })}
         {field("list_price", "정가(원)", { inputMode: "numeric", placeholder: "할인 전 가격" })}
-        {field("cost", "원가(원) — 운영자만 보임", { inputMode: "numeric" })}
+        {field("cost", "원가(원) — 운영사만 보임", { inputMode: "numeric" })}
         <p className="text-xs text-gray-500 sm:col-span-3">
-          {rate > 0 ? `손님 화면에 정가 대비 ${rate}% 할인으로 표시됩니다.` : "정가를 판매가보다 높게 넣으면 할인율이 표시됩니다."}
+          {rate > 0 ? `유저 화면에 정가 대비 ${rate}% 할인으로 표시됩니다.` : "정가를 판매가보다 높게 넣으면 할인율이 표시됩니다."}
         </p>
         <div className="space-y-2 sm:col-span-3" data-grade-prices>
           <p className="text-sm">등급별 가격(상품 예외) <span className="text-xs text-gray-500">— 금액(예: 42000) 또는 할인율(예: 10%). 비우면 카테고리 할인율, 그것도 없으면 등급 기본 할인율(「등급·할인」 메뉴). 옵션 추가금은 그대로 더해집니다.</span></p>
@@ -167,7 +167,7 @@ export default function ProductForm({
             ))}
           </select>
         </label>
-        <p className="text-xs text-gray-500 sm:col-span-3">손님 화면에는 「판매 중」과 「품절」 상품만 보입니다. 「준비 중」·「숨김」은 운영자만 봅니다.</p>
+        <p className="text-xs text-gray-500 sm:col-span-3">유저 화면에는 「판매 중」과 「품절」 상품만 보입니다. 「준비 중」·「숨김」은 운영사만 봅니다.</p>
       </fieldset>
 
       <fieldset className="grid gap-3 rounded-lg border p-4 sm:grid-cols-3" data-quantity-rules>

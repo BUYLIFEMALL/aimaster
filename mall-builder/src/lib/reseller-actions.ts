@@ -19,7 +19,7 @@ async function storeIdOf(slug: string) {
   return { supabase, id: (data?.id as string | undefined) ?? null };
 }
 
-/** 운영자: 손님을 리셀러로 지정·수정 */
+/** 운영사: 유저를 리셀러로 지정·수정 */
 export async function setResellerAction(slug: string, customerId: string, form: FormData) {
   const back = `/s/${slug}/admin/customers/${customerId}#reseller`;
   const code = normalizeCode(form.get("code"));
@@ -34,7 +34,7 @@ export async function setResellerAction(slug: string, customerId: string, form: 
   go(back, error?.message, "리셀러 정보를 저장했습니다.");
 }
 
-/** 운영자: 손님의 연결 리셀러 바꾸기(빈 값이면 빼기) */
+/** 운영사: 유저의 연결 리셀러 바꾸기(빈 값이면 빼기) */
 export async function setCustomerResellerAction(slug: string, customerId: string, form: FormData) {
   const back = `/s/${slug}/admin/customers/${customerId}#reseller`;
   const supabase = await createClient();
@@ -63,10 +63,10 @@ export async function requestPayoutAction(slug: string, form: FormData) {
     p_bank_holder: String(form.get("bank_holder") ?? ""),
   });
   revalidatePath(`/s/${slug}/my`);
-  back(error ? { error: error.message } : { ok: "출금을 신청했습니다. 운영자가 확인한 뒤 송금합니다(개인은 3.3% 원천징수 뒤 이체)." });
+  back(error ? { error: error.message } : { ok: "출금을 신청했습니다. 운영사가 확인한 뒤 송금합니다(개인은 3.3% 원천징수 뒤 이체)." });
 }
 
-/** 운영자: 출금 처리 — 지급 완료(공제금액·비고, M1-7 0075)·반려 */
+/** 운영사: 출금 처리 — 지급 완료(공제금액·비고, M1-7 0075)·반려 */
 export async function decidePayoutAction(slug: string, payoutId: string, action: "paid" | "rejected", form: FormData) {
   const back = `/s/${slug}/admin/resellers?tab=payouts`;
   const supabase = await createClient();
@@ -163,7 +163,7 @@ export async function adjustResellerAction(slug: string, storeId: string, form: 
   go(base, error?.message, sign > 0 ? "직권 지급했습니다." : "직권 차감했습니다.");
 }
 
-/** 운영자: 리셀러 계정 — 추가율·쉬기(코드는 그대로) */
+/** 운영사: 리셀러 계정 — 추가율·쉬기(코드는 그대로) */
 export async function updateResellerAccountAction(slug: string, storeId: string, customerId: string, code: string, form: FormData) {
   const base = `/s/${slug}/admin/resellers?tab=accounts`;
   const rate = parseRate(form.get("rate"));

@@ -23,7 +23,7 @@ export default function ReviewForm({ slug, orderId, orderItemId, review }: { slu
           <button className="min-h-10 rounded bg-gray-900 px-4 text-white">{review ? "후기 고치기" : "후기 남기기"}</button>
         </div>
       </form>
-      {review?.reply && <p className="mt-2 text-gray-600"><b className="text-xs text-gray-500">운영자 답글</b> · {review.reply}</p>}
+      {review?.reply && <p className="mt-2 text-gray-600"><b className="text-xs text-gray-500">운영사 답글</b> · {review.reply}</p>}
     </details>
   );
 }

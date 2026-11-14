@@ -17,14 +17,14 @@ function FaqForm({ slug, faq }: { slug: string; faq: Faq | null }) {
       </div>
       <textarea name="answer" defaultValue={faq?.answer ?? ""} required maxLength={MAX_FAQ_ANSWER} rows={3} placeholder="답변(줄바꿈 그대로 보입니다)" className="w-full rounded border px-2 py-1.5 text-sm" />
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-1 text-sm"><input type="checkbox" name="published" defaultChecked={faq?.is_published ?? true} /> 손님에게 공개</label>
+        <label className="flex items-center gap-1 text-sm"><input type="checkbox" name="published" defaultChecked={faq?.is_published ?? true} /> 유저에게 공개</label>
         <button className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white">{faq ? "고치기 저장" : "FAQ 올리기"}</button>
       </div>
     </form>
   );
 }
 
-// 운영자 FAQ 관리(D13) — 공지와 같은 방식(표 규칙으로 그 몰 운영자만)
+// 운영사 FAQ 관리(D13) — 공지와 같은 방식(표 규칙으로 그 몰 운영사만)
 export default async function AdminFaqPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;
@@ -42,7 +42,7 @@ export default async function AdminFaqPage({ params, searchParams }: { params: P
       </section>
       <section className="mt-6">
         <h2 className="text-sm font-semibold">FAQ 목록 ({faqs.length})</h2>
-        {faqs.length === 0 && <p className="mt-2 text-sm text-gray-500">아직 FAQ가 없습니다. 손님 화면 「자주 묻는 질문」에 보입니다.</p>}
+        {faqs.length === 0 && <p className="mt-2 text-sm text-gray-500">아직 FAQ가 없습니다. 유저 화면 「자주 묻는 질문」에 보입니다.</p>}
         <ul className="mt-2 divide-y rounded border" data-admin-faqs>
           {faqs.map((f) => (
             <li key={f.id} className="px-3 py-2">

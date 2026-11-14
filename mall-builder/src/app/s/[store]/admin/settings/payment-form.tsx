@@ -17,7 +17,7 @@ export default function PaymentForm({ slug, status }: { slug: string; status: Pa
     <fieldset className="rounded-lg border p-4" data-card-payment>
       <legend className="px-1 text-sm font-semibold">카드 결제(토스페이먼츠)</legend>
       <p className="text-sm text-gray-600">
-        손님이 주문서에서 카드·간편결제로 바로 결제합니다. 운영자님 본인 토스페이먼츠 계정의 「결제위젯」 키를 씁니다. 결제 승인·환불은 서버 안에서만 처리되고 시크릿 키는 화면에 다시 보이지 않습니다.
+        유저가 주문서에서 카드·간편결제로 바로 결제합니다. 운영사님 본인 토스페이먼츠 계정의 「결제위젯」 키를 씁니다. 결제 승인·환불은 서버 안에서만 처리되고 시크릿 키는 화면에 다시 보이지 않습니다.
       </p>
       <p className="mt-2 text-sm" data-card-status>상태 <b>{label}</b></p>
 
@@ -33,7 +33,7 @@ export default function PaymentForm({ slug, status }: { slug: string; status: Pa
           <input name="secret_key" type="password" autoComplete="off" maxLength={120} placeholder={status.hasSecret ? "••••••••" : "test_gsk_로 시작"} className="mt-1 w-full rounded border px-3 py-2" />
         </label>
         <label className="flex items-center gap-2 text-sm sm:col-span-2">
-          <input type="checkbox" name="enabled" defaultChecked={state.enabled} /> 손님 주문서에 카드 결제 켜기
+          <input type="checkbox" name="enabled" defaultChecked={state.enabled} /> 유저 주문서에 카드 결제 켜기
         </label>
         {status.hasSecret && (
           <label className="flex items-center gap-2 text-sm sm:col-span-2">
@@ -49,7 +49,7 @@ export default function PaymentForm({ slug, status }: { slug: string; status: Pa
       {state.error && <p className="mt-2 text-sm text-red-600">{state.error}</p>}
       {state.message && <p className="mt-2 text-sm text-green-700">{state.message}</p>}
       <p className="mt-3 text-xs text-gray-500">
-        키는 토스페이먼츠 개발자센터(developers.tosspayments.com) → API 키 → 「결제위젯 연동 키」에서 확인합니다. 전자결제 계약 전에는 테스트 키(test_)로 시험할 수 있고, 실제 돈은 나가지 않습니다. 실제 판매는 토스페이먼츠와 계약한 뒤 라이브 키(live_)로 바꿉니다(수수료는 운영자님 계약 조건).
+        키는 토스페이먼츠 개발자센터(developers.tosspayments.com) → API 키 → 「결제위젯 연동 키」에서 확인합니다. 전자결제 계약 전에는 테스트 키(test_)로 시험할 수 있고, 실제 돈은 나가지 않습니다. 실제 판매는 토스페이먼츠와 계약한 뒤 라이브 키(live_)로 바꿉니다(수수료는 운영사님 계약 조건).
         결제하지 않은 카드 주문은 30분 뒤 자동 취소되며(위 「입금 기한 자동 취소」 작업이 켜져 있을 때), 카드 주문을 취소·부분 취소하면 카드 환불이 함께 됩니다.
       </p>
     </fieldset>

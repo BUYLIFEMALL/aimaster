@@ -6,7 +6,7 @@ import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
 function masterKey(secretB64: string | undefined): Buffer {
   const key = Buffer.from(String(secretB64 ?? "").trim(), "base64");
-  if (key.length !== 32) throw new Error("서버 암호화 열쇠(MALL_SECRET_KEY)가 설정되지 않았습니다. 운영자에게 알려 주세요.");
+  if (key.length !== 32) throw new Error("서버 암호화 열쇠(MALL_SECRET_KEY)가 설정되지 않았습니다. 운영사에게 알려 주세요.");
   return key;
 }
 

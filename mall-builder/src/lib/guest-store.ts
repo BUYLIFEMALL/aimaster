@@ -23,7 +23,7 @@ export async function writeGuestCart(slug: string, lines: GuestCartLine[]) {
   else jar.set(cartCookieName(slug), serializeCart(lines), cookieOptions(slug, 30));
 }
 
-/** 쿠키 장바구니 → 상품·옵션(손님 화면과 같은 DB 함수로 읽는다). 지금 보이지 않는 상품 줄은 뺀다 */
+/** 쿠키 장바구니 → 상품·옵션(유저 화면과 같은 DB 함수로 읽는다). 지금 보이지 않는 상품 줄은 뺀다 */
 export async function loadGuestCart(storeId: string, slug: string): Promise<GuestCartRow[]> {
   const lines = await readGuestCart(slug);
   if (!lines.length) return [];

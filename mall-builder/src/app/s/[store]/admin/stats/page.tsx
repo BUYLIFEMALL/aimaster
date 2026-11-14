@@ -22,7 +22,7 @@ function Bar({ pct }: { pct: number }) {
   return <span className="block h-2 rounded bg-gray-900" style={{ width: `${pct}%` }} />;
 }
 
-// 운영자 통계(D14) — 기간을 고르면 DB 함수 하나가 숫자를 한 번에 돌려준다(읽기만)
+// 운영사 통계(D14) — 기간을 고르면 DB 함수 하나가 숫자를 한 번에 돌려준다(읽기만)
 export default async function AdminStatsPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ period?: string; from?: string; to?: string }> }) {
   const { store: slug } = await params;
   const q = await searchParams;
@@ -58,7 +58,7 @@ export default async function AdminStatsPage({ params, searchParams }: { params:
 
       <section className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4" data-summary>
         <Card label="매출" value={formatWon(s.sales)} sub={`주문 ${s.orders}건 · 평균 ${formatWon(s.avg_order)}${s.guest_orders ? ` · 비회원 ${s.guest_orders}건` : ""}`} />
-        <Card label="구매 손님" value={`${s.buyers}명`} sub={`새 가입 ${s.new_customers}명 · 전체 ${s.total_customers}명`} />
+        <Card label="구매 유저" value={`${s.buyers}명`} sub={`새 가입 ${s.new_customers}명 · 전체 ${s.total_customers}명`} />
         <Card label="취소·반품" value={`${s.cancelled_count}건`} sub={formatWon(s.cancelled_amount)} />
         <Card label="입금 대기" value={`${s.pending_count}건`} sub={`기간 전체 주문 ${s.all_orders}건`} />
       </section>
@@ -129,7 +129,7 @@ export default async function AdminStatsPage({ params, searchParams }: { params:
 
       <section className="mt-6" data-cart>
         <h2 className="text-sm font-semibold">지금 장바구니에 담긴 상품 (상위 10)</h2>
-        <p className="text-xs text-gray-500">기간과 상관없이 지금 손님 장바구니에 있는 것입니다. 재고·가격 조정에 참고하세요.</p>
+        <p className="text-xs text-gray-500">기간과 상관없이 지금 유저 장바구니에 있는 것입니다. 재고·가격 조정에 참고하세요.</p>
         {stats.cart_top.length === 0 ? <p className="mt-2 text-sm text-gray-500">장바구니에 담긴 상품이 없습니다.</p> : (
           <table className="mt-2 w-full text-sm">
             <tbody>

@@ -36,7 +36,7 @@ export default async function AdminGradesPage({ params, searchParams }: { params
       {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "저장했습니다."}</p>}
       <h2 className="text-lg font-semibold">🏷️ 등급·할인</h2>
-      <p className="mt-1 text-sm text-gray-600">손님 등급마다 실제 구입가를 다르게 합니다. 더 구체적인 것이 먼저 적용됩니다: <b>상품 예외</b>(상품 수정 화면의 등급가) → <b>카테고리 할인율</b>(상위 카테고리 값은 하위로 이어짐) → <b>등급 기본 할인율</b>. 그다음 수량 할인, 마지막으로 공급사 상품은 <b>최저 판매가</b> 밑으로 내려가지 않습니다.</p>
+      <p className="mt-1 text-sm text-gray-600">유저 등급마다 실제 구입가를 다르게 합니다. 더 구체적인 것이 먼저 적용됩니다: <b>상품 예외</b>(상품 수정 화면의 등급가) → <b>카테고리 할인율</b>(상위 카테고리 값은 하위로 이어짐) → <b>등급 기본 할인율</b>. 그다음 수량 할인, 마지막으로 공급사 상품은 <b>최저 판매가</b> 밑으로 내려가지 않습니다.</p>
 
       <section className="mt-6" data-grades>
         <h3 className="text-sm font-semibold">등급 {grades.length}개</h3>
@@ -54,7 +54,7 @@ export default async function AdminGradesPage({ params, searchParams }: { params
                 <label className="grid text-xs">순서<input name="rank" inputMode="numeric" defaultValue={g.rank} className="w-16 rounded border px-2 py-1.5 text-sm" /></label>
                 <label className="grid text-xs">기본 할인율(%)<input name="default_rate" inputMode="numeric" defaultValue={g.default_discount_rate} className="w-20 rounded border px-2 py-1.5 text-sm" data-default-rate /></label>
                 <button className="min-h-10 rounded border px-3 py-1.5 text-xs">저장</button>
-                <span className="text-xs text-gray-500">{isBase(g) ? "기본 등급 · " : ""}손님 {used.get(g.id) ?? 0}명</span>
+                <span className="text-xs text-gray-500">{isBase(g) ? "기본 등급 · " : ""}유저 {used.get(g.id) ?? 0}명</span>
               </form>
               {!isBase(g) && (used.get(g.id) ?? 0) === 0 && (
                 <form action={deleteGradeAction.bind(null, store.slug, g.id)} className="mt-1"><button className="text-xs text-red-700 underline">이 등급 지우기</button></form>
@@ -69,7 +69,7 @@ export default async function AdminGradesPage({ params, searchParams }: { params
           <label className="grid text-xs">기본 할인율(%)<input name="default_rate" inputMode="numeric" defaultValue={0} className="w-20 rounded border px-2 py-1.5 text-sm" /></label>
           <button className="min-h-10 rounded bg-gray-900 px-3 py-1.5 text-xs text-white">등급 추가</button>
         </form>
-        <p className="mt-1 text-xs text-gray-500">가입하면 「일반」, 사업자 승인을 받으면 「사업자」 등급이 됩니다. 다른 등급은 손님 상세 화면에서 바꿔 주세요(사업자 등급은 승인된 사업자만).</p>
+        <p className="mt-1 text-xs text-gray-500">가입하면 「일반」, 사업자 승인을 받으면 「사업자」 등급이 됩니다. 다른 등급은 유저 상세 화면에서 바꿔 주세요(사업자 등급은 승인된 사업자만).</p>
       </section>
 
       <section id="category-rates" className="mt-8 scroll-mt-4" data-category-rates>

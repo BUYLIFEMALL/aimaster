@@ -6,7 +6,7 @@ import { QuickForm } from "./quick-form";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// D25 빠른 주문 — 품번·수량 목록으로 장바구니에 한 번에 담기(가입한 손님만)
+// D25 빠른 주문 — 품번·수량 목록으로 장바구니에 한 번에 담기(가입한 유저만)
 export default async function QuickOrderPage({ params }: { params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);

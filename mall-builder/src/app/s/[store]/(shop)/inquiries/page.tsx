@@ -8,7 +8,7 @@ import DeleteButton from "@/app/s/[store]/admin/categories/delete-button";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-// 손님 1:1 문의(D13) — 늘 비밀글. 상품 문의도 여기서 함께 보인다
+// 유저 1:1 문의(D13) — 늘 비밀글. 상품 문의도 여기서 함께 보인다
 export default async function InquiriesPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const { error, ok, msg } = await searchParams;
@@ -21,7 +21,7 @@ export default async function InquiriesPage({ params, searchParams }: { params: 
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <h1 className="text-xl font-bold">이 몰에 먼저 가입해 주세요</h1>
-        <p className="mt-2 text-sm text-gray-600">문의는 이 몰에 가입한 손님만 남길 수 있습니다.</p>
+        <p className="mt-2 text-sm text-gray-600">문의는 이 몰에 가입한 유저만 남길 수 있습니다.</p>
         <Link href={`${base}/join`} className="mt-4 inline-block rounded bg-gray-900 px-4 py-2 text-sm text-white">이 몰 가입하기</Link>
       </main>
     );
@@ -38,7 +38,7 @@ export default async function InquiriesPage({ params, searchParams }: { params: 
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700" data-inquiry-ok>{msg || "처리했습니다."}</p>}
 
       <form action={writeInquiryAction.bind(null, slug, store.id, "personal", null, back)} className="mt-4 space-y-2 rounded border p-3" data-new-inquiry>
-        <h2 className="text-sm font-semibold">새 문의 <span className="font-normal text-gray-500">(나와 운영자만 볼 수 있습니다)</span></h2>
+        <h2 className="text-sm font-semibold">새 문의 <span className="font-normal text-gray-500">(나와 운영사만 볼 수 있습니다)</span></h2>
         <select name="order_id" className="w-full rounded border px-2 py-1.5 text-sm">
           <option value="">관련 주문 없음</option>
           {orders.map((o) => <option key={o.id} value={o.id}>{o.order_no} · {o.first_item}{o.item_count > 1 ? ` 외 ${o.item_count - 1}` : ""}</option>)}
@@ -64,7 +64,7 @@ export default async function InquiriesPage({ params, searchParams }: { params: 
               <p className="mt-1 whitespace-pre-line text-gray-700">{q.body}</p>
               {q.answer ? (
                 <p className="mt-2 rounded bg-gray-50 px-3 py-2" data-my-answer>
-                  <b className="text-xs text-gray-500">운영자 답변{q.answered_at && ` · ${formatDateTime(q.answered_at)}`}</b>
+                  <b className="text-xs text-gray-500">운영사 답변{q.answered_at && ` · ${formatDateTime(q.answered_at)}`}</b>
                   <span className="mt-1 block whitespace-pre-line">{q.answer}</span>
                 </p>
               ) : (

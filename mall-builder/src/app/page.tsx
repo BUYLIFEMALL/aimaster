@@ -225,7 +225,7 @@ export default async function Home() {
                           href={`/s/${store.slug}`}
                           className="btn-3d-blue flex-1 py-2.5 text-xs font-bold text-center"
                         >
-                          🛒 손님 화면 바로가기
+                          🛒 유저 화면 바로가기
                         </Link>
                       </div>
                     </li>
@@ -364,7 +364,7 @@ export default async function Home() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-[10px] text-slate-700">3</span>
-                <span><strong>주문 수집 및 정산:</strong> 손님 주문 시 공급사 발송 요청 및 월별 정산서를 자동으로 관리합니다.</span>
+                <span><strong>주문 수집 및 정산:</strong> 유저 주문 시 공급사 발송 요청 및 월별 정산서를 자동으로 관리합니다.</span>
               </li>
             </ol>
           </div>

@@ -1,4 +1,4 @@
-// 쿠폰·포인트(D17·D18) 서버 읽기 — 보안 규칙상 손님은 자기 것만, 운영자는 그 몰 것만 받는다
+// 쿠폰·포인트(D17·D18) 서버 읽기 — 보안 규칙상 유저는 자기 것만, 운영사는 그 몰 것만 받는다
 import { createClient } from "@/lib/supabase/server";
 import { DEFAULT_POINT_SETTINGS, type CouponDef, type PointSettings } from "./benefits";
 
@@ -102,7 +102,7 @@ export async function getStoreCoupons(storeId: string): Promise<(CouponDef & { i
   return ((coupons ?? []) as CouponDef[]).map((c) => ({ ...normCoupon(c), ...(count.get(c.id) ?? { issued: 0, used: 0 }) }));
 }
 
-/** 손님이 받을 수 있는 쿠폰(다운로드형) — 보안 규칙이 켜진·기간 안 것만 준다 */
+/** 유저가 받을 수 있는 쿠폰(다운로드형) — 보안 규칙이 켜진·기간 안 것만 준다 */
 export async function getDownloadableCoupons(storeId: string): Promise<CouponDef[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("mall_builder_coupons").select(COUPON_COLUMNS).eq("store_id", storeId).eq("issue_mode", "download").eq("is_active", true).limit(50);

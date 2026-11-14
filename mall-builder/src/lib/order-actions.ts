@@ -10,8 +10,8 @@ async function isCardOrder(supabase: Awaited<ReturnType<typeof createClient>>, o
   return Boolean(data?.is_card);
 }
 
-// 주문 상태 바꾸기 — 손님 화면·운영자 화면 공통. 누가 무엇을 바꿀 수 있는지는 DB 함수가 이동표로 검사한다
-// 카드 주문을 운영자가 취소·반품 승인하면 mall_builder_card_cancel_order가 상태를 바꾸고 카드 환불까지(환불 실패면 전부 되돌림)
+// 주문 상태 바꾸기 — 유저 화면·운영사 화면 공통. 누가 무엇을 바꿀 수 있는지는 DB 함수가 이동표로 검사한다
+// 카드 주문을 운영사가 취소·반품 승인하면 mall_builder_card_cancel_order가 상태를 바꾸고 카드 환불까지(환불 실패면 전부 되돌림)
 export async function changeOrderStatusAction(slug: string, orderId: string, to: string, backPath: string, form: FormData) {
   const supabase = await createClient();
   const note = String(form.get("note") ?? "");
@@ -32,7 +32,7 @@ export async function changeOrderStatusAction(slug: string, orderId: string, to:
   redirect(`${path}?ok=1${card && typeof data === "string" ? `&msg=${encodeURIComponent(data)}` : ""}`);
 }
 
-/** 운영자 부분 취소(D5) — 품목별 「cancel_<품목 id>」 수량. 권한·상태·수량·금액 다시 계산은 DB 함수 mall_builder_cancel_order_items(카드 주문은 _card_cancel_items로 부분 환불까지) */
+/** 운영사 부분 취소(D5) — 품목별 「cancel_<품목 id>」 수량. 권한·상태·수량·금액 다시 계산은 DB 함수 mall_builder_cancel_order_items(카드 주문은 _card_cancel_items로 부분 환불까지) */
 export async function partialCancelAction(slug: string, orderId: string, form: FormData) {
   const items = [...form.entries()]
     .filter(([k, v]) => k.startsWith("cancel_") && String(v).trim() !== "" && String(v).trim() !== "0")
@@ -59,7 +59,7 @@ const TOSS_STATUS_LABEL: Record<string, string> = {
   WAITING_FOR_DEPOSIT: "입금 대기",
 };
 
-/** 결과가 불확실한 카드 결제를 토스에 다시 물어 맞춘다 — 운영자 또는 그 주문의 손님(0029 mall_builder_card_recheck) */
+/** 결과가 불확실한 카드 결제를 토스에 다시 물어 맞춘다 — 운영사 또는 그 주문의 유저(0029 mall_builder_card_recheck) */
 export async function recheckCardAction(slug: string, orderId: string, who: "staff" | "customer" = "staff") {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("mall_builder_card_recheck", { p_order_id: orderId });
@@ -77,7 +77,7 @@ export async function recheckCardAction(slug: string, orderId: string, who: "sta
   redirect(`${back}?${error ? `error=${encodeURIComponent(error.message)}` : `ok=1&msg=${encodeURIComponent(msg)}`}`);
 }
 
-/** 운영자: 결제는 됐는데 취소·반품으로 끝난 카드 주문의 남은 결제 금액 환불(0029 mall_builder_card_refund_remaining) */
+/** 운영사: 결제는 됐는데 취소·반품으로 끝난 카드 주문의 남은 결제 금액 환불(0029 mall_builder_card_refund_remaining) */
 export async function refundRemainingAction(slug: string, orderId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("mall_builder_card_refund_remaining", { p_order_id: orderId, p_note: "" });

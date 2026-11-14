@@ -38,7 +38,7 @@ export function validateInquiry(form: { title: unknown; body: unknown; secret: u
   return { ok: true, value: { title, body, is_secret: form.secret === "on" || form.secret === true } };
 }
 
-/** 운영자 답변·답글 — 비우면 null(답변 지움) */
+/** 운영사 답변·답글 — 비우면 null(답변 지움) */
 export function validateAnswer(v: unknown, max: number): Ok<string | null> | Fail {
   const t = text(v);
   if (t.length > max) return { ok: false, error: `답변은 ${max.toLocaleString()}자까지입니다.` };
@@ -66,10 +66,10 @@ export function stars(rating: number): string {
   return "★".repeat(n) + "☆".repeat(5 - n);
 }
 
-/** 이름 가리기 — DB 함수 mall_builder_mask_name과 같은 규칙(화면에서 운영자 목록을 손님 눈으로 볼 때 사용) */
+/** 이름 가리기 — DB 함수 mall_builder_mask_name과 같은 규칙(화면에서 운영사 목록을 유저 눈으로 볼 때 사용) */
 export function maskName(name: string | null | undefined): string {
   const t = (name ?? "").trim();
-  return t ? t[0] + "**" : "손님";
+  return t ? t[0] + "**" : "유저";
 }
 
 /** 후기를 쓸 수 있는 주문 상태 */

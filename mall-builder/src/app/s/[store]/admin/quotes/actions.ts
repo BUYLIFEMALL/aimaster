@@ -27,7 +27,7 @@ export async function answerQuoteAction(slug: string, quoteId: string, form: For
   back(error ? `error=${encodeURIComponent(error.message)}` : "ok=1");
 }
 
-/** 운영자가 먼저 견적 보내기(D4) — 품목 정리는 validateSendItems, 권한·손님·상품·옵션 검사는 DB 함수 mall_builder_send_quote가 한 번 더.
+/** 운영사가 먼저 견적 보내기(D4) — 품목 정리는 validateSendItems, 권한·유저·상품·옵션 검사는 DB 함수 mall_builder_send_quote가 한 번 더.
  * 오류는 이동하지 않고 돌려준다(작성 화면의 품목 줄이 지워지지 않게 — useActionState) */
 export async function sendQuoteAction(slug: string, customerId: string, _prev: { error: string }, form: FormData): Promise<{ error: string }> {
   let rows: unknown;

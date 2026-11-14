@@ -125,7 +125,7 @@ export default async function ProductBoards({
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none">
                   <input type="checkbox" name="secret" className="rounded border-slate-300 text-blue-600" />
-                  <span>🔒 비밀글 설정 (작성자와 상점 운영자만 열람)</span>
+                  <span>🔒 비밀글 설정 (작성자와 상점 운영사만 열람)</span>
                 </label>
                 <button className="btn-3d-dark px-4 py-2 text-xs font-bold">
                   문의 등록하기

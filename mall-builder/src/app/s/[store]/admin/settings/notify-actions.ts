@@ -1,6 +1,6 @@
 "use server";
 
-// 주문 알림(문자) 설정 — 몰 운영자 본인 솔라피 계정. 키·시크릿은 DB 함수로만 저장·읽기(표 직접 읽기 불가),
+// 주문 알림(문자) 설정 — 몰 운영사 본인 솔라피 계정. 키·시크릿은 DB 함수로만 저장·읽기(표 직접 읽기 불가),
 // 화면에는 「등록됨」만 돌려준다. 저장 뒤 몰 자동 작업(cron-job.org)을 1분 주기로 맞춘다(job-sync.ts).
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -31,7 +31,7 @@ export async function saveNotifyAction(slug: string, _prev: NotifyState, form: F
   const willHaveKey = removeKey ? false : Boolean(keyInput) || Boolean((before as Credentials).api_key);
   if (kinds.length && !willHaveKey) return back("알림을 켜려면 솔라피 API 키와 시크릿을 먼저 입력해 주세요.", null);
   if (kinds.length && !digits(sender)) return back("알림을 켜려면 솔라피에 등록한 발신번호를 입력해 주세요.", null);
-  if (kinds.includes("staff_new_order") && !digits(staff)) return back("「새 주문 → 운영자」를 켜려면 알림 받을 번호를 입력해 주세요.", null);
+  if (kinds.includes("staff_new_order") && !digits(staff)) return back("「새 주문 → 운영사」를 켜려면 알림 받을 번호를 입력해 주세요.", null);
 
   const { error } = await supabase.rpc("mall_builder_notify_save", {
     p_store_id: store.id,
@@ -55,7 +55,7 @@ export async function saveNotifyAction(slug: string, _prev: NotifyState, form: F
   }
 }
 
-/** 알림 받을 번호로 시험 문자 1건(운영자 본인만, 유료) */
+/** 알림 받을 번호로 시험 문자 1건(운영사 본인만, 유료) */
 export async function sendTestSmsAction(slug: string): Promise<{ error: string | null; message: string | null }> {
   const store = await getStoreBySlug(slug);
   const supabase = await createClient();

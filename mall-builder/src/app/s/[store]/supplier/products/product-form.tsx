@@ -3,7 +3,7 @@ import { saveSupplierProductAction } from "@/lib/supplier-actions";
 import type { SupplierProduct } from "@/lib/supplier-store";
 import RateFields from "./rate-fields";
 
-// D35 공급사 상품 입력 — 처음 올릴 때만 희망 판매가(그 뒤 판매가는 운영자가 정함). 재고만 바꾸면 재승인 없음
+// D35 공급사 상품 입력 — 처음 올릴 때만 희망 판매가(그 뒤 판매가는 운영사가 정함). 재고만 바꾸면 재승인 없음
 // M1-2(0068) rate가 있으면(수수료율 방식 몰) 공급가 대신 판매가·리셀러율을 받고 공급가를 미리 계산해 보여 준다(옛 방식은 그대로)
 export default function SupplierProductForm({ slug, storeId, supplierId, product, rate = null }: { slug: string; storeId: string; supplierId: string; product: SupplierProduct | null; rate?: { hqRate: number } | null }) {
   const p = product;
@@ -31,13 +31,13 @@ export default function SupplierProductForm({ slug, storeId, supplierId, product
         {p ? (
           <div>
             <span className="font-medium">판매가</span>
-            <p className="mt-1 rounded bg-gray-50 px-2 py-2 text-gray-600">{p.base_price.toLocaleString("ko-KR")}원 · 몰 운영자가 정합니다</p>
+            <p className="mt-1 rounded bg-gray-50 px-2 py-2 text-gray-600">{p.base_price.toLocaleString("ko-KR")}원 · 몰 운영사가 정합니다</p>
           </div>
         ) : (
           <label className="block">
             <span className="font-medium">희망 판매가 *</span>
             <input name="base_price" required inputMode="numeric" className="mt-1 w-full rounded border px-2 py-2" />
-            <span className="mt-1 block text-xs text-gray-500">공급가 이상. 최종 판매가는 운영자가 승인할 때 정합니다.</span>
+            <span className="mt-1 block text-xs text-gray-500">공급가 이상. 최종 판매가는 운영사가 승인할 때 정합니다.</span>
           </label>
         )}
       </div>
@@ -57,7 +57,7 @@ export default function SupplierProductForm({ slug, storeId, supplierId, product
         <span className="font-medium">상세 설명</span>
         <textarea name="description" rows={8} maxLength={20000} defaultValue={p?.description ?? ""} className="mt-1 w-full rounded border px-2 py-2" />
       </label>
-      {p && p.approval === "approved" && <p className="rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">이름·설명·공급가·사진을 바꾸면 운영자가 다시 확인할 때까지 손님에게 보이지 않습니다.</p>}
+      {p && p.approval === "approved" && <p className="rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">이름·설명·공급가·사진을 바꾸면 운영사가 다시 확인할 때까지 유저에게 보이지 않습니다.</p>}
       {!p && <p className="rounded bg-gray-50 px-3 py-2 text-xs text-gray-600">색상·사이즈 같은 옵션은 상품을 올린 뒤 「내 상품」에서 이 상품을 열어 넣을 수 있습니다(옵션마다 추가 공급가·재고).</p>}
       <button className="min-h-11 rounded bg-gray-900 px-5 py-2.5 text-white">{p ? "저장" : "올리고 승인 요청"}</button>
     </form>

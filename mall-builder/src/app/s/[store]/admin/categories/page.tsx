@@ -38,7 +38,7 @@ export default async function CategoriesPage({
         <button className="min-h-11 whitespace-nowrap rounded bg-gray-900 px-4 text-sm text-white">추가</button>
       </form>
       <p className="mt-2 text-xs text-gray-500">
-        카테고리는 3단계까지 만들 수 있습니다. 숨긴 카테고리와 그 아래 카테고리는 손님 화면에 나오지 않습니다. 순서는 ↑↓로 바꿉니다.
+        카테고리는 3단계까지 만들 수 있습니다. 숨긴 카테고리와 그 아래 카테고리는 유저 화면에 나오지 않습니다. 순서는 ↑↓로 바꿉니다.
       </p>
 
       {flat.length === 0 ? (

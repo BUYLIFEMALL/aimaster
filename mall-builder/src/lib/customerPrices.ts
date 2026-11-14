@@ -1,4 +1,4 @@
-// D24 거래처 특가 — 입력값 검사(운영자 손님 상세 화면). DB: mall_builder_customer_prices
+// D24 거래처 특가 — 입력값 검사(운영사 유저 상세 화면). DB: mall_builder_customer_prices
 // 상품별 특가 = 금액("23000") 또는 할인율("5%"), 기본 할인율 = 할인율만. 검사는 등급가와 같은 함수(parseGradePrice).
 
 import { parseGradePrice } from "./products.ts";

@@ -7,13 +7,13 @@ import { createClient } from "@/lib/supabase/server";
 import { canSeeMenu, type MyStaff } from "@/lib/staff";
 import { APP_VERSION } from "@/lib/version";
 
-// 운영자 관리 화면 공통 틀 — 좌측 메뉴(2026-11-14 주인님 지시: 「상단 메뉴를 좌측 메뉴로 수정해」, docs/SIDEBAR_LAYOUT_STANDARD.md)
-// 넓은 화면: 왼쪽 메뉴 막대(몰 이름·버전 → 다른 프로그램 보기 → 메뉴 묶음 → 손님 화면 → 계정·로그아웃 바로 아래)
+// 운영사 관리 화면 공통 틀 — 좌측 메뉴(2026-11-14 주인님 지시: 「상단 메뉴를 좌측 메뉴로 수정해」, docs/SIDEBAR_LAYOUT_STANDARD.md)
+// 넓은 화면: 왼쪽 메뉴 막대(몰 이름·버전 → 다른 프로그램 보기 → 메뉴 묶음 → 유저 화면 → 계정·로그아웃 바로 아래)
 // 메뉴 안 스크롤바 없음(2026-11-14 주인님 「스크롤바 만들지마」) — 메뉴는 끝까지 펼치고 길면 페이지와 함께 내려감.
 // 아래 여백 pb-20: 왼쪽 아래 고정 💾 저장공간 표시(storage-widget)가 로그아웃 단추를 가리지 않게
 // 767px 이하: 왼쪽 막대를 숨기고 위쪽 ☰ 펼침 메뉴(같은 항목·같은 순서), 본문은 화면 전체 폭
 // 메뉴 주소·이름·직원 권한 거르기(canSeeMenu)는 그대로. 기능을 새로 만들면 알맞은 묶음에 한 줄 추가한다.
-// 묶음 순서(2026-11-14 주인님 지정): 상품 → 주문 → 손님 → 공급사 정산 → 몰 꾸미기 → 운영. 대시보드는 묶음 위 첫 줄.
+// 묶음 순서(2026-11-14 주인님 지정): 상품 → 주문 → 유저 → 공급사 정산 → 몰 꾸미기 → 운영. 대시보드는 묶음 위 첫 줄.
 const DASHBOARD = { href: "", label: "대시보드" } as const;
 const MENU_GROUPS = [
   {
@@ -36,10 +36,10 @@ const MENU_GROUPS = [
     ],
   },
   {
-    title: "손님",
+    title: "유저",
     tone: "border-emerald-200 bg-emerald-50/70 text-emerald-700",
     items: [
-      { href: "/customers", label: "손님" },
+      { href: "/customers", label: "유저" },
       { href: "/grades", label: "등급·할인" },
       { href: "/coupons", label: "쿠폰·포인트" },
       { href: "/resellers", label: "리셀러" },
@@ -118,7 +118,7 @@ function SideMenu({ slug, active, groups, email, dashboard }: { slug: string; ac
           </div>
         ))}
         <Link href={`/s/${slug}`} className="block rounded-lg px-3 py-1 text-sm text-blue-700 hover:bg-blue-50">
-          손님 화면 ↗
+          유저 화면 ↗
         </Link>
       </nav>
       <div className="mt-2 shrink-0 border-t pt-3" data-admin-account>
@@ -192,7 +192,7 @@ export async function AdminShell({ slug, storeName, active, children }: { slug: 
             children
           ) : (
             <p className="rounded border border-dashed p-8 text-center text-sm text-gray-600" data-staff-denied>
-              이 메뉴를 쓸 권한이 없습니다. 대표 운영자에게 권한을 요청해 주세요.
+              이 메뉴를 쓸 권한이 없습니다. 대표 운영사에게 권한을 요청해 주세요.
             </p>
           )}
         </div>
@@ -206,7 +206,7 @@ export async function NoPermission() {
   return (
     <main className="mx-auto max-w-md px-4 py-16 text-center">
       <h1 className="text-xl font-bold">관리 권한이 없습니다</h1>
-      <p className="mt-2 text-sm text-gray-600">이 몰의 운영자만 관리 화면을 열 수 있습니다.</p>
+      <p className="mt-2 text-sm text-gray-600">이 몰의 운영사만 관리 화면을 열 수 있습니다.</p>
       <p className="mt-4 rounded bg-gray-50 px-3 py-2 text-sm">
         지금 로그인한 계정: <b>{user?.email}</b>
       </p>

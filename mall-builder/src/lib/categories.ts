@@ -13,8 +13,8 @@ export type CategoryNode = CategoryRow & { children: CategoryNode[]; hiddenByPar
 
 /**
  * 트리 만들기. 형제끼리는 sort → 이름 순.
- * includeHidden=false(손님 화면)면 숨긴 카테고리와 그 아래 전부를 뺀다.
- * includeHidden=true(운영자 화면)면 모두 넣고, 상위가 숨겨져 손님에게 안 보이는 칸은 hiddenByParent=true.
+ * includeHidden=false(유저 화면)면 숨긴 카테고리와 그 아래 전부를 뺀다.
+ * includeHidden=true(운영사 화면)면 모두 넣고, 상위가 숨겨져 유저에게 안 보이는 칸은 hiddenByParent=true.
  */
 export function buildCategoryTree(rows: CategoryRow[], includeHidden: boolean): CategoryNode[] {
   const byParent = new Map<string | null, CategoryRow[]>();

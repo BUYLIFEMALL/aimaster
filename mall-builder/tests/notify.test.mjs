@@ -53,6 +53,6 @@ test("재입고 알림 문구의 {{site}}를 사이트 주소로 바꾼다(D16)"
   const body = "[몰] 「상품」이(가) 다시 입고되었습니다. {{site}}/s/m/p/1";
   assert.equal(fillSite(body, "https://dev-mall-builder.vercel.app/"), "[몰] 「상품」이(가) 다시 입고되었습니다. https://dev-mall-builder.vercel.app/s/m/p/1");
   assert.equal(fillSite("주소 없음", "https://x"), "주소 없음");
-  assert.equal(kindLabel("customer_restock"), "재입고 → 손님");
-  assert.equal(kindLabel("email_customer_restock"), "재입고 → 손님");
+  assert.equal(kindLabel("customer_restock"), "재입고 → 유저");
+  assert.equal(kindLabel("email_customer_restock"), "재입고 → 유저");
 });

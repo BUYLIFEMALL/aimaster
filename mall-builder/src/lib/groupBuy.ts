@@ -43,7 +43,7 @@ export function remainingLabel(endsAt: string, now = Date.now()): string {
   return `${Math.max(1, m)}분 남음`;
 }
 
-/** 운영자 입력 검사 — 공동구매 만들기 */
+/** 운영사 입력 검사 — 공동구매 만들기 */
 export function validateGroupBuy(f: { title: string; group_price: number; target_qty: number; max_per_customer: number | null; starts_at: string; ends_at: string }): string | null {
   if (!f.title.trim() || f.title.trim().length > 60) return "공동구매 이름을 1~60자로 입력해 주세요.";
   if (!Number.isInteger(f.group_price) || f.group_price < 0) return "공동구매 가격을 다시 입력해 주세요.";

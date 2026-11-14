@@ -8,7 +8,7 @@ const facts = (o = {}) => ({
   order: null, faqs: [{ question: "배송은 며칠?", answer: "결제 후 1~2일" }], shipping: ["기본: 3만원 이상 무료"], ...o,
 });
 
-test("프롬프트: 연도·약속 금지·자료가 들어가고 손님 개인정보 칸은 없다", () => {
+test("프롬프트: 연도·약속 금지·자료가 들어가고 유저 개인정보 칸은 없다", () => {
   const p = buildInquiryPrompt(facts(), 2026);
   assert.match(p.system, /2026년/);
   assert.match(p.system, /약속하지/);

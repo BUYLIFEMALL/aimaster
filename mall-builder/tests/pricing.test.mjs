@@ -131,7 +131,7 @@ test("보이기 — 사업자 전용 상품, 회원 전용 구매", () => {
   assert.equal(priceLine(members, null, 1, { viewer: "consumer" }).orderable, true);
 });
 
-test("문맥이 없으면 예전과 같다(일반 손님·공개 상품)", () => {
+test("문맥이 없으면 예전과 같다(일반 유저·공개 상품)", () => {
   const r = priceLine(plain, null, 1);
   assert.equal(r.visible, true);
   assert.equal(r.priceHidden, false);

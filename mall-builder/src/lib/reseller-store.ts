@@ -1,4 +1,4 @@
-// D33 리셀러 — 서버 읽기(보안 규칙상 리셀러 본인은 자기 것만, 「손님」 권한 직원은 몰 전체)
+// D33 리셀러 — 서버 읽기(보안 규칙상 리셀러 본인은 자기 것만, 「유저」 권한 직원은 몰 전체)
 import { createClient } from "./supabase/server";
 import type { LedgerKind, PayoutStatus } from "./reseller";
 import { RESELLER_APPLY_COLUMNS, type ResellerApplication } from "./reseller-apply";
@@ -43,7 +43,7 @@ export async function getPayouts(storeId: string, resellerId?: string, limit = 1
   return [];
 }
 
-/** 운영자: 리셀러 목록 + 연결 손님 수·잔액·이번 달 적립 */
+/** 운영사: 리셀러 목록 + 연결 유저 수·잔액·이번 달 적립 */
 export async function getStoreResellers(storeId: string) {
   const supabase = await createClient();
   const monthStart = Date.parse(new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 8) + "01T00:00:00+09:00");
@@ -64,7 +64,7 @@ export async function getStoreResellers(storeId: string) {
   return ((rs ?? []) as unknown as ResellerRow[]).map((r) => ({ ...r, rate: Number(r.rate), linked: linked.get(r.id) ?? 0, balance: balance.get(r.id) ?? 0, month_earned: month.get(r.id) ?? 0 }));
 }
 
-/** 운영자 손님 상세: 이 손님의 리셀러 정보·연결된 리셀러·고를 수 있는 리셀러 */
+/** 운영사 유저 상세: 이 유저의 리셀러 정보·연결된 리셀러·고를 수 있는 리셀러 */
 export async function getCustomerResellerInfo(storeId: string, customerId: string) {
   const supabase = await createClient();
   const [{ data: mine }, { data: cust }, { data: all }] = await Promise.all([
@@ -80,7 +80,7 @@ export async function getCustomerResellerInfo(storeId: string, customerId: strin
   };
 }
 
-// M1-4(0071) 리셀러 신청 — 본사(「손님」 권한)는 몰 전체, 신청자는 자기 것만(보안 규칙)
+// M1-4(0071) 리셀러 신청 — 본사(「유저」 권한)는 몰 전체, 신청자는 자기 것만(보안 규칙)
 
 export async function getResellerApplications(storeId: string): Promise<ResellerApplication[]> {
   const supabase = await createClient();
@@ -203,7 +203,7 @@ export type SaleRow = {
   reward_held: number;
 };
 
-/** 내 링크로 들어온 주문(손님 개인정보 없이 주문번호·상태·품목 요약·금액·리워드만). ready=false면 DB 업데이트 전 */
+/** 내 링크로 들어온 주문(유저 개인정보 없이 주문번호·상태·품목 요약·금액·리워드만). ready=false면 DB 업데이트 전 */
 export async function getMySales(storeId: string, limit = 200): Promise<{ ready: boolean; rows: SaleRow[] }> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("mall_builder_reseller_sales", { p_store_id: storeId, p_limit: limit });

@@ -1,7 +1,7 @@
 "use server";
 
-// 쿠폰·포인트(D17·D18) 저장 동작 — 운영자: 설정·쿠폰 만들기/끄기/발급·포인트 지급/차감, 손님: 쿠폰 받기·코드 등록
-// 권한은 표 규칙(운영자만 쓰기)과 DB 함수(발급·받기·지급)가 다시 검사한다
+// 쿠폰·포인트(D17·D18) 저장 동작 — 운영사: 설정·쿠폰 만들기/끄기/발급·포인트 지급/차감, 유저: 쿠폰 받기·코드 등록
+// 권한은 표 규칙(운영사만 쓰기)과 DB 함수(발급·받기·지급)가 다시 검사한다
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -26,7 +26,7 @@ const int = (v: FormDataEntryValue | null) => {
   return s === "" ? null : Number(s);
 };
 
-/** 운영자: 포인트 설정 + 등급별 적립률(비우면 몰 기본) */
+/** 운영사: 포인트 설정 + 등급별 적립률(비우면 몰 기본) */
 export async function savePointSettingsAction(slug: string, form: FormData) {
   const back = `/s/${slug}/admin/coupons`;
   const v = {
@@ -59,7 +59,7 @@ export async function savePointSettingsAction(slug: string, form: FormData) {
   go(back, null, "포인트 설정을 저장했습니다.");
 }
 
-/** 운영자: 쿠폰 만들기 */
+/** 운영사: 쿠폰 만들기 */
 export async function createCouponAction(slug: string, form: FormData) {
   const back = `/s/${slug}/admin/coupons`;
   const target = String(form.get("target") ?? "all");
@@ -87,16 +87,16 @@ export async function createCouponAction(slug: string, form: FormData) {
   go(back, null, `쿠폰 「${f.name}」을(를) 만들었습니다.`);
 }
 
-/** 운영자: 쿠폰 켜기·끄기(지우지 않음 — 쓴 주문 기록 보존) */
+/** 운영사: 쿠폰 켜기·끄기(지우지 않음 — 쓴 주문 기록 보존) */
 export async function toggleCouponAction(slug: string, couponId: string, active: boolean) {
   const back = `/s/${slug}/admin/coupons`;
   const { supabase, storeId } = await staffStore(slug, back);
   const { error } = await supabase.from("mall_builder_coupons").update({ is_active: active }).eq("id", couponId).eq("store_id", storeId);
   revalidatePath(`/s/${slug}`, "layout");
-  go(back, error?.message, active ? "쿠폰을 다시 켰습니다." : "쿠폰을 껐습니다. 이미 받은 손님도 쓸 수 없습니다.");
+  go(back, error?.message, active ? "쿠폰을 다시 켰습니다." : "쿠폰을 껐습니다. 이미 받은 유저도 쓸 수 없습니다.");
 }
 
-/** 운영자: 직접 발급(전체·등급·고른 손님) */
+/** 운영사: 직접 발급(전체·등급·고른 유저) */
 export async function issueCouponAction(slug: string, couponId: string, form: FormData) {
   const back = `/s/${slug}/admin/coupons`;
   const scope = String(form.get("scope") ?? "");
@@ -108,10 +108,10 @@ export async function issueCouponAction(slug: string, couponId: string, form: Fo
     p_customer_ids: scope === "customers" ? form.getAll("customer_ids").map(String) : null,
   });
   revalidatePath(`/s/${slug}`, "layout");
-  go(back, error?.message, `${Number(data ?? 0)}명에게 발급했습니다. (이미 가진 손님은 건너뜀)`);
+  go(back, error?.message, `${Number(data ?? 0)}명에게 발급했습니다. (이미 가진 유저는 건너뜀)`);
 }
 
-/** 운영자: 손님 포인트 지급(+)·차감(−) */
+/** 운영사: 유저 포인트 지급(+)·차감(−) */
 export async function adjustPointsAction(slug: string, customerId: string, form: FormData) {
   const back = `/s/${slug}/admin/customers/${customerId}`;
   const amount = int(form.get("amount"));
@@ -123,7 +123,7 @@ export async function adjustPointsAction(slug: string, customerId: string, form:
   go(back, error?.message, `포인트를 ${sign > 0 ? "지급" : "차감"}했습니다. 잔액 ${Number(data ?? 0).toLocaleString("ko-KR")}점`);
 }
 
-/** 손님: 쿠폰 받기 */
+/** 유저: 쿠폰 받기 */
 export async function downloadCouponAction(slug: string, couponId: string, back: string) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("mall_builder_coupon_download", { p_coupon_id: couponId });
@@ -131,7 +131,7 @@ export async function downloadCouponAction(slug: string, couponId: string, back:
   go(back, error?.message, `「${String(data ?? "쿠폰")}」 쿠폰을 받았습니다. 주문서에서 쓸 수 있습니다.`);
 }
 
-/** 손님: 쿠폰 코드 등록(마이페이지) */
+/** 유저: 쿠폰 코드 등록(마이페이지) */
 export async function redeemCouponAction(slug: string, form: FormData) {
   const back = `/s/${slug}/my`;
   const supabase = await createClient();

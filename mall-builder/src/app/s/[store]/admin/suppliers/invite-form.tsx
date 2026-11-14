@@ -18,7 +18,7 @@ export default function SupplierInviteForm({ slug }: { slug: string }) {
         <input name="biz_no" maxLength={20} defaultValue={k.biz_no} placeholder="사업자등록번호(선택)" className="rounded border px-2 py-2" />
         <input name="contact_name" maxLength={30} defaultValue={k.contact_name} placeholder="담당자(선택)" className="rounded border px-2 py-2" />
         <input name="phone" maxLength={30} defaultValue={k.phone} placeholder="연락처(선택)" className="rounded border px-2 py-2" />
-        <input name="memo" maxLength={300} defaultValue={k.memo} placeholder="운영자 메모(공급사에게 안 보임)" className="rounded border px-2 py-2" />
+        <input name="memo" maxLength={300} defaultValue={k.memo} placeholder="운영사 메모(공급사에게 안 보임)" className="rounded border px-2 py-2" />
         <button disabled={pending} className="min-h-11 rounded bg-gray-900 px-4 py-2 text-white disabled:opacity-50 sm:col-span-2 sm:w-fit">{pending ? "만드는 중…" : "초대 링크 만들기"}</button>
       </form>
       {state.error && <p className="mt-2 text-sm text-red-600">{state.error}</p>}

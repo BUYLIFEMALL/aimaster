@@ -130,7 +130,7 @@ export default async function ResalePage({ searchParams }: { searchParams: Promi
                         디자인 편집
                       </Link>
                       <Link href={`/s/${st.slug}`} className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-                        손님 화면 보기
+                        유저 화면 보기
                       </Link>
                     </div>
                   )}

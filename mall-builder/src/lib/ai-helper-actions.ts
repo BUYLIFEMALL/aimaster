@@ -1,6 +1,6 @@
 "use server";
 
-// D29 AI 도우미 서버 액션 — 누를 때만 부른다. 결과는 화면 칸에 채우기만 하고 저장은 운영자가 한다.
+// D29 AI 도우미 서버 액션 — 누를 때만 부른다. 결과는 화면 칸에 채우기만 하고 저장은 운영사가 한다.
 // 권한: 메뉴 권한(상품·게시판·첫 화면)을 여기서 확인하고, 키 암호문은 DB 함수(0049)가 다시 확인한다.
 import { createClient } from "@/lib/supabase/server";
 import { getCategoryRows, getFaqs, getNotices, getShippingPolicies, getStoreBySlug, getStoreProducts } from "@/lib/store";
@@ -48,7 +48,7 @@ export async function aiProductDraftAction(slug: string, input: { memo: string; 
 
 export type InquiryDraftState = AiFail | { ok: true; draft: InquiryDraft; cost: AiCost };
 
-/** 문의 「AI 답변 초안」 — 손님 이름·연락처는 보내지 않는다 */
+/** 문의 「AI 답변 초안」 — 유저 이름·연락처는 보내지 않는다 */
 export async function aiInquiryDraftAction(slug: string, inquiryId: string): Promise<InquiryDraftState> {
   try {
     const { store, supabase, allowed } = await staffFor(slug, "/inquiries");
@@ -94,7 +94,7 @@ export async function aiInquiryDraftAction(slug: string, inquiryId: string): Pro
 
 export type HomeDraftState = AiFail | { ok: true; blocks: Block[]; dropped: number; note: string; cost: AiCost };
 
-/** 첫 화면 「AI 초안 만들기」 — 블록을 돌려줄 뿐 저장·게시는 운영자가 편집기에서 한다 */
+/** 첫 화면 「AI 초안 만들기」 — 블록을 돌려줄 뿐 저장·게시는 운영사가 편집기에서 한다 */
 export async function aiHomeDraftAction(slug: string, industry: string): Promise<HomeDraftState> {
   try {
     const text = String(industry ?? "").trim();

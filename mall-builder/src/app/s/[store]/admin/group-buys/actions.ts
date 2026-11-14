@@ -1,6 +1,6 @@
 "use server";
 
-// 공동구매(D21) 운영자 동작 — 만들기(표 규칙: 그 몰 운영자만), 지금 마감·실패 일괄 취소(DB 함수 0041)
+// 공동구매(D21) 운영사 동작 — 만들기(표 규칙: 그 몰 운영사만), 지금 마감·실패 일괄 취소(DB 함수 0041)
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";

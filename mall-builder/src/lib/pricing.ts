@@ -123,7 +123,7 @@ export function priceLine(product: PricingProduct, variant: Variant | null, qty:
   return { visible, priceHidden, orderable: errors.length === 0, unitPrice, lineTotal: unitPrice * safeQty, breakdown, errors };
 }
 
-/** 손님 정보 → 보는 사람. 승인 사업자는 사업자 등급이면서 승인 상태 */
+/** 유저 정보 → 보는 사람. 승인 사업자는 사업자 등급이면서 승인 상태 */
 export function viewerOf(
   customer: { approval_status: string; grade: { is_business: boolean } | null } | null,
   loggedIn: boolean,

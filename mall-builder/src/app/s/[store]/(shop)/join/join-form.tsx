@@ -19,8 +19,8 @@ export default function JoinForm({ slug, next, storeName, closed }: { slug: stri
       </label>
       {closed && (
         <label className="block" data-join-invite>
-          <span className="text-sm font-medium">초대 코드 {closed.approval ? <span className="text-xs font-normal text-gray-500">(없으면 비워 두세요 — 운영자 승인 뒤 입장)</span> : <span className="text-xs font-normal text-red-600">(필수)</span>}</span>
-          <input name="invite_code" required={!closed.approval} maxLength={20} placeholder="운영자에게 받은 코드" className="mt-1 w-full rounded border px-3 py-2 uppercase" />
+          <span className="text-sm font-medium">초대 코드 {closed.approval ? <span className="text-xs font-normal text-gray-500">(없으면 비워 두세요 — 운영사 승인 뒤 입장)</span> : <span className="text-xs font-normal text-red-600">(필수)</span>}</span>
+          <input name="invite_code" required={!closed.approval} maxLength={20} placeholder="운영사에게 받은 코드" className="mt-1 w-full rounded border px-3 py-2 uppercase" />
         </label>
       )}
       <div className="block">

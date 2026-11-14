@@ -1,4 +1,4 @@
-// 자동 배송 완료·구매 확정(D12) — 운영자 입력 검사와 안내 문구. 실제 이동은 DB 함수 mall_builder_auto_progress(0032)
+// 자동 배송 완료·구매 확정(D12) — 운영사 입력 검사와 안내 문구. 실제 이동은 DB 함수 mall_builder_auto_progress(0032)
 export const AUTO_DAYS_MIN = 1;
 export const AUTO_DAYS_MAX = 60;
 

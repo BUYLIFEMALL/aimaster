@@ -102,7 +102,7 @@ export default function ResellerApplyForm({ storeId, userId, defaults }: { store
           <input name="doc" type="file" accept={accept} className="mt-1 block w-full text-sm" />
         </label>
       )}
-      <p className="text-xs text-gray-500">서류는 PDF·JPG·PNG·WEBP, 5MB 이하. 몰 운영자만 볼 수 있게 비공개로 보관합니다.</p>
+      <p className="text-xs text-gray-500">서류는 PDF·JPG·PNG·WEBP, 5MB 이하. 몰 운영사만 볼 수 있게 비공개로 보관합니다.</p>
       {error && <p className="rounded bg-red-50 px-3 py-2 text-red-700" data-apply-error>{error}</p>}
       <button disabled={pending} className="min-h-11 w-full rounded bg-gray-900 px-5 py-2.5 text-white disabled:opacity-60 sm:w-auto">{pending ? "보내는 중…" : "리셀러 신청 보내기"}</button>
     </form>

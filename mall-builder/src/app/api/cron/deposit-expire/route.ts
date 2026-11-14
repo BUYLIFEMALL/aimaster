@@ -1,7 +1,7 @@
-// 몰 운영자 본인 cron-job.org가 부르는 실행 주소(주문 알림이 켜져 있으면 1분, 아니면 10분마다) —
+// 몰 운영사 본인 cron-job.org가 부르는 실행 주소(주문 알림이 켜져 있으면 1분, 아니면 10분마다) —
 // 머리글의 몰 전용 토큰으로 그 몰만 처리한다: 기한 지난 입금 대기 주문 자동 취소(D8) → 자동 배송 완료·구매 확정(D12) → 알림 대기 줄 문자 발송(0025) → 메일 발송(0026, Resend). 재입고 알림(D16)·포인트 소멸 예정(D18)도 같은 대기 줄로 나간다.
 // 로그인 세션 없이 공개 키로 DB 함수만 부른다(서비스 키 없음). 토큰이 없거나 틀리면 401.
-// 주소 이름은 D8 때 그대로 둔다 — 이미 등록된 운영자 cron-job.org 작업이 이 주소를 찾아 다시 쓰기 때문(바꾸면 작업이 둘로 늘어남).
+// 주소 이름은 D8 때 그대로 둔다 — 이미 등록된 운영사 cron-job.org 작업이 이 주소를 찾아 다시 쓰기 때문(바꾸면 작업이 둘로 늘어남).
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 import { bearerToken, hashRunToken } from "@/lib/depositScheduler";
@@ -35,7 +35,7 @@ async function run(request: Request) {
   // 쿠폰·포인트(D17·D18) — 생일 쿠폰 발급, 기간 지난 포인트 소멸, 7일 안 소멸 예정 문자(아래 문자 발송에 함께 나감). 여러 번 불려도 같은 결과
   const benefits = await supabase.rpc("mall_builder_benefits_run", { p_token_hash: hash });
 
-  // 공동구매(D21) — 마감 지난 공동구매 판정(성공·실패, 참여 손님 문자는 아래 발송에 함께). 취소·환불은 운영자 버튼
+  // 공동구매(D21) — 마감 지난 공동구매 판정(성공·실패, 참여 유저 문자는 아래 발송에 함께). 취소·환불은 운영사 버튼
   const groupBuy = await supabase.rpc("mall_builder_group_buy_run", { p_token_hash: hash });
 
   // 정기 주문(D30) — 오늘(한국) 주문일이 된 정기 주문을 만든다(8시 이후, 같은 회차 한 번만). 성공 알림은 주문 알림으로, 실패 문자는 아래 발송에 함께
@@ -43,7 +43,7 @@ async function run(request: Request) {
 
   // 재입고 알림 문구 속 {{site}}는 이 사이트 주소로 바꿔 보낸다(DB는 사이트 주소를 모른다)
   const origin = new URL(request.url).origin;
-  // 자동 취소가 만든 「자동 취소 → 손님」 알림까지 이번에 함께 보낸다
+  // 자동 취소가 만든 「자동 취소 → 유저」 알림까지 이번에 함께 보낸다
   const sms = await sendChannel(hash, async () => {
     const claim = await supabase.rpc("mall_builder_notify_claim", { p_token_hash: hash, p_limit: 50 });
     if (claim.error) return null;

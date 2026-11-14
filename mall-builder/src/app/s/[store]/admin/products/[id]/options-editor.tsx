@@ -24,7 +24,7 @@ export default function OptionsEditor({
   stockByOption: boolean;
   initialGroups: OptionGroup[];
   initialVariants: Variant[];
-  /** supplier = 공급사 화면(0060): 추가금 칸이 「추가 공급가」, 판매가는 운영자가 승인 때 정함 */
+  /** supplier = 공급사 화면(0060): 추가금 칸이 「추가 공급가」, 판매가는 운영사가 승인 때 정함 */
   mode?: "admin" | "supplier";
 }) {
   const supplier = mode === "supplier";
@@ -133,7 +133,7 @@ export default function OptionsEditor({
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
       {state.saved && <p className="text-sm text-green-700">{state.message ?? "옵션을 저장했습니다."}</p>}
-      {supplier && <p className="text-xs text-gray-500">옵션 구성이나 추가 공급가를 바꾸면 운영자가 다시 확인할 때까지 손님에게 보이지 않습니다. 재고·품번·사용 여부만 바꾸면 그대로 판매됩니다.</p>}
+      {supplier && <p className="text-xs text-gray-500">옵션 구성이나 추가 공급가를 바꾸면 운영사가 다시 확인할 때까지 유저에게 보이지 않습니다. 재고·품번·사용 여부만 바꾸면 그대로 판매됩니다.</p>}
       <button disabled={pending || outdated || (!!groupError && groups.length > 0)} className="min-h-11 rounded bg-gray-900 px-4 text-sm text-white disabled:opacity-50">
         {pending ? "저장 중…" : "옵션 저장"}
       </button>

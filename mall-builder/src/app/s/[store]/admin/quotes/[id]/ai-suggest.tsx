@@ -5,7 +5,7 @@ import { aiSuggestAction, type AiQuoteState } from "./ai-actions";
 
 const won = (n: number | null) => (n == null ? "—" : `${n.toLocaleString("ko-KR")}원`);
 
-// D27 「AI 단가 제안」 — 제안은 아래 회신 칸에 채워 넣기만 한다(회신은 운영자가 직접)
+// D27 「AI 단가 제안」 — 제안은 아래 회신 칸에 채워 넣기만 한다(회신은 운영사가 직접)
 export function AiSuggest({ slug, quoteId, settingsHref, last }: { slug: string; quoteId: string; settingsHref: string; last: string | null }) {
   const [state, run, pending] = useActionState(aiSuggestAction.bind(null, slug, quoteId), { ok: null } as AiQuoteState);
   const fill = () => {

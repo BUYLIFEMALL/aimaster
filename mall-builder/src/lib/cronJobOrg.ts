@@ -1,7 +1,7 @@
-// cron-job.org REST API(https://docs.cron-job.org/rest-api.html) — 몰 운영자 본인 cron-job.org 계정에 입금 기한 확인 작업을 만든다.
+// cron-job.org REST API(https://docs.cron-job.org/rest-api.html) — 몰 운영사 본인 cron-job.org 계정에 입금 기한 확인 작업을 만든다.
 // 호출 방식은 공용 기준 코드 「insta-cronjob-org」(기준 cardnews-studio, 사본 ai-influencer-studio/src/lib/instagram/cronJobOrg.ts)와 같고,
 // Lab은 독립 프로그램이라 사본으로 가져와 몰 단위·10분 주기로 맞췄다. 머리글에는 몰 전용 토큰만 넣는다(사이트 비밀값 금지).
-// 하루 호출 한도가 100회(기본)라 화면을 열 때 부르지 않고, 운영자가 저장·일시정지 버튼을 누를 때만 부른다.
+// 하루 호출 한도가 100회(기본)라 화면을 열 때 부르지 않고, 운영사가 저장·일시정지 버튼을 누를 때만 부른다.
 import { CHECK_MINUTES } from "./depositScheduler.ts";
 
 const API_BASE = "https://api.cron-job.org";

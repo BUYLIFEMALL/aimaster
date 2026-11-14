@@ -111,7 +111,7 @@ async function paymentStatus(storeId: string): Promise<PaymentStatus> {
   return { clientKey: row?.toss_client_key ?? "", enabled: row?.card_enabled ?? false, hasSecret: Boolean(s.has_secret), secretMode: s.mode ?? "" };
 }
 
-// 세금계산서 발행(볼타, D19) — 키는 있음·종류만, 설정 칸은 운영자만 읽는 표
+// 세금계산서 발행(볼타, D19) — 키는 있음·종류만, 설정 칸은 운영사만 읽는 표
 async function taxStatus(storeId: string): Promise<TaxStatus> {
   const supabase = await createClient();
   const [{ data: row }, { data: k }] = await Promise.all([
@@ -122,7 +122,7 @@ async function taxStatus(storeId: string): Promise<TaxStatus> {
   return { hasKey: Boolean(s.has_key), mode: s.mode ?? "", managerEmail: row?.manager_email ?? "", businessType: row?.business_type ?? "", businessItem: row?.business_item ?? "" };
 }
 
-// 폐쇄몰(D20) — 코드·사용 수·입장 대기 수는 운영자 함수로만
+// 폐쇄몰(D20) — 코드·사용 수·입장 대기 수는 운영사 함수로만
 async function closedStatus(storeId: string): Promise<ClosedStatus> {
   const { data } = await (await createClient()).rpc("mall_builder_closed_status", { p_store_id: storeId });
   const d = (data ?? {}) as Record<string, unknown>;

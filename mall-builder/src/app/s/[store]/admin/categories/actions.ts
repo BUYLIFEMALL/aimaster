@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { categoryNameError, nextSort, swapTarget, type CategoryRow } from "@/lib/categories";
 
-// 모든 동작은 보안 규칙(그 몰 운영자만 쓰기)을 그대로 거친다. 운영자가 아니면 바뀐 줄이 0이 된다.
+// 모든 동작은 보안 규칙(그 몰 운영사만 쓰기)을 그대로 거친다. 운영사가 아니면 바뀐 줄이 0이 된다.
 
 async function storeIdOf(slug: string) {
   const supabase = await createClient();

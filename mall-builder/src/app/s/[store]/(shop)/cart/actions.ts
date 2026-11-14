@@ -21,7 +21,7 @@ async function context(slug: string) {
 }
 
 async function loadProduct(supabase: Awaited<ReturnType<typeof createClient>>, storeId: string, productId: string, variantId: string | null) {
-  // 손님 화면과 같은 DB 함수로 읽는다 — 가격 비공개 상품도 와서 가격 엔진이 「승인 후 가격 공개」 같은 정확한 안내를 낸다
+  // 유저 화면과 같은 DB 함수로 읽는다 — 가격 비공개 상품도 와서 가격 엔진이 「승인 후 가격 공개」 같은 정확한 안내를 낸다
   const { data: rows } = await supabase.rpc("mall_builder_shop_products", { p_store_id: storeId, p_ids: [productId], p_limit: 1 });
   const product = (rows as ProductRow[] | null)?.[0];
   if (!product) return null;

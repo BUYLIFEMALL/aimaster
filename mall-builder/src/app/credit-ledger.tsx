@@ -3,7 +3,7 @@ import { formatDateTime } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
 import type { LedgerEntry } from "@/lib/store";
 
-// 외상 요약·장부 표 — 손님 마이페이지와 운영자 손님 화면 공통
+// 외상 요약·장부 표 — 유저 마이페이지와 운영사 유저 화면 공통
 export default function CreditLedger({ limit, balance, entries }: { limit: number; balance: number; entries: LedgerEntry[] }) {
   return (
     <div className="text-sm" data-credit>

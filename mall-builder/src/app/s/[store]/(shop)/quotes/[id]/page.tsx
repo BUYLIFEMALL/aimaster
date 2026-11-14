@@ -76,7 +76,7 @@ export default async function QuoteDetailPage({
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
-      {requested && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-800">견적을 요청했습니다. 운영자가 회신하면 이 화면에서 견적가를 확인하고 바로 주문할 수 있습니다.</p>}
+      {requested && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-800">견적을 요청했습니다. 운영사가 회신하면 이 화면에서 견적가를 확인하고 바로 주문할 수 있습니다.</p>}
       {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-bold">견적 {quote.quote_no}</h1>
@@ -109,7 +109,7 @@ export default async function QuoteDetailPage({
           </li>
         ))}
       </ul>
-      {quote.answer_note && <p className="mt-3 rounded bg-gray-50 px-3 py-2 text-sm">운영자 메모: {quote.answer_note}</p>}
+      {quote.answer_note && <p className="mt-3 rounded bg-gray-50 px-3 py-2 text-sm">운영사 메모: {quote.answer_note}</p>}
 
       {status === "expired" && <p className="mt-6 rounded bg-amber-50 px-3 py-2 text-sm" data-quote-expired>유효기한이 지난 견적입니다. 장바구니에서 다시 요청해 주세요.</p>}
       {quote.status === "accepted" && quote.order_id && (

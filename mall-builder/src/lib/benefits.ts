@@ -42,13 +42,13 @@ export const DEFAULT_POINT_SETTINGS: PointSettings = {
 
 export const ISSUE_MODE_LABEL: Record<CouponDef["issue_mode"], string> = {
   manual: "직접 발급",
-  download: "손님이 받기",
+  download: "유저가 받기",
   code: "쿠폰 코드",
   signup: "가입 축하(자동)",
   birthday: "생일(자동)",
 };
 
-export const POINT_KIND_LABEL: Record<string, string> = { earn: "적립", use: "사용", refund: "돌려줌", expire: "소멸", admin: "운영자" };
+export const POINT_KIND_LABEL: Record<string, string> = { earn: "적립", use: "사용", refund: "돌려줌", expire: "소멸", admin: "운영사" };
 
 /** 주문서 한 줄 — 쿠폰 대상 판단에 상품·카테고리가 필요 */
 export type BenefitLine = { productId: string; categoryIds: string[]; lineTotal: number };
@@ -101,7 +101,7 @@ export function couponLabel(c: Pick<CouponDef, "discount_type" | "value" | "max_
   return c.min_order > 0 ? `${off} · ${c.min_order.toLocaleString("ko-KR")}원 이상` : off;
 }
 
-/** 운영자 입력 검사 — 쿠폰 만들기 */
+/** 운영사 입력 검사 — 쿠폰 만들기 */
 export function validateCouponForm(f: {
   name: string; discount_type: string; value: number; max_discount: number | null; min_order: number;
   valid_days: number | null; ends_at: string | null; target: string; target_ids: string[]; issue_mode: string; code: string | null;

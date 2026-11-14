@@ -1,4 +1,4 @@
-// D30 정기 주문 목록 — 손님 「내 정기 주문」과 운영자 「정기 주문」이 함께 쓴다(서버 컴포넌트, 버튼은 폼 동작)
+// D30 정기 주문 목록 — 유저 「내 정기 주문」과 운영사 「정기 주문」이 함께 쓴다(서버 컴포넌트, 버튼은 폼 동작)
 import Link from "next/link";
 import { RECURRING_PAY_LABEL, RECURRING_STATUS_LABEL, scheduleLabel } from "@/lib/recurring";
 import { changeRecurringAction, recurringQtyAction } from "@/lib/recurring-actions";

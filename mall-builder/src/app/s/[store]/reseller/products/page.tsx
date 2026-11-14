@@ -18,7 +18,7 @@ const SORTS = [
 ] as const;
 
 // M4-C2·C3 상품 고르기 — 판매 중 상품마다 판매가·내 리워드율(0077)·예상 리워드·최근 30일 판매 수(0078),
-// 픽(★), 링크 복사·짧은 링크·QR. 사업자 전용 상품은 링크로 들어온 일반 손님이 살 수 없으므로 뺀다
+// 픽(★), 링크 복사·짧은 링크·QR. 사업자 전용 상품은 링크로 들어온 일반 유저가 살 수 없으므로 뺀다
 export default async function ResellerProductsPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ sort?: string; q?: string; error?: string; ok?: string; msg?: string }> }) {
   const { store: slug } = await params;
   const sp = await searchParams;
@@ -47,7 +47,7 @@ export default async function ResellerProductsPage({ params, searchParams }: { p
   return (
     <ResellerShell slug={store.slug} storeName={store.name} code={s.code} email={user.email ?? ""} active="/products" notice={sp}>
       <h1 className="text-xl font-bold">🛍️ 상품 고르기</h1>
-      <p className="mt-1 text-sm text-slate-600">상품 링크를 복사해 블로그·SNS·채팅에 올리세요. 링크로 들어온 손님이 30일 안에 사면 「예상 리워드」만큼 쌓입니다(실제는 결제 금액 기준, 쿠폰 할인 나눔 반영). ★ 픽한 상품은 「내 픽」에서 모아 봅니다.</p>
+      <p className="mt-1 text-sm text-slate-600">상품 링크를 복사해 블로그·SNS·채팅에 올리세요. 링크로 들어온 유저가 30일 안에 사면 「예상 리워드」만큼 쌓입니다(실제는 결제 금액 기준, 쿠폰 할인 나눔 반영). ★ 픽한 상품은 「내 픽」에서 모아 봅니다.</p>
       <form className="mt-3 flex gap-2" action={base}>
         <input type="hidden" name="sort" value={sort} />
         <input name="q" defaultValue={q} placeholder="상품 이름 검색" className="min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm" />

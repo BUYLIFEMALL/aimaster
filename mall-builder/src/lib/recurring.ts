@@ -62,7 +62,7 @@ export function scheduleLabel(s: Schedule): string {
   return s.every_weeks === 1 ? `매주 ${day}` : `${s.every_weeks}주마다 ${day}`;
 }
 
-/** 손님 입력 검사 → 저장할 주기 */
+/** 유저 입력 검사 → 저장할 주기 */
 export function parseSchedule(input: { kind: unknown; weekday: unknown; every_weeks: unknown; month_day: unknown; start: unknown }, today: string):
   | { ok: true; value: Schedule; start: string }
   | { ok: false; error: string } {

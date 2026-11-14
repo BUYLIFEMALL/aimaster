@@ -22,7 +22,7 @@ function NoticeForm({ slug, notice }: { slug: string; notice: Notice | null }) {
   );
 }
 
-// 공지(F19) — 손님 공지 목록과 첫 화면 「공지」 블록에 보인다
+// 공지(F19) — 유저 공지 목록과 첫 화면 「공지」 블록에 보인다
 export default async function AdminNoticesPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ error?: string; ok?: string }> }) {
   const { store: slug } = await params;
   const { error, ok } = await searchParams;

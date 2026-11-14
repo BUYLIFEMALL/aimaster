@@ -1,4 +1,4 @@
-// 몰 손님(몰별 가입)·배송지 — DB: mall_builder_store_customers, mall_builder_customer_addresses
+// 몰 유저(몰별 가입)·배송지 — DB: mall_builder_store_customers, mall_builder_customer_addresses
 // 같은 인증 계정이 몰 A·B에 따로 가입한다(몰마다 한 줄). 사업자·등급은 F12에서 추가.
 
 export type CustomerInput = { name: string; phone: string; marketing_agree: boolean };
@@ -36,7 +36,7 @@ export function validateAddress(input: Record<string, unknown>): { ok: true; val
   return { ok: true, value: { label, receiver, phone, zip, addr1, addr2, is_default: input.is_default === "on" || input.is_default === true } };
 }
 
-/** 이메일을 가려서 보여 주기(운영자 목록용 아님 — 공개 화면용): ab***@example.com */
+/** 이메일을 가려서 보여 주기(운영사 목록용 아님 — 공개 화면용): ab***@example.com */
 export function maskEmail(email: string): string {
   const [id, domain] = email.split("@");
   if (!domain) return email;
