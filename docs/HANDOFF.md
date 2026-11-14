@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` — 바나나 v1.48 배포(메이커 일괄 합성·반환)
+
+- 메이커 기능·UI 인계 확인: agy `f9b8604d4` 결함 2건 해결, 사진 역할 기준 선택·서브 3장/중복 검사·서브 cover·파일명 경로 문자 제거는 공용 계산 코드에 있고 새 화면도 사용. 추가 수정 `1060a8b22`: 반환 단추가 이미 저장된 상품을 다시 보내던 것·빈 작업 번호·성급한 완료 안내.
+- 배포: 주인님 「큰작업이면 배포」(빌드 1회) — 작업 중 표의 지난 agy 줄(11-13, 완료·커밋됨)은 주인님 승인으로 정리(`cadb9d0f8`), 커밋본만 배포 `banana-canvas-eqexlh8xq` Ready, DB v1.48. 시험 97·tsc 0·로컬 빌드 통과, ego에서 `/batch?mode=product` 새 4단계 화면·v1.48 확인.
+- 남은 일: 맥미니 실물 재검수(상세페이지 → 바나나 → 반환 → 저장), 쇼핑몰 담당 M1~M3, 상세 사본은 다음 상세 배포 때. agy 인계 문서 `banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md`는 agy 미커밋이라 그대로 둠.
+- https://banana-canvas.buylife.xyz/batch?mode=product
+
 ## 2026-11-14 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.39 배포(왼쪽 메뉴 버전 표시)
 - 주인님 지시: 「진행해」(남은 일 목록의 메뉴 버전 배포)
 - 한 일: 미배포였던 `9adffe5df`(왼쪽 메뉴가 `src/lib/version.ts`의 버전을 불러 씀)를 v1.39로 배포. `version.ts`·버전 마이그레이션(`20261114010000_bump_version_v1_39.sql`)·AGENTS 이력, DB `programs.version` v1.39

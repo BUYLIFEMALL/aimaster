@@ -25,9 +25,6 @@
 
 - ~~메인 사이트 — 옛 주소 이동·「API 설정」 매뉴얼 버튼·요금제 카드 안내~~ → **배포됨(2026-11-14 확인, 다른 세션 푸시의 메인 자동 빌드에 함께 나감)**: `aimaster-five.vercel.app` 화면 307 → `www.buylife.xyz`, 옛 주소 `/api/`는 그대로(401). [역할: policy]
 
-- `banana-canvas` 상품 합성: 깨진 사진 실패 사유 한국어 안내(`compositeRender.ts` `readBitmap`) — 2026-11-13 [역할: ecommerce-image] `claude-win-blog`, 다음 바나나 배포 때 함께. **주의: agy가 `batch/` 화면 작업 중(미커밋) — 배포는 커밋 내용만 꺼내서(`git archive HEAD banana-canvas`) 하거나 agy 커밋 뒤에.**
-- `banana-canvas` 상품 합성 P3-F: 공급사 ZIP·폴더 그대로 넣기(`zipInput.ts`·`rowsFromPaths`) — 2026-11-13 [역할: ecommerce-image] `claude-win-blog`, 주인님 승인. 다음 바나나 배포 때 함께(같은 주의: agy 미커밋 화면).
-- `banana-canvas` 메이커 연계 M1: 상품 사진 약속에 보낸 곳 쇼핑몰(`from=mall`) 추가 — `31dd0b632` 2026-11-14 [역할: ecommerce-image] `claude-win-sdp`. 약속 코드만(동작 같음). **화면 연결 3곳은 agy**(플랜 `banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md` §4) — 연결 전에는 쇼핑몰이 보내도 받지 않음. 상세 사본 `shop-detail-page/lib/productPhotoHandoff.ts`도 동작 같아 다음 상세 배포 때 함께.
 - **블로그 맥미니 지적 처리(2026-11-12 [역할: blog] `claude-win-blog`)**: `tistory-auto-blog` 열외 회원 보관 안내·배지(시험 177) · `naver-cafe-recruit` 명단 고유 인원·종료 카운터·팝업 버전(시험 17, 확장 → manifest·ZIP·DB 함께). 각 `docs/IMPROVEMENT_HANDOFF_20261112.md`. 다음 그 프로그램 배포 때 함께.
 
 - **공통 — 💾 저장공간 위젯 한 줄(2026-11-11 세션 `claude-win-rea`, 주인님 「해당 프로그램 배포할때 배포되도록」, 추가 배포 없음)**: 하위 웹 프로그램을 배포할 때 레이아웃에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`를 함께 넣는다. `node scripts/pending-check.mjs <폴더>`가 미적용 여부를 자동으로 알려 주고, `--all`이 남은 프로그램을 센다(시작 0/99). 절차·예외: [`HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`](HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md).
@@ -95,6 +92,7 @@
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 | `stepmail` v1.30 | 2026-11-14 ([역할: policy] `claude-win-20261112-policy`, 주인님 승인 빌드 1회, Ready·DB 버전) | 메일 `{닉네임}` 개인화·2~5초 간격·계정별 하루 한도(`b3a93984f`) + 전체 점검 매뉴얼·30일 정리 등 그동안의 대기분 · 회원 공지 `notices` 3f946b70(메인 공지·프로그램 상세에 고정) · 실제 발송 시험은 안 함(시험 계정에 메일 계정 없음, 관리자는 실제 명단) |
+| `banana-canvas` | v1.48 · 2026-11-14 ([역할: ecommerce-image] `claude-win-sdp`, 주인님 「큰작업이면 배포」 빌드 1회, 커밋본만 `banana-canvas-eqexlh8xq` Ready, DB v1.48) | 메이커 일괄 합성 새 화면(agy `f9b8604d4`, 결과 메시지·보낸 곳 결함 해결) · 반환 단추 중복 저장 방지 `1060a8b22` · M1 보낸 곳 쇼핑몰 `31dd0b632` · P3-F ZIP·폴더 넣기 `bb37e82cb` · 깨진 사진 안내 `7795f8b78`. 상세 사본 `shop-detail-page/lib/productPhotoHandoff.ts`는 다음 상세 배포 때 |
 | `trending-product-finder` | v1.39 · 2026-11-14 ([역할: ecommerce-image] `claude-win-sdp`, 주인님 「진행해」 승인 빌드 1회, `trending-product-finder-lrksrt89m` Ready, DB·확장 v1.39 `check-extension-release` OK) | EC-W10 공장 견적 비교 `790b34f84` · E2-2 초안 화면 `524239df0` · E2-3 네이버 분류(확장) `67e661112` · E2-4 넘기기 `597e912cc` · 공통: 저장공간 위젯·로그아웃 local·서버 기기 정보 |
 | `threads-easy-planner` v1.52 · `tarot`(tarot-reading) v1.29 · `mbti`(personality-code) v1.23 · `mbti-character` v1.26 · `kakao_auto_poster` v1.32 | 2026-11-14 ([역할: policy] `claude-win-20261112-policy`, 주인님 승인 빌드 5회, 모두 Ready·운영 주소·DB 버전 맞춤, `/api/kakao-js-key` 비로그인 401) | 모델 최신 9개 · 카카오 공유 회원 본인 키(관리자·시험 계정 등록, 세 프로그램 기존 키와 지문 일치) · 글 정리 AI 선택(`kakao_topics.text_model`) · 타로 `CRON_SECRET` 추가로 30일 정리(12-14 유예) 함께 · 각 프로그램의 다른 대기분(저작권 고지·점검 매뉴얼 등) |
 | `shots` | v1.51 · 2026-11-14 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 2회 중 2, `shots-3w5bgz2bb` Ready, DB v1.51) | 백로그 6 「모든 장면 영상으로」 `a5199509e` + 공용 인코더 안정화 `4faaadaf2`. ego 시험 계정: 상자·5개 약 $2.50·확인 창·취소 확인(유료 실행 안 함) |
