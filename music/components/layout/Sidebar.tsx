@@ -49,6 +49,11 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   // 휴대폰 폭(767px 이하)에서는 메뉴를 접고 위쪽 ☰ 버튼으로 펼친다(원칙 19, 2026-10-23). 페이지를 옮기면 다시 접는다.
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => setMobileOpen(false), [pathname]);
+  // 「/plannings/new」는 「/plannings」로도 시작해 두 메뉴가 함께 켜졌다(2026-11-14 주인님 지적).
+  // 주소에 맞는 메뉴 중 가장 긴(가장 구체적인) 하나만 켠다.
+  const activeFlowHref = FLOW_STEPS.map((s) => s.href)
+    .filter((href) => pathname === href || pathname?.startsWith(`${href}/`))
+    .sort((a, b) => b.length - a.length)[0];
 
   return (
     <aside className="flex w-full flex-col border-b border-[#272732] bg-[#121217] p-4 md:w-72 md:border-b-0 md:border-r md:sticky md:top-0 md:h-screen md:shrink-0 z-20">
@@ -112,7 +117,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </div>
         <nav className="relative flex flex-col space-y-1.5">
           {FLOW_STEPS.map((item, idx) => {
-            const isActive = pathname?.startsWith(item.href);
+            const isActive = item.href === activeFlowHref;
             const isLast = idx === FLOW_STEPS.length - 1;
             return (
               <Link

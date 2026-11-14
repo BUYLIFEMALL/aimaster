@@ -1,6 +1,8 @@
 # 음악(SUNO)자동화 (music/) 개선사항 및 백로그 (IMPROVEMENTS.md)
 
-> **⏳ 미배포 대기 (2026-11-13, [역할: music] `claude-win-20261024-music`, 커밋 `b4403e8bd`)**: 공통 보완 — 로그아웃 `signOut({ scope: "local" })` 1곳 · 서버 클라이언트 `User-Agent` 전달. tsc·기존 시험 통과, 버전은 올리지 않음. 다음에 이 프로그램을 배포할 때 함께 나가며 그때 버전 +0.01. 근거 `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` · `docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`.
+> **⏳ 미배포 대기 (2026-11-14, [역할: music] `claude-win-20261024-music`)**: 왼쪽 메뉴 두 개가 함께 선택되던 문제 — `/plannings/new`가 「빠른 음악 기획」과 「음악 생성 · 트랙 관리」(`/plannings`) 둘 다에 걸림. `components/layout/Sidebar.tsx`에서 주소에 맞는 메뉴 중 가장 긴 것 하나만 켜도록 고침. tsc 통과, 버전 그대로(v1.57) — 다음 배포 때 함께 나가며 그때 +0.01.
+
+> **✅ (배포됨 v1.57, 2026-11-14)** 공통 보완 `b4403e8bd` — 로그아웃 `signOut({ scope: "local" })` · 서버 클라이언트 `User-Agent` 전달.
 
 > **🗂️ 「내 자료함」 연동 안내 — 음악 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 승인)**: 운영 DB에 `member_assets`(공용 자료 목록)와 트리거를 달았습니다(`supabase/migrations/0059_member_assets.sql`). `ams_generations`(완성 곡)·`music_track_variants`(곡 버전)·`free_music_tracks`(휴지통 제외)가 생기거나 바뀌면 자료함 줄이 자동으로 생기고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(30일 정리를 그대로 따름). **음악 프로그램 코드는 바꾸지 않았고 재배포도 필요 없습니다.** 주의: (1) 위 세 표의 칸 이름(`outputs[].path`·`title`·`durationS`, `audio_url`, `trashed_at`·`title`)이나 저장 경로 규칙(`{user_id}/…`)을 바꾸면 트리거 함수(`member_assets_sync_ams/suno/fms`)도 같이 고쳐야 합니다. (2) 표를 지우거나 이름을 바꾸기 전에 트리거를 먼저 확인해 주세요. 화면: https://www.buylife.xyz/library · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md`
 
