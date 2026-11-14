@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.41 배포(수정발행 검수 수정)
+- 주인님 「배포해」 → v1.41(`6e4314eb1`·`a48a8e4cb`), 배포 `ai-work-workspace-l38wi8ovh` Ready, DB v1.41
+- 엣지 운영 확인(시험 계정·테스트 키, 보내기 없음): 화면 v1.41, 환입 단가 「-5000」 직접 입력 → 미리보기 -5,500원, 화면 가로 밀림 없음, PDF 버튼 → 새 탭 없이 「PDF를 내려받았습니다」
+- 특이사항: 공용 스테이징(`.git/index`)에 bolta.ts 옛 내용이 남아 「MM」으로 보임 — 작업 폴더는 HEAD와 같음(커밋 도우미가 스테이징을 못 맞춘 흔적), 건드리지 않음
+- 링크: https://ai-work-workspace.buylife.xyz/receipts
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지 — 주인님 지정) · 세션 `claude-win-20261025-workspace` — v1.40 볼타 수정발행 테스트 키 운영 검수
 - 시험 계정(buylifemall@naver.com, 볼타 test_ 키) · 엣지 보이는 창: 정발행(test_nts_VDG3…) → 계약의 해제 -110,000원(test_nts_0173…) / 새 문서 정발행(test_nts_2BFD…) → 공급가액 변동 -11,000원(test_nts_4ZGY…) 모두 「발행 완료」, 이력 줄·확인 창 문구(테스트 키 안내) 정상, 원본·수정분 PDF `READY`(테스트는 볼타 샘플 파일)
 - 찾은 문제(수정 `a48a8e4cb`, 미배포): ① 입력칸이 글자마다 숫자로 바꿔 「-」를 칠 수 없음(숫자 뒤 맨 앞에 붙이면 됨) ② 표 칸 nowrap 때문에 카드가 가로로 넘침 ③ 볼타 PDF 주소가 attachment라 새 탭이 빈 화면으로 남음 → 같은 화면에서 내려받기
