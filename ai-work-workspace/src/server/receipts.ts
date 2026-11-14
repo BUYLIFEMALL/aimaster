@@ -80,6 +80,9 @@ function deleteOwned(table: string, userId: string, id: unknown) {
 const MODELS = { anthropic: "claude-sonnet-5-5", openai: "gpt-6.1-terra", gemini: "gemini-3.8-flash" } as const;
 export const NO_AI_KEY = "사진을 읽으려면 「API키등록·플랫폼연동」에 본인 AI 키(Claude·OpenAI·Gemini 중 하나)를 등록해 주세요.";
 
+/** 2026-11-15 받은 업무 글 → 세금계산서 초안: mime이 이것이면 base64 칸에 원문 글자를 그대로 담아 글만 보낸다 */
+export const TEXT_MIME = "text/plain";
+export const MAX_DRAFT_TEXT = 12_000;
 /** 시험에서 바꿔 끼우는 호출부 */
 export type VisionCaller = (p: { provider: "anthropic" | "openai" | "gemini"; key: string; model: string; mime: string; base64: string; prompt: string }) => Promise<string>;
 
@@ -89,7 +92,7 @@ const callVision: VisionCaller = async ({ provider, key, model, mime, base64, pr
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST", signal,
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model, max_tokens: 1500, messages: [{ role: "user", content: [mime === "application/pdf" ? { type: "document", source: { type: "base64", media_type: mime, data: base64 } } : { type: "image", source: { type: "base64", media_type: mime, data: base64 } }, { type: "text", text: prompt }] }] }),
+      body: JSON.stringify({ model, max_tokens: 1500, messages: [{ role: "user", content: [mime === TEXT_MIME ? { type: "text", text: base64 } : mime === "application/pdf" ? { type: "document", source: { type: "base64", media_type: mime, data: base64 } } : { type: "image", source: { type: "base64", media_type: mime, data: base64 } }, { type: "text", text: prompt }] }] }),
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new ApiError(aiError("Claude", r.status, j), 502);
@@ -99,7 +102,7 @@ const callVision: VisionCaller = async ({ provider, key, model, mime, base64, pr
     const r = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST", signal,
       headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model, response_format: { type: "json_object" }, messages: [{ role: "user", content: [{ type: "text", text: prompt }, mime === "application/pdf" ? { type: "file", file: { filename: "receipt.pdf", file_data: `data:${mime};base64,${base64}` } } : { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }] }),
+      body: JSON.stringify({ model, response_format: { type: "json_object" }, messages: [{ role: "user", content: [{ type: "text", text: prompt }, mime === TEXT_MIME ? { type: "text", text: base64 } : mime === "application/pdf" ? { type: "file", file: { filename: "receipt.pdf", file_data: `data:${mime};base64,${base64}` } } : { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } }] }] }),
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new ApiError(aiError("OpenAI", r.status, j), 502);
@@ -108,7 +111,7 @@ const callVision: VisionCaller = async ({ provider, key, model, mime, base64, pr
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: "POST", signal,
     headers: { "content-type": "application/json", "x-goog-api-key": key },
-    body: JSON.stringify({ contents: [{ parts: [{ inline_data: { mime_type: mime, data: base64 } }, { text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }),
+    body: JSON.stringify({ contents: [{ parts: [mime === TEXT_MIME ? { text: base64 } : { inline_data: { mime_type: mime, data: base64 } }, { text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }),
   });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new ApiError(aiError("Gemini", r.status, j), 502);
@@ -124,7 +127,7 @@ function aiError(name: string, status: number, j: any): string {
   if (status === 401 || status === 403) return `${name} 키가 맞지 않습니다. 「API키등록·플랫폼연동」에서 키를 확인해 주세요.`;
   if (status === 429) return `${name} 사용 한도나 잔액을 넘었습니다. ${name} 계정을 확인해 주세요.`;
   const msg = String(j?.error?.message ?? "").slice(0, 120);
-  return `${name}가 사진을 읽지 못했습니다(${status})${msg ? `: ${msg}` : ""}. 잠시 후 다시 해 주세요.`;
+  return `${name}가 내용을 읽지 못했습니다(${status})${msg ? `: ${msg}` : ""}. 잠시 후 다시 해 주세요.`;
 }
 
 /** dataURL → mime·base64(이미지·PDF만, 4MB 이하) */
@@ -144,6 +147,20 @@ export async function readPhoto(userId: string, dataUrl: unknown, mode: "evidenc
   const text = await vision({ provider, key, model: MODELS[provider], mime, base64, prompt: ocrPrompt(mode, new Date().getFullYear()) });
   const json = parseJsonLoose(text);
   if (!json) throw new ApiError(mime === "application/pdf" ? "PDF에서 내용을 읽지 못했습니다. 증빙이 있는 쪽만 저장하거나 사진으로 올려 주세요." : "사진에서 내용을 읽지 못했습니다. 더 밝고 반듯하게 찍어 다시 올려 주세요.", 422);
+  return { provider, json };
+}
+
+/** 2026-11-15 받은 업무 글(주문·견적·메일 등) → 세금계산서 발행 칸(회원 본인 AI 키, 사진 읽기와 같은 모델) */
+export async function readDraftText(userId: string, text: unknown) {
+  const src = typeof text === "string" ? text.trim().slice(0, MAX_DRAFT_TEXT) : "";
+  if (!src) throw new ApiError("읽을 내용이 없습니다.", 400);
+  const keys = await loadMemberAiKeys(userId).catch(() => ({} as Awaited<ReturnType<typeof loadMemberAiKeys>>));
+  const provider = keys.anthropicKey ? "anthropic" : keys.openaiKey ? "openai" : keys.geminiKey ? "gemini" : null;
+  if (!provider) throw new ApiError(NO_AI_KEY.replace("사진을 읽으려면", "세금계산서 초안을 만들려면"), 400);
+  const key = (provider === "anthropic" ? keys.anthropicKey : provider === "openai" ? keys.openaiKey : keys.geminiKey) as string;
+  const out = await vision({ provider, key, model: MODELS[provider], mime: TEXT_MIME, base64: src, prompt: ocrPrompt("issue", new Date().getFullYear(), "text") });
+  const json = parseJsonLoose(out);
+  if (!json) throw new ApiError("글에서 거래처·품목을 읽지 못했습니다. 주문·견적 내용이 있는 항목인지 확인해 주세요.", 422);
   return { provider, json };
 }
 
@@ -249,6 +266,14 @@ export const receiptHandlers: Record<string, Handler> = {
     const m = mode === "issue" ? "issue" : "evidence";
     const { provider, json } = await readPhoto(userId, image, m);
     if (m === "evidence") return { provider, evidence: normalizeEvidence(json) };
+    const p = json as { partner?: unknown; date?: unknown; lines?: unknown; memo?: unknown };
+    return { provider, issue: { partner: cleanBiz(p.partner), date: typeof p.date === "string" ? p.date : "", lines: cleanLines(p.lines, "separate"), memo: typeof p.memo === "string" ? p.memo.slice(0, 300) : "" } };
+  },
+
+  /** 2026-11-15 받은 업무 → 세금계산서 초안: 글에서 거래처·품목·금액을 읽어 발행 칸 값으로 돌려준다(저장은 회원이 확인 뒤) */
+  async rcptReadText(ctx, { text }) {
+    const userId = uid(ctx);
+    const { provider, json } = await readDraftText(userId, text);
     const p = json as { partner?: unknown; date?: unknown; lines?: unknown; memo?: unknown };
     return { provider, issue: { partner: cleanBiz(p.partner), date: typeof p.date === "string" ? p.date : "", lines: cleanLines(p.lines, "separate"), memo: typeof p.memo === "string" ? p.memo.slice(0, 300) : "" } };
   },

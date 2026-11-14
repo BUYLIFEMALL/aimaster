@@ -203,8 +203,12 @@ export function monthSummary(rows: Evidence[]): { count: number; supply: number;
 }
 
 /** 사진 읽기 지시문(mode: evidence = 받은 증빙 정리, issue = 발행 칸 채우기) */
-export function ocrPrompt(mode: 'evidence' | 'issue', year: number): string {
-  const common = `이미지는 한국의 거래 증빙(영수증·세금계산서·현금영수증·카드전표·거래명세서·견적서·명함 등)입니다. 보이는 글자만 읽고 추측하지 마세요. 보이지 않는 값은 빈 글자("") 또는 0으로 두세요. 금액은 쉼표 없는 숫자(원)로. 날짜는 YYYY-MM-DD(연도가 안 보이면 ${year}년). 사업자등록번호는 123-45-67890 형식. 반드시 JSON 하나만 출력하세요.`;
+export function ocrPrompt(mode: 'evidence' | 'issue', year: number, source: 'image' | 'text' = 'image'): string {
+  // 2026-11-15 source 'text': 받은 업무 글(주문·견적·메일·회의록 등)에서 세금계산서 초안을 읽는다
+  const what = source === 'text'
+    ? `글은 다른 프로그램에서 보내온 업무 기록(주문·견적·메일·회의록 등)입니다. 그중 거래 상대방과 품목·수량·단가를 찾아 세금계산서 초안을 만듭니다. 글에 적힌 값만 쓰고 추측하지 마세요.`
+    : `이미지는 한국의 거래 증빙(영수증·세금계산서·현금영수증·카드전표·거래명세서·견적서·명함 등)입니다. 보이는 글자만 읽고 추측하지 마세요.`;
+  const common = `${what} 보이지 않는 값은 빈 글자("") 또는 0으로 두세요. 금액은 쉼표 없는 숫자(원)로. 날짜는 YYYY-MM-DD(연도가 안 보이면 ${year}년). 사업자등록번호는 123-45-67890 형식. 반드시 JSON 하나만 출력하세요.`;
   if (mode === 'evidence') {
     return `${common}
 출력 형식: {"kind":"receipt|tax_invoice|cash_receipt|card|other","date":"","vendor":"상호(공급자)","bizNo":"공급자 사업자등록번호","supply":0,"vat":0,"total":0,"payment":"현금|카드|계좌이체 등","memo":"주요 품목 한 줄"}

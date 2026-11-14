@@ -106,6 +106,27 @@ export function InboxBoard() {
     }
   };
 
+  // 2026-11-15 「🧾 세금계산서 초안」: 회원 본인 AI 키로 글에서 거래처·품목·금액을 읽어 영수증·세금계산서 「발행」 칸에 채운다(저장은 회원이 확인 뒤)
+  const taxDraft = async () => {
+    if (!sel || busy) return;
+    setBusy("tax");
+    setNotice(null);
+    try {
+      const r = await rpc<{ issue: unknown }>("rcptReadText", { text: `${sel.title}
+
+${sel.body_md ?? ""}` });
+      try {
+        sessionStorage.setItem("aww:rcptDraft", JSON.stringify({ ...(r.issue as object), from: sel.title }));
+      } catch {
+        /* 저장 못 하면 아래 안내만 */
+      }
+      window.location.assign("/receipts?draft=1");
+    } catch (e) {
+      setNotice({ text: (e as Error).message });
+      setBusy("");
+    }
+  };
+
   // 2026-11-13 「📊 업무 현황판」: 콘텐츠 캘린더·받은 업무 표·할 일을 한 페이지에(있으면 그 페이지를 연다)
   const openDashboard = async () => {
     if (busy) return;
@@ -214,12 +235,16 @@ export function InboxBoard() {
                     {busy === "calendar" ? "넣는 중…" : "📅 콘텐츠 캘린더에 넣기"}
                   </button>
                 )}
+                <button type="button" className="aww-3d-btn green" disabled={!!busy} title="회원님 AI 키로 글에서 거래처·품목·금액을 읽습니다(건당 약 10원 안팎)" onClick={() => void taxDraft()}>
+                  {busy === "tax" ? "읽는 중…" : "🧾 세금계산서 초안"}
+                </button>
                 <button type="button" className="aww-3d-btn red" disabled={!!busy} onClick={() => void act("delete")}>
                   {busy === "delete" ? "지우는 중…" : "🗑 삭제"}
                 </button>
               </div>
               <p className="aww-inbox-hint">
                 페이지는 「내 페이지」 맨 위에 생기고, 행은 「📨 받은 업무 표」(처음 한 번 자동 생성)에 들어갑니다.
+                 「🧾 세금계산서 초안」은 주문·견적 글에서 거래처·품목·금액을 읽어 영수증·세금계산서 발행 칸에 채웁니다(저장 전 확인).
                 {isCalendarItem(sel.data) && " 발행 기록은 「📅 콘텐츠 캘린더」(처음 한 번 템플릿으로 자동 생성, 달력·상태별 보기)에 넣을 수 있습니다."}
               </p>
             </article>

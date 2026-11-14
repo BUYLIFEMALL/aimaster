@@ -128,6 +128,31 @@ describe('사진 읽기', () => {
   });
 });
 
+// 2026-11-15 받은 업무 → 세금계산서 초안: 글만 보내고(text/plain), 회원 키로 읽어 발행 칸 값으로 돌려준다(저장하지 않음)
+describe('받은 업무 글 → 세금계산서 초안', () => {
+  it('글을 그대로 넘기고 거래처·품목으로 돌려준다', async () => {
+    const seen: { mime: string; text: string; prompt: string }[] = [];
+    rc.setVisionCaller(async ({ mime, base64, prompt }) => {
+      seen.push({ mime, text: base64, prompt });
+      return '{"partner":{"name":"주문사","bizNo":"2208162517","email":"o@example.com"},"date":"2026-11-14","lines":[{"name":"납품 A","qty":3,"unitPrice":"20,000"}],"memo":"11월 주문"}';
+    });
+    const r = await rc.receiptHandlers.rcptReadText(ctx('member-a'), { text: '주문서\n주문사 3개 × 20,000원' });
+    expect(seen[0].mime).toBe('text/plain');
+    expect(seen[0].text).toContain('주문사 3개');
+    expect(seen[0].prompt).toContain('업무 기록');
+    expect(r.issue.partner).toMatchObject({ name: '주문사', bizNo: '220-81-62517' });
+    expect(r.issue.lines[0]).toMatchObject({ name: '납품 A', qty: 3, unitPrice: 20000, supply: 60000, tax: 6000 });
+    expect(r.issue.memo).toBe('11월 주문');
+    rc.setVisionCaller(undefined);
+  });
+  it('빈 글·키 없음은 부르지 않고 한국어로 막는다', async () => {
+    rc.setVisionCaller(async () => { throw new Error('부르면 안 됨'); });
+    await expect(rc.receiptHandlers.rcptReadText(ctx('member-a'), { text: '  ' })).rejects.toThrow(/읽을 내용이 없습니다/);
+    await expect(rc.receiptHandlers.rcptReadText(ctx('member-nokey'), { text: '주문' })).rejects.toThrow(/세금계산서 초안을 만들려면/);
+    rc.setVisionCaller(undefined);
+  });
+});
+
 describe('30일 정리', () => {
   it('30일 지난 문서·증빙만 지우고, 보관 예외 회원은 남긴다', () => {
     const now = Date.now();

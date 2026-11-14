@@ -70,6 +70,15 @@ function calc(qty: number, unitPrice: number, mode: TaxMode) {
 
 export function ReceiptsBoard() {
   const [tab, setTab] = useState<"evidence" | "issue" | "info">("evidence");
+  // 2026-11-15 받은 업무 「🧾 세금계산서 초안」에서 넘어오면 발행 탭을 그 값으로 연다(화면이 열린 뒤 한 번)
+  const [draft, setDraft] = useState<Draft | null>(null);
+  useEffect(() => {
+    const d = takeDraft();
+    if (!d) return;
+    setDraft(d);
+    setTab("issue");
+    setNotice({ text: `받은 업무${d.from ? ` 「${d.from}」` : ""}에서 읽은 값으로 세금계산서를 채웠습니다. 거래처·품목·금액을 확인한 뒤 저장하세요.` });
+  }, []);
   const [state, setState] = useState<State | null>(null);
   const [month, setMonth] = useState(today().slice(0, 7));
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
@@ -108,7 +117,7 @@ export function ReceiptsBoard() {
       </div>
       <div className="rc-noprint">
         {tab === "evidence" && <EvidenceTab state={state} month={month} setMonth={(m) => { setMonth(m); void load(m); }} reload={() => load()} notify={setNotice} />}
-        {tab === "issue" && <IssueTab state={state} reload={() => load()} notify={setNotice} print={setPrintDoc} goInfo={() => setTab("info")} />}
+        {tab === "issue" && <IssueTab key={draft ? "draft" : "plain"} draft={draft} state={state} reload={() => load()} notify={setNotice} print={setPrintDoc} goInfo={() => setTab("info")} />}
         {tab === "info" && <InfoTab state={state} reload={() => load()} notify={setNotice} />}
       </div>
       {printDoc && <PrintView doc={printDoc} me={state.profile ?? EMPTY_BIZ} />}
@@ -268,14 +277,27 @@ function EvidenceForm({ initial, hint, onSave, onCancel }: { initial: Evidence; 
 }
 
 // ---------------------------------------------------------------- ✍️ 발행
-function IssueTab({ state, reload, notify, print, goInfo }: { state: State; reload: () => void; notify: (n: { text: string; error?: boolean }) => void; print: (d: Doc) => void; goInfo: () => void }) {
-  const [kind, setKind] = useState<DocKind>("statement");
-  const [date, setDate] = useState(today());
-  const [partner, setPartner] = useState<Biz>(EMPTY_BIZ);
-  const [lines, setLines] = useState<Line[]>([{ name: "", spec: "", qty: 1, unitPrice: 0 }]);
+// 2026-11-15 받은 업무 「🧾 세금계산서 초안」이 넘긴 값(sessionStorage aww:rcptDraft, 한 번 쓰고 지움)
+interface Draft { partner?: Biz; date?: string; lines?: Line[]; memo?: string; from?: string }
+function takeDraft(): Draft | null {
+  try {
+    const raw = sessionStorage.getItem("aww:rcptDraft");
+    if (!raw) return null;
+    sessionStorage.removeItem("aww:rcptDraft");
+    return JSON.parse(raw) as Draft;
+  } catch {
+    return null;
+  }
+}
+
+function IssueTab({ state, reload, notify, print, goInfo, draft }: { state: State; reload: () => void; notify: (n: { text: string; error?: boolean }) => void; print: (d: Doc) => void; goInfo: () => void; draft?: Draft | null }) {
+  const [kind, setKind] = useState<DocKind>(draft ? "tax_invoice" : "statement");
+  const [date, setDate] = useState(draft?.date && /^\d{4}-\d{2}-\d{2}$/.test(draft.date) ? draft.date : today());
+  const [partner, setPartner] = useState<Biz>(draft?.partner?.name ? { ...EMPTY_BIZ, ...draft.partner } : EMPTY_BIZ);
+  const [lines, setLines] = useState<Line[]>(draft?.lines?.length ? draft.lines.map((l) => ({ name: l.name, spec: l.spec ?? "", qty: l.qty || 1, unitPrice: l.unitPrice || 0 })) : [{ name: "", spec: "", qty: 1, unitPrice: 0 }]);
   const [taxMode, setTaxMode] = useState<TaxMode>("separate");
   const [purpose, setPurpose] = useState("영수");
-  const [memo, setMemo] = useState("");
+  const [memo, setMemo] = useState(draft?.memo ?? "");
   const [reading, setReading] = useState(false);
 
   const calcd = lines.map((l) => ({ ...l, ...calc(l.qty, l.unitPrice, taxMode) }));
