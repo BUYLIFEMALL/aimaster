@@ -20,7 +20,7 @@
 | 음악 공통 보완(단독 배포 안 함) | **구현 끝·미배포 `b4403e8bd`(11-13)**: 로그아웃 local · 서버 `User-Agent` · 저장공간 위젯 — music(v1.57)·무료음악(v1.66)은 나감, **남은 곳: AI 음악 스튜디오·마스터링·가사 영상·뮤직비디오(영상 담당 배포)** | 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때) | 각 폴더 `docs/IMPROVEMENTS.md` 맨 위 |
 | `ai-music-studio` | ⏸ Mureka 켜기(코드 준비됨·숨김) | 주인님이 필요해 충전하실 때(10-23 지시) | `ai-music-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `free-music-studio` | D-2 앨범 그림 모델 이름 따라 바꾸기 | `ai-image-studio` 모델이 바뀔 때만(상시 점검) | 백로그 D-2 |
-| `free-music-studio` 엔진 | **구현 끝·미배포**: 엔진 `388b00b23` 끝 줄이기 곡선 `hsin`(웹 `76d9bab83`은 v1.66에 나감) | 다음 엔진 설치 파일 배포 때(실제 곡으로 끝 듣기 확인) · 엔진 시험 「도구 받기」 1개 실패 원인 확인 | `free-music-studio/docs/IMPROVEMENTS.md` 맨 위 |
+| `free-music-studio` 엔진 | **구현 끝·미배포**: 엔진 `388b00b23` 끝 줄이기 곡선 `hsin`(웹 `76d9bab83`은 v1.66에 나감) | 다음 엔진 설치 파일 배포 때(실제 곡으로 끝 듣기 확인). 엔진 시험 「도구 받기」 실패는 시험 코드의 tar 경로 문제로 고침(11-14, 131개 통과, 회원 영향 없음) | `free-music-studio/docs/IMPROVEMENTS.md` 맨 위 |
 
 ## 나중에 할 일 (장비가 바뀐 뒤 — 지금은 손대지 않음)
 | 프로그램 | 작업 | 언제 | 근거 |

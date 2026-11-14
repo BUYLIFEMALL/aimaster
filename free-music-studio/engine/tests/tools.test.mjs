@@ -13,7 +13,7 @@ const tmpDir = () => mkdtemp(path.join(os.tmpdir(), "fms-tools-"));
 /** 폴더를 zip으로(윈도우 tar -a) */
 async function zipOf(srcDir) {
   const zip = path.join(await tmpDir(), "t.zip");
-  const r = spawnSync(process.platform === "win32" ? "tar.exe" : "tar", ["-a", "-cf", zip, "-C", srcDir, "."], { windowsHide: true });
+  const r = spawnSync(process.platform === "win32" ? path.join(process.env.SystemRoot ?? "C:\\Windows", "System32", "tar.exe") : "tar", ["-a", "-cf", zip, "-C", srcDir, "."], { windowsHide: true });
   assert.equal(r.status, 0);
   const bytes = await readFile(zip);
   return { bytes, sha256: createHash("sha256").update(bytes).digest("hex") };
