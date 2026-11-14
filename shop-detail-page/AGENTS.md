@@ -493,3 +493,6 @@ shop-detail-page는 AIMaster 저장소 안의 서브프로젝트다. 개발/유�
 - 상품 화면 마켓 등록 영역 아래 `components/products/ShortsHandoffCard.tsx` → `https://shorts-onestop-studio.buylife.xyz/topic#product-name=…&product-point=…&product-offer=…&product-from=AI 상세페이지 자동화&product-id=<상품 id>` 새 창(`lib/shortsLink.ts`). 장점 = 핵심 특징 앞 3줄(글머리표·「3.」 번호만 지움), 혜택 = **할인가가 있을 때만**(정가보다 낮으면 「정가 → 할인가」, 원화만), 도매가·원가·재고는 넘기지 않음, 주소 # 뒤라 서버 기록에 안 남음. **상품 사진은 넘기지 않음** — 쇼츠 2단계(자료함 원본 참조) 뒤에 `product-image` 추가.
 - 형식은 받는 쪽 `productShorts.ts`와 같게 여기서 만듦(프로그램끼리 코드를 불러오지 않음) — 시험 `tests/shortsLink.test.mjs`가 받는 쪽 `readProductHandoff`·`readProductExtra`로 다시 풀어 맞는지 확인(한쪽 형식을 바꾸면 이 시험이 깨짐).
 - 검사: `node --test tests/` 8개(새 3개)·tsc·build. **화면 확인 전** — 다음 상세페이지 배포(버전 +0.01) 뒤 ego로 버튼 → 쇼츠 화면에 상품 정보 채워지는지(대본 만들기는 누르지 않음).
+
+## 2026-11-14 (미배포 대기) — E2-4 검색 태그 받기 ([역할: ecommerce-image] `claude-win-sdp`)
+- 상품소싱 「상품명·태그 초안」 → 새 상품 화면 주소 `tags`(쉼표, 최대 10) → 폼 「검색 태그」 칸(넘어왔을 때만 보임) → `shop_products.search_tags`(text[], 10개 제한 검사, 운영 DB 적용 완료 `supabase/migrations/20261114_search_tags_e2_4.sql`). 정리 규칙 `lib/searchTags.ts`(시험 `tests/searchTags.test.mjs`). 스마트스토어 등록기가 처음 값으로 씀. 시험 10·tsc·build. 커밋 E2-4.

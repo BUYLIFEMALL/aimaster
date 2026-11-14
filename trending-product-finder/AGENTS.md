@@ -431,3 +431,11 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 계산은 `lib/registerHelper.ts` 순수 함수(수량·용량 낱말·한 글자 제외, 한 상품명 안 중복 1번, 가까운 순위 방식 분위수). AI·새 수집·확장·DB 변경 없음.
 - 검사: `test:trend` 53개(새 5개)·tsc·eslint·build 통과. **화면 확인 전** — 다음 상품소싱기 배포(버전 +0.01) 뒤 ego에서 기록 하나 열어 카드·연관 키워드 표 확인.
 - 다음: E2-2(상품명·태그 초안 AI, 회원 Claude 키)·E2-3(카테고리 분포, 확장 새 버전)·E2-4(등록기로 넘기기, DB)는 각각 주인님 결정 뒤.
+
+## 2026-11-14 (미배포 대기) — E2-2·E2-3·E2-4, EC-W10 플랜 ([역할: ecommerce-image] `claude-win-sdp`)
+- 주인님 「1번부터 진행해」「진행해」(EC-W10·HEIC·E2 다음 단계).
+- **EC-W10 해외 공장 견적 비교**: 플랜만 [docs/PLAN_20261114_EC_W10_FACTORY_QUOTES.md](docs/PLAN_20261114_EC_W10_FACTORY_QUOTES.md) — 결정 항목 5개(위치·모델·원본 보관·DB 표 2개·하지 않는 것) 답을 받은 뒤 구현. 기존 마진계산기를 4단계로 재사용.
+- **E2-2 상품명·태그 초안**: 「📊 등록 정보 도우미」 아래 「✨ 상품명·태그 초안」(`components/coupang/ListingDraft.tsx`). 회원 본인 Claude 키(provider `anthropic`, 폴백 없음, 없으면 메인 `/api-settings` 안내)로 누를 때 1번 — `lib/ai/claude.ts`(`claude-sonnet-5-5`, effort low, json_schema, 재시도 0, 당해 연도 규칙, 기준 코드 `smartstore-register/src/lib/ai/claude.ts` 방식). 재료: 많이 쓰인 낱말·연관 키워드(불러왔으면)·가격 가운데값·표본 상품명 30개·회원 특징 메모(이 메모에 없는 사양은 지어내지 않게). 결과는 화면에서 고치고 복사(저장 없음). 규칙 검사 `lib/listingRules.ts`(50자 권장·100자 최대, 같은 낱말 반복, 홍보 문구, 꾸밈 기호, 태그 정리 10개). SDK `@anthropic-ai/sdk` 1.3.0. **실제 Claude 호출 시험은 아직** — 비용 승인 뒤 시험 계정 키 1회.
+- **E2-3 네이버 분류 분포**: 확장 `extension/lib/naver.js`가 `category1Name~category4Name`(2026-11-14 ego 실측)을 「>」로 이어 보냄 → 서버 `cleanCategory`(4단계·단계 40자, 네이버만) → 표 `coupang_review_items.category`(운영 DB 적용 완료, `supabase/migrations/20261114120000_review_items_category.sql`) → 「🗂 네이버 분류 분포」 카드(`categoryShares`, 상위 5). 쿠팡 검색 화면은 상품별 분류가 없어 제외. 옛 기록·옛 확장은 「분류 정보 없음」 안내. **확장 동작이 바뀌었으므로 다음 배포 때 manifest·ZIP·DB 확장 버전 함께(v1.39)**. 로컬 빌드가 만든 ZIP은 되돌려 둠.
+- **E2-4 넘기기**: 초안 상품명마다 「📄 상세페이지로」 → `shopDetailDraftUrl`(name·tags·조사 키워드, flow 유지) → 상세페이지 새 상품 화면 「검색 태그」 칸 → `shop_products.search_tags`(운영 DB 적용 완료) → 스마트스토어 등록기 「검색 태그」 처음 값(마지막에 보낸 태그가 없을 때).
+- 검사: `test:trend` 60개·tsc·eslint·build. 화면 확인은 배포 뒤.

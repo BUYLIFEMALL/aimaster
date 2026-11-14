@@ -203,3 +203,6 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 - 10-29·11-03 자동 점검 실패(「45초 안에 열리지 않음」) 원인 = 판매자센터 로그인 풀림. 주인님 ego 재로그인 뒤 점검 08:08 **정상**(확장 v1.24, 칸 58·사라진 칸 0·조건부 3, 「바이라이프몰 (nailnbody)」).
 - 함정: 등록기 웹은 관리자(`buylifemall@gmail.com`), ego 확장은 11-03부터 시험 계정(`buylifemall@naver.com`)에 연결돼 있어 웹 「지금 점검」 요청(관리자 몫)을 확장이 가져가지 않고 「대기」로 남음 → 그 대기 한 줄의 `user_id`를 확장 계정으로 옮겨 실행(운영 DB 1행). **점검·등록이 「대기」에서 안 움직이면 `smartstore_register_ext_tokens.last_seen_at`(확장 살아 있음)과 요청 `user_id`부터 비교.** 개선 후보는 대기 목록.
 - 미배포 대기(같은 날, 주인님 「진행해」): 계정 불일치·확장 꺼짐 안내 `6bcf8ecbb` — `presence.ts`(판정, 시험 2개)·`actions/extension.ts`(본인 토큰 행 `last_seen_at`만, 관리자 클라이언트)·`ExtensionPresence.tsx`(60초마다 확인, 정상이면 안 보임)를 점검 카드·보내기·연속 보내기에. 서버가 확장의 연결 계정을 직접 알 수 없어 「이 계정 확장의 최근 접속」으로 판단. 시험 27·tsc. v1.25에 로그인 감지 `08648d815`와 함께.
+
+## 2026-11-14 (미배포 대기) — 상품 검색 태그를 처음 값으로 (E2-4, [역할: ecommerce-image] `claude-win-sdp`)
+- 상품 화면 「검색 태그」 처음 값: 마지막에 보낸 태그 → 없으면 상세페이지 상품의 `search_tags`(상품소싱 초안에서 넘어옴). `data.ts` `PRODUCT_COLS`에 `search_tags`(운영 DB 칸 적용 완료 — 이 칸 없이 배포하면 상품 조회가 깨지므로 순서 주의). 확장·칸 구성 변경 없음(`STEP_BUILDER` 그대로). 시험 27·tsc·build.
