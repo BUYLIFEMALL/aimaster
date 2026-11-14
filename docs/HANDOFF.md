@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+
+## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — 결정 3건 진행(EC-W10 플랜·HEIC·E2-2~4), 미배포 대기
+- 주인님 「1번부터 진행해」「진행해」×2.
+- **EC-W10**: 플랜만 `trending-product-finder/docs/PLAN_20261114_EC_W10_FACTORY_QUOTES.md`(상품소싱기 안 메뉴·회원 Claude 키·원본 파일 저장 안 함 추천·DB 표 2개) — §7 결정 5개 받은 뒤 구현.
+- **HEIC**: `seller-label-docs` 크롬·엣지가 못 열 때만 `heic-to` 1.6.7(LGPL, 별도 파일 3.2MB)로 PC 안 JPG 변환, 고지 `public/licenses/` `29bac1649`. 실제 HEIC 파일 시험은 배포 뒤.
+- **E2-2** 상품명·태그 초안(회원 Claude 키, `claude-sonnet-5-5`, 재시도 0)·규칙 검사 `524239df0` — 서버 코드 일부는 `claude-win-photo`의 v1.38 배포에 먼저 실림(주인님 「모았다가 정리」). 실제 Claude 호출 시험은 승인 대기.
+- **E2-3** 네이버 분류 분포(확장이 `category1Name~4Name` 읽음, 운영 DB `coupang_review_items.category` 적용) `67e661112` — 다음 배포 때 확장 v1.39(manifest·ZIP·DB).
+- **E2-4** 초안 상품명·태그 → 상세페이지(`shop_products.search_tags` 운영 DB 적용) → 스마트스토어 등록기 「검색 태그」 처음 값 `597e912cc`.
+- 검사: 상품소싱 시험 60·상세페이지 10·등록기 27·셀러 라벨 28, 네 프로그램 tsc·build. 비용: 빌드 0·AI 0(ego 네이버 쇼핑 1회 읽기만).
+- 다음 첫 단계: 다음 상품소싱 배포(v1.39, 확장 포함) → ego로 네이버 기록의 분류 카드·초안 화면 확인. EC-W10 결정 대기.
+
 ## 2026-11-14 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-mb-v2` — AI 쇼핑몰 빌더(mall-builder) 손님 화면 상세 그림 표시 완결 + 배송비 계산 qty·productId 전달(5곳) + 반품·교환 배송비 안내 및 UI 고도화 커밋 완료
 - 인수인계 지침: `mall-builder/docs/HANDOFF_20261114_AGY_DETAIL_IMAGES_SHIPPING.md`
 - 완료 내용:
