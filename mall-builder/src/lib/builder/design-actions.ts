@@ -14,9 +14,9 @@ import { loadSlotData } from "@/lib/builder/slot-data";
 import type { SlotData } from "@/app/s/[store]/home-slots";
 
 // 디자인 빌더 — 편집기(클라이언트)에서 바로 부르는 서버 액션. 이동하지 않고 결과를 돌려준다
-// 운영자 확인은 DB 함수(mall_builder_is_store_staff)가 한 번 더 한다
+// 운영사 확인은 DB 함수(mall_builder_is_store_staff)가 한 번 더 한다
 
-/** D2-5 편집기 미리보기용 블록 데이터(읽기만). 운영자만, 블록은 저장 검사를 통과한 것만 */
+/** D2-5 편집기 미리보기용 블록 데이터(읽기만). 운영사만, 블록은 저장 검사를 통과한 것만 */
 export async function previewSlotAction(storeId: string, block: unknown): Promise<{ ok: true; data: SlotData } | { ok: false; error: string }> {
   if (!(await isStoreStaff(storeId))) return { ok: false, error: "이 몰을 고칠 권한이 없습니다." };
   const v = validateDoc({ blocks: [block] });
@@ -28,7 +28,7 @@ type Result = { ok: true; at: string } | { ok: false; error: string };
 /** 디자인 저장 결과 — base: 저장 뒤 마지막 초안 시각(편집기가 다음 저장 때 비교), conflict: 다른 곳에서 먼저 저장함(D6-3) */
 type SaveResult = { ok: true; at: string; base: string | null } | { ok: false; error: string; conflict?: { at: string } };
 
-/** D6 게시 기록 한 줄을 「초안」으로 되돌리기 — 손님 화면은 운영자가 편집기에서 확인하고 게시해야 바뀐다 */
+/** D6 게시 기록 한 줄을 「초안」으로 되돌리기 — 유저 화면은 운영사가 편집기에서 확인하고 게시해야 바뀐다 */
 export async function restoreDesignAction(slug: string, storeId: string, historyId: string): Promise<Result> {
   if (!/^[0-9a-f-]{36}$/i.test(historyId)) return { ok: false, error: "게시 기록을 찾지 못했습니다." };
   const supabase = await createClient();
@@ -60,7 +60,7 @@ export async function saveDesignAction(slug: string, storeId: string, input: { h
   const { data: storeRow } = await supabase.from("mall_builder_stores").select("kind").eq("id", storeId).maybeSingle();
   const policy = designPolicy({ kind: (storeRow as { kind?: string } | null)?.kind ?? null });
   const footerValue = enforceFooter(policy, footer.value);
-  // D6-3 편집기를 연 뒤 다른 곳에서 먼저 저장했으면 덮어쓰지 않고 알림(운영자가 「그래도 덮어쓰기」를 고르면 force)
+  // D6-3 편집기를 연 뒤 다른 곳에서 먼저 저장했으면 덮어쓰지 않고 알림(운영사가 「그래도 덮어쓰기」를 고르면 force)
   if (input.expect !== undefined && !input.force) {
     const current = await currentDraftStamp(supabase, storeId);
     if (isStale(input.expect, current)) return { ok: false, error: "다른 곳(다른 직원이나 다른 창)에서 먼저 저장했습니다.", conflict: { at: current! } };

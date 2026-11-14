@@ -85,7 +85,7 @@ function DateTimeField({ label, value, onChange }: { label: string; value: strin
   );
 }
 
-/** 상품·공지·후기 블록의 실제 데이터 — 설정이 바뀌면 0.4초 뒤 다시 읽는다(운영자만, 읽기만) */
+/** 상품·공지·후기 블록의 실제 데이터 — 설정이 바뀌면 0.4초 뒤 다시 읽는다(운영사만, 읽기만) */
 function useSlotData(storeId: string, block: Block | null): { data: SlotData | null; error: string } {
   const [state, setState] = useState<{ key: string; data: SlotData | null; error: string }>({ key: "", data: null, error: "" });
   const key = block ? JSON.stringify([block.type, block.settings]) : "";
@@ -102,7 +102,7 @@ function useSlotData(storeId: string, block: Block | null): { data: SlotData | n
   return state.key === key ? state : { data: state.data, error: "" };
 }
 
-/** 가운데 화면의 블록 하나 — 손님 화면과 같은 BlockView, 상품 블록은 실제 상품, 고칠 곳이 있으면 안내 */
+/** 가운데 화면의 블록 하나 — 유저 화면과 같은 BlockView, 상품 블록은 실제 상품, 고칠 곳이 있으면 안내 */
 function CanvasBlock({ type, p, storeId, base }: { type: BlockType; p: PuckBlockProps; storeId: string; base: string }) {
   const checked = useMemo(() => validateDoc({ blocks: [{ id: p.id, type, visible: true, settings: p.settings, style: p.style }] }), [type, p.id, p.settings, p.style]);
   const block = checked.ok ? checked.value.blocks[0] : null;
@@ -119,7 +119,7 @@ function CanvasBlock({ type, p, storeId, base }: { type: BlockType; p: PuckBlock
   const body = isSlot ? (slot.data ? renderSlot(block, base, slot.data) : <p className="px-6 py-8 text-center text-sm text-slate-400">{slot.error || "실제 상품·공지를 불러오는 중…"}</p>) : null;
   return (
     <div className={p.visible ? "" : "relative opacity-40"} data-design-block={type}>
-      {!p.visible && <span className="absolute right-3 top-2 z-10 rounded bg-gray-900 px-2 py-0.5 text-[11px] text-white">숨김 — 손님에게 안 보임</span>}
+      {!p.visible && <span className="absolute right-3 top-2 z-10 rounded bg-gray-900 px-2 py-0.5 text-[11px] text-white">숨김 — 유저에게 안 보임</span>}
       <BlockView b={block} slot={body} />
     </div>
   );
@@ -138,7 +138,7 @@ function ColorCodeField({ value, onChange, label, emptyText }: { value: string |
 
 const THEME_FIELDS = {
   type: "object",
-  label: "몰 테마 — 손님 화면 전체(헤더·상품·단추)에 적용",
+  label: "몰 테마 — 유저 화면 전체(헤더·상품·단추)에 적용",
   objectFields: {
     primary: { type: "custom", label: "포인트색(단추·링크·강조)", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ColorCodeField label="포인트색" value={value} onChange={onChange} emptyText={`기본 ${DEFAULT_THEME.primary}`} /> },
     bg: { type: "custom", label: "바탕색", render: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => <ColorCodeField label="바탕색" value={value} onChange={onChange} emptyText={`기본 ${DEFAULT_THEME.bg}`} /> },
@@ -248,7 +248,7 @@ const SORT_OPTIONS = LIST_SORTS.map((s) => ({ label: LIST_SORT_LABEL[s], value: 
 function listFields(storeId: string, categories: Option[]) {
   return {
     type: "object",
-    label: "상품 목록(카테고리 화면) — 게시 뒤 손님 화면에서 확인",
+    label: "상품 목록(카테고리 화면) — 게시 뒤 유저 화면에서 확인",
     objectFields: {
       columns: { type: "number", label: "큰 화면 열 수(2~5, 휴대폰은 2열)", min: 2, max: 5 },
       sort: { type: "select", label: "기본 정렬", options: SORT_OPTIONS },
@@ -314,7 +314,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
   footerBankLocked?: boolean;
   /** D5 템플릿 미리보기로 열렸는가 — 그렇다면 처음부터 「저장 안 한 변경」 */
   previewing?: boolean;
-  /** 지금 손님에게 보이는 블록·테마(비교용 문자열, 게시 전이면 null) */
+  /** 지금 유저에게 보이는 블록·테마(비교용 문자열, 게시 전이면 null) */
   publishedState: string | null;
   draftAt: string | null; publishedAt: string | null;
   /** D6-3 편집기를 열 때 마지막 초안 저장 시각(첫 화면 + 조각) — 저장할 때 서버가 비교 */
@@ -349,7 +349,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
               </div>
             ),
           },
-          visible: { type: "radio", label: "손님에게", options: [{ label: "보임", value: true }, { label: "숨김", value: false }] },
+          visible: { type: "radio", label: "유저에게", options: [{ label: "보임", value: true }, { label: "숨김", value: false }] },
           style: {
             type: "object",
             label: "겉모양(여백·배경·폭)",
@@ -412,10 +412,10 @@ export default function DesignEditor({ slug, storeId, categories, products, init
       if (kind === "publish") {
         setLive(now);
         setTimes({ draftAt: r.at, publishedAt: r.at });
-        setMsg({ ok: true, text: "게시했습니다. 손님 화면에 바로 보입니다(테마는 모든 화면에)." });
+        setMsg({ ok: true, text: "게시했습니다. 유저 화면에 바로 보입니다(테마는 모든 화면에)." });
       } else {
         setTimes((t) => ({ ...t, draftAt: r.at }));
-        setMsg({ ok: true, text: "초안을 저장했습니다. 게시하기 전까지 손님에게는 보이지 않습니다." });
+        setMsg({ ok: true, text: "초안을 저장했습니다. 게시하기 전까지 유저에게는 보이지 않습니다." });
       }
     });
   }
@@ -465,7 +465,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
                 초안 저장
               </button>
               <button type="button" disabled={pending} onClick={() => run("publish")} className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-40" data-design-publish>
-                손님 화면에 게시
+                유저 화면에 게시
               </button>
             </div>
           )}

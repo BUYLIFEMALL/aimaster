@@ -8,7 +8,7 @@ import {
 } from "@/lib/blocks";
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 첫 화면 블록 그리기
-// 손님 첫 화면과 운영자 편집기 미리보기가 같이 쓴다. 숨긴 블록은 그리지 않는다.
+// 유저 첫 화면과 운영사 편집기 미리보기가 같이 쓴다. 숨긴 블록은 그리지 않는다.
 
 function MaybeLink({ href, className, style, children }: { href: string; className?: string; style?: CSSProperties; children: ReactNode }) {
   if (!href) return <div className={className} style={style}>{children}</div>;
@@ -120,7 +120,7 @@ function Placeholder({ b }: { b: Block }) {
   return (
     <div className="mx-4 sm:mx-6 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-8 text-center text-sm text-slate-500 shadow-xs">
       <p className="font-semibold text-slate-700">{text}</p>
-      <p className="mt-1 text-xs text-slate-400">실제 상품·공지는 손님 화면에서 보입니다.</p>
+      <p className="mt-1 text-xs text-slate-400">실제 상품·공지는 유저 화면에서 보입니다.</p>
     </div>
   );
 }
@@ -202,7 +202,7 @@ export function Countdown({ endsAt }: { endsAt: string }) {
   return <span className="font-mono" data-countdown>{d > 0 ? `${d}일 ` : ""}{hms}</span>;
 }
 
-/** 블록 하나(겉모양 포함) — 손님 화면과 디자인 편집기(Puck 미리보기)가 같이 쓴다 */
+/** 블록 하나(겉모양 포함) — 유저 화면과 디자인 편집기(Puck 미리보기)가 같이 쓴다 */
 export function BlockView({ b, slot }: { b: Block; slot?: ReactNode }) {
   const f = blockFrame(b.style);
   const body = (

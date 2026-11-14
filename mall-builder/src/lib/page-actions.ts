@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { validateDoc } from "@/lib/blocks";
 import { recordPublished } from "@/lib/builder/design-store";
 
-// 첫 화면 블록 — 초안 저장·게시. 내용 검사는 validateDoc, 운영자 확인·모양·크기는 DB 함수가 한다
+// 첫 화면 블록 — 초안 저장·게시. 내용 검사는 validateDoc, 운영사 확인·모양·크기는 DB 함수가 한다
 // 편집기(클라이언트)에서 바로 부르므로 이동하지 않고 결과를 돌려준다
 
 type Result = { ok: true; at: string } | { ok: false; error: string };
@@ -24,7 +24,7 @@ export async function saveHomeDraftAction(slug: string, storeId: string, raw: un
   return r;
 }
 
-/** 지금 편집 중인 내용을 저장하고 바로 손님 화면에 게시 */
+/** 지금 편집 중인 내용을 저장하고 바로 유저 화면에 게시 */
 export async function publishHomeAction(slug: string, storeId: string, raw: unknown): Promise<Result> {
   const saved = await save(storeId, raw);
   if (!saved.ok) return saved;

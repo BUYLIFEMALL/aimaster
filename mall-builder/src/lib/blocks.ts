@@ -1,7 +1,7 @@
-// 첫 화면 블록 — 블록 등록표(종류마다 이름·기본값·검사). 편집기와 손님 화면이 이 표 하나를 쓴다(docs/mall/ARCHITECTURE.md §6)
-// 새 블록 = 여기에 종류 하나 추가 + 손님 화면 그리기(home-blocks.tsx) + 편집 칸(block-editor.tsx)
-// 서버 데이터가 필요한 블록(쇼윈도·공지)은 손님 첫 화면(서버)이 내용을 만들어 slots로 넘긴다
-// html은 validateDoc에서 위험 태그를 지운다 — 저장할 때와 readDoc(손님 화면 읽기) 두 번 거친다
+// 첫 화면 블록 — 블록 등록표(종류마다 이름·기본값·검사). 편집기와 유저 화면이 이 표 하나를 쓴다(docs/mall/ARCHITECTURE.md §6)
+// 새 블록 = 여기에 종류 하나 추가 + 유저 화면 그리기(home-blocks.tsx) + 편집 칸(block-editor.tsx)
+// 서버 데이터가 필요한 블록(쇼윈도·공지)은 유저 첫 화면(서버)이 내용을 만들어 slots로 넘긴다
+// html은 validateDoc에서 위험 태그를 지운다 — 저장할 때와 readDoc(유저 화면 읽기) 두 번 거친다
 // 저장 모양: { schema_version: 1, blocks: [{ id, type, visible, settings }] } — DB mall_builder_pages.draft_blocks / published_blocks
 
 import { sanitizeHtml } from "./sanitize.ts";
@@ -26,7 +26,7 @@ export type TabsSettings = { title: string; tabs: ({ label: string } & ProductSo
 export type TimesaleSettings = { title: string; subtitle: string; ends_at: string; columns: number; limit: number; card?: CardOptions } & ProductSource; // 표시만(가격은 그대로), 끝나면 자동 숨김
 export type ReviewsSettings = { title: string; count: number; min_rating: number };
 export type CategoryIconsSettings = { title: string; items: { category_id: string; image: string; emoji: string }[] };
-export type GallerySettings = { title: string; columns: number; items: { image: string; link: string }[] }; // 인스타 대신 운영자가 직접 올리는 사진 격자
+export type GallerySettings = { title: string; columns: number; items: { image: string; link: string }[] }; // 인스타 대신 운영사가 직접 올리는 사진 격자
 // D5-8 글 히어로(2026-11-15) — 그림 없이 맨 위 큰 제목·설명·단추 2개, 오른쪽 대표 상품 1개(선택). agy 115 시안 맨 위 영역
 // 단추 이름이 비면 그 단추는 없다. feature가 false면 상품 칸은 비운다(source "new")
 export type HeroButton = { label: string; link: string };
@@ -165,7 +165,7 @@ export function normalizeStyle(raw: unknown): BlockStyle | null {
   return Object.keys(out).length ? out : null;
 }
 
-/** 지금 손님에게 보일 블록인가 — 숨김·예약 노출 시각·타임세일 끝 시각 */
+/** 지금 유저에게 보일 블록인가 — 숨김·예약 노출 시각·타임세일 끝 시각 */
 export function isLive(b: Block, now = Date.now()): boolean {
   if (!b.visible) return false;
   if (b.show_from && now < Date.parse(b.show_from)) return false;

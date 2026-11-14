@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import type { BusinessInfo } from "@/lib/businessInfo";
 import type { FooterDesign, HeaderDesign, MenuLink } from "@/lib/builder/frame";
 
-// 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 손님 화면 틀(띠·헤더·바닥글)
-// 데이터만 받아 그린다 — 손님 화면 틀(layout.tsx)과 디자인 편집기 미리보기가 같이 쓴다(디자인 빌더 D3).
+// 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 유저 화면 틀(띠·헤더·바닥글)
+// 데이터만 받아 그린다 — 유저 화면 틀(layout.tsx)과 디자인 편집기 미리보기가 같이 쓴다(디자인 빌더 D3).
 // 디자인 값이 비어 있으면(DEFAULT_HEADER·DEFAULT_FOOTER) 지금 모양 그대로다.
 
 function MaybeLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
@@ -37,7 +37,7 @@ function NavLink({ item, className }: { item: MenuLink; className: string }) {
   );
 }
 
-/** 헤더 — right: 로그인·장바구니·마이페이지 단추(손님 상태에 따라 틀이 넣는다) */
+/** 헤더 — right: 로그인·장바구니·마이페이지 단추(유저 상태에 따라 틀이 넣는다) */
 export function ShopHeader({ base, storeName, header, categories, showShop, right }: {
   base: string; storeName: string; header: HeaderDesign; categories: { id: string; name: string }[]; showShop: boolean; right: ReactNode;
 }) {
@@ -88,7 +88,7 @@ export function ShopHeader({ base, storeName, header, categories, showShop, righ
         </nav>
       </div>
 
-      {/* 카테고리 + 운영자 메뉴(2단까지 — 큰 화면은 마우스를 올리면 아래 메뉴, 휴대폰은 윗 메뉴만) */}
+      {/* 카테고리 + 운영사 메뉴(2단까지 — 큰 화면은 마우스를 올리면 아래 메뉴, 휴대폰은 윗 메뉴만) */}
       {showShop && (cats.length > 0 || header.menu.length > 0) && (
         <div className="border-t border-slate-100 bg-white">
           <nav className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-4 py-1.5 text-sm font-medium text-slate-600 scrollbar-none md:overflow-visible sm:px-6" data-shop-menu>

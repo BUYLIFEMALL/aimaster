@@ -12,7 +12,7 @@ import AiHome from "./ai-home";
 import { publishHomeAction, saveHomeDraftAction } from "@/lib/page-actions";
 import { HomeBlocks } from "../../home-blocks";
 
-// 첫 화면 편집기 — 왼쪽(위) 블록 목록·설정, 아래 미리보기. 저장은 초안, 게시해야 손님에게 보인다.
+// 첫 화면 편집기 — 왼쪽(위) 블록 목록·설정, 아래 미리보기. 저장은 초안, 게시해야 유저에게 보인다.
 // 새 블록 종류 = src/lib/blocks.ts 등록표 + home-blocks.tsx 그리기 + 여기 SettingsForm에 칸 추가
 
 const BUCKET = "mall-builder-public";
@@ -253,7 +253,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
           <input value={s.subtitle} maxLength={60} onChange={(e) => onChange({ ...s, subtitle: e.target.value })} className={input} />
         </label>
         <label className="block">
-          <span className="text-xs text-gray-500">끝나는 시각(한국 시간) — 지나면 손님 화면에서 자동으로 사라짐. 가격은 그대로입니다</span>
+          <span className="text-xs text-gray-500">끝나는 시각(한국 시간) — 지나면 유저 화면에서 자동으로 사라짐. 가격은 그대로입니다</span>
           <input type="datetime-local" value={toLocalKst(s.ends_at)} onChange={(e) => onChange({ ...s, ends_at: fromLocalKst(e.target.value) })} className={input} />
         </label>
         <SourcePicker name={`ts-${block.id}`} value={s} categories={categories} products={products} onChange={(v) => onChange({ ...s, ...v })} />
@@ -274,7 +274,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
           <NumberInput label="보여 줄 후기 수(3~12)" value={s.count} min={3} max={12} onChange={(count) => onChange({ ...s, count })} />
           <NumberInput label="별점 이상만(1~5)" value={s.min_rating} min={1} max={5} onChange={(min_rating) => onChange({ ...s, min_rating })} />
         </div>
-        <p className="text-xs text-gray-500">손님 이름은 가려지고, 「후기」 메뉴에서 숨긴 후기는 나오지 않습니다.</p>
+        <p className="text-xs text-gray-500">유저 이름은 가려지고, 「후기」 메뉴에서 숨긴 후기는 나오지 않습니다.</p>
       </div>
     );
   }
@@ -495,10 +495,10 @@ export default function BlockEditor({ slug, storeId, categories, products, initi
       if (kind === "publish") {
         setLive(now);
         setTimes({ draftAt: r.at, publishedAt: r.at });
-        setMsg({ ok: true, text: "게시했습니다. 손님 첫 화면에 바로 보입니다." });
+        setMsg({ ok: true, text: "게시했습니다. 유저 첫 화면에 바로 보입니다." });
       } else {
         setTimes((t) => ({ ...t, draftAt: r.at }));
-        setMsg({ ok: true, text: "초안을 저장했습니다. 게시하기 전까지 손님에게는 보이지 않습니다." });
+        setMsg({ ok: true, text: "초안을 저장했습니다. 게시하기 전까지 유저에게는 보이지 않습니다." });
       }
     });
   }
@@ -522,7 +522,7 @@ export default function BlockEditor({ slug, storeId, categories, products, initi
 
       <section>
         <h2 className="text-sm font-semibold">블록 ({blocks.length}/{MAX_BLOCKS})</h2>
-        {blocks.length === 0 && <p className="mt-2 text-sm text-gray-500">아직 블록이 없습니다. 아래에서 블록을 추가해 첫 화면을 꾸며 보세요. 블록이 없으면 손님 첫 화면에는 신상품 목록만 보입니다.</p>}
+        {blocks.length === 0 && <p className="mt-2 text-sm text-gray-500">아직 블록이 없습니다. 아래에서 블록을 추가해 첫 화면을 꾸며 보세요. 블록이 없으면 유저 첫 화면에는 신상품 목록만 보입니다.</p>}
         <ul className="mt-2 divide-y rounded border">
           {blocks.map((b, i) => (
             <li key={b.id} className={`flex items-center gap-2 px-3 py-2 text-sm ${selected === b.id ? "bg-blue-50" : ""}`}>
@@ -572,7 +572,7 @@ export default function BlockEditor({ slug, storeId, categories, products, initi
 
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" disabled={pending || !dirty} onClick={() => run("save")} className="rounded border px-3 py-1.5 text-sm disabled:opacity-40">초안 저장</button>
-        <button type="button" disabled={pending || !check.ok || (!dirty && !unpublished)} onClick={() => run("publish")} className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-40">손님 화면에 게시</button>
+        <button type="button" disabled={pending || !check.ok || (!dirty && !unpublished)} onClick={() => run("publish")} className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white disabled:opacity-40">유저 화면에 게시</button>
         {live !== null && now !== live && (
           <button type="button" disabled={pending} onClick={() => { const p = JSON.parse(live) as Block[]; setBlocks(p); setSelected(p[0]?.id ?? null); }} className="text-xs text-gray-600 underline">게시본으로 되돌리기</button>
         )}
@@ -582,7 +582,7 @@ export default function BlockEditor({ slug, storeId, categories, products, initi
       {msg && <p className={`text-sm ${msg.ok ? "text-green-700" : "text-red-600"}`}>{msg.text}</p>}
 
       <section>
-        <h2 className="text-sm font-semibold">미리보기 (손님 첫 화면 위쪽에 보일 모습)</h2>
+        <h2 className="text-sm font-semibold">미리보기 (유저 첫 화면 위쪽에 보일 모습)</h2>
         <div className="mt-2 overflow-hidden rounded border py-4">
           {blocks.some((b) => b.visible) ? <HomeBlocks blocks={blocks.filter((b) => validateDoc({ blocks: [b] }).ok)} /> : <p className="px-4 text-sm text-gray-500">보이는 블록이 없습니다.</p>}
         </div>

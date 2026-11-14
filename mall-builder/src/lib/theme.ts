@@ -1,7 +1,7 @@
 // 디자인 빌더 D1 — 몰 테마(색·모서리·단추·사진 비율) 검사와 CSS 변수 계산(node --test 대상, DB 없음)
 // 확장자(.ts)까지 적는다 — `node --test`가 이 파일을 바로 읽기 때문
 //
-// 방식: 손님 화면 바깥 상자에 CSS 변수를 덮어쓴다. Tailwind v4 색 클래스(bg-blue-600 등)는 `--color-blue-*`를 읽으므로
+// 방식: 유저 화면 바깥 상자에 CSS 변수를 덮어쓴다. Tailwind v4 색 클래스(bg-blue-600 등)는 `--color-blue-*`를 읽으므로
 // 클래스를 고치지 않고도 포인트색이 바뀐다. 3D 단추처럼 16진수였던 곳은 `--mall-*` 변수 + 원래 값 대체(globals.css).
 // 기본 테마(지금 106 스타일)는 변수를 하나도 내보내지 않는다 → 화면 변화 0.
 
@@ -29,7 +29,7 @@ export type ShopTheme = {
   mode: Mode;
 };
 
-/** 지금 손님 화면(106 네오 모던) 값 그대로 */
+/** 지금 유저 화면(106 네오 모던) 값 그대로 */
 export const DEFAULT_THEME: ShopTheme = { primary: "#2563eb", bg: "#f8fafc", radius: "xl", button: "3d", image_ratio: "1:1", mode: "light" };
 
 const HEX = /^#[0-9a-f]{6}$/;

@@ -69,7 +69,7 @@ test("글·HTML 블록 위험 태그 제거", () => {
   assert.match(html, /<a href="\/s\/x\/c\/1">안쪽<\/a>/);
   assert.match(html, /<img src="https:\/\/a.com\/b.png" \/>/);
   assert.match(validateDoc({ blocks: [{ id: "h", type: "html", settings: { html: "<script>x</script>" } }] }).error, /글 내용/);
-  // 손님 화면 읽기(readDoc)에서도 다시 지운다 — DB에 직접 넣은 위험 태그 대비
+  // 유저 화면 읽기(readDoc)에서도 다시 지운다 — DB에 직접 넣은 위험 태그 대비
   assert.equal(readDoc({ blocks: [{ id: "h", type: "html", visible: true, settings: { html: "<p>a</p><script>b</script>" } }] }).blocks[0].settings.html, "<p>a</p>");
 });
 

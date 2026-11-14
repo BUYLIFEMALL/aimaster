@@ -6,7 +6,7 @@ import { Countdown, TabsView } from "./home-blocks";
 import { ProductCard, ProductGrid } from "./(shop)/product-card";
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 — 서버 데이터가 필요한 첫 화면 블록 그리기
-// 데이터만 받아 그린다(가져오기는 src/lib/builder/slot-data.ts). 손님 첫 화면(서버)과 디자인 편집기 미리보기(클라이언트)가 같이 쓴다(디자인 빌더 D2-5)
+// 데이터만 받아 그린다(가져오기는 src/lib/builder/slot-data.ts). 유저 첫 화면(서버)과 디자인 편집기 미리보기(클라이언트)가 같이 쓴다(디자인 빌더 D2-5)
 
 /** 블록 하나가 쓰는 서버 데이터(편집기로 보낼 수 있게 JSON 모양) */
 export type SlotData = {

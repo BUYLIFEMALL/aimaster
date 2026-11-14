@@ -2,6 +2,8 @@
 
 > **🧭 쇼핑몰 개발 원칙(2026-11-14 주인님 지시 — 모든 쇼핑몰 작업의 기준, 작업 전 필독)**: ① **큰 맥락 유지** — 코드 하나·세 몰(B2B몰 → 분양몰 → 독립몰)·AIMaster 샘플몰 운영·나중에 배포 키트. ② **같은 일을 하는 코어는 하나로 같이 쓴다**(상품·가격 계산·주문·결제·정산 장부·알림·도메인 연결 — 새로 만들기 전에 같은 계산·흐름이 있는지 먼저 찾는다). ③ **몰마다 다른 컨셉은 그 몰 버전에 맞게 따로 만든다**(누가 사고·누가 팔고·돈이 어디로 가고·무엇을 공개하는지 — 한 몰의 설정이 다른 몰 동작을 바꾸지 않게). ④ **최상위 기준 = 마스터 플랜 [`docs/PLAN_20261114_B2B_MASTER.md`](docs/PLAN_20261114_B2B_MASTER.md)**(항목 번호 순서대로 하나씩) · 기준 정의 [`docs/MALL_TYPES_DEFINITION.md`](docs/MALL_TYPES_DEFINITION.md), 진행 플랜 [`docs/PLAN_20261114_MALL_TYPES_ALIGN.md`](docs/PLAN_20261114_MALL_TYPES_ALIGN.md). **백엔드 개발 문서(이 담당)**: [`docs/MALL_BACKEND_ROADMAP.md`](docs/MALL_BACKEND_ROADMAP.md) · **프론트 디자인 UI 빌더(다른 세션)**: [`docs/HANDOFF_20261114_DESIGN_BUILDER_FRONT.md`](docs/HANDOFF_20261114_DESIGN_BUILDER_FRONT.md).
 
+> **📛 용어 통일(2026-11-15 주인님 지시 — 모든 CLI·백엔드·프론트·디자인 공통, 화면 문구·알림·메일·문서·보고·채팅)**: **운영사**(쇼핑몰 운영 본사, 몰 대표·직원 포함) / **공급사**(상품 공급사) / **리셀러**(홍보 링크로 상품을 파는 판매자) / **유저**(상품 구매자). 「손님」「고객」「구매자」「사용자」「운영자」는 쓰지 않는다 — 「손님 화면」→「유저 화면」. 조사도 맞춘다(손님이→유저가). 코드 식별자·DB 이름·메인 사이트 회원 등급 이름은 예외. 새 화면·DB 오류 문구는 처음부터, 기존 문구는 그 파일을 손볼 때 함께. 상세·남은 곳: [`docs/HANDOFF_20261115_TERMS.md`](docs/HANDOFF_20261115_TERMS.md)
+
 > 먼저 읽기: [README](README.md)(기능 진행 표·실행 방법) → [3몰 인수인계](../docs/mall/HANDOFF_THREE_MALLS.md) → [T0 운영 이전 플랜](docs/PLAN_20261112_T0_PROD_MIGRATION.md) → [교훈 모음](../docs/mall/LESSONS_LEARNED.md) → 역할 파일 [`docs/roles/mall-builder.md`](../docs/roles/mall-builder.md)
 > 운영 https://mall-builder.buylife.xyz · Lab https://dev-mall-builder.vercel.app · 운영 버전 `v1.09`(`src/lib/version.ts` + DB `programs.version`) · 최신 요약: [§4 버전·이력](#4-버전이력)·[§5 남은 일](#5-남은-일)·[§8 향후 개선 방향](#8-향후-개선-방향)
 

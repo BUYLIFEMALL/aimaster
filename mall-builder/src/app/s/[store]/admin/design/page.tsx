@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 // 디자인 빌더 D2 — 끌어 놓는 첫 화면 편집기(Puck). 저장 모양·검사·저장 함수는 기존 첫 화면 편집(F18)과 같다
-// 초안 저장은 나만 보이고, 「손님 화면에 게시」를 눌러야 손님에게 보인다
+// 초안 저장은 나만 보이고, 「유저 화면에 게시」를 눌러야 유저에게 보인다
 export default async function AdminDesignPage({ params, searchParams }: { params: Promise<{ store: string }>; searchParams: Promise<{ template?: string; color?: string; restored?: string }> }) {
   const { store: slug } = await params;
   const { template, color, restored } = await searchParams;
@@ -36,7 +36,7 @@ export default async function AdminDesignPage({ params, searchParams }: { params
   const publishedState = anyPublished
     ? JSON.stringify({ blocks: home.published?.blocks ?? [], theme: readTheme(theme?.published ?? null), header: readHeader(design.header?.published ?? null), footer: readFooter(design.footer?.published ?? null), popup: readPopup(design.popup?.published ?? null), list: readList(design.list?.published ?? null), detail: readDetail(design.detail?.published ?? null) })
     : null;
-  // 미리보기 틀용 — 손님 메뉴에 보이는 카테고리(최상위)·사업자 정보
+  // 미리보기 틀용 — 유저 메뉴에 보이는 카테고리(최상위)·사업자 정보
   const topCats = buildCategoryTree(rows, false).map((c) => ({ id: c.id, name: c.name }));
   const categories = flattenTree(buildCategoryTree(rows, true)).map((c) => ({ id: c.id, name: `${"　".repeat(c.depth - 1)}${c.name}${c.is_visible ? "" : " (숨김)"}` }));
   const pickable = products.filter((p) => p.status === "on_sale" || p.status === "sold_out").map((p) => ({ id: p.id, name: p.name }));
@@ -48,20 +48,20 @@ export default async function AdminDesignPage({ params, searchParams }: { params
         <Link href={`/s/${store.slug}/admin`} className="font-semibold text-gray-800 hover:underline">
           ← {store.name} 관리 화면
         </Link>
-        <span>왼쪽에서 블록을 끌어 놓고, 가운데에서 블록을 눌러 오른쪽에서 고칩니다. <b>초안 저장</b>은 나만 보이고, <b>손님 화면에 게시</b>를 눌러야 손님에게 보입니다.</span>
-        <Link href={`/s/${store.slug}`} target="_blank" className="underline">손님 화면 열기 ↗</Link>
+        <span>왼쪽에서 블록을 끌어 놓고, 가운데에서 블록을 눌러 오른쪽에서 고칩니다. <b>초안 저장</b>은 나만 보이고, <b>유저 화면에 게시</b>를 눌러야 유저에게 보입니다.</span>
+        <Link href={`/s/${store.slug}`} target="_blank" className="underline">유저 화면 열기 ↗</Link>
         <Link href={`/s/${store.slug}/admin/design/templates`} className="font-semibold text-violet-700 underline">🎨 템플릿 고르기</Link>
         <Link href={`/s/${store.slug}/admin/design/history`} className="underline">🕘 게시 기록</Link>
         <Link href={`/s/${store.slug}/admin/home`} className="underline">간단 편집(예전 화면)</Link>
       </div>
       {restored && !tpl && (
         <p className="mb-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800" data-restored>
-          예전 게시 판을 <b>초안</b>으로 되돌렸습니다. 손님 화면은 아직 그대로입니다 — 확인하고 <b>손님 화면에 게시</b>를 눌러야 바뀝니다.
+          예전 게시 판을 <b>초안</b>으로 되돌렸습니다. 유저 화면은 아직 그대로입니다 — 확인하고 <b>유저 화면에 게시</b>를 눌러야 바뀝니다.
         </p>
       )}
       {tpl && (
         <p className="mb-2 rounded bg-violet-50 px-3 py-2 text-xs text-violet-800" data-template-preview>
-          템플릿 미리보기 중: <b>{tplName}</b> — 아직 저장되지 않았습니다. 마음에 들면 <b>초안 저장</b>(나만 보임) 또는 <b>손님 화면에 게시</b>를 누르세요. 그대로 나가면 지금 디자인이 유지됩니다.{" "}
+          템플릿 미리보기 중: <b>{tplName}</b> — 아직 저장되지 않았습니다. 마음에 들면 <b>초안 저장</b>(나만 보임) 또는 <b>유저 화면에 게시</b>를 누르세요. 그대로 나가면 지금 디자인이 유지됩니다.{" "}
           <Link href={`/s/${store.slug}/admin/design`} className="underline">미리보기 취소</Link>
         </p>
       )}

@@ -21,7 +21,7 @@ export default async function DesignTemplatesPage({ params }: { params: Promise<
           <Link href={`/s/${store.slug}/admin/design`} className="font-semibold text-gray-800 hover:underline">
             ← 디자인 편집으로
           </Link>
-          <span>템플릿을 고르고 색을 정한 뒤 「내 상품으로 미리보기」를 누르면 편집기에 열립니다. <b>저장하기 전에는 손님 화면이 바뀌지 않습니다.</b></span>
+          <span>템플릿을 고르고 색을 정한 뒤 「내 상품으로 미리보기」를 누르면 편집기에 열립니다. <b>저장하기 전에는 유저 화면이 바뀌지 않습니다.</b></span>
         </div>
         <h1 className="text-xl font-black tracking-tight text-gray-900">🎨 템플릿 고르기</h1>
         <p className="mt-1 text-sm text-gray-600">
