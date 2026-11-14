@@ -34,7 +34,7 @@ async function listEntries(admin: Admin, prefix: string): Promise<Entry[]> {
  * ② 만든 지 30일 지난 이메일 초안(stepmail_email_drafts) 중 어떤 캠페인도 쓰지 않는 것을 지운다
  *    (캠페인은 draft_id on delete cascade라, 캠페인이 쓰는 초안을 지우면 회원 캠페인 설정까지 사라진다).
  * ③ 회원 폴더의 30일 지난 이미지 파일 중 남은 초안(image_url·본문)에서 쓰지 않는 것을 지운다.
- * 대상 아님: 리드(stepmail_leads — 회원이 모은 연락처 명부, 주인님 결정 대기), 캠페인 설정, 발송 계정, 키.
+ * 대상 아님: 리드(stepmail_leads — 회원이 직접 올려 관리하는 연락처 명부. 2026-11-14 주인님 결정: 예외로 삭제하지 않고 회원별로 보관, 발송 기록만 30일), 캠페인 설정, 발송 계정, 키.
  * 예외 회원(profiles.retention_exempt)은 지우지 않는다. 로그·응답에는 개수만 남긴다.
  */
 export async function GET(request: NextRequest) {

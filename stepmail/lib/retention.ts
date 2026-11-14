@@ -1,6 +1,6 @@
 // 2026-11-13: 생성 자료 30일 보관(루트 docs/TOP_RULE_PERSONAL_ACCOUNT_API.md §0, 기준 구현 shop-detail-page/lib/retention.ts).
 // 대상: 발송 기록(stepmail_send_log), 캠페인이 쓰지 않는 이메일 초안(stepmail_email_drafts), 초안이 쓰지 않는 stepmail-images 파일.
-// 대상 아님: 리드(stepmail_leads — 회원 연락처 명부, 주인님 결정 대기)·캠페인 설정·발송 계정·키.
+// 대상 아님: 리드(stepmail_leads — 회원이 직접 올린 연락처 명부, 2026-11-14 주인님 결정으로 예외·회원별 보관)·캠페인 설정·발송 계정·키.
 
 export const RETENTION_DAYS = 30;
 
