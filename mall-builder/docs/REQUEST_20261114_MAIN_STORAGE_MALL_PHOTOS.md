@@ -1,5 +1,12 @@
 # 요청 — 메인 사이트 저장공간 담당께: 쇼핑몰 사진도 중앙 정리·사용량에 넣어 주세요 (2026-11-14)
 
+> **⚠️ 같은 날 변경(2026-11-14) — 요청 1(사진 지우기)은 취소합니다. 쇼핑몰 사진은 지우지 마세요.**
+> 주인님 「쇼핑몰에 등록한 사진이 사라지면 안되지 쇼핑몰은 30일 정책에 예외조항을 달아」「용량이 부족한 사람들은 추가 용량을 구매해서 사용하게 해야되」.
+> - **요청 1 취소**: `/api/cron/storage-retention`에서 `mall_builder_expired_photos`를 부르지 않는다. `mall-builder-public` 파일은 중앙 정리 대상에서 **빼 둔다**(B2B몰·분양몰·독립몰 모두).
+> - **요청 2 유지**: 사용량 집계에는 넣는다 — `mall-builder-public`의 `<몰 id>/…` 크기를 몰 주인 사용량(`by_bucket.mall-builder-public`)에 더한다.
+> - **요청 3 추가**: 몰 주인 사용량이 한도에 가까워지거나 넘으면 지금 💾 위젯·80% 안내처럼 **「추가 용량 구매·저장 구독」으로 안내**한다(자동 삭제 대신 용량으로 관리). 쇼핑몰 쪽은 사진 올리기 전에 같은 사용량을 읽어 한도를 넘으면 올리기를 막고 구매 안내를 띄울 예정이다(mall-builder 담당 몫, 사용량 집계가 먼저 필요).
+> - 기준: [`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md`](../../docs/TOP_RULE_PERSONAL_ACCOUNT_API.md) §8 「보관 기간 지정 목록」 2026-11-14 `mall-builder` 줄. 아래 본문은 이력이다.
+
 - 보내는 쪽: [역할: mall-builder] Claude Code(윈도우) `claude-win-20261025-workspace`
 - 받는 쪽: 메인 사이트 저장공간(`docs/PLAN_20261111_MEMBER_STORAGE_QUOTA.md`, `/api/cron/storage-retention`, `member_storage_usage`) 담당
 - 주인님 결정(2026-11-14 채팅):
