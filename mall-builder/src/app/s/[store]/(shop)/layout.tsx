@@ -1,6 +1,7 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { getCartCount, getCategoryRows, getCurrentUser, getMyCustomer, getStoreBySlug, isStoreStaff } from "@/lib/store";
+import type { CSSProperties, ReactNode } from "react";
+import { getCartCount, getCategoryRows, getCurrentUser, getMyCustomer, getPublishedDesign, getStoreBySlug, isStoreStaff } from "@/lib/store";
+import { readTheme, themeStyle } from "@/lib/theme";
 import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
 import { buildCategoryTree } from "@/lib/categories";
 import { guestOrderEnabled } from "@/lib/guest";
@@ -37,7 +38,9 @@ export async function generateViewport({ params }: { params: Promise<{ store: st
 export default async function ShopLayout({ children, params }: { children: ReactNode; params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);
-  const [user, staff, categoryRows] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id)]);
+  const [user, staff, categoryRows, design] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id), getPublishedDesign(store.id)]);
+  // 디자인 빌더 D1: 몰 테마 → CSS 변수(기본 테마면 빈 객체 = 화면 그대로)
+  const themeVars = themeStyle(readTheme(design.theme));
   const customer = user ? await getMyCustomer(store.id, user.id) : null;
   const cartCount = customer && user ? await getCartCount(store.id, user.id) : 0;
   // 비회원 주문을 켠 몰(D15): 로그인 전에도 장바구니(쿠키)·주문 조회
@@ -56,7 +59,10 @@ export default async function ShopLayout({ children, params }: { children: React
   const isSampleMall = store.slug === SAMPLE_MALL_SLUG;
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
+    <div
+      className="flex min-h-screen flex-col bg-[var(--mall-bg,var(--color-slate-50))] font-sans text-slate-900 antialiased selection:bg-blue-600 selection:text-white"
+      style={themeVars as CSSProperties}
+    >
       <script dangerouslySetInnerHTML={{ __html: EARLY_INSTALL_SCRIPT }} />
 
       {/* S3 요청: 샘플몰 상단 고지 띠 */}

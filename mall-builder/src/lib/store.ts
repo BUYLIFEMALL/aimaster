@@ -637,6 +637,14 @@ export async function getPublishedHome(storeId: string): Promise<BlocksDoc> {
   return readDoc(data);
 }
 
+/** 손님 화면 디자인(테마·헤더·바닥글 등, DB 0080) — 게시본만. 게시 전이거나 함수가 아직 없는 DB면 빈 객체 → 기본 디자인 */
+export const getPublishedDesign = cache(async (storeId: string): Promise<Record<string, unknown>> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_design_published", { p_store_id: storeId });
+  if (error || !data || typeof data !== "object" || Array.isArray(data)) return {};
+  return data as Record<string, unknown>;
+});
+
 /** 상품 쇼윈도 블록의 상품 — 판매 중·품절만, 보는 사람 기준 가격. 직접 선택은 고른 순서대로, 카테고리는 하위 카테고리 포함 */
 export async function getShowcaseProducts(storeId: string, s: ShowcaseSettings): Promise<ShopProduct[]> {
   if (s.source === "manual") {

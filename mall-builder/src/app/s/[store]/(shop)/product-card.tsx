@@ -17,7 +17,7 @@ export function ProductCard({ base, product }: { base: string; product: ShopProd
       className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-blue-400 hover:shadow-md"
     >
       <div>
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-slate-100">
+        <div className="relative aspect-[var(--mall-img-ratio,1/1)] overflow-hidden rounded-xl bg-slate-100">
           {img && (
             // eslint-disable-next-line @next/next/no-img-element
             <img

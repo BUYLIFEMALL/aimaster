@@ -5,7 +5,8 @@ body {
   color: #0f172a;
 }
 
-/* 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 3D 엠보싱 버튼 */
+/* 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 3D 엠보싱 버튼
+   디자인 빌더 D1: 몰 테마 변수(--mall-primary-*·--mall-radius·--mall-btn-depth)가 있으면 따르고, 없으면 원래 값(src/lib/theme.ts) */
 button,
 .btn-3d-blue,
 .btn-3d-dark,
@@ -18,32 +19,32 @@ input[type="submit"] {
 }
 
 .btn-3d-blue {
-  background-color: #2563eb;
+  background-color: var(--mall-primary-600, #2563eb);
   color: #ffffff;
-  border-radius: 0.75rem;
+  border-radius: var(--mall-radius, 0.75rem);
   font-weight: 600;
-  box-shadow: 0 4px 0 0 #1d4ed8;
+  box-shadow: 0 var(--mall-btn-depth, 4px) 0 0 var(--mall-primary-700, #1d4ed8);
   transition: all 0.15s ease-in-out;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 .btn-3d-blue:hover:not(:disabled) {
-  background-color: #1d4ed8;
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 0 #1e40af;
+  background-color: var(--mall-primary-700, #1d4ed8);
+  transform: translateY(calc(var(--mall-btn-depth, 4px) / 2));
+  box-shadow: 0 calc(var(--mall-btn-depth, 4px) / 2) 0 0 var(--mall-primary-800, #1e40af);
 }
 .btn-3d-blue:active:not(:disabled) {
-  transform: translateY(4px);
+  transform: translateY(var(--mall-btn-depth, 4px));
   box-shadow: none;
 }
 
 .btn-3d-dark {
   background-color: #0f172a;
   color: #ffffff;
-  border-radius: 0.75rem;
+  border-radius: var(--mall-radius, 0.75rem);
   font-weight: 600;
-  box-shadow: 0 4px 0 0 #020617;
+  box-shadow: 0 var(--mall-btn-depth, 4px) 0 0 #020617;
   transition: all 0.15s ease-in-out;
   display: inline-flex;
   align-items: center;
@@ -51,20 +52,20 @@ input[type="submit"] {
 }
 .btn-3d-dark:hover:not(:disabled) {
   background-color: #1e293b;
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 0 #020617;
+  transform: translateY(calc(var(--mall-btn-depth, 4px) / 2));
+  box-shadow: 0 calc(var(--mall-btn-depth, 4px) / 2) 0 0 #020617;
 }
 .btn-3d-dark:active:not(:disabled) {
-  transform: translateY(4px);
+  transform: translateY(var(--mall-btn-depth, 4px));
   box-shadow: none;
 }
 
 .btn-3d-emerald {
   background-color: #059669;
   color: #ffffff;
-  border-radius: 0.75rem;
+  border-radius: var(--mall-radius, 0.75rem);
   font-weight: 600;
-  box-shadow: 0 4px 0 0 #047857;
+  box-shadow: 0 var(--mall-btn-depth, 4px) 0 0 #047857;
   transition: all 0.15s ease-in-out;
   display: inline-flex;
   align-items: center;
@@ -72,20 +73,20 @@ input[type="submit"] {
 }
 .btn-3d-emerald:hover:not(:disabled) {
   background-color: #047857;
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 0 #065f46;
+  transform: translateY(calc(var(--mall-btn-depth, 4px) / 2));
+  box-shadow: 0 calc(var(--mall-btn-depth, 4px) / 2) 0 0 #065f46;
 }
 .btn-3d-emerald:active:not(:disabled) {
-  transform: translateY(4px);
+  transform: translateY(var(--mall-btn-depth, 4px));
   box-shadow: none;
 }
 
 .btn-3d-slate {
   background-color: #334155;
   color: #ffffff;
-  border-radius: 0.75rem;
+  border-radius: var(--mall-radius, 0.75rem);
   font-weight: 600;
-  box-shadow: 0 4px 0 0 #1e293b;
+  box-shadow: 0 var(--mall-btn-depth, 4px) 0 0 #1e293b;
   transition: all 0.15s ease-in-out;
   display: inline-flex;
   align-items: center;
@@ -93,11 +94,11 @@ input[type="submit"] {
 }
 .btn-3d-slate:hover:not(:disabled) {
   background-color: #1e293b;
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 0 #0f172a;
+  transform: translateY(calc(var(--mall-btn-depth, 4px) / 2));
+  box-shadow: 0 calc(var(--mall-btn-depth, 4px) / 2) 0 0 #0f172a;
 }
 .btn-3d-slate:active:not(:disabled) {
-  transform: translateY(4px);
+  transform: translateY(var(--mall-btn-depth, 4px));
   box-shadow: none;
 }
 
@@ -108,7 +109,7 @@ input[type="submit"] {
 .mall-html p { margin: 0.5rem 0; line-height: 1.7; }
 .mall-html ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
 .mall-html ol { list-style: decimal; padding-left: 1.5rem; margin: 0.5rem 0; }
-.mall-html a[href] { color: #1d4ed8; text-decoration: underline; } /* 위험 주소가 지워진 링크(href 없음)는 일반 글처럼 */
+.mall-html a[href] { color: var(--mall-primary-700, #1d4ed8); text-decoration: underline; } /* 위험 주소가 지워진 링크(href 없음)는 일반 글처럼 */
 .mall-html img { max-width: 100%; height: auto; }
 .mall-html blockquote { border-left: 3px solid #d1d5db; padding-left: 0.75rem; color: #4b5563; margin: 0.5rem 0; }
 .mall-html hr { margin: 1rem 0; border-color: #e5e7eb; }
