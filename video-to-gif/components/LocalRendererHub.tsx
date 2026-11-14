@@ -35,6 +35,7 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
   const [checking, setChecking] = useState(false);
   const [copiedMac, setCopiedMac] = useState(false);
   const [activeTab, setActiveTab] = useState<"windows" | "mac" | "extension">("windows");
+  const [open, setOpen] = useState(false); // v1.29 선택 기능이라 처음엔 접어 둠
 
   const runCheck = useCallback(async () => {
     setChecking(true);
@@ -63,6 +64,7 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
 
   const isReady = status?.kind === "ready";
   const hasUpdate = updateInfo?.ext || updateInfo?.host;
+  const showBody = open || isReady || !!hasUpdate; // 설치한 회원·업데이트 있는 회원은 펼쳐서 보여 줌
 
   return (
     <section className={`rounded-3xl border border-amber-500/30 bg-[#0d1117] p-6 sm:p-8 shadow-2xl relative overflow-hidden ${className}`}>
@@ -81,12 +83,15 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
             <span className="inline-flex items-center gap-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-bold text-cyan-300">
               공식 최신 v1.25 (Host 1.30)
             </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-300">
+              선택 · 설치 안 해도 바로 사용 가능
+            </span>
           </div>
           <h2 className="mt-2 text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
             <span>로컬 렌더러 프로그램 &amp; 확장 다운로드 센터</span>
           </h2>
           <p className="mt-1 text-xs sm:text-sm text-gray-300">
-            내 컴퓨터의 GPU/CPU 성능을 직접 활용하여 무설치 대비 3배 이상 빠른 렌더링 속도를 제공합니다.
+            설치하지 않아도 화면 녹화·GIF 변환은 브라우저에서 바로 됩니다. 몇 분짜리 긴 영상이나 대용량 파일을 자주 바꾼다면 설치해 3배 이상 빠르게 쓰세요.
           </p>
         </div>
 
@@ -163,8 +168,25 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
         </div>
       )}
 
+      {!showBody && (
+        <div className="relative z-10 mt-4">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-all"
+          >
+            <Zap className="h-4 w-4" />
+            <span>더 빠르게 쓰기 (설치 방법 펼치기)</span>
+          </button>
+        </div>
+      )}
+
+      {showBody && (<>
+      <p className="relative z-10 mt-5 text-[11px] sm:text-xs text-gray-400 leading-relaxed">
+        설치 조합: <b className="text-gray-200">Windows</b>는 렌더러 프로그램 + 브라우저 확장, <b className="text-gray-200">Mac</b>은 터미널 명령어 + 브라우저 확장을 함께 설치합니다. 확장은 웹 화면과 내 PC 프로그램을 이어 주는 역할입니다.
+      </p>
       {/* 메인 3대 다운로드 카드 그리드 */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
         {/* 카드 1: Windows PC 렌더러 */}
         <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-5 flex flex-col justify-between hover:border-amber-500/40 transition-all group">
           <div>
@@ -173,7 +195,7 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
                 <Laptop className="h-5 w-5" />
               </span>
               <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/20">
-                추천 · Windows 10/11
+                긴 영상·대용량에 추천 · Windows 10/11
               </span>
             </div>
             <h3 className="mt-4 text-base font-extrabold text-white flex items-center gap-1.5">
@@ -319,6 +341,7 @@ export default function LocalRendererHub({ className = "" }: { className?: strin
           </div>
         </div>
       </div>
+      </>)}
     </section>
   );
 }
