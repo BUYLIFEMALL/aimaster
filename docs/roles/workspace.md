@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-13 [역할: workspace] Claude Code(윈도우) — v1.37 볼타 웹훅 실제 동작 확인(버튼 없이 자동 발급됨)
+- 마지막 갱신: 2026-11-14 [역할: workspace] Claude Code(윈도우) — 볼타 실제 발급 보류 기록
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -13,6 +13,7 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
+| `ai-work-workspace` | 볼타 실제(live_) 발급 | 보류 — 주인님 「나중에 필요시」(2026-11-14). live_ 키·포인트, 실제 환경 발급자·인증서·웹훅 별도 등록 | `ai-work-workspace/docs/PLAN_20261113_U14_AND_DEFERRED.md` §2-5 |
 | `shorts-onestop-studio`·`playlist-channel-studio` | U10 유튜브 보내기 버튼 실제 누르기 확인 | 실제 업로드 기록(회원 업로드 또는 주인님 승인 뒤 시험 계정 비공개 업로드) | `docs/HANDOFF.md` 2026-11-13 |
 
 ## 최근 완료 (최근 10개)
