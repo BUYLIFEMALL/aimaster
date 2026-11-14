@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 결정 대기 11건 처리(보관·모델·회원 본인 키), 미배포
+- 결정만 기록(코드 동작 그대로): `stepmail` 리드는 예외로 회원별 보관·발송 기록 30일(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 지정 목록), `kakao_auto_poster` 발송 내역 30일, `ui-canvas` 만든 날 기준, `tarot` 공유 그림도 30일, `document-translator` 번역 결과만 30일(용어집 보관), NewsBlur 비밀번호 기존대로. 기록: `docs/DEV_STATUS_20261113.md` §6-1 아래.
+- 코드(미배포, 커밋됨): `threads-easy-planner` 모델 최신 9개 · `tarot`·`mbti`·`mbti-character` 카카오 공유를 회원 본인 키로 + 메인 `/api-settings` 카카오 JavaScript 키 칸 · `kakao_auto_poster` 리포트 글 정리 AI 선택(OpenAI·Claude·Gemini, Claude 구조화 응답). 운영 DB: `kakao_topics.text_model` 칼럼 추가(적용됨). 시험: 세 플랫폼 저가 모델 실호출 성공(Claude 2회 — 첫 회 600토큰 한도에서 해석 실패 → 구조화 응답으로 해결).
+- 남은 일: 배포(빌드 5회 + 메인 사이트 자동 빌드), 카카오 콘솔 JavaScript SDK 도메인에 타로·성격코드·캐릭코드 주소 등록 확인(주인님), `stepmail` 메일 개인화·발송 간격·계정별 한도 만들지 결정 대기. 대기 줄: `docs/PENDING_DEPLOYS.md`.
+
 
 ## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — EC-W10 「🏭 공장 견적 비교」 구현 + 실호출 시험 2회, 미배포 대기
 - 주인님 「진행해」(플랜 추천안). 상품소싱기 새 메뉴 `/factory-quotes` — 견적서 PDF·위챗 캡처·CSV/대화 붙여 넣기 → 회원 본인 Claude 키 1회(`claude-sonnet-5-5`) → 공장별 비교표·미확인·미답변·한영중 질문·「마진 계산 →」(외화 원가 칸 채움). 원본 파일 저장 안 함, 대화·결과 30일(예외 회원 제외). 운영 DB `factory_quote_projects`·`factory_quote_reports` 적용(RLS 본인만). 커밋 `790b34f84`.
