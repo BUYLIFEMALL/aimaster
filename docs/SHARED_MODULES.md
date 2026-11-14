@@ -119,6 +119,7 @@
 | 2026-10-21 `youtube-upload-client`·`member-integrations` 사본에 `playlist-channel-studio` 추가(새 사본, 기준 변경 없음) | (없음) | ✅ 플레이리스트 v1.22로 배포됨 |
 | 2026-10-21 `suno-timed-lyrics` 등록(기준 `lyric-video-studio/src/lib/sunoAlign.ts`, 사본 `playlist-channel-studio/src/lib/sunoAlign.ts`) | (없음) | ✅ 플레이리스트 v1.19로 배포됨 |
 | 2026-10-21 `youtube-upload-client`·`member-integrations` 사본에 `lyric-video-studio` 추가(새 사본, 기준 변경 없음) | (없음) | ✅ 가사영상 v1.04로 배포됨 |
+| 2026-11-14 `browser-mp4-encoder` 영상 저장 안정화 3가지(음악 담당 제안): 코덱마다 하드웨어 가속 먼저 확인 후 기본 방식 자동 대체(`pickVideoConfig`) · 저장 중 화면 꺼짐 방지(`navigator.wakeLock`, 실패해도 계속) · 진행 정보 `etaSeconds`(선택)와 문구 「남은 시간 약 …」. 함수 모양 그대로(급하지 않은 변경) | `shorts-onestop-studio`(기준)·`shots`·`lyric-video-studio` 사본 — 각 프로그램 다음 배포 때 함께 | 시험 원스톱 64·shots 34·lyric 36·tsc·build 통과, ego 시험 페이지에서 공용 인코더로 12초 1080×1920 MP4 실제 생성(2.7초·1.6MB·남은 시간 표시) |
 | 2026-10-21 `browser-mp4-encoder`에 `encodeMp4ToFile`(고른 파일에 조금씩 바로 쓰기, `FileSystemWritableFileStreamTarget`) 추가 — 공통 부분을 내부 `encodeInto`로 묶었고 기존 `encodeMp4`는 모양·동작 같음(급하지 않은 변경) | ~~`shorts-onestop-studio`~~·~~`shots`~~ 사본은 저장소에만 반영, 다음 배포 때 함께 — 모두 배포됨 | ✅ `lyric-video-studio` v1.02로 배포됨(사용처). Shots는 v1.33(2026-10-22)부터 배포에 포함. 원스톱은 v1.37(2026-10-23, `9bdcef674`)로 배포에 포함 |
 | 2026-10-21 `browser-mp4-encoder`에 선택값 `videoBitrate` 추가(기본 8Mbps 그대로 — 원스톱 동작 같음) | (없음) | ✅ 원스톱 v1.21(2026-10-21)로 배포됨. Shots v1.25도 배포됨(4Mbps 사용) |
 | 2026-10-21 `youtube-upload-client` 등록 + `createYoutubeResumableSession` 추가(Shots는 미사용 — 동작 같음) | (없음) | ✅ Shots v1.24(2026-10-21)로 배포됨 |

@@ -50,6 +50,7 @@
 
 | 프로그램 | 무엇(작은 소스 수정) | 커밋 | 날짜 · CLI | 상세 위치 | 다음 배포 때 |
 |---|---|---|---|---|---|
+| `shorts-onestop-studio` · `shots` · `lyric-video-studio` | 공용 `browser-mp4-encoder` 영상 저장 안정화 3가지(하드웨어 가속 먼저·화면 꺼짐 방지·남은 시간) — 사본 맞춤, 함수 모양 그대로 | 이 줄 직전 코드 커밋 | 2026-11-14 · [역할: video] `claude-win-video` | `docs/SHARED_MODULES.md` 미배포 표 | 각 프로그램 다음 배포 때 함께(급하지 않음), 배포 뒤 MP4 1회 확인 |
 | `shots` | 백로그 6 「모든 장면 영상으로」(합계 확인 뒤 한 장면씩 차례로, 자동 재요청 없음, 실패만 다시) | 이 줄 직전 코드 커밋 | 2026-11-14 · [역할: video] `claude-win-video` | `shots/docs/IMPROVEMENTS.md` 맨 위 | 다음 배포 때 v1.51(새 기능 — 화면 확인 필요) |
 | `ui-canvas` `tarot` `ai-writing-editor` | 2026-11-13 전체 점검(매뉴얼·링크 버튼·상태 요약) + 30일 자동 정리 새로 추가(2026-12-14까지 유예). **2026-11-14 모아서 배포 때 건너뜀 — 각 Vercel 프로젝트에 `CRON_SECRET` 환경변수가 없음**(추가는 주인님 승인) | 정책 담당 2026-11-13 | 보관 규칙 | 각 폴더 `vercel.json`·IMPROVEMENTS | `CRON_SECRET` 추가 뒤 배포, 버전 +0.01 |
 | **권한 판정 동시 조회 56개**(목록: `docs/ACCESS_CHECK_PARALLEL_20261106.md`) | 회원 권한 판정의 순차 조회 4회 → 두 묶음 동시 조회(판정 순서·결과 그대로, 첫 화면만 빨라짐). 주인님 결정 A-7 | `d1e710d68` | 2026-11-06 · [역할: music] `claude-win-20261024-music` | `docs/ACCESS_CHECK_PARALLEL_20261106.md` | 그 프로그램 다음 배포 때 함께(급하지 않음, 따로 배포 안 함). 배포한 세션은 문서 목록에서 그 줄에 ✅ |
