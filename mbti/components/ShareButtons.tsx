@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { KakaoScript } from "@/components/KakaoScript";
 
 export function ShareButtons({
   shareUrl,
@@ -15,6 +16,22 @@ export function ShareButtons({
 }) {
   const [copied, setCopied] = useState(false);
   const [kakaoReady, setKakaoReady] = useState(false);
+  // 2026-11-14: 카카오 공유는 로그인한 회원 본인 카카오 JavaScript 키로만(메인 사이트 「API 설정」에서 등록).
+  // undefined = 확인 중, null = 키 없음(공유 버튼 대신 등록 안내, 링크 복사는 그대로).
+  const [kakaoKey, setKakaoKey] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/kakao-js-key", { cache: "no-store" })
+      // 로그인하지 않은 사람(공유 링크로 들어온 사람)에게는 등록 안내를 띄우지 않는다(undefined 유지).
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { key?: string | null } | null) => {
+        if (alive && d) setKakaoKey(d.key ?? null);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // 카카오 SDK는 <Script strategy="afterInteractive">로 비동기 로드되므로, 이 컴포넌트가
   // 먼저 마운트될 수 있다 — window.Kakao가 준비될 때까지 짧게 폴링해서 버튼을 보여준다.
@@ -102,6 +119,7 @@ export function ShareButtons({
 
   return (
     <div className="flex flex-col items-center gap-2">
+      <KakaoScript jsKey={kakaoKey ?? null} />
       <div className="flex gap-2">
         {kakaoReady && (
           <button
@@ -120,6 +138,14 @@ export function ShareButtons({
           🔗 링크 복사
         </button>
       </div>
+      {kakaoKey === null && (
+        <p className="max-w-xs text-center text-[11px] leading-relaxed opacity-70">
+          💬 카카오톡 공유는 본인 카카오 앱의 JavaScript 키를 등록하면 쓸 수 있어요.{" "}
+          <a href="https://www.buylife.xyz/api-settings" target="_blank" rel="noopener noreferrer" className="underline">
+            API 설정에서 등록하기
+          </a>
+        </p>
+      )}
       {copied && <p className="text-xs text-neutral-400">링크가 복사되었어요!</p>}
     </div>
   );

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { KakaoScript } from "@/components/KakaoScript";
 import { APP_VERSION } from "@/lib/version";
 import { BookOpen } from "lucide-react";
 import "./globals.css";
@@ -23,7 +22,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body className="min-h-screen flex flex-col bg-[#faf8f5] text-[#1c1917]">
-        <KakaoScript />
         <header className="sticky top-0 z-40 bg-[#faf8f5]/90 backdrop-blur-md border-b border-[#e8e5df]">
           <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2.5">

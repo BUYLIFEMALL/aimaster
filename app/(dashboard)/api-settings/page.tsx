@@ -9,13 +9,14 @@ import GoldGradientText from "@/components/ui/GoldGradientText";
 import GoldButton from "@/components/ui/GoldButton";
 import MemberIntegrations from "@/components/settings/MemberIntegrations";
 
-type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity";
+type ApiKeyProvider = "openai" | "anthropic" | "gemini" | "perplexity" | "kakao_js_key";
 
 const PROVIDER_LABELS: Record<ApiKeyProvider, string> = {
   openai: "OpenAI (GPT)",
   anthropic: "Anthropic (Claude)",
   gemini: "Google (Gemini)",
   perplexity: "Perplexity",
+  kakao_js_key: "카카오 JavaScript 키",
 };
 // 어떤 키가 어느 자동화 프로그램에서 실제로 쓰이는지 각 서브프로젝트 코드 기준으로 정리한 설명.
 // (resolveApiKey 호출부 기준) OpenAI는 거의 모든 프로그램의 게시글 본문 생성에, Gemini는
@@ -27,14 +28,18 @@ const PROVIDER_DESCRIPTIONS: Record<ApiKeyProvider, string> = {
   anthropic: "경쟁사 분석처럼 정교한 텍스트 분석이 필요한 일부 프로그램에서 사용됩니다.",
   gemini: "나노바나나로 대표 이미지를 생성할 때(블로그·네이버 카페·쓰레드·인스타·쇼츠 등) 사용됩니다.",
   perplexity: "게시글 주제 수집(최신 트렌드 검색)과 경쟁사 분석에서 최신 정보를 검색할 때 사용됩니다.",
+  // 2026-11-14 주인님 「기본적으로 본인키 등록하는 룰 적용해」 — 카카오톡 공유 버튼은 회원 본인 카카오 앱 키로만 동작.
+  kakao_js_key:
+    "카카오톡 공유 버튼(타로점·성격코드·캐릭코드·카카오톡 뉴스레터)에 사용됩니다. 본인 카카오 앱의 [플랫폼 키 › JavaScript 키]를 넣고, 같은 화면의 [JavaScript SDK 도메인]에 공유할 프로그램 주소를 추가해 주세요. 키가 없어도 「링크 복사」 공유는 됩니다.",
 };
-const PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity"];
+const PROVIDERS: ApiKeyProvider[] = ["openai", "anthropic", "gemini", "perplexity", "kakao_js_key"];
 // 키 발급 안내(메인 사이트 「연동 매뉴얼」 글, platform_guides) — 키 이름 옆 「📖 발급 방법」 버튼(2026-11-13)
 const PROVIDER_GUIDES: Record<ApiKeyProvider, string> = {
   openai: "/guides/1c5c24e2-15d4-49b8-b907-0ac6843dee3a",
   anthropic: "/guides/d03f65c2-efbb-421f-a041-a075562e3b7a",
   gemini: "/guides/f442cd37-f1e0-42a7-a3de-f9a9acf47cc4",
   perplexity: "/guides/1df95d8b-6a27-4de0-b1d9-8bbc218534ad",
+  kakao_js_key: "https://developers.kakao.com/console/app",
 };
 const CLOUDINARY_GUIDE = "/guides/e2004c0f-160d-4360-bcbf-98f4409edde2";
 const GUIDE_LINK_CLASS = "inline-flex items-center gap-1 rounded-lg border border-gold/40 px-2 py-0.5 text-[11px] font-medium text-gold hover:bg-gold/10";
@@ -56,12 +61,14 @@ export default function ApiSettingsPage() {
     anthropic: null,
     gemini: null,
     perplexity: null,
+    kakao_js_key: null,
   });
   const [apiKeyInputs, setApiKeyInputs] = useState<Record<ApiKeyProvider, string>>({
     openai: "",
     anthropic: "",
     gemini: "",
     perplexity: "",
+    kakao_js_key: "",
   });
   const [apiKeyMsg, setApiKeyMsg] = useState<Partial<Record<ApiKeyProvider, string>>>({});
 
@@ -74,7 +81,7 @@ export default function ApiSettingsPage() {
       supabase.from("user_api_keys").select("provider, api_key").eq("user_id", uid),
       supabase.from("user_cloudinary_config").select("cloud_name, api_key, api_secret").eq("user_id", uid).maybeSingle(),
     ]);
-    const map: Record<ApiKeyProvider, string | null> = { openai: null, anthropic: null, gemini: null, perplexity: null };
+    const map: Record<ApiKeyProvider, string | null> = { openai: null, anthropic: null, gemini: null, perplexity: null, kakao_js_key: null };
     (keys ?? []).forEach((k: { provider: ApiKeyProvider; api_key: string }) => {
       map[k.provider] = k.api_key;
     });

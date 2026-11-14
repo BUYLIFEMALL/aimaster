@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { KakaoScript } from "@/components/KakaoScript";
 import { getSessionUser } from "@/lib/auth";
 import { signOutAction } from "@/lib/actions/auth";
 import { HeaderNav } from "@/components/layout/HeaderNav";
@@ -27,7 +26,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="ko">
       <body className="bg-[#090614] text-[#f1f5f9] min-h-screen">
-        <KakaoScript />
         <div className="min-h-screen flex flex-col">
           <HeaderNav userEmail={user?.email} signOutAction={signOutAction} />
           <main className="flex-1">{children}</main>

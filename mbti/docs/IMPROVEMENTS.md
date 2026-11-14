@@ -52,3 +52,8 @@
 - 서버 로그인 기기 정보 미전달: `lib/supabase/server.ts`의 서버용 클라이언트에 `global.headers["User-Agent"]` 넣기(루트 `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` 2-2절). 상태: 대기.
 - 30일 정리·예외 회원: 해당 없음(회원 생성 데이터를 저장하지 않음).
 - 미배포 대기: 공용 사본 `programLinks.ts` 전환(2026-10-20) + 이번 매뉴얼 수정.
+
+## 2026-11-14 카카오 공유를 회원 본인 키로 (정책 담당 `claude-win-20261112-policy`, 미배포)
+- 주인님 「기본적으로 본인키 등록하는 룰 적용해」. 운영자 키 `NEXT_PUBLIC_KAKAO_JS_KEY`를 쓰지 않는다 — 레이아웃의 `<KakaoScript />` 제거, 공유 버튼(`components/ShareButtons.tsx`)이 새 주소 `/api/kakao-js-key`(로그인한 본인 `user_api_keys` provider `kakao_js_key`만, RLS)에서 받은 키로 카카오 SDK를 연다(`components/KakaoScript.tsx` 기준 `kakao_auto_poster`).
+- 키가 없으면 카카오 버튼 대신 「메인 사이트 API 설정에서 등록」 안내, **링크 복사는 그대로**. 로그인하지 않은 사람(공유 링크로 들어온 사람)에게는 안내를 띄우지 않음. 키 등록 칸은 메인 사이트 `/api-settings`에 새로 추가(한 번 등록하면 타로점·성격코드·캐릭코드·카카오톡 뉴스레터 공용). 매뉴얼 FAQ에 등록·카카오 콘솔 도메인 안내 추가.
+- 검사: tsc 0, 로컬 build 통과. 배포 뒤 확인: 관리자(키 등록됨)로 결과 화면 카카오 버튼 표시·공유 창 열림 — 카카오 콘솔 JavaScript SDK 도메인에 이 프로그램 주소가 있어야 함. Vercel 환경변수 `NEXT_PUBLIC_KAKAO_JS_KEY`는 이제 안 쓰임(지우는 것은 주인님 승인 뒤).

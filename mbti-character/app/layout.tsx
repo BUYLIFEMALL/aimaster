@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { KakaoScript } from "@/components/KakaoScript";
 import { getSessionUser } from "@/lib/auth";
 import { signOutAction } from "@/lib/actions/auth";
 import { APP_VERSION } from "@/lib/version";
@@ -29,7 +28,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="ko">
       <body className="min-h-screen bg-[#090614] text-slate-100">
-        <KakaoScript />
         <div className="min-h-screen flex flex-col">
           {/* 상단 56px 반응형 아틀리에 헤더 */}
           <header className="sticky top-0 z-50 backdrop-blur-md bg-[#090614]/90 border-b border-[#2a1f4e] px-4 py-3">

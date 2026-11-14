@@ -26,11 +26,12 @@ declare global {
   }
 }
 
-const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
-
-/** 카카오 SDK를 로드하고 초기화한다. 앱키가 없으면(로컬 등) 아무 것도 하지 않는다. */
-export function KakaoScript() {
-  if (!KAKAO_JS_KEY) return null;
+/**
+ * 2026-11-14: 운영자 앱 키(NEXT_PUBLIC_KAKAO_JS_KEY) 대신 **회원 본인 카카오 앱의 JavaScript 키**로만 연다
+ * (최상위 규칙 「본인 계정·본인 키」, 기준 kakao_auto_poster/src/components/KakaoScript.tsx). 키가 없으면 아무 것도 하지 않는다.
+ */
+export function KakaoScript({ jsKey }: { jsKey: string | null }) {
+  if (!jsKey) return null;
 
   return (
     <Script
@@ -38,7 +39,7 @@ export function KakaoScript() {
       strategy="afterInteractive"
       onLoad={() => {
         if (window.Kakao && !window.Kakao.isInitialized()) {
-          window.Kakao.init(KAKAO_JS_KEY);
+          window.Kakao.init(jsKey);
         }
       }}
     />
