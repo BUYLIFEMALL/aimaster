@@ -862,6 +862,58 @@
     "unitTests": {
       "passed": 23,
       "failed": 0
+    },
+    "latestWorkingCheck": {
+      "hashes": {
+        "banana-canvas/src/components/batch/ProductBatchBoard.tsx": "37c157e79835132256e51f506037aa4c4d03abd92c9a20e07aae6735ae20a3d9",
+        "banana-canvas/src/lib/productPhotoHandoff.ts": "412bba806825170eac302ffcb99290c3a7a5b5b5a5696129ecaf4f4f7c73577e",
+        "banana-canvas/src/lib/batch/productJobs.ts": "90bf900cf9341a7bdceb44a06fc04befaea14f3d179f3ff67053f20a1f54b10e"
+      },
+      "effects": {
+        "method": "actual effect statements extracted with TS AST; imports replaced by injected pure dependencies; React effect scheduling simulated, no DOM/DB",
+        "evidence": [
+          {
+            "from": "shop-detail",
+            "readyTarget": "https://shop-detail-page.buylife.xyz",
+            "wrongWindowRejected": true,
+            "wrongOriginRejected": true,
+            "afterReceive": {
+              "count": 1,
+              "keys": [
+                "11111111-1111-4111-8111-111111111111#0"
+              ],
+              "step": 2
+            },
+            "afterFileEffect": {
+              "count": 0,
+              "orphans": [
+                "11111111-1111-4111-8111-111111111111#0"
+              ]
+            },
+            "linkedJobsLost": true
+          },
+          {
+            "from": "mall",
+            "readyTarget": "https://mall-builder.buylife.xyz",
+            "wrongWindowRejected": true,
+            "wrongOriginRejected": true,
+            "afterReceive": {
+              "count": 1,
+              "keys": [
+                "11111111-1111-4111-8111-111111111111#0"
+              ],
+              "step": 2
+            },
+            "afterFileEffect": {
+              "count": 0,
+              "orphans": [
+                "11111111-1111-4111-8111-111111111111#0"
+              ]
+            },
+            "linkedJobsLost": true
+          }
+        ]
+      }
     }
   }
 }
