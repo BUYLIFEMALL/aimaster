@@ -66,6 +66,18 @@ export function InboxBoard() {
   const [onlyNew, setOnlyNew] = useState(false);
   const [busy, setBusy] = useState<string>("");
   const [notice, setNotice] = useState<{ text: string; url?: string } | null>(null);
+  // 2026-11-15 「표에 행으로 넣기」에서 넣을 표 고르기(비우면 기본 「📨 받은 업무 표」)
+  const [dbs, setDbs] = useState<{ id: string; title: string }[]>([]);
+  const [defaultDb, setDefaultDb] = useState<string | null>(null);
+  const [pickDb, setPickDb] = useState("");
+  useEffect(() => {
+    rpc<{ databases: { id: string; title: string }[]; defaultId: string | null }>("workInboxDatabases")
+      .then((r) => {
+        setDbs(r.databases);
+        setDefaultDb(r.defaultId);
+      })
+      .catch(() => setDbs([]));
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -95,8 +107,9 @@ export function InboxBoard() {
         setNotice({ text: "받은 업무에서 지웠습니다." });
       } else {
         const cmd = kind === "page" ? "workInboxImportPage" : kind === "row" ? "workInboxImportRow" : "workInboxImportCalendar";
-        const r = await rpc<{ url: string }>(cmd, { id: sel.id });
-        setNotice({ text: kind === "page" ? "「내 페이지」에 새 페이지를 만들었습니다." : kind === "row" ? "「📨 받은 업무 표」에 행을 넣었습니다." : "「📅 콘텐츠 캘린더」에 넣었습니다.", url: r.url });
+        const picked = kind === "row" && pickDb ? dbs.find((d) => d.id === pickDb) : undefined;
+        const r = await rpc<{ url: string }>(cmd, { id: sel.id, ...(picked ? { dbId: picked.id } : {}) });
+        setNotice({ text: kind === "page" ? "「내 페이지」에 새 페이지를 만들었습니다." : kind === "row" ? `「${picked ? picked.title : "📨 받은 업무 표"}」에 행을 넣었습니다.` : "「📅 콘텐츠 캘린더」에 넣었습니다.", url: r.url });
       }
       await load();
     } catch (e) {
@@ -227,9 +240,21 @@ ${sel.body_md ?? ""}` });
                 <button type="button" className="aww-3d-btn blue" disabled={!!busy} onClick={() => void act("page")}>
                   {busy === "page" ? "만드는 중…" : "📄 페이지로 만들기"}
                 </button>
-                <button type="button" className="aww-3d-btn green" disabled={!!busy} onClick={() => void act("row")}>
-                  {busy === "row" ? "넣는 중…" : "📊 표에 행으로 넣기"}
-                </button>
+                <span className="aww-inbox-row-pick">
+                  <button type="button" className="aww-3d-btn green" disabled={!!busy} onClick={() => void act("row")}>
+                    {busy === "row" ? "넣는 중…" : "📊 표에 행으로 넣기"}
+                  </button>
+                  {dbs.length > 0 && (
+                    <select value={pickDb} onChange={(e) => setPickDb(e.target.value)} aria-label="넣을 표" title="넣을 표를 고르세요(같은 이름의 열에 들어가고, 없는 열은 새로 생깁니다)">
+                      <option value="">📨 받은 업무 표(기본)</option>
+                      {dbs.filter((d) => d.id !== defaultDb).map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.title}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </span>
                 {isCalendarItem(sel.data) && (
                   <button type="button" className="aww-3d-btn blue" disabled={!!busy} onClick={() => void act("calendar")}>
                     {busy === "calendar" ? "넣는 중…" : "📅 콘텐츠 캘린더에 넣기"}

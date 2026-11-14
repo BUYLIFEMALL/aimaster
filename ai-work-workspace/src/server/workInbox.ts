@@ -19,6 +19,7 @@ import { exemptInFilter } from "./retentionExempt";
 import { mdSource } from "@/litpage/server/ai/context.ts";
 import { pageToMarkdown } from "@/litpage/server/ai/prompts.ts";
 import { createDashboard, DASHBOARD_SETTINGS_KEY } from "./workDashboard";
+import { listAllDatabases, ownDatabase } from "./calendarData"; // 2026-11-15 원하는 표에 넣기
 import type { BlockRecord, CollectionRecord, SpaceRecord, SpaceViewRecord, UserRootRecord, UserSettingsRecord } from "#shared/records.ts";
 
 const APP_ORIGIN = "https://ai-work-workspace.buylife.xyz";
@@ -179,11 +180,30 @@ export const workInboxHandlers: Record<string, Handler> = {
   },
 
   /** 「표에 행으로 넣기」: 「📨 받은 업무 표」(없으면 「내 페이지」에 새로 만듦)에 한 줄 추가 */
-  async workInboxImportRow(ctx, { id }) {
+  /** 2026-11-15 「표에 행으로 넣기」에서 고를 수 있는 내 표 목록(기본 「📨 받은 업무 표」 id도 함께) */
+  workInboxDatabases(ctx) {
+    const userId = uid(ctx);
+    const settings = getRecord<UserSettingsRecord>("user_settings", userId);
+    const savedId = (settings?.settings as Record<string, unknown> | undefined)?.[SETTINGS_KEY];
+    return { databases: listAllDatabases(userId), defaultId: typeof savedId === "string" ? savedId : null };
+  },
+
+  async workInboxImportRow(ctx, { id, dbId: pickId }) {
     const userId = uid(ctx);
     const row = await loadRow(userId, id);
     const space = memberSpace(userId);
     const csv = inboxRowCsv(row);
+    // 2026-11-15 회원이 고른 표에 넣기(열 이름이 같으면 그 칸에, 없는 열은 글자 칸으로 새로 생김 — mergeCsv 규칙)
+    if (typeof pickId === "string" && pickId) {
+      const own = ownDatabase(userId, pickId);
+      if (!own) throw new ApiError("고른 표를 찾지 못했습니다. 표 목록을 새로 고쳐 다시 골라 주세요.", 404);
+      const name = "받은업무.csv";
+      const file = storeFile(name, csv, userId, own.block.space_id ?? space.id, "text/csv", { private: true });
+      const r = await extraHandlers.mergeCsv(ctx, { blockId: own.block.id, url: file.url, name });
+      await markImported(userId, row.id, own.block.id);
+      const dbSpace = getRecord<SpaceRecord>("space", own.block.space_id ?? space.id) ?? space;
+      return { pageId: own.block.id, url: pageUrl(dbSpace, own.block.id), recordMap: r?.recordMap };
+    }
     const settings = getRecord<UserSettingsRecord>("user_settings", userId);
     const savedId = (settings?.settings as Record<string, unknown> | undefined)?.[SETTINGS_KEY];
     const saved = typeof savedId === "string" ? getRecord<BlockRecord>("block", savedId) : undefined;

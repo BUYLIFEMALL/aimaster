@@ -41,6 +41,22 @@ export function listDateDatabases(userId: string): DateDb[] {
   return out;
 }
 
+/** 2026-11-15 받은 업무 「원하는 표에 넣기」: 회원 워크스페이스의 모든 표(데이터베이스 페이지) — 제목순 */
+export function listAllDatabases(userId: string): { id: string; title: string }[] {
+  const out: { id: string; title: string }[] = [];
+  for (const spaceId of memberSpaceIds(userId)) {
+    const rows = db.prepare(`SELECT data FROM records WHERE tbl = 'block' AND space_id = ? AND alive = 1 AND data LIKE ?`).all(spaceId, '%"collection_view_page"%') as { data: string }[];
+    for (const r of rows) {
+      const b = JSON.parse(r.data) as BlockRecord;
+      if (b.type !== "collection_view_page" || !b.collection_id) continue;
+      const c = getRecord<CollectionRecord>("collection", b.collection_id);
+      if (!c || c.alive === false) continue;
+      out.push({ id: b.id, title: dbTitleOf(b, c) });
+    }
+  }
+  return out.sort((a, z) => a.title.localeCompare(z.title, "ko"));
+}
+
 /** 표가 이 회원 것인지 확인하고 표·컬렉션을 돌려줌 */
 export function ownDatabase(userId: string, dbId: string): { block: BlockRecord; collection: CollectionRecord } | null {
   const b = getRecord<BlockRecord>("block", dbId);

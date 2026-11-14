@@ -45,3 +45,8 @@
 
 /* 2026-11-13 업무 현황판 열기 줄 */
 .aww-inbox-dash { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; padding: 10px 14px; border-radius: 12px; background: var(--lp-bg-secondary); border: 1px solid var(--lp-border-primary); font-size: 13px; color: var(--lp-text-secondary); }
+
+/* 2026-11-15 「표에 행으로 넣기」 + 넣을 표 고르기 */
+.aww-inbox-row-pick { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.aww-inbox-row-pick select { font: inherit; font-size: 13px; padding: 7px 9px; border-radius: 10px; border: 1px solid var(--lp-border-primary); background: var(--lp-bg-primary); color: var(--lp-text-primary); max-width: 220px; }
+@media (max-width: 767px) { .aww-inbox-row-pick { flex: 1 1 100%; } .aww-inbox-row-pick select { flex: 1 1 100%; max-width: none; } }
