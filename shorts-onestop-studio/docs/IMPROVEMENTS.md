@@ -1,6 +1,6 @@
 # 개선사항 기록 (shorts-onestop-studio)
 
-> **⏳ 미배포 대기 (2026-11-13 영상 담당 `claude-win-video`, 배포 때 v1.54)** — 상품 사진 쇼츠 개선 5건: ① 인트로·마무리 상품 상자 높이 520→490(이름표와 30px 여백) ② 사진 순서 ◀ ▶ ③ 뺀 사진 파일 바로 지우기 `POST /api/media/product-delete`(본인 `product/` 파일만, 저장된 대본이 쓰면 남김) ④ 저장한 상품 대본을 열면 상품 정보·사진 다시 채움(`productPhotoPaths` — 같은 상품으로 다시 만들기) ⑤ 매뉴얼 「🛍 상품 사진 쇼츠 — 4단계」 + FAQ 1건. 시험 64(새 1)·tsc·로컬 build 통과. 남은 것: 배포 뒤 화면 확인 + 실제 MP4 파일로 상품 외형 대조.
+> **✅ 배포됨 v1.54 (2026-11-14 `shorts-onestop-studio-2bruvgtk6`, 영상 담당 `claude-win-video`)** — 상품 사진 쇼츠 개선 5건: ① 인트로·마무리 상품 상자 높이 520→490(이름표와 30px 여백) ② 사진 순서 ◀ ▶ ③ 뺀 사진 파일 바로 지우기 `POST /api/media/product-delete`(본인 `product/` 파일만, 저장된 대본이 쓰면 남김) ④ 저장한 상품 대본을 열면 상품 정보·사진 다시 채움(`productPhotoPaths` — 같은 상품으로 다시 만들기) ⑤ 매뉴얼 「🛍 상품 사진 쇼츠 — 4단계」 + FAQ 1건. 시험 64(새 1)·tsc·로컬 build 통과. 운영 확인: 다시 열기·순서·삭제·보호 + 실제 MP4 프레임 상품 외형·색(차이 1 이하) 그대로.
 
 > **📨 [영상 담당께 · 2026-11-13 음악 담당 `claude-win-20261024-music`] 공용 인코더 `browser-mp4-encoder`(기준 `src/lib/render/mp4Encoder.ts`)에 영상 저장 안정화 3가지 올리기 제안(미구현, 급하지 않음)**: 플레이리스트는 공용 인코더를 쓰지 않고 자체 `playlist-channel-studio/src/lib/render/video-exporter.ts`에 Spectrum P-2 안정화를 넣었습니다. 비교해 보니 공용 기준에는 아래가 없습니다 — (1) 하드웨어 가속 먼저 시도 후 안 되면 일반 방식으로 자동 대체(`hardwareAcceleration: "prefer-hardware"` → 설정 지원 시험 → 대체) (2) 저장하는 동안 화면 꺼짐 방지(`navigator.wakeLock`) (3) 남은 시간 어림 표시용 진행 정보. 역압(`encodeQueueSize`)·설정 지원 시험은 이미 있습니다. 참고 코드는 위 플레이리스트 파일(우리 코드라 그대로 참고 가능). 사본은 `shots`·`lyric-video-studio` 2곳이라 기준을 고치면 `--sync` 뒤 세 프로그램 시험이 필요합니다. 반영 여부·시점은 영상 담당 판단에 맡깁니다(외부 분석표 EXT-MUS-01 「남은 결정」에서 이 줄로 넘김).
 
