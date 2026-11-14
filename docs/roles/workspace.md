@@ -4,7 +4,7 @@
 - 맡은 폴더: `ai-work-workspace/`, `ai-task-planner/`(2026-10-26 주인님 결정으로 추가)
 - 카테고리: 업무자동화
 - 주력 업무: 새 프로그램 「AI 업무 워크스페이스 자동화」 단계별 개발(로드맵 U1~U14, `ai-work-workspace/docs/PLAN_20261024_EXPANSION_ROADMAP.md`). 디자인(U5)은 디자인 역할(agy)이 맡음
-- 마지막 갱신: 2026-11-14 [역할: workspace] Claude Code(윈도우) — 큰 파일 Storage 저장·공개 페이지 1단계 구현(미배포)
+- 마지막 갱신: 2026-11-14 [역할: workspace] Claude Code(윈도우) — v1.38 배포·운영 확인(큰 파일·공개 페이지), 메뉴 버전 근본 수정(미배포)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
@@ -14,15 +14,14 @@
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
 | `ai-work-workspace` | 볼타 실제(live_) 발급 | 보류 — 주인님 「나중에 필요시」(2026-11-14). live_ 키·포인트, 실제 환경 발급자·인증서·웹훅 별도 등록 | `ai-work-workspace/docs/PLAN_20261113_U14_AND_DEFERRED.md` §2-5 |
-| `ai-work-workspace` | 미배포 묶음 배포(키 그룹 상자·플랫폼별 모델·큰 파일 Storage·공개 페이지 1단계) | 주인님 배포 지시(「모았다가 배포해」) | `docs/PENDING_DEPLOYS.md` |
+| `ai-work-workspace` | 미배포: 메뉴 버전 표시를 `version.ts`에서 불러오기 `9adffe5df`(지금 메뉴는 v1.37로 보임) | 다음 워크스페이스 배포 때 함께(또는 주인님 지시 시 바로, 빌드 1회) | `docs/PENDING_DEPLOYS.md` |
 | 메인 사이트 | 중앙 정리 함수에서 `workspace-files` 버킷 제외 | 메인 저장공간 담당 처리(운영 DB 변경 승인) | `docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md` 끝 |
 | `shorts-onestop-studio`·`playlist-channel-studio` | U10 유튜브 보내기 버튼 실제 누르기 확인 | 실제 업로드 기록(회원 업로드 또는 주인님 승인 뒤 시험 계정 비공개 업로드) | `docs/HANDOFF.md` 2026-11-13 |
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-11-14 | `ai-work-workspace` | 공개 페이지 1단계(게시 탭·로그인 없는 `/public/<번호>`·관리자 내리기·신고·이용 기간 종료 시 자동 닫힘·noindex 기본) | 미배포 |
-| 2026-11-14 | `ai-work-workspace` | 큰 파일(4~50MB) Supabase Storage 저장(용량 확인·서명 올리기/내려받기·정리) | 미배포 |
+| 2026-11-14 | `ai-work-workspace` v1.38 | 큰 파일(4~50MB) Storage 저장 + 공개 페이지 1단계 + 키 그룹 상자·플랫폼별 모델 배포. ego 운영 확인: 10MB 올리기·내려받기, 게시 → 로그인 없이 보기 → 신고 → 내리기 뒤 404 통과. 백로그 표시 3줄 정정 | 빌드 1회 |
 | 2026-11-13 | `ai-work-workspace` v1.37 | 볼타 웹훅 실제 수신 수정 — 운영에서 버튼 없이 자동 「발급됨」·승인번호 기록 | 빌드 1회 |
 | 2026-11-13 | `ai-work-workspace` v1.36 | 볼타 웹훅·일정 리마인더 내 메일/카톡·공개 REST API /v1(운영 실제 호출 통과) + 미배포 3건, 개발 문서 전체 갱신 | 빌드 1회 |
 | 2026-11-13 | `ai-work-workspace` v1.35 | 세금계산서 볼타 바로 발급(회원 본인 키) — 운영에서 과세·면세 테스트 발급, 국세청 승인번호 기록 통과 | 빌드 1회 |

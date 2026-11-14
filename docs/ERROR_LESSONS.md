@@ -45,6 +45,7 @@
 - **증상**: v1.34를 배포하고 DB 버전도 맞췄는데 왼쪽 메뉴에는 v1.33. (v1.21 때도 같은 일)
 - **원인**: `src/lib/version.ts`만 올리고 원본 화면 상수 `src/litpage/web/features/shell/AimasterSidebar.tsx`의 `AIMASTER_APP_VERSION`을 빠뜨림. 배포 도구는 앞의 파일만 본다.
 - **해결·다음부터 확인**: 버전을 올릴 때 두 파일을 한 명령으로 함께 바꾸고 `grep "APP_VERSION ="`로 둘 다 확인(v1.35부터 적용). 근본 해결 후보: 메뉴가 `lib/version.ts`를 불러 쓰게 하기.
+- **2026-11-14 세 번째 재발(v1.38)과 근본 해결**: 같은 세션이 AGENTS.md의 「두 곳」 안내를 읽지 않고 `version.ts`만 올려 또 v1.37이 보임. → 메뉴 상수가 `src/lib/version.ts`의 `APP_VERSION`을 직접 불러 쓰게 바꿈(`9adffe5df`, 로컬 빌드 묶음에 옛 숫자가 남지 않음 확인). **교훈: 같은 실수가 두 번 나면 확인 습관이 아니라 값 하나로 합치는 코드로 막는다.** 다른 프로그램도 버전 숫자가 두 곳 이상이면 같은 방식으로.
 
 ## 2026-11-13 외부 문서의 서명 설명이 서로 달라 구현이 갈림 — 공식 SDK 소스로 확정 (팝빌 조사, [역할: workspace])
 - **증상**: 발급대행 API 문서의 설명 글은 「Content-MD5·SecretKey 그대로」, 같은 문서의 예시는 「SHA-256·SecretKey를 base64로 풀기」로 달랐음.

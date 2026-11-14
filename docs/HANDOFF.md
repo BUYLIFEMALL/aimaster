@@ -1,5 +1,13 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 KST ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.38 배포·운영 확인
+- 한 일: 미배포 묶음(키 화면 그룹 상자·AI 비서 플랫폼별 기본 모델·큰 파일 4~50MB Storage·공개 페이지 1단계) 배포 `ai-work-workspace-aq9aphpjs` Ready, DB `programs.version` v1.38, 버전 SQL·문서 커밋 `836a764e4`.
+- 운영 확인(ego, 관리자 계정): 10MB 파일 올리기 → 비공개 버킷 `workspace-files`(50MB 한도, 서버가 처음 쓸 때 자동 생성)에 저장 → 내려받기 서명 주소로 10,485,760바이트 일치. 페이지 게시 → 쿠키 없는 요청으로 보기(읽기 전용·복제 꺼짐·`noindex`)·첨부 파일 받기 → 「신고하기」 접수 → `/settings/public-pages`에서 「내리기」 → 방문자 요청 404. 시험 페이지 「[시험] v1.38 큰 파일 공개 페이지」는 관리자 내 페이지에 「내림」 상태로 남겨 둠.
+- 특이사항: 왼쪽 메뉴 버전이 v1.37로 남음(세 번째 재발) → 메뉴가 `src/lib/version.ts`를 불러 쓰게 근본 수정 `9adffe5df`(tsc·로컬 빌드·시험 155 통과, **미배포**). 파일 올리기 창 영어 문구 4개 발견 → 백로그. 백로그 표시 3줄(`94719d8da`·공개 페이지·큰 파일) 정정.
+- 남은 일: 메뉴 버전 수정 배포(다음 배포 때), 메인 사이트 담당께 `workspace-files` 버킷 중앙 정리 제외 요청(기존), 볼타 인증서 2026-12-13 만료 갱신.
+- 시험 명령: `npx vitest run --config tests/vitest.config.mjs`(155개).
+- 링크: https://ai-work-workspace.buylife.xyz
+
 ## 2026-11-14 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-photo`(주인님 지정 블로그 담당) — 이웃 v1.20 답방 글 읽기 409 원인 확정·수정(미배포)
 
 - 실패 = **offer 단계 · HTTP 409 · `BNC_RETURN_POST_REQUIRED`**: Vercel 요청 로그(12:28:58 KST 409), Supabase Postgres 로그(12:29:00 ERROR), 운영 DB 읽기 조회(허용·받은 함 정상, 답방 읽기 행 없음)로 확정. 확장이 이웃 글이 아니라 내 글 탭을 읽어 보낸 것이 원인.
