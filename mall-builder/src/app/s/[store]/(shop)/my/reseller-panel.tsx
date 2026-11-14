@@ -13,7 +13,7 @@ export default function ResellerPanel({ slug, link, s, ledger, payouts }: { slug
   return (
     <section id="reseller" className="mt-6 scroll-mt-4 rounded-lg border border-emerald-200 p-4 text-sm" data-reseller-panel>
       <h2 className="font-semibold">🤝 리셀러 <span className="ml-1 font-mono text-xs text-gray-500">{s.code} · 수수료 {Number(s.rate)}%</span>{!s.active && <span className="ml-2 rounded bg-gray-100 px-1.5 text-xs">쉬는 중</span>}</h2>
-      <p className="mt-1 text-xs text-gray-500">이 링크로 들어와 30일 안에 가입한 손님이 내 거래처로 연결되고, 그 손님 주문이 구매 확정되면 (결제 − 배송비) × {Number(s.rate)}%가 쌓입니다. 확정 뒤 반품되면 그만큼 빠집니다.</p>
+      <p className="mt-1 text-xs text-gray-500">내 링크로 들어온 손님이 30일 안에 주문하면 그 주문에 내 이름이 남습니다. 결제되면 상품마다 정해진 리워드(상품 리셀러율 + 내 추가율 {Number(s.rate)}%)가 「지급 예정」으로 쌓이고, 구매 확정되면 출금 가능 금액이 됩니다. 확정 전 취소·반품은 보류되어 운영자가 확인합니다. 링크로 가입한 손님도 내 거래처로 이어집니다.</p>
       <CopyLink url={link} />
       <div className="mt-3 grid grid-cols-2 gap-2 text-center sm:grid-cols-4" data-reseller-summary>
         <div className="rounded border p-2"><p className="text-xs text-gray-500">연결 손님</p><p className="font-semibold">{s.linked}명</p></div>

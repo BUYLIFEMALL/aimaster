@@ -29,7 +29,7 @@ export default async function AdminResellersPage({ params, searchParams }: { par
       {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {ok && <p className="mb-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg || "처리했습니다."}</p>}
       <h2 className="text-lg font-semibold">🤝 리셀러</h2>
-      <p className="mt-1 text-sm text-gray-600">회원이 리셀러 신청을 내면 아래에서 승인하거나, 손님 상세에서 바로 지정합니다. 리셀러 링크로 들어와 30일 안 가입한 손님이 연결되고, 그 손님 주문이 구매 확정되면 (결제 − 배송비) × 수수료율이 쌓입니다(확정 뒤 반품은 회수).</p>
+      <p className="mt-1 text-sm text-gray-600">회원이 리셀러 신청을 내면 아래에서 승인하거나, 손님 상세에서 바로 지정합니다. 리셀러 링크로 30일 안 들어온 주문에 리셀러가 기록되고, 결제되면 품목마다 (판매가 − 쿠폰 나눔) × (상품 리셀러율 + 리셀러 추가율)이 「지급 예정」 → 구매 확정 때 「지급 완료」(잔고 적립). 확정 전 취소·반품은 보류, 확정 뒤 반품은 직권 차감으로 처리합니다.</p>
 
       {/* M1-4(0071) 리셀러 신청 — 받기 켜기/끄기, 대기 신청 승인(추가 수수료율 선택)·반려 */}
       <section className="mt-4 rounded-lg border p-4 text-sm" data-reseller-applications>
