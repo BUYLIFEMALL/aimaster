@@ -9,7 +9,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { ApiError, type Ctx } from '@/litpage/server/api/handlers.ts';
 import { db } from '@/litpage/server/db.ts';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { boltaInternals, type BtState } from './bolta';
+import { boltaInternals, type AmendState, type BtState } from './bolta';
 import { boltaCauseText, verifyBoltaWebhook, BOLTA_WEBHOOK_PROVIDER } from './boltaCore';
 import type { HometaxDoc } from './receiptsCore';
 
@@ -47,6 +47,34 @@ export function boltaWebhookOwner(token: string): string | null {
   return r?.user_id ?? null;
 }
 
+/** 수정발행 알림 한 건 반영. 성공이면 승인번호를 회원 본인 키로 조회(못 하면 「요청됨」으로 두어 버튼으로 확인) */
+async function applyAmendWebhook(userId: string, docId: string, idx: number, a: AmendState, ik: string, kind: string, cause: { code?: unknown; message?: unknown } | undefined, now: number): Promise<string> {
+  if (a.state === 'issued' || a.state === 'failed') return 'amend_already';
+  const isCancel = a.cancel?.issuanceKey === ik;
+  if (kind === 'TAX_INVOICE_ISSUANCE_FAILURE') {
+    const why = boltaCauseText(cause);
+    boltaInternals.saveAmend(userId, docId, idx, isCancel
+      ? { ...a, cancel: { ...a.cancel!, state: 'failed', message: why }, state: 'failed', message: `취소분 발행 실패: ${why} — 수정분과 원본이 함께 유효할 수 있으니 두 번호로 볼타에 문의해 주세요.`, time: now }
+      : { ...a, state: 'failed', message: why, time: now });
+    return 'amend_failed';
+  }
+  let nts = '';
+  try {
+    const key = await boltaInternals.readKey(userId);
+    if (key) nts = String((await boltaInternals.call(key, 'GET', `/v1/taxInvoices/${encodeURIComponent(ik)}`))?.ntsTransactionId ?? '');
+  } catch {
+    /* 요청됨으로 남김 */
+  }
+  if (!nts) {
+    boltaInternals.saveAmend(userId, docId, idx, { ...a, state: 'requested', message: '발행 완료 알림을 받았습니다. 「수정발행 결과 확인」을 누르면 승인번호를 가져옵니다.' });
+    return 'amend_issued_pending_number';
+  }
+  const next: AmendState = isCancel ? { ...a, cancel: { ...a.cancel!, state: 'issued', ntsTransactionId: nts } } : { ...a, ntsTransactionId: nts };
+  const done = !!next.ntsTransactionId && (!next.cancel || next.cancel.state === 'issued');
+  boltaInternals.saveAmend(userId, docId, idx, done ? { ...next, state: 'issued', message: '발행 완료', time: now } : { ...next, state: 'requested', message: '한 장은 발행됐고 나머지 한 장을 기다리는 중입니다.' });
+  return done ? 'amend_issued' : 'amend_half';
+}
+
 /**
  * 웹훅 한 건 처리. 돌려주는 status = HTTP 상태(볼타는 2xx가 아니면 최대 8번 다시 보낸다):
  * 400 = 서명 키 없음·서명 불일치(아무것도 바꾸지 않음), 200 = 그 밖(중복·모르는 문서 포함).
@@ -77,10 +105,16 @@ export async function handleBoltaWebhook(userId: string, headers: { id?: string 
   // ② 실제 알림이 요청 후 3초 만에 와서, 우리가 접수 번호를 저장하기 전이면 「모르는 문서」가 됨 → 아직 보내는 중인 문서가 있으면
   //    처리 표시를 남기지 않고 409로 답해 볼타가 다시 보내게 한다(볼타는 2xx가 아니면 1분 뒤부터 다시 보냄)
   const rows = db.prepare("SELECT id, data FROM aww_rcpt_docs WHERE user_id = ? AND kind = 'tax_invoice' AND data LIKE '%\"bolta\"%'").all(userId) as { id: string; data: string }[];
-  const docs = rows.map((r) => ({ id: r.id, data: JSON.parse(r.data) as HometaxDoc & { bolta?: BtState } }));
+  const docs = rows.map((r) => ({ id: r.id, data: JSON.parse(r.data) as HometaxDoc & { bolta?: BtState; boltaAmends?: AmendState[] } }));
+  // 2026-11-15 수정발행: 수정분(issuanceKey)·취소분(cancel.issuanceKey) 알림은 그 수정 기록에 반영
+  for (const d of docs) {
+    const idx = (d.data.boltaAmends ?? []).findIndex((a) => a.issuanceKey === issuanceKey || a.cancel?.issuanceKey === issuanceKey);
+    if (idx >= 0) return seen(await applyAmendWebhook(userId, d.id, idx, d.data.boltaAmends![idx], issuanceKey, kind, ev.data?.cause, now));
+  }
   const hit = docs.find((r) => r.data.bolta?.issuanceKey === issuanceKey);
   if (!hit?.data.bolta) {
-    const pending = docs.some((r) => r.data.bolta && (r.data.bolta.state === 'sending' || (r.data.bolta.state === 'requested' && !r.data.bolta.issuanceKey)) && now - r.data.bolta.time < 10 * 60_000);
+    const pending = docs.some((r) => (r.data.bolta && (r.data.bolta.state === 'sending' || (r.data.bolta.state === 'requested' && !r.data.bolta.issuanceKey)) && now - r.data.bolta.time < 10 * 60_000)
+      || (r.data.boltaAmends ?? []).some((a) => a.state === 'sending' && now - a.time < 10 * 60_000));
     return pending ? { status: 409, result: 'unknown_doc_retry' } : seen('unknown_doc');
   }
   const bt = hit.data.bolta;

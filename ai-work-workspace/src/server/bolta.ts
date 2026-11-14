@@ -13,7 +13,7 @@ import { db } from '@/litpage/server/db.ts';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { ensureReceiptTables } from './receipts';
 import type { BizInfo, HometaxDoc } from './receiptsCore';
-import { boltaAuth, boltaErrorText, boltaInvoice, boltaModeOf, newClientRef, BOLTA_API, BOLTA_KEY_PROVIDER, type BoltaMode } from './boltaCore';
+import { boltaAmendBody, boltaAuth, boltaErrorText, boltaInvoice, boltaModeOf, isAmendReason, newClientRef, BOLTA_API, BOLTA_KEY_PROVIDER, type AmendReason, type BoltaMode } from './boltaCore';
 
 type Handler = (ctx: Ctx, body: any) => any | Promise<any>;
 type Fetch = typeof fetch;
@@ -54,6 +54,7 @@ export const boltaInternals = {
   readKey: (userId: string) => readKey(userId),
   call: (key: string, method: string, path: string) => call(key, method, path),
   saveDocState: (userId: string, docId: string, data: object, bt: BtState) => saveDocState(userId, docId, data, bt),
+  saveAmend: (userId: string, docId: string, idx: number, a: AmendState) => saveAmend(userId, docId, idx, a), // 2026-11-15 수정발행 웹훅
 };
 export type { BtState };
 const liveAgreed = (userId: string) => !!(db.prepare('SELECT live_agreed_time FROM aww_bolta WHERE user_id = ?').get(userId) as { live_agreed_time: number | null } | undefined)?.live_agreed_time;
@@ -123,6 +124,86 @@ function saveDocState(userId: string, docId: string, data: object, bt: BtState) 
   const now = cur ? (JSON.parse(cur.data) as { bolta?: BtState }).bolta : undefined;
   if (now && now.ref === bt.ref && (now.state === 'issued' || now.state === 'failed') && (bt.state === 'sending' || bt.state === 'requested')) return;
   db.prepare('UPDATE aww_rcpt_docs SET data = ? WHERE id = ? AND user_id = ?').run(JSON.stringify({ ...data, bolta: bt }), docId, userId);
+}
+
+// ---------------------------------------------------------------- 수정발행(2026-11-15, 플랜 docs/PLAN_20261115_BOLTA_AMEND.md)
+// 원본 문서의 boltaAmends 목록에 한 건씩 쌓는다(원본 발행 기록 bolta는 그대로). 결과를 기다리는 수정발행은 문서마다 한 번에 하나.
+// 정발행과 같은 이중 발급 방지: 보내기 전에 요청 번호·본문을 저장 → 응답을 못 받으면 같은 번호로 접수 여부부터 조회, 기록이 없을 때만 같은 번호로 다시 보낸다.
+// 기재사항 착오정정은 두 장(수정분 issuanceKey + 취소분 cancelIssuanceKey) — 두 장 모두 발행돼야 「발급됨」.
+interface AmendPart { issuanceKey: string; state: 'requested' | 'issued' | 'failed'; ntsTransactionId?: string; message?: string }
+interface AmendState {
+  ref: string; mode: BoltaMode; reason: AmendReason; state: 'sending' | 'requested' | 'issued' | 'failed'; time: number; amount: number;
+  body: Record<string, unknown> | null; issuanceKey?: string; ntsTransactionId?: string; message?: string; cancel?: AmendPart;
+}
+type TaxDocData = HometaxDoc & { bolta?: BtState; boltaAmends?: AmendState[] };
+export type { AmendState };
+
+function readTaxDoc(userId: string, docId: string): TaxDocData | null {
+  const row = db.prepare("SELECT data FROM aww_rcpt_docs WHERE id = ? AND user_id = ? AND kind = 'tax_invoice'").get(docId, userId) as { data: string } | undefined;
+  return row ? (JSON.parse(row.data) as TaxDocData) : null;
+}
+/** 수정발행 한 건을 고친다(늘 최신 문서를 다시 읽음). 웹훅이 먼저 끝낸(발급됨·실패) 건을 옛 상태로 되돌리지 않는다 */
+function saveAmend(userId: string, docId: string, idx: number, next: AmendState) {
+  const data = readTaxDoc(userId, docId);
+  if (!data) return;
+  const list = [...(data.boltaAmends ?? [])];
+  const cur = list[idx];
+  if (cur && cur.ref === next.ref && (cur.state === 'issued' || cur.state === 'failed') && (next.state === 'sending' || next.state === 'requested')) return;
+  list[idx] = next;
+  db.prepare('UPDATE aww_rcpt_docs SET data = ? WHERE id = ? AND user_id = ?').run(JSON.stringify({ ...data, boltaAmends: list }), docId, userId);
+}
+
+const AMEND_PATH: Record<AmendReason, string> = { termination: 'termination', doubleIssuance: 'doubleIssuance', changeSupplyCost: 'changeSupplyCost', return: 'return', misspell: 'misspell' };
+
+/** 접수된 수정발행의 결과 확인(수정분·취소분 각각 승인번호) */
+async function checkAmend(key: string, userId: string, docId: string, idx: number, a: AmendState): Promise<AmendState> {
+  const nts = async (ik: string) => {
+    try {
+      const r = await call(key, 'GET', `/v1/taxInvoices/${encodeURIComponent(ik)}`);
+      return typeof r?.ntsTransactionId === 'string' && r.ntsTransactionId ? r.ntsTransactionId : '';
+    } catch (e) {
+      if (e instanceof BoltaError && e.status === 401) throw e;
+      return '';
+    }
+  };
+  let next: AmendState = { ...a };
+  if (a.issuanceKey && !a.ntsTransactionId) {
+    const n = await nts(a.issuanceKey);
+    if (n) next = { ...next, ntsTransactionId: n };
+  }
+  if (a.cancel && a.cancel.state !== 'issued' && a.cancel.state !== 'failed') {
+    const n = await nts(a.cancel.issuanceKey);
+    if (n) next = { ...next, cancel: { ...a.cancel, state: 'issued', ntsTransactionId: n } };
+  }
+  const done = !!next.ntsTransactionId && (!next.cancel || next.cancel.state === 'issued');
+  if (done) next = { ...next, state: 'issued', message: '발행 완료', time: Date.now() };
+  else {
+    const status = await call(key, 'GET', `/v1/taxInvoices/issue/status?clientReferenceId=${encodeURIComponent(a.ref)}`).then((r) => (typeof r?.message === 'string' ? r.message.trim().slice(0, 200) : '')).catch(() => '');
+    const half = next.ntsTransactionId && next.cancel ? '수정분은 발행됐고 취소분을 기다리는 중입니다. ' : '';
+    next = { ...next, state: 'requested', message: `${half}${status || (a.mode === 'live' ? '국세청 처리 중입니다(보통 10분 안팎).' : '볼타가 처리 중입니다(테스트는 10~30초).')}` };
+  }
+  saveAmend(userId, docId, idx, next);
+  return next;
+}
+
+/** 수정발행 보내기(접수 번호를 받으면 바로 결과도 한 번 확인) */
+async function sendAmend(key: string, userId: string, docId: string, idx: number, a: AmendState, origKey: string): Promise<AmendState> {
+  try {
+    const r = await call(key, 'POST', `/v1/taxInvoices/${encodeURIComponent(origKey)}/amend/${AMEND_PATH[a.reason]}`, { body: a.body ?? undefined, ref: a.ref });
+    if (typeof r?.issuanceKey !== 'string') throw new BoltaError(502, '', '볼타가 접수 번호를 돌려주지 않았습니다.', true);
+    const accepted: AmendState = {
+      ...a, state: 'requested', issuanceKey: r.issuanceKey, time: Date.now(),
+      cancel: typeof r?.cancelIssuanceKey === 'string' && r.cancelIssuanceKey ? { issuanceKey: r.cancelIssuanceKey, state: 'requested' } : undefined,
+    };
+    saveAmend(userId, docId, idx, accepted);
+    return await checkAmend(key, userId, docId, idx, accepted);
+  } catch (e) {
+    if (e instanceof BoltaError && !e.uncertain) {
+      saveAmend(userId, docId, idx, { ...a, state: 'failed', message: e.message, time: Date.now() });
+      throw new ApiError(`수정발행하지 못했습니다: ${e.message}`, 400);
+    }
+    throw new ApiError('볼타 응답을 받지 못했습니다. 수정발행이 접수됐는지 확실하지 않아 자동으로 다시 보내지 않습니다. 잠시 뒤 「수정발행 결과 확인」을 누르면 접수 여부부터 확인합니다.', 502);
+  }
 }
 
 export const boltaHandlers: Record<string, Handler> = {
@@ -253,6 +334,96 @@ export const boltaHandlers: Record<string, Handler> = {
         }
         throw new ApiError('볼타 응답을 받지 못했습니다. 발급 요청이 접수됐는지 확실하지 않아 자동으로 다시 보내지 않습니다. 잠시 뒤 다시 누르면 접수 여부부터 확인합니다.', 502);
       }
+    } catch (e) {
+      return asApi(e);
+    }
+  },
+
+  /** 수정발행 보내기 — 볼타로 발급을 마친 세금계산서만. body: { id, reason, date?, lines?, doc? } */
+  async btAmend(ctx, body) {
+    const userId = uid(ctx);
+    ensureTable();
+    const docId = String(body?.id ?? '');
+    const data = readTaxDoc(userId, docId);
+    if (!data) throw new ApiError('세금계산서를 찾지 못했습니다.', 404);
+    if (!isAmendReason(body?.reason)) throw new ApiError('수정 사유를 골라 주세요.', 400);
+    const reason: AmendReason = body.reason;
+    const orig = data.bolta;
+    if (orig?.state !== 'issued' || !orig.issuanceKey) throw new ApiError('볼타로 발급을 마친 세금계산서만 수정발행할 수 있습니다.', 400);
+    const { key, mode } = await keyOrThrow(userId);
+    if (mode !== orig.mode) throw new ApiError(`이 세금계산서는 ${orig.mode === 'live' ? '실제(live_)' : '테스트(test_)'} 키로 발급했습니다. 같은 종류의 키로만 수정발행할 수 있습니다.`, 400);
+    if (mode === 'live' && !liveAgreed(userId)) throw new ApiError('실제 발급 키(live_)입니다. 「볼타로 바로 발급」 칸에서 실제 발급 동의를 먼저 해 주세요.', 400);
+    const list = data.boltaAmends ?? [];
+    if (list.some((a) => a.state === 'sending' || a.state === 'requested')) throw new ApiError('결과를 기다리는 수정발행이 있습니다. 먼저 「수정발행 결과 확인」을 눌러 주세요.', 400);
+    const { body: amendBody, amount, problems } = boltaAmendBody(reason, data, { date: body?.date, lines: body?.lines, doc: body?.doc }, profileOf(userId));
+    if (problems.length) throw new ApiError(`수정발행할 수 없습니다. ${problems.join(' ')}`, 400);
+    const a: AmendState = { ref: newClientRef(), mode, reason, state: 'sending', time: Date.now(), amount, body: amendBody };
+    const idx = list.length;
+    saveAmend(userId, docId, idx, a); // 보내기 전에 요청 번호·본문을 먼저 저장
+    try {
+      const r = await sendAmend(key, userId, docId, idx, a, orig.issuanceKey);
+      return { state: r.state, ntsTransactionId: r.ntsTransactionId ?? null, cancelNts: r.cancel?.ntsTransactionId ?? null, mode, amount, message: r.message };
+    } catch (e) {
+      return asApi(e);
+    }
+  },
+
+  /** 결과를 기다리는 수정발행 확인(응답을 못 받은 건은 같은 요청 번호로 접수 여부부터 조회) */
+  async btAmendCheck(ctx, body) {
+    const userId = uid(ctx);
+    ensureTable();
+    const docId = String(body?.id ?? '');
+    const data = readTaxDoc(userId, docId);
+    if (!data) throw new ApiError('세금계산서를 찾지 못했습니다.', 404);
+    const list = data.boltaAmends ?? [];
+    const idx = list.findIndex((a) => a.state === 'sending' || a.state === 'requested');
+    if (idx < 0) return { state: list.at(-1)?.state ?? null, message: '결과를 기다리는 수정발행이 없습니다.' };
+    const a = list[idx];
+    const { key, mode } = await keyOrThrow(userId);
+    if (mode !== a.mode) throw new ApiError('수정발행할 때와 다른 종류의 볼타 키입니다. 같은 키로 확인해 주세요.', 400);
+    try {
+      if (a.state === 'requested') {
+        const r = await checkAmend(key, userId, docId, idx, a);
+        return { state: r.state, ntsTransactionId: r.ntsTransactionId ?? null, cancelNts: r.cancel?.ntsTransactionId ?? null, mode, message: r.message };
+      }
+      // 보내는 중(응답 못 받음) → 접수 기록부터
+      try {
+        const s = await call(key, 'GET', `/v1/taxInvoices/issue/status?clientReferenceId=${encodeURIComponent(a.ref)}`);
+        if (typeof s?.issuanceKey === 'string' && s.issuanceKey) {
+          const got: AmendState = { ...a, state: 'requested', issuanceKey: s.issuanceKey, time: Date.now(),
+            cancel: typeof s?.cancelIssuanceKey === 'string' && s.cancelIssuanceKey ? { issuanceKey: s.cancelIssuanceKey, state: 'requested' } : a.cancel };
+          const r = await checkAmend(key, userId, docId, idx, got);
+          return { state: r.state, ntsTransactionId: r.ntsTransactionId ?? null, cancelNts: r.cancel?.ntsTransactionId ?? null, mode, message: r.message };
+        }
+      } catch (e) {
+        if (!(e instanceof BoltaError && e.status === 400)) throw e; // 400 = 접수 기록 없음 → 같은 번호·같은 본문으로 다시 보낸다
+      }
+      if (mode === 'live' && !liveAgreed(userId)) throw new ApiError('실제 발급 동의가 풀려 있어 다시 보내지 않았습니다.', 400);
+      const r = await sendAmend(key, userId, docId, idx, a, data.bolta!.issuanceKey!);
+      return { state: r.state, ntsTransactionId: r.ntsTransactionId ?? null, cancelNts: r.cancel?.ntsTransactionId ?? null, mode, message: r.message };
+    } catch (e) {
+      return asApi(e);
+    }
+  },
+
+  /** 발급을 마친 세금계산서(원본·수정분·취소분)의 PDF 내려받기 주소. 포인트 차감 없음. 준비 중이면 pending */
+  async btPdf(ctx, body) {
+    const userId = uid(ctx);
+    ensureTable();
+    const data = readTaxDoc(userId, String(body?.id ?? ''));
+    if (!data) throw new ApiError('세금계산서를 찾지 못했습니다.', 404);
+    const want = String(body?.issuanceKey ?? data.bolta?.issuanceKey ?? '');
+    // 이 문서의 발행 번호만 허용(다른 문서·다른 회원 번호로 조회 금지)
+    const issued = [
+      data.bolta?.state === 'issued' ? data.bolta.issuanceKey : undefined,
+      ...(data.boltaAmends ?? []).flatMap((a) => [a.ntsTransactionId ? a.issuanceKey : undefined, a.cancel?.state === 'issued' ? a.cancel.issuanceKey : undefined]),
+    ].filter((k): k is string => !!k);
+    if (!want || !issued.includes(want)) throw new ApiError('발급을 마친 세금계산서만 PDF를 받을 수 있습니다.', 400);
+    const { key } = await keyOrThrow(userId);
+    try {
+      const r = await call(key, 'GET', `/v1/taxInvoices/${encodeURIComponent(want)}/pdf`);
+      if (r?.status === 'READY' && typeof r.downloadUrl === 'string') return { ready: true, url: r.downloadUrl, filename: typeof r.filename === 'string' ? r.filename : null };
+      return { ready: false, message: 'PDF를 만드는 중입니다. 몇 초 뒤 다시 눌러 주세요.' };
     } catch (e) {
       return asApi(e);
     }

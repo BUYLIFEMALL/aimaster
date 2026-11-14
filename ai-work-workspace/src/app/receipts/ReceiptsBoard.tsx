@@ -1,8 +1,9 @@
 "use client";
 // 🧾 영수증·세금계산서 화면(2026-11-11). 명령: /api/rpc/rcpt*(src/server/receipts.ts). 플랜 docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md §6
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
 import { BoltaPanel } from "./BoltaPanel"; // 2026-11-13: 볼타로 바로 발급(회원 본인 키)
+import { AmendPanel } from "./AmendPanel"; // 2026-11-15: 볼타 수정발행
 
 type EvidenceKind = "receipt" | "tax_invoice" | "cash_receipt" | "card" | "other";
 const EVIDENCE_KINDS: Record<EvidenceKind, string> = { receipt: "영수증", tax_invoice: "세금계산서", cash_receipt: "현금영수증", card: "카드전표", other: "기타" };
@@ -14,7 +15,11 @@ interface Biz { id?: string; bizNo: string; name: string; ceo: string; address: 
 interface Item { id?: string; name: string; spec: string; unitPrice: number }
 interface Evidence { id?: string; kind: EvidenceKind; date: string; vendor: string; bizNo: string; supply: number; vat: number; total: number; payment: string; memo: string }
 interface Line { name: string; spec: string; qty: number; unitPrice: number; supply?: number; tax?: number }
-interface Doc { id: string; kind: DocKind; date: string; partner: Biz; lines: (Line & { supply: number; tax: number })[]; supply: number; tax: number; total: number; taxMode: TaxMode; purpose: string; memo: string; createdTime: number; bolta?: { mode: "test" | "live"; state: "sending" | "requested" | "issued" | "failed"; ntsTransactionId?: string; message?: string } }
+type BtStep = "sending" | "requested" | "issued" | "failed";
+// 2026-11-15 수정발행 기록(서버 src/server/bolta.ts AmendState)
+interface Amend { reason: keyof typeof AMEND_LABEL; state: BtStep; amount: number; time: number; issuanceKey?: string; ntsTransactionId?: string; message?: string; cancel?: { issuanceKey: string; state: "requested" | "issued" | "failed"; ntsTransactionId?: string } }
+const AMEND_LABEL = { termination: "계약의 해제", doubleIssuance: "착오에 의한 이중발급", changeSupplyCost: "공급가액 변동", return: "환입(반품)", misspell: "기재사항 착오정정" } as const;
+interface Doc { id: string; kind: DocKind; date: string; partner: Biz; lines: (Line & { supply: number; tax: number })[]; supply: number; tax: number; total: number; taxMode: TaxMode; purpose: string; memo: string; createdTime: number; bolta?: { mode: "test" | "live"; state: BtStep; issuanceKey?: string; ntsTransactionId?: string; message?: string }; boltaAmends?: Amend[] }
 interface State { profile: Biz | null; partners: Biz[]; items: Item[]; docs: Doc[]; month: string; evidence: Evidence[]; summary: { count: number; supply: number; vat: number; total: number }; retentionDays: number }
 interface Pending { key: string; name: string; status: "reading" | "ready" | "error"; error?: string; ev?: Evidence }
 
@@ -352,6 +357,39 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
     }
   };
 
+  // 수정발행·PDF(2026-11-15): 발급을 마친 세금계산서만. 결과를 기다리는 수정발행은 같은 줄의 버튼으로 확인
+  const [amending, setAmending] = useState<string | null>(null);
+  const checkAmend = async (d: Doc) => {
+    setIssuing(d.id);
+    try {
+      const r = await rpc<{ state: string; ntsTransactionId?: string | null; cancelNts?: string | null; message?: string }>("btAmendCheck", { id: d.id });
+      notify({ text: r.state === "issued" ? `수정발행 완료${r.ntsTransactionId ? ` · 승인번호 ${r.ntsTransactionId}` : ""}${r.cancelNts ? ` · 취소분 ${r.cancelNts}` : ""}` : r.message ?? "수정발행을 처리 중입니다." });
+    } catch (e) {
+      notify({ text: (e as Error).message, error: true });
+    } finally {
+      setIssuing(null);
+      reload();
+    }
+  };
+  const openPdf = async (d: Doc, issuanceKey?: string) => {
+    const w = window.open("", "_blank"); // 팝업 차단을 피하려고 누른 순간 창부터 연다
+    if (w) w.opener = null;
+    try {
+      const r = await rpc<{ ready: boolean; url?: string; message?: string }>("btPdf", { id: d.id, issuanceKey });
+      if (r.ready && r.url) {
+        if (w) w.location.href = r.url;
+        else window.location.href = r.url;
+      } else {
+        w?.close();
+        notify({ text: r.message ?? "PDF를 만드는 중입니다. 잠시 뒤 다시 눌러 주세요." });
+      }
+    } catch (e) {
+      w?.close();
+      notify({ text: (e as Error).message, error: true });
+    }
+  };
+  const amendPending = (d: Doc) => (d.boltaAmends ?? []).some((a) => a.state === "sending" || a.state === "requested");
+
   const del = async (id: string) => {
     if (!confirm("이 문서를 지울까요?")) return;
     try {
@@ -436,11 +474,29 @@ function IssueTab({ state, reload, notify, print, goInfo }: { state: State; relo
             <thead><tr><th aria-label="홈택스 엑셀에 넣기">🧾</th><th>작성일자</th><th>문서</th><th>거래처</th><th className="num">합계</th><th></th></tr></thead>
             <tbody>
               {state.docs.map((d) => (
-                <tr key={d.id}>
+                <Fragment key={d.id}>
+                <tr>
                   <td>{d.kind === "tax_invoice" ? <input type="checkbox" checked={picked.has(d.id)} onChange={() => togglePick(d.id)} aria-label={`${d.partner?.name ?? ""} 세금계산서 고르기`} /> : null}</td>
                   <td>{d.date}</td><td>{DOC_KINDS[d.kind]}</td><td>{d.partner?.name}</td><td className="num">{won(d.total)}</td>
-                  <td className="rc-actions">{d.kind === "tax_invoice" && (d.bolta?.state === "issued" ? <span className="rc-hint" title={d.bolta.ntsTransactionId ?? ""}>✅ 볼타 {d.bolta.mode === "live" ? "발급됨" : "테스트 발급됨"}</span> : <button type="button" className="rc-btn ghost" disabled={issuing === d.id} title={d.bolta?.message || undefined} onClick={() => void issueBolta(d)}>{issuing === d.id ? "처리 중…" : d.bolta?.state === "requested" ? "🔄 발급 결과 확인" : d.bolta?.state === "sending" ? "📤 접수 확인" : "📤 볼타 발급"}</button>)}{d.kind === "tax_invoice" && d.bolta && d.bolta.state !== "issued" && d.bolta.message ? <span className="rc-hint"> {d.bolta.state === "failed" ? "⚠️" : "⏳"} {d.bolta.message}</span> : null}<button type="button" className="rc-btn ghost" onClick={() => print(d)}>🖨️ 인쇄</button><button type="button" className="rc-x" onClick={() => void del(d.id)} aria-label="지우기">🗑</button></td>
+                  <td className="rc-actions">{d.kind === "tax_invoice" && (d.bolta?.state === "issued" ? <><span className="rc-hint" title={d.bolta.ntsTransactionId ?? ""}>✅ 볼타 {d.bolta.mode === "live" ? "발급됨" : "테스트 발급됨"}</span><button type="button" className="rc-btn ghost" onClick={() => void openPdf(d)}>📄 PDF</button>{amendPending(d) ? <button type="button" className="rc-btn ghost" disabled={issuing === d.id} onClick={() => void checkAmend(d)}>{issuing === d.id ? "확인 중…" : "🔄 수정발행 결과 확인"}</button> : <button type="button" className="rc-btn ghost" onClick={() => setAmending(amending === d.id ? null : d.id)}>✏️ 수정발행</button>}</> : <button type="button" className="rc-btn ghost" disabled={issuing === d.id} title={d.bolta?.message || undefined} onClick={() => void issueBolta(d)}>{issuing === d.id ? "처리 중…" : d.bolta?.state === "requested" ? "🔄 발급 결과 확인" : d.bolta?.state === "sending" ? "📤 접수 확인" : "📤 볼타 발급"}</button>)}{d.kind === "tax_invoice" && d.bolta && d.bolta.state !== "issued" && d.bolta.message ? <span className="rc-hint"> {d.bolta.state === "failed" ? "⚠️" : "⏳"} {d.bolta.message}</span> : null}<button type="button" className="rc-btn ghost" onClick={() => print(d)}>🖨️ 인쇄</button><button type="button" className="rc-x" onClick={() => void del(d.id)} aria-label="지우기">🗑</button></td>
                 </tr>
+                {(d.boltaAmends ?? []).length > 0 && (
+                  <tr className="rc-amend-history"><td></td><td colSpan={5}>
+                    {d.boltaAmends!.map((a, i) => (
+                      <div key={i} className="rc-amend-row">
+                        <span>✏️ {AMEND_LABEL[a.reason] ?? a.reason}</span>
+                        <span className={a.amount < 0 ? "neg" : ""}>{won(a.amount)}</span>
+                        <span>{a.state === "issued" ? `✅ 발행 완료${a.ntsTransactionId ? ` · 승인번호 ${a.ntsTransactionId}` : ""}${a.cancel?.ntsTransactionId ? ` · 취소분 ${a.cancel.ntsTransactionId}` : ""}` : a.state === "failed" ? `⚠️ ${a.message ?? "실패"}` : `⏳ ${a.message ?? "처리 중"}`}</span>
+                        {a.ntsTransactionId && a.issuanceKey && <button type="button" className="rc-link" onClick={() => void openPdf(d, a.issuanceKey)}>📄 {a.cancel ? "수정분 " : ""}PDF</button>}
+                        {a.cancel?.state === "issued" && <button type="button" className="rc-link" onClick={() => void openPdf(d, a.cancel!.issuanceKey)}>📄 취소분 PDF</button>}
+                      </div>
+                    ))}
+                  </td></tr>
+                )}
+                {amending === d.id && d.bolta?.state === "issued" && (
+                  <tr className="rc-amend-panel-row"><td colSpan={6}><AmendPanel doc={d} notify={notify} onDone={reload} onClose={() => setAmending(null)} /></td></tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>

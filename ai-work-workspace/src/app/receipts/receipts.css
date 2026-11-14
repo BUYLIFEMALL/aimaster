@@ -79,3 +79,18 @@
 .cs-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.6; }
 .cs-url input, .cs-steps input { flex: 1; min-width: 200px; }
 @media (max-width: 900px) { .cs-grid { grid-template-columns: 1fr; } }
+
+/* 2026-11-15 볼타 수정발행(AmendPanel.tsx) */
+.rc-amend { display: flex; flex-direction: column; gap: 10px; background: var(--lp-bg-primary); }
+.rc-chip.live { background: color-mix(in srgb, #ef4444 16%, transparent); color: #b91c1c; }
+.rc-amend-reasons { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.rc-amend-reason { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--lp-border-primary); cursor: pointer; }
+.rc-amend-reason.on { border-color: #4f46e5; background: color-mix(in srgb, #4f46e5 8%, transparent); }
+.rc-amend-reason span { display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; }
+.rc-amend-reason small { font-size: 12px; color: var(--lp-text-tertiary); line-height: 1.5; }
+.rc-amend-date { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--lp-text-secondary); max-width: 240px; }
+.rc-amend-history td { padding-top: 0; }
+.rc-amend-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 12.5px; color: var(--lp-text-secondary); padding: 2px 0; }
+.rc-amend-panel-row > td { padding: 8px 0 14px; }
+.rc .neg { color: #dc2626; }
+@media (max-width: 767px) { .rc-amend-reasons { grid-template-columns: 1fr; } }

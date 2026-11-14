@@ -3,7 +3,7 @@
 // 출처(공식 문서 docs.bolta.io): 인증 = HTTP Basic(API 키 + ":" → base64), 키 앞부분 test_/live_로 환경 구분(authentication.md),
 // 정발행 POST https://xapi.bolta.io/v1/taxInvoices/issue 본문(issue-tax-invoice.md), 품목 1~16개, 중복 방지 헤더 Bolta-Client-Reference-Id.
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { cutBytes, isValidBizNo, type BizInfo, type HometaxDoc } from './receiptsCore';
+import { cleanBiz, cleanLines, cutBytes, docTotals, isValidBizNo, type BizInfo, type HometaxDoc } from './receiptsCore';
 
 export const BOLTA_KEY_PROVIDER = 'bolta_api_key';
 export const BOLTA_API = 'https://xapi.bolta.io';
@@ -82,6 +82,117 @@ export function boltaInvoice(me: BizInfo | null, d: HometaxDoc): { body: Record<
     description: opt(d.memo, 150),
   };
   return { body, problems };
+}
+
+// ---------------------------------------------------------------- 수정발행(2026-11-15, 플랜 docs/PLAN_20261115_BOLTA_AMEND.md)
+// 출처: docs.bolta.io/docs/api-introduction/amendment-guide.md, openapi.yaml(/v1/taxInvoices/{issuanceKey}/amend/*).
+// 국세청에 나간 세금계산서는 지울 수 없어 「발급 취소」도 수정발행(계약의 해제·착오에 의한 이중발급)이다.
+export type AmendReason = 'termination' | 'doubleIssuance' | 'changeSupplyCost' | 'return' | 'misspell';
+export const AMEND_REASONS: Record<AmendReason, string> = {
+  termination: '계약의 해제',
+  doubleIssuance: '착오에 의한 이중발급',
+  changeSupplyCost: '공급가액 변동',
+  return: '환입(반품)',
+  misspell: '기재사항 착오정정',
+};
+export const isAmendReason = (v: unknown): v is AmendReason => typeof v === 'string' && v in AMEND_REASONS;
+export interface AmendLine { name: string; spec?: string; qty?: number; unitPrice?: number; supply: number; tax?: number | null }
+export interface AmendInput { date?: string; lines?: AmendLine[]; doc?: Partial<HometaxDoc> }
+
+const kstToday = (now: number) => new Date(now + 9 * 3_600_000).toISOString().slice(0, 10);
+const isDate = (v: unknown): v is string => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v));
+const taxFreeOf = (d: Pick<HometaxDoc, 'taxMode'>) => d.taxMode === 'none';
+
+/** 원본 세금계산서 + 사유 + 입력 → 볼타 수정발행 본문(이중발급은 본문 없음 = null). amount = 이번 수정으로 바뀌는 합계(공급가액 + 세액, 음수 가능) */
+export function boltaAmendBody(
+  reason: AmendReason,
+  orig: HometaxDoc,
+  input: AmendInput,
+  me: BizInfo | null,
+  now = Date.now(),
+): { body: Record<string, unknown> | null; amount: number; problems: string[] } {
+  const problems: string[] = [];
+  const origTotal = int(orig.supply) + int(orig.tax);
+  const taxFree = taxFreeOf(orig);
+  const today = kstToday(now);
+  const needDate = (label: string) => {
+    if (!isDate(input.date)) problems.push(`${label}를 입력해 주세요.`);
+    else if (input.date > today && reason !== 'changeSupplyCost') problems.push(`${label}는 오늘이나 이전 날짜여야 합니다.`);
+  };
+  const lines = (input.lines ?? []).filter((l) => l && (String(l.name ?? '').trim() || int(l.supply) !== 0));
+  const linesOk = () => {
+    if (!lines.length) problems.push('품목을 1줄 이상 입력해 주세요.');
+    if (lines.length > BOLTA_MAX_ITEMS) problems.push(`품목은 ${BOLTA_MAX_ITEMS}줄까지입니다.`);
+    if (lines.some((l) => !String(l.name ?? '').trim())) problems.push('품목 이름이 비어 있는 줄이 있습니다.');
+    if (lines.some((l) => int(l.supply) === 0)) problems.push('공급가액이 0원인 줄이 있습니다.');
+  };
+  // 세액: 과세면 입력값(없으면 공급가액의 10% — 문서 저장 때와 같이 내림, 마이너스는 절댓값을 내림), 면세면 null
+  const tenth = (s: number) => Math.sign(s) * Math.floor(Math.abs(s) * 0.1);
+  const taxOf = (l: AmendLine) => (taxFree ? null : l.tax === undefined || l.tax === null || String(l.tax) === '' || Number.isNaN(Number(l.tax)) ? tenth(int(l.supply)) : int(l.tax));
+  const toItems = (date: string) => lines.map((l) => {
+    const q = Number(l.qty);
+    return {
+      date,
+      name: cutBytes(l.name, 100),
+      specification: opt(l.spec, 60),
+      quantity: q ? q : undefined,
+      unitPrice: Number(l.unitPrice) ? Number(l.unitPrice) : undefined,
+      supplyCost: int(l.supply),
+      tax: taxOf(l),
+    };
+  });
+  const sum = (items: { supplyCost: number; tax: number | null }[]) => items.reduce((s, i) => s + i.supplyCost + (i.tax ?? 0), 0);
+
+  switch (reason) {
+    case 'termination': {
+      needDate('계약 해제일(작성일자)');
+      if ((orig.lines ?? []).some((l) => int(l.supply) < 0)) problems.push('공급가액이 마이너스인 품목이 있는 세금계산서는 계약의 해제로 고칠 수 없습니다.');
+      return problems.length ? { body: null, amount: 0, problems } : { body: { date: input.date }, amount: -origTotal, problems };
+    }
+    case 'doubleIssuance':
+      return { body: null, amount: -origTotal, problems };
+    case 'changeSupplyCost': {
+      needDate('변동일(작성일자)');
+      linesOk();
+      if (problems.length) return { body: null, amount: 0, problems };
+      const items = toItems(input.date!);
+      return { body: { date: input.date, taxType: taxFree ? 'TAX_FREE' : 'TAXABLE', items }, amount: sum(items), problems };
+    }
+    case 'return': {
+      needDate('환입일');
+      linesOk();
+      if (!problems.length && lines.reduce((s, l) => s + int(l.supply), 0) >= 0) problems.push('환입은 돌려받은 금액이라 공급가액 합계가 마이너스여야 합니다(예: -20000).');
+      if (lines.some((l) => Number(l.qty) === 0 && l.qty !== undefined && l.qty !== null && String(l.qty) !== '')) problems.push('수량에 0은 넣을 수 없습니다(비워 두면 됩니다).');
+      if (problems.length) return { body: null, amount: 0, problems };
+      const items = toItems(input.date!);
+      return { body: { date: input.date, items }, amount: sum(items), problems };
+    }
+    case 'misspell': {
+      // 고친 내용은 문서를 저장할 때와 같은 계산(cleanLines·docTotals·cleanBiz)으로 다시 맞춘다 — 화면 값만 믿지 않음
+      const d = input.doc ?? {};
+      const taxMode = d.taxMode === 'included' || d.taxMode === 'none' || d.taxMode === 'separate' ? d.taxMode : orig.taxMode;
+      const fixedLines = d.lines ? cleanLines(d.lines, taxMode ?? 'separate') : orig.lines;
+      const fixed: HometaxDoc = {
+        ...orig,
+        date: isDate(input.date) ? input.date : isDate(d.date) ? d.date : orig.date,
+        taxMode,
+        lines: fixedLines,
+        ...docTotals(fixedLines),
+        partner: d.partner ? cleanBiz({ ...orig.partner, ...d.partner }) : orig.partner,
+        purpose: d.purpose === '청구' || d.purpose === '영수' ? d.purpose : orig.purpose,
+      };
+      if (isDate(fixed.date) && fixed.date > today) problems.push('작성일자는 오늘이나 이전 날짜여야 합니다.');
+      if (taxFreeOf(fixed) !== taxFree) problems.push('과세와 면세는 서로 바꿀 수 없습니다(볼타·국세청 규칙).');
+      const r = boltaInvoice(me, fixed);
+      problems.push(...r.problems);
+      if (problems.length || !r.body) return { body: null, amount: 0, problems };
+      const body = { ...r.body };
+      delete body.description; // 착오정정 본문은 정발행 형식에서 trustee·description을 뺀 것
+      delete body.trustee;
+      const fixedTotal = sum(body.items as { supplyCost: number; tax: number | null }[]);
+      return { body, amount: fixedTotal - origTotal, problems };
+    }
+  }
 }
 
 /** 볼타 오류 응답({code, message, traceId}) → 회원에게 보일 한국어 문장 */

@@ -109,5 +109,26 @@ it('운영 확인에서 고침: 접수 번호에 「_」가 있어도 찾고, �
     expect(docOf(id).bolta).toMatchObject({ state: 'issued', ntsTransactionId: 'NTS-U1' });
     bt.setBoltaFetch(undefined);
   });
+  // 2026-11-15 수정발행: 착오정정 두 장 — 수정분 성공 알림은 「한 장 기다림」, 취소분 실패 알림은 「실패」와 문의 안내
+  it('수정발행 알림은 그 수정 기록에 반영(착오정정: 수정분 성공 → 취소분 실패)', async () => {
+    const { id, key } = await requested('wh-am');
+    const d = docOf(id);
+    d.bolta = { ...d.bolta, state: 'issued', ntsTransactionId: 'NTS-O' };
+    d.boltaAmends = [{ ref: 'aww-am', mode: 'test', reason: 'misspell', state: 'requested', time: NOW, amount: 0, body: {}, issuanceKey: `${key}-FIX`, cancel: { issuanceKey: `${key}-CAN`, state: 'requested' } }];
+    db.db.prepare('UPDATE aww_rcpt_docs SET data = ? WHERE id = ?').run(JSON.stringify(d), id);
+    bt.setBoltaFetch((async (url: string) => {
+      const path = String(url).replace('https://xapi.bolta.io', '');
+      return path === `/v1/taxInvoices/${key}-FIX` ? new Response(JSON.stringify({ ntsTransactionId: 'NTS-FIX' })) : new Response('{}', { status: 404 });
+    }) as unknown as typeof fetch);
+    const ok = JSON.stringify({ eventType: 'TAX_INVOICE_ISSUANCE_SUCCESS', data: { issuanceKey: `${key}-FIX` } });
+    expect(await wh.handleBoltaWebhook('wh-am', sign('am-1', ok), ok, NOW)).toMatchObject({ status: 200, result: 'amend_half' });
+    expect(docOf(id).boltaAmends[0]).toMatchObject({ state: 'requested', ntsTransactionId: 'NTS-FIX' });
+    const bad = JSON.stringify({ eventType: 'TAX_INVOICE_ISSUANCE_FAILURE', data: { issuanceKey: `${key}-CAN`, cause: { code: 'PREDECESSOR_FAILED', message: '앞 건 실패' } } });
+    expect(await wh.handleBoltaWebhook('wh-am', sign('am-2', bad), bad, NOW)).toMatchObject({ status: 200, result: 'amend_failed' });
+    const a = docOf(id).boltaAmends[0];
+    expect(a).toMatchObject({ state: 'failed', cancel: { state: 'failed' } });
+    expect(a.message).toContain('볼타에 문의');
+    expect(docOf(id).bolta).toMatchObject({ state: 'issued', ntsTransactionId: 'NTS-O' }); // 원본 기록은 그대로
+    bt.setBoltaFetch(undefined);
+  });
 });
-
