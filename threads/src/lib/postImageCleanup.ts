@@ -51,6 +51,9 @@ export function expiredUnreferenced(files: { path: string; createdAt: string | n
   return files.filter((f) => f.createdAt && new Date(f.createdAt).getTime() < cutoff && !used.has(f.path)).map((f) => f.path);
 }
 
+/** 같은 post-images 버킷·같은 회원 폴더를 쓰는 다른 프로그램의 글 표(image_url·video_url 칸) */
+export const SHARED_BUCKET_TABLES = ["tap_posts", "ncafe_posts"] as const;
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** 모든 회원 폴더를 돌며 정리한다. admin = 서비스 키 클라이언트 */
@@ -74,6 +77,13 @@ export async function cleanupPostImages(admin: SupabaseClient, now = Date.now())
   // 글 목록을 못 읽으면 무엇이 쓰이는지 모르므로 아무것도 지우지 않는다
   if (postsError) throw new Error(`posts 읽기 실패: ${postsError.message}`);
   const used = referencedPaths((posts ?? []).map((p: { image_url: string | null }) => p.image_url));
+  // 2026-11-14: 이 버킷은 쓰레드 쇼핑제휴(tap_posts)·네이버 카페(ncafe_posts)도 같은 <회원>/ 폴더에 쓴다.
+  // 그 글들이 가리키는 파일도 「쓰이는 파일」로 보고 남긴다(그 파일은 각 프로그램의 30일 정리가 지운다). 못 읽으면 아무것도 지우지 않는다.
+  for (const table of SHARED_BUCKET_TABLES) {
+    const { data: rows, error } = await admin.from(table).select("image_url, video_url");
+    if (error) throw new Error(`${table} 읽기 실패: ${error.message}`);
+    for (const path of referencedPaths((rows ?? []).flatMap((r: { image_url: string | null; video_url: string | null }) => [r.image_url, r.video_url]))) used.add(path);
+  }
 
   const { data: dirs } = await admin.storage.from(POST_IMAGE_BUCKET).list("", { limit: 1000 });
   const counts: CleanupCounts = new Map();
