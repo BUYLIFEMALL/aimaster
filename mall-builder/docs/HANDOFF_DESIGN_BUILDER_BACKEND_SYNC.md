@@ -26,6 +26,7 @@
 ### 지금 만지는 파일
 | 쪽 | 파일·폴더 | 목적 | 시작 | 예상 끝 |
 |---|---|---|---|---|
+| 백엔드 | `supabase/migrations/0077_*`(새), `scripts/scenario-0077-*`(새), `src/app/s/[store]/reseller/**`(apply 제외 새 화면), `src/lib/reseller*.ts`, `(shop)/my/reseller-panel.tsx`, **`package.json`·`package-lock.json`(QR 라이브러리 `qrcode` 추가만)** | C1 리셀러 화면 틀·C2 상품 고르기(링크·QR) | 2026-11-15 | C1·C2 커밋 때 |
 
 ## 1. 주고받는 메시지
 | 번호 | 날짜 | 보낸 쪽 → 받는 쪽 | 종류 | 내용 | 관련 파일·DB | 상태 |
