@@ -28,7 +28,7 @@ import { confirmDialog } from './confirm.tsx';
 import { Toggle } from './ExportDialog.tsx';
 import { openEmbedCode, openSiteSettings, siteSettingsOf } from './SiteSettings.tsx';
 import { getPref, setPref } from '../editor/prefs.ts';
-import { SHOW_PUBLISH_TAB } from '../shell/trimPolicy.ts';
+import { SHOW_PUBLISH_EXTRAS, SHOW_PUBLISH_TAB } from '../shell/trimPolicy.ts';
 import './share.css';
 
 type PageRole = 'editor' | 'read_and_write' | 'content_only_editor' | 'comment_only' | 'reader';
@@ -641,6 +641,11 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
           <Icon name="info" size={16} style={{ color: 'var(--lp-icon-tertiary)', flexShrink: 0 }} />
           <span>{t('lp.page.after_this_page_goes_live_on', 'After this page goes live on the web, anyone holding the link can read it and see the names of contributors.')}</span>
         </div>
+        {/* 이식판 2026-11-14 공개 페이지 1단계 안내 */}
+        <div className="nc-publish-note">
+          <Icon name="info" size={16} style={{ color: 'var(--lp-icon-tertiary)', flexShrink: 0 }} />
+          <span>로그인하지 않은 사람도 읽을 수 있습니다(수정·복제는 안 됨). 검색엔진 노출은 기본으로 꺼져 있습니다. 이용 기간이 끝나면 공개가 자동으로 닫히고, 신고가 들어온 페이지는 관리자가 내릴 수 있습니다. 개인정보·남의 저작물을 올리지 마세요.</span>
+        </div>
       </div>
     );
   }
@@ -670,16 +675,17 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
           <div className="label">{t('lp.page.web_search_indexing', 'Web search indexing')}</div>
           <Toggle on={pub.searchIndexing} label={t('lp.page.show_up_in_search_engines', 'Show up in search engines')} onChange={(v) => updatePublished(pub.pageId, { allow_search_engine_indexing: v })} />
         </div>
-        <div className="nc-setting-row" data-tooltip={t('lp.page.let_people_make_their_own_copy', 'Let people make their own copy of this page')}>
+        {/* 이식판 2026-11-14: 「템플릿으로 복제」는 1단계에서 지원하지 않음 */}
+        {SHOW_PUBLISH_EXTRAS && <div className="nc-setting-row" data-tooltip={t('lp.page.let_people_make_their_own_copy', 'Let people make their own copy of this page')}>
           <div className="label">{t('lp.page.duplicate_as_a_template', 'Duplicate as a template')}</div>
           <Toggle on={pub.allowDuplicate} label={t('lp.page.duplicate_as_a_template', 'Duplicate as a template')} onChange={(v) => updatePublished(pub.pageId, { allow_duplicate: v })} />
-        </div>
+        </div>}
         <div role="button" className="nc-setting-row clickable" data-tooltip={t('lp.page.put_this_page_on_external_websites', 'Put this page on external websites as an embed')} onClick={(e) => openEmbedCode(e.currentTarget, url)}>
           <div className="label">{t('lp.page.embed_page', 'Embed page')}</div>
           <Icon name="chevronRight" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
         </div>
-        {/* site customization: Plus and above; on the site root (inherited pages edit their root) */}
-        <div role="button" className={`nc-setting-row clickable ${model.canManage ? '' : 'disabled'}`}
+        {/* site customization: Plus and above; on the site root (inherited pages edit their root) — 이식판: 사이트 꾸미기·전체 관리는 1단계에서 숨김 */}
+        {SHOW_PUBLISH_EXTRAS && <><div role="button" className={`nc-setting-row clickable ${model.canManage ? '' : 'disabled'}`}
           data-tooltip={!model.canManage ? t('lp.page.full_access_is_required_to_update', 'Full access is required to update this page’s settings') : undefined}
           onClick={() => {
             if (!model.canManage) return;
@@ -692,7 +698,7 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
         <div role="button" className="nc-setting-row clickable" onClick={() => useUI.getState().openSettings('public-pages')}>
           <div className="label">{t('lp.page.manage_every_site_and_link', 'Manage every site and link')}</div>
           <Icon name="chevronRight" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
-        </div>
+        </div></>}
       </div>
       <div className="nc-publish-actions">
         <button className="nc-dialog-btn outline" disabled={!model.canManage}

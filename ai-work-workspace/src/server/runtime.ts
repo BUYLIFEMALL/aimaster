@@ -202,3 +202,22 @@ export async function runRpc(name: string, body: unknown, member: Member, client
     return { status, body: { errorId: newId(), name: kind, message: status >= 500 ? '요청을 처리하는 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.' : (e?.message ?? 'Error') } };
   }
 }
+
+/**
+ * 2026-11-14 공개 페이지 1단계(플랜 docs/PLAN_20261114_STORAGE_AND_PUBLIC.md B): 로그인 없는 방문자(사용자 없음)로 원본 명령을 실행한다.
+ * 허용 명령·공개 여부·관리자 내리기·주인 이용 기간 확인은 부르는 쪽(src/server/publicPages.ts)이 끝낸 뒤 부른다.
+ */
+export async function runPublicRpc(name: string, body: unknown): Promise<RpcResult> {
+  init();
+  const handler: Handler | undefined = Object.hasOwn(handlers, name) ? (handlers as Record<string, Handler>)[name] : undefined;
+  if (!handler) return { status: 404, body: { errorId: newId(), name: 'NotFound', message: 'Unknown endpoint' } };
+  const input = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
+  try {
+    const result = await withRequestCache(() => handler({ userId: null, secure: true, setCookie: () => {} } as unknown as Ctx, input));
+    return { status: 200, body: result ?? {} };
+  } catch (e: any) {
+    const status = e instanceof ApiError ? e.status : 500;
+    if (status >= 500) console.error(`[public] ${name} failed`, e);
+    return { status: status >= 500 ? 500 : 404, body: { errorId: newId(), name: 'NotFound', message: '페이지를 찾을 수 없습니다.' } };
+  }
+}

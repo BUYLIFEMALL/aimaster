@@ -1,7 +1,7 @@
 // Session: current user, workspaces (spaces + space_views), active workspace.
 import { create } from 'zustand';
 import type { SpaceRecord, SpaceViewRecord, UserRootRecord } from '#shared/records.ts';
-import { api } from '../api.ts';
+import { api, isPublicView } from '../api.ts';
 import { records } from './records.ts';
 import { connectRealtime, disconnectRealtime } from './sync.ts';
 
@@ -32,6 +32,11 @@ export const useSession = create<SessionState>((set, get) => ({
   spaceId: null,
   demoMode: { enabled: false },
   async load() {
+    // 이식판 2026-11-14: 게시 페이지(/public/…)는 로그인 없이 본다 — 계정 정보를 부르지 않고(로그인 화면으로 보내지 않음) 방문자로 둔다
+    if (isPublicView()) {
+      set({ status: 'anonymous', userId: null, spaceId: null });
+      return;
+    }
     try {
       const res = await api('loadAccountData');
       records.mergeRecordMap(res.recordMap);

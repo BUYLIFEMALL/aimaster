@@ -88,7 +88,13 @@ export function sharingChangeProblem(input: unknown, deps: { block(id: string): 
       const spaceId = String(cur?.space_id ?? op.pointer.spaceId ?? "");
       for (const p of added as { type?: string; user_id?: string; role?: string }[]) {
         if (!p || typeof p !== "object" || !p.role || p.role === "none") continue;
-        if (p.type === "public_permission" && !before.some((x) => x?.type === "public_permission" && x.role === p.role)) return "공개 링크 공유는 지원하지 않습니다. 「공유」에서 회원을 초대해 주세요.";
+        // 2026-11-14 공개 페이지 1단계: 「웹에 게시」(읽기 전용·복제 끔)만 허용. 게시 아닌 「링크가 있는 누구나」는 계속 막음
+        if (p.type === "public_permission") {
+          const pp = p as { published?: boolean; allow_duplicate?: boolean };
+          if (!pp.published) return "링크 공유(게시 아님)는 지원하지 않습니다. 「공유 › 게시」로 웹에 게시하거나 「공유」에서 회원을 초대해 주세요.";
+          if (p.role !== "reader") return "웹에 게시한 페이지는 읽기만 할 수 있습니다.";
+          if (pp.allow_duplicate) return "게시한 페이지의 「템플릿으로 복제」는 지원하지 않습니다.";
+        }
         if (p.type === "user_permission" && p.user_id && !before.some((x) => x?.type === "user_permission" && x.user_id === p.user_id) && !deps.isMember(spaceId, p.user_id)) return "새로운 사람과의 공유는 「공유」의 초대로만 할 수 있습니다.";
       }
     }

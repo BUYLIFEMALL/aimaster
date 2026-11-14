@@ -277,11 +277,10 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
             {t('lp.page.duplicate', 'Duplicate')}
           </button>
         )}
-        {status !== 'ready' && header?.signup !== false && (
-          <button className="nc-dialog-btn outline small" onClick={() => navigate('/login')}>{t('lp.page.get_litpage_for_free', 'Get Workspace for free')}</button>
-        )}
+        {/* 이식판 2026-11-14: 원본 「무료로 시작」 버튼은 숨김(이 프로그램은 AIMaster 이용 권한이 필요) */}
       </div>
       <PageView pageId={pageId} state={state} inPeek publicView />
+      <PublicFooter pageId={pageId} />
     </div>
   );
 }
@@ -336,5 +335,44 @@ function SiteSearch({ pageId, rootId, rootSlug }: { pageId: string; rootId: stri
         </div>
       )}
     </div>
+  );
+}
+
+/** 이식판 2026-11-14 공개 페이지 1단계: 아래 안내 + 방문자 신고(관리자 화면 /settings/public-pages로 모임) */
+function PublicFooter({ pageId }: { pageId: string }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  const [msg, setMsg] = useState('');
+  const send = async () => {
+    if (!reason.trim()) return;
+    setState('sending');
+    try {
+      await api('awwReportPublicPage', { pageId, reason });
+      setState('done');
+    } catch (e: any) {
+      setMsg(e?.message ?? '신고를 보내지 못했습니다.');
+      setState('error');
+    }
+  };
+  return (
+    <footer style={{ maxWidth: 720, margin: '48px auto 32px', padding: '16px', borderTop: '1px solid var(--lp-border-primary, #e5e5e5)', fontSize: 13, color: 'var(--lp-text-secondary, #777)', textAlign: 'center' }}>
+      <div>이 페이지는 AIMaster 「AI 업무 워크스페이스」 회원이 웹에 게시한 글입니다. 내용의 책임은 게시한 회원에게 있습니다.</div>
+      {state === 'done' ? (
+        <div style={{ marginTop: 8 }}>신고가 접수됐습니다. 관리자가 확인하겠습니다.</div>
+      ) : open ? (
+        <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
+          <textarea value={reason} maxLength={500} rows={3} placeholder="신고 이유(사칭·피싱·불법 광고·개인정보 노출 등)" onChange={(e) => setReason(e.target.value)}
+            style={{ width: '100%', padding: 8, border: '1px solid var(--lp-border-primary, #ddd)', borderRadius: 6, font: 'inherit', resize: 'vertical' }} />
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+            <button className="nc-dialog-btn outline small" onClick={() => setOpen(false)}>취소</button>
+            <button className="nc-dialog-btn primary small" disabled={!reason.trim() || state === 'sending'} onClick={() => void send()}>{state === 'sending' ? '보내는 중…' : '신고 보내기'}</button>
+          </div>
+          {state === 'error' && <div style={{ color: 'var(--lp-text-red, #d44)' }}>{msg}</div>}
+        </div>
+      ) : (
+        <button className="nc-dialog-btn outline small" style={{ marginTop: 8 }} onClick={() => setOpen(true)}>🚩 이 페이지 신고하기</button>
+      )}
+    </footer>
   );
 }

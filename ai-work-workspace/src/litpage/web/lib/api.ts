@@ -15,8 +15,11 @@ export class ApiError extends Error {
   }
 }
 
+/** 이식판 2026-11-14: 로그인 없이 보는 게시 페이지(/public/…) — 명령은 공개 입구(/api/public, 허용 명령만)로 보낸다 */
+export const isPublicView = () => typeof location !== 'undefined' && location.pathname.startsWith('/public/');
+
 export async function api<T = any>(name: string, body: unknown = {}, init?: { signal?: AbortSignal }): Promise<T> {
-  const res = await fetch(`/api/rpc/${name}`, {
+  const res = await fetch(`${isPublicView() ? '/api/public' : '/api/rpc'}/${name}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-lit-client-id': clientId },
     body: JSON.stringify(body ?? {}),

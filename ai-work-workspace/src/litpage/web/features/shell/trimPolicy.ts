@@ -28,8 +28,10 @@ export const TRIM_VIEW_TYPES = new Set<string>(['map']);
 /** 원본 요금제 업그레이드 문구·버튼을 보여 줄지(이 프로그램에는 원본 요금제가 없음) */
 export const SHOW_PLAN_UPSELL = false;
 
-/** 공유 메뉴의 「게시(웹에 공개)」 탭 */
-export const SHOW_PUBLISH_TAB = false;
+/** 공유 메뉴의 「게시(웹에 공개)」 탭 — 2026-11-14 공개 페이지 1단계에서 엶(읽기 전용, 복제·사이트 꾸미기는 숨김) */
+export const SHOW_PUBLISH_TAB = true;
+/** 게시 탭의 「템플릿으로 복제」·사이트 꾸미기·전체 관리(공개 페이지 2단계 이후) */
+export const SHOW_PUBLISH_EXTRAS: boolean = false;
 
 /** 템플릿 마켓플레이스·구매·후기 */
 export const SHOW_MARKETPLACE = false;
