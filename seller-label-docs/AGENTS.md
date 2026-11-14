@@ -48,3 +48,9 @@ Next.js 16(App Router, `src/proxy.ts`) + Tailwind 4 + 공용 Supabase(권한 판
 - **💾 내 라벨 틀**: 라벨지 규격·칸 내용·위치 보정을 이름 붙여 저장·불러오기·지우기(`src/lib/label/savedTemplates.ts`, 같은 이름 덮어씀·20개, 브라우저 `sld-label-saved-v1`에만 — 서버·DB 저장 없음). 불러와도 채울 데이터는 그대로.
 - **HEIC**: PDF 사진 넣기 고르기 창에 HEIC도 보이고, `createImageBitmap` 실패 시 `<img>`로 한 번 더 열어 봄(사파리는 열림). 못 열면 아이폰 「높은 호환성」 설정 안내. 크롬용 변환 라이브러리(`heic2any` 등, 안의 libheif가 LGPL-3.0)는 넣지 않음 — 주인님 결정 대기.
 - 검사: `npm test` 28개(새 4개)·tsc·build 통과. **화면 확인 전** — 다음 라벨 배포(버전 +0.01, 흐름 띠 대기 `48b67dd5c`와 함께) 뒤 ego로 라벨 화면 확인.
+
+## 2026-11-14 (미배포 대기) — 크롬에서도 HEIC 사진 열기 ([역할: ecommerce-image] `claude-win-sdp`)
+- 주인님 「진행해」(HEIC 변환 라이브러리 사용 결정). `heic-to` 1.6.7(정확한 버전, LGPL-3.0, libheif 1.23 포함) — 오래된 `heic2any` 대신 지금도 관리되는 쪽.
+- `src/lib/browser/imageInput.ts`: 브라우저가 스스로 못 열고(createImageBitmap·img 둘 다 실패) 파일이 HEIC일 때만 `import("heic-to/next")`로 **따로 내려받아**(별도 파일 약 3.2MB, 다른 화면 용량 그대로) JPG로 바꾼 뒤 기존 흐름. 사진은 회원 PC 안에서만 변환.
+- LGPL 고지: `public/licenses/heic-to-LGPL-3.0.txt`(원본 주소·라이선스 전문), `proxy.ts` 로그인 검사에서 `licenses/` 제외. 라이브러리는 수정 없이 별도 파일로 불러옴(바꿔 쓸 수 있음).
+- 검사: 시험 28·tsc·build(변환 코드가 별도 청크로 나뉨 확인). **실제 HEIC 변환은 미확인** — 저장소에 시험용 HEIC 파일이 없음. 배포 뒤 크롬/ego에서 아이폰 HEIC 1장을 「사진 → PDF」에 넣어 확인.
