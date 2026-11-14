@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-photo`(주인님 지정 블로그 담당) — 이웃 v1.20 답방 글 읽기 409 원인 확정·수정(미배포)
+
+- 실패 = **offer 단계 · HTTP 409 · `BNC_RETURN_POST_REQUIRED`**: Vercel 요청 로그(12:28:58 KST 409), Supabase Postgres 로그(12:29:00 ERROR), 운영 DB 읽기 조회(허용·받은 함 정상, 답방 읽기 행 없음)로 확정. 확장이 이웃 글이 아니라 내 글 탭을 읽어 보낸 것이 원인.
+- 수정 `85eedc18b`(미배포 대기): 확장 탭 사전 확인·실패 단계/HTTP/code 팝업 전달·서버 코드별 문구. 시험 385/385·tsc 통과. `docs/PENDING_DEPLOYS.md` 대기 줄 추가.
+- 맥미니 재검수 순서는 `blog-neighbor-care/docs/REQUEST_20261113_MACMINI_V120_RECHECK.md` 맨 아래(배포 없이 가능). 티스토리 보관 안내 `ae8ea7473`은 미배포(운영 v1.96), 다음 티스토리 배포 때 함께.
+- 비용: 빌드·AI·DB 쓰기 0(로그·DB 읽기만). 맥미니 세션의 미커밋 원장·증거 파일은 건드리지 않음.
+
+https://blog-neighbor-care.buylife.xyz
+
 ## 2026-11-14 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-bnc-m1` — 바나나 캔버스(banana-canvas) 메이커 연계 M1(쇼핑몰) & P2(상세페이지) Handoff 연동 및 새 ProductBatchBoard 결함 해결 완료
 - 지침: [`banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md`](../banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md) §4
 - 완료 내역:

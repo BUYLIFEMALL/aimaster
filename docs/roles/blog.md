@@ -169,7 +169,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-11-11 · `ebook-studio` v1.15 배포·실제 Claude 시험(claude-win-blog) — 이전: 2026-11-11 · 「지금 하는 일」 맨 위 줄을 실제 상태(v1.04 공개·DB 버전 대조)로 정정(claude-win-blog) — 이전: 2026-11-11 · `wp-blogger-auto` **v1.04 보관 규칙(발행 1년·생성만 30일) 배포** — 이전: 2026-11-11 · `wp-blogger-auto` **v1.03 배포·썸네일·공개 전환 완료**, 맥미니 공개 후 접근 검수 대기(claude-win-blog) — 이전: 2026-11-11 · `wp-blogger-auto` v1.02 배포(비공개, 발행 이미지 1년·예약 확인·초안 전환·좌측 메뉴, 운영 DB 적용), 관리자 화면 검수·맥미니 재검수 대기(claude-win-blog) — 이전: 2026-11-11 · `wp-blogger-auto` v1.01 첫 배포(비공개)·맥미니 실물 시험 요청서(claude-win-blog) — 이전: 2026-11-10 · 블로그 3개 배포·워드프레스 2-1 완료 — 이전: 블로그 전체 진도 조사(코드·운영 DB·ZIP 대조, claude-win-blog) — 이전: 2026-11-09 · `naver-cafe-recruit` 초대 시험 4~5회차 원인 수정(확장 응답 판정 `judgeResponse`, 커밋 `7a85de294` 미배포)·5회차 실패 기록 삭제(6회차 준비 `94cf42a15`), 맥미니 6회차 대기(claude-win-blog) — 이전: 2026-11-06 · `competitor-analysis` v1.12 배포(매칭 후보·스캔 최종 판정·네이버 밖 주소 건너뛰기, 맥미니 실물 확인 대기) — 이전: v1.11 배포(엑셀 내려받기·고칠 점 3개) — 이전: v1.10 배포(제휴 타깃 찾기, 운영 DB 적용·확장 ZIP, 맥미니 실물 확인 대기) — 이전: 이웃 소통 v1.18 배포 + `naver-cafe-recruit` 착수(claude-win-blog)
+- 마지막 갱신: 2026-11-14 (`claude-win-photo` — 주인님 지정으로 블로그 담당 대행: 이웃 v1.20 답방 409 원인 확정·수정 미배포)
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -282,6 +282,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-14 `claude-win-photo`: 이웃 v1.20 답방 글 읽기 실패 = offer·HTTP 409·`BNC_RETURN_POST_REQUIRED`(내 글 탭을 읽어 보냄) 확정 — Vercel·Postgres 로그·운영 DB 읽기. 탭 사전 확인·진단 전달·코드별 문구 `85eedc18b` 미배포 대기, 시험 385 통과.
 - 2026-11-12 「여쭐 것」 오래된 줄 4개 정리 — 요청함에서 이미 닫힌 `668992b9`(Haiku 4.5 검수 비용, 처리됨)·`fe166de3`(이웃 목록 다시 읽기, 처리됨)·`cf22fd7b`(SEO 보안 패치 인수, 필요 없음)와 10월 Codex 시절 Edge 화면 메모. 비용 없음.
 - 2026-11-11 `ebook-studio` v1.15 배포(주인님 요청 대행) — 글 생성 모델 OpenAI→Claude→Gemini 플랫폼별 3개 선택, 회원 본인 키만, AI·키 API 권한 확인 보강, 저장공간 위젯. Claude Haiku 5.5 실제 1회 성공. 옛 Gemini 문구 3곳은 미배포 대기.
 - 2026-11-11 `wp-blogger-auto` 1~3단계: 화면·연결·원고·이미지·발행·보관함·매뉴얼·30일 정리 구현(시험 63개) → 첫 배포 v1.01(빌드 2회, 환경변수 값 오류 한 번 수정). https://wp-blogger-auto.buylife.xyz
@@ -420,6 +421,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | 2026-10-24 | 문서 | 블로그 기능 상세 비교표 | 없음 |
 
 ## 다음 첫 단계
+- (이웃 C-3) 맥미니가 이웃 글 탭을 같은 창 앞 탭으로 두고 답방 글 읽기 1회 → 09~22시 수락 1건(`blog-neighbor-care/docs/REQUEST_20261113_MACMINI_V120_RECHECK.md` 맨 아래). 통과하면 자동 수락·답방 공감 구현 시작. 티스토리 보관 안내 `ae8ea7473`은 다음 티스토리 배포 때 함께.
 - **(2026-11-13 최신)** v1.20 배포 완료 → 맥미니 확장 재설치 → 미리보기·확인 저장·returnPostId → C-3 수락 1건(09~22시) → 통과하면 C-3 구현. 근거 `blog-neighbor-care/docs/DIAG_20261113_PREVIEW409_CLOCK.md`.
 - 2026-11-12 최신: 맥미니 통합 인계 처리 — 티스토리(열외 안내)·카페(인원·카운터·버전) 수정 미배포 대기, 티스토리 P1 원인 확정(11-03 v1.95 배포 전 정리). 결정 5건 답 받은 뒤 이어서. C-3 구현은 맥미니 실물 통과 뒤.
 - **(2026-11-12 최신)** 맥미니 결과 대기 5건(순서): 카페 6회차(주인님 맥미니 ego 로그인·시작) → 이웃 소통 v1.19 AI 초안 1회 → C-3 실물 2건(수락 1건+이름 칸 기록, 답방 대상 읽기) → 워드프레스 공개 후 접근 → 티스토리 디버깅(이제 v1.96 운영). C-3 결정 5건 확정(`PLAN_20261112_STAGE_C3.md`) — 실물 통과하면 구현.

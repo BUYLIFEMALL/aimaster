@@ -15,6 +15,7 @@
 
 ## 대기 중
 
+- **`blog-neighbor-care` — 답방 글 읽기 탭 사전 확인 + 실패 진단(단계·HTTP·BNC code) 팝업 전달 + 409 코드별 안내 `85eedc18b`(2026-11-14 [역할: blog] `claude-win-photo`)**: 작은 수정, 다음 배포 때 함께(확장 ZIP·manifest·DB 버전 같이). 상세 `blog-neighbor-care/docs/IMPROVEMENTS.md` 2026-11-14.
 - **`ai-work-workspace` — 키 화면 그룹 상자 + AI 비서 플랫폼별 기본 모델 + 큰 파일(4~50MB) Storage 저장 + 공개 페이지 1단계(2026-11-14 [역할: workspace], 주인님 지시·「모았다가 배포해」)**: 시험 155, 로컬 빌드 통과. 다음 워크스페이스 배포 때 함께(빌드 1회, 버전 화면·DB 두 곳). 배포 뒤 확인: 10MB 파일 올리기·내려받기, 게시 → 시크릿 창 열기 → 신고 → `/settings/public-pages` 내리기. 메인 사이트 담당께 `workspace-files` 버킷 정리 제외 요청(`docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md` 끝).
 
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감.
