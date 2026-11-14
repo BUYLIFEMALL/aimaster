@@ -162,9 +162,16 @@ export default function DesignEditor({ slug, storeId, categories, products, init
                 label: "배경색",
                 render: ({ value, onChange }: { value: string | undefined; onChange: (v: string) => void }) => (
                   <div className="flex items-center gap-2">
-                    <input type="color" value={value || "#ffffff"} onChange={(e) => onChange(e.target.value)} className="h-8 w-10 rounded border" aria-label="배경색" />
-                    <span className="text-xs text-gray-500">{value || "없음(투명)"}</span>
-                    {value && <button type="button" onClick={() => onChange("")} className="text-xs text-gray-600 underline">지우기</button>}
+                    <input type="color" value={value || "#ffffff"} onChange={(e) => onChange(e.target.value)} className="h-8 w-10 shrink-0 rounded border" aria-label="배경색 고르기" />
+                    <input
+                      value={value ?? ""}
+                      onChange={(e) => onChange(e.target.value.trim())}
+                      placeholder="없음(투명) · 예: #fef3c7"
+                      maxLength={7}
+                      className="w-full rounded border px-2 py-1 text-sm"
+                      aria-label="배경색 코드"
+                    />
+                    {value && <button type="button" onClick={() => onChange("")} className="shrink-0 text-xs text-gray-600 underline">지우기</button>}
                   </div>
                 ),
               },
@@ -183,6 +190,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
       categories: CATEGORIES,
       components,
       root: {
+        fields: {},
         render: ({ children }: { children: ReactNode }) => (
           <div className="min-h-screen bg-[var(--mall-bg,var(--color-slate-50))] py-6 font-sans text-slate-900 antialiased" style={themeVars as CSSProperties}>
             <div className="mx-auto max-w-6xl space-y-8">{children}</div>
@@ -221,7 +229,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
   const unpublished = live === null ? nowJson !== "[]" : nowJson !== live;
 
   return (
-    <div className="space-y-2" data-design-editor>
+    <div className="flex min-h-0 flex-1 flex-col gap-2" data-design-editor>
       <div className="flex flex-wrap items-center gap-2 rounded bg-gray-50 px-3 py-2 text-xs text-gray-700">
         <span>초안 저장: {when(times.draftAt)}</span>
         <span className="text-gray-300">|</span>
@@ -231,7 +239,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
         {pending && <span className="text-gray-500">처리 중…</span>}
         {msg && <span className={msg.ok ? "text-green-700" : "text-red-600"} data-design-msg>{msg.text}</span>}
       </div>
-      <div className="overflow-hidden rounded border bg-white" style={{ height: "calc(100vh - 170px)", minHeight: 560 }}>
+      <div className="min-h-0 flex-1 overflow-hidden rounded border bg-white">
         <Puck
           config={config}
           data={start}

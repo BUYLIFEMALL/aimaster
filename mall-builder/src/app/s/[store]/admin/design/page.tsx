@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getCategoryRows, getHomeForEdit, getPublishedDesign, getStaffStore, getStoreProducts } from "@/lib/store";
 import { buildCategoryTree, flattenTree } from "@/lib/categories";
 import { readTheme, themeStyle } from "@/lib/theme";
-import { AdminShell, NoPermission } from "../admin-shell";
+import { NoPermission } from "../admin-shell";
 import DesignEditor from "./design-editor";
 
 export const dynamic = "force-dynamic";
@@ -19,14 +19,15 @@ export default async function AdminDesignPage({ params }: { params: Promise<{ st
   const pickable = products.filter((p) => p.status === "on_sale" || p.status === "sold_out").map((p) => ({ id: p.id, name: p.name }));
 
   return (
-    <AdminShell slug={store.slug} storeName={store.name} active="/design">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
-        <p>
-          왼쪽에서 블록을 끌어 놓고, 가운데 화면에서 고를 블록을 눌러 오른쪽에서 고칩니다. <b>초안 저장</b>은 나만 보이고, <b>손님 화면에 게시</b>를 눌러야 손님에게 보입니다.
-        </p>
-        <Link href={`/s/${store.slug}/admin/home`} className="text-xs text-gray-500 underline">
-          간단 편집(예전 화면)
+    // 편집 칸이 넓어야 하므로 관리 메뉴 없이 화면 전체를 쓴다(맨 위 줄에 돌아가기)
+    <div className="flex h-screen flex-col bg-gray-100 px-3 py-2" data-design-page>
+      <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600">
+        <Link href={`/s/${store.slug}/admin`} className="font-semibold text-gray-800 hover:underline">
+          ← {store.name} 관리 화면
         </Link>
+        <span>왼쪽에서 블록을 끌어 놓고, 가운데에서 블록을 눌러 오른쪽에서 고칩니다. <b>초안 저장</b>은 나만 보이고, <b>손님 화면에 게시</b>를 눌러야 손님에게 보입니다.</span>
+        <Link href={`/s/${store.slug}`} target="_blank" className="underline">손님 화면 열기 ↗</Link>
+        <Link href={`/s/${store.slug}/admin/home`} className="underline">간단 편집(예전 화면)</Link>
       </div>
       <DesignEditor
         slug={store.slug}
@@ -39,6 +40,6 @@ export default async function AdminDesignPage({ params }: { params: Promise<{ st
         publishedAt={home.publishedAt}
         themeVars={themeStyle(readTheme(design.theme))}
       />
-    </AdminShell>
+    </div>
   );
 }
