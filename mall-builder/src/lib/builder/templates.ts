@@ -2,6 +2,8 @@
 // 템플릿 = 레이아웃(틀·첫 화면 블록 구성·목록 표시) × 색 조합(포인트색·바탕색). 새 템플릿은 이 등록표에 데이터 한 줄 — 화면 코드 수정 0
 // 고르면 편집기에 「저장 없이」 열리고(내 상품으로 미리보기), 운영자가 초안 저장·게시해야 손님에게 보인다
 // 그림(배너·로고)은 몰마다 다르므로 넣지 않는다 — 그림 없이도 완성된 모양이 나오는 블록만 쓴다
+// 문구에 몰마다 다른 사실(인증·보증·쿠폰·배송 약속 등)을 쓰지 않는다 — 고른 몰이 그대로 게시하면 허위·과장 광고가 된다(시험이 막음)
+// esc()는 html 블록 안에만 쓴다(제목·띠는 일반 글자라 화면이 알아서 처리)
 // 확장자(.ts)까지 적는다 — `node --test`가 이 파일을 바로 읽기 때문
 
 import { SCHEMA_VERSION, type Block, type BlocksDoc } from "../blocks.ts";
@@ -69,7 +71,7 @@ export const LAYOUTS: LayoutTemplate[] = [
       ...base,
       header: {
         ...DEFAULT_HEADER,
-        band: { text: "식약처 안심 인증 · 전 상품 당일 출고 · 100% 정품 보증", link: "", bg: "#065f46" },
+        band: { text: "건강한 일상을 위한 클린 셀렉션", link: "", bg: "#065f46" },
       },
       list: { ...DEFAULT_LIST, columns: 4 },
       detail: { ...DEFAULT_DETAIL },
@@ -123,7 +125,7 @@ export const LAYOUTS: LayoutTemplate[] = [
           id: id("cw-notice"),
           type: "notice",
           visible: true,
-          settings: { title: "원료 및 품질 인증 공지", count: 3 },
+          settings: { title: "원료·품질 안내", count: 3 },
         }),
       ]),
     }),
@@ -140,7 +142,7 @@ export const LAYOUTS: LayoutTemplate[] = [
       ...base,
       header: {
         ...DEFAULT_HEADER,
-        band: { text: "VIP 바이어 전용 멤버십 혜택 · 공식 부티크 100% 정품 보증", link: "", bg: "#1c1917" },
+        band: { text: `${storeName} 프라이빗 컬렉션`.slice(0, 60), link: "", bg: "#1c1917" },
       },
       list: { ...DEFAULT_LIST, columns: 3, card: { style: "plain" } },
       detail: { ...DEFAULT_DETAIL },
@@ -206,7 +208,7 @@ export const LAYOUTS: LayoutTemplate[] = [
       ...base,
       header: {
         ...DEFAULT_HEADER,
-        band: { text: "첫 구매 즉시 5,000원 쿠폰팩 증정 · 오늘 주문 시 오늘 출발!", link: "", bg: "#c2410c" },
+        band: { text: "오늘의 새로운 발견을 만나 보세요", link: "", bg: "#c2410c" },
       },
       list: { ...DEFAULT_LIST, columns: 4 },
       detail: { ...DEFAULT_DETAIL },
@@ -231,7 +233,7 @@ export const LAYOUTS: LayoutTemplate[] = [
           type: "showcase",
           visible: true,
           settings: {
-            title: `SNS 화제의 ${esc(storeName)} 핫템`,
+            title: `지금 뜨는 ${storeName} 핫템`.slice(0, 40), // 제목은 일반 글자(HTML 아님) — 이스케이프하지 않음
             source: "new",
             category_id: "",
             product_ids: [],
@@ -258,7 +260,7 @@ export const LAYOUTS: LayoutTemplate[] = [
           id: id("tp-reviews"),
           type: "reviews",
           visible: true,
-          settings: { title: "생생한 내돈내산 포토 후기", count: 6, min_rating: 4 },
+          settings: { title: "생생한 구매 후기", count: 6, min_rating: 4 },
         }),
       ]),
     }),
@@ -310,7 +312,7 @@ export const LAYOUTS: LayoutTemplate[] = [
     shape: { radius: "lg", button: "3d", image_ratio: "1:1" },
     build: ({ now }) => ({
       ...base,
-      header: { ...DEFAULT_HEADER, band: { text: "오늘 주문하면 오늘 출발 · 3만 원 이상 무료배송", link: "", bg: "#9a3412" } },
+      header: { ...DEFAULT_HEADER, band: { text: "매일 새로운 특가를 만나 보세요", link: "", bg: "#9a3412" } },
       list: { ...DEFAULT_LIST, sort: "price_asc" },
       home: doc([
         blk({ id: id("md-sale"), type: "timesale", visible: true, settings: { title: "오늘의 특가", subtitle: "한정 수량, 끝나면 사라져요", ends_at: new Date(now + 7 * DAY).toISOString(), source: "new", category_id: "", product_ids: [], columns: 4, limit: 4 } }),
