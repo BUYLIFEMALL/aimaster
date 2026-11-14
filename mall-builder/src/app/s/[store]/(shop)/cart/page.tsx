@@ -39,7 +39,7 @@ export default async function CartPage({
   const address = addresses.find((a) => a.is_default) ?? null;
   const region = address ? regionOfZip(address.zip) : "mainland";
   const totals = cartTotals(
-    lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: l.price.orderable })),
+    lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: l.price.orderable, qty: l.qty, productId: l.product.id })),
     policies,
     region,
   );

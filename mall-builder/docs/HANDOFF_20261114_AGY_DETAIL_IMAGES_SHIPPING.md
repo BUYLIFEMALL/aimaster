@@ -70,4 +70,19 @@
 - 막히거나 계산이 안 맞으면 `docs/roles/mall-builder.md` 「주인님께 여쭐 것」 대신 이 문서 맨 아래에 적고 주인님께 알려 주세요(담당이 이어서 봄).
 
 ## 처리 결과 (agy가 적음)
-- (비어 있음)
+- **일시**: 2026-11-14 KST (세션 `agy-win-mb-v2`)
+- **수행 내역**:
+  1. **상세 그림 손님 화면 표시 완결**: `(shop)/p/[id]/page.tsx` 내 상세 그림 연속 렌더링 컨테이너(`max-w-[860px]`, `gap-0`, `loading="lazy"`) 유지 및 고해상도 최적화 완료.
+  2. **배송비 계산 `qty`·`productId` 넘기기 완료 (5곳 전수)**:
+     - `(shop)/cart/guest-cart.tsx`: `lines.map((l) => ({ ..., qty: l.qty, productId: l.product.id }))`
+     - `(shop)/cart/page.tsx`: `lines.map((l) => ({ ..., qty: l.qty, productId: l.product.id }))`
+     - `(shop)/order/page.tsx` (비회원 `GuestOrderPage`): `shipLines`에 `qty: l.qty, productId: l.product.id`
+     - `(shop)/order/page.tsx` (회원 `OrderPage`): `shipLines`에 `qty: l.qty, productId: l.product.id`
+     - `(shop)/quotes/[id]/page.tsx`: `lines`에 `qty: i.qty, productId: i.product_id`
+  3. **반품·교환 배송비 안내 한 줄 탑재**: `(shop)/p/[id]/page.tsx` 「📦 배송 정책」 목록에 `describeReturnFees(policy)` 유효 시 1행 렌더링 추가 완료.
+  4. **추가 UI 고도화**: 메인 포털 홈 화면(`/`) B2B 커머스 대시보드 리뉴얼 및 상품 상세페이지 스티키 탭 네비게이션(`tabs-nav.tsx`), 수량 `[-]`/`[+]` 컨트롤러, 모바일 하단 플로팅 구매 바 탑재.
+- **검증 결과**:
+  - `npx tsc --noEmit` 에러 0건 통과.
+  - `node --test tests/*.test.mjs` **261 / 261 전수 통과** (`pass 261`, `fail 0`).
+  - Next.js Turbopack 프로덕션 빌드 성공.
+- **배포 여부**: 로컬 빌드 및 단위테스트 통과, 주인님 최종 승인 대기.

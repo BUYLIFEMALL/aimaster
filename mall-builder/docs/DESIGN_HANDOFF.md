@@ -51,18 +51,34 @@
 
 ---
 
-## 3. 검증 결과
+## 3. 2026-11-14 메인 포털 홈 화면(`/`) 및 상품 상세페이지(상세페) UI 고도화 (agy)
 
-- **타입 검사**: `npx tsc --noEmit` **에러 0건 (통과)**
-- **단위 테스트**: `node --test tests/*.test.mjs` **256 / 256 전수 통과** (`pass 256`, `fail 0`)
-- **프로덕션 빌드**: `NEXT_PUBLIC_MALL_PLATFORM=aimaster npm run build` **Turbopack 빌드 성공** (정적 페이지 3/3, 동적 라우트 컴파일 완료)
-- **실물 브라우저 렌더링 캡처 (포트 3028)**:
-  - 데스크톱 (1440px): `docs/evidence/storefront_106_desktop.png`, `product_detail_106_desktop.png`, `cart_106_desktop.png`, `resale_106_desktop.png`
-  - 모바일 (390px): `docs/evidence/storefront_106_mobile.png` (가로 스크롤 폭 `scrollWidth === clientWidth === 390px`, 가로 스크롤 0px, 터치 타깃 44px 이상 완벽 검증)
+1. **메인 포털 홈 화면 (`src/app/page.tsx`, `create-store-form.tsx`, `logout-button.tsx`)**:
+   - **B2B 커머스 스튜디오 톤앤매너 전면 일체화**: 기존의 단순 텍스트 목록 탈피, 최상단 브랜드 뱃지 및 회원 프로필 바 리뉴얼.
+   - **4대 핵심 가치 히어로 배너**: 공급사 수수료 자동 정산, 회원·사업자 등급가, 무재고 자동 분양몰, AI 견적 & 대량 주문 4대 KPI 칩셋 탑재.
+   - **내 쇼핑몰 & 공급사 관제 덱**: 대표/직원 배지, 분양몰 D-day 배지, `[🔧 상점 관리 대시보드]`/`[🛒 손님 화면 바로가기]` 3D 엠보싱 버튼 탑재.
+   - **우측 2단 하이라이트 배너**: B2B 샘플몰 라이브 체험 카드(`data-sample-mall`) & 무재고 쇼핑몰 분양 안내 카드(`data-resale-card`) 프리미엄 그라디언트 카드화.
+   - **몰 개설 폼 고도화**: `/s/` 주소 프리뷰 뱃지, 부드러운 포커스 링, 3D 엠보싱 개설 버튼 탑재.
+
+2. **상품 상세페이지 (`src/app/s/[store]/(shop)/p/[id]/`) 고도화**:
+   - **스티키 탭 네비게이션 (`tabs-nav.tsx`)**: 스크롤 시 상단에 고정(`sticky top-[61px]`)되는 4대 탭 바 탑재 (`[상품 상세정보]`, `[배송 · 교환 · 반품]`, `[구매 후기 (N)]`, `[상품 문의 (N)]`).
+   - **수량 조절기 (`ProductDetail`)**: `[-]` 및 `[+]` 원터치 증감 버튼 추가, 주문 단위(MOQ/배수) 및 대량 구매 수량 할인 테이블 시각화.
+   - **모바일 하단 플로팅 구매 바 (`ProductDetail`)**: 모바일 스크롤 시 하단에 상품 정보와 장바구니 담기 버튼이 고정되어 구매 전환율 극대화.
+   - **배송 · 교환 · 반품 전용 안내 카드 (`page.tsx`)**: 기본 배송비, 제주/도서산간, 묶음배송 여부, 반품/교환 배송비 및 규정 안내 카드 신설.
+   - **상품 후기 & Q&A 게시판 (`product-boards.tsx`)**: 별점 통계 배지, 후기 목록, 판매자 공식 답변 박스, 비밀글 잠금 아이콘, 모던 문의 등록 폼 전면 리뉴얼.
+   - **버튼 1행 유지 의무 헌장 전역 준수**: `globals.css` 및 모든 버튼에 `white-space: nowrap !important;` 완벽 적용.
 
 ---
 
-## 4. 운영 배포 (v1.07)
+## 4. 검증 결과
+
+- **타입 검사**: `npx tsc --noEmit` **에러 0건 (통과)**
+- **단위 테스트**: `node --test tests/*.test.mjs` **261 / 261 전수 통과** (`pass 261`, `fail 0`)
+- **프로덕션 빌드**: `npm run build` **Turbopack 빌드 성공** (정적 페이지 3/3, 동적 라우트 컴파일 완료)
+
+---
+
+## 5. 운영 배포 (v1.07)
 - 배포 스크립트: `node mall-builder/scripts/deploy-prod.mjs`
 - 적용 버전: `v1.07` (`src/lib/version.ts` + DB `programs.version`)
 - 공식 운영 링크: https://mall-builder.buylife.xyz

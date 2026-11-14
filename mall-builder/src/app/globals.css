@@ -6,6 +6,17 @@ body {
 }
 
 /* 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 3D 엠보싱 버튼 */
+button,
+.btn-3d-blue,
+.btn-3d-dark,
+.btn-3d-emerald,
+.btn-3d-slate,
+input[type="submit"] {
+  white-space: nowrap !important;
+  min-width: max-content;
+  flex-shrink: 0;
+}
+
 .btn-3d-blue {
   background-color: #2563eb;
   color: #ffffff;
@@ -13,6 +24,9 @@ body {
   font-weight: 600;
   box-shadow: 0 4px 0 0 #1d4ed8;
   transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .btn-3d-blue:hover:not(:disabled) {
   background-color: #1d4ed8;
@@ -31,6 +45,9 @@ body {
   font-weight: 600;
   box-shadow: 0 4px 0 0 #020617;
   transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .btn-3d-dark:hover:not(:disabled) {
   background-color: #1e293b;
@@ -38,6 +55,48 @@ body {
   box-shadow: 0 2px 0 0 #020617;
 }
 .btn-3d-dark:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+.btn-3d-emerald {
+  background-color: #059669;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 0 0 #047857;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-3d-emerald:hover:not(:disabled) {
+  background-color: #047857;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 #065f46;
+}
+.btn-3d-emerald:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+.btn-3d-slate {
+  background-color: #334155;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 0 0 #1e293b;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-3d-slate:hover:not(:disabled) {
+  background-color: #1e293b;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 #0f172a;
+}
+.btn-3d-slate:active:not(:disabled) {
   transform: translateY(4px);
   box-shadow: none;
 }

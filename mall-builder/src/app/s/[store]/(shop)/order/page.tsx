@@ -23,7 +23,7 @@ async function GuestOrderPage({ store }: { store: Store }) {
   const ctxOf = await getPriceContexts(store.id, rows.map((r) => r.product.id));
   const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty, ctxOf(r.product.id)) }));
   if (!lines.length || lines.some((l) => !l.price.orderable)) redirect(`${base}/cart`);
-  const shipLines = lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: true }));
+  const shipLines = lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: true, qty: l.qty, productId: l.product.id }));
   const totalsByRegion = Object.fromEntries(
     (["mainland", "jeju", "island"] as Region[]).map((r) => {
       const t = cartTotals(shipLines, policies, r);
@@ -90,7 +90,7 @@ export default async function OrderPage({ params }: { params: Promise<{ store: s
   // 비었거나 주문할 수 없는 줄이 있으면 장바구니에서 먼저 정리
   if (!lines.length || lines.some((l) => !l.price.orderable)) redirect(`${base}/cart`);
 
-  const shipLines = lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: true }));
+  const shipLines = lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: true, qty: l.qty, productId: l.product.id }));
   const totalsByRegion = Object.fromEntries(
     (["mainland", "jeju", "island"] as Region[]).map((r) => {
       const t = cartTotals(shipLines, policies, r);

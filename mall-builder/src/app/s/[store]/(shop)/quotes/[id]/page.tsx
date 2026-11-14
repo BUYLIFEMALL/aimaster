@@ -46,7 +46,7 @@ export default async function QuoteDetailPage({
     // 외상: 승인 사업자이고 한도가 있을 때만(장바구니 주문서와 같은 조건, DB 함수가 한 번 더 검사)
     const isBusiness = customer?.approval_status === "approved" && !!customer.grade?.is_business;
     const credit = customer && isBusiness && customer.credit_limit > 0 ? { limit: customer.credit_limit, balance: (await getCreditLedger(customer.id)).balance } : undefined;
-    const lines = items.map((i) => ({ lineTotal: (i.quoted_price ?? 0) * i.qty, policyId: i.product_id ? policyOf.get(i.product_id) ?? null : null, orderable: true }));
+    const lines = items.map((i) => ({ lineTotal: (i.quoted_price ?? 0) * i.qty, policyId: i.product_id ? policyOf.get(i.product_id) ?? null : null, orderable: true, qty: i.qty, productId: i.product_id }));
     const totalsByRegion = Object.fromEntries(
       (["mainland", "jeju", "island"] as Region[]).map((r) => {
         const t = cartTotals(lines, policies, r);

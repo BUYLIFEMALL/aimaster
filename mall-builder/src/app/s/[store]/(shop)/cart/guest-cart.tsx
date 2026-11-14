@@ -11,7 +11,7 @@ export default async function GuestCart({ store, error }: { store: Store; error?
   const [rows, policies] = await Promise.all([loadGuestCart(store.id, store.slug), getShippingPolicies(store.id)]);
   const ctxOf = await getPriceContexts(store.id, rows.map((r) => r.product.id));
   const lines = rows.map((r) => ({ ...r, price: priceLine(r.product, r.variant, r.qty, ctxOf(r.product.id)) }));
-  const totals = cartTotals(lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: l.price.orderable })), policies, "mainland");
+  const totals = cartTotals(lines.map((l) => ({ lineTotal: l.price.lineTotal, policyId: l.product.shipping_policy_id, orderable: l.price.orderable, qty: l.qty, productId: l.product.id })), policies, "mainland");
   const blocked = lines.filter((l) => !l.price.orderable).length;
   const base = `/s/${store.slug}`;
 
