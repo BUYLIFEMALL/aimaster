@@ -6,6 +6,7 @@ import { sellerText, toCsv } from "@/extension/lib/parse.js";
 import { MARKET_LABEL, type SourcingMarket } from "@/lib/coupangResults";
 import { shopDetailPageUrl } from "@/lib/shopDetailLink";
 import { DetailPageButton } from "@/components/sourcing/DetailPageButton";
+import { RegisterHelper } from "@/components/coupang/RegisterHelper";
 
 const when = (iso: string) => new Date(iso).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "medium", timeStyle: "short" });
 const runTitle = (run: ReviewRun) => run.label || run.keyword || "키워드 없음";
@@ -145,6 +146,7 @@ export function ReviewResults({ initialRuns, market = "coupang" }: { initialRuns
                     </tbody>
                   </table>
                 </div>
+                {!loading && <RegisterHelper key={selected.id} items={shown} keyword={selected.keyword} collectedAt={when(selected.created_at)} />}
               </>
             )}
           </div>
