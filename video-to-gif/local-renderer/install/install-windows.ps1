@@ -1,7 +1,7 @@
 ﻿# GIF 자동화 「내 PC 고속 변환」 로컬 렌더러 — 윈도우 설치(무료, 관리자 권한 불필요).
 # install-windows.bat 을 더블클릭하면 이 스크립트가 실행된다. (이 파일은 BOM 있는 UTF-8 — PowerShell 5.1 한글 표시용)
 # 하는 일: ① host.ps1·host.bat 을 %LOCALAPPDATA%\BuylifeGifRenderer 로 복사 ② ffmpeg 찾기(없으면 winget 으로 Gyan.FFmpeg 설치)
-#          ③ 크롬 연결 등록(HKCU\Software\Google\Chrome\NativeMessagingHosts\xyz.buylife.gif_renderer)
+#          ③ 브라우저 연결 등록 — 크롬·크로미움(ego lite 등)·엣지·웨일(HKCU\Software\<브라우저>\NativeMessagingHosts\xyz.buylife.gif_renderer)
 $ErrorActionPreference = 'Stop'
 $HostName = 'xyz.buylife.gif_renderer'
 $ExtId = 'efgimakonmphcdojhiegemjmpbokpcgk'
@@ -52,9 +52,12 @@ $manifest = [ordered]@{
   allowed_origins = @("chrome-extension://$ExtId/")
 }
 [IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json), $utf8)
-$key = "HKCU:\Software\Google\Chrome\NativeMessagingHosts\$HostName"
-New-Item -Path $key -Force | Out-Null
-Set-Item -Path $key -Value $manifestPath
+# v1.29 크롬 외 크로미움 계열 브라우저도 쓰도록 각 브라우저가 읽는 경로에 모두 등록(확장 ID는 manifest key로 고정이라 같음)
+foreach ($b in @('Google\Chrome', 'Chromium', 'Microsoft\Edge', 'Naver\Naver Whale')) {
+  $key = "HKCU:\Software\$b\NativeMessagingHosts\$HostName"
+  New-Item -Path $key -Force | Out-Null
+  Set-Item -Path $key -Value $manifestPath
+}
 
 Write-Host "✔ 설치했습니다. ffmpeg: $ffmpeg" -ForegroundColor Green
-Write-Host '  이제 크롬에서 「AIMaster 내 PC 고속 변환」 확장을 켜고 GIF 자동화 화면을 새로고침하세요.'
+Write-Host '  이제 쓰는 브라우저(크롬·엣지·웨일·ego lite 등)에서 「AIMaster 내 PC 고속 변환」 확장을 켜고 GIF 자동화 화면을 새로고침하세요.'
