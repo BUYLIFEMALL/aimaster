@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { findInvite, firstClubId, newLines, classify, judgeResponse, isBlocked } from '../extension/invite.mjs';
 import { EXTENSION_OPERATIONS, allowedOrigin } from '../src/lib/extensionApi.ts';
-import { boardFromUrl, parseGrade, cleanRows, cafeNameFromTitle } from '../extension/roster.mjs';
+import { boardFromUrl, parseGrade, cleanRows, cafeNameFromTitle, isStaffGrade } from '../extension/roster.mjs';
 import { OPERATIONS, rpcFor } from '../src/lib/recruitApi.ts';
 
 test('EX08 A-1 board address: new /cafes/<n>/menus/<n> and old ArticleList clubid/menuid; other pages are not boards', () => {
@@ -18,6 +18,9 @@ test('EX09 A-1 rows: grade text, trimmed nicknames once, notices/own/too-long dr
   assert.equal(parseGrade(''), undefined);
   const rows = cleanRows([{ nickname: ' 꽃님이 ', member_grade: '새싹' }, { nickname: '꽃님이' }, { nickname: '바이라이프', notice: true }, { nickname: '나' }, { nickname: 'x'.repeat(41) }, { nickname: '' }], '나');
   assert.deepEqual(rows, [{ nickname: '꽃님이', member_grade: '새싹' }]);
+  // 2026-11-15: 카페 운영진(매니저·스탭) 등급은 명단에서 뺀다.
+  assert.deepEqual(cleanRows([{ nickname: '바이라이프', member_grade: '매니저' }, { nickname: '도우미', member_grade: '스탭' }, { nickname: '회원', member_grade: '새싹' }]).map(r => r.nickname), ['회원']);
+  assert.equal(isStaffGrade('카페스탭'), true); assert.equal(isStaffGrade('우수회원'), false);
   assert.equal(cleanRows(Array.from({ length: 60 }, (_, i) => ({ nickname: `n${i}` }))).length, 50);
   assert.equal(cafeNameFromTitle('바이라이프 : 네이버 카페'), '바이라이프');
 });

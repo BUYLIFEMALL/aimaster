@@ -29,7 +29,7 @@ export default async function DashboardPage() {
       </div>
       <section className={card}>
         <h2 className="font-bold text-slate-900">켜 둔 방식</h2>
-        <p className="mt-2 text-sm text-slate-700">{[s.mode_known && "👋 아는 사람", s.mode_promo && "📣 카페 홍보 글", s.mode_extract && "🔎 카페 활동 회원"].filter(Boolean).join(" · ") || "켜 둔 방식이 없습니다."}</p>
+        <p className="mt-2 text-sm text-slate-700">{[s.mode_known && "👋 아는 사람", s.mode_extract && "🔎 카페 활동 회원"].filter(Boolean).join(" · ") || "켜 둔 방식이 없습니다."}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
           {drafts > 0 && <Link href="/targets" className="rounded-xl bg-[#03c75a] px-4 py-2 font-bold text-white">✅ {drafts}명 검토·승인하러 가기</Link>}
           <Link href="/targets" className="rounded-xl border px-4 py-2">👥 아는 사람 넣기</Link>

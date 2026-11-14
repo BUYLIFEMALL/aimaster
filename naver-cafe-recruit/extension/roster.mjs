@@ -19,12 +19,17 @@ export function parseGrade(text) {
   return m ? m[1].trim().slice(0, 50) : undefined;
 }
 
-/** 읽은 줄을 서버로 보낼 모양으로: 공백 정리·빈칸/긴 닉네임 빼기·같은 닉네임 한 번·내 닉네임 빼기·최대 50줄. */
+/** 카페 운영진(매니저·스탭) 등급인지. 2026-11-15 주인님 결정: 명단에서 뺀다(본인이 매니저면 본인도 빠짐). */
+export function isStaffGrade(grade) {
+  return /매니저|스탭|스태프/.test(String(grade || ""));
+}
+
+/** 읽은 줄을 서버로 보낼 모양으로: 공백 정리·빈칸/긴 닉네임 빼기·같은 닉네임 한 번·내 닉네임 빼기·운영진 빼기·최대 50줄. */
 export function cleanRows(rows, ownNickname) {
   const out = [], seen = new Set(), own = String(ownNickname || "").trim();
   for (const r of rows || []) {
     const nickname = String(r?.nickname || "").replace(/\s+/g, " ").trim();
-    if (!nickname || nickname.length > 40 || seen.has(nickname) || (own && nickname === own) || r?.notice) continue;
+    if (!nickname || nickname.length > 40 || seen.has(nickname) || (own && nickname === own) || r?.notice || isStaffGrade(r?.member_grade)) continue;
     seen.add(nickname);
     const row = { nickname };
     if (r.member_grade) row.member_grade = String(r.member_grade).slice(0, 50);

@@ -38,7 +38,7 @@ export function SettingsForm() {
       const start = toMinute(form.start), end = toMinute(form.end);
       if (!Number.isFinite(start) || !Number.isFinite(end)) throw new Error("동작 시간대를 확인해 주세요.");
       if (form.extract && !s?.extract_consent_at && !form.consent) throw new Error("「카페 활동 회원」 방식은 책임 고지에 동의해야 켜집니다.");
-      await recruit("settings_save", { mode_known: form.known, mode_promo: form.promo, mode_extract: form.extract, consent: form.consent, daily_cap: form.cap, active_start_minute: start, active_end_minute: end });
+      await recruit("settings_save", { mode_known: form.known, mode_promo: false, mode_extract: form.extract, consent: form.consent, daily_cap: form.cap, active_start_minute: start, active_end_minute: end });
       setMsg("저장했습니다."); await load();
     } catch (e) { setMsg(e instanceof Error ? e.message : "저장 결과를 확인하지 못했습니다."); }
     finally { lock.current = false; setBusy(false); }
@@ -50,8 +50,7 @@ export function SettingsForm() {
       <h2 className="text-lg font-bold text-slate-900">초대할 사람을 얻는 방식 (여러 개 켤 수 있음)</h2>
       <label className="mt-4 flex gap-3 text-sm"><input type="checkbox" className="mt-1" checked={form.known} onChange={e => setForm({ ...form, known: e.target.checked })} />
         <span><b>👋 B. 아는 사람</b> — 내가 직접 넣은 네이버 아이디(서로이웃·지인)에게만 초대합니다. <span className="text-emerald-700">추천</span></span></label>
-      <label className="mt-3 flex gap-3 text-sm"><input type="checkbox" className="mt-1" checked={form.promo} onChange={e => setForm({ ...form, promo: e.target.checked })} />
-        <span><b>📣 C. 카페 홍보 글</b> — 초대 대신, 내가 가입한 카페 게시판에 내 카페 소개 글을 올립니다(「네이버 카페 포스팅 자동화」와 같은 방식, 카페 규칙 안에서).</span></label>
+      {/* 2026-11-15 주인님 결정: C. 카페 홍보 글은 아직 만들지 않아 숨김(저장 때 항상 꺼짐). */}
       <label className="mt-3 flex gap-3 text-sm"><input type="checkbox" className="mt-1" checked={form.extract} onChange={e => setForm({ ...form, extract: e.target.checked })} />
         <span><b>🔎 A. 카페 활동 회원 명단</b> — 내가 가입한 카페의 게시판 목록에서 글쓴이 닉네임·등급만 모아 엑셀로 받습니다(아이디는 모으지 않습니다). 실제 모집은 아래 「내 카페 초대링크」를 홍보 글·블로그에 넣어서 합니다. 내가 로그인한 브라우저에서만 확장이 읽습니다. <span className="text-amber-700">기본 꺼짐</span></span></label>
       {form.extract && !s.extract_consent_at && <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
