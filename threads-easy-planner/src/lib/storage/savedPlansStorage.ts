@@ -11,7 +11,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 // 2026-11-13: 브라우저 임시 저장을 회원별로 나눈다(같은 PC를 여러 회원이 쓰면 다른 회원 글이 보이던 문제 — 회원 자료 격리 규칙).
-// 예전 공용 이름(LEGACY_KEY)은 누구 글인지 알 수 없어 읽지 않고 지운다. 글의 원본은 DB(회원 본인 행)라 서버 저장분은 그대로 다시 불러온다.
+// 예전 공용 이름(LEGACY_KEY)은 처음 한 번, 지금 로그인한 회원 칸으로 옮긴다(2026-11-14 주인님 결정 「지금 로그인한 회원 것으로 옮기기」).
+// 옮기는 것은 서버에 저장되지 못한 글(id가 local_로 시작)만 — 서버에 있는 글은 DB에서 본인 것만 다시 불러오므로 옮기지 않는다.
 const LEGACY_KEY = "tep_saved_plans_local_cache";
 const LOCAL_STORAGE_PREFIX = "tep_saved_plans_local_cache:";
 let currentUserId: string | null = null;
@@ -20,17 +21,36 @@ let currentUserId: string | null = null;
 async function resolveUserKey(): Promise<string | null> {
   if (typeof window === "undefined") return null;
   try {
-    localStorage.removeItem(LEGACY_KEY);
-  } catch {
-    // ignore
-  }
-  try {
     const { data } = await createClient().auth.getUser();
     currentUserId = data.user?.id ?? null;
   } catch {
     currentUserId = null;
   }
+  migrateLegacyCache();
   return currentUserId;
+}
+
+/** 예전 공용 저장분 중 서버에 없는 글(local_)만 지금 회원 칸으로 옮기고 예전 이름은 지운다. 로그인 전이면 그대로 둔다. */
+function migrateLegacyCache() {
+  const key = localKey();
+  if (typeof window === "undefined" || !key) return;
+  try {
+    const raw = localStorage.getItem(LEGACY_KEY);
+    if (raw === null) return;
+    const legacy = JSON.parse(raw);
+    const moving: SavedThreadPlan[] = Array.isArray(legacy)
+      ? legacy.filter((p) => p && typeof p === "object" && typeof p.id === "string" && p.id.startsWith("local_") && p.topic)
+      : [];
+    if (moving.length) {
+      const mineRaw = localStorage.getItem(key);
+      const mine: SavedThreadPlan[] = mineRaw ? JSON.parse(mineRaw) : [];
+      const ids = new Set(mine.map((p) => p.id));
+      localStorage.setItem(key, JSON.stringify([...moving.filter((p) => !ids.has(p.id)), ...mine]));
+    }
+    localStorage.removeItem(LEGACY_KEY);
+  } catch {
+    // 옮기지 못하면 예전 이름을 그대로 둔다(다음에 다시 시도)
+  }
 }
 
 function localKey(): string | null {
