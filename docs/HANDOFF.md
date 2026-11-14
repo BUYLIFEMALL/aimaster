@@ -8,7 +8,8 @@
 ## 2026-11-14 ✅ [역할: policy] Claude Code(윈도우) · 세션 `claude-win-20261112-policy` — 결정 대기 11건 처리(보관·모델·회원 본인 키), 미배포
 - 결정만 기록(코드 동작 그대로): `stepmail` 리드는 예외로 회원별 보관·발송 기록 30일(`docs/TOP_RULE_PERSONAL_ACCOUNT_API.md` §8 지정 목록), `kakao_auto_poster` 발송 내역 30일, `ui-canvas` 만든 날 기준, `tarot` 공유 그림도 30일, `document-translator` 번역 결과만 30일(용어집 보관), NewsBlur 비밀번호 기존대로. 기록: `docs/DEV_STATUS_20261113.md` §6-1 아래.
 - 코드(미배포, 커밋됨): `threads-easy-planner` 모델 최신 9개 · `tarot`·`mbti`·`mbti-character` 카카오 공유를 회원 본인 키로 + 메인 `/api-settings` 카카오 JavaScript 키 칸 · `kakao_auto_poster` 리포트 글 정리 AI 선택(OpenAI·Claude·Gemini, Claude 구조화 응답). 운영 DB: `kakao_topics.text_model` 칼럼 추가(적용됨). 시험: 세 플랫폼 저가 모델 실호출 성공(Claude 2회 — 첫 회 600토큰 한도에서 해석 실패 → 구조화 응답으로 해결).
-- 남은 일: 배포(빌드 5회 + 메인 사이트 자동 빌드), 카카오 콘솔 JavaScript SDK 도메인에 타로·성격코드·캐릭코드 주소 등록 확인(주인님), `stepmail` 메일 개인화·발송 간격·계정별 한도 만들지 결정 대기. 대기 줄: `docs/PENDING_DEPLOYS.md`.
+- **배포 완료(같은 날, 주인님 승인)**: 쓰레드 기획 v1.52 · 타로 v1.29(`CRON_SECRET` 추가) · 성격코드 v1.23 · 캐릭코드 v1.26 · 카카오 뉴스레터 v1.32 모두 Ready·DB 버전·`/api/kakao-js-key` 비로그인 401. 메인 사이트는 자동 빌드가 취소돼 커밋본 직접 배포(`aimaster-p89yualxx`, Ready, 카카오 키 칸 반영) — `docs/ERROR_LESSONS.md` 2026-11-14. 카카오 키: 세 프로그램 기존 키와 관리자 등록 키 지문 일치, 시험 계정에도 등록. 주인님: 카카오 콘솔 도메인 등록돼 있음.
+- `stepmail` 메일 `{닉네임}` 개인화·2~5초 간격·계정별 하루 한도 구현(`b3a93984f`, 시험 17개 통과) — **미배포, 빌드 승인 대기**. 남은 화면 확인: 관리자 로그인 상태로 타로 결과 화면 카카오 버튼, 카카오 뉴스레터 주제 「AI 모델」 저장.
 
 
 ## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` — EC-W10 「🏭 공장 견적 비교」 구현 + 실호출 시험 2회, 미배포 대기

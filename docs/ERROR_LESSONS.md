@@ -1,6 +1,12 @@
 # 작업 중요 지침 — 에러 해결 기록 · 점검 체크리스트
 
 
+## 2026-11-14 메인 사이트 코드가 푸시됐는데 자동 빌드가 「취소」로 끝나 운영에 안 나감 (메인 `/api-settings` 카카오 키 칸, [역할: policy])
+- 증상: 메인 사이트 파일(`app/(dashboard)/api-settings/page.tsx`)을 고친 커밋이 푸시됐는데, 그 뒤 메인 자동 빌드가 연달아 Canceled. 운영 화면 번들에 새 문구가 없음.
+- 원인(추정): 다른 세션이 내 미푸시 커밋까지 함께 푸시한 뒤 이어진 푸시들에서 「건너뛰기」 스크립트(`scripts/vercel-ignore-build.sh`)가 `VERCEL_GIT_PREVIOUS_SHA`(직전 배포의 커밋 — 취소된 것도 포함되는 것으로 보임)와 비교해 메인 파일 변경 없음으로 판단.
+- 해결: 커밋본만 꺼내(`git archive HEAD` 메인 경로 + `.vercel/project.json`만) 임시 폴더에서 `vercel deploy --prod` → Ready, 번들에서 새 문구 확인. 루트 `.vercel/`에는 다른 세션 임시 파일이 많으니 `project.json`만 복사.
+- 다음부터: 메인 파일을 고친 푸시 뒤에는 「Ready로 끝났는지 + 운영 번들에 새 코드가 있는지」를 확인한다. 취소면 위 방법(승인 범위 안 1회). 스크립트 기준을 「마지막 Ready 배포 커밋」으로 바꾸는 개선은 정책 담당 제안(미구현).
+
 ## 2026-11-14 재발 — 배포 도우미가 작업 폴더째 올려 다른 세션의 미커밋 서버 코드가 운영에 나감 (`trending-product-finder` v1.38, [역할: ecommerce-image])
 - **증상**: `node scripts/deploy.mjs trending-product-finder --go`가 Ready로 끝났는데, 그 폴더에 있던 다른 세션의 미커밋 E2-2 코드(`draftListingAction`·`lib/ai/claude.ts`·`@anthropic-ai/sdk` 추가)도 함께 운영에 올라갔다. 화면 연결이 없어 회원 영향은 없었다.
 - **원인**: `git status --porcelain -- <폴더>`와 배포를 한 명령(`;`)에 묶어 결과를 보기 전에 배포가 시작됐다. `deploy.mjs`는 작업 중 표만 보고 폴더의 미커밋 변경은 막지 않는다. 바로 위 11-13 `banana-canvas` 항목과 같은 유형의 재발.
