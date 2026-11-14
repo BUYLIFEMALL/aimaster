@@ -5,6 +5,7 @@ export interface SampleItem {
   name: string;
   price: number | null;
   is_ad: boolean;
+  category?: string | null;
 }
 
 export interface WordCount {
@@ -73,4 +74,30 @@ export function usedInNames(keyword: string, names: string[]): number {
   const target = keyword.toLowerCase().replace(/\s+/g, "");
   if (!target) return 0;
   return names.filter((name) => name.toLowerCase().replace(/\s+/g, "").includes(target)).length;
+}
+
+export interface CategoryShare {
+  path: string;
+  count: number;
+  pct: number;
+}
+
+/**
+ * E2-3 분류 분포 — 분류가 있는 상품만 세어 많은 순. 마켓별 분류를 섞지 않도록 같은 기록(한 마켓) 표본에만 쓴다.
+ * depth: 앞에서부터 몇 단계까지 볼지(기본 4 = 세분류까지).
+ */
+export function categoryShares(items: SampleItem[], depth = 4, limit = 5): { shares: CategoryShare[]; known: number } {
+  const counts = new Map<string, number>();
+  let known = 0;
+  for (const item of items) {
+    const path = String(item.category ?? "").split(">").filter(Boolean).slice(0, depth).join(">");
+    if (!path) continue;
+    known += 1;
+    counts.set(path, (counts.get(path) ?? 0) + 1);
+  }
+  const shares = [...counts]
+    .map(([path, count]) => ({ path, count, pct: Math.round((count / known) * 100) }))
+    .sort((a, b) => b.count - a.count || a.path.localeCompare(b.path))
+    .slice(0, limit);
+  return { shares, known };
 }

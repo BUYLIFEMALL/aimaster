@@ -50,6 +50,8 @@ export function readNaverPage() {
           sellers: item?.mallCount ?? 0,
           url: item?.mallProductUrl ?? "",
           image: item?.imageUrl ?? "",
+          // E2-3: 네이버 쇼핑 분류 경로(대>중>소>세, 2026-11-14 실측 category1Name~category4Name).
+          category: [item?.category1Name, item?.category2Name, item?.category3Name, item?.category4Name].filter(Boolean).join(">"),
         }))
       : null,
   };
@@ -88,6 +90,7 @@ export function parseNaverRow(row) {
     sellers,
     url: id ? naverProductUrl({ id, sellers, url: row?.url }) : "",
     imageUrl: cleanImageUrl(row?.image),
+    category: String(row?.category ?? "").replace(/\s+/g, " ").trim().slice(0, 100),
   };
 }
 

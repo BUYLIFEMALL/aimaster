@@ -38,3 +38,25 @@ test("광고 비율과 연관 키워드 사용 수(띄어쓰기 무시)", () => 
   assert.equal(usedInNames("캠핑의자", items.map((i) => i.name)), 2);
   assert.equal(usedInNames(" ", items.map((i) => i.name)), 0);
 });
+
+import { categoryShares } from "../lib/registerHelper.ts";
+import { parseNaverRow } from "../extension/lib/naver.js";
+
+test("E2-3 분류 분포: 분류 있는 상품만, 많은 순, 단계 자르기", () => {
+  const items = [
+    { name: "a", price: 1, is_ad: false, category: "스포츠/레저>캠핑>캠핑가구>캠핑의자" },
+    { name: "b", price: 1, is_ad: false, category: "스포츠/레저>캠핑>캠핑가구>캠핑의자" },
+    { name: "c", price: 1, is_ad: false, category: "가구/인테리어>의자>접이식의자" },
+    { name: "d", price: 1, is_ad: false, category: null },
+  ];
+  const { shares, known } = categoryShares(items);
+  assert.equal(known, 3);
+  assert.deepEqual(shares[0], { path: "스포츠/레저>캠핑>캠핑가구>캠핑의자", count: 2, pct: 67 });
+  assert.equal(categoryShares(items, 1).shares[0].path, "스포츠/레저");
+  assert.deepEqual(categoryShares([{ name: "x", price: 1, is_ad: false }]), { shares: [], known: 0 });
+});
+
+test("E2-3 확장: 네이버 분류 경로를 정리해 넘김", () => {
+  assert.equal(parseNaverRow({ id: "1", category: "스포츠/레저>캠핑  >캠핑가구" }).category, "스포츠/레저>캠핑 >캠핑가구");
+  assert.equal(parseNaverRow({ id: "1" }).category, "");
+});

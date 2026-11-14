@@ -49,6 +49,7 @@ export async function POST(request: Request) {
       purchases: item.purchases,
       sellers: item.sellers,
       mall_name: item.mallName,
+      category: item.category,
     })),
   );
   if (itemError) {

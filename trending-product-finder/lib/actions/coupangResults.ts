@@ -35,6 +35,7 @@ export interface ReviewItem {
   purchases: number | null;
   sellers: number | null;
   mall_name: string | null;
+  category?: string | null;
 }
 
 export async function listReviewRunsAction(market: SourcingMarket = "coupang"): Promise<{ runs: ReviewRun[]; error?: string }> {
@@ -56,7 +57,7 @@ export async function getReviewItemsAction(runId: string): Promise<{ items: Revi
   const supabase = (await createClient()) as unknown as SupabaseLike;
   const { data, error } = await supabase
     .from("coupang_review_items")
-    .select("product_id, name, price, reviews, is_ad, url, sales_rank, purchases, sellers, mall_name")
+    .select("product_id, name, price, reviews, is_ad, url, sales_rank, purchases, sellers, mall_name, category")
     .eq("user_id", user.id)
     .eq("run_id", runId)
     // 판매 순위 순서로. 순위가 없는 예전 기록(2026-11-03 이전)은 리뷰 많은 순

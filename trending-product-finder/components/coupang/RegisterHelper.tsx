@@ -3,7 +3,7 @@
 // E2-1 등록 정보 도우미 — 지금 거른 검색 표본으로 상품명 낱말·가격대·광고 비율을 보여 주고,
 // 회원 본인 검색광고 키로 연관 키워드·월간 검색수를 불러온다. AI·새 수집 없음.
 import { useMemo, useState } from "react";
-import { adShare, priceStats, topWords, usedInNames, type SampleItem } from "@/lib/registerHelper";
+import { adShare, categoryShares, priceStats, topWords, usedInNames, type SampleItem } from "@/lib/registerHelper";
 import { relatedKeywordsAction } from "@/lib/actions/registerHelper";
 import type { RelatedKeyword } from "@/lib/naver/searchAd";
 import type { ListingMarket } from "@/lib/listingRules";
@@ -17,6 +17,7 @@ export function RegisterHelper({ items, keyword, collectedAt, market }: { items:
   const words = useMemo(() => topWords(names), [names]);
   const prices = useMemo(() => priceStats(items.map((item) => item.price)), [items]);
   const ads = useMemo(() => adShare(items), [items]);
+  const categories = useMemo(() => categoryShares(items), [items]);
   const [seed, setSeed] = useState(keyword);
   const [related, setRelated] = useState<RelatedKeyword[] | null>(null);
   const [message, setMessage] = useState("");
@@ -82,6 +83,34 @@ export function RegisterHelper({ items, keyword, collectedAt, market }: { items:
           {prices && <p className="mt-1 text-[11px] text-mx-muted">가격이 있는 {num(prices.count)}개 기준</p>}
         </div>
       </div>
+
+      {market === "naver" && (
+        <div className="mt-3 rounded-lg bg-mx-raised p-3">
+          <p className="text-xs font-bold text-mx-text">🗂 네이버 분류 분포</p>
+          {categories.known ? (
+            <>
+              <ul className="mt-2 space-y-1">
+                {categories.shares.map((c) => (
+                  <li key={c.path} className="text-xs text-mx-text">
+                    <div className="flex justify-between gap-2">
+                      <span className="min-w-0 truncate" title={c.path}>{c.path.split(">").join(" › ")}</span>
+                      <span className="whitespace-nowrap text-mx-muted">{num(c.count)}개 · {c.pct}%</span>
+                    </div>
+                    <div className="mt-0.5 h-1 rounded bg-mx-border">
+                      <div className="h-1 rounded bg-mx-primary" style={{ width: `${c.pct}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1 text-[11px] text-mx-muted">
+                분류가 있는 {num(categories.known)}개 기준. 상위 상품이 많이 쓰는 분류가 이 키워드의 「검색이 잘 되는 분류」일 가능성이 높습니다. 등록할 때 분류는 마켓 등록기의 공식 추천과 함께 보세요.
+              </p>
+            </>
+          ) : (
+            <p className="mt-2 text-xs text-mx-muted">이 기록에는 분류 정보가 없습니다. 확장을 새 버전으로 바꾼 뒤 다시 검색하면 보입니다.</p>
+          )}
+        </div>
+      )}
 
       <div className="mt-3 rounded-lg bg-mx-raised p-3">
         <p className="text-xs font-bold text-mx-text">🔎 연관 키워드 · 월간 검색수 (네이버 검색광고, 내 키)</p>

@@ -160,7 +160,7 @@ const single = parseNaverRow({ id: "88591845041", name: "대용량 텀블러 퀜
 const catalog = parseNaverRow({ id: "45678912345", name: "스탠리 퀜처 H2.0", price: 41820, reviews: 81417, purchases: 0, isAd: false, mall: "", sellers: 782, url: "" });
 
 test("네이버: 판매처 한 곳 상품은 구매 수·판매처·스마트스토어 주소를 쓴다", () => {
-  assert.deepEqual(single, { market: "naver", id: "88591845041", name: "대용량 텀블러 퀜처 보온 보냉텀블러", price: 14500, reviews: 13323, purchases: 3114, isAd: false, mall: "1리터텀블러 마켓", sellers: 0, url: "https://smartstore.naver.com/main/products/8469600558", imageUrl: "" });
+  assert.deepEqual(single, { market: "naver", id: "88591845041", name: "대용량 텀블러 퀜처 보온 보냉텀블러", price: 14500, reviews: 13323, purchases: 3114, isAd: false, mall: "1리터텀블러 마켓", sellers: 0, url: "https://smartstore.naver.com/main/products/8469600558", imageUrl: "", category: "" });
 });
 
 test("네이버: 가격비교 상품은 가격비교 화면 주소, 바깥 주소는 쓰지 않는다", () => {
@@ -218,6 +218,10 @@ test("서버: 네이버 저장 자료는 구매·판매처를 받고 주소를 �
   assert.equal(mod.sanitizeMarket("evil"), "coupang");
   // 마켓을 안 보내는 예전 확장은 쿠팡 그대로
   assert.equal(mod.sanitizeReviewItems([{ id: "5", purchases: 3 }])[0].purchases, null);
+  // E2-3 분류: 네이버만 받고 4단계·단계마다 40자까지, 쿠팡은 버림
+  assert.equal(mod.sanitizeReviewItems([{ id: "7", category: " 가>나 >>다>라>마" }], "naver")[0].category, "가>나>다>라");
+  assert.equal(mod.sanitizeReviewItems([{ id: "8" }], "naver")[0].category, null);
+  assert.equal(mod.sanitizeReviewItems([{ id: "9", category: "가>나" }])[0].category, null);
 });
 
 import { migrateSchedules } from "../extension/lib/auto.js";

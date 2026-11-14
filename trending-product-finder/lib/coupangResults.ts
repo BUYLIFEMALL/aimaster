@@ -26,6 +26,8 @@ export interface ReviewItemInput {
   purchases: number | null;
   sellers: number | null;
   mallName: string | null;
+  /** 네이버만: 분류 경로(대>중>소>세). 확장 v1.39 이상이 보낸다(E2-3). */
+  category: string | null;
 }
 
 const toCount = (value: unknown): number | null => {
@@ -67,9 +69,20 @@ export function sanitizeReviewItems(raw: unknown, market: SourcingMarket = "coup
       purchases: naver ? toCount(item.purchases) ?? 0 : null,
       sellers,
       mallName: naver && !sellers ? String(item.mall ?? "").trim().slice(0, 100) || null : null,
+      category: naver ? cleanCategory(item.category) : null,
     });
   }
   return [...byId.values()];
+}
+
+/** 분류 경로: 「>」로 나눈 4단계까지, 단계마다 40자. 이상한 값이면 null. */
+export function cleanCategory(raw: unknown): string | null {
+  const parts = String(raw ?? "")
+    .split(">")
+    .map((part) => part.replace(/\s+/g, " ").trim().slice(0, 40))
+    .filter(Boolean)
+    .slice(0, 4);
+  return parts.length ? parts.join(">") : null;
 }
 
 export function sanitizeKeyword(raw: unknown): string {
