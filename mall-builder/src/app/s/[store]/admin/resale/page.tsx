@@ -6,6 +6,7 @@ import {
   getResaleMirrors,
   getResaleOrders,
   getResalePayouts,
+  getResaleRate,
   getResaleStoresOf,
   getStoreResaleApplications,
   getStoresByIds,
@@ -19,7 +20,7 @@ import {
   removeResaleProductAction,
   setResaleOpenAction,
   setResalePeriodAction,
-  setResalePriceAction,
+  setResaleRateAction,
 } from "@/lib/resale-actions";
 import { formatWon } from "@/lib/products";
 import { DEFAULT_RESALE_DAYS, MIRROR_STATUS_LABEL, RESALE_LEDGER_LABEL, RESALE_PAYOUT_LABEL, RESALE_PAYOUT_MIN, RESALE_STATUS_LABEL, resaleAccepting, resaleDaysLeft } from "@/lib/resale";
@@ -46,12 +47,13 @@ export default async function AdminResalePage({ params, searchParams }: { params
 
   // 분양몰 대표(분양자) 화면
   if (store.kind === "resale") {
-    const [[source], mirrors, catalog, ledger, myPayouts] = await Promise.all([
+    const [[source], mirrors, catalog, ledger, myPayouts, rate] = await Promise.all([
       getStoresByIds(store.source_store_id ? [store.source_store_id] : []),
       getResaleMirrors(store.id),
       getResaleCatalog(store.id, q),
       getResaleLedger(store.id),
       getResalePayouts({ storeId: store.id }),
+      getResaleRate(store.id),
     ]);
     const left = resaleDaysLeft(store.resale_expires_at);
     const balance = ledger[0]?.balance_after ?? 0;
@@ -61,7 +63,7 @@ export default async function AdminResalePage({ params, searchParams }: { params
         {notice}
         <h2 className="text-lg font-semibold">🏪 내 분양몰</h2>
         <section className="mt-3 rounded-lg border p-4 text-sm" data-resale-self>
-          <p>원본 몰: <b>{source?.name ?? "본사 몰"}</b> — 이 몰의 상품을 골라 내 판매가로 팝니다. 결제·발송은 본사가 맡습니다.</p>
+          <p>원본 몰: <b>{source?.name ?? "본사 몰"}</b> — 이 몰의 상품을 골라 <b>본사 판매가로</b> 팝니다. 결제·발송은 본사가 맡고, 판매 금액의 수수료 <b data-resale-rate>{rate ?? "—"}%</b>를 받습니다.</p>
           <p className={`mt-2 ${left === 0 ? "text-red-700" : "text-gray-700"}`} data-resale-period>
             {left === 0 ? "이용 기간이 끝나 지금은 새 주문을 받지 않습니다. 본사에 연장을 요청해 주세요." : `이용 기간: ${store.resale_expires_at ? formatDateTime(store.resale_expires_at) : "—"}까지 (${left}일 남음)`}
           </p>
@@ -70,7 +72,7 @@ export default async function AdminResalePage({ params, searchParams }: { params
         <section id="money" className="mt-6 scroll-mt-4 rounded-lg border p-4 text-sm" data-resale-money>
           <h3 className="font-semibold">💰 매출·정산</h3>
           <p className="mt-1">출금할 수 있는 잔액 <b className="text-lg" data-resale-balance>{formatWon(balance)}</b></p>
-          <p className="mt-1 text-xs text-gray-500">손님이 구매 확정하면 (내 판매가 − 본사가) × 수량이 쌓이고, 그 뒤 반품·취소되면 회수됩니다. 손님 주문의 입금 확인·발송은 본사가 처리하며 진행 상태는 「주문」에서 볼 수 있습니다.</p>
+          <p className="mt-1 text-xs text-gray-500">손님이 구매 확정하면 (결제 금액 − 배송비) × 수수료 {rate ?? "—"}%가 쌓이고, 그 뒤 반품·취소되면 회수됩니다. 손님 주문의 입금 확인·발송은 본사가 처리하며 진행 상태는 「주문」에서 볼 수 있습니다.</p>
           {waitingPayout ? (
             <p className="mt-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">출금 신청 {formatWon(waitingPayout.amount)} — 본사 처리 대기 중입니다.</p>
           ) : (
@@ -109,11 +111,7 @@ export default async function AdminResalePage({ params, searchParams }: { params
                 <li key={m.id} className="flex flex-wrap items-center gap-2 rounded border p-3 text-sm" data-resale-mirror>
                   <Link href={`/s/${store.slug}/p/${m.id}`} className="min-w-0 flex-1 truncate font-medium underline">{m.name}</Link>
                   <span className={`rounded px-1.5 text-xs ${m.status === "on_sale" ? "bg-emerald-50 text-emerald-800" : "bg-gray-100 text-gray-600"}`}>{MIRROR_STATUS_LABEL[m.status] ?? m.status}</span>
-                  <span className="text-xs text-gray-500">본사가 {m.source_price == null ? "—" : formatWon(m.source_price)} · 마진 {m.source_price == null ? "—" : formatWon(m.base_price - m.source_price)}</span>
-                  <form action={setResalePriceAction.bind(null, store.slug, m.id)} className="flex items-center gap-1 text-xs">
-                    <input name="price" inputMode="numeric" defaultValue={m.base_price} aria-label={`${m.name} 판매가`} className="w-24 rounded border px-2 py-1.5" />원
-                    <PendingButton pendingText="저장 중…" className="min-h-10 rounded border px-2 py-1.5">판매가 저장</PendingButton>
-                  </form>
+                  <span className="text-xs text-gray-500">판매가 {formatWon(m.base_price)}(본사 판매가) · 1개 팔면 수수료 약 {rate == null ? "—" : formatWon(Math.floor((m.base_price * rate) / 100))}</span>
                   <form action={removeResaleProductAction.bind(null, store.slug, m.id)}>
                     <PendingButton pendingText="빼는 중…" className="min-h-10 rounded border border-red-300 px-2 py-1.5 text-xs text-red-700">빼기</PendingButton>
                   </form>
@@ -125,7 +123,7 @@ export default async function AdminResalePage({ params, searchParams }: { params
 
         <section id="catalog" className="mt-6 scroll-mt-4 rounded-lg border p-4" data-resale-catalog>
           <h3 className="text-sm font-semibold">본사 상품 담기</h3>
-          <p className="mt-1 text-xs text-gray-500">담으면 이름·사진·옵션·재고·품절이 본사 상품과 자동으로 맞춰집니다. 판매가는 본사가 이상으로 정하고, 차액이 내 마진입니다.</p>
+          <p className="mt-1 text-xs text-gray-500">담으면 이름·사진·옵션·재고·품절·판매가가 본사 상품과 자동으로 맞춰집니다. 판매가는 본사 판매가 그대로이고, 판매 금액의 수수료 {rate ?? "—"}%가 정산됩니다.</p>
           <form className="mt-2 flex gap-2" action={`/s/${store.slug}/admin/resale#catalog`}>
             <input name="q" defaultValue={q ?? ""} placeholder="상품 이름 검색" className="min-w-0 flex-1 rounded border px-2 py-1.5 text-sm" />
             <button className="min-h-10 rounded border px-3 text-sm">검색</button>
@@ -153,7 +151,6 @@ export default async function AdminResalePage({ params, searchParams }: { params
                 ))}
               </ul>
               <div className="flex flex-wrap items-center gap-2 text-sm">
-                <label>처음 판매가 = 본사가 + <input name="markup" inputMode="numeric" defaultValue={20} className="w-14 rounded border px-2 py-1.5" />%</label>
                 <PendingButton pendingText="담는 중…" className="min-h-11 rounded bg-gray-900 px-4 py-2 text-white">고른 상품 담기</PendingButton>
               </div>
             </form>
@@ -163,11 +160,12 @@ export default async function AdminResalePage({ params, searchParams }: { params
     );
   }
 
-  const [apps, resaleStores, resaleOrders, payouts] = await Promise.all([
+  const [apps, resaleStores, resaleOrders, payouts, defaultRate] = await Promise.all([
     getStoreResaleApplications(store.id),
     getResaleStoresOf(store.id),
     getResaleOrders(store.id),
     getResalePayouts({ sourceStoreId: store.id }),
+    getResaleRate(store.id),
   ]);
   const waitingOrders = resaleOrders.filter((o) => o.status === "pending_payment");
   const waitingPayouts = payouts.filter((p) => p.status === "requested");
@@ -180,7 +178,15 @@ export default async function AdminResalePage({ params, searchParams }: { params
     <AdminShell slug={store.slug} storeName={store.name} active="/resale">
       {notice}
       <h2 className="text-lg font-semibold">🏪 분양</h2>
-      <p className="mt-1 text-sm text-gray-600">회원이 이 몰의 상품을 자기 이름의 몰(분양몰)에서 팔 수 있게 합니다. 결제는 이 몰 계좌·카드로 받고, 분양자는 (판매가 − 이 몰 판매가)를 마진으로 받습니다.</p>
+      <p className="mt-1 text-sm text-gray-600">회원이 이 몰의 상품을 자기 이름의 몰(분양몰)에서 팔 수 있게 합니다. 분양몰은 이 몰 판매가 그대로 팔고, 결제는 이 몰 계좌·카드로 받으며, 구매 확정된 주문의 (결제 금액 − 배송비) × 수수료율을 분양자에게 지급합니다.</p>
+
+      <section className="mt-4 rounded-lg border p-4 text-sm" data-resale-default-rate>
+        <form action={setResaleRateAction.bind(null, store.slug, store.id, true)} className="flex flex-wrap items-center gap-2">
+          <label>기본 수수료율 <input name="rate" inputMode="decimal" defaultValue={defaultRate ?? 10} className="w-16 rounded border px-2 py-1.5" />%</label>
+          <PendingButton pendingText="저장 중…" className="min-h-10 rounded border px-3 py-1.5 text-xs">저장</PendingButton>
+          <span className="text-xs text-gray-500">분양몰마다 따로 정하지 않으면 이 값을 씁니다(0~50%).</span>
+        </form>
+      </section>
 
       <section className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border p-4 text-sm" data-resale-open>
         <span className={`rounded px-1.5 text-xs ${accepting ? "bg-emerald-50 text-emerald-800" : "bg-gray-100 text-gray-600"}`}>{accepting ? "분양 신청 받는 중" : "분양 신청 안 받음"}</span>
@@ -230,7 +236,11 @@ export default async function AdminResalePage({ params, searchParams }: { params
                   <b>{r.name}</b>
                   <Link href={`/s/${r.slug}`} className="text-xs text-blue-700 underline">/s/{r.slug}</Link>
                   <span className={`rounded px-1.5 text-xs ${left ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"}`}>{left ? `${left}일 남음` : "기간 끝남"}</span>
-                  <form action={setResalePeriodAction.bind(null, store.slug, r.id)} className="ml-auto flex items-center gap-1 text-xs">
+                  <form action={setResaleRateAction.bind(null, store.slug, r.id, false)} className="ml-auto flex items-center gap-1 text-xs" data-resale-store-rate>
+                    수수료 <input name="rate" inputMode="decimal" defaultValue={r.resale_commission_rate ?? ""} placeholder={`기본 ${defaultRate ?? 10}`} className="w-16 rounded border px-2 py-1.5" />%
+                    <PendingButton pendingText="저장 중…" className="min-h-10 rounded border px-2 py-1.5">저장</PendingButton>
+                  </form>
+                  <form action={setResalePeriodAction.bind(null, store.slug, r.id)} className="flex items-center gap-1 text-xs">
                     오늘부터 <input name="days" inputMode="numeric" defaultValue={DEFAULT_RESALE_DAYS} className="w-16 rounded border px-2 py-1.5" />일
                     <PendingButton pendingText="저장 중…" className="min-h-10 rounded border px-2 py-1.5">기간 저장</PendingButton>
                   </form>

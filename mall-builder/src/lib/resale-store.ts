@@ -35,14 +35,21 @@ export async function getStoresByIds(ids: string[]): Promise<ResaleStoreRow[]> {
   return (data ?? []) as ResaleStoreRow[];
 }
 
-export type ResaleStoreRow ={ id: string; slug: string; name: string; owner_id: string; status: string; resale_expires_at: string | null; created_at: string };
+export type ResaleStoreRow ={ id: string; slug: string; name: string; owner_id: string; status: string; resale_expires_at: string | null; created_at: string; resale_commission_rate: number | null };
+
+/** 실제 수수료율(분양몰 = 몰 값 → 본사 기본값 → 10%, 본사 몰 = 기본값). 볼 권한이 없으면 null (0067) */
+export async function getResaleRate(storeId: string): Promise<number | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("mall_builder_resale_rate_of", { p_store_id: storeId });
+  return data == null ? null : Number(data);
+}
 
 /** 원본 몰 대표: 이 몰의 분양몰 목록(분양몰 읽기는 몰 표 보안 규칙 — 영업 중 몰은 누구나 읽힘) */
 export async function getResaleStoresOf(sourceStoreId: string): Promise<ResaleStoreRow[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("mall_builder_stores")
-    .select("id, slug, name, owner_id, status, resale_expires_at, created_at")
+    .select("id, slug, name, owner_id, status, resale_expires_at, created_at, resale_commission_rate")
     .eq("source_store_id", sourceStoreId)
     .order("created_at", { ascending: false });
   return (data ?? []) as ResaleStoreRow[];

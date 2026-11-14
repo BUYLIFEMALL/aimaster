@@ -17,7 +17,8 @@ select '2 담기(20%)' t, mall_builder_resale_add((select id from mall_builder_s
 select '3 거울' t, m.name, m.base_price, m.stock, sp.name ship, sp.base_fee, (select count(*) from mall_builder_product_variants v where v.product_id = m.id) vars
   from mall_builder_products m left join mall_builder_shipping_policies sp on sp.id = m.shipping_policy_id where m.source_product_id is not null;
 do $$ begin perform mall_builder_resale_price((select id from mall_builder_products where source_product_id='00000000-0000-0000-0000-0000000000c1'), 9000); raise notice '4 본사가 밑 판매가 — 통과됨(문제)'; exception when others then raise notice '4 막힘: %', sqlerrm; end $$;
-select '5 판매가 13000' t, mall_builder_resale_price((select id from mall_builder_products where source_product_id='00000000-0000-0000-0000-0000000000c1'), 13000);
+-- 0067(2026-11-14 수수료율 방식) 이후: 분양자 판매가 바꾸기는 막힘 — 판매가 = 본사 판매가
+do $$ begin perform mall_builder_resale_price((select id from mall_builder_products where source_product_id='00000000-0000-0000-0000-0000000000c1'), 13000); raise notice '5 판매가 13000 — 통과됨(0067 이후 문제)'; exception when others then raise notice '5 막힘(0067 정상): %', sqlerrm; end $$;
 -- 원본이 바뀜(본사 대표가)
 reset role;
 update mall_builder_products set name='물티슈 100매', base_price=14000, stock=7 where id='00000000-0000-0000-0000-0000000000c1';

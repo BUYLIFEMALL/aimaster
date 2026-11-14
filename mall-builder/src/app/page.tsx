@@ -331,7 +331,7 @@ export default async function Home() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-emerald-400">✔</span>
-                <span>판매 발생 시 마진 수익 자동 정산</span>
+                <span>판매 발생 시 수수료 자동 정산</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-emerald-400">✔</span>

@@ -76,27 +76,28 @@ export async function setResaleOpenAction(slug: string, storeId: string, open: b
 }
 
 // ── T2-2 거울 상품(0062) ──
-/** 분양자: 본사 상품 담기(체크한 것, 처음 판매가 = 본사가 × (1 + 인상률%)) */
+/** 분양자: 본사 상품 담기(체크한 것). 판매가 = 본사 판매가(0067 수수료율 방식) */
 export async function addResaleProductsAction(slug: string, storeId: string, form: FormData) {
   const back = `/s/${slug}/admin/resale#catalog`;
   const ids = form.getAll("ids").map(String).filter((v) => /^[0-9a-f-]{36}$/.test(v));
   if (!ids.length) go(back, "담을 상품을 골라 주세요.");
-  const rate = Number(String(form.get("markup") ?? "0").replace(/[^0-9.]/g, "") || "0");
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("mall_builder_resale_add", { p_store_id: storeId, p_source_ids: ids, p_markup: rate });
+  const { data, error } = await supabase.rpc("mall_builder_resale_add", { p_store_id: storeId, p_source_ids: ids, p_markup: 0 });
   revalidatePath(`/s/${slug}`, "layout");
-  go(back, error?.message, `${data ?? 0}개를 담았습니다. 아래 「내 분양 상품」에서 판매가를 고칠 수 있습니다.`);
+  go(back, error?.message, `${data ?? 0}개를 담았습니다. 본사 판매가로 팔고, 판매 금액의 수수료가 정산됩니다.`);
 }
 
-/** 분양자: 판매가 정하기(본사가 이상) */
-export async function setResalePriceAction(slug: string, productId: string, form: FormData) {
-  const back = `/s/${slug}/admin/resale#mine`;
-  const price = Number(String(form.get("price") ?? "").replace(/[^0-9]/g, ""));
-  if (!price) go(back, "판매가를 숫자로 적어 주세요.");
+/** 본사 대표: 수수료율 — 본사 몰이면 기본값, 분양몰이면 그 몰 값(비우면 기본값 따름) (0067) */
+export async function setResaleRateAction(slug: string, storeId: string, isDefault: boolean, form: FormData) {
+  const back = `/s/${slug}/admin/resale`;
+  const raw = String(form.get("rate") ?? "").trim();
+  const rate = raw === "" ? null : Number(raw.replace(/[^0-9.]/g, ""));
+  if (rate !== null && (!Number.isFinite(rate) || rate < 0 || rate > 50)) go(back, "수수료율은 0~50 사이 숫자로 적어 주세요.");
+  if (isDefault && rate === null) go(back, "기본 수수료율을 적어 주세요.");
   const supabase = await createClient();
-  const { error } = await supabase.rpc("mall_builder_resale_price", { p_product_id: productId, p_price: price });
-  revalidatePath(`/s/${slug}`, "layout");
-  go(back, error?.message, "판매가를 저장했습니다.");
+  const { error } = await supabase.rpc("mall_builder_resale_set_rate", { p_store_id: storeId, p_rate: rate });
+  revalidatePath(back);
+  go(back, error?.message, isDefault ? `기본 수수료율을 ${rate}%로 저장했습니다.` : rate === null ? "이 분양몰은 기본 수수료율을 따릅니다." : `이 분양몰 수수료율을 ${rate}%로 저장했습니다.`);
 }
 
 /** 분양자: 빼기 */

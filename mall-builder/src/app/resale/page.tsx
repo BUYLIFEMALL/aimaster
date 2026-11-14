@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const metadata: Metadata = {
   title: "쇼핑몰 분양 — 내 이름의 쇼핑몰로 본사 상품 판매",
-  description: "상품·재고·발송 걱정 없이 내 이름의 쇼핑몰을 분양받아 본사 상품을 팔고, 판매가와 본사가의 차이를 마진으로 받습니다.",
+  description: "상품·재고·발송 걱정 없이 내 이름의 쇼핑몰을 분양받아 본사 상품을 팔고, 판매 금액의 수수료를 받습니다.",
 };
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 쇼핑몰 분양 안내
@@ -37,10 +37,10 @@ export default async function ResalePage({ searchParams }: { searchParams: Promi
             🏪 B2B PARTNERSHIP · 쇼핑몰 분양
           </span>
           <h1 className="mt-4 text-2xl sm:text-4xl font-black tracking-tight leading-tight">
-            내 이름의 쇼핑몰을 열고,<br />본사 상품을 팔아 마진을 받으세요
+            내 이름의 쇼핑몰을 열고,<br />본사 상품을 팔아 수수료를 받으세요
           </h1>
           <p className="mt-3.5 max-w-xl text-sm leading-relaxed text-slate-300">
-            상품 기획·재고 부담·포장 및 택배 발송은 본사와 공급사가 전담합니다. 분양자는 판매가를 직접 결정하고 마케팅에만 집중하시면 됩니다.
+            상품 기획·재고 부담·포장 및 택배 발송은 본사와 공급사가 전담합니다. 분양자는 내 브랜드·내 주소로 홍보와 판매에만 집중하시면 됩니다.
           </p>
           <div className="mt-8">
             <a href="#apply" className="inline-block btn-3d-blue px-6 py-3.5 text-sm font-bold shadow-lg">
@@ -61,8 +61,8 @@ export default async function ResalePage({ searchParams }: { searchParams: Promi
           {[
             ["1", "📝", "분양 신청", "몰 이름과 주소(/s/이름)를 정해 간편하게 신청합니다."],
             ["2", "✅", "본사 승인", "본사 검토 후 승인되면 내 분양몰이 즉시 오픈됩니다."],
-            ["3", "🛍️", "상품 담기", "본사 엄선 상품을 골라 내 판매가를 정합니다 (본사가 이상)."],
-            ["4", "💰", "판매·정산", "구매 확정된 주문의 마진이 쌓이고 언제든 출금 신청합니다."],
+            ["3", "🛍️", "상품 담기", "본사 엄선 상품을 골라 내 몰에 담습니다 (본사 판매가로 판매)."],
+            ["4", "💰", "판매·정산", "구매 확정된 주문의 수수료가 쌓이고 언제든 출금 신청합니다."],
           ].map(([n, icon, title, body]) => (
             <div key={n} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-shadow hover:shadow-md">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-xl shadow-2xs border border-slate-100">
@@ -79,11 +79,11 @@ export default async function ResalePage({ searchParams }: { searchParams: Promi
       <section className="mt-8 rounded-2xl border border-slate-200 bg-slate-50/60 p-6 text-sm shadow-xs" data-resale-rules>
         <h2 className="font-bold text-slate-900">알아 두실 것</h2>
         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-xs leading-relaxed text-slate-700">
-          <li><b>마진</b> = 내 판매가 − 본사 판매가. 판매가는 본사 판매가 이상으로만 정할 수 있습니다.</li>
-          <li><b>결제</b>는 본사 계좌·본사 카드 결제로 받고(판매·발송 주체는 본사), 마진은 구매 확정 뒤 분양자 장부에 쌓여 출금 신청으로 받습니다.</li>
+          <li><b>수수료</b> = (결제 금액 − 배송비) × 수수료율. 판매가는 본사 판매가 그대로이며, 수수료율은 본사가 정합니다.</li>
+          <li><b>결제</b>는 본사 계좌·본사 카드 결제로 받고(판매·발송 주체는 본사), 수수료는 구매 확정 뒤 분양자 장부에 쌓여 출금 신청으로 받습니다.</li>
           <li><b>품절·가격</b>은 본사 상품이 바뀌면 내 몰에도 자동으로 반영됩니다.</li>
           <li><b>이용 기간</b>은 본사가 정합니다(처음 {DEFAULT_RESALE_DAYS}일). 기간이 끝나면 새 주문을 받지 않습니다.</li>
-          <li>반품·취소된 주문의 마진은 회수됩니다.</li>
+          <li>반품·취소된 주문의 수수료는 회수됩니다.</li>
         </ul>
       </section>
 
@@ -227,7 +227,7 @@ export default async function ResalePage({ searchParams }: { searchParams: Promi
               <label className="flex items-start gap-2.5 sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
                 <input type="checkbox" name="agree" className="mt-0.5 rounded text-blue-600 focus:ring-blue-500" />
                 <span className="text-xs text-slate-600 leading-snug">
-                  위 「알아 두실 것」(마진·결제·이용 기간·회수) 정책을 모두 확인하였으며 이에 동의합니다.
+                  위 「알아 두실 것」(수수료·결제·이용 기간·회수) 정책을 모두 확인하였으며 이에 동의합니다.
                 </span>
               </label>
               <div className="sm:col-span-2 mt-2">
