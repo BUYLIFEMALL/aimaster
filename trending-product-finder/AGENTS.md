@@ -448,3 +448,10 @@ SECRET_KEY를 잘못 다뤄도(base64 디코딩 등) 더 구체적인 `invalid-s
 - 엑셀(.xlsx): 이 PC npm 설정이 외부 주소 패키지(SheetJS tgz) 설치를 막아(`EALLOWREMOTE`, 우회 안 함) CSV로 저장하거나 붙여 넣기 안내. 나중에 설정이 바뀌면 브라우저에서 시트 → CSV 변환 추가 가능.
 - 실호출 시험(관리자 본인 Claude 키, 비용 범위 안): **E2-2 초안** 1회 5초 — 상품명 3개 규칙 검사 통과·태그 10개·지어낸 사양 없음 / **EC-W10** 가짜 대화 1회 — 두 공장·수량 구간·미답변 2건·한영중 질문 3개 정상. 모르는 비용이 0으로 나오던 점을 지시문에서 「모르면 null, 0은 무료라고 적힌 경우만」으로 고침(다시 시험은 안 함).
 - 검사: `test:trend` 65개·tsc·eslint·build. 화면 확인은 배포 뒤(로그인 필요).
+
+## 2026-11-14 ✅ v1.39 배포 ([역할: ecommerce-image] `claude-win-sdp`)
+- 주인님 「진행해」(빌드 1회 승인). 대기분 EC-W10 공장 견적 비교 · E2-1 등록 정보 도우미 · E2-2 상품명·태그 초안 · E2-3 네이버 분류 분포(확장) · E2-4 상세페이지로 넘기기가 함께 나감. 공통 항목도 함께: 저장공간 위젯 한 줄(`app/layout.tsx`), 로그아웃 `signOut({ scope: "local" })`, 서버 Supabase 클라이언트 `User-Agent` 전달.
+- 배포 `trending-product-finder-lrksrt89m`(Ready), DB `programs.version`·`extension_version` v1.39·다운로드 주소, `check-extension-release` OK(DB/manifest/ZIP v1.39). 커밋 `chore(trending-product-finder): v1.39 release`.
+- 확인: 비로그인 `/api/factory-quotes/analyze` 401, `/login`에 위젯 스크립트. ego(시험 계정): `/factory-quotes` v1.39 화면, `/sourcing?fxCurrency=USD&fxAmount=3.5#margin` → 외화 칸 USD 3.5, 네이버 기록(11-03) → 등록 정보 도우미·「분류 정보 없음」 안내·상품명·태그 초안 칸 표시. 실제 AI 호출·검색은 하지 않음.
+- **미배포 대기**: `/factory-quotes` 안내 카드 「PDF·엑셀」 → 「PDF·CSV」(엑셀 원본은 못 읽음). 다음 배포 때 함께.
+- 회원 안내: 확장은 자동으로 바뀌지 않음 — ZIP 다시 받기 → 기존 폴더에 덮어쓰기 → `chrome://extensions` 새로고침. 새 분류 카드는 새 확장으로 다시 검색한 기록부터 보임.
