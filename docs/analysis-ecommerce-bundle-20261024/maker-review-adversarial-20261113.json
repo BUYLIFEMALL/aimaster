@@ -1391,5 +1391,125 @@
         }
       ]
     }
+  },
+  "liveV148Handoff": {
+    "observedAt": "2026-11-14T23:33:12+09:00",
+    "parentVersion": "v1.45",
+    "bananaVersion": "v1.48",
+    "account": "buylifemall@naver.com",
+    "productId": "bfa7ed41-dcc4-4216-9ba5-01350b814e48",
+    "sendCount": 1,
+    "renderResult": {
+      "url": "https://banana-canvas.buylife.xyz/batch?mode=product&from=shop-detail",
+      "text": "AI 바나나 캔버스\nv1.48 PRO\n← 다른 프로그램 보기\n\n🎨스튜디오 작업 흐름\n\n1\n🖼️ 원본 이미지\n업로드 · 드래그 앤 드롭\n2\n🪄 AI 작업 카드 실행\n생성 · 합성 · 복원 · 만화\n3\n✨ 완성 및 저장\n고화질 다운로드 · 연속 편집\n\n⚡AI 보조 도구 & 유틸리티\n\n🧼AI 매직 지우개\n0원 초고속\n⬇AI 모델 파일 받기\n🖼사진 일괄 손질\n0원\n🧰무료 이미지 도구\n0원\n내 결과 보관함\nAPI키등록·플랫폼연동\n📖 연동 & 사용 매뉴얼\n계정 정보\n\nbuylifemall@naver.com\n\n로그아웃\n🛒 이커머스 메이커 셀링 도우미 연계\n0원 로컬 브라우저 초고속 연산\n촬영 정보·위치 정보 자동 제거\n🛍️ 상품 대표사진 일괄 합성\n\n상품코드(SKU)별로 메인 컷과 서브 컷을 1:1 매칭하거나 공용 뱃지를 전체 상품에 일괄 합성합니다. 가공된 1000×1000 대표사진은 상세페이지 및 마켓 등록기로 즉시 반환할 수 있습니다.\n\n상품 대표사진 일괄 합성 (P1/P2)\n일반 사진 일괄 손질\n✓\n자료 입력 & 짝 확인\n→\n2\n합성 규칙 & 미리보기\n→\n3\n일괄 실행 & 중단\n→\n4\n결과 & 상품 반환\n0원 로컬 브라우저 연산\nEXIF 정보 자동 제거\n📥 상세페이지에서 상품 1개를 받았습니다. 합성 규칙을 확인하고 [일괄 실행]을 진행하세요.\n👀 1:1 라이브 캔버스 합성 미리보기\n1000 × 1000 px (1:1 정사각형 규격)\n대상 상품: (상품)\n‹ 이전\n1 / 0\n다음 ›\n⚙️ 합성 규칙 파라미터\n📐 출력 캔버스 규격\n1000×1000(기본)\n1200×1200\n800×800\n📍 서브 이미지 앵커 위치\n왼쪽 위\n가운데 위\n오른쪽 위\n왼쪽 가운데\n정가운데\n오른쪽 가운데\n왼쪽 아래\n가운데 아래\n오른쪽 아래\n📐 서브 크기 비율\n32%\n🔲 테두리 마진 & 라운드\n마진 24px / 모서리 12px\n드롭 섀도우(입체 그림자)\n화이트 외곽선\n🏷️ 파일 이름 템플릿\n\n예시: AIM_SKU_main.jpg\n\n🚀 이 규칙으로 0개 상품 일괄 합성 시작!← 이전: 1단계 작업표로 돌아가기\n💾\n1GB / 무제한",
+      "buttons": [
+        {
+          "text": "로그아웃",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "상품 대표사진 일괄 합성 (P1/P2)",
+          "disabled": false
+        },
+        {
+          "text": "일반 사진 일괄 손질",
+          "disabled": false
+        },
+        {
+          "text": "✓\n자료 입력 & 짝 확인",
+          "disabled": false
+        },
+        {
+          "text": "2\n합성 규칙 & 미리보기",
+          "disabled": false
+        },
+        {
+          "text": "3\n일괄 실행 & 중단",
+          "disabled": false
+        },
+        {
+          "text": "4\n결과 & 상품 반환",
+          "disabled": false
+        },
+        {
+          "text": "‹ 이전",
+          "disabled": true
+        },
+        {
+          "text": "다음 ›",
+          "disabled": true
+        },
+        {
+          "text": "1000×1000(기본)",
+          "disabled": false
+        },
+        {
+          "text": "1200×1200",
+          "disabled": false
+        },
+        {
+          "text": "800×800",
+          "disabled": false
+        },
+        {
+          "text": "왼쪽 위",
+          "disabled": false
+        },
+        {
+          "text": "가운데 위",
+          "disabled": false
+        },
+        {
+          "text": "오른쪽 위",
+          "disabled": false
+        },
+        {
+          "text": "왼쪽 가운데",
+          "disabled": false
+        },
+        {
+          "text": "정가운데",
+          "disabled": false
+        },
+        {
+          "text": "오른쪽 가운데",
+          "disabled": false
+        },
+        {
+          "text": "왼쪽 아래",
+          "disabled": false
+        },
+        {
+          "text": "가운데 아래",
+          "disabled": false
+        },
+        {
+          "text": "오른쪽 아래",
+          "disabled": false
+        },
+        {
+          "text": "🚀 이 규칙으로 0개 상품 일괄 합성 시작!",
+          "disabled": false
+        },
+        {
+          "text": "← 이전: 1단계 작업표로 돌아가기",
+          "disabled": false
+        },
+        {
+          "text": "💾\n1GB / 무제한",
+          "disabled": false
+        }
+      ],
+      "canvasCount": 0
+    },
+    "evidence": "docs/analysis-ecommerce-bundle-20261024/maker-v148-live-handoff-20261114.png",
+    "evidenceSha256": "2250065ae014b56052a9c1a633ba99e72d81bf0a9daf19def7c41865dc4726f9",
+    "runCount": 0,
+    "returnCount": 0,
+    "saveCount": 0
   }
 }

@@ -1,5 +1,14 @@
 # AI 바나나 캔버스 자동화 (banana-canvas) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+## 2026-11-14 23:33 KST [역할: mac-mini] ecommerce-image/agy 담당께 — v1.48 P2 실물 실패(F09, P1)
+
+- 재현1회: 시험회원·상세v1.45 /products의기존백팩(ST4D18)1개를「바나나에서합성하기」로보냄. 운영바나나v1.48 새4단계화면/from=shop-detail.
+- 기대: 합성대상1·상품명/미리보기표시→합성→반환저장. 실제:「상품1개를받았습니다」인데상품명(상품)·1/0·합성시작0개·canvas없음. 상세는합성대기. 합성/반환/저장0, 재전송0. 상품DB수정없음·AI/비용0.
+- 원인: ProductBatchBoard.tsx 수신effect setFilesMap(uuid#i)·setJobs(list)뒤파일모드매칭effect가빈작업표로다시분석해setJobs([]). 상세/몰격리effect시험과운영상세화면에서일치. 연결모드가드/별도상태관리및렌더후수신상품유지회귀필요.
+- [통합검수§12](../../docs/analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md)·[실제캡처](../../docs/analysis-ecommerce-bundle-20261024/maker-v148-live-handoff-20261114.png)·근거JSON liveV148Handoff. F05~08 배포커밋경계지적도같은검수표§11참조.
+- 담당께다음첫단계: 먼저상품1개수신후미리보기/실행대상1유지수정→상세왕복/ACK저장실물시험→수정커밋/배포인계. 회원원본/다른상품·자동재저장변경없이. 맥미니는소스/배포를고치지않음.
+
+
 > **🗂️ 「내 자료함」 연동 안내 — 이미지 담당께 (2026-11-11, 세션 `claude-win-rea`, 주인님 지시)**: 운영 DB `supabase/migrations/0060_member_assets_images.sql`로 이 프로그램의 생성물(`banana_canvas_results.outputs[].path`)이 공용 자료 목록 `member_assets`에 자동 등록되고, **원본 줄을 지우면 자료함 줄도 함께 지워집니다**(보관 기간 = 이 프로그램 정리 규칙). **이 프로그램 코드·배포는 바꾸지 않았습니다.** 칸 이름이나 저장 경로 규칙(`{user_id}/…`)을 바꾸면 트리거 함수(`member_assets_sync_*`)도 함께 고쳐 주세요. 트리거는 실패하면 원본 저장도 실패하므로 날짜 변환 같은 처리를 넣지 않았습니다. 화면: https://www.buylife.xyz/library?kind=image · 플랜 `docs/PLAN_20261111_MEMBER_LIBRARY.md` §8
 
 > **최근 갱신**: 2026-10-25 (v1.39 API키 생성/가입 버튼 탑재 및 매뉴얼 럭셔리 3D 리뉴얼 완료)  
