@@ -85,4 +85,4 @@
   - `npx tsc --noEmit` 에러 0건 통과.
   - `node --test tests/*.test.mjs` **261 / 261 전수 통과** (`pass 261`, `fail 0`).
   - Next.js Turbopack 프로덕션 빌드 성공.
-- **배포 여부**: 로컬 빌드 및 단위테스트 통과, 주인님 최종 승인 대기.
+- **배포 여부**: 2026-11-14 운영 프로덕션 배포 완료 (`node mall-builder/scripts/deploy-prod.mjs`, 배포 ID `dpl_63yY4Zb2sdW8pT7Pbz1S8CN76otg`, 실서버 URL: `https://mall-builder.buylife.xyz`), DB `programs.version = 'v1.07'` 동기화 일치 확인 완료. 라이브 검수(`https://mall-builder.buylife.xyz/s/aimaster-b2b` 및 상품상세 200 OK) 확인 완료.

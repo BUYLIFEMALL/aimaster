@@ -81,5 +81,6 @@
 ## 5. 운영 배포 (v1.07)
 - 배포 스크립트: `node mall-builder/scripts/deploy-prod.mjs`
 - 적용 버전: `v1.07` (`src/lib/version.ts` + DB `programs.version`)
-- 공식 운영 링크: https://mall-builder.buylife.xyz
+- 배포 일시 및 ID: 2026-11-14 배포 완료 (배포 ID: `dpl_63yY4Zb2sdW8pT7Pbz1S8CN76otg`)
+- 공식 운영 링크: https://mall-builder.buylife.xyz (스토어프론트: https://mall-builder.buylife.xyz/s/aimaster-b2b)
 
