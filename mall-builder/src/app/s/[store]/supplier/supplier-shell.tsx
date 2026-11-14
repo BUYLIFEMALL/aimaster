@@ -6,11 +6,14 @@ import type { SupplierRow } from "@/lib/supplier";
 import LogoutButton from "@/app/logout-button";
 
 // D35 공급사 화면 공통 틀 — 로그인·공급사 확인, 위쪽 메뉴(내 정보·내 상품). D36·D37에서 내 주문·정산이 붙는다
+// M3-S2·S3: 첫 화면 = 대시보드, 「판매 분해」 추가, 내 정보는 /info
 const MENU = [
-  { href: "", label: "내 정보" },
+  { href: "", label: "대시보드" },
+  { href: "/sales", label: "판매 분해" },
   { href: "/products", label: "내 상품" },
   { href: "/orders", label: "내 주문" },
   { href: "/settlements", label: "정산" },
+  { href: "/info", label: "내 정보" },
 ] as const;
 
 export async function getSupplierContext(slug: string, path: string) {

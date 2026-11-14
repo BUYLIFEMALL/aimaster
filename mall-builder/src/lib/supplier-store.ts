@@ -2,7 +2,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { SUPPLIER_APPLY_COLUMNS, type SupplierApplication } from "@/lib/supplier-apply";
 import type { OptionGroup, Variant } from "@/lib/options";
-import { SUPPLIER_COLUMNS, type Approval, type LedgerKind, type SupplierRow, type SupplierStatus } from "@/lib/supplier";
+import { SUPPLIER_COLUMNS, type Approval, type LedgerKind, type SupplierRow, type SupplierSaleRow, type SupplierStatus } from "@/lib/supplier";
 
 export async function getSuppliers(storeId: string): Promise<SupplierRow[]> {
   const supabase = await createClient();
@@ -224,4 +224,23 @@ export async function getMySupplierApplication(storeId: string, userId: string):
     .limit(1)
     .maybeSingle();
   return (data as SupplierApplication | null) ?? null;
+}
+
+// ── M3-S2·S3(0090) 판매 분해·내 상품 픽 수 — 운영 DB에 0090이 없으면 ready=false(화면은 안내만)
+/** 공급사 본인 품목별 판매 분해(판매·공급가·리셀러·본사, 리셀러 코드). 날짜는 한국 날짜(둘 다 포함) */
+export async function getSupplierSales(storeId: string, opts: { from?: string | null; to?: string | null; status?: string | null } = {}): Promise<{ ready: boolean; rows: SupplierSaleRow[] }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_supplier_sales", { p_store_id: storeId, p_from: opts.from ?? null, p_to: opts.to ?? null, p_status: opts.status ?? null });
+  if (error) return { ready: false, rows: [] };
+  const num = ["qty", "sales", "supply", "reseller", "hq"] as const;
+  return { ready: true, rows: ((data ?? []) as SupplierSaleRow[]).map((r) => ({ ...r, ...Object.fromEntries(num.map((k) => [k, Number(r[k])])) }) as SupplierSaleRow) };
+}
+
+/** 내 상품별 픽한 리셀러 수(누가 픽했는지는 없음) */
+export async function getSupplierPickCounts(storeId: string): Promise<Map<string, number>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("mall_builder_supplier_pick_counts", { p_store_id: storeId });
+  const m = new Map<string, number>();
+  if (!error) for (const r of (data ?? []) as { product_id: string; picks: number }[]) m.set(r.product_id, Number(r.picks));
+  return m;
 }

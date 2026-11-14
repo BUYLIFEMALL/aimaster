@@ -128,3 +128,58 @@ export function monthlySummary(rows: { kind: LedgerKind; amount: number; created
   }
   return [...m.values()].sort((a, b) => b.month.localeCompare(a.month));
 }
+
+// ── M3-S2·S3 공급사 판매 분해·대시보드(순수 함수, node --test 대상) ──
+export type PeriodKey = "today" | "7d" | "30d" | "month" | "lastmonth" | "all";
+export const PERIOD_LABEL: Record<PeriodKey, string> = { today: "오늘", "7d": "7일", "30d": "30일", month: "이번 달", lastmonth: "지난 달", all: "전체" };
+const ymd = (d: Date) => d.toISOString().slice(0, 10);
+
+/** 한국 시간 오늘(YYYY-MM-DD) */
+export function todayKst(now = new Date()): string {
+  return ymd(new Date(now.getTime() + 9 * 3600000));
+}
+
+/** 기간 단추 → 시작·끝 날짜(둘 다 포함, 한국 날짜). all이면 null */
+export function periodRange(key: PeriodKey, today: string): { from: string | null; to: string | null } {
+  const t = new Date(`${today}T00:00:00Z`);
+  const back = (n: number) => ymd(new Date(t.getTime() - n * 86400000));
+  if (key === "today") return { from: today, to: today };
+  if (key === "7d") return { from: back(6), to: today };
+  if (key === "30d") return { from: back(29), to: today };
+  if (key === "month") return { from: `${today.slice(0, 7)}-01`, to: today };
+  if (key === "lastmonth") {
+    const first = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() - 1, 1));
+    const last = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), 0));
+    return { from: ymd(first), to: ymd(last) };
+  }
+  return { from: null, to: null };
+}
+
+export type SupplierSaleRow = { item_id: string; order_no: string; ordered_at: string; order_status: string; product_id: string | null; name: string; option: string | null; qty: number; sales: number; supply: number; reseller: number; hq: number; reseller_code: string | null };
+
+/** 판매 분해 합계 + 리셀러 판매 비중 + 상품 순위(공급가 많은 순) */
+export function summarizeSupplierSales(rows: SupplierSaleRow[]) {
+  const live = rows.filter((r) => r.qty > 0);
+  const sum = (k: "sales" | "supply" | "reseller" | "hq" | "qty") => live.reduce((a, r) => a + Number(r[k]), 0);
+  const viaReseller = live.filter((r) => r.reseller_code);
+  const byProduct = new Map<string, { name: string; qty: number; sales: number; supply: number }>();
+  for (const r of live) {
+    const k = r.product_id ?? `name:${r.name}`;
+    const g = byProduct.get(k) ?? { name: r.name, qty: 0, sales: 0, supply: 0 };
+    g.qty += r.qty;
+    g.sales += r.sales;
+    g.supply += r.supply;
+    byProduct.set(k, g);
+  }
+  return {
+    orders: new Set(live.map((r) => r.order_no)).size,
+    qty: sum("qty"),
+    sales: sum("sales"),
+    supply: sum("supply"),
+    reseller: sum("reseller"),
+    hq: sum("hq"),
+    resellerSales: viaReseller.reduce((a, r) => a + r.sales, 0),
+    resellers: new Set(viaReseller.map((r) => r.reseller_code)).size,
+    top: [...byProduct.values()].sort((a, b) => b.supply - a.supply || b.qty - a.qty).slice(0, 5),
+  };
+}

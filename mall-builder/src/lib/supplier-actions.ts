@@ -65,10 +65,10 @@ export async function updateSupplierAction(slug: string, supplierId: string, for
 /** 공급사 본인: 담당자·연락처 고치기 */
 export async function updateSupplierSelfAction(slug: string, form: FormData) {
   const { supabase, id } = await storeIdOf(slug);
-  if (!id) back(`/s/${slug}/supplier`, "몰을 찾을 수 없습니다.");
+  if (!id) back(`/s/${slug}/supplier/info`, "몰을 찾을 수 없습니다.");
   const { error } = await supabase.rpc("mall_builder_supplier_update_self", { p_store_id: id, p_contact_name: field(form, "contact_name"), p_phone: field(form, "phone") });
-  revalidatePath(`/s/${slug}/supplier`);
-  back(`/s/${slug}/supplier`, error?.message, "담당자 정보를 저장했습니다.");
+  revalidatePath(`/s/${slug}/supplier/info`);
+  back(`/s/${slug}/supplier/info`, error?.message, "담당자 정보를 저장했습니다.");
 }
 
 // ── D35 공급사 상품 ──
@@ -186,11 +186,11 @@ function shippingInput(form: FormData) {
 /** 공급사 본인: 내 배송비 정책(「mall」이면 몰 기본 배송비 따르기) */
 export async function saveSupplierShippingAction(slug: string, form: FormData) {
   const { supabase, id } = await storeIdOf(slug);
-  if (!id) back(`/s/${slug}/supplier`, "몰을 찾을 수 없습니다.");
+  if (!id) back(`/s/${slug}/supplier/info`, "몰을 찾을 수 없습니다.");
   const { error } = await supabase.rpc("mall_builder_supplier_shipping_save", { p_store_id: id, p: shippingInput(form) });
-  revalidatePath(`/s/${slug}/supplier`);
+  revalidatePath(`/s/${slug}/supplier/info`);
   revalidatePath(`/s/${slug}`, "layout");
-  back(`/s/${slug}/supplier`, error?.message, "배송비를 저장했습니다. 다음 주문부터 적용됩니다.");
+  back(`/s/${slug}/supplier/info`, error?.message, "배송비를 저장했습니다. 다음 주문부터 적용됩니다.");
 }
 
 /** 운영사: 공급사 배송비 보고 고치기 */

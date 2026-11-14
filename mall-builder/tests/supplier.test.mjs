@@ -79,3 +79,32 @@ test("rateSplit — 세 몫의 합이 판매가", () => {
   const t = rateSplit(9999, 3, 10);
   assert.equal(t.supply + t.reseller + t.hq, 9999);
 });
+
+// ── M3-S2·S3 기간·판매 요약
+import { periodRange, todayKst, summarizeSupplierSales } from "../src/lib/supplier.ts";
+
+test("todayKst: UTC 15시 이후는 한국 다음 날", () => {
+  assert.equal(todayKst(new Date("2026-11-14T15:30:00Z")), "2026-11-15");
+  assert.equal(todayKst(new Date("2026-11-14T14:59:00Z")), "2026-11-14");
+});
+
+test("periodRange: 오늘·7일·30일·이번 달·지난 달(연 넘김)·전체", () => {
+  assert.deepEqual(periodRange("today", "2026-11-15"), { from: "2026-11-15", to: "2026-11-15" });
+  assert.deepEqual(periodRange("7d", "2026-11-15"), { from: "2026-11-09", to: "2026-11-15" });
+  assert.deepEqual(periodRange("30d", "2026-11-15"), { from: "2026-10-17", to: "2026-11-15" });
+  assert.deepEqual(periodRange("month", "2026-11-15"), { from: "2026-11-01", to: "2026-11-15" });
+  assert.deepEqual(periodRange("lastmonth", "2026-01-10"), { from: "2025-12-01", to: "2025-12-31" });
+  assert.deepEqual(periodRange("all", "2026-11-15"), { from: null, to: null });
+});
+
+test("summarizeSupplierSales: 합계·리셀러 비중·상품 순위, 남은 수량 0 제외", () => {
+  const R = (o) => ({ item_id: "i", order_no: "T-1", ordered_at: "", order_status: "paid", product_id: "p1", name: "티셔츠", option: null, qty: 1, sales: 10000, supply: 8700, reseller: 1200, hq: 100, reseller_code: "R1", ...o });
+  const s = summarizeSupplierSales([
+    R({}),
+    R({ order_no: "T-2", reseller: 0, hq: 1300, reseller_code: null }),
+    R({ order_no: "T-3", product_id: "p2", name: "컵", qty: 2, sales: 6000, supply: 5000, reseller: 0, hq: 1000, reseller_code: null }),
+    R({ order_no: "T-4", qty: 0, sales: 0, supply: 0, reseller: 0, hq: 0 }),
+  ]);
+  assert.deepEqual([s.orders, s.qty, s.sales, s.supply, s.reseller, s.hq, s.resellerSales, s.resellers], [3, 4, 26000, 22400, 1200, 2400, 10000, 1]);
+  assert.deepEqual(s.top.map((t) => [t.name, t.qty, t.supply]), [["티셔츠", 2, 17400], ["컵", 2, 5000]]);
+});
