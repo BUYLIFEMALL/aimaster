@@ -15,7 +15,7 @@
 
 ## 대기 중
 
-- **`ai-work-workspace` — 남은 영어 한국어화 묶음(2026-11-14~15 [역할: workspace], `ed54706b1`·`f489ea353`)**: 파일 올리기 창(탭·버튼·안내·빈 블록 문구), 상단 번역 버튼 언어 이름, 상대 시간 4곳(휴지통 배너·오른쪽 패널·날짜 설명·자동화 상대 날짜), AI 설정·채팅 모드·웹 접근/승인 없이 실행 확인 창·MCP 주소 칸·연결 해제 창·삭제된 이모지·페이지로 바꾸기 안내. tsc·시험 155 통과. 다음 워크스페이스 배포 때 함께(급하지 않음).
+- **`ai-work-workspace` — 볼타 PDF는 발급한 키 종류로만(2026-11-15 [역할: workspace], `6e4314eb1`)**: 키 종류가 다르면 볼타 영어 오류 대신 한국어 안내. tsc·시험 통과. 다음 워크스페이스 배포 때 함께(급하지 않음).
 - **`blog-neighbor-care` — 답방 글 읽기 탭 사전 확인 + 실패 진단(단계·HTTP·BNC code) 팝업 전달 + 409 코드별 안내 `85eedc18b`(2026-11-14 [역할: blog] `claude-win-photo`)**: 작은 수정, 다음 배포 때 함께(확장 ZIP·manifest·DB 버전 같이). 상세 `blog-neighbor-care/docs/IMPROVEMENTS.md` 2026-11-14.
 - **`naver-cafe-recruit` — 명단에서 카페 운영진(매니저·스탭 등급) 제외 + 아직 없는 「C. 카페 홍보 글」 칸 숨김(저장 때 꺼짐) `b61270d8f`(2026-11-15 [역할: blog] `claude-win-photo`, 주인님 결정 5건 중 2번)**: 시험 17개·tsc 통과. 다음 카페 모집 배포(v1.03, `1bd454187`·`7a85de294`와 함께) 때 manifest·ZIP·DB 버전 맞춤, 검수는 `docs/REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md` B-3.
 - **`wp-blogger-auto` — 로그인·회원가입 제목이 「네이버 카페 포스팅 자동화」로 나오던 것을 「AI 워드프레스·구글블로그 자동화」로 `190f971dc`(2026-11-14 [역할: blog] `claude-win-photo`)**: 맥미니 P2 검수 지적. tsc 통과. 다음 WP 배포 때 함께, 배포 뒤 로그인·회원가입·모바일 제목 확인.
@@ -124,6 +124,7 @@
 | `shots` | v1.48 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 빌드 1회, `shots-607ynfsog` Ready, DB v1.48) | 대본·주제 후보 행 30일 정리 `44a9df352`(발행 무관, `retention_exempt` 제외, 배경음악 파일 포함) + 매뉴얼 보관 문구 + 저장공간 위젯 + 공용 `ai-video-client` 사본 + 서버 지역 서울(`icn1::icn1` 확인). 시험 22·tsc 통과 |
 | `blog-neighbor-care` | v1.20 · 2026-11-13 ([역할: blog] `claude-win-blog`, 주인님 승인 빌드 1회, `blog-neighbor-care-4u1h4uflh` Ready, DB·확장·ZIP v1.20 검증 OK) | 시계 보정 — 미리보기·수락 409 수정(`1dbf5937a`·`3c913dd80`), 409에 RPC `code`, 한 줄 소개 갱신 |
 | `blog-neighbor-care` | v1.19 · 2026-11-12 ([역할: blog] `claude-win-blog`, 주인님 「순서대로 진행」+환경변수 허락, 빌드 1회, `blog-neighbor-care-ctfwl3obf` Ready, DB·확장 v1.19) | 「🤖 자동 운영」 칸 항상 펼침 `02029e8f4` + 감시 AI 켜짐(환경변수 2개) + 저장공간 위젯 |
+| `ai-work-workspace` | v1.40 · 2026-11-15 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「완성 뒤 바로 v1.40 배포」 빌드 1회, `ai-work-workspace-b5r1ypc13` Ready, DB v1.40) | 볼타 수정발행 5가지 + 발급 완료 PDF(`8a8a86b11`) · 남은 영어 한국어화 두 묶음(`ed54706b1`·`f489ea353`) — 테스트 키 화면 검수는 시험 계정 준비 뒤 |
 | `ai-work-workspace` | v1.39 · 2026-11-14 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「진행해」 빌드 1회, `ai-work-workspace-2u0tnk1ci` Ready, DB v1.39) | 왼쪽 메뉴 버전 표시를 `src/lib/version.ts`에서 불러오게(`9adffe5df`) — ego 운영 확인: 메뉴에 v1.39 표시. 대기 줄 해제 |
 | `ai-work-workspace` | v1.38 · 2026-11-14 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「배포해」 빌드 1회, `ai-work-workspace-aq9aphpjs` Ready, DB v1.38) | 키 화면 그룹 상자 · AI 비서 플랫폼별 기본 모델 · 큰 파일(4~50MB) Storage(비공개 버킷 `workspace-files` 자동 생성) · 공개 페이지 1단계 — ego 운영 확인: 10MB 올리기·내려받기(크기 일치), 게시 → 로그인 없이 보기(noindex) → 신고 → 관리자 내리기 뒤 404 통과. 메뉴 버전 숫자만 v1.37로 남음(위 대기 줄) |
 | `ai-work-workspace` | v1.37 · 2026-11-13 ([역할: workspace] `claude-win-20261025-workspace`, 주인님 「배포해」 빌드 1회, `ai-work-workspace-akv3lqyvg` Ready, DB v1.37) | 볼타 웹훅 실제 수신 수정(알림이 3초 만에 오는 경우·「_」 번호·상태 덮어쓰기 방지·진단 기록·HEAD 200) — 운영에서 버튼 없이 자동 「발급됨」 + 승인번호 기록 통과 |

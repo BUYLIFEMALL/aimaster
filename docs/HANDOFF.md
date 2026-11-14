@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.40 볼타 수정발행·PDF 배포
+- 주인님 지시: 「볼타 수정발행부터 진행해」 → 결정: 다섯 사유 전부 + PDF, 시험은 시험 계정 테스트 키, 완성 뒤 바로 v1.40 배포
+- 한 일: 서버 `btAmend`·`btAmendCheck`·`btPdf`(src/server/bolta.ts), 사유별 본문 `boltaAmendBody`(boltaCore.ts, 공식 openapi로 확인), 웹훅이 수정분·취소분 번호 반영(boltaWebhook.ts), 화면 `AmendPanel.tsx`(표 아래 카드)·표의 📄 PDF/✏️ 수정발행/🔄 결과 확인, 매뉴얼 한 줄. 「발급 취소」는 계약의 해제·이중발급 수정발행(국세청에 나간 건은 지울 수 없음)
+- 안전: 볼타로 발급을 마친 문서만, 발급할 때와 같은 종류 키만, 실제 키는 동의 뒤에만, 결과 대기 중이면 새 수정발행 막음, 응답 불확실하면 다시 보내지 않고 요청 번호로 조회
+- 검수: tsc, 로컬 빌드, 시험 164개(새 9개). 배포 `ai-work-workspace-b5r1ypc13` Ready, DB v1.40. **테스트 키 화면 검수는 아직** — 주인님이 시험 계정 로그인 + 테스트 키 등록 뒤
+- 미배포: `6e4314eb1`(PDF는 발급한 키 종류로만 — 한국어 안내)
+- 특이사항: 시험(vitest)이 로컬 DB를 비운 직후 `npm run build`가 표 동시 생성 충돌(`pg_type_typname_nsp_index`)로 한 번 실패, 다시 돌리면 통과(로컬만 해당)
+- 링크: https://ai-work-workspace.buylife.xyz/receipts
+
 ## 2026-11-15 [역할: mac-mini] 관리자 로그인 확인·C3 실제 팝업 전경 준비
 
 - 공간4 새로고침 후 관리자 Gmail 확인, 기존 dewdawn5 대상/답방미연결 조회. 로그인 대기 해소. 지정 글은 p2에 준비했으나 도구 활성탭과 네이티브 캡처의 탭이 달라 실제 읽기는0. 사용자에게 지정글 전경/이웃확장 팝업 열기 요청·handOff, 로그인 재요청 아님. 수락은09~22시에만1건.
