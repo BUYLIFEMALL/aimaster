@@ -132,7 +132,7 @@
 | 네이버 스마트스토어 | `smartstore-register`(「AI 스마트스토어 상품 자동등록기」) | v1.17 | 세 방식 실제 성공(10-27), 남은 기능 1~8 구현·테스트 계정 「입력만」 실패 칸 0(10-28) | 실물 시험(임시저장·옵션 있는 패션 상품·상품속성·예약구매·연속 보내기), 모델명 「찾기」 자동화 검토 — `smartstore-register/docs/RESUME_GUIDE_20261027.md` §6-0 |
 | 쿠팡 윙 | `coupang-ops`(AI 쿠팡 운영 자동화 — 첫 모듈 상품 등록) | **공식 Open API**(판매자 본인 키, 우리 서버 + Fixie 고정 IP) — 화면 조작 없음 | 플랜 확정 2026-10-28 | [`../coupang-ops/docs/PLAN_20261028_COUPANG_OPS.md`](../coupang-ops/docs/PLAN_20261028_COUPANG_OPS.md) — 0단계(키 발급·IP 등록)부터 |
 | 11번가 | (예정) | — | 미착수 | 쿠팡 다음 |
-| G마켓·옥션(ESM) | (예정) | — | 미착수 | 11번가 다음 |
+| G마켓·옥션(ESM) | (예정) `esm-register` | — | 플랜 작성 2026-11-15, 결정 대기 | [`PLAN_20261115_ESM_REGISTER.md`](PLAN_20261115_ESM_REGISTER.md) — 공식 API는 셀링툴 업체만 키를 가짐 → 확장 방식 추천 |
 
 ## 변경 이력
 - 2026-10-27 처음 작성(Claude Code 윈도우 `claude-win-sdp`, 역할 `ecommerce-image`) — 스마트스토어 v1.01~v1.03 분석·보정 경험 정리.
