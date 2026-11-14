@@ -28,7 +28,7 @@ beforeAll(async () => {
 
 describe('음악·영상 파일 30일 정리(보관 예외)', () => {
   it('30일 지난 음악·영상만 지우고 다른 파일·예외 회원 파일은 남긴다', () => {
-    expect(media.runMediaRetention(NOW, 2_000, new Set(['vip']))).toEqual({ files: 2 });
+    expect(media.runMediaRetention(NOW, 2_000, new Set(['vip']))).toEqual({ files: 2, storagePaths: [] }); // 2026-11-14: DB에 든 파일만이라 Storage 경로 없음
     const left = (db.db.prepare('SELECT id FROM files ORDER BY id').all() as { id: string }[]).map((r) => r.id);
     expect(left).toEqual([id(3), id(4), id(5), id(6)]);
   });

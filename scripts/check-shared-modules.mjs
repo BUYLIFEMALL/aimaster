@@ -744,7 +744,7 @@ const MODULES = [
     // 2026-11-11 저장공간 2단계: 회원 저장공간이 가득 찼으면 유료 AI 생성·새 저장 전에 막기(DB member_storage_check, 0065). 서버 전용.
     // 사본은 이미지·영상·음악 등 큰 파일을 저장하는 프로그램이 다음 배포 때 붙인다(docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md §8).
     source: "lib/storage/storageQuota.ts",
-    copies: ["shorts-onestop-studio/src/lib/storage/storageQuota.ts"], // 2026-11-14 상품 사진 업로드 전 용량 검사(정책 검토 §6)
+    copies: ["shorts-onestop-studio/src/lib/storage/storageQuota.ts", "ai-work-workspace/src/lib/storage/storageQuota.ts"], // 2026-11-14 상품 사진 업로드 전 용량 검사(정책 검토 §6) · 워크스페이스 큰 파일(4MB 초과) Storage 올리기 전 검사
   },
   {
     id: "storage-mark-posted",

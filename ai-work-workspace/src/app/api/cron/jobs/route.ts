@@ -15,6 +15,7 @@ import { operatorJobFilter } from "@/server/memberJobs";
 import { runAutomationRetention } from "@/server/automationRetention";
 import { runReceiptRetention } from "@/server/receipts";
 import { runMediaRetention } from "@/server/mediaRetention";
+import { cleanupPendingUploads, removeStorageObjects } from "@/server/fileStorage";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -51,7 +52,11 @@ export async function GET(request: NextRequest) {
     }
     // 2026-11-11 보관 예외: 음악·영상 파일은 30일, 그 밖은 1년(각 정리의 보관 일수)
     try {
-      media = withRequestCache(() => runMediaRetention(Date.now(), 2_000, keep));
+      const m = withRequestCache(() => runMediaRetention(Date.now(), 2_000, keep));
+      // 2026-11-14: Storage에 둔 큰 음악·영상 파일도 함께 지우고, 하루 넘게 올리기를 끝내지 않은 줄도 정리
+      const removed = await removeStorageObjects(m.storagePaths).catch(() => 0);
+      const pending = await cleanupPendingUploads().catch(() => 0);
+      media = { files: m.files, storageRemoved: removed, pendingCleaned: pending };
     } catch (e) {
       console.error(`[cron] media retention failed: ${String((e as Error)?.message ?? e).slice(0, 200)}`);
       media = { error: "failed" };

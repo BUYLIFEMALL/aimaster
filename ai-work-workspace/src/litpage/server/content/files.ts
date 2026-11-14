@@ -28,6 +28,16 @@ try {
   /* column exists */
 }
 db.exec('ALTER TABLE files ADD COLUMN content BLOB');
+// 이식판 2026-11-14(플랜 docs/PLAN_20261114_STORAGE_AND_PUBLIC.md A, 주인님 「나눠서 저장」): 4MB를 넘는 파일은 Supabase Storage(비공개 버킷)에
+// 두고 경로만 기록한다(storage_path). pending=1은 올리기 주소만 받고 아직 올리기를 끝내지 않은 줄.
+// 이런 파일은 내용을 바로 읽을 수 없어 readFileContent가 null — AI 첨부 읽기·내보내기 등은 4MB 이하 파일만 다룬다.
+for (const col of ['storage_path TEXT', 'pending INTEGER NOT NULL DEFAULT 0']) {
+  try {
+    db.exec(`ALTER TABLE files ADD COLUMN ${col}`);
+  } catch {
+    /* column exists */
+  }
+}
 
 const MIME: Record<string, string> = {
   md: 'text/markdown; charset=utf-8', markdown: 'text/markdown; charset=utf-8', txt: 'text/plain; charset=utf-8', csv: 'text/csv; charset=utf-8',
@@ -77,13 +87,16 @@ export interface FileRow {
   path: string;
   private?: number;
   render?: number;
+  /** 2026-11-14: Storage에 둔 큰 파일의 경로(없으면 DB 안) */
+  storage_path?: string | null;
+  pending?: number;
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function fileRow(id: string): FileRow | undefined {
   if (!UUID.test(id)) return undefined;
-  const row = db.prepare('SELECT id, space_id, user_id, name, mime, size, created_time, private, render FROM files WHERE id = ?').get(id) as FileRow | undefined;
+  const row = db.prepare('SELECT id, space_id, user_id, name, mime, size, created_time, private, render, storage_path, pending FROM files WHERE id = ?').get(id) as FileRow | undefined;
   // 이식판: 내용은 files.content에 있다. path는 원본 호출부 호환용 이름으로만 남긴다(디스크에 파일 없음)
   return row ? { ...row, path: join(DATA_DIR, 'files', row.id) } : undefined;
 }

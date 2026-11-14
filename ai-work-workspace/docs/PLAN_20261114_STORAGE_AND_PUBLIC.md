@@ -1,6 +1,6 @@
 # 큰 파일 저장소 옮기기 + 공개 페이지·사이트·폼 — 개발 플랜 (2026-11-14)
 
-> **현재 상태**: 플랜 — 주인님 결정 대기(§3·§6). 코드 변경 없음.
+> **현재 상태**: 주인님 「진행해」(2026-11-14, 권장안). **A는 「나눠서 저장」으로 범위 변경 승인**(원본이 파일 내용을 바로 읽는 곳이 10군데라 전부 옮기면 위험 → 4MB 이하는 DB 그대로, 4MB 초과~50MB만 Storage) — 구현·시험 147 완료, 미배포. B 진행 예정.
 
 - 작성: [역할: workspace] Claude Code(윈도우) `claude-win-20261025-workspace`
 - 계기: 주인님 「진행해」(2026-11-14) — 남은 작업 표의 「큰 파일 저장소 옮기기」, 「공개 페이지·사이트 게시」
@@ -32,6 +32,11 @@
 ### A-3. 걸리는 점
 - **메인 중앙 정리와 충돌 가능**: 메인 사이트 `storage-retention`은 「보관 연장 회원」의 기간 지난 Storage 파일을 지움. 워크스페이스는 주인님 지정으로 일반 자료 1년이라, 예를 들어 90일 연장 회원의 첨부가 90일에 지워질 수 있음(페이지에는 깨진 첨부가 남음) → 결정 항목 A-3.
 - 버킷 생성·DB 함수 변경은 운영 작업(승인 필요).
+
+### A-5. 구현 기록(2026-11-14, 미배포)
+- `src/server/fileStorage.ts`(서명 올리기 주소·완료 확인·서명 내려받기·Storage 삭제·하루 넘은 대기 정리, 버킷 `workspace-files` 비공개·50MB를 처음 쓸 때 서버 키로 만듦), 라우트 `src/app/api/upload/large/route.ts`, 화면 `src/litpage/web/lib/api.ts` `uploadLargeFile`(4MB 초과면 Storage로 바로), 파일 표 칸 `storage_path`·`pending`, 내려받기는 기존 주소에서 권한 확인 뒤 5분 서명 주소로, 30일 음악·영상 정리 때 Storage도 함께 지움. 용량 확인은 공용 `storage-quota-client` 사본(`src/lib/storage/storageQuota.ts`, 등록 `scripts/check-shared-modules.mjs`).
+- 한계: Storage에 둔 큰 파일은 AI 첨부 읽기·내보내기 묶음·가져오기에 쓰이지 않음(내려받기·보기만). 기존 DB 파일은 옮기지 않음.
+- **메인 사이트 담당께 요청(A-3)**: 메인 DB 함수 `member_storage_expired_files`(0063·0068)가 `workspace-files` 버킷을 건너뛰게 한 줄(`and o.bucket_id <> 'workspace-files'`) — 보관 연장 회원의 워크스페이스 큰 파일이 워크스페이스 지정 기간(일반 1년·음악/영상 30일)보다 먼저 지워지지 않게. 워크스페이스가 자체 정리를 함.
 
 ### A-4. 결정 항목
 | 번호 | 항목 | 권장 |

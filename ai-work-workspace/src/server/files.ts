@@ -35,7 +35,8 @@ export function uploadFile(member: Member, query: URLSearchParams, buf: Buffer) 
   });
 }
 
-export function downloadFile(viewerId: string, id: string, download: boolean): Response {
+/** 2026-11-14: Storage에 둔 큰 파일은 Response 대신 경로를 돌려준다(라우트가 서명 주소로 넘김) */
+export function downloadFile(viewerId: string, id: string, download: boolean): Response | { storagePath: string; name: string } {
   return withRequestCache(() => {
     const row = fileRow(id);
     if (!row) return new Response('Not found', { status: 404 });
@@ -46,6 +47,7 @@ export function downloadFile(viewerId: string, id: string, download: boolean): R
     const member = row.user_id === viewerId || (!!row.space_id && isSpaceMember(getRecord<SpaceRecord>('space', row.space_id), viewerId));
     // U13 협업(2026-11-11): 페이지만 공유받은 사람은 그 파일이 붙은 블록을 읽을 수 있으면 받는다
     if (!member && !(row.space_id && canReadFileViaBlock(row.space_id, row.id, viewerId))) return new Response('Not found', { status: 404 });
+    if (row.storage_path) return row.pending ? new Response('Not found', { status: 404 }) : { storagePath: row.storage_path, name: row.name };
     const content = readFileContent(row.id);
     if (!content) return new Response('Not found', { status: 404 });
     return new Response(new Uint8Array(content), { headers: { ...fileHeaders(row, download), 'Content-Length': String(content.length) } });

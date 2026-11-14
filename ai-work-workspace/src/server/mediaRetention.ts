@@ -8,15 +8,18 @@ export const MEDIA_RETENTION_DAYS = 30;
 const DAY = 86_400_000;
 
 /** 30일 지난 음악·영상 파일 삭제. exempt = 보관 예외 회원 id */
-export function runMediaRetention(now = Date.now(), limit = 2_000, exempt: ReadonlySet<string> = new Set()): { files: number } {
+/** 2026-11-14: storagePaths = 지운 줄 중 Storage에 둔 큰 파일의 경로 — 부르는 쪽이 Storage에서도 지운다(fileStorage.removeStorageObjects) */
+export function runMediaRetention(now = Date.now(), limit = 2_000, exempt: ReadonlySet<string> = new Set()): { files: number; storagePaths: string[] } {
   const cutoff = now - MEDIA_RETENTION_DAYS * DAY;
   const skip = [...exempt];
   const notExempt = skip.length ? ` AND (user_id IS NULL OR user_id NOT IN (${skip.map(() => "?").join(", ")}))` : "";
   const ids = (db.prepare(`SELECT id FROM files WHERE created_time < ? AND (mime LIKE 'audio/%' OR mime LIKE 'video/%')${notExempt} ORDER BY created_time LIMIT ?`).all(cutoff, ...skip, limit) as { id: string }[]).map((r) => r.id);
   let files = 0;
+  const storagePaths: string[] = [];
   for (let i = 0; i < ids.length; i += 200) {
     const part = ids.slice(i, i + 200);
+    for (const r of db.prepare(`SELECT storage_path FROM files WHERE id IN (${part.map(() => "?").join(", ")}) AND storage_path IS NOT NULL`).all(...part) as { storage_path: string }[]) storagePaths.push(r.storage_path);
     files += db.prepare(`DELETE FROM files WHERE id IN (${part.map(() => "?").join(", ")})`).run(...part).changes;
   }
-  return { files };
+  return { files, storagePaths };
 }
