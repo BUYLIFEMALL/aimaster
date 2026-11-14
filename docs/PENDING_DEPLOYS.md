@@ -32,7 +32,7 @@
 
 
 - **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(`ai-video-studio`는 v1.35, `shorts-onestop-studio`는 v1.49로 반영·`icn1::icn1` 확인)(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때). ✅ `shots` v1.48(11-12) 반영·`icn1::icn1` 확인. ✅ `music-video-studio` v1.30(11-12) 반영·`icn1::icn1` 확인. ✅ `music-video-studio`는 11-12 v1.30 배포(`79fiamka3`)에 실림(11-13 음악 담당 확인).
-- **저장공간 위젯 한 줄 — `music-video-studio`·`video-to-gif`(2026-11-12 영상 담당 `claude-win-video`)**: 11-12 배포(v1.30·v1.28) 뒤 운영 화면에서 위젯이 없는 것을 확인하고 레이아웃에 한 줄 추가(tsc 통과). 이것만으로 따로 배포하지 않고 각 프로그램 다음 배포 때 함께.
+- **저장공간 위젯 한 줄 — `music-video-studio`·`video-to-gif`(2026-11-12 영상 담당 `claude-win-video`)**: 11-12 배포(v1.30·v1.28) 뒤 운영 화면에서 위젯이 없는 것을 확인하고 레이아웃에 한 줄 추가(tsc 통과). 이것만으로 따로 배포하지 않고 각 프로그램 다음 배포 때 함께. ✅ `video-to-gif` v1.29(11-15)에 실림.
 
 - **구글 연결 안내(2026-11-11 영상 담당 `claude-win-video`, 주인님 지시 「각 개인도 본인계정으로 인증」)**: ① `youtube-viral-studio` — 내 채널 연결 단계·설정 구글 앱 칸에 공용 매뉴얼 「내 구글 앱 만들기」 버튼, 매뉴얼 0단계 링크 ② `youtube-auto-reply` — 설정 텔레그램 칸 「구글 미검증 앱은 7일마다 만료」 → 「테스트 중이면 7일 만료 — 앱 게시로 유지」. 둘 다 문구·링크만, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 공용 매뉴얼 글 2개(DB)는 이미 반영됨.
 
@@ -117,6 +117,7 @@
 | `shorts-onestop-studio` | v1.51 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 연속 배포 2/2, `shorts-onestop-studio-2jis52jgc` Ready, DB v1.51) | U10 유튜브 「📨 업무 워크스페이스로」 `ea85e9879`(워크스페이스 담당 구현) — `/api/work-inbox` 비로그인 401. 시험 57·tsc 통과 |
 | `shots` | v1.50 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「진행해」 승인 연속 배포 1/2, `shots-or7w3aqvl` Ready, DB v1.50) | U10 유튜브 「📨 업무 워크스페이스로」 `ea85e9879`(라우트·버튼 컴포넌트, 워크스페이스 담당) + 「올린 기록」 줄마다 버튼 붙임(영상 담당) — `/api/work-inbox` 다른 출처 403·비로그인 401. 시험 29·tsc 통과 |
 | `shots` | v1.49 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「배포해」 승인 연속 배포 5/5, `shots-ppso8bsvk` Ready, DB v1.49) | 장면 순서 ▲▼ · 렌더링 중 장면 미리보기 · 무료 썸네일 만들기(1280×720 PNG). 시험 27·tsc 통과 |
+| `video-to-gif` | v1.29 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 「배포하고 ego lite에서 확인해」 빌드 1회, `video-to-lbnh8gr5q` Ready, DB v1.29, `check-extension-release` OK) | 다운로드 센터 선택 표시·접기 `d5bc5ccd1` + 렌더러 연결 4개 브라우저 등록 `dc237c2da` + 로그인 정책 2건 + 저장공간 위젯 + 렌더러·확장 ZIP v1.29. ego lite에서 확장 설치·「가동 중」·실제 GIF 변환(5초 → 6초) 확인 |
 | `video-to-gif` | v1.28 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「배포해」 승인 연속 배포 4/5, `video-to-agefhwn2u` Ready, DB v1.28) | 변환 남은 시간 표시(`lib/eta.ts`). 저장공간 위젯은 코드에 빠져 있어 나가지 않음 → 대기 줄로 |
 | `music-video-studio` | v1.30 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「배포해」 승인 연속 배포 3/5, `music-video-studio-79fiamka3` Ready, DB v1.30) | 「내 자료함」 곡·이미지 가져오기 + 공용 `video-edit-timeline`·`ai-video-client` 사본 + 서울 지역(`icn1::icn1` 확인). 저장공간 위젯은 코드에 빠져 있어 나가지 않음 → 대기 줄로 |
 | `shorts-onestop-studio` | v1.50 · 2026-11-12 ([역할: video] `claude-win-video`, 주인님 「배포해」 승인 연속 배포 2/5, `shorts-onestop-studio-ijzkrx70z` Ready, DB v1.50) | 배경음악 「내 자료함」 음악에서 고르기 + 공용 `member-assets-client` 사본 |

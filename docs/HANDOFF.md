@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `video-to-gif` v1.29 배포·ego lite 렌더러 확인
+- 한 일: 다운로드 센터 「선택 · 설치 안 해도 바로 사용 가능」·접기(`d5bc5ccd1`), 로컬 렌더러 native messaging 등록을 크롬·크로미움·엣지·웨일 4곳으로(Windows·Mac 설치/삭제, `dc237c2da`), 로그인 정책 2건, 저장공간 위젯, 렌더러·확장 ZIP v1.29. 배포 `video-to-lbnh8gr5q` Ready, DB v1.29, `check-extension-release` OK.
+- 확인: 이 PC에서 새 설치 스크립트로 4곳 등록 → ego lite에 확장 설치 → 「로컬 렌더러 가동 중 · Ext v1.29 · Host 1.30」 → 5초 영상 GIF 변환 약 6초 완료. ego lite는 크롬 경로도 읽음(크로미움 경로를 빼도 동작, 되돌려 둠).
+- 못 한 것: 웨일(agy 전용 브라우저)·Aside 실제 연결, Mac 설치 스크립트 실물(맥미니 몫). V4 화면 녹화 실제 확인은 주인님(Admin PC) 진행 중.
+- 미배포 대기: 왼쪽 메뉴 「최신 v1.26」 고정 글자 → `{APP_VERSION}`. 상세 `video-to-gif/docs/IMPROVEMENTS.md` 맨 위.
+- https://video-to-gif.buylife.xyz
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · 세션 `claude-win-20261025-workspace` — `ai-work-workspace` v1.41 배포(수정발행 검수 수정)
 - 주인님 「배포해」 → v1.41(`6e4314eb1`·`a48a8e4cb`), 배포 `ai-work-workspace-l38wi8ovh` Ready, DB v1.41
 - 엣지 운영 확인(시험 계정·테스트 키, 보내기 없음): 화면 v1.41, 환입 단가 「-5000」 직접 입력 → 미리보기 -5,500원, 화면 가로 밀림 없음, PDF 버튼 → 새 탭 없이 「PDF를 내려받았습니다」
