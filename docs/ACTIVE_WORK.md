@@ -43,7 +43,6 @@
 |---|---|---|---|
 | `mall-builder/` (범위: `docs/HANDOFF_20261113_RESALE_LIVE_CHECK_MACMINI.md`·`docs/evidence/t2-20261113-*`·운영UI 실물검수만) | [역할: mac-mini] Claude Code(맥미니, ego+Safari) · 세션 `claude-mac-20261111-wpblogger`(Codex에게서 이어받음, 2026-11-13 주인님 지시) | 2026-11-13 | T2 25단계 검수, 1~5번 통과 → 6번부터 진행. 코드/DB직접쓰기/배포 없음 |
 | `banana-canvas/` (범위: `batch/` 디자인 시안 및 UI 인수인계) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-inf-v1` | 2026-11-13 | 메이커 후속 1안 페이퍼 팝 일괄 합성 UI 구현 및 검증 완료 — agy |
-| `trending-product-finder/` → `seller-label-docs/` → `shop-order-report/` | [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-sdp` | 2026-11-14 | 주인님 「순서대로 진행해」: 보류 목록 차례로 — 지금 E2-1 등록 정보 도우미(플랜 `trending-product-finder/docs/PLAN_20261114_E2_REGISTER_HELPER.md`), 모아서 배포 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.06 운영. 미배포 대기(v1.07): 상세사진 `markPosted` + 안내 문구. 시험 상품 삭제 보류(주인님 결정 대기). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
 | `elevenst-register/` (범위: 4대 화면 3시안 쇼케이스 및 디자인 제안) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-elr-v1` | 2026-11-13 | 11번가 등록기 4대 화면 3시안(12뷰) 쇼케이스 및 종합 비교표 구축 — agy |
 | `elevenst-register/` (범위: 1안 107번 디자인 및 버튼 1행 최적화) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-elr-v1` | 2026-11-13 | 11st 1안 구현 및 버튼 1행 고정(nowrap) 전역 적용 완료. 배포 승인 대기 — agy |
