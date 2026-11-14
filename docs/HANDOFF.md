@@ -1,5 +1,21 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-bnc-m1` — 바나나 캔버스(banana-canvas) 메이커 연계 M1(쇼핑몰) & P2(상세페이지) Handoff 연동 및 새 ProductBatchBoard 결함 해결 완료
+- 지침: [`banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md`](../banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md) §4
+- 완료 내역:
+  1. `from=mall` (쇼핑몰 빌더) & `from=shop-detail` (상세페이지) 공통 지원: `productSenderOrigin(q.get("from"))` 기반 작업 수신(`readProductJob`), 준비 알림(`PRODUCT_MSG_READY`), 저장 알림(`readProductSaved`), 결과 반환(`PRODUCT_MSG_RESULT`) 연동 완결. `ProductCompositeBoard.tsx`와 `ProductBatchBoard.tsx` 양쪽 모두 완벽 동기화.
+  2. 새 `ProductBatchBoard.tsx` 결함 2건 해결:
+     - 결과 메시지: `kind:` 오표기를 **`type: PRODUCT_MSG_RESULT`**로 교정.
+     - 타겟 오리진: 바나나 자기 주소(`PRODUCT_RECEIVER_ORIGIN`) 대신 보낸 곳 주소(**`senderOrigin`**)로 전달.
+     - 데이터 규격: `{ type: PRODUCT_MSG_RESULT, jobId, productId, file, settingsVersion }` 100% 준수 (단일 객체 개별 전송).
+     - 완성된 대표사진 목록 그리드 신설 및 부모 창 반환 상태(`saved`, `sending`, 실패 문구) 실시간 표시.
+- 검증:
+  - `verify_banana_handoff_real.mjs` 실물 프로토콜 왕복 시뮬레이션 100% 성공 (상세페이지/쇼핑몰 발신/수신, 결과 파싱, 저장 알림).
+  - 단위 테스트: `tests/*.test.mjs` 97 / 97 전수 통과.
+  - 타입 검사: `npx tsc --noEmit` 에러 0건 통과.
+  - 프로덕션 빌드: `next build` (Turbopack) 성공.
+- 상태: 로컬 구현 및 검증 완료, 바나나 다음 묶음 배포 준비 완료.
+
 ## 2026-11-14 [역할: ecommerce-image] Claude Code(윈도우) `claude-win-sdp` — 메이커 연계 M1(쇼핑몰 → 바나나 상품 사진) 바나나 쪽 약속 · 미배포
 
 - 주인님 「메이커 연계(바나나로 상품 사진 손질) … 진행해」. 막힌 이유 두 가지(바나나 P1 승인·몰 사진 보관)가 모두 풀린 것을 확인했다.
@@ -7,7 +23,11 @@
 - 남은 일: agy가 바나나 화면 연결 3곳을 해야 한다. 새 `ProductBatchBoard.tsx`(미커밋)에는 결과를 `kind`·자기 주소로 보내는 결함이 있다. 쇼핑몰 담당은 M1~M3(사본 받기·보내기·제안 표 DB·적용)를 해야 한다. 상세: [banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md](../banana-canvas/docs/PLAN_20261114_MALL_PRODUCT_PHOTO_LINK.md). 비용 없음.
 - https://banana-canvas.buylife.xyz/batch?mode=product
 
+## 2026-11-14 [역할: mac-mini] 상품소싱v1.39 ZIP 확인·실물은 Chrome 도구 대기 / 메이커 최신 재검수 기록
 
+- 상품소싱 IMPROVEMENTS 맨 위: ZIP1.39.0/v1.39확인, Chrome새검수탭이동 timeoutMs오류. 검색/저장0·분류카드/상품수/기록시각 미검수. 사이트오류아님·검색중복없음. 프로그램문서한파일만커밋, 연결복구뒤1회검색.
+- 메이커 통합검수표§9·근거JSON: 최신스냅샷22/22통과, F05~08모두재현·F05운영화면확인·F07운영출력잘림확인. 정상3/손상1·ZIP5파일·실패만재시도·390px통과. 미배포새UI 반환메시지 불일치로통합검토필요. P2서버저장/다른회원/보관/마켓실물은미검수.
+- 비용$0·AI/빌드/배포/직접DB/제품코드변경0. 분양몰 조작중단유지.
 
 ## 2026-11-14 KST ✅ [역할: design] Antigravity(agy) · 세션 `agy-win-ssr-v1` — AI 스마트스토어 상품 자동등록기(smartstore-register) 4대 화면 3시안(110번/111번/112번, 12개 뷰) 쇼케이스 및 종합 비교표 구축 완료
 - 주인님 지시: 「스마트스토어 상품등록기 디자인 시안 작업해」
