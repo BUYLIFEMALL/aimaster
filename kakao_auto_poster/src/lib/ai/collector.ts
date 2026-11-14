@@ -1,4 +1,6 @@
 import "server-only";
+import { generateTextJson } from "./textLlm";
+import { currentTextModel, missingTextKeyMessage, textModelProvider } from "@/lib/textModels";
 
 // insta_auto_poster/src/lib/ai/collector.ts의 Perplexity 검색 패턴을 그대로 재사용하되,
 // "SNS 화제 이슈"가 아니라 "뉴스/정보/정책/트렌드 분석"에 맞춘 프롬프트로 바꿨다
@@ -127,51 +129,32 @@ function buildStructureSystemPrompt(todayLabel: string): string {
 export async function structureKakaoReport(params: {
   rawText: string;
   apiKey: string;
+  model?: string | null;
 }): Promise<KakaoReportDraft> {
   const { rawText, apiKey } = params;
-  if (!apiKey) {
-    throw new Error("OpenAI API 키가 없습니다. 설정 > API 키 설정에서 본인의 OpenAI API 키를 등록해주세요.");
-  }
+  // 2026-11-14: 주제마다 회원이 고른 플랫폼·모델(OpenAI·Claude·Gemini)로 호출한다. 키는 그 플랫폼의 회원 본인 키(호출부에서 확인).
+  const model = currentTextModel(params.model);
+  if (!apiKey) throw new Error(missingTextKeyMessage(textModelProvider(model)));
 
   const todayLabel = getTodayKoreanDateLabel();
+  const parsed = (await generateTextJson({
+    model,
+    key: apiKey,
+    system: buildStructureSystemPrompt(todayLabel),
+    user: `아래 원본 리서치 자료로 정보성 콘텐츠 1건을 만들어주세요.
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+${rawText}`,
+    temperature: 0.4,
+    maxTokens: 3000,
+    schema: {
+      type: "object",
+      properties: { title: { type: "string" }, summary: { type: "string" }, content: { type: "string" } },
+      required: ["title", "summary", "content"],
+      additionalProperties: false,
     },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: buildStructureSystemPrompt(todayLabel) },
-        { role: "user", content: `아래 원본 리서치 자료로 정보성 콘텐츠 1건을 만들어주세요.\n\n${rawText}` },
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 3000,
-      temperature: 0.4,
-    }),
-  });
+  })) as Partial<KakaoReportDraft> | null;
 
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`AI 구조화 요청이 실패했습니다. (${response.status}) ${errorBody}`);
-  }
-
-  const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
-  const raw = data.choices?.[0]?.message?.content?.trim();
-  if (!raw) {
-    throw new Error("AI가 빈 응답을 반환했습니다.");
-  }
-
-  let parsed: Partial<KakaoReportDraft>;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    throw new Error("AI 응답을 JSON으로 해석하지 못했습니다.");
-  }
-
-  if (!parsed.title || !parsed.summary || !parsed.content) {
+  if (!parsed?.title || !parsed.summary || !parsed.content) {
     throw new Error("AI 응답에 필요한 필드가 없습니다.");
   }
 

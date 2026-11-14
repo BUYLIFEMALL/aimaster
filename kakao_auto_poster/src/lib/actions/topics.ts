@@ -6,6 +6,7 @@ import { requireProgramAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { generateReportForTopic } from "@/lib/reportEngine";
 import { topicFormSchema } from "@/lib/validation";
+import { currentTextModel } from "@/lib/textModels";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureMemberSchedulerRunning, memberCronjobKey, memberSchedulerMode, platformSchedulerEnabled, stopMemberSchedulerIfIdle } from "@/lib/schedulerMember/memberScheduler";
@@ -136,6 +137,8 @@ export async function updateTopicScheduleAction(
   // (lib/kakaoSend.ts 참고) — 트리거 방식과 무관하게 이 주제의 리포트는 항상 같은
   // 대상으로 나가야 하기 때문이다.
   const targetGroupId = String(formData.get("targetGroupId") ?? "").trim() || null;
+  // 리포트 글 정리 AI 모델(2026-11-14) — 목록에 없는 값은 기본 모델로.
+  const textModel = currentTextModel(formData.get("textModel"));
 
   if (!id) return { error: "주제를 찾을 수 없습니다." };
 
@@ -150,6 +153,7 @@ export async function updateTopicScheduleAction(
       active_hour_end: activeHourEnd,
       notify_channels: notifyChannels,
       target_group_id: targetGroupId,
+      text_model: textModel,
     })
     .eq("id", id)
     .eq("user_id", user.id);
@@ -222,7 +226,7 @@ export async function generateReportAction(
   const supabase = await createClient();
   const { data: topic, error: topicError } = await supabase
     .from("kakao_topics")
-    .select("id, topic_name, keywords, lookback_days, notify_channels")
+    .select("id, topic_name, keywords, lookback_days, notify_channels, text_model")
     .eq("id", topicId)
     .eq("user_id", user.id)
     .maybeSingle();

@@ -53,3 +53,10 @@
 - 남은 것: 「7대 황금 수칙」은 운영 팁이라 코드 대조 대상 아님(그대로 둠). 로그인 기기 정책 안내는 매뉴얼에 없음(정책 코드 적용 후 함께 추가 제안).
 ### 5) 정책 점검 (pending-check 결과)
 - 저작권 고지: 경고 없음(적용됨). 저장공간 위젯: 미적용(다음 배포 때 레이아웃에 한 줄). 로그아웃 범위: `src/lib/actions/auth.ts:45` `signOut()` 범위 없음 → `scope: "local"` 필요. 서버 로그인 기기 정보: 서버 Supabase 클라이언트 User-Agent 미전달. 30일 정리 예외 회원: 이번에 새로 넣은 정리 작업에 적용(미배포).
+
+## 2026-11-14 리포트 글 정리 AI를 OpenAI·Claude·Gemini 중 회원이 선택 (정책 담당 `claude-win-20261112-policy`, 미배포)
+- 주인님 「왜 안쓰여? OpenaAI / Claude / Gemni 사용자별로 플랫폼과 모델을 직접 선택해서 사용할수 있도록 다른 프로그램 어떻게 해놨는지 보고 적용해」. 원인: `structureKakaoReport`가 `gpt-4o-mini` 고정이라 설정의 Claude 키 칸이 쓰이지 않았음.
+- 기준 `ebook-studio` v1.15: 모델 목록 `src/lib/textModels.ts`(플랫폼별 균형·가성비·최고 품질 9개, 기본 `gpt-6.1-terra`, 비었거나 목록 밖 값은 기본), 호출 `src/lib/ai/textLlm.ts`(세 플랫폼, 자동 재시도 없음, Claude는 구조화 응답 `output_config.format` json_schema, 길이 잘림·거절 안내), OpenAI 요청값은 공용 `openai-request-params` 사본(`src/lib/ai/openaiRequestParams.ts`, 사본 목록 등록).
+- 주제마다 「AI 모델」 선택(`kakao_topics.text_model`, 마이그레이션 `supabase/migrations/20261114120000_kakao_topics_text_model.sql` 운영 적용 2026-11-14), 「지금 생성」·예약 자동 생성(`schedulerMember/dispatch.ts`) 모두 같은 모델. 고른 플랫폼 키가 없으면 Perplexity 호출 전에 멈추고 안내(다른 플랫폼 키로 대신하지 않음).
+- 설정·매뉴얼 문구 갱신(「OpenAI 키로만」 → 주제에서 고른 플랫폼 키).
+- 시험(관리자 본인 키, 저가 모델 1회씩): gpt-6-luna 성공 5.3초, gemini-3.5-flash-lite 성공 1.7초, claude-haiku-5-5 첫 시험은 길이 한도 600에서 JSON 해석 실패 → 구조화 응답 추가 뒤 재시험 성공 7.6초(제목·요약·본문 채워짐). tsc 0, 로컬 build 통과. 배포 뒤 확인: 주제 카드 「AI 모델」 선택·저장, Claude 모델로 「지금 생성」 1회.

@@ -63,7 +63,7 @@ const SECTIONS: { title: string; description: string; providers: ApiKeyProvider[
   },
   {
     title: "✍️ 콘텐츠 생성 AI",
-    description: "검색된 정보를 카카오톡 발송용 요약과 웹 리포트 본문으로 정리하는 데 쓰입니다. 지금은 OpenAI 키로만 만들므로 OpenAI 키가 필수입니다(Claude 키만으로는 리포트가 만들어지지 않습니다).",
+    description: "검색된 정보를 카카오톡 발송용 요약과 웹 리포트 본문으로 정리하는 데 쓰입니다. 관심 주제마다 「AI 모델」에서 OpenAI·Claude·Gemini 중 하나를 고르고, 고른 플랫폼의 본인 키가 필요합니다(기본은 OpenAI GPT-6.1 Terra). Gemini를 고르면 아래 이미지용 Gemini 키를 함께 씁니다.",
     providers: ["openai", "anthropic"],
   },
   {

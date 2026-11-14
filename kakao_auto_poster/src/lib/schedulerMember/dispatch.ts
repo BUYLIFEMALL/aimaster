@@ -46,7 +46,7 @@ export async function dispatchDueTopics(options: DispatchOptions = {}) {
   let query = admin
     .from("kakao_topics")
     .select(
-      "id, user_id, topic_name, keywords, lookback_days, interval_minutes, last_run_at, active_hour_start, active_hour_end, notify_channels",
+      "id, user_id, topic_name, keywords, lookback_days, interval_minutes, last_run_at, active_hour_start, active_hour_end, notify_channels, text_model",
     )
     .eq("is_active", true)
     .eq("schedule_enabled", true);
@@ -95,6 +95,7 @@ export async function dispatchDueTopics(options: DispatchOptions = {}) {
           keywords: row.keywords,
           lookback_days: row.lookback_days,
           notify_channels: row.notify_channels,
+          text_model: row.text_model,
         },
         "scheduled",
       );

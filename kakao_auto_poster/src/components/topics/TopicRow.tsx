@@ -14,6 +14,7 @@ import {
 import { LOOKBACK_DAYS_OPTIONS } from "@/lib/validation";
 import { NOTIFY_CHANNEL_OPTIONS, SCHEDULE_INTERVAL_OPTIONS, type NotifyChannel } from "@/lib/schedule";
 import { clsx } from "@/lib/clsx";
+import { currentTextModel, textModelGroups, textModelProvider, TEXT_PROVIDER_LABEL } from "@/lib/textModels";
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => h);
 
@@ -33,6 +34,7 @@ interface TopicRowProps {
   activeHourEnd: number | null;
   notifyChannels: string[];
   targetGroupId: string | null;
+  textModel: string | null;
   groups: { id: string; name: string }[];
 }
 
@@ -55,6 +57,7 @@ export function TopicRow({
   activeHourEnd,
   notifyChannels,
   targetGroupId,
+  textModel,
   groups,
 }: TopicRowProps) {
   const [genState, genFormAction, isGenerating] = useActionState(generateReportAction, generateInitialState);
@@ -70,6 +73,8 @@ export function TopicRow({
   const [endHour, setEndHour] = useState(activeHourEnd ?? 22);
   const [channels, setChannels] = useState<string[]>(notifyChannels);
   const [groupId, setGroupId] = useState<string>(targetGroupId ?? "");
+  // 리포트 글 정리 AI 모델(2026-11-14 — OpenAI·Claude·Gemini 중 회원이 고름, 고른 플랫폼의 본인 키 필요)
+  const [model, setModel] = useState<string>(currentTextModel(textModel));
   // 회원 이용 만료일 설정(components/admin/SetExpiryModal.tsx)의 "빠른 설정" 캘린더
   // 패턴과 동일 — 날짜를 고르면 오늘까지의 경과일을 계산해서 기존 lookbackDays 값에
   // 그대로 채워 넣는다(새 컬럼 없이 기존 필드 재사용).
@@ -87,6 +92,7 @@ export function TopicRow({
     endHour?: number;
     channels?: string[];
     groupId?: string;
+    model?: string;
   }) {
     const merged = {
       lookback: next.lookback ?? lookback,
@@ -97,6 +103,7 @@ export function TopicRow({
       endHour: next.endHour ?? endHour,
       channels: next.channels ?? channels,
       groupId: next.groupId ?? groupId,
+      model: next.model ?? model,
     };
     const fd = new FormData();
     fd.set("id", id);
@@ -107,6 +114,7 @@ export function TopicRow({
     fd.set("activeHourStart", String(merged.startHour));
     fd.set("activeHourEnd", String(merged.endHour));
     fd.set("targetGroupId", merged.groupId);
+    fd.set("textModel", merged.model);
     merged.channels.forEach((c) => fd.append("notifyChannels", c));
     startSavingSchedule(async () => {
       const result = await updateTopicScheduleAction(scheduleInitialState, fd);
@@ -360,6 +368,33 @@ export function TopicRow({
             <p className="pl-[72px] text-[11px] text-neutral-400">
               달력에서 날짜를 고르면 그날부터 오늘까지의 정보만 검색하도록 위 조회 범위가
               자동으로 계산돼요(회원 이용 만료일 설정과 동일한 방식).
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="w-16 shrink-0 text-[11px] text-neutral-500">AI 모델</span>
+              <select
+                value={model}
+                disabled={isSavingSchedule}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setModel(next);
+                  saveSchedule({ model: next });
+                }}
+                className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-900"
+              >
+                {textModelGroups().map((g) => (
+                  <optgroup key={g.provider} label={g.label}>
+                    {g.models.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+            <p className="pl-[72px] text-[11px] text-neutral-400">
+              리포트 글을 정리할 AI예요. 고른 플랫폼({TEXT_PROVIDER_LABEL[textModelProvider(model)]})의 본인 API 키가 설정에 있어야 하고, 「지금 생성」과 예약 생성 모두 이 모델을 써요.
             </p>
 
             <div className="flex items-center gap-2">

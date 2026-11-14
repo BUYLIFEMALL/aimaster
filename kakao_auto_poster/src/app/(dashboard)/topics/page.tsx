@@ -18,7 +18,7 @@ export default async function TopicsPage() {
     supabase
       .from("kakao_topics")
       .select(
-        "id, topic_name, keywords, is_active, lookback_days, schedule_enabled, interval_minutes, active_hour_start, active_hour_end, notify_channels, target_group_id",
+        "id, topic_name, keywords, is_active, lookback_days, schedule_enabled, interval_minutes, active_hour_start, active_hour_end, notify_channels, target_group_id, text_model",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
@@ -130,6 +130,7 @@ export default async function TopicsPage() {
               activeHourEnd={t.active_hour_end}
               notifyChannels={t.notify_channels}
               targetGroupId={t.target_group_id}
+              textModel={t.text_model}
               groups={groups ?? []}
             />
           ))

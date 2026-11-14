@@ -9,6 +9,7 @@ import { sendReportToKakaoCore } from "@/lib/kakaoSend";
 import { resolveKakaoAppCredentials } from "@/lib/kakao/account";
 import { generateAndUploadReportImage } from "@/lib/ai/reportImage";
 import { toEditorHtml } from "@/lib/reportContent";
+import { currentTextModel, missingTextKeyMessage, textModelProvider } from "@/lib/textModels";
 
 export interface TopicForGeneration {
   id: string;
@@ -16,6 +17,7 @@ export interface TopicForGeneration {
   keywords: string[];
   lookback_days: number;
   notify_channels: string[];
+  text_model?: string | null;
 }
 
 /**
@@ -30,10 +32,14 @@ export async function generateReportForTopic(
   generatedVia: "manual" | "scheduled",
 ): Promise<{ reportId: string }> {
   const perplexityKey = await resolveApiKey(supabase, userId, "perplexity");
-  const openaiKey = await resolveApiKey(supabase, userId, "openai");
+  // 글 정리는 주제에 고른 모델의 플랫폼 키(OpenAI·Claude·Gemini, 2026-11-14). 수집 전에 확인해 Perplexity 비용이 헛되이 나가지 않게 한다.
+  const textModel = currentTextModel(topic.text_model);
+  const textProvider = textModelProvider(textModel);
+  const textKey = await resolveApiKey(supabase, userId, textProvider);
+  if (!textKey) throw new Error(missingTextKeyMessage(textProvider));
 
   const rawText = await searchPerplexityInfo(topic.topic_name, topic.keywords, perplexityKey ?? "", topic.lookback_days);
-  const draft = await structureKakaoReport({ rawText, apiKey: openaiKey ?? "" });
+  const draft = await structureKakaoReport({ rawText, apiKey: textKey, model: textModel });
 
   // 콘텐츠 생성과 함께 대표 이미지도 자동으로 만들어 본문 맨 위에 넣는다(docs/PLATFORM_PATTERNS.md
   // §12 — Gemini 직접 호출 + Supabase Storage 업로드, 회원 본인 gemini 키 필요). 이미지 생성은
