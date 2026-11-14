@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { userFromExtension } from "@/lib/extension/token";
+import { markRegisteredProductPosted } from "@/lib/postedFiles";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -16,7 +17,8 @@ export async function POST(req: Request) {
   const status = typeof body.status === "string" && FINAL.has(body.status) ? body.status : null;
   const jobId = typeof body.jobId === "string" ? body.jobId : "";
   if (!status || !/^[0-9a-f-]{36}$/.test(jobId)) return NextResponse.json({ error: "잘못된 보고입니다." }, { status: 400 });
-  const { data, error } = await createAdminClient()
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from("smartstore_register_jobs")
     .update({
       status,
@@ -28,8 +30,12 @@ export async function POST(req: Request) {
     .eq("id", jobId)
     .eq("user_id", who.userId)
     .eq("status", "running")
-    .select("id")
+    .select("id,product_id")
     .maybeSingle();
   if (error) return NextResponse.json({ error: "기록하지 못했습니다." }, { status: 500 });
+  // 「바로 등록」 성공 = 발행(2026-11-15 주인님 결정) → 상품 사진을 「포스팅됨」으로. 실패해도 결과 기록에는 영향 없음.
+  if (data && status === "registered" && data.product_id) {
+    await markRegisteredProductPosted(admin, who.userId, data.product_id, s(body.marketProductNo, 40));
+  }
   return NextResponse.json({ ok: Boolean(data) });
 }

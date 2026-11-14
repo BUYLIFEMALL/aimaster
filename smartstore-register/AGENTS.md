@@ -206,3 +206,8 @@ Next.js 16(App Router, `src/proxy.ts`) · React 19 · Tailwind 4 · Supabase 공
 
 ## 2026-11-14 (미배포 대기) — 상품 검색 태그를 처음 값으로 (E2-4, [역할: ecommerce-image] `claude-win-sdp`)
 - 상품 화면 「검색 태그」 처음 값: 마지막에 보낸 태그 → 없으면 상세페이지 상품의 `search_tags`(상품소싱 초안에서 넘어옴). `data.ts` `PRODUCT_COLS`에 `search_tags`(운영 DB 칸 적용 완료 — 이 칸 없이 배포하면 상품 조회가 깨지므로 순서 주의). 확장·칸 구성 변경 없음(`STEP_BUILDER` 그대로). 시험 27·tsc·build.
+
+## 2026-11-15 (미배포 대기) — 「바로 등록」 성공 = 발행 → 사진 「포스팅됨」 표시 ([역할: ecommerce-image] `claude-win-sdp`)
+- 주인님 결정 「발행으로 봐」(상품 등록 = 발행). 보관 규칙은 11-11 저장 구독제 기준(일반 회원은 발행 무관 30일 그대로, 저장 구독 회원은 포스팅 보관 기간) — 옛 「발행 1년」 정리 코드는 넣지 않음.
+- 확장 완료 보고 `/api/extension/finish`가 `registered`이면 `markRegisteredProductPosted`(`src/lib/postedFiles.ts`) → 대표(합성 우선)·추가(참고 사진 최대 9)·상세 섹션 사진을 공용 `markPosted`(사본 `src/lib/storage/markPosted.ts`, 기준 루트 `lib/storage/markPosted.ts` — 직접 고치지 말 것)로 표시. 입력만·임시저장은 표시 안 함. 표시 실패는 결과 기록에 영향 없음. 경로 고르기 `src/lib/smartstore/posted.ts`(시험 `tests/posted.test.mjs` 2개). 확장·칸 구성 변경 없음.
+- 검수: 시험 29·tsc 0. 실물 확인은 배포 뒤 다음 실제 「바로 등록」 때(`storage_posted_files` 행 생성).

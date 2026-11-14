@@ -40,3 +40,6 @@ Next.js 16(App Router, `src/`), Tailwind 4, Supabase(AIMaster 운영 공용 DB),
 ## 6. UI/UX
 **107. 11번가 오리지널 레드 & 화이트 셀러 스튜디오 스타일 (11st Iconic Vibrant Red Studio)**:
 11번가 고유 비비드 레드(`#FA0050`)와 스노우 화이트 카드, 3D 엠보싱 레드 버튼(`.btn-3d-red`)을 적용하여 스마트스토어(78번 네이버 그린), 쿠팡(84번 로열 블루)과 함께 AIMaster 3대 오픈마켓 커머스 아틀리에를 완성. 상세 규격: `elevenst-register/docs/DESIGN_HANDOFF.md`.
+
+## 2026-11-15 보관 규칙 결정 기록 ([역할: ecommerce-image] `claude-win-sdp`)
+- 주인님 「상품 등록 = 발행으로 봐」 → 11번가는 v1.07부터 이미 등록 성공 때 상세설명 사진을 `markPosted`로 표시하고 있어 추가 작업 없음(대표·추가 사진은 11번가가 복사해 가므로 표시 안 하는 기존 결정 유지). 옛 「발행 1년 정리 라우트 신설」 요청은 11-11 저장 구독제로 대체돼 하지 않음.
