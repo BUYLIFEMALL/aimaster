@@ -1,5 +1,9 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-14 KST ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 원스톱 v1.54 상품 사진 쇼츠 개선 5건 배포
+- `shorts-onestop-studio-2bruvgtk6` Ready, DB v1.54. 확인: 저장 대본 다시 열면 상품·사진 채움 · 사진 순서 ◀▶ · 뺀 사진 서버 파일 삭제(대본이 쓰는 사진 보호) · 실제 MP4 프레임에서 상품 모양·색(차이 1 이하)·글자 원본 그대로 · 인트로 이름표 여백.
+- 받은 제안: 공용 인코더 `browser-mp4-encoder` 안정화 3가지(음악 담당) → 원스톱 백로그에 올림(원스톱·shots·lyric-video-studio 세 프로그램 시험 필요, 따로 진행).
+
 ## 2026-11-14 ✅ [역할: ecommerce-image] Claude Code(윈도우) · 세션 `claude-win-photo` — 원본 사진 참고 수집 운영 반영(DB 칸 1 + 배포 4)
 
 - 주인님 「순서대로 진행해」: 운영 DB(ref `esgxyikcnnvmlhygjkth`) `shop-detail-page/supabase/migrations/20261113_source_origin_v1_45.sql` 적용(ego SQL 편집기, 파일과 글자 단위 일치 확인 → Success → 조회: 칸 text·제약 1·채워진 줄 0) → 11번가 v1.07 → 스마트스토어 v1.28 → 상세페이지 v1.45 → 상품소싱 v1.38 순차 배포(각 Ready·DB 버전). 확장 2개는 DB `extension_version`을 SQL로 v1.28·v1.38로 맞춰 `check-extension-release` OK.
