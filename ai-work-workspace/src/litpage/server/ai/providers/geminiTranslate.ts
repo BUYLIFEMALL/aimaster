@@ -356,9 +356,20 @@ export class GeminiTranslator {
     }
     // 2026-11-15 구글 검색 출처(마지막 조각) → 「검색함」 결과 블록
     const gm = cand.groundingMetadata;
-    if (gm && Array.isArray(gm.groundingChunks) && gm.groundingChunks.length && this.searchIndex >= 0 && !this.searchDone) {
+    if (gm && Array.isArray(gm.groundingChunks) && gm.groundingChunks.length && !this.searchDone) {
       this.searchDone = true;
       out.push(...this.closeText());
+      if (this.searchIndex < 0) {
+        // 검색은 앞 요청(함수 도구와 같은 단계)에서 했고 출처만 이번 답에 온 경우: 출처용 검색 단계를 새로 만든다.
+        // 원래 조각(raw)이 없으므로 다음 요청에는 보내지 않는다(검색 조각은 앞 요청 블록이 이미 보냄).
+        const id = newCallId();
+        const q = Array.isArray(gm.webSearchQueries) ? gm.webSearchQueries.join(' · ') : '';
+        this.content.push({ type: 'server_tool_use', id, name: 'web_search', input: { query: q } });
+        this.searchIndex = this.content.length - 1;
+        out.push({ type: 'content_block_start', index: this.searchIndex, content_block: { type: 'server_tool_use', id, name: 'web_search', input: {} } });
+        out.push({ type: 'content_block_delta', index: this.searchIndex, delta: { type: 'input_json_delta', partial_json: JSON.stringify({ query: q }) } });
+        out.push({ type: 'content_block_stop', index: this.searchIndex });
+      }
       const call = this.content[this.searchIndex];
       const results = gm.groundingChunks
         .map((c: Json) => c?.web)

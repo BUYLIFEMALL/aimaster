@@ -285,4 +285,20 @@ describe('Gemini 구글 검색 응답 변환', () => {
     expect(modelParts.slice(0, 2).map((p: Json) => Object.keys(p).filter((k) => k !== 'thoughtSignature')[0])).toEqual(['toolCall', 'toolResponse']);
     expect(modelParts[2].text).toBe('시급은 10,320원입니다.');
   });
+
+  // 2026-11-15 운영 확인: 구글 검색과 함수 도구(워크스페이스 검색)를 한 단계에서 쓰면 출처가 다음 요청의 답 조각에 온다
+  it('검색 블록이 없는 요청에 출처만 오면 출처용 검색 단계를 새로 만들어 붙이고, 다음 요청에는 보내지 않는다', () => {
+    const req = buildGeminiRequest({ messages: [{ role: 'user', content: '최저임금' }] }, 'gemini-3.5-flash-lite');
+    const t = new GeminiTranslator(req.names, 'gemini-3.5-flash-lite');
+    t.beginRound();
+    const ev: Json[] = [];
+    ev.push(...t.handle({ candidates: [{ content: { parts: [{ text: '시급은 10,320원입니다.' }] } }] }));
+    ev.push(...t.handle({ candidates: [{ content: { parts: [{ text: '' }] }, finishReason: 'STOP', groundingMetadata: { webSearchQueries: ['2026 최저임금'], groundingChunks: [{ web: { uri: 'https://vertexaisearch.cloud.google.com/y', title: 'minimumwage.go.kr' } }] } }] }));
+    expect(ev.filter((e) => e.type === 'content_block_start').map((e) => e.content_block.type)).toEqual(['text', 'server_tool_use', 'web_search_tool_result']);
+    const call = t.content.find((b) => b.type === 'server_tool_use');
+    expect(call.input).toEqual({ query: '2026 최저임금' });
+    expect(t.content.find((b) => b.type === 'web_search_tool_result')).toMatchObject({ tool_use_id: call.id, content: [{ title: 'minimumwage.go.kr' }] });
+    const next = buildGeminiRequest({ messages: [{ role: 'user', content: '최저임금' }, { role: 'assistant', content: t.content }, { role: 'user', content: '고마워' }] }, 'gemini-3.5-flash-lite');
+    expect(next.body.contents.find((c: Json) => c.role === 'model').parts).toEqual([{ text: '시급은 10,320원입니다.' }]);
+  });
 });
