@@ -12,6 +12,7 @@ import { priceLine, viewerOf, type GradePrice, type PriceContext, type VolumeTie
 import { readDoc, type BlocksDoc, type ShowcaseSettings } from "@/lib/blocks";
 import { emptyStats, type Stats } from "@/lib/stats";
 import { cache } from "react";
+import { NO_TRACKING_STATUSES, ORDER_PAGE_SIZE, kstDayStart, kstNextDayStart, orderSearchFilter, type OrderListQuery } from "@/lib/order-list";
 
 export type Store = {
   id: string;
@@ -486,22 +487,29 @@ export async function getMyOrders(storeId: string, userId: string): Promise<(Ord
 }
 
 /** 운영사 주문 목록(이 몰, 최근 순) — 상태로 거르기. 보안 규칙상 운영사가 아니면 자기 주문만 온다 */
-export async function getStoreOrders(storeId: string, status?: string) {
+/** 운영사 주문 목록(M2-1) — 상태·검색어·기간·송장 없음 조건, 50건씩 페이지, 전체 건수 함께 */
+export async function getStoreOrders(storeId: string, f: OrderListQuery) {
   const supabase = await createClient();
   let query = supabase
     .from("mall_builder_orders")
-    .select(`${ORDER_COLUMNS}, mall_builder_order_items(name_snapshot)`)
+    .select(`${ORDER_COLUMNS}, mall_builder_order_items(name_snapshot)`, { count: "exact" })
     .eq("store_id", storeId)
     .order("created_at", { ascending: false })
-    .limit(200);
-  if (status) query = query.eq("status", status);
-  const { data } = await query;
+    .range((f.page - 1) * ORDER_PAGE_SIZE, f.page * ORDER_PAGE_SIZE - 1);
+  if (f.status) query = query.eq("status", f.status);
+  if (f.noTracking) query = query.in("status", [...NO_TRACKING_STATUSES]).eq("tracking_no", "");
+  if (f.from) query = query.gte("created_at", kstDayStart(f.from));
+  if (f.to) query = query.lt("created_at", kstNextDayStart(f.to));
+  const search = orderSearchFilter(f.q);
+  if (search) query = query.or(search);
+  const { data, count } = await query;
   type Raw = OrderRow & { mall_builder_order_items: { name_snapshot: string }[] };
-  return ((data ?? []) as unknown as Raw[]).map(({ mall_builder_order_items: items, ...o }) => ({
+  const rows = ((data ?? []) as unknown as Raw[]).map(({ mall_builder_order_items: items, ...o }) => ({
     ...o,
     item_count: items.length,
     first_item: items[0]?.name_snapshot ?? "",
   }));
+  return { rows, total: count ?? rows.length };
 }
 
 /** 상태별 주문 수(운영사 탭 숫자) */
