@@ -18,6 +18,7 @@ function repo() {
   const dir = mkdtempSync(join(tmpdir(), "safe-commit-test-"));
   mkdirSync(join(dir, "scripts"));
   copyFileSync(HELPER, join(dir, "scripts", "safe-commit.mjs"));
+  copyFileSync(join(dirname(fileURLToPath(import.meta.url)), "index-pending-sync.mjs"), join(dir, "scripts", "index-pending-sync.mjs")); // 2026-11-15 대기열 모듈
   const git = (...a) => execFileSync("git", a, { cwd: dir, encoding: "utf8" });
   git("init", "-q");
   assertScratchRepo(dir); // git이 보는 최상위가 임시 폴더인지 — 아니면 여기서 멈춤
@@ -173,6 +174,29 @@ test("⑨ 다른 도우미가 잠금을 잡고 있으면: 커밋은 하고 스�
     assert.match(out.stdout, /공용 스테이징 맞추기를 건너뜁니다/);
     assert.deepEqual(r.head("a.md"), ["a", "b"]);
     assert.equal(readFileSync(lock, "utf8"), "9999 다른 도우미");
+  } finally { r.done(); }
+});
+
+// 2026-11-15 재발 대책: 잠금 때문에 건너뛴 경로는 대기열에 남고, 다음 도우미가 잠금을 잡으면 자동으로 맞춘다
+test("⑨-2 건너뛴 경로는 대기열에 남고, 다음 커밋 때 자동으로 새 HEAD로 맞춰진다(마지막 줄에 보류 알림)", () => {
+  const r = repo();
+  try {
+    r.commit("a.md", ["a"], "c1");
+    r.commit("b.md", ["b"], "c2");
+    const lock = join(r.dir, ".git", "safe-commit-index.lock");
+    writeFileSync(lock, "9999 다른 도우미");
+    r.write("a.md", ["a", "b"]);
+    const out = spawnSync(process.execPath, ["scripts/safe-commit.mjs", "커밋", "a.md", "--mine"], { cwd: r.dir, encoding: "utf8", env: { ...process.env, AIMASTER_SESSION: "claude-test", SAFE_COMMIT_SYNC_TRIES: "2" } });
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.match(out.stdout.trimEnd().split("\n").pop(), /보류/);
+    assert.match(readFileSync(join(r.dir, ".git", "aimaster-pending-sync"), "utf8"), /\ta\.md/);
+    assert.equal(r.git("show", ":a.md").trimEnd(), "a", "아직 공용 스테이징은 옛 판");
+    rmSync(lock);
+    r.write("b.md", ["b", "c"]);
+    const out2 = r.helper("커밋2", "b.md", "--mine");
+    assert.equal(out2.status, 0, out2.stdout + out2.stderr);
+    assert.equal(r.git("show", ":a.md").trimEnd(), "a\nb", "대기열 경로가 새 HEAD로 맞춰짐");
+    assert.equal(readFileSync(join(r.dir, ".git", "aimaster-pending-sync"), "utf8"), "");
   } finally { r.done(); }
 });
 

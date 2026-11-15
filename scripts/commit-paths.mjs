@@ -14,6 +14,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { healPending, queuePending } from "./index-pending-sync.mjs";
 
 const ROOT = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim();
 const GITDIR = resolve(ROOT, execFileSync("git", ["rev-parse", "--git-dir"], { cwd: ROOT, encoding: "utf8" }).trim());
@@ -105,8 +106,10 @@ if (!done) { console.log("✖ 5번 시도했지만 HEAD가 계속 바뀌어 커�
 //   safe-commit과 같은 도우미 잠금으로 한 번에 하나씩 맞추고, 맞추기 직전 사본을 떠 두었다가 줄었으면 그 사본으로 바로 되돌린다.
 const SYNC_LOCK = join(GITDIR, "safe-commit-index.lock");
 const INDEX = join(GITDIR, "index");
+// 2026-11-15: 20초 → 90초(맥미니 SMB 도우미가 맞추기에 30초~1분 걸려 20초로는 자주 건너뜀, docs/ERROR_LESSONS.md 2026-11-15)
+let syncDeferred = ""; // 맞추지 못했으면 이유 — 출력 맨 마지막 줄에 다시 알림 + 대기열(.git/aimaster-pending-sync)
 const takeSyncLock = () => {
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0, n = Number(process.env.COMMIT_PATHS_SYNC_TRIES) || 180; i < n; i++) { // 시험에서만 줄임
     try { writeFileSync(SYNC_LOCK, `${process.pid} commit-paths ${new Date().toISOString()}`, { flag: "wx" }); return true; }
     catch { try { if (Date.now() - statSync(SYNC_LOCK).mtimeMs > 120000) { rmSync(SYNC_LOCK, { force: true }); continue; } } catch { /* 방금 풀림 */ } }
     sleepMs(500);
@@ -118,7 +121,8 @@ const indexCount = count(tryRun(["ls-files"]) ?? "");
 if (indexCount * 2 < headCount) {
   console.log(`⚠ 공용 스테이징 파일 수 ${indexCount}개가 HEAD ${headCount}개의 절반보다 적어 건드리지 않았습니다 — 스테이징이 망가졌을 수 있으니 주인님께 알리세요(루트 CLAUDE.md 최상단).`);
 } else if (!takeSyncLock()) {
-  console.log(`⚠ 다른 도우미가 공용 스테이징을 맞추는 중이라 건너뜁니다(커밋은 정상). 잠시 뒤 직접: git reset -q HEAD -- ${rel.join(" ")}`);
+  queuePending(GITDIR, rel, as);
+  syncDeferred = "다른 도우미가 90초 넘게 공용 스테이징을 맞추는 중";
 } else {
   try {
     // 잠금을 기다리는 사이 줄었으면 사본도 망가진 것이므로 건드리지 않는다
@@ -132,7 +136,7 @@ if (indexCount * 2 < headCount) {
     }
     if (process.env.AIMASTER_TEST_SHRINK_AFTER_SYNC === "1") tryRun(["read-tree", "--empty"]); // 시험 전용: SMB에서 줄어든 순간 흉내
     const after = count(tryRun(["ls-files"]) ?? "");
-    if (!ok) console.log(`⚠ 공용 스테이징을 맞추지 못했습니다(다른 세션 잠금이 계속됨). 잠시 뒤 직접: git reset -q HEAD -- ${rel.join(" ")}`);
+    if (!ok) { queuePending(GITDIR, rel, as); syncDeferred = "git 잠금(index.lock)이 40초 넘게 계속됨"; }
     else if (after * 2 < headCount) {
       // 줄었다 → git 잠금이 없을 때만 맞추기 직전 사본으로 되돌린다(망가진 상태를 남기지 않음)
       if (snapshot && !existsSync(INDEX + ".lock")) {
@@ -140,6 +144,11 @@ if (indexCount * 2 < headCount) {
         const back = count(tryRun(["ls-files"]) ?? "");
         console.log(`⚠ 맞춘 뒤 공용 스테이징이 ${after}개로 줄어 맞추기 직전 사본으로 되돌렸습니다(지금 ${back}개). 커밋은 정상 — 주인님께 알리세요(docs/ERROR_LESSONS.md 2026-11-03).`);
       } else console.log(`⚠ 맞춘 뒤 공용 스테이징이 ${after}개로 줄었는데 되돌리지 못했습니다 — 커밋·푸시를 멈추고 주인님께 알리세요(루트 CLAUDE.md 최상단 여섯째).`);
+    }
+    // 2026-11-15: 잠금을 잡은 김에 앞서 다른 도우미가 맞추지 못하고 남긴 경로(대기열)도 맞춘다(스테이징이 정상일 때만)
+    if (ok && count(tryRun(["ls-files"]) ?? "") * 2 >= headCount) {
+      const h = healPending(ROOT, GITDIR);
+      if (h.fixed.length) console.log(`  대기열에 남아 있던 경로 ${h.fixed.length}개도 새 HEAD로 맞췄습니다: ${h.fixed.slice(0, 5).join(", ")}${h.fixed.length > 5 ? " 외" : ""}`);
     }
   } catch (e) {
     if (e?.message !== "shrunk-before-sync") throw e;
@@ -155,3 +164,5 @@ if (push) {
   const p = spawnSync("git", ["push", "-q", "origin", branch], { cwd: ROOT, encoding: "utf8" });
   console.log(p.status === 0 ? `✔ 푸시 origin/${branch}` : `✖ 푸시 실패 — git push origin ${branch}로 다시 하세요.\n${(p.stderr || "").trim()}`);
 }
+// 맨 마지막 줄(2026-11-15): 출력 끝만 보는 경우에도 놓치지 않게
+if (syncDeferred) console.log(`⚠ 커밋은 정상, 공용 스테이징 맞추기는 보류(${syncDeferred}) — 대기열에 남겨 다음 커밋 도우미가 자동으로 맞춥니다. 바로 맞추려면: git reset -q HEAD -- ${rel.join(" ")}`);

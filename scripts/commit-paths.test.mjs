@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, rmSync, utimesSync, existsSync, readdirSync } from "node:fs";
+import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, readFileSync, rmSync, utimesSync, existsSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,7 +15,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 function repo(fileCount = 0) {
   const dir = mkdtempSync(join(tmpdir(), "commit-paths-test-"));
   mkdirSync(join(dir, "scripts"));
-  for (const f of ["commit-paths.mjs", "check-index-health.mjs"]) copyFileSync(join(HERE, f), join(dir, "scripts", f));
+  for (const f of ["commit-paths.mjs", "check-index-health.mjs", "index-pending-sync.mjs"]) copyFileSync(join(HERE, f), join(dir, "scripts", f));
   const git = (...a) => execFileSync("git", a, { cwd: dir, encoding: "utf8" });
   git("init", "-q");
   assertScratchRepo(dir); // git이 보는 최상위가 임시 폴더인지 — 아니면 여기서 멈춤
@@ -131,5 +131,34 @@ test("⑥ 세션 이름이 없으면 거부하고 아무것도 커밋하지 않�
     const ok = r.helperNoName("이름 있음", "n.txt", "--as", "codex-win-test");
     assert.equal(ok.status, 0, ok.stdout + ok.stderr);
     assert.match(r.git("log", "-1", "--format=%B"), /AIMaster-Session: codex-win-test/);
+  } finally { r.done(); }
+});
+
+// 2026-11-15 재발 대책(docs/ERROR_LESSONS.md 2026-11-15): 맞추기 잠금을 못 잡으면 대기열에 남기고, 다음 도우미가 자동으로 맞춘다
+test("잠금 경합: 커밋은 하고 맞추기는 대기열로 — 다음 커밋 때 자동으로 맞춰지고, 다른 세션이 일부러 스테이징한 새 내용은 그대로", () => {
+  const r = repo();
+  const NL = "\n";
+  const queue = join(r.dir, ".git", "aimaster-pending-sync");
+  try {
+    writeFileSync(join(r.dir, "a.txt"), "a" + NL); writeFileSync(join(r.dir, "other.txt"), "o" + NL);
+    r.git("add", "-A"); r.git("commit", "-qm", "c2");
+    const lock = join(r.dir, ".git", "safe-commit-index.lock");
+    writeFileSync(lock, "9999 다른 도우미");
+    writeFileSync(join(r.dir, "a.txt"), "a2" + NL);
+    const env = { ...process.env, AIMASTER_SESSION: "claude-test", COMMIT_PATHS_SYNC_TRIES: "2" };
+    const out = spawnSync(process.execPath, ["scripts/commit-paths.mjs", "a 고침", "a.txt"], { cwd: r.dir, encoding: "utf8", env });
+    assert.equal(out.status, 0, out.stdout + out.stderr);
+    assert.match(out.stdout.trimEnd().split(NL).pop(), /보류/);
+    assert.equal(r.git("show", ":a.txt"), "a" + NL, "아직 옛 판");
+    // 다른 세션이 other.txt를 일부러 새 내용으로 스테이징해 둠 + 대기열에도 끼어 있다고 가정
+    writeFileSync(join(r.dir, "other.txt"), "o-new" + NL); r.git("add", "other.txt");
+    writeFileSync(queue, readFileSync(queue, "utf8") + [new Date().toISOString(), "x", "other.txt"].join("\t") + NL);
+    rmSync(lock);
+    writeFileSync(join(r.dir, "keep.txt"), "keep2" + NL);
+    const out2 = r.helper("keep 고침", "keep.txt");
+    assert.equal(out2.status, 0, out2.stdout + out2.stderr);
+    assert.equal(r.git("show", ":a.txt"), "a2" + NL, "대기열 경로가 새 HEAD로 맞춰짐");
+    assert.equal(r.git("show", ":other.txt"), "o-new" + NL, "일부러 스테이징한 새 내용은 그대로");
+    assert.match(readFileSync(queue, "utf8"), /other\.txt/, "맞추지 않은 줄은 남김");
   } finally { r.done(); }
 });
