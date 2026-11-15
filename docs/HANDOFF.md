@@ -1,5 +1,20 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 메이커 v0.3.3 후속 M2 GIF 변환 v1.30·v1.31 「🛍 상품 사진 영상」
+- 한 일: `/product-video` — 사진 1~6장 → MP4(공용 인코더 새 사본)·상세페이지 애니메이션 WebP(`ffmpeg.wasm` `libwebp_anim`, 10MB 단계 줄이기), 템포 3·움직임 6·넘김 5(우리 종류), 문구 3층·`{상품코드}`, 9:16/1:1/860×1076, 상품코드_1~6 일괄·ZIP. 키·AI·서버 업로드 없음. `bf972755f`·`aab624bc3`.
+- 배포: v1.30 `video-to-l1kescyg8`(승인 1회) → 운영에서 상세페이지 크기 MP4 실패(860×1075 홀수) 발견 → 주인님 추가 승인 v1.31 `video-to-b5ch93cuq`. DB·확장·ZIP v1.31, `check-extension-release` OK.
+- 확인(ego, 관리자 계정): 세로 상품 2개 일괄 27초·MP4·WebP 실제 파일, 상세페이지 6장 MP4 860×1076 21.6초·WebP 432프레임 2.2MB, 390px.
+- 남은 것: 「상세페이지로」 WebP 넘기기 — 받는 쪽 `shop-detail-page` 담당께 요청(`shop-detail-page/docs/IMPROVEMENTS.md` 맨 위). 시험 계정 재확인.
+- 다음 첫 단계: M3-② 원스톱 상품 숏폼 고도화(JSON 장면 기획부터).
+- https://video-to-gif.buylife.xyz/product-video
+
+## 2026-11-15 [역할: workspace] Claude Code(윈도우) · `claude-win-20261025-workspace` — 할 일 플래너 1번(미배포)
+- 지시: 주인님 「그다음 너가 같이 진행해」·「진행해」 — 플래너 1번(받은 할 일 한꺼번에 추가·추가 때 분류·개수 표시).
+- 한 일: `ai-task-planner` 「📥 받은 할 일」에 「넣을 분류」 선택, 「➕ 모두 추가 (N개)」(서버 `addAll`, 기록 저장 1번, 실패 시 가져감 표시 되돌림), 메뉴 「대시보드」 옆 `📥 N` 배지, 매뉴얼 문구. 공통 항목(저장공간 위젯 한 줄·로그아웃 `scope: "local"`) 함께. 커밋 `457855225`.
+- 검수: 단위 29/29, 브라우저 모의 31/31, tsc, 로컬 빌드. 운영 확인은 배포 때.
+- 배포: 미배포 대기(`docs/PENDING_DEPLOYS.md`) — 플래너 2번과 함께 v1.14. 비용 없음.
+- 다음 첫 단계: 플래너 2번(워크스페이스 → 플래너 보내기) 범위 확인.
+
 ## 2026-11-15 [역할: mac-mini] 브라우저 ego lite 정정·GIF WASM 완료
 
 - 주인님 정정으로 **이 세션 브라우저는 ego lite**. 역할/영상 요청서에 명시, 이전 Chrome 도구 오류와 구분. 사용자 열린 공간8에서 GIFv1.29·kkuleomi24 계정·확장 미설치 확인, silent.mp4 5초3.69MB WASM실행1회→완료2.53MB. 이후 공간8이 없어져 다운로드/캡처 미확인, 로컬확장/V4녹화 미검수. [영상 결과](../video-to-gif/docs/REQUEST_20261115_MACMINI_V129_CHECK.md).

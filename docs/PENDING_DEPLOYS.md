@@ -16,6 +16,7 @@
 ## 대기 중
 
 - **`ai-work-workspace` — Gemini 출처가 다음 요청에 올 때도 「검색함」에 붙이기(2026-11-15 [역할: workspace], `c05873844`)**: v1.44 운영 확인에서 구글 검색과 워크스페이스 검색을 같은 단계에 쓰면 출처(groundingMetadata)가 다음 요청 답에 와서 버려지던 것 수정(답은 정상). 시험 173. 다음 배포 때 함께.
+- **`ai-task-planner` — 받은 할 일 한꺼번에 추가·분류 고르기·메뉴 개수 배지(2026-11-15 [역할: workspace], `457855225`)**: 「넣을 분류」 선택, 「➕ 모두 추가 (N개)」(기록 저장 1번), 메뉴 「대시보드」 옆 `📥 N`. 저장공간 위젯 한 줄·로그아웃 `scope: "local"` 함께. 단위 29·브라우저 모의 31·빌드 통과. 플래너 2번과 함께 v1.14로.
 
 
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감.
@@ -93,6 +94,8 @@
 | `naver-cafe-recruit` | v1.04 · 2026-11-15 (같은 세션, 빌드 3/4, `naver-cafe-recruit-o20i9q5s2` Ready, DB·확장·ZIP v1.04 OK, ZIP에 NOTICE 포함) | 운영진 제외·C모드 숨김 `b61270d8f` · 명단 인원·카운터·팝업 버전 `1bd454187`·`7a85de294` · 공통 3가지, 시험 17 통과 |
 | `wp-blogger-auto` | v1.05 · 2026-11-15 (같은 세션, 빌드 2/4, `wp-blogger-auto-dribyffs2` Ready, DB v1.05) | 화면 제목 `190f971dc` · 발행 용어 `e9e218165`(맥미니) · 공통 3가지, 시험 76 통과 |
 | `blog-neighbor-care` | v1.21 · 2026-11-15 (같은 세션, 빌드 1/4, `blog-neighbor-care-2xbauc6k4` Ready, DB·확장·ZIP v1.21 OK) | 답방 탭 사전 확인·실패 진단 표시 `85eedc18b`, 시험 385 통과 |
+| `video-to-gif` | v1.31 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 채팅 추가 승인 빌드 1회 「지금 배포」, `video-to-b5ch93cuq` Ready, DB `version`·`extension_version` v1.31, `check-extension-release` OK) | v1.30에서 찾은 버그 수정 `aab624bc3`: 상세페이지 크기 860×1076(H.264 짝수)·작은 글자 노토 산스. ego 운영: 상세페이지 6장 → MP4 860×1076 21.6초·WebP 432프레임 2.2MB, 390px 넘침 없음 |
+| `video-to-gif` | v1.30 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `video-to-l1kescyg8` Ready, DB v1.30) | 메이커 후속 M2 「🛍 상품 사진 영상」 `bf972755f` + 대기분(확장 배지 Aside `c579c2a23`·왼쪽 메뉴 버전 글자). ego 운영: 세로 상품 2개 일괄 27초 → MP4·WebP 4개(150·100프레임) 실제 파일 확인. 상세페이지 크기 실패 발견 → v1.31 |
 | `shorts-onestop-studio` | v1.56 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `shorts-onestop-studio-7axgp8ug3` Ready, DB v1.56) | 메이커 v0.3.3 후속 M3-① 광고 고지(쿠팡 파트너스·제휴·협찬·직접 입력) 띠·AI 제작 표기·설명란 첫 줄 고지·유튜브 합성 콘텐츠 표시·게시 전 확인 4가지·안전 영역 3개 플랫폼 `0807cf180`. ego 운영 화면 v1.56, 실제 MP4(58.2초) 처음·중간·끝 프레임에 띠·AI 표기 확인. 게시 전 확인 화면은 시험 계정 확인 남음 |
 | `smartstore-register` | v1.28 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `smartstore-register-mxv57n8mv` Ready, DB v1.28) | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트) 공식 채택 전면 구현 + E2-4 검색 태그(`597e912cc`) + `markPosted` 사진 표시(`6a17c6123`) + 3D 엠보싱 버튼 + 1행 유지 규격 준수 |
 | `elevenst-register` | v1.07 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `elevenst-register-dub6wjt88` Ready, DB v1.07) | 1안(107. 11번가 오리지널 레드 & 화이트) 공식 채택 전면 구현 + 전역 1행 고정(nowrap) 최적화 |
