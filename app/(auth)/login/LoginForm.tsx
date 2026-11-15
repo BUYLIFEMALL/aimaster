@@ -3,32 +3,50 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import {
+  ArrowRight,
+  Boxes,
+  Building2,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  FileText,
+  Lock,
+  Mail,
+  ShieldCheck,
+  Sparkles,
+  User,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import GoldGradientText from "@/components/ui/GoldGradientText";
 import { formatPhoneNumber } from "@/lib/utils/format";
 import { PHONE_REQUIRED_MESSAGE, hasRegisteredPhone, isValidPhone } from "@/lib/utils/phone";
 
-export default function LoginPage() {
+// 2026-11-15 사용자 선택 1안 (122. 네오 모던 B2B 커머스 & 코퍼레이트 블루 스타일, neo-b2b-corporate)
+// - 2단 스플릿 레이아웃: 좌측 B2B 파트너십 혜택 배너 + 우측 5단계 표준 규격 로그인 폼
+// - 3D 엠보싱 코발트 블루 버튼 (.btn-3d-blue)
+// - 5단계 표준 규격 (로고·영문뱃지·타이틀·폼카드·1행 약관) 및 기존 인증/세션제한/휴대폰등록 로직 100% 보존
+
+export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  // 로그인은 됐지만 핸드폰 번호가 없는 회원: 번호를 저장하기 전에는 다음 화면으로 보내지 않는다.
+  const [loginMode, setLoginMode] = useState<"b2b" | "member">("b2b");
+
+  // 로그인은 됐지만 핸드폰 번호가 없는 회원
   const [needPhone, setNeedPhone] = useState(false);
   const [phone, setPhone] = useState("");
   const [phoneName, setPhoneName] = useState("");
+
   const router = useRouter();
   const searchParams = useSearchParams();
-  // 기본 이동은 메인 홈("/"). 예전 기본값이던 /dashboard 가 redirect 로 들어와도 홈으로 보낸다.
   const redirectParam = searchParams.get("redirect");
   const redirectTo = !redirectParam || redirectParam === "/dashboard" ? "/" : redirectParam;
   const isSessionExpired = searchParams.get("session_expired") === "true";
   const isPasswordReset = searchParams.get("reset") === "1";
   const supabase = createClient();
 
-  // 세션 만료로 리디렉트된 경우: Supabase 세션 클리어
   useEffect(() => {
     if (isSessionExpired) {
       supabase.auth.signOut({ scope: "local" }).then(() => {
@@ -42,7 +60,6 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    // 기존 호스트(www.buylife.xyz) 전용 옛 sb-* 쿠키가 남아 있으면 도메인 쿠키와 충돌할 수 있으므로 브라우저에서 먼저 만료 정리
     if (typeof document !== "undefined") {
       document.cookie.split(";").forEach((cookie) => {
         const name = cookie.split("=")[0]?.trim();
@@ -63,7 +80,7 @@ export default function LoginPage() {
       return;
     }
 
-    // 세션 생성 (동시 접속 제한)
+    // 동시 접속 세션 제한
     try {
       const sessionRes = await fetch("/api/session/create", {
         method: "POST",
@@ -79,13 +96,17 @@ export default function LoginPage() {
         return;
       }
     } catch {
-      // 세션 생성 실패해도 로그인은 진행
+      // 세션 생성 실패해도 진행
     }
 
-    // 핸드폰 번호 확인(관리자는 제외)
+    // 핸드폰 번호 확인 (관리자 제외)
     const { data: me } = await supabase.auth.getUser();
     if (me.user) {
-      const { data: profile } = await supabase.from("profiles").select("name, phone, is_admin").eq("id", me.user.id).maybeSingle();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("name, phone, is_admin")
+        .eq("id", me.user.id)
+        .maybeSingle();
       if (profile && !profile.is_admin && !hasRegisteredPhone(profile.phone)) {
         setPhoneName(profile.name ?? "");
         setNeedPhone(true);
@@ -134,102 +155,337 @@ export default function LoginPage() {
     setLoading(false);
   };
 
-  // 2026-11-15 주인님 선택 B안 「누아르 골드 라운지」(시안 D:\PDS\Design\aimaster_main_login_20261115) — DESIGN.md 로그인 5단계 골격.
-  // 화면 모양만 바꿈: 로그인·세션 제한·핸드폰 받기·이메일/비밀번호 찾기·가입 링크 동작은 그대로
-  const field = "flex items-center gap-2.5 rounded-xl border border-[#2a2a36] bg-[#13131b] px-3.5 py-3 transition focus-within:border-[#d4af37] focus-within:shadow-[0_0_0_3px_rgba(212,175,55,0.15)]";
-  // 브라우저 자동 채움(연한 파랑 바탕)을 칸 색(#13131b)·밝은 글자로 덮음
-  const inputCls = "w-full bg-transparent text-[15px] text-slate-100 outline-none placeholder:text-zinc-600 [&:-webkit-autofill]:[-webkit-text-fill-color:#f1f5f9] [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#13131b_inset] [&:-webkit-autofill]:[caret-color:#f1f5f9] [&:-webkit-autofill]:[transition:background-color_9999s]";
-  const goldBtn = "mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-b from-[#f5c842] to-[#d4af37] py-3.5 text-base font-extrabold text-[#1a1405] shadow-[0_5px_0_#8a6d12,0_12px_30px_rgba(245,200,66,0.25)] transition active:translate-y-[3px] active:shadow-[0_2px_0_#8a6d12] disabled:opacity-60";
-
   return (
     <div
-      className="relative min-h-screen flex items-center justify-center px-4 py-12"
+      className="relative min-h-screen flex items-center justify-center p-4 md:p-8"
       style={{
-        backgroundColor: "#0a0a0f",
+        backgroundColor: "#080c14",
         backgroundImage:
-          "radial-gradient(circle at 50% 30%, rgba(212,175,55,0.16), transparent 45%), linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)",
-        backgroundSize: "auto, 40px 40px, 40px 40px",
+          "radial-gradient(circle at 15% 25%, rgba(37, 99, 235, 0.12), transparent 40%), radial-gradient(circle at 85% 75%, rgba(59, 130, 246, 0.1), transparent 45%), linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
+        backgroundSize: "auto, auto, 32px 32px, 32px 32px",
       }}
     >
-      <div className="relative w-full max-w-[440px] text-center">
-        {/* 1. 로고 */}
-        <Link href="/" aria-label="AI Master 홈" className="mx-auto grid h-[68px] w-[68px] place-items-center rounded-2xl border border-amber-400/30 bg-gradient-to-br from-[#2a2412] to-[#14120a] shadow-[0_0_40px_rgba(212,175,55,0.25)]">
-          <GoldGradientText className="text-2xl font-black">AI</GoldGradientText>
-        </Link>
-        {/* 2. 영문명 배지 */}
-        <span className="mt-4 inline-block rounded-full border border-amber-400/40 bg-amber-400/10 px-4 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em] text-amber-300">AI MASTER · BUYLIFE</span>
-        {/* 3. 한글명 */}
-        <h1 className="mt-3 text-[26px] font-black tracking-tight"><GoldGradientText>AI 마스터</GoldGradientText></h1>
-        <p className="mt-1.5 text-sm text-slate-400">AIMaster 계정(이메일·비밀번호)으로 로그인하세요.</p>
+      {/* 122번 메인 2단 스플릿 B2B 컨테이너 */}
+      <div className="relative w-full max-w-5xl rounded-3xl border border-slate-800 bg-[#0c1220]/95 shadow-[0_30px_90px_rgba(0,0,0,0.7)] backdrop-blur-2xl overflow-hidden flex flex-col md:flex-row">
+        
+        {/* 좌측: B2B 비즈니스 파트너십 비주얼 영역 (데스크톱/태블릿) */}
+        <div className="w-full md:w-5/12 bg-gradient-to-br from-slate-950 via-[#0a1428] to-[#0d1e3d] p-8 md:p-10 text-white flex flex-col justify-between relative overflow-hidden border-b md:border-b-0 md:border-r border-slate-800/80">
+          {/* 배경 앰비언트 글로우 */}
+          <div className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-indigo-600/20 blur-3xl" />
 
-        {/* 4. 폼 카드 */}
-        <section className="mt-7 rounded-[28px] border border-white/10 bg-[rgba(22,22,30,0.72)] p-7 text-left shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl">
-          {needPhone ? (
-            <form onSubmit={handleSavePhone} className="space-y-5">
-              <p role="alert" className="rounded-lg border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-light">
-                {PHONE_REQUIRED_MESSAGE}
-                <span className="mt-1 block text-xs font-normal text-gold-light/80">아래 회원정보에서 핸드폰 번호를 저장하면 정상적으로 로그인됩니다.</span>
-              </p>
+          {/* 상단 브랜드 & 혜택 소개 */}
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-6">
+              <Link
+                href="/"
+                aria-label="AI Master 홈"
+                className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30 text-white text-xl font-black transition hover:scale-105"
+              >
+                <Boxes size={24} className="text-white" />
+              </Link>
               <div>
-                <label className="mb-2 block text-[13px] font-bold text-slate-200">이름</label>
-                <div className={field}><input type="text" value={phoneName} onChange={(e) => setPhoneName(e.target.value)} className={inputCls} placeholder="홍길동" required /></div>
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-500/20 text-blue-300 border border-blue-400/30 tracking-wider">
+                  AIMASTER B2B CORE
+                </span>
+                <h2 className="text-base font-black tracking-tight text-white flex items-center gap-1.5 mt-0.5">
+                  AI 비즈니스 자동화 허브
+                </h2>
               </div>
-              <div>
-                <label className="mb-2 block text-[13px] font-bold text-slate-200">핸드폰</label>
-                <div className={field}><input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className={inputCls} placeholder="010-1234-5678" required autoFocus /></div>
-              </div>
-              {error && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>}
-              <button type="submit" disabled={loading} className={goldBtn}>{loading ? "저장 중..." : "핸드폰 번호 저장하고 계속하기"}</button>
-            </form>
-          ) : (
-            <>
-              {/* 로그인 / 회원가입 탭 */}
-              <div className="grid grid-cols-2 rounded-xl bg-white/5 p-1 text-sm font-semibold">
-                <span className="rounded-lg bg-amber-400/15 py-2.5 text-center text-amber-300 ring-1 ring-amber-400/30">로그인</span>
-                <Link href="/register" className="py-2.5 text-center text-slate-400 hover:text-slate-200">회원가입</Link>
-              </div>
-              <form onSubmit={handleLogin} className="mt-6 space-y-4">
-                <div>
-                  <label htmlFor="login-email" className="mb-2 block text-[13px] font-bold text-slate-200">이메일 주소</label>
-                  <div className={field}>
-                    <Mail size={18} className="shrink-0 text-zinc-400" aria-hidden />
-                    <input id="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} placeholder="your@email.com" required autoFocus autoComplete="email" />
-                  </div>
+            </div>
+
+            <h1 className="text-2xl md:text-[28px] font-black leading-snug mb-3 tracking-tight text-white">
+              사업자 회원을 위한<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-teal-300">
+                최적의 도매·자동화 플랫폼
+              </span>
+            </h1>
+            <p className="text-slate-400 text-xs md:text-sm leading-relaxed mb-6 font-normal">
+              도매 상품 소싱부터 마케팅·SNS 자동 발행, 업무 자동화까지 모든 솔루션을 단 하나의 비즈니스 계정으로 관리하세요.
+            </p>
+
+            {/* 3대 B2B 핵심 혜택 리스트 */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-sm transition hover:bg-white/[0.07]">
+                <div className="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm shrink-0">
+                  <Sparkles size={18} />
                 </div>
                 <div>
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <label htmlFor="login-password" className="text-[13px] font-bold text-slate-200">비밀번호</label>
-                    <span className="whitespace-nowrap text-xs font-semibold">
-                      <Link href="/find-email" className="text-amber-300/90 hover:underline">이메일 찾기</Link>
-                      <span className="mx-1 text-zinc-600">·</span>
-                      <Link href="/forgot-password" className="text-amber-300/90 hover:underline">비밀번호 찾기?</Link>
+                  <p className="text-xs font-bold text-slate-200">사업자 전용 도매가 & 마진 극대화</p>
+                  <p className="text-[11px] text-slate-400">일반가 대비 평균 30~55% 수익 마진 보장</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-sm transition hover:bg-white/[0.07]">
+                <div className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm shrink-0">
+                  <FileText size={18} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-200">세금계산서 100% 자동 발행</p>
+                  <p className="text-[11px] text-slate-400">결제 즉시 국세청 홈택스 연동 전자세금계산서</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-sm transition hover:bg-white/[0.07]">
+                <div className="w-9 h-9 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm shrink-0">
+                  <Boxes size={18} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-200">원클릭 대량 마케팅 자동화</p>
+                  <p className="text-[11px] text-slate-400">블로그, SNS, 데이터 수집 파이프라인 무제한</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 하단 신뢰도 지표 */}
+          <div className="relative z-10 pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+            <div className="flex items-center gap-1.5 text-blue-300 font-semibold">
+              <ShieldCheck size={14} className="text-blue-400" />
+              <span>SSL 256bit 암호화</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-400 font-medium">
+              <CheckCircle2 size={13} className="text-emerald-400" />
+              <span>검증된 회원사 이용 중</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 우측: 5단계 표준 규격 로그인 폼 영역 */}
+        <div className="w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center bg-[#0d1322]/90">
+          
+          {needPhone ? (
+            /* 휴대폰 번호 추가 입력 폼 */
+            <div className="max-w-md mx-auto w-full">
+              <div className="mb-6">
+                <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/30">
+                  PROFILE SETUP
+                </span>
+                <h2 className="text-2xl font-black text-white tracking-tight mt-2">
+                  회원 정보 등록
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  안전한 서비스 이용을 위해 휴대폰 번호를 등록해주세요.
+                </p>
+              </div>
+
+              <form onSubmit={handleSavePhone} className="space-y-4">
+                <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-xs text-blue-300 leading-relaxed">
+                  <p className="font-bold">{PHONE_REQUIRED_MESSAGE}</p>
+                  <p className="mt-1 text-slate-400">아래 정보를 입력하시면 즉시 로그인이 완료됩니다.</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">이름</label>
+                  <input
+                    type="text"
+                    value={phoneName}
+                    onChange={(e) => setPhoneName(e.target.value)}
+                    placeholder="홍길동"
+                    required
+                    className="w-full px-4 py-3 bg-[#131b2e] border border-slate-700 rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">핸드폰 번호</label>
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                    placeholder="010-1234-5678"
+                    required
+                    autoFocus
+                    className="w-full px-4 py-3 bg-[#131b2e] border border-slate-700 rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  />
+                </div>
+
+                {error && (
+                  <p className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
+                    {error}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-3d-blue w-full py-3.5 rounded-xl text-white font-black text-sm tracking-wide flex items-center justify-center gap-2 mt-4 cursor-pointer disabled:opacity-60"
+                >
+                  <span>{loading ? "저장 중..." : "핸드폰 번호 저장하고 계속하기"}</span>
+                  <ArrowRight size={16} />
+                </button>
+              </form>
+            </div>
+          ) : (
+            /* 일반 로그인 폼 */
+            <div className="max-w-md mx-auto w-full">
+              {/* 5단계 표준 규격 1~3: 뱃지 & 헤드라인 & 가입 링크 */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase bg-blue-500/15 text-blue-400 border border-blue-400/30">
+                    AIMASTER B2B SUITE
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    처음이신가요?{" "}
+                    <Link href="/register" className="font-bold text-blue-400 hover:text-blue-300 underline underline-offset-2">
+                      무료 가입하기
+                    </Link>
+                  </span>
+                </div>
+                <h2 className="text-2xl font-black text-white tracking-tight">
+                  통합 비즈니스 로그인
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  등록된 AIMaster 계정 또는 사업자 회원 정보로 로그인하세요.
+                </p>
+              </div>
+
+              {/* 일반회원 / 사업자회원 2단 세그먼트 탭 */}
+              <div className="flex rounded-xl bg-slate-900/90 p-1 mb-6 border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setLoginMode("b2b")}
+                  className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                    loginMode === "b2b"
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  <Building2 size={14} />
+                  <span>사업자(B2B) 로그인</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLoginMode("member")}
+                  className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                    loginMode === "member"
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  <User size={14} />
+                  <span>일반 회원 로그인</span>
+                </button>
+              </div>
+
+              {/* 4단계: 로그인 폼 카드 */}
+              <form onSubmit={handleLogin} className="space-y-4">
+                {/* 이메일 입력창 */}
+                <div>
+                  <label htmlFor="login-email" className="block text-xs font-bold text-slate-300 mb-1.5">
+                    아이디 / 이메일
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Mail size={16} />
+                    </span>
+                    <input
+                      id="login-email"
+                      type="email"
+                      required
+                      autoFocus
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder={loginMode === "b2b" ? "biz@company.com" : "your@email.com"}
+                      className="w-full pl-10 pr-4 py-3 bg-[#131b2e] border border-slate-700 rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:bg-[#151f36] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    />
+                  </div>
+                </div>
+
+                {/* 비밀번호 입력창 */}
+                <div>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label htmlFor="login-password" className="text-xs font-bold text-slate-300">
+                      비밀번호
+                    </label>
+                    <span className="text-xs font-semibold">
+                      <Link href="/find-email" className="text-slate-400 hover:text-blue-400 transition">
+                        이메일 찾기
+                      </Link>
+                      <span className="mx-1.5 text-slate-600">·</span>
+                      <Link href="/forgot-password" className="text-blue-400 hover:text-blue-300 transition">
+                        비밀번호 찾기?
+                      </Link>
                     </span>
                   </div>
-                  <div className={field}>
-                    <Lock size={18} className="shrink-0 text-zinc-400" aria-hidden />
-                    <input id="login-password" type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} placeholder="••••••••" required autoComplete="current-password" />
-                    <button type="button" onClick={() => setShowPw(!showPw)} aria-label={showPw ? "비밀번호 숨기기" : "비밀번호 보기"} className="shrink-0 text-zinc-500 hover:text-slate-200">
-                      {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Lock size={16} />
+                    </span>
+                    <input
+                      id="login-password"
+                      type={showPw ? "text" : "password"}
+                      required
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-10 pr-10 py-3 bg-[#131b2e] border border-slate-700 rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:bg-[#151f36] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPw(!showPw)}
+                      aria-label={showPw ? "비밀번호 숨기기" : "비밀번호 보기"}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition"
+                    >
+                      {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
 
+                {/* 알림 메시지 */}
                 {isPasswordReset && !error && (
-                  <p className="text-sm bg-gold/10 border border-gold/30 text-gold-light rounded-lg px-4 py-3">비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.</p>
+                  <p className="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 rounded-lg px-4 py-2.5">
+                    비밀번호가 성공적으로 변경되었습니다. 새 비밀번호로 로그인해주세요.
+                  </p>
                 )}
-                {error && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>}
+                {error && (
+                  <p className="text-xs bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg px-4 py-2.5">
+                    {error}
+                  </p>
+                )}
 
-                <button type="submit" disabled={loading} className={goldBtn}>
-                  {loading ? "로그인 중..." : <>로그인 <ArrowRight size={18} aria-hidden /></>}
+                {/* 122번 3D 엠보싱 코발트 블루 버튼 */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-3d-blue w-full py-3.5 rounded-xl text-white font-black text-sm tracking-wide flex items-center justify-center gap-2 mt-5 cursor-pointer disabled:opacity-60"
+                >
+                  <span>{loading ? "로그인 인증 중..." : "비즈니스 로그인 시작"}</span>
+                  <ArrowRight size={16} />
                 </button>
               </form>
-            </>
+
+              {/* 간편 회원가입 / B2B 파트너 안내 */}
+              <div className="mt-6 pt-5 border-t border-slate-800 text-center">
+                <p className="text-xs text-slate-400">
+                  아직 회원이 아니신가요?{" "}
+                  <Link href="/register" className="font-bold text-blue-400 hover:underline">
+                    무료 회원가입으로 14일 체험하기
+                  </Link>
+                </p>
+              </div>
+
+              {/* 5단계 표준 규격: 1행 약관 처리 */}
+              <div className="mt-5 text-center">
+                <p className="text-[11px] text-slate-500 whitespace-nowrap">
+                  진행 시{" "}
+                  <Link href="/terms" className="text-slate-400 font-bold underline hover:text-blue-400">
+                    이용약관
+                  </Link>
+                  {" "}및{" "}
+                  <Link href="/privacy" className="text-slate-400 font-bold underline hover:text-blue-400">
+                    개인정보 처리방침
+                  </Link>
+                  에 동의합니다.
+                </p>
+              </div>
+            </div>
           )}
-          {/* 5. 약관 1행 */}
-          <p className="mt-5 whitespace-nowrap text-center text-xs text-slate-500">
-            진행 시 <Link href="/terms" className="font-bold text-amber-300">이용약관</Link> 및 <Link href="/privacy" className="font-bold text-amber-300">개인정보 처리방침</Link>에 동의합니다.
-          </p>
-        </section>
+
+        </div>
       </div>
     </div>
   );

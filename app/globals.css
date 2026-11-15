@@ -75,6 +75,23 @@
     box-shadow: 0 0 24px rgba(212, 175, 55, 0.4);
   }
 
+  /* 122번 네오 모던 B2B 코퍼레이트 3D 블루 버튼 */
+  .btn-3d-blue {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 0 #1e40af, 0 8px 16px rgba(37, 99, 235, 0.25);
+    transition: all 0.1s ease-in-out;
+    white-space: nowrap !important;
+  }
+  .btn-3d-blue:hover {
+    background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 #1e40af, 0 10px 20px rgba(37, 99, 235, 0.3);
+  }
+  .btn-3d-blue:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #1e40af, 0 3px 6px rgba(37, 99, 235, 0.2);
+  }
+
   /* 아웃라인 버튼 */
   .btn-outline {
     @apply font-semibold px-6 py-3 rounded-xl border transition-all duration-200;
@@ -99,15 +116,15 @@
   .input-dark::placeholder {
     color: rgba(255, 255, 255, 0.3);
   }
-  /* 인증 화면(회원가입·찾기·재설정) 입력칸 — 로그인 B안 「누아르 골드 라운지」와 같은 모양(2026-11-15, app/(auth)/_components/AuthShell.tsx) */
+  /* 인증 화면(회원가입·찾기·재설정) 입력칸 — 122번 네오 모던 B2B 코퍼레이트 블루 테마 */
   .auth-input {
     @apply w-full rounded-xl px-3.5 py-3 text-[15px] text-slate-100 outline-none transition;
-    background: #13131b;
-    border: 1px solid #2a2a36;
+    background: #131b2e;
+    border: 1px solid #334155;
   }
   .auth-input:focus {
-    border-color: #d4af37;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
   }
   .auth-input::placeholder {
     color: #52525b;
