@@ -17,28 +17,35 @@ export default function PayWidget(props: {
   deadline?: string | null;
 }) {
   const widgets = useRef<TossPaymentsWidgets | null>(null);
+  // 위젯은 한 화면에 한 번만 그린다 — 개발 모드(StrictMode)는 아래 effect를 두 번 실행하는데,
+  // 두 번째가 같은 자리에 또 그리면 토스가 「하나의 결제수단 위젯만 사용할 수 있어요」로 막는다(M5-2 시험 2026-11-15)
+  const started = useRef<Promise<TossPaymentsWidgets> | null>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        const toss = await loadTossPayments(props.clientKey);
-        const w = toss.widgets({ customerKey: props.customerKey });
-        await w.setAmount({ currency: "KRW", value: props.amount });
-        await Promise.all([
-          w.renderPaymentMethods({ selector: "#payment-method", variantKey: "DEFAULT" }),
-          w.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" }),
-        ]);
+    started.current ??= (async () => {
+      const toss = await loadTossPayments(props.clientKey);
+      const w = toss.widgets({ customerKey: props.customerKey });
+      await w.setAmount({ currency: "KRW", value: props.amount });
+      await Promise.all([
+        w.renderPaymentMethods({ selector: "#payment-method", variantKey: "DEFAULT" }),
+        w.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" }),
+      ]);
+      return w;
+    })();
+    started.current.then(
+      (w) => {
         if (cancelled) return;
         widgets.current = w;
         setReady(true);
-      } catch (e) {
+      },
+      (e) => {
         if (!cancelled) setError(`결제창을 불러오지 못했습니다: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    })();
+      },
+    );
     return () => {
       cancelled = true;
     };
