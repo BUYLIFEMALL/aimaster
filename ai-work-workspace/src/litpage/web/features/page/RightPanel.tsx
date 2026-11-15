@@ -269,14 +269,19 @@ function UpdateCard({ pageId, item: it }: { pageId: string; item: UpdateItem }) 
   const page = useBlock(pageId);
   const who = it.userId === me ? 'You' : userName(u);
   const verb = it.kind === 'created' ? 'created' : it.kind === 'edited' ? 'edited' : it.kind === 'commented' ? 'commented in' : 'replied in';
+  // 이식판(2026-11-15): 화면 언어가 한국어면 「홍길동님이 [페이지]을(를) 수정했습니다」 어순
+  const koUi = getLocale() === 'ko-KR';
+  const koWho = it.userId === me ? '내가' : `${userName(u)}님이`;
+  const koVerb = it.kind === 'created' ? '을(를) 만들었습니다' : it.kind === 'edited' ? '을(를) 수정했습니다' : it.kind === 'commented' ? '에 댓글을 남겼습니다' : '에 답글을 남겼습니다';
   const comment = it.kind === 'commented' || it.kind === 'replied';
   return (
     <div className={`nc-update ${comment ? 'clickable' : ''}`} onClick={() => comment && it.discussionId && focusDiscussion(it.discussionId, true)}>
       <UserAvatar userId={it.userId} size={24} style={{ marginTop: 2 }} />
       <div className="main">
         <div className="line1">
-          <span>{who} {verb}</span>
+          <span>{koUi ? koWho : `${who} ${verb}`}</span>
           <span className="page"><PageIcon block={page} size={18} /><b className="nc-ellipsis">{pageTitle(page)}</b></span>
+          {koUi && <span>{koVerb}</span>}
         </div>
         <div className="when" title={formatDateTime(it.time)}>{longAgo(it.time)}</div>
         {!comment && <UpdateDiff pageId={pageId} item={it} />}
