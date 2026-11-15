@@ -1,5 +1,16 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: blog] Claude Code(윈도우) · 세션 `claude-win-photo` — 블로그 미배포 대기 4개 순서 배포
+- 지시: 주인님 「미배포 대기 순서대로 배포 진행해」(빌드 4회 승인). 한 번에 하나씩, 커밋본만 꺼내 배포(`deploy.mjs --from-head`).
+- 1. `blog-neighbor-care` v1.21 — `85eedc18b` 답방 탭 사전 확인·실패 진단 표시. 시험 385, DB·확장·ZIP v1.21 OK.
+- 2. `wp-blogger-auto` v1.05 — 제목 `190f971dc`·발행 용어 `e9e218165` + 공통 3가지(저장공간 위젯·`signOut({scope:"local"})`·서버 User-Agent). 시험 76, 로그인 화면 제목·위젯 확인.
+- 3. `naver-cafe-recruit` v1.04(v1.03은 11-10에 이미 배포) — 운영진 제외·C모드 숨김·인원/카운터 + 공통 3가지, ZIP에 `NOTICE` 추가. 시험 17, DB·확장·ZIP v1.04 OK.
+- 4. `tistory-auto-blog` v1.97 — 결정 4번: `gpt-4.1`·`gpt-4o`→`gpt-6.1-terra`(기본), `gpt-4o-mini`→`gpt-6-luna`(글감 수집·쇼츠 분석 포함, 저장된 옛 값 자동 변환, 온도는 공용 `openAIGenerationParams`) + 열외 배지 `ae8ea7473` + 공통 3가지. 시험 175(시험 2개에 새 불러오기 연결 추가), DB·확장·ZIP v1.97 OK.
+- DB 확장 버전 칸(`extension_version`)은 `--set-version`이 바꾸지 않아 서비스 키로 PATCH 1회씩 따로 맞춤(3개).
+- 못 한 것: 화면 검수 — 맥미니 몫 `docs/REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md` B-1~B-4(「배포됨」 표시 완료). 새 모델로 실제 글 생성은 안 함(유료, 맥미니 B-4에서 주인님 승인 뒤).
+- 비용: Vercel 빌드 4회(승인 범위), AI 호출 0, 운영 DB 쓰기 = 버전 칸 갱신만.
+- 회원 안내: 확장 3개(이웃·카페·티스토리)는 ZIP 다시 받기 → 덮어쓰기 → `chrome://extensions` 새로고침.
+
 ## 2026-11-15 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — 메이커 v0.3.3 후속 M3-① 원스톱 v1.56 광고 고지·AI 표기
 - 결정(주인님): 세 가지 모두·추천 순서(M3-① → M2 → M3-②)·M2는 `video-to-gif`·AI는 회원 본인 키만(M4 안 함)·빌드와 Haiku 시험 호출 승인. 플랜 3개 `fe70e669c` 커밋: `shorts-onestop-studio/docs/PLAN_20261115_MAKER_M3_DISCLOSURE.md`·`PLAN_20261115_MAKER_M3_PRODUCT_SHORTS_UPGRADE.md`, `video-to-gif/docs/PLAN_20261115_MAKER_M2_PRODUCT_PHOTO_VIDEO.md`.
 - 한 일: 광고 고지 띠(쿠팡 파트너스·제휴·협찬·직접 입력, 쿠팡 주소면 자동)·「AI로 만든 영상」 표기(AI 음성이면 끌 수 없음)·설명란 첫 줄 `[광고]`·유튜브 `containsSyntheticMedia`·게시 전 확인 4가지(단건·발행 계획 일괄)·가림 영역 3개 플랫폼. 공용 `youtube-upload-client`에 선택값 추가(기준 `shots`, 사본 lyric·playlist 미배포). `0807cf180`.

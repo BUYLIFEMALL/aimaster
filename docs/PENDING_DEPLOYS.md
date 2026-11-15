@@ -17,10 +17,6 @@
 
 - **`ai-work-workspace` — Gemini 출처가 다음 요청에 올 때도 「검색함」에 붙이기(2026-11-15 [역할: workspace], `c05873844`)**: v1.44 운영 확인에서 구글 검색과 워크스페이스 검색을 같은 단계에 쓰면 출처(groundingMetadata)가 다음 요청 답에 와서 버려지던 것 수정(답은 정상). 시험 173. 다음 배포 때 함께.
 
-- **`blog-neighbor-care` — 답방 글 읽기 탭 사전 확인 + 실패 진단(단계·HTTP·BNC code) 팝업 전달 + 409 코드별 안내 `85eedc18b`(2026-11-14 [역할: blog] `claude-win-photo`)**: 작은 수정, 다음 배포 때 함께(확장 ZIP·manifest·DB 버전 같이). 상세 `blog-neighbor-care/docs/IMPROVEMENTS.md` 2026-11-14.
-- **`naver-cafe-recruit` — 명단에서 카페 운영진(매니저·스탭 등급) 제외 + 아직 없는 「C. 카페 홍보 글」 칸 숨김(저장 때 꺼짐) `b61270d8f`(2026-11-15 [역할: blog] `claude-win-photo`, 주인님 결정 5건 중 2번)**: 시험 17개·tsc 통과. 다음 카페 모집 배포(v1.03, `1bd454187`·`7a85de294`와 함께) 때 manifest·ZIP·DB 버전 맞춤, 검수는 `docs/REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md` B-3.
-- **`wp-blogger-auto` — 로그인·회원가입 제목이 「네이버 카페 포스팅 자동화」로 나오던 것을 「AI 워드프레스·구글블로그 자동화」로 `190f971dc`(2026-11-14 [역할: blog] `claude-win-photo`)**: 맥미니 P2 검수 지적. tsc 통과. 다음 WP 배포 때 함께, 배포 뒤 로그인·회원가입·모바일 제목 확인.
-- **`blog-neighbor-care` — 답방 글 읽기 탭 사전 확인 + 실패 진단(단계·HTTP·BNC code) 팝업 전달 + 409 코드별 안내 `85eedc18b`(2026-11-14 [역할: blog] `claude-win-photo`)**: 작은 수정, 다음 배포 때 함께(확장 ZIP·manifest·DB 버전 같이). 상세 `blog-neighbor-care/docs/IMPROVEMENTS.md` 2026-11-14.
 
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
@@ -28,7 +24,6 @@
 
 - ~~메인 사이트 — 옛 주소 이동·「API 설정」 매뉴얼 버튼·요금제 카드 안내~~ → **배포됨(2026-11-14 확인, 다른 세션 푸시의 메인 자동 빌드에 함께 나감)**: `aimaster-five.vercel.app` 화면 307 → `www.buylife.xyz`, 옛 주소 `/api/`는 그대로(401). [역할: policy]
 
-- **블로그 맥미니 지적 처리(2026-11-12 [역할: blog] `claude-win-blog`)**: `tistory-auto-blog` 열외 회원 보관 안내·배지(시험 177) · `naver-cafe-recruit` 명단 고유 인원·종료 카운터·팝업 버전(시험 17, 확장 → manifest·ZIP·DB 함께). 각 `docs/IMPROVEMENT_HANDOFF_20261112.md`. 다음 그 프로그램 배포 때 함께.
 
 - **공통 — 💾 저장공간 위젯 한 줄(2026-11-11 세션 `claude-win-rea`, 주인님 「해당 프로그램 배포할때 배포되도록」, 추가 배포 없음)**: 하위 웹 프로그램을 배포할 때 레이아웃에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`를 함께 넣는다. `node scripts/pending-check.mjs <폴더>`가 미적용 여부를 자동으로 알려 주고, `--all`이 남은 프로그램을 센다(시작 0/99). 절차·예외: [`HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`](HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md).
 
@@ -94,6 +89,10 @@
 
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
+| `tistory-auto-blog` | v1.97 · 2026-11-15 ([역할: blog] `claude-win-photo`, 주인님 「미배포 대기 순서대로 배포 진행해」 빌드 4/4, `tistory-auto-blog-odn5g7qv5` Ready, DB·확장·ZIP v1.97 OK) | 결정 4번 모델 교체(gpt-4.1·4o·4o-mini → gpt-6.1-terra·gpt-6-luna, 저장된 옛 값 변환) · 열외 회원 배지 `ae8ea7473` · 공통 3가지(저장공간 위젯·로그아웃 범위·서버 기기 정보), 시험 175 통과 |
+| `naver-cafe-recruit` | v1.04 · 2026-11-15 (같은 세션, 빌드 3/4, `naver-cafe-recruit-o20i9q5s2` Ready, DB·확장·ZIP v1.04 OK, ZIP에 NOTICE 포함) | 운영진 제외·C모드 숨김 `b61270d8f` · 명단 인원·카운터·팝업 버전 `1bd454187`·`7a85de294` · 공통 3가지, 시험 17 통과 |
+| `wp-blogger-auto` | v1.05 · 2026-11-15 (같은 세션, 빌드 2/4, `wp-blogger-auto-dribyffs2` Ready, DB v1.05) | 화면 제목 `190f971dc` · 발행 용어 `e9e218165`(맥미니) · 공통 3가지, 시험 76 통과 |
+| `blog-neighbor-care` | v1.21 · 2026-11-15 (같은 세션, 빌드 1/4, `blog-neighbor-care-2xbauc6k4` Ready, DB·확장·ZIP v1.21 OK) | 답방 탭 사전 확인·실패 진단 표시 `85eedc18b`, 시험 385 통과 |
 | `shorts-onestop-studio` | v1.56 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `shorts-onestop-studio-7axgp8ug3` Ready, DB v1.56) | 메이커 v0.3.3 후속 M3-① 광고 고지(쿠팡 파트너스·제휴·협찬·직접 입력) 띠·AI 제작 표기·설명란 첫 줄 고지·유튜브 합성 콘텐츠 표시·게시 전 확인 4가지·안전 영역 3개 플랫폼 `0807cf180`. ego 운영 화면 v1.56, 실제 MP4(58.2초) 처음·중간·끝 프레임에 띠·AI 표기 확인. 게시 전 확인 화면은 시험 계정 확인 남음 |
 | `smartstore-register` | v1.28 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `smartstore-register-mxv57n8mv` Ready, DB v1.28) | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트) 공식 채택 전면 구현 + E2-4 검색 태그(`597e912cc`) + `markPosted` 사진 표시(`6a17c6123`) + 3D 엠보싱 버튼 + 1행 유지 규격 준수 |
 | `elevenst-register` | v1.07 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `elevenst-register-dub6wjt88` Ready, DB v1.07) | 1안(107. 11번가 오리지널 레드 & 화이트) 공식 채택 전면 구현 + 전역 1행 고정(nowrap) 최적화 |
