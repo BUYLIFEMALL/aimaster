@@ -39,7 +39,7 @@ values ('00000000-0000-0000-0000-0000000000b4', '둘째 분양몰', '00000000-00
 select 'P4' t, ps.toss_client_key, ps.card_enabled, x.toss_secret_key = 'test_gsk_hqsecret01' secret_is_hq
   from mall_builder_store_payment_settings ps join mall_builder_store_scheduler_secrets x on x.store_id = ps.store_id where ps.store_id = '00000000-0000-0000-0000-0000000000b4';
 
--- P5 분양몰 손님 카드 주문 → 승인(본사 시크릿) → 결제 완료 + 본사 전달 주문
+-- P5 분양몰 유저 카드 주문 → 승인(본사 시크릿) → 결제 완료 + 본사 전달 주문
 -- 거울 상품 담기(0063 시나리오 첫 줄과 같음)
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000e1', false);
 select mall_builder_resale_add((select id from mall_builder_stores where slug='my-shop'), array['00000000-0000-0000-0000-0000000000c1']::uuid[], 0) as added;
@@ -47,7 +47,7 @@ reset role;
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000c9','buyer@x.test');
 insert into public.profiles (id, email) values ('00000000-0000-0000-0000-0000000000c9','buyer@x.test');
 insert into mall_builder_orders (id, store_id, seq, order_no, user_id, receiver, depositor, is_card)
-values ('00000000-0000-0000-0000-0000000000f1',(select id from mall_builder_stores where slug='my-shop'),11,'R-C1','00000000-0000-0000-0000-0000000000c9','{"zip":"10228","receiver":"카드손님"}','카드손님', true);
+values ('00000000-0000-0000-0000-0000000000f1',(select id from mall_builder_stores where slug='my-shop'),11,'R-C1','00000000-0000-0000-0000-0000000000c9','{"zip":"10228","receiver":"카드유저"}','카드유저', true);
 insert into mall_builder_order_items (order_id, product_id, variant_id, name_snapshot, option_snapshot, unit_price, qty, line_total, shipping_policy_id)
   select '00000000-0000-0000-0000-0000000000f1', m.id, v.id, m.name, v.key, m.base_price + v.extra_price, 1, m.base_price + v.extra_price, m.shipping_policy_id
     from mall_builder_products m join mall_builder_product_variants v on v.product_id = m.id and v.key='분홍' where m.source_product_id='00000000-0000-0000-0000-0000000000c1';
@@ -59,22 +59,22 @@ select 'P5b' t, o.status, (select status from mall_builder_card_payments where o
   (select string_agg((secret = 'test_gsk_hqsecret01')::text, ',') from public.toss_fake_log) used_hq_secret
   from mall_builder_orders o left join mall_builder_orders h on h.resale_order_id = o.id where o.id = '00000000-0000-0000-0000-0000000000f1';
 
--- P6 카드가 아닌(입금) 분양몰 주문은 손님·분양자가 결제 완료로 못 바꿈(기존 보호 그대로)
+-- P6 카드가 아닌(입금) 분양몰 주문은 유저·분양자가 결제 완료로 못 바꿈(기존 보호 그대로)
 reset role;
 insert into mall_builder_orders (id, store_id, seq, order_no, user_id, receiver, depositor)
-values ('00000000-0000-0000-0000-0000000000f2',(select id from mall_builder_stores where slug='my-shop'),12,'R-B1','00000000-0000-0000-0000-0000000000c9','{"zip":"10228"}','입금손님');
+values ('00000000-0000-0000-0000-0000000000f2',(select id from mall_builder_stores where slug='my-shop'),12,'R-B1','00000000-0000-0000-0000-0000000000c9','{"zip":"10228"}','입금유저');
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000e1', false);
 do $$ begin update public.mall_builder_orders set status='paid' where id='00000000-0000-0000-0000-0000000000f2'; raise notice 'P6 입금 주문 분양자 결제 완료 — 통과됨(문제)'; exception when others then raise notice 'P6 막힘: %', sqlerrm; end $$;
 -- P7 카드 결제가 안 끝난 카드 주문도 못 바꿈
 reset role;
 insert into mall_builder_orders (id, store_id, seq, order_no, user_id, receiver, depositor, is_card)
-values ('00000000-0000-0000-0000-0000000000f3',(select id from mall_builder_stores where slug='my-shop'),13,'R-C2','00000000-0000-0000-0000-0000000000c9','{"zip":"10228"}','카드손님', true);
+values ('00000000-0000-0000-0000-0000000000f3',(select id from mall_builder_stores where slug='my-shop'),13,'R-C2','00000000-0000-0000-0000-0000000000c9','{"zip":"10228"}','카드유저', true);
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000c9', false);
 do $$ begin update public.mall_builder_orders set status='paid' where id='00000000-0000-0000-0000-0000000000f3'; raise notice 'P7 미결제 카드 주문 결제 완료 — 통과됨(문제)'; exception when others then raise notice 'P7 막힘: %', sqlerrm; end $$;
 
 -- P8 분양몰 운영사가 카드 주문 취소 → 본사 시크릿으로 환불 + 본사 전달 주문 취소
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000e1', false);
-select 'P8' t, public.mall_builder_card_cancel_order('00000000-0000-0000-0000-0000000000f1', 'cancelled', '손님 요청') msg;
+select 'P8' t, public.mall_builder_card_cancel_order('00000000-0000-0000-0000-0000000000f1', 'cancelled', '유저 요청') msg;
 select 'P8b' t, o.status, (select status from mall_builder_card_payments where order_id = o.id) card, h.status hq_status,
   (select secret = 'test_gsk_hqsecret01' from public.toss_fake_log where path like '%/cancel' order by at desc limit 1) refund_hq_secret
   from mall_builder_orders o left join mall_builder_orders h on h.resale_order_id = o.id where o.id = '00000000-0000-0000-0000-0000000000f1';

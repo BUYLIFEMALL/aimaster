@@ -3,9 +3,9 @@
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000c7','leaver@x.test');
 insert into public.profiles (id, email) values ('00000000-0000-0000-0000-0000000000c7','leaver@x.test');
 insert into mall_builder_store_customers (id, store_id, user_id, name, phone)
-values ('00000000-0000-0000-0000-00000000c7c7','00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000c7','탈퇴손님','010-7777-0000');
+values ('00000000-0000-0000-0000-00000000c7c7','00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000c7','탈퇴유저','010-7777-0000');
 insert into mall_builder_orders (id, store_id, seq, order_no, user_id, customer_id, receiver, depositor, status, total)
-values ('00000000-0000-0000-0000-0000000000d7','00000000-0000-0000-0000-00000000005a',71,'K-1','00000000-0000-0000-0000-0000000000c7','00000000-0000-0000-0000-00000000c7c7','{"zip":"1"}','탈퇴손님','paid',5000);
+values ('00000000-0000-0000-0000-0000000000d7','00000000-0000-0000-0000-00000000005a',71,'K-1','00000000-0000-0000-0000-0000000000c7','00000000-0000-0000-0000-00000000c7c7','{"zip":"1"}','탈퇴유저','paid',5000);
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000000c7', false);
 -- K1 진행 중 주문(결제 완료) → 막힘
 do $$ begin delete from public.mall_builder_store_customers where id='00000000-0000-0000-0000-00000000c7c7'; raise notice 'K1 통과됨(문제)'; exception when others then raise notice 'K1 막힘: %', sqlerrm; end $$;
@@ -24,7 +24,7 @@ values ('00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-00000000
 do $$ begin delete from public.mall_builder_store_customers where id='00000000-0000-0000-0000-00000000c7c7'; raise notice 'K3 통과됨(문제)'; exception when others then raise notice 'K3 막힘: %', sqlerrm; end $$;
 -- K4 지급 신청(잔액 0, 지급 대기) → 막힘
 insert into mall_builder_reseller_payouts (id, store_id, reseller_id, amount, bank_name, bank_account, bank_holder, status)
-values ('00000000-0000-0000-0000-0000000000f7','00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000e7',3000,'국민','1','탈퇴손님','requested');
+values ('00000000-0000-0000-0000-0000000000f7','00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000e7',3000,'국민','1','탈퇴유저','requested');
 insert into mall_builder_reseller_ledger (store_id, reseller_id, payout_id, kind, amount, balance_after, note)
 values ('00000000-0000-0000-0000-00000000005a','00000000-0000-0000-0000-0000000000e7','00000000-0000-0000-0000-0000000000f7','payout',-3000,0,'지급 신청');
 do $$ begin delete from public.mall_builder_store_customers where id='00000000-0000-0000-0000-00000000c7c7'; raise notice 'K4 통과됨(문제)'; exception when others then raise notice 'K4 막힘: %', sqlerrm; end $$;
@@ -43,7 +43,7 @@ select 'K6' t,
   (select customer_id is null from mall_builder_orders where id='00000000-0000-0000-0000-0000000000d7') order_kept_unlinked;
 -- K7 몰 자체를 지우는 연쇄 삭제는 검사하지 않음(진행 중 주문이 있어도)
 insert into mall_builder_stores (id, name, owner_id, slug) values ('00000000-0000-0000-0000-0000000005b7','지울몰','00000000-0000-0000-0000-0000000000a1','drop-mall');
-insert into mall_builder_store_customers (id, store_id, user_id, name, phone) values ('00000000-0000-0000-0000-00000000b7b7','00000000-0000-0000-0000-0000000005b7','00000000-0000-0000-0000-0000000000c7','손님','010-7777-0001');
-insert into mall_builder_orders (store_id, seq, order_no, user_id, customer_id, receiver, depositor, status) values ('00000000-0000-0000-0000-0000000005b7',1,'D-1','00000000-0000-0000-0000-0000000000c7','00000000-0000-0000-0000-00000000b7b7','{"zip":"1"}','손님','paid');
+insert into mall_builder_store_customers (id, store_id, user_id, name, phone) values ('00000000-0000-0000-0000-00000000b7b7','00000000-0000-0000-0000-0000000005b7','00000000-0000-0000-0000-0000000000c7','유저','010-7777-0001');
+insert into mall_builder_orders (store_id, seq, order_no, user_id, customer_id, receiver, depositor, status) values ('00000000-0000-0000-0000-0000000005b7',1,'D-1','00000000-0000-0000-0000-0000000000c7','00000000-0000-0000-0000-00000000b7b7','{"zip":"1"}','유저','paid');
 delete from mall_builder_stores where id='00000000-0000-0000-0000-0000000005b7';
 select 'K7' t, (select count(*) from mall_builder_stores where id='00000000-0000-0000-0000-0000000005b7') store_left;

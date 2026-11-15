@@ -1,10 +1,10 @@
 -- AI 쇼핑몰 빌더 M5-2 — 분양몰 카드 결제 = 본사 토스 (2026-11-15 docs/PLAN_20261115_M5_DOMAIN_PAYMENT.md §6)
 -- 백엔드 DB 번호 0090~0099(상호 인수인계 §2).
 -- 결정 5(T2): 분양몰 결제는 본사 계좌·본사 토스. 지금까지는 분양몰 주문서·결제·승인·환불이 분양몰 자신의 키를 읽어 돈이 분양자 토스로 갈 수 있었고,
--- 손님 카드 승인의 「결제 완료」 변경을 분양몰 보호 트리거가 막아 승인만 되고 주문은 입금 대기로 남았다(운영 분양몰 0개라 피해 없음).
+-- 유저 카드 승인의 「결제 완료」 변경을 분양몰 보호 트리거가 막아 승인만 되고 주문은 입금 대기로 남았다(운영 분양몰 0개라 피해 없음).
 -- 1) 분양몰의 결제 설정(공개 클라이언트 키·켜짐)과 토스 시크릿 칸을 본사 값으로 자동 복사(입금 계좌 복사와 같은 방식).
 --    → 기존 주문서·결제창·승인·조회·취소·환불 함수를 고치지 않고도 모두 본사 키로 동작. 분양자는 이 값을 바꾸지 못함.
--- 2) 분양몰 보호 트리거: 카드 결제가 「완료」로 기록된 주문의 입금 대기 → 결제 완료만 손님도 통과(→ 기존 전달 주문 트리거가 본사 주문 생성).
+-- 2) 분양몰 보호 트리거: 카드 결제가 「완료」로 기록된 주문의 입금 대기 → 결제 완료만 유저도 통과(→ 기존 전달 주문 트리거가 본사 주문 생성).
 -- 시크릿 표는 지금처럼 규칙 없음(아무도 직접 못 읽음). 표·칸 추가 없음.
 
 -- ── 1) 복사 ──
@@ -105,7 +105,7 @@ begin
   if new.status is not distinct from old.status or auth.uid() is null or coalesce(current_setting('mall_builder.resale_sync', true), '') = 'on' then return new; end if;
   select s.kind into v_kind from public.mall_builder_stores s where s.id = new.store_id;
   if v_kind = 'resale' and new.status in ('paid', 'preparing', 'shipping') then
-    -- M5-2: 손님 카드 결제(본사 토스) 승인으로 「결제 완료」가 되는 경우만 허용
+    -- M5-2: 유저 카드 결제(본사 토스) 승인으로 「결제 완료」가 되는 경우만 허용
     if old.status = 'pending_payment' and new.status = 'paid' and old.is_card
        and exists (select 1 from public.mall_builder_card_payments cp where cp.order_id = old.id and cp.status = 'done') then
       return new;
