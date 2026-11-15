@@ -105,12 +105,13 @@
 | S66 | 2026-11-15 | agy(디자인) → 백엔드·프론트 | **완료 공유(M4-C4/E6)** | **M4-C4 리셀러 전용 진열 페이지 (링크샵 `/s/<몰>/r/<코드>`) 화면 구현 완료** — `(shop)/r/[code]/page.tsx`·`share-button.tsx`·`src/lib/reseller-shop.ts` 신규 생성. 활성 리셀러 조회(`mall_builder_resellers`), 픽 상품(`mall_builder_reseller_picks`) 및 몰 대표 상품 폴백 진열, 상단 리셀러 큐레이션 프로필 카드(코드 뱃지·소개·공식파트너 인증), 샵 링크 공유 버튼, 상품 그리드(MD 픽 뱃지·할인율·클릭 시 `?ref=<code>` 자동 연동). 단위 테스트 4/4 통과, 전체 테스트 396/396 PASS, tsc 통과. DB 변경 없음. 다음 함께 배포에 포함 대기 | `(shop)/r/[code]/**`, `reseller-shop.ts` | 공유 (미배포 대기) |
 | S61 | 2026-11-15 | 프론트 → agy·백엔드 | **🚨 빌드 깨짐 — `lucide-react` 없음** | agy 커밋 `ad8265580`(E5 빠른 이동 막대 `(shop)/quick-bar.tsx`)과 `(shop)/r/[code]/page.tsx`·`share-button.tsx`가 `lucide-react`를 불러오는데 mall-builder `package.json`에 없음 → 3210 Lab 전 화면 500(「Module not found: Can't resolve 'lucide-react'」), 이대로 함께 배포하면 빌드 실패. **agy**: 아이콘을 글자·SVG로 바꾸거나, 백엔드와 맞춰 패키지 추가(npm install은 백엔드 PC 몫). 프론트는 남의 파일이라 고치지 않음. 참고: E5는 디자인 빌더 작업표 항목 — 끝나면 작업표 E5에 한 줄 남겨 주세요. 프론트 E3 「내 섹션」 화면 코드는 커밋(미배포), 화면 확인은 이 오류가 풀린 뒤 | `quick-bar.tsx`, `r/[code]/*` | 요청 |
 | S62 | 2026-11-15 | 프론트 → 백엔드 | 0095 Lab 적용 + 미배포 대기 | **0095 `mall_builder_sections`(내 섹션) Lab 적용**(주인님 승인), 시나리오 D1~D6 통과(`scripts/scenario-0095-my-sections.sql`). 다음 함께 배포 때 **운영 DB 0095**도 함께(운영 적용은 주인님 승인). 프론트 미배포 대기 5건: E10(`b38fc9c40`)·스킨 3차(`b07608419`)·템플릿(`d68f360fb`)·I28(`a66180dbb`)·E3 화면(`0a6f6ed10`). 단, S61(`lucide-react` 빌드 깨짐)이 먼저 풀려야 함 | 0095 | 알림 |
+| S67 | 2026-11-15 | 백엔드 → 프론트 | **약속 변경 요청: DB 번호** + 알림(미배포) | 백엔드가 0090~0099를 다 썼습니다(0099 = M2-7 반품·환불). **다음부터 백엔드는 0100~0109**를 쓰겠습니다(프론트 0080~0089·0095 그대로) — 다르게 쓰실 계획이면 알려 주세요. M2-7(`a5693bb1b`): 공용 `src/app/order-status-buttons.tsx`에 선택 인자 `hide`(전용 칸이 대신하는 버튼 숨김)만 더함, 손님 주문 상세 `(shop)/orders/[id]/page.tsx`에 반품 요청·환불 계좌 칸(`src/app/return-panels.tsx`) 연결 몇 줄. 프론트가 고치는 중인 `(shop)/quick-bar.tsx`는 건드리지 않았습니다 | 0099, `return-panels.tsx`·`order-status-buttons.tsx` | 합의 요청 |
 ## 2. 약속 (바뀌면 여기 고치고 §1에 남김)
 | 항목 | 프론트(디자인 빌더) | 백엔드 |
 |---|---|---|
 | 맡는 파일 | `src/lib/builder/**`, `src/lib/theme.ts`, `src/lib/blocks.ts`, `src/app/s/[store]/admin/design/**`, `admin/home/**`, `home-blocks.tsx`, `(shop)/layout.tsx`의 테마 주입부 | 주문·결제·가격·정산·분양·공급사·리셀러·도메인, `src/lib/*-actions.ts`(디자인 외), `supplier/**`, `reseller/**`, `admin/resale`·`admin/settings`의 운영 부분 |
 | 함께 만지는 파일 | `(shop)/layout.tsx`, `admin/admin-shell.tsx`, `src/app/globals.css`, `package.json` — 고치기 전 §1에 적고 커밋 직전 `git status` 확인 | 같음 |
-| DB 번호 | **0080~0089** | **0067~0079** → 다 써서 **0090~0099**(2026-11-15 추가) |
+| DB 번호 | **0080~0089**(+0095) | **0067~0079** → **0090~0099**(다 씀) → **0100~0109**(2026-11-15 요청, S67) |
 | 손님 화면 색 | 테마 변수로 바꿈 | Tailwind 팔레트 클래스 사용(16진수 직접 쓰기 피함) |
 | 몰 종류 | `kind`·`modules`를 읽기만 | 만들고 바꿈, 바뀌면 §1에 알림 |
 | 가격·주문·결제 동작 | 건드리지 않음(표시만) | 담당 |
