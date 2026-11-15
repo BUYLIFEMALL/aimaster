@@ -15,6 +15,8 @@
 
 ## 대기 중
 
+
+- **`ai-work-workspace` — Gemini 내장 구글 검색 연결(2026-11-15 [역할: workspace], `81b56f898`)**: Gemini 키 회원도 「자동·내장」에서 구글 검색(검색어·출처 표시). 확인 호출 1회 통과, 시험 172. 다음 배포 때 함께.
 - **`ai-work-workspace` — 웹 검색 키를 워크스페이스 키 화면에서 등록(2026-11-15 [역할: workspace], `90c190a96`)**: 「🔎 AI 비서 웹 검색」 묶음(네이버 ID·Secret·카카오 REST·Tavily·Perplexity·SerpAPI 칸 + 검색 도구 고르기 카드), v1.43 카드의 틀린 「메인 사이트 API 설정에서 등록」 안내 수정(메인에는 Perplexity 칸만 있음), Tavily `tvly-`·Perplexity `pplx-` 형식 확인. tsc·빌드·시험 171 통과. 다음 배포 때 함께.
 - **`blog-neighbor-care` — 답방 글 읽기 탭 사전 확인 + 실패 진단(단계·HTTP·BNC code) 팝업 전달 + 409 코드별 안내 `85eedc18b`(2026-11-14 [역할: blog] `claude-win-photo`)**: 작은 수정, 다음 배포 때 함께(확장 ZIP·manifest·DB 버전 같이). 상세 `blog-neighbor-care/docs/IMPROVEMENTS.md` 2026-11-14.
 - **`naver-cafe-recruit` — 명단에서 카페 운영진(매니저·스탭 등급) 제외 + 아직 없는 「C. 카페 홍보 글」 칸 숨김(저장 때 꺼짐) `b61270d8f`(2026-11-15 [역할: blog] `claude-win-photo`, 주인님 결정 5건 중 2번)**: 시험 17개·tsc 통과. 다음 카페 모집 배포(v1.03, `1bd454187`·`7a85de294`와 함께) 때 manifest·ZIP·DB 버전 맞춤, 검수는 `docs/REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md` B-3.
