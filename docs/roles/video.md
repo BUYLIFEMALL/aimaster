@@ -14,12 +14,12 @@
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
 |---|---|---|---|
-| `ai-video-studio` | Vidu Q3 Turbo 5초 실생성 재확인(약 360원) — 코드·배포 완료, 주인님 2026-11-11 「작업만 해놔 나중에 충전하고 할께」 | 보류 — 주인님 2026-11-11 「당장 필요한 기능은 아니니 테스트는 나중에 필요해지면」(요청함 충전 항목 닫음). 필요해지면 충전·실행 직전 승인 | `ai-video-studio/docs/PLAN_20261111_RUNWAY_VIDU_DIRECT.md` |
+| `ai-video-studio`·`shorts-onestop-studio` | Vidu Q3 Turbo·Pro 연동, 원스톱 「상품 장면도 AI 영상 허용」 — **코드·배포 완료**. 실생성 확인(Vidu 약 360원·상품 장면 변형 약 $0.25)만 남음 | 주인님 2026-11-15 「나중에 필요할 때 연동, 작업만 해놔」 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `music-video-studio` | 저장공간 위젯 한 줄(11-12 배포 뒤 빠진 것 발견, 코드 반영) 미배포 대기 + `music-video-studio` 로그인 정책(로그아웃 범위·기기 정보 전달, 음악 담당 `b4403e8bd` 11-13 인계) | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `video-to-gif` | v1.29 맥 실물 확인(설치 스크립트 4곳 등록·크롬 연결·V4 녹화·웨일/Aside) — 맥미니 요청. V4 윈도우 실제 녹화는 사람 클릭 필요(주인님) | 맥미니 결과 · 주인님 V4 | `video-to-gif/docs/REQUEST_20261115_MACMINI_V129_CHECK.md` |
 | `shots` | v1.51 배포됨(11-14) — 「모든 장면 영상으로」 실제 유료 실행은 회원 첫 사용 때 오류가 나면 시험 | — | `shots/docs/IMPROVEMENTS.md` |
-| `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
+| `shorts-onestop-studio`·`music-video-studio` | 「내 자료함」 음악 합치기 — 검토 결과 두 곳 모두 이미 공용 `listMemberAssets` 사용(합치기 끝). 대신 검사식 역슬래시 빠짐 버그 발견·수정 `70528df0f` — 미배포 | 빌드 승인 | `docs/ERROR_LESSONS.md` 2026-11-15 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `shorts-onestop-studio` | 빨간 문제 목록 칸 위치 `5ba0f2aa6` · 하단 자막형 설명·자막 겹침 `b1cb6878b` 수정 — 미배포 대기 | 다음 원스톱 배포 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `shorts-onestop-studio` | v1.55 배포됨(11-14). 남은 것: 영상 주소를 상품 쪽으로 반환 | 받는 쪽 상품ID 형식 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
@@ -103,7 +103,7 @@
 2. ~~공용 인코더 안정화~~ 구현 완료(11-14, 미배포 — 세 프로그램 다음 배포 때). 목록 `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md`.
 3. ~~메이커 2단계~~ 원스톱 v1.55로 배포(11-14). 메이커 v0.3.3 후속 M3-①·M2·M3-② 모두 배포(11-15). 남은 연계: GIF 변환 「상품 사진 영상」 결과에 「상세페이지로」 WebP 버튼(이커머스 이미지 담당이 `gif-handoff`에 WebP 받기를 넣은 뒤).
 4. 다음 배포 때 함께: `music-video-studio`(저장공간 위젯·로그인 정책 `b4403e8bd`) · `shorts-onestop-studio`(화면 수정 2건) · `ai-image-studio`(공용 영상 코드 사본) · 서울 지역 미반영 프로그램.
-5. 쇼츠 원스톱 음성 자막 낱말 시각: **2027-01-05 재점검**(`shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`).
+5. 쇼츠 원스톱 음성 자막 낱말 시각: 11-15 앞당겨 재점검 — 대체 모델 없음, Gemini 낱말 시각 시험 1회(약 1원) 승인 대기. **2027-01-05 재확인**은 그대로(`shorts-onestop-studio/docs/PLAN_20261111_WORD_TIMING_AFTER_WHISPER.md`).
 6. 주인님과 함께: V4 화면 녹화 실제 확인(브라우저 화면 공유 창은 주인님이 고름). **보류(주인님 2026-11-14 「나중에 필요할때 하는 것으로」)**: 상품 장면 AI 영상 변형 시험(약 $0.25) · Vidu 재확인(약 360원, 충전 뒤) — 주인님이 말씀하실 때만. 영상 주소를 상품 쪽으로 반환은 받는 쪽 상품ID 형식이 생기면.
 
 ## 영상 담당 프로그램 현황 (2026-11-15)
