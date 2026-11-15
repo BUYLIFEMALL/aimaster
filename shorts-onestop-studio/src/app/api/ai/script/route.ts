@@ -7,7 +7,8 @@ import { clampCards, isFormat, isTone, normalizeScript, type ShortsScript } from
 import { UserError } from "@/lib/errors";
 import { recordUsage } from "@/lib/usage";
 import { copiedPhrases, guardText } from "@/lib/reference";
-import { PRODUCT_CARDS, normalizeProduct, normalizeProductExtra } from "@/lib/productShorts";
+import { MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, normalizeProduct, normalizeProductExtra, productBlock } from "@/lib/productShorts";
+import { PRODUCT_TEMPLATES, applyTemplate, checkProductScript, isTemplate, issuesNote, readPhotoPlan, type Issue } from "@/lib/productTemplates";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -34,6 +35,28 @@ export async function POST(request: NextRequest) {
     const budget = seconds ? narrationBudget(seconds, cards).total : 0;
     const chars = (s: ShortsScript) => [s.intro.narration, ...s.cards.map((c) => c.narration), s.outro.narration].join("").length;
     let best: ShortsScript | null = null;
+    // v1.57 상품 숏폼 템플릿: 장면 기획 JSON → 검증(장면 수·글자 수·없는 사진 번호·입력에 없는 숫자·과장 표현) → 어기면 같은 요청으로 1회만 다시(회원 키 이중 과금 방지)
+    const template = product && isTemplate(g.body.template) ? g.body.template : null;
+    if (template && product) {
+      const photos = Math.max(0, Math.min(MAX_PRODUCT_PHOTOS, Math.floor(Number(g.body.photos) || 0)));
+      const tCards = PRODUCT_TEMPLATES[template].cards.length;
+      const tBudget = seconds ? narrationBudget(seconds, tCards).total : 0;
+      const ctx = { template, photos, input: `${topic}\n${productBlock(product, productExtra ?? undefined)}`, budget: tBudget || undefined };
+      let issues: Issue[] = [];
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const base = scriptPrompt({ topic, category, tone, format, cards: tCards, guideline, seconds, product, productExtra, template, photos });
+        const raw = await generateJson(cfg, { ...base, prompt: base.prompt + (best ? issuesNote(issues) : ""), maxTokens: 5000 });
+        const s = normalizeScript(raw, { topic, category, tone, format, cards: tCards, model: cfg.model });
+        if (!s) continue;
+        const cand = applyTemplate({ ...s, photoPlan: readPhotoPlan(raw) }, template);
+        const found = checkProductScript(cand, ctx);
+        if (!best || found.length < issues.length) { best = cand; issues = found; }
+        if (!issues.length) break;
+      }
+      if (!best) throw new UserError(502, "AI가 장면 기획을 완성하지 못했습니다. 잠시 뒤 다시 시도하거나 다른 모델을 골라 주세요.");
+      await recordUsage(g.userId, "script_created", { cards: best.cards.length });
+      return json({ script: best, copied: [], issues });
+    }
     for (let attempt = 0; attempt < 2; attempt++) {
       const base = scriptPrompt({ topic, category, tone, format, cards, reference, guideline, seconds, guardAll: g.body.guardAll === true, product, productExtra });
       // 목표 길이를 정했는데 직전 결과가 20% 넘게 길면, 한 번만 "더 짧게" 다시 요청한다(2026-10-16 실측: 60초 목표에 47% 초과 사례)

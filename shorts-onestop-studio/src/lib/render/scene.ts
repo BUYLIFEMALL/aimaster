@@ -4,6 +4,7 @@
 import { normalizeBackdrop, sceneVoices, type Bg, type ShortsScript } from "@/lib/script";
 import { captionChunks, normalizeAudio, timedCaptionChunks } from "@/lib/voice";
 import { adBand, aiBand } from "@/lib/disclosure";
+import { PRODUCT_TEMPLATES } from "@/lib/productTemplates";
 
 export const W = 1080, H = 1920, FPS = 30;
 
@@ -145,6 +146,28 @@ function pill(ctx: CanvasRenderingContext2D, text: string, cx: number, cy: numbe
   ctx.fillStyle = fg; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(text, cx, cy + 2);
 }
 
+/** v1.57 상품 숏폼 템플릿 태그 움직임(우리 디자인). 템플릿이 없으면 기존 알약 그대로.
+ *  stamp = 도장처럼 찍힘(「고민」은 빨강 ✕, 나머지는 ✓) · count = 튀어나왔다 자리 잡음 · check = 왼쪽부터 그어짐 · shine = 빛이 지나감 */
+function tagBadge(ctx: CanvasRenderingContext2D, s: ShortsScript, tag: string, cx: number, cy: number, font: string, th: (typeof THEMES)[ThemeKey], u: number) {
+  const m = s.template ? PRODUCT_TEMPLATES[s.template]?.motion : undefined;
+  if (!m) { pill(ctx, tag, cx, cy, font, th.accent, th.bg[0]); return; }
+  const bad = m === "stamp" && tag === "고민";
+  const label = m === "stamp" ? `${bad ? "✕" : "✓"} ${tag}` : m === "check" ? `✔ ${tag}` : tag;
+  ctx.save(); ctx.font = font; const w = ctx.measureText(label).width + 64, h = 78;
+  const zoom = (k: number) => { ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy); };
+  if (m === "stamp") { ctx.translate(cx, cy); ctx.rotate(-0.06); ctx.translate(-cx, -cy); zoom(1.6 - 0.6 * ease(u / 0.3)); }
+  if (m === "count") zoom(u < 0.25 ? 0.4 + 0.75 * ease(u / 0.25) : 1.15 - 0.15 * ease((u - 0.25) / 0.2));
+  if (m === "check") { ctx.beginPath(); ctx.rect(cx - w / 2 - 4, cy - h, w * ease(u / 0.45) + 8, h * 2); ctx.clip(); }
+  pill(ctx, label, cx, cy, font, bad ? "#ef4444" : th.accent, bad ? "#ffffff" : th.bg[0]);
+  if (m === "shine") {
+    roundRect(ctx, cx - w / 2, cy - h / 2, w, h, h / 2); ctx.clip();
+    const x = cx - w / 2 - 80 + ((u * 0.9) % 1.6) * (w + 160);
+    const g = ctx.createLinearGradient(x - 60, 0, x + 60, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(255,255,255,0.55)"); g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(x - 60, cy - h / 2, 120, h);
+  }
+  ctx.restore();
+}
+
 function background(ctx: CanvasRenderingContext2D, th: (typeof THEMES)[ThemeKey], t: number) {
   const g = ctx.createLinearGradient(0, 0, W * 0.4, H);
   g.addColorStop(0, th.bg[0]); g.addColorStop(0.55, th.bg[1]); g.addColorStop(1, th.bg[2]);
@@ -248,7 +271,7 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
     ctx.globalAlpha = out * inA;
     if (layout === "center" || layout === "minimal") {
       if (layout === "center") { roundRect(ctx, 90, 600 + lift, W - 180, 760, 48); ctx.fillStyle = th.card; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = `${th.accent}66`; ctx.stroke(); }
-      if (d.badges) pill(ctx, tag, W / 2, 690 + lift, bodyFont(42), th.accent, th.bg[0]);
+      if (d.badges) tagBadge(ctx, s, tag, W / 2, 690 + lift, bodyFont(42), th, u);
       const { px, lines } = fitText(ctx, c.title, titleFont, W - 260, layout === "minimal" ? 140 : 118, 72, 3);
       ctx.font = titleFont(px); drawLines(ctx, lines, W / 2, 900 + lift, px * 1.15, th.text, d.effect, th.accent);
       if (layout === "minimal") { ctx.fillStyle = th.accent; roundRect(ctx, W / 2 - 90, 900 + lift + lines.length * px * 1.15, 180, 12, 6); ctx.fill(); }
@@ -270,7 +293,7 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
     } else { // bottom
       const grad = ctx.createLinearGradient(0, 1100, 0, H); grad.addColorStop(0, "rgba(0,0,0,0)"); grad.addColorStop(1, "rgba(0,0,0,0.6)");
       ctx.fillStyle = grad; ctx.fillRect(0, 1100, W, H - 1100);
-      if (d.badges) pill(ctx, tag, 210, 1130 + lift, bodyFont(42), th.accent, th.bg[0]);
+      if (d.badges) tagBadge(ctx, s, tag, 210, 1130 + lift, bodyFont(42), th, u);
       const { px, lines } = fitText(ctx, c.title, titleFont, W - 180, 112, 70, 3);
       ctx.font = titleFont(px); drawLines(ctx, lines, 100, 1250 + lift, px * 1.15, "#ffffff", d.effect, th.accent, "left");
       if (c.desc) { ctx.globalAlpha = out * inB; ctx.font = bodyFont(44); drawLines(ctx, wrap(ctx, c.desc, W - 200, 2), 100, 1290 + lift + lines.length * px * 1.15, 60, "#f1f5f9", "none", th.accent, "left"); }
@@ -329,7 +352,7 @@ export function drawSafeArea(ctx: CanvasRenderingContext2D) {
 /** 웹 글꼴은 글자 묶음(unicode-range)별로 나뉘어 받아진다 — 그리기 전에 대본에 실제로 쓰인 글자로 미리 불러온다(미리보기·MP4 공통) */
 export async function loadFontsFor(s: ShortsScript, d: Design): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return;
-  const text = Array.from(new Set([s.intro.eyebrow, s.intro.title, ...s.cards.flatMap((c) => [c.tag ?? "", c.title, c.desc]), s.outro.title, s.outro.subtitle, ...s.outro.cta, s.intro.narration, ...s.cards.map((c) => c.narration), s.outro.narration, "끝까지 보면 확실히 알게 됩니다 ↓ 구독 좋아요 0123456789", "쇼츠·릴스·틱톡 버튼에 가리는 영역", adBand(s), aiBand(s)].join(""))).join("");
+  const text = Array.from(new Set([s.intro.eyebrow, s.intro.title, ...s.cards.flatMap((c) => [c.tag ?? "", c.title, c.desc]), s.outro.title, s.outro.subtitle, ...s.outro.cta, s.intro.narration, ...s.cards.map((c) => c.narration), s.outro.narration, "끝까지 보면 확실히 알게 됩니다 ↓ 구독 좋아요 0123456789 ✕✓✔", "쇼츠·릴스·틱톡 버튼에 가리는 영역", adBand(s), aiBand(s)].join(""))).join("");
   const f = FONTS[d.font];
   await Promise.all([
     document.fonts.load(`${f.weight} 64px "${f.family}"`, text),

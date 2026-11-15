@@ -65,6 +65,10 @@ export interface ShortsScript {
   product?: import("@/lib/productShorts").ProductRecord;
   /** v1.56 광고 고지·AI 제작 표기·게시 전 확인(src/lib/disclosure.ts normalizeDisclosure로 읽는다) */
   disclosure?: import("@/lib/disclosure").Disclosure;
+  /** v1.57 상품 숏폼 장면 기획 템플릿(src/lib/productTemplates.ts) — 없으면 v1.44 기본 6비트 */
+  template?: import("@/lib/productTemplates").TemplateKey;
+  /** v1.57 AI가 고른 장면별 상품 사진 번호(인트로·카드·아웃트로 순, 0 = 사진 없음, 1부터) — applyProduct가 이 순서로 넣는다 */
+  photoPlan?: number[];
 }
 export interface YoutubeUpload { videoId: string; url: string; title: string; privacy: "private" | "unlisted" | "public"; publishAt?: string | null; channel?: string | null; uploadedAt: string }
 

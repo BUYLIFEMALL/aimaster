@@ -172,6 +172,14 @@ function sceneBg(s: ShortsScript, scene: number): Bg | undefined {
   return scene === 0 ? s.intro.bg : scene === n + 1 ? s.outro.bg : s.cards[scene - 1]?.bg;
 }
 
+/** v1.57 템플릿 장면 기획의 사진 번호(script.photoPlan)를 배치로. 길이·번호가 맞지 않거나 사진이 하나도 안 들어가면 null(기본 배치) */
+export function planSlots(s: ShortsScript, count: number): { scene: number; photo: number }[] | null {
+  const plan = s.photoPlan; const n = Math.min(MAX_PRODUCT_PHOTOS, Math.max(0, Math.floor(count)));
+  if (!plan || !n || plan.length !== s.cards.length + 2) return null;
+  if (plan.some((p) => !Number.isInteger(p) || p < 0 || p > n) || !plan.some((p) => p > 0)) return null;
+  return plan.flatMap((p, scene) => (p > 0 ? [{ scene, photo: p - 1 }] : []));
+}
+
 /** 상품 사진을 정해진 장면에 넣고, 배경 방식을 「장면마다」로, 글자 배치를 아래쪽(상품이 가려지지 않게)으로 맞춘다.
  *  - 비용을 들여 만든 AI 이미지·AI 영상(만드는 중 포함)이 있는 장면은 덮어쓰지 않는다.
  *  - 회원이 이미 고른 글자 배치가 있으면 그대로 둔다.
@@ -181,7 +189,7 @@ export function applyProduct(script: ShortsScript, record: ProductRecord, photos
   const usable = record.rights ? photos.filter((p) => (typeof p.path === "string" && p.path.includes("/product/")) || isLibraryRef(p.ref)) : [];
   // 같은 대본에 다시 넣을 때: 이전 상품 사진은 지우고 새로 배치
   for (let i = 0; i < s.cards.length + 2; i++) if (sceneBg(s, i)?.source === "product") setSceneBg(s, i, undefined);
-  for (const { scene, photo } of productPhotoSlots(usable.length)) {
+  for (const { scene, photo } of planSlots(s, usable.length) ?? productPhotoSlots(usable.length)) {
     const cur = sceneBg(s, scene);
     if (cur && (cur.source === "ai" || cur.videoJob)) continue;
     setSceneBg(s, scene, productBg(usable[photo]));
@@ -206,7 +214,7 @@ export function productSceneCount(s: ShortsScript): number {
 export function productPhotoPaths(s: ShortsScript): string[] {
   const n = Math.min(MAX_PRODUCT_PHOTOS, Math.max(0, Math.floor(s.product?.photos ?? 0)));
   const out: string[] = [];
-  for (const { scene, photo } of productPhotoSlots(n)) {
+  for (const { scene, photo } of planSlots(s, n) ?? productPhotoSlots(n)) {
     const b = sceneBg(s, scene); const path = b?.source === "product" ? b.path : b?.poster?.source === "product" ? b.poster.path : undefined;
     if (path && out[photo] === undefined) out[photo] = path;
   }
@@ -217,7 +225,7 @@ export function productPhotoPaths(s: ShortsScript): string[] {
 export function productPhotoList(s: ShortsScript): ProductPhoto[] {
   const n = Math.min(MAX_PRODUCT_PHOTOS, Math.max(0, Math.floor(s.product?.photos ?? 0)));
   const out: (ProductPhoto | undefined)[] = [];
-  for (const { scene, photo } of productPhotoSlots(n)) {
+  for (const { scene, photo } of planSlots(s, n) ?? productPhotoSlots(n)) {
     const b = sceneBg(s, scene); const pb = b?.source === "product" ? b : b?.poster?.source === "product" ? b.poster : undefined;
     if (pb && out[photo] === undefined && (pb.path || pb.ref)) out[photo] = pb.ref ? { ref: pb.ref } : { path: pb.path };
   }

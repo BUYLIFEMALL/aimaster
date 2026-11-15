@@ -2,6 +2,7 @@ import "server-only";
 import { FORMATS, TONES, type Format, type Tone } from "@/lib/script";
 import { COPY_WORDS, REF_MARK } from "@/lib/reference";
 import { productBlock, type ProductExtra, type ProductInfo } from "@/lib/productShorts";
+import { templateGuide, type TemplateKey } from "@/lib/productTemplates";
 
 // 프롬프트는 이 프로그램용으로 새로 썼다(참고 원본 문구 사용 안 함). 당해 연도는 항상 동적으로 주입한다(원칙 8).
 function yearRule() {
@@ -38,18 +39,21 @@ export function narrationBudget(seconds: number, cards: number): { perScene: num
 // v1.44(V3) 상품 홍보: 판매자가 적은 정보만 쓰고 허위·과장 광고 문구를 막는다
 const PRODUCT_RULES = `[상품 홍보 규칙 — 반드시 지킴]
 - 아래 「상품 정보」에 판매자가 적은 내용만 사실로 씁니다. 적혀 있지 않은 효능·수치·성분·인증·가격·할인율·판매량·후기는 지어내지 않습니다.
+- 입력에 없는 가격·평점·리뷰 수·판매 수량·사용 시간 같은 숫자는 쓰지 않습니다(숫자는 상품 정보에 적힌 것만).
 - 「품절 대란」「마감 임박」「한정 수량」「1위」「100% 효과」처럼 근거 없는 긴급·최상급 표현, 의학적 효능 단정, 다른 상품 비방은 쓰지 않습니다.
 - 화면 글자는 짧게, 장면마다 하나의 장면 묘사가 떠오르게 씁니다(desc는 그 장면에 보일 모습).
 - 상품명·옵션은 적힌 글자 그대로 씁니다(줄이거나 다른 이름으로 바꾸지 않음). 「판매자가 확정한 상품 설명」도 장점과 같은 사실 근거로만 씁니다.
 - 아웃트로 cta는 1~2개, 판매자가 혜택을 적었으면 그 문구를 그대로, 없으면 「프로필 링크에서 확인」처럼 담백하게.`;
 
-export function scriptPrompt(o: { topic: string; category: string; tone: Tone; format: Format; cards: number; reference?: string; guideline?: string; seconds?: number; guardAll?: boolean; product?: ProductInfo | null; productExtra?: Pick<ProductExtra, "desc" | "option"> | null }) {
+export function scriptPrompt(o: { topic: string; category: string; tone: Tone; format: Format; cards: number; reference?: string; guideline?: string; seconds?: number; guardAll?: boolean; product?: ProductInfo | null; productExtra?: Pick<ProductExtra, "desc" | "option"> | null; template?: TemplateKey | null; photos?: number }) {
+  // v1.57 상품 숏폼 템플릿: 기본 6비트 구성 대신 템플릿 장면 기획 + 장면별 사진 번호(AI는 JSON만 — 그림은 우리 캔버스)
+  const tpl = o.format === "product" && o.template ? o.template : null;
   const budget = o.seconds ? narrationBudget(o.seconds, o.cards) : null;
   const system = [
     "당신은 한국어 유튜브 쇼츠 대본 작가입니다. 화면에는 짧은 글자만, 자세한 내용은 내레이션으로 전달하는 세로 카드형 쇼츠 대본을 씁니다.",
     yearRule(), SAFETY,
     `말투: ${TONES[o.tone].guide}`,
-    `구성 방식: ${FORMATS[o.format].guide}`,
+    tpl ? "구성 방식: 판매자 상품 홍보 쇼츠. 아래 [장면 기획]을 그대로 따릅니다." : `구성 방식: ${FORMATS[o.format].guide}`,
     o.format === "product" ? PRODUCT_RULES : "",
     o.guideline ? `[회원 작성 지침 — 기본 규칙보다 우선 적용]\n${o.guideline}` : "",
   ].filter(Boolean).join("\n\n");
@@ -57,6 +61,7 @@ export function scriptPrompt(o: { topic: string; category: string; tone: Tone; f
     `주제: ${o.topic}`,
     o.category ? `분야: ${o.category}` : "",
     o.format === "product" && o.product ? `상품 정보(판매자가 직접 적은 내용):\n${productBlock(o.product, o.productExtra ?? undefined)}` : "",
+    tpl ? templateGuide(tpl, o.photos ?? 0) : "",
     o.reference ? `참고 자료(이 내용을 근거로 쓰고, 자료에 없는 사실을 지어내지 마세요):\n${o.reference}` : "",
     // v1.30 레퍼런스 쇼츠 받아쓰기(v1.29)가 있으면 베끼기 금지 — 구성·후킹·심리만 참고
     o.reference?.includes(REF_MARK) ? `[레퍼런스 쇼츠 사용 규칙] 「${REF_MARK}…」 블록은 다른 사람이 만든 쇼츠의 실제 대사입니다. 구성·후킹 방식·심리만 참고하고 문장은 완전히 새로 쓰세요. 그 블록과 연속 ${COPY_WORDS}어절 이상 같은 표현을 쓰지 마세요(숫자·고유명사 같은 사실은 써도 됩니다). 첫 문장(후킹)은 특히 다른 상황·다른 말로 시작하세요.` : "",
@@ -69,7 +74,9 @@ export function scriptPrompt(o: { topic: string; category: string; tone: Tone; f
 - 각 narration은 소리 내어 읽기 좋은 자연스러운 1~3문장(${budget ? `인트로·카드·아웃트로 모두 각 ${budget.perScene - 6}~${budget.perScene + 6}자(공백 포함)` : "카드당 40~110자"}). 화면 글자를 그대로 반복하지 말고 이유·예시를 더합니다.${budget ? `\n- [길이 엄수] 완성 영상 목표는 약 ${o.seconds}초입니다. 모든 narration을 합쳐 약 ${budget.total}자를 넘기지 마세요. 길면 예시를 줄이고 핵심만 남깁니다.` : ""}
 - 아웃트로는 요약 한 줄(title), 부제(subtitle), 행동 유도 문구 cta 1~2개(예: "저장해 두세요"), narration.
 - 해시태그 hashtags 5~8개(한국어 위주, # 포함).`,
-    `JSON 형식: {"intro":{"eyebrow":"","title":"","narration":""},"cards":[{"tag":"","title":"","desc":"","narration":""}],"outro":{"title":"","subtitle":"","cta":[""],"narration":""},"hashtags":["#"]}`,
+    tpl
+      ? `JSON 형식: {"intro":{"eyebrow":"","title":"","narration":"","photo":0},"cards":[{"tag":"","title":"","desc":"","narration":"","photo":0}],"outro":{"title":"","subtitle":"","cta":[""],"narration":"","photo":0},"hashtags":["#"]}`
+      : `JSON 형식: {"intro":{"eyebrow":"","title":"","narration":""},"cards":[{"tag":"","title":"","desc":"","narration":""}],"outro":{"title":"","subtitle":"","cta":[""],"narration":""},"hashtags":["#"]}`,
   ].filter(Boolean).join("\n\n");
   return { system, prompt };
 }

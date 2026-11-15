@@ -15,13 +15,20 @@ import { CATEGORIES, FORMATS, MAX_CARDS, MIN_CARDS, TONES, guessFromTopic, scrip
 import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
 import { takeProductHandoff, takeRefHandoff } from "@/lib/refHandoff";
-import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, productPhotoList, type ProductExtra, type ProductRights } from "@/lib/productShorts";
+import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, productBlock, productPhotoList, type ProductExtra, type ProductRights } from "@/lib/productShorts";
+import { PRODUCT_TEMPLATES, checkProductScript, issuesFor, type Issue, type TemplateKey } from "@/lib/productTemplates";
 import { createClient } from "@/lib/supabase/client";
 import { refBlockHeader, refBlocks, removeRefBlock, shortSource } from "@/lib/refBlocks";
 import { REWRITE_LEVELS, type RewriteLevel } from "@/lib/rewrite";
 
 // v1.31 참고 자료와 그대로 겹치는 장면 표시(브라우저 안에서 다시 검사 — 고치면 바로 사라짐)
 const COPY_STYLE = { outline: "2px solid #f5c542", outlineOffset: 2, borderRadius: 12 } as const;
+// v1.57 장면 기획 검사에 걸린 장면(빨간 테두리) — 회원이 고치면 바로 사라진다
+const ISSUE_STYLE = { outline: "2px solid #ef4444", outlineOffset: 2, borderRadius: 12 } as const;
+function IssueList({ list }: { list: Issue[] }) {
+  if (!list.length) return null;
+  return <ul style={{ margin: "4px 0 0", paddingLeft: 18, color: "#ef4444", fontSize: 13 }}>{list.map((i, k) => <li key={k}>{i.msg}</li>)}</ul>;
+}
 const CopyBadge = () => <span className="badge" style={{ background: "rgba(245,197,66,.18)", color: "#f5c542" }} title="참고 자료와 6어절 이상 그대로 겹칩니다. 다른 표현으로 고쳐 주세요.">⚠ 겹침</span>;
 
 type Topic = { title: string; hook: string; format: Format | null };
@@ -82,6 +89,8 @@ export function TopicView() {
   const [library, setLibrary] = useState<{ ref: string; title: string; source: string; url: string }[] | null>(null);
   const photoInput = useRef<HTMLInputElement>(null);
   const isProduct = format === "product";
+  // v1.57 상품 숏폼 장면 기획 템플릿("" = 기본 6비트)
+  const [template, setTemplate] = useState<TemplateKey | "">("");
   function chooseProductFormat() {
     setFormat("product"); setCards(PRODUCT_CARDS); setSeconds(15);
     setTouched((t) => ({ ...t, format: true, cards: true }));
@@ -95,7 +104,7 @@ export function TopicView() {
     const pr = d.product; if (!pr?.name) return;
     setProduct({ name: pr.name, points: [...pr.points, "", "", ""].slice(0, 3), offer: pr.offer });
     setExtra(normalizeProductExtra(pr)); setProductFrom(pr.from ?? "");
-    setMode("ai"); chooseProductFormat();
+    setMode("ai"); chooseProductFormat(); setTemplate(d.template ?? "");
     const list = productPhotoList(d); if (!list.length) return;
     try {
       const { urls } = await api<{ urls: Record<string, string> }>("/api/media/sign", { body: { paths: list.flatMap((p) => (p.path ? [p.path] : [])), refs: list.flatMap((p) => (p.ref ? [p.ref] : [])) } });
@@ -222,10 +231,12 @@ export function TopicView() {
     setBusy("대본을 쓰는 중… (보통 10~40초)"); setMsg(null);
     try {
       const productBody = isProduct ? { name: product.name, points: product.points, offer: product.offer, option: extra.option, desc: extra.desc } : undefined;
+      const tplBody = isProduct && template ? { template, photos: extra.rights ? photos.length : 0 } : {};
       const sendTopic = isProduct && topic.trim().length < 4 ? `${product.name.trim()} 홍보 쇼츠` : topic;
-      const r = await api<{ script: ShortsScript; copied?: string[] }>("/api/ai/script", { body: { topic: sendTopic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined, guardAll, product: productBody } });
+      const r = await api<{ script: ShortsScript; copied?: string[]; issues?: Issue[] }>("/api/ai/script", { body: { topic: sendTopic, category, tone, format, cards, reference, guideline: useGuide ? guideText : "", seconds: seconds || undefined, guardAll, product: productBody, ...tplBody } });
       setScript(isProduct ? withProduct(r.script) : r.script); setItemId(null); setGuardRef(guardText(reference, guardAll));
       // v1.30 레퍼런스 쇼츠와 그대로 겹치는 구절이 남았으면 다듬기에서 고치도록 알린다
+      if (r.issues?.length) { setMsg({ text: `장면 기획은 끝났지만 검사에서 ${r.issues.length}곳이 남았습니다(AI에 다시 쓰기는 1번만 요청했습니다). 아래 빨간 테두리 장면을 직접 고쳐 주세요 — 고치면 표시가 바로 사라집니다.` }); return; }
       setMsg(r.copied?.length
         ? { text: `대본이 완성됐지만 참고 자료와 그대로 겹치는 구절이 ${r.copied.length}개 남았습니다. 아래 「③ 대본 다듬기」의 노란 테두리 장면을 다른 표현으로 고쳐 주세요: 「${r.copied.slice(0, 3).join("」, 「")}」` }
         : { text: "대본이 완성됐습니다. 아래에서 고친 뒤 보관함에 저장하세요.", ok: true });
@@ -273,6 +284,13 @@ export function TopicView() {
   }
 
   const upd = (fn: (s: ShortsScript) => ShortsScript) => setScript((s) => (s ? fn(structuredClone(s)) : s));
+  // v1.57 템플릿 대본은 고칠 때마다 다시 검사(AI 호출 없음) — 남은 문제만 빨갛게
+  const issues = useMemo<Issue[]>(() => {
+    if (!script?.template || !script.product?.name || !(script.template in PRODUCT_TEMPLATES)) return [];
+    return checkProductScript(script, { template: script.template, photos: script.product.photos ?? 0, input: `${script.topic}
+${productBlock(script.product, script.product)}` });
+  }, [script]);
+  const sceneStyle = (copy: boolean, list: Issue[]) => (list.length ? ISSUE_STYLE : copy ? COPY_STYLE : undefined);
   const step = script ? 3 : topic ? 2 : 1;
 
   return (
@@ -342,6 +360,14 @@ export function TopicView() {
               {isProduct && (
                 <div className="stack" style={{ gap: 8 }}>
                   <h3 style={{ margin: 0 }}>🛍 상품 정보 <small className="muted">— 적은 내용만 사실로 씁니다. 없는 효능·가격·판매량은 지어내지 않습니다.</small></h3>
+                  <div className="stack" style={{ gap: 6 }}>
+                    <strong style={{ fontSize: 14 }}>🎞 장면 구성</strong>
+                    <div className="chips">
+                      <button type="button" className={`chip ${template === "" ? "on" : ""}`} onClick={() => { setTemplate(""); setSeconds(15); }}>{template === "" ? "✔ " : ""}기본 6비트</button>
+                      {(Object.keys(PRODUCT_TEMPLATES) as TemplateKey[]).map((k) => <button key={k} type="button" className={`chip ${template === k ? "on" : ""}`} title={PRODUCT_TEMPLATES[k].desc} onClick={() => { setTemplate(k); setSeconds(PRODUCT_TEMPLATES[k].seconds); }}>{template === k ? "✔ " : ""}{PRODUCT_TEMPLATES[k].label}</button>)}
+                    </div>
+                    <small className="muted">{template ? `${PRODUCT_TEMPLATES[template].desc} · 카드: ${PRODUCT_TEMPLATES[template].cards.map((c) => c.tag).join(" → ")} · AI가 장면마다 보여 줄 상품 사진도 고릅니다. 만든 뒤 장면 수·글자 수·입력에 없는 숫자를 검사하고, 어기면 1번만 다시 받습니다.` : "결과 먼저 → 쓰기 전 → 상품 등장 → 쓰는 모습 → 달라진 결과 → 마무리(v1.44 구성)"}</small>
+                  </div>
                   <label>상품명<input value={product.name} maxLength={PRODUCT_LIMITS.name} onChange={(e) => setProduct((p) => ({ ...p, name: e.target.value }))} placeholder="예: 접이식 휴대용 선풍기" /></label>
                   <div className="grid2">{product.points.map((pt, i) => (
                     <label key={i}>장점 {i + 1}{i === 0 ? "" : " (선택)"}<input value={pt} maxLength={PRODUCT_LIMITS.point} onChange={(e) => setProduct((p) => ({ ...p, points: p.points.map((v, j) => (j === i ? e.target.value : v)) }))} placeholder={["예: 무게 300g, 가방에 쏙", "예: USB-C로 어디서나 충전", "예: 밤에도 조용한 3단 바람"][i]} /></label>
@@ -378,7 +404,6 @@ export function TopicView() {
                     <small className="muted">1번부터 순서대로 상품 등장 → 쓰는 모습 → 달라진 결과 → 인트로 → 마무리 장면에 들어가고(◀ ▶로 순서 바꾸기), 사진이 적으면 돌아가며 씁니다. 올린 사진은 다른 회원에게 보이지 않고 30일 뒤 자동으로 지워집니다.</small>
                     {script && <div className="actions"><button type="button" disabled={!!busy} onClick={() => { setScript((s) => (s ? withProduct(s) : s)); setMsg({ text: "지금 대본에 상품 정보·사진을 다시 넣었습니다. 저장해 주세요.", ok: true }); }}>🛍 지금 대본에 상품 사진·정보 넣기</button></div>}
                   </div>
-                  <small className="muted">구성: 결과 먼저 → 쓰기 전 → 상품 등장 → 쓰는 모습 → 달라진 결과 → 처음 장면으로 이어지는 마무리</small>
                 </div>
               )}
               <div className="actions"><button className="primary" disabled={(isProduct ? !product.name.trim() : topic.trim().length < 4) || !!busy} onClick={() => void makeScript()}><Sparkles size={14} />대본 만들기</button><Busy on={busy.startsWith("대본")} label={busy} /></div>
@@ -413,19 +438,21 @@ export function TopicView() {
           <section className="card stack">
             <div className="row" style={{ justifyContent: "space-between" }}><h2>③ 대본 다듬기 <small>{script.source === "ai" ? `AI 대본 · ${script.model ? modelName(script.model) : ""}` : "내 대본"}</small></h2>
               <div className="actions"><button className="primary" disabled={!!busy} onClick={() => void save()}><Save size={14} />{itemId ? "보관함에 다시 저장" : "보관함에 저장"}</button><Busy on={busy.startsWith("저장")} label={busy} /></div></div>
-            <div className="scene" style={hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef) ? COPY_STYLE : undefined}><div className="scene-tag">🎬<span>인트로</span>{hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef) && <CopyBadge />}</div><div className="stack" style={{ gap: 8 }}>
+            <div className="scene" style={sceneStyle(hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef), issuesFor(issues, "intro"))}><div className="scene-tag">🎬<span>인트로</span>{hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef) && <CopyBadge />}</div><IssueList list={issuesFor(issues, "intro")} /><div className="stack" style={{ gap: 8 }}>
               <div className="row"><label>꼬리표<input value={script.intro.eyebrow} maxLength={30} onChange={(e) => upd((s) => { s.intro.eyebrow = e.target.value; return s; })} /></label><label style={{ flex: 3 }}>화면 제목<input value={script.intro.title} maxLength={50} onChange={(e) => upd((s) => { s.intro.title = e.target.value; return s; })} /></label></div>
               <label>내레이션<textarea rows={2} value={script.intro.narration} maxLength={400} onChange={(e) => upd((s) => { s.intro.narration = e.target.value; return s; })} /></label></div></div>
             {script.cards.map((c, i) => (
-              <div key={i} className="scene" style={hasCopy(`${c.title} ${c.narration}`, guardRef) ? COPY_STYLE : undefined}><div className="scene-tag">{i + 1}<span>{c.tag || "카드"}</span>{hasCopy(`${c.title} ${c.narration}`, guardRef) && <CopyBadge />}
+              <div key={i} className="scene" style={sceneStyle(hasCopy(`${c.title} ${c.narration}`, guardRef), issuesFor(issues, i))}><div className="scene-tag">{i + 1}<span>{c.tag || "카드"}</span>{hasCopy(`${c.title} ${c.narration}`, guardRef) && <CopyBadge />}
                 <button type="button" className="link-button" aria-label={`${i + 1}번 카드 삭제`} disabled={script.cards.length <= MIN_CARDS} onClick={() => upd((s) => { s.cards.splice(i, 1); return s; })}><Trash2 size={13} /></button></div>
+                <IssueList list={issuesFor(issues, i)} />
                 <div className="stack" style={{ gap: 8 }}>
                   <div className="row"><label>태그<input value={c.tag ?? ""} maxLength={20} onChange={(e) => upd((s) => { s.cards[i].tag = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>화면 제목<input value={c.title} maxLength={40} onChange={(e) => upd((s) => { s.cards[i].title = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>한 줄 설명<input value={c.desc} maxLength={60} onChange={(e) => upd((s) => { s.cards[i].desc = e.target.value; return s; })} /></label></div>
                   <label>내레이션<textarea rows={2} value={c.narration} maxLength={400} onChange={(e) => upd((s) => { s.cards[i].narration = e.target.value; return s; })} /></label>
                 </div></div>
             ))}
             {script.cards.length < MAX_CARDS && <div><button type="button" onClick={() => upd((s) => { s.cards.push({ tag: "", title: "새 카드", desc: "", narration: "" }); return s; })}><Plus size={13} />카드 추가</button></div>}
-            <div className="scene" style={hasCopy(script.outro.narration, guardRef) ? COPY_STYLE : undefined}><div className="scene-tag">🏁<span>아웃트로</span>{hasCopy(script.outro.narration, guardRef) && <CopyBadge />}</div><div className="stack" style={{ gap: 8 }}>
+            {issuesFor(issues, "all").length > 0 && <div style={ISSUE_STYLE}><IssueList list={issuesFor(issues, "all")} /></div>}
+            <div className="scene" style={sceneStyle(hasCopy(script.outro.narration, guardRef), issuesFor(issues, "outro"))}><div className="scene-tag">🏁<span>아웃트로</span>{hasCopy(script.outro.narration, guardRef) && <CopyBadge />}</div><IssueList list={issuesFor(issues, "outro")} /><div className="stack" style={{ gap: 8 }}>
               <div className="row"><label style={{ flex: 2 }}>화면 제목<input value={script.outro.title} maxLength={50} onChange={(e) => upd((s) => { s.outro.title = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>부제<input value={script.outro.subtitle} maxLength={80} onChange={(e) => upd((s) => { s.outro.subtitle = e.target.value; return s; })} /></label></div>
               <label>행동 유도 문구(쉼표로 구분)<input value={script.outro.cta.join(", ")} onChange={(e) => upd((s) => { s.outro.cta = e.target.value.split(",").map((v) => v.trim()).filter(Boolean).slice(0, 3); return s; })} /></label>
               <label>내레이션<textarea rows={2} value={script.outro.narration} maxLength={400} onChange={(e) => upd((s) => { s.outro.narration = e.target.value; return s; })} /></label></div></div>
