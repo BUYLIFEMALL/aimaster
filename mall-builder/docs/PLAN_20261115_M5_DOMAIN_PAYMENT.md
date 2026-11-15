@@ -58,4 +58,12 @@
 - 2026-11-15: **M5-1b 코드 끝(미배포)** — DB **0093** `mall_builder_stores.custom_domain`(소문자·고유·buylife.xyz/vercel.app 금지) + 대표만 저장 `mall_builder_set_custom_domain`(https·경로·포트·대문자 정리) + 공개 찾기 `mall_builder_slug_by_domain`(몰 이름만). `host.ts` `customDomainCandidate`(플랫폼 주소·IP·localhost 제외, 시험 추가) → `lib/custom-domain.ts`(공개 키로 DB 호출, 60초 보관) → `proxy.ts`가 하위 도메인이 아니면 자기 도메인으로 몰을 찾음. 운영사 「설정」에 `domain-form.tsx`(기본 주소 표시 + 자기 도메인 칸 + DNS 안내: 루트는 A `76.76.21.21`, 하위는 CNAME `cname.vercel-dns.com`). 로컬 시나리오 D1~D6 통과(`scripts/scenario-0093-*`), Lab 0093 적용. 시험 355개 통과·`tsc` 0.
   - **한계(문서·화면 안내)**: 운영 관문(`platform-gate.ts`)이 켜진 동안 자기 도메인은 메인 로그인 쿠키(`.buylife.xyz`)를 받지 못해 로그인 화면으로 돌아감 → 공개 몰 전환 뒤 실제 사용. 연결은 운영사가 저장하면 백엔드 세션이 `vercel domains add <도메인> mall-builder --scope buylife`(결정 1).
 - 2026-11-15: **v1.14 운영 배포 끝(M5-1a·M5-1b·S50)** — 운영 DB 0092·0093(MCP 적용 뒤 다시 읽어 확인: `custom_domain` 칸, `mall-builder` 예약·프로그램 주소/slug 예약·몰 이름 허용, 공개 찾기는 anon 가능·저장은 anon 불가) → 운영 환경값 `MALL_ROOT_DOMAIN=buylife.xyz`(운영만) → 배포 `mall-builder-5ye4w1oy7` Ready(커밋 `57932c6be`, 빌드 1회) → `vercel domains add aimaster-b2b.buylife.xyz mall-builder`(verified). 확인: 관리 사이트 첫 화면은 예전처럼 메인 로그인으로(몰로 잘못 읽히지 않음), `https://aimaster-b2b.buylife.xyz` 몰 첫 화면·메인 로그인 이어짐·앱 설명 파일·아이콘·주소창 색 `#059669`, 운영사 설정 「🌐 몰 주소」(ego). DB `programs.version` v1.14.
-- 다음: M5-2 분양몰 카드 결제 시험(토스 테스트 키 선택 답 대기). 새 몰을 열 때마다 `vercel domains add <몰>.buylife.xyz mall-builder --scope buylife`, 운영사가 자기 도메인을 저장하면 같은 명령으로 그 도메인을 붙임.
+- 2026-11-15: **M5-2 시험 전 코드 점검에서 막힘 발견**(주인님 「진행해」 → 키는 토스 공개 테스트 키로 정함). 분양몰 카드 결제는 T2 설계(본사 계좌 입금만)에 없고, 지금 코드로 켜면 두 가지가 틀림:
+  1. 주문서·결제 화면·승인 함수가 **분양몰 자신의** `mall_builder_store_payment_settings` 키를 씀 → 돈이 분양자 토스로 감(결정 5 「본사 토스」와 반대). 분양몰 설정 화면에 카드 결제 칸도 그대로 보임.
+  2. 승인 함수(`mall_builder_card_confirm`, 0029)가 손님 권한으로 주문을 `paid`로 바꾸는데, 분양몰 보호 트리거(`mall_builder_orders_resale_guard`, 0063)가 손님의 `paid` 변경을 막음 → **토스 승인은 됐는데 주문은 입금 대기로 남고 예외로 되돌아감**(돈만 빠짐, 「결제 확인하기」 재조회도 같은 이유로 실패).
+  - 운영 영향: 2026-11-15 운영 DB에 분양몰 0개·카드 켠 몰 0개 → 지금 피해 없음.
+- **M5-2 고친 계획(주인님 승인 대기)**: 
+  1. DB **0094**: 분양몰 주문의 카드 키 = 원본 몰(`source_store_id`) 결제 설정(공개 클라이언트 키만 읽는 함수 + 승인·조회·취소 함수가 분양몰이면 본사 시크릿 키 사용), 카드 승인으로 `paid`가 될 때는 보호 트리거를 통과(`mall_builder.resale_sync` 같은 내부 표시) → 기존 전달 주문 트리거가 본사 주문 생성, 분양몰은 자기 결제 설정을 쓰지 않음.
+  2. 화면: 분양몰 설정의 카드 결제 칸 대신 「결제는 본사 토스로 받습니다」 안내, 주문서·결제 화면은 위 함수로 키를 읽음.
+  3. 로컬 Docker 시나리오(토스 호출은 모의) → Lab 0094 → 내 PC 개발 서버(Lab DB)에서 토스 **공개 테스트 키**로 실제 결제창: 분양몰 주문 → 승인 → 본사 전달 주문 → 부분 취소·취소 환불 → 마진 장부.
+  4. 비용: 없음(토스 테스트 모드·로컬). 운영 반영은 다음 함께 배포 때. 새 몰을 열 때마다 `vercel domains add <몰>.buylife.xyz mall-builder --scope buylife`, 운영사가 자기 도메인을 저장하면 같은 명령으로 그 도메인을 붙임.
