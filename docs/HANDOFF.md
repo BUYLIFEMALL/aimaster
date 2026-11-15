@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 [역할: mac-mini] 영상 확장 소스 폴더 표준화·담당 인계
+
+- 사용자「너가정리하고인수인계문서로남겨」지시로 video-to-gif/local-renderer/extension → **video-to-gif/extension/** 이동,ZIP제작스크립트/주석/현재AGENTS반영. 원인은10-24시제품배치가10-31표준뒤정리안된것,명시예외없음.
+- 두파일바이트/운영ZIP/고정ID보존·node구문검사·경로검사8항목통과,빌드/ZIP재생성/배포/AI/DB/비용0. [영상인수인계](../video-to-gif/docs/IMPROVEMENT_HANDOFF_20261024.md)맨위에Windows옛소스설치새폴더재로드/다음묶음패키징절차기록. 공간17선택경로는 /Volumes/gt1_mega/AIMaster/video-to-gif/extension 로정정,고속연결아직미검수.
+- 코드63d60f347(4파일변경·확장2파일100%동일이동) 커밋, 결과함63f9313e-1f24-4c2c-96c1-53e769856b8c. 기존미추적조사표는원복/커밋제외,다른세션수정/프로그램소스는포함하지않음.
+
+
 ## 2026-11-15 [역할: mac-mini] 영상 V4 실제 녹화→GIF 다운로드 완료
 
 - ego lite·시험Nav·v1.31, 사용자공유선택/녹화→WebM15초/356KB등록→WASM560px/40fps 실제변환1회→GIF다운로드1회. ffprobe560×403/556프레임/13.91초/246886B·전체디코드오류0·시험화면프레임육안확인. 근거_workspace/video-v4-20261115/·영상IMPROVEMENTS맨위.

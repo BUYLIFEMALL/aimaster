@@ -1,5 +1,33 @@
 # 인수인계 — 이커머스 담당 세션 (2026-10-23 ~ 10-24, Claude Code 맥미니 · 세션 `claude-mac-20261023-ecommerce`)
 
+## 2026-11-15 맥미니 인수인계 — 확장 소스 경로 표준화(사용자 지시, 미배포)
+
+### 원인과 정리한 내용
+
+- 최초시제품7d741bed3(2026-10-24)가확장/host/install을local-renderer아래에묶었고,후속28e5ba230에서공용렌더러가된뒤에도유지됐습니다. 10-31의 `<프로그램>/extension/` 규칙보다이전구조이며명시예외없음. 설치안내전규칙대조가빠져사용자가폴더를찾기어려웠습니다.
+- **현재유일한확장소스: `video-to-gif/extension/`**. 기존 local-renderer/extension의manifest.json/background.js를복제없이이동. host/install/test와배포다운로드폴더는local-renderer에유지합니다.
+- scripts/build-local-renderer.mjs의manifest읽기/버전동기화/파일열거/ZIP본문읽기를새extensionSrc로통일. lib/localRenderer.ts의경로주석·AGENTS현재안내도맞춤(scripts/extension_apps_report.json은기존미추적생성자료라변경/커밋하지않음).
+- 버전v1.31·확장표시명·key/ID **efgimakonmphcdojhiegemjmpbokpcgk**·nativeMessaging/allowed_origins·다운로드URL·ZIP내부gif-renderer-extension/은그대로. 이작업은경로정리이며이름/기능/프로토콜변경이아닙니다. 아래10월절의옛경로는당시기록입니다.
+
+코드 커밋: `63d60f347`(확장2파일100%동일이동 + ZIP제작경로/주석, Git표시4파일변경). 결과함: `63f9313e-1f24-4c2c-96c1-53e769856b8c`. 기존미추적조사표는수정원복후커밋에서제외했습니다.
+
+### 검증·실행하지 않은 것
+
+- node --check video-to-gif/scripts/build-local-renderer.mjs 통과. 두파일이HEAD옛경로와바이트동일,운영v1.31ZIP두파일과동일,manifest공개key에서계산한고정ID일치,옛폴더없음/새폴더있음,ZIP내부폴더명유지 확인. 근거 `_workspace/video-v4-20261115/extension-path-check.json` 모든8검사true.
+- 맥에서npm/빌드/ZIP재생성/배포/DB/환경설정변경안함. 운영ZIP은변경하지않아기존배포다운로드에는영향없습니다. 새소스폴더내용이현재ZIP과같으므로Mac설치는배포기다림없이새폴더로계속가능합니다.
+
+### 윈도우 영상 담당 다음 첫 단계
+
+1. **개발자브라우저에옛소스경로를압축해제로드했다면새폴더로다시로드**: D:\Antigravity\AIMaster\video-to-gif\extension (실제공유체크아웃루트에맞춤). 옛폴더는없으므로그대로새로고침하면로드오류가날수있습니다. 고정ID는같으며설치후해당ID단일설치·Host연결을확인합니다.
+2. 다음승인된영상배포묶음에서새경로를쓰는build-local-renderer.mjs로ZIP생성·버전일치/배포후검증을진행. **이문서는즉시추가빌드/배포승인요청이아닙니다.** `node scripts/check-extension-release.mjs video-to-gif`의정합성도확인합니다.
+3. 원래검수인수: V4사용자녹화→WASM→GIF다운로드는통과,UI15.0초/GIF13.91초차이는원본WebM길이대조필요(결과함4d14c77f). Mac고속확장설치는새폴더선택대기,Host기설치재시험/재설치하지않음.
+4. 확장표시명은공용렌더러확장으로AIMaster내PC고속변환을쓰고있습니다. 폴더정리에이름변경까지섞지않았으며본프로그램명일치규칙과공용렌더러정책은별도담당검토로남깁니다.
+
+### 맥미니 현재 설치 경로
+
+`/Volumes/gt1_mega/AIMaster/video-to-gif/extension`
+
+
 > 다음 CLI가 이 문서 하나로 이어서 작업할 수 있게 정리한 것. 담당 범위: 주인님 지정 **이커머스 카테고리** — `video-to-gif`(상세페이지 GIF 자동화)·`shop-detail-page`(AI 상세페이지 자동화)·`trending-product-finder`(상품소싱 자동화), 병합된 `auto-detail-page`·`detail-page-12p`.
 > 계정: Claude 로그인 `rainbowi77777@gmail.com`(맥미니 부계정), 커밋 작성자 `BUYLIFE <buylifemall@gmail.com>`. 작업 폴더 `/Volumes/gt1_mega/Antigravity/AIMaster`(윈도우 `D:\Antigravity\AIMaster`와 같은 SMB 저장소).
 
@@ -40,7 +68,7 @@
 ## 4. 맥미니 환경 (시험용으로 설치해 둔 것)
 - PowerShell 7.6.6: `~/.local/bin/pwsh`(Microsoft 공식 배포판, 해시 확인, 관리자 권한 없이 내 계정에만).
 - 맥 렌더러: `~/Library/Application Support/BuylifeGifRenderer/`(host.pl·config.json) + `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/xyz.buylife.gif_renderer.json`. 지우려면 `bash video-to-gif/local-renderer/install/uninstall-mac.sh`.
-- 크롬 확장: 저장소 폴더 `video-to-gif/local-renderer/extension`을 압축 해제 확장으로 로드(지금 v1.21).
+- 크롬 확장: 저장소 폴더 `video-to-gif/extension`을 압축 해제 확장으로 로드(현재 v1.31, 2026-11-15 경로 정리).
 - 커밋 훅: `node scripts/git-hooks/install.mjs`로 `pre-commit`·`pre-push`·`commit-msg` 설치(10-23).
 
 ## 5. 이번 세션에서 배운 점

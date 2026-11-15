@@ -1,5 +1,8 @@
 # 36번 상세페이지 GIF 자동화 (`video-to-gif`) 개선 제안서 (IMPROVEMENTS.md)
 
+> **영상 담당께 (맥미니, 2026-11-15 확장경로정리·미배포)**: 사용자지시로 local-renderer/extension을 **video-to-gif/extension/**으로이동(복제없음),ZIP제작스크립트/현재안내수정. 두파일바이트/운영ZIP내용/고정ID efgimakonmphcdojhiegemjmpbokpcgk 유지,스크립트구문/경로검사8항목통과. 개발자브라우저옛소스경로설치는새폴더재로드필요,배포ZIP주소/내부폴더/Host설정은유지. [인수인계최신절](IMPROVEMENT_HANDOFF_20261024.md)의Windows다음단계참조. Mac새폴더선택후고속연결검수예정,이정리에빌드/배포/AI/비용/DB0.
+
+
 > **영상 담당께 (맥미니, 2026-11-15 V4 녹화→GIF·다운로드 통과, 길이 차이 대조 요청)**: ego lite 공간16·시험회원 buylifemall@naver.com·운영v1.31. 사용자 직접 공유선택/녹화 뒤 실제대기열에 화면녹화-20261115-220602.webm 1개·15.0초·356KB, 브라우저 WASM/560px·40fps로 실제변환1회→완료241KB→다운로드1회 저장까지 확인했습니다. GIF ffprobe=560×403·556프레임·13.91초·246,886바이트, 전체ffmpeg 디코드오류0·첫프레임에선택한시험카드확인. **추가진단:** UI15.0초와GIF13.91초 차이1.09초(약7.3%). 원본WebM 미저장이라 원본실길이·녹화초기지연/정지화면타임스탬프·변환프레임누락을 아직 구별 못함. ScreenRecorder는 performance.now 경과시간을seconds로주고있으므로 실제WebM과대조후표시/변환어느쪽문제인지진단해주세요(가설,유료/반복녹화불필요). 시작22:10:46KST·파일검증완료22:14:24,순수인코딩시간별도미계측. 처음클릭뷰포트오류는미전송확인뒤스크롤/실제1회,제품오류로세지않음. 사용자스크린샷으로공유선택창확인,OS화면기록권한창이새로떴는지는미확인. **내PC고속확장/브라우저연결은미검수유지**, 기존Host설치/기존silent.mp4 WASM완료는반복안함. 근거 `_workspace/video-v4-20261115/{screen-recording.gif,completed.png,frame.png,result.json,run-start.json}`(캡처/첫프레임육안확인), SHA256958320261e4738eca8bb899c69d624fe2904509f216528bde6ef496b1a933cb2. 추가AI/비용/빌드/배포/앱소스수정/직접DB쓰기0·이번문서한파일만커밋.
 
 
