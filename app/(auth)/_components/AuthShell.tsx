@@ -1,126 +1,73 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { Boxes } from "lucide-react";
+import { Crown } from "lucide-react";
 
-// 2026-11-15 사용자 선택 1안 (122. 네오 모던 B2B 커머스 & 코퍼레이트 블루 스타일, neo-b2b-corporate) — 인증 화면 공용 틀
-// DESIGN.md 로그인 5단계 골격: 로고 → 영문 배지 → 한글명 → (탭) 카드 → 1행 약관
-// 단추: 3D 엠보싱 코발트 블루 버튼 (btn-3d-blue)
+// 2026-11-15 주인님 지시: 124번 「럭셔리 부티크 & 누아르 골드 다크」 시안 기준(D:\PDS\Design\124_luxury_noir_gold_login\view_01_main_login.html)
+// 인증 화면(로그인·회원가입·이메일 찾기·비밀번호 찾기·재설정) 공용 틀 — DESIGN.md 로그인 5단계 골격: 로고 → 영문 배지 → 한글명 → (탭) 카드 → 1행 약관
+// 시안의 쇼핑몰 문구(VIP 부티크 바이어 등)는 메인 사이트에 맞게 바꿈. 입력칸은 globals.css `.auth-input`, 단추는 AuthButton(`.btn-3d-gold`)
 
-export function AuthShell({
-  subtitle,
-  tab,
-  extra,
-  children,
-}: {
-  subtitle: string;
-  tab?: "login" | "register";
-  extra?: ReactNode;
-  children: ReactNode;
-}) {
+export function AuthShell({ subtitle, tab, extra, children }: { subtitle: string; tab?: "login" | "register"; extra?: ReactNode; children: ReactNode }) {
   return (
     <div
-      className="relative min-h-screen flex items-center justify-center px-4 py-12"
-      style={{
-        backgroundColor: "#080c14",
-        backgroundImage:
-          "radial-gradient(circle at 50% 25%, rgba(37,99,235,0.14), transparent 45%), linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-        backgroundSize: "auto, 32px 32px, 32px 32px",
-      }}
+      className="relative min-h-screen overflow-hidden flex items-center justify-center px-4 py-12 text-slate-100"
+      style={{ backgroundColor: "#0C0A09", backgroundImage: "radial-gradient(circle at 50% 0%, rgba(217,119,6,0.15) 0%, transparent 70%)" }}
     >
-      <div className="relative w-full max-w-[480px] text-center">
-        {/* 1. 로고 심볼 */}
-        <Link
-          href="/"
-          aria-label="AI Master 홈"
-          className="mx-auto grid h-[68px] w-[68px] place-items-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-[0_0_40px_rgba(37,99,235,0.35)] transition hover:scale-105"
-        >
-          <Boxes size={32} className="text-white" />
-        </Link>
+      {/* 은은한 앰버 골드 빛 */}
+      <div className="pointer-events-none absolute left-1/4 top-1/4 h-96 w-96 rounded-full bg-amber-600/10 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-yellow-600/10 blur-[120px]" />
 
-        {/* 2. 영문명 배지 */}
-        <span className="mt-4 inline-block rounded-full border border-blue-400/30 bg-blue-500/15 px-4 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em] text-blue-300">
-          AIMASTER B2B SUITE
-        </span>
+      {/* 유리 카드 */}
+      <section className="relative z-10 w-full max-w-lg rounded-3xl border border-amber-500/20 bg-[#171717]/90 p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl md:p-12">
+        {/* 1. 로고 */}
+        <div className="mb-6 flex justify-center">
+          <Link href="/" aria-label="AI Master 홈" className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-amber-600 to-yellow-500 p-0.5 shadow-xl shadow-amber-500/10">
+            <span className="flex h-full w-full items-center justify-center rounded-[14px] bg-[#12100E] text-amber-400">
+              <Crown size={28} aria-hidden />
+            </span>
+          </Link>
+        </div>
 
-        {/* 3. 한글 타이틀 */}
-        <h1 className="mt-3 text-[26px] font-black tracking-tight text-white">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-teal-300">
-            AI 마스터
-          </span>
-        </h1>
-        <p className="mt-1.5 text-sm text-slate-400">{subtitle}</p>
-        {extra}
+        {/* 2·3. 영문 배지 · 한글명 · 안내 */}
+        <div className="mb-8 text-center">
+          <span className="mb-2 inline-block rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-400">AI MASTER · BUYLIFE</span>
+          <h1 className="text-2xl font-black tracking-tight text-white">AI 마스터</h1>
+          <p className="mt-1.5 text-xs text-slate-400">{subtitle}</p>
+          {extra}
+        </div>
 
-        {/* 4. 폼 카드 */}
-        <section className="mt-7 rounded-[28px] border border-slate-800 bg-[#0d1322]/95 p-7 text-left shadow-[0_30px_90px_rgba(0,0,0,0.7)] backdrop-blur-xl">
-          {tab && (
-            <div className="mb-6 grid grid-cols-2 rounded-xl bg-slate-900/90 p-1 text-sm font-semibold border border-slate-800">
-              {tab === "login" ? (
-                <span className="rounded-lg bg-blue-600 py-2.5 text-center text-white shadow-md shadow-blue-600/30">
-                  로그인
-                </span>
-              ) : (
-                <Link href="/login" className="py-2.5 text-center text-slate-400 hover:text-slate-200">
-                  로그인
-                </Link>
-              )}
-              {tab === "register" ? (
-                <span className="rounded-lg bg-blue-600 py-2.5 text-center text-white shadow-md shadow-blue-600/30">
-                  회원가입
-                </span>
-              ) : (
-                <Link href="/register" className="py-2.5 text-center text-slate-400 hover:text-slate-200">
-                  회원가입
-                </Link>
-              )}
-            </div>
-          )}
-          {children}
+        {/* 로그인 / 회원가입 탭 */}
+        {tab && (
+          <div className="mb-6 grid grid-cols-2 rounded-xl border border-amber-500/20 bg-[#0C0A09]/80 p-1 text-sm font-bold">
+            {tab === "login" ? (
+              <span className="rounded-lg bg-amber-500/15 py-2.5 text-center text-amber-400 ring-1 ring-amber-500/40">로그인</span>
+            ) : (
+              <Link href="/login" className="py-2.5 text-center text-slate-400 hover:text-slate-200">로그인</Link>
+            )}
+            {tab === "register" ? (
+              <span className="rounded-lg bg-amber-500/15 py-2.5 text-center text-amber-400 ring-1 ring-amber-500/40">회원가입</span>
+            ) : (
+              <Link href="/register" className="py-2.5 text-center text-slate-400 hover:text-slate-200">회원가입</Link>
+            )}
+          </div>
+        )}
 
-          {/* 5. 1행 약관 */}
-          <p className="mt-5 whitespace-nowrap text-center text-xs text-slate-500">
-            진행 시{" "}
-            <Link href="/terms" className="font-bold text-blue-400 hover:underline">
-              이용약관
-            </Link>{" "}
-            및{" "}
-            <Link href="/privacy" className="font-bold text-blue-400 hover:underline">
-              개인정보 처리방침
-            </Link>
-            에 동의합니다.
-          </p>
-        </section>
-      </div>
+        {/* 4. 폼 */}
+        <div className="text-left">{children}</div>
+
+        {/* 5. 1행 약관 */}
+        <p className="mt-6 whitespace-nowrap text-center text-[11px] text-slate-500">
+          진행 시 <Link href="/terms" className="font-bold text-slate-400 underline hover:text-amber-400">이용약관</Link> 및 <Link href="/privacy" className="font-bold text-slate-400 underline hover:text-amber-400">개인정보 처리방침</Link>에 동의합니다.
+        </p>
+      </section>
     </div>
   );
 }
 
-/** 122번 3D 엠보싱 코발트 블루 버튼(기본) / 아웃라인 / 골드 버튼 지원 */
-export function AuthButton({
-  variant = "blue",
-  fullWidth: _f,
-  size: _s,
-  className = "",
-  children,
-  ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "blue" | "gold" | "outline";
-  fullWidth?: boolean;
-  size?: string;
-}) {
-  let look = "btn-3d-blue py-3.5 text-white";
-  if (variant === "outline") {
-    look = "border border-blue-400/40 bg-transparent py-3 text-blue-300 hover:bg-blue-400/10";
-  } else if (variant === "gold") {
-    look =
-      "bg-gradient-to-b from-[#f5c842] to-[#d4af37] py-3.5 text-[#1a1405] shadow-[0_5px_0_#8a6d12,0_12px_30px_rgba(245,200,66,0.25)] active:translate-y-[3px] active:shadow-[0_2px_0_#8a6d12]";
-  }
-
+/** 124번 3D 엠보싱 골드 메탈릭 단추(기본) / 테두리 단추(outline). 옛 GoldButton의 fullWidth·size는 받아서 버림(늘 가득 폭) */
+export function AuthButton({ variant = "gold", fullWidth: _f, size: _s, className = "", children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "gold" | "outline" | "blue"; fullWidth?: boolean; size?: string }) {
+  const look = variant === "outline" ? "border border-amber-500/40 bg-transparent py-3 text-amber-400 hover:bg-amber-500/10" : "btn-3d-gold py-3.5 text-[#0C0A09]";
   return (
-    <button
-      {...rest}
-      className={`flex w-full items-center justify-center gap-1.5 rounded-xl text-base font-extrabold transition disabled:opacity-60 cursor-pointer ${look} ${className}`.trim()}
-    >
+    <button {...rest} className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl text-sm font-black tracking-wide transition disabled:opacity-60 ${look} ${className}`.trim()}>
       {children}
     </button>
   );

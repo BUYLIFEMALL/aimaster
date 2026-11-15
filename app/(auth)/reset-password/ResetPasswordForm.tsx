@@ -69,7 +69,7 @@ export default function ResetPasswordForm() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-white mb-2">새 비밀번호</label>
+                <label className="mb-1.5 block text-xs font-bold text-slate-300">새 비밀번호</label>
                 <div className="relative">
                   <input
                     type={showPw ? "text" : "password"}
@@ -87,7 +87,7 @@ export default function ResetPasswordForm() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">새 비밀번호 확인</label>
+                <label className="mb-1.5 block text-xs font-bold text-slate-300">새 비밀번호 확인</label>
                 <input
                   type={showPw ? "text" : "password"}
                   value={confirm}

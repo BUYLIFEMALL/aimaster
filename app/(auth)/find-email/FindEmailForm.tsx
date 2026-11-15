@@ -95,16 +95,16 @@ export default function FindEmailForm() {
                 가입할 때 입력한 이름과 핸드폰 번호가 일치하면 6자리 인증번호를 문자로 보내드립니다.
               </p>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">이름</label>
+                <label className="mb-1.5 block text-xs font-bold text-slate-300">이름</label>
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="auth-input w-full" placeholder="홍길동" required autoFocus disabled={codeSent} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">핸드폰</label>
+                <label className="mb-1.5 block text-xs font-bold text-slate-300">핸드폰</label>
                 <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className="auth-input w-full" placeholder="010-1234-5678" required disabled={codeSent} />
               </div>
               {codeSent && (
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">인증번호</label>
+                  <label className="mb-1.5 block text-xs font-bold text-slate-300">인증번호</label>
                   <input
                     type="text"
                     inputMode="numeric"

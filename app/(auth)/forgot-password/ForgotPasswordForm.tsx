@@ -110,7 +110,7 @@ export default function ForgotPasswordForm() {
                 가입한 이메일을 입력하면 비밀번호 재설정 링크를 보내드립니다. 링크는 1시간 동안 1번만 사용할 수 있습니다.
               </p>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">가입 이메일</label>
+                <label className="mb-1.5 block text-xs font-bold text-slate-300">가입 이메일</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="auth-input w-full" placeholder="your@email.com" required autoFocus />
               </div>
               <Messages notice={notice} error={error} />
@@ -124,16 +124,16 @@ export default function ForgotPasswordForm() {
                 가입한 이메일과 핸드폰 번호가 일치하면 6자리 인증번호를 문자로 보내드립니다.
               </p>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">가입 이메일</label>
+                <label className="mb-1.5 block text-xs font-bold text-slate-300">가입 이메일</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="auth-input w-full" placeholder="your@email.com" required disabled={codeSent} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">핸드폰</label>
+                <label className="mb-1.5 block text-xs font-bold text-slate-300">핸드폰</label>
                 <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhoneNumber(e.target.value))} className="auth-input w-full" placeholder="010-1234-5678" required disabled={codeSent} />
               </div>
               {codeSent && (
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">인증번호</label>
+                  <label className="mb-1.5 block text-xs font-bold text-slate-300">인증번호</label>
                   <input
                     type="text"
                     inputMode="numeric"

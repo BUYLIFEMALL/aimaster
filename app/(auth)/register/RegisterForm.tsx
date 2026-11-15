@@ -130,7 +130,7 @@ export default function RegisterPage() {
         </>}>
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">이름 <span className="text-red-400">*</span></label>
+              <label className="mb-1.5 block text-xs font-bold text-slate-300">이름 <span className="text-red-400">*</span></label>
               <input
                 type="text"
                 value={name}
@@ -143,7 +143,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">이메일</label>
+              <label className="mb-1.5 block text-xs font-bold text-slate-300">이메일</label>
               <input
                 type="email"
                 value={email}
@@ -155,7 +155,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">핸드폰</label>
+              <label className="mb-1.5 block text-xs font-bold text-slate-300">핸드폰</label>
               <input
                 type="tel"
                 inputMode="tel"
@@ -169,7 +169,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">비밀번호</label>
+              <label className="mb-1.5 block text-xs font-bold text-slate-300">비밀번호</label>
               <div className="relative">
                 <input
                   type={showPw ? "text" : "password"}
