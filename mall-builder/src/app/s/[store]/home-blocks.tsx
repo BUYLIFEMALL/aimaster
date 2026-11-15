@@ -239,7 +239,7 @@ export function BlockView({ b, slot }: { b: Block; slot?: ReactNode }) {
     </>
   );
   return (
-    <section id={`blk-${b.id}`} data-block={b.type} data-title-align={b.style?.title_align} data-text-align={b.style?.text_align} className={`scroll-mt-24 ${f.className}`.trim()} style={f.style}>
+    <section id={`blk-${b.id}`} data-block={b.type} data-title-align={b.style?.title_align} data-text-align={b.style?.text_align} data-title-size={b.style?.title_size} data-title-color={b.style?.title_color ? "" : undefined} className={`scroll-mt-24 ${f.className}`.trim()} style={f.style}>
       {f.full ? <div className="mx-auto max-w-6xl">{body}</div> : body}
     </section>
   );
@@ -255,6 +255,7 @@ export function blockFrame(style: BlockStyle | undefined): { className: string; 
   if (style.pad_top) css.paddingTop = style.pad_top;
   if (style.pad_bottom) css.paddingBottom = style.pad_bottom;
   if (style.bg_color) css.backgroundColor = style.bg_color;
+  if (style.title_color) (css as Record<string, string>)["--blk-title-color"] = style.title_color; // I8 제목 색(globals.css)
   if (style.width === "full") {
     css.width = "100vw";
     css.marginLeft = "calc(50% - 50vw)";
