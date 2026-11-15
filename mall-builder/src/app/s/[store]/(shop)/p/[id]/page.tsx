@@ -20,6 +20,7 @@ import { buildCategoryTree, categoryPath, flattenTree } from "@/lib/categories";
 import ProductDetail from "./product-detail";
 import ProductBoards from "./product-boards";
 import ProductTabsNav from "./tabs-nav";
+import RecentTracker from "../../recent-tracker";
 import { getDownloadableCoupons, getMyCoupons } from "@/lib/benefits-store";
 import { couponEligible, couponLabel } from "@/lib/benefits";
 import { downloadCouponAction } from "@/lib/benefit-actions";
@@ -108,6 +109,15 @@ export default async function ProductPage({
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <RecentTracker
+        slug={store.slug}
+        product={{
+          id: product.id,
+          name: product.name,
+          price: product.base_price,
+          image: product.images?.[0]?.url ?? "",
+        }}
+      />
       {/* 상단 브레드크럼 */}
       <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500">
         <Link href={base} className="hover:text-blue-600 transition-colors flex items-center gap-1">

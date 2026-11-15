@@ -28,6 +28,7 @@
 |---|---|---|---|---|
 | — | — | — | — | — |
 
+
 ## 1. 주고받는 메시지
 | 번호 | 날짜 | 보낸 쪽 → 받는 쪽 | 종류 | 내용 | 관련 파일·DB | 상태 |
 |---|---|---|---|---|---|---|
@@ -100,6 +101,7 @@
 | S62 | 2026-11-15 | agy(디자인) → 프론트·백엔드·모든 세션 | **B2B 쇼핑몰 로그인 UI 디자인 3대 시안 제작 완료** | 주인님 지시(「로그인 디자인 UI 디자인 시안 작업부터 해」)에 따라 B2B 쇼핑몰 로그인 UI 3대 시안(122 네오 모던 코퍼레이트 블루, 123 클린 웰니스 테크 그린, 124 럭셔리 부티크 골드 다크) 각 4대 뷰(메인·사업자직인증·모바일390px·보안피드백) 총 12개 뷰 제작 및 1440px/390px 캡처 생성 완료. 신규 디자인 저장소 `D:\PDS\Design\` 하위 122/123/124 폴더 및 종합 비교 쇼케이스(`D:\PDS\Design\b2b_mall_login_index.html`, `http://localhost:3805/b2b_mall_login_index.html`) 구축 완료. DESIGN.md 122~124번 등재 완료. | `D:\PDS\Design\122~124`, `b2b_mall_login_index.html`, `DESIGN.md` | 공유 |
 | S63 | 2026-11-15 | 백엔드 → 프론트 | 알림(미배포) | **M2-4 상품정보제공고시·KC**(`888065fe1`, DB **0096** — Lab 적용 대기). 손님 상품 화면 `(shop)/p/[id]/page.tsx`에 **한 줄**(`<ProductNotice productId=… />`, 「배송·교환·반품 안내」 바로 앞)과 새 컴포넌트 `product-notice.tsx`(배송 안내 카드와 같은 모양)를 더했습니다 — 디자인을 바꾸실 때 이 카드도 함께 봐 주세요. 공용 `store.ts`는 고치지 않았습니다(고시 값은 상세·수정 화면에서만 따로 읽음, 0096 전 DB에서도 안 깨짐) | 0096, `product-notice*.ts(x)` | 알림 |
 | S64 | 2026-11-15 | 백엔드 → 프론트 | 알림(미배포) | **M2-5 이용약관·개인정보 처리방침**(`62b871558`, DB **0097** — Lab 적용 대기). 손님 화면 공용 파일을 조금 고쳤습니다: `shop-frame.tsx` `ShopFooter`에 선택 인자 `links`(바닥글 사업자 정보 아래 링크 한 줄, 개인정보 처리방침은 굵게), `(shop)/layout.tsx`는 약관 읽기 1개를 `Promise.all`에 더하고 `links`를 넘김, `join/join-form.tsx` 동의 문구 두 낱말을 링크로. 새 화면 `(shop)/terms`·`(shop)/privacy`(+ `policy-view.tsx`) — 디자인 바꾸실 때 함께 봐 주세요. 표가 없는 DB에서도 안 깨짐 | 0097, `(shop)/shop-frame.tsx`·`layout.tsx`·`join/*` | 알림 |
+| S65 | 2026-11-15 | agy(디자인) → 프론트·백엔드 | **완료 공유(E5)** | **E5 쇼핑몰 우측 플로팅 퀵바(최근 본 상품·장바구니 뱃지·Top/Down 스크롤) 구현 완료** — `quick-bar.tsx`·`recent-tracker.tsx`·`recent-products.ts` 신규 생성. LocalStorage 기반 최근 본 상품(최대 10개, 최신순/중복제거, 3개씩 페이징, 삭제/전체 비우기, 실시간 이벤트 동기화), 장바구니 품목수 배지/즉시 이동 링크, Top/Down 스무스 스크롤, 접기/펼치기 토글 탭, 다크 테마(`[data-mall-mode="dark"]`) 완벽 호환. 공용 파일: `layout.tsx` 한 줄(`showShop && <QuickBar … />`), `p/[id]/page.tsx` 한 줄(`<RecentTracker … />`). 단위 테스트 `quick-bar.test.mjs` 7/7 통과, 전체 테스트 392/392 PASS, tsc 통과. DB 변경 없음. 다음 함께 배포에 포함 대기 | `quick-bar.tsx`, `recent-tracker.tsx`, `recent-products.ts`, `layout.tsx`, `p/[id]/page.tsx` | 공유 (미배포 대기) |
 ## 2. 약속 (바뀌면 여기 고치고 §1에 남김)
 | 항목 | 프론트(디자인 빌더) | 백엔드 |
 |---|---|---|

@@ -17,6 +17,7 @@ import { APPLE_ICON_SIZE, EARLY_INSTALL_SCRIPT, barColor, shouldOfferInstall } f
 import PwaPrompt from "./pwa-prompt";
 import RefCatcher from "./ref-catcher";
 import DesignEditOverlay from "./design-edit-overlay";
+import QuickBar from "./quick-bar";
 import { SAMPLE_MALL_SLUG } from "@/lib/platform-admin";
 
 export const dynamic = "force-dynamic";
@@ -246,6 +247,7 @@ export default async function ShopLayout({ children, params }: { children: React
       {/* 네오 모던 B2B 바닥글 — 사업자 정보는 잠금(shop-frame.tsx) */}
       <ShopFooter storeName={store.name} info={info} footer={readFooter(design.footer)} logo={header.logo_footer} links={policyLinks} />
       {staff && <DesignEditOverlay slug={store.slug} storeId={store.id} base={base} />}
+      {showShop && <QuickBar slug={store.slug} base={base} cartCount={cartCount || guestCartCount} />}
 
       <PwaPrompt storeName={store.name} offer={shouldOfferInstall(customer)} />
       {!customer && <RefCatcher slug={store.slug} />}
