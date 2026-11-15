@@ -1,5 +1,7 @@
 # 뮤직비디오 자동화 (music-video-studio) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+> **⏳ 미배포 대기 — 버그 (2026-11-15 영상 담당 `claude-win-video`)**: 「🗂️ 내 자료함 음악에서 고르기」 자료함 번호 검사식에 역슬래시가 빠져(`:d{1,4}$` → 끝 순번이 숫자가 아니라 글자 d여야 통과) **자료함 곡이 목록에 하나도 안 나오고 고를 수도 없던 문제** — `src/lib/music/amsSongs.ts` `LIBRARY_REF`를 `:\d{1,4}$`로 `70528df0f`. 11-12 `626c01d61`(자료함 음악 넓히기) 때 생긴 것으로 보임, 원스톱·뮤직비디오 두 곳 같음(저장소의 다른 곳에는 없음). 회원 기능이 안 되는 버그라 따로 배포를 주인님께 여쭘.
+
 > **⏳ 미배포 대기 — 영상 담당께 (2026-11-13, [역할: music] `claude-win-20261024-music`, 커밋 `b4403e8bd`)**: 공통 보완 — 로그아웃 `signOut({ scope: "local" })` 2곳 · 서버 클라이언트 `User-Agent` 전달. tsc·기존 시험 통과, 버전은 올리지 않음. 다음에 이 프로그램을 배포할 때 함께 나가며 그때 버전 +0.01. 근거 `docs/HANDOFF_20261113_LOGIN_POLICY_ROLLOUT.md` · `docs/HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`.
 
 > **✅ 배포됨 v1.30 (2026-11-12 `music-video-studio-79fiamka3`, 2026-11-13 음악 담당 확인) — 원래 표시: 미배포 대기 v1.30 (2026-11-12, 영상 담당 `claude-win-video`)**: 아래 「내 자료함」 요청 처리 — 곡 목록(`src/lib/music/amsSongs.ts`)에 자료함의 다른 음악을 더하고(AI 음악 스튜디오 곡은 가사·시간 가사 때문에 기존 방식 유지, PC에만 있는 무료음악 제외), 참고 이미지(`src/lib/music/aisImages.ts`)에 자료함의 다른 이미지를 더함. `signAmsSong`이 자료함 참조도 받아 다시 열기·최종 렌더가 그대로 동작. 화면 문구 「🗂️ 내 자료함에서 가져오기」. 공용 사본 `src/lib/memberAssets.ts`. 시험 34·tsc 통과, 화면 확인은 배포 뒤.
