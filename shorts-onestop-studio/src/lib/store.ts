@@ -2,6 +2,8 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_MODEL, isProvider, isTextModel, type AiProvider } from "@/lib/models";
 import { UserError } from "@/lib/errors";
+import { withVersion, withoutHistory } from "@/lib/versions";
+import type { ShortsScript } from "@/lib/script";
 
 // 회원별 저장 데이터(shorts_onestop_items). 서비스 롤로 접근하므로 모든 쿼리에 user_id 조건을 직접 건다(멀티테넌시 원칙 2).
 export const KINDS = ["project", "preset", "guideline", "plan"] as const;
@@ -14,7 +16,8 @@ const COLS = "id, kind, title, data, created_at, updated_at";
 export async function listItems(userId: string, kind: Kind) {
   const { data, error } = await createAdminClient().from(T).select(COLS).eq("user_id", userId).eq("kind", kind).order("updated_at", { ascending: false }).limit(LIMIT[kind]);
   if (error) throw new UserError(500, "목록을 불러오지 못했습니다.");
-  return data ?? [];
+  // v1.57 목록에는 장면 버전 기록을 빼고 보낸다(한 항목을 열 때만 함께 — src/lib/versions.ts)
+  return (data ?? []).map((r) => ({ ...r, data: withoutHistory(r.data) }));
 }
 
 export async function getItem(userId: string, id: string) {
@@ -35,7 +38,11 @@ export async function createItem(userId: string, kind: Kind, title: string, data
 export async function updateItem(userId: string, id: string, patch: { title?: string; data?: unknown }) {
   const upd: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (typeof patch.title === "string") upd.title = patch.title.slice(0, 120);
-  if (patch.data !== undefined) upd.data = patch.data;
+  if (patch.data !== undefined) {
+    // v1.57 대본(project)은 직전 저장본의 장면 JSON을 버전 기록에 남긴다(최근 10개)
+    const { data: prev } = await createAdminClient().from(T).select("kind, data").eq("user_id", userId).eq("id", id).maybeSingle();
+    upd.data = prev?.kind === "project" ? withVersion(prev.data as ShortsScript, patch.data as ShortsScript) : patch.data;
+  }
   const { data, error } = await createAdminClient().from(T).update(upd).eq("user_id", userId).eq("id", id).neq("kind", "settings").select(COLS).maybeSingle();
   if (error || !data) throw new UserError(404, "항목을 찾지 못했습니다.");
   return data;

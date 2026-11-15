@@ -16,7 +16,8 @@ import { extractReel } from "@/lib/reelsMedia";
 import { guardText, hasCopy } from "@/lib/reference";
 import { takeProductHandoff, takeRefHandoff } from "@/lib/refHandoff";
 import { EXTRA_LIMITS, MAX_PRODUCT_PHOTOS, PRODUCT_CARDS, PRODUCT_LIMITS, RIGHTS_LABEL, applyProduct, normalizeProductExtra, productBlock, productPhotoList, type ProductExtra, type ProductRights } from "@/lib/productShorts";
-import { PRODUCT_TEMPLATES, checkProductScript, issuesFor, type Issue, type TemplateKey } from "@/lib/productTemplates";
+import { PRODUCT_TEMPLATES, applyTemplate, checkProductScript, issuesFor, type Issue, type TemplateKey } from "@/lib/productTemplates";
+import { restoreVersion } from "@/lib/versions";
 import { createClient } from "@/lib/supabase/client";
 import { refBlockHeader, refBlocks, removeRefBlock, shortSource } from "@/lib/refBlocks";
 import { REWRITE_LEVELS, type RewriteLevel } from "@/lib/rewrite";
@@ -267,7 +268,8 @@ export function TopicView() {
     setBusy("저장하는 중…"); setMsg(null);
     try {
       const title = script.intro.title || script.topic;
-      if (itemId) await api("/api/items", { method: "PATCH", body: { id: itemId, title, data: script } });
+      // v1.57 서버가 직전 저장본을 버전 기록에 남긴다 — 돌려받은 기록으로 화면 목록을 맞춘다
+      if (itemId) { const r = await api<{ item: Item<ShortsScript> }>("/api/items", { method: "PATCH", body: { id: itemId, title, data: script } }); setScript((cur) => (cur ? { ...cur, history: r.item.data.history } : cur)); }
       else setItemId((await api<{ item: Item<ShortsScript> }>("/api/items", { body: { kind: "project", title, data: script } })).item.id);
       setMsg({ text: "보관함에 저장했습니다. 다음 단계(디자인·배경)가 열리면 이 대본으로 이어서 작업합니다.", ok: true });
     } catch (e) { setMsg(toMsg(e)); } finally { setBusy(""); }
@@ -438,6 +440,17 @@ ${productBlock(script.product, script.product)}` });
           <section className="card stack">
             <div className="row" style={{ justifyContent: "space-between" }}><h2>③ 대본 다듬기 <small>{script.source === "ai" ? `AI 대본 · ${script.model ? modelName(script.model) : ""}` : "내 대본"}</small></h2>
               <div className="actions"><button className="primary" disabled={!!busy} onClick={() => void save()}><Save size={14} />{itemId ? "보관함에 다시 저장" : "보관함에 저장"}</button><Busy on={busy.startsWith("저장")} label={busy} /></div></div>
+            {/* v1.57 다시 설계 없이 고치기: 템플릿 꾸미기만 AI 없이 바꾸기 · 장면 버전 되돌리기(최근 10개) */}
+            {(isProduct && template && script.format === "product" && script.template !== template || !!script.history?.length) && (
+              <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                {isProduct && template && script.format === "product" && script.template !== template && <button type="button" disabled={!!busy} onClick={() => { setScript((s) => (s ? applyTemplate(s, template) : s)); setMsg({ text: `AI를 다시 부르지 않고 「${PRODUCT_TEMPLATES[template].label}」 꾸미기(카드 태그·움직임·효과음)를 적용했습니다. 문구는 그대로이니 필요하면 고친 뒤 저장해 주세요.`, ok: true }); }}>🎞 AI 없이 「{PRODUCT_TEMPLATES[template].label}」 꾸미기만 적용</button>}
+                {!!script.history?.length && <label className="row" style={{ gap: 6 }}>🕘 이전 버전 ({script.history.length})
+                  <select value="" disabled={!!busy} onChange={(e) => { const v = script.history?.[Number(e.target.value)]; if (!v) return; setScript((s) => (s ? restoreVersion(s, v) : s)); setMsg({ text: `${new Date(v.at).toLocaleString("ko-KR")} 저장본의 장면으로 되돌렸습니다. 저장하면 되돌리기 전 상태도 기록에 남습니다.`, ok: true }); }}>
+                    <option value="">되돌릴 버전 고르기</option>
+                    {script.history.map((v, k) => <option key={v.at} value={k}>{new Date(v.at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} · {v.title.slice(0, 24)}</option>)}
+                  </select></label>}
+              </div>
+            )}
             <div className="scene" style={sceneStyle(hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef), issuesFor(issues, "intro"))}><div className="scene-tag">🎬<span>인트로</span>{hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef) && <CopyBadge />}</div><IssueList list={issuesFor(issues, "intro")} /><div className="stack" style={{ gap: 8 }}>
               <div className="row"><label>꼬리표<input value={script.intro.eyebrow} maxLength={30} onChange={(e) => upd((s) => { s.intro.eyebrow = e.target.value; return s; })} /></label><label style={{ flex: 3 }}>화면 제목<input value={script.intro.title} maxLength={50} onChange={(e) => upd((s) => { s.intro.title = e.target.value; return s; })} /></label></div>
               <label>내레이션<textarea rows={2} value={script.intro.narration} maxLength={400} onChange={(e) => upd((s) => { s.intro.narration = e.target.value; return s; })} /></label></div></div>

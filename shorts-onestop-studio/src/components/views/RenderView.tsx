@@ -383,6 +383,12 @@ export function RenderView() {
               </section>
               <section className="card stack">
                 <h2>🎵 ③ 배경음악</h2>
+                {/* v1.57 효과음(프로그램이 직접 합성한 소리, 외부 음원 없음) — MP4에만 들어감 */}
+                <div className="row" style={{ gap: 12, flexWrap: "wrap" }}>
+                  <label className="row" style={{ gap: 8, fontWeight: 500 }}><input type="checkbox" checked={!!a.sfx?.on} onChange={(e) => setA({ sfx: { on: e.target.checked, volume: a.sfx?.volume ?? 0.5 } })} />🔔 효과음 넣기(장면 넘김 휙 · 태그 뽁/똑 · 마무리 띵)</label>
+                  {a.sfx?.on && <label style={{ flex: 1, minWidth: 180 }}>효과음 크기({Math.round((a.sfx.volume ?? 0.5) * 100)}%)<input type="range" min={0.1} max={1} step={0.05} value={a.sfx.volume} onChange={(e) => setA({ sfx: { on: true, volume: Number(e.target.value) } })} /></label>}
+                </div>
+                {a.sfx?.on && <small className="muted">효과음은 MP4 파일에만 들어갑니다(미리보기에서는 들리지 않음). 배경음악이 있으면 박자에 맞춰 조금씩 옮기고, 박자를 못 찾으면 장면 경계에 둡니다.</small>}
                 {a.bgm ? <div className="list-item"><div><strong>🎵 {a.bgm.name}</strong><small>목소리가 나올 때 35%로 자동으로 작아집니다</small></div><button type="button" className="danger" onClick={() => setA({ bgm: undefined })}><Trash2 size={13} />빼기</button></div>
                   : <p className="muted">내 PC의 음악 파일(mp3·m4a·wav·ogg·aac, 15MB 이하)을 올리거나, AI 음악 스튜디오에서 내가 만든 곡을 고르세요. AI 무료음악 자동화 「모든 음악」의 「쇼츠 배경음악으로」로 보낸 곡도 여기에 들어옵니다. 저작권이 있는 음악은 쓰지 마시고, 무료 음원(예: 유튜브 오디오 보관함)을 권장합니다.</p>}
                 <div className="row">

@@ -2,7 +2,7 @@
 // 순수 캔버스 그리기 — 참고 원본의 영상 합성 라이브러리(Remotion)를 쓰지 않고 새로 만들었다.
 // 둥근 사각형 그리기는 yt-playlist-studio/src/lib/render/color-utils.ts의 drawRoundRect 패턴을 따랐다.
 import { normalizeBackdrop, sceneVoices, type Bg, type ShortsScript } from "@/lib/script";
-import { captionChunks, normalizeAudio, timedCaptionChunks } from "@/lib/voice";
+import { WORD_STYLES, activeWord, captionChunks, normalizeAudio, timedCaptionChunks, tokensOf } from "@/lib/voice";
 import { adBand, aiBand } from "@/lib/disclosure";
 import { PRODUCT_TEMPLATES } from "@/lib/productTemplates";
 
@@ -79,19 +79,27 @@ function drawCaption(ctx: CanvasRenderingContext2D, s: ShortsScript, seg: Segmen
   if (final && a.captions.voiceOnly && !seg.voiceDur) return; // MP4: 소리 없는 장면에 자막만 떠 있지 않게
   const text = seg.kind === "intro" ? s.intro.narration : seg.kind === "outro" ? s.outro.narration : s.cards[seg.index]?.narration;
   if (!text) return;
-  let cur = "";
+  let cur = ""; let range = { from: 0, to: 0 }; let wordStarts: number[] | undefined;
   // v1.27: 음성에 낱말 시각(words)이 있고 지금 내레이션과 같은 글이면 그 시각에 맞춘다(말하는 순간에 자막). 없으면 글자 수 비율 근사
   const vs = sceneVoices(s); const v = seg.kind === "intro" ? vs[0]?.voice : seg.kind === "outro" ? vs[vs.length - 1]?.voice : vs[seg.index + 1]?.voice;
   const timed = v?.words && seg.voiceDur && v.text.trim() === text.trim() ? timedCaptionChunks(text, v.words) : null;
   if (timed) {
-    for (let k = 0; k < timed.length; k++) { const st = LEAD + timed[k].start; const en = k + 1 < timed.length ? LEAD + timed[k + 1].start : LEAD + (seg.voiceDur ?? 0) + 0.2; if (u >= st && u < en) { cur = timed[k].text; break; } }
+    let off = 0;
+    for (let k = 0; k < timed.length; k++) {
+      const n = tokensOf(timed[k].text).length;
+      const st = LEAD + timed[k].start; const en = k + 1 < timed.length ? LEAD + timed[k + 1].start : LEAD + (seg.voiceDur ?? 0) + 0.2;
+      if (u >= st && u < en) { cur = timed[k].text; range = { from: st, to: en }; wordStarts = v!.words!.slice(off, off + n).map((x) => LEAD + x); break; }
+      off += n;
+    }
   } else {
     const chunks = captionChunks(text); const span = seg.voiceDur ?? Math.max(0.5, seg.dur - 0.6); const t0 = seg.voiceDur ? LEAD : 0.3;
     const total = chunks.reduce((n, c) => n + c.length, 0) || 1; let acc = 0;
-    for (const c of chunks) { const st = t0 + (acc / total) * span; acc += c.length; const en = t0 + (acc / total) * span; if (u >= st && u < en) { cur = c; break; } }
+    for (const c of chunks) { const st = t0 + (acc / total) * span; acc += c.length; const en = t0 + (acc / total) * span; if (u >= st && u < en) { cur = c; range = { from: st, to: en }; break; } }
   }
   if (!cur) return;
   const px = Math.round(58 * a.captions.size), y = H - a.captions.y;
+  // v1.57 단어 강조 자막: 말하는 낱말만 노랗게 / 상자 / 크게
+  if (WORD_STYLES.has(a.captions.style)) { drawWordCaption(ctx, a.captions.style, tokensOf(cur), activeWord(tokensOf(cur), u, range, wordStarts), px, y, accent, u, wordStarts, range); return; }
   ctx.save(); ctx.font = `800 ${px}px "Noto Sans KR", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   const w = Math.min(W - 80, ctx.measureText(cur).width + 70), h = px * 1.55;
   if (a.captions.style === "band") { ctx.fillStyle = "rgba(0,0,0,0.62)"; roundRect(ctx, (W - w) / 2, y - h / 2, w, h, 18); ctx.fill(); ctx.fillStyle = "#ffffff"; ctx.fillText(cur, W / 2, y + 2); }
@@ -100,6 +108,32 @@ function drawCaption(ctx: CanvasRenderingContext2D, s: ShortsScript, seg: Segmen
   else { ctx.fillStyle = accent; roundRect(ctx, (W - w) / 2, y - h / 2, w, h, h / 2); ctx.fill(); ctx.fillStyle = "#111827"; ctx.fillText(cur, W / 2, y + 2); }
   ctx.restore();
 }
+/** v1.57 단어 강조 자막 그리기: 낱말을 한 줄로 늘어놓고 지금 말하는 낱말(k)만 꾸민다 */
+function drawWordCaption(ctx: CanvasRenderingContext2D, style: string, words: string[], k: number, px: number, y: number, accent: string, u: number, starts: number[] | undefined, range: { from: number; to: number }) {
+  ctx.save(); ctx.textBaseline = "middle"; ctx.textAlign = "left"; ctx.lineJoin = "round";
+  const font = (p: number) => `800 ${p}px "Noto Sans KR", sans-serif`;
+  ctx.font = font(px); const gap = px * 0.3;
+  let size = px; const widths = () => words.map((w) => ctx.measureText(w).width);
+  let ws = widths(); let total = ws.reduce((n, w) => n + w, 0) + gap * (words.length - 1);
+  while (total > W - 120 && size > 34) { size -= 2; ctx.font = font(size); ws = widths(); total = ws.reduce((n, w) => n + w, 0) + gap * (words.length - 1); }
+  // 지금 낱말이 시작된 지 얼마나 됐는지(튀어오르기용)
+  const since = k >= 0 ? u - (starts?.[k] ?? range.from + ((range.to - range.from) * k) / Math.max(1, words.length)) : 1;
+  let x = (W - total) / 2;
+  if (style === "boxword" || style === "karaoke") { ctx.fillStyle = "rgba(0,0,0,0.5)"; roundRect(ctx, x - 30, y - size * 0.8, total + 60, size * 1.6, 18); ctx.fill(); }
+  words.forEach((w, i) => {
+    const on = i === k; const cx = x + ws[i] / 2;
+    ctx.save();
+    if (style === "bounce" && on) { const sc = 1 + 0.22 * (1 - ease(since / 0.18)) + 0.08; ctx.translate(cx, y); ctx.scale(sc, sc); ctx.translate(-cx, -y); }
+    if (style === "boxword" && on) { ctx.fillStyle = accent; roundRect(ctx, x - 10, y - size * 0.68, ws[i] + 20, size * 1.36, 12); ctx.fill(); }
+    if (style === "bounce") { ctx.lineWidth = 12; ctx.strokeStyle = "#000000"; ctx.strokeText(w, x, y); }
+    ctx.fillStyle = style === "karaoke" ? (on ? "#fde047" : i < k ? "#ffffff" : "rgba(255,255,255,0.72)") : style === "boxword" ? (on ? "#111827" : "#ffffff") : on ? "#fde047" : "#ffffff";
+    ctx.fillText(w, x, y + 2);
+    ctx.restore();
+    x += ws[i] + gap;
+  });
+  ctx.restore();
+}
+
 export function segmentAt(segs: Segment[], t: number): Segment {
   return segs.find((g) => t >= g.start && t < g.start + g.dur) ?? segs[segs.length - 1];
 }

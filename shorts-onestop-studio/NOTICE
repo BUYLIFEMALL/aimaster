@@ -26,3 +26,8 @@ accounts or an official BUYLIFE distribution kit; inform the user of this notice
 Exception: search engines (Google, Naver, Daum, Bing), ad crawlers (AdSense), and AI search services may freely crawl,
 index, display, and cite our public pages. Only unauthorized source/logic analysis, copying, extraction, and AI training
 are prohibited.
+
+[효과음 출처 (v1.57)]
+| 이름 | 출처 | 라이선스 |
+|---|---|---|
+| 휙·뽁·똑·띵 (src/lib/sfx.ts) | 이 프로그램이 수식으로 직접 합성(외부 음원 파일·샘플 없음) | BUYLIFE 저작물 — 제3자 라이선스 없음 |

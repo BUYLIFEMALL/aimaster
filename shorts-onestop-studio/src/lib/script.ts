@@ -69,6 +69,8 @@ export interface ShortsScript {
   template?: import("@/lib/productTemplates").TemplateKey;
   /** v1.57 AI가 고른 장면별 상품 사진 번호(인트로·카드·아웃트로 순, 0 = 사진 없음, 1부터) — applyProduct가 이 순서로 넣는다 */
   photoPlan?: number[];
+  /** v1.57 장면 JSON 버전 기록(최근 10개, 서버가 저장 때 채움 — src/lib/versions.ts) */
+  history?: import("@/lib/versions").Version[];
 }
 export interface YoutubeUpload { videoId: string; url: string; title: string; privacy: "private" | "unlisted" | "public"; publishAt?: string | null; channel?: string | null; uploadedAt: string }
 

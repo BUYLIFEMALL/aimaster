@@ -2,7 +2,9 @@
 import { sceneVoices, type Bg, type ShortsScript } from "@/lib/script";
 import { normalizeAudio } from "@/lib/voice";
 import { FPS, H, LEAD, W, bgFor, loadFontsFor, normalizeDesign, renderFrame, segmentAt, timeline } from "@/lib/render/scene";
-import { assertWebCodecs, encodeMp4, mixVoiceAndBgm, type ExportProgress, type VoiceClip } from "@/lib/render/mp4Encoder";
+import { MP4_AUDIO_RATE, assertWebCodecs, encodeMp4, mixVoiceAndBgm, type ExportProgress, type VoiceClip } from "@/lib/render/mp4Encoder";
+import { addCues, estimateBeats, sfxCues, snapToBeat } from "@/lib/sfx";
+import { PRODUCT_TEMPLATES } from "@/lib/productTemplates";
 
 // 브라우저 안에서 MP4(1080×1920·30fps, H.264 + AAC/Opus) 만들기 — 서버 렌더 비용 없음.
 // 화면은 미리보기와 같은 renderFrame으로 한 장씩 그리고, 소리 섞기·인코딩·파일 묶기는 공용 기준 코드 mp4Encoder.ts(`browser-mp4-encoder`)가 맡는다.
@@ -58,8 +60,9 @@ export async function exportMp4(o: {
   // 내레이션은 장면 시작+LEAD에 놓는다
   const voices = sceneVoices(s).map((v, i) => (v.voice && urls[v.voice.path] ? { src: urls[v.voice.path], at: segs[i].start + LEAD, dur: v.voice.dur } : null)).filter((x): x is VoiceClip => !!x);
   const bgm = normalizeAudio(s.audio).bgm;
-  const audio = await mixVoiceAndBgm({ total, voices, bgm: bgm && urls[bgm.path] ? { src: urls[bgm.path], volume: bgm.volume } : null, onStatus: (status) => o.onProgress({ pct: 3, status }) });
+  let audio = await mixVoiceAndBgm({ total, voices, bgm: bgm && urls[bgm.path] ? { src: urls[bgm.path], volume: bgm.volume } : null, onStatus: (status) => o.onProgress({ pct: 3, status }) });
   stop();
+  audio = await withSfx(s, segs, total, audio, bgm && urls[bgm.path] ? urls[bgm.path] : null, (status) => o.onProgress({ pct: 4, status }));
 
   const touched = new Set<HTMLVideoElement>();
   const local = await localVideos(s, segs, o.media, (status) => o.onProgress({ pct: 4, status })); stop();
@@ -77,4 +80,22 @@ export async function exportMp4(o: {
       },
     });
   } finally { touched.forEach((v) => { v.playbackRate = 1; if (v.src.startsWith("blob:")) v.pause(); else void v.play().catch(() => undefined); }); local.release(); } // 미리보기 재생 상태로 되돌림
+}
+
+/** v1.57 효과음: 섞은 소리 위에 합성 효과음을 더한다(공용 섞기 코드는 그대로). 배경음악이 있으면 박자에 맞춰 ±0.15초 안에서 옮긴다 */
+async function withSfx(s: ShortsScript, segs: { kind: string; start: number }[], total: number, audio: AudioBuffer | null, bgmUrl: string | null, onStatus: (t: string) => void): Promise<AudioBuffer | null> {
+  const sfx = normalizeAudio(s.audio).sfx;
+  if (!sfx?.on || sfx.volume <= 0) return audio;
+  onStatus("효과음 넣는 중…");
+  const rate = audio?.sampleRate ?? MP4_AUDIO_RATE;
+  const out = audio ?? new AudioBuffer({ length: Math.ceil(total * rate), numberOfChannels: 2, sampleRate: rate });
+  let beats: ReturnType<typeof estimateBeats> = null;
+  if (bgmUrl) {
+    try { const ctx = new OfflineAudioContext(1, 1, rate); const b = await ctx.decodeAudioData(await (await fetch(bgmUrl)).arrayBuffer()); beats = estimateBeats(b.getChannelData(0), b.sampleRate); }
+    catch { beats = null; } // 박자를 못 찾으면 장면 경계 그대로
+  }
+  const motion = s.template ? PRODUCT_TEMPLATES[s.template]?.motion : undefined;
+  const cues = sfxCues(segs, motion).map((c) => ({ ...c, at: snapToBeat(c.at, beats) }));
+  addCues(Array.from({ length: out.numberOfChannels }, (_, i) => out.getChannelData(i)), rate, cues, sfx.volume);
+  return out;
 }

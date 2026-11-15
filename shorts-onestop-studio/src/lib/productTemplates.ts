@@ -145,10 +145,12 @@ export function issuesNote(issues: Issue[]): string {
   return `\n\n[다시 쓰기] 직전 장면 기획에 아래 문제가 있습니다. 같은 구성을 유지하되 모두 고쳐 JSON으로 다시 쓰세요:\n${issues.slice(0, 12).map((i) => `- ${where(i)} ${i.field}: ${i.msg}`).join("\n")}`;
 }
 
-/** 템플릿 결과를 대본에 적용: 카드 태그를 템플릿 역할로 고정, 템플릿 키 기록 */
+/** 템플릿 결과를 대본에 적용: 카드 태그를 템플릿 역할로 고정, 템플릿 키 기록, 효과음 기본 켜기. AI를 다시 부르지 않는다(템플릿만 바꿀 때도 사용) */
 export function applyTemplate(s: ShortsScript, key: TemplateKey): ShortsScript {
   const t = PRODUCT_TEMPLATES[key];
-  return { ...s, template: key, cards: s.cards.map((c, i) => ({ ...c, tag: t.cards[i]?.tag ?? c.tag })) };
+  // 효과음은 템플릿 대본에서 기본으로 켠다(회원이 끈 적이 있으면 그대로)
+  const audio = s.audio?.sfx ? s.audio : { ...(s.audio ?? {}), sfx: { on: true, volume: 0.5 } };
+  return { ...s, template: key, audio, cards: s.cards.map((c, i) => ({ ...c, tag: t.cards[i]?.tag ?? c.tag })) };
 }
 
 /** AI가 낸 장면별 사진 번호(인트로·카드·아웃트로 순). 형식이 아니면 undefined */

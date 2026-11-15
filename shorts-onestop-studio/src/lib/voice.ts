@@ -29,14 +29,27 @@ export const TTS_VOICES: Record<TtsProvider, { id: string; name: string }[]> = {
 /** ElevenLabs voice_id 모양(영문·숫자 20자 안팎) */
 export const isElevenVoiceId = (v: unknown): v is string => typeof v === "string" && /^[A-Za-z0-9]{10,40}$/.test(v);
 export const DEFAULT_TTS = { provider: "openai" as TtsProvider, model: "gpt-4o-mini-tts", voice: "coral" };
-export const CAPTION_STYLES = { band: "기본(어두운 띠)", yellow: "노란 자막", outline: "외곽선", pop: "강조 색" } as const;
+export const CAPTION_STYLES = { band: "기본(어두운 띠)", yellow: "노란 자막", outline: "외곽선", pop: "강조 색", karaoke: "✨ 말하는 낱말 노랗게", boxword: "✨ 말하는 낱말 상자", bounce: "✨ 말하는 낱말 크게" } as const;
 export type CaptionStyle = keyof typeof CAPTION_STYLES;
+/** v1.57 단어 강조 자막(말하는 낱말을 따로 꾸밈) */
+export const WORD_STYLES = new Set<CaptionStyle>(["karaoke", "boxword", "bounce"]);
+
+/** v1.57 자막 조각 안에서 지금 말하는 낱말 번호. starts가 있으면 그 시각(조각 기준이 아닌 장면 기준 초), 없으면 글자 수 비율로 [from, to] 구간을 나눈다 */
+export function activeWord(words: string[], u: number, range: { from: number; to: number }, starts?: number[]): number {
+  if (!words.length) return -1;
+  if (starts && starts.length === words.length) { let k = 0; for (let i = 0; i < starts.length; i++) if (u >= starts[i]) k = i; return u < starts[0] ? -1 : k; }
+  const total = words.reduce((n, w) => n + w.length, 0) || 1; let acc = 0;
+  for (let i = 0; i < words.length; i++) { acc += words[i].length; if (u < range.from + (acc / total) * (range.to - range.from)) return u < range.from ? -1 : i; }
+  return words.length - 1;
+}
 
 export interface AudioSettings {
   provider: TtsProvider; model: string; voice: string; speed: number; tone: string;
   /** voiceOnly: MP4에는 목소리가 있는 장면에만 자막(미리보기는 스타일 확인용으로 항상 표시) */
   captions: { on: boolean; style: CaptionStyle; y: number; size: number; voiceOnly: boolean };
   bgm?: { path: string; name: string; volume: number };
+  /** v1.57 효과음(코드로 합성, src/lib/sfx.ts) — MP4에만 들어간다 */
+  sfx?: { on: boolean; volume: number };
 }
 export const DEFAULT_AUDIO: AudioSettings = { ...DEFAULT_TTS, speed: 1.05, tone: "밝고 친근한 한국어 쇼츠 내레이션. 또렷하고 리듬감 있게.", captions: { on: true, style: "band", y: 380, size: 1, voiceOnly: true } };
 
@@ -55,6 +68,7 @@ export function normalizeAudio(a: Partial<AudioSettings> | undefined): AudioSett
     speed: typeof a?.speed === "number" ? Math.min(SPEED[model.provider].max, Math.max(SPEED[model.provider].min, a.speed)) : model.provider === "elevenlabs" ? 1 : DEFAULT_AUDIO.speed,
     tone: typeof a?.tone === "string" ? a.tone.slice(0, 200) : DEFAULT_AUDIO.tone,
     captions: { on: c.on !== false, style: c.style && c.style in CAPTION_STYLES ? c.style : "band", y: typeof c.y === "number" ? Math.min(1500, Math.max(160, c.y)) : 380, size: typeof c.size === "number" ? Math.min(1.6, Math.max(0.7, c.size)) : 1, voiceOnly: c.voiceOnly !== false },
+    sfx: { on: a?.sfx?.on === true, volume: typeof a?.sfx?.volume === "number" ? Math.min(1, Math.max(0, a.sfx.volume)) : 0.5 },
     bgm: a?.bgm?.path ? { path: a.bgm.path, name: String(a.bgm.name ?? "배경음악").slice(0, 80), volume: typeof a.bgm.volume === "number" ? Math.min(1, Math.max(0, a.bgm.volume)) : 0.35 } : undefined,
   };
 }
