@@ -38,9 +38,9 @@ export default async function GifInboxPage() {
         <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-blue-50 text-blue-600 text-3xl mb-3 shadow-xs">
           🎞️
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">GIF 받기</h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">GIF·WebP 받기</h1>
         <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-          상세페이지 GIF 자동화에서 보낸 움직이는 GIF를 내 상품의 섹션에 바로 넣습니다. 원래 이미지는 버전 목록에 남습니다.
+          상세페이지 GIF 자동화에서 보낸 움직이는 GIF·WebP를 내 상품의 섹션에 바로 넣습니다. 원래 이미지는 버전 목록에 남습니다.
         </p>
       </div>
 

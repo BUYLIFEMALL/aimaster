@@ -10,7 +10,7 @@ import {
 import { saveSectionSequenceAction } from "@/lib/actions/products";
 import { uploadCustomSectionImage } from "@/lib/uploadImageClient";
 import { ImageTextEditor } from "@/components/products/ImageTextEditor";
-import { GIF_SENDER_ORIGIN } from "@/lib/gifHandoff";
+import { GIF_SENDER_ORIGIN, isAnimatedImageUrl } from "@/lib/gifHandoff";
 import { NUKKI_RECEIVER_ORIGIN, NUKKI_TOOLS_PATH, NUKKI_MSG_FILE, isNukkiReady, readNukkiResult } from "@/lib/nukkiHandoff";
 import { ApiKeyRequiredModal } from "@/components/settings/ApiKeyRequiredModal";
 import { IMAGE_MODEL_OPTIONS, DEFAULT_IMAGE_MODEL, IMAGE_MODEL_COST_USD, type ImageModelKey } from "@/lib/ai/imageModels";
@@ -287,7 +287,7 @@ export function SectionImageGrid({
   const remainingCount = sectionsToGenerate(ordered, states, "remaining").length;
   const hasAnyImage = doneCount > 0;
   // v1.28: 움직이는 GIF 섹션이 있으면 내보내기 방식별 차이를 알려 준다.
-  const hasGif = Object.values(states).some((s) => s.status === "done" && /\.gif(\?|$)/i.test(s.url ?? ""));
+  const hasGif = Object.values(states).some((s) => s.status === "done" && isAnimatedImageUrl(s.url));
   const [showPhonePreview, setShowPhonePreview] = useState(false);
 
   return (
@@ -534,7 +534,7 @@ export function SectionImageGrid({
                 {state.status === "done" && (
                   <span className="flex items-center gap-1 shrink-0">
                     {/* v1.25: 이미지 속 가격·날짜 같은 문구를 AI 없이 고쳐 새 버전으로 저장. v1.28: GIF는 다시 그리면 움직임이 사라져 숨김 */}
-                    {!/\.gif(\?|$)/i.test(state.url ?? "") && (
+                    {!isAnimatedImageUrl(state.url) && (
                     <button
                       onClick={() => setTextEditing(t)}
                       disabled={isRunning}
@@ -545,7 +545,7 @@ export function SectionImageGrid({
                       <span>문구</span>
                     </button>
                     )}
-                    {!/\.gif(\?|$)/i.test(state.url ?? "") && (
+                    {!isAnimatedImageUrl(state.url) && (
                     <button
                       onClick={() => sendToNukki(t, state.url!)}
                       disabled={isRunning}
@@ -709,7 +709,7 @@ export function SectionImageGrid({
       {/* 최종 병합 다운로드 버튼 (하단 고정형 시각화) */}
       {hasAnyImage && hasGif && (
         <p className="text-[11px] text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2">
-          🎞️ 움직이는 GIF는 「섹션별 ZIP」에 원본 그대로 들어갑니다. 세로 롱 이미지와 HTML에는 첫 장면으로 들어갑니다.
+          🎞️ 움직이는 GIF·WebP는 「섹션별 ZIP」에 원본 그대로 들어갑니다. 세로 롱 이미지와 HTML에는 첫 장면으로 들어갑니다.
         </p>
       )}
       {hasAnyImage && (

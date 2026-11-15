@@ -6,6 +6,7 @@ import { downloadImageAsBase64 } from "@/lib/storageImage";
 import { createZip } from "@/lib/zip";
 import { redirectToDownload, safeFileName, storeExport } from "@/lib/exportDownload";
 import { applySectionSequence } from "@/lib/sectionOrder";
+import { isAnimatedWebp } from "@/lib/gifHandoff";
 
 const TARGET_WIDTH = 860;
 
@@ -72,6 +73,11 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       // v1.28: 움직이는 GIF는 다시 만들면 첫 장면만 남으므로 원본 그대로 .gif로 넣는다.
       if (original.subarray(0, 4).toString("latin1") === "GIF8") {
         files.push({ name: `${num}_${label}.gif`, data: original });
+        continue;
+      }
+      // 2026-11-15: 움직이는 WebP도 원본 그대로 .webp(다시 만들면 첫 장면만 남음)
+      if (isAnimatedWebp(original.subarray(0, 32))) {
+        files.push({ name: `${num}_${label}.webp`, data: original });
         continue;
       }
       const jpg = await sharp(original)

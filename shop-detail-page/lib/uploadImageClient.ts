@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { isAnimatedWebp } from "@/lib/gifHandoff";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -73,7 +74,13 @@ export async function uploadCustomSectionImage(
   }
 
   const ext = file.type.split("/")[1] ?? "jpg";
-  const path = `${user.id}/products/${productId}/custom/${sectionKey}-${Date.now()}.${ext}`;
+  // 2026-11-15: 움직이는 WebP는 이름 끝을 -anim.webp로 — 화면·ZIP이 주소만 보고 GIF처럼 원본을 지킨다(isAnimatedImageUrl)
+  let anim = "";
+  if (file.type === "image/webp") {
+    const head = new Uint8Array(await file.slice(0, 32).arrayBuffer());
+    if (isAnimatedWebp(head)) anim = "-anim";
+  }
+  const path = `${user.id}/products/${productId}/custom/${sectionKey}-${Date.now()}${anim}.${ext}`;
 
   const { error } = await supabase.storage
     .from("shop-detail-images")

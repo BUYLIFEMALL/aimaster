@@ -76,7 +76,8 @@ export function GifInbox({ products, templates }: { products: Product[]; templat
     if (!received || !product || !template) return;
     setSaving(true);
     setSaveError(null);
-    const file = new File([received.file], received.name, { type: "image/gif" });
+    // 받은 형식 그대로(GIF 또는 애니메이션 WebP)
+    const file = new File([received.file], received.name, { type: received.file.type || "image/gif" });
     const up = await uploadCustomSectionImage(product.id, template.section_key, file);
     if (up.error || !up.url) {
       setSaving(false);
@@ -98,10 +99,10 @@ export function GifInbox({ products, templates }: { products: Product[]; templat
         {receiveError ? (
           <p className="text-rose-600 font-bold">{receiveError}</p>
         ) : hasOpener ? (
-          <p>GIF를 기다리는 중입니다…</p>
+          <p>GIF·WebP를 기다리는 중입니다…</p>
         ) : (
           <p>
-            상세페이지 GIF 자동화에서 변환을 마친 뒤 「🛍 상세페이지로」를 눌러 주세요. 이 창은 그 버튼으로 열려야 GIF를 받을 수
+            상세페이지 GIF 자동화에서 변환을 마친 뒤 「🛍 상세페이지로」를 눌러 주세요. 이 창은 그 버튼으로 열려야 GIF·WebP를 받을 수
             있습니다.
           </p>
         )}
