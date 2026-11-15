@@ -126,7 +126,7 @@ export function ShopHeader({ base, storeName, header, categories, showShop, righ
 }
 
 /** 바닥글 — 사업자(판매자) 정보는 법정 표시라 디자인 값과 상관없이 늘 보인다(잠금) */
-export function ShopFooter({ storeName, info, footer, logo }: { storeName: string; info: BusinessInfo; footer: FooterDesign; logo: string }) {
+export function ShopFooter({ storeName, info, footer, logo, links }: { storeName: string; info: BusinessInfo; footer: FooterDesign; logo: string; links?: { href: string; label: string; strong?: boolean }[] }) {
   const name = info.company_name || storeName;
   return (
     <footer className="border-t border-slate-200 bg-slate-900 text-slate-400" data-footer-fixed>
@@ -171,6 +171,13 @@ export function ShopFooter({ storeName, info, footer, logo }: { storeName: strin
               {info.privacy_officer && <span>개인정보보호책임자: {info.privacy_officer}</span>}
             </p>
             {footer.note && <p className="whitespace-pre-line text-slate-400" data-footer-note>{footer.note}</p>}
+            {links && links.length > 0 && (
+              <p className="flex flex-wrap gap-x-4 gap-y-1" data-footer-policies>
+                {links.map((l) => (
+                  <Link key={l.href} href={l.href} className={`hover:underline ${l.strong ? "font-semibold text-slate-200" : "text-slate-300"}`}>{l.label}</Link>
+                ))}
+              </p>
+            )}
           </div>
 
           {footer.show_bank && (

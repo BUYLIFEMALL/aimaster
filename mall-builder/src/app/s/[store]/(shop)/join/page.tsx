@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getMyCustomer, getStoreBySlug, requireUser } from "@/lib/store";
 import JoinForm from "./join-form";
+import { getStorePolicies } from "@/lib/policies-server";
 import { readClosed } from "@/lib/closed";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ export default async function JoinPage({
   const { next = "" } = await searchParams;
   const user = await requireUser(`/s/${slug}/join${next ? `?next=${encodeURIComponent(next)}` : ""}`);
   const store = await getStoreBySlug(slug);
+  const policies = await getStorePolicies(store); // M2-5 동의 문구 링크
   if (await getMyCustomer(store.id, user.id)) redirect(next.startsWith(`/s/${slug}/`) ? next : `/s/${slug}/my`);
 
   return (
@@ -36,6 +38,8 @@ export default async function JoinPage({
         slug={store.slug}
         next={next}
         storeName={store.name}
+        termsHref={policies.terms.body ? `/s/${store.slug}/terms` : undefined}
+        privacyHref={policies.privacy.body ? `/s/${store.slug}/privacy` : undefined}
         closed={readClosed(store.settings).enabled && readClosed(store.settings).code ? { approval: readClosed(store.settings).approval, code: true } : undefined}
       />
     </main>

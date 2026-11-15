@@ -13,6 +13,9 @@ import AutoProgressForm, { type AutoProgressStatus } from "./auto-progress-form"
 import GuestForm from "./guest-form";
 import LogoForm from "./logo-form";
 import DomainForm from "./domain-form";
+import PolicyForm from "./policy-form";
+import { getStorePolicies } from "@/lib/policies-server";
+import { policyTemplate } from "@/lib/policies";
 import { mallSubdomainUrl } from "@/lib/host";
 import { appLogoOf } from "@/lib/pwa";
 import RestockForm, { type RestockStatus } from "./restock-form";
@@ -168,6 +171,12 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
   if (!staff) return <NoPermission />;
   const deposit = await depositStatus(store.id);
   const { data: domainRow } = await (await createClient()).from("mall_builder_stores").select("custom_domain").eq("id", store.id).maybeSingle(); // M5-1b
+  // M2-5 이용약관·개인정보 처리방침 — 지금 문서와 기본 서식(사업자 정보로 채운 초안)
+  const policies = await getStorePolicies(store);
+  const bi = readBusinessInfo(store.business_info);
+  const policyInfo = { storeName: store.name, company: bi.company_name, ceo: bi.ceo_name, address: bi.address, phone: bi.phone, email: bi.email, officer: bi.privacy_officer };
+  const todayKo = new Date().toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "long", day: "numeric" });
+  const policyTemplates = { terms: policyTemplate("terms", policyInfo, todayKo), privacy: policyTemplate("privacy", policyInfo, todayKo) };
 
   const [notify, email, log, payment, restock, tax, closed, ai] = await Promise.all([
     notifyStatus(store.id, deposit),
@@ -194,6 +203,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <DomainForm slug={store.slug} domain={(domainRow?.custom_domain as string | null) ?? ""} subdomainUrl={mallSubdomainUrl(store.slug, process.env.MALL_ROOT_DOMAIN)} gated={PLATFORM_AIMASTER} />
+      </div>
+      <div className="mt-6">
+        <PolicyForm slug={store.slug} base={`/s/${store.slug}`} bodies={{ terms: policies.terms.body, privacy: policies.privacy.body }} templates={policyTemplates} resale={store.kind === "resale"} />
       </div>
       <div className="mt-6">
         <AiForm slug={store.slug} status={ai} />

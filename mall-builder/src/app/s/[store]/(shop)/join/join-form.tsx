@@ -3,7 +3,9 @@
 import { useActionState } from "react";
 import { joinAction, type JoinState } from "../my/actions";
 
-export default function JoinForm({ slug, next, storeName, closed }: { slug: string; next: string; storeName: string; closed?: { approval: boolean; code: boolean } }) {
+export default function JoinForm({ slug, next, storeName, closed, termsHref, privacyHref }: { slug: string; next: string; storeName: string; closed?: { approval: boolean; code: boolean }; termsHref?: string; privacyHref?: string }) {
+  // M2-5 저장된 약관이 있으면 동의 문구에서 바로 열어 볼 수 있게(새 창)
+  const doc = (label: string, href?: string) => (href ? <a href={href} target="_blank" rel="noreferrer" className="underline">{label}</a> : label);
   const initial: JoinState = { error: null, name: "", phone: "", marketing_agree: false };
   const [state, formAction, pending] = useActionState(joinAction.bind(null, slug, next), initial);
 
@@ -39,7 +41,7 @@ export default function JoinForm({ slug, next, storeName, closed }: { slug: stri
       <div className="space-y-2 rounded border bg-gray-50 p-3 text-sm">
         <label className="flex items-start gap-2">
           <input type="checkbox" name="agree_terms" className="mt-1" />
-          <span>(필수) {storeName}의 이용약관과 개인정보 수집·이용(이름·휴대폰·배송지, 주문 처리 목적)에 동의합니다.</span>
+          <span>(필수) {storeName}의 {doc("이용약관", termsHref)}과 {doc("개인정보 수집·이용", privacyHref)}(이름·휴대폰·배송지, 주문 처리 목적)에 동의합니다.</span>
         </label>
         <label className="flex items-start gap-2">
           <input type="checkbox" name="marketing_agree" defaultChecked={state.marketing_agree} className="mt-1" />

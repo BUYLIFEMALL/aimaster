@@ -5,6 +5,8 @@ import { readTheme, themeStyle } from "@/lib/theme";
 import { readFooter, readHeader } from "@/lib/builder/frame";
 import { ShopBand, ShopFooter, ShopHeader } from "./shop-frame";
 import { missingRequired, readBusinessInfo } from "@/lib/businessInfo";
+import { getStorePolicies } from "@/lib/policies-server";
+import { POLICY_KINDS, POLICY_LABEL, POLICY_PATH } from "@/lib/policies";
 import { buildCategoryTree } from "@/lib/categories";
 import { guestOrderEnabled } from "@/lib/guest";
 import { readGuestCart } from "@/lib/guest-store";
@@ -41,7 +43,7 @@ export async function generateViewport({ params }: { params: Promise<{ store: st
 export default async function ShopLayout({ children, params }: { children: ReactNode; params: Promise<{ store: string }> }) {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);
-  const [user, staff, categoryRows, design] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id), getPublishedDesign(store.id)]);
+  const [user, staff, categoryRows, design, policies] = await Promise.all([getCurrentUser(), isStoreStaff(store.id), getCategoryRows(store.id), getPublishedDesign(store.id), getStorePolicies(store)]);
   // 디자인 빌더 D1: 몰 테마 → CSS 변수(기본 테마면 빈 객체 = 화면 그대로)
   const shopTheme = readTheme(design.theme);
   const themeVars = themeStyle(shopTheme);
@@ -56,6 +58,8 @@ export default async function ShopLayout({ children, params }: { children: React
   const info = readBusinessInfo(store.business_info);
   const missing = missingRequired(info);
   const base = `/s/${store.slug}`;
+  // M2-5 바닥글 약관 링크 — 저장된 문서만(개인정보 처리방침은 굵게: 개인정보보호법 표시 관행)
+  const policyLinks = POLICY_KINDS.filter((k) => policies[k].body).map((k) => ({ href: `${base}${POLICY_PATH[k]}`, label: POLICY_LABEL[k], strong: k === "privacy" }));
   // 폐쇄몰(D20): 승인 전이면 가입·마이페이지 말고는 안내 화면만. 상품·주문은 DB가 따로 막는다(0040)
   const closed = readClosed(store.settings);
   const canEnter = canEnterClosed(closed, staff, customer?.member_status);
@@ -240,7 +244,7 @@ export default async function ShopLayout({ children, params }: { children: React
       </div>
 
       {/* 네오 모던 B2B 바닥글 — 사업자 정보는 잠금(shop-frame.tsx) */}
-      <ShopFooter storeName={store.name} info={info} footer={readFooter(design.footer)} logo={header.logo_footer} />
+      <ShopFooter storeName={store.name} info={info} footer={readFooter(design.footer)} logo={header.logo_footer} links={policyLinks} />
       {staff && <DesignEditOverlay slug={store.slug} storeId={store.id} base={base} />}
 
       <PwaPrompt storeName={store.name} offer={shouldOfferInstall(customer)} />
