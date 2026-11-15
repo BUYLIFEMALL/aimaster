@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: mall-design-builder] Antigravity · `agy-win-ssr-v1` — B2B 리셀러 전용 링크샵 페이지 M4-C4/E6 구현 완료 (미배포 대기)
+- **과업**: 리셀러 전용 큐레이션 진열 페이지 (링크샵 `/s/<몰>/r/<코드>`, 마스터 플랜 M4-C4, 트래커 E6) 구현 완료.
+  - `(shop)/r/[code]/page.tsx`, `share-button.tsx`, `src/lib/reseller-shop.ts` 신규 생성.
+  - **리셀러 프로필 배너**: 리셀러 상점명/회사명, `🤝 공식 파트너 셀렉트샵` 뱃지, 파트너 코드 표기, 소개글, 샵 링크 복사/공유 버튼(`share-button`), 몰 전체 둘러보기 링크.
+  - **큐레이션 상품 그리드**: 리셀러가 픽(Pick)한 상품 최우선 진열(픽 상품 `★ MD 픽` 뱃지 노출, 픽이 없을 시 몰 대표 상품 자동 폴백 진열), 할인율 및 가격 표시, 클릭 시 `?ref=<code>` 레퍼럴 파라미터 자동 연동(주문 시 해당 리셀러 리워드 100% 안전 귀속).
+  - **본사 보증 안내**: 본사 직접 배송, 100% 전자세금계산서 발행 및 CS 시스템 보증 푸터 안내.
+- **검증 및 자산화**:
+  - 단위 테스트 `mall-builder/tests/reseller-shop.test.mjs` 신설 및 4/4 전수 통과.
+  - `mall-builder` 전체 단위 테스트 396/396 PASS (100%), `npx tsc --noEmit` 통과 (0 errors). DB 변경 0건.
+  - `DESIGN_BUILDER_TRACKER.md` E6 완료(✅) 처리, 상호 인수인계 S66 메시지 등록. 백엔드 차기 함께 배포 대기.
+
+
 ## 2026-11-15 ✅ [역할: mall-design-builder] Antigravity · `agy-win-ssr-v1` — B2B 쇼핑몰 우측 플로팅 퀵바 E5 구현 완료 (미배포 대기)
 - **과업(주인님 지시: 「B2B 분양몰 우측 플로팅 퀵바 E5 구현」)**:
   - 쇼핑몰 전역(유저 화면) 우측 플로팅 퀵바 컴포넌트(`(shop)/quick-bar.tsx`), 최근 본 상품 트래커(`(shop)/recent-tracker.tsx`), LocalStorage 기반 데이터 계층(`src/lib/recent-products.ts`) 신규 개발.
