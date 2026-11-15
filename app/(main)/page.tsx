@@ -213,24 +213,23 @@ export default async function HomePage() {
         </div>
 
         <div className="relative text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs sm:text-sm font-bold mb-6 shadow-sm shadow-gold/10">
-            <Zap size={14} className="text-gold" />
-            <span>모든 자동화를 한 곳에서</span>
-            <span className="w-1 h-1 rounded-full bg-gold inline-block" />
-            <span className="text-gold-light/80 font-normal">AI Master All-in-One</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold mb-6 shadow-sm shadow-gold/10">
+            <Zap size={13} className="text-gold" />
+            <span>AI Master All-in-One</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight break-keep tracking-tight">
-            <span className="text-white drop-shadow-sm">모든 마케팅/업무/비지니스를</span>
-            <br />
-            <GoldGradientText className="drop-shadow-[0_4px_16px_rgba(245,158,11,0.3)]">자동화 하세요</GoldGradientText>
+          {/* 메인 타이틀: 핵심 캐치프레이즈 키워드 */}
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-4 leading-tight break-keep tracking-tight">
+            <GoldGradientText className="drop-shadow-[0_4px_24px_rgba(245,158,11,0.35)]">
+              모든 자동화를 한 곳에서
+            </GoldGradientText>
           </h1>
 
-          <p className="text-subtext text-lg sm:text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed break-keep">
-            AI 자동화 프로그램으로 시간을 절약하고
-            <br className="hidden md:block" />
-            매출과 비즈니스 성과를 극대화하세요.
-          </p>
+          {/* 서브 타이틀: 마케팅 / 업무 / 비즈니스 자동화 */}
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-10 tracking-tight break-keep">
+            모든 마케팅/업무/비지니스를{" "}
+            <span className="text-gold">자동화 하세요</span>
+          </h2>
 
           {/* Hero CTA — Primary(골드) 중심 + 모바일 반응형(상단 와이드 + 하단 2열) 정돈 */}
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center max-w-xl mx-auto">
