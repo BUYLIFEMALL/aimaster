@@ -15,6 +15,7 @@ import { isFavorite, toggleFavorite } from '../../page/pageActions.ts';
 import { openMoveToDialog } from '../../page/MoveTo.tsx';
 import { startPageComment } from '../../comments/comments.tsx';
 import { openIconPicker } from '../../page/IconPicker.tsx';
+import { sendToPlanner } from '../../page/sendToPlanner.ts';
 import { useUI } from '../../../lib/store/ui.ts';
 import { deleteRows, duplicateRows } from '../actions.ts';
 import { openPropertyEditor, PropertyIcon } from '../properties/PropertyCell.tsx';
@@ -78,13 +79,15 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
   const manage: MenuItemDef[] = [
     ...(!multi ? [{ id: 'link', label: tx('Copy link'), icon: 'link', onSelect: () => { void navigator.clipboard?.writeText(location.origin + pageUrl(first.id)); useUI.getState().toast(tx('Link copied')); } }] : []),
     { id: 'dup', label: tx('Duplicate'), icon: 'duplicate', shortcut: '⌘D', onSelect: () => { void duplicateRows(rowIds); opts.onDone?.(); } },
+    // 2026-11-15 플래너 2번: 고른 행(최대 50개)을 할 일 플래너 「받은 할 일」로 — 마감일·우선순위 함께
+    { id: 'planner', label: multi ? `📨 할 일 플래너로 보내기 (${rows.length}개)` : '📨 할 일 플래너로 보내기', icon: 'arrowTurnUpRight', keywords: ['할 일', '플래너', 'todo', 'planner'], onSelect: () => { void sendToPlanner({ pageIds: rows.map((r) => r.id), mode: 'rows' }); opts.onDone?.(); } },
     { id: 'move', label: tx('Move to'), icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(rowIds, anchor) },
     { id: 'trash', label: tx('Send to trash'), icon: 'trash', shortcut: 'Del', onSelect: () => { deleteRows(rowIds); opts.onDone?.(); } },
   ];
   return openMenu(anchor, {
     width: 265,
     search: 'Search actions…',
-    sections: [{ title: multi ? `${rows.length} pages` : 'Page', items: pageItems }, ...(actions.length ? [{ items: actions }] : []), { items: manage }],
+    sections: [{ title: multi ? `${rows.length}개 페이지` : '페이지', items: pageItems }, ...(actions.length ? [{ items: actions }] : []), { items: manage }],
     footer: !multi ? (
       <div className="nc-row-menu-footer">
         <div className="nc-row-menu-footer-title">{tx('Last edited')}</div>

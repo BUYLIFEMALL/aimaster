@@ -16,7 +16,7 @@ export function SelectionBar({ selection, setSelection, collection, view }: { se
   return (
     <div className="nc-selection-bar-outer">
       <div className="nc-selection-bar" role="toolbar">
-        <div role="button" className="nc-selection-count" onClick={() => setSelection([])}>{selection.length} selected</div>
+        <div role="button" className="nc-selection-count" onClick={() => setSelection([])}>{selection.length}개 선택됨</div>
         {props.map((e) => {
           const p = collection.schema[e.property];
           return (

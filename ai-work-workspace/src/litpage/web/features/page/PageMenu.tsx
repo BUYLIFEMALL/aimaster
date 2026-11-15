@@ -8,6 +8,7 @@ import { toPlainText } from '#shared/richtext.ts';
 import { MenuSectionTitle, openMenu, type MenuDef, type MenuItemDef } from '../../components/Menu.tsx';
 import { getBlock, me, run, setFormat } from '../../lib/blocks.ts';
 import { api } from '../../lib/api.ts';
+import { sendToPlanner } from './sendToPlanner.ts';
 import { useBlock, useRecord } from '../../lib/hooks.ts';
 import { records } from '../../lib/store/records.ts';
 import { transactions } from '../../lib/store/transactions.ts';
@@ -284,8 +285,8 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
       { items: [item('📨 다른 프로그램으로 보내기', 'arrowTurnUpRight', { keywords: ['할 일', '플래너', 'todo', 'planner', '슬라이드', '번역', '챗봇', 'slide', 'translate', 'chatbot'], submenu: () => ({
         width: 300, role: 'menu', className: 'nc-page-submenu', sections: [
           { items: [
-            { label: '할 일 플래너: 체크 안 된 할 일 항목', description: '이 페이지의 체크하지 않은 체크 상자 항목(최대 30개)을 하나씩', onSelect: () => void sendToPlanner(pageId, 'todos') },
-            { label: '할 일 플래너: 이 페이지를 할 일 하나로', description: '표 행이면 마감일·우선순위도 함께', onSelect: () => void sendToPlanner(pageId, 'page') },
+            { label: '할 일 플래너: 체크 안 된 할 일 항목', description: '이 페이지의 체크하지 않은 체크 상자 항목(최대 30개)을 하나씩', onSelect: () => void sendToPlanner({ pageId, mode: 'todos' }) },
+            { label: '할 일 플래너: 이 페이지를 할 일 하나로', description: '표 행이면 마감일·우선순위도 함께', onSelect: () => void sendToPlanner({ pageId, mode: 'page' }) },
           ] },
           { items: [
             { label: 'AI 슬라이드: 발표 원고로', description: '슬라이드 프로그램 「받은 원고」에서 원문 칸에 넣을 수 있습니다', onSelect: () => void sendPage(pageId, 'ai-slide-builder') },
@@ -341,16 +342,6 @@ export function exportBlocked(page: BlockRecord): boolean {
     else break;
   }
   return false;
-}
-
-// U8-B: 할 일 플래너 「받은 할 일」로 보내기
-async function sendToPlanner(pageId: string, mode: 'todos' | 'page') {
-  try {
-    const r = await api<{ count: number; plannerUrl: string }>('workInboxSendToPlanner', { pageId, mode });
-    useUI.getState().toast(`할 일 ${r.count}개를 AI 할 일 플래너 「받은 할 일」로 보냈습니다.`, { label: '플래너 열기', run: () => window.open(r.plannerUrl, '_blank', 'noopener') });
-  } catch (e: any) {
-    useUI.getState().toast(e?.message ?? '할 일 플래너로 보내지 못했습니다.');
-  }
 }
 
 // U9: 이 페이지를 슬라이드·번역·문서 챗봇의 받은편지함으로 보내기

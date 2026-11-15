@@ -12,7 +12,7 @@ import { storeFile } from "@/litpage/server/content/files.ts";
 import { compactId } from "#shared/ids.ts";
 import { inboxRowCsv, isCalendarItem, calendarRowCsv } from "./workInboxCsv";
 import { handlers as templateHandlers } from "@/litpage/server/api/modules/templates.ts";
-import { uncheckedTodos, pageAsTask, type PlannerTask } from "./workInboxPlannerItems";
+import { uncheckedTodos, pageAsTask, plannerKey, skipPendingPlanner, PLANNER_ROWS_LIMIT, type PlannerSend } from "./workInboxPlannerItems";
 import { cleanPageMarkdownForSend } from "./workInboxSendMarkdown";
 import { sendToWorkInbox } from "@/lib/workInbox";
 import { exemptInFilter } from "./retentionExempt";
@@ -264,23 +264,50 @@ export const workInboxHandlers: Record<string, Handler> = {
     return { pageId, url: pageUrl(space, pageId), created: true };
   },
 
-  /** U8-B 「할 일 플래너로 보내기」: mode "todos" = 체크 안 된 할 일 항목들, "page" = 이 페이지를 할 일 하나로. 회원 본인 공간의 페이지만 */
-  async workInboxSendToPlanner(ctx, { pageId, mode }) {
+  /** U8-B 「할 일 플래너로 보내기」: mode "todos" = 체크 안 된 할 일 항목들, "page" = 이 페이지를 할 일 하나로,
+   *  "rows" = 표에서 고른 행들(최대 50개, 행마다 마감일·우선순위 함께, 2026-11-15). 회원 본인 공간의 페이지만.
+   *  플래너가 아직 가져가지 않은 같은 항목(같은 원본 주소 + 같은 제목)은 다시 보내지 않고 건너뛴다. */
+  async workInboxSendToPlanner(ctx, { pageId, pageIds, mode }) {
     const userId = uid(ctx);
-    const page = getRecord<BlockRecord>("block", String(pageId ?? ""));
-    if (!page || page.alive === false || !memberSpaceIds(userId).has(page.space_id)) throw new ApiError("보낼 페이지를 찾지 못했습니다.", 404);
-    const tasks: PlannerTask[] = mode === "page"
-      ? [pageAsTask(page, page.parent_table === "collection" ? getRecord<CollectionRecord>("collection", page.parent_id) : undefined)]
-      : uncheckedTodos((id) => getRecord<BlockRecord>("block", id), page).map((title) => ({ title, data: {} }));
-    if (!tasks.length) throw new ApiError("이 페이지에 체크하지 않은 할 일 항목이 없습니다.", 400);
+    const spaces = memberSpaceIds(userId);
     const space = memberSpace(userId);
-    const sourceUrl = `${APP_ORIGIN}${pageUrl(space, page.id)}`;
-    const pageTitle = (page.properties?.title ?? []).map((d) => d[0]).join("").trim() || "제목 없는 페이지";
-    for (const t of tasks) {
-      await sendToWorkInbox({ userId, sourceSlug: "ai-work-workspace", targetSlug: "ai-task-planner", kind: "task", title: t.title, bodyMd: `업무 워크스페이스 「${pageTitle}」에서 보냄`, data: t.data, sourceUrl })
+    const own = (id: unknown) => {
+      const b = getRecord<BlockRecord>("block", String(id ?? ""));
+      return b && b.alive !== false && spaces.has(b.space_id) ? b : undefined;
+    };
+    const collectionOf = (b: BlockRecord) => (b.parent_table === "collection" ? getRecord<CollectionRecord>("collection", b.parent_id) : undefined);
+    const urlOf = (b: BlockRecord) => `${APP_ORIGIN}${pageUrl(space, b.id)}`;
+    let items: PlannerSend[];
+    let origin = "";
+    if (mode === "rows") {
+      const ids = Array.isArray(pageIds) ? [...new Set(pageIds.map(String))] : [];
+      if (!ids.length) throw new ApiError("보낼 행을 골라 주세요.", 400);
+      if (ids.length > PLANNER_ROWS_LIMIT) throw new ApiError(`한 번에 ${PLANNER_ROWS_LIMIT}개까지 보낼 수 있습니다.`, 400);
+      const rows = ids.map(own);
+      if (rows.some((r) => !r)) throw new ApiError("보낼 행을 찾지 못했습니다. 목록을 새로 고친 뒤 다시 시도해 주세요.", 404);
+      items = (rows as BlockRecord[]).map((r) => ({ ...pageAsTask(r, collectionOf(r)), sourceUrl: urlOf(r) }));
+      const col = collectionOf(rows[0] as BlockRecord);
+      origin = (col?.name ?? []).map((d) => d[0]).join("").trim() || "표";
+    } else {
+      const page = own(pageId);
+      if (!page) throw new ApiError("보낼 페이지를 찾지 못했습니다.", 404);
+      const sourceUrl = urlOf(page);
+      items = mode === "page"
+        ? [{ ...pageAsTask(page, collectionOf(page)), sourceUrl }]
+        : uncheckedTodos((id) => getRecord<BlockRecord>("block", id), page).map((title) => ({ title, data: {}, sourceUrl }));
+      if (!items.length) throw new ApiError("이 페이지에 체크하지 않은 할 일 항목이 없습니다.", 400);
+      origin = (page.properties?.title ?? []).map((d) => d[0]).join("").trim() || "제목 없는 페이지";
+    }
+    const { data: waiting, error } = await createAdminClient().from("work_inbox").select("title, source_url")
+      .eq("user_id", userId).eq("source_slug", "ai-work-workspace").eq("target_slug", "ai-task-planner").is("imported_at", null)
+      .in("source_url", [...new Set(items.map((i) => i.sourceUrl))]);
+    if (error) throw new ApiError("보낸 항목을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.", 502);
+    const { send, skipped } = skipPendingPlanner(items, (waiting ?? []).map((w) => plannerKey(w.source_url as string | null, String(w.title ?? ""))));
+    for (const t of send) {
+      await sendToWorkInbox({ userId, sourceSlug: "ai-work-workspace", targetSlug: "ai-task-planner", kind: "task", title: t.title, bodyMd: `업무 워크스페이스 「${origin}」에서 보냄`, data: t.data, sourceUrl: t.sourceUrl })
         .catch((e) => { throw new ApiError(e instanceof Error ? e.message : "할 일 플래너로 보내지 못했습니다.", 502); });
     }
-    return { count: tasks.length, plannerUrl: "https://ai-task-planner.buylife.xyz/dashboard" };
+    return { count: send.length, skipped, plannerUrl: "https://ai-task-planner.buylife.xyz/dashboard" };
   },
 
   /** U9 「다른 프로그램으로 보내기」: 이 페이지 본문(회원이 읽을 수 있는 내용만, 마크다운)을 슬라이드·번역·문서 챗봇의 받은편지함으로 */

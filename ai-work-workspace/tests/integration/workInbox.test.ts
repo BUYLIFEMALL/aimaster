@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { inboxRowCsv, calendarRowCsv, calendarStatus, isCalendarItem } from "@/server/workInboxCsv";
 import { TEMPLATES } from "@/litpage/server/content/catalog.ts";
 import { validateWorkInboxItem } from "@/lib/workInbox";
-import { uncheckedTodos, pageAsTask } from "@/server/workInboxPlannerItems";
+import { uncheckedTodos, pageAsTask, plannerKey, skipPendingPlanner, PLANNER_ROWS_LIMIT } from "@/server/workInboxPlannerItems";
 import { cleanPageMarkdownForSend } from "@/server/workInboxSendMarkdown";
 import { pageToMarkdown, type MdBlock, type MdSource } from "@/litpage/server/ai/prompts.ts";
 
@@ -98,6 +98,23 @@ describe("work inbox", () => {
     expect(isCalendarItem({ 채널: "Threads" })).toBe(false);
     expect(isCalendarItem({ 발행일: "2026-11-10" })).toBe(false);
     expect(isCalendarItem(null)).toBe(false);
+  });
+
+  it("플래너 2번: 플래너에 대기 중인 같은 항목(주소+제목)과 묶음 안 겹침은 건너뛰고, 행 묶음은 50개까지", () => {
+    const a = "https://w.example/p/1", b = "https://w.example/p/2";
+    const items = [
+      { title: "보고서 쓰기", data: {}, sourceUrl: a },
+      { title: "보고서 쓰기", data: {}, sourceUrl: b }, // 다른 페이지의 같은 제목은 다른 항목
+      { title: "회의 준비", data: { 예정일: "2026-11-20" }, sourceUrl: a },
+      { title: "회의 준비", data: {}, sourceUrl: a }, // 묶음 안 겹침
+    ];
+    const r = skipPendingPlanner(items, [plannerKey(a, "  보고서 쓰기 ")]); // 저장값은 trim 기준
+    expect(r.send.map((i) => `${i.sourceUrl}|${i.title}`)).toEqual([`${b}|보고서 쓰기`, `${a}|회의 준비`]);
+    expect(r.send[1].data).toEqual({ 예정일: "2026-11-20" });
+    expect(r.skipped).toBe(2);
+    expect(skipPendingPlanner(items.slice(0, 1), []).skipped).toBe(0);
+    expect(plannerKey(null, "x")).toBe("\nx");
+    expect(PLANNER_ROWS_LIMIT).toBe(50);
   });
 
   it("validates items before sending", () => {

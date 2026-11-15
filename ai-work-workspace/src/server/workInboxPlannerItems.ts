@@ -78,3 +78,27 @@ function dateOf(rt: RichText | undefined): string | null {
   }
   return null;
 }
+
+// 2026-11-15 플래너 2번: 표에서 여러 행을 한 번에 보내기 + 같은 항목 다시 보내기 막기
+export const PLANNER_ROWS_LIMIT = 50;
+export interface PlannerSend extends PlannerTask {
+  sourceUrl: string;
+}
+
+/** 같은 항목 판정 기준 — 공용 표에 저장되는 값(제목 trim, 원본 주소)과 같게 */
+export function plannerKey(sourceUrl: string | null | undefined, title: string): string {
+  return `${sourceUrl ?? ""}\n${title.trim()}`;
+}
+
+/** 플래너가 아직 가져가지 않은 같은 항목(pending)과, 이번 묶음 안의 겹침을 빼고 보낼 것만 남긴다 */
+export function skipPendingPlanner(items: PlannerSend[], pending: Iterable<string>): { send: PlannerSend[]; skipped: number } {
+  const seen = new Set(pending);
+  const send: PlannerSend[] = [];
+  for (const item of items) {
+    const key = plannerKey(item.sourceUrl, item.title);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    send.push(item);
+  }
+  return { send, skipped: items.length - send.length };
+}
