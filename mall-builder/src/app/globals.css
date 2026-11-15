@@ -133,6 +133,7 @@ input[type="submit"] {
 [data-text-align="center"] .mall-html { text-align: center; }
 /* I8 블록 제목 색·크기(블록 겉모양) — 블록 제목은 h2 */
 [data-title-color] h2 { color: var(--blk-title-color); }
+[data-title-font] h2 { font-family: var(--blk-title-font); } /* E10 제목 글꼴 — 글꼴 파일은 쓴 블록이 있을 때만 불러옴(home-blocks.tsx) */
 [data-title-size="sm"] h2 { font-size: 1.125rem; line-height: 1.75rem; }
 [data-title-size="lg"] h2 { font-size: 1.875rem; line-height: 2.25rem; }
 @media (min-width: 640px) { [data-title-size="lg"] h2 { font-size: 2.25rem; line-height: 2.5rem; } }

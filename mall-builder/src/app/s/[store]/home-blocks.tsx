@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import {
-  BLOCK_DEFS, SHOWCASE_SOURCE_LABEL, videoEmbed,
+  BLOCK_DEFS, SHOWCASE_SOURCE_LABEL, TITLE_FONTS, titleFontHref, videoEmbed,
   type BannerSettings, type Block, type GallerySettings, type HtmlSettings, type NoticeSettings, type ShowcaseSettings, type SliderSettings,
   type BlockStyle, type TopbarSettings, type VideoSettings,
 } from "@/lib/blocks";
@@ -229,6 +229,7 @@ export function Countdown({ endsAt }: { endsAt: string }) {
 /** 블록 하나(겉모양 포함) — 유저 화면과 디자인 편집기(Puck 미리보기)가 같이 쓴다 */
 export function BlockView({ b, slot }: { b: Block; slot?: ReactNode }) {
   const f = blockFrame(b.style);
+  const fontHref = titleFontHref(b.style?.title_font);
   const body = (
     <>
       {b.type === "topbar" && <Topbar s={b.settings as TopbarSettings} />}
@@ -241,7 +242,9 @@ export function BlockView({ b, slot }: { b: Block; slot?: ReactNode }) {
     </>
   );
   return (
-    <section id={`blk-${b.id}`} data-block={b.type} data-title-align={b.style?.title_align} data-text-align={b.style?.text_align} data-title-size={b.style?.title_size} data-title-color={b.style?.title_color ? "" : undefined} className={`scroll-mt-24 ${f.className}`.trim()} style={f.style}>
+    <section id={`blk-${b.id}`} data-block={b.type} data-title-align={b.style?.title_align} data-text-align={b.style?.text_align} data-title-size={b.style?.title_size} data-title-color={b.style?.title_color ? "" : undefined} data-title-font={b.style?.title_font} className={`scroll-mt-24 ${f.className}`.trim()} style={f.style}>
+      {/* E10 제목 글꼴 — 쓴 블록이 있을 때만 그 글꼴 CSS를 머리로 올려 한 번만 받는다(React 19 precedence가 같은 주소를 합침) */}
+      {fontHref && <link rel="stylesheet" href={fontHref} precedence="mall-font" />}
       {f.full ? <div className="mx-auto max-w-6xl">{body}</div> : body}
     </section>
   );
@@ -258,6 +261,7 @@ export function blockFrame(style: BlockStyle | undefined): { className: string; 
   if (style.pad_bottom) css.paddingBottom = style.pad_bottom;
   if (style.bg_color) css.backgroundColor = style.bg_color;
   if (style.title_color) (css as Record<string, string>)["--blk-title-color"] = style.title_color; // I8 제목 색(globals.css)
+  if (style.title_font && TITLE_FONTS[style.title_font]) (css as Record<string, string>)["--blk-title-font"] = TITLE_FONTS[style.title_font].stack; // E10 제목 글꼴(globals.css)
   if (style.width === "full") {
     css.width = "100vw";
     css.marginLeft = "calc(50% - 50vw)";

@@ -62,10 +62,25 @@ export type BlockStyle = {
   title_align?: "center"; // 제목 가운데(기본 = 왼쪽)
   title_color?: string; // 제목 글자색 #rrggbb(I8, 비우면 테마 기본)
   title_size?: "sm" | "lg"; // 제목 크기(I8, 비우면 보통)
+  title_font?: TitleFont; // 제목 글꼴(E10, 비우면 몰 기본 글꼴) — 무료 구글 글꼴, 쓴 블록이 있을 때만 불러옴
   text_align?: "center"; // 본문 글 가운데(I22 — 지금은 글(html) 블록 본문, 기본 = 왼쪽)
   hide_pc?: true; // PC(768px 이상)에서 숨김
   hide_mobile?: true; // 휴대폰(767px 이하)에서 숨김
 };
+// E10 제목 글꼴 — 무료(OFL) 구글 한글 글꼴. 굵기 하나만 불러 무게를 줄인다. 빈 값 = 몰 기본 글꼴이라 저장하지 않음
+export const TITLE_FONTS = {
+  serif: { label: "명조", family: "Nanum Myeongjo", weight: 700, stack: "'Nanum Myeongjo', serif" },
+  round: { label: "둥근 고딕", family: "Gowun Dodum", weight: 0, stack: "'Gowun Dodum', sans-serif" },
+  bold: { label: "굵은 제목", family: "Black Han Sans", weight: 0, stack: "'Black Han Sans', sans-serif" },
+  hand: { label: "손글씨", family: "Gaegu", weight: 700, stack: "'Gaegu', cursive" },
+} as const;
+export type TitleFont = keyof typeof TITLE_FONTS;
+/** 그 글꼴만 불러올 구글 글꼴 CSS 주소(모르는 id면 null) */
+export function titleFontHref(id: string | undefined | null): string | null {
+  const f = id && Object.prototype.hasOwnProperty.call(TITLE_FONTS, id) ? TITLE_FONTS[id as TitleFont] : null;
+  if (!f) return null;
+  return `https://fonts.googleapis.com/css2?family=${f.family.replace(/ /g, "+")}${f.weight ? `:wght@${f.weight}` : ""}&display=swap`;
+}
 export type Block<T extends BlockType = BlockType> = { id: string; type: T; visible: boolean; settings: BlockSettingsMap[T]; show_from?: string; show_until?: string; style?: BlockStyle };
 export type BlocksDoc = { schema_version: number; blocks: Block[] };
 
@@ -167,6 +182,7 @@ export function normalizeStyle(raw: unknown): BlockStyle | null {
   const tc = str(r.title_color).toLowerCase();
   if (HEX.test(tc)) out.title_color = tc;
   if (r.title_size === "sm" || r.title_size === "lg") out.title_size = r.title_size;
+  if (typeof r.title_font === "string" && titleFontHref(r.title_font)) out.title_font = r.title_font as TitleFont;
   if (r.hide_pc === true) out.hide_pc = true;
   if (r.hide_mobile === true) out.hide_mobile = true;
   return Object.keys(out).length ? out : null;

@@ -8,7 +8,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { Puck, type Config, type Data } from "@puckeditor/core";
 import "@puckeditor/core/no-external.css";
-import { BLOCK_DEFS, BLOCK_TYPES, MAX_PAD, validateDoc, type Block, type BlockType, type BlocksDoc } from "@/lib/blocks";
+import { BLOCK_DEFS, BLOCK_TYPES, MAX_PAD, TITLE_FONTS, validateDoc, type Block, type BlockType, type BlocksDoc } from "@/lib/blocks";
 import { defaultPuckProps, fromPuck, fromPuckRaw, toPuck, type PuckBlockProps } from "@/lib/builder/puck-adapter";
 import { previewSlotAction, saveDesignAction } from "@/lib/builder/design-actions";
 import { DEFAULT_THEME, readTheme, themeStyle, validateTheme, type ShopTheme, contrastWarning } from "@/lib/theme";
@@ -388,6 +388,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
               title_align: { type: "radio", label: "제목 정렬", options: [{ label: "왼쪽", value: "left" }, { label: "가운데", value: "center" }] },
               title_color: { type: "custom", label: "제목 색(비우면 기본)", render: ({ value, onChange }: { value: string | undefined; onChange: (v: string) => void }) => <ColorCodeField label="제목 색" value={value} onChange={onChange} emptyText="없음(투명) · 예: #fef3c7" /> },
               title_size: { type: "radio", label: "제목 크기", options: [{ label: "작게", value: "sm" }, { label: "보통", value: "" }, { label: "크게", value: "lg" }] },
+              title_font: { type: "select", label: "제목 글꼴(무료 한글 글꼴)", options: [{ label: "기본(몰 글꼴)", value: "" }, ...Object.entries(TITLE_FONTS).map(([value, f]) => ({ label: f.label, value }))] },
               text_align: { type: "radio", label: "본문 글 정렬(글 블록)", options: [{ label: "왼쪽", value: "left" }, { label: "가운데", value: "center" }] },
               hide_pc: { type: "radio", label: "PC(768px 이상)", options: [{ label: "보임", value: false }, { label: "숨김", value: true }] },
               hide_mobile: { type: "radio", label: "휴대폰(767px 이하)", options: [{ label: "보임", value: false }, { label: "숨김", value: true }] },
