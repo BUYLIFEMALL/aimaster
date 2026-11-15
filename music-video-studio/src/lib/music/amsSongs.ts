@@ -5,7 +5,7 @@ import { listMemberAssets, signMemberAssetByRef } from "@/lib/memberAssets";
 
 // v1.30 「내 자료함」의 다른 음악(Suno 음악 자동화 등)도 함께 보여 준다 — AI 음악 스튜디오 곡은 가사·시간 가사를 위해 기존 방식 유지.
 // 음원이 회원 PC에만 있는 곡(무료음악)은 뺀다. 플랜 ai-video-studio/docs/PLAN_20261112_VIDEO_IMPROVEMENTS.md
-const LIBRARY_REF = /^[a-z0-9_]{1,64}:[0-9a-f-]{36}:d{1,4}$/i;
+const LIBRARY_REF = /^[a-z0-9_]{1,64}:[0-9a-f-]{36}:\d{1,4}$/i; // 2026-11-15 \d 빠짐 수정(예전엔 끝 순번이 글자 d여야 해서 자료함 곡이 하나도 안 걸림)
 const SONG_SOURCE_LABELS: Record<string, string> = { "music-automation": "Suno 음악 자동화", "free-music-studio": "무료음악" };
 
 // v1.13 AI 음악 스튜디오(ai-music-studio)에서 회원 본인이 만든 곡을 가져온다(가사영상 v1.10·플레이리스트 v1.27·쇼츠 원스톱 v1.38과 같은 규칙).

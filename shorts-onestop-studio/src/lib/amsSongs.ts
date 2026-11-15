@@ -20,7 +20,7 @@ export interface AmsPick { ref: string; title: string; model: string; durationS:
 
 // v1.50 「내 자료함」 음악 전체(AI 음악 스튜디오·Suno 음악 자동화·무료음악)로 넓힘 — 공용 member-assets-client, 플랜 ai-video-studio/docs/PLAN_20261112_VIDEO_IMPROVEMENTS.md
 const SONG_SOURCE_LABELS: Record<string, string> = { "ai-music-studio": "AI 음악 스튜디오", "music-automation": "Suno 음악 자동화", "free-music-studio": "무료음악" };
-const LIBRARY_REF = /^[a-z0-9_]{1,64}:[0-9a-f-]{36}:d{1,4}$/i;
+const LIBRARY_REF = /^[a-z0-9_]{1,64}:[0-9a-f-]{36}:\d{1,4}$/i; // 2026-11-15 \d 빠짐 수정(예전엔 끝 순번이 글자 d여야 해서 자료함 곡이 하나도 안 걸림)
 
 /** 내 자료함 음악(최근 60개) — 미리 듣기 주소 포함. 무료음악 음원은 회원 PC에만 있어 고를 수 없음 표시 */
 export async function listLibrarySongs(userId: string): Promise<AmsPick[]> {
