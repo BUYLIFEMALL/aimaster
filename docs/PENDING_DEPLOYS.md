@@ -21,6 +21,7 @@
 
 
 
+- **`ai-work-workspace` — 토큰 주소 권한 판정 한 곳으로 + 볼타 중복 버튼 정리(2026-11-15 [역할: workspace], `dd08e49b8`)**: 캘린더·MCP·공개 REST API·회원 정시 실행·공개 페이지 → `tokenOwnerAllowed`(동작 같음), 인증서 단계에서 작은 「다시 등록」 숨김. 시험 181·빌드. 다음 워크스페이스 배포 때.
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감. ✅ `music-video-studio` v1.31(11-15 영상 담당 배포)에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
