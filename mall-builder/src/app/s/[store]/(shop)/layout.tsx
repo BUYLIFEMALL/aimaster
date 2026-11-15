@@ -132,13 +132,13 @@ export default async function ShopLayout({ children, params }: { children: React
                 )}
                 <Link
                   href={`/login?next=${encodeURIComponent(base)}`}
-                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                  className="whitespace-nowrap rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   로그인
                 </Link>
                 <Link
                   href={`${base}/join`}
-                  className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition-colors"
+                  className="whitespace-nowrap rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition-colors"
                 >
                   가입
                 </Link>
@@ -179,7 +179,7 @@ export default async function ShopLayout({ children, params }: { children: React
             ) : (
               <Link
                 href={`${base}/join`}
-                className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition-colors"
+                className="whitespace-nowrap rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition-colors"
               >
                 이 몰 가입하기
               </Link>
