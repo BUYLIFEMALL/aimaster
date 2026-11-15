@@ -14,6 +14,7 @@ export const INLINE_FIELDS: Partial<Record<BlockType, string[]>> = {
   reviews: ["title"],
   notice: ["title"],
   category_icons: ["title"],
+  banner: ["headline", "sub"], // 글 얹은 배너(I14)만 화면에 있음
 };
 
 /** 여러 줄을 허용하는 칸(나머지는 한 줄로) */

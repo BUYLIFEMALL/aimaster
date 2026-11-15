@@ -12,20 +12,20 @@ export const MAX_BLOCKS = 30;
 export type TopbarSettings = { items: { text: string; link: string; bg: string }[]; rotate_sec: number };
 // mobile_image: 휴대폰(폭 767px 이하)에서 대신 보일 그림. 비우면 image를 그대로 쓴다(옛 저장본은 칸이 없어 "")
 export type SliderSettings = { slides: { image: string; mobile_image: string; link: string }[]; height: number; autoplay_sec: number };
-export type BannerSettings = { image: string; mobile_image: string; link: string; max_width: number };
+export type BannerSettings = { image: string; mobile_image: string; link: string; max_width: number; skin?: "full" | "overlay"; headline?: string; sub?: string; button_label?: string }; // skin 없음 = 둥근 카드(기본). overlay만 글 칸
 export type ShowcaseSource = "new" | "category" | "manual";
 // 상품 카드 표시(디자인 빌더 D2-4c, 프로셀 view1~7 참고) — 선택, 기본값(전부 보임·상자형)은 저장하지 않는다
 export type CardOptions = { hide_discount?: true; hide_list_price?: true; hide_business?: true; style?: "plain" };
 export type ShowcaseSettings = { title: string; source: ShowcaseSource; category_id: string; product_ids: string[]; columns: number; limit: number; card?: CardOptions; layout?: "row" };
 export type HtmlSettings = { html: string };
-export type NoticeSettings = { title: string; count: number };
+export type NoticeSettings = { title: string; count: number; skin?: "line" }; // skin 없음 = 목록(기본)
 // D28 새 블록 6종(2026-11-11, 주인님 「추천안 4가지 그대로」)
 export type VideoSettings = { url: string; title: string }; // 유튜브·비메오 주소만(저장 비용 없음)
 export type ProductSource = { source: ShowcaseSource; category_id: string; product_ids: string[] };
 export type TabsSettings = { title: string; tabs: ({ label: string } & ProductSource)[]; columns: number; limit: number; card?: CardOptions };
 export type TimesaleSettings = { title: string; subtitle: string; ends_at: string; columns: number; limit: number; card?: CardOptions } & ProductSource; // 표시만(가격은 그대로), 끝나면 자동 숨김
 export type ReviewsSettings = { title: string; count: number; min_rating: number };
-export type CategoryIconsSettings = { title: string; items: { category_id: string; image: string; emoji: string }[] };
+export type CategoryIconsSettings = { title: string; items: { category_id: string; image: string; emoji: string }[]; skin?: "circle" | "chip" }; // skin 없음 = 둥근 사각(기본)
 export type GallerySettings = { title: string; columns: number; items: { image: string; link: string }[] }; // 인스타 대신 운영사가 직접 올리는 사진 격자
 // D5-8 글 히어로(2026-11-15) — 그림 없이 맨 위 큰 제목·설명·단추 2개, 오른쪽 대표 상품 1개(선택). agy 115 시안 맨 위 영역
 // 단추 이름이 비면 그 단추는 없다. feature가 false면 상품 칸은 비운다(source "new")
@@ -176,6 +176,13 @@ export function isLive(b: Block, now = Date.now()): boolean {
   return true;
 }
 
+/** 블록 스킨(모양 여러 벌, I14·E9) — 첫 값이 기본(저장하지 않음). 블록·스킨을 늘릴 때 여기에 한 줄 + 그리기·편집 칸 */
+export const BLOCK_SKINS: Partial<Record<BlockType, { id: string; label: string }[]>> = {
+  banner: [{ id: "", label: "둥근 카드" }, { id: "full", label: "꽉 찬 띠" }, { id: "overlay", label: "글 얹은 배너" }],
+  category_icons: [{ id: "", label: "둥근 사각" }, { id: "circle", label: "동그라미" }, { id: "chip", label: "글자 칩" }],
+  notice: [{ id: "", label: "목록" }, { id: "line", label: "한 줄 띠" }],
+};
+
 export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
   topbar: {
     label: "띠 배너",
@@ -230,7 +237,14 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
       if (mobile_image === null) return { ok: false, error: MOBILE_IMAGE_ERROR };
       const link = safeLink(s.link);
       if (link === null) return { ok: false, error: "링크는 /로 시작하는 이 몰 주소나 https 주소만 쓸 수 있습니다." };
-      return { ok: true, value: { image, mobile_image, link, max_width: int(s.max_width, 320, 1600, 1100) } };
+      const base = { image, mobile_image, link, max_width: int(s.max_width, 320, 1600, 1100) };
+      if (s.skin === "full") return { ok: true, value: { ...base, skin: "full" as const } };
+      if (s.skin === "overlay") {
+        const headline = str(s.headline).slice(0, 40);
+        if (!headline) return { ok: false, error: "글 얹은 배너는 큰 글을 적어 주세요." };
+        return { ok: true, value: { ...base, skin: "overlay" as const, headline, sub: str(s.sub).slice(0, 80), button_label: str(s.button_label).slice(0, 20) } };
+      }
+      return { ok: true, value: base };
     },
   },
   showcase: {
@@ -262,7 +276,7 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
     defaults: () => ({ title: "공지사항", count: 5 }),
     validate: (raw) => {
       const s = (raw ?? {}) as Partial<NoticeSettings>;
-      return { ok: true, value: { title: str(s.title).slice(0, 40) || "공지사항", count: int(s.count, 3, 10, 5) } };
+      return { ok: true, value: { title: str(s.title).slice(0, 40) || "공지사항", count: int(s.count, 3, 10, 5), ...(s.skin === "line" ? { skin: "line" as const } : {}) } };
     },
   },
   video: {
@@ -339,11 +353,12 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
       for (const it of items) {
         const category_id = str(it?.category_id);
         if (!UUID.test(category_id)) return { ok: false, error: "카테고리를 골라 주세요." };
-        const image = optionalImage(it?.image);
+        const image = s.skin === "chip" ? "" : optionalImage(it?.image); // 글자 칩은 그림을 쓰지 않음
         if (image === null) return { ok: false, error: "아이콘 그림 주소가 올바르지 않습니다(https 주소)." };
-        out.push({ category_id, image, emoji: [...str(it?.emoji)].slice(0, 2).join("") });
+        out.push({ category_id, image, emoji: s.skin === "chip" ? "" : [...str(it?.emoji)].slice(0, 2).join("") });
       }
-      return { ok: true, value: { title: str(s.title).slice(0, 40), items: out } };
+      const skin = s.skin === "circle" || s.skin === "chip" ? s.skin : undefined;
+      return { ok: true, value: { title: str(s.title).slice(0, 40), items: out, ...(skin ? { skin } : {}) } };
     },
   },
   gallery: {

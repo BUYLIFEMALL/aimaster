@@ -100,6 +100,28 @@ function Slider({ s }: { s: SliderSettings }) {
 }
 
 function Banner({ s }: { s: BannerSettings }) {
+  // 스킨(I14·E9): 꽉 찬 띠 = 여백·모서리 없이 본문 폭 가득 / 글 얹은 배너 = 그림 위 왼쪽에 큰 글·작은 글·단추
+  if (s.skin === "full") {
+    return (
+      <MaybeLink href={s.link} className="block" data-banner-skin="full">
+        <BannerImage image={s.image} mobile={s.mobile_image} className="block w-full" />
+      </MaybeLink>
+    );
+  }
+  if (s.skin === "overlay") {
+    return (
+      <div className="px-4 sm:px-6" data-banner-skin="overlay">
+        <MaybeLink href={s.link} className="group relative mx-auto block overflow-hidden rounded-2xl shadow-xs" style={{ maxWidth: s.max_width }}>
+          <BannerImage image={s.image} mobile={s.mobile_image} className="block min-h-48 w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
+          <div className="absolute inset-0 flex flex-col justify-center gap-2 bg-gradient-to-r from-black/65 via-black/30 to-transparent p-6 sm:p-10">
+            <p className="max-w-lg text-2xl font-black leading-tight tracking-tight text-white sm:text-4xl" data-edit-field="headline">{s.headline}</p>
+            {s.sub && <p className="max-w-md text-sm text-white/85 sm:text-base" data-edit-field="sub">{s.sub}</p>}
+            {s.button_label && <span className="mt-2 inline-flex w-fit rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-sm">{s.button_label}</span>}
+          </div>
+        </MaybeLink>
+      </div>
+    );
+  }
   return (
     <div className="px-4 sm:px-6">
       <MaybeLink href={s.link} className="mx-auto block">

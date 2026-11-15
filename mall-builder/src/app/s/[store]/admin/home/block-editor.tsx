@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
+  BLOCK_SKINS,
   BLOCK_DEFS, BLOCK_TYPES, MAX_BLOCKS, MAX_HTML, SHOWCASE_SOURCE_LABEL, isLive, moveBlock, newBlock, validateDoc, videoEmbed,
   type BannerSettings, type Block, type CardOptions, type BlocksDoc, type BlockType, type CategoryIconsSettings, type GallerySettings, type HeroButton, type HeroSettings, type HtmlSettings,
   type NoticeSettings, type ProductSource, type ReviewsSettings, type ShowcaseSettings, type ShowcaseSource, type SliderSettings,
@@ -120,6 +121,27 @@ function SourcePicker({ name, value, categories, products, onChange }: { name: s
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+/** 블록 스킨 고르기(I14·E9) — 목록은 blocks.ts BLOCK_SKINS 한 곳, 첫 값(빈 값)이 기본 */
+function SkinPicker({ type, value, onChange }: { type: BlockType; value: string | undefined; onChange: (v: string | undefined) => void }) {
+  const skins = BLOCK_SKINS[type];
+  if (!skins) return null;
+  return (
+    <div data-skin-picker>
+      <span className="text-xs text-gray-500">모양</span>
+      <div className="mt-0.5 flex flex-wrap gap-1">
+        {skins.map((k) => {
+          const on = (value ?? "") === k.id;
+          return (
+            <button key={k.id || "default"} type="button" onClick={() => onChange(k.id || undefined)} aria-pressed={on} className={`rounded-full border px-3 py-1 text-xs ${on ? "border-violet-600 bg-violet-600 text-white" : "bg-white text-gray-700 hover:border-violet-400"}`}>
+              {k.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -283,6 +305,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
     const setItem = (i: number, patch: Partial<CategoryIconsSettings["items"][number]>) => onChange({ ...s, items: s.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) });
     return (
       <div className="space-y-3">
+        <SkinPicker type="category_icons" value={s.skin} onChange={(v) => onChange({ ...s, skin: v as CategoryIconsSettings["skin"] })} />
         <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} />
         {s.items.map((it, i) => (
           <div key={i} className="rounded border p-2">
@@ -291,15 +314,19 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
                 <option value="">— 카테고리 —</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-              <input value={it.emoji} maxLength={4} onChange={(e) => setItem(i, { emoji: e.target.value })} placeholder="🍎" title="그림 대신 이모지" className="mt-0.5 w-14 rounded border px-2 py-1.5 text-center" />
+              {s.skin !== "chip" && <input value={it.emoji} maxLength={4} onChange={(e) => setItem(i, { emoji: e.target.value })} placeholder="🍎" title="그림 대신 이모지" className="mt-0.5 w-14 rounded border px-2 py-1.5 text-center" />}
               <button type="button" onClick={() => onChange({ ...s, items: s.items.filter((_, j) => j !== i) })} className="text-xs text-red-700">빼기</button>
             </div>
-            <div className="mt-1"><ImagePicker storeId={storeId} value={it.image} onChange={(image) => setItem(i, { image })} clearable /></div>
-            <p className="mt-1 text-[11px] text-gray-500" data-size-hint>📐 권장 정사각형 160×160px 이상(아이콘 칸에 꽉 차게 잘림)</p>
+            {s.skin !== "chip" && (
+              <>
+                <div className="mt-1"><ImagePicker storeId={storeId} value={it.image} onChange={(image) => setItem(i, { image })} clearable /></div>
+                <p className="mt-1 text-[11px] text-gray-500" data-size-hint>📐 권장 정사각형 160×160px 이상(아이콘 칸에 꽉 차게 잘림)</p>
+              </>
+            )}
           </div>
         ))}
         {s.items.length < 12 && <button type="button" onClick={() => onChange({ ...s, items: [...s.items, { category_id: "", image: "", emoji: "" }] })} className="rounded border px-2 py-1 text-xs">+ 카테고리 추가</button>}
-        <p className="text-xs text-gray-500">그림을 올리면 그림, 없으면 이모지가 둥근 아이콘으로 보입니다. 2~12개.</p>
+        <p className="text-xs text-gray-500">{s.skin === "chip" ? "카테고리 이름만 글자 칩으로 보입니다(그림·이모지는 쓰지 않음). 2~12개." : "그림을 올리면 그림, 없으면 이모지가 아이콘으로 보입니다. 2~12개."}</p>
       </div>
     );
   }
@@ -442,6 +469,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
     const s = block.settings as NoticeSettings;
     return (
       <div className="space-y-3">
+        <SkinPicker type="notice" value={s.skin} onChange={(v) => onChange({ ...s, skin: v as NoticeSettings["skin"] })} />
         <label className="block">
           <span className="text-xs text-gray-500">제목</span>
           <input value={s.title} maxLength={40} onChange={(e) => onChange({ ...s, title: e.target.value })} className={input} />
@@ -454,11 +482,20 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
   const s = block.settings as BannerSettings;
   return (
     <div className="space-y-3">
+      <SkinPicker type="banner" value={s.skin} onChange={(v) => onChange({ ...s, skin: v as BannerSettings["skin"], ...(v === "overlay" && !s.headline ? { headline: "이번 주 추천", sub: "", button_label: "보러 가기" } : {}) })} />
       <ImagePicker storeId={storeId} value={s.image} onChange={(image) => onChange({ ...s, image })} />
       <p className="mt-1 text-[11px] text-gray-500" data-size-hint>📐 권장 가로 2200px(세로는 자유 — 잘리지 않고 비율 그대로 보임)</p>
       <MobileImagePicker storeId={storeId} value={s.mobile_image ?? ""} onChange={(mobile_image) => onChange({ ...s, mobile_image })} />
       <LinkInput value={s.link} onChange={(link) => onChange({ ...s, link })} />
-      <NumberInput label="최대 너비(px, 320~1600)" value={s.max_width} min={320} max={1600} onChange={(max_width) => onChange({ ...s, max_width })} />
+      {s.skin === "overlay" && (
+        <div className="space-y-2 rounded border border-violet-200 bg-violet-50/40 p-2" data-overlay-fields>
+          <label className="block"><span className="text-xs text-gray-500">큰 글(필수, 40자)</span><input value={s.headline ?? ""} maxLength={40} onChange={(e) => onChange({ ...s, headline: e.target.value })} className={input} /></label>
+          <label className="block"><span className="text-xs text-gray-500">작은 글(선택, 80자)</span><input value={s.sub ?? ""} maxLength={80} onChange={(e) => onChange({ ...s, sub: e.target.value })} className={input} /></label>
+          <label className="block"><span className="text-xs text-gray-500">단추 이름(선택, 20자 — 배너 전체가 링크)</span><input value={s.button_label ?? ""} maxLength={20} onChange={(e) => onChange({ ...s, button_label: e.target.value })} className={input} /></label>
+          <p className="text-[11px] text-gray-500">글은 그림 왼쪽에 어두운 그늘과 함께 얹힙니다 — 그림 왼쪽은 비워 두면 잘 읽힙니다.</p>
+        </div>
+      )}
+      {s.skin !== "full" && <NumberInput label="최대 너비(px, 320~1600)" value={s.max_width} min={320} max={1600} onChange={(max_width) => onChange({ ...s, max_width })} />}
     </div>
   );
 }

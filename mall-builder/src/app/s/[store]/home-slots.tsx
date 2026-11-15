@@ -142,14 +142,33 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
     const s = b.settings as CategoryIconsSettings;
     const catName = new Map((d.categories ?? []).map((c) => [c.id, c.name]));
     const items = s.items.filter((it) => catName.has(it.category_id));
-    return items.length ? (
-      <div className="px-4 sm:px-6" data-category-icons>
+    if (!items.length) return null;
+    if (s.skin === "chip") {
+      // 글자 칩(I14·E9) — 그림 없이 카테고리 이름만, 여러 줄로 감김
+      return (
+        <div className="px-4 sm:px-6" data-category-icons data-skin="chip">
+          {s.title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{s.title}</h2>}
+          <ul className="flex flex-wrap gap-2">
+            {items.map((it) => (
+              <li key={it.category_id}>
+                <Link href={`${base}/c/${it.category_id}`} className="inline-flex rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-xs transition hover:border-blue-400 hover:text-blue-600">
+                  {catName.get(it.category_id)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    const shape = s.skin === "circle" ? "rounded-full" : "rounded-2xl";
+    return (
+      <div className="px-4 sm:px-6" data-category-icons data-skin={s.skin ?? "rounded"}>
         {s.title && <h2 className="mb-4 text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{s.title}</h2>}
         <ul className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
           {items.map((it) => (
             <li key={it.category_id} className="shrink-0">
               <Link href={`${base}/c/${it.category_id}`} className="group flex w-18 sm:w-22 flex-col items-center gap-2 text-center text-xs font-semibold text-slate-700 hover:text-blue-600 transition-colors">
-                <span className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden rounded-2xl border border-slate-200/80 bg-white text-2xl sm:text-3xl shadow-xs transition-all duration-200 group-hover:-translate-y-1 group-hover:border-blue-400 group-hover:shadow-md">
+                <span className={`flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden ${shape} border border-slate-200/80 bg-white text-2xl sm:text-3xl shadow-xs transition-all duration-200 group-hover:-translate-y-1 group-hover:border-blue-400 group-hover:shadow-md`}>
                   {it.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={it.image} alt="" className="h-full w-full object-cover" />
@@ -163,11 +182,29 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
           ))}
         </ul>
       </div>
-    ) : null;
+    );
   }
   if (b.type === "notice") {
     const s = b.settings as NoticeSettings;
     const list = d.notices ?? [];
+    if (s.skin === "line") {
+      // 한 줄 띠(I14·E9) — 최근 공지 제목을 한 줄로, 넘치면 옆으로 밀어 봄
+      return (
+        <div className="px-4 sm:px-6" data-notice-skin="line">
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-sm shadow-xs">
+            <span className="shrink-0 font-black text-slate-900">📢 <span data-edit-field="title">{s.title}</span></span>
+            <ul className="flex min-w-0 flex-1 gap-6 overflow-x-auto whitespace-nowrap scrollbar-none">
+              {list.length ? list.map((n) => (
+                <li key={n.id}>
+                  <Link href={`${base}/notices/${n.id}`} className="font-medium text-slate-700 hover:text-blue-600 transition-colors">{n.is_pinned ? "📌 " : ""}{n.title}</Link>
+                </li>
+              )) : <li className="text-slate-500">아직 등록된 공지가 없습니다.</li>}
+            </ul>
+            <Link href={`${base}/notices`} className="shrink-0 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors">전체보기 ›</Link>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="px-4 sm:px-6">
         <div className="mb-3 flex items-center justify-between">
