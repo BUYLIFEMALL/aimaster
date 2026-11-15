@@ -8,6 +8,8 @@ import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
 import { CustomerReturnPanel, StaffReturnPanel } from "@/app/return-panels";
 import { getReturnInfo } from "@/lib/returns-server";
+import { StaffCashReceiptPanel } from "@/app/cash-receipt-panels";
+import { getCashReceipt } from "@/lib/cash-receipt-server";
 import { storeReturnFee } from "@/lib/returns";
 import { TAX_INVOICE_LABEL } from "@/lib/taxInvoice";
 import { amendTaxInvoiceAction, issueTaxInvoiceAction, markTaxInvoiceIssuedAction, recheckTaxInvoiceAction } from "@/lib/tax-invoice-actions";
@@ -42,6 +44,7 @@ export default async function AdminOrderDetailPage({
   await logStaffView(store.id, "order", id);
   const found = await getOrder(store.id, id);
   const ret = await getReturnInfo(id); // M2-7 반품·환불
+  const cash = await getCashReceipt(id); // M2-10 현금영수증
   if (!found) notFound();
   const { order, items, events } = found;
   const ref = await getOrderRef(order.id); // M1-5(0072)
@@ -78,6 +81,7 @@ export default async function AdminOrderDetailPage({
         {["confirmed", "cancelled", "returned"].includes(order.status) && <p className="text-sm text-gray-500">끝난 주문입니다.</p>}
       </section>
       <StaffReturnPanel slug={store.slug} order={order} info={ret.info} account={ret.account} storeFee={storeReturnFee(store.settings)} backPath={here} />
+      <StaffCashReceiptPanel slug={store.slug} receipt={cash.receipt} orderId={order.id} currentAmount={order.total - (ret.info && ret.info.refund_status !== "none" ? ret.info.refund_amount : 0)} backPath={here} />
 
       <section className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
         <div className="rounded border p-4">

@@ -15,6 +15,8 @@ import LogoForm from "./logo-form";
 import DomainForm from "./domain-form";
 import PolicyForm from "./policy-form";
 import ReturnFeeForm from "./return-fee-form";
+import CashReceiptForm from "./cash-receipt-form";
+import { cashReceiptEnabled } from "@/lib/cash-receipt";
 import { storeReturnFee } from "@/lib/returns";
 import { getStorePolicies } from "@/lib/policies-server";
 import { policyTemplate } from "@/lib/policies";
@@ -202,6 +204,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       </div>
       <div className="mt-6">
         <TaxForm slug={store.slug} status={tax} />
+      </div>
+      <div className="mt-6">
+        <CashReceiptForm slug={store.slug} enabled={cashReceiptEnabled(store.settings)} hasKey={tax.hasKey} />
       </div>
       <div className="mt-6">
         <LogoForm slug={store.slug} storeId={store.id} logo={appLogoOf(store.settings)} />

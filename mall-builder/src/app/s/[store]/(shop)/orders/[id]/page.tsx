@@ -12,6 +12,9 @@ import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
 import { CustomerReturnPanel, StaffReturnPanel } from "@/app/return-panels";
 import { getReturnInfo } from "@/lib/returns-server";
+import { CustomerCashReceiptPanel } from "@/app/cash-receipt-panels";
+import { getCashReceipt } from "@/lib/cash-receipt-server";
+import { cashReceiptEnabled } from "@/lib/cash-receipt";
 import { storeReturnFee } from "@/lib/returns";
 import { getCardPayment } from "@/lib/card-payments";
 import { CARD_STATUS_LABEL } from "@/lib/payment";
@@ -39,6 +42,8 @@ export default async function OrderDetailPage({
   const store = await getStoreBySlug(slug);
   const found = await getOrder(store.id, id);
   const ret = await getReturnInfo(id); // M2-7
+  const cash = await getCashReceipt(id); // M2-10
+  const cashActive = Boolean(cash.receipt && !["failed", "cancelled"].includes(cash.receipt.status)); // 현금영수증 신청 중이면 세금계산서 요청 칸 숨김
   if (!found || found.order.user_id !== user.id) notFound();
   const { order, items, events } = found;
   // D36 입점 상품은 공급사가 따로 보내므로 품목별 송장을 보여 준다
@@ -97,6 +102,7 @@ export default async function OrderDetailPage({
         {/* M2-7: 반품 요청은 사유·환불 계좌를 받는 전용 칸으로(0099 전 DB면 예전 버튼) */}
         <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="customer" backPath={`${base}/orders/${order.id}`} isCard={order.is_card} hide={ret.info ? ["return_requested"] : []} />
         <CustomerReturnPanel slug={store.slug} order={order} info={ret.info} account={ret.account} storeFee={storeReturnFee(store.settings)} backPath={`${base}/orders/${order.id}`} />
+        <CustomerCashReceiptPanel slug={store.slug} order={{ ...order, has_tax_invoice: Boolean(order.tax_invoice) }} receipt={cash.receipt} ready={cash.ready} enabled={cashReceiptEnabled(store.settings)} backPath={`${base}/orders/${order.id}`} />
       </div>
 
       {order.is_card && order.status === "pending_payment" && (
@@ -183,7 +189,7 @@ export default async function OrderDetailPage({
         {order.points_earned > 0 && <p className="text-right text-xs text-gray-500" data-points-earned>구매 확정 적립 {order.points_earned.toLocaleString("ko-KR")}점</p>}
       </section>
 
-      {(order.tax_invoice || (isBusiness && canRequestInvoice(order))) && (
+      {(order.tax_invoice || (isBusiness && canRequestInvoice(order) && !cashActive)) && (
         <section className="mt-6 rounded border p-4 text-sm" data-invoice>
           <p className="font-medium">세금계산서</p>
           {order.tax_invoice ? (
