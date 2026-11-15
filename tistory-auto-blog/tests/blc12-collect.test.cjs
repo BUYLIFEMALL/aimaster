@@ -20,6 +20,7 @@ const collector = loadTs('utils/ai/collector.ts', (name) => {
   if (name === 'server-only') return {};
   if (name === '../safeFetch') return safe;
   if (name === '../yearPolicy') return year;
+  if (name === './openaiRequestParams') return loadTs('utils/ai/openaiRequestParams.ts', () => ({})); // 2026-11-15 gpt-6-luna 교체
   return require(name);
 });
 

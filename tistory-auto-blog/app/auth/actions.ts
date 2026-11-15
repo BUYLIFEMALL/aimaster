@@ -46,7 +46,7 @@ function safeRedirectPath(value: FormDataEntryValue | null): string {
 
 export async function signout() {
   const supabase = await createClient()
-  await supabase.auth.signOut()
+  await supabase.auth.signOut({ scope: "local" })
   revalidatePath('/', 'layout')
   redirect('/')
 }

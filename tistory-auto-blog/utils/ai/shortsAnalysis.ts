@@ -1,12 +1,14 @@
 import 'server-only'
 import type { BlogCandidateDraft } from '@/blog/utils/ai/collector'
 import { sanitizeYear } from '../yearPolicy'
+import { openAIGenerationParams } from './openaiRequestParams'
 
 // 유튜브 쇼츠 분석 → 블로그 게시글 주제 후보(v1.66). `threads-content-ops/lib/shortsAnalysis.ts`·`naver-blog-agent`의 쇼츠 분석을
 // 이 프로그램의 목적(블로그 글 주제 수집)에 맞게 옮겼다. 회원 본인의 키만 쓴다 — Gemini 키가 있으면 공개 영상을 직접 보고 분석하고,
 // 없거나 실패하면 OpenAI로 제목·수치·설명·댓글만으로 추정한다(화면·소리를 지어내지 않도록 지시).
 const GEMINI_MODEL = 'gemini-3.7-flash'
-const OPENAI_MODEL = 'gpt-4o-mini'
+// gpt-4o-mini는 2027-01-14 종료 → 저가 추론 모델(2026-11-15)
+const OPENAI_MODEL = 'gpt-6-luna'
 
 export type ShortMeta = {
   id: string
@@ -97,7 +99,7 @@ async function callOpenAi(apiKey: string, system: string, user: string): Promise
       model: OPENAI_MODEL,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
       response_format: { type: 'json_object' },
-      temperature: 0.6,
+      ...openAIGenerationParams(OPENAI_MODEL, { temperature: 0.6 }),
     }),
     cache: 'no-store',
     signal: AbortSignal.timeout(60_000),

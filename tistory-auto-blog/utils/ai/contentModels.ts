@@ -30,9 +30,8 @@ export type ContentModelOption = {
 
 export const CONTENT_MODEL_OPTIONS: ContentModelOption[] = [
   // OpenAI — GPT-6 계열은 Chat Completions에서 거절되면 Responses API로 다시 보낸다(utils/ai/contentJson.ts).
-  { provider: 'openai', value: 'gpt-4.1', name: 'GPT-4.1', purpose: '긴 지시사항을 따르는 블로그 원문 (기본)', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-4o-mini', name: 'GPT-4o mini', purpose: '짧은 글·가벼운 작업', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
-  { provider: 'openai', value: 'gpt-4o', name: 'GPT-4o', purpose: '일반 블로그 글', category: 'text', lifecycle: 'stable', endpoint: 'chat-completions' },
+  // 2026-11-15: gpt-4.1·gpt-4o·gpt-4o-mini는 2027-01-14 종료라 뺐다(주인님 결정 4번, docs/AI_MODEL_CATALOG.md). 저장된 옛 값은 아래 RETIRED_CONTENT_MODEL로 바꿔 읽는다.
+  { provider: 'openai', value: 'gpt-6.1-terra', name: 'GPT-6.1 Terra', purpose: '일반 블로그 원문 (기본)', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-5.6-luna', name: 'GPT-5.6 Luna', purpose: '추론형 · 가벼운 작업', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-5.6-terra', name: 'GPT-5.6 Terra', purpose: '추론형 · 일반 장문', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
   { provider: 'openai', value: 'gpt-5.6-sol', name: 'GPT-5.6 Sol', purpose: '추론형 · 복잡한 주제', category: 'reasoning', lifecycle: 'stable', endpoint: 'chat-completions' },
@@ -60,12 +59,12 @@ export function contentModelLabel(model: ContentModelOption) {
   return `${model.name} · ${model.purpose}`
 }
 
-/** 처음 화면을 열면 OpenAI GPT-4.1이 선택된다(2026-10-01 주인님 지시). 회원이 고른 값은 브라우저에 기억돼 다음에도 그대로 쓴다. */
+/** 처음 화면을 열면 OpenAI가 선택된다(2026-10-01 주인님 지시, 기본 모델은 2026-11-15 GPT-4.1 → GPT-6.1 Terra). 회원이 고른 값은 브라우저에 기억돼 다음에도 그대로 쓴다. */
 export const DEFAULT_CONTENT_PROVIDER: ContentProvider = 'openai'
 
 /** 플랫폼을 바꾸면 그 플랫폼의 이 모델로 즉시 바뀐다(Preview 모델은 기본값으로 쓰지 않는다). */
 const DEFAULT_MODEL_BY_PROVIDER: Record<ContentProvider, string> = {
-  openai: 'gpt-4.1',
+  openai: 'gpt-6.1-terra',
   anthropic: 'claude-haiku-4-5-20251001',
   gemini: 'gemini-3.5-flash',
 }
@@ -86,6 +85,10 @@ export function getDefaultContentModel(provider: ContentProvider) {
 // gpt-5는 2026-12-11 종료, gemini-2.5는 2026-12-01부터 새 모델로 자동 연결.
 const RETIRED_CONTENT_MODEL: Record<string, string> = {
   'gpt-5': 'gpt-5.6-sol',
+  // 2027-01-14 종료(2026-11-15 교체)
+  'gpt-4.1': 'gpt-6.1-terra',
+  'gpt-4o': 'gpt-6.1-terra',
+  'gpt-4o-mini': 'gpt-6-luna',
   'gemini-2.5-flash': 'gemini-3.8-flash',
   'gemini-2.5-pro': 'gemini-3.8-flash',
   'gemini-2.5-flash-lite': 'gemini-3.5-flash-lite',

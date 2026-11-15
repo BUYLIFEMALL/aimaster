@@ -58,7 +58,7 @@ export default function BlogSidebar({ onNavigate }: BlogSidebarProps) {
   }, []);
 
   const handleLogout = async () => {
-    await createClient().auth.signOut();
+    await createClient().auth.signOut({ scope: "local" });
     if (onNavigate) onNavigate();
     router.push("/auth");
     router.refresh();

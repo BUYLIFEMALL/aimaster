@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import './globals.css'
 import BlogShell from './_components/BlogShell'
 
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <BlogShell>{children}</BlogShell>
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
       </body>
     </html>
   )

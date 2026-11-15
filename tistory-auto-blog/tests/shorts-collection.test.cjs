@@ -21,6 +21,7 @@ const baseRequire = (name) => {
   if (name.endsWith('/ai/collector')) return {};
   if (name.endsWith('/yearPolicy')) return loadTs('utils/yearPolicy.ts', () => ({})); // v1.86 BLC-12 공용 year-policy 사본
   if (name.endsWith('/ai/youtubeShorts')) return youtube;
+  if (name.endsWith('/openaiRequestParams')) return loadTs('utils/ai/openaiRequestParams.ts', () => ({})); // 2026-11-15 gpt-6-luna 교체
   throw Error(`Unexpected import: ${name}`);
 };
 const youtube = loadTs('utils/ai/youtubeShorts.ts', baseRequire);

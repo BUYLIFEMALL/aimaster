@@ -2,6 +2,10 @@ import 'server-only'
 import * as cheerio from 'cheerio'
 import { BlockedUrlError, safeFetch } from '../safeFetch'
 import { sanitizeYear } from '../yearPolicy'
+import { openAIGenerationParams } from './openaiRequestParams'
+
+// gpt-4o-mini는 2027-01-14 종료 → 저가 추론 모델(2026-11-15, docs/AI_MODEL_CATALOG.md)
+const STRUCTURE_MODEL = 'gpt-6-luna'
 
 // threads/shots의 "AI 콘텐츠 3종 수집 패턴"(docs/PLATFORM_PATTERNS.md §2)을 blog에 이식한 버전.
 // 다른 점: threads/shots는 후보 자체가 곧 게시글 본문이지만, blog는 후보가 "주제 + 키워드"
@@ -389,7 +393,7 @@ export async function structureBlogCandidates(params: {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: STRUCTURE_MODEL,
       messages: [
         { role: 'system', content: STRUCTURE_SYSTEM_PROMPT },
         {
@@ -398,7 +402,7 @@ export async function structureBlogCandidates(params: {
         },
       ],
       response_format: { type: 'json_object' },
-      temperature: 0.6,
+      ...openAIGenerationParams(STRUCTURE_MODEL, { temperature: 0.6 }),
     }),
   })
 
