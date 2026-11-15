@@ -21,7 +21,7 @@
 | `shots` | v1.51 배포됨(11-14) — 「모든 장면 영상으로」 실제 유료 실행은 회원 첫 사용 때 오류가 나면 시험 | — | `shots/docs/IMPROVEMENTS.md` |
 | `shorts-onestop-studio`·`music-video-studio` | 공용 「내 자료함」 음악 합치기 검토(영상 스튜디오 v1.35 결과 참고, 가사 시간 등 원본 정보는 유지) — 필수 아님 | 다음에 그 프로그램을 손댈 때 | `docs/MEMBER_LIBRARY.md`, `ai-video-studio/docs/PLAN_20261111_MEMBER_LIBRARY_MUSIC.md` §3 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | 빨간 문제 목록 칸 위치 수정 `5ba0f2aa6` 미배포 대기 · 하단 자막형 설명·자막 겹침 검토 | 다음 원스톱 배포 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
+| `shorts-onestop-studio` | 빨간 문제 목록 칸 위치 `5ba0f2aa6` · 하단 자막형 설명·자막 겹침 `b1cb6878b` 수정 — 미배포 대기 | 다음 원스톱 배포 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `shorts-onestop-studio` | v1.55 배포됨(11-14). 남은 것: 영상 주소를 상품 쪽으로 반환 | 받는 쪽 상품ID 형식 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 최근 완료 (최근 10개)
