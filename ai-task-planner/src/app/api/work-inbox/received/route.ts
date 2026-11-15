@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     if (request.headers.get("origin") !== request.nextUrl.origin) throw new PlannerError("요청 출처를 확인할 수 없습니다.", 403);
     const user = await authorizePlanner();
     const raw = await request.text();
-    if (Buffer.byteLength(raw, "utf8") > 2000) throw new PlannerError("입력 크기를 넘었습니다.", 413);
+    if (Buffer.byteLength(raw, "utf8") > 4000) throw new PlannerError("입력 크기를 넘었습니다.", 413);
     let parsed: unknown;
     try { parsed = JSON.parse(raw); } catch { throw new PlannerError("입력 형식을 확인해주세요."); }
     const input = receivedActionSchema.parse(parsed);
@@ -36,21 +36,29 @@ export async function POST(request: NextRequest) {
       if (error) throw new PlannerError("버리지 못했습니다. 잠시 후 다시 시도해주세요.", 503);
       return NextResponse.json({ ok: true }, { headers: NO_STORE });
     }
-    // 두 번 추가 막기: 아직 안 가져간 줄에만 먼저 「가져감」 표시 → 할 일 추가 → 실패하면 표시 되돌림
+    // 두 번 추가 막기: 아직 안 가져간 줄에만 먼저 「가져감」 표시 → 할 일 추가(기록 저장 1번) → 실패하면 표시 되돌림
+    const ids = input.action === "add" ? [input.id] : [...new Set(input.ids)];
     const claimed = await inbox().update({ imported_at: new Date().toISOString() })
-      .eq("user_id", user.id).eq("target_slug", RECEIVED_TARGET).eq("id", input.id).is("imported_at", null)
-      .select(COLUMNS).maybeSingle();
+      .eq("user_id", user.id).eq("target_slug", RECEIVED_TARGET).in("id", ids).is("imported_at", null)
+      .select(COLUMNS);
     if (claimed.error) throw new PlannerError("받은 할 일을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.", 503);
-    if (!claimed.data) throw new PlannerError("이미 추가했거나 지운 항목입니다. 목록을 새로 불러왔습니다.", 409);
-    const release = () => inbox().update({ imported_at: null }).eq("user_id", user.id).eq("id", input.id);
+    const rows = ((claimed.data ?? []) as ReceivedRow[]).sort((a, b) => a.created_at.localeCompare(b.created_at));
+    if (!rows.length) throw new PlannerError("이미 추가했거나 지운 항목입니다. 목록을 새로 불러왔습니다.", 409);
+    const claimedIds = rows.map(r => r.id);
+    const release = () => inbox().update({ imported_at: null }).eq("user_id", user.id).in("id", claimedIds);
     try {
       const record = await loadWorkspace(user.id);
       if (record.revision !== input.revision) throw new PlannerError("다른 화면에서 기록이 변경됐습니다. 최신 기록을 불러온 뒤 다시 추가해주세요.", 409);
-      const taskId = crypto.randomUUID();
-      const updated = applyCommand(record.workspace, { type: "task.add", input: receivedTaskInput(claimed.data as ReceivedRow, record.workspace, input.date) }, Date.now(), () => taskId);
+      let updated = record.workspace;
+      const added: { id: string; taskId: string }[] = [];
+      for (const row of rows) {
+        const taskId = crypto.randomUUID();
+        updated = applyCommand(updated, { type: "task.add", input: receivedTaskInput(row, record.workspace, input.date, input.categoryId) }, Date.now(), () => taskId);
+        added.push({ id: row.id, taskId });
+      }
       const saved = await commitWorkspace(user.id, record.revision, crypto.randomUUID(), updated);
-      await inbox().update({ imported_ref: taskId }).eq("user_id", user.id).eq("id", input.id);
-      return NextResponse.json({ workspace: saved.workspace, revision: saved.revision, userId: user.id, serverNow: Date.now() }, { headers: NO_STORE });
+      await Promise.all(added.map(a => inbox().update({ imported_ref: a.taskId }).eq("user_id", user.id).eq("id", a.id)));
+      return NextResponse.json({ workspace: saved.workspace, revision: saved.revision, userId: user.id, serverNow: Date.now(), addedIds: claimedIds }, { headers: NO_STORE });
     } catch (e) {
       await release();
       throw e;

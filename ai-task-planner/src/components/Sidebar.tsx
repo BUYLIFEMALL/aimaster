@@ -12,7 +12,7 @@ export const SCREENS = [
   { href: "guide", label: "연동 & 사용 매뉴얼", detail: "5단계 파이프라인 & FAQ", icon: "📖" }
 ];
 
-export function Sidebar({ email, screen, navigate, busy }: { email: string; screen: string; navigate: (screen: string) => void; busy: boolean }) {
+export function Sidebar({ email, screen, navigate, busy, receivedCount = 0 }: { email: string; screen: string; navigate: (screen: string) => void; busy: boolean; receivedCount?: number }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
 
@@ -78,7 +78,7 @@ export function Sidebar({ email, screen, navigate, busy }: { email: string; scre
               {item.step ?? item.icon ?? "•"}
             </span>
             <span>
-              <strong>{item.label}</strong>
+              <strong>{item.label}{item.href === "dashboard" && receivedCount > 0 && <span className="received-badge" aria-label={`받은 할 일 ${receivedCount}개`} title="업무 워크스페이스에서 받은 할 일">📥 {receivedCount}</span>}</strong>
               <small>{item.detail}</small>
             </span>
           </a>

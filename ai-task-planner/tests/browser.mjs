@@ -6,6 +6,7 @@ import path from "node:path";
 import assert from "node:assert/strict";
 import { emptyWorkspace, localDate, workspaceSchema } from "../src/lib/planner/model.ts";
 import { applyCommand } from "../src/lib/planner/engine.ts";
+import { receivedTaskInput } from "../src/lib/planner/received.ts";
 
 const artifacts = path.resolve("test-artifacts"); await mkdir(artifacts, { recursive: true });
 const bundle = await build({ entryPoints: ["tests/browser-entry.tsx"], bundle: true, write: false, format: "iife", platform: "browser", jsx: "automatic", define: { "process.env.NODE_ENV": '"development"' }, tsconfig: "tsconfig.json" });
@@ -14,6 +15,7 @@ let workspace = emptyWorkspace(), revision = 0, failStatus = 0, loseNextAcknowle
 let holdNextRead = false, releaseRead, readStarted;
 let analysisMode = "success", analysisCalls = 0;
 const commandIds = new Set(), requests = [];
+let receivedItems = [];
 const snapshot = () => ({ workspace, revision, serverNow: Date.now(), userId: "fixture-member" });
 const server = createServer(async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
@@ -24,6 +26,18 @@ const server = createServer(async (req, res) => {
     res.setHeader("Content-Type", "application/json");
     if (analysisMode === "missing") { res.statusCode = 400; res.end(JSON.stringify({ error: "본인 Gemini 키를 등록해주세요.", needKey: true })); }
     else res.end(JSON.stringify({ revision: input.revision, date: input.date, model: workspace.settings.aiModel, analyzedAt: new Date().toISOString(), result: analysisMode === "malformed" ? { summary: "필드 누락" } : { summary: "모의 분석 결과입니다.", strengths: ["완료 기록 확인"], suggestions: Array.from({ length: 3 }, (_, i) => ({ action: `개선 ${i + 1}`, evidence: "제공한 완료 기록" })) } }));
+  }
+  else if (req.url === "/api/work-inbox/received") {
+    res.setHeader("Content-Type", "application/json;charset=utf-8");
+    if (req.method === "GET") { res.end(JSON.stringify({ items: receivedItems })); return; }
+    const chunks = []; for await (const chunk of req) chunks.push(chunk);
+    const body = JSON.parse(Buffer.concat(chunks).toString());
+    if (body.action === "discard") { receivedItems = receivedItems.filter(i => i.id !== body.id); res.end(JSON.stringify({ ok: true })); return; }
+    if (body.revision !== revision) { res.statusCode = 409; res.end(JSON.stringify({ error: "다른 화면에서 기록이 변경됐습니다." })); return; }
+    const ids = body.action === "add" ? [body.id] : body.ids, rows = receivedItems.filter(i => ids.includes(i.id));
+    for (const row of rows) workspace = applyCommand(workspace, { type: "task.add", input: receivedTaskInput(row, workspace, body.date, body.categoryId) }, Date.now());
+    revision++; receivedItems = receivedItems.filter(i => !ids.includes(i.id));
+    res.end(JSON.stringify({ ...snapshot(), addedIds: rows.map(r => r.id) })); return;
   }
   else if (req.url.startsWith("/api/workspace")) {
     res.setHeader("Content-Type", "application/json;charset=utf-8");
@@ -212,6 +226,25 @@ try {
   await page.getByLabel("백업 JSON 파일 (4MiB 이하)").setInputFiles({ name: "broken.json", mimeType: "application/json", buffer: Buffer.from('{"program":"wrong"}') }); await page.getByRole("alert").waitFor(); assert.equal(workspace.tasks.length, backupCount + 1); check("JSON preview writes nothing before confirmation; restore adds records and invalid files preserve existing notes/tasks");
   await page.getByRole("textbox", { name: "할 일 검색" }).fill("SUM"); const csvDownloadPromise = page.waitForEvent("download"); await page.getByRole("button", { name: "선택 범위 CSV 다운로드" }).click(); const csvDownload = await csvDownloadPromise; const csv = await readFile(await csvDownload.path(), "utf8"); assert.ok(csv.startsWith("\uFEFF")); assert.ok(csv.includes("실제집중(초·전체기간)")); assert.ok(csv.includes("'=SUM(1,2) 한글")); assert.equal(csv.includes("보고서 수정 완료"), false); check("actual Unicode CSV download respects the search scope and escapes a formula title");
   await page.getByRole("textbox", { name: "할 일 검색" }).fill(""); await menu("대시보드").click();
+  // 2026-11-15 받은 할 일: 분류 고르기·하나 추가·모두 추가·메뉴 개수 배지
+  workspace = applyCommand(workspace, { type: "category.add", name: "받은 분류" }, Date.now()); revision++;
+  const pickedCategory = workspace.categories.find(c => c.name === "받은 분류").id, beforeReceived = workspace.tasks.length;
+  const receivedRow = (title, data = null) => ({ id: crypto.randomUUID(), source_slug: "ai-work-workspace", title, data, created_at: new Date().toISOString() });
+  receivedItems = [receivedRow("받은 일 하나", { 우선순위: "높음" }), receivedRow("받은 일 둘"), receivedRow("받은 일 셋")];
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await page.getByRole("heading", { name: /받은 할 일/ }).waitFor();
+  assert.equal(await page.locator(".sidebar .received-badge").textContent(), "📥 3");
+  await page.getByRole("combobox", { name: "넣을 분류" }).selectOption(pickedCategory);
+  await page.locator(".received-item").filter({ hasText: "받은 일 하나" }).getByRole("button", { name: "➕ 할 일로 추가" }).click();
+  await page.getByText("받은 할 일을 추가했습니다", { exact: true }).waitFor();
+  assert.equal(await page.locator(".sidebar .received-badge").textContent(), "📥 2");
+  await page.getByRole("button", { name: "➕ 모두 추가 (2개)" }).click();
+  await page.getByText("받은 할 일 2개를 추가했습니다", { exact: true }).waitFor();
+  const addedReceived = workspace.tasks.slice(beforeReceived);
+  assert.deepEqual(addedReceived.map(t => t.title), ["받은 일 하나", "받은 일 둘", "받은 일 셋"]);
+  assert.ok(addedReceived.every(t => t.categoryId === pickedCategory)); assert.equal(addedReceived[0].priority, "high");
+  assert.equal(await page.locator(".sidebar .received-badge").count(), 0); assert.equal(await page.locator(".received-tasks").count(), 0);
+  check("received tasks: chosen category, single add, add-all in one save, and menu count badge");
   await page.screenshot({ path: path.join(artifacts, "overview-desktop.png"), fullPage: true });
   await page.setViewportSize({ width: 1000, height: 950 });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));

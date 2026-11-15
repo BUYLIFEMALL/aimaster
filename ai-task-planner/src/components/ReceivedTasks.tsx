@@ -4,13 +4,25 @@ import type { ReceivedRow } from "@/lib/planner/received";
 
 const SOURCE: Record<string, string> = { "ai-work-workspace": "업무 워크스페이스" };
 
-export function ReceivedTasks({ items, busy, add, discard }: { items: ReceivedRow[]; busy: boolean; add: (id: string) => void; discard: (id: string) => void }) {
+export function ReceivedTasks({ items, busy, categories, categoryId, chooseCategory, add, addAll, discard }: {
+  items: ReceivedRow[]; busy: boolean;
+  categories: { id: string; name: string }[]; categoryId: string; chooseCategory: (id: string) => void;
+  add: (id: string) => void; addAll: () => void; discard: (id: string) => void;
+}) {
   if (!items.length) return null;
   return (
     <section className="card received-tasks" aria-label="받은 할 일">
       <div className="section-header">
         <h2>📥 받은 할 일 <small>{items.length}개</small></h2>
-        <span className="muted received-hint">업무 워크스페이스에서 보낸 할 일입니다. 「할 일로 추가」를 누르면 목록에 들어갑니다.</span>
+        <span className="muted received-hint">업무 워크스페이스에서 보낸 할 일입니다. 분류를 고르고 「할 일로 추가」를 누르면 목록에 들어갑니다.</span>
+      </div>
+      <div className="received-toolbar">
+        <label>넣을 분류
+          <select value={categoryId} disabled={busy} onChange={e => chooseCategory(e.target.value)}>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </label>
+        {items.length > 1 && <button className="primary received-add-all" disabled={busy} onClick={addAll}>➕ 모두 추가 ({items.length}개)</button>}
       </div>
       <ul className="received-list">
         {items.map(item => {

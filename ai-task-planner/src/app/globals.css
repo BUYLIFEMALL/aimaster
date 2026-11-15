@@ -766,3 +766,35 @@ p {
   display: flex;
   gap: 6px;
 }
+/* 받은 할 일: 분류 고르기·한꺼번에 추가·메뉴 개수 배지 (2026-11-15) */
+.received-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.received-toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.received-toolbar select {
+  min-width: 160px;
+}
+.received-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #a5f3fc;
+  background: rgba(14, 116, 144, 0.35);
+  border: 1px solid #0e7490;
+  vertical-align: 1px;
+}

@@ -57,3 +57,27 @@ test("received row becomes a task input with safe date, priority and default cat
   assert.equal(receivedActionSchema.safeParse({ action: "add", id: crypto.randomUUID(), date: day, revision: 3 }).success, true);
   assert.equal(receivedActionSchema.safeParse({ action: "add", id: crypto.randomUUID(), date: day, revision: 3, userId: "다른 회원" }).success, false);
 });
+
+// 2026-11-15 받은 할 일 분류 고르기·한꺼번에 추가
+import { receivedCategoryId } from "../src/lib/planner/received.ts";
+test("received task uses the chosen active category, falls back to default for archived or unknown", () => {
+  let w = applyCommand(emptyWorkspace(), { type: "category.add", name: "회의" }, now);
+  w = applyCommand(w, { type: "category.add", name: "옛 분류" }, now);
+  const meeting = w.categories.find(c => c.name === "회의").id, old = w.categories.find(c => c.name === "옛 분류").id;
+  w = applyCommand(w, { type: "category.archive", id: old }, now);
+  const r = { id: crypto.randomUUID(), source_slug: "ai-work-workspace", title: "주간 회의 준비", data: null, created_at: new Date(now).toISOString() };
+  assert.equal(receivedTaskInput(r, w, day, meeting).categoryId, meeting);
+  assert.equal(receivedTaskInput(r, w, day, old).categoryId, w.settings.defaultCategoryId);
+  assert.equal(receivedCategoryId(w, "없는 분류"), w.settings.defaultCategoryId);
+  assert.equal(receivedCategoryId(w), w.settings.defaultCategoryId);
+});
+test("addAll schema accepts 1~50 ids with category and refuses empty, too many or extra fields", () => {
+  const ids = n => Array.from({ length: n }, () => crypto.randomUUID());
+  assert.equal(receivedActionSchema.safeParse({ action: "addAll", ids: ids(3), date: day, revision: 1, categoryId: "c" }).success, true);
+  assert.equal(receivedActionSchema.safeParse({ action: "addAll", ids: [], date: day, revision: 1 }).success, false);
+  assert.equal(receivedActionSchema.safeParse({ action: "addAll", ids: ids(51), date: day, revision: 1 }).success, false);
+  assert.equal(receivedActionSchema.safeParse({ action: "addAll", ids: ["not-uuid"], date: day, revision: 1 }).success, false);
+  assert.equal(receivedActionSchema.safeParse({ action: "addAll", ids: ids(2), date: day, revision: 1, userId: "x" }).success, false);
+  // 50개 묶음이 서버 입력 한도(4,000바이트) 안에 들어간다
+  assert.ok(Buffer.byteLength(JSON.stringify({ action: "addAll", ids: ids(50), date: day, revision: 99999, categoryId: crypto.randomUUID() })) < 4000);
+});
