@@ -137,7 +137,8 @@ export default function LoginPage() {
   // 2026-11-15 주인님 선택 B안 「누아르 골드 라운지」(시안 D:\PDS\Design\aimaster_main_login_20261115) — DESIGN.md 로그인 5단계 골격.
   // 화면 모양만 바꿈: 로그인·세션 제한·핸드폰 받기·이메일/비밀번호 찾기·가입 링크 동작은 그대로
   const field = "flex items-center gap-2.5 rounded-xl border border-[#2a2a36] bg-[#13131b] px-3.5 py-3 transition focus-within:border-[#d4af37] focus-within:shadow-[0_0_0_3px_rgba(212,175,55,0.15)]";
-  const inputCls = "w-full bg-transparent text-[15px] text-slate-100 outline-none placeholder:text-zinc-600";
+  // 브라우저 자동 채움(연한 파랑 바탕)을 칸 색(#13131b)·밝은 글자로 덮음
+  const inputCls = "w-full bg-transparent text-[15px] text-slate-100 outline-none placeholder:text-zinc-600 [&:-webkit-autofill]:[-webkit-text-fill-color:#f1f5f9] [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#13131b_inset] [&:-webkit-autofill]:[caret-color:#f1f5f9] [&:-webkit-autofill]:[transition:background-color_9999s]";
   const goldBtn = "mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-b from-[#f5c842] to-[#d4af37] py-3.5 text-base font-extrabold text-[#1a1405] shadow-[0_5px_0_#8a6d12,0_12px_30px_rgba(245,200,66,0.25)] transition active:translate-y-[3px] active:shadow-[0_2px_0_#8a6d12] disabled:opacity-60";
 
   return (
