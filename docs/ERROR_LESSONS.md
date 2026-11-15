@@ -2,6 +2,12 @@
 
 
 
+## 2026-11-15 커밋 도우미로 커밋했는데 공용 스테이징에 내 파일이 커밋 전 판(MM·D)으로 남음 (`mall-builder` 디자인 빌더, [역할: mall-design-builder])
+- 증상: `commit-paths.mjs` 커밋은 정상(HEAD·원격 맞음)인데, 직후 `git status`에 방금 커밋한 파일이 `MM`(스테이징 = 커밋 전 판), 새 시험 파일은 `D` + `??`로 보임. 그대로 두면 다른 세션의 일반 커밋이 이 옛 판을 커밋해 **방금 고친 내용이 되돌려질 수 있음**. 같은 날 두 번(I22·작업표 커밋 뒤, 스킨 2차 커밋 뒤).
+- 원인(블랙박스 `.git/aimaster-index-log.txt`): 내 두 커밋 사이 11:38:31에 **맥미니(SMB) 세션의 `commit-paths:end`**가 같은 공용 스테이징을 다시 썼다 — 그 세션이 잡아 둔 커밋 전 스테이징 기준으로 맞추며 내 경로가 옛 판으로 돌아간 것으로 추정(잠금은 한 번에 하나지만, 「잡아 둔 기준」이 낡으면 덮어씀).
+- 해결: 내 경로만 `git reset -q HEAD -- <내가 커밋한 경로들>`(작업 파일은 그대로) → `git status --porcelain -- <경로>` 비고 `git diff HEAD --stat` 0 확인.
+- 다음부터: 커밋(특히 연속 커밋) 직후 `git status --porcelain -- <방금 커밋한 경로>`가 비어 있는지 본다. `MM`·`D `가 보이면 위처럼 내 경로만 맞춘다. 커밋 도우미 담당은 「맞추기 직전 HEAD 기준으로 다시 계산」하도록 보강 검토(요청).
+
 ## 2026-11-15 개발 서버를 켠 채 같은 폴더에서 `next build` → 개발 서버 전 화면 「Jest worker encountered 2 child process exceptions」 (`mall-builder` v1.13, [역할: mall-builder])
 - **증상**: Lab 확인용 개발 서버(3210)가 모든 화면에서 위 오류 창을 띄움(프론트 세션이 발견, 상호 인수인계 S48).
 - **원인(추정)**: 배포 전 검사로 같은 `mall-builder/` 폴더에서 `next build`를 돌려 개발 서버가 쓰던 `.next`를 덮어씀. 게다가 「메모리 부족으로 자동 종료」 알림을 받은 그 서버는 실제로는 Node 프로세스가 살아 있었음(알림 ≠ 프로세스 종료).
@@ -10,7 +16,8 @@
 - **함께 배운 것**: 함수 적용 확인을 `position('extra_sale' in 정의)`로 했다가 기존 `default_extra_sale` 글자에 걸려 「이미 있음」으로 잘못 봄 → 새 판에만 있는 고유 글자(`v_sale_in`)로 확인한다. 운영 MCP `apply_migration` 확인 창이 0.1~0.2초 만에 자동 취소되면 SQL 편집기(ego, 붙여 넣기 → LF·길이 대조 → 실행 → 「파괴적 작업」 확인 창은 함수 본문 `delete` 감지라 내용 확인 뒤 실행)로 적용하고 MCP 읽기로 다시 확인한다.
 
 ## 2026-11-14 Supabase 대시보드 SQL 편집기에 붙여 넣으면 줄바꿈이 CRLF로 바뀌어 함수 본문에 CR이 섞임 (`mall-builder` 0071·0072 Lab, [역할: mall-builder])
-- **증상**: 실행은 성공하지만 그 SQL로 만든 함수 본문(`prosrc`)에 CR()이 들어감 → 나중에 「함수 문구를 정확히 한 번 바꾸기」(`pg_temp.swap`) 마이그레이션이 여러 줄 문구를 못 찾아 멈출 수 있음.
+- **증상**: 실행은 성공하지만 그 SQL로 만든 함수 본문(`prosrc`)에 CR(
+)이 들어감 → 나중에 「함수 문구를 정확히 한 번 바꾸기」(`pg_temp.swap`) 마이그레이션이 여러 줄 문구를 못 찾아 멈출 수 있음.
 - **원인**: 윈도우 클립보드로 Monaco 편집기에 붙여 넣으면 편집기 줄바꿈이 CRLF가 됨(붙여 넣은 길이가 파일보다 줄 수만큼 김).
 - **해결**: 붙여 넣은 뒤 실행 전에 `page.evaluate(() => monaco.editor.getModels()[…].setEOL(0))`로 LF로 맞추고 길이가 파일과 같은지 확인. 이미 들어간 함수는 `execute replace(pg_get_functiondef(oid), chr(13), '')`로 다시 만듦(Lab 7개 정리). 확인: `select proname from pg_proc where prosrc like '%'||chr(13)||'%'`.
 - **다음부터**: 편집기로 마이그레이션을 넣을 때는 LF 맞춤·길이 대조를 같은 스크립트에서 하고, 적용 뒤 위 확인 쿼리로 CR 0을 본다.
