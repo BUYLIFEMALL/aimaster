@@ -28,6 +28,26 @@ export function iconColor(name: string): string {
   return PALETTE[h % PALETTE.length];
 }
 
+const HEX6 = /^#[0-9a-f]{6}$/;
+/** 어둡게 테마 주소창 색 — builder/templates.ts DARK_BG와 같은 값(아이콘 경로가 무거운 빌더 파일을 불러오지 않게 따로 둠) */
+export const DARK_BAR = "#0c0a09";
+
+function publishedTheme(design: unknown): Record<string, unknown> {
+  const t = design && typeof design === "object" && !Array.isArray(design) ? (design as Record<string, unknown>).theme : null;
+  return t && typeof t === "object" && !Array.isArray(t) ? (t as Record<string, unknown>) : {};
+}
+
+/** S50(2026-11-15): 몰 대표색 — 게시된 디자인 테마의 포인트색, 없으면 몰 이름 색. 앱 아이콘 바탕 */
+export function brandColor(name: string, design: unknown): string {
+  const p = String(publishedTheme(design).primary ?? "").trim().toLowerCase();
+  return HEX6.test(p) ? p : iconColor(name);
+}
+
+/** S50: 휴대폰 주소창·앱 설명 파일 theme_color — 어둡게 테마면 어두운 바탕, 아니면 대표색 */
+export function barColor(name: string, design: unknown): string {
+  return publishedTheme(design).mode === "dark" ? DARK_BAR : brandColor(name, design);
+}
+
 /** 홈 화면에 보일 짧은 이름(12자) */
 export function shortName(name: string): string {
   const s = (name ?? "").trim();
@@ -35,7 +55,7 @@ export function shortName(name: string): string {
 }
 
 /** 몰 앱 설명 파일 — 하위 도메인으로 들어왔으면 시작 주소가 「/」, 아니면 「/s/<몰>/」 */
-export function buildManifest(input: { name: string; slug: string; onSubdomain: boolean; version: string }) {
+export function buildManifest(input: { name: string; slug: string; onSubdomain: boolean; version: string; themeColor?: string }) {
   const start = input.onSubdomain ? "/" : `/s/${input.slug}/`;
   const iconBase = `/s/${input.slug}/app-icon`;
   return {
@@ -48,7 +68,7 @@ export function buildManifest(input: { name: string; slug: string; onSubdomain: 
     scope: start,
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: iconColor(input.name),
+    theme_color: input.themeColor ?? iconColor(input.name),
     icons: ICON_SIZES.map((s) => ({ src: `${iconBase}/${s}?v=${input.version}`, sizes: `${s}x${s}`, type: "image/png", purpose: "any" })),
   };
 }

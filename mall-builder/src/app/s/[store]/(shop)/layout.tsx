@@ -11,7 +11,7 @@ import { readGuestCart } from "@/lib/guest-store";
 import { headers } from "next/headers";
 import { canEnterClosed, openWhileClosed, readClosed } from "@/lib/closed";
 import type { Metadata, Viewport } from "next";
-import { APPLE_ICON_SIZE, EARLY_INSTALL_SCRIPT, iconColor, shouldOfferInstall } from "@/lib/pwa";
+import { APPLE_ICON_SIZE, EARLY_INSTALL_SCRIPT, barColor, shouldOfferInstall } from "@/lib/pwa";
 import PwaPrompt from "./pwa-prompt";
 import RefCatcher from "./ref-catcher";
 import DesignEditOverlay from "./design-edit-overlay";
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ store: st
 export async function generateViewport({ params }: { params: Promise<{ store: string }> }): Promise<Viewport> {
   const { store: slug } = await params;
   const store = await getStoreBySlug(slug);
-  return { themeColor: iconColor(store.name) };
+  return { themeColor: barColor(store.name, await getPublishedDesign(store.id)) }; // S50: 게시 테마 색(없으면 몰 이름 색)
 }
 
 // 1안 106. 네오 모던 B2B 커머스 & 셀렉트 큐레이션 스튜디오 스타일 유저 화면 공통 틀

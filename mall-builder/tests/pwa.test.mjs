@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { appLogoOf, buildManifest, iconColor, iconInitial, shortName, shouldOfferInstall } from "../src/lib/pwa.ts";
+import { appLogoOf, buildManifest, iconColor, iconInitial, shortName, shouldOfferInstall, brandColor, barColor, DARK_BAR } from "../src/lib/pwa.ts";
 
 test("로고 주소는 https만", () => {
   assert.equal(appLogoOf({ app_logo: "https://x.supabase.co/a.png" }), "https://x.supabase.co/a.png");
@@ -35,4 +35,15 @@ test("설치 안내는 승인된 사업자 유저만", () => {
   assert.equal(shouldOfferInstall({ kind: "consumer", approval_status: "approved" }), false);
   assert.equal(shouldOfferInstall({ kind: "business", approval_status: "pending" }), false);
   assert.equal(shouldOfferInstall({ kind: "business", approval_status: "approved" }), true);
+});
+
+test("S50 대표색·주소창 색: 게시 테마 포인트색 → 없으면 몰 이름 색, 어둡게면 주소창만 어두운 바탕", () => {
+  assert.equal(brandColor("가나몰", { theme: { primary: "#10B981" } }), "#10b981");
+  assert.equal(brandColor("가나몰", {}), iconColor("가나몰"));
+  assert.equal(brandColor("가나몰", { theme: { primary: "red" } }), iconColor("가나몰"));
+  assert.equal(brandColor("가나몰", null), iconColor("가나몰"));
+  assert.equal(barColor("가나몰", { theme: { primary: "#10b981", mode: "dark" } }), DARK_BAR);
+  assert.equal(barColor("가나몰", { theme: { primary: "#10b981", mode: "light" } }), "#10b981");
+  assert.equal(buildManifest({ name: "가나몰", slug: "gana", onSubdomain: false, version: "x", themeColor: "#10b981" }).theme_color, "#10b981");
+  assert.equal(buildManifest({ name: "가나몰", slug: "gana", onSubdomain: false, version: "x" }).theme_color, iconColor("가나몰"));
 });

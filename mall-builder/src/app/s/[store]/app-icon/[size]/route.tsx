@@ -1,7 +1,8 @@
 // D32 몰 앱 아이콘(PNG) — 몰 로고가 있으면 로고, 없으면 몰 이름 첫 글자. 크기는 192·512·180(아이폰)만
 import { ImageResponse } from "next/og";
 import { createClient } from "@/lib/supabase/server";
-import { APPLE_ICON_SIZE, ICON_SIZES, appLogoOf, iconColor, iconInitial } from "@/lib/pwa";
+import { APPLE_ICON_SIZE, ICON_SIZES, appLogoOf, brandColor, iconInitial } from "@/lib/pwa";
+import { getPublishedDesign } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ store: 
   const size = Number(raw);
   if (![...ICON_SIZES, APPLE_ICON_SIZE].includes(size as never)) return new Response("bad size", { status: 400 });
   const supabase = await createClient();
-  const { data: store } = await supabase.from("mall_builder_stores").select("name, settings").eq("slug", slug).maybeSingle();
+  const { data: store } = await supabase.from("mall_builder_stores").select("id, name, settings").eq("slug", slug).maybeSingle();
   if (!store) return new Response("not found", { status: 404 });
   const name = store.name as string;
   const logo = appLogoOf(store.settings);
@@ -35,7 +36,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ store: 
         <img src={logo} alt="" width={size - pad * 2} height={size - pad * 2} style={{ objectFit: "contain" }} />
       </div>
     ) : (
-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: iconColor(name), color: "#ffffff", fontSize: Math.round(size * 0.56), fontWeight: 700, fontFamily: font ? "KR" : undefined }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: brandColor(name, await getPublishedDesign(store.id as string)), color: "#ffffff", fontSize: Math.round(size * 0.56), fontWeight: 700, fontFamily: font ? "KR" : undefined }}>
         {ch}
       </div>
     ),
