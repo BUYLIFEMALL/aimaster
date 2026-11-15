@@ -2,6 +2,12 @@
 
 
 
+## 2026-11-15 `package.json`에 없는 패키지(`lucide-react`)를 손님 화면 3곳이 불러와 개발 서버 500·운영 빌드 실패 위험 (`mall-builder` E5·M4-C4, [역할: mall-builder] 확인)
+- 증상: 3210 개발 서버 손님 화면 500(프론트 보고 S61). 파일 `(shop)/quick-bar.tsx`·`(shop)/r/[code]/page.tsx`·`share-button.tsx`가 `lucide-react`를 불러왔지만 `package.json`·`node_modules` 어디에도 없었다 → 그 화면을 여는 순간 모듈을 못 찾고, 운영 빌드(`next build`)는 통째로 실패한다(함께 배포가 막힘).
+- 원인: 다른 프로젝트에 흔한 아이콘 패키지를 이 앱에도 있다고 보고 불러옴. `tsc`는 타입 선언이 없는 모듈을 다른 경로로 찾지 못해도 화면을 열기 전엔 드러나지 않을 수 있었다.
+- 해결: agy가 `a9505bec1`에서 아이콘을 인라인 SVG로 바꾸고 패키지 의존을 없앰. 백엔드 세션이 확인 — 남은 `lucide-react`는 주석 3줄뿐, `tsc` 0, 첫 화면·상품 화면 200(2026-11-15).
+- 다음부터 확인: 새 `import`를 넣기 전 `grep -n '"<패키지>"' mall-builder/package.json`로 의존성에 있는지 본다. 없으면 새 패키지를 넣지 말고(공용 `package.json`·빌드 비용) 기존 방식(인라인 SVG·이모지)으로 하거나, 꼭 필요하면 상호 인수인계 §1에 알리고 `package.json`·`package-lock.json`을 같은 커밋으로. 배포 전 `grep -rhoE 'from "[^./@][^"]*"' src | sort -u`로 불러오는 패키지가 모두 `package.json`에 있는지 대조.
+
 ## 2026-11-15 정규식 `\d`의 역슬래시가 빠져 「내 자료함」 음악이 하나도 안 걸림 (`shorts-onestop-studio`·`music-video-studio`, [역할: video])
 - 증상: 「🗂️ 내 자료함 음악에서 고르기」 목록이 늘 비거나 자료함 곡을 고를 수 없음. 오류 문구 없음(조용히 걸러짐).
 - 원인: 자료함 번호 검사식이 `/^…:[0-9a-f-]{36}:d{1,4}$/i` — 끝 순번이 숫자(`\d`)가 아니라 글자 `d`여야 통과. 11-12 `626c01d61`에서 셸·파이썬 문자열로 코드를 넣다 역슬래시가 사라진 것으로 보임(같은 날 `disclosure.ts`에서도 같은 일).
