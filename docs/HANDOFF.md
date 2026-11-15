@@ -1,5 +1,14 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 10:30 KST [역할: mac-mini] 블로그 A1~A4 순차 검수·영상 요청 접수
+
+- A1 관리자·기기55c19089·v1.20·지정 이웃 글 실제 전경 완료. 실제 툴바 팝업이 WP Space5/window566을 대상으로 잡고, 보이는 글은Space9/window598인 불일치 확인. 잘못된읽기0·수락0에서보류. [이웃 결과·근거](../blog-neighbor-care/docs/REQUEST_20261113_MACMINI_V120_RECHECK.md) 맨끝, 검사우회/재전송 없음.
+- A2 기존Nav계정 대신 새 무기간·무키 계정 직접로그인 대기. 공간5/login준비. P3→관리자같은계정14일→P7. A3 티스토리설치/원고11이미지 기완료 인정·반복0, 대표P2/스킨P3 별도. A4 받은kkuleomi24 내소식 사용자확인 대기·재초대0. [통합표](REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md)·각원요청서 정확한 결과표 갱신.
+- 영상v1.29: 1재설치/4곳JSON·CLI Host1.30/ffmpeg8.1 pong통과, 2Chrome페이지열기timeoutMs도구오류, 3녹화미실행, 4Whale/Edge미설치·Aside미지정시험안함. [영상담당한줄](../video-to-gif/docs/IMPROVEMENTS.md)90aeadf3e(1파일). B배포전검수안함.
+- 바나나80786070b F09수정코드인수·기존격리effect시험상세/몰1→1유지확인. [통합검수§13](analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md), 운영반영/실물검수대기. 전체98·savedACK실물통과로확대안함.
+- Windows 담당께: 공용index누락확인경로는타세션의커밋파일 banana-canvas/docs/IMPROVEMENT_HANDOFF_20261113_MAKER_BATCH.md, 추가누락 mall-builder/tests/text-align.test.mjs도확인. 각담당이본인커밋경로만 `git add -- <경로>`로맞춤확인필요. Mac은남의index변경안함.
+- 비용$0·AI/새원고/발행/수락/운영DB직접쓰기/앱소스수정/빌드/배포0. 본인검수문서·근거만커밋, 푸시없음.
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · 세션 `claude-win-20261025-workspace` — 중앙 정리 제외·U10 확인·v1.42·v1.43
 - 메인 DB 0073: 중앙 정리 `member_storage_expired_files`에서 `workspace-files` 제외(주인님 「너가 해」), 실행 결과 0건
 - U10 유튜브 보내기: 세 프로그램 모두 실제 업로드 결과가 받은 업무에 와 있었음 → 확인 끝
