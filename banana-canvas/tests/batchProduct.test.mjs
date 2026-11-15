@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildJobs, compositeNames, manifestCsv, manifestJson, parseTable, roleFromFileName, rowsFromFileNames, safePart } from "../src/lib/batch/productJobs.ts";
-import { DEFAULT_COMPOSITE, fitRect, mainBox, normalizeComposite, settingsVersion, subRects } from "../src/lib/batch/composite.ts";
+import { DEFAULT_COMPOSITE, fitRect, mainBox, normalizeComposite, resolveSize, settingsVersion, subAreaPercent, subRects } from "../src/lib/batch/composite.ts";
 
 test("F1 작업표: 머리줄 별칭·엑셀(탭)·CSV 따옴표·빈 코드 오류", () => {
   const t = parseTable("상품코드\t옵션\t대표사진\t서브1\nA-1\t화이트\ta.jpg\ta2.jpg\n\t\tx.jpg\n");
@@ -54,7 +54,7 @@ test("F3 파일 이름: 금지 문자 정리·옵션 포함·빈 칸 생략·같
 test("F6 결과표: 정해진 칸만(회원 정보 없음)·CSV 따옴표·JSON 형식", () => {
   const rows = [{ code: "A,1", option: "", label: "티셔츠", productId: null, main: "a.jpg", subs: ["s.jpg"], result: "A_main.jpg", status: "done", error: "", returned: "" }];
   const csv = manifestCsv(rows, "c1-x", "2026-11-13T00:00:00Z");
-  assert.ok(csv.startsWith("﻿code,option,label,productId,main,subs,result,status,error,returned,settingsVersion,createdAt\r\n"));
+  assert.ok(csv.startsWith("﻿code,option,label,productId,main,subs,result,status,error,returned,settingsVersion,createdAt,size\r\n"));
   assert.match(csv, /^"A,1",/m);
   const j = JSON.parse(manifestJson(rows, "c1-x", "t"));
   assert.equal(j.kind, "aimaster-product-composite");
@@ -235,4 +235,60 @@ test("F-09 회귀 방어: 연결 모드 수신 시 uuid#i 키로 인한 파일 �
   assert.equal(currentJobs.length, 1);
   assert.equal(currentJobs[0].code, "ST4D18");
   assert.equal(currentJobs[0].status, "ready");
+});
+
+// ── M1(2026-11-15) 대표사진 합성 보강: 원형 틀·테두리·틀 배경·확대·면적·원본 크기 ──
+test("M1 옛 설정 읽기: 새 칸 기본값·범위 제한, 판번호 c2", () => {
+  const old = normalizeComposite({ subRatio: 30, subOutline: false }); // 옛 저장값(새 칸 없음)
+  assert.equal(old.subShape, "rounded");
+  assert.equal(old.subOutline, false);
+  assert.equal(old.subOutlineWidth, 2);
+  assert.equal(old.subOutlineColor, "#ffffff");
+  assert.equal(old.subFrameBg, "#ffffff");
+  assert.deepEqual([old.subZoom, old.subFocusX, old.subFocusY, old.subAreaWarn, old.sizeMode], [100, 50, 50, 20, "fixed"]);
+  const bad = normalizeComposite({ subShape: "star", subOutlineWidth: 99, subOutlineColor: "red", subFrameBg: "transparent", subZoom: 999, subFocusX: -3, subAreaWarn: 5, sizeMode: "original" });
+  assert.deepEqual([bad.subShape, bad.subOutlineWidth, bad.subOutlineColor, bad.subFrameBg, bad.subZoom, bad.subFocusX, bad.subAreaWarn, bad.sizeMode], ["rounded", 12, "#ffffff", "transparent", 200, 0, 10, "original"]);
+  assert.match(settingsVersion(normalizeComposite({})), /^c2-/);
+  assert.notEqual(settingsVersion(normalizeComposite({})), settingsVersion(normalizeComposite({ subShape: "circle" })));
+  assert.notEqual(settingsVersion(normalizeComposite({})), settingsVersion(normalizeComposite({ subOutlineWidth: 0 })));
+});
+
+test("M1 원형 틀: contain이어도 정사각 상자", () => {
+  const base = { width: 1000, height: 1000, subRatio: 32, subMargin: 24, subAnchor: "br" };
+  assert.deepEqual(subRects([0.1], { ...base, subFit: "contain", subShape: "circle" }), [{ x: 656, y: 656, w: 320, h: 320 }]);
+  assert.deepEqual(subRects([0.1], { ...base, subFit: "contain", subShape: "rounded" }).map((r) => [r.w, r.h]), [[32, 320]]);
+});
+
+test("M1 면적 %: 사각·원·둥근 모서리·서브 여러 장", () => {
+  const s = { ...DEFAULT_COMPOSITE, subRadius: 0 };
+  assert.equal(subAreaPercent([1], s), 10.2); // 320×320 / 1000×1000
+  assert.equal(subAreaPercent([1], { ...s, subShape: "circle" }), 8); // π·160² = 80,425 → 8.0%
+  assert.equal(subAreaPercent([1, 1, 1], s), 30.7);
+  assert.equal(subAreaPercent([1], { ...s, subRatio: 50 }), 25);
+  assert.equal(subAreaPercent([1], { ...s, subRatio: 50, subRadius: 30 }), 24.9); // 모서리 깎인 만큼(4-π)·30² 빠짐
+  assert.equal(subAreaPercent([], s), 0);
+});
+
+test("M1 확대·위치: 기본값은 예전과 같고, 확대하면 초점 쪽을 잘라 남김", () => {
+  const box = { x: 0, y: 0, w: 100, h: 100 };
+  assert.deepEqual(fitRect(200, 100, box, "cover", 100, 50, 50), fitRect(200, 100, box, "cover"));
+  const z = fitRect(100, 100, box, "cover", 200, 50, 50); // 2배 → 원본 가운데 50×50
+  assert.deepEqual([z.sx, z.sy, z.sw, z.sh, z.dx, z.dy, z.dw, z.dh], [25, 25, 50, 50, 0, 0, 100, 100]);
+  const left = fitRect(100, 100, box, "cover", 200, 0, 0); // 왼쪽 위 초점
+  assert.deepEqual([left.sx, left.sy, left.sw, left.sh], [0, 0, 50, 50]);
+  const right = fitRect(200, 100, box, "cover", 100, 100, 50); // 확대 없이 오른쪽 끝으로
+  assert.deepEqual([right.sx, right.sw], [100, 100]);
+});
+
+test("M1 메인 원본 크기: 고정이면 그대로, 원본이면 200~3000 제한·비율 유지", () => {
+  assert.deepEqual(resolveSize({ width: 1000, height: 1000, sizeMode: "fixed" }, 4000, 3000), { width: 1000, height: 1000 });
+  assert.deepEqual(resolveSize({ width: 1000, height: 1000, sizeMode: "original" }, 1600, 1200), { width: 1600, height: 1200 });
+  assert.deepEqual(resolveSize({ width: 1000, height: 1000, sizeMode: "original" }, 6000, 4000), { width: 3000, height: 2000 });
+  assert.deepEqual(resolveSize({ width: 1000, height: 1000, sizeMode: "original" }, 100, 150), { width: 200, height: 300 });
+  assert.deepEqual(resolveSize({ width: 1000, height: 1000, sizeMode: "original" }, 0, 0), { width: 1000, height: 1000 });
+});
+
+test("M1 결과표: 실제 크기 칸", () => {
+  const csv = manifestCsv([{ code: "A", option: "", label: "", productId: null, main: "a.jpg", subs: [], result: "r.jpg", status: "done", error: "", returned: "", size: "1600x1200" }], "c2-x", "t");
+  assert.ok(csv.trim().endsWith(",c2-x,t,1600x1200"));
 });

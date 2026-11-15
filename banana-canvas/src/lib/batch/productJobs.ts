@@ -191,13 +191,15 @@ export function compositeNames(items: { code: string; option: string }[], opts: 
 export interface ManifestRow {
   code: string; option: string; label: string; productId: string | null;
   main: string; subs: string[]; result: string; status: JobStatus; error: string; returned: string;
+  /** 실제 저장 크기(예: 1000x1000, M1 「메인 원본 크기」면 상품마다 다름) */
+  size?: string;
 }
 
 const csvCell = (v: string) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
 /** 결과표 CSV(엑셀용 BOM 포함). 회원 정보·키는 넣지 않는다 */
 export function manifestCsv(rows: ManifestRow[], settingsVersion: string, createdAt: string): string {
-  const head = ["code", "option", "label", "productId", "main", "subs", "result", "status", "error", "returned", "settingsVersion", "createdAt"];
-  const lines = rows.map((r) => [r.code, r.option, r.label, r.productId ?? "", r.main, r.subs.join(" | "), r.result, r.status, r.error, r.returned, settingsVersion, createdAt].map((v) => csvCell(String(v))).join(","));
+  const head = ["code", "option", "label", "productId", "main", "subs", "result", "status", "error", "returned", "settingsVersion", "createdAt", "size"];
+  const lines = rows.map((r) => [r.code, r.option, r.label, r.productId ?? "", r.main, r.subs.join(" | "), r.result, r.status, r.error, r.returned, settingsVersion, createdAt, r.size ?? ""].map((v) => csvCell(String(v))).join(","));
   return "﻿" + [head.join(","), ...lines].join("\r\n");
 }
 

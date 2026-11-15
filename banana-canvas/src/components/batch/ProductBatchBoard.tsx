@@ -27,6 +27,8 @@ import {
   COMPOSITE_PRESETS,
   DEFAULT_COMPOSITE,
   normalizeComposite,
+  resolveSize,
+  subAreaPercent,
   type CompositeSettings,
 } from "@/lib/batch/composite";
 import {
@@ -71,6 +73,8 @@ interface RenderResultItem {
   status: "done" | "failed";
   error?: string;
   returned?: string;
+  /** 실제 저장 크기(예: 1000x1000) — 「메인 원본 크기」면 상품마다 다름 */
+  size?: string;
 }
 
 export function ProductBatchBoard() {
@@ -114,6 +118,9 @@ export function ProductBatchBoard() {
 
   // 알림 메시지
   const [notice, setNotice] = useState<string | null>(null);
+  /** 미리보기 상품의 실제 저장 크기·서브 면적(%) */
+  const [previewInfo, setPreviewInfo] = useState<{ width: number; height: number; area: number } | null>(null);
+  const [copyState, setCopyState] = useState<"idle" | "copying" | "done">("idle");
 
   // 1. 설정 불러오기
   useEffect(() => {
@@ -305,6 +312,9 @@ export function ProductBatchBoard() {
         }
 
         // 뷰파인더용 캔버스 (스케일 0.5로 가볍게 렌더링)
+        const size = resolveSize(settings, mainBm.width, mainBm.height);
+        const aspects = subBms.map((b) => b.width / Math.max(1, b.height));
+        setPreviewInfo({ ...size, area: subAreaPercent(aspects, { ...settings, ...size }) });
         const canvas = renderComposite(mainBm, subBms, settings, 0.5);
         canvas.style.width = "100%";
         canvas.style.height = "100%";
@@ -384,6 +394,7 @@ export function ProductBatchBoard() {
 
         const canvas = renderComposite(mainBm, subBms, settings, 1);
         const blob = await canvasToBlob(canvas, settings);
+        const size = `${canvas.width}x${canvas.height}`;
         mainBm.close();
         subBms.forEach((b) => b.close());
 
@@ -401,6 +412,7 @@ export function ProductBatchBoard() {
           thumbUrl,
           status: "done",
           returned: "",
+          size,
         };
 
         // 부모 창(상세페이지 또는 쇼핑몰) 연결 시 개별 결과 즉시 전송 (P2 / M1)
@@ -469,6 +481,41 @@ export function ProductBatchBoard() {
     setStep(4);
   };
 
+  // 미리보기 상품 한 장을 원래 크기 PNG로 클립보드에 복사(M1) — 다른 프로그램에 바로 붙여넣기
+  const copyPreviewToClipboard = async () => {
+    if (!targetJob) return;
+    const mainRef = targetJob.photos.find((p) => p.role === "main")?.ref;
+    const mainFile = mainRef ? filesMap.get(mainRef) : null;
+    if (!mainFile) return;
+    if (typeof ClipboardItem === "undefined" || !navigator.clipboard?.write) {
+      setNotice("이 브라우저는 그림 복사를 지원하지 않습니다. 실행 뒤 저장(ZIP)으로 받아 주세요.");
+      return;
+    }
+    setCopyState("copying");
+    try {
+      const mainBm = await readBitmap(mainFile);
+      const subBms: ImageBitmap[] = [];
+      for (const sr of targetJob.photos.filter((p) => p.role === "sub").map((p) => p.ref)) {
+        const sf = filesMap.get(sr) || (sr === commonSubFile?.name ? commonSubFile : null);
+        if (sf) subBms.push(await readBitmap(sf));
+      }
+      const canvas = renderComposite(mainBm, subBms, settings, 1);
+      mainBm.close();
+      subBms.forEach((b) => b.close());
+      // 클립보드는 PNG만 받으므로 저장 형식과 상관없이 PNG로 복사
+      const png = await new Promise<Blob>((res, rej) =>
+        canvas.toBlob((b) => (b ? res(b) : rej(new Error("그림을 만들지 못했습니다."))), "image/png")
+      );
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
+      setCopyState("done");
+      setNotice(`📋 ${targetJob.code} 합성 결과(${canvas.width}×${canvas.height} PNG)를 복사했습니다. 다른 프로그램에 붙여 넣으세요.`);
+      setTimeout(() => setCopyState("idle"), 2000);
+    } catch {
+      setCopyState("idle");
+      setNotice("브라우저가 클립보드 복사를 막았습니다. 창을 한 번 누른 뒤 다시 시도하거나, 실행 뒤 저장(ZIP)으로 받아 주세요.");
+    }
+  };
+
   // 긴급 중단
   const stopExecution = () => {
     if (abortCtrlRef.current) {
@@ -510,8 +557,9 @@ export function ProductBatchBoard() {
       status: r.status,
       error: r.error || "",
       returned: "",
+      size: r.size || "",
     }));
-    const csvContent = manifestCsv(rowsForCsv, "c1-batch", new Date().toISOString());
+    const csvContent = manifestCsv(rowsForCsv, settingsVersion(settings), new Date().toISOString());
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -1043,7 +1091,8 @@ export function ProductBatchBoard() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
               <b>👀 1:1 라이브 캔버스 합성 미리보기</b>
               <span style={{ fontSize: 12, fontWeight: 800, color: "#78716C" }}>
-                {settings.width} × {settings.height} px (1:1 정사각형 규격)
+                {previewInfo ? `${previewInfo.width} × ${previewInfo.height}` : `${settings.width} × ${settings.height}`} px
+                {settings.sizeMode === "original" ? " (메인 원본 크기)" : ""}
               </span>
             </div>
 
@@ -1063,6 +1112,42 @@ export function ProductBatchBoard() {
             >
               <div ref={previewCanvasRef} style={{ width: "100%", height: "100%" }} />
             </div>
+
+            {/* 서브 면적 표시(M1) — 참고 기준을 넘으면 안내만, 저장은 막지 않음 */}
+            {previewInfo && (
+              <div
+                style={{
+                  marginTop: 10,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  background: previewInfo.area > settings.subAreaWarn ? "#FEF9C3" : "#F5F5F4",
+                  border: `1px solid ${previewInfo.area > settings.subAreaWarn ? "#EAB308" : "#E7E5E4"}`,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 8,
+                  flexWrap: "wrap",
+                }}
+              >
+                <span>
+                  {previewInfo.area > settings.subAreaWarn ? "⚠️ " : "📏 "}서브 면적 {previewInfo.area}%
+                  {previewInfo.area > settings.subAreaWarn
+                    ? ` — 서브 사진이 커서 대표이미지가 복잡해 보일 수 있습니다(참고 기준 ${settings.subAreaWarn}%)`
+                    : ` (참고 기준 ${settings.subAreaWarn}% 이하)`}
+                </span>
+                <button
+                  type="button"
+                  className="btn-3d"
+                  disabled={copyState === "copying"}
+                  onClick={() => void copyPreviewToClipboard()}
+                  style={{ padding: "4px 10px", fontSize: 12, border: "1px solid #1C1917", background: "#FFF" }}
+                >
+                  {copyState === "done" ? "✅ 복사됨" : copyState === "copying" ? "복사 중…" : "📋 결과 복사"}
+                </button>
+              </div>
+            )}
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14 }}>
               <span style={{ fontSize: 13, fontWeight: 700 }}>
@@ -1121,7 +1206,7 @@ export function ProductBatchBoard() {
                     <button
                       key={p.id}
                       type="button"
-                      onClick={() => updateSettings({ width: p.width, height: p.height })}
+                      onClick={() => updateSettings({ width: p.width, height: p.height, sizeMode: "fixed" })}
                       style={{
                         flex: 1,
                         padding: "6px 8px",
@@ -1129,13 +1214,30 @@ export function ProductBatchBoard() {
                         fontWeight: 800,
                         border: "1.5px solid #1C1917",
                         borderRadius: 6,
-                        background: settings.width === p.width ? "#FACC15" : "#FFF",
+                        background: settings.sizeMode === "fixed" && settings.width === p.width ? "#FACC15" : "#FFF",
                         cursor: "pointer",
                       }}
                     >
                       {p.label}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    title="상품마다 메인 사진 원래 크기로 저장(200~3000px로 제한)"
+                    onClick={() => updateSettings({ sizeMode: "original" })}
+                    style={{
+                      flex: 1,
+                      padding: "6px 8px",
+                      fontSize: 12,
+                      fontWeight: 800,
+                      border: "1.5px solid #1C1917",
+                      borderRadius: 6,
+                      background: settings.sizeMode === "original" ? "#FACC15" : "#FFF",
+                      cursor: "pointer",
+                    }}
+                  >
+                    메인 원본 크기
+                  </button>
                 </div>
               </div>
 
@@ -1198,6 +1300,143 @@ export function ProductBatchBoard() {
                 />
               </div>
 
+              {/* 서브 틀 모양·모서리(M1) */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 800, marginBottom: 6 }}>⭕ 서브 틀 모양</div>
+                <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+                  {([["rounded", "둥근 사각"], ["circle", "원형"]] as const).map(([v, label]) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => updateSettings({ subShape: v })}
+                      style={{ flex: 1, padding: "6px 8px", fontSize: 12, fontWeight: 800, border: "1.5px solid #1C1917", borderRadius: 6, background: settings.subShape === v ? "#FACC15" : "#FFF", cursor: "pointer" }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {settings.subShape === "rounded" && (
+                  <input
+                    type="range"
+                    min={0}
+                    max={30}
+                    aria-label="모서리 둥글기"
+                    value={settings.subRadius}
+                    onChange={(e) => updateSettings({ subRadius: Number(e.target.value) })}
+                    style={{ width: "100%", accentColor: "#EAB308", cursor: "pointer" }}
+                  />
+                )}
+              </div>
+
+              {/* 테두리 굵기·색, 틀 배경(M1) */}
+              <div style={{ marginBottom: 14, fontSize: 12, fontWeight: 700 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, marginBottom: 4 }}>
+                  <span>🖍️ 테두리</span>
+                  <span>{settings.subOutline ? `${settings.subOutlineWidth}px` : "끔"}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={12}
+                    aria-label="테두리 굵기"
+                    disabled={!settings.subOutline}
+                    value={settings.subOutlineWidth}
+                    onChange={(e) => updateSettings({ subOutlineWidth: Number(e.target.value) })}
+                    style={{ flex: 1, accentColor: "#EAB308", cursor: "pointer" }}
+                  />
+                  <input
+                    type="color"
+                    aria-label="테두리 색"
+                    disabled={!settings.subOutline}
+                    value={settings.subOutlineColor}
+                    onChange={(e) => updateSettings({ subOutlineColor: e.target.value })}
+                    style={{ width: 34, height: 26, border: "1px solid #D4D4D8", borderRadius: 4, padding: 0, cursor: "pointer" }}
+                  />
+                </div>
+                <div style={{ fontWeight: 800, margin: "10px 0 4px" }}>🎨 틀 배경 (사진이 틀보다 작을 때 빈 곳)</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {([["#ffffff", "흰색"], ["transparent", "투명"]] as const).map(([v, label]) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => updateSettings({ subFrameBg: v })}
+                      style={{ flex: 1, padding: "5px 8px", fontSize: 12, fontWeight: 800, border: "1.5px solid #1C1917", borderRadius: 6, background: settings.subFrameBg === v ? "#FACC15" : "#FFF", cursor: "pointer" }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                  <label style={{ display: "flex", alignItems: "center", gap: 4, cursor: "pointer" }}>
+                    <input
+                      type="color"
+                      aria-label="틀 배경 직접 선택"
+                      value={settings.subFrameBg === "transparent" ? "#ffffff" : settings.subFrameBg}
+                      onChange={(e) => updateSettings({ subFrameBg: e.target.value })}
+                      style={{ width: 34, height: 26, border: "1px solid #D4D4D8", borderRadius: 4, padding: 0 }}
+                    />
+                    직접
+                  </label>
+                </div>
+              </div>
+
+              {/* 틀 안 사진 확대·위치(M1, 전체 공통) */}
+              <div style={{ marginBottom: 14, fontSize: 12, fontWeight: 700 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, marginBottom: 4 }}>
+                  <span>🔍 틀 안 사진 확대·위치</span>
+                  <span>
+                    {settings.subZoom}%
+                    {(settings.subZoom !== 100 || settings.subFocusX !== 50 || settings.subFocusY !== 50) && (
+                      <button
+                        type="button"
+                        onClick={() => updateSettings({ subZoom: 100, subFocusX: 50, subFocusY: 50 })}
+                        style={{ marginLeft: 6, fontSize: 11, border: "1px solid #D4D4D8", borderRadius: 4, background: "#FFF", cursor: "pointer" }}
+                      >
+                        처음대로
+                      </button>
+                    )}
+                  </span>
+                </div>
+                {(
+                  [
+                    ["subZoom", "확대", 100, 200],
+                    ["subFocusX", "가로 위치(왼↔오)", 0, 100],
+                    ["subFocusY", "세로 위치(위↔아래)", 0, 100],
+                  ] as const
+                ).map(([k, label, lo, hi]) => (
+                  <label key={k} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                    <span style={{ width: 110, color: "#57534E" }}>{label}</span>
+                    <input
+                      type="range"
+                      min={lo}
+                      max={hi}
+                      value={settings[k]}
+                      onChange={(e) => updateSettings({ [k]: Number(e.target.value) } as Partial<CompositeSettings>)}
+                      style={{ flex: 1, accentColor: "#EAB308", cursor: "pointer" }}
+                    />
+                  </label>
+                ))}
+              </div>
+
+              {/* 서브 면적 참고 기준(M1) — 공식 규정이 아님 */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 800, marginBottom: 4 }}>
+                  <span>📏 서브 면적 안내 기준(참고)</span>
+                  <span>{settings.subAreaWarn}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={10}
+                  max={50}
+                  aria-label="서브 면적 안내 기준"
+                  value={settings.subAreaWarn}
+                  onChange={(e) => updateSettings({ subAreaWarn: Number(e.target.value) })}
+                  style={{ width: "100%", accentColor: "#EAB308", cursor: "pointer" }}
+                />
+                <p style={{ fontSize: 11, color: "#78716C", marginTop: 2 }}>
+                  마켓 공식 규정이 아니라 보기 좋은 대표이미지를 위한 참고 기준입니다. 넘어도 저장은 그대로 됩니다.
+                </p>
+              </div>
+
               {/* 외곽선 및 그림자 체크박스 */}
               <div style={{ display: "flex", gap: 14, fontSize: 12, fontWeight: 700, marginBottom: 16 }}>
                 <label style={{ display: "flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
@@ -1214,7 +1453,7 @@ export function ProductBatchBoard() {
                     checked={settings.subOutline}
                     onChange={(e) => updateSettings({ subOutline: e.target.checked })}
                   />
-                  화이트 외곽선
+                  테두리 켜기
                 </label>
               </div>
 
