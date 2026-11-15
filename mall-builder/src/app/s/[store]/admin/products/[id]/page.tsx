@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getProductNotice } from "@/lib/product-notice-server";
 import {
   getCategoryRows,
   getGrades,
@@ -36,6 +37,7 @@ export default async function EditProductPage({
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const product = await getProductForEdit(store.id, id);
   if (!product) notFound();
+  const notice = await getProductNotice(id); // M2-4 고시·KC(0096 전 DB에서는 없음으로)
   const [categoryRows, variants, shippingPolicies, grades, gradePrices, tierMap] = await Promise.all([
     getCategoryRows(store.id),
     getProductVariants(product.id),
@@ -90,6 +92,8 @@ export default async function EditProductPage({
           stock: product.stock_mode === "product" ? String(product.stock) : "",
           images: product.images ?? [],
           detail_images: product.detail_images ?? [],
+          info_notice: notice.notice, // M2-4
+          kc_certs: notice.kc,
           category_ids: product.category_ids,
           shipping_policy_id: product.shipping_policy_id ?? "",
         }}

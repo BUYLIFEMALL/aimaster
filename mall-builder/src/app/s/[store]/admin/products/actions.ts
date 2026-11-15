@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { PRODUCT_CODE_RE } from "@/lib/productExcel";
 import { MAX_TIERS, parseGradePrice, parseTiers, validateProduct, type ProductErrors } from "@/lib/products";
+import { parseKc, parseNotice } from "@/lib/productNotice";
 
 export type ProductFormState = {
   saved: boolean;
@@ -13,6 +14,7 @@ export type ProductFormState = {
   gradeError?: string;
   tierError?: string;
   codeError?: string;
+  noticeError?: string; // M2-4 상품정보제공고시·KC 인증
   /** 제출한 값 — 오류 때 폼이 처음 값으로 되돌아가지 않게 다시 채운다 */
   values?: Record<string, unknown>;
 };
@@ -51,8 +53,13 @@ export async function saveProductAction(
   // 품번(D23): 비우면 없음, 있으면 형식 검사. 몰 안 중복은 DB 고유 색인이 막는다
   const code = String(raw.product_code ?? "").trim();
   if (code && !PRODUCT_CODE_RE.test(code)) return { saved: false, error: "입력값을 확인해 주세요.", errors: {}, codeError: "품번은 영문·숫자·-·_ 40자 이내로 입력해 주세요.", values: raw };
+  // M2-4 상품정보제공고시·KC 인증 — 화면 컴포넌트가 JSON 한 칸씩 넘긴다(검사는 lib/productNotice)
+  const notice = parseNotice(raw.info_notice_json);
+  if (!notice.ok) return { saved: false, error: "입력값을 확인해 주세요.", errors: {}, noticeError: notice.error, values: raw };
+  const kc = parseKc(raw.kc_certs_json);
+  if (!kc.ok) return { saved: false, error: "입력값을 확인해 주세요.", errors: {}, noticeError: kc.error, values: raw };
   const { cost, category_ids, ...rest } = checked.value;
-  const product = { ...rest, product_code: code || null };
+  const product = { ...rest, product_code: code || null, info_notice: notice.value, kc_certs: kc.value };
   const dupCode = (msg: string) => /mall_builder_products_code_uq/.test(msg);
 
   let id = productId;

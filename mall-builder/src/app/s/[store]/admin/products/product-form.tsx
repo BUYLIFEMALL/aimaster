@@ -6,6 +6,8 @@ import type { CategoryNode } from "@/lib/categories";
 import { saveProductAction, type ProductFormState } from "./actions";
 import ImageUploader from "./image-uploader";
 import AiFill from "./ai-fill";
+import NoticeFields from "./notice-fields";
+import type { KcCert, ProductNotice } from "@/lib/productNotice";
 
 export type ProductFormValues = {
   product_code: string; // D23 품번(몰 안에서 겹치지 않음)
@@ -30,6 +32,8 @@ export type ProductFormValues = {
   order_unit: string;
   max_qty: string;
   tiers: { min_qty: string; value: string }[]; // "5%"·"-1500"·"8000"
+  info_notice?: ProductNotice | null; // M2-4 상품정보제공고시
+  kc_certs?: KcCert[]; // M2-4 KC 인증
 };
 
 const initial: ProductFormState = { saved: false, error: null, errors: {} };
@@ -105,6 +109,8 @@ export default function ProductForm({
         <ImageUploader storeId={storeId} initial={v.detail_images ?? []} detail />
         {e.detail_images && <span className="text-xs text-red-600">{e.detail_images}</span>}
       </fieldset>
+
+      <NoticeFields initial={values.info_notice ?? null} initialKc={values.kc_certs ?? []} error={state.noticeError} />
 
       <fieldset className="grid gap-3 rounded-lg border p-4 sm:grid-cols-3">
         <legend className="px-1 text-sm font-semibold">가격</legend>

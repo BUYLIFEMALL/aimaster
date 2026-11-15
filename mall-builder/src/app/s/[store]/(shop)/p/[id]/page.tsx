@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ProductNotice from "./product-notice";
 import {
   getCategoryRows,
   getCurrentUser,
@@ -297,6 +298,8 @@ export default async function ProductPage({
           {view.bottom_images.map((b, i) => <CommonImage key={i} b={b} alt="공통 안내" />)}
         </div>
       )}
+
+      <ProductNotice productId={product.id} />{/* M2-4 상품정보제공고시·KC(값 없으면 숨김) */}
 
       {/* 4. 배송 · 교환 · 반품 안내 섹션 */}
       <div id="detail-shipping" className="mt-12 scroll-mt-24">
