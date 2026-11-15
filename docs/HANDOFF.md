@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 [역할: mac-mini] WP 발사 비유 문구 6곳 정리 — 미배포
+
+- 주인님 요청으로 WP 대시보드 「발행관리」「발행 순서」, 플랫폼 카드의 발사대 제거(연결 전/후), 연결 화면 「연결 설정」, 매뉴얼 「두 블로그에 발행」으로 3파일6곳 수정. 사용자 문구 검색/전체 diff/공백 검사 통과, 별도 시험/빌드/운영 화면 통과로 보고하지 않음.
+- [윈도우 블로그 담당께](../wp-blogger-auto/docs/IMPROVEMENTS.md): 기존 로그인 제목190f971dc와 다음 WP 배포에 함께 반영. 코드 e9e218165·맥미니 역할 갱신, 배포 뒤 운영/모바일 재확인. 공용 미배포 목록은 타 세션 삭제가 섞여 커밋 제외·Windows 통합 요청. 유료AI/빌드/배포/운영DB쓰기0.
+- WP kkuleomi24@naver.com 로그인 화면 준비 후 주인님 캡처에 해당 계정 대시보드 확인. 무기간/무키/FREE 전제는 확인 전이므로 P3/P7 판정·생성API0. 티스토리 미발행 편집기 보존.
+
 ## 2026-11-15 [역할: mac-mini] 카페 A-4 수신 알림까지 통과
 
 - 사용자 로그인 후 링크를 연 공간8에서 kkuleomi24 계정 확인→카페 내소식의 BUYLIFE 초대 알림(대상buylife, 2026.11.12.) 실제 확인. A-4 완료, 재초대/명단 재실행/가입0. [원 요청서](../naver-cafe-recruit/docs/REQUEST_20261106_MACMINI_INVITE_TEST.md)·INVITE_TEST·IMPROVEMENTS·[통합표](REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md)·역할 갱신, 대상알림PNG/JSON 보존.
