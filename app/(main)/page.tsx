@@ -222,8 +222,8 @@ export default async function HomePage() {
 
           {/* 서브 타이틀: 마케팅 / 업무 / 비즈니스 자동화 (데스크톱 한 줄 고정) */}
           <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-10 tracking-tight break-keep sm:whitespace-nowrap">
-            모든 마케팅/업무/비지니스를{" "}
-            <span className="text-gold">자동화 하세요</span>
+            마케팅/업무/비지니스를{" "}
+            <span className="text-gold">자동화</span>
           </h2>
 
           {/* Hero CTA — Primary(골드) 중심 + 모바일 반응형(상단 와이드 + 하단 2열) 정돈 */}
