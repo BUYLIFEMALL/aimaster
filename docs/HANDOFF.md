@@ -1,5 +1,22 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: mall-design-builder] Antigravity · `agy-win-ssr-v1` — B2B 쇼핑몰 우측 플로팅 퀵바 E5 구현 완료 (미배포 대기)
+- **과업(주인님 지시: 「B2B 분양몰 우측 플로팅 퀵바 E5 구현」)**:
+  - 쇼핑몰 전역(유저 화면) 우측 플로팅 퀵바 컴포넌트(`(shop)/quick-bar.tsx`), 최근 본 상품 트래커(`(shop)/recent-tracker.tsx`), LocalStorage 기반 데이터 계층(`src/lib/recent-products.ts`) 신규 개발.
+  - **최근 본 상품**: 상세 진입 시 자동 기록(몰별 slug 격리 `mb_recent_<slug>`, 최대 10개 최신순/중복제거), 썸네일·상품명·가격 포맷팅, 3개씩 상하 페이징(▲/▼), 단건 X 삭제 및 전체 비우기, CustomEvent 실시간 탭 동기화.
+  - **장바구니 퀵 링크**: 실시간 장바구니 품목 수 뱃지(`cartCount > 99 ? "99+" : cartCount`) 및 `/s/<몰>/cart` 원클릭 이동.
+  - **스크롤 내비게이션**: 스크롤 250px 초과 시 활성화되는 스무스 최상단 TOP 버튼(▲) 및 최하단 DOWN 버튼(▼).
+  - **미니멀 접기/펼치기**: 좌측 슬라이드 토글 탭으로 콤팩트 미니 바(장바구니·최근본수량·TOP)와 정규 패널 전환 지원.
+  - **테마 완벽 대응**: 기본 라이트 테마 및 다크 테마(`[data-mall-mode="dark"]`) 글래스모피즘 룩앤필 완비.
+- **공용 파일 연결 (최소 수정 원칙 준수)**:
+  - `(shop)/layout.tsx`: 바닥글 아래 `{showShop && <QuickBar slug={store.slug} base={base} cartCount={cartCount || guestCartCount} />}` 1줄 마운트.
+  - `(shop)/p/[id]/page.tsx`: `<RecentTracker slug={store.slug} product={{ id: product.id, name: product.name, price: product.base_price, image: product.images?.[0]?.url ?? "" }} />` 1줄 마운트.
+- **검증 및 자산화**:
+  - 단위 테스트 `mall-builder/tests/quick-bar.test.mjs` 신설 및 7/7 전수 통과.
+  - `mall-builder` 전체 단위 테스트 392/392 PASS, `npx tsc --noEmit` 통과 (0 errors). DB 변경 0건.
+  - `DESIGN_BUILDER_TRACKER.md` E5 완료(✅) 반영, 상호 인수인계 S65 메시지 등록. 백엔드 차기 함께 배포 대기.
+
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · `claude-win-20261025-workspace` — 업무 워크스페이스 v1.48
 - 지시: 주인님 「진행해」. 배포 `ai-work-workspace-7yn8eiv46` Ready, DB v1.48(배포 Ready 확인 뒤 변경), 버전 커밋 `4cfdd3d0e`.
 - 나감: `a22503ee4` 볼타 처음 설정 「👉 지금 할 일」 하나만 크게(`boltaCert.ts` `boltaNextStep`), 공동인증서 등록 창 닫으면 상태 자동 새로고침.
