@@ -39,7 +39,7 @@ function Thumb({ layout, color }: { layout: LayoutCard; color: ColorPreset }) {
     "street-night": <><div className="-mx-2 bg-stone-900 px-2 py-2"><div className="h-2 w-3/5 rounded bg-stone-200" /><div className="mt-1 h-2 w-2/5 rounded" style={{ background: color.primary }} /></div><div className="flex gap-1 overflow-hidden">{card(4, false)}</div></>,
     "brand-story": <><div className="-mx-2 bg-white px-2 py-2"><div className="mx-auto h-2 w-2/3 rounded bg-slate-500" /><div className="mx-auto mt-1 h-1 w-4/5 rounded bg-slate-300" /></div>{card(3, false)}</>,
     "kids-toy": <><div className="mx-auto h-2 w-1/2 rounded-full bg-amber-400" />{card(4, false)}<div className="flex gap-1 justify-center"><span className="h-1.5 w-6 rounded-full bg-amber-300" /><span className="h-1.5 w-6 rounded-full bg-orange-300" /></div>{card(4, false)}</>,
-    "digital-tech": <><div className="mx-auto h-1.5 w-3/5 rounded bg-slate-500" />{card(5, false)}<div className="flex gap-1"><span className="h-1.5 w-6 rounded bg-slate-400" /><span className="h-1.5 w-6 rounded bg-slate-200" /></div>{card(5, false)}</>,
+    "digital-tech": <><div className="mx-auto h-1.5 w-3/5 rounded bg-blue-500" />{card(5, false)}<div className="flex gap-1"><span className="h-1.5 w-6 rounded bg-slate-400" /><span className="h-1.5 w-6 rounded bg-slate-200" /></div>{card(5, false)}</>,
     "wholesale-catalog": <><div className="h-2 w-full rounded bg-blue-100" />{card(5, true)}<div className="h-2 w-full rounded bg-slate-100" />{card(5, true)}</>,
   };
   return (

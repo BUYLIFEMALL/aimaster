@@ -46,7 +46,7 @@ export const EXTRA_LAYOUTS: LayoutTemplate[] = [
         {
           id: id("em-pick"), type: "showcase", visible: true,
           settings: { title: "에디터의 선택", ...NEW, columns: 4, limit: 8, card: { style: "plain", hide_business: true } },
-          style: { pad_top: 48, title_align: "center" },
+          style: { pad_top: 48, title_align: "center", title_font: "serif" }, // E10 명조 제목(잡지 느낌)
         },
         {
           id: id("em-tabs"), type: "tabs", visible: true,
@@ -59,9 +59,9 @@ export const EXTRA_LAYOUTS: LayoutTemplate[] = [
             ],
             columns: 4, limit: 8, card: { style: "plain", hide_business: true },
           },
-          style: { width: "full", bg_color: "#ffffff", pad_top: 48, pad_bottom: 48, title_align: "center" },
+          style: { width: "full", bg_color: "#ffffff", pad_top: 48, pad_bottom: 48, title_align: "center", title_font: "serif" },
         },
-        { id: id("em-reviews"), type: "reviews", visible: true, settings: { title: "읽어 볼 만한 후기", count: 3, min_rating: 5 }, style: { title_align: "center" } },
+        { id: id("em-reviews"), type: "reviews", visible: true, settings: { title: "읽어 볼 만한 후기", count: 3, min_rating: 5 }, style: { title_align: "center", title_font: "serif" } },
         { id: id("em-notice"), type: "notice", visible: true, settings: { title: "소식", count: 3 } },
       ]),
     }),

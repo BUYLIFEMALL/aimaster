@@ -428,6 +428,7 @@ export const LAYOUTS: LayoutTemplate[] = [
             columns: 4,
             limit: 8,
           },
+          style: { title_font: "round" }, // E10 둥근 고딕 제목
         }),
         blk({
           id: id("kt-tabs"),
@@ -443,13 +444,14 @@ export const LAYOUTS: LayoutTemplate[] = [
             columns: 4,
             limit: 8,
           },
+          style: { title_font: "round" },
         }),
         blk({
           id: id("kt-reviews"),
           type: "reviews",
           visible: true,
           settings: { title: "부모님들의 생생 사용 후기", count: 6, min_rating: 4 },
-          style: { title_align: "center", width: "full", bg_color: "#ffffff", pad_top: 36, pad_bottom: 36 },
+          style: { title_align: "center", width: "full", bg_color: "#ffffff", pad_top: 36, pad_bottom: 36, title_font: "round" },
         }),
         blk({
           id: id("kt-notice"),
@@ -466,7 +468,7 @@ export const LAYOUTS: LayoutTemplate[] = [
     description: "고밀도 5열 그리드와 메탈릭 하이테크 레이아웃. 스마트기기·음향·컴퓨터 부품·테크 기어 전문몰에 최적",
     industries: ["digital", "b2b", "living"],
     moods: ["하이테크", "스마트", "정보형"],
-    defaultColor: "charcoal",
+    defaultColor: "blue", // agy 120 시안 대표색 #2563EB(2026-11-15 대조)
     shape: { radius: "sm", button: "flat", image_ratio: "1:1" },
     build: ({ storeName }) => ({
       ...base,
@@ -506,7 +508,8 @@ export const LAYOUTS: LayoutTemplate[] = [
             category_id: "",
             product_ids: [],
             columns: 5,
-            limit: 10,
+            limit: 7, // PC 5열: 대표 상품 크게(2×2) + 6칸 = 2줄을 꽉 채움
+            skin: "spotlight", // 블록 스킨 3차
           },
         }),
         blk({
@@ -546,7 +549,7 @@ export const LAYOUTS: LayoutTemplate[] = [
     description: "압축된 5열 데이터 카탈로그형 그리드와 단정한 폼. 식자재·판촉물·소모품 등 대량발주와 납품 위주 B2B 도매몰에 최적",
     industries: ["b2b", "general", "living", "food"],
     moods: ["카탈로그", "대량구매", "도매"],
-    defaultColor: "blue",
+    defaultColor: "navy", // agy 121 시안 대표색 #1E40AF(2026-11-15 대조)
     shape: { radius: "none", button: "3d", image_ratio: "1:1" },
     build: ({ storeName }) => ({
       ...base,
