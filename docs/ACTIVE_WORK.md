@@ -41,6 +41,7 @@
 
 | 폴더 | 에이전트(장비) | 시작 | 작업 |
 |---|---|---|---|
+| `shorts-onestop-studio/` → `video-to-gif/` | [역할: video] Claude Code(윈도우, ego) · 세션 `claude-win-video` | 2026-11-15 | 메이커 v0.3.3 후속(주인님 결정: 세 가지 모두·M2는 GIF 변환·본인 키만·비용 승인). 순서 M3-① 광고 고지(원스톱) → M2 상품 사진 영상(GIF 변환) → M3-② 상품 숏폼 고도화(원스톱). 지금: M3-① |
 | `ai-work-workspace/` | [역할: workspace] Claude Code(윈도우) · 세션 `claude-win-20261025-workspace` · **브라우저: 엣지(주인님 지정 2026-11-15 — ego는 B2B몰 담당, 크롬 확장 탭 묶음 연결이 끊겨 엣지로 다시 지정)** | 2026-11-15 | v1.41 배포·확인 끝 — 다음 작업 대기 |
 | `elevenst-register/` | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-11 | v1.07 운영(2026-11-14 `claude-win-photo` 배포에 상세사진 `markPosted`·안내 문구 함께 나감). 시험 상품 9752929791은 주인님이 나중에 직접 삭제(11-15 지시, 에이전트는 손대지 않음). 다음: G마켓·옥션 플랜(주인님 지시 대기) |
 | `elevenst-register/` (범위: 4대 화면 3시안 쇼케이스 및 디자인 제안) | [역할: design] Antigravity(윈도우) · 세션 `agy-win-elr-v1` | 2026-11-13 | 11번가 등록기 4대 화면 3시안(12뷰) 쇼케이스 및 종합 비교표 구축 — agy |
