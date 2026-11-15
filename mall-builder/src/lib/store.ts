@@ -14,6 +14,7 @@ import { emptyStats, type Stats } from "@/lib/stats";
 import { cache } from "react";
 import { ORDER_PAGE_SIZE, applyOrderFilters, type OrderListQuery } from "@/lib/order-list";
 import { APPROVAL_TABS, CUSTOMER_PAGE_SIZE, MEMBER_TABS, applyCustomerFilters, type CustomerListQuery } from "@/lib/customer-list";
+import { PRODUCT_PAGE_SIZE, PRODUCT_STATUSES, applyProductFilters, type ProductListQuery } from "@/lib/product-list";
 
 export type Store = {
   id: string;
@@ -339,6 +340,36 @@ export async function getStoreProducts(storeId: string): Promise<(ProductRow & {
     const { mall_builder_product_categories: links, ...rest } = p as ProductRow & { mall_builder_product_categories: { category_id: string }[] };
     return { ...rest, category_ids: (links ?? []).map((l) => l.category_id) };
   });
+}
+
+/** M2-9 상품 목록 한 쪽(50개) — 판매 상태·카테고리·재고 0·승인 대기·검색어, 전체 건수 함께 */
+export async function getStoreProductPage(storeId: string, f: ProductListQuery): Promise<{ rows: (ProductRow & { category_ids: string[] })[]; total: number }> {
+  const supabase = await createClient();
+  let categoryIds: string[] | undefined;
+  if (f.category) {
+    const { data } = await supabase.from("mall_builder_product_categories").select("product_id").eq("store_id", storeId).eq("category_id", f.category).limit(5000);
+    categoryIds = (data ?? []).map((r) => r.product_id as string);
+  }
+  const query = supabase
+    .from("mall_builder_products")
+    .select(`${PRODUCT_COLUMNS}, mall_builder_product_categories(category_id)`, { count: "exact" })
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false })
+    .range((f.page - 1) * PRODUCT_PAGE_SIZE, f.page * PRODUCT_PAGE_SIZE - 1);
+  const { data, count } = await applyProductFilters(query, f, categoryIds);
+  const rows = (data ?? []).map((p) => {
+    const { mall_builder_product_categories: links, ...rest } = p as unknown as ProductRow & { mall_builder_product_categories: { category_id: string }[] };
+    return { ...rest, category_ids: (links ?? []).map((l) => l.category_id) };
+  });
+  return { rows, total: count ?? rows.length };
+}
+
+/** M2-9 판매 상태 탭 건수(DB에서 세기) */
+export async function getProductCounts(storeId: string) {
+  const supabase = await createClient();
+  const head = () => supabase.from("mall_builder_products").select("id", { count: "exact", head: true }).eq("store_id", storeId);
+  const [all, ...rest] = await Promise.all([head(), ...PRODUCT_STATUSES.map((st) => head().eq("status", st))]);
+  return { all: all.count ?? 0, status: Object.fromEntries(PRODUCT_STATUSES.map((st, i) => [st, rest[i].count ?? 0])) as Record<(typeof PRODUCT_STATUSES)[number], number> };
 }
 
 /** 수정 화면용 상품 하나 + 원가 + 카테고리. 없으면 null */
