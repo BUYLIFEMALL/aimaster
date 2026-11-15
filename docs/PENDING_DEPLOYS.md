@@ -15,6 +15,7 @@
 
 ## 대기 중
 
+- **`ai-work-workspace` — Gemini 출처가 다음 요청에 올 때도 「검색함」에 붙이기(2026-11-15 [역할: workspace], `c05873844`)**: v1.44 운영 확인에서 구글 검색과 워크스페이스 검색을 같은 단계에 쓰면 출처(groundingMetadata)가 다음 요청 답에 와서 버려지던 것 수정(답은 정상). 시험 173. 다음 배포 때 함께.
 
 - **`blog-neighbor-care` — 답방 글 읽기 탭 사전 확인 + 실패 진단(단계·HTTP·BNC code) 팝업 전달 + 409 코드별 안내 `85eedc18b`(2026-11-14 [역할: blog] `claude-win-photo`)**: 작은 수정, 다음 배포 때 함께(확장 ZIP·manifest·DB 버전 같이). 상세 `blog-neighbor-care/docs/IMPROVEMENTS.md` 2026-11-14.
 - **`naver-cafe-recruit` — 명단에서 카페 운영진(매니저·스탭 등급) 제외 + 아직 없는 「C. 카페 홍보 글」 칸 숨김(저장 때 꺼짐) `b61270d8f`(2026-11-15 [역할: blog] `claude-win-photo`, 주인님 결정 5건 중 2번)**: 시험 17개·tsc 통과. 다음 카페 모집 배포(v1.03, `1bd454187`·`7a85de294`와 함께) 때 manifest·ZIP·DB 버전 맞춤, 검수는 `docs/REQUEST_20261115_MACMINI_BLOG_CHECKLIST.md` B-3.
