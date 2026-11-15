@@ -1,7 +1,10 @@
-// 몰 주소(slug) 규칙 — supabase/migrations/0001_init.sql 의 검사·예약어와 같게 유지한다.
+// 몰 주소(slug) 규칙 — supabase/migrations/0001_init.sql·0092 의 검사·예약어와 같게 유지한다.
+// M5-1a(0092): 플랫폼 주소(mall-builder)도 예약 — 하위 도메인 `<몰>.buylife.xyz`에서 관리 사이트 주소가 몰로 읽히지 않게.
+// AIMaster 프로그램 주소 이름(운영 programs 표)은 DB 함수가 직접 막는다(목록을 코드에 적지 않음).
 export const RESERVED_SLUGS = [
   "admin", "api", "s", "login", "logout", "signup", "www", "app", "mall", "store", "stores",
   "help", "guide", "support", "static", "assets", "public", "dashboard", "settings", "new",
+  "mall-builder", "dev-mall-builder",
 ] as const;
 
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{2,29}$/;

@@ -9,6 +9,14 @@ test("하위 도메인에서 몰 이름을 뽑는다", () => {
   assert.equal(mallSlugFromHost("shop1.example.com", ".Example.com"), "shop1");
 });
 
+test("M5-1a 운영 루트 buylife.xyz: 몰은 읽고 관리 사이트 주소(mall-builder)는 몰로 읽지 않는다", () => {
+  assert.equal(mallSlugFromHost("aimaster-b2b.buylife.xyz", "buylife.xyz"), "aimaster-b2b");
+  assert.equal(mallSlugFromHost("mall-builder.buylife.xyz", "buylife.xyz"), null);
+  assert.equal(mallSlugFromHost("dev-mall-builder.buylife.xyz", "buylife.xyz"), null);
+  assert.equal(mallSlugFromHost("www.buylife.xyz", "buylife.xyz"), null);
+  assert.equal(mallSlugFromHost("buylife.xyz", "buylife.xyz"), null);
+});
+
 test("루트 주소·다른 주소·두 단계 하위 주소는 몰이 아니다", () => {
   assert.equal(mallSlugFromHost("localhost:3210", "localhost"), null);
   assert.equal(mallSlugFromHost("dev-mall-builder.vercel.app", "localhost"), null);
