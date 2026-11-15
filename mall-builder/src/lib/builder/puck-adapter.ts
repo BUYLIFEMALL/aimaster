@@ -26,6 +26,13 @@ export function toPuck(doc: BlocksDoc): PuckData {
   };
 }
 
+/** I17 — Puck이 붙이는 번호(`showcase-<uuid 36자>`, 45자)는 저장 검사(40자)에서 잘린다 → 같은 입력이면 늘 같은 짧은 번호로 바꾼다 */
+export function compactPuckId(id: unknown): unknown {
+  if (typeof id !== "string" || id.length <= 40) return id;
+  const m = /^([a-z_]+)-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.exec(id);
+  return m ? `${m[1]}-${m[2].replace(/-/g, "").slice(0, 12)}` : id;
+}
+
 /** Puck 데이터 → 저장 전 문서(검사 전). 모르는 종류는 그대로 넘겨 validateDoc이 몇 번째인지 알려 주게 한다 */
 export function fromPuckRaw(data: unknown): { schema_version: number; blocks: unknown[] } {
   const content = data && typeof data === "object" && Array.isArray((data as PuckData).content) ? (data as PuckData).content : [];
@@ -34,7 +41,7 @@ export function fromPuckRaw(data: unknown): { schema_version: number; blocks: un
     blocks: content.map((it) => {
       const p = (it?.props ?? {}) as Partial<PuckBlockProps>;
       return {
-        id: p.id,
+        id: compactPuckId(p.id),
         type: it?.type,
         visible: p.visible !== false,
         settings: p.settings,
