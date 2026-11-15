@@ -16,7 +16,7 @@ export const fetchCache = "force-no-store";
 const NO_STORE = { "Cache-Control": "private, no-store" };
 // U11(2026-11-10): cron-job.org 키(정시 자동화) — 공용 provider 이름 cronjob_org_api_key, 다른 예약 프로그램과 같은 칸
 // 2026-11-11 캘린더 연동: 회원 본인 구글 OAuth 앱(유튜브·구글 블로그 자동화와 같은 공용 칸)
-const PROVIDERS = ["openai", "anthropic", "gemini", "cronjob_org_api_key", "google_client_id", "google_client_secret", "bolta_api_key", "bolta_webhook_secret"] as const; // 2026-11-13: 볼타 세금계산서 발급(회원 본인 키)
+const PROVIDERS = ["openai", "anthropic", "gemini", "cronjob_org_api_key", "google_client_id", "google_client_secret", "bolta_api_key", "bolta_webhook_secret", "naver_client_id", "naver_client_secret", "kakao_rest_api_key", "tavily", "perplexity", "serpapi"] as const; // 2026-11-15: AI 비서 웹 검색 키(공용 칸 — 다른 프로그램과 같이 씀) // 2026-11-13: 볼타 세금계산서 발급(회원 본인 키)
 type Provider = (typeof PROVIDERS)[number];
 const isProvider = (v: unknown): v is Provider => typeof v === "string" && (PROVIDERS as readonly string[]).includes(v);
 const mask = (k: string) => (k.length <= 8 ? "••••" : `${k.slice(0, 7)}••••${k.slice(-4)}`);
@@ -31,7 +31,7 @@ export async function GET() {
   if (!access.allowed) return NextResponse.json({ message: access.error }, { status: access.status, headers: NO_STORE });
   const { data, error } = await createAdminClient().from("user_api_keys").select("provider, api_key").eq("user_id", access.user.id).in("provider", [...PROVIDERS]);
   if (error) return NextResponse.json({ message: "등록 상태를 불러오지 못했습니다." }, { status: 503, headers: NO_STORE });
-  const keys: Record<Provider, string | null> = { openai: null, anthropic: null, gemini: null, cronjob_org_api_key: null, google_client_id: null, google_client_secret: null, bolta_api_key: null, bolta_webhook_secret: null };
+  const keys: Record<Provider, string | null> = { openai: null, anthropic: null, gemini: null, cronjob_org_api_key: null, google_client_id: null, google_client_secret: null, bolta_api_key: null, bolta_webhook_secret: null, naver_client_id: null, naver_client_secret: null, kakao_rest_api_key: null, tavily: null, perplexity: null, serpapi: null };
   for (const row of data ?? []) if (isProvider(row.provider) && typeof row.api_key === "string" && row.api_key.trim()) keys[row.provider] = mask(row.api_key.trim());
   return NextResponse.json({ keys }, { headers: NO_STORE });
 }
@@ -50,6 +50,10 @@ export async function POST(request: NextRequest) {
   if (provider === "gemini" && /^sk-/.test(apiKey)) return NextResponse.json({ message: "OpenAI·Claude 키가 아니라 Google AI Studio에서 받은 Gemini 키를 붙여 넣어 주세요." }, { status: 400, headers: NO_STORE });
   if (provider === "openai" && !apiKey.startsWith("sk-")) return NextResponse.json({ message: "OpenAI API 키는 sk- 로 시작합니다." }, { status: 400, headers: NO_STORE });
   if (provider === CRONJOB_PROVIDER && /^(sk-|AIza)/.test(apiKey)) return NextResponse.json({ message: "AI 키가 아니라 cron-job.org Settings › API Keys에서 만든 키를 붙여 넣어 주세요." }, { status: 400, headers: NO_STORE });
+  // 2026-11-15 웹 검색 키: 형식이 분명한 것만 막는다(엉뚱한 값이 저장돼 검색이 「키가 맞지 않음」으로 실패하던 일 방지)
+  if (provider === "tavily" && !apiKey.startsWith("tvly-")) return NextResponse.json({ message: "Tavily API 키는 tvly- 로 시작합니다. app.tavily.com 에서 복사해 주세요." }, { status: 400, headers: NO_STORE });
+  if (provider === "perplexity" && !apiKey.startsWith("pplx-")) return NextResponse.json({ message: "Perplexity API 키는 pplx- 로 시작합니다." }, { status: 400, headers: NO_STORE });
+  if ((provider === "naver_client_id" || provider === "naver_client_secret" || provider === "kakao_rest_api_key" || provider === "serpapi") && /^(sk-|AIza|tvly-|pplx-)/.test(apiKey)) return NextResponse.json({ message: "다른 서비스의 키입니다. 이 칸에 맞는 키를 붙여 넣어 주세요." }, { status: 400, headers: NO_STORE });
   if (provider === "google_client_id" && !apiKey.endsWith(".apps.googleusercontent.com")) return NextResponse.json({ message: "구글 Client ID는 .apps.googleusercontent.com 으로 끝납니다. 구글 클라우드 › 사용자 인증 정보에서 복사해 주세요." }, { status: 400, headers: NO_STORE });
   if (provider === "google_client_secret" && apiKey.endsWith(".apps.googleusercontent.com")) return NextResponse.json({ message: "Client ID가 아니라 클라이언트 보안 비밀(보통 GOCSPX-로 시작)을 붙여 넣어 주세요." }, { status: 400, headers: NO_STORE });
   const service = createAdminClient() as unknown as SupabaseClient;

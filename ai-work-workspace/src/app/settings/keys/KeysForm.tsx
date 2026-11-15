@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc";
 
-type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key" | "google_client_id" | "google_client_secret" | "bolta_api_key" | "bolta_webhook_secret";
+type Provider = "anthropic" | "openai" | "gemini" | "cronjob_org_api_key" | "google_client_id" | "google_client_secret" | "bolta_api_key" | "bolta_webhook_secret" | "naver_client_id" | "naver_client_secret" | "kakao_rest_api_key" | "tavily" | "perplexity" | "serpapi";
 const ITEMS: { provider: Provider; name: string; placeholder: string; desc: string; guideId?: string; guideUrl?: string }[] = [
   { provider: "anthropic", name: "Claude (Anthropic)", placeholder: "sk-ant-…", desc: "AI 비서 기본 엔진(Claude Sonnet). 빠른 작업은 Haiku를 씁니다.", guideId: "d03f65c2-efbb-421f-a041-a075562e3b7a" },
   { provider: "openai", name: "OpenAI (GPT)", placeholder: "sk-…", desc: "Claude 키가 없을 때 「자동」이 쓰는 엔진입니다.", guideId: "1c5c24e2-15d4-49b8-b907-0ac6843dee3a" },
@@ -15,6 +15,13 @@ const ITEMS: { provider: Provider; name: string; placeholder: string; desc: stri
   { provider: "google_client_secret", name: "구글 앱 Client Secret (캘린더 연결)", placeholder: "GOCSPX-…", desc: "위 OAuth 클라이언트의 「클라이언트 보안 비밀」.", guideUrl: "https://www.buylife.xyz/guides/523e7401-7393-44f5-ba45-dd437e10fa2d" },
   { provider: "bolta_api_key", name: "볼타 API 키 (세금계산서 바로 발급)", placeholder: "test_… 또는 live_…", desc: "「영수증·세금계산서 › 볼타로 바로 발급」에 씁니다. 볼타 개발자센터에서 본인 사업자로 가입한 뒤 연동을 만들면 테스트 키(test_)와 실제 키(live_)를 바로 받습니다. 처음엔 test_ 키로 시험하고, 실제 발급할 때 live_ 키로 바꿔 주세요. 실제 발급 요금은 볼타가 회원님 포인트에서 차감합니다.", guideUrl: "https://docs.bolta.io" },
   { provider: "bolta_webhook_secret", name: "볼타 웹훅 서명 키 (선택 · 발급 결과 자동 기록)", placeholder: "whsec_…", desc: "넣으면 「발급 결과 확인」을 다시 누르지 않아도 발급 결과·실패 사유가 문서에 자동으로 기록됩니다. 순서: 「영수증·세금계산서 › 볼타로 바로 발급」에서 웹훅 주소 만들기 → 볼타 개발자센터 › 연동 › 웹훅에 그 주소 등록 → 거기서 보이는 서명 키(whsec_)를 여기에 붙여 넣기. 테스트와 실제는 서명 키가 다르니 API 키를 live_로 바꿀 때 이 키도 함께 바꿔 주세요.", guideUrl: "https://docs.bolta.io/docs/api-introduction/webhook-events.md" },
+  // 2026-11-15 AI 비서 웹 검색 키(공용 칸 — 다른 AIMaster 프로그램에서 등록했다면 이미 「등록됨」)
+  { provider: "naver_client_id", name: "네이버 검색 Client ID", placeholder: "네이버 개발자센터 › 내 애플리케이션 › Client ID", desc: "네이버 개발자센터에서 애플리케이션을 만들 때 사용 API에 「검색」을 넣어야 합니다. 무료(하루 한도).", guideUrl: "https://developers.naver.com/apps/#/register" },
+  { provider: "naver_client_secret", name: "네이버 검색 Client Secret", placeholder: "Client Secret", desc: "같은 애플리케이션의 Client Secret.", guideUrl: "https://developers.naver.com/apps/#/list" },
+  { provider: "kakao_rest_api_key", name: "카카오 REST API 키 (다음 검색)", placeholder: "카카오 디벨로퍼스 › 내 애플리케이션 › 앱 키 › REST API 키", desc: "다음 웹문서 검색에 씁니다. 무료(하루 한도).", guideUrl: "https://developers.kakao.com/console/app" },
+  { provider: "tavily", name: "Tavily API 키", placeholder: "tvly-…", desc: "AI용 검색(요약 포함). 무료 한도 뒤 사용량 과금.", guideUrl: "https://app.tavily.com/home" },
+  { provider: "perplexity", name: "Perplexity API 키", placeholder: "pplx-…", desc: "검색 + 답 요약. 사용량 과금.", guideUrl: "https://www.perplexity.ai/settings/api" },
+  { provider: "serpapi", name: "SerpAPI 키 (구글 검색 결과)", placeholder: "SerpAPI › Dashboard › API Key", desc: "구글 검색 결과를 그대로 가져옵니다. 무료 한도가 작습니다.", guideUrl: "https://serpapi.com/manage-api-key" },
 ];
 // 2026-11-14 주인님 「그룹별 박스로 묶어줘」: 쓰는 곳별로 묶어 상자 하나씩
 const GROUPS: { title: string; desc: string; providers: Provider[] }[] = [
@@ -22,10 +29,11 @@ const GROUPS: { title: string; desc: string; providers: Provider[] }[] = [
   { title: "⏰ 정시 자동화", desc: "「매일 9시」 같은 정시 자동화와 날짜 리마인더를 제시간에 돌립니다.", providers: ["cronjob_org_api_key"] },
   { title: "📅 구글 캘린더 연결", desc: "「📅 캘린더 연동 › 구글 계정 연결」에 씁니다. 두 칸을 함께 넣어 주세요.", providers: ["google_client_id", "google_client_secret"] },
   { title: "🧾 세금계산서 바로 발급 (볼타)", desc: "「영수증·세금계산서 › 볼타로 바로 발급」에 씁니다. 서명 키는 선택(발급 결과 자동 기록).", providers: ["bolta_api_key", "bolta_webhook_secret"] },
+  { title: "🔎 AI 비서 웹 검색", desc: "AI 비서·에이전트가 웹 검색을 할 때 쓸 서비스와 그 키입니다. 키는 한 번 넣으면 다른 AIMaster 프로그램과 같이 씁니다.", providers: ["naver_client_id", "naver_client_secret", "kakao_rest_api_key", "tavily", "perplexity", "serpapi"] },
 ];
 const GUIDE_URL = (id: string) => `https://www.buylife.xyz/guides/${id}`;
 const openGuide = (it: { guideId?: string; guideUrl?: string }) => window.open(it.guideUrl ?? GUIDE_URL(it.guideId ?? ""), "platform-guide-popup", "width=720,height=860,scrollbars=yes,resizable=yes");
-const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "", google_client_id: "", google_client_secret: "", bolta_api_key: "", bolta_webhook_secret: "" };
+const EMPTY: Record<Provider, string> = { anthropic: "", openai: "", gemini: "", cronjob_org_api_key: "", google_client_id: "", google_client_secret: "", bolta_api_key: "", bolta_webhook_secret: "", naver_client_id: "", naver_client_secret: "", kakao_rest_api_key: "", tavily: "", perplexity: "", serpapi: "" };
 
 export function KeysForm() {
   const [keys, setKeys] = useState<Record<Provider, string | null> | null>(null);
@@ -101,7 +109,7 @@ export function KeysForm() {
           </div>
         ))}
         {g.providers.includes("anthropic") && <AiModelPrefs reloadTag={JSON.stringify(keys)} />}
-        {g.providers.includes("anthropic") && <SearchToolPrefs reloadTag={JSON.stringify(keys)} />}
+        {g.providers.includes("naver_client_id") && <SearchToolPrefs reloadTag={JSON.stringify(keys)} />}
       </div>
       </section>
         );
@@ -270,7 +278,7 @@ function SearchToolPrefs({ reloadTag }: { reloadTag: string }) {
           </label>
         ))}
       </div>
-      <p className="aww-key-desc">네이버·카카오·Tavily·Perplexity·SerpAPI 키는 메인 사이트 <a href="https://www.buylife.xyz/api-settings" target="_blank" rel="noreferrer">API 설정</a>(또는 그 키를 쓰는 다른 자동화 프로그램)에서 한 번 등록하면 여기서 그대로 씁니다.</p>
+      <p className="aww-key-desc">각 서비스의 키는 위 칸에 넣으면 됩니다. 다른 AIMaster 프로그램에서 이미 넣었다면 「등록됨」으로 보이고 그대로 씁니다.</p>
       {msg && <p className="aww-key-msg">{msg}</p>}
     </div>
   );
