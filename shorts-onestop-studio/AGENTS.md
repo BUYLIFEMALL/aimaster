@@ -25,9 +25,9 @@
 | 개선 v1.11 | ① 스톡 점수에 두 낱말 구절 일치 +1(`stockScore` — "living room" 태그 4점 vs 숲 2점) ② 자막 `captions.voiceOnly`(기본 켬): MP4(`renderFrame` `final`)에는 목소리가 있는 장면에만 자막, 미리보기는 스타일 확인용으로 항상 표시 ③ 목표 길이: 대본 API가 내레이션 합계가 예산의 1.2배를 넘으면 "더 짧게" 1회 재요청 후 목표에 가까운 쪽 사용 | **v1.11 배포·실화면 검수 완료**(2026-10-16) |
 | 개선 v1.12 | 가이드북(/guide) 가독성 및 줄넘김 전면 개편: 12px 흐릿한 텍스트 5개 단락을 14px 표준 폰트 크기, 5대 독립 카드(디자인·배경, 음성·자막·음악, 발행 계획, 장면 편집, 내 지침), 알약 뱃지, 단계별 줄바꿈·볼드 키워드로 전면 리팩터링. Microsoft Edge 실세션 검수 완료 | **v1.12 배포·실화면 검수 완료**(2026-10-16) |
 | 개선 v1.13 | 로그인/회원가입 표준 2탭 레이아웃(플로우 위저드 테마) 전면 개편: 24px 퍼플 모눈 격자, 쇼츠 필름 릴 심볼, 2탭 토글 바, 메일/자물쇠 아이콘(42px 패딩), 비밀번호 찾기, 풀 위드 로즈-퍼플 그라디언트 버튼, 통합 안내 박스 및 약관 푸터 완비. Microsoft Edge 실세션 검수 완료 | **v1.13 배포·실화면 검수 완료**(2026-10-17) |
-| 최근 v1.44~v1.56 | v1.44 상품 홍보 쇼츠(15초 6비트·넘겨받기 4필드) · v1.45 각색 강도 「AI로 다듬기」 · v1.47 무료음악 받기 `/fms-bgm` · v1.48 받아쓰기 모델 선택 · v1.49 대본·발행 계획 30일 정리·저장공간 위젯·서울 지역 · v1.50 배경음악 「내 자료함」 · v1.51 유튜브 기록 「업무 워크스페이스로」 · **v1.52 상품 사진 쇼츠(메이커 1단계)** · v1.53 인트로·마무리 상품 상자 · v1.54~v1.55 사진 순서·자료함 원본 참조·용량 검사 · **v1.56 광고 고지·AI 제작 표기·게시 전 확인(메이커 후속 M3-①)** | **v1.56 배포**(2026-11-15) |
+| 최근 v1.44~v1.57 | v1.44 상품 홍보 쇼츠(15초 6비트·넘겨받기 4필드) · v1.45 각색 강도 「AI로 다듬기」 · v1.47 무료음악 받기 `/fms-bgm` · v1.48 받아쓰기 모델 선택 · v1.49 대본·발행 계획 30일 정리·저장공간 위젯·서울 지역 · v1.50 배경음악 「내 자료함」 · v1.51 유튜브 기록 「업무 워크스페이스로」 · **v1.52 상품 사진 쇼츠(메이커 1단계)** · v1.53 인트로·마무리 상품 상자 · v1.54~v1.55 사진 순서·자료함 원본 참조·용량 검사 · **v1.56 광고 고지·AI 제작 표기·게시 전 확인(메이커 후속 M3-①)** · **v1.57 상품 숏폼 템플릿 4종·검증·단어 강조 자막·합성 효과음·버전 되돌리기(M3-②)** | **v1.57 배포**(2026-11-15) |
 
-> **지금 버전 v1.56 · 남은 일은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)**(기능·화면·연계 체크 목록, 2026-11-13 정리). 최근 기록은 `docs/IMPROVEMENTS.md` 맨 위.
+> **지금 버전 v1.57 · 남은 일은 [`docs/IMPROVEMENT_BACKLOG.md`](docs/IMPROVEMENT_BACKLOG.md)**(기능·화면·연계 체크 목록, 2026-11-13 정리). 최근 기록은 `docs/IMPROVEMENTS.md` 맨 위.
 
 ## 3. 운영 정보
 - 주소: https://shorts-onestop-studio.buylife.xyz (별칭 https://shorts-onestop-studio.vercel.app), Vercel 프로젝트 `shorts-onestop-studio`(팀 `buylife`), 배포 `vercel deploy --prod --yes --scope buylife`(이 폴더에서).
@@ -290,6 +290,10 @@
 - v1.52 화면 확인에서 인트로 이름표·제목이 상품 글자를 가림 → 인트로·마무리는 `PRODUCT_BOX_TOP`(140~660px), 카드 장면은 `PRODUCT_BOX`(170~1090px). 배포 `shorts-onestop-studio-72fht769b`, DB v1.53. 미리보기로 가림 없음 확인(MP4 파일 대조는 백로그).
 
 <!-- BEGIN:nextjs-agent-rules -->
+
+## 2026-11-15 v1.57 ✅ 배포 — 상품 숏폼 고도화 (메이커 후속 M3-②, Claude Code 윈도우 `claude-win-video`)
+- 장면 기획 템플릿 4종 `src/lib/productTemplates.ts`(템플릿 정의·프롬프트 지시·검증·다시 쓰기 안내·사진 번호 읽기) → `/api/ai/script`에 `template`·`photos`를 보내면 템플릿 경로(검증 뒤 1번만 다시), 화면은 `checkProductScript`로 고칠 때마다 다시 검사. 사진 배치 `productShorts.planSlots`. 태그 움직임 `render/scene.ts tagBadge`, 단어 강조 자막 `drawWordCaption`·`voice.activeWord`, 효과음 `src/lib/sfx.ts` + `render/export.ts withSfx`(공용 `mixVoiceAndBgm`은 그대로), 버전 기록 `src/lib/versions.ts` + `store.updateItem`(서버가 기록, 목록에서 뺌).
+- 검수: 시험 91(새 18)·tsc·build → 배포 `shorts-onestop-studio-hr4wf7vab`, DB v1.57. ego 시험 계정 + Haiku 5.5 4회(템플릿 4종 검사 0건), MP4 16.5초 프레임·효과음 위치 소리 차이 분석, 버전 기록 확인. 미배포 대기: 빨간 목록 칸 위치 `5ba0f2aa6`.
 
 ## 2026-11-15 v1.56 ✅ 배포 — 광고 고지·AI 제작 표기·게시 전 확인 (메이커 후속 M3-①, Claude Code 윈도우 `claude-win-video`)
 - 한 일: `src/lib/disclosure.ts`(판정), `DisclosureCard.tsx`(④ 앞 설정·⑥ 체크 목록), `scene.ts` 위쪽 띠(y 169~223)·AI 표기·띠 아래로 상품 상자 내림·가림 영역 3개 플랫폼, `browserUpload.ts` 설명란 첫 줄 고지·AI 줄·합성 콘텐츠, 공용 `youtube-upload-client`에 `containsSyntheticMedia`(기준 `shots`), 발행 계획 일괄 업로드도 게시 전 확인. `0807cf180`.
