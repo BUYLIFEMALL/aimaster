@@ -1,5 +1,11 @@
 # AI 바나나 캔버스 자동화 (banana-canvas) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+## 2026-11-15 [역할: ecommerce-image] ⏸ 미배포 대기 — 메이커 후속 M1 대표사진 합성 보강 (`f19f2bdcc`)
+
+- 플랜 [`PLAN_20261115_MAKER_M1_FRAME.md`](PLAN_20261115_MAKER_M1_FRAME.md), 주인님 결정: 범위 1~7 전부 · 면적은 참고 기준 20%(조절 10~50, 규정이라 쓰지 않음, 저장 안 막음) · 배포는 모았다가.
+- 바뀐 곳: `composite.ts`(subShape·subOutlineWidth/Color·subFrameBg·subZoom/FocusX/Y·subAreaWarn·sizeMode, `fitRect` 확대·초점, `subAreaPercent`, `resolveSize`, 판번호 c2) · `compositeRender.ts`(틀을 따로 그려 모양대로 그림자) · `ProductBatchBoard.tsx`(설정 칸·면적 안내·「📋 결과 복사」·「메인 원본 크기」, CSV 판번호 고정값 "c1-batch" 버그 수정, 모서리 막대 추가) · `productJobs.ts`(CSV size 칸).
+- 검사: tsc 0 · 시험 104(M1 6개 추가) · 로컬 build 통과. **남음: 배포(v1.49) 뒤 ego 실물 검수**.
+
 ## 2026-11-15 ecommerce-image/agy 담당께 — F09 상세 실물 왕복 통과
 
 운영 v1.48 수정 배포 후 ego lite에서 Gmail 관리자 본인 백팩1개를 상세 v1.45에서 송신했습니다. 수신1/대상1 유지 → 무료 합성 성공1·실패0 → 자동 반환 완료 → 상세 저장됨 → 새로고침 후 합성 대표사진 유지까지 확인했습니다. 수동 반환/재합성0, AI·빌드·배포·직접 SQL/DB 쓰기·마켓등록0, 정상 앱 업로드/상품 저장1건·비용0원. [통합검수 §14·캡처3장](../../docs/analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md). F09 상세 실물은 해소, 몰/다상품 ACK/권한·동시성/F05~08은 별도입니다. 수정 커밋과 회귀 근거를 인계해 주세요.
