@@ -1,10 +1,10 @@
 # AI 할 일·성과 관리 — 인수인계
 
-## 2026-11-15 (미배포) — 받은 할 일 한꺼번에 추가·분류 고르기·메뉴 개수 (Claude Code 윈도우, [역할: workspace])
+## 2026-11-15 v1.14 — 받은 할 일 한꺼번에 추가·분류 고르기·메뉴 개수 (Claude Code 윈도우, [역할: workspace])
 - **한 일**: 「📥 받은 할 일」 칸에 「넣을 분류」 선택(하나씩·한꺼번에 공통, 보관·없는 분류는 기본 분류), 2개 이상이면 「➕ 모두 추가 (N개)」(`POST /api/work-inbox/received` `action: "addAll"`, ids 1~50, 기록 저장 1번, 실패하면 가져감 표시 모두 되돌림, 응답 `addedIds`), 좌측 메뉴 「대시보드」 옆 `📥 N` 배지. 매뉴얼 카드 문구 갱신. 공통 항목 함께: 저장공간 위젯 한 줄, 로그아웃 `scope: "local"`. 입력 한도 2,000→4,000바이트(50개 묶음).
 - **구조**: `src/lib/planner/received.ts`(`receivedCategoryId`, `receivedTaskInput(row, w, date, categoryId?)`, 스키마 `addAll`), `src/app/api/work-inbox/received/route.ts`, `src/components/ReceivedTasks.tsx`·`Planner.tsx`·`Sidebar.tsx`(`receivedCount`), CSS `globals.css` 끝 「분류 고르기·한꺼번에 추가·메뉴 개수 배지」.
 - **검수**: 단위 29/29, 브라우저 모의 31/31(받은 할 일 단계 추가 — 모의 서버에 `/api/work-inbox/received` 생김), tsc, 로컬 빌드. 운영 화면 확인은 배포 때.
-- **배포**: 미배포 대기 — 플래너 2번과 함께 v1.14로 한 번에. 플랜 `docs/PLAN_20261115_RECEIVED_BULK_CATEGORY.md`.
+- **배포**: v1.14(코드·package 1.14.0·DB `supabase/migrations/20261115050000_planner_v114.sql`), 워크스페이스 v1.45(플래너 2번)와 순서대로 배포. 플랜 `docs/PLAN_20261115_RECEIVED_BULK_CATEGORY.md`.
 
 ## 2026-10-25 v1.12 — U8-B 업무 워크스페이스에서 받기 (Claude Code 윈도우, [역할: workspace])
 - **한 일**: U8-B 워크스페이스에서 받기: 대시보드 「📥 받은 할 일」 칸(있을 때만) — 「➕ 할 일로 추가」(예정일 받은 값 또는 선택 날짜, 우선순위 받은 값 또는 보통, 기본 분류)·「버리기」, `GET/POST /api/work-inbox/received`(받는 곳 ai-task-planner·회원 본인 줄만, 먼저 「가져감」 표시 후 추가해 두 번 추가 막음, 실패하면 표시 되돌림), 매뉴얼 카드 — `9757e2966`, 배포 `ai-task-planner-fva6qqy1q`. 플랜 `ai-work-workspace/docs/PLAN_20261025_U8B_TO_PLANNER.md`(주인님 승인: 공용 표 열 추가 + 빌드 2회).
