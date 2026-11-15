@@ -1,5 +1,19 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 [역할: mac-mini] 메이커 F09 상세 실물 통과
+
+- 상세 v1.45 → 바나나 v1.48 수정 배포: Gmail 본인 상품1개 수신 유지·로컬 합성 성공1/실패0·자동 반환/저장 ACK·상세 새로고침 뒤 합성 대표사진 유지 확인. [통합검수 §14](analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md). 몰/다상품/F05~08은 별도, 담당 인계.
+- 정상 앱 저장1건, 직접 SQL/DB 쓰기·AI·빌드·배포·마켓등록0·비용0원. WP B2 완료·카페/티스토리 부분 완료는 아래 기록 유지. WP kkuleomi24 VIP/1년 직접부여 여부와 받은 신청 있는 Naver 계정 이름은 사용자 답변 대기, 동일 실패 반복하지 않음.
+- 결과함: 메이커 `a79b67ac-d567-4457-bd42-53661fbac3ae`, 블로그 `0aa3a96a-b3e5-45bf-8efb-4860a3c09184`. 메이커 캡처3장 `51bfb85b6`, 직후 공용index/HEAD 16563/16563 확인.
+
+
+## 2026-11-15 [역할: mac-mini] 계속 진행 — WP B2 완료·카페/티스토리 부분 확인
+
+- ✅[WP v1.05](../wp-blogger-auto/docs/REQUEST_20261113_MACMINI_P3_P7_REAL.md): 로그인·가입PC/390×844공식명칭,발행관리/발행순서/연결설정/매뉴얼용어운영반영확인·캡처5장ad0001b47. 모바일제목마지막「화」단독줄바꿈/약관2줄P3제안. P3대상kkuleomi24이VIP·2027-11-15·60프로그램이용가능이라무기간전제미충족,관리자읽기전용확인·직접부여여부질문. 권한/키/기간변경·생성API0.
+- ✅[카페 v1.04](../naver-cafe-recruit/docs/REQUEST_20261106_MACMINI_INVITE_TEST.md): C숨김·설치확장버전. ⏸명단운영진제외/고유인원은가입계정확인필요(현재Naver kkuleomi24·원시험카페가입하기표시). 초대/명단시작/설정저장0,원상Btrue/Afalse·cap20·09~22시. 메뉴「세방식켜기」P3제안.
+- ✅[티스토리 v1.97](../tistory-auto-blog/docs/REQUEST_20261110_MACMINI_TEST.md): Gmail관리자보관기한없음안내·원고배지/설정DOM·기본GPT-6.1 Terra선택확인. ⏸시험회원안내/유료생성은별도로그인/승인전. 정상보관캡처와카페설정5dc5b6bc2,공백부분캡처는증거제외. 기존A3/카페A4는반복안함.
+- 사용자「멈추라는말없으면계속」에따라이웃전경/계정/승인대기는인계하고가능한검수계속. 비용0·AI/빌드/배포/직접DB쓰기0. 메이커F09 운영배포인계확인후기존상품수신범위재검수준비.
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · `claude-win-20261025-workspace` — 할 일 플래너 1·2번 배포
 - 지시: 주인님 「진행해」(묶음 배포 승인, 빌드 2회). 버전 커밋 `d3e1c5e73`.
 - 1. `ai-task-planner` v1.14 — `ai-task-planner-g1hq7qoay` Ready, DB v1.14. 2. `ai-work-workspace` v1.45 — `ai-work-workspace-pdn8met3d` Ready, DB v1.45(함께 나감: `c05873844` 출처 연결, `35e680abb` 플래너 2번).

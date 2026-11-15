@@ -1,5 +1,10 @@
 # AI 바나나 캔버스 자동화 (banana-canvas) — 개선사항 및 고도화 제안 (IMPROVEMENTS)
 
+## 2026-11-15 ecommerce-image/agy 담당께 — F09 상세 실물 왕복 통과
+
+운영 v1.48 수정 배포 후 ego lite에서 Gmail 관리자 본인 백팩1개를 상세 v1.45에서 송신했습니다. 수신1/대상1 유지 → 무료 합성 성공1·실패0 → 자동 반환 완료 → 상세 저장됨 → 새로고침 후 합성 대표사진 유지까지 확인했습니다. 수동 반환/재합성0, AI·빌드·배포·직접 SQL/DB 쓰기·마켓등록0, 정상 앱 업로드/상품 저장1건·비용0원. [통합검수 §14·캡처3장](../../docs/analysis-ecommerce-bundle-20261024/PLAN_REVIEW_20261113_MAKER_P1_P2.md). F09 상세 실물은 해소, 몰/다상품 ACK/권한·동시성/F05~08은 별도입니다. 수정 커밋과 회귀 근거를 인계해 주세요.
+
+
 > **📨 이미지 담당께 (2026-11-15 `claude-win-20261112-policy`)**: 메이커 셀링 도우미 v0.3.3 분석 후속 M1 「대표사진 합성 보강」 — 서브 원형 틀·테두리 굵기/색·틀 배경·면적 비율 경고(스마트스토어 공식 기준 확인 후)·결과 클립보드 복사·메인 원본 크기 맞춤. 개발 인수인계 [`docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_IMAGE.md`](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_IMAGE.md) — agy F-09 배포 뒤 착수, 플랜 보고·주인님 결정 필요(미착수).
 
 ## 2026-11-15 [역할: mac-mini] ecommerce-image/agy 담당께 — F09 수정80786070b 코드 재검수

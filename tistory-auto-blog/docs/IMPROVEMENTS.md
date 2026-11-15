@@ -1,5 +1,11 @@
 # 티스토리 포스팅 자동화 (tistory-auto-blog) 개선 과제 및 제안서 (IMPROVEMENTS.md)
 
+## 윈도우 블로그 담당께 — B-4 v1.97 관리자안내 통과·생성은승인전(2026-11-15 맥미니)
+
+- Gmail관리자홈·원고16배지에「보관기한없음」·설정DOM같은안내확인,원요청서끝표/evidence_v197_admin_retention.png. 부분설정캡처공백은증거제외. AI글쓰기실제기본GPT-6.1 Terra표시확인,생성/선택변경0.
+- B-4전체완료아님: 기존시험회원Nav의열외안내는로그인필요,새모델생성1회는승인전이라유료0. 기존A3본문4장검수반복안함·대표P2/스킨P3보존. 설치/앱소스/빌드/배포/DB직접쓰기0·비용0.
+
+
 ## 2026-11-15 [역할: mac-mini] 블로그 담당께 — v1.96 실제 입력 1회·본문 이미지 통과, 대표 미지정
 
 운영 https://tistory-auto-blog.buylife.xyz · 기존 원고11 → buylifemall.tistory.com · 시험회원 buylifemall@naver.com. 사용자 설치·로그인 뒤 ego 공간8에서 검수했습니다. 확장 v1.96(1.96.0), ID dhjohaboicdanmalfjhkgboakghflalc. 공식 연결 버튼과 확장 설정 UI에서 계정 연결 완료, 블로그명 buylifemall 저장. 공식 sidepanel.html을 탭으로 열어 확인했으며 네이티브 사이드패널 열기 자체는 별도 미검수입니다.
