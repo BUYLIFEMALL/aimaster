@@ -11,15 +11,15 @@
 - 이전 갱신: 2026-11-14 22:40 (agy-win-ssr-v1, smartstore-register 1안 110번 네이버 스마트스토어 오리지널 그린 전면 구현 및 검증 완료)
 
 ## 지금 하는 일
-- banana-canvas F-09 결함(연결 모드 상품 유실) 해결 완료 후 다음 묶음 배포 준비
+- banana-canvas v1.48 프로덕션 배포 완료 후 다음 그룹(Group 5 셀러 마케팅 / Group 3 SNS 오퍼레이션) 후속 작업 대기
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
-- `banana-canvas` 메이커 연계 M1 & P2 완결본(F09 수정본 탑재) 프로덕션 배포 대기
+- 없음 (다음 작업 선택 대기)
 
 ## 최근 완료 (최근 10개)
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
 |---|---|---|---|
-| 2026-11-15 | `banana-canvas` | 메이커 연계 F-09 결함(상세페이지/쇼핑몰 수신 후 파일모드 재매칭으로 jobs 빈배열 초기화되는 버그) 해결: `isLinkedMode` 가드 신설, 조기 도착 ACK(saved) 보존 병합 로직 보완, F-09 회귀 단위 테스트 추가, 98/98 단위테스트 통과, tsc 에러 0건, Turbopack 프로덕션 빌드 성공 | 🔍 로컬 검증 완료 (배포 대기) |
+| 2026-11-15 | `banana-canvas` `v1.48` | 메이커 연계 F-09 결함(상세페이지/쇼핑몰 수신 후 파일모드 재매칭으로 jobs 빈배열 초기화되는 버그) 해결: `isLinkedMode` 가드 신설, 조기 도착 ACK(saved) 보존 병합 로직 보완, F-09 회귀 단위 테스트 추가, 98/98 단위테스트 통과, tsc 에러 0건, Turbopack 프로덕션 빌드 성공 및 프로덕션 배포 완료 | ✔ 프로덕션 배포 완료 (https://banana-canvas.buylife.xyz) |
 | 2026-11-15 | `smartstore-register` `v1.28` | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트) 전면 구현본 프로덕션 배포 완료 (`smartstore-register-mxv57n8mv`, Ready, DB v1.28 / ext v1.28 / zip v1.28 일치) | ✔ 프로덕션 배포 완료 (https://smartstore-register.buylife.xyz) |
 | 2026-11-15 | `elevenst-register` `v1.07` | 1안(107. 11번가 오리지널 레드 & 화이트) 전면 구현본 및 전역 버튼 nowrap 최적화 프로덕션 배포 완료 (`elevenst-register-dub6wjt88`, Ready, DB v1.07 일치) | ✔ 프로덕션 배포 완료 (https://elevenst-register.buylife.xyz) |
 | 2026-11-14 | `smartstore-register` `v1.28` | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트 셀러 스튜디오) 공식 채택 전면 구현: 네이버 시그니처 그린(#03C75A) 테마 탑재, 3D 엠보싱 네이버 버튼(`.btn-3d-primary`, `.btn-3d-naver`), N 스마트스토어 센터 일체형 사이드바, 상단 실시간 파이프라인 배너, 4대 실시간 KPI 관제 카드(기본값·대기상품·등록기록·HealthCard), 상품 등록 폼/속성 추천/배치 전송 UI 고도화, 5단계 표준 로그인 폼 N 로고 탑재, 단위테스트 27/27 전수 통과, tsc 에러 0건, Next.js 16.4.3 Turbopack 빌드 성공, 390px 모바일 가로스크롤 0px 실물 검증 통과 | 🔍 로컬 검증 완료 (운영 배포 대기) |
