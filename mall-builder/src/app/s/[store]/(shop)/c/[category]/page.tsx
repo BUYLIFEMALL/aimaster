@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategoryRows, getPublishedDesign, getShopProducts, getStoreBySlug } from "@/lib/store";
+import { getCategoryRows, getPublishedDesign, getShopProducts, getShowcaseProducts, getStoreBySlug } from "@/lib/store";
 import { arrangeProducts, listFor, readList } from "@/lib/builder/pages";
 import { buildCategoryTree, categoryPath, flattenTree } from "@/lib/categories";
 import { ProductGrid } from "../../product-card";
@@ -35,6 +35,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ store
   // 디자인 빌더 D4: 열 수·정렬·품절 숨기기·카드·배너(몰 기본값 + 이 카테고리 덮어쓰기). 표시만 바꾼다
   const view = listFor(readList(design.list), node.id);
   const products = arrangeProducts(all, view);
+  // I16: 이 카테고리 맨 위 고정 상품(직접 고른 순서, 품절 숨기기 설정도 따름)
+  const pinned = view.pinned.length
+    ? arrangeProducts(await getShowcaseProducts(store.id, { title: "", source: "manual", category_id: "", product_ids: view.pinned, columns: view.columns, limit: view.pinned.length }), { ...view, sort: "default" })
+    : [];
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -79,9 +83,20 @@ export default async function CategoryPage({ params }: { params: Promise<{ store
         </div>
       )}
 
+      {view.top_html && <div className="mall-html mt-6" data-list-top dangerouslySetInnerHTML={{ __html: view.top_html }} />}
+
+      {pinned.length > 0 && (
+        <section className="mt-8" data-list-pinned>
+          <h2 className="mb-3 text-lg font-black tracking-tight text-slate-900">📌 추천 상품</h2>
+          <ProductGrid base={base} products={pinned} columns={view.columns} card={view.card} empty="" />
+        </section>
+      )}
+
       <div className="mt-8">
         <ProductGrid base={base} products={products} columns={view.columns} card={view.card} empty="이 카테고리에는 아직 상품이 없습니다." />
       </div>
+
+      {view.bottom_html && <div className="mall-html mt-10" data-list-bottom dangerouslySetInnerHTML={{ __html: view.bottom_html }} />}
     </main>
   );
 }

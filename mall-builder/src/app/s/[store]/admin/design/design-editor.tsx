@@ -244,8 +244,30 @@ const bannerFields = (storeId: string, label: string) => ({
 });
 const SORT_OPTIONS = LIST_SORTS.map((s) => ({ label: LIST_SORT_LABEL[s], value: s }));
 
+/** I16 — 카테고리 맨 위 고정 상품 고르기(8개까지, 고른 순서대로 보임) */
+function PinnedPicker({ value, onChange, products }: { value: string[] | undefined; onChange: (v: string[]) => void; products: Option[] }) {
+  const list = value ?? [];
+  const name = new Map(products.map((p) => [p.id, p.name]));
+  return (
+    <div className="space-y-1" data-pinned-picker>
+      {list.map((id, i) => (
+        <div key={id} className="flex items-center gap-2 text-xs">
+          <span className="flex-1 truncate">{i + 1}. {name.get(id) ?? "(지금 없는 상품)"}</span>
+          <button type="button" onClick={() => onChange(list.filter((x) => x !== id))} className="text-red-700">빼기</button>
+        </div>
+      ))}
+      {list.length < 8 && (
+        <select value="" onChange={(e) => e.target.value && onChange([...list, e.target.value])} className="w-full rounded border px-2 py-1 text-xs">
+          <option value="">+ 고정 상품 추가({list.length}/8)</option>
+          {products.filter((p) => !list.includes(p.id)).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+      )}
+    </div>
+  );
+}
+
 /** 상품 목록(카테고리 화면) 칸 — 표시만 바뀐다. 카테고리별 덮어쓰기 */
-function listFields(storeId: string, categories: Option[]) {
+function listFields(storeId: string, categories: Option[], products: Option[]) {
   return {
     type: "object",
     label: "상품 목록(카테고리 화면) — 게시 뒤 유저 화면에서 확인",
@@ -266,6 +288,9 @@ function listFields(storeId: string, categories: Option[]) {
           columns: { type: "number", label: "열 수(2~5, 비우면 기본값)", min: 2, max: 5 },
           sort: { type: "select", label: "정렬", options: SORT_OPTIONS },
           banner: bannerFields(storeId, "이 카테고리 목록 위 배너(비우면 기본 배너)"),
+          top_html: { type: "textarea", label: "목록 위 글(선택, HTML 가능 — 위험한 태그는 지워짐, 5,000자)" },
+          pinned: { type: "custom", label: "📌 맨 위 고정 상품(선택, 8개까지)", render: ({ value, onChange }: { value: string[] | undefined; onChange: (v: string[]) => void }) => <PinnedPicker value={value} onChange={onChange} products={products} /> },
+          bottom_html: { type: "textarea", label: "목록 아래 글(선택, HTML 가능, 5,000자)" },
         },
       },
     },
@@ -376,7 +401,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
       categories: CATEGORIES,
       components,
       root: {
-        fields: { theme: THEME_FIELDS, header: headerFields(storeId), footer: footerFields(footerBankLocked), popup: popupFields(storeId), list: listFields(storeId, categories), detail: detailFields(storeId) },
+        fields: { theme: THEME_FIELDS, header: headerFields(storeId), footer: footerFields(footerBankLocked), popup: popupFields(storeId), list: listFields(storeId, categories, products), detail: detailFields(storeId) },
         render: ({ children, theme, header, footer, popup }: { children: ReactNode } & RootProps) => {
           const h = readHeader(header);
           return (

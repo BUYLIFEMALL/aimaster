@@ -4,13 +4,17 @@
 // 확장자(.ts)까지 적는다 — `node --test`가 이 파일을 바로 읽기 때문
 
 import { normalizeCard, optionalImage, safeLink, type CardOptions } from "../blocks.ts";
+import { sanitizeHtml } from "../sanitize.ts";
 
 export const LIST_SORTS = ["default", "price_asc", "price_desc", "name"] as const;
 export type ListSort = (typeof LIST_SORTS)[number];
 export const LIST_SORT_LABEL: Record<ListSort, string> = { default: "기본(등록·진열 순서)", price_asc: "낮은 가격 순", price_desc: "높은 가격 순", name: "이름 순" };
 
 export type Banner = { image: string; link: string };
-export type ListOverride = { category_id: string; columns?: number; sort?: ListSort; banner?: Banner };
+// I16: top_html·bottom_html = 그 카테고리 목록 위·아래 자유 글(글 블록과 같은 정리기), pinned = 목록 맨 위 고정 상품(직접 고름, 8개까지)
+export type ListOverride = { category_id: string; columns?: number; sort?: ListSort; banner?: Banner; top_html?: string; bottom_html?: string; pinned?: string[] };
+export const MAX_LIST_HTML = 5000;
+export const MAX_PINNED = 8;
 export type ListDesign = {
   columns: number; // 큰 화면 열 수(휴대폰은 늘 2열)
   sort: ListSort;
@@ -69,7 +73,18 @@ export function validateList(raw: unknown): Out<ListDesign> {
     if (!ob.ok) return ob;
     const c = cols(r.columns);
     const s = sortOf(r.sort);
-    overrides.push({ category_id: id, ...(c ? { columns: c } : {}), ...(s && s !== "default" ? { sort: s } : {}), ...(ob.value ? { banner: ob.value } : {}) });
+    const html: { top_html?: string; bottom_html?: string } = {};
+    for (const k of ["top_html", "bottom_html"] as const) {
+      const v = typeof r[k] === "string" ? (r[k] as string) : "";
+      if (v.length > MAX_LIST_HTML) return { ok: false, error: `카테고리별 설정 ${i + 1}번째: ${k === "top_html" ? "위" : "아래"} 글은 ${MAX_LIST_HTML.toLocaleString()}자까지입니다.` };
+      const clean = v.trim() ? sanitizeHtml(v).trim() : "";
+      if (clean) html[k] = clean;
+    }
+    const pins = arr(r.pinned).map((x) => (typeof x === "string" ? x.trim() : ""));
+    if (pins.length > MAX_PINNED) return { ok: false, error: `카테고리별 설정 ${i + 1}번째: 고정 상품은 ${MAX_PINNED}개까지입니다.` };
+    if (pins.some((x) => !UUID.test(x))) return { ok: false, error: `카테고리별 설정 ${i + 1}번째: 고정 상품을 다시 골라 주세요.` };
+    const pinned = [...new Set(pins)];
+    overrides.push({ category_id: id, ...(c ? { columns: c } : {}), ...(s && s !== "default" ? { sort: s } : {}), ...(ob.value ? { banner: ob.value } : {}), ...html, ...(pinned.length ? { pinned } : {}) });
   }
   const card = normalizeCard(o.card);
   return {
@@ -125,7 +140,7 @@ export function readList(raw: unknown): ListDesign {
         return true;
       })
       .slice(0, MAX_OVERRIDES)
-      .map((it) => ({ ...obj(it), banner: okBanner(obj(it).banner) ? obj(it).banner : undefined })),
+      .map((it) => ({ ...obj(it), banner: okBanner(obj(it).banner) ? obj(it).banner : undefined, pinned: arr(obj(it).pinned).filter((x) => typeof x === "string" && UUID.test(x)).slice(0, MAX_PINNED), top_html: String(obj(it).top_html ?? "").slice(0, MAX_LIST_HTML), bottom_html: String(obj(it).bottom_html ?? "").slice(0, MAX_LIST_HTML) })),
   };
   const v = validateList(clean);
   return v.ok ? v.value : DEFAULT_LIST;
@@ -139,9 +154,9 @@ export function readDetail(raw: unknown): DetailDesign {
 }
 
 /** 한 카테고리 목록에 쓸 값 — 몰 기본값 위에 그 카테고리 덮어쓰기 */
-export function listFor(list: ListDesign, categoryId: string): { columns: number; sort: ListSort; hide_soldout: boolean; card?: CardOptions; banner?: Banner } {
+export function listFor(list: ListDesign, categoryId: string): { columns: number; sort: ListSort; hide_soldout: boolean; card?: CardOptions; banner?: Banner; top_html: string; bottom_html: string; pinned: string[] } {
   const ov = list.overrides.find((o) => o.category_id === categoryId);
-  return { columns: ov?.columns ?? list.columns, sort: ov?.sort ?? list.sort, hide_soldout: list.hide_soldout, card: list.card, banner: ov?.banner ?? list.banner };
+  return { columns: ov?.columns ?? list.columns, sort: ov?.sort ?? list.sort, hide_soldout: list.hide_soldout, card: list.card, banner: ov?.banner ?? list.banner, top_html: ov?.top_html ?? "", bottom_html: ov?.bottom_html ?? "", pinned: ov?.pinned ?? [] };
 }
 
 type Sortable = { name: string; status?: string; display: { unitPrice: number; priceHidden: boolean } };
