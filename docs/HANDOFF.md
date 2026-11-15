@@ -1,5 +1,17 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: main-auth-design] Antigravity · `agy-win-ssr-v1` — 메인 홈 카피 1안 & 로그인 화면 1안(122번 네오 모던 B2B 코퍼레이트 블루) 적용
+- 사용자 지시:
+  1) 메인 카피 문구 수정: "모든 자동화를 한 곳에서" / "모든 마케팅/업무/비지니스를 자동화 하세요" 3종 시안 중 1안 반영 완료 (`d4830a789`, `origin/master`).
+  2) 로그인 UI 1안 진행: 122번 네오 모던 B2B 커머스 & 코퍼레이트 블루 스타일 (`neo-b2b-corporate`) 실제 로그인 화면 반영 완료 (`2ae082d2c`, `origin/master`).
+- 작업 내역:
+  - `app/(main)/page.tsx`: 상단 뱃지 "모든 자동화를 한 곳에서", 메인 헤드라인 "모든 마케팅/업무/비지니스를" / "자동화 하세요" 골드 그라데이션 반영.
+  - `app/(auth)/login/LoginForm.tsx`: 122번 2단 스플릿 레이아웃(좌측 B2B 파트너십 혜택 배너 + 우측 5단계 표준 규격 폼), 사업자(B2B)/일반 회원 탭, 3D 엠보싱 블루 버튼(`.btn-3d-blue`), 1행 약관 규격 적용. 기존 Supabase 인증/동시 세션 제한/휴대폰 번호 등록 로직 100% 보존.
+  - `app/(auth)/_components/AuthShell.tsx`: 인증 공용 쉘을 122번 코퍼레이트 블루 및 `.btn-3d-blue` 버튼 규격으로 통일.
+  - `app/globals.css`: `.btn-3d-blue` 3D 엠보싱 버튼 클래스 및 `.auth-input` 코퍼레이트 블루 포커스 링 스타일 추가.
+- 검증: `npx tsc --noEmit` 통과 (0 errors), git push 완료.
+
+
 ## 2026-11-15 ⏸ [역할: ecommerce-image] Claude Code(윈도우, ego) · `claude-win-sdp` — 바나나 M1·상세페이지 WebP 받기·ESM 화면 분석 (미배포 대기)
 - ESM+ 「상품등록 2.0」 읽기 전용 분석(저장·등록 0): `docs/ESM_FORM_ANALYSIS_20261115.md` `495dd5057`. 다음: 주인님 고객센터 답(판매자 본인 API 키) → API/확장 결정.
 - 바나나 M1(주인님 결정: 범위 1~7·참고 기준 20%·모아서 배포): `f19f2bdcc` 원형 틀·테두리 굵기/색·틀 배경·틀 안 확대/위치·서브 면적 %·결과 PNG 클립보드·메인 원본 크기·CSV size 칸·판번호 c2, CSV 판번호 고정값 버그 수정. 시험 104·tsc·build. v1.49 버전 커밋은 되돌림(`b47aa728c`).
