@@ -328,9 +328,21 @@ export function renderFrame(ctx: CanvasRenderingContext2D, s: ShortsScript, d: D
       const grad = ctx.createLinearGradient(0, 1100, 0, H); grad.addColorStop(0, "rgba(0,0,0,0)"); grad.addColorStop(1, "rgba(0,0,0,0.6)");
       ctx.fillStyle = grad; ctx.fillRect(0, 1100, W, H - 1100);
       if (d.badges) tagBadge(ctx, s, tag, 210, 1130 + lift, bodyFont(42), th, u);
-      const { px, lines } = fitText(ctx, c.title, titleFont, W - 180, 112, 70, 3);
-      ctx.font = titleFont(px); drawLines(ctx, lines, 100, 1250 + lift, px * 1.15, "#ffffff", d.effect, th.accent, "left");
-      if (c.desc) { ctx.globalAlpha = out * inB; ctx.font = bodyFont(44); drawLines(ctx, wrap(ctx, c.desc, W - 200, 2), 100, 1290 + lift + lines.length * px * 1.15, 60, "#f1f5f9", "none", th.accent, "left"); }
+      const fit3 = fitText(ctx, c.title, titleFont, W - 180, 112, 70, 3);
+      ctx.font = bodyFont(44); const descLines = c.desc ? wrap(ctx, c.desc, W - 200, 2) : [];
+      // v1.58 자막이 켜져 있고 한 줄 설명이 자막 자리(아래 captions.y)와 겹치면: 설명을 태그 바로 아래 한 줄로 올리고 제목은 그 아래 최대 2줄
+      const cap = normalizeAudio(s.audio).captions; const capTop = H - cap.y - (58 * cap.size * 1.55) / 2;
+      const descBottom = 1290 + fit3.lines.length * fit3.px * 1.15 + (descLines.length - 1) * 60 + 30;
+      const fit2 = fitText(ctx, c.title, titleFont, W - 180, 104, 64, 2);
+      const altBottom = 1290 + (fit2.lines.length - 1) * fit2.px * 1.15 + fit2.px / 2;
+      // 바꾼 배치가 실제로 자막을 피할 때만(회원이 자막을 위로 올렸으면 원래 배치 그대로)
+      if (cap.on && descLines.length && descBottom > capTop - 12 && altBottom < capTop - 12) {
+        ctx.globalAlpha = out * inB; ctx.font = bodyFont(44); drawLines(ctx, wrap(ctx, c.desc, W - 200, 1), 100, 1200 + lift, 60, "#f1f5f9", "none", th.accent, "left");
+        ctx.globalAlpha = out * inA; ctx.font = titleFont(fit2.px); drawLines(ctx, fit2.lines, 100, 1290 + lift, fit2.px * 1.15, "#ffffff", d.effect, th.accent, "left");
+      } else {
+        ctx.font = titleFont(fit3.px); drawLines(ctx, fit3.lines, 100, 1250 + lift, fit3.px * 1.15, "#ffffff", d.effect, th.accent, "left");
+        if (descLines.length) { ctx.globalAlpha = out * inB; ctx.font = bodyFont(44); drawLines(ctx, descLines, 100, 1290 + lift + fit3.lines.length * fit3.px * 1.15, 60, "#f1f5f9", "none", th.accent, "left"); }
+      }
     }
   }
   ctx.restore();
