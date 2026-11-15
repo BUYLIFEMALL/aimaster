@@ -1,4 +1,5 @@
-# 작업 중 표 (ACTIVE_WORK.md) — 동시 작업 방지
+# 작업 중 표 (ACTIVE_| `banana-canvas/` (범위: 상품 대표사진 합성 — `src/lib/batch/composite*.ts`·`src/components/batch/ProductBatchBoard.tsx`·`tests/batchProduct.test.mjs`) | [역할: ecommerce-image] Claude Code(윈도우, ego) · 세션 `claude-win-sdp` | 2026-11-15 | 메이커 후속 M1 구현(원형 틀·테두리·틀 배경·확대·면적 안내·클립보드·원본 크기) → v1.49 배포(빌드 1회 승인됨) |
+WORK.md) — 동시 작업 방지
 
 
 
