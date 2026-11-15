@@ -1,5 +1,11 @@
 # 개선사항 원장 — 상품소싱 자동화 (trending-product-finder)
 
+## 2026-11-15 [역할: mac-mini] 상품소싱 v1.39 설치 확인·시험회원 로그인 대기
+
+- 사용자 폴더선택 완료 뒤 ego 공간14 확장관리에서 상품소싱 자동화 **v1.39**, ID `nllfpiajmnbeimoigbkmpikpbihjbnaf` 사용 설정 확인. 웹 새로고침 뒤 「설치됨 · 연결 필요 · 확장 v1.39」로 정상 감지했습니다. 설치를 다시 요청하지 않습니다.
+- 현재 웹 로그인은 관리자 buylifemall@gmail.com이므로 원요청의 시험회원 조건과 다릅니다. /login에 buylifemall@naver.com 이메일만 준비해 사용자 handOff, 비밀번호 직접 입력·로그인 요청. 연결 버튼/검색/저장0, 새기록없음·AI/빌드/배포/직접DB쓰기0·비용0원. 관리자 계정으로 대신 시험한다는 답변이 오면 그 승인에 따라 진행합니다.
+
+
 ## ecommerce-image 담당께 — v1.39 ego lite 설치 준비(2026-11-15 맥미니)
 
 - 사용자 지정 브라우저는 Chrome이 아닌 **ego lite**입니다. 기존 Chrome timeoutMs 오류와 구별해 공간14에서 실제 확장관리 화면을 열었습니다. 설치목록에 상품소싱 확장은 없습니다.
