@@ -219,9 +219,11 @@ test("⑩ 2분 넘은 잠금은 치우고 정상으로 맞춘다", () => {
 test("⑪ 공용 스테이징이 이미 줄어 있으면: 더 쓰지 않고 알린다", () => {
   const r = repo();
   try {
-    for (const f of ["a.md", "b.md", "c.md", "d.md"]) r.write(f, [f]);
+    // 시험 저장소 HEAD에는 도우미 스크립트도 들어가므로(2026-11-15 모듈 추가로 2개) 문서를 넉넉히 두고 절반 아래로 확실히 줄인다
+    const others = Array.from({ length: 9 }, (_, i) => `n${i}.md`);
+    for (const f of ["a.md", ...others]) r.write(f, [f]);
     r.git("add", "."); r.git("commit", "-qm", "c1");
-    r.git("rm", "-q", "--cached", "b.md", "c.md", "d.md");   // 스테이징 축소 흉내
+    r.git("rm", "-q", "--cached", ...others);   // 스테이징 축소 흉내(12개 → 3개)
     const before = r.git("ls-files").trim();
     r.write("a.md", ["a2"]);
     const out = r.helper("커밋", "a.md", "--mine");
