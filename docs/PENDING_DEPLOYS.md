@@ -21,7 +21,6 @@
 
 
 
-- **`ai-work-workspace` — 토큰 주소 권한 판정 한 곳으로 + 볼타 중복 버튼 정리(2026-11-15 [역할: workspace], `dd08e49b8`)**: 캘린더·MCP·공개 REST API·회원 정시 실행·공개 페이지 → `tokenOwnerAllowed`(동작 같음), 인증서 단계에서 작은 「다시 등록」 숨김. 시험 181·빌드. 다음 워크스페이스 배포 때.
 - **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감. ✅ `music-video-studio` v1.31(11-15 영상 담당 배포)에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
@@ -94,6 +93,7 @@
 - 2026-11-11 메인 사이트(세션 `claude-win-rea`): 저작권·AI 분석 금지 고지 — `public/ai.txt`, 응답 헤더 `X-Robots-Tag: noai, noimageai`, 하단 저작권 한 줄(약관 제14조 링크) — 저장공간 2단계(관리자 미리보기)와 같은 빌드로 내보냄.
 | 프로그램 | 배포 버전 · 날짜 | 함께 나간 대기 항목 |
 | `tistory-auto-blog` | v1.97 · 2026-11-15 ([역할: blog] `claude-win-photo`, 주인님 「미배포 대기 순서대로 배포 진행해」 빌드 4/4, `tistory-auto-blog-odn5g7qv5` Ready, DB·확장·ZIP v1.97 OK) | 결정 4번 모델 교체(gpt-4.1·4o·4o-mini → gpt-6.1-terra·gpt-6-luna, 저장된 옛 값 변환) · 열외 회원 배지 `ae8ea7473` · 공통 3가지(저장공간 위젯·로그아웃 범위·서버 기기 정보), 시험 175 통과 |
+| `ai-work-workspace` | v1.49 · 2026-11-15 ([역할: workspace], 주인님 「배포해」 빌드 1회, `ai-work-workspace-m85h103fq` Ready, DB v1.49) | 토큰 주소 권한 판정 공통화·볼타 중복 버튼 정리 `dd08e49b8`(동작 같은 내부 정리 — 시험 181로 확인) |
 | `ai-work-workspace` | v1.48 · 2026-11-15 ([역할: workspace], 주인님 「진행해」 빌드 1회, `ai-work-workspace-7yn8eiv46` Ready, DB v1.48) | 볼타 처음 설정 「지금 할 일」 `a22503ee4` — 엣지 확인: 시험 계정(테스트 키 인증서 만료 2026-12-13, D-28)에 「👉 지금 할 일: 공동인증서 만료가 30일 안으로…」 + 「🔐 공동인증서 등록 창 열기」 |
 | `ai-work-workspace` | v1.47 · 2026-11-15 ([역할: workspace], 주인님 「배포해」 빌드 1회, `ai-work-workspace-lwxilt85a` Ready, DB v1.47) | 실행 기록 보강 `b281f81bc` + 오늘 쓴 횟수 `29eb81b8e` + 볼타 인증서 만료 알림 `9e93123b5` + 볼타 30초 자동 확인 `5dba64719` — 엣지 확인: 키 화면 「오늘 쓴 횟수」 웹훅 0/500·메일 0/100·카카오톡 0/100. 나머지는 시험 180으로 확인 |
 | `ai-work-workspace` | v1.46 · 2026-11-15 ([역할: workspace], 주인님 「진행해」 빌드 1회, `ai-work-workspace-343yjyxjb` Ready, DB v1.46) | 받은 업무 표 한국어 이름 `94b208d8f` + 공개 페이지 빈틈 2개 `72a727cbf` + 알림 영어 조각 `e8dd04103` — 엣지 확인: 공유 창 일반 액세스 선택지 2개(「링크가 있는 누구나」 없음), 업데이트 패널 「내가 [페이지] 을(를) 수정했습니다 · 3시간 전」. 다른 회원 내리기·받은 업무 표 이름은 시험으로만 확인 |
