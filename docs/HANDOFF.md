@@ -1,5 +1,11 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · `claude-win-20261025-workspace` — 업무 워크스페이스 v1.51 업무 비서 바깥 MCP 호출
+- 한 일: AI 채팅의 바깥 MCP 연결 명령(목록·추가·수정·삭제·허용 주소)을 엶. 회원당 1분 30번·하루 500번(`litpage/server/aimasterMcpGuard.ts`, 표 `aww_mcp_usage`), 바깥 MCP의 쓰기·삭제 도구는 승인 방식과 상관없이 항상 확인, 키 화면 「오늘 쓴 횟수」에 바깥 MCP, 매뉴얼 안내. 에이전트 연결(정시 실행)·MCP 프리셋은 계속 닫음. 커밋 `e7b01344a`, 시험 190·tsc 통과.
+- 배포: `ai-work-workspace-jxs37pc9i` Ready, DB v1.51. 운영 확인(엣지·시험 계정): 연결 추가 창 열림, 연결 목록 200, 에이전트 연결 403 유지. 실제 바깥 MCP 서버 연결·호출은 하지 않음(선택).
+- 다음: 개선 후보 — 연결 창 제목 「External MCP endpoint」, 채팅 모드 「요금제」(계획의 잘못된 번역), 폼 공유 메뉴 영어 문구 한국어화. 내일 확인: 볼타 테스트 인증서 30일 전 앱 알림.
+- 프로그램: https://ai-work-workspace.buylife.xyz
+
 ## 2026-11-15 ✅ [역할: video] Claude Code(윈도우) · `claude-win-video` — 원스톱 v1.59 · GIF 변환 v1.32(맥 검수 3건)
 - 원스톱 v1.59 배포(`a61100cdb`): Gemini 낱말 시각(B안)+공용 사본 2개, `icn1` 확인. Gemini 1원 시험은 ego가 관리자 계정이라 보류 — 시험 계정 로그인 대기(요청함 32673863).
 - GIF 변환 v1.32 배포(`44db8e230`): 맥미니 검수 P1 상품 영상 MP4 5% 정지(공용 `browser-mp4-encoder` 대기열 무한 대기 → 멈추기·오류·10초 진행 없음 확인, 메모리 방식은 하드웨어 가속 끄고 1회 다시, flush 30초 제한)·P2 고속 변환 감지 제한(확장 4초+1회 재연결, 렌더러 15초)·P3 사이드바 버전 고정. 확장 ZIP·DB(`version`·`extension_version`) v1.32, `check-extension-release` OK. 윈도우 운영에서 상품 영상 MP4 생성 확인.
