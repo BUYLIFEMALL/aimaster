@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TrackingLink from "@/app/tracking-link";
 import { notFound, redirect } from "next/navigation";
 import { getStoreBySlug } from "@/lib/store";
 import { createClient } from "@/lib/supabase/server";
@@ -43,7 +44,7 @@ export default async function GuestOrderPage({ params, searchParams }: { params:
       <p className="mt-1 text-sm text-gray-500">{formatDateTime(order.created_at)} 주문 · 무통장 입금 · {order.guest_name} · {order.guest_phone}</p>
       {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700" data-order-error>{error}</p>}
       {ok && <p className="mt-4 rounded bg-green-50 px-3 py-2 text-sm text-green-700">처리했습니다.</p>}
-      {order.tracking_no && <p className="mt-4 rounded border px-3 py-2 text-sm" data-tracking>배송: {order.courier} · 송장 번호 <b>{order.tracking_no}</b></p>}
+      {order.tracking_no && <p className="mt-4 rounded border px-3 py-2 text-sm" data-tracking>배송: {order.courier} · 송장 번호 <b>{order.tracking_no}</b><TrackingLink courier={order.courier} trackingNo={order.tracking_no} /></p>}
       {actions.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2" data-status-actions>
           {actions.map((a) => <GuestStatusButton key={a.to} to={a.to} label={a.label} action={guestChangeStatusAction.bind(null, store.slug, order.id, a.to)} />)}

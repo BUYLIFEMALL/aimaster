@@ -1,4 +1,5 @@
 import PendingButton from "@/app/pending-button";
+import TrackingLink from "@/app/tracking-link";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMyAddresses, getMyCustomer, getMyReviewsByItem, getOrder, getStoreBySlug, requireUser } from "@/lib/store";
@@ -96,6 +97,7 @@ export default async function OrderDetailPage({
       {order.tracking_no && (
         <p className="mt-4 rounded border px-3 py-2 text-sm" data-tracking>
           배송: {order.courier} · 송장 번호 <b>{order.tracking_no}</b>
+          <TrackingLink courier={order.courier} trackingNo={order.tracking_no} />
         </p>
       )}
       <div className="mt-4 space-y-4">
@@ -169,7 +171,7 @@ export default async function OrderDetailPage({
               <span className="text-gray-500">{formatWon(it.unit_price)} × {it.qty}</span>
               {it.cancelled_qty > 0 && <span className="ml-1 text-red-600">(취소 {it.cancelled_qty}개)</span>}
               {itemTracking.get(it.id) && (
-                <span className="block text-xs text-emerald-700" data-item-tracking>🚚 따로 보냄 · {itemTracking.get(it.id)!.courier} {itemTracking.get(it.id)!.tracking_no}</span>
+                <span className="block text-xs text-emerald-700" data-item-tracking>🚚 따로 보냄 · {itemTracking.get(it.id)!.courier} {itemTracking.get(it.id)!.tracking_no}<TrackingLink courier={itemTracking.get(it.id)!.courier} trackingNo={itemTracking.get(it.id)!.tracking_no} /></span>
               )}
               {canReview(order.status, it.qty, it.cancelled_qty, it.product_id) && (
                 <ReviewForm slug={store.slug} orderId={order.id} orderItemId={it.id} review={reviews.get(it.id) ?? null} />

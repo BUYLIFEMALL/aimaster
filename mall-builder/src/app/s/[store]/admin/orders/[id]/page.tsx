@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TrackingLink from "@/app/tracking-link";
 import { notFound } from "next/navigation";
 import { getOrder, getStaffStore, logStaffView } from "@/lib/store";
 import { ORDER_STATUS_LABEL, PARTIAL_CANCEL_STATUSES, formatDateTime } from "@/lib/orders";
@@ -142,7 +143,7 @@ export default async function AdminOrderDetailPage({
           <p className="mt-1">{r.receiver} · {r.phone}</p>
           <p>({r.zip}) {r.addr1} {r.addr2}</p>
           {order.memo && <p className="text-gray-600">메모: {order.memo}</p>}
-          {order.tracking_no && <p className="mt-1" data-tracking>송장: {order.courier} {order.tracking_no}</p>}
+          {order.tracking_no && <p className="mt-1" data-tracking>송장: {order.courier} {order.tracking_no}<TrackingLink courier={order.courier} trackingNo={order.tracking_no} /></p>}
         </div>
       </section>
 
@@ -232,6 +233,7 @@ export default async function AdminOrderDetailPage({
                 <span className="mt-0.5 block text-xs text-indigo-700" data-item-supplier>
                   🏭 {supplyMap.get(it.id)!.supplier_name} · 공급가 {formatWon(supplyMap.get(it.id)!.supply_price)} ·{" "}
                   {supplyMap.get(it.id)!.shipped_at ? `발송 ${supplyMap.get(it.id)!.courier} ${supplyMap.get(it.id)!.tracking_no}` : "공급사 발송 전"}
+                  {supplyMap.get(it.id)!.shipped_at && <TrackingLink courier={supplyMap.get(it.id)!.courier} trackingNo={supplyMap.get(it.id)!.tracking_no} />}
                 </span>
               )}
             </span>

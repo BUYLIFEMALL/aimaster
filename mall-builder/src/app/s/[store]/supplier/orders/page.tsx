@@ -1,4 +1,5 @@
 import { getSupplierOrders, type SupplierOrderItem } from "@/lib/supplier-store";
+import TrackingLink from "@/app/tracking-link";
 import { shipSupplierItemAction } from "@/lib/supplier-actions";
 import { ORDER_STATUS_LABEL, formatDateTime, type OrderStatus } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
@@ -71,7 +72,7 @@ function ItemCard({ slug, it }: { slug: string; it: SupplierOrderItem }) {
           {r.memo && <p className="text-gray-600">요청: {r.memo}</p>}
         </div>
       )}
-      {it.shipped_at && <p className="mt-1 text-xs text-emerald-700" data-supplier-shipped>발송 {formatDateTime(it.shipped_at)} · {it.courier} {it.tracking_no}</p>}
+      {it.shipped_at && <p className="mt-1 text-xs text-emerald-700" data-supplier-shipped>발송 {formatDateTime(it.shipped_at)} · {it.courier} {it.tracking_no}<TrackingLink courier={it.courier} trackingNo={it.tracking_no} /></p>}
       {canShip && (
         <form action={shipSupplierItemAction.bind(null, slug, it.item_id)} className="mt-2 flex flex-wrap items-center gap-2" data-supplier-ship-form>
           <input name="courier" required maxLength={30} defaultValue={it.courier || DEFAULT_COURIER} list={`mb-couriers-${it.item_id}`} placeholder="택배사 이름" className="w-36 rounded border px-2 py-1.5" />
