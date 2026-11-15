@@ -35,6 +35,7 @@
 ## 4. 버전·변경 이력
 | 버전 | 날짜 | 내용 |
 |---|---|---|
+| v1.46 | 2026-11-15 | 받은 업무 표 「보낸 프로그램」 한국어 이름(공용 이름표 `src/lib/programLabels.ts`) `94b208d8f` + 공개 페이지 1단계 빈틈 2개(공유 탭 「링크가 있는 누구나」 숨김, 관리자 내리기·게시자 이용 기간 종료를 로그인한 다른 회원 화면에도) `72a727cbf` + 데스크톱 알림 제목·업데이트 패널 줄 한국어 어순 `e8dd04103`. 시험 176 |
 | v1.45 | 2026-11-15 | **할 일 플래너 2번**: 표 행·선택 막대 「•••」 → 「📨 할 일 플래너로 보내기 (N개)」(최대 50개, 마감일·우선순위), 플래너에 대기 중인 같은 항목(원본 주소+제목) 건너뛰기(페이지 메뉴에도), 「N개 선택됨」·「N개 페이지」 한국어화 `35e680abb` + Gemini 출처가 다음 요청 답에 올 때도 「검색함」에 붙이기 `c05873844`. 시험 174. 플랜 `docs/PLAN_20261115_PLANNER_ROWS_DEDUP.md` |
 | v1.44 | 2026-11-15 | **Gemini 내장 구글 검색**(`google_search` + 함수 도구면 `includeServerSideToolInvocations`, toolCall·toolResponse 원래 조각을 서명과 함께 되돌려 보냄, groundingMetadata → 출처, `81b56f898`) · 키 화면 「🔎 AI 비서 웹 검색」 상자(네이버 ID·Secret·카카오 REST·Tavily·Perplexity·SerpAPI 직접 등록, Tavily `tvly-`·Perplexity `pplx-` 형식 확인, `90c190a96`) |
 | v1.43 | 2026-11-15 | AI 비서·에이전트 **「🔎 웹 검색 도구」 고르기** — 자동 · AI 모델 내장 · 네이버 · 카카오(다음) · Tavily · Perplexity · 구글(SerpAPI). 외부 검색은 「web_search」 함수 도구로 모든 모델 공통(Gemini 키 회원도 검색 가능), 회원 본인 키(공용 user_api_keys 그대로), 설정 `user_settings.aww_search_tool`, 화면 키 화면 카드. 코드 `src/litpage/server/ai/providers/webSearch.ts`·`src/server/searchPrefs.ts`. 시험 171개. 플랜 `docs/PLAN_20261115_SEARCH_TOOL_CHOICE.md`. Gemini 내장 구글 검색(`google_search`)은 다음 단계 |
