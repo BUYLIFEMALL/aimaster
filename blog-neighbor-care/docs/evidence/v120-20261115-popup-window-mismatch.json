@@ -1,0 +1,33 @@
+{
+  "time": "2026-11-15T01:30:22.259Z",
+  "connection": "연결된 블로그: buylifemall",
+  "focus": true,
+  "activeTab": [
+    {
+      "id": 940869567,
+      "url": "https://wp-blogger-auto.buylife.xyz/dashboard",
+      "windowId": 940869566
+    }
+  ],
+  "context": "읽기 전",
+  "visibleTarget": {
+    "url": "https://blog.naver.com/dewdawn5/224231976765",
+    "tabId": 940869600,
+    "windowId": 940869598,
+    "space": 9
+  },
+  "connectionVerified": {
+    "blogId": "buylifemall",
+    "deviceId": "55c19089-797a-4672-bb06-48d5de5fe85f"
+  },
+  "browser": "ego lite 0.6.3.14 macOS",
+  "lastFocusedBeforeToolbar": 940869598,
+  "executed": {
+    "contextRead": 0,
+    "contextConfirm": 0,
+    "accept": 0,
+    "ai": 0,
+    "build": 0,
+    "directDbWrite": 0
+  }
+}
