@@ -451,21 +451,21 @@ ${productBlock(script.product, script.product)}` });
                   </select></label>}
               </div>
             )}
-            <div className="scene" style={sceneStyle(hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef), issuesFor(issues, "intro"))}><div className="scene-tag">🎬<span>인트로</span>{hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef) && <CopyBadge />}</div><IssueList list={issuesFor(issues, "intro")} /><div className="stack" style={{ gap: 8 }}>
+            <div className="scene" style={sceneStyle(hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef), issuesFor(issues, "intro"))}><div className="scene-tag">🎬<span>인트로</span>{hasCopy(`${script.intro.title} ${script.intro.narration}`, guardRef) && <CopyBadge />}</div><div className="stack" style={{ gap: 8 }}><IssueList list={issuesFor(issues, "intro")} />
               <div className="row"><label>꼬리표<input value={script.intro.eyebrow} maxLength={30} onChange={(e) => upd((s) => { s.intro.eyebrow = e.target.value; return s; })} /></label><label style={{ flex: 3 }}>화면 제목<input value={script.intro.title} maxLength={50} onChange={(e) => upd((s) => { s.intro.title = e.target.value; return s; })} /></label></div>
               <label>내레이션<textarea rows={2} value={script.intro.narration} maxLength={400} onChange={(e) => upd((s) => { s.intro.narration = e.target.value; return s; })} /></label></div></div>
             {script.cards.map((c, i) => (
               <div key={i} className="scene" style={sceneStyle(hasCopy(`${c.title} ${c.narration}`, guardRef), issuesFor(issues, i))}><div className="scene-tag">{i + 1}<span>{c.tag || "카드"}</span>{hasCopy(`${c.title} ${c.narration}`, guardRef) && <CopyBadge />}
                 <button type="button" className="link-button" aria-label={`${i + 1}번 카드 삭제`} disabled={script.cards.length <= MIN_CARDS} onClick={() => upd((s) => { s.cards.splice(i, 1); return s; })}><Trash2 size={13} /></button></div>
-                <IssueList list={issuesFor(issues, i)} />
                 <div className="stack" style={{ gap: 8 }}>
+                  <IssueList list={issuesFor(issues, i)} />
                   <div className="row"><label>태그<input value={c.tag ?? ""} maxLength={20} onChange={(e) => upd((s) => { s.cards[i].tag = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>화면 제목<input value={c.title} maxLength={40} onChange={(e) => upd((s) => { s.cards[i].title = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>한 줄 설명<input value={c.desc} maxLength={60} onChange={(e) => upd((s) => { s.cards[i].desc = e.target.value; return s; })} /></label></div>
                   <label>내레이션<textarea rows={2} value={c.narration} maxLength={400} onChange={(e) => upd((s) => { s.cards[i].narration = e.target.value; return s; })} /></label>
                 </div></div>
             ))}
             {script.cards.length < MAX_CARDS && <div><button type="button" onClick={() => upd((s) => { s.cards.push({ tag: "", title: "새 카드", desc: "", narration: "" }); return s; })}><Plus size={13} />카드 추가</button></div>}
             {issuesFor(issues, "all").length > 0 && <div style={ISSUE_STYLE}><IssueList list={issuesFor(issues, "all")} /></div>}
-            <div className="scene" style={sceneStyle(hasCopy(script.outro.narration, guardRef), issuesFor(issues, "outro"))}><div className="scene-tag">🏁<span>아웃트로</span>{hasCopy(script.outro.narration, guardRef) && <CopyBadge />}</div><IssueList list={issuesFor(issues, "outro")} /><div className="stack" style={{ gap: 8 }}>
+            <div className="scene" style={sceneStyle(hasCopy(script.outro.narration, guardRef), issuesFor(issues, "outro"))}><div className="scene-tag">🏁<span>아웃트로</span>{hasCopy(script.outro.narration, guardRef) && <CopyBadge />}</div><div className="stack" style={{ gap: 8 }}><IssueList list={issuesFor(issues, "outro")} />
               <div className="row"><label style={{ flex: 2 }}>화면 제목<input value={script.outro.title} maxLength={50} onChange={(e) => upd((s) => { s.outro.title = e.target.value; return s; })} /></label><label style={{ flex: 2 }}>부제<input value={script.outro.subtitle} maxLength={80} onChange={(e) => upd((s) => { s.outro.subtitle = e.target.value; return s; })} /></label></div>
               <label>행동 유도 문구(쉼표로 구분)<input value={script.outro.cta.join(", ")} onChange={(e) => upd((s) => { s.outro.cta = e.target.value.split(",").map((v) => v.trim()).filter(Boolean).slice(0, 3); return s; })} /></label>
               <label>내레이션<textarea rows={2} value={script.outro.narration} maxLength={400} onChange={(e) => upd((s) => { s.outro.narration = e.target.value; return s; })} /></label></div></div>
