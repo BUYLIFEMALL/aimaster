@@ -4,12 +4,12 @@
 - 맡은 폴더: `ai-video-studio/` · 공용 `ai-video-*` 기준 코드 · 영상 합치기 공용화(`video-edit-composer` 예정) · `infinite-loop-video/` · 내 PC 렌더러 영상 쪽(`video-to-gif/local-renderer` 영상 명령) · 실제로 함께 맡아 온 폴더: `shorts-onestop-studio/`(v1.53) · `shots/`(v1.50) · `music-video-studio/`(v1.30, 음악 담당과 겹침) · `video-to-gif/`(v1.28)
 - 카테고리: 유튜브·멀티미디어(영상)
 - 주력 업무: 영상 연동 레퍼런스·영상 합치기·무료 브라우저/내 PC 렌더
-- 마지막 갱신: 2026-11-15 `claude-win-video` (메이커 v0.3.3 후속 — M3-① 원스톱 v1.56 배포, 다음 M2 GIF 변환 「상품 사진 영상」)
+- 마지막 갱신: 2026-11-15 `claude-win-video` (메이커 v0.3.3 후속 — M3-① 원스톱 v1.56, M2 GIF 변환 v1.30·v1.31 배포, 다음 M3-②)
 
 ## 지금 하는 일
 | 프로그램 | 작업 | 시작 | 상태 |
 |---|---|---|---|
-| `shorts-onestop-studio` → `video-to-gif` | 메이커 v0.3.3 후속(인수인계 `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_VIDEO.md`, 주인님 결정 4개 받음) | 2026-11-15 | M3-① ✅ v1.56 배포 → **다음 M2**(`video-to-gif/docs/PLAN_20261115_MAKER_M2_PRODUCT_PHOTO_VIDEO.md`) → M3-②. M4는 하지 않음 |
+| `shorts-onestop-studio` | 메이커 v0.3.3 후속(인수인계 `docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_VIDEO.md`, 주인님 결정 4개 받음) | 2026-11-15 | M3-① ✅ 원스톱 v1.56 · M2 ✅ GIF 변환 v1.30·v1.31 → **다음 M3-②**(`shorts-onestop-studio/docs/PLAN_20261115_MAKER_M3_PRODUCT_SHORTS_UPGRADE.md`). M4는 하지 않음 |
 
 ## 대기 중 (주인님 승인·결정 대기 포함)
 | 프로그램 | 작업 | 기다리는 것 | 근거 문서 |
@@ -24,6 +24,7 @@
 | `shorts-onestop-studio` | v1.55 배포됨(11-14). 남은 것: 영상 주소를 상품 쪽으로 반환 | 받는 쪽 상품ID 형식 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-15 `video-to-gif` v1.30·v1.31 배포(`video-to-b5ch93cuq`, DB·확장 v1.31): 메이커 후속 M2 「🛍 상품 사진 영상」 — 사진 1~6장 → MP4·상세페이지 WebP(10MB), 상품코드 일괄·ZIP. 운영 실제 파일 확인. 「상세페이지로」 WebP는 이커머스 이미지 담당께 요청.
 - 2026-11-15 `shorts-onestop-studio` v1.56 배포(`shorts-onestop-studio-7axgp8ug3`, DB v1.56, `0807cf180`): 메이커 후속 M3-① 광고 고지 띠(쿠팡 파트너스·제휴·협찬·직접 입력)·AI 제작 표기·설명란 첫 줄 고지·유튜브 합성 콘텐츠·게시 전 확인 4가지. 운영 MP4 프레임 확인. 시험 계정 ⑥ 체크 화면 남음.
 - 2026-11-15 `video-to-gif` v1.29 배포(`video-to-lbnh8gr5q`, DB v1.29): 다운로드 센터 「선택」 표시·접기, 렌더러 연결 크롬·크로미움·엣지·웨일 4곳 등록, 로그인 정책 2건·저장공간 위젯. ego lite에서 확장 설치·「로컬 렌더러 가동 중」·실제 GIF 변환 확인. 남은 대기: 왼쪽 메뉴 낡은 「최신 v1.26」 글자 수정(미배포).
 | 날짜 | 프로그램·버전 | 한 일 | 배포 |
