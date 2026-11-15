@@ -270,6 +270,7 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
     const s = block.settings as TimesaleSettings;
     return (
       <div className="space-y-3">
+        <SkinPicker type="timesale" value={s.skin} onChange={(v) => onChange({ ...s, skin: v as TimesaleSettings["skin"] })} />
         <TitleInput value={s.title} onChange={(title) => onChange({ ...s, title })} hint="제목" />
         <label className="block">
           <span className="text-xs text-gray-500">한 줄 설명(선택)</span>
@@ -449,11 +450,16 @@ export function SettingsForm({ storeId, block, categories, products, onChange }:
           <NumberInput label="큰 화면 열 수(2~5, 휴대폰은 2열)" value={s.columns} min={2} max={5} onChange={(columns) => onChange({ ...s, columns })} />
           <NumberInput label="최대 상품 수(2~24)" value={s.limit} min={2} max={24} onChange={(limit) => onChange({ ...s, limit })} />
         </div>
-        <div className="flex flex-wrap gap-3 text-sm" role="radiogroup" aria-label="상품 배치">
-          <span className="text-xs text-gray-500">배치</span>
-          <label className="flex items-center gap-1"><input type="radio" name={`layout-${block.id}`} checked={s.layout !== "row"} onChange={() => onChange({ ...s, layout: undefined })} /> 바둑판</label>
-          <label className="flex items-center gap-1"><input type="radio" name={`layout-${block.id}`} checked={s.layout === "row"} onChange={() => onChange({ ...s, layout: "row" })} /> 가로로 넘기기(한 줄)</label>
-        </div>
+        <SkinPicker type="showcase" value={s.skin} onChange={(v) => onChange({ ...s, skin: v as ShowcaseSettings["skin"], ...(v ? { layout: undefined } : {}) })} />
+        {s.skin === "spotlight" ? (
+          <p className="text-xs text-gray-500">첫 번째 상품을 2배 크기로 보여 줍니다(바둑판에서만, 3열 이상 권장).</p>
+        ) : (
+          <div className="flex flex-wrap gap-3 text-sm" role="radiogroup" aria-label="상품 배치">
+            <span className="text-xs text-gray-500">배치</span>
+            <label className="flex items-center gap-1"><input type="radio" name={`layout-${block.id}`} checked={s.layout !== "row"} onChange={() => onChange({ ...s, layout: undefined })} /> 바둑판</label>
+            <label className="flex items-center gap-1"><input type="radio" name={`layout-${block.id}`} checked={s.layout === "row"} onChange={() => onChange({ ...s, layout: "row" })} /> 가로로 넘기기(한 줄)</label>
+          </div>
+        )}
         <CardOptionsForm value={s.card} onChange={(card) => onChange({ ...s, card })} />
       </div>
     );

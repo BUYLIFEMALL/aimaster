@@ -19,7 +19,7 @@ export async function loadSlotData(storeId: string, b: Block, categories?: { id:
       return { lists: await Promise.all(s.tabs.map((t) => getShowcaseProducts(storeId, { ...t, title: "", columns: s.columns, limit: s.limit }))) };
     }
     case "timesale":
-      return { products: await getShowcaseProducts(storeId, { ...(b.settings as TimesaleSettings), title: "" }) };
+      return { products: await getShowcaseProducts(storeId, { ...(b.settings as TimesaleSettings), title: "", skin: undefined }) }; // 스킨은 상품 고르기와 무관
     case "reviews": {
       const s = b.settings as ReviewsSettings;
       return { reviews: await getStoreRecentReviews(storeId, s.count, s.min_rating) };

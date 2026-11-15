@@ -68,13 +68,14 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
   if (b.type === "showcase") {
     const s = b.settings as ShowcaseSettings;
     return (
-      <div className="px-4 sm:px-6">
+      <div className="px-4 sm:px-6" data-showcase-skin={s.skin ?? "grid"}>
         {s.title && (
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-black tracking-tight text-slate-900" data-edit-field="title">{s.title}</h2>
           </div>
         )}
-        <ProductGrid base={base} products={d.products ?? []} columns={s.columns} card={s.card} layout={s.layout} empty="보여 줄 상품이 없습니다." />
+        {/* 대표 상품 크게(spotlight): 공용 카드는 그대로, 첫 칸만 globals.css에서 2배 */}
+        <ProductGrid base={base} products={d.products ?? []} columns={s.columns} card={s.card} layout={s.skin ? undefined : s.layout} empty="보여 줄 상품이 없습니다." />
       </div>
     );
   }
@@ -92,19 +93,20 @@ export function renderSlot(b: Block, base: string, d: SlotData): ReactNode {
   }
   if (b.type === "timesale") {
     const s = b.settings as TimesaleSettings;
+    const dark = s.skin === "dark"; // 어두운 띠 — 남은 시간을 크게(상품 카드는 그대로 흰 카드)
     return (
-      <div className="mx-4 sm:mx-6 rounded-2xl border-2 border-rose-500 bg-rose-50/30 p-5 sm:p-6 shadow-sm" data-timesale>
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-rose-200 pb-4">
+      <div className={dark ? "mx-4 sm:mx-6 rounded-2xl bg-slate-900 p-5 sm:p-6 shadow-lg" : "mx-4 sm:mx-6 rounded-2xl border-2 border-rose-500 bg-rose-50/30 p-5 sm:p-6 shadow-sm"} data-timesale data-timesale-skin={dark ? "dark" : "rose"}>
+        <div className={`mb-5 flex flex-wrap items-end justify-between gap-3 border-b pb-4 ${dark ? "border-white/15" : "border-rose-200"}`}>
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold text-white mb-1.5">
               LIMITED TIME SALE
             </span>
-            <h2 className="text-xl font-black tracking-tight text-rose-700">⏰ <span data-edit-field="title">{s.title}</span></h2>
-            {s.subtitle && <p className="mt-1 text-sm text-slate-600" data-edit-field="subtitle">{s.subtitle}</p>}
+            <h2 className={`text-xl font-black tracking-tight ${dark ? "text-white" : "text-rose-700"}`}>⏰ <span data-edit-field="title">{s.title}</span></h2>
+            {s.subtitle && <p className={`mt-1 text-sm ${dark ? "text-slate-300" : "text-slate-600"}`} data-edit-field="subtitle">{s.subtitle}</p>}
           </div>
-          <div className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-right shadow-xs">
-            <p className="text-xs text-slate-500">마감까지 남은 시간</p>
-            <p className="text-lg font-black text-rose-600">
+          <div className={dark ? "text-right" : "rounded-xl border border-rose-200 bg-white px-4 py-2 text-right shadow-xs"}>
+            <p className={`text-xs ${dark ? "text-slate-400" : "text-slate-500"}`}>마감까지 남은 시간</p>
+            <p className={dark ? "text-3xl font-black tabular-nums text-rose-400 sm:text-4xl" : "text-lg font-black text-rose-600"}>
               <Countdown endsAt={s.ends_at} />
             </p>
           </div>

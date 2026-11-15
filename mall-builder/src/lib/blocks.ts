@@ -16,14 +16,14 @@ export type BannerSettings = { image: string; mobile_image: string; link: string
 export type ShowcaseSource = "new" | "category" | "manual";
 // 상품 카드 표시(디자인 빌더 D2-4c, 프로셀 view1~7 참고) — 선택, 기본값(전부 보임·상자형)은 저장하지 않는다
 export type CardOptions = { hide_discount?: true; hide_list_price?: true; hide_business?: true; style?: "plain" };
-export type ShowcaseSettings = { title: string; source: ShowcaseSource; category_id: string; product_ids: string[]; columns: number; limit: number; card?: CardOptions; layout?: "row" };
+export type ShowcaseSettings = { title: string; source: ShowcaseSource; category_id: string; product_ids: string[]; columns: number; limit: number; card?: CardOptions; layout?: "row"; skin?: "spotlight" }; // skin 없음 = 고른 열 수 바둑판(기본). spotlight = 첫 상품 2배(바둑판에서만)
 export type HtmlSettings = { html: string };
 export type NoticeSettings = { title: string; count: number; skin?: "line" }; // skin 없음 = 목록(기본)
 // D28 새 블록 6종(2026-11-11, 주인님 「추천안 4가지 그대로」)
 export type VideoSettings = { url: string; title: string }; // 유튜브·비메오 주소만(저장 비용 없음)
 export type ProductSource = { source: ShowcaseSource; category_id: string; product_ids: string[] };
 export type TabsSettings = { title: string; tabs: ({ label: string } & ProductSource)[]; columns: number; limit: number; card?: CardOptions; skin?: "line" }; // skin 없음 = 알약 탭(기본)
-export type TimesaleSettings = { title: string; subtitle: string; ends_at: string; columns: number; limit: number; card?: CardOptions } & ProductSource; // 표시만(가격은 그대로), 끝나면 자동 숨김
+export type TimesaleSettings = { title: string; subtitle: string; ends_at: string; columns: number; limit: number; card?: CardOptions; skin?: "dark" } & ProductSource; // 표시만(가격은 그대로), 끝나면 자동 숨김. skin 없음 = 빨간 테두리(기본), dark = 어두운 띠
 export type ReviewsSettings = { title: string; count: number; min_rating: number; skin?: "slide" }; // skin 없음 = 카드 격자(기본)
 export type CategoryIconsSettings = { title: string; items: { category_id: string; image: string; emoji: string }[]; skin?: "circle" | "chip" }; // skin 없음 = 둥근 사각(기본)
 export type GallerySettings = { title: string; columns: number; items: { image: string; link: string }[] }; // 인스타 대신 운영사가 직접 올리는 사진 격자
@@ -204,6 +204,8 @@ export const BLOCK_SKINS: Partial<Record<BlockType, { id: string; label: string 
   notice: [{ id: "", label: "목록" }, { id: "line", label: "한 줄 띠" }],
   tabs: [{ id: "", label: "알약 탭" }, { id: "line", label: "밑줄 탭" }],
   reviews: [{ id: "", label: "카드 격자" }, { id: "slide", label: "가로 넘김 인용" }],
+  showcase: [{ id: "", label: "바둑판" }, { id: "spotlight", label: "대표 상품 크게" }],
+  timesale: [{ id: "", label: "빨간 테두리" }, { id: "dark", label: "어두운 띠" }],
 };
 
 export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
@@ -278,7 +280,7 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
       const s = (raw ?? {}) as Partial<ShowcaseSettings>;
       const src = validateSource(s);
       if (!src.ok) return src;
-      return { ok: true, value: { title: str(s.title).slice(0, 40), ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s), ...(s.layout === "row" ? { layout: "row" as const } : {}) } };
+      return { ok: true, value: { title: str(s.title).slice(0, 40), ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s), ...(s.skin === "spotlight" ? { skin: "spotlight" as const } : s.layout === "row" ? { layout: "row" as const } : {}) } };
     },
   },
   html: {
@@ -351,7 +353,7 @@ export const BLOCK_DEFS: { [K in BlockType]: Def<K> } = {
       if (!src.ok) return src;
       return {
         ok: true,
-        value: { title: str(s.title).slice(0, 40) || "타임세일", subtitle: str(s.subtitle).slice(0, 60), ends_at, ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s) },
+        value: { title: str(s.title).slice(0, 40) || "타임세일", subtitle: str(s.subtitle).slice(0, 60), ends_at, ...src.value, columns: int(s.columns, 2, 5, 4), limit: int(s.limit, 2, 24, 8), ...cardOf(s), ...(s.skin === "dark" ? { skin: "dark" as const } : {}) },
       };
     },
   },

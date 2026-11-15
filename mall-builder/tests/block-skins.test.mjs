@@ -60,3 +60,16 @@ test("2차: 탭은 밑줄 탭, 후기는 가로 넘김 인용만 저장(그 밖�
   assert.equal(BLOCK_DEFS.reviews.validate({ title: "후기", count: 6, min_rating: 4, skin: "slide" }).value.skin, "slide");
   assert.equal("skin" in BLOCK_DEFS.reviews.validate({ title: "후기", count: 6, min_rating: 4 }).value, false);
 });
+
+test("3차: 쇼윈도 「대표 상품 크게」(가로 넘기기는 끔), 타임세일 「어두운 띠」만 저장", () => {
+  const sc = (x) => BLOCK_DEFS.showcase.validate({ title: "추천", source: "new", category_id: "", product_ids: [], columns: 4, limit: 8, ...x }).value;
+  assert.equal(sc({ skin: "spotlight" }).skin, "spotlight");
+  assert.equal("layout" in sc({ skin: "spotlight", layout: "row" }), false, "대표 크게는 바둑판에서만");
+  assert.equal(sc({ layout: "row" }).layout, "row");
+  assert.equal("skin" in sc({ skin: "x" }), false);
+  const ts = (skin) => BLOCK_DEFS.timesale.validate({ title: "특가", subtitle: "", ends_at: "2030-01-01T00:00:00.000Z", source: "new", category_id: "", product_ids: [], columns: 4, limit: 8, skin }).value;
+  assert.equal(ts("dark").skin, "dark");
+  assert.equal("skin" in ts("y"), false);
+  assert.deepEqual(BLOCK_SKINS.showcase.map((k) => k.id), ["", "spotlight"]);
+  assert.deepEqual(BLOCK_SKINS.timesale.map((k) => k.id), ["", "dark"]);
+});

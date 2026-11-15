@@ -134,6 +134,9 @@ input[type="submit"] {
 /* I8 블록 제목 색·크기(블록 겉모양) — 블록 제목은 h2 */
 [data-title-color] h2 { color: var(--blk-title-color); }
 [data-title-font] h2 { font-family: var(--blk-title-font); } /* E10 제목 글꼴 — 글꼴 파일은 쓴 블록이 있을 때만 불러옴(home-blocks.tsx) */
+/* 블록 스킨 3차 — 쇼윈도 「대표 상품 크게」: 첫 상품 칸을 2열(PC는 2열×2줄). 사진 비율이 고정이라 높이도 함께 커짐 */
+[data-showcase-skin="spotlight"] > ul > li:first-child { grid-column: span 2; }
+@media (min-width: 768px) { [data-showcase-skin="spotlight"] > ul > li:first-child { grid-row: span 2; } }
 [data-title-size="sm"] h2 { font-size: 1.125rem; line-height: 1.75rem; }
 [data-title-size="lg"] h2 { font-size: 1.875rem; line-height: 2.25rem; }
 @media (min-width: 640px) { [data-title-size="lg"] h2 { font-size: 2.25rem; line-height: 2.5rem; } }
