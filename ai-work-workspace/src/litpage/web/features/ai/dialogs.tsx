@@ -88,7 +88,7 @@ function McpConnectForm({ close, onDone }: { close: () => void; onDone: (c: McpC
         void submit();
       }}
     >
-      <div className="nc-ai-dialog-title">{preset ? preset.name : 'External MCP endpoint'}</div>
+      <div className="nc-ai-dialog-title">{preset ? preset.name : tx('External MCP endpoint')}</div>
       {presets.length > 0 && (
         <div className="nc-ai-mcp-presets" role="listbox" aria-label={tx('Workspace Managed')}>
           {presets.map((p) => (

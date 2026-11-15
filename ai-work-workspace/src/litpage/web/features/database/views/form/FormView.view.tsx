@@ -266,7 +266,7 @@ function QuestionOptions({ viewId, collectionId, questionId, close }: { viewId: 
       </div>
       <div className="nc-menu-section with-divider">
         {/* Question type = the linked property's type; the title question keeps Title */}
-        <SettingsRow icon="squareGrid2X2" label={tx('Question type')} value={prop ? QUESTION_TYPE_LABEL[prop.type] ?? prop.type : 'Not Found'} chevron={!!prop && prop.type !== 'title'} disabled={!prop || prop.type === 'title'} onClick={(e) => openNestedMenu(e.currentTarget, {
+        <SettingsRow icon="squareGrid2X2" label={tx('Question type')} value={prop ? QUESTION_TYPE_LABEL[prop.type] ?? prop.type : tx('Not Found')} chevron={!!prop && prop.type !== 'title'} disabled={!prop || prop.type === 'title'} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 220, sections: [{ items: FORM_QUESTION_TYPES.filter((t) => t !== 'title').map((t) => ({ id: t, label: QUESTION_TYPE_LABEL[t] ?? t, icon: <PropertyIcon prop={{ type: t }} size={16} />, checked: prop?.type === t, onSelect: () => changePropertyType(collectionId, q.config.propertyId, t as PropertyType) })) }],
         }, { placement: 'right-start' })} />
         {/* Max selection: multi-select, person and relation questions */}
@@ -328,8 +328,8 @@ function ShareMenu({ viewId, collectionId }: { viewId: string; collectionId: str
   if (!view || !col) return null;
   const { cfg, save } = formOps(view, col.schema);
   const perm: FormPermission = cfg.permission ?? 'space';
-  const accessLabel: Record<SubmissionAccess, string> = { none: 'No access', reader: 'Can view', comment_only: 'Can comment', read_and_write: 'Can edit', editor: 'Full access' };
-  const permLabel: Record<FormPermission, string> = { space: `Anyone on ${spaceName()} with the link`, public: 'Anyone online with the link', closed: 'No access' };
+  const accessLabel: Record<SubmissionAccess, string> = { none: tx('No access'), reader: tx('Can view'), comment_only: tx('Can comment'), read_and_write: tx('Can edit'), editor: tx('Full access') };
+  const permLabel: Record<FormPermission, string> = { space: tx('Anyone on {space} with the link').replace('{space}', spaceName()), public: tx('Anyone online with the link'), closed: tx('No access') };
   const copy = () => {
     void navigator.clipboard?.writeText(formLink(viewId));
     setCopied(true);
@@ -379,7 +379,7 @@ function PreviewModal({ viewId, close }: { viewId: string; close: () => void }) 
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
     api<{ status: string; form?: PublicForm }>('getPublicForm', { viewId, preview: true })
-      .then((r) => (r.form ? setForm(r.form) : setErr('This form is closed or no longer available.')))
+      .then((r) => (r.form ? setForm(r.form) : setErr(tx('This form is closed or no longer available.'))))
       .catch((e) => setErr((e as Error).message));
   }, [viewId]);
   return (
@@ -576,7 +576,7 @@ function openAddQuestionMenu(anchor: HTMLElement, viewId: string, collectionId: 
       items: existing.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => append(questionFor(id), 'formQuestionCreateSettings.existingProperty') })),
     });
   }
-  openMenu(anchor, { width: 260, search: 'Search for a question type…', header: <div className="nc-form-add-head">{tx('Select type')}</div>, sections }, { placement });
+  openMenu(anchor, { width: 260, search: tx('Search for a question type…'), header: <div className="nc-form-add-head">{tx('Select type')}</div>, sections }, { placement });
 }
 
 function openShareMenu(anchor: HTMLElement, viewId: string, collectionId: string) {
@@ -641,7 +641,7 @@ function FormSettingsMain({ block, view, collection, readOnly, close }: ViewSett
   const templates = collectionTemplates(collection);
   const template = templates.find((t) => t.id === cfg.templateId);
   const perm: FormPermission = cfg.permission ?? 'space';
-  const permLabel: Record<FormPermission, string> = { space: `Anyone on ${spaceName()} with the link`, public: 'Anyone online with the link', closed: 'No access' };
+  const permLabel: Record<FormPermission, string> = { space: tx('Anyone on {space} with the link').replace('{space}', spaceName()), public: tx('Anyone online with the link'), closed: tx('No access') };
   return (
     <div className="nc-form-settings" data-testid="form-settings">
       <div className="nc-menu-section">
@@ -658,7 +658,7 @@ function FormSettingsMain({ block, view, collection, readOnly, close }: ViewSett
       </div>
       <div className="nc-menu-section with-divider">
         {!readOnly && <SettingsRow icon="trash" label={tx('Delete form')} chevron={false} onClick={async () => {
-          const ok = await confirmDialog({ message: `Permanently delete ${view.name || 'Form'}?`, description: tx('Nobody will be able to submit this form anymore. Responses already received stay as they are.'), confirmLabel: 'Delete form' });
+          const ok = await confirmDialog({ message: tx('Permanently delete {name}?').replace('{name}', view.name || tx('Form')), description: tx('Nobody will be able to submit this form anymore. Responses already received stay as they are.'), confirmLabel: tx('Delete form') });
           if (!ok) return;
           close();
           deleteView(records.get<BlockRecord>('block', block.id) ?? block, view.id);
@@ -680,7 +680,7 @@ registerViewSettingsMain('form', FormSettingsMain);
 /** New form views: "Form builder" with the title question; the auto-create dialog offers every supported property. */
 viewCreationHooks.form = (tx, viewId, collection) => {
   const owner = useSession.getState().userId ?? undefined;
-  tx.update('collection_view', viewId, [], { name: 'Form builder' });
+  tx.update('collection_view', viewId, [], { name: '폼' });
   tx.update('collection_view', viewId, ['format'], { form_config: { ...defaultFormConfig(collection.schema), ownerId: owner, initialized: false } as FormConfig });
 };
 
