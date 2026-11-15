@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -27,7 +28,10 @@ export default function RootLayout({
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-neutral-50">{children}</body>
+      <body className="min-h-full flex flex-col bg-neutral-50">
+        {children}
+        <Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />
+      </body>
     </html>
   );
 }
