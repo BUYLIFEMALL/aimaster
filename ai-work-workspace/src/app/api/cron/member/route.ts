@@ -9,11 +9,10 @@ import "@/server/runtime";
 import { runDueJobs } from "@/litpage/server/scheduler.ts";
 import { withRequestCache } from "@/litpage/server/db.ts";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { checkProgramAccess } from "@/lib/programAccess";
-import { THIS_PROGRAM_SLUG } from "@/lib/access";
 import { memberIdForToken, skipPausedMember, stopMemberSchedulerIfIdle } from "@/lib/schedulerMember/memberScheduler";
 import { memberJobFilter } from "@/server/memberJobs";
 import { runMemberAgentWork } from "@/server/agentRuns";
+import { tokenOwnerAllowed } from "@/server/tokenOwnerAccess";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -30,8 +29,7 @@ async function handle(request: NextRequest) {
   after(async () => {
     try {
       // 이용 권한(사용기간·정지·핸드폰)이 끝난 회원의 작업은 실행하지 않는다(작업은 남겨 두어 권한이 돌아오면 이어서 돈다)
-      const access = await checkProgramAccess(service as unknown as Parameters<typeof checkProgramAccess>[0], userId, THIS_PROGRAM_SLUG);
-      if (access.allowed) {
+      if (await tokenOwnerAllowed(userId, service)) {
         await withRequestCache(() => runDueJobs(Date.now(), 200, memberJobFilter(userId)));
         // U12: 정시 에이전트 실행·남은 대기 실행을 이 회원 것만, 회원 본인 키로 끝까지 처리
         await withRequestCache(() => runMemberAgentWork(userId));

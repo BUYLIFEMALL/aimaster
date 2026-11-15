@@ -15,10 +15,8 @@ import { db, getRecord, withRequestCache } from "@/litpage/server/db.ts";
 import { blockAncestors } from "@/litpage/server/api/modules/sharing.ts";
 import { blockRole } from "@/litpage/server/records.ts";
 import { hit } from "@/litpage/server/ratelimit.ts";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { checkProgramAccess } from "@/lib/programAccess";
-import { THIS_PROGRAM_SLUG } from "@/lib/access";
 import { runPublicRpc, type RpcResult } from "./runtime";
+import { tokenOwnerAllowed } from "./tokenOwnerAccess";
 
 export const PUBLIC_RPCS = new Set(["getSite", "getPublishedPage", "loadPage", "loadPageCached"]);
 const NOT_FOUND: RpcResult = { status: 404, body: { name: "NotFound", message: "페이지를 찾을 수 없습니다." } };
@@ -50,8 +48,7 @@ export function publishedRootOf(pageId: string): { rootId: string; ownerId: stri
 }
 
 // 게시한 회원의 이용 권한(5분 기억)
-let ownerCheck: (userId: string) => Promise<boolean> = async (userId) =>
-  (await checkProgramAccess(createAdminClient() as unknown as Parameters<typeof checkProgramAccess>[0], userId, THIS_PROGRAM_SLUG)).allowed;
+let ownerCheck: (userId: string) => Promise<boolean> = (userId) => tokenOwnerAllowed(userId); // 공용 판정(src/server/tokenOwnerAccess.ts)
 const ownerCache = new Map<string, { ok: boolean; at: number }>();
 async function ownerAllowed(userId: string): Promise<boolean> {
   if (!userId) return false;

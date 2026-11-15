@@ -9,11 +9,9 @@ import { initRuntime } from "@/server/runtime";
 import { withRequestCache } from "@/litpage/server/db.ts";
 import { mcpTokenOwner } from "@/litpage/server/ai/litMcp.ts";
 import { registerPublicApi } from "@/litpage/server/publicApi/routes.ts";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { checkProgramAccess } from "@/lib/programAccess";
-import { THIS_PROGRAM_SLUG } from "@/lib/access";
 import { trackMemberJobs } from "@/server/memberJobs";
 import { afterRpc } from "@/server/memberScheduling";
+import { tokenOwnerAllowed } from "@/server/tokenOwnerAccess";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -38,8 +36,7 @@ async function handle(request: NextRequest): Promise<Response> {
   const owner = withRequestCache(() => mcpTokenOwner(authorization));
   if (owner?.expired) return apiError(401, "unauthorized", "토큰이 만료됐습니다(발급 뒤 90일). 업무 워크스페이스 설정 → Workspace MCP에서 새 토큰을 만들어 주세요.");
   if (owner) {
-    const access = await checkProgramAccess(createAdminClient() as unknown as Parameters<typeof checkProgramAccess>[0], owner.userId, THIS_PROGRAM_SLUG);
-    if (!access.allowed) return apiError(403, "restricted_resource", "AI 업무 워크스페이스 이용 권한이 없습니다(이용 기간 종료 등). 메인 사이트에서 이용 권한을 확인해 주세요.");
+    if (!(await tokenOwnerAllowed(owner.userId))) return apiError(403, "restricted_resource", "AI 업무 워크스페이스 이용 권한이 없습니다(이용 기간 종료 등). 메인 사이트에서 이용 권한을 확인해 주세요.");
   }
   // 토큰이 없거나 틀리면 원본이 401을 돌려준다
   const { result, scheduled } = await trackMemberJobs(() => withRequestCache(() => Promise.resolve(api().fetch(request))));

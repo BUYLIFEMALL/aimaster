@@ -90,7 +90,7 @@ export function BoltaPanel({ notify }: { notify: (n: { text: string; error?: boo
               {!st.bizNo && <p className="rc-hint">⚠️ 위 「내 사업자」에 사업자등록번호·이메일을 먼저 저장해 주세요.</p>}
               {(!st.keys || !st.keyOk) && <p className="rc-hint">➡️ <a href="/settings/keys">API키등록·플랫폼연동</a>에서 볼타 API 키를 등록해 주세요(<a href="https://docs.bolta.io" target="_blank" rel="noreferrer">볼타 개발자 문서 ↗</a>).</p>}
               <div className="rc-row-btns">
-                {st.issuer && st.cert && <button type="button" className="rc-btn ghost" disabled={busy} onClick={() => void cert()}>🔐 공동인증서 다시 등록</button>}
+                {st.issuer && st.cert && !["cert", "renew"].includes(boltaNextStep(st)) && <button type="button" className="rc-btn ghost" disabled={busy} onClick={() => void cert()}>🔐 공동인증서 다시 등록</button>}
                 <button type="button" className="rc-btn ghost" disabled={busy} onClick={() => void load()}>상태 새로고침</button>
               </div>
               <p className="rc-hint">⚠️ 테스트 키와 실제 키는 볼타 안에서 발급자·인증서가 따로입니다. live_ 키로 바꾸면 2·3단계를 한 번 더 해 주세요. 발급은 문서마다 「📤 볼타 발급」을 직접 누를 때만 하며, 볼타가 접수한 뒤 결과가 나오면(테스트 10~30초, 실제 약 10분) 같은 버튼으로 확인합니다. 응답이 불확실하면 자동으로 다시 보내지 않습니다.</p>
