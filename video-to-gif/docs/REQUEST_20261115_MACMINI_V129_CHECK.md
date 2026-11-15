@@ -4,6 +4,8 @@
 > 대상: `video-to-gif` v1.29(운영 배포 `video-to-lbnh8gr5q`, 2026-11-15). 비용 없음(빌드·AI 호출 없음).
 > 맥미니 규칙(`docs/MAC_MINI_AGENT_PLAYBOOK.md`): `npm`·빌드·배포·DB 쓰기 금지, 코드에 문제가 있으면 고치지 말고 기록만 해서 윈도우 영상 담당에 넘긴다. 브라우저는 Claude Code = 맥미니 크롬.
 
+> **2026-11-15 주인님 세션 지정 정정:** 현재 맥미니 Codex 검수 브라우저는 **ego lite**입니다(「Chrome이 아니고 ego(lite) 브라우저야 정정해놔」). 아래 원 요청의 Chrome 지정은 이 세션에서 ego lite로 대체합니다. 이전 Chrome 도구 오류 기록은 당시 시도 기록이며 ego lite의 오류가 아닙니다.
+
 ## 0. 배경 — 이번에 바뀐 것
 - 로컬 렌더러 설치 스크립트가 예전에는 **크롬 경로 한 곳에만** 연결 정보(native messaging)를 등록했다. v1.29부터는 4곳에 등록한다.
   - 맥: `~/Library/Application Support/{Google/Chrome, Chromium, Microsoft Edge, Naver/Whale}/NativeMessagingHosts/xyz.buylife.gif_renderer.json`
@@ -65,3 +67,16 @@ cat ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts/xyz.buylif
 - 커밋: `node scripts/commit-paths.mjs "<메시지>" video-to-gif/docs/IMPROVEMENTS.md --as <세션>` (내 파일만, 푸시 안 함). 커밋 직후 파일 수를 확인한다(맥미니 SMB 규칙).
 - 채팅에는 윈도우 영상 담당(`claude-win-video`)에게 넘길 결과 한 줄을 남긴다.
 - 실패하면 설치 스크립트·확장을 고치지 말고 오류 문구와 `ls` 결과만 남긴다. 고치는 일은 윈도우에서 Windows판·Mac판을 함께 한다.
+
+## 2026-11-15 맥미니 결과 — ego lite 직접 변환
+
+| 항목 | 판정 | 실제 확인 |
+|---|---|---|
+| 브라우저 | 정정 완료 | 사용자 지정 ego lite, 사용자 열린 공간8의 /dashboard, 로그인 kkuleomi24@naver.com(원 요청 Nav계정과 다름을 구분) |
+| 웹 v1.29 | 확인 | 운영 UI v1.29·💾0B/500MB 표시. 메뉴 최신v1.26은 기존 미배포 수정 대상 |
+| 내 PC 고속 변환 | 미검수 | 확장관리 실제 목록에 GIF 확장 없음. 운영 ZIP과 저장소 local-renderer/extension 파일 전체 일치·manifest v1.29 확인. 기존 맥 Host설치 통과와 확장 설치 여부를 구분 |
+| silent.mp4 브라우저 변환 | UI 완료 | 5.0초·3.69MB 입력, 기본560px/40fps, WASM 실제 실행1회→완료2.53MB. 버튼 최초 클릭은 뷰포트 오류로 미실행, 현재 상태 확인 후 실제1회 실행 |
+| 다운로드·캡처 | 미확인 | UI 완료 뒤 다운로드 시점 task space not found:8, 공간목록에서도8없음. 파일 저장/캡처 성공으로 보고하지 않음. 완료 시각/정확 소요시간 미측정 |
+| V4 녹화 | 미실행 | 확장/페이지 복구 후 사용자 화면선택·권한 허용 필요. 화면 공유 보안 우회 없음 |
+
+- 출력은 사용자 화면 DOM으로만 확인. 재변환/재설치/코드수정/운영DB쓰기/빌드/배포/유료AI0·비용0. 블로그 잔여1→6 요청을 이어서 준비합니다.
