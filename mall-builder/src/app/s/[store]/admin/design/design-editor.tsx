@@ -361,6 +361,7 @@ export default function DesignEditor({ slug, storeId, categories, products, init
               width: { type: "radio", label: "배경 폭", options: [{ label: "본문 폭", value: "content" }, { label: "화면 가득", value: "full" }] },
               bg_color: { type: "custom", label: "배경색", render: ({ value, onChange }: { value: string | undefined; onChange: (v: string) => void }) => <ColorCodeField label="배경색" value={value} onChange={onChange} emptyText="없음(투명) · 예: #fef3c7" /> },
               title_align: { type: "radio", label: "제목 정렬", options: [{ label: "왼쪽", value: "left" }, { label: "가운데", value: "center" }] },
+              text_align: { type: "radio", label: "본문 글 정렬(글 블록)", options: [{ label: "왼쪽", value: "left" }, { label: "가운데", value: "center" }] },
               hide_pc: { type: "radio", label: "PC(768px 이상)", options: [{ label: "보임", value: false }, { label: "숨김", value: true }] },
               hide_mobile: { type: "radio", label: "휴대폰(767px 이하)", options: [{ label: "보임", value: false }, { label: "숨김", value: true }] },
             },

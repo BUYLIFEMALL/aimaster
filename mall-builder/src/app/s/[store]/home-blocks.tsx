@@ -217,7 +217,7 @@ export function BlockView({ b, slot }: { b: Block; slot?: ReactNode }) {
     </>
   );
   return (
-    <section id={`blk-${b.id}`} data-block={b.type} data-title-align={b.style?.title_align} className={`scroll-mt-24 ${f.className}`.trim()} style={f.style}>
+    <section id={`blk-${b.id}`} data-block={b.type} data-title-align={b.style?.title_align} data-text-align={b.style?.text_align} className={`scroll-mt-24 ${f.className}`.trim()} style={f.style}>
       {f.full ? <div className="mx-auto max-w-6xl">{body}</div> : body}
     </section>
   );

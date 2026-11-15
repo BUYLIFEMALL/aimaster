@@ -60,6 +60,7 @@ export type BlockStyle = {
   width?: "full"; // 배경을 화면 끝까지(기본 = 본문 폭)
   bg_color?: string; // 배경색 #rrggbb
   title_align?: "center"; // 제목 가운데(기본 = 왼쪽)
+  text_align?: "center"; // 본문 글 가운데(I22 — 지금은 글(html) 블록 본문, 기본 = 왼쪽)
   hide_pc?: true; // PC(768px 이상)에서 숨김
   hide_mobile?: true; // 휴대폰(767px 이하)에서 숨김
 };
@@ -160,6 +161,7 @@ export function normalizeStyle(raw: unknown): BlockStyle | null {
   const bg = str(r.bg_color).toLowerCase();
   if (HEX.test(bg)) out.bg_color = bg;
   if (r.title_align === "center") out.title_align = "center";
+  if (r.text_align === "center") out.text_align = "center";
   if (r.hide_pc === true) out.hide_pc = true;
   if (r.hide_mobile === true) out.hide_mobile = true;
   return Object.keys(out).length ? out : null;

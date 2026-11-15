@@ -334,7 +334,7 @@ export const LAYOUTS: LayoutTemplate[] = [
       header: { ...DEFAULT_HEADER, search: "icon", band: { text: `${storeName} — 오늘의 셀렉트를 만나 보세요`.slice(0, 60), link: "", bg: "#111827" } },
       list: { ...DEFAULT_LIST, columns: 3, card: { style: "plain", hide_list_price: true } },
       home: doc([
-        blk({ id: id("cs-intro"), type: "html", visible: true, settings: { html: `<h2>${esc(storeName)}</h2><p>매일 고르고 다듬은 상품만 소개합니다.</p>` }, style: { pad_top: 32, pad_bottom: 8, title_align: "center" } }),
+        blk({ id: id("cs-intro"), type: "html", visible: true, settings: { html: `<h2>${esc(storeName)}</h2><p>매일 고르고 다듬은 상품만 소개합니다.</p>` }, style: { pad_top: 32, pad_bottom: 8, title_align: "center", text_align: "center" } }),
         blk({ id: id("cs-new"), type: "showcase", visible: true, settings: { title: "새로 들어온 상품", source: "new", category_id: "", product_ids: [], columns: 4, limit: 8, card: { style: "plain", hide_list_price: true }, layout: "row" }, style: { title_align: "center" } }),
         blk({ id: id("cs-best"), type: "showcase", visible: true, settings: { title: "에디터 추천", source: "new", category_id: "", product_ids: [], columns: 3, limit: 6, card: { style: "plain" } }, style: { title_align: "center", width: "full", bg_color: "#ffffff", pad_top: 40, pad_bottom: 40 } }),
         blk({ id: id("cs-reviews"), type: "reviews", visible: true, settings: { title: "고객 후기", count: 6, min_rating: 4 }, style: { title_align: "center" } }),
@@ -375,7 +375,7 @@ export const LAYOUTS: LayoutTemplate[] = [
       list: { ...DEFAULT_LIST, columns: 3 },
       detail: { ...DEFAULT_DETAIL },
       home: doc([
-        blk({ id: id("bs-story"), type: "html", visible: true, settings: { html: `<h2>${esc(storeName)} 이야기</h2><p>좋은 재료와 꼼꼼한 손길로 오래 쓰는 물건을 만듭니다. 아래 상품을 둘러보세요.</p>` }, style: { width: "full", bg_color: "#ffffff", pad_top: 48, pad_bottom: 48, title_align: "center" } }),
+        blk({ id: id("bs-story"), type: "html", visible: true, settings: { html: `<h2>${esc(storeName)} 이야기</h2><p>좋은 재료와 꼼꼼한 손길로 오래 쓰는 물건을 만듭니다. 아래 상품을 둘러보세요.</p>` }, style: { width: "full", bg_color: "#ffffff", pad_top: 48, pad_bottom: 48, title_align: "center", text_align: "center" } }),
         blk({ id: id("bs-show"), type: "showcase", visible: true, settings: { title: "대표 상품", source: "new", category_id: "", product_ids: [], columns: 3, limit: 6 }, style: { pad_top: 16 } }),
         blk({ id: id("bs-reviews"), type: "reviews", visible: true, settings: { title: "사용 후기", count: 3, min_rating: 5 } }),
       ]),
