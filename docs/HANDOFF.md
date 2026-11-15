@@ -1,5 +1,10 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: mall-design-builder] Claude Code(윈도우) · 세션 `claude-win-20261114-mall-design` — 협업 작업 핵심 지침 맨 위 등록
+- 주인님 지시로 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` 맨 위(0번 저작권 규칙 바로 아래)에 「🤝 협업 작업 핵심 지침」 블록 추가: 시작 전 확인 / 커밋 직전 `git diff`로 남의 줄 확인(있으면 그 파일 커밋 안 함) / 새 파일 불러오기는 같은 커밋 / 공용 파일 작게·즉시 커밋 / 남의 서버·탭·파일 손대지 않기 / 배포는 담당 한 세션이 묶어서 / 끝나면 기록.
+- 계기: agy 커밋 `c2e4d2f0a`에 디자인 빌더 미커밋 두 줄이 섞여 HEAD가 없는 파일을 부름 → `e87a08fdb`로 맞춤.
+- 상세: [`docs/HANDOFF_20261115_COLLAB_CORE.md`](HANDOFF_20261115_COLLAB_CORE.md). 모든 세션은 다음 작업부터 이 블록대로.
+
 ## 2026-11-15 ✅ [역할: video] Claude Code(윈도우) · 세션 `claude-win-video` — `video-to-gif` v1.29 배포·ego lite 렌더러 확인
 - 한 일: 다운로드 센터 「선택 · 설치 안 해도 바로 사용 가능」·접기(`d5bc5ccd1`), 로컬 렌더러 native messaging 등록을 크롬·크로미움·엣지·웨일 4곳으로(Windows·Mac 설치/삭제, `dc237c2da`), 로그인 정책 2건, 저장공간 위젯, 렌더러·확장 ZIP v1.29. 배포 `video-to-lbnh8gr5q` Ready, DB v1.29, `check-extension-release` OK.
 - 확인: 이 PC에서 새 설치 스크립트로 4곳 등록 → ego lite에 확장 설치 → 「로컬 렌더러 가동 중 · Ext v1.29 · Host 1.30」 → 5초 영상 GIF 변환 약 6초 완료. ego lite는 크롬 경로도 읽음(크로미움 경로를 빼도 동작, 되돌려 둠).
