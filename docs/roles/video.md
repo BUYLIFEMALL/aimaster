@@ -16,15 +16,13 @@
 |---|---|---|---|
 | `ai-video-studio`·`shorts-onestop-studio` | Vidu Q3 Turbo·Pro 연동, 원스톱 「상품 장면도 AI 영상 허용」 — **코드·배포 완료**. 실생성 확인(Vidu 약 360원·상품 장면 변형 약 $0.25)만 남음 | 주인님 2026-11-15 「나중에 필요할 때 연동, 작업만 해놔」 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 | `ai-image-studio` | 공용 `ai-video-client` 사본(Runway·Vidu 코드, 화면 변화 없음) 미배포 대기 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `music-video-studio` | 저장공간 위젯 한 줄(11-12 배포 뒤 빠진 것 발견, 코드 반영) 미배포 대기 + `music-video-studio` 로그인 정책(로그아웃 범위·기기 정보 전달, 음악 담당 `b4403e8bd` 11-13 인계) | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
 | `video-to-gif` | v1.29 맥 실물 확인(설치 스크립트 4곳 등록·크롬 연결·V4 녹화·웨일/Aside) — 맥미니 요청. V4 윈도우 실제 녹화는 사람 클릭 필요(주인님) | 맥미니 결과 · 주인님 V4 | `video-to-gif/docs/REQUEST_20261115_MACMINI_V129_CHECK.md` |
 | `shots` | v1.51 배포됨(11-14) — 「모든 장면 영상으로」 실제 유료 실행은 회원 첫 사용 때 오류가 나면 시험 | — | `shots/docs/IMPROVEMENTS.md` |
-| `shorts-onestop-studio`·`music-video-studio` | 「내 자료함」 음악 합치기 — 검토 결과 두 곳 모두 이미 공용 `listMemberAssets` 사용(합치기 끝). 대신 검사식 역슬래시 빠짐 버그 발견·수정 `70528df0f` — 미배포 | 빌드 승인 | `docs/ERROR_LESSONS.md` 2026-11-15 |
 | 영상 프로그램 6개 | 서버 지역 서울(`icn1`) 설정 완료 — 각 프로그램 다음 배포 때 반영, 배포 뒤 `x-vercel-id` 확인 | 각 프로그램 다음 배포 | `docs/PENDING_DEPLOYS.md` |
-| `shorts-onestop-studio` | 빨간 문제 목록 칸 위치 `5ba0f2aa6` · 하단 자막형 설명·자막 겹침 `b1cb6878b` 수정 — 미배포 대기 | 다음 원스톱 배포 | `shorts-onestop-studio/docs/IMPROVEMENTS.md` |
 | `shorts-onestop-studio` | v1.55 배포됨(11-14). 남은 것: 영상 주소를 상품 쪽으로 반환 | 받는 쪽 상품ID 형식 | `shorts-onestop-studio/docs/IMPROVEMENT_BACKLOG.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-15 `shorts-onestop-studio` v1.58·`music-video-studio` v1.31 배포: 「내 자료함」 음악 검사식 역슬래시 버그 `70528df0f`(자료함 음악 8곡 표시 확인) + 원스톱 화면 수정 2건 + 뮤직비디오 위젯·로그인 정책·서울 지역
 - 2026-11-15 `shorts-onestop-studio` v1.57 배포(`shorts-onestop-studio-hr4wf7vab`, DB v1.57, `584ca0d4e` 외): 메이커 후속 M3-② 상품 숏폼 템플릿 4종·검증 다시 쓰기 1회·단어 강조 자막 3종·합성 효과음 박자 맞춤·버전 되돌리기 — ego 시험 계정 Haiku 5.5 4회·실제 MP4 확인
 - 2026-11-15 `video-to-gif` v1.30·v1.31 배포(`video-to-b5ch93cuq`, DB·확장 v1.31): 메이커 후속 M2 「🛍 상품 사진 영상」 — 사진 1~6장 → MP4·상세페이지 WebP(10MB), 상품코드 일괄·ZIP. 운영 실제 파일 확인. 「상세페이지로」 WebP는 이커머스 이미지 담당께 요청.
 - 2026-11-15 `shorts-onestop-studio` v1.56 배포(`shorts-onestop-studio-7axgp8ug3`, DB v1.56, `0807cf180`): 메이커 후속 M3-① 광고 고지 띠(쿠팡 파트너스·제휴·협찬·직접 입력)·AI 제작 표기·설명란 첫 줄 고지·유튜브 합성 콘텐츠·게시 전 확인 4가지. 운영 MP4 프레임 확인. 시험 계정 ⑥ 체크 화면 남음.
@@ -109,10 +107,10 @@
 ## 영상 담당 프로그램 현황 (2026-11-15)
 | 프로그램 | 버전 | 최근 한 일 | 남은 것 |
 |---|---|---|---|
-| `shorts-onestop-studio` | v1.57 | 광고 고지(v1.56)·상품 숏폼 템플릿·검증·효과음·버전 되돌리기(v1.57, 11-15) | 화면 수정 2건 미배포 대기 · 영상 주소 반환(상품ID 형식 대기) |
+| `shorts-onestop-studio` | v1.58 | 상품 숏폼 고도화(v1.57)·자료함 음악 버그·화면 수정(v1.58, 11-15) | 영상 주소 반환(상품ID 형식 대기) · 낱말 시각 Gemini 대안 |
 | `shots`(`auto-shorts-posting`) | v1.51 | 모든 장면 영상으로·인코더 안정화(11-14) | — |
 | `ai-video-studio` | v1.36 | 시작·끝 장면 사진 「내 자료함」에서 고르기 | Vidu 실생성 재확인(보류) |
-| `music-video-studio` | v1.30 | 「내 자료함」 곡·이미지 가져오기·서울 지역 | 위젯·로그인 정책 미배포 대기 |
+| `music-video-studio` | v1.31 | 「내 자료함」 곡·이미지 가져오기·서울 지역 | 위젯·로그인 정책 미배포 대기 |
 | `video-to-gif` | v1.31 | 「🛍 상품 사진 영상」 MP4·WebP(v1.30·v1.31, 11-15) | 「상세페이지로」 WebP(받는 쪽 대기) · 맥 실물·V4 녹화 확인 |
 | `infinite-loop-video` | v1.10 | (최근 배포 내용은 폴더 문서 확인) | 서울 지역 반영 여부 다음 배포 때 확인 |
 

@@ -17,13 +17,11 @@
 
 ## 대기 중
 
-- **버그 — `shorts-onestop-studio`·`music-video-studio` 「내 자료함」 음악 검사식(2026-11-15 [역할: video] `claude-win-video`)**: 역슬래시 빠짐으로 자료함 곡이 하나도 안 걸리던 문제 `70528df0f`. 회원 기능이 안 되는 버그라 바로 배포 후보(빌드 승인 대기). 원스톱은 화면 수정 2건(`5ba0f2aa6`·`b1cb6878b`), 뮤직비디오는 위젯·로그인 정책(`b4403e8bd`)과 함께 나감.
-
-- **`shorts-onestop-studio` 빨간 문제 목록 칸 위치(2026-11-15 [역할: video] `claude-win-video`)**: 대본 다듬기 검사 목록이 장면 칸 두 번째 열을 차지해 입력칸이 좁아지던 화면 버그 `5ba0f2aa6`. + 하단 자막형 카드의 한 줄 설명이 자막과 겹치던 배치 `b1cb6878b`(사전 검증 페이지로 확인). 문제가 있을 때만 보이는 작은 버그 — 원스톱 다음 배포 때 함께(버전 +0.01은 그때).
 
 
 
-- **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감.
+
+- **음악 6개 공통 보완 `b4403e8bd`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: `free-music-studio`·`music`·`ai-music-studio`·`ai-mastering-studio`·`lyric-video-studio`·`music-video-studio` — 로그아웃 local 9곳·서버 `User-Agent` 5곳·저장공간 위젯 4곳. tsc·시험 통과. 단독 배포 안 함, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). ✅ `lyric-video-studio`는 11-13 v1.14, `music`은 11-13 v1.51에 함께 나감. ✅ `music-video-studio` v1.31(11-15 영상 담당 배포)에 함께 나감.
 - **`free-music-studio` — 웹 `76d9bab83`(끝 이어 만들기 가사 미리 채우기: 빈 `[Outro]` 건너뛰기) · 엔진 `388b00b23`(끝 줄이기 곡선 `hsin`)(2026-11-13 [역할: music])**: 웹은 다음 웹 배포 때, 엔진은 다음 엔진 설치 파일 배포 때(실제 곡 듣기 확인 필요).
 - **`playlist-channel-studio` — 곡 넣기 전에도 「📋 내가 올린 영상」·「📨 업무 워크스페이스로」 보이기 `16439a8e9`(2026-11-13 [역할: music] `claude-win-20261024-music`)**: 새로 고친 뒤 곡을 다시 넣어야만 지난 기록이 보이던 문제. tsc·시험 37·로컬 빌드 통과. 작은 수정 — 다음 플레이리스트 배포 때 함께(v1.42). 근거 `playlist-channel-studio/docs/IMPROVEMENTS.md`
 
@@ -33,7 +31,7 @@
 - **공통 — 💾 저장공간 위젯 한 줄(2026-11-11 세션 `claude-win-rea`, 주인님 「해당 프로그램 배포할때 배포되도록」, 추가 배포 없음)**: 하위 웹 프로그램을 배포할 때 레이아웃에 `<Script src="https://www.buylife.xyz/storage-widget.js" strategy="afterInteractive" />`를 함께 넣는다. `node scripts/pending-check.mjs <폴더>`가 미적용 여부를 자동으로 알려 주고, `--all`이 남은 프로그램을 센다(시작 0/99). 절차·예외: [`HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md`](HANDOFF_20261111_STORAGE_WIDGET_ROLLOUT.md).
 
 
-- **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(`ai-video-studio`는 v1.35, `shorts-onestop-studio`는 v1.49로 반영·`icn1::icn1` 확인)(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때). ✅ `shots` v1.48(11-12) 반영·`icn1::icn1` 확인. ✅ `music-video-studio` v1.30(11-12) 반영·`icn1::icn1` 확인. ✅ `music-video-studio`는 11-12 v1.30 배포(`79fiamka3`)에 실림(11-13 음악 담당 확인).
+- **서버 지역 서울 고정(2026-11-11 영상 담당 `claude-win-video`, 주인님 「서울로, 다음 배포 때 함께」)**: `music-video-studio`·`shots`·`infinite-loop-video`·`youtube-viral-studio`의 `vercel.json`에 `"regions": ["icn1"]`(`ai-video-studio`는 v1.35, `shorts-onestop-studio`는 v1.49로 반영·`icn1::icn1` 확인)(운영 DB와 같은 서울). 지금은 함수가 `iad1`(미국 동부). **각 프로그램을 다른 이유로 배포할 때 함께 나가며, 배포 뒤 동적 API 주소의 `x-vercel-id`가 `…::icn1::…`인지 확인**(버전 +0.01은 그때). ✅ `shots` v1.48(11-12) 반영·`icn1::icn1` 확인. ✅ `music-video-studio` v1.30(11-12) 반영·`icn1::icn1` 확인. ✅ `music-video-studio`는 11-12 v1.30 배포(`79fiamka3`)에 실림(11-13 음악 담당 확인). ✅ `music-video-studio` v1.31(11-15) `icn1::icn1` 확인.
 - **저장공간 위젯 한 줄 — `music-video-studio`·`video-to-gif`(2026-11-12 영상 담당 `claude-win-video`)**: 11-12 배포(v1.30·v1.28) 뒤 운영 화면에서 위젯이 없는 것을 확인하고 레이아웃에 한 줄 추가(tsc 통과). 이것만으로 따로 배포하지 않고 각 프로그램 다음 배포 때 함께. ✅ `video-to-gif` v1.29(11-15)에 실림.
 
 - **구글 연결 안내(2026-11-11 영상 담당 `claude-win-video`, 주인님 지시 「각 개인도 본인계정으로 인증」)**: ① `youtube-viral-studio` — 내 채널 연결 단계·설정 구글 앱 칸에 공용 매뉴얼 「내 구글 앱 만들기」 버튼, 매뉴얼 0단계 링크 ② `youtube-auto-reply` — 설정 텔레그램 칸 「구글 미검증 앱은 7일마다 만료」 → 「테스트 중이면 7일 만료 — 앱 게시로 유지」. 둘 다 문구·링크만, 각 프로그램 다음 배포 때 함께(버전 +0.01은 그때). 공용 매뉴얼 글 2개(DB)는 이미 반영됨.
@@ -105,6 +103,8 @@
 | `blog-neighbor-care` | v1.21 · 2026-11-15 (같은 세션, 빌드 1/4, `blog-neighbor-care-2xbauc6k4` Ready, DB·확장·ZIP v1.21 OK) | 답방 탭 사전 확인·실패 진단 표시 `85eedc18b`, 시험 385 통과 |
 | `video-to-gif` | v1.31 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 채팅 추가 승인 빌드 1회 「지금 배포」, `video-to-b5ch93cuq` Ready, DB `version`·`extension_version` v1.31, `check-extension-release` OK) | v1.30에서 찾은 버그 수정 `aab624bc3`: 상세페이지 크기 860×1076(H.264 짝수)·작은 글자 노토 산스. ego 운영: 상세페이지 6장 → MP4 860×1076 21.6초·WebP 432프레임 2.2MB, 390px 넘침 없음 |
 | `video-to-gif` | v1.30 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `video-to-l1kescyg8` Ready, DB v1.30) | 메이커 후속 M2 「🛍 상품 사진 영상」 `bf972755f` + 대기분(확장 배지 Aside `c579c2a23`·왼쪽 메뉴 버전 글자). ego 운영: 세로 상품 2개 일괄 27초 → MP4·WebP 4개(150·100프레임) 실제 파일 확인. 상세페이지 크기 실패 발견 → v1.31 |
+| `shorts-onestop-studio` | v1.58 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 채팅 승인 빌드 1/2, `shorts-onestop-studio-jy9kbljqd` Ready, DB v1.58) | 버그: 「내 자료함」 음악 검사식 역슬래시 `70528df0f` + 화면 수정 2건(빨간 목록 칸 `5ba0f2aa6`·하단 자막형 겹침 `b1cb6878b`). ego 시험 계정 자료함 음악 8곡 표시 확인 |
+| `music-video-studio` | v1.31 · 2026-11-15 ([역할: video] `claude-win-video`, 같은 승인 빌드 2/2, `music-video-studio-orc0gu481` Ready, DB v1.31) | 버그: 자료함 음악 검사식 `70528df0f` + 저장공간 위젯 한 줄 + 로그인 정책 `b4403e8bd` + 서울 지역. 시험 34·build, `icn1::icn1`, 자료함 음악 8곡 표시 확인 |
 | `shorts-onestop-studio` | v1.57 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 「비용 승인」 빌드 2/2, `shorts-onestop-studio-hr4wf7vab` Ready, DB v1.57) | 메이커 후속 M3-② 상품 숏폼 템플릿 4종·검증 다시 쓰기 1회·단어 강조 자막 3종·합성 효과음 박자 맞춤·AI 없이 템플릿 바꾸기·버전 되돌리기 `584ca0d4e` 외. ego 시험 계정 Haiku 5.5 4회(검사 0건), MP4 16.5초 프레임·효과음 위치·버전 기록 확인 |
 | `shorts-onestop-studio` | v1.56 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `shorts-onestop-studio-7axgp8ug3` Ready, DB v1.56) | 메이커 v0.3.3 후속 M3-① 광고 고지(쿠팡 파트너스·제휴·협찬·직접 입력) 띠·AI 제작 표기·설명란 첫 줄 고지·유튜브 합성 콘텐츠 표시·게시 전 확인 4가지·안전 영역 3개 플랫폼 `0807cf180`. ego 운영 화면 v1.56, 실제 MP4(58.2초) 처음·중간·끝 프레임에 띠·AI 표기 확인. 게시 전 확인 화면은 시험 계정 확인 남음 |
 | `smartstore-register` | v1.28 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `smartstore-register-mxv57n8mv` Ready, DB v1.28) | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트) 공식 채택 전면 구현 + E2-4 검색 태그(`597e912cc`) + `markPosted` 사진 표시(`6a17c6123`) + 3D 엠보싱 버튼 + 1행 유지 규격 준수 |
