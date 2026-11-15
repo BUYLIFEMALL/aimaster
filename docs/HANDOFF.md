@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-16 [역할: mac-mini] 영상 v1.32 재검수 — 상품 영상·버전 통과, 확장 새 폴더 선택 대기
+
+- 운영 https://video-to-gif.buylife.xyz/product-video · ego lite·시험 Nav. 사진 2장/3.6초/860×1076/30fps/MP4+WebP 생성 1회 → 27초 완료. 실제 MP4 224,074B·108프레임·3.6초/전체 디코드 오류 0, WebP 219,366B·71프레임·3,600ms 확인. 기존 MP4 5% 정지는 이번 조건에서 재현 안 됨. 멈추기/타임아웃/자동 재시도 분기는 별도 미검수. 사이드바·다운로드센터 v1.32 통과.
+- 고속 확장 새로고침 1회 → 예전 `/Volumes/D/AIMaster/video-to-gif/local-renderer/extension` 경로 없음으로 로드 오류·v1.31 비활성. 표준 `/Volumes/gt1_mega/AIMaster/video-to-gif/extension`은 v1.32. 사용자 직접 새 폴더 로드 후 감지·silent.mp4 고속 변환 1회 재개, 아직 고속 변환 0회. Host 재설치 불필요, 공간18 handOff. 영상 IMPROVEMENTS 맨 위와 `_workspace/video-v132-20261116/`에 증거/출력 보존. AI/비용/빌드/배포/운영 DB 직접 쓰기 0.
+- 사용자 최신 지시: WP kkuleomi24 VIP·이용기간 건은 **정책관리자가 처리**. 맥미니는 추가 부여·변경·재질문하지 않음. Tistory B4·V4 녹화 등 기완료 시험은 반복하지 않음.
+
+
 ## 2026-11-15 ✅ [역할: workspace] Claude Code(윈도우, 엣지) · `claude-win-20261025-workspace` — 업무 워크스페이스 v1.51 업무 비서 바깥 MCP 호출
 - 한 일: AI 채팅의 바깥 MCP 연결 명령(목록·추가·수정·삭제·허용 주소)을 엶. 회원당 1분 30번·하루 500번(`litpage/server/aimasterMcpGuard.ts`, 표 `aww_mcp_usage`), 바깥 MCP의 쓰기·삭제 도구는 승인 방식과 상관없이 항상 확인, 키 화면 「오늘 쓴 횟수」에 바깥 MCP, 매뉴얼 안내. 에이전트 연결(정시 실행)·MCP 프리셋은 계속 닫음. 커밋 `e7b01344a`, 시험 190·tsc 통과.
 - 배포: `ai-work-workspace-jxs37pc9i` Ready, DB v1.51. 운영 확인(엣지·시험 계정): 연결 추가 창 열림, 연결 목록 200, 에이전트 연결 403 유지. 실제 바깥 MCP 서버 연결·호출은 하지 않음(선택).
