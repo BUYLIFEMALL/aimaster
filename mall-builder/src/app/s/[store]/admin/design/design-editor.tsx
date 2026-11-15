@@ -467,7 +467,9 @@ export default function DesignEditor({ slug, storeId, categories, products, init
             latest.current = d;
             setNowState(snapshot(d));
           }}
-          renderHeaderActions={() => (
+          // I18 — 곧 없어질 renderHeaderActions 대신 overrides.headerActions(기본 Publish 단추는 쓰지 않음 — 우리 저장·게시 단추만)
+          overrides={{
+            headerActions: () => (
             <div className="flex items-center gap-2">
               <button type="button" disabled={pending} onClick={() => run("save")} className="rounded border bg-white px-3 py-1.5 text-sm disabled:opacity-40" data-design-save>
                 초안 저장
@@ -476,7 +478,8 @@ export default function DesignEditor({ slug, storeId, categories, products, init
                 유저 화면에 게시
               </button>
             </div>
-          )}
+            ),
+          }}
         />
       </div>
     </div>
