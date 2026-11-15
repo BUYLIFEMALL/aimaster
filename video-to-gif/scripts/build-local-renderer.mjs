@@ -12,6 +12,7 @@ import { createZip } from "../lib/zip.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const src = path.join(root, "local-renderer");
+const extensionSrc = path.join(root, "extension");
 const out = path.join(root, "public", "downloads", "local-renderer");
 fs.mkdirSync(out, { recursive: true });
 
@@ -22,7 +23,7 @@ const write = (name, data) => {
 };
 
 // LR-W-01: 확장 버전을 프로그램 버전(lib/version.ts)에 맞춘다(핵심 원칙 10). Chrome 형식은 앞자리 0 없는 「메이저.마이너.0」.
-const manifestPath = path.join(src, "extension", "manifest.json");
+const manifestPath = path.join(extensionSrc, "manifest.json");
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 const appVersion = fs.readFileSync(path.join(root, "lib", "version.ts"), "utf8").match(/APP_VERSION\s*=\s*"(v(\d+)\.(\d{2}))"/);
 if (!appVersion) throw new Error("lib/version.ts 에서 APP_VERSION 을 읽지 못했습니다.");
@@ -36,10 +37,10 @@ if (manifest.version_name !== appVersion[1]) {
   fs.writeFileSync(manifestPath, text);
   console.log(`✔ extension/manifest.json → ${manifest.version_name} (${manifest.version})`);
 }
-const extFiles = fs.readdirSync(path.join(src, "extension")).filter((f) => !f.startsWith("."));
+const extFiles = fs.readdirSync(extensionSrc).filter((f) => !f.startsWith("."));
 write(
   "gif-renderer-extension-latest.zip",
-  createZip(extFiles.map((f) => ({ name: `gif-renderer-extension/${f}`, data: read(`extension/${f}`) })))
+  createZip(extFiles.map((f) => ({ name: `gif-renderer-extension/${f}`, data: new Uint8Array(fs.readFileSync(path.join(extensionSrc, f))) })))
 );
 
 write(

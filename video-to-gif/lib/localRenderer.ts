@@ -1,4 +1,4 @@
-// v1.20: 「⚡ 내 PC 고속 변환」 — 크롬 확장(local-renderer/extension)을 거쳐 회원 PC의 ffmpeg로 GIF를 만든다.
+// v1.20: 「⚡ 내 PC 고속 변환」 — 크롬 확장(extension/)을 거쳐 회원 PC의 ffmpeg로 GIF를 만든다.
 // 확장이 없거나(크롬이 아니거나) 렌더러·ffmpeg가 없으면 detect가 이유를 돌려주고, 화면은 지금처럼 브라우저(wasm)로 변환한다.
 // 약속: local-renderer/host/host.pl · host.ps1 맨 위 주석, 플랜 docs/PLAN_20261023_LOCAL_RENDERER.md.
 // 렌더러에는 명령 문자열을 보내지 않는다 — 가로폭·fps·색 수·구간 숫자만 보낸다(렌더러가 범위를 다시 검사).
