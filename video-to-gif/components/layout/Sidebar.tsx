@@ -349,7 +349,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
                     내 PC 하드웨어 가속
                   </span>
                   <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300 border border-cyan-500/20">
-                    최신 공식판 v1.26
+                    최신 공식판 {APP_VERSION}
                   </span>
                 </div>
                 <h3 className="mt-2 text-xl font-extrabold text-white flex items-center gap-2">

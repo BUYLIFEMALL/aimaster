@@ -165,7 +165,7 @@ export default function ProductVideoStudio() {
     const audio = music ? await mixVoiceAndBgm({ total: tot, voices: [], bgm: { src: music.url, volume: music.volume }, onStatus: (x) => setBusy(`${label} ${x}`) }) : null;
     const mp4 = await encodeMp4({
       width: W, height: H, fps: s.fps, total: tot, audio, signal, videoBitrate: W * H > 1_200_000 ? 6_000_000 : 4_000_000,
-      onProgress: (p) => setBusy(`${label} MP4 ${p.pct}%${p.etaSeconds ? ` · 남은 시간 약 ${p.etaSeconds}초` : ""}`),
+      onProgress: (p) => setBusy(`${label} MP4 ${p.pct}%${p.etaSeconds ? ` · 남은 시간 약 ${Math.max(1, Math.round(p.etaSeconds))}초` : ""}`),
       drawFrame: (ctx, time) => drawFrame(ctx, W, H, list, time, s, code),
     });
     const base = code || withCode(s.text.title, code) || "상품영상";

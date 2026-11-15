@@ -57,16 +57,31 @@ export interface EncodeOptions {
 
 /** drawFrame으로 한 장씩 그려 MP4로 묶는다(결과를 메모리에 모아 Blob으로). 진행률은 pctFrom~97%, 마지막 98%에 파일로 묶는다 */
 export async function encodeMp4(o: EncodeOptions): Promise<Blob> {
-  const target = new ArrayBufferTarget();
-  await encodeInto(o, target, "in-memory");
-  return new Blob([target.buffer], { type: "video/mp4" });
+  try {
+    const target = new ArrayBufferTarget();
+    await encodeInto(o, target, "in-memory", false);
+    return new Blob([target.buffer], { type: "video/mp4" });
+  } catch (e) {
+    // 2026-11-15 하드웨어 가속 인코더가 출력 없이 멈추면(맥 사례) 기본 방식으로 한 번만 다시 만든다
+    if (!(e instanceof EncoderStallError) || !e.hardware || o.signal.aborted) throw e;
+    o.onProgress({ pct: o.pctFrom ?? 5, status: "영상 인코더가 응답하지 않아 기본 방식으로 다시 만드는 중…" });
+    const target = new ArrayBufferTarget();
+    await encodeInto(o, target, "in-memory", true);
+    return new Blob([target.buffer], { type: "video/mp4" });
+  }
 }
+
+/** 인코더가 정해진 시간 동안 진행하지 않음(출력 없이 멈춤). hardware: 하드웨어 가속 설정이었는지 */
+export class EncoderStallError extends Error {
+  constructor(readonly hardware: boolean) { super("영상 인코더가 응답하지 않습니다. 브라우저를 다시 열거나 크롬·엣지 최신 버전에서 다시 시도해 주세요."); }
+}
+const STALL_MS = 10_000;
 
 /** 긴 영상용: 회원이 고른 파일(크롬·엣지 showSaveFilePicker의 쓰기 스트림)에 조금씩 바로 쓴다 — 메모리에 영상 전체를 모으지 않는다.
  *  끝나면 스트림을 닫고, 실패·취소하면 스트림을 버려 반쯤 쓴 파일이 남지 않게 한다. (2026-10-21 lyric-video-studio에서 추가) */
 export async function encodeMp4ToFile(o: EncodeOptions & { stream: FileSystemWritableFileStream }): Promise<void> {
   try {
-    await encodeInto(o, new FileSystemWritableFileStreamTarget(o.stream), false);
+    await encodeInto(o, new FileSystemWritableFileStreamTarget(o.stream), false, false);
     await o.stream.close();
   } catch (e) {
     await o.stream.abort().catch(() => undefined);
@@ -79,9 +94,10 @@ export async function encodeMp4ToFile(o: EncodeOptions & { stream: FileSystemWri
 const fmtEta = (s: number) => (s >= 3600 ? `${Math.floor(s / 3600)}시간 ${Math.floor((s % 3600) / 60)}분` : s >= 60 ? `${Math.floor(s / 60)}분 ${Math.round(s % 60)}초` : `${Math.max(1, Math.round(s))}초`);
 
 /** 지원되는 첫 영상 설정(하드웨어 가속 우선). 없으면 null */
-async function pickVideoConfig(W: number, H: number, FPS: number, BITRATE: number): Promise<VideoEncoderConfig | null> {
+async function pickVideoConfig(W: number, H: number, FPS: number, BITRATE: number, noHardware: boolean): Promise<VideoEncoderConfig | null> {
   const tries: VideoEncoderConfig[] = [];
-  for (const codec of ["avc1.640028", "avc1.4d0028", "avc1.42e028"]) for (const hw of ["prefer-hardware", "no-preference"] as const) tries.push({ codec, width: W, height: H, bitrate: BITRATE, framerate: FPS, hardwareAcceleration: hw });
+  const modes = noHardware ? (["prefer-software", "no-preference"] as const) : (["prefer-hardware", "no-preference"] as const);
+  for (const codec of ["avc1.640028", "avc1.4d0028", "avc1.42e028"]) for (const hw of modes) tries.push({ codec, width: W, height: H, bitrate: BITRATE, framerate: FPS, hardwareAcceleration: hw });
   for (const c of tries) {
     try { const r = await VideoEncoder.isConfigSupported(c); if (r.supported) return r.config ?? c; } catch { /* 다음 설정 */ }
   }
@@ -97,11 +113,11 @@ async function holdScreen(): Promise<WakeLock | null> {
   } catch { return null; }
 }
 
-async function encodeInto(o: EncodeOptions, target: ArrayBufferTarget | FileSystemWritableFileStreamTarget, fastStart: "in-memory" | false): Promise<void> {
+async function encodeInto(o: EncodeOptions, target: ArrayBufferTarget | FileSystemWritableFileStreamTarget, fastStart: "in-memory" | false, noHardware: boolean): Promise<void> {
   assertWebCodecs();
   const { width: W, height: H, fps: FPS, total, audio: mixed } = o; const BITRATE = o.videoBitrate ?? 8_000_000;
   const stop = () => { if (o.signal.aborted) throw new DOMException("취소", "AbortError"); };
-  const vConfig = await pickVideoConfig(W, H, FPS, BITRATE);
+  const vConfig = await pickVideoConfig(W, H, FPS, BITRATE, noHardware);
   if (!vConfig) throw new Error("이 컴퓨터에서 H.264 영상 인코딩을 쓸 수 없습니다. 최신 크롬·엣지에서 다시 시도해 주세요.");
   const RATE = MP4_AUDIO_RATE;
   const aCodec = mixed ? await pick([{ m: "aac" as const, c: "mp4a.40.2" }, { m: "opus" as const, c: "opus" }], async (x) => (await AudioEncoder.isConfigSupported({ codec: x.c, sampleRate: RATE, numberOfChannels: 2, bitrate: 160_000 })).supported === true) : null;
@@ -114,6 +130,25 @@ async function encodeInto(o: EncodeOptions, target: ArrayBufferTarget | FileSyst
   const aenc = aCodec ? new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: (e) => { failed = e; } }) : null;
   aenc?.configure({ codec: aCodec!.c, sampleRate: RATE, numberOfChannels: 2, bitrate: 160_000 });
 
+  const hardware = vConfig.hardwareAcceleration === "prefer-hardware";
+  const stalled = () => new EncoderStallError(hardware);
+  // 2026-11-15 대기열이 줄 때까지 기다리되, 멈추기·인코더 오류·STALL_MS 동안 진행 없음을 확인한다(예전엔 무한 대기 → 맥에서 5% 정지·멈추기 무반응)
+  const drain = async (limit: number) => {
+    let last = venc.encodeQueueSize, since = performance.now();
+    while (venc.encodeQueueSize > limit) {
+      stop(); if (failed) throw failed; if (venc.state === "closed") throw stalled();
+      await new Promise((r) => setTimeout(r, 4));
+      if (venc.encodeQueueSize < last) { last = venc.encodeQueueSize; since = performance.now(); }
+      else if (performance.now() - since > STALL_MS) throw stalled();
+    }
+  };
+  // flush도 끝없이 기다리지 않게: 멈추기·STALL_MS(영상 길이에 비례해 넉넉히) 중 먼저 오는 쪽으로 끝낸다
+  const flushOrStall = (p: Promise<void>) => new Promise<void>((res, rej) => {
+    const timer = setTimeout(() => rej(stalled()), STALL_MS * 3);
+    const onAbort = () => rej(new DOMException("취소", "AbortError"));
+    o.signal.addEventListener("abort", onAbort, { once: true });
+    p.then(res, rej).finally(() => { clearTimeout(timer); o.signal.removeEventListener("abort", onAbort); });
+  });
   const lock = await holdScreen();
   try {
     // 소리 먼저 인코딩(0.1초 단위)
@@ -135,14 +170,14 @@ async function encodeInto(o: EncodeOptions, target: ArrayBufferTarget | FileSyst
       await o.drawFrame(ctx, t);
       const vf = new VideoFrame(canvas, { timestamp: Math.round(t * 1e6), duration: Math.round(1e6 / FPS) });
       venc.encode(vf, { keyFrame: f % (FPS * 2) === 0 }); vf.close();
-      while (venc.encodeQueueSize > 6) await new Promise((r) => setTimeout(r, 4));
+      await drain(6);
       if (f % 10 === 0) {
         const spent = (performance.now() - startedAt) / 1000; const eta = f > 0 && spent > 2 ? (spent / (f + 1)) * (frames - f - 1) : undefined;
         o.onProgress({ pct: Math.min(97, from + Math.round((f / frames) * (97 - from))), status: `영상 만드는 중… ${t.toFixed(1)} / ${total.toFixed(1)}초${eta !== undefined ? ` · 남은 시간 약 ${fmtEta(eta)}` : ""}`, etaSeconds: eta });
       }
     }
     o.onProgress({ pct: 98, status: "파일로 묶는 중…" });
-    await venc.flush(); if (aenc) await aenc.flush();
+    await flushOrStall(venc.flush()); if (aenc) await flushOrStall(aenc.flush());
     if (failed) throw failed;
     muxer.finalize();
   } finally {

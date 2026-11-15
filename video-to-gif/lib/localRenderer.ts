@@ -138,21 +138,38 @@ class RendererPort {
 }
 
 /** 확장·렌더러·ffmpeg가 있는지 확인한다(몇 초 안에 끝남). */
+// v1.32(2026-11-15 맥미니 검수): 맥에서 확장(MV3 서비스 워커)이 잠에서 깨는 시간·perl 렌더러 첫 실행 시간이
+// 예전 제한(1.5초·5초)을 넘겨 연결은 되는데도 「확장 없음」(브라우저 변환)으로 보였다 → 확장 4초+1회 다시 연결, 렌더러 15초.
+const HELLO_MS = 4000, PING_MS = 15_000;
 export async function detectLocalRenderer(): Promise<RendererStatus> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const r = await detectOnce();
+    if (r !== "retry") return r;
+  }
+  return { kind: "none" };
+}
+async function detectOnce(): Promise<RendererStatus | "retry"> {
   const port = RendererPort.open();
   if (!port) return { kind: "none" };
+  let stage = "확장 응답";
   try {
     port.send({ type: "ext-hello" });
-    const hello = await port.wait((m) => m.type === "ext-hello", 1500);
+    const hello = await port.wait((m) => m.type === "ext-hello", HELLO_MS).catch((e) => {
+      if (e instanceof RendererError && /응답하지/.test(e.message)) return null; // 확장이 깨어나는 중일 수 있음 → 한 번 더
+      throw e;
+    });
+    if (!hello) return "retry";
     const extVersion = String(hello.version ?? "");
+    stage = "렌더러 응답";
     port.send({ type: "ping" });
-    const pong = await port.wait((m) => m.type === "pong" || m.type === "error", 5000);
+    const pong = await port.wait((m) => m.type === "pong" || m.type === "error", PING_MS);
     if (pong.type === "error") return { kind: "no-host", extVersion };
     const hostVersion = String(pong.hostVersion ?? "");
     const os: RendererOs = pong.host === "perl" ? "mac" : pong.host === "powershell" ? "windows" : "unknown";
     if (!pong.ffmpeg) return { kind: "no-ffmpeg", extVersion, hostVersion, os };
     return { kind: "ready", extVersion, hostVersion, os, ffmpegVersion: String(pong.ffmpegVersion ?? "").replace(/^ffmpeg version\s+/, "").split(" ")[0] };
-  } catch {
+  } catch (e) {
+    console.warn(`[내 PC 고속 변환] 감지 실패(${stage}): ${e instanceof Error ? e.message : String(e)}`);
     return { kind: "none" };
   } finally {
     port.close();
