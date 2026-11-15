@@ -1,6 +1,6 @@
 # 개발 플랜 — M3-② 원스톱 「상품 숏폼」 고도화 (+ M4 실험은 결정 전 착수 금지)
 
-> 2026-11-15 · [역할: video] `claude-win-video` · 상태: **플랜 — 주인님 결정 대기(구현 0)**
+> 2026-11-15 · [역할: video] `claude-win-video` · 상태: **결정 받음(2026-11-15: 세 가지 모두·M2는 GIF 변환·본인 키만·비용 승인) — 구현 대기**
 > 근거: [`docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_VIDEO.md`](../../docs/analysis-ecommerce-bundle-20261024/HANDOFF_20261115_MAKER_V033_VIDEO.md) §3 M3-②·M4
 > 선행: M3-① 광고 고지(`PLAN_20261115_MAKER_M3_DISCLOSURE.md`). 원본은 동작만 참고 — 템플릿 이름·안내문·프롬프트 복제 금지.
 
