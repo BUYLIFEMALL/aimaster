@@ -936,3 +936,4 @@
 - 2026-11-15 D5+ 확장: 신규 레이아웃 3종(키즈·토이, 디지털·테크, 도매·카탈로그) 추가(총 10종 템플릿) 및 113·114 최상단 글 히어로(hero) 블록 고도화 완료.
 - 2026-11-15 템플릿 6종(116~121) 공식 시안 패키지(`D:\\Antigravity\\Design\\116~121`) 및 9종 종합 비교 갤러리 인덱스(`D:\\Antigravity\\Design\\mall_templates_index.html`) 제작 완료.
 - 2026-11-15 B2B 쇼핑몰 로그인 UI 디자인 3대 시안(122번 네오 모던 코퍼레이트 블루, 123번 클린 웰니스 테크 그린, 124번 럭셔리 부티크 골드 다크) 4대 뷰(총 12개 뷰) 제작 및 종합 비교 쇼케이스(`D:\PDS\Design\b2b_mall_login_index.html`, `http://localhost:3805/b2b_mall_login_index.html`) 구축 완료.
+- 2026-11-15 메인 히어로 카피(「모든 자동화를 한 곳에서 / 모든 마케팅/업무/비지니스를 자동화 하세요」) 리뉴얼 3대 시안(`D:\PDS\Design\hero_copy_concepts\`) 및 종합 비교 쇼케이스(`http://localhost:3805/hero_copy_concepts/index.html`) 구축 완료.
