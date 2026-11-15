@@ -1,5 +1,12 @@
 # 작업 인수인계 현황판 (HANDOFF.md)
 
+## 2026-11-15 ✅ [역할: mall-design-builder] Claude Code(윈도우) · `claude-win-20261114-mall-design` — 공용 스테이징 재발 방지 · 쇼핑몰 빌더 E10·스킨 3차 · 메인 인증 화면 124번
+- **공용 스테이징**: 맞추기 잠금 경합 재발 방지(90초 대기·대기열 `.git/aimaster-pending-sync`·다음 도우미 자동 맞추기·마지막 줄 경고, `scripts/index-pending-sync.mjs`), 묵은 항목 10개 정리, safe-commit 시험 11번 수정(`f6550cf9e`). 교훈 `docs/ERROR_LESSONS.md` 2026-11-15.
+- **쇼핑몰 디자인 빌더(mall-builder)**: v1.14 운영에 I8·스킨 2차·I5 반영 확인. 미배포 대기 4건 — E10 제목 글꼴(`b38fc9c40`)·스킨 3차 쇼윈도 대표 크게·타임세일 어두운 띠(`b07608419`)·템플릿 116/119/120 적용·120/121 대표색(`d68f360fb`)·I28 미리보기 가입 단추(`a66180dbb`) → 백엔드 함께 배포 대기(상호 인수인계 S57·S59). E3 「내 섹션」 기초 커밋(0095 파일, Lab 적용 승인 대기, 플랜 `mall-builder/docs/PLAN_20261115_MY_SECTIONS.md`).
+- **디자인 지침**: `DESIGN.md` 맨 위 — 디자인 결과물 저장·참고 폴더 = `D:\PDS\Design`.
+- **메인 사이트 인증 화면**: 시안 3종(`D:\PDS\Design\aimaster_main_login_20261115`) → B안 적용(`afcdc2b97`·`2548a0cbd`·`6e9edf77d`) → agy 122번(`2ae082d2c`) → 주인님 지시로 **124번 누아르 골드 확정**(`6606978f6`, 공용 틀 `AuthShell`). 운영 반영·ego 확인. 메인 빌드 오늘 4회(모두 승인).
+- 다음: E3 Lab 0095 적용 → 편집기 단추 2개 → ego 확인. 쇼핑몰 미배포 4건은 백엔드 함께 배포 때.
+
 ## 2026-11-15 🤝 [역할: main-auth-design] Antigravity · `agy-win-ssr-v1` — 인증 화면 124번(럭셔리 누아르 골드) 공식 기준 동기화 확인
 - 타 세션(`claude-win-20261114-mall-design`) 인수인계 전달 내용 확인 완료 (`6606978f6`):
   - 메인 사이트 인증 화면(`app/(auth)/**`, `globals.css`의 `.auth-input`, `.btn-3d-gold`)은 주인님 지시로 **124번 (럭셔리 누아르 골드, `D:\PDS\Design\124_luxury_noir_gold_login`)이 최종 공식 기준**으로 확정/대체됨을 인지 및 로컬 동기화 완료.
