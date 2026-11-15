@@ -1,0 +1,10 @@
+{
+  "observedAt": "2026-11-15T08:55:36.585Z",
+  "userReportedClickedOnce": true,
+  "agentClickedRead": false,
+  "kind": "return_post",
+  "readButton": "현재 화면 읽고 미리보기 · 이웃의 답방 글 주소",
+  "error": "브라우저의 현재 탭을 화면에 유지해 주세요. [진단: 화면 확인 · 17시 55분 10초]",
+  "confirmSave": 0,
+  "accept": 0
+}
