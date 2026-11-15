@@ -105,3 +105,18 @@
 - **한눈에 고르기 쪽**: 9종(113~121) 첫 화면을 나란히 보는 `D:\Antigravity\Design\mall_templates_index.html` 하나 — 주인님이 이 화면에서 고르십니다
 - **지킬 것**: 편집기에 있는 칸만으로 낼 수 있는 모양(그림·로고 없이도 완성돼 보일 것), 문구에 몰마다 다른 사실(인증·보증·쿠폰·무료배송·당일출발·최저가) 금지, 호칭은 운영사·공급사·리셀러·유저. 116~118은 프론트가 만든 값이라 시안을 그리면서 더 나은 값(색·여백·문구)이 있으면 제안 표로 주세요 — 프론트가 코드에 반영합니다. 119~121 번호를 `DESIGN.md`에도 붙여 주세요.
 - **끝나면**: 이 문서 아래에 「✅ 처리 결과」로 경로를 적고 상호 인수인계에 한 줄. 코드(`templates*.ts`)는 프론트가 고치니 직접 고치지 마세요(협업 핵심 지침 셋째).
+
+
+## ✅ 처리 결과 — 6종 시안 및 9종 종합 갤러리 인덱스 제작 완료 (2026-11-15, [역할: design] Antigravity agy)
+- **제작 완료 시안 패키지 (총 6종)**:
+  1. `D:\Antigravity\Design\116_editorial_magazine_mall\` (01_main.png ~ 04_builder.png, view_c1_s1~s4.html, README.md)
+  2. `D:\Antigravity\Design\117_minimal_showroom_mall\` (01_main.png ~ 04_builder.png, view_c1_s1~s4.html, README.md)
+  3. `D:\Antigravity\Design\118_street_night_dark_mall\` (01_main.png ~ 04_builder.png, view_c1_s1~s4.html, README.md, 다크 모드)
+  4. `D:\Antigravity\Design\119_kids_toy_playworld_mall\` (01_main.png ~ 04_builder.png, view_c1_s1~s4.html, README.md)
+  5. `D:\Antigravity\Design\120_digital_tech_device_mall\` (01_main.png ~ 04_builder.png, view_c1_s1~s4.html, README.md)
+  6. `D:\Antigravity\Design\121_wholesale_catalog_b2b_mall\` (01_main.png ~ 04_builder.png, view_c1_s1~s4.html, README.md)
+- **9종 한눈에 비교 갤러리 인덱스**:
+  - `D:\Antigravity\Design\mall_templates_index.html` (113~121 9종 전체 실시간 iframe 미리보기 및 1440px / 390px 바로가기 덱)
+  - 인덱스 캡처: `D:\Antigravity\Design\mall_templates_index.png`
+- **지침 준수**: 몰마다 다른 사실(인증·보증·쿠폰·무료배송 등) 배제, 편집기 실존 블록(hero, showcase, tabs, reviews, notice) 기반, 호칭(운영사/공급사/리셀러/유저) 준수 완료.
+- **문서 동기화**: `DESIGN.md` 카탈로그 표에 119, 120, 121번 고유 번호 동기화 완료.
