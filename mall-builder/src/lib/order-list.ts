@@ -86,3 +86,22 @@ export function orderListHref(base: string, cur: OrderListQuery, patch: Partial<
 export function pageCount(total: number): number {
   return Math.max(1, Math.ceil(total / ORDER_PAGE_SIZE));
 }
+
+/** 조건(상태·송장 없음·기간·검색어)을 조회에 붙인다 — 목록(store.ts)과 엑셀 내려받기(M2-2)가 같은 조건을 쓰게 한 곳에 */
+type Filterable<Q> = {
+  eq(col: string, v: string): Q;
+  in(col: string, v: string[]): Q;
+  gte(col: string, v: string): Q;
+  lt(col: string, v: string): Q;
+  or(filter: string): Q;
+};
+export function applyOrderFilters<Q extends Filterable<Q>>(query: Q, f: OrderListQuery): Q {
+  let q = query;
+  if (f.status) q = q.eq("status", f.status);
+  if (f.noTracking) q = q.in("status", [...NO_TRACKING_STATUSES]).eq("tracking_no", "");
+  if (f.from) q = q.gte("created_at", kstDayStart(f.from));
+  if (f.to) q = q.lt("created_at", kstNextDayStart(f.to));
+  const search = orderSearchFilter(f.q);
+  if (search) q = q.or(search);
+  return q;
+}

@@ -3,6 +3,9 @@ import { getOrderCounts, getStaffStore, getStoreOrders } from "@/lib/store";
 import { ORDER_STATUS_LABEL, formatDateTime, type OrderStatus } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
 import { orderListHref, pageCount, parseOrderListQuery } from "@/lib/order-list";
+import { BULK_MAX, BULK_TARGETS } from "@/lib/order-excel";
+import { bulkStatusAction } from "./bulk-actions";
+import TrackingForm from "./tracking-form";
 import { AdminShell, NoPermission } from "../admin-shell";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +22,10 @@ export default async function AdminOrdersPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { store: slug } = await params;
-  const f = parseOrderListQuery(await searchParams, TABS); // M2-1: 상태·검색어·기간·송장 없음·페이지
+  const sp = await searchParams;
+  const f = parseOrderListQuery(sp, TABS); // M2-1: 상태·검색어·기간·송장 없음·페이지
+  const one = (k: string) => (Array.isArray(sp[k]) ? sp[k][0] : sp[k]) ?? "";
+  const bulk = { ok: Number(one("bulk_ok")) || 0, fail: Number(one("bulk_fail")) || 0, error: one("bulk_error").slice(0, 300) }; // M2-2 일괄 결과
   const { store, staff } = await getStaffStore(slug, `/s/${slug}/admin/orders`);
   if (!staff) return <NoPermission />;
   const filter = f.status as OrderStatus | undefined;
@@ -28,6 +34,7 @@ export default async function AdminOrdersPage({
   const base = `/s/${store.slug}/admin/orders`;
   const pages = pageCount(found);
   const narrowed = Boolean(f.q || f.from || f.to || f.noTracking);
+  const keep = orderListHref("", f, {}).replace(/^\?/, ""); // 일괄 처리 뒤 같은 목록으로
 
   return (
     <AdminShell slug={store.slug} storeName={store.name} active="/orders">
@@ -65,17 +72,41 @@ export default async function AdminOrdersPage({
           </Link>
         )}
       </form>
-      <p className="mt-2 text-xs text-gray-500" data-order-found>
-        {found}건{pages > 1 && ` · ${f.page}/${pages}쪽`}
+      <p className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500" data-order-found>
+        <span>{found}건{pages > 1 && ` · ${f.page}/${pages}쪽`}</span>
+        <a href={orderListHref(`${base}/excel`, f, { page: 1 })} className="text-blue-700 underline" data-order-excel>
+          ⬇ 이 조건으로 엑셀 내려받기{found > 3000 && "(최근 3,000건)"}
+        </a>
       </p>
+      <TrackingForm slug={store.slug} downloadHref={orderListHref(`${base}/excel`, { ...f, noTracking: true }, { page: 1 })} />
+      {(bulk.ok > 0 || bulk.fail > 0 || bulk.error) && (
+        <p className={`mt-3 rounded px-3 py-2 text-sm ${bulk.fail || (bulk.error && !bulk.ok) ? "bg-amber-50 text-amber-900" : "bg-green-50 text-green-800"}`} data-bulk-result>
+          {bulk.ok > 0 && <b>{bulk.ok}건 바꿈. </b>}
+          {bulk.fail > 0 && <b>{bulk.fail}건 못 바꿈 </b>}
+          {bulk.error && <span>— {bulk.error}</span>}
+        </p>
+      )}
 
       {orders.length === 0 ? (
         <p className="mt-6 rounded border border-dashed p-8 text-center text-sm text-gray-500">{narrowed ? "조건에 맞는 주문이 없습니다." : "주문이 없습니다."}</p>
       ) : (
-        <ul className="mt-4 divide-y border-y text-sm">
+        <form action={bulkStatusAction.bind(null, store.slug, keep)} data-bulk-form>
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-gray-500">고른 주문을</span>
+          <select name="to" defaultValue="" className="rounded border px-2 py-1" required>
+            <option value="" disabled>상태 고르기</option>
+            {Object.entries(BULK_TARGETS).map(([v, label]) => (
+              <option key={v} value={v}>{label}</option>
+            ))}
+          </select>
+          <button className="rounded bg-gray-900 px-3 py-1 text-white">한꺼번에 바꾸기</button>
+          <span className="text-xs text-gray-400">한 번에 {BULK_MAX}건까지 · 취소·환불·송장은 주문마다(송장은 위 엑셀로)</span>
+        </div>
+        <ul className="mt-2 divide-y border-y text-sm">
           {orders.map((o) => (
-            <li key={o.id} data-admin-order>
-              <Link href={`${base}/${o.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-3 hover:bg-gray-50">
+            <li key={o.id} data-admin-order className="flex items-center gap-2">
+              <input type="checkbox" name="ids" value={o.id} aria-label={`${o.order_no} 고르기`} className="ml-1 h-4 w-4 shrink-0" />
+              <Link href={`${base}/${o.id}`} className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1 py-3 hover:bg-gray-50">
                 <span className="text-gray-500">{formatDateTime(o.created_at)}</span>
                 <span>{o.order_no}</span>
                 <span className="min-w-0 flex-1 truncate">
@@ -89,6 +120,7 @@ export default async function AdminOrdersPage({
             </li>
           ))}
         </ul>
+        </form>
       )}
       {pages > 1 && (
         <nav className="mt-4 flex items-center justify-center gap-3 text-sm" data-order-pages>
