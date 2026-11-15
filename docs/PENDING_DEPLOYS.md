@@ -15,6 +15,8 @@
 
 ## 대기 중
 
+- **`shorts-onestop-studio` 빨간 문제 목록 칸 위치(2026-11-15 [역할: video] `claude-win-video`)**: 대본 다듬기 검사 목록이 장면 칸 두 번째 열을 차지해 입력칸이 좁아지던 화면 버그 `5ba0f2aa6`. 문제가 있을 때만 보이는 작은 버그 — 원스톱 다음 배포 때 함께(버전 +0.01은 그때).
+
 
 
 - **`ai-work-workspace` — 받은 업무 표 「보낸 프로그램」을 한국어 이름으로(2026-11-15 [역할: workspace], `94b208d8f`)**: 이름표를 `src/lib/programLabels.ts` 한 곳으로 모아 화면·받은 업무 표·캘린더 표가 함께 씀. 시험 174. 다음 워크스페이스 배포 때 함께.
@@ -98,6 +100,7 @@
 | `blog-neighbor-care` | v1.21 · 2026-11-15 (같은 세션, 빌드 1/4, `blog-neighbor-care-2xbauc6k4` Ready, DB·확장·ZIP v1.21 OK) | 답방 탭 사전 확인·실패 진단 표시 `85eedc18b`, 시험 385 통과 |
 | `video-to-gif` | v1.31 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 채팅 추가 승인 빌드 1회 「지금 배포」, `video-to-b5ch93cuq` Ready, DB `version`·`extension_version` v1.31, `check-extension-release` OK) | v1.30에서 찾은 버그 수정 `aab624bc3`: 상세페이지 크기 860×1076(H.264 짝수)·작은 글자 노토 산스. ego 운영: 상세페이지 6장 → MP4 860×1076 21.6초·WebP 432프레임 2.2MB, 390px 넘침 없음 |
 | `video-to-gif` | v1.30 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `video-to-l1kescyg8` Ready, DB v1.30) | 메이커 후속 M2 「🛍 상품 사진 영상」 `bf972755f` + 대기분(확장 배지 Aside `c579c2a23`·왼쪽 메뉴 버전 글자). ego 운영: 세로 상품 2개 일괄 27초 → MP4·WebP 4개(150·100프레임) 실제 파일 확인. 상세페이지 크기 실패 발견 → v1.31 |
+| `shorts-onestop-studio` | v1.57 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 「비용 승인」 빌드 2/2, `shorts-onestop-studio-hr4wf7vab` Ready, DB v1.57) | 메이커 후속 M3-② 상품 숏폼 템플릿 4종·검증 다시 쓰기 1회·단어 강조 자막 3종·합성 효과음 박자 맞춤·AI 없이 템플릿 바꾸기·버전 되돌리기 `584ca0d4e` 외. ego 시험 계정 Haiku 5.5 4회(검사 0건), MP4 16.5초 프레임·효과음 위치·버전 기록 확인 |
 | `shorts-onestop-studio` | v1.56 · 2026-11-15 ([역할: video] `claude-win-video`, 주인님 메이커 후속 결정 「비용 승인」 빌드 1회, `shorts-onestop-studio-7axgp8ug3` Ready, DB v1.56) | 메이커 v0.3.3 후속 M3-① 광고 고지(쿠팡 파트너스·제휴·협찬·직접 입력) 띠·AI 제작 표기·설명란 첫 줄 고지·유튜브 합성 콘텐츠 표시·게시 전 확인 4가지·안전 영역 3개 플랫폼 `0807cf180`. ego 운영 화면 v1.56, 실제 MP4(58.2초) 처음·중간·끝 프레임에 띠·AI 표기 확인. 게시 전 확인 화면은 시험 계정 확인 남음 |
 | `smartstore-register` | v1.28 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `smartstore-register-mxv57n8mv` Ready, DB v1.28) | 1안(110. 네이버 스마트스토어 오리지널 그린 & 화이트) 공식 채택 전면 구현 + E2-4 검색 태그(`597e912cc`) + `markPosted` 사진 표시(`6a17c6123`) + 3D 엠보싱 버튼 + 1행 유지 규격 준수 |
 | `elevenst-register` | v1.07 · 2026-11-15 ([역할: design] Antigravity, 주인님 승인 빌드 1회, `elevenst-register-dub6wjt88` Ready, DB v1.07) | 1안(107. 11번가 오리지널 레드 & 화이트) 공식 채택 전면 구현 + 전역 1행 고정(nowrap) 최적화 |
