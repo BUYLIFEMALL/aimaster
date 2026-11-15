@@ -57,7 +57,7 @@ export function kstNextDayStart(day: string): string {
 }
 
 /** 휴대폰 숫자만 넣으면 저장 모양(010-1234-5678)으로도 찾는다 */
-function phoneForms(q: string): string[] {
+export function phoneForms(q: string): string[] {
   const d = q.replace(/\D/g, "");
   if (d !== q.replace(/-/g, "") || !/^01\d{8,9}$/.test(d)) return [];
   return [d.length === 11 ? `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}` : `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`];

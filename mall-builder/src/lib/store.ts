@@ -13,6 +13,7 @@ import { readDoc, type BlocksDoc, type ShowcaseSettings } from "@/lib/blocks";
 import { emptyStats, type Stats } from "@/lib/stats";
 import { cache } from "react";
 import { ORDER_PAGE_SIZE, applyOrderFilters, type OrderListQuery } from "@/lib/order-list";
+import { APPROVAL_TABS, CUSTOMER_PAGE_SIZE, MEMBER_TABS, applyCustomerFilters, type CustomerListQuery } from "@/lib/customer-list";
 
 export type Store = {
   id: string;
@@ -429,6 +430,37 @@ export async function getStoreCustomers(storeId: string, approval?: ApprovalStat
   if (approval) query = query.eq("approval_status", approval);
   const { data } = await query;
   return (data ?? []) as unknown as StoreCustomer[];
+}
+
+/** M2-8 유저 목록 한 쪽(50명) — 탭·검색어·가입일 조건, 전체 건수 함께 */
+export async function getStoreCustomerPage(storeId: string, f: CustomerListQuery): Promise<{ rows: StoreCustomer[]; total: number }> {
+  const supabase = await createClient();
+  const query = supabase
+    .from("mall_builder_store_customers")
+    .select(CUSTOMER_COLUMNS, { count: "exact" })
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false })
+    .range((f.page - 1) * CUSTOMER_PAGE_SIZE, f.page * CUSTOMER_PAGE_SIZE - 1);
+  const { data, count } = await applyCustomerFilters(query, f);
+  const rows = (data ?? []) as unknown as StoreCustomer[];
+  return { rows, total: count ?? rows.length };
+}
+
+/** M2-8 탭 건수(DB에서 세기) — 전체·사업자 승인 상태 4가지·입장 대기/반려 */
+export async function getCustomerCounts(storeId: string) {
+  const supabase = await createClient();
+  const head = () => supabase.from("mall_builder_store_customers").select("id", { count: "exact", head: true }).eq("store_id", storeId);
+  const [all, ...rest] = await Promise.all([
+    head(),
+    ...APPROVAL_TABS.map((t) => head().eq("approval_status", t)),
+    ...MEMBER_TABS.map((t) => head().eq("member_status", t)),
+  ]);
+  const n = (r: { count: number | null }) => r.count ?? 0;
+  return {
+    all: n(all),
+    approval: Object.fromEntries(APPROVAL_TABS.map((t, i) => [t, n(rest[i])])) as Record<(typeof APPROVAL_TABS)[number], number>,
+    member: Object.fromEntries(MEMBER_TABS.map((t, i) => [t, n(rest[APPROVAL_TABS.length + i])])) as Record<(typeof MEMBER_TABS)[number], number>,
+  };
 }
 
 /** 유저 한 명(운영사 화면) — 보안 규칙상 그 몰 운영사(또는 본인)만 받는다 */
