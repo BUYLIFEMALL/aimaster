@@ -1,6 +1,6 @@
 "use client";
 // 🧾 영수증·세금계산서 화면(2026-11-11). 명령: /api/rpc/rcpt*(src/server/receipts.ts). 플랜 docs/PLAN_20261027_RECEIPT_TAX_INVOICE.md §6
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { rpc } from "@/lib/standaloneRpc"; // 2026-11-13: 로그인 끊김(401) 안내 띠 포함
 import { BoltaPanel } from "./BoltaPanel"; // 2026-11-13: 볼타로 바로 발급(회원 본인 키)
 import { AmendPanel } from "./AmendPanel"; // 2026-11-15: 볼타 수정발행
@@ -362,6 +362,25 @@ function IssueTab({ state, reload, notify, print, goInfo, draft }: { state: Stat
 
   // 볼타로 바로 발급(2026-11-13): 문서마다 직접 누름(처음 = 발급 요청, 그 뒤 = 결과 확인), 결과는 문서에 기록
   const [issuing, setIssuing] = useState<string | null>(null);
+  // 2026-11-15: 결과를 기다리는 발급·수정발행은 화면이 열려 있으면 30초 뒤 한 번만 자동으로 확인(웹훅이 없는 회원용).
+  // 서버는 이미 접수된 건을 다시 보내지 않고 결과만 조회한다(btIssue·btAmendCheck). 실패해도 조용히 — 버튼으로 다시 확인.
+  const autoChecked = useRef<Set<string>>(new Set());
+  const scheduleAutoCheck = (id: string, kind: "issue" | "amend") => {
+    const key = `${kind}:${id}`;
+    if (autoChecked.current.has(key)) return;
+    autoChecked.current.add(key);
+    window.setTimeout(async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const r = await rpc<{ state: string; ntsTransactionId?: string | null }>(kind === "issue" ? "btIssue" : "btAmendCheck", { id });
+        if (r.state === "issued") notify({ text: `자동 확인: ${kind === "issue" ? "발급" : "수정발행"} 완료${r.ntsTransactionId ? ` · 국세청 승인번호 ${r.ntsTransactionId}` : ""}` });
+      } catch {
+        /* 자동 확인 실패는 알리지 않음 */
+      } finally {
+        reload();
+      }
+    }, 30_000);
+  };
   const issueBolta = async (d: Doc) => {
     if (!d.bolta || d.bolta.state === "failed") {
       if (!window.confirm(`${d.date} ${d.partner?.name ?? ""} 세금계산서를 볼타로 발급합니다. 계속할까요? (live_ 키면 국세청에 실제로 발급되고 볼타 요금이 차감됩니다)`)) return;
@@ -370,7 +389,8 @@ function IssueTab({ state, reload, notify, print, goInfo, draft }: { state: Stat
     try {
       const r = await rpc<{ state: string; ntsTransactionId?: string | null; mode: string; message?: string }>("btIssue", { id: d.id });
       const kind = r.mode === "live" ? "실제" : "테스트";
-      notify({ text: r.state === "issued" ? `${kind} 발급 완료${r.ntsTransactionId ? ` · 국세청 승인번호 ${r.ntsTransactionId}` : ""}` : `${kind} 발급 요청이 접수됐습니다. ${r.message ?? ""}` });
+      notify({ text: r.state === "issued" ? `${kind} 발급 완료${r.ntsTransactionId ? ` · 국세청 승인번호 ${r.ntsTransactionId}` : ""}` : `${kind} 발급 요청이 접수됐습니다. ${r.message ?? ""}${r.state === "requested" ? " 화면을 열어 두면 30초 뒤 한 번 자동으로 결과를 확인합니다." : ""}` });
+      if (r.state === "requested") scheduleAutoCheck(d.id, "issue");
     } catch (e) {
       notify({ text: (e as Error).message, error: true });
     } finally {
@@ -386,6 +406,7 @@ function IssueTab({ state, reload, notify, print, goInfo, draft }: { state: Stat
     try {
       const r = await rpc<{ state: string; ntsTransactionId?: string | null; cancelNts?: string | null; message?: string }>("btAmendCheck", { id: d.id });
       notify({ text: r.state === "issued" ? `수정발행 완료${r.ntsTransactionId ? ` · 승인번호 ${r.ntsTransactionId}` : ""}${r.cancelNts ? ` · 취소분 ${r.cancelNts}` : ""}` : r.message ?? "수정발행을 처리 중입니다." });
+      if (r.state !== "issued" && r.state !== "failed") scheduleAutoCheck(d.id, "amend");
     } catch (e) {
       notify({ text: (e as Error).message, error: true });
     } finally {
