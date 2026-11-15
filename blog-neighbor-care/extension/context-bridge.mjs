@@ -24,8 +24,9 @@ export function createContextReader(browser,identity,post,popupFocused=async()=>
  const restore=async()=>{if(pending||!session)return;const saved=(await session.get(KEY))[KEY];if(saved)pending={...saved,epoch};};
  const current=async p=>{
   const who=await identity(),tabs=await browser.tabs.query({active:true,currentWindow:true});
-  if(p.epoch!==epoch||who.deviceId!==p.deviceId||who.blogId!==p.scope.actorId||tabs.length!==1||tabs[0].id!==p.tab.id||tabs[0].url!==p.tab.url||tabs[0].windowId!==p.tab.windowId)throw Error('연결 계정 또는 현재 탭이 바뀌었습니다.');
-  const w=await browser.windows.get(p.tab.windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(p.tab.windowId)))throw Error('브라우저의 현재 탭을 화면에 유지해 주세요.');
+  if(p.epoch!==epoch||who.deviceId!==p.deviceId||who.blogId!==p.scope.actorId||tabs.length!==1||tabs[0].id!==p.tab.id||tabs[0].url!==p.tab.url||tabs[0].windowId!==p.tab.windowId)throw Object.assign(Error('연결 계정 또는 현재 탭이 바뀌었습니다.'),{stage:'tab'});
+  // 2026-11-15: an agent-driven click (e.g. ego lite under automation) leaves both the window and the popup unfocused; this guard must keep rejecting it. The 'focus' stage tells that apart from a server-side refusal.
+  const w=await browser.windows.get(p.tab.windowId);if(w.state==='minimized'||(!w.focused&&!await popupFocused(p.tab.windowId)))throw Object.assign(Error('브라우저의 현재 탭을 화면에 유지해 주세요.'),{stage:'focus'});
  };
  const inspect=async p=>{
   await current(p);

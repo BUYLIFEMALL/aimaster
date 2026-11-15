@@ -41,7 +41,7 @@ async function run(work,kind='general') {
   }
   finally { busy = false;applyButtons(); }
 }
-const STAGE={tab:'탭 확인',offer:'읽기 시작',preview:'미리보기',confirm:'저장'};
+const STAGE={tab:'탭 확인',focus:'화면 확인',offer:'읽기 시작',preview:'미리보기',confirm:'저장'};
 function diagnosis(r){
   if(!r||(!r.status&&!r.code&&!r.stage))return '';
   const parts=[r.stage&&(STAGE[r.stage]||r.stage),r.status&&`HTTP ${r.status}`,r.code,r.at&&new Date(r.at).toLocaleTimeString('ko-KR',{hour12:false})].filter(Boolean);
@@ -118,6 +118,11 @@ $('consentRevoke').addEventListener('click',()=>run(async()=>{await send({type:'
 $('workStart').addEventListener('click',()=>run(async()=>{if(!$('workConfirm').checked)throw Error('현재 탭 실행 동의를 확인해 주세요.');$('workMessage').textContent='진행 중 · 웹의 실행 허용과 승인 작업을 확인합니다.';const r=await send({type:'work_start',confirmed:$('workConfirm').dataset.remembered!=='1'});$('workMessage').textContent=r.message;await refreshConsent();}));
 $('workStatus').addEventListener('click',()=>run(async()=>{$('workMessage').textContent=(await send({type:'work_status'})).message;}));
 $('workStop').addEventListener('click',async()=>{try{$('workMessage').textContent=(await send({type:'work_stop'})).message;}catch{$('workMessage').textContent='중단 응답 미확인 · 작업 기록에서 결과 확인';}});
+// 2026-11-15 (Mac v1.21 P3): the read kind silently fell back to 「신청 수락 상태」 on reopen. Keep the last choice and name it on the button.
+const KINDS=['relationship','incoming','return_post'];
+function labelContextRead(){$('contextRead').textContent=`현재 화면 읽고 미리보기 · ${$('contextKind').selectedOptions[0]?.textContent||''}`;}
+$('contextKind').addEventListener('change',()=>{labelContextRead();chrome.storage?.local.set({contextKind:$('contextKind').value}).catch(()=>{});});
+chrome.storage?.local.get('contextKind').then(v=>{if(KINDS.includes(v.contextKind))$('contextKind').value=v.contextKind;labelContextRead();}).catch(labelContextRead);
 $('contextRead').addEventListener('click',()=>run(async()=>{
  if(!$('contextConsent').checked)throw Error('현재 화면 읽기 동의를 확인해 주세요.');$('contextMessage').textContent='현재 계정·화면 확인 후 읽는 중…';$('contextPreview').hidden=true;
  const r=await send({type:'context_preview',kind:$('contextKind').value,confirmed:true}),v=r.snapshot;

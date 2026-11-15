@@ -49,3 +49,19 @@ test('CB-T2 (2026-11-14) a refused offer keeps HTTP status and BNC code and name
  const reader=createContextReader(browser,async()=>({deviceId:'d',blogId:'own'}),async op=>{if(op==='offer')throw Object.assign(Error('refused'),{status:409,code:'BNC_RETURN_SOURCE_REQUIRED'});return {};});
  await assert.rejects(reader.preview('return_post'),e=>e.stage==='offer'&&e.status===409&&e.code==='BNC_RETURN_SOURCE_REQUIRED');
 });
+
+test('CB-F1 (2026-11-15 Mac ego v1.21) an unfocused window and unfocused popup stop the read with stage focus; a focused popup still reads',async()=>{
+ const {createContextReader}=await import('../extension/context-bridge.mjs');
+ const url='https://blog.naver.com/neighbor/224231976765';
+ const make=(popupFocused,calls)=>{
+  const browser={tabs:{query:async()=>[{id:1,windowId:2,url}]},windows:{get:async()=>({focused:false,state:'normal'})},scripting:{executeScript:async()=>{calls.push('read');return [{frameId:0,result:{accountId:'a',actorId:'own'}}];}}};
+  const post=async op=>{calls.push(op);if(op==='offer')return {phase:'read',id:'r1',nonce:'n1',scope:{actorId:'own',accountId:'a'},profile:{}};if(op==='preview')return {phase:'preview',nonce:'n2'};return {};};
+  return createContextReader(browser,async()=>({deviceId:'d',blogId:'own'}),post,popupFocused);
+ };
+ const agent=[];
+ await assert.rejects(make(async()=>false,agent).preview('return_post'),e=>e.stage==='focus'&&/화면에 유지/.test(e.message));
+ assert.deepEqual(agent,['offer','cancel']);
+ const human=[];
+ assert.equal((await make(async id=>id===2,human).preview('return_post')).kind,'return_post');
+ assert.deepEqual(human,['offer','read','preview']);
+});
