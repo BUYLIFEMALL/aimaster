@@ -86,6 +86,21 @@ function pageIdOfRequest(name: string, body: Record<string, unknown>): string {
   return expand(String(body.pageId ?? ""));
 }
 
+/** 2026-11-15 공개 페이지 1단계 후속: 로그인한 다른 회원이 워크스페이스 안 화면으로 남의 게시 페이지를 열 때도
+ *  관리자 내리기·게시한 회원 이용 기간 종료를 똑같이 적용한다. 그 워크스페이스 회원(내 공간)과 게시 아닌 공유(회원 초대)는 원래 규칙 그대로. */
+export async function closedForOutsider(name: string, body: unknown, userId: string, mySpaceIds: Set<string>): Promise<boolean> {
+  if (!PUBLIC_RPCS.has(name) || !userId) return false;
+  const id = pageIdOfRequest(name, (body && typeof body === "object" && !Array.isArray(body) ? body : {}) as Record<string, unknown>);
+  if (!id) return false;
+  const page = getRecord<BlockRecord>("block", id);
+  if (!page || mySpaceIds.has(String(page.space_id ?? ""))) return false;
+  if (!publishedRootOf(id)) return false;
+  // 「공유」로 직접 초대받은 회원은 게시와 상관없이 원래대로 본다
+  const invited = [page, ...blockAncestors(page)].some((b) => (b.permissions ?? []).some((p) => p.type === "user_permission" && (p as { user_id?: string }).user_id === userId && p.role !== "none"));
+  if (invited) return false;
+  return !(await publicPageOpen(id));
+}
+
 const ipHash = (ip: string) => createHash("sha256").update(`aww-public:${ip}`).digest("hex").slice(0, 24);
 
 /** /api/public/<명령> 처리 */

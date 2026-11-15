@@ -433,7 +433,9 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
               className={`nc-share-ga-btn ${model.canManage ? '' : 'disabled'}`}
               onClick={(e) => model.canManage && openInnerMenu(e.currentTarget, {
                 width: 280,
-                sections: [{ items: gaItems.map((g) => ({
+                // 2026-11-15 공개 페이지 1단계 후속: 「링크가 있는 누구나」(게시 아닌 링크 공유)는 서버가 거절하므로 선택지에서 뺀다.
+                // 웹 공개는 「게시」 탭으로만. 이미 그 상태인 옛 페이지는 다른 값으로 바꿀 수 있게 그대로 보여 준다.
+                sections: [{ items: gaItems.filter((g) => g.kind !== 'public' || gaKind === 'public').map((g) => ({
                   label: g.label, icon: g.icon, checked: g.kind === gaKind,
                   disabled: g.kind === 'public' && !model.space.allowPublic,
                   onSelect: () => setGeneral(g.kind, g.kind === 'workspace' ? 'read_and_write' : g.kind === 'public' ? 'reader' : undefined),

@@ -95,6 +95,27 @@ describe('관리자 내리기·이용 기간', () => {
   });
 });
 
+describe('로그인한 다른 회원(워크스페이스 안 화면)', () => {
+  const outsider = { id: 'e6666666-6666-4666-8666-666666666666', email: 'pub-outsider@example.com', name: '다른 회원' };
+  it('게시 페이지는 보이고, 내리면 404(주인은 그대로), 다시 열면 보인다', async () => {
+    await runtime.runRpc('createWorkspace', { name: '다른 팀' }, outsider);
+    expect((await runtime.runRpc('loadPage', { pageId: page }, outsider)).status).toBe(200);
+    pub.adminSetTakedown(page, true, 'admin');
+    expect((await runtime.runRpc('loadPage', { pageId: page }, outsider)).status).toBe(404);
+    expect((await runtime.runRpc('loadPage', { pageId: child }, outsider)).status).toBe(404);
+    expect((await runtime.runRpc('loadPage', { pageId: page }, owner)).status).toBe(200);
+    pub.adminSetTakedown(page, false, 'admin');
+    expect((await runtime.runRpc('loadPage', { pageId: page }, outsider)).status).toBe(200);
+  });
+  it('게시한 회원 이용 기간이 끝나면 다른 회원에게도 닫힌다', async () => {
+    ownerAllowed = false;
+    pub.setPublicOwnerCheckForTests(async () => ownerAllowed);
+    expect((await runtime.runRpc('loadPage', { pageId: page }, outsider)).status).toBe(404);
+    ownerAllowed = true;
+    pub.setPublicOwnerCheckForTests(async () => ownerAllowed);
+  });
+});
+
 describe('신고', () => {
   it('게시 페이지 신고는 관리자 목록에 보이고, 게시 안 한 페이지 신고는 404', async () => {
     expect((await pub.handlePublicRpc('awwReportPublicPage', { pageId: child, reason: '사칭 의심' }, IP)).status).toBe(200);

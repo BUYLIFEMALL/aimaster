@@ -168,6 +168,8 @@ export interface RpcResult {
 }
 
 /** 원본 /api/rpc/:name 과 같은 응답 모양({errorId, name, message})으로 처리한다. */
+const PAGE_READ_RPCS = new Set(['getSite', 'getPublishedPage', 'loadPage', 'loadPageCached']); // publicPages.ts PUBLIC_RPCS와 같게
+
 export async function runRpc(name: string, body: unknown, member: Member, clientId?: string): Promise<RpcResult> {
   init();
   const handler: Handler | undefined = Object.hasOwn(OVERRIDES, name)
@@ -183,6 +185,11 @@ export async function runRpc(name: string, body: unknown, member: Member, client
     const result = await withRequestCache(async () => {
       if (member.resolveName && !getRecord<UserRecord>('lit_user', member.id)) member = { ...member, name: await member.resolveName() };
       ensureMember(member);
+      // 2026-11-15: 남의 게시 페이지를 회원 화면으로 열 때도 관리자 내리기·게시자 이용 기간 종료를 적용(publicPages.ts가 runtime을 불러오므로 여기서는 필요할 때만 동적으로 불러옴)
+      if (PAGE_READ_RPCS.has(name)) {
+        const { closedForOutsider } = await import('./publicPages');
+        if (await closedForOutsider(name, input, member.id, memberSpaceIds(member.id))) throw new ApiError('이 페이지는 지금 볼 수 없습니다(관리자가 공개를 내렸거나 게시한 회원의 이용 기간이 끝났습니다).', 404);
+      }
       if (name === 'applyChanges') {
         const problem = sharingChangeProblem(input, {
           block: (id) => getRecord<BlockRecord>('block', id) as any,
