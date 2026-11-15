@@ -169,7 +169,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 - 맡은 폴더: `blog-neighbor-care/` `ai-auto-blog/` `blog-keyword/` `blog-workroom/` `naver-blog-agent/` `naver-blog-allinone/` `naver-blog-auto-poster_web/` `naver-blog-seo-studio/` `tistory-auto-blog/` `blog-content-maker/`
 - 카테고리: 블로그
 - 주력 업무: 블로그 프로그램 병합·개선·배포. 기준 문서: 루트 「🧭 블로그 작업 최우선 핵심 지침」(웹에서 완성 → 확장 자동 입력 → 회원이 고른 방식 ⓐ 발행 전까지 ⓑ 실제 ⓒ 예약 → 결과 기록, 네이버·티스토리·워드프레스·블로그스팟), `docs/BLOG_FEATURE_MATRIX.md`, `docs/BLOG_CONSOLIDATION_TASKS.md`
-- 마지막 갱신: 2026-11-14 (`claude-win-photo` — 주인님 지정으로 블로그 담당 대행: 이웃 v1.20 답방 409 원인 확정·수정 미배포)
+- 마지막 갱신: 2026-11-15 (`claude-win-photo` — 미배포 대기 4개 배포: 이웃 v1.21 · WP v1.05 · 카페 v1.04 · 티스토리 v1.97, 남은 시험은 전부 맥미니 몫)
 
 ## 담당 제외 — 주인님 지정(2026-10-26)
 
@@ -282,6 +282,7 @@ CLI API는 사용자지정 buylifemall@gmail.com 귀속Claude연결 적극활용
 | `naver-blog-agent` | 개선 후보: 간편 회원용 간편 원고 목록(실패·지난 원고 다시 보내기) · 간편 결과 화면이 확장 상태 변경 뒤 최신 원고 다시 불러오기(지금은 재전송 때 충돌) · 확장 연결 기기 표시(지금 「Chrome」뿐이라 PC·브라우저 구분 불가) · 본문 첫 줄 제목 반복 | 우선순위 결정 | `naver-blog-agent/docs/IMPROVEMENTS.md` |
 
 ## 최근 완료 (최근 10개)
+- 2026-11-15 블로그 미배포 4개 순서 배포(빌드 4회): `blog-neighbor-care` v1.21 · `wp-blogger-auto` v1.05 · `naver-cafe-recruit` v1.04 · `tistory-auto-blog` v1.97(gpt-4.1/4o/4o-mini 교체). 공통 3가지 함께. 화면 검수는 맥미니 B-1~B-4.
 - 2026-11-14 `claude-win-photo`: 이웃 v1.20 답방 글 읽기 실패 = offer·HTTP 409·`BNC_RETURN_POST_REQUIRED`(내 글 탭을 읽어 보냄) 확정 — Vercel·Postgres 로그·운영 DB 읽기. 탭 사전 확인·진단 전달·코드별 문구 `85eedc18b` 미배포 대기, 시험 385 통과.
 - 2026-11-12 「여쭐 것」 오래된 줄 4개 정리 — 요청함에서 이미 닫힌 `668992b9`(Haiku 4.5 검수 비용, 처리됨)·`fe166de3`(이웃 목록 다시 읽기, 처리됨)·`cf22fd7b`(SEO 보안 패치 인수, 필요 없음)와 10월 Codex 시절 Edge 화면 메모. 비용 없음.
 - 2026-11-11 `ebook-studio` v1.15 배포(주인님 요청 대행) — 글 생성 모델 OpenAI→Claude→Gemini 플랫폼별 3개 선택, 회원 본인 키만, AI·키 API 권한 확인 보강, 저장공간 위젯. Claude Haiku 5.5 실제 1회 성공. 옛 Gemini 문구 3곳은 미배포 대기.
