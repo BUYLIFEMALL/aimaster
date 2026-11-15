@@ -38,7 +38,7 @@ export const TRANSITION_SEC = 0.45;
 export const RATIOS = {
   vertical: { label: "세로 9:16 (쇼츠·릴스)", w: 1080, h: 1920 },
   square: { label: "정사각 1:1", w: 1080, h: 1080 },
-  detail: { label: "상세페이지 860px (4:5)", w: 860, h: 1075 },
+  detail: { label: "상세페이지 860px (4:5)", w: 860, h: 1076 }, // H.264는 가로·세로가 짝수여야 한다(1075로 만들면 인코더가 거부 — v1.30 운영 확인),
 } as const;
 export type RatioKey = keyof typeof RATIOS;
 

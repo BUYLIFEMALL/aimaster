@@ -51,13 +51,14 @@ function drawBackdrop(ctx: CanvasRenderingContext2D, W: number, H: number, bmp: 
 }
 function drawText(ctx: CanvasRenderingContext2D, W: number, H: number, text: string, y: number, px: number, t: Text, weightOverride?: string) {
   if (!text.trim()) return;
-  const f = FONTS[t.font]; let size = px;
+  // 작은 글자(설명·브랜드)는 고른 글꼴 대신 노토 산스 700 — 굵은 제목용 글꼴에 억지 굵기를 주면 글자가 뭉개진다(v1.30 운영 확인)
+  const f = weightOverride ? FONTS.noto : FONTS[t.font]; let size = px;
   const font = () => `${weightOverride ?? f.weight} ${size}px ${f.css}`;
   ctx.save(); ctx.font = font();
   while (size > 18 && ctx.measureText(text).width > W * 0.9) { size -= 2; ctx.font = font(); }
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   if (t.shadow) { ctx.shadowColor = "rgba(0,0,0,0.55)"; ctx.shadowBlur = size * 0.25; ctx.shadowOffsetY = size * 0.06; }
-  if (t.outline) { ctx.lineWidth = Math.max(4, size * 0.12); ctx.lineJoin = "round"; ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.strokeText(text, W / 2, y); ctx.shadowColor = "transparent"; }
+  if (t.outline) { ctx.lineWidth = Math.max(3, size * (weightOverride ? 0.08 : 0.12)); ctx.lineJoin = "round"; ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.strokeText(text, W / 2, y); ctx.shadowColor = "transparent"; }
   ctx.fillStyle = t.color; ctx.fillText(text, W / 2, y);
   ctx.restore();
 }

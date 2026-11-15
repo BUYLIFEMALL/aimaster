@@ -61,3 +61,8 @@ test("WebP ffmpeg 인자: 가로 짝수·무한 반복·소리 없음", () => {
   assert.equal(a[a.indexOf("-vf") + 1], "fps=15,scale=918:-2:flags=lanczos");
   assert.equal(a[a.indexOf("-loop") + 1], "0");
 });
+
+test("모든 크기는 H.264가 받는 짝수", async () => {
+  const { RATIOS } = await import("./productVideo.ts");
+  for (const r of Object.values(RATIOS)) { assert.equal(r.w % 2, 0); assert.equal(r.h % 2, 0); }
+});
