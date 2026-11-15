@@ -6,6 +6,9 @@ import { partialCancelAction } from "@/lib/order-actions";
 import PartialCancelForm from "./partial-cancel-form";
 import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
+import { CustomerReturnPanel, StaffReturnPanel } from "@/app/return-panels";
+import { getReturnInfo } from "@/lib/returns-server";
+import { storeReturnFee } from "@/lib/returns";
 import { TAX_INVOICE_LABEL } from "@/lib/taxInvoice";
 import { amendTaxInvoiceAction, issueTaxInvoiceAction, markTaxInvoiceIssuedAction, recheckTaxInvoiceAction } from "@/lib/tax-invoice-actions";
 import { taxInvoiceButtons } from "@/lib/taxInvoice";
@@ -38,6 +41,7 @@ export default async function AdminOrderDetailPage({
   if (!staff) return <NoPermission />;
   await logStaffView(store.id, "order", id);
   const found = await getOrder(store.id, id);
+  const ret = await getReturnInfo(id); // M2-7 반품·환불
   if (!found) notFound();
   const { order, items, events } = found;
   const ref = await getOrderRef(order.id); // M1-5(0072)
@@ -70,9 +74,10 @@ export default async function AdminOrderDetailPage({
 
       <section className="mt-6 rounded-lg border p-4">
         <h3 className="mb-3 text-sm font-semibold">처리</h3>
-        <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="staff" backPath={here} isCard={order.is_card} />
+        <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="staff" backPath={here} isCard={order.is_card} hide={ret.info ? ["returned"] : []} />
         {["confirmed", "cancelled", "returned"].includes(order.status) && <p className="text-sm text-gray-500">끝난 주문입니다.</p>}
       </section>
+      <StaffReturnPanel slug={store.slug} order={order} info={ret.info} account={ret.account} storeFee={storeReturnFee(store.settings)} backPath={here} />
 
       <section className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
         <div className="rounded border p-4">
@@ -109,7 +114,7 @@ export default async function AdminOrderDetailPage({
                   )}
                   {(order.status === "cancelled" || order.status === "returned") &&
                     (card.status === "done" || card.status === "partial_canceled") &&
-                    card.amount > card.canceled_amount && (
+                    card.amount - card.canceled_amount > (order.status === "returned" ? (ret.info?.return_fee ?? 0) : 0) && ( // M2-7 반품비로 남긴 금액은 미환불이 아님
                       <form action={refundRemainingAction.bind(null, store.slug, order.id)} className="mt-2" data-card-refund-remaining>
                         <p className="text-xs text-red-700">끝난 주문인데 환불하지 않은 카드 결제 {formatWon(card.amount - card.canceled_amount)}이 남아 있습니다.</p>
                         <button className="mt-1 min-h-10 rounded border border-red-200 px-4 text-sm text-red-700">남은 결제 금액 환불</button>

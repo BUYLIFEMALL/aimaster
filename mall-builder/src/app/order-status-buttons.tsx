@@ -39,6 +39,7 @@ export default function OrderStatusButtons({
   role,
   backPath,
   isCard = false,
+  hide = [],
 }: {
   slug: string;
   orderId: string;
@@ -47,8 +48,10 @@ export default function OrderStatusButtons({
   backPath: string;
   /** 카드 주문이면 「입금 확인」을 숨긴다 — 결제 완료는 유저 결제창 승인으로만(0029 감시 트리거도 막음) */
   isCard?: boolean;
+  /** M2-7: 전용 칸이 대신하는 버튼(유저 반품 요청·운영사 반품 승인) */
+  hide?: OrderStatus[];
 }) {
-  const actions = nextActions(role, status).filter((a) => !(isCard && status === "pending_payment" && a.to === "paid"));
+  const actions = nextActions(role, status).filter((a) => !(isCard && status === "pending_payment" && a.to === "paid") && !hide.includes(a.to));
   if (!actions.length) return null;
   return (
     <div className="space-y-3" data-status-actions>

@@ -10,6 +10,9 @@ import { requestTaxInvoiceAction } from "@/lib/tax-invoice-actions";
 import { ORDER_STATUS_LABEL, formatDateTime } from "@/lib/orders";
 import { formatWon } from "@/lib/products";
 import OrderStatusButtons from "@/app/order-status-buttons";
+import { CustomerReturnPanel, StaffReturnPanel } from "@/app/return-panels";
+import { getReturnInfo } from "@/lib/returns-server";
+import { storeReturnFee } from "@/lib/returns";
 import { getCardPayment } from "@/lib/card-payments";
 import { CARD_STATUS_LABEL } from "@/lib/payment";
 import { recheckCardAction } from "@/lib/order-actions";
@@ -35,6 +38,7 @@ export default async function OrderDetailPage({
   const user = await requireUser(`/s/${slug}/orders/${id}`);
   const store = await getStoreBySlug(slug);
   const found = await getOrder(store.id, id);
+  const ret = await getReturnInfo(id); // M2-7
   if (!found || found.order.user_id !== user.id) notFound();
   const { order, items, events } = found;
   // D36 입점 상품은 공급사가 따로 보내므로 품목별 송장을 보여 준다
@@ -89,8 +93,10 @@ export default async function OrderDetailPage({
           배송: {order.courier} · 송장 번호 <b>{order.tracking_no}</b>
         </p>
       )}
-      <div className="mt-4">
-        <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="customer" backPath={`${base}/orders/${order.id}`} isCard={order.is_card} />
+      <div className="mt-4 space-y-4">
+        {/* M2-7: 반품 요청은 사유·환불 계좌를 받는 전용 칸으로(0099 전 DB면 예전 버튼) */}
+        <OrderStatusButtons slug={store.slug} orderId={order.id} status={order.status} role="customer" backPath={`${base}/orders/${order.id}`} isCard={order.is_card} hide={ret.info ? ["return_requested"] : []} />
+        <CustomerReturnPanel slug={store.slug} order={order} info={ret.info} account={ret.account} storeFee={storeReturnFee(store.settings)} backPath={`${base}/orders/${order.id}`} />
       </div>
 
       {order.is_card && order.status === "pending_payment" && (

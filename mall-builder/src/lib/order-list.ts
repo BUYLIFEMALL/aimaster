@@ -12,6 +12,7 @@ export type OrderListQuery = {
   from?: string; // YYYY-MM-DD(한국 날짜)
   to?: string;
   noTracking: boolean;
+  refundPending?: boolean; // M2-7 무통장 환불 대기만
   page: number; // 1부터
 };
 
@@ -42,6 +43,7 @@ export function parseOrderListQuery(raw: Raw, statuses: readonly string[]): Orde
     from,
     to,
     noTracking: one(raw.no_tracking) === "1",
+    refundPending: one(raw.refund) === "1",
     page,
   };
 }
@@ -78,6 +80,7 @@ export function orderListHref(base: string, cur: OrderListQuery, patch: Partial<
   if (n.from) sp.set("from", n.from);
   if (n.to) sp.set("to", n.to);
   if (n.noTracking) sp.set("no_tracking", "1");
+  if (n.refundPending) sp.set("refund", "1");
   if (n.page > 1) sp.set("page", String(n.page));
   const s = sp.toString();
   return s ? `${base}?${s}` : base;
@@ -99,6 +102,7 @@ export function applyOrderFilters<Q extends Filterable<Q>>(query: Q, f: OrderLis
   let q = query;
   if (f.status) q = q.eq("status", f.status);
   if (f.noTracking) q = q.in("status", [...NO_TRACKING_STATUSES]).eq("tracking_no", "");
+  if (f.refundPending) q = q.eq("refund_status", "pending");
   if (f.from) q = q.gte("created_at", kstDayStart(f.from));
   if (f.to) q = q.lt("created_at", kstNextDayStart(f.to));
   const search = orderSearchFilter(f.q);

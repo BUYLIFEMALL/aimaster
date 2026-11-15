@@ -24,6 +24,7 @@ export function orderTodoQueries(now: Date): { key: string; label: string; tone:
     { key: "late7", label: "7일 넘게 발송 전", tone: "urgent", query: Q({ noTracking: true, to: kstDaysAgo(now, 7) }) },
     { key: "cancel_requested", label: "취소 요청", tone: "urgent", query: Q({ status: "cancel_requested" }) },
     { key: "return_requested", label: "반품 요청", tone: "urgent", query: Q({ status: "return_requested" }) },
+    { key: "refund_pending", label: "환불 대기(무통장)", tone: "urgent", query: Q({ refundPending: true }) },
   ];
 }
 

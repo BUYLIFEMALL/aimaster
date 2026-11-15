@@ -14,6 +14,8 @@ import GuestForm from "./guest-form";
 import LogoForm from "./logo-form";
 import DomainForm from "./domain-form";
 import PolicyForm from "./policy-form";
+import ReturnFeeForm from "./return-fee-form";
+import { storeReturnFee } from "@/lib/returns";
 import { getStorePolicies } from "@/lib/policies-server";
 import { policyTemplate } from "@/lib/policies";
 import { mallSubdomainUrl } from "@/lib/host";
@@ -194,6 +196,9 @@ export default async function StoreSettingsPage({ params }: { params: Promise<{ 
       <SettingsForm slug={store.slug} name={store.name} info={readBusinessInfo(store.business_info)} />
       <div className="mt-6">
         <PaymentForm slug={store.slug} status={payment} resale={store.kind === "resale"} />
+      </div>
+      <div className="mt-6">
+        <ReturnFeeForm slug={store.slug} fee={storeReturnFee(store.settings)} />
       </div>
       <div className="mt-6">
         <TaxForm slug={store.slug} status={tax} />

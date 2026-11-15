@@ -33,7 +33,7 @@ export default async function AdminOrdersPage({
   const total = Object.values(counts).reduce((s, n) => s + n, 0);
   const base = `/s/${store.slug}/admin/orders`;
   const pages = pageCount(found);
-  const narrowed = Boolean(f.q || f.from || f.to || f.noTracking);
+  const narrowed = Boolean(f.q || f.from || f.to || f.noTracking || f.refundPending);
   const keep = orderListHref("", f, {}).replace(/^\?/, ""); // 일괄 처리 뒤 같은 목록으로
 
   return (
@@ -65,9 +65,12 @@ export default async function AdminOrdersPage({
         <label className="flex items-center gap-1 py-1.5" title="결제 완료·배송 준비·배송 중인데 송장 번호가 없는 주문">
           <input type="checkbox" name="no_tracking" value="1" defaultChecked={f.noTracking} /> 송장 없음
         </label>
+        <label className="flex items-center gap-1 py-1.5" title="취소·반품된 무통장 주문 중 아직 환불하지 않은 것">
+          <input type="checkbox" name="refund" value="1" defaultChecked={f.refundPending} /> 환불 대기
+        </label>
         <button className="rounded bg-gray-900 px-3 py-1.5 text-white">찾기</button>
         {narrowed && (
-          <Link href={orderListHref(base, { ...f, q: "", from: undefined, to: undefined, noTracking: false }, { page: 1 })} className="py-1.5 text-gray-500 underline">
+          <Link href={orderListHref(base, { ...f, q: "", from: undefined, to: undefined, noTracking: false, refundPending: false }, { page: 1 })} className="py-1.5 text-gray-500 underline">
             조건 지우기
           </Link>
         )}
